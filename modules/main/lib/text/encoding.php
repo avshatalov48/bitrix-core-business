@@ -43,6 +43,7 @@ class Encoding
 			'ks_c_5601-1989' => 'euc-kr',
 			'ksc5601' => 'euc-kr',
 			'ksc_5601' => 'euc-kr',
+			'windows-1257' => 'ISO-8859-13',
 		);
 
 		if(is_string($alias))

@@ -402,6 +402,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 		$this->arResult['VARIABLES'] = $arWorkflowVariables;
 		$this->arResult['CONSTANTS'] = $arWorkflowConstants;
 		$this->arResult['GLOBAL_CONSTANTS'] = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll();
+		$this->arResult['GLOBAL_VARIABLES'] = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll();
 
 		/** @var CBPDocumentService $documentService */
 		$documentService = $runtime->getDocumentService();

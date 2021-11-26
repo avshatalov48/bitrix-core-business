@@ -2,15 +2,19 @@
 
 namespace Bitrix\Socialnetwork\Livefeed;
 
+use Bitrix\Forum\Comments\Service\Manager;
 use Bitrix\Forum\ForumTable;
+use Bitrix\Forum\TopicTable;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Forum\MessageTable;
+use Bitrix\Main\UrlPreview\UrlPreview;
 use Bitrix\Main\Web\Json;
 use Bitrix\Socialnetwork\LogCommentTable;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Socialnetwork\CommentAux;
 
 Loc::loadMessages(__FILE__);
 
@@ -41,7 +45,7 @@ final class ForumPost extends Provider
 		];
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return Provider::TYPE_COMMENT;
 	}
@@ -56,9 +60,23 @@ final class ForumPost extends Provider
 		return 'FORUM_MESSAGE';
 	}
 
+	public static function getForumTypeMap(): array
+	{
+		return [
+			'TK' => TasksTask::CONTENT_TYPE_ID,
+			'EV' => CalendarEvent::CONTENT_TYPE_ID,
+			'DEFAULT' => ForumTopic::CONTENT_TYPE_ID,
+			'TM' => TimemanEntry::CONTENT_TYPE_ID,
+			'TR' => TimemanReport::CONTENT_TYPE_ID,
+			'PH' => PhotogalleryPhoto::CONTENT_TYPE_ID,
+			'IBLOCK' => Wiki::CONTENT_TYPE_ID,
+			'WF' => ListsItem::CONTENT_TYPE_ID,
+		];
+	}
+
 	public function initSourceFields(): void
 	{
-		$messageId = (int)$this->entityId;
+		$messageId = $this->entityId;
 
 		if (
 			$messageId <= 0
@@ -72,7 +90,7 @@ final class ForumPost extends Provider
 			'filter' => [
 				'=ID' => $messageId
 			],
-			'select' => [ 'ID', 'POST_MESSAGE', 'SERVICE_TYPE', 'SERVICE_DATA', 'POST_DATE', 'AUTHOR_ID' ]
+			'select' => [ 'ID', 'POST_MESSAGE', 'SERVICE_TYPE', 'SERVICE_DATA', 'POST_DATE', 'AUTHOR_ID', 'TOPIC_ID' ]
 		]);
 		$message = $res->fetch();
 
@@ -147,7 +165,7 @@ final class ForumPost extends Provider
 
 				if(
 					!empty($logComentFields)
-					&& in_array((int)$message['SERVICE_TYPE'], \Bitrix\Forum\Comments\Service\Manager::getTypesList(), true)
+					&& in_array((int)$message['SERVICE_TYPE'], Manager::getTypesList(), true)
 				)
 				{
 					$this->setSourceOriginalText($logComentFields['MESSAGE']);
@@ -175,45 +193,11 @@ final class ForumPost extends Provider
 
 	protected function getAttachedDiskObjects($clone = false)
 	{
-		global $USER_FIELD_MANAGER;
-		static $cache = [];
-
-		$messageId = $this->entityId;
-
-		$result = [];
-		$cacheKey = $messageId.$clone;
-
-		if (isset($cache[$cacheKey]))
-		{
-			$result = $cache[$cacheKey];
-		}
-		else
-		{
-			$messageUF = $USER_FIELD_MANAGER->getUserFields('FORUM_MESSAGE', $messageId, LANGUAGE_ID);
-			if (
-				!empty($messageUF['UF_FORUM_MESSAGE_DOC'])
-				&& !empty($messageUF['UF_FORUM_MESSAGE_DOC']['VALUE'])
-				&& is_array($messageUF['UF_FORUM_MESSAGE_DOC']['VALUE'])
-			)
-			{
-				if ($clone)
-				{
-					$this->attachedDiskObjectsCloned = self::cloneUfValues($messageUF['UF_FORUM_MESSAGE_DOC']['VALUE']);
-					$result = $cache[$cacheKey] = array_values($this->attachedDiskObjectsCloned);
-				}
-				else
-				{
-					$result = $cache[$cacheKey] = $messageUF['UF_FORUM_MESSAGE_DOC']['VALUE'];
-				}
-			}
-		}
-
-		if (!is_array($result))
-		{
-			$result = [];
-		}
-
-		return $result;
+		return $this->getEntityAttachedDiskObjects([
+			'userFieldEntity' => 'FORUM_MESSAGE',
+			'userFieldCode' => 'UF_FORUM_MESSAGE_DOC',
+			'clone' => $clone,
+		]);
 	}
 
 	public static function canRead($params): bool
@@ -256,8 +240,6 @@ final class ForumPost extends Provider
 					$providerTasksTask = new TasksTask();
 					if (in_array((string)$logEntryFields['EVENT_ID'], $providerTasksTask->getEventId(), true))
 					{
-						$provider = $providerTasksTask;
-						$provider->setOption('checkAccess', false);
 						$entityId = (int)$logEntryFields['SOURCE_ID'];
 						if ($logEntryFields['EVENT_ID'] === 'crm_activity_add')
 						{
@@ -274,13 +256,24 @@ final class ForumPost extends Provider
 							{
 								$entityId = (int)$activity['ASSOCIATED_ENTITY_ID'];
 							}
+							else
+							{
+								$entityId = 0;
+							}
 						}
-						$provider->setEntityId($entityId);
-						$provider->setLogId($logId);
-						$provider->initSourceFields();
 
-						$postUrl = $provider->getLiveFeedUrl();
-						$entityUrl = $postUrl.(mb_strpos($postUrl, '?') === false ? '?' : '&').'commentId='.$this->getEntityId().'#com'.$this->getEntityId();
+						if ($entityId > 0)
+						{
+							$provider = $providerTasksTask;
+							$provider->setOption('checkAccess', false);
+
+							$provider->setEntityId($entityId);
+							$provider->setLogId($logId);
+							$provider->initSourceFields();
+
+							$postUrl = $provider->getLiveFeedUrl();
+							$entityUrl = $postUrl.(mb_strpos($postUrl, '?') === false ? '?' : '&').'commentId='.$this->getEntityId().'#com'.$this->getEntityId();
+						}
 					}
 
 					if (!$provider)
@@ -514,12 +507,12 @@ final class ForumPost extends Provider
 			'AUX' => (isset($params['AUX']) && $params['AUX'] === 'Y' ? $params['AUX'] : 'N')
 		];
 
-		if ($message === \Bitrix\Socialnetwork\CommentAux\CreateEntity::getPostText())
+		if ($message === CommentAux\CreateEntity::getPostText())
 		{
-			$forumMessageFields['SERVICE_TYPE'] = \Bitrix\Forum\Comments\Service\Manager::TYPE_ENTITY_CREATED;
+			$forumMessageFields['SERVICE_TYPE'] = Manager::TYPE_ENTITY_CREATED;
 			$forumMessageFields['SERVICE_DATA'] = Json::encode(isset($params['AUX_DATA']) && is_array($params['AUX_DATA']) ? $params['AUX_DATA'] : []);
-			$forumMessageFields['POST_MESSAGE'] = \Bitrix\Forum\Comments\Service\Manager::find([
-				'SERVICE_TYPE' => \Bitrix\Forum\Comments\Service\Manager::TYPE_ENTITY_CREATED
+			$forumMessageFields['POST_MESSAGE'] = Manager::find([
+				'SERVICE_TYPE' => Manager::TYPE_ENTITY_CREATED
 			])->getText($forumMessageFields['SERVICE_DATA']);
 			$params['SHARE_DEST'] = '';
 
@@ -536,7 +529,7 @@ final class ForumPost extends Provider
 				$url = $entityLivefeedPovider->getLiveFeedUrl();
 				if (!empty($url))
 				{
-					$metaData = \Bitrix\Main\UrlPreview\UrlPreview::getMetadataAndHtmlByUrl($url, true, false);
+					$metaData = UrlPreview::getMetadataAndHtmlByUrl($url, true, false);
 
 					if (
 						!empty($metaData)
@@ -545,17 +538,17 @@ final class ForumPost extends Provider
 					)
 					{
 						$signer = new \Bitrix\Main\Security\Sign\Signer();
-						$forumMessageFields['UF_FORUM_MES_URL_PRV'] = $signer->sign($metaData['ID'] . '', \Bitrix\Main\UrlPreview\UrlPreview::SIGN_SALT);
+						$forumMessageFields['UF_FORUM_MES_URL_PRV'] = $signer->sign($metaData['ID'] . '', UrlPreview::SIGN_SALT);
 					}
 				}
 			}
 		}
-		elseif ($message === \Bitrix\Socialnetwork\CommentAux\CreateTask::getPostText())
+		elseif ($message === CommentAux\CreateTask::getPostText())
 		{
-			$forumMessageFields['SERVICE_TYPE'] = \Bitrix\Forum\Comments\Service\Manager::TYPE_TASK_CREATED;
+			$forumMessageFields['SERVICE_TYPE'] = Manager::TYPE_TASK_CREATED;
 			$forumMessageFields['SERVICE_DATA'] = Json::encode(isset($params['AUX_DATA']) && is_array($params['AUX_DATA']) ? $params['AUX_DATA'] : []);
-			$forumMessageFields['POST_MESSAGE'] = \Bitrix\Forum\Comments\Service\Manager::find([
-				'SERVICE_TYPE' => \Bitrix\Forum\Comments\Service\Manager::TYPE_TASK_CREATED
+			$forumMessageFields['POST_MESSAGE'] = Manager::find([
+				'SERVICE_TYPE' => Manager::TYPE_TASK_CREATED
 			])->getText($forumMessageFields['SERVICE_DATA']);
 			$params['SHARE_DEST'] = '';
 		}
@@ -939,70 +932,62 @@ final class ForumPost extends Provider
 		)
 		{
 			$xmlId = $entityId;
-			$type = false;
-
-			switch ($entityType)
-			{
-				case TasksTask::CONTENT_TYPE_ID:
-					$type = 'TK';
-					$xmlId = 'TASK_'.$entityId;
-					break;
-				case CalendarEvent::CONTENT_TYPE_ID:
-					$type = 'EV';
-					$xmlId = 'EVENT_' . $entityId;
-					if (
-						is_array($entityData)
-						&& !empty($entityData['parentId'])
-						&& !empty($entityData['dateFrom'])
-						&& Loader::includeModule('calendar')
-					)
-					{
-						$calendarEntry = \CCalendarEvent::getEventForViewInterface($entityData['parentId'], [
-							'eventDate' => $entityData['dateFrom'],
-							'userId' => $USER->getId(),
-						]);
-
-						if ($calendarEntry)
-						{
-							$xmlId = \CCalendarEvent::getEventCommentXmlId($calendarEntry);
-						}
-					}
-					break;
-				case ForumTopic::CONTENT_TYPE_ID:
-					$type = 'DEFAULT';
-					$xmlId = 'TOPIC_'.$entityId;
-					break;
-				case TimemanEntry::CONTENT_TYPE_ID:
-					$type = 'TM';
-					$xmlId = 'TIMEMAN_ENTRY_'.$entityId;
-					break;
-				case TimemanReport::CONTENT_TYPE_ID:
-					$type = 'TR';
-					$xmlId = 'TIMEMAN_REPORT_'.$entityId;
-					break;
-				case PhotogalleryPhoto::CONTENT_TYPE_ID:
-					$type = 'PH';
-					$xmlId = 'PHOTO_'.$entityId;
-					break;
-				case Wiki::CONTENT_TYPE_ID:
-					$type = 'IBLOCK';
-					$xmlId = 'IBLOCK_'.$entityId;
-					break;
-				case ListsItem::CONTENT_TYPE_ID:
-					$type = 'WF';
-					if (
-						Loader::includeModule('bizproc')
-						&& ($workflowId = \CBPStateService::getWorkflowByIntegerId($entityId))
-					)
-					{
-						$xmlId = 'WF_' . $workflowId;
-					}
-					break;
-				default:
-			}
+			$type = array_search($entityType, \Bitrix\Socialnetwork\Livefeed\ForumPost::getForumTypeMap(), true);
 
 			if ($type)
 			{
+				switch ($entityType)
+				{
+					case TasksTask::CONTENT_TYPE_ID:
+						$xmlId = 'TASK_'.$entityId;
+						break;
+					case CalendarEvent::CONTENT_TYPE_ID:
+						$xmlId = 'EVENT_' . $entityId;
+						if (
+							is_array($entityData)
+							&& !empty($entityData['parentId'])
+							&& !empty($entityData['dateFrom'])
+							&& Loader::includeModule('calendar')
+						)
+						{
+							$calendarEntry = \CCalendarEvent::getEventForViewInterface($entityData['parentId'], [
+								'eventDate' => $entityData['dateFrom'],
+								'userId' => $USER->getId(),
+							]);
+
+							if ($calendarEntry)
+							{
+								$xmlId = \CCalendarEvent::getEventCommentXmlId($calendarEntry);
+							}
+						}
+						break;
+					case ForumTopic::CONTENT_TYPE_ID:
+						$xmlId = 'TOPIC_'.$entityId;
+						break;
+					case TimemanEntry::CONTENT_TYPE_ID:
+						$xmlId = 'TIMEMAN_ENTRY_'.$entityId;
+						break;
+					case TimemanReport::CONTENT_TYPE_ID:
+						$xmlId = 'TIMEMAN_REPORT_'.$entityId;
+						break;
+					case PhotogalleryPhoto::CONTENT_TYPE_ID:
+						$xmlId = 'PHOTO_'.$entityId;
+						break;
+					case Wiki::CONTENT_TYPE_ID:
+						$xmlId = 'IBLOCK_'.$entityId;
+						break;
+					case ListsItem::CONTENT_TYPE_ID:
+						if (
+							Loader::includeModule('bizproc')
+							&& ($workflowId = \CBPStateService::getWorkflowByIntegerId($entityId))
+						)
+						{
+							$xmlId = 'WF_' . $workflowId;
+						}
+						break;
+					default:
+				}
+
 				$result = [
 					'type' => $type,
 					'id' => $entityId,
@@ -1073,7 +1058,7 @@ final class ForumPost extends Provider
 		{
 			$query = MessageTable::query();
 			$query->setSelect([ 'ID', 'POST_MESSAGE', 'SERVICE_DATA', 'SERVICE_TYPE' ]);
-			$query->whereIn('SERVICE_TYPE', \Bitrix\Forum\Comments\Service\Manager::getTypesList());
+			$query->whereIn('SERVICE_TYPE', Manager::getTypesList());
 			$query->registerRuntimeField(
 				new Reference(
 					'LOG_COMMENT', LogCommentTable::class, Join::on('this.ID', 'ref.SOURCE_ID'), [ 'join_type' => 'INNER' ]
@@ -1102,5 +1087,48 @@ final class ForumPost extends Provider
 		}
 
 		return (self::$auxCommentsCache[$messageId] ?? []);
+	}
+
+	public function getParentEntityId(): int
+	{
+		$result = 0;
+
+		$this->initSourceFields();
+		$message = $this->getSourceFields();
+
+		if (
+			empty($message)
+			|| (int)$message['TOPIC_ID'] <= 0
+		)
+		{
+			return $result;
+		}
+
+		$res = TopicTable::getList([
+			'filter' => [
+				'=ID' => (int)$message['TOPIC_ID']
+			],
+			'select' => [ 'XML_ID' ],
+		]);
+		if (
+			($topic = $res->fetch())
+			&& !empty($topic['XML_ID'])
+		)
+		{
+			if (preg_match('/^(TASK|EVENT|TOPIC|TIMEMAN_ENTRY|TIMEMAN_REPORT|PHOTO|IBLOCK)_(\d+)$/i', $topic['XML_ID'], $matches))
+			{
+				$result = (int)$matches[2];
+			}
+			elseif (
+				preg_match('/^(WF)_(.+)$/i', $topic['XML_ID'], $matches)
+				&& Loader::includeModule('bizproc')
+				&& $workflowIntegerId = \CBPStateService::getWorkflowIntegerId($matches[2])
+			)
+			{
+				$result = $workflowIntegerId;
+			}
+		}
+
+		return $result;
 	}
 }

@@ -9,20 +9,20 @@ Loc::loadMessages(__FILE__);
 
 final class BlogComment extends Provider
 {
-	const PROVIDER_ID = 'BLOG_COMMENT';
-	const CONTENT_TYPE_ID = 'BLOG_COMMENT';
+	public const PROVIDER_ID = 'BLOG_COMMENT';
+	public const CONTENT_TYPE_ID = 'BLOG_COMMENT';
 
-	public static function getId()
+	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
 	}
 
-	public function getEventId()
+	public function getEventId(): array
 	{
-		return array('blog_comment', 'blog_comment_micro');
+		return [ 'blog_comment', 'blog_comment_micro' ];
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return Provider::TYPE_COMMENT;
 	}
@@ -83,7 +83,7 @@ final class BlogComment extends Provider
 
 					$this->setSourceTitle(truncateText($title, 100));
 					$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());
-					$this->setSourceDiskObjects(self::getDiskObjects($commentId, $this->cloneDiskObjects));
+					$this->setSourceDiskObjects($this->getDiskObjects($commentId, $this->cloneDiskObjects));
 					$this->setSourceOriginalText($comment['POST_TEXT']);
 					$this->setSourceAuxData($comment);
 				}
@@ -93,43 +93,14 @@ final class BlogComment extends Provider
 
 	protected function getAttachedDiskObjects($clone = false)
 	{
-		global $USER_FIELD_MANAGER;
-		static $cache = array();
-
-		$commentId = $this->entityId;
-
-		$result = array();
-		$cacheKey = $commentId.$clone;
-
-		if (isset($cache[$cacheKey]))
-		{
-			$result = $cache[$cacheKey];
-		}
-		else
-		{
-			$commentUF = $USER_FIELD_MANAGER->getUserFields("BLOG_COMMENT", $commentId, LANGUAGE_ID);
-			if (
-				!empty($commentUF['UF_BLOG_COMMENT_FILE'])
-				&& !empty($commentUF['UF_BLOG_COMMENT_FILE']['VALUE'])
-				&& is_array($commentUF['UF_BLOG_COMMENT_FILE']['VALUE'])
-			)
-			{
-				if ($clone)
-				{
-					$this->attachedDiskObjectsCloned = self::cloneUfValues($commentUF['UF_BLOG_COMMENT_FILE']['VALUE']);
-					$result = $cache[$cacheKey] = array_values($this->attachedDiskObjectsCloned);
-				}
-				else
-				{
-					$result = $cache[$cacheKey] = $commentUF['UF_BLOG_COMMENT_FILE']['VALUE'];
-				}
-			}
-		}
-
-		return $result;
+		return $this->getEntityAttachedDiskObjects([
+			'userFieldEntity' => 'BLOG_COMMENT',
+			'userFieldCode' => 'UF_BLOG_COMMENT_FILE',
+			'clone' => $clone,
+		]);
 	}
 
-	public function getLiveFeedUrl()
+	public function getLiveFeedUrl(): string
 	{
 		$pathToPost = \Bitrix\Socialnetwork\Helper\Path::get('userblogpost_page', $this->getSiteId());
 
@@ -146,7 +117,7 @@ final class BlogComment extends Provider
 		return $pathToPost;
 	}
 
-	public function getSuffix()
+	public function getSuffix(): string
 	{
 		return '2';
 	}

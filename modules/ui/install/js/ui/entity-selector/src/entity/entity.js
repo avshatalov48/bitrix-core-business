@@ -9,6 +9,8 @@ import type { EntityOptions } from './entity-options';
 import type { SearchFieldOptions } from '../search/search-field-options';
 import type { ItemBadgeOptions } from '../item/item-badge-options';
 import type { EntityBadgeOptions } from './entity-badge-options';
+import type { EntityFilterOptions } from "./entity-filter-options";
+import EntityFilter from './entity-filter';
 
 /**
  * @memberof BX.UI.EntitySelector
@@ -25,6 +27,7 @@ export default class Entity
 	dynamicLoad: boolean = false;
 	dynamicSearch: boolean = false;
 	searchCacheLimits: RegExp[] = [];
+	filters: Map<string, EntityFilter> = new Map();
 
 	itemOptions: { [key: string]: any } = {};
 	tagOptions: { [key: string]: any } = {};
@@ -47,6 +50,14 @@ export default class Entity
 		this.itemOptions = Type.isPlainObject(options.itemOptions) ? options.itemOptions : {};
 		this.tagOptions = Type.isPlainObject(options.tagOptions) ? options.tagOptions : {};
 		this.badgeOptions = Type.isArray(options.badgeOptions) ? options.badgeOptions : [];
+
+		if (Type.isArray(options.filters))
+		{
+			options.filters.forEach((filterOptions: EntityFilterOptions) => {
+				this.addFilter(filterOptions);
+			});
+		}
+
 		this.searchFields = new OrderedArray((fieldA: SearchField, fieldB: SearchField) => {
 			if (fieldA.getSort() !== null && fieldB.getSort() === null)
 			{
@@ -360,6 +371,35 @@ export default class Entity
 		}
 	}
 
+	getFilters(): EntityFilter[]
+	{
+		return Array.from(this.filters.values());
+	}
+
+	addFilters(filters: EntityFilterOptions[]): void
+	{
+		if (Type.isArray(filters))
+		{
+			filters.forEach((filterOptions: EntityFilterOptions) => {
+				this.addFilter(filterOptions);
+			});
+		}
+	}
+
+	addFilter(filterOptions: EntityFilterOptions): void
+	{
+		if (Type.isPlainObject(filterOptions))
+		{
+			const filter = new EntityFilter(filterOptions);
+			this.filters.set(filter.getId(), filter);
+		}
+	}
+
+	getFilter(id: string): ?Filter
+	{
+		return this.filters.get(id) || null;
+	}
+
 	toJSON()
 	{
 		return {
@@ -368,6 +408,7 @@ export default class Entity
 			searchable: this.isSearchable(),
 			dynamicLoad: this.hasDynamicLoad(),
 			dynamicSearch: this.hasDynamicSearch(),
+			filters: this.getFilters(),
 		};
 	}
 }

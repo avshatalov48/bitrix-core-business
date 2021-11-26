@@ -1,6 +1,7 @@
 import type { DialogOptions } from '../dialog/dialog-options';
 import type { BaseEvent } from 'main.core.events';
 import type { TagItemOptions } from './tag-item-options';
+import type { AvatarOptions } from '../item/avatar-options';
 
 export type TagSelectorOptions = {
 	id?: string,
@@ -22,6 +23,7 @@ export type TagSelectorOptions = {
 	textBoxAutoHide?: boolean,
 	textBoxWidth?: string | number,
 	tagAvatar?: string,
+	tagAvatarOptions?: AvatarOptions,
 	tagMaxWidth?: number,
 	tagTextColor?: string,
 	tagBgColor?: string,

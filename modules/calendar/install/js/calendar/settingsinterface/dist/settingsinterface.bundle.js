@@ -182,7 +182,7 @@ this.BX = this.BX || {};
 	            BX.Event.bind(this.DOM.emailHelpIcon, 'click', function () {
 	              BX.Helper.show("redirect=detail&code=12070142");
 	            });
-	            BX.UI.Hint.initNode(this.DOM.emailHelpIcon);
+	            calendar_util.Util.initHintNode(this.DOM.emailHelpIcon);
 	          }
 
 	          this.emailSelectorControl.setValue(this.calendarContext.util.getUserOption('sendFromEmail'));
@@ -419,6 +419,9 @@ this.BX = this.BX || {};
 	    value: function initAccessController() {
 	      var _this$calendarContext,
 	          _this$calendarContext2,
+	          _this$calendarContext3,
+	          _this$calendarContext4,
+	          _this$calendarContext5,
 	          _this3 = this;
 
 	      this.DOM.accessWrap = this.DOM.accessOuterWrap.appendChild(main_core.Tag.render(_templateObject(), this.DOM.accessTable = main_core.Tag.render(_templateObject2()), this.DOM.accessButton = main_core.Tag.render(_templateObject3(), main_core.Loc.getMessage('EC_SEC_SLIDER_ACCESS_ADD'))));
@@ -426,10 +429,8 @@ this.BX = this.BX || {};
 	      this.accessControls = {};
 	      this.accessTasks = (_this$calendarContext = this.calendarContext) === null || _this$calendarContext === void 0 ? void 0 : (_this$calendarContext2 = _this$calendarContext.util) === null || _this$calendarContext2 === void 0 ? void 0 : _this$calendarContext2.getTypeAccessTasks();
 
-	      if (this.calendarContext.util.config.accessNames) {
-	        var _this$calendarContext3, _this$calendarContext4, _this$calendarContext5;
-
-	        calendar_util.Util.setAccessNames((_this$calendarContext3 = this.calendarContext) === null || _this$calendarContext3 === void 0 ? void 0 : (_this$calendarContext4 = _this$calendarContext3.util) === null || _this$calendarContext4 === void 0 ? void 0 : (_this$calendarContext5 = _this$calendarContext4.config) === null || _this$calendarContext5 === void 0 ? void 0 : _this$calendarContext5.accessNames);
+	      if ((_this$calendarContext3 = this.calendarContext) === null || _this$calendarContext3 === void 0 ? void 0 : (_this$calendarContext4 = _this$calendarContext3.util) === null || _this$calendarContext4 === void 0 ? void 0 : (_this$calendarContext5 = _this$calendarContext4.config) === null || _this$calendarContext5 === void 0 ? void 0 : _this$calendarContext5.accessNames) {
+	        calendar_util.Util.setAccessNames(this.calendarContext.util.config.accessNames);
 	      }
 
 	      main_core.Event.bind(this.DOM.accessButton, 'click', function () {

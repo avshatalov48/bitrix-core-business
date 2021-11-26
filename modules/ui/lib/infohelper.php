@@ -6,6 +6,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\ModuleManager;
 use Bitrix\ImBot\Bot\Partner24;
+use Bitrix\Bitrix24;
 
 /**
  * Class InfoHelper
@@ -17,7 +18,8 @@ class InfoHelper
 	{
 		return [
 			'frameUrlTemplate' => self::getUrl(),
-			'trialableFeatureList' => self::getTrialableFeatureList()
+			'trialableFeatureList' => self::getTrialableFeatureList(),
+			'demoStatus' => self::getDemoStatus(),
 		];
 	}
 
@@ -62,13 +64,35 @@ class InfoHelper
 	{
 		if (
 			Loader::includeModule('bitrix24')
-			&& method_exists(\Bitrix\Bitrix24\Feature::class, 'getTrialableFeatureList')
+			&& method_exists(Bitrix24\Feature::class, 'getTrialableFeatureList')
 		)
 		{
-			return \Bitrix\Bitrix24\Feature::getTrialableFeatureList();
+			return Bitrix24\Feature::getTrialableFeatureList();
 		}
 
 		return [];
+	}
+
+	private static function getDemoStatus(): string
+	{
+		if (Loader::includeModule('bitrix24'))
+		{
+			if (\CBitrix24::IsDemoLicense())
+			{
+				return 'ACTIVE';
+			}
+
+			if (Bitrix24\Feature::isEditionTrialable('demo'))
+			{
+				return 'AVAILABLE';
+			}
+			else
+			{
+				return 'EXPIRED';
+			}
+		}
+
+		return 'UNKNOWN';
 	}
 
 	private static function getHostName()

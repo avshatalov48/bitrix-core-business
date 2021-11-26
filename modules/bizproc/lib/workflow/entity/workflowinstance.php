@@ -5,6 +5,22 @@ namespace Bitrix\Bizproc\Workflow\Entity;
 use Bitrix\Main;
 use Bitrix\Main\Entity;
 
+/**
+ * Class WorkflowInstanceTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_WorkflowInstance_Query query()
+ * @method static EO_WorkflowInstance_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_WorkflowInstance_Result getById($id)
+ * @method static EO_WorkflowInstance_Result getList(array $parameters = array())
+ * @method static EO_WorkflowInstance_Entity getEntity()
+ * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowInstance createObject($setDefaultValues = true)
+ * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowInstance_Collection createCollection()
+ * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowInstance wakeUpObject($row)
+ * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowInstance_Collection wakeUpCollection($rows)
+ */
 class WorkflowInstanceTable extends Entity\DataManager
 {
 	const LOCKED_TIME_INTERVAL = 300;

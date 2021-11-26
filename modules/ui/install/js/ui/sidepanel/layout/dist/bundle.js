@@ -3,8 +3,18 @@ this.BX.UI = this.BX.UI || {};
 (function (exports,sidepanel,main_core,ui_buttons) {
 	'use strict';
 
-	function _templateObject8() {
+	function _templateObject9() {
 	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\"></div>"]);
+
+	  _templateObject9 = function _templateObject9() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject8() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-sidepanel-layout-footer\"></div>"]);
 
 	  _templateObject8 = function _templateObject8() {
 	    return data;
@@ -14,7 +24,7 @@ this.BX.UI = this.BX.UI || {};
 	}
 
 	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-sidepanel-layout-footer\"></div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-sidepanel-layout-footer-anchor\"></div>"]);
 
 	  _templateObject7 = function _templateObject7() {
 	    return data;
@@ -105,10 +115,6 @@ this.BX.UI = this.BX.UI || {};
 
 	  return options;
 	}
-
-	var _container = new WeakMap();
-
-	var _options = new WeakMap();
 
 	var Layout = /*#__PURE__*/function () {
 	  babelHelpers.createClass(Layout, null, [{
@@ -246,14 +252,15 @@ this.BX.UI = this.BX.UI || {};
 	        var buttonList = babelHelpers.classPrivateFieldGet(this, _options).buttons(defaults);
 
 	        if (buttonList && buttonList.length > 0) {
-	          var footer = main_core.Tag.render(_templateObject7());
+	          container.appendChild(main_core.Tag.render(_templateObject7()));
+	          var footer = main_core.Tag.render(_templateObject8());
 	          var _classes = ['ui-sidepanel-layout-buttons'];
 
 	          if (babelHelpers.classPrivateFieldGet(this, _options).design.alignButtonsLeft) {
 	            _classes.push('ui-sidepanel-layout-buttons-align-left');
 	          }
 
-	          var buttons = main_core.Tag.render(_templateObject8(), _classes.join(' '));
+	          var buttons = main_core.Tag.render(_templateObject9(), _classes.join(' '));
 	          footer.appendChild(buttons);
 	          buttonList.forEach(function (button) {
 	            if (button instanceof ui_buttons.BaseButton) {
@@ -273,6 +280,10 @@ this.BX.UI = this.BX.UI || {};
 	  }]);
 	  return Layout;
 	}();
+
+	var _container = new WeakMap();
+
+	var _options = new WeakMap();
 
 	exports.Layout = Layout;
 

@@ -437,12 +437,12 @@ elseif (($_GET["mode"] == "import") && $ABS_FILE_NAME)
 	{
 		$obCatalog = new CIBlockCMLImport;
 		$obCatalog->InitEx($NS, $importParameters);
-		$obCatalog->freezeIblockCache();
+		CIBlock::disableClearTagCache();
 		$result = $obCatalog->ImportMetaData(array(1,2), $arParams["IBLOCK_TYPE"], $arParams["SITE_LIST"]);
-		$obCatalog->unFreezeIblockCache();
-		$obCatalog->clearIblockCacheOnHit();
+		CIBlock::enableClearTagCache();
 		if ($result === true)
 		{
+			$obCatalog->clearIblockCacheOnHit();
 			$strMessage = GetMessage("CC_BSC1_METADATA_IMPORTED");
 			$NS["STEP"] = 5;
 		}

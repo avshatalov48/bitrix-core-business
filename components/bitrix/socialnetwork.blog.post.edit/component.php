@@ -516,12 +516,15 @@ if(
 			{
 				if (!$arGrat['ID'])
 				{
-					$arGrat['ID'] = htmlspecialcharsbx($arPostFields['UF_GRATITUDE']['VALUE']);
+					$arGrat['ID'] = (int)$arPostFields['UF_GRATITUDE']['VALUE'];
 				}
 
-				if ($arElementProperty['CODE'] === 'USERS')
+				if (
+					$arElementProperty['CODE'] === 'USERS'
+					&& (int)$arElementProperty['VALUE'] > 0
+				)
 				{
-					$arGrat['USERS'][] = htmlspecialcharsbx($arElementProperty['VALUE']);
+					$arGrat['USERS'][] = (int)$arElementProperty['VALUE'];
 				}
 				elseif ($arElementProperty['CODE'] === 'GRATITUDE')
 				{
@@ -532,17 +535,23 @@ if(
 				}
 			}
 
-			if ($arGrat["ID"])
+			if (
+				$arGrat['ID']
+				&& !empty($arGrat['USERS'])
+			)
 			{
 				$dbUsers = CUser::GetList(
-					Array('last_name'=>'asc', 'IS_ONLINE'=>'desc'),
+					[
+						'last_name' => 'asc',
+						'IS_ONLINE' => 'desc'
+					],
 					'',
-					array(
-						"ID" => implode("|", $arGrat["USERS"]),
-						array(
-							"FIELDS" => array("ID", "LAST_NAME", "NAME", "SECOND_NAME", "LOGIN", "PERSONAL_PHOTO", "WORK_POSITION", "PERSONAL_PROFESSION")
-						)
-					)
+					[
+						'ID' => implode('|', $arGrat['USERS']),
+					],
+					[
+						"FIELDS" => [ "ID", "LAST_NAME", "NAME", "SECOND_NAME", "LOGIN", "PERSONAL_PHOTO", "WORK_POSITION", "PERSONAL_PROFESSION" ]
+					]
 				);
 
 				while($arGratUser = $dbUsers->Fetch())
@@ -2169,23 +2178,30 @@ if (
 
 					foreach($_POST["GRAT"]["U"] as $code)
 					{
-						if (preg_match('/^U(\d+)$/', $code, $matches))
+						if (
+							preg_match('/^U(\d+)$/', $code, $matches)
+							&& (int)$matches[1] > 0
+						)
 						{
-							$arUsersFromPOST[] = $matches[1];
+							$arUsersFromPOST[] = (int)$matches[1];
 						}
 					}
 
-					if (count($arUsersFromPOST) > 0)
+					if (!empty($arUsersFromPOST))
 					{
 						$dbUsers = CUser::GetList(
-							Array('last_name'=>'asc', 'IS_ONLINE'=>'desc'),
+							[
+								'last_name' => 'asc',
+								'IS_ONLINE' => 'desc',
+							],
 							'',
-							array(
-								"ID" => implode("|", $arUsersFromPOST),
-								array(
-									"FIELDS" => array("ID", "LAST_NAME", "NAME", "SECOND_NAME", "LOGIN", "PERSONAL_PHOTO", "WORK_POSITION", "PERSONAL_PROFESSION")
-								)
-							)
+							[
+								'ID' => implode('|', $arUsersFromPOST),
+							],
+							[
+								'FIELDS' => [ "ID", "LAST_NAME", "NAME", "SECOND_NAME", "LOGIN", "PERSONAL_PHOTO", "WORK_POSITION", "PERSONAL_PROFESSION" ]
+							]
+
 						);
 						while($arGratUser = $dbUsers->Fetch())
 						{

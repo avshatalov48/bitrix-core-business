@@ -852,21 +852,28 @@ class Manager
 	/**
 	 * Deletes delivery service
 	 * @param int $id
+	 * @param bool $checkServiceUsage
 	 * @return \Bitrix\Main\Result
 	 * @throws ArgumentNullException
 	 * @throws SystemException
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Exception
 	 */
-	public static function delete($id)
+	public static function delete($id, bool $checkServiceUsage = true)
 	{
-		if(intval($id) <= 0)
+		if ((int)$id <= 0)
+		{
 			throw new ArgumentNullException('id');
+		}
 
-		$res = self::checkServiceUsage($id);
-
-		if(!$res->isSuccess())
-			return $res;
+		if ($checkServiceUsage)
+		{
+			$res = self::checkServiceUsage($id);
+			if (!$res->isSuccess())
+			{
+				return $res;
+			}
+		}
 
 		self::initHandlers();
 
@@ -880,7 +887,7 @@ class Manager
 		$className = '';
 		$logotip = 0;
 
-		if($service = $res->fetch())
+		if ($service = $res->fetch())
 		{
 			$className = $service['CLASS_NAME'];
 			$logotip = intval($service['LOGOTIP']);
@@ -888,15 +895,19 @@ class Manager
 
 		$res = \Bitrix\Sale\Delivery\Services\Table::delete($id);
 
-		if($res->isSuccess())
+		if ($res->isSuccess())
 		{
-			if(!empty($className) && class_exists($className))
+			if (!empty($className) && class_exists($className))
+			{
 				$className::onAfterDelete($id);
+			}
 
-			self::deleteRelatedEntities($id);
+			self::deleteRelatedEntities($id, $checkServiceUsage);
 
-			if($logotip > 0)
+			if ($logotip > 0)
+			{
 				\CFile::Delete($logotip);
+			}
 		}
 
 		return $res;
@@ -1159,12 +1170,13 @@ class Manager
 	/**
 	 * Deletes related entities
 	 * @param int $deliveryId
+	 * @param bool $checkServiceUsage
 	 * @return bool
 	 * @throws ArgumentNullException
 	 * @throws \Bitrix\Main\ArgumentException
 	 * todo: restrictions, extra_services - can require some actions after deletion
 	 */
-	protected static function deleteRelatedEntities($deliveryId)
+	protected static function deleteRelatedEntities($deliveryId, bool $checkServiceUsage = true)
 	{
 		$con = \Bitrix\Main\Application::getConnection();
 		$deliveryId = (int)$deliveryId;
@@ -1186,8 +1198,10 @@ class Manager
 			'select' => array("ID")
 		));
 
-		while($child = $dbRes->fetch())
-			self::delete($child["ID"]);
+		while ($child = $dbRes->fetch())
+		{
+			self::delete($child["ID"], $checkServiceUsage);
+		}
 
 		self::cleanIdCodeCached($deliveryId);
 		return true;

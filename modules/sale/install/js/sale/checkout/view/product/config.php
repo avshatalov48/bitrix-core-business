@@ -9,9 +9,10 @@ return [
 	'js' => 'dist/registry.bundle.js',
 	'rel' => [
 		'main.polyfill.core',
-		'sale.checkout.view.element.animate-price',
-		'sale.checkout.view.mixins',
+		'sale.checkout.view.element.input',
 		'currency.currency-core',
+		'sale.checkout.view.mixins',
+		'sale.checkout.view.element.animate-price',
 		'sale.checkout.view.element.button',
 		'ui.vue',
 		'catalog.sku-tree',

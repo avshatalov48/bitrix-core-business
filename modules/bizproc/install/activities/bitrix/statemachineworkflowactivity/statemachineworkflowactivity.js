@@ -297,6 +297,25 @@ StateMachineWorkflowActivity = function()
 		ob.Draw(ob.statediv);
 	};
 
+	ob.ReplaceChild = function (act1, act2)
+	{
+		var index1 = ob.childActivities.indexOf(act1);
+		var index2 = ob.childActivities.indexOf(act2);
+
+		if (index1 < 0 || index2 < 0)
+		{
+			return;
+		}
+
+		ob.childActivities[index1] = act2;
+		ob.childActivities[index2] = act1;
+
+		BPTemplateIsModified = true;
+		ob.RemoveResources();
+		ob.Draw(ob.statediv);
+	};
+
+
 	ob.RemoveResourcesActivity = ob.RemoveResources;
 	ob.RemoveResources = function ()
 	{

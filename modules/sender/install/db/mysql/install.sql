@@ -56,6 +56,8 @@ CREATE TABLE b_sender_group
   UNIQUE UK_SENDER_GROUP_CODE (CODE),
   PRIMARY KEY (ID)
 );
+create index IX_SENDER_GROUP_STATUS on b_sender_group (STATUS);
+
 CREATE TABLE b_sender_group_connector
 (
   GROUP_ID int(11) NOT NULL,
@@ -397,7 +399,7 @@ CREATE TABLE `b_sender_message_utm`
 		CONSTRAINT `IX_SENDER_MESSAGE_UTM_MESSAGE_ID_CODE` UNIQUE
 			(`MESSAGE_ID`, `CODE`)
 	);
-
+create index `IX_SENDER_MESSAGE_UTM_CODE` on `b_sender_message_utm` (`CODE`);
 
 create table b_sender_timeline_queue
 (

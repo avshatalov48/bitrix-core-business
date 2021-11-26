@@ -693,7 +693,8 @@
 				mode: 'ajax',
 				data: {
 					entityType: params.entityType,
-					categoryId: params.categoryId
+					categoryId: params.categoryId,
+					allowSearchSelf: params.allowSearchSelf,
 				}
 			}).then(function (response) {
 				if (

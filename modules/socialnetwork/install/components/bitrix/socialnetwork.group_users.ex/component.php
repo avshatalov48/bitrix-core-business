@@ -1,5 +1,15 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
+use Bitrix\Socialnetwork\Helper\Path;
+
 /** @var SocialnetworkGroupUsersEx $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -11,9 +21,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @global CMain $APPLICATION */
 /** @global CCacheManager $CACHE_MANAGER */
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
-global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
-use Bitrix\Main\Localization\Loc;
+global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
 if (!CModule::IncludeModule("socialnetwork"))
 {
@@ -70,7 +79,7 @@ if (empty($arParams["PATH_TO_GROUP_INVITE"]))
 $arParams["PATH_TO_CONPANY_DEPARTMENT"] = trim($arParams["PATH_TO_CONPANY_DEPARTMENT"]);
 if ($arParams["PATH_TO_CONPANY_DEPARTMENT"] == '')
 {
-	$arParams["PATH_TO_CONPANY_DEPARTMENT"] = \Bitrix\Main\Config\Option::get('main', 'TOOLTIP_PATH_TO_CONPANY_DEPARTMENT', SITE_DIR."company/structure.php?set_filter_structure=Y&structure_UF_DEPARTMENT=#ID#");
+	$arParams["PATH_TO_CONPANY_DEPARTMENT"] = Path::get('department_path_template');
 }
 
 $arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
@@ -83,31 +92,31 @@ $arParams["THUMBNAIL_LIST_SIZE"] = intval($arParams["THUMBNAIL_LIST_SIZE"]);
 if ($arParams["THUMBNAIL_LIST_SIZE"] <= 0)
 	$arParams["THUMBNAIL_LIST_SIZE"] = 42;
 
-$arParams['NAME_TEMPLATE'] = $arParams['NAME_TEMPLATE'] ? $arParams['NAME_TEMPLATE'] : GetMessage("SONET_GUE_NAME_TEMPLATE_DEFAULT");
+$arParams['NAME_TEMPLATE'] = $arParams['NAME_TEMPLATE'] ?: GetMessage("SONET_GUE_NAME_TEMPLATE_DEFAULT");
 $arParams["NAME_TEMPLATE_WO_NOBR"] = str_replace(
-	array("#NOBR#", "#/NOBR#"), 
-	array("", ""), 
+	array("#NOBR#", "#/NOBR#"),
+	array("", ""),
 	$arParams["NAME_TEMPLATE"]
 );
 
-$arResult["bIntranetInstalled"] = \Bitrix\Main\ModuleManager::isModuleInstalled('intranet');
-$arResult["bIntranetIncluded"] = ($arResult["bIntranetInstalled"] && \Bitrix\Main\Loader::includeModule('intranet'));
+$arResult["bIntranetInstalled"] = ModuleManager::isModuleInstalled('intranet');
+$arResult["bIntranetIncluded"] = ($arResult["bIntranetInstalled"] && Loader::includeModule('intranet'));
 
 $arGroup = CSocNetGroup::GetByID($arParams["GROUP_ID"]);
 
 if ($arGroup["CLOSED"] == "Y" && COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") != "Y")
 	$arResult["HideArchiveLinks"] = true;
 
-$arParams["GROUP_USE_BAN"] = 
-		$arParams["GROUP_USE_BAN"] != "N" 
+$arParams["GROUP_USE_BAN"] =
+		$arParams["GROUP_USE_BAN"] != "N"
 		&& (!CModule::IncludeModule('extranet') || (!CExtranet::IsExtranetSite() && !$arResult["HideArchiveLinks"]))
-	? "Y" 
+	? "Y"
 	: "N";
 
 if (
-	!$arGroup 
-	|| !is_array($arGroup) 
-	|| $arGroup["ACTIVE"] != "Y" 
+	!$arGroup
+	|| !is_array($arGroup)
+	|| $arGroup["ACTIVE"] != "Y"
 )
 {
 	$arResult["FatalError"] = GetMessage("SONET_P_USER_NO_GROUP").". ";
@@ -203,4 +212,3 @@ $group = Bitrix\Socialnetwork\Item\Workgroup::getById($arResult['Group']['ID']);
 $arResult['isScrumProject'] = $group && $group->isScrumProject();
 
 $this->IncludeComponentTemplate();
-?>

@@ -14,6 +14,7 @@ It is recommended that you mark as high priority only the really important messa
 Don't abuse this status because there cannot be too many messages of high importance.";
 $MESS["SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_PRIORITY_LOWEST"] = "Low";
 $MESS["SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_PRIORITY_NORMAL"] = "Normal";
+$MESS["SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_SENDING_START"] = "If you use this option with an empty template, make sure to add to the message body the text you see in the block below. Add the \"Footer\" block to the existing templates - it contains all the required parameters.";
 $MESS["SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_SUBJECT"] = "Subject";
 $MESS["SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_TRACK_MAIL"] = "Track email reads";
 $MESS["SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_TRACK_MAIL_HINT"] = "Know which customer actually opened your newsletter message to initiate further steps to conclude a deal. This feature uses the \"hidden pixel\" technology.\r\nInportant! You local law requires recipient consent before you can start sending emails that use this technology. Customers will receive an email asking them to give their consent to receive newsletters containing the hidden pixel. Tracking will be activated only for the customers who have given their consent. You can use one of the canned consent texts, or use your own consent.";

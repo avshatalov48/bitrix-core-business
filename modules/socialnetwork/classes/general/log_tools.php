@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main\Text\Emoji;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Socialnetwork\Helper\Mention;
 use Bitrix\Main\ModuleManager;
@@ -2437,7 +2438,17 @@ class CSocNetLogTools
 						"ACTIVE" => "Y"
 					)
 				);
-				$arGroup = $rsGroup->GetNext();
+				if ($arGroup = $rsGroup->GetNext())
+				{
+					if (!empty($arGroup['NAME']))
+					{
+						$arGroup['NAME'] = Emoji::decode($arGroup['NAME']);
+					}
+					if (!empty($arGroup['DESCRIPTION']))
+					{
+						$arGroup['DESCRIPTION'] = Emoji::decode($arGroup['DESCRIPTION']);
+					}
+                }
 			}
 
 			if ($arGroup)
@@ -6947,8 +6958,8 @@ class CSocNetLogComponent
 
 		$logSourceId = (
 			isset($arParams["SOURCE_ID"])
-			&& intval($arParams["SOURCE_ID"]) > 0
-				? intval($arParams["SOURCE_ID"])
+			&& (int)$arParams["SOURCE_ID"] > 0
+				? (int)$arParams["SOURCE_ID"]
 				: false
 		);
 
@@ -7215,7 +7226,7 @@ class CSocNetLogComponent
 
 			if ($arRes = $dbRes->Fetch())
 			{
-				$arRes['MESSAGE'] = \Bitrix\Main\Text\Emoji::decode($arRes['MESSAGE']);
+				$arRes['MESSAGE'] = Emoji::decode($arRes['MESSAGE']);
 
 				if ($checkPerms)
 				{

@@ -1,4 +1,5 @@
 import type { TextNodeOptions } from '../common/text-node-options';
+import type { AvatarOptions } from '../item/avatar-options';
 
 export type TagItemOptions = {
 	id: string,
@@ -6,6 +7,7 @@ export type TagItemOptions = {
 	entityType?: string,
 	title?: string | TextNodeOptions,
 	avatar?: string,
+	avatarOptions?: AvatarOptions,
 	textColor?: string,
 	bgColor?: string,
 	fontWeight?: string,

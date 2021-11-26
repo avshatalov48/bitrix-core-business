@@ -16,6 +16,22 @@ use \Bitrix\Main\ORM\Data\UpdateResult;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class FilterTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Filter_Query query()
+ * @method static EO_Filter_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Filter_Result getById($id)
+ * @method static EO_Filter_Result getList(array $parameters = array())
+ * @method static EO_Filter_Entity getEntity()
+ * @method static \Bitrix\Forum\BadWords\EO_Filter createObject($setDefaultValues = true)
+ * @method static \Bitrix\Forum\BadWords\EO_Filter_Collection createCollection()
+ * @method static \Bitrix\Forum\BadWords\EO_Filter wakeUpObject($row)
+ * @method static \Bitrix\Forum\BadWords\EO_Filter_Collection wakeUpCollection($rows)
+ */
 class FilterTable extends \Bitrix\Main\Entity\DataManager
 {
 	private static $dataById = [];

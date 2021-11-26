@@ -4,7 +4,7 @@ if (!function_exists("__wd_check_uf_use_bp_property"))
 {
 	function __wd_check_uf_use_bp_property($iblock_id)
 	{
-		$iblock_id = intval($iblock_id); 
+		$iblock_id = intval($iblock_id);
 		$db_res = CUserTypeEntity::GetList(array($by=>$order), array("ENTITY_ID" => "IBLOCK_".$iblock_id."_SECTION", "FIELD_NAME" => "UF_USE_BP"));
 		if (!$db_res || !($res = $db_res->GetNext()))
 		{
@@ -13,14 +13,14 @@ if (!function_exists("__wd_check_uf_use_bp_property"))
 				"FIELD_NAME" => "UF_USE_BP",
 				"USER_TYPE_ID" => "string",
 				"MULTIPLE" => "N",
-				"MANDATORY" => "N", 
+				"MANDATORY" => "N",
 				"SETTINGS" => array("DEFAULT_VALUE" => "Y"));
 			$arFieldName = array();
 			$rsLanguage = CLanguage::GetList();
 			while($arLanguage = $rsLanguage->Fetch()):
 				$dir = str_replace(array("\\", "//"), "/", dirname(__FILE__));
-				$dirs = explode("/", $dir); 
-				array_pop($dirs); 
+				$dirs = explode("/", $dir);
+				array_pop($dirs);
 				$file = trim(implode("/", $dirs)."/lang/".$arLanguage["LID"]."/include/webdav_settings.php");
 				$tmp_mess = __IncludeLang($file, true);
 				$arFieldName[$arLanguage["LID"]] = (empty($tmp_mess["SONET_UF_USE_BP"]) ? "Use Business Process" : $tmp_mess["SONET_UF_USE_BP"]);
@@ -45,13 +45,13 @@ if (!function_exists("__wd_get_root_section"))
 		}
 		else // create new
 		{
-			__wd_check_uf_use_bp_property($arParams["IBLOCK_ID"]); 
-			
+			__wd_check_uf_use_bp_property($arParams["IBLOCK_ID"]);
+
 			$arFields = Array(
 				"IBLOCK_ID" => $IBLOCK_ID,
 				"ACTIVE" => "Y",
 				"SOCNET_GROUP_ID" => false,
-				"IBLOCK_SECTION_ID" => 0, 
+				"IBLOCK_SECTION_ID" => 0,
 				"UF_USE_BP" => "N"
 			);
 
@@ -72,7 +72,7 @@ if (!function_exists("__wd_get_root_section"))
 					);
 				}
 			}
-			else 
+			else
 			{
 				$arFields["SOCNET_GROUP_ID"] = $object_id;
 
@@ -88,7 +88,7 @@ if (!function_exists("__wd_get_root_section"))
 
 				if ($arGroup = $dbGroup->Fetch())
 				{
-					$arFields["NAME"] = GetMessage("SONET_GROUP_PREFIX").$arGroup["NAME"];
+					$arFields["NAME"] = GetMessage("SONET_GROUP_PREFIX") . \Bitrix\Main\Text\Emoji::decode($arGroup['NAME']);
 				}
 
 				if (CIBlock::GetArrayByID($IBLOCK_ID, "RIGHTS_MODE") === "E")
@@ -119,14 +119,14 @@ if (!function_exists("__wd_get_root_section"))
 			}
 
 			WDClearComponentCache(array(
-				"webdav.element.edit", 
-				"webdav.element.hist", 
-				"webdav.element.upload", 
-				"webdav.element.view", 
+				"webdav.element.edit",
+				"webdav.element.hist",
+				"webdav.element.upload",
+				"webdav.element.view",
 				"webdav.menu",
-				"webdav.section.edit", 
+				"webdav.section.edit",
 				"webdav.section.list"));
-			
+
 			return true;
 		}
 	}
@@ -138,16 +138,16 @@ if (defined("WEBDAV_SETTINGS_LIMIT_INCLUDE"))
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/interface/admin_lib.php");
 
-$dir = str_replace(array("\\", "//"), "/", dirname(__FILE__)); 
-$dirs = explode("/", $dir); 
-array_pop($dirs); 
+$dir = str_replace(array("\\", "//"), "/", dirname(__FILE__));
+$dirs = explode("/", $dir);
+array_pop($dirs);
 $file = trim(implode("/", $dirs)."/lang/".LANGUAGE_ID."/include/webdav_settings.php");
 __IncludeLang($file);
-$documentType = explode("_", $_REQUEST["DOCUMENT_ID"]); 
+$documentType = explode("_", $_REQUEST["DOCUMENT_ID"]);
 $arParams = array();
-$arParams["IBLOCK_ID"] = $IBLOCK_ID = intval($documentType[1]); 
-$object = trim($documentType[2]); 
-$object_id = intval($documentType[3]); 
+$arParams["IBLOCK_ID"] = $IBLOCK_ID = intval($documentType[1]);
+$object = trim($documentType[2]);
+$object_id = intval($documentType[3]);
 
 $popupWindow = new CJSPopup('', '');
 
@@ -161,14 +161,14 @@ elseif ($object_id <= 0 && ($object != "user" && $object != "group"))
 	$popupWindow->ShowError(GetMessage("SONET_GROUP_NOT_EXISTS"));
 
 $res = CIBlockWebdavSocnet::GetUserMaxPermission(
-	$object, 
-	$object_id, 
-	$USER->GetID(), 
+	$object,
+	$object_id,
+	$USER->GetID(),
 	$IBLOCK_ID);
 $arParams["PERMISSION"] = $res["PERMISSION"];
 $arParams["CHECK_CREATOR"] = $res["CHECK_CREATOR"];
 if (
-	$arParams["PERMISSION"] < "W" 
+	$arParams["PERMISSION"] < "W"
 	|| $arParams["CHECK_CREATOR"] == "Y"
 )
 {
@@ -188,7 +188,7 @@ $arLibrary = array();
 $db_res = CIBlockSection::GetList(array(), $arFilter, false, array("ID", "UF_USE_BP", 'UF_USE_EXT_SERVICES'));
 if (!($db_res && $arLibrary = $db_res->GetNext()))
 {
-	$popupWindow->ShowError(GetMessage("SONET_WEBDAV_NOT_EXISTS")); 
+	$popupWindow->ShowError(GetMessage("SONET_WEBDAV_NOT_EXISTS"));
 }
 else
 {
@@ -238,13 +238,13 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST")
 
 	include($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/components/bitrix/webdav.iblock.rights/action.php");
 
-	$_REQUEST["UF_USE_BP"] = ($_REQUEST["UF_USE_BP"] == "Y" ? "Y" : "N"); 
+	$_REQUEST["UF_USE_BP"] = ($_REQUEST["UF_USE_BP"] == "Y" ? "Y" : "N");
 	$_REQUEST["UF_USE_EXT_SERVICES"] = CWebDavIblock::resolveDefaultUseExtServices($_REQUEST["UF_USE_EXT_SERVICES"]);
 	if ($_REQUEST["UF_USE_BP"] != $arLibrary["UF_USE_BP"] || $_REQUEST["UF_USE_EXT_SERVICES"] != $arLibrary['UF_USE_EXT_SERVICES'])
 	{
 		if (!isset($arLibrary["~UF_USE_BP"]))
 		{
-			__wd_check_uf_use_bp_property($arParams["IBLOCK_ID"]); 
+			__wd_check_uf_use_bp_property($arParams["IBLOCK_ID"]);
 		}
 		if(!isset($arLibrary["~UF_USE_EXT_SERVICES"]))
 		{
@@ -257,7 +257,7 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST")
 		);
 		$GLOBALS["UF_USE_BP"] = $arFields["UF_USE_BP"];
 		$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("IBLOCK_".$arParams["IBLOCK_ID"]."_SECTION", $arFields);
-		$bs = new CIBlockSection(); 
+		$bs = new CIBlockSection();
 		$res = $bs->Update($arLibrary["ID"], $arFields);
 	}
 

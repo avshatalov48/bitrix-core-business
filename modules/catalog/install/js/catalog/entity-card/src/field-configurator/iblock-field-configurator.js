@@ -321,6 +321,7 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 			|| this._field instanceof BX.UI.EntityEditorMultiNumber
 			|| this._field instanceof BX.UI.EntityEditorMultiList
 			|| this._field instanceof BX.UI.EntityEditorMultiDatetime
+			|| this._field instanceof BX.UI.EntityEditorMultiMoney
 			|| (this._field instanceof BX.UI.EntityEditorCustom && this._field.getSchemeElement()._settings.multiple)
 		)
 		{

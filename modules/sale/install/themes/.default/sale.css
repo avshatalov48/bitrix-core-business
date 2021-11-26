@@ -3425,14 +3425,27 @@ td.bdb-line { border-bottom: 1px solid #c9d0d1; }
 	margin-left: 3px;
 }
 
-tr.adm-s-delivery-restriction-delcat a.adm-s-bus-morelinkqhsw {
+a.adm-s-restriction-open-dialog-link {
+	color: #113c7d !important;
+	text-decoration: none !important;
+	border-bottom: 1px dashed #113c7d;
+	font-weight: bold !important;
+}
+
+tr.adm-s-product-category-restriction-delcat a.adm-s-bus-morelinkqhsw,
+tr.adm-s-concrete-product-restriction-delprod a.adm-s-bus-morelinkqhsw,
+tr.adm-s-delivery-restriction-delcat a.adm-s-bus-morelinkqhsw
+{
 	display: none;
 	color: #808080;
 	text-decoration: none;
 	border-bottom: 1px dashed #808080;
 }
 
-tr.adm-s-delivery-restriction-delcat:hover a.adm-s-bus-morelinkqhsw {
+tr.adm-s-product-category-restriction-delcat:hover a.adm-s-bus-morelinkqhsw,
+tr.adm-s-concrete-product-restriction-delprod:hover a.adm-s-bus-morelinkqhsw,
+tr.adm-s-delivery-restriction-delcat:hover a.adm-s-bus-morelinkqhsw
+{
 	display: inline-block;
 	color: #808080;
 	text-decoration: none;

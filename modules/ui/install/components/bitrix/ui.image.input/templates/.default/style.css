@@ -235,3 +235,7 @@ input.adm-fileinput-drag-area-input {
 .ui-image-input-wrapper-multiple .ui-image-item-shadow:after {
 	content: '';
 }
+
+.ui-image-input-wrapper .adm-fileinput-area.mode-with-description div.adm-fileinput-item input.adm-fileinput-item-description {
+	display: none;
+}

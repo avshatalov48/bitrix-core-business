@@ -38,6 +38,8 @@ final class Manager
 	const HANDLER_INDEPENDENT_FALSE = false;
 
 	const EVENT_ON_GET_HANDLER_DESC = 'OnSaleGetHandlerDescription';
+	const EVENT_ON_PAYSYSTEM_UPDATE = 'OnSalePaySystemUpdate';
+
 	const CACHE_ID = "BITRIX_SALE_INNER_PS_ID";
 	const TTL = 31536000;
 	/**
@@ -119,7 +121,21 @@ final class Manager
 	 */
 	public static function update($primary, array $data): \Bitrix\Main\ORM\Data\UpdateResult
 	{
-		return PaySystemActionTable::update($primary, $data);
+		$oldFields = PaySystemActionTable::getByPrimary($primary)->fetch();
+		$updateResult = PaySystemActionTable::update($primary, $data);
+		if ($updateResult->isSuccess())
+		{
+			$oldFields = array_intersect_key($oldFields, $data);
+			$eventParams = [
+				'PAY_SYSTEM_ID' => $primary,
+				'OLD_FIELDS' => $oldFields,
+				'NEW_FIELDS' => $data,
+			];
+			$event = new Event('sale', self::EVENT_ON_PAYSYSTEM_UPDATE, $eventParams);
+			$event->send();
+		}
+
+		return $updateResult;
 	}
 
 	/**
@@ -902,8 +918,20 @@ final class Manager
 	 */
 	public static function isRestHandler($handler)
 	{
-		$dbRes = PaySystemRestHandlersTable::getList(array('filter' => array('CODE' => $handler)));
-		return (bool)$dbRes->fetch();
+		static $result = [];
+
+		if (isset($result[$handler]))
+		{
+			return $result[$handler];
+		}
+
+		$handlerData = PaySystemRestHandlersTable::getList([
+			'filter' => ['CODE' => $handler],
+			'limit' => 1,
+		])->fetch();
+		$result[$handler] = (bool)$handlerData;
+
+		return $result[$handler] ?? false;
 	}
 
 	/**

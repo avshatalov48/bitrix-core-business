@@ -12,6 +12,7 @@ use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\SiteTable;
 use Bitrix\Main\Type;
 use Bitrix\Sender\Entity\Letter;
@@ -446,14 +447,37 @@ class MailingChainTable extends Entity\DataManager
 
 		foreach($deleteIdList as $chainId)
 		{
-			MailingAttachmentTable::delete(array('CHAIN_ID' => $chainId));
-			MailingTriggerTable::delete(array('MAILING_CHAIN_ID' => $chainId));
-			PostingTable::delete(array('MAILING_CHAIN_ID' => $chainId));
+			MailingAttachmentTable::deleteList(array('CHAIN_ID' => $chainId));
+			MailingTriggerTable::deleteList(array('MAILING_CHAIN_ID' => $chainId));
+			PostingTable::deleteList(array('MAILING_CHAIN_ID' => $chainId));
 		}
 
 		return $result;
 	}
 
+	/**
+	 * @param array $filter
+	 * @return \Bitrix\Main\DB\Result
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\DB\SqlQueryException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function deleteList(array $filter)
+	{
+		$entity = static::getEntity();
+		$connection = $entity->getConnection();
+
+		\CTimeZone::disable();
+		$sql = sprintf(
+			'DELETE FROM %s WHERE %s',
+			$connection->getSqlHelper()->quote($entity->getDbTableName()),
+			Query::buildFilterSql($entity, $filter)
+		);
+		$res = $connection->query($sql);
+		\CTimeZone::enable();
+
+		return $res;
+	}
 	/**
 	 * @param Entity\Event $event
 	 * @return void
@@ -808,4 +832,27 @@ class MailingAttachmentTable extends Entity\DataManager
 		);
 	}
 
+	/**
+	 * @param array $filter
+	 * @return \Bitrix\Main\DB\Result
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\DB\SqlQueryException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function deleteList(array $filter)
+	{
+		$entity = static::getEntity();
+		$connection = $entity->getConnection();
+
+		\CTimeZone::disable();
+		$sql = sprintf(
+			'DELETE FROM %s WHERE %s',
+			$connection->getSqlHelper()->quote($entity->getDbTableName()),
+			Query::buildFilterSql($entity, $filter)
+		);
+		$res = $connection->query($sql);
+		\CTimeZone::enable();
+
+		return $res;
+	}
 }

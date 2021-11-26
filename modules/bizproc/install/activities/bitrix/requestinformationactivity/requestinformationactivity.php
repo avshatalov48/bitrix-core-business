@@ -402,11 +402,7 @@ class CBPRequestInformationActivity
 
 		if (!array_key_exists("ShowComment", $arTask["PARAMETERS"]) || ($arTask["PARAMETERS"]["ShowComment"] != "N"))
 		{
-			$required = '';
-			if (isset($arTask['PARAMETERS']['CommentRequired']) && $arTask['PARAMETERS']['CommentRequired'] == 'Y')
-			{
-				$required = '<span style="color: red">*</span>';
-			}
+			$required = static::getCommentRequiredStar($arTask);
 
 			$commentText = $arRequest ? $arRequest['task_comment'] : '';
 			$rowHtml = '
@@ -443,6 +439,17 @@ class CBPRequestInformationActivity
 		$buttons = '<input type="submit" name="approve" value="'.($arTask["PARAMETERS"]["TaskButtonMessage"] <> '' ? $arTask["PARAMETERS"]["TaskButtonMessage"] : GetMessage("BPRIA_ACT_BUTTON1")).'"/>';
 
 		return array($form, $buttons);
+	}
+
+	protected static function getCommentRequiredStar($arTask): string
+	{
+		$required = '';
+		if (isset($arTask['PARAMETERS']['CommentRequired']) && $arTask['PARAMETERS']['CommentRequired'] == 'Y')
+		{
+			$required = '<span style="color: red">*</span>';
+		}
+
+		return $required;
 	}
 
 	public static function getTaskControls($arTask)
@@ -716,6 +723,8 @@ class CBPRequestInformationActivity
 
 		$arFieldTypes = $documentService->GetDocumentFieldTypes($documentType);
 		unset($arFieldTypes['N:Sequence']);
+		unset($arFieldTypes['UF:resourcebooking']);
+
 		$arDocumentFields = $documentService->GetDocumentFields($documentType);
 
 		$javascriptFunctions = $documentService->GetJSFunctionsForFields(

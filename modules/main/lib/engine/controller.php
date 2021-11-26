@@ -2,7 +2,6 @@
 
 namespace Bitrix\Main\Engine;
 
-
 use Bitrix\Main\Application;
 use Bitrix\Main\Component\ParameterSigner;
 use Bitrix\Main\Config\Configuration;
@@ -21,14 +20,11 @@ use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\HttpResponse;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
 use Bitrix\Main\Response;
 use Bitrix\Main\Security\Sign\BadSignatureException;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Web\PostDecodeFilter;
-
-Loc::loadMessages(__FILE__);
 
 class Controller implements Errorable, Controllerable
 {
@@ -75,7 +71,7 @@ class Controller implements Errorable, Controllerable
 
 	/**
 	 * Constructor Controller.
-	 * @param Request $request
+	 * @param Request|null $request
 	 */
 	public function __construct(Request $request = null)
 	{
@@ -91,7 +87,7 @@ class Controller implements Errorable, Controllerable
 	/**
 	 * @param Controller $controller
 	 * @param string     $actionName
-	 * @param array      $parameters
+	 * @param array|null      $parameters
 	 *
 	 * @return HttpResponse|mixed
 	 * @throws SystemException
@@ -381,7 +377,6 @@ class Controller implements Errorable, Controllerable
 	{
 		$this->collectDebugInfo();
 
-		$e = null;
 		$result = null;
 
 		try

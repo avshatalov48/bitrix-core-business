@@ -1,5 +1,9 @@
-<? if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
 	die();
+}
 
 $isAdminSection = (isset($arParams['IS_ADMIN_SECTION']));
 
@@ -312,6 +316,7 @@ $aMenu[] = [
 		var arWorkflowVariables = <?=CUtil::PhpToJSObject($arResult['VARIABLES'])?>;
 		var arWorkflowConstants = <?=CUtil::PhpToJSObject($arResult['CONSTANTS'])?>;
 		var arWorkflowGlobalConstants = <?=CUtil::PhpToJSObject($arResult['GLOBAL_CONSTANTS'])?>;
+		var arWorkflowGlobalVariables = <?= CUtil::PhpToJSObject($arResult['GLOBAL_VARIABLES']) ?>;
 		var arWorkflowTemplate = <?=CUtil::PhpToJSObject($arResult['TEMPLATE'][0])?>;
 		var arDocumentFields = <?=CUtil::PhpToJSObject($arResult['DOCUMENT_FIELDS'])?>;
 

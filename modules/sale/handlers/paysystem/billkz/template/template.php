@@ -338,10 +338,7 @@ if ($params['BILLKZ_PAYER_SHOW'] == 'Y')
 <? endif; ?>
 </table>
 <br>
-<?
-$arCurFormat = CCurrencyLang::GetCurrencyFormat($params['CURRENCY']);
-$currency = preg_replace('/(^|[^&])#/', '${1}', $arCurFormat['FORMAT_STRING']);
-
+<?php
 $cells = array();
 $props = array();
 
@@ -639,11 +636,7 @@ for ($n = 1; $n <= $rowsCnt; $n++):
 			'SALE_HPS_BILLKZ_BASKET_TOTAL',
 			array(
 				'#BASKET_COUNT#' => $cntBasketItem,
-				'#BASKET_PRICE#' => htmlspecialcharsbx(
-					SaleFormatCurrency($params['SUM'], $params['CURRENCY'], false),
-					ENT_COMPAT,
-					false
-				)
+				'#BASKET_PRICE#' => SaleFormatCurrency($params['SUM'], $params['CURRENCY'], false),
 			)
 	);?>
 	<br>

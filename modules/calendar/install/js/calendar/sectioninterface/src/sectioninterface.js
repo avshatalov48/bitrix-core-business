@@ -138,6 +138,22 @@ export class SectionInterface extends EventEmitter
 		this.DOM.titleWrap = this.DOM.outerWrap.appendChild(Dom.create('DIV', {props: {className: 'calendar-list-slider-title-container'}, html: '<div class="calendar-list-slider-title">' + Loc.getMessage('EC_SECTION_BUTTON') + '</div>'}));
 
 		const calendarContext = this.calendarContext || Util.getCalendarContext();
+
+		if (calendarContext && !this.readonly)
+		{
+			this.DOM.sectionFormWrap = this.DOM.outerWrap.appendChild(
+				Tag.render`
+					<div class="calendar-list-slider-card-widget calendar-list-slider-form-wrap">
+						<div class="calendar-list-slider-card-widget-title">
+							<span class="calendar-list-slider-card-widget-title-text">
+								${Loc.getMessage('EC_SEC_SLIDER_NEW_SECTION')}
+							</span>
+						</div>
+					</div>
+				`
+			);
+		}
+
 		if (
 			calendarContext
 			&& !this.readonly
@@ -152,16 +168,6 @@ export class SectionInterface extends EventEmitter
 			this.createAddButton();
 
 			// #2. Forms
-			this.DOM.sectionFormWrap = this.DOM.outerWrap.appendChild(Dom.create('DIV', {
-				props: {className: 'calendar-list-slider-card-widget calendar-list-slider-form-wrap'},
-				html:`
-					<div class="calendar-list-slider-card-widget-title">
-						<span class="calendar-list-slider-card-widget-title-text">
-							${Loc.getMessage('EC_SEC_SLIDER_NEW_SECTION')}
-						</span>
-					</div>
-				`
-			}));
 
 			this.DOM.trackingCompanyFormWrap = this.DOM.outerWrap.appendChild(Dom.create('DIV', {
 				props: {className: 'calendar-list-slider-card-widget calendar-list-slider-form-wrap'},

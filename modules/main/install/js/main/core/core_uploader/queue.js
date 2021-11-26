@@ -1,4 +1,5 @@
 ;(function(window){
+	window.BX = window['BX'] || {};
 	if (window.BX["UploaderQueue"])
 		return false;
 	var
@@ -22,8 +23,10 @@
 			uploadFileHeight : (limits["uploadFileHeight"] > 0 ? limits["uploadFileHeight"] : 0)};
 
 		this.placeHolder = BX(params["placeHolder"]);
-		this.showImage = (params["showImage"] !== false);
-		this.sortItems = (params["sortItems"] !== false);
+		this.showImage = (params["showImage"] !== false && params["showImage"] !== 'N');
+		this.sortItems = (params["sortItems"] !== false && params["sortItems"] !== 'N');
+		this.fileCopies = params["copies"];
+		this.fileFields = params["fields"];
 
 		this.uploader = caller;
 		this.itForUpload = new BX.UploaderUtils.Hash();
@@ -43,8 +46,6 @@
 		}
 
 		BX.addCustomEvent(caller, "onItemIsAdded", BX.delegate(this.addItem, this));
-		BX.addCustomEvent(caller, "onItemsAreAdded", BX.delegate(this.finishQueue, this));
-
 		BX.addCustomEvent(caller, "onFileIsDeleted", BX.delegate(this.deleteItem, this));
 		BX.addCustomEvent(caller, "onFileIsReinited", BX.delegate(this.reinitItem, this));
 
@@ -69,7 +70,7 @@
 
 			BX.onCustomEvent(this.uploader, "onFileIsBeforeCreated", [file, being, isImage, this.uploader]);
 
-			var params = {copies : this.uploader.fileCopies, fields : this.uploader.fileFields},
+			var params = {copies : this.fileCopies, fields : this.fileFields},
 				res = (isImage ?
 					new BX.UploaderImage(file, params, this.limits, this.uploader) :
 					new BX.UploaderFile(file, params, this.limits, this.uploader)),
@@ -508,9 +509,6 @@
 				BX.onCustomEvent(this.uploader, "onFileIsAppended", [item.id, item, this.caller]);
 				BX.onCustomEvent(item, "onFileIsAppended", [item.id, item, this.caller]);
 			}
-		},
-		finishQueue : function()
-		{
 		},
 		clear : function()
 		{

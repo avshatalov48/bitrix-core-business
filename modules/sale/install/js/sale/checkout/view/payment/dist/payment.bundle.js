@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Sale = this.BX.Sale || {};
 this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
-(function (exports,ui_vue,sale_checkout_const,main_core,sale_checkout_view_mixins) {
+(function (exports,ui_vue,sale_checkout_const,main_core,main_core_events,sale_checkout_view_mixins) {
 	'use strict';
 
 	ui_vue.BitrixVue.component('sale-checkout-view-payment', {
@@ -24,9 +24,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 	        var html = response.data.html;
 	        var wrapper = _this.$refs.paymentSystemList;
 	        BX.html(wrapper, html);
-	        main_core.Event.EventEmitter.emit(sale_checkout_const.EventType.paysystem.afterInitList, {});
+	        main_core_events.EventEmitter.emit(sale_checkout_const.EventType.paysystem.afterInitList, {});
 	        BX.addCustomEvent('onChangePaySystems', function () {
-	          main_core.Event.EventEmitter.emit(sale_checkout_const.EventType.paysystem.beforeInitList, {});
+	          main_core_events.EventEmitter.emit(sale_checkout_const.EventType.paysystem.beforeInitList, {});
 
 	          _this.getBlockHtml();
 	        });
@@ -40,5 +40,5 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 	  template: "\n\t\t<div style='position: relative;' ref=\"container\">\n\t\t\t<div ref=\"paymentSystemList\"/>\n\t\t</div>\n\t"
 	});
 
-}((this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {}),BX,BX.Sale.Checkout.Const,BX,BX.Sale.Checkout.View.Mixins));
+}((this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {}),BX,BX.Sale.Checkout.Const,BX,BX.Event,BX.Sale.Checkout.View.Mixins));
 //# sourceMappingURL=payment.bundle.js.map

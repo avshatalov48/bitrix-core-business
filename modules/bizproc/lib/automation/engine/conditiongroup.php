@@ -94,25 +94,22 @@ class ConditionGroup
 
 			$conditionResult = true;
 
-			if (array_key_exists($conditionField, $document))
+			$fld = $document[$conditionField] ?? null;
+			$fieldType = null;
+
+			if (isset($documentFields[$conditionField]))
 			{
-				$fld = $document[$conditionField];
-				$fieldType = null;
+				$fieldType = $documentService->getFieldTypeObject($documentType, $documentFields[$conditionField]);
+			}
 
-				if (isset($documentFields[$conditionField]))
-				{
-					$fieldType = $documentService->getFieldTypeObject($documentType, $documentFields[$conditionField]);
-				}
+			if (!$fieldType)
+			{
+				$fieldType = $documentService->getFieldTypeObject($documentType, ['Type' => 'string']);
+			}
 
-				if (!$fieldType)
-				{
-					$fieldType = $documentService->getFieldTypeObject($documentType, ['Type' => 'string']);
-				}
-
-				if (!$condition->checkValue($fld, $fieldType, $documentId))
-				{
-					$conditionResult = false;
-				}
+			if (!$condition->checkValue($fld, $fieldType, $documentId))
+			{
+				$conditionResult = false;
 			}
 
 			if ($joiner == static::JOINER_OR)

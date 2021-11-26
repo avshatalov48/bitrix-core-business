@@ -9,8 +9,8 @@ Loc::loadMessages(__FILE__);
 
 final class TasksTask extends Provider
 {
-	const PROVIDER_ID = 'TASK';
-	const CONTENT_TYPE_ID = 'TASK';
+	public const PROVIDER_ID = 'TASK';
+	public const CONTENT_TYPE_ID = 'TASK';
 
 	protected static $tasksTaskClass = \CTasks::class;
 
@@ -19,7 +19,7 @@ final class TasksTask extends Provider
 		return static::PROVIDER_ID;
 	}
 
-	public function getEventId()
+	public function getEventId(): array
 	{
 		return [
 			'tasks',
@@ -27,12 +27,12 @@ final class TasksTask extends Provider
 		];
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return Provider::TYPE_POST;
 	}
 
-	public function getCommentProvider()
+	public function getCommentProvider(): Provider
 	{
 		return new ForumPost();
 	}
@@ -41,7 +41,7 @@ final class TasksTask extends Provider
 	{
 		static $cache = [];
 
-		$taskId = (int)$this->entityId;
+		$taskId = $this->entityId;
 
 		if ($taskId <= 0)
 		{
@@ -75,7 +75,7 @@ final class TasksTask extends Provider
 
 	}
 
-	public function getPinnedTitle()
+	public function getPinnedTitle(): string
 	{
 		$result = '';
 
@@ -90,14 +90,12 @@ final class TasksTask extends Provider
 			return $result;
 		}
 
-		$result = Loc::getMessage('SONET_LIVEFEED_TASKS_TASK_PINNED_TITLE', [
+		return (string)Loc::getMessage('SONET_LIVEFEED_TASKS_TASK_PINNED_TITLE', [
 			'#TITLE#' => $task['TITLE']
 		]);
-
-		return $result;
 	}
 
-	public function getPinnedDescription()
+	public function getPinnedDescription(): string
 	{
 		$result = '';
 
@@ -112,7 +110,7 @@ final class TasksTask extends Provider
 			return $result;
 		}
 
-		$result = Loc::getMessage('SONET_LIVEFEED_TASKS_TASK_PINNED_DESCRIPTION', [
+		return (string)Loc::getMessage('SONET_LIVEFEED_TASKS_TASK_PINNED_DESCRIPTION', [
 			'#RESPONSIBLE#' => \CUser::formatName(
 				\CSite::getNameFormat(),
 				[
@@ -124,46 +122,15 @@ final class TasksTask extends Provider
 				false
 			)
 		]);
-
-		return $result;
 	}
 
-	protected function getAttachedDiskObjects($clone = false)
+	protected function getAttachedDiskObjects($clone = false): array
 	{
-		global $USER_FIELD_MANAGER;
-		static $cache = array();
-
-		$taskId = $this->entityId;
-
-		$result = array();
-		$cacheKey = $taskId.$clone;
-
-		if (isset($cache[$cacheKey]))
-		{
-			$result = $cache[$cacheKey];
-		}
-		else
-		{
-			$taskUF = $USER_FIELD_MANAGER->getUserFields("TASKS_TASK", $taskId, LANGUAGE_ID);
-			if (
-				!empty($taskUF['UF_TASK_WEBDAV_FILES'])
-				&& !empty($taskUF['UF_TASK_WEBDAV_FILES']['VALUE'])
-				&& is_array($taskUF['UF_TASK_WEBDAV_FILES']['VALUE'])
-			)
-			{
-				if ($clone)
-				{
-					$this->attachedDiskObjectsCloned = self::cloneUfValues($taskUF['UF_TASK_WEBDAV_FILES']['VALUE']);
-					$result = $cache[$cacheKey] = array_values($this->attachedDiskObjectsCloned);
-				}
-				else
-				{
-					$result = $cache[$cacheKey] = $taskUF['UF_TASK_WEBDAV_FILES']['VALUE'];
-				}
-			}
-		}
-
-		return $result;
+		return $this->getEntityAttachedDiskObjects([
+			'userFieldEntity' => 'TASKS_TASK',
+			'userFieldCode' => 'UF_TASK_WEBDAV_FILES',
+			'clone' => $clone,
+		]);
 	}
 
 	public static function canRead($params): bool

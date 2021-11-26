@@ -336,7 +336,7 @@ abstract class BasePersonalize
 
 	private static function buildAddress($entityType,$address)
 	{
-		$entityAddressClassName = '\\Bitrix\\Crm\\Format\\'.ucfirst(strtolower($entityType)).'Address';
+		$entityAddressClassName = '\\Bitrix\\Crm\\'.ucfirst(strtolower($entityType)).'Address';
 		return Bitrix\Crm\Format\AddressFormatter::getSingleInstance()->formatTextComma(
 			$entityAddressClassName::mapEntityFields(
 				[

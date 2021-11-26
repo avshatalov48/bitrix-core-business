@@ -32,12 +32,14 @@ use Bitrix\Main\SystemException;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Text\StringHelper;
 use Bitrix\Main\Type\Dictionary;
+use Bitrix\Main\Web\Json;
 
 /**
  * Entity object
  *
  * @property-read \Bitrix\Main\ORM\Entity $entity
  * @property-read array $primary
+ * @property-read string $primaryAsString
  * @property-read int $state @see State
  * @property-read Dictionary $customData
  * @property Context $authContext For UF values validation
@@ -442,6 +444,7 @@ abstract class EntityObject implements ArrayAccess
 
 		// delete object itself
 		$dataClass = static::$dataClass;
+		$dataClass::setCurrentDeletingObject($this);
 		$deleteResult = $dataClass::delete($this->primary);
 
 		if (!$deleteResult->isSuccess())
@@ -854,6 +857,8 @@ abstract class EntityObject implements ArrayAccess
 				return $this->sysGetEntity();
 			case 'primary':
 				return $this->sysGetPrimary();
+			case 'primaryAsString':
+				return $this->sysGetPrimaryAsString();
 			case 'state':
 				return $this->sysGetState();
 			case 'dataClass':
@@ -1371,6 +1376,11 @@ abstract class EntityObject implements ArrayAccess
 		}
 
 		return $primaryValues;
+	}
+
+	public function sysGetPrimaryAsString()
+	{
+		return static::sysSerializePrimary($this->sysGetPrimary(), $this->_entity);
 	}
 
 	/**
@@ -2128,9 +2138,6 @@ abstract class EntityObject implements ArrayAccess
 			$this->_actualValues[$fieldName] = $collection;
 		}
 
-		/** @var Collection $collection Add to collection */
-		$collection->add($remoteObject);
-
 		if ($field instanceof OneToMany)
 		{
 			// set self to the object
@@ -2147,6 +2154,9 @@ abstract class EntityObject implements ArrayAccess
 				});
 			}
 		}
+
+		/** @var Collection $collection Add to collection */
+		$collection->add($remoteObject);
 
 		// mark object as changed
 		if ($this->_state == State::ACTUAL)
@@ -2316,6 +2326,23 @@ abstract class EntityObject implements ArrayAccess
 		}
 
 		return static::$_snakeToCamelCache[$fieldName];
+	}
+
+	/**
+	 * @param array $primary
+	 * @param Entity $entity
+	 *
+	 * @return string
+	 * @throws ArgumentException
+	 */
+	public static function sysSerializePrimary($primary, $entity)
+	{
+		if (count($entity->getPrimaryArray()) == 1)
+		{
+			return (string) current($primary);
+		}
+
+		return (string) Json::encode(array_values($primary));
 	}
 
 	/**

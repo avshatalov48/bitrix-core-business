@@ -20,17 +20,32 @@ final class AddBasketItemAction extends BaseAction
 
 		if (empty($fields['SITE_ID']))
 		{
-			$result->addError(new Main\Error('siteId not found', 201940400001));
+			$result->addError(
+				new Main\Error(
+					'siteId not found',
+					Sale\Controller\ErrorEnumeration::ADD_BASKET_ITEM_ACTION_SITE_ID_NOT_FOUND
+				)
+			);
 		}
 
 		if (empty($fields['FUSER_ID']) || (int)$fields['FUSER_ID'] <= 0)
 		{
-			$result->addError(new Main\Error('fuserId not found', 201940400002));
+			$result->addError(
+				new Main\Error(
+					'fuserId not found',
+					Sale\Controller\ErrorEnumeration::ADD_BASKET_ITEM_ACTION_FUSER_ID_NOT_FOUND
+				)
+			);
 		}
 
 		if (empty($fields['PRODUCT']))
 		{
-			$result->addError(new Main\Error('product not found', 201940400003));
+			$result->addError(
+				new Main\Error(
+					'product not found',
+					Sale\Controller\ErrorEnumeration::ADD_BASKET_ITEM_ACTION_PRODUCT_NOT_FOUND
+				)
+			);
 		}
 
 		return $result;
@@ -91,7 +106,12 @@ final class AddBasketItemAction extends BaseAction
 				foreach ($saveBasketResult->getErrors() as $error)
 				{
 					// save basket error
-					$result->addError(new Main\Error($error->getMessage(), 201950020000));
+					$result->addError(
+						new Main\Error(
+							$error->getMessage(),
+							Sale\Controller\ErrorEnumeration::ADD_BASKET_ITEM_SAVE_BASKET
+						)
+					);
 				}
 			}
 		}
@@ -100,8 +120,12 @@ final class AddBasketItemAction extends BaseAction
 			/** @var Main\Error $error */
 			foreach ($addProductToBasketResult->getErrors() as $error)
 			{
-				// add product to basket error
-				$result->addError(new Main\Error($error->getMessage(), 201950010000));
+				$result->addError(
+					new Main\Error(
+						$error->getMessage(),
+						Sale\Controller\ErrorEnumeration::ADD_BASKET_ITEM_ADD_PRODUCT_TO_BASKET
+					)
+				);
 			}
 		}
 

@@ -13,4 +13,9 @@ $MESS ['IBEL_BIZPROC_SAVE'] = "Сохранить";
 $MESS ['IBEL_BIZPROC_APPLY'] = "Выполнить команды";
 $MESS ['IBEL_BIZPROC_CANCEL'] = "Отменить";
 $MESS ['IBEL_BIZPROC_LOG_TITLE'] = "Журнал бизнес-процесса";
-?>
+$MESS ['IBEL_BIZPROC_ACTIVE_WORKFLOWS'] = "Активные бизнес-процессы";
+$MESS ['IBEL_BIZPROC_ACTIVE_WORKFLOWS_EMPTY'] = "На данный момент нет активных процессов";
+$MESS ['IBEL_BIZPROC_COMPLETED_WORKFLOWS'] = "Завершенные бизнес-процессы";
+$MESS ['IBEL_BIZPROC_COMPLETED_WORKFLOWS_SHOW'] = "Показать";
+$MESS ['IBEL_BIZPROC_COMPLETED_WORKFLOWS_SHOW_MORE'] = "Показать еще";
+$MESS ['IBEL_BIZPROC_COMPLETED_WORKFLOWS_EMPTY'] = "Нет процессов для показа";

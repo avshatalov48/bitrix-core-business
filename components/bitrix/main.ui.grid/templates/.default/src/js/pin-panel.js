@@ -28,13 +28,27 @@
 			this.bindOnRowsEvents();
 		},
 
+		destroy: function()
+		{
+			this.unbindOnRowsEvents();
+		},
+
 		bindOnRowsEvents: function()
 		{
-			BX.addCustomEvent('Grid::thereSelectedRows', BX.delegate(this._onThereSelectedRows, this));
-			BX.addCustomEvent('Grid::allRowsSelected', BX.delegate(this._onThereSelectedRows, this));
-			BX.addCustomEvent('Grid::noSelectedRows', BX.delegate(this._onNoSelectedRows, this));
-			BX.addCustomEvent('Grid::allRowsUnselected', BX.delegate(this._onNoSelectedRows, this));
-			BX.addCustomEvent('Grid::updated', BX.delegate(this._onNoSelectedRows, this));
+			BX.addCustomEvent('Grid::thereSelectedRows', BX.proxy(this._onThereSelectedRows, this));
+			BX.addCustomEvent('Grid::allRowsSelected', BX.proxy(this._onThereSelectedRows, this));
+			BX.addCustomEvent('Grid::noSelectedRows', BX.proxy(this._onNoSelectedRows, this));
+			BX.addCustomEvent('Grid::allRowsUnselected', BX.proxy(this._onNoSelectedRows, this));
+			BX.addCustomEvent('Grid::updated', BX.proxy(this._onNoSelectedRows, this));
+		},
+
+		unbindOnRowsEvents: function()
+		{
+			BX.removeCustomEvent('Grid::thereSelectedRows', BX.proxy(this._onThereSelectedRows, this));
+			BX.removeCustomEvent('Grid::allRowsSelected', BX.proxy(this._onThereSelectedRows, this));
+			BX.removeCustomEvent('Grid::noSelectedRows', BX.proxy(this._onNoSelectedRows, this));
+			BX.removeCustomEvent('Grid::allRowsUnselected', BX.proxy(this._onNoSelectedRows, this));
+			BX.removeCustomEvent('Grid::updated', BX.proxy(this._onNoSelectedRows, this));
 		},
 
 		bindOnWindowEvents: function()

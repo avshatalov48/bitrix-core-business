@@ -1,4 +1,9 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /** @var SocialnetworkBlogPostComment $this */
 /** @var array $arParams */
@@ -11,6 +16,8 @@
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
 /** @global CMain $APPLICATION */
 
+use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\UI\EntitySelector;
 
 __IncludeLang(dirname(__FILE__)."/lang/".LANGUAGE_ID."/result_modifier.php");
@@ -29,13 +36,23 @@ $arParams["LHE"] = (is_array($arParams['~LHE']) ? $arParams['~LHE'] : array());
 $arParams["LHE"]["id"] = (empty($arParams["LHE"]["id"]) ? "idLHE_".$arParams["FORM_ID"] : $arParams["LHE"]["id"]);
 $arParams["LHE"]["jsObjName"] = trim($arParams["LHE"]["jsObjName"]);
 $arParams["divId"] = (empty($arParams["LHE"]["jsObjName"]) ? $arParams["LHE"]["id"] : $arParams["LHE"]["jsObjName"]);
-$arParams["LHE"]["bInitByJS"] = (empty($arParams["TEXT"]["VALUE"]) && $arParams["LHE"]["bInitByJS"] === true ? true : false);
-$arParams["LHE"]["lazyLoad"] = (empty($arParams["TEXT"]["VALUE"]) && ($arParams["LHE"]["bInitByJS"] === true || $arParams["LHE"]["lazyLoad"] === true) ? true : false);
+$arParams["LHE"]["bInitByJS"] = empty($arParams["TEXT"]["VALUE"]) && $arParams["LHE"]["bInitByJS"] === true;
+$arParams["LHE"]["lazyLoad"] = (
+	empty($arParams["TEXT"]["VALUE"])
+	&& (
+		$arParams["LHE"]["bInitByJS"] === true
+		|| $arParams["LHE"]["lazyLoad"] === true
+	)
+);
 
 $arParams["PARSER"] = array_unique(is_array($arParams["PARSER"]) ? $arParams["PARSER"] : array());
 $arParams["BUTTONS"] = is_array($arParams["BUTTONS"]) ? $arParams["BUTTONS"] : array();
-$arParams["BUTTONS"] = (in_array("MentionUser", $arParams["BUTTONS"]) && !IsModuleInstalled("socialnetwork") ?
-	array_diff($arParams["BUTTONS"], array("MentionUser")) : $arParams["BUTTONS"]);
+$arParams["BUTTONS"] = (
+	in_array("MentionUser", $arParams["BUTTONS"])
+	&& !ModuleManager::isModuleInstalled("socialnetwork")
+		? array_diff($arParams["BUTTONS"], array("MentionUser"))
+		: $arParams["BUTTONS"]
+);
 $arParams["BUTTONS"] = array_values($arParams["BUTTONS"]);
 $arParams["BUTTONS_HTML"] = is_array($arParams["BUTTONS_HTML"]) ? $arParams["BUTTONS_HTML"] : array();
 
@@ -87,7 +104,7 @@ if (is_array($arParams["ADDITIONAL"]))
 $arParams["UPLOADS_CID"] = array();
 $arParams["UPLOADS_HTML"] = "";
 
-$arParams["DESTINATION"] = (is_array($arParams["DESTINATION"]) && IsModuleInstalled("socialnetwork") ? $arParams["DESTINATION"] : array());
+$arParams["DESTINATION"] = (is_array($arParams["DESTINATION"]) && ModuleManager::isModuleInstalled("socialnetwork") ? $arParams["DESTINATION"] : array());
 $arParams["DESTINATION_SHOW"] = (array_key_exists("SHOW", $arParams["DESTINATION"]) ? $arParams["DESTINATION"]["SHOW"] : $arParams["DESTINATION_SHOW"]);
 $arParams["DESTINATION_SHOW"] = ($arParams["DESTINATION_SHOW"] == "Y" ? "Y" : "N");
 $arParams["DESTINATION_USE_CLIENT_DATABASE"] = (
@@ -98,7 +115,7 @@ $arParams["DESTINATION_USE_CLIENT_DATABASE"] = (
 $arParams["DESTINATION"] = (array_key_exists("VALUE", $arParams["DESTINATION"]) ? $arParams["DESTINATION"]["VALUE"] : $arParams["DESTINATION"]);
 
 $arResult["bExtranetUser"] = (
-	\Bitrix\Main\Loader::includeModule("extranet")
+	Loader::includeModule("extranet")
 	&& !CExtranet::IsIntranetUser()
 );
 
@@ -108,12 +125,12 @@ if (!empty($arParams["DEST_SORT"]))
 }
 elseif (
 	$arResult["SELECTOR_VERSION"] < 2
-	&& \Bitrix\Main\Loader::includeModule("socialnetwork")
+	&& Loader::includeModule("socialnetwork")
 	&& $USER->IsAuthorized()
 )
 {
 	$arResult["DEST_SORT"] = CSocNetLogDestination::GetDestinationSort(array(
-		"DEST_CONTEXT" => (isset($arParams["DEST_CONTEXT"]) ? $arParams["DEST_CONTEXT"] : false)
+		"DEST_CONTEXT" => ($arParams["DEST_CONTEXT"] ?? false)
 	));
 }
 else
@@ -125,7 +142,7 @@ if (
 	$arResult["SELECTOR_VERSION"] < 2
 	&& empty($arParams["DESTINATION"])
 	&& in_array("MentionUser", $arParams["BUTTONS"])
-	&& CModule::IncludeModule("socialnetwork")
+	&& Loader::includeModule("socialnetwork")
 )
 {
 	$arStructure = CSocNetLogDestination::GetStucture(array("LAZY_LOAD" => true));
@@ -168,7 +185,7 @@ if (
 	&& $arResult["SELECTOR_VERSION"] < 2
 )
 {
-	if (CModule::IncludeModule("socialnetwork"))
+	if (Loader::includeModule("socialnetwork"))
 	{
 		$arResult["MENTION_DEST_SORT"] = CSocNetLogDestination::GetDestinationSort(array(
 			"DEST_CONTEXT" => "MENTION"
@@ -266,7 +283,7 @@ $arParams["IMAGE"] = array("WIDTH" => 90, "HEIGHT" => 90);
  ********************************************************************/
 
 if (
-	IsModuleInstalled("extranet")
+	ModuleManager::isModuleInstalled("extranet")
 	&& COption::GetOptionString("extranet", "extranet_site") <> ''
 )
 {
@@ -281,7 +298,7 @@ if (
 }
 
 $arResult["ALLOW_EMAIL_INVITATION"] = (isset($arParams["ALLOW_EMAIL_INVITATION"]) && $arParams["ALLOW_EMAIL_INVITATION"] === "Y");
-$arResult["ALLOW_ADD_CRM_CONTACT"] = ($arResult["ALLOW_EMAIL_INVITATION"] && CModule::IncludeModule('crm') && CCrmContact::CheckCreatePermission());
+$arResult["ALLOW_ADD_CRM_CONTACT"] = ($arResult["ALLOW_EMAIL_INVITATION"] && Loader::includeModule('crm') && CCrmContact::CheckCreatePermission());
 $arResult["ALLOW_CRM_EMAILS"] = (isset($arParams["ALLOW_CRM_EMAILS"]) && $arParams["ALLOW_CRM_EMAILS"] === 'Y');
 
 if ($arParams["DESTINATION_SHOW"] === "Y")
@@ -297,4 +314,24 @@ if ($arParams["DESTINATION_SHOW"] === "Y")
 		'ENTITIES_PRESELECTED' => EntitySelector\Converter::sortEntities(EntitySelector\Converter::convertFromFinderCodes(is_array($arParams["DESTINATION"]["SELECTED"]) ? array_keys($arParams["DESTINATION"]["SELECTED"]) : []))
 	];
 }
-?>
+
+$arResult['MENTION_ENTITIES'] = ($arParams['MENTION_ENTITIES'] ?? [
+	[
+		'id' => 'user',
+		'options' => [
+			'emailUsers' => true,
+			'inviteEmployeeLink' => false,
+		],
+	],
+	[
+		'id' => 'department',
+		'options' => [
+			'selectMode' => 'usersOnly',
+		],
+	],
+]);
+
+$arResult['tasksLimitExceeded'] = (
+	Loader::includeModule('tasks')
+	&& Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\TaskLimit::isLimitExceeded()
+);

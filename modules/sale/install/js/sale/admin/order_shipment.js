@@ -29,6 +29,7 @@ BX.Sale.Admin.OrderShipment = function(params)
 
 	this.initFieldUpdateSum();
 	this.initFieldUpdateWeight();
+	this.initUpdateDeliveryInfo();
 
 	this.initChangeProfile();
 	this.initCustomEvent();
@@ -1088,6 +1089,15 @@ BX.Sale.Admin.OrderShipment.prototype.initFieldUpdateWeight = function()
 		{
 			BX('CUSTOM_WEIGHT_DELIVERY_' + this.index).value = 'Y';
 		}
+	}, this));
+};
+
+BX.Sale.Admin.OrderShipment.prototype.initUpdateDeliveryInfo = function()
+{
+	var updateDeliveryInfo = BX('UPDATE_DELIVERY_INFO_'+this.index);
+	BX.bind(updateDeliveryInfo, 'click', BX.proxy(function()
+	{
+		this.updateDeliveryInfo();
 	}, this));
 };
 

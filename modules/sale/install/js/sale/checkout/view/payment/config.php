@@ -11,6 +11,7 @@ return [
 		'ui.vue',
 		'sale.checkout.const',
 		'main.core',
+		'main.core.events',
 		'sale.checkout.view.mixins',
 	],
 	'skip_core' => false,

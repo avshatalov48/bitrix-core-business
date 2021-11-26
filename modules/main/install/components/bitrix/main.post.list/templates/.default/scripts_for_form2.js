@@ -1,4 +1,8 @@
 ;(function() {
+
+	if (!!window.UCForm)
+		return;
+
 	var repo = {};
 	window.UCForm = function(formId)
 	{
@@ -294,7 +298,7 @@
 			{
 				this.getLHE().exec(window.BxInsertMention, [{
 					item: {entityId: user.id, name: user.name},
-					type: 'users',
+					type: 'user',
 					formID: this.formId,
 					editorId: this.getLHE().oEditorId,
 					bNeedComa: true,
@@ -419,7 +423,7 @@
 			this.busy = false;
 			BX.onCustomEvent(window, "OnUCFormResponse", [ENTITY_XML_ID, data["messageId"], this, data]);
 		},
-		onSubmitFailed : function(data){
+		onSubmitFailed : function(data) {
 			this.closeWait();
 			if (BX.type.isPlainObject(data))
 			{
@@ -432,15 +436,12 @@
 				{
 					message = data["data"]["ajaxRejectData"]["message"];
 				}
-				else if (
-					BX.type.isPlainObject(data["data"]) &&
-					BX.type.isArray(data["data"]["errors"]
-				))
+				else if (BX.type.isArray(data["errors"]))
 				{
 					message = "";
-					for (var ii = 0; ii < data["data"]["errors"].length; ii++)
+					for (var ii = 0; ii < data["errors"].length; ii++)
 					{
-						message += data["data"]["errors"][ii]["message"];
+						message += data["errors"][ii]["message"];
 					}
 				}
 				this.showError(message);

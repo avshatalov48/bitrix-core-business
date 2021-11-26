@@ -1,4 +1,9 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+{
+    die();
+}
 
 use Bitrix\Blog\Item;
 
@@ -14,13 +19,15 @@ if(!empty($arResult["FATAL_MESSAGE"]))
 {
 	?><div class="feed-add-error">
 		<span class="feed-add-info-text"><span class="feed-add-info-icon"></span><?=$arResult["FATAL_MESSAGE"]?></span>
-	</div><?
+	</div><?php
 }
 else if($arResult["imageUploadFrame"] == "Y")
 {
 	?>
 	<script type="text/javascript">
-		<?if(!empty($arResult["Image"])):?>
+		<?php
+		if (!empty($arResult["Image"])):
+			?>
 			if(!top.arImagesId) { top.arImagesId = []; }
 			if(!top.arImagesSrc) { top.arImagesSrc = []; }
 			top.arImagesId.push('<?=$arResult["Image"]["ID"]?>');
@@ -28,11 +35,15 @@ else if($arResult["imageUploadFrame"] == "Y")
 			top.bxBlogImageId = '<?=$arResult["Image"]["ID"]?>';
 			top.bxBlogImageIdWidth = '<?=CUtil::JSEscape($arResult["Image"]["WIDTH"])?>';
 			top.bxBlogImageIdSrc = '<?=CUtil::JSEscape($arResult["Image"]["SRC"])?>';
-		<?elseif($arResult["ERROR_MESSAGE"] <> ''):?>
+			<?php
+		elseif($arResult["ERROR_MESSAGE"] <> ''):
+			?>
 			top.bxBlogImageError = '<?=CUtil::JSEscape($arResult["ERROR_MESSAGE"])?>';
-		<?endif;?>
+			<?php
+		endif;
+		?>
 	</script>
-	<?
+	<?php
 	die();
 }
 
@@ -138,10 +149,10 @@ if (
  class="<?=$blockClassName?>" id="blg-comment-<?=$arParams["ID"]?>"
  data-bx-comments-entity-xml-id="<?=\Bitrix\Main\Text\HtmlFilter::encode($arParams['ENTITY_XML_ID'])?>"
  data-bx-follow="<?=($arParams['FOLLOW'] === 'Y' ? 'Y' : 'N')?>"
-><?
-	?><a name="comments"></a><?
-	?><?=$arResult["OUTPUT_LIST"]["HTML"]?><?
-?></div><?
+><?php
+	?><a name="comments"></a><?php
+	?><?=$arResult["OUTPUT_LIST"]["HTML"]?><?php
+?></div><?php
 ?><script>
 BX.ready(function() {
 	BX.bind(BX("blg-post-img-<?=$arResult["Post"]["ID"]?>"), "mouseup", function(e){ checkForQuote(e, this, '<?=$arParams["ENTITY_XML_ID"]?>', 'bp_<?=$arResult["Post"]["ID"]?>')});
@@ -159,13 +170,16 @@ BX.ready(function() {
 	});
 } );
 </script>
-<?
+<?php
 
-if ($GLOBALS["USER"]->IsAuthorized() && CModule::IncludeModule("pull") && CPullOptions::GetNginxStatus()) { ?>
-<script type="text/javascript">
-BX.addCustomEvent("onPullEvent-unicomments", function(command, params) { if (params["ENTITY_XML_ID"] == '<?=$arParams["ENTITY_XML_ID"]?>' && BX('blg-comment-<?=$arParams["ID"]?>')) { BX.show(BX('blg-comment-<?=$arParams["ID"]?>')); } } );
-</script>
-<? }
+if ($GLOBALS["USER"]->IsAuthorized() && CModule::IncludeModule("pull") && CPullOptions::GetNginxStatus())
+{
+	?>
+	<script>
+	BX.addCustomEvent("onPullEvent-unicomments", function(command, params) { if (params["ENTITY_XML_ID"] == '<?=$arParams["ENTITY_XML_ID"]?>' && BX('blg-comment-<?=$arParams["ID"]?>')) { BX.show(BX('blg-comment-<?=$arParams["ID"]?>')); } } );
+	</script>
+	<?php
+}
 if ($arResult["CanUserComment"])
 {
 	?>
@@ -179,7 +193,7 @@ if ($arResult["CanUserComment"])
 		);
 		top.postFollow<?=$arParams["ID"]?> = postFollow<?=$arParams["ID"]?> = '<?=$arParams["FOLLOW"]?>';
 	</script>
-	<?
+	<?php
 	if (
 		(empty($_REQUEST["bxajaxid"]) && empty($_REQUEST["logajax"]))
 		|| ($_REQUEST["RELOAD"] == "Y" && !(empty($_REQUEST["bxajaxid"]) && empty($_REQUEST["logajax"])))
@@ -190,4 +204,3 @@ if ($arResult["CanUserComment"])
 	}
 	__sbpc_bind_post_to_form($arParams["ENTITY_XML_ID"], null, $arParams);
 }
-?>

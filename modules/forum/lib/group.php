@@ -65,6 +65,19 @@ class GroupTable extends Entity\DataManager
  * </ul>
  *
  * @package Bitrix\Forum
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_GroupLang_Query query()
+ * @method static EO_GroupLang_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_GroupLang_Result getById($id)
+ * @method static EO_GroupLang_Result getList(array $parameters = array())
+ * @method static EO_GroupLang_Entity getEntity()
+ * @method static \Bitrix\Forum\EO_GroupLang createObject($setDefaultValues = true)
+ * @method static \Bitrix\Forum\EO_GroupLang_Collection createCollection()
+ * @method static \Bitrix\Forum\EO_GroupLang wakeUpObject($row)
+ * @method static \Bitrix\Forum\EO_GroupLang_Collection wakeUpCollection($rows)
  */
 class GroupLangTable extends Entity\DataManager
 {

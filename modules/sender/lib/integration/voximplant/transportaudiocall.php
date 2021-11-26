@@ -185,7 +185,9 @@ class TransportAudioCall implements Transport\iBase, Transport\iDuration, Transp
 	public function getLimiters(Message\iBase $message = null)
 	{
 		return array(
-			$this->getCountLimiter()
+			$this->getCountLimiter(),
+			Transport\TimeLimiter::create()
+				->withLetter($message)
 		);
 	}
 

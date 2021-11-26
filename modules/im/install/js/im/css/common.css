@@ -383,14 +383,14 @@
 
 .bx-messenger-file-title {font: bold 13px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;color: #0562b1;display: inline-block; white-space: nowrap;}
 .bx-messenger-file-title-href {
-	width: calc(100% - 36px);
+	width: calc(100% - 60px);
     display: inline-block;
     overflow: hidden;
     vertical-align: top;
 	text-overflow: ellipsis;
 }
 .bx-messenger-history-items .bx-messenger-file-title-href {
-	width: calc(100% - 50px);
+	width: calc(100% - 60px);
 }
 .bx-messenger-file-link {
 	color: #fff;
@@ -400,7 +400,11 @@
 	text-decoration: none;
 	color: #fff;
 }
-.bx-messenger-file-size {font: 12px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;color: #777;margin-left: 6px;display: inline-block;}
+.bx-messenger-file-size {
+	font: 12px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;color: #777;margin-left: 6px;display: inline-block;
+	width: 53px;
+	text-align: right;
+}
 .bx-messenger-file-preview+.bx-messenger-file-attrs { display:none; }
 .bx-messenger-file-download {margin-top: -2px;}
 .bx-messenger-file-download-link {font: 11px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;color: #63635c;cursor: pointer;margin-right: 10px;text-decoration: none;}

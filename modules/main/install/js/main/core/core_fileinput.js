@@ -20,6 +20,15 @@ BX["UI"]["FileInput"] = function(id, uploadParams, elementParams, values, templa
 	this.menu = [];
 	this.agent = null;
 	this.container = null;
+	this.frameFlags = {
+		hasNew: false,
+		active: false,
+		preparing: false,
+		ready: false
+	};
+	this.framedItems = null;
+	this.clickCloudPointBound = false;
+	this.frameFilesWaitPopup = null;
 
 	BX.ready(BX.proxy(function(){ this.init(values); }, this));
 };
@@ -95,37 +104,37 @@ BX["UI"].FileInput.prototype = {
 		});
 		repo[this.id] = this;
 		this.fileEvents = {
-			onFileIsAttached : BX.delegate(this.onFileIsAttached, this),
-			onFileIsAppended : BX.delegate(this.onFileIsAppended, this),
-			onFileIsBound : BX.delegate(this.onFileIsBound, this),
-			onFileIsReadyToFrame : BX.delegate(this.onFileIsReadyToFrame, this),
-			onUploadProgress : BX.delegate(this.onUploadProgress, this),
-			onUploadDone : BX.delegate(this.onUploadDone, this),
-			onUploadError : BX.delegate(this.onUploadError, this),
-			onUploadRestore : BX.delegate(this.onUploadRestore, this)
+			onFileIsAttached : this.onFileIsAttached.bind(this),
+			onFileIsAppended : this.onFileIsAppended.bind(this),
+			onFileIsBound : this.onFileIsBound.bind(this),
+			onFileIsReadyToFrame : this.onFileIsReadyToFrame.bind(this),
+			onUploadProgress : this.onUploadProgress.bind(this),
+			onUploadDone : this.onUploadDone.bind(this),
+			onUploadError : this.onUploadError.bind(this),
+			onUploadRestore : this.onUploadRestore.bind(this)
 		};
 
 		this.agentEvents = {
-			onAttachFiles : BX.delegate(this.onAttachFiles, this),
-			onQueueIsChanged : BX.delegate(this.onQueueIsChanged, this),
-			onFileIsCreated : BX.delegate(this.onFileIsCreated, this),
-			onFileIsInited : BX.delegate(this.onFileIsInited, this),
-			onFileIsReadyToFrame : BX.delegate(this.onFileIsReadyToFrame, this),
-			onFilesPropsAreModified : BX.delegate(this.onFilesPropsAreModified, this),
-			onFileIsFramed : BX.delegate(this.onFileIsFramed, this),
-			onFilesAreFramed : BX.delegate(this.onFilesAreFramed, this),
-			onBxDragStart : BX.delegate(this.onFileIsDragged, this),
-			onError : BX.delegate(this.onError, this)
+			onAttachFiles : this.onAttachFiles.bind(this),
+			onQueueIsChanged : this.onQueueIsChanged.bind(this),
+			onFileIsCreated : this.onFileIsCreated.bind(this),
+			onFileIsInited : this.onFileIsInited.bind(this),
+			onFileIsReadyToFrame : this.onFileIsReadyToFrame.bind(this),
+			onFilesPropsAreModified : this.onFilesPropsAreModified.bind(this),
+			onFileIsFramed : this.onFileIsFramed.bind(this),
+			onFilesAreFramed : this.onFilesAreFramed.bind(this),
+			onBxDragStart : this.onFileIsDragged.bind(this),
+			onError : this.onError.bind(this)
 		};
 		if (this.uploadParams['upload'])
 		{
 			var signature = this.uploadParams['upload'];
-			this.agentEvents["onPackageIsInitialized"] = BX.delegate(function(pack, raw)
+			this.agentEvents["onPackageIsInitialized"] = function(pack, raw)
 			{
 				pack.post.data['signature'] = signature;
 				pack.post.size += ('signature' + signature).length;
 				this.onUploadStart(raw);
-			}, this);
+			}.bind(this);
 		}
 		for (ii in this.agentEvents)
 		{
@@ -311,16 +320,16 @@ BX["UI"].FileInput.prototype = {
 				TEXT : BX.message("JS_CORE_FILE_MEDIALIB"),
 				GLOBAL_ICON : "adm-menu-upload-medialib",
 				ONCLICK : uploadParams['medialib']['click'] + "()"});
-			window[uploadParams['medialib']['handler']] = BX.delegate(this.handlerMedialib, this);
+			window[uploadParams['medialib']['handler']] = this.handlerMedialib.bind(this);
 		}
 		if (uploadParams['fileDialog'])
 		{
 			menu.push({TEXT : BX.message("JS_CORE_FILE_SITE"), GLOBAL_ICON : "adm-menu-upload-site", ONCLICK : uploadParams['fileDialog']['click'] + "()"});
-			window[uploadParams['fileDialog']['handler']] = BX.delegate(this.handlerFileDialog, this);
+			window[uploadParams['fileDialog']['handler']] = this.handlerFileDialog.bind(this);
 		}
 		if (uploadParams['cloud'])
 		{
-			this.__cloudClick = BX.delegate(this.clickCloudPoint, this);
+			this.__cloudClick = this.clickCloudPoint.bind(this);
 			menu.push({TEXT : BX.message("JS_CORE_FILE_CLOUD"), GLOBAL_ICON : "adm-menu-upload-cloud", ONCLICK : this.__cloudClick});
 		}
 
@@ -342,7 +351,7 @@ BX["UI"].FileInput.prototype = {
 			menu.push({
 				GLOBAL_ICON : "adm-menu-crop",
 				TEXT : BX.message("JS_CORE_FI_FRAME_Y"),
-				ONCLICK : BX.delegate(this.frameFiles, this),
+				ONCLICK : this.frameFiles.bind(this),
 				CHECKED : (this.uploadParams["frameFiles"] == "Y")
 			});
 		}
@@ -350,7 +359,7 @@ BX["UI"].FileInput.prototype = {
 		{
 			menu.push({
 				TEXT : BX.message("JS_CORE_FI_PIN_DESCRIPTION"),
-				ONCLICK : BX.delegate(this.pinDescription, this),
+				ONCLICK : this.pinDescription.bind(this),
 				CHECKED : (this.uploadParams["pinDescription"] == "Y")
 			});
 		}
@@ -358,7 +367,7 @@ BX["UI"].FileInput.prototype = {
 		{
 			menu.push({
 				TEXT : BX.message("JS_CORE_FI_CLEAR"),
-				ONCLICK : BX.delegate(this.deleteFiles, this),
+				ONCLICK : this.deleteFiles.bind(this),
 				GLOBAL_ICON : "adm-menu-delete"
 			});
 		}
@@ -405,13 +414,13 @@ BX["UI"].FileInput.prototype = {
 					result.push({tmp_url : BX.util.htmlspecialchars(data[ii]), real_url : decodeURIComponent(data[ii])});
 				}
 			}
-			this.agent.onAttach(result, {});
+			this.agent.onAttach(result);
 		}
 		else
 		{
 			this.handlerFilePathPopup = (this.handlerFilePathPopup ||
 				new filePath(this.id + 'filePath', {
-					onApply : BX.delegate(this.handlerFilePath, this)
+					onApply : this.handlerFilePath.bind(this)
 				}, this.uploadParams['maxCount']));
 			this.handlerFilePathPopup.show();
 		}
@@ -453,12 +462,11 @@ BX["UI"].FileInput.prototype = {
 		}
 	},
 	clickCloudPointPath : '/bitrix/admin/clouds_file_search.php?lang=' + BX.message("LANGUAGE_ID") + '&n=undefined',
-	clickCloudPointBound : false,
 	clickCloudPoint : function()
 	{
 		if (this.clickCloudPointBound === false)
 		{
-			BX.addCustomEvent("onCloudFileIsChosen", BX.delegate(this.clickCloudPointChange, this));
+			BX.addCustomEvent("onCloudFileIsChosen", this.clickCloudPointChange.bind(this));
 			this.clickCloudPointBound = true;
 		}
 		BX.util.popup(this.clickCloudPointPath, 710, 600);
@@ -476,13 +484,6 @@ BX["UI"].FileInput.prototype = {
 			this.agent.onAttach([file], [file]);
 		}
 	},
-	frameFlags : {
-		hasNew : false,
-		active : false,
-		preparing : false,
-		ready : false
-	},
-	framedItems : null,
 	frameFiles : function(activeId)
 	{
 		if (activeId && !BX.type.isNumber(activeId) && activeId["type"] == "click")
@@ -561,7 +562,6 @@ BX["UI"].FileInput.prototype = {
 		}
 		return BX.PreventDefault(e);
 	},
-	frameFilesWaitPopup : null,
 	frameFilesWait : function()
 	{
 		if (this.frameFilesWaitPopup == null)
@@ -1206,11 +1206,11 @@ var filePath = function(id, events, maxCount)
 			}
 		}
 	}
-	this._onAfterShow = BX.delegate(this.onAfterShow, this);
-	this._onApply = BX.delegate(this.onApply, this);
-	this._onCancel = BX.delegate(this.onCancel, this);
-	this._addRow = BX.delegate(this.addRow, this);
-	this._delRow = BX.delegate(this.delRow, this);
+	this._onAfterShow = this.onAfterShow.bind(this);
+	this._onApply = this.onApply.bind(this);
+	this._onCancel = this.onCancel.bind(this);
+	this._addRow = this.addRow.bind(this);
+	this._delRow = this.delRow.bind(this);
 };
 filePath.prototype = {
 	popup : null,
@@ -1251,9 +1251,9 @@ filePath.prototype = {
 			}
 		}
 	},
-	delRow : function()
+	delRow : function(e)
 	{
-		var node = BX.proxy_context;
+		var node = e['currentTarget'] || e['target'];
 		if (BX(node))
 		{
 			var li = BX.findParent(node, {tagName : "LI"});
@@ -1339,9 +1339,9 @@ FramePresetID = 0,
 FramePreset = function() {
 	var d = function(params) {
 		this.id = 'framePreset' + (FramePresetID++);
-		this.onAfterShow = BX.delegate(this.onAfterShow, this);
-		this.addRow = BX.delegate(this.addRow, this);
-		this.delRow = BX.delegate(this.delRow, this);
+		this.onAfterShow = this.onAfterShow.bind(this);
+		this.addRow = this.addRow.bind(this);
+		this.delRow = this.delRow.bind(this);
 		if (params)
 		{
 			this.init(params);
@@ -1458,7 +1458,7 @@ FramePreset = function() {
 						this.onApply(data.data);
 						this.popup.close();
 					}, this) } } ),
-					new BX.PopupWindowButtonLink( {text : BX.message('CANVAS_CANCEL'), className : "popup-window-button-link-cancel", events : { click : BX.delegate(function(){this.popup.close();}, this) } } )
+					new BX.PopupWindowButtonLink( {text : BX.message('CANVAS_CANCEL'), className : "popup-window-button-link-cancel", events : { click : function(){this.popup.close();}.bind(this) } } )
 				],
 				content : this.getTemplate().replace(/#classId#/gi, BX.util.htmlspecialchars(this.id)).replace(/#nodes#/i, html)
 			});
@@ -1520,9 +1520,9 @@ FramePreset = function() {
 			this.checkAddButton();
 			return false;
 		},
-		delRow : function()
+		delRow : function(e)
 		{
-			var node = BX.proxy_context;
+			var node = BX.proxy_context || e['currentTarget'] || e['target'];
 			if (BX(node))
 			{
 				var li = BX.findParent(node, {tagName : "LI"});
@@ -1608,14 +1608,14 @@ var preset, cnv,
 {
 	this.params = params;
 	this.preset = preset = (preset || new FramePreset(params));
-	BX.addCustomEvent(this.preset, "onApply", BX.delegate(this.onPresetsApply, this));
+	BX.addCustomEvent(this.preset, "onApply", this.onPresetsApply.bind(this));
 	this.id = 'FM'; // TODO Generate some ID
 	this.handlers = {
-		show : BX.delegate(this.onShow, this),
-		afterShow : BX.delegate(this.onAfterShow, this),
-		close : BX.delegate(this.onClose, this),
-		cancel : BX.delegate(this.onCancel, this),
-		apply : BX.delegate(this.onApply, this)
+		show : this.onShow.bind(this),
+		afterShow : this.onAfterShow.bind(this),
+		close : this.onClose.bind(this),
+		cancel : this.onCancel.bind(this),
+		apply : this.onApply.bind(this)
 	}
 };
 FrameMaster.prototype = {
@@ -1893,8 +1893,8 @@ FrameMaster.prototype = {
 			}
 		}, this));
 		BX.bind(BX(this.id + 'presetEdit'), "click", BX.proxy(this.preset.edit, this.preset));
-		BX.addCustomEvent(this.canvas, "onCropStart", BX.delegate(function(){ BX.removeClass(BX(this.id + 'presetSave'), "disabled"); }, this));
-		BX.addCustomEvent(this.canvas, "onCropFinish", BX.delegate(function(){ BX.addClass(BX(this.id + 'presetSave'), "disabled"); }, this));
+		BX.addCustomEvent(this.canvas, "onCropStart", function(){ BX.removeClass(BX(this.id + 'presetSave'), "disabled"); }.bind(this));
+		BX.addCustomEvent(this.canvas, "onCropFinish", function(){ BX.addClass(BX(this.id + 'presetSave'), "disabled"); }.bind(this));
 
 		BX.bind(BX(this.id + 'presetSave'), "click", BX.proxy(function() {
 				if (this.canvas.busy === true && this.canvas.cropObj)
@@ -1950,9 +1950,9 @@ FrameMaster.prototype = {
 				canvasBlock : BX(this.id + 'editorActiveImageBlock')
 			}
 		);
-		BX.addCustomEvent(this.canvas, "onChange", BX.delegate(this.saveActiveItem, this));
-		BX.addCustomEvent(this.canvas, "onSetCanvas", BX.delegate(this.scaleChangeSize, this));
-		BX.addCustomEvent(this.canvas, "onScaleCanvas", BX.delegate(this.scaleChangeSize, this));
+		BX.addCustomEvent(this.canvas, "onChange", this.saveActiveItem.bind(this));
+		BX.addCustomEvent(this.canvas, "onSetCanvas", this.scaleChangeSize.bind(this));
+		BX.addCustomEvent(this.canvas, "onScaleCanvas", this.scaleChangeSize.bind(this));
 		this.canvas.registerWheel(BX(this.id  + 'editorActiveBlock'));
 		this.description = BX(this.id + 'editorDescription');
 	},
@@ -2314,14 +2314,14 @@ var CanvasMaster = function(id, nodes) {
 			scale : pos.coeff
 		}
 	);
-	BX.addCustomEvent(this.canvasMap, "onMapPointerIsMoved", BX.delegate(this.move, this));
-	BX.addCustomEvent(this.canvasMap, "onMapIsInitialised", BX.delegate(function(){ this.registerWheel(this.canvasMap.root); }, this));
+	BX.addCustomEvent(this.canvasMap, "onMapPointerIsMoved", this.move.bind(this));
+	BX.addCustomEvent(this.canvasMap, "onMapIsInitialised", function(){ this.registerWheel(this.canvasMap.root); }.bind(this));
 
 	this.id = id;
 	BX.bind(window, "resize", BX.proxy(this.onResizeWindow, this));
 	this.stack = new CanvasStack(5);
-	BX.addCustomEvent(this.stack, "onChange", BX.delegate(this.changeCancelNode, this));
-	BX.addCustomEvent(this.stack, "onRestore", BX.delegate(this.restore, this));
+	BX.addCustomEvent(this.stack, "onChange", this.changeCancelNode.bind(this));
+	BX.addCustomEvent(this.stack, "onRestore", this.restore.bind(this));
 	BX.addCustomEvent(this, "onActiveItemIsChanged", BX.delegate(this.stack.init, this.stack));
 	BX.addCustomEvent(this, "onPopupClose", BX.delegate(function(){
 		if(this.cropObj) { this.cropObj.finish(); }
@@ -2331,9 +2331,9 @@ var CanvasMaster = function(id, nodes) {
 CanvasMaster.prototype = {
 	registerWheel : function(node)
 	{
-		BX.bind(node, this.onWheelEvent, BX.delegate(this.onWheel, this));
+		BX.bind(node, this.onWheelEvent, this.onWheel.bind(this));
 		if (this.onWheelEvent == "DOMMouseScroll")
-			BX.bind(node, "MozMousePixelScroll", BX.delegate(this.onWheel, this));
+			BX.bind(node, "MozMousePixelScroll", this.onWheel.bind(this));
 	},
 	onWheelEvent : ("onwheel" in document.createElement("div") ? "wheel" : // Modern browsers support "wheel"
 		document['onmousewheel'] !== undefined ? "mousewheel" : // Webkit and IE support at least "mousewheel"
@@ -2773,7 +2773,7 @@ CanvasMaster.prototype = {
 						this.posterApply(msg.value);
 					this.posterPopup.close();
 				}, this) } } ),
-				new BX.PopupWindowButtonLink( {text : BX.message('CANVAS_CANCEL'), events : { click : BX.delegate(function(){this.posterPopup.close();}, this) } } )
+				new BX.PopupWindowButtonLink( {text : BX.message('CANVAS_CANCEL'), events : { click : function(){this.posterPopup.close();}.bind(this) } } )
 			],
 
 			content : [/*jshint multistr: true */'<div class="bxu-poster-popup-dt">', BX.message("CANVAS_POSTER_SIGN"), '</div> \
@@ -2874,8 +2874,8 @@ CanvasMaster.prototype = {
 
 			BX.addCustomEvent(this, "onCropHasToBeHidden", BX.delegate(this.cropObj.finish, this.cropObj));
 
-			BX.addCustomEvent(this.cropObj, "onCropApply", BX.delegate(this.cropApply, this));
-			BX.addCustomEvent(this.cropObj, "onCropTooBig", BX.delegate(this.onCropTooBig, this));
+			BX.addCustomEvent(this.cropObj, "onCropApply", this.cropApply.bind(this));
+			BX.addCustomEvent(this.cropObj, "onCropTooBig", this.onCropTooBig.bind(this));
 			BX.addCustomEvent(this.cropObj, "onCropStart", BX.delegate(function(){
 				BX.addClass(button, "bxu-edit-btn-active");
 				this.cropStatus = true;
@@ -3067,8 +3067,8 @@ var CanvasScale = function(id, pointer, canvas) {
 	this.pointer = pointer;
 	var pos = BX.pos(this.pointer.parentNode);
 	this.divisionValue = pos.height / 200;
-	this.process = BX.delegate(this.process, this);
-	this.finish = BX.delegate(this.finish, this);
+	this.process = this.process.bind(this);
+	this.finish = this.finish.bind(this);
 
 	if (canvas)
 	{
@@ -3288,29 +3288,29 @@ CanvasCrop.prototype = {
 				attrs : { className : "adm-photoeditor-crop-apply" },
 				style : { zIndex : 3 },
 				events : {
-					click : BX.delegate(this.cropApply, this)
+					click : this.cropApply.bind(this)
 				}
 			});
 			this.cancel = BX.create('DIV', {
 				attrs : { className : "adm-photoeditor-crop-cancel" },
 				style : { zIndex : 3 },
 				events : {
-					click : BX.delegate(this.cropCancel, this)
+					click : this.cropCancel.bind(this)
 				}
 			});
 			this.proportion = BX.create('DIV', {
 				attrs : { className : "adm-photoeditor-crop-proportion" },
 				style : { zIndex : 3 },
 				events : {
-					click : BX.delegate(this.cropProportionActivate, this)
+					click : this.cropProportionActivate.bind(this)
 				}
 			});
 
 			this.width = BX.create('DIV', { attrs : { className : "adm-photoeditor-crop-width" } } );
 			this.height = BX.create('DIV', { attrs : { className : "adm-photoeditor-crop-height" } } );
-			this.stretchStart = BX.delegate(this.stretchStart, this);
-			this.stretch = BX.delegate(this.stretch, this);
-			this.stretchEnd = BX.delegate(this.stretchEnd, this);
+			this.stretchStart = this.stretchStart.bind(this);
+			this.stretch = this.stretch.bind(this);
+			this.stretchEnd = this.stretchEnd.bind(this);
 			this.leftBottom = BX.create('DIV', {
 				attrs : { className : "adm-photoeditor-crop-left-bottom" },
 				events : {
@@ -3414,15 +3414,15 @@ CanvasCrop.prototype = {
 			this.root.appendChild(this.projection);
 			this.root.appendChild(this.preventer);
 
-			this.drawStart = BX.delegate(this.drawStart, this);
-			this.draw = BX.delegate(this.draw, this);
-			this.drawEnd = BX.delegate(this.drawEnd, this);
+			this.drawStart = this.drawStart.bind(this);
+			this.draw = this.draw.bind(this);
+			this.drawEnd = this.drawEnd.bind(this);
 
-			this.stop = BX.delegate(this.stop, this);
+			this.stop = this.stop.bind(this);
 
-			this.moveStart = BX.delegate(this.moveStart, this);
-			this.move = BX.delegate(this.move, this);
-			this.moveEnd = BX.delegate(this.moveEnd, this);
+			this.moveStart = this.moveStart.bind(this);
+			this.move = this.move.bind(this);
+			this.moveEnd = this.moveEnd.bind(this);
 
 			BX.bind(this.pointer, "mousedown", this.moveStart);
 		}
@@ -3854,7 +3854,7 @@ CanvasCrop.prototype = {
 	stretchStart : function(e)
 	{
 		BX.PreventDefault(e);
-		var div = BX.proxy_context;
+		var div = e['currentTarget'] || e['target'];
 		this.stretchPosition = div.className.replace("adm-photoeditor-crop-", "");
 		this.cursor = null;
 		if (this.stretchPosition == "left-bottom" ||
@@ -4126,11 +4126,11 @@ var CanvasMapMaster = function(block, params) {
 		document.body.appendChild(this.root);
 		BX.ZIndexManager.register(this.root);
 	}
-	this.moveStart = BX.delegate(this.moveStart, this);
-	this.move = BX.delegate(this.move, this);
-	this.moveEnd = BX.delegate(this.moveEnd, this);
+	this.moveStart = this.moveStart.bind(this);
+	this.move = this.move.bind(this);
+	this.moveEnd = this.moveEnd.bind(this);
 
-	this._bindNodes = BX.delegate(this.bindNodes, this);
+	this._bindNodes = this.bindNodes.bind(this);
 	BX.defer_proxy(this._bindNodes)(params);
 	BX.bind(window, "resize", BX.proxy(this.onResizeWindow, this));
 	return this;
@@ -4484,7 +4484,7 @@ CanvasMapMaster.prototype = {
 					}
 			}, this));
 
-			BX.bind(this.canvasMapBlock, "dblclick", BX.delegate(this.collapse, this));
+			BX.bind(this.canvasMapBlock, "dblclick", this.collapse.bind(this));
 		}
 		this.collapseEnd();
 	},

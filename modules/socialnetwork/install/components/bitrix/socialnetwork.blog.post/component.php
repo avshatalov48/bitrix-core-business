@@ -1076,11 +1076,45 @@ if(
 					{
 						$bHasImg = true;
 						$arImages[$arImage['ID']] = $arImage['FILE_ID'];
-						$arResult["images"][$arImage['ID']] = Array(
-							"small" => "/bitrix/components/bitrix/blog/show_file.php?fid=".$arImage['ID']."&width=".$arParams["ATTACHED_IMAGE_MAX_WIDTH_SMALL"]."&height=".$arParams["ATTACHED_IMAGE_MAX_HEIGHT_SMALL"]."&type=square"
+
+						$resizedImageData = CFile::ResizeImageGet(
+							$arImage['FILE_ID'],
+							[
+								'width' => $arParams['ATTACHED_IMAGE_MAX_WIDTH_SMALL'],
+								'height' => $arParams['ATTACHED_IMAGE_MAX_HEIGHT_SMALL'],
+							],
+							BX_RESIZE_IMAGE_EXACT,
+							true
 						);
 
-						$arResult["images"][$arImage['ID']]["full"] = "/bitrix/components/bitrix/blog/show_file.php?fid=".$arImage['ID']."&width=".$arParams["ATTACHED_IMAGE_MAX_WIDTH_FULL"]."&height=".$arParams["ATTACHED_IMAGE_MAX_HEIGHT_FULL"];
+						$resizedWidth = (int)$resizedImageData['width'];
+						$resizedHeight = (int)$resizedImageData['height'];
+
+						if (
+							(int)$resizedImageData['width'] > $arParams['ATTACHED_IMAGE_MAX_WIDTH_SMALL']
+							|| (int)$resizedImageData['height'] > $arParams['ATTACHED_IMAGE_MAX_HEIGHT_SMALL']
+						)
+						{
+							if ((int)$resizedImageData['width'] > (int)$resizedImageData['height'])
+							{
+								$coeff = $resizedImageData['width'] / $arParams['ATTACHED_IMAGE_MAX_WIDTH_SMALL'];
+								$resizedWidth = $arParams['ATTACHED_IMAGE_MAX_WIDTH_SMALL'];
+								$resizedHeight = ($resizedImageData['height'] / $coeff);
+							}
+							else
+							{
+								$coeff = $resizedImageData['height'] / $arParams['ATTACHED_IMAGE_MAX_HEIGHT_SMALL'];
+								$resizedHeight = $arParams['ATTACHED_IMAGE_MAX_HEIGHT_SMALL'];
+								$resizedWidth = (int)($resizedImageData['width'] / $coeff);
+							}
+						}
+
+						$arResult['images'][$arImage['ID']] = [
+							'small' => '/bitrix/components/bitrix/blog/show_file.php?fid=' . $arImage['ID'] . '&width=' . $arParams['ATTACHED_IMAGE_MAX_WIDTH_SMALL'] . '&height=' . $arParams['ATTACHED_IMAGE_MAX_HEIGHT_SMALL'] . '&type=square',
+							'full' => '/bitrix/components/bitrix/blog/show_file.php?fid' . $arImage['ID'] . '&width=' . $arParams['ATTACHED_IMAGE_MAX_WIDTH_FULL'] . '&height=' . $arParams['ATTACHED_IMAGE_MAX_HEIGHT_FULL'],
+							'resizedWidth' => $resizedWidth,
+							'resizedHeight' => $resizedHeight,
+						];
 					}
 				}
 

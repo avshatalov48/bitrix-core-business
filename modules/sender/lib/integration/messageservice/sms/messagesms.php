@@ -12,6 +12,8 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Entity;
+use Bitrix\Main\Config\Option;
+use Bitrix\Sender\Transport\TimeLimiter;
 
 Loc::loadMessages(__FILE__);
 
@@ -82,6 +84,8 @@ class MessageSms implements Message\iBase, Message\iMailable
 				'required' => true,
 			),
 		));
+
+		TimeLimiter::prepareMessageConfiguration($this->configuration);
 	}
 
 	/**
@@ -140,6 +144,7 @@ class MessageSms implements Message\iBase, Message\iMailable
 				}
 			);
 		}
+		TimeLimiter::prepareMessageConfigurationView($this->configuration);
 
 		return $this->configuration;
 	}

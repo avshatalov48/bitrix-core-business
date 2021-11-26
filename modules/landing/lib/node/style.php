@@ -3,6 +3,7 @@
 namespace Bitrix\Landing\Node;
 
 use Bitrix\Landing\Block;
+use Bitrix\Main\Web\DOM\Node;
 use Bitrix\Main\Web\DOM\StyleInliner;
 
 class Style
@@ -56,12 +57,17 @@ class Style
 		// nodes for get
 		if ($selector === $wrapper)
 		{
-			$nodesArray = $doc->getChildNodesArray();
+			$wrapperNode = [];
+			foreach ($doc->getChildNodesArray() as $node)
+			{
+				if ($node->getNodeType() === Node::ELEMENT_NODE)
+				{
+					$wrapperNode[] = $node;
+					break;
+				}
+			}
 
-			return
-				($nodesArray && is_array($nodesArray))
-					? [array_pop($nodesArray)]
-					: [];
+			return $wrapperNode;
 		}
 
 		return $doc->querySelectorAll($selector);

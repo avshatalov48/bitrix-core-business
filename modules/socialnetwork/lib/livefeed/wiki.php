@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Main\Config\Option;
@@ -19,17 +20,17 @@ final class Wiki extends Provider
 		return static::PROVIDER_ID;
 	}
 
-	public function getEventId()
+	public function getEventId(): array
 	{
 		return [ 'wiki', 'wiki_del' ];
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return Provider::TYPE_POST;
 	}
 
-	public function getCommentProvider()
+	public function getCommentProvider(): Provider
 	{
 		return new ForumPost();
 	}
@@ -39,7 +40,7 @@ final class Wiki extends Provider
 		static $wikiParser = false;
 		static $cache = [];
 
-		$elementId = (int)$this->entityId;
+		$elementId = $this->entityId;
 
 		if ($elementId <= 0)
 		{

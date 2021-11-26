@@ -125,7 +125,7 @@ class Handler extends Requests\HandlerBase
 			);
 
 			$delivery = Services\Manager::getObjectById($shipment->getDeliveryId());
-			$deliveryConfig = $delivery->getConfigValues();
+			$deliveryConfig = $delivery ? $delivery->getConfigValues() : [];
 
 			//cache on delivery
 			if($deliveryConfig['MAIN']['CATEGORY'] == 4)

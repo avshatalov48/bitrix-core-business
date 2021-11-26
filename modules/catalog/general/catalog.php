@@ -1,11 +1,9 @@
-<?
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Catalog;
-use Bitrix\Iblock;
+<?php
+use Bitrix\Main;
 use Bitrix\Main\Loader;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
+use Bitrix\Iblock;
 
 class CAllCatalog
 {
@@ -443,9 +441,11 @@ class CAllCatalog
 				$arSelectFields = $arClearFields;
 			}
 
-			if (!isset($arSelectFields)
-				|| empty($arSelectFields)
-				|| in_array("*", $arSelectFields))
+			if (
+				empty($arSelectFields)
+				|| !is_array($arSelectFields)
+				|| in_array("*", $arSelectFields)
+			)
 			{
 				foreach ($arFields as $fieldKey => $fieldDescr)
 				{
@@ -867,8 +867,7 @@ class CAllCatalog
 				$arSelectFields = array($arSelectFields);
 			}
 
-			if (!isset($arSelectFields)
-				|| empty($arSelectFields)
+			if (empty($arSelectFields)
 				|| !is_array($arSelectFields)
 				|| in_array("*", $arSelectFields))
 			{
@@ -1271,7 +1270,7 @@ class CAllCatalog
 		return CCatalog::Delete($ID);
 	}
 
-	public static function PreGenerateXML($xml_type = 'yandex')
+	public static function PreGenerateXML($xml_type = 'yandex'): string
 	{
 		if ($xml_type == 'yandex')
 		{
@@ -1323,7 +1322,7 @@ class CAllCatalog
 		return CCatalogSku::GetInfoByLinkProperty($ID);
 	}
 
-	public static function OnBeforeIBlockElementDelete($ID)
+	public static function OnBeforeIBlockElementDelete($ID): bool
 	{
 		global $APPLICATION;
 
@@ -1367,7 +1366,7 @@ class CAllCatalog
 		return true;
 	}
 
-	public static function OnBeforeCatalogDelete($ID)
+	public static function OnBeforeCatalogDelete($ID): bool
 	{
 		global $APPLICATION;
 
@@ -1417,7 +1416,7 @@ class CAllCatalog
 	 * @param array &$fields
 	 * @return bool
 	 */
-	public static function OnBeforeIBlockPropertyUpdate(array &$fields)
+	public static function OnBeforeIBlockPropertyUpdate(array &$fields): bool
 	{
 		global $APPLICATION;
 
@@ -1521,7 +1520,7 @@ class CAllCatalog
 	 * @param int $intPropertyID
 	 * @return bool
 	 */
-	public static function OnBeforeIBlockPropertyDelete($intPropertyID)
+	public static function OnBeforeIBlockPropertyDelete($intPropertyID): bool
 	{
 		global $APPLICATION;
 
@@ -1553,6 +1552,7 @@ class CAllCatalog
 			$result = false;
 		}
 		unset($property);
+
 		return $result;
 	}
 
@@ -1572,7 +1572,7 @@ class CAllCatalog
 		return $property['CODE'] === 'BRAND' && (int)$property['IBLOCK_ID'] === $crmCatalogId;
 	}
 
-	public static function OnIBlockModuleUnInstall()
+	public static function OnIBlockModuleUnInstall(): bool
 	{
 		global $APPLICATION;
 
@@ -1580,7 +1580,7 @@ class CAllCatalog
 		return false;
 	}
 
-	public static function OnBeforeIBlockUpdate(array &$fields)
+	public static function OnBeforeIBlockUpdate(array &$fields): bool
 	{
 		if (!self::isEnabledHandler())
 			return true;
@@ -1600,10 +1600,10 @@ class CAllCatalog
 		return true;
 	}
 
-	public static function OnAfterIBlockUpdate(array &$fields)
+	public static function OnAfterIBlockUpdate(array &$fields): void
 	{
 		if (!self::isEnabledHandler())
-			return true;
+			return;
 		if (!$fields['RESULT'])
 			return;
 		if (!isset($fields['ID']) || !isset($fields['ACTIVE']))
@@ -1660,7 +1660,7 @@ class CAllCatalog
 		return $arResult;
 	}
 
-	public static function UnLinkSKUIBlock($ID)
+	public static function UnLinkSKUIBlock($ID): bool
 	{
 		global $APPLICATION;
 
@@ -1760,7 +1760,7 @@ class CAllCatalog
 			$obError = new CAdminException($arMsg);
 			$APPLICATION->ResetException();
 			$APPLICATION->ThrowException($obError);
-			return $boolResult;
+			return false;
 		}
 		else
 		{
@@ -1774,7 +1774,7 @@ class CAllCatalog
 	 *
 	 * @return array
 	 */
-	public static function GetCatalogFieldsList()
+	public static function GetCatalogFieldsList(): array
 	{
 		global $DB;
 		$arFieldsList = $DB->GetTableFieldsList('b_catalog_iblock');
@@ -1782,34 +1782,36 @@ class CAllCatalog
 		$arFieldsList[] = 'CATALOG_TYPE';
 		$arFieldsList[] = 'OFFERS_IBLOCK_ID';
 		$arFieldsList[] = 'OFFERS_PROPERTY_ID';
-		$arFieldsList = array_unique($arFieldsList);
-		return $arFieldsList;
+		return array_unique($arFieldsList);
 	}
 
-	public static function IsUserExists()
+	public static function IsUserExists(): bool
 	{
 		global $USER;
 
 		return (isset($USER) && $USER instanceof CUser);
 	}
 
-	public static function clearCache()
+	public static function clearCache(): void
 	{
-		self::$arCatalogCache = array();
-		self::$catalogVatCache = array();
+		self::$arCatalogCache = [];
+		self::$catalogVatCache = [];
 	}
 
-	private static function disableHandler()
+	private static function disableHandler(): void
 	{
 		self::$disableCheckIblock--;
 	}
 
-	private static function enableHandler()
+	private static function enableHandler(): void
 	{
 		self::$disableCheckIblock++;
 	}
 
-	private static function isEnabledHandler()
+	/**
+	 * @return bool
+	 */
+	private static function isEnabledHandler(): bool
 	{
 		return (self::$disableCheckIblock >= 0);
 	}

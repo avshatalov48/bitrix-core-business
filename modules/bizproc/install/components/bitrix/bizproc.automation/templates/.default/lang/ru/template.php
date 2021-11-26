@@ -1,9 +1,11 @@
-<?
+<?php
+
 $MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_LIST"] = "Триггеры";
 $MESS["BIZPROC_AUTOMATION_CMP_ROBOT_LIST"] = "Роботы";
 $MESS["BIZPROC_AUTOMATION_CMP_PARAMETERS_LIST"] = "Параметры";
 $MESS["BIZPROC_AUTOMATION_CMP_CONSTANTS_LIST"] = "Константы";
 $MESS["BIZPROC_AUTOMATION_CMP_GLOB_CONSTANTS_LIST"] = "Глобальные константы";
+$MESS["BIZPROC_AUTOMATION_CMP_GLOB_VARIABLES_LIST"] = "Глобальные переменные";
 $MESS["BIZPROC_AUTOMATION_CMP_FILES_LINKS"] = "Ссылка на файл";
 $MESS["BIZPROC_AUTOMATION_CMP_SAVE"] = "Сохранить";
 $MESS["BIZPROC_AUTOMATION_CMP_CANCEL"] = "Отмена";
@@ -69,7 +71,7 @@ $MESS["BIZPROC_AUTOMATION_CMP_DELAY_NOW_HELP"] = "Робот сработает 
 $MESS["BIZPROC_AUTOMATION_CMP_DELAY_AFTER_HELP"] = "Время, через которое сработает робот после перехода документа в конкретный статус";
 $MESS["BIZPROC_AUTOMATION_CMP_DELAY_BEFORE_HELP"] = "Робот сработает за указанное количество дней (часов, минут) до конкретной даты, указанной в документе. Например, за 1 день до срока оплаты счета - отправить клиенту письмо с напоминанием об оплате";
 $MESS["BIZPROC_AUTOMATION_CMP_DELAY_IN_HELP"] = "Робот сработает в конкретное время, указанное в документе";
-$MESS["BIZPROC_AUTOMATION_CMP_DELAY_WORKTIME_HELP_2"] = "Учитывать только рабочее время, пропускать выходные и праздники. Учитывается время Ответственного менеджера";
+$MESS["BIZPROC_AUTOMATION_CMP_DELAY_WORKTIME_HELP_2"] = "Робот сработает только в рабочее время (по часовому поясу ответственного менеджера) и пропустит выходные и праздничные дни, указанные в настройках Битрикс24";
 $MESS["BIZPROC_AUTOMATION_CMP_DELAY_LOCALTIME_HELP"] = "Учитывать часовой пояс при расчете времени срабатывания робота";
 $MESS["BIZPROC_AUTOMATION_CMP_DELAY_NOW_HELP_2"] = "Будет установлено актуальное на момент выполнения время";
 $MESS["BIZPROC_AUTOMATION_CMP_IS_DEMO"] = "(скоро)";
@@ -89,7 +91,6 @@ $MESS["BIZPROC_AUTOMATION_ROBOT_CATEGORY_ADS"] = "Реклама";
 $MESS["BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER"] = "Свои роботы";
 $MESS["BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE_2"] = "Битрикс24.Маркет";
 $MESS["BIZPROC_AUTOMATION_ROBOT_CONDITION"] = "Условие";
-$MESS["BIZPROC_AUTOMATION_ROBOT_CONDITION_EMPTY"] = "без условия";
 $MESS["BIZPROC_AUTOMATION_ROBOT_CONDITION_EQ"] = "равно";
 $MESS["BIZPROC_AUTOMATION_ROBOT_CONDITION_GT"] = "больше";
 $MESS["BIZPROC_AUTOMATION_ROBOT_CONDITION_GTE"] = "не меньше";
@@ -132,4 +133,3 @@ $MESS["BIZPROC_AUTOMATION_CLOSE_CAPTION"] = "Закрыть";
 $MESS["BIZPROC_AUTOMATION_ASK_CONSTANT"] = "Настроить администратором перед запуском";
 $MESS["BIZPROC_AUTOMATION_ASK_PARAMETER"] = "Спрашивать при запуске";
 $MESS["BIZPROC_AUTOMATION_ASK_MANUAL"] = "Выбрать сейчас";
-?>

@@ -1,20 +1,19 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Livefeed;
 
-use Bitrix\Main\Config\Option;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UserTable;
 use Bitrix\Socialnetwork\LogTable;
 
 final class Bitrix24NewUser extends IntranetNewUser
 {
-	const PROVIDER_ID = 'BITRIX24_NEW_USER';
-	const CONTENT_TYPE_ID = 'BITRIX24_NEW_USER';
+	public const PROVIDER_ID = 'BITRIX24_NEW_USER';
+	public const CONTENT_TYPE_ID = 'BITRIX24_NEW_USER';
 
-	public function getEventId()
+	public function getEventId(): array
 	{
-		return array('bitrix24_new_user');
+		return [ 'bitrix24_new_user' ];
 	}
 
 	public function initSourceFields()
@@ -64,6 +63,4 @@ final class Bitrix24NewUser extends IntranetNewUser
 			}
 		}
 	}
-
-
 }

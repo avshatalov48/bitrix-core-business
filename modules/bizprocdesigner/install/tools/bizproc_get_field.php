@@ -1,5 +1,6 @@
-<?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
+<?php
+
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_before.php");
 \Bitrix\Main\Loader::includeModule('bizproc');
 
 if (!check_bitrix_sessid())
@@ -10,9 +11,24 @@ if (empty($_REQUEST['DocumentType']) || !is_array($_REQUEST['DocumentType']))
 	die();
 }
 
+$documentType = $_REQUEST['DocumentType'];
 $user = new \CBPWorkflowTemplateUser(\CBPWorkflowTemplateUser::CurrentUser);
+$operationParameters = [];
 
-if (!$user->isAdmin() && !CBPDocument::CanUserOperateDocumentType(CBPCanUserOperateOperation::ViewWorkflow, $user->getId(), $_REQUEST['DocumentType']))
+if (isset($documentType[3]))
+{
+	$operationParameters['DocumentCategoryId'] = $documentType[3];
+}
+
+if (
+	!$user->isAdmin()
+	&& !CBPDocument::CanUserOperateDocumentType(
+		CBPCanUserOperateOperation::ViewWorkflow,
+		$user->getId(),
+		$documentType,
+		$operationParameters
+	)
+)
 {
 	die();
 }
@@ -22,7 +38,7 @@ CUtil::DecodeUriComponent($_POST);
 
 if (LANG_CHARSET != "UTF-8" && isset($_REQUEST['Type']['Options']) && is_array($_REQUEST['Type']['Options']))
 {
-	$newarr = array();
+	$newarr = [];
 	foreach ($_REQUEST['Type']['Options'] as $k => $v)
 		$newarr[CharsetConverter::ConvertCharset($k, "UTF-8", LANG_CHARSET)] = $v;
 	$_REQUEST['Type']['Options'] = $newarr;
@@ -39,7 +55,7 @@ $publicMode = (!empty($_REQUEST['RenderMode']) && $_REQUEST['RenderMode'] === 'p
 if ($_REQUEST['Mode'] == "Type")
 {
 	echo $documentService->GetFieldInputControlOptions(
-		$_REQUEST['DocumentType'],
+		$documentType,
 		$type,
 		$_REQUEST['Func'],
 		$value
@@ -57,7 +73,7 @@ else
 		&& count($type['OptionsSort']) === count($type['Options'])
 	)
 	{
-		$sortedOptions = array();
+		$sortedOptions = [];
 		$sortSuccess = true;
 		foreach ($type['OptionsSort'] as $optionKey)
 		{
@@ -75,9 +91,9 @@ else
 		unset($sortSuccess, $sortedOptions);
 	}
 
-	/** @var CBPDocumentService $documentService*/
+	/** @var CBPDocumentService $documentService */
 	echo $documentService->GetFieldInputControl(
-		$_REQUEST['DocumentType'],
+		$documentType,
 		$type,
 		$_REQUEST['Field'],
 		$value,
@@ -86,4 +102,4 @@ else
 	);
 }
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/epilog_after.php");

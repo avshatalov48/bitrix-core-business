@@ -252,16 +252,32 @@ class CAllForumTopic
 				}
 			}
 		}
-		\Bitrix\Forum\Topic::update($ID, $data);
+		$fieldForEdit = array_intersect_key($data, array_flip(["TITLE",
+			"TITLE_SEO",
+			"TAGS",
+			"DESCRIPTION",
+			"ICON",
+			"USER_START_NAME"])
+		);
+		if (!empty($fieldForEdit))
+		{
+			$topic->edit($data);
+			$data = array_diff_key($data, $data);
+		}
+		if (array_key_exists("FORUM_ID", $data))
+		{
+			$topic->moveToForum($data["FORUM_ID"]);
+			unset($GLOBALS["FORUM_CACHE"]["FORUM"]);
+			unset($data["FORUM_ID"]);
+		}
+		if (!empty($data))
+		{
+			\Bitrix\Forum\Topic::update($topic->getId(), $data);
+		}
 
 		unset($GLOBALS["FORUM_CACHE"]["TOPIC"][$ID]);
 		unset($GLOBALS["FORUM_CACHE"]["TOPIC_FILTER"][$ID]);
 
-		if (array_key_exists("FORUM_ID", $arFields))
-		{
-			$topic->moveToForum($arFields["FORUM_ID"]);
-			unset($GLOBALS["FORUM_CACHE"]["FORUM"]);
-		}
 		return $ID;
 	}
 
@@ -396,56 +412,14 @@ class CAllForumTopic
 
 	public static function Delete($ID)
 	{
-		global $DB, $USER_FIELD_MANAGER;
-		$ID = intval($ID);
-		$arTopic = CForumTopic::GetByID($ID);
-		if (empty($arTopic)):
-			return false;
-		endif;
-/***************** Event onBeforeTopicDelete ***********************/
-		foreach(GetModuleEvents("forum", "onBeforeTopicDelete", true) as $arEvent)
+		if ($topic = \Bitrix\Forum\Topic::getById($ID))
 		{
-			if (ExecuteModuleEventEx($arEvent, array(&$ID, $arTopic)) === false)
-				return false;
+			$topic->remove();
 		}
-/***************** /Event ******************************************/
-		$arAuthor = array(); $arVotes = array();
-		$db_res = CForumMessage::GetList(array("ID" => "ASC"), array("TOPIC_ID" => $ID));
-		while ($res = $db_res->Fetch())
-		{
-			if (intval($res["AUTHOR_ID"]) > 0)
-				$arAuthor[intval($res["AUTHOR_ID"])] = $res["AUTHOR_ID"];
-			if ($res["PARAM1"] == "VT" && intval($res["PARAM2"]) > 0)
-				$arVotes[] = intval($res["PARAM2"]);
-			$USER_FIELD_MANAGER->Delete("FORUM_MESSAGE", $res["ID"]);
-		}
-		if (!empty($arVotes) && IsModuleInstalled("vote") && CModule::IncludeModule("vote")):
-			foreach ($arVotes as $res)
-			{
-				CVote::Delete($res);
-			}
-		endif;
-
-//		$DB->StartTransaction();
-			CForumFiles::Delete(array("TOPIC_ID" => $ID), array("DELETE_TOPIC_FILE" => "Y"));
-			$DB->Query("DELETE FROM b_forum_subscribe WHERE TOPIC_ID = ".$ID."");
-			$DB->Query("DELETE FROM b_forum_message WHERE TOPIC_ID = ".$ID."");
-			$DB->Query("DELETE FROM b_forum_user_topic WHERE TOPIC_ID = ".$ID."");
-			$DB->Query("DELETE FROM b_forum_topic WHERE ID = ".$ID."");
-			$DB->Query("DELETE FROM b_forum_topic WHERE TOPIC_ID = ".$ID."");
-			$DB->Query("DELETE FROM b_forum_stat WHERE TOPIC_ID = ".$ID."");
-//		$DB->Commit();
-
 		unset($GLOBALS["FORUM_CACHE"]["TOPIC"][$ID]);
 		unset($GLOBALS["FORUM_CACHE"]["TOPIC_FILTER"][$ID]);
-		foreach ($arAuthor as $key)
-			CForumUser::SetStat($key);
-		CForumNew::SetStat($arTopic["FORUM_ID"]);
 
-		if (IsModuleInstalled("search") && CModule::IncludeModule("search"))
-		{
-			CSearch::DeleteIndex("forum", false, $arTopic["FORUM_ID"], $ID);
-		}
+
 /***************** Event onAfterTopicDelete ************************/
 		foreach(GetModuleEvents("forum", "onAfterTopicDelete", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array(&$ID, $arTopic));
@@ -721,74 +695,17 @@ class CAllForumTopic
 		}
 	}
 
-	public static function SetReadLabelsNew($ID, $update = false, $LastVisit = false, $arAddParams = array())
+	public static function SetReadLabelsNew($ID, $updateForum = false, $LastVisit = false, $arAddParams = array())
 	{
-		global $DB, $USER;
-
-		$ID = intval($ID);
-		$result = false;
-		$arAddParams = (is_array($arAddParams) ? $arAddParams : array());
-		$arAddParams["UPDATE_TOPIC_VIEWS"] = ($arAddParams["UPDATE_TOPIC_VIEWS"] == "N" ? "N" : "Y");
-		if (!$update)
+		global $USER;
+		$forumUser = \Bitrix\Forum\User::getById($USER->getId());
+		if ($updateForum === true)
 		{
-			$arTopic = CForumTopic::GetByID($ID, array("NoFilter" => true));
-			if ($arTopic)
-			{
-				if ($arAddParams["UPDATE_TOPIC_VIEWS"] == "Y")
-					CForumTopic::Update($ID, array("=VIEWS"=>"VIEWS+1"));
-
-				if (!$USER->IsAuthorized())
-					return false;
-
-				$USER_ID = intval($USER->GetID());
-
-				$Fields = array(
-					"USER_ID" => $USER_ID,
-					"LAST_VISIT" => $DB->GetNowFunction(),
-					"FORUM_ID" => $arTopic["FORUM_ID"],
-					"TOPIC_ID" => $ID
-				);
-
-				if (intval($LastVisit) > 0)
-				{
-					$Fields["LAST_VISIT"] = $DB->CharToDateFunction($DB->ForSql(Date(CDatabase::DateFormatToPHP(CLang::GetDateFormat("FULL")), $LastVisit)), "FULL");
-				}
-
-				if ($DB->type == "MYSQL")
-				{
-					$ar1 = $ar2 = $ar3 = array();
-					foreach ($Fields as $field => $value)
-					{
-						$f = "`".$field."`";
-						$v = ($value == '' ? "''" : $value);
-						$ar1[] = $f;
-						$ar2[] = $v;
-						if ($field != "USER_ID" && $field != "TOPIC_ID")
-							$ar3[] = $f." = ".$v;
-					}
-					$strSql = "INSERT INTO b_forum_user_topic (".implode(", ", $ar1).") VALUES(".implode(", ", $ar2).") ON DUPLICATE KEY UPDATE ".implode(", ", $ar3);
-					$DB->StartUsingMasterOnly();
-					$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-					$DB->StopUsingMasterOnly();
-				}
-				else
-				{
-					$rows = $DB->Update("b_forum_user_topic", $Fields, "WHERE (TOPIC_ID=".$ID." AND USER_ID=".$USER_ID.")", "File: ".__FILE__."<br>Line: ".__LINE__);
-					if ($rows <= 0)
-					{
-						$DB->Insert("b_forum_user_topic", $Fields, "File: ".__FILE__."<br>Line: ".__LINE__);
-					}
-				}
-				return true;
-			}
+			$forumUser->readTopicsOnForum($ID);
 		}
-		elseif ($USER->IsAuthorized())
+		else
 		{
-			$Fields = array("LAST_VISIT" => $DB->GetNowFunction());
-			$DB->StartUsingMasterOnly();
-			$result = $DB->Update("b_forum_user_topic", $Fields, "WHERE (FORUM_ID=".$ID." AND USER_ID=".intval($USER->GetID()).")", "File: ".__FILE__."<br>Line: ".__LINE__);
-			$DB->StopUsingMasterOnly();
-			return $result;
+			$forumUser->readTopic($ID);
 		}
 		return false;
 	}

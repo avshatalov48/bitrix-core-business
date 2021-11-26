@@ -29,6 +29,19 @@ use Bitrix\Main\Text\BinaryString;
  * </ul>
  *
  * @package Bitrix\Bizproc
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_RestActivity_Query query()
+ * @method static EO_RestActivity_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_RestActivity_Result getById($id)
+ * @method static EO_RestActivity_Result getList(array $parameters = array())
+ * @method static EO_RestActivity_Entity getEntity()
+ * @method static \Bitrix\Bizproc\EO_RestActivity createObject($setDefaultValues = true)
+ * @method static \Bitrix\Bizproc\EO_RestActivity_Collection createCollection()
+ * @method static \Bitrix\Bizproc\EO_RestActivity wakeUpObject($row)
+ * @method static \Bitrix\Bizproc\EO_RestActivity_Collection wakeUpCollection($rows)
  */
 class RestActivityTable extends Entity\DataManager
 {

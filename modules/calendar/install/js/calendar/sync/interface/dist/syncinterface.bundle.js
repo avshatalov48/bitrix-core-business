@@ -209,12 +209,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      this.DOM.container = main_core.Tag.render(_templateObject$1(), this.getSliderContentInfoBlock, this.getTitle(), this.QRCODE_WRAP_CLASS, calendar_util.Util.getLoader(this.QRCODE_SIZE), main_core.Loc.getMessage('SYNC_MOBILE_NOTICE_HOW_TO'), this.type !== 'iphone' ? main_core.Tag.render(_templateObject2$1(), main_core.Loc.getMessage('CAL_ANDROID_QR_CODE_HINT')) : '', main_core.Loc.getMessage('SYNC_MOBILE_NOTICE'), this.getHelpdeskCode(), main_core.Loc.getMessage('SYNC_MOBILE_ABOUT_BTN'));
-	      this.DOM.mobileHintIcon = this.DOM.container.querySelector('.calendar-notice-mobile-banner');
-
-	      if (this.DOM.mobileHintIcon && BX.UI.Hint) {
-	        BX.UI.Hint.initNode(this.DOM.mobileHintIcon);
-	      }
-
+	      calendar_util.Util.initHintNode(this.DOM.container.querySelector('.calendar-notice-mobile-banner'));
 	      return this.DOM.container;
 	    }
 	  }, {

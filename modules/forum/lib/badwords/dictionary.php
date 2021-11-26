@@ -9,6 +9,22 @@ use Bitrix\Main\ORM\Fields\StringField;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class DictionaryTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Dictionary_Query query()
+ * @method static EO_Dictionary_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Dictionary_Result getById($id)
+ * @method static EO_Dictionary_Result getList(array $parameters = array())
+ * @method static EO_Dictionary_Entity getEntity()
+ * @method static \Bitrix\Forum\BadWords\EO_Dictionary createObject($setDefaultValues = true)
+ * @method static \Bitrix\Forum\BadWords\EO_Dictionary_Collection createCollection()
+ * @method static \Bitrix\Forum\BadWords\EO_Dictionary wakeUpObject($row)
+ * @method static \Bitrix\Forum\BadWords\EO_Dictionary_Collection wakeUpCollection($rows)
+ */
 class DictionaryTable extends Main\Entity\DataManager
 {
 	private static $dataById = [];

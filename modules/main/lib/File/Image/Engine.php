@@ -236,15 +236,12 @@ abstract class Engine
 
 		if($watermark->getMode() == ImageWatermark::MODE_RESIZE)
 		{
-			$width = $this->getWidth();
-			$height = $this->getHeight();
+			$source = $image->getDimensions();
+			$destination = $this->getDimensions();
 
-			$ratio = $watermark->getRatio();
+			$destination->scale($watermark->getRatio());
 
-			$source = new Rectangle($image->getWidth(), $image->getHeight());
-			$destination = new Rectangle(round($width * $ratio), round($height * $ratio));
-
-			if($source->resize($destination, Image::RESIZE_PROPORTIONAL))
+			if ($source->resize($destination, Image::RESIZE_PROPORTIONAL))
 			{
 				$image->resize($source, $destination);
 			}
@@ -273,6 +270,15 @@ abstract class Engine
 	 * @return int
 	 */
 	abstract public function getHeight();
+
+	/**
+	 * Returns actual width and height in the Rectangle object.
+	 * @return Rectangle
+	 */
+	public function getDimensions()
+	{
+		return new Rectangle($this->getWidth(), $this->getHeight());
+	}
 
 	/**
 	 * Clears all resources associated to the image.

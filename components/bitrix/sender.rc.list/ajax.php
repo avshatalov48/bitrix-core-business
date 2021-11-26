@@ -23,6 +23,11 @@ $actions[] = Controller\Action::create('send')->setHandler(
 	function (HttpRequest $request, Controller\Response $response)
 	{
 		$letter = new Entity\Rc($request->get('id'));
+		$userId = Security\User::current()->getId();
+		if ($userId)
+		{
+			$letter->set('UPDATED_BY', $userId);
+		}
 		$letter->send();
 
 		$content = $response->initContentJson();
@@ -33,6 +38,11 @@ $actions[] = Controller\Action::create('pause')->setHandler(
 	function (HttpRequest $request, Controller\Response $response)
 	{
 		$letter = new Entity\Rc($request->get('id'));
+		$userId = Security\User::current()->getId();
+		if ($userId)
+		{
+			$letter->set('UPDATED_BY', $userId);
+		}
 		$letter->pause();
 
 		$content = $response->initContentJson();
@@ -43,6 +53,11 @@ $actions[] = Controller\Action::create('resume')->setHandler(
 	function (HttpRequest $request, Controller\Response $response)
 	{
 		$letter = new Entity\Rc($request->get('id'));
+		$userId = Security\User::current()->getId();
+		if ($userId)
+		{
+			$letter->set('UPDATED_BY', $userId);
+		}
 		$letter->resume();
 
 		$content = $response->initContentJson();
@@ -53,6 +68,11 @@ $actions[] = Controller\Action::create('wait')->setHandler(
 	function (HttpRequest $request, Controller\Response $response)
 	{
 		$letter = new Entity\Rc($request->get('id'));
+		$userId = Security\User::current()->getId();
+		if ($userId)
+		{
+			$letter->set('UPDATED_BY', $userId);
+		}
 		$letter->wait();
 
 		$content = $response->initContentJson();
@@ -63,6 +83,11 @@ $actions[] = Controller\Action::create('halt')->setHandler(
 	function (HttpRequest $request, Controller\Response $response)
 	{
 		$letter = new Entity\Rc($request->get('id'));
+		$userId = Security\User::current()->getId();
+		if ($userId)
+		{
+			$letter->set('UPDATED_BY', $userId);
+		}
 		$letter->halt();
 
 		$content = $response->initContentJson();
@@ -73,6 +98,11 @@ $actions[] = Controller\Action::create('stop')->setHandler(
 	function (HttpRequest $request, Controller\Response $response)
 	{
 		$letter = new Entity\Rc($request->get('id'));
+		$userId = Security\User::current()->getId();
+		if ($userId)
+		{
+			$letter->set('UPDATED_BY', $userId);
+		}
 		$letter->stop();
 
 		$content = $response->initContentJson();
@@ -83,6 +113,11 @@ $actions[] = Controller\Action::create('remove')->setHandler(
 	function (HttpRequest $request, Controller\Response $response)
 	{
 		$letter = new Entity\Rc($request->get('id'));
+		$userId = Security\User::current()->getId();
+		if ($userId)
+		{
+			$letter->set('UPDATED_BY', $userId);
+		}
 		$letter->remove();
 
 		$content = $response->initContentJson();
@@ -93,6 +128,11 @@ $actions[] = Controller\Action::create('copy')->setHandler(
 	function (HttpRequest $request, Controller\Response $response)
 	{
 		$letter = new Entity\Rc($request->get('id'));
+		$userId = Security\User::current()->getId();
+		if ($userId)
+		{
+			$letter->set('UPDATED_BY', $userId);
+		}
 		$copiedId = $letter->copy();
 
 		$content = $response->initContentJson();

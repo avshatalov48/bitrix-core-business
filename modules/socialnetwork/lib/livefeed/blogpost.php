@@ -5,6 +5,7 @@ namespace Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\Emoji;
 
 Loc::loadMessages(__FILE__);
 
@@ -20,7 +21,7 @@ class BlogPost extends Provider
 		return static::PROVIDER_ID;
 	}
 
-	public function getEventId()
+	public function getEventId(): array
 	{
 		$result = array('blog_post', 'blog_post_important', 'blog_post_micro');
 		if (ModuleManager::isModuleInstalled('intranet'))
@@ -35,12 +36,12 @@ class BlogPost extends Provider
 		return $result;
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return Provider::TYPE_POST;
 	}
 
-	public function getCommentProvider()
+	public function getCommentProvider(): Provider
 	{
 		return new BlogComment();
 	}
@@ -85,7 +86,7 @@ class BlogPost extends Provider
 
 		if (!empty($post['DETAIL_TEXT']))
 		{
-			$post['DETAIL_TEXT'] = \Bitrix\Main\Text\Emoji::decode($post['DETAIL_TEXT']);
+			$post['DETAIL_TEXT'] = Emoji::decode($post['DETAIL_TEXT']);
 		}
 
 		$this->setSourceFields($post);
@@ -95,7 +96,7 @@ class BlogPost extends Provider
 		$this->setSourceDiskObjects($this->getDiskObjects($postId, $this->cloneDiskObjects));
 	}
 
-	public function getPinnedTitle()
+	public function getPinnedTitle(): string
 	{
 		$result = '';
 
@@ -110,9 +111,7 @@ class BlogPost extends Provider
 			return $result;
 		}
 
-		$result = ($post['MICRO'] === 'N' ? truncateText($post['TITLE'], 100) : '');
-
-		return $result;
+		return ($post['MICRO'] === 'N' ? truncateText($post['TITLE'], 100) : '');
 	}
 
 	public function getPinnedDescription()
@@ -158,40 +157,11 @@ class BlogPost extends Provider
 
 	protected function getAttachedDiskObjects($clone = false)
 	{
-		global $USER_FIELD_MANAGER;
-		static $cache = array();
-
-		$postId = $this->entityId;
-
-		$result = array();
-		$cacheKey = $postId.$clone;
-
-		if (isset($cache[$cacheKey]))
-		{
-			$result = $cache[$cacheKey];
-		}
-		else
-		{
-			$postUF = $USER_FIELD_MANAGER->getUserFields("BLOG_POST", $postId, LANGUAGE_ID);
-			if (
-				!empty($postUF['UF_BLOG_POST_FILE'])
-				&& !empty($postUF['UF_BLOG_POST_FILE']['VALUE'])
-				&& is_array($postUF['UF_BLOG_POST_FILE']['VALUE'])
-			)
-			{
-				if ($clone)
-				{
-					$this->attachedDiskObjectsCloned = self::cloneUfValues($postUF['UF_BLOG_POST_FILE']['VALUE']);
-					$result = $cache[$cacheKey] = array_values($this->attachedDiskObjectsCloned);
-				}
-				else
-				{
-					$result = $cache[$cacheKey] = $postUF['UF_BLOG_POST_FILE']['VALUE'];
-				}
-			}
-		}
-
-		return $result;
+		return $this->getEntityAttachedDiskObjects([
+			'userFieldEntity' => 'BLOG_POST',
+			'userFieldCode' => 'UF_BLOG_POST_FILE',
+			'clone' => $clone,
+		]);
 	}
 
 	public static function canRead($params): bool
@@ -287,7 +257,7 @@ class BlogPost extends Provider
 		return $pathToPost;
 	}
 
-	public function getSuffix()
+	public function getSuffix(): string
 	{
 		return '2';
 	}

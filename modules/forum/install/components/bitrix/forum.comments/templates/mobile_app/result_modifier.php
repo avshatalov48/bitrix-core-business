@@ -29,7 +29,7 @@ include_once(__DIR__."/../.default/functions.php");
 
 $visibleRecordsCount = 3;
 
-$arResult["PUSH&PULL"] = false;
+$arResult["PUSH&PULL"] = isset($arResult["PUSH&PULL"]) ? $arResult["PUSH&PULL"] : false;
 $arResult["VISIBLE_RECORDS_COUNT"] = $visibleRecordsCount;
 
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
@@ -82,7 +82,12 @@ if (!empty($arResult["MESSAGES"]))
 	}
 
 	array_walk($arResult["MESSAGES"], function(&$item) {
-		$item["COLLAPSED"] = ($item["~SERVICE_TYPE"] > 0 && $item["NEW"] !== "Y"? "Y" : "N");
+		$item['COLLAPSED'] = (
+			$item['~SERVICE_TYPE'] > 0
+			&& $item['NEW'] !== 'Y'
+				? 'Y'
+				: 'N'
+		);
 		return $item;
 	});
 

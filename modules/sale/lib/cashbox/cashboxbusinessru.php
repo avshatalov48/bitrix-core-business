@@ -31,7 +31,7 @@ class CashboxBusinessRu extends CashboxAtolFarmV4
 		$result = parent::buildCheckQuery($check);
 
 		$result['service']['vendor_name'] = 'Bitrix24';
-		$result['print_check'] = false;
+		$result['print_check'] = $this->getValueFromSettings('INTERACTION', 'CHECK_REAL_PRINT') === 'Y';
 
 		return $result;
 	}
@@ -66,4 +66,18 @@ class CashboxBusinessRu extends CashboxAtolFarmV4
 
 		return $fields;
 	}
+
+	public static function getSettings($modelId = 0)
+	{
+		$settings = parent::getSettings($modelId);
+
+		$settings['INTERACTION']['ITEMS']['CHECK_REAL_PRINT'] = [
+			'TYPE' => 'Y/N',
+			'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_BUSINESS_RU_SETTINGS_CHECK_REAL_PRINT_LABEL'),
+			'VALUE' => 'N',
+		];
+
+		return $settings;
+	}
+
 }

@@ -1,0 +1,2 @@
+<?php
+$MESS["SALE_CSM_WIZARD_DEFAULTSITECHECKER_DEFAULT_SITE_NOT_EXISTS"] = "Не найден сайт по умолчанию";

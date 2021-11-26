@@ -1,5 +1,5 @@
 import { BitrixVue } from 'ui.vue';
-import { Event } from 'main.core'
+import { EventEmitter } from 'main.core.events'
 import { EventType } from 'sale.checkout.const';
 import { MixinButtonWait } from 'sale.checkout.view.mixins';
 
@@ -18,7 +18,7 @@ BitrixVue.component('sale-checkout-view-element-button-shipping-button_to_checko
 		{
 			this.setWait();
 			
-			Event.EventEmitter.emit(EventType.element.buttonShipping);
+			EventEmitter.emit(EventType.element.buttonShipping);
 		}
 	},
 	// language=Vue

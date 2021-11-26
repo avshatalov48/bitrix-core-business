@@ -76,6 +76,7 @@ class CookieSessionHandler implements \SessionHandlerInterface
 
 		$value = Json::encode([
 			'data' => $sessionData,
+			'createdAt' => time(),
 			'expires' => $expires?: null,
 		]);
 

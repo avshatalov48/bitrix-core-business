@@ -6409,10 +6409,10 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 		}
 	}
 
-	if (!BX.MessengerCommon.isDesktop() || this.desktop.enableInVersion(46))
-	{
-		BX.MessengerPromo.show('im:video:01042020:web');
-	}
+	// if (!BX.MessengerCommon.isDesktop() || this.desktop.enableInVersion(46))
+	// {
+	// 	BX.MessengerPromo.showConfirm('im:video:01042020:web');
+	// }
 
 	this.popupMessengerContent = BX.create("div", { props : { className : "bx-messenger-box bx-messenger-mark bx-messenger-global-context-"+this.BXIM.context.toLowerCase()+" "+(this.BXIM.callController.hasActiveCall()? ' bx-messenger-call'+(this.callOverlayMinimize? '': ' bx-messenger-call-maxi'): '')+(BX.MessengerCommon.isPage()? ' bx-messenger-box-desktop': '')+(BX.browser.IsMac()? '': ' bx-messenger-custom-scroll')+(this.BXIM.options.showRecent? '': ' bx-messenger-hide-recent')+(BX.MessengerTheme.isDark() ? ' bx-messenger-dark' : '') }, style: styleOfContent, children : [
 		/* CL */
@@ -6635,8 +6635,7 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 						this.BXIM.context == "LINES"? null: BX.create("div", {attrs : { title: BX.message('IM_MENTION_MENU_NEW')},  props : { className : "bx-messenger-textarea-icon bx-messenger-textarea-mention" }, events : { click : BX.delegate(function(e){ this.openMentionDialog({delay: 0}); return BX.PreventDefault(e);}, this)}}),
 						this.BXIM.context == "LINES"? null: BX.create("div", {attrs : { title: BX.message('IM_COMMAND_MENU')},  props : { className : "bx-messenger-textarea-icon bx-messenger-textarea-command" }, events : { click : BX.delegate(function(e){ this.openCommandDialog(); return BX.PreventDefault(e);}, this)}}),
 						this.popupMessengerSmileButton = BX.create("div", {attrs : { title: BX.message('IM_SMILE_MENU')},  props : { className : "bx-messenger-textarea-icon bx-messenger-textarea-smile" }, events : { click : BX.delegate(function(e){this.openSmileMenu(); return BX.PreventDefault(e);}, this)}}),
-						this.BXIM.context == "LINES"? null: BX.create("div", {attrs : { title: BX.message('IM_FORMS_MENU')},  props : { className : "bx-messenger-textarea-icon bx-messenger-textarea-forms" }, events : { click : BX.delegate(function(e){this.openFormsMenu(); return BX.PreventDefault(e);}, this)}}),
-						this.BXIM.context == "LINES"? null: BX.create("div", {attrs : { title: BX.message('IM_ANSWERS_MENU')},  props : { className : "bx-messenger-textarea-icon bx-messenger-textarea-answers" }, events : { click : BX.delegate(function(e){this.openAnswersMenu(); return BX.PreventDefault(e);}, this)}}),
+						this.popupMessengerCrmButton = BX.create("div", {attrs : { title: BX.message('IM_FORMS_MENU')},  props : { className : "bx-messenger-textarea-icon bx-messenger-textarea-forms" }, events : { click : BX.delegate(function(e){this.openFormsMenu(); return BX.PreventDefault(e);}, this)}}),
 						this.popupMessengerHiddenModeButton = BX.create("div", {attrs : { title: BX.message('IM_HIDDEN_MODE_MENU')},  props : { className : "bx-messenger-textarea-icon bx-messenger-textarea-hidden" }, events : { click : BX.delegate(function(e){ this.linesToggleSilentMode(); return BX.PreventDefault(e);}, this)}}),
 						this.popupMessengerTextareaIconBox = BX.create("div", { props : { className : "bx-messenger-textarea-icon-box" }})
 					]}),
@@ -7621,7 +7620,9 @@ BX.MessengerChat.prototype.tooltip = function(bind, text, params)
 	params.offsetLeft = params.offsetLeft || 0;
 	params.offsetTop = params.offsetTop || BX.MessengerCommon.isDesktop()? 0: -10;
 	params.width = params.width || 0;
+	params.autoHide = typeof(params.autoHide) == 'undefined'? true: params.autoHide;
 	params.angle = typeof(params.angle) == 'undefined'? true: params.angle;
+	params.angleDarkMode = typeof(params.angleDarkMode) == 'undefined'? false: params.angleDarkMode;
 	params.showOnce = typeof(params.showOnce) == 'undefined'? false: params.showOnce;
 	params.bindOptions = typeof(params.bindOptions) == 'undefined'? {position: "top"}: params.bindOptions;
 	params.closeIcon = typeof(params.closeIcon) == 'undefined'? {}: params.closeIcon;
@@ -7654,7 +7655,7 @@ BX.MessengerChat.prototype.tooltip = function(bind, text, params)
 		//parentPopup: this.popupMessenger,
 		targetContainer: document.body,
 		lightShadow: true,
-		autoHide: true,
+		autoHide: params.autoHide,
 		darkMode: true,
 		offsetLeft: params.offsetLeft,
 		offsetTop: params.offsetTop,
@@ -7668,7 +7669,13 @@ BX.MessengerChat.prototype.tooltip = function(bind, text, params)
 		content: content
 	});
 
-	if (params.angle && !BX.MessengerTheme.isDark())
+	if (
+		params.angle
+		&& (
+			!BX.MessengerTheme.isDark()
+			|| params.angleDarkMode
+		)
+	)
 	{
 		this.popupTooltip.setAngle({offset:23, position: params.bindOptions.position == 'top'? 'bottom': 'top'});
 	}
@@ -14632,15 +14639,43 @@ BX.MessengerChat.prototype.openAnswersMenu = function(params)
 		})
 	], true);
 }
+
 BX.MessengerChat.prototype.openFormsMenu = function(params)
 {
-	this.BXIM.openConfirm(BX.message('IM_OL_FORMS_SOON'), [
-		new BX.PopupWindowButton({
-			text : BX.message('IM_NOTIFY_CONFIRM_CLOSE'),
-			className : "popup-window-button",
-			events : { click : function() { this.popupWindow.close(); } }
-		})
-	], true);
+	BX.Runtime.loadExtension('ui.entity-selector').then(function(exports){
+		this.selectFormDialog = new exports.Dialog({
+			targetNode: this.popupMessengerCrmButton,
+			enableSearch: true,
+			context: 'IMOPENLINES_CRM_FORMS',
+			entities: [{
+				id: 'imopenlines-crm-form'
+			}],
+			events: {
+				'Item:onSelect': this.sendFormToChat.bind(this)
+			},
+			multiple: false
+		});
+		this.selectFormDialog.show();
+	}.bind(this))
+}
+
+BX.MessengerChat.prototype.sendFormToChat = function(event)
+{
+	var chatId = this.getChatId();
+	var session = BX.MessengerCommon.linesGetSession(this.chat[chatId]);
+
+	var eventData = event.getData();
+	BX.rest.callMethod('imopenlines.dialog.form.send', {
+		SESSION_ID: session.id,
+		CRM_FORM: {
+			ID: eventData.item.customData.get('ID'),
+			CODE: eventData.item.customData.get('CODE'),
+			SEC: eventData.item.customData.get('SEC'),
+			NAME: eventData.item.customData.get('NAME')
+		}
+	}).catch(function(error){
+		console.error('Error sending crm-form', error);
+	}.bind(this));
 }
 
 BX.MessengerChat.prototype.addRecentSmile = function(text, icon)
@@ -17405,6 +17440,29 @@ BX.MessengerChat.prototype.recentListLoadMore = function()
 }
 
 /* OPEN LINES */
+BX.MessengerChat.prototype.linesShowPromo = function()
+{
+	clearTimeout(this.linesShowPromoTimeout);
+	this.linesShowPromoTimeout = null;
+
+	if (!this.BXIM.messenger.openLinesFlag)
+	{
+		return false;
+	}
+
+	if (this.popupMessengerTextarea.disabled)
+	{
+		this.linesShowPromoTimeout = setTimeout(this.linesShowPromo.bind(this), 5000);
+		return true;
+	}
+
+	BX.MessengerPromo.show(
+		'ol:crmform:17092021:web',
+		this.BXIM.messenger.popupMessengerCrmButton,
+		{offsetLeft: 15}
+	);
+}
+
 BX.MessengerChat.prototype.linesGetList = function()
 {
 	if (this.linesListWait)
@@ -26305,7 +26363,8 @@ BX.MessengerCalls = new MessengerCalls();
 var MessengerPromo = function()
 {
 	this.promo = {
-		'im:video:01042020:web': BX.message('IM_PROMO_VIDEO_01042020_WEB').split('#BR#').join('<br>'),
+		'im:video:01042020:web': BX.message('IM_PROMO_VIDEO_01042020_WEB'),
+		'ol:crmform:17092021:web': BX.message('IM_PROMO_CRMFORM_17092021_WEB'),
 	};
 	this.promoActive = {};
 };
@@ -26329,13 +26388,18 @@ MessengerPromo.prototype.init = function(promo, controller)
 	}.bind(this));
 }
 
-MessengerPromo.prototype.show = function(id)
+MessengerPromo.prototype.showConfirm = function(id)
 {
 	if (!this.promoActive[id])
 	{
 		return false;
 	}
-	var textNode = null;
+
+	if (typeof this.promo[id] !== 'string')
+	{
+		return false;
+	}
+
 	var buttonNode = [
 		new BX.PopupWindowButton({
 			text : BX.message('IM_NOTIFY_CONFIRM_CLOSE'),
@@ -26344,14 +26408,43 @@ MessengerPromo.prototype.show = function(id)
 				BX.proxy_context.popupWindow.close();
 			}, this)}
 		})
-	]
+	];
 
-	if (typeof this.promo[id] === 'string')
+	var text = this.promo[id].split('#BR#').join('<br>');
+
+	this.BXIM.openConfirm(text, buttonNode);
+	this.read(id);
+	this.save(id);
+
+	return true;
+}
+
+MessengerPromo.prototype.show = function(id, bind, bindOptions)
+{
+	if (!this.promoActive[id])
 	{
-		textNode = this.promo[id];
+		return false;
 	}
 
-	this.BXIM.openConfirm(this.promo[id], buttonNode);
+	if (typeof this.promo[id] !== 'string')
+	{
+		return false;
+	}
+
+	var text = this.promo[id].split('#BR#').join('<br>');
+
+	bindOptions = bindOptions || {};
+	if (typeof bindOptions.angleDarkMode === 'undefined')
+	{
+		bindOptions.angleDarkMode = true;
+	}
+	if (typeof bindOptions.autoHide === 'undefined')
+	{
+		bindOptions.autoHide = false;
+	}
+
+	this.BXIM.messenger.tooltip(bind, text, bindOptions);
+
 	this.read(id);
 	this.save(id);
 

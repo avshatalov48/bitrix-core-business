@@ -216,6 +216,42 @@ abstract class Base
 		return $this->internalizeFieldsModify($fields);
 	}
 
+	protected function internalizeFieldValue($value, $info)
+	{
+		$result = new Result();
+
+		$type = $info['TYPE'] ?? '';
+
+		if($type === self::TYPE_DATE || $type === self::TYPE_DATETIME)
+		{
+			if($value === '')
+			{
+				$date = '';
+			}
+			else
+			{
+				$time = strtotime($value);
+				$date = ($time) ? \Bitrix\Main\Type\DateTime::createFromTimestamp($time):'';
+			}
+
+			if($date instanceof Date)
+			{
+				$value = $date;
+			}
+			else
+			{
+				$result->addError(new Error('internalize data field error', 0));
+			}
+		}
+		elseif($type === self::TYPE_FILE)
+		{
+			//InternalizeFileField()
+		}
+		$result->addData([$value]);
+
+		return $result;
+	}
+
 	protected function internalizeFields($fields, array $fieldsInfo)
 	{
 		$result = [];
@@ -228,32 +264,14 @@ abstract class Base
 				continue;
 			}
 
-			$type = isset($info['TYPE']) ? $info['TYPE']:'';
-
-			if($type === self::TYPE_DATE || $type === self::TYPE_DATETIME)
+			$r = $this->internalizeFieldValue($value, $info);
+			if($r->isSuccess())
 			{
-				if($value === '')
-				{
-					$date = '';
-				}
-				else
-				{
-					$time = strtotime($value);
-					$date = ($time) ? \Bitrix\Main\Type\DateTime::createFromTimestamp($time):'';
-				}
-
-				if($date instanceof Date)
-				{
-					$value = $date;
-				}
-				else
-				{
-					continue;
-				}
+				$value = current($r->getData());
 			}
-			elseif($type === self::TYPE_FILE)
+			else
 			{
-				//InternalizeFileField()
+				continue;
 			}
 
 			$result[$name] = $value;
@@ -277,6 +295,16 @@ abstract class Base
 
 				$info = isset($listFieldsInfo[$field['FIELD']]) ? $listFieldsInfo[$field['FIELD']]:null;
 				if(!$info)
+				{
+					continue;
+				}
+
+				$r = $this->internalizeFieldValue($value, $info);
+				if($r->isSuccess())
+				{
+					$value = current($r->getData());
+				}
+				else
 				{
 					continue;
 				}

@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main\Text\Emoji;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
@@ -281,7 +282,7 @@ class CSocNetLogRestService extends IRestService
 				{
 					if (!empty($arPost['DETAIL_TEXT']))
 					{
-						$arPost['DETAIL_TEXT'] = \Bitrix\Main\Text\Emoji::decode($arPost['DETAIL_TEXT']);
+						$arPost['DETAIL_TEXT'] = Emoji::decode($arPost['DETAIL_TEXT']);
 					}
 
 					if ($arPost["PUBLISH_STATUS"] !== BLOG_PUBLISH_STATUS_PUBLISH)
@@ -1986,6 +1987,15 @@ class CSocNetLogRestService extends IRestService
 		$res = CSocNetGroup::GetList($arOrder, $filter, false, self::getNavData($n));
 		while ($groupFields = $res->Fetch())
 		{
+			if (!empty($groupFields['NAME']))
+			{
+				$groupFields['NAME'] = Emoji::decode($groupFields['NAME']);
+			}
+			if (!empty($groupFields['DESCRIPTION']))
+			{
+				$groupFields['DESCRIPTION'] = Emoji::decode($groupFields['DESCRIPTION']);
+			}
+
 			$groupFields['DATE_CREATE'] = CRestUtil::ConvertDateTime($groupFields['DATE_CREATE']);
 			$groupFields['DATE_UPDATE'] = CRestUtil::ConvertDateTime($groupFields['DATE_UPDATE']);
 			$groupFields['DATE_ACTIVITY'] = CRestUtil::ConvertDateTime($groupFields['DATE_ACTIVITY']);
@@ -2425,6 +2435,11 @@ class CSocNetLogRestService extends IRestService
 		$files = [];
 		while ($groupFields = $res->fetch())
 		{
+			if (!empty($groupFields['GROUP_NAME']))
+			{
+				$groupFields['GROUP_NAME'] = Emoji::decode($groupFields['GROUP_NAME']);
+			}
+
 			$groupFields['GROUP_IMAGE'] = '';
 			$result[] = $groupFields;
 

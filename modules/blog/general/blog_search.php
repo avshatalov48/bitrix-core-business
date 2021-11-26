@@ -4,59 +4,72 @@ use Bitrix\Main\Loader;
 
 class CBlogSearch 
 {
-	public static function fillSearchPermsWithSonetGroupData($sonetPerms, $authorId, &$arSearchIndex = array(), $arParams = array())
+	public static function fillSearchPermsWithSonetGroupData($sonetPerms, $authorId, &$arSearchIndex = array(), $arParams = array()): void
 	{
-		if(is_array($sonetPerms))
+		if (is_array($sonetPerms))
 		{
 			if (
 				is_array($arParams)
-				&& isset($arParams["INIT_PERMISSIONS"])
-				&& $arParams["INIT_PERMISSIONS"] == "Y"
+				&& isset($arParams['INIT_PERMISSIONS'])
+				&& $arParams['INIT_PERMISSIONS'] === 'Y'
 			)
 			{
-				$arSearchIndex["PERMISSIONS"] = $sonetPerms;
+				$arSearchIndex['PERMISSIONS'] = $sonetPerms;
 			}
 
-			if(!in_array("U".$authorId, $arSearchIndex["PERMISSIONS"]))
+			if (!in_array('U'.$authorId, $arSearchIndex['PERMISSIONS'], true))
 			{
-				$arSearchIndex["PERMISSIONS"][] = "U".$authorId;
+				$arSearchIndex['PERMISSIONS'][] = 'U' . $authorId;
 			}
 
-			$sgId = array();
+			$sgId = [];
 
-			foreach($sonetPerms as $perm)
+			foreach ($sonetPerms as $perm)
 			{
-				if(mb_strpos($perm, "SG") === 0)
+				if (mb_strpos($perm, 'SG') === 0)
 				{
-					$sgIdTmp = str_replace("SG", "", mb_substr($perm, 0, mb_strpos($perm, "_")));
-					if(!in_array($sgIdTmp, $sgId) && intval($sgIdTmp) > 0)
+					$sgIdTmp = (int)str_replace('SG', '', mb_substr($perm, 0, mb_strpos($perm, '_')));
+					if (
+						$sgIdTmp > 0
+						&& !in_array($sgIdTmp, $sgId, true)
+					)
+					{
 						$sgId[] = $sgIdTmp;
+					}
 				}
-				elseif(preg_match("/^OSG[\d]+_([LN])$/", $perm, $matches))
+				elseif(preg_match('/^OSG(\d+)_([' . SONET_ROLES_AUTHORIZED . SONET_ROLES_ALL . '])$/', $perm, $matches))
 				{
 					if (
-						$matches[1] == 'N'
-						&& !in_array('G2', $arSearchIndex["PERMISSIONS"])
+						!Loader::includeModule('socialnetwork')
+						|| !\Bitrix\Socialnetwork\Helper\Workgroup::checkAnyOpened([ (int)$matches[1] ])
 					)
 					{
-						$arSearchIndex["PERMISSIONS"][] = 'G2';
+						continue;
+					}
+
+					if (
+						$matches[2] === SONET_ROLES_ALL
+						&& !in_array('G2', $arSearchIndex['PERMISSIONS'], true)
+					)
+					{
+						$arSearchIndex['PERMISSIONS'][] = 'G2';
 					}
 					if (
-						$matches[1] == 'L'
-						&& !in_array('AU', $arSearchIndex["PERMISSIONS"])
+						$matches[2] === SONET_ROLES_AUTHORIZED
+						&& !in_array('AU', $arSearchIndex['PERMISSIONS'], true)
 					)
 					{
-						$arSearchIndex["PERMISSIONS"][] = 'AU';
+						$arSearchIndex['PERMISSIONS'][] = 'AU';
 					}
 				}
 			}
 
-			if(!empty($sgId))
+			if (!empty($sgId))
 			{
-				$arSearchIndex["PARAMS"] = array(
-					"socnet_group" => $sgId,
-					"entity" => "socnet_group",
-				);
+				$arSearchIndex['PARAMS'] = [
+					'socnet_group' => $sgId,
+					'entity' => 'socnet_group',
+				];
 			}
 		}
 	}

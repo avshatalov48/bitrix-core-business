@@ -15,6 +15,11 @@
 	box-sizing: border-box;
 }
 
+.main-ui-filter-field-limits-active .main-ui-filter-inner-container {
+	padding-bottom: 20px;
+	width: 800px;
+}
+
 .main-ui-filter-inner-container:after {
 	display: table;
 	clear: both;
@@ -835,6 +840,7 @@ select::-ms-expand {
 	padding: 0 0 0 130px;
 	font: 31px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #525C69;
+	min-height: 84px;
 }
 
 .main-ui-filter-field-limits-title:before {
@@ -864,9 +870,10 @@ select::-ms-expand {
 }
 
 .main-ui-filter-field-limits-button-box {
-	padding-top: 30px;
+	padding-top: 25px;
 	margin-top: 40px;
 	border-top: 1px solid rgba(82,92,105,.1);
+	line-height: calc(var(--ui-btn-height) + 5px);
 }
 
 .main-ui-filter-field-limits-title,
@@ -881,7 +888,7 @@ select::-ms-expand {
 
 .main-ui-filter-field-limits-animate .main-ui-filter-field-container,
 .main-ui-filter-field-limits-active .main-ui-filter-field-container {
-	min-height: 500px;
+	min-height: 570px;
 }
 
 .main-ui-filter-field-limits-animate .main-ui-filter-bottom-controls,
@@ -911,6 +918,7 @@ select::-ms-expand {
 	background: #fff;
 	opacity: 1;
 	visibility: visible;
+	overflow-y: auto;
 }
 
 .main-ui-filter-field-limits-active .main-ui-filter-field-limits-title,
@@ -1132,7 +1140,6 @@ select::-ms-expand {
 
 .main-ui-filter-popup-search-sections-wrapper{
 	padding: 10px 25px 25px 25px;
-	width: 630px;
 }
 
 .main-ui-filter-popup-search-section-item{
@@ -1214,9 +1221,7 @@ select::-ms-expand {
 
 .main-ui-filter-popup-section-wrapper,
 .main-ui-filter-popup-field-list {
-	max-width: 630px;
 	box-sizing: border-box;
-	/*column-rule: 1px rgba(0,0,0,.03) solid;*/
 }
 
 .main-ui-filter-popup-field-list{
@@ -1247,6 +1252,24 @@ select::-ms-expand {
 	-webkit-column-count: 3;
 	-moz-column-count: 3;
 	column-count: 3;
+}
+
+.main-ui-filter-field-list-4-column {
+	-webkit-column-count: 4;
+	-moz-column-count: 4;
+	column-count: 4;
+}
+
+.main-ui-filter-field-list-5-column {
+	-webkit-column-count: 5;
+	-moz-column-count: 5;
+	column-count: 5;
+}
+
+.main-ui-filter-field-list-6-column {
+	-webkit-column-count: 6;
+	-moz-column-count: 6;
+	column-count: 6;
 }
 
 

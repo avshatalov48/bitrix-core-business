@@ -8,6 +8,7 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SiteTable;
 use Bitrix\Main\SystemException;
@@ -20,17 +21,20 @@ Loc::loadMessages(__FILE__);
 
 abstract class BasePreset
 {
-	const FINAL_STEP    = 'FINALSTEP';
-	const STEP_NAME_VAR = '__next_step';
+	public const FINAL_STEP = 'FINALSTEP';
+	public const STEP_NAME_VAR = '__next_step';
 
-	const RUN_PREV_STEP_NAME_VAR = '__run_prev_step';
+	public const RUN_PREV_STEP_NAME_VAR = '__run_prev_step';
 
-	const MODE_SHOW = 2;
-	const MODE_SAVE = 3;
+	public const MODE_SHOW = 2;
+	public const MODE_SAVE = 3;
 
-	const ACTION_TYPE_DISCOUNT = 'Discount';
-	const ACTION_TYPE_EXTRA    = 'Extra';
+	public const ACTION_TYPE_DISCOUNT = 'Discount';
+	public const ACTION_TYPE_EXTRA = 'Extra';
 
+	public const AVAILABLE_STATE_ALLOW = 0x01;
+	public const AVAILABLE_STATE_DISALLOW = 0x02;
+	public const AVAILABLE_STATE_TARIFF = 0x04;
 
 	/** @var  ErrorCollection */
 	protected $errorCollection;
@@ -51,6 +55,9 @@ abstract class BasePreset
 	/** @var bool */
 	private $restrictedGroupsMode = false;
 
+	/** @var bool sign of the presence of Bitrix24 */
+	protected $bitrix24Included;
+
 	/**
 	 * @return string the fully qualified name of this class.
 	 */
@@ -62,7 +69,6 @@ abstract class BasePreset
 	/**
 	 * @param BasePreset $classObject
 	 * @return string the short qualified name of this class.
-	 * @throws \ReflectionException
 	 */
 	public static function classShortName(BasePreset $classObject)
 	{
@@ -73,6 +79,7 @@ abstract class BasePreset
 	{
 		$this->errorCollection = new ErrorCollection;
 		$this->request = Context::getCurrent()->getRequest();
+		$this->bitrix24Included = Loader::includeModule('bitrix24');
 
 		$this->init();
 	}
@@ -151,11 +158,7 @@ abstract class BasePreset
 		));
 
 		header('Content-Type:application/json; charset=UTF-8');
-		echo Json::encode($result);
-
-		/** @noinspection PhpUndefinedClassInspection */
-		\CMain::finalActions();
-		die;
+		\CMain::FinalActions(Json::encode($result));
 	}
 
 	public function processAjaxActionGetProductDetails(array $params = array())
@@ -407,12 +410,30 @@ abstract class BasePreset
 	abstract public function getTitle();
 
 	/**
+	 * @deprecated
+	 * @see BasePreset::getAvailableState
+	 *
 	 * Tells if preset is available or not. It's possible that preset can't work in some license.
 	 * @return bool
 	 */
 	public function isAvailable()
 	{
-		return true;
+		return $this->getAvailableState() === self::AVAILABLE_STATE_ALLOW;
+	}
+
+	public function getPossible(): bool
+	{
+		return $this->getAvailableState() !== self::AVAILABLE_STATE_DISALLOW;
+	}
+
+	public function getAvailableState(): int
+	{
+		return self::AVAILABLE_STATE_ALLOW;
+	}
+	
+	public function getAvailableHelpLink(): ?array
+	{
+		return null;
 	}
 
 	/**
@@ -524,7 +545,7 @@ abstract class BasePreset
 		return array(
 			'LID' => $siteId,
 			'NAME' => $state->get('discount_name'),
-			'CURRENCY' => \CSaleLang::getLangCurrency($siteId),
+			'CURRENCY' => \Bitrix\Sale\Internals\SiteCurrencyTable::getSiteCurrency($siteId),
 			'ACTIVE_FROM' => $state->get('discount_active_from'),
 			'ACTIVE_TO' => $state->get('discount_active_to'),
 			'ACTIVE' => 'Y',
@@ -678,7 +699,7 @@ abstract class BasePreset
 		));
 		while($site = $siteIterator->fetch())
 		{
-			$saleSite = (string)Option::get('sale', 'SHOP_SITE_' . $site['LID']);
+			$saleSite = Option::get('sale', 'SHOP_SITE_' . $site['LID']);
 			if($site['LID'] == $saleSite)
 			{
 				$siteList[$site['LID']] = '(' . $site['LID'] . ') ' . $site['NAME'];

@@ -631,6 +631,8 @@ class Template
 			case 'GlobalConst':
 				return Bizproc\Workflow\Type\GlobalConst::getById($field);
 				break;
+			case 'GlobalVar':
+				return Bizproc\Workflow\Type\GlobalVar::getById($field);
 			case 'Document':
 				static $fields;
 				if (!$fields)

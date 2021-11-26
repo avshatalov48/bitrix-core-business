@@ -513,7 +513,7 @@ class CIMRestService extends IRestService
 			$options['SKIP_EXTERNAL_EXCEPT_TYPES'] = array_map('trim', mb_split(',', $params['SKIP_EXTERNAL_EXCEPT_TYPES']));
 
 			$exceptType = $options['SKIP_EXTERNAL_EXCEPT_TYPES'] ?? [];
-			$countFilter['!=USER.EXTERNAL_AUTH_ID'] = \Bitrix\Im\Common::getExternalAuthId($exceptType);
+			$countFilter['!=USER.EXTERNAL_AUTH_ID'] = \Bitrix\Im\Model\UserTable::filterExternalUserTypes($exceptType);
 		}
 
 		$counter = \Bitrix\Im\Model\RelationTable::getList([

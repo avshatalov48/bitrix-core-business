@@ -1,8 +1,7 @@
 <?php
 namespace Bitrix\Main\Diag;
 
-class SqlTrackerQuery
-	implements \ArrayAccess
+class SqlTrackerQuery implements \ArrayAccess
 {
 	/** @var string */
 	protected $sql = "";
@@ -57,7 +56,7 @@ class SqlTrackerQuery
 	{
 		$this->finishTime = Helper::getCurrentMicrotime();
 		$this->time = $this->finishTime - $this->startTime;
-		$this->trace = $this->filterTrace(Helper::getBackTrace(8, null, $skip));
+		$this->trace = $this->filterTrace(Helper::getBackTrace($this->tracker->getDepthBackTrace(), null, $skip));
 
 		$this->tracker->addTime($this->time);
 		$this->tracker->writeFileLog($this->sql, $this->time, "", 4);
@@ -349,33 +348,45 @@ class SqlTrackerQuery
 						foreach ($v1 as $k2 => $v2)
 						{
 							if (is_scalar($v2))
+							{
 								$args[$k1][$k2] = $v2;
+							}
 							elseif (is_object($v2))
+							{
 								$args[$k1][$k2] = get_class($v2);
+							}
 							else
+							{
 								$args[$k1][$k2] = gettype($v2);
+							}
 						}
 					}
 					else
 					{
 						if (is_scalar($v1))
+						{
 							$args[$k1] = $v1;
+						}
 						elseif (is_object($v1))
+						{
 							$args[$k1] = get_class($v1);
+						}
 						else
+						{
 							$args[$k1] = gettype($v1);
+						}
 					}
 				}
 			}
 
-			$filtered[] = array(
+			$filtered[] = [
 				"file" => $tr["file"],
 				"line" => $tr["line"],
 				"class" => $tr["class"],
 				"type" => $tr["type"],
 				"function" => $tr["function"],
 				"args" => $args,
-			);
+			];
 		}
 		return $filtered;
 	}

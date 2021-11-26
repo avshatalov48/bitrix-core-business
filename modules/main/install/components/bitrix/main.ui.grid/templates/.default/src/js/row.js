@@ -1334,6 +1334,7 @@ import {Type} from "main.core";
 							<div class="main-grid-labels">${labels}</div>
 						`;
 
+						BX.Dom.clean(container);
 						const oldLabelsContainer = container.querySelector('.main-grid-labels');
 						if (BX.Type.isDomNode(oldLabelsContainer))
 						{

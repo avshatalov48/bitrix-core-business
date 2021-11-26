@@ -331,17 +331,20 @@ $tabControl->BeginCustomField('HANDLER', GetMessage("SALE_CASHBOX_HANDLER"));
 
 						if (isset($cashbox['HANDLER']) && Cashbox\Manager::isPaySystemCashbox($cashbox['HANDLER']))
 						{
-							$paySystemCashbox = Cashbox\Manager::getList([
+							$paySystemCashboxList = Cashbox\Manager::getList([
 								'select' => ['ID'],
 								'filter' => [
 									'=ACTIVE' => 'Y',
 									'=HANDLER' => $cashbox['HANDLER'],
 									'=KKM_ID' => $cashbox['KKM_ID'],
 								],
-							])->fetch();
-							if ($paySystemCashbox && $cashbox['ID'] === $paySystemCashbox['ID'])
+							])->fetchAll();
+							foreach ($paySystemCashboxList as $paySystemCashbox)
 							{
-								$skip = false;
+								if ($cashbox['ID'] === $paySystemCashbox['ID'])
+								{
+									$skip = false;
+								}
 							}
 						}
 

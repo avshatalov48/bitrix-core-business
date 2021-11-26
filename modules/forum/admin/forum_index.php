@@ -13,9 +13,7 @@ endif;
 IncludeModuleLangFile(__FILE__);
 
 ob_start();
-echo \Bitrix\Forum\Statistic\MembersStepper::getHtml();
-echo \Bitrix\Forum\Statistic\TopicMembersStepper::getHtml();
-echo \Bitrix\Forum\Statistic\ForumsStepper::getHtml();
+echo \Bitrix\Forum\Statistic\User::getHtml();
 echo \Bitrix\Forum\Statistic\Forum::getHtml();
 echo \Bitrix\Main\Update\Stepper::getHtml("forum", GetMessage("FORUM_STEPPERS_MAIN"));
 $res = ob_get_clean();

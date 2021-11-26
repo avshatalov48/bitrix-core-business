@@ -135,4 +135,13 @@ class Info
 
 		return isset($knownTypes[$this->getFormat()]);
 	}
+
+	/**
+	 * Returns width and height in the Rectangle object.
+	 * @return Rectangle
+	 */
+	public function toRectangle()
+	{
+		return new Rectangle($this->getWidth(), $this->getHeight());
+	}
 }

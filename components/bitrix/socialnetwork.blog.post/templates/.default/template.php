@@ -894,7 +894,7 @@ else
 				{
 					$classList[] = 'feed-info-block-empty';
 				}
-				
+
 				?><div class="<?=(implode(' ', $classList))?>" id="blog_post_outer_<?=$arResult["Post"]["ID"]?>"><?php
 
 					$classNameList = [];
@@ -1003,7 +1003,10 @@ else
 						<div class="feed-com-files-cont"><?php
 							foreach($arResult["images"] as $val)
 							{
-								?><span class="feed-com-files-photo"><img src="<?=$val["small"]?>" alt="" border="0" data-bx-image="<?=$val["full"]?>" /></span><?php
+								$width = (!empty($val['resizedWidth']) ? 'width="' . (int)$val['resizedWidth'] . '"' : '');
+								$height = (!empty($val['resizedHeight']) ? 'height="' . (int)$val['resizedHeight'] . '"' : '');
+
+								?><span class="feed-com-files-photo"><img src="<?=$val["small"]?>" alt="" border="0" data-bx-image="<?=$val["full"]?>" <?= $width ?> <?= $height ?>/></span><?php
 							}
 						?></div>
 					</div><?php
@@ -1029,7 +1032,7 @@ else
 									"VIEW_MODE" => ($arResult["bFromList"] ? "BRIEF" : "EXTENDED"),
 									"arUserField" => $arPostField,
 									"arAddField" => array(
-										"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"], 
+										"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 										"PATH_TO_USER" => $arParams["~PATH_TO_USER"],
 									),
 									"GRID" => ($arResult['Post']['hasInlineDiskFile'] || !empty($arResult['Post']['BACKGROUND_CODE']) ? 'N' : 'Y'),
@@ -1086,7 +1089,7 @@ else
 								array(
 									"arUserField" => $arPostField
 								),
-								null, 
+								null,
 								array("HIDE_ICONS"=>"Y")
 							);?><?php
 							echo "</div>";

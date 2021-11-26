@@ -2242,7 +2242,7 @@ function ImgShw(ID, width, height, alt)
 
 		$result = false;
 
-		$sourceRectangle = new Rectangle($sourceInfo->getWidth(), $sourceInfo->getHeight());
+		$sourceRectangle = $sourceInfo->toRectangle();
 		$destinationRectangle = new Rectangle($arSize["width"], $arSize["height"]);
 
 		$needResize = $sourceRectangle->resize($destinationRectangle, $resizeType);
@@ -2284,8 +2284,14 @@ function ImgShw(ID, width, height, alt)
 					}
 
 					$modified = false;
-					if($needResize)
+					if ($needResize)
 					{
+						// actual sizes
+						$sourceRectangle = $destinationImage->getDimensions();
+						$destinationRectangle = new Rectangle($arSize["width"], $arSize["height"]);
+
+						$sourceRectangle->resize($destinationRectangle, $resizeType);
+
 						$modified = $destinationImage->resize($sourceRectangle, $destinationRectangle);
 					}
 

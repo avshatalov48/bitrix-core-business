@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Socialnetwork\LogTable;
@@ -16,26 +17,26 @@ final class ListsItem extends Provider
 		return static::PROVIDER_ID;
 	}
 
-	public function getEventId()
+	public function getEventId(): array
 	{
-		return array('lists_new_element');
+		return [ 'lists_new_element' ];
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return Provider::TYPE_POST;
 	}
 
-	public function getCommentProvider()
+	public function getCommentProvider(): Provider
 	{
-		return new \Bitrix\Socialnetwork\Livefeed\ForumPost();
+		return new ForumPost();
 	}
 
 	public function initSourceFields()
 	{
 		static $cache = [];
 
-		$elementId = (int)$this->entityId;
+		$elementId = $this->entityId;
 
 		if ($elementId <= 0)
 		{
@@ -90,9 +91,7 @@ final class ListsItem extends Provider
 			return $result;
 		}
 
-		$result = $logEntryFields['TITLE'];
-
-		return $result;
+		return $logEntryFields['TITLE'];
 	}
 
 	public function getPinnedDescription()
@@ -114,14 +113,12 @@ final class ListsItem extends Provider
 		$description = preg_replace('/<script(.*?)>(.*?)<\/script>/is', '', $description);
 		$description = \CTextParser::clearAllTags($description);
 
-		$result = truncateText(htmlspecialcharsback($description), 100);
-
-		return $result;
+		return truncateText(htmlspecialcharsback($description), 100);
 	}
 
 	public function getLiveFeedUrl(): string
 	{
-		$pathToLogEntry = Option::get('socialnetwork', 'log_entry_page', '');
+		$pathToLogEntry = Option::get('socialnetwork', 'log_entry_page');
 		if (!empty($pathToLogEntry))
 		{
 			$pathToLogEntry = \CComponentEngine::makePathFromTemplate($pathToLogEntry, array("log_id" => $this->getLogId()));

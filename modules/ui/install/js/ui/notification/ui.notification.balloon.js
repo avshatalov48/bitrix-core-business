@@ -121,6 +121,11 @@ BX.UI.Notification.Balloon.prototype =
 
 		this.animateIn(function() {
 
+			if (this.getState() !== State.OPENING)
+			{
+				return;
+			}
+
 			this.setState(State.OPEN);
 
 			if (firstLaunch)

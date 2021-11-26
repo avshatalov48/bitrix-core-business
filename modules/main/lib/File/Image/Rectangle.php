@@ -190,4 +190,12 @@ class Rectangle
 
 		return $result;
 	}
+
+	public function scale($ratio)
+	{
+		$this->setWidth($this->getWidth() * $ratio)
+			->setHeight($this->getHeight() * $ratio)
+			->setX($this->getX() * $ratio)
+			->setY($this->getY() * $ratio);
+	}
 }

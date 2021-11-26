@@ -17,7 +17,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 $arReturnGroupMenu = $APPLICATION->IncludeComponent(
 	"bitrix:socialnetwork.group_menu",
 	"",
-	Array(
+	[
 		"GROUP_VAR" => $arResult["ALIASES"]["group_id"],
 		"PAGE_VAR" => $arResult["ALIASES"]["page"],
 		"PATH_TO_GROUP" => $arResult["PATH_TO_GROUP"],
@@ -44,7 +44,7 @@ $arReturnGroupMenu = $APPLICATION->IncludeComponent(
 		'componentPage' => $arResult['componentPage'],
 		"USE_MAIN_MENU" => $arParams["USE_MAIN_MENU"],
 		"MAIN_MENU_TYPE" => $arParams["MAIN_MENU_TYPE"],
-	),
+	],
 	$component,
 	[ 'HIDE_ICONS' => 'Y' ]
 );

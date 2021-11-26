@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SALE_ORDER_PAYMENT_NO_DELIVERY_SERVICE"] = "(Select delivery service)";
 $MESS["SALE_ORDER_SHIPMENT_ADD_COMPANY"] = "No active companies. <a href=\"#URL#\" target=\"_blank\">Add one</a>";
 $MESS["SALE_ORDER_SHIPMENT_ADD_SHIPMENT"] = "Add shipment";
@@ -57,6 +57,7 @@ $MESS["SALE_ORDER_SHIPMENT_NEW_WEIGHT_DELIVERY"] = "Estimated shipping weight";
 $MESS["SALE_ORDER_SHIPMENT_NO_COMPANY"] = "Not selected";
 $MESS["SALE_ORDER_SHIPMENT_OFFICE"] = "Shipping office";
 $MESS["SALE_ORDER_SHIPMENT_PROFILE"] = "Profiles";
+$MESS["SALE_ORDER_SHIPMENT_RECALCULATE_DELIVERY_PRICE"] = "Recalculate price";
 $MESS["SALE_ORDER_SHIPMENT_STORE_SELF_DELIVERY"] = "Pick-up points";
 $MESS["SALE_ORDER_SHIPMENT_TITLE"] = "Shipment";
 $MESS["SALE_ORDER_SHIPMENT_TRACKING_DESCRIPTION"] = "Status description";
@@ -66,4 +67,3 @@ $MESS["SALE_ORDER_SHIPMENT_TRACKING_STATUS"] = "Shipment status";
 $MESS["SALE_ORDER_SHIPMENT_TRACKING_STATUS_REFRESH"] = "Update";
 $MESS["SALE_ORDER_SHIPMENT_TRACKING_S_EMPTY"] = "Tracking number is required";
 $MESS["SALE_ORDER_SHIPMENT_TRACKING_URL"] = "Package tracking details";
-?>

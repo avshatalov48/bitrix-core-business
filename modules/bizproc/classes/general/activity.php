@@ -40,19 +40,19 @@ abstract class CBPActivity
 
 	/************************  PROPERTIES  ************************************************/
 
-	public function GetDocumentId()
+	public function getDocumentId()
 	{
 		$rootActivity = $this->GetRootActivity();
 		return $rootActivity->GetDocumentId();
 	}
 
-	public function SetDocumentId($documentId)
+	public function setDocumentId($documentId)
 	{
 		$rootActivity = $this->GetRootActivity();
 		$rootActivity->SetDocumentId($documentId);
 	}
 
-	public function GetDocumentType()
+	public function getDocumentType()
 	{
 		$rootActivity = $this->GetRootActivity();
 		if (!is_array($rootActivity->documentType) || count($rootActivity->documentType) <= 0)
@@ -64,7 +64,7 @@ abstract class CBPActivity
 		return $rootActivity->documentType;
 	}
 
-	public function SetDocumentType($documentType)
+	public function setDocumentType($documentType)
 	{
 		$rootActivity = $this->GetRootActivity();
 		$rootActivity->documentType = $documentType;
@@ -76,19 +76,19 @@ abstract class CBPActivity
 		return (int)$rootActivity->getRawProperty(CBPDocument::PARAM_DOCUMENT_EVENT_TYPE);
 	}
 
-	public function GetWorkflowStatus()
+	public function getWorkflowStatus()
 	{
 		$rootActivity = $this->GetRootActivity();
 		return $rootActivity->GetWorkflowStatus();
 	}
 
-	public function SetWorkflowStatus($status)
+	public function setWorkflowStatus($status)
 	{
 		$rootActivity = $this->GetRootActivity();
 		$rootActivity->SetWorkflowStatus($status);
 	}
 
-	public function SetFieldTypes($arFieldTypes = array())
+	public function setFieldTypes($arFieldTypes = array())
 	{
 		if (count($arFieldTypes) > 0)
 		{
@@ -98,7 +98,7 @@ abstract class CBPActivity
 		}
 	}
 
-	public function GetWorkflowTemplateId()
+	public function getWorkflowTemplateId()
 	{
 		$rootActivity = $this->GetRootActivity();
 		//prevent recursion by checking setter
@@ -129,7 +129,7 @@ abstract class CBPActivity
 	}
 
 	/**********************************************************/
-	protected function ClearProperties()
+	protected function clearProperties()
 	{
 		$rootActivity = $this->GetRootActivity();
 		$documentId = $rootActivity->GetDocumentId();
@@ -168,7 +168,7 @@ abstract class CBPActivity
 		}
 	}
 
-	public function GetPropertyBaseType($propertyName)
+	public function getPropertyBaseType($propertyName)
 	{
 		$rootActivity = $this->GetRootActivity();
 		return $rootActivity->arFieldTypes[$rootActivity->arPropertiesTypes[$propertyName]["Type"]]["BaseType"];
@@ -185,7 +185,7 @@ abstract class CBPActivity
 		return $rootActivity->arPropertiesTypes[$propertyName];
 	}
 
-	public function SetProperties($arProperties = array())
+	public function setProperties($arProperties = array())
 	{
 		if (count($arProperties) > 0)
 		{
@@ -194,7 +194,7 @@ abstract class CBPActivity
 		}
 	}
 
-	public function SetPropertiesTypes($arPropertiesTypes = array())
+	public function setPropertiesTypes($arPropertiesTypes = array())
 	{
 		if (count($arPropertiesTypes) > 0)
 		{
@@ -209,7 +209,7 @@ abstract class CBPActivity
 	}
 
 	/**********************************************************/
-	protected function ClearVariables()
+	protected function clearVariables()
 	{
 		$rootActivity = $this->GetRootActivity();
 		$documentId = $rootActivity->GetDocumentId();
@@ -248,13 +248,13 @@ abstract class CBPActivity
 		}
 	}
 
-	public function GetVariableBaseType($variableName)
+	public function getVariableBaseType($variableName)
 	{
 		$rootActivity = $this->GetRootActivity();
 		return $rootActivity->arFieldTypes[$rootActivity->arVariablesTypes[$variableName]["Type"]]["BaseType"];
 	}
 
-	public function SetVariables($arVariables = array())
+	public function setVariables($arVariables = array())
 	{
 		if (count($arVariables) > 0)
 		{
@@ -264,7 +264,7 @@ abstract class CBPActivity
 		}
 	}
 
-	public function SetVariablesTypes($arVariablesTypes = array())
+	public function setVariablesTypes($arVariablesTypes = array())
 	{
 		if (count($arVariablesTypes) > 0)
 		{
@@ -274,13 +274,13 @@ abstract class CBPActivity
 		}
 	}
 
-	public function SetVariable($name, $value)
+	public function setVariable($name, $value)
 	{
 		$rootActivity = $this->GetRootActivity();
 		$rootActivity->arVariables[$name] = $value;
 	}
 
-	public function GetVariable($name)
+	public function getVariable($name)
 	{
 		$rootActivity = $this->GetRootActivity();
 
@@ -296,7 +296,7 @@ abstract class CBPActivity
 		return isset($rootActivity->arVariablesTypes[$name]) ? $rootActivity->arVariablesTypes[$name] : null;
 	}
 
-	private function GetConstantTypes()
+	private function getConstantTypes()
 	{
 		$rootActivity = $this->GetRootActivity();
 		if (method_exists($rootActivity, 'GetWorkflowTemplateId'))
@@ -310,7 +310,7 @@ abstract class CBPActivity
 		return null;
 	}
 
-	public function GetConstant($name)
+	public function getConstant($name)
 	{
 		$constants = $this->GetConstantTypes();
 		if (isset($constants[$name]['Default']))
@@ -318,7 +318,7 @@ abstract class CBPActivity
 		return null;
 	}
 
-	public function GetConstantType($name)
+	public function getConstantType($name)
 	{
 		$constants = $this->GetConstantTypes();
 		if (isset($constants[$name]))
@@ -326,7 +326,7 @@ abstract class CBPActivity
 		return array('Type' => null, 'Multiple' => false, 'Required' => false, 'Options' => null);
 	}
 
-	public function IsVariableExists($name)
+	public function isVariableExists($name)
 	{
 		$rootActivity = $this->GetRootActivity();
 		return (
@@ -337,12 +337,12 @@ abstract class CBPActivity
 	}
 
 	/************************************************/
-	public function GetName()
+	public function getName()
 	{
 		return $this->name;
 	}
 
-	public function GetRootActivity()
+	public function getRootActivity()
 	{
 		$p = $this;
 		while ($p->parent != null)
@@ -350,17 +350,17 @@ abstract class CBPActivity
 		return $p;
 	}
 
-	public function SetWorkflow(CBPWorkflow $workflow)
+	public function setWorkflow(CBPWorkflow $workflow)
 	{
 		$this->workflow = $workflow;
 	}
 
-	public function GetWorkflowInstanceId()
+	public function getWorkflowInstanceId()
 	{
 		return $this->workflow->GetInstanceId();
 	}
 
-	public function SetStatusTitle($title = '')
+	public function setStatusTitle($title = '')
 	{
 		$rootActivity = $this->GetRootActivity();
 		$stateService = $this->workflow->GetService("StateService");
@@ -391,7 +391,7 @@ abstract class CBPActivity
 		}
 	}
 
-	public function AddStatusTitle($title = '')
+	public function addStatusTitle($title = '')
 	{
 		if ($title == '')
 			return;
@@ -404,7 +404,7 @@ abstract class CBPActivity
 		$stateService->SetStateTitle($this->GetWorkflowInstanceId(), $mainTitle);
 	}
 
-	public function DeleteStatusTitle($title = '')
+	public function deleteStatusTitle($title = '')
 	{
 		if ($title == '')
 			return;
@@ -435,7 +435,7 @@ abstract class CBPActivity
 		$stateService->SetStateTitle($this->GetWorkflowInstanceId(), $result);
 	}
 
-	private function GetPropertyValueRecursive($val, $convertToType = null)
+	private function getPropertyValueRecursive($val, $convertToType = null)
 	{
 		// array(2, 5, array("SequentialWorkflowActivity1", "DocumentApprovers"))
 		// array("Document", "IBLOCK_ID")
@@ -569,7 +569,7 @@ abstract class CBPActivity
 		}
 	}
 
-	private function GetRealParameterValue($objectName, $fieldName, &$result, array $modifiers = null)
+	private function getRealParameterValue($objectName, $fieldName, &$result, array $modifiers = null)
 	{
 		$return = true;
 		$property = null;
@@ -590,7 +590,9 @@ abstract class CBPActivity
 			{
 				$fieldName = mb_substr($fieldName, 0, -10);
 				if (!in_array('printable', $modifiers))
+				{
 					$modifiers[] = 'printable';
+				}
 			}
 			if (!isset($document[$fieldName]) && isset($documentFieldsAliasesMap[$fieldName]))
 			{
@@ -603,7 +605,9 @@ abstract class CBPActivity
 			{
 				$result = $document[$fieldName];
 				if (is_array($result) && mb_strtoupper(mb_substr($fieldName, -10)) === '_PRINTABLE')
+				{
 					$result = implode(", ", CBPHelper::MakeArrayFlat($result));
+				}
 
 				$property = isset($documentFields[$fieldName]) ? $documentFields[$fieldName] : null;
 			}
@@ -644,6 +648,18 @@ abstract class CBPActivity
 			}
 
 			$result = Bizproc\Workflow\Type\GlobalConst::getValue($fieldName);
+		}
+		elseif ($objectName === 'GlobalVar')
+		{
+			$property = Bizproc\Workflow\Type\GlobalVar::getById($fieldName);
+			if (!$property && mb_substr($fieldName, -10) == "_printable")
+			{
+				$fieldName = mb_substr($fieldName, 0, -10);
+				$modifiers = ['printable'];
+				$property = Bizproc\Workflow\Type\GlobalVar::getById($fieldName);
+			}
+
+			$result = Bizproc\Workflow\Type\GlobalVar::getValue($fieldName);
 		}
 		elseif ($objectName == "Workflow")
 		{
@@ -789,7 +805,7 @@ abstract class CBPActivity
 		return $value;
 	}
 
-	private function ParseStringParameter($matches)
+	private function parseStringParameter($matches)
 	{
 		$result = "";
 		$modifiers = array();
@@ -814,7 +830,7 @@ abstract class CBPActivity
 		return $result;
 	}
 
-	public function ParseValue($value, $convertToType = null)
+	public function parseValue($value, $convertToType = null)
 	{
 		list($t, $r) = $this->GetPropertyValueRecursive($value, $convertToType);
 		return $r;
@@ -848,12 +864,12 @@ abstract class CBPActivity
 		}
 	}
 
-	public function IsPropertyExists($name)
+	public function isPropertyExists($name)
 	{
 		return array_key_exists($name, $this->arProperties);
 	}
 
-	public function CollectNestedActivities()
+	public function collectNestedActivities()
 	{
 		return null;
 	}
@@ -942,6 +958,10 @@ abstract class CBPActivity
 		{
 			return [Bizproc\Workflow\Template\SourceType::GlobalConstant, $fieldName];
 		}
+		elseif ($objectName === 'GlobalVar')
+		{
+			return [Bizproc\Workflow\Template\SourceType::GlobalVariable, $fieldName];
+		}
 		elseif (in_array($objectName, ['Workflow', 'User', 'System']))
 		{
 			return [Bizproc\Workflow\Template\SourceType::System, $objectName];
@@ -963,7 +983,7 @@ abstract class CBPActivity
 
 	/************************  DEBUG  ***********************************************************/
 
-	public function ToString()
+	public function toString()
 	{
 		return $this->name.
 			" [".get_class($this)."] (status=".
@@ -975,7 +995,7 @@ abstract class CBPActivity
 			")";
 	}
 
-	public function Dump($level = 3)
+	public function dump($level = 3)
 	{
 		$result = str_repeat("	", $level).$this->ToString()."\n";
 
@@ -991,43 +1011,43 @@ abstract class CBPActivity
 
 	/************************  PROCESS  ***********************************************************/
 
-	public function Initialize()
+	public function initialize()
 	{
 	}
 
-	public function Finalize()
+	public function finalize()
 	{
 	}
 
-	public function Execute()
+	public function execute()
 	{
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	protected function ReInitialize()
+	protected function reInitialize()
 	{
 		$this->executionStatus = CBPActivityExecutionStatus::Initialized;
 		$this->executionResult = CBPActivityExecutionResult::None;
 	}
 
-	public function Cancel()
+	public function cancel()
 	{
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	public function HandleFault(Exception $exception)
+	public function handleFault(Exception $exception)
 	{
 		return CBPActivityExecutionStatus::Closed;
 	}
 
 	/************************  LOAD / SAVE  *******************************************************/
 
-	public function FixUpParentChildRelationship(CBPActivity $nestedActivity)
+	public function fixUpParentChildRelationship(CBPActivity $nestedActivity)
 	{
 		$nestedActivity->parent = $this;
 	}
 
-	public static function Load($stream)
+	public static function load($stream)
 	{
 		if ($stream == '')
 			throw new Exception("stream");
@@ -1035,12 +1055,12 @@ abstract class CBPActivity
 		return CBPRuntime::GetRuntime()->unserializeWorkflowStream($stream);
 	}
 
-	protected function GetACNames()
+	protected function getACNames()
 	{
 		return array(mb_substr(get_class($this), 3));
 	}
 
-	private static function SearchUsedActivities(CBPActivity $activity, &$arUsedActivities)
+	private static function searchUsedActivities(CBPActivity $activity, &$arUsedActivities)
 	{
 		$arT = $activity->GetACNames();
 		foreach ($arT as $t)
@@ -1060,7 +1080,7 @@ abstract class CBPActivity
 		}
 	}
 
-	public function Save()
+	public function save()
 	{
 		$usedActivities = [];
 		self::SearchUsedActivities($this, $usedActivities);
@@ -1070,7 +1090,7 @@ abstract class CBPActivity
 
 	/************************  STATUS CHANGE HANDLERS  **********************************************/
 
-	public function AddStatusChangeHandler($event, $eventHandler)
+	public function addStatusChangeHandler($event, $eventHandler)
 	{
 		if (!is_array($this->arStatusChangeHandlers))
 			$this->arStatusChangeHandlers = array();
@@ -1081,7 +1101,7 @@ abstract class CBPActivity
 		$this->arStatusChangeHandlers[$event][] = $eventHandler;
 	}
 
-	public function RemoveStatusChangeHandler($event, $eventHandler)
+	public function removeStatusChangeHandler($event, $eventHandler)
 	{
 		if (!is_array($this->arStatusChangeHandlers))
 			$this->arStatusChangeHandlers = array();
@@ -1097,7 +1117,7 @@ abstract class CBPActivity
 
 	/************************  EVENTS  **********************************************************************/
 
-	private function FireStatusChangedEvents($event, $arEventParameters = array())
+	private function fireStatusChangedEvents($event, $arEventParameters = array())
 	{
 		if (array_key_exists($event, $this->arStatusChangeHandlers) && is_array($this->arStatusChangeHandlers[$event]))
 		{
@@ -1106,7 +1126,7 @@ abstract class CBPActivity
 		}
 	}
 
-	public function SetStatus($newStatus, $arEventParameters = array())
+	public function setStatus($newStatus, $arEventParameters = array())
 	{
 		$this->executionStatus = $newStatus;
 		$this->FireStatusChangedEvents(self::StatusChangedEvent, $arEventParameters);
@@ -1136,13 +1156,13 @@ abstract class CBPActivity
 
 	/************************  CREATE  *****************************************************************/
 
-	public static function IncludeActivityFile($code)
+	public static function includeActivityFile($code)
 	{
 		$runtime = CBPRuntime::GetRuntime();
 		return $runtime->IncludeActivityFile($code);
 	}
 
-	public static function CreateInstance($code, $data)
+	public static function createInstance($code, $data)
 	{
 		if (preg_match("#[^a-zA-Z0-9_]#", $code))
 			throw new Exception("Activity '".$code."' is not valid");
@@ -1154,7 +1174,7 @@ abstract class CBPActivity
 			return null;
 	}
 
-	public static function CallStaticMethod($code, $method, $arParameters = array())
+	public static function callStaticMethod($code, $method, $arParameters = array())
 	{
 		$runtime = CBPRuntime::GetRuntime();
 		if (!$runtime->IncludeActivityFile($code))
@@ -1170,7 +1190,7 @@ abstract class CBPActivity
 		return false;
 	}
 
-	public function InitializeFromArray($arParams)
+	public function initializeFromArray($arParams)
 	{
 		if (is_array($arParams))
 		{
@@ -1184,7 +1204,7 @@ abstract class CBPActivity
 
 	/************************  MARK  ****************************************************************/
 
-	public function MarkCanceled($arEventParameters = array())
+	public function markCanceled($arEventParameters = array())
 	{
 		if ($this->executionStatus != CBPActivityExecutionStatus::Closed)
 		{
@@ -1196,19 +1216,19 @@ abstract class CBPActivity
 		}
 	}
 
-	public function MarkCompleted($arEventParameters = array())
+	public function markCompleted($arEventParameters = array())
 	{
 		$this->executionResult = CBPActivityExecutionResult::Succeeded;
 		$this->MarkClosed($arEventParameters);
 	}
 
-	public function MarkFaulted($arEventParameters = array())
+	public function markFaulted($arEventParameters = array())
 	{
 		$this->executionResult = CBPActivityExecutionResult::Faulted;
 		$this->MarkClosed($arEventParameters);
 	}
 
-	private function MarkClosed($arEventParameters = array())
+	private function markClosed($arEventParameters = array())
 	{
 		switch ($this->executionStatus)
 		{
@@ -1220,7 +1240,7 @@ abstract class CBPActivity
 				{
 					foreach ($this->arActivities as $activity)
 					{
-						if (($activity->executionStatus != CBPActivityExecutionStatus::Initialized) 
+						if (($activity->executionStatus != CBPActivityExecutionStatus::Initialized)
 							&& ($activity->executionStatus != CBPActivityExecutionStatus::Closed))
 						{
 							throw new Exception("ActiveChildExist");
@@ -1240,7 +1260,7 @@ abstract class CBPActivity
 		throw new Exception("InvalidCloseActivityState");
 	}
 
-	protected function WriteToTrackingService($message = "", $modifiedBy = 0, $trackingType = -1)
+	protected function writeToTrackingService($message = "", $modifiedBy = 0, $trackingType = -1)
 	{
 		/** @var CBPTrackingService $trackingService */
 		$trackingService = $this->workflow->GetService("TrackingService");
@@ -1249,17 +1269,17 @@ abstract class CBPActivity
 		$trackingService->Write($this->GetWorkflowInstanceId(), $trackingType, $this->name, $this->executionStatus, $this->executionResult, ($this->IsPropertyExists("Title") ? $this->Title : ""), $message, $modifiedBy);
 	}
 
-	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
+	public static function validateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
 	{
 		return array();
 	}
 
-	public static function ValidateChild($childActivity, $bFirstChild = false)
+	public static function validateChild($childActivity, $bFirstChild = false)
 	{
 		return array();
 	}
 
-	public static function &FindActivityInTemplate(&$arWorkflowTemplate, $activityName)
+	public static function &findActivityInTemplate(&$arWorkflowTemplate, $activityName)
 	{
 		return CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
 	}
@@ -1301,5 +1321,15 @@ abstract class CBPActivity
 			return $result;
 		}
 		return null;
+	}
+
+	protected function getStorage(): Bizproc\Storage\ActivityStorage
+	{
+		return $this->getStorageFactory()->getActivityStorage($this);
+	}
+
+	private function getStorageFactory(): Bizproc\Storage\Factory
+	{
+		return Bizproc\Storage\Factory::getInstance();
 	}
 }

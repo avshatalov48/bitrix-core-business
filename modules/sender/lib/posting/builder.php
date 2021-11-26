@@ -271,6 +271,11 @@ class Builder
 
 		foreach ($groups as $group)
 		{
+			if ($group['GROUP_ID'] && !GroupTable::getById($group['GROUP_ID'])->fetch())
+			{
+				continue;
+			}
+
 			if ($group['GROUP_ID'])
 			{
 				$this->groupQueueService
@@ -352,7 +357,7 @@ class Builder
 	protected static function clean($postingId)
 	{
 		$primary = array('POSTING_ID' => $postingId);
-		PostingRecipientTable::delete($primary);
+		PostingRecipientTable::deleteList($primary);
 		Model\PostingTable::update(
 			$postingId,
 			array(

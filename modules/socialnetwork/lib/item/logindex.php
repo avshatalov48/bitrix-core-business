@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -14,13 +15,14 @@ use Bitrix\Socialnetwork\LogIndexTable;
 use Bitrix\Main\Loader;
 use Bitrix\Disk\Uf\FileUserType;
 use Bitrix\Disk\AttachedObject;
+use Bitrix\Socialnetwork\Livefeed\RenderParts;
 
 class LogIndex
 {
 	public static function getUserName($userId = 0)
 	{
 		$result = '';
-		$userId = intval($userId);
+		$userId = (int)$userId;
 
 		if ($userId <= 0)
 		{
@@ -28,7 +30,7 @@ class LogIndex
 		}
 
 		$code = 'U'.$userId;
-		$data = self::getEntitiesName(array($code));
+		$data = self::getEntitiesName([ $code ]);
 		if (!empty($data[$code]))
 		{
 			$result = $data[$code];
@@ -37,13 +39,13 @@ class LogIndex
 		return $result;
 	}
 
-	public static function getEntitiesName($entityCodesList = array())
+	public static function getEntitiesName($entityCodesList = []): array
 	{
 		static $renderPartsUser = false;
 		static $renderPartsSonetGroup = false;
 		static $renderPartsDepartment = false;
 
-		$result = array();
+		$result = [];
 		if (
 			!is_array($entityCodesList)
 			|| empty($entityCodesList)
@@ -52,24 +54,24 @@ class LogIndex
 			return $result;
 		}
 
-		$renderOptions = array(
-			'skipLink' => true
-		);
+		$renderOptions = [
+			'skipLink' => true,
+		];
 
 		if ($renderPartsUser === false)
 		{
-			$renderPartsUser = new \Bitrix\Socialnetwork\Livefeed\RenderParts\User($renderOptions);
+			$renderPartsUser = new RenderParts\User($renderOptions);
 		}
 		if ($renderPartsSonetGroup === false)
 		{
-			$renderPartsSonetGroup = new \Bitrix\Socialnetwork\Livefeed\RenderParts\SonetGroup($renderOptions);
+			$renderPartsSonetGroup = new RenderParts\SonetGroup($renderOptions);
 		}
 		if ($renderPartsDepartment === false)
 		{
-			$renderPartsDepartment = new \Bitrix\Socialnetwork\Livefeed\RenderParts\Department($renderOptions);
+			$renderPartsDepartment = new RenderParts\Department($renderOptions);
 		}
 
-		foreach($entityCodesList as $code)
+		foreach ($entityCodesList as $code)
 		{
 			$renderData = false;
 			if (preg_match('/^U(\d+)$/i', $code, $matches))
@@ -100,9 +102,9 @@ class LogIndex
 		return $result;
 	}
 
-	public static function getDiskUFFileNameList($valueList = array())
+	public static function getDiskUFFileNameList($valueList = []): array
 	{
-		$result = array();
+		$result = [];
 
 		if (
 			!empty($valueList)
@@ -110,13 +112,13 @@ class LogIndex
 			&& Loader::includeModule('disk')
 		)
 		{
-			$attachedIdList = array();
-			foreach($valueList as $value)
+			$attachedIdList = [];
+			foreach ($valueList as $value)
 			{
 				list($type, $realValue) = FileUserType::detectType($value);
-				if($type == FileUserType::TYPE_NEW_OBJECT)
+				if ($type == FileUserType::TYPE_NEW_OBJECT)
 				{
-					$file = \Bitrix\Disk\File::loadById($realValue, array('STORAGE'));
+					$file = \Bitrix\Disk\File::loadById($realValue, [ 'STORAGE' ]);
 					$result[] = strip_tags($file->getName());
 				}
 				else
@@ -125,15 +127,15 @@ class LogIndex
 				}
 			}
 
-			if(!empty($attachedIdList))
+			if (!empty($attachedIdList))
 			{
-				$attachedObjects = AttachedObject::getModelList(array(
-					'with' => array('OBJECT'),
-					'filter' => array(
-						'ID' => $attachedIdList
-					),
-				));
-				foreach($attachedObjects as $attachedObject)
+				$attachedObjects = AttachedObject::getModelList([
+					'with' => [ 'OBJECT' ],
+					'filter' => [
+						'ID' => $attachedIdList,
+					],
+				]);
+				foreach ($attachedObjects as $attachedObject)
 				{
 					$file = $attachedObject->getFile();
 					$result[] = strip_tags($file->getName());
@@ -144,16 +146,16 @@ class LogIndex
 		return $result;
 	}
 
-	public static function setIndex($params = array())
+	public static function setIndex($params = []): void
 	{
 		if (!is_array($params))
 		{
 			return;
 		}
 
-		$fields = (isset($params['fields']) ? $params['fields'] : array());
-		$itemType = (isset($params['itemType']) ? trim($params['itemType']) : false);
-		$itemId = (isset($params['itemId']) ? intval($params['itemId']) : 0);
+		$fields = ($params['fields'] ?? []);
+		$itemType = trim($params['itemType'] ?? '');
+		$itemId = (int)($params['itemId'] ?? 0);
 
 		if (
 			!is_array($fields)
@@ -166,63 +168,61 @@ class LogIndex
 			return;
 		}
 
-		$eventId = (isset($fields['EVENT_ID']) ? trim($fields['EVENT_ID']) : false);
-		$sourceId = (isset($fields['SOURCE_ID']) ? intval($fields['SOURCE_ID']) : 0);
-		$logId = (isset($fields['LOG_ID']) ? intval($fields['LOG_ID']) : 0);
-		$logDateUpdate = $dateCreate = false;
+		$eventId = trim($fields['EVENT_ID'] ?? '');
+		$sourceId = (int)($fields['SOURCE_ID'] ?? 0);
+		$logId = (int)($fields['LOG_ID'] ?? 0);
+		$dateCreate = false;
+		$logDateUpdate = false;
 
 		if (
 			empty($eventId)
 			|| $sourceId <= 0
 		)
 		{
-			if ($itemType == LogIndexTable::ITEM_TYPE_LOG)
+			if ($itemType === LogIndexTable::ITEM_TYPE_LOG)
 			{
 				$logId = $itemId;
-				$res = LogTable::getList(array(
-					'filter' => array(
-						'=ID' => $itemId
-					),
-					'select' => array('ID', 'EVENT_ID', 'SOURCE_ID', 'LOG_UPDATE')
-				));
+				$res = LogTable::getList([
+					'filter' => [
+						'=ID' => $itemId,
+					],
+					'select' => [ 'ID', 'EVENT_ID', 'SOURCE_ID', 'LOG_UPDATE' ],
+				]);
 				if ($logEntry = $res->fetch())
 				{
-					$eventId = (isset($logEntry['EVENT_ID']) ? trim($logEntry['EVENT_ID']) : false);
-					$sourceId = (isset($logEntry['SOURCE_ID']) ? intval($logEntry['SOURCE_ID']) : 0);
+					$eventId = trim($logEntry['EVENT_ID'] ?? '');
+					$sourceId = (int)($logEntry['SOURCE_ID'] ?? 0);
 					$logDateUpdate = $logEntry['LOG_UPDATE'];
 					$dateCreate = $logEntry['LOG_DATE'];
 				}
 			}
-			elseif ($itemType == LogIndexTable::ITEM_TYPE_COMMENT)
+			elseif ($itemType === LogIndexTable::ITEM_TYPE_COMMENT)
 			{
-				$res = LogCommentTable::getList(array(
-					'filter' => array(
-						'=ID' => $itemId
-					),
-					'select' => array(
+				$res = LogCommentTable::getList([
+					'filter' => [
+						'=ID' => $itemId,
+					],
+					'select' => [
 						'ID',
 						'LOG_ID',
 						'EVENT_ID',
 						'SOURCE_ID',
 						'LOG_UPDATE' => 'LOG.LOG_UPDATE',
-						'LOG_DATE'
-					)
-				));
+						'LOG_DATE',
+					],
+				]);
 				if ($comment = $res->fetch())
 				{
-					$eventId = (isset($comment['EVENT_ID']) ? trim($comment['EVENT_ID']) : false);
-					$sourceId = (isset($comment['SOURCE_ID']) ? intval($comment['SOURCE_ID']) : 0);
-					$logId = (isset($comment['LOG_ID']) ? intval($comment['LOG_ID']) : 0);
+					$eventId = trim($comment['EVENT_ID'] ?? '');
+					$sourceId = (int)($comment['SOURCE_ID'] ?? 0);
+					$logId = (int)($comment['LOG_ID'] ?? 0);
 					$logDateUpdate = $comment['LOG_UPDATE'];
 					$dateCreate = $comment['LOG_DATE'];
 				}
 			}
 		}
 
-		if (
-			empty($eventId)
-			|| $itemId <= 0
-		)
+		if (empty($eventId))
 		{
 			return;
 		}
@@ -230,18 +230,18 @@ class LogIndex
 		$content = '';
 		$event = new Main\Event(
 			'socialnetwork',
-			($itemType == LogIndexTable::ITEM_TYPE_COMMENT ? 'onLogCommentIndexGetContent' : 'onLogIndexGetContent'),
-			array(
+			($itemType === LogIndexTable::ITEM_TYPE_COMMENT ? 'onLogCommentIndexGetContent' : 'onLogIndexGetContent'),
+			[
 				'eventId' => $eventId,
 				'sourceId' => $sourceId,
 				'itemId' => $itemId,
-			)
+			]
 		);
 		$event->send();
 
-		foreach($event->getResults() as $eventResult)
+		foreach ($event->getResults() as $eventResult)
 		{
-			if($eventResult->getType() == \Bitrix\Main\EventResult::SUCCESS)
+			if ($eventResult->getType() == \Bitrix\Main\EventResult::SUCCESS)
 			{
 				$eventParams = $eventResult->getParameters();
 
@@ -256,8 +256,8 @@ class LogIndex
 						$content = \CSearch::killTags($content);
 					}
 					$content = trim(str_replace(
-						array("\r", "\n", "\t"),
-						" ",
+						[ "\r", "\n", "\t" ],
+						' ',
 						$content
 					));
 
@@ -274,27 +274,27 @@ class LogIndex
 
 		if ($logId <= 0)
 		{
-			if ($itemType == LogIndexTable::ITEM_TYPE_LOG)
+			if ($itemType === LogIndexTable::ITEM_TYPE_LOG)
 			{
 				$logId = $itemId;
 			}
-			elseif ($itemType == LogIndexTable::ITEM_TYPE_COMMENT)
+			elseif ($itemType === LogIndexTable::ITEM_TYPE_COMMENT)
 			{
-				$res = LogCommentTable::getList(array(
-					'filter' => array(
-						'=ID' => $itemId
-					),
-					'select' => array(
+				$res = LogCommentTable::getList([
+					'filter' => [
+						'=ID' => $itemId,
+					],
+					'select' => [
 						'ID',
 						'LOG_ID',
 						'LOG.LOG_UPDATE',
 						'LOG_UPDATE' => 'LOG.LOG_UPDATE',
-						'LOG_DATE'
-					)
-				));
+						'LOG_DATE',
+					],
+				]);
 				if ($comment = $res->fetch())
 				{
-					$logId = intval($comment['LOG_ID']);
+					$logId = (int)$comment['LOG_ID'];
 					$logDateUpdate = $comment['LOG_UPDATE'];
 					$dateCreate = $comment['LOG_DATE'];
 				}
@@ -310,20 +310,20 @@ class LogIndex
 			!$logDateUpdate
 			|| (
 				!$dateCreate
-				&& $itemType == LogIndexTable::ITEM_TYPE_LOG
+				&& $itemType === LogIndexTable::ITEM_TYPE_LOG
 			)
 		)
 		{
-			$res = LogTable::getList(array(
-				'filter' => array(
-					'=ID' => $logId
-				),
-				'select' => array('ID', 'LOG_UPDATE', 'LOG_DATE')
-			));
+			$res = LogTable::getList([
+				'filter' => [
+					'=ID' => $logId,
+				],
+				'select' => [ 'ID', 'LOG_UPDATE', 'LOG_DATE' ],
+			]);
 			if ($logEntry = $res->fetch())
 			{
 				$logDateUpdate = $logEntry['LOG_UPDATE'];
-				if ($itemType == LogIndexTable::ITEM_TYPE_LOG)
+				if ($itemType === LogIndexTable::ITEM_TYPE_LOG)
 				{
 					$dateCreate = $logEntry['LOG_DATE'];
 				}
@@ -332,27 +332,27 @@ class LogIndex
 
 		if (
 			!$dateCreate
-			&& $itemType == LogIndexTable::ITEM_TYPE_COMMENT
+			&& $itemType === LogIndexTable::ITEM_TYPE_COMMENT
 		)
 		{
-			$res = LogCommentTable::getList(array(
-				'filter' => array(
-					'=ID' => $itemId
-				),
-				'select' => array('ID', 'LOG_DATE')
-			));
+			$res = LogCommentTable::getList([
+				'filter' => [
+					'=ID' => $itemId,
+				],
+				'select' => [ 'ID', 'LOG_DATE' ],
+			]);
 			if ($logComment = $res->fetch())
 			{
 				$dateCreate = $logComment['LOG_DATE'];
 			}
 		}
 
-		$indexFields = array(
+		$indexFields = [
 			'itemType' => $itemType,
 			'itemId' => $itemId,
 			'logId' => $logId,
 			'content' => $content,
-		);
+		];
 
 		if ($logDateUpdate)
 		{
@@ -367,15 +367,15 @@ class LogIndex
 		LogIndexTable::set($indexFields);
 	}
 
-	public static function deleteIndex($params = array())
+	public static function deleteIndex($params = []): void
 	{
 		if (!is_array($params))
 		{
 			return;
 		}
 
-		$itemType = (isset($params['itemType']) ? trim($params['itemType']) : false);
-		$itemId = (isset($params['itemId']) ? intval($params['itemId']) : 0);
+		$itemType = trim($params['itemType'] ?? '');
+		$itemId = (int)($params['itemId'] ?? 0);
 
 		if (
 			empty($itemType)
@@ -386,20 +386,20 @@ class LogIndex
 			return;
 		}
 
-		if ($itemType == LogIndexTable::ITEM_TYPE_LOG) // delete all comments
+		if ($itemType === LogIndexTable::ITEM_TYPE_LOG) // delete all comments
 		{
 			$connection = Main\Application::getConnection();
 			$query = "DELETE FROM ".LogIndexTable::getTableName()." WHERE LOG_ID = ".$itemId;
 			$connection->queryExecute($query);
 		}
 
-		LogIndexTable::delete(array(
+		LogIndexTable::delete([
 			'ITEM_TYPE' => $itemType,
-			'ITEM_ID' => $itemId
-		));
+			'ITEM_ID' => $itemId,
+		]);
 	}
 
-	public static function prepareToken($str)
+	public static function prepareToken($str): string
 	{
 		return str_rot13($str);
 	}
@@ -407,7 +407,7 @@ class LogIndex
 	public static function OnAfterLogUpdate(\Bitrix\Main\Entity\Event $event)
 	{
 		$primary = $event->getParameter('primary');
-		$logId = (!empty($primary['ID']) ? intval($primary['ID']) : 0);
+		$logId = (int)(!empty($primary['ID']) ? $primary['ID'] : 0);
 		$fields = $event->getParameter('fields');
 
 		if (
@@ -416,10 +416,10 @@ class LogIndex
 			&& !empty($fields['LOG_UPDATE'])
 		)
 		{
-			LogIndexTable::setLogUpdate(array(
+			LogIndexTable::setLogUpdate([
 				'logId' => $logId,
-				'value' => $fields['LOG_UPDATE']
-			));
+				'value' => $fields['LOG_UPDATE'],
+			]);
 		}
 	}
 }

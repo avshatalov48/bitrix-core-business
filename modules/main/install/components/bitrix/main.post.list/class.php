@@ -551,9 +551,13 @@ HTML;
 					array_key_exists("SRC", $file))
 				{
 					if (CFile::IsImage($file["ORIGINAL_NAME"], $file["CONTENT_TYPE"]))
+					{
 						$images[] = $file;
+					}
 					else
+					{
 						$files[] = $file;
+					}
 				}
 			}
 			if (!empty($images))
@@ -568,6 +572,14 @@ HTML;
 					?><span class="feed-com-files-photo">
 						<img src="<?=$thumbnail?>" data-bx-src="<?=$file["SRC"]?>" <?
 							?>border="0" data-bx-viewer="image" <?
+							if (!empty($file["RESIZED_WIDTH"]))
+							{
+								?>width="<?= (int)$file["RESIZED_WIDTH"] ?>" <?
+							}
+							if (!empty($file["RESIZED_HEIGHT"]))
+							{
+								?>height="<?= (int)$file["RESIZED_HEIGHT"] ?>" <?
+							 }
 							?>data-bx-width="<?=$file["WIDTH"]?>" <?
 							?>data-bx-height="<?=$file["HEIGHT"]?>" <?
 							?>data-bx-title="<?=($file["FILE_NAME"])?>" <?
@@ -835,6 +847,12 @@ HTML;
 				&& $arParams["RIGHTS"]["CREATETASK"] == "Y"
 					? "Y"
 					: "N"
+			),
+			"#CREATESUBTASK_SHOW#" => (
+				empty($res['AUX'])
+				&& $arParams['RIGHTS']['CREATESUBTASK'] === 'Y'
+					? 'Y'
+					: 'N'
 			),
 			"#POST_ENTITY_TYPE#" => (!empty($arParams["POST_CONTENT_TYPE_ID"]) ? $arParams["POST_CONTENT_TYPE_ID"] : ''),
 			"#COMMENT_ENTITY_TYPE#" => (!empty($arParams["COMMENT_CONTENT_TYPE_ID"]) ? $arParams["COMMENT_CONTENT_TYPE_ID"] : ''),

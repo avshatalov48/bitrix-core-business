@@ -18,6 +18,7 @@ $MESS["MPF_IMAGE_TITLE"] = "Insert image";
 $MESS["MPF_IMPORTANT_TITLE"] = "Important message";
 $MESS["MPF_INSERT_FILE"] = "Click to insert file";
 $MESS["MPF_MENTION"] = "Mention";
+$MESS["MPF_MENTION_TASKS_LIMIT"] = "Mentioning a user in a comment is a fast way to involve them in the discussion by adding them as observer. <p>This option is not available on your current plan; the user cannot join the task this way. #A_BEGIN#Details#A_END#.";
 $MESS["MPF_MORE"] = "More";
 $MESS["MPF_PIN_EDITOR_PANNEL"] = "Pin panel";
 $MESS["MPF_PIN_EDITOR_PANNEL_OFF"] = "Unpin panel";

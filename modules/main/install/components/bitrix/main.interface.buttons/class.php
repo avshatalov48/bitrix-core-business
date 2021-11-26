@@ -338,7 +338,7 @@ class CMainInterfaceButtons
 	 */
 	protected function prepareItemIsDisabled($isDisabled, $id)
 	{
-		$result = "false";
+		$result = false;
 		$settings = $this->getItemSettingsByItemId($id);
 
 		if (!empty($isDisabled) && is_bool($isDisabled))

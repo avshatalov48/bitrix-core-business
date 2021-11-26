@@ -43,6 +43,7 @@ declare module 'ui.vue'
 		function createApp(props?: {[key: string]: unknown}|null): VueCreateAppResult;
 		function component(name: string, definition: object, options?: BitrixVueComponentOptions): boolean;
 		function localComponent(name: string, definition: object, options?: BitrixVueComponentOptions): object;
+		function getLocalComponent(name: string): object;
 		function mutateComponent(name: string, mutations: object): BitrixVueRevertHandle;
 		function cloneComponent(name: string, source: string, mutations: object): boolean;
 		function isComponent(name: string): boolean;

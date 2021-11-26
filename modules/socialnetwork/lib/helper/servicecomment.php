@@ -10,11 +10,14 @@ namespace Bitrix\Socialnetwork\Helper;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Security\Sign\Signer;
+use Bitrix\Main\UrlPreview\UrlPreview;
 use Bitrix\Main\Web\Json;
 use Bitrix\Socialnetwork\CommentAux;
 use Bitrix\Main\Config\Option;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Socialnetwork\Livefeed;
+use Bitrix\Socialnetwork\Livefeed\Provider;
 use Bitrix\Socialnetwork\LogTable;
 
 class ServiceComment
@@ -65,7 +68,7 @@ class ServiceComment
 		$userIP = \CBlogUser::getUserIP();
 		$auxText = CommentAux\CreateEntity::getPostText();
 
-		$newCommentId = \CBlogComment::add([
+		$logCommentFields = [
 			'POST_ID' => $source['post']['ID'],
 			'BLOG_ID' => $source['post']['BLOG_ID'],
 			'POST_TEXT' => $auxText,
@@ -80,8 +83,29 @@ class ServiceComment
 				'entityType' => $entityType,
 				'entityId' => $entityId,
 			]),
-		], false);
+		];
 
+		$entityLivefeedPovider = Provider::getProvider($sourceEntityType);
+		$entityLivefeedPovider->setEntityId($sourceEntityId);
+		$entityLivefeedPovider->initSourceFields();
+
+		$url = $entityLivefeedPovider->getLiveFeedUrl();
+		if (!empty($url))
+		{
+			$metaData = UrlPreview::getMetadataAndHtmlByUrl($url, true, false);
+
+			if (
+				!empty($metaData)
+				&& !empty($metaData['ID'])
+				&& (int)$metaData['ID'] > 0
+			)
+			{
+				$signer = new Signer();
+				$logCommentFields['UF_BLOG_COMM_URL_PRV'] = $signer->sign($metaData['ID'] . '', UrlPreview::SIGN_SALT);
+			}
+		}
+
+		$newCommentId = \CBlogComment::add($logCommentFields, false);
 		if (!$newCommentId)
 		{
 			return false;
@@ -147,7 +171,7 @@ class ServiceComment
 					'logId' => $logId,
 				]);
 
-				$provider = \Bitrix\Socialnetwork\CommentAux\Base::init(CommentAux\CreateEntity::getType(), [
+				$provider = CommentAux\Base::init(CommentAux\CreateEntity::getType(), [
 					'liveParamList' => $auxLiveParamList
 				]);
 
@@ -174,6 +198,17 @@ class ServiceComment
 		$sourceEntityData = (array)($params['SOURCE_ENTITY_DATA'] ?? []);
 		$logId = (int)($params['LOG_ID'] ?? 0);
 		$siteId = ($params['SITE_ID'] ?? SITE_ID);
+
+		if (in_array($sourceEntityType, [ CommentAux\CreateEntity::SOURCE_TYPE_BLOG_POST, CommentAux\CreateEntity::SOURCE_TYPE_BLOG_COMMENT], true))
+		{
+			return self::processBlogCreateEntity([
+				'ENTITY_TYPE' => $entityType,
+				'ENTITY_ID' => $entityId,
+				'SOURCE_ENTITY_TYPE' => $sourceEntityType,
+				'SOURCE_ENTITY_ID' => $sourceEntityId,
+				'LIVE' => 'Y',
+			]);
+		}
 
 		if (
 			empty($postEntityType)
@@ -222,7 +257,16 @@ class ServiceComment
 			return false;
 		}
 
-		$commentProvider->setParentProvider($provider);
+		if ($postProvider::className() === $provider::className())
+		{
+			$commentProvider->setParentProvider($provider);
+		}
+		else
+		{
+			$postEntityId = $provider->getParentEntityId();
+			$postProvider->setEntityId($postEntityId);
+			$commentProvider->setParentProvider($postProvider);
+		}
 
 		$logId = $provider->getLogId();
 
@@ -303,12 +347,12 @@ class ServiceComment
 			{
 				$logCommentFields = \Bitrix\Socialnetwork\Item\LogComment::getById($sonetCommentId)->getFields();
 
-				$res = LogTable::getList(array(
-					'filter' => array(
+				$res = LogTable::getList([
+					'filter' => [
 						'=ID' => $logCommentFields['LOG_ID']
-					),
+					],
 					'select' => [ 'ID', 'ENTITY_TYPE', 'ENTITY_ID', 'USER_ID', 'EVENT_ID', 'SOURCE_ID' ],
-				));
+				]);
 				if (!($logEntry = $res->fetch()))
 				{
 					return false;
@@ -318,7 +362,7 @@ class ServiceComment
 
 				$auxLiveParamList['userPath'] = $userPath;
 
-				$serviceCommentProvider = \Bitrix\Socialnetwork\CommentAux\Base::init(
+				$serviceCommentProvider = CommentAux\Base::init(
 					CommentAux\CreateEntity::getType(),
 					[
 						'liveParamList' => $auxLiveParamList,
@@ -352,13 +396,7 @@ class ServiceComment
 				$commentProvider->setEntityId($sourceCommentId);
 				$commentProvider->initSourceFields();
 
-				$logCommentFields = [
-					'SOURCE_ID' => $sourceCommentId,
-					'USER_ID' => $authorId,
-//					'LOG_DATE'
-				];
-
-				$serviceCommentProvider = \Bitrix\Socialnetwork\CommentAux\Base::init(
+				$serviceCommentProvider = CommentAux\Base::init(
 					CommentAux\CreateEntity::getType(),
 					[
 						'liveParamList' => $auxLiveParamList,
@@ -376,10 +414,7 @@ class ServiceComment
 					'aux' => 'createentity',
 					'auxLiveParams' => $serviceCommentProvider->getLiveParams()
 				]);
-
 			}
-
-
 		}
 
 		return true;
@@ -442,7 +477,7 @@ class ServiceComment
 					$res = \CCalendarEvent::getList(
 						[
 							'arFilter' => [
-								"ID" => $entityId,
+								'ID' => $entityId,
 							],
 							'parseRecursion' => false,
 							'fetchAttendees' => false,
@@ -451,7 +486,7 @@ class ServiceComment
 						]
 					);
 
-					if (is_array($res[0]) && is_array($res[0]))
+					if (is_array($res) && is_array($res[0]))
 					{
 						$result = $res[0];
 					}
@@ -671,7 +706,7 @@ class ServiceComment
 		$sourceEntityId = (int)($params['sourceEntityId'] ?? 0);
 
 		if (
-			in_array($sourceEntityType, [ CommentAux\CreateEntity::SOURCE_TYPE_BLOG_POST, CommentAux\CreateEntity::SOURCE_TYPE_BLOG_COMMENT ])
+			in_array($sourceEntityType, [ CommentAux\CreateEntity::SOURCE_TYPE_BLOG_POST, CommentAux\CreateEntity::SOURCE_TYPE_BLOG_COMMENT ], true)
 			&& Loader::includeModule('blog'))
 		{
 			$postId = 0;
@@ -712,5 +747,4 @@ class ServiceComment
 
 		return $result;
 	}
-
 }

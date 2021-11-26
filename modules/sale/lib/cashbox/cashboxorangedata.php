@@ -82,7 +82,7 @@ class CashboxOrangeData
 	{
 		return [
 			Check::CALCULATED_SIGN_INCOME => 1,
-			Check::CALCULATED_SIGN_CONSUMPTION => 2
+			Check::CALCULATED_SIGN_CONSUMPTION => 3
 		];
 	}
 

@@ -1,24 +1,25 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Main\Loader;
 
 final class RatingVoteList extends Provider
 {
-	const PROVIDER_ID = 'RATING_LIST';
-	const CONTENT_TYPE_ID = 'RATING_LIST';
+	public const PROVIDER_ID = 'RATING_LIST';
+	public const CONTENT_TYPE_ID = 'RATING_LIST';
 
-	public static function getId()
+	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
 	}
 
-	public function getEventId()
+	public function getEventId(): array
 	{
-		return array();
+		return [];
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return Provider::TYPE_POST;
 	}
@@ -29,13 +30,13 @@ final class RatingVoteList extends Provider
 
 		if (!is_array($params))
 		{
-			$params = array();
+			$params = [];
 		}
 
-		$userId = (isset($params["user_id"]) && intval($params["user_id"]) > 0 ? intval($params["user_id"]) : $USER->getId());
+		$userId = (isset($params['user_id']) && (int)$params["user_id"] > 0 ? (int)$params['user_id'] : $USER->getId());
 		$contentEntityId = $this->getEntityId();
 
-		list($ratingVoteTypeId, $ratingVoteEntityId) = explode('|', $contentEntityId);
+		[ $ratingVoteTypeId, $ratingVoteEntityId ] = explode('|', $contentEntityId);
 		if (
 			empty($ratingVoteTypeId)
 			|| empty($ratingVoteEntityId)
@@ -46,13 +47,13 @@ final class RatingVoteList extends Provider
 		}
 
 		$CIMNotify = new \CIMNotify();
-		$CIMNotify->markNotifyReadBySubTag(array(
-			"RATING|".$ratingVoteTypeId."|".$ratingVoteEntityId.'|'.$userId
-		));
+		$CIMNotify->markNotifyReadBySubTag([
+			'RATING|' . $ratingVoteTypeId . '|' . $ratingVoteEntityId . '|' . $userId,
+		]);
 
-		return array(
+		return [
 			'success' => true,
 			'savedInDB' => false
-		);
+		];
 	}
 }

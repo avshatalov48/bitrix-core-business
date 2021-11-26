@@ -155,6 +155,8 @@
 	padding: 6px;
 	margin: 1px 0 0 0;
 	box-shadow: 0 6px 21px 0 rgba(0,0,0,0.15);
+	max-height: 177px;
+	overflow: auto;
 }
 
 .main-ui-select-inner-item {

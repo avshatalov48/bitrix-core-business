@@ -1787,9 +1787,19 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        signedParameters: this._editor._settings.ajaxData.SIGNED_PARAMETERS,
 	        data: fields
 	      }).then(function (response) {
+	        var _response$data;
+
+	        var property = response === null || response === void 0 ? void 0 : (_response$data = response.data) === null || _response$data === void 0 ? void 0 : _response$data.PROPERTY_FIELDS;
+
 	        if (currentField instanceof BX.UI.EntityEditorDatetime || currentField instanceof BX.UI.EntityEditorMultiDatetime) {
-	          var data = currentField.getSchemeElement().getData();
-	          data.enableTime = eventArgs.enableTime;
+	          var schemeElementData = currentField.getSchemeElement().getData();
+	          var propertyData = property === null || property === void 0 ? void 0 : property.data;
+
+	          if (propertyData) {
+	            schemeElementData.enableTime = propertyData.enableTime;
+	            schemeElementData.dateViewFormat = propertyData.dateViewFormat;
+	            currentField.refreshLayout();
+	          }
 	        }
 
 	        var newType = null;
@@ -1818,7 +1828,6 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        }
 
 	        schemeElement = currentField.getSchemeElement();
-	        var property = response.data.PROPERTY_FIELDS;
 
 	        if ((currentField instanceof BX.UI.EntityEditorList || currentField instanceof BX.UI.EntityEditorMultiList) && property) {
 	          schemeElement = BX.UI.EntitySchemeElement.create(property);
@@ -1842,6 +1851,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	            },
 	            enableSaving: false
 	          });
+	          currentField._schemeElement = null;
 	          section.removeChild(currentField, {
 	            enableSaving: false
 	          });
@@ -2540,7 +2550,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        caption: BX.message("UI_ENTITY_EDITOR_UF_MULTIPLE_FIELD")
 	      });
 
-	      if (this._field instanceof BX.UI.EntityEditorMultiText || this._field instanceof BX.UI.EntityEditorMultiNumber || this._field instanceof BX.UI.EntityEditorMultiList || this._field instanceof BX.UI.EntityEditorMultiDatetime || this._field instanceof BX.UI.EntityEditorCustom && this._field.getSchemeElement()._settings.multiple) {
+	      if (this._field instanceof BX.UI.EntityEditorMultiText || this._field instanceof BX.UI.EntityEditorMultiNumber || this._field instanceof BX.UI.EntityEditorMultiList || this._field instanceof BX.UI.EntityEditorMultiDatetime || this._field instanceof BX.UI.EntityEditorMultiMoney || this._field instanceof BX.UI.EntityEditorCustom && this._field.getSchemeElement()._settings.multiple) {
 	        checkBox.checked = true;
 	      }
 

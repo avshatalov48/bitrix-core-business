@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS ['BPRIOA_ACT_TRACK1'] = "Предоставить дополнительную информацию должен #VAL#";
 $MESS ['BPRIOA_ACT_INFO'] = "Ожидание дополнительной информации";
 $MESS ['BPRIOA_LOG_COMMENTS'] = "Комментарий";
@@ -21,3 +22,6 @@ $MESS["BPSFA_PD_CANCEL"] = "Отмена";
 $MESS["BPRIA_PD_SAVE_VARIABLES"] = 'Сохранять значения в случае отказа';
 $MESS["BPSFA_PD_YES"] = "Да";
 $MESS["BPSFA_PD_NO"] = "Нет";
+
+$MESS['BPSFA_COMMENT_REQUIRED_YA'] = 'Только при утверждении';
+$MESS['BPSFA_COMMENT_REQUIRED_YR'] = 'Только при отклонении';

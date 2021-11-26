@@ -27,7 +27,7 @@ class CBitrixSocialnetworkBlogPostCommentMailComponent extends CBitrixComponent
 	 */
 
 	protected $postId = false;
-	protected $authorIdList = array();
+	protected $authorIdList = [];
 
 	/**
 	 * Function implements all the life cycle of the component
@@ -135,9 +135,9 @@ class CBitrixSocialnetworkBlogPostCommentMailComponent extends CBitrixComponent
 		}
 		else
 		{
-			if (!in_array($arResult["COMMENT"]["AUTHOR_ID"], $this->authorIdList))
+			if (!in_array((int)$arResult["COMMENT"]["AUTHOR_ID"], $this->authorIdList, true))
 			{
-				$this->authorIdList[] = $arResult["COMMENT"]["AUTHOR_ID"];
+				$this->authorIdList[] = (int)$arResult["COMMENT"]["AUTHOR_ID"];
 			}
 			$this->postId = $arResult["COMMENT"]["POST_ID"];
 		}
@@ -169,9 +169,9 @@ class CBitrixSocialnetworkBlogPostCommentMailComponent extends CBitrixComponent
 		}
 		else
 		{
-			if (!in_array($arResult["POST"]["AUTHOR_ID"], $this->authorIdList))
+			if (!in_array((int)$arResult["POST"]["AUTHOR_ID"], $this->authorIdList, true))
 			{
-				$this->authorIdList[] = $arResult["POST"]["AUTHOR_ID"];
+				$this->authorIdList[] = (int)$arResult["POST"]["AUTHOR_ID"];
 			}
 		}
 	}
@@ -182,9 +182,9 @@ class CBitrixSocialnetworkBlogPostCommentMailComponent extends CBitrixComponent
 
 		if (!empty($this->authorIdList))
 		{
-			foreach($this->authorIdList as $authorId)
+			foreach ($this->authorIdList as $authorId)
 			{
-				if (intval($authorId) > 0)
+				if ((int)$authorId > 0)
 				{
 					if (isset($arResult["AUTHORS"][$authorId]))
 					{

@@ -24,6 +24,7 @@
 	function Manager (parameters)
 	{
 		parameters = parameters || {};
+		this.id = 'ui-hint-popup-' + (+new Date());
 		if (parameters.attributeName)
 		{
 			this.attributeName = parameters.attributeName;
@@ -209,7 +210,7 @@
 					parameters.content = this.content;
 				}
 
-				this.popup = new BX.PopupWindow('ui-hint-popup', anchorNode, parameters);
+				this.popup = new BX.PopupWindow(this.id, anchorNode, parameters);
 			}
 
 			this.content.innerHTML = html;

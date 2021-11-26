@@ -3,8 +3,6 @@
 namespace Bitrix\Sale\Controller\Action\Entity;
 
 use Bitrix\Main;
-use Bitrix\Main\Text\Encoding;
-use Bitrix\Main\Web\Json;
 use Bitrix\Sale;
 
 /**
@@ -20,7 +18,12 @@ final class UserConsentRequestAction extends BaseAction
 
 		if (empty($fields['ID']) || (int)$fields['ID'] <= 0)
 		{
-			$this->addError(new Main\Error('id not found', 202440400001));
+			$result->addError(
+				new Main\Error(
+					'id not found',
+					Sale\Controller\ErrorEnumeration::USER_CONSENT_REQUEST_ACTION_ID_NOT_FOUND
+				)
+			);
 		}
 
 		return $result;
@@ -36,14 +39,7 @@ final class UserConsentRequestAction extends BaseAction
 		}
 
 		$title = $fields['TITLE'];
-		$replaceFields = \is_array($fields['FIELDS']) ? $fields['FIELDS'] : Json::encode([]);
-
-		if (!Main\Application::getInstance()->isUtfMode())
-		{
-			$replaceFields = Encoding::convertEncoding($replaceFields, SITE_CHARSET, "UTF-8");
-		}
-
-		$replaceFields = Json::decode($replaceFields);
+		$replaceFields = is_array($fields['FIELDS']) ? $fields['FIELDS'] : [];
 
 		$eventName = $fields['SUBMIT_EVENT_NAME'];
 		$eventName = \CUtil::JSescape($eventName);
@@ -57,7 +53,7 @@ final class UserConsentRequestAction extends BaseAction
 			'SUBMIT_EVENT_NAME' => $eventName,
 			'REPLACE' => array(
 				'button_caption' => $title,
-				'fields' => implode("\n\r", $replaceFields)
+				'fields' => $replaceFields,
 			)
 		];
 

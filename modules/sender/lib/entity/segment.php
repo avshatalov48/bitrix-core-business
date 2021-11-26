@@ -215,7 +215,7 @@ class Segment extends Base
 			{
 				continue;
 			}
-			GroupDealCategoryTable::delete(array('GROUP_ID' => $groupId));
+			GroupDealCategoryTable::deleteList(array('GROUP_ID' => $groupId));
 
 			foreach ($fieldValue as $dealCategory)
 			{

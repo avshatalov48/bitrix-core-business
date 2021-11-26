@@ -30,7 +30,9 @@ class Manager extends Base\RestrictionManager
 			'\Bitrix\Sale\Services\PaySystem\Restrictions\Delivery' => 'lib/services/paysystem/restrictions/delivery.php',
 			'\Bitrix\Sale\Services\PaySystem\Restrictions\Site' => 'lib/services/paysystem/restrictions/site.php',
 			'\Bitrix\Sale\Services\PaySystem\Restrictions\TradeBinding' => 'lib/services/paysystem/restrictions/tradebinding.php',
-		);
+            '\Bitrix\Sale\Services\PaySystem\Restrictions\ProductCategory' => 'lib/services/paysystem/restrictions/productcategory.php',
+            '\Bitrix\Sale\Services\PaySystem\Restrictions\ConcreteProduct' => 'lib/services/paysystem/restrictions/concreteproduct.php',
+        );
 	}
 
 	/**

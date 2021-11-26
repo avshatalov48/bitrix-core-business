@@ -1,4 +1,7 @@
 <?php
+
+use Bitrix\Bizproc;
+
 define('NO_KEEP_STATISTIC', 'Y');
 define('NO_AGENT_STATISTIC','Y');
 define('NO_AGENT_CHECK', true);
@@ -77,7 +80,8 @@ $sendError = function($error) use ($writeResponse)
 $getDocumentStates = function ($documentId) use ($user)
 {
 	$workflows = array();
-	$states =CBPStateService::GetDocumentStates($documentId);
+	$states = CBPDocument::getActiveStates($documentId);
+
 	$userId = $user->GetID();
 	$userGroups = $user->GetUserGroupArray();
 
@@ -105,6 +109,48 @@ $getDocumentStates = function ($documentId) use ($user)
 	return $workflows;
 };
 
+$getCompletedStates = function ($documentId, int $offset = 0, array $ids = null)
+{
+	$workflows = [];
+	$size = 20;
+
+	$filter = [
+		'=MODULE_ID' => $documentId[0],
+		'=ENTITY' => $documentId[1],
+		'=DOCUMENT_ID' => $documentId[2],
+		'=INSTANCE.ID' => null,
+	];
+
+	if ($ids)
+	{
+		$filter = [
+			'@ID' => $ids,
+			'=INSTANCE.ID' => null,
+		];
+	}
+
+	$rows = Bizproc\Workflow\Entity\WorkflowStateTable::getList([
+		'select' => [
+			'ID',
+			'TEMPLATE_NAME' => 'TEMPLATE.NAME',
+			'STATE_TITLE',
+			'STATE_NAME' => 'STATE',
+			'MODIFIED',
+		],
+		'filter' => $filter,
+		'limit' => $size,
+		'offset' => $offset,
+		'order' => ['MODIFIED' => 'DESC']
+	])->fetchAll();
+
+	foreach ($rows as $state)
+	{
+		$state['STATE_MODIFIED_FORMATTED'] = FormatDateFromDB($state["MODIFIED"]);
+		$workflows[] = $state;
+	}
+	return $workflows;
+};
+
 $moduleId = $request->getPost('module_id');
 $entity = $request->getPost('entity');
 $paramDocumentType = $request->getPost('document_type');
@@ -118,7 +164,7 @@ if (!$moduleId || !$entity || !$paramDocumentType || !$paramDocumentId)
 $documentType = array($moduleId, $entity, $paramDocumentType);
 $documentId = array($moduleId, $entity, $paramDocumentId);
 
-$documentStates = CBPDocument::GetDocumentStates($documentType, $documentId);
+$documentStates = CBPDocument::getActiveStates($documentId);
 
 switch ($action)
 {
@@ -155,7 +201,6 @@ switch ($action)
 		}
 		break;
 
-
 	case 'TERMINATE_WORKFLOW':
 		$canTerminate = CBPDocument::CanUserOperateDocument(
 			CBPCanUserOperateOperation::StartWorkflow,
@@ -182,6 +227,7 @@ switch ($action)
 			{
 				$sendData(array(
 					'terminated' => true,
+					'completedWorkflows' => $getCompletedStates($documentId, 0, [$workflowId]),
 					'workflows' => $getDocumentStates($documentId)
 				));
 			}
@@ -230,6 +276,7 @@ switch ($action)
 			{
 				$sendData(array(
 					'events_sent' => true,
+					'completedWorkflows' => $getCompletedStates($documentId, 0, array_keys($events)),
 					'workflows' => $getDocumentStates($documentId)
 				));
 			}
@@ -255,5 +302,48 @@ switch ($action)
 			));
 		}
 		break;
+
+	case 'GET_COMPLETED_WORKFLOWS':
+		$canView = CBPDocument::CanUserOperateDocument(
+			CBPCanUserOperateOperation::ViewWorkflow,
+			$user->GetID(),
+			$documentId,
+			array("DocumentStates" => $documentStates)
+		);
+		if (!$canView)
+		{
+			$sendError('Access Denied');
+		}
+		else
+		{
+			$sendData(array(
+				'workflows' => $getCompletedStates($documentId, (int)$request->getPost('offset'))
+			));
+		}
+		break;
+
+		case 'GET_COMPLETED_WORKFLOW':
+
+			$id = $request->getPost('workflowId');
+			$canView = CBPDocument::CanUserOperateDocument(
+				CBPCanUserOperateOperation::ViewWorkflow,
+				$user->GetID(),
+				$documentId,
+				array("DocumentStates" => $documentStates)
+			);
+			if (!$canView || !$id)
+			{
+				$sendError('Access Denied');
+			}
+			else
+			{
+
+				$sendData(array(
+					'workflow' => current(
+						$getCompletedStates($documentId, 0, [$id])
+					)
+				));
+			}
+			break;
 }
 $sendError('Unknown action!');

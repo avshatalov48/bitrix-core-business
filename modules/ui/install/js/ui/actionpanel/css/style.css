@@ -241,6 +241,24 @@
 	background: none;
 }
 
+.ui-action-panel-item-popup-menu .menu-popup-items .ui-btn {
+	min-width: 74px;
+	max-height: 35px;
+}
+
+.ui-action-panel-item-popup-menu .menu-popup-items .ui-btn:after {
+	left: 50%;
+	transform: translate(-50%,-50%);
+}
+
+.ui-action-panel-item-popup-menu .ui-btn-disabled {
+	cursor: not-allowed;
+}
+
+.ui-action-panel-item-popup-menu .ui-btn .menu-popup-item-text {
+	display: none;
+}
+
 .ui-action-panel-item-popup-menu .menu-popup-items {
 	overflow: auto;
 	max-height: calc(100vh / 2);

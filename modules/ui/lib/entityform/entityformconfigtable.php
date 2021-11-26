@@ -4,6 +4,22 @@ namespace Bitrix\Ui\EntityForm;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class EntityFormConfigTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_EntityFormConfig_Query query()
+ * @method static EO_EntityFormConfig_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EntityFormConfig_Result getById($id)
+ * @method static EO_EntityFormConfig_Result getList(array $parameters = array())
+ * @method static EO_EntityFormConfig_Entity getEntity()
+ * @method static \Bitrix\Ui\EntityForm\EO_EntityFormConfig createObject($setDefaultValues = true)
+ * @method static \Bitrix\Ui\EntityForm\EO_EntityFormConfig_Collection createCollection()
+ * @method static \Bitrix\Ui\EntityForm\EO_EntityFormConfig wakeUpObject($row)
+ * @method static \Bitrix\Ui\EntityForm\EO_EntityFormConfig_Collection wakeUpCollection($rows)
+ */
 class EntityFormConfigTable extends Entity\DataManager
 {
 	public static function getTableName()

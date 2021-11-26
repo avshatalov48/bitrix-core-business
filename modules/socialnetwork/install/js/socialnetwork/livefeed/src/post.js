@@ -343,7 +343,7 @@ class Post
 					} : null
 			),
 			(
-				menuElement.getAttribute('data-log-entry-createtask') === "Y"
+				menuElement.getAttribute('data-log-entry-createtask') === 'Y'
 					? {
 						text: Loc.getMessage('sonetLMenuCreateTask'),
 						className: 'menu-popup-no-icon',
@@ -360,7 +360,28 @@ class Post
 						}
 					}
 					: null
-			)
+			),
+			(
+				menuElement.getAttribute('data-log-entry-createtask') === 'Y'
+				&& menuElement.getAttribute('data-log-entry-entity-type') === 'TASK'
+					? {
+						text: Loc.getMessage('sonetLMenuCreateSubTask'),
+						className: 'menu-popup-no-icon',
+						onclick: (e) => {
+							TaskCreator.create({
+								entryEntityType: menuElement.getAttribute('data-log-entry-entity-type'),
+								entityType: menuElement.getAttribute('data-log-entry-entity-type'),
+								entityId: menuElement.getAttribute('data-log-entry-entity-id'),
+								logId: parseInt(menuElement.getAttribute('data-log-entry-log-id')),
+								parentTaskId: parseInt(menuElement.getAttribute('data-log-entry-entity-id')),
+							});
+
+							MenuManager.getMenuById(this.getMenuId(ind)).popupWindow.close();
+							return e.preventDefault();
+						}
+					}
+					: null
+			),
 		];
 
 		if (

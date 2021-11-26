@@ -106,7 +106,7 @@ class ListTable extends Entity\DataManager
 		$data = $event->getParameters();
 
 		$primary = array('LIST_ID' => $data['primary']['ID']);
-		ContactListTable::delete($primary);
+		ContactListTable::deleteList($primary);
 
 		return $result;
 	}

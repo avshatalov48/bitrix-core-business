@@ -137,6 +137,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 		{
 			$this->sendJsonResponse(array(
 				'status' => self::STATUS_ERROR,
+				'data' => null,
 				'errors' => $errors,
 			));
 		}
@@ -152,7 +153,13 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 		{
 			$this->sendJsonResponse(array(
 				'status' => static::STATUS_ERROR,
-				'message' => $e->getMessage(),
+				'data' => null,
+				'errors' => [
+					[
+						'code' => $e->getCode(),
+						'message' => $e->getMessage(),
+					]
+				],
 			));
 		}
 		else

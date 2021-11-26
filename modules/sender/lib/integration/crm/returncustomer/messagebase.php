@@ -129,16 +129,16 @@ class MessageBase implements Message\iBase, Message\iReturnCustomer
 					ob_start();
 					Extension::load("sender.rc_editor");
 
-					echo "<input type='number' step='1' id='".$daysAgoCode."' 
-					name='".$daysAgoCode."'
-					class='bx-sender-form-control' value='". (int)$dealDaysAgoOption->getValue() ."' 
-					min='".htmlspecialcharsbx($dealDaysAgoOption->getMinValue())."'
-					max='".htmlspecialcharsbx($dealDaysAgoOption->getMaxValue())."'
+					echo "<input type='number' step='1' id='" . $daysAgoCode . "' 
+					name='" . $daysAgoCode . "'
+					class='bx-sender-form-control' value='" . (int)$dealDaysAgoOption->getValue() . "' 
+					min='" . htmlspecialcharsbx($dealDaysAgoOption->getMinValue()) . "'
+					max='" . htmlspecialcharsbx($dealDaysAgoOption->getMaxValue()) . "'
 					/>";
 
 					$params = \Bitrix\Main\Web\Json::encode(
 						[
-							'elementId'          => $daysAgoCode,
+							'elementId' => $daysAgoCode,
 							'conditionElementId' => $fromPreviousCode
 						]
 					);

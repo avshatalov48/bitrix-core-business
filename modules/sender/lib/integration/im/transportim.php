@@ -16,7 +16,7 @@ use Bitrix\Sender\Recipient;
  * Class TransportIm
  * @package Bitrix\Sender\Integration\Im
  */
-class TransportIm implements Transport\iBase
+class TransportIm implements Transport\iBase, Transport\iLimitation
 {
 	const CODE = self::CODE_IM;
 
@@ -85,6 +85,14 @@ class TransportIm implements Transport\iBase
 		$text = $message->replaceFields($text);
 
 		return Service::send($to, $text);
+	}
+
+	public function getLimiters(Message\iBase $message = null)
+	{
+		return array(
+			Transport\TimeLimiter::create()
+				->withLetter($message)
+		);
 	}
 
 	public function end()

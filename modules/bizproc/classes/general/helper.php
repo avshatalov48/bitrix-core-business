@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Bizproc;
@@ -1669,6 +1670,13 @@ class CBPHelper
 		return self::GetFieldInputValue($documentType, $arDocumentField, array("Field" => $fieldName), $arRequest, $arErrors);
 	}
 
+	/**
+	 * @deprecated
+	 * @see \CBPHelper::convertBBtoText
+	 * @param $text
+	 * @param false $siteId
+	 * @return array|string|string[]|null
+	 */
 	public static function ConvertTextForMail($text, $siteId = false)
 	{
 		if (is_array($text))
@@ -1761,6 +1769,30 @@ class CBPHelper
 		);
 
 		return $text;
+	}
+
+	public static function convertBBtoText(string $text): string
+	{
+		$textParser = new CTextParser();
+		$textParser->allow = [
+			'HTML' => 'N',
+			'USER' => 'N',
+			'ANCHOR' => 'Y',
+			'BIU' => 'Y',
+			'IMG' => 'N',
+			'QUOTE' => 'N',
+			'CODE' => 'N',
+			'FONT' => 'Y',
+			'LIST' => 'Y',
+			'SMILES' => 'N',
+			'NL2BR' => 'Y',
+			'VIDEO' => 'N',
+			'TABLE' => 'N',
+			'CUT_ANCHOR' => 'N',
+			'ALIGN' => 'N'
+		];
+
+		return $textParser->convertText($text);
 	}
 
 	public static function __ConvertAnchorTag($url, $text = '', $serverName = '')
@@ -2379,7 +2411,7 @@ class CBPHelper
 	{
 		CUtil::DecodeUriComponent($data);
 
-		$jsonParams = ['arWorkflowTemplate', 'arWorkflowParameters', 'arWorkflowVariables', 'arWorkflowGlobalConstants', 'arWorkflowConstants', 'USER_PARAMS'];
+		$jsonParams = ['arWorkflowTemplate', 'arWorkflowParameters', 'arWorkflowGlobalVariables', 'arWorkflowVariables', 'arWorkflowGlobalConstants', 'arWorkflowConstants', 'USER_PARAMS'];
 
 		foreach ($jsonParams as $k)
 		{

@@ -16,7 +16,7 @@ class CatalogSectionTab
 {
 	protected static $tabHandlers = array();
 
-	function OnInit($args)
+	public static function OnInit($args)
 	{
 		$result = array();
 
@@ -53,7 +53,7 @@ class CatalogSectionTab
 		return $result;
 	}
 
-	function Action($arArgs)
+	public static function Action($arArgs)
 	{
 		/** @var \CMain $APPLICATION*/
 		global $APPLICATION;
@@ -77,7 +77,7 @@ class CatalogSectionTab
 		return $result;
 	}
 
-	function Check($arArgs)
+	public static function Check($arArgs)
 	{
 		/** @var \CMain $APPLICATION*/
 		global $APPLICATION;
@@ -101,7 +101,7 @@ class CatalogSectionTab
 		return $result;
 	}
 
-	function GetTabs($arArgs)
+	public static function GetTabs($arArgs)
 	{
 		$arTabs = array(
 			array(
@@ -115,7 +115,7 @@ class CatalogSectionTab
 	}
 
 	// arArgs = array("ID" => $ID, "IBLOCK"=>$arIBlock, "IBLOCK_TYPE"=>$arIBTYPE)
-	function ShowTab($divName, $arArgs, $bVarsFromForm)
+	public static function ShowTab($divName, $arArgs, $bVarsFromForm)
 	{
 		if ($divName == "edit_trading_platforms")
 		{

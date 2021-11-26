@@ -9,7 +9,6 @@ use Bitrix\Main;
 use Bitrix\Sale;
 use BItrix\Catalog;
 use Bitrix\Rest;
-use Bitrix\Crm;
 
 Main\Localization\Loc::loadMessages(__DIR__ . '/class.php');
 
@@ -65,11 +64,11 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 
 	protected function processAfterAction(Main\Engine\Action $action, $result)
 	{
-		if (empty($this->getErrors()))
+		if (is_array($result) && empty($this->getErrors()))
 		{
 			$result = self::prepareJsonData($result);
 
-			if (\is_array($result) && Main\Loader::includeModule('rest'))
+			if (Main\Loader::includeModule('rest'))
 			{
 				$result = Rest\Integration\Externalizer::multiSortKeysArray($result);
 			}
@@ -78,7 +77,7 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 		return $result;
 	}
 
-	private static function prepareJsonData(?array $result): ?array
+	private static function prepareJsonData(array $result): array
 	{
 		if (!empty($result['BASKET_ITEMS']))
 		{
@@ -103,7 +102,7 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 			$result['BASKET_ITEMS'] = $basketItems;
 		}
 
-		$result = (array)Main\Engine\Response\Converter::toJson()->process($result);
+		$result = Main\Engine\Response\Converter::toJson()->process($result);
 
 		if (!empty($result['basketItems']) && isset($sku))
 		{
@@ -323,7 +322,15 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 		$result = new Main\Engine\Response\Component('bitrix:salescenter.payment.pay', 'checkout_form', $params);
 
 		$order = $this->loadOrder($fields['ORDER_ID']);
-		$this->addTimelineEntryOnPay($order);
+
+		$event = new Main\Event(
+			'sale',
+			'onComponentSaleOrderCheckoutPaymentPayAction',
+			[
+				'ORDER' => $order,
+			]
+		);
+		$event->send();
 
 		return $result;
 	}
@@ -402,8 +409,7 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 			{
 				$errorCode = $error->getCode();
 
-				// property errors
-				if ($errorCode >= 202250003000 && $errorCode <= 202250003999)
+				if ((int)$errorCode === Sale\Controller\ErrorEnumeration::SAVE_ORDER_ACTION_SET_PROPERTIES)
 				{
 					$this->addError(
 						new Main\Error(
@@ -414,8 +420,7 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 					);
 				}
 
-				// user errors
-				if ($errorCode === 202250005000)
+				if ((int)$errorCode === Sale\Controller\ErrorEnumeration::SAVE_ORDER_ACTION_SET_USER)
 				{
 					$this->addError(new Main\Error($error->getMessage()));
 				}
@@ -520,43 +525,15 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 					foreach ($actionValues as $index => $offerFields)
 					{
 						$offerItems[] = $offerFields['BASKET_ID'];
-
-						$changeBasketItemResult = $this->changeBasketItem($offerFields['BASKET_ID'], $offerFields['PRODUCT_ID']);
-						if ($changeBasketItemResult->isSuccess())
-						{
-							$result['ACTIONS'][$index] = [
-								'TYPE' => 'offer',
-								'FIELDS' => ['ID' => $offerFields['BASKET_ID']],
-							];
-						}
-						else
-						{
-							$result['ACTIONS'][$index] = [
-								'TYPE' => 'offer',
-								'ERRORS' => $changeBasketItemResult->getErrorMessages(),
-							];
-						}
+						$result['ACTIONS'][$index] = $this->makeRecalculateOfferBasket($offerFields);
 					}
+
 					break;
 
 				case 'DELETE':
 					foreach ($actionValues as $index => $basketItemId)
 					{
-						$deleteBasketItemResult = $this->deleteBasketItem($basketItemId);
-						if ($deleteBasketItemResult->isSuccess())
-						{
-							$result['ACTIONS'][$index] = [
-								'TYPE' => 'delete',
-								'FIELDS' => ['ID' => $basketItemId],
-							];
-						}
-						else
-						{
-							$result['ACTIONS'][$index] = [
-								'TYPE' => 'delete',
-								'ERRORS' => $deleteBasketItemResult->getErrorMessages(),
-							];
-						}
+						$result['ACTIONS'][$index] = $this->makeRecalculateDeleteBasket($basketItemId);
 					}
 
 					break;
@@ -564,21 +541,7 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 				case 'QUANTITY':
 					foreach ($actionValues as $index => $quantity)
 					{
-						$updateBasketItemQuantityResult = $this->updateBasketItemQuantity($quantity['BASKET_ID'], $quantity['QUANTITY']);
-						if ($updateBasketItemQuantityResult->isSuccess())
-						{
-							$result['ACTIONS'][$index] = [
-								'TYPE' => 'quantity',
-								'FIELDS' => ['ID' => $quantity['BASKET_ID']],
-							];
-						}
-						else
-						{
-							$result['ACTIONS'][$index] = [
-								'TYPE' => 'quantity',
-								'ERRORS' => $updateBasketItemQuantityResult->getErrorMessages(),
-							];
-						}
+						$result['ACTIONS'][$index] = $this->makeRecalculateQuantityBasket($quantity['BASKET_ID'], $quantity['QUANTITY']);
 					}
 
 					break;
@@ -586,25 +549,7 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 				case 'RESTORE':
 					foreach ($actionValues as $index => $basketItemData)
 					{
-						$restoreBasketItemResult = $this->restoreBasketItem($basketItemData);
-						if ($restoreBasketItemResult->isSuccess())
-						{
-							$restoreBasketItemData = $restoreBasketItemResult->getData();
-							/** @var Sale\BasketItem $basketItem */
-							$basketItem = $restoreBasketItemData['basketItem'];
-
-							$result['ACTIONS'][$index] = [
-								'TYPE' => 'restore',
-								'FIELDS' => ['ID' => $basketItem->getId()],
-							];
-						}
-						else
-						{
-							$result['ACTIONS'][$index] = [
-								'TYPE' => 'restore',
-								'ERRORS' => $restoreBasketItemResult->getErrorMessages(),
-							];
-						}
+						$result['ACTIONS'][$index] = $this->makeRecalculateRestoreBasket($basketItemData);
 					}
 
 					break;
@@ -637,12 +582,85 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 		$result['ORDER_PRICE_TOTAL'] = $basketData['ORDER_PRICE_TOTAL'];
 
 		$result['NEED_FULL_RECALCULATION'] =
-			self::isBasketHashChanged($basketHashBeforeRecalculation, $basketHashAfterRecalculation)
-				? 'Y'
-				: 'N'
-		;
+			self::isBasketHashChanged($basketHashBeforeRecalculation, $basketHashAfterRecalculation) ? 'Y' : 'N';
 
 		return $result;
+	}
+
+	private function makeRecalculateOfferBasket(array $offerFields): array
+	{
+		$changeBasketItemResult = $this->changeBasketItem($offerFields['BASKET_ID'], $offerFields['PRODUCT_ID']);
+		if ($changeBasketItemResult->isSuccess())
+		{
+			return [
+				'TYPE' => 'offer',
+				'FIELDS' => ['ID' => $offerFields['BASKET_ID']],
+			];
+		}
+
+		return [
+			'TYPE' => 'offer',
+			'ERRORS' => $this->getRecalculateErrorStructure($changeBasketItemResult),
+		];
+	}
+
+	private function makeRecalculateDeleteBasket(int $basketItemId): array
+	{
+		$deleteBasketItemResult = $this->deleteBasketItem($basketItemId);
+		if ($deleteBasketItemResult->isSuccess())
+		{
+			return [
+				'TYPE' => 'delete',
+				'FIELDS' => ['ID' => $basketItemId],
+			];
+		}
+
+		return [
+			'TYPE' => 'delete',
+			'ERRORS' => $this->getRecalculateErrorStructure($deleteBasketItemResult),
+		];
+	}
+
+	private function makeRecalculateQuantityBasket(int $basketId, float $quantity): array
+	{
+		$updateBasketItemQuantityResult = $this->updateBasketItemQuantity($basketId, $quantity);
+		if ($updateBasketItemQuantityResult->isSuccess())
+		{
+			return [
+				'TYPE' => 'quantity',
+				'FIELDS' => ['ID' => $basketId],
+			];
+		}
+
+		return [
+			'TYPE' => 'quantity',
+			'ERRORS' => $this->getRecalculateErrorStructure($updateBasketItemQuantityResult),
+		];
+	}
+
+	private function makeRecalculateRestoreBasket(array $basketItemData): array
+	{
+		$result = $this->checkRestoreFields($basketItemData);
+		if ($result->isSuccess())
+		{
+			$result = $this->restoreBasketItem($basketItemData);
+			if ($result->isSuccess())
+			{
+				$restoreBasketItemData = $result->getData();
+				/** @var Sale\BasketItem $basketItem */
+				$basketItem = $restoreBasketItemData['basketItem'];
+
+				return [
+					'TYPE' => 'restore',
+					'FIELDS' => ['ID' => $basketItem->getId()],
+				];
+			}
+		}
+
+		return [
+			'TYPE' => 'restore',
+			'ERRORS' => $this->getRecalculateErrorStructure($result),
+		];
 	}
 
 	private function prepareRecalculateBasketActions(array $actions): array
@@ -651,6 +669,7 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 			'DELETE' => [],
 			'QUANTITY' => [],
 			'RESTORE' => [],
+			'OFFER' => [],
 		];
 
 		$actions = $this->sortRecalculateBasketAction($actions);
@@ -661,6 +680,10 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 			foreach ($n as $action)
 			{
 				$actionName = key($action);
+				if (!isset($result[$actionName]))
+				{
+					continue;
+				}
 
 				$data = $action[$actionName]['FIELDS'];
 				if (
@@ -688,17 +711,17 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 				{
 					$value = [
 						'BASKET_ID' => (int)$data['ID'],
-						'QUANTITY' => $data['VALUE'],
+						'QUANTITY' => (float)$data['VALUE'],
 					];
 				}
 				elseif ($actionName === 'RESTORE')
 				{
 					$value = [
-						'PRODUCT_ID' => $data['PRODUCT']['ID'],
-						'QUANTITY' => $data['QUANTITY'],
-						'MODULE' => $data['MODULE'],
-						'PRODUCT_PROVIDER_CLASS' => $data['PRODUCT_PROVIDER_CLASS'],
-						'PROPS' => $data['PROPS'],
+						'PRODUCT_ID' => $data['PRODUCT']['ID'] ?? null,
+						'QUANTITY' => $data['QUANTITY'] ?? null,
+						'MODULE' => $data['MODULE'] ?? null,
+						'PRODUCT_PROVIDER_CLASS' => $data['PRODUCT_PROVIDER_CLASS'] ?? null,
+						'PROPS' => $data['PROPS'] ?? null,
 					];
 				}
 				elseif ($actionName === 'OFFER')
@@ -727,6 +750,42 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 		}
 
 		return $actions;
+	}
+
+	private function checkRestoreFields(array $basketItemData): Sale\Result
+	{
+		$result = new Sale\Result();
+
+		$restoreRequiredFields = [
+			'PRODUCT_ID',
+			'QUANTITY',
+			'MODULE',
+			'PRODUCT_PROVIDER_CLASS',
+		];
+
+		foreach ($restoreRequiredFields as $restoreRequiredField)
+		{
+			if (empty($basketItemData[$restoreRequiredField]))
+			{
+				$result->addError(new Main\Error("Field {$restoreRequiredField} is required for restore"));
+			}
+		}
+
+		return $result;
+	}
+
+	private function getRecalculateErrorStructure(Sale\Result $result): array
+	{
+		$errors = [];
+		foreach ($result->getErrors() as $error)
+		{
+			$errors[] = [
+				'CODE' => $error->getCode(),
+				'MESSAGE' => $error->getMessage(),
+			];
+		}
+
+		return $errors;
 	}
 
 	private function deleteBasketItem(int $id): Sale\Result
@@ -903,73 +962,5 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 		}
 
 		return false;
-	}
-
-	/**
-	 * @param Sale\Order $order
-	 * @throws Main\ArgumentException
-	 */
-	private function addTimelineEntryOnPay(Sale\Order $order): void
-	{
-		if (!Main\Loader::includeModule('crm'))
-		{
-			return;
-		}
-
-		$orderId = $order->getId();
-
-		$isTimelineExists = false;
-		$timelineIterator = Crm\Timeline\Entity\TimelineTable::getList([
-			'select' => ['ID', 'SETTINGS'],
-			'filter' => [
-				'=ASSOCIATED_ENTITY_ID' => $orderId ,
-				'=ASSOCIATED_ENTITY_TYPE_ID' => Crm\Timeline\TimelineType::ORDER,
-				'=TYPE_ID' => Crm\Timeline\TimelineType::ORDER,
-			],
-		]);
-		while ($timelineData = $timelineIterator->fetch())
-		{
-			$timelineSettings = $timelineData['SETTINGS'];
-			$isManualContinuePay = $timelineSettings['FIELDS']['MANUAL_CONTINUE_PAY'] ?? null;
-			if ($isManualContinuePay === 'Y')
-			{
-				$isTimelineExists = true;
-				break;
-			}
-		}
-
-		if ($isTimelineExists)
-		{
-			return;
-		}
-
-		$bindings = [
-			[
-				'ENTITY_TYPE_ID' => \CCrmOwnerType::Order,
-				'ENTITY_ID' => $orderId,
-			],
-		];
-
-		/** @var Crm\Order\DealBinding $dealBindings */
-		if ($dealBindings = $order->getDealBinding())
-		{
-			$bindings[] = [
-				'ENTITY_TYPE_ID' => \CCrmOwnerType::Deal,
-				'ENTITY_ID' => $dealBindings->getDealId(),
-			];
-		}
-
-		$timelineParams = [
-			'SETTINGS' => [
-				'CHANGED_ENTITY' => \CCrmOwnerType::OrderName,
-				'FIELDS' => [
-					'ORDER_ID' => $orderId,
-				],
-			],
-			'ORDER_FIELDS' => $order->getFieldValues(),
-			'BINDINGS' => $bindings,
-		];
-
-		Crm\Timeline\OrderController::getInstance()->onManualContinuePay($orderId, $timelineParams);
 	}
 }

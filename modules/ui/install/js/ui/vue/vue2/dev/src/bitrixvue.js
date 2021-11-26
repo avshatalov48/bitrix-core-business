@@ -17,6 +17,7 @@ export class BitrixVue
 
 	constructor(VueVendor)
 	{
+		this._appCounter = 0;
 		this._components = {};
 		this._mutations = {};
 		this._clones = {};
@@ -58,6 +59,153 @@ export class BitrixVue
 	 */
 	createApp(params)
 	{
+		const bitrixVue = this;
+
+		// 1. Init Bitrix public api
+		const $Bitrix = {};
+
+		// 1.1 Localization
+		$Bitrix.Loc =
+		{
+			messages: {},
+
+			getMessage: function(messageId: string): string
+			{
+				if (typeof this.messages[messageId] !== 'undefined')
+				{
+					return this.messages[messageId];
+				}
+
+				this.messages[messageId] = Loc.getMessage(messageId);
+
+				return this.messages[messageId];
+			},
+
+			getMessages: function (): object
+			{
+				if (typeof BX.message !== 'undefined')
+				{
+					return {...BX.message, ...this.messages};
+				}
+
+				return {...this.messages};
+			},
+
+			setMessage: function(id: string | {[key: string]: string}, value?: string): void
+			{
+				if (Type.isString(id))
+				{
+					this.messages[id] = value;
+				}
+
+				if (Type.isObject(id))
+				{
+					for (const code in id)
+					{
+						if (id.hasOwnProperty(code))
+						{
+							this.messages[code] = id[code];
+						}
+					}
+				}
+			}
+		};
+
+		// 1.2  Application Data
+		$Bitrix.Application =
+		{
+			instance: null,
+
+			get: function(): Object
+			{
+				return this.instance;
+			},
+			set: function(instance: Object): void
+			{
+				this.instance = instance;
+			},
+		};
+
+		// 1.3  Application Data
+		$Bitrix.Data =
+		{
+			data: {},
+
+			get: function(name: string, defaultValue?:any): any
+			{
+				return this.data[name] ?? defaultValue;
+			},
+			set: function(name: string, value: any): void
+			{
+				this.data[name] = value;
+			}
+		};
+
+		// 1.4  Application EventEmitter
+		$Bitrix.eventEmitter = new EventEmitter();
+		if (typeof $Bitrix.eventEmitter.setEventNamespace === 'function')
+		{
+			this._appCounter++;
+			$Bitrix.eventEmitter.setEventNamespace('vue:app:'+this._appCounter);
+		}
+		else // hack for old version of Bitrix SM
+		{
+			window.BX.Event.EventEmitter.prototype.setEventNamespace = function () {}
+			$Bitrix.eventEmitter.setEventNamespace = function () {}
+		}
+
+		// 1.5  Application RestClient
+		$Bitrix.RestClient =
+		{
+			instance: null,
+
+			get: function(): RestClient
+			{
+				return this.instance ?? rest;
+			},
+			set: function(instance: RestClient): void
+			{
+				this.instance = instance;
+				$Bitrix.eventEmitter.emit(bitrixVue.events.restClientChange);
+			},
+			isCustom()
+			{
+				return this.instance !== null;
+			}
+		};
+
+		// 1.6  Application PullClient
+		$Bitrix.PullClient =
+		{
+			instance: null,
+
+			get: function(): PullClient
+			{
+				return this.instance ?? pull;
+			},
+			set: function(instance: PullClient): void
+			{
+				this.instance = instance;
+				$Bitrix.eventEmitter.emit(bitrixVue.events.pullClientChange);
+			},
+			isCustom()
+			{
+				return this.instance !== null;
+			}
+		};
+
+		if (typeof (params.mixins) === 'undefined')
+		{
+			params.mixins = [];
+		}
+
+		params.mixins.unshift({
+			beforeCreate: function()
+			{
+				this.$bitrix = $Bitrix;
+			},
+		})
+
 		let instance = new this._instance(params);
 
 		instance.mount = function(rootContainer: string|Element): object
@@ -105,7 +253,7 @@ export class BitrixVue
 	}
 
 	/**
-	 * Register Vue component
+	 * Register Vue component (local)
 	 * @see https://vuejs.org/v2/guide/components.html
 	 *
 	 * @param {string} name
@@ -116,7 +264,32 @@ export class BitrixVue
 	 */
 	localComponent(name, definition, options = {})
 	{
-		return this.component(name, definition, {...options, local: true});
+		return this.component(name, definition, {immutable: false, ...options, local: true});
+	}
+
+	/**
+	 * Get local Vue component
+	 * @see https://vuejs.org/v2/guide/components.html
+	 *
+	 * @param {string} name
+	 *
+	 * @returns {Object}
+	 */
+	getLocalComponent(name)
+	{
+		if (!this.isComponent(name))
+		{
+			BitrixVue.showNotice('Component "'+name+'" is not registered yet.');
+			return null;
+		}
+
+		if (!this.isLocal(name))
+		{
+			BitrixVue.showNotice('You cannot get the component "'+name+'" because it is marked as global.');
+			return null;
+		}
+
+		return this._getFinalComponentParams(name);
 	}
 
 	/**
@@ -143,9 +316,12 @@ export class BitrixVue
 
 		this._mutations[id].push(mutations);
 
-		if (typeof this._components[id] !== 'undefined')
+		if (
+			typeof this._components[id] !== 'undefined'
+			&& !this.isLocal(id)
+		)
 		{
-			this.component(id, this._components[id]);
+			this.component(id, this._components[id], this._components[id].bitrixOptions);
 		}
 
 		return () => {
@@ -163,6 +339,17 @@ export class BitrixVue
 	 */
 	cloneComponent(id, sourceId, mutations)
 	{
+		if (this.isLocal(sourceId))
+		{
+			const definition = this.getLocalComponent(sourceId);
+			definition.name = id;
+
+			this.component(id, definition, {immutable: false, local: true});
+			this.mutateComponent(id, mutations);
+
+			return true;
+		}
+
 		if (typeof this._clones[sourceId] === 'undefined')
 		{
 			this._clones[sourceId] = {};
@@ -824,142 +1011,20 @@ export class BitrixVue
 	 */
 	install(app, options)
 	{
-		const bitrixVue = this;
-
-		// 1. Init Bitrix public api
-		const $Bitrix = {};
-
-		// 1.1 Localization
-		$Bitrix.Loc =
-		{
-			messages: {},
-
-			getMessage: function(messageId: string): string
-			{
-				if (typeof this.messages[messageId] !== 'undefined')
-				{
-					return this.messages[messageId];
-				}
-
-				this.messages[messageId] = Loc.getMessage(messageId);
-
-				return this.messages[messageId];
-			},
-
-			getMessages: function (): object
-			{
-				if (typeof BX.message !== 'undefined')
-				{
-					return {...BX.message, ...this.messages};
-				}
-
-				return {...this.messages};
-			},
-
-			setMessage: function(id: string | {[key: string]: string}, value?: string): void
-			{
-				if (Type.isString(id))
-				{
-					this.messages[id] = value;
-				}
-
-				if (Type.isObject(id))
-				{
-					for (const code in id)
-					{
-						if (id.hasOwnProperty(code))
-						{
-							this.messages[code] = id[code];
-						}
-					}
-				}
-			}
-		};
-
-		// 1.2  Application Data
-		$Bitrix.Application =
-		{
-			instance: null,
-
-			get: function(): Object
-			{
-				return this.instance;
-			},
-			set: function(instance: Object): void
-			{
-				this.instance = instance;
-			},
-		};
-
-		// 1.3  Application Data
-		$Bitrix.Data =
-		{
-			data: {},
-
-			get: function(name: string, defaultValue?:any): any
-			{
-				return this.data[name] ?? defaultValue;
-			},
-			set: function(name: string, value: any): void
-			{
-				this.data[name] = value;
-			}
-		};
-
-		// 1.4  Application EventEmitter
-		$Bitrix.eventEmitter = new EventEmitter();
-		$Bitrix.eventEmitter.setEventNamespace('vue:app:'+app._uid);
-
-		// 1.5  Application RestClient
-		$Bitrix.RestClient =
-		{
-			instance: null,
-
-			get: function(): RestClient
-			{
-				return this.instance ?? rest;
-			},
-			set: function(instance: RestClient): void
-			{
-				this.instance = instance;
-				$Bitrix.eventEmitter.emit(bitrixVue.events.restClientChange);
-			},
-			isCustom()
-			{
-				return this.instance !== null;
-			}
-		};
-
-		// 1.6  Application PullClient
-		$Bitrix.PullClient =
-		{
-			instance: null,
-
-			get: function(): PullClient
-			{
-				return this.instance ?? pull;
-			},
-			set: function(instance: PullClient): void
-			{
-				this.instance = instance;
-				$Bitrix.eventEmitter.emit(bitrixVue.events.pullClientChange);
-			},
-			isCustom()
-			{
-				return this.instance !== null;
-			}
-		};
-
-		// 2. Apply global properties
-		app.prototype.$bitrix = $Bitrix;
-
 		app.mixin(
 		{
+			beforeCreate()
+			{
+				if (typeof this.$root !== 'undefined')
+				{
+					this.$bitrix = this.$root.$bitrix;
+				}
+			},
 			computed:
 			{
 				$Bitrix: function()
 				{
-					return this.$bitrix;
+					return this.$root.$bitrix;
 				},
 			},
 			mounted: function ()

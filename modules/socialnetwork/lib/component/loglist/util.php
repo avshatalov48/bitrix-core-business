@@ -1,7 +1,8 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Component\LogList;
 
-class Util
+class Util extends \Bitrix\Socialnetwork\Component\LogListCommon\Util
 {
 	public static function checkEmptyParamInteger(&$params, $paramName, $defaultValue)
 	{
@@ -13,20 +14,9 @@ class Util
 		$params[$paramName] = (isset($params[$paramName]) && trim($params[$paramName]) <> '' ? trim($params[$paramName]) : $defaultValue);
 	}
 
-	public static function getRequest()
-	{
-		return \Bitrix\Main\Context::getCurrent()->getRequest();
-	}
-
-	public static function checkUserAuthorized()
+	public static function checkUserAuthorized(): bool
 	{
 		global $USER;
 		return (isset($USER) && is_object($USER) ? $USER->isAuthorized() : false);
 	}
-
-	public static function getCollapsedPinnedPanelItemsLimit()
-	{
-		return 3;
-	}
 }
-?>

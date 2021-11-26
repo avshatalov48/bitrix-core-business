@@ -296,18 +296,6 @@ namespace Bitrix\Blog {
 }
 namespace Bitrix\Blog {
 	/**
-	 * @method static EO_Comment_Query query()
-	 * @method static EO_Comment_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Comment_Result getById($id)
-	 * @method static EO_Comment_Result getList(array $parameters = array())
-	 * @method static EO_Comment_Entity getEntity()
-	 * @method static \Bitrix\Blog\EO_Comment createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Blog\EO_Comment_Collection createCollection()
-	 * @method static \Bitrix\Blog\EO_Comment wakeUpObject($row)
-	 * @method static \Bitrix\Blog\EO_Comment_Collection wakeUpCollection($rows)
-	 */
-	class CommentTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -533,18 +521,6 @@ namespace Bitrix\Blog\Internals {
 }
 namespace Bitrix\Blog\Internals {
 	/**
-	 * @method static EO_BlogUser_Query query()
-	 * @method static EO_BlogUser_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_BlogUser_Result getById($id)
-	 * @method static EO_BlogUser_Result getList(array $parameters = array())
-	 * @method static EO_BlogUser_Entity getEntity()
-	 * @method static \Bitrix\Blog\Internals\EO_BlogUser createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Blog\Internals\EO_BlogUser_Collection createCollection()
-	 * @method static \Bitrix\Blog\Internals\EO_BlogUser wakeUpObject($row)
-	 * @method static \Bitrix\Blog\Internals\EO_BlogUser_Collection wakeUpCollection($rows)
-	 */
-	class BlogUserTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -570,7 +546,7 @@ namespace Bitrix\Blog\Internals {
 	 */
 	class EO_BlogUser_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Blog\PostTable:blog/lib/post.php:8b1d9df7d4cede49aea4a82b329ae980 */
+/* ORMENTITYANNOTATION:Bitrix\Blog\PostTable:blog/lib/post.php:e1e125c019fea6da703c8ca772550a39 */
 namespace Bitrix\Blog {
 	/**
 	 * EO_Post
@@ -774,6 +750,16 @@ namespace Bitrix\Blog {
 	 * @method \Bitrix\Blog\EO_Post resetCategoryId()
 	 * @method \Bitrix\Blog\EO_Post unsetCategoryId()
 	 * @method \string fillCategoryId()
+	 * @method \string getBackgroundCode()
+	 * @method \Bitrix\Blog\EO_Post setBackgroundCode(\string|\Bitrix\Main\DB\SqlExpression $backgroundCode)
+	 * @method bool hasBackgroundCode()
+	 * @method bool isBackgroundCodeFilled()
+	 * @method bool isBackgroundCodeChanged()
+	 * @method \string remindActualBackgroundCode()
+	 * @method \string requireBackgroundCode()
+	 * @method \Bitrix\Blog\EO_Post resetBackgroundCode()
+	 * @method \Bitrix\Blog\EO_Post unsetBackgroundCode()
+	 * @method \string fillBackgroundCode()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -856,6 +842,8 @@ namespace Bitrix\Blog {
 	 * @method \string[] fillDetailText()
 	 * @method \string[] getCategoryIdList()
 	 * @method \string[] fillCategoryId()
+	 * @method \string[] getBackgroundCodeList()
+	 * @method \string[] fillBackgroundCode()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -888,18 +876,6 @@ namespace Bitrix\Blog {
 	}
 }
 namespace Bitrix\Blog {
-	/**
-	 * @method static EO_Post_Query query()
-	 * @method static EO_Post_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Post_Result getById($id)
-	 * @method static EO_Post_Result getList(array $parameters = array())
-	 * @method static EO_Post_Entity getEntity()
-	 * @method static \Bitrix\Blog\EO_Post createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Blog\EO_Post_Collection createCollection()
-	 * @method static \Bitrix\Blog\EO_Post wakeUpObject($row)
-	 * @method static \Bitrix\Blog\EO_Post_Collection wakeUpCollection($rows)
-	 */
-	class PostTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1077,18 +1053,6 @@ namespace Bitrix\Blog {
 	}
 }
 namespace Bitrix\Blog {
-	/**
-	 * @method static EO_PostSocnetRights_Query query()
-	 * @method static EO_PostSocnetRights_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_PostSocnetRights_Result getById($id)
-	 * @method static EO_PostSocnetRights_Result getList(array $parameters = array())
-	 * @method static EO_PostSocnetRights_Entity getEntity()
-	 * @method static \Bitrix\Blog\EO_PostSocnetRights createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Blog\EO_PostSocnetRights_Collection createCollection()
-	 * @method static \Bitrix\Blog\EO_PostSocnetRights wakeUpObject($row)
-	 * @method static \Bitrix\Blog\EO_PostSocnetRights_Collection wakeUpCollection($rows)
-	 */
-	class PostSocnetRightsTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

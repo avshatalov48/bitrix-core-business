@@ -114,7 +114,7 @@ if ($arResult["SHOW_BITRIX24_THEME"] == "Y")
 					<div class="ui-side-panel-wrap-title">
 						<div class="ui-side-panel-wrap-title-box">
 							<span id="pagetitle" class="ui-side-panel-wrap-title-item">
-								<span class="ui-side-panel-wrap-title-name-item ui-side-panel-wrap-title-name"><? $APPLICATION->ShowTitle(); ?></span>
+								<span class="ui-side-panel-wrap-title-name-item ui-side-panel-wrap-title-name"><?php $APPLICATION->ShowTitle(false); ?></span>
 								<span class="ui-side-panel-wrap-title-edit-button" style="display: none;"></span>
 								<input type="text" class="ui-side-panel-wrap-title-item ui-side-panel-wrap-title-input" style="display: none;">
 							</span>

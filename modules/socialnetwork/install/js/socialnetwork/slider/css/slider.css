@@ -13,7 +13,7 @@
 }
 
 .sonet-slider-frame-popup .popup-window-buttons,
-.ui-page-slider-wrapper .popup-window-buttons,
+.ui-page-slider-wrapper .sonet-slider-footer-fixed .popup-window-buttons,
 .sonet-slider-frame-popup .sonet-ui-btn-cont.sonet-ui-btn-cont-center,
 .ui-page-slider-wrapper .sonet-ui-btn-cont.sonet-ui-btn-cont-center{
 	/*text-align: left;*/
@@ -26,24 +26,23 @@
 }
 
 .sonet-slider-frame-popup .popup-window .popup-window-buttons,
-.ui-page-slider-wrapper .popup-window .popup-window-buttons {
+.ui-page-slider-wrapper .popup-window .sonet-slider-footer-fixed .popup-window-buttons {
 	padding: 15px;
 }
 
 .sonet-slider-frame-popup .popup-window-button-link-cancel,
-.ui-page-slider-wrapper .popup-window-button-link-cancel{
+.ui-page-slider-wrapper .sonet-slider-footer-fixed .popup-window-button-link-cancel {
 	color: #535b69;
 	border: 0;
 }
 
 .sonet-slider-frame-popup .popup-window-button-link-cancel:hover,
-.ui-page-slider-wrapper .popup-window-button-link-cancel:hover{
+.ui-page-slider-wrapper .sonet-slider-footer-fixed .popup-window-button-link-cancel:hover{
 	color: #80868e;
 	border: 0;
 }
 
-.sonet-slider-frame-popup .pagetitle-inner-container,
-.ui-page-slider-wrapper .pagetitle-inner-container {
+.sonet-slider-frame-popup .pagetitle-inner-container {
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
@@ -59,14 +58,14 @@
 }
 
 .sonet-slider-frame-popup .sonet-pagetitle-item,
-.ui-page-slider-wrapper .sonet-pagetitle-item{
+.ui-page-slider-wrapper .sonet-pagetitle-item {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden
 }
 
 .sonet-slider-frame-popup .sonet-pagesubtitle-item,
-.ui-page-slider-wrapper .sonet-pagesubtitle-item{
+.ui-page-slider-wrapper .sonet-pagesubtitle-item {
 	display: block;
 	margin: 5px 0 0 0;
 	font: 13px/24px "OpenSans-Light", Helvetica,Arial,sans-serif;
@@ -77,7 +76,7 @@
 }
 
 .sonet-slider-frame-popup .slider-pagetitle-menu,
-.ui-page-slider-wrapper .slider-pagetitle-menu{
+.ui-page-slider-wrapper .slider-pagetitle-menu {
 	display: none;
 	margin-left: auto;
 	order: 1;

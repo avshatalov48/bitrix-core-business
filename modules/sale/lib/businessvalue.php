@@ -4,6 +4,7 @@ namespace Bitrix\Sale;
 
 use Bitrix\Main\Type\Date;
 use Bitrix\Sale\Internals\BusinessValueTable;
+use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Localization\Loc;
@@ -14,6 +15,8 @@ final class BusinessValue
 {
 	const ENTITY_DOMAIN     = 'E';
 	const INDIVIDUAL_DOMAIN = 'I';
+
+	private const EVENT_ON_BUSINESS_VALUE_SET_MAPPING = 'OnBusinessValueSetMapping';
 
 	private static $redefinedFields = array();
 	private static $consumers = array();
@@ -176,6 +179,9 @@ final class BusinessValue
 	public static function setMapping($codeKey, $consumerKey, $personTypeId, array $mapping, $withCommon = false)
 	{
 		$codeKey = ToUpper($codeKey);
+
+		$oldMapping = self::getMapping($codeKey, $consumerKey, $personTypeId, ['MATCH' => self::MATCH_EXACT]);
+
 		if (! $consumerKey || $consumerKey === BusinessValueTable::COMMON_CONSUMER_KEY)
 			$consumerKey = null;
 
@@ -230,9 +236,23 @@ final class BusinessValue
 			if ($result->isSuccess())
 			{
 				if ($mapping)
+				{
 					self::$consumerCodePersonMapping[$consumerKey][$codeKey][$personTypeId] = $mapping;
+				}
 				else
+				{
 					unset(self::$consumerCodePersonMapping[$consumerKey][$codeKey][$personTypeId]);
+				}
+
+				$eventParams = [
+					'CODE_KEY' => $codeKey,
+					'CONSUMER_KEY' => $consumerKey,
+					'PERSON_TYPE_ID' => $personTypeId,
+					'OLD_MAPPING' => $oldMapping,
+					'NEW_MAPPING' => $mapping,
+				];
+				$onSetMappingEvent = new Event('sale', self::EVENT_ON_BUSINESS_VALUE_SET_MAPPING, $eventParams);
+				EventManager::getInstance()->send($onSetMappingEvent);
 			}
 		}
 		else

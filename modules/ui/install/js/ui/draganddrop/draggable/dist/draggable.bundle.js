@@ -711,8 +711,18 @@ this.BX.UI = this.BX.UI || {};
 	  return DragDropEvent;
 	}(BaseEvent);
 
-	function _templateObject2() {
+	function _templateObject3() {
 	  var data = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"]);
+
+	  _templateObject3 = function _templateObject3() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div></div>"]);
 
 	  _templateObject2 = function _templateObject2() {
 	    return data;
@@ -1038,6 +1048,10 @@ this.BX.UI = this.BX.UI || {};
 
 	        var source = _this11.getSource();
 
+	        if (source === null) {
+	          return main_core.Tag.render(_templateObject());
+	        }
+
 	        var sourceRect = _this11.getSourceClientRect();
 
 	        var dropPreview;
@@ -1046,7 +1060,7 @@ this.BX.UI = this.BX.UI || {};
 	          dropPreview = main_core.Runtime.clone(source);
 	          main_core.Dom.addClass(dropPreview, 'ui-draggable--drop-preview-clone');
 	        } else {
-	          dropPreview = main_core.Tag.render(_templateObject());
+	          dropPreview = main_core.Tag.render(_templateObject2());
 	        }
 
 	        main_core.Dom.addClass(dropPreview, 'ui-draggable--drop-preview');
@@ -1520,7 +1534,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (type !== Draggable.HEADLESS) {
 	        var clone = main_core.Runtime.clone(source);
 	        main_core.Dom.style(clone, 'margin', 0);
-	        draggable = main_core.Tag.render(_templateObject2(), clone);
+	        draggable = main_core.Tag.render(_templateObject3(), clone);
 	        main_core.Dom.style(draggable, {
 	          width: "".concat(sourceRect.width, "px"),
 	          height: "".concat(sourceRect.height, "px"),

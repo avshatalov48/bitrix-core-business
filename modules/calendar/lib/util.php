@@ -1,7 +1,6 @@
 <?php
 namespace Bitrix\Calendar;
 
-
 use Bitrix\Calendar\Sync\Util\MsTimezoneConverter;
 use \Bitrix\Main\Loader;
 use Bitrix\Main;
@@ -9,7 +8,6 @@ use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Localization\LanguageTable;
-
 
 class Util
 {
@@ -572,6 +570,11 @@ class Util
 			if (!in_array('AU', $codes) && $USER && (int)$USER->GetId() === $userId)
 			{
 				$codes[] = 'AU';
+			}
+
+			if(!in_array('UA', $codes) && $USER && (int)$USER->GetId() == $userId)
+			{
+				$codes[] = 'UA';
 			}
 
 			self::$userAccessCodes[$userId] = $codes;

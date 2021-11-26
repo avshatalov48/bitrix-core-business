@@ -21,7 +21,7 @@ class Copyright
 	const LICENCE_BSD3 = "3-Clause BSD";
 	const LICENCE_APACHE2 = "Apache License, Version 2.0";
 	const LICENCE_W3C = "W3C License";
-	const LICENSE_GPLV2 = "General Public License, version 2";
+	const LICENCE_OFL = "SIL Open Font License, Version 1.1";
 	const LICENCE_CUSTOM = "License";
 
 	protected
@@ -146,7 +146,7 @@ class Copyright
 			self::LICENCE_BSD3 => "https://opensource.org/licenses/BSD-3-Clause",
 			self::LICENCE_APACHE2 => "http://www.apache.org/licenses/LICENSE-2.0",
 			self::LICENCE_W3C => "https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document",
-			self::LICENSE_GPLV2 => "https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt",
+			self::LICENCE_OFL => "https://scripts.sil.org/OFL",
 		];
 
 		if($this->licenceUrl === null && isset($urls[$this->licence]))
@@ -416,8 +416,7 @@ Thanks!
 			(new static("Fonts \"PT Sans\", \"PT Serif\""))
 				->setProductUrl("http://www.paratype.com/public")
 				->setCopyright("Copyright (c) 2010, ParaType Ltd.")
-				->setLicence("SIL Open Font License, Version 1.1")
-				->setLicenceUrl("http://scripts.sil.org/OFL"),
+				->setLicence(static::LICENCE_OFL),
 
 			(new static("Bootstrap v3.3"))
 				->setProductUrl("https://getbootstrap.com/")
@@ -654,6 +653,17 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setProductUrl('https://github.com/danielmiessler/SecLists')
 				->setLicence(static::LICENCE_MIT)
 				->setLicenceUrl('https://github.com/danielmiessler/SecLists/blob/master/LICENSE'),
+
+			(new static('Font Montserrat'))
+				->setCopyright('Copyright 2011 The Montserrat Project Authors')
+				->setProductUrl('https://fonts.google.com/specimen/Montserrat')
+				->setLicence(static::LICENCE_OFL),
+				
+			(new static("Barcode"))
+				->setCopyright("Copyright (c) 2016-2018 Kreative Software")
+				->setProductUrl('https://github.com/kreativekorp/barcode')
+				->setLicence(static::LICENCE_MIT)
+				->setLicenceUrl('https://github.com/kreativekorp/barcode/blob/master/LICENSE'),
 		];
 	}
 }

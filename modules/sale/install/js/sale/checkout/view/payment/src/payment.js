@@ -1,6 +1,7 @@
 import { BitrixVue } from 'ui.vue';
 import { Component, RestMethod, EventType } from 'sale.checkout.const';
-import { ajax, Event } from 'main.core';
+import { ajax } from 'main.core';
+import { EventEmitter } from 'main.core.events'
 import { MixinLoader } from "sale.checkout.view.mixins";
 
 BitrixVue.component('sale-checkout-view-payment', {
@@ -30,11 +31,11 @@ BitrixVue.component('sale-checkout-view-payment', {
 
 						BX.html(wrapper, html);
 
-						Event.EventEmitter.emit(EventType.paysystem.afterInitList, {});
+						EventEmitter.emit(EventType.paysystem.afterInitList, {});
 
 						BX.addCustomEvent('onChangePaySystems', () => {
 
-							Event.EventEmitter.emit(EventType.paysystem.beforeInitList, {});
+							EventEmitter.emit(EventType.paysystem.beforeInitList, {});
 
 							this.getBlockHtml()
 						});

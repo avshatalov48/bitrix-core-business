@@ -6,6 +6,7 @@
  * @copyright 2001-2014 Bitrix
  */
 
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
@@ -50,6 +51,8 @@ class CTextParser
 		"ALIGN" => "Y",
 		"USERFIELDS" => "N",
 		"USER" => "Y",
+		'PROJECT' => 'Y',
+		'DEPARTMENT' => 'Y',
 		"P" => "Y",
 		"TAG" => "N",
 		"SPOILER" => "Y",
@@ -77,6 +80,7 @@ class CTextParser
 		$this->authorName = '';
 
 		$this->pathToUser = '';
+
 		$this->pathToUserEntityType = false;
 		$this->pathToUserEntityId = false;
 		$this->ajaxPage = $APPLICATION->GetCurPageParam("", array("bxajaxid", "logout"));
@@ -90,7 +94,7 @@ class CTextParser
 			static $schemes = null;
 			if($schemes === null)
 			{
-				$schemes = \Bitrix\Main\Config\Option::get("main", "~parser_anchor_schemes", "http|https|news|ftp|aim|mailto|file|tel|callto|skype|viber");
+				$schemes = Option::get("main", "~parser_anchor_schemes", "http|https|news|ftp|aim|mailto|file|tel|callto|skype|viber");
 			}
 			$this->anchorSchemes = $schemes;
 		}
@@ -805,11 +809,30 @@ class CTextParser
 				}
 			}
 		}
+
 		if (!isset($this->allow["USER"]) || $this->allow["USER"] != "N")
 		{
 			$text = preg_replace_callback(
 				"/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER,
 				array($this, "convert_user"),
+				$text
+			);
+		}
+
+		if (!isset($this->allow['PROJECT']) || $this->allow['PROJECT'] !== 'N')
+		{
+			$text = preg_replace_callback(
+				"/\[project\s*=\s*([^\]]*)\](.+?)\[\/project\]/is" . BX_UTF_PCRE_MODIFIER,
+				[ $this, 'convert_project' ],
+				$text
+			);
+		}
+
+		if (!isset($this->allow['DEPARTMENT']) || $this->allow['DEPARTMENT'] !== 'N')
+		{
+			$text = preg_replace_callback(
+				"/\[department\s*=\s*([^\]]*)\](.+?)\[\/department\]/is" . BX_UTF_PCRE_MODIFIER,
+				[ $this, 'convert_department' ],
 				$text
 			);
 		}
@@ -963,6 +986,12 @@ class CTextParser
 		$arReplace[] = "\n";
 
 		$arPattern[] = "/\\[user([^\\]]*)\\](.+?)\\[\\/user\\]/is".BX_UTF_PCRE_MODIFIER;
+		$arReplace[] = "\\2";
+
+		$arPattern[] = "/\\[project([^\\]]*)\\](.+?)\\[\\/project\\]/is" . BX_UTF_PCRE_MODIFIER;
+		$arReplace[] = "\\2";
+
+		$arPattern[] = "/\\[department([^\\]]*)\\](.+?)\\[\\/department\\]/is" . BX_UTF_PCRE_MODIFIER;
 		$arReplace[] = "\\2";
 
 		$arPattern[] = "/\\[DOCUMENT([^\\]]*)\\]/is".BX_UTF_PCRE_MODIFIER;
@@ -1465,8 +1494,6 @@ class CTextParser
 
 	public function convert_user($userId = 0, $userName = "")
 	{
-		static $arExtranetUser = false;
-		static $arEmailUser = false;
 		static $userTypeList = [];
 
 		if (is_array($userId))
@@ -1581,6 +1608,138 @@ class CTextParser
 		}
 
 		return '<a class="blog-p-user-name'.$classAdditional.'" href="'.CComponentEngine::MakePathFromTemplate($pathToUser, array("user_id" => $userId)).'" bx-tooltip-user-id="'.(!$this->bMobile ? $userId : '').'"'.(!empty($fields['TOOLTIP_PARAMS']) ? ' bx-tooltip-params="'.htmlspecialcharsbx($fields['TOOLTIP_PARAMS']).'"' : '').'>'.$userName.'</a>';
+	}
+
+	public function convert_project(array $matches): string
+	{
+		static $projectTypeList = [];
+		static $extranetProjectIdList = null;
+		static $pathToProject = null;
+
+		$projectName = $matches[2];
+		$projectId = (int)$matches[1];
+
+		$renderParams = array(
+			'PROJECT_ID' => $projectId,
+			'PROJECT_NAME' => $projectName
+		);
+
+		if ($projectId > 0)
+		{
+			if ($extranetProjectIdList === null)
+			{
+				$extranetSiteId = (\Bitrix\Main\Loader::includeModule('extranet') ? CExtranet::getExtranetSiteId() : '');
+				if (!empty($extranetSiteId))
+				{
+					$res = \Bitrix\Socialnetwork\WorkgroupSiteTable::getList([
+						'filter' => [
+							'=SITE_ID' => $extranetSiteId,
+						],
+						'select' => [ 'GROUP_ID' ],
+					]);
+
+					while ($projectSiteFields = $res->fetch())
+					{
+						$extranetProjectIdList[] = (int)$projectSiteFields['GROUP_ID'];
+					}
+				}
+			}
+
+			$type = false;
+
+			if (isset($projectTypeList[$projectId]))
+			{
+				$type = $projectTypeList[$projectId];
+			}
+			else
+			{
+				if (!empty($extranetProjectIdList))
+				{
+					$type = (in_array($projectId, $extranetProjectIdList, true) ? 'extranet' : false);
+				}
+
+				$projectTypeList[$projectId] = $type;
+			}
+
+			if ($pathToProject === null)
+			{
+				// then replace to \Bitrix\Socialnetwork\Helper\Path::get('group_path_template')
+				$pathToProject = Option::get('socialnetwork', 'group_path_template', SITE_DIR . 'workgroups/group/#group_id#/', SITE_ID);
+			}
+
+			switch ($type)
+			{
+				case 'extranet':
+					$classAdditional = ' blog-p-user-name-extranet';
+					break;
+				default:
+					$classAdditional = '';
+			}
+
+			$renderParams['CLASS_ADDITIONAL'] = $classAdditional;
+			$renderParams['PATH_TO_PROJECT'] = $pathToProject;
+		}
+
+		$res = $this->render_project($renderParams);
+
+		return $this->defended_tags($res);
+	}
+
+	protected function render_project($fields): string
+	{
+		$classAdditional = ($fields['CLASS_ADDITIONAL'] ?? '');
+		$pathToProject = ($fields['PATH_TO_PROJECT'] ?? '');
+		$projectId = (int)($fields['PROJECT_ID'] ?? 0);
+		$projectName = (string)($fields['PROJECT_NAME'] ?? '');
+
+		if ($projectId <= 0)
+		{
+			return "<span class=\"blog-p-user-name\">{$projectName}</span>";
+		}
+
+		return '<a class="blog-p-user-name' . $classAdditional . '" href="' . CComponentEngine::MakePathFromTemplate($pathToProject, [ 'group_id' => $projectId ]) . '" ' .'>' . $projectName . '</a>';
+	}
+
+	public function convert_department(array $matches): string
+	{
+		static $pathToDepartment = null;
+
+		$departmentName = $matches[2];
+		$departmentId = (int)$matches[1];
+
+		$renderParams = array(
+			'DEPARTMENT_ID' => $departmentId,
+			'DEPARTMENT_NAME' => $departmentName
+		);
+
+		if ($departmentId > 0)
+		{
+			if ($pathToDepartment === null)
+			{
+				// then replace to \Bitrix\Socialnetwork\Helper\Path::get('department_path_template')
+				$pathToDepartment = Option::get('main', 'TOOLTIP_PATH_TO_CONPANY_DEPARTMENT', SITE_DIR . 'company/structure.php?set_filter_structure=Y&structure_UF_DEPARTMENT=#ID#', SITE_ID);
+			}
+
+			$renderParams['PATH_TO_DEPARTMENT'] = $pathToDepartment;
+		}
+
+		$res = $this->render_department($renderParams);
+
+		return $this->defended_tags($res);
+	}
+
+	protected function render_department($fields): string
+	{
+		$pathToDepartment = ($fields['PATH_TO_DEPARTMENT'] ?? '');
+		$departmentId = (int)($fields['DEPARTMENT_ID'] ?? 0);
+		$departmentName = (string)($fields['DEPARTMENT_NAME'] ?? '');
+
+		if ($departmentId <= 0)
+		{
+			return "<span class=\"blog-p-user-name\">{$departmentName}</span>";
+		}
+
+		return '<a class="blog-p-user-name" href="' . CComponentEngine::MakePathFromTemplate($pathToDepartment, [ 'ID' => $departmentId ]) . '" ' .'>' . $departmentName . '</a>';
 	}
 
 	public function getTagPattern()
@@ -1933,7 +2092,7 @@ class CTextParser
 
 		$arPattern[] = "/\\<(\\/?)(code|font|color|video)(.*?)\\>/is".BX_UTF_PCRE_MODIFIER;
 		$arReplace[] = "";
-		$arPattern[] = "/\\[(\\/?)(p|b|i|u|s|list|code|quote|size|font|color|url|img|video|td|tr|table|file|document id|disk file id|user|left|right|center|justify|\\*)(.*?)\\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\\[(\\/?)(p|b|i|u|s|list|code|quote|size|font|color|url|img|video|td|tr|table|file|document id|disk file id|user|project|left|right|center|justify|\\*)(.*?)\\]/is".BX_UTF_PCRE_MODIFIER;
 		$arReplace[] = "";
 
 		return preg_replace($arPattern, $arReplace, $text);

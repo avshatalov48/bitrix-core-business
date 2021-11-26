@@ -16,6 +16,7 @@ import type { TagItemOptions } from '../tag-selector/tag-item-options';
 import type { TextNodeOptions } from '../common/text-node-options';
 import type { CaptionOptions } from './caption-options';
 import type { BadgesOptions } from './badges-options';
+import type { AvatarOptions } from './avatar-options';
 
 /**
  * @memberof BX.UI.EntitySelector
@@ -33,6 +34,7 @@ export default class Item
 	caption: ?TextNode = null;
 	captionOptions: CaptionOptions = {};
 	avatar: ?string = null;
+	avatarOptions: ?AvatarOptions = null;
 	textColor: ?string = null;
 	link: ?string = null;
 	linkTitle: ?TextNode = null;
@@ -81,6 +83,7 @@ export default class Item
 		this.setCaption(options.caption);
 		this.setCaptionOptions(options.captionOptions);
 		this.setAvatar(options.avatar);
+		this.setAvatarOptions(options.avatarOptions);
 		this.setTextColor(options.textColor);
 		this.setLink(options.link);
 		this.setLinkTitle(options.linkTitle);
@@ -261,6 +264,46 @@ export default class Item
 		{
 			this.avatar = avatar;
 			this.#renderNodes();
+		}
+	}
+
+	getAvatarOption(option: $Keys<AvatarOptions>): string | boolean | number | null
+	{
+		if (this.avatarOptions !== null && !Type.isUndefined(this.avatarOptions[option]))
+		{
+			return this.avatarOptions[option];
+		}
+
+		const avatarOptions = this.getEntityItemOption('avatarOptions');
+		if (Type.isPlainObject(avatarOptions) && !Type.isUndefined(avatarOptions[option]))
+		{
+			return avatarOptions[option];
+		}
+
+		return null;
+	}
+
+	setAvatarOption(option: $Keys<AvatarOptions>, value: string | boolean | number | null): void
+	{
+		if (Type.isStringFilled(option) && !Type.isUndefined(value))
+		{
+			if (this.avatarOptions === null)
+			{
+				this.avatarOptions = {};
+			}
+
+			this.avatarOptions[option] = value;
+			this.#renderNodes();
+		}
+	}
+
+	setAvatarOptions(options: AvatarOptions): void
+	{
+		if (Type.isPlainObject(options))
+		{
+			Object.keys(options).forEach((option: string) => {
+				this.setAvatarOption(option, options[option]);
+			});
 		}
 	}
 
@@ -731,6 +774,11 @@ export default class Item
 		return this.getTagGlobalOption('avatar', true);
 	}
 
+	getTagAvatarOptions(): ?AvatarOptions
+	{
+		return this.getTagGlobalOption('avatarOptions', true);
+	}
+
 	getTagLink(): ?string
 	{
 		return this.replaceMacros(this.getTagGlobalOption('link', true));
@@ -764,8 +812,8 @@ export default class Item
 			entityType: this.getEntityType(),
 			title: this.getTagOption('title') || (this.getTitleNode() && this.getTitleNode().toJSON()) || '',
 			deselectable: this.isDeselectable(),
-
 			avatar: this.getTagAvatar(),
+			avatarOptions: this.getTagAvatarOptions(),
 			link: this.getTagLink(),
 			maxWidth: this.getTagMaxWidth(),
 			textColor: this.getTagTextColor(),

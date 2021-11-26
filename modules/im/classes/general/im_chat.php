@@ -3800,6 +3800,32 @@ class CIMChat
 		return (int)$result['USER_COUNT'];
 	}
 
+	public static function GetEntityChat($entityType, $entityId)
+	{
+		$entityType = trim($entityType);
+		$entityId = trim($entityId);
+
+		if (empty($entityType) || empty($entityId))
+		{
+			return false;
+		}
+
+		$chatData = \Bitrix\Im\Model\ChatTable::getList(Array(
+			'select' => ['ID'],
+			'filter' => [
+				'=ENTITY_TYPE' => $arParams['ENTITY_TYPE'],
+				'=ENTITY_ID' => $arParams['ENTITY_ID'],
+			]
+		))->fetch();
+
+		if (!$chatData)
+		{
+			return false;
+		}
+
+		return $chatData['ID'];
+	}
+
 	public static function DeleteEntityChat($entityType, $entityId)
 	{
 		$entityType = trim($entityType);

@@ -320,9 +320,9 @@ class ForumIndexComponent extends \CBitrixComponent
 		$renewedForums = [];
 		if ($dbRes = CForumNew::GetForumRenew(array("FORUM_ID" => array_keys($this->arResult["FORUMS_LIST"]))))
 		{
-			while($forum = $dbRes->fetch())
+			while($res = $dbRes->fetch())
 			{
-				$renewedForums[$forum["FORUM_ID"]] = intval($res["TCRENEW"]);
+				$renewedForums[$res["FORUM_ID"]] = intval($res["TCRENEW"]);
 			}
 		}
 		foreach ($this->arResult["FORUMS_LIST"] as &$forum)

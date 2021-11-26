@@ -188,4 +188,12 @@ final class YandextaxiProfile extends Base
 			? [static::TAG_PROFITABLE]
 			: [];
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function getProfileType(): string
+	{
+		return (string)$this->profileType;
+	}
 }

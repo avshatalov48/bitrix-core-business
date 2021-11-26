@@ -2134,7 +2134,7 @@ a.feed-post-more-link:hover {
 
 .feed-com-file-wrap {
 	box-sizing: border-box;
-	display: inline-block;
+	display: block;
 	font-size: 13px;
 	line-height: 14px;
 	margin: -2px 6px 14px 0;

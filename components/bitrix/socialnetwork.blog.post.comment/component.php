@@ -909,14 +909,13 @@ if (
 
 							if ((int)$log_id > 0)
 							{
-								// add share
-								$shareCommentId = \Bitrix\Blog\Item\Comment::processCommentShare(array(
-									"commentText" => $_POST['comment'],
-									"authorId" => $user_id,
-									"postId" => $arPost["ID"],
-									"blogId" => $arPost["BLOG_ID"],
-									"siteId" => SITE_ID,
-								));
+								$shareCommentId = \Bitrix\Socialnetwork\Integration\Blog\Mention::processCommentShare([
+									'commentText' => $_POST['comment'],
+									'authorId' => $user_id,
+									'postId' => $arPost['ID'],
+									'blogId' => $arPost['BLOG_ID'],
+									'siteId' => SITE_ID,
+								]);
 							}
 
 							$arFields["DATE_CREATE"] = ConvertTimeStamp(time() + $arResult["TZ_OFFSET"], "FULL");
@@ -1412,73 +1411,17 @@ if (
 									)
 								)
 								{
-									$arUserIdToShare = $arNewRights = array();
-									$arMentionedUserId = Mention::getUserIds($_POST['comment']);
-
-									foreach($arMentionedUserId as $val)
-									{
-										$val = (int)$val;
-										if (
-											$val > 0
-											&& $val !== (int)$arOldComment['AUTHOR_ID']
-											&& $val !== (int)$arPost['AUTHOR_ID']
-										)
-										{
-											$postPerm = CBlogPost::getSocNetPostPerms(array(
-												"POST_ID" => $arPost["ID"],
-												"NEED_FULL" => true,
-												"USER_ID" => $val,
-												"IGNORE_ADMIN" => true
-											));
-
-											if ($postPerm < Permissions::PREMODERATE)
-											{
-												$arUserIdToShare[] = $val;
-											}
-										}
-									}
-
-									$arUserIdToShare = array_unique($arUserIdToShare);
-
-									if (!empty($arUserIdToShare))
-									{
-										foreach($arUserIdToShare as $val)
-										{
-											$arNewRights[] = 'U'.$val;
-										}
-
-										$arSocnetPerms = CBlogPost::GetSocnetPerms($arPost["ID"]);
-										$arSocNetRights = $arNewRights;
-
-										foreach($arSocnetPerms as $entityType => $arEntities)
-										{
-											foreach($arEntities as $entityId => $arRights)
-											{
-												$arSocNetRights = array_merge($arSocNetRights, $arRights);
-											}
-										}
-										$arSocNetRights = array_unique($arSocNetRights);
-
-										// share when update comment
-										ComponentHelper::processBlogPostShare(
-											array(
-												"POST_ID" => $arPost["ID"],
-												"BLOG_ID" => $arPost["BLOG_ID"],
-												"SITE_ID" => SITE_ID,
-												"SONET_RIGHTS" => $arSocNetRights,
-												"NEW_RIGHTS" => $arNewRights,
-												"USER_ID" => $user_id
-											),
-											array(
-												"PATH_TO_USER" => COption::GetOptionString("main", "TOOLTIP_PATH_TO_USER", '/company/personal/user/#user_id#/', SITE_ID),
-												"PATH_TO_POST" => \Bitrix\Socialnetwork\Helper\Path::get('userblogpost_page'),
-												"NAME_TEMPLATE" => CSite::GetNameFormat(),
-												"SHOW_LOGIN" => "Y",
-												"LIVE" => "N",
-												"MENTION" => "Y"
-											)
-										);
-									}
+									\Bitrix\Socialnetwork\Integration\Blog\Mention::processCommentShare([
+										'commentText' => $_POST['comment'],
+										'excludedUserIdList' => [
+											(int)$arPost['AUTHOR_ID'],
+											(int)$arOldComment['AUTHOR_ID'],
+										],
+										'authorId' => $user_id,
+										'postId' => (int)$arPost['ID'],
+										'blogId' => (int)$arPost['BLOG_ID'],
+										'siteId' => SITE_ID,
+									]);
 								}
 
 								$arResult["ajax_comment"] = $commentID;
@@ -1785,16 +1728,52 @@ if (
 									);
 									$aImgNew["ID"] = $aImg["ID"];
 									$aImgNew["fileName"] = mb_substr($aImgNew["src"], mb_strrpos($aImgNew["src"], "/") + 1);
+
+									$resizedImageData = CFile::ResizeImageGet(
+										$aImg['FILE_ID'],
+										[
+											'width' => $arParams['ATTACHED_IMAGE_MAX_WIDTH_SMALL'],
+											'height' => $arParams['ATTACHED_IMAGE_MAX_HEIGHT_SMALL'],
+										],
+										BX_RESIZE_IMAGE_EXACT,
+										true
+									);
+
+									$resizedWidth = (int)$resizedImageData['width'];
+									$resizedHeight = (int)$resizedImageData['height'];
+
+									if (
+										(int)$resizedImageData['width'] > $arParams['ATTACHED_IMAGE_MAX_WIDTH_SMALL']
+										|| (int)$resizedImageData['height'] > $arParams['ATTACHED_IMAGE_MAX_HEIGHT_SMALL']
+									)
+									{
+										if ((int)$resizedImageData['width'] > (int)$resizedImageData['height'])
+										{
+											$coeff = $resizedImageData['width'] / $arParams['ATTACHED_IMAGE_MAX_WIDTH_SMALL'];
+											$resizedWidth = $arParams['ATTACHED_IMAGE_MAX_WIDTH_SMALL'];
+											$resizedHeight = ($resizedImageData['height'] / $coeff);
+										}
+										else
+										{
+											$coeff = $resizedImageData['height'] / $arParams['ATTACHED_IMAGE_MAX_HEIGHT_SMALL'];
+											$resizedHeight = $arParams['ATTACHED_IMAGE_MAX_HEIGHT_SMALL'];
+											$resizedWidth = (int)($resizedImageData['width'] / $coeff);
+										}
+									}
+
+									$aImgNew['resizedWidth'] = $resizedWidth;
+									$aImgNew['resizedHeight'] = $resizedHeight;
+
 									$arResult["Images"][$aImg['ID']] = $aImgNew;
 								}
-								$arResult["arImages"][$aImg["COMMENT_ID"]][$aImg['ID']] = Array(
-									"small" => "/bitrix/components/bitrix/blog/show_file.php?fid=".$aImg['ID']."&width=".$arParams["ATTACHED_IMAGE_MAX_WIDTH_SMALL"]."&height=".$arParams["ATTACHED_IMAGE_MAX_HEIGHT_SMALL"]."&type=square"
-								);
 
-								$arResult["arImages"][$aImg["COMMENT_ID"]][$aImg['ID']]["full"] = (
-									$arParams["MOBILE"] === "Y"
-										? SITE_DIR."mobile/log/blog_image.php?bfid=".$aImg['ID']."&fid=".$aImg['FILE_ID']."&width=".$arParams["ATTACHED_IMAGE_MAX_WIDTH_FULL"]."&height=".$arParams["ATTACHED_IMAGE_MAX_HEIGHT_FULL"]
-										: "/bitrix/components/bitrix/blog/show_file.php?fid=".$aImg['ID']."&width=".$arParams["ATTACHED_IMAGE_MAX_WIDTH_FULL"]."&height=".$arParams["ATTACHED_IMAGE_MAX_HEIGHT_FULL"]
+								$arResult["arImages"][$aImg["COMMENT_ID"]][$aImg['ID']] = Array(
+									"small" => "/bitrix/components/bitrix/blog/show_file.php?fid=".$aImg['ID']."&width=".$arParams["ATTACHED_IMAGE_MAX_WIDTH_SMALL"]."&height=".$arParams["ATTACHED_IMAGE_MAX_HEIGHT_SMALL"]."&type=square",
+									"full" => (
+										$arParams["MOBILE"] === "Y"
+											? SITE_DIR."mobile/log/blog_image.php?bfid=".$aImg['ID']."&fid=".$aImg['FILE_ID']."&width=".$arParams["ATTACHED_IMAGE_MAX_WIDTH_FULL"]."&height=".$arParams["ATTACHED_IMAGE_MAX_HEIGHT_FULL"]
+											: "/bitrix/components/bitrix/blog/show_file.php?fid=".$aImg['ID']."&width=".$arParams["ATTACHED_IMAGE_MAX_WIDTH_FULL"]."&height=".$arParams["ATTACHED_IMAGE_MAX_HEIGHT_FULL"]
+									),
 								);
 							}
 						}

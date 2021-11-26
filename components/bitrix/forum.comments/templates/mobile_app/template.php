@@ -63,6 +63,7 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 		"OK_MESSAGE" => $arResult["OK_MESSAGE"],
 		"RESULT" => ($arResult["RESULT"] ?: $request->getQuery("MID")),
 		"PUSH&PULL" => $arResult["PUSH&PULL"],
+		"MODE" => $arResult["MODE"],
 		"VIEW_URL" => ($arParams["SHOW_LINK_TO_MESSAGE"] == "Y" ? $link : ""),
 		"EDIT_URL" => ForumAddPageParams($link, array("ACTION" => "GET"), false, false),
 		"MODERATE_URL" => ForumAddPageParams($link, array("ACTION" => "#ACTION#"), false, false),
@@ -89,7 +90,7 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 			"URL" => $APPLICATION->GetCurPageParam("", array(
 					"sessid", "comment_post_id", "act", "post", "comment",
 					"decode", "ENTITY_TYPE_ID", "ENTITY_ID",
-					"empty_get_form", "empty_get_comments")),
+					"empty_get_comments")),
 			"FIELDS" => array(
 			)
 		)

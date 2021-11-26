@@ -1,4 +1,14 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Config\Option;
+use Bitrix\Socialnetwork\ComponentHelper;
+
+
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -245,7 +255,7 @@ if (IsModuleInstalled('extranet'))
 }
 
 $diskEnabled = (
-	\Bitrix\Main\Config\Option::get('disk', 'successfully_converted', false)
+	Option::get('disk', 'successfully_converted', false)
 	&& CModule::includeModule('disk')
 );
 
@@ -472,7 +482,7 @@ $componentPage = "";
 $arComponentVariables = array("user_id", "group_id", "page", "message_id", "subject_id", "path", "section_id", "element_id", "action", "post_id", "category", "topic_id", "task_id", "view_id", "type", "report_id", "log_id");
 
 if (
-	$_REQUEST["auth"]=="Y" 
+	$_REQUEST["auth"]=="Y"
 	&& $USER->IsAuthorized()
 )
 {
@@ -650,7 +660,7 @@ if ($arParams["SEF_MODE"] == "Y")
 		$componentPage = "auth";
 	}
 
-	\Bitrix\Socialnetwork\ComponentHelper::setComponentOption(
+	ComponentHelper::setComponentOption(
 		array(
 			array(
 				'CHECK_SEF_FOLDER' => true,
@@ -666,7 +676,7 @@ if ($arParams["SEF_MODE"] == "Y")
 				'CHECK_SEF_FOLDER' => true,
 				'OPTION' => array('MODULE_ID' => 'socialnetwork', 'NAME' => 'workgroups_list_page'),
 				'VALUE' => $arResult["PATH_TO_GROUP_SEARCH"]
-			)
+			),
 		),
 		array(
 			'SEF_FOLDER' => $arParams["SEF_FOLDER"],
@@ -736,7 +746,7 @@ else
 	$arResult["PATH_TO_GROUP_LOG_RSS_MASK"] = $arResult["~PATH_TO_GROUP_LOG_RSS_MASK"] = $APPLICATION->GetCurPage(true)."?page=group_log_rss&group_id=".$arVariables["group_id"];
 }
 
-\Bitrix\Socialnetwork\ComponentHelper::setComponentOption(
+ComponentHelper::setComponentOption(
 	array(
 		array(
 			'OPTION' => array('MODULE_ID' => 'socialnetwork', 'NAME' => 'friends_page'),
@@ -819,7 +829,7 @@ if (mb_substr($tooltipPathToUser, 0, mb_strlen($arParams["SEF_FOLDER"])) !== $ar
 	COption::SetOptionString("main", "TOOLTIP_PATH_TO_USER", $arParams["SEF_FOLDER"]."user/#user_id#/", false, SITE_ID);
 }
 
-\Bitrix\Socialnetwork\ComponentHelper::setComponentOption(array(
+ComponentHelper::setComponentOption(array(
 	array(
 		'OPTION' => array('MODULE_ID' => 'main', 'NAME' => 'TOOLTIP_PATH_TO_MESSAGES_CHAT'),
 		'VALUE' => $arResult["PATH_TO_MESSAGES_CHAT"]
@@ -979,18 +989,14 @@ if (
 		$cache_id = "files_iblock_id";
 		$cache_path = "/sonet/group_comp/".$arResult["VARIABLES"]["group_id"]."/";
 
-		if (
-			is_object($cache)
-			&& $cache->InitCache($cache_time, $cache_id, $cache_path)
-		)
+		if ($cache->InitCache($cache_time, $cache_id, $cache_path))
 		{
 			$arCacheVars = $cache->GetVars();
 			$arParams["FILES_GROUP_IBLOCK_ID"] = $arCacheVars["FILES_GROUP_IBLOCK_ID"];
 		}
 		elseif (CModule::IncludeModule("iblock"))
 		{
-			if (is_object($cache))
-				$cache->StartDataCache($cache_time, $cache_id, $cache_path);
+			$cache->StartDataCache($cache_time, $cache_id, $cache_path);
 
 			$arFilesIBlockID = array();
 			$rsIBlock = CIBlock::GetList(array(), array("ACTIVE" => "Y", "CHECK_PERMISSIONS"=>"N", "CODE"=>"group_files%"));
@@ -1010,13 +1016,10 @@ if (
 					$arParams["FILES_GROUP_IBLOCK_ID"] = $arFilesSection["IBLOCK_ID"];
 			}
 
-			if (is_object($cache))
-			{
-				$arCacheData = Array(
-					"FILES_GROUP_IBLOCK_ID" => $arParams["FILES_GROUP_IBLOCK_ID"]
-				);
-				$cache->EndDataCache($arCacheData);
-			}
+			$arCacheData = Array(
+				"FILES_GROUP_IBLOCK_ID" => $arParams["FILES_GROUP_IBLOCK_ID"]
+			);
+			$cache->EndDataCache($arCacheData);
 		}
 	}
 
@@ -1046,10 +1049,7 @@ if (
 		$cache_id = "files_forum_id_".md5(serialize($arCacheID));
 		$cache_path = "/sonet/group_comp/".$arResult["VARIABLES"]["group_id"]."/".$arResult["VARIABLES"]["element_id"];
 
-		if (
-			is_object($cache)
-			&& $cache->InitCache($cache_time, $cache_id, $cache_path)
-		)
+		if ($cache->InitCache($cache_time, $cache_id, $cache_path))
 		{
 			$arCacheVars = $cache->GetVars();
 			$arParams["FILES_FORUM_ID"] = $arCacheVars["FILES_FORUM_ID"];
@@ -1059,8 +1059,7 @@ if (
 			&& CModule::IncludeModule("iblock")
 		)
 		{
-			if (is_object($cache))
-				$cache->StartDataCache($cache_time, $cache_id, $cache_path);
+			$cache->StartDataCache($cache_time, $cache_id, $cache_path);
 
 			$rsIBlockElement = CIBlockElement::GetList(
 				array(),
@@ -1082,14 +1081,11 @@ if (
 				$arForumTopic = CForumTopic::GetByID($arIBlockElement["PROPERTY_FORUM_TOPIC_ID_VALUE"]);
 				$arParams["FILES_FORUM_ID"] = $arForumTopic["FORUM_ID"];
 			}
-			
-			if (is_object($cache))
-			{
-				$arCacheData = Array(
-					"FILES_FORUM_ID" => $arParams["FILES_FORUM_ID"]
-				);
-				$cache->EndDataCache($arCacheData);
-			}
+
+			$arCacheData = Array(
+				"FILES_FORUM_ID" => $arParams["FILES_FORUM_ID"]
+			);
+			$cache->EndDataCache($arCacheData);
 		}
 	}
 }
@@ -1164,11 +1160,11 @@ if (
 					if ($arUser = $rsUser->Fetch())
 						$bIsUserExtranet = (
 							(
-								is_array($arUser["UF_DEPARTMENT"]) 
+								is_array($arUser["UF_DEPARTMENT"])
 								&& count($arUser["UF_DEPARTMENT"]) <= 0
 							)
 							|| (
-								!is_array($arUser["UF_DEPARTMENT"]) 
+								!is_array($arUser["UF_DEPARTMENT"])
 								&& intval($arUser["UF_DEPARTMENT"]) <= 0
 							)
 						);
@@ -1423,4 +1419,4 @@ if($USER->IsAdmin())
 		"MODE"=>array("configure"),
 	));
 }
-?>
+

@@ -31,6 +31,7 @@ use Bitrix\Sender\PostingRecipientTable;
 use Bitrix\Sender\PostingTable;
 use Bitrix\Sender\Recipient;
 use Bitrix\Sender\Runtime\TimeLineJob;
+use Bitrix\Sender\Transport\iLimiter;
 
 Loc::loadMessages(__FILE__);
 
@@ -547,6 +548,16 @@ class Sender
 		return $this->message->getTransport()->isLimitsExceeded($this->message);
 	}
 
+	/**
+	 * Get transport exceeded limiter.
+	 *
+	 * @return iLimiter|null
+	 */
+	public function getExceededLimiter()
+	{
+		return $this->message->getTransport()->getExceededLimiter($this->message);
+	}
+
 	protected function prevent()
 	{
 		return $this->isPrevented = true;
@@ -572,11 +583,12 @@ class Sender
 				}
 
 				$this->setPostingDateSend();
+				$eventData = [];
 				if ($this->canDenySendToRecipient($recipient))
 				{
 					$this->updateRecipientStatus($recipient['ID'],PostingRecipientTable::SEND_RESULT_ERROR);
 					$sendResult = false;
-					$dataToInsert[] = $eventData = $this->executeEvent($recipient,$sendResult);
+					$eventData = $this->executeEvent($recipient,$sendResult);
 				}
 				elseif($this->canSendMessageToRecipient($recipient))
 				{
@@ -590,7 +602,7 @@ class Sender
 						PostingRecipientTable::SEND_RESULT_ERROR
 					);
 					$this->updateRecipientStatus($recipient['ID'],$sendResultStatus);
-					$dataToInsert[] = $eventData = $this->executeEvent($recipient,$sendResult);
+					$eventData = $this->executeEvent($recipient, $sendResult);
 				}
 				elseif ($this->canSendConsentToRecipient($recipient))
 				{
@@ -604,6 +616,11 @@ class Sender
 				}
 
 				$dataToInsert[] = $eventData;
+
+				if (Bitrix24\Service::isCloud() && $eventData['SEND_RESULT'] && $this->letter->getMessage()->getCode() === Message\iBase::CODE_MAIL)
+				{
+					Bitrix24\Limitation\DailyLimit::increment();
+				}
 				// limit executing script by time
 				if ($this->isTimeout() || $this->isLimitExceeded() || $this->isTransportLimitsExceeded())
 				{
@@ -963,7 +980,7 @@ class Sender
 		];
 		$event = new Event('sender', 'OnAfterPostingSendRecipient', [$eventData, $this->letter]);
 		$event->send();
-		Integration\EventHandler::onAfterPostingSendRecipient($eventData, $this->letter);
+
 		return $eventData;
 	}
 

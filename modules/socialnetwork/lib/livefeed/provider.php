@@ -1,10 +1,15 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Livefeed;
 
+use Bitrix\Disk\AttachedObject;
 use Bitrix\Main;
+use Bitrix\Main\Application;
+use Bitrix\Main\EventResult;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\UserTable;
 use Bitrix\Socialnetwork\Item\Subscription;
 use Bitrix\Socialnetwork\LogTable;
 use Bitrix\Socialnetwork\UserContentViewTable;
@@ -41,7 +46,7 @@ abstract class Provider
 	public const PERMISSION_READ = 'I';
 	public const PERMISSION_FULL = 'W';
 
-	public const CONTENT_TYPE_ID = false;
+	public const CONTENT_TYPE_ID = '';
 
 	protected $entityId = 0;
 	protected $additionalParams = [];
@@ -54,6 +59,7 @@ abstract class Provider
 	protected $cloneDiskObjects = false;
 	protected $sourceDescription = '';
 	protected $sourceTitle = '';
+	protected $pinnedTitle = '';
 	protected $sourceOriginalText = '';
 	protected $sourceAuxData = [];
 	protected $sourceAttachedDiskObjects = [];
@@ -77,7 +83,7 @@ abstract class Provider
 		return get_called_class();
 	}
 
-	public function setSiteId($siteId)
+	public function setSiteId($siteId): void
 	{
 		$this->siteId = $siteId;
 	}
@@ -120,7 +126,7 @@ abstract class Provider
 
 	public function getType()
 	{
-		return false;
+		return '';
 	}
 
 	public function getRatingTypeId(): string
@@ -171,7 +177,7 @@ abstract class Provider
 
 		foreach ($moduleEvent->getResults() as $moduleEventResult)
 		{
-			if ($moduleEventResult->getType() === \Bitrix\Main\EventResult::SUCCESS)
+			if ($moduleEventResult->getType() === EventResult::SUCCESS)
 			{
 				$moduleEventParams = $moduleEventResult->getParameters();
 
@@ -300,9 +306,9 @@ abstract class Provider
 	{
 		$result = false;
 
-		if ((int)$this->logId > 0)
+		if ($this->logId > 0)
 		{
-			$result = (int)$this->logId;
+			$result = $this->logId;
 		}
 		else
 		{
@@ -434,7 +440,7 @@ abstract class Provider
 		$eventId = $this->getEventId();
 		if (
 			empty($eventId)
-			|| $this->getType() !== Provider::TYPE_COMMENT
+			|| $this->getType() !== self::TYPE_COMMENT
 		)
 		{
 			return $result;
@@ -473,7 +479,7 @@ abstract class Provider
 		return $result;
 	}
 
-	public function getSonetGroupsAvailable($feature = false, $operation = false)
+	public function getSonetGroupsAvailable($feature = false, $operation = false): array
 	{
 		global $USER;
 
@@ -530,7 +536,7 @@ abstract class Provider
 		return $result;
 	}
 
-	public function getLogRights()
+	public function getLogRights(): array
 	{
 		$result = [];
 		$logId = $this->getLogId();
@@ -543,7 +549,7 @@ abstract class Provider
 		return $result;
 	}
 
-	protected function getLogRightsEntry()
+	protected function getLogRightsEntry(): array
 	{
 		$result = [];
 
@@ -590,7 +596,7 @@ abstract class Provider
 		return $this->additionalParams;
 	}
 
-	final protected function setSourceFields(array $fields)
+	final protected function setSourceFields(array $fields): void
 	{
 		$this->sourceFields = $fields;
 	}
@@ -600,12 +606,12 @@ abstract class Provider
 		return $this->sourceFields;
 	}
 
-	final public function getSourceFields()
+	final public function getSourceFields(): array
 	{
 		return $this->sourceFields;
 	}
 
-	final protected function setSourceDescription($description)
+	final protected function setSourceDescription($description): void
 	{
 		$this->sourceDescription = $description;
 	}
@@ -628,12 +634,12 @@ abstract class Provider
 		return $result;
 	}
 
-	final protected function setSourceTitle($title)
+	final protected function setSourceTitle($title): void
 	{
 		$this->sourceTitle = $title;
 	}
 
-	public function getSourceTitle()
+	public function getSourceTitle(): string
 	{
 		if (empty($this->sourceFields))
 		{
@@ -672,12 +678,12 @@ abstract class Provider
 		return $result;
 	}
 
-	final protected function setSourceOriginalText($text)
+	final protected function setSourceOriginalText($text): void
 	{
 		$this->sourceOriginalText = $text;
 	}
 
-	public function getSourceOriginalText()
+	public function getSourceOriginalText(): string
 	{
 		if (empty($this->sourceFields))
 		{
@@ -687,12 +693,12 @@ abstract class Provider
 		return $this->sourceOriginalText;
 	}
 
-	final protected function setSourceAuxData($auxData)
+	final protected function setSourceAuxData($auxData): void
 	{
 		$this->sourceAuxData = $auxData;
 	}
 
-	public function getSourceAuxData()
+	public function getSourceAuxData(): array
 	{
 		if (empty($this->sourceFields))
 		{
@@ -702,32 +708,32 @@ abstract class Provider
 		return $this->sourceAuxData;
 	}
 
-	final protected function setSourceAttachedDiskObjects(array $diskAttachedObjects)
+	final protected function setSourceAttachedDiskObjects(array $diskAttachedObjects): void
 	{
 		$this->sourceAttachedDiskObjects = $diskAttachedObjects;
 	}
 
-	final protected function setSourceDiskObjects(array $files)
+	final protected function setSourceDiskObjects(array $files): void
 	{
 		$this->sourceDiskObjects = $files;
 	}
 
-	final public function setDiskObjectsCloned(array $values)
+	final public function setDiskObjectsCloned(array $values): void
 	{
 		$this->diskObjectsCloned = $values;
 	}
 
-	final public function getDiskObjectsCloned()
+	final public function getDiskObjectsCloned(): array
 	{
 		return $this->diskObjectsCloned;
 	}
 
-	final public function getAttachedDiskObjectsCloned()
+	final public function getAttachedDiskObjectsCloned(): array
 	{
 		return $this->attachedDiskObjectsCloned;
 	}
 
-	public function getSourceAttachedDiskObjects()
+	public function getSourceAttachedDiskObjects(): array
 	{
 		if (empty($this->sourceFields))
 		{
@@ -737,7 +743,7 @@ abstract class Provider
 		return $this->sourceAttachedDiskObjects;
 	}
 
-	public function getSourceDiskObjects()
+	public function getSourceDiskObjects(): array
 	{
 		if (empty($this->sourceFields))
 		{
@@ -752,22 +758,22 @@ abstract class Provider
 		return [];
 	}
 
-	final protected function setSourceDateTime(\Bitrix\Main\Type\DateTime $datetime)
+	final protected function setSourceDateTime(DateTime $datetime): void
 	{
 		$this->sourceDateTime = $datetime;
 	}
 
-	final public function getSourceDateTime(): ?\Bitrix\Main\Type\DateTime
+	final public function getSourceDateTime(): ?DateTime
 	{
 		return $this->sourceDateTime;
 	}
 
-	final protected function setSourceAuthorId($authorId = 0)
+	final protected function setSourceAuthorId($authorId = 0): void
 	{
 		$this->sourceAuthorId = (int)$authorId;
 	}
 
-	final public function getSourceAuthorId()
+	final public function getSourceAuthorId(): int
 	{
 		return $this->sourceAuthorId;
 	}
@@ -785,7 +791,7 @@ abstract class Provider
 		return $result;
 	}
 
-	public function getDiskObjects($entityId, $clone = false)
+	public function getDiskObjects($entityId, $clone = false): array
 	{
 		$result = [];
 
@@ -805,7 +811,7 @@ abstract class Provider
 						&& ($attachedDiskObjectId = array_search($clonedDiskObjectId, $this->attachedDiskObjectsCloned))
 					)
 					{
-						$attachedObject = \Bitrix\Disk\AttachedObject::loadById($attachedDiskObjectId);
+						$attachedObject = AttachedObject::loadById($attachedDiskObjectId);
 						if ($attachedObject)
 						{
 							$this->diskObjectsCloned[\Bitrix\Disk\Uf\FileUserType::NEW_FILE_PREFIX.$attachedObject->getObjectId()] = $this->attachedDiskObjectsCloned[$attachedDiskObjectId];
@@ -826,10 +832,10 @@ abstract class Provider
 		{
 			foreach ($diskObjects as $attachedObjectId)
 			{
-				$attachedObject = \Bitrix\Disk\AttachedObject::loadById($attachedObjectId);
+				$attachedObject = AttachedObject::loadById($attachedObjectId);
 				if ($attachedObject)
 				{
-					$result[] = \Bitrix\Disk\Uf\FileUserType::NEW_FILE_PREFIX.$attachedObject->getObjectId();
+					$result[] = \Bitrix\Disk\Uf\FileUserType::NEW_FILE_PREFIX . $attachedObject->getObjectId();
 				}
 			}
 		}
@@ -904,7 +910,7 @@ abstract class Provider
 		return '';
 	}
 
-	final function getContentTypeId()
+	final public function getContentTypeId(): string
 	{
 		return static::CONTENT_TYPE_ID;
 	}
@@ -931,7 +937,7 @@ abstract class Provider
 
 		foreach ($moduleEvent->getResults() as $moduleEventResult)
 		{
-			if ($moduleEventResult->getType() === \Bitrix\Main\EventResult::SUCCESS)
+			if ($moduleEventResult->getType() === EventResult::SUCCESS)
 			{
 				$moduleEventParams = $moduleEventResult->getParameters();
 
@@ -1009,7 +1015,7 @@ abstract class Provider
 					{
 						$found = false;
 						$photogalleryPhotoProvider = new \Bitrix\Socialnetwork\Livefeed\PhotogalleryPhoto;
-						if (in_array($logEntryFields['EVENT_ID'], $photogalleryPhotoProvider->getEventId()))
+						if (in_array($logEntryFields['EVENT_ID'], $photogalleryPhotoProvider->getEventId(), true))
 						{
 							$contentEntityType = self::DATA_ENTITY_TYPE_PHOTOGALLERY_PHOTO;
 							$contentEntityId = (int)$event['RATING_ENTITY_ID'];
@@ -1030,7 +1036,7 @@ abstract class Provider
 					elseif ($event['RATING_TYPE_ID'] === 'IBLOCK_SECTION')
 					{
 						$photogalleryalbumProvider = new \Bitrix\Socialnetwork\Livefeed\PhotogalleryAlbum;
-						if (in_array($logEntryFields['EVENT_ID'], $photogalleryalbumProvider->getEventId()))
+						if (in_array($logEntryFields['EVENT_ID'], $photogalleryalbumProvider->getEventId(), true))
 						{
 							$contentEntityType = self::DATA_ENTITY_TYPE_PHOTOGALLERY_ALBUM;
 							$contentEntityId = (int)$event['RATING_ENTITY_ID'];
@@ -1141,7 +1147,7 @@ abstract class Provider
 			'save' => $save
 		];
 
-		$pool = \Bitrix\Main\Application::getInstance()->getConnectionPool();
+		$pool = Application::getInstance()->getConnectionPool();
 		$pool->useMasterOnly(true);
 
 		$result = UserContentViewTable::set($viewParams);
@@ -1219,7 +1225,7 @@ abstract class Provider
 			$blogPostLivefeedProvider = new BlogPost;
 			if (
 				$type === self::TYPE_POST
-				&& in_array($params['EVENT_ID'], $blogPostLivefeedProvider->getEventId())
+				&& in_array($params['EVENT_ID'], $blogPostLivefeedProvider->getEventId(), true)
 			)
 			{
 				$entityType = self::DATA_ENTITY_TYPE_BLOG_POST;
@@ -1248,7 +1254,7 @@ abstract class Provider
 		return false;
 	}
 
-	final public function setLogEventId($eventId = '')
+	final public function setLogEventId($eventId = ''): bool
 	{
 		if ($eventId == '')
 		{
@@ -1260,7 +1266,7 @@ abstract class Provider
 		return true;
 	}
 
-	private function setLogEntityType($entityType = '')
+	private function setLogEntityType($entityType = ''): bool
 	{
 		if ($entityType == '')
 		{
@@ -1272,7 +1278,7 @@ abstract class Provider
 		return true;
 	}
 
-	private function setLogEntityId($entityId = 0)
+	private function setLogEntityId($entityId = 0): bool
 	{
 		if ((int)$entityId <= 0)
 		{
@@ -1284,7 +1290,7 @@ abstract class Provider
 		return true;
 	}
 
-	final protected function getLogFields()
+	final protected function getLogFields(): array
 	{
 		$return = [];
 
@@ -1377,7 +1383,7 @@ abstract class Provider
 		return [];
 	}
 
-	protected function checkAdditionalDataParams(&$params)
+	protected function checkAdditionalDataParams(&$params): bool
 	{
 		if (
 			empty($params)
@@ -1455,15 +1461,15 @@ abstract class Provider
 		$pullMessage = [];
 		if (\CUserCounter::checkLiveMode())
 		{
-			$connection = \Bitrix\Main\Application::getConnection();
+			$connection = Application::getConnection();
 			$helper = $connection->getSqlHelper();
 
 			$query = "
 				SELECT pc.CHANNEL_ID, uc.USER_ID, uc.SITE_ID, uc.CODE, uc.CNT
 				FROM b_user_counter uc
 				INNER JOIN b_pull_channel pc ON pc.USER_ID = uc.USER_ID
-				INNER JOIN b_user u ON u.ID = uc.USER_ID AND (CASE WHEN u.EXTERNAL_AUTH_ID IN ('".join("', '", \Bitrix\Main\UserTable::getExternalUserTypes())."') THEN 'Y' ELSE 'N' END) = 'N' AND u.LAST_ACTIVITY_DATE > ".$helper->addSecondsToDateTime('(-3600)')."
-				WHERE uc.USER_ID = ".$userId." AND uc.CODE = '".\CUserCounter::LIVEFEED_CODE."'
+				INNER JOIN b_user u ON u.ID = uc.USER_ID AND (CASE WHEN u.EXTERNAL_AUTH_ID IN ('" . implode("', '", UserTable::getExternalUserTypes()) . "') THEN 'Y' ELSE 'N' END) = 'N' AND u.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime('(-3600)') . "
+				WHERE uc.USER_ID = " . $userId . " AND uc.CODE = '" . \CUserCounter::LIVEFEED_CODE . "'
 			";
 
 			$res = $connection->query($query);
@@ -1476,8 +1482,8 @@ abstract class Provider
 				SELECT pc.CHANNEL_ID, uc.USER_ID, uc.SITE_ID, uc.CODE, uc.CNT
 				FROM b_user_counter uc
 				INNER JOIN b_pull_channel pc ON pc.USER_ID = uc.USER_ID
-				INNER JOIN b_user u ON u.ID = uc.USER_ID AND (CASE WHEN u.EXTERNAL_AUTH_ID IN ('".join("', '", \Bitrix\Main\UserTable::getExternalUserTypes())."') THEN 'Y' ELSE 'N' END) = 'N' AND u.LAST_ACTIVITY_DATE > ".$helper->addSecondsToDateTime('(-3600)')."
-				WHERE uc.USER_ID = ".$userId." AND uc.CODE LIKE '".\CUserCounter::LIVEFEED_CODE."L%'
+				INNER JOIN b_user u ON u.ID = uc.USER_ID AND (CASE WHEN u.EXTERNAL_AUTH_ID IN ('" . implode("', '", UserTable::getExternalUserTypes()) . "') THEN 'Y' ELSE 'N' END) = 'N' AND u.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime('(-3600)') . "
+				WHERE uc.USER_ID = " . $userId . " AND uc.CODE LIKE '" . \CUserCounter::LIVEFEED_CODE . "L%'
 			");
 			while ($row = $res->fetch())
 			{
@@ -1506,13 +1512,75 @@ abstract class Provider
 		return $result;
 	}
 
-	public function warmUpAuxCommentsStaticCache(array $params = [])
+	public function warmUpAuxCommentsStaticCache(array $params = []): void
 	{
-		return;
+
 	}
 
 	protected function getUnavailableTitle()
 	{
 		return Loc::getMessage('SONET_LIVEFEED_BASE_TITLE_UNAVAILABLE');
+	}
+
+	protected function getEntityAttachedDiskObjects(array $params = [])
+	{
+		global $USER_FIELD_MANAGER;
+
+		$result = [];
+
+		$userFieldEntity = (string)($params['userFieldEntity'] ?? '');
+		$userFieldEntityId = $this->entityId;
+		$userFieldCode = (string)($params['userFieldCode'] ?? '');
+		$clone = (boolean)($params['clone'] ?? false);
+
+		if (
+			$userFieldEntity === ''
+			|| $userFieldCode === ''
+			|| $userFieldEntityId <= 0
+		)
+		{
+			return $result;
+		}
+
+		static $cache = [];
+
+		$cacheKey = $userFieldEntity . $userFieldEntityId . $clone;
+
+		if (isset($cache[$cacheKey]))
+		{
+			$result = $cache[$cacheKey];
+		}
+		else
+		{
+			$entityUF = $USER_FIELD_MANAGER->getUserFields($userFieldEntity, $userFieldEntityId, LANGUAGE_ID);
+			if (
+				!empty($entityUF[$userFieldCode])
+				&& !empty($entityUF[$userFieldCode]['VALUE'])
+				&& is_array($entityUF[$userFieldCode]['VALUE'])
+			)
+			{
+				if ($clone)
+				{
+					$this->attachedDiskObjectsCloned = self::cloneUfValues($entityUF[$userFieldCode]['VALUE']);
+					$result = $cache[$cacheKey] = array_values($this->attachedDiskObjectsCloned);
+				}
+				else
+				{
+					$result = $cache[$cacheKey] = $entityUF[$userFieldCode]['VALUE'];
+				}
+			}
+		}
+
+		if (!is_array($result))
+		{
+			$result = [];
+		}
+
+		return $result;
+	}
+
+	public function getParentEntityId(): int
+	{
+		return 0;
 	}
 }

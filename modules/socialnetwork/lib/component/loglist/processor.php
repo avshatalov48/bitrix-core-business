@@ -6,53 +6,20 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\UserTable;
+use Bitrix\Socialnetwork\Item\LogIndex;
 use Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Socialnetwork\LogViewTable;
 
-class Processor
+class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 {
-	protected $component;
-	protected $request;
 	protected $logPageProcessorInstance = null;
 
-	protected $filter = [];
-	protected $order = [ 'LOG_DATE' => 'DESC' ];
 	protected $select = [];
-	protected $listParams = [];
 	protected $filterData = false;
 	protected $filterContent = false;
-	protected $navParams = false;
-	protected $firstPage = false;
 	protected $eventsList = [];
 	protected $tasksCount = 0;
 	protected $showPinnedPanel = true;
-
-	public function __construct($params)
-	{
-		if(!empty($params['component']))
-		{
-			$this->component = $params['component'];
-		}
-
-		if(!empty($params['request']))
-		{
-			$this->request = $params['request'];
-		}
-		else
-		{
-			$this->request = Util::getRequest();
-		}
-	}
-
-	public function getRequest()
-	{
-		return $this->request;
-	}
-
-	protected function getComponent()
-	{
-		return $this->component;
-	}
 
 	protected function getLogPageProcessorInstance()
 	{
@@ -66,141 +33,50 @@ class Processor
 		return $this->logPageProcessorInstance;
 	}
 
-	public function setFilter(array $value = [])
-	{
-		$this->filter = $value;
-	}
-	public function getFilter()
-	{
-		return $this->filter;
-	}
-	public function setFilterKey($key = '', $value = false)
-	{
-		if ($key == '')
-		{
-			return;
-		}
-		$this->filter[$key] = $value;
-	}
-	public function unsetFilterKey($key = '')
-	{
-		if ($key == '')
-		{
-			return;
-		}
-		unset($this->filter[$key]);
-	}
-	public function getFilterKey($key = '')
-	{
-		if ($key == '')
-		{
-			return false;
-		}
-		return (isset($this->filter[$key]) ? $this->filter[$key] : false);
-	}
-
 	public function setFilterData(array $value = [])
 	{
 		$this->filterData = $value;
 	}
+
 	public function getFilterData()
 	{
 		return $this->filterData;
 	}
+
 	public function getFilterDataKey($key = '')
 	{
 		if ($key == '')
 		{
 			return false;
 		}
-		return (isset($this->filterData[$key]) ? $this->filterData[$key] : false);
+		return ($this->filterData[$key] ?? false);
 	}
 
 	public function setFilterContent($value = false)
 	{
 		$this->filterContent = $value;
 	}
+
 	public function getFilterContent()
 	{
 		return $this->filterContent;
 	}
 
-	public function setNavParams($value = false)
+	public function setSelect($value = []): void
 	{
-		$this->navParams = $value;
-	}
-	public function getNavParams()
-	{
-		return $this->navParams;
+		$this->select = $value;
 	}
 
-	public function setFirstPage($value = false)
+	public function getSelect(): array
 	{
-		$this->firstPage = $value;
-	}
-	public function getFirstPage()
-	{
-		return $this->firstPage;
-	}
-
-	public function setOrder(array $value = [])
-	{
-		$this->order = $value;
-	}
-	public function setOrderKey($key = '', $value = false)
-	{
-		if ($key == '')
-		{
-			return;
-		}
-		$this->order[$key] = $value;
-	}
-	public function getOrder()
-	{
-		return $this->order;
-	}
-	public function getOrderKey($key = '')
-	{
-		if ($key == '')
-		{
-			return false;
-		}
-		return (isset($this->order[$key]) ? $this->order[$key] : false);
-	}
-
-	public function setListParams(array $value = [])
-	{
-		$this->listParams = $value;
-	}
-	public function setListParamsKey($key = '', $value = false)
-	{
-		if ($key == '')
-		{
-			return;
-		}
-		$this->listParams[$key] = $value;
-	}
-	public function getListParams()
-	{
-		return $this->listParams;
-	}
-	public function getListParamsKey($key = '')
-	{
-		if ($key == '')
-		{
-			return false;
-		}
-		return (isset($this->listParams[$key]) ? $this->listParams[$key] : false);
+		return $this->select;
 	}
 
 	public function setEventsList(array $value = [], $type = 'main')
 	{
-		if (!isset($this->eventsList[$type]))
-		{
-			$this->eventsList[$type] = [];
-		}
 		$this->eventsList[$type] = $value;
 	}
+
 	public function setEventsListKey($key = '', array $value = [], $type = 'main')
 	{
 		if ($key == '')
@@ -215,6 +91,7 @@ class Processor
 
 		$this->eventsList[$type][$key] = $value;
 	}
+
 	public function appendEventsList(array $value = [], $type = 'main')
 	{
 		if (!isset($this->eventsList[$type]))
@@ -224,6 +101,7 @@ class Processor
 
 		$this->eventsList[$type][] = $value;
 	}
+
 	public function unsetEventsListKey($key = '', $type = 'main'): void
 	{
 		if ($key === '')
@@ -259,14 +137,6 @@ class Processor
 		return $this->tasksCount;
 	}
 
-	public function setSelect($value = [])
-	{
-		$this->select = $value;
-	}
-	public function getSelect()
-	{
-		return $this->select;
-	}
 
 	public function makeTimeStampFromDateTime($value, $type = 'FULL')
 	{
@@ -279,7 +149,7 @@ class Processor
 		}
 		if ($siteDateFormatFull === null)
 		{
-			$siteDateFormatFull = \CSite::getDateFormat('FULL');
+			$siteDateFormatFull = \CSite::getDateFormat();
 		}
 
 		return makeTimeStamp($value, ($type === 'SHORT' ? $siteDateFormatShort : $siteDateFormatFull));
@@ -331,7 +201,7 @@ class Processor
 
 		$turnFollowModeOff = false;
 
-		if(isset($params['DISPLAY']))
+		if (isset($params['DISPLAY']))
 		{
 			$result['SHOW_UNREAD'] = 'N';
 
@@ -449,8 +319,7 @@ class Processor
 		}
 		elseif ($params['FIND'] <> '')
 		{
-			$operation = \Bitrix\Socialnetwork\LogIndexTable::getEntity()->fullTextIndexEnabled('CONTENT') ? '*' : '*%';
-			$this->setFilterKey($operation.'CONTENT', \Bitrix\Socialnetwork\Item\LogIndex::prepareToken($params['FIND']));
+			$this->setFilterKey('*CONTENT', LogIndex::prepareToken($params['FIND']));
 			$this->showPinnedPanel = false;
 		}
 
@@ -806,14 +675,7 @@ class Processor
 			if (!empty($this->getFilterContent()))
 			{
 				$filtered = true;
-
-				$operation = \Bitrix\Socialnetwork\LogIndexTable::getEntity()->fullTextIndexEnabled('CONTENT') ? '*' : '*%';
-				$this->setFilterKey($operation.'CONTENT',  \Bitrix\Socialnetwork\Item\LogIndex::prepareToken($this->getFilterContent()));
-				/*
-				$this->setListParamsKey('FILTER_BY_CONTENT', [
-					$operation.'CONTENT' => \Bitrix\Socialnetwork\Item\LogIndex::prepareToken($this->getFilterContent())
-				]);
-				*/
+				$this->setFilterKey('*CONTENT',  LogIndex::prepareToken($this->getFilterContent()));
 			}
 
 			if (
@@ -833,7 +695,6 @@ class Processor
 				if (!empty($this->getFilterContent()))
 				{
 					$this->setFilterKey('>=CONTENT_DATE_CREATE', $filterData['DATE_CREATE_from']);
-//					$this->listParams['FILTER_BY_CONTENT_DATE']['>=DATE_CREATE'] = $filterData['DATE_CREATE_from'];
 				}
 				else
 				{
@@ -849,7 +710,6 @@ class Processor
 				if (!empty($this->getFilterContent()))
 				{
 					$this->setFilterKey('<=CONTENT_DATE_CREATE', $dateCreateToValue);
-//					$this->listParams['FILTER_BY_CONTENT_DATE']['<=DATE_CREATE'] = $dateCreateToValue;
 				}
 				else
 				{
@@ -1049,7 +909,7 @@ class Processor
 				$this->getComponent()->arParams = $params;
 			}
 
-			$this->listParams['CUSTOM_FILTER_PARAMS'] = $filterParams;
+			$this->setListParamsKey('CUSTOM_FILTER_PARAMS' , $filterParams);
 		}
 		else
 		{
@@ -1233,6 +1093,13 @@ class Processor
 						unset($activity2LogList[$activityFields['ID']]);
 						$this->getComponent()->setActivity2LogListValue($activity2LogList);
 						unset($activity2LogList);
+					}
+					else
+					{
+						$task2LogList = $this->getComponent()->getTask2LogListValue();
+						$task2LogList[(int)$activityFields['ASSOCIATED_ENTITY_ID']] = (int)$activity2LogList[$activityFields['ID']];
+						$this->getComponent()->setTask2LogListValue($task2LogList);
+						unset($task2LogList);
 					}
 				}
 				catch (\CTaskAssertException $e)
@@ -1524,8 +1391,7 @@ class Processor
 
 		$forumPostLivefeedProvider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
 		$forumPostLivefeedProvider->warmUpAuxCommentsStaticCache([
-			'logEventsData' => $logEventsData
+			'logEventsData' => $logEventsData,
 		]);
 	}
 }
-

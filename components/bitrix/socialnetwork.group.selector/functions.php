@@ -1,6 +1,12 @@
 <?php
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
 	die();
+}
+
+use Bitrix\Main\Text\Emoji;
+
 function filterByFeaturePerms(&$arGroups, $arFeaturePerms)
 {
 	$arGroupsIDs = array();
@@ -44,10 +50,10 @@ function group2JSItem($arGroup, $fieldPrevix = "")
 	$arGroupTmp = array(
 		"ID" => $arGroup[$fieldPrevix."ID"],
 		"id" => $arGroup[$fieldPrevix."ID"],
-		"title" => $arGroup[$fieldPrevix."NAME"],
-		"description" => $arGroup[$fieldPrevix."DESCRIPTION"]
+		"title" => Emoji::decode($arGroup[$fieldPrevix . 'NAME']),
+		"description" => Emoji::decode($arGroup[$fieldPrevix . 'DESCRIPTION']),
 	);
-	
+
 	if (isset($arGroup[$fieldPrevix."IS_EXTRANET"]))
 	{
 		$arGroupTmp["IS_EXTRANET"] = $arGroup[$fieldPrevix."IS_EXTRANET"];

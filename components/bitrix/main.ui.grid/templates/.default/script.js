@@ -52,19 +52,24 @@
 	      this.parent = parent;
 	      this.actions = eval(actions);
 	      this.types = eval(types);
-	      BX.addCustomEvent(window, 'Dropdown::change', BX.proxy(function (id, event, item, dataItem) {
-	        this.isPanelControl(BX(id)) && this._dropdownChange(id, event, item, dataItem);
-	      }, this));
-	      BX.addCustomEvent(window, 'Dropdown::load', BX.proxy(function (id, event, item, dataItem) {
-	        this.isPanelControl(BX(id)) && this._dropdownChange(id, event, item, dataItem);
-	      }, this));
+	      BX.addCustomEvent(window, 'Dropdown::change', BX.proxy(this._dropdownEventHandle, this));
+	      BX.addCustomEvent(window, 'Dropdown::load', BX.proxy(this._dropdownEventHandle, this));
 	      var panel = this.getPanel();
 	      BX.bind(panel, 'change', BX.delegate(this._checkboxChange, this));
 	      BX.bind(panel, 'click', BX.delegate(this._clickOnButton, this));
-	      BX.addCustomEvent(window, 'Grid::updated', function () {
-	        var cancelButton = BX('grid_cancel_button');
-	        cancelButton && BX.fireEvent(BX.firstChild(cancelButton), 'click');
-	      });
+	      BX.addCustomEvent(window, 'Grid::updated', BX.proxy(this._gridUpdatedEventHandle, this));
+	    },
+	    destroy: function destroy() {
+	      BX.removeCustomEvent(window, 'Dropdown::change', BX.proxy(this._dropdownEventHandle, this));
+	      BX.removeCustomEvent(window, 'Dropdown::load', BX.proxy(this._dropdownEventHandle, this));
+	      BX.removeCustomEvent(window, 'Grid::updated', BX.proxy(this._gridUpdatedEventHandle, this));
+	    },
+	    _gridUpdatedEventHandle: function _gridUpdatedEventHandle() {
+	      var cancelButton = BX('grid_cancel_button');
+	      cancelButton && BX.fireEvent(BX.firstChild(cancelButton), 'click');
+	    },
+	    _dropdownEventHandle: function _dropdownEventHandle(id, event, item, dataItem) {
+	      this.isPanelControl(BX(id)) && this._dropdownChange(id, event, item, dataItem);
 	    },
 	    resetForAllCheckbox: function resetForAllCheckbox() {
 	      var checkbox = this.getForAllCheckbox();
@@ -3069,7 +3074,10 @@
 	  BX.Grid.Pagesize.prototype = {
 	    init: function init(parent) {
 	      this.parent = parent;
-	      BX.addCustomEvent('Dropdown::change', BX.delegate(this.onChange, this));
+	      BX.addCustomEvent('Dropdown::change', BX.proxy(this.onChange, this));
+	    },
+	    destroy: function destroy() {
+	      BX.removeCustomEvent('Dropdown::change', BX.proxy(this.onChange, this));
 	    },
 	    onChange: function onChange(id, event, item, dataValue, value) {
 	      var self = this;
@@ -3384,12 +3392,22 @@
 	      this.panel = this.getPanel();
 	      this.bindOnRowsEvents();
 	    },
+	    destroy: function destroy() {
+	      this.unbindOnRowsEvents();
+	    },
 	    bindOnRowsEvents: function bindOnRowsEvents() {
-	      BX.addCustomEvent('Grid::thereSelectedRows', BX.delegate(this._onThereSelectedRows, this));
-	      BX.addCustomEvent('Grid::allRowsSelected', BX.delegate(this._onThereSelectedRows, this));
-	      BX.addCustomEvent('Grid::noSelectedRows', BX.delegate(this._onNoSelectedRows, this));
-	      BX.addCustomEvent('Grid::allRowsUnselected', BX.delegate(this._onNoSelectedRows, this));
-	      BX.addCustomEvent('Grid::updated', BX.delegate(this._onNoSelectedRows, this));
+	      BX.addCustomEvent('Grid::thereSelectedRows', BX.proxy(this._onThereSelectedRows, this));
+	      BX.addCustomEvent('Grid::allRowsSelected', BX.proxy(this._onThereSelectedRows, this));
+	      BX.addCustomEvent('Grid::noSelectedRows', BX.proxy(this._onNoSelectedRows, this));
+	      BX.addCustomEvent('Grid::allRowsUnselected', BX.proxy(this._onNoSelectedRows, this));
+	      BX.addCustomEvent('Grid::updated', BX.proxy(this._onNoSelectedRows, this));
+	    },
+	    unbindOnRowsEvents: function unbindOnRowsEvents() {
+	      BX.removeCustomEvent('Grid::thereSelectedRows', BX.proxy(this._onThereSelectedRows, this));
+	      BX.removeCustomEvent('Grid::allRowsSelected', BX.proxy(this._onThereSelectedRows, this));
+	      BX.removeCustomEvent('Grid::noSelectedRows', BX.proxy(this._onNoSelectedRows, this));
+	      BX.removeCustomEvent('Grid::allRowsUnselected', BX.proxy(this._onNoSelectedRows, this));
+	      BX.removeCustomEvent('Grid::updated', BX.proxy(this._onNoSelectedRows, this));
 	    },
 	    bindOnWindowEvents: function bindOnWindowEvents() {
 	      BX.bind(window, 'resize', BX.proxy(this._onResize, this));
@@ -8274,12 +8292,16 @@
 	      BX.removeCustomEvent(window, 'Grid::unselectRows', BX.proxy(this._onUnselectRows, this));
 	      BX.removeCustomEvent(window, 'Grid::allRowsUnselected', BX.proxy(this._onUnselectRows, this));
 	      BX.removeCustomEvent(window, 'Grid::headerPinned', BX.proxy(this.bindOnCheckAll, this));
+	      BX.removeCustomEvent(window, 'Grid::updated', BX.proxy(this._onGridUpdated, this));
 	      this.getPinHeader() && this.getPinHeader().destroy();
 	      this.getFader() && this.getFader().destroy();
 	      this.getResize() && this.getResize().destroy();
 	      this.getColsSortable() && this.getColsSortable().destroy();
 	      this.getRowsSortable() && this.getRowsSortable().destroy();
 	      this.getSettingsWindow() && this.getSettingsWindow().destroy();
+	      this.getActionsPanel() && this.getActionsPanel().destroy();
+	      this.getPinPanel() && this.getPinPanel().destroy();
+	      this.getPageSize() && this.getPageSize().destroy();
 	    },
 	    _onFrameResize: function _onFrameResize() {
 	      BX.onCustomEvent(window, 'Grid::resize', [this]);
@@ -8473,6 +8495,8 @@
 	      if (this.getParam('ALLOW_PIN_HEADER')) {
 	        this.getPinHeader()._onGridUpdate();
 	      }
+
+	      BX.onCustomEvent(window, 'Grid::resize', [this]);
 	    },
 	    editSelectedSave: function editSelectedSave() {
 	      var data = {
@@ -8667,6 +8691,9 @@
 	     */
 	    getActionsPanel: function getActionsPanel() {
 	      return this.actionPanel;
+	    },
+	    getPinPanel: function getPinPanel() {
+	      return this.pinPanel;
 	    },
 	    getApplyButton: function getApplyButton() {
 	      return BX.Grid.Utils.getByClass(this.getContainer(), this.settings.get('classPanelButton'), true);

@@ -98,6 +98,14 @@ class AdditionalHandler extends Base
 		$this->deliveryRequestHandler = $this->getDeliveryRequestHandler();
 	}
 
+	/**
+	 * @return string
+	 */
+	public function getHandlerCode(): string
+	{
+		return 'BITRIX_ADDITIONAL_' . (string)$this->serviceType;
+	}
+
 	public function getDeliveryRequestHandler()
 	{
 		$result = null;
@@ -930,7 +938,7 @@ class AdditionalHandler extends Base
 		}
 
 		$delivery= Manager::getObjectById($shipment->getDeliveryId());
-		$result['DELIVERY_SERVICE_CONFIG'] = $delivery->getConfigValues();
+		$result['DELIVERY_SERVICE_CONFIG'] = $delivery ? $delivery->getConfigValues() : [];
 		$result['WEIGHT'] = $shipment->getWeight();
 		$result['PRICE'] = $price;
 		$result['SHIPMENT_ID'] = $shipment->getId();

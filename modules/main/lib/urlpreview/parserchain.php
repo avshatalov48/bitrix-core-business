@@ -23,6 +23,7 @@ class ParserChain
 		'www.facebook.com' => 'Bitrix\Main\UrlPreview\Parser\Facebook',
 		'www.instagram.com' => 'Bitrix\Main\UrlPreview\Parser\Instagram',
 		'maps.apple.com' => 'Bitrix\Main\UrlPreview\Parser\AppleMaps',
+		'rutube.ru' => 'Bitrix\Main\UrlPreview\Parser\RuTube',
 	];
 
 	/**

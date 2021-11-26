@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/rest.bundle.js',
 	'rel' => [
 		'main.core',
+		'main.core.events',
 		'sale.checkout.const',
 	],
 	'skip_core' => false,

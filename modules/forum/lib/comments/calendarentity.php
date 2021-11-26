@@ -7,9 +7,9 @@ use Bitrix\Main\Loader;
 
 final class CalendarEntity extends Entity
 {
-	const ENTITY_TYPE = 'ev';
+	public const ENTITY_TYPE = 'ev';
 	const MODULE_ID = 'calendar';
-	const XML_ID_PREFIX = 'EVENT_';
+	public const XML_ID_PREFIX = 'EVENT_';
 
 	protected static $permissions = array();
 

@@ -5,6 +5,8 @@ namespace Bitrix\Bizproc\Activity;
 use Bitrix\Bizproc\FieldType;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\IO\File;
+use Bitrix\Main\IO\Path;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
@@ -130,7 +132,7 @@ abstract class BaseActivity extends \CBPActivity
 
 		$dialog
 			->setMapCallback([static::class, 'getPropertiesDialogMap'])
-			->setRuntimeData(static::getRuntimeData());
+			->setRuntimeData(static::getRuntimeData())
 		;
 
 		if (!static::hasRenderer())
@@ -143,11 +145,11 @@ abstract class BaseActivity extends \CBPActivity
 
 	private static function hasRenderer(): bool
 	{
-		$dir = dirname(static::getFileName());
+		$dir = Path::getDirectory(Path::normalize(static::getFileName()));
 
 		return
-			file_exists($dir . DIRECTORY_SEPARATOR . 'properties_dialog.php')
-			|| file_exists($dir . DIRECTORY_SEPARATOR . 'robot_properties_dialog.php')
+			File::isFileExists(Path::combine($dir, 'properties_dialog.php'))
+			|| File::isFileExists(Path::combine($dir, 'robot_properties_dialog.php'))
 		;
 	}
 
@@ -155,7 +157,7 @@ abstract class BaseActivity extends \CBPActivity
 	{
 		$propertiesDialogHtml = '';
 		$isRobot = $dialog->getDialogFileName() === 'robot_properties_dialog.php';
-		foreach ($dialog->getMap() as $fieldId => $field)
+		foreach ($dialog->getMap() as $field)
 		{
 			$propertiesDialogHtml .=
 				$isRobot
@@ -169,14 +171,11 @@ abstract class BaseActivity extends \CBPActivity
 
 	protected static function renderBizprocProperty(PropertiesDialog $dialog, array $field): string
 	{
-		$controlHtml = $dialog->getFieldTypeObject($field)->renderControl(
-			[
-				'Form' => $dialog->getFormName(),
-				'Field' => $field['FieldName'],
-			],
+		$controlHtml = $dialog->renderFieldControl(
+			$field,
 			$dialog->getCurrentValue($field),
 			true,
-			0
+			FieldType::RENDER_MODE_DESIGNER
 		);
 
 		return sprintf(
@@ -242,7 +241,7 @@ abstract class BaseActivity extends \CBPActivity
 		}
 		else
 		{
-			$errors = self::ValidateProperties(
+			$errors = static::ValidateProperties(
 				$extractingResult->getData(),
 				new \CBPWorkflowTemplateUser(\CBPWorkflowTemplateUser::CurrentUser)
 			);

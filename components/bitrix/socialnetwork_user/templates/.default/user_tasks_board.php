@@ -23,6 +23,15 @@ if (!CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arResult["VARIABLES"][
 }
 elseif (\CModule::IncludeModule('tasks'))
 {
+	LocalRedirect(
+		str_replace(
+			['#user_id#', '#USER_ID#'],
+			$arResult['VARIABLES']['user_id'],
+			$arResult['PATH_TO_USER_TASKS']
+		)
+	);
+	return;
+
 	\Bitrix\Tasks\Ui\Filter\Task::setUserId($arResult[ "VARIABLES" ][ "user_id" ]);
 	$state = \Bitrix\Tasks\Ui\Filter\Task::listStateInit()->getState();
 

@@ -5,6 +5,22 @@ namespace Bitrix\Bizproc\Script\Entity;
 use Bitrix\Bizproc\Script\Queue\Status;
 use Bitrix\Main;
 
+/**
+ * Class ScriptTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Script_Query query()
+ * @method static EO_Script_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Script_Result getById($id)
+ * @method static EO_Script_Result getList(array $parameters = array())
+ * @method static EO_Script_Entity getEntity()
+ * @method static \Bitrix\Bizproc\Script\Entity\EO_Script createObject($setDefaultValues = true)
+ * @method static \Bitrix\Bizproc\Script\Entity\EO_Script_Collection createCollection()
+ * @method static \Bitrix\Bizproc\Script\Entity\EO_Script wakeUpObject($row)
+ * @method static \Bitrix\Bizproc\Script\Entity\EO_Script_Collection wakeUpCollection($rows)
+ */
 class ScriptTable extends Main\Entity\DataManager
 {
 	/**

@@ -1,4 +1,10 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /**
  * @var CMain $APPLICATION
  * @var array $arResult
@@ -77,10 +83,14 @@ if (!empty($arResult["MESSAGES"]))
 	}
 
 	array_walk($arResult["MESSAGES"], function(&$item) {
-		$item["COLLAPSED"] = ($item["~SERVICE_TYPE"] > 0 && $item["NEW"] !== "Y"? "Y" : "N");
+		$item['COLLAPSED'] = (
+			$item['~SERVICE_TYPE'] > 0
+			&& $item['NEW'] !== 'Y'
+				? 'Y'
+				: 'N'
+		);
 		return $item;
 	});
-
 
 	$arResult["NAV_STRING"] = GetPagePath(false, false);
 	if ($arResult["NAV_RESULT"])

@@ -5,6 +5,7 @@ import {showPinButton, bindAutoSave, bindHTML, bindToolbar,
 	customizeHTMLEditor, showPanelEditor, showUrlPreview
 } from './view-utils/index';
 import Toolbar from './toolbar';
+import TasksLimit from "./taskslimit";
 
 export default class Editor
 {
@@ -24,6 +25,7 @@ export default class Editor
 		pinEditorPanel: false,
 		lazyLoad: true,
 		urlPreviewId: null,
+		tasksLimitExceeded: false,
 	};
 	actionQueue = [];
 
@@ -41,6 +43,7 @@ export default class Editor
 			pinEditorPanel: false,
 			lazyLoad: true,
 			urlPreviewId: null,
+			tasksLimitExceeded: false,
 		}
 	)
 	{
@@ -49,6 +52,7 @@ export default class Editor
 		this.formId = options['formId'];
 		this.eventNode = options.eventNode || document.querySelector('#div' + (this.name || this.id));
 		this.eventNode.dataset.bxHtmlEditable = 'Y';
+		this.formEntityType = null;
 		Editor.repo.set(this.getId(), this);
 
 		this.setEditorParams(editorParams);
@@ -380,8 +384,22 @@ export default class Editor
 			this.getEditor().AllowBeforeUnloadHandler();
 		});
 		EventEmitter.subscribe(this.getEventObject(), 'OnAfterHideLHE', () => {
+			TasksLimit.hidePopup();
 			this.getEditor().DenyBeforeUnloadHandler();
 		});
+
+		EventEmitter.subscribe(
+			htmlEditor,
+			'OnIframeClick',
+			() => {
+				const event = new MouseEvent('click', {
+					bubbles: true,
+					cancelable: true,
+					view: window,
+				});
+				htmlEditor.iframeView.container.dispatchEvent(event);
+			}
+		);
 	}
 
 	getEditor()
@@ -534,7 +552,7 @@ export default class Editor
 
 	OnShowLHE({data, compatData})
 	{
-		let [show, setFocus] = data || compatData;
+		let [show, setFocus, FCFormId] = data || compatData;
 		if (!this.getEditor() && window['BXHtmlEditor'])
 		{
 			window['BXHtmlEditor'].Get(this.getId()).Init();
@@ -580,6 +598,14 @@ export default class Editor
 		else if (show)
 		{
 			this.constructor.#shownForms.set(this);
+
+			this.formEntityType = (
+				Type.isArray(FCFormId)
+				&& Type.isStringFilled(FCFormId[0])
+				&& FCFormId[0].match(/^TASK_(\d+)$/i)
+					? 'task'
+					: null
+			);
 
 			if (setFocus && Type.isPlainObject(setFocus))
 			{

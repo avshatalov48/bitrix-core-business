@@ -128,7 +128,7 @@ if(typeof BX.UI.EntityConfigurationManager === "undefined")
 						showAlways: true
 					}
 				);
-			},
+			}
 		};
 
 	BX.UI.EntityConfigurationManager.create = function(id, settings)
@@ -228,7 +228,7 @@ if (typeof BX.UI.EntityEditorFieldConfigurator === "undefined")
 					innerConfig: innerConfig
 				},
 				wrapper: this._wrapper,
-				nextNode: (BX.Type.isDomNode(nextNode)) ? nextNode : null
+				nextNode: (BX.Type.isDomNode(nextNode) ? nextNode : null)
 			});
 			this._enumConfigurator.layout();
 		}
@@ -649,6 +649,11 @@ if (typeof BX.UI.EntityEditorEnumConfigurator === "undefined")
 		this._draggable = null;
 
 		this._enumItems = [];
+
+		this.displaySelect = null;
+		this.displaySelectValue = null;
+		this.defaultDisplaySelectValue = 'UI';
+		this.showDisplaySettings = null;
 	};
 
 	BX.UI.EntityEditorEnumConfigurator.prototype = {
@@ -659,44 +664,143 @@ if (typeof BX.UI.EntityEditorEnumConfigurator === "undefined")
 			this._enumInfo = BX.prop.getObject(this._settings, "enumInfo", {});
 			this._wrapper = BX.prop.getElementNode(this._settings, "wrapper", null);
 			this._nextNode = BX.prop.getElementNode(this._settings, "nextNode", null);
+			this.showDisplaySettings = BX.prop.getBoolean(this._settings, "showDisplaySettings", false);
+			this.displaySelectValue = BX.prop.getString(
+				this._settings,
+				'display',
+				this.defaultDisplaySelectValue
+			);
+
+			if (!this.displaySelectValue.length)
+			{
+				this.displaySelectValue = this.defaultDisplaySelectValue;
+			}
 		},
 		layout: function()
 		{
 			if (BX.Type.isDomNode(this._wrapper))
 			{
-				var isNextNode = BX.Type.isDomNode(this._nextNode);
-				var enumContainer = this.getEnumerationContainer();
-				var elements = [
-					BX.create("hr", { props: { className: "ui-entity-editor-line" } }),
-					BX.create(
-						"div",
-						{
-							props: { className: "ui-entity-editor-block-title" },
-							children: [
-								BX.create(
-									"span",
-									{
-										attrs: { className: "ui-entity-editor-block-title-text" },
-										text: BX.message("UI_ENTITY_EDITOR_UF_ENUM_ITEMS")
-									}
-								)
-							]
-						}
-					),
-					enumContainer
-				];
-				for (var i = 0; i < elements.length; i++)
+				this.layoutElements();
+				if (this.showDisplaySettings)
 				{
-					if (isNextNode)
-					{
-						this._wrapper.insertBefore(elements[i], this._nextNode);
-					}
-					else
-					{
-						this._wrapper.appendChild(elements[i]);
-					}
+					this.layoutDisplay();
 				}
 			}
+		},
+		layoutElements: function()
+		{
+			var isNextNode = BX.Type.isDomNode(this._nextNode);
+			var enumContainer = this.getEnumerationContainer();
+			var elements = [
+				BX.create("hr", { props: { className: "ui-entity-editor-line" } }),
+				BX.create(
+					"div",
+					{
+						props: { className: "ui-entity-editor-block-title" },
+						children: [
+							BX.create(
+								"span",
+								{
+									attrs: { className: "ui-entity-editor-block-title-text" },
+									text: BX.message("UI_ENTITY_EDITOR_UF_ENUM_ITEMS")
+								}
+							)
+						]
+					}
+				),
+				enumContainer
+			];
+			for (var i = 0; i < elements.length; i++)
+			{
+				if (isNextNode)
+				{
+					this._wrapper.insertBefore(elements[i], this._nextNode);
+				}
+				else
+				{
+					this._wrapper.appendChild(elements[i]);
+				}
+			}
+		},
+		layoutDisplay: function()
+		{
+			var displayWrapper = BX.Dom.create('div', {
+				attrs: {
+					class: 'ui-entity-editor-content-block',
+					style: 'padding-right:38px;'
+				},
+				html: '<hr class="ui-entity-editor-line">'
+			});
+
+			var blockTitle = BX.Dom.create('div', {
+				attrs: {
+					class: 'ui-entity-editor-block-title'
+				},
+				children: [
+					BX.Dom.create('span', {
+						attrs: {
+							class: 'ui-entity-editor-block-title-text'
+						},
+						props: {
+							text: BX.Loc.getMessage('UI_ENTITY_EDITOR_UF_ENUM_ITEMS')
+						}
+					}),
+				]
+			});
+
+			displayWrapper.appendChild(blockTitle);
+			blockTitle.appendChild(this.getDisplaySelect());
+
+			if (BX.Type.isDomNode(this._nextNode))
+			{
+				this._wrapper.insertBefore(displayWrapper, this._nextNode);
+			}
+			else
+			{
+				this._wrapper.appendChild(displayWrapper);
+			}
+		},
+		getDisplaySelect: function()
+		{
+			if (!this.displaySelect)
+			{
+				var displaySelect = BX.Dom.create('select', {
+					attrs: {
+						className: 'main-ui-control main-enum-dialog-input'
+					},
+					props: {
+						name: 'display'
+					}
+				});
+				var items = {
+					UI: BX.Loc.getMessage('UI_ENTITY_EDITOR_UF_ENUM_DISPLAY_UI'),
+					DIALOG: BX.Loc.getMessage('UI_ENTITY_EDITOR_UF_ENUM_DISPLAY_DIALOG'),
+					LIST: BX.Loc.getMessage('UI_ENTITY_EDITOR_UF_ENUM_DISPLAY_LIST'),
+					CHECKBOX: BX.Loc.getMessage('UI_ENTITY_EDITOR_UF_ENUM_DISPLAY_CHECKBOX')
+				};
+
+				for (var displayName in items)
+				{
+					var option = BX.Dom.create('option', {
+						attrs: {
+							value: displayName
+						},
+						props: {
+							text: items[displayName]
+						}
+					});
+
+					displaySelect.appendChild(option);
+				}
+				displaySelect.value = this.getDisplaySelectValue();
+				this.displaySelect = displaySelect;
+			}
+
+			return this.displaySelect;
+		},
+		getDisplaySelectValue: function()
+		{
+			return (this.displaySelect ? this.displaySelect.value : this.displaySelectValue);
 		},
 		getEnumerationContainer: function()
 		{
@@ -757,7 +861,7 @@ if (typeof BX.UI.EntityEditorEnumConfigurator === "undefined")
 				container: this._enumItemContainer,
 				draggable: '.ui-ctl-row',
 				dragElement: '.ui-ctl-row-draggable',
-				type: BX.UI.DragAndDrop.Draggable.CLONE,
+				type: BX.UI.DragAndDrop.Draggable.CLONE
 			});
 
 			return this._enumItemWrapper;
@@ -947,7 +1051,7 @@ if(typeof BX.UI.EntityEditorFieldConfiguratorEnumItem === "undefined")
 					);
 				}
 				this._wrapper.appendChild(this._revertButton);
-				
+
 				BX.Event.bind(this._labelInput, "keyup", this._onChangeTextHandler);
 				BX.Event.bind(this._labelInput, "input", this._onChangeTextHandler);
 			}

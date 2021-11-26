@@ -2110,7 +2110,7 @@ if (!empty($orderList) && is_array($orderList))
 				{
 					$color = "background:rgba(".$colorRGB[0].",".$colorRGB[1].",".$colorRGB[2].",0.6);";
 					$fieldValue = '<div style=	"'.$color.'
-									margin: 0 0 0 -16px;
+									margin: -11px 0 -10px -16px;
 									padding: 11px 10px 10px 16px;
 									min-height: 100%;
 								">'.$fieldValue."</div>";
@@ -2203,7 +2203,7 @@ if (!empty($orderList) && is_array($orderList))
 					{
 						$color = "background:rgba(".$colorRGB[0].",".$colorRGB[1].",".$colorRGB[2].",0.6);";
 						$fieldValue = '<div style=	"'.$color.'
-									margin: 0 0 0 -16px;
+									margin: -11px 0 -10px -16px;
 									padding: 11px 10px 10px 16px;
 									min-height: 100%;
 								">'.$fieldValue."</div>";

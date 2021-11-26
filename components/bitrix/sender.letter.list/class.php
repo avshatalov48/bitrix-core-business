@@ -1,9 +1,11 @@
 <?
 
+use Bitrix\Main\Context;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Grid\Options as GridOptions;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SystemException;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\UI\Filter\Options as FilterOptions;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Sender\Access\ActionDictionary;
@@ -250,6 +252,9 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 				'unsent' => $letter->getCounter()->getUnsent(),
 			);
 
+			$trackMail = $letter->getMessage()->getConfiguration()->getOption('TRACK_MAIL');
+			$item['TRACK_MAIL'] = $trackMail ? $trackMail->getValue() : 'Y';
+
 			$item['HAS_STATISTICS'] = $letter->hasStatistics();
 			if ($item['HAS_STATISTICS'])
 			{
@@ -297,7 +302,13 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 					'canStop' => $letter->getState()->canStop(),
 					'canResume' => $letter->getState()->canResume(),
 					'isSendingLimitExceeded' => $letter->getState()->isSendingLimitExceeded(),
+					'isSendingLimitWaiting' => $letter->getState()->isSendingLimitWaiting(),
 				);
+
+				if ($item['STATE']['isSendingLimitWaiting'])
+				{
+					$this->prepareTimeLimitationMessage($letter, $item);
+				}
 
 				$item['URLS'] = array(
 					'EDIT' => str_replace('#id#', $item['ID'], $this->arParams['PATH_TO_EDIT']),
@@ -332,6 +343,27 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 		Integration\Bitrix24\Service::initLicensePopup();
 
 		return true;
+	}
+
+	private function prepareTimeLimitationMessage($letter, &$item)
+	{
+		$currentTime = strtotime((new DateTime())->format("H:i:s"));
+		$configuration = $letter->getMessage()->getConfiguration();
+		$sendingStart = strtotime($configuration->get('SENDING_START'));
+
+		$day = $currentTime > $sendingStart
+			? Loc::getMessage('SENDER_LETTER_LIST_LETTER_SENDING_TOMORROW')
+			: Loc::getMessage('SENDER_LETTER_LIST_LETTER_SENDING_TODAY')
+		;
+
+		$item['LIMITATION']['DAY'] = $day;
+
+		$item['LIMITATION']['TIME'] = (new \DateTime())
+			->setTimestamp($sendingStart)
+			->format(Context::getCurrent()
+				->getCulture()
+				->getShortTimeFormat());
+		;
 	}
 
 	protected function formatDate(\Bitrix\Main\Type\DateTime $dateTime = null)
@@ -493,7 +525,6 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			$list[] = [
 				"id" => "CONSENT_SUPPORT",
 				"name"=> Loc::getMessage('SENDER_LETTER_LIST_COMP_UI_COLUMN_CONSENT_SUPPORT'),
-				"sort"=> "CONSENT_SUPPORT",
 				"default" => true
 			];
 		}

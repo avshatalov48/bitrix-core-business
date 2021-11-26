@@ -43,6 +43,9 @@ abstract class BaseForm
 	private const USER_TYPE_GET_EDIT_METHOD = 'GetUIEntityEditorPropertyEditHtml';
 	private const USER_TYPE_FORMAT_VALUE_METHOD = 'getFormattedValue';
 
+	protected const CONTROL_NAME_WITH_CODE = 'name-code';
+	protected const CONTROL_IBLOCK_SECTION = 'iblock_section';
+
 	/** @var \Bitrix\Catalog\v2\BaseIblockElementEntity */
 	protected $entity;
 	/** @var array */
@@ -236,7 +239,7 @@ abstract class BaseForm
 
 		foreach ($this->getDescriptions() as $description)
 		{
-			if (!in_array($description['type'], ['custom', 'money', 'user'], true))
+			if (!in_array($description['type'], ['custom', 'money', 'multimoney', 'user'], true))
 			{
 				continue;
 			}
@@ -385,24 +388,32 @@ abstract class BaseForm
 					}
 				}
 			}
-			elseif ($description['type'] === 'money' && Loader::includeModule('currency'))
+			elseif (in_array($description['type'], ['money', 'multimoney'], true) && Loader::includeModule('currency'))
 			{
 				$formatMethod = $propertySettings['PROPERTY_USER_TYPE'][self::USER_TYPE_FORMAT_VALUE_METHOD] ?? null;
 				if ($formatMethod && is_callable($formatMethod))
 				{
-					$formattedValues = $formatMethod($value);
-
-					$amount = $formattedValues['AMOUNT'];
-					if ($formattedValues['AMOUNT'] !== '' && $formattedValues['DECIMALS'] !== '')
+					if ($description['type'] === 'money')
 					{
-						$amount .= '.' . $formattedValues['DECIMALS'];
-					}
-					$currency = $formattedValues['CURRENCY'];
+						$additionalMoneyValues = $this->getAdditionalMoneyValues($value, $formatMethod);
 
-					$additionalValues[$descriptionData['currencyCode']] = $currency;
-					$additionalValues[$descriptionData['amount']] = $amount;
-					$additionalValues[$descriptionData['formatted']] = \CCurrencyLang::CurrencyFormat($amount, $currency, false);
-					$additionalValues[$descriptionData['formattedWithCurrency']] = \CCurrencyLang::CurrencyFormat($amount, $currency, true);
+						$additionalValues[$descriptionData['currencyCode']] = $additionalMoneyValues['currencyCode'];
+						$additionalValues[$descriptionData['amount']] = $additionalMoneyValues['amount'];
+						$additionalValues[$descriptionData['formatted']] = $additionalMoneyValues['formatted'];
+						$additionalValues[$descriptionData['formattedWithCurrency']] = $additionalMoneyValues['formattedWithCurrency'];
+					}
+					else
+					{
+						foreach ($value as $currentValueElement)
+						{
+							$additionalMoneyValues = $this->getAdditionalMoneyValues($currentValueElement, $formatMethod);
+
+							$additionalValues[$descriptionData['currencyCode']][] = $additionalMoneyValues['currencyCode'];
+							$additionalValues[$descriptionData['amount']][] = $additionalMoneyValues['amount'];
+							$additionalValues[$descriptionData['formatted']][] = $additionalMoneyValues['formatted'];
+							$additionalValues[$descriptionData['formattedWithCurrency']][] = $additionalMoneyValues['formattedWithCurrency'];
+						}
+					}
 				}
 			}
 			elseif ($description['type'] === 'user')
@@ -459,6 +470,26 @@ abstract class BaseForm
 				}
 			}
 		}
+
+		return $additionalValues;
+	}
+
+	private function getAdditionalMoneyValues(string $value, callable $formatMethod): array
+	{
+		$additionalValues = [];
+
+		$formattedValues = $formatMethod($value);
+		$amount = $formattedValues['AMOUNT'];
+		if ($formattedValues['AMOUNT'] !== '' && $formattedValues['DECIMALS'] !== '')
+		{
+			$amount .= '.' . $formattedValues['DECIMALS'];
+		}
+		$currency = $formattedValues['CURRENCY'];
+
+		$additionalValues['currencyCode'] = $currency;
+		$additionalValues['amount'] = $amount;
+		$additionalValues['formatted'] = \CCurrencyLang::CurrencyFormat($amount, $currency, false);
+		$additionalValues['formattedWithCurrency'] = \CCurrencyLang::CurrencyFormat($amount, $currency, true);
 
 		return $additionalValues;
 	}
@@ -698,8 +729,7 @@ abstract class BaseForm
 
 			if ($description['type'] === 'custom')
 			{
-				$description['data']['view'] = $description['name'] . '[VIEW_HTML]';
-				$description['data']['edit'] = $description['name'] . '[EDIT_HTML]';
+				$description['data'] += $this->getCustomControlParameters($description['name']);
 			}
 			elseif ($description['type'] === 'user')
 			{
@@ -1112,6 +1142,12 @@ abstract class BaseForm
 			'settings' => $property->getSettings(),
 		];
 
+		if ($property->getUserType() === \CIBlockPropertySequence::USER_TYPE)
+		{
+			$userTypeSettings = $property->getSetting('USER_TYPE_SETTINGS');
+			$description['editable'] = $userTypeSettings['write'] === 'Y';
+		}
+
 		if ($description['propertyCode'] === self::MORE_PHOTO)
 		{
 			$description['optionFlags'] = 1; // showAlways
@@ -1119,7 +1155,7 @@ abstract class BaseForm
 
 		if ($description['multiple'] && !is_array($description['defaultValue']))
 		{
-			$description['defaultValue'] = [$description['defaultValue']];
+			$description['defaultValue'] = $description['defaultValue'] === null ? [] : [$description['defaultValue']];
 		}
 
 		// remove it after PropertyTable::TYPE_ELEMENT refactoring
@@ -1226,10 +1262,7 @@ abstract class BaseForm
 		if ($type === 'custom')
 		{
 			$name = static::preparePropertyNameFromProperty($property);
-			$description['data']['view'] = $name . '[VIEW_HTML]';
-			$description['data']['edit'] = $name . '[EDIT_HTML]';
-			$description['data']['editList'] = $name . '[EDIT_HTML_LIST]';
-			$description['data']['viewList'] = $name . '[VIEW_HTML_LIST]';
+			$description['data'] += $this->getCustomControlParameters($name);
 		}
 
 		if ($type === 'textarea')
@@ -1310,7 +1343,7 @@ abstract class BaseForm
 				$description['editable'] = false;
 			}
 
-			$specialTypes = ['custom', 'money'];
+			$specialTypes = ['custom', 'money', 'multimoney'];
 			if (in_array($description['type'], $specialTypes, true))
 			{
 				$name = static::preparePropertyNameFromProperty($property);
@@ -1318,12 +1351,9 @@ abstract class BaseForm
 
 				if ($description['type'] === 'custom')
 				{
-					$descriptionData['view'] = $name . '[VIEW_HTML]';
-					$descriptionData['edit'] = $name . '[EDIT_HTML]';
-					$descriptionData['editList'] = $name . '[EDIT_HTML_LIST]';
-					$descriptionData['viewList'] = $name . '[VIEW_HTML_LIST]';
+					$descriptionData += $this->getCustomControlParameters($name);
 				}
-				elseif ($description['type'] === 'money')
+				elseif ($description['type'] === 'money' || $description['type'] === 'multimoney')
 				{
 					$descriptionData['affectedFields'] = [
 						$name . '[CURRENCY]',
@@ -1815,8 +1845,56 @@ abstract class BaseForm
 				$value = $value['TEXT'] ?? null;
 			}
 		}
+		elseif ($property->getUserType() === \CIBlockPropertySequence::USER_TYPE)
+		{
+			if ($field['multiple'])
+			{
+				foreach ($value as $valueItemKey => $valueItem)
+				{
+					if ($valueItem > 0)
+					{
+						$value[$valueItemKey] = (int)$value;
+					}
+					else
+					{
+						$value[$valueItemKey] = $this->getSequence(
+							$property->getId(),
+							$property->getSetting('IBLOCK_ID')
+						);
+					}
+				}
+			}
+			else
+			{
+				if ($value > 0)
+				{
+					$value = (int)$value;
+				}
+				else
+				{
+					$value = $this->getSequence(
+						$property->getId(),
+						$property->getSetting('IBLOCK_ID')
+					);
+				}
+			}
+		}
 
 		return $value;
+	}
+
+	protected function getSequence(int $propertyId, int $propertyIblockId): int
+	{
+		static $sequenceList = [];
+
+		if (empty($sequenceList[$propertyId]))
+		{
+			$sequence = new \CIBlockSequence($propertyIblockId, $propertyId);
+			$isAjaxRequest = \Bitrix\Main\Context::getCurrent()->getRequest()->isAjaxRequest();
+			$sequenceList[$propertyId] = $isAjaxRequest ? $sequence->getCurrent() : $sequence->getNext();
+		}
+
+		return $sequenceList[$propertyId];
 	}
 
 	protected function getMeasures(): array
@@ -1846,5 +1924,15 @@ abstract class BaseForm
 		}
 
 		return $vats;
+	}
+
+	protected function getCustomControlParameters(string $fieldName): array
+	{
+		return [
+			'view' => $fieldName . '[VIEW_HTML]',
+			'edit' => $fieldName . '[EDIT_HTML]',
+			'editList' => $fieldName . '[EDIT_HTML_LIST]',
+			'viewList' => $fieldName . '[VIEW_HTML_LIST]',
+		];
 	}
 }

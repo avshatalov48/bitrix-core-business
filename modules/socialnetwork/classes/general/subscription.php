@@ -1,16 +1,18 @@
 <?php
 
+use Bitrix\Main\Text\Emoji;
 use Bitrix\Socialnetwork\Integration;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\UserToGroupTable;
 
 class CAllSocNetSubscription
 {
-	public static function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0): bool
 	{
 		global $APPLICATION;
 
 		if (
-			$ACTION != "ADD" 
+			$ACTION != "ADD"
 			&& intval($ID) <= 0
 		)
 		{
@@ -19,7 +21,7 @@ class CAllSocNetSubscription
 		}
 
 		if (
-			(is_set($arFields, "USER_ID") || $ACTION == "ADD") 
+			(is_set($arFields, "USER_ID") || $ACTION == "ADD")
 			&& intval($arFields["USER_ID"]) <= 0
 		)
 		{
@@ -37,7 +39,7 @@ class CAllSocNetSubscription
 		}
 
 		if (
-			(is_set($arFields, "CODE") || $ACTION == "ADD") 
+			(is_set($arFields, "CODE") || $ACTION == "ADD")
 			&& trim($arFields["CODE"]) == ''
 		)
 		{
@@ -57,18 +59,16 @@ class CAllSocNetSubscription
 
 		$ID = intval($ID);
 
-		$bSuccess = $DB->Query("DELETE FROM b_sonet_subscription WHERE ID = ".$ID."", true);
-
-		return $bSuccess;
+		return $DB->Query("DELETE FROM b_sonet_subscription WHERE ID = ".$ID."", true);
 	}
 
-	public static function DeleteEx($userID = false, $code = false)
+	public static function DeleteEx($userID = false, $code = false): bool
 	{
 		global $DB, $CACHE_MANAGER;
 
 		$userID = intval($userID);
 		$code = trim($code);
-		
+
 		if (
 			$userID <= 0
 			&& $code == ''
@@ -88,7 +88,7 @@ class CAllSocNetSubscription
 		return true;
 	}
 
-	public static function Set($userID, $code, $value = false)
+	public static function Set($userID, $code, $value = false): bool
 	{
 		global $CACHE_MANAGER;
 
@@ -113,7 +113,7 @@ class CAllSocNetSubscription
 		$rsSubscription = CSocNetSubscription::GetList(
 			array(),
 			array(
-				"USER_ID" => $userID, 
+				"USER_ID" => $userID,
 				"CODE" => $code
 			)
 		);
@@ -166,9 +166,9 @@ class CAllSocNetSubscription
 		}
 
 		return true;
-	}	
+	}
 
-	public static function NotifyGroup($arFields)
+	public static function NotifyGroup($arFields): array
 	{
 		$arUserIDSent = array();
 
@@ -218,10 +218,10 @@ class CAllSocNetSubscription
 			&& !empty($arFields['PERMISSION']['OPERATION'])
 		)
 		{
-			$roleList = \CSocNetFeaturesPerms::getOperationPerm(SONET_ENTITY_GROUP, $arFields["GROUP_ID"], $arFields['PERMISSION']['FEATURE'], $arFields['PERMISSION']['OPERATION']);
+			$roleList = CSocNetFeaturesPerms::getOperationPerm(SONET_ENTITY_GROUP, $arFields["GROUP_ID"], $arFields['PERMISSION']['FEATURE'], $arFields['PERMISSION']['OPERATION']);
 		}
 
-		$chatData = $chatIdList = array();
+		$chatData = [];
 		if (!empty($arFields["MESSAGE_CHAT"]))
 		{
 			$chatData = Integration\Im\Chat\Workgroup::getChatData(array(
@@ -233,7 +233,7 @@ class CAllSocNetSubscription
 		{
 			$arFields["GROUP_ID"] = array_diff($arFields["GROUP_ID"], array_unique(array_keys($chatData)));
 
-			$tmp = \CSocNetLogTools::processPath(
+			$tmp = CSocNetLogTools::processPath(
 				array(
 					"URL" => $arFields["URL"],
 				),
@@ -260,13 +260,13 @@ class CAllSocNetSubscription
 				// don't send message to chat if it's unavailable for all members
 				if (
 					isset($roleList[$groupId])
-					&& $roleList[$groupId] < \Bitrix\Socialnetwork\UserToGroupTable::ROLE_USER
+					&& $roleList[$groupId] < UserToGroupTable::ROLE_USER
 				)
 				{
 					continue;
 				}
 
-				\CIMChat::addMessage(array_merge(
+				CIMChat::addMessage(array_merge(
 					$chatMessageFields, array(
 						"TO_CHAT_ID" => $chatId
 					)
@@ -357,11 +357,15 @@ class CAllSocNetSubscription
 
 		while($arGroup = $rsGroup->GetNext())
 		{
+			if (!empty($arGroup['NAME']))
+			{
+				$arGroup['NAME'] = Emoji::decode($arGroup['NAME']);
+			}
 			$arGroups[$arGroup["ID"]] = $arGroup;
 		}
 
 		$workgroupsPage = COption::GetOptionString("socialnetwork", "workgroups_page", "/workgroups/", SITE_ID);
-		$groupUrlTemplate = COption::GetOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", SITE_ID);
+		$groupUrlTemplate = \Bitrix\Socialnetwork\Helper\Path::get('group_path_template');
 		$groupUrlTemplate = "#GROUPS_PATH#".mb_substr($groupUrlTemplate, mb_strlen($workgroupsPage), mb_strlen($groupUrlTemplate) - mb_strlen($workgroupsPage));
 
 		$canViewUserIdList = array();
@@ -375,7 +379,7 @@ class CAllSocNetSubscription
 				if (!isset($canViewUserIdList[$groupId]))
 				{
 					$canViewUserIdList[$groupId] = array();
-					$res = \Bitrix\Socialnetwork\UserToGroupTable::getList(array(
+					$res = UserToGroupTable::getList(array(
 						'filter' => array(
 							'=GROUP_ID' => $groupId,
 							'<=ROLE' => $roleList[$groupId]
@@ -421,12 +425,12 @@ class CAllSocNetSubscription
 
 			$group_name = (array_key_exists($arUser["GROUP_ID"], $arGroups) ? $arGroups[$arUser["GROUP_ID"]]["NAME"] : "");
 			$arMessageFields["NOTIFY_MESSAGE"] = str_replace(
-				array("#URL#", "#url#", "#group_name#", "#GROUP_ID#", "#group_id#"), 
+				array("#URL#", "#url#", "#group_name#", "#GROUP_ID#", "#group_id#"),
 				array($url, $url, "<a href=\"".$groupUrl."\" class=\"bx-notifier-item-action\">".$group_name."</a>", $arUser["GROUP_ID"], $arUser["GROUP_ID"]),
 				$arFields["MESSAGE"]
 			);
 			$arMessageFields["NOTIFY_MESSAGE_OUT"] = str_replace(
-				array("#URL#", "#url#", "#group_name#"), 
+				array("#URL#", "#url#", "#group_name#"),
 				array($serverName.$url, $serverName.$url, $group_name),
 				$arFields["MESSAGE_OUT"]
 			);
@@ -438,7 +442,7 @@ class CAllSocNetSubscription
 
 			if (intval($arFields["FROM_USER_ID"]) > 0)
 			{
-				$dbAuthor = \CUser::getByID($arFields["FROM_USER_ID"]);
+				$dbAuthor = CUser::getByID($arFields["FROM_USER_ID"]);
 				if($arAuthor = $dbAuthor->fetch())
 				{
 					if (!empty($arAuthor["PERSONAL_PHOTO"]))
@@ -457,7 +461,7 @@ class CAllSocNetSubscription
 						}
 					}
 
-					$authorName = CUser::formatName(\CSite::getNameFormat(), $arAuthor, true);
+					$authorName = CUser::formatName(CSite::getNameFormat(), $arAuthor, true);
 				}
 			}
 
@@ -483,7 +487,7 @@ class CAllSocNetSubscription
 
 			$arMessageFields2Send = $arMessageFields;
 			if (
-				!is_set($arMessageFields2Send["FROM_USER_ID"]) 
+				!is_set($arMessageFields2Send["FROM_USER_ID"])
 				|| intval($arMessageFields2Send["FROM_USER_ID"]) <= 0
 			)
 			{
@@ -499,7 +503,7 @@ class CAllSocNetSubscription
 		return $arUserIDSent;
 	}
 
-	public static function IsUserSubscribed($userID, $code)
+	public static function IsUserSubscribed($userID, $code): bool
 	{
 		global $CACHE_MANAGER;
 
@@ -519,7 +523,7 @@ class CAllSocNetSubscription
 		$cache_time = 31536000;
 		$cache_id = "entity_".$code;
 		$cache_path = "/sonet/subscription/";
-		
+
 		if ($cache->InitCache($cache_time, $cache_id, $cache_path))
 		{
 			$arCacheVars = $cache->GetVars();
@@ -544,7 +548,7 @@ class CAllSocNetSubscription
 				$CACHE_MANAGER->RegisterTag("sonet_subscription_".$code);
 				$CACHE_MANAGER->RegisterTag("sonet_group");
 			}
-			
+
 			$arCacheData = Array(
 				"arSubscriberID" => $arSubscriberID
 			);
@@ -559,7 +563,7 @@ class CAllSocNetSubscription
 		return (in_array($userID, $arSubscriberID));
 	}
 
-	public static function OnAfterChatMuteNotify($fields)
+	public static function OnAfterChatMuteNotify($fields): bool
 	{
 		$result = false;
 

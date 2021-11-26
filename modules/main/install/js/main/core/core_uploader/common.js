@@ -1,4 +1,5 @@
 ;(function(window){
+	window.BX = window['BX'] || {};
 	if (window.BX["UploaderUtils"])
 		return false;
 	var BX = window.BX;
@@ -420,35 +421,35 @@
 			}
 			return true;
 		},
-		getFilePart : function(file, firstChunk, MaxFilesize)
+		getFilePart : function(file, MaxFilesize)
 		{
-			var blob, chunkSize = MaxFilesize, start, end, chunk = null;
+			var blob, chunkSize = MaxFilesize, start, end;
 			if (BX.type.isDomNode(file))
 			{
-//				file.uploadStatus = statuses.done;
 				blob = file;
 			}
-			else if (!(MaxFilesize > 0 && file.size > MaxFilesize))
+			else if (MaxFilesize <= 0  || file.size <= MaxFilesize)
 			{
-//				file.uploadStatus = statuses.done;
 				blob = file;
+			}
+			else if (file['packages'] && file['packages'] <= file['package'])
+			{
+				blob = null;
 			}
 			else if (window.Blob || window.MozBlobBuilder || window.WebKitBlobBuilder || window.BlobBuilder)
 			{
-				file.blobed = true;
-				if (file.uploadStatus == statuses.inprogress)
+				if (file['packages'])
 				{
-					start = file.firstChunk + (file.package - 1) * chunkSize;
+					file.package++;
+					start = file.package * chunkSize;
 					end = start + chunkSize;
 				}
 				else
 				{
-					firstChunk = (0 < firstChunk && firstChunk < chunkSize ? firstChunk : chunkSize);
-					file.firstChunk = firstChunk;
-					file.packages = 1 + Math.ceil((file.size-file.firstChunk) / chunkSize);
+					file.packages = Math.ceil(file.size / chunkSize);
 					file.package = 0;
 					start = 0;
-					end = file.firstChunk;
+					end = chunkSize;
 				}
 
 				if('mozSlice' in file)
@@ -469,6 +470,8 @@
 				}
 				blob["name"] = file["name"];
 				blob["start"] = start;
+				blob["package"] = file.package;
+				blob["packages"] = file.packages;
 			}
 			return blob;
 		},

@@ -14,6 +14,17 @@ use Bitrix\Main\ORM\Fields\ScalarField;
 abstract class PrototypeItemDataManager extends ORM\Data\DataManager
 {
 	protected static $temporaryStorage;
+	protected static $isCheckUserFields = true;
+
+	/**
+	 * This method disabled check that required user fields are not empty for the next saving (no matter, add or update).
+	 * This check will be disabled only once.
+	 * You should invoke this method before every saving.
+	 */
+	public static function disableUserFieldsCheck(): void
+	{
+		static::$isCheckUserFields = false;
+	}
 
 	public static function getType(): ?array
 	{
@@ -91,24 +102,50 @@ abstract class PrototypeItemDataManager extends ORM\Data\DataManager
 		$isUpdate = (isset($options['isUpdate']) && $options['isUpdate'] === true);
 
 		$result = new Main\ORM\EventResult();
+		if (!$userFieldManager)
+		{
+			static::$isCheckUserFields = true;
+			return $result;
+		}
 
 		if($isUpdate)
 		{
 			$oldData = static::getByPrimary($id)->fetch();
 			static::getTemporaryStorage()->saveData($id, $oldData);
-			if (!$userFieldManager->checkFieldsWithOldData(static::getItemUserFieldEntityId(), $oldData, $data))
+			if (
+				static::$isCheckUserFields
+				&& !$userFieldManager->checkFieldsWithOldData(
+					static::getItemUserFieldEntityId(),
+					$oldData,
+					$data
+				)
+			)
 			{
 				$result->addError(static::getErrorFromException());
 			}
 
-			$fields = $userFieldManager->getUserFieldsWithReadyData(static::getItemUserFieldEntityId(), $oldData, LANGUAGE_ID, false, 'ID');
-
+			$fields = $userFieldManager->getUserFieldsWithReadyData(
+				static::getItemUserFieldEntityId(),
+				$oldData,
+				LANGUAGE_ID,
+				false,
+				'ID'
+			);
 		}
 		else
 		{
 			$fields = $userFieldManager->getUserFields(static::getItemUserFieldEntityId());
 
-			if(!$userFieldManager->checkFields(static::getItemUserFieldEntityId(), null, $data))
+			if(
+				static::$isCheckUserFields
+				&& !$userFieldManager->checkFields(
+					static::getItemUserFieldEntityId(),
+					null,
+					$data,
+					false,
+					true
+				)
+			)
 			{
 				$result->addError(static::getErrorFromException());
 			}
@@ -119,6 +156,8 @@ abstract class PrototypeItemDataManager extends ORM\Data\DataManager
 			$data = static::convertValuesBeforeSave($data, $fields);
 			$result->modifyFields($data);
 		}
+
+		static::$isCheckUserFields = true;
 
 		return $result;
 	}

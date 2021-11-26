@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/controller.bundle.js',
 	'rel' => [
 		'main.core',
+		'main.core.events',
 		'sale.checkout.provider.rest',
 		'sale.checkout.const',
 		'sale.checkout.lib',

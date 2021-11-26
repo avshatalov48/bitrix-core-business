@@ -6,6 +6,8 @@
  * @copyright 2001-2013 Bitrix
  */
 
+use Bitrix\Main;
+
 IncludeModuleLangFile(__FILE__);
 
 class CAccess
@@ -74,7 +76,7 @@ class CAccess
 
 	public function UpdateCodes($arParams=false)
 	{
-		global $USER, $CACHE_MANAGER;
+		global $USER;
 
 		$USER_ID = 0;
 		if(is_array($arParams) && isset($arParams["USER_ID"]))
@@ -121,9 +123,61 @@ class CAccess
 
 			if ($clearCache)
 			{
-				$CACHE_MANAGER->Clean(static::GetCodesCacheId($USER_ID), static::CACHE_DIR);
+				static::ClearCache($USER_ID);
 			}
 		}
+	}
+
+	/**
+	 * @param int $userId
+	 * @param string $provider
+	 * @param string $code
+	 */
+	public static function AddCode($userId, $provider, $code)
+	{
+		$userId = (int)$userId;
+
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$connection->query("
+			INSERT INTO b_user_access (USER_ID, PROVIDER_ID, ACCESS_CODE)
+			VALUES ({$userId}, '{$helper->forSql($provider)}', '{$helper->forSql($code)}')
+		");
+
+		static::ClearCache($userId);
+	}
+
+	/**
+	 * @param int $userId
+	 * @param string $provider
+	 * @param string $code
+	 */
+	public static function RemoveCode($userId, $provider, $code)
+	{
+		$userId = (int)$userId;
+
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$connection->query("
+			DELETE FROM b_user_access
+			WHERE USER_ID = {$userId}
+				AND PROVIDER_ID = '{$helper->forSql($provider)}'
+				AND ACCESS_CODE = '{$helper->forSql($code)}'
+		");
+
+		static::ClearCache($userId);
+	}
+
+	/**
+	 * @param int $userId User ID.
+	 */
+	public static function ClearCache($userId)
+	{
+		global $CACHE_MANAGER;
+
+		$CACHE_MANAGER->Clean(static::GetCodesCacheId($userId), static::CACHE_DIR);
 	}
 
 	public static function RecalculateForUser($userId, $provider)
@@ -181,7 +235,7 @@ class CAccess
 	{
 		$userId = (int)$userId;
 
-		$connection = \Bitrix\Main\Application::getConnection();
+		$connection = Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
 		$connection->query("
@@ -392,7 +446,8 @@ class CAccess
 			unset(static::$arChecked[$provider][$USER_ID]);
 			$CACHE_MANAGER->Clean(static::GetCheckCacheId($provider, $USER_ID), static::CACHE_DIR);
 		}
-		$CACHE_MANAGER->Clean(static::GetCodesCacheId($USER_ID), static::CACHE_DIR);
+
+		static::ClearCache($USER_ID);
 
 		return true;
 	}

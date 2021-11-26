@@ -2,7 +2,7 @@ this.BX = this.BX || {};
 this.BX.Sale = this.BX.Sale || {};
 this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
-(function (exports,main_core_events,sale_checkout_view_mixins,ui_vue,main_core,sale_checkout_const) {
+(function (exports,sale_checkout_view_mixins,ui_vue,main_core_events,sale_checkout_const) {
 	'use strict';
 
 	ui_vue.BitrixVue.component('sale-checkout-view-element-button-backdrop_close', {
@@ -116,7 +116,7 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  methods: {
 	    clickAction: function clickAction() {
 	      this.setWait();
-	      main_core.Event.EventEmitter.emit(sale_checkout_const.EventType.element.buttonShipping);
+	      main_core_events.EventEmitter.emit(sale_checkout_const.EventType.element.buttonShipping);
 	    }
 	  },
 	  // language=Vue
@@ -127,7 +127,7 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  props: ['title', 'wait'],
 	  methods: {
 	    checkout: function checkout() {
-	      main_core.Event.EventEmitter.emit(sale_checkout_const.EventType.element.buttonCheckout);
+	      main_core_events.EventEmitter.emit(sale_checkout_const.EventType.element.buttonCheckout);
 	    }
 	  },
 	  computed: {
@@ -166,7 +166,7 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  },
 	  methods: {
 	    backdropOpen: function backdropOpen() {
-	      main_core.Event.EventEmitter.emit(sale_checkout_const.EventType.basket.backdropOpenChangeSku, {
+	      main_core_events.EventEmitter.emit(sale_checkout_const.EventType.basket.backdropOpenChangeSku, {
 	        index: this.index
 	      });
 	    }
@@ -179,7 +179,7 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  props: ['index'],
 	  methods: {
 	    backdropOpen: function backdropOpen() {
-	      main_core.Event.EventEmitter.emit(sale_checkout_const.EventType.basket.backdropOpenMobileMenu, {
+	      main_core_events.EventEmitter.emit(sale_checkout_const.EventType.basket.backdropOpenMobileMenu, {
 	        index: this.index
 	      });
 	    }
@@ -203,7 +203,7 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  props: ['index'],
 	  methods: {
 	    minus: function minus() {
-	      main_core.Event.EventEmitter.emit(sale_checkout_const.EventType.basket.buttonMinusProduct, {
+	      main_core_events.EventEmitter.emit(sale_checkout_const.EventType.basket.buttonMinusProduct, {
 	        index: this.index
 	      });
 	    }
@@ -216,7 +216,7 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  props: ['index'],
 	  methods: {
 	    plus: function plus() {
-	      main_core.Event.EventEmitter.emit(sale_checkout_const.EventType.basket.buttonPlusProduct, {
+	      main_core_events.EventEmitter.emit(sale_checkout_const.EventType.basket.buttonPlusProduct, {
 	        index: this.index
 	      });
 	    }
@@ -234,7 +234,7 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  },
 	  methods: {
 	    remove: function remove() {
-	      main_core.Event.EventEmitter.emit(sale_checkout_const.EventType.basket.buttonRemoveProduct, {
+	      main_core_events.EventEmitter.emit(sale_checkout_const.EventType.basket.buttonRemoveProduct, {
 	        index: this.index
 	      });
 	    }
@@ -252,7 +252,7 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  },
 	  methods: {
 	    restore: function restore() {
-	      main_core.Event.EventEmitter.emit(sale_checkout_const.EventType.basket.buttonRestoreProduct, {
+	      main_core_events.EventEmitter.emit(sale_checkout_const.EventType.basket.buttonRestoreProduct, {
 	        index: this.index
 	      });
 	    }
@@ -261,5 +261,5 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  template: "\n\t\t<div class=\"checkout-item-resotre-block\" @click=\"restore\">\n\t\t\t<button class=\"checkout-resotre-btn btn btn-sm border rounded-pill\">{{localize.CHECKOUT_VIEW_ELEMENT_BUTTON_RESTORE_NAME}}</button>\n\t\t</div>\n\t"
 	});
 
-}((this.BX.Sale.Checkout.View.Element = this.BX.Sale.Checkout.View.Element || {}),BX.Event,BX.Sale.Checkout.View.Mixins,BX,BX,BX.Sale.Checkout.Const));
+}((this.BX.Sale.Checkout.View.Element = this.BX.Sale.Checkout.View.Element || {}),BX.Sale.Checkout.View.Mixins,BX,BX.Event,BX.Sale.Checkout.Const));
 //# sourceMappingURL=registry.bundle.js.map

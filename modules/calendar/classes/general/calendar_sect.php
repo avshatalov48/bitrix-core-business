@@ -1283,8 +1283,10 @@ class CCalendarSect
 	public static function CheckAuthHash()
 	{
 		global $USER;
-		if ($_REQUEST['bx_hit_hash'] <> '') // $_REQUEST['bx_hit_hash']
-			return $USER->LoginHitByHash();
+		if ($_REQUEST['bx_hit_hash'] <> '')
+		{
+			return $USER->LoginHitByHash($_REQUEST['bx_hit_hash']);
+		}
 
 		return false;
 	}

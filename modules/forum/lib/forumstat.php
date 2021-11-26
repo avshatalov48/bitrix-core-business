@@ -6,6 +6,22 @@ use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 
 
+/**
+ * Class ForumStatTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ForumStat_Query query()
+ * @method static EO_ForumStat_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ForumStat_Result getById($id)
+ * @method static EO_ForumStat_Result getList(array $parameters = array())
+ * @method static EO_ForumStat_Entity getEntity()
+ * @method static \Bitrix\Forum\EO_ForumStat createObject($setDefaultValues = true)
+ * @method static \Bitrix\Forum\EO_ForumStat_Collection createCollection()
+ * @method static \Bitrix\Forum\EO_ForumStat wakeUpObject($row)
+ * @method static \Bitrix\Forum\EO_ForumStat_Collection wakeUpCollection($rows)
+ */
 class ForumStatTable extends Entity\DataManager
 {
 	public static function getTableName()

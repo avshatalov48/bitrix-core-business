@@ -241,7 +241,7 @@ if($arID = $lAdmin->GroupAction())
 			$shipments[$arResult['ORDER_ID']] = array();
 		$shipments[$arResult['ORDER_ID']][] = $arResult['ID'];
 	}
-	
+
 
 	foreach ($shipments as $orderId => $ids)
 	{
@@ -505,7 +505,7 @@ while ($shipment = $dbResultList->Fetch())
 		{
 			$color = "background:rgba(".$colorRGB[0].",".$colorRGB[1].",".$colorRGB[2].",0.6);";
 			$status = '<div style=	"'.$color.'
-										margin: 0 0 0 -16px;
+										margin: -11px 0 -10px -16px;
 										padding: 11px 0 10px 16px;
 										min-height: 100%;
 									">'.htmlspecialcharsbx($shipment['STATUS_NAME'])."</div>";

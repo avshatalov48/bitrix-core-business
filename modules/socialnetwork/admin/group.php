@@ -22,7 +22,7 @@ $arHeaders = array(
 	array("id"=>"ID", "content"=>"ID", "sort"=>"ID", "default"=>true),
 	array("id"=>"NAME", "content"=>GetMessage("SONET_GROUP_NAME"), "sort"=>"NAME", "default"=>true),
 	array("id"=>"SUBJECT_ID", "content"=>GetMessage('SONET_GROUP_SUBJECT_ID'), "sort"=>"SUBJECT_ID", "default"=>true),
-	array("id"=>"OWNER_ID", "content"=>GetMessage('SONET_GROUP_OWNER_ID'), "sort"=>"OWNER_ID", "default"=>true),	
+	array("id"=>"OWNER_ID", "content"=>GetMessage('SONET_GROUP_OWNER_ID'), "sort"=>"OWNER_ID", "default"=>true),
 );
 
 $oSort = new CAdminSorting($sTableID, "ID", "asc");
@@ -33,7 +33,7 @@ $arFilterFields = array(
 	"filter_subject_id",
 	"filter_name",
 	"filter_owner_id",
-	"filter_owner_user",	
+	"filter_owner_user",
 );
 
 $lAdmin->InitFilter($arFilterFields);
@@ -55,18 +55,18 @@ if ($lAdmin->EditAction() && $socialnetworkModulePermissions >= "W")
 	$arOwnerOld = array();
 	$arGroupID = array_keys($FIELDS);
 	if (
-		is_array($arGroupID) 
+		is_array($arGroupID)
 		&& !empty($arGroupID)
 	)
 	{
 		$dbRelation = CSocNetUserToGroup::GetList(
-			array(), 
+			array(),
 			array(
 				"GROUP_ID" => $arGroupID,
 				"ROLE" => SONET_ROLES_OWNER
-			), 
-			false, 
-			false, 
+			),
+			false,
+			false,
 			array("ID", "GROUP_ID", "USER_ID")
 		);
 		while ($arRelation = $dbRelation->Fetch())
@@ -274,7 +274,7 @@ $dbSitesList = CSite::GetList();
 while ($arSite = $dbSitesList->Fetch())
 {
 	$dbSubjectsList = CSocNetGroupSubject::GetList(
-		Array("SORT" => "ASC", "ID" => "DESC"), 
+		Array("SORT" => "ASC", "ID" => "DESC"),
 		Array("SITE_ID" => $arSite["LID"])
 	);
 	while ($arSubject = $dbSubjectsList->Fetch())
@@ -290,6 +290,11 @@ while ($arSite = $dbSitesList->Fetch())
 
 while ($arGroup = $dbResultList->NavNext(true, "f_"))
 {
+	if (!empty($arGroup['NAME']))
+	{
+		$arGroup['NAME'] = \Bitrix\Main\Text\Emoji::decode($arGroup['NAME']);
+	}
+
 	$arMembers = array();
 
 	$arResult["Users"] = false;
@@ -330,7 +335,7 @@ while ($arGroup = $dbResultList->NavNext(true, "f_"))
 	}
 
 	$row->AddSelectField("SUBJECT_ID", $arSubjectsBySite[$subjectSiteID], array());
-	$row->AddSelectField("OWNER_ID", $arMembers, array());	
+	$row->AddSelectField("OWNER_ID", $arMembers, array());
 
 	$arActions = Array();
 	if ($socialnetworkModulePermissions >= "U")

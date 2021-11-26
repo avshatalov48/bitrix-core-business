@@ -48,6 +48,7 @@ class Item implements \JsonSerializable
 	protected $customData;
 	protected $captionOptions;
 	protected $badgesOptions;
+	protected $avatarOptions;
 
 	protected $sort;
 	protected $contextSort;
@@ -88,6 +89,11 @@ class Item implements \JsonSerializable
 		if (isset($options['avatar']) && is_string($options['avatar']))
 		{
 			$this->setAvatar($options['avatar']);
+		}
+
+		if (isset($options['avatarOptions']) && is_array($options['avatarOptions']))
+		{
+			$this->setAvatarOptions($options['avatarOptions']);
 		}
 
 		if (isset($options['textColor']) && is_string($options['textColor']))
@@ -306,6 +312,26 @@ class Item implements \JsonSerializable
 		}
 
 		return $this;
+	}
+
+	public function setAvatarOptions(array $avatarOptions): self
+	{
+		$this->getAvatarOptions()->setValues($avatarOptions);
+
+		return $this;
+	}
+
+	/**
+	 * @return Dictionary
+	 */
+	public function getAvatarOptions(): Dictionary
+	{
+		if ($this->avatarOptions === null)
+		{
+			$this->avatarOptions = new Dictionary();
+		}
+
+		return $this->avatarOptions;
 	}
 
 	public function getTextColor(): ?string
@@ -705,6 +731,11 @@ class Item implements \JsonSerializable
 		if ($this->isHidden())
 		{
 			$json['hidden'] = true;
+		}
+
+		if ($this->avatarOptions !== null && $this->getAvatarOptions()->count() > 0)
+		{
+			$json['avatarOptions'] = $this->getAvatarOptions()->getValues();
 		}
 
 		if ($this->captionOptions !== null && $this->getCaptionOptions()->count() > 0)

@@ -15,7 +15,7 @@ if (isset($_REQUEST["is"]))
 	$ImageSize = intval($_REQUEST["is"]);
 else
 	$ImageSize = 0;
-	
+
 if ($ImageSize <= 0)
 	$ImageSize = 42;
 
@@ -41,7 +41,7 @@ if(
 		define('PUBLIC_AJAX_MODE', true);
 	}
 
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");		
+	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
 	die();
 }
 
@@ -61,26 +61,26 @@ if(CModule::IncludeModule("socialnetwork"))
 {
 	$userID = intval($_REQUEST["user_id"]);
 	$mptr = Trim($_REQUEST["mptr"]);
-	
+
 	if(isset($_REQUEST["log"]))
-		$log = Trim($_REQUEST["log"]);	
+		$log = Trim($_REQUEST["log"]);
 	else
 		$log = "N";
 
 	$arParams["PATH_TO_USER"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["up"]));
 	$arParams["PATH_TO_GROUP"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["gp"]));
 	$arParams["PATH_TO_MESSAGE_FORM_MESS"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["mpm"]));
-		
+
 	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
-			
+
 	if (trim($_REQUEST["nt"]) <> '')
 		$arParams["NAME_TEMPLATE"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["nt"]));
 	else
 		$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 
 	$arParams["TITLE_NAME_TEMPLATE"] = str_replace(
-		array("#NOBR#", "#/NOBR#"), 
-		array("", ""), 
+		array("#NOBR#", "#/NOBR#"),
+		array("", ""),
 		$arParams["NAME_TEMPLATE"]
 	);
 
@@ -88,7 +88,7 @@ if(CModule::IncludeModule("socialnetwork"))
 		$bUseLogin = false;
 	else
 		$bUseLogin = true;
-		
+
 	$arData = array();
 
 	if (!$GLOBALS["USER"]->IsAuthorized())
@@ -121,10 +121,10 @@ if(CModule::IncludeModule("socialnetwork"))
 		if (intval($last_message_ts) > 0)
 		{
 			$last_message_ts += CTimeZone::GetOffset();
-			
+
 			$bGet = false;
 			// get all new (from UserOption) messages of all types
-			
+
 			$arFilter = array(
 				"SECOND_USER_ID" => $GLOBALS["USER"]->GetID(),
 				"RELATION" => SONET_RELATIONS_REQUEST,
@@ -140,7 +140,7 @@ if(CModule::IncludeModule("socialnetwork"))
 			);
 			if ($arUserRequests = $dbUserRequests->Fetch())
 				$bGet = true;
-				
+
 			if (!$bGet)
 			{
 				$arFilter = array(
@@ -160,7 +160,7 @@ if(CModule::IncludeModule("socialnetwork"))
 				if ($arUserRequests = $dbUserRequests->Fetch())
 					$bGet = true;
 			}
-			
+
 			if (!$bGet)
 			{
 				$arFilter = array(
@@ -169,7 +169,7 @@ if(CModule::IncludeModule("socialnetwork"))
 						"TO_DELETED" => "N",
 						">DATE_CREATE" => ConvertTimeStamp($last_message_ts, "FULL", $site)
 					);
-					
+
 				if ($log == "Y")
 					$arFilter["IS_LOG_ALL"] = "Y";
 
@@ -184,14 +184,14 @@ if(CModule::IncludeModule("socialnetwork"))
 					$bGet = true;
 			}
 		}
-		
+
 		if ($bGet)
 		{
 			$arFilter = array(
 				"SECOND_USER_ID" => $GLOBALS["USER"]->GetID(),
 				"RELATION" => SONET_RELATIONS_REQUEST
 			);
-				
+
 			$dbUserRequests = CSocNetUserRelations::GetList(
 				array("DATE_UPDATE" => "ASC"),
 				$arFilter,
@@ -235,13 +235,13 @@ if(CModule::IncludeModule("socialnetwork"))
 							BX_RESIZE_IMAGE_EXACT,
 							false
 						);
-						$arTmpData["IMAGE_USER"] = $arFileTmp["src"];			
+						$arTmpData["IMAGE_USER"] = $arFileTmp["src"];
 					}
 				}
 
 				$arTmpData["ID"] = $arUserRequests["ID"];
 				$arTmpData["ID_USER"] = $arUserRequests["FIRST_USER_ID"];
-					
+
 				$arTmpUser = array(
 					"NAME" => $arUserRequests["~FIRST_USER_NAME"],
 					"LAST_NAME" => $arUserRequests["~FIRST_USER_LAST_NAME"],
@@ -314,7 +314,7 @@ if(CModule::IncludeModule("socialnetwork"))
 				"ROLE" => SONET_ROLES_REQUEST,
 				"INITIATED_BY_TYPE" => SONET_INITIATED_BY_GROUP,
 			);
-				
+
 			$dbUserRequests = CSocNetUserToGroup::GetList(
 				array("DATE_CREATE" => "ASC"),
 				$arFilter,
@@ -324,6 +324,11 @@ if(CModule::IncludeModule("socialnetwork"))
 			);
 			while ($arUserRequests = $dbUserRequests->GetNext())
 			{
+				if (!empty($arUserRequests['GROUP_NAME']))
+				{
+					$arUserRequests['GROUP_NAME'] = \Bitrix\Main\Text\Emoji::decode($arUserRequests['GROUP_NAME']);
+				}
+
 				$arTmpData = array();
 				$arTmpData["TYPE"] = "GR";
 
@@ -359,7 +364,7 @@ if(CModule::IncludeModule("socialnetwork"))
 							BX_RESIZE_IMAGE_EXACT,
 							false
 						);
-						$arTmpData["IMAGE_USER"] = $arFileTmp["src"];			
+						$arTmpData["IMAGE_USER"] = $arFileTmp["src"];
 					}
 				}
 
@@ -382,7 +387,7 @@ if(CModule::IncludeModule("socialnetwork"))
 							BX_RESIZE_IMAGE_EXACT,
 							false
 						);
-						$arTmpData["IMAGE_GROUP"] = $arFileTmp["src"];			
+						$arTmpData["IMAGE_GROUP"] = $arFileTmp["src"];
 					}
 				}
 
@@ -395,7 +400,7 @@ if(CModule::IncludeModule("socialnetwork"))
 					"SECOND_NAME" => $arUserRequests["~INITIATED_BY_USER_SECOND_NAME"],
 					"LOGIN" => $arUserRequests["~INITIATED_BY_USER_LOGIN"]
 				);
-				$arTmpData["NAME_USER"] = CUser::FormatName($arParams["NAME_TEMPLATE"], $arTmpUser, $bUseLogin);					
+				$arTmpData["NAME_USER"] = CUser::FormatName($arParams["NAME_TEMPLATE"], $arTmpUser, $bUseLogin);
 				$arTmpData["NAME_USER_TITLE"] = CUser::FormatName($arParams["TITLE_NAME_TEMPLATE"], $arTmpUser, $bUseLogin);
 				$arTmpData["URL_USER"] = $pu;
 				$arTmpData["CAN_VIEW_USER"] = ($canViewProfileU ? "Y" : "N");
@@ -512,20 +517,20 @@ if(CModule::IncludeModule("socialnetwork"))
 							BX_RESIZE_IMAGE_EXACT,
 							false
 						);
-						$arTmpData["IMAGE_USER"] = $arFileTmp["src"];			
+						$arTmpData["IMAGE_USER"] = $arFileTmp["src"];
 					}
 				}
 
 				$arTmpData["ID"] = $arUserRequests["ID"];
 				$arTmpData["ID_USER"] = $arUserRequests["FROM_USER_ID"];
-					
+
 				$arTmpUser = array(
 					"NAME" => $arUserRequests["~FROM_USER_NAME"],
 					"LAST_NAME" => $arUserRequests["~FROM_USER_LAST_NAME"],
 					"SECOND_NAME" => $arUserRequests["~FROM_USER_SECOND_NAME"],
 					"LOGIN" => $arUserRequests["~FROM_USER_LOGIN"]
 				);
-				$arTmpData["NAME_USER"] = CUser::FormatName($arParams["NAME_TEMPLATE"], $arTmpUser, $bUseLogin);	
+				$arTmpData["NAME_USER"] = CUser::FormatName($arParams["NAME_TEMPLATE"], $arTmpUser, $bUseLogin);
 				$arTmpData["NAME_USER_TITLE"] = CUser::FormatName($arParams["TITLE_NAME_TEMPLATE"], $arTmpUser, $bUseLogin);
 				$arTmpData["URL_USER"] = $pu;
 				$arTmpData["CAN_VIEW_USER"] = ($canViewProfile ? "Y" : "N");
@@ -567,7 +572,7 @@ if(CModule::IncludeModule("socialnetwork"))
 							"NL2BR" => "N"
 						)
 					);
-					
+
 				$arTmpData["MESSAGE"] = str_replace("#BR#", "<br />", $arTmpData["MESSAGE"]);
 
 				$arTmpData["URL_MESSAGE"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_MESSAGE_FORM_MESS"], array("user_id" => $arUserRequests["FROM_USER_ID"], "message_id" => $arUserRequests["ID"]));
@@ -622,7 +627,7 @@ if(CModule::IncludeModule("socialnetwork"))
 		$ts_b = $DB->CharToDateFunction($b["DATE"], "FULL", $tmpSite);
 
 
-		if ($ts_a == $ts_b) 
+		if ($ts_a == $ts_b)
 		{
 			return 0;
 		}

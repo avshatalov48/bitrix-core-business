@@ -135,10 +135,12 @@ export default class SkuProperty
 			{
 				if (this.property.SHOW_MODE === 'PICT')
 				{
+					Dom.addClass(skuList, 'product-item-scu-list--pick-color');
 					node = this.renderPictureSku(propertyValue, uniqueId);
 				}
 				else
 				{
+					Dom.addClass(skuList, 'product-item-scu-list--pick-size');
 					node = this.renderTextSku(propertyValue, uniqueId);
 				}
 

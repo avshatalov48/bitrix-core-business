@@ -1,5 +1,11 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Text\Emoji;
 
 if (!isset($arParams["CACHE_TIME"]))
 	$arParams["CACHE_TIME"] = 3600;
@@ -56,6 +62,15 @@ if ($arParams["FILTER_MY"] != "Y")
 		$arResult["Groups"] = array();
 		while ($arGroup = $dbGroups->GetNext())
 		{
+			if (!empty($arGroup['NAME']))
+			{
+				$arGroup['NAME'] = Emoji::decode($arGroup['NAME']);
+			}
+			if (!empty($arGroup['DESCRIPTION']))
+			{
+				$arGroup['DESCRIPTION'] = Emoji::decode($arGroup['DESCRIPTION']);
+			}
+
 			$arGroup["GROUP_URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP"], array("group_id" => $arGroup["ID"]));
 
 			if (intval($arGroup["IMAGE_ID"]) <= 0)
@@ -108,8 +123,8 @@ else
 			"IMAGE_IMG" => $arGroup["IMAGE_IMG"],
 			"FULL_DATE_CHANGE_FORMATED" => $arGroup["FULL_DATE_CHANGE_FORMATED"],
 			"ID" => $arGroup["GROUP_ID"],
-			"NAME" => $arGroup["GROUP_NAME"],
-			"DESCRIPTION" => $arGroup["GROUP_DESCRIPTION"],
+			"NAME" => Emoji::decode($arGroup["GROUP_NAME"]),
+			"DESCRIPTION" => Emoji::decode($arGroup["GROUP_DESCRIPTION"]),
 			"IMAGE_ID" => $arGroup["GROUP_IMAGE_ID"],
 			"DATE_ACTIVITY" => $arGroup["GROUP_DATE_ACTIVITY"],
 		);

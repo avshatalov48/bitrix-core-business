@@ -1,4 +1,5 @@
 <?php
+
 define('NO_KEEP_STATISTIC', 'Y');
 define('NO_AGENT_STATISTIC','Y');
 define('NO_AGENT_CHECK', true);
@@ -22,8 +23,14 @@ if (!check_bitrix_sessid() || !CModule::IncludeModule('bizproc'))
 	die();
 }
 
-$componentData = isset($_REQUEST['PARAMS']) && is_array($_REQUEST['PARAMS']) ? $_REQUEST['PARAMS'] : array();
-$componentParams = isset($componentData['params']) && is_array($componentData['params']) ? $componentData['params'] : array();
+$componentData = isset($_REQUEST['PARAMS']) && is_array($_REQUEST['PARAMS']) ? $_REQUEST['PARAMS'] : [];
+$params = isset($componentData['params']) && is_array($componentData['params']) ? $componentData['params'] : [];
+
+$componentParams = [];
+$componentParams['MODULE_ID'] = $params['MODULE_ID'] ?? null;
+$componentParams['ENTITY'] = $params['ENTITY'] ?? null;
+$componentParams['DOCUMENT_TYPE'] = $params['DOCUMENT_TYPE'] ?? null;
+$componentParams['DOCUMENT_ID'] = $params['DOCUMENT_ID'] ?? null;
 
 //For custom reload with params
 $ajaxLoaderParams = array(
@@ -42,9 +49,10 @@ $componentParams['AJAX_MODE'] = 'Y';
 $componentParams['AJAX_OPTION_JUMP'] = 'N';
 $componentParams['AJAX_OPTION_HISTORY'] = 'N';
 $componentParams['AJAX_LOADER'] = $ajaxLoaderParams;
+$componentParams['LAZYLOAD'] = 'Y';
 
 $APPLICATION->IncludeComponent('bitrix:bizproc.document',
-	isset($componentData['template']) ? $componentData['template'] : '',
+	$componentData['template'] ?? '',
 	$componentParams,
 	false,
 	array('HIDE_ICONS' => 'Y', 'ACTIVE_COMPONENT'=>'Y')

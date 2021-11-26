@@ -7,6 +7,7 @@ import TagItem from './tag-item';
 import type { TagSelectorOptions } from './tag-selector-options';
 import type { ItemOptions } from '../item/item-options';
 import type { TagItemOptions } from './tag-item-options';
+import type { AvatarOptions } from '../item/avatar-options';
 
 /**
  * @memberof BX.UI.EntitySelector
@@ -36,6 +37,7 @@ export default class TagSelector extends EventEmitter
 	textBoxOldValue = '';
 
 	tagAvatar: ?string = null;
+	tagAvatarOptions: ?AvatarOptions = null;
 	tagTextColor: ?string = null;
 	tagBgColor: ?string = null;
 	tagFontWeight: ?string = null;
@@ -68,6 +70,7 @@ export default class TagSelector extends EventEmitter
 		this.setMaxHeight(options.maxHeight);
 
 		this.setTagAvatar(options.tagAvatar);
+		this.setTagAvatarOptions(options.tagAvatarOptions);
 		this.setTagMaxWidth(options.tagMaxWidth);
 		this.setTagTextColor(options.tagTextColor);
 		this.setTagBgColor(options.tagBgColor);
@@ -538,6 +541,45 @@ export default class TagSelector extends EventEmitter
 		{
 			this.tagAvatar = tagAvatar;
 			this.updateTags();
+		}
+	}
+
+	getTagAvatarOptions(): ?AvatarOptions
+	{
+		return this.tagAvatarOptions;
+	}
+
+	getTagAvatarOption(option: $Keys<AvatarOptions>): string | boolean | number | null
+	{
+		if (this.tagAvatarOptions !== null && !Type.isUndefined(this.tagAvatarOptions[option]))
+		{
+			return this.tagAvatarOptions[option];
+		}
+
+		return null;
+	}
+
+	setTagAvatarOption(option: $Keys<AvatarOptions>, value: string | boolean | number | null): void
+	{
+		if (Type.isStringFilled(option) && !Type.isUndefined(value))
+		{
+			if (this.tagAvatarOptions === null)
+			{
+				this.tagAvatarOptions = {};
+			}
+
+			this.tagAvatarOptions[option] = value;
+			this.updateTags();
+		}
+	}
+
+	setTagAvatarOptions(options: AvatarOptions): void
+	{
+		if (Type.isPlainObject(options))
+		{
+			Object.keys(options).forEach((option: string) => {
+				this.setTagAvatarOption(option, options[option]);
+			});
 		}
 	}
 

@@ -1,5 +1,10 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
@@ -24,15 +29,14 @@ $arParams['MOBILE'] = (
 );
 
 if (
-	$arParams['MOBILE'] == 'Y'
-	&& $arResult['COMMENT'] == 'Y'
+	$arParams['MOBILE'] === 'Y'
+	&& $arResult['COMMENT'] === 'Y'
 )
 {
 	$arParams['REACTIONS_LIST'] = (
-		is_array($arParams['REACTIONS_LIST'])
+		isset($arParams['REACTIONS_LIST'])
+		&& is_array($arParams['REACTIONS_LIST'])
 			? array_reverse($arParams['REACTIONS_LIST'], true)
 			: array()
 	);
 }
-
-?>

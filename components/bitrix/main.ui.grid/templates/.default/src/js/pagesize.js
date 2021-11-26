@@ -13,7 +13,12 @@
 		init: function(parent)
 		{
 			this.parent = parent;
-			BX.addCustomEvent('Dropdown::change', BX.delegate(this.onChange, this));
+			BX.addCustomEvent('Dropdown::change', BX.proxy(this.onChange, this));
+		},
+
+		destroy: function()
+		{
+			BX.removeCustomEvent('Dropdown::change', BX.proxy(this.onChange, this));
 		},
 
 		onChange: function(id, event, item, dataValue, value)

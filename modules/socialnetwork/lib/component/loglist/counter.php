@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Component\LogList;
 
 class Counter
@@ -157,6 +158,7 @@ class Counter
 		}
 
 		$counters = \CUserCounter::getValues($result['currentUserId'], SITE_ID);
+
 		if (isset($counters['BLOG_POST_IMPORTANT']))
 		{
 			$result['LOG_COUNTER_IMPORTANT'] = (int)$counters['BLOG_POST_IMPORTANT'];
@@ -173,4 +175,3 @@ class Counter
 		}
 	}
 }
-?>

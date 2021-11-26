@@ -618,7 +618,7 @@ class CBlogPost extends CAllBlogPost
 			"DATE_PUBLISH" => array("FIELD" => "P.DATE_PUBLISH", "TYPE" => "datetime"),
 			"KEYWORDS" => array("FIELD" => "P.KEYWORDS", "TYPE" => "string"),
 			"PUBLISH_STATUS" => array("FIELD" => "P.PUBLISH_STATUS", "TYPE" => "string"),
-			"ATRIBUTE" => array("FIELD" => "P.ATRIBUTE", "TYPE" => "string"),
+			"ATRIBUTE" => array("FIELD" => "P.ATRIBUTE", "TYPE" => "string"),   /* deprecated. Not using nowhere */
 			"ATTACH_IMG" => array("FIELD" => "P.ATTACH_IMG", "TYPE" => "int"),
 			"ENABLE_TRACKBACK" => array("FIELD" => "P.ENABLE_TRACKBACK", "TYPE" => "string"),
 			"ENABLE_COMMENTS" => array("FIELD" => "P.ENABLE_COMMENTS", "TYPE" => "string"),

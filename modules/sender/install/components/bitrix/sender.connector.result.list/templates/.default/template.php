@@ -130,7 +130,7 @@ $containerId = 'bx-sender-connector-result-list';
 	BX.ready(function() {
 		setTimeout(function(){
 			BX.UI.Notification.Center.notify({
-				content: '<?=Loc::getMessage('SENDER_CONNECTOR_RESULT_LOADING_IN_PROGRESS')?>',
+				content: '<?=CUtil::JSEscape(htmlspecialcharsbx(Loc::getMessage('SENDER_CONNECTOR_RESULT_LOADING_IN_PROGRESS')))?>',
 				position: 'top-right',
 				autoHideDelay: 10000,
 			});

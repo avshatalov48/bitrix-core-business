@@ -29,7 +29,7 @@
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-g-assistant.svg);}.ui-icon-service-crm>i{--ui-icon-service-bg-color:#11bff5;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-crm.svg); }
 
 .ui-icon-service-light-crm > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-crm.svg);}.ui-icon-service-livechat>i{--ui-icon-service-bg-color:#ffa900;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-livechat.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-crm.svg);}.ui-icon-service-livechat>i{--ui-icon-service-bg-color:#ffa900;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-livechat.svg);}.ui-icon-service-livechat-24>i{--ui-icon-service-bg-color:#2ec0ee;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-livechat-24.svg); }
 
 .ui-icon-service-light-livechat > i {
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-livechat.svg);}.ui-icon-service-bitrix24-sms>i{--ui-icon-service-bg-color:#1ec6fa;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-bitrix24-sms.svg); }
@@ -195,7 +195,10 @@
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-deal.svg);}.ui-icon-service-lead>i{--ui-icon-service-bg-color:#349ed0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-lead.svg); }
 
 .ui-icon-service-light-lead > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-lead.svg);}.ui-icon-service-whatsapp>i{--ui-icon-service-bg-color:#01e675;background-size:30px;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-whatsapp.svg);}.ui-icon-service-light-whatsapp>i{background-size:30px;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-whatsapp.svg);}.ui-icon-service-wechat>i{--ui-icon-service-bg-color:#2ec100;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-wechat.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-lead.svg);}.ui-icon-service-whatsapp>i{--ui-icon-service-bg-color:#01e675;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-whatsapp.svg?v=2); }
+
+.ui-icon-service-light-whatsapp > i {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-whatsapp.svg?v=2);}.ui-icon-service-wechat>i{--ui-icon-service-bg-color:#2ec100;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-wechat.svg); }
 
 .ui-icon-service-light-wechat > i {
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-wechat.svg);}.ui-icon-service-avito>i{--ui-icon-service-bg-color:#0af;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-avito.svg); }

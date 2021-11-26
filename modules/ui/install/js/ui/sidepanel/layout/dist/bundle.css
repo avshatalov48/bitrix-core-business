@@ -6,8 +6,7 @@
 	-webkit-box-direction: normal;
 	    -ms-flex-direction: column;
 	        flex-direction: column;
-	height: 100%;
-	overflow-y: auto;
+	min-height: 100%;
 }
 
 
@@ -44,6 +43,8 @@
 	overflow: hidden;
 	-o-text-overflow: ellipsis;
 	   text-overflow: ellipsis;
+	-webkit-box-sizing: initial;
+	        box-sizing: initial;
 }
 .ui-sidepanel-layout-toolbar {
 	display: -webkit-box;
@@ -80,6 +81,10 @@
 
 .ui-sidepanel-layout-content-fill-height {
 	min-height: calc(100% - 65px);
+}
+
+.ui-sidepanel-layout-footer-anchor {
+	padding: 20px;
 }
 
 .ui-sidepanel-layout-footer {

@@ -139,7 +139,7 @@ class CatalogProductVariationDetailsComponent
 			{
 				$description = $fields[$name.'_descr'] ?? null;
 				$delete = $fields[$name.'_del'] ?? false;
-				$fields[$name] = \CAllIBlock::makeFileArray($fields[$name], $delete, $description);
+				$fields[$name] = \CIBlock::makeFileArray($fields[$name], $delete, $description);
 				unset($fields[$name.'_descr'], $fields[$name.'_del']);
 			}
 		}

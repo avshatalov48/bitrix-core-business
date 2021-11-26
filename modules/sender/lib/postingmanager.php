@@ -16,6 +16,7 @@ use Bitrix\Sender\Entity;
 use Bitrix\Sender\Integration\Seo\Ads\MessageMarketingFb;
 use Bitrix\Sender\Posting\ThreadStrategy\IThreadStrategy;
 use Bitrix\Sender\Posting\ThreadStrategy\ThreadStrategyContext;
+use function MongoDB\BSON\fromPHP;
 
 Loc::loadMessages(__FILE__);
 
@@ -351,13 +352,24 @@ class PostingManager
 				break;
 		}
 
-		if ($result === static::SEND_RESULT_CONTINUE && $sender->isTransportLimitsExceeded())
+		$limiter = $sender->getExceededLimiter();
+		if ($result === static::SEND_RESULT_CONTINUE && $limiter)
 		{
-			// update planned date only with timed limit
-			$limiters = $letter->getMessage()
-							->getTransport()
-							->getLimiters($letter->getMessage());
-			if (!empty($limiters) && current($limiters)->getUnit())
+			// update planned date only with timed limit;
+
+			if ($limiter->getParameter('sendingStart'))
+			{
+				$currentTime = $limiter->getParameter('currentTime');
+				$sendingStart = $limiter->getParameter('sendingStart');
+				$sendingStartDate = (new \DateTime())->setTimestamp($sendingStart);
+
+				$sendingStartDate = $currentTime > $sendingStart
+					? $sendingStartDate->add(\DateInterval::createFromDateString('1 day'))
+					: $sendingStartDate;
+
+				$date = Type\DateTime::createFromPhp($sendingStartDate);
+			}
+			elseif ($limiter->getUnit())
 			{
 				$date = new Type\Date();
 				$date->add('1 day');
@@ -367,6 +379,7 @@ class PostingManager
 				$date = new Type\DateTime();
 				$date->add('2 minute');
 			}
+
 			$letter->getState()->updatePlannedDateSend($date);
 		}
 

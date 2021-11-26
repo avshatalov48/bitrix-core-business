@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Forum;
 
+use Bitrix\Forum;
 use Bitrix\Main;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
@@ -42,6 +43,19 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Forum
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_User_Query query()
+ * @method static EO_User_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_User_Result getById($id)
+ * @method static EO_User_Result getList(array $parameters = array())
+ * @method static EO_User_Entity getEntity()
+ * @method static \Bitrix\Forum\EO_User createObject($setDefaultValues = true)
+ * @method static \Bitrix\Forum\EO_User_Collection createCollection()
+ * @method static \Bitrix\Forum\EO_User wakeUpObject($row)
+ * @method static \Bitrix\Forum\EO_User_Collection wakeUpCollection($rows)
  */
 class UserTable extends Main\Entity\DataManager
 {
@@ -305,7 +319,7 @@ class User implements \ArrayAccess {
 			}
 			else
 			{
-				throw new Main\ArgumentException("User was not found.");
+				throw new Main\ObjectNotFoundException("User was not found.");
 			}
 			$this->data = $user;
 			$this->data["NAME"] = $user["NAME"];
@@ -463,7 +477,7 @@ class User implements \ArrayAccess {
 		return $result;
 	}
 
-	public function calcStatistic()
+	public function calculateStatistic()
 	{
 		$result = new Result();
 
@@ -506,7 +520,7 @@ class User implements \ArrayAccess {
 		$this->data["POINTS"] = \CForumUser::GetUserPoints($this->getId(), array("INCREMENT" => $this->data["NUM_POSTS"]));
 		$this->data["LAST_POST"] = $message["ID"];
 		$this->save([
-			"NUM_POSTS" => new \Bitrix\Main\DB\SqlExpression('?# + 1', "NUM_POSTS"),
+			"NUM_POSTS" => new Main\DB\SqlExpression('?# + 1', "NUM_POSTS"),
 			"POINTS" => $this->data["POINTS"],
 			"LAST_POST" => $message["ID"]
 		]);
@@ -514,7 +528,31 @@ class User implements \ArrayAccess {
 
 	public function decrementStatistic($message = null)
 	{
+		if (!$this->isAuthorized() || $message['APPROVED'] != 'Y')
+		{
+			return;
+		}
 
+		$this->data['NUM_POSTS']--;
+		$this->data['POINTS'] = \CForumUser::GetUserPoints($this->getId(), array('INCREMENT' => $this->data['NUM_POSTS']));
+		$fields = [
+			'NUM_POSTS' => new Main\DB\SqlExpression('?# - 1', 'NUM_POSTS'),
+			'POINTS' => $this->data['POINTS'],
+		];
+		if ($message === null ||
+			$message['ID'] === $this->data['LAST_POST']
+		)
+		{
+			$message = MessageTable::getList([
+				'select' => ['ID'],
+				'filter' => ['AUTHOR_ID' => $this->getId(), 'APPROVED' => 'Y'],
+				'limit' => 1,
+				'order' => ['ID' => 'DESC']
+			])->fetch();
+			$this->data['LAST_POST'] = $message['ID'];
+			$fields['LAST_POST'] =  $message['ID'];
+		}
+		$this->save($fields);
 	}
 
 	/**
@@ -539,7 +577,8 @@ class User implements \ArrayAccess {
 		$query = MessageTable::query()
 			->setSelect(['ID'])
 			->where('TOPIC_ID', $topic->getId())
-			->setOrder(['ID' => 'ASC'])
+			->registerRuntimeField('FORCED_INT_ID', new Main\Entity\ExpressionField('FORCED_ID', '%s + ""', ['ID']))
+			->setOrder(['FORCED_INT_ID' => 'ASC'])
 			->setLimit(1);
 		if ($this->isAuthorized())
 		{
@@ -687,6 +726,59 @@ class User implements \ArrayAccess {
 		else
 		{
 			$timestamp = new DateTime();
+			$this->saveInSession('GUEST_TID', null);
+
+			if (Main\Config\Option::set('forum', 'USE_COOKIE', 'N') == 'Y')
+			{
+				$GLOBALS['APPLICATION']->set_cookie('FORUM_GUEST_TID', '', false, '/', false, false, 'Y', false);
+			}
+		}
+	}
+
+	public function readTopicsOnForum(int $forumId = 0)
+	{
+		if ($this->isAuthorized())
+		{
+			$connection = Main\Application::getConnection();
+			$helper = $connection->getSqlHelper();
+
+			$primaryFields = [
+				'USER_ID' => $this->getId(),
+				'FORUM_ID' => $forumId
+			];
+
+			$fields = [
+				'LAST_VISIT' => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
+			];
+
+			$result = Forum\UserForumTable::update($primaryFields, $fields);
+			if ($result->getAffectedRowsCount() <= 0)
+			{
+				$merge = $helper->prepareMerge(
+					Forum\UserForumTable::getTableName(),
+					array_keys($primaryFields),
+					$primaryFields + $fields,
+					$fields
+				);
+				if ($merge[0] != '')
+				{
+					$connection->query($merge[0]);
+				}
+			}
+
+			if ($forumId > 0)
+			{
+				Forum\UserTopicTable::deleteBatch(['USER_ID' => $this->getId(), 'FORUM_ID' => $forumId]);
+			}
+			else
+			{
+				Forum\UserTopicTable::deleteBatch(['USER_ID' => $this->getId()]);
+				Forum\UserForumTable::deleteBatch(['USER_ID' => $this->getId(), '>FORUM_ID' => 0]);
+			}
+		}
+		else
+		{
+			$timestamp = new DateTime();
 			$topics = $this->saveInSession('GUEST_TID', [$topic->getId() => $timestamp->getTimestamp()]);
 
 			if (Main\Config\Option::set('forum', 'USE_COOKIE', 'N') == 'Y')
@@ -715,10 +807,17 @@ class User implements \ArrayAccess {
 		}
 		else
 		{
+			$fields = ['USER_ID' => $this->getId()] + $fields + $this->data;
+			unset($fields['ID']);
 			$result = User::add($fields);
 			if ($result->isSuccess())
 			{
-				$this->forumUserId = $result->getPrimary();
+				$res = $result->getPrimary();
+				if (is_array($res))
+				{
+					$res = reset($res);
+				}
+				$this->forumUserId = $res;
 			}
 		}
 		return $result;
@@ -763,14 +862,14 @@ class User implements \ArrayAccess {
 
 	public function setPermissionOnForum($forum, $permission)
 	{
-		$forum = Forum::getInstance($forum);
+		$forum = Forum\Forum::getInstance($forum);
 		$this->permissions[$forum->getId()] = $permission;
 		return $this;
 	}
 
 	public function getPermissionOnForum($forum)
 	{
-		$forum = Forum::getInstance($forum);
+		$forum = Forum\Forum::getInstance($forum);
 		if (!array_key_exists($forum->getId(), $this->permissions))
 		{
 			$this->permissions[$forum->getId()] = $forum->getPermissionForUser($this);
@@ -778,12 +877,12 @@ class User implements \ArrayAccess {
 		return $this->permissions[$forum->getId()];
 	}
 
-	public function canModerate(Forum $forum)
+	public function canModerate(Forum\Forum $forum)
 	{
 		return $this->getPermissionOnForum($forum->getId()) >= Permission::CAN_MODERATE;
 	}
 
-	public function canAddTopic(Forum $forum)
+	public function canAddTopic(Forum\Forum $forum)
 	{
 		return $this->getPermissionOnForum($forum->getId()) >= Permission::CAN_ADD_TOPIC;
 	}
@@ -848,17 +947,17 @@ class User implements \ArrayAccess {
 		return $this->canEditMessage($message);
 	}
 
-	public function canEditForum(Forum $forum)
+	public function canEditForum(Forum\Forum $forum)
 	{
 		return $this->getPermissionOnForum($forum->getId()) >= Permission::FULL_ACCESS;
 	}
 
-	public function canDeleteForum(Forum $forum)
+	public function canDeleteForum(Forum\Forum $forum)
 	{
 		return $this->canEditForum($forum);
 	}
 
-	public function canReadForum(Forum $forum)
+	public function canReadForum(Forum\Forum $forum)
 	{
 		return $this->getPermissionOnForum($forum->getId()) >= Permission::CAN_READ;
 	}

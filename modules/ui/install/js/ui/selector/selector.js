@@ -1903,10 +1903,9 @@ BX.UI.Selector.prototype.openTreeItem = function(params)
 
 BX.UI.Selector.prototype.getTreeItemRelation = function(params)
 {
-	var
-		categoryId = params.categoryId; // departmentId
+	var categoryId = params.categoryId; // departmentId
 
-	if (typeof this.treeItemLoaded[categoryId] != 'undefined')
+	if (!BX.type.isUndefined(this.treeItemLoaded[categoryId]))
 	{
 		return false;
 	}
@@ -1914,6 +1913,7 @@ BX.UI.Selector.prototype.getTreeItemRelation = function(params)
 	params.callback = this.getTreeItemRelationCallback.bind(this);
 	params.entityType = params.entityType.toUpperCase();
 	params.selectorId = this.id;
+	params.allowSearchSelf = (BX.type.isNotEmptyObject(this.entities['USERS']) && this.entities['USERS'].options.allowSearchSelf);
 
 	BX.onCustomEvent(this, 'BX.UI.SelectorManager:getTreeItemRelation', [ params ]);
 };

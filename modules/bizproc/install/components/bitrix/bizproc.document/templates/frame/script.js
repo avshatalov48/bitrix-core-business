@@ -38,7 +38,9 @@
 		{
 			this.initEventsApplyButton();
 			this.initStartButton();
+			this.initCompletedListButton();
 		},
+
 		renderWorkflows: function(workflows)
 		{
 			var list = this.getNode('workflows-list');
@@ -49,7 +51,7 @@
 			for (var i = 0; i < workflows.length; ++i)
 			{
 				list.appendChild(this.renderWorkflow(workflows[i]));
-				if (!hasEvents && workflows[i]['EVENTS'].length > 0)
+				if (!hasEvents && workflows[i]['EVENTS'] && workflows[i]['EVENTS'].length > 0)
 				{
 					hasEvents = true;
 				}
@@ -57,7 +59,33 @@
 
 			var eventsApplyContainer = this.getNode('events-apply-container');
 			BX[hasEvents? 'show' : 'hide'](eventsApplyContainer);
+
+			var wfListEmptyContainer = this.getNode('workflows-list-empty');
+			BX[workflows.length < 1 ? 'show' : 'hide'](wfListEmptyContainer);
 		},
+
+		renderCompletedWorkflows: function(workflows)
+		{
+			var list = this.getNode('workflows-list-completed');
+
+			for (var i = 0; i < workflows.length; ++i)
+			{
+				list.appendChild(this.renderWorkflow(workflows[i]));
+			}
+		},
+
+		prependCompletedWorkflows: function(workflows)
+		{
+			var list = this.getNode('workflows-list-completed');
+
+			workflows.forEach(function(wf) {
+				BX.prepend(
+					this.renderWorkflow(wf),
+					list
+				);
+			}, this);
+		},
+
 		renderWorkflow: function(workflow)
 		{
 			var i, tpl = this.createNodeFromTemplate('workflow');
@@ -81,7 +109,7 @@
 				BX.remove(killContainer);
 			}
 
-			if (workflow['TASKS'].length > 0)
+			if (workflow['TASKS'] && workflow['TASKS'].length > 0)
 			{
 				BX.addClass(tpl, tpl.getAttribute('data-class-tasks'));
 				var tasksList = this.getNode('tasks-container', tpl);
@@ -106,7 +134,7 @@
 				BX.remove(this.getNode('tasks-row', tpl));
 			}
 
-			if (workflow['EVENTS'].length > 0)
+			if (workflow['EVENTS'] && workflow['EVENTS'].length > 0)
 			{
 				var eventsSelect = this.getNode('events-select', tpl);
 				eventsSelect.setAttribute('workflow-id', workflow['ID']);
@@ -156,11 +184,36 @@
 					documentId: this.config.documentId
 				});
 
-				BX.addCustomEvent(Starter, 'onAfterStartWorkflow', this.reloadWorkflows.bind(this));
+				BX.addCustomEvent(Starter, 'onAfterStartWorkflow', this.onAfterStartWorkflow.bind(this));
 				BX.bind(button, 'click', this.onStartClick.bind(this, button, Starter));
 			}
 		},
 
+		onAfterStartWorkflow: function(event)
+		{
+			this.reloadWorkflows();
+
+			this.callAction(
+				'get_completed_workflow',
+				{offset: 0, workflowId: event.getData().workflow_id},
+				function(data)
+				{
+					if (data.workflow)
+					{
+						this.prependCompletedWorkflows([data.workflow]);
+					}
+				}.bind(this)
+			);
+		},
+
+		initCompletedListButton: function()
+		{
+			var button = this.getNode('btn-load-completed');
+			if (button)
+			{
+				BX.bind(button, 'click', this.onLoadCompletedClick.bind(this, button));
+			}
+		},
 
 		initWorkflowNode: function(node)
 		{
@@ -188,6 +241,8 @@
 			var me = this;
 			this.callAction('kill_workflow', {workflow_id: workflowId}, function(data)
 			{
+				BX.remove(workflowNode);
+
 				if (data.workflows)
 				{
 					me.renderWorkflows(data.workflows);
@@ -203,6 +258,11 @@
 				if (data.workflows)
 				{
 					me.renderWorkflows(data.workflows);
+				}
+
+				if (data.completedWorkflows)
+				{
+					me.prependCompletedWorkflows(data.completedWorkflows);
 				}
 			});
 		},
@@ -234,6 +294,10 @@
 					{
 						me.renderWorkflows(data.workflows);
 					}
+					if (data.completedWorkflows)
+					{
+						me.prependCompletedWorkflows(data.completedWorkflows);
+					}
 				});
 			}
 		},
@@ -242,6 +306,28 @@
 		{
 			e.preventDefault();
 			starter.showTemplatesMenu(button);
+		},
+
+		onLoadCompletedClick: function(button, e)
+		{
+			e.preventDefault();
+
+			var list = this.getNode('workflows-list-completed');
+			var offset = list.children.length;
+
+			this.callAction('get_completed_workflows', {offset: offset}, function(data)
+			{
+				if (data.workflows && data.workflows.length)
+				{
+					button.textContent = button.getAttribute('data-label-more');
+
+					this.renderCompletedWorkflows(data.workflows);
+				}
+				else
+				{
+					BX.UI.Dialogs.MessageBox.alert(BX.message('IBEL_BIZPROC_COMPLETED_WORKFLOWS_EMPTY'));
+				}
+			}.bind(this));
 		},
 
 		onTaskLinkClick: function(task, e)
@@ -306,7 +392,7 @@
 					}
 					else
 					{
-						window.alert(responce.errors.join('\n'));
+						BX.UI.Dialogs.MessageBox.alert(responce.errors.join('\n'));
 					}
 					me.hideWait();
 				},

@@ -22,6 +22,7 @@ $MESS["SONET_C30_MENU_TITLE_HREF"] = "Перейти к сообщению";
 $MESS["SONET_C30_MENU_TITLE_DELETE"] = "Удалить из Живой ленты";
 $MESS["SONET_C30_MENU_TITLE_DELETE2"] = "Удалить из ленты новостей";
 $MESS["SONET_C30_MENU_TITLE_CREATETASK"] = "Создать задачу";
+$MESS["SONET_C30_MENU_TITLE_CREATESUBTASK"] = "Создать подзадачу";
 $MESS["SONET_C30_MENU_TITLE_DELETE_CONFIRM"] = "Вы уверены, что хотите удалить запись и все её комментарии?";
 $MESS["SONET_C30_MENU_TITLE_DELETE_FAILURE"] = "Ошибка удаления записи";
 $MESS["SONET_C30_T_LINK_COPIED"] = "Ссылка скопирована";

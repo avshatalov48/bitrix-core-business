@@ -3,6 +3,7 @@
 namespace Bitrix\Socialnetwork;
 
 use Bitrix\Blog\Item\Post;
+use Bitrix\Disk\Driver;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main;
@@ -10,6 +11,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Update\Stepper;
+use Bitrix\Main\UrlPreview\UrlPreview;
 use Bitrix\Socialnetwork\Item\Log;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Application;
@@ -173,9 +175,9 @@ class ComponentHelper
 			$sonetPermission = \CBlogPost::getSocnetPermsName($postId);
 			if (!empty($sonetPermission))
 			{
-				foreach($sonetPermission as $typeCode => $type)
+				foreach ($sonetPermission as $typeCode => $type)
 				{
-					foreach($sonetPermission[$typeCode] as $userId => $destination)
+					foreach ($type as $destination)
 					{
 						$name = false;
 
@@ -188,7 +190,7 @@ class ComponentHelper
 						}
 						elseif ($typeCode === "U")
 						{
-							if(in_array("US".$destination["ENTITY_ID"], $destination["ENTITY"]))
+							if(in_array("US" . $destination["ENTITY_ID"], $destination["ENTITY"], true))
 							{
 								$name = "#ALL#";
 								Loader::includeModule('intranet');
@@ -235,7 +237,7 @@ class ComponentHelper
 	 * @throws Main\LoaderException
 	 * @throws Main\SystemException
 	*/
-	public static function getBlogAuthorData($authorId, $params)
+	public static function getBlogAuthorData($authorId, $params): array
 	{
 		if (isset(self::$authorsCache[$authorId]))
 		{
@@ -296,7 +298,7 @@ class ComponentHelper
 	 * @throws Main\LoaderException
 	 * @throws Main\SystemException
 	*/
-	public static function getBlogCommentListData($postId, $params, $languageId, &$authorIdList = [])
+	public static function getBlogCommentListData($postId, $params, $languageId, &$authorIdList = []): array
 	{
 		if (isset(self::$commentListsCache[$postId]))
 		{
@@ -340,9 +342,9 @@ class ComponentHelper
 
 				$result[] = $comment;
 
-				if (!in_array($comment["AUTHOR_ID"], $authorIdList))
+				if (!in_array((int)$comment["AUTHOR_ID"], $authorIdList, true))
 				{
-					$authorIdList[] = $comment["AUTHOR_ID"];
+					$authorIdList[] = (int)$comment["AUTHOR_ID"];
 				}
 			}
 
@@ -455,7 +457,7 @@ class ComponentHelper
 	 * @param string $languageId Language Id (2-chars).
 	 * @param \blogTextParser $p TextParser object.
 	*/
-	private static function processCommentData(&$comment, $languageId, $p, $params = [])
+	private static function processCommentData(&$comment, $languageId, $p, $params = []): void
 	{
 		global $USER_FIELD_MANAGER;
 
@@ -487,7 +489,7 @@ class ComponentHelper
 				$commentUf = [ 'UF_BLOG_COMMENT_FILE' ];
 				foreach ($userFields as $fieldName => $userField)
 				{
-					if (!in_array($fieldName, $commentUf))
+					if (!in_array($fieldName, $commentUf, true))
 					{
 						unset($userFields[$fieldName]);
 					}
@@ -577,7 +579,7 @@ class ComponentHelper
 			);
 			if (is_array($urlRes))
 			{
-				list($replyTo, $backUrl) = $urlRes;
+				[ , $backUrl ] = $urlRes;
 
 				if ($backUrl)
 				{
@@ -597,7 +599,7 @@ class ComponentHelper
 	 * @return array
 	 * @throws Main\LoaderException
 	*/
-	public static function getAttachmentsData($valueList, $siteId = false)
+	public static function getAttachmentsData($valueList, $siteId = false): array
 	{
 		$result = [];
 
@@ -608,16 +610,13 @@ class ComponentHelper
 
 		if (
 			!$siteId
-			|| $siteId == ''
+			|| (string)$siteId === ''
 		)
 		{
 			$siteId = SITE_ID;
 		}
 
-		$driver = \Bitrix\Disk\Driver::getInstance();
-		$urlManager = $driver->getUrlManager();
-
-		foreach ($valueList as $key => $value)
+		foreach ($valueList as $value)
 		{
 			$attachedObject = AttachedObject::loadById($value, [ 'OBJECT' ]);
 			if(
@@ -628,7 +627,7 @@ class ComponentHelper
 				continue;
 			}
 
-			$attachedObjectUrl = $urlManager->getUrlUfController('show', [ 'attachedId' => $value ]);
+			$attachedObjectUrl = \Bitrix\Disk\UrlManager::getUrlUfController('show', [ 'attachedId' => $value ]);
 
 			$result[$value] = [
 				"ID" => $value,
@@ -654,7 +653,7 @@ class ComponentHelper
 	 * @return array
 	 * @throws Main\LoaderException
 	*/
-	public static function getAttachmentUrlList($valueList = [], $entityType = '', $entityId = 0, $authorId = 0, $attachmentList = [])
+	public static function getAttachmentUrlList($valueList = [], $entityType = '', $entityId = 0, $authorId = 0, $attachmentList = []): array
 	{
 		$result = [];
 
@@ -669,15 +668,15 @@ class ComponentHelper
 			return $result;
 		}
 
-		$userFieldManager = \Bitrix\Disk\Driver::getInstance()->getUserFieldManager();
-		list($connectorClass, $moduleId) = $userFieldManager->getConnectorDataByEntityType($entityType);
+		$userFieldManager = Driver::getInstance()->getUserFieldManager();
+		[ $connectorClass, $moduleId ] = $userFieldManager->getConnectorDataByEntityType($entityType);
 
 		foreach($valueList as $value)
 		{
 			$attachedFileId = false;
 			$attachedObject = false;
 
-			list($type, $realValue) = FileUserType::detectType($value);
+			[ $type, $realValue ] = FileUserType::detectType($value);
 			if ($type == FileUserType::TYPE_NEW_OBJECT)
 			{
 				$attachedObject = AttachedObject::load([
@@ -749,7 +748,7 @@ class ComponentHelper
 
 							$result[$value] = [
 								'TYPE' => 'image',
-								'URL' => \Bitrix\Disk\Driver::getInstance()->getUrlManager()->getUrlExternalLink(
+								'URL' => Driver::getInstance()->getUrlManager()->getUrlExternalLink(
 									[
 										'hash' => $externalLink->getHash(),
 										'action' => 'showFile'
@@ -902,12 +901,12 @@ class ComponentHelper
 			&& Loader::includeModule('disk')
 		)
 		{
-			$userFieldManager = \Bitrix\Disk\Driver::getInstance()->getUserFieldManager();
+			$userFieldManager = Driver::getInstance()->getUserFieldManager();
 
-			foreach($matches[1] as $id)
+			foreach ($matches[1] as $id)
 			{
 				$fileModel = null;
-				list($type, $realValue) = FileUserType::detectType($id);
+				[ $type, $realValue ] = FileUserType::detectType($id);
 
 				if ($type == FileUserType::TYPE_NEW_OBJECT)
 				{
@@ -950,30 +949,28 @@ class ComponentHelper
 	 * @param int $authorId User Id.
 	 * @return string
 	*/
-	public static function formatDateTimeToGMT($dateTimeSource, $authorId)
+	public static function formatDateTimeToGMT($dateTimeSource, $authorId): string
 	{
-		$result = '';
-
-		if (!empty($dateTimeSource))
+		if (empty($dateTimeSource))
 		{
-			$serverTs = \MakeTimeStamp($dateTimeSource) - \CTimeZone::getOffset();
-			$serverGMTOffset = date('Z');
+			return '';
+		}
 
-			$authorOffset = \CTimeZone::getOffset($authorId);
-			$authorGMTOffset = $serverGMTOffset + $authorOffset;
-			$authorGMTOffsetFormatted = 'GMT';
-			if ($authorGMTOffset != 0)
-			{
-				$authorGMTOffsetFormatted .= ($authorGMTOffset >= 0 ? '+' : '-').sprintf('%02d', floor($authorGMTOffset / 3600)).':'.sprintf('%02u', ($authorGMTOffset % 3600) / 60);
-			}
+		$serverTs = \MakeTimeStamp($dateTimeSource) - \CTimeZone::getOffset();
+		$serverGMTOffset = date('Z');
 
-			$result = \FormatDate(
+		$authorOffset = \CTimeZone::getOffset($authorId);
+		$authorGMTOffset = $serverGMTOffset + $authorOffset;
+		$authorGMTOffsetFormatted = 'GMT';
+		if ($authorGMTOffset != 0)
+		{
+			$authorGMTOffsetFormatted .= ($authorGMTOffset >= 0 ? '+' : '-').sprintf('%02d', floor($authorGMTOffset / 3600)).':'.sprintf('%02u', ($authorGMTOffset % 3600) / 60);
+		}
+
+		return \FormatDate(
 				preg_replace('/[\/.,\s:][s]/', '', \Bitrix\Main\Type\Date::convertFormatToPhp(FORMAT_DATETIME)),
 				($serverTs + $authorOffset)
 			).' ('.$authorGMTOffsetFormatted.')';
-		}
-
-		return $result;
 	}
 
 	/**
@@ -982,7 +979,7 @@ class ComponentHelper
 	 * @param array $params Parameters.
 	 * @return array
 	 */
-	public static function getSonetBlogGroupIdList($params)
+	public static function getSonetBlogGroupIdList($params): array
 	{
 		$result = [];
 
@@ -1044,7 +1041,7 @@ class ComponentHelper
 	 * Creates a user blog (when it is the first post of the user)
 	 *
 	 * @param array $params Parameters.
-	 * @return bool
+	 * @return bool|array
 	 * @throws Main\ArgumentException
 	 * @throws Main\LoaderException
 	 * @throws Main\SystemException
@@ -1059,12 +1056,10 @@ class ComponentHelper
 		}
 
 		if (
-			!isset($params["BLOG_GROUP_ID"])
+			!isset($params["BLOG_GROUP_ID"], $params["USER_ID"], $params["SITE_ID"])
 			|| (int)$params["BLOG_GROUP_ID"] <= 0
-			|| !isset($params["USER_ID"])
 			|| (int)$params["USER_ID"] <= 0
-			|| !isset($params["SITE_ID"])
-			|| $params["SITE_ID"] == ''
+			|| (string)$params["SITE_ID"] === ''
 		)
 		{
 			return false;
@@ -1134,7 +1129,7 @@ class ComponentHelper
 				do
 				{
 					$uind++;
-					$fields["URL"] = $fields["URL"].$uind;
+					$fields["URL"] .= $uind;
 				}
 				while (\CBlog::getByUrl($fields["URL"]));
 			}
@@ -1218,7 +1213,7 @@ class ComponentHelper
 					: $res[1][0]
 			);
 
-			$metaData = \Bitrix\Main\UrlPreview\UrlPreview::getMetadataAndHtmlByUrl($url, true, false);
+			$metaData = UrlPreview::getMetadataAndHtmlByUrl($url, true, false);
 			if (
 				!empty($metaData)
 				&& !empty($metaData["ID"])
@@ -1226,7 +1221,7 @@ class ComponentHelper
 			)
 			{
 				$signer = new \Bitrix\Main\Security\Sign\Signer();
-				$value = $signer->sign($metaData["ID"].'', \Bitrix\Main\UrlPreview\UrlPreview::SIGN_SALT);
+				$value = $signer->sign($metaData["ID"].'', UrlPreview::SIGN_SALT);
 			}
 		}
 
@@ -1260,8 +1255,8 @@ class ComponentHelper
 				"MOBILE" => (isset($params["MOBILE"]) && $params["MOBILE"] === "Y" ? "Y" : "N"),
 				"arUserField" => $uf,
 				"arAddField" => array(
-					"NAME_TEMPLATE" => (isset($params["NAME_TEMPLATE"]) ? $params["NAME_TEMPLATE"] : false),
-					"PATH_TO_USER" => (isset($params["PATH_TO_USER"]) ? $params["PATH_TO_USER"] : '')
+					"NAME_TEMPLATE" => ($params["NAME_TEMPLATE"] ?? false),
+					"PATH_TO_USER" => ($params["PATH_TO_USER"] ?? '')
 				)
 			), null, array("HIDE_ICONS"=>"Y")
 		);
@@ -1476,7 +1471,7 @@ class ComponentHelper
 		return $result;
 	}
 
-	public static function hasCommentSource($params)
+	public static function hasCommentSource($params): bool
 	{
 		$res = false;
 
@@ -1529,7 +1524,7 @@ class ComponentHelper
 		$siteId = $fields["SITE_ID"];
 		$sonetRights = $fields["SONET_RIGHTS"];
 		$newRights = $fields["NEW_RIGHTS"];
-		$userId = $fields["USER_ID"];
+		$userId = (int)$fields["USER_ID"];
 
 		$commentId = false;
 		$logId = false;
@@ -1581,13 +1576,13 @@ class ComponentHelper
 			$auxLiveParamList = array();
 			$sharedToIntranetUser = false;
 
-			foreach($sonetPermissionList as $type => $v)
+			foreach ($sonetPermissionList as $type => $v)
 			{
-				foreach($v as $vv)
+				foreach ($v as $vv)
 				{
 					if (
 						$type === "SG"
-						&& in_array($type.$vv["ENTITY_ID"], $newRights)
+						&& in_array($type . $vv["ENTITY_ID"], $newRights, true)
 					)
 					{
 						$renderParts = new Livefeed\RenderParts\SonetGroup();
@@ -1613,8 +1608,8 @@ class ComponentHelper
 					elseif ($type === "U")
 					{
 						if (
-							in_array("US".$vv["ENTITY_ID"], $vv["ENTITY"])
-							&& in_array("UA", $newRights)
+							in_array("US" . $vv["ENTITY_ID"], $vv["ENTITY"], true)
+							&& in_array("UA", $newRights, true)
 						)
 						{
 							$renderParts = new Livefeed\RenderParts\User();
@@ -1628,7 +1623,7 @@ class ComponentHelper
 								"VISIBILITY" => 'all'
 							);
 						}
-						elseif(in_array($type.$vv["ENTITY_ID"], $newRights))
+						elseif (in_array($type . $vv["ENTITY_ID"], $newRights, true))
 						{
 							$renderParts = new Livefeed\RenderParts\User();
 							$renderData = $renderParts->getData($vv["ENTITY_ID"]);
@@ -1697,7 +1692,7 @@ class ComponentHelper
 				"SHARE_DEST" => implode(",", $newRights).($mention ? '|mention' : ''),
 			);
 
-			$userIdSent = array();
+			$userIdSent = [];
 
 			if($commentId = \CBlogComment::add($commentFields, false))
 			{
@@ -1706,7 +1701,7 @@ class ComponentHelper
 					'POST_ID' => $postId
 				)));
 
-				if($post["AUTHOR_ID"] != $userId)
+				if ((int)$post["AUTHOR_ID"] !== $userId)
 				{
 					$fieldsIM = array(
 						"TYPE" => "SHARE",
@@ -1806,7 +1801,7 @@ class ComponentHelper
 				{
 					if (preg_match('/^U(\d+)$/', $GROUP_CODE, $matches))
 					{
-						\Bitrix\Socialnetwork\ComponentHelper::userLogSubscribe(array(
+						ComponentHelper::userLogSubscribe(array(
 							'logId' => $logId,
 							'userId' => $matches[1],
 							'siteId' => $siteId,
@@ -1853,15 +1848,15 @@ class ComponentHelper
 				\CSocNetLogFollow::deleteByLogID($logId, "Y", true);
 
 				/* subscribe share author */
-				\Bitrix\Socialnetwork\ComponentHelper::userLogSubscribe(array(
+				self::userLogSubscribe([
 					'logId' => $logId,
 					'userId' => $userId,
-					'typeList' => array(
+					'typeList' => [
 						'FOLLOW',
-						'COUNTER_COMMENT_PUSH'
-					),
-					'followDate' => 'CURRENT'
-				));
+						'COUNTER_COMMENT_PUSH',
+					],
+					'followDate' => 'CURRENT',
+				]);
 			}
 
 			/* update socnet groupd activity*/
@@ -1893,10 +1888,13 @@ class ComponentHelper
 				"EXCLUDE_USERS" => $userIdSent
 			));
 
-			\Bitrix\Main\FinderDestTable::merge(array(
-				"CONTEXT" => "blog_post",
-				"CODE" => \Bitrix\Main\FinderDestTable::convertRights($newRights)
-			));
+			if (!$mention)
+			{
+				\Bitrix\Main\FinderDestTable::merge(array(
+					"CONTEXT" => "blog_post",
+					"CODE" => \Bitrix\Main\FinderDestTable::convertRights($newRights)
+				));
+			}
 
 			if (\Bitrix\Main\Loader::includeModule('crm'))
 			{
@@ -1935,9 +1933,9 @@ class ComponentHelper
 		return $commentId;
 	}
 
-	public static function getUrlContext()
+	public static function getUrlContext(): array
 	{
-		$result = array();
+		$result = [];
 
 		if (
 			isset($_GET["entityType"])
@@ -2027,7 +2025,7 @@ class ComponentHelper
 		return $authIdList;
 	}
 
-	public static function setComponentOption($list, $params = array())
+	public static function setComponentOption($list, $params = array()): bool
 	{
 		if (!is_array($list))
 		{
@@ -2037,7 +2035,7 @@ class ComponentHelper
 		$siteId = (!empty($params["SITE_ID"]) ? $params["SITE_ID"] : SITE_ID);
 		$sefFolder = (!empty($params["SEF_FOLDER"]) ? $params["SEF_FOLDER"] : false);
 
-		foreach($list as $key => $value)
+		foreach ($list as $value)
 		{
 			if (
 				empty($value["OPTION"])
@@ -2220,9 +2218,9 @@ class ComponentHelper
 		return $canAddComments;
 	}
 
-	public static function addLiveComment($comment = [], $logEntry = [], $commentEvent = [], $params = [])
+	public static function addLiveComment($comment = [], $logEntry = [], $commentEvent = [], $params = []): array
 	{
-		global $USER_FIELD_MANAGER, $APPLICATION;
+		global $USER_FIELD_MANAGER;
 
 		$result = [];
 
@@ -3014,7 +3012,7 @@ class ComponentHelper
 
 		while ($attachedObjectFields = $res->fetch())
 		{
-			if ((int)$attachedObjectFields['ENTITY_ID'] === (int)$commentId)
+			if ((int)$attachedObjectFields['ENTITY_ID'] === $commentId)
 			{
 				$result[] = (int)$attachedObjectFields['ID'];
 			}
@@ -3023,55 +3021,57 @@ class ComponentHelper
 		return $result;
 	}
 
-	public static function fillSelectedUsersToInvite($HTTPPost, $componentParams, &$componentResult)
+	public static function fillSelectedUsersToInvite($HTTPPost, $componentParams, &$componentResult): void
 	{
-		if(
-			!empty($HTTPPost["SPERM"])
-			&& !empty($HTTPPost["SPERM"]["UE"])
-			&& is_array($HTTPPost["SPERM"]["UE"])
+		if (
+			empty($HTTPPost["SPERM"])
+			|| empty($HTTPPost["SPERM"]["UE"])
+			|| !is_array($HTTPPost["SPERM"]["UE"])
 		)
 		{
-			$nameFormat = \CSite::getNameFormat(false);
-			foreach ($HTTPPost["SPERM"]["UE"] as $invitedEmail)
-			{
-				$name = (!empty($HTTPPost["INVITED_USER_NAME"][$invitedEmail]) ? $HTTPPost["INVITED_USER_NAME"][$invitedEmail] : '');
-				$lastName = (!empty($HTTPPost["INVITED_USER_LAST_NAME"][$invitedEmail]) ? $HTTPPost["INVITED_USER_LAST_NAME"][$invitedEmail] : '');
+			return;
+		}
 
-				$createCrmContact = (
-					!empty($HTTPPost["INVITED_USER_CREATE_CRM_CONTACT"][$invitedEmail])
-					&& $HTTPPost["INVITED_USER_CREATE_CRM_CONTACT"][$invitedEmail] === 'Y'
-				);
+		$nameFormat = \CSite::getNameFormat(false);
+		foreach ($HTTPPost["SPERM"]["UE"] as $invitedEmail)
+		{
+			$name = (!empty($HTTPPost["INVITED_USER_NAME"][$invitedEmail]) ? $HTTPPost["INVITED_USER_NAME"][$invitedEmail] : '');
+			$lastName = (!empty($HTTPPost["INVITED_USER_LAST_NAME"][$invitedEmail]) ? $HTTPPost["INVITED_USER_LAST_NAME"][$invitedEmail] : '');
 
-				$userName = \CUser::formatName(
-					empty($componentParams["NAME_TEMPLATE"]) ? $nameFormat : $componentParams["NAME_TEMPLATE"],
-					array(
-						'NAME' => $name,
-						'LAST_NAME' => $lastName,
-						'LOGIN' => $invitedEmail
-					),
-					true,
-					false
-				);
+			$createCrmContact = (
+				!empty($HTTPPost["INVITED_USER_CREATE_CRM_CONTACT"][$invitedEmail])
+				&& $HTTPPost["INVITED_USER_CREATE_CRM_CONTACT"][$invitedEmail] === 'Y'
+			);
 
-				$componentResult["PostToShow"]["FEED_DESTINATION"]['USERS'][$invitedEmail] = array(
-					'id' => $invitedEmail,
-					'email' => $invitedEmail,
-					'showEmail' => 'Y',
-					'name' => $userName,
-					'isEmail' => 'Y',
-					'isCrmEmail' => ($createCrmContact ? 'Y' : 'N'),
-					'params' => array(
-						'name' => $name,
-						'lastName' => $lastName,
-						'createCrmContact' => $createCrmContact
-					)
-				);
-				$componentResult["PostToShow"]["FEED_DESTINATION"]['SELECTED'][$invitedEmail] = 'users';
-			}
+			$userName = \CUser::formatName(
+				empty($componentParams["NAME_TEMPLATE"]) ? $nameFormat : $componentParams["NAME_TEMPLATE"],
+				array(
+					'NAME' => $name,
+					'LAST_NAME' => $lastName,
+					'LOGIN' => $invitedEmail
+				),
+				true,
+				false
+			);
+
+			$componentResult["PostToShow"]["FEED_DESTINATION"]['USERS'][$invitedEmail] = [
+				'id' => $invitedEmail,
+				'email' => $invitedEmail,
+				'showEmail' => 'Y',
+				'name' => $userName,
+				'isEmail' => 'Y',
+				'isCrmEmail' => ($createCrmContact ? 'Y' : 'N'),
+				'params' => [
+					'name' => $name,
+					'lastName' => $lastName,
+					'createCrmContact' => $createCrmContact,
+				],
+			];
+			$componentResult["PostToShow"]["FEED_DESTINATION"]['SELECTED'][$invitedEmail] = 'users';
 		}
 	}
 
-	public static function processBlogPostNewMailUser(&$HTTPPost, &$componentResult)
+	public static function processBlogPostNewMailUser(&$HTTPPost, &$componentResult): void
 	{
 		$newName = false;
 		if (isset($HTTPPost['SONET_PERMS']))
@@ -3089,7 +3089,7 @@ class ComponentHelper
 		}
 	}
 
-	private static function processUserEmail($params, &$errorText)
+	private static function processUserEmail($params, &$errorText): array
 	{
 		$result = [];
 
@@ -3163,16 +3163,8 @@ class ComponentHelper
 		{
 			$userFields = array(
 				'EMAIL' => $userEmail,
-				'NAME' => (
-					isset($params["NAME"])
-						? $params["NAME"]
-						: ''
-				),
-				'LAST_NAME' => (
-					isset($params["LAST_NAME"])
-						? $params["LAST_NAME"]
-						: ''
-				)
+				'NAME' => ($params["NAME"] ?? ''),
+				'LAST_NAME' => ($params["LAST_NAME"] ?? '')
 			);
 
 			if (
@@ -3181,18 +3173,18 @@ class ComponentHelper
 			)
 			{
 				$userFields['UF'] = [
-					'UF_USER_CRM_ENTITY' => $params["CRM_ENTITY"]
+					'UF_USER_CRM_ENTITY' => $params["CRM_ENTITY"],
 				];
 				$res = \CCrmLiveFeedComponent::resolveLFEntityFromUF($params["CRM_ENTITY"]);
 				if (!empty($res))
 				{
-					list($k, $v) = $res;
+					[ $k, $v ] = $res;
 					if ($k && $v)
 					{
 						$result[] = $k.$v;
 
 						if (
-							$k == \CCrmLiveFeedEntity::Contact
+							$k === \CCrmLiveFeedEntity::Contact
 							&& ($contact = \CCrmContact::getById($v))
 							&& (int)$contact['PHOTO'] > 0
 						)
@@ -3426,7 +3418,7 @@ class ComponentHelper
 		if ((int)$userId <= 0)
 		{
 			global $USER;
-			$userId = $USER->getId();
+			$userId = (int)$USER->getId();
 		}
 
 		if (!$siteId)
@@ -3482,7 +3474,7 @@ class ComponentHelper
 		$userId = (int)$userId;
 		if ($userId <= 0)
 		{
-			$userId = $USER->getId();
+			$userId = (int)$USER->getId();
 		}
 
 		$allowToAll = (Option::get("socialnetwork", "allow_livefeed_toall", "Y") === "Y");
@@ -5166,35 +5158,17 @@ class ComponentHelper
 					|| in_array($page, [ 'group', 'group_general', 'group_tasks' ])
 				);
 			}
-/*
-			$workgroupFields = \CSocNetGroup::getById($entityId);
-			if (!isset($workgroupFields['PROJECT']))
-			{
-				return $result;
-			}
-*/
+
 			$result = (
 				(
-//					$workgroupFields['PROJECT'] === 'Y' &&
 					$page === 'group_tasks'
 					&& \CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $entityId, 'tasks')
 					&& $canViewTasks
 				)
 				|| (
-//					$workgroupFields['PROJECT'] !== 'Y' &&
 					$page === 'group'
 					|| $page === 'group_general'
 				)
-/*
-				|| (
-					$workgroupFields['PROJECT'] === 'Y' &&
-					$page === 'group'
-					&& (
-						!\CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $entityId, 'tasks')
-						|| !$canViewTasks
-					)
-				)
-*/
 			);
 		}
 

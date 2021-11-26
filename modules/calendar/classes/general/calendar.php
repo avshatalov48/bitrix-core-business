@@ -12,7 +12,8 @@ use Bitrix\Calendar\Sync\GoogleApiSync;
 use Bitrix\Main\Loader;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Main\Type;
-use \Bitrix\Calendar\Integration\Bitrix24Manager;
+use Bitrix\Calendar\Integration\Bitrix24Manager;
+use Bitrix\Calendar\Ui\CountersManager;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -386,10 +387,7 @@ class CCalendar
 
 		if(self::$type == 'user' && self::$userId == self::$ownerId)
 		{
-			$JSConfig['counters'] = array(
-				'invitation' => CUserCounter::GetValue(self::$userId, 'calendar')
-			);
-
+			$JSConfig['counters'] = CountersManager::getValues((int)self::$userId);
 			$JSConfig['filterId'] = \Bitrix\Calendar\Ui\CalendarFilter::getFilterId(self::$type, self::$ownerId, self::$userId);
 		}
 
@@ -5829,21 +5827,25 @@ class CCalendar
 
 	public static function GetAccessNames()
 	{
-		$arCodes = [];
+		$codes = [];
 		foreach (self::$accessNames as $code => $name)
 		{
 			if ($name === null)
-				$arCodes[] = $code;
+			{
+				$codes[] = $code;
+			}
 		}
 
-		if ($arCodes)
+		if ($codes)
 		{
 			$access = new CAccess();
-			$arNames = $access->GetNames($arCodes);
-			foreach($arNames as $code => $name)
+			$names = $access->GetNames($codes);
+
+			foreach($names as $code => $name)
 			{
 				self::$accessNames[$code] = trim(htmlspecialcharsbx($name['name']));
 			}
+			self::$accessNames['UA'] = Loc::getMessage('EC_ENTITY_SELECTOR_ALL_EMPLOYEES');
 		}
 
 		return self::$accessNames;

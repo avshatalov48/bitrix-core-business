@@ -212,12 +212,16 @@
 			BX.removeCustomEvent(window, 'Grid::unselectRows', BX.proxy(this._onUnselectRows, this));
 			BX.removeCustomEvent(window, 'Grid::allRowsUnselected', BX.proxy(this._onUnselectRows, this));
 			BX.removeCustomEvent(window, 'Grid::headerPinned', BX.proxy(this.bindOnCheckAll, this));
+			BX.removeCustomEvent(window, 'Grid::updated', BX.proxy(this._onGridUpdated, this));
 			this.getPinHeader() && this.getPinHeader().destroy();
 			this.getFader() && this.getFader().destroy();
 			this.getResize() && this.getResize().destroy();
 			this.getColsSortable() && this.getColsSortable().destroy();
 			this.getRowsSortable() && this.getRowsSortable().destroy();
 			this.getSettingsWindow() && this.getSettingsWindow().destroy();
+			this.getActionsPanel() && this.getActionsPanel().destroy();
+			this.getPinPanel() && this.getPinPanel().destroy();
+			this.getPageSize() && this.getPageSize().destroy();
 		},
 
 		_onFrameResize: function()
@@ -467,6 +471,8 @@
 			{
 				this.getPinHeader()._onGridUpdate();
 			}
+
+			BX.onCustomEvent(window, 'Grid::resize', [this]);
 		},
 
 		editSelectedSave: function()
@@ -705,6 +711,11 @@
 		getActionsPanel: function()
 		{
 			return this.actionPanel;
+		},
+
+		getPinPanel: function()
+		{
+			return this.pinPanel;
 		},
 
 		getApplyButton: function()

@@ -1,5 +1,9 @@
 <?php
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 \Bitrix\Main\Loader::includeModule('socialnetwork');
 CUtil::InitJSCore(
 	['tooltip', 'admin_interface', 'date', 'uploader', 'file_dialog', 'bp_user_selector', 'bp_field_type', 'dnd']
@@ -27,11 +31,6 @@ $messages = \Bitrix\Main\Localization\Loc::loadLanguageFile(__FILE__);
 if (isset($arParams['~MESSAGES']) && is_array($arParams['MESSAGES']))
 {
 	$messages = $arParams['~MESSAGES'] + $messages;
-}
-
-if (!$arResult['WORKFLOW_EDIT_URL'] && \Bitrix\Main\Loader::includeModule('bitrix24'))
-{
-	\CBitrix24::initLicenseInfoPopupJS();
 }
 
 if (\Bitrix\Main\Loader::includeModule('rest'))
@@ -234,6 +233,7 @@ $getMessage = function ($messageCode) use ($messages)
 					'AVAILABLE_ROBOTS' => $arResult['AVAILABLE_ROBOTS'],
 					'AVAILABLE_TRIGGERS' => $arResult['AVAILABLE_TRIGGERS'],
 					'GLOBAL_CONSTANTS' => $arResult['GLOBAL_CONSTANTS'],
+					'GLOBAL_VARIABLES' => $arResult['GLOBAL_VARIABLES'],
 					'LOG' => $arResult['LOG'],
 
 					'B24_TARIF_ZONE' => $arResult['B24_TARIF_ZONE'],

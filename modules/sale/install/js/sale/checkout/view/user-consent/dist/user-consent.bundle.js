@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Sale = this.BX.Sale || {};
 this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
-(function (exports,ui_vue,main_core,sale_checkout_const) {
+(function (exports,ui_vue,main_core,main_core_events,sale_checkout_const) {
 	'use strict';
 
 	function _templateObject() {
@@ -26,7 +26,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 	        autoSave: this.item.autoSave,
 	        isChecked: this.item.isChecked,
 	        submitEventName: this.item.submitEventName,
-	        fields: main_core.Type.isArrayFilled(this.item.params) ? JSON.stringify(this.item.params) : []
+	        fields: this.item.params
 	      };
 	      main_core.ajax.runComponentAction(sale_checkout_const.Component.bitrixSaleOrderCheckout, sale_checkout_const.RestMethod.saleEntityUserConsentRequest, {
 	        data: {
@@ -41,10 +41,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 	            wrapper.appendChild(main_core.Tag.render(_templateObject(), consent));
 	            var control = BX.UserConsent.load(wrapper);
 	            BX.addCustomEvent(control, BX.UserConsent.events.accepted, function () {
-	              return main_core.Event.EventEmitter.emit(sale_checkout_const.EventType.consent.accepted, {});
+	              return main_core_events.EventEmitter.emit(sale_checkout_const.EventType.consent.accepted, {});
 	            });
 	            BX.addCustomEvent(control, BX.UserConsent.events.refused, function () {
-	              return main_core.Event.EventEmitter.emit(sale_checkout_const.EventType.consent.refused, {});
+	              return main_core_events.EventEmitter.emit(sale_checkout_const.EventType.consent.refused, {});
 	            });
 	          }
 	        }
@@ -58,5 +58,5 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 	  template: "\n\t  <div class=\"checkout-basket-section checkout-basket-section-consent\">\n\t\t<div ref=\"consentDiv\"/>\n      </div>\n\t"
 	});
 
-}((this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {}),BX,BX,BX.Sale.Checkout.Const));
+}((this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {}),BX,BX,BX.Event,BX.Sale.Checkout.Const));
 //# sourceMappingURL=user-consent.bundle.js.map

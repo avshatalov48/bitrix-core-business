@@ -37,14 +37,30 @@ final class Cumulative extends BasePreset
 		return '';
 	}
 
-	/**
-	 * Tells if preset is available or not. It's possible that preset can't work in some license.
-	 * @return bool
-	 */
-	public function isAvailable()
+	public function getAvailableState(): int
 	{
-		return Sale\Config\Feature::isCumulativeDiscountsEnabled();
+		if (Sale\Config\Feature::isCumulativeDiscountsEnabled())
+		{
+			return BasePreset::AVAILABLE_STATE_ALLOW;
+		}
+		if ($this->bitrix24Included)
+		{
+			return BasePreset::AVAILABLE_STATE_TARIFF;
+		}
+
+		return BasePreset::AVAILABLE_STATE_DISALLOW;
 	}
+
+	public function getAvailableHelpLink(): ?array
+	{
+		if ($this->getAvailableState() === BasePreset::AVAILABLE_STATE_TARIFF)
+		{
+			return Sale\Config\Feature::getCumulativeDiscountsHelpLink();
+		}
+
+		return null;
+	}
+
 
 	/**
 	 * @return int

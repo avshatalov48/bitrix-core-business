@@ -22,7 +22,15 @@ this.BX = this.BX || {};
 	  return Utils;
 	}();
 
-	var _templateObject;
+	function _templateObject() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"", "\" bx-data-log-id=\"", "\">\n\t\t\t\t\t<div class=\"feed-post-cancel-pinned-panel-inner\">\n\t\t\t\t\t\t<div class=\"feed-post-cancel-pinned-content\">\n\t\t\t\t\t\t\t<span class=\"", "\">", "</span>\n\t\t\t\t\t\t\t<span class=\"feed-post-cancel-pinned-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<button class=\"ui-btn ui-btn-light-border ui-btn-round ui-btn-sm ", "\">", "</button>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\t\n\t\t\t\t"]);
+
+	  _templateObject = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 
 	var PinnedPanel = /*#__PURE__*/function () {
 	  function PinnedPanel() {
@@ -754,7 +762,7 @@ this.BX = this.BX || {};
 	      var cancelPinnedPanel = document.querySelector(".".concat(this.class.cancelPanel, "[bx-data-log-id=\"").concat(logId, "\"]"));
 
 	      if (!main_core.Type.isDomNode(cancelPinnedPanel)) {
-	        cancelPinnedPanel = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"", "\" bx-data-log-id=\"", "\">\n\t\t\t\t\t<div class=\"feed-post-cancel-pinned-panel-inner\">\n\t\t\t\t\t\t<div class=\"feed-post-cancel-pinned-content\">\n\t\t\t\t\t\t\t<span class=\"", "\">", "</span>\n\t\t\t\t\t\t\t<span class=\"feed-post-cancel-pinned-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<button class=\"ui-btn ui-btn-light-border ui-btn-round ui-btn-sm ", "\">", "</button>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\t\n\t\t\t\t"])), this.class.cancelPanel, logId, this.class.cancelPanelLabel, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_TITLE'), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_DESCRIPTION'), this.class.cancelPanelButton, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_BUTTON'));
+	        cancelPinnedPanel = main_core.Tag.render(_templateObject(), this.class.cancelPanel, logId, this.class.cancelPanelLabel, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_TITLE'), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_DESCRIPTION'), this.class.cancelPanelButton, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_BUTTON'));
 	        main_core.Event.bind(cancelPinnedPanel.querySelector(".".concat(this.class.cancelPanelButton)), 'click', function () {
 	          _this8.changePinned({
 	            logId: logId,
@@ -1159,126 +1167,229 @@ this.BX = this.BX || {};
 	  return PinnedPanel;
 	}();
 
-	var _templateObject$1, _templateObject2, _templateObject3;
+	function _templateObject3() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t<div class=\"", "\">", "</div>\n\t\t\t<div class=\"", "\">", "</div>\n\t\t</div>"]);
+
+	  _templateObject3 = function _templateObject3() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"]);
+
+	  _templateObject2 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div id=\"BXCTP_content\" class=\"", "\"></div>"]);
+
+	  _templateObject$1 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 	var TaskCreator = /*#__PURE__*/function () {
 	  function TaskCreator() {
 	    babelHelpers.classCallCheck(this, TaskCreator);
+	    this.initEvents();
 	  }
 
-	  babelHelpers.createClass(TaskCreator, null, [{
+	  babelHelpers.createClass(TaskCreator, [{
+	    key: "initEvents",
+	    value: function initEvents() {
+	      main_core_events.EventEmitter.subscribe('tasksTaskEvent', function (event) {
+	        var _event$getCompatData = event.getCompatData(),
+	            _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 2),
+	            type = _event$getCompatData2[0],
+	            data = _event$getCompatData2[1];
+
+	        if (type !== 'ADD' || !main_core.Type.isPlainObject(data.options) || !main_core.Type.isBoolean(data.options.STAY_AT_PAGE) || data.options.STAY_AT_PAGE) {
+	          return;
+	        }
+
+	        TaskCreator.signedFiles = null;
+	      });
+	      main_core_events.EventEmitter.subscribe('SidePanel.Slider:onCloseComplete', function (event) {
+	        var sliderInstance = event.getTarget();
+
+	        if (!sliderInstance) {
+	          return;
+	        }
+
+	        var sliderUrl = sliderInstance.getUrl();
+
+	        if (!main_core.Type.isStringFilled(sliderUrl) || sliderUrl !== TaskCreator.sliderUrl || !main_core.Type.isStringFilled(TaskCreator.signedFiles)) {
+	          return;
+	        }
+
+	        main_core.ajax.runAction('intranet.controlbutton.clearNewTaskFiles', {
+	          data: {
+	            signedFiles: TaskCreator.signedFiles
+	          }
+	        }).then(function () {
+	          TaskCreator.signedFiles = null;
+	        });
+	      });
+	    }
+	  }], [{
 	    key: "create",
 	    value: function create(params) {
 	      var _this = this;
 
-	      this.createTaskPopup = new main_popup.Popup('BXCTP', null, {
-	        autoHide: false,
-	        zIndex: 0,
-	        offsetLeft: 0,
-	        offsetTop: 0,
-	        overlay: false,
-	        lightShadow: true,
-	        closeIcon: {
-	          right: '12px',
-	          top: '10px'
-	        },
-	        draggable: {
-	          restrict: true
-	        },
-	        closeByEsc: false,
-	        contentColor: 'white',
-	        contentNoPaddings: true,
-	        buttons: [],
-	        content: main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div id=\"BXCTP_content\" class=\"", "\"></div>"])), this.cssClass.popupContent),
-	        events: {
-	          onAfterPopupShow: function onAfterPopupShow() {
-	            _this.createTaskSetContent(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"])), _this.cssClass.popupTitle, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_WAIT')));
+	      if (main_core.Loc.getMessage('SONET_EXT_LIVEFEED_INTRANET_INSTALLED') === 'Y') {
+	        main_core.ajax.runAction('intranet.controlbutton.getTaskLink', {
+	          data: {
+	            entityType: params.entityType,
+	            entityId: params.entityId,
+	            postEntityType: main_core.Type.isStringFilled(params.postEntityType) ? params.postEntityType : params.entityType,
+	            entityData: {}
+	          }
+	        }).then(function (response) {
+	          if (!main_core.Type.isStringFilled(response.data.SUFFIX)) {
+	            response.data.SUFFIX = '';
+	          }
 
-	            main_core.ajax.runAction('socialnetwork.api.livefeed.getRawEntryData', {
-	              data: {
-	                params: {
-	                  entityType: params.entityType,
-	                  entityId: params.entityId,
-	                  logId: main_core.Type.isNumber(params.logId) ? params.logId : null,
-	                  additionalParams: {
-	                    getSonetGroupAvailable: 'Y',
-	                    getLivefeedUrl: 'Y',
-	                    checkPermissions: {
-	                      feature: 'tasks',
-	                      operation: 'create_tasks'
+	          var requestData = response.data;
+	          requestData.DESCRIPTION = _this.formatTaskDescription(requestData.DESCRIPTION, requestData.URL, params.entityType, requestData.SUFFIX);
+
+	          if (parseInt(params.parentTaskId) > 0) {
+	            requestData.PARENT_ID = parseInt(params.parentTaskId);
+	          }
+
+	          if (main_core.Type.isStringFilled(requestData.UF_TASK_WEBDAV_FILES_SIGN)) {
+	            _this.signedFiles = requestData.UF_TASK_WEBDAV_FILES_SIGN;
+	          }
+
+	          _this.sliderUrl = response.data.link;
+	          BX.SidePanel.Instance.open(response.data.link, {
+	            requestMethod: 'post',
+	            requestParams: requestData,
+	            cacheable: false
+	          });
+	        });
+	      } else {
+	        this.createTaskPopup = new main_popup.Popup('BXCTP', null, {
+	          autoHide: false,
+	          zIndex: 0,
+	          offsetLeft: 0,
+	          offsetTop: 0,
+	          overlay: false,
+	          lightShadow: true,
+	          closeIcon: {
+	            right: '12px',
+	            top: '10px'
+	          },
+	          draggable: {
+	            restrict: true
+	          },
+	          closeByEsc: false,
+	          contentColor: 'white',
+	          contentNoPaddings: true,
+	          buttons: [],
+	          content: main_core.Tag.render(_templateObject$1(), this.cssClass.popupContent),
+	          events: {
+	            onAfterPopupShow: function onAfterPopupShow() {
+	              _this.createTaskSetContent(main_core.Tag.render(_templateObject2(), _this.cssClass.popupTitle, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_WAIT')));
+
+	              main_core.ajax.runAction('socialnetwork.api.livefeed.getRawEntryData', {
+	                data: {
+	                  params: {
+	                    entityType: params.entityType,
+	                    entityId: params.entityId,
+	                    logId: main_core.Type.isNumber(params.logId) ? params.logId : null,
+	                    additionalParams: {
+	                      getSonetGroupAvailable: 'Y',
+	                      getLivefeedUrl: 'Y',
+	                      checkPermissions: {
+	                        feature: 'tasks',
+	                        operation: 'create_tasks'
+	                      }
 	                    }
 	                  }
 	                }
-	              }
-	            }).then(function (response) {
-	              var entryTitle = main_core.Type.isStringFilled(response.data.TITLE) ? response.data.TITLE : '';
-	              var entryDescription = main_core.Type.isStringFilled(response.data.DESCRIPTION) ? response.data.DESCRIPTION : '';
-	              var entryDiskObjects = main_core.Type.isPlainObject(response.data.DISK_OBJECTS) ? response.data.DISK_OBJECTS : [];
-	              var entryUrl = main_core.Type.isStringFilled(response.data.LIVEFEED_URL) ? response.data.LIVEFEED_URL : '';
-	              var entrySuffix = main_core.Type.isStringFilled(response.data.SUFFIX) ? response.data.SUFFIX : '';
-	              var groupsAvailable = main_core.Type.isPlainObject(response.data.GROUPS_AVAILABLE) ? response.data.GROUPS_AVAILABLE : [];
-	              var logId = !main_core.Type.isUndefined(response.data.LOG_ID) ? parseInt(response.data.LOG_ID) : 0;
+	              }).then(function (response) {
+	                var entryTitle = main_core.Type.isStringFilled(response.data.TITLE) ? response.data.TITLE : '';
+	                var entryDescription = main_core.Type.isStringFilled(response.data.DESCRIPTION) ? response.data.DESCRIPTION : '';
+	                var entryDiskObjects = main_core.Type.isPlainObject(response.data.DISK_OBJECTS) ? response.data.DISK_OBJECTS : [];
+	                var entryUrl = main_core.Type.isStringFilled(response.data.LIVEFEED_URL) ? response.data.LIVEFEED_URL : '';
+	                var entrySuffix = main_core.Type.isStringFilled(response.data.SUFFIX) ? response.data.SUFFIX : '';
+	                var groupsAvailable = main_core.Type.isPlainObject(response.data.GROUPS_AVAILABLE) ? response.data.GROUPS_AVAILABLE : [];
+	                var logId = !main_core.Type.isUndefined(response.data.LOG_ID) ? parseInt(response.data.LOG_ID) : 0;
 
-	              if ((main_core.Type.isStringFilled(entryTitle) || main_core.Type.isStringFilled(entryDescription)) && main_core.Type.isStringFilled(entryUrl)) {
-	                var taskDescription = _this.formatTaskDescription(entryDescription, entryUrl, params.entityType, entrySuffix);
+	                if ((main_core.Type.isStringFilled(entryTitle) || main_core.Type.isStringFilled(entryDescription)) && main_core.Type.isStringFilled(entryUrl)) {
+	                  var taskDescription = _this.formatTaskDescription(entryDescription, entryUrl, params.entityType, entrySuffix);
 
-	                var taskData = {
-	                  TITLE: entryTitle,
-	                  DESCRIPTION: taskDescription,
-	                  RESPONSIBLE_ID: main_core.Loc.getMessage('USER_ID'),
-	                  CREATED_BY: main_core.Loc.getMessage('USER_ID'),
-	                  UF_TASK_WEBDAV_FILES: entryDiskObjects
-	                };
-	                var sonetGroupIdList = [];
+	                  var taskData = {
+	                    TITLE: entryTitle,
+	                    DESCRIPTION: taskDescription,
+	                    RESPONSIBLE_ID: main_core.Loc.getMessage('USER_ID'),
+	                    CREATED_BY: main_core.Loc.getMessage('USER_ID'),
+	                    UF_TASK_WEBDAV_FILES: entryDiskObjects
+	                  };
+	                  var sonetGroupIdList = [];
 
-	                for (var _i = 0, _Object$entries = Object.entries(groupsAvailable); _i < _Object$entries.length; _i++) {
-	                  var _Object$entries$_i = babelHelpers.slicedToArray(_Object$entries[_i], 2),
-	                      key = _Object$entries$_i[0],
-	                      value = _Object$entries$_i[1];
+	                  for (var _i = 0, _Object$entries = Object.entries(groupsAvailable); _i < _Object$entries.length; _i++) {
+	                    var _Object$entries$_i = babelHelpers.slicedToArray(_Object$entries[_i], 2),
+	                        key = _Object$entries$_i[0],
+	                        value = _Object$entries$_i[1];
 
-	                  sonetGroupIdList.push(value);
-	                }
-
-	                if (sonetGroupIdList.length == 1) {
-	                  taskData.GROUP_ID = parseInt(sonetGroupIdList[0]);
-	                }
-
-	                BX.Tasks.Util.Query.runOnce('task.add', {
-	                  data: taskData
-	                }).then(function (result) {
-	                  var resultData = result.getData();
-
-	                  if (main_core.Type.isPlainObject(resultData) && main_core.Type.isPlainObject(resultData.DATA) && !main_core.Type.isUndefined(resultData.DATA.ID) && parseInt(resultData.DATA.ID) > 0) {
-	                    _this.createTaskSetContentSuccess(resultData.DATA.ID);
-
-	                    main_core.ajax.runAction('socialnetwork.api.livefeed.createEntityComment', {
-	                      data: {
-	                        params: {
-	                          postEntityType: main_core.Type.isStringFilled(params.postEntityType) ? params.postEntityType : params.entityType,
-	                          sourceEntityType: params.entityType,
-	                          sourceEntityId: params.entityId,
-	                          entityType: 'TASK',
-	                          entityId: resultData.DATA.ID,
-	                          logId: main_core.Type.isNumber(params.logId) ? params.logId : logId > 0 ? logId : null
-	                        }
-	                      }
-	                    }).then(function () {}, function () {});
-	                  } else {
-	                    _this.createTaskSetContentFailure(result.getErrors().getMessages());
+	                    sonetGroupIdList.push(value);
 	                  }
-	                });
-	              } else {
+
+	                  if (sonetGroupIdList.length == 1) {
+	                    taskData.GROUP_ID = parseInt(sonetGroupIdList[0]);
+	                  }
+
+	                  if (parseInt(params.entityType) > 0) {
+	                    taskData.PARENT_ID = parseInt(params.entityType);
+	                  }
+
+	                  BX.Tasks.Util.Query.runOnce('task.add', {
+	                    data: taskData
+	                  }).then(function (result) {
+	                    var resultData = result.getData();
+
+	                    if (main_core.Type.isPlainObject(resultData) && main_core.Type.isPlainObject(resultData.DATA) && !main_core.Type.isUndefined(resultData.DATA.ID) && parseInt(resultData.DATA.ID) > 0) {
+	                      _this.createTaskSetContentSuccess(resultData.DATA.ID);
+
+	                      main_core.ajax.runAction('socialnetwork.api.livefeed.createEntityComment', {
+	                        data: {
+	                          params: {
+	                            postEntityType: main_core.Type.isStringFilled(params.postEntityType) ? params.postEntityType : params.entityType,
+	                            sourceEntityType: params.entityType,
+	                            sourceEntityId: params.entityId,
+	                            entityType: 'TASK',
+	                            entityId: resultData.DATA.ID,
+	                            logId: main_core.Type.isNumber(params.logId) ? params.logId : logId > 0 ? logId : null
+	                          }
+	                        }
+	                      }).then(function () {}, function () {});
+	                    } else {
+	                      _this.createTaskSetContentFailure(result.getErrors().getMessages());
+	                    }
+	                  });
+	                } else {
+	                  _this.createTaskSetContentFailure([main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_ERROR_GET_DATA')]);
+	                }
+	              }, function () {
 	                _this.createTaskSetContentFailure([main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_ERROR_GET_DATA')]);
-	              }
-	            }, function () {
-	              _this.createTaskSetContentFailure([main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_ERROR_GET_DATA')]);
-	            });
-	          },
-	          onPopupClose: function onPopupClose() {
-	            _this.createTaskPopup.destroy();
+	              });
+	            },
+	            onPopupClose: function onPopupClose() {
+	              _this.createTaskPopup.destroy();
+	            }
 	          }
-	        }
-	      });
-	      this.createTaskPopup.show();
+	        });
+	        this.createTaskPopup.show();
+	      }
 	    }
 	  }, {
 	    key: "createTaskSetContentSuccess",
@@ -1301,7 +1412,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "createTaskSetContentFailure",
 	    value: function createTaskSetContentFailure(errors) {
-	      this.createTaskSetContent(main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t<div class=\"", "\">", "</div>\n\t\t\t<div class=\"", "\">", "</div>\n\t\t</div>"])), this.cssClass.popupTitle, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_FAILURE_TITLE'), this.cssClass.popupDescription, errors.join('<br>')));
+	      this.createTaskSetContent(main_core.Tag.render(_templateObject3(), this.cssClass.popupTitle, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_FAILURE_TITLE'), this.cssClass.popupDescription, errors.join('<br>')));
 	    }
 	  }, {
 	    key: "createTaskSetContent",
@@ -1336,8 +1447,18 @@ this.BX = this.BX || {};
 	  popupTitle: 'feed-create-task-popup-title',
 	  popupDescription: 'feed-create-task-popup-description'
 	});
+	babelHelpers.defineProperty(TaskCreator, "signedFiles", null);
+	babelHelpers.defineProperty(TaskCreator, "sliderUrl", '');
 
-	var _templateObject$2;
+	function _templateObject$2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"]);
+
+	  _templateObject$2 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 
 	var Post$$1 = /*#__PURE__*/function () {
 	  function Post$$1() {
@@ -1349,7 +1470,7 @@ this.BX = this.BX || {};
 	    value: function showBackgroundWarning(_ref) {
 	      var urlToEdit = _ref.urlToEdit,
 	          menuPopupWindow = _ref.menuPopupWindow;
-	      var content = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"])), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_POST_BACKGROUND_EDIT_WARNING_DESCRIPTION'));
+	      var content = main_core.Tag.render(_templateObject$2(), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_POST_BACKGROUND_EDIT_WARNING_DESCRIPTION'));
 	      var dialog = new main_popup.Popup('backgroundWarning', null, {
 	        autoHide: true,
 	        closeByEsc: true,
@@ -1448,7 +1569,7 @@ this.BX = this.BX || {};
 	          text: pinnedState ? main_core.Loc.getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_PINNED_Y') : main_core.Loc.getMessage('SONET_EXT_LIVEFEED_MENU_TITLE_PINNED_N'),
 	          className: 'menu-popup-no-icon',
 	          onclick: function onclick(e) {
-	            exports.PinnedPanelInstance.changePinned({
+	            PinnedPanelInstance.changePinned({
 	              logId: log_id,
 	              newState: pinnedState ? 'N' : 'Y',
 	              event: e,
@@ -1611,7 +1732,7 @@ this.BX = this.BX || {};
 	        className: 'menu-popup-no-icon',
 	        onclick: function onclick(e) {
 	          if (confirm(main_core.Loc.getMessage('sonetLMenuDeleteConfirm'))) {
-	            exports.FeedInstance.delete({
+	            FeedInstance.delete({
 	              logId: log_id,
 	              nodeId: "log-entry-".concat(log_id),
 	              ind: ind
@@ -1621,7 +1742,7 @@ this.BX = this.BX || {};
 	          e.stopPropagation();
 	          e.preventDefault();
 	        }
-	      } : null, menuElement.getAttribute('data-log-entry-createtask') === "Y" ? {
+	      } : null, menuElement.getAttribute('data-log-entry-createtask') === 'Y' ? {
 	        text: main_core.Loc.getMessage('sonetLMenuCreateTask'),
 	        className: 'menu-popup-no-icon',
 	        onclick: function onclick(e) {
@@ -1630,6 +1751,20 @@ this.BX = this.BX || {};
 	            entityType: menuElement.getAttribute('data-log-entry-entity-type'),
 	            entityId: menuElement.getAttribute('data-log-entry-entity-id'),
 	            logId: parseInt(menuElement.getAttribute('data-log-entry-log-id'))
+	          });
+	          main_popup.MenuManager.getMenuById(_this.getMenuId(ind)).popupWindow.close();
+	          return e.preventDefault();
+	        }
+	      } : null, menuElement.getAttribute('data-log-entry-createtask') === 'Y' && menuElement.getAttribute('data-log-entry-entity-type') === 'TASK' ? {
+	        text: main_core.Loc.getMessage('sonetLMenuCreateSubTask'),
+	        className: 'menu-popup-no-icon',
+	        onclick: function onclick(e) {
+	          TaskCreator.create({
+	            entryEntityType: menuElement.getAttribute('data-log-entry-entity-type'),
+	            entityType: menuElement.getAttribute('data-log-entry-entity-type'),
+	            entityId: menuElement.getAttribute('data-log-entry-entity-id'),
+	            logId: parseInt(menuElement.getAttribute('data-log-entry-log-id')),
+	            parentTaskId: parseInt(menuElement.getAttribute('data-log-entry-entity-id'))
 	          });
 	          main_popup.MenuManager.getMenuById(_this.getMenuId(ind)).popupWindow.close();
 	          return e.preventDefault();
@@ -2106,7 +2241,7 @@ this.BX = this.BX || {};
 	    value: function recalcPostsList() {
 	      var _this = this;
 
-	      var buttonsList = exports.FeedInstance.getMoreButtons();
+	      var buttonsList = FeedInstance.getMoreButtons();
 	      buttonsList.forEach(function (buttonData, index, object) {
 	        if (!main_core.Type.isPlainObject(buttonData) || !main_core.Type.isStringFilled(buttonData.bodyBlockID)) {
 	          return;
@@ -2326,7 +2461,7 @@ this.BX = this.BX || {};
 	          filterParams.autoResolve = false;
 	        }
 
-	        exports.PageInstance.refresh({
+	        PageInstance.refresh({
 	          useBXMainFilter: 'Y'
 	        }, filterPromise);
 	      });
@@ -2346,7 +2481,7 @@ this.BX = this.BX || {};
 	    key: "initEventsCrm",
 	    value: function initEventsCrm() {
 	      main_core_events.EventEmitter.subscribe('BX.Livefeed.Filter:searchInput', function () {
-	        exports.PageInstance.refresh();
+	        PageInstance.refresh();
 	      });
 	    }
 	  }, {
@@ -2425,7 +2560,25 @@ this.BX = this.BX || {};
 	  return ContentView;
 	}();
 
-	var _templateObject$3, _templateObject2$1;
+	function _templateObject2$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"feed-wrap\" style=\"display:", ";\">", "</div>"]);
+
+	  _templateObject2$1 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject$3() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div id=\"content_block_", "\" class=\"feed-wrap\" style=\"display: block;\">", "</div>"]);
+
+	  _templateObject$3 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 
 	var Page = /*#__PURE__*/function () {
 	  function Page() {
@@ -2474,7 +2627,7 @@ this.BX = this.BX || {};
 	      this.loadStarted = true;
 	      Loader.showRefreshFade();
 	      MoreButton$$1.clearCommentsList();
-	      exports.FeedInstance.clearMoreButtons();
+	      FeedInstance.clearMoreButtons();
 
 	      if (!main_core.Type.isStringFilled(params.useBXMainFilter) || params.useBXMainFilter !== 'Y') {
 	        main_core_events.EventEmitter.emit('BX.Livefeed:refresh', new main_core_events.BaseEvent({
@@ -2482,8 +2635,8 @@ this.BX = this.BX || {};
 	        }));
 	      }
 
-	      exports.InformerInstance.hideReloadNode();
-	      exports.InformerInstance.lockCounterAnimation = true;
+	      InformerInstance.hideReloadNode();
+	      InformerInstance.lockCounterAnimation = true;
 	      this.loadStarted = false;
 	      main_core.ajax.runAction('socialnetwork.api.livefeed.refresh', {
 	        signedParameters: this.getSignedParameters(),
@@ -2513,7 +2666,7 @@ this.BX = this.BX || {};
 	        }
 
 	        var loaderContainer = document.getElementById('feed-loader-container');
-	        exports.InformerInstance.lockCounterAnimation = false;
+	        InformerInstance.lockCounterAnimation = false;
 	        var feedContainer = document.getElementById('log_internal_container');
 
 	        if (!feedContainer) {
@@ -2546,21 +2699,21 @@ this.BX = this.BX || {};
 	          _this2.clearContainerExternal(false);
 
 	          BX.LazyLoad.clearImages();
-	          var pageNode = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["<div id=\"content_block_", "\" class=\"feed-wrap\" style=\"display: block;\">", "</div>"])), Math.floor(Math.random() * 1000), responseData.html);
+	          var pageNode = main_core.Tag.render(_templateObject$3(), Math.floor(Math.random() * 1000), responseData.html);
 	          feedContainer.appendChild(pageNode);
 	          main_core.Runtime.html(pageNode, responseData.html).then(function () {
 	            MoreButton$$1.recalcPostsList();
 	            MoreButton$$1.recalcCommentsList();
 	            ContentView.registerAreaList();
-	            exports.PinnedPanelInstance.resetFlags();
-	            exports.PinnedPanelInstance.initPanel();
-	            exports.PinnedPanelInstance.initPosts();
+	            PinnedPanelInstance.resetFlags();
+	            PinnedPanelInstance.initPanel();
+	            PinnedPanelInstance.initPosts();
 	          });
 	          _this2.stopTrackNextPage = false;
 	          MoreButton$$1.clearCommentsList();
-	          var informerWrap = exports.InformerInstance.getWrap();
+	          var informerWrap = InformerInstance.getWrap();
 
-	          if (informerWrap && informerWrap.classList.contains(exports.InformerInstance.class.informerFixed)) {
+	          if (informerWrap && informerWrap.classList.contains(InformerInstance.class.informerFixed)) {
 	            new BX.easing({
 	              duration: 500,
 	              start: {
@@ -2605,8 +2758,8 @@ this.BX = this.BX || {};
 	      }
 
 	      this.loadStarted = true;
-	      exports.InformerInstance.lockCounterAnimation = true;
-	      exports.FeedInstance.clearMoreButtons();
+	      InformerInstance.lockCounterAnimation = true;
+	      FeedInstance.clearMoreButtons();
 
 	      if (!this.nextPageFirst && stubContainer) {
 	        stubContainer.style.display = 'block';
@@ -2681,14 +2834,14 @@ this.BX = this.BX || {};
 	          main_core.Dom.remove(stubContainer);
 	        }
 
-	        exports.InformerInstance.lockCounterAnimation = false;
+	        InformerInstance.lockCounterAnimation = false;
 	        var lastEntryTimestamp = main_core.Type.isPlainObject(responseData.componentResult) && !main_core.Type.isUndefined(responseData.componentResult.LAST_TS) ? parseInt(responseData.componentResult.LAST_TS) : 0;
 	        var lastEntryId = main_core.Type.isPlainObject(responseData.componentResult) && !main_core.Type.isUndefined(responseData.componentResult.LAST_ID) ? parseInt(responseData.componentResult.LAST_ID) : null;
 
 	        if (responseData.html.length > 0 && lastEntryTimestamp > 0 && (parseInt(_this3.firstPageLastTS) <= 0 || lastEntryTimestamp < parseInt(_this3.firstPageLastTS) || lastEntryTimestamp == parseInt(_this3.firstPageLastTS) && !main_core.Type.isNull(lastEntryId) && lastEntryId < parseInt(_this3.firstPageLastId))) {
 	          MoreButton$$1.clearCommentsList();
 	          var contentBlockId = "content_block_".concat(Math.floor(Math.random() * 1000));
-	          var pageNode = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"feed-wrap\" style=\"display:", ";\">", "</div>"])), contentBlockId, _this3.nextPageFirst ? 'none' : 'block', responseData.html);
+	          var pageNode = main_core.Tag.render(_templateObject2$1(), contentBlockId, _this3.nextPageFirst ? 'none' : 'block', responseData.html);
 	          var feedContainer = document.getElementById('log_internal_container');
 
 	          if (!feedContainer) {
@@ -2702,8 +2855,8 @@ this.BX = this.BX || {};
 	              MoreButton$$1.recalcPostsList();
 	              ContentView.registerAreaList();
 	              MoreButton$$1.recalcCommentsList();
-	              exports.PinnedPanelInstance.resetFlags();
-	              exports.PinnedPanelInstance.initPosts();
+	              PinnedPanelInstance.resetFlags();
+	              PinnedPanelInstance.initPosts();
 	            }
 	          });
 
@@ -2731,8 +2884,8 @@ this.BX = this.BX || {};
 	                  rootNode: pageNode
 	                }]
 	              }));
-	              exports.PinnedPanelInstance.resetFlags();
-	              exports.PinnedPanelInstance.initPosts();
+	              PinnedPanelInstance.resetFlags();
+	              PinnedPanelInstance.initPosts();
 	            };
 
 	            main_core.Event.bind(document.getElementById('sonet_log_more_container_first'), 'click', f);
@@ -2755,7 +2908,7 @@ this.BX = this.BX || {};
 	          stubContainer.style.display = 'none';
 	        }
 
-	        exports.InformerInstance.lockCounterAnimation = false;
+	        InformerInstance.lockCounterAnimation = false;
 
 	        _this3.clearContainerExternal(false);
 	      });
@@ -2764,9 +2917,9 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "clearContainerExternal",
 	    value: function clearContainerExternal(mode) {
-	      exports.InformerInstance.hideWrapAnimation();
-	      exports.InformerInstance.hideReloadAnimation();
-	      exports.InformerInstance.recover();
+	      InformerInstance.hideWrapAnimation();
+	      InformerInstance.hideReloadAnimation();
+	      InformerInstance.recover();
 	      var counterPreset = document.getElementById('sonet_log_counter_preset');
 
 	      if (counterPreset && this.requestMode === 'new') {
@@ -2786,7 +2939,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "showRefreshError",
 	    value: function showRefreshError() {
-	      exports.InformerInstance.lockCounterAnimation = false;
+	      InformerInstance.lockCounterAnimation = false;
 	      this.clearContainerExternal(false);
 	    }
 	  }, {
@@ -2841,13 +2994,21 @@ this.BX = this.BX || {};
 	        }
 	      }
 
-	      exports.InformerInstance.onFeedScroll();
+	      InformerInstance.onFeedScroll();
 	    }
 	  }]);
 	  return Page;
 	}();
 
-	var _templateObject$4;
+	function _templateObject$4() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"", "\">"]);
+
+	  _templateObject$4 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 	var CommentForm = /*#__PURE__*/function () {
 	  function CommentForm() {
 	    babelHelpers.classCallCheck(this, CommentForm);
@@ -2885,7 +3046,7 @@ this.BX = this.BX || {};
 	            value = _ref2[1];
 
 	        if (!obj.form[key]) {
-	          obj.form.appendChild(main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"", "\">"])), key));
+	          obj.form.appendChild(main_core.Tag.render(_templateObject$4(), key));
 	        }
 
 	        obj.form[key].value = value;
@@ -3078,7 +3239,25 @@ this.BX = this.BX || {};
 	  return CommentForm;
 	}();
 
-	var _templateObject$5, _templateObject2$2;
+	function _templateObject2$2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"feed-add-error\" style=\"margin: 18px 37px 4px 84px;\"><span class=\"feed-add-info-text\"><span class=\"feed-add-info-icon\"></span><span>", "</span></span></div>"]);
+
+	  _templateObject2$2 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject$5() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"feed-add-successfully\"><span class=\"feed-add-info-text\"><span class=\"feed-add-info-icon\"></span><span>", "</span></span></span></div>"]);
+
+	  _templateObject$5 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 
 	var Feed = /*#__PURE__*/function () {
 	  function Feed() {
@@ -3098,11 +3277,11 @@ this.BX = this.BX || {};
 	      }
 
 	      if (main_core.Type.isStringFilled(params.signedParameters)) {
-	        exports.PageInstance.setSignedParameters(params.signedParameters);
+	        PageInstance.setSignedParameters(params.signedParameters);
 	      }
 
 	      if (main_core.Type.isStringFilled(params.componentName)) {
-	        exports.PageInstance.setComponentName(params.componentName);
+	        PageInstance.setComponentName(params.componentName);
 	      }
 
 	      if (loaderContainer) {
@@ -3113,12 +3292,12 @@ this.BX = this.BX || {};
 	      }
 
 	      main_core_events.EventEmitter.subscribe('BX.Forum.Spoiler:toggle', Forum.processSpoilerToggle);
-	      exports.FilterInstance.init({
+	      FilterInstance.init({
 	        filterId: params.filterId
 	      });
 
 	      if (main_core.Type.isStringFilled(params.crmEntityTypeName) && !main_core.Type.isUndefined(params.crmEntityId) && parseInt(params.crmEntityId) > 0) {
-	        exports.FilterInstance.initEventsCrm();
+	        FilterInstance.initEventsCrm();
 	      }
 
 	      BX.UserContentView.init();
@@ -3129,7 +3308,7 @@ this.BX = this.BX || {};
 	          return;
 	        }
 
-	        if (exports.FilterInstance.clickTag(tagValue)) {
+	        if (FilterInstance.clickTag(tagValue)) {
 	          e.preventDefault();
 	          e.stopPropagation();
 	        }
@@ -3152,8 +3331,8 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      exports.PinnedPanelInstance.init();
-	      exports.InformerInstance.init();
+	      PinnedPanelInstance.init();
+	      InformerInstance.init();
 	      this.feedInitialized = true;
 	    }
 	  }, {
@@ -3388,7 +3567,7 @@ this.BX = this.BX || {};
 	          node.style.marginBottom = 0;
 	          main_core.Dom.clean(node);
 	          node.classList.add('feed-post-block-deleted');
-	          node.appendChild(main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["<div class=\"feed-add-successfully\"><span class=\"feed-add-info-text\"><span class=\"feed-add-info-icon\"></span><span>", "</span></span></span></div>"])), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_DELETE_SUCCESS')));
+	          node.appendChild(main_core.Tag.render(_templateObject$5(), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_DELETE_SUCCESS')));
 	        }
 	      }).start();
 	    }
@@ -3399,7 +3578,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      node.insertBefore(main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"feed-add-error\" style=\"margin: 18px 37px 4px 84px;\"><span class=\"feed-add-info-text\"><span class=\"feed-add-info-icon\"></span><span>", "</span></span></div>"])), main_core.Loc.getMessage('sonetLMenuDeleteFailure')), node.firstChild);
+	      node.insertBefore(main_core.Tag.render(_templateObject2$2(), main_core.Loc.getMessage('sonetLMenuDeleteFailure')), node.firstChild);
 	    }
 	  }, {
 	    key: "getMoreButtons",
@@ -3445,17 +3624,18 @@ this.BX = this.BX || {};
 	  return Feed;
 	}();
 
-	exports.FeedInstance = null;
-	exports.PinnedPanelInstance = null;
-	exports.InformerInstance = null;
-	exports.FilterInstance = null;
-	exports.PageInstance = null;
-	exports.FeedInstance = new Feed();
-	exports.PinnedPanelInstance = new PinnedPanel();
-	exports.InformerInstance = new Informer();
-	exports.FilterInstance = new Filter();
-	exports.PageInstance = new Page();
+	var FeedInstance = new Feed();
+	var PinnedPanelInstance = new PinnedPanel();
+	var InformerInstance = new Informer();
+	var FilterInstance = new Filter();
+	var PageInstance = new Page();
+	new TaskCreator();
 
+	exports.FeedInstance = FeedInstance;
+	exports.PinnedPanelInstance = PinnedPanelInstance;
+	exports.InformerInstance = InformerInstance;
+	exports.FilterInstance = FilterInstance;
+	exports.PageInstance = PageInstance;
 	exports.Post = Post$$1;
 	exports.TaskCreator = TaskCreator;
 	exports.Loader = Loader;

@@ -18,7 +18,20 @@
 	};
 
 	var FieldType = {
-		renderControl: function (documentType, property, fieldName, value)
+		renderControl: function (documentType, property, fieldName, value, renderMode) {
+			if (!renderMode || renderMode === 'public')
+			{
+				return this.renderControlPublic(documentType, property, fieldName, value);
+			}
+			if (renderMode === 'designer')
+			{
+				return this.renderControlDesigner(documentType, property, fieldName, value);
+			}
+
+			return BX.create('div', {text: 'incorrect render mode'});
+		},
+
+		renderControlPublic: function (documentType, property, fieldName, value)
 		{
 			var node,
 				renderer = this.getRenderFunctionName(property),
@@ -103,6 +116,39 @@
 
 			return node;
 		},
+		renderControlDesigner: function (documentType, property, fieldName, value)
+		{
+			var node = BX.create('div', {text: '...'});
+
+			BX.ajax.post(
+				'/bitrix/tools/bizproc_get_field.php',
+				{
+					DocumentType: documentType,
+					Field: {Field: fieldName, Form: 'sfa_form'},
+					Value: (value || ''),
+					Type: property,
+					Als: 1,
+					rnd: Math.random(),
+					Mode: '',
+					Func: '',
+					sessid: BX.bitrix_sessid(),
+					RenderMode: 'designer',
+				},
+				function (valueNode) {
+					if (valueNode)
+					{
+						node.innerHTML = valueNode;
+
+						if (typeof BX.Bizproc.Selector !== 'undefined')
+						{
+							BX.Bizproc.Selector.initSelectors(node);
+						}
+					}
+				}
+			);
+
+			return node;
+		},
 		formatValuePrintable: function(property, value)
 		{
 			var result;
@@ -117,18 +163,19 @@
 
 				case 'select':
 				case 'internalselect':
+					var options = property['Options'] || {};
 					if (BX.type.isArray(value))
 					{
 						result = [];
 						value.forEach(function(v)
 						{
-							result.push(property['Options'][v]);
+							result.push(options[v]);
 						});
 						result = result.join(', ');
 					}
 					else
 					{
-						result = property['Options'][value];
+						result = options[value];
 					}
 
 					break;
@@ -491,9 +538,9 @@
 					cols: 40
 				},
 				props: {
-					name: fieldName + (isMultiple(property) ? '[]' : '')
+					name: fieldName + (isMultiple(property) ? '[]' : ''),
+					value: (value || '')
 				},
-				text: (value || '')
 			});
 		},
 		createSelectNode: function(property, fieldName, value)

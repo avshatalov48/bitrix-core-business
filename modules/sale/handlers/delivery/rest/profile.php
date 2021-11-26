@@ -151,11 +151,11 @@ class RestProfile extends Base
 	}
 
 	/**
-	 * @return mixed|string
+	 * @inheritDoc
 	 */
-	private function getProfileType()
+	protected function getProfileType(): string
 	{
-		return $this->profileType;
+		return (string)$this->profileType;
 	}
 
 	/**

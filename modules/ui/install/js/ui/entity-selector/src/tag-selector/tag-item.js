@@ -7,6 +7,7 @@ import TypeUtils from '../common/type-utils';
 import type TagSelector from './tag-selector';
 import type { TagItemOptions } from './tag-item-options';
 import type { TextNodeOptions } from '../common/text-node-options';
+import type { AvatarOptions } from '../item/avatar-options';
 
 export default class TagItem
 {
@@ -16,6 +17,7 @@ export default class TagItem
 	title: ?TextNode = null;
 
 	avatar: ?string = null;
+	avatarOptions: ?AvatarOptions = null;
 	maxWidth: ?number = null;
 	textColor: ?string = null;
 	bgColor: ?string = null;
@@ -56,6 +58,7 @@ export default class TagItem
 		this.setDeselectable(options.deselectable);
 
 		this.setAvatar(options.avatar);
+		this.setAvatarOptions(options.avatarOptions);
 		this.setMaxWidth(options.maxWidth);
 		this.setTextColor(options.textColor);
 		this.setBgColor(options.bgColor);
@@ -128,6 +131,57 @@ export default class TagItem
 		if (Type.isString(avatar) || avatar === null)
 		{
 			this.avatar = avatar;
+		}
+	}
+
+	getAvatarOption(option: $Keys<AvatarOptions>): string | boolean | number | null
+	{
+		if (this.avatarOptions !== null && !Type.isUndefined(this.avatarOptions[option]))
+		{
+			return this.avatarOptions[option];
+		}
+
+		const selectorAvatarOption = this.getSelector().getTagAvatarOption(option);
+		if (selectorAvatarOption !== null)
+		{
+			return selectorAvatarOption[option];
+		}
+
+		const entityTagAvatarOptions = this.getEntityTagOption('avatarOptions');
+		if (Type.isPlainObject(entityTagAvatarOptions) && !Type.isUndefined(entityTagAvatarOptions[option]))
+		{
+			return entityTagAvatarOptions[option];
+		}
+
+		const entityItemAvatarOptions = this.getEntityItemOption('avatarOptions');
+		if (Type.isPlainObject(entityItemAvatarOptions) && !Type.isUndefined(entityItemAvatarOptions[option]))
+		{
+			return entityItemAvatarOptions[option];
+		}
+
+		return null;
+	}
+
+	setAvatarOption(option: $Keys<AvatarOptions>, value: string | boolean | number | null): void
+	{
+		if (Type.isStringFilled(option) && !Type.isUndefined(value))
+		{
+			if (this.avatarOptions === null)
+			{
+				this.avatarOptions = {};
+			}
+
+			this.avatarOptions[option] = value;
+		}
+	}
+
+	setAvatarOptions(options: AvatarOptions): void
+	{
+		if (Type.isPlainObject(options))
+		{
+			Object.keys(options).forEach((option: string) => {
+				this.setAvatarOption(option, options[option]);
+			});
 		}
 	}
 
@@ -263,15 +317,30 @@ export default class TagItem
 		}
 
 		const avatar = this.getAvatar();
+		const bgImage = this.getAvatarOption('bgImage');
 		if (Type.isStringFilled(avatar))
 		{
-			Dom.addClass(this.getContainer(), 'ui-tag-selector-tag--has-avatar');
 			Dom.style(this.getAvatarContainer(), 'background-image', `url('${avatar}')`);
 		}
 		else
 		{
+			Dom.style(this.getAvatarContainer(), 'background-image', bgImage);
+		}
+
+		const bgColor = this.getAvatarOption('bgColor');
+		const bgSize = this.getAvatarOption('bgSize');
+
+		Dom.style(this.getAvatarContainer(), 'background-color', bgColor);
+		Dom.style(this.getAvatarContainer(), 'background-size', bgSize);
+
+		const hasAvatar = avatar || (bgColor && bgColor !== 'none') || (bgImage && bgImage !== 'none');
+		if (hasAvatar)
+		{
+			Dom.addClass(this.getContainer(), 'ui-tag-selector-tag--has-avatar');
+		}
+		else
+		{
 			Dom.removeClass(this.getContainer(), 'ui-tag-selector-tag--has-avatar');
-			Dom.style(this.getAvatarContainer(), 'background-image', null);
 		}
 
 		const maxWidth = this.getMaxWidth();

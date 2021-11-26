@@ -1,19 +1,35 @@
-<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg">
-    <style>
-        #arrowLoader {
-            animation: arrowLoader 1s infinite linear;
-        }
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="19" height="19" viewBox="0 0 19 19" version="1.1" xmlns="http://www.w3.org/2000/svg">
+<style>
+    #arrowLoader {
+    animation: arrowLoader 1s infinite linear;
+    transform-origin: center;
+    }
+    #arrowLoader2 {
+    animation: arrowLoader 12s infinite linear;
+    transform-origin: center;
+    }
 
-        @keyframes arrowLoader {
-            100%{ transform: rotate(360deg); }
-        }
-    </style>
-    <defs>
-        <rect fill="#535c69" width="1" height="7" x="0" y="0" id="arrowLoader" />
-    </defs>
-
-    <circle fill="none" r="8.5" cx="9" cy="9" stroke="#535c69" stroke-width="1"/>
-    <rect fill="#535c69" width="6px" height="1px" x="8" y="8.5"/>
-    <use xlink:href="#arrowLoader" x="8.5" y="9" />
-
+    @keyframes arrowLoader {
+    100%{ transform: rotate(360deg); }
+    }
+</style>
+<defs>
+    <g id="arrowLoader">
+        <path d="M0.5 9.475C0.5 4.51914 4.51914 0.5 9.475 0.5C14.4309 0.5 18.45 4.51914 18.45 9.475C18.45 14.4309 14.4309 18.45 9.475 18.45C4.51914 18.45 0.5 14.4309 0.5 9.475Z" stroke="#525C69" fill="transparent"/>
+        <g filter="url(#filter0_d)">
+            <line x1="9.5" y1="4" x2="9.5" y2="9.5" stroke="#525C69" stroke-linecap="round"/>
+        </g>
+    </g>
+    <g id="arrowLoader2" filter="url(#filter0_d)">
+        <line x1="15" y1="9.5" x2="9.5" y2="9.5" stroke="#525C69" stroke-linecap="round"/>
+    </g>
+</defs>
+<use xlink:href="#arrowLoader" x="0" y="0" />
+<use xlink:href="#arrowLoader2" x="0" y="0" />
+    <filter id="filter0_d" x="5" y="4" width="9" height="14" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feComposite in2="hardAlpha" operator="out"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
+        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+    </filter>
 </svg>

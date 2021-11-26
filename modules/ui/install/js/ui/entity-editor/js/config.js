@@ -425,7 +425,7 @@ if(typeof BX.UI.EntityConfig === "undefined")
 			{
 				BX.userOptions.save(
 					this.categoryName,
-					this._id + "_common_opts",
+					this._id.toLowerCase() + "_common_opts",
 					name,
 					value,
 					true
@@ -435,7 +435,7 @@ if(typeof BX.UI.EntityConfig === "undefined")
 			{
 				BX.userOptions.save(
 					this.categoryName,
-					this._id + "_custom_opts_" + this._userScopeId,
+					this._id.toLowerCase() + "_custom_opts_" + this._userScopeId,
 					name,
 					value,
 					true

@@ -88,8 +88,8 @@ if ($filter_lang <> '')
 
 
 if ($filter_lang <> '' && $filter_lang!="NOT_REF")
-	$arFilter["=LID"] = trim($filter_lang);	
-	
+	$arFilter["=LID"] = trim($filter_lang);
+
 if($saleModulePermissions < "W")
 {
 	if($filter_lang == '' && count($arAccessibleSites) > 0)
@@ -112,7 +112,7 @@ if($saleModulePermissions == "P")
 	$arSelectFields[] = 'COMPANY_ID';
 
 }
-	
+
 if ((int)($filter_id_from)>0)
 	$arFilter[">=ID"] = (int)($filter_id_from);
 if ((int)($filter_id_to)>0)
@@ -622,7 +622,7 @@ if (!empty($orderList) && is_array($orderList))
 				{
 					$color = "background:rgba(".$colorRGB[0].",".$colorRGB[1].",".$colorRGB[2].",0.6);";
 					$fieldValue = '<div style=	"'.$color.'
-									margin: 0 0 0 -16px;
+									margin: -11px 0 -10px -16px;
 									padding: 11px 10px 10px 16px;
 									height: 100%;
 								">'.$fieldValue."</div>";
@@ -810,7 +810,7 @@ if (!empty($orderList) && is_array($orderList))
 
 		$row->AddField("BASKET_PRODUCT_XML_ID", $fieldProductXML);
 
-		
+
 		if(in_array("USER", $arVisibleColumns))
 			$fieldValue = GetFormatedUserName($arOrder["USER_ID"], false, false);
 
@@ -857,7 +857,7 @@ if($saleModulePermissions >= "W" || !empty($allowedStatusesDelete))
 		),
 	);
 }
-	
+
 $lAdmin->AddAdminContextMenu($aContext);
 $lAdmin->CheckListMode();
 

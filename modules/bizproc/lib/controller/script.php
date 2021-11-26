@@ -195,6 +195,14 @@ class Script extends Base
 			];
 		}
 
+		$userId = $this->getCurrentUser()->getId();
+		if (!Manager::canUserEditScript($script->getId(), $userId))
+		{
+			return [
+				'error' => Loc::getMessage('BIZPROC_CONTROLLER_SCRIPT_CANT_UPDATE_SCRIPT')
+			];
+		}
+
 		Manager::activateScript($scriptId);
 
 		return ['status' => 'success'];
@@ -208,6 +216,14 @@ class Script extends Base
 		{
 			return [
 				'error' => Loc::getMessage('BIZPROC_CONTROLLER_SCRIPT_NOT_EXISTS')
+			];
+		}
+
+		$userId = $this->getCurrentUser()->getId();
+		if (!Manager::canUserEditScript($script->getId(), $userId))
+		{
+			return [
+				'error' => Loc::getMessage('BIZPROC_CONTROLLER_SCRIPT_CANT_UPDATE_SCRIPT')
 			];
 		}
 

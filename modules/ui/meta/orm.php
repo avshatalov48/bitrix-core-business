@@ -141,18 +141,6 @@ namespace Bitrix\Ui\EntityForm {
 }
 namespace Bitrix\Ui\EntityForm {
 	/**
-	 * @method static EO_EntityFormConfigAc_Query query()
-	 * @method static EO_EntityFormConfigAc_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_EntityFormConfigAc_Result getById($id)
-	 * @method static EO_EntityFormConfigAc_Result getList(array $parameters = array())
-	 * @method static EO_EntityFormConfigAc_Entity getEntity()
-	 * @method static \Bitrix\Ui\EntityForm\EO_EntityFormConfigAc createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Ui\EntityForm\EO_EntityFormConfigAc_Collection createCollection()
-	 * @method static \Bitrix\Ui\EntityForm\EO_EntityFormConfigAc wakeUpObject($row)
-	 * @method static \Bitrix\Ui\EntityForm\EO_EntityFormConfigAc_Collection wakeUpCollection($rows)
-	 */
-	class EntityFormConfigAcTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -328,18 +316,6 @@ namespace Bitrix\Ui\EntityForm {
 	}
 }
 namespace Bitrix\Ui\EntityForm {
-	/**
-	 * @method static EO_EntityFormConfig_Query query()
-	 * @method static EO_EntityFormConfig_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_EntityFormConfig_Result getById($id)
-	 * @method static EO_EntityFormConfig_Result getList(array $parameters = array())
-	 * @method static EO_EntityFormConfig_Entity getEntity()
-	 * @method static \Bitrix\Ui\EntityForm\EO_EntityFormConfig createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Ui\EntityForm\EO_EntityFormConfig_Collection createCollection()
-	 * @method static \Bitrix\Ui\EntityForm\EO_EntityFormConfig wakeUpObject($row)
-	 * @method static \Bitrix\Ui\EntityForm\EO_EntityFormConfig_Collection wakeUpCollection($rows)
-	 */
-	class EntityFormConfigTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

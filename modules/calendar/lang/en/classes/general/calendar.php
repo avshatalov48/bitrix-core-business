@@ -158,6 +158,7 @@ $MESS["EC_CLEAR"] = "Clear";
 $MESS["EC_CLEAR_PERS_SETTINGS"] = "Reset personal settings";
 $MESS["EC_CLEAR_SET_CONFIRM"] = "Are you sure you want to delete your personal preferences?";
 $MESS["EC_COMMENTS"] = "Comments";
+$MESS["EC_ENTITY_SELECTOR_ALL_EMPLOYEES"] = "All employees";
 $MESS["EC_COMPANY_CALENDAR"] = "Company calendar";
 $MESS["EC_COMPANY_STRUCTURE"] = "Company Structure";
 $MESS["EC_CONNECT_TO_OUTLOOK"] = "Connect to Outlook";

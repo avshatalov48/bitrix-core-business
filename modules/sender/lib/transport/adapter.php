@@ -354,4 +354,25 @@ class Adapter implements iBase, iLimitation
 
 		return false;
 	}
+
+	/**
+	 * Check limit exceeding and returns iLimiter.
+	 *
+	 * @param Message\iBase|null $message Message.
+	 * @return iLimiter|null
+	 */
+	public function getExceededLimiter(Message\iBase $message = null)
+	{
+		foreach ($this->getLimiters($message) as $limiter)
+		{
+			if ($limiter->getCurrent() < $limiter->getLimit())
+			{
+				continue;
+			}
+
+			return $limiter;
+		}
+
+		return null;
+	}
 }

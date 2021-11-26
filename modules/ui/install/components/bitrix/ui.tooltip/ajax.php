@@ -10,7 +10,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Localization\Loc;
 
-Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/install/components/bitrix/main.user.link/component.php');
+Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'] . '/bitrix/components/bitrix/main.user.link/component.php');
 
 class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 {
@@ -25,7 +25,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 
 	private function getUserId(): int
 	{
-		return (int)$this->userId;
+		return $this->userId;
 	}
 
 	private function setBirthday(): void
@@ -33,7 +33,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 		$userFields = $this->getUserFields($this->getUserId());
 		if (!empty($userFields['PERSONAL_BIRTHDAY']))
 		{
-			$parsedDate = parseDateTime($userFields['PERSONAL_BIRTHDAY'], \CSite::getDateFormat('SHORT'));
+			$parsedDate = parseDateTime($userFields['PERSONAL_BIRTHDAY'], CSite::getDateFormat('SHORT'));
 
 			$this->birthday = (
 				(int)$parsedDate['MM'] === (int)date('n')
@@ -44,7 +44,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 
 	private function getBirthday(): bool
 	{
-		return (bool)$this->birthday;
+		return $this->birthday;
 	}
 
 	private function getHonored(): bool
@@ -59,7 +59,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 
 		if (Loader::includeModule('intranet'))
 		{
-			$result = \CIntranetUtils::isUserHonoured($userId);
+			$result = CIntranetUtils::isUserHonoured($userId);
 		}
 
 		return $result;
@@ -77,7 +77,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 
 		if (Loader::includeModule('intranet'))
 		{
-			$result = \CIntranetUtils::isUserAbsent($userId);
+			$result = CIntranetUtils::isUserAbsent($userId);
 		}
 
 		return $result;
@@ -131,7 +131,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 		}
 		else
 		{
-			$res = \CUser::getById($userId);
+			$res = CUser::getById($userId);
 			$result = $cache[$userId] = $res->fetch();
 		}
 
@@ -323,7 +323,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 					case 'DATE_REGISTER':
 						if ($val <> '')
 						{
-							$val = date($this->getDateTimeFormat(), makeTimeStamp($val, \CSite::getDateFormat("FULL")));
+							$val = date($this->getDateTimeFormat(), makeTimeStamp($val, CSite::getDateFormat()));
 						}
 						break;
 					case 'EMAIL':
@@ -383,7 +383,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 					case 'PERSONAL_BIRTHDAY':
 						if ($val <> '')
 						{
-							$parsedDate = parseDateTime($val, \CSite::getDateFormat('SHORT'));
+							$parsedDate = parseDateTime($val, CSite::getDateFormat('SHORT'));
 							$day = (int)$parsedDate["DD"];
 							$month = (int)$parsedDate["MM"];
 							$year = (int)$parsedDate["YYYY"];
@@ -399,16 +399,14 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 						if ((int)$val > 0)
 						{
 							$size = 150;
-							$imageFile = \CFile::getFileArray($val);
+							$imageFile = CFile::getFileArray($val);
 							if ($imageFile !== false)
 							{
-								$file = \CFile::resizeImageGet(
+								$file = CFile::resizeImageGet(
 									$imageFile,
-									array("width" => $size, "height" => $size),
-									BX_RESIZE_IMAGE_PROPORTIONAL,
-									false
+									array("width" => $size, "height" => $size)
 								);
-								$val = \CFile::showImage($file["src"], $size, $size, "border=0", "");
+								$val = CFile::showImage($file["src"], $size, $size, "border=0", "");
 							}
 						}
 						break;
@@ -465,7 +463,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 						$this->currentEmailUser()
 						|| (
 							Loader::includeModule('extranet')
-							&& !\CExtranet::isIntranetUser()
+							&& !CExtranet::isIntranetUser()
 						)
 					)
 					{
@@ -498,8 +496,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 						null,
 						array("HIDE_ICONS" => "Y")
 					);
-					$value .= ob_get_contents();
-					ob_end_clean();
+					$value .= ob_get_clean();
 
 					if($value <> '')
 					{
@@ -548,7 +545,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 			ModuleManager::isModuleInstalled('extranet')
 			&& (
 				(is_array($userFields["UF_DEPARTMENT"]) && empty($userFields["UF_DEPARTMENT"]))
-				|| (!is_array($userFields["UF_DEPARTMENT"]) && intval($userFields["UF_DEPARTMENT"]) <= 0)
+				|| (!is_array($userFields["UF_DEPARTMENT"]) && (int)$userFields["UF_DEPARTMENT"] <= 0)
 			)
 		);
 	}
@@ -564,7 +561,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 		}
 
 		$detailUrl = $this->getUserUrl();
-		$nameFormatted = \CUser::formatName($this->getNameTemplate(), $userFields, true);
+		$nameFormatted = CUser::formatName($this->getNameTemplate(), $userFields, true);
 
 		if ($this->currentEmailUser())
 		{
@@ -576,7 +573,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 		if (!empty($userFields['PERSONAL_PHOTO']))
 		{
 			$imageSize = 57;
-			$imageFile = \CFile::getFileArray($userFields['PERSONAL_PHOTO']);
+			$imageFile = CFile::getFileArray($userFields['PERSONAL_PHOTO']);
 			if ($imageFile !== false)
 			{
 				$imageResized = CFile::resizeImageGet(
@@ -588,11 +585,11 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 					true
 				);
 
-				$photoSrc = \CFile::showImage($imageResized["src"], $imageSize, $imageSize, "border=0", "");
+				$photoSrc = CFile::showImage($imageResized["src"], $imageSize, $imageSize, "border=0");
 			}
 		}
 
-		$result = array(
+		return [
 			'id' => $userFields['ID'],
 			'active' => ($userFields['ACTIVE'] === 'Y'),
 			'nameFormatted' => $nameFormatted,
@@ -603,9 +600,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 			'hasBirthday' => $this->getBirthday(),
 			'hasHonour' => $this->getHonored(),
 			'hasAbsence' => $this->getAbsent(),
-		);
-
-		return $result;
+		];
 	}
 
 	private function setContext($params = []): void
@@ -666,7 +661,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 		$result = $this->getUserUrlTemplate();
 		if (!empty($result))
 		{
-			$result = \CComponentEngine::makePathFromTemplate($result, array(
+			$result = CComponentEngine::makePathFromTemplate($result, array(
 				"user_id" => $userId,
 				"USER_ID" => $userId,
 				"ID" => $userId
@@ -682,7 +677,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 
 		if ($result === null)
 		{
-			$result = \CSite::getNameFormat(false);
+			$result = CSite::getNameFormat(false);
 		}
 
 		return $result;
@@ -694,7 +689,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 
 		if ($result === null)
 		{
-			$result = trim(\CDatabase::dateFormatToPHP(\CSite::getDateFormat("FULL")));
+			$result = trim(CDatabase::dateFormatToPHP(CSite::getDateFormat()));
 		}
 
 		return $result;
@@ -725,12 +720,12 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 			&& Loader::includeModule('intranet')
 		)
 		{
-			$result = \CIntranetUtils::getDepartmentManager($userData["UF_DEPARTMENT"], $this->getUserId(), true);
+			$result = CIntranetUtils::getDepartmentManager($userData["UF_DEPARTMENT"], $this->getUserId(), true);
 
 			foreach($result as $key => $manager)
 			{
-				$result[$key]["NAME_FORMATTED"] = \CUser::formatName($this->getNameTemplate(), $manager, true, false);
-				$result[$key]["URL"] = \CComponentEngine::makePathFromTemplate($this->getUserUrlTemplate(), array(
+				$result[$key]["NAME_FORMATTED"] = CUser::formatName($this->getNameTemplate(), $manager, true, false);
+				$result[$key]["URL"] = CComponentEngine::makePathFromTemplate($this->getUserUrlTemplate(), array(
 					"user_id" => $manager["ID"],
 					"USER_ID" => $manager["ID"],
 					"ID" => $manager["ID"]
@@ -743,11 +738,11 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 
 	private function getCurrentUserPermissions()
 	{
-		$result = \CSocNetUserPerms::initUserPerms($this->getCurrentUser()->getID(), $this->getUserId(), \CSocNetUser::isCurrentUserModuleAdmin());
+		$result = CSocNetUserPerms::initUserPerms($this->getCurrentUser()->getID(), $this->getUserId(), CSocNetUser::isCurrentUserModuleAdmin());
 
 		if (
 			!Loader::includeModule("video")
-			|| !\CVideo::canUserMakeCall()
+			|| !CVideo::canUserMakeCall()
 		)
 		{
 			$result["Operations"]["videocall"] = false;
@@ -786,18 +781,16 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 
 		if(
 			Loader::includeModule("socialnetwork")
-			&& !\CSocNetUser::canProfileView($this->getCurrentUser()->getId(), $userData['id'], SITE_ID, $this->getContext())
+			&& !CSocNetUser::canProfileView($this->getCurrentUser()->getId(), $userData['id'], SITE_ID, $this->getContext())
 		)
 		{
 			$this->addError(new \Bitrix\Main\Error('No access'));
 			return null;
 		}
 
-		$result = array(
+		return [
 			'user' => $userData,
 			'currentUserPerms' => $this->getCurrentUserPermissions()
-		);
-
-		return $result;
+		];
 	}
 }

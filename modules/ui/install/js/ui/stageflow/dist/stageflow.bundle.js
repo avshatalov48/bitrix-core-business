@@ -167,7 +167,7 @@ this.BX = this.BX || {};
 	    value: function removeBackLight() {
 	      if (this.textNode) {
 	        this.textNode.style.borderImage = this.getBackgroundImage();
-	        this.textNode.style.color = Stage.calculateTextColor('#' + this.backgroundColor);
+	        this.textNode.style.color = Stage.calculateTextColor('#' + (this.isFilled ? this.fillingColor : this.backgroundColor));
 	      }
 	    }
 	  }], [{

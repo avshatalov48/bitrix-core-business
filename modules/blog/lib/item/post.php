@@ -187,10 +187,11 @@ class Post
 			$perms = Permissions::FULL;
 		}
 
+		$openedWorkgroupsList = [];
 		$readByOpenSonetGroup = false;
 		$alreadyFound = false;
 
-		if($perms <= Permissions::DENY)
+		if ($perms <= Permissions::DENY)
 		{
 			$permsList = \CBlogPost::getSocNetPerms($fields['ID']);
 
@@ -350,34 +351,36 @@ class Post
 					}
 				}
 
-				if(
+				if (
 					$perms <= Permissions::READ
 					&& !empty($permsList['SG'])
 				) // check open sonet groups
 				{
-					foreach($permsList['SG'] as $sonetGroupPermList)
+					foreach ($permsList['SG'] as $sonetGroupPermList)
 					{
-						if (!empty($sonetGroupPermList))
+						if (empty($sonetGroupPermList))
 						{
-							foreach($sonetGroupPermList as $sonetGroupPerm)
-							{
-								if (preg_match('/^OSG(\d+)_'.(!$userId ? SONET_ROLES_ALL : SONET_ROLES_AUTHORIZED).'$/', $sonetGroupPerm, $matches))
-								{
-									$readByOpenSonetGroup = true;
-									break;
-								}
-							}
+							continue;
+						}
 
-							if ($readByOpenSonetGroup)
+						foreach ($sonetGroupPermList as $sonetGroupPerm)
+						{
+							if (!preg_match('/^OSG(\d+)_'.(!$userId ? SONET_ROLES_ALL : SONET_ROLES_AUTHORIZED).'$/', $sonetGroupPerm, $matches))
 							{
-								break;
+								continue;
 							}
+							$openedWorkgroupsList[] = (int)$matches[1];
 						}
 					}
 
-					if ($readByOpenSonetGroup)
+					if (
+						!empty($openedWorkgroupsList)
+						&& Loader::includeModule('socialnetwork')
+						&& \Bitrix\Socialnetwork\Helper\Workgroup::checkAnyOpened($openedWorkgroupsList)
+					)
 					{
 						$perms = Permissions::READ;
+						$readByOpenSonetGroup = true;
 					}
 				}
 
@@ -440,10 +443,10 @@ class Post
 			}
 		}
 
-		$cache[$cacheId] = $result = array(
+		$cache[$cacheId] = $result = [
 			'PERM' => $perms,
-			'READ_BY_OSG' => $readByOpenSonetGroup
-		);
+			'READ_BY_OSG' => $readByOpenSonetGroup,
+		];
 
 		return $result;
 	}

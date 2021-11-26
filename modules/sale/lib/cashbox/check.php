@@ -844,9 +844,8 @@ abstract class Check extends AbstractCheck
 	protected function getDeliveryVatId(Shipment $shipment)
 	{
 		$calcDeliveryTax = Main\Config\Option::get("sale", "COUNT_DELIVERY_TAX", "N");
-		if ($calcDeliveryTax === 'Y')
+		if ($calcDeliveryTax === 'Y' && $service = $shipment->getDelivery())
 		{
-			$service = $shipment->getDelivery();
 			return $service->getVatId();
 		}
 

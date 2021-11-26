@@ -29,8 +29,6 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 	<?=bitrix_sessid_post()?>
 	<input type="hidden" name="REVIEW_USE_SMILES" value="Y"  />
 	<input type="hidden" name="comment_review" value="Y"  /><?
-	if ($arParams['AUTOSAVE'])
-		$arParams['AUTOSAVE']->Init();
 		ob_start();
 		/* GUEST PANEL */
 		if (!$GLOBALS["USER"]->IsAuthorized())
@@ -87,6 +85,7 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 					array_intersect(array("UploadFile", "CreateLink", "InputVideo", "Quote", "MentionUser"),
 						forumTextParser::GetEditorButtons(array('forum' => $arParams["ALLOW"]))
 				)),
+				'ALLOW_MENTION_EMAIL_USER' => ($arParams['ALLOW_MENTION_EMAIL_USER'] ?? 'N'),
 				"LHE" => array(
 					'id' => $arParams["LheId"],
 					'jsObjName' => $arParams["jsObjName"],
@@ -147,10 +146,3 @@ BX.message({
 	FCCID : '<?=$arParams["mfi"]?>'
 });
 </script>
-<?
-if ($arParams['AUTOSAVE'])
-	$arParams['AUTOSAVE']->LoadScript(array(
-		"formID" => "COMMENTS".CUtil::JSEscape($arParams["form_index"]),
-		"controlID" => "REVIEW_TEXT"
-	));
-?>

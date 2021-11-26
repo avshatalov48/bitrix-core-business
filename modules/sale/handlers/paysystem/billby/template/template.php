@@ -388,10 +388,7 @@ if ($params['BILLBY_PAYER_SHOW'] == 'Y')
 <br>
 <br>
 
-<?
-$arCurFormat = CCurrencyLang::GetCurrencyFormat($params['CURRENCY']);
-$currency = preg_replace('/(^|[^&])#/', '${1}', $arCurFormat['FORMAT_STRING']);
-
+<?php
 // Precision
 $currencyFormat = CCurrencyLang::GetFormatDescription($params['CURRENCY']);
 if ($currencyFormat === false)

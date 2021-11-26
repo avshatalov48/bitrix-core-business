@@ -211,7 +211,7 @@ class OrderCreate extends Base
 		foreach($shipments as $shipment)
 		{
 			$shipmentParams = AdditionalHandler::getShipmentParams($shipment, $this->deliveryService->getServiceType());
-			$deliveryConfig = $shipment->getDelivery()->getConfig();
+			$deliveryConfig = $shipment->getDelivery() ? $shipment->getDelivery()->getConfig() : [];
 			$shipmentId = $shipment->getId();
 
 			$mailType = $deliveryConfig['MAIN']['ITEMS']['OTPRAVKA_RPO']['VALUE'];

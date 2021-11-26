@@ -12,7 +12,7 @@ class ExceptionHandlerFormatter
 	const DELIMITER = '----------';
 
 	/**
-	 * @param \Error|\Exception $exception
+	 * @param \Throwable $exception
 	 * @param bool $htmlMode
 	 * @param int $level
 	 * @return string
@@ -35,7 +35,6 @@ class ExceptionHandlerFormatter
 		if ($htmlMode)
 			$result = Main\Text\HtmlFilter::encode($result);
 
-		$prevArg = null;
 		$trace = static::getTrace($exception);
 		foreach ($trace as $traceNum => $traceInfo)
 		{
@@ -72,7 +71,7 @@ class ExceptionHandlerFormatter
 	}
 
 	/**
-	 * @param \Error|\Exception $exception
+	 * @param \Throwable $exception
 	 * @return array
 	 */
 	protected static function getTrace($exception)
@@ -94,7 +93,7 @@ class ExceptionHandlerFormatter
 	}
 
 	/**
-	 * @param \Error|\Exception $exception
+	 * @param \Throwable $exception
 	 * @return string
 	 */
 	protected static function getMessage($exception)
@@ -108,55 +107,38 @@ class ExceptionHandlerFormatter
 		{
 			case 1:
 				return 'E_ERROR';
-				break;
 			case 2:
 				return 'E_WARNING';
-				break;
 			case 4:
 				return 'E_PARSE';
-				break;
 			case 8:
 				return 'E_NOTICE';
-				break;
 			case 16:
 				return 'E_CORE_ERROR';
-				break;
 			case 32:
 				return 'E_CORE_WARNING';
-				break;
 			case 64:
 				return 'E_COMPILE_ERROR';
-				break;
 			case 128:
 				return 'E_COMPILE_WARNING';
-				break;
 			case 256:
 				return 'E_USER_ERROR';
-				break;
 			case 512:
 				return 'E_USER_WARNING';
-				break;
 			case 1024:
 				return 'E_USER_NOTICE';
-				break;
 			case 2048:
 				return 'E_STRICT';
-				break;
 			case 4096:
 				return 'E_RECOVERABLE_ERROR';
-				break;
 			case 8192:
 				return 'E_DEPRECATED';
-				break;
 			case 16384:
 				return 'E_USER_DEPRECATED';
-				break;
 			case 30719:
 				return 'E_ALL';
-				break;
 			default:
 				return 'UNKNOWN';
-				break;
 		}
 	}
 
@@ -180,7 +162,6 @@ class ExceptionHandlerFormatter
 			return gettype($arg);
 		}
 
-		$result = null;
 		switch (gettype($arg))
 		{
 			case 'boolean':

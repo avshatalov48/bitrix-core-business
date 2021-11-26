@@ -374,6 +374,7 @@ $MESS["IM_PHONE_TIMER_WITHOUT_RECORD"] = "Conversation length: #MIN#:#SEC#";
 $MESS["IM_PHONE_TIMER_WITH_RECORD"] = "Recording #MIN#:#SEC#";
 $MESS["IM_PHONE_WORK_PHONE"] = "Work Phone";
 $MESS["IM_PM_TITLE"] = "You were mentioned";
+$MESS["IM_PROMO_CRMFORM_17092021_WEB"] = "Send any CRM form directly to the customer in the live chat. #BR# All the form data will be saved to the CRM.";
 $MESS["IM_PROMO_VIDEO_01042020_WEB"] = "In-chat video calls have been improved dramatically!#BR##BR# Video quality, speed and stability are now much higher even over a poor Internet connection.#BR##BR# Try it now!";
 $MESS["IM_P_CLOSE"] = "Close";
 $MESS["IM_P_LINK"] = "Link:";

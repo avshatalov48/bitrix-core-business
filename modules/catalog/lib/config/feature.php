@@ -26,9 +26,6 @@ final class Feature
 	/** @var null|bool sign of the presence of Bitrix24 */
 	private static $bitrix24Included = null;
 
-	/** @var array features hit cache */
-	private static $featureList = [];
-
 	/** @var array map of compliance with tariff and edition restrictions */
 	private static $tranferList = [
 		self::PRODUCT_SETS => 'CatCompleteSet',
@@ -234,25 +231,27 @@ final class Feature
 	private static function isFeatureEnabled(string $featureId): bool
 	{
 		if ($featureId === '')
-			return false;
-		if (!isset(self::$featureList[$featureId]))
 		{
-			if (self::isBitrix24())
+			return false;
+		}
+
+		$result = true;
+		if (self::isBitrix24())
+		{
+			if (isset(self::$bitrix24exist[$featureId]))
 			{
-				if (isset(self::$bitrix24exist[$featureId]))
-					self::$featureList[$featureId] = Bitrix24\Feature::isFeatureEnabled($featureId);
-				else
-					self::$featureList[$featureId] = true;
-			}
-			else
-			{
-				if (isset(self::$retailExist[$featureId]))
-					self::$featureList[$featureId] = \CBXFeatures::IsFeatureEnabled(self::$tranferList[$featureId]);
-				else
-					self::$featureList[$featureId] = true;
+				$result = Bitrix24\Feature::isFeatureEnabled($featureId);
 			}
 		}
-		return self::$featureList[$featureId];
+		else
+		{
+			if (isset(self::$retailExist[$featureId]))
+			{
+				$result = \CBXFeatures::IsFeatureEnabled(self::$tranferList[$featureId]);
+			}
+		}
+
+		return $result;
 	}
 
 	/**

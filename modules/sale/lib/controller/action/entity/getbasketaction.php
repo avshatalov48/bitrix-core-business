@@ -4,7 +4,6 @@ namespace Bitrix\Sale\Controller\Action\Entity;
 
 use Bitrix\Main;
 use Bitrix\Sale;
-use Bitrix\Sale\Helpers;
 
 /**
  * Class GetBasketAction
@@ -20,12 +19,22 @@ final class GetBasketAction extends BaseAction
 
 		if (empty($fields['SITE_ID']))
 		{
-			$this->addError(new Main\Error('siteId not found', 202340400001));
+			$this->addError(
+				new Main\Error(
+					'siteId not found',
+					Sale\Controller\ErrorEnumeration::GET_BASKET_ACTION_SITE_ID_NOT_FOUND
+				)
+			);
 		}
 
 		if (empty($fields['FUSER_ID']) || (int)$fields['FUSER_ID'] <= 0)
 		{
-			$this->addError(new Main\Error('fuserId not found', 202340400002));
+			$this->addError(
+				new Main\Error(
+					'fuserId not found',
+					Sale\Controller\ErrorEnumeration::GET_BASKET_ACTION_FUSER_ID_NOT_FOUND
+				)
+			);
 		}
 
 		return $result;
@@ -50,8 +59,8 @@ final class GetBasketAction extends BaseAction
 		$order->setBasket($basket);
 
 		return [
-			'BASKET_ITEMS' => Helpers\Controller\Action\Entity\Order::getOrderProductsByBasket($basket),
-			'ORDER_PRICE_TOTAL' => Helpers\Controller\Action\Entity\Order::getTotal($order),
+			'BASKET_ITEMS' => Sale\Helpers\Controller\Action\Entity\Order::getOrderProductsByBasket($basket),
+			'ORDER_PRICE_TOTAL' => Sale\Helpers\Controller\Action\Entity\Order::getTotal($order),
 		];
 	}
 

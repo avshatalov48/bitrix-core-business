@@ -44,7 +44,7 @@ $attrList['class'] = implode(' ',[
 $attrList['name'] = $arResult['fieldName'];
 $attrList['placeholder'] = (
 	$arParams['userField']['placeholder']
-	?? htmlspecialcharsback($arParams['userField']['EDIT_FORM_LABEL'])
+	?? htmlspecialcharsback($arParams['~userField']['EDIT_FORM_LABEL'])
 );
 
 $attrList['type'] = 'text';

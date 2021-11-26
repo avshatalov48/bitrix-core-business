@@ -37,6 +37,9 @@ Loader::registerAutoLoadClasses(
 
 class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 {
+	/** @var string */
+	protected $handlerCode = 'BITRIX_SPSR';
+
 	protected static $url_test_request = "http://spsr.ru/testxml";
 
 	/** @var bool $canHasProfiles This handler can has profiles */

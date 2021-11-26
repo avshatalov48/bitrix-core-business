@@ -9,7 +9,6 @@ use Bitrix\Sale\Cashbox\CashboxRest;
 use Bitrix\Sale\Cashbox\Manager;
 use Bitrix\Sale\Internals\CashboxRestHandlerTable;
 use Bitrix\Sale\Helpers;
-use Bitrix\Sale\Location\Exception;
 
 if (!Main\Loader::includeModule('rest'))
 {
@@ -64,6 +63,7 @@ class HandlerService extends RestService
 	/**
 	 * @param $params
 	 * @throws RestException
+	 * @throws AccessException
 	 */
 	private static function checkParamsBeforeUpdateHandler($params)
 	{
@@ -84,7 +84,7 @@ class HandlerService extends RestService
 
 		if ($params['APP_ID'] && !empty($handler['APP_ID']) && $handler['APP_ID'] !== $params['APP_ID'])
 		{
-			throw new RestException('Access denied', self::ERROR_CHECK_FAILURE);
+			throw new AccessException();
 		}
 
 		if (empty($params['FIELDS']) || !is_array($params['FIELDS']))
@@ -101,6 +101,7 @@ class HandlerService extends RestService
 	/**
 	 * @param $params
 	 * @throws RestException
+	 * @throws AccessException
 	 */
 	private static function checkParamsBeforeDeleteHandler($params)
 	{
@@ -121,7 +122,7 @@ class HandlerService extends RestService
 
 		if ($params['APP_ID'] && !empty($handler['APP_ID']) && $handler['APP_ID'] !== $params['APP_ID'])
 		{
-			throw new RestException('Access denied', self::ERROR_CHECK_FAILURE);
+			throw new AccessException();
 		}
 
 		$cashboxListResult = Manager::getList([
@@ -251,18 +252,17 @@ class HandlerService extends RestService
 	public static function getHandlerList($params, $page, \CRestServer $server)
 	{
 		Helpers\Rest\AccessChecker::checkAccessPermission();
-		$params = self::prepareHandlerParams($params, $server);
-		$appId = $params['APP_ID'];
 
-		$handlers = Manager::getRestHandlersList();
-		if ($appId)
+		$result = [];
+
+		$dbRes = CashboxRestHandlerTable::getList([
+			'select' => ['ID', 'NAME', 'CODE', 'SORT', 'SETTINGS'],
+		]);
+		while ($item = $dbRes->fetch())
 		{
-			$filterByAppID = static function ($handler) use ($appId) {
-				return $handler['APP_ID'] === $appId;
-			};
-			$handlers = array_filter($handlers, $filterByAppID);
+			$result[] = $item;
 		}
 
-		return $handlers;
+		return $result;
 	}
 }

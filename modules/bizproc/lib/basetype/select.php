@@ -183,12 +183,14 @@ class Select extends Base
 			$selectorAttributes
 		);
 
-		if (!$fieldType->isMultiple())
+		$settings = static::getFieldSettings($fieldType);
+
+		$showEmptyValue = isset($settings['ShowEmptyValue']) ? \CBPHelper::getBool($settings['ShowEmptyValue']) : null;
+		if (($showEmptyValue === null && !$fieldType->isMultiple()) || $showEmptyValue === true)
 		{
 			$renderResult .= '<option value="">['.Loc::getMessage('BPCGHLP_NOT_SET').']</option>';
 		}
 
-		$settings = static::getFieldSettings($fieldType);
 		$groups = $settings['Groups'] ?: null;
 
 		if(is_array($groups) && !empty($groups))

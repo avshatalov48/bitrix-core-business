@@ -1,4 +1,4 @@
-<?
+<?php
 /** @global \CMain $APPLICATION */
 use Bitrix\Main\Loader,
 	Bitrix\Main\Localization\Loc,
@@ -9,57 +9,57 @@ use Bitrix\Main\Loader,
 
 Loc::loadMessages(__FILE__);
 
-define('CATALOG_CONTAINER_PATH', 'modules/catalog/.container.php');
+const CATALOG_CONTAINER_PATH = 'modules/catalog/.container.php';
 
-define("CATALOG_PATH2EXPORTS", "/bitrix/php_interface/include/catalog_export/");
-define("CATALOG_PATH2EXPORTS_DEF", "/bitrix/modules/catalog/load/");
-define('CATALOG_DEFAULT_EXPORT_PATH', '/bitrix/catalog_export/');
+const CATALOG_PATH2EXPORTS = "/bitrix/php_interface/include/catalog_export/";
+const CATALOG_PATH2EXPORTS_DEF = "/bitrix/modules/catalog/load/";
+const CATALOG_DEFAULT_EXPORT_PATH = '/bitrix/catalog_export/';
 
-define("CATALOG_PATH2IMPORTS", "/bitrix/php_interface/include/catalog_import/");
-define("CATALOG_PATH2IMPORTS_DEF", "/bitrix/modules/catalog/load_import/");
+const CATALOG_PATH2IMPORTS = "/bitrix/php_interface/include/catalog_import/";
+const CATALOG_PATH2IMPORTS_DEF = "/bitrix/modules/catalog/load_import/";
 
-define("YANDEX_SKU_EXPORT_ALL",1);
-define("YANDEX_SKU_EXPORT_MIN_PRICE",2);
-define("YANDEX_SKU_EXPORT_PROP",3);
-define("YANDEX_SKU_TEMPLATE_PRODUCT",1);
-define("YANDEX_SKU_TEMPLATE_OFFERS",2);
-define("YANDEX_SKU_TEMPLATE_CUSTOM",3);
+const YANDEX_SKU_EXPORT_ALL = 1;
+const YANDEX_SKU_EXPORT_MIN_PRICE = 2;
+const YANDEX_SKU_EXPORT_PROP = 3;
+const YANDEX_SKU_TEMPLATE_PRODUCT = 1;
+const YANDEX_SKU_TEMPLATE_OFFERS = 2;
+const YANDEX_SKU_TEMPLATE_CUSTOM = 3;
 
-define("EXPORT_VERSION_OLD", 1);
-define("EXPORT_VERSION_NEW", 2);
+const EXPORT_VERSION_OLD = 1;
+const EXPORT_VERSION_NEW = 2;
 
 /*
 * @deprecated deprecated since catalog 14.5.3
 * @see CCatalogDiscount::ENTITY_ID
 */
-define('DISCOUNT_TYPE_STANDART',0);
+const DISCOUNT_TYPE_STANDART = 0;
 /*
 * @deprecated deprecated since catalog 14.5.3
 * @see CCatalogDiscountSave::ENTITY_ID
 */
-define('DISCOUNT_TYPE_SAVE',1);
+const DISCOUNT_TYPE_SAVE = 1;
 
 /*
 * @deprecated deprecated since catalog 14.5.3
 * @see CCatalogDiscount::OLD_FORMAT
 */
-define("CATALOG_DISCOUNT_OLD_VERSION", 1);
+const CATALOG_DISCOUNT_OLD_VERSION = 1;
 /*
 * @deprecated deprecated since catalog 14.5.3
 * @see CCatalogDiscount::CURRENT_FORMAT
 */
-define("CATALOG_DISCOUNT_NEW_VERSION", 2);
+const CATALOG_DISCOUNT_NEW_VERSION = 2;
 
-define('BX_CATALOG_FILENAME_REG','/[^a-zA-Z0-9\s!#\$%&\(\)\[\]\{\}+\.;=@\^_\~\/\\\\\-]/i');
+const BX_CATALOG_FILENAME_REG = '/[^a-zA-Z0-9\s!#\$%&\(\)\[\]\{\}+\.;=@\^_\~\/\\\\\-]/i';
 
 // Constants for the store control: //
-define('CONTRACTOR_INDIVIDUAL', 1);
-define('CONTRACTOR_JURIDICAL', 2);
-define('DOC_ARRIVAL', 'A');
-define('DOC_MOVING', 'M');
-define('DOC_RETURNS', 'R');
-define('DOC_DEDUCT', 'D');
-define('DOC_INVENTORY', 'I');
+const CONTRACTOR_INDIVIDUAL = 1;
+const CONTRACTOR_JURIDICAL = 2;
+const DOC_ARRIVAL = 'A';
+const DOC_MOVING = 'M';
+const DOC_RETURNS = 'R';
+const DOC_DEDUCT = 'D';
+const DOC_INVENTORY = 'I';
 
 //**********************************//
 
@@ -85,9 +85,9 @@ $arTreeDescr = array(
 );
 CJSCore::RegisterExt('core_condtree', $arTreeDescr);
 
-define('CATALOG_VALUE_EPSILON', 1e-6);
-define('CATALOG_VALUE_PRECISION', 2);
-define('CATALOG_CACHE_DEFAULT_TIME', 10800);
+const CATALOG_VALUE_EPSILON = 1e-6;
+const CATALOG_VALUE_PRECISION = 2;
+const CATALOG_CACHE_DEFAULT_TIME = 10800;
 
 require_once __DIR__.'/autoload.php';
 
@@ -148,8 +148,7 @@ if (defined('CATALOG_GLOBAL_VARS') && CATALOG_GLOBAL_VARS == 'Y')
  */
 function GetCatalogGroups($by = "SORT", $order = "ASC")
 {
-	$res = CCatalogGroup::GetList(array($by => $order));
-	return $res;
+	return CCatalogGroup::GetList(array($by => $order));
 }
 
 /**
@@ -547,7 +546,7 @@ function CatalogPayOrderCallback($productID, $userID, $bPaid, $orderID)
 
 	$productID = intval($productID);
 	$userID = intval($userID);
-	$bPaid = ($bPaid ? true : false);
+	$bPaid = (bool)$bPaid;
 	$orderID = intval($orderID);
 
 	if ($userID <= 0)
@@ -965,7 +964,7 @@ function CatalogRecurringCallback($productID, $userID)
 						if ($arOneDiscount['CURRENCY'] == $arPrice["PRICE"]["CURRENCY"])
 							$dblMaxDiscount = $arOneDiscount['MAX_DISCOUNT'];
 						else
-							$dblMaxDiscount = CCurrencyRates::ConvertCurrency($arOneDiscount['MAX_DISCOUNT'], $arOneDiscount["CURRENCY"], $arPrice["PRICE"]["CURRENCY"]);;
+							$dblMaxDiscount = CCurrencyRates::ConvertCurrency($arOneDiscount['MAX_DISCOUNT'], $arOneDiscount["CURRENCY"], $arPrice["PRICE"]["CURRENCY"]);
 						if ($currentDiscount > $dblMaxDiscount)
 							$currentDiscount = $dblMaxDiscount;
 					}
@@ -1060,7 +1059,7 @@ function CatalogBasketCancelCallback($PRODUCT_ID, $QUANTITY, $bCancel)
 {
 	$PRODUCT_ID = intval($PRODUCT_ID);
 	$QUANTITY = doubleval($QUANTITY);
-	$bCancel = ($bCancel ? true : false);
+	$bCancel = (bool)$bCancel;
 
 	if ($bCancel)
 		CCatalogProduct::QuantityTracer($PRODUCT_ID, -$QUANTITY);
@@ -1161,7 +1160,7 @@ function Add2Basket($PRICE_ID, $QUANTITY = 1, $arRewriteFields = array(), $arPro
 	}
 	if (
 		($arCatalogProduct['TYPE'] == Catalog\ProductTable::TYPE_SKU || $arCatalogProduct['TYPE'] == Catalog\ProductTable::TYPE_EMPTY_SKU)
-		&& (string)Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') != 'Y'
+		&& Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') != 'Y'
 	)
 	{
 		$APPLICATION->ThrowException(Loc::getMessage('CATALOG_ERR_CANNOT_ADD_SKU'), "NO_PRODUCT");
@@ -2203,7 +2202,7 @@ function __GetCatLangMessages($strBefore, $strAfter, $MessID, $strDefMess = fals
 			{
 				if (empty($strMessID))
 					continue;
-				$arResult[$strMessID][$strLID] = (isset($arMess[$strMessID]) ? $arMess[$strMessID] : $strDefMess);
+				$arResult[$strMessID][$strLID] = $arMess[$strMessID] ?? $strDefMess;
 			}
 			if (isset($strMessID))
 				unset($strMessID);

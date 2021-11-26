@@ -2,9 +2,7 @@
 
 namespace Bitrix\Main\Component;
 
-
 use Bitrix\Main\Security;
-use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Web\Uri;

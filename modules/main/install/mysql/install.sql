@@ -1,7 +1,7 @@
 CREATE TABLE b_lang
 (
 	LID char(2) not null,
-	SORT int(18) not null default '100',
+	SORT int not null default '100',
 	DEF char(1) not null default 'N',
 	ACTIVE char(1) not null default 'Y',
 	NAME varchar(50) not null,
@@ -46,7 +46,7 @@ create table b_culture
 	FORMAT_DATE varchar(50),
 	FORMAT_DATETIME varchar(50),
 	FORMAT_NAME varchar(50),
-	WEEK_START int(1) null default 1,
+	WEEK_START int null default 1,
 	CHARSET varchar(50),
 	DIRECTION char(1) null default 'Y',
 	SHORT_DATE_FORMAT varchar(50) null default 'n/j/Y',
@@ -77,12 +77,12 @@ CREATE TABLE b_lang_domain
 
 CREATE TABLE b_event_type
 (
-	ID INT(18) not null auto_increment,
+	ID INT not null auto_increment,
 	LID char(2) not null,
 	EVENT_NAME varchar(255) not null,
 	NAME varchar(100),
 	DESCRIPTION text,
-	SORT INT(18) not null default '150',
+	SORT INT not null default '150',
 	EVENT_TYPE varchar(10) not null default 'email',
 	PRIMARY KEY (ID),
 	UNIQUE ux_1 (EVENT_NAME, LID)
@@ -90,7 +90,7 @@ CREATE TABLE b_event_type
 
 CREATE TABLE b_event_message
 (
-	ID INT(18) not null auto_increment,
+	ID INT not null auto_increment,
 	TIMESTAMP_X timestamp,
 	EVENT_NAME varchar(255) not null,
 	LID char(2),
@@ -119,24 +119,24 @@ CREATE TABLE b_event_message
 
 CREATE TABLE b_event_attachment
 (
-  EVENT_ID int(18) not null,
-  FILE_ID int(18) not null,
+  EVENT_ID int not null,
+  FILE_ID int not null,
   IS_FILE_COPIED char(1) not null default 'Y',
   PRIMARY KEY (EVENT_ID, FILE_ID)
 );
 
 CREATE TABLE b_event_message_attachment
 (
-  EVENT_MESSAGE_ID int(18) not null,
-  FILE_ID int(18) not null,
+  EVENT_MESSAGE_ID int not null,
+  FILE_ID int not null,
   PRIMARY KEY (EVENT_MESSAGE_ID, FILE_ID)
 );
 
 CREATE TABLE b_event
 (
-	ID INT(18) not null auto_increment,
+	ID INT not null auto_increment,
 	EVENT_NAME varchar(255) not null,
-	MESSAGE_ID int(18),
+	MESSAGE_ID int,
 	LID varchar(255) not null,
 	C_FIELDS longtext,
 	DATE_INSERT datetime,
@@ -151,10 +151,10 @@ CREATE TABLE b_event
 
 CREATE TABLE b_group
 (
-	ID int(18) not null auto_increment,
+	ID int not null auto_increment,
 	TIMESTAMP_X timestamp,
 	ACTIVE char(1) not null default 'Y',
-	C_SORT int(18) not null default '100',
+	C_SORT int not null default '100',
 	ANONYMOUS char(1) not null default 'N',
 	IS_SYSTEM char(1) not null default 'Y',
 	NAME varchar(255) not null,
@@ -166,7 +166,7 @@ CREATE TABLE b_group
 
 CREATE TABLE b_user
 (
-	ID int(18) not null auto_increment,
+	ID int not null auto_increment,
 	TIMESTAMP_X timestamp,
 	LOGIN varchar(50) not null,
 	`PASSWORD` varchar(255) not null,
@@ -183,7 +183,7 @@ CREATE TABLE b_user
 	PERSONAL_ICQ varchar(255),
 	PERSONAL_GENDER char(1),
 	PERSONAL_BIRTHDATE varchar(50),
-	PERSONAL_PHOTO int(18),
+	PERSONAL_PHOTO int,
 	PERSONAL_PHONE varchar(255),
 	PERSONAL_FAX varchar(255),
 	PERSONAL_MOBILE varchar(255),
@@ -209,7 +209,7 @@ CREATE TABLE b_user
 	WORK_ZIP varchar(255),
 	WORK_COUNTRY varchar(255),
 	WORK_PROFILE text,
-	WORK_LOGO int(18),
+	WORK_LOGO int,
 	WORK_NOTES text,
 	ADMIN_NOTES text,
 	STORED_HASH varchar(32),
@@ -219,11 +219,11 @@ CREATE TABLE b_user
 	CHECKWORD_TIME datetime,
 	SECOND_NAME varchar(50),
 	CONFIRM_CODE varchar(8),
-	LOGIN_ATTEMPTS int(18),
+	LOGIN_ATTEMPTS int,
 	LAST_ACTIVITY_DATE datetime,
 	AUTO_TIME_ZONE char(1),
 	TIME_ZONE varchar(50),
-	TIME_ZONE_OFFSET int(18),
+	TIME_ZONE_OFFSET int,
 	TITLE varchar(255) null,
 	BX_USER_ID varchar(32) null,
 	LANGUAGE_ID char(2) null,
@@ -250,7 +250,7 @@ CREATE TABLE b_user_password
 
 CREATE TABLE b_user_index
 (
-	USER_ID int(11) not null,
+	USER_ID int not null,
 	SEARCH_USER_CONTENT text null,
 	SEARCH_DEPARTMENT_CONTENT text null,
 	SEARCH_ADMIN_CONTENT text null,
@@ -275,8 +275,8 @@ CREATE TABLE b_user_index_selector
 
 CREATE TABLE b_user_group
 (
-	USER_ID INT(18) not null,
-	GROUP_ID INT(18) not null,
+	USER_ID INT not null,
+	GROUP_ID INT not null,
 	DATE_ACTIVE_FROM datetime,
 	DATE_ACTIVE_TO datetime,
 	UNIQUE ix_user_group (USER_ID, GROUP_ID),
@@ -285,13 +285,13 @@ CREATE TABLE b_user_group
 
 CREATE TABLE b_user_field_confirm
 (
-	ID INT(18) not null auto_increment,
-	USER_ID INT(18) not null,
+	ID INT not null auto_increment,
+	USER_ID INT not null,
 	DATE_CHANGE timestamp,
 	FIELD varchar(255) not null,
 	FIELD_VALUE varchar(255) not null,
 	CONFIRM_CODE varchar(32) not null,
-	ATTEMPTS INT(18) default 0,
+	ATTEMPTS INT default 0,
 	PRIMARY KEY (ID),
 	INDEX ix_b_user_field_confirm1 (USER_ID, CONFIRM_CODE)
 );
@@ -306,8 +306,8 @@ CREATE TABLE b_module
 CREATE TABLE b_option
 (
 	MODULE_ID VARCHAR(50) not null,
-	NAME VARCHAR(50) not null,
-	VALUE TEXT,
+	NAME VARCHAR(100) not null,
+	VALUE MEDIUMTEXT,
 	DESCRIPTION VARCHAR(255),
 	SITE_ID CHAR(2), -- deprecated
 	PRIMARY KEY(MODULE_ID, NAME),
@@ -317,9 +317,9 @@ CREATE TABLE b_option
 CREATE TABLE b_option_site
 (
 	MODULE_ID VARCHAR(50) not null,
-	NAME VARCHAR(50) not null,
+	NAME VARCHAR(100) not null,
 	SITE_ID CHAR(2) not null,
-	VALUE TEXT,
+	VALUE MEDIUMTEXT,
 	PRIMARY KEY(MODULE_ID, NAME, SITE_ID),
 	INDEX ix_option_site_module_site(MODULE_ID, SITE_ID)
 );
@@ -328,7 +328,7 @@ CREATE TABLE b_module_to_module
 (
 	ID int not null auto_increment,
 	TIMESTAMP_X TIMESTAMP,
-	SORT INT(18) not null default '100',
+	SORT INT not null default '100',
 	FROM_MODULE_ID VARCHAR(50) not null,
 	MESSAGE_ID VARCHAR(255) not null,
 	TO_MODULE_ID VARCHAR(50) not null,
@@ -336,7 +336,7 @@ CREATE TABLE b_module_to_module
 	TO_CLASS VARCHAR(255),
 	TO_METHOD VARCHAR(255),
 	TO_METHOD_ARG varchar(255),
-	VERSION int(18) null,
+	VERSION int null,
 	UNIQUE_ID varchar(32) not null,
 	PRIMARY KEY (ID),
 	INDEX ix_module_to_module(FROM_MODULE_ID(20), MESSAGE_ID(20), TO_MODULE_ID(20), TO_CLASS(20), TO_METHOD(20)),
@@ -345,17 +345,17 @@ CREATE TABLE b_module_to_module
 
 CREATE TABLE b_agent
 (
-	ID INT(18) not null auto_increment,
+	ID INT not null auto_increment,
 	MODULE_ID varchar(50),
-	SORT INT(18) not null default '100',
+	SORT INT not null default '100',
 	NAME text null,
 	ACTIVE char(1) not null default 'Y',
 	LAST_EXEC datetime,
 	NEXT_EXEC datetime not null,
 	DATE_CHECK datetime,
-	AGENT_INTERVAL INT(18) default '86400',
+	AGENT_INTERVAL INT default '86400',
 	IS_PERIOD char(1) default 'Y',
-	USER_ID INT(18),
+	USER_ID INT,
 	RUNNING char(1) not null default 'N',
 	RETRY_COUNT int,
 	PRIMARY KEY (ID),
@@ -366,11 +366,11 @@ CREATE TABLE b_agent
 
 CREATE TABLE b_file
 (
-	ID INT(18) not null auto_increment,
+	ID INT not null auto_increment,
 	TIMESTAMP_X timestamp,
 	MODULE_ID varchar(50),
-	HEIGHT INT(18),
-	WIDTH INT(18),
+	HEIGHT INT,
+	WIDTH INT,
 	FILE_SIZE BIGINT null,
 	CONTENT_TYPE VARCHAR(255) default 'IMAGE',
 	SUBDIR VARCHAR(255),
@@ -404,10 +404,10 @@ CREATE TABLE b_file_hash
 
 CREATE TABLE b_file_preview
 (
-	ID INT(18) not null auto_increment,
-	FILE_ID INT(18) not null,
-	PREVIEW_ID INT(18),
-	PREVIEW_IMAGE_ID INT(18),
+	ID INT not null auto_increment,
+	FILE_ID INT not null,
+	PREVIEW_ID INT,
+	PREVIEW_IMAGE_ID INT,
 	CREATED_AT datetime not null,
 	TOUCHED_AT datetime,
 	INDEX IX_B_FILE_PL_TOUCH(TOUCHED_AT),
@@ -417,9 +417,9 @@ CREATE TABLE b_file_preview
 
 CREATE TABLE b_module_group
 (
-	ID int(11) not null auto_increment,
+	ID int not null auto_increment,
 	MODULE_ID varchar(50) not null,
-	GROUP_ID int(11) not null,
+	GROUP_ID int not null,
 	G_ACCESS varchar(255) not null,
 	SITE_ID char(2),
 	PRIMARY KEY (ID),
@@ -428,19 +428,19 @@ CREATE TABLE b_module_group
 
 CREATE TABLE b_favorite
 (
-	ID int(18) not null auto_increment,
+	ID int not null auto_increment,
 	TIMESTAMP_X datetime,
 	DATE_CREATE datetime,
-	C_SORT int(18) not null default '100',
-	MODIFIED_BY int(18),
-	CREATED_BY int(18),
+	C_SORT int not null default '100',
+	MODIFIED_BY int,
+	CREATED_BY int,
 	MODULE_ID varchar(50),
 	NAME varchar(255),
 	URL text,
 	COMMENTS text,
 	LANGUAGE_ID char(2),
 	USER_ID int null,
-	CODE_ID int(18),
+	CODE_ID int,
 	COMMON char(1) not null default 'Y',
 	MENU_ID varchar(255),
 	PRIMARY KEY (ID)
@@ -448,13 +448,13 @@ CREATE TABLE b_favorite
 
 CREATE TABLE b_user_stored_auth
 (
-	ID int(18) not null auto_increment,
-	USER_ID int(18) not null,
+	ID int not null auto_increment,
+	USER_ID int not null,
 	DATE_REG datetime not null,
 	LAST_AUTH datetime not null,
 	STORED_HASH varchar(32) not null,
 	TEMP_HASH char(1) not null default 'N',
-	IP_ADDR int(10) unsigned not null,
+	IP_ADDR int unsigned not null,
 	PRIMARY KEY (ID),
 	INDEX ux_user_hash (USER_ID)
 );
@@ -500,7 +500,7 @@ CREATE TABLE b_captcha
 
 CREATE TABLE b_user_field
 (
-	ID int(11) not null auto_increment,
+	ID int not null auto_increment,
 	ENTITY_ID varchar(50),
 	FIELD_NAME varchar(50),
 	USER_TYPE_ID varchar(50),
@@ -519,7 +519,7 @@ CREATE TABLE b_user_field
 
 CREATE TABLE b_user_field_lang
 (
-	USER_FIELD_ID int(11),
+	USER_FIELD_ID int,
 	LANGUAGE_ID char(2),
 	EDIT_FORM_LABEL varchar(255),
 	LIST_COLUMN_LABEL varchar(255),
@@ -531,11 +531,11 @@ CREATE TABLE b_user_field_lang
 
 CREATE TABLE if not exists b_user_field_enum
 (
-	ID int(11) not null auto_increment,
-	USER_FIELD_ID int(11),
+	ID int not null auto_increment,
+	USER_FIELD_ID int,
 	VALUE varchar(255) not null,
 	DEF char(1) not null default 'N',
-	SORT int(11) not null default 500,
+	SORT int not null default 500,
 	XML_ID varchar(255) not null,
 	PRIMARY KEY (ID),
 	UNIQUE ux_user_field_enum(USER_FIELD_ID, XML_ID)
@@ -543,12 +543,12 @@ CREATE TABLE if not exists b_user_field_enum
 
 CREATE TABLE b_user_field_permission
 (
-	ID INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	ENTITY_TYPE_ID TINYINT(2) UNSIGNED NOT NULL,
-	USER_FIELD_ID INT(10) UNSIGNED NOT NULL,
+	ID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	ENTITY_TYPE_ID TINYINT UNSIGNED NOT NULL,
+	USER_FIELD_ID INT UNSIGNED NOT NULL,
 	ACCESS_CODE VARCHAR(8) NOT NULL,
 	PERMISSION_ID VARCHAR(32) NOT NULL,
-	VALUE TINYINT(3) UNSIGNED NOT NULL,
+	VALUE TINYINT UNSIGNED NOT NULL,
 	PRIMARY KEY (ID),
 	INDEX ROLE_ID(ENTITY_TYPE_ID),
 	INDEX GROUP_ID(USER_FIELD_ID),
@@ -557,7 +557,7 @@ CREATE TABLE b_user_field_permission
 
 CREATE TABLE b_task
 (
-	ID int(18) not null auto_increment,
+	ID int not null auto_increment,
 	NAME varchar(100) not null,
 	LETTER char(1),
 	MODULE_ID varchar(50) not null,
@@ -570,15 +570,15 @@ CREATE TABLE b_task
 
 CREATE TABLE b_group_task
 (
-	GROUP_ID int(18) not null,
-	TASK_ID int(18) not null,
+	GROUP_ID int not null,
+	TASK_ID int not null,
 	EXTERNAL_ID varchar(50) default '',
 	PRIMARY KEY (GROUP_ID,TASK_ID)
 );
 
 CREATE TABLE b_operation
 (
-	ID int(18) not null auto_increment,
+	ID int not null auto_increment,
 	NAME varchar(50) not null,
 	MODULE_ID varchar(50) not null,
 	DESCRIPTION varchar(255),
@@ -588,20 +588,20 @@ CREATE TABLE b_operation
 
 CREATE TABLE b_task_operation
 (
-	TASK_ID int(18) not null,
-	OPERATION_ID int(18) not null,
+	TASK_ID int not null,
+	OPERATION_ID int not null,
 	PRIMARY KEY (TASK_ID,OPERATION_ID)
 );
 
 CREATE TABLE b_group_subordinate(
-	ID int(18) not null,
+	ID int not null,
 	AR_SUBGROUP_ID text not null,
 	PRIMARY KEY (ID)
 );
 
 CREATE TABLE b_rating
 (
-	ID int(11) not null auto_increment,
+	ID int not null auto_increment,
 	ACTIVE char(1) not null,
 	NAME varchar(512) not null,
 	ENTITY_ID varchar(50) not null,
@@ -618,8 +618,8 @@ CREATE TABLE b_rating
 
 CREATE TABLE b_rating_component
 (
-	ID int(11) not null auto_increment,
-	RATING_ID int(11) not null,
+	ID int not null auto_increment,
+	RATING_ID int not null,
 	ACTIVE char(1) not null default 'N',
 	ENTITY_ID varchar(50) not null,
 	MODULE_ID varchar(50) not null,
@@ -632,7 +632,7 @@ CREATE TABLE b_rating_component
 	LAST_MODIFIED datetime,
 	LAST_CALCULATED datetime,
 	NEXT_CALCULATION datetime,
-	REFRESH_INTERVAL int(11) not null,
+	REFRESH_INTERVAL int not null,
 	CONFIG text,
 	PRIMARY KEY (ID),
 	KEY IX_RATING_ID_1 (RATING_ID, ACTIVE, NEXT_CALCULATION)
@@ -640,10 +640,10 @@ CREATE TABLE b_rating_component
 
 CREATE TABLE b_rating_component_results
 (
-	ID int(11) not null auto_increment,
-	RATING_ID int(11) not null,
+	ID int not null auto_increment,
+	RATING_ID int not null,
 	ENTITY_TYPE_ID varchar(50) not null,
-	ENTITY_ID int(11) not null,
+	ENTITY_ID int not null,
 	MODULE_ID varchar(50) not null,
 	RATING_TYPE varchar(50) not null,
 	NAME varchar(50) not null,
@@ -657,14 +657,14 @@ CREATE TABLE b_rating_component_results
 
 CREATE TABLE b_rating_results
 (
-	ID int(11) not null auto_increment,
-	RATING_ID int(11) not null,
+	ID int not null auto_increment,
+	RATING_ID int not null,
 	ENTITY_TYPE_ID varchar(50) not null,
-	ENTITY_ID int(11) not null,
+	ENTITY_ID int not null,
 	CURRENT_VALUE decimal(18,4),
 	PREVIOUS_VALUE decimal(18,4),
-	CURRENT_POSITION int(11) null default '0',
-	PREVIOUS_POSITION int(11) null default '0',
+	CURRENT_POSITION int null default '0',
+	PREVIOUS_POSITION int null default '0',
 	PRIMARY KEY (ID),
 	KEY IX_RATING_3 (RATING_ID, ENTITY_TYPE_ID, ENTITY_ID),
 	KEY IX_RATING_4 (RATING_ID, ENTITY_ID)
@@ -672,42 +672,42 @@ CREATE TABLE b_rating_results
 
 CREATE TABLE b_rating_vote
 (
-	ID int(11) not null auto_increment,
-	RATING_VOTING_ID int(11) not null,
+	ID int not null auto_increment,
+	RATING_VOTING_ID int not null,
 	ENTITY_TYPE_ID varchar(50) not null,
-	ENTITY_ID int(11) not null,
-	OWNER_ID int(11) not null,
+	ENTITY_ID int not null,
+	OWNER_ID int not null,
 	VALUE decimal(18,4) not null,
 	ACTIVE char(1) not null,
 	CREATED datetime not null,
-	USER_ID int(11) not null,
+	USER_ID int not null,
 	USER_IP varchar(64) not null,
 	REACTION varchar(8) null,
 	PRIMARY KEY (ID),
 	KEY IX_RAT_VOTE_ID (RATING_VOTING_ID, USER_ID),
 	KEY IX_RAT_VOTE_ID_2 (ENTITY_TYPE_ID, ENTITY_ID, USER_ID),
 	KEY IX_RAT_VOTE_ID_3 (OWNER_ID, CREATED),
-	KEY IX_RAT_VOTE_ID_4 (USER_ID),
 	KEY IX_RAT_VOTE_ID_5 (CREATED, VALUE),
 	KEY IX_RAT_VOTE_ID_6 (ACTIVE),
 	KEY IX_RAT_VOTE_ID_7 (RATING_VOTING_ID, CREATED),
 	KEY IX_RAT_VOTE_ID_8 (ENTITY_TYPE_ID, CREATED),
-	KEY IX_RAT_VOTE_ID_9 (CREATED, USER_ID)
+	KEY IX_RAT_VOTE_ID_9 (CREATED, USER_ID),
+    KEY IX_RAT_VOTE_ID_10 (USER_ID, OWNER_ID)
 );
 
 CREATE TABLE b_rating_voting
 (
-	ID int(11) not null auto_increment,
+	ID int not null auto_increment,
 	ENTITY_TYPE_ID varchar(50) not null,
-	ENTITY_ID int(11) not null,
-	OWNER_ID int(11) not null,
+	ENTITY_ID int not null,
+	OWNER_ID int not null,
 	ACTIVE char(1) not null,
 	CREATED datetime,
 	LAST_CALCULATED datetime,
 	TOTAL_VALUE decimal(18,4) not null,
-	TOTAL_VOTES int(11) not null,
-	TOTAL_POSITIVE_VOTES int(11) not null,
-	TOTAL_NEGATIVE_VOTES int(11) not null,
+	TOTAL_VOTES int not null,
+	TOTAL_POSITIVE_VOTES int not null,
+	TOTAL_NEGATIVE_VOTES int not null,
 	PRIMARY KEY (ID),
 	KEY IX_ENTITY_TYPE_ID_2 (ENTITY_TYPE_ID, ENTITY_ID, ACTIVE),
 	KEY IX_ENTITY_TYPE_ID_4 (TOTAL_VALUE)
@@ -715,12 +715,12 @@ CREATE TABLE b_rating_voting
 
 CREATE TABLE b_rating_voting_prepare
 (
-	ID int(11) not null auto_increment,
-	RATING_VOTING_ID int(11) not null,
+	ID int not null auto_increment,
+	RATING_VOTING_ID int not null,
 	TOTAL_VALUE decimal(18,4) not null,
-	TOTAL_VOTES int(11) not null,
-	TOTAL_POSITIVE_VOTES int(11) not null,
-	TOTAL_NEGATIVE_VOTES int(11) not null,
+	TOTAL_VOTES int not null,
+	TOTAL_POSITIVE_VOTES int not null,
+	TOTAL_NEGATIVE_VOTES int not null,
 	PRIMARY KEY (ID),
 	KEY IX_RATING_VOTING_ID (RATING_VOTING_ID)
 );
@@ -728,20 +728,20 @@ CREATE TABLE b_rating_voting_prepare
 CREATE TABLE b_rating_voting_reaction
 (
 	ENTITY_TYPE_ID varchar(50) not null,
-	ENTITY_ID int(11) not null,
+	ENTITY_ID int not null,
 	REACTION varchar(8) not null default '',
-	TOTAL_VOTES int(11) not null,
+	TOTAL_VOTES int not null,
 	PRIMARY KEY (ENTITY_TYPE_ID, ENTITY_ID, REACTION)
 );
 
 CREATE TABLE b_rating_prepare
 (
-	ID int(11) NULL
+	ID int NULL
 );
 
 CREATE TABLE b_rating_rule
 (
-	ID int(11) not null auto_increment,
+	ID int not null auto_increment,
 	ACTIVE char(1) not null default 'N',
 	NAME varchar(256) not null,
 	ENTITY_TYPE_ID varchar(50) not null,
@@ -766,10 +766,10 @@ CREATE TABLE b_rating_rule
 
 CREATE TABLE b_rating_rule_vetting
 (
-	ID int(11) not null auto_increment,
-	RULE_ID int(11) not null,
+	ID int not null auto_increment,
+	RULE_ID int not null,
 	ENTITY_TYPE_ID varchar(50) not null,
-	ENTITY_ID int(11) not null,
+	ENTITY_ID int not null,
 	ACTIVATE char(1) not null default 'N',
 	APPLIED char(1) not null default 'N',
 	PRIMARY KEY (ID),
@@ -778,12 +778,12 @@ CREATE TABLE b_rating_rule_vetting
 
 CREATE TABLE b_rating_user
 (
-	ID int(11) not null auto_increment,
-	RATING_ID int(11) not null,
-	ENTITY_ID int(11) not null,
+	ID int not null auto_increment,
+	RATING_ID int not null,
+	ENTITY_ID int not null,
 	BONUS decimal(18,4) null default '0.0000',
 	VOTE_WEIGHT decimal(18,4) null default '0.0000',
-	VOTE_COUNT int(11) null default '0',
+	VOTE_COUNT int null default '0',
 	PRIMARY KEY (ID),
 	KEY RATING_ID (RATING_ID, ENTITY_ID),
 	KEY IX_B_RAT_USER_2 (ENTITY_ID)
@@ -791,8 +791,8 @@ CREATE TABLE b_rating_user
 
 CREATE TABLE b_rating_vote_group
 (
-	ID int(11) not null auto_increment,
-	GROUP_ID int(11) not null,
+	ID int not null auto_increment,
+	GROUP_ID int not null,
 	TYPE char(1) not null,
 	PRIMARY KEY (ID),
 	KEY RATING_ID (GROUP_ID, TYPE)
@@ -800,11 +800,11 @@ CREATE TABLE b_rating_vote_group
 
 CREATE TABLE b_rating_weight
 (
-	ID int(11) not null auto_increment,
+	ID int not null auto_increment,
 	RATING_FROM decimal(18,4) not null,
 	RATING_TO decimal(18,4) not null,
 	WEIGHT decimal(18,4) default '0',
-	COUNT int(11) default '0',
+	COUNT int default '0',
 	PRIMARY KEY (ID)
 );
 insert into b_rating_weight (RATING_FROM, RATING_TO, WEIGHT, COUNT) VALUES (-1000000, 1000000, 1, 10);
@@ -812,7 +812,7 @@ insert into b_rating_weight (RATING_FROM, RATING_TO, WEIGHT, COUNT) VALUES (-100
 CREATE TABLE b_event_log
 (
 	/*SYSTEM GENERATED*/
-	ID INT(18) not null auto_increment,
+	ID INT not null auto_increment,
 	TIMESTAMP_X timestamp,
 
 	/*CALLER INFO*/
@@ -828,8 +828,8 @@ CREATE TABLE b_event_log
 
 	/*FROM CONSTANTS AND VARIABLES*/
 	SITE_ID CHAR(2), /*if defined*/
-	USER_ID INT(18), /*if logged in*/
-	GUEST_ID INT(18), /* if statistics installed*/
+	USER_ID INT, /*if logged in*/
+	GUEST_ID INT, /* if statistics installed*/
 
 	/*ADDITIONAL*/
 	DESCRIPTION MEDIUMTEXT,
@@ -880,8 +880,8 @@ CREATE TABLE b_cache_tag
 
 CREATE TABLE b_user_hit_auth
 (
-	ID int(18) not null auto_increment,
-	USER_ID int(18) not null,
+	ID int not null auto_increment,
+	USER_ID int not null,
 	HASH varchar(32) not null,
 	URL varchar(255) not null,
 	SITE_ID char(2),
@@ -913,16 +913,16 @@ CREATE TABLE b_user_digest
 
 CREATE TABLE b_checklist
 (
-	ID int(11) not null AUTO_INCREMENT,
+	ID int not null AUTO_INCREMENT,
 	DATE_CREATE varchar(255),
 	TESTER varchar(255),
 	COMPANY_NAME varchar(255),
-	PICTURE int(11),
-	TOTAL int(11),
-	SUCCESS int(11),
-	FAILED int(11),
-	PENDING int(11),
-	SKIP int(11),
+	PICTURE int,
+	TOTAL int,
+	SUCCESS int,
+	FAILED int,
+	PENDING int,
+	SKIP int,
 	STATE longtext,
 	REPORT_COMMENT text,
 	REPORT char(1) default 'Y',
@@ -935,15 +935,15 @@ CREATE TABLE b_checklist
 
 CREATE TABLE b_short_uri
 (
-	ID int(18) not null auto_increment,
+	ID int not null auto_increment,
 	URI varchar(2000) not null,
-	URI_CRC int(18) not null,
+	URI_CRC int not null,
 	SHORT_URI varbinary(250) not null,
-	SHORT_URI_CRC int(18) not null,
-	STATUS int(18) not null default 301,
+	SHORT_URI_CRC int not null,
+	STATUS int not null default 301,
 	MODIFIED datetime not null,
 	LAST_USED datetime null,
-	NUMBER_USED int(18) not null default 0,
+	NUMBER_USED int not null default 0,
 	PRIMARY KEY (ID),
 	INDEX ux_b_short_uri_1 (SHORT_URI_CRC),
 	INDEX ux_b_short_uri_2 (URI_CRC)
@@ -951,9 +951,11 @@ CREATE TABLE b_short_uri
 
 CREATE TABLE b_user_access
 (
-	USER_ID int(11),
+	ID bigint unsigned not null auto_increment,
+	USER_ID int,
 	PROVIDER_ID varchar(50),
 	ACCESS_CODE varchar(100),
+	PRIMARY KEY (ID),
 	INDEX ix_ua_user_provider (USER_ID, PROVIDER_ID),
 	INDEX ix_ua_user_access (USER_ID, ACCESS_CODE),
 	INDEX ix_ua_access (ACCESS_CODE),
@@ -964,17 +966,17 @@ insert into b_user_access (USER_ID, PROVIDER_ID, ACCESS_CODE) values (0, 'group'
 
 CREATE TABLE b_user_access_check
 (
-	USER_ID int(11),
+	USER_ID int,
 	PROVIDER_ID varchar(50),
 	INDEX ix_uac_user_provider (USER_ID, PROVIDER_ID)
 );
 
 CREATE TABLE b_user_counter
 (
-	USER_ID int(18) not null,
+	USER_ID int not null,
 	SITE_ID char(2) not null default '**',
 	CODE varchar(50) not null,
-	CNT int(18) not null default 0,
+	CNT int not null default 0,
 	LAST_DATE datetime,
 	TIMESTAMP_X datetime not null default '3000-01-01 00:00:00',
 	TAG varchar(255),
@@ -989,14 +991,14 @@ CREATE TABLE b_user_counter
 
 CREATE TABLE b_hot_keys_code
 (
-	ID int(18) not null AUTO_INCREMENT,
+	ID int not null AUTO_INCREMENT,
 	CLASS_NAME varchar(50),
 	CODE varchar(255),
 	NAME varchar(255),
 	COMMENTS varchar(255),
 	TITLE_OBJ varchar(50),
 	URL varchar(255),
-	IS_CUSTOM tinyint(1) not null default '1',
+	IS_CUSTOM tinyint not null default '1',
 	PRIMARY KEY (ID),
 	INDEX ix_hot_keys_code_cn (CLASS_NAME),
 	INDEX ix_hot_keys_code_url (URL)
@@ -1084,10 +1086,10 @@ INSERT INTO b_hot_keys_code (ID, CLASS_NAME, CODE, `NAME`, COMMENTS, TITLE_OBJ, 
 
 CREATE TABLE b_hot_keys
 (
-	ID int(18) not null AUTO_INCREMENT,
+	ID int not null AUTO_INCREMENT,
 	KEYS_STRING varchar(20) not null,
-	CODE_ID int(18) not null,
-	USER_ID int(18) not null,
+	CODE_ID int not null,
+	USER_ID int not null,
 	PRIMARY KEY (ID),
 	UNIQUE ix_b_hot_keys_co_u (CODE_ID,USER_ID),
 	INDEX ix_hot_keys_user (USER_ID)
@@ -1106,7 +1108,7 @@ INSERT INTO b_hot_keys (KEYS_STRING, CODE_ID, USER_ID) VALUES('Ctrl+Alt+69', 118
 
 CREATE TABLE b_admin_notify
 (
-	ID int(18) not null AUTO_INCREMENT,
+	ID int not null AUTO_INCREMENT,
 	MODULE_ID VARCHAR(50),
 	TAG VARCHAR(255),
 	MESSAGE text,
@@ -1119,8 +1121,8 @@ CREATE TABLE b_admin_notify
 
 CREATE TABLE b_admin_notify_lang
 (
-	ID int(18) not null AUTO_INCREMENT,
-	NOTIFY_ID int(18) not null,
+	ID int not null AUTO_INCREMENT,
+	NOTIFY_ID int not null,
 	LID char(2) not null,
 	MESSAGE text,
 	primary key (ID),
@@ -1130,8 +1132,8 @@ CREATE TABLE b_admin_notify_lang
 
 CREATE TABLE b_filters
 (
-	ID int(18) not null auto_increment,
-	USER_ID int(18),
+	ID int not null auto_increment,
+	USER_ID int,
 	FILTER_ID varchar(255) not null,
 	NAME varchar(255) not null,
 	FIELDS text not null,
@@ -1139,7 +1141,7 @@ CREATE TABLE b_filters
 	PRESET char(1),
 	LANGUAGE_ID char(2),
 	PRESET_ID varchar(255) null,
-	SORT int(18) null,
+	SORT int null,
 	SORT_FIELD varchar(255) null,
 	PRIMARY KEY (ID)
 );
@@ -1164,10 +1166,10 @@ CREATE TABLE b_component_params
 
 CREATE TABLE b_smile
 (
-	ID int(18) not null auto_increment,
+	ID int not null auto_increment,
 	TYPE char(1) not null default 'S',
-	SET_ID int(18) not null default 0,
-	SORT int(10) not null default '150',
+	SET_ID int not null default 0,
+	SORT int not null default '150',
 	TYPING varchar(100) null,
 	CLICKABLE char(1) not null default 'Y',
 	HIDDEN char(1) not null default 'N',
@@ -1180,17 +1182,17 @@ CREATE TABLE b_smile
 
 CREATE TABLE b_smile_set
 (
-	ID int(18) not null auto_increment,
+	ID int not null auto_increment,
 	TYPE char(1) not null default 'G',
-	PARENT_ID int(18) not null default 0,
+	PARENT_ID int not null default 0,
 	STRING_ID varchar(255) null,
-	SORT int(10) not null default '150',
+	SORT int not null default '150',
 	primary key (ID)
 );
 
 CREATE TABLE b_smile_lang
 (
-	ID int(18) not null auto_increment,
+	ID int not null auto_increment,
 	TYPE char(1) not null default 'S',
 	SID int not null,
 	LID char(2) not null,
@@ -1252,14 +1254,14 @@ CREATE TABLE b_entity_usage
 
 CREATE TABLE b_urlpreview_metadata
 (
-	ID int(11) NOT NULL AUTO_INCREMENT,
+	ID int NOT NULL AUTO_INCREMENT,
 	URL varchar(2000) NOT NULL,
 	TYPE char(1) NOT NULL DEFAULT 'S',
 	DATE_INSERT datetime NOT NULL,
 	DATE_EXPIRE datetime NULL,
 	TITLE varchar(200) NULL,
 	DESCRIPTION text,
-	IMAGE_ID int(11) NULL,
+	IMAGE_ID int NULL,
 	IMAGE varchar(2000) NULL,
 	EMBED mediumtext,
 	EXTRA text,
@@ -1269,7 +1271,7 @@ CREATE TABLE b_urlpreview_metadata
 
 CREATE TABLE b_urlpreview_route
 (
-	ID int(11) NOT NULL AUTO_INCREMENT,
+	ID int NOT NULL AUTO_INCREMENT,
 	ROUTE varchar(2000) NOT NULL,
 	MODULE varchar(50) NOT NULL,
 	CLASS varchar(150) NOT NULL,
@@ -1280,8 +1282,8 @@ CREATE TABLE b_urlpreview_route
 
 CREATE TABLE b_geoip_handlers
 (
-  ID INT(11) NOT NULL AUTO_INCREMENT,
-  SORT INT(10) not null default 100,
+  ID INT NOT NULL AUTO_INCREMENT,
+  SORT INT not null default 100,
   ACTIVE CHAR(1) NOT NULL DEFAULT 'Y',
   CLASS_NAME VARCHAR(255) NOT NULL,
   CONFIG text NULL,
@@ -1290,10 +1292,10 @@ CREATE TABLE b_geoip_handlers
 
 CREATE TABLE b_consent_user_consent
 (
-  ID INT(18) NOT NULL AUTO_INCREMENT,
+  ID INT NOT NULL AUTO_INCREMENT,
   DATE_INSERT DATETIME NOT NULL,
-  AGREEMENT_ID INT(18) NOT NULL,
-  USER_ID INT(18) DEFAULT NULL,
+  AGREEMENT_ID INT NOT NULL,
+  USER_ID INT DEFAULT NULL,
   IP VARCHAR(15) NOT NULL,
   URL VARCHAR(4000) DEFAULT NULL,
   ORIGIN_ID VARCHAR(30) DEFAULT NULL,
@@ -1305,7 +1307,7 @@ CREATE TABLE b_consent_user_consent
 
 CREATE TABLE b_consent_agreement
 (
-  ID INT(18) NOT NULL AUTO_INCREMENT,
+  ID INT NOT NULL AUTO_INCREMENT,
   CODE VARCHAR(45) DEFAULT NULL,
   DATE_INSERT DATETIME not null,
   ACTIVE CHAR(1) NOT NULL DEFAULT 'Y',
@@ -1325,8 +1327,8 @@ CREATE TABLE b_consent_agreement
 
 CREATE TABLE b_consent_field
 (
-  ID INT(18) NOT NULL AUTO_INCREMENT,
-  AGREEMENT_ID INT(18) NOT NULL,
+  ID INT NOT NULL AUTO_INCREMENT,
+  AGREEMENT_ID INT NOT NULL,
   CODE VARCHAR(100) DEFAULT NULL,
   VALUE TEXT NOT NULL,
   PRIMARY KEY (ID),
@@ -1335,8 +1337,8 @@ CREATE TABLE b_consent_field
 
 CREATE TABLE b_consent_user_consent_item
 (
-	ID INT(18) NOT NULL AUTO_INCREMENT,
-	USER_CONSENT_ID INT(18) NOT NULL,
+	ID INT NOT NULL AUTO_INCREMENT,
+	USER_CONSENT_ID INT NOT NULL,
 	VALUE VARCHAR(50) NOT NULL,
 	PRIMARY KEY (ID),
 	INDEX IX_B_CONSENT_USER_ITEM_AG_ID (USER_CONSENT_ID)
@@ -1344,7 +1346,7 @@ CREATE TABLE b_consent_user_consent_item
 
 CREATE TABLE b_composite_page
 (
-	ID int(18) NOT NULL AUTO_INCREMENT,
+	ID int NOT NULL AUTO_INCREMENT,
 	CACHE_KEY varchar(2000) NOT NULL,
 	HOST varchar(100) NOT NULL,
 	URI varchar(2000) NOT NULL,
@@ -1352,9 +1354,9 @@ CREATE TABLE b_composite_page
 	CREATED datetime NOT NULL,
 	CHANGED datetime NOT NULL,
 	LAST_VIEWED datetime NOT NULL,
-	VIEWS int(18) NOT NULL DEFAULT 0,
-	REWRITES int(18) NOT NULL DEFAULT 0,
-	SIZE int(18) NOT NULL DEFAULT 0,
+	VIEWS int NOT NULL DEFAULT 0,
+	REWRITES int NOT NULL DEFAULT 0,
+	SIZE int NOT NULL DEFAULT 0,
 	PRIMARY KEY (ID),
 	INDEX IX_B_COMPOSITE_PAGE_CACHE_KEY(CACHE_KEY(100)),
 	INDEX IX_B_COMPOSITE_PAGE_VIEWED(LAST_VIEWED),
@@ -1364,7 +1366,7 @@ CREATE TABLE b_composite_page
 
 CREATE TABLE b_composite_log
 (
-	ID int(18) NOT NULL AUTO_INCREMENT,
+	ID int NOT NULL AUTO_INCREMENT,
 	HOST varchar(100) NOT NULL,
 	URI varchar(2000) NOT NULL,
 	TITLE varchar(250) NULL,
@@ -1372,8 +1374,8 @@ CREATE TABLE b_composite_log
 	TYPE varchar(50) NOT NULL,
 	MESSAGE longtext,
 	AJAX char(1) NOT NULL DEFAULT 'N',
-	USER_ID int(18) NOT NULL DEFAULT 0,
-	PAGE_ID int(18) NOT NULL DEFAULT 0,
+	USER_ID int NOT NULL DEFAULT 0,
+	PAGE_ID int NOT NULL DEFAULT 0,
 	PRIMARY KEY (ID),
 	INDEX IX_B_COMPOSITE_LOG_PAGE_ID(PAGE_ID),
 	INDEX IX_B_COMPOSITE_LOG_HOST(HOST),
@@ -1418,25 +1420,25 @@ CREATE TABLE b_main_mail_blacklist
 
 CREATE TABLE `b_numerator`
 (
-	`ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`ID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`NAME` VARCHAR(255) NULL DEFAULT NULL,
 	`TEMPLATE` VARCHAR(255) NULL DEFAULT NULL,
 	`TYPE` VARCHAR(50) NULL DEFAULT NULL,
 	`SETTINGS` TEXT NULL,
 	`CREATED_AT` DATETIME NULL DEFAULT NULL,
-	`CREATED_BY` INT(11) NULL DEFAULT NULL,
+	`CREATED_BY` INT NULL DEFAULT NULL,
 	`UPDATED_AT` DATETIME NULL DEFAULT NULL,
-	`UPDATED_BY` INT(11) NULL DEFAULT NULL,
+	`UPDATED_BY` INT NULL DEFAULT NULL,
 	PRIMARY KEY (`ID`)
 );
 
 CREATE TABLE `b_numerator_sequence`
 (
-	`NUMERATOR_ID` INT(11) NOT NULL DEFAULT '0',
+	`NUMERATOR_ID` INT NOT NULL DEFAULT '0',
 	`KEY` VARCHAR(32) NOT NULL DEFAULT '0',
 	`TEXT_KEY` VARCHAR(50) NULL DEFAULT NULL,
-	`NEXT_NUMBER` INT(11) NULL DEFAULT NULL,
-	`LAST_INVOCATION_TIME` INT(11) NULL DEFAULT NULL,
+	`NEXT_NUMBER` INT NULL DEFAULT NULL,
+	`LAST_INVOCATION_TIME` INT NULL DEFAULT NULL,
 	PRIMARY KEY (`NUMERATOR_ID`, `KEY`)
 );
 

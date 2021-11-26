@@ -50,6 +50,9 @@ abstract class DataManager
 	/** @var Collection[] Cache of class names */
 	protected static $collectionClass;
 
+	/** @var EntityObject[][] Objects that called delete() method themself */
+	protected static $currentDeletingObjects;
+
 	/** @var array Restricted words for object class name */
 	protected static $reservedWords = [
 		// keywords
@@ -1611,10 +1614,17 @@ abstract class DataManager
 		$entity = static::getEntity();
 		$result = new DeleteResult();
 
+		$entityClass = static::getEntity()->getDataClass();
+		$primaryAsString = EntityObject::sysSerializePrimary($primary, static::getEntity());
+
+		$object = !empty(static::$currentDeletingObjects[$entityClass][$primaryAsString])
+			? static::$currentDeletingObjects[$entityClass][$primaryAsString]
+			: static::wakeUpObject($primary);
+
 		try
 		{
 			//event before delete
-			static::callOnBeforeDeleteEvent($primary, $entity, $result);
+			static::callOnBeforeDeleteEvent($object, $entity, $result);
 
 			// return if any error
 			if (!$result->isSuccess(true))
@@ -1623,7 +1633,7 @@ abstract class DataManager
 			}
 
 			//event on delete
-			static::callOnDeleteEvent($primary, $entity);
+			static::callOnDeleteEvent($object, $entity);
 
 			// delete
 			$connection = $entity->getConnection();
@@ -1651,7 +1661,7 @@ abstract class DataManager
 			$entity->cleanCache();
 
 			//event after delete
-			static::callOnAfterDeleteEvent($primary, $entity);
+			static::callOnAfterDeleteEvent($object, $entity);
 		}
 		catch (\Exception $e)
 		{
@@ -1659,6 +1669,14 @@ abstract class DataManager
 			$result->isSuccess();
 
 			throw $e;
+		}
+		finally
+		{
+			// clean temporary objects
+			if (!empty(static::$currentDeletingObjects[$entityClass][$primaryAsString]))
+			{
+				unset(static::$currentDeletingObjects[$entityClass][$primaryAsString]);
+			}
 		}
 
 		return $result;
@@ -1820,14 +1838,14 @@ abstract class DataManager
 	 * @param $entity
 	 * @param $result
 	 */
-	protected static function callOnBeforeDeleteEvent($primary, $entity, $result)
+	protected static function callOnBeforeDeleteEvent($object, $entity, $result)
 	{
-		$event = new Event($entity, self::EVENT_ON_BEFORE_DELETE, array("id" => $primary));
+		$event = new Event($entity, self::EVENT_ON_BEFORE_DELETE, array("id" => $object->primary));
 		$event->send();
 		$event->getErrors($result);
 
 		//event before delete (modern with namespace)
-		$event = new Event($entity, self::EVENT_ON_BEFORE_DELETE, array("id" => $primary, "primary" => $primary), true);
+		$event = new Event($entity, self::EVENT_ON_BEFORE_DELETE, array("id" => $object->primary, "primary" => $object->primary, "object" => clone $object), true);
 		$event->send();
 		$event->getErrors($result);
 	}
@@ -1836,13 +1854,13 @@ abstract class DataManager
 	 * @param $primary
 	 * @param $entity
 	 */
-	protected static function callOnDeleteEvent($primary, $entity)
+	protected static function callOnDeleteEvent($object, $entity)
 	{
-		$event = new Event($entity, self::EVENT_ON_DELETE, array("id" => $primary));
+		$event = new Event($entity, self::EVENT_ON_DELETE, array("id" => $object->primary));
 		$event->send();
 
 		//event on delete (modern with namespace)
-		$event = new Event($entity, self::EVENT_ON_DELETE, array("id" => $primary, "primary" => $primary), true);
+		$event = new Event($entity, self::EVENT_ON_DELETE, array("id" => $object->primary, "primary" => $object->primary, "object" => clone $object), true);
 		$event->send();
 	}
 
@@ -1850,13 +1868,13 @@ abstract class DataManager
 	 * @param $primary
 	 * @param $entity
 	 */
-	protected static function callOnAfterDeleteEvent($primary, $entity)
+	protected static function callOnAfterDeleteEvent($object, $entity)
 	{
-		$event = new Event($entity, self::EVENT_ON_AFTER_DELETE, array("id" => $primary));
+		$event = new Event($entity, self::EVENT_ON_AFTER_DELETE, array("id" => $object->primary));
 		$event->send();
 
 		//event after delete (modern with namespace)
-		$event = new Event($entity, self::EVENT_ON_AFTER_DELETE, array("id" => $primary, "primary" => $primary), true);
+		$event = new Event($entity, self::EVENT_ON_AFTER_DELETE, array("id" => $object->primary, "primary" => $object->primary, "object" => clone $object), true);
 		$event->send();
 	}
 
@@ -1913,6 +1931,15 @@ abstract class DataManager
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * @param EntityObject $object
+	 */
+	public static function setCurrentDeletingObject($object): void
+	{
+		$entityClass = static::getEntity()->getDataClass();
+		self::$currentDeletingObjects[$entityClass][$object->primaryAsString] = $object;
 	}
 
 	/*

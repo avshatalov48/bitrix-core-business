@@ -1,5 +1,6 @@
 import { BaseRestHandler } from "./base";
-import { Type, Event } from 'main.core';
+import { Type } from 'main.core';
+import { EventEmitter } from 'main.core.events'
 import { EventType } from 'sale.checkout.const';
 import {
     Application as ApplicationConst,
@@ -16,12 +17,15 @@ export class BasketRestHandler extends BaseRestHandler
         {
             if(response.data.needFullRecalculation === 'Y')
             {
-                Event.EventEmitter.emit(EventType.basket.needRefresh, {})
+                EventEmitter.emit(EventType.basket.needRefresh, {})
             }
             
             let needRefresh = this.store.getters['basket/getNeedRefresh'];
             
             this.#setModelBasketForAction(response.data, pool)
+                .then(() => resolve());
+
+            this.#setModelBasketForActionError(response.data)
                 .then(() => resolve());
             
             if(needRefresh === 'Y')
@@ -29,7 +33,7 @@ export class BasketRestHandler extends BaseRestHandler
                 if(pool.isEmpty())
                 {
                     this.#setModelBasketByItem(response.data, pool)
-                    Event.EventEmitter.emit(EventType.basket.refreshAfter, {})
+                    EventEmitter.emit(EventType.basket.refreshAfter, {})
                 }
             }
         });
@@ -67,6 +71,30 @@ export class BasketRestHandler extends BaseRestHandler
         });
     }
 
+    #setModelBasketForActionError(data)
+    {
+        return new Promise((resolve, reject) =>
+        {
+            if(Type.isObject(data) && Type.isObject(data.actions))
+            {
+                const actions = data.actions;
+                const collection = this.store.getters['basket/getBasket'];
+
+                let list = this.#prepareBasketErrors(collection, actions)
+
+                if(list.length > 0)
+                {
+                    this.store.commit('basket/setErrors', list);
+                }
+                else
+                {
+                    this.store.commit('basket/clearErrors');
+                }
+            }
+            resolve();
+        });
+    }
+
     #setModelBasketForAction(data, pool)
     {
         return new Promise((resolve, reject) =>
@@ -81,11 +109,11 @@ export class BasketRestHandler extends BaseRestHandler
                 collection.forEach((fields, index) =>
                 {
                     let item;
-                    let action = this.#getTypeAction(actions, index);
+                    let typeAction = this.#getTypeAction(actions, index);
 
-                    if(Type.isString(action))
+                    if(Type.isString(typeAction))
                     {
-                        if(action === PoolConst.action.quantity)
+                        if(typeAction === PoolConst.action.quantity)
                         {
                             item = null; //not refresh
 
@@ -95,17 +123,17 @@ export class BasketRestHandler extends BaseRestHandler
                                 item = this.#findItemById(fields.id, items)
                             }
                         }
-                        else if(action === PoolConst.action.restore)
+                        else if(typeAction === PoolConst.action.restore)
                         {
                             item = this.#findItemById(actions[index].fields.id, items)
                         }
-                        else if(action === PoolConst.action.delete)
+                        else if(typeAction === PoolConst.action.delete)
                         {
                             fields.status = LoaderConst.status.none;
                             this.#changeBasketItem(fields, index)
-                                .then(()=> Event.EventEmitter.emit(EventType.basket.removeProduct, {index}));
+                                .then(()=> EventEmitter.emit(EventType.basket.removeProduct, {index}));
                         }
-                        else if(action === PoolConst.action.offer)
+                        else if(typeAction === PoolConst.action.offer)
                         {
                             item = null; //not refresh
     
@@ -121,7 +149,15 @@ export class BasketRestHandler extends BaseRestHandler
                             let fields = this.#prepareBasketItemFields(item);
 
                             fields.status = LoaderConst.status.none;
-                            this.#changeBasketItem(fields, index);
+                            this.#changeBasketItem(fields, index)
+                                .then(() =>
+                                    {
+                                        if(typeAction === PoolConst.action.restore)
+                                        {
+                                            EventEmitter.emit(EventType.basket.restoreProduct, {index})
+                                        }
+                                    }
+                                );
                         }
                     }
                 });
@@ -137,13 +173,38 @@ export class BasketRestHandler extends BaseRestHandler
         });
     }
 
+    #hasErrorAction(action)
+    {
+        return action.hasOwnProperty('errors')
+    }
+
+    #getAction(actions, index)
+    {
+        return actions.hasOwnProperty(index) ? actions[index] : null
+    }
+
+    #getErrorsAction(actions, index)
+    {
+        let action = this.#getAction(actions, index)
+
+        if(action !== null)
+        {
+            return action.hasOwnProperty('errors') ? action.errors : null
+        }
+        else
+        {
+            return null
+        }
+    }
+
     #getTypeAction(actions, index)
     {
         const types = Object.values(PoolConst.action);
+        let action = this.#getAction(actions, index)
 
-        if(actions.hasOwnProperty(index))
+        if(action !== null)
         {
-            let type = actions[index].type.toString();
+            let type = action.type.toString();
             return types.includes(type) ? type : null;
         }
         return null;
@@ -242,7 +303,7 @@ export class BasketRestHandler extends BaseRestHandler
 
     handleSaveOrderSuccess(data)
     {
-        Event.EventEmitter.emit(EventType.order.success);
+        EventEmitter.emit(EventType.order.success);
 
         this.store.dispatch('application/setStage', {stage: ApplicationConst.stage.success});
         this.store.dispatch('order/set', {
@@ -352,6 +413,21 @@ export class BasketRestHandler extends BaseRestHandler
                 }
             }
         });
+    }
+
+    #prepareBasketErrors(collection, actions)
+    {
+        const result = [];
+        collection.forEach((fields, index) =>
+        {
+            let list = this.#getErrorsAction(actions, index);
+            if(list !== null)
+            {
+                result.push({list, index});
+            }
+        })
+
+        return result
     }
 
     #preparePropertyErrors(errors)

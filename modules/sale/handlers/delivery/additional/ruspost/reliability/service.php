@@ -385,7 +385,7 @@ class Service
 
 		$delivery = Delivery\Services\Manager::getObjectById($deliveryId);
 
-		if(!self::isDeliverySuitable($delivery))
+		if(!$delivery || !self::isDeliverySuitable($delivery))
 		{
 			return $collection;
 		}

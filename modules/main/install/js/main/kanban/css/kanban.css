@@ -1441,7 +1441,8 @@
 	bottom: 5px;
 	left: 12px;
 	right: 12px;
-	font-family: "OpenSans-Italic", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-style: italic;
 	color: var(--graphite_alpha_60);
 	font-size: 13px;
 }
@@ -1456,7 +1457,7 @@
 	vertical-align: top;
 	width: 12px;
 	height: 9px;
-	margin: 5px 1px 0 1px;
+	margin: 6px 1px 0 1px;
 	background: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='9' viewBox='0 0 12 9'%3E%3Cpath fill='%239AA0A8' fill-rule='evenodd' d='M7.89560765,-2.84217094e-14 L11.0291329,3.13352523 L7.86010193,6.30255618 L7.875,3.679 L3.15593627,3.67946698 C2.13895927,3.67946698 1.30536727,4.4646315 1.22828363,5.46183719 L1.22246653,5.61293671 C1.22246653,6.68076256 2.08811042,7.54640645 3.15593627,7.54640645 L3.15593627,7.54640645 L3.784,7.546 L3.784,8.668 L3.09857968,8.6686511 C1.38728138,8.6686511 -1.48894595e-14,7.28136972 -1.50990331e-14,5.57007142 C-1.53086067e-14,3.85877311 1.38728138,2.47149173 3.09857968,2.47149173 L7.881,2.471 L7.89560765,-2.84217094e-14 Z' transform='rotate(-180 5.515 4.334)'/%3E%3C/svg%3E%0A") center no-repeat;
 }
 

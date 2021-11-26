@@ -1,5 +1,5 @@
 import { BitrixVue } from 'ui.vue';
-import { Event } from 'main.core'
+import { EventEmitter } from 'main.core.events'
 import { EventType } from 'sale.checkout.const';
 
 BitrixVue.component('sale-checkout-view-element-button-item_mobile_menu', {
@@ -8,7 +8,7 @@ BitrixVue.component('sale-checkout-view-element-button-item_mobile_menu', {
 	{
 		backdropOpen()
 		{
-			Event.EventEmitter.emit(EventType.basket.backdropOpenMobileMenu, {index: this.index})
+			EventEmitter.emit(EventType.basket.backdropOpenMobileMenu, {index: this.index})
 		}
 	},
 	// language=Vue

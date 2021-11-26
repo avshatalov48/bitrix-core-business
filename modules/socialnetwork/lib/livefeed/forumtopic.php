@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Forum\MessageTable;
@@ -9,27 +10,27 @@ use Bitrix\Socialnetwork\LogTable;
 
 final class ForumTopic extends Provider
 {
-	const PROVIDER_ID = 'FORUM_TOPIC';
-	const CONTENT_TYPE_ID = 'FORUM_TOPIC';
+	public const PROVIDER_ID = 'FORUM_TOPIC';
+	public const CONTENT_TYPE_ID = 'FORUM_TOPIC';
 
-	public static function getId()
+	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
 	}
 
-	public function getEventId()
+	public function getEventId(): array
 	{
-		return array('forum');
+		return [ 'forum' ];
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return Provider::TYPE_POST;
 	}
 
-	final public function setEntityId($topicId) // patch TOPIC->POST
+	final public function setEntityId($topicId): void // patch TOPIC->POST
 	{
-		$topicId = intval($topicId);
+		$topicId = (int)$topicId;
 		$messageId = 0;
 
 		if (
@@ -53,10 +54,9 @@ final class ForumTopic extends Provider
 		$this->entityId = $messageId;
 	}
 
-	public function getCommentProvider()
+	public function getCommentProvider(): Provider
 	{
-		$provider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
-		return $provider;
+		return new ForumPost();
 	}
 
 	public function initSourceFields()
@@ -87,7 +87,7 @@ final class ForumTopic extends Provider
 				));
 				if ($logEntryFields = $res->fetch())
 				{
-					$logId = intval($logEntryFields['ID']);
+					$logId = (int)$logEntryFields['ID'];
 				}
 
 				if ($logId)
@@ -143,52 +143,21 @@ final class ForumTopic extends Provider
 
 	protected function getAttachedDiskObjects($clone = false)
 	{
-		global $USER_FIELD_MANAGER;
-		static $cache = array();
-
-		$messageId = $this->entityId;
-
-		$result = array();
-		$cacheKey = $messageId.$clone;
-
-		if (isset($cache[$cacheKey]))
-		{
-			$result = $cache[$cacheKey];
-		}
-		else
-		{
-			$messageUF = $USER_FIELD_MANAGER->getUserFields("FORUM_MESSAGE", $messageId, LANGUAGE_ID);
-			if (
-				!empty($messageUF['UF_FORUM_MESSAGE_DOC'])
-				&& !empty($messageUF['UF_FORUM_MESSAGE_DOC']['VALUE'])
-				&& is_array($messageUF['UF_FORUM_MESSAGE_DOC']['VALUE'])
-			)
-			{
-				if ($clone)
-				{
-					$this->attachedDiskObjectsCloned = self::cloneUfValues($messageUF['UF_FORUM_MESSAGE_DOC']['VALUE']);
-					$result = $cache[$cacheKey] = array_values($this->attachedDiskObjectsCloned);
-				}
-				else
-				{
-					$result = $cache[$cacheKey] = $messageUF['UF_FORUM_MESSAGE_DOC']['VALUE'];
-				}
-			}
-		}
-
-		return $result;
+		return $this->getEntityAttachedDiskObjects([
+			'userFieldEntity' => 'FORUM_MESSAGE',
+			'userFieldCode' => 'UF_FORUM_MESSAGE_DOC',
+			'clone' => $clone,
+		]);
 	}
 
-	public static function canRead($params)
+	public static function canRead($params): bool
 	{
 		return true;
 	}
 
-	protected function getPermissions(array $post)
+	protected function getPermissions(array $post): string
 	{
-		$result = self::PERMISSION_READ;
-
-		return $result;
+		return self::PERMISSION_READ;
 	}
 
 	public function getLiveFeedUrl()
@@ -210,7 +179,7 @@ final class ForumTopic extends Provider
 		return $pathToMessage;
 	}
 
-	public function getAdditionalData($params = array())
+	public function getAdditionalData($params = []): array
 	{
 		$result = array();
 

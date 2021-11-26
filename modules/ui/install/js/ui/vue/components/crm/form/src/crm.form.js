@@ -1,5 +1,6 @@
 import {Vue} from 'ui.vue';
 import 'main.polyfill.promise';
+import './crm.form.css';
 
 let loadAppPromise = null;
 
@@ -39,6 +40,7 @@ Vue.component('bx-crm-form', {
 	{
 		return {
 			message: '',
+			isLoading: false,
 			obj: {
 
 			},
@@ -54,6 +56,7 @@ Vue.component('bx-crm-form', {
 	mounted()
 	{
 		const loadForm = () => {
+			this.isLoading = false;
 			this.message = '';
 			this.obj.config.data.node = this.$el;
 			this.obj.config.data.design = {
@@ -65,11 +68,12 @@ Vue.component('bx-crm-form', {
 				this.obj.config.data
 			);
 			this.obj.instance.subscribeAll((data, instance, type) => {
+				data.form = instance;
 				this.$emit('form:' + type, data);
 			})
 		};
 
-		this.message = '...Loading';
+		this.isLoading = true;
 		let promise = null;
 		if (window.fetch)
 		{
@@ -108,9 +112,19 @@ Vue.component('bx-crm-form', {
 				if (!loadAppPromise)
 				{
 					loadAppPromise = new Promise((resolve, reject) => {
+						let checker = () => {
+							if (!window.b24form || !window.b24form || !window.b24form.App)
+							{
+								setTimeout(checker, 200);
+							}
+							else
+							{
+								resolve();
+							}
+						};
 						const node = document.createElement('script');
 						node.src = data.result.loader.app.link;
-						node.onload = resolve;
+						node.onload = checker;
 						node.onerror = reject;
 						document.head.appendChild(node);
 					});
@@ -120,12 +134,14 @@ Vue.component('bx-crm-form', {
 				});
 
 			}).catch(error => {
+			this.isLoading = false;
 			this.message = error;
 		});
 	},
 	template: `
 		<div>
-			<div v-if="message">{{ message }}</div>
+			<div v-if="isLoading" class="ui-vue-crm-form-loading-container"></div>
+			<div v-else-if="message">{{ message }}</div>
 		</div>
 	`
 });

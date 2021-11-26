@@ -305,7 +305,20 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 	 */
 	public function getLimiters(Message\iBase $message = null)
 	{
-		return Integration\Bitrix24\Limitation\Limiter::getList();
+		$limiters = Integration\Bitrix24\Limitation\Limiter::getList();
+		$limiters[] = self::getTimeLimiter($message);
+		return $limiters;
+	}
+
+	/**
+	 * Return daily limiter.
+	 *
+	 * @return Transport\iLimiter
+	 */
+	private static function getTimeLimiter($message)
+	{
+		return Transport\TimeLimiter::create()
+			->withLetter($message);
 	}
 
 	protected function getSenderLinkProtocol()

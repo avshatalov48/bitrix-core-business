@@ -67,6 +67,8 @@ class YandexCheckoutHandler
 		'185.71.77.0/27',
 		'77.75.153.0/25',
 		'77.75.154.128/25',
+		'77.75.156.11',
+		'77.75.156.35',
 	];
 
 	private const CONFIRMATION_TYPE_REDIRECT = "redirect";
@@ -752,7 +754,6 @@ class YandexCheckoutHandler
 		if ($data !== false)
 		{
 			$response = $data['object'];
-
 			if ($response['status'] === static::PAYMENT_STATUS_SUCCEEDED)
 			{
 				$description = Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_TRANSACTION').$response['id'];
@@ -792,20 +793,6 @@ class YandexCheckoutHandler
 				}
 
 				$result->setPsData($fields);
-			}
-			else
-			{
-				if ($response['id'] === $payment->getField('PS_INVOICE_ID'))
-				{
-					$error = Localization\Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ERROR_STATUS').': '.$response['status'];
-					$result->addError(PaySystem\Error::create($error));
-
-					$verificationYandexPaymentResult = $this->verifyYandexPayment($response);
-					if (!$verificationYandexPaymentResult->isSuccess())
-					{
-						$result->addErrors($verificationYandexPaymentResult->getErrors());
-					}
-				}
 			}
 		}
 		else

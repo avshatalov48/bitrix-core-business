@@ -1,5 +1,5 @@
 import { BitrixVue } from 'ui.vue';
-import { Event } from 'main.core'
+import { EventEmitter } from 'main.core.events'
 import { EventType } from 'sale.checkout.const';
 
 BitrixVue.component('sale-checkout-view-element-button-checkout', {
@@ -8,7 +8,7 @@ BitrixVue.component('sale-checkout-view-element-button-checkout', {
 		{
 			checkout()
 			{
-				Event.EventEmitter.emit(EventType.element.buttonCheckout);
+				EventEmitter.emit(EventType.element.buttonCheckout);
 			}
 		},
 	computed:

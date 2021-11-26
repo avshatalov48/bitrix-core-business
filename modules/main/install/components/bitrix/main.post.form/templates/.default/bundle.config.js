@@ -7,8 +7,10 @@ module.exports = {
 	protected: true,
 	concat: {
 		js: [
+			'./src/internal/wrap-start.js',
 			'./script.js',
 			'./script-old.js',
+			'./src/internal/wrap-end.js',
 		],
 	}
 };

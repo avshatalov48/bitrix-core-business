@@ -89,9 +89,7 @@ if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions>="W" && c
 			}
 		}
 
-		\Bitrix\Sale\Internals\BusinessValuePersonDomainTable::delete(array(
-			'PERSON_TYPE_ID' => $ID
-		));
+		\Bitrix\Sale\Internals\BusinessValuePersonDomainTable::deleteByPersonTypeId($ID);
 
 		if ($BUSVAL_DOMAIN !== '')
 		{

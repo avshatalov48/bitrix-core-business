@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Copy\Implement;
 
 use Bitrix\Main\Copy\Container;
@@ -6,6 +7,7 @@ use Bitrix\Main\Copy\CopyImplementer;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Result;
+use Bitrix\Main\Text\Emoji;
 use Bitrix\Socialnetwork\Copy\Integration\Feature;
 use Bitrix\Socialnetwork\WorkgroupSiteTable;
 
@@ -109,6 +111,14 @@ class Group extends CopyImplementer
 			if ($group["IMAGE_ID"] > 0)
 			{
 				$group["IMAGE_ID"] = \CFile::makeFileArray($group["IMAGE_ID"]);
+			}
+			if (!empty($group['NAME']))
+			{
+				$group['NAME'] = Emoji::decode($group['NAME']);
+			}
+			if (!empty($group['DESCRIPTION']))
+			{
+				$group['DESCRIPTION'] = Emoji::decode($group['DESCRIPTION']);
 			}
 
 			$fields["SITE_ID"] = $this->getSiteIds($group["ID"]);

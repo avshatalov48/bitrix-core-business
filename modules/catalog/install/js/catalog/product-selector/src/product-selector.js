@@ -362,6 +362,7 @@ export class ProductSelector extends EventEmitter
 	{
 		this.unsubscribeToVariationChange();
 
+		EventEmitter.unsubscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
 		EventEmitter.unsubscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
 	}
 

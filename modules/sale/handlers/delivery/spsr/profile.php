@@ -58,6 +58,14 @@ class SpsrProfile extends \Bitrix\Sale\Delivery\Services\Base
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	protected function getProfileType(): string
+	{
+		return (string)$this->serviceType;
+	}
+
+	/**
 	 * @return string
 	 */
 	public static function getClassTitle()

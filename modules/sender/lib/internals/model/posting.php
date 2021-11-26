@@ -196,10 +196,10 @@ class PostingTable extends Main\Entity\DataManager
 		foreach($listId as $primaryId)
 		{
 			$primary = array('POSTING_ID' => $primaryId);
-			Sender\PostingReadTable::delete($primary);
-			Sender\PostingClickTable::delete($primary);
-			Sender\PostingUnsubTable::delete($primary);
-			Sender\PostingRecipientTable::delete($primary);
+			Sender\PostingReadTable::deleteList($primary);
+			Sender\PostingClickTable::deleteList($primary);
+			Sender\PostingUnsubTable::deleteList($primary);
+			Sender\PostingRecipientTable::deleteList($primary);
 		}
 
 

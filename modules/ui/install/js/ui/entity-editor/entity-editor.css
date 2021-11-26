@@ -606,7 +606,6 @@ input.ui-entity-editor-header-title-text {
 	width: 50%;
 }
 
-.fields.crm_status select,
 .field-item input,
 .field-item select,
 .field-item textarea,
@@ -633,7 +632,7 @@ input.ui-entity-editor-header-title-text {
 .field-item textarea { min-width: 100%; }
 
 .field-item.money select,
-.fields.crm_status select,
+.field-item.crm_status select,
 .field-item.enumeration select {
 	border-radius: 1px;
 	background-color: #fff;
@@ -877,7 +876,7 @@ input.ui-entity-editor-header-title-text {
 .field-item .main-ui-control.main-ui-multi-select:hover:before { background-color: #767676; }
 
 .field-item.money select,
-.fields.crm_status select,
+.field-item.crm_status select,
 .field-item.enumeration select,
 .ui-entity-editor-content-block select.filter-dropdown {
 	padding: 10px 26px 10px 9px;
@@ -915,6 +914,21 @@ input.ui-entity-editor-header-title-text {
 	background-image: none;
 }
 
+.ui-entity-editor-content-block .main-ui-control.main-enum-dialog-input{
+	padding: 3px 32px 3px 10px;
+	height: auto;
+	min-height: 38px;
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNSIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDI1IDE2Ij4gIDxwb2x5Z29uIGZpbGw9IiM1MzVDNjkiIGZpbGwtcnVsZT0iZXZlbm9kZCIgcG9pbnRzPSIzLjU0NiA3LjQyNSAzLjU0NiAxLjYwNyAxLjYwNyAxLjYwNyAxLjYwNyA4LjM5NCAxLjYwNyA5LjM2NCA5LjM2NCA5LjM2NCA5LjM2NCA3LjQyNSIgdHJhbnNmb3JtPSJyb3RhdGUoLTQ1IDkuOSAxLjY1NykiLz48L3N2Zz4=);
+	background-repeat: no-repeat;
+	background-position: right center;
+	color: #535c69;
+	box-sizing: border-box;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	appearance: none;
+	line-height: 32px;
+}
+
 /*endregion*/
 
 /*region Editor - Main form */
@@ -938,8 +952,8 @@ input.ui-entity-editor-header-title-text {
 .field-item.double input:hover,
 .field-item.money select:focus,
 .field-item.money select:hover,
-.fields.crm_status select:focus,
-.fields.crm_status select:hover,
+.field-item.crm_status select:focus,
+.field-item.crm_status select:hover,
 .field-item.datetime input:hover,
 .field-item.datetime input:focus,
 .field-item.enumeration select:hover,

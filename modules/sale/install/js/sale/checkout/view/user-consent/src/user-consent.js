@@ -1,5 +1,6 @@
 import { BitrixVue } from 'ui.vue';
-import { ajax, Tag, Event, Type } from 'main.core';
+import { ajax, Tag, Type } from 'main.core';
+import { EventEmitter } from 'main.core.events'
 import { EventType, Component, RestMethod } from 'sale.checkout.const';
 
 
@@ -16,7 +17,7 @@ BitrixVue.component('sale-checkout-view-user_consent', {
 				autoSave: this.item.autoSave,
 				isChecked: this.item.isChecked,
 				submitEventName: this.item.submitEventName,
-				fields: Type.isArrayFilled(this.item.params)? JSON.stringify(this.item.params):[]
+				fields: this.item.params
 			};
 
 			ajax.runComponentAction(
@@ -48,12 +49,12 @@ BitrixVue.component('sale-checkout-view-user_consent', {
 								BX.addCustomEvent(
 									control,
 									BX.UserConsent.events.accepted,
-									() => Event.EventEmitter.emit(EventType.consent.accepted, {})
+									() => EventEmitter.emit(EventType.consent.accepted, {})
 								);
 								BX.addCustomEvent(
 									control,
 									BX.UserConsent.events.refused,
-									() => Event.EventEmitter.emit(EventType.consent.refused, {})
+									() => EventEmitter.emit(EventType.consent.refused, {})
 								);
 							}
 						}

@@ -1283,7 +1283,7 @@ class CSaleOrderLoader
 
 		$shipment = $shipmentCollection->createItem($service);
 
-		$shipment->setField('DELIVERY_NAME', $service->getName());
+		$shipment->setField('DELIVERY_NAME', $service ? $service->getName() : 'Not Found');
 
 		$this->updateShipmentQuantityFromDocument($arDocument, $shipment);
 

@@ -133,8 +133,13 @@ $fieldPrefix = 'CONFIGURATION_';
 			$arResult['MESSAGE_VIEW']
 		);
 	}
-	else foreach ($arResult['LIST'] as $group)
+	foreach ($arResult['LIST'] as $group)
 	{
+		if ($arResult['MESSAGE_VIEW'] && !$group['isAdditional'])
+		{
+			continue;
+		}
+
 		if ($group['isAdditional'])
 		{
 			?>
@@ -146,11 +151,11 @@ $fieldPrefix = 'CONFIGURATION_';
 						</div>
 						<div class="sender-message-editor-more-list">
 							<?foreach ($group['options'] as $option):?>
-								<?php if ($option['show_in_list']): ?>
-									<span class="sender-message-editor-more-list-item">
+								<?php if ($option['name']):?>
+								<span class="sender-message-editor-more-list-item">
 									<?= htmlspecialcharsbx($option['name']) ?>
 								</span>
-								<?php endif; ?>
+								<?php endif?>
 							<?endforeach;?>
 						</div>
 					</div>
@@ -215,6 +220,24 @@ $fieldPrefix = 'CONFIGURATION_';
 					onclick=\"BX.calendar({node: this, field: this, bTime: true,bHideTime:false});\"
 					".$option["required"]."
 					/>";
+				break;
+				case ConOpt::TYPE_TIME:
+					$inputHtml = "<select name=\"$inputName\"
+ 					value='".$inputValue."'
+ 					class=\"bx-sender-form-control bx-sender-message-editor-field-select\">";
+
+					for ($i = 0; $i < 24; $i++)
+					{
+						foreach ([0, 30] as $minute)
+						{
+							$formatted = sprintf("%02d:%02d", $i, $minute);
+							$inputHtml .= "<option value='{$formatted}'";
+							$inputHtml .= $formatted === $inputValue ? "selected" : "";
+							$inputHtml .= ">{$formatted}</option>";
+						}
+					}
+					$inputHtml .= "</select>";
+
 				break;
 				case ConOpt::TYPE_NUMBER:
 					$inputHtml = "<input type='number' step='1' id='".$inputName."' name='".$inputName."'
@@ -370,16 +393,16 @@ $fieldPrefix = 'CONFIGURATION_';
 					$value = $inputValue === 'Y' ? 'checked="checked"' : '';
 					$inputHtml .= <<<TEXT
 						<div style="padding: 0; width: 100%;" class="ui-form">
-						<div class="ui-form-row">
+						<div>
 							<div class="ui-form-label">
 								<label class="ui-ctl ui-ctl-checkbox">
-									<input type="checkbox" class="ui-ctl-element"
+									<input type="checkbox" class="bx-sender-message-editor-field-checkbox"
 										id="{$inputId}"
 										name="{$inputName}"
 										value="Y"
 										{$value}
 									>
-									<div class="ui-ctl-label-text">{$inputCaption}</div>
+									<div class="bx-sender-caption sender-message-title">{$inputCaption}</div>
 									<div data-hint="{$hintText}"></div>
 								</label>
 							</div>
@@ -429,7 +452,7 @@ TEXT;
 					{
 						$previewText = Loc::getMessage('SENDER_MESSAGE_EDITOR_CONSENT_PREVIEW');
 						$inputHtml .= <<<PREVIEW
-							<div class="main-user-consent-selector-footer">
+							<div class="main-user-consent-selector-footer sender-message-editor-preview">
 								<a class="main-user-consent-selector-block-link" data-role="consent-preview"
 								data-bx-input-name="$inputName"
 								data-bx-slider-href="" data-bx-slider-reload="true" href="#">
@@ -449,11 +472,11 @@ PREVIEW;
 			}
 				?>
 			<div data-bx-field="<?=$inputId?>" class="bx-sender-message-editor-field <?=$inputDisplay?>">
-				<div class="bx-sender-caption sender-message-title">
-					<?if (!$isCustomCaption):?>
+				<?if (!$isCustomCaption):?>
+					<div class="bx-sender-caption sender-message-title">
 						<?=$inputCaption?>:
-					<?endif;?>
-				</div>
+					</div>
+				<?endif;?>
 				<div data-role="editor-field" class="bx-sender-value">
 					<?if($arParams['CAN_EDIT']):?>
 						<?=$inputHtml?>

@@ -3,6 +3,22 @@ namespace Bitrix\Bizproc\Automation\Trigger\Entity;
 
 use Bitrix\Main;
 
+/**
+ * Class TriggerTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Trigger_Query query()
+ * @method static EO_Trigger_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Trigger_Result getById($id)
+ * @method static EO_Trigger_Result getList(array $parameters = array())
+ * @method static EO_Trigger_Entity getEntity()
+ * @method static \Bitrix\Bizproc\Automation\Trigger\Entity\EO_Trigger createObject($setDefaultValues = true)
+ * @method static \Bitrix\Bizproc\Automation\Trigger\Entity\EO_Trigger_Collection createCollection()
+ * @method static \Bitrix\Bizproc\Automation\Trigger\Entity\EO_Trigger wakeUpObject($row)
+ * @method static \Bitrix\Bizproc\Automation\Trigger\Entity\EO_Trigger_Collection wakeUpCollection($rows)
+ */
 class TriggerTable extends Main\Entity\DataManager
 {
 	/**

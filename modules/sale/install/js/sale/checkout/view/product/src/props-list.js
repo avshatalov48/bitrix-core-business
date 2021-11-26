@@ -12,7 +12,7 @@ BitrixVue.component('sale-checkout-view-product-props_list', {
 	// language=Vue
 	template: `
 		<div>
-		<div  v-for="(item, index) in list" v-if="isShow(item)" class="checkout-basket-item-props" :key="index">{{item.name}}: <strong>{{item.value}}</strong></div>
+			<div v-for="(item, index) in list" v-if="isShow(item)" class="checkout-basket-item-props" :key="index">{{item.name}}: <strong>{{item.value}}</strong></div>
 		</div>
 	`
 });

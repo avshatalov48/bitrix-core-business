@@ -13,6 +13,7 @@ BX.UI.InfoHelper =
 		this.inited = true;
 		this.frameUrlTemplate = params.frameUrlTemplate || '';
 		this.trialableFeatureList = params.trialableFeatureList || [];
+		this.demoStatus = params.demoStatus || 'UNKNOWN';
 
 		BX.bind(window, 'message', BX.proxy(function(event)
 		{
@@ -114,6 +115,13 @@ BX.UI.InfoHelper =
 								'*'
 							);
 						}
+
+						if (response.data.success === 'Y')
+						{
+							BX.onCustomEvent('BX.UI.InfoHelper:onActivateDemoLicenseSuccess', {
+								result: response
+							});
+						}
 					}.bind(this)
 				);
 			}
@@ -160,6 +168,14 @@ BX.UI.InfoHelper =
 								},
 								'*'
 							);
+						}
+
+						if (response.data.success === 'Y')
+						{
+							BX.onCustomEvent('BX.UI.InfoHelper:onActivateTrialFeatureSuccess', {
+								result: response,
+								featureId: event.data.featureId
+							});
 						}
 					}.bind(this)
 				);
@@ -249,6 +265,13 @@ BX.UI.InfoHelper =
 							url = BX.Uri.addParam(url, {
 								featureId: params.featureId,
 								trialableFeatureList: this.trialableFeatureList.join(',')
+							});
+						}
+
+						if (this.demoStatus)
+						{
+							url = BX.Uri.addParam(url, {
+								demoStatus: this.demoStatus
 							});
 						}
 

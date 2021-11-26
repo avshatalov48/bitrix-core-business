@@ -19,6 +19,7 @@ use Bitrix\Sender\Integration;
 use Bitrix\Sender\Internals\Model;
 use Bitrix\Sender\Posting;
 use Bitrix\Sender\PostingRecipientTable;
+use Bitrix\Sender\Transport\TimeLimiter;
 
 Loc::loadMessages(__FILE__);
 
@@ -196,6 +197,22 @@ class State
 
 		$message = $this->letter->getMessage();
 		return $message->getTransport()->isLimitsExceeded($message);
+	}
+
+	/**
+	 * Is sending limit waiting.
+	 *
+	 * @return bool
+	 */
+	public function isSendingLimitWaiting()
+	{
+		if (!$this->isSending())
+		{
+			return false;
+		}
+
+		$message = $this->letter->getMessage();
+		return $message->getTransport()->getExceededLimiter($message) instanceof TimeLimiter;
 	}
 
 	/**
@@ -880,7 +897,6 @@ class State
 		if ($state === self::SENDING)
 		{
 			$fields['AUTO_SEND_TIME'] = $sendDate ?: new DateTime();
-			$fields['WAITING_RECIPIENT'] = 'Y';
 		}
 		if ($state === self::PLANNED)
 		{

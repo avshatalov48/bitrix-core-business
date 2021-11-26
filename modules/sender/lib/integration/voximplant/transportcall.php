@@ -179,9 +179,11 @@ class TransportCall implements Transport\iBase, Transport\iDuration, Transport\i
 	 */
 	public function getLimiters(Message\iBase $message = null)
 	{
-		return array(
-			$this->getCountLimiter()
-		);
+		return [
+			$this->getCountLimiter(),
+			Transport\TimeLimiter::create()
+				->withLetter($message)
+		];
 	}
 
 	protected function getCountLimiter()

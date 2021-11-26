@@ -50,6 +50,22 @@ StateActivity = function()
 		sp.style.whiteSpace = 'nowrap';
 		sp.title = ob['Properties']['Title'];
 		sp.align = 'left';
+		sp.classList.add('bizproc-StateActivity-title');
+
+		sp.onmousedown = function (e)
+		{
+			var div = DragNDrop.StartDrag(e, ob);
+
+			div.innerHTML = ob.main.innerHTML;
+			div.style.width = ob.main.offsetWidth + 'px';
+		}
+
+		ob.lastDrop = false;
+		if (!ob.h1id)
+		{
+			ob.h1id = DragNDrop.AddHandler('ondragging', ob.ondragging);
+			ob.h2id = DragNDrop.AddHandler('ondrop', ob.ondrop);
+		}
 
 		c = r.insertCell(-1);
 		c.className = 'statset';
@@ -58,7 +74,6 @@ StateActivity = function()
 		c = r.insertCell(-1);
 		c.className = 'statdel';
 		c.onclick = ob.OnRemoveClick;
-
 
 		r = ob.main.insertRow(-1);
 		c = r.insertCell(-1);
@@ -156,6 +171,41 @@ StateActivity = function()
 		c.width = '5';
 		c.style.background = 'url(/bitrix/images/bizproc/stat_br.gif)';
 	};
+
+	ob.ondragging = function (e, X, Y)
+	{
+		var arrow = ob.main;
+		var pos = BX.pos(arrow);
+		if (
+			pos.left < X && X < pos.right
+			&& pos.top < Y && Y < pos.bottom
+		)
+		{
+			ob.lastDrop = arrow;
+			arrow.style.opacity = '.25';
+			return;
+		}
+
+		if (ob.lastDrop)
+		{
+			arrow.style.opacity = '';
+			ob.lastDrop = false;
+		}
+	};
+
+	ob.ondrop = function (X, Y, e)
+	{
+		if(ob.lastDrop)
+		{
+			ob.lastDrop.style.opacity = '';
+			ob.lastDrop = false;
+
+			if (ob !== DragNDrop.obj && ob.parentActivity.ReplaceChild)
+			{
+				ob.parentActivity.ReplaceChild(ob, DragNDrop.obj);
+			}
+		}
+	}
 
 	ob.reDraw = function()
 	{
@@ -368,6 +418,9 @@ StateActivity = function()
 
 	ob.RemoveResources = function ()
 	{
+		DragNDrop.RemoveHandler('ondragging', ob.h1id);
+		DragNDrop.RemoveHandler('ondrop', ob.h2id);
+
 		ob.main.parentNode.removeChild(ob.main);
 	};
 

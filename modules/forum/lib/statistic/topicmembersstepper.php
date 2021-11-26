@@ -1,10 +1,11 @@
 <?
 namespace Bitrix\Forum\Statistic;
-use Bitrix\Forum\MessageTable;
-use Bitrix\Main\Config\Option;
+
+use Bitrix\Forum;
+use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 
-class TopicMembersStepper extends \Bitrix\Main\Update\Stepper
+class TopicMembersStepper extends Main\Update\Stepper
 {
 	protected static $moduleId = "forum";
 
@@ -17,60 +18,18 @@ class TopicMembersStepper extends \Bitrix\Main\Update\Stepper
 	 */
 	public function execute(array &$option)
 	{
-		$res = Option::get("forum", "stat.user.recalc.topic", "");
-		$res = empty($res) ? [] : unserialize($res, ["allowed_classes" => false]);
-		if (empty($res) || !is_array($res))
+		$res = Main\Config\Option::get("forum", "stat.user.recalc.topic", "");
+		$res = unserialize($res, ["allowed_classes" => false]);
+		if (is_array($res) && !empty($res))
 		{
-			return self::FINISH_EXECUTION;
+			Forum\Statistic\User::calcForTopics(array_keys($res));
+			Main\Config\Option::delete("forum", ["name" => "stat.user.recalc.topic"]);
 		}
-		$state = reset($res);
-		$topicId = key($res);
-		if (empty($state))
-		{
-			$state["LAST_ID"] = 0;
-		}
-		$dbRes = MessageTable::getList([
-			"select" => ["AUTHOR_ID"],
-			"filter" => ["TOPIC_ID" => $topicId, ">AUTHOR_ID" => $state["LAST_ID"]],
-			"limit" => 10,
-			"offset" => $state["LAST_ID"],
-			"order" => ["AUTHOR_ID" => "asc"]
-		]);
-		$count = 0;
-		while ($r = $dbRes->fetch())
-		{
-			$count++;
-			$user = \Bitrix\Forum\User::getById($r["AUTHOR_ID"]);
-			$user->calcStatistic();
-			$state["LAST_ID"] = $r["AUTHOR_ID"];
-		}
-		if ($count < 10)
-		{
-			array_shift($res);
-		}
-		else
-		{
-			$res[$topicId] = $state;
-		}
-		$option["steps"] = 1;
-		$option["count"] = count($res);
-		if (empty($res))
-		{
-			Option::delete("forum", ["name" => "stat.user.recalc.topic"]);
-			return self::FINISH_EXECUTION;
-		}
-		Option::set("forum", "stat.user.recalc.topic", serialize($res));
-		return self::CONTINUE_EXECUTION;
+		return self::FINISH_EXECUTION;
 	}
 
 	public static function calc(int $topicId)
 	{
-		$res = Option::get("forum", "stat.user.recalc.topic", "");
-		if (!empty($res))
-			$res = unserialize($res, ["allowed_classes" => false]);
-		$res = is_array($res) ? $res : [];
-		$res[$topicId] = [];
-		Option::set("forum", "stat.user.recalc.topic", serialize($res));
-		static::bind(0);
+		Forum\Statistic\User::runForTopic($topicId);
 	}
 }

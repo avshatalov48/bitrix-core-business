@@ -1,4 +1,9 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -7,6 +12,8 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 /** @var boolean $is_unread */
+/** @var string $ind */
+/** @var array $arEvent */
 
 $component = $this->getComponent();
 
@@ -29,8 +36,17 @@ $arComponentParams = array_merge($arParams, [
 	"LAZYLOAD" => "Y",
 	"FROM_LOG" => (isset($arParams["LOG_ID"]) && (int)$arParams["LOG_ID"] > 0 ? "N" : "Y"),
 	"PATH_TO_LOG_TAG" => $arResult["PATH_TO_LOG_TAG"],
-	'TOP_RATING_DATA' => ($arResult['TOP_RATING_DATA'][$arEvent["ID"]] ?? false)
+	'TOP_RATING_DATA' => ($arResult['TOP_RATING_DATA'][$arEvent["ID"]] ?? false),
 ]);
+
+if (isset($arResult['UNREAD_COMMENTS_ID_LIST'][$arEvent['ID']]))
+{
+	$arComponentParams['UNREAD_COMMENTS_ID_LIST'] = $arResult['UNREAD_COMMENTS_ID_LIST'][$arEvent['ID']];
+}
+elseif ($arResult['LOG_COUNTER'] <= 0)
+{
+	$arComponentParams['UNREAD_COMMENTS_ID_LIST'] = [];
+}
 
 if ($USER->isAuthorized())
 {

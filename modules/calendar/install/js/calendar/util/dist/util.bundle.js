@@ -1538,6 +1538,25 @@ this.BX = this.BX || {};
 	      requestUid = parseInt(requestUid);
 	      return !main_core.Type.isInteger(requestUid) || !Util.REQUEST_ID_LIST.includes(requestUid);
 	    }
+	  }, {
+	    key: "initHintNode",
+	    value: function initHintNode(hintNode) {
+	      var _bx$UI;
+
+	      var bx = Util.getBX();
+
+	      if (main_core.Type.isElementNode(hintNode) && (bx === null || bx === void 0 ? void 0 : (_bx$UI = bx.UI) === null || _bx$UI === void 0 ? void 0 : _bx$UI.Hint)) {
+	        var _bx$UI2, _bx$UI2$Hint;
+
+	        if (bx === null || bx === void 0 ? void 0 : (_bx$UI2 = bx.UI) === null || _bx$UI2 === void 0 ? void 0 : (_bx$UI2$Hint = _bx$UI2.Hint) === null || _bx$UI2$Hint === void 0 ? void 0 : _bx$UI2$Hint.popup) {
+	          bx.UI.Hint.popup.destroy();
+	          bx.UI.Hint.popup = null;
+	          bx.UI.Hint.content = null;
+	        }
+
+	        bx.UI.Hint.initNode(hintNode);
+	      }
+	    }
 	  }]);
 	  return Util;
 	}();

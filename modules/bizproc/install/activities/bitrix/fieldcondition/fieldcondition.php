@@ -46,24 +46,17 @@ class CBPFieldCondition
 			if (!isset($document[$cond[0]]) && isset($documentFieldsAliasesMap[$cond[0]]))
 				$cond[0] = $documentFieldsAliasesMap[$cond[0]];
 
-			if (array_key_exists($cond[0], $document))
+			$fld = $document[$cond[0] . "_XML_ID"] ?? $document[$cond[0]];
+			$baseType = $documentFields[$cond[0]]["BaseType"];
+			$type = $documentFields[$cond[0]]["Type"];
+			if ($type === 'UF:boolean')
 			{
-				$fld = isset($document[$cond[0]."_XML_ID"]) ? $document[$cond[0]."_XML_ID"] : $document[$cond[0]];
-				$baseType = $documentFields[$cond[0]]["BaseType"];
-				$type = $documentFields[$cond[0]]["Type"];
-				if ($type === 'UF:boolean')
-				{
-					$baseType = 'bool';
-				}
-
-				if (!$this->CheckCondition($cond[0], $fld, $cond[1], $cond[2], $baseType, $type, $rootActivity))
-				{
-					$r = false;
-				}
+				$baseType = 'bool';
 			}
-			else
+
+			if (!$this->CheckCondition($cond[0], $fld, $cond[1], $cond[2], $baseType, $type, $rootActivity))
 			{
-				$r = ($cond[1] === 'empty');
+				$r = false;
 			}
 
 			if ($joiner == static::CONDITION_JOINER_OR)

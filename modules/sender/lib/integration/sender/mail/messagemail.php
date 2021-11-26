@@ -27,6 +27,7 @@ use Bitrix\Sender\Posting;
 use Bitrix\Sender\PostingRecipientTable;
 use Bitrix\Sender\Templates;
 use Bitrix\Sender\Transport;
+use Bitrix\Sender\Transport\TimeLimiter;
 
 Loc::loadMessages(__FILE__);
 
@@ -188,12 +189,6 @@ class MessageMail implements Message\iBase, Message\iMailable
 				'value' => '',
 				'items' => array(),
 			), [
-				'type' => Message\ConfigurationOption::TYPE_CUSTOM,
-				'name' => Loc::getMessage('SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_OTHER'),
-				'group' => Message\ConfigurationOption::GROUP_ADDITIONAL,
-				'show_in_list' => true,
-				'required' => false,
-			], [
 				'type' => Message\ConfigurationOption::TYPE_CHECKBOX,
 				'code' => 'TRACK_MAIL',
 				'name' => Loc::getMessage('SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_TRACK_MAIL'),
@@ -221,6 +216,8 @@ class MessageMail implements Message\iBase, Message\iMailable
 				'show_preview' => true
 			],
 		));
+
+		TimeLimiter::prepareMessageConfiguration($this->configuration);
 
 		$list = array(
 			array(
@@ -271,7 +268,7 @@ class MessageMail implements Message\iBase, Message\iMailable
 		};
 
 		$trackMail = $this->configuration->getOption('TRACK_MAIL')->getValue();
-		if (!$trackMail)
+		if (is_null($trackMail))
 		{
 			$this->configuration->getOption('TRACK_MAIL')->setValue(Option::get('sender', 'track_mails'));
 		}
@@ -337,6 +334,7 @@ class MessageMail implements Message\iBase, Message\iMailable
 		$mailHeaders = array('Precedence' => 'bulk');
 		$mailHeaders = self::fillHeadersByOptionHeaders($mailHeaders);
 		$this->configuration->set('HEADERS', $mailHeaders);
+		TimeLimiter::prepareMessageConfigurationView($this->configuration);
 
 		return $this->configuration;
 	}
@@ -402,6 +400,12 @@ class MessageMail implements Message\iBase, Message\iMailable
 		$emailFrom = (new Mail\Address($emailFrom))->get();
 		$this->configuration->getOption('EMAIL_FROM')->setValue($emailFrom);
 
+		$trackMail = $this->configuration->getOption('TRACK_MAIL')->getValue();
+
+		if (!$trackMail)
+		{
+			$this->configuration->getOption('TRACK_MAIL')->setValue('N');
+		}
 		return Entity\Message::create()
 			->setCode($this->getCode())
 			->setUtm($utm)

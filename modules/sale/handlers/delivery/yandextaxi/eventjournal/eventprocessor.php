@@ -16,7 +16,6 @@ use Sale\Handlers\Delivery\YandexTaxi\Internals\ClaimsTable;
 use Bitrix\Sale\Delivery\Services;
 use Bitrix\Sale\Delivery\Requests;
 use Bitrix\Sale\Delivery\Requests\Message;
-use Bitrix\Main;
 
 /**
  * Class EventProcessor
@@ -268,74 +267,76 @@ final class EventProcessor
 			return;
 		}
 
-		/**
-		 * Accept claim automatically
-		 */
-		if (
-			isset($fields['EXTERNAL_STATUS'])
-			&& $fields['EXTERNAL_STATUS'] == StatusDictionary::READY_FOR_APPROVAL
-		)
+		switch ($fields['EXTERNAL_STATUS'])
 		{
-			$remoteClaim = $this->requestClaim($claim['EXTERNAL_ID']);
-			if (
-				$remoteClaim
-				&& ($pricing = $remoteClaim->getPricing())
-				&& ($offer = $pricing->getOffer())
-			)
-			{
-				$price = $offer->getPrice();
-				$currency = $pricing->getCurrency();
-			}
-			else
-			{
-				$price = null;
-				$currency = null;
-			}
-
-			$result = $this->api->acceptClaim($claim['EXTERNAL_ID'], 1);
-			$message = (new Message\Message())->setSubject(Loc::getMessage('SALE_YANDEX_TAXI_ACCEPTING_CLAIM'));
-
-			if ($result->isSuccess())
-			{
-				if ($price && $currency)
+			case StatusDictionary::READY_FOR_APPROVAL:
+				$remoteClaim = $this->requestClaim($claim['EXTERNAL_ID']);
+				if (
+					$remoteClaim
+					&& ($pricing = $remoteClaim->getPricing())
+					&& ($offer = $pricing->getOffer())
+				)
 				{
-					$message
-						->setBody(
-							sprintf(
-								'%s: %s',
-								Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_CALCULATION_RECEIVED_SUCCESSFULLY'),
-								Message\Message::MESSAGE_TEXT_MONEY_PLACEHOLDER
-							)
-						)
-						->setCurrency($currency)
-						->addMoneyValue($price);
+					$price = $offer->getPrice();
+					$currency = $pricing->getCurrency();
 				}
 				else
 				{
-					$message->setBody(Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_CALCULATION_FAILED'));
-					$message->setStatus(new Message\Status(Loc::getMessage('SALE_YANDEX_TAXI_ERROR_STATUS'), Message\Status::getErrorSemantic()));
+					$price = null;
+					$currency = null;
 				}
-			}
-			else
-			{
-				$message
-					->setBody(Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_ACCEPT_CLAIM_ERROR'))
-					->setStatus(new Message\Status(
-						Loc::getMessage('SALE_YANDEX_TAXI_ERROR_STATUS'),
-						Message\Status::getErrorSemantic()
-					));
-			}
 
-			Requests\Manager::sendMessage(
-				Requests\Manager::MESSAGE_MANAGER_ADDRESSEE,
-				$message,
-				$request['ID'],
-				$shipment->getId()
-			);
-		}
+				$result = $this->api->acceptClaim($claim['EXTERNAL_ID'], 1);
+				$message = (new Message\Message())->setSubject(Loc::getMessage('SALE_YANDEX_TAXI_ACCEPTING_CLAIM'));
+				$deleteRequest = false;
 
-		switch ($claim['EXTERNAL_STATUS'])
-		{
+				if ($result->isSuccess())
+				{
+					if ($price && $currency)
+					{
+						$message
+							->setBody(
+								sprintf(
+									'%s: %s',
+									Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_CALCULATION_RECEIVED_SUCCESSFULLY'),
+									Message\Message::MESSAGE_TEXT_MONEY_PLACEHOLDER
+								)
+							)
+							->setCurrency($currency)
+							->addMoneyValue($price);
+					}
+					else
+					{
+						$message->setBody(Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_CALCULATION_FAILED'));
+						$message->setStatus(new Message\Status(
+							Loc::getMessage('SALE_YANDEX_TAXI_ERROR_STATUS'),
+							Message\Status::getErrorSemantic()
+						));
+						$deleteRequest = true;
+					}
+				}
+				else
+				{
+					$message
+						->setBody(Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_ACCEPT_CLAIM_ERROR'))
+						->setStatus(new Message\Status(
+							Loc::getMessage('SALE_YANDEX_TAXI_ERROR_STATUS'),
+							Message\Status::getErrorSemantic()
+						));
+					$deleteRequest = true;
+				}
+
+				Requests\Manager::sendMessage(
+					Requests\Manager::MESSAGE_MANAGER_ADDRESSEE,
+					$message,
+					$request['ID'],
+					$shipment->getId()
+				);
+				if ($deleteRequest)
+				{
+					Requests\Manager::deleteDeliveryRequest($request['ID']);
+				}
+				break;
 			case StatusDictionary::PERFORMER_FOUND:
 				Requests\Manager::updateDeliveryRequest(
 					$request['ID'],
@@ -488,7 +489,6 @@ final class EventProcessor
 	/**
 	 * @param string $externalId
 	 * @return Claim|null
-	 * @throws Main\ArgumentException
 	 */
 	private function requestClaim(string $externalId): ?Claim
 	{

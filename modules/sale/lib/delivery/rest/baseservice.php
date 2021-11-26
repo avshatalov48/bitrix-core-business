@@ -2,8 +2,9 @@
 
 namespace Bitrix\Sale\Delivery\Rest;
 
-use Bitrix\Main,
-	Bitrix\Rest\AccessException;
+use Bitrix\Main;
+use Bitrix\Sale;
+use Bitrix\Rest;
 
 if (!Main\Loader::includeModule('rest'))
 {
@@ -16,6 +17,51 @@ class BaseService extends \IRestService
 		'\\' . \Sale\Handlers\Delivery\RestHandler::class,
 		'\\' . \Sale\Handlers\Delivery\RestProfile::class,
 	];
+
+	public static function onRestAppDelete(array $fields): void
+	{
+		if (!Main\Loader::includeModule('rest'))
+		{
+			return;
+		}
+
+		if (empty($fields['APP_ID']) || empty($fields['CLEAN']) || $fields['CLEAN'] !== true)
+		{
+			return;
+		}
+
+		$app = Rest\AppTable::getByClientId($fields['APP_ID']);
+		if (!$app)
+		{
+			return;
+		}
+
+		$restHandlerResult = Internals\DeliveryRestHandlerTable::getList([
+			'select' => ['ID', 'CODE'],
+			'filter' => [
+				'=APP_ID' => $app['CLIENT_ID'],
+			],
+		]);
+		while ($restHandler = $restHandlerResult->fetch())
+		{
+			$deliveryResult = Sale\Delivery\Services\Manager::getList([
+				'select' => ['ID', 'CONFIG'],
+				'filter' => [
+					'@CLASS_NAME' => self::ALLOW_HANDLERS,
+				],
+			]);
+			while ($delivery = $deliveryResult->fetch())
+			{
+				$handlerCode = self::getRestCodeFromConfig($delivery['CONFIG']);
+				if ($handlerCode === $restHandler['CODE'])
+				{
+					Sale\Delivery\Services\Manager::delete($delivery['ID'], false);
+				}
+			}
+
+			Sale\Delivery\Rest\Internals\DeliveryRestHandlerTable::delete($restHandler['ID']);
+		}
+	}
 
 	/**
 	 * @return string[]
@@ -33,13 +79,9 @@ class BaseService extends \IRestService
 		return [];
 	}
 
-	/**
-	 * @throws AccessException
-	 * @throws Main\LoaderException
-	 */
 	protected static function checkDeliveryPermission(): void
 	{
-		\Bitrix\Sale\Helpers\Rest\AccessChecker::checkAccessPermission();
+		Sale\Helpers\Rest\AccessChecker::checkAccessPermission();
 	}
 
 	/**
@@ -51,7 +93,7 @@ class BaseService extends \IRestService
 		return self::replaceIncomingKeys(self::arrayChangeKeyCaseRecursive($data));
 	}
 
-	private static function arrayChangeKeyCaseRecursive($arr, $case = CASE_UPPER)
+	private static function arrayChangeKeyCaseRecursive(array $data, $case = CASE_UPPER)
 	{
 		return array_map(static function($item) use ($case) {
 			if (is_array($item))
@@ -59,7 +101,7 @@ class BaseService extends \IRestService
 				$item = self::arrayChangeKeyCaseRecursive($item, $case);
 			}
 			return $item;
-		}, array_change_key_case($arr, $case));
+		}, array_change_key_case($data, $case));
 	}
 
 	/**
@@ -112,5 +154,67 @@ class BaseService extends \IRestService
 		}
 
 		return $data;
+	}
+
+	protected static function hasAccessToDelivery(array $deliveryData, string $appId = null): bool
+	{
+		$className = $deliveryData['CLASS_NAME'];
+		if (self::isRestHandler($className))
+		{
+			$handlerCode = self::getRestCodeFromConfig($deliveryData['CONFIG']);
+			$handlerData = self::getHandlerData($handlerCode);
+			if ($appId && !empty($handlerData['APP_ID']) && $handlerData['APP_ID'] !== $appId)
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	protected static function isRestHandler(string $className): bool
+	{
+		return in_array($className, self::ALLOW_HANDLERS, true);
+	}
+
+	protected static function getRestCodeFromConfig(array $config): string
+	{
+		$handlerCode = '';
+
+		foreach ($config as $configItem)
+		{
+			if (!empty($configItem['REST_CODE']))
+			{
+				$handlerCode = (string)$configItem['REST_CODE'];
+				break;
+			}
+		}
+
+		return $handlerCode;
+	}
+
+	protected static function getHandlerData(string $code): ?array
+	{
+		static $result = [];
+
+		if (!empty($result[$code]))
+		{
+			return $result[$code];
+		}
+
+		$handlerData = Internals\DeliveryRestHandlerTable::getList([
+			'filter' => ['CODE' => $code],
+			'limit' => 1,
+		])->fetch();
+		if ($handlerData)
+		{
+			$result[$code] = $handlerData;
+		}
+
+		return $result[$code] ?? null;
 	}
 }

@@ -5,6 +5,7 @@ namespace Bitrix\Sale\Delivery\Rest;
 use Bitrix\Main;
 use Bitrix\Sale;
 use Bitrix\Rest\RestException;
+use Bitrix\Rest\AccessException;
 
 if (!Main\Loader::includeModule('rest'))
 {
@@ -40,6 +41,19 @@ class ExtraServicesService extends BaseService
 	}
 
 	/**
+	 * @param array $data
+	 * @param \CRestServer $server
+	 * @return array
+	 */
+	private static function prepareExtraServicesParams(array $data, \CRestServer $server): array
+	{
+		$data = self::prepareIncomingParams($data);
+		$data['APP_ID'] = $server->getClientId();
+
+		return $data;
+	}
+
+	/**
 	 * @param $query
 	 * @param $n
 	 * @param \CRestServer $server
@@ -48,7 +62,7 @@ class ExtraServicesService extends BaseService
 	public static function addExtraServices($query, $n, \CRestServer $server)
 	{
 		self::checkDeliveryPermission();
-		$params = self::prepareIncomingParams($query);
+		$params = self::prepareExtraServicesParams($query, $server);
 		self::checkParamsBeforeAddExtraServices($params);
 
 		$extraServicesTypeMap = self::getExtraServicesTypeMap();
@@ -110,6 +124,19 @@ class ExtraServicesService extends BaseService
 			throw new RestException('Parameter TYPE is unknown', self::ERROR_CHECK_FAILURE);
 		}
 
+		$data = Sale\Delivery\Services\Manager::getById($params['DELIVERY_ID']);
+		if ($data)
+		{
+			if (!self::hasAccessToDelivery($data, $params['APP_ID']))
+			{
+				throw new AccessException();
+			}
+		}
+		else
+		{
+			throw new RestException('Delivery not found', self::ERROR_DELIVERY_NOT_FOUND);
+		}
+
 		if (!empty($params['CODE']))
 		{
 			$extraServiceData = Sale\Delivery\ExtraServices\Table::getList([
@@ -139,7 +166,7 @@ class ExtraServicesService extends BaseService
 	public static function updateExtraServices($query, $n, \CRestServer $server)
 	{
 		self::checkDeliveryPermission();
-		$params = self::prepareIncomingParams($query);
+		$params = self::prepareExtraServicesParams($query, $server);
 		self::checkParamsBeforeUpdateExtraServices($params);
 
 		$fields = [];
@@ -233,6 +260,12 @@ class ExtraServicesService extends BaseService
 		])->fetch();
 		if ($extraServiceData)
 		{
+			$data = Sale\Delivery\Services\Manager::getById($extraServiceData['DELIVERY_ID']);
+			if ($data && !self::hasAccessToDelivery($data, $params['APP_ID']))
+			{
+				throw new AccessException();
+			}
+
 			$newCode = $params['FIELDS']['CODE'] ?? '';
 			if ($newCode)
 			{
@@ -268,7 +301,7 @@ class ExtraServicesService extends BaseService
 	public static function deleteExtraServices($query, $n, \CRestServer $server)
 	{
 		self::checkDeliveryPermission();
-		$params = self::prepareIncomingParams($query);
+		$params = self::prepareExtraServicesParams($query, $server);
 		self::checkParamsBeforeDeleteExtraServices($params);
 
 		$result = Sale\Delivery\ExtraServices\Table::delete($params['ID']);
@@ -283,16 +316,23 @@ class ExtraServicesService extends BaseService
 
 	private static function checkParamsBeforeDeleteExtraServices(array $params)
 	{
-		$extraService = Sale\Delivery\ExtraServices\Table::getById($params['ID'])->fetch();
-		if (!$extraService)
+		if (empty($params['ID']))
 		{
-			throw new RestException('Extra service not found', self::ERROR_EXTRA_SERVICE_NOT_FOUND);
+			throw new RestException('Parameter ID is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
-		$data = Sale\Delivery\Services\Manager::getById($extraService['DELIVERY_ID']);
-		if ($data && !\in_array($data['CLASS_NAME'], self::ALLOW_HANDLERS, true))
+		$extraService = Sale\Delivery\ExtraServices\Table::getById($params['ID'])->fetch();
+		if ($extraService)
 		{
-			throw new RestException('Access denied', self::ERROR_CHECK_FAILURE);
+			$data = Sale\Delivery\Services\Manager::getById($extraService['DELIVERY_ID']);
+			if ($data && !self::hasAccessToDelivery($data, $params['APP_ID']))
+			{
+				throw new AccessException();
+			}
+		}
+		else
+		{
+			throw new RestException('Extra service not found', self::ERROR_EXTRA_SERVICE_NOT_FOUND);
 		}
 	}
 
@@ -343,11 +383,6 @@ class ExtraServicesService extends BaseService
 		if (!$data)
 		{
 			throw new RestException('Delivery not found', self::ERROR_DELIVERY_NOT_FOUND);
-		}
-
-		if (!\in_array($data['CLASS_NAME'], self::ALLOW_HANDLERS, true))
-		{
-			throw new RestException('Access denied', self::ERROR_CHECK_FAILURE);
 		}
 	}
 

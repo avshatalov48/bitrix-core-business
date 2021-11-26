@@ -18,6 +18,7 @@ import type { ItemBadgeOptions } from './item-badge-options';
 import type { TextNodeOptions } from '../common/text-node-options';
 import type { CaptionOptions } from './caption-options';
 import type { BadgesOptions } from './badges-options';
+import type { AvatarOptions } from './avatar-options';
 
 export class RenderMode
 {
@@ -50,6 +51,7 @@ export default class ItemNode
 	caption: ?TextNode = null;
 	captionOptions: CaptionOptions = {};
 	avatar: ?string = null;
+	avatarOptions: ?AvatarOptions = null;
 	link: ?string = null;
 	linkTitle: ?TextNode = null;
 	textColor: ?string = null;
@@ -92,6 +94,11 @@ export default class ItemNode
 			this.setLinkTitle('');
 
 			this.avatar = '';
+			this.avatarOptions = {
+				bgSize: null,
+				bgColor: null,
+				bgImage: null,
+			};
 			this.textColor = '';
 			this.link = '';
 			this.badges = [];
@@ -111,6 +118,7 @@ export default class ItemNode
 		this.setCaption(options.caption);
 		this.setCaptionOptions(options.captionOptions);
 		this.setAvatar(options.avatar);
+		this.setAvatarOptions(options.avatarOptions);
 		this.setTextColor(options.textColor);
 		this.setLink(options.link);
 		this.setLinkTitle(options.linkTitle);
@@ -246,14 +254,18 @@ export default class ItemNode
 		return itemNode;
 	}
 
-	addItems(items: Item[]): void
+	addItems(items: Item[] | Array<[Item, ItemNodeOptions]>): void
 	{
 		if (Type.isArray(items))
 		{
 			this.disableRender();
 
-			items.forEach((item: Item) => {
-				if (item instanceof Item)
+			items.forEach((item: Item | [Item, ItemNodeOptions]) => {
+				if (Type.isArray(item) && item.length === 2)
+				{
+					this.addItem(item[0], item[1]);
+				}
+				else if (item instanceof Item)
 				{
 					this.addItem(item);
 				}
@@ -636,13 +648,42 @@ export default class ItemNode
 			this.getTitleContainer().style.removeProperty('color');
 		}
 
-		if (Type.isStringFilled(this.getAvatar()))
+		const avatar = this.getAvatar();
+		if (Type.isStringFilled(avatar))
 		{
-			this.getAvatarContainer().style.backgroundImage = `url('${this.getAvatar()}')`;
+			this.getAvatarContainer().style.backgroundImage = `url('${avatar}')`;
 		}
 		else
 		{
-			this.getAvatarContainer().style.removeProperty('background-image');
+			const bgImage = this.getAvatarOption('bgImage');
+			if (Type.isStringFilled(bgImage))
+			{
+				this.getAvatarContainer().style.backgroundImage = bgImage;
+			}
+			else
+			{
+				this.getAvatarContainer().style.removeProperty('background-size');
+			}
+		}
+
+		const bgColor = this.getAvatarOption('bgColor');
+		if (Type.isStringFilled(bgColor))
+		{
+			this.getAvatarContainer().style.backgroundColor = bgColor;
+		}
+		else
+		{
+			this.getAvatarContainer().style.removeProperty('background-color');
+		}
+
+		const bgSize = this.getAvatarOption('bgSize');
+		if (Type.isStringFilled(bgSize))
+		{
+			this.getAvatarContainer().style.backgroundSize = bgSize;
+		}
+		else
+		{
+			this.getAvatarContainer().style.removeProperty('background-size');
 		}
 
 		Dom.clean(this.getBadgeContainer());
@@ -931,6 +972,38 @@ export default class ItemNode
 		if (Type.isString(avatar) || avatar === null)
 		{
 			this.avatar = avatar;
+		}
+	}
+
+	getAvatarOption(option: $Keys<AvatarOptions>): string | boolean | number | null
+	{
+		return (
+			this.avatarOptions === null || Type.isUndefined(this.avatarOptions[option])
+				? this.getItem().getAvatarOption(option)
+				: this.avatarOptions[option]
+		);
+	}
+
+	setAvatarOption(option: $Keys<AvatarOptions>, value: string | boolean | number | null): void
+	{
+		if (Type.isStringFilled(option) && !Type.isUndefined(value))
+		{
+			if (this.avatarOptions === null)
+			{
+				this.avatarOptions = {};
+			}
+
+			this.avatarOptions[option] = value;
+		}
+	}
+
+	setAvatarOptions(avatarOptions: AvatarOptions): void
+	{
+		if (Type.isPlainObject(avatarOptions))
+		{
+			Object.keys(avatarOptions).forEach((option: string) => {
+				this.setAvatarOption(option, avatarOptions[option]);
+			});
 		}
 	}
 

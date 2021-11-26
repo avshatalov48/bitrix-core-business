@@ -38,7 +38,20 @@ use Bitrix\Vote\Vote\Option;
  * </ul>
  *
  * @package Bitrix\Forum
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_File_Query query()
+ * @method static EO_File_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_File_Result getById($id)
+ * @method static EO_File_Result getList(array $parameters = array())
+ * @method static EO_File_Entity getEntity()
+ * @method static \Bitrix\Forum\EO_File createObject($setDefaultValues = true)
+ * @method static \Bitrix\Forum\EO_File_Collection createCollection()
+ * @method static \Bitrix\Forum\EO_File wakeUpObject($row)
+ * @method static \Bitrix\Forum\EO_File_Collection wakeUpCollection($rows)
+ */
 class FileTable extends Main\Entity\DataManager
 {
 	/**
@@ -71,6 +84,26 @@ class FileTable extends Main\Entity\DataManager
 			(new Reference("FORUM", ForumTable::class, Join::on("this.FORUM_ID", "ref.ID"))),
 			(new Reference("FILE", Main\FileTable::class, Join::on("this.FILE_ID", "ref.ID")))
 		];
+	}
+
+	public static function deleteBatch(array $filter)
+	{
+		$tableName = static::getTableName();
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$where = [];
+		foreach ($filter as $key => $value)
+		{
+			$where[] = $helper->prepareAssignment($tableName, $key, $value);
+		}
+		$where = implode(' AND ', $where);
+
+		if($where)
+		{
+			$quotedTableName = $helper->quote($tableName);
+			$connection->queryExecute("DELETE FROM {$quotedTableName} WHERE {$where}");
+		}
 	}
 }
 class File

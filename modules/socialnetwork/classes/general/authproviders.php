@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main\Text\Emoji;
+
 IncludeModuleLangFile(__FILE__);
 
 class CSocNetGroupAuthProvider extends CAuthProvider implements IProviderInterface
@@ -7,7 +10,7 @@ class CSocNetGroupAuthProvider extends CAuthProvider implements IProviderInterfa
 	{
 		$this->id = 'socnetgroup';
 	}
-	
+
 	public function UpdateCodes($USER_ID)
 	{
 		global $DB;
@@ -28,7 +31,7 @@ class CSocNetGroupAuthProvider extends CAuthProvider implements IProviderInterfa
 			WHERE U2G.USER_ID=".$USER_ID." AND U2G.ROLE IN ('A')
 		");
 	}
-	
+
 	public function AjaxRequest($arParams=false)
 	{
 		global $USER;
@@ -58,8 +61,8 @@ class CSocNetGroupAuthProvider extends CAuthProvider implements IProviderInterfa
 			$arItem = Array(
 				"ID" => "SG".$arGroup['ID'],
 				"AVATAR" => '/bitrix/js/main/core/images/access/avatar-user-everyone.png',
-				"NAME" => $arGroup['NAME'],
-				"DESC" => $arGroup['DESCRIPTION'],
+				"NAME" => Emoji::decode($arGroup['NAME']),
+				"DESC" => Emoji::decode($arGroup['DESCRIPTION']),
 				"CHECKBOX" => array(
 					"#ID#_A" => GetMessage("authprov_sg_a"),
 					"#ID#_E" => GetMessage("authprov_sg_e"),
@@ -124,8 +127,8 @@ class CSocNetGroupAuthProvider extends CAuthProvider implements IProviderInterfa
 				$arItem = Array(
 					"ID" => "SG".$arGroup['ID'],
 					"AVATAR" => '/bitrix/js/main/core/images/access/avatar-user-everyone.png',
-					"NAME" => $arGroup['NAME'],
-					"DESC" => $arGroup['DESCRIPTION'],
+					"NAME" => Emoji::decode($arGroup['NAME']),
+					"DESC" => Emoji::decode($arGroup['DESCRIPTION']),
 					"OPEN" => "Y",
 					"CHECKBOX" => array(
 						"#ID#_A" => GetMessage("authprov_sg_a"),
@@ -165,7 +168,7 @@ class CSocNetGroupAuthProvider extends CAuthProvider implements IProviderInterfa
 			$arLastID = array();
 			$arElements = array();
 
-			foreach($arLRU as $val) 
+			foreach($arLRU as $val)
 			{
 				if (preg_match('/^SG([0-9]+)_([A-Z])/', $val, $match))
 				{
@@ -195,8 +198,8 @@ class CSocNetGroupAuthProvider extends CAuthProvider implements IProviderInterfa
 					$arItem = Array(
 						"ID" => $arGroup['ID'],
 						"AVATAR" => '/bitrix/js/main/core/images/access/avatar-user-everyone.png',
-						"NAME" => $arGroup['NAME'],
-						"DESC" => $arGroup['DESCRIPTION'],
+						"NAME" => Emoji::decode($arGroup['NAME']),
+						"DESC" => Emoji::decode($arGroup['DESCRIPTION']),
 					);
 					if($arGroup["IMAGE_ID"])
 					{
@@ -215,7 +218,7 @@ class CSocNetGroupAuthProvider extends CAuthProvider implements IProviderInterfa
 					$arElements[$arItem['ID']] = $arItem;
 				}
 
-				foreach($arLRU as $val) 
+				foreach($arLRU as $val)
 				{
 					if (preg_match('/^SG([0-9]+)_([A-Z])/', $val, $match))
 					{
@@ -297,7 +300,7 @@ class CSocNetGroupAuthProvider extends CAuthProvider implements IProviderInterfa
 			}
 			$myElements .= CFinder::GetFinderItem($arFinderParams, $arItem);
 		}
-		
+
 		$arPanels = array();
 		if($currElements <> '')
 		{
@@ -341,9 +344,9 @@ class CSocNetGroupAuthProvider extends CAuthProvider implements IProviderInterfa
 			$rsGroups = CSocNetGroup::GetList(array(), array("ID"=>$arID));
 			while($arGroup = $rsGroups->Fetch())
 			{
-				$arResult["SG".$arGroup["ID"]."_A"] = array("provider" => GetMessage("authprov_sg_socnet_group"), "name"=>$arGroup["NAME"].": ".GetMessage("authprov_sg_a"));
-				$arResult["SG".$arGroup["ID"]."_E"] = array("provider" => GetMessage("authprov_sg_socnet_group"), "name"=>$arGroup["NAME"].": ".GetMessage("authprov_sg_e"));
-				$arResult["SG".$arGroup["ID"]."_K"] = array("provider" => GetMessage("authprov_sg_socnet_group"), "name"=>$arGroup["NAME"].": ".GetMessage("authprov_sg_k"));
+				$arResult["SG".$arGroup["ID"]."_A"] = array("provider" => GetMessage("authprov_sg_socnet_group"), "name"=> Emoji::decode($arGroup["NAME"]) .": ".GetMessage("authprov_sg_a"));
+				$arResult["SG".$arGroup["ID"]."_E"] = array("provider" => GetMessage("authprov_sg_socnet_group"), "name"=> Emoji::decode($arGroup["NAME"]) .": ".GetMessage("authprov_sg_e"));
+				$arResult["SG".$arGroup["ID"]."_K"] = array("provider" => GetMessage("authprov_sg_socnet_group"), "name"=> Emoji::decode($arGroup["NAME"]) .": ".GetMessage("authprov_sg_k"));
 			}
 			return $arResult;
 		}
@@ -356,7 +359,7 @@ class CSocNetGroupAuthProvider extends CAuthProvider implements IProviderInterfa
 			array(
 				"ID" => "socnetgroup",
 				"NAME" => GetMessage("authprov_sg_name"),
-				"PROVIDER_NAME" => GetMessage("authprov_sg_socnet_group"), 
+				"PROVIDER_NAME" => GetMessage("authprov_sg_socnet_group"),
 				"SORT" => 400,
 				"CLASS" => "CSocNetGroupAuthProvider",
 			),

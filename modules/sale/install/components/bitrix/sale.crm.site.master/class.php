@@ -21,6 +21,7 @@ require_once("tools/agentchecker.php");
 require_once("tools/b24connectoruninstaller.php");
 require_once("tools/pushchecker.php");
 require_once("tools/bitrixvmchecker.php");
+require_once("tools/defaultsitechecker.php");
 
 /**
  * Class SaleCrmSiteMaster
@@ -521,6 +522,7 @@ class SaleCrmSiteMaster extends \CBitrixComponent
 			}
 		}
 
+		$this->checkDefaultSite();
 		$this->checkBitrixVm();
 		$this->checkAgents();
 		$this->checkB24Connection();
@@ -710,6 +712,18 @@ class SaleCrmSiteMaster extends \CBitrixComponent
 		$pathToOderList = Main\Config\Option::get('crm', 'path_to_order_list', '/shop/orders/');
 
 		return $siteUrl.$pathToOderList;
+	}
+
+	private function checkDefaultSite()
+	{
+		$defaultSiteChecker = new Tools\DefaultSiteChecker();
+
+		$checkSiteResult = $defaultSiteChecker->checkSite();
+		if (!$checkSiteResult->isSuccess())
+		{
+			$this->addWizardVar("default_site_error", $checkSiteResult->getErrorCollection()->current()->getMessage());
+			$this->addWizardStep("Bitrix\Sale\CrmSiteMaster\Steps\DefaultSiteStep", 305);
+		}
 	}
 
 	/**

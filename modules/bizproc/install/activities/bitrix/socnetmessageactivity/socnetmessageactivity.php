@@ -53,7 +53,7 @@ class CBPSocNetMessageActivity
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	private function getMessageText($isRobot = false)
+	private function getMessageText()
 	{
 		$messageText = $this->MessageText;
 		if (is_array($messageText))
@@ -66,25 +66,7 @@ class CBPSocNetMessageActivity
 		if ($messageText)
 		{
 			$messageText = strip_tags($messageText);
-			if ($isRobot)
-			{
-				$CCTP = new CTextParser();
-				$CCTP->allow = array(
-					"HTML" => "N",
-					"USER" => "N",
-					"ANCHOR" => "Y",
-					"BIU" => "Y",
-					"IMG" => "N", "QUOTE" => "N", "CODE" => "N",
-					"FONT" => "Y", "LIST" => "Y",
-					"SMILES" => "N", "NL2BR" => "Y", "VIDEO" => "N", "TABLE" => "N",
-					"CUT_ANCHOR" => "N", "ALIGN" => "N"
-				);
-				$messageText = $CCTP->convertText($messageText);
-			}
-			else
-			{
-				$messageText = CBPHelper::ConvertTextForMail($messageText);
-			}
+			$messageText = CBPHelper::convertBBtoText($messageText);
 		}
 		return $messageText;
 	}
@@ -96,7 +78,7 @@ class CBPSocNetMessageActivity
 		/** @var CBPDocumentService $documentService */
 		$documentService = $runtime->GetService('DocumentService');
 
-		$messageText = $this->getMessageText(true);
+		$messageText = $this->getMessageText();
 
 		$attach = new CIMMessageParamAttach(1, '#468EE5');
 		$attach->AddUser(Array(
@@ -124,7 +106,7 @@ class CBPSocNetMessageActivity
 		$arMessageFields = array(
 			"=DATE_CREATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
 			"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
-			"MESSAGE_OUT" => CBPHelper::ConvertTextForMail($messageText),
+			"MESSAGE_OUT" => CBPHelper::convertBBtoText($messageText),
 			"ATTACH" => $attach,
 			'NOTIFY_TAG' => 'ROBOT|'.implode('|', array_map('mb_strtoupper', $documentId))	.'|'.$tagSalt
 		);

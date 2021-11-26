@@ -27,6 +27,9 @@ Loc::loadMessages(__FILE__);
  */
 class Automatic extends Base
 {
+	/** @var string */
+	protected $handlerCode = 'BITRIX_AUTOMATIC';
+
 	protected $sid = "";
 	protected $oldConfig = array();
 	protected $handlerInitParams = array();
@@ -63,6 +66,14 @@ class Automatic extends Base
 
 		if(isset($initParams["CONFIG"]))
 			$this->oldConfig = $initParams["CONFIG"];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getHandlerCode(): string
+	{
+		return 'BITRIX_' . (string)$this->sid;
 	}
 
 	public static function getClassTitle()

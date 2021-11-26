@@ -685,7 +685,7 @@ class Entity
 	}
 
 	/**
-	 * @return DataManager
+	 * @return DataManager|string
 	 */
 	public function getDataClass()
 	{

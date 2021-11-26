@@ -62,7 +62,7 @@ class YarusOfd extends Ofd
 
 		if (isset($result[0]['link']))
 		{
-			return $result['link'];
+			return $result[0]['link'];
 		}
 
 		return '';

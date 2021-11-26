@@ -1,5 +1,9 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
 /** @var CBPDocumentService $documentService */
 
@@ -149,6 +153,14 @@ foreach ($conditions as $i => $condition)
 			});
 		}
 
+		if (window.arWorkflowGlobalVariables && BX.util.object_keys(window.arWorkflowGlobalVariables).length > 0)
+		{
+			menuItems.push({
+				text: '@<?= GetMessage('BPMC_PD_VARS') ?>',
+				items: extractMenuItem(window.arWorkflowGlobalVariables, 'GlobalVar')
+			});
+		}
+
 		if (typeof window.arDocumentFields !== 'undefined')
 		{
 			menuItems.push({
@@ -258,6 +270,8 @@ foreach ($conditions as $i => $condition)
 			case 'GlobalConst':
 				return window.arWorkflowGlobalConstants[field];
 				break;
+			case 'GlobalVar':
+				return window.arWorkflowGlobalVariables[field];
 			case 'Document':
 				return arDocumentFields[field];
 				break;

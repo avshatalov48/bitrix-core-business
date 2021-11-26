@@ -3399,14 +3399,17 @@ class AjaxProcessor
 		/** @var Sale\ShipmentItemCollection $shipmentItemCollectionClass */
 		$shipmentItemCollectionClass = $this->registry->getShipmentItemCollectionClassName();
 
-		$dbRes = $shipmentItemCollectionClass::getList(array(
-			'select' => array(
+		$dbRes = $shipmentItemCollectionClass::getList([
+			'select' => [
 				'PRICE' => 'BASKET.PRICE',
 				'QUANTITY',
 				'CURRENCY' => 'BASKET.CURRENCY'
-			),
-			'filter' => array('=ORDER_DELIVERY_ID' => $shipmentId)
-		));
+			],
+			'filter' => [
+				'=ORDER_DELIVERY_ID' => $shipmentId,
+				'BASKET.SET_PARENT_ID' => 0
+			]
+		]);
 
 		$currency = '';
 		while ($item = $dbRes->fetch())

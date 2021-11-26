@@ -8,6 +8,7 @@ class SourceType
 	const Variable = 'Variable';
 	const Constant = 'Constant';
 	const GlobalConstant = 'GlobalConst';
+	const GlobalVariable = 'GlobalVar';
 	const System = 'System';
 	const Activity = 'Activity';
 	const CalcFunction = 'Function';

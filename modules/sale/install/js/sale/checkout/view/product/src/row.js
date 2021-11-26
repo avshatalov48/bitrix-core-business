@@ -13,7 +13,7 @@ import './measure'
 import './price-measure'
 
 BitrixVue.component('sale-checkout-view-product-row', {
-	props: ['item', 'index', 'mode'],
+	props: ['item', 'index', 'mode', 'error'],
 	mixins:[MixinLoader],
 	data()
 	{
@@ -64,24 +64,25 @@ BitrixVue.component('sale-checkout-view-product-row', {
 		getObjectClass()
 		{
 			const classes = [
-				'checkout-item'
+				'checkout-table-row-group',
+				'checkout-basket-item',
 			];
 
 			if (this.hasSkuPropsColor)
 			{
 				classes.push('checkout-basket-item--has-sku-color')
 			}
-			
+
 			if(this.isDeleted)
 			{
 				classes.push('checkout-basket-item-deleted')
 			}
-			
+
 			if(this.isLocked)
 			{
 				classes.push('checkout-basket-item-locked');
 			}
-			
+
 			if(this.isBackdropChangeSku)
 			{
 				classes.push('active-backdrop-open-change-sku');
@@ -89,9 +90,9 @@ BitrixVue.component('sale-checkout-view-product-row', {
 			if(this.isBackdropMobileMenu)
 			{
 				classes.push('active-backdrop-open-mobile-menu');
-				
+
 			}
-			
+
 			return classes;
 		}
 	},
@@ -104,7 +105,7 @@ BitrixVue.component('sale-checkout-view-product-row', {
 				this.showBackdropMobileMenu = 'Y'
 			}
 		});
-		
+
 		EventEmitter.subscribe(EventType.basket.backdropOpenChangeSku, (event) => {
 			let index = event.getData().index;
 			if(index === this.index)
@@ -112,7 +113,7 @@ BitrixVue.component('sale-checkout-view-product-row', {
 				this.showBackdropChangeSku = 'Y'
 			}
 		});
-		
+
 		EventEmitter.subscribe(EventType.basket.backdropClose, (event) => {
 			let index = event.getData().index;
 			if(index === this.index)
@@ -124,47 +125,43 @@ BitrixVue.component('sale-checkout-view-product-row', {
 	},
 	beforeDestroy()
 	{
-		EventEmitter.unsubscribe(EventType.basket.backdropOpenMobileMenu);
-		EventEmitter.unsubscribe(EventType.basket.backdropOpenChangeSku);
-		EventEmitter.unsubscribe(EventType.basket.backdropClose);
+		// EventEmitter.unsubscribe(EventType.basket.backdropOpenMobileMenu);
+		// EventEmitter.unsubscribe(EventType.basket.backdropOpenChangeSku);
+		// EventEmitter.unsubscribe(EventType.basket.backdropClose);
 	},
 	// language=Vue
 	template: `
-		<div class="checkout-basket-item" :class="getObjectClass" style='position: relative;' ref="container">
+		<div :class="getObjectClass" style='position: relative;' ref="container">
 			<template v-if="isDeleted">
-              <sale-checkout-view-product-item_deleted :item="item" :index="index"/>
+				<sale-checkout-view-product-item_deleted :item="item" :index="index"/>
 			</template>
-            <template v-else>
-              <template v-if="mode === getConstMode.edit">
-                <sale-checkout-view-product-item_edit :item="item" :index="index" :mode="mode">
-                  <template v-slot:button-minus><sale-checkout-view-element-button-minus :class="{'checkout-item-quantity-btn-disabled': buttonMinusDisabled}" :index="index"/></template>
-                  <template v-slot:button-plus><sale-checkout-view-element-button-plus :class="{'checkout-item-quantity-btn-disabled': buttonPlusDisabled}" :index="index"/></template>
-                  <template v-slot:button-remove>
-                    <div class="checkout-basket-item-remove-btn-block">
-						<sale-checkout-view-element-button-remove :index="index"/>
-                      	<sale-checkout-view-element-button-item_mobile_menu :index="index"/>
-					</div>
-				  </template>
-                  <template v-slot:quantity-description>
-					<template v-if="buttonMinusDisabled"><sale-checkout-view-product-measure :item="item"/></template>
-					<template v-else><sale-checkout-view-product-price_measure :item="item"/></template>
-				  </template>
-                  <template v-slot:button-change-sku>
-					<sale-checkout-view-element-button-item_change_sku :index="index"/>
-				  </template>
-                </sale-checkout-view-product-item_edit>
-
-                <sale-checkout-view-product-item_backdrop_remove :index="index"/>
-				<sale-checkout-view-product-item_backdrop :item="item" :index="index" >
-                  <template v-slot:button-minus><sale-checkout-view-element-button-minus :class="{'checkout-item-quantity-btn-disabled': buttonMinusDisabled}" :index="index"/></template>
-                  <template v-slot:button-plus><sale-checkout-view-element-button-plus :class="{'checkout-item-quantity-btn-disabled': buttonPlusDisabled}" :index="index"/></template>
-				</sale-checkout-view-product-item_backdrop>
-				
-              </template>
-              <template v-else>
-				<sale-checkout-view-product-item_view :item="item"/>
-              </template>
-            </template>
+			<template v-else>
+				<template v-if="mode === getConstMode.edit">
+					<sale-checkout-view-product-item_edit :item="item" :index="index" :mode="mode" :error="error">
+						<template v-slot:button-minus><sale-checkout-view-element-button-minus :class="{'checkout-item-quantity-btn-disabled': buttonMinusDisabled}" :index="index"/></template>
+						<template v-slot:button-plus><sale-checkout-view-element-button-plus :class="{'checkout-item-quantity-btn-disabled': buttonPlusDisabled}" :index="index"/></template>
+						<template v-slot:button-remove>
+							<div class="checkout-basket-item-remove-btn-block">
+								<sale-checkout-view-element-button-remove :index="index"/>
+								<sale-checkout-view-element-button-item_mobile_menu :index="index"/>
+							</div>
+						</template>
+						<template v-slot:quantity-description>
+							<template v-if="buttonMinusDisabled"><sale-checkout-view-product-measure :item="item"/></template>
+							<template v-else><sale-checkout-view-product-price_measure :item="item"/></template>
+						</template>
+						<template v-slot:button-change-sku><sale-checkout-view-element-button-item_change_sku :index="index"/></template>
+					</sale-checkout-view-product-item_edit>
+					<sale-checkout-view-product-item_backdrop_remove :index="index"/>
+					<sale-checkout-view-product-item_backdrop :item="item" :index="index" :error="error">
+						<template v-slot:button-minus><sale-checkout-view-element-button-minus :class="{'checkout-item-quantity-btn-disabled': buttonMinusDisabled}" :index="index"/></template>
+						<template v-slot:button-plus><sale-checkout-view-element-button-plus :class="{'checkout-item-quantity-btn-disabled': buttonPlusDisabled}" :index="index"/></template>
+					</sale-checkout-view-product-item_backdrop>
+				</template>
+				<template v-else>
+					<sale-checkout-view-product-item_view :item="item"/>
+				</template>
+			</template>
 		</div>
 	`
 });

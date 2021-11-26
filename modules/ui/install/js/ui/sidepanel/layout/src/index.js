@@ -177,6 +177,8 @@ export class Layout
 			const buttonList = this.#options.buttons(defaults);
 			if (buttonList && buttonList.length > 0)
 			{
+				container.appendChild(Tag.render`<div class="ui-sidepanel-layout-footer-anchor"></div>`);
+
 				const footer = Tag.render`<div class="ui-sidepanel-layout-footer"></div>`;
 				const classes = ['ui-sidepanel-layout-buttons'];
 				if (this.#options.design.alignButtonsLeft)

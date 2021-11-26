@@ -12,6 +12,8 @@ Extension::load("ui.pinner");
 Extension::load("ui.buttons");
 Extension::load("ui.buttons.icons");
 
+//?><!--<pre style="outline: 1px dashed #f00; padding: 10px;font-size: 10px;">--><?// var_dump($arResult);?><!--</pre>--><?php
+
 if ($arResult['HAS_HINTS'])
 {
 	Extension::load("ui.hint");
@@ -41,7 +43,8 @@ BX.ready(function () {
 		'containerId' => $containerId,
 		'isFrame' => $arParams['FRAME'],
 		'hasHints' => $arResult['HAS_HINTS'],
-		'buttons' => $arResult['LIST']
+		'buttons' => $arResult['LIST'],
+		'pinnerContainer' => $arResult['STICKY_CONTAINER']
 	])?>);
 });
 </script>

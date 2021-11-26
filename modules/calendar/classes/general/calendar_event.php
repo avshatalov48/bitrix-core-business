@@ -912,6 +912,7 @@ class CCalendarEvent
 			$resultEntryList = [];
 			$arMeetingIds = [];
 			$arEvents = [];
+			$involvedUsersIdList = [];
 
 			$defaultMeetingSection = false;
 			while($event = $res->Fetch())
@@ -948,14 +949,17 @@ class CCalendarEvent
 				{
 					$arMeetingIds[] = $event['PARENT_ID'];
 				}
+
+				$involvedUsersIdList[] = $event['CREATED_BY'];
 			}
 
 			if ($params['fetchAttendees'] && count($arMeetingIds) > 0)
 			{
 				$attendeeListData = self::getAttendeeList($arMeetingIds);
 				$attendeeList = $attendeeListData['attendeeList'];
-				$userIndex = self::getUsersDetails($attendeeListData['userIdList']);
+				$involvedUsersIdList = array_unique(array_merge($involvedUsersIdList, $attendeeListData['userIdList']));
 			}
+			$userIndex = self::getUsersDetails($involvedUsersIdList);
 
 			foreach($arEvents as $event)
 			{

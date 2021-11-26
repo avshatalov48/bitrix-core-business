@@ -1,7 +1,7 @@
 <?
 namespace Bitrix\Forum\Integration\Search;
-use Bitrix\Disk\Internals\DeletedLogManager;
-use Bitrix\Forum\MessageTable;
+
+use Bitrix\Forum;
 use Bitrix\Main\Config\Option;
 
 class Topic extends \Bitrix\Main\Update\Stepper
@@ -121,5 +121,13 @@ class Topic extends \Bitrix\Main\Update\Stepper
 		$res[$topicId] = [];
 		Option::set("forum", "search.reindex.topic", serialize($res));
 		static::bind(0);
+	}
+
+	public static function deleteIndex(Forum\Topic $topic)
+	{
+		if (IsModuleInstalled('search') && \CModule::IncludeModule('search'))
+		{
+			\CSearch::DeleteIndex('forum', false, $topic["FORUM_ID"], $topic['ID']);
+		}
 	}
 }

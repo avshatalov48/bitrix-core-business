@@ -247,7 +247,10 @@ class Package
 	 */
 	public function checkPost($fileLimits)
 	{
-		$unescapedPost = self::unescape(Context::getCurrent()->getRequest()->getPostList()->toArray());
+		$unescapedPost = self::unescape(
+		Context::getCurrent()->getRequest()->getPostList()->toArrayRaw()
+			?? Context::getCurrent()->getRequest()->getPostList()->toArray()
+		);
 		$postFiles = $unescapedPost[Uploader::FILE_NAME];
 		$post = $unescapedPost[Uploader::INFO_NAME];
 		if (!(is_array($post) &&
@@ -258,8 +261,11 @@ class Package
 		)
 			return array();
 
-		$files = Context::getCurrent()->getRequest()->getFileList()->toArray();
-		$files = self::unescape($files[Uploader::FILE_NAME]);
+		$files =  self::unescape(
+			Context::getCurrent()->getRequest()->getFileList()->toArrayRaw()
+			?? Context::getCurrent()->getRequest()->getFileList()->toArray()
+		);
+		$files = $files[Uploader::FILE_NAME];
 
 		if ($post["type"] != "brief") // If it is IE8
 		{
@@ -295,7 +301,16 @@ class Package
 		{
 			if (is_array($file))
 			{
-				if (isset($file["restored"]))
+				if (isset($file["removed"]))
+				{
+					$f = array_merge($file, array("id" => $fileID));
+					File::deleteCache($this, $f);
+					$filesRaw[] = [
+						'id' => $fileID,
+						'removed' => 'Y'
+					];
+				}
+				else if (isset($file["restored"]))
 				{
 					$f = array_merge($file, array("id" => $fileID));
 					if ($f["restored"] === "Y")
@@ -377,26 +392,38 @@ class Package
 					break;
 				if (!array_key_exists($fileRaw["id"], $filesOnThisPack))
 				{
-					$file = new File($this, array(
-						"id" => $fileRaw["id"],
-						"name" => $postFiles[$fileRaw["id"]]["name"],
-						"type" => $postFiles[$fileRaw["id"]]["type"],
-						"size" => $postFiles[$fileRaw["id"]]["size"]
-					) + (is_array($postFiles[$fileRaw["id"]]) ? $postFiles[$fileRaw["id"]] : []));
-					if (isset($fileRaw["restored"]))
+					if ($fileRaw["removed"])
 					{
-						if ($file->isExecuted())
-							$file->setExecuteStatus("none");
-						$fileRaw = $file->getFile("default");
-						if (empty($fileRaw) || !is_array($fileRaw))
-							$file->addError(new Error(\Bitrix\Main\Localization\Loc::getMessage("BXU_FileIsNotRestored"), "BXU350.0"));
+						$file = new FileRemoved($this, [
+							'id' => $fileRaw['id'],
+							'name' => $postFiles[$fileRaw["id"]]["name"]
+						]);
+					}
+					else
+					{
+						$file = new File($this, array(
+								"id" => $fileRaw["id"],
+								"name" => $postFiles[$fileRaw["id"]]["name"],
+								"type" => $postFiles[$fileRaw["id"]]["type"],
+								"size" => $postFiles[$fileRaw["id"]]["size"]
+							) + (is_array($postFiles[$fileRaw["id"]]) ? $postFiles[$fileRaw["id"]] : []));
+						if (isset($fileRaw["restored"]))
+						{
+							if ($file->isExecuted())
+								$file->setExecuteStatus("none");
+							$fileRaw = $file->getFile("default");
+							if (empty($fileRaw) || !is_array($fileRaw))
+								$file->addError(new Error(\Bitrix\Main\Localization\Loc::getMessage("BXU_FileIsNotRestored"), "BXU350.0"));
+						}
 					}
 					$filesOnThisPack[$fileRaw["id"]] = $file;
 				}
 				/* @var File $file */
 				$file = $filesOnThisPack[$fileRaw["id"]];
-				if ($file->hasError())
+				if ($file->hasError() || $file instanceof FileRemoved)
+				{
 					continue;
+				}
 				$result = File::checkFile($fileRaw, $file, $fileLimits + array("path" => $this->getPath()));
 				if ($result->isSuccess() && ($result = $file->saveFile($fileRaw, $this->getStorage(), $this->getCopies())) && $result->isSuccess() &&
 					$post["type"] != "brief" &&
@@ -446,7 +473,7 @@ class Package
 		foreach ($filesFromLog as $status)
 			$cnt += ($status == "uploaded" || $status == "error" ? 1 : 0);
 
-		if ($declaredFiles > 0 && $declaredFiles == $cnt)
+		if ($declaredFiles > 0 && $declaredFiles <= $cnt)
 		{
 			if ($post["type"] != "brief") // If it is IE8
 			{

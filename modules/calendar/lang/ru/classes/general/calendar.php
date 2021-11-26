@@ -565,6 +565,7 @@ $MESS["EC_ATTENDEE_MORE_8"] = "и еще #NUM# участников";
 $MESS["EC_ATTENDEE_MORE_9"] = "и еще #NUM# участников";
 $MESS["EC_ATTENDEE_MORE_0"] = "и еще #NUM# участников";
 $MESS["EC_COMMENTS"] = "Комментарии";
+$MESS["EC_ENTITY_SELECTOR_ALL_EMPLOYEES"] = "Все сотрудники";
 $MESS["MPF_DESTINATION_3"] = "Всем сотрудникам";
 $MESS["MPF_DESTINATION_4"] = "Всем пользователям";
 $MESS["EC_DATE"] = "Дата";

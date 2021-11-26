@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -10,6 +11,7 @@ namespace Bitrix\Socialnetwork;
 use Bitrix\Main\Entity;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Application;
+use Bitrix\Main\Type\DateTime;
 
 /**
  * Class LogIndexTable
@@ -29,56 +31,54 @@ use Bitrix\Main\Application;
  */
 class LogIndexTable extends Entity\DataManager
 {
-	const ITEM_TYPE_LOG = 'L';
-	const ITEM_TYPE_COMMENT = 'LC';
+	public const ITEM_TYPE_LOG = 'L';
+	public const ITEM_TYPE_COMMENT = 'LC';
 
-	public static function getItemTypes()
+	public static function getItemTypes(): array
 	{
-		return array(
+		return [
 			self::ITEM_TYPE_LOG,
 			self::ITEM_TYPE_COMMENT
-		);
+		];
 	}
 
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_sonet_log_index';
 	}
 
-	public static function getMap()
+	public static function getMap(): array
 	{
-		$fieldsMap = array(
-			'LOG_ID' => array(
+		return [
+			'LOG_ID' => [
 				'data_type' => 'integer',
-			),
-			'LOG_UPDATE' => array(
+			],
+			'LOG_UPDATE' => [
 				'data_type' => 'datetime',
-			),
-			'DATE_CREATE' => array(
+			],
+			'DATE_CREATE' => [
 				'data_type' => 'datetime',
-			),
-			'ITEM_TYPE' => array(
+			],
+			'ITEM_TYPE' => [
 				'data_type' => 'string',
 				'primary' => true,
-			),
-			'ITEM_ID' => array(
+			],
+			'ITEM_ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
-			),
-			'CONTENT' => array(
+			],
+			'CONTENT' => [
 				'data_type' => 'text',
-			),
-		);
-
-		return $fieldsMap;
+			],
+		];
 	}
 
-	public static function set($params = array())
+	public static function set($params = []): bool
 	{
-		$itemType = (isset($params['itemType']) ? $params['itemType'] : self::ITEM_TYPE_LOG);
-		$itemId = (isset($params['itemId']) ? intval($params['itemId']) : 0);
-		$logId = (isset($params['logId']) ? intval($params['logId']) : 0);
-		$content = (isset($params['content']) ? trim($params['content']) : '');
+		$itemType = ($params['itemType'] ?? self::ITEM_TYPE_LOG);
+		$itemId = (int)($params['itemId'] ?? 0);
+		$logId = (int)($params['logId'] ?? 0);
+		$content = trim(($params['content'] ?? ''));
 
 		if (
 			!in_array($itemType, self::getItemTypes())
@@ -96,43 +96,43 @@ class LogIndexTable extends Entity\DataManager
 		$value = $helper->forSql($content);
 		$encryptedValue = sha1($content);
 
-		$insertFields = array(
-			"ITEM_TYPE" => $helper->forSql($itemType),
-			"ITEM_ID" => $itemId,
-			"LOG_ID" => $logId,
-			"CONTENT" => $value
-		);
+		$insertFields = [
+			'ITEM_TYPE' => $helper->forSql($itemType),
+			'ITEM_ID' => $itemId,
+			'LOG_ID' => $logId,
+			'CONTENT' => $value,
+		];
 
-		$updateFields = array(
-			'CONTENT' => new \Bitrix\Main\DB\SqlExpression("IF(SHA1(CONTENT) = '{$encryptedValue}', CONTENT, '{$value}')")
-		);
+		$updateFields = [
+			'CONTENT' => new SqlExpression("IF(SHA1(CONTENT) = '{$encryptedValue}', CONTENT, '{$value}')"),
+		];
 
 		if (
 			isset($params['logDateUpdate'])
-			&& $params['logDateUpdate'] instanceof \Bitrix\Main\Type\DateTime
+			&& $params['logDateUpdate'] instanceof DateTime
 		)
 		{
-			$insertFields["LOG_UPDATE"] = $params['logDateUpdate'];
-			$updateFields["LOG_UPDATE"] = $params['logDateUpdate'];
+			$insertFields['LOG_UPDATE'] = $params['logDateUpdate'];
+			$updateFields['LOG_UPDATE'] = $params['logDateUpdate'];
 		}
 
 		if (
 			isset($params['dateCreate'])
-			&& $params['dateCreate'] instanceof \Bitrix\Main\Type\DateTime
+			&& $params['dateCreate'] instanceof DateTime
 		)
 		{
-			$insertFields["DATE_CREATE"] = $params['dateCreate'];
-			$updateFields["DATE_CREATE"] = $params['dateCreate'];
+			$insertFields['DATE_CREATE'] = $params['dateCreate'];
+			$updateFields['DATE_CREATE'] = $params['dateCreate'];
 		}
 
 		$merge = $helper->prepareMerge(
 			static::getTableName(),
-			array("ITEM_TYPE", "ITEM_ID"),
+			[ 'ITEM_TYP', 'ITEM_ID' ],
 			$insertFields,
 			$updateFields
 		);
 
-		if ($merge[0] != "")
+		if ($merge[0] != '')
 		{
 			$connection->query($merge[0]);
 		}
@@ -140,9 +140,9 @@ class LogIndexTable extends Entity\DataManager
 		return true;
 	}
 
-	public static function setLogUpdate($params = array())
+	public static function setLogUpdate($params = []): bool
 	{
-		$logId = (isset($params['logId']) ? intval($params['logId']) : 0);
+		$logId = (int)($params['logId'] ?? 0);
 		$value = (!empty($params['value']) ? $params['value'] : false);
 
 		if ($logId <= 0)
@@ -162,13 +162,13 @@ class LogIndexTable extends Entity\DataManager
 			$value = new SqlExpression($now);
 		}
 
-		$updateFields = array(
+		$updateFields = [
 			"LOG_UPDATE" => $value,
-		);
+		];
 
 		$tableName = self::getTableName();
 		list($prefix, $values) = $helper->prepareUpdate($tableName, $updateFields);
-		$connection->queryExecute("UPDATE {$tableName} SET {$prefix} WHERE `LOG_ID` = ".$logId);
+		$connection->queryExecute("UPDATE {$tableName} SET {$prefix} WHERE `LOG_ID` = " . $logId);
 
 		return true;
 	}

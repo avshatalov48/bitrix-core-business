@@ -233,7 +233,7 @@ class CloudStorage extends Storage implements Storable
 			$success = false;
 			while ($upload->hasRetries())
 			{
-				if (method_exists($upload, "part") && $upload->part($fileContent, $file["number"]) ||
+				if (method_exists($upload, "part") && $upload->part($fileContent, ($file["number"] ?? 0)) ||
 					!method_exists($upload, "part") && $upload->next($fileContent))
 				{
 					$success = true;

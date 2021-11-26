@@ -120,17 +120,7 @@ class Common
 
 	public static function getExternalAuthId($skipTypes = [])
 	{
-		$types = \Bitrix\Main\UserTable::getExternalUserTypes();
-		if (empty($skipTypes))
-		{
-			return $types;
-		}
-
-		$types = array_filter($types, function($authId) use ($skipTypes) {
-			return !in_array($authId, $skipTypes, true);
-		});
-
-		return $types;
+		return \Bitrix\Im\Model\UserTable::filterExternalUserTypes($skipTypes);
 	}
 
 	public static function getPullExtra()

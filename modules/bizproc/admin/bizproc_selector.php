@@ -1,4 +1,4 @@
-<?
+<?php
 define("NOT_CHECK_PERMISSIONS", true);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
@@ -62,6 +62,7 @@ $arWorkflowParameters = isset($_POST['arWorkflowParameters']) && is_array($_POST
 $arWorkflowVariables = isset($_POST['arWorkflowVariables']) && is_array($_POST['arWorkflowVariables'])? $_POST['arWorkflowVariables']: array();
 $arWorkflowConstants = isset($_POST['arWorkflowConstants']) && is_array($_POST['arWorkflowConstants'])? $_POST['arWorkflowConstants']: array();
 $arGlobalConstants = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll();
+$arGlobalVariables = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll();
 
 $selectorMode = isset($_POST['selectorMode']) ? $_POST['selectorMode']: null;
 
@@ -234,6 +235,25 @@ function BPSHideShow(id)
 	</tr>
 	<tr>
 		<td>
+			<a href="javascript:void(0)" onclick="BPSHideShow('BPSId31')"><b><?= GetMessage('BP_SEL_GVAR') ?></b></a>
+		</td>
+	</tr>
+	<tr id="BPSId31" style="display: none">
+		<td>
+			<select id="BPSId31S" size="13" style="width: 100%" ondblclick="BPSVInsert(this.value)">
+				<?php foreach ($arGlobalVariables as $fieldId => $documentField):
+					if ($arFilter === false || in_array($documentFieldTypes[$documentField["Type"]]["BaseType"], $arFilter)):
+						if ($_POST['fieldType'] === 'text'):
+							$fieldId .= ' > printable';
+						endif ?>
+						<option value="{=GlobalVar:<?= htmlspecialcharsbx($fieldId) ?>}<?php if ($_POST['fieldType'] === 'user')echo ';'?>"><?= htmlspecialcharsbx($documentField['Name']) ?></option>
+					<?php endif;
+				endforeach ?>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>
 			<a href="javascript:void(0)" onclick="BPSHideShow('BPSId2')"><b><?echo GetMessage("BIZPROC_SEL_FIELDS_TAB")?></b></a>
 		</td>
 	</tr>
@@ -286,7 +306,7 @@ function _RecFindParams($act, $arFilter)
 			if(count($arResultTmp)>0)
 			{
 				$result[] = Array(
-					'ID' => $value["Name"], 
+					'ID' => $value["Name"],
 					'NAME'=>$value['Properties']['Title'],
 					'ITEMS' => $arResultTmp,
 				);

@@ -72,10 +72,14 @@ class WorkgroupTable extends Entity\DataManager
 				'reference' => array('=this.SUBJECT_ID' => 'ref.ID')
 			),
 			'NAME' => array(
-				'data_type' => 'string'
+				'data_type' => 'string',
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'DESCRIPTION' => array(
-				'data_type' => 'text'
+				'data_type' => 'text',
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
 			),
 			'KEYWORDS' => array(
 				'data_type' => 'string'

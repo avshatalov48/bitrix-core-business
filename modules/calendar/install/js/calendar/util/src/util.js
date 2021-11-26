@@ -722,4 +722,19 @@ export class Util
 		requestUid = parseInt(requestUid);
 		return !Type.isInteger(requestUid) || !Util.REQUEST_ID_LIST.includes(requestUid);
 	}
+
+	static initHintNode(hintNode)
+	{
+		const bx = Util.getBX();
+		if (Type.isElementNode(hintNode) && bx?.UI?.Hint)
+		{
+			if (bx?.UI?.Hint?.popup)
+			{
+				bx.UI.Hint.popup.destroy();
+				bx.UI.Hint.popup = null;
+				bx.UI.Hint.content = null;
+			}
+			bx.UI.Hint.initNode(hintNode);
+		}
+	}
 }

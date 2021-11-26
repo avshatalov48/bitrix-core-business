@@ -57,23 +57,43 @@ final class DeleteBasketItemAction extends BaseAction
 						foreach ($saveResult->getErrors() as $error)
 						{
 							// save basket error
-							$result->addError(new Main\Error($error->getMessage(), 202050010000));
+							$result->addError(
+								new Main\Error(
+									$error->getMessage(),
+									Sale\Controller\ErrorEnumeration::DELETE_BASKET_ITEM_ACTION_SAVE_BASKET
+								)
+							);
 						}
 					}
 				}
 				else
 				{
-					$result->addError(new Main\Error('basket load error', 202050000002));
+					$result->addError(
+						new Main\Error(
+							'basket load error',
+							Sale\Controller\ErrorEnumeration::DELETE_BASKET_ITEM_ACTION_BASKET_LOAD
+						)
+					);
 				}
 			}
 			else
 			{
-				$result->addError(new Main\Error('there is order with this basket item', 202050000001));
+				$result->addError(
+					new Main\Error(
+						'there is order with this basket item',
+						Sale\Controller\ErrorEnumeration::DELETE_BASKET_ITEM_ACTION_ORDER_EXIST
+					)
+				);
 			}
 		}
 		else
 		{
-			$result->addError(new Main\Error('basket item with id '.$id.' is not exists', 202040400001));
+			$result->addError(
+				new Main\Error(
+					'basket item with id '.$id.' is not exists',
+					Sale\Controller\ErrorEnumeration::DELETE_BASKET_ITEM_ACTION_BASKET_ITEM_NOT_EXIST
+				)
+			);
 		}
 
 		return $result;

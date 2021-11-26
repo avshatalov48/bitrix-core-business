@@ -24,6 +24,19 @@ use Bitrix\Main\ORM\Query\Join;
  * </ul>
  *
  * @package Bitrix\Forum
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Subscribe_Query query()
+ * @method static EO_Subscribe_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Subscribe_Result getById($id)
+ * @method static EO_Subscribe_Result getList(array $parameters = array())
+ * @method static EO_Subscribe_Entity getEntity()
+ * @method static \Bitrix\Forum\EO_Subscribe createObject($setDefaultValues = true)
+ * @method static \Bitrix\Forum\EO_Subscribe_Collection createCollection()
+ * @method static \Bitrix\Forum\EO_Subscribe wakeUpObject($row)
+ * @method static \Bitrix\Forum\EO_Subscribe_Collection wakeUpCollection($rows)
  */
 class SubscribeTable extends Entity\DataManager
 {

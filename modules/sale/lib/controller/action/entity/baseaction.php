@@ -3,46 +3,14 @@
 namespace Bitrix\Sale\Controller\Action\Entity;
 
 use Bitrix\Main;
-use Bitrix\Main\Engine\Action;
-use Bitrix\Main\Engine\Response\Converter;
 use Bitrix\Sale;
 use Bitrix\Rest;
-
-/*
- * Error code notation x(category1) xxx(category2) xxx(code category) xxxxx(code) - 2 000 403 00010
- * # category1 (x):
- * Check arguments in BaseAction - 1
- * Action - 2
- *
- * # category2 (xxx):
- * BaseAction - 018
- * AddBasketItemAction - 019
- * DeleteBasketItemAction - 020
- * UpdateBasketItemAction - 021
- * SaveOrderAction - 022
- * GetBasketAction - 023
- * UserConsentRequestAction - 024
- * AddBasketItemAction - 025
- *
- * # code category (xxx) - http status
- *
- * # code (xxxxx) - any value
- * SaveOrderAction - check fields - 00000 - 09999
- * SaveOrderAction - person type - 01000 - 01999
- * SaveOrderAction - basket - 02000 - 02999
- * SaveOrderAction - properties - 03000 - 03999
- * SaveOrderAction - trading platform - 04000 - 04999
- * SaveOrderAction - user - 05000 - 05999
- * SaveOrderAction - user profile - 06000 - 06999
- * SaveOrderAction - final - 07000 - 07999
- * SaveOrderAction - save - 08000 - 08999
- */
 
 /**
  * Class BaseAction
  * @package Bitrix\Sale\Controller\Action\Entity
  */
-class BaseAction extends Action
+class BaseAction extends Main\Engine\Action
 {
 	/**
 	 * @return bool
@@ -66,12 +34,12 @@ class BaseAction extends Action
 		}
 
 		// convert keys
-		$converter = new Converter(
-			Converter::KEYS
-			| Converter::RECURSIVE
-			| Converter::TO_SNAKE
-			| Converter::TO_SNAKE_DIGIT
-			| Converter::TO_UPPER
+		$converter = new Main\Engine\Response\Converter(
+			Main\Engine\Response\Converter::KEYS
+			| Main\Engine\Response\Converter::RECURSIVE
+			| Main\Engine\Response\Converter::TO_SNAKE
+			| Main\Engine\Response\Converter::TO_SNAKE_DIGIT
+			| Main\Engine\Response\Converter::TO_UPPER
 		);
 		$arguments = $converter->process($arguments);
 
@@ -90,7 +58,12 @@ class BaseAction extends Action
 		}
 		catch (Rest\AccessException $ex)
 		{
-			$result->addError(new Main\Error($ex->getMessage(), 201840300001));
+			$result->addError(
+				new Main\Error(
+					$ex->getMessage(),
+					Sale\Controller\ErrorEnumeration::BASE_ACTION_ACCESS_DENIED
+				)
+			);
 		}
 
 		return $result;
@@ -127,7 +100,7 @@ class BaseAction extends Action
 				$result->addError(
 					new Main\Error(
 						"key \"{$key}\" has UPPERCASE notation. Use lowerCamelCase notation",
-						101840000001 + $count
+						Sale\Controller\ErrorEnumeration::BASE_ACTION_UPPERCASE_KEY + $count
 					)
 				);
 
@@ -158,7 +131,7 @@ class BaseAction extends Action
 				$result = Rest\Integration\Externalizer::multiSortKeysArray($result);
 			}
 
-			return Converter::toJson()->process($result);
+			return Main\Engine\Response\Converter::toJson()->process($result);
 		}
 
 		return $result;

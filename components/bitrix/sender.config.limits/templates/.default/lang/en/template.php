@@ -3,6 +3,11 @@ $MESS["SENDER_LIMIT"] = "Limit";
 $MESS["SENDER_LIMIT_AVAILABLE"] = "Remaining";
 $MESS["SENDER_LIMIT_BTN_CLOSE"] = "Close";
 $MESS["SENDER_LIMIT_HELP"] = "Please refer to this %link_start%article%link_end% for more information on limits.";
+$MESS["SENDER_LIMIT_LEFT_MENU_ADDITIONAL_CONFIGURATION"] = "More";
+$MESS["SENDER_LIMIT_LEFT_MENU_AUDIO_CALL_LIMIT"] = "Outgoing audio calls";
+$MESS["SENDER_LIMIT_LEFT_MENU_CALL_LIMIT"] = "Outgoing calls";
+$MESS["SENDER_LIMIT_LEFT_MENU_MAIL_LIMIT"] = "Outgoing emails";
+$MESS["SENDER_LIMIT_LEFT_MENU_SMS_LIMIT"] = "Outgoing SMS";
 $MESS["SENDER_LIMIT_MAIL_DAILY_DESC"] = "A daily sending limit exists to protect users from spam.
 <br>
 The limit is increased every day if you don't send spam. 
@@ -22,11 +27,16 @@ your limit of 1000 messages will be re-established. Effectively, you will have t
 ";
 $MESS["SENDER_LIMIT_MAIL_DAILY_DESC_TITLE"] = "Daily message limit";
 $MESS["SENDER_LIMIT_NAME"] = "Restriction";
+$MESS["SENDER_LIMIT_NOTIFICATION_SUCCESS"] = "Data saved successfully";
 $MESS["SENDER_LIMIT_OF"] = "of";
+$MESS["SENDER_LIMIT_SAVE"] = "Save";
 $MESS["SENDER_LIMIT_SETUP"] = "increase limit";
+$MESS["SENDER_LIMIT_TITLE"] = "Restrictions";
 $MESS["SENDER_MAIL_CONSENT_HELP"] = "Learn more %link_start%here%link_end%";
 $MESS["SENDER_MAIL_CONSENT_NAME"] = "Consent to receive newsletters";
 $MESS["SENDER_MAIL_CONSENT_OPTION"] = "Enable consent to receive newsletters";
+$MESS["SENDER_SENDING_TIME_OPTION"] = "Send newsletters, SMS messages, and make calls only within time specified";
+$MESS["SENDER_SENDING_TIME_TITLE"] = "Time options";
 $MESS["SENDER_TRACK_MAIL_HELP"] = "Learn more %link_start%here%link_end%";
 $MESS["SENDER_TRACK_MAIL_NAME"] = "Email and link tracking";
 $MESS["SENDER_TRACK_MAIL_OPTION"] = "Track email reads and link clicks";

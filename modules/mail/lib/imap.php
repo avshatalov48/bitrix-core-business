@@ -731,7 +731,7 @@ class Imap
 
 		if(!is_null($startInternalDate))
 		{
-			$command .= (' SINCE '.date("j-M-Y", strtotime($startInternalDate)));
+			$command .= (' SINCE '.$startInternalDate->format('j-M-Y'));
 		}
 		$response = $this->executeCommand($command, $error);
 

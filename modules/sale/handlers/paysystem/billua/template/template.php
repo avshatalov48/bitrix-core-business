@@ -163,9 +163,9 @@ $buyerFax = $params["BUYER_PERSON_COMPANY_FAX"];
 <? } ?>
 <br>
 
-<?
-$arCurFormat = CCurrencyLang::GetCurrencyFormat($params['CURRENCY']);
-$currency = trim(str_replace('#', '', $arCurFormat['FORMAT_STRING']));
+<?php
+$arCurFormat = CCurrencyLang::GetFormatDescription($params['CURRENCY']);
+$currency = preg_replace('/(^|[^&])#/', '${1}', $arCurFormat['FORMAT_STRING']);
 
 $arCells = array();
 $columnList = array('NUMBER', 'NAME', 'QUANTITY', 'MEASURE', 'PRICE', 'VAT_RATE', 'SUM');
@@ -176,11 +176,14 @@ foreach ($columnList as $column)
 	if ($params['BILLUA_COLUMN_'.$column.'_SHOW'] == 'Y')
 	{
 		$caption = $params['BILLUA_COLUMN_'.$column.'_TITLE'];
-		if (in_array($column, array('PRICE', 'SUM')))
+		$caption = htmlspecialcharsbx($caption, ENT_COMPAT, false);
+		if (in_array($column, ['PRICE', 'SUM']))
+		{
 			$caption .= ', '.$currency;
+		}
 
 		$arCols[$column] = array(
-			'NAME' => htmlspecialcharsbx($caption, ENT_COMPAT, false),
+			'NAME' => $caption,
 			'SORT' => $params['BILLUA_COLUMN_'.$column.'_SORT']
 		);
 	}
@@ -475,13 +478,9 @@ for ($n = 1; $n <= $rowsCnt; $n++)
 				"Y",
 				$params['CURRENCY']
 			)
-			: htmlspecialcharsbx(
-					SaleFormatCurrency(
-					$params['SUM'],
-					$params['CURRENCY'],
-					false
-				),
-				ENT_COMPAT,
+			: SaleFormatCurrency(
+				$params['SUM'],
+				$params['CURRENCY'],
 				false
 			)
 	); ?></b>

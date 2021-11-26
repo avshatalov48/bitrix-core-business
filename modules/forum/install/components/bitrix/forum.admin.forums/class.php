@@ -40,7 +40,6 @@ class CForumAdminMessages extends \CBitrixComponent
 			if ($this->rights <= "D")
 				throw new \Bitrix\Main\AccessDeniedException();
 
-			$this->prepareParams();
 			$this->arResult["ERRORS"] = $this->processAction();
 
 			$nav = new Bitrix\Main\UI\PageNavigation($this->gridId);
@@ -115,25 +114,26 @@ class CForumAdminMessages extends \CBitrixComponent
 			}
 		}
 	}
-	protected function prepareParams()
+
+	public function onPrepareComponentParams($arParams)
 	{
-		$this->arParams["SITES"] = [];
+		$arParams["SITES"] = [];
 		if ($dbRes = \CSite::GetList())
 		{
 			while ($res = $dbRes->GetNext())
 			{
-				$this->arParams["SITES"][$res["ID"]] = "[{$res["ID"]}] " . $res["NAME"];
+				$arParams["SITES"][$res["ID"]] = "[{$res["ID"]}] " . $res["NAME"];
 			}
 		}
-		$this->arParams["FORUM_GROUPS"] = [];
-		$this->arParams["FORUM_GROUP_IDS"] = [];
+		$arParams["FORUM_GROUPS"] = [];
+		$arParams["FORUM_GROUP_IDS"] = [];
 		foreach (\CForumGroup::GetByLang(LANGUAGE_ID) as $res)
 		{
-			$this->arParams["FORUM_GROUP_IDS"][$res["ID"]] = str_repeat(".", ($res["DEPTH_LEVEL"]-1)).$res["NAME"];
-			$this->arParams["FORUM_GROUPS"][$res["ID"]] = $res;
+			$arParams["FORUM_GROUP_IDS"][$res["ID"]] = str_repeat(".", ($res["DEPTH_LEVEL"]-1)).$res["NAME"];
+			$arParams["FORUM_GROUPS"][$res["ID"]] = $res;
 		}
-		$this->arParams["FORUM_PERMISSIONS"] = \Bitrix\Forum\Permission::getTitledList();
-		$this->arParams["USER_GROUPS"] = [];
+		$arParams["FORUM_PERMISSIONS"] = \Bitrix\Forum\Permission::getTitledList();
+		$arParams["USER_GROUPS"] = [];
 		if ($dbRes = \Bitrix\Main\GroupTable::getList([
 			"select" => ["ID", "NAME"],
 			"cache" => ["ttl" => 3600]
@@ -141,9 +141,12 @@ class CForumAdminMessages extends \CBitrixComponent
 		{
 			while ($res = $dbRes->fetch())
 			{
-				$this->arParams["USER_GROUPS"][$res["ID"]] = $res["NAME"];
+				$arParams["USER_GROUPS"][$res["ID"]] = $res["NAME"];
 			}
 		}
+
+		return parent::onPrepareComponentParams($arParams);
+
 	}
 
 	/**
@@ -169,7 +172,7 @@ class CForumAdminMessages extends \CBitrixComponent
 
 		@set_time_limit(0);
 		$DB->StartTransaction();
-		$APPLICATION->GetException();
+		$APPLICATION->ResetException();
 		if ($this->request->getPost("action") == \Bitrix\Main\Grid\Actions::GRID_DELETE_ROW)
 		{
 			$forum = \Bitrix\Forum\Forum::getById($this->request->getPost("id"));

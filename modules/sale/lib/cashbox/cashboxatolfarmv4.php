@@ -392,25 +392,25 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 		$settings = parent::getSettings($modelId);
 		unset($settings['PAYMENT_TYPE']);
 
-		$settings['SERVICE']['ITEMS']['EMAIL'] = array(
+		$settings['SERVICE']['ITEMS']['EMAIL'] = [
 			'TYPE' => 'STRING',
 			'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ATOL_FARM_SETTINGS_SERVICE_EMAIL_LABEL'),
 			'VALUE' => static::getDefaultServiceEmail()
-		);
+		];
 
-		$settings['INTERACTION'] = array(
+		$settings['INTERACTION'] = [
 			'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ATOL_FARM_SETTINGS_INTERACTION'),
-			'ITEMS' => array(
-				'MODE_HANDLER' => array(
+			'ITEMS' => [
+				'MODE_HANDLER' => [
 					'TYPE' => 'ENUM',
 					'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ATOL_FARM_SETTINGS_MODE_HANDLER_LABEL'),
-					'OPTIONS' => array(
+					'OPTIONS' => [
 						static::HANDLER_MODE_ACTIVE => Localization\Loc::getMessage('SALE_CASHBOX_ATOL_FARM_MODE_ACTIVE'),
 						static::HANDLER_MODE_TEST => Localization\Loc::getMessage('SALE_CASHBOX_ATOL_FARM_MODE_TEST'),
-					)
-				)
-			)
-		);
+					]
+				]
+			]
+		];
 
 		return $settings;
 	}

@@ -2968,6 +2968,22 @@
 	opacity: 1!important;
 }
 
+.bx-messenger-textarea-forms {
+	background-image: url(data:image/svg+xml,%3Csvg%20width%3D%2212%22%20height%3D%2212%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M10.45%2010c.303%200%20.55.148.55.33v1.34c0%20.182-.247.33-.55.33h-8.9c-.303%200-.55-.148-.55-.33v-1.34c0-.182.247-.33.55-.33zm.817-4.958c.36%200%20.653.292.653.651v2.64c0%20.359-.293.65-.653.65H.71a.652.652%200%2001-.653-.65v-2.64c0-.36.293-.65.653-.65zm-.318%201.028H1.102v1.834h9.847V6.07zm.318-6.028c.36%200%20.653.292.653.651v2.64c0%20.359-.293.65-.653.65H.71a.652.652%200%2001-.653-.65V.692c0-.36.293-.65.653-.65zm-.318%201.028H1.102v1.834h9.847V1.07z%22%20fill%3D%22%23B5BABE%22%20fill-rule%3D%22nonzero%22%2F%3E%3C%2Fsvg%3E);
+	cursor: pointer;
+	height: 33px;
+	transition: opacity 0.3s ease-in 0s;
+	width: 27px;
+	z-index: 2;
+	display: none;
+}
+.bx-messenger-textarea-forms:hover, .bx-messenger-textarea-forms-active {
+	background-image: url(data:image/svg+xml,%3Csvg%20width%3D%2212%22%20height%3D%2212%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M10.45%2010c.303%200%20.55.148.55.33v1.34c0%20.182-.247.33-.55.33h-8.9c-.303%200-.55-.148-.55-.33v-1.34c0-.182.247-.33.55-.33zm.817-4.958c.36%200%20.653.292.653.651v2.64c0%20.359-.293.65-.653.65H.71a.652.652%200%2001-.653-.65v-2.64c0-.36.293-.65.653-.65zm-.318%201.028H1.102v1.834h9.847V6.07zm.318-6.028c.36%200%20.653.292.653.651v2.64c0%20.359-.293.65-.653.65H.71a.652.652%200%2001-.653-.65V.692c0-.36.293-.65.653-.65zm-.318%201.028H1.102v1.834h9.847V1.07z%22%20fill%3D%22%232FC6F6%22%20fill-rule%3D%22nonzero%22%2F%3E%3C%2Fsvg%3E);
+	opacity: 1!important;
+}
+.bx-messenger-chat-lines .bx-messenger-textarea-forms { display: inline-block; }
+
+
 .bx-messenger-textarea-icon-marketplace-default {
 	background-image: url(data:image/svg+xml,%3Csvg%20width%3D%2215%22%20height%3D%2213%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M14.284%203.003c.327%200%20.598.241.645.555l.007.096v8.617c0%20.327-.241.598-.555.644l-.097.007H3.656a.651.651%200%2001-.644-.554l-.007-.097v-2.246h1.292v1.794h9.546V4.14h-1.857l.005-1.136h2.293zM11.28.09a.65.65%200%2001.652.651v8.605a.65.65%200%2001-.652.65H.757a.65.65%200%2001-.65-.65V.74c0-.36.29-.65.65-.65zm-.44%203.998H1.147l.001%204.744h9.692V4.088zm0-2.97H1.149v1.81h9.691v-1.81z%22%20fill%3D%22%23B5BABE%22%20fill-rule%3D%22nonzero%22%2F%3E%3C%2Fsvg%3E);
 	cursor: pointer;
@@ -3084,30 +3100,6 @@
 }
 
 .bx-messenger-textarea-smile-disabled .bx-messenger-textarea-smile { display: none }
-
-.bx-messenger-textarea-forms {
-	background: url("./../images/im-sprite-v37.png") no-repeat scroll 2px -609px;
-	cursor: pointer;
-	height: 33px;
-	transition: opacity 0.3s ease-in 0s;
-	width: 27px;
-	z-index: 2;
-	display: none;
-}
-.bx-messenger-textarea-forms:hover, .bx-messenger-textarea-forms-active {  background-position: -93px -609px;  }
-.bx-messenger-chat-lines .bx-messenger-textarea-forms { display: none; }
-
-.bx-messenger-textarea-answers {
-	background: url("./../images/im-sprite-v37.png") no-repeat scroll -29px -609px;
-	cursor: pointer;
-	height: 33px;
-	transition: opacity 0.3s ease-in 0s;
-	width: 27px;
-	z-index: 2;
-	display: none!important;
-}
-.bx-messenger-textarea-answers:hover, .bx-messenger-textarea-answers-active {  background-position: -124px -609px;  }
-.bx-messenger-chat-lines .bx-messenger-textarea-answers { display: block; }
 
 .bx-messenger-textarea-hidden{
 	background-image: url(data:image/svg+xml,%3Csvg%20width%3D%2218%22%20height%3D%2212%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M8.917%200c1.362%200%202.69.471%203.968%201.303l1.136-.956a.5.5%200%2001.63-.012l.404.316a.5.5%200%2001.014.776l-.951.8c.215.182.428.374.64.575a17.468%2017.468%200%20012.16%202.492l.17.247a.65.65%200%2001-.028.752l-.281.398a17.468%2017.468%200%2001-2.021%202.299c-1.835%201.743-3.8%202.801-5.841%202.801-1.489%200-2.936-.562-4.321-1.542l-1.547%201.304a.5.5%200%2001-.63.011l-.404-.316a.5.5%200%2001-.014-.776l1.402-1.18A17.468%2017.468%200%2001.914%206.497l-.17-.247a.65.65%200%2001.03-.752l.28-.398a17.468%2017.468%200%20012.021-2.299C4.91%201.06%206.876%200%208.918%200zm4.192%203.079l-7.478%206.3c1.092.714%202.198%201.112%203.286%201.112%201.643%200%203.329-.908%204.945-2.444a16.183%2016.183%200%20001.684-1.88l.204-.272-.1-.136-.217-.282a16.183%2016.183%200%2000-1.571-1.733c-.25-.237-.501-.46-.753-.665zM8.917%201.3c-1.644%200-3.33.909-4.946%202.444a16.182%2016.182%200%2000-1.684%201.88l-.204.272.1.136.217.282c.464.591.992%201.183%201.571%201.733.146.138.291.271.438.399l7.428-6.26c-.973-.572-1.954-.886-2.92-.886z%22%20fill%3D%22%23B5BABE%22%20fill-rule%3D%22nonzero%22%2F%3E%3C%2Fsvg%3E);

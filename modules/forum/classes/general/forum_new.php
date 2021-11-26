@@ -1343,7 +1343,7 @@ class CAllForumNew
 		}
 
 		$strSql = <<<SQL
-			SELECT BF.ID AS FORUM_ID , COUNT(FT_RENEW.ID) TCRENEW
+			SELECT BF.ID AS FORUM_ID, COUNT(FT_RENEW.ID) AS TCRENEW
 			FROM b_forum BF
 			LEFT JOIN b_forum_user_forum FUF ON (FUF.USER_ID = {$userId} AND FUF.FORUM_ID = BF.ID)
 			LEFT JOIN b_forum_user_forum FUF_ALL ON (FUF_ALL.USER_ID =  {$userId} AND FUF_ALL.FORUM_ID =  0)

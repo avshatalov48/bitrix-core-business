@@ -580,7 +580,7 @@
 
 .ui-viewer + .ui-action-panel {
 	top: auto !important;
-	transition: .3s;
+	transition: none;
 	bottom: 0 !important;
 	position: fixed;
 	left: 50% !important;

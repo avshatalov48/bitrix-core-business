@@ -1,4 +1,5 @@
-<?
+<?php
+
 /**
  * @var CBitrixComponentTemplate $this
  * @var $arParams
@@ -14,14 +15,14 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 global $USER;
 
-\CJSCore::init([ 'translit', 'socnetlogdest' ]);
+CJSCore::init([ 'translit', 'socnetlogdest' ]);
 \Bitrix\Main\UI\Extension::load("ui.selector");
 
 $frame = $this->createFrame()->begin(false);
 
 if (!empty($arParams['LOAD_JS']))
 {
-	?><script src="<?=htmlspecialcharsbx($this->getFolder()).'/script.js'?>"></script><?
+	?><script src="<?=htmlspecialcharsbx($this->getFolder()).'/script.js'?>"></script><?php
 }
 ?>
 <script>
@@ -34,8 +35,8 @@ if (!empty($arParams['LOAD_JS']))
 				&& BX.type.isNotEmptyString(params.inputId)
 					? params.inputId
 					: <?=($arParams['BIND_ID'] ? "'".$arParams['BIND_ID']."'" : 'false')?>);
-			var inputBoxId = <?=($arParams['INPUT_BOX_ID'] ? "'".$arParams['INPUT_BOX_ID']."'" : 'false')?>;
-			var inputContainerId = <?=($arParams['INPUT_CONTAINER_ID'] ? "'".$arParams['INPUT_CONTAINER_ID']."'" : 'false')?>;
+			var inputBoxId = <?=(!empty($arParams['INPUT_BOX_ID']) ? "'".$arParams['INPUT_BOX_ID']."'" : 'false')?>;
+			var inputContainerId = <?=(!empty($arParams['INPUT_CONTAINER_ID']) ? "'".$arParams['INPUT_CONTAINER_ID']."'" : 'false')?>;
 			var containerId = (typeof params != 'undefined' && params.containerId != 'undefined' ? params.containerId : <?=($arParams['CONTAINER_ID'] ? "'".$arParams['CONTAINER_ID']."'" : 'false')?>);
 			var bindId = (containerId ? containerId : inputId);
 			var openDialogWhenInit = (
@@ -44,7 +45,7 @@ if (!empty($arParams['LOAD_JS']))
 				|| !!params.openDialogWhenInit
 			);
 
-			var fieldName = <?=($arParams['FIELD_NAME'] ? "'".$arParams['FIELD_NAME']."'" : 'false')?>;
+			var fieldName = <?=(!empty($arParams['FIELD_NAME']) ? "'".$arParams['FIELD_NAME']."'" : 'false')?>;
 
 			if (
 				BX.type.isNotEmptyObject(params)
@@ -56,7 +57,7 @@ if (!empty($arParams['LOAD_JS']))
 			}
 
 			BX.Main.SelectorV2.create({
-				apiVersion: <?=(!empty($arParams["API_VERSION"]) ? intval($arParams["API_VERSION"]) : 2)?>,
+				apiVersion: <?=(!empty($arParams["API_VERSION"]) ? (int)$arParams["API_VERSION"] : 2)?>,
 				id: selectorId,
 				fieldName: fieldName,
 				pathToAjax: '<?=$component->getPath()?>/ajax.php',
@@ -65,10 +66,10 @@ if (!empty($arParams['LOAD_JS']))
 				inputContainerId: inputContainerId,
 				bindId: bindId,
 				containerId: containerId,
-				tagId: BX('<?=$arParams['TAG_ID']?>'),
+				tagId: BX('<?= ($arParams['TAG_ID'] ?? '')?>'),
 				openDialogWhenInit: openDialogWhenInit,
 				bindNode: BX('<?=$arParams['BIND_ID']?>'),
-				options: <?=\CUtil::phpToJSObject($arParams["OPTIONS"])?>,
+				options: <?= CUtil::phpToJSObject($arParams["OPTIONS"]) ?>,
 				callback : {
 					select: <?=(!empty($arParams["CALLBACK"]["select"]) ? $arParams["CALLBACK"]["select"] : 'null')?>,
 					unSelect: <?=(!empty($arParams["CALLBACK"]["unSelect"]) ? $arParams["CALLBACK"]["unSelect"] : 'null')?>,
@@ -85,39 +86,38 @@ if (!empty($arParams['LOAD_JS']))
 					context: <?=(!empty($arParams["CALLBACK_BEFORE"]) && !empty($arParams["CALLBACK_BEFORE"]["context"]) ? $arParams["CALLBACK_BEFORE"]["context"] : 'null')?>,
 				},
 				items : {
-					selected: <?=\CUtil::phpToJSObject($arParams['ITEMS_SELECTED'])?>,
-					undeletable: <?=\CUtil::phpToJSObject($arParams['ITEMS_UNDELETABLE'])?>,
-					hidden: <?=\CUtil::phpToJSObject($arParams['ITEMS_HIDDEN'])?>
+					selected: <?= CUtil::phpToJSObject($arParams['ITEMS_SELECTED']) ?>,
+					undeletable: <?= CUtil::phpToJSObject($arParams['ITEMS_UNDELETABLE']) ?>,
+					hidden: <?= CUtil::phpToJSObject($arParams['ITEMS_HIDDEN']) ?>
 				},
 				entities: {
-					users: <?=\CUtil::phpToJSObject($arResult['ENTITIES']['USERS'])?>,
-					groups: <?=\CUtil::phpToJSObject($arResult['ENTITIES']['GROUPS'])?>,
-					sonetgroups: <?=\CUtil::phpToJSObject($arResult['ENTITIES']['SONETGROUPS'])?>,
-					department: <?=\CUtil::phpToJSObject($arResult['ENTITIES']['DEPARTMENTS'])?>
+					users: <?= CUtil::phpToJSObject($arResult['ENTITIES']['USERS'] ?? []) ?>,
+					groups: <?= CUtil::phpToJSObject($arResult['ENTITIES']['GROUPS'] ?? []) ?>,
+					sonetgroups: <?= CUtil::phpToJSObject($arResult['ENTITIES']['SONETGROUPS'] ?? []) ?>,
+					department: <?= CUtil::phpToJSObject($arResult['ENTITIES']['DEPARTMENTS'] ?? []) ?>
 				}
 			});
 
 			BX.removeCustomEvent(window, "<?=$arParams["OPTIONS"]["eventInit"]?>", arguments.callee);
 		};
 
-		<?
+		<?php
 		if (!empty($arParams["OPTIONS"]["eventInit"]))
 		{
 			?>
 			BX.addCustomEvent(window, "<?=$arParams["OPTIONS"]["eventInit"]?>", f);
-			<?
+			<?php
 		}
 		else
 		{
 			?>
 			f();
-			<?
+			<?php
 		}
 		?>
 
 	});
 </script>
 
-<?
+<?php
 $frame->end();
-?>

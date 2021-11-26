@@ -173,10 +173,8 @@ class HttpApplication extends Application
 
 		$this->context->setResponse($response);
 
-		$response->send();
-
 		//todo exit code in Response?
-		$this->terminate(0);
+		$this->end(0, $response);
 	}
 
 	private function processRunError(\Throwable $e, ErrorCollection $errorCollection): void

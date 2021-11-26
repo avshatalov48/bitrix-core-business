@@ -1,11 +1,14 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/group.php");
 
+use Bitrix\Socialnetwork\Util;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\WorkgroupSiteTable;
 use Bitrix\Socialnetwork\Item\Workgroup;
 use Bitrix\Socialnetwork\Item\WorkgroupSubject;
 use Bitrix\Socialnetwork\Integration;
+use Bitrix\Socialnetwork\WorkgroupTagTable;
 
 class CSocNetGroup extends CAllSocNetGroup
 {
@@ -16,7 +19,7 @@ class CSocNetGroup extends CAllSocNetGroup
 	{
 		global $DB, $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
-		$arFields1 = \Bitrix\Socialnetwork\Util::getEqualityFields($arFields);
+		$arFields1 = Util::getEqualityFields($arFields);
 
 		if (!CSocNetGroup::CheckFields("ADD", $arFields))
 		{
@@ -76,7 +79,7 @@ class CSocNetGroup extends CAllSocNetGroup
 		CFile::SaveForDB($arFields, "IMAGE_ID", "socialnetwork");
 
 		$arInsert = $DB->PrepareInsert("b_sonet_group", $arFields);
-		\Bitrix\Socialnetwork\Util::processEqualityFieldsToInsert($arFields1, $arInsert);
+		Util::processEqualityFieldsToInsert($arFields1, $arInsert);
 
 		$ID = false;
 		if ($arInsert[0] <> '')
@@ -141,7 +144,7 @@ class CSocNetGroup extends CAllSocNetGroup
 						&& is_array($tagsList)
 					)
 					{
-						\Bitrix\Socialnetwork\WorkgroupTagTable::set([
+						WorkgroupTagTable::set([
 							'groupId' => $ID,
 							'tags' => $tagsList
 						]);
@@ -178,7 +181,7 @@ class CSocNetGroup extends CAllSocNetGroup
 			return false;
 		}
 
-		$arFields1 = \Bitrix\Socialnetwork\Util::getEqualityFields($arFields);
+		$arFields1 = Util::getEqualityFields($arFields);
 
 		if (!CSocNetGroup::CheckFields("UPDATE", $arFields, $ID))
 		{
@@ -229,7 +232,7 @@ class CSocNetGroup extends CAllSocNetGroup
 		CFile::SaveForDB($arFields, "IMAGE_ID", "socialnetwork");
 
 		$strUpdate = $DB->PrepareUpdate("b_sonet_group", $arFields);
-		\Bitrix\Socialnetwork\Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
+		Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
 
 		if ($strUpdate <> '')
 		{
@@ -350,7 +353,7 @@ class CSocNetGroup extends CAllSocNetGroup
 			{
 				ExecuteModuleEventEx($arEvent, array($ID, &$arFields));
 			}
-			CSocNetGroup::SearchIndex($ID, false, $arGroupOld, $bAutoSubscribe);
+			CSocNetGroup::SearchIndex($ID, false, $arGroupOld);
 
 			if (isset($arFields['KEYWORDS']))
 			{
@@ -364,7 +367,7 @@ class CSocNetGroup extends CAllSocNetGroup
 					$tagsList = array_filter($tagsList, function($a) { return ($a <> ''); });
 				}
 
-				\Bitrix\Socialnetwork\WorkgroupTagTable::set([
+				WorkgroupTagTable::set([
 					'groupId' => $ID,
 					'tags' => $tagsList
 				]);
@@ -706,4 +709,3 @@ class CSocNetGroup extends CAllSocNetGroup
 		return $dbRes;
 	}
 }
-?>

@@ -20,44 +20,44 @@ Loc::loadMessages(__FILE__);
 
 class Broadcast
 {
-	const ON_CNT = 5;
-	const OFF_CNT = 5;
+	protected const ON_CNT = 5;
+	protected const OFF_CNT = 5;
 
-	const ON_PERIOD = 'P7D'; // 7 days
-	const OFF_PERIOD = 'P7D'; // 7 days
+	protected const ON_PERIOD = 'P7D'; // 7 days
+	protected const OFF_PERIOD = 'P7D'; // 7 days
 
-	private static function getValue()
+	private static function getValue(): string
 	{
 		return Option::get('blog', 'log_notify_all', 'N');
 	}
 
-	private static function setValue($value = false)
+	private static function setValue($value = false): void
 	{
 		$value = ($value === true);
 		Option::set('blog', 'log_notify_all', ($value ? 'Y' : 'N'));
 	}
 
-	private static function getOffModeRequested()
+	private static function getOffModeRequested(): bool
 	{
 		return (Option::get('blog', 'log_notify_all_off_requested', false) === 'Y');
 	}
 
-	private static function getOnModeRequested()
+	private static function getOnModeRequested(): bool
 	{
 		return (Option::get('blog', 'log_notify_all_on_requested', false) === 'Y');
 	}
 
-	private static function setOffModeRequested()
+	private static function setOffModeRequested(): void
 	{
 		Option::set('blog', 'log_notify_all_off_requested', 'Y');
 	}
 
-	private static function setOnModeRequested()
+	private static function setOnModeRequested(): void
 	{
 		Option::set('blog', 'log_notify_all_on_requested', 'Y');
 	}
 
-	private static function getCount($period)
+	private static function getCount($period): int
 	{
 		$counter = 0;
 
@@ -85,21 +85,21 @@ class Broadcast
 		return $counter;
 	}
 
-	private static function onModeNeeded()
+	private static function onModeNeeded(): bool
 	{
 		$counter = self::getCount(self::ON_PERIOD);
 
 		return ($counter < self::ON_CNT);
 	}
 
-	private static function offModeNeeded()
+	private static function offModeNeeded(): bool
 	{
 		$counter = self::getCount(self::OFF_PERIOD);
 
 		return ($counter > self::OFF_CNT);
 	}
 
-	public static function getData()
+	public static function getData(): array
 	{
 		$result = [
 			'cnt' => 0,
@@ -111,8 +111,7 @@ class Broadcast
 			$value = unserialize($value, ['allowed_classes' => false]);
 			if (
 				is_array($value)
-				&& isset($value['cnt'])
-				&& isset($value['rate'])
+				&& isset($value['cnt'], $value['rate'])
 			)
 			{
 				$result = [
@@ -125,7 +124,7 @@ class Broadcast
 		return $result;
 	}
 
-	public static function setRequestedMode($value)
+	public static function setRequestedMode($value): void
 	{
 		$value = ($value === true);
 
@@ -139,7 +138,7 @@ class Broadcast
 		}
 	}
 
-	public static function checkMode()
+	public static function checkMode(): bool
 	{
 		if (ModuleManager::isModuleInstalled('intranet'))
 		{
@@ -181,7 +180,7 @@ class Broadcast
 		return true;
 	}
 
-	private static function sendRequest($value, $siteId = SITE_ID)
+	private static function sendRequest($value, $siteId = SITE_ID): void
 	{
 		$value = ($value === true);
 
@@ -225,7 +224,7 @@ class Broadcast
 		self::setRequestedMode($value);
 	}
 
-	public static function send($params)
+	public static function send($params): bool
 	{
 		if (
 			!Loader::includeModule('intranet')
@@ -290,7 +289,7 @@ class Broadcast
 		)
 		{
 			$rightsOld = [];
-			foreach ($params['SOCNET_RIGHTS_OLD'] as $key => $entities)
+			foreach ($params['SOCNET_RIGHTS_OLD'] as $entities)
 			{
 				foreach ($entities as $rightsList)
 				{
@@ -341,14 +340,14 @@ class Broadcast
 			$params['ENTITY_TYPE'] === 'POST'
 			&& ($post = \CBlogPost::getById($params['ENTITY_ID']))
 			&& !empty($post['PUBLISH_STATUS'])
-			&& ($post['PUBLISH_STATUS'] == BLOG_PUBLISH_STATUS_PUBLISH)
+			&& ($post['PUBLISH_STATUS'] === BLOG_PUBLISH_STATUS_PUBLISH)
 		)
 		{
 			$titleTmp = str_replace([ "\r\n", "\n" ], ' ', $post['TITLE']);
 			$title = truncateText($titleTmp, 100);
 			$titleEmail = ($post['MICRO'] !== 'Y' ? truncateText($titleTmp, 255) : '');
 
-			$titleEmpty = (trim($title, " \t\n\r\0\x0B\xA0" ) == '');
+			$titleEmpty = (trim($title, " \t\n\r\0\x0B\xA0" ) === '');
 
 			$message = Loc::getMessage(
 				'BLOG_BROADCAST_PUSH_POST' . ($titleEmpty ? 'A' : '') . $authorSuffix,
@@ -484,7 +483,7 @@ class Broadcast
 		return false;
 	}
 
-	function onBeforeConfirmNotify($module, $tag, $value, $params)
+	public function onBeforeConfirmNotify($module, $tag, $value, $params): bool
 	{
 		if ($module === 'blog')
 		{

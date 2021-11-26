@@ -275,6 +275,15 @@ class Image
 	}
 
 	/**
+	 * Returns actual width and height in the Rectangle object.
+	 * @return Image\Rectangle
+	 */
+	public function getDimensions()
+	{
+		return $this->engine->getDimensions();
+	}
+
+	/**
 	 * Clears all resources associated to the image.
 	 */
 	public function clear()

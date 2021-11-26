@@ -457,4 +457,12 @@ class CountLimiter implements iLimiter
 	{
 		return "~sender_limit_date_" . $this->name;
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function isHidden()
+	{
+		return false;
+	}
 }

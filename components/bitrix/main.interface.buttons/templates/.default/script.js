@@ -582,7 +582,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 					}
 
 					if (BX.type.isPlainObject(tmpData) && 'IS_ACTIVE' in tmpData &&
-						(tmpData.IS_ACTIVE === true || tmpData.IS_ACTIVE === 'true' || tmpData.IS_ACTIVE === 'Y'))
+						(tmpData.IS_ACTIVE === 1 || tmpData.IS_ACTIVE === true || tmpData.IS_ACTIVE === 'true' || tmpData.IS_ACTIVE === 'Y'))
 					{
 						result = tmpData;
 					}

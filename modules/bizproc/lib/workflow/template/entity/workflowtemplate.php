@@ -5,6 +5,22 @@ namespace Bitrix\Bizproc\Workflow\Template\Entity;
 use Bitrix\Bizproc\Workflow\Template\Tpl;
 use Bitrix\Main;
 
+/**
+ * Class WorkflowTemplateTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_WorkflowTemplate_Query query()
+ * @method static EO_WorkflowTemplate_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_WorkflowTemplate_Result getById($id)
+ * @method static EO_WorkflowTemplate_Result getList(array $parameters = array())
+ * @method static EO_WorkflowTemplate_Entity getEntity()
+ * @method static \Bitrix\Bizproc\Workflow\Template\Tpl createObject($setDefaultValues = true)
+ * @method static \Bitrix\Bizproc\Workflow\Template\Entity\EO_WorkflowTemplate_Collection createCollection()
+ * @method static \Bitrix\Bizproc\Workflow\Template\Tpl wakeUpObject($row)
+ * @method static \Bitrix\Bizproc\Workflow\Template\Entity\EO_WorkflowTemplate_Collection wakeUpCollection($rows)
+ */
 class WorkflowTemplateTable extends Main\Entity\DataManager
 {
 	/**

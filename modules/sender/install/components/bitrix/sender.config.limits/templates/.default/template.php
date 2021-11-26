@@ -1,7 +1,9 @@
-<?
+<?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Web\Json;
 
 /** @var CAllMain $APPLICATION */
@@ -9,24 +11,40 @@ use Bitrix\Main\Web\Json;
 /** @var array $arResult */
 
 $containerId = 'sender-start-container';
+\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
+Bitrix\Main\UI\Extension::load(
+	[
+		'ui.buttons',
+		'ui',
+		'ui.notification',
+	]
+);
+$sendingStartTime = strtotime($arResult['SENDING_START']);
+$sendingEndTime = strtotime($arResult['SENDING_END']);
 ?>
-<script type="text/javascript">
-	BX.ready(function () {
-		BX.Sender.Config.Limits.init(<?=Json::encode(array(
-			'containerId' => $containerId,
-			'actionUri' => $arResult['ACTION_URI'],
-			'mess' => array(
-				'mailDailyLimit' => Loc::getMessage('SENDER_LIMIT_MAIL_DAILY_DESC'),
-				'mailDailyLimitTitle' => Loc::getMessage('SENDER_LIMIT_MAIL_DAILY_DESC_TITLE'),
-				'close' => Loc::getMessage('SENDER_LIMIT_BTN_CLOSE'),
-			)
-		))?>);
-	});
-</script>
 <div id="<?=htmlspecialcharsbx($containerId)?>" class="sender-config-limits-wrap">
 
+	<?php $counter = 0;?>
 	<?foreach ($arResult['LIST'] as $item):?>
-		<div class="sender-config-limits-box">
+		<div class="sender-config-limits-box sender-type-tab" data-tab="<?=$item['CODE']?>">
+
+			<?php
+			$active = false;
+			if (0 == $counter++)
+			{
+				$active = true;
+				$defaultTab = $item['CODE'];
+			}
+
+			$menuItems[] = [
+				'NAME' => Loc::getMessage('SENDER_LIMIT_LEFT_MENU_' . mb_strtoupper($item['CODE'])  .'_LIMIT'),
+				'ATTRIBUTES' => [
+					'onclick' => "BX.Sender.Config.Limits.changeLeftMenuOption('".$item['CODE']."')",
+				],
+				'ACTIVE' => $active
+			];
+			?>
+
 			<h4 class="sender-config-limits-title">
 				<?=htmlspecialcharsbx($item['NAME'])?>
 
@@ -141,64 +159,184 @@ $containerId = 'sender-start-container';
 		</div>
 	<?endforeach;?>
 
-	<h4 class="sender-config-limits-title">
-		<?=htmlspecialcharsbx(Loc::getMessage('SENDER_TRACK_MAIL_NAME'))?>
+	<div class="sender-type-tab" data-tab="others">
 
-		<?if (Loc::getMessage('SENDER_TRACK_MAIL_HELP')):?>
-			<span class="sender-config-limits-info">
-						<?=(htmlspecialcharsbx($item['HELP_CAPTION']) ?:
-							Loc::getMessage('SENDER_TRACK_MAIL_HELP', array(
-								'%link_start%' => '<a href="javascript:BX.Helper.show(\'redirect=detail&code=13170876\')" class="sender-config-limits-setup-link">',
-								'%link_end%' => '</a>'
-							))
-						)?>
-					</span>
-		<?endif;?>
-	</h4>
-
-	<div class="sender-config-limits-block">
-		<div class="sender-config-limits-bottom">
-			<div class="sender-config-limits-bottom-left">
-				<label for="sender-track-mail-option">
-					<input type="checkbox"
-						<?php if ($arResult['CAN_TRACK_MAIL']): ?>
-							checked="checked"
-						<?php endif;?>
-						class="sender-track-mail-option" id="sender-track-mail-option" />
-					<?=Loc::getMessage('SENDER_TRACK_MAIL_OPTION')?>
-				</label>
+		<h4 class="sender-config-limits-title">
+			<?=htmlspecialcharsbx(Loc::getMessage('SENDER_SENDING_TIME_TITLE'))?>
+		</h4>
+		<div class="sender-config-limits-block">
+			<div class="sender-config-limits-bottom">
+				<div class="sender-config-limits-bottom-left">
+					<label for="sender-sending-time-option">
+						<input type="checkbox"
+							<?php if ($arResult['SENDING_TIME']): ?>
+								checked="checked"
+							<?php endif;?>
+							   class="sender-sending-time-option" id="sender-sending-time-option" />
+						<?=Loc::getMessage('SENDER_SENDING_TIME_OPTION')?>
+					</label>
+				</div>
+			</div>
+			<div class="sender-sending-time-configuration-block">
+				<div class="sender-config-limits-bottom-without-space sender-sending-time-view-block" >
+					<div>
+						<span class="sender-config-sending-time-caption">
+							<span class="sender-sending-start-caption"><?=
+								(new \DateTime())
+									->setTimestamp($sendingStartTime)
+									->format(Context::getCurrent()
+										->getCulture()
+										->getShortTimeFormat());
+								?></span> - <span class="sender-sending-end-caption">
+								<?= (new \DateTime())
+									->setTimestamp($sendingEndTime)
+									->format(Context::getCurrent()
+										->getCulture()
+										->getShortTimeFormat());
+								?></span>
+						</span>
+						<a href="#/" class = 'sender-sending-time-edit-btn'>
+							<?=Loc::getMessage('SENDER_LIMIT_SETUP')?>
+						</a>
+					</div>
+				</div>
+				<div class="sender-config-limits-bottom-without-space sender-sending-time-edit-block" style="display: none">
+						<select class="bx-sender-form-control bx-sender-message-editor-field-select sender-sending-start">
+							<?php for ($hour = 0; $hour < 24; $hour++):?>
+								<?php foreach ([0, 30] as $minute):?>
+									<?php $time = strtotime(sprintf("%02d:%02d", $hour, $minute)); ?>
+									<?php
+									$formatted = (new \DateTime())
+										->setTimestamp($time)
+										->format(Context::getCurrent()
+											->getCulture()
+											->getShortTimeFormat()
+										);
+									?>
+									<option value='<?=$formatted?>' <?= ($time === $sendingStartTime ? "selected" : "")?>>
+										<?=$formatted?>
+									</option>
+								<?php endforeach;?>
+							<?php endfor;?>
+						</select> -
+						<select class="bx-sender-form-control bx-sender-message-editor-field-select sender-sending-end">
+							<?php for ($hour = 0; $hour < 24; $hour++):?>
+							<?php foreach ([0, 30] as $minute):?>
+									<?php $time = strtotime(sprintf("%02d:%02d", $hour, $minute)); ?>
+									<?php
+									$formatted = (new \DateTime())
+										->setTimestamp($time)
+										->format(Context::getCurrent()
+											->getCulture()
+											->getShortTimeFormat()
+										);
+									?>
+								<option value='<?=$formatted?>' <?= ($time === $sendingEndTime ? "selected" : "")?>>
+								<?=$formatted?>
+								</option>
+							<?php endforeach;?>
+							<?php endfor;?>
+						</select>
+						<button class="ui-btn ui-btn-success ui-btn-md sender-save-time-limit-configuration"><?=
+							Loc::getMessage('SENDER_LIMIT_SAVE') ?></button>
+					</div>
 			</div>
 		</div>
-	</div>
-	<?php if (!\Bitrix\Sender\Integration\Bitrix24\Service::isCloudRegionMayTrackMails()): ?>
-		<h4 class="sender-config-limits-title">
-			<?=htmlspecialcharsbx(Loc::getMessage('SENDER_MAIL_CONSENT_NAME'))?>
 
-			<?php if (Loc::getMessage('SENDER_MAIL_CONSENT_HELP')):?>
+		<h4 class="sender-config-limits-title">
+			<?=htmlspecialcharsbx(Loc::getMessage('SENDER_TRACK_MAIL_NAME'))?>
+
+			<?if (Loc::getMessage('SENDER_TRACK_MAIL_HELP')):?>
 				<span class="sender-config-limits-info">
 							<?=(htmlspecialcharsbx($item['HELP_CAPTION']) ?:
-								Loc::getMessage('SENDER_MAIL_CONSENT_HELP', array(
-									'%link_start%' => '<a href="javascript:BX.Helper.show(\'redirect=detail&code=13170876\')" class="sender-config-limits-setup-link">',
+								Loc::getMessage('SENDER_TRACK_MAIL_HELP', array(
+									'%link_start%' => '<a href="javascript:top.BX.Helper.show(\'redirect=detail&code=13170876\')" class="sender-config-limits-setup-link">',
 									'%link_end%' => '</a>'
 								))
 							)?>
 						</span>
-			<?php endif;?>
+			<?endif;?>
 		</h4>
 
 		<div class="sender-config-limits-block">
 			<div class="sender-config-limits-bottom">
 				<div class="sender-config-limits-bottom-left">
-					<label for="sender-mail-consent-option">
+					<label for="sender-track-mail-option">
 						<input type="checkbox"
-							<?php if ($arResult['USE_MAIL_CONSENT']): ?>
+							<?php if ($arResult['CAN_TRACK_MAIL']): ?>
 								checked="checked"
 							<?php endif;?>
-								class="sender-mail-consent-option" id="sender-mail-consent-option" />
-						<?=Loc::getMessage('SENDER_MAIL_CONSENT_OPTION')?>
+							class="sender-track-mail-option" id="sender-track-mail-option" />
+						<?=Loc::getMessage('SENDER_TRACK_MAIL_OPTION')?>
 					</label>
 				</div>
 			</div>
 		</div>
-	<?php endif;?>
+		<?php if (!\Bitrix\Sender\Integration\Bitrix24\Service::isCloudRegionMayTrackMails()): ?>
+			<h4 class="sender-config-limits-title">
+				<?=htmlspecialcharsbx(Loc::getMessage('SENDER_MAIL_CONSENT_NAME'))?>
+
+				<?php if (Loc::getMessage('SENDER_MAIL_CONSENT_HELP')):?>
+					<span class="sender-config-limits-info">
+								<?=(htmlspecialcharsbx($item['HELP_CAPTION']) ?:
+									Loc::getMessage('SENDER_MAIL_CONSENT_HELP', array(
+										'%link_start%' => '<a href="javascript:top.BX.Helper.show(\'redirect=detail&code=13170876\')" class="sender-config-limits-setup-link">',
+										'%link_end%' => '</a>'
+									))
+								)?>
+							</span>
+				<?php endif;?>
+			</h4>
+
+			<div class="sender-config-limits-block">
+				<div class="sender-config-limits-bottom">
+					<div class="sender-config-limits-bottom-left">
+						<label for="sender-mail-consent-option">
+							<input type="checkbox"
+								<?php if ($arResult['USE_MAIL_CONSENT']): ?>
+									checked="checked"
+								<?php endif;?>
+									class="sender-mail-consent-option" id="sender-mail-consent-option" />
+							<?=Loc::getMessage('SENDER_MAIL_CONSENT_OPTION')?>
+						</label>
+					</div>
+				</div>
+			</div>
+		<?php endif;?>
+	</div>
 </div>
+	<script type="text/javascript">
+		BX.ready(function () {
+			BX.Sender.Config.Limits.init(<?=Json::encode(array(
+				'containerId' => $containerId,
+				'actionUri' => $arResult['ACTION_URI'],
+				'defaultTab' => $defaultTab,
+				'mess' => array(
+					'mailDailyLimit' => Loc::getMessage('SENDER_LIMIT_MAIL_DAILY_DESC'),
+					'mailDailyLimitTitle' => Loc::getMessage('SENDER_LIMIT_MAIL_DAILY_DESC_TITLE'),
+					'close' => Loc::getMessage('SENDER_LIMIT_BTN_CLOSE'),
+					'success' => Loc::getMessage('SENDER_LIMIT_NOTIFICATION_SUCCESS'),
+				)
+			))?>);
+		});
+	</script>
+<?php
+
+
+$menuItems[] = [
+	'NAME' => Loc::getMessage('SENDER_LIMIT_LEFT_MENU_ADDITIONAL_CONFIGURATION'),
+	'ATTRIBUTES' => [
+		'onclick' => "BX.Sender.Config.Limits.changeLeftMenuOption('others')",
+		'data-role' => 'others',
+	],
+];
+
+$APPLICATION->IncludeComponent(
+	'bitrix:ui.sidepanel.wrappermenu',
+	'',
+	[
+		'TITLE' => Loc::getMessage('SENDER_LIMIT_TITLE'),
+		'ITEMS' => $menuItems,
+	],
+	$this->getComponent()
+);

@@ -10,6 +10,22 @@ use Bitrix\Main\ORM\Fields\StringField;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class LetterTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Letter_Query query()
+ * @method static EO_Letter_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Letter_Result getById($id)
+ * @method static EO_Letter_Result getList(array $parameters = array())
+ * @method static EO_Letter_Entity getEntity()
+ * @method static \Bitrix\Forum\BadWords\EO_Letter createObject($setDefaultValues = true)
+ * @method static \Bitrix\Forum\BadWords\EO_Letter_Collection createCollection()
+ * @method static \Bitrix\Forum\BadWords\EO_Letter wakeUpObject($row)
+ * @method static \Bitrix\Forum\BadWords\EO_Letter_Collection wakeUpCollection($rows)
+ */
 class LetterTable extends Main\Entity\DataManager
 {
 	public static function getTableName()

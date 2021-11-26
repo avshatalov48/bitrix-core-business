@@ -1,5 +1,9 @@
 <?php
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
@@ -383,6 +387,7 @@ class BizprocAutomationComponent extends \CBitrixComponent
 			'AVAILABLE_TRIGGERS' => $target ? $target->getAvailableTriggers() : [],
 			'AVAILABLE_ROBOTS' => array_values($availableRobots),
 			'GLOBAL_CONSTANTS' => \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll(),
+			'GLOBAL_VARIABLES' => \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll(),
 			'DOCUMENT_FIELDS' => $this->getDocumentFields(),
 			'LOG' => $log,
 			'WORKFLOW_EDIT_URL' => $this->getWorkflowEditUrl(),

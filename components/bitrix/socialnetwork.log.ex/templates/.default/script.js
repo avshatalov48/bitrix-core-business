@@ -37,6 +37,15 @@ BitrixLF = function ()
 	this.cmdPressed = null;
 	this.tagEntryIdList = [];
 	this.inlineTagNodeList = [];
+
+	if (window.top !== window && window.top.BX.Tasks && window.BX.Tasks && window.BX.Tasks.CommentActionController)
+	{
+		window.top.BX.Tasks.CommentActionController = window.BX.Tasks.CommentActionController;
+	}
+	if (BX.Tasks && BX.Tasks.CommentActionController)
+	{
+		void BX.Tasks.CommentActionController.init();
+	}
 };
 
 BitrixLF.prototype.init = function(params)

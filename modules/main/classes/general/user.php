@@ -1105,38 +1105,50 @@ class CAllUser extends CDBResult
 		}
 	}
 
-	public function LoginHitByHash()
+	public function LoginHitByHash($hash, $closeSession = true, $delete = false, $remember = false)
 	{
-		/** @global CMain $APPLICATION */
 		global $DB, $APPLICATION;
 
-		$hash = trim($_REQUEST["bx_hit_hash"]);
+		$hash = trim($hash);
 		if ($hash == '')
+		{
 			return false;
+		}
 
 		$APPLICATION->ResetException();
 
 		$strSql =
-			"SELECT UH.USER_ID AS USER_ID ".
+			"SELECT UH.ID, UH.USER_ID ".
 			"FROM b_user_hit_auth UH ".
-			"INNER JOIN b_user U ON U.ID = UH.USER_ID AND U.ACTIVE ='Y' ".
+			"INNER JOIN b_user U ON U.ID = UH.USER_ID AND U.ACTIVE = 'Y' AND U.BLOCKED <> 'Y' ".
 			"WHERE UH.HASH = '".$DB->ForSQL($hash, 32)."' ".
-			"	AND '".$DB->ForSqlLike($APPLICATION->GetCurPageParam("", array(), true), 500)."' LIKE ".$DB->Concat("UH.URL", "'%'");
+			"	AND '".$DB->ForSqlLike($APPLICATION->GetCurPageParam("", array(), true), 255)."' LIKE ".$DB->Concat("UH.URL", "'%'");
 
-		if(!defined("ADMIN_SECTION") || ADMIN_SECTION !== true)
-			$strSql .= " AND UH.SITE_ID = '".SITE_ID."'";
-
-		$result = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-		if($arUser = $result->Fetch())
+		if (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true)
 		{
-			setSessionExpired(true);
-			$this->Authorize($arUser["USER_ID"], false);
+			$strSql .= " AND UH.SITE_ID = '".SITE_ID."'";
+		}
 
-			$DB->Query("UPDATE b_user_hit_auth SET TIMESTAMP_X = ".$DB->GetNowFunction()." WHERE HASH='".$DB->ForSQL($hash, 32)."'");
+		$result = $DB->Query($strSql);
+		if($hashData = $result->Fetch())
+		{
+			setSessionExpired($closeSession);
+
+			$this->Authorize($hashData["USER_ID"], $remember);
+
+			if ($delete)
+			{
+				$DB->Query("DELETE FROM b_user_hit_auth WHERE ID = ".$hashData["ID"]);
+			}
+			else
+			{
+				$DB->Query("UPDATE b_user_hit_auth SET TIMESTAMP_X = ".$DB->GetNowFunction()." WHERE ID = ".$hashData["ID"]);
+			}
+
 			return true;
 		}
-		else
-			return false;
+
+		return false;
 	}
 
 	public static function AddHitAuthHash($url, $user_id = false, $site_id = false)
@@ -1170,7 +1182,7 @@ class CAllUser extends CDBResult
 		return $hash;
 	}
 
-	public static function GetHitAuthHash($url_mask, $userID = false)
+	public static function GetHitAuthHash($url_mask, $userID = false, $siteId = null)
 	{
 		global $USER, $DB;
 
@@ -1186,16 +1198,24 @@ class CAllUser extends CDBResult
 				$userID = $USER->GetID();
 		}
 
-		$strSql =
-			"SELECT ID, HASH ".
-			"FROM b_user_hit_auth ".
-			"WHERE URL = '".$DB->ForSqlLike($url_mask, 500)."' AND USER_ID = ".intval($userID);
+		$strSql = "
+			SELECT ID, HASH 
+			FROM b_user_hit_auth 
+			WHERE URL = '{$DB->ForSql($url_mask, 255)}' 
+				AND USER_ID = ".intval($userID);
 
-		$result = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		if ($siteId !== null)
+		{
+			$strSql .= " AND SITE_ID = '{$DB->ForSql($siteId, 2)}'";
+		}
+
+		$result = $DB->Query($strSql);
 		if($arTmp = $result->Fetch())
+		{
 			return $arTmp["HASH"];
-		else
-			return false;
+		}
+
+		return false;
 	}
 
 	public static function CleanUpHitAuthAgent()

@@ -268,7 +268,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 				if (!empty($list))
 				{
-					$params['OFFERS_PROPS'] += $list;
+					$params['OFFERS_PROPS'] = array_merge($params['OFFERS_PROPS'], $list);
 				}
 			}
 		}

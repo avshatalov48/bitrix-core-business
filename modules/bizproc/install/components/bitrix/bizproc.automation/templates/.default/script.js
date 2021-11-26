@@ -530,6 +530,38 @@
 			}
 
 			return null;
+		},
+		getGVariables: function()
+		{
+			if (!this.data['GLOBAL_VARIABLES'])
+			{
+				return [];
+			}
+
+			var variables = [];
+			BX.util.object_keys(this.data['GLOBAL_VARIABLES']).forEach(function(id)
+			{
+				var variable = BX.clone(this.data['GLOBAL_VARIABLES'][id]);
+				variable.Id = id;
+				variable.ObjectId = 'GlobalVar';
+				variable.SystemExpression = variable.Expression = '{=GlobalVar:' + id + '}';
+				variables.push(variable);
+			}, this);
+
+			return variables;
+		},
+		getGVariable: function(id)
+		{
+			var variables = this.getGVariables();
+			for (var i = 0; i < variables.length; i++)
+			{
+				if (variables[i].Id === id)
+				{
+					return variables[i];
+				}
+			}
+
+			return null;
 		}
 	};
 
@@ -703,7 +735,6 @@
 		initRobots: function()
 		{
 			this.robots = [];
-			this.robotsMap = {};
 			if (BX.type.isArray(this.data.ROBOTS))
 			{
 				for (var i = 0; i < this.data.ROBOTS.length; ++i)
@@ -712,7 +743,6 @@
 					robot.init(this.data.ROBOTS[i], this.viewMode);
 					this.insertRobotNode(robot.node);
 					this.robots.push(robot);
-					this.robotsMap[robot.getId()] = robot;
 				}
 			}
 		},
@@ -1080,14 +1110,11 @@
 		{
 			if (!this.manager.component.bizprocEditorUrl.length)
 			{
-				if (BX.getClass('B24.licenseInfoPopup'))
+				if (top.BX.UI && top.BX.UI.InfoHelper)
 				{
-					B24.licenseInfoPopup.show(
-						'bizproc_automation_designer',
-						BX.message('BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT'),
-						BX.message('BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_LOCKED')
-					);
+					top.BX.UI.InfoHelper.show('limit_office_bp_designer');
 				}
+
 				return;
 			}
 
@@ -1730,7 +1757,9 @@
 		},
 		getRobotById: function(id)
 		{
-			return this.robotsMap[id] || null;
+			return this.robots.find(function(robot) {
+				return robot.getId() === id;
+			});
 		},
 		isModified: function()
 		{
@@ -2077,6 +2106,23 @@
 						field = this.component.data['DOCUMENT_FIELDS'][i];
 						labelText = labelText.replace(field['SystemExpression'], field['Name']);
 					}
+				}
+
+				if (labelText.indexOf('{=A') >= 0)
+				{
+					this.template.robots.forEach(function(robot)
+					{
+						robot.getReturnFieldsDescription().forEach(function(field)
+						{
+							if (field['Type'] === 'user')
+							{
+								labelText = labelText.replace(
+									field['SystemExpression'],
+									robot.getTitle() + ': ' + field['Name']
+								);
+							}
+						});
+					});
 				}
 
 				targetNode.textContent = labelText;
@@ -2662,6 +2708,7 @@
 									ObjectId: this.getId(),
 									Name: field['Name'],
 									Type: field['Type'],
+									Options: field['Options'] || null,
 									Expression: '{{~'+this.getId()+':'+fieldId+' # '+this.getTitle()+': '+field['Name']+'}}',
 									SystemExpression: '{='+this.getId()+':'+fieldId+'}'
 								});
@@ -4811,6 +4858,34 @@
 						};
 					}
 				}
+
+				//GLOBAL VAR GROUP
+				if (this.component && this.component.data['GLOBAL_VARIABLES'])
+				{
+					var globalVariableList = [];
+					this.component.getGVariables().forEach(function(variable)
+					{
+						globalVariableList.push({
+							title: variable['Name'],
+							customData: {property: variable},
+							entityId: 'bp',
+							tabs: 'recents',
+							id: variable.SystemExpression
+						});
+					}, this);
+
+					if (globalVariableList.length > 0)
+					{
+						menuGroups['__GLOB_VARIABLES'] = {
+							title: BX.message('BIZPROC_AUTOMATION_CMP_GLOB_VARIABLES_LIST'),
+							entityId: 'bp',
+							tabs: 'recents',
+							id: '__GLOB_VARIABLES',
+							children: globalVariableList
+						};
+					}
+				}
+
 			}
 
 			if (Object.keys(menuGroups).length < 2)
@@ -4858,7 +4933,8 @@
 						event.preventDefault();
 						me.selectCallback(event.getData().item);
 					}
-				}
+				},
+				compactView: true
 			});
 
 			this.dialog.show();
@@ -5200,7 +5276,10 @@
 	var UserSelector = function(robot, targetInput, data)
 	{
 		this.targetInput = this.menuButton = targetInput;
-		this.userSelector = BX.Bizproc.UserSelector.decorateNode(targetInput);
+		this.userSelector = BX.Bizproc.UserSelector.decorateNode(
+			targetInput,
+			this.getSelectorConfig(robot)
+		);
 
 		this.robot = robot;
 		this.component = robot.component;
@@ -5259,6 +5338,32 @@
 			this.switcherDialog.destroy();
 		}
 	};
+
+	UserSelector.prototype.getSelectorConfig = function(robot)
+	{
+		var templateRobots = robot.template ? robot.template.robots : [];
+		var additionalFields = [];
+		if (BX.type.isArray(templateRobots))
+		{
+			templateRobots.forEach(function(robot)
+			{
+				robot.getReturnFieldsDescription().forEach(function(field)
+				{
+					if (field['Type'] === 'user')
+					{
+						var expression = '{{~'+robot.getId()+':'+field['Id']+'}}';
+						additionalFields.push({
+							id: expression,
+							entityId: expression,
+							name: robot.getTitle() + ': ' + field['Name'],
+						});
+					}
+				});
+			});
+		}
+
+		return {additionalFields: additionalFields};
+	}
 	// <- UserSelector
 	// -> InlineSelectorHtml
 	var InlineSelectorHtml = function(robot, targetNode)
@@ -6899,10 +7004,11 @@
 			if (this.condition.field !== '')
 			{
 				var field = this.getField(this.condition.object, this.condition.field) || '?';
-				var valueLabel = BX.Bizproc.FieldType.formatValuePrintable(
-					field,
-					this.condition.value
-				);
+				var valueLabel =
+					(this.condition.operator.indexOf('empty') < 0)
+					? BX.Bizproc.FieldType.formatValuePrintable(field, this.condition.value)
+					: null
+				;
 
 				this.labelNode.appendChild(BX.create("span", {
 					attrs: {

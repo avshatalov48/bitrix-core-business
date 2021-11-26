@@ -1,8 +1,6 @@
 <?php
 namespace Bitrix\Main\Diag;
 
-use Bitrix\Main;
-
 class ExceptionHandler
 {
 	private $debug = false;
@@ -133,11 +131,11 @@ class ExceptionHandler
 	/**
 	 * Sets logger object to use for log writing.
 	 *
-	 * @param \Bitrix\Main\Diag\ExceptionHandlerLog $handlerLog Logger object.
+	 * @param ExceptionHandlerLog|null $handlerLog Logger object.
 	 *
 	 * @return void
 	 */
-	public function setHandlerLog(\Bitrix\Main\Diag\ExceptionHandlerLog $handlerLog = null)
+	public function setHandlerLog(ExceptionHandlerLog $handlerLog = null)
 	{
 		$this->handlerLog = $handlerLog;
 	}
@@ -145,11 +143,11 @@ class ExceptionHandler
 	/**
 	 * Sets an object used for error message display to user.
 	 *
-	 * @param \Bitrix\Main\Diag\IExceptionHandlerOutput $handlerOutput Object will display errors to user.
+	 * @param IExceptionHandlerOutput $handlerOutput Object will display errors to user.
 	 *
 	 * @return void
 	 */
-	public function setHandlerOutput(\Bitrix\Main\Diag\IExceptionHandlerOutput $handlerOutput)
+	public function setHandlerOutput(IExceptionHandlerOutput $handlerOutput)
 	{
 		$this->handlerOutput = $handlerOutput;
 	}
@@ -325,7 +323,6 @@ class ExceptionHandler
 		else
 		{
 			$this->writeToLog($exception, ExceptionHandlerLog::ASSERTION);
-			return;
 		}
 	}
 
@@ -356,7 +353,7 @@ class ExceptionHandler
 	/**
 	 * Writes an exception information to log.
 	 *
-	 * @param \Exception $exception Exception object.
+	 * @param \Throwable $exception Exception object.
 	 * @param integer|null $logType See ExceptionHandlerLog class constants.
 	 *
 	 * @return void

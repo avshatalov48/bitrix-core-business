@@ -188,7 +188,8 @@ export class SettingsInterface
 							BX.Helper.show("redirect=detail&code=12070142");
 						}
 					);
-					BX.UI.Hint.initNode(this.DOM.emailHelpIcon);
+
+					Util.initHintNode(this.DOM.emailHelpIcon);
 				}
 
 				this.emailSelectorControl.setValue(this.calendarContext.util.getUserOption('sendFromEmail'));
@@ -490,9 +491,9 @@ export class SettingsInterface
 		this.accessControls = {};
 		this.accessTasks = this.calendarContext?.util?.getTypeAccessTasks();
 
-		if (this.calendarContext.util.config.accessNames)
+		if (this.calendarContext?.util?.config?.accessNames)
 		{
-			Util.setAccessNames(this.calendarContext?.util?.config?.accessNames);
+			Util.setAccessNames(this.calendarContext.util.config.accessNames);
 		}
 
 		Event.bind(this.DOM.accessButton, 'click', () => {

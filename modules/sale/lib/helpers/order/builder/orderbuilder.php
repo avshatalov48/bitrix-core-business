@@ -2,6 +2,8 @@
 namespace Bitrix\Sale\Helpers\Order\Builder;
 
 use Bitrix\Main;
+use Bitrix\Sale\Internals;
+use Bitrix\Sale\PropertyValue;
 use Bitrix\Sale\PropertyValueCollection;
 use Bitrix\Sale\BasketItem;
 use Bitrix\Sale\Shipment;
@@ -79,6 +81,7 @@ abstract class OrderBuilder
 			->buildBasket()
 			->buildPayments()
 			->buildShipments()
+			->setRelatedProperties()
 			->setDiscounts() //?
 			->finalActions();
 	}
@@ -212,42 +215,35 @@ abstract class OrderBuilder
 
 		if (!$res->isSuccess())
 		{
-			foreach ($res->getErrors() as $error)
-			{
-				$this->getErrorsContainer()->addError(
-					new Main\Error($error->getMessage(), $error->getCode(), 'PROPERTIES')
-				);
-			}
+			$this->getErrorsContainer()->addErrors($res->getErrors());
 		}
 
-		/** @var \Bitrix\Sale\PropertyValue $propValue */
-		foreach ($propCollection as $propValue)
+		return $this;
+	}
+
+	public function setRelatedProperties()
+	{
+		if (!$this->formData["PROPERTIES"])
 		{
-			if ($propValue->isUtil())
+			return $this;
+		}
+
+		$propCollection = $this->order->getPropertyCollection();
+
+		/** @var PropertyValue $propertyValue */
+		foreach ($propCollection as $propertyValue)
+		{
+			if (!$propertyValue->getRelations())
 			{
 				continue;
 			}
 
-			$res = $propValue->verify();
-			if (!$res->isSuccess())
-			{
-				foreach ($res->getErrors() as $error)
-				{
-					$this->getErrorsContainer()->addError(
-						new Main\Error($error->getMessage(), $propValue->getPropertyId(), 'PROPERTIES')
-					);
-				}
-			}
+			$post = Internals\Input\File::getPostWithFiles($this->formData, $this->settingsContainer->getItemValue('propsFiles'));
 
-			$res = $propValue->checkRequiredValue($propValue->getPropertyId(), $propValue->getValue());
+			$res = $propertyValue->setValueFromPost($post);
 			if (!$res->isSuccess())
 			{
-				foreach ($res->getErrors() as $error)
-				{
-					$this->getErrorsContainer()->addError(
-						new Main\Error($error->getMessage(), $propValue->getPropertyId(), 'PROPERTIES')
-					);
-				}
+				$this->getErrorsContainer()->addErrors($res->getErrors());
 			}
 		}
 
@@ -1440,8 +1436,10 @@ abstract class OrderBuilder
 
 		$platformFields = TradingPlatformTable::getById($id)->fetchAll();
 
-		if(isset($platformFields[0]) == false)
+		if (!isset($platformFields[0]))
+		{
 			$r->addError(new Error('tradingPlatform is not exists'));
+		}
 
 		return $r;
 	}

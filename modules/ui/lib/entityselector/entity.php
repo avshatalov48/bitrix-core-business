@@ -10,6 +10,7 @@ class Entity implements \JsonSerializable
 	protected $dynamicLoad = false;
 	protected $dynamicSearch = false;
 	protected $provider;
+	protected $filters = [];
 
 	public function __construct(array $options)
 	{
@@ -47,6 +48,25 @@ class Entity implements \JsonSerializable
 		{
 			$entity->setProvider($provider);
 
+			$filters = [];
+			if (isset($entityOptions['filters']) && is_array($entityOptions['filters']))
+			{
+				$filters = Configuration::getFilters($entity->getId(), $entityOptions['filters']);
+			}
+
+			if (empty($filters))
+			{
+				return $entity;
+			}
+
+			foreach ($filters as $filter)
+			{
+				if ($filter instanceof BaseFilter && $filter->isAvailable())
+				{
+					$entity->addFilter($filter);
+				}
+			}
+
 			return $entity;
 		}
 
@@ -71,6 +91,18 @@ class Entity implements \JsonSerializable
 	public function setProvider(BaseProvider $provider): self
 	{
 		$this->provider = $provider;
+
+		return $this;
+	}
+
+	public function getFilters(): array
+	{
+		return $this->filters;
+	}
+
+	public function addFilter(BaseFilter $filter): self
+	{
+		$this->filters[] = $filter;
 
 		return $this;
 	}

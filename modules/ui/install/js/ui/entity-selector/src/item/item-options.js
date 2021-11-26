@@ -3,6 +3,7 @@ import type { ItemBadgeOptions } from './item-badge-options';
 import type { TextNodeOptions } from '../common/text-node-options';
 import type { CaptionOptions } from './caption-options';
 import type { BadgesOptions } from './badges-options';
+import type { AvatarOptions } from './avatar-options';
 
 export type ItemOptions = {
 	id: number | string,
@@ -15,6 +16,7 @@ export type ItemOptions = {
 	caption?: string | TextNodeOptions,
 	captionOptions?: CaptionOptions,
 	avatar?: string,
+	avatarOptions?: AvatarOptions,
 	textColor?: string,
 	link?: string,
 	linkTitle?: string | TextNodeOptions,

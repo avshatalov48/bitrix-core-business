@@ -1,13 +1,21 @@
-<?
-use Bitrix\Main\Application,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Main\Type\Collection,
-	Bitrix\Iblock,
-	Bitrix\Catalog;
+<?php
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Application;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\Collection;
+use Bitrix\Iblock;
+use Bitrix\Catalog;
 
+/**
+ * @deprecated
+ * @see CCatalogSku
+ */
 class CAllCatalogSku
+{
+
+}
+
+class CCatalogSku extends CAllCatalogSku
 {
 	const TYPE_CATALOG = 'D';
 	const TYPE_PRODUCT = 'P';
@@ -853,9 +861,4 @@ class CAllCatalogSku
 		self::$arIBlockCache = array();
 		self::$parentCache = array();
 	}
-}
-
-class CCatalogSku extends CAllCatalogSku
-{
-
 }

@@ -204,7 +204,7 @@ class ProjectProvider extends BaseProvider
 	public static function getProjects(array $options = []): EO_Workgroup_Collection
 	{
 		$query = WorkgroupTable::query();
-		$query->setSelect(['ID', 'NAME', 'CLOSED', 'VISIBLE', 'OPENED', 'IMAGE_ID', 'LANDING']);
+		$query->setSelect(['ID', 'NAME', 'ACTIVE', 'PROJECT', 'CLOSED', 'VISIBLE', 'OPENED', 'IMAGE_ID', 'LANDING']);
 
 		if (isset($options['visible']) && is_bool(isset($options['visible'])))
 		{
@@ -740,14 +740,15 @@ class ProjectProvider extends BaseProvider
 				'entityId' => 'project',
 				'entityType' => $entityType,
 				'title' => $project->getName(),
-				'avatar' => self::makeUserAvatar($project),
+				'avatar' => self::makeProjectAvatar($project),
 				'customData' => [
 					'landing' => $project->getLanding(),
-					'active' => $project->getActive() === 'Y',
-					'closed' => $project->getClosed() === 'Y',
-					'open' => $project->getOpened() === 'Y',
-					'project' => $project->getProject() === 'Y',
-				]
+					'active' => $project->getActive(),
+					'visible' => $project->getVisible(),
+					'closed' => $project->getClosed(),
+					'open' => $project->getOpened(),
+					'project' => $project->getProject(),
+				],
 			]
 		);
 
@@ -759,7 +760,7 @@ class ProjectProvider extends BaseProvider
 		return $item;
 	}
 
-	public static function makeUserAvatar(EO_Workgroup $project): ?string
+	public static function makeProjectAvatar(EO_Workgroup $project): ?string
 	{
 		if (empty($project->getImageId()))
 		{

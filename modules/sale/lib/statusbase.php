@@ -227,7 +227,7 @@ abstract class StatusBase
 			}
 		}
 
-		return $cacheAllowStatuses[$cacheKey];
+		return $cacheAllowStatuses[$cacheKey] ?? [];
 	}
 
 	/**

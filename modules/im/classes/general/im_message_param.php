@@ -519,7 +519,7 @@ class CIMMessageParam
 		$arDefault = self::GetDefault();
 		foreach($values as $key => $value)
 		{
-			if (in_array($key, Array('IS_ERROR', 'IS_DELIVERED', 'IS_DELETED', 'IS_EDITED', 'CAN_ANSWER', 'IMOL_QUOTE_MSG', 'SENDING', 'URL_ONLY', 'LARGE_FONT')))
+			if (in_array($key, Array('IS_ERROR', 'IS_DELIVERED', 'IS_DELETED', 'IS_EDITED', 'CAN_ANSWER', 'IMOL_QUOTE_MSG', 'SENDING', 'URL_ONLY', 'LARGE_FONT', 'CRM_FORM_FILLED')))
 			{
 				$arValues[$key] = in_array($value[0], Array('Y', 'N'))? $value[0]: $arDefault[$key];
 			}
@@ -527,7 +527,7 @@ class CIMMessageParam
 			{
 				$arValues[$key] = intval($value);
 			}
-			else if (in_array($key, Array('CHAT_ID', 'CHAT_MESSAGE', 'IMOL_VOTE_SID', 'IMOL_VOTE_USER', 'IMOL_VOTE_HEAD', 'SENDING_TS', 'IMOL_SID', 'CRM_FORM_ID')))
+			else if (in_array($key, Array('CHAT_ID', 'CHAT_MESSAGE', 'IMOL_VOTE_SID', 'IMOL_VOTE_USER', 'IMOL_VOTE_HEAD', 'SENDING_TS', 'IMOL_SID')))
 			{
 				$arValues[$key] = intval($value[0]);
 			}
@@ -647,7 +647,9 @@ class CIMMessageParam
 				$key == 'IMOL_FORM' ||
 				$key == 'IMOL_COMMENT_HEAD' ||
 				$key == 'IMOL_DATE_CLOSE_VOTE' ||
-				$key == 'IMOL_TIME_LIMIT_VOTE'
+				$key == 'IMOL_TIME_LIMIT_VOTE' ||
+				$key == 'CRM_FORM_ID' ||
+				$key == 'CRM_FORM_SEC'
 			)
 			{
 				$arValues[$key] = isset($value[0])? $value[0]: '';
@@ -752,10 +754,12 @@ class CIMMessageParam
 			'IMOL_QUOTE_MSG' => 'N',
 			'IMOL_SID' => 0,
 			'IMOL_FORM' => '',
-			'CRM_FORM_VALUE' => '',
 			'IMOL_DATE_CLOSE_VOTE' => '',
 			'IMOL_TIME_LIMIT_VOTE' => '',
 			'USERS' => [],
+			'CRM_FORM_ID' => '',
+			'CRM_FORM_SEC' => '',
+			'CRM_FORM_FILLED' => 'N'
 		];
 
 		return $arDefault;

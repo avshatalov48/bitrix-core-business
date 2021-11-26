@@ -13,6 +13,7 @@ use Bitrix\Main\Result;
 use Bitrix\Main\UI\FileInputUtility;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Entity;
+use Bitrix\Sender\Transport\TimeLimiter;
 
 Loc::loadMessages(__FILE__);
 
@@ -116,6 +117,8 @@ class MessageAudioCall implements Message\iBase, Message\iMailable, Message\iAud
 			),
 
 		));
+
+		TimeLimiter::prepareMessageConfiguration($this->configuration);
 	}
 
 	/**
@@ -131,6 +134,7 @@ class MessageAudioCall implements Message\iBase, Message\iMailable, Message\iAud
 		Entity\Message::create()
 			->setCode($this->getCode())
 			->loadConfiguration($id, $this->configuration);
+		TimeLimiter::prepareMessageConfigurationView($this->configuration);
 
 		return $this->configuration;
 	}

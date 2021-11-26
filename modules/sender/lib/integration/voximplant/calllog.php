@@ -71,7 +71,7 @@ class CallLogTable extends Entity\DataManager
 	public static function removeByCallId($callId = null)
 	{
 		$list = static::getList(array(
-			'select' => array('CALL_ID'),
+			'select' => array('CALL_ID', 'RECIPIENT_ID'),
 			'filter' => array(
 				'LOGIC' => 'OR',
 				'=CALL_ID' => $callId,
@@ -80,7 +80,7 @@ class CallLogTable extends Entity\DataManager
 		));
 		foreach ($list as $item)
 		{
-			static::delete(array('CALL_ID' => $item['CALL_ID']));
+			static::delete($item);
 		}
 	}
 

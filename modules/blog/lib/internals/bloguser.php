@@ -8,6 +8,22 @@ use \Bitrix\Main\NotImplementedException;
 Loc::loadMessages(__FILE__);
 
 
+/**
+ * Class BlogUserTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_BlogUser_Query query()
+ * @method static EO_BlogUser_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_BlogUser_Result getById($id)
+ * @method static EO_BlogUser_Result getList(array $parameters = array())
+ * @method static EO_BlogUser_Entity getEntity()
+ * @method static \Bitrix\Blog\Internals\EO_BlogUser createObject($setDefaultValues = true)
+ * @method static \Bitrix\Blog\Internals\EO_BlogUser_Collection createCollection()
+ * @method static \Bitrix\Blog\Internals\EO_BlogUser wakeUpObject($row)
+ * @method static \Bitrix\Blog\Internals\EO_BlogUser_Collection wakeUpCollection($rows)
+ */
 class BlogUserTable extends Entity\DataManager
 {
 	public static function getTableName()

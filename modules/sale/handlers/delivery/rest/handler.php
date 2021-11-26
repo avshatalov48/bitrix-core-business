@@ -23,10 +23,10 @@ Loc::loadMessages(__FILE__);
  */
 final class RestHandler extends Base
 {
+	private const HANDLER_CODE_PREFIX = 'BITRIX_REST_';
+
 	protected static $canHasProfiles = true;
 	protected static $whetherAdminExtraServicesShow = true;
-
-	private $handlerCode = '';
 
 	/**
 	 * Returns class name
@@ -72,17 +72,17 @@ final class RestHandler extends Base
 	}
 
 	/**
-	 * @return mixed|string
+	 * @inheritDoc
 	 */
-	public function getHandlerCode()
+	public function getHandlerCode(): string
 	{
-		return $this->handlerCode;
+		return self::HANDLER_CODE_PREFIX . (string)$this->handlerCode;
 	}
 
 	private function getHandlerSettings()
 	{
 		$handlerList = \Bitrix\Sale\Delivery\Services\Manager::getRestHandlerList();
-		$code = $this->getHandlerCode();
+		$code = str_replace(self::HANDLER_CODE_PREFIX, '', $this->getHandlerCode());
 
 		return $handlerList[$code];
 	}

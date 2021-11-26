@@ -9569,7 +9569,7 @@
 	  }, {
 	    key: "isFile",
 	    value: function isFile(value) {
-	      return Type.isBlob(value) && Type.isNumber(value.lastModified) && Type.isString(value.name);
+	      return Type.isBlob(value) && Type.isString(value.name) && (Type.isNumber(value.lastModified) || Type.isObjectLike(value.lastModifiedDate));
 	    }
 	    /**
 	     * Checks that value is FormData
@@ -14345,8 +14345,13 @@
 	  return Extension;
 	}();
 
+	var _Symbol$iterator;
+
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-	var _Symbol$iterator = Symbol.iterator;
+
+	var _searchIndexToInsert = new WeakSet();
+
+	_Symbol$iterator = Symbol.iterator;
 
 	var OrderedArray = /*#__PURE__*/function () {
 	  function OrderedArray() {
@@ -14490,8 +14495,6 @@
 	  }]);
 	  return OrderedArray;
 	}();
-
-	var _searchIndexToInsert = new WeakSet();
 
 	var _searchIndexToInsert2 = function _searchIndexToInsert2(value) {
 	  var low = 0;
@@ -14863,8 +14866,6 @@
 	  return ZIndexManager;
 	}();
 
-	babelHelpers.defineProperty(ZIndexManager, "stacks", new WeakMap());
-
 	var _getParentNode = function _getParentNode(element) {
 	  var suppressWarnings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
@@ -14884,6 +14885,8 @@
 
 	  return element.parentNode;
 	};
+
+	babelHelpers.defineProperty(ZIndexManager, "stacks", new WeakMap());
 
 	var collections = {
 	  OrderedArray: OrderedArray

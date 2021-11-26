@@ -157,9 +157,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 
 	        if (measureRatio > 0 && remain > 0) {
 	          if (remain >= measureRatio / 2 && (availableQuantity === 0 || quantity + measureRatio - remain <= availableQuantity)) {
-	            quantity += measureRatio - remain;
+	            quantity += (measureRatio * precisionFactor - remain * precisionFactor) / precisionFactor;
 	          } else {
-	            quantity -= remain;
+	            quantity = (quantity * precisionFactor - remain * precisionFactor) / precisionFactor;
 	          }
 	        }
 	      }

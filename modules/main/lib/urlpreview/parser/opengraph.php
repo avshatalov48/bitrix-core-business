@@ -87,7 +87,6 @@ class OpenGraph extends Parser
 			}
 		}
 
-
 		if(!$document->getExtraField('VIDEO_WIDTH'))
 		{
 			$ogVideoWidth = $document->getMetaContent('og:video:width') ?? '';

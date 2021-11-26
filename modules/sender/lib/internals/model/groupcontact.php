@@ -97,7 +97,7 @@ class GroupContactTable extends Entity\DataManager
 	public static function deleteByGroupId($groupId)
 	{
 		$items = static::getList([
-			'select' => ['GROUP_ID', 'TYPE_ID'],
+			'select' => ['ID', 'GROUP_ID', 'TYPE_ID'],
 			'filter' => ['=GROUP_ID' => $groupId]
 		]);
 		foreach ($items as $primary)

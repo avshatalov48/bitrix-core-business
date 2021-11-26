@@ -103,7 +103,8 @@ class FactoryComponents
 	 */
 	private function getCalendarComponent($properties, $subComponents): Calendar
 	{
-		$name = $properties['name']['value'] ?? 'Outer Calendar';
+		/** @var ParserPropertyType[] $properties */
+		$name = isset($properties['name']) ? $properties['name']->getValue() : 'Outer Calendar';
 		return  (Calendar::createInstance($name))
 			->setMethod($properties['method'])
 			->setProdId($properties['prodid'])
@@ -119,6 +120,10 @@ class FactoryComponents
 	 */
 	private function getEventComponent($properties, $subComponents): Event
 	{
+		if (empty($properties['uid']))
+		{
+			throw new IcalParserException("event identifier is not passed");
+		}
 		return (Event::createInstance($properties['uid']->getValue()))
 			->setStart($properties['dtstart'])
 			->setEnd($properties['dtend'])

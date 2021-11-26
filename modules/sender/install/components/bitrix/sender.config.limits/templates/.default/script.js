@@ -100,9 +100,39 @@
 
 		this.canTrackMailNode = document.querySelector('.sender-track-mail-option');
 		this.mailConsentNode = document.querySelector('.sender-mail-consent-option');
+		this.sendingTimeNode = document.querySelector('.sender-sending-time-option');
+		this.sendingTimeConfigurationBlock = document.querySelector('.sender-sending-time-configuration-block');
+		this.sendingTimeViewBlock = document.querySelector('.sender-sending-time-view-block');
+		this.sendingTimeEditBlock = document.querySelector('.sender-sending-time-edit-block');
+		this.sendingTimeEditBtn = document.querySelector('.sender-sending-time-edit-btn');
+		this.sendingStartNode = document.querySelector('.sender-sending-start');
+		this.sendingEndNode = document.querySelector('.sender-sending-end');
+		this.sendingTimeSaveBtn = document.querySelector('.sender-save-time-limit-configuration');
+
+		this.sendingTimeConfigurationBlock.style.display= this.sendingTimeNode.checked ? 'block':'none';
 		BX.bind(this.canTrackMailNode, 'change', this.switchCanTrackMail.bind(this));
 		BX.bind(this.mailConsentNode, 'change', this.switchMailConsentOption.bind(this));
+		BX.bind(this.sendingTimeNode, 'change', this.switchSendingTimeOption.bind(this));
+		BX.bind(this.sendingTimeSaveBtn, 'click', this.saveSendingTimeOptions.bind(this));
+		BX.bind(this.sendingTimeEditBtn, 'click', this.switchSendingTimeConfigurationBlock.bind(this));
 
+		this.changeLeftMenuOption(params.defaultTab);
+
+	};
+	Limits.prototype.changeLeftMenuOption = function(dataTab)
+	{
+		var tabs = document.querySelectorAll('[data-tab]');
+
+		tabs.forEach(function(element) {
+			if (element.dataset.tab === dataTab)
+			{
+				element.classList.add('sender-type-tab-current')
+			}
+			else
+			{
+				element.classList.remove('sender-type-tab-current')
+			}
+		});
 	};
 	Limits.prototype.initPercentage = function (context)
 	{
@@ -144,6 +174,52 @@
 			},
 			data: {
 				'mailConsent': this.mailConsentNode.checked
+			}
+		});
+	};
+	Limits.prototype.switchSendingTimeOption = function ()
+	{
+		this.sendingTimeConfigurationBlock.style.display= this.sendingTimeNode.checked ? 'block':'none';
+		this.ajaxAction.request({
+			action: 'switchSendingTimeOption',
+			onsuccess: function (response)
+			{
+			},
+			data: {
+				'sendingTime': this.sendingTimeNode.checked
+			}
+		});
+	};
+
+	Limits.prototype.switchSendingTimeConfigurationBlock = function ()
+	{
+		var viewHidden = this.sendingTimeViewBlock.style.display === 'none';
+
+		document.querySelector('.sender-sending-start-caption').textContent = this.sendingStartNode.value;
+		document.querySelector('.sender-sending-end-caption').textContent = this.sendingEndNode.value;
+		this.sendingTimeViewBlock.style.display = viewHidden ? 'block' : 'none';
+		this.sendingTimeEditBlock.style.display = viewHidden ? 'none' : 'block';
+	};
+
+	Limits.prototype.saveSendingTimeOptions = function ()
+	{
+		this.sendingTimeSaveBtn.classList.add('ui-btn-wait');
+		this.ajaxAction.request({
+			action: 'setSendingTimeOption',
+			onsuccess: function (response)
+			{
+				this.sendingTimeSaveBtn.classList.remove('ui-btn-wait');
+				BX.UI.Notification.Center.notify({
+					content: this.mess.success,
+					position: 'top-right',
+					autoHideDelay: 2000,
+				});
+
+				this.switchSendingTimeConfigurationBlock();
+			}.bind(this),
+			data: {
+				'sendingStart': this.sendingStartNode.value,
+				'sendingEnd': this.sendingEndNode.value
 			}
 		});
 	};

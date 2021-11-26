@@ -502,6 +502,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             },
             getTotal: function getTotal(state) {
               return state.total;
+            },
+            getErrors: function getErrors(state) {
+              return state.errors;
             }
           };
         }

@@ -118,13 +118,13 @@ class CCatalogMenu extends CAdminMenu
 
 	/**
 	 * @param $menu_id
-	 * @param string $urlBack
 	 * @param string $mode
+	 * @param string $urlBack
 	 */
-	public function ShowSubmenu($menu_id, $urlBack, $mode="menu")
+	public function ShowSubmenu($menu_id, $mode="menu", $urlBack = '')
 	{
 		foreach($this->aGlobalMenu as $key=>$menu)
-			if($this->_ShowSubmenu($this->aGlobalMenu[$key], $menu_id, $mode, $urlBack))
+			if($this->_ShowSubmenu($this->aGlobalMenu[$key], $menu_id, $mode, 0, $urlBack))
 				break;
 	}
 
@@ -136,7 +136,7 @@ class CCatalogMenu extends CAdminMenu
 	 * @param int $level
 	 * @return bool
 	 */
-	public function _ShowSubmenu(&$aMenu, $menu_id, $mode, $urlBack, $level=0)
+	public function _ShowSubmenu(&$aMenu, $menu_id, $mode, $level=0, $urlBack = '')
 	{
 		$bSubmenu = (is_array($aMenu["items"]) && count($aMenu["items"])>0);
 
@@ -167,7 +167,7 @@ class CCatalogMenu extends CAdminMenu
 			else
 			{
 				foreach($aMenu["items"] as $submenu)
-					if($this->_ShowSubmenu($submenu, $menu_id, $mode, $urlBack, $level+1))
+					if($this->_ShowSubmenu($submenu, $menu_id, $mode, $level+1, $urlBack))
 						return true;
 			}
 		}

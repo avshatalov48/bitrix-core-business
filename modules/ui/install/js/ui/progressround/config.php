@@ -1,13 +1,14 @@
 <?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
 return [
-	"css" => [
-		"/bitrix/js/ui/progressround/ui.progressround.css"
+	'css' => 'ui.progressround.css',
+	'js' => 'dist/progressround.bundle.js',
+	'rel' => [
+		'main.core',
 	],
-	"js" => "/bitrix/js/ui/progressround/ui.progressround.js",
-	"rel" => "ui.fonts.opensans"
+	'skip_core' => false,
 ];

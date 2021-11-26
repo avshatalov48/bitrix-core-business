@@ -14,6 +14,7 @@ $MESS["SONET_C30_FEED_PINNED_COLLAPSED_EXPAND"] = "Maximieren";
 $MESS["SONET_C30_FEED_PINNED_COLLAPSED_NEW_COMMENTS"] = "Neue Kommentare:";
 $MESS["SONET_C30_FEED_PINNED_COLLAPSED_POSTS"] = "Fixierte Nachrichten";
 $MESS["SONET_C30_INHERITED"] = "Standardmäßig";
+$MESS["SONET_C30_MENU_TITLE_CREATESUBTASK"] = "Teilaufgabe erstellen";
 $MESS["SONET_C30_MENU_TITLE_CREATETASK"] = "Aufgabe erstellen";
 $MESS["SONET_C30_MENU_TITLE_DELETE"] = "Aus dem Activity Stream löschen";
 $MESS["SONET_C30_MENU_TITLE_DELETE2"] = "Aus dem Feed entfernen";

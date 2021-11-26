@@ -1,5 +1,5 @@
 import { BitrixVue } from 'ui.vue';
-import { Event } from 'main.core'
+import { EventEmitter } from 'main.core.events'
 import { EventType } from 'sale.checkout.const';
 
 BitrixVue.component('sale-checkout-view-element-button-remove', {
@@ -15,7 +15,7 @@ BitrixVue.component('sale-checkout-view-element-button-remove', {
 	{
 		remove()
 		{
-			Event.EventEmitter.emit(EventType.basket.buttonRemoveProduct, {index: this.index});
+			EventEmitter.emit(EventType.basket.buttonRemoveProduct, {index: this.index});
 		}
 	},
 	// language=Vue

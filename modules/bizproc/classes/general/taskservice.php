@@ -773,12 +773,21 @@ class CBPTaskResult extends CDBResult
 		if ($res)
 		{
 			if ($res["DESCRIPTION"] <> '')
+			{
+				//$res["DESCRIPTION"] = CBPHelper::convertBBtoText($res["DESCRIPTION"]);
+				//fallback
 				$res["DESCRIPTION"] = $this->ConvertBBCode($res["DESCRIPTION"]);
+			}
 		}
 
 		return $res;
 	}
 
+	/**
+	 * @deprecated
+	 * @param $text
+	 * @return array|string|string[]|null
+	 */
 	function ConvertBBCode($text)
 	{
 		$text = preg_replace(
@@ -819,6 +828,11 @@ class CBPTaskResult extends CDBResult
 		return $text;
 	}
 
+	/**
+	 * @deprecated
+	 * @param string $url
+	 * @return string
+	 */
 	function ConvertBCodeImageTag($url = "")
 	{
 		if (is_array($url))
@@ -846,6 +860,12 @@ class CBPTaskResult extends CDBResult
 		return '<img src="'.$url.'" border="0" />';
 	}
 
+	/**
+	 * @deprecated
+	 * @param $url
+	 * @param string $text
+	 * @return string
+	 */
 	function ConvertBCodeAnchorTag($url, $text = '')
 	{
 		if (is_array($url))

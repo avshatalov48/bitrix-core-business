@@ -162,7 +162,7 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 					var parentName = section.getName();
 					var parentTitle = section.getTitle();
 
-					container.appendChild(
+					this._contentWrapper.appendChild(
 						BX.create(
 							"div",
 							{

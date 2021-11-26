@@ -1,5 +1,6 @@
-import { ajax, Type, Loc, Dom, Tag } from 'main.core';
-import { Popup } from 'main.popup';
+import {ajax, Type, Loc, Dom, Tag} from 'main.core';
+import {Popup} from 'main.popup';
+import {BaseEvent, EventEmitter} from 'main.core.events';
 
 export class TaskCreator
 {
@@ -9,144 +10,246 @@ export class TaskCreator
 		popupTitle: 'feed-create-task-popup-title',
 		popupDescription: 'feed-create-task-popup-description',
 	};
+	static signedFiles = null;
+	static sliderUrl = '';
+
+	constructor()
+	{
+		this.initEvents();
+	}
+
+	initEvents()
+	{
+
+		EventEmitter.subscribe('tasksTaskEvent', (event: BaseEvent) => {
+
+			const [ type, data ] = event.getCompatData();
+			if (
+				type !== 'ADD'
+				|| !Type.isPlainObject(data.options)
+				|| !Type.isBoolean(data.options.STAY_AT_PAGE)
+				|| data.options.STAY_AT_PAGE
+			)
+			{
+				return;
+			}
+
+			TaskCreator.signedFiles = null;
+		});
+
+		EventEmitter.subscribe('SidePanel.Slider:onCloseComplete', (event: BaseEvent) => {
+
+			const sliderInstance = event.getTarget();
+			if (!sliderInstance)
+			{
+				return;
+			}
+
+			const sliderUrl = sliderInstance.getUrl();
+			if (
+				!Type.isStringFilled(sliderUrl)
+				|| sliderUrl !== TaskCreator.sliderUrl
+				|| !Type.isStringFilled(TaskCreator.signedFiles)
+			)
+			{
+				return;
+			}
+
+			ajax.runAction('intranet.controlbutton.clearNewTaskFiles', {
+				data: {
+					signedFiles: TaskCreator.signedFiles,
+				},
+			}).then(() => {
+				TaskCreator.signedFiles = null;
+			});
+		});
+	}
 
 	static create(params)
 	{
-		this.createTaskPopup = new Popup('BXCTP', null, {
-			autoHide: false,
-			zIndex: 0,
-			offsetLeft: 0,
-			offsetTop: 0,
-			overlay: false,
-			lightShadow: true,
-			closeIcon: {
-				right: '12px',
-				top: '10px',
-			},
-			draggable: {
-				restrict: true,
-			},
-			closeByEsc: false,
-			contentColor : 'white',
-			contentNoPaddings: true,
-			buttons: [],
-			content: Tag.render`<div id="BXCTP_content" class="${this.cssClass.popupContent}"></div>`,
-			events: {
-				onAfterPopupShow: () => {
-					this.createTaskSetContent(Tag.render`<div class="${this.cssClass.popupTitle}">${Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_WAIT')}</div>`);
+		if (Loc.getMessage('SONET_EXT_LIVEFEED_INTRANET_INSTALLED') === 'Y')
+		{
+			ajax.runAction('intranet.controlbutton.getTaskLink', {
+				data: {
+					entityType: params.entityType,
+					entityId: params.entityId,
+					postEntityType: (Type.isStringFilled(params.postEntityType) ? params.postEntityType : params.entityType),
+					entityData: {},
+				},
+			}).then((response) => {
 
-					ajax.runAction('socialnetwork.api.livefeed.getRawEntryData', {
-						data: {
-							params: {
-								entityType: params.entityType,
-								entityId: params.entityId,
-								logId: (Type.isNumber(params.logId) ? params.logId : null),
-								additionalParams: {
-									getSonetGroupAvailable: 'Y',
-									getLivefeedUrl: 'Y',
-									checkPermissions: {
-										feature: 'tasks',
-										operation: 'create_tasks',
+				if (!Type.isStringFilled(response.data.SUFFIX))
+				{
+					response.data.SUFFIX = '';
+				}
+
+
+				const requestData = response.data;
+
+				requestData.DESCRIPTION = this.formatTaskDescription(requestData.DESCRIPTION, requestData.URL, params.entityType, requestData.SUFFIX);
+
+				if (parseInt(params.parentTaskId) > 0)
+				{
+					requestData.PARENT_ID = parseInt(params.parentTaskId);
+				}
+
+				if (Type.isStringFilled(requestData.UF_TASK_WEBDAV_FILES_SIGN))
+				{
+					this.signedFiles = requestData.UF_TASK_WEBDAV_FILES_SIGN;
+				}
+
+				this.sliderUrl = response.data.link;
+
+				BX.SidePanel.Instance.open(response.data.link, {
+					requestMethod: 'post',
+					requestParams: requestData,
+					cacheable: false,
+				});
+			});
+		}
+		else
+		{
+			this.createTaskPopup = new Popup('BXCTP', null, {
+				autoHide: false,
+				zIndex: 0,
+				offsetLeft: 0,
+				offsetTop: 0,
+				overlay: false,
+				lightShadow: true,
+				closeIcon: {
+					right: '12px',
+					top: '10px',
+				},
+				draggable: {
+					restrict: true,
+				},
+				closeByEsc: false,
+				contentColor : 'white',
+				contentNoPaddings: true,
+				buttons: [],
+				content: Tag.render`<div id="BXCTP_content" class="${this.cssClass.popupContent}"></div>`,
+				events: {
+					onAfterPopupShow: () => {
+						this.createTaskSetContent(Tag.render`<div class="${this.cssClass.popupTitle}">${Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_WAIT')}</div>`);
+
+						ajax.runAction('socialnetwork.api.livefeed.getRawEntryData', {
+							data: {
+								params: {
+									entityType: params.entityType,
+									entityId: params.entityId,
+									logId: (Type.isNumber(params.logId) ? params.logId : null),
+									additionalParams: {
+										getSonetGroupAvailable: 'Y',
+										getLivefeedUrl: 'Y',
+										checkPermissions: {
+											feature: 'tasks',
+											operation: 'create_tasks',
+										}
 									}
 								}
 							}
-						}
-					}).then((response) => {
+						}).then((response) => {
 
-						const entryTitle = (Type.isStringFilled(response.data.TITLE) ? response.data.TITLE : '');
-						const entryDescription = (Type.isStringFilled(response.data.DESCRIPTION) ? response.data.DESCRIPTION : '');
-						const entryDiskObjects = (Type.isPlainObject(response.data.DISK_OBJECTS) ? response.data.DISK_OBJECTS : []);
-						const entryUrl = (Type.isStringFilled(response.data.LIVEFEED_URL) ? response.data.LIVEFEED_URL : '');
-						const entrySuffix = (Type.isStringFilled(response.data.SUFFIX) ? response.data.SUFFIX : '');
-						const groupsAvailable = (Type.isPlainObject(response.data.GROUPS_AVAILABLE) ? response.data.GROUPS_AVAILABLE : []);
-						const logId = (!Type.isUndefined(response.data.LOG_ID) ? parseInt(response.data.LOG_ID) : 0);
+							const entryTitle = (Type.isStringFilled(response.data.TITLE) ? response.data.TITLE : '');
+							const entryDescription = (Type.isStringFilled(response.data.DESCRIPTION) ? response.data.DESCRIPTION : '');
+							const entryDiskObjects = (Type.isPlainObject(response.data.DISK_OBJECTS) ? response.data.DISK_OBJECTS : []);
+							const entryUrl = (Type.isStringFilled(response.data.LIVEFEED_URL) ? response.data.LIVEFEED_URL : '');
+							const entrySuffix = (Type.isStringFilled(response.data.SUFFIX) ? response.data.SUFFIX : '');
+							const groupsAvailable = (Type.isPlainObject(response.data.GROUPS_AVAILABLE) ? response.data.GROUPS_AVAILABLE : []);
+							const logId = (!Type.isUndefined(response.data.LOG_ID) ? parseInt(response.data.LOG_ID) : 0);
 
-						if (
-							(
-								Type.isStringFilled(entryTitle)
-								|| Type.isStringFilled(entryDescription)
-							)
-							&& Type.isStringFilled(entryUrl)
-						)
-						{
-							const taskDescription = this.formatTaskDescription(entryDescription, entryUrl, params.entityType, entrySuffix);
-							const taskData = {
-								TITLE: entryTitle,
-								DESCRIPTION: taskDescription,
-								RESPONSIBLE_ID: Loc.getMessage('USER_ID'),
-								CREATED_BY: Loc.getMessage('USER_ID'),
-								UF_TASK_WEBDAV_FILES: entryDiskObjects,
-							};
-
-							const sonetGroupIdList = [];
-
-							for (const [key, value] of Object.entries(groupsAvailable))
-							{
-								sonetGroupIdList.push(value);
-							}
-
-							if (sonetGroupIdList.length == 1)
-							{
-								taskData.GROUP_ID = parseInt(sonetGroupIdList[0]);
-							}
-
-							BX.Tasks.Util.Query.runOnce('task.add', { data: taskData }).then((result) => {
-
-								const resultData = result.getData();
-
-								if (
-									Type.isPlainObject(resultData)
-									&& Type.isPlainObject(resultData.DATA)
-									&& !Type.isUndefined(resultData.DATA.ID)
-									&& parseInt(resultData.DATA.ID) > 0
+							if (
+								(
+									Type.isStringFilled(entryTitle)
+									|| Type.isStringFilled(entryDescription)
 								)
-								{
-									this.createTaskSetContentSuccess(resultData.DATA.ID);
+								&& Type.isStringFilled(entryUrl)
+							)
+							{
+								const taskDescription = this.formatTaskDescription(entryDescription, entryUrl, params.entityType, entrySuffix);
+								const taskData = {
+									TITLE: entryTitle,
+									DESCRIPTION: taskDescription,
+									RESPONSIBLE_ID: Loc.getMessage('USER_ID'),
+									CREATED_BY: Loc.getMessage('USER_ID'),
+									UF_TASK_WEBDAV_FILES: entryDiskObjects,
+								};
 
-									ajax.runAction('socialnetwork.api.livefeed.createEntityComment', {
-										data: {
-											params: {
-												postEntityType: (Type.isStringFilled(params.postEntityType) ? params.postEntityType : params.entityType),
-												sourceEntityType: params.entityType,
-												sourceEntityId: params.entityId,
-												entityType: 'TASK',
-												entityId: resultData.DATA.ID,
-												logId: (
-													Type.isNumber(params.logId)
-														? params.logId
-														: logId > 0 ? logId : null
-												)
-											}
-										}
-									}).then(() => {
-									}, () => {
-									});
-								}
-								else
+								const sonetGroupIdList = [];
+
+								for (const [key, value] of Object.entries(groupsAvailable))
 								{
-									this.createTaskSetContentFailure(result.getErrors().getMessages());
+									sonetGroupIdList.push(value);
 								}
-							});
-						}
-						else
-						{
+
+								if (sonetGroupIdList.length == 1)
+								{
+									taskData.GROUP_ID = parseInt(sonetGroupIdList[0]);
+								}
+
+								if (parseInt(params.entityType) > 0)
+								{
+									taskData.PARENT_ID = parseInt(params.entityType);
+								}
+
+								BX.Tasks.Util.Query.runOnce('task.add', { data: taskData }).then((result) => {
+
+									const resultData = result.getData();
+
+									if (
+										Type.isPlainObject(resultData)
+										&& Type.isPlainObject(resultData.DATA)
+										&& !Type.isUndefined(resultData.DATA.ID)
+										&& parseInt(resultData.DATA.ID) > 0
+									)
+									{
+										this.createTaskSetContentSuccess(resultData.DATA.ID);
+
+										ajax.runAction('socialnetwork.api.livefeed.createEntityComment', {
+											data: {
+												params: {
+													postEntityType: (Type.isStringFilled(params.postEntityType) ? params.postEntityType : params.entityType),
+													sourceEntityType: params.entityType,
+													sourceEntityId: params.entityId,
+													entityType: 'TASK',
+													entityId: resultData.DATA.ID,
+													logId: (
+														Type.isNumber(params.logId)
+															? params.logId
+															: logId > 0 ? logId : null
+													)
+												}
+											}
+										}).then(() => {
+										}, () => {
+										});
+									}
+									else
+									{
+										this.createTaskSetContentFailure(result.getErrors().getMessages());
+									}
+								});
+							}
+							else
+							{
+								this.createTaskSetContentFailure([
+									Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_ERROR_GET_DATA'),
+								]);
+							}
+						}, () => {
 							this.createTaskSetContentFailure([
 								Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_ERROR_GET_DATA'),
 							]);
-						}
-					}, () => {
-						this.createTaskSetContentFailure([
-							Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_ERROR_GET_DATA'),
-						]);
-					});
-				},
-				onPopupClose: () => {
-					this.createTaskPopup.destroy();
-				},
-			}
-		});
+						});
+					},
+					onPopupClose: () => {
+						this.createTaskPopup.destroy();
+					},
+				}
+			});
 
-		this.createTaskPopup.show();
+			this.createTaskPopup.show();
+		}
 	}
 
 	static createTaskSetContentSuccess(taskId) {

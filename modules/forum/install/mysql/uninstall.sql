@@ -26,3 +26,5 @@ DROP TABLE IF EXISTS b_forum_user_forum;
 DROP TABLE IF EXISTS b_forum_user_topic;
 DROP TABLE IF EXISTS b_forum_stat;
 DROP TABLE IF EXISTS b_forum_email;
+DROP TABLE IF EXISTS b_forum_service_deleted_message;
+DROP TABLE IF EXISTS b_forum_service_statistic_queue;

@@ -2,16 +2,14 @@
 namespace Bitrix\Calendar\Controller;
 
 use Bitrix\Calendar\Util;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Error;
-use Bitrix\Calendar\Internals;
-use \Bitrix\Main\Engine\Response;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use \Bitrix\Calendar\UserSettings;
-use \Bitrix\Main\Engine\ActionFilter\Authentication;
+use Bitrix\Calendar\UserSettings;
+use Bitrix\Main\Engine\ActionFilter\Authentication;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
-use \Bitrix\Calendar\Integration\Bitrix24Manager;
+use Bitrix\Calendar\Integration\Bitrix24Manager;
+use Bitrix\Calendar\Ui\CountersManager;
 
 Loc::loadMessages(__FILE__);
 
@@ -801,9 +799,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		]);
 
 		\CCalendar::UpdateCounter([$userId]);
-		$response['counters'] = [
-			'invitation' => \CUserCounter::GetValue($userId, 'calendar')
-		];
+		$response['counters'] = CountersManager::getValues($userId);
 
 		return $response;
 	}
@@ -1115,9 +1111,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		\CCalendar::UpdateCounter([$userId]);
 
 		return [
-			'counters' => [
-				'invitation' => \CUserCounter::GetValue($userId, 'calendar')
-			]
+			'counters' => CountersManager::getValues($userId)
 		];
 	}
 

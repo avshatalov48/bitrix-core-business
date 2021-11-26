@@ -148,7 +148,7 @@ final class Manager
 				),
 				function(BasePreset $preset)
 				{
-					return $preset->isAvailable();
+					return $preset->getPossible();
 				}
 			);
 		}
@@ -204,7 +204,7 @@ final class Manager
 	private function buildDefaultPresets()
 	{
 		$documentRoot = Application::getDocumentRoot();
-		
+
 		if(!Directory::isDirectoryExists($documentRoot . self::DEFAULT_PRESET_DIRECTORY))
 		{
 			throw new SystemException('Could not find folder with default presets. ' . self::DEFAULT_PRESET_DIRECTORY);
@@ -255,12 +255,12 @@ final class Manager
 
 		return null;
 	}
-	
+
 	private function getClassNameFromPath($path)
 	{
 		return "Sale\\Handlers\\DiscountPreset\\" . getFileNameWithoutExtension($path);
 	}
-	
+
 	/**
 	 * Returns list of presets.
 	 *

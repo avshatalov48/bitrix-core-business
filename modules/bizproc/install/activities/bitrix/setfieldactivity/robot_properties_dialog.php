@@ -4,17 +4,23 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 /** @var bool $canSetModifiedBy */
 /** @var mixed $modifiedBy */
 $mergeMultipleFields = $dialog->getMap()['MergeMultipleFields'];
+
+$extendedType = $dialog->getDocumentType();
+if ($dialog->getContext()['DOCUMENT_CATEGORY_ID'])
+{
+	$extendedType[] = $dialog->getContext()['DOCUMENT_CATEGORY_ID'];
+}
+
 ?>
 <div class="bizproc-automation-popup-settings bizproc-automation-popup-settings-text">
 	<a class="bizproc-automation-popup-settings-link" data-role="bp-sfa-fields-list">
 		<?=GetMessage('BIZPROC_AUTOMATION_SFA_FIELDS_LIST')?>
 	</a>
 </div>
-<?= $javascriptFunctions ?>
 <script>
 	BX.ready(function()
 	{
-		var documentType = <?=\Bitrix\Main\Web\Json::encode($dialog->getDocumentType())?>;
+		var documentType = <?=\Bitrix\Main\Web\Json::encode($extendedType)?>;
 		var documentFields = <?=\Bitrix\Main\Web\Json::encode($arDocumentFields)?>;
 		var documentFieldsSort = <?=\Bitrix\Main\Web\Json::encode(array_keys($arDocumentFields))?>;
 
@@ -153,7 +159,7 @@ $mergeMultipleFields = $dialog->getMap()['MergeMultipleFields'];
 			e.preventDefault();
 			delete addedFields[fieldId]
 		}
-<?
+<?php
 		foreach ($arCurrentValues as $fieldKey => $documentFieldValue)
 		{
 			if (!array_key_exists($fieldKey, $arDocumentFields))
@@ -169,7 +175,7 @@ $mergeMultipleFields = $dialog->getMap()['MergeMultipleFields'];
 						$dialog->getDocumentType()
 				);
 			}
-			?>BWFVCAddCondition('<?= CUtil::JSEscape($fieldKey) ?>', <?= CUtil::PhpToJSObject($documentFieldValue) ?>);<?
+			?>BWFVCAddCondition('<?= CUtil::JSEscape($fieldKey) ?>', <?= \Bitrix\Main\Web\Json::encode($documentFieldValue) ?>);<?
 		}
 		if (count($arCurrentValues) <= 0)
 		{

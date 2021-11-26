@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Main\Config\Option;
@@ -19,17 +20,17 @@ final class PhotogalleryAlbum extends Provider
 		return static::PROVIDER_ID;
 	}
 
-	public function getEventId()
+	public function getEventId(): array
 	{
-		return array('photo');
+		return [ 'photo' ];
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return Provider::TYPE_POST;
 	}
 
-	public function getCommentProvider()
+	public function getCommentProvider(): Provider
 	{
 		return new LogComment();
 	}
@@ -38,7 +39,7 @@ final class PhotogalleryAlbum extends Provider
 	{
 		static $cache = [];
 
-		$sectionId = (int)$this->entityId;
+		$sectionId = $this->entityId;
 
 		if ($sectionId <= 0)
 		{
@@ -118,7 +119,7 @@ final class PhotogalleryAlbum extends Provider
 		$this->setSourceTitle($title);
 	}
 
-	public function getPinnedTitle()
+	public function getPinnedTitle(): string
 	{
 		$result = '';
 
@@ -133,14 +134,12 @@ final class PhotogalleryAlbum extends Provider
 			return $result;
 		}
 
-		$result = Loc::getMessage('SONET_LIVEFEED_PHOTOGALLERY_ALBUM_PINNED_TITLE', [
+		return (string)Loc::getMessage('SONET_LIVEFEED_PHOTOGALLERY_ALBUM_PINNED_TITLE', [
 			'#TITLE#' => $albumFields['NAME']
 		]);
-
-		return $result;
 	}
 
-	public function getPinnedDescription()
+	public function getPinnedDescription(): string
 	{
 		return '';
 	}

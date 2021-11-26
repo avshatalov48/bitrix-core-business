@@ -34,7 +34,8 @@ class Manager extends \Bitrix\Sale\Services\Base\RestrictionManager
 			'\Bitrix\Sale\Delivery\Restrictions\ByTradeBinding' => 'lib/delivery/restrictions/bytradebinding.php',
 			'\Bitrix\Sale\Delivery\Restrictions\ExcludeLocation' => 'lib/delivery/restrictions/excludelocation.php',
 			'\Bitrix\Sale\Delivery\Restrictions\ByProductCategory' => 'lib/delivery/restrictions/byproductcategory.php',
-		);
+            '\Bitrix\Sale\Delivery\Restrictions\ByConcreteProduct' => 'lib/delivery/restrictions/byconcreteproduct.php',
+        );
 	}
 
 	/**

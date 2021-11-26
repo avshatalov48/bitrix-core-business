@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Iblock\ElementTable;
@@ -23,17 +24,17 @@ final class PhotogalleryPhoto extends Provider
 		return static::PROVIDER_ID;
 	}
 
-	public function getEventId()
+	public function getEventId(): array
 	{
 		return [ 'photo_photo' ];
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return Provider::TYPE_POST;
 	}
 
-	public function getCommentProvider()
+	public function getCommentProvider(): Provider
 	{
 		return new ForumPost();
 	}
@@ -42,7 +43,7 @@ final class PhotogalleryPhoto extends Provider
 	{
 		static $cache = [];
 
-		$elementId = (int)$this->entityId;
+		$elementId = $this->entityId;
 
 		if ($elementId <= 0)
 		{
@@ -122,7 +123,7 @@ final class PhotogalleryPhoto extends Provider
 		$this->setSourceTitle($title);
 	}
 
-	public function getPinnedTitle()
+	public function getPinnedTitle(): string
 	{
 		$result = '';
 
@@ -137,24 +138,22 @@ final class PhotogalleryPhoto extends Provider
 			return $result;
 		}
 
-		$result = Loc::getMessage('SONET_LIVEFEED_PHOTOGALLERY_PHOTO_PINNED_TITLE', [
+		return (string)Loc::getMessage('SONET_LIVEFEED_PHOTOGALLERY_PHOTO_PINNED_TITLE', [
 			'#TITLE#' => $photoFields['NAME']
 		]);
-
-		return $result;
 	}
 
-	public function getPinnedDescription()
+	public function getPinnedDescription(): string
 	{
 		return '';
 	}
 
-	public static function canRead($params)
+	public static function canRead($params): bool
 	{
 		return true;
 	}
 
-	protected function getPermissions(array $post)
+	protected function getPermissions(array $post): string
 	{
 		return self::PERMISSION_READ;
 	}

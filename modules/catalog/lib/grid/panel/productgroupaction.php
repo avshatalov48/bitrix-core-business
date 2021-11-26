@@ -1,12 +1,12 @@
 <?php
 namespace Bitrix\Catalog\Grid\Panel;
 
-use Bitrix\Main,
-	Bitrix\Main\Loader,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Iblock,
-	Bitrix\Catalog,
-	Bitrix\Currency;
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Iblock;
+use Bitrix\Catalog;
+use Bitrix\Currency;
 
 class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 {

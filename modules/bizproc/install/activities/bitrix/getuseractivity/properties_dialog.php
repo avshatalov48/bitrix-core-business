@@ -1,5 +1,9 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 ?>
 <tr>
 	<td align="right" width="40%"><span class="adm-required-field"><?= GetMessage("BPCRU_PD_TYPE") ?>:</span></td>
@@ -25,6 +29,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 		</script>
 		<select name="user_type" onchange="__BPCRUUserTypeChange(this.value)">
 			<option value="random"<?= ($arCurrentValues['user_type'] == "random") ? " selected" : "" ?>><?= GetMessage("BPCRU_PD_TYPE_RANDOM") ?></option>
+			<option value="sequent"<?= ($arCurrentValues['user_type'] === "sequent") ? " selected" : "" ?>><?= GetMessage('BPCRU_PD_TYPE_ORDER') ?></option>
 			<option value="boss"<?= ($arCurrentValues['user_type'] == "boss") ? " selected" : "" ?>><?= GetMessage("BPCRU_PD_TYPE_BOSS") ?></option>
 		</select>
 	</td>
@@ -32,23 +37,23 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 <tr>
 	<td align="right" width="40%" valign="top"><span class="adm-required-field" id="bpcrUserParameterTitle"><?= GetMessage("BPCRU_PD_USER_RANDOM") ?></span>:</td>
 	<td width="60%">
-		<?=CBPDocument::ShowParameterField("user", 'user_parameter', $arCurrentValues['user_parameter'], Array('rows'=>'2'))?>
+		<?= CBPDocument::ShowParameterField("user", 'user_parameter', $arCurrentValues['user_parameter'], Array('rows'=>'2')) ?>
 	</td>
 </tr>
 <tr id="tr_max_level">
 	<td align="right" width="40%"><span class="adm-required-field"><?= GetMessage("BPCRU_PD_MAX_LEVEL") ?>:</span></td>
 	<td width="60%">
 		<select name="max_level">
-			<?for ($i = 1; $i < 11; $i++):?>
+			<?php for ($i = 1; $i < 11; $i++): ?>
 			<option value="<?= $i ?>"<?= ($arCurrentValues['max_level'] == $i) ? " selected" : "" ?>><?= ($i == 1) ? GetMessage("BPCRU_PD_MAX_LEVEL_1") : $i ?></option>
-			<?endfor;?>
+			<?php endfor; ?>
 		</select>
 	</td>
 </tr>
 <tr>
 	<td align="right" width="40%" valign="top"><span class="adm-required-field"><?= GetMessage("BPCRU_PD_USER2") ?>:</span></td>
 	<td width="60%">
-		<?=CBPDocument::ShowParameterField("user", 'reserve_user_parameter', $arCurrentValues['reserve_user_parameter'], Array('rows'=>'2'))?>
+		<?= CBPDocument::ShowParameterField("user", 'reserve_user_parameter', $arCurrentValues['reserve_user_parameter'], Array('rows'=>'2')) ?>
 	</td>
 </tr>
 <tr>

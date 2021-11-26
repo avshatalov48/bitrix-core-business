@@ -67,7 +67,6 @@ namespace Bitrix\Sale\PaySystem\AdminPage\PaySystemCashbox
 	$fiscalizationEnable = true;
 	$cashbox = Cashbox\Manager::getList([
 		'filter' => [
-			'=ACTIVE' => 'Y',
 			'=HANDLER' => $cashboxClass,
 			'=KKM_ID' => $kkmId,
 		],
@@ -99,7 +98,6 @@ namespace Bitrix\Sale\PaySystem\AdminPage\PaySystemCashbox
 				'EMAIL' => $cashBoxData['EMAIL'],
 				'NUMBER_KKM' => '',
 				'KKM_ID' => $cashBoxData['KKM_ID'],
-				'ACTIVE' => 'Y',
 				'USE_OFFLINE' => 'N',
 				'ENABLED' => 'Y',
 				'SORT' => 100,

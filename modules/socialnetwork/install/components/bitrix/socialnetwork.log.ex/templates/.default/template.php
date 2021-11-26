@@ -49,7 +49,8 @@ elseif (
 CUtil::InitJSCore(array("ajax", "window", "tooltip", "popup", "fx", "viewer", "content_view", "clipboard"));
 UI\Extension::load([
 	'socialnetwork.livefeed',
-	'socialnetwork.commentaux'
+	'socialnetwork.commentaux',
+	'tasks.comment-action-controller',
 ]);
 
 Asset::getInstance()->setUnique('PAGE', 'live_feed_v2'.($arParams["IS_CRM"] !== "Y" ? "" : "_crm"));
@@ -220,6 +221,7 @@ if (
 				sonetLMenuDeleteConfirm: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_CONFIRM")?>',
 				sonetLMenuDeleteFailure: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_FAILURE")?>',
 				sonetLMenuCreateTask: '<?=GetMessageJS("SONET_C30_MENU_TITLE_CREATETASK")?>',
+				sonetLMenuCreateSubTask: '<?=GetMessageJS("SONET_C30_MENU_TITLE_CREATESUBTASK")?>',
 				sonetLCounterType: '<?=CUtil::JSEscape($arResult["COUNTER_TYPE"])?>',
 				sonetLIsB24: '<?=(defined('SITE_TEMPLATE_ID') && SITE_TEMPLATE_ID === "bitrix24" ? "Y" : "N")?>',
 				sonetRatingType : '<?=CUtil::JSEscape($arParams["RATING_TYPE"])?>',
@@ -391,7 +393,7 @@ if (
 
 	$blockContent = ob_get_clean();
 
-		if (in_array($arResult['PAGE_MODE'],  ['refresh', 'next' ]))
+	if (in_array($arResult['PAGE_MODE'],  ['refresh', 'next' ]))
 	{
 		$targetHtml .= $blockContent;
 	}
@@ -518,13 +520,9 @@ if (
 
 		$uriParams = [
 			'logajax' => 'Y',
-			'PAGEN_'.$arResult["PAGE_NAVNUM"] => ($arResult["PAGE_NUMBER"] + 1)
+			'PAGEN_' . $arResult['PAGE_NAVNUM'] => ($arResult['PAGE_NUMBER'] + 1),
+			'ts' => $arResult['LAST_LOG_TS'],
 		];
-
-		if (in_array($arResult['PAGE_MODE'], [ 'first', 'refresh' ]))
-		{
-			$uriParams['ts'] = $arResult["LAST_LOG_TS"];
-		}
 
 		if (
 			is_array($arResult["arLogTmpID"])

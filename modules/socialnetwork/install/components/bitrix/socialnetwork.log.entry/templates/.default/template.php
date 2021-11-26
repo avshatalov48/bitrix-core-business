@@ -1513,14 +1513,14 @@ else
 					"bitrix:main.post.list",
 					"",
 					array(
-						"bPublicPage" => (isset($arParams["PUBLIC_MODE"]) && $arParams["PUBLIC_MODE"] == "Y"),
+						"bPublicPage" => (isset($arParams["PUBLIC_MODE"]) && $arParams["PUBLIC_MODE"] === "Y"),
 						"TEMPLATE_ID" => $tplID,
-						"CONTENT_TYPE_ID" => ($commentRatingEntityTypeId ? $commentRatingEntityTypeId : ""),
+						"CONTENT_TYPE_ID" => ($commentRatingEntityTypeId ?: ""),
 						"ENTITY_XML_ID" => $arEvent["COMMENTS_PARAMS"]["ENTITY_XML_ID"],
 						"POST_CONTENT_TYPE_ID" => $arResult["POST_CONTENT_TYPE_ID"],
 						"COMMENT_CONTENT_TYPE_ID" => $arResult["COMMENT_CONTENT_TYPE_ID"],
 						"RECORDS" => array_reverse($arRecords, true),
-						"NAV_STRING" => ($tmp ? "/bitrix/components/bitrix/socialnetwork.log.entry/ajax.php?".http_build_query(array(
+						"NAV_STRING" => ($tmp ? "/bitrix/components/bitrix/socialnetwork.log.entry/ajax.php?" . http_build_query([
 								"action" => "get_comments",
 								"logid" => $arEvent["EVENT"]["ID"],
 								"commentID" => $tmp["EVENT"]["ID"],
@@ -1540,16 +1540,28 @@ else
 								"as" => $arParams["AVATAR_SIZE"],
 								"lang" => LANGUAGE_ID,
 								"site" => SITE_ID,
-								"follow" => ($arEvent["EVENT"]["FOLLOW"] == "Y" ? "Y" : "N"),
+								"follow" => ($arEvent["EVENT"]["FOLLOW"] === "Y" ? "Y" : "N"),
 								"ct" => $arResult["COUNTER_TYPE"]
-							)) : ""),
+							]) : ''),
 						"NAV_RESULT" => $nav_result,
 						"PREORDER" => "N",
 						"RIGHTS" => array(
 							"MODERATE" => "N",
 							"EDIT" => $arResult["COMMENT_RIGHTS_EDIT"],
 							"DELETE" => $arResult["COMMENT_RIGHTS_DELETE"],
-							"CREATETASK" => ($arResult["bTasksAvailable"] && $arResult["canGetCommentContent"] ? "Y" : "N")
+							"CREATETASK" => (
+								$arResult['bTasksAvailable']
+								&& $arResult['canGetCommentContent']
+									? 'Y'
+									: 'N'
+							),
+							'CREATESUBTASK' => (
+								$arResult['bTasksAvailable']
+								&& $arResult['canGetCommentContent']
+								&& preg_match('/^TASK_(\d+)$/i', $arEvent["COMMENTS_PARAMS"]["ENTITY_XML_ID"])
+									? 'Y'
+									: 'N'
+							)
 						),
 						"VISIBLE_RECORDS_COUNT" => count($arRecords),
 

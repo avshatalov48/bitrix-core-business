@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Text\Emoji;
 use Bitrix\Socialnetwork\UserToGroupTable;
 
 class CSocNetLogDestination
@@ -1254,8 +1255,8 @@ class CSocNetLogDestination
 			$tmp = array(
 				"id" => $group["ID"],
 				"entityId" => $group["ID"],
-				"name" => htmlspecialcharsbx($group["NAME"]),
-				"desc" => htmlspecialcharsbx($group["DESCRIPTION"]),
+				"name" => htmlspecialcharsbx(Emoji::decode($group["NAME"])),
+				"desc" => htmlspecialcharsbx(Emoji::decode($group["DESCRIPTION"])),
 				"isExtranet" => (in_array($group["ID"], $extranetGroupsIdList) ? 'Y' : 'N')
 			);
 
@@ -1664,8 +1665,8 @@ class CSocNetLogDestination
 					$tmpList[] = array(
 						"id" => $relation["GROUP_ID"],
 						"entityId" => $relation["GROUP_ID"],
-						"name" => htmlspecialcharsbx($relation["GROUP_NAME"]),
-						"desc" => htmlspecialcharsbx($relation["GROUP_DESCRIPTION"]),
+						"name" => htmlspecialcharsbx(Emoji::decode($relation["GROUP_NAME"])),
+						"desc" => htmlspecialcharsbx(Emoji::decode($relation["GROUP_DESCRIPTION"])),
 						"imageId" => $relation["GROUP_IMAGE_ID"],
 						"project" => ($relation["GROUP_PROJECT"] === 'Y' ? 'Y' : 'N'),
 						"isExtranet" => (in_array($relation["GROUP_ID"], $extranetGroupsIdList) ? 'Y' : 'N')
@@ -1705,8 +1706,8 @@ class CSocNetLogDestination
 					$tmpList[] = array(
 						"id" => $group["ID"],
 						"entityId" => $group["ID"],
-						"name" => htmlspecialcharsbx($group["NAME"]),
-						"desc" => htmlspecialcharsbx($group["DESCRIPTION"]),
+						"name" => htmlspecialcharsbx(Emoji::decode($group["NAME"])),
+						"desc" => htmlspecialcharsbx(Emoji::decode($group["DESCRIPTION"])),
 						"imageId" => $group["IMAGE_ID"],
 						"project" => ($group["PROJECT"] === 'Y' ? 'Y' : 'N'),
 						"isExtranet" => (in_array($group["ID"], $extranetGroupsIdList) ? 'Y' : 'N')

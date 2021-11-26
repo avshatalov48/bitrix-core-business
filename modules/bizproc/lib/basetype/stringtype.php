@@ -3,6 +3,7 @@ namespace Bitrix\Bizproc\BaseType;
 
 use Bitrix\Main;
 use Bitrix\Bizproc\FieldType;
+use Bitrix\Bizproc;
 
 /**
  * Class String
@@ -54,6 +55,12 @@ class StringType extends Base
 			case FieldType::DATE:
 			case FieldType::DATETIME:
 				$value = (string) $value;
+
+				if (Bizproc\BaseType\Value\DateTime::isSerialized($value))
+				{
+					break;
+				}
+
 				if ($value)
 				{
 					$format = ($type == FieldType::DATE) ? \FORMAT_DATE : \FORMAT_DATETIME;

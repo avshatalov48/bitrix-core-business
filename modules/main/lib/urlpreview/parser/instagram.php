@@ -10,6 +10,8 @@ use Bitrix\Main\UrlPreview\HtmlDocument;
 
 class Instagram extends Oembed
 {
+	protected $versionApiPrefix = 'v11.0';
+
 	/**
 	 * @param HtmlDocument $document
 	 * @return bool
@@ -33,7 +35,7 @@ class Instagram extends Oembed
 				{
 					$this->metadataType = 'json';
 					$this->metadataUrl =
-						'https://graph.facebook.com/instagram_oembed?omitscript=true&url='
+						'https://graph.facebook.com/' . $this->versionApiPrefix . '/instagram_oembed?omitscript=true&url='
 						. $document->getUri()->getLocator()
 						. '&access_token='
 						. $urlAppId

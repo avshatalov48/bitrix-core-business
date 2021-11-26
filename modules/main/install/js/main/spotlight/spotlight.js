@@ -275,8 +275,8 @@
 						this.fireEvent("onPopupShow");
 					}.bind(this),
 					onPopupClose: function() {
-						this.close();
 						this.fireEvent("onPopupClose");
+						this.close();
 					}.bind(this)
 				},
 				buttons: [
@@ -285,10 +285,9 @@
 						className: "webform-small-button webform-small-button-blue",
 						events: {
 							click: function() {
-								this.close();
 								this.fireEvent("onPopupAccept");
-
 								BX.onCustomEvent(this, "spotLightOk", [this.getTargetElement(), this]); //compatibility
+								this.close();
 							}.bind(this)
 						}
 					})

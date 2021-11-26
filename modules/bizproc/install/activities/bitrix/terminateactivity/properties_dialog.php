@@ -11,7 +11,8 @@ foreach ($dialog->getMap() as $fieldId => $field): ?>
 	<tr>
 		<td align="right" width="40%"><?= htmlspecialcharsbx($field['Name']) ?>:</td>
 		<td width="60%">
-			<?= $dialog->renderFieldControl($field, null, true, 1) ?>
+			<?php $allowSelection = ($field['Type'] !== 'select') ?>
+			<?= $dialog->renderFieldControl($field, null, $allowSelection, 1) ?>
 		</td>
 	</tr>
 <?php endforeach;

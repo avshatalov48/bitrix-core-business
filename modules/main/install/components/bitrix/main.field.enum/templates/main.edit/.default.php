@@ -172,8 +172,8 @@ EOT;
 				$postfix .= time();
 			}
 			//$context = 'UF_FIELD_ENUM_' . $arResult['valueContainerId'];
-			$fieldNameForEvent = $arResult['valueContainerId'] . '_default_' . $postfix;
-			$arResult['valueContainerId'] .= $postfix;
+			$fieldNameForEvent = $arResult['targetNodeId'] . '_default_' . $postfix;
+			$arResult['targetNodeId'] .= $postfix;
 
 			$scriptParams = CUtil::PhpToJSObject([
 				'targetNodeId' => $arResult['targetNodeId'],

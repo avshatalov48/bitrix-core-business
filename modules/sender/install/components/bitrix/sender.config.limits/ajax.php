@@ -10,6 +10,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Integration;
 use Bitrix\Sender\Internals\CommonAjax;
 use Bitrix\Sender\Internals\QueryController as Controller;
+use Bitrix\Sender\Transport\TimeLimiter;
 
 if (!Bitrix\Main\Loader::includeModule('sender'))
 {
@@ -46,6 +47,37 @@ $actions[] = Controller\Action::create('switchTrackMailOption')->setHandler(
 
 		$content->set(array(
 			'canTrackMail' => $canTrackMail,
+		));
+	}
+);
+$actions[] = Controller\Action::create('setSendingTimeOption')->setHandler(
+	function (HttpRequest $request, Controller\Response $response)
+	{
+		$sendingStart =  $request->get('sendingStart');
+		$sendingEnd = $request->get('sendingEnd');
+
+		$sendingStart = $sendingStart ?? TimeLimiter::DEFAULT_SENDING_START;
+		$sendingEnd = $sendingEnd ?? TimeLimiter::DEFAULT_SENDING_END;
+
+		$checkTime =  $sendingStart;
+		$sendingStart = strtotime($sendingStart) > strtotime($sendingEnd) ? $sendingEnd : $sendingStart;
+		$sendingEnd = strtotime($checkTime) > strtotime($sendingEnd) ? $checkTime : $sendingEnd;
+
+		Option::set('sender', 'sending_start', $sendingStart);
+		Option::set('sender', 'sending_end', $sendingEnd);
+	}
+);
+$actions[] = Controller\Action::create('switchSendingTimeOption')->setHandler(
+	function (HttpRequest $request, Controller\Response $response)
+	{
+		$content = $response->initContentJson();
+
+		$sendingTime = $request->get('sendingTime') === "true";
+
+		Option::set('sender', 'sending_time', $sendingTime ? 'Y' : 'N');
+
+		$content->set(array(
+			'sendingTime' => $sendingTime,
 		));
 	}
 );

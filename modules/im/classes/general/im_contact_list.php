@@ -155,7 +155,7 @@ class CAllIMContactList
 		$filter = array(
 			'=ACTIVE' => 'Y',
 			'=CONFIRM_CODE' => false,
-			'!=EXTERNAL_AUTH_ID' => \Bitrix\Im\Common::getExternalAuthId([\Bitrix\Im\Bot::EXTERNAL_AUTH_ID])
+			'!=EXTERNAL_AUTH_ID' => \Bitrix\Im\Model\UserTable::filterExternalUserTypes([\Bitrix\Im\Bot::EXTERNAL_AUTH_ID])
 		);
 		if (CModule::IncludeModule('extranet'))
 		{

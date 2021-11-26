@@ -5,6 +5,7 @@ namespace Bitrix\Calendar\ICal\MailInvitation;
 
 
 use Bitrix\Calendar\ICal\Parser\Calendar;
+use Bitrix\Calendar\ICal\Parser\IcalParserException;
 use Bitrix\Calendar\ICal\Parser\Parser;
 
 class InboxAttachmentManager
@@ -42,8 +43,15 @@ class InboxAttachmentManager
 	 */
 	public function parse(): InboxAttachmentManager
 	{
-		$this->parser = Parser::createInstance($this->fileContent)
-			->parse();
+		try
+		{
+			$this->parser = Parser::createInstance($this->fileContent)
+				->parse();
+		}
+		catch (IcalParserException $e)
+		{
+			$this->parser = null;
+		}
 
 		return $this;
 	}
@@ -53,6 +61,11 @@ class InboxAttachmentManager
 	 */
 	public function getComponent(): ?Calendar
 	{
+		if (empty($this->parser))
+		{
+			return null;
+		}
+
 		return $this->parser->getCalendarComponent();
 	}
 }

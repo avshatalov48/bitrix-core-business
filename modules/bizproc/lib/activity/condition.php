@@ -173,6 +173,7 @@ class Condition
 			}
 			$compareResult = $classType::compareValues($f1, $v1);
 
+			$breakFlag = true;
 			switch ($operator)
 			{
 				case '>':
@@ -189,12 +190,22 @@ class Condition
 					break;
 				case '!=':
 					$result = ($compareResult !== 0);
+
+					$i = ($result === true) ? $iMax : $i;
+					if (
+						$result === false
+						&& (array_key_exists($i + 1, $valueToCheck) || array_key_exists($i + 1, $value))
+					)
+					{
+						$breakFlag = false;
+					}
+
 					break;
 				default:
 					$result = ($compareResult === 0);
 			}
 
-			if (!$result)
+			if (!$result && $breakFlag)
 			{
 				break;
 			}

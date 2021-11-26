@@ -4,18 +4,20 @@
 namespace Bitrix\Forum\Integration\Search;
 
 
+use Bitrix\Main;
+use Bitrix\Forum;
 use Bitrix\Forum\Permission;
 
 class Message
 {
-	public static function index(\Bitrix\Forum\Forum $forum, \Bitrix\Forum\Topic $topic, array $message)
+	public static function index(Forum\Forum $forum, Forum\Topic $topic, array $message)
 	{
-		if (!\Bitrix\Main\Loader::includeModule("search") || $message["SERVICE_TYPE"] > 0)
+		if (!Main\Loader::includeModule("search") || $message["SERVICE_TYPE"] > 0)
 		{
 			return; 
 		}
 
-		if (\Bitrix\Main\Config\Option::get("forum", "FILTER", "Y") == "Y" && $message["POST_MESSAGE_FILTER"] !== null)
+		if (Main\Config\Option::get("forum", "FILTER", "Y") == "Y" && $message["POST_MESSAGE_FILTER"] !== null)
 		{
 			$message["POST_MESSAGE"] = $message["POST_MESSAGE_FILTER"];
 		}
@@ -83,7 +85,7 @@ class Message
 		if (empty($arSearchInd["URL"]) && ($res = \CLang::GetByID(SITE_ID)->fetch()))
 		{
 			$arParams["DEFAULT_URL"] .= $res["DIR"].
-				\Bitrix\Main\Config\Option::get("forum", "REL_FPATH", "").
+				Main\Config\Option::get("forum", "REL_FPATH", "").
 				"forum/read.php?FID=#FID#&TID=#TID#&MID=#MID##message#MID#";
 			$arSearchInd["URL"] = \CForumNew::PreparePath2Message($arParams["DEFAULT_URL"], $urlPatterns);
 		}
@@ -101,6 +103,14 @@ class Message
 		if ($index == true)
 		{
 			\CSearch::Index("forum", $message["ID"], $arSearchInd, true);
+		}
+	}
+
+	public static function deleteIndex(array $message)
+	{
+		if (Main\Loader::includeModule("search"))
+		{
+			\CSearch::DeleteIndex("forum", $message['ID']);
 		}
 	}
 }

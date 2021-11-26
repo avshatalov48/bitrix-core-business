@@ -160,6 +160,28 @@ class CBPRequestInformationOptionalActivity extends CBPRequestInformationActivit
 		return [$form, $buttons];
 	}
 
+	protected static function getCommentRequiredStar($arTask): string
+	{
+		$required = parent::getCommentRequiredStar($arTask);
+
+		if (isset($arTask['PARAMETERS']['CommentRequired']))
+		{
+			switch ($arTask['PARAMETERS']['CommentRequired'])
+			{
+				case 'YA':
+					$required = '<span style="color: green;">*</span>';
+					break;
+				case 'YR':
+					$required = '<span style="color: red">*</span>';
+					break;
+				default:
+					break;
+			}
+		}
+
+		return $required;
+	}
+
 	public static function getTaskControls($task)
 	{
 		$taskControls = parent::getTaskControls($task);
@@ -237,7 +259,60 @@ class CBPRequestInformationOptionalActivity extends CBPRequestInformationActivit
 					'N' => GetMessage('BPSFA_PD_NO')
 				],
 				'Default' => 'N'
-			]
+			],
+			'CommentRequired' => [
+				'Name' => GetMessage('BPAR_COMMENT_REQUIRED'),
+				'FieldName' => 'comment_required',
+				'Type' => Bizproc\FieldType::SELECT,
+				'Options' => [
+					'N' => GetMessage('BPSFA_PD_NO'),
+					'Y' => GetMessage('BPSFA_YES'),
+					'YA' => GetMessage('BPSFA_COMMENT_REQUIRED_YA'),
+					'YR' => GetMessage("BPSFA_COMMENT_REQUIRED_YR"),
+				],
+				'Default' => 'N'
+			],
 		]);
+	}
+
+	protected static function validateTaskEventParameters($arTask, $eventParameters)
+	{
+		parent::validateTaskEventParameters($arTask, $eventParameters);
+
+		if (self::validateRequiredCommentInTaskEventParameters($arTask, $eventParameters))
+		{
+			$label =
+				$arTask["PARAMETERS"]["CommentLabelMessage"] !== ''
+					? $arTask["PARAMETERS"]["CommentLabelMessage"]
+					: GetMessage("BPAR_ACT_COMMENT")
+			;
+			throw new CBPArgumentNullException(
+				'task_comment',
+				GetMessage("BPRIA_ACT_COMMENT_ERROR", array(
+					'#COMMENT_LABEL#' => $label
+				))
+			);
+		}
+
+		return true;
+	}
+
+	private static function validateRequiredCommentInTaskEventParameters($arTask, $eventParameters): bool
+	{
+		$showComment = $arTask['PARAMETERS']['ShowComment'] ?? '';
+		$commentEmpty = empty($eventParameters['COMMENT']);
+		$commentRequiredValue = $arTask['PARAMETERS']['CommentRequired'] ?? '';
+
+		$commentRequired = false;
+		if (
+			$commentRequiredValue === 'Y'
+			|| ($commentRequiredValue === 'YA' && !$eventParameters['CANCEL'])
+			|| ($commentRequiredValue === 'YR' && $eventParameters['CANCEL'])
+		)
+		{
+			$commentRequired = true;
+		}
+
+		return ($showComment === 'Y' && $commentEmpty && $commentRequired);
 	}
 }

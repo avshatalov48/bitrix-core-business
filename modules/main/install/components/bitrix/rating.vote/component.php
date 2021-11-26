@@ -1,4 +1,15 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var CBitrixComponent $this */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CMain $APPLICATION */
+
 $arResult['VOTE_AVAILABLE'] = isset($arParams['VOTE_AVAILABLE'])? $arParams['VOTE_AVAILABLE'] == 'Y'? 'Y': 'N' : 'Y';
 if ($arResult['VOTE_AVAILABLE'] == 'Y')
 	$arAllowVote = CRatings::CheckAllowVote($arParams);
@@ -13,21 +24,23 @@ if ($sRatingTemplate == "" || $sRatingTemplate == ".default")
 $arResult['ENTITY_TYPE_ID'] = $arParams['ENTITY_TYPE_ID'];
 $arResult['ENTITY_ID'] = intval($arParams['ENTITY_ID']);
 $arResult['OWNER_ID'] = intval($arParams['OWNER_ID']);
-$arResult['TOTAL_VALUE'] = floatval($arParams['TOTAL_VALUE']);
-$arResult['TOTAL_VOTES'] = intval($arParams['TOTAL_VOTES']);
-$arResult['TOTAL_POSITIVE_VOTES'] = intval($arParams['TOTAL_POSITIVE_VOTES']);
-$arResult['TOTAL_NEGATIVE_VOTES'] = intval($arParams['TOTAL_NEGATIVE_VOTES']);
-$arResult['USER_HAS_VOTED'] = $arParams['USER_HAS_VOTED'] != 'Y'? 'N': 'Y';
+$arResult['TOTAL_VALUE'] = (float)($arParams['TOTAL_VALUE'] ?? 0);
+$arResult['TOTAL_VOTES'] = (int)($arParams['TOTAL_VOTES'] ?? 0);
+$arResult['TOTAL_POSITIVE_VOTES'] = (int)($arParams['TOTAL_POSITIVE_VOTES'] ?? 0);
+$arResult['TOTAL_NEGATIVE_VOTES'] = (int)($arParams['TOTAL_NEGATIVE_VOTES'] ?? 0);
+$arResult['USER_HAS_VOTED'] = (!isset($arParams['USER_HAS_VOTED']) || $arParams['USER_HAS_VOTED'] !== 'Y'? 'N': 'Y');
 
-$arResult['AJAX_MODE'] = $arParams['AJAX_MODE'] != 'Y'? 'N': 'Y';
+$arResult['AJAX_MODE'] = (!isset($arParams['AJAX_MODE']) || $arParams['AJAX_MODE'] !== 'Y'? 'N': 'Y');
 
-$arResult['USER_VOTE'] = floatval($arParams['USER_VOTE']);
+$arResult['USER_VOTE'] = (float)($arParams['USER_VOTE'] ?? 0);
 $arResult['ALLOW_VOTE'] = $arAllowVote;
 $arResult['PATH_TO_USER_PROFILE'] = $arParams['PATH_TO_USER_PROFILE'];
 
 $isLikeTemplate = in_array($sRatingTemplate, array("like", "like_graphic", "mobile_like", "like_react"));
 if ($isLikeTemplate)
-	$arResult['TOTAL_VOTES'] = intval($arParams['TOTAL_POSITIVE_VOTES']);
+{
+	$arResult['TOTAL_VOTES'] = $arResult['TOTAL_POSITIVE_VOTES'];
+}
 
 if (!array_key_exists('TOTAL_VALUE', $arParams) ||
 	!array_key_exists('TOTAL_VOTES', $arParams) ||
@@ -112,4 +125,3 @@ if (!(isset($arParams['TEMPLATE_HIDE']) && $arParams['TEMPLATE_HIDE'] == 'Y'))
 }
 
 return $arResult;
-?>

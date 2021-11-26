@@ -1,20 +1,28 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2020 Bitrix
+ * @copyright 2001-2021 Bitrix
  */
 
 namespace Bitrix\Main\File\Image;
 
 use Bitrix\Main\File;
 
+/**
+ * Class Imagick
+ * @see https://imagemagick.org/script/defines.php
+ * @see https://imagemagick.org/script/architecture.php
+ */
 class Imagick extends Engine
 {
 	/** @var \Imagick */
 	protected $image;
 	protected $animated = false;
+	/** @var Rectangle */
+	protected $jpegSize;
 
 	/**
 	 * @inheritDoc
@@ -50,22 +58,94 @@ class Imagick extends Engine
 
 		try
 		{
-			$this->image = new \Imagick($this->file);
+			$this->image = new \Imagick();
 
-			if (isset($this->options["allowAnimatedImages"]) && $this->options["allowAnimatedImages"] === true)
+			$info = $this->getInfo();
+			if (!$info)
 			{
-				if ($this->image->getNumberImages() > 1)
-				{
-					$this->animated = true;
-					$this->image = $this->image->coalesceImages();
-				}
+				return false;
 			}
+
+			$source = $info->toRectangle();
+			$maxSize = $this->getMaxSize();
+
+			if ($maxSize && $source->resize($maxSize, File\Image::RESIZE_PROPORTIONAL))
+			{
+				// the image exceeds maximum sizes, optionally substitute it
+				return $this->substituteImage();
+			}
+
+			$needResize = false;
+			if ($info->getFormat() == File\Image::FORMAT_JPEG)
+			{
+				// only for JPEGs
+				$needResize = $this->setJpegOptions();
+			}
+
+			$allowAnimated = (isset($this->options["allowAnimatedImages"]) && $this->options["allowAnimatedImages"] === true);
+
+			// read only the first frame
+			$suffix = ($allowAnimated ? '' : '[0]');
+
+			$this->image->readImage($this->file . $suffix);
+
+			if ($needResize)
+			{
+				// JPEG memory usage optimization
+				$this->image->thumbnailImage($this->jpegSize->getWidth(), $this->jpegSize->getHeight());
+			}
+
+			if ($allowAnimated && $this->image->getNumberImages() > 1)
+			{
+				$this->animated = true;
+				$this->image = $this->image->coalesceImages();
+			}
+
 			return true;
 		}
 		catch (\ImagickException $e)
 		{
 			return false;
 		}
+	}
+
+	protected function substituteImage()
+	{
+		if (isset($this->options["substImage"]))
+		{
+			// substitute the file with a blank image
+			$substImage = new Imagick($this->options["substImage"]);
+
+			if ($substImage->load())
+			{
+				$this->image = clone $substImage->image;
+
+				return true;
+			}
+		}
+		return false;
+	}
+
+	protected function setJpegOptions()
+	{
+		$this->jpegSize = $this->getJpegSize();
+
+		if ($this->jpegSize)
+		{
+			$source = $this->getInfo()->toRectangle();
+
+			$needResize = $source->resize($this->jpegSize, File\Image::RESIZE_PROPORTIONAL);
+
+			if ($needResize)
+			{
+				// the image is too large to fit into memory
+				$this->image->setOption('jpeg:size', $this->jpegSize->getWidth() . 'x' . $this->jpegSize->getHeight());
+				$this->image->setSize($this->jpegSize->getWidth(), $this->jpegSize->getHeight());
+
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -147,20 +227,42 @@ class Imagick extends Engine
 			return false;
 		}
 
+		//need crop
+		if($source->getX() <> 0 || $source->getY() <> 0)
+		{
+			$this->crop($source);
+		}
+
 		//hope Imagick will use the best filter automatically
 		$filter = \Imagick::FILTER_UNDEFINED;
 
-		foreach($this->image as $frame)
+		foreach ($this->image as $frame)
 		{
-			if($source->getX() <> 0 || $source->getY() <> 0)
-			{
-				//need crop
-				$frame->cropImage($source->getWidth(), $source->getHeight(), $source->getX(), $source->getY());
-			}
-
 			//resizeImage has better quality than scaleImage (scaleImage uses a filter similar to FILTER_BOX)
 			$frame->resizeImage($destination->getWidth(), $destination->getHeight(), $filter, 1);
 		}
+
+		return true;
+	}
+
+	/**
+	 * @param Rectangle $source
+	 * @return bool
+	 */
+	public function crop(Rectangle $source)
+	{
+		if($this->image === null)
+		{
+			return false;
+		}
+
+		$this->image->setImagePage(0, 0, 0, 0);
+
+		foreach ($this->image as $frame)
+		{
+			$frame->cropImage($source->getWidth(), $source->getHeight(), $source->getX(), $source->getY());
+		}
+
 		return true;
 	}
 
@@ -381,6 +483,7 @@ class Imagick extends Engine
 			$this->image->clear();
 			$this->image = null;
 			$this->animated = false;
+			$this->jpegSize = null;
 		}
 	}
 
@@ -398,6 +501,26 @@ class Imagick extends Engine
 		{
 			return $formats[$format];
 		}
+		return null;
+	}
+
+	protected function getMaxSize()
+	{
+		if (isset($this->options["maxSize"]) && is_array($this->options["maxSize"]))
+		{
+			return new Rectangle($this->options["maxSize"][0], $this->options["maxSize"][1]);
+		}
+
+		return null;
+	}
+
+	protected function getJpegSize()
+	{
+		if (isset($this->options["jpegLoadSize"]) && is_array($this->options["jpegLoadSize"]))
+		{
+			return new Rectangle($this->options["jpegLoadSize"][0], $this->options["jpegLoadSize"][1]);
+		}
+
 		return null;
 	}
 }

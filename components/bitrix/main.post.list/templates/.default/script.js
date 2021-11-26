@@ -1199,7 +1199,11 @@
 			return true;
 		},
 		act : function(url, id, act) {
-			if (url.substr(0, 1) !== '/')
+			if (
+				this.ajax["processComment"] !== true
+				&& BX.type.isNotEmptyString(url)
+				&& url.substr(0, 1) !== '/'
+			)
 			{
 				try { eval(url); return false; }
 				catch(e) {}
@@ -1276,7 +1280,21 @@
 
 			var onfailure = function(data){
 				this.closeWait(id);
-				this.showError(id, data);
+
+				var errorText = data;
+
+				if (BX.type.isNotEmptyObject(data))
+				{
+					if (BX.type.isArray(data.errors) && BX.type.isNotEmptyString(data.errors[0].message))
+					{
+						errorText = data.errors[0].message;
+					}
+					else if (BX.type.isNotEmptyObject(data.data) && BX.type.isNotEmptyString(data.data.message))
+					{
+						errorText = data.data.message;
+					}
+				}
+				this.showError(id, errorText);
 			}.bind(this);
 
 			if (this.ajax["processComment"] === true)
@@ -1932,26 +1950,51 @@
 		}
 
 		if (
-			el.getAttribute("bx-mpl-createtask-show") == "Y"
-			&& typeof oLF != "undefined"
+			el.getAttribute('bx-mpl-createtask-show') === 'Y'
+			&& !BX.type.isUndefined(oLF)
 		)
 		{
-			var
-				commentEntityType = el.getAttribute("bx-mpl-comment-entity-type"),
-				postEntityType = el.getAttribute("bx-mpl-post-entity-type");
+			var commentEntityType = el.getAttribute('bx-mpl-comment-entity-type');
+			var postEntityType = el.getAttribute('bx-mpl-post-entity-type');
 
 			panels.push({
-				text : BX.message("BPC_MES_CREATE_TASK"),
+				text : BX.message('BPC_MES_CREATE_TASK'),
 				onclick : function() {
 					oLF.createTask({
-						postEntityType: (BX.type.isNotEmptyString(postEntityType) ? postEntityType : "BLOG_POST"),
-						entityType: (BX.type.isNotEmptyString(commentEntityType) ? commentEntityType : "BLOG_COMMENT"),
-						entityId: ID
+						postEntityType: (BX.type.isNotEmptyString(postEntityType) ? postEntityType : 'BLOG_POST'),
+						entityType: (BX.type.isNotEmptyString(commentEntityType) ? commentEntityType : 'BLOG_COMMENT'),
+						entityId: ID,
 					});
 					this.popupWindow.close();
 					return false;
 				}
 			});
+		}
+
+		if (
+			el.getAttribute('bx-mpl-createsubtask-show') === 'Y'
+			&& !BX.type.isUndefined(oLF)
+		)
+		{
+			var postEntityXmlId = el.getAttribute('bx-mpl-post-entity-xml-id');
+
+			var matches = postEntityXmlId.match(/^TASK_(\d+)$/i);
+			if (matches)
+			{
+				panels.push({
+					text : BX.message('BPC_MES_CREATE_SUBTASK'),
+					onclick : function() {
+						oLF.createTask({
+							postEntityType: postEntityType,
+							entityType: commentEntityType,
+							entityId: ID,
+							parentTaskId: parseInt(matches[1]),
+						});
+						this.popupWindow.close();
+						return false;
+					}
+				});
+			}
 		}
 
 		if (panels.length > 0) {
@@ -2186,13 +2229,17 @@
 				authorStyle = " feed-com-name-extranet";
 			}
 			var commentText = res["POST_MESSAGE_TEXT"].replace(/\001/gi, "").replace(/#/gi, "\001");
+			res.AUX_LIVE_PARAMS = (BX.type.isPlainObject(res.AUX_LIVE_PARAMS) ? res.AUX_LIVE_PARAMS : {});
 
 			if (
 				!!res.AUX
-				&& BX.util.in_array(res['AUX'], ['createentity', 'createtask', 'fileversion'])
+				&& (
+					BX.util.in_array(res.AUX, ['createentity', 'createtask', 'fileversion'])
+					|| (res.AUX === 'TASKINFO' && BX.type.isNotEmptyObject(res.AUX_LIVE_PARAMS))
+				)
 			)
 			{
-				commentText = BX.CommentAux.getLiveText(res.AUX, (!!res.AUX_LIVE_PARAMS ? res.AUX_LIVE_PARAMS : {} ));
+				commentText = BX.CommentAux.getLiveText(res.AUX, res.AUX_LIVE_PARAMS);
 			}
 
 			replacement = {

@@ -278,20 +278,15 @@ CJSCore::RegisterExt('videorecorder', array(
 	'rel' => array('core', 'popup'),
 ));
 
-CJSCore::RegisterExt('comment_aux', array(
-	'lang_additional' => array(),
-	'rel' => array('socialnetwork.commentaux')
-));
+CJSCore::RegisterExt('comment_aux', [
+	'lang_additional' => [],
+	'rel' => [ 'socialnetwork.commentaux' ],
+]);
 
-IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/socialnetwork/install/js/render_parts.php');
-CJSCore::RegisterExt('render_parts', array(
-	'js' => '/bitrix/js/socialnetwork/render_parts.js',
-	'lang_additional' => array(
-		'SONET_RENDERPARTS_JS_DESTINATION_ALL' => GetMessage(IsModuleInstalled('intranet') ? "SONET_RENDERPARTS_JS_DESTINATION_ALL" : GetMessage("SONET_RENDERPARTS_JS_DESTINATION_ALL_BUS")),
-		'SONET_RENDERPARTS_JS_HIDDEN' => GetMessage("SONET_RENDERPARTS_JS_HIDDEN")
-	),
-	'rel' => array('socialnetwork.commentaux')
-));
+CJSCore::RegisterExt('render_parts', [
+	'lang_additional' => [],
+	'rel' => [ 'socialnetwork.renderparts' ],
+]);
 
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/socialnetwork/install/js/content_view.php');
 CJSCore::RegisterExt('content_view', array(

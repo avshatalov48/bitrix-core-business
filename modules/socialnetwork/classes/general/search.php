@@ -265,7 +265,7 @@ class CSocNetSearch
 			$rsGroupSite = CSocNetGroup::GetSite($ar["ID"]);
 
 			while($arGroupSite = $rsGroupSite->Fetch())
-				$arSearchIndexSiteID[$arGroupSite["LID"]] = str_replace("#group_id#", $ar["ID"], COption::GetOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", $arGroupSite["LID"]));
+				$arSearchIndexSiteID[$arGroupSite["LID"]] = str_replace("#group_id#", $ar["ID"], \Bitrix\Socialnetwork\Helper\Path::get('group_path_template', $arGroupSite['LID']));
 
 			$Result = Array(
 				"ID" => "G".$ar["ID"],

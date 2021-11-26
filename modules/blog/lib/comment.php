@@ -10,6 +10,22 @@ namespace Bitrix\Blog;
 use Bitrix\Main\Entity;
 use Bitrix\Main\NotImplementedException;
 
+/**
+ * Class CommentTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Comment_Query query()
+ * @method static EO_Comment_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Comment_Result getById($id)
+ * @method static EO_Comment_Result getList(array $parameters = array())
+ * @method static EO_Comment_Entity getEntity()
+ * @method static \Bitrix\Blog\EO_Comment createObject($setDefaultValues = true)
+ * @method static \Bitrix\Blog\EO_Comment_Collection createCollection()
+ * @method static \Bitrix\Blog\EO_Comment wakeUpObject($row)
+ * @method static \Bitrix\Blog\EO_Comment_Collection wakeUpCollection($rows)
+ */
 class CommentTable extends Entity\DataManager
 {
 	public static function getTableName()

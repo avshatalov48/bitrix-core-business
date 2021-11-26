@@ -1,3 +1,7 @@
+.ui-access-rights.--lock {
+	pointer-events: none;
+}
+
 .ui-access-rights-block {
 	position: relative;
 	pointer-events: none;

@@ -2,7 +2,7 @@
 
 	if (typeof this.BX !== 'undefined' && typeof this.BX.Vue !== 'undefined')
 	{
-		var currentVersion = '2.6.12';
+		var currentVersion = '2.6.14';
 
 		if (this.BX.Vue.version() !== currentVersion)
 		{
@@ -23,12 +23,9 @@
 	 * @copyright 2001-2021 Bitrix
 	 */
 	var BitrixVue = /*#__PURE__*/function () {
-	  /**
-	   * @deprecated
-	   * @type {boolean}
-	   */
 	  function BitrixVue(VueVendor) {
 	    babelHelpers.classCallCheck(this, BitrixVue);
+	    this._appCounter = 0;
 	    this._components = {};
 	    this._mutations = {};
 	    this._clones = {};
@@ -68,6 +65,118 @@
 	  }, {
 	    key: "createApp",
 	    value: function createApp(params) {
+	      var bitrixVue = this; // 1. Init Bitrix public api
+
+	      var $Bitrix = {}; // 1.1 Localization
+
+	      $Bitrix.Loc = {
+	        messages: {},
+	        getMessage: function getMessage(messageId) {
+	          if (typeof this.messages[messageId] !== 'undefined') {
+	            return this.messages[messageId];
+	          }
+
+	          this.messages[messageId] = main_core.Loc.getMessage(messageId);
+	          return this.messages[messageId];
+	        },
+	        getMessages: function getMessages() {
+	          if (typeof BX.message !== 'undefined') {
+	            return babelHelpers.objectSpread({}, BX.message, this.messages);
+	          }
+
+	          return babelHelpers.objectSpread({}, this.messages);
+	        },
+	        setMessage: function setMessage(id, value) {
+	          if (main_core.Type.isString(id)) {
+	            this.messages[id] = value;
+	          }
+
+	          if (main_core.Type.isObject(id)) {
+	            for (var code in id) {
+	              if (id.hasOwnProperty(code)) {
+	                this.messages[code] = id[code];
+	              }
+	            }
+	          }
+	        }
+	      }; // 1.2  Application Data
+
+	      $Bitrix.Application = {
+	        instance: null,
+	        get: function get() {
+	          return this.instance;
+	        },
+	        set: function set(instance) {
+	          this.instance = instance;
+	        }
+	      }; // 1.3  Application Data
+
+	      $Bitrix.Data = {
+	        data: {},
+	        get: function get(name, defaultValue) {
+	          var _this$data$name;
+
+	          return (_this$data$name = this.data[name]) !== null && _this$data$name !== void 0 ? _this$data$name : defaultValue;
+	        },
+	        set: function set(name, value) {
+	          this.data[name] = value;
+	        }
+	      }; // 1.4  Application EventEmitter
+
+	      $Bitrix.eventEmitter = new main_core_events.EventEmitter();
+
+	      if (typeof $Bitrix.eventEmitter.setEventNamespace === 'function') {
+	        this._appCounter++;
+	        $Bitrix.eventEmitter.setEventNamespace('vue:app:' + this._appCounter);
+	      } else // hack for old version of Bitrix SM
+	        {
+	          window.BX.Event.EventEmitter.prototype.setEventNamespace = function () {};
+
+	          $Bitrix.eventEmitter.setEventNamespace = function () {};
+	        } // 1.5  Application RestClient
+
+
+	      $Bitrix.RestClient = {
+	        instance: null,
+	        get: function get() {
+	          var _this$instance;
+
+	          return (_this$instance = this.instance) !== null && _this$instance !== void 0 ? _this$instance : rest_client.rest;
+	        },
+	        set: function set(instance) {
+	          this.instance = instance;
+	          $Bitrix.eventEmitter.emit(bitrixVue.events.restClientChange);
+	        },
+	        isCustom: function isCustom() {
+	          return this.instance !== null;
+	        }
+	      }; // 1.6  Application PullClient
+
+	      $Bitrix.PullClient = {
+	        instance: null,
+	        get: function get() {
+	          var _this$instance2;
+
+	          return (_this$instance2 = this.instance) !== null && _this$instance2 !== void 0 ? _this$instance2 : pull_client.PULL;
+	        },
+	        set: function set(instance) {
+	          this.instance = instance;
+	          $Bitrix.eventEmitter.emit(bitrixVue.events.pullClientChange);
+	        },
+	        isCustom: function isCustom() {
+	          return this.instance !== null;
+	        }
+	      };
+
+	      if (typeof params.mixins === 'undefined') {
+	        params.mixins = [];
+	      }
+
+	      params.mixins.unshift({
+	        beforeCreate: function beforeCreate() {
+	          this.$bitrix = $Bitrix;
+	        }
+	      });
 	      var instance = new this._instance(params);
 
 	      instance.mount = function (rootContainer) {
@@ -114,7 +223,7 @@
 	      return this._instance.component(id, componentParams);
 	    }
 	    /**
-	     * Register Vue component
+	     * Register Vue component (local)
 	     * @see https://vuejs.org/v2/guide/components.html
 	     *
 	     * @param {string} name
@@ -128,9 +237,35 @@
 	    key: "localComponent",
 	    value: function localComponent(name, definition) {
 	      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-	      return this.component(name, definition, babelHelpers.objectSpread({}, options, {
+	      return this.component(name, definition, babelHelpers.objectSpread({
+	        immutable: false
+	      }, options, {
 	        local: true
 	      }));
+	    }
+	    /**
+	     * Get local Vue component
+	     * @see https://vuejs.org/v2/guide/components.html
+	     *
+	     * @param {string} name
+	     *
+	     * @returns {Object}
+	     */
+
+	  }, {
+	    key: "getLocalComponent",
+	    value: function getLocalComponent(name) {
+	      if (!this.isComponent(name)) {
+	        BitrixVue.showNotice('Component "' + name + '" is not registered yet.');
+	        return null;
+	      }
+
+	      if (!this.isLocal(name)) {
+	        BitrixVue.showNotice('You cannot get the component "' + name + '" because it is marked as global.');
+	        return null;
+	      }
+
+	      return this._getFinalComponentParams(name);
 	    }
 	    /**
 	     * Modify Vue component
@@ -159,8 +294,8 @@
 
 	      this._mutations[id].push(mutations);
 
-	      if (typeof this._components[id] !== 'undefined') {
-	        this.component(id, this._components[id]);
+	      if (typeof this._components[id] !== 'undefined' && !this.isLocal(id)) {
+	        this.component(id, this._components[id], this._components[id].bitrixOptions);
 	      }
 
 	      return function () {
@@ -181,6 +316,17 @@
 	  }, {
 	    key: "cloneComponent",
 	    value: function cloneComponent(id, sourceId, mutations) {
+	      if (this.isLocal(sourceId)) {
+	        var definition = this.getLocalComponent(sourceId);
+	        definition.name = id;
+	        this.component(id, definition, {
+	          immutable: false,
+	          local: true
+	        });
+	        this.mutateComponent(id, mutations);
+	        return true;
+	      }
+
 	      if (typeof this._clones[sourceId] === 'undefined') {
 	        this._clones[sourceId] = {};
 	      }
@@ -775,104 +921,15 @@
 	     * @deprecated Special method for plugin registration
 	     */
 	    value: function install(app, options) {
-	      var bitrixVue = this; // 1. Init Bitrix public api
-
-	      var $Bitrix = {}; // 1.1 Localization
-
-	      $Bitrix.Loc = {
-	        messages: {},
-	        getMessage: function getMessage(messageId) {
-	          if (typeof this.messages[messageId] !== 'undefined') {
-	            return this.messages[messageId];
-	          }
-
-	          this.messages[messageId] = main_core.Loc.getMessage(messageId);
-	          return this.messages[messageId];
-	        },
-	        getMessages: function getMessages() {
-	          if (typeof BX.message !== 'undefined') {
-	            return babelHelpers.objectSpread({}, BX.message, this.messages);
-	          }
-
-	          return babelHelpers.objectSpread({}, this.messages);
-	        },
-	        setMessage: function setMessage(id, value) {
-	          if (main_core.Type.isString(id)) {
-	            this.messages[id] = value;
-	          }
-
-	          if (main_core.Type.isObject(id)) {
-	            for (var code in id) {
-	              if (id.hasOwnProperty(code)) {
-	                this.messages[code] = id[code];
-	              }
-	            }
-	          }
-	        }
-	      }; // 1.2  Application Data
-
-	      $Bitrix.Application = {
-	        instance: null,
-	        get: function get() {
-	          return this.instance;
-	        },
-	        set: function set(instance) {
-	          this.instance = instance;
-	        }
-	      }; // 1.3  Application Data
-
-	      $Bitrix.Data = {
-	        data: {},
-	        get: function get(name, defaultValue) {
-	          var _this$data$name;
-
-	          return (_this$data$name = this.data[name]) !== null && _this$data$name !== void 0 ? _this$data$name : defaultValue;
-	        },
-	        set: function set(name, value) {
-	          this.data[name] = value;
-	        }
-	      }; // 1.4  Application EventEmitter
-
-	      $Bitrix.eventEmitter = new main_core_events.EventEmitter();
-	      $Bitrix.eventEmitter.setEventNamespace('vue:app:' + app._uid); // 1.5  Application RestClient
-
-	      $Bitrix.RestClient = {
-	        instance: null,
-	        get: function get() {
-	          var _this$instance;
-
-	          return (_this$instance = this.instance) !== null && _this$instance !== void 0 ? _this$instance : rest_client.rest;
-	        },
-	        set: function set(instance) {
-	          this.instance = instance;
-	          $Bitrix.eventEmitter.emit(bitrixVue.events.restClientChange);
-	        },
-	        isCustom: function isCustom() {
-	          return this.instance !== null;
-	        }
-	      }; // 1.6  Application PullClient
-
-	      $Bitrix.PullClient = {
-	        instance: null,
-	        get: function get() {
-	          var _this$instance2;
-
-	          return (_this$instance2 = this.instance) !== null && _this$instance2 !== void 0 ? _this$instance2 : pull_client.PULL;
-	        },
-	        set: function set(instance) {
-	          this.instance = instance;
-	          $Bitrix.eventEmitter.emit(bitrixVue.events.pullClientChange);
-	        },
-	        isCustom: function isCustom() {
-	          return this.instance !== null;
-	        }
-	      }; // 2. Apply global properties
-
-	      app.prototype.$bitrix = $Bitrix;
 	      app.mixin({
+	        beforeCreate: function beforeCreate() {
+	          if (typeof this.$root !== 'undefined') {
+	            this.$bitrix = this.$root.$bitrix;
+	          }
+	        },
 	        computed: {
 	          $Bitrix: function $Bitrix() {
-	            return this.$bitrix;
+	            return this.$root.$bitrix;
 	          }
 	        },
 	        mounted: function mounted() {
@@ -911,11 +968,11 @@
 	babelHelpers.defineProperty(BitrixVue, "developerMode", false);
 
 	/*!
-	 * Vue.js v2.6.12
-	 * (c) 2014-2020 Evan You
+	 * Vue.js v2.6.14
+	 * (c) 2014-2021 Evan You
 	 * Released under the MIT License.
 	 *
-	 * @source: vue.esm.browser.js
+	 * @source: https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.esm.browser.js
 	 */
 
 	/**
@@ -2608,13 +2665,17 @@
 	    }
 
 	    for (var i = 0; i < type.length && !valid; i++) {
-	      var assertedType = assertType(value, type[i]);
+	      var assertedType = assertType(value, type[i], vm);
 	      expectedTypes.push(assertedType.expectedType || '');
 	      valid = assertedType.valid;
 	    }
 	  }
 
-	  if (!valid) {
+	  var haveExpectedTypes = expectedTypes.some(function (t) {
+	    return t;
+	  });
+
+	  if (!valid && haveExpectedTypes) {
 	    warn(getInvalidTypeMessage(name, value, expectedTypes), vm);
 	    return;
 	  }
@@ -2628,9 +2689,9 @@
 	  }
 	}
 
-	var simpleCheckRE = /^(String|Number|Boolean|Function|Symbol)$/;
+	var simpleCheckRE = /^(String|Number|Boolean|Function|Symbol|BigInt)$/;
 
-	function assertType(value, type) {
+	function assertType(value, type, vm) {
 	  var valid;
 	  var expectedType = getType(type);
 
@@ -2646,7 +2707,12 @@
 	  } else if (expectedType === 'Array') {
 	    valid = Array.isArray(value);
 	  } else {
-	    valid = value instanceof type;
+	    try {
+	      valid = value instanceof type;
+	    } catch (e) {
+	      warn('Invalid prop type: "' + String(type) + '" is not a constructor', vm);
+	      valid = false;
+	    }
 	  }
 
 	  return {
@@ -2654,15 +2720,16 @@
 	    expectedType: expectedType
 	  };
 	}
+
+	var functionTypeCheckRE = /^\s*function (\w+)/;
 	/**
 	 * Use function string name to check built-in types,
 	 * because a simple equality check will fail when running
 	 * across different vms / iframes.
 	 */
 
-
 	function getType(fn) {
-	  var match = fn && fn.toString().match(/^\s*function (\w+)/);
+	  var match = fn && fn.toString().match(functionTypeCheckRE);
 	  return match ? match[1] : '';
 	}
 
@@ -2687,18 +2754,16 @@
 	function getInvalidTypeMessage(name, value, expectedTypes) {
 	  var message = "Invalid prop: type check failed for prop \"".concat(name, "\".") + " Expected ".concat(expectedTypes.map(capitalize).join(', '));
 	  var expectedType = expectedTypes[0];
-	  var receivedType = toRawType(value);
-	  var expectedValue = styleValue(value, expectedType);
-	  var receivedValue = styleValue(value, receivedType); // check if we need to specify expected value
+	  var receivedType = toRawType(value); // check if we need to specify expected value
 
-	  if (expectedTypes.length === 1 && isExplicable(expectedType) && !isBoolean(expectedType, receivedType)) {
-	    message += " with value ".concat(expectedValue);
+	  if (expectedTypes.length === 1 && isExplicable(expectedType) && isExplicable(babelHelpers.typeof(value)) && !isBoolean(expectedType, receivedType)) {
+	    message += " with value ".concat(styleValue(value, expectedType));
 	  }
 
 	  message += ", got ".concat(receivedType, " "); // check if we need to specify received value
 
 	  if (isExplicable(receivedType)) {
-	    message += "with value ".concat(receivedValue, ".");
+	    message += "with value ".concat(styleValue(value, receivedType), ".");
 	  }
 
 	  return message;
@@ -2714,9 +2779,10 @@
 	  }
 	}
 
+	var EXPLICABLE_TYPES = ['string', 'number', 'boolean'];
+
 	function isExplicable(value) {
-	  var explicitTypes = ['string', 'number', 'boolean'];
-	  return explicitTypes.some(function (elem) {
+	  return EXPLICABLE_TYPES.some(function (elem) {
 	    return value.toLowerCase() === elem;
 	  });
 	}
@@ -2948,7 +3014,7 @@
 
 	var initProxy;
 	{
-	  var allowedGlobals = makeMap('Infinity,undefined,NaN,isFinite,isNaN,' + 'parseFloat,parseInt,decodeURI,decodeURIComponent,encodeURI,encodeURIComponent,' + 'Math,Number,Date,Array,Object,Boolean,String,RegExp,Map,Set,JSON,Intl,' + 'require' // for Webpack/Browserify
+	  var allowedGlobals = makeMap('Infinity,undefined,NaN,isFinite,isNaN,' + 'parseFloat,parseInt,decodeURI,decodeURIComponent,encodeURI,encodeURIComponent,' + 'Math,Number,Date,Array,Object,Boolean,String,RegExp,Map,Set,JSON,Intl,BigInt,' + 'require' // for Webpack/Browserify
 	  );
 
 	  var warnNonPresent = function warnNonPresent(target, key) {
@@ -3423,6 +3489,12 @@
 	/*  */
 
 
+	function isAsyncPlaceholder(node) {
+	  return node.isComment && node.asyncFactory;
+	}
+	/*  */
+
+
 	function normalizeScopedSlots(slots, normalSlots, prevSlots) {
 	  var res;
 	  var hasNormalSlots = Object.keys(normalSlots).length > 0;
@@ -3472,7 +3544,8 @@
 	    var res = arguments.length ? fn.apply(null, arguments) : fn({});
 	    res = res && babelHelpers.typeof(res) === 'object' && !Array.isArray(res) ? [res] // single vnode
 	    : normalizeChildren(res);
-	    return res && (res.length === 0 || res.length === 1 && res[0].isComment // #9658
+	    var vnode = res && res[0];
+	    return res && (!vnode || res.length === 1 && vnode.isComment && !isAsyncPlaceholder(vnode) // #9658, #10391
 	    ) ? undefined : res;
 	  }; // this is a slot using the new v-slot syntax without scope. although it is
 	  // compiled as a scoped slot, render fn users would expect it to be present
@@ -3552,7 +3625,7 @@
 	 */
 
 
-	function renderSlot(name, fallback, props, bindObject) {
+	function renderSlot(name, fallbackRender, props, bindObject) {
 	  var scopedSlotFn = this.$scopedSlots[name];
 	  var nodes;
 
@@ -3568,9 +3641,9 @@
 	      props = extend(extend({}, bindObject), props);
 	    }
 
-	    nodes = scopedSlotFn(props) || fallback;
+	    nodes = scopedSlotFn(props) || (typeof fallbackRender === 'function' ? fallbackRender() : fallbackRender);
 	  } else {
-	    nodes = this.$slots[name] || fallback;
+	    nodes = this.$slots[name] || (typeof fallbackRender === 'function' ? fallbackRender() : fallbackRender);
 	  }
 
 	  var target = props && props.slot;
@@ -3620,6 +3693,8 @@
 	  } else if (eventKeyName) {
 	    return hyphenate(eventKeyName) !== key;
 	  }
+
+	  return eventKeyCode === undefined;
 	}
 	/*  */
 
@@ -4103,9 +4178,9 @@
 	  return vnode;
 	}
 
-	function createComponentInstanceForVnode(vnode, // we know it's MountedComponentVNode but flow doesn't
-	parent) // activeInstance in lifecycle state
-	{
+	function createComponentInstanceForVnode( // we know it's MountedComponentVNode but flow doesn't
+	vnode, // activeInstance in lifecycle state
+	parent) {
 	  var options = {
 	    _isComponent: true,
 	    _parentVnode: vnode,
@@ -4232,7 +4307,7 @@
 
 	    if (config.isReservedTag(tag)) {
 	      // platform built-in elements
-	      if (isDef(data) && isDef(data.nativeOn)) {
+	      if (isDef(data) && isDef(data.nativeOn) && data.tag !== 'component') {
 	        warn("The .native modifier for v-on is only valid on components but it was used on <".concat(tag, ">."), context);
 	      }
 
@@ -4547,12 +4622,6 @@
 
 	    return factory.loading ? factory.loadingComp : factory.resolved;
 	  }
-	}
-	/*  */
-
-
-	function isAsyncPlaceholder(node) {
-	  return node.isComment && node.asyncFactory;
 	}
 	/*  */
 
@@ -4931,7 +5000,7 @@
 
 	  var newScopedSlots = parentVnode.data.scopedSlots;
 	  var oldScopedSlots = vm.$scopedSlots;
-	  var hasDynamicScopedSlot = !!(newScopedSlots && !newScopedSlots.$stable || oldScopedSlots !== emptyObject && !oldScopedSlots.$stable || newScopedSlots && vm.$scopedSlots.$key !== newScopedSlots.$key); // Any static slot children from the parent may have changed during parent's
+	  var hasDynamicScopedSlot = !!(newScopedSlots && !newScopedSlots.$stable || oldScopedSlots !== emptyObject && !oldScopedSlots.$stable || newScopedSlots && vm.$scopedSlots.$key !== newScopedSlots.$key || !newScopedSlots && vm.$scopedSlots.$key); // Any static slot children from the parent may have changed during parent's
 	  // update. Dynamic scoped slots may also have changed. In such cases, a forced
 	  // update is necessary to ensure correctness.
 
@@ -5407,11 +5476,8 @@
 	          this.value = value;
 
 	          if (this.user) {
-	            try {
-	              this.cb.call(this.vm, value, oldValue);
-	            } catch (e) {
-	              handleError(e, this.vm, "callback for watcher \"".concat(this.expression, "\""));
-	            }
+	            var info = "callback for watcher \"".concat(this.expression, "\"");
+	            invokeWithErrorHandling(this.cb, this.vm, [value, oldValue], this.vm, info);
 	          } else {
 	            this.cb.call(this.vm, value, oldValue);
 	          }
@@ -5640,6 +5706,8 @@
 	        warn("The computed property \"".concat(key, "\" is already defined in data."), vm);
 	      } else if (vm.$options.props && key in vm.$options.props) {
 	        warn("The computed property \"".concat(key, "\" is already defined as a prop."), vm);
+	      } else if (vm.$options.methods && key in vm.$options.methods) {
+	        warn("The computed property \"".concat(key, "\" is already defined as a method."), vm);
 	      }
 	    }
 	  }
@@ -5779,11 +5847,10 @@
 	    var watcher = new Watcher(vm, expOrFn, cb, options);
 
 	    if (options.immediate) {
-	      try {
-	        cb.call(vm, watcher.value);
-	      } catch (error) {
-	        handleError(error, vm, "callback for immediate watcher \"".concat(watcher.expression, "\""));
-	      }
+	      var info = "callback for immediate watcher \"".concat(watcher.expression, "\"");
+	      pushTarget();
+	      invokeWithErrorHandling(cb, vm, [watcher.value], vm, info);
+	      popTarget();
 	    }
 
 	    return function unwatchFn() {
@@ -6115,10 +6182,10 @@
 	      _vnode = keepAliveInstance._vnode;
 
 	  for (var key in cache) {
-	    var cachedNode = cache[key];
+	    var entry = cache[key];
 
-	    if (cachedNode) {
-	      var name = getComponentName(cachedNode.componentOptions);
+	    if (entry) {
+	      var name = entry.name;
 
 	      if (name && !filter(name)) {
 	        pruneCacheEntry(cache, key, keys, _vnode);
@@ -6128,10 +6195,10 @@
 	}
 
 	function pruneCacheEntry(cache, key, keys, current) {
-	  var cached$$1 = cache[key];
+	  var entry = cache[key];
 
-	  if (cached$$1 && (!current || cached$$1.tag !== current.tag)) {
-	    cached$$1.componentInstance.$destroy();
+	  if (entry && (!current || entry.tag !== current.tag)) {
+	    entry.componentInstance.$destroy();
 	  }
 
 	  cache[key] = null;
@@ -6147,6 +6214,32 @@
 	    exclude: patternTypes,
 	    max: [String, Number]
 	  },
+	  methods: {
+	    cacheVNode: function cacheVNode() {
+	      var cache = this.cache,
+	          keys = this.keys,
+	          vnodeToCache = this.vnodeToCache,
+	          keyToCache = this.keyToCache;
+
+	      if (vnodeToCache) {
+	        var tag = vnodeToCache.tag,
+	            componentInstance = vnodeToCache.componentInstance,
+	            componentOptions = vnodeToCache.componentOptions;
+	        cache[keyToCache] = {
+	          name: getComponentName(componentOptions),
+	          tag: tag,
+	          componentInstance: componentInstance
+	        };
+	        keys.push(keyToCache); // prune oldest entry
+
+	        if (this.max && keys.length > parseInt(this.max)) {
+	          pruneCacheEntry(cache, keys[0], keys, this._vnode);
+	        }
+
+	        this.vnodeToCache = null;
+	      }
+	    }
+	  },
 	  created: function created() {
 	    this.cache = Object.create(null);
 	    this.keys = [];
@@ -6159,6 +6252,7 @@
 	  mounted: function mounted() {
 	    var _this2 = this;
 
+	    this.cacheVNode();
 	    this.$watch('include', function (val) {
 	      pruneCache(_this2, function (name) {
 	        return matches(val, name);
@@ -6169,6 +6263,9 @@
 	        return !matches(val, name);
 	      });
 	    });
+	  },
+	  updated: function updated() {
+	    this.cacheVNode();
 	  },
 	  render: function render() {
 	    var slot = this.$slots.default;
@@ -6199,12 +6296,9 @@
 	        remove(keys, key);
 	        keys.push(key);
 	      } else {
-	        cache[key] = vnode;
-	        keys.push(key); // prune oldest entry
-
-	        if (this.max && keys.length > parseInt(this.max)) {
-	          pruneCacheEntry(cache, keys[0], keys, this._vnode);
-	        }
+	        // delay setting the cache until update
+	        this.vnodeToCache = vnode;
+	        this.keyToCache = key;
 	      }
 
 	      vnode.data.keepAlive = true;
@@ -6278,7 +6372,7 @@
 	Object.defineProperty(Vue, 'FunctionalRenderContext', {
 	  value: FunctionalRenderContext
 	});
-	Vue.version = '2.6.12';
+	Vue.version = '2.6.14';
 	/*  */
 	// these are reserved for web because they are directly compiled away
 	// during template compilation
@@ -6299,7 +6393,7 @@
 	  : key === 'contenteditable' && isValidContentEditableValue(value) ? value : 'true';
 	};
 
-	var isBooleanAttr = makeMap('allowfullscreen,async,autofocus,autoplay,checked,compact,controls,declare,' + 'default,defaultchecked,defaultmuted,defaultselected,defer,disabled,' + 'enabled,formnovalidate,hidden,indeterminate,inert,ismap,itemscope,loop,multiple,' + 'muted,nohref,noresize,noshade,novalidate,nowrap,open,pauseonexit,readonly,' + 'required,reversed,scoped,seamless,selected,sortable,translate,' + 'truespeed,typemustmatch,visible');
+	var isBooleanAttr = makeMap('allowfullscreen,async,autofocus,autoplay,checked,compact,controls,declare,' + 'default,defaultchecked,defaultmuted,defaultselected,defer,disabled,' + 'enabled,formnovalidate,hidden,indeterminate,inert,ismap,itemscope,loop,multiple,' + 'muted,nohref,noresize,noshade,novalidate,nowrap,open,pauseonexit,readonly,' + 'required,reversed,scoped,seamless,selected,sortable,' + 'truespeed,typemustmatch,visible');
 	var xlinkNS = 'http://www.w3.org/1999/xlink';
 
 	var isXlink = function isXlink(name) {
@@ -6413,7 +6507,7 @@
 	var isHTMLTag = makeMap('html,body,base,head,link,meta,style,title,' + 'address,article,aside,footer,header,h1,h2,h3,h4,h5,h6,hgroup,nav,section,' + 'div,dd,dl,dt,figcaption,figure,picture,hr,img,li,main,ol,p,pre,ul,' + 'a,b,abbr,bdi,bdo,br,cite,code,data,dfn,em,i,kbd,mark,q,rp,rt,rtc,ruby,' + 's,samp,small,span,strong,sub,sup,time,u,var,wbr,area,audio,map,track,video,' + 'embed,object,param,source,canvas,script,noscript,del,ins,' + 'caption,col,colgroup,table,thead,tbody,td,th,tr,' + 'button,datalist,fieldset,form,input,label,legend,meter,optgroup,option,' + 'output,progress,select,textarea,' + 'details,dialog,menu,menuitem,summary,' + 'content,element,shadow,template,blockquote,iframe,tfoot'); // this map is intentionally selective, only covering SVG elements that may
 	// contain child elements.
 
-	var isSVG = makeMap('svg,animate,circle,clippath,cursor,defs,desc,ellipse,filter,font-face,' + 'foreignObject,g,glyph,image,line,marker,mask,missing-glyph,path,pattern,' + 'polygon,polyline,rect,switch,symbol,text,textpath,tspan,use,view', true);
+	var isSVG = makeMap('svg,animate,circle,clippath,cursor,defs,desc,ellipse,filter,font-face,' + 'foreignobject,g,glyph,image,line,marker,mask,missing-glyph,path,pattern,' + 'polygon,polyline,rect,switch,symbol,text,textpath,tspan,use,view', true);
 
 	var isPreTag = function isPreTag(tag) {
 	  return tag === 'pre';
@@ -6621,7 +6715,7 @@
 	var hooks = ['create', 'activate', 'update', 'remove', 'destroy'];
 
 	function sameVnode(a, b) {
-	  return a.key === b.key && (a.tag === b.tag && a.isComment === b.isComment && isDef(a.data) === isDef(b.data) && sameInputType(a, b) || isTrue(a.isAsyncPlaceholder) && a.asyncFactory === b.asyncFactory && isUndef(b.asyncFactory.error));
+	  return a.key === b.key && a.asyncFactory === b.asyncFactory && (a.tag === b.tag && a.isComment === b.isComment && isDef(a.data) === isDef(b.data) && sameInputType(a, b) || isTrue(a.isAsyncPlaceholder) && isUndef(b.asyncFactory.error));
 	}
 
 	function sameInputType(a, b) {
@@ -7525,7 +7619,7 @@
 	    old = oldAttrs[key];
 
 	    if (old !== cur) {
-	      setAttr(elm, key, cur);
+	      setAttr(elm, key, cur, vnode.data.pre);
 	    }
 	  } // #4391: in IE9, setting type can reset value for input[type=radio]
 	  // #6666: IE/Edge forces progress value down to 1 before setting a max
@@ -7548,8 +7642,8 @@
 	  }
 	}
 
-	function setAttr(el, key, value) {
-	  if (el.tagName.indexOf('-') > -1) {
+	function setAttr(el, key, value, isInPre) {
+	  if (isInPre || el.tagName.indexOf('-') > -1) {
 	    baseSetAttr(el, key, value);
 	  } else if (isBooleanAttr(key)) {
 	    // set attribute for blank value
@@ -9962,7 +10056,7 @@
 	// Regular Expressions for parsing tags and attributes
 
 	var attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
-	var dynamicArgAttribute = /^\s*((?:v-[\w-]+:|@|:|#)\[[^=]+\][^\s"'<>\/=]*)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
+	var dynamicArgAttribute = /^\s*((?:v-[\w-]+:|@|:|#)\[[^=]+?\][^\s"'<>\/=]*)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
 	var ncname = "[a-zA-Z_][\\-\\.0-9_a-zA-Z".concat(unicodeRegExp.source, "]*");
 	var qnameCapture = "((?:".concat(ncname, "\\:)?").concat(ncname, ")");
 	var startTagOpen = new RegExp("^<".concat(qnameCapture));
@@ -10294,7 +10388,7 @@
 	var modifierRE = /\.[^.\]]+(?=[^\]]*$)/g;
 	var slotRE = /^v-slot(:|$)|^#/;
 	var lineBreakRE = /[\r\n]/;
-	var whitespaceRE$1 = /\s+/g;
+	var whitespaceRE$1 = /[ \f\t\r\n]+/g;
 	var invalidAttributeRE = /[\s"'<>\/=]/;
 	var decodeHTMLCached = cached(he.decode);
 	var emptySlotScopeToken = "_empty_"; // configurable state
@@ -10333,7 +10427,7 @@
 	  var isReservedTag = options.isReservedTag || no;
 
 	  maybeComponent = function maybeComponent(el) {
-	    return !!el.component || !isReservedTag(el.tag);
+	    return !!(el.component || el.attrsMap[':is'] || el.attrsMap['v-bind:is'] || !(el.attrsMap.is ? isReservedTag(el.attrsMap.is) : isReservedTag(el.tag)));
 	  };
 
 	  transforms = pluckModuleFunction(options.modules, 'transformNode');
@@ -11547,7 +11641,7 @@
 	      code += genModifierCode;
 	    }
 
-	    var handlerCode = isMethodPath ? "return ".concat(handler.value, "($event)") : isFunctionExpression ? "return (".concat(handler.value, ")($event)") : isFunctionInvocation ? "return ".concat(handler.value) : handler.value;
+	    var handlerCode = isMethodPath ? "return ".concat(handler.value, ".apply(null, arguments)") : isFunctionExpression ? "return (".concat(handler.value, ").apply(null, arguments)") : isFunctionInvocation ? "return ".concat(handler.value) : handler.value;
 	    return "function($event){".concat(code).concat(handlerCode, "}");
 	  }
 	}
@@ -11620,8 +11714,9 @@
 	};
 
 	function generate(ast, options) {
-	  var state = new CodegenState(options);
-	  var code = ast ? genElement(ast, state) : '_c("div")';
+	  var state = new CodegenState(options); // fix #11483, Root level <script> tags should not be rendered.
+
+	  var code = ast ? ast.tag === 'script' ? 'null' : genElement(ast, state) : '_c("div")';
 	  return {
 	    render: "with(this){return ".concat(code, "}"),
 	    staticRenderFns: state.staticRenderFns
@@ -12069,7 +12164,7 @@
 	function genSlot(el, state) {
 	  var slotName = el.slotName || '"default"';
 	  var children = genChildren(el, state);
-	  var res = "_t(".concat(slotName).concat(children ? ",".concat(children) : '');
+	  var res = "_t(".concat(slotName).concat(children ? ",function(){return ".concat(children, "}") : '');
 	  var attrs = el.attrs || el.dynamicAttrs ? genProps((el.attrs || []).concat(el.dynamicAttrs || []).map(function (attr) {
 	    return {
 	      // slot props are camelized

@@ -105,20 +105,30 @@ class BoolType extends Base
 	 */
 	protected static function renderControl(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 	{
-		$className = static::generateControlClassName($fieldType, $field);
+		$isPublicControl = $renderMode & FieldType::RENDER_MODE_PUBLIC;
+		$className = $isPublicControl ? static::generateControlClassName($fieldType, $field) : '';
 
-		$renderResult = '<select id="'.htmlspecialcharsbx(static::generateControlId($field))
-				.'" name="'.htmlspecialcharsbx(static::generateControlName($field))
-				.'" class="'.htmlspecialcharsbx($className).'">';
+		$renderResult = sprintf(
+			'<select id="%s" name="%s" class="%s">',
+			htmlspecialcharsbx(static::generateControlId($field)),
+			htmlspecialcharsbx(static::generateControlName($field)),
+			htmlspecialcharsbx($className)
+		);
 
 		if (!$fieldType->isRequired())
 		{
 			$renderResult .= '<option value="">['.Loc::getMessage("BPDT_BOOL_NOT_SET").']</option>';
 		}
 
-		$renderResult .= '<option value="Y"'.($value == "Y" ? ' selected' : '').'>'.Loc::getMessage("BPDT_BOOL_YES").'</option>
-				<option value="N"'.($value == "N" ? ' selected' : '').'>'.Loc::getMessage("BPDT_BOOL_NO").'</option>
-			</select>';
+		$renderResult .= sprintf(
+			'<option value="Y"%s>%s</option>
+				<option value="N"%s>%s</option>
+			</select>',
+			$value === 'Y' ? ' selected' : '',
+			Loc::getMessage('BPDT_BOOL_YES'),
+			$value === 'N' ? ' selected' : '',
+			Loc::getMessage('BPDT_BOOL_NO')
+		);
 
 		return $renderResult;
 	}

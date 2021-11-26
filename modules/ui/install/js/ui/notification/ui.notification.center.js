@@ -48,6 +48,7 @@ BX.UI.Notification.Manager.prototype =
 	 * @param {BX.UI.Notification.BalloonOptions} options
 	 * @param {BX.UI.Notification.Position} [options.position]
 	 * @param {string} [options.type]
+	 * @param {boolean} [options.blinkOnUpdate]
 	 */
 	notify: function(options)
 	{
@@ -56,9 +57,17 @@ BX.UI.Notification.Manager.prototype =
 		var currentBalloon = this.getBalloonById(options.id) || this.getBalloonByCategory(options.category);
 		if (currentBalloon)
 		{
-			currentBalloon.update(options);
+			currentBalloon.setOptions(options);
 			currentBalloon.show();
-			currentBalloon.blink();
+			
+			if (options.blinkOnUpdate === false)
+			{
+				currentBalloon.update(null);
+			}
+			else
+			{
+				currentBalloon.blink();
+			}
 
 			return;
 		}

@@ -10919,6 +10919,8 @@
 		{
 			BXMobileApp.onCustomEvent('onImDialogOpen', {'id': dialogId}, true);
 		}
+
+		this.BXIM.messenger.linesShowPromo();
 	};
 
 	MessengerCommon.prototype.drawTab = function(userId, scroll, messageCount, changeTab)

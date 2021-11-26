@@ -541,7 +541,7 @@ class Letter extends Base
 
 		$oldSegments = $this->loadDataSegments($id);
 		$letter = LetterTable::getById($id)->fetch();
-		LetterSegmentTable::delete(array('LETTER_ID' => $id));
+		LetterSegmentTable::deleteList(array('LETTER_ID' => $id));
 
 		$isChanged = false;
 		$dataToInsert = [];

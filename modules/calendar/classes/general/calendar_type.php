@@ -1,6 +1,7 @@
 <?
 use Bitrix\Main\Loader;
 use Bitrix\Calendar\Util;
+use Bitrix\Main\UserTable;
 
 class CCalendarType
 {
@@ -324,10 +325,19 @@ class CCalendarType
 			}
 
 			if(!in_array('G2', $arCodes))
+			{
 				$arCodes[] = 'G2';
+			}
 
-			if($userId && !in_array('AU', $arCodes) && $USER && $USER->GetId() == $userId)
+			if($userId && !in_array('AU', $arCodes) && $USER && (int)$USER->GetId() == $userId)
+			{
 				$arCodes[] = 'AU';
+			}
+
+			if($userId && !in_array('UA', $arCodes) && $USER && (int)$USER->GetId() == $userId)
+			{
+				$arCodes[] = 'UA';
+			}
 
 			$key = $xmlId.'|'.implode(',', $arCodes);
 			if(!is_array(self::$arOp[$key]))

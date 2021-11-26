@@ -20,7 +20,7 @@ class DeliveryRequest extends \Bitrix\Main\Engine\Controller
 	 */
 	public function createAction(array $shipmentIds, array $additional = [], int $deliveryId = null)
 	{
-		if (!$this->checkPermission('W'))
+		if (!$this->checkPermission('U'))
 		{
 			return null;
 		}
@@ -60,7 +60,7 @@ class DeliveryRequest extends \Bitrix\Main\Engine\Controller
 	 */
 	public function executeAction(int $requestId, string $actionType, array $additional = [])
 	{
-		if (!$this->checkPermission('W'))
+		if (!$this->checkPermission('U'))
 		{
 			return null;
 		}
@@ -86,7 +86,7 @@ class DeliveryRequest extends \Bitrix\Main\Engine\Controller
 	 */
 	public function deleteAction(int $requestId)
 	{
-		if (!$this->checkPermission('W'))
+		if (!$this->checkPermission('U'))
 		{
 			return null;
 		}

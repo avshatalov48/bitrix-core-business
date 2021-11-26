@@ -115,18 +115,6 @@ namespace Bitrix\Forum\BadWords {
 }
 namespace Bitrix\Forum\BadWords {
 	/**
-	 * @method static EO_Dictionary_Query query()
-	 * @method static EO_Dictionary_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Dictionary_Result getById($id)
-	 * @method static EO_Dictionary_Result getList(array $parameters = array())
-	 * @method static EO_Dictionary_Entity getEntity()
-	 * @method static \Bitrix\Forum\BadWords\EO_Dictionary createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Forum\BadWords\EO_Dictionary_Collection createCollection()
-	 * @method static \Bitrix\Forum\BadWords\EO_Dictionary wakeUpObject($row)
-	 * @method static \Bitrix\Forum\BadWords\EO_Dictionary_Collection wakeUpCollection($rows)
-	 */
-	class DictionaryTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -327,18 +315,6 @@ namespace Bitrix\Forum\BadWords {
 }
 namespace Bitrix\Forum\BadWords {
 	/**
-	 * @method static EO_Filter_Query query()
-	 * @method static EO_Filter_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Filter_Result getById($id)
-	 * @method static EO_Filter_Result getList(array $parameters = array())
-	 * @method static EO_Filter_Entity getEntity()
-	 * @method static \Bitrix\Forum\BadWords\EO_Filter createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Forum\BadWords\EO_Filter_Collection createCollection()
-	 * @method static \Bitrix\Forum\BadWords\EO_Filter wakeUpObject($row)
-	 * @method static \Bitrix\Forum\BadWords\EO_Filter_Collection wakeUpCollection($rows)
-	 */
-	class FilterTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -491,18 +467,6 @@ namespace Bitrix\Forum\BadWords {
 }
 namespace Bitrix\Forum\BadWords {
 	/**
-	 * @method static EO_Letter_Query query()
-	 * @method static EO_Letter_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Letter_Result getById($id)
-	 * @method static EO_Letter_Result getList(array $parameters = array())
-	 * @method static EO_Letter_Entity getEntity()
-	 * @method static \Bitrix\Forum\BadWords\EO_Letter createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Forum\BadWords\EO_Letter_Collection createCollection()
-	 * @method static \Bitrix\Forum\BadWords\EO_Letter wakeUpObject($row)
-	 * @method static \Bitrix\Forum\BadWords\EO_Letter_Collection wakeUpCollection($rows)
-	 */
-	class LetterTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -528,7 +492,7 @@ namespace Bitrix\Forum\BadWords {
 	 */
 	class EO_Letter_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Forum\FileTable:forum/lib/file.php:5b38a9de938d02e7cbafedca8d281535 */
+/* ORMENTITYANNOTATION:Bitrix\Forum\FileTable:forum/lib/file.php:ab9d72d6a5fd932835c867b933b1d581 */
 namespace Bitrix\Forum {
 	/**
 	 * EO_File
@@ -622,6 +586,16 @@ namespace Bitrix\Forum {
 	 * @method bool isForumFilled()
 	 * @method bool isForumChanged()
 	 * @method \Bitrix\Forum\EO_Forum fillForum()
+	 * @method \Bitrix\Main\EO_File getFile()
+	 * @method \Bitrix\Main\EO_File remindActualFile()
+	 * @method \Bitrix\Main\EO_File requireFile()
+	 * @method \Bitrix\Forum\EO_File setFile(\Bitrix\Main\EO_File $object)
+	 * @method \Bitrix\Forum\EO_File resetFile()
+	 * @method \Bitrix\Forum\EO_File unsetFile()
+	 * @method bool hasFile()
+	 * @method bool isFileFilled()
+	 * @method bool isFileChanged()
+	 * @method \Bitrix\Main\EO_File fillFile()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -684,6 +658,9 @@ namespace Bitrix\Forum {
 	 * @method \Bitrix\Forum\EO_Forum[] getForumList()
 	 * @method \Bitrix\Forum\EO_File_Collection getForumCollection()
 	 * @method \Bitrix\Forum\EO_Forum_Collection fillForum()
+	 * @method \Bitrix\Main\EO_File[] getFileList()
+	 * @method \Bitrix\Forum\EO_File_Collection getFileCollection()
+	 * @method \Bitrix\Main\EO_File_Collection fillFile()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -717,18 +694,6 @@ namespace Bitrix\Forum {
 }
 namespace Bitrix\Forum {
 	/**
-	 * @method static EO_File_Query query()
-	 * @method static EO_File_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_File_Result getById($id)
-	 * @method static EO_File_Result getList(array $parameters = array())
-	 * @method static EO_File_Entity getEntity()
-	 * @method static \Bitrix\Forum\EO_File createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Forum\EO_File_Collection createCollection()
-	 * @method static \Bitrix\Forum\EO_File wakeUpObject($row)
-	 * @method static \Bitrix\Forum\EO_File_Collection wakeUpCollection($rows)
-	 */
-	class FileTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -754,7 +719,7 @@ namespace Bitrix\Forum {
 	 */
 	class EO_File_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Forum\ForumTable:forum/lib/forum.php:3403ba8013a5a4f4360989ac2d7eed43 */
+/* ORMENTITYANNOTATION:Bitrix\Forum\ForumTable:forum/lib/forum.php:e01d8f92f09cb91dda4200a14b8fcf80 */
 namespace Bitrix\Forum {
 	/**
 	 * EO_Forum
@@ -1436,18 +1401,6 @@ namespace Bitrix\Forum {
 }
 namespace Bitrix\Forum {
 	/**
-	 * @method static EO_Forum_Query query()
-	 * @method static EO_Forum_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Forum_Result getById($id)
-	 * @method static EO_Forum_Result getList(array $parameters = array())
-	 * @method static EO_Forum_Entity getEntity()
-	 * @method static \Bitrix\Forum\EO_Forum createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Forum\EO_Forum_Collection createCollection()
-	 * @method static \Bitrix\Forum\EO_Forum wakeUpObject($row)
-	 * @method static \Bitrix\Forum\EO_Forum_Collection wakeUpCollection($rows)
-	 */
-	class ForumTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1608,18 +1561,6 @@ namespace Bitrix\Forum {
 }
 namespace Bitrix\Forum {
 	/**
-	 * @method static EO_ForumSite_Query query()
-	 * @method static EO_ForumSite_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ForumSite_Result getById($id)
-	 * @method static EO_ForumSite_Result getList(array $parameters = array())
-	 * @method static EO_ForumSite_Entity getEntity()
-	 * @method static \Bitrix\Forum\EO_ForumSite createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Forum\EO_ForumSite_Collection createCollection()
-	 * @method static \Bitrix\Forum\EO_ForumSite wakeUpObject($row)
-	 * @method static \Bitrix\Forum\EO_ForumSite_Collection wakeUpCollection($rows)
-	 */
-	class ForumSiteTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1644,6 +1585,244 @@ namespace Bitrix\Forum {
 	 * @method \Bitrix\Forum\EO_ForumSite_Collection wakeUpCollection($rows)
 	 */
 	class EO_ForumSite_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Forum\ForumStatTable:forum/lib/forumstat.php:b5a2e0d3220e4789ef2197bd6f450a10 */
+namespace Bitrix\Forum {
+	/**
+	 * EO_ForumStat
+	 * @see \Bitrix\Forum\ForumStatTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Forum\EO_ForumStat setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Forum\EO_ForumStat setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Forum\EO_ForumStat resetUserId()
+	 * @method \Bitrix\Forum\EO_ForumStat unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \string getIpAddress()
+	 * @method \Bitrix\Forum\EO_ForumStat setIpAddress(\string|\Bitrix\Main\DB\SqlExpression $ipAddress)
+	 * @method bool hasIpAddress()
+	 * @method bool isIpAddressFilled()
+	 * @method bool isIpAddressChanged()
+	 * @method \string remindActualIpAddress()
+	 * @method \string requireIpAddress()
+	 * @method \Bitrix\Forum\EO_ForumStat resetIpAddress()
+	 * @method \Bitrix\Forum\EO_ForumStat unsetIpAddress()
+	 * @method \string fillIpAddress()
+	 * @method \string getPhpsessid()
+	 * @method \Bitrix\Forum\EO_ForumStat setPhpsessid(\string|\Bitrix\Main\DB\SqlExpression $phpsessid)
+	 * @method bool hasPhpsessid()
+	 * @method bool isPhpsessidFilled()
+	 * @method bool isPhpsessidChanged()
+	 * @method \string remindActualPhpsessid()
+	 * @method \string requirePhpsessid()
+	 * @method \Bitrix\Forum\EO_ForumStat resetPhpsessid()
+	 * @method \Bitrix\Forum\EO_ForumStat unsetPhpsessid()
+	 * @method \string fillPhpsessid()
+	 * @method \Bitrix\Main\Type\DateTime getLastVisit()
+	 * @method \Bitrix\Forum\EO_ForumStat setLastVisit(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $lastVisit)
+	 * @method bool hasLastVisit()
+	 * @method bool isLastVisitFilled()
+	 * @method bool isLastVisitChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualLastVisit()
+	 * @method \Bitrix\Main\Type\DateTime requireLastVisit()
+	 * @method \Bitrix\Forum\EO_ForumStat resetLastVisit()
+	 * @method \Bitrix\Forum\EO_ForumStat unsetLastVisit()
+	 * @method \Bitrix\Main\Type\DateTime fillLastVisit()
+	 * @method \string getSiteId()
+	 * @method \Bitrix\Forum\EO_ForumStat setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
+	 * @method bool hasSiteId()
+	 * @method bool isSiteIdFilled()
+	 * @method bool isSiteIdChanged()
+	 * @method \string remindActualSiteId()
+	 * @method \string requireSiteId()
+	 * @method \Bitrix\Forum\EO_ForumStat resetSiteId()
+	 * @method \Bitrix\Forum\EO_ForumStat unsetSiteId()
+	 * @method \string fillSiteId()
+	 * @method \int getForumId()
+	 * @method \Bitrix\Forum\EO_ForumStat setForumId(\int|\Bitrix\Main\DB\SqlExpression $forumId)
+	 * @method bool hasForumId()
+	 * @method bool isForumIdFilled()
+	 * @method bool isForumIdChanged()
+	 * @method \int remindActualForumId()
+	 * @method \int requireForumId()
+	 * @method \Bitrix\Forum\EO_ForumStat resetForumId()
+	 * @method \Bitrix\Forum\EO_ForumStat unsetForumId()
+	 * @method \int fillForumId()
+	 * @method \int getTopicId()
+	 * @method \Bitrix\Forum\EO_ForumStat setTopicId(\int|\Bitrix\Main\DB\SqlExpression $topicId)
+	 * @method bool hasTopicId()
+	 * @method bool isTopicIdFilled()
+	 * @method bool isTopicIdChanged()
+	 * @method \int remindActualTopicId()
+	 * @method \int requireTopicId()
+	 * @method \Bitrix\Forum\EO_ForumStat resetTopicId()
+	 * @method \Bitrix\Forum\EO_ForumStat unsetTopicId()
+	 * @method \int fillTopicId()
+	 * @method \string getShowName()
+	 * @method \Bitrix\Forum\EO_ForumStat setShowName(\string|\Bitrix\Main\DB\SqlExpression $showName)
+	 * @method bool hasShowName()
+	 * @method bool isShowNameFilled()
+	 * @method bool isShowNameChanged()
+	 * @method \string remindActualShowName()
+	 * @method \string requireShowName()
+	 * @method \Bitrix\Forum\EO_ForumStat resetShowName()
+	 * @method \Bitrix\Forum\EO_ForumStat unsetShowName()
+	 * @method \string fillShowName()
+	 * @method \Bitrix\Main\EO_User getUser()
+	 * @method \Bitrix\Main\EO_User remindActualUser()
+	 * @method \Bitrix\Main\EO_User requireUser()
+	 * @method \Bitrix\Forum\EO_ForumStat setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Forum\EO_ForumStat resetUser()
+	 * @method \Bitrix\Forum\EO_ForumStat unsetUser()
+	 * @method bool hasUser()
+	 * @method bool isUserFilled()
+	 * @method bool isUserChanged()
+	 * @method \Bitrix\Main\EO_User fillUser()
+	 * @method \Bitrix\Forum\EO_User getForumUser()
+	 * @method \Bitrix\Forum\EO_User remindActualForumUser()
+	 * @method \Bitrix\Forum\EO_User requireForumUser()
+	 * @method \Bitrix\Forum\EO_ForumStat setForumUser(\Bitrix\Forum\EO_User $object)
+	 * @method \Bitrix\Forum\EO_ForumStat resetForumUser()
+	 * @method \Bitrix\Forum\EO_ForumStat unsetForumUser()
+	 * @method bool hasForumUser()
+	 * @method bool isForumUserFilled()
+	 * @method bool isForumUserChanged()
+	 * @method \Bitrix\Forum\EO_User fillForumUser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Forum\EO_ForumStat set($fieldName, $value)
+	 * @method \Bitrix\Forum\EO_ForumStat reset($fieldName)
+	 * @method \Bitrix\Forum\EO_ForumStat unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Forum\EO_ForumStat wakeUp($data)
+	 */
+	class EO_ForumStat {
+		/* @var \Bitrix\Forum\ForumStatTable */
+		static public $dataClass = '\Bitrix\Forum\ForumStatTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Forum {
+	/**
+	 * EO_ForumStat_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \string[] getIpAddressList()
+	 * @method \string[] fillIpAddress()
+	 * @method \string[] getPhpsessidList()
+	 * @method \string[] fillPhpsessid()
+	 * @method \Bitrix\Main\Type\DateTime[] getLastVisitList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillLastVisit()
+	 * @method \string[] getSiteIdList()
+	 * @method \string[] fillSiteId()
+	 * @method \int[] getForumIdList()
+	 * @method \int[] fillForumId()
+	 * @method \int[] getTopicIdList()
+	 * @method \int[] fillTopicId()
+	 * @method \string[] getShowNameList()
+	 * @method \string[] fillShowName()
+	 * @method \Bitrix\Main\EO_User[] getUserList()
+	 * @method \Bitrix\Forum\EO_ForumStat_Collection getUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillUser()
+	 * @method \Bitrix\Forum\EO_User[] getForumUserList()
+	 * @method \Bitrix\Forum\EO_ForumStat_Collection getForumUserCollection()
+	 * @method \Bitrix\Forum\EO_User_Collection fillForumUser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Forum\EO_ForumStat $object)
+	 * @method bool has(\Bitrix\Forum\EO_ForumStat $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Forum\EO_ForumStat getByPrimary($primary)
+	 * @method \Bitrix\Forum\EO_ForumStat[] getAll()
+	 * @method bool remove(\Bitrix\Forum\EO_ForumStat $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Forum\EO_ForumStat_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Forum\EO_ForumStat current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_ForumStat_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Forum\ForumStatTable */
+		static public $dataClass = '\Bitrix\Forum\ForumStatTable';
+	}
+}
+namespace Bitrix\Forum {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_ForumStat_Result exec()
+	 * @method \Bitrix\Forum\EO_ForumStat fetchObject()
+	 * @method \Bitrix\Forum\EO_ForumStat_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_ForumStat_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Forum\EO_ForumStat fetchObject()
+	 * @method \Bitrix\Forum\EO_ForumStat_Collection fetchCollection()
+	 */
+	class EO_ForumStat_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Forum\EO_ForumStat createObject($setDefaultValues = true)
+	 * @method \Bitrix\Forum\EO_ForumStat_Collection createCollection()
+	 * @method \Bitrix\Forum\EO_ForumStat wakeUpObject($row)
+	 * @method \Bitrix\Forum\EO_ForumStat_Collection wakeUpCollection($rows)
+	 */
+	class EO_ForumStat_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Forum\GroupTable:forum/lib/group.php:32838036d6e37a6b76952c76b519be1a */
 namespace Bitrix\Forum {
@@ -1821,18 +2000,6 @@ namespace Bitrix\Forum {
 }
 namespace Bitrix\Forum {
 	/**
-	 * @method static EO_Group_Query query()
-	 * @method static EO_Group_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Group_Result getById($id)
-	 * @method static EO_Group_Result getList(array $parameters = array())
-	 * @method static EO_Group_Entity getEntity()
-	 * @method static \Bitrix\Forum\EO_Group createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Forum\EO_Group_Collection createCollection()
-	 * @method static \Bitrix\Forum\EO_Group wakeUpObject($row)
-	 * @method static \Bitrix\Forum\EO_Group_Collection wakeUpCollection($rows)
-	 */
-	class GroupTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1997,18 +2164,6 @@ namespace Bitrix\Forum {
 }
 namespace Bitrix\Forum {
 	/**
-	 * @method static EO_GroupLang_Query query()
-	 * @method static EO_GroupLang_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_GroupLang_Result getById($id)
-	 * @method static EO_GroupLang_Result getList(array $parameters = array())
-	 * @method static EO_GroupLang_Entity getEntity()
-	 * @method static \Bitrix\Forum\EO_GroupLang createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Forum\EO_GroupLang_Collection createCollection()
-	 * @method static \Bitrix\Forum\EO_GroupLang wakeUpObject($row)
-	 * @method static \Bitrix\Forum\EO_GroupLang_Collection wakeUpCollection($rows)
-	 */
-	class GroupLangTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2034,7 +2189,7 @@ namespace Bitrix\Forum {
 	 */
 	class EO_GroupLang_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Forum\MessageTable:forum/lib/message.php:5f7cf6ad3e30f444bcb188e0d0788aac */
+/* ORMENTITYANNOTATION:Bitrix\Forum\MessageTable:forum/lib/message.php:538aef6e63ddc0007eae9244aa206af1 */
 namespace Bitrix\Forum {
 	/**
 	 * EO_Message
@@ -2328,6 +2483,26 @@ namespace Bitrix\Forum {
 	 * @method \Bitrix\Forum\EO_Message resetMailHeader()
 	 * @method \Bitrix\Forum\EO_Message unsetMailHeader()
 	 * @method \string fillMailHeader()
+	 * @method \int getServiceType()
+	 * @method \Bitrix\Forum\EO_Message setServiceType(\int|\Bitrix\Main\DB\SqlExpression $serviceType)
+	 * @method bool hasServiceType()
+	 * @method bool isServiceTypeFilled()
+	 * @method bool isServiceTypeChanged()
+	 * @method \int remindActualServiceType()
+	 * @method \int requireServiceType()
+	 * @method \Bitrix\Forum\EO_Message resetServiceType()
+	 * @method \Bitrix\Forum\EO_Message unsetServiceType()
+	 * @method \int fillServiceType()
+	 * @method \string getServiceData()
+	 * @method \Bitrix\Forum\EO_Message setServiceData(\string|\Bitrix\Main\DB\SqlExpression $serviceData)
+	 * @method bool hasServiceData()
+	 * @method bool isServiceDataFilled()
+	 * @method bool isServiceDataChanged()
+	 * @method \string remindActualServiceData()
+	 * @method \string requireServiceData()
+	 * @method \Bitrix\Forum\EO_Message resetServiceData()
+	 * @method \Bitrix\Forum\EO_Message unsetServiceData()
+	 * @method \string fillServiceData()
 	 * @method \Bitrix\Forum\EO_Topic getTopic()
 	 * @method \Bitrix\Forum\EO_Topic remindActualTopic()
 	 * @method \Bitrix\Forum\EO_Topic requireTopic()
@@ -2338,6 +2513,36 @@ namespace Bitrix\Forum {
 	 * @method bool isTopicFilled()
 	 * @method bool isTopicChanged()
 	 * @method \Bitrix\Forum\EO_Topic fillTopic()
+	 * @method \Bitrix\Forum\EO_User getForumUser()
+	 * @method \Bitrix\Forum\EO_User remindActualForumUser()
+	 * @method \Bitrix\Forum\EO_User requireForumUser()
+	 * @method \Bitrix\Forum\EO_Message setForumUser(\Bitrix\Forum\EO_User $object)
+	 * @method \Bitrix\Forum\EO_Message resetForumUser()
+	 * @method \Bitrix\Forum\EO_Message unsetForumUser()
+	 * @method bool hasForumUser()
+	 * @method bool isForumUserFilled()
+	 * @method bool isForumUserChanged()
+	 * @method \Bitrix\Forum\EO_User fillForumUser()
+	 * @method \Bitrix\Forum\EO_UserTopic getForumUserTopic()
+	 * @method \Bitrix\Forum\EO_UserTopic remindActualForumUserTopic()
+	 * @method \Bitrix\Forum\EO_UserTopic requireForumUserTopic()
+	 * @method \Bitrix\Forum\EO_Message setForumUserTopic(\Bitrix\Forum\EO_UserTopic $object)
+	 * @method \Bitrix\Forum\EO_Message resetForumUserTopic()
+	 * @method \Bitrix\Forum\EO_Message unsetForumUserTopic()
+	 * @method bool hasForumUserTopic()
+	 * @method bool isForumUserTopicFilled()
+	 * @method bool isForumUserTopicChanged()
+	 * @method \Bitrix\Forum\EO_UserTopic fillForumUserTopic()
+	 * @method \Bitrix\Main\EO_User getUser()
+	 * @method \Bitrix\Main\EO_User remindActualUser()
+	 * @method \Bitrix\Main\EO_User requireUser()
+	 * @method \Bitrix\Forum\EO_Message setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Forum\EO_Message resetUser()
+	 * @method \Bitrix\Forum\EO_Message unsetUser()
+	 * @method bool hasUser()
+	 * @method bool isUserFilled()
+	 * @method bool isUserChanged()
+	 * @method \Bitrix\Main\EO_User fillUser()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -2438,9 +2643,22 @@ namespace Bitrix\Forum {
 	 * @method \string[] fillHtml()
 	 * @method \string[] getMailHeaderList()
 	 * @method \string[] fillMailHeader()
+	 * @method \int[] getServiceTypeList()
+	 * @method \int[] fillServiceType()
+	 * @method \string[] getServiceDataList()
+	 * @method \string[] fillServiceData()
 	 * @method \Bitrix\Forum\EO_Topic[] getTopicList()
 	 * @method \Bitrix\Forum\EO_Message_Collection getTopicCollection()
 	 * @method \Bitrix\Forum\EO_Topic_Collection fillTopic()
+	 * @method \Bitrix\Forum\EO_User[] getForumUserList()
+	 * @method \Bitrix\Forum\EO_Message_Collection getForumUserCollection()
+	 * @method \Bitrix\Forum\EO_User_Collection fillForumUser()
+	 * @method \Bitrix\Forum\EO_UserTopic[] getForumUserTopicList()
+	 * @method \Bitrix\Forum\EO_Message_Collection getForumUserTopicCollection()
+	 * @method \Bitrix\Forum\EO_UserTopic_Collection fillForumUserTopic()
+	 * @method \Bitrix\Main\EO_User[] getUserList()
+	 * @method \Bitrix\Forum\EO_Message_Collection getUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillUser()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -2473,18 +2691,6 @@ namespace Bitrix\Forum {
 	}
 }
 namespace Bitrix\Forum {
-	/**
-	 * @method static EO_Message_Query query()
-	 * @method static EO_Message_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Message_Result getById($id)
-	 * @method static EO_Message_Result getList(array $parameters = array())
-	 * @method static EO_Message_Entity getEntity()
-	 * @method static \Bitrix\Forum\EO_Message createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Forum\EO_Message_Collection createCollection()
-	 * @method static \Bitrix\Forum\EO_Message wakeUpObject($row)
-	 * @method static \Bitrix\Forum\EO_Message_Collection wakeUpCollection($rows)
-	 */
-	class MessageTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2650,18 +2856,6 @@ namespace Bitrix\Forum {
 	}
 }
 namespace Bitrix\Forum {
-	/**
-	 * @method static EO_Permission_Query query()
-	 * @method static EO_Permission_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Permission_Result getById($id)
-	 * @method static EO_Permission_Result getList(array $parameters = array())
-	 * @method static EO_Permission_Entity getEntity()
-	 * @method static \Bitrix\Forum\EO_Permission createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Forum\EO_Permission_Collection createCollection()
-	 * @method static \Bitrix\Forum\EO_Permission wakeUpObject($row)
-	 * @method static \Bitrix\Forum\EO_Permission_Collection wakeUpCollection($rows)
-	 */
-	class PermissionTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -2901,18 +3095,6 @@ namespace Bitrix\Forum {
 }
 namespace Bitrix\Forum {
 	/**
-	 * @method static EO_Subscribe_Query query()
-	 * @method static EO_Subscribe_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Subscribe_Result getById($id)
-	 * @method static EO_Subscribe_Result getList(array $parameters = array())
-	 * @method static EO_Subscribe_Entity getEntity()
-	 * @method static \Bitrix\Forum\EO_Subscribe createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Forum\EO_Subscribe_Collection createCollection()
-	 * @method static \Bitrix\Forum\EO_Subscribe wakeUpObject($row)
-	 * @method static \Bitrix\Forum\EO_Subscribe_Collection wakeUpCollection($rows)
-	 */
-	class SubscribeTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2938,7 +3120,7 @@ namespace Bitrix\Forum {
 	 */
 	class EO_Subscribe_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Forum\TopicTable:forum/lib/topic.php:0c34d1773012c7c21f54f4516200e7ba */
+/* ORMENTITYANNOTATION:Bitrix\Forum\TopicTable:forum/lib/topic.php:2de9e113c87b7143a8b94b12ef2a6993 */
 namespace Bitrix\Forum {
 	/**
 	 * EO_Topic
@@ -3102,6 +3284,16 @@ namespace Bitrix\Forum {
 	 * @method \Bitrix\Forum\EO_Topic resetPosts()
 	 * @method \Bitrix\Forum\EO_Topic unsetPosts()
 	 * @method \int fillPosts()
+	 * @method \int getPostsService()
+	 * @method \Bitrix\Forum\EO_Topic setPostsService(\int|\Bitrix\Main\DB\SqlExpression $postsService)
+	 * @method bool hasPostsService()
+	 * @method bool isPostsServiceFilled()
+	 * @method bool isPostsServiceChanged()
+	 * @method \int remindActualPostsService()
+	 * @method \int requirePostsService()
+	 * @method \Bitrix\Forum\EO_Topic resetPostsService()
+	 * @method \Bitrix\Forum\EO_Topic unsetPostsService()
+	 * @method \int fillPostsService()
 	 * @method \int getLastPosterId()
 	 * @method \Bitrix\Forum\EO_Topic setLastPosterId(\int|\Bitrix\Main\DB\SqlExpression $lastPosterId)
 	 * @method bool hasLastPosterId()
@@ -3316,6 +3508,8 @@ namespace Bitrix\Forum {
 	 * @method \Bitrix\Main\Type\DateTime[] fillStartDate()
 	 * @method \int[] getPostsList()
 	 * @method \int[] fillPosts()
+	 * @method \int[] getPostsServiceList()
+	 * @method \int[] fillPostsService()
 	 * @method \int[] getLastPosterIdList()
 	 * @method \int[] fillLastPosterId()
 	 * @method \string[] getLastPosterNameList()
@@ -3378,18 +3572,6 @@ namespace Bitrix\Forum {
 }
 namespace Bitrix\Forum {
 	/**
-	 * @method static EO_Topic_Query query()
-	 * @method static EO_Topic_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Topic_Result getById($id)
-	 * @method static EO_Topic_Result getList(array $parameters = array())
-	 * @method static EO_Topic_Entity getEntity()
-	 * @method static \Bitrix\Forum\EO_Topic createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Forum\EO_Topic_Collection createCollection()
-	 * @method static \Bitrix\Forum\EO_Topic wakeUpObject($row)
-	 * @method static \Bitrix\Forum\EO_Topic_Collection wakeUpCollection($rows)
-	 */
-	class TopicTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3415,7 +3597,7 @@ namespace Bitrix\Forum {
 	 */
 	class EO_Topic_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Forum\UserTable:forum/lib/user.php:326007e4c903bfcba06086bce895ad79 */
+/* ORMENTITYANNOTATION:Bitrix\Forum\UserTable:forum/lib/user.php:4c0c7c55502e758c7928159ed596d7b2 */
 namespace Bitrix\Forum {
 	/**
 	 * EO_User
@@ -3735,18 +3917,6 @@ namespace Bitrix\Forum {
 }
 namespace Bitrix\Forum {
 	/**
-	 * @method static EO_User_Query query()
-	 * @method static EO_User_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_User_Result getById($id)
-	 * @method static EO_User_Result getList(array $parameters = array())
-	 * @method static EO_User_Entity getEntity()
-	 * @method static \Bitrix\Forum\EO_User createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Forum\EO_User_Collection createCollection()
-	 * @method static \Bitrix\Forum\EO_User wakeUpObject($row)
-	 * @method static \Bitrix\Forum\EO_User_Collection wakeUpCollection($rows)
-	 */
-	class UserTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -3772,7 +3942,191 @@ namespace Bitrix\Forum {
 	 */
 	class EO_User_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Forum\UserTopicTable:forum/lib/usertopic.php:6a7c8b0dcf8c5593c6e038acb293b372 */
+/* ORMENTITYANNOTATION:Bitrix\Forum\UserForumTable:forum/lib/userforum.php:c534be02b287991561ecf2ac4f2b5c97 */
+namespace Bitrix\Forum {
+	/**
+	 * EO_UserForum
+	 * @see \Bitrix\Forum\UserForumTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Forum\EO_UserForum setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int remindActualId()
+	 * @method \int requireId()
+	 * @method \Bitrix\Forum\EO_UserForum resetId()
+	 * @method \Bitrix\Forum\EO_UserForum unsetId()
+	 * @method \int fillId()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Forum\EO_UserForum setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int getForumId()
+	 * @method \Bitrix\Forum\EO_UserForum setForumId(\int|\Bitrix\Main\DB\SqlExpression $forumId)
+	 * @method bool hasForumId()
+	 * @method bool isForumIdFilled()
+	 * @method bool isForumIdChanged()
+	 * @method \Bitrix\Main\Type\DateTime getLastVisit()
+	 * @method \Bitrix\Forum\EO_UserForum setLastVisit(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $lastVisit)
+	 * @method bool hasLastVisit()
+	 * @method bool isLastVisitFilled()
+	 * @method bool isLastVisitChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualLastVisit()
+	 * @method \Bitrix\Main\Type\DateTime requireLastVisit()
+	 * @method \Bitrix\Forum\EO_UserForum resetLastVisit()
+	 * @method \Bitrix\Forum\EO_UserForum unsetLastVisit()
+	 * @method \Bitrix\Main\Type\DateTime fillLastVisit()
+	 * @method \Bitrix\Main\Type\DateTime getMainLastVisit()
+	 * @method \Bitrix\Forum\EO_UserForum setMainLastVisit(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $mainLastVisit)
+	 * @method bool hasMainLastVisit()
+	 * @method bool isMainLastVisitFilled()
+	 * @method bool isMainLastVisitChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualMainLastVisit()
+	 * @method \Bitrix\Main\Type\DateTime requireMainLastVisit()
+	 * @method \Bitrix\Forum\EO_UserForum resetMainLastVisit()
+	 * @method \Bitrix\Forum\EO_UserForum unsetMainLastVisit()
+	 * @method \Bitrix\Main\Type\DateTime fillMainLastVisit()
+	 * @method \Bitrix\Main\EO_User getUser()
+	 * @method \Bitrix\Main\EO_User remindActualUser()
+	 * @method \Bitrix\Main\EO_User requireUser()
+	 * @method \Bitrix\Forum\EO_UserForum setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Forum\EO_UserForum resetUser()
+	 * @method \Bitrix\Forum\EO_UserForum unsetUser()
+	 * @method bool hasUser()
+	 * @method bool isUserFilled()
+	 * @method bool isUserChanged()
+	 * @method \Bitrix\Main\EO_User fillUser()
+	 * @method \Bitrix\Forum\EO_User getForumUser()
+	 * @method \Bitrix\Forum\EO_User remindActualForumUser()
+	 * @method \Bitrix\Forum\EO_User requireForumUser()
+	 * @method \Bitrix\Forum\EO_UserForum setForumUser(\Bitrix\Forum\EO_User $object)
+	 * @method \Bitrix\Forum\EO_UserForum resetForumUser()
+	 * @method \Bitrix\Forum\EO_UserForum unsetForumUser()
+	 * @method bool hasForumUser()
+	 * @method bool isForumUserFilled()
+	 * @method bool isForumUserChanged()
+	 * @method \Bitrix\Forum\EO_User fillForumUser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Forum\EO_UserForum set($fieldName, $value)
+	 * @method \Bitrix\Forum\EO_UserForum reset($fieldName)
+	 * @method \Bitrix\Forum\EO_UserForum unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Forum\EO_UserForum wakeUp($data)
+	 */
+	class EO_UserForum {
+		/* @var \Bitrix\Forum\UserForumTable */
+		static public $dataClass = '\Bitrix\Forum\UserForumTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Forum {
+	/**
+	 * EO_UserForum_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] fillId()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] getForumIdList()
+	 * @method \Bitrix\Main\Type\DateTime[] getLastVisitList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillLastVisit()
+	 * @method \Bitrix\Main\Type\DateTime[] getMainLastVisitList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillMainLastVisit()
+	 * @method \Bitrix\Main\EO_User[] getUserList()
+	 * @method \Bitrix\Forum\EO_UserForum_Collection getUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillUser()
+	 * @method \Bitrix\Forum\EO_User[] getForumUserList()
+	 * @method \Bitrix\Forum\EO_UserForum_Collection getForumUserCollection()
+	 * @method \Bitrix\Forum\EO_User_Collection fillForumUser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Forum\EO_UserForum $object)
+	 * @method bool has(\Bitrix\Forum\EO_UserForum $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Forum\EO_UserForum getByPrimary($primary)
+	 * @method \Bitrix\Forum\EO_UserForum[] getAll()
+	 * @method bool remove(\Bitrix\Forum\EO_UserForum $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Forum\EO_UserForum_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Forum\EO_UserForum current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_UserForum_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Forum\UserForumTable */
+		static public $dataClass = '\Bitrix\Forum\UserForumTable';
+	}
+}
+namespace Bitrix\Forum {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_UserForum_Result exec()
+	 * @method \Bitrix\Forum\EO_UserForum fetchObject()
+	 * @method \Bitrix\Forum\EO_UserForum_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_UserForum_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Forum\EO_UserForum fetchObject()
+	 * @method \Bitrix\Forum\EO_UserForum_Collection fetchCollection()
+	 */
+	class EO_UserForum_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Forum\EO_UserForum createObject($setDefaultValues = true)
+	 * @method \Bitrix\Forum\EO_UserForum_Collection createCollection()
+	 * @method \Bitrix\Forum\EO_UserForum wakeUpObject($row)
+	 * @method \Bitrix\Forum\EO_UserForum_Collection wakeUpCollection($rows)
+	 */
+	class EO_UserForum_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Forum\UserTopicTable:forum/lib/usertopic.php:3012ae3ea50c7dde45352d3bf53003bc */
 namespace Bitrix\Forum {
 	/**
 	 * EO_UserTopic
@@ -3904,18 +4258,6 @@ namespace Bitrix\Forum {
 	}
 }
 namespace Bitrix\Forum {
-	/**
-	 * @method static EO_UserTopic_Query query()
-	 * @method static EO_UserTopic_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_UserTopic_Result getById($id)
-	 * @method static EO_UserTopic_Result getList(array $parameters = array())
-	 * @method static EO_UserTopic_Entity getEntity()
-	 * @method static \Bitrix\Forum\EO_UserTopic createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Forum\EO_UserTopic_Collection createCollection()
-	 * @method static \Bitrix\Forum\EO_UserTopic wakeUpObject($row)
-	 * @method static \Bitrix\Forum\EO_UserTopic_Collection wakeUpCollection($rows)
-	 */
-	class UserTopicTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

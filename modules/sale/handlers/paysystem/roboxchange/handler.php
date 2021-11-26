@@ -3,6 +3,7 @@ namespace Sale\Handlers\PaySystem;
 
 use Bitrix\Main\Error;
 use Bitrix\Main\Request;
+use Bitrix\Main\Context;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web;
@@ -37,6 +38,11 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 	 */
 	public function initiatePay(Payment $payment, Request $request = null)
 	{
+		if ($request === null)
+		{
+			$request = Context::getCurrent()->getRequest();
+		}
+
 		$receipt = null;
 		if ($this->service->canPrintCheckSelf($payment))
 		{
@@ -53,16 +59,18 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 			PaySystem\Logger::addDebugInfo(__CLASS__.": receipt = {$receipt}");
 		}
 
+		$additionalUserFields = $this->getAdditionalUserFields($payment, $request);
+
 		$params = [
 			'URL' => $this->getUrl($payment, 'pay'),
 			'PS_MODE' => self::getHandlerModeAlias($this->service->getField('PS_MODE')),
-			'SIGNATURE_VALUE' => $this->getSignatureValue($payment, $receipt),
+			'SIGNATURE_VALUE' => $this->getSignatureValue($payment, $receipt, $additionalUserFields),
 			'ROBOXCHANGE_ORDERDESCR' => $this->getOrderDescription($payment),
 			'PAYMENT_ID' => $this->getBusinessValue($payment, 'PAYMENT_ID'),
 			'SUM' => PriceMaths::roundPrecision($payment->getSum()),
 			'CURRENCY' => $payment->getField('CURRENCY'),
 			'OUT_SUM_CURRENCY' => $this->getOutSumCurrency($payment),
-			'ADDITIONAL_USER_FIELDS' => $this->getAdditionalUserFields($payment),
+			'ADDITIONAL_USER_FIELDS' => $additionalUserFields,
 			'RECEIPT' => $receipt,
 		];
 		$this->setExtraParams($params);
@@ -74,7 +82,7 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 	 * @param Payment $payment
 	 * @return array
 	 */
-	private function getAdditionalUserFields(Payment $payment): array
+	private function getAdditionalUserFields(Payment $payment, Request $request): array
 	{
 		$countryCode = $this->getCountryCode($payment);
 
@@ -83,6 +91,7 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 			'SHP_BX_PAYSYSTEM_CODE' => $this->service->getField('ID'),
 			'SHP_HANDLER' => 'ROBOXCHANGE',
 			'SHP_PARTNER' => $countryCode === 'RU' ? self::ANALYTICS_LABEL_RU_VALUE : self::ANALYTICS_LABEL_KZ_VALUE,
+			'SHP_BX_REDIRECT_URL' => $request->get('SHP_BX_REDIRECT_URL') ?: $this->getReturnUrl(),
 		];
 		ksort($additionalUserFields);
 
@@ -92,9 +101,10 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 	/**
 	 * @param Payment $payment
 	 * @param string|null $receipt
+	 * @param array $additionalUserFields
 	 * @return string
 	 */
-	private function getSignatureValue(Payment $payment, string $receipt = null): string
+	private function getSignatureValue(Payment $payment, string $receipt = null, array $additionalUserFields = []): string
 	{
 		$passwordCode = 'ROBOXCHANGE_SHOPPASSWORD';
 		if ($this->isTestMode($payment))
@@ -106,7 +116,7 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 
 		$signaturePartList = [
 			$this->getBusinessValue($payment, 'ROBOXCHANGE_SHOPLOGIN'),
-			(float)$payment->getSum(),
+			$payment->getSum(),
 			$this->getBusinessValue($payment, 'PAYMENT_ID'),
 		];
 
@@ -122,9 +132,12 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 
 		$signaturePartList[] = $shopPassword1;
 
-		foreach ($this->getAdditionalUserFields($payment) as $fieldName => $fieldValue)
+		if ($additionalUserFields)
 		{
-			$signaturePartList[] = implode('=', [$fieldName, $fieldValue]);
+			foreach ($additionalUserFields as $fieldName => $fieldValue)
+			{
+				$signaturePartList[] = implode('=', [$fieldName, $fieldValue]);
+			}
 		}
 
 		return md5(implode(':', $signaturePartList));
@@ -194,7 +207,7 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 			$shopPassword2,
 		];
 
-		foreach ($this->getAdditionalUserFields($payment) as $fieldName => $fieldValue)
+		foreach ($this->getAdditionalUserFields($payment, $request) as $fieldName => $fieldValue)
 		{
 			$signaturePartList[] = implode('=', [$fieldName, $fieldValue]);
 		}
@@ -423,5 +436,10 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 	public static function getCashboxClass(): string
 	{
 		return '\\'.Cashbox\CashboxRobokassa::class;
+	}
+
+	private function getReturnUrl(): string
+	{
+		return $this->service->getContext()->getUrl();
 	}
 }

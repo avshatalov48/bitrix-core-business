@@ -1,5 +1,8 @@
 <?php
 $MESS["BPAR_PD_TASK_BUTTON_CANCEL_MESSAGE"] = "Text for \"Decline\" button in task";
+$MESS["BPRIA_PD_CANCEL_TYPE"] = "Can be declined by";
+$MESS["BPRIA_PD_CANCEL_TYPE_ALL"] = "All employees";
+$MESS["BPRIA_PD_CANCEL_TYPE_ANY"] = "Any employee";
 $MESS["BPRIA_PD_SAVE_VARIABLES"] = "Save values on failure";
 $MESS["BPRIOA_ACT_APPROVE_TRACK"] = "User #PERSON# has provided additional information #COMMENT#";
 $MESS["BPRIOA_ACT_BUTTON1"] = "Save";
@@ -14,10 +17,8 @@ $MESS["BPRIOA_ACT_PROP_EMPTY4"] = "The 'Name' property is missing.";
 $MESS["BPRIOA_ACT_TRACK1"] = "Additional information is to be provided by #VAL#";
 $MESS["BPRIOA_ARGUMENT_NULL"] = "The required value '#PARAM#' is missing.";
 $MESS["BPRIOA_LOG_COMMENTS"] = "Comment";
+$MESS["BPSFA_COMMENT_REQUIRED_YA"] = "Only when approved";
+$MESS["BPSFA_COMMENT_REQUIRED_YR"] = "Only when declined";
 $MESS["BPSFA_PD_CANCEL"] = "Cancel";
 $MESS["BPSFA_PD_NO"] = "No";
 $MESS["BPSFA_PD_YES"] = "Yes";
-
-$MESS["BPRIA_PD_CANCEL_TYPE"] = "Can be declined by";
-$MESS["BPRIA_PD_CANCEL_TYPE_ANY"] = "Any employee";
-$MESS["BPRIA_PD_CANCEL_TYPE_ALL"] = "All employees";

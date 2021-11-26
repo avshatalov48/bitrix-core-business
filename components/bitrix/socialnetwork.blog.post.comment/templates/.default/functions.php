@@ -179,14 +179,23 @@ function socialnetworkBlogPostCommentWeb(
 		foreach($arResult["arImages"][$comment["ID"]] as $i => $val)
 		{
 			$t = $arResult["Images"][$i];
-			$res["FILES"][] = array(
+			$fileData = [
 				"THUMBNAIL" => $val["small"],
 				"SRC" => $val["full"],
 				"FILE_SIZE" => $t["source"]["size"],
 				"CONTENT_TYPE" => "image/xyz",
 				"ORIGINAL_NAME" => $t["fileName"],
-				"FILE_NAME" => $t["fileName"]
-			);
+				"FILE_NAME" => $t["fileName"],
+			];
+			if (!empty($t['resizedWidth']))
+			{
+				$fileData['RESIZED_WIDTH'] = $t['resizedWidth'];
+			}
+			if (!empty($t['resizedHeight']))
+			{
+				$fileData['RESIZED_HEIGHT'] = $t['resizedHeight'];
+			}
+			$res["FILES"][] = $fileData;
 		}
 	}
 

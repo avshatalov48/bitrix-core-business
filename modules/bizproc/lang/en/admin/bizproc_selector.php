@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BIZPROC_AS_TITLE"] = "Insert Value";
 $MESS["BIZPROC_AS_TITLE_TOOLBAR"] = "Insert Value";
 $MESS["BIZPROC_SEL_CANCEL"] = "Cancel";
@@ -16,5 +16,5 @@ $MESS["BIZPROC_SEL_USERS_TAB_USERS"] = "- Users";
 $MESS["BP_SEL_ADDIT"] = "Additional Results";
 $MESS["BP_SEL_CONSTANTS"] = "Constants";
 $MESS["BP_SEL_GCONST"] = "Global Constants";
+$MESS["BP_SEL_GVAR"] = "Global variables";
 $MESS["BP_SEL_VARS"] = "Variables";
-?>

@@ -1,3 +1,8 @@
+html {
+	height: 100%;
+	width: 100%;
+}
+
 .ui-page-slider-wrapper {
 	color: #000 !important;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
@@ -21,7 +26,9 @@
 }
 
 .ui-page-slider-workarea {
-	min-height: calc(100% - 75px);
+	/*min-height: calc(100% - 75px);*/
+	flex-grow: 1;
+	flex-shrink: 1;
 }
 
 .ui-side-panel-wrap-workarea {
@@ -297,6 +304,8 @@ div.ui-side-panel-wrap-title-container.ui-side-panel-wrap-title-align-right-cont
 }
 
 #ui-page-slider-content {
+	display: flex;
+	flex-direction: column;
 	flex: 1;
 	text-overflow: ellipsis;
 	max-width: 100%;

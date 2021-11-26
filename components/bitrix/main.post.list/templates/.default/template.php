@@ -114,7 +114,9 @@ ob_start();
 				?> bx-mpl-moderate-url="#MODERATE_URL#" bx-mpl-moderate-show="#MODERATE_SHOW#" bx-mpl-moderate-approved="#APPROVED#" <?
 				?> bx-mpl-delete-url="#DELETE_URL###ID#" bx-mpl-delete-show="#DELETE_SHOW#" <?
 				?> bx-mpl-createtask-show="#CREATETASK_SHOW#" <?
+				?> bx-mpl-createsubtask-show="#CREATESUBTASK_SHOW#" <?php
 				?> bx-mpl-post-entity-type="#POST_ENTITY_TYPE#" <?
+				?> bx-mpl-post-entity-xml-id="#ENTITY_XML_ID#" <?
 				?> bx-mpl-comment-entity-type="#COMMENT_ENTITY_TYPE#" <?
 				?> onclick="BX.onCustomEvent(BX('<?=$eventNodeIdTemplate?>'), 'onShowActions', [this, '#ID#']); return BX.PreventDefault(this);" <?
 				?> class="feed-post-more-link feed-post-more-link-#VIEW_SHOW#-#EDIT_SHOW#-#MODERATE_SHOW#-#DELETE_SHOW#"><?

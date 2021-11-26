@@ -16,12 +16,14 @@
 			this.layout.container= BX(options.containerId);
 			this.isFrame = options.isFrame || false;
 			this.hasHints = options.hasHints || false;
+			this.pinnerContainer = options.pinnerContainer || false;
 
 			this.pinner = new BX.UI.Pinner(
 				this.layout.container,
 				{
 					fixBottom: this.isFrame,
-					fullWidth: this.isFrame
+					fullWidth: this.isFrame,
+					anchorBottom: this.pinnerContainer
 				}
 			);
 

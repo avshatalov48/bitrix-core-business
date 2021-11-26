@@ -14,127 +14,161 @@ class CAllBlogPost
 	public static $arBlogPostIdCache = array();
 	public static $arBlogPCCache = array();
 	public static $arBlogUCache = array();
-	
+
 	const UF_NAME = 'UF_BLOG_POST_DOC';
 
-	public static function CanUserEditPost($ID, $userID)
+	public static function CanUserEditPost($id, $userId): bool
 	{
-		global $APPLICATION;
-		$ID = intval($ID);
-		$userID = intval($userID);
+		$id = (int)$id;
+		$userId = (int)$userId;
 
-		$blogModulePermissions = $APPLICATION->GetGroupRight("blog");
+		$blogModulePermissions = CMain::getGroupRight("blog");
 		if ($blogModulePermissions >= "W")
-			return True;
-
-		$arPost = CBlogPost::GetByID($ID);
-		if (!$arPost)
-			return False;
-
-		if (CBlog::IsBlogOwner($arPost["BLOG_ID"], $userID))
-			return True;
-
-		$arBlogUser = CBlogUser::GetByID($userID, BLOG_BY_USER_ID);
-		if ($arBlogUser && $arBlogUser["ALLOW_POST"] != "Y")
-			return False;
-
-		if (CBlogPost::GetBlogUserPostPerms($ID, $userID) < BLOG_PERMS_WRITE)
-			return False;
-
-		if ($arPost["AUTHOR_ID"] == $userID)
-			return True;
-
-		return False;
-	}
-
-	public static function CanUserDeletePost($ID, $userID)
-	{
-		global $APPLICATION;
-
-		$ID = intval($ID);
-		$userID = intval($userID);
-
-		$blogModulePermissions = $APPLICATION->GetGroupRight("blog");
-		if ($blogModulePermissions >= "W")
-			return True;
-
-		$arPost = CBlogPost::GetByID($ID);
-		if (!$arPost)
-			return False;
-
-		if (CBlog::IsBlogOwner($arPost["BLOG_ID"], $userID))
-			return True;
-
-		$arBlogUser = CBlogUser::GetByID($userID, BLOG_BY_USER_ID);
-		if ($arBlogUser && $arBlogUser["ALLOW_POST"] != "Y")
-			return False;
-
-		$perms = CBlogPost::GetBlogUserPostPerms($ID, $userID);
-		if ($perms <= BLOG_PERMS_WRITE && $userID != $arPost["AUTHOR_ID"])
-			return False;
-
-		if($perms > BLOG_PERMS_WRITE)
+		{
 			return true;
+		}
 
-		if ($arPost["AUTHOR_ID"] == $userID)
-			return True;
-
-		return False;
-	}
-
-	public static function GetBlogUserPostPerms($ID, $userID)
-	{
-		global $APPLICATION;
-
-		$ID = intval($ID);
-		$userID = intval($userID);
-
-		$arAvailPerms = array_keys($GLOBALS["AR_BLOG_PERMS"]);
-		$blogModulePermissions = $APPLICATION->GetGroupRight("blog");
-		if ($blogModulePermissions >= "W")
-			return $arAvailPerms[count($arAvailPerms) - 1];
-
-		$arPost = CBlogPost::GetByID($ID);
+		$arPost = CBlogPost::GetByID($id);
 		if (!$arPost)
-			return $arAvailPerms[0];
+		{
+			return false;
+		}
 
-		if (CBlog::IsBlogOwner($arPost["BLOG_ID"], $userID))
-			return $arAvailPerms[count($arAvailPerms) - 1];
-		
-		$arUserGroups = CBlogUser::GetUserGroups($userID, $arPost["BLOG_ID"], "Y", BLOG_BY_USER_ID);
-		$permGroups = CBlogUser::GetUserPerms($arUserGroups, $arPost["BLOG_ID"], $ID, BLOG_PERMS_POST, BLOG_BY_USER_ID);
-		
-//		if for user unset option "WRITE TO BLOG", they can only read (even if all user can write), or smaller rights, if group have smaller
-		$arBlogUser = CBlogUser::GetByID($userID, BLOG_BY_USER_ID);
+		if (CBlog::IsBlogOwner($arPost["BLOG_ID"], $userId))
+		{
+			return true;
+		}
+
+		$arBlogUser = CBlogUser::GetByID($userId, BLOG_BY_USER_ID);
 		if ($arBlogUser && $arBlogUser["ALLOW_POST"] != "Y")
 		{
-			if($permGroups && in_array(BLOG_PERMS_READ, $arAvailPerms))
+			return false;
+		}
+
+		if (CBlogPost::GetBlogUserPostPerms($id, $userId) < BLOG_PERMS_WRITE)
+		{
+			return false;
+		}
+
+		if ((int)$arPost['AUTHOR_ID'] === $userId)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	public static function CanUserDeletePost($id, $userId): bool
+	{
+		$id = (int)$id;
+		$userId = (int)$userId;
+
+		$blogModulePermissions = CMain::getGroupRight("blog");
+		if ($blogModulePermissions >= "W")
+		{
+			return true;
+		}
+
+		$arPost = CBlogPost::GetByID($id);
+		if (!$arPost)
+		{
+			return false;
+		}
+
+		if (CBlog::IsBlogOwner($arPost["BLOG_ID"], $userId))
+		{
+			return true;
+		}
+
+		$arBlogUser = CBlogUser::GetByID($userId, BLOG_BY_USER_ID);
+		if ($arBlogUser && $arBlogUser["ALLOW_POST"] != "Y")
+		{
+			return false;
+		}
+
+		$perms = CBlogPost::GetBlogUserPostPerms($id, $userId);
+		if ($perms <= BLOG_PERMS_WRITE && $userId != $arPost["AUTHOR_ID"])
+		{
+			return false;
+		}
+
+		if ($perms > BLOG_PERMS_WRITE)
+		{
+			return true;
+		}
+
+		if ((int)$arPost['AUTHOR_ID'] === $userId)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	public static function GetBlogUserPostPerms($id, $userId)
+	{
+		$id = (int)$id;
+		$userId = (int)$userId;
+
+		$arAvailPerms = array_keys($GLOBALS["AR_BLOG_PERMS"]);
+		$blogModulePermissions = CMain::getGroupRight('blog');
+		if ($blogModulePermissions >= "W")
+		{
+			return $arAvailPerms[count($arAvailPerms) - 1];
+		}
+
+		$arPost = CBlogPost::GetByID($id);
+		if (!$arPost)
+		{
+			return $arAvailPerms[0];
+		}
+
+		if (CBlog::IsBlogOwner($arPost["BLOG_ID"], $userId))
+		{
+			return $arAvailPerms[count($arAvailPerms) - 1];
+		}
+
+		$arUserGroups = CBlogUser::GetUserGroups($userId, $arPost["BLOG_ID"], "Y", BLOG_BY_USER_ID);
+		$permGroups = CBlogUser::GetUserPerms($arUserGroups, $arPost["BLOG_ID"], $id, BLOG_PERMS_POST, BLOG_BY_USER_ID);
+
+//		if for user unset option "WRITE TO BLOG", they can only read (even if all user can write), or smaller rights, if group have smaller
+		$arBlogUser = CBlogUser::GetByID($userId, BLOG_BY_USER_ID);
+		if ($arBlogUser && $arBlogUser["ALLOW_POST"] != "Y")
+		{
+			if ($permGroups && in_array(BLOG_PERMS_READ, $arAvailPerms))
+			{
 				return min(BLOG_PERMS_READ, $permGroups);
+			}
 			else
+			{
 				return $arAvailPerms[0];
+			}
 		}
 
 		if ($permGroups)
+		{
 			return $permGroups;
+		}
 
 		return $arAvailPerms[0];
 	}
 
-	public static function GetBlogUserCommentPerms($ID, $userID)
+	public static function GetBlogUserCommentPerms($id, $userId)
 	{
-		global $APPLICATION;
-		$ID = intval($ID);
-		$userID = intval($userID);
+		$id = (int)$id;
+		$userId = (int)$userId;
 
 		$arAvailPerms = array_keys($GLOBALS["AR_BLOG_PERMS"]);
 
-		$blogModulePermissions = $APPLICATION->GetGroupRight("blog");
+		$blogModulePermissions = CMain::getGroupRight("blog");
 		if ($blogModulePermissions >= "W")
-			return $arAvailPerms[count($arAvailPerms) - 1];
-
-		if(intval($ID) > 0)
 		{
-			if (!($arPost = CBlogPost::GetByID($ID)))
+			return $arAvailPerms[count($arAvailPerms) - 1];
+		}
+
+		if ($id > 0)
+		{
+			if (!($arPost = CBlogPost::GetByID($id)))
 			{
 				return $arAvailPerms[0];
 			}
@@ -146,39 +180,38 @@ class CAllBlogPost
 					return $arAvailPerms[0];
 				}
 
-				if (CBlog::IsBlogOwner($arPost["BLOG_ID"], $userID))
+				if (CBlog::IsBlogOwner($arPost["BLOG_ID"], $userId))
 				{
 					return $arAvailPerms[count($arAvailPerms) - 1];
 				}
-				
-				$arUserGroups = CBlogUser::GetUserGroups($userID, $arPost["BLOG_ID"], "Y", BLOG_BY_USER_ID);
-				$permGroups = CBlogUser::GetUserPerms($arUserGroups, $arPost["BLOG_ID"], $ID, BLOG_PERMS_COMMENT, BLOG_BY_USER_ID);
-				
+
+				$arUserGroups = CBlogUser::GetUserGroups($userId, $arPost["BLOG_ID"], "Y", BLOG_BY_USER_ID);
+				$permGroups = CBlogUser::GetUserPerms($arUserGroups, $arPost["BLOG_ID"], $id, BLOG_PERMS_COMMENT, BLOG_BY_USER_ID);
+
 //				if for user unset option "WRITE TO BLOG", they can only read (even if all user can write), or smaller rights, if group have smaller
-				$arBlogUser = CBlogUser::GetByID($userID, BLOG_BY_USER_ID);
+				$arBlogUser = CBlogUser::GetByID($userId, BLOG_BY_USER_ID);
 				if ($arBlogUser && $arBlogUser["ALLOW_POST"] != "Y")
 				{
-					if($permGroups && in_array(BLOG_PERMS_READ, $arAvailPerms))
+					if ($permGroups && in_array(BLOG_PERMS_READ, $arAvailPerms))
+					{
 						return min(BLOG_PERMS_READ, $permGroups);
+					}
 					else
+					{
 						return $arAvailPerms[0];
+					}
 				}
 
 				if ($permGroups)
+				{
 					return $permGroups;
+				}
 			}
 		}
 		else
 		{
 			return $arAvailPerms[0];
 		}
-
-//		if(IntVal($userID) > 0)
-//		{
-//			$arBlogUser = CBlogUser::GetByID($userID, BLOG_BY_USER_ID);
-//			if ($arBlogUser && $arBlogUser["ALLOW_POST"] != "Y")
-//				return $arAvailPerms[0];
-//		}
 
 		return $arAvailPerms[0];
 	}
@@ -292,7 +325,7 @@ class CAllBlogPost
 			$arFields["CODE"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arFields["CODE"]));
 //			preserve collision between numeric code and post ID.
 			$arFields["CODE"] = is_numeric($arFields["CODE"]) ? "_".$arFields["CODE"] : $arFields["CODE"];
-			
+
 			if (in_array(mb_strtolower($arFields["CODE"]), $GLOBALS["AR_BLOG_POST_RESERVED_CODES"]))
 			{
 				$APPLICATION->ThrowException(str_replace("#CODE#", $arFields["CODE"], GetMessage("BLG_GP_RESERVED_CODE")), "CODE_RESERVED");
@@ -555,7 +588,7 @@ class CAllBlogPost
 			{
 				$CACHE_MANAGER->ClearByTag("blog_post_".$ID);
 			}
-			
+
 			return $result;
 		}
 		else
@@ -1373,6 +1406,7 @@ class CAllBlogPost
 				$result[] = $prefix.SONET_ROLES_OWNER;
 				break;
 			case SONET_ROLES_USER:
+				$result[] = 'O'.$prefix.SONET_ROLES_AUTHORIZED;
 				$result[] = $prefix.SONET_ROLES_USER;
 				$result[] = $prefix.SONET_ROLES_MODERATOR;
 				$result[] = $prefix.SONET_ROLES_OWNER;
@@ -1454,7 +1488,11 @@ class CAllBlogPost
 					LEFT JOIN b_iblock_section EL
 						ON (EL.ID = SR.ENTITY_ID AND SR.ENTITY_TYPE = 'DR' AND EL.ACTIVE = 'Y')
 					WHERE
-						SR.POST_ID = ".$ID;
+						SR.POST_ID = " . $ID . "
+					ORDER BY SR.ID ASC
+					LIMIT 100
+					";
+
 		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		while($arRes = $dbRes->GetNext())
 		{
@@ -1556,7 +1594,7 @@ class CAllBlogPost
 			$userId = (isset($arParams["USER_ID"]) ? $arParams["USER_ID"] : false);
 			$postAuthor = (isset($arParams["POST_AUTHOR_ID"]) ? $arParams["POST_AUTHOR_ID"] : 0);
 			$bPublic = (isset($arParams["PUBLIC"]) ? $arParams["PUBLIC"] : false);
-			$logId = (isset($arParams["LOG_ID"]) ? intval($arParams["PUBLIC"]) : false);
+			$logId = (isset($arParams["LOG_ID"]) ? intval($arParams["LOG_ID"]) : false);
 			$bIgnoreAdmin = (isset($arParams["IGNORE_ADMIN"]) ? $arParams["IGNORE_ADMIN"] : false);
 		}
 		else
@@ -1821,29 +1859,31 @@ class CAllBlogPost
 				&& !empty($arPerms['SG'])
 			) // check OSG
 			{
-				$bOpenedSGFound = false;
-				foreach($arPerms['SG'] as $arSGPerm)
+				$openedWorkgroupsList = [];
+				foreach ($arPerms['SG'] as $arSGPerm)
 				{
-					if (!empty($arSGPerm))
+					if (empty($arSGPerm))
 					{
-						foreach($arSGPerm as $sgPerm)
+						continue;
+					}
+
+					foreach($arSGPerm as $sgPerm)
+					{
+						if (!preg_match('/^OSG(\d+)_'.(!$userId ? SONET_ROLES_ALL : SONET_ROLES_AUTHORIZED).'$/', $sgPerm, $matches))
 						{
-							if (preg_match('/^OSG(\d+)_'.(!$userId ? SONET_ROLES_ALL : SONET_ROLES_AUTHORIZED).'$/', $sgPerm, $matches))
-							{
-								$bOpenedSGFound = true;
-								break;
-							}
+							continue;
 						}
 
-						if ($bOpenedSGFound)
-						{
-							break;
-						}
+						$openedWorkgroupsList[] = (int)$matches[1];
 					}
 				}
 
+
+
 				if (
-					$bOpenedSGFound
+					!empty($openedWorkgroupsList)
+					&& Loader::includeModule('socialnetwork')
+					&& \Bitrix\Socialnetwork\Helper\Workgroup::checkAnyOpened($openedWorkgroupsList)
 					&& (
 						!\Bitrix\Main\ModuleManager::isModuleInstalled('intranet')
 						|| self::getCurrentUserType($userId) === 'employee'
@@ -1993,10 +2033,10 @@ class CAllBlogPost
 				{
 					$u = intval(mb_substr($v, 1));
 					if (
-						$u > 0 
-						&& !in_array($u, $arUsers) 
+						$u > 0
+						&& !in_array($u, $arUsers)
 						&& (
-							!array_key_exists("U", $arParams["TO_SOCNET_RIGHTS_OLD"]) 
+							!array_key_exists("U", $arParams["TO_SOCNET_RIGHTS_OLD"])
 							|| empty($arParams["TO_SOCNET_RIGHTS_OLD"]["U"][$u])
 						)
 						&& $u != $arParams["FROM_USER_ID"]
@@ -2542,7 +2582,7 @@ class CAllBlogPost
 								"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])
 							)
 						)." ".$serverName.$arParams["URL"]."";
-					$arMessageFields["PUSHMESSAGE"] = GetMessage(
+					$arMessageFields["PUSH_MESSAGE"] = GetMessage(
 						"BLG_GP_PUSH_8".$aditGM,
 						array(
 							"#name#" => htmlspecialcharsbx($authorName),
@@ -2793,9 +2833,9 @@ class CAllBlogPost
 				{
 					$group_id_tmp = $matches[1];
 					if (
-						$group_id_tmp > 0 
+						$group_id_tmp > 0
 						&& (
-							!array_key_exists("SG", $arParams["TO_SOCNET_RIGHTS_OLD"]) 
+							!array_key_exists("SG", $arParams["TO_SOCNET_RIGHTS_OLD"])
 							|| empty($arParams["TO_SOCNET_RIGHTS_OLD"]["SG"][$group_id_tmp])
 						)
 					)

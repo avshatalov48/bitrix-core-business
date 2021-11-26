@@ -81,7 +81,7 @@ $bCurrentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin();
 $arParams["COMMENT_ID"] = intval($arParams["COMMENT_ID"]);
 
 $arResult["TZ_OFFSET"] = CTimeZone::GetOffset();
-$arResult["LAST_LOG_TS"] = intval($arParams["LAST_LOG_TS"]);
+$arResult['LAST_LOG_TS'] = (int)$arParams['LAST_LOG_TS'];
 $arResult["COUNTER_TYPE"] = $arParams["COUNTER_TYPE"];
 $arResult["AJAX_CALL"] = $arParams["AJAX_CALL"];
 $arResult["bReload"] = $arParams["bReload"];
@@ -222,6 +222,8 @@ if (
 					'cache' => false,
 					'suffix' => (!empty($arParams['COMMENT_ENTITY_SUFFIX']) ? $arParams['COMMENT_ENTITY_SUFFIX'] : ''),
 					'logId' => $arParams["LOG_ID"],
+					'entityType' => $contentId['ENTITY_TYPE'],
+					'entityId' => $contentId['ENTITY_ID'],
 				));
 				$arCommentTmp['EVENT_FORMATTED']['FULL_MESSAGE_CUT']  = nl2br($handler->getText());
 			}
@@ -239,17 +241,17 @@ if (
 		}
 		else
 		{
-			$event_date_log_ts = (
-				isset($arCommentTmp["EVENT"]["LOG_DATE_TS"])
-					? $arCommentTmp["EVENT"]["LOG_DATE_TS"]
-					: (MakeTimeStamp($arCommentTmp["EVENT"]["LOG_DATE"]) - intval($arResult["TZ_OFFSET"]))
-			);
+			$event_date_log_ts = ($arCommentTmp["EVENT"]["LOG_DATE_TS"] ?? (MakeTimeStamp($arCommentTmp["EVENT"]["LOG_DATE"]) - (int)$arResult["TZ_OFFSET"]));
 
 			if (
 				$arResult["COUNTER_TYPE"] === '**'
-				&& (int)$arResult['LAST_LOG_TS'] > 0
+				&& $arResult['LAST_LOG_TS'] > 0
 				&& $event_date_log_ts >= $arResult['LAST_LOG_TS']
-				&& $arCommentTmp['EVENT']['USER_ID'] != $USER->getID()
+				&& (int)$arCommentTmp['EVENT']['USER_ID'] !== (int)$USER->getId()
+				&& (
+					!is_array($arParams['UNREAD_COMMENTS_ID_LIST'])
+					|| in_array($arCommentTmp['EVENT']['ID'], $arParams['UNREAD_COMMENTS_ID_LIST'])
+				)
 			)
 			{
 				$arResult['NEW_COMMENTS_COUNT']++;

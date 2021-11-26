@@ -72,4 +72,10 @@ interface iLimiter
 	 * @return $this
 	 */
 	public function setParameter($name, $value);
+
+	/**
+	 * Returns true if limiter should be hidden on the CRM-marketing settings page
+	 * @return bool
+	 */
+	public function isHidden();
 }

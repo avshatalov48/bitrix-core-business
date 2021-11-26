@@ -4873,11 +4873,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    key: "showHideGuestsOption",
 	    value: function showHideGuestsOption() {
 	      this.DOM.hideGuestsWrap.style.display = '';
-	      var hideGuestsHint = this.DOM.hideGuestsWrap.querySelector('.calendar-hide-members-helper');
-
-	      if (main_core.Type.isElementNode(hideGuestsHint)) {
-	        BX.UI.Hint.initNode(hideGuestsHint);
-	      }
+	      calendar_util.Util.initHintNode(this.DOM.hideGuestsWrap.querySelector('.calendar-hide-members-helper'));
 	    }
 	  }, {
 	    key: "hideHideGuestsOption",

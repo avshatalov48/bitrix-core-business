@@ -1,5 +1,5 @@
 import { BitrixVue } from 'ui.vue';
-import { Event } from 'main.core'
+import { EventEmitter } from 'main.core.events'
 import { EventType } from 'sale.checkout.const';
 
 BitrixVue.component('sale-checkout-view-element-button-restore', {
@@ -15,7 +15,7 @@ BitrixVue.component('sale-checkout-view-element-button-restore', {
 	{
 		restore()
 		{
-			Event.EventEmitter.emit(EventType.basket.buttonRestoreProduct, {index: this.index});
+			EventEmitter.emit(EventType.basket.buttonRestoreProduct, {index: this.index});
 		}
 	},
 	// language=Vue

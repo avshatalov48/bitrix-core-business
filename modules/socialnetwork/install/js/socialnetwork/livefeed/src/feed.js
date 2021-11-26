@@ -20,7 +20,6 @@ import './css/important.css';
 import './css/warning.css';
 import './css/taskcreator.css';
 
-
 class Feed
 {
 	constructor()
@@ -447,17 +446,12 @@ class Feed
 
 }
 
-let FeedInstance = null;
-let PinnedPanelInstance = null;
-let InformerInstance = null;
-let FilterInstance = null;
-let PageInstance = null;
-
-FeedInstance = new Feed();
-PinnedPanelInstance = new PinnedPanel();
-InformerInstance = new Informer();
-FilterInstance = new Filter();
-PageInstance = new Page();
+const FeedInstance = new Feed();
+const PinnedPanelInstance = new PinnedPanel();
+const InformerInstance = new Informer();
+const FilterInstance = new Filter();
+const PageInstance = new Page();
+new TaskCreator();
 
 export {
 	FeedInstance,

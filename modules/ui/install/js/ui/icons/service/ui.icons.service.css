@@ -97,6 +97,11 @@
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-livechat.svg);
 }
 
+.ui-icon-service-livechat-24 > i {
+	--ui-icon-service-bg-color: #2ec0ee;
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-livechat-24.svg);
+}
+
 .ui-icon-service-light-livechat > i {
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-livechat.svg);
 }
@@ -603,13 +608,11 @@
 
 .ui-icon-service-whatsapp > i {
 	--ui-icon-service-bg-color: #01e675;
-	background-size: 30px;
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-whatsapp.svg);
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-whatsapp.svg?v=2);
 }
 
 .ui-icon-service-light-whatsapp > i {
-	background-size: 30px;
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-whatsapp.svg);
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-whatsapp.svg?v=2);
 }
 
 .ui-icon-service-wechat > i {

@@ -112,13 +112,13 @@ class Contact extends Base
 		$subList = array_unique($subList);
 		$subList = array_diff($subList, $unsubList);
 
-		ContactListTable::delete(['CONTACT_ID' => $id]);
+		ContactListTable::deleteList(['CONTACT_ID' => $id]);
 		foreach ($setList as $itemId)
 		{
 			ContactListTable::add(['CONTACT_ID' => $id, 'LIST_ID' => $itemId]);
 		}
 
-		MailingSubscriptionTable::delete(['CONTACT_ID' => $id]);
+		MailingSubscriptionTable::deleteList(['CONTACT_ID' => $id]);
 		foreach ($subList as $itemId)
 		{
 			MailingSubscriptionTable::add(['CONTACT_ID' => $id, 'MAILING_ID' => $itemId, 'IS_UNSUB' => 'N']);

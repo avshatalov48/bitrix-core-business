@@ -10,8 +10,11 @@ Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/socialnetwork/i
 Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/socialnetwork/lib/commentaux/createentity.php');
 Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/socialnetwork/lib/commentaux/createtask.php');
 
+$userPage = \Bitrix\Main\Config\Option::get('socialnetwork', 'user_page', SITE_DIR . 'company/personal/');
+
 $langAdditional = [
-	'SONET_EXT_COMMENTAUX_CREATE_TASK_PATH' => \Bitrix\Main\Config\Option::get('socialnetwork', 'user_page', SITE_DIR.'company/personal/').'user/#user_id#/tasks/task/view/#task_id#/',
+	'SONET_EXT_COMMENTAUX_USER_PATH' => $userPage . 'user/#user_id#/',
+	'SONET_EXT_COMMENTAUX_CREATE_TASK_PATH' => $userPage . 'user/#user_id#/tasks/task/view/#task_id#/',
 
 	'SONET_COMMENTAUX_JS_CREATEENTITY_POST_BLOG_POST_2' => Loc::getMessage('SONET_COMMENTAUX_CREATEENTITY_POST_BLOG_POST_2'),
 	'SONET_COMMENTAUX_JS_CREATEENTITY_POST_TASK' => Loc::getMessage('SONET_COMMENTAUX_CREATEENTITY_POST_TASK'),
@@ -98,7 +101,11 @@ foreach ($moduleEvent->getResults() as $moduleEventResult)
 }
 
 return [
-	'js' => '/bitrix/js/socialnetwork/commentaux/socialnetwork.commentaux.js',
+	'js' => './dist/commentaux.bundle.js',
 	'lang_additional' => $langAdditional,
-	'rel' => [ 'render_parts' ],
+	'rel' => [
+		'main.core',
+		'socialnetwork.renderparts',
+	],
+	'skip_core' => false,
 ];

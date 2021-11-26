@@ -74,6 +74,7 @@ td.statset {background: url(/bitrix/images/bizproc/stat_sett.gif) 50% center no-
 .bizprocdesigner-properties-dialog-table
 {
 	width: 100%;
+	position: relative;
 }
 
 .bizprocdesigner-properties-dialog-table .adm-detail-content-cell-l

@@ -1,6 +1,6 @@
 /*region File icons*/
 .ui-icon[class*=ui-icon-file-] > i {
-	background: url(/bitrix/js/ui/icons/disk/images/sprite-files.min.svg?v1.3) no-repeat center;
+	background: url(/bitrix/js/ui/icons/disk/images/sprite-files.min.svg?v1.3) no-repeat 0 0;
 	background-size: 100% auto;
 	--icon-file-col: 14;
 }
@@ -20,6 +20,7 @@
 
 .ui-icon.ui-icon-file-pdf > i { background-position: 0 calc(100% / var(--icon-file-col) * 5) }
 
+.ui-icon.ui-icon-file-pptx > i { background-position: 0 calc(100% / var(--icon-file-col) * 6) }
 .ui-icon.ui-icon-file-ppt > i { background-position: 0 calc(100% / var(--icon-file-col) * 6) }
 
 .ui-icon.ui-icon-file-rar > i { background-position: 0 calc(100% / var(--icon-file-col) * 7) }

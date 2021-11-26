@@ -352,7 +352,7 @@ final class LocationHelper extends NameHelper
 
 	public static function checkRequestIsMenuRequest()
 	{
-		return mb_strpos($_REQUEST['admin_mnu_menu_id'], self::MENU_ITEMS_QUERY_STRING_TAG) !== false;
+		return mb_strpos(($_REQUEST['admin_mnu_menu_id'] ?? ''), self::MENU_ITEMS_QUERY_STRING_TAG) !== false;
 	}
 
 	public static function getLocationSubMenu()
@@ -476,12 +476,12 @@ final class LocationHelper extends NameHelper
 
 	public static function unPackItemsQueryString()
 	{
-		$path = explode(self::MENU_ITEMS_QUERY_STRING_DELIMITER, $_REQUEST['admin_mnu_menu_id']);
+		$path = explode(self::MENU_ITEMS_QUERY_STRING_DELIMITER, ($_REQUEST['admin_mnu_menu_id'] ?? ''));
 
 		return array(
-			'ID' => intval($path[1]) ? intval($path[1]) : false,
-			'LIMIT' => intval($path[2]),
-			'SHOW_CHECKBOX' => !!$path[3]
+			'ID' => (isset($path[1]) && intval($path[1])) ? intval($path[1]) : false,
+			'LIMIT' => isset($path[2]) ? intval($path[2]) : 0,
+			'SHOW_CHECKBOX' => isset($path[3]) ? (!!$path[3]) : false,
 		);
 	}
 

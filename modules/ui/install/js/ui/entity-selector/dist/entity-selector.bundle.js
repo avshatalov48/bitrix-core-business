@@ -574,6 +574,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "caption", null);
 	    babelHelpers.defineProperty(this, "captionOptions", {});
 	    babelHelpers.defineProperty(this, "avatar", null);
+	    babelHelpers.defineProperty(this, "avatarOptions", null);
 	    babelHelpers.defineProperty(this, "link", null);
 	    babelHelpers.defineProperty(this, "linkTitle", null);
 	    babelHelpers.defineProperty(this, "textColor", null);
@@ -605,6 +606,11 @@ this.BX.UI = this.BX.UI || {};
 	      this.setCaption('');
 	      this.setLinkTitle('');
 	      this.avatar = '';
+	      this.avatarOptions = {
+	        bgSize: null,
+	        bgColor: null,
+	        bgImage: null
+	      };
 	      this.textColor = '';
 	      this.link = '';
 	      this.badges = [];
@@ -624,6 +630,7 @@ this.BX.UI = this.BX.UI || {};
 	    this.setCaption(options.caption);
 	    this.setCaptionOptions(options.captionOptions);
 	    this.setAvatar(options.avatar);
+	    this.setAvatarOptions(options.avatarOptions);
 	    this.setTextColor(options.textColor);
 	    this.setLink(options.link);
 	    this.setLinkTitle(options.linkTitle);
@@ -760,7 +767,9 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isArray(items)) {
 	        this.disableRender();
 	        items.forEach(function (item) {
-	          if (item instanceof Item) {
+	          if (main_core.Type.isArray(item) && item.length === 2) {
+	            _this2.addItem(item[0], item[1]);
+	          } else if (item instanceof Item) {
 	            _this2.addItem(item);
 	          }
 	        });
@@ -1104,10 +1113,34 @@ this.BX.UI = this.BX.UI || {};
 	        this.getTitleContainer().style.removeProperty('color');
 	      }
 
-	      if (main_core.Type.isStringFilled(this.getAvatar())) {
-	        this.getAvatarContainer().style.backgroundImage = "url('".concat(this.getAvatar(), "')");
+	      var avatar = this.getAvatar();
+
+	      if (main_core.Type.isStringFilled(avatar)) {
+	        this.getAvatarContainer().style.backgroundImage = "url('".concat(avatar, "')");
 	      } else {
-	        this.getAvatarContainer().style.removeProperty('background-image');
+	        var bgImage = this.getAvatarOption('bgImage');
+
+	        if (main_core.Type.isStringFilled(bgImage)) {
+	          this.getAvatarContainer().style.backgroundImage = bgImage;
+	        } else {
+	          this.getAvatarContainer().style.removeProperty('background-size');
+	        }
+	      }
+
+	      var bgColor = this.getAvatarOption('bgColor');
+
+	      if (main_core.Type.isStringFilled(bgColor)) {
+	        this.getAvatarContainer().style.backgroundColor = bgColor;
+	      } else {
+	        this.getAvatarContainer().style.removeProperty('background-color');
+	      }
+
+	      var bgSize = this.getAvatarOption('bgSize');
+
+	      if (main_core.Type.isStringFilled(bgSize)) {
+	        this.getAvatarContainer().style.backgroundSize = bgSize;
+	      } else {
+	        this.getAvatarContainer().style.removeProperty('background-size');
 	      }
 
 	      main_core.Dom.clean(this.getBadgeContainer());
@@ -1359,6 +1392,33 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    }
 	  }, {
+	    key: "getAvatarOption",
+	    value: function getAvatarOption(option) {
+	      return this.avatarOptions === null || main_core.Type.isUndefined(this.avatarOptions[option]) ? this.getItem().getAvatarOption(option) : this.avatarOptions[option];
+	    }
+	  }, {
+	    key: "setAvatarOption",
+	    value: function setAvatarOption(option, value) {
+	      if (main_core.Type.isStringFilled(option) && !main_core.Type.isUndefined(value)) {
+	        if (this.avatarOptions === null) {
+	          this.avatarOptions = {};
+	        }
+
+	        this.avatarOptions[option] = value;
+	      }
+	    }
+	  }, {
+	    key: "setAvatarOptions",
+	    value: function setAvatarOptions(avatarOptions) {
+	      var _this9 = this;
+
+	      if (main_core.Type.isPlainObject(avatarOptions)) {
+	        Object.keys(avatarOptions).forEach(function (option) {
+	          _this9.setAvatarOption(option, avatarOptions[option]);
+	        });
+	      }
+	    }
+	  }, {
 	    key: "getTextColor",
 	    value: function getTextColor() {
 	      return this.textColor !== null ? this.textColor : this.getItem().getTextColor();
@@ -1410,12 +1470,12 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setBadges",
 	    value: function setBadges(badges) {
-	      var _this9 = this;
+	      var _this10 = this;
 
 	      if (main_core.Type.isArray(badges)) {
 	        this.badges = [];
 	        badges.forEach(function (badge) {
-	          _this9.badges.push(new ItemBadge(badge));
+	          _this10.badges.push(new ItemBadge(badge));
 	        });
 	      } else if (badges === null) {
 	        this.badges = null;
@@ -1440,40 +1500,40 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setBadgesOptions",
 	    value: function setBadgesOptions(options) {
-	      var _this10 = this;
+	      var _this11 = this;
 
 	      if (main_core.Type.isPlainObject(options)) {
 	        Object.keys(options).forEach(function (option) {
-	          _this10.setBadgesOption(option, options[option]);
+	          _this11.setBadgesOption(option, options[option]);
 	        });
 	      }
 	    }
 	  }, {
 	    key: "getOuterContainer",
 	    value: function getOuterContainer() {
-	      var _this11 = this;
+	      var _this12 = this;
 
 	      return this.cache.remember('outer-container', function () {
 	        var className = '';
 
-	        if (_this11.hasChildren() || _this11.isDynamic()) {
+	        if (_this12.hasChildren() || _this12.isDynamic()) {
 	          className += ' ui-selector-item-box-has-children';
 
-	          if (_this11.getDepthLevel() >= _this11.getTab().getItemMaxDepth()) {
+	          if (_this12.getDepthLevel() >= _this12.getTab().getItemMaxDepth()) {
 	            className += ' ui-selector-item-box-max-depth';
 	          }
-	        } else if (_this11.getItem().isSelected()) {
+	        } else if (_this12.getItem().isSelected()) {
 	          className += ' ui-selector-item-box-selected';
 	        }
 
-	        if (_this11.isOpen()) {
+	        if (_this12.isOpen()) {
 	          className += ' ui-selector-item-box-open';
 	        }
 
 	        var div = document.createElement('div');
 	        div.className = "ui-selector-item-box".concat(className);
-	        div.appendChild(_this11.getContainer());
-	        div.appendChild(_this11.getChildrenContainer());
+	        div.appendChild(_this12.getContainer());
+	        div.appendChild(_this12.getChildrenContainer());
 	        return div;
 	      });
 	    }
@@ -1493,20 +1553,20 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      var _this12 = this;
+	      var _this13 = this;
 
 	      return this.cache.remember('container', function () {
 	        var div = document.createElement('div');
 	        div.className = 'ui-selector-item';
-	        main_core.Event.bind(div, 'click', _this12.handleClick.bind(_this12));
-	        main_core.Event.bind(div, 'mouseenter', _this12.handleMouseEnter.bind(_this12));
-	        main_core.Event.bind(div, 'mouseleave', _this12.handleMouseLeave.bind(_this12));
-	        div.appendChild(_this12.getAvatarContainer());
-	        div.appendChild(_this12.getTitlesContainer());
-	        div.appendChild(_this12.getIndicatorContainer());
+	        main_core.Event.bind(div, 'click', _this13.handleClick.bind(_this13));
+	        main_core.Event.bind(div, 'mouseenter', _this13.handleMouseEnter.bind(_this13));
+	        main_core.Event.bind(div, 'mouseleave', _this13.handleMouseLeave.bind(_this13));
+	        div.appendChild(_this13.getAvatarContainer());
+	        div.appendChild(_this13.getTitlesContainer());
+	        div.appendChild(_this13.getIndicatorContainer());
 
-	        if (main_core.Type.isStringFilled(_this12.getLink())) {
-	          div.appendChild(_this12.getLinkContainer());
+	        if (main_core.Type.isStringFilled(_this13.getLink())) {
+	          div.appendChild(_this13.getLinkContainer());
 	        }
 
 	        return div;
@@ -1524,28 +1584,28 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getTitlesContainer",
 	    value: function getTitlesContainer() {
-	      var _this13 = this;
+	      var _this14 = this;
 
 	      return this.cache.remember('titles', function () {
 	        var div = document.createElement('div');
 	        div.className = 'ui-selector-item-titles';
-	        div.appendChild(_this13.getSupertitleContainer());
-	        div.appendChild(_this13.getTitleBoxContainer());
-	        div.appendChild(_this13.getSubtitleContainer());
+	        div.appendChild(_this14.getSupertitleContainer());
+	        div.appendChild(_this14.getTitleBoxContainer());
+	        div.appendChild(_this14.getSubtitleContainer());
 	        return div;
 	      });
 	    }
 	  }, {
 	    key: "getTitleBoxContainer",
 	    value: function getTitleBoxContainer() {
-	      var _this14 = this;
+	      var _this15 = this;
 
 	      return this.cache.remember('title-box', function () {
 	        var div = document.createElement('div');
 	        div.className = 'ui-selector-item-title-box';
-	        div.appendChild(_this14.getTitleContainer());
-	        div.appendChild(_this14.getBadgeContainer());
-	        div.appendChild(_this14.getCaptionContainer());
+	        div.appendChild(_this15.getTitleContainer());
+	        div.appendChild(_this15.getBadgeContainer());
+	        div.appendChild(_this15.getCaptionContainer());
 	        return div;
 	      });
 	    }
@@ -1606,16 +1666,16 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getLinkContainer",
 	    value: function getLinkContainer() {
-	      var _this15 = this;
+	      var _this16 = this;
 
 	      return this.cache.remember('link', function () {
 	        var anchor = document.createElement('a');
 	        anchor.className = 'ui-selector-item-link';
-	        anchor.href = _this15.getLink();
+	        anchor.href = _this16.getLink();
 	        anchor.target = '_blank';
 	        anchor.title = '';
-	        main_core.Event.bind(anchor, 'click', _this15.handleLinkClick.bind(_this15));
-	        anchor.appendChild(_this15.getLinkTextContainer());
+	        main_core.Event.bind(anchor, 'click', _this16.handleLinkClick.bind(_this16));
+	        anchor.appendChild(_this16.getLinkTextContainer());
 	        return anchor;
 	      });
 	    }
@@ -1631,13 +1691,13 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "showLink",
 	    value: function showLink() {
-	      var _this16 = this;
+	      var _this17 = this;
 
 	      if (main_core.Type.isStringFilled(this.getLink())) {
 	        main_core.Dom.addClass(this.getLinkContainer(), 'ui-selector-item-link--show');
 	        requestAnimationFrame(function () {
 	          requestAnimationFrame(function () {
-	            main_core.Dom.addClass(_this16.getLinkContainer(), 'ui-selector-item-link--animate');
+	            main_core.Dom.addClass(_this17.getLinkContainer(), 'ui-selector-item-link--animate');
 	          });
 	        });
 	      }
@@ -1662,22 +1722,22 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "highlight",
 	    value: function highlight() {
-	      var _this17 = this;
+	      var _this18 = this;
 
 	      this.getHighlights().forEach(function (matchField) {
 	        var field = matchField.getField();
 	        var fieldName = field.getName();
 
 	        if (field.isCustom()) {
-	          var text = _this17.getItem().getCustomData().get(fieldName);
+	          var text = _this18.getItem().getCustomData().get(fieldName);
 
-	          _this17.getSubtitleContainer().innerHTML = Highlighter.mark(text, matchField.getMatches());
+	          _this18.getSubtitleContainer().innerHTML = Highlighter.mark(text, matchField.getMatches());
 	        } else if (field.getName() === 'title') {
-	          _this17.getTitleContainer().innerHTML = Highlighter.mark(_this17.getItem().getTitleNode(), matchField.getMatches());
+	          _this18.getTitleContainer().innerHTML = Highlighter.mark(_this18.getItem().getTitleNode(), matchField.getMatches());
 	        } else if (field.getName() === 'subtitle') {
-	          _this17.getSubtitleContainer().innerHTML = Highlighter.mark(_this17.getItem().getSubtitleNode(), matchField.getMatches());
+	          _this18.getSubtitleContainer().innerHTML = Highlighter.mark(_this18.getItem().getSubtitleNode(), matchField.getMatches());
 	        } else if (field.getName() === 'supertitle') {
-	          _this17.getSupertitleContainer().innerHTML = Highlighter.mark(_this17.getItem().getSupertitleNode(), matchField.getMatches());
+	          _this18.getSupertitleContainer().innerHTML = Highlighter.mark(_this18.getItem().getSupertitleNode(), matchField.getMatches());
 	        }
 	      });
 	    }
@@ -1821,7 +1881,7 @@ this.BX.UI = this.BX.UI || {};
 	};
 
 	var _makeEllipsisTitle2 = function _makeEllipsisTitle2() {
-	  var _this18 = this;
+	  var _this19 = this;
 
 	  var _this$constructor;
 
@@ -1834,15 +1894,15 @@ this.BX.UI = this.BX.UI || {};
 	  }
 
 	  var containers = [this.getSupertitleContainer(), this.getSubtitleContainer(), this.getCaptionContainer()].concat(babelHelpers.toConsumableArray(this.getBadges().map(function (badge) {
-	    return badge.getContainer(_this18.getBadgeContainer());
+	    return badge.getContainer(_this19.getBadgeContainer());
 	  })));
 	  containers.forEach(function (container) {
 	    var _this$constructor3;
 
-	    if (_classStaticPrivateMethodGet(_this$constructor3 = _this18.constructor, ItemNode, _isEllipsisActive).call(_this$constructor3, container)) {
+	    if (_classStaticPrivateMethodGet(_this$constructor3 = _this19.constructor, ItemNode, _isEllipsisActive).call(_this$constructor3, container)) {
 	      var _this$constructor4;
 
-	      main_core.Dom.attr(container, 'title', _classStaticPrivateMethodGet(_this$constructor4 = _this18.constructor, ItemNode, _sanitizeTitle).call(_this$constructor4, container.textContent));
+	      main_core.Dom.attr(container, 'title', _classStaticPrivateMethodGet(_this$constructor4 = _this19.constructor, ItemNode, _sanitizeTitle).call(_this$constructor4, container.textContent));
 	    } else {
 	      main_core.Dom.attr(container, 'title', null);
 	    }
@@ -2219,11 +2279,46 @@ this.BX.UI = this.BX.UI || {};
 	  return SearchIndex;
 	}();
 
+	var EntityFilter = /*#__PURE__*/function () {
+	  function EntityFilter(filterOptions) {
+	    babelHelpers.classCallCheck(this, EntityFilter);
+	    babelHelpers.defineProperty(this, "id", null);
+	    babelHelpers.defineProperty(this, "options", {});
+	    var options = main_core.Type.isPlainObject(filterOptions) ? filterOptions : {};
+	    this.id = options.id;
+	    this.options = options.options;
+	  }
+
+	  babelHelpers.createClass(EntityFilter, [{
+	    key: "getId",
+	    value: function getId() {
+	      return this.id;
+	    }
+	  }, {
+	    key: "getOptions",
+	    value: function getOptions() {
+	      return this.options;
+	    }
+	  }, {
+	    key: "toJSON",
+	    value: function toJSON() {
+	      return {
+	        id: this.getId(),
+	        options: this.getOptions()
+	      };
+	    }
+	  }]);
+	  return EntityFilter;
+	}();
+
 	/**
 	 * @memberof BX.UI.EntitySelector
 	 */
+
 	var Entity = /*#__PURE__*/function () {
 	  function Entity(entityOptions) {
+	    var _this = this;
+
 	    babelHelpers.classCallCheck(this, Entity);
 	    babelHelpers.defineProperty(this, "id", null);
 	    babelHelpers.defineProperty(this, "options", {});
@@ -2232,6 +2327,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "dynamicLoad", false);
 	    babelHelpers.defineProperty(this, "dynamicSearch", false);
 	    babelHelpers.defineProperty(this, "searchCacheLimits", []);
+	    babelHelpers.defineProperty(this, "filters", new Map());
 	    babelHelpers.defineProperty(this, "itemOptions", {});
 	    babelHelpers.defineProperty(this, "tagOptions", {});
 	    babelHelpers.defineProperty(this, "badgeOptions", []);
@@ -2249,6 +2345,13 @@ this.BX.UI = this.BX.UI || {};
 	    this.itemOptions = main_core.Type.isPlainObject(options.itemOptions) ? options.itemOptions : {};
 	    this.tagOptions = main_core.Type.isPlainObject(options.tagOptions) ? options.tagOptions : {};
 	    this.badgeOptions = main_core.Type.isArray(options.badgeOptions) ? options.badgeOptions : [];
+
+	    if (main_core.Type.isArray(options.filters)) {
+	      options.filters.forEach(function (filterOptions) {
+	        _this.addFilter(filterOptions);
+	      });
+	    }
+
 	    this.searchFields = new main_core_collections.OrderedArray(function (fieldA, fieldB) {
 	      if (fieldA.getSort() !== null && fieldB.getSort() === null) {
 	        return -1;
@@ -2362,7 +2465,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setSearchFields",
 	    value: function setSearchFields(searchFields) {
-	      var _this = this;
+	      var _this2 = this;
 
 	      this.searchFields.clear(); // Default Search Fields
 
@@ -2389,13 +2492,13 @@ this.BX.UI = this.BX.UI || {};
 	          {
 	            // delete a default title field
 	            if (field.getName() === 'title') {
-	              _this.searchFields.delete(titleField);
+	              _this2.searchFields.delete(titleField);
 	            } else if (field.getName() === 'subtitle') {
-	              _this.searchFields.delete(subtitleField);
+	              _this2.searchFields.delete(subtitleField);
 	            }
 	          }
 
-	        _this.searchFields.add(field);
+	        _this2.searchFields.add(field);
 	      });
 	      this.searchFields.forEach(function (field, index) {
 	        field.setSort(index);
@@ -2404,12 +2507,12 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setSearchCacheLimits",
 	    value: function setSearchCacheLimits(limits) {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      if (main_core.Type.isArrayFilled(limits)) {
 	        limits.forEach(function (limit) {
 	          if (main_core.Type.isStringFilled(limit)) {
-	            _this2.searchCacheLimits.push(new RegExp(limit, 'i'));
+	            _this3.searchCacheLimits.push(new RegExp(limit, 'i'));
 	          }
 	        });
 	      }
@@ -2444,6 +2547,35 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    }
 	  }, {
+	    key: "getFilters",
+	    value: function getFilters() {
+	      return Array.from(this.filters.values());
+	    }
+	  }, {
+	    key: "addFilters",
+	    value: function addFilters(filters) {
+	      var _this4 = this;
+
+	      if (main_core.Type.isArray(filters)) {
+	        filters.forEach(function (filterOptions) {
+	          _this4.addFilter(filterOptions);
+	        });
+	      }
+	    }
+	  }, {
+	    key: "addFilter",
+	    value: function addFilter(filterOptions) {
+	      if (main_core.Type.isPlainObject(filterOptions)) {
+	        var filter = new EntityFilter(filterOptions);
+	        this.filters.set(filter.getId(), filter);
+	      }
+	    }
+	  }, {
+	    key: "getFilter",
+	    value: function getFilter(id) {
+	      return this.filters.get(id) || null;
+	    }
+	  }, {
 	    key: "toJSON",
 	    value: function toJSON() {
 	      return {
@@ -2451,13 +2583,14 @@ this.BX.UI = this.BX.UI || {};
 	        options: this.getOptions(),
 	        searchable: this.isSearchable(),
 	        dynamicLoad: this.hasDynamicLoad(),
-	        dynamicSearch: this.hasDynamicSearch()
+	        dynamicSearch: this.hasDynamicSearch(),
+	        filters: this.getFilters()
 	      };
 	    }
 	  }], [{
 	    key: "getDefaultOptions",
 	    value: function getDefaultOptions() {
-	      var _this3 = this;
+	      var _this5 = this;
 
 	      if (this.defaultOptions === null) {
 	        this.defaultOptions = {};
@@ -2466,7 +2599,7 @@ this.BX.UI = this.BX.UI || {};
 	          var entities = settings.get('entities', []);
 	          entities.forEach(function (entity) {
 	            if (main_core.Type.isStringFilled(entity.id) && main_core.Type.isPlainObject(entity.options)) {
-	              _this3.defaultOptions[entity.id] = JSON.parse(JSON.stringify(entity.options)); // clone
+	              _this5.defaultOptions[entity.id] = JSON.parse(JSON.stringify(entity.options)); // clone
 	            }
 	          });
 	        });
@@ -2619,6 +2752,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "caption", null);
 	    babelHelpers.defineProperty(this, "captionOptions", {});
 	    babelHelpers.defineProperty(this, "avatar", null);
+	    babelHelpers.defineProperty(this, "avatarOptions", null);
 	    babelHelpers.defineProperty(this, "textColor", null);
 	    babelHelpers.defineProperty(this, "link", null);
 	    babelHelpers.defineProperty(this, "linkTitle", null);
@@ -2659,6 +2793,7 @@ this.BX.UI = this.BX.UI || {};
 	    this.setCaption(options.caption);
 	    this.setCaptionOptions(options.captionOptions);
 	    this.setAvatar(options.avatar);
+	    this.setAvatarOptions(options.avatarOptions);
 	    this.setTextColor(options.textColor);
 	    this.setLink(options.link);
 	    this.setLinkTitle(options.linkTitle);
@@ -2836,6 +2971,45 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    }
 	  }, {
+	    key: "getAvatarOption",
+	    value: function getAvatarOption(option) {
+	      if (this.avatarOptions !== null && !main_core.Type.isUndefined(this.avatarOptions[option])) {
+	        return this.avatarOptions[option];
+	      }
+
+	      var avatarOptions = this.getEntityItemOption('avatarOptions');
+
+	      if (main_core.Type.isPlainObject(avatarOptions) && !main_core.Type.isUndefined(avatarOptions[option])) {
+	        return avatarOptions[option];
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "setAvatarOption",
+	    value: function setAvatarOption(option, value) {
+	      if (main_core.Type.isStringFilled(option) && !main_core.Type.isUndefined(value)) {
+	        if (this.avatarOptions === null) {
+	          this.avatarOptions = {};
+	        }
+
+	        this.avatarOptions[option] = value;
+
+	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
+	      }
+	    }
+	  }, {
+	    key: "setAvatarOptions",
+	    value: function setAvatarOptions(options) {
+	      var _this2 = this;
+
+	      if (main_core.Type.isPlainObject(options)) {
+	        Object.keys(options).forEach(function (option) {
+	          _this2.setAvatarOption(option, options[option]);
+	        });
+	      }
+	    }
+	  }, {
 	    key: "getTextColor",
 	    value: function getTextColor() {
 	      return this.textColor !== null ? this.textColor : this.getEntityItemOption('textColor');
@@ -2904,12 +3078,12 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setBadges",
 	    value: function setBadges(badges) {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      if (main_core.Type.isArray(badges)) {
 	        this.badges = [];
 	        badges.forEach(function (badge) {
-	          _this2.badges.push(new ItemBadge(badge));
+	          _this3.badges.push(new ItemBadge(badge));
 	        });
 
 	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
@@ -2946,11 +3120,11 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setBadgesOptions",
 	    value: function setBadgesOptions(options) {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      if (main_core.Type.isPlainObject(options)) {
 	        Object.keys(options).forEach(function (option) {
-	          _this3.setBadgesOption(option, options[option]);
+	          _this4.setBadgesOption(option, options[option]);
 	        });
 	      }
 	    }
@@ -3280,6 +3454,11 @@ this.BX.UI = this.BX.UI || {};
 	      return this.getTagGlobalOption('avatar', true);
 	    }
 	  }, {
+	    key: "getTagAvatarOptions",
+	    value: function getTagAvatarOptions() {
+	      return this.getTagGlobalOption('avatarOptions', true);
+	    }
+	  }, {
 	    key: "getTagLink",
 	    value: function getTagLink() {
 	      return this.replaceMacros(this.getTagGlobalOption('link', true));
@@ -3311,6 +3490,7 @@ this.BX.UI = this.BX.UI || {};
 	        title: this.getTagOption('title') || this.getTitleNode() && this.getTitleNode().toJSON() || '',
 	        deselectable: this.isDeselectable(),
 	        avatar: this.getTagAvatar(),
+	        avatarOptions: this.getTagAvatarOptions(),
 	        link: this.getTagLink(),
 	        maxWidth: this.getTagMaxWidth(),
 	        textColor: this.getTagTextColor(),
@@ -4106,6 +4286,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "entityType", null);
 	    babelHelpers.defineProperty(this, "title", null);
 	    babelHelpers.defineProperty(this, "avatar", null);
+	    babelHelpers.defineProperty(this, "avatarOptions", null);
 	    babelHelpers.defineProperty(this, "maxWidth", null);
 	    babelHelpers.defineProperty(this, "textColor", null);
 	    babelHelpers.defineProperty(this, "bgColor", null);
@@ -4136,6 +4317,7 @@ this.BX.UI = this.BX.UI || {};
 	    this.setTitle(options.title);
 	    this.setDeselectable(options.deselectable);
 	    this.setAvatar(options.avatar);
+	    this.setAvatarOptions(options.avatarOptions);
 	    this.setMaxWidth(options.maxWidth);
 	    this.setTextColor(options.textColor);
 	    this.setBgColor(options.bgColor);
@@ -4202,6 +4384,55 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setAvatar(avatar) {
 	      if (main_core.Type.isString(avatar) || avatar === null) {
 	        this.avatar = avatar;
+	      }
+	    }
+	  }, {
+	    key: "getAvatarOption",
+	    value: function getAvatarOption(option) {
+	      if (this.avatarOptions !== null && !main_core.Type.isUndefined(this.avatarOptions[option])) {
+	        return this.avatarOptions[option];
+	      }
+
+	      var selectorAvatarOption = this.getSelector().getTagAvatarOption(option);
+
+	      if (selectorAvatarOption !== null) {
+	        return selectorAvatarOption[option];
+	      }
+
+	      var entityTagAvatarOptions = this.getEntityTagOption('avatarOptions');
+
+	      if (main_core.Type.isPlainObject(entityTagAvatarOptions) && !main_core.Type.isUndefined(entityTagAvatarOptions[option])) {
+	        return entityTagAvatarOptions[option];
+	      }
+
+	      var entityItemAvatarOptions = this.getEntityItemOption('avatarOptions');
+
+	      if (main_core.Type.isPlainObject(entityItemAvatarOptions) && !main_core.Type.isUndefined(entityItemAvatarOptions[option])) {
+	        return entityItemAvatarOptions[option];
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "setAvatarOption",
+	    value: function setAvatarOption(option, value) {
+	      if (main_core.Type.isStringFilled(option) && !main_core.Type.isUndefined(value)) {
+	        if (this.avatarOptions === null) {
+	          this.avatarOptions = {};
+	        }
+
+	        this.avatarOptions[option] = value;
+	      }
+	    }
+	  }, {
+	    key: "setAvatarOptions",
+	    value: function setAvatarOptions(options) {
+	      var _this = this;
+
+	      if (main_core.Type.isPlainObject(options)) {
+	        Object.keys(options).forEach(function (option) {
+	          _this.setAvatarOption(option, options[option]);
+	        });
 	      }
 	    }
 	  }, {
@@ -4316,13 +4547,24 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      var avatar = this.getAvatar();
+	      var bgImage = this.getAvatarOption('bgImage');
 
 	      if (main_core.Type.isStringFilled(avatar)) {
-	        main_core.Dom.addClass(this.getContainer(), 'ui-tag-selector-tag--has-avatar');
 	        main_core.Dom.style(this.getAvatarContainer(), 'background-image', "url('".concat(avatar, "')"));
 	      } else {
+	        main_core.Dom.style(this.getAvatarContainer(), 'background-image', bgImage);
+	      }
+
+	      var bgColor = this.getAvatarOption('bgColor');
+	      var bgSize = this.getAvatarOption('bgSize');
+	      main_core.Dom.style(this.getAvatarContainer(), 'background-color', bgColor);
+	      main_core.Dom.style(this.getAvatarContainer(), 'background-size', bgSize);
+	      var hasAvatar = avatar || bgColor && bgColor !== 'none' || bgImage && bgImage !== 'none';
+
+	      if (hasAvatar) {
+	        main_core.Dom.addClass(this.getContainer(), 'ui-tag-selector-tag--has-avatar');
+	      } else {
 	        main_core.Dom.removeClass(this.getContainer(), 'ui-tag-selector-tag--has-avatar');
-	        main_core.Dom.style(this.getAvatarContainer(), 'background-image', null);
 	      }
 
 	      var maxWidth = this.getMaxWidth();
@@ -4347,23 +4589,23 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      var _this = this;
+	      var _this2 = this;
 
 	      return this.cache.remember('container', function () {
-	        return main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-item ui-tag-selector-tag\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), _this.getContentContainer(), _this.getRemoveIcon());
+	        return main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-item ui-tag-selector-tag\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), _this2.getContentContainer(), _this2.getRemoveIcon());
 	      });
 	    }
 	  }, {
 	    key: "getContentContainer",
 	    value: function getContentContainer() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      return this.cache.remember('content-container', function () {
-	        if (main_core.Type.isStringFilled(_this2.getLink())) {
-	          return main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a\n\t\t\t\t\t\tclass=\"ui-tag-selector-tag-content\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t\thref=\"", "\"\n\t\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t"])), _this2.handleContainerClick.bind(_this2), _this2.getLink(), _this2.getAvatarContainer(), _this2.getTitleContainer());
+	        if (main_core.Type.isStringFilled(_this3.getLink())) {
+	          return main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a\n\t\t\t\t\t\tclass=\"ui-tag-selector-tag-content\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t\thref=\"", "\"\n\t\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t"])), _this3.handleContainerClick.bind(_this3), _this3.getLink(), _this3.getAvatarContainer(), _this3.getTitleContainer());
 	        } else {
-	          var className = main_core.Type.isFunction(_this2.getOnclick()) ? ' ui-tag-selector-tag-content--clickable' : '';
-	          return main_core.Tag.render(_templateObject3$2 || (_templateObject3$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass=\"ui-tag-selector-tag-content", "\" \n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t"])), className, _this2.handleContainerClick.bind(_this2), _this2.getAvatarContainer(), _this2.getTitleContainer());
+	          var className = main_core.Type.isFunction(_this3.getOnclick()) ? ' ui-tag-selector-tag-content--clickable' : '';
+	          return main_core.Tag.render(_templateObject3$2 || (_templateObject3$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass=\"ui-tag-selector-tag-content", "\" \n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t"])), className, _this3.handleContainerClick.bind(_this3), _this3.getAvatarContainer(), _this3.getTitleContainer());
 	        }
 	      });
 	    }
@@ -4384,10 +4626,10 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getRemoveIcon",
 	    value: function getRemoveIcon() {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      return this.cache.remember('remove-icon', function () {
-	        return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-tag-remove\" onclick=\"", "\"></div>\n\t\t\t"])), _this3.handleRemoveIconClick.bind(_this3));
+	        return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-tag-remove\" onclick=\"", "\"></div>\n\t\t\t"])), _this4.handleRemoveIconClick.bind(_this4));
 	      });
 	    }
 	  }, {
@@ -4408,7 +4650,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "remove",
 	    value: function remove() {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      var animate = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
@@ -4418,10 +4660,10 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      return new Promise(function (resolve) {
-	        main_core.Dom.style(_this4.getContainer(), 'width', "".concat(_this4.getContainer().offsetWidth, "px"));
-	        main_core.Dom.addClass(_this4.getContainer(), 'ui-tag-selector-tag--remove');
-	        Animation.handleAnimationEnd(_this4.getContainer(), 'ui-tag-selector-tag-remove').then(function () {
-	          main_core.Dom.remove(_this4.getContainer());
+	        main_core.Dom.style(_this5.getContainer(), 'width', "".concat(_this5.getContainer().offsetWidth, "px"));
+	        main_core.Dom.addClass(_this5.getContainer(), 'ui-tag-selector-tag--remove');
+	        Animation.handleAnimationEnd(_this5.getContainer(), 'ui-tag-selector-tag-remove').then(function () {
+	          main_core.Dom.remove(_this5.getContainer());
 	          resolve();
 	        });
 	      });
@@ -4429,12 +4671,12 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "show",
 	    value: function show() {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      return new Promise(function (resolve) {
-	        main_core.Dom.addClass(_this5.getContainer(), 'ui-tag-selector-tag--show');
-	        Animation.handleAnimationEnd(_this5.getContainer(), 'ui-tag-selector-tag-show').then(function () {
-	          main_core.Dom.removeClass(_this5.getContainer(), 'ui-tag-selector-tag--show');
+	        main_core.Dom.addClass(_this6.getContainer(), 'ui-tag-selector-tag--show');
+	        Animation.handleAnimationEnd(_this6.getContainer(), 'ui-tag-selector-tag-show').then(function () {
+	          main_core.Dom.removeClass(_this6.getContainer(), 'ui-tag-selector-tag--show');
 	          resolve();
 	        });
 	      });
@@ -4492,6 +4734,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "textBoxAutoHide", false);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "textBoxOldValue", '');
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tagAvatar", null);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tagAvatarOptions", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tagTextColor", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tagBgColor", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tagFontWeight", null);
@@ -4528,6 +4771,8 @@ this.BX.UI = this.BX.UI || {};
 	    _this.setMaxHeight(options.maxHeight);
 
 	    _this.setTagAvatar(options.tagAvatar);
+
+	    _this.setTagAvatarOptions(options.tagAvatarOptions);
 
 	    _this.setTagMaxWidth(options.tagMaxWidth);
 
@@ -4974,6 +5219,43 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    }
 	  }, {
+	    key: "getTagAvatarOptions",
+	    value: function getTagAvatarOptions() {
+	      return this.tagAvatarOptions;
+	    }
+	  }, {
+	    key: "getTagAvatarOption",
+	    value: function getTagAvatarOption(option) {
+	      if (this.tagAvatarOptions !== null && !main_core.Type.isUndefined(this.tagAvatarOptions[option])) {
+	        return this.tagAvatarOptions[option];
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "setTagAvatarOption",
+	    value: function setTagAvatarOption(option, value) {
+	      if (main_core.Type.isStringFilled(option) && !main_core.Type.isUndefined(value)) {
+	        if (this.tagAvatarOptions === null) {
+	          this.tagAvatarOptions = {};
+	        }
+
+	        this.tagAvatarOptions[option] = value;
+	        this.updateTags();
+	      }
+	    }
+	  }, {
+	    key: "setTagAvatarOptions",
+	    value: function setTagAvatarOptions(options) {
+	      var _this10 = this;
+
+	      if (main_core.Type.isPlainObject(options)) {
+	        Object.keys(options).forEach(function (option) {
+	          _this10.setTagAvatarOption(option, options[option]);
+	        });
+	      }
+	    }
+	  }, {
 	    key: "getTagTextColor",
 	    value: function getTagTextColor() {
 	      return this.tagTextColor;
@@ -5053,12 +5335,12 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getAddButton",
 	    value: function getAddButton() {
-	      var _this10 = this;
+	      var _this11 = this;
 
 	      return this.cache.remember('add-button', function () {
-	        var caption = main_core.Text.encode(_this10.getActualButtonCaption());
-	        var className = _this10.addButtonVisible ? '' : ' ui-tag-selector-item-hidden';
-	        return main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tag-selector-item ui-tag-selector-add-button", "\">\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"ui-tag-selector-add-button-caption\" \n\t\t\t\t\t\tonclick=\"", "\">", "</span>\n\t\t\t\t</span>\n\t\t\t"])), className, _this10.handleAddButtonClick.bind(_this10), caption);
+	        var caption = main_core.Text.encode(_this11.getActualButtonCaption());
+	        var className = _this11.addButtonVisible ? '' : ' ui-tag-selector-item-hidden';
+	        return main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tag-selector-item ui-tag-selector-add-button", "\">\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"ui-tag-selector-add-button-caption\" \n\t\t\t\t\t\tonclick=\"", "\">", "</span>\n\t\t\t\t</span>\n\t\t\t"])), className, _this11.handleAddButtonClick.bind(_this11), caption);
 	      });
 	    }
 	  }, {
@@ -5122,11 +5404,11 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getCreateButton",
 	    value: function getCreateButton() {
-	      var _this11 = this;
+	      var _this12 = this;
 
 	      return this.cache.remember('create-button', function () {
-	        var className = _this11.createButtonVisible ? '' : ' ui-tag-selector-item-hidden';
-	        return main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-create-button", "\">\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"ui-tag-selector-create-button-caption\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>", "</span>\n\t\t\t\t</div>\n\t\t\t"])), className, _this11.handleCreateButtonClick.bind(_this11), main_core.Text.encode(_this11.getCreateButtonCaption()));
+	        var className = _this12.createButtonVisible ? '' : ' ui-tag-selector-item-hidden';
+	        return main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-create-button", "\">\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"ui-tag-selector-create-button-caption\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>", "</span>\n\t\t\t\t</div>\n\t\t\t"])), className, _this12.handleCreateButtonClick.bind(_this12), main_core.Text.encode(_this12.getCreateButtonCaption()));
 	      });
 	    }
 	  }, {
@@ -5696,7 +5978,12 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(DefaultFooter, [{
 	    key: "render",
 	    value: function render() {
-	      return main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-selector-footer-default\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getContent() ? this.getContent() : '');
+	      var container = main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getContent() ? this.getContent() : '');
+	      var className = this.getOption('containerClass', 'ui-selector-footer-default');
+	      var containerStyles = this.getOption('containerStyles', {});
+	      main_core.Dom.addClass(container, className);
+	      main_core.Dom.style(container, containerStyles);
+	      return container;
 	    }
 	  }, {
 	    key: "getContent",
@@ -8000,8 +8287,25 @@ this.BX.UI = this.BX.UI || {};
 	          var recentItems = response.data.dialog.recentItems;
 
 	          if (main_core.Type.isArray(recentItems)) {
+	            var nodeOptionsMap = new Map();
+	            var itemsOptions = response.data.dialog.items;
+
+	            if (main_core.Type.isArray(itemsOptions)) {
+	              itemsOptions.forEach(function (itemOptions) {
+	                if (itemOptions.nodeOptions) {
+	                  var item = _this12.getItem(itemOptions);
+
+	                  if (item) {
+	                    nodeOptionsMap.set(item, itemOptions.nodeOptions);
+	                  }
+	                }
+	              });
+	            }
+
 	            var items = recentItems.map(function (recentItem) {
-	              return _this12.getItem(recentItem);
+	              var item = _this12.getItem(recentItem);
+
+	              return [item, nodeOptionsMap.get(item)];
 	            });
 
 	            _this12.getRecentTab().getRootNode().addItems(items);

@@ -97,8 +97,16 @@ class NewToAutomatic
 	 */
 	public static function convertNewServiceToOld($service)
 	{
-		if(intval($service["ID"]) <= 0)
-			return array();
+		if (intval($service["ID"]) <= 0)
+		{
+			return [];
+		}
+
+		$newService = Manager::getObjectById($service["ID"]);
+		if (is_null($newService))
+		{
+			return [];
+		}
 
 		$service["SID"] = 'new'.$service["ID"];
 		$service["TAX_RATE"] = 0;
@@ -156,9 +164,7 @@ class NewToAutomatic
 
 		$service["PROFILES"]['profile'] = $profileParams;
 
-		$newService = Manager::getObjectById($service["ID"]);
 		$newToAutomatic = new self($newService);
-
 		$service = array_merge($newToAutomatic->init(), $service);
 		return $service;
 	}

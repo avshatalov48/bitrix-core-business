@@ -24,32 +24,34 @@ class Gd extends Engine
 
 		$info = $this->getInfo();
 
-		if($info && $info->isSupported())
+		if ($info && $info->isSupported())
 		{
 			$this->format = $info->getFormat();
+			$resource = null;
 
 			switch($this->format)
 			{
 				case File\Image::FORMAT_GIF:
-					$this->resource = imagecreatefromgif($this->file);
+					$resource = imagecreatefromgif($this->file);
 					break;
 				case File\Image::FORMAT_PNG:
-					$this->resource = imagecreatefrompng($this->file);
+					$resource = imagecreatefrompng($this->file);
 					break;
 				case File\Image::FORMAT_WEBP:
-					$this->resource = imagecreatefromwebp($this->file);
+					$resource = imagecreatefromwebp($this->file);
 					break;
 				case File\Image::FORMAT_BMP:
-					$this->resource = imagecreatefrombmp($this->file);
+					$resource = imagecreatefrombmp($this->file);
 					break;
 				case File\Image::FORMAT_JPEG:
 					ini_set('gd.jpeg_ignore_warning', 1);
-					$this->resource = imagecreatefromjpeg($this->file);
+					$resource = imagecreatefromjpeg($this->file);
 					break;
 			}
 
-			if($this->resource !== null)
+			if ($resource)
 			{
+				$this->resource = $resource;
 				return true;
 			}
 		}

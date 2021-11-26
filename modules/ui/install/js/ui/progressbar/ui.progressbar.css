@@ -39,10 +39,11 @@
 	width: 100%;
 	height: var(--ui-current-bar-size);
 	border-radius: calc(var(--ui-current-bar-size) / 2);
-	background-color: #edeef0;
+	background-color: var(--ui-current-bar-bg-track-color, #edeef0);
 	transition: 250ms linear all;
 	order: 2;
 	flex: 1;
+	overflow: hidden;
 }
 
 .ui-progressbar-bg .ui-progressbar-track { background-color: var(--ui-current-bar-bg-track-color); }
@@ -116,24 +117,36 @@
 .ui-progressbar-primary {
 	--ui-current-bar-color: var(--ui-progressbar-color-primary);
 	--ui-current-bar-bg-color: var(--ui-progressbar-bg-color-primary);
+}
+
+.ui-progressbar-bg .ui-progressbar-primary {
 	--ui-current-bar-bg-track-color: var(--ui-progressbar-bg-track-color-primary)
 }
 
 .ui-progressbar-danger {
 	--ui-current-bar-color: var(--ui-progressbar-color-danger);
 	--ui-current-bar-bg-color: var(--ui-progressbar-bg-color-danger);
+}
+
+.ui-progressbar-bg .ui-progressbar-danger {
 	--ui-current-bar-bg-track-color: var(--ui-progressbar-bg-track-color-danger)
 }
 
 .ui-progressbar-warning {
 	--ui-current-bar-color: var(--ui-progressbar-color-warning);
 	--ui-current-bar-bg-color: var(--ui-progressbar-bg-color-warning);
+}
+
+.ui-progressbar-bg .ui-progressbar-warning {
 	--ui-current-bar-bg-track-color: var(--ui-progressbar-bg-track-color-warning)
 }
 
 .ui-progressbar-success {
 	--ui-current-bar-color: var(--ui-progressbar-color-success);
 	--ui-current-bar-bg-color: var(--ui-progressbar-bg-color-success);
+}
+
+.ui-progressbar-bg .ui-progressbar-success {
 	--ui-current-bar-bg-track-color: var(--ui-progressbar-bg-track-color-success)
 }
 

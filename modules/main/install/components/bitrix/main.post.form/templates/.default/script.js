@@ -1,5 +1,12 @@
+;(function() {
+
+	if (window['LHEPostForm'])
+	{
+		return;
+	}
+
 this.BX = this.BX || {};
-(function (exports,main_core,main_popup,main_core_events) {
+(function (exports,main_core_events,main_polyfill_intersectionobserver,main_popup,main_core) {
 	'use strict';
 
 	var Default = /*#__PURE__*/function () {
@@ -212,6 +219,8 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(PostUser, [{
 	    key: "parse",
 	    value: function parse(content, pLEditor) {
+	      var _this2 = this;
+
 	      content = content.replace(/\[USER\s*=\s*(\d+)\](.*?)\[\/USER\]/ig, function (str, id, name) {
 	        name = name.trim();
 
@@ -219,28 +228,64 @@ this.BX = this.BX || {};
 	          return '';
 	        }
 
-	        var tagId = this.htmlEditor.SetBxTag(false, {
-	          tag: this.id,
+	        var tagId = _this2.htmlEditor.SetBxTag(false, {
+	          tag: _this2.id,
 	          userId: id,
 	          userName: name
 	        });
+
 	        return "<span id=\"".concat(tagId, "\" class=\"bxhtmled-metion\">").concat(name, "</span>");
-	      }.bind(this));
+	      }).replace(/\[PROJECT\s*=\s*(\d+)\](.*?)\[\/PROJECT\]/ig, function (str, id, name) {
+	        name = name.trim();
+
+	        if (name === '') {
+	          return '';
+	        }
+
+	        var tagId = _this2.htmlEditor.SetBxTag(false, {
+	          tag: _this2.id,
+	          projectId: id,
+	          projectName: name
+	        });
+
+	        return "<span id=\"".concat(tagId, "\" class=\"bxhtmled-metion\">").concat(name, "</span>");
+	      }).replace(/\[DEPARTMENT\s*=\s*(\d+)\](.*?)\[\/DEPARTMENT\]/ig, function (str, id, name) {
+	        name = name.trim();
+
+	        if (name === '') {
+	          return '';
+	        }
+
+	        var tagId = _this2.htmlEditor.SetBxTag(false, {
+	          tag: _this2.id,
+	          departmentId: id,
+	          departmentName: name
+	        });
+
+	        return "<span id=\"".concat(tagId, "\" class=\"bxhtmled-metion\">").concat(name, "</span>");
+	      });
 	      return content;
 	    }
 	  }, {
 	    key: "unparse",
 	    value: function unparse(bxTag, oNode) {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      var text = '';
 	      oNode.node.childNodes.forEach(function (node) {
-	        text += _this2.htmlEditor.bbParser.GetNodeHtml(node);
+	        text += _this3.htmlEditor.bbParser.GetNodeHtml(node);
 	      });
-	      var result = String(text).trim();
+	      text = String(text).trim();
+	      var result = '';
 
-	      if (main_core.Type.isStringFilled(result) && !main_core.Type.isUndefined(bxTag.userId)) {
-	        result = "[USER=".concat(bxTag.userId, "]").concat(result, "[/USER]");
+	      if (main_core.Type.isStringFilled(text)) {
+	        if (!main_core.Type.isUndefined(bxTag.userId)) {
+	          result = "[USER=".concat(bxTag.userId, "]").concat(text, "[/USER]");
+	        } else if (!main_core.Type.isUndefined(bxTag.projectId)) {
+	          result = "[PROJECT=".concat(bxTag.projectId, "]").concat(text, "[/PROJECT]");
+	        } else if (!main_core.Type.isUndefined(bxTag.departmentId)) {
+	          result = "[DEPARTMENT=".concat(bxTag.departmentId, "]").concat(text, "[/DEPARTMENT]");
+	        }
 	      }
 
 	      return result;
@@ -1640,6 +1685,70 @@ this.BX = this.BX || {};
 	  return Toolbar;
 	}();
 
+	var TasksLimit = /*#__PURE__*/function () {
+	  function TasksLimit() {
+	    babelHelpers.classCallCheck(this, TasksLimit);
+	  }
+
+	  babelHelpers.createClass(TasksLimit, null, [{
+	    key: "showPopup",
+	    value: function showPopup(params) {
+	      var tasksLimitPopup = main_popup.PopupManager.getPopupById(this.getPopupId());
+
+	      if (!tasksLimitPopup) {
+	        tasksLimitPopup = new main_popup.Popup(this.getPopupId(), null, {
+	          content: this.getTasksLimitPopupContent(),
+	          lightShadow: false,
+	          offsetLeft: 20,
+	          autoHide: false,
+	          angle: {
+	            position: 'bottom'
+	          },
+	          closeByEsc: false,
+	          closeIcon: true
+	        });
+	      }
+
+	      tasksLimitPopup.setBindElement(params.bindPosition);
+	      tasksLimitPopup.show();
+	    }
+	  }, {
+	    key: "getPopupId",
+	    value: function getPopupId() {
+	      return 'bx-post-mention-tasks-limit-popup';
+	    }
+	  }, {
+	    key: "getTasksLimitPopupContent",
+	    value: function getTasksLimitPopupContent() {
+	      return main_core.Dom.create('DIV', {
+	        style: {
+	          width: '400px',
+	          padding: '10px'
+	        },
+	        children: [main_core.Dom.create('SPAN', {
+	          html: main_core.Loc.getMessage('MPF_MENTION_TASKS_LIMIT').replace('#A_BEGIN#', '<a href="javascript:void(0);" onclick="BX.Main.PostFormTasksLimit.onClickTasksLimitPopupSlider();">').replace('#A_END#', '</a>')
+	        })]
+	      });
+	    }
+	  }, {
+	    key: "onClickTasksLimitPopupSlider",
+	    value: function onClickTasksLimitPopupSlider() {
+	      this.hidePopup();
+	      BX.UI.InfoHelper.show('limit_tasks_observers_participants');
+	    }
+	  }, {
+	    key: "hidePopup",
+	    value: function hidePopup() {
+	      var tasksLimitPopup = main_popup.PopupManager.getPopupById(this.getPopupId());
+
+	      if (tasksLimitPopup) {
+	        tasksLimitPopup.close();
+	      }
+	    }
+	  }]);
+	  return TasksLimit;
+	}();
+
 	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
 
 	var Editor = /*#__PURE__*/function () {
@@ -1656,7 +1765,8 @@ this.BX = this.BX || {};
 	      showPinButton: false,
 	      pinEditorPanel: false,
 	      lazyLoad: true,
-	      urlPreviewId: null
+	      urlPreviewId: null,
+	      tasksLimitExceeded: false
 	    });
 	    babelHelpers.defineProperty(this, "actionQueue", []);
 	    this.id = options['id'];
@@ -1664,6 +1774,7 @@ this.BX = this.BX || {};
 	    this.formId = options['formId'];
 	    this.eventNode = options.eventNode || document.querySelector('#div' + (this.name || this.id));
 	    this.eventNode.dataset.bxHtmlEditable = 'Y';
+	    this.formEntityType = null;
 	    Editor.repo.set(this.getId(), this);
 	    this.setEditorParams(editorParams);
 	    this.bindEvents(window['BXHtmlEditor'] ? window['BXHtmlEditor'].Get(this.getId()) : null);
@@ -2036,7 +2147,17 @@ this.BX = this.BX || {};
 	        _this3.getEditor().AllowBeforeUnloadHandler();
 	      });
 	      main_core_events.EventEmitter.subscribe(this.getEventObject(), 'OnAfterHideLHE', function () {
+	        TasksLimit.hidePopup();
+
 	        _this3.getEditor().DenyBeforeUnloadHandler();
+	      });
+	      main_core_events.EventEmitter.subscribe(htmlEditor, 'OnIframeClick', function () {
+	        var event = new MouseEvent('click', {
+	          bubbles: true,
+	          cancelable: true,
+	          view: window
+	        });
+	        htmlEditor.iframeView.container.dispatchEvent(event);
 	      });
 	    }
 	  }, {
@@ -2182,9 +2303,10 @@ this.BX = this.BX || {};
 	          compatData = _ref17.compatData;
 
 	      var _ref18 = data || compatData,
-	          _ref19 = babelHelpers.slicedToArray(_ref18, 2),
+	          _ref19 = babelHelpers.slicedToArray(_ref18, 3),
 	          show = _ref19[0],
-	          setFocus = _ref19[1];
+	          setFocus = _ref19[1],
+	          FCFormId = _ref19[2];
 
 	      if (!this.getEditor() && window['BXHtmlEditor']) {
 	        window['BXHtmlEditor'].Get(this.getId()).Init();
@@ -2231,6 +2353,8 @@ this.BX = this.BX || {};
 	        }
 	      } else if (show) {
 	        _classStaticPrivateFieldSpecGet(this.constructor, Editor, _shownForms).set(this);
+
+	        this.formEntityType = main_core.Type.isArray(FCFormId) && main_core.Type.isStringFilled(FCFormId[0]) && FCFormId[0].match(/^TASK_(\d+)$/i) ? 'task' : null;
 
 	        if (setFocus && main_core.Type.isPlainObject(setFocus)) {
 	          if (setFocus['onShowControllers']) {
@@ -2482,8 +2606,9 @@ this.BX = this.BX || {};
 	};
 
 	exports.PostForm = Editor;
+	exports.PostFormTasksLimit = TasksLimit;
 
-}((this.BX.Main = this.BX.Main || {}),BX,BX.Main,BX.Event));
+}((this.BX.Main = this.BX.Main || {}),BX.Event,BX,BX.Main,BX));
 
 
 
@@ -2743,6 +2868,37 @@ BX.addCustomEvent(window, 'onInitialized', function(someObject) {
 		});
 	}
 });
+
+BX.addCustomEvent(window, 'BX.MPF.MentionSelector:open', function(params) {
+
+	var selectorId = (BX.type.isNotEmptyString(params.id) ? params.id : '');
+	if (!BX.type.isNotEmptyString(selectorId))
+	{
+		return;
+	}
+
+	var bindNode = (BX.type.isDomNode(params.bindNode) ? params.bindNode : null);
+	var bindPosition = (BX.type.isNotEmptyObject(params.bindPosition) ? params.bindPosition : null);
+
+	var dialog = BX.UI.EntitySelector.Dialog.getById(selectorId);
+	if (dialog)
+	{
+		dialog.deselectAll();
+		dialog.search('');
+		dialog.show();
+
+		if (BX.type.isDomNode(bindNode))
+		{
+			dialog.popup.setBindElement(bindNode);
+		}
+		else if (BX.type.isNotEmptyObject(bindPosition))
+		{
+			dialog.popup.setBindElement(bindPosition);
+		}
+		dialog.popup.adjustPosition();
+	}
+});
+
 window.onKeyDownHandler = function(e, editor, formID)
 {
 	var keyCode = e.keyCode;
@@ -2862,33 +3018,60 @@ window.onKeyDownHandler = function(e, editor, formID)
 		}, 10);
 	}
 
-	if(MPFMention.listen)
+	if (MPFMention.listen)
 	{
-		var selectorInstance = null;
-
-		if (BX.type.isNotEmptyString(selectorId))
+		var activeDialogTab = null;
+		var dialog = (BX.type.isNotEmptyString(selectorId) ? BX.UI.EntitySelector.Dialog.getById(selectorId) : null);
+		if (dialog)
 		{
-			selectorInstance = BX.UI.SelectorManager.instances[selectorId];
+			activeDialogTab = dialog.getActiveTab().getId();
 		}
 
-		var navigationResult = false;
-		if (selectorInstance)
+		var key = null;
+		switch (keyCode)
 		{
-			navigationResult = selectorInstance.getNavigationInstance().checkKeyboardNavigation({
+			case editor.KEY_CODES.enter:
+				key = 'Enter';
+				break;
+			case 9:
+				key = 'Tab';
+				break;
+			case editor.KEY_CODES.up:
+				key = 'ArrowUp';
+				break;
+			case editor.KEY_CODES.down:
+				key = 'ArrowDown';
+				break;
+			case editor.KEY_CODES.left:
+				if (activeDialogTab === 'departments')
+				{
+					key = 'ArrowLeft';
+				}
+				break;
+			case editor.KEY_CODES.right:
+				if (activeDialogTab === 'departments')
+				{
+					key = 'ArrowRight';
+				}
+				break;
+		}
+
+		if (key)
+		{
+			var event = new KeyboardEvent('keydown', {
+				key: key,
 				keyCode: keyCode,
-				tab: (
-					MPFMention.bSearch
-						? 'search'
-						: (selectorInstance ? selectorInstance.tabs.selected : false)
-				)
+				bubbles: true,
+				cancelable: true,
+				view: window,
 			});
-		}
 
-		if (navigationResult)
-		{
-			editor.iframeKeyDownPreventDefault = true;
-			e.stopPropagation();
-			e.preventDefault();
+			if (!document.dispatchEvent(event))
+			{
+				editor.iframeKeyDownPreventDefault = true;
+				e.stopPropagation();
+				e.preventDefault();
+			}
 		}
 	}
 
@@ -2931,20 +3114,36 @@ window.onKeyUpHandler = function(e, editor, formID)
 		range, mentText;
 
 	if (!window['BXfpdStopMent' + formID])
-		return true;
-
-	if(MPFMention.listen === true)
 	{
-		if(keyCode == editor.KEY_CODES["escape"]) //ESC
+		return true;
+	}
+
+	if (MPFMention.listen === true)
+	{
+		if (keyCode == editor.KEY_CODES.escape) //ESC
 		{
+			var event = new KeyboardEvent('keyup', {
+				key: 'Escape',
+				keyCode: keyCode,
+				bubbles: true,
+				cancelable: true,
+				view: window,
+			});
+
+			if (!document.dispatchEvent(event))
+			{
+				e.stopPropagation();
+				e.preventDefault();
+			}
+
 			window['BXfpdStopMent' + formID]();
 		}
-		else if(
-			keyCode !== editor.KEY_CODES["enter"]
-			&& keyCode !== editor.KEY_CODES["left"]
-			&& keyCode !== editor.KEY_CODES["right"]
-			&& keyCode !== editor.KEY_CODES["up"]
-			&& keyCode !== editor.KEY_CODES["down"]
+		else if (
+			keyCode !== editor.KEY_CODES.enter
+			&& keyCode !== editor.KEY_CODES.left
+			&& keyCode !== editor.KEY_CODES.right
+			&& keyCode !== editor.KEY_CODES.up
+			&& keyCode !== editor.KEY_CODES.down
 		)
 		{
 			if (BX(MPFMention.node))
@@ -2953,40 +3152,44 @@ window.onKeyUpHandler = function(e, editor, formID)
 				var mentTextOrig = mentText;
 
 				mentText = mentText.replace(/^[\+@]*/, '');
-				MPFMention.bSearch = (mentText.length > 0);
+				MPFMention.bSearch = BX.type.isNotEmptyString(mentText);
 
 				var selectorId = window.MPFgetSelectorId('bx-mention-' + formID + '-id');
-				if (BX.type.isNotEmptyString(selectorId))
+				var dialog = BX.UI.EntitySelector.Dialog.getById(selectorId);
+
+				if (
+					BX.type.isNotEmptyString(mentText)
+					&& dialog
+				)
 				{
-					var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
-					if (BX.type.isNotEmptyObject(selectorInstance))
+					dialog.search(mentText);
+				}
+
+				if (
+					MPFMention.leaveContent
+					&& MPFMention._lastText
+				)
+				{
+					if (mentTextOrig === '')
 					{
-						selectorInstance.getSearchInstance().runSearch({
-							text: mentText
-						});
+						window['BXfpdStopMent' + formID]();
 					}
-				}
-
-				if (MPFMention.leaveContent && MPFMention._lastText && mentTextOrig === '')
-				{
-					window['BXfpdStopMent' + formID]();
-				}
-				else if (MPFMention.leaveContent && MPFMention.lastText && mentTextOrig !== '' && mentText === '')
-				{
-					MPFMention.bSearch = false;
-					window['BXfpdStopMent' + formID]();
-
-					if (BX.type.isNotEmptyString(selectorId))
+					else if (
+						mentTextOrig !== ''
+						&& mentText === ''
+					)
 					{
-						BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
-							id: selectorId,
-							bindPosition: getMentionNodePosition(MPFMention.node, editor)
-						}]);
+						MPFMention.bSearch = false;
+						if (dialog)
+						{
+							dialog.search('');
+						}
 					}
 				}
 
 				MPFMention.lastText = mentText;
 				MPFMention._lastText = mentTextOrig;
+
 			}
 			else
 			{
@@ -3043,20 +3246,8 @@ window.onTextareaKeyDownHandler = function(e, editor, formID)
 {
 	var keyCode = e.keyCode;
 
-	if(MPFMention.listen && keyCode == editor.KEY_CODES["enter"])
+	if(MPFMention.listen && keyCode == editor.KEY_CODES.enter)
 	{
-		var selectorId = window.MPFgetSelectorId('bx-mention-' + formID + '-id');
-		if (BX.type.isNotEmptyString(selectorId))
-		{
-			var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
-			if (BX.type.isNotEmptyObject(selectorInstance))
-			{
-				selectorInstance.getNavigationInstance().selectFirstItem({
-					tab: (MPFMention.bSearch ? 'search' : selectorInstance.tabs.selected)
-				});
-			}
-		}
-
 		editor.textareaKeyDownPreventDefault = true;
 		e.stopPropagation();
 		e.preventDefault();
@@ -3065,67 +3256,72 @@ window.onTextareaKeyDownHandler = function(e, editor, formID)
 
 window.onTextareaKeyUpHandler = function(e, editor, formID)
 {
-	var
-		cursor, value,
-		keyCode = e.keyCode;
+	var cursor = null;
+	var value = '';
+	var keyCode = e.keyCode;
 
 	var selectorId = window.MPFgetSelectorId('bx-mention-' + formID + '-id');
 
-	if(MPFMention.listen === true)
+	if (MPFMention.listen === true)
 	{
-		if(keyCode == 27) //ESC
+		if (keyCode == 27) //ESC
 		{
 			window['BXfpdStopMent' + formID]();
 		}
-		else if(keyCode !== 13)
+		else if (keyCode !== 13)
 		{
 			value = editor.textareaView.GetValue(false);
 			cursor = editor.textareaView.GetCursorPosition();
 
+			var mentText = '';
+			var mentTextOrig = '';
+
 			if (value.indexOf('+') !== -1 || value.indexOf('@') !== -1)
 			{
-				var
-					valueBefore = value.substr(0, cursor),
-					charPos = Math.max(valueBefore.lastIndexOf('+'), valueBefore.lastIndexOf('@'));
+				var valueBefore = value.substr(0, cursor);
+				var charPos = Math.max(valueBefore.lastIndexOf('+'), valueBefore.lastIndexOf('@'));
 
 				if (charPos >= 0)
 				{
-					var
-						mentText = valueBefore.substr(charPos),
-						mentTextOrig = mentText;
+					mentText = valueBefore.substr(charPos);
+					mentTextOrig = mentText;
 
 					mentText = mentText.replace(/^[\+@]*/, '');
-					MPFMention.bSearch = (mentText.length > 0);
+					MPFMention.bSearch = BX.type.isNotEmptyString(mentText);
 
-					var selectorInstance = null;
-					if (BX.type.isNotEmptyString(selectorId))
-					{
-						selectorInstance = BX.UI.SelectorManager.instances[selectorId];
-					}
-
-					if (BX.type.isNotEmptyObject(selectorInstance))
-					{
-						selectorInstance.getSearchInstance().runSearch({
-							text: mentText
-						});
-					}
+					var dialog = BX.UI.EntitySelector.Dialog.getById(selectorId);
 
 					if (
-						MPFMention.leaveContent
-						&& MPFMention._lastText
-						&& (
-							mentTextOrig === ''
-							|| mentText === ''
-						)
+						BX.type.isNotEmptyString(mentText)
+						&& dialog
 					)
 					{
-						window['BXfpdStopMent' + formID]();
+						dialog.search(mentText);
 					}
-
-					MPFMention.lastText = mentText;
-					MPFMention._lastText = mentTextOrig;
 				}
 			}
+
+			if (MPFMention._lastText)
+			{
+				if (mentTextOrig === '')
+				{
+					window['BXfpdStopMent' + formID]();
+				}
+				else if (
+					mentTextOrig !== ''
+					&& mentText === ''
+				)
+				{
+					MPFMention.bSearch = false;
+					if (dialog)
+					{
+						dialog.search('');
+					}
+				}
+			}
+
+			MPFMention.lastText = mentText;
+			MPFMention._lastText = mentTextOrig;
 		}
 	}
 	else
@@ -3165,7 +3361,8 @@ window.onTextareaKeyUpHandler = function(e, editor, formID)
 					if (BX.type.isNotEmptyString(selectorId))
 					{
 						BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
-							id: selectorId
+							id: selectorId,
+							bindPosition: BX.pos(document.getElementById('bx-b-mention-' + formID)),
 						}]);
 					}
 				}
@@ -3197,10 +3394,11 @@ window.BxInsertMention = function (params)
 		editor = LHEPostForm.getEditor(editorId),
 		spaceNode;
 
-		if(
+		if (
 		(
-			type === 'users'
-			|| type === 'emailusers'
+			type === 'user'
+			|| type === 'project'
+			|| type === 'department'
 		)
 		&& item
 		&& item.entityId > 0
@@ -3220,7 +3418,29 @@ window.BxInsertMention = function (params)
 				// &nbsp; - for chrome
 			spaceNode = BX.create('SPAN', {html: (bNeedComa ? ',&nbsp;' : '&nbsp;')}, doc);
 
-			editor.SetBxTag(mention, {tag: 'postuser', userId: item.entityId, userName: item.name, params: {value : item.entityId}});
+			var bxTagData = {
+				tag: 'postuser',
+				params: {
+					value : item.entityId
+				},
+			};
+
+			switch (type)
+			{
+				case 'project':
+					bxTagData.projectId = item.entityId;
+					bxTagData.projectName = item.name;
+					break;
+				case 'department':
+					bxTagData.departmentId = item.entityId;
+					bxTagData.departmentName = item.name;
+					break;
+				default:
+					bxTagData.userId = item.entityId;
+					bxTagData.userName = item.name;
+			}
+
+			editor.SetBxTag(mention, bxTagData);
 
 			if (
 				BX(MPFMention.node)
@@ -3265,25 +3485,27 @@ window.BxInsertMention = function (params)
 				editor.textareaView.element.setSelectionRange(charPos, charPos);
 			}
 
-			editor.textareaView.WrapWith(false, false, "[USER=" + item.entityId + "]" + item.name + "[/USER]" + (bNeedComa ? ', ' : ' '));
+			var bbCode = '';
+			switch (type)
+			{
+				case 'user':
+					bbCode = 'USER';
+					break;
+				case 'project':
+					bbCode = 'PROJECT';
+					break;
+				case 'department':
+					bbCode = 'DEPARTMENT';
+					break;
+				default:
+			}
+
+			editor.textareaView.WrapWith(false, false, "[" + bbCode + "=" + item.entityId + "]" + item.name + "[/" + bbCode + "]" + (bNeedComa ? ', ' : ' '));
 		}
 
 		if (params.fireAddEvent === true)
 		{
-			BX.onCustomEvent(window, 'onMentionAdd', [ item ]);
-		}
-
-		var selectorId = window.MPFgetSelectorId('bx-mention-' + formID + '-id');
-		if (BX.type.isNotEmptyString(selectorId))
-		{
-			var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
-			if (BX.type.isNotEmptyObject(selectorInstance))
-			{
-				if (typeof selectorInstance.itemsSelected[item.id] != 'undefined')
-				{
-					delete selectorInstance.itemsSelected[item.id];
-				}
-			}
+			BX.onCustomEvent(window, 'onMentionAdd', [ item, type ]);
 		}
 
 		if (window['BXfpdStopMent' + formID])
@@ -3298,6 +3520,20 @@ window.BxInsertMention = function (params)
 			editor.Focus();
 			editor.selection.SetAfter(spaceNode);
 		}
+
+		var handler = LHEPostForm.getHandler(editorId);
+
+		if (
+			handler
+			&& handler.formEntityType === 'task'
+			&& handler.editorParams.tasksLimitExceeded
+		)
+		{
+			BX.Main.PostFormTasksLimit.showPopup({
+				bindPosition: getMentionNodePosition(MPFMention.node, editor),
+			});
+		}
+
 	}
 };
 
@@ -3346,7 +3582,7 @@ window.MPFMentionInit = function(formId, params)
 			}
 		});
 
-		BX.addCustomEvent(window, "onMentionAdd", function(item) {
+		BX.addCustomEvent(window, "onMentionAdd", function(item, type) {
 
 			var selectorInstance = BX.UI.EntitySelector.Dialog.getById('oPostFormLHE_blogPostForm');
 			if (!BX.type.isNotEmptyObject(selectorInstance))
@@ -3354,22 +3590,36 @@ window.MPFMentionInit = function(formId, params)
 				return;
 			}
 
-			var entityType = 'employee';
-			if (item.isExtranet === 'Y')
+			var entityType = '';
+			if (type === 'user')
 			{
-				entityType = 'extranet';
+				if (item.isExtranet === 'Y')
+				{
+					entityType = 'extranet';
+				}
+				else if (item.isEmail === 'Y')
+				{
+					entityType = 'email';
+				}
+				else
+				{
+					entityType = 'employee';
+				}
 			}
-			else if (item.isEmail === 'Y')
+			else if (type === 'project')
 			{
-				entityType = 'email';
+				if (item.isExtranet === 'Y')
+				{
+					entityType = 'extranet';
+				}
 			}
 
 			selectorInstance.addItem({
 				avatar: item.avatar,
 				customData: {
-					email: item.email
+					email: (BX.type.isNotEmptyString(item.email) ? item.email : ''),
 				},
-				entityId: 'user',
+				entityId: type,
 				entityType: entityType,
 				id: item.entityId,
 				title: item.name
@@ -3391,14 +3641,10 @@ window.MPFMentionInit = function(formId, params)
 	window["BXfpdStopMent" + formId] = function ()
 	{
 		var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id');
-		if (BX.type.isNotEmptyString(selectorId))
+		var dialog = BX.UI.EntitySelector.Dialog.getById(selectorId);
+		if (dialog)
 		{
-			var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
-			if (BX.type.isNotEmptyObject(selectorInstance))
-			{
-				selectorInstance.closeAllPopups();
-				selectorInstance.getSearchInstance().abortSearchRequest();
-			}
+			dialog.hide();
 		}
 	};
 
@@ -3419,33 +3665,57 @@ window.MPFMentionInit = function(formId, params)
 			{
 				return;
 			}
-
-			var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id');
-			if (!BX.type.isNotEmptyString(selectorId))
-			{
-				return;
-			}
-
-			var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
-			if (!BX.type.isNotEmptyObject(selectorInstance))
-			{
-				return;
-			}
-
-			selectorInstance.bindOptions.zIndex = 2200;
 		});
 	}
-	LHEPostForm.getHandlerByFormId(formId).exec(function() {
-		var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id');
+	var handler = LHEPostForm.getHandlerByFormId(formId);
+	if (handler)
+	{
+		handler.exec(function() {
+			var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id');
 
-		if (selectorId)
-		{
-			BX.onCustomEvent(window, 'BX.MPF.MentionSelector:init', [{
-				id: selectorId,
-				openDialogWhenInit: false
-			}]);
-		}
-	});
+			if (selectorId)
+			{
+				new BX.UI.EntitySelector.Dialog({
+					targetNode: 'mpf-mention-' + formId,
+					id: selectorId,
+					context: 'MENTION',
+					multiple: false,
+					preload: true,
+					enableSearch: false,
+					clearSearchOnSelect: true,
+					hideOnSelect: true,
+					hideByEsc: true,
+					entities: params.entities,
+					height: 300,
+					width: 400,
+					compactView: true,
+					events: {
+						onShow: function(event) {
+							window.BXfpdOnDialogOpen();
+						},
+						onHide: function(event) {
+							window.BXfpdOnDialogClose({
+								editorId: params.editorId,
+							});
+						},
+						'Item:onSelect': function (event) {
+							var selectedItem = event.getData().item;
+							if (selectedItem)
+							{
+								window['BXfpdSelectCallbackMent' + formId]({
+									item: {
+										name: selectedItem.getTitle(),
+										entityId: selectedItem.getId(),
+									},
+									entityType: selectedItem.getEntityId(),
+								});
+							}
+						}
+					},
+				});
+			}
+		});
+	}
 
 	BX.ready(function() {
 			var ment = BX('bx-b-mention-' + formId);
@@ -3485,7 +3755,7 @@ window.MPFMentionInit = function(formId, params)
 								{
 									BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
 										id: selectorId,
-										bindNode: ment
+										bindNode: ment,
 									}]);
 								}
 
@@ -3559,21 +3829,6 @@ window.BXfpdOnDialogClose = function (params)
 			var editor = LHEPostForm.getEditor(params.editorId);
 			if(editor)
 			{
-				var
-					doc = editor.GetIframeDoc();
-
-				if (BX(MPFMention.node))
-				{
-					editor.selection.SetAfter(MPFMention.node);
-					if (MPFMention.leaveContent)
-					{
-						editor.util.ReplaceWithOwnChildren(MPFMention.node);
-					}
-					else
-					{
-						BX.remove(BX(MPFMention.node));
-					}
-				}
 				editor.Focus();
 			}
 		}
@@ -3713,6 +3968,9 @@ window.BXfpdOnDialogClose = function (params)
 	};
 
 	window.MPFEntitySelector = MPFEntitySelector;
+
+})();
+
 
 })();
 //# sourceMappingURL=script.js.map

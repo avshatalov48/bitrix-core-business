@@ -138,7 +138,7 @@
 				{
 					this.handler.exec(window.BxInsertMention, [{
 						item: {entityId: authorId, name: authorName},
-						type: 'users',
+						type: 'user',
 						formID: this.form.id,
 						editorId: this.editorId,
 						bNeedComa: true,

@@ -1200,12 +1200,13 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 .ui-ctl-radio-selector .ui-ctl-inner::before {
 	content: '';
 	display: block;
-	border: 1px solid #fff;
+	border-radius: 50%;
+	background-color: var(--ui-field-color-secondary);
 	border-bottom: none;
 	border-left: none;
 	position: absolute;
-	right: -1px;
-	top: -1px;
+	right: 0;
+	top: 0;
 	width: 0;
 	height: 0;
 	transition: 180ms linear all;
@@ -1213,19 +1214,22 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 
 .ui-ctl-radio-selector .ui-ctl-element:checked + .ui-ctl-inner::before,
 .ui-ctl-radio-selector.selected .ui-ctl-element + .ui-ctl-inner::before {
-	width: 6px;
-	height: 6px;
+	width: 11px;
+	height: 11px;
+	right: -3px;
+	top: -3px;
 }
 
 .ui-ctl-radio-selector .ui-ctl-inner::after {
 	content: '';
 	display: block;
-	border: 1.5px solid var(--ui-field-color-secondary);
+	/*border: 1.5px solid var(--ui-field-color-secondary);*/
+	border: 1.5px solid #fff;
 	border-top: none;
 	border-right: none;
 	position: absolute;
-	right: -5px;
-	top: -3px;
+	right: 0;
+	top: 0;
 	width: 0;
 	height: 0;
 	transition: 180ms linear all;
@@ -1236,8 +1240,8 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 
 .ui-ctl-radio-selector .ui-ctl-element:checked + .ui-ctl-inner::after,
 .ui-ctl-radio-selector.selected .ui-ctl-element + .ui-ctl-inner::after {
-	width: 9px;
-	height: 4px;
+	width: 5px;
+	height: 3px;
 	opacity: 1;
 }
 

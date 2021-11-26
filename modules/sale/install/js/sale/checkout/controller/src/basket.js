@@ -12,9 +12,26 @@ export class Basket
 {
     constructor()
     {
-        this.pool = new Pool();
-        this.timer = new Timer();
+        this.pool = this.getPool();
+        this.timer = this.getTimer();
+
         this.running = 'N';
+    }
+
+    /**
+     * @private
+     */
+    getPool()
+    {
+        return new Pool();
+    }
+
+    /**
+     * @private
+     */
+    getTimer()
+    {
+        return new Timer();
     }
 
     /**
@@ -83,6 +100,14 @@ export class Basket
         return this.store.getters['basket/getBasket'];
     }
 
+	/**
+	 * @private
+	 */
+	getBasketCollection()
+	{
+		return this.getBasket().filter(item => item.deleted === 'N');
+	}
+
     /**
      * @private
      */
@@ -106,9 +131,35 @@ export class Basket
         fields.sum = this.round(fields.price * fields.quantity);
         fields.discount.sum = this.round(fields.discount.price * fields.quantity);
 
+        this.refreshDiscount();
+        this.refreshTotal();
+
         this.pool.add(PoolConst.action.quantity, index, {id: fields.id, value: fields.quantity});
         this.changeItem({index, fields});
         this.shelveCommit();
+    }
+
+    refreshDiscount()
+    {
+        let basket = this.getBasket();
+        if(basket.length > 0)
+        {
+            this.store.dispatch('basket/setDiscount', {
+                sum: basket.reduce((result, value) => result + value.discount.sum, 0),
+            });
+        }
+    }
+
+    refreshTotal()
+    {
+        let basket = this.getBasketCollection();
+        if(basket.length > 0)
+        {
+            this.store.dispatch('basket/setTotal', {
+                price: basket.reduce((result, value) => result + value.sum, 0),
+                basePrice: basket.reduce((result, value) => result + value.baseSum, 0)
+            });
+        }
     }
 
     /**
@@ -131,12 +182,33 @@ export class Basket
         return Math.round(value * factor) / factor;
     }
 
+    emitOnBasketChange()
+    {
+        BX.onCustomEvent('OnBasketChange');
+    }
+
     /**
      * @private
      */
     handlerOrderSuccess()
     {
-        BX.onCustomEvent('OnBasketChange');
+        this.emitOnBasketChange()
+    }
+
+    /**
+     * @private
+     */
+    handlerRemoveProductSuccess()
+    {
+        this.emitOnBasketChange()
+    }
+
+    /**
+     * @private
+     */
+    handlerRestoreProductSuccess()
+    {
+        this.emitOnBasketChange()
     }
 
     /**
@@ -213,6 +285,42 @@ export class Basket
     /**
      * @private
      */
+    handlerChangeQuantity(event)
+    {
+        // let data = event.getData().data;
+        let index = event.getData().index;
+        let fields = this.getItem(index);
+
+        let quantity = fields.quantity;
+        let ratio = fields.product.ratio;
+        let available = fields.product.availableQuantity;
+
+        quantity = Lib.roundValue(quantity)
+        ratio = Lib.roundValue(ratio)
+
+        quantity = isNaN(quantity) ? 0:quantity
+
+        if (ratio > 0 && quantity < ratio)
+        {
+            quantity = ratio;
+        }
+
+        if (available > 0 && quantity > available)
+        {
+            quantity = available;
+        }
+
+        quantity = Lib.toFixed(quantity, ratio, available)
+
+        if(fields.quantity !== quantity)
+        {
+            this.setQuantity(index, quantity)
+        }
+    }
+
+    /**
+     * @private
+     */
     handlerQuantityPlus(event)
     {
         let index = event.getData().index;
@@ -223,28 +331,6 @@ export class Basket
 
         quantity = Lib.roundValue(quantity)
         ratio = Lib.roundValue(ratio)
-
-        // let basket = new Lib();
-
-        // if(basket.isRatioFloat(ratio))
-        // {
-        //
-        //     quantity = parseFloat(quantity)
-        // }
-        // else
-        // {
-        //     quantity = parseInt(quantity, 10);
-        // }
-        //
-        // if(basket.isRatioFloat(ratio))
-        // {
-        //
-        //     ratio = Math.round(parseFloat(ratio) * basket.precisionFactor) / basket.precisionFactor;
-        // }
-        // else
-        // {
-        //     ratio =  parseInt(ratio, 10)
-        // }
 
         quantity = quantity + ratio;
 
@@ -259,7 +345,7 @@ export class Basket
         }
 
         quantity = Lib.toFixed(quantity, ratio, available)
-        
+
         if(fields.quantity < quantity)
         {
             this.setQuantity(index, quantity)
@@ -280,26 +366,27 @@ export class Basket
         quantity = Lib.roundValue(quantity)
         ratio = Lib.roundValue(ratio)
 
-        quantity = quantity - ratio;
+        let delta = quantity = quantity - ratio;
 
         if(Lib.isValueFloat(quantity))
         {
             quantity = Lib.roundFloatValue(quantity)
+			delta = Lib.roundFloatValue(delta)
         }
 
         if (ratio > 0 && quantity < ratio)
         {
             quantity = ratio;
         }
-        
+
         if (available > 0 && quantity > available)
         {
             quantity = available;
         }
-    
+
         quantity = Lib.toFixed(quantity, ratio, available)
-    
-        if(quantity >= ratio)
+
+        if(delta >= ratio)
         {
             this.setQuantity(index, quantity)
         }
@@ -313,7 +400,7 @@ export class Basket
         return new Promise((resolve, reject) =>
         {
             let fields = {};
-            
+
             if(this.pool.isEmpty() === false)
             {
                 fields = this.pool.get();

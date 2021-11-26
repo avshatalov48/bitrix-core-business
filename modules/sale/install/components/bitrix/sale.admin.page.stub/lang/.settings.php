@@ -5,6 +5,8 @@ return [
 			'languages' =>
 				[
 					'ru',
+					'en',
+					'ua',
 				],
 		],
 ];

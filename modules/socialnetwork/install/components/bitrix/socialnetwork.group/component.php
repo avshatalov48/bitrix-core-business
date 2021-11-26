@@ -20,6 +20,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
 use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\Helper\Path;
 
 if (!CModule::IncludeModule("socialnetwork"))
 {
@@ -123,16 +124,16 @@ if ($arParams["PATH_TO_GROUP_LOG"] == '')
 $arParams["PATH_TO_CONPANY_DEPARTMENT"] = trim($arParams["PATH_TO_CONPANY_DEPARTMENT"]);
 if ($arParams["PATH_TO_CONPANY_DEPARTMENT"] == '')
 {
-	$arParams["PATH_TO_CONPANY_DEPARTMENT"] = \Bitrix\Main\Config\Option::get('main', 'TOOLTIP_PATH_TO_CONPANY_DEPARTMENT', SITE_DIR."company/structure.php?set_filter_structure=Y&structure_UF_DEPARTMENT=#ID#");
+	$arParams["PATH_TO_CONPANY_DEPARTMENT"] = Path::get('department_path_template');
 }
 
-$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat()) : $arParams["DATE_TIME_FORMAT"]);
 $arParams["SHORT_FORM"] = ($arParams["SHORT_FORM"] == "Y");
 
 $arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 6;
-	
+
 if (!array_key_exists("PATH_TO_USER_LOG", $arParams) || $arParams["PATH_TO_USER_LOG"] == '')
 	$arParams["PATH_TO_USER_LOG"] = $arParams["~PATH_TO_USER_LOG"] = (IsModuleInstalled("intranet") ? "/company/personal/log/" : "/club/log/");
 
@@ -144,7 +145,7 @@ $arParams["USE_MAIN_MENU"] = (isset($arParams["USE_MAIN_MENU"]) && $arParams["US
 if (!isset($arParams["GROUP_PROPERTY"]) || !is_array($arParams["GROUP_PROPERTY"]))
 	$arParams["GROUP_PROPERTY"] = array();
 
-$arParams["NAME_TEMPLATE"] = $arParams["NAME_TEMPLATE"] ? $arParams["NAME_TEMPLATE"] : CSite::GetNameFormat();
+$arParams["NAME_TEMPLATE"] = $arParams["NAME_TEMPLATE"] ?: CSite::GetNameFormat();
 $arParams["SHOW_LOGIN"] = $arParams["SHOW_LOGIN"] != "N" ? "Y" : "N";
 
 // for bitrix:main.user.link
@@ -188,7 +189,7 @@ if (trim($arParams["SEARCH_TAGS_PAGE_ELEMENTS"]) == '')
 if (intval(trim($arParams["SEARCH_TAGS_PERIOD"])) <= 0)
 	$arParams["SEARCH_TAGS_PERIOD"] = "";
 if (intval(trim($arParams["SEARCH_TAGS_FONT_MAX"])) <= 0)
-	$arParams["SEARCH_TAGS_FONT_MAX"] = "50";	
+	$arParams["SEARCH_TAGS_FONT_MAX"] = "50";
 if (intval(trim($arParams["SEARCH_TAGS_FONT_MIN"])) <= 0)
 	$arParams["SEARCH_TAGS_FONT_MIN"] = "10";
 if (trim($arParams["SEARCH_TAGS_COLOR_NEW"]) == '')
@@ -206,9 +207,9 @@ $arParams["GROUP_USE_BAN"] = $arParams["GROUP_USE_BAN"] != "N" ? "Y" : "N";
 
 $arGroup = CSocNetGroup::GetByID($arParams["GROUP_ID"]);
 if (
-	!$arGroup 
-	|| !is_array($arGroup) 
-	|| $arGroup["ACTIVE"] != "Y" 
+	!$arGroup
+	|| !is_array($arGroup)
+	|| $arGroup["ACTIVE"] != "Y"
 )
 {
 	$arResult["FatalError"] = GetMessage("SONET_P_USER_NO_GROUP");
@@ -247,7 +248,7 @@ else
 			$arFilter = Array(
 				"GROUPS_ID" => array(CExtranet::GetExtranetUserGroupID()),
 				"UF_DEPARTMENT" => false
-			); 
+			);
 
 			$rsUsers = CUser::GetList("ID", "asc", $arFilter);
 			while($arUser = $rsUsers->Fetch())
@@ -275,13 +276,13 @@ else
 			$arResult["bSubscribed"] = false;
 
 		if (
-			$arResult["Group"]["VISIBLE"] == "Y"  
-			&& !$arResult["bExtranet"] 
+			$arResult["Group"]["VISIBLE"] == "Y"
+			&& !$arResult["bExtranet"]
 			&& !$arResult["HideArchiveLinks"]
 			&& (
-				!$arResult["CurrentUserPerms"]["UserRole"] 
+				!$arResult["CurrentUserPerms"]["UserRole"]
 				|| ($arResult["CurrentUserPerms"]["UserRole"] == SONET_ROLES_REQUEST && $arResult["CurrentUserPerms"]["InitiatedByType"] == SONET_INITIATED_BY_GROUP)
-			) 
+			)
 		)
 		{
 			$arResult["bUserCanRequestGroup"] = true;
@@ -405,10 +406,10 @@ else
 										$suffix = "unknown";
 								}
 								$arOwner["USER_PERSONAL_PHOTO"] = COption::GetOptionInt("socialnetwork", "default_user_picture_".$suffix, false, SITE_ID);
-							}	
+							}
 							$arImage = CSocNetTools::InitImage($arOwner["USER_PERSONAL_PHOTO"], $arParams["THUMBNAIL_LIST_SIZE"], "/bitrix/images/socialnetwork/nopic_30x30.gif", 30, $pu, $canViewProfile);
 						}
-						else // old 
+						else // old
 							$arImage = CSocNetTools::InitImage($arOwner["USER_PERSONAL_PHOTO"], 50, "/bitrix/images/socialnetwork/nopic_user_50.gif", 50, $pu, $canViewProfile);
 
 						$arResult["Owner"] = array(
@@ -471,10 +472,10 @@ else
 										$suffix = "unknown";
 								}
 								$arModerators["USER_PERSONAL_PHOTO"] = COption::GetOptionInt("socialnetwork", "default_user_picture_".$suffix, false, SITE_ID);
-							}	
+							}
 							$arImage = CSocNetTools::InitImage($arModerators["USER_PERSONAL_PHOTO"], $arParams["THUMBNAIL_LIST_SIZE"], "/bitrix/images/socialnetwork/nopic_30x30.gif", 30, $pu, $canViewProfile);
 						}
-						else // old 
+						else // old
 							$arImage = CSocNetTools::InitImage($arModerators["USER_PERSONAL_PHOTO"], 50, "/bitrix/images/socialnetwork/nopic_user_50.gif", 50, $pu, $canViewProfile);
 
 						$arResult["Moderators"]["List"][] = array(
@@ -533,11 +534,11 @@ else
 										$suffix = "unknown";
 								}
 								$arMembers["USER_PERSONAL_PHOTO"] = COption::GetOptionInt("socialnetwork", "default_user_picture_".$suffix, false, SITE_ID);
-							}				
+							}
 							$arImage = CSocNetTools::InitImage($arMembers["USER_PERSONAL_PHOTO"], $arParams["THUMBNAIL_LIST_SIZE"], "/bitrix/images/socialnetwork/nopic_30x30.gif", 30, $pu, $canViewProfile);
 						}
-						else // old 
-							$arImage = CSocNetTools::InitImage($arMembers["USER_PERSONAL_PHOTO"], 50, "/bitrix/images/socialnetwork/nopic_user_50.gif", 50, $pu, $canViewProfile);					
+						else // old
+							$arImage = CSocNetTools::InitImage($arMembers["USER_PERSONAL_PHOTO"], 50, "/bitrix/images/socialnetwork/nopic_user_50.gif", 50, $pu, $canViewProfile);
 
 						$arResult["Members"]["List"][] = array(
 							"ID" => $arMembers["ID"],

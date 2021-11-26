@@ -107,4 +107,12 @@ class Limiter implements Transport\iLimiter
 	{
 		return null;
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function isHidden()
+	{
+		return false;
+	}
 }

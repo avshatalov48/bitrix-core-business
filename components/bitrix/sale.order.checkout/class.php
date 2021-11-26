@@ -216,9 +216,9 @@ class SaleOrderCheckout extends \CBitrixComponent
 
 	private function prepareResultArray(): void
 	{
-		if ($this->arParams['USER_CONSENT'] === 'Y')
+		if ($this->arParams['USER_CONSENT'] === 'Y' && $this->order)
 		{
-			$this->obtainUserConsentInfo();
+			$this->obtainUserConsentInfo($this->order);
 		}
 
 		if ($this->arParams['IS_LANDING_SHOP'] === 'Y' && $this->arParams['CONTEXT_SITE_ID'])
@@ -437,6 +437,8 @@ class SaleOrderCheckout extends \CBitrixComponent
 			'PARAMETERS' => $this->getParameters(),
 		];
 
+		$jsonData = $this->onComponentSaleOrderCheckoutPrepareJsonDataEvent($jsonData);
+
 		$sku = [];
 		$basket = $jsonData['SCHEME']['BASKET'];
 		foreach ($basket as $index => $item)
@@ -620,34 +622,13 @@ class SaleOrderCheckout extends \CBitrixComponent
 		return $parameters;
 	}
 
-	private function obtainUserConsentInfo(): void
+	private function obtainUserConsentInfo(Sale\Order $order): void
 	{
 		$propertyNames = [];
 
-		$propertyIterator = Sale\Property::getList([
-			'select' => ['NAME'],
-			'filter' => [
-				'ACTIVE' => 'Y',
-				'UTIL' => 'N',
-				'PERSON_TYPE_SITE.SITE_ID' => $this->getSiteId(),
-			],
-			'order' => [
-				'SORT' => 'ASC',
-				'ID' => 'ASC',
-			],
-			'runtime' => [
-				new Main\Entity\ReferenceField(
-					'PERSON_TYPE_SITE',
-					'Bitrix\Sale\Internals\PersonTypeSiteTable',
-					[
-						'=this.PERSON_TYPE_ID' => 'ref.PERSON_TYPE_ID',
-					]
-				),
-			],
-		]);
-		while ($property = $propertyIterator->fetch())
+		foreach ($order->getPropertyCollection() as $property)
 		{
-			$propertyNames[] = $property['NAME'];
+			$propertyNames[] = $property->getName();
 		}
 
 		$this->arResult['USER_CONSENT_PROPERTY_DATA'] = $propertyNames;
@@ -759,5 +740,16 @@ class SaleOrderCheckout extends \CBitrixComponent
 				$resolveType = 'UNDEFINED';
 		}
 		return $resolveType;
+	}
+
+	private function onComponentSaleOrderCheckoutPrepareJsonDataEvent(array $jsonData): array
+	{
+		$eventResult = GetModuleEvents('sale', 'onComponentSaleOrderCheckoutPrepareJsonData');
+		while ($event = $eventResult->fetch())
+		{
+			ExecuteModuleEventEx($event, [&$jsonData]);
+		}
+
+		return $jsonData;
 	}
 }

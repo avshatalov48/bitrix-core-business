@@ -1,11 +1,15 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\Loader;
 use \Bitrix\Rest\Sqs;
+use Bitrix\Rest;
 
-class CBPWebHookActivity
-	extends CBPActivity
+class CBPWebHookActivity extends CBPActivity
 {
 	public function __construct($name)
 	{
@@ -88,7 +92,7 @@ class CBPWebHookActivity
 
 	protected static function checkRegister()
 	{
-		if(!Loader::includeModule('rest'))
+		if (!Loader::includeModule('rest') || !Rest\Engine\Access::isAvailable())
 		{
 			return false;
 		}

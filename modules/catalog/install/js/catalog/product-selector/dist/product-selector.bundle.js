@@ -1290,6 +1290,7 @@ this.BX = this.BX || {};
 	    key: "unsubscribeEvents",
 	    value: function unsubscribeEvents() {
 	      this.unsubscribeToVariationChange();
+	      main_core_events.EventEmitter.unsubscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
 	      main_core_events.EventEmitter.unsubscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
 	    }
 	  }, {

@@ -224,9 +224,7 @@ class PersonType extends Controller
 
 	protected function modifyBusinessValuePersonDomain(array $fields)
 	{
-		\Bitrix\Sale\Internals\BusinessValuePersonDomainTable::delete([
-			'PERSON_TYPE_ID' => $fields['ID']
-		]);
+		\Bitrix\Sale\Internals\BusinessValuePersonDomainTable::deleteByPersonTypeId((int)$fields['ID']);
 
 		if ($fields['BUSVAL_DOMAIN'] !== '' && in_array($fields['BUSVAL_DOMAIN'],
 				array_keys(BusinessValuePersonDomainType::getAllDescriptions())

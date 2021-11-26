@@ -10,6 +10,7 @@ final class Configuration
 	static private $loaded = false;
 	static private $entities = [];
 	static private $providers = [];
+	static private $filters = [];
 	static private $extensions = [];
 
 	public static function getExtensions(): array
@@ -46,6 +47,44 @@ final class Configuration
 		self::$providers[$entityId] = self::createProvider($moduleId, $className, $options);
 
 		return self::$providers[$entityId];
+	}
+
+	/**
+	 * @param string $entityId
+	 * @param array $filterOptions
+	 * @return array|null
+	 */
+	public static function getFilters(string $entityId, array $filterOptions = []): ?array
+	{
+		self::load();
+
+		if (!is_string($entityId) || !isset(self::$entities[$entityId]))
+		{
+			return null;
+		}
+
+		$filterConfigs = self::$filters[$entityId];
+		if (!is_array($filterConfigs) || count($filterConfigs) === 0)
+		{
+			return null;
+		}
+
+		$filters = [];
+		foreach ($filterOptions as $filterOption)
+		{
+			if (!array_key_exists($filterOption['id'], $filterConfigs))
+			{
+				continue;
+			}
+
+			$moduleId = FilterControllerResolver::getModuleId($filterOption['id']);
+			$className = $filterConfigs[$filterOption['id']]['className'] ?? null;
+			$options = is_array($filterOption['options']) ? $filterOption['options'] : [];
+
+			$filters[] = self::createFilter($moduleId, $className, $options);
+		}
+
+		return $filters;
 	}
 
 	public static function getEntities()
@@ -85,12 +124,31 @@ final class Configuration
 					}
 				}
 			}
+
+			if (!empty($settings['filters']) && is_array($settings['filters']))
+			{
+				foreach ($settings['filters'] as $filter)
+				{
+					if (
+						is_array($filter)
+						&& !empty($filter['id'])
+						&& is_string($filter['id'])
+						&& !empty($filter['entityId'])
+						&& is_string($filter['entityId'])
+						&& !empty($filter['className'])
+						&& is_string($filter['className'])
+					)
+					{
+						self::$filters[$filter['entityId']][$filter['id']] = $filter;
+					}
+				}
+			}
 		}
 
 		self::$loaded = true;
 	}
 
-	private static function createProvider($moduleId, $className, $options = [])
+	private static function createProvider($moduleId, $className, $options = []): ?BaseProvider
 	{
 		if (!is_string($className))
 		{
@@ -115,8 +173,49 @@ final class Configuration
 				return null;
 			}
 
-			return $reflectionClass->newInstance($options);
+			/** @var BaseProvider $provider */
+			$provider = $reflectionClass->newInstance($options);
 
+			return $provider;
+
+		}
+		catch (\ReflectionException $exception)
+		{
+
+		}
+
+		return null;
+	}
+
+	private static function createFilter($moduleId, $className, $options = []): ?BaseFilter
+	{
+		if (!is_string($className))
+		{
+			return null;
+		}
+
+		if (is_string($moduleId))
+		{
+			Loader::includeModule($moduleId);
+		}
+
+		try
+		{
+			$reflectionClass = new \ReflectionClass($className);
+			if ($reflectionClass->isAbstract())
+			{
+				return null;
+			}
+
+			if (!$reflectionClass->isSubclassOf(BaseFilter::class))
+			{
+				return null;
+			}
+
+			/** @var BaseFilter $filter */
+			$filter = $reflectionClass->newInstance($options);
+
+			return $filter;
 		}
 		catch (\ReflectionException $exception)
 		{

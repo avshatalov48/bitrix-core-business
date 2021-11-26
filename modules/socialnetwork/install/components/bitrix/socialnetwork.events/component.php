@@ -176,6 +176,11 @@ if ($GLOBALS["USER"]->IsAuthorized())
 		);
 		if ($arUserRequests = $dbUserRequests->GetNext())
 		{
+			if (!empty($arUserRequests['GROUP_NAME']))
+			{
+				$arUserRequests['GROUP_NAME'] = \Bitrix\Main\Text\Emoji::decode($arUserRequests['GROUP_NAME']);
+			}
+
 			$bFound = true;
 			$arResult["EventType"] = "FriendRequest";
 

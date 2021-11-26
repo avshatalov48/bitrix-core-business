@@ -15,3 +15,5 @@ DROP TABLE if exists b_bp_global_const;
 DROP TABLE if exists b_bp_script;
 DROP TABLE if exists b_bp_script_queue;
 DROP TABLE if exists b_bp_script_queue_document;
+DROP TABLE if exists b_bp_storage_activity;
+DROP TABLE if exists b_bp_global_var;

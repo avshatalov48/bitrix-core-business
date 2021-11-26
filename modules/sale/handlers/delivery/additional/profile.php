@@ -83,6 +83,14 @@ class AdditionalProfile extends \Bitrix\Sale\Delivery\Services\Base
 		$this->inheritParams();
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	protected function getProfileType(): string
+	{
+		return (string)$this->profileType;
+	}
+
 	protected function isRusPost()
 	{
 		$parentConfig = $this->additionalHandler->getConfigValues();

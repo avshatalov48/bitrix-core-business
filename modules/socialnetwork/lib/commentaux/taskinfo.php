@@ -5,6 +5,7 @@ namespace Bitrix\Socialnetwork\CommentAux;
 use Bitrix\Forum\MessageTable;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Web\Json;
+use Bitrix\Tasks\Comments\Task\CommentPoster;
 
 final class TaskInfo extends Base
 {
@@ -156,7 +157,7 @@ final class TaskInfo extends Base
 			&& Loader::includeModule('tasks')
 		)
 		{
-			$result = htmlspecialcharsEx(\Bitrix\Tasks\Comments\Task\CommentPoster::getCommentText($params));
+			$result = htmlspecialcharsEx(CommentPoster::getCommentText($params, $this->getOptions()));
 			$parser = new \CTextParser();
 
 			$parser->allow = [

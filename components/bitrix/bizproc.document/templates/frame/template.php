@@ -1,25 +1,35 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
 CJSCore::Init('bp_starter');
+
+\Bitrix\Main\UI\Extension::load(['ui.alerts', 'ui.buttons', 'ui.dialogs.messagebox']);
 
 if (!empty($arResult["ERROR_MESSAGE"])):
 	ShowError($arResult["ERROR_MESSAGE"]);
 endif;
 
 $arDocumentStates = $arResult["DOCUMENT_STATES"];
+$isLazyLoad = isset($arParams['LAZYLOAD']) && $arParams['LAZYLOAD'] === 'Y';
 
 ?>
 <div class="bizproc-page-document" data-role="bizproc-document-base">
 <?if ($arParams["StartWorkflowPermission"] == "Y"):?>
 	<div>
-		<span class="webform-small-button webform-small-button-blue" data-role="start-button">
-			<span class="webform-small-button-text">
-				<?=GetMessage("IBEL_BIZPROC_START")?>
-			</span>
-		</span>
+		<button class="ui-btn ui-btn-dropdown ui-btn-primary" data-role="start-button">
+			<?= GetMessage("IBEL_BIZPROC_START") ?>
+		</button>
 	</div>
 <?endif;?>
+
+<?php if ($isLazyLoad): ?>
+	<h2 class="bizproc-document-section-title"><?= GetMessage('IBEL_BIZPROC_ACTIVE_WORKFLOWS') ?></h2>
+<?php endif; ?>
 <form action="" method="POST" data-role="form">
 	<?=bitrix_sessid_post()?>
 <ul class="bizproc-document-list bizproc-document-workflow-list-item" data-role="workflows-list">
@@ -52,13 +62,36 @@ foreach ($arDocumentStates as $arDocumentState)
 ?>
 </ul>
 	<div class="bizproc-document-toolbar-bottom" data-role="events-apply-container" style="display: none">
-		<span class="webform-small-button webform-small-button-accept" data-role="events-apply-button">
-			<span class="webform-small-button-text">
-				<?=GetMessage("IBEL_BIZPROC_APPLY")?>
+		<button
+				class="ui-btn ui-btn-success"
+				data-role="events-apply-button"
+				data-label-more="<?= htmlspecialcharsbx(GetMessage('IBEL_BIZPROC_COMPLETED_WORKFLOWS_SHOW_MORE')) ?>"
+
+		><?= GetMessage('IBEL_BIZPROC_APPLY') ?></button>
+	</div>
+	<div class="" data-role="workflows-list-empty" style="display: none">
+		<div class="ui-alert ui-alert-xs">
+			<span class="ui-alert-message">
+				<?= GetMessage('IBEL_BIZPROC_ACTIVE_WORKFLOWS_EMPTY') ?>
 			</span>
-		</span>
+		</div>
 	</div>
 </form>
+
+<?php if ($isLazyLoad): ?>
+	<h2 class="bizproc-document-section-title"><?= GetMessage('IBEL_BIZPROC_COMPLETED_WORKFLOWS') ?></h2>
+	<ul class="bizproc-document-list bizproc-document-workflow-list-item" data-role="workflows-list-completed">
+	</ul>
+	<div class="bizproc-document-toolbar-completed">
+		<button
+				class="ui-btn ui-btn-light-border ui-btn-themes"
+				data-role="btn-load-completed"
+				data-label-more="<?= htmlspecialcharsbx(GetMessage('IBEL_BIZPROC_COMPLETED_WORKFLOWS_SHOW_MORE')) ?>"
+
+		><?= GetMessage('IBEL_BIZPROC_COMPLETED_WORKFLOWS_SHOW') ?></button>
+	</div>
+<?php endif; ?>
+
 	<div hidden data-role="templates">
 		<li data-template="workflow" class="bizproc-list-item bizproc-document-process"
 			data-class-finished="bizproc-document-finished"
@@ -117,7 +150,8 @@ foreach ($arDocumentStates as $arDocumentState)
 <script>
 	BX.ready(function() {
 		BX.message({
-			IBEL_BIZPROC_LOG_TITLE: '<?=GetMessageJS('IBEL_BIZPROC_LOG_TITLE')?>'
+			IBEL_BIZPROC_LOG_TITLE: '<?=GetMessageJS('IBEL_BIZPROC_LOG_TITLE')?>',
+			IBEL_BIZPROC_COMPLETED_WORKFLOWS_EMPTY: '<?=GetMessageJS('IBEL_BIZPROC_COMPLETED_WORKFLOWS_EMPTY')?>'
 		});
 
 		var baseNode = document.querySelector('[data-role="bizproc-document-base"]');

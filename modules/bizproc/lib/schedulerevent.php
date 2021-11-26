@@ -4,6 +4,22 @@ namespace Bitrix\Bizproc;
 
 use Bitrix\Main;;
 
+/**
+ * Class SchedulerEventTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SchedulerEvent_Query query()
+ * @method static EO_SchedulerEvent_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_SchedulerEvent_Result getById($id)
+ * @method static EO_SchedulerEvent_Result getList(array $parameters = array())
+ * @method static EO_SchedulerEvent_Entity getEntity()
+ * @method static \Bitrix\Bizproc\EO_SchedulerEvent createObject($setDefaultValues = true)
+ * @method static \Bitrix\Bizproc\EO_SchedulerEvent_Collection createCollection()
+ * @method static \Bitrix\Bizproc\EO_SchedulerEvent wakeUpObject($row)
+ * @method static \Bitrix\Bizproc\EO_SchedulerEvent_Collection wakeUpCollection($rows)
+ */
 class SchedulerEventTable extends Main\Entity\DataManager
 {
 	/**

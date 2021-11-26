@@ -14,6 +14,7 @@ $MESS["SONET_C30_FEED_PINNED_COLLAPSED_EXPAND"] = "Розгорнути";
 $MESS["SONET_C30_FEED_PINNED_COLLAPSED_NEW_COMMENTS"] = "Нових коментарів:";
 $MESS["SONET_C30_FEED_PINNED_COLLAPSED_POSTS"] = "Закріплених постів:";
 $MESS["SONET_C30_INHERITED"] = "Типово";
+$MESS["SONET_C30_MENU_TITLE_CREATESUBTASK"] = "Створити підзавдання";
 $MESS["SONET_C30_MENU_TITLE_CREATETASK"] = "Створити завдання";
 $MESS["SONET_C30_MENU_TITLE_DELETE"] = "Видалити із Живої стрічки";
 $MESS["SONET_C30_MENU_TITLE_DELETE2"] = "Видалити із стрічки новин";

@@ -494,6 +494,10 @@ export class Basket extends VuexBuilderModel
             getTotal: state =>
             {
                 return state.total;
+            },
+            getErrors: state =>
+            {
+                return state.errors;
             }
         }
     }

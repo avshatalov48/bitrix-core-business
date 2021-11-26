@@ -1055,7 +1055,7 @@
 .ui-btn-icon-no-battery.ui-btn-light,
 .ui-btn-icon-no-battery.ui-btn-success,
 .ui-btn-icon-no-battery.ui-btn-secondary,
-.ui-btn-icon-no-battery.ui-btn-light-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-no-battery.svg?v=1.2); }
+.ui-btn-icon-no-battery.ui-btn-light-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-no-battery-white.svg?v=1.2); }
 
 .ui-btn-icon-no-battery.ui-btn-link,
 .ui-btn-icon-no-battery.ui-btn-light,
@@ -1154,7 +1154,7 @@
 .ui-btn-icon-demo.ui-btn-light,
 .ui-btn-icon-demo.ui-btn-success,
 .ui-btn-icon-demo.ui-btn-secondary,
-.ui-btn-icon-demo.ui-btn-light-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-demo.svg?v=1.2); }
+.ui-btn-icon-demo.ui-btn-light-border { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-demo-white.svg?v=1.2); }
 
 .ui-btn-icon-demo.ui-btn-link,
 .ui-btn-icon-demo.ui-btn-light,

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -18,7 +19,7 @@ class Comment
 
 	public function __construct()
 	{
-		$this->fields = array();
+		$this->fields = [];
 	}
 
 	public static function getById($commentId = 0)
@@ -26,7 +27,7 @@ class Comment
 		static $cachedFields = array();
 
 		$commentItem = false;
-		$commentId = intval($commentId);
+		$commentId = (int)$commentId;
 
 		if ($commentId > 0)
 		{
@@ -72,12 +73,12 @@ class Comment
 		return $commentItem;
 	}
 
-	public function setFields($fields = array()): void
+	public function setFields($fields = []): void
 	{
 		$this->fields = $fields;
 	}
 
-	public function getFields()
+	public function getFields(): array
 	{
 		return $this->fields;
 	}
@@ -128,7 +129,7 @@ class Comment
 				"BLOG_ID" => $blogId,
 				"POST_ID" => $postId,
 				"AUTHOR_ID" => $authorId,
-				">DATE_CREATE" => ConvertTimeStamp(time()-60*30, "FULL")
+				">DATE_CREATE" => ConvertTimeStamp(time() - 60*30, "FULL")
 			],
 			false,
 			[ "nTopCount" => 1 ],
@@ -149,7 +150,7 @@ class Comment
 		return true;
 	}
 
-	public static function actionsAfter(array $params)
+	public static function actionsAfter(array $params): bool
 	{
 		static $blogPostEventIdList = null;
 
@@ -167,22 +168,22 @@ class Comment
 
 		$blogId = (
 			isset($params["BLOG_ID"])
-			&& intval($params["BLOG_ID"]) > 0
-				? intval($params["BLOG_ID"])
+			&& (int)$params["BLOG_ID"] > 0
+				? (int)$params["BLOG_ID"]
 				: 0
 		);
 
 		$blogOwnerId = (
 			isset($params["BLOG_OWNER_ID"])
-			&& intval($params["BLOG_OWNER_ID"]) > 0
-				? intval($params["BLOG_OWNER_ID"])
+			&& (int)$params["BLOG_OWNER_ID"] > 0
+				? (int)$params["BLOG_OWNER_ID"]
 				: 0
 		);
 
 		$postId = (
 			isset($params["POST_ID"])
-			&& intval($params["POST_ID"]) > 0
-				? intval($params["POST_ID"])
+			&& (int)$params["POST_ID"] > 0
+				? (int)$params["POST_ID"]
 				: 0
 		);
 
@@ -195,27 +196,27 @@ class Comment
 
 		$postAuthorId = (
 			isset($params["POST_AUTHOR_ID"])
-			&& intval($params["POST_AUTHOR_ID"]) > 0
-				? intval($params["POST_AUTHOR_ID"])
+			&& (int)$params["POST_AUTHOR_ID"] > 0
+				? (int)$params["POST_AUTHOR_ID"]
 				: 0
 		);
 
 		$commentId = (
 			isset($params["COMMENT_ID"])
-			&& intval($params["COMMENT_ID"]) > 0
-				? intval($params["COMMENT_ID"])
+			&& (int)$params["COMMENT_ID"] > 0
+				? (int)$params["COMMENT_ID"]
 				: 0
 		);
 
 		$commentAuthorId = (
 			isset($params["AUTHOR_ID"])
-			&& intval($params["AUTHOR_ID"]) > 0
-				? intval($params["AUTHOR_ID"])
+			&& (int)$params["AUTHOR_ID"] > 0
+				? (int)$params["AUTHOR_ID"]
 				: 0
 		);
 
 		if (
-			$message == ''
+			$message === ''
 			|| $blogId <= 0
 			|| $blogOwnerId <= 0
 			|| $postAuthorId <= 0
@@ -227,11 +228,11 @@ class Comment
 			return false;
 		}
 
-		\BXClearCache(true, "/blog/comment/".intval($postId / 100)."/".$postId."/");
+		\BXClearCache(true, "/blog/comment/" . (int)($postId / 100) ."/" . $postId . "/");
 		$connection = \Bitrix\Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
-		$connection->query("UPDATE b_blog_image SET COMMENT_ID=".intval($commentId)." WHERE BLOG_ID=".$blogId." AND POST_ID=".$postId." AND IS_COMMENT = 'Y' AND (COMMENT_ID = 0 OR COMMENT_ID is null) AND USER_ID=".$commentAuthorId);
+		$connection->query("UPDATE b_blog_image SET COMMENT_ID=" . $commentId . " WHERE BLOG_ID=".$blogId . " AND POST_ID=" . $postId . " AND IS_COMMENT = 'Y' AND (COMMENT_ID = 0 OR COMMENT_ID is null) AND USER_ID=" . $commentAuthorId);
 
 		if ($blogPostEventIdList === null)
 		{
@@ -258,7 +259,7 @@ class Comment
 				$extranetSiteId = \CExtranet::getExtranetSiteId();
 			}
 
-			$logSiteId = array();
+			$logSiteId = [];
 			$res = \CSocNetLog::getSite($log["ID"]);
 			while ($logSite = $res->fetch())
 			{
@@ -267,8 +268,8 @@ class Comment
 
 			$siteId = (
 				$extranetSiteId
-				&& count($logSiteId) == 1
-				&& $logSiteId[0] == $extranetSiteId
+				&& count($logSiteId) === 1
+				&& $logSiteId[0] === $extranetSiteId
 					? $extranetSiteId
 					: $logSiteId[0]
 			);
@@ -399,106 +400,13 @@ class Comment
 		return true;
 	}
 
-	public static function processCommentShare($params = array())
+	public static function processCommentShare($params = [])
 	{
-		$commentText = (isset($params['commentText']) ? $params['commentText'] : '');
-		$authorId = (isset($params['authorId']) ? intval($params['authorId']) : 0);
-		$postId = (isset($params['postId']) ? intval($params['postId']) : 0);
-		$blogId = (isset($params['blogId']) ? intval($params['blogId']) : 0);
-		$siteId = (isset($params['siteId']) ? $params['siteId'] : SITE_ID);
-
-		if (
-			$commentText == ''
-			|| $postId <= 0
-		)
+		if (!Loader::includeModule('socialnetwork'))
 		{
 			return false;
 		}
 
-		if ($blogId <= 0)
-		{
-			$postFields = \CBlogPost::getById($postId);
-			$blogId = intval($postFields['BLOG_ID']);
-		}
-
-		if ($blogId <= 0)
-		{
-			return false;
-		}
-
-		$userIdToShareList = array();
-
-		preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, $commentText, $matches);
-
-		if (!empty($matches))
-		{
-			foreach($matches[1] as $userId)
-			{
-				$userId = intval($userId);
-				if (
-					$userId > 0
-					&& $userId != $authorId
-				)
-				{
-					$postPerm = \CBlogPost::getSocNetPostPerms(array(
-						"POST_ID" => $postId,
-						"NEED_FULL" => true,
-						"USER_ID" => $userId,
-						"IGNORE_ADMIN" => true
-					));
-
-					if ($postPerm < \Bitrix\Blog\Item\Permissions::PREMODERATE)
-					{
-						$userIdToShareList[] = $userId;
-					}
-				}
-			}
-		}
-
-		$userIdToShareList = array_unique($userIdToShareList);
-		if (empty($userIdToShareList))
-		{
-			return false;
-		}
-
-		$newRightsList = array();
-
-		foreach($userIdToShareList as $userId)
-		{
-			$newRightsList[] = 'U'.$userId;
-		}
-
-		$fullRightsList = $newRightsList;
-
-		$blogPermsList = \CBlogPost::getSocnetPerms($postId);
-		foreach($blogPermsList as $entityType => $entitiesList)
-		{
-			foreach($entitiesList as $entityId => $rightsList)
-			{
-				$fullRightsList = array_merge($fullRightsList, $rightsList);
-			}
-		}
-		$fullRightsList = array_unique($fullRightsList);
-
-		$commentId = \Bitrix\Socialnetwork\ComponentHelper::processBlogPostShare(
-			array(
-				"POST_ID" => $postId,
-				"BLOG_ID" => $blogId,
-				"SITE_ID" => $siteId,
-				"SONET_RIGHTS" => $fullRightsList,
-				"NEW_RIGHTS" => $newRightsList,
-				"USER_ID" => $authorId
-			),
-			array(
-				"PATH_TO_USER" => Option::get("main", "TOOLTIP_PATH_TO_USER", '/company/personal/user/#user_id#/', $siteId),
-				"PATH_TO_POST" => Option::get("socialnetwork", "userblogpost_page", '/company/personal/user/#user_id#/blog/#post_id#', $siteId),
-				"NAME_TEMPLATE" => \CSite::getNameFormat(),
-				"SHOW_LOGIN" => "Y",
-				"LIVE" => "N",
-				"MENTION" => "Y"
-			)
-		);
-
-		return $commentId;
+		return \Bitrix\Socialnetwork\Integration\Blog\Mention::processCommentShare($params);
 	}
 }

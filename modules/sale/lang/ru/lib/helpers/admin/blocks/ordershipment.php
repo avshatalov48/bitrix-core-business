@@ -66,3 +66,4 @@ $MESS["SALE_ORDER_SHIPMENT_DELIVERY_BLOCK_WEIGHT"] = "Вес";
 $MESS["SALE_ORDER_SHIPMENT_DELIVERY_WEIGHT"] = "Вес отгрузки";
 $MESS["SALE_ORDER_SHIPMENT_NEW_WEIGHT_DELIVERY"] = "Расчетный вес отгрузки";
 $MESS["SALE_ORDER_SHIPMENT_CONFIRM_SET_NEW_WEIGHT"] = "Вы уверены, что хотите установить новый вес доставки?";
+$MESS["SALE_ORDER_SHIPMENT_RECALCULATE_DELIVERY_PRICE"] = "Пересчитать стоимость";

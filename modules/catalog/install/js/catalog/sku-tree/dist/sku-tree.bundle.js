@@ -158,8 +158,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	        if (!propertyValueId || _this.existingValues.includes(propertyValueId)) {
 	          if (_this.property.SHOW_MODE === 'PICT') {
+	            main_core.Dom.addClass(skuList, 'product-item-scu-list--pick-color');
 	            node = _this.renderPictureSku(propertyValue, uniqueId);
 	          } else {
+	            main_core.Dom.addClass(skuList, 'product-item-scu-list--pick-size');
 	            node = _this.renderTextSku(propertyValue, uniqueId);
 	          }
 

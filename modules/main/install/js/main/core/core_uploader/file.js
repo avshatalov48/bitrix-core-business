@@ -1,4 +1,5 @@
 ;(function(window){
+	window.BX = window['BX'] || {};
 	if (window.BX["UploaderFile"])
 		return false;
 	var getOrientation = (function(){
@@ -642,6 +643,11 @@
 		return this;
 	};
 	BX.UploaderFile.prototype = {
+		getId: function()
+		{
+			return this.id;
+		},
+
 		log : function(text)
 		{
 			BX.UploaderUtils.log('file ' + this.name, text);
@@ -863,7 +869,7 @@
 				data["canvases"] = {};
 				while ((copy = this.copies.getNext()) && !!copy)
 				{
-					data["canvases"][copy.id] = { width : copy.width, height : copy.height, name : copy.name };
+					data["canvases"][copy.id] = { width : copy.width, height : copy.height, name : copy.id };
 				}
 			}
 			return data;
@@ -962,7 +968,7 @@
 			BX.addCustomEvent(this, "onFileHasToBePrepared", BX.delegate(function()
 			{
 				this.preparationStatus = statuses.inprogress;
-				if (this.status != statuses["new"])
+				if (this.status !== statuses["new"])
 				{
 					upld.push(this.file, BX.delegate(this.makeCopies, this));
 				}
@@ -1272,6 +1278,7 @@
 			copy.file = result;
 		}
 		this.preparationStatus = statuses.done;
+		BX.onCustomEvent(this, 'onFileIsPrepared');
 	};
 	BX.UploaderImage.prototype.getThumbs = function(name)
 	{

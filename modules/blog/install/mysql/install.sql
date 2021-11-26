@@ -68,7 +68,7 @@ create table b_blog_post
 ,  KEYWORDS varchar(255) null
 ,  PUBLISH_STATUS char(1) not null default 'P'
 ,  CATEGORY_ID varchar(255) null
-,  ATRIBUTE varchar(255) null
+,  ATRIBUTE varchar(255) null   -- deprecated
 ,  ENABLE_TRACKBACK char(1) not null default 'Y'
 ,  ENABLE_COMMENTS char(1) not null default 'Y'
 ,  ATTACH_IMG int null
@@ -125,7 +125,7 @@ create table b_blog_comment
 ,  POST_TEXT text not null
 ,  PUBLISH_STATUS char(1) not null default 'P'
 ,  HAS_PROPS varchar(1) default null
-,  SHARE_DEST varchar(255) null
+,  SHARE_DEST text null
 ,  PATH varchar(255) null
 ,  primary key (ID)
 ,  index IX_BLOG_COMM_1(BLOG_ID, POST_ID)

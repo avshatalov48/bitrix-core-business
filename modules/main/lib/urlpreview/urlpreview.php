@@ -5,6 +5,7 @@ namespace Bitrix\Main\UrlPreview;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Security\Random;
 use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\HttpHeaders;
@@ -607,16 +608,18 @@ class UrlPreview
 	protected static function saveImage($url)
 	{
 		$fileId = false;
-		$file = new \CFile();
 		$httpClient = new HttpClient();
 		$httpClient->setTimeout(5);
 		$httpClient->setStreamTimeout(5);
 
 		$urlComponents = parse_url($url);
-		if ($urlComponents && $urlComponents["path"] <> '')
-			$tempPath = $file->GetTempName('', bx_basename($urlComponents["path"]));
-		else
-			$tempPath = $file->GetTempName('', bx_basename($url));
+		$fileName = ($urlComponents && $urlComponents["path"] <> '')
+			? bx_basename($urlComponents["path"])
+			: bx_basename($url)
+		;
+
+		$tempFileName = Random::getString(32) . '.' . GetFileExtension($fileName);
+		$tempPath = \CFile::GetTempName('', $tempFileName);
 
 		$httpClient->download($url, $tempPath);
 		$fileName = $httpClient->getHeaders()->getFilename();
@@ -631,7 +634,7 @@ class UrlPreview
 			}
 			if(\CFile::CheckImageFile($localFile, 0, 0, 0, array("IMAGE")) === null)
 			{
-				$fileId = $file->SaveFile($localFile, 'urlpreview', true);
+				$fileId = \CFile::SaveFile($localFile, 'urlpreview', true);
 			}
 		}
 

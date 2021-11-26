@@ -13,6 +13,22 @@ use Bitrix\Main\NotImplementedException;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class PostTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Post_Query query()
+ * @method static EO_Post_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Post_Result getById($id)
+ * @method static EO_Post_Result getList(array $parameters = array())
+ * @method static EO_Post_Entity getEntity()
+ * @method static \Bitrix\Blog\EO_Post createObject($setDefaultValues = true)
+ * @method static \Bitrix\Blog\EO_Post_Collection createCollection()
+ * @method static \Bitrix\Blog\EO_Post wakeUpObject($row)
+ * @method static \Bitrix\Blog\EO_Post_Collection wakeUpCollection($rows)
+ */
 class PostTable extends Entity\DataManager
 {
 	public static function getTableName()

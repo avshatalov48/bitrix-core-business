@@ -2,7 +2,6 @@
 global $APPLICATION, $DBType;
 IncludeModuleLangFile(__FILE__);
 
-
 if (file_exists(__DIR__."/deprecated.php"))
 {
 	include("deprecated.php");
@@ -421,7 +420,7 @@ function ForumAddMessage(
 				$arFieldsG["AUTHOR_NAME"] = $usr->getName();
 			}
 			$arFieldsG["APPROVED"] = $forum["MODERATION"] != "Y" || $usr->canModerate($forum) ? "Y" : "N";
-			$arFieldsG["POST_DATA"] = new \Bitrix\Main\Type\DateTime();
+			$arFieldsG["POST_DATE"] = new \Bitrix\Main\Type\DateTime();
 
 			if ($MESSAGE_TYPE == "NEW") // New Topic
 			{

@@ -350,17 +350,32 @@
 			return null;
 		}
 
+		id = id || '';
+
 		if (!this.multiple)
 		{
-			this.removeTiles();
 			if (this.isSearcherInit())
 			{
 				this.hideSearcher();
 			}
+
+			if (this.list.length > 0)
+			{
+				var existingTile = this.list[0];
+				if (
+					existingTile
+					&& existingTile.id == id
+				)
+				{
+					return;
+				}
+			}
+
+			this.removeTiles();
 		}
 
 		data = data || {};
-		id = id || '';
+
 		color = color || '';
 		background = background || '';
 

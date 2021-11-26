@@ -158,12 +158,16 @@ while ($arPropsGroup = $dbResultList->NavNext(true, "f_"))
 	$fieldValue = "";
 	if (in_array("PROPS", $arVisibleColumns))
 	{
-		$numProps = CSaleOrderProps::GetList(
-			array(),
-			array("PROPS_GROUP_ID" => $f_ID),
-			array()
-		);
-		$numProps = intval($numProps);
+		$numProps = (int)\Bitrix\Sale\Internals\OrderPropsTable::getList([
+			'filter' => [
+				'PROPS_GROUP_ID' => (int)$f_ID,
+				'ENTITY_TYPE' => \Bitrix\Sale\Registry::ENTITY_ORDER,
+			],
+			'select' => ['CNT'],
+			'runtime' => [
+				new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(1)')
+			],
+		])->fetch()['CNT'];
 
 		if ($numProps > 0)
 			$fieldValue = "<a href=\"sale_order_props.php?lang=".LANG."&set_filter=Y&filter_group=".$f_ID."\">".$numProps."</a>";

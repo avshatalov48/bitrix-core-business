@@ -98,13 +98,13 @@ class Limiter
 			)
 			->setParameter(
 				'globalHelpUri',
-				'javascript:BX.Helper.show("redirect=detail&code=6904325")'
+				'javascript:top.BX.Helper.show("redirect=detail&code=6904325")'
 			)
 			->setParameter('percentage', self::getMonthlyLimitPercentage());
 
 		if (!Service::isLicenceTop())
 		{
-			$limiter->setParameter('setupUri', 'javascript: BX.Sender.B24License.showMailLimitPopup();');
+			$limiter->setParameter('setupUri', 'javascript: top.BX.Sender.B24License.showMailLimitPopup();');
 		}
 
 		return $limiter;

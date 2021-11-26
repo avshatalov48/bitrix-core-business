@@ -29,11 +29,8 @@ include_once(__DIR__."/functions.php");
 include_once(__DIR__."/message.php");
 include(__DIR__."/file.php");
 include(__DIR__."/urlpreview.php");
-$array = (((!empty($arParams["DESTINATION"]) || in_array("MentionUser", $arParams["BUTTONS"])) && ModuleManager::isModuleInstalled('socialnetwork')) ?
-	array('socnetlogdest') : array());
-$array[] = "fx";
-$array[] = "ui.cnt";
-CUtil::InitJSCore($array);
+
+CUtil::InitJSCore([ 'fx', 'ui.cnt']);
 $controlId = htmlspecialcharsbx($arParams["divId"]);
 
 ?><div class="feed-add-post" id="div<?=$controlId?>" <?=($arParams["LHE"]["lazyLoad"] ? ' style="display:none;"' : '')?>>
@@ -75,6 +72,7 @@ BX.ready(function()
 			'lazyLoad' => !!$arParams["LHE"]['lazyLoad'],
 			'urlPreviewId' => $arParams['urlPreviewId'],
 			'parsers' => $arParams["PARSER"],
+			'tasksLimitExceeded' => !!$arResult['tasksLimitExceeded'],
 		]);?>,
 		<?=CUtil::PhpToJSObject(
 			array(
@@ -142,7 +140,7 @@ $visibleButtons = include(__DIR__.'/lhe.php');
 
 	echo $arParams["~HTML_AFTER_TEXTAREA"];
 
-	if (in_array('socnetlogdest', $array) && isset($visibleButtons['MentionUser']))
+	if (isset($visibleButtons['MentionUser']))
 	{
 		if (defined("BITRIX24_INDEX_COMPOSITE"))
 		{
@@ -156,59 +154,17 @@ $visibleButtons = include(__DIR__.'/lhe.php');
 
 		?><span id="bx-mention-<?=$arParams["FORM_ID"]?>-id" data-bx-selector-id="<?=htmlspecialcharsbx($mentionSelectorId)?>"></span><?
 
-		$APPLICATION->IncludeComponent(
-			"bitrix:main.ui.selector",
-			".default",
-			array(
-				'API_VERSION' => 3,
-				'ID' => $mentionSelectorId,
-				'BIND_ID' => "mpf-{$visibleButtons['MentionUser']['ID']}-{$arParams["FORM_ID"]}",
-				'ITEMS_SELECTED' => array(),
-				'CALLBACK' => array(
-					'select' => "window['BXfpdSelectCallbackMent".$arParams["FORM_ID"]."']",
-					'openDialog' => "window.BXfpdOnDialogOpen",
-					'closeDialog' => "window.BXfpdOnDialogClose",
-					'openSearch' => "window.BXfpdOnDialogOpen",
-					'closeSearch' => "window.BXfpdOnDialogClose"
-				),
-				'OPTIONS' => [
-						'useNewCallback' => 'Y',
-						'eventInit' => 'BX.MPF.MentionSelector:init',
-						'eventOpen' => 'BX.MPF.MentionSelector:open',
-						'lazyLoad' => "N",
-						'multiple' => "N",
-						'extranetContext' => false,
-						'context' => "MENTION",
-						'contextCode' => 'U',
-						'useSearch' => 'N',
-						'userNameTemplate' => CUtil::JSEscape($arParams["NAME_TEMPLATE"]),
-						'useClientDatabase' => 'Y',
-						'allowEmailInvitation' => 'N',
-						'enableAll' => 'N',
-						'enableDepartments' => 'Y',
-						'enableSonetgroups' => 'N',
-						'departmentSelectDisable' => 'Y',
-						'allowAddCrmContact' => 'N',
-						'allowAddSocNetGroup' => 'N',
-						'allowSearchEmailUsers' => ($arParams['ALLOW_MENTION_EMAIL_USER'] ?? 'N'),
-						'allowSearchCrmEmailUsers' => 'N',
-						'allowSearchNetworkUsers' => 'N'
-					]
-			),
-			false,
-			array("HIDE_ICONS" => "Y")
-		);
-
-?><script type="text/javascript">
-	BX.ready(function(){
-		window.MPFMentionInit('<?=$arParams["FORM_ID"]?>', {
-			editorId: '<?= $arParams["LHE"]["id"]?>',
-			id: '<?=$this->randString(6)?>',
-			initDestination: <?=($arParams["DESTINATION_SHOW"] == "Y" ? "true" : "false")?>
-		});
-	});
-</script>
-<?
+		?><script>
+			BX.ready(function(){
+				window.MPFMentionInit('<?=$arParams["FORM_ID"]?>', {
+					editorId: '<?= $arParams["LHE"]["id"]?>',
+					id: '<?=$this->randString(6)?>',
+					initDestination: <?=($arParams["DESTINATION_SHOW"] == "Y" ? "true" : "false")?>,
+					entities: <?= \CUtil::phpToJsObject($arResult['MENTION_ENTITIES']) ?>,
+				});
+			});
+		</script>
+		<?php
 		if (defined("BITRIX24_INDEX_COMPOSITE"))
 		{
 			$dynamicArea->finishDynamicArea();
@@ -221,7 +177,7 @@ $visibleButtons = include(__DIR__.'/lhe.php');
 	if (!empty($arParams["TAGS"]))
 	{
 		$tagsInput = [];
-		$tags = array_map(function($val) use ($tagsInput) {
+		$tags = array_map(function($val) use (&$tagsInput) {
 			if (($val = trim($val)) <> '')
 			{
 				$val = htmlspecialcharsbx($val);
@@ -321,5 +277,7 @@ $visibleButtons = include(__DIR__.'/lhe.php');
 	<div class="feed-add-post-buttons" id="lhe_buttons_<?=$arParams["FORM_ID"]?>">
 		<button class="ui-btn ui-btn-sm ui-btn-primary" id="lhe_button_submit_<?=$arParams["FORM_ID"]?>"><?=GetMessage("MPF_BUTTON_SEND")?></button>
 		<button class="ui-btn ui-btn-sm ui-btn-link" id="lhe_button_cancel_<?=$arParams["FORM_ID"]?>"><?=GetMessage("MPF_BUTTON_CANCEL")?></button>
+
+		<?= $APPLICATION->GetViewContent("mpf_extra_buttons"); ?>
 	</div>
 </div>

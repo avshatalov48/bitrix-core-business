@@ -1,0 +1,8 @@
+.ui-vue-crm-form-loading-container {
+    -webkit-box-shadow: 0px 13px 14px rgba(0, 0, 0, 0.0964543);
+            box-shadow: 0px 13px 14px rgba(0, 0, 0, 0.0964543);
+    border-radius: 4px;
+    width: 320px;
+    height: 287px;
+    background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='320' height='287' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns='http://www.w3.org/2000/svg'%3E%3Csvg%3E%3Crect width='320' height='287' rx='4' fill='%23fff'/%3E%3C/svg%3E%3Csvg%3E%3Cg id='c' fill='%239EA6AD'%3E%3Crect opacity='.1' x='23' y='27' width='132' height='13' rx='2'/%3E%3Crect opacity='.1' x='23' y='51' width='94' height='8' rx='2'/%3E%3Crect opacity='.1' x='23' y='82' width='274' height='46' rx='2'/%3E%3Crect opacity='.1' x='23' y='148' width='274' height='46' rx='2'/%3E%3Crect opacity='.1' x='23' y='214' width='274' height='46' rx='2'/%3E%3C/g%3E%3C/svg%3E%3Crect id='d' width='100%25' fill='url(%23a)' mask='url(%23b)' height='1200'/%3E%3Cmask id='b' fill='%23fff'%3E%3Cuse xlink:href='%23c'/%3E%3C/mask%3E%3ClinearGradient x1='66.6%25' y1='50%25' x2='33.3%25' y2='50%25' id='a'%3E%3Cstop stop-color='%239EA6AD' stop-opacity='0' offset='0%25'/%3E%3Cstop stop-color='%239EA6AD' stop-opacity='0' offset='0%25'/%3E%3Cstop stop-color='%239EA6AD' offset='50%25'/%3E%3Cstop stop-color='%239EA6AD' stop-opacity='0' offset='100%25'/%3E%3C/linearGradient%3E%3Canimate xlink:href='%23d' attributeName='x' from='-100%25' to='100%25' dur='1s' begin='0s' repeatCount='indefinite'/%3E%3C/svg%3E");
+}

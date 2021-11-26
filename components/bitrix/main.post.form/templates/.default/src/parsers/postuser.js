@@ -81,8 +81,7 @@ export default class PostUser extends Default
 	{
 		content = content.replace(
 			/\[USER\s*=\s*(\d+)\](.*?)\[\/USER\]/ig,
-			function(str, id, name)
-			{
+			(str, id, name) => {
 				name = name.trim();
 				if (name === '')
 				{
@@ -90,7 +89,29 @@ export default class PostUser extends Default
 				}
 				const tagId = this.htmlEditor.SetBxTag(false, {tag: this.id, userId: id, userName: name});
 				return `<span id="${tagId}" class="bxhtmled-metion">${name}</span>`;
-			}.bind(this));
+			})
+			.replace(
+				/\[PROJECT\s*=\s*(\d+)\](.*?)\[\/PROJECT\]/ig,
+				(str, id, name) => {
+					name = name.trim();
+					if (name === '')
+					{
+						return '';
+					}
+					const tagId = this.htmlEditor.SetBxTag(false, {tag: this.id, projectId: id, projectName: name});
+					return `<span id="${tagId}" class="bxhtmled-metion">${name}</span>`;
+				})
+			.replace(
+				/\[DEPARTMENT\s*=\s*(\d+)\](.*?)\[\/DEPARTMENT\]/ig,
+				(str, id, name) => {
+					name = name.trim();
+					if (name === '')
+					{
+						return '';
+					}
+					const tagId = this.htmlEditor.SetBxTag(false, {tag: this.id, departmentId: id, departmentName: name});
+					return `<span id="${tagId}" class="bxhtmled-metion">${name}</span>`;
+				});
 		return content;
 	}
 
@@ -100,12 +121,23 @@ export default class PostUser extends Default
 		oNode.node.childNodes.forEach((node) => {
 			text += this.htmlEditor.bbParser.GetNodeHtml(node);
 		});
+		text = String(text).trim();
 
-		let result = String(text).trim();
-
-		if (Type.isStringFilled(result) && !Type.isUndefined(bxTag.userId))
+		let result = '';
+		if (Type.isStringFilled(text))
 		{
-			result = `[USER=${bxTag.userId}]${result}[/USER]`;
+			if (!Type.isUndefined(bxTag.userId))
+			{
+				result = `[USER=${bxTag.userId}]${text}[/USER]`;
+			}
+			else if (!Type.isUndefined(bxTag.projectId))
+			{
+				result = `[PROJECT=${bxTag.projectId}]${text}[/PROJECT]`;
+			}
+			else if (!Type.isUndefined(bxTag.departmentId))
+			{
+				result = `[DEPARTMENT=${bxTag.departmentId}]${text}[/DEPARTMENT]`;
+			}
 		}
 
 		return result;

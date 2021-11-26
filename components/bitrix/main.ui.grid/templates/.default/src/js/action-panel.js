@@ -53,22 +53,33 @@
 			this.actions = eval(actions);
 			this.types = eval(types);
 
-			BX.addCustomEvent(window, 'Dropdown::change', BX.proxy(function(id, event, item, dataItem) {
-				this.isPanelControl(BX(id))&& this._dropdownChange(id, event, item, dataItem);
-			}, this));
+			BX.addCustomEvent(window, 'Dropdown::change', BX.proxy(this._dropdownEventHandle, this));
 
-			BX.addCustomEvent(window, 'Dropdown::load', BX.proxy(function(id, event, item, dataItem) {
-				this.isPanelControl(BX(id)) && this._dropdownChange(id, event, item, dataItem);
-			}, this));
+			BX.addCustomEvent(window, 'Dropdown::load', BX.proxy(this._dropdownEventHandle, this));
 
 			var panel = this.getPanel();
 			BX.bind(panel, 'change', BX.delegate(this._checkboxChange, this));
 			BX.bind(panel, 'click', BX.delegate(this._clickOnButton, this));
 
-			BX.addCustomEvent(window, 'Grid::updated', function() {
-				var cancelButton = BX('grid_cancel_button');
-				cancelButton && BX.fireEvent(BX.firstChild(cancelButton), 'click');
-			});
+			BX.addCustomEvent(window, 'Grid::updated', BX.proxy(this._gridUpdatedEventHandle, this));
+		},
+
+		destroy: function()
+		{
+			BX.removeCustomEvent(window, 'Dropdown::change', BX.proxy(this._dropdownEventHandle, this));
+			BX.removeCustomEvent(window, 'Dropdown::load', BX.proxy(this._dropdownEventHandle, this));
+			BX.removeCustomEvent(window, 'Grid::updated', BX.proxy(this._gridUpdatedEventHandle, this));
+		},
+
+		_gridUpdatedEventHandle: function()
+		{
+			var cancelButton = BX('grid_cancel_button');
+			cancelButton && BX.fireEvent(BX.firstChild(cancelButton), 'click');
+		},
+
+		_dropdownEventHandle: function(id, event, item, dataItem)
+		{
+			this.isPanelControl(BX(id)) && this._dropdownChange(id, event, item, dataItem);
 		},
 
 		resetForAllCheckbox: function()

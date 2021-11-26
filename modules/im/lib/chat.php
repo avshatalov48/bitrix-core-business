@@ -692,7 +692,7 @@ class Chat
 		if ($skipExternal)
 		{
 			$exceptType = $options['SKIP_EXTERNAL_EXCEPT_TYPES'] ?? [];
-			$params['SKIP_USER_TYPES'] = Common::getExternalAuthId($exceptType);
+			$params['SKIP_USER_TYPES'] = \Bitrix\Im\Model\UserTable::filterExternalUserTypes($exceptType);
 		}
 
 		if (isset($options['LIMIT']))

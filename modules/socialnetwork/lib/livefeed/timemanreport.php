@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Main\Config\Option;
@@ -9,35 +10,34 @@ Loc::loadMessages(__FILE__);
 
 final class TimemanReport extends Provider
 {
-	const PROVIDER_ID = 'TIMEMAN_REPORT';
-	const CONTENT_TYPE_ID = 'TIMEMAN_REPORT';
+	public const PROVIDER_ID = 'TIMEMAN_REPORT';
+	public const CONTENT_TYPE_ID = 'TIMEMAN_REPORT';
 
-	public static function getId()
+	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
 	}
 
-	public function getEventId()
+	public function getEventId(): array
 	{
-		return array('report');
+		return [ 'report' ];
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return Provider::TYPE_POST;
 	}
 
-	public function getCommentProvider()
+	public function getCommentProvider(): Provider
 	{
-		$provider = new \Bitrix\Socialnetwork\Livefeed\ForumPost();
-		return $provider;
+		return new ForumPost();
 	}
 
 	public function initSourceFields()
 	{
 		static $cache = [];
 
-		$timemanReportId = (int)$this->entityId;
+		$timemanReportId = $this->entityId;
 
 		if ($timemanReportId <= 0)
 		{
@@ -82,19 +82,17 @@ final class TimemanReport extends Provider
 		}
 	}
 
-	public static function canRead($params)
+	public static function canRead($params): bool
 	{
 		return true;
 	}
 
-	protected function getPermissions(array $post)
+	protected function getPermissions(array $post): string
 	{
-		$result = self::PERMISSION_READ;
-
-		return $result;
+		return self::PERMISSION_READ;
 	}
 
-	public function getLiveFeedUrl()
+	public function getLiveFeedUrl(): string
 	{
 		$pathToLogEntry = '';
 

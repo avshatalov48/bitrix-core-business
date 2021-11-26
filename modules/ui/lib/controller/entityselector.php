@@ -30,7 +30,7 @@ class EntitySelector extends JsonController
 		$dialog->load();
 
 		return [
-			'dialog' => $dialog
+			'dialog' => $dialog->getAjaxData()
 		];
 	}
 
@@ -48,7 +48,7 @@ class EntitySelector extends JsonController
 		$dialog->getChildren($parentItem);
 
 		return [
-			'dialog' => $dialog
+			'dialog' => $dialog->getAjaxData()
 		];
 	}
 
@@ -65,7 +65,7 @@ class EntitySelector extends JsonController
 		$dialog->doSearch($searchQuery);
 
 		return [
-			'dialog' => $dialog,
+			'dialog' => $dialog->getAjaxData(),
 			'searchQuery' => $searchQuery
 		];
 	}

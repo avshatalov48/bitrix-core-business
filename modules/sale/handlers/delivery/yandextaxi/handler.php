@@ -30,6 +30,10 @@ Loc::loadMessages(__FILE__);
  */
 final class YandextaxiHandler extends Base
 {
+	/** @var string */
+	protected $handlerCode = 'BITRIX_YANDEX_TAXI';
+
+	// @TODO get rid of the constant
 	public const SERVICE_CODE = 'YANDEX_TAXI';
 
 	/** @var bool */

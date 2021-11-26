@@ -1,5 +1,9 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
 use Bitrix\Bizproc;
 
@@ -96,6 +100,10 @@ class CBPMixedCondition
 			case 'GlobalConst':
 				$result = Bizproc\Workflow\Type\GlobalConst::getValue($field);
 				$property = Bizproc\Workflow\Type\GlobalConst::getById($field);
+				break;
+			case 'GlobalVar':
+				$result = Bizproc\Workflow\Type\GlobalVar::getValue($field);
+				$property = Bizproc\Workflow\Type\GlobalVar::getById($field);
 				break;
 			case 'Document':
 				$property = $documentFields[$field];
@@ -312,6 +320,8 @@ class CBPMixedCondition
 			case 'GlobalConst':
 				return Bizproc\Workflow\Type\GlobalConst::getById($field);
 				break;
+			case 'GlobalVar':
+				return Bizproc\Workflow\Type\GlobalVar::getById($field);
 			case 'Document':
 				static $fields;
 				if (!$fields)

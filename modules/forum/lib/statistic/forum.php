@@ -1,54 +1,65 @@
 <?
 namespace Bitrix\Forum\Statistic;
-use Bitrix\Forum\MessageTable;
-use Bitrix\Main\Config\Option;
+
+use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 
-class Forum extends \Bitrix\Main\Update\Stepper
+class Forum extends Main\Update\Stepper
 {
+	protected static $limit = 1;
 	protected static $moduleId = "forum";
 
 	public static function getTitle()
 	{
 		return Loc::getMessage("FORUM_STEPPER_TITLE");
 	}
-	/**
-	 * @inheritDoc
-	 */
+
 	public function execute(array &$option)
 	{
-		$res = Option::get("forum", "stat.forum.recalc", "");
-		$res = empty($res) ? [] : unserialize($res, ["allowed_classes" => false]);
-		if (empty($res) || !is_array($res))
-		{
-			return self::FINISH_EXECUTION;
-		}
-		reset($res);
-		$forumId = key($res);
-
-		\Bitrix\Forum\Forum::getById($forumId)->calcStat();
-
-		array_shift($res);
-
 		$option["steps"] = 1;
-		$option["count"] = count($res);
-		if (empty($res))
+		$option["count"] = 1;
+		if (self::do() > 0)
 		{
-			Option::delete("forum", ["name" => "stat.forum.recalc"]);
 			return self::FINISH_EXECUTION;
 		}
-		Option::set("forum", "stat.forum.recalc", serialize($res));
 		return self::CONTINUE_EXECUTION;
 	}
 
-	public static function calc(int $forumId)
+	private static function do()
 	{
-		$res = Option::get("forum", "stat.forum.recalc", "");
-		if (!empty($res))
-			$res = unserialize($res, ["allowed_classes" => false]);
-		$res = is_array($res) ? $res : [];
-		$res[$forumId] = [];
-		Option::set("forum", "stat.forum.recalc", serialize($res));
-		static::bind(0);
+		$limit = self::$limit;
+		$dbRes = Main\Application::getConnection()->query(<<<SQL
+SELECT ID, ENTITY_ID 
+FROM b_forum_service_statistic_queue
+WHERE ENTITY_TYPE='FORUM'
+LIMIT {$limit}
+ORDER BY ID ASC
+SQL
+		);
+
+		$last = null;
+		while ($res = $dbRes->fetch())
+		{
+			\Bitrix\Forum\Forum::getById($res["ENTITY_ID"])->calculateStatistic();
+			$last = $res;
+		}
+
+		if ($last)
+		{
+			Main\Application::getConnection()->queryExecute(<<<SQL
+DELETE FROM b_forum_service_statistic_queue WHERE ID >= {$last['ID']} AND ENTITY_TYPE='FORUM'
+SQL
+			);
+		}
+		return $limit;
+	}
+
+	public static function run(int $forumId)
+	{
+		Main\Application::getConnection()->queryExecute(<<<SQL
+INSERT IGNORE INTO b_forum_service_statistic_queue (ENTITY_TYPE, ENTITY_ID) VALUES ('FORUM', {$forumId});
+SQL
+		);
+		self::bind(0);
 	}
 }

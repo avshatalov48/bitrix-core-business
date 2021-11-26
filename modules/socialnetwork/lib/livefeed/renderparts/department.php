@@ -1,15 +1,16 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Livefeed\RenderParts;
 
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\Helper\Path;
 
 Loc::loadMessages(__FILE__);
 
 final class Department extends Base
 {
-	public function getData($entityId = 0)
+	public function getData($entityId = 0): array
 	{
 		static $departmentPath = null;
 
@@ -36,7 +37,7 @@ final class Department extends Base
 					$departmentPath = (
 					(!isset($options['mobile']) || !$options['mobile'])
 					&& (!isset($options['im']) || !$options['im'])
-						? Option::get('main', 'TOOLTIP_PATH_TO_CONPANY_DEPARTMENT', SITE_DIR."company/structure.php?set_filter_structure=Y&structure_UF_DEPARTMENT=#ID#")
+						? Path::get('department_path_template')
 						: ''
 					);
 				}

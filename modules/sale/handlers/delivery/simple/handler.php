@@ -15,6 +15,9 @@ Loc::loadMessages(__FILE__);
  */
 class SimpleHandler extends \Bitrix\Sale\Delivery\Services\Base
 {
+	/** @var string */
+	protected $handlerCode = 'BITRIX_SIMPLE';
+
 	protected static $isCalculatePriceImmediately = true;
 	protected  static $whetherAdminExtraServicesShow = true;
 

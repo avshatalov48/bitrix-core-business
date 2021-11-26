@@ -13,7 +13,9 @@ use Bitrix\Main\Result;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Entity;
 
+use Bitrix\Sender\Transport\TimeLimiter;
 use Bitrix\Voximplant\Tts;
+use Bitrix\Main\Config\Option;
 
 Loc::loadMessages(__FILE__);
 
@@ -134,6 +136,8 @@ class MessageCall implements Message\iBase, Message\iMailable
 				'group' => Message\ConfigurationOption::GROUP_ADDITIONAL,
 			),
 		));
+
+		TimeLimiter::prepareMessageConfiguration($this->configuration);
 	}
 
 	/**
@@ -193,6 +197,7 @@ class MessageCall implements Message\iBase, Message\iMailable
 				}
 			);
 		}
+		TimeLimiter::prepareMessageConfigurationView($this->configuration);
 
 		return $this->configuration;
 	}

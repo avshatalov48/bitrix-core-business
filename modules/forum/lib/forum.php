@@ -1,7 +1,9 @@
 <?php
 namespace Bitrix\Forum;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Entity\ReferenceField;
 use \Bitrix\Main\Localization\Loc;
@@ -76,6 +78,19 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Forum
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Forum_Query query()
+ * @method static EO_Forum_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Forum_Result getById($id)
+ * @method static EO_Forum_Result getList(array $parameters = array())
+ * @method static EO_Forum_Entity getEntity()
+ * @method static \Bitrix\Forum\EO_Forum createObject($setDefaultValues = true)
+ * @method static \Bitrix\Forum\EO_Forum_Collection createCollection()
+ * @method static \Bitrix\Forum\EO_Forum wakeUpObject($row)
+ * @method static \Bitrix\Forum\EO_Forum_Collection wakeUpCollection($rows)
  */
 class ForumTable extends \Bitrix\Main\Entity\DataManager
 {
@@ -216,6 +231,16 @@ class ForumTable extends \Bitrix\Main\Entity\DataManager
 		return self::$cache[$cacheKey];
 	}
 
+	public static function updateSilently($id, $fields)
+	{
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		$update = $helper->prepareUpdate(self::getTableName(), $fields);
+		$where = $helper->prepareAssignment(self::getTableName(), 'ID', $id);
+		$sql = 'UPDATE '.$helper->quote(self::getTableName()).' SET '.$update[0].' WHERE '.$where;
+		return $connection->query($sql, $update[1]);
+	}
+
 	public static function onBeforeUpdate(\Bitrix\Main\ORM\Event $event)
 	{
 		$result = new \Bitrix\Main\ORM\EventResult();
@@ -292,6 +317,7 @@ class ForumTable extends \Bitrix\Main\Entity\DataManager
 		$bound = true;
 	}
 }
+
 class Forum implements \ArrayAccess {
 	use \Bitrix\Forum\Internals\EntityFabric;
 	use \Bitrix\Forum\Internals\EntityBaseMethods;
@@ -452,90 +478,29 @@ class Forum implements \ArrayAccess {
 		return $this->strore["sites"];
 	}
 
-	public function calcStat()
+	public function calculateStatistic()
 	{
-		$fields = [
-			"TOPICS" => 0,
-			"POSTS" => 0,
-			"LAST_POSTER_ID" => 0,
-			"LAST_POSTER_NAME" => 0,
-			"LAST_POST_DATE" => 0,
-			"LAST_MESSAGE_ID" => 0,
-			"POSTS_UNAPPROVED" => 0,
-			"ABS_LAST_POSTER_ID" => 0,
-			"ABS_LAST_POSTER_NAME" => 0,
-			"ABS_LAST_POST_DATE" => 0,
-			"ABS_LAST_MESSAGE_ID" => 0
-		];
-		if ($res = TopicTable::getList([
-			"select" => ["CNT_APPROVED"],
-			"filter" => [
-				"FORUM_ID" => $this->id,
-				"APPROVED" => Topic::APPROVED_APPROVED
-			],
-			"runtime" => [
-				new \Bitrix\Main\Entity\ExpressionField("CNT_APPROVED", "COUNT(*)")
-			]
-		])->fetch())
-		{
-			$fields["TOPICS"] = $res["CNT_APPROVED"];
-			if ($res = MessageTable::getList([
-				"select" => ["CNT_APPROVED", "MAX_APPROVED"],
-				"filter" => [
-					"FORUM_ID" => $this->id,
-					"APPROVED" => Message::APPROVED_APPROVED
-				],
-				"runtime" => [
-					new \Bitrix\Main\Entity\ExpressionField("CNT_APPROVED", "COUNT(*)"),
-					new \Bitrix\Main\Entity\ExpressionField("MAX_APPROVED", "MAX(%s)", ["ID"])
-				]
-			])->fetch())
-			{
-				$fields["POSTS"] = $res["CNT_APPROVED"];
-				$fields["LAST_MESSAGE_ID"] = $res["MAX_APPROVED"];
-			}
-		}
-		if ($res = MessageTable::getList([
-			"select" => ["CNT_ALL", "MAX_OF_ALL"],
-			"filter" => [
-				"FORUM_ID" => $this->id
-			],
-			"runtime" => [
-				new \Bitrix\Main\Entity\ExpressionField("CNT_ALL", "COUNT(*)"),
-				new \Bitrix\Main\Entity\ExpressionField("MAX_OF_ALL", "MAX(%s)", ["ID"])
-			]
-		])->fetch())
-		{
-			$fields["POSTS_UNAPPROVED"] = $res["CNT_ALL"] - $fields["POSTS"];
-			$fields["ABS_LAST_MESSAGE_ID"] = $res["MAX_OF_ALL"];
-		}
-		if ($fields["LAST_MESSAGE_ID"] > 0 || $fields["ABS_LAST_MESSAGE_ID"] > 0)
-		{
-			$dbRes = MessageTable::getList([
-				"select" => ["ID", "AUTHOR_ID", "AUTHOR_NAME", "POST_DATE"],
-				"filter" => [
-					"ID" => [
-						$fields["LAST_MESSAGE_ID"], $fields["ABS_LAST_MESSAGE_ID"]
-					]
-				]
-			]);
-			while ($res = $dbRes->fetch())
-			{
-				if ($res["ID"] == $fields["LAST_MESSAGE_ID"])
-				{
-					$fields["LAST_POSTER_ID"] = $res["AUTHOR_ID"];
-					$fields["LAST_POSTER_NAME"] = $res["AUTHOR_NAME"];
-					$fields["LAST_POST_DATE"] = $res["POST_DATE"];
-				}
-				if ($res["ID"] == $fields["ABS_LAST_MESSAGE_ID"])
-				{
-					$fields["ABS_LAST_POSTER_ID"] = $res["AUTHOR_ID"];
-					$fields["ABS_LAST_POSTER_NAME"] = $res["AUTHOR_NAME"];
-					$fields["ABS_LAST_POST_DATE"] = $res["POST_DATE"];
-				}
-			}
-		}
-		ForumTable::update($this->id, $fields);
+		$forumId = (int) $this->getId();
+		$sql = <<<SQL
+UPDATE
+	b_forum f,
+	(SELECT ID, AUTHOR_ID, AUTHOR_NAME, POST_DATE, FORUM_ID FROM b_forum_message WHERE FORUM_ID={$forumId} AND APPROVED='Y' ORDER BY ID DESC LIMIT 1) AS last_message,
+	(SELECT ID, AUTHOR_ID, AUTHOR_NAME, POST_DATE, FORUM_ID FROM b_forum_message WHERE FORUM_ID={$forumId} ORDER BY ID DESC LIMIT 1) AS abs_last_message
+set
+	f.TOPICS = (SELECT COUNT(ID) FROM b_forum_topic WHERE FORUM_ID={$forumId} AND APPROVED='Y' GROUP BY FORUM_ID),
+	f.POSTS = (SELECT COUNT(ID) FROM b_forum_message WHERE FORUM_ID={$forumId} AND APPROVED='Y' GROUP BY FORUM_ID),
+	f.POSTS_UNAPPROVED = (SELECT COUNT(ID) FROM b_forum_message WHERE FORUM_ID={$forumId} AND APPROVED != 'Y' GROUP BY FORUM_ID),
+	f.LAST_MESSAGE_ID = last_message.ID,
+	f.LAST_POSTER_ID = last_message.AUTHOR_ID,
+	f.LAST_POSTER_NAME = last_message.AUTHOR_NAME,
+	f.LAST_POST_DATE = last_message.POST_DATE,
+	f.ABS_LAST_MESSAGE_ID = abs_last_message.ID,
+	f.ABS_LAST_POSTER_ID = abs_last_message.AUTHOR_ID,
+	f.ABS_LAST_POSTER_NAME = abs_last_message.AUTHOR_NAME,
+	f.ABS_LAST_POST_DATE = abs_last_message.POST_DATE
+WHERE f.ID = {$forumId} AND last_message.FORUM_ID = f.ID AND abs_last_message.FORUM_ID = f.ID
+SQL;
+		Main\Application::getConnection()->queryExecute($sql);
 	}
 
 	public function incrementStatistic(array $message)
@@ -564,7 +529,8 @@ class Forum implements \ArrayAccess {
 		{
 			$fields["POSTS_UNAPPROVED"] = new \Bitrix\Main\DB\SqlExpression('?# + 1', "POSTS_UNAPPROVED");
 		}
-		ForumTable::update($this->getId(), $fields);
+
+		ForumTable::updateSilently($this->getId(), $fields);
 
 		if (\CModule::IncludeModule("statistic"))
 		{
@@ -577,5 +543,57 @@ class Forum implements \ArrayAccess {
 			}
 			\CStatistics::Set_Event($F_EVENT1, $F_EVENT2, $F_EVENT3);
 		}
+	}
+
+	public function decrementStatistic(array $message)
+	{
+		$forumId = (int) $this->getId();
+		if ($message['APPROVED'] == 'Y')
+		{
+			$subQueryTopics = "";
+			if ($message['NEW_TOPIC'] === 'Y')
+			{
+				$subQueryTopics = <<<SQL
+	f.TOPICS = (SELECT COUNT(ID) FROM b_forum_topic WHERE FORUM_ID={$forumId} AND APPROVED='Y' GROUP BY FORUM_ID),
+SQL;
+			}
+			$sql = <<<SQL
+UPDATE
+	b_forum f,
+	(SELECT ID, AUTHOR_ID, AUTHOR_NAME, POST_DATE, FORUM_ID FROM b_forum_message WHERE FORUM_ID={$forumId} AND APPROVED='Y' ORDER BY ID DESC LIMIT 1) AS last_message,
+	(SELECT ID, AUTHOR_ID, AUTHOR_NAME, POST_DATE, FORUM_ID FROM b_forum_message WHERE FORUM_ID={$forumId} ORDER BY ID DESC LIMIT 1) AS abs_last_message
+set
+	{$subQueryTopics}
+	f.POSTS = f.POSTS - 1,
+	f.LAST_MESSAGE_ID = last_message.ID,
+	f.LAST_POSTER_ID = last_message.AUTHOR_ID,
+	f.LAST_POSTER_NAME = last_message.AUTHOR_NAME,
+	f.LAST_POST_DATE = last_message.POST_DATE,
+	f.ABS_LAST_MESSAGE_ID = abs_last_message.ID,
+	f.ABS_LAST_POSTER_ID = abs_last_message.AUTHOR_ID,
+	f.ABS_LAST_POSTER_NAME = abs_last_message.AUTHOR_NAME,
+	f.ABS_LAST_POST_DATE = abs_last_message.POST_DATE,
+	f.HTML = ''
+WHERE f.ID = {$forumId} AND last_message.FORUM_ID = f.ID AND abs_last_message.FORUM_ID = f.ID
+SQL;
+		}
+		else
+		{
+			$sql = <<<SQL
+UPDATE
+	b_forum f,
+	(SELECT ID, AUTHOR_ID, AUTHOR_NAME, POST_DATE, FORUM_ID FROM b_forum_message WHERE FORUM_ID={$forumId} ORDER BY ID DESC LIMIT 1) AS abs_last_message
+set
+	f.POSTS_UNAPPROVED = f.POSTS_UNAPPROVED - 1,
+	f.ABS_LAST_MESSAGE_ID = abs_last_message.ID,
+	f.ABS_LAST_POSTER_ID = abs_last_message.AUTHOR_ID,
+	f.ABS_LAST_POSTER_NAME = abs_last_message.AUTHOR_NAME,
+	f.ABS_LAST_POST_DATE = abs_last_message.POST_DATE,
+	f.HTML = ''
+WHERE f.ID = {$forumId} AND abs_last_message.FORUM_ID = f.ID
+SQL;
+		}
+
+		Main\Application::getConnection()->queryExecute($sql);
 	}
 }

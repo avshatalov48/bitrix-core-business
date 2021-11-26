@@ -8,11 +8,11 @@ return [
 	'css' => 'dist/registry.bundle.css',
 	'js' => 'dist/registry.bundle.js',
 	'rel' => [
-		'main.core.events',
+		'main.polyfill.core',
 		'sale.checkout.view.mixins',
 		'ui.vue',
-		'main.core',
+		'main.core.events',
 		'sale.checkout.const',
 	],
-	'skip_core' => false,
+	'skip_core' => true,
 ];

@@ -1,0 +1,21 @@
+<?php
+$MESS["IBEL_BIZPROC_ACTIVE_WORKFLOWS"] = "Активні бізнес-процеси";
+$MESS["IBEL_BIZPROC_ACTIVE_WORKFLOWS_EMPTY"] = "На даний момент немає активних процесів";
+$MESS["IBEL_BIZPROC_APPLY"] = "Застосувати";
+$MESS["IBEL_BIZPROC_CANCEL"] = "Скасувати";
+$MESS["IBEL_BIZPROC_COMPLETED_WORKFLOWS"] = "Завершені бізнес-процеси";
+$MESS["IBEL_BIZPROC_COMPLETED_WORKFLOWS_EMPTY"] = "Немає процесів для показу";
+$MESS["IBEL_BIZPROC_COMPLETED_WORKFLOWS_SHOW"] = "Показати";
+$MESS["IBEL_BIZPROC_COMPLETED_WORKFLOWS_SHOW_MORE"] = "Показати ще";
+$MESS["IBEL_BIZPROC_DATE"] = "Дата поточного стану";
+$MESS["IBEL_BIZPROC_DEL"] = "видалити";
+$MESS["IBEL_BIZPROC_LOG"] = "журнал";
+$MESS["IBEL_BIZPROC_LOG_TITLE"] = "Журнал бізнес-процесу";
+$MESS["IBEL_BIZPROC_NEW"] = "Новий бізнес-процес";
+$MESS["IBEL_BIZPROC_RUN_CMD"] = "Виконати команду";
+$MESS["IBEL_BIZPROC_RUN_CMD_NO"] = "Не виконувати";
+$MESS["IBEL_BIZPROC_SAVE"] = "Зберегти";
+$MESS["IBEL_BIZPROC_START"] = "Запустити новий бізнес-процес";
+$MESS["IBEL_BIZPROC_STATE"] = "Поточний статус";
+$MESS["IBEL_BIZPROC_STOP"] = "зупинити";
+$MESS["IBEL_BIZPROC_TASKS"] = "Завдання з бізнес-процесу";

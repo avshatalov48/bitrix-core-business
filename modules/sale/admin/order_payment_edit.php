@@ -296,7 +296,7 @@ $aMenu[] = array(
 	"LINK" => $link
 		->create()
 		->fill()
-		->setPageByType(Registry::SALE_ORDER_PAYMENT)
+		->setPageByType(Registry::SALE_ORDER_VIEW)
 		->setField('ID', $orderId)
 		->build()
 );

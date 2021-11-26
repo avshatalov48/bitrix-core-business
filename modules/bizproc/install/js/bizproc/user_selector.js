@@ -9,16 +9,18 @@
 	{
 		var me = this;
 
-		if (!config)
-		{
-			var configString = container.getAttribute('data-config');
-			config = configString ? BX.parseJSON(configString) : null;
-			container.removeAttribute('data-config');
-		}
-
 		if (!BX.type.isPlainObject(config))
 		{
 			config = {};
+		}
+
+		var configString = container.getAttribute('data-config');
+		var inlineConfig = configString ? BX.parseJSON(configString) : null;
+		container.removeAttribute('data-config');
+
+		if (BX.type.isPlainObject(inlineConfig))
+		{
+			Object.assign(config, inlineConfig);
 		}
 
 		this.config = config;

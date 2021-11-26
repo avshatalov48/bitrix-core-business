@@ -17,11 +17,8 @@ use Bitrix\Socialnetwork\Component\LogList\Processor;
 use Bitrix\Socialnetwork\Component\LogList\Page;
 use Bitrix\Socialnetwork\Component\LogList\Counter;
 
-class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\Controllerable, \Bitrix\Main\Errorable
+class LogList extends \Bitrix\Socialnetwork\Component\LogListCommon
 {
-	/** @var ErrorCollection errorCollection */
-	protected $errorCollection;
-
 	protected $extranetSite = false;
 	protected $presetFilterTopId = false;
 	protected $presetFilterId = false;
@@ -33,7 +30,6 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 		'SONET_LOG' => []
 	];
 
-	protected $request = null;
 	protected $gratitudesInstance = null;
 	protected $paramsInstance = null;
 	protected $assetsInstance = null;
@@ -46,43 +42,6 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 	public $useLogin = false;
 
 	public static $canCurrentUserAddComments = [];
-
-	public function configureActions()
-	{
-		return [];
-	}
-
-	public function getErrorByCode($code)
-	{
-		return $this->errorCollection->getErrorByCode($code);
-	}
-
-	/**
-	 * Getting array of errors.
-	 * @return Error[]
-	 */
-	public function getErrors()
-	{
-		return $this->errorCollection->toArray();
-	}
-
-	protected function printErrors()
-	{
-		foreach($this->errorCollection as $error)
-		{
-			ShowError($error);
-		}
-	}
-
-	protected function getRequest()
-	{
-		if ($this->request == null)
-		{
-			$this->request = Util::getRequest();
-		}
-
-		return $this->request;
-	}
 
 	public function setExtranetSiteValue($value = false)
 	{
@@ -133,6 +92,7 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 	{
 		$this->activity2LogList = $value;
 	}
+
 	public function getActivity2LogListValue()
 	{
 		return $this->activity2LogList;
@@ -432,7 +392,9 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 			$processorInstance->processFavoritesData($result);
 
 			$processorInstance->processDiskUFEntities();
+
 			$processorInstance->processCrmActivities($result);
+
 			$logPageProcessorInstance->deleteLogPageData($result);
 
 			$processorInstance->processNextPageSize($result);
@@ -460,6 +422,9 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 			$counterProcessorInstance->setLogCounter($result);
 			$processorInstance->getExpertModeValue($result);
 			$logPageProcessorInstance->setLogPageData($result);
+
+			$processorInstance->getUnreadTaskCommentsIdList($result);
+
 			$counterProcessorInstance->clearLogCounter($result);
 			$this->processLogFormComments($result);
 
@@ -578,6 +543,13 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 			$activity2LogList[$eventFields['ENTITY_ID']] = $eventFields['ID'];
 			$this->setActivity2LogListValue($activity2LogList);
 			unset($activity2LogList);
+		}
+		elseif ($eventFields['EVENT_ID'] === 'tasks')
+		{
+			$task2LogList = $this->getTask2LogListValue();
+			$task2LogList[(int)$eventFields['SOURCE_ID']] = (int)$eventFields['ID'];
+			$this->setTask2LogListValue($task2LogList);
+			unset($task2LogList);
 		}
 
 		$cnt++;

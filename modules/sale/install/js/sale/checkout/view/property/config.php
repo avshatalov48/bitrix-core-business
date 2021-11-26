@@ -8,7 +8,7 @@ return [
 	'css' => 'dist/property.bundle.css',
 	'js' => 'dist/property.bundle.js',
 	'rel' => [
-		'ui.type',
+		'sale.checkout.view.element.input',
 		'main.core',
 		'ui.vue',
 		'sale.checkout.const',

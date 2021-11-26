@@ -93,7 +93,7 @@ class CDeliverySimple
 			if (
 				array_key_exists('price_'.$arLocationGroup["LOCATION_GROUP_ID"], $arConfig) 
 				&& 
-				$arConfig['price_'.$arLocationGroup["LOCATION_GROUP_ID"]]["VALUE"] <> ''
+				$arConfig['price_'.$arLocationGroup["LOCATION_GROUP_ID"]]["VALUE"] !== ''
 			)
 			{
 				return $arConfig['price_'.$arLocationGroup["LOCATION_GROUP_ID"]]["VALUE"];

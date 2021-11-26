@@ -1,47 +1,49 @@
 export const EventType = Object.freeze({
     order:
         {
-            success: 'EventType:order:success',
+            success: 'BX:Sale:Checkout:EventType:order:success',
         },
     basket:
         {
-            buttonRemoveProduct: 'EventType:basket:buttonRemoveProduct',
-            buttonPlusProduct: 'EventType:basket:buttonPlusProduct',
-            buttonMinusProduct: 'EventType:basket:buttonMinusProduct',
-            buttonRestoreProduct: 'EventType:basket:buttonRestoreProduct',
-            removeProduct: 'EventType:basket:removeProduct',
-            backdropClose: 'EventType:basket:backdropClose',
-            backdropOpenMobileMenu: 'EventType:basket:backdropOpenMobileMenu',
-            backdropOpenChangeSku: 'EventType:basket:backdropOpenChangeSku',
-            backdropTotalClose: 'EventType:basket:backdropTotalClose',
-            backdropTotalOpen: 'EventType:basket:backdropTotalOpen',
-            needRefresh: 'EventType:basket:needRefresh',
-            refreshAfter: 'EventType:basket:refreshAfter',
-            changeSku:'EventType:basket:changeSku',
+            inputChangeQuantityProduct: 'BX:Sale:Checkout:EventType:basket:inputChangeQuantityProduct',
+            buttonRemoveProduct: 'BX:Sale:Checkout:EventType:basket:buttonRemoveProduct',
+            buttonPlusProduct: 'BX:Sale:Checkout:EventType:basket:buttonPlusProduct',
+            buttonMinusProduct: 'BX:Sale:Checkout:EventType:basket:buttonMinusProduct',
+            buttonRestoreProduct: 'BX:Sale:Checkout:EventType:basket:buttonRestoreProduct',
+            removeProduct: 'BX:Sale:Checkout:EventType:basket:removeProduct',
+            restoreProduct: 'BX:Sale:Checkout:EventType:basket:restoreProduct',
+            backdropClose: 'BX:Sale:Checkout:EventType:basket:backdropClose',
+            backdropOpenMobileMenu: 'BX:Sale:Checkout:EventType:basket:backdropOpenMobileMenu',
+            backdropOpenChangeSku: 'BX:Sale:Checkout:EventType:basket:backdropOpenChangeSku',
+            backdropTotalClose: 'BX:Sale:Checkout:EventType:basket:backdropTotalClose',
+            backdropTotalOpen: 'BX:Sale:Checkout:EventType:basket:backdropTotalOpen',
+            needRefresh: 'BX:Sale:Checkout:EventType:basket:needRefresh',
+            refreshAfter: 'BX:Sale:Checkout:EventType:basket:refreshAfter',
+            changeSku: 'BX:Sale:Checkout:EventType:basket:changeSku',
             changeSkuOriginName: 'SkuProperty::onChange'
         },
     consent:
         {
-            refused: 'EventType:consent:refused',
-            accepted: 'EventType:consent:accepted'
+            refused: 'BX:Sale:Checkout:EventType:consent:refused',
+            accepted: 'BX:Sale:Checkout:EventType:consent:accepted'
         },
     element:
         {
-            buttonCheckout: 'EventType:element:buttonCheckout',
-            buttonShipping: 'EventType:element:buttonShipping',
+            buttonCheckout: 'BX:Sale:Checkout:EventType:element:buttonCheckout',
+            buttonShipping: 'BX:Sale:Checkout:EventType:element:buttonShipping',
         },
     property:
         {
-            validate: 'EventType:property:validate'
+            validate: 'BX:Sale:Checkout:EventType:property:validate'
         },
     application:
         {
-            none: 'EventType:application:status:none',
-            wait: 'EventType:application:status:wait',
+            none: 'BX:Sale:Checkout:EventType:application:status:none',
+            wait: 'BX:Sale:Checkout:EventType:application:status:wait',
         },
     paysystem:
         {
-            beforeInitList: 'EventType:paysystem:beforeInitList',
-            afterInitList: 'EventType:paysystem:afterInitList'
+            beforeInitList: 'BX:Sale:Checkout:EventType:paysystem:beforeInitList',
+            afterInitList: 'BX:Sale:Checkout:EventType:paysystem:afterInitList'
         }
 });

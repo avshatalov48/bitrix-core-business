@@ -2,6 +2,8 @@
 
 IncludeModuleLangFile(__FILE__);
 
+use Bitrix\Main\Text\Emoji;
+use Bitrix\Socialnetwork\Helper\Path;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\Item\UserToGroup;
 use Bitrix\Socialnetwork\Integration;
@@ -15,7 +17,7 @@ class CAllSocNetUserToGroup
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	public static function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0): bool
 	{
 		global $APPLICATION, $DB, $arSocNetAllowedRolesForUserInGroup, $arSocNetAllowedInitiatedByType;
 
@@ -170,7 +172,7 @@ class CAllSocNetUserToGroup
 		}
 
 		if (
-			$bSuccess 
+			$bSuccess
 			&& in_array($arUser2Group["ROLE"], array(SONET_ROLES_MODERATOR, SONET_ROLES_USER))
 		)
 		{
@@ -220,7 +222,7 @@ class CAllSocNetUserToGroup
 		return $bSuccess;
 	}
 
-	public static function DeleteNoDemand($userID)
+	public static function DeleteNoDemand($userID): bool
 	{
 		global $DB;
 
@@ -268,7 +270,14 @@ class CAllSocNetUserToGroup
 			Array("ID", "USER_ID", "GROUP_ID", "GROUP_VISIBLE", "GROUP_NAME", "ROLE", "DATE_CREATE", "DATE_UPDATE", "INITIATED_BY_TYPE", "INITIATED_BY_USER_ID", "MESSAGE")
 		);
 		if ($arResult = $dbResult->GetNext())
+		{
+			if (!empty($arResult['GROUP_NAME']))
+			{
+				$arResult['GROUP_NAME'] = Emoji::decode($arResult['GROUP_NAME']);
+			}
+
 			return $arResult;
+		}
 
 		return False;
 	}
@@ -396,7 +405,7 @@ class CAllSocNetUserToGroup
 	/***************************************/
 	/**********  SEND EVENTS  **************/
 	/***************************************/
-	public static function SendEvent($userGroupID, $mailTemplate = "SONET_INVITE_GROUP")
+	public static function SendEvent($userGroupID, $mailTemplate = "SONET_INVITE_GROUP"): bool
 	{
 		$userGroupID = intval($userGroupID);
 		if ($userGroupID <= 0)
@@ -441,8 +450,6 @@ class CAllSocNetUserToGroup
 					$siteID = $arGroupSite["LID"];
 					break;
 				}
-				else
-					continue;
 			}
 			else
 			{
@@ -454,7 +461,7 @@ class CAllSocNetUserToGroup
 		if ($siteID == false || $siteID == '')
 			return false;
 
-		$requestsPagePath = str_replace("#USER_ID#", $arRelation["USER_ID"], COption::GetOptionString("socialnetwork", "user_request_page", 
+		$requestsPagePath = str_replace("#USER_ID#", $arRelation["USER_ID"], COption::GetOptionString("socialnetwork", "user_request_page",
 			(IsModuleInstalled("intranet")) ? "/company/personal/user/#USER_ID#/requests/" : "/club/user/#USER_ID#/requests/", $siteID));
 
 		$arUserInitiatedForEmail = array("NAME"=>"", "LAST_NAME"=>"");
@@ -477,7 +484,7 @@ class CAllSocNetUserToGroup
 			"URL" => $requestsPagePath,
 			"GROUP_ID" => $arRelation["GROUP_ID"],
 			"USER_ID" => $arRelation["USER_ID"],
-			"GROUP_NAME" => $arRelation["GROUP_NAME"],
+			"GROUP_NAME" => Emoji::decode($arRelation["GROUP_NAME"]),
 			"USER_NAME" => $arRelation["USER_NAME"],
 			"USER_LAST_NAME" => $arRelation["USER_LAST_NAME"],
 			"USER_EMAIL" => $arRelation["USER_EMAIL"],
@@ -495,7 +502,7 @@ class CAllSocNetUserToGroup
 	/***************************************/
 	/************  ACTIONS  ****************/
 	/***************************************/
-	public static function SendRequestToBeMember($userID, $groupID, $message, $RequestConfirmUrl = "", $bAutoSubscribe = true)
+	public static function SendRequestToBeMember($userID, $groupID, $message, $RequestConfirmUrl = "", $bAutoSubscribe = true): bool
 	{
 		global $APPLICATION, $DB;
 
@@ -627,7 +634,7 @@ class CAllSocNetUserToGroup
 			{
 				$groupSiteId = CSocNetGroup::GetDefaultSiteId($groupID, $arGroup["SITE_ID"]);
 				$workgroupsPage = COption::GetOptionString("socialnetwork", "workgroups_page", "/workgroups/", SITE_ID);
-				$groupUrlTemplate = COption::GetOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", SITE_ID);
+				$groupUrlTemplate = Path::get('group_path_template');
 				$groupUrlTemplate = "#GROUPS_PATH#".mb_substr($groupUrlTemplate, mb_strlen($workgroupsPage), mb_strlen($groupUrlTemplate) - mb_strlen($workgroupsPage));
 				$groupUrl = str_replace(array("#group_id#", "#GROUP_ID#"), $groupID, $groupUrlTemplate);
 
@@ -636,7 +643,7 @@ class CAllSocNetUserToGroup
 					$arTmp = CSocNetLogTools::ProcessPath(
 						array(
 							"GROUP_URL" => $groupUrl
-						), 
+						),
 						$arRequests["USER_ID"],
 						$groupSiteId
 					);
@@ -646,8 +653,8 @@ class CAllSocNetUserToGroup
 						|| mb_strpos($groupUrl, "https://") === 0
 							? ""
 							: (
-								isset($arTmp["DOMAIN"]) 
-								&& !empty($arTmp["DOMAIN"]) 
+								isset($arTmp["DOMAIN"])
+								&& !empty($arTmp["DOMAIN"])
 									? "//".$arTmp["DOMAIN"]
 									: ""
 							)
@@ -659,8 +666,8 @@ class CAllSocNetUserToGroup
 						"NOTIFY_TYPE" => IM_NOTIFY_CONFIRM,
 						"NOTIFY_MODULE" => "socialnetwork",
 						"NOTIFY_EVENT" => "invite_group_btn",
-						"NOTIFY_TAG" => "SOCNET|REQUEST_GROUP|".intval($userID)."|".$groupID."|".intval($ID)."|".$arRequests["USER_ID"],
-						"NOTIFY_SUB_TAG" => "SOCNET|REQUEST_GROUP|".intval($userID)."|".$groupID."|".intval($ID),
+						"NOTIFY_TAG" => "SOCNET|REQUEST_GROUP|" . $userID . "|" . $groupID . "|" . $ID . "|" . $arRequests["USER_ID"],
+						"NOTIFY_SUB_TAG" => "SOCNET|REQUEST_GROUP|" . $userID."|" . $groupID . "|" . $ID,
 						"NOTIFY_TITLE" => str_replace(
 							"#GROUP_NAME#",
 							truncateText($arGroup["NAME"], 150),
@@ -668,11 +675,11 @@ class CAllSocNetUserToGroup
 						),
 						"NOTIFY_MESSAGE" => str_replace(
 							array(
-								"#TEXT#", 
+								"#TEXT#",
 								"#GROUP_NAME#"
-							), 
+							),
 							array(
-								$message, 
+								$message,
 								"<a href=\"".$domainName.$groupUrl."\" class=\"bx-notifier-item-action\">".$arGroup["NAME"]."</a>"
 							),
 							(empty($message)
@@ -686,7 +693,7 @@ class CAllSocNetUserToGroup
 						),
 					);
 
-					$groupUrl = $serverName.str_replace("#group_id#", $groupID, COption::GetOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", SITE_ID));
+					$groupUrl = $serverName.str_replace("#group_id#", $groupID, Path::get('group_path_template'));
 
 					$arMessageFields["NOTIFY_MESSAGE_OUT"] = $arMessageFields["NOTIFY_MESSAGE"];
 					$arMessageFields["NOTIFY_MESSAGE_OUT"] .= "\n\n".GetMessage("SONET_UG_GROUP_LINK").$groupUrl;
@@ -700,7 +707,7 @@ class CAllSocNetUserToGroup
 		return true;
 	}
 
-	public static function SendRequestToJoinGroup($senderID, $userID, $groupID, $message, $bMail = true)
+	public static function SendRequestToJoinGroup($senderID, $userID, $groupID, $message, $bMail = true): bool
 	{
 		global $APPLICATION, $DB, $USER;
 
@@ -826,7 +833,7 @@ class CAllSocNetUserToGroup
 				"NOTIFY_TYPE" => IM_NOTIFY_CONFIRM,
 				"NOTIFY_MODULE" => "socialnetwork",
 				"NOTIFY_EVENT" => "invite_group_btn",
-				"NOTIFY_TAG" => "SOCNET|INVITE_GROUP|".intval($arFields['USER_ID'])."|".intval($ID),
+				"NOTIFY_TAG" => "SOCNET|INVITE_GROUP|" . $userID . "|" . $ID,
 				"NOTIFY_TITLE" => str_replace(
 					"#GROUP_NAME#",
 					truncateText($arGroup["NAME"], 150),
@@ -873,7 +880,7 @@ class CAllSocNetUserToGroup
 			);
 
 			$requestUrl = $serverName.str_replace(array("#USER_ID#", "#user_id#"), $userID, $requestUrl);
-			$groupUrl = $serverName.str_replace("#group_id#", $groupID, COption::GetOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", $siteId));
+			$groupUrl = $serverName.str_replace("#group_id#", $groupID, Path::get('group_path_template', $siteId));
 
 			$arMessageFields['NOTIFY_MESSAGE_OUT'] = $arMessageFields['NOTIFY_MESSAGE'];
 			$arMessageFields['NOTIFY_MESSAGE_OUT'] .= "\n\n".GetMessage('SONET_UG_GROUP_LINK').$groupUrl;
@@ -894,7 +901,7 @@ class CAllSocNetUserToGroup
 		return true;
 	}
 
-	public static function ConfirmRequestToBeMember($userID, $groupID, $arRelationID, $bAutoSubscribe = true) // request from a user confirmed by a moderator
+	public static function ConfirmRequestToBeMember($userID, $groupID, $arRelationID, $bAutoSubscribe = true): bool // request from a user confirmed by a moderator
 	{
 		global $APPLICATION, $DB, $USER;
 
@@ -935,7 +942,7 @@ class CAllSocNetUserToGroup
 		$bUserIsMember = ($userRole && in_array($userRole, array(SONET_ROLES_OWNER, SONET_ROLES_MODERATOR, SONET_ROLES_USER)));
 		$bCanInitiate = (
 			$USER->IsAdmin()
-			|| CSocNetUser::IsCurrentUserModuleAdmin($arGroupSites) 
+			|| CSocNetUser::IsCurrentUserModuleAdmin($arGroupSites)
 			|| (
 				$userRole
 				&& (
@@ -972,8 +979,8 @@ class CAllSocNetUserToGroup
 			}
 
 			if (
-				$arRelation["GROUP_ID"] != $groupID 
-				|| $arRelation["INITIATED_BY_TYPE"] != SONET_INITIATED_BY_USER 
+				$arRelation["GROUP_ID"] != $groupID
+				|| $arRelation["INITIATED_BY_TYPE"] != SONET_INITIATED_BY_USER
 				|| $arRelation["ROLE"] != SONET_ROLES_REQUEST
 			)
 			{
@@ -1007,7 +1014,7 @@ class CAllSocNetUserToGroup
 				{
 					$groupSiteId = CSocNetGroup::GetDefaultSiteId($groupID, $arGroup["SITE_ID"]);
 					$workgroupsPage = COption::GetOptionString("socialnetwork", "workgroups_page", "/workgroups/", SITE_ID);
-					$groupUrlTemplate = COption::GetOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", SITE_ID);
+					$groupUrlTemplate = Path::get('group_path_template');
 					$groupUrlTemplate = "#GROUPS_PATH#".mb_substr($groupUrlTemplate, mb_strlen($workgroupsPage), mb_strlen($groupUrlTemplate) - mb_strlen($workgroupsPage));
 					$arTmp = CSocNetLogTools::ProcessPath(
 						array(
@@ -1029,8 +1036,8 @@ class CAllSocNetUserToGroup
 						|| mb_strpos($groupUrl, "https://") === 0
 							? ""
 							: (
-								isset($arTmp["DOMAIN"]) 
-								&& !empty($arTmp["DOMAIN"]) 
+								isset($arTmp["DOMAIN"])
+								&& !empty($arTmp["DOMAIN"])
 									? "//".$arTmp["DOMAIN"]
 									: ""
 							)
@@ -1045,13 +1052,13 @@ class CAllSocNetUserToGroup
 						"NOTIFY_EVENT" => "invite_group",
 						"NOTIFY_TAG" => "SOCNET|INVITE_GROUP|".intval($arRelation["USER_ID"])."|".intval($arRelation["ID"]),
 						"NOTIFY_MESSAGE" => str_replace(
-							"#NAME#", 
-							"<a href=\"".$domainName.$groupUrl."\" class=\"bx-notifier-item-action\">".$arGroup["NAME"]."</a>", 
+							"#NAME#",
+							"<a href=\"".$domainName.$groupUrl."\" class=\"bx-notifier-item-action\">".$arGroup["NAME"]."</a>",
 							GetMessage("SONET_UG_CONFIRM_MEMBER_MESSAGE_G")
 						),
 						"NOTIFY_MESSAGE_OUT" => str_replace(
-							"#NAME#", 
-							$arGroup["NAME"], 
+							"#NAME#",
+							$arGroup["NAME"],
 							GetMessage("SONET_UG_CONFIRM_MEMBER_MESSAGE_G")." (".$serverName.$groupUrl.")"
 						)
 					);
@@ -1099,7 +1106,7 @@ class CAllSocNetUserToGroup
 		return $bSuccess;
 	}
 
-	public static function RejectRequestToBeMember($userID, $groupID, $arRelationID)
+	public static function RejectRequestToBeMember($userID, $groupID, $arRelationID): bool
 	{
 		global $APPLICATION, $DB, $USER;
 
@@ -1193,7 +1200,7 @@ class CAllSocNetUserToGroup
 		return $bSuccess;
 	}
 
-	public static function UserConfirmRequestToBeMember($targetUserID, $relationID, $bAutoSubscribe = true) // request from group confirmed by a user
+	public static function UserConfirmRequestToBeMember($targetUserID, $relationID, $bAutoSubscribe = true): bool // request from group confirmed by a user
 	{
 		global $APPLICATION, $DB;
 
@@ -1226,6 +1233,11 @@ class CAllSocNetUserToGroup
 
 		if ($arResult = $dbResult->Fetch())
 		{
+			if (!empty($arResult['GROUP_NAME']))
+			{
+				$arResult['GROUP_NAME'] = Emoji::decode($arResult['GROUP_NAME']);
+			}
+
 			$arFields = array(
 				"ROLE" => UserToGroupTable::ROLE_USER,
 				"=DATE_UPDATE" => $DB->CurrentTimeFunction(),
@@ -1250,15 +1262,15 @@ class CAllSocNetUserToGroup
 					CIMNotify::DeleteByTag("SOCNET|INVITE_GROUP|".intval($targetUserID)."|".intval($relationID));
 
 					$workgroupsPage = COption::GetOptionString("socialnetwork", "workgroups_page", "/workgroups/", $groupSiteId);
-					$groupUrlTemplate = COption::GetOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", $groupSiteId);
+					$groupUrlTemplate = Path::get('group_path_template', $groupSiteId);
 					$groupUrlTemplate = "#GROUPS_PATH#".mb_substr($groupUrlTemplate, mb_strlen($workgroupsPage), mb_strlen($groupUrlTemplate) - mb_strlen($workgroupsPage));
 					$groupUrl = str_replace(array("#group_id#", "#GROUP_ID#"), $arResult["GROUP_ID"], $groupUrlTemplate);
-					
+
 					$arTmp = CSocNetLogTools::ProcessPath(
 						array(
 							"GROUP_URL" => $groupUrl
-						), 
-						$arResult["INITIATED_BY_USER_ID"], 
+						),
+						$arResult["INITIATED_BY_USER_ID"],
 						$groupSiteId
 					);
 					$url = $arTmp["URLS"]["GROUP_URL"];
@@ -1273,8 +1285,8 @@ class CAllSocNetUserToGroup
 						|| mb_strpos($url, "https://") === 0
 							? ""
 							: (
-								isset($arTmp["DOMAIN"]) 
-								&& !empty($arTmp["DOMAIN"]) 
+								isset($arTmp["DOMAIN"])
+								&& !empty($arTmp["DOMAIN"])
 									? "//".$arTmp["DOMAIN"]
 									: ""
 							)
@@ -1361,7 +1373,7 @@ class CAllSocNetUserToGroup
 		return true;
 	}
 
-	public static function UserRejectRequestToBeMember($targetUserID, $relationID)
+	public static function UserRejectRequestToBeMember($targetUserID, $relationID): bool
 	{
 		global $APPLICATION;
 
@@ -1394,6 +1406,11 @@ class CAllSocNetUserToGroup
 
 		if ($arResult = $dbResult->Fetch())
 		{
+			if (!empty($arResult['GROUP_NAME']))
+			{
+				$arResult['GROUP_NAME'] = Emoji::decode($arResult['GROUP_NAME']);
+			}
+
 			if (CSocNetUserToGroup::Delete($arResult["ID"]))
 			{
 				$events = GetModuleEvents("socialnetwork", "OnSocNetUserRejectRequestToBeMember");
@@ -1405,11 +1422,11 @@ class CAllSocNetUserToGroup
 				if (CModule::IncludeModule("im"))
 				{
 					$groupSiteId = CSocNetGroup::GetDefaultSiteId($arResult["GROUP_ID"], $arResult["GROUP_SITE_ID"]);
-					$groupUrl = str_replace(array("#group_id#", "#GROUP_ID#"), $arResult["GROUP_ID"], COption::GetOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", $groupSiteId));
+					$groupUrl = str_replace(array("#group_id#", "#GROUP_ID#"), $arResult["GROUP_ID"], Path::get('group_path_template', $groupSiteId));
 					$arTmp = CSocNetLogTools::ProcessPath(
 						array(
 							"GROUP_URL" => $groupUrl
-						), 
+						),
 						$arResult["INITIATED_BY_USER_ID"],
 						$groupSiteId
 					);
@@ -1425,8 +1442,8 @@ class CAllSocNetUserToGroup
 						|| mb_strpos($url, "https://") === 0
 							? ""
 							: (
-								isset($arTmp["DOMAIN"]) 
-								&& !empty($arTmp["DOMAIN"]) 
+								isset($arTmp["DOMAIN"])
+								&& !empty($arTmp["DOMAIN"])
 									? "//".$arTmp["DOMAIN"]
 									: ""
 							)
@@ -1441,13 +1458,13 @@ class CAllSocNetUserToGroup
 						"NOTIFY_EVENT" => "invite_group",
 						"NOTIFY_TAG" => "SOCNET|INVITE_GROUP_REJECT|".intval($arResult["GROUP_ID"]),
 						"NOTIFY_MESSAGE" => str_replace(
-							"#NAME#", 
-							"<a href=\"".$domainName.$url."\" class=\"bx-notifier-item-action\">".$arResult["GROUP_NAME"]."</a>", 
+							"#NAME#",
+							"<a href=\"".$domainName.$url."\" class=\"bx-notifier-item-action\">".$arResult["GROUP_NAME"]."</a>",
 							GetMessage("SONET_UG_REJECT_MEMBER_MESSAGE")
 						),
 						"NOTIFY_MESSAGE_OUT" => str_replace(
-							"#NAME#", 
-							$arResult["GROUP_NAME"], 
+							"#NAME#",
+							$arResult["GROUP_NAME"],
 							GetMessage("SONET_UG_REJECT_MEMBER_MESSAGE")." (".$serverName.$url.")"
 						)
 					);
@@ -1477,7 +1494,7 @@ class CAllSocNetUserToGroup
 		return true;
 	}
 
-	public static function TransferModerator2Member($userID, $groupID, $arRelationID, $currentUserIsAdmin)
+	public static function TransferModerator2Member($userID, $groupID, $arRelationID, $currentUserIsAdmin): bool
 	{
 		global $APPLICATION, $DB, $USER;
 
@@ -1525,12 +1542,12 @@ class CAllSocNetUserToGroup
 		}
 
 		$workgroupsPage = COption::GetOptionString("socialnetwork", "workgroups_page", "/workgroups/", $groupSiteId);
-		$groupUrlTemplate = COption::GetOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", $groupSiteId);
+		$groupUrlTemplate = Path::get('group_path_template', $groupSiteId);
 		$groupUrlTemplate = "#GROUPS_PATH#".mb_substr($groupUrlTemplate, mb_strlen($workgroupsPage), mb_strlen($groupUrlTemplate) - mb_strlen($workgroupsPage));
 		$groupUrl = str_replace(array("#group_id#", "#GROUP_ID#"), $groupID, $groupUrlTemplate);
 		$relationsToUpdateCount = 0;
 
-		foreach($arRelationID as $key => $relationId)
+		foreach($arRelationID as $relationId)
 		{
 			$relationId = intval($relationId);
 			if ($relationId <= 0)
@@ -1541,7 +1558,7 @@ class CAllSocNetUserToGroup
 			$arRelation = CSocNetUserToGroup::GetByID($relationId);
 			if (
 				!$arRelation
-				|| $arRelation["GROUP_ID"] != $groupID 
+				|| $arRelation["GROUP_ID"] != $groupID
 				|| $arRelation["ROLE"] != SONET_ROLES_MODERATOR
 			)
 			{
@@ -1579,8 +1596,8 @@ class CAllSocNetUserToGroup
 						|| mb_strpos($groupUrl, "https://") === 0
 							? ""
 							: (
-								isset($arTmp["DOMAIN"]) 
-								&& !empty($arTmp["DOMAIN"]) 
+								isset($arTmp["DOMAIN"])
+								&& !empty($arTmp["DOMAIN"])
 									? "//".$arTmp["DOMAIN"]
 									: ""
 							)
@@ -1594,13 +1611,13 @@ class CAllSocNetUserToGroup
 						"NOTIFY_EVENT" => "moderators_group",
 						"NOTIFY_TAG" => "SOCNET|MOD_GROUP|".intval($userID)."|".$groupID."|".$arRelation["ID"]."|".$arRelation["USER_ID"],
 						"NOTIFY_MESSAGE" => str_replace(
-							array("#NAME#"), 
-							array("<a href=\"".$domainName.$groupUrl."\" class=\"bx-notifier-item-action\">".$arGroup["NAME"]."</a>"), 
+							array("#NAME#"),
+							array("<a href=\"".$domainName.$groupUrl."\" class=\"bx-notifier-item-action\">".$arGroup["NAME"]."</a>"),
 							GetMessage("SONET_UG_MOD2MEMBER_MESSAGE")
 						),
 						"NOTIFY_MESSAGE_OUT" => str_replace(
-							array("#NAME#"), 
-							array($arGroup["NAME"]), 
+							array("#NAME#"),
+							array($arGroup["NAME"]),
 							GetMessage("SONET_UG_MOD2MEMBER_MESSAGE")
 						)." (".$serverName.$groupUrl.")"
 					);
@@ -1666,7 +1683,7 @@ class CAllSocNetUserToGroup
 		return $bSuccess;
 	}
 
-	public static function TransferMember2Moderator($userID, $groupID, $arRelationID, $currentUserIsAdmin)
+	public static function TransferMember2Moderator($userID, $groupID, $arRelationID, $currentUserIsAdmin): bool
 	{
 		global $APPLICATION, $DB, $USER;
 
@@ -1707,7 +1724,7 @@ class CAllSocNetUserToGroup
 
 		$relationsToUpdateCount = 0;
 
-		foreach($arRelationID as $key => $relationId)
+		foreach($arRelationID as $relationId)
 		{
 			$relationId = intval($relationId);
 			if ($relationId <= 0)
@@ -1718,7 +1735,7 @@ class CAllSocNetUserToGroup
 			$arRelation = CSocNetUserToGroup::GetByID($relationId);
 			if (
 				!$arRelation
-				|| $arRelation["GROUP_ID"] != $groupID 
+				|| $arRelation["GROUP_ID"] != $groupID
 				|| $arRelation["ROLE"] != SONET_ROLES_USER
 			)
 			{
@@ -1806,7 +1823,7 @@ class CAllSocNetUserToGroup
 		return $bSuccess;
 	}
 
-	public static function BanMember($userID, $groupID, $arRelationID, $currentUserIsAdmin)
+	public static function BanMember($userID, $groupID, $arRelationID, $currentUserIsAdmin): bool
 	{
 		global $APPLICATION, $DB;
 
@@ -1895,7 +1912,7 @@ class CAllSocNetUserToGroup
 		return $bSuccess;
 	}
 
-	public static function UnBanMember($userID, $groupID, $arRelationID, $currentUserIsAdmin)
+	public static function UnBanMember($userID, $groupID, $arRelationID, $currentUserIsAdmin): bool
 	{
 		global $APPLICATION, $DB;
 
@@ -1983,7 +2000,7 @@ class CAllSocNetUserToGroup
 		return $bSuccess;
 	}
 
-	public static function SetOwner($userID, $groupID, $arGroup = false)
+	public static function SetOwner($userID, $groupID, $arGroup = false): bool
 	{
 		global $DB, $APPLICATION, $USER;
 
@@ -2002,13 +2019,13 @@ class CAllSocNetUserToGroup
 
 		// setting relations for the old owner
 		$dbRelation = CSocNetUserToGroup::GetList(
-			array(), 
+			array(),
 			array(
-				"USER_ID" => $arGroup["OWNER_ID"], 
+				"USER_ID" => $arGroup["OWNER_ID"],
 				"GROUP_ID" => $groupID
-			), 
-			false, 
-			false, 
+			),
+			false,
+			false,
 			array("ID")
 		);
 		if ($arRelation = $dbRelation->Fetch())
@@ -2052,86 +2069,78 @@ class CAllSocNetUserToGroup
 			return false;
 		}
 
-		// delete requests to the old owner
-		if ($errorMessage == '')
-			CSocNetUserToGroup::__SpeedFileDelete($arGroup["OWNER_ID"]);
+		CSocNetUserToGroup::__SpeedFileDelete($arGroup["OWNER_ID"]);
 
-		if ($errorMessage == '')
+		// setting relations for the new owner
+		$dbRelation = CSocNetUserToGroup::GetList(array(), array("USER_ID" => $userID, "GROUP_ID" => $groupID), false, false, array("ID"));
+		if ($arRelation = $dbRelation->Fetch())
 		{
-			// setting relations for the new owner
-			$dbRelation = CSocNetUserToGroup::GetList(array(), array("USER_ID" => $userID, "GROUP_ID" => $groupID), false, false, array("ID"));
-			if ($arRelation = $dbRelation->Fetch())
-			{
-				$arFields = array(
-					"ROLE" => SONET_ROLES_OWNER,
-					"=DATE_UPDATE" => $DB->CurrentTimeFunction(),
-					"INITIATED_BY_TYPE" => SONET_INITIATED_BY_USER,
-					"INITIATED_BY_USER_ID" => $USER->GetID(),
-					"AUTO_MEMBER" => "N"
-				);
+			$arFields = array(
+				"ROLE" => SONET_ROLES_OWNER,
+				"=DATE_UPDATE" => $DB->CurrentTimeFunction(),
+				"INITIATED_BY_TYPE" => SONET_INITIATED_BY_USER,
+				"INITIATED_BY_USER_ID" => $USER->GetID(),
+				"AUTO_MEMBER" => "N"
+			);
 
-				if (!CSocNetUserToGroup::Update($arRelation["ID"], $arFields))
-				{
-					if ($e = $APPLICATION->GetException())
-						$errorMessage = $e->GetString();
-					if ($errorMessage == '')
-						$errorMessage = GetMessage("SONET_UG_ERROR_CANNOT_UPDATE_NEW_OWNER_RELATION");
-
-					$APPLICATION->ThrowException($errorMessage, "ERROR_UPDATE_USER2GROUP");
-					$DB->Rollback();
-					return false;
-				}
-			}
-			else
-			{
-				$arFields = array(
-					"USER_ID" => $userID,
-					"GROUP_ID" => $groupID,
-					"ROLE" => SONET_ROLES_OWNER,
-					"=DATE_CREATE" => $DB->CurrentTimeFunction(),
-					"=DATE_UPDATE" => $DB->CurrentTimeFunction(),
-					"INITIATED_BY_TYPE" => SONET_INITIATED_BY_USER,
-					"INITIATED_BY_USER_ID" => $USER->GetID(),
-					"MESSAGE" => false,
-				);
-
-				if (!CSocNetUserToGroup::Add($arFields))
-				{
-					if ($e = $APPLICATION->GetException())
-						$errorMessage = $e->GetString();
-					if ($errorMessage == '')
-						$errorMessage = GetMessage("SONET_UG_ERROR_CANNOT_ADD_NEW_OWNER_RELATION");
-
-					$APPLICATION->ThrowException($errorMessage, "ERROR_ADD_USER2GROUP");
-					$DB->Rollback();
-					return false;
-				}
-				else
-				{
-					UserToGroup::addInfoToChat(array(
-						'group_id' => $groupID,
-						'user_id' => $userID,
-						'action' => UserToGroup::CHAT_ACTION_IN,
-						'role' => $arFields['ROLE']
-					));
-				}
-			}
-		}
-
-		if ($errorMessage == '')
-		{
-			$GROUP_ID = CSocNetGroup::Update($groupID, array("OWNER_ID" => $userID));
-			if (!$GROUP_ID || intval($GROUP_ID) <= 0)
+			if (!CSocNetUserToGroup::Update($arRelation["ID"], $arFields))
 			{
 				if ($e = $APPLICATION->GetException())
 					$errorMessage = $e->GetString();
 				if ($errorMessage == '')
-					$errorMessage = GetMessage("SONET_UG_ERROR_CANNOT_UPDATE_GROUP");
+					$errorMessage = GetMessage("SONET_UG_ERROR_CANNOT_UPDATE_NEW_OWNER_RELATION");
 
-				$APPLICATION->ThrowException($errorMessage, "ERROR_UPDATE_GROUP");
+				$APPLICATION->ThrowException($errorMessage, "ERROR_UPDATE_USER2GROUP");
 				$DB->Rollback();
 				return false;
 			}
+		}
+		else
+		{
+			$arFields = array(
+				"USER_ID" => $userID,
+				"GROUP_ID" => $groupID,
+				"ROLE" => SONET_ROLES_OWNER,
+				"=DATE_CREATE" => $DB->CurrentTimeFunction(),
+				"=DATE_UPDATE" => $DB->CurrentTimeFunction(),
+				"INITIATED_BY_TYPE" => SONET_INITIATED_BY_USER,
+				"INITIATED_BY_USER_ID" => $USER->GetID(),
+				"MESSAGE" => false,
+			);
+
+			if (!CSocNetUserToGroup::Add($arFields))
+			{
+				if ($e = $APPLICATION->GetException())
+					$errorMessage = $e->GetString();
+				if ($errorMessage == '')
+					$errorMessage = GetMessage("SONET_UG_ERROR_CANNOT_ADD_NEW_OWNER_RELATION");
+
+				$APPLICATION->ThrowException($errorMessage, "ERROR_ADD_USER2GROUP");
+				$DB->Rollback();
+				return false;
+			}
+			else
+			{
+				UserToGroup::addInfoToChat(array(
+					'group_id' => $groupID,
+					'user_id' => $userID,
+					'action' => UserToGroup::CHAT_ACTION_IN,
+					'role' => $arFields['ROLE']
+				));
+			}
+		}
+
+		$GROUP_ID = CSocNetGroup::Update($groupID, array("OWNER_ID" => $userID));
+		if (!$GROUP_ID || $GROUP_ID <= 0)
+		{
+			if ($e = $APPLICATION->GetException())
+				$errorMessage = $e->GetString();
+			if ($errorMessage == '')
+				$errorMessage = GetMessage("SONET_UG_ERROR_CANNOT_UPDATE_GROUP");
+
+			$APPLICATION->ThrowException($errorMessage, "ERROR_UPDATE_GROUP");
+			$DB->Rollback();
+			return false;
 		}
 
 		$bIMIncluded = false;
@@ -2143,7 +2152,7 @@ class CAllSocNetUserToGroup
 			$bIMIncluded = true;
 			$groupSiteId = CSocNetGroup::GetDefaultSiteId($groupID, $arGroup["SITE_ID"]);
 			$workgroupsPage = COption::GetOptionString("socialnetwork", "workgroups_page", "/workgroups/", $groupSiteId);
-			$groupUrlTemplate = COption::GetOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", $groupSiteId);
+			$groupUrlTemplate = Path::get('group_path_template', $groupSiteId);
 			$groupUrlTemplate = "#GROUPS_PATH#".mb_substr($groupUrlTemplate, mb_strlen($workgroupsPage), mb_strlen($groupUrlTemplate) - mb_strlen($workgroupsPage));
 			$groupUrl = str_replace(array("#group_id#", "#GROUP_ID#"), $groupID, $groupUrlTemplate);
 		}
@@ -2154,7 +2163,7 @@ class CAllSocNetUserToGroup
 			$arTmp = CSocNetLogTools::ProcessPath(
 				array(
 					"GROUP_URL" => $groupUrl
-				), 
+				),
 				$arGroup["OWNER_ID"],
 				$groupSiteId
 			);
@@ -2194,7 +2203,7 @@ class CAllSocNetUserToGroup
 			$arTmp = CSocNetLogTools::ProcessPath(
 				array(
 					"GROUP_URL" => $groupUrl
-				), 
+				),
 				$userID,
 				$groupSiteId
 			);
@@ -2242,19 +2251,11 @@ class CAllSocNetUserToGroup
 
 		CSocNetSubscription::Set($userID, "SG".$groupID, "Y");
 
-		if ($errorMessage == '')
-		{
-			$DB->Commit();
-			return true;
-		}
-		else
-		{
-			$DB->Rollback();
-			return false;	
-		}
+		$DB->Commit();
+		return true;
 	}
 
-	public static function DeleteRelation($userID, $groupID)
+	public static function DeleteRelation($userID, $groupID): bool
 	{
 		global $APPLICATION;
 
@@ -2288,6 +2289,11 @@ class CAllSocNetUserToGroup
 			if (!in_array($arResult["ROLE"], array(UserToGroupTable::ROLE_USER, UserToGroupTable::ROLE_MODERATOR)))
 			{
 				return false;
+			}
+
+			if (!empty($arResult['GROUP_NAME']))
+			{
+				$arResult['GROUP_NAME'] = Emoji::decode($arResult['GROUP_NAME']);
 			}
 
 			if (CSocNetUserToGroup::Delete($arResult["ID"]))
@@ -2393,7 +2399,7 @@ class CAllSocNetUserToGroup
 
 			$arReturn["UserIsMember"] = (
 				$arReturn["UserRole"]
-				&& in_array($arReturn["UserRole"], \Bitrix\Socialnetwork\UserToGroupTable::getRolesMember())
+				&& in_array($arReturn["UserRole"], UserToGroupTable::getRolesMember())
 			);
 			$arReturn["UserIsAutoMember"] = (
 				$arReturn["UserIsMember"]
@@ -2433,10 +2439,7 @@ class CAllSocNetUserToGroup
 							$groupInitiatePerms == SONET_ROLES_MODERATOR
 							&& in_array($arReturn["UserRole"], array(SONET_ROLES_OWNER, SONET_ROLES_MODERATOR))
 						)
-						|| (
-							$groupInitiatePerms == SONET_ROLES_USER
-							&& $arReturn["UserIsMember"]
-						)
+						|| ($groupInitiatePerms == SONET_ROLES_USER)
 					);
 					$arReturn["UserCanProcessRequestsIn"] = (
 						$arReturn["UserCanInitiate"]
@@ -2448,10 +2451,13 @@ class CAllSocNetUserToGroup
 					$arReturn["UserCanModerateGroup"] = (in_array($arReturn["UserRole"], array(SONET_ROLES_OWNER, SONET_ROLES_MODERATOR)));
 					$arReturn["UserCanSpamGroup"] = (
 						($groupSpamPerms == SONET_ROLES_OWNER && $arReturn["UserIsOwner"])
-						|| ($groupSpamPerms == SONET_ROLES_MODERATOR
-							&& in_array($arReturn["UserRole"], array(SONET_ROLES_OWNER, SONET_ROLES_MODERATOR)))
-						|| ($groupSpamPerms == SONET_ROLES_USER && $arReturn["UserIsMember"])
-						|| ($groupSpamPerms == SONET_ROLES_ALL));
+						|| (
+							$groupSpamPerms == SONET_ROLES_MODERATOR
+							&& in_array($arReturn["UserRole"], array(SONET_ROLES_OWNER, SONET_ROLES_MODERATOR))
+						)
+						|| $groupSpamPerms == SONET_ROLES_USER
+						|| $groupSpamPerms == SONET_ROLES_ALL
+					);
 					$arReturn["Operations"]["viewsystemevents"] = true;
 				}
 				else
@@ -2529,7 +2535,7 @@ class CAllSocNetUserToGroup
 			$CACHE_MANAGER->Set("socnet_cg_".$userID, true);
 	}
 
-	public static function SpeedFileExists($userID)
+	public static function SpeedFileExists($userID): bool
 	{
 		global $CACHE_MANAGER;
 
@@ -2553,13 +2559,12 @@ class CAllSocNetUserToGroup
 				if ($value == 'Y')
 				{
 					self::UserConfirmRequestToBeMember($arTag[2], $arTag[3]);
-					return true;
 				}
 				else
 				{
 					self::UserRejectRequestToBeMember($arTag[2], $arTag[3]);
-					return true;
 				}
+				return true;
 			}
 			elseif (count($arTag) == 6 && $arTag[1] == "REQUEST_GROUP")
 			{
@@ -2695,14 +2700,14 @@ class CAllSocNetUserToGroup
 
 		$groups_path = COption::GetOptionString("socialnetwork", "workgroups_page", SITE_DIR."workgroups/");
 		$group_url_template = str_replace(
-			$groups_path, 
-			"#GROUPS_PATH#", 
-			COption::GetOptionString("socialnetwork", "group_path_template", SITE_DIR."workgroups/group/#group_id#/")
+			$groups_path,
+			"#GROUPS_PATH#",
+			Path::get('group_path_template')
 		);
 
 		$groupUrl = str_replace(
-			"#group_id#", 
-			$arNotifyParams["GROUP_ID"], 
+			"#group_id#",
+			$arNotifyParams["GROUP_ID"],
 			$group_url_template
 		);
 
@@ -2723,8 +2728,8 @@ class CAllSocNetUserToGroup
 			$arTmp = CSocNetLogTools::ProcessPath(
 				array(
 					"GROUP_PAGE" => $groupUrl
-				), 
-				$to_user_id, 
+				),
+				$to_user_id,
 				SITE_ID
 			);
 
@@ -2789,7 +2794,7 @@ class CAllSocNetUserToGroup
 			&& $relationId > 0
 		)
 		{
-			$res = \Bitrix\Socialnetwork\UserToGroupTable::getList(array(
+			$res = UserToGroupTable::getList(array(
 				'filter' => array(
 					'=ID' => $relationId
 				),
@@ -2813,7 +2818,7 @@ class CAllSocNetUserToGroup
 		$groupSiteId = CSocNetGroup::getDefaultSiteId($groupId, $groupFields["SITE_ID"]);
 
 		$workgroupsPage = COption::getOptionString("socialnetwork", "workgroups_page", "/workgroups/", SITE_ID);
-		$groupUrlTemplate = COption::getOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", SITE_ID);
+		$groupUrlTemplate = Path::get('group_path_template');
 		$groupUrlTemplate = "#GROUPS_PATH#".mb_substr($groupUrlTemplate, mb_strlen($workgroupsPage), mb_strlen($groupUrlTemplate) - mb_strlen($workgroupsPage));
 		$groupUrl = str_replace(array("#group_id#", "#GROUP_ID#"), $groupId, $groupUrlTemplate);
 
@@ -2850,7 +2855,7 @@ class CAllSocNetUserToGroup
 			"NOTIFY_TYPE" => IM_NOTIFY_FROM,
 			"NOTIFY_MODULE" => "socialnetwork",
 			"NOTIFY_EVENT" => "moderators_group",
-			"NOTIFY_TAG" => "SOCNET|MOD_GROUP|".intval($userId)."|".$groupId."|".$relationFields["ID"]."|".$relationFields["USER_ID"],
+			"NOTIFY_TAG" => "SOCNET|MOD_GROUP|" . $userId . "|".$groupId."|".$relationFields["ID"]."|".$relationFields["USER_ID"],
 			"NOTIFY_MESSAGE" => str_replace(
 				array("#NAME#"),
 				array("<a href=\"".$domainName.$groupUrl."\" class=\"bx-notifier-item-action\">".$groupFields["NAME"]."</a>"),

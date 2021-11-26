@@ -1,5 +1,11 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Text\Emoji;
 
 if (!CModule::IncludeModule("socialnetwork"))
 {
@@ -73,6 +79,15 @@ $dbGroups = CSocNetGroup::GetList(
 
 while ($arGroup = $dbGroups->GetNext())
 {
+	if (!empty($arGroup['NAME']))
+	{
+		$arGroup['NAME'] = Emoji::decode($arGroup['NAME']);
+	}
+	if (!empty($arGroup['DESCRIPTION']))
+	{
+		$arGroup['DESCRIPTION'] = Emoji::decode($arGroup['DESCRIPTION']);
+	}
+
 	$arGroup["TITLE_FORMATED"] = $arGroup["NAME"];
 	$arGroup["BODY_FORMATED"] = $arGroup["DESCRIPTION"];
 
@@ -80,14 +95,14 @@ while ($arGroup = $dbGroups->GetNext())
 
 	if (intval($arGroup["IMAGE_ID"]) <= 0)
 		$arGroup["IMAGE_ID"] = COption::GetOptionInt("socialnetwork", "default_group_picture", false, SITE_ID);
-				
+
 	$arImage = CSocNetTools::InitImage($arGroup["IMAGE_ID"], 100, "/bitrix/images/socialnetwork/nopic_group_100.gif", 100, $arGroup["URL"], true);
 
 	$arGroup["IMAGE_FILE"] = $arImage["FILE"];
 	$arGroup["IMAGE_IMG"] = $arImage["IMG"];
 
 	$arGroup["FULL_DATE_CHANGE_FORMATED"] = date($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($arGroup["DATE_ACTIVITY"], CSite::GetDateFormat("FULL")));
-	
+
 	$arGroup["ARCHIVE"] = $arGroup["CLOSED"];
 	$arResult["SEARCH_RESULT"][] = $arGroup;
 }

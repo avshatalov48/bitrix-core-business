@@ -330,22 +330,7 @@ BX.UI.AccessRights.ColumnItem.prototype = {
 						props: {
 							className: 'ui-access-rights-column-item-controller-link'
 						},
-						text: BX.message('JS_UI_ACCESSRIGHTS_CREATE_ROLE'),
-						events: {
-							click: function() {
-								BX.onCustomEvent(window, 'BX.UI.AccessRights.ColumnItem:addRole', [
-									{
-										id: '0',
-										title: BX.message('JS_UI_ACCESSRIGHTS_ROLE_NAME'),
-										accessRights: [],
-										members: [],
-										accessCodes: [],
-										type: 'role'
-									}
-								]);
-								BX.onCustomEvent(window, 'BX.UI.AccessRights.ColumnItem:update', this);
-							}.bind(this)
-						}
+						text: BX.message('JS_UI_ACCESSRIGHTS_CREATE_ROLE')
 					}),
 					// or arrow for link 'ui-access-rights-column-item-controller-menu'
 					this.layout.controllerMenu = BX.create('div', {
@@ -361,6 +346,21 @@ BX.UI.AccessRights.ColumnItem.prototype = {
 					})
 				],
 			});
+
+			this.layout.controllerLink.addEventListener('click', function() {
+				BX.onCustomEvent(window, 'BX.UI.AccessRights.ColumnItem:addRole', [
+					{
+						id: '0',
+						title: BX.message('JS_UI_ACCESSRIGHTS_ROLE_NAME'),
+						accessRights: [],
+						members: [],
+						accessCodes: [],
+						type: 'role'
+					}
+				]);
+				BX.onCustomEvent(window, 'BX.UI.AccessRights.ColumnItem:update', this);
+				this.grid.lock();
+			}.bind(this));
 		}
 
 		return this.layout.controller;

@@ -17,6 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "OPTIONS")
 define("BX_SKIP_USER_LIMIT_CHECK", true);
 define("ADMIN_SECTION",false);
 require($_SERVER["DOCUMENT_ROOT"]."/desktop_app/headers.php");
+require($_SERVER["DOCUMENT_ROOT"]."/desktop_app/login/helper.php");
 
 if (!defined("BX_FORCE_DISABLE_SEPARATED_SESSION_MODE"))
 {
@@ -177,74 +178,3 @@ if(
 }
 
 sendResponse($answer);
-
-
-
-
-
-// helper function
-function sendResponse(array $answer, string $httpCode = '200 OK')
-{
-	\CHTTP::SetStatus($httpCode);
-
-	if (isset($_REQUEST['json']) && $_REQUEST['json'] == 'y')
-	{
-		header('Content-Type: application/json');
-		echo \Bitrix\Main\Web\Json::encode($answer);
-
-		\Bitrix\Main\Application::getInstance()->end();
-		return true;
-	}
-
-	$answerParts = array();
-	foreach($answer as $attr => $value)
-	{
-		switch(gettype($value))
-		{
-			case 'string':
-				$value = "'".CUtil::JSEscape($value)."'";
-				break;
-			case 'boolean':
-				$value = ($value === true? 'true': 'false');
-				break;
-			case 'array':
-				$value = toJsObject($value);
-				break;
-		}
-
-		$answerParts[] = $attr.": ".$value;
-	}
-
-	echo "{".implode(", ", $answerParts)."}";
-
-	\Bitrix\Main\Application::getInstance()->end();
-
-	return true;
-}
-
-function isAccessAllowed()
-{
-	global $USER;
-
-	if ($USER->IsAdmin())
-	{
-		return true;
-	}
-
-	if (!\Bitrix\Main\Loader::includeModule('intranet'))
-	{
-		return true;
-	}
-
-	if (\Bitrix\Intranet\Util::isIntranetUser())
-	{
-		return true;
-	}
-
-	if (\Bitrix\Intranet\Util::isExtranetUser())
-	{
-		return true;
-	}
-
-	return false;
-}

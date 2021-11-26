@@ -21,22 +21,42 @@ final class ChangeBasketItemAction extends BaseAction
 
 		if (empty($fields['SITE_ID']))
 		{
-			$result->addError(new Main\Error('siteId not found', 202540400001));
+			$result->addError(
+				new Main\Error(
+					'siteId not found',
+					Sale\Controller\ErrorEnumeration::CHANGE_BASKET_ITEM_ACTION_SITE_ID_NOT_FOUND
+				)
+			);
 		}
 
 		if (empty($fields['FUSER_ID']) || (int)$fields['FUSER_ID'] <= 0)
 		{
-			$result->addError(new Main\Error('fuserId not found', 202540400002));
+			$result->addError(
+				new Main\Error(
+					'fuserId not found',
+					Sale\Controller\ErrorEnumeration::CHANGE_BASKET_ITEM_ACTION_FUSER_ID_NOT_FOUND
+				)
+			);
 		}
 
 		if (empty($fields['BASKET_ID']) || (int)$fields['BASKET_ID'] <= 0)
 		{
-			$result->addError(new Main\Error('basketId not found', 202540400003));
+			$result->addError(
+				new Main\Error(
+					'basketId not found',
+					Sale\Controller\ErrorEnumeration::CHANGE_BASKET_ITEM_ACTION_BASKET_ID_NOT_FOUND
+				)
+			);
 		}
 
 		if (empty($fields['PRODUCT_ID']) || (int)$fields['PRODUCT_ID'] <= 0)
 		{
-			$result->addError(new Main\Error('productId not found', 202540400004));
+			$result->addError(
+				new Main\Error(
+					'productId not found',
+					Sale\Controller\ErrorEnumeration::CHANGE_BASKET_ITEM_ACTION_PRODUCT_ID_NOT_FOUND
+				)
+			);
 		}
 
 		return $result;
@@ -80,7 +100,12 @@ final class ChangeBasketItemAction extends BaseAction
 		$currentBasketItem = $basket->getItemByBasketCode($basketId);
 		if (!$currentBasketItem)
 		{
-			$result->addError(new Main\Error('basket item load error', 202550000001));
+			$result->addError(
+				new Main\Error(
+					'basket item load error',
+					Sale\Controller\ErrorEnumeration::CHANGE_BASKET_ITEM_ACTION_BASKET_ITEM_LOAD
+				)
+			);
 			return $result;
 		}
 
@@ -88,7 +113,12 @@ final class ChangeBasketItemAction extends BaseAction
 		$parent = \CCatalogSku::getProductList($currentOfferId, 0);
 		if (empty($parent[$currentOfferId]))
 		{
-			$result->addError(new Main\Error('parent product load error', 202550000002));
+			$result->addError(
+				new Main\Error(
+					'parent product load error',
+					Sale\Controller\ErrorEnumeration::CHANGE_BASKET_ITEM_ACTION_PARENT_PRODUCT_LOAD
+				)
+			);
 			return $result;
 		}
 
@@ -99,7 +129,12 @@ final class ChangeBasketItemAction extends BaseAction
 		$newProduct = self::selectOfferById($parent['IBLOCK_ID'], $parent['ID'], $productId, $offerPropertyCodeList);
 		if (!$newProduct)
 		{
-			$result->addError(new Main\Error('product load error', 202550000003));
+			$result->addError(
+				new Main\Error(
+					'product load error',
+					Sale\Controller\ErrorEnumeration::CHANGE_BASKET_ITEM_ACTION_PRODUCT_LOAD
+				)
+			);
 			return $result;
 		}
 
@@ -112,8 +147,12 @@ final class ChangeBasketItemAction extends BaseAction
 		{
 			foreach ($setFieldsResult->getErrors() as $error)
 			{
-				// set basket item fields error
-				$result->addError(new Main\Error($error->getMessage(), 202550000004));
+				$result->addError(
+					new Main\Error(
+						$error->getMessage(),
+						Sale\Controller\ErrorEnumeration::CHANGE_BASKET_ITEM_ACTION_SET_FIELD
+					)
+				);
 			}
 			return $result;
 		}
@@ -125,8 +164,12 @@ final class ChangeBasketItemAction extends BaseAction
 		{
 			foreach ($refreshBasketResult->getErrors() as $error)
 			{
-				// refresh basket error
-				$result->addError(new Main\Error($error->getMessage(), 202550000005));
+				$result->addError(
+					new Main\Error(
+						$error->getMessage(),
+						Sale\Controller\ErrorEnumeration::CHANGE_BASKET_ITEM_ACTION_REFRESH_BASKET
+					)
+				);
 			}
 			return $result;
 		}
@@ -154,7 +197,12 @@ final class ChangeBasketItemAction extends BaseAction
 			foreach ($saveBasketResult->getErrors() as $error)
 			{
 				// save basket error
-				$result->addError(new Main\Error($error->getMessage(), 202550000006));
+				$result->addError(
+					new Main\Error(
+						$error->getMessage(),
+						Sale\Controller\ErrorEnumeration::CHANGE_BASKET_ITEM_ACTION_SAVE_BASKET
+					)
+				);
 			}
 		}
 

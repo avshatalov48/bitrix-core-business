@@ -164,6 +164,16 @@
 			BX.onCustomEvent(window, 'BX.UI.AccessRights:preservation', this);
 		},
 
+		lock: function()
+		{
+			this.getMainContainer().classList.add('--lock');
+		},
+
+		unlock: function()
+		{
+			this.getMainContainer().classList.remove('--lock');
+		},
+
 		deleteActionRequest: function (roleId)
 		{
 			if (this.isRequested)
@@ -481,7 +491,7 @@
 			this.getMainContainer().appendChild(docFragmentSections);
 
 			this.renderTo.innerHTML = '';
-			this.renderTo.appendChild(this.layout.container);
+			this.renderTo.appendChild(this.getMainContainer());
 			this.afterRender();
 		},
 

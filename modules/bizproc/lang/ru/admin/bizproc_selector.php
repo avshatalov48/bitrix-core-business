@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["BIZPROC_SEL_USERS_TAB_GROUPS"] = "– Группы";
 $MESS["BIZPROC_SEL_USERS_TAB_USERS"] = "– Пользователи";
 $MESS["BIZPROC_SEL_TITLEBAR"] = "Вставка полей";
@@ -17,4 +18,4 @@ $MESS["BIZPROC_AS_TITLE"] = "Вставка значения";
 $MESS["BIZPROC_AS_TITLE_TOOLBAR"] = "Вставка значения";
 $MESS["BP_SEL_CONSTANTS"] = "Константы";
 $MESS["BP_SEL_GCONST"] = "Глобальные константы";
-?>
+$MESS['BP_SEL_GVAR'] = 'Глобальные переменные';

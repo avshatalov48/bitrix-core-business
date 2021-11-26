@@ -1,4 +1,4 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
 
 define("BP_EI_DIRECTION_EXPORT", 0);
@@ -250,12 +250,15 @@ class CAllBPWorkflowTemplateLoader
 		$loader = CBPWorkflowTemplateLoader::GetLoader();
 		$loader->DeleteTemplate($id);
 		self::cleanTemplateCache($id);
+
+		\Bitrix\Bizproc\Storage\Factory::getInstance()->onAfterTemplateDelete($id);
 	}
 
 	protected static function cleanTemplateCache($id)
 	{
 		$cache = \Bitrix\Main\Application::getInstance()->getManagedCache();
-		$cache->clean(self::CONSTANTS_CACHE_TAG_PREFIX.$id);
+		$cache->clean(self::CONSTANTS_CACHE_TAG_PREFIX . $id);
+		unset(self::$workflowConstants[$id]);
 	}
 
 	public function DeleteTemplate($id)

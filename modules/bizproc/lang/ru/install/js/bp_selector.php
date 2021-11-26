@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["BIZPROC_JS_BP_SELECTOR_PARAMETERS"] = "Параметры";
 $MESS["BIZPROC_JS_BP_SELECTOR_VARIABLES"] = "Переменные";
 $MESS["BIZPROC_JS_BP_SELECTOR_CONSTANTS"] = "Константы";
@@ -46,4 +47,8 @@ $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_UCFIRST_DESCRIPTION"] = "Преобраз
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_NUMBER_FORMAT_DESCRIPTION"] = "Форматирует число с разделением групп";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_TOUSERDATE_DESCRIPTION"] = "Приводит серверное время к времени пользователя";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_GETUSERDATEOFFSET_DESCRIPTION"] = "Возвращает смещение времени пользователя относительно сервера, в секундах";
-?>
+$MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_STRTOTIME_DESCRIPTION"] = "Преобразует текстовое написание даты на английском языке во внутренний формат даты";
+$MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_LOCDATE_DESCRIPTION"] = "Меняет язык вывода даты/времени на текущий язык портала";
+$MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_SHUFFLE_DESCRIPTION"] = "Перемешивает значения множественного поля";
+$MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_FIRSTVALUE_DESCRIPTION"] = "Возвращает первое значение множественного поля";
+$MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_SWIRL_DESCRIPTION"] = "Перемещает первое значение множественного поля в конец";

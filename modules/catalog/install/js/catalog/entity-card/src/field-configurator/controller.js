@@ -95,10 +95,17 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 				data: fields
 			}
 		).then(response => {
+			const property = response?.data?.PROPERTY_FIELDS;
 			if (currentField instanceof BX.UI.EntityEditorDatetime || currentField instanceof BX.UI.EntityEditorMultiDatetime)
 			{
-				const data = currentField.getSchemeElement().getData();
-				data.enableTime = eventArgs.enableTime;
+				const schemeElementData = currentField.getSchemeElement().getData();
+				const propertyData = property?.data;
+				if (propertyData)
+				{
+					schemeElementData.enableTime = propertyData.enableTime;
+					schemeElementData.dateViewFormat = propertyData.dateViewFormat;
+					currentField.refreshLayout();
+				}
 			}
 			let newType = null;
 			let schemeElement = null;
@@ -141,7 +148,6 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 				}
 			}
 			schemeElement = currentField.getSchemeElement();
-			const property = response.data.PROPERTY_FIELDS;
 			if (
 				((currentField instanceof BX.UI.EntityEditorList) || (currentField instanceof BX.UI.EntityEditorMultiList))
 				&& property
@@ -172,6 +178,7 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 					enableSaving: false
 				});
 
+				currentField._schemeElement = null;
 				section.removeChild(currentField, {
 					enableSaving: false
 				});

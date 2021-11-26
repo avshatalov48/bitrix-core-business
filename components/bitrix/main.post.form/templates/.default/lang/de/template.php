@@ -18,6 +18,7 @@ $MESS["MPF_IMAGE_TITLE"] = "Bild in die Nachricht einfügen";
 $MESS["MPF_IMPORTANT_TITLE"] = "Wichtige Nachricht";
 $MESS["MPF_INSERT_FILE"] = "Klicken Sie, um eine Datei einzufügen";
 $MESS["MPF_MENTION"] = "Mention";
+$MESS["MPF_MENTION_TASKS_LIMIT"] = "Einen Nutzer in einem Kommentar per Mention zu erwähnen ist eine Möglichkeit, diesen Nutzer als Beobachter zur Diskussion schnell hinzuzufügen. <p>Diese Option ist in Ihrem aktuellen Tarif nicht verfügbar; der Nutzer kann auf diesem Weg nicht zur Aufgabe hinzugefügt werden. #A_BEGIN#Mehr#A_END#.";
 $MESS["MPF_MORE"] = "Mehr";
 $MESS["MPF_PIN_EDITOR_PANNEL"] = "Leiste mit Schaltflächen fixieren";
 $MESS["MPF_PIN_EDITOR_PANNEL_OFF"] = "Leiste mit Schaltflächen lösen";

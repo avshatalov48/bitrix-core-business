@@ -1,5 +1,6 @@
-import {Runtime, Event, ajax} from 'main.core';
-import {BasketRestHandler} from 'sale.checkout.provider.rest'
+import { Runtime, ajax } from 'main.core';
+import { EventEmitter } from 'main.core.events'
+import { BasketRestHandler } from 'sale.checkout.provider.rest'
 import {
     Application as ApplicationConst,
     RestMethod as RestMethodConst,
@@ -9,10 +10,9 @@ import {
     EventType
 } from 'sale.checkout.const';
 
-import {Timer} from 'sale.checkout.lib';
-import {History} from 'sale.checkout.lib';
+import { History } from 'sale.checkout.lib';
 
-import {Basket} from "./basket";
+import { Basket } from "./basket";
 
 export class Application
 {
@@ -31,7 +31,6 @@ export class Application
     init(option)
     {
         this.store = option.store;
-        this.timer = new Timer();
         return new Promise((resolve, reject) => resolve());
     }
 
@@ -66,25 +65,29 @@ export class Application
      */
     subscribeToEvents()
     {
-        Event.EventEmitter.subscribe(EventType.order.success, (e)=>this.basket.handlerOrderSuccess(e));
+        EventEmitter.subscribe(EventType.order.success, (e)=>this.basket.handlerOrderSuccess(e));
+
+        EventEmitter.subscribe(EventType.basket.removeProduct, (e)=>this.basket.handlerRemoveProductSuccess(e));
+        EventEmitter.subscribe(EventType.basket.restoreProduct, (e)=>this.basket.handlerRestoreProductSuccess(e));
+
+        EventEmitter.subscribe(EventType.basket.buttonRemoveProduct, Runtime.debounce((e)=>this.basket.handlerRemove(e), 500, this));
+        EventEmitter.subscribe(EventType.basket.buttonPlusProduct, (e) => this.basket.handlerQuantityPlus(e));
+        EventEmitter.subscribe(EventType.basket.buttonMinusProduct, (e) => this.basket.handlerQuantityMinus(e));
+        EventEmitter.subscribe(EventType.basket.inputChangeQuantityProduct, (e) => this.basket.handlerChangeQuantity(e));
+        EventEmitter.subscribe(EventType.basket.buttonRestoreProduct, Runtime.debounce((e) => this.basket.handlerRestore(e), 500, this));
+        EventEmitter.subscribe(EventType.basket.needRefresh, (e) => this.basket.handlerNeedRefreshY(e));
+        EventEmitter.subscribe(EventType.basket.refreshAfter, (e) => this.basket.handlerNeedRefreshN(e));
     
-        Event.EventEmitter.subscribe(EventType.basket.buttonRemoveProduct, Runtime.debounce((e)=>this.basket.handlerRemove(e), 500, this));
-        Event.EventEmitter.subscribe(EventType.basket.buttonPlusProduct, (e) => this.basket.handlerQuantityPlus(e));
-        Event.EventEmitter.subscribe(EventType.basket.buttonMinusProduct, (e) => this.basket.handlerQuantityMinus(e));
-        Event.EventEmitter.subscribe(EventType.basket.buttonRestoreProduct, Runtime.debounce((e) => this.basket.handlerRestore(e), 500, this));
-        Event.EventEmitter.subscribe(EventType.basket.needRefresh, (e) => this.basket.handlerNeedRefreshY(e));
-        Event.EventEmitter.subscribe(EventType.basket.refreshAfter, (e) => this.basket.handlerNeedRefreshN(e));
-    
-        Event.EventEmitter.subscribe(EventType.basket.changeSku, (e) => this.basket.handlerChangeSku(e));
+        EventEmitter.subscribe(EventType.basket.changeSku, (e) => this.basket.handlerChangeSku(e));
         
-        Event.EventEmitter.subscribe(EventType.consent.refused, () => this.handlerConsentRefused());
-        Event.EventEmitter.subscribe(EventType.consent.accepted, () => this.handlerConsentAccepted());
+        EventEmitter.subscribe(EventType.consent.refused, () => this.handlerConsentRefused());
+        EventEmitter.subscribe(EventType.consent.accepted, () => this.handlerConsentAccepted());
     
-        Event.EventEmitter.subscribe(EventType.element.buttonCheckout, Runtime.debounce(() => this.handlerCheckout(), 1000, this));
-        Event.EventEmitter.subscribe(EventType.element.buttonShipping, Runtime.debounce(() => this.handlerShipping(), 1000, this));
+        EventEmitter.subscribe(EventType.element.buttonCheckout, Runtime.debounce(() => this.handlerCheckout(), 1000, this));
+        EventEmitter.subscribe(EventType.element.buttonShipping, Runtime.debounce(() => this.handlerShipping(), 1000, this));
     
-        Event.EventEmitter.subscribe(EventType.paysystem.beforeInitList, () => this.paySystemSetStatusWait());
-        Event.EventEmitter.subscribe(EventType.paysystem.afterInitList, () => this.paySystemSetStatusNone());
+        EventEmitter.subscribe(EventType.paysystem.beforeInitList, () => this.paySystemSetStatusWait());
+        EventEmitter.subscribe(EventType.paysystem.afterInitList, () => this.paySystemSetStatusNone());
     }
 
     /**

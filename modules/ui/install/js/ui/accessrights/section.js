@@ -55,6 +55,11 @@ BX.UI.AccessRights.Section.prototype = {
 		BX.bind(window, 'resize', this.adjustEars.bind(this));
 	},
 
+	getGrid: function()
+	{
+		return this.grid;
+	},
+
 	addColumn: function(param)
 	{
 		if(!param)
@@ -307,6 +312,7 @@ BX.UI.AccessRights.Section.prototype = {
 		{
 			setTimeout(function() {
 				clearTimeout(this.earTimer);
+				this.getGrid().unlock();
 			}.bind(this), param * 2)
 		}
 	},
@@ -321,6 +327,7 @@ BX.UI.AccessRights.Section.prototype = {
 	stopAutoScroll: function()
 	{
 		clearInterval(this.earTimer);
+		BX.onCustomEvent(window, 'BX.UI.AccessRights.Grid:stopAutoScroll', this);
 	},
 
 	adjustScroll: function()
@@ -367,7 +374,7 @@ BX.UI.AccessRights.Section.prototype = {
 					userGroup: this.grid.getUserGroups()[i]
 				}
 			);
-			
+
 			this.columns.push(column);
 			columnsFragment.appendChild(column.render());
 		}

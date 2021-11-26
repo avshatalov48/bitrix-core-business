@@ -1,4 +1,5 @@
-<?
+<?php
+
 $MESS["BIZPROC_WFS_TITLE"] = "Параметры шаблона";
 $MESS["BIZPROC_WFS_PROP_STRING"] = "Строка";
 $MESS["BIZPROC_WFS_PROP_TEXT"] = "Многострочный текст";
@@ -59,3 +60,6 @@ $MESS["BP_WF_CONSTANT_ADD"] = "Добавить константу";
 $MESS["BIZPROC_WFS_CONSTANTDEF"] = "Значение константы";
 $MESS["BIZPROC_IS_ADMIN_ERROR"] = "Доступ к настройкам разрешен только администраторам портала.";
 $MESS["BIZPROC_SAVE_GCONST_ERROR"] = "Превышен лимит данных в Глобальных константах. Изменения не сохранены";
+$MESS["BP_WF_TAB_G_VAR"] = "Глобальные переменные";
+$MESS["BP_WF_TAB_G_VAR_TITLE"] = "Глобальные переменные Бизнес-процессов";
+$MESS["BIZPROC_WFS_VARIABLEDEF"] = "Значение переменной";

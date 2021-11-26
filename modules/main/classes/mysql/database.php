@@ -67,7 +67,6 @@ abstract class CDatabaseMysql extends CAllDatabase
 		$this->DBName = $DBName;
 		$this->DBLogin = $DBLogin;
 		$this->DBPassword = $DBPassword;
-		$this->bConnected = false;
 
 		if (!defined("DBPersistent"))
 		{
@@ -246,10 +245,6 @@ abstract class CDatabaseMysql extends CAllDatabase
 		if ($this->connection)
 		{
 			$this->connection->disconnect();
-			if (!$this->connection->isConnected())
-			{
-				$this->bConnected = false;
-			}
 		}
 	}
 

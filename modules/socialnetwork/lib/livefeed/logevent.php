@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Main\Loader;
@@ -18,12 +19,12 @@ final class LogEvent extends Provider
 		return static::PROVIDER_ID;
 	}
 
-	public function getEventId()
+	public function getEventId(): array
 	{
-		return array('data');
+		return [ 'data' ];
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return Provider::TYPE_POST;
 	}
@@ -38,7 +39,7 @@ final class LogEvent extends Provider
 		return self::PERMISSION_READ;
 	}
 
-	public function getCommentProvider()
+	public function getCommentProvider(): Provider
 	{
 		return new LogComment();
 	}
@@ -48,7 +49,7 @@ final class LogEvent extends Provider
 		static $cache = [];
 		static $schemeCache = [];
 
-		$logId = (int)$this->entityId;
+		$logId = $this->entityId;
 
 		if ($logId <= 0)
 		{
@@ -229,7 +230,7 @@ final class LogEvent extends Provider
 		return $pathToLogEntry;
 	}
 
-	public function getSuffix()
+	public function getSuffix(): string
 	{
 		return '2';
 	}

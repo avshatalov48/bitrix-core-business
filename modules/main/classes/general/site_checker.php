@@ -3070,24 +3070,58 @@ function InitPureDB()
 	}
 }
 
-function TableFieldConstruct($f0)
+function TableFieldConstruct($field)
 {
 	global $DB;
-	$tmp = '`'.$f0['Field'].'` '.$f0['Type'].
-		($f0['Null'] == 'YES' ? ' NULL' : ' NOT NULL').
-		($f0['Default'] === NULL
-		?
-			($f0['Null'] == 'YES' ? ' DEFAULT NULL ' : '')
-		:
-			' DEFAULT '.
-			(($f0['Type'] == 'timestamp' || $f0['Type'] == 'datetime') && !preg_match('#^\d{4}#', $f0['Default'])
-			?
-				$f0['Default']
-				:
-				'"'.$DB->ForSQL($f0['Default']).'"'
-			)
-		).
-		' '.str_ireplace('DEFAULT_GENERATED', '', $f0['Extra']);
+
+	$tmp = '`'.$field['Field'].'` ';
+
+	if (preg_match("/^(TINYINT|SMALLINT|MEDIUMINT|INT|BIGINT)\\(\d+\\)(.*)/i", $field['Type'], $matches))
+	{
+		// As of MySQL 8.0.17, the ZEROFILL attribute is deprecated for numeric data types, as is the display width attribute for integer data types
+		$tmp .= $matches[1] . $matches[2];
+	}
+	else
+	{
+		$tmp .= $field['Type'];
+	}
+
+	if ($field['Null'] == 'YES')
+	{
+		$tmp .= ' NULL';
+	}
+	else
+	{
+		$tmp .= ' NOT NULL';
+	}
+
+	if ($field['Default'] === NULL)
+	{
+		if ($field['Null'] == 'YES')
+		{
+			$tmp .= ' DEFAULT NULL ';
+		}
+	}
+	else
+	{
+		$tmp .= ' DEFAULT ';
+		if (($field['Type'] == 'timestamp' || $field['Type'] == 'datetime') && !preg_match('#^\d{4}#', $field['Default']))
+		{
+			$tmp .= $field['Default'];
+		}
+		elseif ($field['Type'] == 'text' && preg_match("/^'.*'$/", $field['Default']))
+		{
+			// MariaDB's bug with text fields default values in single quotes
+			$tmp .= $field['Default'];
+		}
+		else
+		{
+			$tmp .= "'" . $DB->ForSQL($field['Default']) . "'";
+		}
+	}
+
+	$tmp .= ' ' . str_ireplace('DEFAULT_GENERATED', '', $field['Extra']);
+
 	return trim($tmp);
 }
 

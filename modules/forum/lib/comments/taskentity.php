@@ -7,9 +7,9 @@ use Bitrix\Main\Loader;
 
 final class TaskEntity extends Entity
 {
-	const ENTITY_TYPE = 'tk';
+	public const ENTITY_TYPE = 'tk';
 	const MODULE_ID = 'tasks';
-	const XML_ID_PREFIX = 'TASK_';
+	public const XML_ID_PREFIX = 'TASK_';
 
 	private $taskPostData;
 	private $hasAccess;
@@ -147,21 +147,25 @@ final class TaskEntity extends Entity
 	public static function onMessageIsIndexed($id, array $message, array &$index)
 	{
 		if ($message["PARAM1"] == mb_strtoupper(self::ENTITY_TYPE))
+		{
 			return false;
+		}
 
 		if (
 			preg_match("/".self::getXmlIdPrefix()."(\\d+)/", $message["XML_ID"], $matches) &&
 			($taskId = intval($matches[1])) &&
-			$taskId > 0
+			$taskId > 0 &&
+			!array_key_exists($taskId, self::$permissions)
 		)
 		{
-			if (!array_key_exists($taskId, self::$permissions))
+			self::$permissions[$taskId] = [];
+			if ($task = \CTasks::GetList(array(), array("ID" => $taskId))->fetch())
 			{
-				$task = \CTasks::GetList(array(), array("ID" => $taskId))->fetch();
 				self::$permissions[$taskId] = \CTasks::__GetSearchPermissions($task);
 			}
-			$index["PERMISSIONS"] = self::$permissions[$taskId];
 		}
-		return true;
+
+		$index["PERMISSIONS"] = self::$permissions[$taskId];
+		return sizeof(self::$permissions[$taskId]) > 0;
 	}
 }

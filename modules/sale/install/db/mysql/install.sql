@@ -82,7 +82,7 @@ create table if not exists b_sale_basket
 	SORT INT(11) not null default '100',
 	primary key (ID),
 	index IXS_BASKET_LID(LID),
-	index IXS_BASKET_USER_ID(FUSER_ID),
+	index IXS_BASKET_USER_ID_LID_ORDER_ID(FUSER_ID, LID, ORDER_ID),
 	index IXS_BASKET_ORDER_ID(ORDER_ID),
 	index IXS_BASKET_PRODUCT_ID(PRODUCT_ID),
 	index IXS_BASKET_PRODUCT_PRICE_ID(PRODUCT_PRICE_ID),

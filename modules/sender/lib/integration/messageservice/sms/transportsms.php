@@ -106,6 +106,9 @@ class TransportSms implements Transport\iBase, Transport\iLimitation
 	{
 		if (!empty($this->limiters))
 		{
+			$this->limiters[] = Transport\TimeLimiter::create()
+				->withLetter($message);
+
 			return $this->limiters;
 		}
 
@@ -162,6 +165,9 @@ class TransportSms implements Transport\iBase, Transport\iLimitation
 				->withUnit("1 " . Transport\iLimiter::DAYS)
 				->setParameter('setupUri', Service::getLimitsUrl());
 		}
+
+		$this->limiters[] = Transport\TimeLimiter::create()
+			->withLetter($message);
 
 		return $this->limiters;
 	}

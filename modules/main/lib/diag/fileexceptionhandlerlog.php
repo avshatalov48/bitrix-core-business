@@ -36,7 +36,7 @@ class FileExceptionHandlerLog
 	}
 
 	/**
-	 * @param \Error|\Exception $exception
+	 * @param \Throwable $exception
 	 * @param int $logType
 	 */
 	public function write($exception, $logType)

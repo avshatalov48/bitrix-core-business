@@ -330,7 +330,10 @@ class OrderShipment
 									<tbody>
 										<tr>
 											<td class="adm-detail-content-cell-l" width="40%">'.Loc::getMessage('SALE_ORDER_SHIPMENT_DELIVERY_WEIGHT').':</td>
-											<td class="adm-detail-content-cell-r tal"><input type="text" class="adm-bus-input-price" name="SHIPMENT['.$index.'][WEIGHT]" id="WEIGHT_DELIVERY_'.$index.'" value="'.$weight.'"> '.$weightMeasureUnits.'</td>
+											<td class="adm-detail-content-cell-r tal">
+												<input type="text" class="adm-bus-input-price" name="SHIPMENT['.$index.'][WEIGHT]" id="WEIGHT_DELIVERY_'.$index.'" value="'.$weight.'"> '.$weightMeasureUnits.'
+												<span id="UPDATE_DELIVERY_INFO_'.$index.'" class="new_delivery_price_button">'.Loc::getMessage('SALE_ORDER_SHIPMENT_RECALCULATE_DELIVERY_PRICE').'</span>
+											</td>
 										</tr>
 									</tbody>
 								</table>

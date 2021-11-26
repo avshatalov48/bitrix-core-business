@@ -363,10 +363,16 @@ class OrderCompatibility extends Internals\EntityCompatibility
 						{
 							/** @var Services\Base $deliveryService */
 							$deliveryService = Sale\Delivery\Services\Manager::getObjectById($deliveryId);
-							if ($deliveryService->isProfile())
-								$fields['DELIVERY_NAME'] = $deliveryService->getNameWithParent();
+							if ($deliveryService)
+							{
+								$fields['DELIVERY_NAME'] = $deliveryService->isProfile()
+									? $deliveryService->getNameWithParent()
+									: $deliveryService->getName();
+							}
 							else
-								$fields['DELIVERY_NAME'] = $deliveryService->getName();
+							{
+								$fields['DELIVERY_NAME'] = 'Not found [' . $deliveryId . ']';
+							}
 						}
 						else
 						{

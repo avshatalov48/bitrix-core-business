@@ -74,11 +74,7 @@ export default class MobileSyncBanner
 			</div>
 		`;
 
-		this.DOM.mobileHintIcon = this.DOM.container.querySelector('.calendar-notice-mobile-banner');
-		if (this.DOM.mobileHintIcon && BX.UI.Hint)
-		{
-			BX.UI.Hint.initNode(this.DOM.mobileHintIcon);
-		}
+		Util.initHintNode(this.DOM.container.querySelector('.calendar-notice-mobile-banner'));
 
 		return this.DOM.container;
 	}

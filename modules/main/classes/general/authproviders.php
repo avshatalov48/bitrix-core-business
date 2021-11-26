@@ -21,6 +21,16 @@ class CAuthProvider
 	{
 		CAccess::RecalculateForProvider($this->id);
 	}
+
+	public function AddCode($userId, $code)
+	{
+		CAccess::AddCode($userId, $this->id, $code);
+	}
+
+	public function RemoveCode($userId, $code)
+	{
+		CAccess::RemoveCode($userId, $this->id, $code);
+	}
 }
 
 interface IProviderInterface

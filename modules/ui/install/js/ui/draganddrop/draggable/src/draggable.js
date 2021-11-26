@@ -359,6 +359,10 @@ export class Draggable extends EventEmitter
 		return this.cache.remember('dropPreview', () => {
 			const {type} = this.getOptions();
 			const source = this.getSource();
+			if (source === null)
+			{
+				return Tag.render`<div></div>`;
+			}
 			const sourceRect = this.getSourceClientRect();
 			let dropPreview;
 

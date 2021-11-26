@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Socialnetwork\LogCommentTable;
@@ -6,24 +7,24 @@ use Bitrix\Main\Config\Option;
 
 final class LogComment extends Provider
 {
-	const PROVIDER_ID = 'SONET_COMMENT';
-	const CONTENT_TYPE_ID = 'LOG_COMMENT';
+	public const PROVIDER_ID = 'SONET_COMMENT';
+	public const CONTENT_TYPE_ID = 'LOG_COMMENT';
 
 	protected $logEventId = null;
 	protected $logEntityType = null;
 	protected $logEntityId = null;
 
-	public static function getId()
+	public static function getId(): string
 	{
 		return static::PROVIDER_ID;
 	}
 
-	public function getEventId()
+	public function getEventId(): array
 	{
-		return array('data_comment', 'photoalbum_comment', 'intranet_new_user_comment', 'bitrix24_new_user_comment');
+		return [ 'data_comment', 'photoalbum_comment', 'intranet_new_user_comment', 'bitrix24_new_user_comment' ];
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return Provider::TYPE_COMMENT;
 	}
@@ -46,7 +47,6 @@ final class LogComment extends Provider
 			if ($logComentFields = $res->fetch())
 			{
 				$logId = (int)$logComentFields['LOG_ID'];
-				$message = $logComentFields['MESSAGE'];
 			}
 
 			if ($logId)
@@ -89,43 +89,14 @@ final class LogComment extends Provider
 
 	protected function getAttachedDiskObjects($clone = false)
 	{
-		global $USER_FIELD_MANAGER;
-		static $cache = array();
-
-		$messageId = $this->entityId;
-
-		$result = array();
-		$cacheKey = $messageId.$clone;
-
-		if (isset($cache[$cacheKey]))
-		{
-			$result = $cache[$cacheKey];
-		}
-		else
-		{
-			$messageUF = $USER_FIELD_MANAGER->getUserFields("SONET_COMMENT", $messageId, LANGUAGE_ID);
-			if (
-				!empty($messageUF['UF_SONET_COM_DOC'])
-				&& !empty($messageUF['UF_SONET_COM_DOC']['VALUE'])
-				&& is_array($messageUF['UF_SONET_COM_DOC']['VALUE'])
-			)
-			{
-				if ($clone)
-				{
-					$this->attachedDiskObjectsCloned = self::cloneUfValues($messageUF['UF_SONET_COM_DOC']['VALUE']);
-					$result = $cache[$cacheKey] = array_values($this->attachedDiskObjectsCloned);
-				}
-				else
-				{
-					$result = $cache[$cacheKey] = $messageUF['UF_SONET_COM_DOC']['VALUE'];
-				}
-			}
-		}
-
-		return $result;
+		return $this->getEntityAttachedDiskObjects([
+			'userFieldEntity' => 'SONET_COMMENT',
+			'userFieldCode' => 'UF_SONET_COM_DOC',
+			'clone' => $clone,
+		]);
 	}
 
-	public function getLiveFeedUrl()
+	public function getLiveFeedUrl(): string
 	{
 		$pathToLogEntry = '';
 
@@ -142,36 +113,35 @@ final class LogComment extends Provider
 		return $pathToLogEntry;
 	}
 
-	public static function canRead($params)
+	public static function canRead($params): bool
 	{
 		return true;
 	}
 
-	protected function getPermissions(array $post)
+	protected function getPermissions(array $post): string
 	{
-		$result = self::PERMISSION_READ;
-
-		return $result;
+		return self::PERMISSION_READ;
 	}
 
-	public function getSuffix()
+	public function getSuffix(): string
 	{
 		$logEventId = $this->getLogEventId();
 
 		if (!empty($logEventId))
 		{
 			$providerIntranetNewUser = new IntranetNewUser();
-			if (in_array($logEventId, $providerIntranetNewUser->getEventId()))
+			if (in_array($logEventId, $providerIntranetNewUser->getEventId(), true))
 			{
 				return 'INTRANET_NEW_USER';
 			}
 
 			$providerBitrix24NewUser = new Bitrix24NewUser();
-			if (in_array($logEventId, $providerBitrix24NewUser->getEventId()))
+			if (in_array($logEventId, $providerBitrix24NewUser->getEventId(), true))
 			{
 				return 'BITRIX24_NEW_USER';
 			}
 		}
+
 		return '2';
 	}
 
@@ -188,14 +158,14 @@ final class LogComment extends Provider
 				: $USER->getId()
 		);
 
-		$message = (
+		$message = (string)(
 			isset($params['MESSAGE'])
-			&& $params['MESSAGE'] <> ''
+			&& (string)$params['MESSAGE'] !== ''
 				? $params['MESSAGE']
 				: ''
 		);
 
-		if ($message == '')
+		if ($message === '')
 		{
 			return false;
 		}
@@ -218,7 +188,7 @@ final class LogComment extends Provider
 		$commentEventId = false;
 
 		$providerIntranetNewUser = new IntranetNewUser();
-		if (in_array($this->getLogEventId(), $providerIntranetNewUser->getEventId()))
+		if (in_array($this->getLogEventId(), $providerIntranetNewUser->getEventId(), true))
 		{
 			$commentEventId = 'intranet_new_user_comment';
 		}
@@ -226,7 +196,7 @@ final class LogComment extends Provider
 		if (!$commentEventId)
 		{
 			$providerBitrix24NewUser = new Bitrix24NewUser();
-			if (in_array($this->getLogEventId(), $providerBitrix24NewUser->getEventId()))
+			if (in_array($this->getLogEventId(), $providerBitrix24NewUser->getEventId(), true))
 			{
 				$commentEventId = 'bitrix24_new_user_comment';
 			}
@@ -235,7 +205,7 @@ final class LogComment extends Provider
 		if (!$commentEventId)
 		{
 			$providerPhotogalleryAlbum = new PhotogalleryAlbum();
-			if (in_array($this->getLogEventId(), $providerPhotogalleryAlbum->getEventId()))
+			if (in_array($this->getLogEventId(), $providerPhotogalleryAlbum->getEventId(), true))
 			{
 				$commentEventId = 'photoalbum_comment';
 			}

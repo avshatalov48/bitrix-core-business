@@ -1,4 +1,5 @@
-<?
+<?php
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\Event;
@@ -6,19 +7,20 @@ use Bitrix\Main\EventResult;
 
 class CMainUISelectorComponentAjaxController extends \Bitrix\Main\Engine\Controller
 {
-	public function getTreeItemRelationAction($entityType = false, $categoryId = false)
+	public function getTreeItemRelationAction($entityType = false, $categoryId = false, $allowSearchSelf = null)
 	{
-		$result = array();
+		$result = [];
 
-		$event = new Event("main", "OnUISelectorActionProcessAjax", array(
+		$event = new Event("main", "OnUISelectorActionProcessAjax", [
 			'action' => 'getTreeItemRelation',
-			'requestFields' => array(
-				'options' => array(
+			'requestFields' => [
+				'options' => [
 					'entityType' => $entityType,
-					'categoryId' => $categoryId
-				),
-			)
-		));
+					'categoryId' => $categoryId,
+					'allowSearchSelf' => $allowSearchSelf,
+				],
+			],
+		]);
 		$event->send();
 		$eventResultList = $event->getResults();
 

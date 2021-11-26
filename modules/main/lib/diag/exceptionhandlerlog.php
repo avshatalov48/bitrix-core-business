@@ -1,7 +1,6 @@
 <?php
-namespace Bitrix\Main\Diag;
 
-use Bitrix\Main;
+namespace Bitrix\Main\Diag;
 
 abstract class ExceptionHandlerLog
 {
@@ -18,25 +17,18 @@ abstract class ExceptionHandlerLog
 		{
 			case 0:
 				return 'UNCAUGHT_EXCEPTION';
-				break;
 			case 1:
 				return 'CAUGHT_EXCEPTION';
-				break;
 			case 2:
 				return 'IGNORED_ERROR';
-				break;
 			case 3:
 				return 'LOW_PRIORITY_ERROR';
-				break;
 			case 4:
 				return 'ASSERTION';
-				break;
 			case 5:
 				return 'FATAL';
-				break;
 			default:
 				return 'UNKNOWN';
-				break;
 		}
 	}
 

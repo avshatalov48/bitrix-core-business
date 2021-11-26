@@ -164,14 +164,21 @@ while($fields = $resRequestList->fetch())
 	$row->AddViewField("DATE", $fields['DATE']);
 
 	if($delivery = \Bitrix\Sale\Delivery\Services\Manager::getObjectById($fields['DELIVERY_ID']))
+	{
 		$deliveryServiceName = $delivery->getNameWithParent().' ['.$fields['DELIVERY_ID'].']';
+		$row->AddViewField(
+			'DELIVERY_ID',
+			'<a href="/bitrix/admin/sale_delivery_service_edit.php?lang='.LANGUAGE_ID.'&ID='.$fields['DELIVERY_ID'].'&PARENT_ID='.$delivery->getParentId().'">'.htmlspecialcharsbx($deliveryServiceName).'</a>'
+		);
+	}
 	else
+	{
 		$deliveryServiceName = $fields['DELIVERY_ID'];
-
-	$row->AddViewField(
-		'DELIVERY_ID',
-		'<a href="/bitrix/admin/sale_delivery_service_edit.php?lang='.LANGUAGE_ID.'&ID='.$fields['DELIVERY_ID'].'&PARENT_ID='.$delivery->getParentId().'">'.htmlspecialcharsbx($deliveryServiceName).'</a>'
-	);
+		$row->AddViewField(
+			'DELIVERY_ID',
+			'Not found ['.$fields['DELIVERY_ID'].']'
+		);
+	}
 
 //	$row->AddViewField("STATUS", $fields['STATUS']);
 	$row->AddViewField("EXTERNAL_ID", htmlspecialcharsbx($fields['EXTERNAL_ID']));
@@ -252,50 +259,50 @@ $oFilter = new CAdminFilter(
 	)
 );
 ?>
-<form name="form1" method="POST" action="<?=$APPLICATION->GetCurPage()?>">
-<input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
-<?$oFilter->Begin();?>
-	<tr>
-		<td><?=Loc::getMessage('SALE_DELIVERY_REQ_LIST_F_ID')?>:</td>
-		<td><input type="text" name="find_id" size="40" value="<?= htmlspecialcharsbx($find_name)?>"><?=ShowFilterLogicHelp()?></td>
-	</tr>
-	<tr>
-		<td><?=Loc::getMessage('SALE_DELIVERY_REQ_LIST_F_DELIVERY_ID')?>:</td>
-		<td>
-			<select name="find_delivery_id[]" multiple size="3" class="adm-select-multiple">
-				<?foreach($deliveryList as $deliveryId => $deliveryName):?>
-					<option value="<?=$deliveryId?>"<?=(is_array($find_delivery_id) && in_array($deliveryId, $find_delivery_id) ? ' selected' : '')?>><?=htmlspecialcharsbx($deliveryName)?></option>
-				<?endforeach;?>
-			</select>
-		</td>
-	</tr>
-<!--
+	<form name="form1" method="POST" action="<?=$APPLICATION->GetCurPage()?>">
+		<input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
+		<?$oFilter->Begin();?>
+		<tr>
+			<td><?=Loc::getMessage('SALE_DELIVERY_REQ_LIST_F_ID')?>:</td>
+			<td><input type="text" name="find_id" size="40" value="<?= htmlspecialcharsbx($find_name)?>"><?=ShowFilterLogicHelp()?></td>
+		</tr>
+		<tr>
+			<td><?=Loc::getMessage('SALE_DELIVERY_REQ_LIST_F_DELIVERY_ID')?>:</td>
+			<td>
+				<select name="find_delivery_id[]" multiple size="3" class="adm-select-multiple">
+					<?foreach($deliveryList as $deliveryId => $deliveryName):?>
+						<option value="<?=$deliveryId?>"<?=(is_array($find_delivery_id) && in_array($deliveryId, $find_delivery_id) ? ' selected' : '')?>><?=htmlspecialcharsbx($deliveryName)?></option>
+					<?endforeach;?>
+				</select>
+			</td>
+		</tr>
+		<!--
 	<tr>
 		<td><?=Loc::getMessage('SALE_DELIVERY_REQ_LIST_F_STATUS')?>:</td>
 		<td><input type="text" name="find_status" size="40" value="<?= htmlspecialcharsbx($find_status)?>"><?=ShowFilterLogicHelp()?></td>
 	</tr>
 -->
-	<tr>
-		<td><?=Loc::getMessage('SALE_DELIVERY_REQ_LIST_F_EXTERNAL_ID')?>:</td>
-		<td><input type="text" name="find_external_id" size="40" value="<?= htmlspecialcharsbx($find_external_id)?>"><?=ShowFilterLogicHelp()?></td>
-	</tr>
-	<tr>
-		<td><?=Loc::getMessage('SALE_DELIVERY_REQ_LIST_F_DATE_INSERT')?>:</td>
-		<td>
-			<?=CalendarPeriod(
-				"find_external_date_insert_from",
-				$find_external_date_insert_from,
-				"find_external_date_insert_to",
-				$find_external_date_insert_to,
-				"form1",
-				"Y")
-			?>
-		</td>
-	</tr>
-<?
-$oFilter->Buttons(array("table_id"=>$sTableID,"url"=>$APPLICATION->GetCurPage(),"form"=>"form1"));
-$oFilter->End();
-?>
+		<tr>
+			<td><?=Loc::getMessage('SALE_DELIVERY_REQ_LIST_F_EXTERNAL_ID')?>:</td>
+			<td><input type="text" name="find_external_id" size="40" value="<?= htmlspecialcharsbx($find_external_id)?>"><?=ShowFilterLogicHelp()?></td>
+		</tr>
+		<tr>
+			<td><?=Loc::getMessage('SALE_DELIVERY_REQ_LIST_F_DATE_INSERT')?>:</td>
+			<td>
+				<?=CalendarPeriod(
+					"find_external_date_insert_from",
+					$find_external_date_insert_from,
+					"find_external_date_insert_to",
+					$find_external_date_insert_to,
+					"form1",
+					"Y")
+				?>
+			</td>
+		</tr>
+		<?
+		$oFilter->Buttons(array("table_id"=>$sTableID,"url"=>$APPLICATION->GetCurPage(),"form"=>"form1"));
+		$oFilter->End();
+		?>
 	</form>
 <?
 

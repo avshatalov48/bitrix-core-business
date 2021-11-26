@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Main\Config\Option;
@@ -19,12 +20,12 @@ final class CalendarEvent extends Provider
 		return static::PROVIDER_ID;
 	}
 
-	public function getEventId()
+	public function getEventId(): array
 	{
-		return array('calendar');
+		return [ 'calendar' ];
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return Provider::TYPE_POST;
 	}
@@ -39,16 +40,16 @@ final class CalendarEvent extends Provider
 		return self::PERMISSION_READ;
 	}
 
-	public function getCommentProvider()
+	public function getCommentProvider(): Provider
 	{
-		return new \Bitrix\Socialnetwork\Livefeed\ForumPost();
+		return new ForumPost();
 	}
 
 	public function initSourceFields()
 	{
 		static $cache = [];
 
-		$calendarEventId = (int)$this->entityId;
+		$calendarEventId = $this->entityId;
 
 		if ($calendarEventId <= 0)
 		{
@@ -75,7 +76,7 @@ final class CalendarEvent extends Provider
 				]
 			);
 
-			$calendarEvent = is_array($res[0]) && is_array($res[0]) ? $res[0] : [];
+			$calendarEvent = is_array($res) && is_array($res[0]) ? $res[0] : [];
 			$cache[$calendarEventId] = $calendarEvent;
 		}
 
@@ -106,11 +107,9 @@ final class CalendarEvent extends Provider
 			return $result;
 		}
 
-		$result = Loc::getMessage('SONET_LIVEFEED_CALENDAR_EVENT_PINNED_TITLE', [
+		return Loc::getMessage('SONET_LIVEFEED_CALENDAR_EVENT_PINNED_TITLE', [
 			'#TITLE#' => $calendarEvent['NAME']
 		]);
-
-		return $result;
 	}
 
 	public function getLiveFeedUrl(): string

@@ -1,4 +1,5 @@
-<?
+<?php
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /**
  * @global CMain $APPLICATION
@@ -8,6 +9,10 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
  *	AUTH_RESULT - Authorization result message
  *	NOT_SHOW_LINKS - Whether to show links to register page && password restoration (Y/N)
  */
+
+use \Bitrix\Main\Security;
+use \Bitrix\Main\Controller;
+use \Bitrix\Pull;
 
 $arParams["NOT_SHOW_LINKS"] = ($arParams["NOT_SHOW_LINKS"] == "Y" ? "Y" : "N");
 if(!is_array($arParams["~AUTH_RESULT"]) && $arParams["~AUTH_RESULT"] <> '')
@@ -83,12 +88,20 @@ $arResult["LAST_LOGIN"] = htmlspecialcharsbx($arResult["~LAST_LOGIN"]);
 $arResult["STORE_PASSWORD"] = COption::GetOptionString("main", "store_password", "Y") == "Y" ? "Y" : "N";
 $arResult["NEW_USER_REGISTRATION"] = (COption::GetOptionString("main", "new_user_registration", "N") == "Y" ? "Y" : "N");
 $arResult["ALLOW_SOCSERV_AUTHORIZATION"] = (COption::GetOptionString("main", "allow_socserv_authorization", "Y") != "N" ? "Y" : "N");
+$arResult["ALLOW_QRCODE_AUTH"] = (COption::GetOptionString("main", "allow_qrcode_auth", "N") == "Y" && \Bitrix\Main\Loader::includeModule('pull'));
+
+if ($arResult['ALLOW_QRCODE_AUTH'])
+{
+	$arResult['QRCODE_CHANNEL_TAG'] = Security\Random::getString(32, true);
+	$arResult['QRCODE_CHANNEL'] = Pull\Model\Channel::createWithTag($arResult['QRCODE_CHANNEL_TAG']);
+	$arResult['QRCODE_CONFIG'] = Pull\Config::get(['CHANNEL' => $arResult['QRCODE_CHANNEL'], 'JSON' => true]);
+	$arResult['QRCODE_UNIQUE_ID'] = Controller\QrCodeAuth::getUniqueId();
+}
 
 $arResult["AUTH_SERVICES"] = false;
 $arResult["CURRENT_SERVICE"] = false;
-$arResult["FOR_INTRANET"] = false;
-if(IsModuleInstalled("intranet")||IsModuleInstalled("rest"))
-	$arResult["FOR_INTRANET"] = true;
+$arResult["FOR_INTRANET"] = (IsModuleInstalled("intranet") || IsModuleInstalled("rest"));
+
 if(!$USER->IsAuthorized() && CModule::IncludeModule("socialservices") && ($arResult["ALLOW_SOCSERV_AUTHORIZATION"] == 'Y'))
 {
 	$oAuthManager = new CSocServAuthManager();

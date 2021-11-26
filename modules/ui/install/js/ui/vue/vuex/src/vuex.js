@@ -3,7 +3,7 @@
  * (c) 2021 Evan You
  * @license MIT
  *
- * @source: vuex.esm.browser.js
+ * @source: https://cdn.jsdelivr.net/npm/vuex@3.6.2/dist/vuex.esm.browser.js
  */
 
 /**

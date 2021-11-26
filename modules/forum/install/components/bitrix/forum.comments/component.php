@@ -36,9 +36,6 @@ $arParams["PREORDER"] = ($arParams["PREORDER"] == "Y" ? "Y" : "N");
 $arParams["SET_LAST_VISIT"] = $arParams["SET_LAST_VISIT"] == "Y" ? "Y" : "N";
 $arParams["SHOW_RATING"] = ($arParams["SHOW_RATING"] == "Y" ? "Y" : "N");
 $arParams["PAGE_NAVIGATION_TEMPLATE"] = $arParams["PAGE_NAVIGATION_TEMPLATE"] <> "" ? $arParams["PAGE_NAVIGATION_TEMPLATE"] : "modern";
-if ($arParams["AUTOSAVE"])
-	$arParams["AUTOSAVE"] = CForumAutosave::GetInstance();
-
 $arParams["ALLOW"] = array_flip(array(
 	"ALLOW_HTML",
 	"ALLOW_ANCHOR",
@@ -164,9 +161,6 @@ if ($arResult["SHOW_POST_FORM"] == "Y")
 	$arResult["~REVIEW_AUTHOR"] = $arResult["USER"]["SHOWED_NAME"];
 	$arResult["~REVIEW_USE_SMILES"] = ($arParams["ALLOW_SMILES"] == "Y" ? "Y" : "N");
 
-	if ($this->request->getPost("comment_review") == "Y" && $arParams["AUTOSAVE"])
-		$arParams["AUTOSAVE"]->Reset();
-
 	if (array_key_exists("MESSAGE_VIEW", $arResult))
 	{
 		$arParams["SHOW_MINIMIZED"] = "N";
@@ -279,7 +273,7 @@ if ($arResult["DO_NOT_CACHE"] || $this->StartResultCache($arParams["CACHE_TIME"]
 			[
 				"LOGIC" => "OR",
 				"PARAM1" => null,
-				"!PARAM1" => $arParams["ENTITY_TYPE"]
+				"!=PARAM1" => $arParams["ENTITY_TYPE"]
 			]
 		];
 		if ($hideServiceComments)
@@ -292,13 +286,13 @@ if ($arResult["DO_NOT_CACHE"] || $this->StartResultCache($arParams["CACHE_TIME"]
 			{
 				$filter[] = [
 					"LOGIC" => "OR",
-					"APPROVED" => "Y",
+					"=APPROVED" => "Y",
 					"AUTHOR_ID" => $USER->GetId()
 				];
 			}
 			else
 			{
-				$filter["APPROVED"] = "Y";
+				$filter["=APPROVED"] = "Y";
 			}
 		}
 
@@ -583,12 +577,17 @@ if ($arResult["DO_NOT_CACHE"] || $this->StartResultCache($arParams["CACHE_TIME"]
 						"SERVICE_TYPE" => (int)$message["SERVICE_TYPE"]
 					]))
 					{
-						$message["~POST_MESSAGE_TEXT"] = $serviceProvider->getText($res["~SERVICE_DATA"] ?? $res["~POST_MESSAGE"], [
-							'mobile' => !$this->isWeb(),
-							'suffix' => $auxSuffix
-						]);
+						$message["~POST_MESSAGE_TEXT"] = $serviceProvider->getText(
+							($res["~SERVICE_DATA"] ?? $res["~POST_MESSAGE"]),
+							[
+								'mobile' => !$this->isWeb(),
+								'suffix' => $auxSuffix,
+								'entityType' => $arParams['ENTITY_TYPE'],
+								'entityId' => $arParams['ENTITY_ID'],
+							]
+						);
 						$message["AUX"] = $serviceProvider->getType();
-						$message["AUX_LIVE_PARAMS"] = [];
+						$message['AUX_LIVE_PARAMS'] = (is_array($arParams['~AUX_LIVE_PARAMS']) ? $arParams['~AUX_LIVE_PARAMS'] : []);
 						$message["CAN_DELETE"] = ($serviceProvider->canDelete() ? "Y" : "N");
 					}
 				}

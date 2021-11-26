@@ -216,24 +216,45 @@
 			{
 				var popup, wrapper = BX.create('div', {html: html});
 				var form = wrapper.querySelector('[data-role="bizproc-start-form"]');
-				me.prepareParametersForm(form, templateId);
+				var startButton;
 
-				var buttons = form.querySelector('[data-role="bizproc-form-buttons"]');
-				if (buttons)
+				if (form)
 				{
-					BX.remove(buttons);
-				}
+					me.prepareParametersForm(form, templateId);
 
-				var startButton = new BX.PopupWindowButton({
-					text      :  BX.message('BIZPROC_JS_BP_STARTER_START'),
-					className : 'popup-window-button-accept',
-					events    : {
-						click : function(e)
-						{
-							BX.fireEvent(form, 'submit');
-						}
+					var buttons = form.querySelector('[data-role="bizproc-form-buttons"]');
+					if (buttons)
+					{
+						BX.remove(buttons);
 					}
-				});
+
+					startButton = new BX.PopupWindowButton({
+						text      :  BX.message('BIZPROC_JS_BP_STARTER_START'),
+						className : 'popup-window-button-accept',
+						events    : {
+							click : function(e)
+							{
+								BX.fireEvent(form, 'submit');
+							}
+						}
+					});
+
+					BX.bind(form, 'submit', function(e)
+					{
+						e.preventDefault();
+
+						startButton.addClassName('popup-window-button-wait');
+						me.submitParametersForm(form, function(response)
+						{
+							startButton.removeClassName('popup-window-button-wait');
+							if (response.success)
+							{
+								popup.close();
+								Manager.fireEvent(me, 'onAfterStartWorkflow', response.data);
+							}
+						});
+					});
+				}
 
 				popup = new BX.PopupWindow("bp-starter-parameters-popup-" + me.id, null, {
 					content: wrapper,
@@ -261,22 +282,6 @@
 							}
 						})
 					]
-				});
-
-				BX.bind(form, 'submit', function(e)
-				{
-					e.preventDefault();
-
-					startButton.addClassName('popup-window-button-wait');
-					me.submitParametersForm(form, function(response)
-					{
-						startButton.removeClassName('popup-window-button-wait');
-						if (response.success)
-						{
-							popup.close();
-							Manager.fireEvent(me, 'onAfterStartWorkflow', response.data);
-						}
-					});
 				});
 
 				popup.show();

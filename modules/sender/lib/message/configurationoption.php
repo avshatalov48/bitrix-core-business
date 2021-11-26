@@ -11,6 +11,7 @@ namespace Bitrix\Sender\Message;
 class ConfigurationOption
 {
 	const TYPE_DATE_TIME = 'datetime';
+	const TYPE_TIME = 'time';
 	const TYPE_NUMBER = 'number';
 	const TYPE_CUSTOM = 'custom';
 	const TYPE_PRESET_STRING = 'preset-string';

@@ -1,5 +1,4 @@
 import { BitrixVue } from 'ui.vue';
-import { Runtime, Event } from 'main.core';
 import { EventEmitter } from "main.core.events";
 import { Application as ApplicationConst, Loader as LoaderConst, PaySystem as PaySystemConst,
 		 EventType } from 'sale.checkout.const';
@@ -61,6 +60,10 @@ BitrixVue.component('sale-checkout-form', {
 		getBasket()
 		{
 			return this.$store.getters['basket/getBasket'];
+		},
+		getBasketErrors()
+		{
+			return this.$store.getters['basket/getErrors'];
 		},
 		getOrder()
 		{
@@ -154,7 +157,7 @@ BitrixVue.component('sale-checkout-form', {
       <div class="checkout-container-wrapper">
 		  <div class="checkout-basket-container">
 			<template v-if="getStage === stage.edit">
-			  <sale-checkout-view-product :items="getBasket" :total="getTotal" :mode="mode.edit" :config="getBasketConfig"/>
+			  <sale-checkout-view-product :items="getBasket" :total="getTotal" :mode="mode.edit" :errors="getBasketErrors" :config="getBasketConfig"/>
 			  <sale-checkout-view-property :items="getProperty" :mode="mode.edit" :errors="getPropertyErrors"/>
 			  <sale-checkout-view-user_consent :item="getConsent" v-if="needCheckConsent"/>
 			  <template v-if="checkoutButtonEnabled">
@@ -177,7 +180,7 @@ BitrixVue.component('sale-checkout-form', {
               <sale-checkout-view-successful_ps_return :items="getProperty" :order="getOrder" :total="getTotal" :config="getSuccessfulConfig"/>
 			</template>
 			<template v-else-if="getStage === stage.view">
-			  <sale-checkout-view-product :items="getBasket" :total="getTotal" :mode="mode.view" :config="getBasketConfig"/>
+			  <sale-checkout-view-product :items="getBasket" :total="getTotal" :mode="mode.view" :errors="getBasketErrors" :config="getBasketConfig"/>
 			  <sale-checkout-view-property :items="getProperty" :mode="mode.view" :order="getOrder"/>
 			  <sale-checkout-view-product-summary :total="getTotal" :mode="mode.view"/>
 			  <sale-checkout-view-payment :order="getOrder" :config="getPaymentConfig"/>

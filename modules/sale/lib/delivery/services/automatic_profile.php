@@ -401,6 +401,14 @@ class AutomaticProfile extends Base
 		return self::$isProfile;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	protected function getProfileType(): string
+	{
+		return (string)$this->profileId;
+	}
+
 	public function getAdditionalInfoShipmentEdit(Shipment $shipment)
 	{
 		return $this->parentAutomatic->getAdditionalInfoShipmentEdit($shipment);

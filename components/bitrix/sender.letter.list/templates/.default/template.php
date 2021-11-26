@@ -155,7 +155,12 @@ foreach ($arResult['ROWS'] as $index => $data)
 		<div class="sender-letter-list-desc-normal-black">
 			<span class="sender-letter-list-desc-normal-text"><?=htmlspecialcharsbx($data['STATE_NAME'])?></span>
 			<?if ($data['STATE']['isSendingLimitExceeded']):?>
-				<span class="sender-letter-list-icon-speedo" title="<?=Loc::getMessage('SENDER_LETTER_LIST_SPEED_TITLE')?>"></span>
+				<span class="sender-letter-list-icon-speedo" title="<?=$data['STATE']['isSendingLimitWaiting']
+					? Loc::getMessage('SENDER_LETTER_LIST_SPEED_WAITING_SEND_TITLE', [
+						'%day%' => $data['LIMITATION']['DAY'],
+						'%time%' => $data['LIMITATION']['TIME'],
+					])
+					: Loc::getMessage('SENDER_LETTER_LIST_SPEED_TITLE')?>"></span>
 			<?endif;?>
 		</div>
 		<div class="sender-letter-list-desc-normal-grey">
@@ -255,7 +260,16 @@ foreach ($arResult['ROWS'] as $index => $data)
 		<br/>
 		<?
 	}
-	if ($data['HAS_STATISTICS'])
+	if ($data['TRACK_MAIL'] !== 'Y')
+	{
+		?>
+		<div class="sender-letter-list-desc-small-grey">
+			<?=Loc::getMessage('SENDER_LETTER_LIST_TRACKING_OFF')?>
+		</div>
+		<br/>
+		<?
+	}
+	elseif ($data['HAS_STATISTICS'])
 	{
 
 		?>

@@ -1,28 +1,22 @@
 <?php
 namespace Bitrix\Forum;
 
-use Bitrix\Forum\Internals\Fabric;
+use Bitrix\Forum;
 use Bitrix\Main;
 use Bitrix\Main\ArgumentException;
-use Bitrix\Main\Entity;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\NotImplementedException;
-use Bitrix\Main\ORM\Data\AddResult;
 use Bitrix\Main\ORM\Data\Result;
 use Bitrix\Main\ORM\EntityError;
 use Bitrix\Main\ORM\Event;
 use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\DatetimeField;
-use Bitrix\Main\ORM\Fields\EnumField;
-use Bitrix\Main\ORM\Fields\FieldError;
 use Bitrix\Main\ORM\Fields\IntegerField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Fields\StringField;
 use Bitrix\Main\ORM\Fields\TextField;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\Type\DateTime;
-use Bitrix\Tasks\Integration;
 
 /**
  * Class MessageTable
@@ -61,7 +55,20 @@ use Bitrix\Tasks\Integration;
  * </ul>
  *
  * @package Bitrix\Forum
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Message_Query query()
+ * @method static EO_Message_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Message_Result getById($id)
+ * @method static EO_Message_Result getList(array $parameters = array())
+ * @method static EO_Message_Entity getEntity()
+ * @method static \Bitrix\Forum\EO_Message createObject($setDefaultValues = true)
+ * @method static \Bitrix\Forum\EO_Message_Collection createCollection()
+ * @method static \Bitrix\Forum\EO_Message wakeUpObject($row)
+ * @method static \Bitrix\Forum\EO_Message_Collection wakeUpCollection($rows)
+ */
 class MessageTable extends Main\Entity\DataManager
 {
 	const SOURCE_ID_EMAIL = "EMAIL";
@@ -83,7 +90,6 @@ class MessageTable extends Main\Entity\DataManager
 
 	private static $post_message_hash = [];
 	private static $messageById = [];
-	private static $customStorage = [];
 
 	/**
 	 * Returns entity map definition.
@@ -132,7 +138,7 @@ class MessageTable extends Main\Entity\DataManager
 			(new Reference("TOPIC", TopicTable::class, Join::on("this.TOPIC_ID", "ref.ID"))),
 			(new Reference("FORUM_USER", UserTable::class, Join::on("this.AUTHOR_ID", "ref.USER_ID"))),
 			(new Reference("FORUM_USER_TOPIC", UserTopicTable::class, Join::on("this.TOPIC_ID", "ref.TOPIC_ID"))),
-			(new Reference("USER", \Bitrix\Main\UserTable::class, Join::on("this.AUTHOR_ID", "ref.ID")))
+			(new Reference("USER", Main\UserTable::class, Join::on("this.AUTHOR_ID", "ref.ID")))
 		);
 	}
 
@@ -170,7 +176,7 @@ class MessageTable extends Main\Entity\DataManager
 
 	public static function onBeforeAdd(Event $event)
 	{
-		$result = new \Bitrix\Main\ORM\EventResult();
+		$result = new Main\ORM\EventResult();
 		/** @var array $data */
 		$data = $event->getParameter("fields");
 		$strUploadDir = array_key_exists("UPLOAD_DIR", $data) ? $data["UPLOAD_DIR"] : "forum";
@@ -191,7 +197,7 @@ class MessageTable extends Main\Entity\DataManager
 			if (!empty($data["FILES"]))
 			{
 				$res = File::checkFiles(
-					Forum::getById($data["FORUM_ID"]),
+					Forum\Forum::getById($data["FORUM_ID"]),
 					$data["FILES"],
 					[
 						"FORUM_ID" => $data["FORUM_ID"],
@@ -206,9 +212,9 @@ class MessageTable extends Main\Entity\DataManager
 				}
 				else
 				{
-					/*@var \Bitrix\Main\ORM\Objectify\EntityObject $object*/
+					/*@var Main\ORM\Objectify\EntityObject $object*/
 					$object = $event->getParameter("object");
-					/*@var \Bitrix\Main\Dictionary $object->customData*/
+					/*@var Main\Dictionary $object->customData*/
 					$object->sysSetRuntime("FILES", $data["FILES"]);
 					$object->sysSetRuntime("UPLOAD_DIR", $strUploadDir);
 				}
@@ -220,7 +226,7 @@ class MessageTable extends Main\Entity\DataManager
 		$data["POST_MESSAGE_CHECK"] = md5($data["POST_MESSAGE"] . (array_key_exists("FILES", $data) ? serialize($data["FILES"]) : ""));
 
 		//region Deduplication
-		$forum = \Bitrix\Forum\Forum::getById($data["FORUM_ID"]);
+		$forum = Forum\Forum::getById($data["FORUM_ID"]);
 		$deduplication = null;
 		if (array_key_exists("AUX", $data))
 		{
@@ -250,10 +256,10 @@ class MessageTable extends Main\Entity\DataManager
 		self::$post_message_hash[$data["TOPIC_ID"]] = $data["POST_MESSAGE_CHECK"];
 		//endregion
 
-		$data["POST_MESSAGE"] = \Bitrix\Main\Text\Emoji::encode($data["POST_MESSAGE"]);
+		$data["POST_MESSAGE"] = Main\Text\Emoji::encode($data["POST_MESSAGE"]);
 
 		//region Filter
-		if (\Bitrix\Main\Config\Option::get("forum", "FILTER", "Y") == "Y")
+		if (Main\Config\Option::get("forum", "FILTER", "Y") == "Y")
 		{
 			$data["POST_MESSAGE_FILTER"] = \CFilterUnquotableWords::Filter($data["POST_MESSAGE"]);
 			$filteredFields = self::getFilteredFields();
@@ -294,13 +300,13 @@ class MessageTable extends Main\Entity\DataManager
 	}
 
 	/**
-	 * @param \Bitrix\Main\ORM\Event $event
-	 * @return \Bitrix\Main\ORM\EventResult
+	 * @param Main\ORM\Event $event
+	 * @return Main\ORM\EventResult
 	 */
-	public static function onAdd(\Bitrix\Main\ORM\Event $event)
+	public static function onAdd(Main\ORM\Event $event)
 	{
-		$result = new \Bitrix\Main\ORM\EventResult();
-		if (\Bitrix\Main\Config\Option::get("forum", "MESSAGE_HTML", "N") == "Y")
+		$result = new Main\ORM\EventResult();
+		if (Main\Config\Option::get("forum", "MESSAGE_HTML", "N") == "Y")
 		{
 			$fields = $event->getParameter("fields");
 			$object = $event->getParameter("object");
@@ -331,10 +337,10 @@ class MessageTable extends Main\Entity\DataManager
 
 
 	/**
-	 * @param \Bitrix\Main\ORM\Event $event
+	 * @param Main\ORM\Event $event
 	 * @return void
 	 */
-	public static function onAfterAdd(\Bitrix\Main\ORM\Event $event)
+	public static function onAfterAdd(Main\ORM\Event $event)
 	{
 		$object = $event->getParameter("object");
 
@@ -371,20 +377,20 @@ class MessageTable extends Main\Entity\DataManager
 	}
 
 	/**
-	 * @param \Bitrix\Main\ORM\Event $event
-	 * @return \Bitrix\Main\ORM\EventResult|void
-	 * @throws \Bitrix\Main\ObjectException
+	 * @param Main\ORM\Event $event
+	 * @return Main\ORM\EventResult|void
+	 * @throws Main\ObjectException
 	 */
-	public static function onBeforeUpdate(\Bitrix\Main\ORM\Event $event)
+	public static function onBeforeUpdate(Main\ORM\Event $event)
 	{
-		$result = new \Bitrix\Main\ORM\EventResult();
+		$result = new Main\ORM\EventResult();
 		/** @var array $data */
 		$data = $event->getParameter("fields");
 		$id = $event->getParameter("id");
 		$id = $id["ID"];
 		$strUploadDir = array_key_exists("UPLOAD_DIR", $data) ? $data["UPLOAD_DIR"] : "forum";
 		self::modifyMessageFields($data);
-		if (\Bitrix\Main\Config\Option::get("forum", "FILTER", "Y") == "Y" &&
+		if (Main\Config\Option::get("forum", "FILTER", "Y") == "Y" &&
 			!empty(array_intersect(self::getFilteredFields(), array_keys($data))))
 		{
 			$forFilter = $data;
@@ -412,8 +418,8 @@ class MessageTable extends Main\Entity\DataManager
 		}
 		if (array_key_exists("POST_MESSAGE", $data))
 		{
-			$data["POST_MESSAGE"] = \Bitrix\Main\Text\Emoji::encode($data["POST_MESSAGE"]);
-			if (\Bitrix\Main\Config\Option::get("forum", "FILTER", "Y") == "Y")
+			$data["POST_MESSAGE"] = Main\Text\Emoji::encode($data["POST_MESSAGE"]);
+			if (Main\Config\Option::get("forum", "FILTER", "Y") == "Y")
 			{
 				$data["POST_MESSAGE_FILTER"] = \CFilterUnquotableWords::Filter($data["POST_MESSAGE"]);
 			}
@@ -437,8 +443,8 @@ class MessageTable extends Main\Entity\DataManager
 			if (!empty($data["FILES"]))
 			{
 				$fileFields = $data + MessageTable::getDataById($id);
-				$res = File::checkFiles(
-					Forum::getById($fileFields["FORUM_ID"]),
+				$res = Forum\File::checkFiles(
+					Forum\Forum::getById($fileFields["FORUM_ID"]),
 					$data["FILES"],
 					[
 						"FORUM_ID" => $fileFields["FORUM_ID"],
@@ -453,9 +459,9 @@ class MessageTable extends Main\Entity\DataManager
 				}
 				else
 				{
-					/*@var \Bitrix\Main\ORM\Objectify\EntityObject $object*/
+					/*@var Main\ORM\Objectify\EntityObject $object*/
 					$object = $event->getParameter("object");
-					/*@var \Bitrix\Main\Dictionary $object->customData*/
+					/*@var Main\Dictionary $object->customData*/
 					$object->sysSetRuntime("FILES", $data["FILES"]);
 					$object->sysSetRuntime("UPLOAD_DIR", $strUploadDir);
 					$object->sysSetRuntime("FILE_FIELDS", $fileFields);
@@ -483,10 +489,10 @@ class MessageTable extends Main\Entity\DataManager
 		return $result;
 	}
 	/**
-	 * @param \Bitrix\Main\ORM\Event $event
-	 * @return \Bitrix\Main\ORM\EventResult|void
+	 * @param Main\ORM\Event $event
+	 * @return Main\ORM\EventResult|void
 	 */
-	public static function onUpdate(\Bitrix\Main\ORM\Event $event)
+	public static function onUpdate(Main\ORM\Event $event)
 	{
 		$id = $event->getParameter("id");
 		$id = $id["ID"];
@@ -507,9 +513,9 @@ class MessageTable extends Main\Entity\DataManager
 				],
 				($object->sysGetRuntime("UPLOAD_DIR") ?: "forum/upload"));
 		}
-		if (\Bitrix\Main\Config\Option::get("forum", "MESSAGE_HTML", "N") == "Y")
+		if (Main\Config\Option::get("forum", "MESSAGE_HTML", "N") == "Y")
 		{
-			$result = new \Bitrix\Main\ORM\EventResult();
+			$result = new Main\ORM\EventResult();
 			$parser = new \forumTextParser(LANGUAGE_ID);
 			$allow = \forumTextParser::GetFeatures(\Bitrix\Forum\Forum::getById($fields["FORUM_ID"]));
 			$allow["SMILES"] = ($fields["USE_SMILES"] != "Y" ? "N" : $allow["SMILES"]);
@@ -521,10 +527,10 @@ class MessageTable extends Main\Entity\DataManager
 	}
 
 	/**
-	-	 * @param \Bitrix\Main\ORM\Event $event
+	-	 * @param Main\ORM\Event $event
 	-	 * @return void
 	-	 */
-	public static function onAfterUpdate(\Bitrix\Main\ORM\Event $event)
+	public static function onAfterUpdate(Main\ORM\Event $event)
 	{
 		$id = $event->getParameter("id");
 		$id = $id["ID"];
@@ -535,7 +541,7 @@ class MessageTable extends Main\Entity\DataManager
 	 * @param mixed $primary
 	 * @param array $data
 	 * @throws ArgumentException
-	 * @throws \Bitrix\Main\SystemException
+	 * @throws Main\SystemException
 	 */
 	public static function checkFields(Result $result, $primary, array $data)
 	{
@@ -546,17 +552,17 @@ class MessageTable extends Main\Entity\DataManager
 			{
 				if (array_key_exists("FORUM_ID", $data) && ForumTable::getMainData($data["FORUM_ID"]) === null)
 				{
-					throw new \Bitrix\Main\ObjectNotFoundException(Loc::getMessage("F_ERR_INVALID_FORUM_ID"));
+					throw new Main\ObjectNotFoundException(Loc::getMessage("F_ERR_INVALID_FORUM_ID"));
 				}
 				if (array_key_exists("TOPIC_ID", $data))
 				{
 					if (!($topic = TopicTable::getById($data["TOPIC_ID"])->fetch()))
 					{
-						throw new \Bitrix\Main\ObjectNotFoundException(Loc::getMessage("F_ERR_TOPIC_IS_NOT_EXISTS"));
+						throw new Main\ObjectNotFoundException(Loc::getMessage("F_ERR_TOPIC_IS_NOT_EXISTS"));
 					}
 					if ($topic["STATE"] == Topic::STATE_LINK)
 					{
-						throw new \Bitrix\Main\ObjectPropertyException(Loc::getMessage("F_ERR_TOPIC_IS_LINK"));
+						throw new Main\ObjectPropertyException(Loc::getMessage("F_ERR_TOPIC_IS_LINK"));
 					}
 				}
 			}
@@ -572,7 +578,7 @@ class MessageTable extends Main\Entity\DataManager
 
 class Message extends Internals\Entity
 {
-	use \Bitrix\Forum\Internals\EntityFabric;
+	use Forum\Internals\EntityFabric;
 
 	public const APPROVED_APPROVED = "Y";
 	public const APPROVED_DISAPPROVED = "N";
@@ -581,7 +587,7 @@ class Message extends Internals\Entity
 	{
 		if (!($this->data = MessageTable::getById($this->id)->fetch()))
 		{
-			throw new \Bitrix\Main\ObjectNotFoundException("Message with id {$this->id} is not found.");
+			throw new Main\ObjectNotFoundException("Message with id {$this->id} is not found.");
 		}
 		$this->authorId = intval($this->data["AUTHOR_ID"]);
 	}
@@ -594,7 +600,55 @@ class Message extends Internals\Entity
 		{
 			$this->data = MessageTable::getById($result->getId())->fetch();
 
-			\Bitrix\Forum\Integration\Search\Message::index(Forum::getById($this->getForumId()), Topic::getById($this->data["TOPIC_ID"]), $this->data);
+			Forum\Integration\Search\Message::index(
+				Forum\Forum::getById($this->getForumId()),
+				Forum\Topic::getById($this->data["TOPIC_ID"]),
+				$this->data
+			);
+		}
+
+		return $result;
+	}
+
+	public function remove(): Main\ORM\Data\DeleteResult
+	{
+		$result = self::delete($this->getId());
+
+		if ($result->isSuccess())
+		{
+			if ($topic = Forum\Topic::getById($this->data['TOPIC_ID']))
+			{
+				$decrementStatisticResult = $topic->decrementStatistic($this->data);
+				if ($this->data['NEW_TOPIC'] === 'Y' && $decrementStatisticResult->getData())
+				{
+					if (!($newFirstMessage = $decrementStatisticResult->getData()) || empty($newFirstMessage))
+					{
+						$newFirstMessage = MessageTable::getList([
+							'select' => ['*'],
+							'filter' => ['TOPIC_ID' => $this->getId()],
+							'order' => ['ID' => 'ASC'],
+							'limit' => 1
+						])->fetch();
+					}
+					Forum\Integration\Search\Message::index(
+						Forum\Forum::getById($topic->getForumId()),
+						$topic,
+						$newFirstMessage
+					);
+				}
+			}
+
+			if ($forum = Forum\Forum::getById($this->getForumId()))
+			{
+				$forum->decrementStatistic($this->data);
+			}
+
+			Forum\Integration\Search\Message::deleteIndex($this->data);
+
+			if ($this->data['AUTHOR_ID'] > 0 && ($author = User::getById($this->data['AUTHOR_ID'])))
+			{
+				$author->decrementStatistic($this->data);
+			}
 		}
 
 		return $result;
@@ -606,7 +660,7 @@ class Message extends Internals\Entity
 	 */
 	public static function create($parentObject, array $fields)
 	{
-		$topic = \Bitrix\Forum\Topic::getInstance($parentObject);
+		$topic = Forum\Topic::getInstance($parentObject);
 		$result = self::add($topic, $fields);
 		if (!$result->isSuccess() )
 		{
@@ -614,20 +668,20 @@ class Message extends Internals\Entity
 		}
 
 		$message = MessageTable::getDataById($result->getId());
-		$forum = Forum::getById($topic->getForumId());
+		$forum = Forum\Forum::getById($topic->getForumId());
 		//region Update statistic & Seacrh
 		User::getById($message["AUTHOR_ID"])->incrementStatistic($message);
 		$topic->incrementStatistic($message);
 		$forum->incrementStatistic($message);
-		\Bitrix\Forum\Integration\Search\Message::index($forum, $topic, $message);
+		Forum\Integration\Search\Message::index($forum, $topic, $message);
 		//endregion
 
 		return $result;
 	}
 
-	public static function update($id, array $fields)
+	public static function update($id, array &$fields)
 	{
-		$result = new \Bitrix\Main\ORM\Data\UpdateResult();
+		$result = new Main\ORM\Data\UpdateResult();
 		$result->setPrimary(["ID" => $id]);
 		$data = [];
 
@@ -671,7 +725,7 @@ class Message extends Internals\Entity
 						$errorMessage = $ex->getString();
 					}
 
-					$result->addError(new \Bitrix\Main\Error($errorMessage, "onBeforeMessageUpdate"));
+					$result->addError(new Main\Error($errorMessage, "onBeforeMessageUpdate"));
 					return $result;
 				}
 			}
@@ -698,7 +752,7 @@ class Message extends Internals\Entity
 	 * @param Topic $topic
 	 * @param array $fields
 	 */
-	public static function add(\Bitrix\Forum\Topic $topic, array $fields)
+	public static function add(Forum\Topic $topic, array $fields): Main\ORM\Data\AddResult
 	{
 		$data = [
 			"FORUM_ID" => $topic->getForumId(),
@@ -708,7 +762,7 @@ class Message extends Internals\Entity
 			"NEW_TOPIC" => ($fields["NEW_TOPIC"] === "Y" ? "Y" : "N"),
 			"APPROVED" => $topic["APPROVED"] === Topic::APPROVED_DISAPPROVED || $fields["APPROVED"] === Message::APPROVED_DISAPPROVED ? Message::APPROVED_DISAPPROVED : Message::APPROVED_APPROVED,
 
-			"POST_DATE" => $fields["POST_DATE"] ?: new \Bitrix\Main\Type\DateTime(),
+			"POST_DATE" => $fields["POST_DATE"] ?: new Main\Type\DateTime(),
 			"POST_MESSAGE" => $fields["POST_MESSAGE"],
 			"ATTACH_IMG" => $fields["ATTACH_IMG"],
 			"FILES" => $fields["FILES"],
@@ -730,11 +784,11 @@ class Message extends Internals\Entity
 			$data['SERVICE_DATA'] = $fields['SERVICE_DATA'];
 		}
 
-		if ($realIp = \Bitrix\Main\Service\GeoIp\Manager::getRealIp())
+		if ($realIp = Main\Service\GeoIp\Manager::getRealIp())
 		{
 			$data["AUTHOR_IP"] = $realIp;
 			$data["AUTHOR_REAL_IP"] = $realIp;
-			if (\Bitrix\Main\Config\Option::get("forum", "FORUM_GETHOSTBYADDR", "N") == "Y")
+			if (Main\Config\Option::get("forum", "FORUM_GETHOSTBYADDR", "N") == "Y")
 			{
 				$data["AUTHOR_REAL_IP"] = @gethostbyaddr($realIp);
 			}
@@ -755,7 +809,7 @@ class Message extends Internals\Entity
 			}
 		}
 
-		$result = new \Bitrix\Main\ORM\Data\AddResult();
+		$result = new Main\ORM\Data\AddResult();
 
 		if (($events = GetModuleEvents("forum", "onBeforeMessageAdd", true)) && !empty($events))
 		{
@@ -773,7 +827,7 @@ class Message extends Internals\Entity
 						$errorMessage = $ex->getString();
 					}
 
-					$result->addError(new \Bitrix\Main\Error($errorMessage, "onBeforeMessageAdd"));
+					$result->addError(new Main\Error($errorMessage, "onBeforeMessageAdd"));
 					return $result;
 				}
 			}
@@ -785,7 +839,7 @@ class Message extends Internals\Entity
 			unset($data[$field]);
 		}
 
-		$authContext = new \Bitrix\Main\Authentication\Context();
+		$authContext = new Main\Authentication\Context();
 		$authContext->setUserId($fields['AUTHOR_ID']);
 
 		$dbResult = MessageTable::add([
@@ -803,11 +857,78 @@ class Message extends Internals\Entity
 			$result->setId($dbResult->getId());
 
 			$message = MessageTable::getDataById($id);
-			$forum = Forum::getById($topic->getForumId());
+			$forum = Forum\Forum::getById($topic->getForumId());
 			foreach (GetModuleEvents("forum", "onAfterMessageAdd", true) as $event)
 			{
 				ExecuteModuleEventEx($event, [$id, $message, $topic, $forum, $data]);
 			}
+		}
+		return $result;
+	}
+
+	public static function delete(int $id): Main\ORM\Data\DeleteResult
+	{
+		$result = new Main\ORM\Data\DeleteResult();
+
+		if (!($message = MessageTable::getDataById($id)))
+		{
+			$result->addError(new Main\Error( Loc::getMessage("FORUM_MESSAGE_HAS_NOT_BEEN_FOUND")));
+			return $result;
+		}
+
+		global $APPLICATION, $USER_FIELD_MANAGER;
+		if (($events = GetModuleEvents("forum", "onBeforeMessageDelete", true))
+			&& !empty($events))
+		{
+			foreach ($events as $ev)
+			{
+				$APPLICATION->ResetException();
+				if (ExecuteModuleEventEx($ev, [$id, $message]) === false)
+				{
+					$errorMessage = Loc::getMessage("FORUM_EVENT_BEFOREDELETE_ERROR");
+					if (($ex = $APPLICATION->GetException()) && ($ex instanceof \CApplicationException))
+					{
+						$errorMessage = $ex->getString();
+					}
+
+					$result->addError(new Main\Error($errorMessage, "onBeforeMessageDelete"));
+					break;
+				}
+			}
+		}
+
+		if ($result->isSuccess())
+		{
+			if ($message['PARAM1'] == 'VT' && $message['PARAM2'] > 0
+				&& IsModuleInstalled('vote') && Main\Loader::includeModule('vote'))
+			{
+				\CVote::Delete($message['PARAM2']);
+			}
+			$USER_FIELD_MANAGER->Delete("FORUM_MESSAGE", $id);
+			FileTable::deleteBatch(['MESSAGE_ID' => $id]);
+			MessageTable::delete($id);
+
+			if (!($nextMessage = MessageTable::getList([
+				'select' => ['ID'],
+				'filter' => [
+					'TOPIC_ID' => $message['TOPIC_ID'],
+				],
+				'order' => ['ID' => 'ASC'],
+				'limit' => 1
+			])->fetch()))
+			{
+				Topic::delete($message['TOPIC_ID']);
+			}
+			else if ($message['NEW_TOPIC'] === 'Y')
+			{
+				MessageTable::update($nextMessage['ID'], ['NEW_TOPIC' => 'Y']);
+			}
+			/***************** Event onBeforeMessageAdd ************************/
+			foreach (GetModuleEvents("forum", "onAfterMessageDelete", true) as $event)
+			{
+				ExecuteModuleEventEx($event, [$id, $message]);
+			}
+			/***************** /Event ******************************************/
 		}
 		return $result;
 	}

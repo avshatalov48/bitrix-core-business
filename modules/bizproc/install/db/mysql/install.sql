@@ -259,3 +259,25 @@ CREATE TABLE b_bp_script_queue_document (
 	index ix_bp_sqd_wf(WORKFLOW_ID),
 	index ix_bp_sqd_queue_wf(QUEUE_ID, WORKFLOW_ID)
 );
+
+CREATE TABLE b_bp_storage_activity (
+	ID int UNSIGNED NOT NULL auto_increment,
+	WORKFLOW_TEMPLATE_ID INT UNSIGNED NOT NULL,
+	ACTIVITY_NAME varchar(128) NOT NULL,
+	KEY_ID varchar(128) NOT NULL,
+	KEY_VALUE text NULL,
+	primary key (ID),
+	index ix_bp_st_act_1(WORKFLOW_TEMPLATE_ID, ACTIVITY_NAME)
+);
+
+CREATE TABLE b_bp_global_var (
+	ID varchar(50) NOT NULL,
+	NAME text NOT NULL,
+	DESCRIPTION text NULL,
+	PROPERTY_TYPE varchar(30) NOT NULL,
+	IS_REQUIRED char(1) NOT NULL default 'N',
+	IS_MULTIPLE char(1) NOT NULL default 'N',
+	PROPERTY_OPTIONS text NULL,
+	PROPERTY_VALUE text NULL,
+	primary key (ID)
+);

@@ -190,12 +190,12 @@ class UIFormComponent extends \CBitrixComponent
 		$config = null;
 		if (!$isForceDefaultConfig)
 		{
-			if(
-				$configScope === UI\Form\EntityEditorConfigScope::CUSTOM
-				&& array_key_exists($userScopeId, $userScopes)
-			)
+			if($configScope === UI\Form\EntityEditorConfigScope::CUSTOM)
 			{
-				$config = Scope::getInstance()->getScopeById($userScopeId);
+				if (array_key_exists($userScopeId, $userScopes))
+				{
+					$config = Scope::getInstance()->getScopeById($userScopeId);
+				}
 				if(!$config)
 				{
 					$configScope = UI\Form\EntityEditorConfigScope::UNDEFINED;
@@ -387,7 +387,7 @@ class UIFormComponent extends \CBitrixComponent
 	{
 		return (is_null($parent) || $parent === self::COLUMN_DEFAULT ? '' : $parent . '.') . $configItem['name'];
 	}
-	
+
 	protected function getFieldsInfo(array $entityFields, array $entityData): array
 	{
 		$availableFields = [];

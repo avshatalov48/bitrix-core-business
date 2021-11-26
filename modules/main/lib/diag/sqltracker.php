@@ -8,11 +8,27 @@ class SqlTracker implements \Iterator
 	/** @var float */
 	protected $time = 0.0;
 	/** @var int */
-	protected $depthBackTrace = 8;
+	protected static $depthBackTrace = 0;
 	/** @var integer */
 	protected $counter = 0;
 	/** @var string */
 	protected $logFilePath = "";
+
+	public function __construct()
+	{
+		if (self::$depthBackTrace == 0)
+		{
+			$eh = \Bitrix\Main\Config\Configuration::getValue('exception_handling');
+			if (!empty($eh['depth_back_trace']))
+			{
+				self::$depthBackTrace = (int) $eh['depth_back_trace'];
+			}
+			else
+			{
+				self::$depthBackTrace = 8;
+			}
+		}
+	}
 
 	/**
 	 * Clears all queries collected and resets execution time.
@@ -88,7 +104,7 @@ class SqlTracker implements \Iterator
 	 */
 	public function getDepthBackTrace()
 	{
-		return $this->depthBackTrace;
+		return self::$depthBackTrace;
 	}
 
 	/**
@@ -100,7 +116,7 @@ class SqlTracker implements \Iterator
 	 */
 	public function setDepthBackTrace($depthBackTrace)
 	{
-		$this->depthBackTrace = (int)$depthBackTrace;
+		self::$depthBackTrace = (int) $depthBackTrace;
 	}
 
 	/**
@@ -137,7 +153,7 @@ class SqlTracker implements \Iterator
 			$header = "TIME: ".round($executionTime, 6)." SESSION: ".$sessionId." ".$additional."\n";
 			$headerLength = mb_strlen($header);
 			$body = $this->formatSql($sql);
-			$trace = $this->formatTrace(\Bitrix\Main\Diag\Helper::getBackTrace($this->depthBackTrace, null, $traceSkip));
+			$trace = $this->formatTrace(\Bitrix\Main\Diag\Helper::getBackTrace(self::$depthBackTrace, null, $traceSkip));
 			$footer = str_repeat("-", $headerLength);
 			$message =
 				"\n".$header.

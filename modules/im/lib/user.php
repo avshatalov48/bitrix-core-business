@@ -870,7 +870,7 @@ class User
 
 		$filter['=ACTIVE'] = 'Y';
 		$filter['=CONFIRM_CODE'] = false;
-		$filter['!=EXTERNAL_AUTH_ID'] = Common::getExternalAuthId([\Bitrix\Im\Bot::EXTERNAL_AUTH_ID]);
+		$filter['!=EXTERNAL_AUTH_ID'] = \Bitrix\Im\Model\UserTable::filterExternalUserTypes([\Bitrix\Im\Bot::EXTERNAL_AUTH_ID]);
 
 		$filterByUsers = [];
 

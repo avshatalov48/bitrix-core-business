@@ -1,19 +1,22 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2015 Bitrix
+ * @copyright 2001-2021 Bitrix
  */
+
 namespace Bitrix\Main\Config;
 
 use Bitrix\Main;
 
 class Option
 {
-	const CACHE_DIR = "b_option";
+	protected const CACHE_DIR = "b_option";
 
-	protected static $options = array();
+	protected static $options = [];
+	protected static $loading = [];
 
 	/**
 	 * Returns a value of an option.
@@ -23,31 +26,14 @@ class Option
 	 * @param string $default The default value to return, if a value doesn't exist.
 	 * @param bool|string $siteId The site ID, if the option differs for sites.
 	 * @return string
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	public static function get($moduleId, $name, $default = "", $siteId = false)
 	{
-		if ($moduleId == '')
-			throw new Main\ArgumentNullException("moduleId");
-		if ($name == '')
-			throw new Main\ArgumentNullException("name");
+		$value = static::getRealValue($moduleId, $name, $siteId);
 
-		if (!isset(self::$options[$moduleId]))
+		if ($value !== null)
 		{
-			static::load($moduleId);
-		}
-
-		if ($siteId === false)
-		{
-			$siteId = static::getDefaultSite();
-		}
-
-		$siteKey = ($siteId == ""? "-" : $siteId);
-
-		if (isset(self::$options[$moduleId][$siteKey][$name]))
-		{
-			return self::$options[$moduleId][$siteKey][$name];
+			return $value;
 		}
 
 		if (isset(self::$options[$moduleId]["-"][$name]))
@@ -79,9 +65,18 @@ class Option
 	public static function getRealValue($moduleId, $name, $siteId = false)
 	{
 		if ($moduleId == '')
+		{
 			throw new Main\ArgumentNullException("moduleId");
+		}
 		if ($name == '')
+		{
 			throw new Main\ArgumentNullException("name");
+		}
+
+		if (isset(self::$loading[$moduleId]))
+		{
+			trigger_error("Options are already in the process of loading for the module {$moduleId}. Default value will be used for the option {$name}.", E_USER_WARNING);
+		}
 
 		if (!isset(self::$options[$moduleId]))
 		{
@@ -112,25 +107,38 @@ class Option
 	 */
 	public static function getDefaults($moduleId)
 	{
-		static $defaultsCache = array();
+		static $defaultsCache = [];
+
 		if (isset($defaultsCache[$moduleId]))
+		{
 			return $defaultsCache[$moduleId];
+		}
 
 		if (preg_match("#[^a-zA-Z0-9._]#", $moduleId))
+		{
 			throw new Main\ArgumentOutOfRangeException("moduleId");
+		}
 
 		$path = Main\Loader::getLocal("modules/".$moduleId."/default_option.php");
 		if ($path === false)
-			return $defaultsCache[$moduleId] = array();
+		{
+			$defaultsCache[$moduleId] = [];
+			return $defaultsCache[$moduleId];
+		}
 
 		include($path);
 
 		$varName = str_replace(".", "_", $moduleId)."_default_option";
 		if (isset(${$varName}) && is_array(${$varName}))
-			return $defaultsCache[$moduleId] = ${$varName};
+		{
+			$defaultsCache[$moduleId] = ${$varName};
+			return $defaultsCache[$moduleId];
+		}
 
-		return $defaultsCache[$moduleId] = array();
+		$defaultsCache[$moduleId] = [];
+		return $defaultsCache[$moduleId];
 	}
+
 	/**
 	 * Returns an array of set options array(name => value).
 	 *
@@ -142,7 +150,9 @@ class Option
 	public static function getForModule($moduleId, $siteId = false)
 	{
 		if ($moduleId == '')
+		{
 			throw new Main\ArgumentNullException("moduleId");
+		}
 
 		if (!isset(self::$options[$moduleId]))
 		{
@@ -182,9 +192,12 @@ class Option
 
 		if($loadFromDb)
 		{
+			self::$loading[$moduleId] = true;
+
 			$con = Main\Application::getConnection();
 			$sqlHelper = $con->getSqlHelper();
 
+			// prevents recursion and cache miss
 			self::$options[$moduleId] = ["-" => []];
 
 			$query = "
@@ -221,9 +234,11 @@ class Option
 			{
 				$cache->set("b_option:{$moduleId}", self::$options[$moduleId]);
 			}
+
+			unset(self::$loading[$moduleId]);
 		}
 
-		
+		/*patchvalidationoptions4*/
 	}
 
 	/**
@@ -238,9 +253,18 @@ class Option
 	public static function set($moduleId, $name, $value = "", $siteId = "")
 	{
 		if ($moduleId == '')
+		{
 			throw new Main\ArgumentNullException("moduleId");
+		}
 		if ($name == '')
+		{
 			throw new Main\ArgumentNullException("name");
+		}
+
+		if (mb_strlen($name) > 100)
+		{
+			trigger_error("Option name {$name} will be truncated on saving.", E_USER_WARNING);
+		}
 
 		if ($siteId === false)
 		{
@@ -308,18 +332,25 @@ class Option
 
 	protected static function loadTriggers($moduleId)
 	{
-		static $triggersCache = array();
+		static $triggersCache = [];
+
 		if (isset($triggersCache[$moduleId]))
+		{
 			return;
+		}
 
 		if (preg_match("#[^a-zA-Z0-9._]#", $moduleId))
+		{
 			throw new Main\ArgumentOutOfRangeException("moduleId");
+		}
 
 		$triggersCache[$moduleId] = true;
 
 		$path = Main\Loader::getLocal("modules/".$moduleId."/option_triggers.php");
 		if ($path === false)
+		{
 			return;
+		}
 
 		include($path);
 	}
@@ -331,14 +362,7 @@ class Option
 		if($cacheTtl === null)
 		{
 			$cacheFlags = Configuration::getValue("cache_flags");
-			if (isset($cacheFlags["config_options"]))
-			{
-				$cacheTtl = $cacheFlags["config_options"];
-			}
-			else
-			{
-				$cacheTtl = 0;
-			}
+			$cacheTtl = $cacheFlags["config_options"] ?? 0;
 		}
 		return $cacheTtl;
 	}
@@ -355,7 +379,9 @@ class Option
 	public static function delete($moduleId, array $filter = array())
 	{
 		if ($moduleId == '')
+		{
 			throw new Main\ArgumentNullException("moduleId");
+		}
 
 		$con = Main\Application::getConnection();
 		$sqlHelper = $con->getSqlHelper();

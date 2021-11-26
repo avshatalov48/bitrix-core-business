@@ -36,38 +36,52 @@ class Scope
 		return self::$instance;
 	}
 
+	/**
+	 * @param string $entityTypeId
+	 * @param string|null $moduleId
+	 * @return array
+	 */
 	public function getUserScopes(string $entityTypeId, ?string $moduleId = null): array
 	{
-		$result = [];
-		$scopeIds = $this->getScopesIdByUser($moduleId);
-		$entityTypeIds = ($this->getEntityTypeIdMap()[$entityTypeId] ?? [$entityTypeId]);
+		static $results = [];
+		$key = $entityTypeId . '-' . $moduleId;
 
-		if (count($scopeIds))
+		if (!isset($results[$key]))
 		{
-			$scopes = EntityFormConfigTable::getList([
-				'select' => [
-					'ID',
-					'NAME',
-					'ACCESS_CODE' => '\Bitrix\Ui\EntityForm\EntityFormConfigAcTable:CONFIG.ACCESS_CODE'
-				],
-				'filter' => [
-					'@ID' => $scopeIds,
-					'@ENTITY_TYPE_ID' => $entityTypeIds
-				]
-			]);
-			foreach ($scopes as $scope)
+			$result = [];
+			$scopeIds = $this->getScopesIdByUser($moduleId);
+			$entityTypeIds = ($this->getEntityTypeIdMap()[$entityTypeId] ?? [$entityTypeId]);
+
+			if (!empty($scopeIds))
 			{
-				$result[$scope['ID']]['NAME'] = HtmlFilter::encode($scope['NAME']);
-				if (!isset($result[$scope['ID']]['ACCESS_CODES'][$scope['ACCESS_CODE']]))
+				$scopes = EntityFormConfigTable::getList([
+					'select' => [
+						'ID',
+						'NAME',
+						'ACCESS_CODE' => '\Bitrix\Ui\EntityForm\EntityFormConfigAcTable:CONFIG.ACCESS_CODE'
+					],
+					'filter' => [
+						'@ID' => $scopeIds,
+						'@ENTITY_TYPE_ID' => $entityTypeIds
+					]
+				]);
+				foreach ($scopes as $scope)
 				{
-					$accessCode = new AccessCode($scope['ACCESS_CODE']);
-					$member = (new DataProvider())->getEntity($accessCode->getEntityType(), $accessCode->getEntityId());
-					$result[$scope['ID']]['ACCESS_CODES'][$scope['ACCESS_CODE']] = $scope['ACCESS_CODE'];
-					$result[$scope['ID']]['MEMBERS'][$scope['ACCESS_CODE']] = $member->getMetaData();
+					$result[$scope['ID']]['NAME'] = HtmlFilter::encode($scope['NAME']);
+					if (!isset($result[$scope['ID']]['ACCESS_CODES'][$scope['ACCESS_CODE']]))
+					{
+						$accessCode = new AccessCode($scope['ACCESS_CODE']);
+						$member = (new DataProvider())->getEntity($accessCode->getEntityType(),
+							$accessCode->getEntityId());
+						$result[$scope['ID']]['ACCESS_CODES'][$scope['ACCESS_CODE']] = $scope['ACCESS_CODE'];
+						$result[$scope['ID']]['MEMBERS'][$scope['ACCESS_CODE']] = $member->getMetaData();
+					}
 				}
 			}
+			$results[$key] = $result;
 		}
-		return $result;
+
+		return $results[$key];
 	}
 
 	protected function getEntityTypeIdMap(): array

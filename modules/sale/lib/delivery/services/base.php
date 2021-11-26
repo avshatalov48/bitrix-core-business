@@ -3,12 +3,10 @@ namespace Bitrix\Sale\Delivery\Services;
 
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
-use Bitrix\Main\Loader;
 use Bitrix\Sale\Result;
 use Bitrix\Sale\Delivery;
 use Bitrix\Sale\Shipment;
 use Bitrix\Main\EventResult;
-use \Bitrix\Main\ModuleManager;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Delivery\Requests;
@@ -25,6 +23,8 @@ require_once __DIR__.'/../inputs.php';
  */
 abstract class Base
 {
+	protected $handlerCode = 'UNDEFINED';
+
 	protected $id = 0;
 	protected $name = "";
 	protected $code = "";
@@ -123,6 +123,32 @@ abstract class Base
 			$this->extraServices = new \Bitrix\Sale\Delivery\ExtraServices\Manager($this->id, $this->currency);
 		else
 			$this->extraServices = new \Bitrix\Sale\Delivery\ExtraServices\Manager(array(), $this->currency);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getHandlerCode(): string
+	{
+		return (string)$this->handlerCode;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getServiceCode(): string
+	{
+		if (
+			static::isProfile()
+			&& ($parentService = $this->getParentService())
+			&& ($parentServiceHandlerCode = $parentService->getHandlerCode())
+			&& ($profileType = $this->getProfileType())
+		)
+		{
+			return $parentServiceHandlerCode . '_' . $profileType;
+		}
+
+		return $this->getHandlerCode();
 	}
 
 	/**
@@ -620,6 +646,14 @@ abstract class Base
 	public static function isProfile()
 	{
 		return self::$isProfile;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getProfileType(): string
+	{
+		return '';
 	}
 
 	/**

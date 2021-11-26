@@ -14,7 +14,7 @@ if(typeof BX.UI.EntityEditorValidatorFactory === "undefined")
 			{
 				return BX.UI.EntityTrackingSourceValidator.create(settings);
 			}
-			
+
 			return null;
 		}
 	}
@@ -137,6 +137,10 @@ if(typeof BX.UI.EntityEditorControlFactory === "undefined")
 			{
 				return BX.UI.EntityEditorMoney.create(controlId, settings);
 			}
+			else if(type === "multimoney")
+			{
+				return BX.UI.EntityEditorMultiMoney.create(controlId, settings);
+			}
 			else if(type === "user")
 			{
 				return BX.UI.EntityEditorUser.create(controlId, settings);
@@ -224,7 +228,7 @@ if (typeof BX.UI.EntityEditorControllerFactory === 'undefined')
 						return controller;
 					}
 				}
-				
+
 				return null;
 			}
 		};

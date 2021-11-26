@@ -115,9 +115,13 @@ class Comment
 		$manager = $this->getUserFieldManager();
 		if($manager)
 		{
-			return (bool) $manager->Update($this->filesUserFieldEntityId, $id, [
+			$data = [
 				$this->filesUserFieldName => $files,
-			]);
+			];
+			if ($manager->CheckFields($this->filesUserFieldEntityId, $id, $data))
+			{
+				return (bool) $manager->Update($this->filesUserFieldEntityId, $id, $data);
+			}
 		}
 
 		return false;

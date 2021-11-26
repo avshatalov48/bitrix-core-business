@@ -544,7 +544,23 @@ class CatalogProductDetailsComponent
 				{
 					if (isset($field['AMOUNT'], $field['CURRENCY']))
 					{
-						$field = IblockMoneyProperty::getUnitedValue($field['AMOUNT'], $field['CURRENCY']);
+						if (is_array($field['AMOUNT']) && is_array($field['CURRENCY']))
+						{
+							$moneyValues = [];
+							$valuesCount = count($field['AMOUNT']);
+							for ($valueIndex = 0; $valueIndex < $valuesCount; $valueIndex++)
+							{
+								$moneyValues[] = IblockMoneyProperty::getUnitedValue(
+									$field['AMOUNT'][$valueIndex],
+									$field['CURRENCY'][$valueIndex]
+								);
+							}
+							$field = $moneyValues;
+						}
+						else
+						{
+							$field = IblockMoneyProperty::getUnitedValue($field['AMOUNT'], $field['CURRENCY']);
+						}
 					}
 					elseif (isset($field['PRICE']['VALUE'], $field['CURRENCY']['VALUE']))
 					{

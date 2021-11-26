@@ -1,7 +1,11 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
+use Bitrix\Main\Context;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Text\Emoji;
+use Bitrix\Socialnetwork\Helper\Path;
 use Bitrix\Socialnetwork\UserToGroupTable;
 
 class CAllSocNetGroup
@@ -11,7 +15,7 @@ class CAllSocNetGroup
 	/***************************************/
 	/********  DATA MODIFICATION  **********/
 	/***************************************/
-	public static function CheckFields($ACTION, &$arFields, $ID = 0)
+	public static function CheckFields($ACTION, &$arFields, $ID = 0): bool
 	{
 		global $DB, $APPLICATION, $USER_FIELD_MANAGER, $arSocNetAllowedInitiatePerms, $arSocNetAllowedSpamPerms;
 
@@ -22,7 +26,7 @@ class CAllSocNetGroup
 		}
 
 		if(
-			($ID === 0 && !is_set($arFields, "SITE_ID")) 
+			($ID === 0 && !is_set($arFields, "SITE_ID"))
 			||
 			(
 				is_set($arFields, "SITE_ID")
@@ -47,7 +51,7 @@ class CAllSocNetGroup
 				$r = CSite::GetByID($v);
 				if(!$r->Fetch())
 				{
-					$APPLICATION->ThrowException(str_replace("#ID#", $v, GetMessage("SONET_GG_ERROR_NO_SITE")), "ERROR_NO_SITE");				
+					$APPLICATION->ThrowException(str_replace("#ID#", $v, GetMessage("SONET_GG_ERROR_NO_SITE")), "ERROR_NO_SITE");
 					return false;
 				}
 			}
@@ -146,7 +150,7 @@ class CAllSocNetGroup
 
 		if (is_set($arFields, "IMAGE_ID"))
 		{
-			$arResult = CFile::CheckImageFile($arFields["IMAGE_ID"], 0, 0, 0);
+			$arResult = CFile::CheckImageFile($arFields["IMAGE_ID"]);
 			if ($arResult <> '')
 			{
 				$APPLICATION->ThrowException(GetMessage("SONET_GP_ERROR_IMAGE_ID").": ".$arResult, "ERROR_IMAGE_ID");
@@ -157,6 +161,16 @@ class CAllSocNetGroup
 		if (!$USER_FIELD_MANAGER->CheckFields("SONET_GROUP", $ID, $arFields))
 		{
 			return false;
+		}
+
+		if (!empty($arFields['NAME']))
+		{
+			$arFields['NAME'] = Emoji::encode($arFields['NAME']);
+		}
+
+		if (!empty($arFields['DESCRIPTION']))
+		{
+			$arFields['DESCRIPTION'] = Emoji::encode($arFields['DESCRIPTION']);
 		}
 
 		return True;
@@ -172,7 +186,6 @@ class CAllSocNetGroup
 		}
 
 		$ID = intval($ID);
-		$bSuccess = True;
 
 		$db_events = GetModuleEvents("socialnetwork", "OnBeforeSocNetGroupDelete");
 		while ($arEvent = $db_events->Fetch())
@@ -198,20 +211,17 @@ class CAllSocNetGroup
 			ExecuteModuleEventEx($arEvent, array($ID));
 		}
 
-		if ($bSuccess)
+		$res = UserToGroupTable::getList([
+			'filter' => [
+				'=GROUP_ID' => $ID
+			],
+			'select' => [ 'USER_ID' ]
+		]);
+		while($relationFields = $res->fetch())
 		{
-			$res = UserToGroupTable::getList([
-				'filter' => [
-					'=GROUP_ID' => $ID
-				],
-				'select' => [ 'USER_ID' ]
-			]);
-			while($relationFields = $res->fetch())
-			{
-				\CSocNetSearch::onUserRelationsChange($relationFields['USER_ID']);
-			}
-			$bSuccess = $DB->Query("DELETE FROM b_sonet_user2group WHERE GROUP_ID = ".$ID, true);
+			CSocNetSearch::onUserRelationsChange($relationFields['USER_ID']);
 		}
+		$bSuccess = $DB->Query("DELETE FROM b_sonet_user2group WHERE GROUP_ID = ".$ID, true);
 
 		if ($bSuccess)
 		{
@@ -366,7 +376,7 @@ class CAllSocNetGroup
 		return $bSuccess;
 	}
 
-	public static function DeleteNoDemand($userID)
+	public static function DeleteNoDemand($userID): bool
 	{
 		global $APPLICATION;
 
@@ -381,7 +391,7 @@ class CAllSocNetGroup
 		$dbResult = CSocNetGroup::GetList(array(), array("OWNER_ID" => $userID), false, false, array("ID", "NAME"));
 		while ($arResult = $dbResult->GetNext())
 		{
-			$err .= $arResult["NAME"]."<br>";
+			$err .= Emoji::decode($arResult["NAME"]) . "<br>";
 		}
 
 		if ($err == '')
@@ -397,11 +407,11 @@ class CAllSocNetGroup
 		}
 	}
 
-	public static function SetStat($ID)
+	public static function SetStat($ID): void
 	{
 		if (!CSocNetGroup::__ValidateID($ID))
-			return false;
-		
+			return;
+
 		$ID = intval($ID);
 
 		$num = CSocNetUserToGroup::GetList(
@@ -425,26 +435,24 @@ class CAllSocNetGroup
 		);
 
 		CSocNetGroup::Update(
-			$ID, 
+			$ID,
 			array(
 				"NUMBER_OF_MEMBERS" => $num,
 				"NUMBER_OF_MODERATORS" => $num_mods
-			), 
+			),
 			true,
 			false,
 			false
 		);
-
-		return false;
 	}
 
-	public static function SetLastActivity($ID, $date = false)
+	public static function SetLastActivity($ID, $date = false): void
 	{
 		global $DB, $CACHE_MANAGER;
 
 		if (!CSocNetGroup::__ValidateID($ID))
 		{
-			return false;
+			return;
 		}
 
 		$ID = intval($ID);
@@ -463,8 +471,6 @@ class CAllSocNetGroup
 		{
 			$CACHE_MANAGER->clearByTag("sonet_group_activity");
 		}
-
-		return false;
 	}
 
 	/***************************************/
@@ -501,14 +507,14 @@ class CAllSocNetGroup
 
 		if (!$checkPermissions)
 		{
-			$cache = new \CPHPCache;
+			$cache = new CPHPCache;
 			$cacheTime = 31536000;
 			$cacheId = implode('_', array_merge([
 				'group',
 				$id,
 				LANGUAGE_ID,
-				\CTimeZone::getOffset(),
-				\Bitrix\Main\Context::getCurrent()->getCulture()->getDateTimeFormat()
+				CTimeZone::getOffset(),
+				Context::getCurrent()->getCulture()->getDateTimeFormat()
 			], $options));
 			$cachePath = '/sonet/group/' . $id . '/';
 		}
@@ -556,7 +562,7 @@ class CAllSocNetGroup
 			{
 				$select = array_merge($select, [ "SCRUM_OWNER_ID", "SCRUM_MASTER_ID", "SCRUM_SPRINT_DURATION", "SCRUM_TASK_RESPONSIBLE" ]);
 			}
-			$res = \CSocNetGroup::getList(
+			$res = CSocNetGroup::getList(
 				[],
 				$filter,
 				false,
@@ -575,12 +581,21 @@ class CAllSocNetGroup
 					$CACHE_MANAGER->RegisterTag('sonet_group');
 				}
 
+				if (!empty($result['NAME']))
+				{
+					$result['NAME'] = Emoji::decode($result['NAME']);
+				}
+				if (!empty($result['DESCRIPTION']))
+				{
+					$result['DESCRIPTION'] = Emoji::decode($result['DESCRIPTION']);
+				}
+
 				$result['NAME_FORMATTED'] = $result['NAME'];
 
 				if ($options['getSites'])
 				{
 					$result['SITE_LIST'] = [];
-					$res = \CSocNetGroup::getSite($id);
+					$res = CSocNetGroup::getSite($id);
 					while ($groupSiteFields = $res->fetch())
 					{
 						$result['SITE_LIST'][] = $groupSiteFields['LID'];
@@ -623,7 +638,7 @@ class CAllSocNetGroup
 		return $result;
 	}
 
-	protected static function getStaticCache()
+	protected static function getStaticCache(): array
 	{
 		return self::$staticCache;
 	}
@@ -636,7 +651,7 @@ class CAllSocNetGroup
 	/***************************************/
 	/**********  COMMON METHODS  ***********/
 	/***************************************/
-	public static function CanUserInitiate($userID, $groupID)
+	public static function CanUserInitiate($userID, $groupID): bool
 	{
 		$userID = intval($userID);
 		$groupID = intval($groupID);
@@ -676,7 +691,7 @@ class CAllSocNetGroup
 		return false;
 	}
 
-	public static function CanUserViewGroup($userID, $groupID)
+	public static function CanUserViewGroup($userID, $groupID): bool
 	{
 		$userID = intval($userID);
 		$groupID = intval($groupID);
@@ -697,7 +712,7 @@ class CAllSocNetGroup
 		return in_array($userRoleInGroup, array(SONET_ROLES_OWNER, SONET_ROLES_MODERATOR, SONET_ROLES_USER));
 	}
 
-	public static function CanUserReadGroup($userID, $groupID)
+	public static function CanUserReadGroup($userID, $groupID): bool
 	{
 		$userID = intval($userID);
 		$groupID = intval($groupID);
@@ -767,7 +782,7 @@ class CAllSocNetGroup
 
 		if (
 			!$groupID
-			|| intval($groupID) <= 0
+			|| $groupID <= 0
 		)
 		{
 			$errorMessage = $errorID = "";
@@ -848,7 +863,7 @@ class CAllSocNetGroup
 	/***************************************/
 	/*************  UTILITIES  *************/
 	/***************************************/
-	public static function __ValidateID($ID)
+	public static function __ValidateID($ID): bool
 	{
 		global $APPLICATION;
 
@@ -859,7 +874,7 @@ class CAllSocNetGroup
 		return false;
 	}
 
-	public static function GetFilterOperation($key)
+	public static function GetFilterOperation($key): array
 	{
 		$strNegative = "N";
 		if (mb_substr($key, 0, 1) == "!")
@@ -918,12 +933,12 @@ class CAllSocNetGroup
 		return array("FIELD" => $key, "NEGATIVE" => $strNegative, "OPERATION" => $strOperation, "OR_NULL" => $strOrNull);
 	}
 
-	public static function PrepareSql(&$arFields, $arOrder, $arFilter, $arGroupBy, $arSelectFields, $arUF = array())
+	public static function PrepareSql(&$arFields, $arOrder, $arFilter, $arGroupBy, $arSelectFields, $arUF = array()): array
 	{
 		global $DB;
 
 		$obUserFieldsSql = false;
-		
+
 		if (is_array($arUF) && array_key_exists("ENTITY_ID", $arUF))
 		{
 			$obUserFieldsSql = new CUserTypeSQL;
@@ -992,7 +1007,7 @@ class CAllSocNetGroup
 
 		$strSqlWhere .= CSqlUtil::PrepareWhere($arFields, $arFilter, $arAlreadyJoined);
 		$arAlreadyJoinedDiff = array_diff($arAlreadyJoined, $arAlreadyJoinedOld);
-		
+
 		foreach($arAlreadyJoinedDiff as $from_tmp)
 		{
 			if ($strSqlFrom <> '')
@@ -1044,9 +1059,9 @@ class CAllSocNetGroup
 			elseif($obUserFieldsSql && $s = $obUserFieldsSql->GetOrder($by))
 				$arSqlOrder[$by] = " ".$s." ".$order." ";
 		}
-		
+
 		$strSqlOrderBy = "";
-		DelDuplicateSort($arSqlOrder); 
+		DelDuplicateSort($arSqlOrder);
 		$tmp_count = count($arSqlOrder);
 		for ($i=0; $i < $tmp_count; $i++)
 		{
@@ -1095,7 +1110,7 @@ class CAllSocNetGroup
 						if (array_key_exists($arFieldsKeys[$i], $arOrder))
 							$strSqlSelect .= $arFields[$arFieldsKeys[$i]]["FIELD"]." as ".$arFieldsKeys[$i]."_X1, ";
 
-						$strSqlSelect .= $DB->DateToCharFunction($arFields[$arFieldsKeys[$i]]["FIELD"], "FULL")." as ".$arFieldsKeys[$i];
+						$strSqlSelect .= $DB->DateToCharFunction($arFields[$arFieldsKeys[$i]]["FIELD"])." as ".$arFieldsKeys[$i];
 					}
 					elseif ($arFields[$arFieldsKeys[$i]]["TYPE"] == "date")
 					{
@@ -1138,7 +1153,7 @@ class CAllSocNetGroup
 								if (array_key_exists($val, $arOrder))
 									$strSqlSelect .= $arFields[$val]["FIELD"]." as ".$val."_X1, ";
 
-								$strSqlSelect .= $DB->DateToCharFunction($arFields[$val]["FIELD"], "FULL")." as ".$val;
+								$strSqlSelect .= $DB->DateToCharFunction($arFields[$val]["FIELD"])." as ".$val;
 							}
 							elseif ($arFields[$val]["TYPE"] == "date")
 							{
@@ -1166,7 +1181,7 @@ class CAllSocNetGroup
 
 			if ($obUserFieldsSql)
 				$strSqlSelect .= ($strSqlSelect == '' ? $arFields["ID"]["FIELD"] : "").$obUserFieldsSql->GetSelect();
-			
+
 			if ($strSqlGroupBy <> '')
 			{
 				if ($strSqlSelect <> '')
@@ -1233,7 +1248,7 @@ class CAllSocNetGroup
 
 	public static function GetDefaultSiteId($groupId, $siteId = false)
 	{
-		$groupSiteId = ($siteId ? $siteId : SITE_ID);
+		$groupSiteId = ($siteId ?: SITE_ID);
 
 		if (CModule::IncludeModule("extranet"))
 		{
@@ -1243,7 +1258,7 @@ class CAllSocNetGroup
 			while ($arGroupSite = $rsGroupSite->Fetch())
 			{
 				if (
-					!$extranetSiteId 
+					!$extranetSiteId
 					|| $arGroupSite["LID"] != $extranetSiteId
 				)
 				{
@@ -1256,7 +1271,7 @@ class CAllSocNetGroup
 		return $groupSiteId;
 	}
 
-	public static function OnBeforeLangDelete($lang)
+	public static function OnBeforeLangDelete($lang): bool
 	{
 		global $APPLICATION, $DB;
 		$r = $DB->Query("
@@ -1277,11 +1292,11 @@ class CAllSocNetGroup
 			return true;
 	}
 
-	public static function SearchIndex($groupId, $arSiteID = array(), $arGroupOld = array(), $bAutoSubscribe = true)
+	public static function SearchIndex($groupId, $arSiteID = array(), $arGroupOld = array()): void
 	{
 		if (intval($groupId) <= 0)
 		{
-			return false;
+			return;
 		}
 
 		if (CModule::IncludeModule("search"))
@@ -1312,7 +1327,7 @@ class CAllSocNetGroup
 					{
 						foreach ($arSiteID as $site_id_tmp)
 						{
-							$arSearchIndexSiteID[$site_id_tmp] = str_replace("#group_id#", $groupId, COption::GetOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", $site_id_tmp));
+							$arSearchIndexSiteID[$site_id_tmp] = str_replace("#group_id#", $groupId, Path::get('group_path_template', $site_id_tmp));
 						}
 					}
 					else
@@ -1320,7 +1335,7 @@ class CAllSocNetGroup
 						$rsGroupSite = CSocNetGroup::GetSite($groupId);
 						while ($arGroupSite = $rsGroupSite->Fetch())
 						{
-							$arSearchIndexSiteID[$arGroupSite["LID"]] = str_replace("#group_id#", $groupId, COption::GetOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", $arGroupSite["LID"]));
+							$arSearchIndexSiteID[$arGroupSite["LID"]] = str_replace("#group_id#", $groupId, Path::get('group_path_template', $arGroupSite['LID']));
 						}
 					}
 
@@ -1379,4 +1394,3 @@ class CAllSocNetGroup
 	}
 
 }
-?>

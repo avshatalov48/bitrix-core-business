@@ -1,6 +1,7 @@
 <?
 use \Bitrix\Calendar\Ui\CalendarFilter;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Calendar\Ui\CountersManager;
 
 class CCalendarRequest
 {
@@ -201,9 +202,7 @@ class CCalendarRequest
 				$arFilter['FROM_LIMIT'] = CCalendar::Date(time(), false);
 				$arFilter['TO_LIMIT'] = CCalendar::Date(time() + CCalendar::DAY_LENGTH * 90, false);
 				CCalendar::UpdateCounter(array(CCalendar::GetOwnerId()));
-				$counters = array(
-					'invitation' => CUserCounter::GetValue($arFilter['OWNER_ID'], 'calendar')
-				);
+				$counters = CountersManager::getValues((int)$arFilter['OWNER_ID']);
 			}
 		}
 		if (isset($fields['fields']['CREATED_BY']))

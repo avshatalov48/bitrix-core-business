@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Iblock\SectionTable;
@@ -21,17 +22,17 @@ class IntranetNewUser extends Provider
 		return static::PROVIDER_ID;
 	}
 
-	public function getEventId()
+	public function getEventId(): array
 	{
 		return [ 'intranet_new_user' ];
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return Provider::TYPE_POST;
 	}
 
-	public function getCommentProvider()
+	public function getCommentProvider(): Provider
 	{
 		return new LogComment();
 	}
@@ -133,7 +134,7 @@ class IntranetNewUser extends Provider
 
 		if (ModuleManager::isModuleInstalled('bitrix24'))
 		{
-			$result = Option::get('main', 'site_name', '');
+			$result = Option::get('main', 'site_name');
 		}
 		else
 		{
@@ -169,11 +170,9 @@ class IntranetNewUser extends Provider
 			return $result;
 		}
 
-		$result = Loc::getMessage('SONET_LIVEFEED_INTRANET_NEW_USER_PINNED_DESCRIPTION', [
+		return Loc::getMessage('SONET_LIVEFEED_INTRANET_NEW_USER_PINNED_DESCRIPTION', [
 			'#USER_NAME#' => $sourceFields['FULL_NAME']
 		]);
-
-		return $result;
 	}
 
 	public static function canRead($params): bool

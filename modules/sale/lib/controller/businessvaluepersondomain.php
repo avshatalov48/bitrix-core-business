@@ -110,9 +110,7 @@ class BusinessValuePersonDomain extends Controller
 		$r = $this->exists($personTypeId);
 		if($r->isSuccess())
 		{
-			\Bitrix\Sale\Internals\BusinessValuePersonDomainTable::delete([
-				'PERSON_TYPE_ID' => $personTypeId
-			]);
+			\Bitrix\Sale\Internals\BusinessValuePersonDomainTable::deleteByPersonTypeId((int)$personTypeId);
 		}
 
 		if($r->isSuccess())

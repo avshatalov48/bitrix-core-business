@@ -18,6 +18,9 @@ Loc::loadMessages(__FILE__);
  */
 class Configurable extends Base
 {
+	/** @var string */
+	protected $handlerCode = 'BITRIX_CONFIGURABLE';
+
 	protected static $isCalculatePriceImmediately = true;
 	protected  static $whetherAdminExtraServicesShow = true;
 

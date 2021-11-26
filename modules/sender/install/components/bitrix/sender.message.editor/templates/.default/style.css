@@ -153,6 +153,9 @@
 	background-repeat: no-repeat;
 	background-position: right center;
 	font: 15px/12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	min-width: 120px;
+	width: 120px;
+	max-width: 120px;
 }
 
 .sender-message-editor-field-file-cloud {
@@ -433,5 +436,20 @@
 .sender-consent-margin {
 	margin: 0;
 }
+.sender-message-editor-preview {
+	margin-top: -16px;
+	float: right;
+}
 
+.sender-hint-icon {
+	margin-top: 4px;
+}
 
+.ui-form-label,
+.ui-ctl-checkbox {
+	margin-bottom: 0 !important;
+}
+
+.sender-im-message-wrap {
+	margin-bottom: 30px;
+}

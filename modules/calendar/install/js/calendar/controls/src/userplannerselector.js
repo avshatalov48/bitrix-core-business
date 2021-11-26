@@ -543,11 +543,7 @@ export class UserPlannerSelector extends EventEmitter
 	showHideGuestsOption()
 	{
 		this.DOM.hideGuestsWrap.style.display = '';
-		const hideGuestsHint = this.DOM.hideGuestsWrap.querySelector('.calendar-hide-members-helper');
-		if (Type.isElementNode(hideGuestsHint))
-		{
-			BX.UI.Hint.initNode(hideGuestsHint);
-		}
+		Util.initHintNode(this.DOM.hideGuestsWrap.querySelector('.calendar-hide-members-helper'));
 	}
 
 	hideHideGuestsOption()

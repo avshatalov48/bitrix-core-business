@@ -34,9 +34,12 @@ final class TaskInfo extends Base
 			return $result;
 		}
 
-		$result = htmlspecialcharsEx(\Bitrix\Tasks\Comments\Task\CommentPoster::getCommentText($data, [
-			'mobile' => (isset($params['mobile']) && $params['mobile'] === true)
-		]));
+		$result = htmlspecialcharsEx(
+			\Bitrix\Tasks\Comments\Task\CommentPoster::getCommentText(
+				$data,
+				array_merge($params, ['mobile' => (isset($params['mobile']) && $params['mobile'] === true)])
+			)
+		);
 
 		return $result;
 	}

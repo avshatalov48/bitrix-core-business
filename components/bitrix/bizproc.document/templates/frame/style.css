@@ -2,6 +2,12 @@
 	cursor: wait;
 }
 
+.bizproc-document-section-title
+{
+	margin: 30px 0;
+	color: #333;
+	font-family: "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
 
 ul.bizproc-document-list, ul.bizproc-document-list li {
 	margin: 0;
@@ -14,7 +20,6 @@ ul.bizproc-document-list, ul.bizproc-document-list li {
 ul.bizproc-document-workflow-list-item {
 	width: 100%;
 	box-sizing: border-box;
-	min-height: 98px;
 	-webkit-transition: opacity .3s ease-in-out;
 	-moz-transition: opacity .3s ease-in-out;
 	-ms-transition: opacity .3s ease-in-out;
@@ -119,6 +124,11 @@ li.bizproc-document-finished tbody th, li.bizproc-document-finished tbody td {
 .bizproc-document-toolbar-bottom {
 	text-align: center;
 	padding: 5px 0;
+}
+
+.bizproc-document-toolbar-completed
+{
+	margin-top: 30px;
 }
 
 .bizproc-field-value-tasks {

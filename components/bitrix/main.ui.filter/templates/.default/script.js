@@ -2861,6 +2861,9 @@ this.BX = this.BX || {};
 	    this.classPopupFieldList1Column = 'main-ui-filter-field-list-1-column';
 	    this.classPopupFieldList2Column = 'main-ui-filter-field-list-2-column';
 	    this.classPopupFieldList3Column = 'main-ui-filter-field-list-3-column';
+	    this.classPopupFieldList4Column = 'main-ui-filter-field-list-4-column';
+	    this.classPopupFieldList5Column = 'main-ui-filter-field-list-5-column';
+	    this.classPopupFieldList6Column = 'main-ui-filter-field-list-6-column';
 	    this.classFieldListItem = 'main-ui-filter-field-list-item';
 	    this.classEditButton = 'main-ui-filter-add-edit';
 	    this.classPresetEdit = 'main-ui-filter-edit';
@@ -2895,6 +2898,7 @@ this.BX = this.BX || {};
 	    this.classRestoreButton = 'main-ui-filter-reset-link';
 	    this.classPinButton = 'main-ui-filter-icon-pin';
 	    this.classPopupOverlay = 'popup-window-overlay';
+	    this.classSidePanelContainer = 'side-panel-container';
 	    this.classPinnedPreset = 'main-ui-item-pin';
 	    this.classWaitButtonClass = 'ui-btn-clock';
 	    this.classForAllCheckbox = 'main-ui-filter-save-for-all';
@@ -2915,6 +2919,8 @@ this.BX = this.BX || {};
 	    this.quarterPostfix = '_quarter';
 	    this.yearPostfix = '_year';
 	    this.generalTemplateId = '';
+	    this.maxPopupColumnCount = 6;
+	    this.popupWidth = 630;
 	    this.init(options, parent);
 	  };
 
@@ -3869,7 +3875,7 @@ this.BX = this.BX || {};
 	    isInsideFilterEvent: function isInsideFilterEvent(event) {
 	      event = this.prepareEvent(event);
 	      return (event.path || []).some(function (current) {
-	        return BX.type.isDomNode(current) && (BX.hasClass(current, this.settings.classFilterContainer) || BX.hasClass(current, this.settings.classSearchContainer) || BX.hasClass(current, this.settings.classDefaultPopup) || BX.hasClass(current, this.settings.classPopupOverlay));
+	        return BX.type.isDomNode(current) && (BX.hasClass(current, this.settings.classFilterContainer) || BX.hasClass(current, this.settings.classSearchContainer) || BX.hasClass(current, this.settings.classDefaultPopup) || BX.hasClass(current, this.settings.classPopupOverlay) || BX.hasClass(current, this.settings.classSidePanelContainer));
 	      }, this);
 	    },
 	    _onDocumentClick: function _onDocumentClick(event) {
@@ -3961,6 +3967,12 @@ this.BX = this.BX || {};
 	     * @return {string}
 	     */
 	    getFieldListContainerClassName: function getFieldListContainerClassName(itemsCount) {
+	      var popupColumnsCount = parseInt(this.settings.get('popupColumnsCount', 0), 10);
+
+	      if (popupColumnsCount > 0 && popupColumnsCount <= this.settings.maxPopupColumnCount) {
+	        return this.settings.get('classPopupFieldList' + popupColumnsCount + 'Column');
+	      }
+
 	      var containerClass = this.settings.classPopupFieldList1Column;
 
 	      if (itemsCount > 6 && itemsCount < 12) {
@@ -4055,6 +4067,7 @@ this.BX = this.BX || {};
 	          block: block,
 	          mix: mix
 	        });
+	        this.setPopupElementWidthFromSettings(fieldsContent);
 	        wrapper.appendChild(fieldsContent);
 
 	        if (this.enableFieldsSearch) {
@@ -4139,6 +4152,7 @@ this.BX = this.BX || {};
 
 	      for (var key in sections) {
 	        var sectionWrapper = BX.Tag.render(_templateObject7(), key);
+	        this.setPopupElementWidthFromSettings(sectionWrapper);
 
 	        if (!this.getHeadersSectionParam(key, 'selected')) {
 	          sectionWrapper.setAttribute('hidden', '');
@@ -4383,16 +4397,16 @@ this.BX = this.BX || {};
 	     * @return {BX.PopupWindow}
 	     */
 	    getFieldsPopup: function getFieldsPopup() {
-	      var addFiledButton = this.getAddField();
+	      var bindElement = this.settings.get('showPopupInCenter', false) ? null : this.getAddField();
 
 	      if (!this.fieldsPopup) {
-	        this.fieldsPopup = new BX.PopupWindow(this.getParam('FILTER_ID') + '_fields_popup', addFiledButton, {
+	        this.fieldsPopup = new BX.PopupWindow(this.getParam('FILTER_ID') + '_fields_popup', bindElement, {
 	          autoHide: true,
 	          offsetTop: 4,
 	          offsetLeft: 0,
 	          lightShadow: true,
-	          closeIcon: false,
-	          closeByEsc: false,
+	          closeIcon: bindElement === null,
+	          closeByEsc: bindElement === null,
 	          noAllPaddings: true,
 	          zIndex: 13
 	        });
@@ -4400,7 +4414,7 @@ this.BX = this.BX || {};
 	          target: this.fieldsPopup.contentContainer
 	        });
 	        this.fieldsPopupLoader.show();
-	        this.fieldsPopup.contentContainer.style.width = "630px";
+	        this.setPopupElementWidthFromSettings(this.fieldsPopup.contentContainer);
 	        this.fieldsPopup.contentContainer.style.height = "330px";
 	        this.getFieldsListPopupContent().then(function (res) {
 	          this.fieldsPopup.contentContainer.removeAttribute("style");
@@ -4409,10 +4423,14 @@ this.BX = this.BX || {};
 	          this.syncFields({
 	            cache: false
 	          });
+	          this.adjustFieldListPopupPosition();
 	        }.bind(this));
 	      }
 
 	      return this.fieldsPopup;
+	    },
+	    setPopupElementWidthFromSettings: function setPopupElementWidthFromSettings(element) {
+	      element.style.width = this.settings.popupWidth + 'px';
 	    },
 	    _onAddPresetClick: function _onAddPresetClick() {
 	      this.enableAddPreset();

@@ -1,0 +1,3 @@
+<?php
+$MESS["SALE_BASE_RESTRICTION_BY_PRODUCT"] = "by selected products";
+$MESS["SALE_BASE_RESTRICTION_BY_PRODUCT_LST_LABEL"] = "Products";

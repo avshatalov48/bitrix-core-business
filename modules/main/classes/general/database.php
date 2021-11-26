@@ -17,7 +17,6 @@ abstract class CAllDatabase
 	var $DBHost;
 	var $DBLogin;
 	var $DBPassword;
-	var $bConnected;
 
 	var $db_Conn;
 	var $debug;
@@ -211,7 +210,7 @@ abstract class CAllDatabase
 
 	public function DoConnect($connectionName = '')
 	{
-		if ($this->bConnected)
+		if ($this->connection && $this->connection->isConnected())
 		{
 			return true;
 		}
@@ -282,7 +281,6 @@ abstract class CAllDatabase
 			$this->db_Conn = $connection->getResource();
 
 			$this->connection = $connection;
-			$this->bConnected = true;
 			$this->sqlTracker = null;
 			$this->cntQuery = 0;
 			$this->timeQuery = 0;

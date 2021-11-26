@@ -3,7 +3,6 @@ namespace Bitrix\Calendar;
 use Bitrix\Main;
 use \Bitrix\Main\Web\Json;
 
-
 class UserSettings
 {
 	private static

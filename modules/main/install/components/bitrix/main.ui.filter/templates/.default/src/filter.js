@@ -1010,7 +1010,8 @@
 						BX.hasClass(current, this.settings.classFilterContainer) ||
 						BX.hasClass(current, this.settings.classSearchContainer) ||
 						BX.hasClass(current, this.settings.classDefaultPopup) ||
-						BX.hasClass(current, this.settings.classPopupOverlay)
+						BX.hasClass(current, this.settings.classPopupOverlay) ||
+						BX.hasClass(current, this.settings.classSidePanelContainer)
 					)
 				);
 			}, this);
@@ -1129,6 +1130,12 @@
 		 */
 		getFieldListContainerClassName: function(itemsCount)
 		{
+			var popupColumnsCount = parseInt(this.settings.get('popupColumnsCount', 0), 10);
+			if (popupColumnsCount > 0 && popupColumnsCount <= this.settings.maxPopupColumnCount)
+			{
+				return this.settings.get('classPopupFieldList' + popupColumnsCount + 'Column');
+			}
+
 			var containerClass = this.settings.classPopupFieldList1Column;
 
 			if (itemsCount > 6 && itemsCount < 12)
@@ -1249,6 +1256,7 @@
 					block: block,
 					mix: mix,
 				});
+				this.setPopupElementWidthFromSettings(fieldsContent);
 				wrapper.appendChild(fieldsContent);
 
 				if (this.enableFieldsSearch)
@@ -1385,6 +1393,7 @@
 				const sectionWrapper = BX.Tag.render`
 					<div class="main-ui-filter-popup-section-wrapper" data-ui-popup-filter-section="${key}"></div>
 				`;
+				this.setPopupElementWidthFromSettings(sectionWrapper);
 
 				if (!this.getHeadersSectionParam(key, 'selected'))
 				{
@@ -1694,20 +1703,20 @@
 		 */
 		getFieldsPopup: function()
 		{
-			var addFiledButton = this.getAddField();
+			var bindElement = (this.settings.get('showPopupInCenter', false) ? null : this.getAddField());
 
 			if (!this.fieldsPopup)
 			{
 				this.fieldsPopup = new BX.PopupWindow(
 					this.getParam('FILTER_ID') + '_fields_popup',
-					addFiledButton,
+					bindElement,
 					{
 						autoHide : true,
 						offsetTop : 4,
 						offsetLeft : 0,
 						lightShadow : true,
-						closeIcon : false,
-						closeByEsc : false,
+						closeIcon : (bindElement === null),
+						closeByEsc : (bindElement === null),
 						noAllPaddings: true,
 						zIndex: 13
 					}
@@ -1715,17 +1724,23 @@
 
 				this.fieldsPopupLoader = new BX.Loader({target: this.fieldsPopup.contentContainer});
 				this.fieldsPopupLoader.show();
-				this.fieldsPopup.contentContainer.style.width = "630px";
+				this.setPopupElementWidthFromSettings(this.fieldsPopup.contentContainer);
 				this.fieldsPopup.contentContainer.style.height = "330px";
 				this.getFieldsListPopupContent().then(function(res) {
 					this.fieldsPopup.contentContainer.removeAttribute("style");
 					this.fieldsPopupLoader.hide();
 					this.fieldsPopup.setContent(res);
 					this.syncFields({cache: false});
+					this.adjustFieldListPopupPosition();
 				}.bind(this));
 			}
 
 			return this.fieldsPopup;
+		},
+
+		setPopupElementWidthFromSettings: function(element: HTMLElement): void
+		{
+			element.style.width = this.settings.popupWidth + 'px';
 		},
 
 		_onAddPresetClick: function()

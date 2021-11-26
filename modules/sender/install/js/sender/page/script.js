@@ -218,6 +218,10 @@
 
 	BX.Sender.Page = new Page();
 	BX.Sender.Page.slider.init({
+		condition: [
+			"/marketing/config/role/",
+			"/marketing/config.php",
+		],
 		options: {
 			cacheable: false,
 			events: {

@@ -8,6 +8,7 @@
 namespace Bitrix\Main\Controller;
 
 use Bitrix\Main;
+use Bitrix\Main\Component;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Security\Mfa;
 
@@ -49,7 +50,10 @@ class AuthCode extends Main\Engine\Controller
 		}
 
 		return [
-			'signedData' => static::signData(['userId' => $result["USER_ID"]]),
+			'signedData' => Component\ParameterSigner::signParameters(
+				self::SIGNATURE_SALT,
+				['userId' => $result["USER_ID"]]
+			),
 			'intervals' => $intervals,
 		];
 	}
@@ -64,7 +68,11 @@ class AuthCode extends Main\Engine\Controller
 	{
 		global $USER;
 
-		if(($params = static::extractData($signedData)) === false)
+		try
+		{
+			$params = Component\ParameterSigner::unsignParameters(self::SIGNATURE_SALT, $signedData);
+		}
+		catch(Main\SystemException $e)
 		{
 			$this->addError(new Main\Error(Loc::getMessage("main_authcode_incorrect_request"), "ERR_SIGNATURE"));
 			return null;
@@ -182,34 +190,5 @@ class AuthCode extends Main\Engine\Controller
 				],
 			],
 		];
-	}
-
-	/**
-	 * @param array $data
-	 * @return string
-	 */
-	public static function signData(array $data)
-	{
-		$signer = new Main\Security\Sign\Signer();
-		$string = base64_encode(serialize($data));
-		return $signer->sign($string, static::SIGNATURE_SALT);
-	}
-
-	/**
-	 * @param string $signedData
-	 * @return bool|array
-	 */
-	public static function extractData($signedData)
-	{
-		try
-		{
-			$signer = new Main\Security\Sign\Signer();
-			$string = $signer->unsign($signedData, static::SIGNATURE_SALT);
-			return unserialize(base64_decode($string), ['allowed_classes' => false]);
-		}
-		catch(Main\SystemException $exception)
-		{
-			return false;
-		}
 	}
 }

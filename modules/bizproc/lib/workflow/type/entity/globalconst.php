@@ -8,6 +8,19 @@ use Bitrix\Main;
  * Class GlobalConstTable
  * @package Bitrix\Bizproc\Workflow\Type\Entity
  * @internal
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_GlobalConst_Query query()
+ * @method static EO_GlobalConst_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_GlobalConst_Result getById($id)
+ * @method static EO_GlobalConst_Result getList(array $parameters = array())
+ * @method static EO_GlobalConst_Entity getEntity()
+ * @method static \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalConst createObject($setDefaultValues = true)
+ * @method static \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalConst_Collection createCollection()
+ * @method static \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalConst wakeUpObject($row)
+ * @method static \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalConst_Collection wakeUpCollection($rows)
  */
 class GlobalConstTable extends Main\ORM\Data\DataManager
 {

@@ -43,15 +43,20 @@ abstract class BaseSender
 
 		$result = $httpClient->query(HttpClient::HTTP_POST, $url, $request);
 
-		return $this->createAnswer(
-			$result,
+		return $this->buildResult($httpClient, $result);
+	}
+
+	protected function buildResult(HttpClient $httpClient, bool $requestResult): Result
+	{
+		return $this->createAnswerForJsonResponse(
+			$requestResult,
 			$httpClient->getResult(),
 			$httpClient->getError(),
 			$httpClient->getStatus()
 		);
 	}
 
-	protected function createAnswer($queryResult, $response, $errors, $status)
+	protected function createAnswerForJsonResponse($queryResult, $response, $errors, $status): Result
 	{
 		$result = new Result();
 

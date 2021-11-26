@@ -109,21 +109,19 @@ BX.TileGrid.Grid.prototype =
 
 			this.setBackspaceButton(event);
 			this.setEnterButton(event);
-			this.processButtonSelection();
-			if (this.isKeyPressedDelete() && !this.isKeyPressedShift() && !this.isKeyControlKey())
-			{
-				this.removeSelectedItems(event);
-			}
-			else if (this.backspaceButton && this.isFocusOnTile())
-			{
-				this.handleBackspace();
-			}
-
 			if (this.isFocusOnTile())
 			{
+				this.processButtonSelection();
+				if (this.isKeyPressedDelete() && !this.isKeyPressedShift() && !this.isKeyControlKey())
+				{
+					this.removeSelectedItems(event);
+				}
+				else if (this.backspaceButton)
+				{
+					this.handleBackspace();
+				}
 				this.handleEnter(event);
 			}
-
 		}.bind(this));
 		BX.bind(window, 'keyup', function(event) {
 			// after refactoring

@@ -125,7 +125,7 @@ class GroupStateTable extends DataManager
 		foreach($listId as $primaryId)
 		{
 			$primary = array('GROUP_STATE_ID' => $primaryId);
-			GroupThreadTable::delete($primary);
+			GroupThreadTable::deleteList($primary);
 		}
 
 		return $result;

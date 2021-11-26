@@ -399,6 +399,15 @@
 			});
 		}
 
+		if (window.arWorkflowGlobalVariables && BX.util.object_keys(window.arWorkflowGlobalVariables).length > 0)
+		{
+			result.push({
+				tabName: '@' + BX.message('BIZPROC_JS_BP_SELECTOR_VARIABLES'),
+				tabId: 'gvariables',
+				items: this.extractMenuItem(query, window.arWorkflowGlobalVariables, 'GlobalVar')
+			});
+		}
+
 		result.push({
 			tabName: BX.message('BIZPROC_JS_BP_SELECTOR_SYSTEM'),
 			tabId: 'system',
@@ -568,6 +577,26 @@
 				text: 'ucfirst',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_UCFIRST_DESCRIPTION'),
 				value: '{{=ucfirst()}}'
+			},{
+				text: 'strtotime',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_STRTOTIME_DESCRIPTION'),
+				value: '{{=strtotime()}}'
+			},{
+				text: 'locdate',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_LOCDATE_DESCRIPTION'),
+				value: '{{=locdate(,)}}'
+			},{
+				text: 'shuffle',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_SHUFFLE_DESCRIPTION'),
+				value: '{{=shuffle()}}'
+			},{
+				text: 'firstvalue',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_FIRSTVALUE_DESCRIPTION'),
+				value: '{{=firstvalue()}}'
+			},{
+				text: 'swirl',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_SWIRL_DESCRIPTION'),
+				value: '{{=swirl()}}'
 			}], query)
 		});
 

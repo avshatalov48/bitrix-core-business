@@ -8,6 +8,7 @@
 namespace Bitrix\Main\Controller;
 
 use Bitrix\Main;
+use Bitrix\Main\Component;
 use Bitrix\Main\Localization\Loc;
 
 class PhoneAuth extends Main\Engine\Controller
@@ -115,17 +116,17 @@ class PhoneAuth extends Main\Engine\Controller
 	}
 
 	/**
-	 * @param array $data 'phoneNumber' key is required
+	 * Converts the array of values to the signed string.
+	 * @param array $data Data to sign.
 	 * @return string
 	 */
 	public static function signData(array $data)
 	{
-		$signer = new Main\Security\Sign\Signer();
-		$string = base64_encode(serialize($data));
-		return $signer->sign($string, static::SIGNATURE_SALT);
+		return Component\ParameterSigner::signParameters(self::SIGNATURE_SALT, $data);
 	}
 
 	/**
+	 * Converts the signed string to the array of values.
 	 * @param string $signedData
 	 * @return bool|array
 	 */
@@ -133,9 +134,7 @@ class PhoneAuth extends Main\Engine\Controller
 	{
 		try
 		{
-			$signer = new Main\Security\Sign\Signer();
-			$string = $signer->unsign($signedData, static::SIGNATURE_SALT);
-			return unserialize(base64_decode($string), ['allowed_classes' => false]);
+			return Component\ParameterSigner::unsignParameters(self::SIGNATURE_SALT, $signedData);
 		}
 		catch(Main\SystemException $exception)
 		{

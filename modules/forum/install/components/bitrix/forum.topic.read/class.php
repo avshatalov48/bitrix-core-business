@@ -47,6 +47,11 @@ final class ForumTopicRead extends CBitrixComponent
 			$topic = Forum\Topic::getById($topic["TOPIC_ID"]);
 		}
 
+		if (!($topic instanceof forum\Topic))
+		{
+			throw new Main\ObjectNotFoundException('Topic is not found.');
+		}
+
 		if ($tid != $topic->getId() || $fid != $topic->getForumId())
 		{
 			$url = $mid > 0 ? $this->arParams["URL_TEMPLATES_MESSAGE"] : $this->arParams["~URL_TEMPLATES_READ"];

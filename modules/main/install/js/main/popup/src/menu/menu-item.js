@@ -1,6 +1,6 @@
 import Menu from './menu';
 import { Type, Text, Dom, Event, Tag } from 'main.core';
-import { EventEmitter } from 'main.core.events';
+import { BaseEvent, EventEmitter } from 'main.core.events';
 import { MenuItemOptions } from './menu-types';
 
 const aliases = {
@@ -129,7 +129,10 @@ export default class MenuItem extends EventEmitter
 			{
 				this.layout.item = Dom.create('span', {
 					props: {
-						className: 'popup-window-delimiter-section'
+						className: [
+							'popup-window-delimiter-section',
+							this.className ? this.className : '',
+						].join(' ')
 					},
 					children: [
 						(this.layout.text = Dom.create('span', {
@@ -140,7 +143,6 @@ export default class MenuItem extends EventEmitter
 						}))
 					]
 				});
-
 			}
 			else
 			{
@@ -259,7 +261,14 @@ export default class MenuItem extends EventEmitter
 		}
 
 		const rootMenuWindow = this.getMenuWindow().getRootMenuWindow() || this.getMenuWindow();
-		const options = rootMenuWindow.params;
+		const rootOptions = Object.assign({}, rootMenuWindow.params);
+		delete rootOptions.events;
+
+		const subMenuOptions =
+			Type.isPlainObject(rootMenuWindow.params.subMenuOptions) ? rootMenuWindow.params.subMenuOptions : {}
+		;
+
+		const options = Object.assign({}, rootOptions, subMenuOptions);
 
 		//Override root menu options
 		options.autoHide = false;
@@ -272,7 +281,6 @@ export default class MenuItem extends EventEmitter
 			forceBindPosition: true
 		};
 
-		delete options.events;
 		delete options.angle;
 		delete options.overlay;
 
@@ -519,14 +527,19 @@ export default class MenuItem extends EventEmitter
 	/**
 	 * @private
 	 */
-	onItemMouseEnter(event): void
+	onItemMouseEnter(mouseEvent: MouseEvent): void
 	{
 		if (this.isDisabled())
 		{
 			return;
 		}
 
-		EventEmitter.emit(this, 'onMouseEnter', undefined, { thisArg: this });
+		const event = new BaseEvent({ data: { mouseEvent } });
+		EventEmitter.emit(this, 'onMouseEnter', event, { thisArg: this });
+		if (event.isDefaultPrevented())
+		{
+			return;
+		}
 
 		this.clearSubMenuTimeout();
 
@@ -547,14 +560,19 @@ export default class MenuItem extends EventEmitter
 	/**
 	 * @private
 	 */
-	onItemMouseLeave(event): void
+	onItemMouseLeave(mouseEvent: MouseEvent): void
 	{
 		if (this.isDisabled())
 		{
 			return;
 		}
 
-		EventEmitter.emit(this, 'onMouseLeave', undefined, { thisArg: this });
+		const event = new BaseEvent({ data: { mouseEvent } });
+		EventEmitter.emit(this, 'onMouseLeave', event, { thisArg: this });
+		if (event.isDefaultPrevented())
+		{
+			return;
+		}
 
 		this.clearSubMenuTimeout();
 	}

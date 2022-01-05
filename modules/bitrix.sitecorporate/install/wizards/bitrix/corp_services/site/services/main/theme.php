@@ -20,6 +20,6 @@ COption::SetOptionString("main", "wizard_site_logo", WIZARD_SITE_LOGO, "", WIZAR
 COption::SetOptionString("main", "wizard_".WIZARD_TEMPLATE_ID."_theme_id", WIZARD_THEME_ID, "", WIZARD_SITE_ID);
 
 //Color scheme for main.interface.grid/form
-require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($GLOBALS["DB"]->type)."/favorites.php");
+require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 CUserOptions::SetOption("main.interface", "global", array("theme" => WIZARD_THEME_ID), true);
 ?>

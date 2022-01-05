@@ -268,7 +268,8 @@ class LandingSitesComponent extends LandingBaseComponent
 				'select' => [
 					'*',
 					'DOMAIN_NAME' => 'DOMAIN.DOMAIN',
-					'DOMAIN_PROVIDER' => 'DOMAIN.PROVIDER'
+					'DOMAIN_PROVIDER' => 'DOMAIN.PROVIDER',
+					'DOMAIN_PREV' => 'DOMAIN.PREV_DOMAIN'
 				],
 				'filter' => $filter,
 				'order' => [
@@ -312,6 +313,7 @@ class LandingSitesComponent extends LandingBaseComponent
 				$item['ACCESS_SETTINGS'] = 'Y';
 				$item['ACCESS_PUBLICATION'] = 'Y';
 				$item['ACCESS_DELETE'] = 'Y';
+				$item['ACCESS_SITE_NEW'] = $this->arResult['ACCESS_SITE_NEW'];
 				if (isset($rights[$item['ID']]))
 				{
 					$currRights = $rights[$item['ID']];

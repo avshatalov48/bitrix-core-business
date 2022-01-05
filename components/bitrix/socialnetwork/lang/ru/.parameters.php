@@ -332,4 +332,5 @@ $MESS["SONET_PHOTO_PATH_TO_BLOG"] = "Путь к блогу";
 $MESS["SONET_GROUP_USE_KEYWORDS"] = "Использовать ключевые слова для группы";
 $MESS["SONET_LOG_AUTH"] = "Не требовать авторизацию для просмотра Живой ленты";
 $MESS["BPC_USE_CUT"] = "Использовать [CUT] для сообщений";
-?>
+$MESS["SONET_SEF_USER_TASKS_SCRUM_OVERVIEW"] = "Страница обзора Скрам";
+

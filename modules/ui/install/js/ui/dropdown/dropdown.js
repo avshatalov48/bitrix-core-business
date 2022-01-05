@@ -466,6 +466,10 @@
 			{
 				var currentElement = BX.findParent(this.getPopupWindow().bindElement, {className: 'crm-kanban-quick-form'});
 
+				if (!currentElement)
+				{
+					return 0;
+				}
 				this.popupWindow.popupContainer.style.width = currentElement.offsetWidth + "px";
 				var equalWidth = - (this.targetElement.getBoundingClientRect().left - currentElement.getBoundingClientRect().left);
 

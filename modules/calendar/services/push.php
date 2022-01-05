@@ -21,3 +21,5 @@ $resourceId = $fields['HTTP_X_GOOG_RESOURCE_ID'];
 \Bitrix\Main\Loader::includeModule('calendar');
 
 \Bitrix\Calendar\Sync\GoogleApiPush::receivePushSignal($channelId, $resourceId);
+
+\Bitrix\Main\Application::getInstance()->end();

@@ -344,6 +344,14 @@ abstract class CDatabaseMysql extends CAllDatabase
 
 	public function CharToDateFunction($strValue, $strType="FULL", $lang=false)
 	{
+		// get user time
+		if ($strValue instanceof \Bitrix\Main\Type\DateTime && !$strValue->isUserTimeEnabled())
+		{
+			$strValue = clone $strValue;
+			$strValue->toUserTime();
+		}
+
+		// format
 		$sFieldExpr = "'".CDatabase::FormatDate($strValue, CLang::GetDateFormat($strType, $lang), ($strType=="SHORT"? "YYYY-MM-DD":"YYYY-MM-DD HH:MI:SS"))."'";
 
 		//time zone

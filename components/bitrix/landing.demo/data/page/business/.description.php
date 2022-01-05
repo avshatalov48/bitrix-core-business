@@ -5,7 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\Loc;
 
 Loc::loadLanguageFile(__FILE__);
 
@@ -24,11 +24,10 @@ return [
 		],
 	],
 	'items' => [
-		'0.menu_05' =>
-			[
-				'CODE' => '0.menu_05',
-				'SORT' => '-100',
-				'CONTENT' => '<header class="landing-block landing-semantic-background-color g-theme-business-bg-blue-dark-v1-opacity-0_9 u-header u-header--sticky u-header--float">
+		'0.menu_05' => [
+			'CODE' => '0.menu_05',
+			'SORT' => '-100',
+			'CONTENT' => '<header class="landing-block landing-semantic-background-color g-theme-business-bg-blue-dark-v1-opacity-0_9 u-header u-header--sticky u-header--float">
 		<div class="u-header__section g-transition-0_3 g-py-25"
 		 data-header-fix-moment-exclude="g-py-25"
 		 data-header-fix-moment-classes="g-py-20">
@@ -85,12 +84,11 @@ return [
 		</nav>
 	</div>
 </header>',
-			],
-		'01.big_with_text' =>
-			[
-				'CODE' => '01.big_with_text',
-				'SORT' => '500',
-				'CONTENT' => '<section class="g-pos-rel landing-block g-overflow-hidden">
+		],
+		'01.big_with_text' => [
+			'CODE' => '01.big_with_text',
+			'SORT' => '500',
+			'CONTENT' => '<section class="g-pos-rel landing-block g-overflow-hidden">
 
 	<div class="js-carousel g-overflow-hidden g-max-height-100vh" data-autoplay="true" data-infinite="true" data-fade="true" data-speed="5000">
 		<div class="landing-block-card-img js-slide g-bg-img-hero g-min-height-100vh" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/1600x1075/img1.jpg\');"></div>
@@ -111,12 +109,11 @@ return [
 		</div>
 	</div>
 </section>',
-			],
-		'02.three_cols_big_1' =>
-			[
-				'CODE' => '02.three_cols_big_1',
-				'SORT' => '1000',
-				'CONTENT' => '<section class="container-fluid px-0 landing-block">
+		],
+		'02.three_cols_big_1' => [
+			'CODE' => '02.three_cols_big_1',
+			'SORT' => '1000',
+			'CONTENT' => '<section class="container-fluid px-0 landing-block">
         <div class="row no-gutters">
             <div class="landing-block-node-left-img g-min-height-300 col-lg-4 g-bg-img-hero" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1600x1920/img2.jpg);"></div>
 
@@ -174,12 +171,11 @@ return [
             </div>
         </div>
     </section>',
-			],
-		'05.features_4_cols_with_title' =>
-			[
-				'CODE' => '05.features_4_cols_with_title',
-				'SORT' => '1500',
-				'CONTENT' => '<section class="landing-block g-py-80">
+		],
+		'05.features_4_cols_with_title' => [
+			'CODE' => '05.features_4_cols_with_title',
+			'SORT' => '1500',
+			'CONTENT' => '<section class="landing-block g-py-80">
         <div class="container">
             <div class="landing-block-node-header text-uppercase text-center u-heading-v2-4--bottom g-brd-primary g-mb-80 js-animation fadeIn">
                 <h6 class="landing-block-node-title g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">Our services</h6>
@@ -291,25 +287,22 @@ return [
             <!-- End Icon Blocks -->
         </div>
     </section>',
-			],
-		'07.3.two_col_fix_text_with_icon_title_and_text' =>
-			[
-				'CODE' => '07.3.two_col_fix_text_with_icon_title_and_text',
-				'SORT' => '2000',
-				'CONTENT' => '<section class="landing-block g-theme-business-bg-blue-dark-v1 g-py-20">
+		],
+		'07.3.two_col_fix_text_with_icon_title_and_text' => [
+			'CODE' => '07.3.two_col_fix_text_with_icon_title_and_text',
+			'SORT' => '2000',
+			'CONTENT' => '<section class="landing-block g-theme-business-bg-blue-dark-v1 g-py-20">
 
 		<div class="container text-center g-max-width-800 g-color-gray-light-v2 g-mb-20">
 			<div class="landing-block-node-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40">
 				<h6 class="landing-block-node-subtitle g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">Work process</h6>
 				<h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-font-size-40 g-color-white g-mb-minus-10">Step by step</h2>
 			</div>
-			
 			<div class="landing-block-node-text g-color-gray-light-v2">
 				<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci viverra
 					eros, fringilla porttitor lorem eros vel odio.</p>
 			</div>
 		</div>
-		
         <div class="container">
             <div class="row landing-block-inner">
 
@@ -317,7 +310,7 @@ return [
                     <div class="landing-block-card-container g-pos-rel g-parent g-theme-business-bg-blue-dark-v2 g-py-35 g-px-25 g-pl-70--sm g-pl-60 g-ml-30 g-ml-0--sm">
                         <div class="g-absolute-centered--y g-left-0">
                             <div class="landing-block-node-element-icon-container g-pull-50x-left g-brd-around g-brd-5 g-rounded-50x g-overflow-hidden g-color-white g-bg-primary">
-                                <span class="landing-block-node-element-icon-hover d-block g-pos-abs g-top-0 g-left-0 g-width-85 g-height-85 g-rounded-50x opacity-0 g-opacity-1--parent-hover g-transition-0_1 g-transition--ease-in" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img1.jpg);"></span>
+                                <span class="landing-block-node-element-icon-hover d-block g-pos-abs g-top-0 g-left-0 g-width-85 g-height-85 g-rounded-50x opacity-0 g-opacity-1--parent-hover g-transition-0_1 g-transition--ease-in g-bg-size-cover" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img1.jpg);"></span>
 								<span class="u-icon-v3 u-icon-size--xl g-width-85 g-height-85 g-bg-transparent g-opacity-1 opacity-0--parent-hover g-transition-0_1 g-transition--ease-in">
 								  <i class="landing-block-node-element-icon icon-fire"></i>
 								</span>
@@ -335,7 +328,7 @@ return [
                     <div class="landing-block-card-container g-pos-rel g-parent g-theme-business-bg-blue-dark-v2 g-py-35 g-px-25 g-pl-70--sm g-pl-60 g-ml-30 g-ml-0--sm">
                         <div class="g-absolute-centered--y g-left-0">
                             <div class="landing-block-node-element-icon-container g-pull-50x-left g-brd-around g-brd-5 g-rounded-50x g-overflow-hidden g-color-white g-bg-primary">
-                                <span class="landing-block-node-element-icon-hover d-block g-pos-abs g-top-0 g-left-0 g-width-85 g-height-85 g-rounded-50x opacity-0 g-opacity-1--parent-hover g-transition-0_1 g-transition--ease-in" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img2.jpg);"></span>
+                                <span class="landing-block-node-element-icon-hover d-block g-pos-abs g-top-0 g-left-0 g-width-85 g-height-85 g-rounded-50x opacity-0 g-opacity-1--parent-hover g-transition-0_1 g-transition--ease-in g-bg-size-cover" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img2.jpg);"></span>
 								<span class="u-icon-v3 u-icon-size--xl g-width-85 g-height-85 g-bg-transparent g-opacity-1 opacity-0--parent-hover g-transition-0_1 g-transition--ease-in">
 								  <i class="landing-block-node-element-icon icon-energy"></i>
 								</span>
@@ -348,16 +341,14 @@ return [
 						</div>
                     </div>
                 </div>
-				
             </div>
         </div>
     </section>',
-			],
-		'07.1.two_col_fix_text_with_icon' =>
-			[
-				'CODE' => '07.1.two_col_fix_text_with_icon',
-				'SORT' => '2500',
-				'CONTENT' => '<section class="landing-block g-theme-business-bg-blue-dark-v1 g-py-20">
+		],
+		'07.1.two_col_fix_text_with_icon' => [
+			'CODE' => '07.1.two_col_fix_text_with_icon',
+			'SORT' => '2500',
+			'CONTENT' => '<section class="landing-block g-theme-business-bg-blue-dark-v1 g-py-20">
         <div class="container">
             <div class="row landing-block-inner">
 
@@ -365,7 +356,7 @@ return [
                     <div class="landing-block-card-container g-pos-rel g-parent g-theme-business-bg-blue-dark-v2 g-py-35 g-px-25 g-pl-70--sm g-pl-60 g-ml-30 g-ml-0--sm">
                         <div class="g-absolute-centered--y g-left-0">
                             <div class="landing-block-node-element-icon-container g-pull-50x-left g-brd-around g-brd-5 g-rounded-50x g-overflow-hidden g-color-white g-bg-primary">
-                                <span class="landing-block-node-icon-hover d-block g-pos-abs g-top-0 g-left-0 g-width-85 g-height-85 g-rounded-50x opacity-0 g-opacity-1--parent-hover g-transition-0_1 g-transition--ease-in" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img1.jpg);"></span>
+                                <span class="landing-block-node-icon-hover d-block g-pos-abs g-top-0 g-left-0 g-width-85 g-height-85 g-rounded-50x opacity-0 g-opacity-1--parent-hover g-transition-0_1 g-transition--ease-in g-bg-size-cover" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img1.jpg);"></span>
 								<span class="u-icon-v3 u-icon-size--xl g-width-85 g-height-85 g-bg-transparent g-opacity-1 opacity-0--parent-hover g-transition-0_1 g-transition--ease-in">
 								  <i class="landing-block-node-icon icon-fire"></i>
 								</span>
@@ -396,16 +387,14 @@ return [
 						</div>
                     </div>
                 </div>
-				
             </div>
         </div>
     </section>',
-			],
-		'13.1.one_col_fix_text_and_button' =>
-			[
-				'CODE' => '13.1.one_col_fix_text_and_button',
-				'SORT' => '3000',
-				'CONTENT' => '<section class="landing-block text-center g-pt-20 g-theme-business-bg-blue-dark-v1 g-pb-60">
+		],
+		'13.1.one_col_fix_text_and_button' => [
+			'CODE' => '13.1.one_col_fix_text_and_button',
+			'SORT' => '3000',
+			'CONTENT' => '<section class="landing-block text-center g-pt-20 g-theme-business-bg-blue-dark-v1 g-pb-60">
 	<div class="container g-max-width-800">
 
 		<div class="landing-block-node-text g-color-gray-light-v2">
@@ -417,12 +406,11 @@ return [
 		</div>
 	</div>
 </section>',
-			],
-		'09.1.two_cols_fix_text_and_image_slider' =>
-			[
-				'CODE' => '09.1.two_cols_fix_text_and_image_slider',
-				'SORT' => '3500',
-				'CONTENT' => '<section class="landing-block landing-block-node-container g-pt-115 g-pb-80">
+		],
+		'09.1.two_cols_fix_text_and_image_slider' => [
+			'CODE' => '09.1.two_cols_fix_text_and_image_slider',
+			'SORT' => '3500',
+			'CONTENT' => '<section class="landing-block landing-block-node-container g-pt-115 g-pb-80">
         <div class="container">
             <div class="row">
 
@@ -561,12 +549,11 @@ return [
             </div>
         </div>
     </section>',
-			],
-		'10.1.two_cols_big_img_text_and_text_blocks' =>
-			[
-				'CODE' => '10.1.two_cols_big_img_text_and_text_blocks',
-				'SORT' => '4000',
-				'CONTENT' => '<section class="landing-block row no-gutters">
+		],
+		'10.1.two_cols_big_img_text_and_text_blocks' => [
+			'CODE' => '10.1.two_cols_big_img_text_and_text_blocks',
+			'SORT' => '4000',
+			'CONTENT' => '<section class="landing-block row no-gutters">
         <div class="landing-block-node-img col-lg-5 g-min-height-360 g-bg-img-hero" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/1600x1920/img1.jpg\');"></div>
 
         <div class="landing-block-node-texts col-lg-7 g-theme-business-bg-blue-dark-v1 g-pt-100 g-pb-80 g-px-15 g-px-40--md">
@@ -631,12 +618,11 @@ return [
 
         </div>
     </section>',
-			],
-		'04.7.one_col_fix_with_title_and_text_2' =>
-			[
-				'CODE' => '04.7.one_col_fix_with_title_and_text_2',
-				'SORT' => '4500',
-				'CONTENT' => '<section class="landing-block js-animation fadeInUp animated g-bg-main g-pt-60 g-pb-10">
+		],
+		'04.7.one_col_fix_with_title_and_text_2' => [
+			'CODE' => '04.7.one_col_fix_with_title_and_text_2',
+			'SORT' => '4500',
+			'CONTENT' => '<section class="landing-block js-animation fadeInUp animated g-bg-main g-pt-60 g-pb-10">
 
 	<div class="container text-center g-max-width-800">
 
@@ -649,12 +635,11 @@ return [
 	</div>
 
 </section>',
-			],
-		'11.three_cols_fix_tariffs' =>
-			[
-				'CODE' => '11.three_cols_fix_tariffs',
-				'SORT' => '5000',
-				'CONTENT' => '<section class="landing-block landing-block-node-container g-pt-30 g-pb-20">
+		],
+		'11.three_cols_fix_tariffs' => [
+			'CODE' => '11.three_cols_fix_tariffs',
+			'SORT' => '5000',
+			'CONTENT' => '<section class="landing-block landing-block-node-container g-pt-30 g-pb-20">
         <div class="container">
 
             <div class="row no-gutters landing-block-inner">
@@ -716,7 +701,7 @@ return [
                             </ul>
                             <div class="landing-block-node-price-container">
                             	<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#">Order Now</a>
-							</div>                        
+							</div>
                         </div>
                     </article>
                 </div>
@@ -755,12 +740,11 @@ return [
             </div>
         </div>
     </section>',
-			],
-		'03.3.one_col_big_with_text_and_title' =>
-			[
-				'CODE' => '03.3.one_col_big_with_text_and_title',
-				'SORT' => '5500',
-				'CONTENT' => '<section class="landing-block container-fluid px-0 g-theme-business-bg-blue-dark-v1 g-pt-60">
+		],
+		'03.3.one_col_big_with_text_and_title' => [
+			'CODE' => '03.3.one_col_big_with_text_and_title',
+			'SORT' => '5500',
+			'CONTENT' => '<section class="landing-block container-fluid px-0 g-theme-business-bg-blue-dark-v1 g-pt-60">
         <div class="landing-block-inner-container row no-gutters">
 
             <div class="landing-block-card col-md-12 col-lg-12 g-flex-centered js-animation fadeIn animated ">
@@ -779,12 +763,11 @@ return [
 
         </div>
     </section>',
-			],
-		'20.3.four_cols_fix_img_title_text' =>
-			[
-				'CODE' => '20.3.four_cols_fix_img_title_text',
-				'SORT' => '6000',
-				'CONTENT' => '<section class="landing-block landing-block-node-container g-py-20">
+		],
+		'20.3.four_cols_fix_img_title_text' => [
+			'CODE' => '20.3.four_cols_fix_img_title_text',
+			'SORT' => '6000',
+			'CONTENT' => '<section class="landing-block landing-block-node-container g-py-20">
 	<div class="container">
 		<div class="row landing-block-inner">
 
@@ -827,12 +810,11 @@ return [
 		</div>
 	</div>
 </section>',
-			],
-		'04.1.one_col_fix_with_title' =>
-			[
-				'CODE' => '04.1.one_col_fix_with_title',
-				'SORT' => '6500',
-				'CONTENT' => '<section class="landing-block landing-block-container js-animation fadeInUp animated g-pb-20 g-pt-60">
+		],
+		'04.1.one_col_fix_with_title' => [
+			'CODE' => '04.1.one_col_fix_with_title',
+			'SORT' => '6500',
+			'CONTENT' => '<section class="landing-block landing-block-container js-animation fadeInUp animated g-pb-20 g-pt-60">
         <div class="container">
             <div class="landing-block-node-inner text-uppercase text-center u-heading-v2-4--bottom g-brd-primary">
                 <h6 class="landing-block-node-subtitle g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">OUR CLIENTS</h6>
@@ -840,12 +822,11 @@ return [
             </div>
         </div>
     </section>',
-			],
-		'12.image_carousel_6_cols_fix' =>
-			[
-				'CODE' => '12.image_carousel_6_cols_fix',
-				'SORT' => '7000',
-				'CONTENT' => ' <section class="landing-block js-animation zoomIn text-center g-pt-20 g-pb-20">
+		],
+		'12.image_carousel_6_cols_fix' => [
+			'CODE' => '12.image_carousel_6_cols_fix',
+			'SORT' => '7000',
+			'CONTENT' => ' <section class="landing-block js-animation zoomIn text-center g-pt-20 g-pb-20">
         <div class="container g-px-35 g-px-0--md">
 
             <div class="js-carousel row"
@@ -941,12 +922,11 @@ return [
 
         </div>
     </section>',
-			],
-		'13.1.one_col_fix_text_and_button@2' =>
-			[
-				'CODE' => '13.1.one_col_fix_text_and_button',
-				'SORT' => '7500',
-				'CONTENT' => '<section class="landing-block text-center g-pt-20 g-pb-60">
+		],
+		'13.1.one_col_fix_text_and_button@2' => [
+			'CODE' => '13.1.one_col_fix_text_and_button',
+			'SORT' => '7500',
+			'CONTENT' => '<section class="landing-block text-center g-pt-20 g-pb-60">
 	<div class="container g-max-width-800">
 
 		<div class="landing-block-node-text">
@@ -958,12 +938,11 @@ return [
 		</div>
 	</div>
 </section>',
-			],
-		'04.2.one_col_fix_with_title_2' =>
-			[
-				'CODE' => '04.2.one_col_fix_with_title_2',
-				'SORT' => '8000',
-				'CONTENT' => '<section class="landing-block landing-block-container g-theme-business-bg-blue-dark-v1 g-pt-20 g-pb-20 js-animation slideInLeft">
+		],
+		'04.2.one_col_fix_with_title_2' => [
+			'CODE' => '04.2.one_col_fix_with_title_2',
+			'SORT' => '8000',
+			'CONTENT' => '<section class="landing-block landing-block-container g-theme-business-bg-blue-dark-v1 g-pt-20 g-pb-20 js-animation slideInLeft">
 	<div class="container g-max-width-800">
 		<div class="landing-block-node-inner text-uppercase text-center u-heading-v2-4--bottom g-brd-primary">
 			<h6 class="landing-block-node-subtitle g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">CONTACTS</h6>
@@ -971,15 +950,13 @@ return [
 		</div>
 	</div>
 </section>',
-			],
-		'14.1.contacts_4_cols' =>
-			[
-				'CODE' => '14.1.contacts_4_cols',
-				'SORT' => '8500',
-				'CONTENT' => '<section class="landing-block g-pt-40 g-pb-25 text-center g-theme-business-bg-blue-dark-v1">
+		],
+		'14.1.contacts_4_cols' => [
+			'CODE' => '14.1.contacts_4_cols',
+			'SORT' => '8500',
+			'CONTENT' => '<section class="landing-block g-pt-40 g-pb-25 text-center g-theme-business-bg-blue-dark-v1">
 			<div class="container">
 			<div class="row justify-content-center">
-	
 				<div class="landing-block-card js-animation fadeIn landing-block-node-contact g-brd-between-cols col-sm-6 col-md-6 col-lg-3 g-brd-primary g-px-15 g-py-30 g-py-0--md g-mb-15"
 					 data-card-preset="contact-link">
 					<a class="landing-block-node-linkcontact-link g-text-decoration-none--hover"
@@ -995,7 +972,6 @@ return [
 						</span>
 					</a>
 				</div>
-	
 				<div class="landing-block-card js-animation fadeIn landing-block-node-contact g-brd-between-cols col-sm-6 col-md-6 col-lg-3 g-brd-primary g-px-15 g-py-30 g-py-0--md g-mb-15"
 						   data-card-preset="contact-link">
 					<a class="landing-block-node-linkcontact-link g-text-decoration-none--hover" href="tel:1-800-643-4500" target="_blank">
@@ -1009,7 +985,6 @@ return [
 						</span>
 					</a>
 				</div>
-	
 				<div class="landing-block-card js-animation fadeIn landing-block-node-contact g-brd-between-cols col-sm-6 col-md-6 col-lg-3 g-brd-primary g-px-15 g-py-30 g-py-0--md g-mb-15"
 					 data-card-preset="contact-link">
 					<a class="landing-block-node-linkcontact-link g-text-decoration-none--hover" href="mailto:info@company24.com" target="_blank">
@@ -1023,7 +998,6 @@ return [
 						</span>
 					</a>
 				</div>
-	
 				<div class="landing-block-card js-animation fadeIn landing-block-node-contact g-brd-between-cols col-sm-6 col-md-6 col-lg-3 g-brd-primary g-px-15 g-py-30 g-py-0--md g-mb-15"
 					 data-card-preset="contact-text">
 					<div class="landing-block-node-contact-container">
@@ -1037,18 +1011,14 @@ return [
 						</span>
 					</div>
 				</div>
-				
-				
-				
 			</div>
 		</div>
     </section>',
-			],
-		'17.copyright' =>
-			[
-				'CODE' => '17.copyright',
-				'SORT' => '9000',
-				'CONTENT' => '<section class="landing-block js-animation animation-none">
+		],
+		'17.copyright' => [
+			'CODE' => '17.copyright',
+			'SORT' => '9000',
+			'CONTENT' => '<section class="landing-block js-animation animation-none">
         <div class="text-center g-color-gray-dark-v3 g-pa-10">
             <div class="g-width-600 mx-auto">
                 <div class="landing-block-node-text g-font-size-12  js-animation animation-none">
@@ -1057,6 +1027,6 @@ return [
             </div>
         </div>
     </section>',
-			],
+		],
 	],
 ];

@@ -1,4 +1,10 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /**
  * @var array $arParams
  * @var array $arResult
@@ -9,10 +15,7 @@
 use Bitrix\Main\Web\Json;
 
 $rights = "N";
-if (
-	\CSocNetUser::IsCurrentUserModuleAdmin()
-	|| $APPLICATION->GetGroupRight("blog") >= "W"
-)
+if ($arResult["Perm"] >= \Bitrix\Blog\Item\Permissions::FULL)
 {
 	$rights = "ALL";
 }
@@ -27,7 +30,7 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 	"",
 	array(
 		"TEMPLATE_ID" => 'BLOG_COMMENT_BG_',
-		"RATING_TYPE_ID" => ($arParams["SHOW_RATING"] == "Y" ? "BLOG_COMMENT" : ""),
+		"RATING_TYPE_ID" => ($arParams["SHOW_RATING"] === "Y" ? "BLOG_COMMENT" : ""),
 		"ENTITY_XML_ID" => $arParams["ENTITY_XML_ID"],
 		"RECORDS" => $arResult["RECORDS"],
 		"NAV_STRING" => $arResult["NAV_STRING"],
@@ -101,6 +104,7 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 	),
 	$this->__component
 );
+
 if ($eventHandlerID > 0 )
 {
 	RemoveEventHandler('main', 'system.field.view.file', $eventHandlerID);
@@ -121,7 +125,7 @@ if ($arParams["bFromList"])
 		$arResult["OUTPUT_LIST"]["HTML"] .= ob_get_clean();
 	}
 }
-elseif ($arResult["CanUserComment"] == "Y")
+elseif ($arResult['CanUserComment'])
 {
 	ob_start();
 	include_once(__DIR__ . "/script.php");
@@ -131,8 +135,8 @@ elseif ($arResult["CanUserComment"] == "Y")
 if ($_REQUEST['empty_get_comments'] === 'Y')
 {
 	$APPLICATION->RestartBuffer();
-	while(ob_get_clean());
-	\CMain::finalActions(Json::encode([
+	while(ob_get_clean()) {};
+	CMain::finalActions(Json::encode([
 		'TEXT' => $arResult['OUTPUT_LIST']['HTML'],
 		'POST_NUM_COMMENTS' => (int)$arResult['Post']['NUM_COMMENTS'],
 		'POST_PERM' => $arResult['PostPerm'],

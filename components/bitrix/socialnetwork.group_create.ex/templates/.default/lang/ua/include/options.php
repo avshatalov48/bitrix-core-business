@@ -1,0 +1,21 @@
+<?php
+$MESS["SONET_GCE_T_IS_EXTRANET_GROUP2_HINT"] = "До групи можна запрошувати зовнішніх учасників";
+$MESS["SONET_GCE_T_IS_EXTRANET_GROUP2_HINT_PROJECT"] = "До проєкту можна запрошувати зовнішніх учасників";
+$MESS["SONET_GCE_T_IS_EXTRANET_GROUP3"] = "Дозволити доступ зовнішнім користувачам";
+$MESS["SONET_GCE_T_IS_EXTRANET_TITLE"] = "Зовнішні користувачі";
+$MESS["SONET_GCE_T_PARAMS_CLOSED2"] = "Архівна";
+$MESS["SONET_GCE_T_PARAMS_CLOSED2_HINT"] = "Група є архівною";
+$MESS["SONET_GCE_T_PARAMS_CLOSED2_HINT_PROJECT"] = "Проєкт є архівним";
+$MESS["SONET_GCE_T_PARAMS_CLOSED2_PROJECT"] = "Архівний";
+$MESS["SONET_GCE_T_PARAMS_LANDING"] = "Дата публікації";
+$MESS["SONET_GCE_T_PARAMS_OPEN2"] = "Відкрита";
+$MESS["SONET_GCE_T_PARAMS_OPEN2_HINT"] = "До групи можливо вступити без затвердження модератором";
+$MESS["SONET_GCE_T_PARAMS_OPEN2_HINT_PROJECT"] = "До проєкту можливо вступити без затвердження керівником або його помічником";
+$MESS["SONET_GCE_T_PARAMS_OPEN2_PROJECT"] = "Відкритий";
+$MESS["SONET_GCE_T_PARAMS_PROJECT"] = "Проєкт";
+$MESS["SONET_GCE_T_PARAMS_VIS2"] = "Видима";
+$MESS["SONET_GCE_T_PARAMS_VIS2_HINT"] = "Наявність групи видно всім користувачам, а не тільки її учасникам";
+$MESS["SONET_GCE_T_PARAMS_VIS2_HINT_PROJECT"] = "Наявність проєкту видно всім користувачам, а не тільки його учасникам";
+$MESS["SONET_GCE_T_PARAMS_VIS2_PROJECT"] = "Видимий";
+$MESS["SONET_GCE_T_TITLE_TYPE"] = "Тип групи";
+$MESS["SONET_GCE_T_TITLE_TYPE_PROJECT"] = "Тип проєкту";

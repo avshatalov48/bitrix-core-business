@@ -1139,7 +1139,7 @@
 .calendar-planner-main-loader {
 	position: absolute !important;
 	top: 62px;
-	left: 140px;
+	left: 50%;
 }
 
 .calendar-planner-user .ui-icon-common-user-mail > i {

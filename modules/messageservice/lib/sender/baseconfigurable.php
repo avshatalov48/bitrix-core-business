@@ -90,7 +90,7 @@ abstract class BaseConfigurable extends Base
 	/**
 	 * @return string
 	 */
-	public function getManageUrl()
+	public function getManageUrl(): string
 	{
 		if (defined('ADMIN_SECTION') && ADMIN_SECTION === true)
 		{
@@ -269,5 +269,42 @@ abstract class BaseConfigurable extends Base
 	public function getConfigComponentTemplatePageName(): string
 	{
 		return static::getId();
+	}
+
+	/**
+	 * Can message be created from template only
+	 *
+	 * @return bool
+	 */
+	public function isTemplatesBased(): bool
+	{
+		return false;
+	}
+
+	/**
+	 *
+	 * List of available templates for templates-based senders
+	 * Should return array of templates like this:
+	 *
+	 * [
+	 * 		['ID' => '1', 'TITLE' => 'Template 1', 'PREVIEW' => 'Message created from template 1'],
+	 * 		['ID' => '2', 'TITLE' => 'Template 2', 'PREVIEW' => 'Message created from template 2'],
+	 * ]
+	 *
+	 * @param array|null $context Context for context-dependant templates
+	 *
+	 * @return array
+	 */
+	public function getTemplatesList(array $context = null): array
+	{
+		return [];
+	}
+
+	/**
+	 * Prepare template for save in message headers
+	 */
+	public function prepareTemplate($templateData)
+	{
+		return $templateData;
 	}
 }

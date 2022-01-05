@@ -34,8 +34,8 @@ if (CModule::IncludeModule("socialnetwork"))
 	$arGroup = false;
 	$arVariables = array();
 	$componentPage = __CheckPath4Template($strGroupLinkTemplate, $_SERVER["REQUEST_URI"], $arVariables);
-	if ($componentPage && IntVal($arVariables["group_id"]) > 0)
-		$arGroup = CSocNetGroup::GetByID(IntVal($arVariables["group_id"]));
+	if ($componentPage && intval($arVariables["group_id"]) > 0)
+		$arGroup = CSocNetGroup::GetByID(intval($arVariables["group_id"]));
 
 	$dbGroupSubjects = CSocNetGroupSubject::GetList(
 		array("SORT" => "ASC", "NAME" => "ASC"),

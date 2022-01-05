@@ -1,0 +1,27 @@
+<?php
+$MESS["smtp_configuration_edit_tab"] = "Параметры";
+$MESS["smtp_configuration_edit_tab_title"] = "Параметры SMTP-подключения";
+$MESS["smtp_configuration_edit_title"] = "Редактирование SMTP-подключения";
+$MESS["smtp_configuration_edit_add"] = "Добавление SMTP подключения";
+$MESS["smtp_configuration_edit_list"] = "Список подключений SMTP";
+$MESS["smtp_configuration_edit_list_title"] = "Перейти в список подключений SMTP";
+$MESS["smtp_configuration_edit_add_btn"] = "Добавить";
+$MESS["smtp_configuration_edit_add_btn_title"] = "Добавить новое SMTP-подключение";
+$MESS["smtp_configuration_edit_copy"] = "Копировать";
+$MESS["smtp_configuration_edit_copy_title"] = "Копировать подключение";
+$MESS["smtp_configuration_edit_del"] = "Удалить";
+$MESS["smtp_configuration_edit_del_conf"] = "Вы уверены, что хотите удалить подключение?";
+$MESS["smtp_configuration_edit_del_title"] = "Удалить SMTP подключение";
+$MESS["smtp_configuration_edit_sites"] = "Сайты:";
+$MESS["smtp_configuration_edit_not_set"] = "(не установлен)";
+$MESS["smtp_configuration_edit_insert"] = "Вставить в текст";
+$MESS["smtp_configuration_edit_fields"] = "Доступные поля:";
+$MESS["smtp_configuration_edit_err_site"] = "Должен быть указан хотя бы один сайт.";
+$MESS["smtp_configuration_edit_host"] = "Сервер";
+$MESS["smtp_configuration_edit_title"] = "Сервер";
+$MESS["smtp_configuration_edit_port"] = "Порт";
+$MESS["smtp_configuration_edit_password"] = "Пароль";
+$MESS["smtp_configuration_edit_encrypted"] = "Использовать защищенное соединение";
+$MESS["smtp_configuration_edit_login"] = "Логин";
+$MESS["smtp_configuration_wrong_field_value"] = "Неверное значение для поля %FIELD_NAME%";
+

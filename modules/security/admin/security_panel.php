@@ -1,4 +1,8 @@
-<?
+<?php
+
+use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\Session\SessionConfigurationResolver;
+
 define("ADMIN_MODULE_NAME", "security");
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -427,14 +431,19 @@ $data['high']['ITEMS'][] = array(
 	),
 );
 
+$resolver = new SessionConfigurationResolver(Configuration::getInstance());
+$sessionConfig = $resolver->getSessionConfig();
+$generalHandlerType = $sessionConfig['handlers']['general']['type'] ?? null;
+$sessionInFiles = $generalHandlerType === SessionConfigurationResolver::TYPE_FILE;
+
 $bSessionsDB = COption::GetOptionString("security", "session") == "Y";
 
 $data['high']['ITEMS'][] = array(
-	"IS_OK" => $bSessionsDB,
-	"KPI_NAME" => GetMessage("SEC_PANEL_SESSDB_NAME"),
-	"KPI_VALUE" => ($bSessionsDB? GetMessage("SEC_PANEL_SESSDB_VALUE_ON"): GetMessage("SEC_PANEL_SESSDB_VALUE_OFF")),
+	"IS_OK" => !$sessionInFiles,
+	"KPI_NAME" => GetMessage("SEC_PANEL_SESS_STORAGE_NAME"),
+	"KPI_VALUE" => (!$sessionInFiles? GetMessage("SEC_PANEL_SESSDB_VALUE_ON"): GetMessage("SEC_PANEL_SESSDB_VALUE_OFF")),
 	"KPI_RECOMMENDATION" => (
-		$bSessionsDB?
+		!$sessionInFiles?
 		'&nbsp;':
 		(
 			$USER->CanDoOperation('security_session_settings_write')?
@@ -641,7 +650,7 @@ $APPLICATION->SetTitle(GetMessage("SEC_PANEL_TITLE"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-CAdminMessage::ShowMessage($strError);		
+CAdminMessage::ShowMessage($strError);
 
 CAdminMessage::ShowMessage(array(
 			"MESSAGE"=>GetMessage("SEC_PANEL_CURRENT_LEVEL", array("#LEVEL_NAME#" => $SECURITY_LEVEL)),

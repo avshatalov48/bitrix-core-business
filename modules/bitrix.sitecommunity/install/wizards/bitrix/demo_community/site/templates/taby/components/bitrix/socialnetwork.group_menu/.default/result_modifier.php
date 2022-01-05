@@ -33,5 +33,5 @@ if (intval($arResult["Group"]["IMAGE_ID"]) > 0)
 }
 
 $arResult["Urls"]["MessageToGroup"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_MESSAGE_TO_GROUP"], array("group_id" => $arResult["Group"]["ID"]));
-$arResult["Title"]["blog"] = ((array_key_exists("blog", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["blog"]) > 0) ? $arResult["ActiveFeatures"]["blog"] : GetMessage("SONET_CM_BLOG"));	
+$arResult["Title"]["blog"] = ((array_key_exists("blog", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["blog"] <> '') ? $arResult["ActiveFeatures"]["blog"] : GetMessage("SONET_CM_BLOG"));
 ?>

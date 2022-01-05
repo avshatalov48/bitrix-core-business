@@ -20,7 +20,7 @@ if(!is_array($css) || !in_array("/bitrix/css/main/font-awesome.css", $css))
 	$strReturn .= '<link href="'.CUtil::GetAdditionalFileURL("/bitrix/css/main/font-awesome.css").'" type="text/css" rel="stylesheet" />'."\n";
 }
 
-$strReturn .= '<div class="bx-breadcrumb" itemprop="http://schema.org/breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList">';
+$strReturn .= '<div class="bx-breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList">';
 
 $itemSize = count($arResult);
 for($index = 0; $index < $itemSize; $index++)

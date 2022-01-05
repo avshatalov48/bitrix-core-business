@@ -20,9 +20,9 @@ foreach ($arResult["BLACKLIST"] as $key => $item)
 	$item["DATE_INSERT"] = FormatDate("X", MakeTimeStamp($item["DATE_INSERT"]));
 	foreach ($item as $itemKey => $dataValue)
 	{
-		if (is_string($data[$itemKey]))
+		if (is_string($dataValue[$itemKey]))
 		{
-			$data[$itemKey] = htmlspecialcharsbx($dataValue);
+			$dataValue[$itemKey] = htmlspecialcharsbx($dataValue);
 		}
 	}
 	$actions = [];

@@ -6,6 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\ComponentHelper;
 
 final class SocialnetworkWorkgroupCardMenu extends CBitrixComponent
 {
@@ -18,7 +19,6 @@ final class SocialnetworkWorkgroupCardMenu extends CBitrixComponent
 
 	public function executeComponent()
 	{
-return;
 		if ($this->arParams['GROUP_ID'] <= 0)
 		{
 			return;

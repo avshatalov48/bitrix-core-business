@@ -8128,6 +8128,7 @@ this.BX.UI = this.BX.UI || {};
 	          forceBindPosition: true
 	        },
 	        autoHide: this.isAutoHide(),
+	        autoHideHandler: this.handleAutoHide.bind(this),
 	        closeByEsc: this.shouldHideByEsc(),
 	        cacheable: this.isCacheable(),
 	        events: {
@@ -8590,6 +8591,26 @@ this.BX.UI = this.BX.UI || {};
 	        });
 	      });
 	      this.observeTabOverlapping();
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "handleAutoHide",
+	    value: function handleAutoHide(event) {
+	      var target = event.target;
+	      var el = this.getPopup().getPopupContainer();
+
+	      if (target === el || el.contains(target)) {
+	        return false;
+	      }
+
+	      if (this.isTagSelectorOutside() && target === this.getTagSelector().getTextBox() && main_core.Type.isStringFilled(this.getTagSelector().getTextBoxValue())) {
+	        return false;
+	      }
+
+	      return true;
 	    }
 	    /**
 	     * @private

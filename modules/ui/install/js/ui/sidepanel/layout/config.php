@@ -1,4 +1,4 @@
-<?
+<?php
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -11,6 +11,8 @@ return [
 		'sidepanel',
 		'main.core',
 		'ui.buttons',
+		'ui.sidepanel.menu',
+		'main.core.events',
 	],
 	'skip_core' => false,
 ];

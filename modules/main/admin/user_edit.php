@@ -84,7 +84,7 @@ $editable = ($USER->IsAdmin() ||
 if($_REQUEST["action"] == "authorize" && check_bitrix_sessid() && $USER->CanDoOperation('edit_php'))
 {
 	$USER->Logout();
-	$USER->Authorize(intval($_REQUEST["ID"]), false, false, null, false);
+	$USER->Authorize(intval($_REQUEST["ID"]), false, true, null, false);
 	LocalRedirect("user_edit.php?lang=".LANGUAGE_ID."&ID=".intval($_REQUEST["ID"]));
 }
 

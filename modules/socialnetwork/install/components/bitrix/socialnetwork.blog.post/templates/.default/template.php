@@ -379,7 +379,8 @@ else
 					"LAZYLOAD" => $arParams["LAZYLOAD"],
 					"CAN_USER_COMMENT" => (!isset($arResult["CanComment"]) || $arResult["CanComment"] ? 'Y' : 'N'),
 					"NAV_TYPE_NEW" => "Y",
-					"SELECTOR_VERSION" => $arResult["SELECTOR_VERSION"]
+					"SELECTOR_VERSION" => $arResult["SELECTOR_VERSION"],
+					'FORM_ID' => $arParams['FORM_ID'],
 				),
 				$component
 			);

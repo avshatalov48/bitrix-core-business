@@ -1,4 +1,10 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -6,8 +12,11 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 /** @global CCacheManager $CACHE_MANAGER */
+
 global $CACHE_MANAGER, $USER, $APPLICATION;
 
+use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 
@@ -23,15 +32,15 @@ if (
 	&& $USER->IsAuthorized()
 )
 {
-	if ($arResult['USE_PROJECTS'] == 'Y')
+	if ($arResult['USE_PROJECTS'] === 'Y')
 	{
 		$myProjectsTabActive = (
-			$arParams["PAGE"] == 'user_projects'
+			$arParams["PAGE"] === 'user_projects'
 			|| (
-				$arParams["PAGE"] == 'groups_list'
+				$arParams["PAGE"] === 'groups_list'
 				&& $arResult["filter_my"]
 				&& isset($arResult["filter_project"])
-				&& $arResult["filter_project"] == 'Y'
+				&& $arResult["filter_project"] === 'Y'
 			)
 		);
 		$arResult["menuItems"][] = array(
@@ -47,14 +56,14 @@ if (
 	}
 
 	$myTabActive = (
-		$arParams["PAGE"] == 'user_groups'
+		$arParams["PAGE"] === 'user_groups'
 		|| (
-			$arParams["PAGE"] == 'groups_list'
+			$arParams["PAGE"] === 'groups_list'
 			&& $arResult["filter_my"]
 			&& (
-				$arResult["USE_PROJECTS"] != 'Y'
+				$arResult["USE_PROJECTS"] !== 'Y'
 				|| !isset($arResult["filter_project"])
-				|| $arResult["filter_project"] != 'Y'
+				|| $arResult["filter_project"] !== 'Y'
 			)
 		)
 	);
@@ -86,7 +95,7 @@ if ($arResult['USE_PROJECTS'] == 'Y')
 			&& !$myProjectsTabActive
 			&& !$arResult["filter_my"]
 			&& isset($arResult["filter_project"])
-			&& $arResult["filter_project"] == 'Y'
+			&& $arResult["filter_project"] === 'Y'
 			&& !$arResult["filter_archive"]
 			&& !$arResult["filter_extranet"]
 			&& !$arResult["filter_tags"]
@@ -99,7 +108,7 @@ $arResult["menuItems"][] = array(
 	"TEXT" => Loc::getMessage("SONET_C36_T_F_ALL"),
 	"URL" => (
 		$arResult["WORKGROUPS_PATH"] <> ''
-			? $arResult["WORKGROUPS_PATH"].($arResult['USE_PROJECTS'] == 'Y' ? '?filter_project=N' : '')
+			? $arResult["WORKGROUPS_PATH"].($arResult['USE_PROJECTS'] === 'Y' ? '?filter_project=N' : '')
 			: $APPLICATION->GetCurPageParam("filter_project=N", $arFilterKeys, false)
 	),
 	"ID" => "workgroups_all",
@@ -109,7 +118,7 @@ $arResult["menuItems"][] = array(
 		&& !$arResult["filter_my"]
 		&& (
 			!isset($arResult["filter_project"])
-			|| $arResult["filter_project"] != 'Y'
+			|| $arResult["filter_project"] !== 'Y'
 		)
 		&& !$arResult["filter_archive"]
 		&& !$arResult["filter_extranet"]
@@ -163,8 +172,8 @@ if (
 	);
 }
 if (
-	$arParams["USE_KEYWORDS"] != "N"
-	&& $arResult["USE_PROJECTS"] != "Y"
+	$arParams["USE_KEYWORDS"] !== "N"
+	&& $arResult["USE_PROJECTS"] !== "Y"
 	&& ModuleManager::isModuleInstalled("search")
 )
 {
@@ -182,7 +191,7 @@ if (
 
 $arResult["menuId"] = "sonetgroups_panel_menu";
 
-$arResult['SIDEBAR_GROUPS'] = array();
+$arResult['SIDEBAR_GROUPS'] = [];
 
 if (
 	SITE_TEMPLATE_ID === "bitrix24"
@@ -201,7 +210,7 @@ if (
 	$cacheId = 'user_groups_date_view'.SITE_ID.'_'.$arParams["USER_ID"].$count;
 	$cacheDir = '/sonet/user_group_date_view/'.SITE_ID.'/'.$arParams["USER_ID"];
 
-	$lastViewGroupsList = array();
+	$lastViewGroupsList = [];
 
 	if($lastViewCache->startDataCache($cacheTtl, $cacheId, $cacheDir))
 	{
@@ -209,29 +218,29 @@ if (
 
 		$query->registerRuntimeField(
 			'',
-			new \Bitrix\Main\Entity\ReferenceField('UG',
+			new ReferenceField('UG',
 				\Bitrix\Socialnetwork\UserToGroupTable::getEntity(),
-				array(
+				[
 					'=ref.GROUP_ID' => 'this.ID',
-					'=ref.USER_ID' =>  new \Bitrix\Main\DB\SqlExpression($arParams["USER_ID"])
-				),
+					'=ref.USER_ID' =>  new SqlExpression($arParams["USER_ID"])
+				],
 				array('join_type' => 'LEFT')
 			)
 		);
 		$query->registerRuntimeField(
 			'',
-			new \Bitrix\Main\Entity\ReferenceField('GV',
+			new ReferenceField('GV',
 				\Bitrix\Socialnetwork\WorkgroupViewTable::getEntity(),
 				array(
 					'=ref.GROUP_ID' => 'this.ID',
-					'=ref.USER_ID' =>  new \Bitrix\Main\DB\SqlExpression($arParams["USER_ID"])
+					'=ref.USER_ID' =>  new SqlExpression($arParams["USER_ID"])
 				),
 				array('join_type' => 'INNER')
 			)
 		);
 		$query->registerRuntimeField(
 			'',
-			new \Bitrix\Main\Entity\ReferenceField('GS',
+			new ReferenceField('GS',
 				\Bitrix\Socialnetwork\WorkgroupSiteTable::getEntity(),
 				array(
 					'=ref.GROUP_ID' => 'this.ID'
@@ -252,6 +261,7 @@ if (
 		$query->addSelect('NAME');
 		$query->addSelect('DESCRIPTION');
 		$query->addSelect('IMAGE_ID');
+		$query->addSelect('AVATAR_TYPE');
 
 		$query->countTotal(false);
 		$query->setOffset(0);
@@ -273,7 +283,7 @@ if (
 
 				$imageResized = false;
 
-				if (intval($group["IMAGE_ID"]) > 0)
+				if ((int)$group["IMAGE_ID"] > 0)
 				{
 					$imageFile = \CFile::getFileArray($group["IMAGE_ID"]);
 					if ($imageFile !== false)
@@ -339,5 +349,3 @@ if (
 
 	$arResult['SIDEBAR_GROUPS'] = $lastViewGroupsList;
 }
-
-?>

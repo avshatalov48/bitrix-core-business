@@ -5,7 +5,7 @@
 	foreach($arResult["ERROR_MESSAGE"] as $v)
 		ShowError($v);
 }
-if(strlen($arResult["OK_MESSAGE"]) > 0)
+if($arResult["OK_MESSAGE"] <> '')
 {
 	?><div class="mf-ok-text"><?=$arResult["OK_MESSAGE"]?></div><?
 }

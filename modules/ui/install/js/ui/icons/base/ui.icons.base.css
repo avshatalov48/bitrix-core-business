@@ -5,6 +5,7 @@
 	--ui-icon-size-md: 39px;
 	--ui-icon-size-lg: 47px;
 	--ui-icon-size: 39px;
+	--ui-icon-service-bg-color:#ebeff2;
 }
 
 /*endregion*/
@@ -21,10 +22,11 @@
 	padding-top: 100%;
 	width: 100%;
 	border-radius: 50%;
-	background-color: #ebeff2;
 	background-position: center;
 	background-size: 100% auto;
 	background-repeat: no-repeat;
+	background-color: var(--ui-icon-service-bg-color);
+	background-image: var(--ui-icon-service-bg-image);
 }
 
 .ui-icon-square > i,

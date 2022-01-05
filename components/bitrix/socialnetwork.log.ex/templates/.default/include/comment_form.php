@@ -1,4 +1,9 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -9,9 +14,7 @@
 
 $component = $this->getComponent();
 
-$arParams["UID"] = randString(4);
-$arParams["FORM_ID"] = "sonetCommentForm".$arParams["UID"];
-$arParams["ALLOW_VIDEO"] = ($arParams["ALLOW_VIDEO"] == "Y" ? "Y" : "N");
+$arParams["ALLOW_VIDEO"] = ($arParams["ALLOW_VIDEO"] === "Y" ? "Y" : "N");
 
 if (is_array($arResult["Smiles"]))
 {
@@ -31,7 +34,25 @@ if (is_array($arResult["Smiles"]))
 }
 else
 {
-	$smiles = intval($arResult["Smiles"]);
+	$smiles = (int)$arResult["Smiles"];
+}
+
+if (
+	\Bitrix\Main\ModuleManager::isModuleInstalled('tasks')
+	&& class_exists("Bitrix\\Tasks\\Internals\\Task\\Result\\ResultManager")
+)
+{
+	$APPLICATION->IncludeComponent(
+		'bitrix:tasks.widget.result.field',
+		'',
+		[
+			'HIDDEN' => 'Y',
+		],
+		$this->getComponent(),
+		[
+			'HIDE_ICONS' => 'Y',
+		]
+	);
 }
 
 $formParams = [
@@ -89,7 +110,7 @@ $formParams = [
 		"id" => "id".$arParams["FORM_ID"],
 		"documentCSS" => "body {color:#434343;}",
 		"iframeCss" => "html body {padding-left: 14px!important; font-size: 13px!important; line-height: 18px!important;}",
-		"ctrlEnterHandler" => "__logSubmitCommentForm".$arParams["UID"],
+//		"ctrlEnterHandler" => "__logSubmitCommentForm".$arParams["UID"],
 		"fontFamily" => "'Helvetica Neue', Helvetica, Arial, sans-serif",
 		"fontSize" => "12px",
 		"bInitByJS" => true,
@@ -109,14 +130,15 @@ $formParams = [
 		)
 	],
 	"SELECTOR_VERSION" => 2,
-	"DISABLE_CREATING_FILE_BY_CLOUD" => ($arParams["PUBLIC_MODE"] == "Y")
+	"DISABLE_CREATING_FILE_BY_CLOUD" => ($arParams["PUBLIC_MODE"] === "Y")
 ];
 
 ?><div style="display: none;">
 <form action="" id="<?=$arParams["FORM_ID"]?>" name="<?=$arParams["FORM_ID"]?>" method="POST" enctype="multipart/form-data" target="_self" class="comments-form">
 	<?=bitrix_sessid_post();?>
 	<input type="hidden" name="sonet_log_comment_logid" id="sonet_log_comment_logid" value="">
-	<?$APPLICATION->IncludeComponent(
+	<?php
+	$APPLICATION->IncludeComponent(
 		"bitrix:main.post.form",
 		".default",
 		$formParams,
@@ -124,12 +146,14 @@ $formParams = [
 		array(
 			"HIDE_ICONS" => "Y"
 		)
-	);?>
+	);
+	?>
 	<input type="hidden" name="cuid" id="upload-cid" value="" />
 </form>
 </div>
 <script>
 	BX.ready(function(){
+/*
 		window["__logSubmitCommentForm<?=$arParams["UID"]?>"] = function ()
 		{
 			if (!!window["UC"]["f<?=$arParams["FORM_ID"]?>"] && !!window["UC"]["f<?=$arParams["FORM_ID"]?>"].eventNode)
@@ -138,9 +162,10 @@ $formParams = [
 			}
 			return false;
 		};
-
+*/
 		if (!!window["FCForm"])
 		{
+/*
 			window["UC"]["f<?=$arParams["FORM_ID"]?>"] = new FCForm({
 				entitiesId : <?=CUtil::PhpToJSObject($component->arResult["ENTITIES_XML_ID"])?>,
 				formId : '<?=$arParams["FORM_ID"]?>',
@@ -164,7 +189,12 @@ $formParams = [
 					window["UC"]["f<?=$arParams["FORM_ID"]?>"].hide(true);
 				}
 			});
+*/
+			BX.addCustomEvent(BX('<?= $arParams["FORM_ID"]?>'), 'OnUCFormAfterShow', BX.Livefeed.CommentForm.onAfterShow.bind(BX.Livefeed.CommentForm));
 
+
+
+/*
 			BX.addCustomEvent(window, 'OnUCAddEntitiesCorrespondence', function(key, arValue)
 			{
 				window["UC"]["f<?=$arParams["FORM_ID"]?>"]["entitiesCorrespondence"][key] = arValue;
@@ -185,7 +215,7 @@ $formParams = [
 					window["UC"]["f<?=$arParams["FORM_ID"]?>"]["entitiesCorrespondence"][arId.join('-')] = [data.SONET_FULL_ID[0], data.SONET_FULL_ID[1]];
 				}
 			});
-
+*/
 			BX.addCustomEvent(window, 'OnUCFeedChanged', function(data)
 			{
 				BX.LazyLoad.showImages(true);

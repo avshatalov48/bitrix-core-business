@@ -2501,7 +2501,10 @@ class Query
 		// union
 		if (!empty($this->unionHandler))
 		{
-			$query = "({$query})";
+			if ($this->order || $this->limit)
+			{
+				$query = "({$query})";
+			}
 
 			foreach ($this->unionHandler->getQueries() as $union)
 			{

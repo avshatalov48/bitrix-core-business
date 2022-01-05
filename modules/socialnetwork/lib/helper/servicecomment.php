@@ -606,7 +606,22 @@ class ServiceComment
 		}
 		elseif ($entityType === CommentAux\CreateEntity::ENTITY_TYPE_CALENDAR_EVENT)
 		{
-			$result['attendees'] = (!empty($entityData['USER_IDS']) && is_array($entityData['USER_IDS']) ? $entityData['USER_IDS'] : []);
+			$attendees = [];
+			if (!empty($entityData['USER_IDS']) && is_array($entityData['USER_IDS']))
+			{
+				$attendees = $entityData['USER_IDS'];
+			}
+			elseif (!empty($entityData['attendeesEntityList']))
+			{
+				$attendees = array_map(static function($item) {
+					return (int)(isset($item['entityId'], $item['id']) && $item['entityId'] === 'user' ? $item['id'] : 0);
+				}, $entityData['attendeesEntityList']);
+				$attendees = array_filter($attendees, static function($item) {
+					return $item > 0;
+				});
+			}
+
+			$result['attendees'] = $attendees;
 		}
 
 		return $result;

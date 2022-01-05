@@ -1,5 +1,9 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use \Bitrix\Socialnetwork\UserToGroupTable;
 
@@ -16,18 +20,17 @@ if (!function_exists('__GCE_GetGroup'))
 		}
 
 		$arGroup = CSocNetGroup::getById($group_id);
-
 		if ($arGroup &&
 			(
 				(
-					$tab == "edit"
+					$tab === 'edit'
 					&& (
-						$arGroup["OWNER_ID"] == $USER->GetID()
+						(int)$arGroup['OWNER_ID'] === (int)$USER->getId()
 						|| CSocNetUser::IsCurrentUserModuleAdmin()
 					)
 				)
 				|| (
-					$tab == "invite"
+					$tab === 'invite'
 					&& (
 						CSocNetUser::IsCurrentUserModuleAdmin()
 						|| CSocNetGroup::CanUserInitiate($USER->GetID(), $group_id)
@@ -43,9 +46,9 @@ if (!function_exists('__GCE_GetGroup'))
 			$arGroupTmp["VISIBLE"] = $arGroup["VISIBLE"];
 			$arGroupTmp["OPENED"] = $arGroup["OPENED"];
 			$arGroupTmp["CLOSED"] = $arGroup["CLOSED"];
-			$arGroupTmp["PROJECT"] = ($arGroup["PROJECT"] == 'Y' ? 'Y' : 'N');
-			$arGroupTmp["PROJECT_DATE_START"] = ($arGroupTmp["PROJECT"] == 'Y' ? $arGroup["PROJECT_DATE_START"] : false);
-			$arGroupTmp["PROJECT_DATE_FINISH"] = ($arGroupTmp["PROJECT"] == 'Y' ? $arGroup["PROJECT_DATE_FINISH"] : false);
+			$arGroupTmp["PROJECT"] = ($arGroup["PROJECT"] === 'Y' ? 'Y' : 'N');
+			$arGroupTmp["PROJECT_DATE_START"] = ($arGroupTmp["PROJECT"] === 'Y' ? $arGroup["PROJECT_DATE_START"] : false);
+			$arGroupTmp["PROJECT_DATE_FINISH"] = ($arGroupTmp["PROJECT"] === 'Y' ? $arGroup["PROJECT_DATE_FINISH"] : false);
 			$arGroupTmp["KEYWORDS"] = $arGroup["KEYWORDS"];
 			$arGroupTmp["OWNER_ID"] = $arGroup["OWNER_ID"];
 			$arGroupTmp["INITIATE_PERMS"] = $arGroup["INITIATE_PERMS"];
@@ -53,14 +56,15 @@ if (!function_exists('__GCE_GetGroup'))
 			$arGroupTmp["IMAGE_ID"] = $arGroup["IMAGE_ID"];
 			$arGroupTmp["IMAGE_ID_FILE"] = CFile::GetFileArray($arGroup["IMAGE_ID"]);
 			$arGroupTmp["IMAGE_ID_IMG"] = '<img src="'.($arGroupTmp["IMAGE_ID_FILE"] != false ? $arGroupTmp["IMAGE_ID_FILE"]["SRC"] : "/bitrix/images/1.gif").'" height="60" class="sonet-group-create-popup-image" id="sonet_group_create_popup_image" border="0">';
-			$arGroupTmp["MODERATOR_IDS"] = array();
-			$arGroupTmp["LANDING"] = ($arGroup["LANDING"] == 'Y' ? 'Y' : 'N');
-			$arGroupTmp["SCRUM_OWNER_ID"] = ($arGroup["SCRUM_OWNER_ID"] ? $arGroup["SCRUM_OWNER_ID"] : null);
-			$arGroupTmp["SCRUM_MASTER_ID"] = ($arGroup["SCRUM_MASTER_ID"] ? $arGroup["SCRUM_MASTER_ID"] : null);
-			$arGroupTmp["SCRUM_SPRINT_DURATION"] = ($arGroup["SCRUM_SPRINT_DURATION"] ? $arGroup["SCRUM_SPRINT_DURATION"] : null);
-			$arGroupTmp["SCRUM_TASK_RESPONSIBLE"] = ($arGroup["SCRUM_TASK_RESPONSIBLE"] ? $arGroup["SCRUM_TASK_RESPONSIBLE"] : null);
+			$arGroupTmp["MODERATOR_IDS"] = [];
+			$arGroupTmp["LANDING"] = ($arGroup["LANDING"] === 'Y' ? 'Y' : 'N');
+			$arGroupTmp["SCRUM_OWNER_ID"] = ($arGroup["SCRUM_OWNER_ID"] ?: null);
+			$arGroupTmp["SCRUM_MASTER_ID"] = ($arGroup["SCRUM_MASTER_ID"] ?: null);
+			$arGroupTmp["SCRUM_SPRINT_DURATION"] = ($arGroup["SCRUM_SPRINT_DURATION"] ?: null);
+			$arGroupTmp["SCRUM_TASK_RESPONSIBLE"] = ($arGroup["SCRUM_TASK_RESPONSIBLE"] ?: null);
+			$arGroupTmp["AVATAR_TYPE"] = (string)($arGroup["AVATAR_TYPE"] ?? '');
 
-			foreach($arGroupProperties as $field => $arUserField)
+			foreach ($arGroupProperties as $field => $arUserField)
 			{
 				if (array_key_exists($field, $arGroup))
 				{
@@ -110,7 +114,7 @@ if (!function_exists('__GCE_GetFeatures'))
 
 		$arFeaturesTmp = array();
 
-		if (intval($group_id) > 0)
+		if ((int)$group_id > 0)
 		{
 			$dbResultTmp = CSocNetFeatures::getList(
 				array(),
@@ -140,16 +144,18 @@ if (!function_exists('__GCE_GetFeatures'))
 		);
 
 		uksort($arSocNetFeaturesSettings, function($a, $b) use ($sampleKeysList) {
-			$valA = (isset($sampleKeysList[$a]) ? $sampleKeysList[$a] : 100);
-			$valB = (isset($sampleKeysList[$b]) ? $sampleKeysList[$b] : 100);
+			$valA = ($sampleKeysList[$a] ?? 100);
+			$valB = ($sampleKeysList[$b] ?? 100);
 			if ($valA > $valB)
 			{
 				return 1;
 			}
-			elseif ($valA < $valB)
+
+			if ($valA < $valB)
 			{
 				return -1;
 			}
+
 			return 0;
 		});
 
@@ -163,10 +169,10 @@ if (!function_exists('__GCE_GetFeatures'))
 				continue;
 			}
 
-			if (intval($group_id) == 0)
+			if ((int)$group_id === 0)
 			{
 				$arFeaturesTmp[$feature]["ACTIVE"] = (
-					$feature == "chat"
+					$feature === "chat"
 						? \CUserOptions::getOption("socialnetwork", "default_chat_create_default", "Y")
 						: COption::getOptionString("socialnetwork", "default_".$feature."_create_default", "Y", SITE_ID)
 				);
@@ -177,11 +183,10 @@ if (!function_exists('__GCE_GetFeatures'))
 				"Active" => (
 					!empty($arFeaturesTmp)
 					&& array_key_exists($feature, $arFeaturesTmp)
-						? ($arFeaturesTmp[$feature]["ACTIVE"] == "Y") // saved
+						? ($arFeaturesTmp[$feature]["ACTIVE"] === "Y") // saved
 						: true
 				)
 			);
 		}
 	}
 }
-?>

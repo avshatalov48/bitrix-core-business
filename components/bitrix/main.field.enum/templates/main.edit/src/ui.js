@@ -42,11 +42,13 @@ export class Ui
 		this.onChangeHandler = this.onChange.bind(this);
 		EventEmitter.subscribe('UI::Select::change', this.onChangeHandler);
 
-		const params = this.params;
-		const node = this.container.firstChild;
-		Event.bind(this.container, 'click', () => {
-			this.onChange({params: params, node: node})
-		});
+		BX.bind(
+			this.container,
+			'click',
+			BX.defer(function(){
+				this.onChange({params: this.params, node: this.container.firstChild})
+			}.bind(this))
+		);
 	}
 
 	onChange(eventNode)

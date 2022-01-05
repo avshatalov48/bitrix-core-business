@@ -1,8 +1,11 @@
 <?php
+$MESS["CALENDAR_UPDATE_EVENT_WITH_LOCATION"] = "Termine werden konvertiert";
+$MESS["CALENDAR_UPDATE_STRUCTURE_TITLE"] = "Struktur wird optimiert";
 $MESS["EC_CALENDAR_INDEX"] = "Kalendertermine indexieren";
 $MESS["EC_CALENDAR_NOT_PERMISSIONS_TO_VIEW_GRID_CONTENT"] = "Wenden Sie sich bitte an Ihren Bitrix24 Administrator, wenn Sie Hilfe benötigen";
 $MESS["EC_CALENDAR_NOT_PERMISSIONS_TO_VIEW_GRID_TITLE"] = "Ihr Bitrix24 Administrator hat den Zugriff auf den Kalender eingeschränkt.";
 $MESS["EC_CALENDAR_SPOTLIGHT_LIST"] = "Sie können zwischen verschiedenen Kalenderansichten umschalten. Testen Sie unsere neue Ansicht Zeitplan, die es Ihnen ermöglicht, alle Termine als eine kompakte Liste anzuzeigen.";
+$MESS["EC_CALENDAR_SPOTLIGHT_ROOMS"] = "Verfügbarkeit der Besprechungsräume anzeigen";
 $MESS["EC_CALENDAR_SPOTLIGHT_SYNC"] = "Synchronisieren Sie Ihre Bitrix24 Kalender mit anderen Geräten und Services. Die Synchronisierung funktioniert in beide Richtungen.";
 $MESS["EC_GROUP_ID_NOT_FOUND"] = "Der Gruppenkalender kann nicht angezeigt werden. Die Gruppen-ID ist nicht angegeben.";
 $MESS["EC_GROUP_NOT_FOUND"] = "Die Gruppe wurde nicht gefunden.";

@@ -110,25 +110,36 @@
     border-radius: 50%;
 }
 
-.bx-conference-quick-create-button {
+.bx-conference-quick-create-button-wrap {
 	margin-top: 40px;
 	margin-bottom: 40px;
 }
 
-.bx-conference-quick-create-button button.ui-btn-disabled {
+.bx-conference-quick-create-button-row {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.bx-conference-quick-create-button-wrap button.ui-btn-disabled {
 	pointer-events: none;
 }
 
-.bx-conference-quick-create-button .bx-conference-quick-create-button-start {
+.bx-conference-quick-create-button-wrap .bx-conference-quick-create-button-start {
 	width: 220px;
 	height: 40px;
 }
 
-.bx-conference-quick-create-button .bx-conference-quick-create-button-cancel {
+.bx-conference-quick-create-button-wrap .bx-conference-quick-create-button-save {
+	width: auto;
 	height: 40px;
 }
 
-.bx-conference-quick-create-wrap-dark .bx-conference-quick-create-button .bx-conference-quick-create-button-cancel {
+.bx-conference-quick-create-button-wrap .bx-conference-quick-create-button-cancel {
+	height: 40px;
+}
+
+.bx-conference-quick-create-wrap-dark .bx-conference-quick-create-button-wrap .bx-conference-quick-create-button-cancel {
 	color: #fff;
 }
 
@@ -167,4 +178,28 @@
 
 .bx-conference-quick-create-error-wrap .ui-alert-message + .ui-alert-message {
 	margin-top: 10px;
+}
+
+.bx-conference-quick-create-success-block {
+	box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+	justify-content: center;
+    align-items: center;
+	margin-top: 25px;
+	margin-bottom: 20px;
+	width: 480px;
+    height: 120px;
+}
+
+.bx-conference-quick-create-success-title {
+	color: #fff;
+    font-family: "Open Sans", sans-serif;
+	font-size: 22px;
+    line-height: 30px;
+    text-align: center;
+}
+
+.bx-conference-quick-create-wrap-dark .bx-conference-quick-create-success-title {
+	color: rgba(255,255,255,0.7);
 }

@@ -14,6 +14,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(AlertColor, "SUCCESS", 'ui-alert-success');
 	babelHelpers.defineProperty(AlertColor, "WARNING", 'ui-alert-warning');
 	babelHelpers.defineProperty(AlertColor, "PRIMARY", 'ui-alert-primary');
+	babelHelpers.defineProperty(AlertColor, "INFO", 'ui-alert-info');
 
 	/**
 	 * @namespace {BX.UI}
@@ -48,6 +49,8 @@ this.BX = this.BX || {};
 	    this.closeBtn = !!options.closeBtn ? true : options.closeBtn;
 	    this.animated = !!options.animated ? true : options.animated;
 	    this.customClass = options.customClass;
+	    this.beforeMessageHtml = main_core.Type.isElementNode(options.beforeMessageHtml) ? options.beforeMessageHtml : false;
+	    this.afterMessageHtml = main_core.Type.isElementNode(options.afterMessageHtml) ? options.afterMessageHtml : false;
 	    this.setText(this.text);
 	    this.setSize(this.size);
 	    this.setIcon(this.icon);
@@ -158,6 +161,32 @@ this.BX = this.BX || {};
 	      } else {
 	        main_core.Dom.remove(this.container);
 	      }
+	    } // endregion
+	    // region Custom HTML
+
+	  }, {
+	    key: "setBeforeMessageHtml",
+	    value: function setBeforeMessageHtml(element) {
+	      if (main_core.Type.isElementNode(element) && element !== false) {
+	        this.beforeMessageHtml = element;
+	      }
+	    }
+	  }, {
+	    key: "getBeforeMessageHtml",
+	    value: function getBeforeMessageHtml() {
+	      return this.beforeMessageHtml;
+	    }
+	  }, {
+	    key: "setAfterMessageHtml",
+	    value: function setAfterMessageHtml(element) {
+	      if (main_core.Type.isElementNode(element) && element !== false) {
+	        this.afterMessageHtml = element;
+	      }
+	    }
+	  }, {
+	    key: "getAfterMessageHtml",
+	    value: function getAfterMessageHtml() {
+	      return this.afterMessageHtml;
 	    } //endregion
 	    //region CUSTOM CLASS
 
@@ -238,7 +267,7 @@ this.BX = this.BX || {};
 	    key: "animateClosing",
 	    value: function animateClosing() {
 	      this.container.style.overflow = "hidden";
-	      var alertWrapPos = main_core.Dom.pos(this.container);
+	      var alertWrapPos = main_core.Dom.getPosition(this.container);
 	      this.container.style.height = alertWrapPos.height + "px";
 	      setTimeout(function () {
 	        this.container.style.height = 0;
@@ -273,6 +302,14 @@ this.BX = this.BX || {};
 
 	      if (this.closeBtn === true) {
 	        main_core.Dom.append(this.getCloseBtn(), this.container);
+	      }
+
+	      if (main_core.Type.isElementNode(this.beforeMessageHtml)) {
+	        main_core.Dom.prepend(this.getBeforeMessageHtml(), this.getTextContainer());
+	      }
+
+	      if (main_core.Type.isElementNode(this.afterMessageHtml)) {
+	        main_core.Dom.append(this.getAfterMessageHtml(), this.getTextContainer());
 	      }
 
 	      return this.container;

@@ -19,15 +19,13 @@ use Bitrix\Rest\Configuration\Structure;
 use Bitrix\Rest\Configuration\Manifest;
 use Bitrix\Rest\Configuration\Setting;
 use Bitrix\Rest\Configuration\Helper;
-use Bitrix\Rest\AppLogTable;
-use Bitrix\Rest\AppTable;
-use Bitrix\Disk\Internals\ObjectTable;
+use Bitrix\Rest\Configuration\DataProvider;
 use Bitrix\Disk\Internals\FolderTable;
 use Bitrix\Disk\SystemUser;
-use Bitrix\Disk\Driver;
+use Bitrix\Rest\Configuration\Action\Import;
+use Bitrix\Rest\Configuration\Notification;
 
 Loc::loadMessages(__FILE__);
-
 
 class CRestConfigurationInstallComponent extends CBitrixComponent implements Controllerable
 {
@@ -88,13 +86,19 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 			'APP',
 			'MODE',
 			'MANIFEST_CODE',
-			'UNINSTALL_APP_ON_FINISH'
+			'UNINSTALL_APP_ON_FINISH',
+			'PROCESS_ID',
 		];
 	}
 
 	protected function isPreInstallAppMode()
 	{
 		return $this->request->getQuery('create_install') === 'Y';
+	}
+
+	protected function isImportByProcessId()
+	{
+		return (int)$this->arParams['PROCESS_ID'] > 0;
 	}
 
 	protected function prepareResult()
@@ -104,7 +108,8 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 			'NEED_CLEAR_FULL' => true,
 			'PRE_INSTALL_APP_MODE' => false,
 			'NEED_START_BTN' => true,
-			'NEED_CLEAR_FULL_CONFIRM' => true
+			'NEED_CLEAR_FULL_CONFIRM' => true,
+			'IMPORT_BY_PROCESS_ID' => $this->isImportByProcessId(),
 		];
 		$manifest = null;
 
@@ -195,48 +200,21 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 		$this->includeComponentTemplate();
 	}
 
-	protected function getItemContent($type, $step)
+	protected function getItemContent($type, $step): array
 	{
 		$result = [];
-		if($this->diskFolder)
+		$count = 0;
+		$path = '';
+		$providerCode = '';
+
+		if ($this->diskFolder)
 		{
-			$folder = $this->diskFolder->getChild(
-				[
-					'=NAME' => $type
-				]
-			);
-			if($folder)
-			{
-				$fakeSecurityContext = Driver::getInstance()->getFakeSecurityContext();
-				$fileList = $folder->getChildren(
-					$fakeSecurityContext,
-					[
-						'filter' => [
-							'=TYPE' => ObjectTable::TYPE_FILE
-						]
-					]
-				);
-				$i = 0;
-				foreach($fileList as $child)
-				{
-					if($i == $step && $child instanceof \Bitrix\Disk\File)
-					{
-						$server = Application::getInstance()->getContext()->getServer();
-						$documentRoot = $server->getDocumentRoot();
-						$result['FILE_NAME'] = $child->getName();
-						$filePath = $documentRoot.\CFile::GetPath(
-								$child->getFileId()
-							);
-						break;
-					}
-					$i++;
-				}
-				$result['COUNT'] = count($fileList);
-			}
+			$providerCode = DataProvider\Controller::CODE_DISK;
+			$path = $type;
 		}
 		else
 		{
-			if(!empty($this->arParams['IMPORT_PATH']))
+			if (!empty($this->arParams['IMPORT_PATH']))
 			{
 				$folder = $this->arParams['IMPORT_PATH'];
 			}
@@ -246,56 +224,60 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 				$folder = $structure->getFolder();
 			}
 
-			if(is_dir($folder.$type))
+			if (is_dir($folder . $type))
 			{
 				$fileList = array_values(array_diff(scandir($folder . $type), ['.', '..']));
-				$result['COUNT'] = count($fileList);
-				if(isset($fileList[$step]))
+				$count = count($fileList);
+				if (isset($fileList[$step]))
 				{
-					$result['FILE_NAME'] = $fileList[$step];
-					$filePath = $folder . $type . '/' . $result['FILE_NAME'];
+					$providerCode = DataProvider\Controller::CODE_IO;
+					$path = $folder . $type . '/' . $fileList[$step];
 				}
 			}
 		}
 
-		if(!empty($filePath) && file_exists($filePath))
+		if ($providerCode)
 		{
-			$step++;
-			$content = file_get_contents($filePath);
-			try
+			/** @var DataProvider\ProviderBase $disk */
+			$provider = DataProvider\Controller::getInstance()->get(
+				$providerCode,
+				[
+					'CONTEXT' => $this->getImportContext(),
+					'CONTEXT_USER' => $this->getUserContext(),
+				]
+			);
+			if ($provider)
 			{
-				$result['DATA'] = Json::decode($content);
-			}
-			catch (ArgumentException $e)
-			{
-				$this->setActionError(
-					Loc::getMessage(
-						"REST_CONFIGURATION_INSTALL_FILE_CONTENT_ERROR_DECODE",
-						[
-							'#STEP#' => $step
-						]
-					)
-				);
-			}
+				$result = $provider->getContent($path, (int)$step);
+				if ($result['COUNT'] === 0)
+				{
+					$result['COUNT'] = $count;
+				}
 
-			$result['SANITIZE'] = false;
-			$result['~DATA'] = $result['DATA'];
-			$result['DATA'] = Helper::getInstance()->sanitize($result['DATA'], $result['SANITIZE']);
-			if($result['SANITIZE'])
-			{
-				$this->setActionError(
-					Loc::getMessage(
-						"REST_CONFIGURATION_INSTALL_FILE_CONTENT_ERROR_SANITIZE_SHORT",
-						[
-							'#STEP#' => $step
-						]
-					)
-				);
+				if ($result['ERROR_CODE'] === $provider::ERROR_DECODE_DATA)
+				{
+					$this->setActionError(
+						Loc::getMessage(
+							"REST_CONFIGURATION_INSTALL_FILE_CONTENT_ERROR_DECODE",
+							[
+								'#STEP#' => $step
+							]
+						)
+					);
+				}
+
+				if ($result['SANITIZE'])
+				{
+					$this->setActionError(
+						Loc::getMessage(
+							"REST_CONFIGURATION_INSTALL_FILE_CONTENT_ERROR_SANITIZE_SHORT",
+							[
+								'#STEP#' => $step
+							]
+						)
+					);
+				}
 			}
-		}
-		if($result['FILE_NAME'])
-		{
-			$result['FILE_NAME'] = preg_replace('/('.Helper::CONFIGURATION_FILE_EXTENSION.')$/i', '', $result['FILE_NAME']);
 		}
 
 		return $result;
@@ -315,35 +297,46 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 	public function startAction()
 	{
 		$result = [];
-		if($this->checkRequiredParams())
+		if ($this->checkRequiredParams())
 		{
-			$section = Controller::getEntityCodeList();
-			$result['section'] = array_values($section);
+			$import = new Import();
+			$import->setContext($this->getUserContext());
+			$import->getNotificationInstance()->clean();
+			$result = $import->doStart(
+				$this->arParams['APP'],
+				$this->arParams['MODE'] ?? Helper::MODE_IMPORT,
+				[
+					'UNINSTALL_APP_ON_FINISH' => $this->arParams['UNINSTALL_APP_ON_FINISH'],
+				]
+			);
 
-			if(!empty($this->arParams['APP']))
-			{
-				$setting = new Setting($this->getUserContext());
-				$setting->set(Setting::SETTING_APP_INFO, $this->arParams['APP']);
-			}
-
-			if(Helper::getInstance()->isBasicManifest($this->arParams['MANIFEST_CODE']))
+			if (Helper::getInstance()->isBasicManifest($this->arParams['MANIFEST_CODE']))
 			{
 				$usesApp = Helper::getInstance()->getBasicApp($this->arParams['MANIFEST_CODE']);
-				if($usesApp === false && $this->arParams['MODE'] != 'ROLLBACK' &&  Loader::includeModule('disk'))
+				if (
+					$usesApp === false
+					&& $this->arParams['MODE'] !== Helper::MODE_ROLLBACK
+					&& Loader::includeModule('disk')
+				)
 				{
 					$result['next'] = 'save';
-					$setting = new Setting($this->getUserContext($this->savedActionUserContextPostfix));
+					$setting = new Setting(
+						$this->getUserContext(
+							$this->savedActionUserContextPostfix
+						)
+					);
 					$setting->deleteFull();
 					$this->deleteBackupFolder();
 				}
 			}
 
-			if($this->arParams['IMPORT_DISK_FOLDER_ID'] && $this->arParams['IMPORT_DISK_STORAGE_PARAMS'])
+			if ($this->arParams['IMPORT_DISK_FOLDER_ID'] && $this->arParams['IMPORT_DISK_STORAGE_PARAMS'])
 			{
 				$structure = new Structure($this->getUserContext());
 				$structure->setUnpackFilesFromDisk($this->arParams['IMPORT_DISK_FOLDER_ID'], $this->arParams['IMPORT_DISK_STORAGE_PARAMS']);
 			}
 		}
+
 		$result['notice'] = $this->getActionError();
 
 		return $result;
@@ -351,174 +344,69 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 
 	private function deleteBackupFolder()
 	{
-		if(!Loader::includeModule('disk'))
+		$result = false;
+
+		/** @var DataProvider\Disk\Base $disk */
+		$disk = DataProvider\Controller::getInstance()->get(
+			DataProvider\Controller::CODE_DISK,
+			[
+				'CONTEXT' => $this->getImportContext(),
+				'CONTEXT_USER' => $this->getUserContext(),
+			]
+		);
+		if ($disk)
 		{
-			return false;
-		}
-		$storage = Helper::getInstance()->getStorageBackup();
-		if($storage)
-		{
-			$folderName = $this->getImportContext();
-			$folder = $storage->getChild(
-				[
-					'=NAME' => $folderName,
-					'TYPE' => FolderTable::TYPE_FOLDER
-				]
-			);
-			if($folder)
+			$result = $disk->deleteFolder();
+			if (!$result)
 			{
-				global $USER;
-				if (!$folder->deleteTree($USER->GetID()))
-				{
-					$this->setActionError($folder->getErrors());
-				}
+				$this->setActionError($disk->listError());
 			}
 		}
 
-		return true;
+		return $result;
 	}
 
 	private function addDiskBackupFiles($files)
 	{
-		if(is_array($files))
+		$result = [
+			'success' => false,
+		];
+		if (is_array($files))
 		{
-			$structure = new Structure($this->getUserContext($this->savedActionUserContextPostfix));
-
-			$storage = Helper::getInstance()->getStorageBackup();
-			if($storage)
+			/** @var DataProvider\Disk\Base $disk */
+			$disk = DataProvider\Controller::getInstance()->get(
+				DataProvider\Controller::CODE_DISK,
+				[
+					'CONTEXT' => $this->getImportContext(),
+					'CONTEXT_USER' => $this->getUserContext(),
+				]
+			);
+			if ($disk)
 			{
-				$folderName = $this->getImportContext();
-				$folder = $storage->getChild(
-					[
-						'=NAME' => $folderName,
-						'TYPE' => FolderTable::TYPE_FOLDER
-					]
-				);
-				if(!$folder)
-				{
-					$folder = $storage->addFolder(
-						[
-							'NAME' => $folderName,
-							'CREATED_BY' => SystemUser::SYSTEM_USER_ID,
-						]
-					);
-				}
-
-				$subFolder = $folder->getChild(
-					[
-						'=NAME' => Helper::STRUCTURE_FILES_NAME,
-						'TYPE' => FolderTable::TYPE_FOLDER
-					]
-				);
-				if(!$subFolder)
-				{
-					$subFolder = $folder->addSubFolder(
-						[
-							'NAME' => Helper::STRUCTURE_FILES_NAME,
-							'CREATED_BY' => SystemUser::SYSTEM_USER_ID
-						]
-					);
-				}
-
-				if($subFolder)
-				{
-					foreach ($files as $file)
-					{
-						if($file['ID'])
-						{
-							$id = intVal($file['ID']);
-							$structure->saveFile($id, $file);
-
-							$fileData = \CFile::MakeFileArray($id);
-							$subFolder->uploadFile(
-								$fileData,
-								[
-									'NAME' => $id,
-									'CREATED_BY' => SystemUser::SYSTEM_USER_ID
-								]
-							);
-						}
-					}
-				}
+				$result = $disk->addFiles($files);
 			}
 		}
+
+		return $result;
 	}
 
 	private function addDiskBackupContent($type, $code, $content)
 	{
-		$return = false;
-		if(is_array($content))
+		$result = false;
+		/** @var DataProvider\Disk\Base $disk */
+		$disk = DataProvider\Controller::getInstance()->get(
+			DataProvider\Controller::CODE_DISK,
+			[
+				'CONTEXT' => $this->getImportContext(),
+				'CONTEXT_USER' => $this->getUserContext(),
+			]
+		);
+		if ($disk)
 		{
-			$content = Json::encode($content);
-		}
-		elseif(!is_string($content))
-		{
-			return $return;
-		}
-		$name = $code.Helper::CONFIGURATION_FILE_EXTENSION;
-		$storage = Helper::getInstance()->getStorageBackup();
-		if($storage)
-		{
-			$folderName = $this->getImportContext();
-			$folder = $storage->getChild(
-				[
-					'=NAME' => $folderName,
-					'TYPE' => FolderTable::TYPE_FOLDER
-				]
-			);
-			if(!$folder)
-			{
-				$folder = $storage->addFolder(
-					[
-						'NAME' => $folderName,
-						'CREATED_BY' => SystemUser::SYSTEM_USER_ID,
-					]
-				);
-			}
-			if($type !== false)
-			{
-				$subFolder = $folder->getChild(
-					[
-						'=NAME' => $type,
-						'TYPE' => FolderTable::TYPE_FOLDER
-					]
-				);
-				if(!$subFolder)
-				{
-					$folder = $folder->addSubFolder(
-						[
-							'NAME' => $type,
-							'CREATED_BY' => SystemUser::SYSTEM_USER_ID
-						]
-					);
-				}
-				else
-				{
-					$folder = $subFolder;
-				}
-			}
-
-			if ($folder)
-			{
-				$file = $folder->uploadFile(
-					[
-						'name' => $name,
-						'content' => $content,
-						'type' => 'application/json',
-					],
-					[
-						'NAME' => $name,
-						'CREATED_BY' => SystemUser::SYSTEM_USER_ID
-					]
-				);
-				if($file)
-				{
-					$return = true;
-				}
-			}
+			$result = $disk->addContent($type, $code, $content);
 		}
 
-		return $return;
+		return $result;
 	}
 
 	private function getDiskFolder()
@@ -530,23 +418,20 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 			&& Loader::includeModule('disk')
 		)
 		{
-			try
-			{
-				$storage = Driver::getInstance()->addStorageIfNotExist(
-					$this->arParams['IMPORT_DISK_STORAGE_PARAMS']
-				);
-				if($storage)
-				{
-					$folder = $storage->getChild(
-						[
-							'=ID' => $this->arParams['IMPORT_DISK_FOLDER_ID']
-						]
-					);
-				}
-			}
-			catch (\Exception $e)
-			{
-			}
+			/** @var DataProvider\Disk\Base $disk */
+			$disk = DataProvider\Controller::getInstance()->get(
+				DataProvider\Controller::CODE_DISK,
+				[
+					'CONTEXT' => $this->getImportContext(),
+					'CONTEXT_USER' => $this->getUserContext(),
+				]
+			);
+			$disk->setFolderFilter(
+				[
+					'=ID' => $this->arParams['IMPORT_DISK_FOLDER_ID'],
+				]
+			);
+			$folder = $disk->getFolder();
 		}
 		return $folder;
 	}
@@ -557,86 +442,14 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 			'result' => false,
 			'createItemList' => []
 		];
-		if($this->checkRequiredParams())
+		if ($this->checkRequiredParams())
 		{
-			if(!empty($this->arParams['APP']['ID']))
-			{
-				if($this->arParams['APP']['INSTALLED'] == AppTable::NOT_INSTALLED)
-				{
-					AppTable::setSkipRemoteUpdate(true);
-					$updateResult = AppTable::update(
-						$this->arParams['APP']['ID'],
-						[
-							'INSTALLED' => AppTable::INSTALLED
-						]
-					);
-					AppTable::setSkipRemoteUpdate(false);
-					AppTable::install($this->arParams['APP']['ID']);
-					AppLogTable::log($this->arParams['APP']['ID'], AppLogTable::ACTION_TYPE_INSTALL);
-					$result['result'] = $updateResult->isSuccess();
-				}
-				else
-				{
-					$result['result'] = true;
-				}
-				Helper::getInstance()->setBasicApp($this->arParams['MANIFEST_CODE'], $this->arParams['APP']['CODE']);
-			}
-			else
-			{
-				Helper::getInstance()->deleteBasicApp($this->arParams['MANIFEST_CODE']);
-			}
-
-			if(!empty($this->arParams['UNINSTALL_APP_ON_FINISH']))
-			{
-				$res = AppTable::getList(
-					[
-						'filter' => array(
-							"=CODE" => $this->arParams['UNINSTALL_APP_ON_FINISH'],
-							"!=STATUS" => AppTable::STATUS_LOCAL
-						),
-					]
-				);
-				if($appInfo = $res->fetch())
-				{
-					$clean = true;
-					$checkResult = AppTable::checkUninstallAvailability($appInfo['ID'], $clean);
-					if($checkResult->isEmpty())
-					{
-						$result['result'] = true;
-						AppTable::uninstall($appInfo['ID'], $clean);
-						$appFields = [
-							'ACTIVE' => 'N',
-							'INSTALLED' => 'N',
-						];
-						AppTable::update($appInfo['ID'], $appFields);
-						AppLogTable::log($appInfo['ID'], AppLogTable::ACTION_TYPE_UNINSTALL);
-					}
-				}
-			}
-
-			$setting = new Setting($this->getUserContext());
-			$ratio = $setting->get(Setting::SETTING_RATIO);
-			$app = $setting->get(Setting::SETTING_APP_INFO);
-			$eventResult = Controller::callEventFinish(
-				[
-					'TYPE' => 'IMPORT',
-					'CONTEXT' => $this->getImportContext(),
-					'CONTEXT_USER' => $this->getUserContext(),
-					'RATIO' => $ratio,
-					'MANIFEST_CODE' => $this->arParams['MANIFEST_CODE'],
-					'IMPORT_MANIFEST' => $this->arParams['IMPORT_MANIFEST'],
-					'APP_ID' => ($app['ID'] > 0) ? $app['ID'] : 0
-				]
+			$import = new Import();
+			$import->setContext($this->getUserContext());
+			$import->setManifestCode($this->arParams['MANIFEST_CODE']);
+			$result = $import->doFinish(
+				$this->arParams['MODE'] ?? Helper::MODE_IMPORT
 			);
-
-			foreach ($eventResult as $data)
-			{
-				if(is_array($data['CREATE_DOM_LIST']))
-				{
-					$result['createItemList'] = array_merge($result['createItemList'], $data['CREATE_DOM_LIST']);
-				}
-			}
-
 		}
 
 		$result['notice'] = $this->getActionError();
@@ -646,52 +459,31 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 	public function clearAction()
 	{
 		$result = [];
-		if($this->checkRequiredParams() && Loader::includeModule('disk'))
+		if($this->checkRequiredParams())
 		{
 			$request = Application::getInstance()->getContext()->getRequest();
-			$code = preg_replace('/[^a-zA-Z0-9_]/', '', $request->getPost("code"));
-			$step = intval($request->getPost("step"));
-			$next = htmlspecialcharsbx( $request->getPost("next"));
-			$clearFull = $request->getPost("clear") == 'true'?:false;
+			$code = preg_replace('/[^a-zA-Z0-9_]/', '', $request->getPost('code'));
+			$step = (int) $request->getPost('step');
+			$next = htmlspecialcharsbx($request->getPost('next'));
+			$clearFull = $request->getPost('clear') == 'true' ? : false;
 
-			if($code)
+			if ($code)
 			{
-				$data = Controller::callEventClear(
-					[
-						'CODE' => $code,
-						'STEP' => $step,
-						'NEXT' => $next,
-						'CONTEXT' => $this->getImportContext(),
-						'CONTEXT_USER' => $this->getUserContext(),
-						'CLEAR_FULL' => $clearFull,
-						'PREFIX_NAME' => Loc::getMessage("REST_CONFIGURATION_INSTALL_CLEAR_PREFIX_NAME"),
-						'MANIFEST_CODE' => $this->arParams['MANIFEST_CODE'],
-						'IMPORT_MANIFEST' => $this->arParams['IMPORT_MANIFEST']
-					]
+				$import = new Import();
+				$import->setContext($this->getUserContext());
+				$import->setManifestCode($this->arParams['MANIFEST_CODE']);
+				$result = $import->doClean(
+					$code,
+					$step,
+					$next,
+					$clearFull
 				);
-
-				if ($data['ERROR_MESSAGES'])
-				{
-					$result['errors'] = is_array($data['ERROR_MESSAGES']) ? $data['ERROR_MESSAGES'] : [$data['ERROR_MESSAGES']];
-				}
-				if ($data['ERROR_ACTION'])
-				{
-					$this->setActionError($data['ERROR_ACTION']);
-				}
-
-				if ($data['ERROR_EXCEPTION'])
-				{
-					$result['exception'] = $data['ERROR_EXCEPTION'];
-				}
-
-				if(!isset($data['NEXT']))
-				{
-					$result['next'] = false;
-				}
-				else
-				{
-					$result['next'] = $data['NEXT'];
-				}
+				$result = array_merge(
+					$result,
+					$this->getNotification(
+						$import->getNotificationInstance()
+					)
+				);
 			}
 		}
 
@@ -705,70 +497,31 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 		$result = [
 			'result' => true
 		];
-		if($this->checkRequiredParams() && Loader::includeModule('disk'))
+		$import = new Import();
+		$import->setContext($this->getUserContext());
+		if ($this->checkRequiredParams())
 		{
 			$request = Application::getInstance()->getContext()->getRequest();
 			$code = preg_replace('/[^a-zA-Z0-9_]/', '', $request->getPost("code"));
-			$step = intval($request->getPost("step"));
+			$step = (int) $request->getPost("step");
 			if ($code)
 			{
 				$content = $this->getItemContent($code, $step);
-
-				if ($content['COUNT'] > $step)
-				{
-					$result['result'] = false;
-				}
-
-				if ($content['DATA'])
-				{
-					$setting = new Setting($this->getUserContext());
-					$ratio = $setting->get(Setting::SETTING_RATIO);
-					$dataList = Controller::callEventImport(
-						[
-							'CODE' => $code,
-							'CONTENT' => $content,
-							'RATIO' => $ratio,
-							'CONTEXT' => $this->getImportContext(),
-							'CONTEXT_USER' => $this->getUserContext(),
-							'MANIFEST_CODE' => $this->arParams['MANIFEST_CODE'],
-							'IMPORT_MANIFEST' => $this->arParams['IMPORT_MANIFEST']
-						]
-					);
-
-					foreach ($dataList as $data)
-					{
-						if (is_array($data['RATIO']))
-						{
-							if (!$ratio[$code])
-							{
-								$ratio[$code] = [];
-							}
-							foreach ($data['RATIO'] as $old => $new)
-							{
-								$ratio[$code][$old] = $new;
-							}
-						}
-						if ($data['ERROR_EXCEPTION'])
-						{
-							$result['exception'] = $data['ERROR_EXCEPTION'];
-						}
-						if ($data['ERROR_MESSAGES'])
-						{
-							$result['errors'] = is_array($data['ERROR_MESSAGES']) ? $data['ERROR_MESSAGES'] : [$data['ERROR_MESSAGES']];
-						}
-						if ($data['ERROR_ACTION'])
-						{
-							$this->setActionError($data['ERROR_ACTION']);
-						}
-					}
-
-					$setting->set(Setting::SETTING_RATIO, $ratio);
-				}
+				$import->setManifestCode($this->arParams['MANIFEST_CODE']);
+				$result = $import->doLoad(
+					$step,
+					$code,
+					$content
+				);
 			}
 		}
-		$result['notice'] = $this->getActionError();
 
-		return $result;
+		return array_merge(
+			$result,
+			$this->getNotification(
+				$import->getNotificationInstance()
+			)
+		);
 	}
 
 	public function saveAction()
@@ -820,7 +573,7 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 			$step = intval($request->getPost("step"));
 			$next = htmlspecialcharsbx($request->getPost("next"));
 			$type = $request->getPost("type");
-			if($type != 'import')
+			if($type !== 'import')
 			{
 				$type = 'EXPORT';
 				$contextUser = $this->getUserContext($this->savedActionUserContextPostfix);
@@ -831,31 +584,53 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 				$contextUser = $this->getUserContext();
 			}
 
-			$items = Manifest::callEventInit(
-				$this->arParams['MANIFEST_CODE'],
-				[
-					'TYPE' => $type ,
-					'STEP' => $step,
-					'NEXT' => $next,
-					'ITEM_CODE' => $this->arParams['ITEM_CODE'],
-					'CONTEXT_USER' => $contextUser
-				]
+			$import = new Import();
+			$import->setContext($contextUser);
+			$import->setManifestCode($this->arParams['MANIFEST_CODE']);
+			$result = $import->doInitManifest(
+				$next,
+				$step,
+				$type,
 			);
-			foreach ($items as $item)
-			{
-				if ($item['ERROR_MESSAGES'])
-				{
-					$result['errors'][] = $item['ERROR_MESSAGES'];
-				}
-				if ($item['ERROR_ACTION'])
-				{
-					$result['notice'][] = $item['ERROR_ACTION'];
-				}
 
-				$result['next'] = $item['NEXT'];
-			}
+			$result = array_merge(
+				$result,
+				$this->getNotification(
+					$import->getNotificationInstance()
+				)
+			);
+
 		}
+
 		return $result;
+	}
+
+	private function getNotification(Notification $notification): array
+	{
+		$result = [];
+		$result['errors'] = $notification->list(
+			[
+				'type' => Notification::TYPE_ERROR,
+			]
+		);
+		$result['notice'] = $notification->list(
+			[
+				'type' => Notification::TYPE_NOTICE,
+			]
+		);
+		$result['exception'] = $notification->list(
+			[
+				'type' => Notification::TYPE_EXCEPTION,
+			]
+		);
+
+		return array_filter(
+			$result,
+			function ($value)
+			{
+				return !empty($value);
+			}
+		);
 	}
 
 	public function finishSaveAction()
@@ -885,9 +660,51 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 		];
 	}
 
+	/**
+	 * Does all steps by process id.
+	 *
+	 * @return array
+	 */
+	public function runAction(): array
+	{
+		$result = [
+			'finish' => true,
+		];
+
+		if ((int)$this->arParams['PROCESS_ID'] > 0)
+		{
+			$import = new Import((int)$this->arParams['PROCESS_ID']);
+			$isRun = $import->run();
+			$result = $import->get();
+			$result['step'] = $result['progress']['action'] ?? 'finish';
+			if ($isRun && in_array($result['status'], [Import::STATUS_START, Import::STATUS_PROCESS]))
+			{
+				$result['finish'] = false;
+			}
+			else
+			{
+				$result['finish'] = true;
+			}
+			$import->getNotificationInstance()->clean();
+		}
+
+		return $result;
+	}
+
 	public function configureActions()
 	{
 		return [
+			'run' => [
+				'prefilters' => [
+					new ActionFilter\Authentication(),
+					new ActionFilter\HttpMethod(
+						[
+							ActionFilter\HttpMethod::METHOD_POST,
+						]
+					),
+					new ActionFilter\Csrf(),
+				],
+			],
 			'start' => [
 				'prefilters' => [
 					new ActionFilter\Authentication(),

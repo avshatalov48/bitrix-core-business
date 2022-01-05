@@ -184,6 +184,7 @@ class Service
 		$cache = Application::getInstance()->getManagedCache();
 		$cache->Clean(static::CLIENT_LIST_CACHE_ID);
 		$cache->Clean(static::SERVICE_AUTH_CACHE_ID);
+		$cache->Clean(static::SERVICE_AUTH_CACHE_ID_ERROR);
 
 		[$group, $type] = explode('.', $engine, 2);
 

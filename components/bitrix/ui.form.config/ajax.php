@@ -12,19 +12,19 @@ class UiFormConfigAjaxController extends \Bitrix\Main\Engine\Controller
 	/**
 	 * @param string $moduleId
 	 * @param string $entityTypeId
+	 * @param array $config
 	 * @param string $name
 	 * @param array $accessCodes
-	 * @param array $config
-	 * @param string $common
+	 * @param array $params
 	 * @return int|AjaxJson
 	 */
 	public function saveAction(
 		string $moduleId,
 		string $entityTypeId,
 		array $config,
-		string $common,
 		string $name = '',
-		array $accessCodes = []
+		array $accessCodes = [],
+		array $params = []
 	)
 	{
 		if (
@@ -33,7 +33,7 @@ class UiFormConfigAjaxController extends \Bitrix\Main\Engine\Controller
 		)
 		{
 			$result = Scope::getInstance()
-				->setScopeConfig($moduleId, $entityTypeId, $name, $accessCodes, $config, $common);
+				->setScopeConfig($moduleId, $entityTypeId, $name, $accessCodes, $config, $params);
 
 			return (is_int($result) ? $result : AjaxJson::createError(null, $result));
 		}

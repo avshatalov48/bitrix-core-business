@@ -104,6 +104,11 @@
 	display: none !important;
 }
 
+div.adm-fileinput-area-container,
+div.adm-fileinput-item div.adm-fileinput-item-preview {
+	min-height: 90px;
+}
+
 div.adm-fileinput-item div.adm-fileinput-item-preview:before {
 	display: none;
 }

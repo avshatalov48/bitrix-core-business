@@ -26,3 +26,7 @@ DROP TABLE if exists b_im_permission_log;
 DROP TABLE if exists b_im_block_user;
 DROP TABLE if exists b_im_conference;
 DROP TABLE if exists b_im_conference_user_role;
+DROP TABLE if exists b_im_option_group;
+DROP TABLE if exists b_im_option_access;
+DROP TABLE if exists b_im_option_user;
+DROP TABLE if exists b_im_option_state;

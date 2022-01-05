@@ -323,6 +323,11 @@ class CComponentAjax
 		$this->_checkPcreLimit($data);
 		$arData = preg_split($regexp_links, $data, -1, PREG_SPLIT_DELIM_CAPTURE);
 
+		if (!is_array($arData))
+		{
+			return;
+		}
+
 		$cData = count($arData);
 		if($cData < 2)
 			return;

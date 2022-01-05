@@ -55,6 +55,9 @@
 	var TYPE_CATALOG_SECTION = "section";
 
 	/** @type {string} */
+	var TYPE_DISK_FILE = "diskFile";
+
+	/** @type {string} */
 	var TYPE_HREF_LINK = "";
 
 	/** @type {string} */
@@ -79,6 +82,7 @@
 	 * 		page: RegExp,
 	 * 		crmForm: RegExp,
 	 * 		crmPhone: RegExp,
+	 * 		diskFile: RegExp,
 	 * 		system: RegExp,
 	 * 		alias: RegExp
 	 * 	}}
@@ -91,6 +95,7 @@
 		page: new RegExp("^#landing([0-9]+)"),
 		crmForm: new RegExp("^#crmFormPopup([0-9]+)"),
 		crmPhone: new RegExp("^#crmPhone([0-9]+)"),
+		diskFile: new RegExp("^#diskFile([0-9]+)"),
 		system: new RegExp("^#system_[a-z_-]+"),
 		alias: new RegExp("^#.*")
 	};
@@ -166,6 +171,7 @@
 	BX.Landing.UI.Field.LinkURL.TYPE_CATALOG = TYPE_CATALOG;
 	BX.Landing.UI.Field.LinkURL.TYPE_CATALOG_ELEMENT = TYPE_CATALOG_ELEMENT;
 	BX.Landing.UI.Field.LinkURL.TYPE_CATALOG_SECTION = TYPE_CATALOG_SECTION;
+	BX.Landing.UI.Field.LinkURL.TYPE_DISK_FILE = TYPE_DISK_FILE;
 	BX.Landing.UI.Field.LinkURL.matchers = matchers;
 
 
@@ -212,6 +218,9 @@
 					break;
 				case TYPE_CATALOG_SECTION:
 					valuePromise = this.getCatalogSectionData(hrefValue);
+					break;
+				case TYPE_DISK_FILE:
+					valuePromise = this.getDiskFileData(hrefValue);
 					break;
 				case TYPE_SYSTEM:
 					valuePromise = this.getSystemPage(hrefValue);
@@ -263,6 +272,9 @@
 					break;
 				case TYPE_CATALOG_SECTION:
 					valuePromise = this.getCatalogSectionData(hrefValue);
+					break;
+				case TYPE_DISK_FILE:
+					valuePromise = this.getDiskFileData(hrefValue);
 					break;
 				case TYPE_SYSTEM:
 					valuePromise = this.getSystemPage(hrefValue);
@@ -431,6 +443,11 @@
 			if (matchers.catalogSection.test(hrefValue))
 			{
 				return TYPE_CATALOG_SECTION;
+			}
+
+			if (matchers.diskFile.test(hrefValue))
+			{
+				return TYPE_DISK_FILE;
 			}
 
 			if (matchers.system.test(hrefValue))
@@ -721,6 +738,32 @@
 		},
 
 		/**
+		 * Gets disk file data.
+		 * @param {string} diskFile
+		 */
+		getDiskFileData: function(diskFile)
+		{
+			return BX.Landing.UI.Field.LinkURL.cache.remember(diskFile, function() {
+				var fileId = diskFile.replace("#diskFile", "");
+
+				return BX.Landing.Backend
+					.getInstance()
+					.action("Block::getFileDisk", {fileId: fileId})
+					.then(function(result) {
+						if (result)
+						{
+							return {
+								type: TYPE_DISK_FILE,
+								id: result.ID,
+								name: result.NAME
+							};
+						}
+						return null;
+					}.bind(this));
+			}.bind(this));
+		},
+
+		/**
 		 * Creates popup menu
 		 * @return {BX.PopupMenuWindow}
 		 */
@@ -765,6 +808,14 @@
 				buttons.push({
 					text: BX.Landing.Loc.getMessage("LANDING_LINKS_BUTTON_CATALOG"),
 					onclick: this.onListShow.bind(this, TYPE_CATALOG)
+				});
+			}
+
+			if (this.allowedTypes.includes(TYPE_DISK_FILE))
+			{
+				buttons.push({
+					text: BX.Landing.Loc.getMessage("LANDING_LINKS_BUTTON_DISK_FILE"),
+					onclick: this.onDiskFileShow.bind(this)
 				});
 			}
 
@@ -848,6 +899,56 @@
 					.show(type, options)
 					.then(this.onListItemClick);
 			}
+		},
+
+
+		onDiskFileShow: function()
+		{
+			if (this.popup)
+			{
+				this.popup.close();
+			}
+
+			var urlSelect = "/bitrix/tools/disk/uf.php?action=selectFile&dialog2=Y&SITE_ID=" + BX.message("SITE_ID");
+			var dialogName = "LandingDiskFile";
+
+			BX.ajax.get(urlSelect, "multiselect=N&dialogName=" + dialogName,
+				BX.delegate(function() {
+					setTimeout(BX.delegate(function() {
+						BX.DiskFileDialog.obElementBindPopup[dialogName].overlay = {
+							backgroundColor: "#cdcdcd",
+							opacity: ".1"
+						};
+						BX.DiskFileDialog.obCallback[dialogName] = {
+							saveButton: function(tab, path, selected)
+							{
+								var selectedItem = selected[Object.keys(selected)[0]];
+								if (!selectedItem)
+								{
+									return;
+								}
+
+								var fileId = selectedItem.id;
+
+								if (fileId[0] === 'n')
+								{
+									fileId = fileId.substr(1);
+								}
+
+								this.getDiskFileData("#diskFile" + fileId)
+									.then(function(data)
+									{
+										this.setValue(this.createPlaceholder(data), true);
+									}.bind(this))
+
+								this.setHrefTypeSwitcherValue(TYPE_HREF_LINK);
+								this.disableHrefTypeSwitcher();
+							}.bind(this)
+						};
+						BX.DiskFileDialog.openDialog(dialogName);
+					}, this), 10);
+				}, this)
+			);
 		},
 
 

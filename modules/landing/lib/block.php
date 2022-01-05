@@ -5,6 +5,8 @@ use \Bitrix\Main\Page\Asset;
 use \Bitrix\Main\Web\Json;
 use \Bitrix\Main\Web\DOM;
 use \Bitrix\Main\Localization\Loc;
+use \Bitrix\Landing\Connector;
+use \Bitrix\Landing\Controller;
 use \Bitrix\Landing\Internals;
 use \Bitrix\Landing\Assets;
 use \Bitrix\Landing\Block\Cache;
@@ -267,6 +269,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					'LANDING_ACTIVE' => 'LANDING.ACTIVE',
 					'LANDING_TPL_CODE' => 'LANDING.TPL_CODE',
 					'SITE_TPL_CODE' => 'LANDING.SITE.TPL_CODE',
+					'SITE_TYPE' => 'LANDING.SITE.TYPE',
 					'SITE_ID' => 'LANDING.SITE_ID'
 				),
 				'filter' => array(
@@ -312,7 +315,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		}
 
 		// fill meta data
-		$keys = ['CREATED_BY_ID', 'MODIFIED_BY_ID', 'DATE_CREATE', 'DATE_MODIFY'];
+		$keys = ['CREATED_BY_ID', 'MODIFIED_BY_ID', 'DATE_CREATE', 'DATE_MODIFY', 'SITE_TYPE'];
 		foreach ($keys as $key)
 		{
 			if (isset($data[$key]))
@@ -377,6 +380,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					'LANDING_ACTIVE' => 'LANDING.ACTIVE',
 					'LANDING_TPL_CODE' => 'LANDING.TPL_CODE',
 					'SITE_TPL_CODE' => 'LANDING.SITE.TPL_CODE',
+					'SITE_TYPE' => 'LANDING.SITE.TYPE',
 					'SITE_ID' => 'LANDING.SITE_ID'
 				),
 				'filter' => $filter,
@@ -646,13 +650,9 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	 * @param array $data Additional data array.
 	 * @return Block|false
 	 */
-	public static function createFromRepository(Landing $landing, $code, $data = array())
+	public static function createFromRepository(Landing $landing, string $code, array $data = array())
 	{
-		if (!is_string($code))
-		{
-			return false;
-		}
-		// get content and mainfest
+		// get content and manifest
 		$content = $data['CONTENT'] ?? self::getContentFromRepository($code);
 		$manifest = self::getManifestFile($code);
 		// version control
@@ -923,7 +923,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		$fillLastUsed = function($blocksCats)
 		{
 			$blocksCats['last']['items'] = array();
-			$lastUsed = self::getLastUsed(50);
+			$lastUsed = self::getLastUsed();
 			if ($lastUsed)
 			{
 				foreach ($lastUsed as $code)
@@ -1297,37 +1297,65 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	}
 
 	/**
-	 * Get last used blocks by current user.
+	 * Returns last used blocks by current user.
 	 * @param int $count Count of blocks.
 	 * @return array
 	 */
-	public static function getLastUsed($count = 10)
+	public static function getLastUsed(int $count = 15): array
 	{
 		$blocks = array();
 
-		$c = 0;
-		$res = parent::getList(array(
-			'select' => array(
+		$res = Internals\BlockLastUsedTable::getList([
+			'select' => [
 				'CODE'
-			),
-			'filter' => array(
-				'CREATED_BY_ID' => Manager::getUserId(),
-				'=PUBLIC' => 'N'
-			),
-			'order' => array(
+			],
+			'filter' => [
+				'USER_ID' => Manager::getUserId()
+			],
+			'order' => [
 				'DATE_CREATE' => 'DESC'
-			)
-		));
+			],
+			'limit' => $count
+		]);
 		while ($row = $res->fetch())
 		{
-			$blocks[$row['CODE']] = $row['CODE'];
-			if (++$c >= $count)
-			{
-				break;
-			}
+			$blocks[] = $row['CODE'];
 		}
 
-		return array_values($blocks);
+		return $blocks;
+	}
+
+	/**
+	 * Store block by code as last used.
+	 * @param string $blockCode
+	 * @return void
+	 */
+	public static function markAsUsed(string $blockCode): void
+	{
+		$res = Internals\BlockLastUsedTable::getList([
+			'select' => [
+				'ID'
+			],
+			'filter' => [
+				'USER_ID' => Manager::getUserId(),
+				'=CODE' => $blockCode
+			],
+			'limit' => 1
+		]);
+		if ($row = $res->fetch())
+		{
+			Internals\BlockLastUsedTable::update($row['ID'], [
+				'DATE_CREATE' => new \Bitrix\Main\Type\DateTime
+			]);
+		}
+		else
+		{
+			Internals\BlockLastUsedTable::add([
+				'CODE' => $blockCode,
+				'USER_ID' => Manager::getUserId(),
+				'DATE_CREATE' => new \Bitrix\Main\Type\DateTime
+			]);
+		}
 	}
 
 	/**
@@ -1444,6 +1472,15 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		}
 		$content = ob_get_contents();
 		$content = self::replaceMetaMarkers($content);
+		if ($landing->exist() && mb_strpos($content, '#crm') !== false)
+		{
+			$replace = Connector\Crm::getReplacesForContent($landing->getSiteId(), false);
+			$content = str_replace(
+				array_keys($replace),
+				array_values($replace),
+				$content
+			);
+		}
 		ob_end_clean();
 		if ($block->exist())
 		{
@@ -2676,6 +2713,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		{
 			// @todo make better
 			static $sysPages = null;
+
 			if ($sysPages === null)
 			{
 				$sysPages = array();
@@ -2708,6 +2746,12 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					}
 				}
 			}
+
+			$sysPages['@' . Connector\Disk::FILE_MASK_HREF . '@i'] = str_replace(
+				'#fileId#', '$1',
+				Controller\DiskFile::getDownloadLink($this->metaData['SITE_TYPE'], $this->id)
+			);
+
 			if (!empty($sysPages))
 			{
 				$content = preg_replace(
@@ -5198,5 +5242,50 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			'css' => array_unique($CSSList),
 			'strings' => array_unique($stringsList),
 		];
+	}
+
+	/**
+	 * Returns true if block's content contains needed string.
+	 *
+	 * @param int $blockId Block id.
+	 * @param string $needed String for search.
+	 * @return bool
+	 */
+	public static function isContains(int $blockId, string $needed): bool
+	{
+		$res = parent::getList([
+			'select' => [
+				'LID',
+				'SITE_ID' => 'LANDING.SITE_ID'
+			],
+			'filter' => [
+				'ID' => $blockId,
+				'=ACTIVE' => 'Y',
+				'=DELETED' => 'N',
+				'CONTENT' => '%' . $needed . '%'
+			]
+		]);
+		if ($row = $res->fetch())
+		{
+			$res = Landing::getList([
+				'select' => [
+					'ID'
+				],
+				'filter' => [
+					'ID' => $row['LID']
+				]
+			]);
+			if ($res->fetch())
+			{
+				return true;
+			}
+
+			if (\Bitrix\Landing\Site\Scope\Group::getGroupIdBySiteId($row['SITE_ID'], true))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

@@ -6,12 +6,10 @@ use Bitrix\Main\Access\AccessibleItem;
 use Bitrix\Main\UserField\Access\Permission\UserFieldPermissionTable;
 use Bitrix\Main\UserField\Access\UserAccessibleInterface;
 
-class UserFieldModel
-	implements \Bitrix\Main\Access\AccessibleItem
+class UserFieldModel implements \Bitrix\Main\Access\AccessibleItem
 {
-
-	private
-		$id = 0;
+	private static $permissions;
+	private $id = 0;
 
 	public static function createNew(): self
 	{
@@ -112,9 +110,9 @@ class UserFieldModel
 	 */
 	public function loadPermissions(): array
 	{
-		if ($this->permissions === null)
+		if (static::$permissions === null)
 		{
-			$this->permissions = [];
+			static::$permissions = [];
 
 			$res = UserFieldPermissionTable::query()
 				->addSelect('*')
@@ -124,10 +122,10 @@ class UserFieldModel
 
 			foreach ($res as $row)
 			{
-				$this->permissions[$row['USER_FIELD_ID']][$row['PERMISSION_ID']][$row['ACCESS_CODE']] = (int) $row['VALUE'];
+				static::$permissions[$row['USER_FIELD_ID']][$row['PERMISSION_ID']][$row['ACCESS_CODE']] = (int) $row['VALUE'];
 			}
 
 		}
-		return $this->permissions;
+		return static::$permissions;
 	}
 }

@@ -721,7 +721,8 @@
 			}
 			nameNode = innerNode
 				.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-line-text'}}))
-				.appendChild(BX.create('SPAN', {text: params.entry.name}));
+				.appendChild(BX.create('SPAN', {text:  params.entry.name}));
+
 
 			if (entry.isFullDay())
 			{
@@ -885,7 +886,7 @@
 				}
 			}
 			else if (
-				!this.calendar.util.readOnlyMode()
+				(this.calendar.util.type === 'location' || !this.calendar.util.readOnlyMode())
 				&& this.entryController.canDo(false, 'add_event')
 				&& (
 					dayCode = params.specialTarget
@@ -913,7 +914,7 @@
 			daysCount = 1,
 			holder = this.entryHolders[from.holderIndex],
 			sectionId = BX.Calendar.SectionManager.getNewEntrySectionId(),
-			section = this.calendar.sectionManager.getSection(sectionId),
+			section = this.calendar.sectionManager.getSection(sectionId) || this.calendar.roomsManager.getRoom(sectionId),
 			color = section.color;
 
 		var compactForm = BX.Calendar.EntryManager.getCompactViewForm(false);

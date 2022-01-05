@@ -853,15 +853,11 @@ class CSocNetLogDestination
 
 		$filter = [];
 
-		$useFulltextIndex = (
-			class_exists('\Bitrix\Main\UserIndexSelectorTable')
-			&& \Bitrix\Main\UserIndexSelectorTable::getEntity()->fullTextIndexEnabled("SEARCH_SELECTOR_CONTENT")
-			&& \Bitrix\Main\Config\Option::get("main", "user_selector_content_indexed", "") === "Y"
-		);
+		$useFulltextIndex = class_exists('\Bitrix\Main\UserIndexTable');
 
 		if ($useFulltextIndex)
 		{
-			$filter['*INDEX_SELECTOR.SEARCH_SELECTOR_CONTENT'] = \Bitrix\Main\Search\Content::prepareStringToken(implode(' ', $arSearchValue));
+			$filter['*INDEX.SEARCH_USER_CONTENT'] = \Bitrix\Main\Search\Content::prepareStringToken(implode(' ', $arSearchValue));
 		}
 		else
 		{
@@ -1037,7 +1033,7 @@ class CSocNetLogDestination
 
 		if ($useFulltextIndex)
 		{
-			$select['SEARCH_SELECTOR_CONTENT'] = 'INDEX_SELECTOR.SEARCH_SELECTOR_CONTENT';
+			$select['SEARCH_USER_CONTENT'] = 'INDEX.SEARCH_USER_CONTENT';
 		}
 
 		$db_events = GetModuleEvents("socialnetwork", "OnSocNetLogDestinationSearchUsers");
@@ -2018,6 +2014,17 @@ class CSocNetLogDestination
 				elseif (mb_substr($code, 0, 2) === 'SG')
 				{
 					$groupId = intval(mb_substr($code, 2));
+
+					$isProjectRoles = preg_match('/^SG([0-9]+)_?([AEKMO])?$/', $code, $match) && isset($match[2]);
+
+					if ($isProjectRoles)
+					{
+						// todo remove after new system the project roles.
+						list($users, $userIds) = self::getUsersByRole($groupId, $match[2], $users, $userIds);
+
+						continue;
+					}
+
 					$dbMembers = CSocNetUserToGroup::GetList(
 						["RAND" => "ASC"],
 						["GROUP_ID" => $groupId, "<=ROLE" => SONET_ROLES_USER, "USER_ACTIVE" => "Y"],
@@ -2099,6 +2106,110 @@ class CSocNetLogDestination
 		}
 
 		return $fetchUsers ? $users : $userIds;
+	}
+
+	private static function getUsersByRole(int $groupId, $role, array $users, array $userIds): array
+	{
+		$isScrumCustomRole = false;
+		$scrumCustomRole = '';
+
+		$availableRoles = [
+			SONET_ROLES_USER,
+			SONET_ROLES_MODERATOR,
+			SONET_ROLES_OWNER,
+		];
+
+		// todo maybe remove 'M' and 'O' roles after new system the project roles.
+		$customScrumRoles = ['M', 'O'];
+		$availableRoles = array_merge($availableRoles, $customScrumRoles);
+
+		$group = Bitrix\Socialnetwork\Item\Workgroup::getById($groupId);
+
+		$role = in_array($role, $availableRoles) ? $role : SONET_ROLES_USER;
+
+		if (in_array($role, $customScrumRoles))
+		{
+			$isScrumCustomRole = true;
+			$scrumCustomRole = $role;
+			$role = SONET_ROLES_MODERATOR;
+		}
+
+		$dbMembers = CSocNetUserToGroup::GetList(
+			["RAND" => "ASC"],
+			[
+				"GROUP_ID" => $groupId,
+				"=ROLE" => $role,
+				"USER_ACTIVE" => "Y"
+			],
+			false,
+			false,
+			[
+				"ID",
+				"USER_ID",
+				"ROLE",
+				"USER_NAME",
+				"USER_LAST_NAME",
+				"USER_SECOND_NAME",
+				"USER_LOGIN",
+				"USER_EMAIL",
+				"USER_PERSONAL_PHOTO",
+				"USER_WORK_POSITION",
+			]
+		);
+
+		if ($dbMembers)
+		{
+			while ($user = $dbMembers->GetNext())
+			{
+				if ($group && $group->isScrumProject())
+				{
+					if ($role === SONET_ROLES_MODERATOR)
+					{
+						$scrumMasterId = $group->getScrumMaster();
+						$scrumOwnerId = $group->getScrumOwner();
+
+						if ($isScrumCustomRole)
+						{
+							if (
+								$scrumCustomRole === 'M' && $user["USER_ID"] != $scrumMasterId
+								|| $scrumCustomRole === 'O' && $user["USER_ID"] != $scrumOwnerId
+							)
+							{
+								continue;
+							}
+						}
+						else
+						{
+							if (
+								$user["USER_ID"] == $scrumMasterId
+								|| $user["USER_ID"] == $scrumOwnerId
+							)
+							{
+								continue;
+							}
+						}
+					}
+				}
+
+				if (!in_array($user["USER_ID"], $userIds))
+				{
+					$userIds[] = $user["USER_ID"];
+					$users[] = [
+						'ID' => $user["USER_ID"],
+						'USER_ID' => $user["USER_ID"],
+						'LOGIN' => $user["USER_LOGIN"],
+						'NAME' => $user["USER_NAME"],
+						'LAST_NAME' => $user["USER_LAST_NAME"],
+						'SECOND_NAME' => $user["USER_SECOND_NAME"],
+						'EMAIL' => $user["USER_EMAIL"],
+						'PERSONAL_PHOTO' => $user["USER_PERSONAL_PHOTO"],
+						'WORK_POSITION' => $user["USER_WORK_POSITION"]
+					];
+				}
+			}
+		}
+
+		return [$users, $userIds];
 	}
 
 	public static function GetDestinationSort($arParams = array(), &$dataAdditional = false)
@@ -2551,8 +2662,8 @@ class CSocNetLogDestination
 		);
 
 		$arRes['index'] = (
-			isset($arUser["SEARCH_SELECTOR_CONTENT"])
-				? $arUser["SEARCH_SELECTOR_CONTENT"]
+			isset($arUser["SEARCH_USER_CONTENT"])
+				? $arUser["SEARCH_USER_CONTENT"]
 				: ''
 		);
 

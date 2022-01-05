@@ -292,6 +292,42 @@ class Client
 		);
 	}
 
+	/**
+	 * Returns site by id.
+	 * @param $id
+	 *
+	 * @return array|false|mixed
+	 */
+	public static function getSite($id)
+	{
+		$query = [
+			'site_id' => $id
+		];
+
+		return Transport::instance()->call(
+			Transport::METHOD_GET_SITE_ITEM,
+			$query
+		);
+	}
+
+	/**
+	 * Returns list of sites.
+	 *
+	 * @param array $query
+	 *
+	 * @return array|false|mixed
+	 */
+	public static function getSiteList(array $query = [])
+	{
+		$query['onPageSize'] = (int)$query['pageSize'] ?: 50;
+		$query['page'] = (int)$query['page'] ?: 1;
+
+		return Transport::instance()->call(
+			Transport::METHOD_GET_SITE_LIST,
+			$query
+		);
+	}
+
 	public static function getAppPublic($code, $version = false, $checkHash = false, $installHash = false)
 	{
 		$queryFields = [

@@ -66,7 +66,7 @@ class AnalyticBoardBatchProvider extends Base
 		foreach ($entities as $key => $entity)
 		{
 			/** @var \Bitrix\Report\VisualConstructor\AnalyticBoardBatch $entity */
-			if (in_array($key, $filteredEntityIds) || in_array($entity->getGroup(), $filteredEntityIds))
+			if (in_array($key, $filteredEntityIds))
 			{
 				$this->processAvailableRelations($entity);
 				$result[] = $entity;

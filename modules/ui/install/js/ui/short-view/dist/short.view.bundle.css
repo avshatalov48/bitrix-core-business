@@ -1,0 +1,128 @@
+.tasks-scrum__scope-switcher {
+	--tasks_scrum_switcher-white: rgba(255,255,255,1);
+	--tasks_scrum_switcher-white_alpha_80: rgba(255,255,255,.8);
+
+	--tasks_scrum_switcher-grey: rgba(227,229,232,1);
+
+	--tasks_scrum_switcher-grey-2: rgba(82,92,105,1);
+	--tasks_scrum_switcher-grey-2_alpha_80: rgba(82,92,105,.8);
+	--tasks_scrum_switcher-grey-2_alpha_10: rgba(82,92,105,.1);
+
+	--tasks_scrum_switcher-blue: rgba(47,198,246,1);
+
+}
+
+.tasks-scrum__switcher--container {
+	display: -webkit-inline-box;
+	display: -ms-inline-flexbox;
+	display: inline-flex;
+	border-radius: 16px;
+	font: 14px/14px "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	padding: 8px 10px 8px 16px;
+	position: relative;
+}
+
+.tasks-scrum__switcher--label {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	width: auto;
+	cursor: pointer;
+	-webkit-transition: .4s;
+	-o-transition: .4s;
+	transition: .4s;
+	color: var(--tasks_scrum_switcher-white_alpha_80);
+}
+
+.tasks-scrum__switcher--label:hover {
+	color: var(--tasks_scrum_switcher-white);
+}
+
+.bitrix24-default-theme .tasks-scrum__switcher--label,
+.bitrix24-dark-theme .tasks-scrum__switcher--label {
+	color: var(--tasks_scrum_switcher-grey-2_alpha_80);
+}
+
+.bitrix24-default-theme .tasks-scrum__switcher--label:hover,
+.bitrix24-dark-theme .tasks-scrum__switcher--label:hover {
+	color: var(--tasks_scrum_switcher-grey-2);
+}
+
+.tasks-scrum__switcher--checkbox {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+	opacity: 0;
+	margin: 0;
+}
+
+.tasks-scrum__switcher-cursor {
+	position: relative;
+	display: block;
+	height: 17px;
+	width: 43px;
+	border-radius: 54px;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+	cursor: pointer;
+	z-index: 4;
+	background: var(--tasks_scrum_switcher-grey);
+	margin-left: 14px;
+	-webkit-transition: .4s;
+	-o-transition: .4s;
+	transition: .4s;
+}
+
+.bitrix24-default-theme .tasks-scrum__switcher-cursor,
+.bitrix24-dark-theme .tasks-scrum__switcher-cursor {
+	background: var(--tasks_scrum_switcher-grey-2_alpha_10);
+}
+
+.tasks-scrum__switcher-cursor::before {
+	content: '';
+	display: block;
+	width: 11px;
+	height: 11px;
+	position: absolute;
+	top: 3px;
+	border-radius: 50%;
+	background: var(--tasks_scrum_switcher-white);
+	-webkit-box-shadow: 0 1px 1px rgba(0,0,0,.09);
+	        box-shadow: 0 1px 1px rgba(0,0,0,.09);
+	-webkit-transform: translate(4px, 0);
+	    -ms-transform: translate(4px, 0);
+	        transform: translate(4px, 0);
+	-webkit-transition: -webkit-transform .3s;
+	transition: -webkit-transform .3s;
+	-o-transition: transform .3s;
+	transition: transform .3s;
+	transition: transform .3s, -webkit-transform .3s;
+	z-index: 3;
+}
+
+.tasks-scrum__switcher--checkbox:checked + .tasks-scrum__switcher-cursor {
+	background: var(--tasks_scrum_switcher-blue);
+}
+
+.tasks-scrum__switcher--checkbox:checked + .tasks-scrum__switcher-cursor::before {
+	-webkit-transform: translate(28px, 0);
+	    -ms-transform: translate(28px, 0);
+	        transform: translate(28px, 0);
+}
+
+@media (max-width: 1400px) {
+	.bx-layout-table:not(.menu-collapsed-mode) .tasks-scrum__switcher--container {
+		padding: 8px;
+	}
+
+	.bx-layout-table:not(.menu-collapsed-mode) .tasks-scrum__switcher--label-text {
+		display: none;
+	}
+
+	.bx-layout-table:not(.menu-collapsed-mode) .tasks-scrum__switcher-cursor {
+		margin-left: 0;
+	}
+}

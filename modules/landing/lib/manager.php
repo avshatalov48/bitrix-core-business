@@ -230,11 +230,29 @@ class Manager
 	}
 
 	/**
+	 * Returns main site row by id.
+	 * @param string $siteId Main site id.
+	 * @return array|bool
+	 */
+	protected static function getMainSiteById(string $siteId)
+	{
+		static $sites = [];
+
+		if (!array_key_exists($siteId, $sites))
+		{
+			$sites[$siteId] = \Bitrix\Main\SiteTable::getById($siteId)->fetch();
+		}
+
+		return $sites[$siteId];
+	}
+
+	/**
 	 * Create system dir for publication sites.
 	 * @param string $basePath Publication physical dir.
+	 * @param string|null $siteId Main site id.
 	 * @return void
 	 */
-	protected static function createPublicationPath($basePath, $siteId = null)
+	protected static function createPublicationPath(string $basePath, string $siteId = null): void
 	{
 		static $paths = [];
 
@@ -258,7 +276,7 @@ class Manager
 			// gets current doc root or gets from the site
 			if ($siteId)
 			{
-				if ($smnSite = \Bitrix\Main\SiteTable::getById($siteId)->fetch())
+				if ($smnSite = self::getMainSiteById($siteId))
 				{
 					if ($smnSite['DOC_ROOT'])
 					{
@@ -329,10 +347,10 @@ class Manager
 
 	/**
 	 * Get main site local dir.
-	 * @param string $siteId Site LID.
+	 * @param string|null $siteId Main site LID.
 	 * @return string
 	 */
-	protected static function getSmnSiteDir($siteId)
+	protected static function getSmnSiteDir(?string $siteId): string
 	{
 		static $sites = [];
 
@@ -344,7 +362,7 @@ class Manager
 		if (!isset($sites[$siteId]))
 		{
 			$sites[$siteId] = '';
-			if ($smnSite = \Bitrix\Main\SiteTable::getById($siteId)->fetch())
+			if ($smnSite = self::getMainSiteById($siteId))
 			{
 				$sites[$siteId] = rtrim($smnSite['DIR'], '/');
 			}

@@ -19,8 +19,19 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_befo
 if (!check_bitrix_sessid())
 	die;
 
-$_POST['arParams']['AJAX'] = 'Y';
+$template = trim($_POST['templateName']);
+$params = isset($_POST['arParams']) && is_array($_POST['arParams']) ? $_POST['arParams'] : [];
+$params['AJAX'] = 'Y';
+
+$params = array_diff_key(
+	$params,
+	[
+		'SEF_MODE' => true,
+		'SEF_FOLDER' => true,
+		'SEF_URL_TEMPLATES' => true,
+	],
+);
 
 $APPLICATION->RestartBuffer();
 header('Content-Type: text/html; charset='.LANG_CHARSET);
-$APPLICATION->IncludeComponent('bitrix:sale.basket.basket.line', $_POST['templateName'], $_POST['arParams']);
+$APPLICATION->IncludeComponent('bitrix:sale.basket.basket.line', $template, $params);

@@ -79,10 +79,19 @@ return array(
 			'allowInlineEdit' => false,
 			'textOnly' => true,
 		),
-		
+
 //		search
 		'bitrix:search.title' => array(
 			'type' => 'component',
+			'extra' => array(
+				'editable' => array(
+					'PAGE' => array(
+						'name' => Loc::getMessage('LANDING_BLOCK_35.5.HEADER_NODES_SEARCH_PAGE'),
+						'type' => 'url',
+						'disallowType' => true,
+					),
+				),
+			),
 		),
 	),
 

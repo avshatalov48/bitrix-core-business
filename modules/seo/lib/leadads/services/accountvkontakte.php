@@ -1,9 +1,10 @@
-<?
+<?php
 
 namespace Bitrix\Seo\LeadAds\Services;
 
 use Bitrix\Seo\LeadAds;
 use Bitrix\Seo\LeadAds\Account;
+use Bitrix\Seo\Retargeting\Response;
 
 /**
  * Class AccountVkontakte
@@ -12,11 +13,11 @@ use Bitrix\Seo\LeadAds\Account;
  */
 class AccountVkontakte extends Account
 {
-	const TYPE_CODE = LeadAds\Service::TYPE_VKONTAKTE;
+	public const TYPE_CODE = LeadAds\Service::TYPE_VKONTAKTE;
 
-	const URL_ACCOUNT_LIST = 'https://vk.com/groups?tab=admin';
+	public const URL_ACCOUNT_LIST = 'https://vk.com/groups?tab=admin';
 
-	const URL_INFO = 'https://vk.com/page-19542789_53868676';
+	public const URL_INFO = 'https://vk.com/page-19542789_53868676';
 
 	protected static $listRowMap = array(
 		'ID' => 'ID',
@@ -27,14 +28,15 @@ class AccountVkontakte extends Account
 	 * Get row by id.
 	 *
 	 * @param string $id ID.
+	 *
 	 * @return array|mixed|null
 	 */
-	public function getRowById($id)
+	public function getRowById(string $id)
 	{
 		$list = $this->getList();
 		while ($row = $list->fetch())
 		{
-			if ($row['ID'] == $id)
+			if ($row['ID'] === $id)
 			{
 				return $row;
 			}
@@ -46,15 +48,14 @@ class AccountVkontakte extends Account
 	/**
 	 * Get list.
 	 *
-	 * @return \Bitrix\Seo\Retargeting\Response
+	 * @return Response
 	 */
-	public function getList()
+	public function getList(): Response
 	{
 		// https://vk.com/dev/groups.get
 		$response = $this->getRequest()->send(array(
-			'method' => 'GET',
-			'endpoint' => 'groups.get',
-			'fields' => array(
+			'methodName' => 'leadads.groups.list',
+			'parameters' => array(
 				'fields' => 'id,name',
 				'extended' => 1,
 				'filter' => 'admin'
@@ -73,31 +74,26 @@ class AccountVkontakte extends Account
 	 *
 	 * @return array|null
 	 */
-	public function getProfile()
+	public function getProfile(): ?array
 	{
-		$response = $this->getRequest()->send(array(
-			'method' => 'GET',
-			'endpoint' => 'users.get',
-			'fields' => array(
-				//'user_ids' => array(),
+		$response = $this->getRequest()->send([
+			'methodName' => 'leadads.profile',
+			'parameters' => [
 				'fields' => 'photo_50,screen_name'
-			)
-		));
+			]
+		]);
 
-
-		if ($response->isSuccess())
+		if ($response->isSuccess() && $data = $response->fetch())
 		{
-			$data = $response->fetch();
-			return array(
+
+			return [
 				'ID' => $data['ID'],
 				'NAME' => $data['FIRST_NAME'] . ' ' . $data['LAST_NAME'],
 				'LINK' => 'https://vk.com/' . $data['SCREEN_NAME'],
 				'PICTURE' => $data['PHOTO_50'],
-			);
+			];
 		}
-		else
-		{
-			return null;
-		}
+
+		return null;
 	}
 }

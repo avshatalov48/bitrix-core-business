@@ -1020,4 +1020,27 @@ class Block
 
 		return $result;
 	}
+
+	/**
+	 * Returns disk's file by attached object id.
+	 * @param int $fileId File (attached object) id.
+	 * @return PublicActionResult
+	 */
+	public static function getFileDisk(int $fileId): PublicActionResult
+	{
+		static $internal = true;
+
+		$result = new PublicActionResult();
+		$result->setResult(null);
+
+		if ($file = \Bitrix\Landing\Connector\Disk::getFileInfo($fileId, true, true))
+		{
+			$result->setResult([
+				'ID' => $file['OBJECT_ID'],
+				'NAME' => $file['NAME']
+			]);
+		}
+
+		return $result;
+	}
 }

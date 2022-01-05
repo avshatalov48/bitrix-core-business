@@ -1,4 +1,10 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -32,6 +38,7 @@ else
 				groupId: <?= (int)$arParams['GROUP_ID'] ?>,
 				groupType: '<?= CUtil::JSEscape($arResult['groupTypeCode']) ?>',
 				isProject: <?= ($arResult['Group']['PROJECT'] === 'Y' ? 'true' : 'false') ?>,
+				isScrumProject: <?= ($arResult['isScrumProject'] ? 'true' : 'false') ?>,
 				isOpened: <?= ($arResult['Group']['OPENED'] === 'Y' ? 'true' : 'false') ?>,
 				currentUserId: <?= ($USER->isAuthorized() ? $USER->getid() : 0) ?>,
 				userRole: '<?=CUtil::JSUrlEscape($arResult["CurrentUserPerms"]["UserRole"])?>',
@@ -106,15 +113,23 @@ else
 			?></div>
 		</div><?
 
-		if ($arResult['Group']['PROJECT'] == 'Y')
+		if ($arResult['Group']['PROJECT'] === 'Y')
 		{
 			?><div class="socialnetwork-group-box">
 				<div class="socialnetwork-group-left"><?=Loc::getMessage('SONET_C6_PROJECT_DATE_START')?></div>
-				<div class="socialnetwork-group-right"><?=FormatDateFromDB($arResult["Group"]["PROJECT_DATE_START"], $arParams["DATE_FORMAT"], true)?></div>
+				<div class="socialnetwork-group-right"><?=
+					!empty($arResult['Group']['PROJECT_DATE_START'])
+						? FormatDateFromDB($arResult['Group']['PROJECT_DATE_START'], $arParams['DATE_FORMAT'], true)
+						: ''
+				?></div>
 			</div>
 			<div class="socialnetwork-group-box">
 				<div class="socialnetwork-group-left"><?=Loc::getMessage('SONET_C6_PROJECT_DATE_FINISH')?></div>
-				<div class="socialnetwork-group-right"><?=FormatDateFromDB($arResult["Group"]["PROJECT_DATE_FINISH"], $arParams["DATE_FORMAT"], true)?></div>
+				<div class="socialnetwork-group-right"><?=
+					!empty($arResult['Group']['PROJECT_DATE_FINISH'])
+						? FormatDateFromDB($arResult['Group']['PROJECT_DATE_FINISH'], $arParams['DATE_FORMAT'], true)
+						: ''
+				?></div>
 			</div><?
 		}
 
@@ -260,4 +275,3 @@ else
 			title="<?=Loc::getMessage("SONET_C6_CARD_FAVORITES_".(!empty($arResult['FAVORITES']) ? "Y" : "N"))?>"></div><?
 	?></div><?
 }
-?>

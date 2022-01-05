@@ -8,6 +8,7 @@ use Bitrix\Main\Web\Json;
 use Bitrix\Main\Config\Option;
 use Bitrix\Security\Filter\Auditor;
 use Bitrix\Rest\UsageStatTable;
+use Bitrix\Rest\Configuration\DataProvider\Disk\ProxyDiskType;
 
 class Helper
 {
@@ -17,13 +18,17 @@ class Helper
 	const DEFAULT_ARCHIVE_NAME = 'configuration';
 	const DEFAULT_ARCHIVE_FILE_EXTENSIONS = 'zip';
 
+	public const MODE_IMPORT = 'IMPORT';
+	public const MODE_ROLLBACK = 'ROLLBACK';
+	public const MODE_EXPORT = 'EXPORT';
+
 	protected $prefixStatisticBasic = 'DEFAULT_';
 	protected $prefixAppContext = 'app';
 	protected $prefixUserContext = 'configuration';
 	protected $optionEnableZipMod = 'enable_mod_zip';
 	protected $optionMaxImportFileSize = 'import_max_size';
 	protected $optionBasicAppList = 'uses_basic_app_list';
-	protected $defaultMaxSizeImport = 100;
+	protected $defaultMaxSizeImport = 250;
 	protected $appConfigurationFolderBackup = 'appConfiguration';
 	protected $basicManifest = [
 		'vertical_crm'
@@ -40,7 +45,7 @@ class Helper
 	/**
 	 * @return Helper
 	 */
-	public static function getInstance()
+	public static function getInstance(): Helper
 	{
 		if (self::$instance === null)
 		{
@@ -71,8 +76,12 @@ class Helper
 	 */
 	public function getMaxFileSize()
 	{
-		$size = Option::get('rest', $this->optionMaxImportFileSize, '');
-		if($size === '')
+		if (!ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			$size = Option::get('rest', $this->optionMaxImportFileSize, '');
+		}
+
+		if (empty($size))
 		{
 			$size = $this->defaultMaxSizeImport;
 		}
@@ -92,7 +101,7 @@ class Helper
 		$postfix = preg_replace('/[^a-zA-Z0-9_]/', '', $postfix);
 
 		global $USER;
-		if($USER->IsAuthorized())
+		if ($USER->IsAuthorized())
 		{
 			$user = $USER->GetID();
 		}
@@ -114,7 +123,7 @@ class Helper
 	{
 		$result = 'external';
 		$appId = intval($appId);
-		if($appId > 0)
+		if ($appId > 0)
 		{
 			$result = $this->prefixAppContext.$appId;
 		}
@@ -181,7 +190,7 @@ class Helper
 	public function getStorageBackup()
 	{
 		$storage = false;
-		if(Loader::includeModule('disk'))
+		if (Loader::includeModule('disk'))
 		{
 			$storage = \Bitrix\Disk\Driver::getInstance()->addStorageIfNotExist(
 				$this->getStorageBackupParam()
@@ -210,7 +219,7 @@ class Helper
 	{
 		$result = false;
 		$appList = $this->getBasicAppList();
-		if(isset($appList[$manifestCode]))
+		if (isset($appList[$manifestCode]))
 		{
 			$result = $appList[$manifestCode];
 		}
@@ -244,7 +253,7 @@ class Helper
 	public function setBasicApp($manifestCode, $appCode)
 	{
 		$result = false;
-		if($this->isBasicManifest($manifestCode))
+		if ($this->isBasicManifest($manifestCode))
 		{
 			$appList = $this->getBasicAppList();
 			$appList[$manifestCode] = $appCode;
@@ -262,10 +271,10 @@ class Helper
 	public function deleteBasicApp($manifestCode)
 	{
 		$result = false;
-		if($this->isBasicManifest($manifestCode))
+		if ($this->isBasicManifest($manifestCode))
 		{
 			$appList = $this->getBasicAppList();
-			if(isset($appList[$manifestCode]))
+			if (isset($appList[$manifestCode]))
 			{
 				unset($appList[$manifestCode]);
 				Option::set('rest', $this->optionBasicAppList, Json::encode($appList));
@@ -282,7 +291,7 @@ class Helper
 	public function sendStatistic()
 	{
 		$appList = $this->getBasicAppList();
-		foreach($appList as $manifest => $appCode)
+		foreach ($appList as $manifest => $appCode)
 		{
 			UsageStatTable::logConfiguration($appCode, $this->prefixStatisticBasic . mb_strtoupper($manifest));
 		}
@@ -311,7 +320,7 @@ class Helper
 	 *
 	 * @return bool
 	 */
-	public static function checkAccessManifest($params, $uses = []) : bool
+	public static function checkAccessManifest($params, $uses = []): bool
 	{
 		return Manifest::isEntityAvailable('', $params, $uses);
 	}

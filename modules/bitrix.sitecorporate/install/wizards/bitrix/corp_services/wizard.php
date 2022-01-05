@@ -79,7 +79,7 @@ class SiteSettingsStep extends CSiteSettingsWizardStep
 		$this->content .= '<div class="wizard-upload-img-block"><div class="wizard-catalog-title">'.GetMessage("WIZ_COMPANY_COPY").'</div>';
 		$this->content .= $this->ShowInputField("textarea", "siteCopy", Array("id" => "site-copy", "class" => "wizard-field", "rows"=>"3")).'</div>';
 
-		$firstStep = COption::GetOptionString("main", "wizard_first" . substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), false, $wizard->GetVar("siteID")); 
+		$firstStep = COption::GetOptionString("main", "wizard_first".mb_substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), false, $wizard->GetVar("siteID"));
 
 		$styleMeta = 'style="display:block"';
 		if($firstStep == "Y") $styleMeta = 'style="display:none"';

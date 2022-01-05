@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Seo\LeadAds;
 
@@ -11,81 +11,29 @@ use Bitrix\Seo\Retargeting\IService;
  *
  * @package Bitrix\Seo\LeadAds
  */
-class Service implements IService,IInternalService
+class Service implements IService, IInternalService
 {
-	const GROUP = 'leadads';
-	const TYPE_FACEBOOK = 'facebook';
-	const TYPE_VKONTAKTE = 'vkontakte';
+	public const GROUP = 'leadads';
 
-	/**
-	 * Get instance.
-	 *
-	 * @return static
-	 */
-	public static function getInstance()
-	{
-		static $instance = null;
-		if ($instance === null)
-		{
-			$instance = new static();
-		}
+	public const TYPE_FACEBOOK = 'facebook';
 
-		return $instance;
-	}
+	public const TYPE_VKONTAKTE = 'vkontakte';
 
-	/**
-	 * Get engine code by type.
-	 *
-	 * @param string $type Type
-	 * @return string
-	 */
-	public static function getEngineCode($type)
-	{
-		return static::GROUP . '.' . $type;
-	}
+	/**@var array<string,Account> $accounts */
+	protected $accounts = [];
 
-	/**
-	 * Get Form by type.
-	 *
-	 * @param string $type Type
-	 * @return Form
-	 */
-	public static function getForm($type)
-	{
-		static $form = null;
-		if ($form === null)
-		{
-			$form = Form::create($type)->setService(static::getInstance());
-		}
-
-		return $form;
-	}
-
-	/**
-	 * Get group auth.
-	 *
-	 * @param string $type Type
-	 * @return AuthAdapter
-	 */
-	public static function getGroupAuth($type)
-	{
-		static $auth = null;
-		if ($auth === null)
-		{
-			$auth = Form::create($type)->setService(static::getInstance())->getGroupAuthAdapter();
-		}
-
-		return $auth;
-	}
+	/**@var array<string,Form> $accounts */
+	protected $forms = [];
 
 	/**
 	 * Register group.
 	 *
 	 * @param string $type Type.
 	 * @param string $groupId Group ID.
+	 *
 	 * @return bool
 	 */
-	public static function registerGroup($type, $groupId)
+	public static function registerGroup(string $type, string $groupId): bool
 	{
 		return Form::create($type)
 			->setService(static::getInstance())
@@ -93,58 +41,30 @@ class Service implements IService,IInternalService
 	}
 
 	/**
+	 * Get instance.
+	 *
+	 * @return static
+	 */
+	public static function getInstance(): Service
+	{
+		static $instance;
+
+		return $instance = $instance ?? new static();
+	}
+
+	/**
 	 * UnRegister group.
 	 *
 	 * @param string $type Type.
 	 * @param string $groupId Group ID.
+	 *
 	 * @return bool
 	 */
-	public static function unRegisterGroup($type, $groupId)
+	public static function unRegisterGroup(string $type, string $groupId): bool
 	{
 		return Form::create($type)
 			->setService(static::getInstance())
 			->unRegisterGroup($groupId);
-	}
-
-	/**
-	 * Remove group auth.
-	 *
-	 * @param string $type Type
-	 * @return void
-	 */
-	public static function removeGroupAuth($type)
-	{
-		static::getGroupAuth($type)->removeAuth();
-	}
-
-	/**
-	 * Get Account by type.
-	 *
-	 * @param string $type Type
-	 * @return Account
-	 */
-	public static function getAccount($type)
-	{
-		static $account = null;
-		if ($account === null)
-		{
-			$account = Account::create($type)->setService(static::getInstance());
-		}
-
-		return $account;
-	}
-
-	/**
-	 * Get type list.
-	 *
-	 * @return array
-	 */
-	public static function getTypes()
-	{
-		return array(
-			static::TYPE_FACEBOOK,
-			static::TYPE_VKONTAKTE,
-		);
 	}
 
 	/**
@@ -153,15 +73,18 @@ class Service implements IService,IInternalService
 	 * @param string $type Type
 	 * @return AuthAdapter
 	 */
-	public static function getAuthAdapter($type)
+	public static function getAuthAdapter($type): AuthAdapter
 	{
-		static $adapter = null;
-		if ($adapter === null)
+		/**@var array<string,AuthAdapter> */
+		static $adapters;
+
+		$adapters = $adapters ?? [];
+		if (!array_key_exists($type, $adapters))
 		{
-			$adapter = AuthAdapter::create($type)->setService(static::getInstance());
+			$adapters[$type] = AuthAdapter::create($type)->setService(static::getInstance());
 		}
 
-		return $adapter;
+		return $adapters[$type];
 	}
 
 	/**
@@ -171,12 +94,37 @@ class Service implements IService,IInternalService
 	{
 		foreach (static::getTypes() as $type)
 		{
-			if($engineCode == static::getEngineCode($type))
+			if ($engineCode === static::getEngineCode($type))
 			{
 				return $type;
 			}
 		}
+
 		return null;
+	}
+
+	/**
+	 * Get type list.
+	 *
+	 * @return array
+	 */
+	public static function getTypes(): array
+	{
+		return [
+			static::TYPE_FACEBOOK,
+			static::TYPE_VKONTAKTE,
+		];
+	}
+
+	/**
+	 * Get engine code by type.
+	 *
+	 * @param string $type Type
+	 * @return string
+	 */
+	public static function getEngineCode($type): string
+	{
+		return static::GROUP . '.' . $type;
 	}
 
 	/**
@@ -194,4 +142,51 @@ class Service implements IService,IInternalService
 	{
 		return 'leadads';
 	}
+
+	/**
+	 * Get group auth object.
+	 *
+	 * @param string $type Type
+	 *
+	 * @return AuthAdapter
+	 */
+	public function getGroupAuth(string $type): ?AuthAdapter
+	{
+		return $this->getForm($type)->getGroupAuthAdapter();
+	}
+
+	/**
+	 * Get Form by type.
+	 *
+	 * @param string $type Type
+	 *
+	 * @return Form
+	 */
+	public function getForm(string $type): Form
+	{
+		if (!array_key_exists($type, $this->forms))
+		{
+			$this->forms[$type] = Form::create($type)->setService($this);
+		}
+
+		return $this->forms[$type];
+	}
+
+	/**
+	 * Get Account by type.
+	 *
+	 * @param string $type Type
+	 *
+	 * @return Account
+	 */
+	public function getAccount(string $type): ?Account
+	{
+		if (!array_key_exists($type, $this->accounts))
+		{
+			$this->accounts[$type] = Account::create($type)->setService($this);
+		}
+
+		return $this->accounts[$type];
+	}
 }
+

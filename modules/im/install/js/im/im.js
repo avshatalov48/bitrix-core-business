@@ -11128,7 +11128,7 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 		if (!this.disk.files[chatId][fileId])
 			return false;
 
-		var deleteSelf = this.disk.files[chatId][fileId].authorId != this.BXIM.userId;
+		var deleteSelf = this.disk.files[chatId][fileId].authorId == this.BXIM.userId;
 
 		menuItems = [
 			enableLink? { text: BX.message("IM_F_DOWNLOAD"), href: this.disk.files[chatId][fileId].urlDownload, 'target': '_blank', onclick: BX.delegate(function(){  this.closeMenuPopup(); }, this)}: null,
@@ -11136,8 +11136,8 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 				this.disk.saveToDisk(chatId, fileId, {boxId: 'im-file-history-panel'});
 				this.closeMenuPopup();
 			}, this)},
-			this.chat[chatId] && this.chat[chatId].type == 'open' && deleteSelf? null: {text: BX.message("IM_F_DELETE"), onclick: BX.delegate(function(){
-				this.BXIM.openConfirm(deleteSelf? BX.message('IM_F_DELETE_SELF_CONFIRM'): BX.message('IM_F_DELETE_CONFIRM'), [
+			deleteSelf? {text: BX.message("IM_F_DELETE"), onclick: BX.delegate(function(){
+				this.BXIM.openConfirm(BX.message('IM_F_DELETE_CONFIRM'), [
 					new BX.PopupWindowButton({
 						text : BX.message('IM_F_DELETE_CONFIRM_YES'),
 						className : "popup-window-button-accept",
@@ -11154,7 +11154,7 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 				], true);
 
 				this.closeMenuPopup();
-			}, this)}
+			}, this)}: null
 		];
 	}
 	else if (type == 'notify')
@@ -12356,7 +12356,7 @@ BX.MessengerChat.prototype.drawMessageHistory = function(message)
 	var filesNode = BX.MessengerCommon.diskDrawFiles(message.chatId, message.params.FILE_ID, {'status': ['done', 'error'], 'boxId': 'im-file-history'});
 	if (filesNode.length > 0)
 	{
-		filesNode = BX.create("div", { props : { className : "bx-messenger-file-box"+(message.text != ''? ' bx-messenger-file-box-with-message':'') }, children: filesNode});
+		filesNode = BX.create("div", { props : { className : "bx-messenger-file-box" }, children: filesNode});
 	}
 	else
 	{

@@ -1,0 +1,10 @@
+<?php
+
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_REGISTRATION'] = 'Для использования сервиса необходимо зарегистрироваться на сайте:';
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_SUBJECT'] = 'Подписи (разделить ;)';
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_ACTION_SAVE'] = 'Сохранить';
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_ACCOUNT_INFORMATION'] = 'Информация об учетной записи';
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_MANAGE_ACCOUNT'] = 'Управление учетной записью';
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_ERROR_EMPTY_FIELDS'] = 'Заполните необходимые поля';
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_OPTION_CONFIRM_TITLE'] = 'Подтвердить';
+$MESS['MESSAGESERVICE_CONFIG_SENDER_SMS_CLEAR_OPTION_CONFIRM_TEXT'] = 'Вы действительно хотите удалить всю информацию об аккаунте?';

@@ -41,3 +41,5 @@ $MESS["SENDER_LETTER_LIST_COMP_UI_ROW_CONSENT_SUPPORT_Y"] = "Да";
 $MESS["SENDER_LETTER_LIST_COMP_UI_ROW_CONSENT_SUPPORT_N"] = "Нет";
 $MESS["SENDER_LETTER_LIST_COMP_UI_ROW_CONSENT_TITLE_Y"] = "Для отправки этой рассылки необходимо согласие получателей";
 $MESS["SENDER_LETTER_LIST_COMP_UI_ROW_CONSENT_TITLE_N"] = "Для отправки этой рассылки согласие получателей не нужно";
+$MESS["SENDER_LETTER_LIST_ROW_STATS_CLICKS"] = "переходы: #COUNT# / -#UNSUB#";
+$MESS["SENDER_DISPATCH_STATE_M"] = "Идет подготовка сегмента";

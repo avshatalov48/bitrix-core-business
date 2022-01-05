@@ -199,6 +199,14 @@ if($USER->CanDoOperation('view_other_settings') || $USER->CanDoOperation('manage
 						"message_theme_edit.php"
 					),
 				),
+				array(
+					"text" => GetMessage("MAIN_MENU_SMTP_CONFIG"),
+					"title" => GetMessage("MAIN_MENU_SMTP_CONFIG_TITLE"),
+					"url" => "smtp_admin.php?lang=".LANGUAGE_ID,
+					"more_url" => array(
+						"smtp_edit.php"
+					),
+				),
 			),
 		);
 		$settingsItems[] = array(

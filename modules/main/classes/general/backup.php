@@ -214,7 +214,7 @@ class CBackup
 		elseif (!($k xor $p))
 			$arc_name .= '_'.($b ? '' : 'no').'sql';
 
-		$arc_name .= '_'.mb_substr(md5(uniqid(rand(), true)), 0, 8);
+		$arc_name .= '_' . \Bitrix\Main\Security\Random::getString(16);
 		return $arc_name;
 	}
 

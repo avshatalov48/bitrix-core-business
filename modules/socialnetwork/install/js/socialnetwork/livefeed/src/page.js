@@ -19,6 +19,8 @@ class Page
 		this.firstPageLastTS = 0;
 		this.firstPageLastId = 0;
 		this.useBXMainFilter = 'N';
+		this.commentFormUID = '';
+		this.blogCommentFormUID = '';
 
 		this.signedParameters = '';
 		this.componentName = '';
@@ -63,6 +65,11 @@ class Page
 
 		MoreButton.clearCommentsList();
 		FeedInstance.clearMoreButtons();
+
+		if (Type.isStringFilled(this.commentFormUID))
+		{
+			params.commentFormUID = this.commentFormUID;
+		}
 
 		if (
 			!Type.isStringFilled(params.useBXMainFilter)
@@ -283,6 +290,16 @@ class Page
 			preset_filter_top_id: (Type.isStringFilled(nextUrlParamsList.preset_filter_top_id) && nextUrlParamsList.preset_filter_top_id !== '0' ? nextUrlParamsList.preset_filter_top_id : ''),
 			preset_filter_id: (Type.isStringFilled(nextUrlParamsList.preset_filter_id) && nextUrlParamsList.preset_filter_id !== '0' ? nextUrlParamsList.preset_filter_id : '')
 		};
+
+		if (Type.isStringFilled(this.commentFormUID))
+		{
+			queryParams.commentFormUID = this.commentFormUID;
+		}
+
+		if (Type.isStringFilled(this.blogCommentFormUID))
+		{
+			queryParams.blogCommentFormUID = this.blogCommentFormUID;
+		}
 
 		const queryData = {
 			c: this.getComponentName(),

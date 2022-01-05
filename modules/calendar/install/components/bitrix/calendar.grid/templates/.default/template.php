@@ -64,20 +64,6 @@ if($isBitrix24Template)
 ?>
 
 <?
-$stepperHtml = \Bitrix\Main\Update\Stepper::getHtml(array("calendar" => array('Bitrix\Calendar\Update\IndexCalendar')),\Bitrix\Main\Localization\Loc::getMessage("EC_CALENDAR_INDEX"));
-if ($stepperHtml)
-{
-	echo '<div class="calendar-stepper-block">'.$stepperHtml.'</div>';
-}
-
-if ($stepperHtml = \Bitrix\Main\Update\Stepper::getHtml(["calendar" => ['Bitrix\Calendar\Update\SectionStructureUpdate']],
-	\Bitrix\Main\Localization\Loc::getMessage("CALENDAR_UPDATE_STRUCTURE_TITLE")))
-{
-	echo '<div class="calendar-stepper-block">'.$stepperHtml.'</div>';
-}
-?>
-
-<?
 $arResult['CALENDAR']->Show();
 
 if($ex = $APPLICATION->GetException())
@@ -227,3 +213,33 @@ else
 	}
 }
 ?>
+
+<?$spotlight = new \Bitrix\Main\UI\Spotlight("CALENDAR_NEW_ROOM");?>
+<?if(!$spotlight->isViewed(CCalendar::GetCurUserId()))
+{
+	CJSCore::init("spotlight");
+	?>
+	<script type="text/javascript">
+		BX.ready(function ()
+		{
+			var target = BX("top_menu_id_calendar_menu_rooms");
+			if (target)
+			{
+				target =  target.querySelector(".main-buttons-item-link");
+			}
+			if (target && BX.type.isDomNode(target))
+			{
+				setTimeout(function(){
+					var calendarRoomSpotlight = new BX.SpotLight({
+						targetElement: target,
+						targetVertex: "middle-center",
+						content: '<?=Loc::getMessage('EC_CALENDAR_SPOTLIGHT_ROOMS')?>',
+						id: "CALENDAR_NEW_ROOM",
+						autoSave: true
+					});
+					calendarRoomSpotlight.show();
+				}, 2000);
+			}
+		});
+	</script>
+<? }?>

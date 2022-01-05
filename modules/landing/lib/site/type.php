@@ -88,6 +88,17 @@ class Type
 	}
 
 	/**
+	 * Returns true if scope is public.
+	 * @param string|null $scope Scope code.
+	 * @return bool
+	 */
+	public static function isPublicScope(?string $scope = null): bool
+	{
+		$scope = $scope ? mb_strtoupper($scope) : self::getCurrentScopeId();
+		return !($scope === 'KNOWLEDGE' || $scope === 'GROUP');
+	}
+
+	/**
 	 * Returns publication path string.
 	 * @return string|null
 	 */

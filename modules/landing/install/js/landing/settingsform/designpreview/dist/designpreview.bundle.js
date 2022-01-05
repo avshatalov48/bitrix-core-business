@@ -284,12 +284,6 @@ this.BX.Landing = this.BX.Landing || {};
 
 	      if (isActiveColorPickerElement) {
 	        colorPrimary = colorPickerElement.dataset.value;
-	      }
-
-	      if (colorPrimary) {
-	        if (colorPrimary[0] !== '#') {
-	          colorPrimary = '#' + colorPrimary;
-	        }
 	      } //for 'design page', if use not checked, use color from 'design site'
 
 
@@ -299,7 +293,14 @@ this.BX.Landing = this.BX.Landing || {};
 	        }
 	      }
 
-	      css += "--design-preview-primary: ".concat(colorPrimary, ";");
+	      if (colorPrimary) {
+	        if (colorPrimary[0] !== '#') {
+	          colorPrimary = '#' + colorPrimary;
+	        }
+
+	        css += "--design-preview-primary: ".concat(colorPrimary, ";");
+	      }
+
 	      return css;
 	    }
 	  }, {

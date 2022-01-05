@@ -160,6 +160,7 @@
 
 		this.__onCallDisconnectedHandler = this.__onCallDisconnected.bind(this);
 		this.__onCallMessageReceivedHandler = this.__onCallMessageReceived.bind(this);
+		this.__onCallStatsReceivedHandler = this.__onCallStatsReceived.bind(this);
 		this.__onCallEndpointAddedHandler = this.__onCallEndpointAdded.bind(this);
 		this.__onCallReconnectingHandler = this.__onCallReconnecting.bind(this);
 		this.__onCallReconnectedHandler = this.__onCallReconnected.bind(this);
@@ -1051,6 +1052,10 @@
 	{
 		this.voximplantCall.addEventListener(VoxImplant.CallEvents.Disconnected, this.__onCallDisconnectedHandler);
 		this.voximplantCall.addEventListener(VoxImplant.CallEvents.MessageReceived, this.__onCallMessageReceivedHandler);
+		if (BX.Call.Util.shouldCollectStats())
+		{
+			this.voximplantCall.addEventListener(VoxImplant.CallEvents.CallStatsReceived, this.__onCallStatsReceivedHandler);
+		}
 
 		this.voximplantCall.addEventListener(VoxImplant.CallEvents.EndpointAdded, this.__onCallEndpointAddedHandler);
 		if (VoxImplant.CallEvents.Reconnecting)
@@ -1066,6 +1071,10 @@
 		{
 			this.voximplantCall.removeEventListener(VoxImplant.CallEvents.Disconnected, this.__onCallDisconnectedHandler);
 			this.voximplantCall.removeEventListener(VoxImplant.CallEvents.MessageReceived, this.__onCallMessageReceivedHandler);
+			if (BX.Call.Util.shouldCollectStats())
+			{
+				this.voximplantCall.removeEventListener(VoxImplant.CallEvents.CallStatsReceived, this.__onCallStatsReceivedHandler);
+			}
 			this.voximplantCall.removeEventListener(VoxImplant.CallEvents.EndpointAdded, this.__onCallEndpointAddedHandler);
 			if (VoxImplant.CallEvents.Reconnecting)
 			{
@@ -1613,6 +1622,11 @@
 			console.warn('Unknown endpoint ' + userName);
 		}
 	};
+
+	BX.Call.VoximplantCall.prototype.__onCallStatsReceived = function(e)
+	{
+		this.log(transformVoxStats(e.stats));
+	}
 
 	BX.Call.VoximplantCall.prototype.__onCallMessageReceived = function(e)
 	{
@@ -2347,6 +2361,61 @@
 			this.connectionRestoreTimeout = null;
 		}
 	};
+
+	var transformVoxStats = function(s)
+	{
+		var result = {
+			connection: s.connection,
+			outboundAudio: [],
+			outboundVideo: [],
+			inboundAudio: [],
+			inboundVideo: [],
+		}
+		var stat
+		for (trackId in s.outbound)
+		{
+			if (!s.outbound.hasOwnProperty(trackId))
+			{
+				continue;
+			}
+			var statGroup = s.outbound[trackId];
+			for (var i = 0; i < statGroup.length; i ++)
+			{
+				stat = statGroup[i];
+				stat.trackId = trackId;
+				if ('audioLevel' in stat)
+				{
+					result.outboundAudio.push(stat)
+				}
+				else
+				{
+					result.outboundVideo.push(stat)
+				}
+			}
+		}
+		for (trackId in s.inbound)
+		{
+			if (!s.inbound.hasOwnProperty(trackId))
+			{
+				continue;
+			}
+			stat = s.inbound[trackId];
+			if (!('endpoint' in stat))
+			{
+				continue;
+			}
+			stat.trackId = trackId;
+			if ('audioLevel' in stat)
+			{
+				result.inboundAudio.push(stat)
+			}
+			else
+			{
+				result.inboundVideo.push(stat)
+			}
+		}
+		return result;
+	}
 
 	BX.Call.VoximplantCall.Event = VoximplantCallEvent;
 })();

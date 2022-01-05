@@ -17,7 +17,7 @@ CopyDirFiles(
 );
 
 //Attach template to default site
-$obSite = CSite::GetList($by = "def", $order = "desc", Array("LID" => WIZARD_SITE_ID));
+$obSite = CSite::GetList("def", "desc", Array("LID" => WIZARD_SITE_ID));
 if ($arSite = $obSite->Fetch())
 {
 	$arTemplates = Array();
@@ -26,7 +26,7 @@ if ($arSite = $obSite->Fetch())
 	$obTemplate = CSite::GetTemplateList($arSite["LID"]);
 	while($arTemplate = $obTemplate->Fetch())
 	{
-		if(!$found && strlen(trim($arTemplate["CONDITION"]))<=0)
+		if(!$found && trim($arTemplate["CONDITION"]) == '')
 		{
 			$arTemplate["TEMPLATE"] = WIZARD_TEMPLATE_ID."_".WIZARD_THEME_ID;
 			$found = true;

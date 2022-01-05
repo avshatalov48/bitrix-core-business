@@ -2,15 +2,7 @@ this.BX = this.BX || {};
 (function (exports,main_core,main_date,main_popup,main_core_events) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div data-bx-resource-data-wrap=\"Y\"></div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	var ViewControlAbstract = /*#__PURE__*/function () {
 	  function ViewControlAbstract(params) {
 	    babelHelpers.classCallCheck(this, ViewControlAbstract);
@@ -55,7 +47,7 @@ this.BX = this.BX || {};
 	          className: this.classNames.wrap
 	        }
 	      }));
-	      this.DOM.dataWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject()));
+	      this.DOM.dataWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div data-bx-resource-data-wrap=\"Y\"></div>"]))));
 
 	      if (this.isDisplayed()) {
 	        this.show({
@@ -923,135 +915,7 @@ this.BX = this.BX || {};
 	  return DurationSelector;
 	}(ViewControlAbstract);
 
-	function _templateObject13() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-arrow-container\" \n></div>"]);
-
-	  _templateObject13 = function _templateObject13() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject12() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" \nvalue=\"\"/>"]);
-
-	  _templateObject12 = function _templateObject12() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject11() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-date-range-inner-wrap\" \n></div>"]);
-
-	  _templateObject11 = function _templateObject11() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject10() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-date-range-static-wrap\" \n></div>"]);
-
-	  _templateObject10 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-resbook-webform-block-strip-arrow calendar-resbook-webform-block-strip-arrow-next\" data-bx-resbook-date-meta=\"next\"/>"]);
-
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-resbook-webform-block-strip-day\"/>"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-resbook-webform-block-strip-date\"/>"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-resbook-webform-block-strip-text\" data-bx-resbook-date-meta=\"calendar\"/>"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-resbook-webform-block-strip-arrow calendar-resbook-webform-block-strip-arrow-prev\" data-bx-resbook-date-meta=\"previous\"/>"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" \nvalue=\"\"/>"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-date\"></div>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-inner\"></div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block\"></div>"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13;
 	var DateSelector = /*#__PURE__*/function (_ViewControlAbstract) {
 	  babelHelpers.inherits(DateSelector, _ViewControlAbstract);
 
@@ -1082,8 +946,8 @@ this.BX = this.BX || {};
 	      params = params || {};
 	      this.setDateIndex(params.availableDateIndex);
 	      this.setCurrentDate(params.selectedValue);
-	      this.DOM.wrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject$1()));
-	      this.DOM.innerWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject2()));
+	      this.DOM.wrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block\"></div>"]))));
+	      this.DOM.innerWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-inner\"></div>"]))));
 
 	      if (this.data.label) {
 	        this.DOM.labelWrap = this.DOM.innerWrap.appendChild(main_core.Dom.create("div", {
@@ -1137,7 +1001,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "displayControl",
 	    value: function displayControl() {
-	      this.DOM.controlWrap = this.DOM.innerWrap.appendChild(main_core.Tag.render(_templateObject3()));
+	      this.DOM.controlWrap = this.DOM.innerWrap.appendChild(main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-date\"></div>"]))));
 
 	      if (this.style === 'popup') {
 	        this.DOM.controlWrap.className = 'calendar-resbook-webform-block-calendar';
@@ -1293,12 +1157,12 @@ this.BX = this.BX || {};
 	          click: this.handleClick.bind(this)
 	        }
 	      }));
-	      this.DOM.valueInput = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject4()));
-	      this.DOM.previousArrow = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject5()));
-	      this.DOM.stateWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject6()));
-	      this.DOM.stateWrapDate = this.DOM.stateWrap.appendChild(main_core.Tag.render(_templateObject7()));
-	      this.DOM.stateWrapDay = this.DOM.stateWrap.appendChild(main_core.Tag.render(_templateObject8()));
-	      this.DOM.nextArrow = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject9()));
+	      this.DOM.valueInput = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" \nvalue=\"\"/>"]))));
+	      this.DOM.previousArrow = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-resbook-webform-block-strip-arrow calendar-resbook-webform-block-strip-arrow-prev\" data-bx-resbook-date-meta=\"previous\"/>"]))));
+	      this.DOM.stateWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-resbook-webform-block-strip-text\" data-bx-resbook-date-meta=\"calendar\"/>"]))));
+	      this.DOM.stateWrapDate = this.DOM.stateWrap.appendChild(main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-resbook-webform-block-strip-date\"/>"]))));
+	      this.DOM.stateWrapDay = this.DOM.stateWrap.appendChild(main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-resbook-webform-block-strip-day\"/>"]))));
+	      this.DOM.nextArrow = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-resbook-webform-block-strip-arrow calendar-resbook-webform-block-strip-arrow-next\" data-bx-resbook-date-meta=\"next\"/>"]))));
 	    }
 	  }, {
 	    key: "getValue",
@@ -1442,9 +1306,9 @@ this.BX = this.BX || {};
 	          click: this.handleClick.bind(this)
 	        }
 	      }));
-	      this.DOM.controlStaticWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject10()));
-	      this.DOM.controlInnerWrap = this.DOM.controlStaticWrap.appendChild(main_core.Tag.render(_templateObject11()));
-	      this.DOM.valueInput = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject12()));
+	      this.DOM.controlStaticWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-date-range-static-wrap\" \n></div>"]))));
+	      this.DOM.controlInnerWrap = this.DOM.controlStaticWrap.appendChild(main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-date-range-inner-wrap\" \n></div>"]))));
+	      this.DOM.valueInput = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" \nvalue=\"\"/>"]))));
 	      this.fillDays();
 	      this.initCustomScroll();
 	    }
@@ -1562,7 +1426,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "initCustomScroll",
 	    value: function initCustomScroll() {
-	      var arrowWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject13()));
+	      var arrowWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-arrow-container\" \n></div>"]))));
 	      this.DOM.leftArrow = arrowWrap.appendChild(main_core.Dom.create("span", {
 	        props: {
 	          className: 'calendar-resbook-webform-block-arrow calendar-resbook-webform-block-arrow-prev'
@@ -1681,115 +1545,7 @@ this.BX = this.BX || {};
 	  return LineDateSelector;
 	}();
 
-	function _templateObject11$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-arrow-container\" />"]);
-
-	  _templateObject11$1 = function _templateObject11() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject10$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-col-list-inner\"></div>"]);
-
-	  _templateObject10$1 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-col-list\"></div>"]);
-
-	  _templateObject9$1 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-time-inner-wrap\"></div>"]);
-
-	  _templateObject8$1 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-time-static-wrap\"></div>"]);
-
-	  _templateObject7$1 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-resbook-webform-block-notice-icon\"/>"]);
-
-	  _templateObject6$1 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-resbook-webform-block-notice-date\"/>"]);
-
-	  _templateObject5$1 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-title-timezone\"></div>"]);
-
-	  _templateObject4$1 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-title-timezone\"></div>"]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-inner\"></div>"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block\"></div>"]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$2, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5$1, _templateObject6$1, _templateObject7$1, _templateObject8$1, _templateObject9$1, _templateObject10$1, _templateObject11$1;
 	var TimeSelector = /*#__PURE__*/function (_ViewControlAbstract) {
 	  babelHelpers.inherits(TimeSelector, _ViewControlAbstract);
 
@@ -1850,8 +1606,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "display",
 	    value: function display() {
-	      this.DOM.wrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject$2()));
-	      this.DOM.innerWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject2$1()));
+	      this.DOM.wrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block\"></div>"]))));
+	      this.DOM.innerWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-inner\"></div>"]))));
 
 	      if (this.data.label) {
 	        this.DOM.labelWrap = this.DOM.innerWrap.appendChild(main_core.Dom.create("div", {
@@ -1862,7 +1618,7 @@ this.BX = this.BX || {};
 	        }));
 
 	        if (this.timezone) {
-	          this.DOM.timezoneLabelWrap = this.DOM.labelWrap.appendChild(main_core.Tag.render(_templateObject3$1()));
+	          this.DOM.timezoneLabelWrap = this.DOM.labelWrap.appendChild(main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-title-timezone\"></div>"]))));
 	          main_core.Dom.adjust(this.DOM.timezoneLabelWrap, {
 	            html: main_core.Loc.getMessage('USER_TYPE_RESOURCE_TIMEZONE').replace('#TIMEZONE#', this.timezone + ' ' + this.timezoneOffsetLabel)
 	          });
@@ -1893,7 +1649,7 @@ this.BX = this.BX || {};
 
 	        if (this.timezone) {
 	          if (!this.DOM.timezoneLabelWrap || !this.DOM.labelWrap.contains(this.DOM.timezoneLabelWrap)) {
-	            this.DOM.timezoneLabelWrap = this.DOM.labelWrap.appendChild(main_core.Tag.render(_templateObject4$1()));
+	            this.DOM.timezoneLabelWrap = this.DOM.labelWrap.appendChild(main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-title-timezone\"></div>"]))));
 	          }
 
 	          main_core.Dom.adjust(this.DOM.timezoneLabelWrap, {
@@ -1933,12 +1689,12 @@ this.BX = this.BX || {};
 	      }
 
 	      if (!this.DOM.warningWrap) {
-	        this.DOM.warningTextNode = main_core.Tag.render(_templateObject5$1());
+	        this.DOM.warningTextNode = main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-resbook-webform-block-notice-date\"/>"])));
 	        this.DOM.warningWrap = this.DOM.innerWrap.appendChild(main_core.Dom.create("div", {
 	          props: {
 	            className: 'calendar-resbook-webform-block-notice'
 	          },
-	          children: [main_core.Tag.render(_templateObject6$1()), this.DOM.warningTextNode, main_core.Dom.create("span", {
+	          children: [main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-resbook-webform-block-notice-icon\"/>"]))), this.DOM.warningTextNode, main_core.Dom.create("span", {
 	            props: {
 	              className: 'calendar-resbook-webform-block-notice-detail'
 	            },
@@ -2024,8 +1780,8 @@ this.BX = this.BX || {};
 	        main_core.Dom.addClass(this.DOM.controlWrap, 'calendar-resbook-webform-block-time-lg');
 	      }
 
-	      this.DOM.controlStaticWrap = this.DOM.controlWrap.appendChild(main_core.Tag.render(_templateObject7$1()));
-	      this.DOM.controlInnerWrap = this.DOM.controlStaticWrap.appendChild(main_core.Tag.render(_templateObject8$1()));
+	      this.DOM.controlStaticWrap = this.DOM.controlWrap.appendChild(main_core.Tag.render(_templateObject7$1 || (_templateObject7$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-time-static-wrap\"></div>"]))));
+	      this.DOM.controlInnerWrap = this.DOM.controlStaticWrap.appendChild(main_core.Tag.render(_templateObject8$1 || (_templateObject8$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-time-inner-wrap\"></div>"]))));
 	      var itemsInColumn,
 	          maxColumnNumber = 3,
 	          parts = {},
@@ -2051,7 +1807,7 @@ this.BX = this.BX || {};
 	            },
 	            html: '<span class="calendar-resbook-webform-block-col-title">' + main_core.Loc.getMessage('WEBF_RES_PART_OF_THE_DAY_' + slot.partOfTheDay.toUpperCase()) + '</span>'
 	          });
-	          parts[slot.partOfTheDay].itemsWrap = parts[slot.partOfTheDay].wrap.appendChild(main_core.Tag.render(_templateObject9$1()));
+	          parts[slot.partOfTheDay].itemsWrap = parts[slot.partOfTheDay].wrap.appendChild(main_core.Tag.render(_templateObject9$1 || (_templateObject9$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-col-list\"></div>"]))));
 
 	          if (parts[slot.partOfTheDay].items.length > maxColumnNumber * itemsInColumn) {
 	            itemsInColumn = Math.ceil(parts[slot.partOfTheDay].items.length / maxColumnNumber);
@@ -2059,7 +1815,7 @@ this.BX = this.BX || {};
 	        }
 
 	        if (itemNumber % itemsInColumn === 0) {
-	          innerWrap = parts[slot.partOfTheDay].itemsWrap.appendChild(main_core.Tag.render(_templateObject10$1()));
+	          innerWrap = parts[slot.partOfTheDay].itemsWrap.appendChild(main_core.Tag.render(_templateObject10$1 || (_templateObject10$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-col-list-inner\"></div>"]))));
 	        }
 
 	        if (innerWrap && (!slot.booked || !this.showOnlyFree)) {
@@ -2268,7 +2024,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "initCustomScrollForSlots",
 	    value: function initCustomScrollForSlots() {
-	      var arrowWrap = this.DOM.controlWrap.appendChild(main_core.Tag.render(_templateObject11$1()));
+	      var arrowWrap = this.DOM.controlWrap.appendChild(main_core.Tag.render(_templateObject11$1 || (_templateObject11$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-arrow-container\" />"]))));
 	      this.DOM.leftArrow = arrowWrap.appendChild(main_core.Dom.create("span", {
 	        props: {
 	          className: 'calendar-resbook-webform-block-arrow calendar-resbook-webform-block-arrow-prev'
@@ -2440,35 +2196,7 @@ this.BX = this.BX || {};
 	  return TimeSelector;
 	}(ViewControlAbstract);
 
-	function _templateObject3$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-result-value\"></div>"]);
-
-	  _templateObject3$2 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-result-inner\"></div>"]);
-
-	  _templateObject2$2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-result\" style=\"display: none\" \n></div>"]);
-
-	  _templateObject$3 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$3, _templateObject2$2, _templateObject3$2;
 	var StatusInformer = /*#__PURE__*/function () {
 	  function StatusInformer(params) {
 	    babelHelpers.classCallCheck(this, StatusInformer);
@@ -2489,15 +2217,15 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "build",
 	    value: function build() {
-	      this.DOM.wrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject$3()));
-	      this.DOM.innerWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject2$2()));
+	      this.DOM.wrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-result\" style=\"display: none\" \n></div>"]))));
+	      this.DOM.innerWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-result-inner\"></div>"]))));
 	      this.DOM.labelWrap = this.DOM.innerWrap.appendChild(main_core.Dom.create("span", {
 	        props: {
 	          className: 'calendar-resbook-webform-block-result-text'
 	        },
 	        text: main_core.Loc.getMessage('WEBF_RES_BOOKING_STATUS_LABEL')
 	      }));
-	      this.DOM.statusWrap = this.DOM.innerWrap.appendChild(main_core.Tag.render(_templateObject3$2()));
+	      this.DOM.statusWrap = this.DOM.innerWrap.appendChild(main_core.Tag.render(_templateObject3$2 || (_templateObject3$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-block-result-value\"></div>"]))));
 	      this.DOM.statusTimezone = this.DOM.innerWrap.appendChild(main_core.Dom.create("span", {
 	        props: {
 	          className: 'calendar-resbook-webform-block-result-timezone'
@@ -2607,65 +2335,7 @@ this.BX = this.BX || {};
 	  return StatusInformer;
 	}();
 
-	function _templateObject6$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-wrapper-loader-wrap\"></div>"]);
-
-	  _templateObject6$2 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<input \n\t\t\t\t\t\tname=\"", "\"\n\t\t\t\t\t\tvalue=\"empty\" \n\t\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\t\t>\n\t\t\t\t\t"]);
-
-	  _templateObject5$2 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<input \n\t\t\t\t\t\tname=\"", "\"\n\t\t\t\t\t\tvalue=\"", "\" \n\t\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\t\t>\n\t\t\t\t\t"]);
-
-	  _templateObject4$2 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div></div>"]);
-
-	  _templateObject3$3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-inner\"></div>"]);
-
-	  _templateObject2$3 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-wrapper\"></div>"]);
-
-	  _templateObject$4 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$4, _templateObject2$3, _templateObject3$3, _templateObject4$2, _templateObject5$2, _templateObject6$2;
 	var LiveFieldController = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(LiveFieldController, _EventEmitter);
 
@@ -2718,7 +2388,7 @@ this.BX = this.BX || {};
 	      }
 
 	      this.scale = parseInt(settingsData.time && settingsData.time.scale ? settingsData.time.scale : 60, 10);
-	      this.DOM.outerWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject$4()));
+	      this.DOM.outerWrap = this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-wrapper\"></div>"]))));
 	      this.showMainLoader();
 	      this.requireFormData().then(function () {
 	        _this2.hideMainLoader();
@@ -2768,8 +2438,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "buildFormControls",
 	    value: function buildFormControls() {
-	      this.DOM.innerWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject2$3()));
-	      this.DOM.inputsWrap = this.DOM.innerWrap.appendChild(main_core.Tag.render(_templateObject3$3()));
+	      this.DOM.innerWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-inner\"></div>"]))));
+	      this.DOM.inputsWrap = this.DOM.innerWrap.appendChild(main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["<div></div>"]))));
 
 	      if (!this.getFieldParams()) {
 	        this.statusControl = new StatusInformer({
@@ -2900,13 +2570,13 @@ this.BX = this.BX || {};
 	        entries.forEach(function (entry) {
 	          var value = entry.type + '|' + entry.id + '|' + dateFromValue + '|' + duration + '|' + serviceName;
 	          allValuesValue.push(value);
-	          this.DOM.valueInputs.push(this.DOM.inputsWrap.appendChild(main_core.Tag.render(_templateObject4$2(), main_core.Text.encode(this.inputName), main_core.Text.encode(value))));
+	          this.DOM.valueInputs.push(this.DOM.inputsWrap.appendChild(main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<input \n\t\t\t\t\t\tname=\"", "\"\n\t\t\t\t\t\tvalue=\"", "\" \n\t\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\t\t>\n\t\t\t\t\t"])), main_core.Text.encode(this.inputName), main_core.Text.encode(value))));
 	        }, this);
 	      }
 
 	      if (!entries.length) {
 	        allValuesValue.push('empty');
-	        this.DOM.valueInputs.push(this.DOM.inputsWrap.appendChild(main_core.Tag.render(_templateObject5$2(), main_core.Text.encode(this.inputName))));
+	        this.DOM.valueInputs.push(this.DOM.inputsWrap.appendChild(main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<input \n\t\t\t\t\t\tname=\"", "\"\n\t\t\t\t\t\tvalue=\"empty\" \n\t\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\t\t>\n\t\t\t\t\t"])), main_core.Text.encode(this.inputName))));
 	      }
 
 	      this.emit('change', allValuesValue);
@@ -2916,7 +2586,7 @@ this.BX = this.BX || {};
 	    value: function showMainLoader() {
 	      if (this.DOM.wrap) {
 	        this.hideMainLoader();
-	        var loaderWrap = main_core.Tag.render(_templateObject6$2());
+	        var loaderWrap = main_core.Tag.render(_templateObject6$2 || (_templateObject6$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-resbook-webform-wrapper-loader-wrap\"></div>"])));
 	        loaderWrap.appendChild(BookingUtil$$1.getLoader(160));
 	        this.DOM.mainLoader = this.DOM.outerWrap.appendChild(loaderWrap);
 	      }
@@ -4235,15 +3905,7 @@ this.BX = this.BX || {};
 	}();
 	babelHelpers.defineProperty(Translit, "replacementCharTable", null);
 
-	function _templateObject$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t<div class=\"", "\">\n\t\t\t<svg class=\"calendar-loader-circular\"\n\t\t\t\tstyle=\"width:", "px; height:", "px;\"\n\t\t\t\tviewBox=\"25 25 50 50\">\n\t\t\t\t\t<circle class=\"calendar-loader-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t\t\t<circle class=\"calendar-loader-inner-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t</svg>\n\t\t</div>\n"]);
-
-	  _templateObject$5 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$5;
 	var BookingUtil$$1 = /*#__PURE__*/function () {
 	  function BookingUtil$$1() {
 	    babelHelpers.classCallCheck(this, BookingUtil$$1);
@@ -4327,7 +3989,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getLoader",
 	    value: function getLoader(size, className) {
-	      return main_core.Tag.render(_templateObject$5(), className || 'calendar-loader', parseInt(size), parseInt(size));
+	      return main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t<div class=\"", "\">\n\t\t\t<svg class=\"calendar-loader-circular\"\n\t\t\t\tstyle=\"width:", "px; height:", "px;\"\n\t\t\t\tviewBox=\"25 25 50 50\">\n\t\t\t\t\t<circle class=\"calendar-loader-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t\t\t<circle class=\"calendar-loader-inner-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t</svg>\n\t\t</div>\n"])), className || 'calendar-loader', parseInt(size), parseInt(size));
 	    }
 	  }, {
 	    key: "fireCustomEvent",

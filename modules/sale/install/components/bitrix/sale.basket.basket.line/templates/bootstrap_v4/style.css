@@ -69,6 +69,11 @@
 		box-shadow: 0 7px 10px rgba(0, 0, 0, 0.15);
 	}
 
+	.bx-basket-fixed.vcenter {
+		bottom: 10px;
+		top: auto !important;
+	}
+
 	.bx-basket-item-list { display: none; }
 
 	/*.bx-basket-fixed */

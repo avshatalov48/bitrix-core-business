@@ -1,9 +1,11 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
+
+use Bitrix\Socialnetwork\ComponentHelper;
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -17,7 +19,6 @@ include("util_group_menu.php");
 include("util_group_profile.php");
 
 $componentParameters = [
-	"MODE" => "OUT",
 	"PATH_TO_USER" => $arParams["PATH_TO_USER"],
 	"PATH_TO_GROUP" => $arResult["PATH_TO_GROUP"],
 	"PATH_TO_GROUP_EDIT" => $arResult["PATH_TO_GROUP_EDIT"],
@@ -38,18 +39,24 @@ $componentParameters = [
 	"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 	"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 	"CACHE_TYPE" => $arParams["CACHE_TYPE"],
-	"CACHE_TIME" => $arParams["CACHE_TIME"]
-];
+	"CACHE_TIME" => $arParams["CACHE_TIME"],
+	'MODE' => 'OUT', // REQUESTS_OUT
+	'FILTER_ID' => 'SOCIALNETWORK_WORKGROUP_REQUESTS_OUT_LIST',
 
+];
+/*
 $APPLICATION->IncludeComponent(
 	'bitrix:socialnetwork.group.card.menu',
 	'',
 	[
 		'GROUP_ID' => $arResult['VARIABLES']['group_id'],
 		'TAB' => 'requests-out',
-		'URLS' => \Bitrix\Socialnetwork\ComponentHelper::getWorkgroupSliderMenuUrlList($arResult),
+		'URLS' => ComponentHelper::getWorkgroupSliderMenuUrlList($arResult),
+		'SIGNED_PARAMETERS' => ComponentHelper::listWorkgroupSliderMenuSignedParameters($componentParameters),
 	]
 );
+*/
+// todo: bitrix:socialnetwork.group.user.list
 
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
@@ -58,8 +65,6 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.group_requests.ex',
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => $componentParameters,
-		'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
-		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE' => 'SONET_GROUP',
-		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID' => $arResult['VARIABLES']['group_id'],
+		'USE_UI_TOOLBAR' => 'Y',
 	]
 );

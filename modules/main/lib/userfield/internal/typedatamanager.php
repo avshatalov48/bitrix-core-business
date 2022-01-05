@@ -27,6 +27,8 @@ use Bitrix\Main\Text\StringHelper;
  */
 abstract class TypeDataManager extends DataManager
 {
+	public const MAXIMUM_TABLE_NAME_LENGTH = 64;
+
 	protected static $temporaryStorage;
 
 	public static function getMap(): array
@@ -484,7 +486,7 @@ abstract class TypeDataManager extends DataManager
 	 */
 	public static function getUtmEntityClassName(Entity $typeEntity, array $userField): string
 	{
-		return $typeEntity->getName().'Utm'.StringHelper::snake2camel($userField['FIELD_NAME']);
+		return $typeEntity->getName() . 'Utm' . StringHelper::snake2camel($userField['FIELD_NAME']);
 	}
 
 	/**
@@ -494,7 +496,14 @@ abstract class TypeDataManager extends DataManager
 	 */
 	public static function getMultipleValueTableName(array $type, array $userField): string
 	{
-		return $type['TABLE_NAME'].'_'.mb_strtolower($userField['FIELD_NAME']);
+		$tableName = $type['TABLE_NAME'] . '_' . mb_strtolower($userField['FIELD_NAME']);
+
+		if (mb_strlen($tableName) > static::MAXIMUM_TABLE_NAME_LENGTH && !empty($userField['ID']))
+		{
+			$tableName = $type['TABLE_NAME'] . '_' . $userField['ID'];
+		}
+
+		return $tableName;
 	}
 
 	public static function validateTableExisting($value, $primary, array $row, Field $field)

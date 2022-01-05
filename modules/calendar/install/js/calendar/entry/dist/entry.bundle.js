@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,calendar_entry,calendar_sectionmanager,calendar_util,main_core_events,calendar_controls,calendar_compacteventform,ui_notification,calendar_eventviewform,main_core) {
+(function (exports,calendar_entry,calendar_sectionmanager,calendar_util,main_core_events,calendar_controls,calendar_compacteventform,ui_notification,calendar_eventviewform,calendar_roomsmanager,main_core) {
 	'use strict';
 
 	var EntryManager = /*#__PURE__*/function () {
@@ -13,40 +13,18 @@ this.BX = this.BX || {};
 	      var compactForm = EntryManager.getCompactViewForm();
 
 	      if (compactForm && compactForm.isShown()) {
-	        var _compactForm$userPlan, _compactForm$userPlan2, _params$fields;
-
-	        if (compactForm.userPlannerSelector && ((_compactForm$userPlan = compactForm.userPlannerSelector) === null || _compactForm$userPlan === void 0 ? void 0 : (_compactForm$userPlan2 = _compactForm$userPlan.planner) === null || _compactForm$userPlan2 === void 0 ? void 0 : _compactForm$userPlan2.isShown())) {
-	          var _compactForm$userPlan3;
-
-	          compactForm === null || compactForm === void 0 ? void 0 : (_compactForm$userPlan3 = compactForm.userPlannerSelector) === null || _compactForm$userPlan3 === void 0 ? void 0 : _compactForm$userPlan3.refreshPlannerState();
-	        }
-
-	        var entry = compactForm.getCurrentEntry();
-
-	        if (!compactForm.isNewEntry() && entry && entry.parentId === parseInt(params === null || params === void 0 ? void 0 : (_params$fields = params.fields) === null || _params$fields === void 0 ? void 0 : _params$fields.PARENT_ID)) {
-	          if (params.command === 'delete_event') {
-	            compactForm.close();
-	          } else {
-	            var onEntryListReloadHandler = function onEntryListReloadHandler() {
-	              if (compactForm) {
-	                compactForm.reloadEntryData();
-	              }
-
-	              BX.Event.EventEmitter.unsubscribe('BX.Calendar:onEntryListReload', onEntryListReloadHandler);
-	            };
-
-	            BX.Event.EventEmitter.subscribe('BX.Calendar:onEntryListReload', onEntryListReloadHandler);
-	          }
-	        }
+	        compactForm.handlePull(params);
 	      }
 
 	      BX.SidePanel.Instance.getOpenSliders().forEach(function (slider) {
-	        var _params$fields2;
+	        var _params$fields;
 
 	        var data = EntryManager.slidersMap.get(slider);
 
-	        if (data && data.entry && data.entry.parentId === parseInt(params === null || params === void 0 ? void 0 : (_params$fields2 = params.fields) === null || _params$fields2 === void 0 ? void 0 : _params$fields2.PARENT_ID)) {
-	          if (params.command === 'delete_event') {
+	        if (data && data.entry && data.entry.parentId === parseInt(params === null || params === void 0 ? void 0 : (_params$fields = params.fields) === null || _params$fields === void 0 ? void 0 : _params$fields.PARENT_ID)) {
+	          var _params$fields2;
+
+	          if (params.command === 'delete_event' && data.entry.getType() === (params === null || params === void 0 ? void 0 : (_params$fields2 = params.fields) === null || _params$fields2 === void 0 ? void 0 : _params$fields2.CAL_TYPE)) {
 	            slider.close();
 	          } else if (data.control instanceof calendar_eventviewform.EventViewForm) {
 	            data.control.reloadSlider(params);
@@ -59,7 +37,7 @@ this.BX = this.BX || {};
 	      } else if (params.command === 'delete_event' || params.command === 'edit_event') {
 	        var _params$fields3, _params$fields4;
 
-	        if (!params.fields || (params === null || params === void 0 ? void 0 : (_params$fields3 = params.fields) === null || _params$fields3 === void 0 ? void 0 : _params$fields3.IS_MEETING) && (params === null || params === void 0 ? void 0 : (_params$fields4 = params.fields) === null || _params$fields4 === void 0 ? void 0 : _params$fields4.MEETING_STATUS) === 'Q') {
+	        if (!params.fields || params !== null && params !== void 0 && (_params$fields3 = params.fields) !== null && _params$fields3 !== void 0 && _params$fields3.IS_MEETING && (params === null || params === void 0 ? void 0 : (_params$fields4 = params.fields) === null || _params$fields4 === void 0 ? void 0 : _params$fields4.MEETING_STATUS) === 'Q') {
 	          top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
 	        }
 	      }
@@ -75,7 +53,13 @@ this.BX = this.BX || {};
 	      newEntryData.NAME = EntryManager.getNewEntryName();
 	      newEntryData.dateFrom = dateTime.from;
 	      newEntryData.dateTo = dateTime.to;
-	      newEntryData.SECT_ID = calendar_sectionmanager.SectionManager.getNewEntrySectionId(options.type, parseInt(options.ownerId));
+
+	      if (options.type === 'location') {
+	        newEntryData.SECT_ID = calendar_roomsmanager.RoomsManager.getNewEntrySectionId(options.type, parseInt(options.ownerId));
+	      } else {
+	        newEntryData.SECT_ID = calendar_sectionmanager.SectionManager.getNewEntrySectionId(options.type, parseInt(options.ownerId));
+	      }
+
 	      newEntryData.REMIND = EntryManager.getNewEntryReminders();
 	      newEntryData.attendeesEntityList = [{
 	        entityId: 'user',
@@ -115,6 +99,20 @@ this.BX = this.BX || {};
 	    key: "getNewEntryTime",
 	    value: function getNewEntryTime(date, duration) {
 	      date = calendar_util.Util.getUsableDateTime(date);
+	      var calendarContext = calendar_util.Util.getCalendarContext();
+
+	      if (calendarContext) {
+	        var displayedViewRange = calendarContext.getDisplayedViewRange();
+
+	        if (main_core.Type.isDate(displayedViewRange === null || displayedViewRange === void 0 ? void 0 : displayedViewRange.start)) {
+	          var dateTime = date.getTime();
+
+	          if (dateTime < displayedViewRange.start.getTime() || dateTime > displayedViewRange.end.getTime()) {
+	            date = calendar_util.Util.getUsableDateTime(displayedViewRange.start);
+	          }
+	        }
+	      }
+
 	      return {
 	        from: date,
 	        to: new Date(date.getTime() + (duration || 3600) * 1000)
@@ -196,6 +194,10 @@ this.BX = this.BX || {};
 	        new bx.Calendar.SliderLoader(options.entry ? 'EDIT' + options.entry.id : 'NEW', {
 	          entry: options.entry || null,
 	          type: options.type,
+	          isLocationCalendar: options.isLocationCalendar || false,
+	          roomsManager: options.roomsManager || null,
+	          locationAccess: options.locationAccess || false,
+	          locationCapacity: options.locationCapacity || 0,
 	          ownerId: options.ownerId,
 	          userId: options.userId,
 	          formDataValue: options.formDataValue || null
@@ -214,7 +216,8 @@ this.BX = this.BX || {};
 	        if (bx.Calendar && bx.Calendar.SliderLoader) {
 	          new bx.Calendar.SliderLoader(eventId, {
 	            entryDateFrom: options.from,
-	            timezoneOffset: options.timezoneOffset
+	            timezoneOffset: options.timezoneOffset,
+	            calendarContext: options.calendarContext || null
 	          }).show();
 	        }
 	      }
@@ -222,9 +225,13 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "deleteEntry",
 	    value: function deleteEntry(entry) {
+	      var calendarContext = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
 	      if (entry instanceof calendar_entry.Entry) {
+	        var slider = calendar_util.Util.getBX().SidePanel.Instance.getTopSlider();
+
 	        var beforeDeleteHandler = function beforeDeleteHandler() {
-	          if (calendar_util.Util.getBX().SidePanel.Instance) {
+	          if (slider && slider.options.type === 'calendar:slider') {
 	            calendar_util.Util.getBX().SidePanel.Instance.close();
 	          }
 	        };
@@ -234,11 +241,16 @@ this.BX = this.BX || {};
 	        var deleteHandler = function deleteHandler() {
 	          var calendar = calendar_util.Util.getCalendarContext();
 
-	          if (!calendar) {
+	          if (!calendar && !calendarContext) {
 	            return calendar_util.Util.getBX().reload();
 	          }
 
-	          calendar.reload();
+	          if (calendar) {
+	            calendar.reload();
+	          } else if (calendarContext) {
+	            calendarContext.reload();
+	          }
+
 	          main_core_events.EventEmitter.unsubscribe('BX.Calendar.Entry:delete', deleteHandler);
 	          main_core_events.EventEmitter.unsubscribe('BX.Calendar.Entry:beforeDelete', beforeDeleteHandler);
 	        };
@@ -589,7 +601,7 @@ this.BX = this.BX || {};
 	      var reminders = arguments.length > 1 ? arguments[1] : undefined;
 	      var userSettings = calendar_util.Util.getUserSettings();
 
-	      if (main_core.Type.isObjectLike(userSettings.defaultReminders) && reminders.length) {
+	      if (main_core.Type.isObjectLike(userSettings.defaultReminders)) {
 	        userSettings.defaultReminders[type] = reminders;
 	      }
 
@@ -826,6 +838,11 @@ this.BX = this.BX || {};
 	    key: "isTask",
 	    value: function isTask() {
 	      return this.data['~TYPE'] === 'tasks';
+	    }
+	  }, {
+	    key: "isLocation",
+	    value: function isLocation() {
+	      return this.getType() === 'location';
 	    }
 	  }, {
 	    key: "isFullDay",
@@ -1334,5 +1351,5 @@ this.BX = this.BX || {};
 	exports.EntryManager = EntryManager;
 	exports.Entry = Entry;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX.Calendar,BX.Event,BX.Calendar.Controls,BX.Calendar,BX,BX.Calendar,BX));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX.Calendar,BX.Event,BX.Calendar.Controls,BX.Calendar,BX,BX.Calendar,BX.Calendar,BX));
 //# sourceMappingURL=entry.bundle.js.map

@@ -57,6 +57,7 @@ export class SiteTile
 				domainBitrix24: item.domainBitrix24 || null,
 				menuItems: item.menuItems || null,
 				menuBottomItems: item.menuBottomItems || null,
+				access: item.access || {},
 				articles: item.articles || null,
 				grid: this
 			});

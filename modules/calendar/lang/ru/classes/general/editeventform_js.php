@@ -57,8 +57,11 @@ $MESS["EC_SEC_SLIDER_TYPE_CALENDARS_LIST"] = "Календари компани�
 $MESS["EC_SEC_SLIDER_TYPE_RESOURCE_LIST"] = "Календари ресурсов";
 $MESS["EC_SEC_SLIDER_TYPE_LOCATION_LIST"] = "Календари местоположений";
 $MESS["EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP"] = "Календари групп";
+$MESS["EC_SEC_SLIDER_POPUP_MENU_NO_ROOMS"] = "Нет созданных переговорных";
 $MESS["EC_SEC_SLIDER_TITLE_COMP_CAL"] = "Компания";
 $MESS["EC_SEC_SLIDER_TITLE_GROUP_CAL"] = "Группы и проекты";
 $MESS["EC_SEC_SLIDER_TITLE_LOCATION_CAL"] = "Местоположения";
 $MESS["EC_SEC_SLIDER_TITLE_RESOURCE_CAL"] = "Ресурсы";
+$MESS["EC_LOCATION_EMPTY"] = "Переговорная не найдена";
+$MESS["EC_LOCATION_OVERFLOW"] = "Количество участников превышает количество мест переговорной";
 ?>

@@ -35,6 +35,7 @@ final class Service
 							'DOMAIN_NAME' => 'DOMAIN.DOMAIN'
 						],
 						'filter' => [
+							'CHECK_PERMISSIONS' => 'N',
 							'ID' => $landingInstance['SITE_ID']
 						]
 					]);

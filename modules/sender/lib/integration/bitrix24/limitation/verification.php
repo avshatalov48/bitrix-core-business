@@ -33,8 +33,11 @@ class Verification
 
 	public static function isPhoneConfirmed(): bool
 	{
-		// FIXME temporarily disabled for deploy
-		return true;
+		// FIXME temporarily disabled
+		if (Option::get('sender', 'force_phone_check', 'N') !== 'Y')
+		{
+			return true;
+		}
 
 		// no need to verify boxes
 		if (! \Bitrix\Main\Loader::includeModule('bitrix24'))

@@ -3,45 +3,7 @@ this.BX.Landing = this.BX.Landing || {};
 (function (exports,main_popup,ui_dialogs_messagebox,main_core_events,ui_notification,main_core) {
 	'use strict';
 
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a href=\"", "\" class=\"landing-sites__title\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</a>\n\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__title-text --sub\">\n\t\t\t\t\t", "\n\t\t\t\t</div>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input\n\t\t\t\tvalue=\"", "\"\n\t\t\t\ttype=\"text\"\n\t\t\t\tclass=\"landing-sites__title-input\">\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__title-edit\"></div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
 
 	var EditableTitle = /*#__PURE__*/function () {
 	  function EditableTitle(options) {
@@ -51,6 +13,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.type = options.type;
 	    this.item = options.item;
 	    this.url = options.url;
+	    this.disabled = options.disabled || false;
 	    this.isEditMode = false;
 	    this.$container = null;
 	    this.$containerInput = null;
@@ -64,7 +27,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerEdit",
 	    value: function getContainerEdit() {
 	      if (!this.$containerEditIcon) {
-	        this.$containerEditIcon = main_core.Tag.render(_templateObject()); // Event.bind(this.$containerEditIcon, 'click', this.adjustEditMode.bind(this));
+	        this.$containerEditIcon = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__title-edit\"></div>"]))); // Event.bind(this.$containerEditIcon, 'click', this.adjustEditMode.bind(this));
 	      }
 
 	      return this.$containerEditIcon;
@@ -140,7 +103,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerInput",
 	    value: function getContainerInput() {
 	      if (!this.$containerInput) {
-	        this.$containerInput = main_core.Tag.render(_templateObject2(), main_core.Text.encode(this.title));
+	        this.$containerInput = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<input\n\t\t\t\tvalue=\"", "\"\n\t\t\t\ttype=\"text\"\n\t\t\t\tclass=\"landing-sites__title-input\">\n\t\t\t"])), main_core.Text.encode(this.title));
 	      }
 
 	      return this.$containerInput;
@@ -159,7 +122,7 @@ this.BX.Landing = this.BX.Landing || {};
 	          value = this.title;
 	        }
 
-	        this.$containerTitle = main_core.Tag.render(_templateObject3(), main_core.Text.encode(value));
+	        this.$containerTitle = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__title-text --sub\">\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), main_core.Text.encode(value));
 	      }
 
 	      return this.$containerTitle;
@@ -168,7 +131,11 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.$container) {
-	        this.$container = main_core.Tag.render(_templateObject4(), this.url, this.getContainerInput(), this.getContainerTitle(), this.getContainerEdit());
+	        if (this.disabled) {
+	          this.$container = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"landing-sites__title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t"])), this.getContainerInput(), this.getContainerTitle());
+	        } else {
+	          this.$container = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a href=\"", "\" class=\"landing-sites__title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t"])), this.url, this.getContainerInput(), this.getContainerTitle(), this.getContainerEdit());
+	        }
 	      }
 
 	      return this.$container;
@@ -182,45 +149,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  return EditableTitle;
 	}();
 
-	function _templateObject4$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__helper landing-sites__helper-", "\">\n\t\t\t\t\t<div class=\"landing-sites__helper-title\">\n\t\t\t\t\t\t<div class=\"landing-sites__helper-title-text\">", "</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-sites__helper-container\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject4$1 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"landing-sites__helper-item ", "\">\n\t\t\t\t\t\t<div class=\"landing-sites__helper-item-title\">", "</div>\n\t\t\t\t\t\t<div class=\"landing-sites__helper-item-container\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__helper-item-text\">", "</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__helper-item-button ", "\"\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__helper-list\"></div>"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__helper-close-toggler\">", "</div>\n\t\t\t"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4$1;
 
 	var LeaderShip = /*#__PURE__*/function () {
 	  function LeaderShip(options) {
@@ -277,7 +206,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerClose",
 	    value: function getContainerClose() {
 	      if (!this.$containerClose) {
-	        this.$containerClose = main_core.Tag.render(_templateObject$1(), main_core.Loc.getMessage('LANDING_SITE_TILE_HIDE'));
+	        this.$containerClose = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__helper-close-toggler\">", "</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_HIDE'));
 	        main_core.Event.bind(this.$containerClose, 'click', this.hide.bind(this));
 	      }
 
@@ -287,14 +216,14 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.$container) {
-	        var articlesNode = main_core.Tag.render(_templateObject2$1());
+	        var articlesNode = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__helper-list\"></div>"])));
 
 	        for (var i = 0; i < this.articles.length; i++) {
 	          var item = this.articles[i];
-	          articlesNode.appendChild(main_core.Tag.render(_templateObject3$1(), item.read ? '--read' : '', item.title, item.text, item.read ? '--read' : '', item.read ? main_core.Loc.getMessage('LANDING_SITE_TILE_READ') : main_core.Loc.getMessage('LANDING_SITE_TILE_TO_READ')));
+	          articlesNode.appendChild(main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"landing-sites__helper-item ", "\">\n\t\t\t\t\t\t<div class=\"landing-sites__helper-item-title\">", "</div>\n\t\t\t\t\t\t<div class=\"landing-sites__helper-item-container\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__helper-item-text\">", "</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__helper-item-button ", "\"\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), item.read ? '--read' : '', item.title, item.text, item.read ? '--read' : '', item.read ? main_core.Loc.getMessage('LANDING_SITE_TILE_READ') : main_core.Loc.getMessage('LANDING_SITE_TILE_TO_READ')));
 	        }
 
-	        this.$container = main_core.Tag.render(_templateObject4$1(), this.id, main_core.Loc.getMessage('LANDING_SITE_TILE_LEADERSHIP_TITLE'), this.getContainerClose(), articlesNode);
+	        this.$container = main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__helper landing-sites__helper-", "\">\n\t\t\t\t\t<div class=\"landing-sites__helper-title\">\n\t\t\t\t\t\t<div class=\"landing-sites__helper-title-text\">", "</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-sites__helper-container\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.id, main_core.Loc.getMessage('LANDING_SITE_TILE_LEADERSHIP_TITLE'), this.getContainerClose(), articlesNode);
 	      }
 
 	      return this.$container;
@@ -303,125 +232,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  return LeaderShip;
 	}();
 
-	function _templateObject12() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject12 = function _templateObject12() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject11() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container --hide-left\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-title\">\n\t\t\t\t\t\t\t<span class=\"landing-sites__popup-title-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">\n\t\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text --list\"><span>1</span> ", "</div>\n\t\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text --list\"><span>2</span> ", "</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t<a href=\"", "\" class=\"ui-btn ui-btn-success ui-btn-round\">", "</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject11 = function _templateObject11() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject10() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__popup-prev\"></div>"]);
-
-	  _templateObject10 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__popup-close\"></div>"]);
-
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-title\">\n\t\t\t\t\t\t\t<span class=\"landing-sites__popup-title-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">", "</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-image --first-order\"></div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t<a href=\"", "\" class=\"ui-btn ui-btn-light-border ui-btn-round\">", "</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__popup-close\"></div>"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-btn ui-btn-success ui-btn-round\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\t\n\t\t\t"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container --qr\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">", "</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"ui-btn ui-btn-light-border ui-btn-round\">", "</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-bottom\">\n\t\t\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"landing-sites__popup-url\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__popup-close\"></div>"]);
-
-	  _templateObject4$2 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-sites__popup-image\"></div>\n\t\t"]);
-
-	  _templateObject3$2 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-copy\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject2$2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input \n\t\t\t\t\ttype=\"text\" \n\t\t\t\t\tstyle=\"position: absolute; opacity: 0; pointer-events: none\"\n\t\t\t\t\tvalue=\"", "\">\n\t\t\t"]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$2, _templateObject2$2, _templateObject3$2, _templateObject4$2, _templateObject5$1, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12;
 
 	var PopupHelper = /*#__PURE__*/function () {
 	  function PopupHelper(options) {
@@ -510,7 +321,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerInputUrl",
 	    value: function getContainerInputUrl() {
 	      if (!this.$containerInputUrl) {
-	        this.$containerInputUrl = main_core.Tag.render(_templateObject$2(), this.fullUrl);
+	        this.$containerInputUrl = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input \n\t\t\t\t\ttype=\"text\" \n\t\t\t\t\tstyle=\"position: absolute; opacity: 0; pointer-events: none\"\n\t\t\t\t\tvalue=\"", "\">\n\t\t\t"])), this.fullUrl);
 	      }
 
 	      return this.$containerInputUrl;
@@ -521,7 +332,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      var _this = this;
 
 	      if (!this.$containerCopyLink) {
-	        this.$containerCopyLink = main_core.Tag.render(_templateObject2$2(), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_COPY_LINK'));
+	        this.$containerCopyLink = main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-copy\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_COPY_LINK'));
 	        main_core.Event.bind(this.$containerCopyLink, 'click', function () {
 	          _this.getContainerInputUrl().select();
 
@@ -538,7 +349,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "getContainerQrImage",
 	    value: function getContainerQrImage() {
-	      var node = main_core.Tag.render(_templateObject3$2());
+	      var node = main_core.Tag.render(_templateObject3$2 || (_templateObject3$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-sites__popup-image\"></div>\n\t\t"])));
 	      new QRCode(node, {
 	        text: this.fullUrl,
 	        width: 250,
@@ -550,9 +361,9 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerQr",
 	    value: function getContainerQr() {
 	      if (!this.$containerQr) {
-	        var closeIcon = main_core.Tag.render(_templateObject4$2());
+	        var closeIcon = main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__popup-close\"></div>"])));
 	        main_core.Event.bind(closeIcon, 'click', this.hide.bind(this));
-	        this.$containerQr = main_core.Tag.render(_templateObject5(), closeIcon, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_ACTION_3'), this.getContainerQrImage(), this.fullUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_SITE'), this.fullUrl, this.url, this.getContainerInputUrl(), this.getContainerCopyLink());
+	        this.$containerQr = main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container --qr\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">", "</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"ui-btn ui-btn-light-border ui-btn-round\">", "</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-bottom\">\n\t\t\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"landing-sites__popup-url\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), closeIcon, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_ACTION_3'), this.getContainerQrImage(), this.fullUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_SITE'), this.fullUrl, this.url, this.getContainerInputUrl(), this.getContainerCopyLink());
 	      }
 
 	      return this.$containerQr;
@@ -561,7 +372,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerTestOrder",
 	    value: function getContainerTestOrder() {
 	      if (!this.$containerTestOrder) {
-	        this.$containerTestOrder = main_core.Tag.render(_templateObject6(), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_CREATE_TEST_ORDER'));
+	        this.$containerTestOrder = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-btn ui-btn-success ui-btn-round\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\t\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_CREATE_TEST_ORDER'));
 	        main_core.Event.bind(this.$containerTestOrder, 'click', this.showSecondStep.bind(this));
 	      }
 
@@ -571,9 +382,9 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerFirstStep",
 	    value: function getContainerFirstStep() {
 	      if (!this.$containerFirstStep) {
-	        var closeIcon = main_core.Tag.render(_templateObject7());
+	        var closeIcon = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__popup-close\"></div>"])));
 	        main_core.Event.bind(closeIcon, 'click', this.hide.bind(this));
-	        this.$containerFirstStep = main_core.Tag.render(_templateObject8(), closeIcon, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_CREATE_TEST_ORDER'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_TEXT'), this.getContainerTestOrder(), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_CRM'));
+	        this.$containerFirstStep = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-title\">\n\t\t\t\t\t\t\t<span class=\"landing-sites__popup-title-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">", "</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-image --first-order\"></div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t<a href=\"", "\" class=\"ui-btn ui-btn-light-border ui-btn-round\">", "</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), closeIcon, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_CREATE_TEST_ORDER'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_TEXT'), this.getContainerTestOrder(), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_CRM'));
 	      }
 
 	      return this.$containerFirstStep;
@@ -582,11 +393,11 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerSecondStep",
 	    value: function getContainerSecondStep() {
 	      if (!this.$containerSecondStep) {
-	        var closeIcon = main_core.Tag.render(_templateObject9());
-	        var prevIcon = main_core.Tag.render(_templateObject10());
+	        var closeIcon = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__popup-close\"></div>"])));
+	        var prevIcon = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__popup-prev\"></div>"])));
 	        main_core.Event.bind(closeIcon, 'click', this.hide.bind(this));
 	        main_core.Event.bind(prevIcon, 'click', this.showFirstStep.bind(this));
-	        this.$containerSecondStep = main_core.Tag.render(_templateObject11(), closeIcon, prevIcon, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_ACTION_1'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_ACTION_2'), this.getContainerQrImage(), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_CRM'));
+	        this.$containerSecondStep = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup-container --hide-left\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__popup-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__popup-title\">\n\t\t\t\t\t\t\t<span class=\"landing-sites__popup-title-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"landing-sites__popup-content\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text\">\n\t\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text --list\"><span>1</span> ", "</div>\n\t\t\t\t\t\t\t\t<div class=\"landing-sites__popup-text --list\"><span>2</span> ", "</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<div class=\"landing-sites__popup-buttons\">\n\t\t\t\t\t\t\t\t<a href=\"", "\" class=\"ui-btn ui-btn-success ui-btn-round\">", "</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), closeIcon, prevIcon, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_ACTION_1'), main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_TEST_ORDER_ACTION_2'), this.getContainerQrImage(), this.ordersUrl, main_core.Loc.getMessage('LANDING_SITE_TILE_POPUP_OPEN_CRM'));
 	      }
 
 	      return this.$containerSecondStep;
@@ -595,7 +406,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.$container) {
-	        this.$container = main_core.Tag.render(_templateObject12(), this.getContainerFirstStep(), this.getContainerSecondStep(), this.getContainerQr());
+	        this.$container = main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__popup\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.getContainerFirstStep(), this.getContainerSecondStep(), this.getContainerQr());
 	      }
 
 	      return this.$container;
@@ -604,205 +415,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  return PopupHelper;
 	}();
 
-	function _templateObject20() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__grid-item ", "\">\n\t\t\t\t\t<div class=\"landing-sites__item\" id=\"landing-sites__grid-item--", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject20 = function _templateObject20() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject19() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__item-container\">\n\t\t\t\t\t<a href=\"", "\" class=\"landing-sites__preview\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject19 = function _templateObject19() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject18() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a href=\"", "\" class=\"landing-sites__container-link landing-sites__container-link-", " --white-bg--alpha\">\n\t\t\t\t<div class=\"landing-sites__container-link-icon --", "\"></div>\n\t\t\t\t<div class=\"landing-sites__container-link-text\">", "</div>\n\t\t\t</a>\n\t\t"]);
-
-	  _templateObject18 = function _templateObject18() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject17() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__container --without-bg --auto-height --flex\"></div>"]);
-
-	  _templateObject17 = function _templateObject17() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject16() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-leadership\">\n\t\t\t\t\t<div class=\"landing-sites__preview-leadership-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject16 = function _templateObject16() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject15() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-show\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject15 = function _templateObject15() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject14() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-status --not-published ", "\">\n\t\t\t\t\t<div class=\"landing-sites__preview-status-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-icon\"></div>\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject14 = function _templateObject14() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject13() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__preview-image ", "\"></div>"]);
-
-	  _templateObject13 = function _templateObject13() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject12$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__container --white-bg --white-bg--alpha --domain\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__container-left\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-sites__container-right\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject12$1 = function _templateObject12() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject11$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__status landing-sites__status-", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject11$1 = function _templateObject11() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject10$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__sub-title\">", "</div>\n\t\t\t"]);
-
-	  _templateObject10$1 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__status-title\">\n\t\t\t\t\t", "\n\t\t\t\t</div>"]);
-
-	  _templateObject9$1 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__status-icon --", "\"></div>\n\t\t\t"]);
-
-	  _templateObject8$1 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__container-status --", "\"></div>\n\t\t\t"]);
-
-	  _templateObject7$1 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__container --white-bg\">\n\t\t\t\t\t<div class=\"landing-sites__container-left\">\n\t\t\t\t\t\t<div class=\"landing-sites__title\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__title-text\" title=\"", "\">", "</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-sites__container-right\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject6$1 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__status-title\">", "</div>"]);
-
-	  _templateObject5$1 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__status-round ", "\"></div>"]);
-
-	  _templateObject4$3 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__more\"></div>"]);
-
-	  _templateObject3$3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__status\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__status-arrow\"></div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject2$3 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__title\">\n\t\t\t\t\t<div class=\"landing-sites__title-text\">", "</div>\n\t\t\t\t\t<div class=\"landing-sites__title-edit\"></div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject$3 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$3, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$2, _templateObject6$1, _templateObject7$1, _templateObject8$1, _templateObject9$1, _templateObject10$1, _templateObject11$1, _templateObject12$1, _templateObject13, _templateObject14, _templateObject15, _templateObject16, _templateObject17, _templateObject18, _templateObject19, _templateObject20, _templateObject21;
 
 	var Item = /*#__PURE__*/function () {
 	  function Item(options) {
@@ -827,6 +440,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.domainBitrix24 = options.domainStatus;
 	    this.menuItems = options.menuItems || [];
 	    this.menuBottomItems = options.menuBottomItems || [];
+	    this.access = options.access || {};
 	    this.articles = options.articles || [];
 	    this.editableTitle = null;
 	    this.editableUrl = null;
@@ -958,7 +572,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerTitle",
 	    value: function getContainerTitle() {
 	      if (!this.$containerTitle) {
-	        this.$containerTitle = main_core.Tag.render(_templateObject$3(), this.title);
+	        this.$containerTitle = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__title\">\n\t\t\t\t\t<div class=\"landing-sites__title-text\">", "</div>\n\t\t\t\t\t<div class=\"landing-sites__title-edit\"></div>\n\t\t\t\t</div>\n\t\t\t"])), this.title);
 	      }
 
 	      return this.$containerTitle;
@@ -970,6 +584,7 @@ this.BX.Landing = this.BX.Landing || {};
 
 	      var addMenu = [{
 	        text: this.deleted ? main_core.Loc.getMessage('LANDING_SITE_TILE_RESTORE') : main_core.Loc.getMessage('LANDING_SITE_TILE_REMOVE'),
+	        access: 'delete',
 	        onclick: function onclick() {
 	          if (!_this2.deleted) {
 	            var messageBox = new ui_dialogs_messagebox.MessageBox({
@@ -1011,9 +626,23 @@ this.BX.Landing = this.BX.Landing || {};
 	      return items;
 	    }
 	  }, {
+	    key: "disableMenuItems",
+	    value: function disableMenuItems(items) {
+	      var _this3 = this;
+
+	      items = items.map(function (item) {
+	        if (item.access && _this3.access[item.access] !== true) {
+	          item.disabled = true;
+	        }
+
+	        return item;
+	      });
+	      return items;
+	    }
+	  }, {
 	    key: "getPopupConfig",
 	    value: function getPopupConfig() {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      if (!this.popupConfig) {
 	        this.popupConfig = new main_popup.PopupMenuWindow({
@@ -1026,13 +655,13 @@ this.BX.Landing = this.BX.Landing || {};
 	          angle: {
 	            offset: 97
 	          },
-	          items: this.mergeMenuItems(this.menuItems),
+	          items: this.disableMenuItems(this.mergeMenuItems(this.menuItems)),
 	          events: {
 	            onPopupClose: function onPopupClose() {
-	              _this3.getContainerSiteMore().classList.remove('--hover');
+	              _this4.getContainerSiteMore().classList.remove('--hover');
 	            },
 	            onPopupShow: function onPopupShow() {
-	              _this3.getContainerSiteMore().classList.add('--hover');
+	              _this4.getContainerSiteMore().classList.add('--hover');
 	            }
 	          },
 	          animation: 'fading-slide'
@@ -1044,7 +673,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "getPopupStatus",
 	    value: function getPopupStatus() {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      if (!this.popupStatus) {
 	        this.popupStatus = new main_popup.PopupMenuWindow({
@@ -1059,17 +688,17 @@ this.BX.Landing = this.BX.Landing || {};
 	          items: [{
 	            text: this.published ? main_core.Loc.getMessage('LANDING_SITE_TILE_UNPUBLISH') : main_core.Loc.getMessage('LANDING_SITE_TILE_PUBLISH'),
 	            onclick: function onclick() {
-	              _this4.popupStatus.close();
+	              _this5.popupStatus.close();
 
-	              _this4.published ? main_core_events.EventEmitter.emit('BX.Landing.SiteTile:unPublish', _this4) : main_core_events.EventEmitter.emit('BX.Landing.SiteTile:publish', _this4);
+	              _this5.published ? main_core_events.EventEmitter.emit('BX.Landing.SiteTile:unPublish', _this5) : main_core_events.EventEmitter.emit('BX.Landing.SiteTile:publish', _this5);
 	            }
 	          }],
 	          events: {
 	            onPopupClose: function onPopupClose() {
-	              _this4.getContainerSiteStatus().classList.remove('--hover');
+	              _this5.getContainerSiteStatus().classList.remove('--hover');
 	            },
 	            onPopupShow: function onPopupShow() {
-	              _this4.getContainerSiteStatus().classList.add('--hover');
+	              _this5.getContainerSiteStatus().classList.add('--hover');
 	            }
 	          },
 	          animation: 'fading-slide'
@@ -1081,17 +710,20 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "getContainerSiteStatus",
 	    value: function getContainerSiteStatus() {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      if (!this.$containerSiteStatus) {
-	        this.$containerSiteStatus = main_core.Tag.render(_templateObject2$3(), this.getContainerSiteStatusRound(), this.getContainerSiteStatusTitle());
-	        main_core.Event.bind(this.$containerSiteStatus, 'click', function (ev) {
-	          _this5.getPopupStatus().layout.menuContainer.style.left = _this5.$containerSiteStatus.getBoundingClientRect().left + 'px';
+	        this.$containerSiteStatus = main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.access.publication ? 'landing-sites__status' : 'landing-sites__status_disabled', this.getContainerSiteStatusRound(), this.getContainerSiteStatusTitle(), this.access.publication ? main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__status-arrow\"></div>"]))) : '');
 
-	          _this5.getPopupStatus().show();
+	        if (this.access.publication) {
+	          main_core.Event.bind(this.$containerSiteStatus, 'click', function (ev) {
+	            _this6.getPopupStatus().layout.menuContainer.style.left = _this6.$containerSiteStatus.getBoundingClientRect().left + 'px';
 
-	          ev.stopPropagation();
-	        });
+	            _this6.getPopupStatus().show();
+
+	            ev.stopPropagation();
+	          });
+	        }
 	      }
 
 	      return this.$containerSiteStatus;
@@ -1099,12 +731,12 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "getContainerSiteMore",
 	    value: function getContainerSiteMore() {
-	      var _this6 = this;
+	      var _this7 = this;
 
 	      if (!this.$containerSiteMore) {
-	        this.$containerSiteMore = main_core.Tag.render(_templateObject3$3());
+	        this.$containerSiteMore = main_core.Tag.render(_templateObject4$3 || (_templateObject4$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__more\"></div>"])));
 	        main_core.Event.bind(this.$containerSiteMore, 'click', function (ev) {
-	          _this6.getPopupConfig().show();
+	          _this7.getPopupConfig().show();
 
 	          ev.stopPropagation();
 	        });
@@ -1117,7 +749,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function getContainerSiteStatusRound() {
 	      if (!this.$containerSiteStatusRound) {
 	        var status = this.published ? '--success' : '--alert';
-	        this.$containerSiteStatusRound = main_core.Tag.render(_templateObject4$3(), status);
+	        this.$containerSiteStatusRound = main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__status-round ", "\"></div>"])), status);
 	      }
 
 	      return this.$containerSiteStatusRound;
@@ -1127,7 +759,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function getContainerSiteStatusTitle() {
 	      if (!this.$containerSiteStatusTitle) {
 	        var title = this.published ? main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_PUBLISHED') : main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_NOT_PUBLISHED');
-	        this.$containerSiteStatusTitle = main_core.Tag.render(_templateObject5$1(), title);
+	        this.$containerSiteStatusTitle = main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__status-title\">", "</div>"])), title);
 	      }
 
 	      return this.$containerSiteStatusTitle;
@@ -1156,7 +788,8 @@ this.BX.Landing = this.BX.Landing || {};
 	          phone: this.phone,
 	          type: 'title',
 	          item: this,
-	          url: this.contactsUrl
+	          url: this.contactsUrl,
+	          disabled: !this.access.settings
 	        });
 	      }
 
@@ -1166,7 +799,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerInfo",
 	    value: function getContainerInfo() {
 	      if (!this.$containerInfo) {
-	        this.$containerInfo = main_core.Tag.render(_templateObject6$1(), main_core.Text.encode(this.title), main_core.Text.encode(this.title), this.phone ? this.getEditableTitle().getContainer() : '', this.getContainerSiteStatus(), this.getContainerSiteMore());
+	        this.$containerInfo = main_core.Tag.render(_templateObject7$1 || (_templateObject7$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__container --white-bg\">\n\t\t\t\t\t<div class=\"landing-sites__container-left\">\n\t\t\t\t\t\t<div class=\"landing-sites__title\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__title-text\">", "</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-sites__container-right\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Text.encode(this.title), this.phone ? this.getEditableTitle().getContainer() : '', this.getContainerSiteStatus(), this.getContainerSiteMore());
 	      }
 
 	      return this.$containerInfo;
@@ -1187,7 +820,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerDomainStatus",
 	    value: function getContainerDomainStatus() {
 	      if (!this.$containerDomainStatus) {
-	        this.$containerDomainStatus = main_core.Tag.render(_templateObject7$1(), this.domainStatus);
+	        this.$containerDomainStatus = main_core.Tag.render(_templateObject8$1 || (_templateObject8$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__container-status --", "\"></div>\n\t\t\t"])), this.domainStatus);
 	      }
 
 	      return this.$containerDomainStatus;
@@ -1200,7 +833,8 @@ this.BX.Landing = this.BX.Landing || {};
 	          title: this.url,
 	          type: 'url',
 	          item: this,
-	          url: this.domainUrl
+	          url: this.domainUrl,
+	          disabled: !this.access.settings
 	        });
 	      }
 
@@ -1210,7 +844,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerDomainStatusIcon",
 	    value: function getContainerDomainStatusIcon() {
 	      if (!this.$containerDomainStatusIcon) {
-	        this.$containerDomainStatusIcon = main_core.Tag.render(_templateObject8$1(), this.domainStatus);
+	        this.$containerDomainStatusIcon = main_core.Tag.render(_templateObject9$1 || (_templateObject9$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__status-icon --", "\"></div>\n\t\t\t"])), this.domainStatus);
 	      }
 
 	      return this.$containerDomainStatusIcon;
@@ -1220,7 +854,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function getContainerDomainStatusTitle() {
 	      if (!this.$containerDomainStatusTitle) {
 	        var title = main_core.Loc.getMessage('LANDING_SITE_TILE_OPEN');
-	        this.$containerDomainStatusTitle = main_core.Tag.render(_templateObject9$1(), title);
+	        this.$containerDomainStatusTitle = main_core.Tag.render(_templateObject10$1 || (_templateObject10$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__status-title\">\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), title);
 	      }
 
 	      return this.$containerDomainStatusTitle;
@@ -1237,7 +871,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function getContainerDomainStatusMessage() {
 	      if (!this.$containerDomainStatusMessage) {
 	        !this.domainStatusMessage ? this.domainStatusMessage = '' : null;
-	        this.$containerDomainStatusMessage = main_core.Tag.render(_templateObject10$1(), this.domainStatusMessage);
+	        this.$containerDomainStatusMessage = main_core.Tag.render(_templateObject11$1 || (_templateObject11$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__sub-title\">", "</div>\n\t\t\t"])), this.domainStatusMessage);
 	      }
 
 	      return this.$containerDomainStatusMessage;
@@ -1245,12 +879,12 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "getContainerDomainLink",
 	    value: function getContainerDomainLink() {
-	      var _this7 = this;
+	      var _this8 = this;
 
 	      if (!this.$containerDomainLink) {
-	        this.$containerDomainLink = main_core.Tag.render(_templateObject11$1(), this.id, this.getContainerDomainStatusIcon(), this.getContainerDomainStatusTitle());
+	        this.$containerDomainLink = main_core.Tag.render(_templateObject12$1 || (_templateObject12$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__status landing-sites__status-", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.id, this.getContainerDomainStatusIcon(), this.getContainerDomainStatusTitle());
 	        main_core.Event.bind(this.$containerDomainLink, 'click', function () {
-	          _this7.getPopupHelper().show('link');
+	          _this8.getPopupHelper().show('link');
 	        });
 	      }
 
@@ -1260,7 +894,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerDomain",
 	    value: function getContainerDomain() {
 	      if (!this.$containerDomain) {
-	        this.$containerDomain = main_core.Tag.render(_templateObject12$1(), this.getContainerDomainStatus(), this.getEditableUrl().getContainer(), this.getContainerDomainStatusMessage(), this.getContainerDomainLink());
+	        this.$containerDomain = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__container --white-bg --white-bg--alpha --domain\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-sites__container-left\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-sites__container-right\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.getContainerDomainStatus(), this.getEditableUrl().getContainer(), this.getContainerDomainStatusMessage(), this.getContainerDomainLink());
 	      }
 
 	      return this.$containerDomain;
@@ -1269,7 +903,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerPreviewImage",
 	    value: function getContainerPreviewImage() {
 	      if (!this.$containerPreviewImage) {
-	        this.$containerPreviewImage = main_core.Tag.render(_templateObject13(), this.published ? '' : '--not-published');
+	        this.$containerPreviewImage = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__preview-image ", "\"></div>"])), this.published ? '' : '--not-published');
 
 	        if (this.preview) {
 	          this.$containerPreviewImage.style.backgroundImage = 'url(' + this.preview + ')';
@@ -1282,15 +916,15 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "getContainerPreviewStatus",
 	    value: function getContainerPreviewStatus() {
-	      var _this8 = this;
+	      var _this9 = this;
 
 	      if (!this.$containerPreviewStatus) {
-	        this.$containerPreviewStatus = main_core.Tag.render(_templateObject14(), this.published ? '--hide' : '', main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_NOT_PUBLISHED'));
+	        this.$containerPreviewStatus = main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-status --not-published ", "\">\n\t\t\t\t\t<div class=\"landing-sites__preview-status-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-icon\"></div>\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.published ? '--hide' : '', main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_NOT_PUBLISHED'));
 	        main_core.Event.bind(this.$containerPreviewStatus, 'mouseenter', function () {
-	          _this8.$containerPreviewStatus.style.width = _this8.$containerPreviewStatus.firstElementChild.offsetWidth + 'px';
+	          _this9.$containerPreviewStatus.style.width = _this9.$containerPreviewStatus.firstElementChild.offsetWidth + 'px';
 	        });
 	        main_core.Event.bind(this.$containerPreviewStatus, 'mouseleave', function () {
-	          _this8.$containerPreviewStatus.style.width = null;
+	          _this9.$containerPreviewStatus.style.width = null;
 	        });
 	      }
 
@@ -1300,7 +934,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerPreviewShowPages",
 	    value: function getContainerPreviewShowPages() {
 	      if (!this.$containerPreviewShowPages) {
-	        this.$containerPreviewShowPages = main_core.Tag.render(_templateObject15(), main_core.Loc.getMessage('LANDING_SITE_TILE_SHOW_PAGES'));
+	        this.$containerPreviewShowPages = main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-show\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_SHOW_PAGES'));
 	      }
 
 	      return this.$containerPreviewShowPages;
@@ -1308,12 +942,12 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "getContainerPreviewInstruction",
 	    value: function getContainerPreviewInstruction() {
-	      var _this9 = this;
+	      var _this10 = this;
 
 	      if (!this.$containerPreviewInstruction) {
-	        this.$containerPreviewInstruction = main_core.Tag.render(_templateObject16(), main_core.Loc.getMessage('LANDING_SITE_TILE_INSTRUCTION'));
+	        this.$containerPreviewInstruction = main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-leadership\">\n\t\t\t\t\t<div class=\"landing-sites__preview-leadership-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_INSTRUCTION'));
 	        main_core.Event.bind(this.$containerPreviewInstruction, 'click', function () {
-	          _this9.getLeadership().show();
+	          _this10.getLeadership().show();
 	        });
 	      }
 
@@ -1322,12 +956,12 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "getContainerLinks",
 	    value: function getContainerLinks() {
-	      var _this10 = this;
+	      var _this11 = this;
 
 	      if (!this.$containerLinks) {
-	        this.$containerLinks = main_core.Tag.render(_templateObject17());
+	        this.$containerLinks = main_core.Tag.render(_templateObject18 || (_templateObject18 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__container --without-bg --auto-height --flex\"></div>"])));
 	        this.menuBottomItems.map(function (menuItem) {
-	          _this10.$containerLinks.appendChild(_this10.getContainerLinksItem(menuItem.code, menuItem.href, menuItem.text));
+	          _this11.$containerLinks.appendChild(_this11.getContainerLinksItem(menuItem.code, menuItem.href, menuItem.text));
 	        });
 	      }
 
@@ -1336,11 +970,11 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "getContainerLinksItem",
 	    value: function getContainerLinksItem(type, link, title) {
-	      var _this11 = this;
+	      var _this12 = this;
 
-	      var container = main_core.Tag.render(_templateObject18(), link, this.id, type, title);
+	      var container = main_core.Tag.render(_templateObject19 || (_templateObject19 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a href=\"", "\" class=\"landing-sites__container-link landing-sites__container-link-", " --white-bg--alpha\">\n\t\t\t\t<div class=\"landing-sites__container-link-icon --", "\"></div>\n\t\t\t\t<div class=\"landing-sites__container-link-text\">", "</div>\n\t\t\t</a>\n\t\t"])), link, this.id, type, title);
 	      main_core.Event.bind(container, 'click', function (event) {
-	        main_core_events.EventEmitter.emit('BX.Landing.SiteTile:onBottomMenuClick', [type, event, _this11]);
+	        main_core_events.EventEmitter.emit('BX.Landing.SiteTile:onBottomMenuClick', [type, event, _this12]);
 	      });
 	      return container;
 	    }
@@ -1360,14 +994,14 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "remove",
 	    value: function remove() {
-	      var _this12 = this;
+	      var _this13 = this;
 
 	      this.getContainer().classList.add('--remove');
 	      main_core.Event.bind(this.getContainer(), 'transitionend', function () {
-	        var items = _this12.grid.getItems();
+	        var items = _this13.grid.getItems();
 
 	        items.splice(items.indexOf(items), 1);
-	        main_core.Dom.remove(_this12.getContainer());
+	        main_core.Dom.remove(_this13.getContainer());
 	      });
 	    }
 	  }, {
@@ -1431,7 +1065,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainerWrapper",
 	    value: function getContainerWrapper() {
 	      if (!this.$containerWrapper) {
-	        this.$containerWrapper = main_core.Tag.render(_templateObject19(), this.pagesUrl, this.getContainerPreviewImage(), this.getContainerPreviewStatus(), this.getContainerPreviewShowPages(), this.articles.length > 0 ? this.getContainerPreviewInstruction() : '', this.getContainerInfo(), this.getContainerDomain(), this.getContainerLinks());
+	        this.$containerWrapper = main_core.Tag.render(_templateObject20 || (_templateObject20 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__item-container\">\n\t\t\t\t\t<a href=\"", "\" class=\"landing-sites__preview\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.pagesUrl, this.getContainerPreviewImage(), this.getContainerPreviewStatus(), this.getContainerPreviewShowPages(), this.articles.length > 0 ? this.getContainerPreviewInstruction() : '', this.getContainerInfo(), this.getContainerDomain(), this.getContainerLinks());
 	      }
 
 	      return this.$containerWrapper;
@@ -1440,7 +1074,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.$container) {
-	        this.$container = main_core.Tag.render(_templateObject20(), this.deleted ? '--deleted' : '', this.id, this.getLeadership().getContainer(), this.getContainerWrapper(), this.getPopupHelper().getContainer());
+	        this.$container = main_core.Tag.render(_templateObject21 || (_templateObject21 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__grid-item ", "\">\n\t\t\t\t\t<div class=\"landing-sites__item\" id=\"landing-sites__grid-item--", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.deleted ? '--deleted' : '', this.id, this.getLeadership().getContainer(), this.getContainerWrapper(), this.getPopupHelper().getContainer());
 	      }
 
 	      return this.$container;
@@ -1449,25 +1083,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  return Item;
 	}();
 
-	function _templateObject2$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__grid-item\">\n\t\t\t\t\t<div class=\"landing-sites__item --marketing\">\n\t\t\t\t\t\t<div class=\"landing-sites__item-container --flex\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__item-marketing--title\">", "</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__item-marketing--text\">", "</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__item-marketing--icon\"></div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__item-marketing--buttons\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject2$4 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"ui-btn ui-btn-light-border ui-btn-round\" href=\"#\">", "</span>\n\t\t"]);
-
-	  _templateObject$4 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$4, _templateObject2$4;
 
 	var ItemMarketing = /*#__PURE__*/function () {
 	  function ItemMarketing(options) {
@@ -1485,7 +1101,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  babelHelpers.createClass(ItemMarketing, [{
 	    key: "getButton",
 	    value: function getButton() {
-	      var button = main_core.Tag.render(_templateObject$4(), this.buttonText);
+	      var button = main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"ui-btn ui-btn-light-border ui-btn-round\" href=\"#\">", "</span>\n\t\t"])), this.buttonText);
 
 	      if (this.onClick) {
 	        main_core.Event.bind(button, 'click', this.onClick);
@@ -1497,7 +1113,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.$container) {
-	        this.$container = main_core.Tag.render(_templateObject2$4(), this.title, this.text, this.getButton());
+	        this.$container = main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__grid-item\">\n\t\t\t\t\t<div class=\"landing-sites__item --marketing\">\n\t\t\t\t\t\t<div class=\"landing-sites__item-container --flex\">\n\t\t\t\t\t\t\t<div class=\"landing-sites__item-marketing--title\">", "</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__item-marketing--text\">", "</div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__item-marketing--icon\"></div>\n\t\t\t\t\t\t\t<div class=\"landing-sites__item-marketing--buttons\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.title, this.text, this.getButton());
 	      }
 
 	      return this.$container;
@@ -1506,15 +1122,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  return ItemMarketing;
 	}();
 
-	function _templateObject$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__scroller landing-sites__scope\">\n\t\t\t\t\t<div class=\"landing-sites__scroller-button\">\n\t\t\t\t\t\t<div class=\"landing-sites__scroller-icon\"></div>\n\t\t\t\t\t\t<div class=\"landing-sites__scroller-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject$5 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$5;
 
 	var Scroller = /*#__PURE__*/function () {
 	  function Scroller(options) {
@@ -1563,7 +1171,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      var _this = this;
 
 	      if (!this.$container) {
-	        this.$container = main_core.Tag.render(_templateObject$5(), this.scrollerText ? this.scrollerText : main_core.Loc.getMessage('LANDING_SITE_TILE_SCROLLER_SITES'));
+	        this.$container = main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__scroller landing-sites__scope\">\n\t\t\t\t\t<div class=\"landing-sites__scroller-button\">\n\t\t\t\t\t\t<div class=\"landing-sites__scroller-icon\"></div>\n\t\t\t\t\t\t<div class=\"landing-sites__scroller-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.scrollerText ? this.scrollerText : main_core.Loc.getMessage('LANDING_SITE_TILE_SCROLLER_SITES'));
 	        main_core.Event.bind(this.$container, 'click', function () {
 	          var offsetY = window.pageYOffset;
 	          var timer = setInterval(function () {
@@ -1589,15 +1197,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  return Scroller;
 	}();
 
-	function _templateObject$6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__grid landing-sites__scope\"></div>"]);
-
-	  _templateObject$6 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$6;
 	var SiteTile = /*#__PURE__*/function () {
 	  function SiteTile(options) {
 	    babelHelpers.classCallCheck(this, SiteTile);
@@ -1652,6 +1252,7 @@ this.BX.Landing = this.BX.Landing || {};
 	          domainBitrix24: item.domainBitrix24 || null,
 	          menuItems: item.menuItems || null,
 	          menuBottomItems: item.menuBottomItems || null,
+	          access: item.access || {},
 	          articles: item.articles || null,
 	          grid: _this
 	        });
@@ -1662,7 +1263,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.$container) {
-	        this.$container = main_core.Tag.render(_templateObject$6());
+	        this.$container = main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__grid landing-sites__scope\"></div>"])));
 
 	        for (var i = 0; i < this.siteTileItems.length; i++) {
 	          this.$container.appendChild(this.siteTileItems[i].getContainer());

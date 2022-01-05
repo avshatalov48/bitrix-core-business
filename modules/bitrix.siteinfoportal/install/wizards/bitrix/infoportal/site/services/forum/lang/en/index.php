@@ -16,16 +16,16 @@ $MESS["GENERAL_FORUM_TOPIC2_TITLE"] = "I bought a new bike!";
 $MESS["GENERAL_FORUM_TOPIC2_MESSAGE1"] = "Hello! I now have a new bike, and feels great!
 Impressions: 
 - The frame is quite low, sometimes my legs get a little stuck when I pedal hard.
-- I’m not used to having so many gears!
+- I'm not used to having so many gears!
 Likes:
-- It’s softer than my old one (which I haven’t sold yet).
-- The front light is quite bright, but it buzzing and I’m told that the generator will sap some speed.
+- It's softer than my old one (which I haven't sold yet).
+- The front light is quite bright, but it buzzing and I'm told that the generator will sap some speed.
 - The pump is a little better than the old one, and it sits just below the seat in a safe an unobtrusive place.
 - The lowest speed made me want to try some steep hills, but the only one near me is cobblestone and a full of potholes.
 Shortcomings: 
 - Switching between the 3 main speeds is a little clunky.
-- Alex noticed a slight flaw in the rear wheel (I can’t see it).
-Overall. Good for riding in the city and well-paved placed. I’l take it to work tomorrow. I really like the look of it and it is a big step up from my previous one.";
+- Alex noticed a slight flaw in the rear wheel (I can't see it).
+Overall. Good for riding in the city and well-paved placed. I'll take it to work tomorrow. I really like the look of it and it is a big step up from my previous one.";
 $MESS["GENERAL_FORUM_TOPIC2_MESSAGE2"] = "Very nice.  And it will ride nicely.  Don't worry about the flaw in the tire, it probably isn't anything important.";
 $MESS["GENERAL_FORUM_TOPIC2_MESSAGE3"] = "Great pick!";
 $MESS["SITE_FORUM_NAME"] = "About Our Site";

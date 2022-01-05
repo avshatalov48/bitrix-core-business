@@ -169,7 +169,7 @@
 
 		createDropdown: function(data, relative)
 		{
-			var container = this.createContainer(data.ID, relative);
+			var container = this.createContainer(data.ID, relative, {});
 			var dropdown = BX.create('div', {
 				props: {
 					className: 'main-dropdown main-grid-panel-control',
@@ -195,7 +195,7 @@
 
 		createCheckbox: function(data, relative)
 		{
-			var checkbox = this.createContainer(data.ID, relative);
+			var checkbox = this.createContainer(data.ID, relative, {});
 
 			var inner = BX.create('span', {
 				props: {
@@ -262,7 +262,7 @@
 		 */
 		createText: function(data, relative)
 		{
-			var container = this.createContainer(data.ID, relative);
+			var container = this.createContainer(data.ID, relative, {});
 			var title = BX.type.isNotEmptyString(data["TITLE"]) ? data["TITLE"] : "";
 			if(title !== "")
 			{
@@ -303,7 +303,11 @@
 
 		createHidden: function(data, relative)
 		{
-			var container = this.createContainer(data.ID, relative);
+			var container = this.createContainer(
+				data.ID,
+				relative,
+				{ CLASS: 'main-grid-panel-hidden-control-container' }
+			);
 			container.appendChild(
 				BX.create(
 					'input',
@@ -350,7 +354,7 @@
 
 			this.prepareButton();
 
-			let container = this.createContainer(data.ID, relative);
+			let container = this.createContainer(data.ID, relative, {});
 			container.appendChild(this.button);
 
 			return container;
@@ -405,7 +409,7 @@
 		 */
 		createLink: function(data, relative)
 		{
-			var container = this.createContainer(data.ID, relative);
+			var container = this.createContainer(data.ID, relative, {});
 			var link = BX.create('a', {
 				props: {
 					className: 'main-grid-link' + (data.CLASS ? ' ' + data.CLASS : ''),
@@ -425,7 +429,11 @@
 
 		createCustom: function(data, relative)
 		{
-			var container = this.createContainer(data.ID, relative);
+			var container = this.createContainer(
+				data.ID,
+				relative,
+				{ CLASS: 'main-grid-panel-hidden-control-container' }
+			);
 
 			var custom = BX.create('div', {
 				props: {
@@ -439,14 +447,15 @@
 			return container;
 		},
 
-		createContainer: function(id, relative)
+		createContainer: function(id, relative, options)
 		{
 			id = id.replace('_control', '');
 			relative = relative.replace('_control', '');
+			options = options || {};
 
 			return BX.create('span', {
 				props: {
-					className: this.parent.settings.get('classPanelControlContainer'),
+					className: this.parent.settings.get('classPanelControlContainer') + (options.CLASS ? ' ' + options.CLASS : ''),
 					id: id
 				},
 				attrs: {
@@ -544,7 +553,7 @@
 
 		createDate: function(data, relative)
 		{
-			var container = this.createContainer(data.ID, relative);
+			var container = this.createContainer(data.ID, relative, {});
 			var date = BX.decl({
 				block: 'main-ui-date',
 				mix: ['main-grid-panel-date'],

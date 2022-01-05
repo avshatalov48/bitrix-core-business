@@ -8,11 +8,11 @@ use Bitrix\Main\Engine\Controller;
 
 class ModificationFieldsBase
 {
-	const TO_WHITE_LIST 	= 0x00010;
-	const TO_CAMEL 			= 0x00020;
-	const TO_SNAKE 			= 0x00030;
-	const SORTING_KEYS		= 0x00040;
-	const CHECK_REQUIRED	= 0x00050;
+	const TO_WHITE_LIST 	= 'TO_WHITE_LIST';
+	const TO_CAMEL 			= 'TO_CAMEL';
+	const TO_SNAKE 			= 'TO_SNAKE';
+	const SORTING_KEYS		= 'SORTING_KEYS';
+	const CHECK_REQUIRED	= 'CHECK_REQUIRED';
 
 	protected $data;
 	protected $name;
@@ -53,6 +53,11 @@ class ModificationFieldsBase
 	public function setArguments($arguments)
 	{
 		$this->arguments = $arguments;
+	}
+
+	public function setFormat($format): void
+	{
+		$this->format = $format;
 	}
 
 	public function getController()

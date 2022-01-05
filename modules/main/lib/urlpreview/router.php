@@ -65,8 +65,9 @@ class Router
 			$newRoute = false;
 		}
 
+		$allowSlashes = ($handlerParameters['allowSlashes'] ?? 'N') === 'Y';
 		static::$routeTable[$route]['ROUTE'] = $route;
-		static::$routeTable[$route]['REGEXP'] = static::convertRouteToRegexp($route);
+		static::$routeTable[$route]['REGEXP'] = static::convertRouteToRegexp($route, $allowSlashes);
 		static::$routeTable[$route]['MODULE'] = $handlerModule;
 		static::$routeTable[$route]['CLASS'] = $handlerClass;
 		static::$routeTable[$route]['PARAMETERS'] = $handlerParameters;
@@ -169,7 +170,8 @@ class Router
 
 			while($routeRecord = $queryResult->fetch())
 			{
-				$routeRecord['REGEXP'] = static::convertRouteToRegexp($routeRecord['ROUTE']);
+				$allowSlashes = ($routeRecord['PARAMETERS']['allowSlashes'] ?? 'N') === 'Y';
+				$routeRecord['REGEXP'] = static::convertRouteToRegexp($routeRecord['ROUTE'], $allowSlashes);
 				static::$routeTable[$routeRecord['ROUTE']] = $routeRecord;
 			}
 
@@ -235,11 +237,16 @@ class Router
 	/**
 	 * Return regexp string for checking URL against route template.
 	 * @param string $route Route URL template.
+	 * @param bool $allowSlashes Allow slashes in regex search.
 	 * @return string
 	 */
-	protected static function convertRouteToRegexp($route)
+	protected static function convertRouteToRegexp(string $route, bool $allowSlashes = false): string
 	{
-		$result = preg_replace("/#(\w+)#/", "(?'\\1'[^/]+)", $route);
+		$result = preg_replace(
+			"/#(\w+)#/",
+			$allowSlashes ? "(?'\\1'.*?)" : "(?'\\1'[^/]+)",
+			$route
+		);
 		$result = str_replace('/', '\/', $result);
 		$result = '/^'.$result.'$/';
 

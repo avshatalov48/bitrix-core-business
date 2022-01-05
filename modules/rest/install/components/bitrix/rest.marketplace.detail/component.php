@@ -72,6 +72,7 @@ elseif (
 	&& $ar['ID'] > 0
 	&& $ar['ACTIVE'] === \Bitrix\Rest\AppTable::ACTIVE
 	&& $ar['INSTALLED'] === \Bitrix\Rest\AppTable::INSTALLED
+	&& (int)$ar['VERSION'] === (int)$_GET['ver']
 )
 {
 	$arResult['START_INSTALL'] = false;
@@ -164,6 +165,8 @@ if($arApp)
 	{
 		$arResult['REDIRECT_PRIORITY'] = true;
 	}
+
+	$arApp['SILENT_INSTALL'] = $arApp['SILENT_INSTALL'] !== 'Y' ? 'N' : 'Y';
 
 	$arResult["APP"] = $arApp;
 
@@ -260,4 +263,3 @@ else
 
 	$this->IncludeComponentTemplate();
 }
-?>

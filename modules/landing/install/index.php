@@ -234,6 +234,9 @@ class Landing extends \CModule
 		}
 		$this->setSiteTemplates();
 
+		// route handlers
+		$this->setRouteHandlers();
+
 		return true;
 	}
 
@@ -604,9 +607,6 @@ class Landing extends \CModule
 
 		// templates
 		$this->setSiteTemplates(false);
-
-		// route handlers
-		$this->setRouteHandlers();
 
 		// delete files finaly
 		if (isset($arParams['savedata']) && !$arParams['savedata'])

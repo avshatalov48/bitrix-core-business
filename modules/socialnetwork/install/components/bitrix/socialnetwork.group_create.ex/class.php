@@ -20,11 +20,11 @@ final class SocialnetworkGroupCreate extends \CBitrixComponent
 			$res = \Bitrix\Main\SiteTable::getList([
 				'filter' => [
 					'=LID' => $params["LID"],
-					'=ACTIVE' => 'Y'
+					'=ACTIVE' => 'Y',
 				],
-				'select' => ['LID']
+				'select' => [ 'LID' ]
 			]);
-			if ($siteFields = $res->fetch())
+			if ($res->fetch())
 			{
 				$this->setSiteId($params["LID"]);
 			}
@@ -33,7 +33,12 @@ final class SocialnetworkGroupCreate extends \CBitrixComponent
 		return $params;
 	}
 
-	protected function prepareData()
+	protected function listKeysSignedParameters()
+	{
+		return [];
+	}
+
+	protected function prepareData(): array
 	{
 		$result = [];
 		$this->processParams($result);
@@ -55,7 +60,7 @@ final class SocialnetworkGroupCreate extends \CBitrixComponent
 	{
 		$request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
-		$result['IS_IFRAME'] = ($request->get('IFRAME') === 'Y');
+		$result['IS_IFRAME'] = ($request->get('IFRAME') === 'Y' || $this->arParams['IFRAME'] === 'Y');
 		$result['IS_POPUP'] = ($request->get('POPUP') === 'Y');
 
 		if (in_array($request->get('CALLBACK'), [ 'REFRESH', 'GROUP' ]))
@@ -63,7 +68,11 @@ final class SocialnetworkGroupCreate extends \CBitrixComponent
 			$result['CALLBACK'] = $request->get('CALLBACK');
 		}
 
-		if (!empty($request->get('tab')))
+		if (!empty($request->getPost('TAB')))
+		{
+			$result['TAB'] = $request->getPost('TAB');
+		}
+		elseif (!empty($request->get('tab')))
 		{
 			$result['TAB'] = $request->get('tab');
 		}

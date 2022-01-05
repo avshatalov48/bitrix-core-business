@@ -11,9 +11,9 @@
 			<div class="filter-item">
 				<label for="filter-<?= $userFieldName; ?>"><?= $userFieldDescr["TITLE"] ?>:</label>
 				<?
-				if (StrToLower(SubStr($userFieldDescr["NAME"], 0, 5)) == "fltx_")
+				if (mb_strtolower(mb_substr($userFieldDescr["NAME"], 0, 5)) == "fltx_")
 				{
-					$keyTmp = StrToUpper(SubStr($userFieldDescr["NAME"], 5));
+					$keyTmp = mb_strtoupper(mb_substr($userFieldDescr["NAME"], 5));
 					$userFieldDescr["NAME"] = "flt_".$keyTmp;
 				}
 				
@@ -52,19 +52,19 @@
 			<div class="filter-item">
 				<label for="filter-<?= $userFieldName; ?>"><?= $userFieldDescr["EDIT_FORM_LABEL"] ?>:</label>
 				<?
-				if (StrToLower(SubStr($userFieldDescr["FIELD_NAME"], 0, 5)) == "fltx_")
+				if (mb_strtolower(mb_substr($userFieldDescr["FIELD_NAME"], 0, 5)) == "fltx_")
 				{
-					$keyTmp = StrToUpper(SubStr($userFieldDescr["FIELD_NAME"], 5));
+					$keyTmp = mb_strtoupper(mb_substr($userFieldDescr["FIELD_NAME"], 5));
 					$userFieldDescr["FIELD_NAME"] = "flt_".$keyTmp;
 				}
 						
-				if (StrToLower(SubStr($userFieldDescr["FIELD_NAME"], 0, 4)) == "flt_")
+				if (mb_strtolower(mb_substr($userFieldDescr["FIELD_NAME"], 0, 4)) == "flt_")
 				{
-					$keyTmp = StrToLower(SubStr($userFieldDescr["FIELD_NAME"], 4));
+					$keyTmp = mb_strtolower(mb_substr($userFieldDescr["FIELD_NAME"], 4));
 					if (array_key_exists("fltx_".$keyTmp, $_REQUEST))
 					{
-						$_REQUEST["flt_".StrToUpper($keyTmp)] = $_REQUEST["fltx_".$keyTmp];
-						unset($_REQUEST["fltx_".StrToUpper($keyTmp)]);
+						$_REQUEST["flt_".mb_strtoupper($keyTmp)] = $_REQUEST["fltx_".$keyTmp];
+						unset($_REQUEST["fltx_".mb_strtoupper($keyTmp)]);
 					}
 				}
 
@@ -80,13 +80,13 @@
 					array('HIDE_ICONS' => 'Y')
 				);
 
-				if (StrToLower(SubStr($userFieldDescr["FIELD_NAME"], 0, 4)) == "flt_")
+				if (mb_strtolower(mb_substr($userFieldDescr["FIELD_NAME"], 0, 4)) == "flt_")
 				{
-					$keyTmp = StrToLower(SubStr($userFieldDescr["FIELD_NAME"], 4));
+					$keyTmp = mb_strtolower(mb_substr($userFieldDescr["FIELD_NAME"], 4));
 					if (array_key_exists("flt_".$keyTmp, $_REQUEST))
 					{
-						$_REQUEST["fltx_".StrToUpper($keyTmp)] = $_REQUEST["flt_".StrToUpper($keyTmp)];
-						unset($_REQUEST["flt_".StrToUpper($keyTmp)]);
+						$_REQUEST["fltx_".mb_strtoupper($keyTmp)] = $_REQUEST["flt_".mb_strtoupper($keyTmp)];
+						unset($_REQUEST["flt_".mb_strtoupper($keyTmp)]);
 					}
 				}
 				?>

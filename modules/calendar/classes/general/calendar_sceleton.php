@@ -1,24 +1,49 @@
 <?
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\Web\Json;
 
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Json;
 
 class CCalendarSceleton
 {
 	public static function InitJS($config = array(), $data = array(), $additionalParams = array())
 	{
 		global $APPLICATION;
-		\Bitrix\Main\UI\Extension::load(['ajax', 'window', 'popup', 'access', 'date', 'viewer', 'color_picker','sidepanel', 'clipboard']);
-		\Bitrix\Main\UI\Extension::load(['ui.alerts', 'ui.buttons', 'ui.buttons.icons', 'ui.tooltip', 'ui.entity-selector', 'ui.forms', 'ui.hint']);
-
 		\Bitrix\Main\UI\Extension::load([
+			'ajax',
+			'window',
+			'popup',
+			'access',
+			'date',
+			'viewer',
+			'color_picker',
+			'sidepanel',
+			'clipboard',
+			'ui.alerts',
+			'ui.buttons',
+			'ui.buttons.icons',
+			'ui.tooltip',
+			'ui.entity-selector',
+			'ui.forms',
+			'ui.hint',
+			'ui.confetti',
 			'calendar.util',
 			'calendar.entry',
-			'calendar.sectionmanager',
 			'calendar.controls',
 			'calendar.sliderloader',
 			'calendar.sync.manager',
 		]);
+
+		if($config['type'] === 'location')
+		{
+			\Bitrix\Main\UI\Extension::load([
+				'calendar.rooms',
+				'calendar.roomsmanager'
+			]);
+		}
+		else
+		{
+			\Bitrix\Main\UI\Extension::load(['calendar.sectionmanager']);
+		}
 
 		if(\Bitrix\Main\Loader::includeModule('rest'))
 		{

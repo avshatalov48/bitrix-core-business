@@ -13,6 +13,7 @@ return [
 		'seo.ads.login',
 		'catalog.product-selector',
 		'main.core.events',
+		'ui.textcrop',
 		'main.core',
 		'ui.entity-selector',
 	],

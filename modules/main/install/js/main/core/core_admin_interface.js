@@ -2879,7 +2879,7 @@ BX.adminSidePanel.setDefaultQueryParams = BX.adminSidePanel.prototype.setDefault
 	}
 
 	var adminSidePanel = top.window["adminSidePanel"];
-	if (adminSidePanel.publicMode)
+	if (adminSidePanel && adminSidePanel.publicMode)
 	{
 		url = BX.util.add_url_param(url, {"publicSidePanel": "Y"});
 	}

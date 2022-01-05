@@ -6,8 +6,8 @@ namespace Bitrix\Rest\Integration;
 
 use Bitrix\Main\Engine\Response\Converter;
 use Bitrix\Main\Engine\Response\DataType\Page;
+use Bitrix\Main\Result;
 use Bitrix\Main\Type\Contract\Arrayable;
-use Bitrix\Sale\Result;
 
 /**
  * Class Externalizer
@@ -17,13 +17,6 @@ use Bitrix\Sale\Result;
 final class Externalizer extends ModificationFieldsBase
 	implements Arrayable
 {
-	public function __construct(ViewManager $manager, $data=[])
-	{
-		$this->format = self::TO_WHITE_LIST | self::TO_CAMEL | self::SORTING_KEYS;
-
-		parent::__construct($manager, $data);
-	}
-
 	public function process()
 	{
 		$r = new Result();
@@ -32,17 +25,17 @@ final class Externalizer extends ModificationFieldsBase
 		$id = $this->getIdList($data);
 
 		$data = $data[$id];
-		if($this->format & self::TO_WHITE_LIST)
+		if(in_array(self::TO_WHITE_LIST, $this->format))
 		{
 			$data = $this->externalize($data);
 		}
 
-		if($this->format & self::TO_CAMEL)
+		if(in_array(self::TO_CAMEL, $this->format))
 		{
 			$data = static::convertKeysToCamelCase([$id=>$data]);
 		}
 
-		if($this->format & self::SORTING_KEYS)
+		if(in_array(self::SORTING_KEYS, $this->format))
 		{
 			$data = static::multiSortKeysArray($data);
 		}

@@ -5,6 +5,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 };
 
+use Bitrix\Socialnetwork\ComponentHelper;
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -27,17 +29,18 @@ $componentParameters = [
 	"GROUP_ID" => $arResult["VARIABLES"]["group_id"],
 	"PAGE_ID" => "group_features",
 ];
-
+/*
 $APPLICATION->IncludeComponent(
 	'bitrix:socialnetwork.group.card.menu',
 	'',
 	[
 		'GROUP_ID' => $arResult['VARIABLES']['group_id'],
 		'TAB' => 'features',
-		'URLS' => \Bitrix\Socialnetwork\ComponentHelper::getWorkgroupSliderMenuUrlList($arResult),
+		'URLS' => ComponentHelper::getWorkgroupSliderMenuUrlList($arResult),
+		'SIGNED_PARAMETERS' => ComponentHelper::listWorkgroupSliderMenuSignedParameters($componentParameters),
 	]
 );
-
+*/
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
 	'',
@@ -45,8 +48,5 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.features',
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => $componentParameters,
-		'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
-		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE' => 'SONET_GROUP',
-		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID' => $arResult['VARIABLES']['group_id'],
 	]
 );

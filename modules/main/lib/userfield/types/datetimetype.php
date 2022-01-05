@@ -141,7 +141,7 @@ class DateTimeType extends DateType
 			if(mb_strlen($value) <= 1)
 			{
 				//will be ignored by the caller
-				return null;
+				return '';
 			}
 
 			try

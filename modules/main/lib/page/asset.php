@@ -1292,7 +1292,7 @@ class Asset
 				if ($moduleInfo)
 				{
 					$cssInfo['TARGET'] = 'KERNEL';
-					if ($this->sliceKernel() && $this->optimizeCss())
+					if ($this->sliceKernel() && $this->optimizeCss() && is_array($moduleInfo))
 					{
 						$cssInfo['MODULE_ID'] = $moduleInfo['MODULE_ID'];
 						$cssInfo['TARGET'] = 'KERNEL_'.$moduleInfo['MODULE_ID'];
@@ -1323,7 +1323,10 @@ class Asset
 						];
 					}
 
-					$this->targetList['KERNEL']['CSS_LIST'][$cssInfo['TARGET']]['MODULE_NAME'] = $moduleInfo['MODULE_ID'];
+					if (is_array($moduleInfo))
+					{
+						$this->targetList['KERNEL']['CSS_LIST'][$cssInfo['TARGET']]['MODULE_NAME'] = $moduleInfo['MODULE_ID'];
+					}
 
 					// Add information about sets where used
 					foreach ($set['TARGET'] as $setID)

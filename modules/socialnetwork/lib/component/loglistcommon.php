@@ -11,6 +11,7 @@ class LogListCommon extends \CBitrixComponent implements \Bitrix\Main\Engine\Con
 	/** @var ErrorCollection errorCollection */
 	protected $errorCollection;
 	protected $request = null;
+	protected $currentUserAdmin = false;
 
 	protected $task2LogList = [];
 
@@ -59,5 +60,15 @@ class LogListCommon extends \CBitrixComponent implements \Bitrix\Main\Engine\Con
 	public function getTask2LogListValue()
 	{
 		return $this->task2LogList;
+	}
+
+	public function setCurrentUserAdmin($value = false): void
+	{
+		$this->currentUserAdmin = $value;
+	}
+
+	public function getCurrentUserAdmin()
+	{
+		return $this->currentUserAdmin;
 	}
 }

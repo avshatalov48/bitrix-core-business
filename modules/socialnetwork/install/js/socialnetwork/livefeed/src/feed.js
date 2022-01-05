@@ -47,6 +47,11 @@ class Feed
 			PageInstance.setComponentName(params.componentName);
 		}
 
+		if (Type.isStringFilled(params.commentFormUID))
+		{
+			PageInstance.commentFormUID = params.commentFormUID;
+		}
+
 		if (loaderContainer)
 		{
 			Event.bind(loaderContainer, 'animationend', Loader.onAnimationEnd)

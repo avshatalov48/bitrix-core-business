@@ -72,12 +72,29 @@
 	      $Bitrix.Loc = {
 	        messages: {},
 	        getMessage: function getMessage(messageId) {
-	          if (typeof this.messages[messageId] !== 'undefined') {
-	            return this.messages[messageId];
+	          var replacements = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+	          var message = '';
+
+	          if (!main_core.Type.isUndefined(this.messages[messageId])) {
+	            message = this.messages[messageId];
+	          } else {
+	            message = main_core.Loc.getMessage(messageId);
+	            this.messages[messageId] = message;
 	          }
 
-	          this.messages[messageId] = main_core.Loc.getMessage(messageId);
-	          return this.messages[messageId];
+	          if (main_core.Type.isString(message) && main_core.Type.isPlainObject(replacements)) {
+	            Object.keys(replacements).forEach(function (replacement) {
+	              var globalRegexp = new RegExp(replacement, 'gi');
+	              message = message.replace(globalRegexp, function () {
+	                return main_core.Type.isNil(replacements[replacement]) ? '' : String(replacements[replacement]);
+	              });
+	            });
+	          }
+
+	          return message;
+	        },
+	        hasMessage: function hasMessage(messageId) {
+	          return main_core.Type.isString(messageId) && !main_core.Type.isNil(this.getMessages()[messageId]);
 	        },
 	        getMessages: function getMessages() {
 	          if (typeof BX.message !== 'undefined') {

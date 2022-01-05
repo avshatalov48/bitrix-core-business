@@ -52,6 +52,7 @@ $MESS ['SEC_PANEL_IPBLOCK_VALUE_ON'] = "Включена";
 $MESS ['SEC_PANEL_IPBLOCK_VALUE_OFF'] = "Выключена";
 $MESS ['SEC_PANEL_IPBLOCK_RECOMMENDATION'] = "Включить";
 $MESS ['SEC_PANEL_SESSDB_NAME'] = "Хранение сессий в базе данных";
+$MESS ['SEC_PANEL_SESS_STORAGE_NAME'] = "Хранение сессий в БД, Redis или Memcache";
 $MESS ['SEC_PANEL_SESSDB_VALUE_ON'] = "Включено";
 $MESS ['SEC_PANEL_SESSDB_VALUE_OFF'] = "Выключено";
 $MESS ['SEC_PANEL_SESSDB_RECOMMENDATION'] = "Включить";

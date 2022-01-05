@@ -1,0 +1,20 @@
+<?php
+$MESS["FACEBOOK_CONVERSION_EVENT_TITLE_ADD_PAYMENT_INFO"] = "Надіслати подію \"Додавання платіжної інформації\"";
+$MESS["FACEBOOK_CONVERSION_EVENT_TITLE_ADD_TO_CART"] = "Надіслати подію \"Додавання товару в кошик\"";
+$MESS["FACEBOOK_CONVERSION_EVENT_TITLE_CONTACT"] = "Надіслати подію \"Звернення користувача у вашу компанію\"";
+$MESS["FACEBOOK_CONVERSION_EVENT_TITLE_CUSTOMIZE_PRODUCT"] = "Надіслати подію \"Уточнення відомостей про товар\"";
+$MESS["FACEBOOK_CONVERSION_EVENT_TITLE_INITIATE_CHECKOUT"] = "Надіслати подію \"Оформлення замовлення\"";
+$MESS["FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_GROUP"] = "Надсилати групу товару";
+$MESS["FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_NAME"] = "Надсилати назву товару";
+$MESS["FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_PRICE"] = "Надсилати вартість та валюту товару";
+$MESS["FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_QUANTITY"] = "Надсилати кількість товару";
+$MESS["FACEBOOK_CONVERSION_LABEL_CONTACT_SEND_EMAIL"] = "Надсилати email";
+$MESS["FACEBOOK_CONVERSION_LABEL_CONTACT_SEND_SOCIAL_NETWORK"] = "Надсилати соціальну мережу";
+$MESS["FACEBOOK_CONVERSION_LABEL_CUSTOMIZE_PRODUCT_SEND_NAME_AND_PROPERTIES"] = "Надсилати назву та властивості товару";
+$MESS["FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ID"] = "Надсилати ID товарів";
+$MESS["FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ORDER_POSITIONS_QUANTITY"] = "Надсилати кількість позицій у замовленні";
+$MESS["FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ORDER_PRICE"] = "Надсилати вартість та валюту замовлення";
+$MESS["FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ORDER_PRODUCTS_TOTAL_QUANTITY"] = "Надсилати кількість товарів у замовленні";
+$MESS["FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_PRODUCTS_GROUP_AND_QUANTITY"] = "Надсилати кількість та групу кожного товару";
+$MESS["FACEBOOK_CONVERSION_LABEL_SEND_ID"] = "Надсилати ID товару";
+$MESS["FACEBOOK_CONVERSION_TITLE"] = "Facebook аудиторії";

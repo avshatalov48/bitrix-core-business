@@ -13,6 +13,7 @@
 	--ui-counter-bg-color-primary: #2fc6f6;
 	--ui-counter-bg-color-danger: #f54819;
 	--ui-counter-bg-color-light: #fff;
+	--ui-counter-bg-color-white: #fff;
 	--ui-counter-bg-color-dark: rgba(255, 255, 255, .19);
 }
 
@@ -33,9 +34,9 @@
 	position: relative;
 	color: #fff;
 	vertical-align: middle;
-	min-width: 21px;
+	min-width: var(--ui-counter-current-size)x;
 	box-sizing: border-box;
-	padding: 0 7px;
+	padding: 0 5px;
 	font: var(--ui-counter-font-weight) var(--ui-counter-font-size)/var(--ui-counter-current-size) "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
@@ -56,6 +57,10 @@
 }
 
 .ui-counter-light .ui-counter-inner { color: #535c69 !important; }
+
+.ui-counter-white { --ui-counter-current-bg-color: var(--ui-counter-bg-color-white); }
+
+.ui-counter-white .ui-counter-inner { color: #CBD0D3 !important; }
 
 .ui-counter-dark {
 	--ui-counter-current-bg-color: var(--ui-counter-bg-color-dark);

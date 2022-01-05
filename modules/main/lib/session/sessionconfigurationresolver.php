@@ -5,6 +5,7 @@ namespace Bitrix\Main\Session;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\NotSupportedException;
+use Bitrix\Main\Session\Handlers\AbstractSessionHandler;
 use Bitrix\Main\Session\Handlers\StrictSessionHandler;
 
 final class SessionConfigurationResolver
@@ -12,17 +13,16 @@ final class SessionConfigurationResolver
 	private const MODE_DEFAULT   = 'default';
 	private const MODE_SEPARATED = 'separated';
 
-	private const TYPE_FILE       = 'file';
-	private const TYPE_DATABASE   = 'database';
-	private const TYPE_REDIS      = 'redis';
-	private const TYPE_MEMCACHE   = 'memcache';
-	private const TYPE_ARRAY      = 'array';
-	private const TYPE_NULL       = 'null';
-	private const TYPE_CUSTOM_INI = 'save_handler.php.ini';
+	public const TYPE_FILE       = 'file';
+	public const TYPE_DATABASE   = 'database';
+	public const TYPE_REDIS      = 'redis';
+	public const TYPE_MEMCACHE   = 'memcache';
+	public const TYPE_ARRAY      = 'array';
+	public const TYPE_NULL       = 'null';
+	public const TYPE_CUSTOM_INI = 'save_handler.php.ini';
 
 	/** @var Configuration */
 	private $configuration;
-	private $sessionConfig;
 	/** @var Session */
 	private $session;
 	/** @var KernelSession */
@@ -79,7 +79,7 @@ final class SessionConfigurationResolver
 		}
 	}
 
-	private function getSessionConfig(): array
+	public function getSessionConfig(): array
 	{
 		if (defined("BX_SECURITY_SESSION_VIRTUAL") && BX_SECURITY_SESSION_VIRTUAL === true)
 		{
@@ -115,7 +115,7 @@ final class SessionConfigurationResolver
 		return $sessionConfig;
 	}
 
-	private function buildSessionHandlerByOptions(string $type, array $options = [])
+	private function buildSessionHandlerByOptions(string $type, array $options = []): ?AbstractSessionHandler
 	{
 		switch ($type)
 		{

@@ -3989,7 +3989,7 @@ class CAllSaleUser
 		$allowUpdate = !array_key_exists('update', $params) || $params['update'] === true;
 
 		CSaleUser::UpdateSessionSaleUserID();
-		$ID = $_SESSION["SALE_USER_ID"];
+		$ID = $_SESSION["SALE_USER_ID"] ?? 0;
 
 		if(COption::GetOptionString("sale", "encode_fuser_id", "N") != "Y")
 		{
@@ -4038,7 +4038,7 @@ class CAllSaleUser
 	public static function UpdateSessionSaleUserID()
 	{
 		global $USER;
-		if ((string)$_SESSION["SALE_USER_ID"] !== "" && intval($_SESSION["SALE_USER_ID"])."|" != $_SESSION["SALE_USER_ID"]."|")
+		if (isset($_SESSION["SALE_USER_ID"]) && (string)$_SESSION["SALE_USER_ID"] !== "" && intval($_SESSION["SALE_USER_ID"])."|" != $_SESSION["SALE_USER_ID"]."|")
 		{
 			$arRes = CSaleUser::GetList(array("CODE" => $_SESSION["SALE_USER_ID"]));
 			if(!empty($arRes))

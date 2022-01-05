@@ -16,6 +16,8 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 		this._excludedNames = null;
 		this._contentWrapper = null;
 		this._popup = null;
+		this.fieldVisibleClass = 'ui-entity-editor-popup-field-search-list-item-visible';
+		this.fieldHiddenClass = 'ui-entity-editor-popup-field-search-list-item-hidden';
 	};
 
 	BX.UI.EntityEditorFieldSelector.prototype =
@@ -124,6 +126,29 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 			this._contentWrapper = BX.create("div", {
 				props: { className: "ui-entity-editor-popup-field-selector" }
 			});
+
+			var useFieldsSearch =  BX.prop.getString(this._settings, 'useFieldsSearch', false);
+			if (useFieldsSearch)
+			{
+				var headerWrapper = BX.create('div', {
+					attrs: {
+						className: 'ui-entity-editor-popup-field-search-header-wrapper',
+					},
+					children: [
+						BX.create('div', {
+							attrs: {
+								className: 'ui-form-row-inline'
+							},
+						}),
+					],
+				});
+
+				this._contentWrapper.prepend(headerWrapper);
+
+				this.prepareContentHeaderSections(headerWrapper);
+				this.prepareContentHeaderSearch(headerWrapper);
+			}
+
 			var container = BX.create("div", {
 				props: { className: "ui-entity-editor-popup-field-selector-list" }
 			});
@@ -222,6 +247,146 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 			this._contentWrapper.appendChild(container);
 
 			return this._contentWrapper;
+		},
+		prepareContentHeaderSections: function(headerWrapper)
+		{
+			var headerSectionsWrapper = BX.create("div", {
+				attrs: {
+					className: 'ui-form-row',
+				},
+				children: [
+					BX.create('div', {
+						attrs: {
+							className: 'ui-form-content ui-entity-editor-popup-field-search-section-wrapper',
+						},
+					}),
+				],
+			});
+
+			headerWrapper.firstElementChild.appendChild(headerSectionsWrapper);
+
+			var buttonTitle = BX.prop.getString(this._settings, 'buttonTitle', '');
+			var itemClass = 'ui-entity-editor-popup-field-search-section-item-icon ui-entity-editor-popup-field-search-section-item-icon-active';
+			var headerSectionItem = BX.create('div', {
+				attrs: {
+					className: 'ui-entity-editor-popup-field-search-section-item',
+				},
+				children: [
+					BX.create('div', {
+						attrs: {
+							className: itemClass
+						},
+						html: buttonTitle
+					}),
+				],
+			});
+
+			headerSectionsWrapper.firstElementChild.appendChild(headerSectionItem);
+		},
+		prepareContentHeaderSearch: function(headerWrapper)
+		{
+			var input = BX.create('input', {
+				attrs: {
+					className: 'ui-ctl-element ui-entity-editor-popup-field-search-section-input',
+				},
+				events: {
+					input: this.onFilterSectionSearchInput.bind(this),
+				}
+			});
+			var searchForm = BX.create('div', {
+				attrs: {
+					className: 'ui-form-row',
+				},
+				children: [
+					BX.create('div', {
+						attrs: {
+							className: 'ui-form-content ui-entity-editor-popup-field-search-input-wrapper',
+						},
+						children: [
+							BX.create('div', {
+								attrs: {
+									className: 'ui-ctl ui-ctl-textbox ui-ctl-before-icon ui-ctl-after-icon'
+								},
+								children: [
+									BX.create('div', {
+										attrs: {
+											className: 'ui-ctl-before ui-ctl-icon-search',
+										},
+									}),
+									BX.create('button', {
+										attrs: {
+											className: 'ui-ctl-after ui-ctl-icon-clear',
+										},
+										events: {
+											click: this.onFilterSectionSearchInputClear.bind(this, input),
+										}
+									}),
+									input,
+								],
+							}),
+						],
+					}),
+				],
+			});
+
+			headerWrapper.firstElementChild.appendChild(searchForm);
+		},
+		onFilterSectionSearchInput: function(input)
+		{
+			var search = (input.target ? input.target.value : input.value);
+			if (search.length)
+			{
+				search = search.toLowerCase();
+			}
+
+			this.getFieldsPopupItems().map(function(item){
+				var title = item.innerText.toLowerCase();
+				if (search.length && title.indexOf(search) === -1)
+				{
+					BX.removeClass(item, this.fieldVisibleClass);
+					BX.addClass(item, this.fieldHiddenClass);
+				}
+				else
+				{
+					BX.removeClass(item, this.fieldHiddenClass);
+					BX.addClass(item, this.fieldVisibleClass);
+					item.style.display = 'block';
+				}
+			}.bind(this));
+		},
+		getFieldsPopupItems: function()
+		{
+			if (!BX.type.isArray(this.fieldsPopupItems))
+			{
+				this.fieldsPopupItems = Array.from(
+					this._contentWrapper.querySelectorAll('.ui-entity-editor-popup-field-selector-list-item')
+				);
+				this.prepareAnimation();
+			}
+
+			return this.fieldsPopupItems;
+		},
+		prepareAnimation: function()
+		{
+			this.fieldsPopupItems.map(function(item){
+				BX.bind(item, 'animationend', this.onAnimationEnd.bind(this, item));
+			}.bind(this));
+		},
+		onAnimationEnd: function(item)
+		{
+			item.style.display = (
+				BX.hasClass(item, this.fieldHiddenClass)
+					? 'none'
+					: 'block'
+			);
+		},
+		onFilterSectionSearchInputClear: function(input)
+		{
+			if (input.value.length)
+			{
+				input.value = '';
+				this.onFilterSectionSearchInput(input);
+			}
 		},
 		getSelectedItems: function()
 		{

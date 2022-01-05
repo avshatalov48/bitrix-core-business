@@ -4,6 +4,7 @@ use Bitrix\Main;
 use Bitrix\Main\Mail\Address;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Grid\MessageType;
+use Bitrix\Main\Config\Configuration;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
@@ -34,7 +35,11 @@ class MainMailConfirmComponent extends CBitrixComponent
 		{
 			$this->prepareAdditionalSenders();
 		}
-		$this->arParams['IS_SMTP_AVAILABLE'] = Main\ModuleManager::isModuleInstalled('bitrix24');
+
+		$defaultMailConfiguration = Configuration::getValue("smtp");
+		$this->arParams['IS_SMTP_AVAILABLE'] = Main\ModuleManager::isModuleInstalled('bitrix24')
+			|| $defaultMailConfiguration['enabled'];
+
 		$this->arParams['IS_ADMIN'] = Main\Loader::includeModule('bitrix24')
 			? \CBitrix24::isPortalAdmin($USER->getId())
 			: $USER->isAdmin();

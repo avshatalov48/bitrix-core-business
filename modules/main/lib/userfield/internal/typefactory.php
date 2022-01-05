@@ -75,4 +75,9 @@ abstract class TypeFactory
 	{
 		return mb_strtoupper($code);
 	}
+
+	public function prepareIdentifier($identifier)
+	{
+		return (int)$identifier;
+	}
 }

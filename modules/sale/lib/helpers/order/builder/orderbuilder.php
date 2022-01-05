@@ -24,6 +24,8 @@ use Bitrix\Sale\ShipmentItem;
 use Bitrix\Sale\TradeBindingEntity;
 use Bitrix\Sale\TradingPlatformTable;
 
+Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/sale/lib/helpers/admin/blocks/orderbasketshipment.php');
+
 /**
  * Class OrderBuilder
  * @package Bitrix\Sale\Helpers\Order\Builder

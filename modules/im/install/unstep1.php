@@ -1,4 +1,4 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
 ?>
 <form action="<?echo $APPLICATION->GetCurPage()?>">

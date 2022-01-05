@@ -32,7 +32,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["submit"] <> '' && (!isset($_P
 		if(empty($arParams["REQUIRED_FIELDS"]) || !in_array("NONE", $arParams["REQUIRED_FIELDS"]))
 		{
 			if((empty($arParams["REQUIRED_FIELDS"]) || in_array("NAME", $arParams["REQUIRED_FIELDS"])) && mb_strlen($_POST["user_name"]) <= 1)
-				$arResult["ERROR_MESSAGE"][] = GetMessage("MF_REQ_NAME");		
+				$arResult["ERROR_MESSAGE"][] = GetMessage("MF_REQ_NAME");
 			if((empty($arParams["REQUIRED_FIELDS"]) || in_array("EMAIL", $arParams["REQUIRED_FIELDS"])) && mb_strlen($_POST["user_email"]) <= 1)
 				$arResult["ERROR_MESSAGE"][] = GetMessage("MF_REQ_EMAIL");
 			if((empty($arParams["REQUIRED_FIELDS"]) || in_array("MESSAGE", $arParams["REQUIRED_FIELDS"])) && mb_strlen($_POST["MESSAGE"]) <= 3)
@@ -54,7 +54,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["submit"] <> '' && (!isset($_P
 			else
 				$arResult["ERROR_MESSAGE"][] = GetMessage("MF_CAPTHCA_EMPTY");
 
-		}			
+		}
 		if(empty($arResult["ERROR_MESSAGE"]))
 		{
 			$arFields = Array(
@@ -75,7 +75,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["submit"] <> '' && (!isset($_P
 			$_SESSION["MF_EMAIL"] = htmlspecialcharsbx($_POST["user_email"]);
 			LocalRedirect($APPLICATION->GetCurPageParam("success=".$arResult["PARAMS_HASH"], Array("success")));
 		}
-		
+
 		$arResult["MESSAGE"] = htmlspecialcharsbx($_POST["MESSAGE"]);
 		$arResult["AUTHOR_NAME"] = htmlspecialcharsbx($_POST["user_name"]);
 		$arResult["AUTHOR_EMAIL"] = htmlspecialcharsbx($_POST["user_email"]);
@@ -106,5 +106,12 @@ if(empty($arResult["ERROR_MESSAGE"]))
 
 if($arParams["USE_CAPTCHA"] == "Y")
 	$arResult["capCode"] =  htmlspecialcharsbx($APPLICATION->CaptchaGetCode());
+
+$arResult['FACEBOOK_CONVERSION_ENABLED'] =
+	\Bitrix\Main\Loader::includeModule('sale')
+	&& \Bitrix\Sale\Internals\FacebookConversion::isEventEnabled('Contact')
+		? 'Y'
+		: 'N'
+;
 
 $this->IncludeComponentTemplate();

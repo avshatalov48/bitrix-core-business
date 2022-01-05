@@ -8,6 +8,7 @@ $MESS["BPC_MES_CREATETASK"] = "Створити завдання";
 $MESS["BPC_MES_DELETE"] = "Видалити";
 $MESS["BPC_MES_EDIT"] = "Редагувати";
 $MESS["BPC_MES_HIDE"] = "Приховати";
+$MESS["BPC_MES_RESULT"] = "Позначити як звіт про завдання";
 $MESS["BPC_MES_SHOW"] = "Показати";
 $MESS["BPC_MES_VOTE"] = "Кому подобається";
 $MESS["BPC_MES_VOTE1"] = "Мені подобається";

@@ -1,9 +1,7 @@
 <?php
 namespace Bitrix\Im\Integration\UI\EntitySelector;
 
-use Bitrix\Im\Alias;
 use Bitrix\Im\Chat;
-use Bitrix\Im\Color;
 use Bitrix\Im\Model\ChatIndexTable;
 use Bitrix\Im\Model\ChatTable;
 use Bitrix\Im\Model\EO_Chat;
@@ -218,84 +216,15 @@ class ChatProvider extends BaseProvider
 
 	public static function makeItem(EO_Chat $chat, array $options = []): Item
 	{
-		//$customData['imChat'] similar to Bitrix\Im\Chat::getList
-		$avatar = \CIMChat::GetAvatarImage($chat->getAvatar(), 200, false);
-		$color =
-			$chat->getColor()
-				? Color::getColor($chat->getColor())
-				: Color::getColorByNumber($chat->getId())
-		;
-
-		$chatType = \Bitrix\Im\Chat::getType($chat->collectValues());
-
-		$entityType = $chat->getEntityType();
-		$generalChatId = (int)\CIMChat::GetGeneralChatId();
-
-		if ($generalChatId === $chat->getId())
-		{
-			$entityType = 'GENERAL';
-		}
-
-		$counter = 0;
-		$startCounter = 0;
-		$unreadId = 0;
-		$muteList = [];
-
-		if ($chat->get('RELATION'))
-		{
-			$counter = $chat->get('RELATION')->get('COUNTER');
-			$startCounter = $chat->get('RELATION')->get('START_COUNTER');
-			$unreadId = $chat->get('RELATION')->get('UNREAD_ID');
-
-			if ($chat->get('RELATION')->get('NOTIFY_BLOCK'))
-			{
-				$muteList[] = $chat->get('RELATION')->get('USER_ID');
-			}
-		}
-
-		$publicOption = '';
-		if ($chat->getAlias())
-		{
-			$publicOption = [
-				'code' => $chat->getAlias()->getAlias(),
-				'link' => Alias::getPublicLink($chat->getEntityType(), $chat->getAlias()->getAlias())
-			];
-		}
-
-		$customData = [
-			'imChat' => [
-				'ID' => $chat->getId(),
-				'NAME' => $chat->getTitle(),
-				'OWNER' => $chat->getAuthorId(),
-				'EXTRANET' => $chat->getExtranet(),
-				'AVATAR' => $avatar,
-				'COLOR' => $color,
-				'TYPE' => $chatType,
-				'COUNTER' => $counter,
-				'USER_COUNTER' => $chat->getUserCount(),
-				'MESSAGE_COUNT' => $chat->getMessageCount() - $startCounter,
-				'UNREAD_ID' => $unreadId,
-				'LAST_MESSAGE_ID' => $chat->getLastMessageId(),
-				'DISK_FOLDER_ID' => $chat->getDiskFolderId(),
-				'ENTITY_TYPE' => $entityType,
-				'ENTITY_ID' => $chat->getEntityId(),
-				'ENTITY_DATA_1' => $chat->get('ENTITY_DATA_1'),
-				'ENTITY_DATA_2' => $chat->get('ENTITY_DATA_2'),
-				'ENTITY_DATA_3' => $chat->get('ENTITY_DATA_3'),
-				'MUTE_LIST' => $muteList,
-				'DATE_CREATE' => $chat->getDateCreate(),
-				'MESSAGE_TYPE' => $chat->getType(),
-				'PUBLIC' => $publicOption,
-			],
-		];
-
 		return new Item([
 			'id' => $chat->getId(),
 			'entityId' => self::ENTITY_ID,
 			'entityType' => Helper\Chat::getSelectorEntityType($chat),
 			'title' => $chat->getTitle(),
 			'avatar' => \CIMChat::GetAvatarImage($chat->getAvatar(), 200, false),
-			'customData' => $customData,
+			'customData' => [
+				'imChat' => Chat::formatChatData($chat->collectValues()),
+			],
 		]);
 	}
 

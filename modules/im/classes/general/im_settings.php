@@ -1,41 +1,67 @@
-<?
+<?php
 
 use Bitrix\Im\Call\VideoStrategyType;
+use Bitrix\Im\Common;
+use Bitrix\Im\Configuration\General;
+use Bitrix\Im\Configuration\Manager;
+use Bitrix\Im\Configuration\Notification;
+use Bitrix\Pull\Event;
 
 class CIMSettings
 {
-	const SETTINGS = 'settings';
-	const NOTIFY = 'notify';
+	public const SETTINGS = 'settings';
+	public const NOTIFY = 'notify';
 
-	const CLIENT_SITE = 'site';
-	const CLIENT_XMPP = 'xmpp';
-	const CLIENT_MAIL = 'email';
-	const CLIENT_PUSH = 'push';
+	public const CLIENT_SITE = 'site';
+	public const CLIENT_XMPP = 'xmpp';
+	public const CLIENT_MAIL = 'email';
+	public const CLIENT_PUSH = 'push';
 
-	const START_MESSAGE_FIRST = 'first';
-	const START_MESSAGE_LAST = 'last';
+	public const START_MESSAGE_FIRST = 'first';
+	public const START_MESSAGE_LAST = 'last';
 
-	const PRIVACY_MESSAGE = 'privacyMessage';
-	const PRIVACY_CHAT = 'privacyChat';
-	const PRIVACY_CALL = 'privacyCall';
-	const PRIVACY_SEARCH = 'privacySearch';
-	const PRIVACY_PROFILE = 'privacyProfile';
-	const PRIVACY_RESULT_ALL = 'all';
-	const PRIVACY_RESULT_CONTACT = 'contact';
-	const PRIVACY_RESULT_NOBODY = 'nobody';
+	public const PRIVACY_MESSAGE = 'privacyMessage';
+	public const PRIVACY_CHAT = 'privacyChat';
+	public const PRIVACY_CALL = 'privacyCall';
+	public const PRIVACY_SEARCH = 'privacySearch';
+	public const PRIVACY_PROFILE = 'privacyProfile';
+	public const PRIVACY_RESULT_ALL = 'all';
+	public const PRIVACY_RESULT_CONTACT = 'contact';
+	public const PRIVACY_RESULT_NOBODY = 'nobody';
 
-	const STATUS = 'status';
+	public const STATUS = 'status';
 
 	public static function Get($userId = false)
 	{
-		global $USER;
+		$userId = $userId === false ? null : $userId;
+		$userId = Common::getUserId($userId);
+		if (!$userId)
+		{
+			return null;
+		}
 
-		$userId = intval($userId);
-		if ($userId == 0)
-			$userId = $USER->GetId();
+		if (Manager::isSettingsMigrated() || Manager::isUserMigrated($userId))
+		{
+			$result = Manager::getUserSettings($userId);
+			if (!$result->isSuccess())
+			{
+				return null;
+			}
+			$settings = $result->getData();
 
-		$arSettings[self::SETTINGS] = CUserOptions::GetOption('im', self::SETTINGS, Array(), $userId);
-		$arSettings[self::NOTIFY] = CUserOptions::GetOption('im', self::NOTIFY, Array(), $userId);
+			if(empty($settings['notify']) || empty($settings['general']))
+			{
+				return null;
+			}
+
+			return [
+				self::NOTIFY => self::convertNotifySettingsToOldFormat($settings['notify']['settings']),
+				self::SETTINGS => $settings['general']['settings'],
+			];
+		}
+
+		$arSettings[self::SETTINGS] = CUserOptions::GetOption('im', self::SETTINGS, [], $userId);
+		$arSettings[self::NOTIFY] = CUserOptions::GetOption('im', self::NOTIFY, [], $userId);
 
 		// Check fields and add default values
 		$arSettings[self::SETTINGS] = self::checkValues(self::SETTINGS, $arSettings[self::SETTINGS]);
@@ -46,29 +72,51 @@ class CIMSettings
 
 	public static function Set($type, $value, $userId = false)
 	{
-		if (!in_array($type, Array(self::SETTINGS, self::NOTIFY)))
+		if (!in_array($type, [self::SETTINGS, self::NOTIFY], true))
+		{
 			return false;
+		}
 
-		global $USER, $USER_FIELD_MANAGER;
-		$userId = intval($userId);
-		if ($userId == 0)
-			$userId = $USER->GetId();
+		global $USER_FIELD_MANAGER;
+
+		$userId = $userId === false ? null : $userId;
+		$userId = Common::getUserId($userId);
+		if (!$userId)
+		{
+			return null;
+		}
+
+		if (Manager::isSettingsMigrated() || Manager::isUserMigrated($userId))
+		{
+			$newFormatSettings['notify'] =
+				$type === self::NOTIFY
+					? self::convertNotifySettingsToNewFormat($value)
+					: []
+			;
+
+			$newFormatSettings['general'] =
+				$type === self::SETTINGS
+					? array_replace_recursive(General::getDefaultSettings(), $value)
+					: []
+			;
+			return Manager::setUserSettings($userId, $newFormatSettings)->isSuccess();
+		}
 
 		if (isset($value[self::STATUS]))
 		{
-			CIMStatus::Set($userId, Array('STATUS' => $value[self::STATUS]));
+			CIMStatus::Set($userId, ['STATUS' => $value[self::STATUS]]);
 		}
 		if (isset($value['openDesktopFromPanel']) && CModule::IncludeModule('pull'))
 		{
-			\Bitrix\Pull\Event::add($userId, Array(
+			Event::add($userId, [
 				'module_id' => 'im',
 				'command' => 'settingsUpdate',
 				'expiry' => 5,
-				'params' => Array(
+				'params' => [
 					'openDesktopFromPanel' => $value['openDesktopFromPanel'],
-				),
-				'extra' => \Bitrix\Im\Common::getPullExtra()
-			));
+				],
+				'extra' => Common::getPullExtra()
+			]);
 		}
 
 		$arDefault = self::GetDefaultSettings($type);
@@ -76,8 +124,10 @@ class CIMSettings
 		{
 			if (isset($arDefault[$key]) && $arDefault[$key] == $val)
 			{
-				if ($key == self::PRIVACY_SEARCH)
-					$USER_FIELD_MANAGER->Update("USER", $userId, Array('UF_IM_SEARCH' => ''));
+				if ($key === self::PRIVACY_SEARCH)
+				{
+					$USER_FIELD_MANAGER->Update("USER", $userId, ['UF_IM_SEARCH' => '']);
+				}
 				unset($value[$key]);
 			}
 		}
@@ -85,7 +135,7 @@ class CIMSettings
 
 		if (isset($value[self::PRIVACY_SEARCH]))
 		{
-			$USER_FIELD_MANAGER->Update("USER", $userId, Array('UF_IM_SEARCH' => $value[self::PRIVACY_SEARCH]));
+			$USER_FIELD_MANAGER->Update("USER", $userId, ['UF_IM_SEARCH' => $value[self::PRIVACY_SEARCH]]);
 		}
 
 		return true;
@@ -93,33 +143,60 @@ class CIMSettings
 
 	public static function SetSetting($type, $value, $userId = false)
 	{
-		if (!in_array($type, Array(self::SETTINGS, self::NOTIFY)))
+		if (!in_array($type, [self::SETTINGS, self::NOTIFY], true))
+		{
 			return false;
+		}
 
-		global $USER, $USER_FIELD_MANAGER;
-		$userId = intval($userId);
-		if ($userId == 0)
-			$userId = $USER->GetId();
+		global $USER_FIELD_MANAGER;
 
-		$arSettings = CUserOptions::GetOption('im', $type, Array(), $userId);
+		$userId = $userId === false ? null : $userId;
+		$userId = Common::getUserId($userId);
+		if (!$userId)
+		{
+			return null;
+		}
+
+		if (Manager::isSettingsMigrated() || Manager::isUserMigrated($userId))
+		{
+			$newFormatSettings = [];
+			if ($type === self::NOTIFY)
+			{
+				$newFormatSettings = self::convertNotifySettingsToNewFormat($value);
+			}
+			if ($type === self::SETTINGS)
+			{
+				$type = 'general';
+				$newFormatSettings = $value;
+			}
+
+			return Manager::setUserSetting($userId, $type, $newFormatSettings)->isSuccess();
+		}
+
+		$arSettings = CUserOptions::GetOption('im', $type, [], $userId);
 		foreach ($value as $key => $val)
+		{
 			$arSettings[$key] = $val;
+		}
 
 		if (isset($value[self::STATUS]))
 		{
-			CIMStatus::Set($userId, Array('STATUS' => $value[self::STATUS]));
+			CIMStatus::Set($userId, ['STATUS' => $value[self::STATUS]]);
 		}
 		if (isset($value['openDesktopFromPanel']) && CModule::IncludeModule('pull'))
 		{
-			\Bitrix\Pull\Event::add($userId, Array(
-				'module_id' => 'im',
-				'command' => 'settingsUpdate',
-				'expiry' => 5,
-				'params' => Array(
-					'openDesktopFromPanel' => $value['openDesktopFromPanel'],
-				),
-				'extra' => \Bitrix\Im\Common::getPullExtra()
-			));
+			Event::add(
+				$userId,
+				[
+					'module_id' => 'im',
+					'command' => 'settingsUpdate',
+					'expiry' => 5,
+					'params' => [
+						'openDesktopFromPanel' => $value['openDesktopFromPanel'],
+					],
+					'extra' => Common::getPullExtra()
+				]
+			);
 		}
 
 		$arDefault = self::GetDefaultSettings($type);
@@ -127,15 +204,17 @@ class CIMSettings
 		{
 			if (isset($arDefault[$key]) && $arDefault[$key] == $val)
 			{
-				if ($key == self::PRIVACY_SEARCH)
-					$USER_FIELD_MANAGER->Update("USER", $userId, Array('UF_IM_SEARCH' => ''));
+				if ($key === self::PRIVACY_SEARCH)
+				{
+					$USER_FIELD_MANAGER->Update("USER", $userId, ['UF_IM_SEARCH' => '']);
+				}
 				unset($value[$key]);
 			}
 		}
 		CUserOptions::SetOption('im', $type, $arSettings, false, $userId);
 		if (isset($value[self::PRIVACY_SEARCH]))
 		{
-			$USER_FIELD_MANAGER->Update("USER", $userId, Array('UF_IM_SEARCH' => $value[self::PRIVACY_SEARCH]));
+			$USER_FIELD_MANAGER->Update("USER", $userId, ['UF_IM_SEARCH' => $value[self::PRIVACY_SEARCH]]);
 		}
 
 		return true;
@@ -143,178 +222,188 @@ class CIMSettings
 
 	public static function GetSetting($type, $value, $userId = false)
 	{
-		if (!in_array($type, Array(self::SETTINGS, self::NOTIFY)))
+		if (!in_array($type, [self::SETTINGS, self::NOTIFY], true))
+		{
 			return null;
+		}
+
+		$userId = $userId === false ? null : $userId;
+		$userId = Common::getUserId($userId);
+		if (!$userId)
+		{
+			return null;
+		}
+
+		if (Manager::isSettingsMigrated() || Manager::isUserMigrated($userId))
+		{
+			if ($type === self::NOTIFY)
+			{
+				[$option, $module, $event] = explode('|', $value, 3);
+				return (new Notification($module, $event))->getValue($userId, $option);
+			}
+			if ($type === self::SETTINGS)
+			{
+				return (new General($userId))->getValue($value);
+			}
+		}
 
 		$arSettings = self::Get($userId);
 
-		return isset($arSettings[$type][$value])? $arSettings[$type][$value]: null;
+		return isset($arSettings[$type][$value]) ? $arSettings[$type][$value] : null;
 	}
 
 	public static function GetNotifyAccess($userId, $moduleId, $eventId, $clientId)
 	{
 		$userId = intval($userId);
 		if ($userId <= 0 || $moduleId == '' || $eventId == '' || $clientId == '')
-			return false;
-
-		$notifyId = $clientId.'|'.$moduleId.'|'.$eventId;
-		$arSettings = self::Get($userId);
-		if ($arSettings['settings']['notifyScheme'] == 'simple')
 		{
-			if ($clientId == self::CLIENT_SITE && !$arSettings['settings']['notifySchemeSendSite'])
-				return false;
-			elseif ($clientId == self::CLIENT_XMPP && !$arSettings['settings']['notifySchemeSendXmpp'])
-				return false;
-			elseif ($clientId == self::CLIENT_MAIL && !$arSettings['settings']['notifySchemeSendEmail'])
-				return false;
-			elseif ($clientId == self::CLIENT_PUSH && !$arSettings['settings']['notifySchemeSendPush'])
-				return false;
+			return false;
+		}
 
-			return isset($arSettings['notify']) && array_key_exists($notifyId, $arSettings['notify']) && $arSettings['notify'][$notifyId] === false? false: true;
+		if (Manager::isSettingsMigrated() || Manager::isUserMigrated($userId))
+		{
+			$clientId = $clientId === self::CLIENT_MAIL ? Notification::MAIL : $clientId;
+
+			$notification = new Notification($moduleId, $eventId);
+			return $notification->isAllowed($userId, $clientId);
+		}
+
+		$notifySettingName = $clientId.'|'.$moduleId.'|'.$eventId;
+		$userSettings = self::Get($userId);
+
+		if ($userSettings['settings']['notifyScheme'] === 'simple')
+		{
+			if ($clientId === self::CLIENT_SITE && !$userSettings['settings']['notifySchemeSendSite'])
+			{
+				return false;
+			}
+
+			if ($clientId === self::CLIENT_XMPP && !$userSettings['settings']['notifySchemeSendXmpp'])
+			{
+				return false;
+			}
+
+			if ($clientId === self::CLIENT_MAIL && !$userSettings['settings']['notifySchemeSendEmail'])
+			{
+				return false;
+			}
+
+			if ($clientId === self::CLIENT_PUSH && !$userSettings['settings']['notifySchemeSendPush'])
+			{
+				return false;
+			}
+
+			return
+				isset($userSettings['notify'])
+				&& array_key_exists($notifySettingName, $userSettings['notify'])
+				&& $userSettings['notify'][$notifySettingName] === false
+					? false
+					: true;
 		}
 		else
 		{
-			if (isset($arSettings['notify']) && array_key_exists($notifyId, $arSettings['notify']))
+			if (isset($userSettings['notify']) && array_key_exists($notifySettingName, $userSettings['notify']))
 			{
-				return $arSettings['notify'][$notifyId];
+				return $userSettings['notify'][$notifySettingName];
 			}
-			else if (isset($arSettings['notify']) && array_key_exists($clientId.'|im|default', $arSettings['notify']))
+
+			if (isset($userSettings['notify']) && array_key_exists($clientId.'|im|default', $userSettings['notify']))
 			{
-				return $arSettings['notify'][$clientId.'|im|default'];
+				return $userSettings['notify'][$clientId.'|im|default'];
 			}
 		}
+
 		return false;
 	}
 
 	public static function GetDefaultSettings($type)
 	{
-		$arDefault = Array();
-		if ($type == self::SETTINGS)
+		$defaultSettings = [];
+		if ($type === self::SETTINGS)
 		{
-			$arDefault = Array(
-				'status' => 'online',
-				'backgroundImage' => false,
-				'bxdNotify' => true,
-				'sshNotify' => true,
-				'generalNotify' => true,
-				'trackStatus' => '',
-				'nativeNotify' => true,
-				'openDesktopFromPanel' => true,
-				'viewOffline' => COption::GetOptionString("im", "view_offline"),
-				'viewGroup' => COption::GetOptionString("im", "view_group"),
-				'viewLastMessage' => true,
-				'viewBirthday' => true,
-				'viewCommonUsers' => true,
-				'enableSound' => true,
-				'enableBigSmile' => true,
-				'enableDarkTheme' => 'auto',
-				'isCurrentThemeDark' => false,
-				'enableRichLink' => true,
-				'linesTabEnable' => true,
-				'linesNewGroupEnable' => false,
-				'sendByEnter' => COption::GetOptionString("im", "send_by_enter"),
-				'correctText' => COption::GetOptionString("im", "correct_text"),
-				'panelPositionHorizontal' => COption::GetOptionString("im", "panel_position_horizontal"),
-				'panelPositionVertical' => COption::GetOptionString("im", "panel_position_vertical"),
-				'loadLastMessage' => true,
-				'loadLastNotify' => COption::GetOptionString("im", "load_last_notify"),
-				'notifyAutoRead' => true,
-				'notifyScheme' => 'simple',
-				'notifySchemeLevel' => 'important',
-				'notifySchemeSendSite' => true,
-				'notifySchemeSendEmail' => !IsModuleInstalled('bitrix24'),
-				'notifySchemeSendXmpp' => true,
-				'notifySchemeSendPush' => true,
-				'privacyMessage' => COption::GetOptionString("im", "privacy_message"),
-				'privacyChat' => COption::GetOptionString("im", "privacy_chat"),
-				'privacyCall' => COption::GetOptionString("im", "privacy_call"),
-				'privacySearch' => COption::GetOptionString("im", "privacy_search"),
-				'privacyProfile' => COption::GetOptionString("im", "privacy_profile"),
-				'callAcceptIncomingVideo' => VideoStrategyType::ALLOW_ALL,
-				'next' => false,
-			);
+			$defaultSettings = General::getDefaultSettings();
 		}
-		elseif ($type == self::NOTIFY)
+		elseif ($type === self::NOTIFY)
 		{
-			$arNotify = CIMNotifySchema::GetNotifySchema();
-			foreach ($arNotify as $moduleId => $notifyTypes)
-			{
-				foreach ($notifyTypes['NOTIFY'] as $notifyId => $notify)
-				{
-					$arDefault[self::CLIENT_SITE.'|'.$moduleId.'|'.$notifyId] = $notify['SITE'];
-					$arDefault[self::CLIENT_MAIL.'|'.$moduleId.'|'.$notifyId] = $notify['MAIL'];
-					$arDefault[self::CLIENT_XMPP.'|'.$moduleId.'|'.$notifyId] = $notify['XMPP'];
-					$arDefault[self::CLIENT_PUSH.'|'.$moduleId.'|'.$notifyId] = $notify['PUSH'];
-					$arDefault['disabled|'.self::CLIENT_SITE.'|'.$moduleId.'|'.$notifyId] = $notify['DISABLED']['SITE'];
-					$arDefault['disabled|'.self::CLIENT_MAIL.'|'.$moduleId.'|'.$notifyId] = $notify['DISABLED']['MAIL'];
-					$arDefault['disabled|'.self::CLIENT_XMPP.'|'.$moduleId.'|'.$notifyId] = $notify['DISABLED']['XMPP'];
-					$arDefault['disabled|'.self::CLIENT_PUSH.'|'.$moduleId.'|'.$notifyId] = $notify['DISABLED']['PUSH'];
-					$arDefault['important|'.$moduleId.'|'.$notifyId] = is_bool($notify['IMPORTANT'])? $notify['IMPORTANT']: true;
-				}
-			}
+			$notificationSettings = Notification::getDefaultSettings();
+			$defaultSettings = self::convertNotifySettingsToOldFormat($notificationSettings);
 		}
-		return $arDefault;
+
+		return $defaultSettings;
 	}
 
 	public static function CheckValues($type, $value)
 	{
-		$arValues = Array();
+		$checkedValues = [];
 
-		$arDefault = self::GetDefaultSettings($type);
-		if ($type == self::SETTINGS)
+		$defaultSettings = self::GetDefaultSettings($type);
+		if ($type === self::SETTINGS)
 		{
-			foreach($arDefault as $key => $default)
+			foreach($defaultSettings as $key => $default)
 			{
-				if ($key == 'status')
+				if ($key === 'status')
 				{
-					$arValues[$key] = in_array($value[$key], Array('online', 'dnd', 'away'))? $value[$key]: $default;
+					$checkedValues[$key] = in_array($value[$key], ['online', 'dnd', 'away'])? $value[$key]: $default;
 				}
-				else if ($key == 'panelPositionHorizontal')
+				else if ($key === 'panelPositionHorizontal')
 				{
-					$arValues[$key] = in_array($value[$key], Array('left', 'center', 'right'))? $value[$key]: $default;
+					$checkedValues[$key] = in_array($value[$key], ['left', 'center', 'right'])? $value[$key]: $default;
 				}
-				else if ($key == 'panelPositionVertical')
+				else if ($key === 'panelPositionVertical')
 				{
-					$arValues[$key] = in_array($value[$key], Array('top', 'bottom'))? $value[$key]: $default;
+					$checkedValues[$key] = in_array($value[$key], ['top', 'bottom'])? $value[$key]: $default;
 				}
-				else if ($key == 'notifyScheme')
+				else if ($key === 'notifyScheme')
 				{
-					$arValues[$key] = in_array($value[$key], Array('simple', 'expert'))? $value[$key]: $default;
+					$checkedValues[$key] = in_array($value[$key], ['simple', 'expert'])? $value[$key]: $default;
 				}
-				else if ($key == 'enableDarkTheme')
+				else if ($key === 'enableDarkTheme')
 				{
-					$arValues[$key] = in_array($value[$key], ['auto', 'light', 'dark']) ? $value[$key] : $default;
+					$checkedValues[$key] = in_array($value[$key], ['auto', 'light', 'dark']) ? $value[$key] : $default;
 				}
-				else if (in_array($key, Array('privacyMessage', 'privacyChat', 'privacyCall', 'privacySearch')))
+				else if (in_array($key, ['privacyMessage', 'privacyChat', 'privacyCall', 'privacySearch']))
 				{
-					$arValues[$key] = in_array($value[$key], Array(self::PRIVACY_RESULT_ALL, self::PRIVACY_RESULT_CONTACT))? $value[$key]: $default;
+					$checkedValues[$key] =
+						in_array($value[$key], [self::PRIVACY_RESULT_ALL, self::PRIVACY_RESULT_CONTACT])
+							? $value[$key]
+							: $default
+					;
 				}
-				else if ($key == 'privacyProfile')
+				else if ($key === 'privacyProfile')
 				{
-					$arValues[$key] = in_array($value[$key], Array(self::PRIVACY_RESULT_ALL, self::PRIVACY_RESULT_CONTACT, self::PRIVACY_RESULT_NOBODY))? $value[$key]: $default;
+					$checkedValues[$key] =
+						in_array($value[$key], [
+							self::PRIVACY_RESULT_ALL,
+							self::PRIVACY_RESULT_CONTACT,
+							self::PRIVACY_RESULT_NOBODY
+						],
+						true)
+							? $value[$key]
+							: $default
+					;
 				}
-				else if ($key == 'sendByEnter' && $value[$key] === 'Y') // for legacy
+				else if ($key === 'sendByEnter' && $value[$key] === 'Y') // for legacy
 				{
-					$arValues[$key] = true;
+					$checkedValues[$key] = true;
 				}
-				else if ($key == 'enableSound' && $value[$key] === 'N') // for legacy
+				else if ($key === 'enableSound' && $value[$key] === 'N') // for legacy
 				{
-					$arValues[$key] = false;
+					$checkedValues[$key] = false;
 				}
-				else if ($key == 'backgroundImage')
+				else if ($key === 'backgroundImage')
 				{
-					$arValues[$key] = $value[$key];
+					$checkedValues[$key] = $value[$key];
 				}
-				else if ($key == 'notifySchemeLevel')
+				else if ($key === 'notifySchemeLevel')
 				{
-					$arValues[$key] = in_array($value[$key], Array('normal', 'important'))? $value[$key]: $default;
+					$checkedValues[$key] = in_array($value[$key], ['normal', 'important'])? $value[$key]: $default;
 				}
-				else if ($key == 'trackStatus')
+				else if ($key === 'trackStatus')
 				{
 					$value[$key] = explode(',', $value[$key]);
 					foreach ($value[$key] as $k => $v)
 					{
-						if ($v != 'all')
+						if ($v !== 'all')
 						{
 							$value[$key][$k] = intval($v);
 							if ($value[$key][$k] == 0)
@@ -323,78 +412,73 @@ class CIMSettings
 							}
 						}
 					}
-					$arValues[$key] = implode(',', $value[$key]);
+					$checkedValues[$key] = implode(',', $value[$key]);
 
 				}
 				else if ($key === 'callAcceptIncomingVideo')
 				{
-					$arValues[$key] = in_array($value[$key], VideoStrategyType::getList())? $value[$key]: $default;
+					$checkedValues[$key] = in_array($value[$key], VideoStrategyType::getList())? $value[$key]: $default;
 				}
 				else if (array_key_exists($key, $value))
 				{
-					$arValues[$key] = is_bool($value[$key])? $value[$key]: $default;
+					$checkedValues[$key] = is_bool($value[$key])? $value[$key]: $default;
 				}
 				else
 				{
-					$arValues[$key] = $default;
+					$checkedValues[$key] = $default;
 				}
 			}
 		}
-		else if ($type == self::NOTIFY)
+		else if ($type === self::NOTIFY)
 		{
-			foreach($arDefault as $key => $default)
+			foreach($defaultSettings as $key => $default)
 			{
 				if (array_key_exists($key, $value))
-					$arValues[$key] = is_bool($value[$key])? $value[$key]: $default;
+				{
+					$checkedValues[$key] = is_bool($value[$key]) ? $value[$key] : $default;
+				}
 				else
-					$arValues[$key] = $default;
+				{
+					$checkedValues[$key] = $default;
+				}
 			}
 		}
 
-		return $arValues;
+		return $checkedValues;
 	}
 
 	public static function GetNotifyNames()
 	{
-		$arNames = Array();
-		$arNotify = CIMNotifySchema::GetNotifySchema();
-		foreach ($arNotify as $moduleId => $notifyTypes)
-		{
-			$arNames[$moduleId]['NAME'] = $notifyTypes['NAME'];
-			if ($notifyTypes['NAME'] == '')
-			{
-				$info = CModule::CreateModuleObject($moduleId);
-				$arNames[$moduleId]['NAME'] = $info->MODULE_NAME;
-			}
-			foreach ($notifyTypes['NOTIFY'] as $notifyId => $notify)
-			{
-				$arNames[$moduleId]['NOTIFY'][$notifyId] = $notify['NAME'];
-			}
-		}
-
-		return $arNames;
+		return Notification::getEventNames();
 	}
 
 	public static function GetSimpleNotifyBlocked($byModule = false)
 	{
-		$arNotifyBlocked = Array();
+		$arNotifyBlocked = [];
 
 		$arSettings = self::Get();
-		if ($arSettings[self::SETTINGS]['notifyScheme'] == 'expert')
+
+		if ($arSettings[self::SETTINGS]['notifyScheme'] === 'expert')
 		{
 			foreach ($arSettings[self::NOTIFY] as $key => $value)
 			{
 				if ($value === false)
 				{
-					list($clientId, $moduleId, $notifyId) = explode('|', $key, 3);
-					if ($clientId == self::CLIENT_SITE)
+					[$clientId, $moduleId, $notifyId] = explode('|', $key, 3);
+					if ($clientId === self::CLIENT_SITE)
 					{
 						if (CIMNotifySchema::CheckDisableFeature($moduleId, $notifyId, $clientId))
+						{
 							continue;
+						}
 						if ($byModule)
+						{
 							$arNotifyBlocked[$moduleId][$notifyId] = false;
+						}
 						else
-							$arNotifyBlocked[$moduleId.'|'.$notifyId] = false;
+						{
+							$arNotifyBlocked[$moduleId . '|' . $notifyId] = false;
+						}
 					}
 				}
 			}
@@ -405,18 +489,26 @@ class CIMSettings
 			{
 				if ($value === false)
 				{
-					list($clientId, $moduleId, $notifyId) = explode('|', $key, 3);
-					if (in_array($clientId, Array('push', 'important', 'disabled')))
+					[$clientId, $moduleId, $notifyId] = explode('|', $key, 3);
+					if (in_array($clientId, ['push', 'important', 'disabled']))
+					{
 						continue;
+					}
 
-					if ($clientId == self::CLIENT_SITE)
+					if ($clientId === self::CLIENT_SITE)
 					{
 						if (CIMNotifySchema::CheckDisableFeature($moduleId, $notifyId, $clientId))
+						{
 							continue;
+						}
 						if ($byModule)
+						{
 							$arNotifyBlocked[$moduleId][$notifyId] = false;
+						}
 						else
-							$arNotifyBlocked[$moduleId.'|'.$notifyId] = false;
+						{
+							$arNotifyBlocked[$moduleId . '|' . $notifyId] = false;
+						}
 					}
 				}
 			}
@@ -427,7 +519,21 @@ class CIMSettings
 
 	public static function GetPrivacy($type, $userId = false)
 	{
+		$userId = $userId === false ? null : $userId;
+		$userId = Common::getUserId($userId);
+
+		if (!$userId)
+		{
+			return null;
+		}
+
+		if (Manager::isSettingsMigrated() || Manager::isUserMigrated($userId))
+		{
+			return (new General($userId))->getValue($type);
+		}
+
 		$ar = CIMSettings::Get($userId);
+
 		return array_key_exists($type, $ar[CIMSettings::SETTINGS])? $ar[CIMSettings::SETTINGS][$type]: false;
 	}
 
@@ -440,4 +546,76 @@ class CIMSettings
 	{
 		return true;
 	}
+
+	private static function convertNotifySettingsToNewFormat(array $settings): array
+	{
+		$defaultSettings = Notification::getDefaultSettings();
+
+		$newFormatSettings = [];
+		foreach ($settings as $name => $value)
+		{
+			[$type, $module, $event] = explode('|', $name, 3);
+
+			switch ($type)
+			{
+				case 'site':
+					$type = 1;
+
+					break;
+				case 'email':
+					$type = 2;
+
+					break;
+				case 'xmpp':
+					$type = 3;
+
+					break;
+				case 'push':
+					$type = 4;
+
+					break;
+			}
+			$newName = implode('|', ['no', $module, $event, $type]);
+
+			$newFormatSettings[] = [
+				'NAME' => $newName,
+				'VALUE' => $value ? 'Y' : 'N'
+			];
+		}
+		$newSettings = Notification::decodeSettings($newFormatSettings);
+
+		return array_replace_recursive($defaultSettings, $newSettings);
+	}
+
+	public static function convertNotifySettingsToOldFormat(array $settings): array
+	{
+		$formattedSettings = [];
+		foreach ($settings as $moduleId => $notifyTypes)
+		{
+			foreach ($notifyTypes['NOTIFY'] as $eventName => $eventValue)
+			{
+				$siteName = self::CLIENT_SITE.'|'.$moduleId.'|'.$eventName;
+				$mailName = self::CLIENT_MAIL.'|'.$moduleId.'|'.$eventName;
+				$xmppName = self::CLIENT_XMPP.'|'.$moduleId.'|'.$eventName;
+				$pushName = self::CLIENT_PUSH.'|'.$moduleId.'|'.$eventName;
+
+				$formattedSettings[$siteName] = $eventValue['SITE'];
+				$formattedSettings[$mailName] = $eventValue['MAIL'];
+				$formattedSettings[$xmppName] = $eventValue['XMPP'];
+				$formattedSettings[$pushName] = $eventValue['PUSH'];
+
+				$formattedSettings['disabled|'.$siteName] = $eventValue['DISABLED']['SITE'];
+				$formattedSettings['disabled|'.$mailName] = $eventValue['DISABLED']['MAIL'];
+				$formattedSettings['disabled|'.$xmppName] = $eventValue['DISABLED']['XMPP'];
+				$formattedSettings['disabled|'.$pushName] = $eventValue['DISABLED']['PUSH'];
+
+				$formattedSettings['important|'.$moduleId.'|'.$eventName] =
+					is_bool($eventValue['IMPORTANT'])
+						? $eventValue['IMPORTANT']
+						: true;
+			}
+		}
+		return $formattedSettings;
+	}
+
 }

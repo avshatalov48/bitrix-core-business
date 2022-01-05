@@ -1535,6 +1535,10 @@
 	align-items: center;
 }
 
+.bizproc-automation-popup-select .bxhtmled-area-cnt {
+	top: 34px !important;
+}
+
 .bizproc-automation-popup-select-margin-down-s {
 	margin: 0 0 8px 0;
 }

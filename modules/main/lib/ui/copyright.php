@@ -22,6 +22,7 @@ class Copyright
 	const LICENCE_APACHE2 = "Apache License, Version 2.0";
 	const LICENCE_W3C = "W3C License";
 	const LICENCE_OFL = "SIL Open Font License, Version 1.1";
+	const LICENSE_LGPL2 = "GNU Lesser General Public License, Version 2.1";
 	const LICENCE_CUSTOM = "License";
 
 	protected
@@ -147,6 +148,7 @@ class Copyright
 			self::LICENCE_APACHE2 => "http://www.apache.org/licenses/LICENSE-2.0",
 			self::LICENCE_W3C => "https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document",
 			self::LICENCE_OFL => "https://scripts.sil.org/OFL",
+			self::LICENSE_LGPL2 => "https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html",
 		];
 
 		if($this->licenceUrl === null && isset($urls[$this->licence]))
@@ -470,6 +472,12 @@ THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMP
 				->setLicence(static::LICENCE_MIT)
 				->setLicenceUrl("https://github.com/container-interop/fig-standards/blob/master/LICENSE-MIT.md"),
 
+			(new static("PSR Log"))
+				->setProductUrl("https://github.com/php-fig/log/")
+				->setCopyright("Copyright (c) 2012 PHP Framework Interoperability Group")
+				->setLicence(static::LICENCE_MIT)
+				->setLicenceUrl("https://github.com/php-fig/log/blob/master/LICENSE"),
+
 			(new static("D3.js"))
 				->setProductUrl("https://d3js.org")
 				->setCopyright("Copyright 2020 Mike Bostock")
@@ -658,12 +666,24 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setCopyright('Copyright 2011 The Montserrat Project Authors')
 				->setProductUrl('https://fonts.google.com/specimen/Montserrat')
 				->setLicence(static::LICENCE_OFL),
-				
+
 			(new static("Barcode"))
 				->setCopyright("Copyright (c) 2016-2018 Kreative Software")
 				->setProductUrl('https://github.com/kreativekorp/barcode')
 				->setLicence(static::LICENCE_MIT)
 				->setLicenceUrl('https://github.com/kreativekorp/barcode/blob/master/LICENSE'),
+
+			(new static("PHPMailer"))
+				->setCopyright("Copyright 2012 - 2020 Marcus Bointon, 2010 - 2012 Jim Jagielski, 2004 - 2009 Andy Prevost")
+				->setProductUrl('https://github.com/PHPMailer/PHPMailer')
+				->setLicence(static::LICENSE_LGPL2)
+				->setLicenceUrl('https://github.com/PHPMailer/PHPMailer/blob/master/LICENSE'),
+
+			(new static("html-to-image"))
+				->setCopyright("Copyright (c) 2017-2021 bubkoo")
+				->setProductUrl('https://github.com/bubkoo/html-to-image')
+				->setLicence(static::LICENCE_MIT)
+				->setLicenceUrl("https://github.com/bubkoo/html-to-image/blob/master/LICENSE"),
 		];
 	}
 }

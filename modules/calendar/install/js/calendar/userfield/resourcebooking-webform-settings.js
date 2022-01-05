@@ -1217,13 +1217,11 @@
 
 	UsersStatePopup.prototype.getMenuItems = function()
 	{
-		var submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
-
 		return [
-			{
-				html: '<span>' + BX.message('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
-				className: submenuClass
-			},
+			new BX.Main.Popup.MenuItem({
+				text: BX.message('WEBF_RES_SELECT_DEFAULT_TITLE'),
+				delimiter: true
+			}),
 			{
 				id: 'users-state-list',
 				text: BX.message('WEBF_RES_SELECT_DEFAULT_EMPTY'),
@@ -1311,13 +1309,11 @@
 
 	ResourcesStatePopup.prototype.getMenuItems = function()
 	{
-		var submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
-
 		return [
-			{
-				html: '<span>' + BX.message('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
-				className: submenuClass
-			},
+			new BX.Main.Popup.MenuItem({
+				text: BX.message('WEBF_RES_SELECT_DEFAULT_TITLE'),
+				delimiter: true
+			}),
 			{
 				id: 'resources-state-list',
 				text: BX.message('WEBF_RES_SELECT_DEFAULT_EMPTY'),
@@ -1552,13 +1548,11 @@
 
 	DateStatePopup.prototype.getMenuItems = function()
 	{
-		var submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
-
 		return [
-			{
-				html: '<span>' + BX.message('WEBF_RES_CALENDAR_STYLE') + '</span>',
-				className: submenuClass
-			},
+			new BX.Main.Popup.MenuItem({
+				text: BX.message('WEBF_RES_CALENDAR_STYLE'),
+				delimiter: true
+			}),
 			{
 				id: 'date-state-style-popup',
 				text: BX.message('WEBF_RES_CALENDAR_STYLE_POPUP'),
@@ -1581,10 +1575,10 @@
 				},
 				onclick: BX.proxy(this.menuItemClick, this)
 			},
-			{
-				html: '<span>' + BX.message('WEBF_RES_CALENDAR_START_FROM') + '</span>',
-				className: submenuClass
-			},
+			new BX.Main.Popup.MenuItem({
+				text: BX.message('WEBF_RES_CALENDAR_START_FROM'),
+				delimiter: true
+			}),
 			{
 				id: 'date-state-start-from-today',
 				text: BX.message('WEBF_RES_CALENDAR_START_FROM_TODAY'),
@@ -1684,14 +1678,11 @@
 
 	TimeStatePopup.prototype.getMenuItems = function()
 	{
-		var
-			submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
-
 		return [
-			{
-				html: '<span>' + BX.message('WEBF_RES_TIME_STYLE') + '</span>',
-				className: submenuClass
-			},
+			new BX.Main.Popup.MenuItem({
+				text: BX.message('WEBF_RES_TIME_STYLE'),
+				delimiter: true
+			}),
 			{
 				id: 'time-state-style-select',
 				text: BX.message('WEBF_RES_TIME_STYLE_SELECT'),

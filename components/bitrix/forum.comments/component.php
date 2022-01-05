@@ -1,8 +1,16 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-use \Bitrix\Forum;
-use \Bitrix\Main;
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Forum;
+use Bitrix\Main;
+
 global $USER;
 global $APPLICATION;
+
 /**
  * @var ForumCommentsComponent $this
  * @var $USER CUser
@@ -120,6 +128,7 @@ $arResult["DO_NOT_CACHE"] = true;
 // PARSER
 $parser = new forumTextParser(LANGUAGE_ID);
 $parser->imageWidth = $arParams["IMAGE_SIZE"];
+$parser->imageHeight = $arParams["IMAGE_SIZE"];
 $parser->imageHtmlWidth = $arParams["IMAGE_HTML_SIZE"];
 $parser->userPath = $arParams["URL_TEMPLATES_PROFILE_VIEW"];
 $parser->userNameTemplate = $arParams["NAME_TEMPLATE"];
@@ -647,6 +656,15 @@ if ($arResult["DO_NOT_CACHE"] || $this->StartResultCache($arParams["CACHE_TIME"]
 			$arResult["MESSAGES"][$iID]["POST_MESSAGE_TEXT"] = $parser->convert($res["~POST_MESSAGE_TEXT"], $res["ALLOW"]);
 			$arResult["MESSAGES"][$iID]["FILES_PARSED"] = $parser->arFilesIDParsed;
 		endforeach;
+
+		if (
+			!empty($arParams['ENTITY_TYPE'])
+			&& Main\Loader::includeModule('socialnetwork')
+		)
+		{
+			$contentTypeMap = \Bitrix\Socialnetwork\Livefeed\ForumPost::getForumTypeMap();
+			$arResult['POST_CONTENT_TYPE_ID'] = ($contentTypeMap[$arParams['ENTITY_TYPE']] ?? '');
+		}
 
 		if(defined("BX_COMP_MANAGED_CACHE"))
 		{

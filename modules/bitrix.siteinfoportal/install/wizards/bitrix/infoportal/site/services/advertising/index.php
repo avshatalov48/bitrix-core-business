@@ -21,7 +21,7 @@ $arWeekday = Array(
 
 $contractId  = false; 
 
-$rsADV = CAdvContract::GetList($v1="s_sort", $v2="desc", array("NAME" => 'Default', 'DESCRIPTION' => GetMessage("CONTRACT_DESC")." [".WIZARD_SITE_ID."]"), $is_filtered);
+$rsADV = CAdvContract::GetList("s_sort", "desc", array("NAME" => 'Default', 'DESCRIPTION' => GetMessage("CONTRACT_DESC")." [".WIZARD_SITE_ID."]"));
 if ($arADV = $rsADV->Fetch())
 {
 	$contractId  = $arADV["ID"];
@@ -94,7 +94,6 @@ if ($contractId == false){
 			"arrSITE" => Array(WIZARD_SITE_ID),
 			"WEIGHT"=> 100,
 			"FIX_SHOW" => "N",
-			"FIX_CLICK" => "Y",
 			"AD_TYPE" => "image",
 			"arrIMAGE_ID" => Array(
 				"name" => "banner980_1.jpg",
@@ -107,8 +106,6 @@ if ($contractId == false){
 			"IMAGE_ALT" => GetMessage("DEMO_ADV_980_1_NAME"),
 			"URL" => GetMessage("DEMO_ADV_BANNER_URL1"),
 			"URL_TARGET" => "_blank",
-			"STAT_EVENT_1" => "banner",
-			"STAT_EVENT_2" => "click",
 			"arrWEEKDAY" => $arWeekday,
 			"COMMENTS" => "banner980_1.jpg for " . WIZARD_SITE_ID,
 		),
@@ -119,7 +116,6 @@ if ($contractId == false){
 			"NAME" => GetMessage("DEMO_ADV_LEFT_1_NAME"),
 			"ACTIVE" => "Y",
 			"FIX_SHOW" => "N",
-			"FIX_CLICK" => "Y",
 			"arrSITE" => Array(WIZARD_SITE_ID),
 			"WEIGHT"=> 100,
 			"AD_TYPE" => "image",
@@ -134,8 +130,6 @@ if ($contractId == false){
 			"IMAGE_ALT" => GetMessage("DEMO_ADV_LEFT_1_NAME"),
 			"URL" => GetMessage("DEMO_ADV_BANNER_URL2"),
 			"URL_TARGET" => "_blank",
-			"STAT_EVENT_1" => "banner",
-			"STAT_EVENT_2" => "click",
 			"arrWEEKDAY" => $arWeekday,
 			"COMMENTS" => "left1.jpg for " . WIZARD_SITE_ID,
 		),
@@ -147,7 +141,6 @@ if ($contractId == false){
 			"NAME" => GetMessage("DEMO_ADV_LEFT_2_NAME"),
 			"ACTIVE" => "Y",
 			"FIX_SHOW" => "N",
-			"FIX_CLICK" => "Y",
 			"arrSITE" => Array(WIZARD_SITE_ID),
 			"WEIGHT"=> 100,
 			"AD_TYPE" => "image",
@@ -162,8 +155,6 @@ if ($contractId == false){
 			"IMAGE_ALT" => GetMessage("DEMO_ADV_LEFT_2_NAME"),
 			"URL" => GetMessage("DEMO_ADV_BANNER_URL3"),
 			"URL_TARGET" => "_blank",
-			"STAT_EVENT_1" => "banner",
-			"STAT_EVENT_2" => "click",
 			"arrWEEKDAY" => $arWeekday,
 			"COMMENTS" => "left2.jpg for " . WIZARD_SITE_ID,
 		),
@@ -172,7 +163,7 @@ if ($contractId == false){
 	
 	foreach ($arBanners as $arFields)
 	{
-		$dbResult = CAdvBanner::GetList($by, $order, Array("COMMENTS" => $arFields["COMMENTS"], "COMMENTS_EXACT_MATCH" => "Y"), $is_filtered, "N");
+		$dbResult = CAdvBanner::GetList('', '', Array("COMMENTS" => $arFields["COMMENTS"], "COMMENTS_EXACT_MATCH" => "Y"), null, "N");
 		if ($dbResult && $dbResult->Fetch())
 			continue;
 	

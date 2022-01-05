@@ -3,15 +3,14 @@
 namespace Bitrix\Main\UserField\Internal;
 
 use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\EntityError;
 use Bitrix\Main\ORM\Query\Query;
 
-/**
- * @deprecated
- */
 final class UserFieldHelper
 {
 	/** @var UserFieldHelper */
@@ -65,14 +64,17 @@ final class UserFieldHelper
 	 */
 	public function parseUserFieldEntityId(string $entityId): ?array
 	{
-		if(preg_match('/^([0-9A-Z_]+)_(\d+)$/', $entityId, $matches))
+		if(preg_match('/^([A-Z]+)_([0-9A-Z_]+)$/', $entityId, $matches))
 		{
 			$typeCode = TypeFactory::getCodeByPrefix($matches[1]);
-			$typeId = $matches[2];
 			$factory = Registry::getInstance()->getFactoryByCode($typeCode);
 			if($factory)
 			{
-				return [$factory, $typeId];
+				$typeId = $factory->prepareIdentifier($matches[2]);
+				if ($typeId > 0)
+				{
+					return [$factory, $typeId];
+				}
 			}
 		}
 
@@ -85,9 +87,9 @@ final class UserFieldHelper
 	 */
 	public static function OnBeforeUserTypeAdd($field)
 	{
-		if(static::getInstance()->parseUserFieldEntityId($field['ENTITY_ID']))
+		if (static::getInstance()->parseUserFieldEntityId($field['ENTITY_ID']))
 		{
-			if (mb_substr($field['FIELD_NAME'], -4) == '_REF')
+			if (mb_substr($field['FIELD_NAME'], -4) === '_REF')
 			{
 				/**
 				 * postfix _REF reserved for references to other highloadblocks
@@ -102,12 +104,10 @@ final class UserFieldHelper
 
 				return false;
 			}
-			else
-			{
-				return [
-					'PROVIDE_STORAGE' => false
-				];
-			}
+
+			return [
+				'PROVIDE_STORAGE' => false
+			];
 		}
 
 		return true;
@@ -216,7 +216,7 @@ final class UserFieldHelper
 			/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
 			$fieldType = $userFieldManager->getUserType($field["USER_TYPE_ID"]);
 
-			if ($fieldType['BASE_TYPE'] == 'file')
+			if ($fieldType['BASE_TYPE'] === 'file')
 			{
 				// if it was file field, then delete all files
 				$itemEntity = $dataClass::compileEntity($typeData);
@@ -246,13 +246,23 @@ final class UserFieldHelper
 
 			// drop db column
 			$connection = Application::getConnection();
-			$connection->dropColumn($typeData['TABLE_NAME'], $field['FIELD_NAME']);
+			try
+			{
+				$connection->dropColumn($typeData['TABLE_NAME'], $field['FIELD_NAME']);
+			}
+			catch(SqlQueryException $e)
+			{
+				// no column is ok
+			}
 
 			// if multiple - drop utm table
-			if ($field['MULTIPLE'] == 'Y')
+			if ($field['MULTIPLE'] === 'Y')
 			{
 				$utmTableName = $dataClass::getMultipleValueTableName($typeData, $field);
-				$connection->dropTable($utmTableName);
+				if ($connection->isTableExists($utmTableName))
+				{
+					$connection->dropTable($utmTableName);
+				}
 			}
 
 			return [

@@ -16,40 +16,43 @@ if (!$arResult["CanUserComment"])
 	return;
 }
 
-$rand = \Bitrix\Main\Security\Random::getString(4);
-$formID = "blogCommentForm".$rand;
+$formID = 'blogCommentForm' . $arResult['FORM_ID'];
+
 $formParams = [
 	"FORM_ID" => $formID,
 	"SHOW_MORE" => "Y",
 	"PARSER" => Array(
 		"Bold", "Italic", "Underline", "Strike", "ForeColor",
 		"FontList", "FontSizeList", "RemoveFormat", "Quote",
-		"Code", ((!$arResult["NoCommentUrl"]) ? 'CreateLink' : ''),
-		"Image", (($arResult["allowImageUpload"] == "Y") ? 'UploadImage' : ''),
-		(($arResult["allowVideo"] == "Y") ? "InputVideo" : ""),
+		"Code",
+		(!$arResult['NoCommentUrl'] ? 'CreateLink' : ''),
+		"Image",
+		($arResult['allowImageUpload'] === 'Y' ? 'UploadImage' : ''),
+		($arResult['allowVideo'] === 'Y' ? 'InputVideo' : ''),
 		"Table", "Justify", "InsertOrderedList",
 		"InsertUnorderedList",
-		"MentionUser", "Spoiler", "SmileList", "Source"),
-	"BUTTONS" => Array(
+		"MentionUser", "Spoiler", "SmileList", "Source"
+	),
+	"BUTTONS" => [
 		(
-			in_array("UF_BLOG_COMMENT_FILE", $arParams["COMMENT_PROPERTY"])
-			|| in_array("UF_BLOG_COMMENT_DOC", $arParams["COMMENT_PROPERTY"])
+			in_array("UF_BLOG_COMMENT_FILE", $arParams["COMMENT_PROPERTY"], true)
+			|| in_array("UF_BLOG_COMMENT_DOC", $arParams["COMMENT_PROPERTY"], true)
 				? "UploadFile"
 				: ""
 		),
 		(!$arResult["NoCommentUrl"] ? 'CreateLink' : ''),
-		($arResult["allowVideo"] == "Y" ? "InputVideo" : ""),
+		($arResult['allowVideo'] === 'Y' ? 'InputVideo' : ''),
 		//(($arResult["allowImageUpload"] == "Y") ? 'UploadImage' : ''),
 		"Quote",
 		/*, "BlogTag"*/
 		(!$arParams["bPublicPage"] ? "MentionUser" : ""),
 		(
-		in_array("UF_BLOG_COMMENT_FILE", $arParams["COMMENT_PROPERTY"])
-		|| in_array("UF_BLOG_COMMENT_DOC", $arParams["COMMENT_PROPERTY"])
-			? "VideoMessage"
-			: ""
+			in_array("UF_BLOG_COMMENT_FILE", $arParams["COMMENT_PROPERTY"], true)
+			|| in_array("UF_BLOG_COMMENT_DOC", $arParams["COMMENT_PROPERTY"], true)
+				? "VideoMessage"
+				: ""
 		),
-	),
+	],
 	"BUTTONS_HTML" => Array("VideoMessage" => '<span class="feed-add-post-form-but-cnt feed-add-videomessage" onclick="BX.VideoRecorder.start(\''.$formID.'\', \'comment\');">'.GetMessage('BLOG_VIDEO_RECORD_BUTTON').'</span>'),
 	"TEXT" => Array(
 		"NAME" => "comment",
@@ -75,8 +78,8 @@ $formParams = [
 	"LHE" => array(
 		"documentCSS" => "body {color:#434343;}",
 		"iframeCss" => "html body {padding-left: 14px!important; font-size: 13px!important; line-height: 18px!important;}",
-		"ctrlEnterHandler" => "__submit".$rand,
-		"id" => "idLHE_blogCommentForm".$rand,
+//		"ctrlEnterHandler" => "__submit" . $arResult['FORM_ID'],
+		"id" => "idLHE_blogCommentForm" . $arResult['FORM_ID'],
 		"fontFamily" => "'Helvetica Neue', Helvetica, Arial, sans-serif",
 		"fontSize" => "12px",
 		"bInitByJS" => true,
@@ -86,14 +89,12 @@ $formParams = [
 	"PROPERTIES" => array(
 		array_merge(
 			(
-				isset($arResult["COMMENT_PROPERTIES"])
-				&& isset($arResult["COMMENT_PROPERTIES"]["DATA"])
-				&& isset($arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMM_URL_PRV"])
+				isset($arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMM_URL_PRV"])
 				&& is_array($arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMM_URL_PRV"])
 					? $arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMM_URL_PRV"]
-					: array()
+					: []
 			),
-			array('ELEMENT_ID' => 'url_preview_'.$rand)
+			array('ELEMENT_ID' => 'url_preview_' . $arResult['FORM_ID'])
 		)
 	),
 	"DISABLE_LOCAL_EDIT" => $arParams["bPublicPage"],
@@ -106,6 +107,12 @@ $formParams = [
 				'emailUsers' => true,
 				'inviteEmployeeLink' => false,
 			],
+			'itemOptions' => [
+				'default' => [
+					'link' => '',
+					'linkTitle' => '',
+				],
+			],
 		],
 		[
 			'id' => 'department',
@@ -115,6 +122,12 @@ $formParams = [
 		],
 		[
 			'id' => 'project',
+			'itemOptions' => [
+				'default' => [
+					'link' => '',
+					'linkTitle' => '',
+				],
+			],
 		],
 	],
 ];
@@ -124,7 +137,7 @@ if(!array_key_exists("USER", $GLOBALS) || !$GLOBALS["USER"]->IsAuthorized())
 	unset($formParams["UPLOAD_WEBDAV_ELEMENT"]);
 	foreach($formParams["BUTTONS"] as $keyT => $valT)
 	{
-		if($valT == "UploadFile" || $valT == "VideoMessage")
+		if($valT === "UploadFile" || $valT === "VideoMessage")
 		{
 			unset($formParams["BUTTONS"][$keyT]);
 		}
@@ -138,6 +151,9 @@ __sbpc_bind_post_to_form(($tmp1 = null), $formParams["FORM_ID"], ($tmp2 = null))
 	<form action="/bitrix/urlrewrite.php" <?php
 		?>id="<?=$formParams["FORM_ID"]?>" name="<?=$formParams["FORM_ID"]?>" <?php
 		?>method="POST" enctype="multipart/form-data" class="comments-form">
+		<input type="hidden" name='ENTITY_XML_ID' value="<?= $arParams['ENTITY_XML_ID'] ?>" />
+
+
 		<input type="hidden" name="comment_post_id" id="postId" value="" />
 		<input type="hidden" name="log_id" id="logId" value="" />
 		<input type="hidden" name="parentId" id="parentId" value="" />
@@ -146,7 +162,7 @@ __sbpc_bind_post_to_form(($tmp1 = null), $formParams["FORM_ID"], ($tmp2 = null))
 		<input type="hidden" name="as" id="as" value="<?=$arParams['AVATAR_SIZE_COMMENT']?>" />
 		<input type="hidden" name="post" id="" value="Y" />
 		<input type="hidden" name="blog_upload_cid" id="upload-cid" value="" />
-		<?=bitrix_sessid_post();?>
+		<?= bitrix_sessid_post() ?>
 		<?php
 if(empty($arResult["User"]))
 {
@@ -197,6 +213,7 @@ if($arResult["use_captcha"]===true)
 <script>
 BX.ready(function(){
 	window["UC"] = (!!window["UC"] ? window["UC"] : {});
+/*
 	window["UC"]["f<?=$formParams["FORM_ID"]?>"] = new FCForm({
 		entitiesId : {},
 		formId : '<?=$formParams["FORM_ID"]?>',
@@ -204,7 +221,7 @@ BX.ready(function(){
 		editorName : '<?=$formParams["LHE"]["jsObjName"]?>'
 	});
 
-	window["__submit<?=$rand?>"] = function ()
+	window["__submit<?= $arResult['FORM_ID'] ?>"] = function ()
 	{
 		if (!!window["UC"]["f<?=$formParams["FORM_ID"]?>"] && !!window["UC"]["f<?=$formParams["FORM_ID"]?>"].eventNode)
 		{
@@ -219,11 +236,13 @@ BX.ready(function(){
 		BX.addCustomEvent(window["UC"]["f<?=$formParams["FORM_ID"]?>"].eventNode, 'OnUCFormSubmit', __blogOnUCFormSubmit);
 	}
 	BX.addCustomEvent(window, "OnBeforeSocialnetworkCommentShowedUp", function(entity){ if (entity == 'socialnetwork') { window["UC"]["f<?=$formParams["FORM_ID"]?>"].hide(true); } } );
+*/
+	BX.addCustomEvent(BX('<?= $formParams["FORM_ID"] ?>'), 'OnUCFormAfterShow', __blogOnUCFormAfterShow);
 
 	window["SBPC"] = {
 		form : BX('<?=$formParams["FORM_ID"]?>'),
 		actionUrl : '<?=(
-			$arParams["SEF"] == "Y"
+			$arParams["SEF"] === "Y"
 				? '/bitrix/urlrewrite.php?SEF_APPLICATION_CUR_PAGE_URL='.str_replace("%23", "#", urlencode($arResult["urlToPost"]))
 				: CUtil::JSEscape($arResult["urlToPost"])
 		)?>',

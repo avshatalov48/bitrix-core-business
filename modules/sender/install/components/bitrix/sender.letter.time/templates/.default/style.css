@@ -179,5 +179,14 @@
 	padding: 0 0 9px 0;
 }
 .sender-letter-time-actions {
-	padding-top: 30px;
+	padding-top: 10px;
+}
+.sender-letter-time-limitation-text {
+	text-align: center;
+	font: 16px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	margin: auto;
+}
+.sender-letter-time-limitation-remainder{
+	color: #8F8E96;
+	line-height: 30px;
 }

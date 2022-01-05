@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,ui_entitySelector,main_core_events,helper,main_core,calendar_resourcebookinguserfield,calendar_resourcebooking) {
+(function (exports,ui_entitySelector,main_core_events,main_popup,helper,main_core,calendar_resourcebookinguserfield,calendar_resourcebooking) {
 	'use strict';
 
 	var FormFieldTunnerAbstract = /*#__PURE__*/function () {
@@ -727,25 +727,7 @@ this.BX = this.BX || {};
 	  return FormFieldTunnerMultipleChecknoxPopupAbstract;
 	}(FormFieldTunnerValuePopupAbstract);
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<span \n\t\t\t\t\t\t\tclass=\"calendar-resbook-webform-settings-popup-select-value\"\n\t\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-resbook-webform-settings-popup-select-result\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2;
 	var UserSelectorFieldTunner = /*#__PURE__*/function (_FormFieldTunnerAbstr) {
 	  babelHelpers.inherits(UserSelectorFieldTunner, _FormFieldTunnerAbstr);
 
@@ -779,7 +761,7 @@ this.BX = this.BX || {};
 	    value: function buildValuePopup(params) {
 	      this.selectedUsers = main_core.Type.isArray(params.config.selected) ? params.config.selected : params.config.selected.split('|');
 	      this.DOM.valueWrap = params.wrap;
-	      this.DOM.valueWrap.appendChild(main_core.Tag.render(_templateObject(), this.DOM.usersValueLink = main_core.Tag.render(_templateObject2(), this.showUserSelectorDialog.bind(this), this.getCurrentUsersValueText())));
+	      this.DOM.valueWrap.appendChild(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-resbook-webform-settings-popup-select-result\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.DOM.usersValueLink = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<span \n\t\t\t\t\t\t\tclass=\"calendar-resbook-webform-settings-popup-select-value\"\n\t\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t"])), this.showUserSelectorDialog.bind(this), this.getCurrentUsersValueText())));
 	    }
 	  }, {
 	    key: "getCurrentUsersValueText",
@@ -890,11 +872,10 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getMenuItems",
 	    value: function getMenuItems() {
-	      var submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
-	      return [{
-	        html: '<span>' + main_core.Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
-	        className: submenuClass
-	      }, {
+	      return [new main_popup.MenuItem({
+	        text: main_core.Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE'),
+	        delimiter: true
+	      }), {
 	        id: 'users-state-list',
 	        text: main_core.Loc.getMessage('WEBF_RES_SELECT_DEFAULT_EMPTY'),
 	        dataset: {
@@ -1042,11 +1023,10 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getMenuItems",
 	    value: function getMenuItems() {
-	      var submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
-	      return [{
-	        html: '<span>' + main_core.Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
-	        className: submenuClass
-	      }, {
+	      return [new main_popup.MenuItem({
+	        text: main_core.Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE'),
+	        delimiter: true
+	      }), {
 	        id: 'resources-state-list',
 	        text: main_core.Loc.getMessage('WEBF_RES_SELECT_DEFAULT_EMPTY'),
 	        dataset: {
@@ -1567,11 +1547,10 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(DateStatePopup, [{
 	    key: "getMenuItems",
 	    value: function getMenuItems() {
-	      var submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
-	      return [{
-	        html: '<span>' + main_core.Loc.getMessage('WEBF_RES_CALENDAR_STYLE') + '</span>',
-	        className: submenuClass
-	      }, {
+	      return [new main_popup.MenuItem({
+	        text: main_core.Loc.getMessage('WEBF_RES_CALENDAR_STYLE'),
+	        delimiter: true
+	      }), {
 	        id: 'date-state-style-popup',
 	        text: main_core.Loc.getMessage('WEBF_RES_CALENDAR_STYLE_POPUP'),
 	        dataset: {
@@ -1591,10 +1570,10 @@ this.BX = this.BX || {};
 	          checked: this.style === 'line'
 	        },
 	        onclick: this.menuItemClick.bind(this)
-	      }, {
-	        html: '<span>' + main_core.Loc.getMessage('WEBF_RES_CALENDAR_START_FROM') + '</span>',
-	        className: submenuClass
-	      }, {
+	      }, new main_popup.MenuItem({
+	        text: main_core.Loc.getMessage('WEBF_RES_CALENDAR_START_FROM'),
+	        delimiter: true
+	      }), {
 	        id: 'date-state-start-from-today',
 	        text: main_core.Loc.getMessage('WEBF_RES_CALENDAR_START_FROM_TODAY'),
 	        dataset: {
@@ -1737,11 +1716,10 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getMenuItems",
 	    value: function getMenuItems() {
-	      var submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
-	      return [{
-	        html: '<span>' + main_core.Loc.getMessage('WEBF_RES_TIME_STYLE') + '</span>',
-	        className: submenuClass
-	      }, {
+	      return [new main_popup.MenuItem({
+	        text: main_core.Loc.getMessage('WEBF_RES_TIME_STYLE'),
+	        delimiter: true
+	      }), {
 	        id: 'time-state-style-select',
 	        text: main_core.Loc.getMessage('WEBF_RES_TIME_STYLE_SELECT'),
 	        dataset: {
@@ -6359,5 +6337,5 @@ this.BX = this.BX || {};
 	exports.AdminSettingsViewer = AdminSettingsViewer;
 	exports.ResourcebookingUserfield = ResourcebookingUserfield;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.UI.EntitySelector,BX.Event,BX,BX,BX.Calendar,BX.Calendar));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.UI.EntitySelector,BX.Event,BX.Main,BX,BX,BX.Calendar,BX.Calendar));
 //# sourceMappingURL=resourcebookinguserfield.bundle.js.map

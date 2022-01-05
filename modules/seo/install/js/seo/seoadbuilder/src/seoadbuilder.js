@@ -847,7 +847,7 @@ export class SeoAdBuilder
 			mediaId: this.postData.id,
 			permalink: this.postData.permalink,
 			imageUrl: this.postData.media_url,
-			countries: Object.keys(this.selectedRegions),
+			countries: this.selectedRegions,
 			interests: this.adCreatorData.audienceConfig.interests || [],
 			ageFrom: this.adCreatorData.audienceConfig.ageFrom || '',
 			ageTo: this.adCreatorData.audienceConfig.ageTo || '',

@@ -22,11 +22,19 @@ abstract class Base extends View
 	public function prepareWidgetContent(Widget $widget, $withCalculatedData = false)
 	{
 		$resultWidget = parent::prepareWidgetContent($widget, $withCalculatedData);
-		$calculatedPerformedData = $withCalculatedData ? WidgetHelper::getCalculatedPerformedData($this, $widget) : array();
-		$resultWidget['content']['params']['data'] = $this->handlerFinallyBeforePassToView($calculatedPerformedData);
-		$resultWidget['content']['params']['data']['isFilled'] = !empty($resultWidget['content']['params']['data']);
-		$resultWidget['content']['params']['color'] = $resultWidget['config']['color'];
-		$resultWidget['content']['params']['errors'] = $calculatedPerformedData['errors'];
+		try
+		{
+			$calculatedPerformedData = $withCalculatedData ? WidgetHelper::getCalculatedPerformedData($this, $widget) : array();
+			$resultWidget['content']['params']['data'] = $this->handlerFinallyBeforePassToView($calculatedPerformedData);
+			$resultWidget['content']['params']['data']['isFilled'] = !empty($resultWidget['content']['params']['data']);
+			$resultWidget['content']['params']['color'] = $resultWidget['config']['color'];
+			$resultWidget['content']['params']['errors'] = $calculatedPerformedData['errors'];
+		}
+		catch (\Throwable $exception)
+		{
+			$resultWidget['content']['params']['errors'] = [$exception->getMessage()];
+		}
+
 		return $resultWidget;
 	}
 }

@@ -10,7 +10,7 @@ $APPLICATION->SetTitle("Фото");
 	"SHOWN_ITEMS_COUNT" => "4",
 	"THUMBNAIL_SIZE" => "90",
 	"ORIGINAL_SIZE" => "1280",
-	"UPLOADER_TYPE" => "flash",
+	"UPLOADER_TYPE" => "form",
 	"PATH_TO_FONT" => "",
 	"WATERMARK_RULES" => "USER",
 	"SEF_MODE" => "Y",

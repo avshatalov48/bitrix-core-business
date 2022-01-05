@@ -5,6 +5,7 @@ import typeof Sensor from './sensor/sensor';
 import MouseSensor from './sensor/mousesensor/mousesensor';
 import TouchSensor from './sensor/touchsensor/touchsensor';
 
+import {DragBeforeStartEvent} from './events/drag.before.start.event';
 import {DragStartEvent} from './events/drag.start.event';
 import {DragMoveEvent} from './events/drag.move.event';
 import {DragOverEvent} from './events/drag.over.event';
@@ -789,7 +790,26 @@ export class Draggable extends EventEmitter
 	onDragStart(event: DragStartSensorEvent)
 	{
 		const {originalSource, sourceContainer, clientX, clientY} = event.data;
+
 		const source = this.getDraggableElementByChild(originalSource);
+
+		const dragBeforeStartEvent = new DragBeforeStartEvent({
+			clientX,
+			clientY,
+			source,
+			sourceContainer,
+			originalSource
+		});
+
+		this.emit('beforeStart', dragBeforeStartEvent);
+
+		if (dragBeforeStartEvent.isDefaultPrevented())
+		{
+			event.preventDefault();
+
+			return;
+		}
+
 		this.setSource(source);
 
 		const sourceDepth = this.getElementDepth(source);

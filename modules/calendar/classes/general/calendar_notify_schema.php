@@ -38,6 +38,11 @@ class CCalendarNotifySchema
 					"NAME" => GetMessage('EC_NS_EVENT_COMMENT'),
 					"SITE" => "Y",
 					"MAIL" => "N"
+				),
+				"delete_location" => Array(
+					"NAME" => GetMessage('EC_NS_DELETE_LOCATION'),
+					"SITE" => "Y",
+					"MAIL" => "N"
 				)
 			)
 		);

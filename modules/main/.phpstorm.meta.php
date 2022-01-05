@@ -147,4 +147,5 @@ namespace PHPSTORM_META
 	expectedArguments(\Bitrix\Main\ModuleManager::isModuleInstalled(), 0, argumentsSet('bitrix_main_modules_list'));
 	expectedArguments(\Bitrix\Main\Config\Option::get(), 0, argumentsSet('bitrix_main_modules_list'));
 	expectedArguments(\Bitrix\Main\Config\Option::set(), 0, argumentsSet('bitrix_main_modules_list'));
+	expectedArguments(\Bitrix\Main\Config\Configuration::getInstance(), 0, argumentsSet('bitrix_main_modules_list'));
 }

@@ -45,6 +45,8 @@ class CountLimiter implements iLimiter
 	/** @var string $unit Unit. */
 	private $unitName;
 
+	private $hidden = false;
+
 	/**
 	 * Create instance.
 	 *
@@ -459,10 +461,20 @@ class CountLimiter implements iLimiter
 	}
 
 	/**
+	 * Set limiter hidden.
+	 * @param bool $hidden
+	 * @return $this
+	 */
+	public function setHidden(bool $hidden): CountLimiter
+	{
+		$this->hidden = $hidden;
+		return $this;
+	}
+	/**
 	 * @inheritDoc
 	 */
 	public function isHidden()
 	{
-		return false;
+		return $this->hidden;
 	}
 }

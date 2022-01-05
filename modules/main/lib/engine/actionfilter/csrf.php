@@ -4,6 +4,7 @@
 namespace Bitrix\Main\Engine\ActionFilter;
 
 
+use Bitrix\Main\Context;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
@@ -11,7 +12,8 @@ use Bitrix\Main\EventResult;
 
 final class Csrf extends Base
 {
-	const ERROR_INVALID_CSRF = 'invalid_csrf';
+	public const HEADER_WITH_NEW_CSRF = 'X-Bitrix-New-Csrf';
+	public const ERROR_INVALID_CSRF = 'invalid_csrf';
 
 	/**
 	 * @var bool
@@ -33,7 +35,7 @@ final class Csrf extends Base
 	 * @param string $tokenName
 	 * @param bool $returnNew
 	 */
-	public function __construct($enabled = true, $tokenName = 'sessid', $returnNew = true)
+	public function __construct(bool $enabled = true, string $tokenName = 'sessid', bool $returnNew = true)
 	{
 		$this->enabled = $enabled;
 		$this->tokenName = $tokenName;
@@ -65,6 +67,9 @@ final class Csrf extends Base
 			if ($this->returnNew)
 			{
 				$errorCustomData['csrf'] = bitrix_sessid();
+				Context::getCurrent()->getResponse()->addHeader(
+					self::HEADER_WITH_NEW_CSRF, $errorCustomData['csrf']
+				);
 			}
 
 			$this->addError(new Error(

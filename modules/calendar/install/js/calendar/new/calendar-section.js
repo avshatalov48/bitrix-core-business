@@ -260,7 +260,6 @@
 		saveSection: function(name, color, access, params)
 		{
 			var promise = new BX.Promise();
-
 			name = BX.util.trim(name) || BX.message('EC_SEC_SLIDER_NEW_SECTION');
 
 			if (params.section.id)

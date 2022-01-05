@@ -1,5 +1,9 @@
 <? if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die(); ?>
-<? \Bitrix\Main\UI\Extension::load('ui.notification'); ?>
+<? \Bitrix\Main\UI\Extension::load([
+	'ui.notification',
+]);
+
+?>
 <div id="new_from_email_dialog_content" style="display: none; ">
 	<div class="new-from-email-dialog-error" style="display: none; "></div>
 	<div class="new-from-email-dialog-content">
@@ -93,6 +97,27 @@
 							<div class="new-from-email-dialog-row">
 								<div class="new-from-email-dialog-text new-from-email-dialog-cell">
 									<span class="new-from-email-dialog-text-spacer"></span>
+									<span><?=getMessage('MAIN_MAIL_CONFIRM_SMTP_LIMIT') ?>:</span>
+								</div>
+								<div class="new-from-email-dialog-cell new-from-email-dialog-full-width-cell"
+									style="overflow: hidden; text-overflow: ellipsis; ">
+									<div class="new-from-email-dialog-string-block new-from-email-dialog-smtp-port-block">
+										<input tabindex="7" type="number" min=0 class="new-from-email-dialog-square-string"
+											data-name="smtp-limit" value="250" disabled>
+									</div>
+									<span class="new-from-email-dialog-text-spacer"></span>
+									<labeltitle="<?=getMessage('MAIN_MAIL_CONFIRM_SMTP_USE_LIMIT') ?>" style="vertical-align: middle; ">
+										<input tabindex="6" type="checkbox"
+											   class="new-from-email-smtp-use-limit"
+											   value="Y"
+											style="vertical-align: middle; ">
+										<?=getMessage('MAIN_MAIL_CONFIRM_SMTP_USE_LIMIT') ?>
+									</label>
+								</div>
+							</div>
+							<div class="new-from-email-dialog-row">
+								<div class="new-from-email-dialog-text new-from-email-dialog-cell">
+									<span class="new-from-email-dialog-text-spacer"></span>
 									<span><?=getMessage('MAIN_MAIL_CONFIRM_SMTP_LOGIN') ?>:</span>
 								</div>
 								<div class="new-from-email-dialog-cell new-from-email-dialog-full-width-cell">
@@ -136,6 +161,7 @@
 	</div>
 </div>
 
+
 <script type="text/javascript">
 
 	BX.message({
@@ -143,6 +169,7 @@
 		MAIN_MAIL_CONFIRM_AJAX_ERROR: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_AJAX_ERROR')) ?>',
 		MAIN_MAIL_CONFIRM_MENU: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_MENU')) ?>',
 		MAIN_MAIL_CONFIRM_TITLE: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_TITLE')) ?>',
+		MAIN_MAIL_CONFIRM_EDIT_TITLE: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_EDIT_TITLE')) ?>',
 		MAIN_MAIL_CONFIRM_GET_CODE: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_GET_CODE')) ?>',
 		MAIN_MAIL_CONFIRM_SAVE: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_SAVE')) ?>',
 		MAIN_MAIL_CONFIRM_CANCEL: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_CANCEL')) ?>',
@@ -161,6 +188,7 @@
 		MAIN_MAIL_CONFIRM_SPACE_SMTP_PASSWORD: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_SPACE_SMTP_PASSWORD')) ?>',
 		MAIN_MAIL_CONFIRM_EMPTY_CODE: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_EMPTY_CODE')) ?>',
 		MAIN_MAIL_CONFIRM_DELETE: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_DELETE')) ?>',
+		MAIN_MAIL_CONFIRM_EDIT: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_EDIT')) ?>',
 		MAIN_MAIL_CONFIRM_DELETE_SENDER_CONFIRM: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_DELETE_SENDER_CONFIRM')) ?>',
 		MAIN_MAIL_DELETE_SENDER_ERROR: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_DELETE_SENDER_ERROR')) ?>',
 		MAIN_MAIL_CONFIRM_MENU_PLACEHOLDER: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_MENU_PLACEHOLDER')) ?>',
@@ -172,7 +200,8 @@
 		BXMainMailConfirm.init({
 			mailboxes: <?=Bitrix\Main\Web\Json::encode($arParams['MAILBOXES']) ?>,
 			canCheckSmtp: <?=(!empty($arParams['IS_SMTP_AVAILABLE']) && \Bitrix\Main\Mail\Smtp\Config::canCheck() ? 'true' : 'false') ?>,
-			action:  '<?=\CUtil::jsEscape($arParams['ACTION_URL'])?>'
+			action:  '<?=\CUtil::jsEscape($arParams['ACTION_URL'])?>',
+			isB24Installed:  '<?=$arParams['IS_SMTP_AVAILABLE']?>'
 		});
 	});
 

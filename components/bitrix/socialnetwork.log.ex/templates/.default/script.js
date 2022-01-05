@@ -1,4 +1,3 @@
-
 function __logGetNextPageLinkEntities(entities, correspondences)
 {
 	if (!!window.__logGetNextPageFormName && !!entities && !!correspondences &&
@@ -31,7 +30,6 @@ function __logChangeFavorites(log_id, node, newState, bFromMenu, event)
 	});
 }
 
-
 BitrixLF = function ()
 {
 	this.cmdPressed = null;
@@ -52,21 +50,32 @@ BitrixLF.prototype.init = function(params)
 {
 	this.cmdPressed = false;
 
-	if (BX.Livefeed && BX.Livefeed.InformerInstance) { BX.Livefeed.InformerInstance.lockCounterAnimation = false; }
+	if (BX.Livefeed && BX.Livefeed.InformerInstance)
+	{
+		BX.Livefeed.InformerInstance.lockCounterAnimation = false;
+	}
+
 	BX.addCustomEvent('onFrameDataProcessed', function() {
-		if (BX.Livefeed && BX.Livefeed.InformerInstance) { BX.Livefeed.InformerInstance.lockCounterAnimation = false; }
+		if (BX.Livefeed && BX.Livefeed.InformerInstance)
+		{
+			BX.Livefeed.InformerInstance.lockCounterAnimation = false;
+		}
 	});
 
 	if (BX.Livefeed && BX.Livefeed.PageInstance)
 	{
 		BX.Livefeed.PageInstance.init();
 
-		if (typeof params != 'undefined')
+		if (BX.type.isPlainObject(params))
 		{
-			BX.Livefeed.PageInstance.firstPageLastTS = (typeof params.firstPageLastTS != 'undefined' ? params.firstPageLastTS : 0);
-			BX.Livefeed.PageInstance.firstPageLastId = (typeof params.firstPageLastId != 'undefined' ? params.firstPageLastId : 0);
-			BX.Livefeed.PageInstance.useBXMainFilter = (typeof params.useBXMainFilter != 'undefined' ? params.useBXMainFilter : 'N');
+			BX.Livefeed.PageInstance.firstPageLastTS = (!BX.type.isUndefined(params.firstPageLastTS) ? params.firstPageLastTS : 0);
+			BX.Livefeed.PageInstance.firstPageLastId = (!BX.type.isUndefined(params.firstPageLastId) ? params.firstPageLastId : 0);
+			BX.Livefeed.PageInstance.useBXMainFilter = (!BX.type.isUndefined(params.useBXMainFilter) ? params.useBXMainFilter : 'N');
 
+			if (BX.type.isNotEmptyString(params.blogCommentFormUID))
+			{
+				BX.Livefeed.PageInstance.blogCommentFormUID = params.blogCommentFormUID;
+			}
 		}
 	}
 };

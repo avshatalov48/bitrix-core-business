@@ -81,62 +81,45 @@ class ShipmentItem
 	 * Deletes shipment item
 	 *
 	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\NotSupportedException
 	 * @throws \Exception
 	 */
 	public function delete()
 	{
 		$result = new Result();
-		/** @var ShipmentItemCollection $shipmentItemCollection */
-		if (!$shipmentItemCollection = $this->getCollection())
-		{
-			throw new Main\ObjectNotFoundException('Entity "ShipmentItemCollection" not found');
-		}
 
-		/** @var Shipment $shipment */
-		if (!$shipment = $shipmentItemCollection->getShipment())
-		{
-			throw new Main\ObjectNotFoundException('Entity "Shipment" not found');
-		}
+		$shipment = $this->getCollection()->getShipment();
 
-		/** @var array $oldEntityValues */
 		$oldEntityValues = $this->fields->getOriginalValues();
 
-		/** @var Main\Event $event */
 		$event = new Main\Event('sale', "OnBeforeSaleShipmentItemEntityDeleted", [
 				'ENTITY' => $this,
 				'VALUES' => $oldEntityValues,
 		]);
 		$event->send();
 
-		if ($event->getResults())
+		foreach($event->getResults() as $eventResult)
 		{
-			/** @var Main\EventResult $eventResult */
-			foreach($event->getResults() as $eventResult)
+			if($eventResult->getType() == Main\EventResult::ERROR)
 			{
-				if($eventResult->getType() == Main\EventResult::ERROR)
+				$errorMsg = new ResultError(
+					Loc::getMessage('SALE_EVENT_ON_BEFORE_SALESHIPMENTITEM_ENTITY_DELETED_ERROR'),
+					'SALE_EVENT_ON_BEFORE_SALESHIPMENTITEM_ENTITY_DELETED_ERROR'
+				);
+				if ($eventResultData = $eventResult->getParameters())
 				{
-					$errorMsg = new ResultError(
-						Loc::getMessage('SALE_EVENT_ON_BEFORE_SALESHIPMENTITEM_ENTITY_DELETED_ERROR'),
-						'SALE_EVENT_ON_BEFORE_SALESHIPMENTITEM_ENTITY_DELETED_ERROR'
-					);
-					if ($eventResultData = $eventResult->getParameters())
+					if (isset($eventResultData) && $eventResultData instanceof ResultError)
 					{
-						if (isset($eventResultData) && $eventResultData instanceof ResultError)
-						{
-							/** @var ResultError $errorMsg */
-							$errorMsg = $eventResultData;
-						}
+						$errorMsg = $eventResultData;
 					}
-
-					$result->addError($errorMsg);
 				}
-			}
 
-			if (!$result->isSuccess())
-			{
-				return $result;
+				$result->addError($errorMsg);
 			}
+		}
+
+		if (!$result->isSuccess())
+		{
+			return $result;
 		}
 
 
@@ -163,11 +146,10 @@ class ShipmentItem
 
 			if (!$r->isSuccess())
 			{
-				$result->addErrors($r->getErrors());
-				return $result;
+				return $result->addErrors($r->getErrors());
 			}
 		}
-		elseif ($shipment->isSystem() && $this->getQuantity() > 0)
+		elseif ($shipment->isSystem() && $this->getQuantity() > 1e-10)
 		{
 			throw new \ErrorException('System shipment not empty');
 		}
@@ -179,41 +161,27 @@ class ShipmentItem
 		}
 
 
-		/** @var array $oldEntityValues */
-		$oldEntityValues = $this->fields->getOriginalValues();
-
-		/** @var Main\Event $event */
 		$event = new Main\Event('sale', "OnSaleShipmentItemEntityDeleted", [
 				'ENTITY' => $this,
 				'VALUES' => $oldEntityValues,
 		]);
 		$event->send();
 
-		if ($event->getResults())
+		foreach($event->getResults() as $eventResult)
 		{
-			/** @var Main\EventResult $eventResult */
-			foreach($event->getResults() as $eventResult)
+			if($eventResult->getType() == Main\EventResult::ERROR)
 			{
-				if($eventResult->getType() == Main\EventResult::ERROR)
+				$errorMsg = new ResultError(
+					Loc::getMessage('SALE_EVENT_ON_SALESHIPMENTITEM_ENTITY_DELETED_ERROR'),
+					'SALE_EVENT_ON_SALESHIPMENTITEM_ENTITY_DELETED_ERROR'
+				);
+				$eventResultData = $eventResult->getParameters();
+				if (isset($eventResultData) && $eventResultData instanceof ResultError)
 				{
-					$errorMsg = new ResultError(
-						Loc::getMessage('SALE_EVENT_ON_SALESHIPMENTITEM_ENTITY_DELETED_ERROR'),
-						'SALE_EVENT_ON_SALESHIPMENTITEM_ENTITY_DELETED_ERROR'
-					);
-					$eventResultData = $eventResult->getParameters();
-					if (isset($eventResultData) && $eventResultData instanceof ResultError)
-					{
-						/** @var ResultError $errorMsg */
-						$errorMsg = $eventResultData;
-					}
-
-					$result->addError($errorMsg);
+					$errorMsg = $eventResultData;
 				}
-			}
 
-			if (!$result->isSuccess())
-			{
-				return $result;
+				$result->addError($errorMsg);
 			}
 		}
 

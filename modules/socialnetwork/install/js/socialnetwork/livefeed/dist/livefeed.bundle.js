@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,ui_buttons,main_popup,main_core,main_core_events) {
+(function (exports,ui_buttons,main_popup,main_core,main_core_events,tasks_result) {
 	'use strict';
 
 	var Utils = /*#__PURE__*/function () {
@@ -2387,7 +2387,11 @@ this.BX = this.BX || {};
 
 	  babelHelpers.createClass(Forum, null, [{
 	    key: "processSpoilerToggle",
-	    value: function processSpoilerToggle(params) {
+	    value: function processSpoilerToggle(event) {
+	      var _event$getCompatData = event.getCompatData(),
+	          _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
+	          params = _event$getCompatData2[0];
+
 	      if (!main_core.Type.isPlainObject(params)) {
 	        params = {};
 	      }
@@ -2594,6 +2598,8 @@ this.BX = this.BX || {};
 	    this.firstPageLastTS = 0;
 	    this.firstPageLastId = 0;
 	    this.useBXMainFilter = 'N';
+	    this.commentFormUID = '';
+	    this.blogCommentFormUID = '';
 	    this.signedParameters = '';
 	    this.componentName = '';
 	    this.class = {};
@@ -2628,6 +2634,10 @@ this.BX = this.BX || {};
 	      Loader.showRefreshFade();
 	      MoreButton$$1.clearCommentsList();
 	      FeedInstance.clearMoreButtons();
+
+	      if (main_core.Type.isStringFilled(this.commentFormUID)) {
+	        params.commentFormUID = this.commentFormUID;
+	      }
 
 	      if (!main_core.Type.isStringFilled(params.useBXMainFilter) || params.useBXMainFilter !== 'Y') {
 	        main_core_events.EventEmitter.emit('BX.Livefeed:refresh', new main_core_events.BaseEvent({
@@ -2796,6 +2806,15 @@ this.BX = this.BX || {};
 	        preset_filter_top_id: main_core.Type.isStringFilled(nextUrlParamsList.preset_filter_top_id) && nextUrlParamsList.preset_filter_top_id !== '0' ? nextUrlParamsList.preset_filter_top_id : '',
 	        preset_filter_id: main_core.Type.isStringFilled(nextUrlParamsList.preset_filter_id) && nextUrlParamsList.preset_filter_id !== '0' ? nextUrlParamsList.preset_filter_id : ''
 	      };
+
+	      if (main_core.Type.isStringFilled(this.commentFormUID)) {
+	        queryParams.commentFormUID = this.commentFormUID;
+	      }
+
+	      if (main_core.Type.isStringFilled(this.blogCommentFormUID)) {
+	        queryParams.blogCommentFormUID = this.blogCommentFormUID;
+	      }
+
 	      var queryData = {
 	        c: this.getComponentName(),
 	        logajax: 'Y',
@@ -3015,35 +3034,47 @@ this.BX = this.BX || {};
 	  }
 
 	  babelHelpers.createClass(CommentForm, null, [{
+	    key: "appendTaskResultComments",
+	    value: function appendTaskResultComments(data) {
+	      if (main_core.Type.isUndefined(tasks_result.ResultManager)) {
+	        return;
+	      }
+
+	      this.taskResultCommentsData = Object.assign(this.taskResultCommentsData, data);
+	      Object.entries(this.taskResultCommentsData).forEach(function (_ref) {
+	        var _ref2 = babelHelpers.slicedToArray(_ref, 2),
+	            taskId = _ref2[0],
+	            commentsIdList = _ref2[1];
+
+	        tasks_result.ResultManager.getInstance().initResult({
+	          taskId: parseInt(taskId),
+	          commentIds: commentsIdList
+	        });
+	      });
+	    }
+	  }, {
 	    key: "onAfterShow",
 	    value: function onAfterShow(obj, text, data) {
 	      if (!main_core.Type.isPlainObject(data)) {
 	        data = {};
 	      }
 
-	      var _obj$entitiesCorrespo = babelHelpers.slicedToArray(obj.entitiesCorrespondence[obj.id.join('-')], 2),
-	          entityId = _obj$entitiesCorrespo[0],
-	          commentId = _obj$entitiesCorrespo[1];
-
-	      document.getElementById("feed_comments_block_".concat(entityId)).style.display = 'block';
 	      main_core_events.EventEmitter.emit('OnBeforeSocialnetworkCommentShowedUp', new main_core_events.BaseEvent({
 	        compatData: ['socialnetwork']
 	      }));
-	      obj.form.action = obj.url.replace(/\#eId\#/, entityId).replace(/\#id\#/, commentId);
 	      var postData = {
-	        ENTITY_XML_ID: obj.id[0],
-	        ENTITY_TYPE: obj.entitiesId[obj.id[0]][0],
-	        ENTITY_ID: obj.entitiesId[obj.id[0]][1],
+	        ENTITY_XML_ID: obj.currentEntity.ENTITY_XML_ID,
+	        ENTITY_TYPE: obj.currentEntity.ENTITY_XML_ID.split('_')[0],
+	        ENTITY_ID: obj.currentEntity.ENTITY_XML_ID.split('_')[1],
 	        parentId: obj.id[1],
-	        comment_post_id: obj.entitiesId[obj.id[0]][1],
+	        comment_post_id: obj.currentEntity.ENTITY_XML_ID.split('_')[1],
 	        edit_id: obj.id[1],
-	        act: obj.id[1] > 0 ? 'edit' : 'add',
-	        logId: obj.entitiesId[obj.id[0]][2]
+	        act: obj.id[1] > 0 ? 'edit' : 'add'
 	      };
-	      Object.entries(postData).forEach(function (_ref) {
-	        var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	            key = _ref2[0],
-	            value = _ref2[1];
+	      Object.entries(postData).forEach(function (_ref3) {
+	        var _ref4 = babelHelpers.slicedToArray(_ref3, 2),
+	            key = _ref4[0],
+	            value = _ref4[1];
 
 	        if (!obj.form[key]) {
 	          obj.form.appendChild(main_core.Tag.render(_templateObject$4(), key));
@@ -3052,6 +3083,7 @@ this.BX = this.BX || {};
 	        obj.form[key].value = value;
 	      });
 	      this.onLightEditorShow(text, data);
+	      var matches = obj.currentEntity.ENTITY_XML_ID.match(/^TASK_(\d+)$/i);
 	    }
 	  }, {
 	    key: "onLightEditorShow",
@@ -3062,182 +3094,52 @@ this.BX = this.BX || {};
 
 	      var result = {};
 
-	      if (data.arFiles) {
-	        var value = {};
-	        data.arFiles.forEach(function (fileId, index) {
-	          var container = document.getElementById("wdif-doc-".concat(fileId));
-	          var name = container.querySelector('.feed-com-file-name');
-	          var size = container.querySelector('.feed-con-file-size');
-	          value["F".concat(index)] = {
-	            FILE_ID: fileId,
-	            FILE_NAME: name ? name.innerHTML : 'noname',
-	            FILE_SIZE: size ? size.innerHTML : 'unknown',
-	            CONTENT_TYPE: 'notimage/xyz'
+	      if (main_core.Type.isPlainObject(data.UF)) {
+	        result = data.UF;
+	      } else {
+	        if (data.arFiles) {
+	          var value = {};
+	          data.arFiles.forEach(function (fileId, index) {
+	            var container = document.getElementById("wdif-doc-".concat(fileId));
+	            var name = container.querySelector('.feed-com-file-name');
+	            var size = container.querySelector('.feed-con-file-size');
+	            value["F".concat(index)] = {
+	              FILE_ID: fileId,
+	              FILE_NAME: name ? name.innerHTML : 'noname',
+	              FILE_SIZE: size ? size.innerHTML : 'unknown',
+	              CONTENT_TYPE: 'notimage/xyz'
+	            };
+	          });
+	          result.UF_SONET_COM_DOC = {
+	            USER_TYPE_ID: 'file',
+	            FIELD_NAME: 'UF_SONET_COM_FILE[]',
+	            VALUE: value
 	          };
-	        });
-	        result.UF_SONET_COM_DOC = {
-	          USER_TYPE_ID: 'file',
-	          FIELD_NAME: 'UF_SONET_COM_FILE[]',
-	          VALUE: value
-	        };
-	      }
+	        }
 
-	      if (data.arDocs) {
-	        result.UF_SONET_COM_FILE = {
-	          USER_TYPE_ID: 'webdav_element',
-	          FIELD_NAME: 'UF_SONET_COM_DOC[]',
-	          VALUE: main_core.Runtime.clone(data.arDocs)
-	        };
-	      }
+	        if (data.arDocs) {
+	          result.UF_SONET_COM_FILE = {
+	            USER_TYPE_ID: 'webdav_element',
+	            FIELD_NAME: 'UF_SONET_COM_DOC[]',
+	            VALUE: main_core.Runtime.clone(data.arDocs)
+	          };
+	        }
 
-	      if (data.arDFiles) {
-	        result.UF_SONET_COM_FILE = {
-	          USER_TYPE_ID: 'disk_file',
-	          FIELD_NAME: 'UF_SONET_COM_DOC[]',
-	          VALUE: main_core.Runtime.clone(data.arDFiles)
-	        };
+	        if (data.arDFiles) {
+	          result.UF_SONET_COM_FILE = {
+	            USER_TYPE_ID: 'disk_file',
+	            FIELD_NAME: 'UF_SONET_COM_DOC[]',
+	            VALUE: main_core.Runtime.clone(data.arDFiles)
+	          };
+	        }
 	      }
 
 	      LHEPostForm.reinitData(window.SLEC.editorId, content, result);
 	    }
-	  }, {
-	    key: "onSubmit",
-	    value: function onSubmit(obj, post_data) {
-	      post_data.r = Math.floor(Math.random() * 1000);
-	      post_data.sessid = main_core.Loc.getMessage('bitrix_sessid');
-	      post_data.log_id = obj.entitiesCorrespondence[obj.id.join('-')][0];
-	      post_data.p_smile = main_core.Loc.getMessage('sonetLPathToSmile');
-	      post_data.p_ubp = main_core.Loc.getMessage('sonetLPathToUserBlogPost');
-	      post_data.p_gbp = main_core.Loc.getMessage('sonetLPathToGroupBlogPost');
-	      post_data.p_umbp = main_core.Loc.getMessage('sonetLPathToUserMicroblogPost');
-	      post_data.p_gmbp = main_core.Loc.getMessage('sonetLPathToGroupMicroblogPost');
-	      post_data.p_user = main_core.Loc.getMessage('sonetLPathToUser');
-	      post_data.p_le = main_core.Loc.getMessage('sonetLEPath');
-	      post_data.f_id = main_core.Loc.getMessage('sonetLForumID');
-	      post_data.bapc = main_core.Loc.getMessage('sonetLBlogAllowPostCode');
-	      post_data.site = main_core.Loc.getMessage('SITE_ID');
-	      post_data.lang = main_core.Loc.getMessage('LANGUAGE_ID');
-	      post_data.nt = main_core.Loc.getMessage('sonetLNameTemplate');
-	      post_data.sl = main_core.Loc.getMessage('sonetLShowLogin');
-	      post_data.as = main_core.Loc.getMessage('sonetLAvatarSizeComment');
-	      post_data.dtf = main_core.Loc.getMessage('sonetLDateTimeFormat');
-	      post_data.message = post_data.REVIEW_TEXT;
-	      post_data.action = 'add_comment';
-	      post_data.RATING_TYPE = main_core.Loc.getMessage('sonetRatingType');
-	      post_data.pull = 'Y';
-	      post_data.crm = main_core.Loc.getMessage('sonetLIsCRM');
-	      obj.form['bx-action'] = obj.form.action;
-	      obj.form.action = main_core.Loc.getMessage('sonetLESetPath');
-	    }
-	  }, {
-	    key: "onResponse",
-	    value: function onResponse(obj, data) {
-	      obj.form.action = obj.form['bx-action'];
-	      var returnData = {
-	        errorMessage: data
-	      };
-
-	      if (!(!!data && main_core.Type.isPlainObject(data))) ; else if (data[0] === '*') {
-	        returnData = {
-	          errorMessage: main_core.Loc.getMessage('SONET_EXT_ERROR_SESSION')
-	        };
-	      } else if (data.status === 'error') {
-	        returnData.errorMessage = data.message;
-	      } else {
-	        if (!(data["commentID"] > 0) || !!data["strMessage"]) {
-	          returnData['errorMessage'] = data["strMessage"];
-	        } else if (data['return_data']) {
-	          returnData = data['return_data'];
-	        } else {
-	          var formattedCommentFields = data.arCommentFormatted;
-	          var commentFields = data.arComment;
-	          var ratingNode = !!window.__logBuildRating ? window.__logBuildRating(data['arComment'], data['arCommentFormatted']) : null;
-	          var thisId = !!commentFields.SOURCE_ID ? commentFields.SOURCE_ID : commentFields.ID;
-	          var res = {
-	            ID: thisId,
-	            // integer
-	            ENTITY_XML_ID: obj.id[0],
-	            // string
-	            FULL_ID: [obj.id[0], thisId],
-	            NEW: 'N',
-	            //"Y" | "N"
-	            APPROVED: 'Y',
-	            //"Y" | "N"
-	            POST_TIMESTAMP: data.timestamp - main_core.Loc.getMessage('USER_TZ_OFFSET'),
-	            POST_TIME: formattedCommentFields.LOG_TIME_FORMAT,
-	            POST_DATE: formattedCommentFields.LOG_TIME_FORMAT,
-	            '~POST_MESSAGE_TEXT': formattedCommentFields.MESSAGE,
-	            POST_MESSAGE_TEXT: formattedCommentFields.MESSAGE_FORMAT,
-	            PANELS: {
-	              MODERATE: false
-	            },
-	            URL: {
-	              LINK: main_core.Type.isStringFilled(commentFields.URL) ? commentFields.URL : "".concat(main_core.Loc.getMessage('sonetLEPath').replace('#log_id#', commentFields.LOG_ID), "?commentId=").concat(commentFields.ID, "#com").concat(thisId)
-	            },
-	            AUTHOR: {
-	              ID: formattedCommentFields.USER_ID,
-	              NAME: formattedCommentFields.CREATED_BY.FORMATTED,
-	              URL: formattedCommentFields.CREATED_BY.URL,
-	              AVATAR: formattedCommentFields.AVATAR_SRC
-	            },
-	            BEFORE_ACTIONS: !!ratingNode ? ratingNode : '',
-	            AFTER: formattedCommentFields.UF
-	          };
-
-	          if (main_core.Type.isStringFilled(data.hasEditCallback) && data.hasEditCallback === 'Y') {
-	            res.PANELS.EDIT = 'Y';
-	            re.URL.EDIT = "__logEditComment('".concat(obj.id[0], "', '").concat(commentFields.ID, "', '").concat(commentFields.LOG_ID, "');");
-	          }
-
-	          if (main_core.Type.isStringFilled(data.hasDeleteCallback) && data.hasDeleteCallback === 'Y') {
-	            res.PANELS.DELETE = 'Y';
-	            res.URL.DELETE = "".concat(main_core.Loc.getMessage('sonetLESetPath'), "?lang=").concat(main_core.Loc.getMessage('LANGUAGE_ID'), "&action=delete_comment&delete_comment_id=").concat(commentFields.ID, "&post_id=").concat(commentFields.LOG_ID, "&site=").concat(main_core.Loc.getMessage('SITE_ID'));
-	          }
-
-	          returnData = {
-	            errorMessage: '',
-	            okMessage: '',
-	            status: true,
-	            message: '',
-	            messageCode: formattedCommentFields["MESSAGE"],
-	            messageId: [obj.id[0], thisId],
-	            '~message': '',
-	            messageFields: res
-	          };
-	        }
-
-	        var entityId = obj.entitiesCorrespondence[obj.id.join('-')][0];
-	        var followNode = document.getElementById("log_entry_follow_".concat(entityId));
-	        var currentFollowValue = !!followNode ? followNode.getAttribute('data-follow') === 'Y' ? 'Y' : 'N' : false;
-
-	        if (currentFollowValue === 'N') {
-	          var followTitleNode = followNode.querySelector('a');
-
-	          if (followTitleNode) {
-	            followTitleNode.innerHTML = main_core.Loc.getMessage('sonetLFollowY');
-	          }
-
-	          followNode.setAttribute('data-follow', 'Y');
-	        }
-
-	        var commentsCounterNode = document.getElementById("feed-comments-all-cnt-".concat(entityId));
-	        var counterValue = !!commentsCounterNode ? commentsCounterNode.innerHTML.length > 0 ? parseInt(commentsCounterNode.innerHTML) : 0 : false;
-
-	        if (counterValue !== false) {
-	          commentsCounterNode.innerHTML = counterValue + 1;
-	        }
-	      }
-
-	      obj.OnUCFormResponseData = returnData;
-	    }
-	  }, {
-	    key: "onInit",
-	    value: function onInit(obj) {
-	      main_core.Dom.remove(document.getElementById("micro".concat(obj.editorName)));
-	    }
 	  }]);
 	  return CommentForm;
 	}();
+	babelHelpers.defineProperty(CommentForm, "taskResultCommentsData", {});
 
 	function _templateObject2$2() {
 	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"feed-add-error\" style=\"margin: 18px 37px 4px 84px;\"><span class=\"feed-add-info-text\"><span class=\"feed-add-info-icon\"></span><span>", "</span></span></div>"]);
@@ -3282,6 +3184,10 @@ this.BX = this.BX || {};
 
 	      if (main_core.Type.isStringFilled(params.componentName)) {
 	        PageInstance.setComponentName(params.componentName);
+	      }
+
+	      if (main_core.Type.isStringFilled(params.commentFormUID)) {
+	        PageInstance.commentFormUID = params.commentFormUID;
 	      }
 
 	      if (loaderContainer) {
@@ -3643,5 +3549,5 @@ this.BX = this.BX || {};
 	exports.ContentView = ContentView;
 	exports.CommentForm = CommentForm;
 
-}((this.BX.Livefeed = this.BX.Livefeed || {}),BX.UI,BX.Main,BX,BX.Event));
+}((this.BX.Livefeed = this.BX.Livefeed || {}),BX.UI,BX.Main,BX,BX.Event,BX.Tasks));
 //# sourceMappingURL=livefeed.bundle.js.map

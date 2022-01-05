@@ -17,6 +17,10 @@ use Bitrix\Socialnetwork\UserToGroupTable;
 
 Loc::loadMessages(__FILE__);
 
+$arResult['PAGE_BODY_STYLES'] = [
+	'edit' => 'social-group-create-body',
+];
+
 $arResult['MENU_ITEMS'] = [
 	'main' => [
 		'NAME' => Loc::getMessage('SONET_GROUP_CARD_MENU_ITEM_TITLE_MAIN'),
@@ -26,7 +30,6 @@ $arResult['MENU_ITEMS'] = [
 				'NAME' => ($arResult['IS_PROJECT'] ? Loc::getMessage('SONET_GROUP_CARD_MENU_ITEM_TITLE_MAIN_ABOUT_PROJECT') : Loc::getMessage('SONET_GROUP_CARD_MENU_ITEM_TITLE_MAIN_ABOUT_GROUP')),
 				'ATTRIBUTES' => [
 					'data-action' => 'card',
-					'data-url' => $arResult['URLS']['card'],
 				],
 				'ACTIVE' => ($arResult['TAB'] === 'card'),
 			],
@@ -54,7 +57,7 @@ if ($arResult['PERMISSIONS']['UserCanModifyGroup'])
 		'NAME' => Loc::getMessage('SONET_GROUP_CARD_MENU_ITEM_TITLE_MAIN_EDIT'),
 		'ATTRIBUTES' => [
 			'data-action' => 'edit',
-			'data-url' => $arResult['URLS']['edit'],
+			'data-body-style' => $arResult['PAGE_BODY_STYLES']['edit'],
 		],
 		'ACTIVE' => ($arResult['TAB'] === 'edit'),
 	];
@@ -63,7 +66,6 @@ if ($arResult['PERMISSIONS']['UserCanModifyGroup'])
 		'NAME' => Loc::getMessage('SONET_GROUP_CARD_MENU_ITEM_TITLE_MAIN_COPY'),
 		'ATTRIBUTES' => [
 			'data-action' => 'copy',
-			'data-url' => $arResult['URLS']['copy'],
 		],
 		'ACTIVE' => ($arResult['TAB'] === 'copy'),
 	];
@@ -86,7 +88,6 @@ if ($arResult['PERMISSIONS']['UserCanModifyGroup'])
 		'NAME' => Loc::getMessage('SONET_GROUP_CARD_MENU_ITEM_TITLE_MAIN_DELETE'),
 		'ATTRIBUTES' => [
 			'data-action' => 'delete',
-			'data-url' => $arResult['URLS']['delete'],
 		],
 		'ACTIVE' => ($arResult['TAB'] === 'delete'),
 	];
@@ -102,7 +103,6 @@ if (
 		'NAME' => Loc::getMessage('SONET_GROUP_CARD_MENU_ITEM_TITLE_MAIN_LEAVE'),
 		'ATTRIBUTES' => [
 			'data-action' => 'leave',
-			'data-url' => $arResult['URLS']['leave'],
 		],
 		'ACTIVE' => ($arResult['TAB'] === 'leave'),
 	];
@@ -168,5 +168,3 @@ if (
 		'ACTIVE' => ($arResult['TAB'] === 'features'),
 	];
 }
-
-

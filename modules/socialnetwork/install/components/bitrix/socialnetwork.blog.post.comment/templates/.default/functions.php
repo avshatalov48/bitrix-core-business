@@ -1,7 +1,15 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Config\Option;
+
 if (!function_exists("__sbpc_bind_post_to_form"))
 {
-	function __sbpc_bind_post_to_form($xml_id, $form_id_get=null, $arParams)
+	function __sbpc_bind_post_to_form($xml_id, $form_id_get, $arParams)
 	{
 		static $form_id = null;
 		if ($form_id_get !== null)
@@ -9,30 +17,49 @@ if (!function_exists("__sbpc_bind_post_to_form"))
 			$form_id = $form_id_get;
 			return;
 		}
-?><script type="text/javascript">BX.ready(function(){__blogLinkEntity({'<?=CUtil::JSEscape($xml_id)?>' : ['BG', <?=$arParams["ID"]?>, '<?=$arParams["LOG_ID"]?>']}, <?if ($form_id == null) { ?> window.SBPC.form.id<? } else { ?>"<?=$form_id?>"<? } ?>);});</script><?
+		?><script>
+			BX.ready(function(){
+				__blogLinkEntity(
+					{
+						'<?= CUtil::JSEscape($xml_id) ?>' : [
+							'BG',
+							<?= $arParams["ID"] ?>,
+							'<?= $arParams["LOG_ID"] ?>'
+						]
+					},
+					'<?= CUtil::JSEscape($xml_id) ?>'
+				)
+			});
+		</script><?
 	}
 }
+
 function socialnetworkBlogPostCommentWeb(
 	array $comment,
 	array $arParams,
 	array $arResult,
-	SocialnetworkBlogPostComment $component)
+	SocialnetworkBlogPostComment $component
+): array
 {
-	$arParams["AVATAR_SIZE"] = (intval($arParams["AVATAR_SIZE"]) ?: 58);
+	$arParams["AVATAR_SIZE"] = ((int)$arParams["AVATAR_SIZE"] ?: 58);
 	$arAvatarSizes = array(
-		"AVATAR_SIZE" => intval(array_key_exists("AVATAR_SIZE_COMMON", $arParams) ? $arParams["AVATAR_SIZE_COMMON"] : $arParams["AVATAR_SIZE"]),
-		"AVATAR_SIZE_COMMENT" => intval($arParams["AVATAR_SIZE_COMMENT"])
+		"AVATAR_SIZE" => (int)($arParams["AVATAR_SIZE_COMMON"] ?? $arParams["AVATAR_SIZE"]),
+		"AVATAR_SIZE_COMMENT" => (int)$arParams["AVATAR_SIZE_COMMENT"]
 	);
 	$arAvatarSizes["AVATAR_SIZE"] = ($arAvatarSizes["AVATAR_SIZE"] > 0 ? $arAvatarSizes["AVATAR_SIZE"] : 100); // reference to CBlogUser::GetUserInfoArray
 	$arAvatarSizes["AVATAR_SIZE_COMMENT"] = ($arAvatarSizes["AVATAR_SIZE_COMMENT"] > 0 ? $arAvatarSizes["AVATAR_SIZE_COMMENT"] : 100); // reference to CBlogUser::GetUserInfoArray
 	$avatarKey = "PERSONAL_PHOTO_RESIZED";
-	if ($arAvatarSizes["AVATAR_SIZE"] == $arParams["AVATAR_SIZE"])
+	if ($arAvatarSizes["AVATAR_SIZE"] === $arParams["AVATAR_SIZE"])
+	{
 		$avatarKey = "PERSONAL_PHOTO_resized";
-	else if ($arAvatarSizes["AVATAR_SIZE_COMMENT"] == $arParams["AVATAR_SIZE"])
+	}
+	else if ($arAvatarSizes["AVATAR_SIZE_COMMENT"] === $arParams["AVATAR_SIZE"])
+	{
 		$avatarKey = "PERSONAL_PHOTO_resized_30";
+	}
 
 	$arUser = $arResult["userCache"][$comment["AUTHOR_ID"]];
-	if (is_array($arUser) && !array_key_exists($avatarKey, $arUser) && intval($arUser["PERSONAL_PHOTO"]) > 0)
+	if (is_array($arUser) && !array_key_exists($avatarKey, $arUser) && (int)$arUser["PERSONAL_PHOTO"] > 0)
 	{
 		$arResult["userCache"][$comment["AUTHOR_ID"]][$avatarKey] = CFile::ResizeImageGet(
 			$arUser["PERSONAL_PHOTO"],
@@ -54,7 +81,7 @@ function socialnetworkBlogPostCommentWeb(
 		{
 			$parser = new blogTextParser(false, $arParams["PATH_TO_SMILE"], array("bPublic" => $arParams["bPublicPage"]));
 			$parser->bMobile = false;
-			$parser->LAZYLOAD = (isset($arParams["LAZYLOAD"]) && $arParams["LAZYLOAD"] == "Y" ? "Y" : "N");
+			$parser->LAZYLOAD = (isset($arParams["LAZYLOAD"]) && $arParams["LAZYLOAD"] === "Y" ? "Y" : "N");
 		}
 
 		if (is_array($comment["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"]))
@@ -87,7 +114,7 @@ function socialnetworkBlogPostCommentWeb(
 				"LIST" => "Y",
 				"SMILES" => "Y",
 				"NL2BR" => "N",
-				"VIDEO" => (COption::GetOptionString("blog","allow_video", "Y") != "Y" || $arParams["ALLOW_VIDEO"] != "Y" ? "N" : "Y"),
+				"VIDEO" => (Option::get('blog', 'allow_video', 'Y') !== 'Y' || $arParams["ALLOW_VIDEO"] !== "Y" ? "N" : "Y"),
 				"SHORT_ANCHOR" => "Y"
 			),
 			$arParserParams
@@ -116,10 +143,26 @@ function socialnetworkBlogPostCommentWeb(
 		}
 	}
 
+	static $request = null;
+	if ($request === null)
+	{
+		$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+	}
+
+	if (
+		isset($comment['COMMENT_PROPERTIES']['HIDDEN_DATA']['UF_BLOG_COMM_URL_PRV'])
+		&& $component->isWeb()
+		&& $request->getPost('ACTION') === 'GET'
+		&& $request->getPost('MODE') === 'RECORD'
+	)
+	{
+		$comment['COMMENT_PROPERTIES']['DATA']['UF_BLOG_COMM_URL_PRV'] = $comment['COMMENT_PROPERTIES']['HIDDEN_DATA']['UF_BLOG_COMM_URL_PRV'];
+	}
+
 	$res = array(
 		"ID" => $comment["ID"],
-		"NEW" => ($arParams["FOLLOW"] != "N" && $comment["NEW"] == "Y" ? "Y" : "N"),
-		"APPROVED" => ($comment["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH ? "Y" : "N"),
+		"NEW" => ($arParams["FOLLOW"] !== "N" && $comment["NEW"] === "Y" ? "Y" : "N"),
+		"APPROVED" => ($comment["PUBLISH_STATUS"] === BLOG_PUBLISH_STATUS_PUBLISH ? "Y" : "N"),
 		"AUX" => (!empty($comment["AuxType"]) ? $comment["AuxType"] : ''),
 		"AUX_LIVE_PARAMS" => (!empty($comment["AUX_LIVE_PARAMS"]) ? $comment["AUX_LIVE_PARAMS"] : array()),
 		"POST_TIMESTAMP" => (
@@ -165,8 +208,8 @@ function socialnetworkBlogPostCommentWeb(
 		"AFTER_RECORD" => ""
 	);
 
-	$aditStyle = ($comment["AuthorIsAdmin"] == "Y" ? "blog-comment-admin" : "") .
-		($comment["AuthorIsPostAuthor"] == "Y" ? "blog-comment-author" : "");
+	$aditStyle = ($comment["AuthorIsAdmin"] === "Y" ? "blog-comment-admin" : "") .
+		($comment["AuthorIsPostAuthor"] === "Y" ? "blog-comment-author" : "");
 	if ($aditStyle)
 	{
 		$res["BEFORE_RECORD"] = "<div class='".$aditStyle."'>";
@@ -199,7 +242,7 @@ function socialnetworkBlogPostCommentWeb(
 		}
 	}
 
-	if($comment["COMMENT_PROPERTIES"]["SHOW"] == "Y")
+	if ($comment["COMMENT_PROPERTIES"]["SHOW"] === "Y")
 	{
 		$res["UF"] = $comment["COMMENT_PROPERTIES"]["DATA"];
 		foreach ($res["UF"] as $key => $arPostField)
@@ -225,19 +268,19 @@ function socialnetworkBlogPostCommentWeb(
 			{
 				if (empty($userField["VALUE"]))
 					continue;
-				else if ($userField["USER_TYPE_ID"] == "disk_file")
+				else if ($userField["USER_TYPE_ID"] === "disk_file")
 				{
 					?>
 					top.arComDFiles<?=$comment["ID"]?> = BX.util.array_merge((top.arComDFiles<?=$comment["ID"]?> || []), <?=CUtil::PhpToJSObject($userField["VALUE"])?>);
 					<?
 				}
-				else if ($userField["USER_TYPE_ID"] == "webdav_element")
+				else if ($userField["USER_TYPE_ID"] === "webdav_element")
 				{
 					?>
 					top.arComDocs<?=$comment["ID"]?> = BX.util.array_merge((top.arComDocs<?=$comment["ID"]?> || []), <?=CUtil::PhpToJSObject($userField["VALUE"])?>);
 					<?
 				}
-				else if ($userField["USER_TYPE_ID"] == "file")
+				else if ($userField["USER_TYPE_ID"] === "file")
 				{
 					?>
 					top.arComFilesUf<?=$comment["ID"]?> = BX.util.array_merge((top.arComDocs<?=$comment["ID"]?> || []), <?=CUtil::PhpToJSObject($userField["VALUE"])?>);
@@ -252,7 +295,7 @@ function socialnetworkBlogPostCommentWeb(
 			{
 				if (empty($userField["VALUE"]))
 					continue;
-				else if ($userField["USER_TYPE_ID"] == "url_preview")
+				else if ($userField["USER_TYPE_ID"] === "url_preview")
 				{
 					?>
 					top.UrlPreview<?=$comment["ID"]?> = '<?=CUtil::JSEscape($userField["VALUE"])?>';
@@ -280,9 +323,9 @@ function socialnetworkBlogPostCommentWeb(
 	?></script><?
 	$res["AFTER"] .= ob_get_clean();
 
-	if ($arParams["SHOW_RATING"] == "Y")
+	if ($arParams["SHOW_RATING"] === "Y")
 	{
-		$res["RATING_VOTE_ID"] = 'BLOG_COMMENT_'.$res['ID'].'-'.(time()+rand(0, 1000));
+		$res["RATING_VOTE_ID"] = 'BLOG_COMMENT_' . $res['ID'] . '-' . (time() + random_int(0, 1000));
 		$res["RATING_USER_HAS_VOTED"] = (
 			isset($arResult['RATING'][$res["ID"]])
 			&& isset($arResult['RATING'][$res["ID"]]["USER_HAS_VOTED"])
@@ -293,5 +336,3 @@ function socialnetworkBlogPostCommentWeb(
 
 	return $res;
 }
-
-?>

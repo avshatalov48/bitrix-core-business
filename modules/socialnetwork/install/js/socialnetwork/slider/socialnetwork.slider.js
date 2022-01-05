@@ -83,7 +83,7 @@ BX.SidePanel.Instance.bindAnchors({
 			handler: function(event, link)
 			{
 				BX.SidePanel.Instance.open(link.url, {
-					width: 800,
+					width: 1200,
 					loader: 'group-users-loader'
 				});
 				BX.SocialnetworkUICommon.closeGroupCardMenu(link.anchor);
@@ -125,7 +125,7 @@ BX.SidePanel.Instance.bindAnchors({
 			handler: function(event, link)
 			{
 				BX.SidePanel.Instance.open(link.url, {
-					width: 800,
+					width: 1200,
 					loader: 'group-requests-loader'
 				});
 				BX.SocialnetworkUICommon.closeGroupCardMenu(link.anchor);
@@ -139,7 +139,7 @@ BX.SidePanel.Instance.bindAnchors({
 			handler: function(event, link)
 			{
 				BX.SidePanel.Instance.open(link.url, {
-					width: 800,
+					width: 1200,
 					loader: 'group-requests-out-loader'
 				});
 				BX.SocialnetworkUICommon.closeGroupCardMenu(link.anchor);

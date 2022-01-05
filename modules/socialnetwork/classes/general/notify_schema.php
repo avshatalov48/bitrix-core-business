@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class CSocNetNotifySchema
@@ -12,8 +13,12 @@ class CSocNetNotifySchema
 		$arResult = array(
 			"socialnetwork" => array(
 				"invite_group" => Array(
-					"NAME" => GetMessage("SONET_NS_INVITE_GROUP"),
+					"NAME" => GetMessage("SONET_NS_INVITE_GROUP_INFO"),
 					"DISABLED" => Array(IM_NOTIFY_FEATURE_SITE)
+				),
+				"invite_group_btn" => Array(
+					"NAME" => GetMessage("SONET_NS_INVITE_GROUP_BTN"),
+					"DISABLED" => [ IM_NOTIFY_FEATURE_SITE, IM_NOTIFY_FEATURE_XMPP, IM_NOTIFY_FEATURE_MAIL, IM_NOTIFY_FEATURE_PUSH ],
 				),
 				"inout_group" => Array(
 					"NAME" => GetMessage("SONET_NS_INOUT_GROUP")
@@ -52,5 +57,3 @@ class CSocNetPullSchema
 		);
 	}
 }
-
-?>

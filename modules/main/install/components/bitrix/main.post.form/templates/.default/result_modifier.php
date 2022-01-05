@@ -322,6 +322,12 @@ $arResult['MENTION_ENTITIES'] = ($arParams['MENTION_ENTITIES'] ?? [
 			'emailUsers' => true,
 			'inviteEmployeeLink' => false,
 		],
+		'itemOptions' => [
+			'default' => [
+				'link' => '',
+				'linkTitle' => '',
+			],
+		],
 	],
 	[
 		'id' => 'department',

@@ -7,6 +7,7 @@
  */
 
 use Bitrix\Main;
+use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Text;
 use Bitrix\Main\Application;
 use Bitrix\Main\Context;
@@ -2259,6 +2260,7 @@ function HTMLToTxt($str, $strSiteUrl="", $aDelete=array(), $maxlen=70)
 	static $search = array(
 		"'<script[^>]*?>.*?</script>'si",
 		"'<style[^>]*?>.*?</style>'si",
+		"'<svg[^>]*?>.*?</svg>'si",
 		"'<select[^>]*?>.*?</select>'si",
 		"'&(quot|#34);'i",
 		"'&(iexcl|#161);'i",
@@ -2268,6 +2270,7 @@ function HTMLToTxt($str, $strSiteUrl="", $aDelete=array(), $maxlen=70)
 	);
 
 	static $replace = array(
+		"",
 		"",
 		"",
 		"",
@@ -2293,12 +2296,12 @@ function HTMLToTxt($str, $strSiteUrl="", $aDelete=array(), $maxlen=70)
 		$str = preg_replace($del_reg, "", $str);
 
 	//ищем картинки
-	$str = preg_replace("/(<img\\s.*?src\\s*=\\s*)([\"']?)(\\/.*?)(\\2)(\\s.+?>|\\s*>)/is", "[".chr(1).$strSiteUrl."\\3".chr(1)."] ", $str);
-	$str = preg_replace("/(<img\\s.*?src\\s*=\\s*)([\"']?)(.*?)(\\2)(\\s.+?>|\\s*>)/is", "[".chr(1)."\\3".chr(1)."] ", $str);
+	$str = preg_replace("/(<img\\s[^>]*?src\\s*=\\s*)([\"']?)(\\/.*?)(\\2)(\\s.+?>|\\s*>)/is", "[".chr(1).$strSiteUrl."\\3".chr(1)."] ", $str);
+	$str = preg_replace("/(<img\\s[^>]*?src\\s*=\\s*)([\"']?)(.*?)(\\2)(\\s.+?>|\\s*>)/is", "[".chr(1)."\\3".chr(1)."] ", $str);
 
 	//ищем ссылки
-	$str = preg_replace("/(<a\\s.*?href\\s*=\\s*)([\"']?)(\\/.*?)(\\2)(.*?>)(.*?)<\\/a>/is", "\\6 [".chr(1).$strSiteUrl."\\3".chr(1)."] ", $str);
-	$str = preg_replace("/(<a\\s.*?href\\s*=\\s*)([\"']?)(.*?)(\\2)(.*?>)(.*?)<\\/a>/is", "\\6 [".chr(1)."\\3".chr(1)."] ", $str);
+	$str = preg_replace("/(<a\\s[^>]*?href\\s*=\\s*)([\"']?)(\\/.*?)(\\2)(.*?>)(.*?)<\\/a>/is", "\\6 [".chr(1).$strSiteUrl."\\3".chr(1)."] ", $str);
+	$str = preg_replace("/(<a\\s[^>]*?href\\s*=\\s*)([\"']?)(.*?)(\\2)(.*?>)(.*?)<\\/a>/is", "\\6 [".chr(1)."\\3".chr(1)."] ", $str);
 
 	//ищем <br>
 	$str = preg_replace("#<br[^>]*>#i", "\r\n", $str);
@@ -3433,66 +3436,29 @@ function SendError($error)
 	}
 }
 
-function AddMessage2Log($sText, $sModule = "", $traceDepth = 6, $bShowArgs = false)
+function AddMessage2Log($text, $module = '', $traceDepth = 6, $showArgs = false)
 {
-	if (defined("LOG_FILENAME") && LOG_FILENAME <> '')
+	if (defined('LOG_FILENAME') && LOG_FILENAME <> '')
 	{
-		if(!is_string($sText))
-		{
-			$sText = var_export($sText, true);
-		}
-		if ($sText <> '')
-		{
-			ignore_user_abort(true);
-			if ($fp = @fopen(LOG_FILENAME, "ab"))
-			{
-				if (flock($fp, LOCK_EX))
-				{
-					@fwrite($fp, "Host: ".$_SERVER["HTTP_HOST"]."\nDate: ".date("Y-m-d H:i:s")."\nModule: ".$sModule."\n".$sText."\n");
-					$arBacktrace = Bitrix\Main\Diag\Helper::getBackTrace($traceDepth, ($bShowArgs? null : DEBUG_BACKTRACE_IGNORE_ARGS));
-					$strFunctionStack = "";
-					$strFilesStack = "";
-					$firstFrame = (count($arBacktrace) == 1? 0: 1);
-					$iterationsCount = min(count($arBacktrace), $traceDepth);
-					for ($i = $firstFrame; $i < $iterationsCount; $i++)
-					{
-						if ($strFunctionStack <> '')
-							$strFunctionStack .= " < ";
+		$logger = new Main\Diag\FileLogger(LOG_FILENAME, 0);
+		$formatter = new Main\Diag\LogFormatter($showArgs);
+		$logger->setFormatter($formatter);
 
-						if (isset($arBacktrace[$i]["class"]))
-							$strFunctionStack .= $arBacktrace[$i]["class"]."::";
+		$context = [
+			'module' => $module,
+			'message' => $text,
+			'trace' => Main\Diag\Helper::getBackTrace($traceDepth, ($showArgs ? null : DEBUG_BACKTRACE_IGNORE_ARGS), 2),
+		];
 
-						$strFunctionStack .= $arBacktrace[$i]["function"];
+		$message = "Host: {host}\n"
+			. "Date: {date}\n"
+			. ($module != '' ? "Module: {module}\n" : '')
+			. "{message}\n"
+			. "{trace}"
+			. "{delimiter}\n"
+		;
 
-						if(isset($arBacktrace[$i]["file"]))
-							$strFilesStack .= "\t".$arBacktrace[$i]["file"].":".$arBacktrace[$i]["line"]."\n";
-						if($bShowArgs && isset($arBacktrace[$i]["args"]))
-						{
-							$strFilesStack .= "\t\t";
-							if (isset($arBacktrace[$i]["class"]))
-								$strFilesStack .= $arBacktrace[$i]["class"]."::";
-							$strFilesStack .= $arBacktrace[$i]["function"];
-							$strFilesStack .= "(\n";
-							foreach($arBacktrace[$i]["args"] as $value)
-								$strFilesStack .= "\t\t\t".$value."\n";
-							$strFilesStack .= "\t\t)\n";
-
-						}
-					}
-
-					if ($strFunctionStack <> '')
-					{
-						@fwrite($fp, "    ".$strFunctionStack."\n".$strFilesStack);
-					}
-
-					@fwrite($fp, "----------\n");
-					@fflush($fp);
-					@flock($fp, LOCK_UN);
-					@fclose($fp);
-				}
-			}
-			ignore_user_abort(false);
-		}
+		$logger->debug($message, $context);
 	}
 }
 
@@ -6100,6 +6066,13 @@ function bxmail($to, $subject, $message, $additional_headers="", $additional_par
 		)
 	);
 	$event->send();
+
+	$defaultMailConfiguration = Configuration::getValue("smtp");
+	if ($defaultMailConfiguration && $defaultMailConfiguration['enabled'] && $context->getSmtp())
+	{
+		$mailer = Main\Mail\Smtp\Mailer::getInstance($context);
+		return $mailer->sendMailBySmtp($to, $subject, $message, $additional_headers, $additional_parameters);
+	}
 
 	if(function_exists("custom_mail"))
 	{

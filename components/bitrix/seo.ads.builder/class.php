@@ -282,16 +282,19 @@ class SeoAdsBuilderComponent extends CBitrixComponent implements Controllerable
 				] + array_intersect_key($currencyInfo[$language], $whiteList) ;
 		}
 
-		$createdCurrency =  CCurrency::Add(
-			[
-				'CURRENCY' => $currencyInfo['SYM_CODE'],
-				'AMOUNT_CNT' => (int)$amountCnt,
-				'AMOUNT' => (float)$course,
-				'SORT' => 500,
-				'NUMCODE' =>  $currencyInfo['NUM_CODE'],
-				'LANG' => $langs
-			]
-		);
+		if (!\Bitrix\Currency\CurrencyManager::isCurrencyExist($newCurrency))
+		{
+			$createdCurrency =  CCurrency::Add(
+				[
+					'CURRENCY' => $currencyInfo['SYM_CODE'],
+					'AMOUNT_CNT' => (int)$amountCnt,
+					'AMOUNT' => (float)$course,
+					'SORT' => 500,
+					'NUMCODE' =>  $currencyInfo['NUM_CODE'],
+					'LANG' => $langs
+				]
+			);
+		}
 
 		return $this->prepareAjaxAnswer(['success' => $createdCurrency]);
 	}

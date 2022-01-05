@@ -60,6 +60,9 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			$this->arParams['SHOW_CAMPAIGNS']
 			:
 			Integration\Bitrix24\Service::isCampaignsAvailable();
+
+		$this->arParams['IS_BX24_INSTALLED'] = Integration\Bitrix24\Service::isCloud();
+		$this->arParams['IS_PHONE_CONFIRMED'] = \Bitrix\Sender\Integration\Bitrix24\Limitation\Verification::isPhoneConfirmed();
 	}
 
 	protected function getSenderMessages()

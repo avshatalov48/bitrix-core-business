@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Landing\Connector;
+use Bitrix\Landing\Rights;
 
 \CBitrixComponent::includeComponentClass('bitrix:landing.base.form');
 
@@ -16,19 +17,31 @@ class LandingSiteContactsComponent extends LandingBaseFormComponent
 	 */
 	protected function actionSave(): bool
 	{
+		$access = Rights::hasAccessForSite(
+			$this->arParams['SITE_ID'],
+			Rights::ACCESS_TYPES['sett']
+		);
+		if (!$access)
+		{
+			return false;
+		}
+
 		$update = [];
 		if ($company = $this->request('COMPANY'))
 		{
 			$update['TITLE'] = $company;
 		}
+
 		Connector\Crm::setContacts($this->arParams['SITE_ID'], [
 			'COMPANY' => $this->request('COMPANY'),
 			'PHONE' => $this->request('PHONE')
 		]);
+
 		if ($update)
 		{
 			$this->updateMainTitles($this->arParams['SITE_ID'], $update);
 		}
+
 		return true;
 	}
 
@@ -54,7 +67,13 @@ class LandingSiteContactsComponent extends LandingBaseFormComponent
 					'ID' => $this->arParams['SITE_ID']
 				]
 			]);
-			if ($this->arResult['SITE'])
+
+			$access = Rights::hasAccessForSite(
+				$this->arParams['SITE_ID'],
+				Rights::ACCESS_TYPES['sett']
+			);
+
+			if ($this->arResult['SITE'] && $access)
 			{
 				$this->arResult['CRM_CONTACTS'] = Connector\Crm::getContacts(
 					$this->arParams['SITE_ID']

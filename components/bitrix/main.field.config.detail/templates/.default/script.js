@@ -608,7 +608,7 @@
 	      var userTypeId = this.getSelectedUserTypeId();
 
 	      if (userTypeId === 'enumeration') {
-	        listTab.style.display = 'block';
+	        listTab.style.display = 'flex';
 	      } else {
 	        listTab.style.display = 'none';
 	      }

@@ -31,8 +31,14 @@ class MainMailConfirmAjax
 
 			switch ($act)
 			{
+				case 'info':
+					$result = (array) self::getInfo($error);
+					break;
 				case 'add':
 					$result = (array) self::executeAdd($error);
+					break;
+				case 'edit':
+					$result = (array) self::executeAdd($error, true);
 					break;
 				case 'delete':
 				case 'deleteSender':
@@ -52,7 +58,42 @@ class MainMailConfirmAjax
 		), $result));
 	}
 
-	private static function executeAdd(&$error)
+	private static function getInfo(&$error): array
+	{
+		global $USER;
+
+		$error = false;
+		$sender = Main\Mail\Internal\SenderTable::getById((int) $_REQUEST['senderId'])->fetch();
+
+		$response = [];
+		if (!$sender)
+		{
+			return $response;
+		}
+
+		if ($smtp = $sender['OPTIONS']['smtp'])
+		{
+			$response['smtp'] = [
+				'server' => $smtp['server'],
+				'port' => $smtp['port'],
+				'protocol' => $smtp['protocol'],
+				'login' => $smtp['login'],
+				'limit' => $smtp['limit'],
+			];
+		}
+
+		$response = array_merge($response['smtp']??[],
+			[
+				'email' => $sender['EMAIL'],
+				'name' => $sender['NAME'],
+				'isPublic' => $sender['IS_PUBLIC'],
+			])
+		;
+
+		return $response;
+	}
+
+	private static function executeAdd(&$error, $update = false)
 	{
 		global $USER;
 
@@ -87,6 +128,13 @@ class MainMailConfirmAjax
 				'login'    => $smtp['login'],
 				'password' => $smtp['password'],
 			);
+			$limit = $_REQUEST['smtp']['limit']??null;
+
+			if ($limit !== null)
+			{
+				$limit = (int)$limit;
+				$smtp['limit'] = $limit < 0 ? 0 : $limit;
+			}
 
 			if (!preg_match('/^([a-z0-9-]+\.)+[a-z0-9-]{2,20}$/i', $smtp['server']))
 			{
@@ -114,17 +162,17 @@ class MainMailConfirmAjax
 				return;
 			}
 
-			if (empty($smtp['password']))
+			if (empty($smtp['password']) && !$update)
 			{
 				$error = getMessage('MAIN_MAIL_CONFIRM_EMPTY_SMTP_PASSWORD');
 				return;
 			}
-			else if (preg_match('/^\^/', $smtp['password']))
+			else if (preg_match('/^\^/', $smtp['password']) && !$update)
 			{
 				$error = getMessage('MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_CARET');
 				return;
 			}
-			else if (preg_match('/\x00/', $smtp['password']))
+			else if (preg_match('/\x00/', $smtp['password']) && !$update)
 			{
 				$error = getMessage('MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_NULL');
 				return;
@@ -135,7 +183,7 @@ class MainMailConfirmAjax
 		$expires = array();
 		$toDelete = array();
 
-		$res = Main\Mail\Internal\SenderTable::getList(array(
+		$queryParams = array(
 			'filter' => array(
 				'=USER_ID' => $USER->getId(),
 				array(
@@ -144,7 +192,20 @@ class MainMailConfirmAjax
 					'=EMAIL'        => $email,
 				),
 			)
-		));
+		);
+
+		$senderId = $_REQUEST['id'];
+		if ($senderId && is_numeric($senderId))
+		{
+			$queryParams = [
+				'filter' => [
+					'=ID' => (int)$senderId,
+				]
+			];
+		}
+
+
+		$res = Main\Mail\Internal\SenderTable::getList($queryParams);
 
 		while ($item = $res->fetch())
 		{
@@ -182,26 +243,56 @@ class MainMailConfirmAjax
 			}
 		}
 
-		Main\Mail\Sender::delete(array_merge($toDelete,$expires));
+		Main\Mail\Sender::delete(array_merge($toDelete, $expires));
 
-		if (empty($code))
+		if ($smtp && $smtp['limit'] !== null)
 		{
-			$fields = array(
-				'NAME' => $name,
-				'EMAIL' => $email,
-				'USER_ID' => $USER->getId(),
-				'IS_CONFIRMED' => false,
-				'IS_PUBLIC' => $public,
-				'OPTIONS' => array(
-					'source' => 'main.mail.confirm',
-				),
-			);
+			Main\Mail\Sender::setEmailLimit($email, $smtp['limit']);
+		}
+		elseif ($smtp && !isset($smtp['limit']))
+		{
+			Main\Mail\Sender::removeEmailLimit($email);
+		}
 
-			if (!empty($smtp))
+		$fields = array(
+			'NAME' => $name,
+			'EMAIL' => $email,
+			'USER_ID' => $USER->getId(),
+			'IS_CONFIRMED' => false,
+			'IS_PUBLIC' => $public,
+			'OPTIONS' => array(
+				'source' => 'main.mail.confirm',
+			),
+		);
+
+		if (!empty($smtp))
+		{
+			$fields['OPTIONS']['smtp'] = $smtp;
+		}
+
+		if ($senderId)
+		{
+			if (!empty($smtp['password']))
 			{
-				$fields['OPTIONS']['smtp'] = $smtp;
+				Main\Mail\Sender::checkEmail($fields, $checkError);
 			}
 
+			if ($checkError)
+			{
+				$error = $checkError;
+				return;
+			}
+
+			if (!$checkError)
+			{
+				$fields['IS_CONFIRMED'] = true;
+			}
+
+			Main\Mail\Internal\SenderTable::update($senderId, $fields);
+			return ['senderId' => $senderId, 'confirmed' => true];
+		}
+		elseif (empty($code))
+		{
 			$result = Main\Mail\Sender::add($fields);
 			if (!empty($result['error']))
 			{
@@ -257,6 +348,7 @@ class MainMailConfirmAjax
 
 		return [];
 	}
+
 	private static function executeSenderListCanDel(&$error)
 	{
 		global $USER;
@@ -279,6 +371,7 @@ class MainMailConfirmAjax
 		$error = getMessage('MAIN_MAIL_CONFIRM_AUTH');
 		return null;
 	}
+
 	private static function returnJson($data)
 	{
 		global $APPLICATION;

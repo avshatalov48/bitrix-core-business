@@ -36,7 +36,7 @@ Class mobileapp extends CModule
 		$this->errors = false;
 		
 		if (!$DB->Query("SELECT 'x' FROM b_mobileapp_app", true))
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mobileapp/install/db/".mb_strtolower($DB->type) . "/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mobileapp/install/db/mysql/install.sql");
 		$APPLICATION->ResetException();
 		if ($this->errors !== false)
 		{
@@ -54,7 +54,7 @@ Class mobileapp extends CModule
 	function UnInstallDB($arParams = array())
 	{
 		global $DB;
-		$DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mobileapp/install/db/".mb_strtolower($DB->type) . "/uninstall.sql");
+		$DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mobileapp/install/db/mysql/uninstall.sql");
 		UnRegisterModuleDependences("pull", "OnGetDependentModule", "mobileapp", "CMobileAppPullSchema", "OnGetDependentModule");
 		UnRegisterModule("mobileapp");
 		return true;

@@ -206,10 +206,7 @@ class Landing
 			{
 				$data['SORT'] = -1;
 			}
-			$newBlockId = $landing->addBlock(
-				isset($fields['CODE']) ? $fields['CODE'] : '',
-				$data
-			);
+			$newBlockId = $landing->addBlock($fields['CODE'] ?? '', $data, true);
 			// re-sort
 			$landing->resortBlocks();
 			// want return content ob block

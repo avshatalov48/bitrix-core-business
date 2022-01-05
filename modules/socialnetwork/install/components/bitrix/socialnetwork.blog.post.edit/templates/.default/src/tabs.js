@@ -363,7 +363,7 @@ export default class PostFormTabs extends EventEmitter
 						)
 						{
 							const nodeDocs = messageBody.childNodes[ii];
-							const webdavValues = nodeDocs.querySelectorAll('wd-inline-file');
+							const webdavValues = nodeDocs.querySelectorAll('.wd-inline-file');
 
 							hasValuesDocs = (!!webdavValues && webdavValues.length > 0);
 						}

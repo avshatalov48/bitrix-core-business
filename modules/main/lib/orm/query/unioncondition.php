@@ -90,7 +90,14 @@ class UnionCondition
 			$sql .= "ALL ";
 		}
 
-		return $sql."({$this->getSubQuerySql($forceObjectPrimary)})";
+		$subQuerySql = $this->getSubQuerySql($forceObjectPrimary);
+
+		if (preg_match('/(\sorder\s+by\s|\slimit\s+\d+)/i', $subQuerySql))
+		{
+			$subQuerySql = "({$subQuerySql})";
+		}
+
+		return $sql . $subQuerySql;
 	}
 
 	/**

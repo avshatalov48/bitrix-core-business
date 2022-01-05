@@ -278,6 +278,8 @@
 			viewRangeDate = this.calendar.getViewRangeDate(),
 			date = new Date(viewRangeDate.getTime());
 
+		var displayedRange = BX.clone(this.getViewRange(), true);
+
 		if (this.dayCount > 1)
 		{
 			date = this.getAdjustedDate(date);
@@ -310,6 +312,17 @@
 
 		for (i = 0; i < this.dayCount; i++)
 		{
+			if (i === 0)
+			{
+				displayedRange.start = new Date(date.getTime());
+				displayedRange.start.setHours(0, 0, 0, 0);
+			}
+			else if (i === this.dayCount - 1)
+			{
+				displayedRange.end = new Date(date.getTime());
+				displayedRange.end.setHours(0, 0, 0, 0);
+			}
+
 			dayCode = this.util.getDayCode(date);
 
 			this.fullDayEventsHolderCont.appendChild(BX.create('DIV', {
@@ -320,7 +333,9 @@
 			this.buildDayCell({date: date, month: 'previous', grid: grid});
 
 			if (this.dayCount > 1)
+			{
 				date.setDate(date.getDate() + 1);
+			}
 
 			this.gridRowShadow.appendChild(BX.create('DIV', {
 				attrs: {'data-bx-calendar-timeline-day': dayCode},
@@ -356,6 +371,7 @@
 		}, this), 0);
 
 		this.showOffHours();
+		this.calendar.setDisplayedViewRange(displayedRange);
 
 		// Show "now" red time line
 		this.showNowTime(this.gridRow);
@@ -1256,8 +1272,14 @@
 			{
 				innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-icon-mail'}}));
 			}
-
-			nameNode = innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-text'}, text: params.entry.name}));
+			nameNode = innerNode.appendChild(
+				BX.create('SPAN',
+					{
+						props: {className: 'calendar-event-block-text'},
+						text:  params.entry.name
+					}
+				)
+			);
 
 			if (!this.calendar.util.isDarkColor(entry.color))
 			{
@@ -1271,7 +1293,7 @@
 
 			bgNode.style.backgroundColor = entry.color;
 
-			if (this.calendar.entryController.canDo(entry, 'edit'))
+			if (this.calendar.util.type !== 'location' && this.calendar.entryController.canDo(entry, 'edit') )
 			{
 				resizerNode = wrapNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-resizer'}}));
 			}
@@ -1504,12 +1526,18 @@
 				showTimeLable = false;
 				this.nowTimeLabel.style.display = 'none';
 				this.nowTimeCont.style.top = '-5px';
+				this.nowTimeCont.style.marginTop = '25px';
+				this.nowTimeCont.style.zIndex = '100';
+				this.nowTimeLine.firstChild.style.left = '-6px';
 			}
 			else if (timeValue > workTime.end)
 			{
 				showTimeLable = false;
 				this.nowTimeLabel.style.display = 'none';
 				this.nowTimeCont.style.top = ((workTime.end - workTime.start) * this.gridLineHeight) + 4 + 'px';
+				this.nowTimeLine.firstChild.style.left = '-6px';
+				this.nowTimeCont.style.marginTop = '25px';
+				this.nowTimeCont.style.zIndex = '100';
 			}
 			else
 			{
@@ -1633,8 +1661,8 @@
 			}
 		}));
 
-		BX.bind(this.topOffHours, 'click', BX.proxy(function(){if (this.collapseOffHours){this.switchOffHours(true)}}, this));
-		BX.bind(this.bottomOffHours, 'click', BX.proxy(function(){if (this.collapseOffHours){this.switchOffHours(true)}}, this));
+		BX.bind(this.topOffHours, 'click', BX.proxy(function(){if (this.collapseOffHours){this.switchOffHours(true, 'top')}}, this));
+		BX.bind(this.bottomOffHours, 'click', BX.proxy(function(){if (this.collapseOffHours){this.switchOffHours(true, 'bottom')}}, this));
 
 		if (this.collapseOffHours)
 		{
@@ -1737,7 +1765,7 @@
 		this.switchOffHours(true);
 	};
 
-	DayView.prototype.switchOffHours = function(animate)
+	DayView.prototype.switchOffHours = function(animate, state)
 	{
 		if (this.denySwitch)
 			return;
@@ -1839,6 +1867,17 @@
 			_this.gridWrap.scrollTop = _this.savedScrollTop || (workTime.start * _this.gridLineHeight - 5);
 			_this.scrollTopInterval = setTimeout(checkScrollTimeout, 5);
 		}
+		function checkScrollTopTimeout()
+		{
+			_this.gridWrap.scrollTop = (Math.floor(workTime.start / 2)) * _this.gridLineHeight;
+			_this.scrollTopInterval = setTimeout(checkScrollTopTimeout, 5);
+		}
+
+		function checkScrollBottomTimeout()
+		{
+			_this.gridWrap.scrollTop = (workTime.end - 2) * _this.gridLineHeight;
+			_this.scrollTopInterval = setTimeout(checkScrollBottomTimeout, 5);
+		}
 
 		var setPadding = true;
 		if (!this.collapseOffHours &&
@@ -1872,9 +1911,13 @@
 				}
 			}
 
-			if (animate && this.savedScrollTop)
+			if (animate && state === 'top')
 			{
-				this.scrollTopInterval = setTimeout(checkScrollTimeout, 5);
+				this.scrollTopInterval = setTimeout(checkScrollTopTimeout, 5);
+			}
+			else if(animate && state === 'bottom')
+			{
+				this.scrollTopInterval = setTimeout(checkScrollBottomTimeout, 5);
 			}
 		}
 		else
@@ -2002,7 +2045,7 @@
 					});
 				}
 			}
-			else if (!this.calendar.util.readOnlyMode()
+			else if ((!this.calendar.util.readOnlyMode())
 				&& this.entryController.canDo(true, 'add_event')
 				&& (dayCode = params.specialTarget && params.specialTarget.getAttribute('data-bx-calendar-week-day')))
 			{
@@ -2113,7 +2156,7 @@
 		var dayCode;
 		var target = this.calendar.util.findTargetNode(e.target || e.srcElement);
 
-		if (!this.calendar.util.readOnlyMode()
+		if ((this.calendar.util.type === 'location' || !this.calendar.util.readOnlyMode())
 			&& this.entryController.canDo(true, 'add_event')
 			&& (dayCode = target && target.getAttribute('data-bx-calendar-timeline-day')))
 		{
@@ -2188,8 +2231,8 @@
 
 	DayView.prototype.handleMouseup = function(e)
 	{
-		BX.unbind(document, "mousemove", BX.proxy(this.offHoursMousemove, this));
-		BX.unbind(document, "mouseup", BX.proxy(this.offHoursMouseup, this));
+		// BX.unbind(document, "mousemove", BX.proxy(this.offHoursMousemove, this));
+		// BX.unbind(document, "mouseup", BX.proxy(this.offHoursMouseup, this));
 		BX.removeCustomEvent(this.calendar, 'keyup', BX.proxy(this.checkKeyup, this));
 
 		if (this.createEntryMode)
@@ -2236,7 +2279,7 @@
 			timeNode, nameNode,
 			daysCount = 1,
 			sectionId = BX.Calendar.SectionManager.getNewEntrySectionId(),
-			section = this.calendar.sectionManager.getSection(sectionId),
+			section = this.calendar.sectionManager.getSection(sectionId) || this.calendar.roomsManager.getRoom(sectionId),
 			color = section.color;
 
 		entryTime = this.entryController.getTimeForNewEntry(from.date);
@@ -2318,7 +2361,7 @@
 			from = params.dayFrom,
 			bgNode,timeLabel, timeNode, nameNode, bindNode,
 			sectionId = BX.Calendar.SectionManager.getNewEntrySectionId(),
-			section = this.calendar.sectionManager.getSection(sectionId),
+			section = this.calendar.sectionManager.getSection(sectionId) || this.calendar.roomsManager.getRoom(sectionId),
 			color = section.color;
 
 		entryTime = this.entryController.getTimeForNewEntry(from.date);

@@ -11,6 +11,7 @@ return [
 	],
 	'js' => 'dist/sectioninterface.bundle.js',
 	'rel' => [
+		'main.popup',
 		'main.core.events',
 		'ui.entity-selector',
 		'main.core',

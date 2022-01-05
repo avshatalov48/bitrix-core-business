@@ -1,11 +1,18 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /**
  * @var array $arResult
  * @var array $arParams
  * @var CMain $APPLICATION
  */
+
 $arSmiles = array();
-if(!empty($arResult["Smiles"]))
+if (!empty($arResult["Smiles"]))
 {
 	foreach($arResult["Smiles"] as $arSmile)
 	{
@@ -20,9 +27,9 @@ if(!empty($arResult["Smiles"]))
 	}
 }
 ?>
-	<form action="/bitrix/urlrewrite.php" <?
-		?>id="<?=$this->__component->__name?>" <?
-		?>name="<?=$this->__component->__name?>" <?
+	<form action="/bitrix/urlrewrite.php" <?php
+		?>id="<?=$this->__component->__name?>" <?php
+		?>name="<?=$this->__component->__name?>" <?php
 		?>method="POST" enctype="multipart/form-data" class="comments-form">
 		<input type="hidden" name="comment_post_id" id="postId" value="" />
 		<input type="hidden" name="log_id" id="logId" value="" />
@@ -35,7 +42,7 @@ if(!empty($arResult["Smiles"]))
 		<input type="hidden" name="decode" value="Y" />
 
 	</form>
-<?
+<?php
 $APPLICATION->IncludeComponent("bitrix:main.post.form",
 	".default",
 	array(
@@ -44,8 +51,8 @@ $APPLICATION->IncludeComponent("bitrix:main.post.form",
 			"Bold", "Italic", "Underline", "Strike", "ForeColor",
 			"FontList", "FontSizeList", "RemoveFormat", "Quote",
 			"Code", ((!$arResult["NoCommentUrl"]) ? 'CreateLink' : ''),
-			"Image", (($arResult["allowImageUpload"] == "Y") ? 'UploadImage' : ''),
-			(($arResult["allowVideo"] == "Y") ? "InputVideo" : ""),
+			"Image", (($arResult["allowImageUpload"] === "Y") ? 'UploadImage' : ''),
+			(($arResult["allowVideo"] === "Y") ? "InputVideo" : ""),
 			"Table", "Justify", "InsertOrderedList",
 			"InsertUnorderedList",
 			"MentionUser", "SmileList", "Source"),

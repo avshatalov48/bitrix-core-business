@@ -24,6 +24,7 @@ class User extends \IRestService
 		'SECOND_NAME',
 		'IS_ONLINE',
 		'TIME_ZONE_OFFSET',
+		'UF_DEPARTMENT',
 	];
 
 	private const ALLOWED_USER_BASIC_FIELDS = [
@@ -39,6 +40,7 @@ class User extends \IRestService
 		'WORK_COMPANY',
 		'IS_ONLINE',
 		'TIME_ZONE_OFFSET',
+		'UF_DEPARTMENT',
 	];
 
 	private static $entityUser = 'USER';

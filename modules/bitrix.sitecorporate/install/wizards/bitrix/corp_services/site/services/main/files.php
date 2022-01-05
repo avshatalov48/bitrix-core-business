@@ -38,8 +38,10 @@ if (WIZARD_INSTALL_DEMO_DATA)
 				$delete_after_copy = false
 			);
 		}
-		CModule::IncludeModule("search");
-		CSearch::ReIndexAll(false, 0, Array(WIZARD_SITE_ID, WIZARD_SITE_DIR));
+		if (CModule::IncludeModule("search"))
+		{
+			CSearch::ReIndexAll(false, 0, Array(WIZARD_SITE_ID, WIZARD_SITE_DIR));
+		}
 	}
 
 	WizardServices::PatchHtaccess(WIZARD_SITE_PATH);

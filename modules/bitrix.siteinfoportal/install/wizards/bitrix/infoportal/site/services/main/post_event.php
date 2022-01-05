@@ -3,7 +3,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 
 $arEventTypes = Array();
-$langs = CLanguage::GetList(($b=""), ($o=""));
+$langs = CLanguage::GetList();
 while($language = $langs->Fetch())
 {
 	$lid = $language["LID"];
@@ -24,7 +24,7 @@ foreach ($arEventTypes as $arEventType)
 
 IncludeModuleLangFile(__FILE__);
 
-if(COption::GetOptionString("main", "wizard_first" . substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), false, $wizard->GetVar("siteID")) != "Y"){
+if(COption::GetOptionString("main", "wizard_first".mb_substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), false, $wizard->GetVar("siteID")) != "Y"){
 	$arMessage = Array(
 		"EVENT_NAME" => "INFOPORTAL_ADD_ELEMENT",
 		"LID" => WIZARD_SITE_ID,

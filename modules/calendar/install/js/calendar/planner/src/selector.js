@@ -116,7 +116,7 @@ export class Selector extends EventEmitter
 	show(from, to, params)
 	{
 		const animation = params.animation && this.useAnimation !== false;
-		const focus = params.focus;
+		const focus = params.focus !== false;
 		const alignCenter = params.alignCenter !== false;
 
 		this.DOM.wrap.style.display = 'block';
@@ -134,14 +134,17 @@ export class Selector extends EventEmitter
 				this.transit({
 					toX: fromPos,
 					triggerChangeEvents: false,
-					focus: focus === true
+					focus: focus
 				});
 			}
 			else
 			{
 				this.DOM.wrap.style.left = fromPos + 'px';
 				this.DOM.wrap.style.width = (toPos - fromPos) + 'px';
-				this.focus(false, 200, alignCenter);
+				if (focus)
+				{
+					this.focus(false, 200, alignCenter);
+				}
 				this.checkStatus(fromPos, true);
 			}
 		}
@@ -691,8 +694,6 @@ export class Selector extends EventEmitter
 	focus(animation = true, timeout = 300, alignCenter)
 	{
 		alignCenter = alignCenter === true;
-
-
 
 		if (this.focusTimeout)
 		{

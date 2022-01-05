@@ -159,115 +159,7 @@ this.BX.UI = this.BX.UI || {};
 	  return Step;
 	}(main_core.Event.EventEmitter);
 
-	function _templateObject11() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-step-title\"></div>\n\t\t\t\t"]);
-
-	  _templateObject11 = function _templateObject11() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject10() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-success ui-btn-round ui-btn-xs\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"]);
-
-	  _templateObject10 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-primary ui-btn-round ui-btn-xs\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"]);
-
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-primary ui-btn-round ui-btn-xs\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup ui-tutor-popup-collapse\" onclick=\"", "\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-content\">\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-step-subject\">", "</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-collapse-btn\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-informer\" id=\"ui-tutor-informer\"></div>\n\t\t\t\t"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-link\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-primary ui-btn-round\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup ui-tutor-popup-start\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-header\">\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-icon\"></span>\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-title-wrap\">\n\t\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-title\">", "</span>\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-content\">\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-title\">", "</div>\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-text\">", "</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-footer\">\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-btn\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-icon-angle\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup\" onclick=\"", "\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-header\">\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-icon\"></span>\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-title-wrap\">\n\t\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-title\">", "</span> \n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-content\">\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-text\">", "</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-icon-angle\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-btn\"></div>\n\t\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11;
 	var Manager = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Manager, _Event$EventEmitter);
 
@@ -405,7 +297,7 @@ this.BX.UI = this.BX.UI || {};
 	        var buttonWrapper = this.getRootImButton();
 
 	        if (buttonWrapper) {
-	          var buttonInner = main_core.Tag.render(_templateObject());
+	          var buttonInner = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-btn\"></div>\n\t\t\t\t"])));
 
 	          if (animation) {
 	            main_core.Dom.addClass(buttonWrapper, 'ui-tutor-btn-wrap-animate');
@@ -500,7 +392,7 @@ this.BX.UI = this.BX.UI || {};
 	      };
 
 	      if (!this.smallPopup) {
-	        this.smallPopup = main_core.Tag.render(_templateObject2(), clickSmallPopupHandler.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_TITLE'), this.smallPopupText);
+	        this.smallPopup = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup\" onclick=\"", "\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-header\">\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-icon\"></span>\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-title-wrap\">\n\t\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-title\">", "</span> \n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-content\">\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-text\">", "</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-icon-angle\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), clickSmallPopupHandler.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_TITLE'), this.smallPopupText);
 	        this.emit('onCreateSmallPopupNode');
 	        main_core.Dom.addClass(this.smallPopup, 'ui-tutor-popup-welcome-show');
 	        this.emit('onBeforeAppendSmallPopupNode');
@@ -531,7 +423,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getStartPopup",
 	    value: function getStartPopup() {
 	      if (!this.startPopup) {
-	        this.startPopup = main_core.Tag.render(_templateObject3(), main_core.Loc.getMessage('JS_UI_TUTOR_TITLE'), this.startTitle, this.startText, this.getBeginBtn(), this.getDeferBtn());
+	        this.startPopup = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup ui-tutor-popup-start\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-header\">\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-icon\"></span>\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-title-wrap\">\n\t\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-title\">", "</span>\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-content\">\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-title\">", "</div>\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-text\">", "</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-footer\">\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-btn\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-icon-angle\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_TITLE'), this.startTitle, this.startText, this.getBeginBtn(), this.getDeferBtn());
 	        this.emit('onCreateStartPopupNode');
 	        main_core.Dom.append(this.startPopup, document.body);
 	        this.emit('onAfterAppendStartPopupNode');
@@ -545,7 +437,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this4 = this;
 
 	      if (!this.beginBtn) {
-	        this.beginBtn = main_core.Tag.render(_templateObject4(), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_BEGIN'));
+	        this.beginBtn = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-primary ui-btn-round\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_BEGIN'));
 	        main_core.Event.bind(this.beginBtn, "click", function () {
 	          _this4.emit('clickBeginBtn');
 	        });
@@ -559,7 +451,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this5 = this;
 
 	      if (!this.deferBtn) {
-	        this.deferBtn = main_core.Tag.render(_templateObject5(), main_core.Loc.getMessage('JS_UI_TUTOR_CLOSE_POPUP_BTN'));
+	        this.deferBtn = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-link\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_CLOSE_POPUP_BTN'));
 	        main_core.Event.bind(this.deferBtn, "click", function () {
 	          _this5.emit('clickDeferBtn');
 	        });
@@ -584,7 +476,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getInformer",
 	    value: function getInformer() {
 	      if (!this.informer) {
-	        this.informer = main_core.Tag.render(_templateObject6());
+	        this.informer = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-informer\" id=\"ui-tutor-informer\"></div>\n\t\t\t\t"])));
 	        var informerParentNode = this.getImButton();
 
 	        if (this.isCollapsedShow) {
@@ -754,7 +646,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getCollapseBlock",
 	    value: function getCollapseBlock() {
 	      if (!this.layout.collapseBlock) {
-	        this.layout.collapseBlock = main_core.Tag.render(_templateObject7(), this.clickCollapseBlockHandler.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_STEP_TITLE'), this.getCollapseTitle(), this.getStartBtn(), this.getRepeatBtn(), this.getCompletedBtn());
+	        this.layout.collapseBlock = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup ui-tutor-popup-collapse\" onclick=\"", "\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-content\">\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-step-subject\">", "</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-collapse-btn\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), this.clickCollapseBlockHandler.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_STEP_TITLE'), this.getCollapseTitle(), this.getStartBtn(), this.getRepeatBtn(), this.getCompletedBtn());
 	        this.emit('onCreateCollapsedBlockNode');
 	        main_core.Dom.append(this.layout.collapseBlock, document.body);
 	        this.emit('onAfterAppendCollapsedBlockNode');
@@ -773,7 +665,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this6 = this;
 
 	      if (!this.startBtn) {
-	        this.startBtn = main_core.Tag.render(_templateObject8(), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_START'));
+	        this.startBtn = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-primary ui-btn-round ui-btn-xs\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_START'));
 	        main_core.Event.bind(this.startBtn, "click", function (event) {
 	          event.stopPropagation();
 
@@ -794,7 +686,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this7 = this;
 
 	      if (!this.repeatBtn) {
-	        this.repeatBtn = main_core.Tag.render(_templateObject9(), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_REPEAT'));
+	        this.repeatBtn = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-primary ui-btn-round ui-btn-xs\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_REPEAT'));
 	        main_core.Event.bind(this.repeatBtn, "click", function (event) {
 	          event.stopPropagation();
 
@@ -815,7 +707,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this8 = this;
 
 	      if (!this.completedBtn) {
-	        this.completedBtn = main_core.Tag.render(_templateObject10(), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_COMPLETED_SHORT'));
+	        this.completedBtn = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-success ui-btn-round ui-btn-xs\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_COMPLETED_SHORT'));
 	        main_core.Event.bind(this.completedBtn, "click", function (event) {
 	          event.stopPropagation();
 
@@ -834,7 +726,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getCollapseTitle",
 	    value: function getCollapseTitle() {
 	      if (!this.layout.collapseTitle) {
-	        this.layout.collapseTitle = main_core.Tag.render(_templateObject11());
+	        this.layout.collapseTitle = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-step-title\"></div>\n\t\t\t\t"])));
 	      }
 
 	      return this.layout.collapseTitle;
@@ -1001,295 +893,7 @@ this.BX.UI = this.BX.UI || {};
 	  collapseTitle: null
 	};
 
-	function _templateObject29() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-arrow ui-tutor-popup-arrow-next\"></div>\n\t\t\t\t"]);
-
-	  _templateObject29 = function _templateObject29() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject28() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-arrow ui-tutor-popup-arrow-prev\"></div>\n\t\t\t\t"]);
-
-	  _templateObject28 = function _templateObject28() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject27() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-new-text\">", "</div>\n\t\t\t\t"]);
-
-	  _templateObject27 = function _templateObject27() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject26() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-finished-notice\">", "</div>\n\t\t\t\t"]);
-
-	  _templateObject26 = function _templateObject26() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject25() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-finished\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-finished-title\">", "</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-finished-icon\"></div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-finished-text\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject25 = function _templateObject25() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject24() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tutor-popup-help-link\" onclick=\"", "\">\n\t\t\t\t\t\t<span class=\"ui-tutor-popup-help-link-text\">", "</span>\n\t\t\t\t\t</span>\n\t\t\t\t"]);
-
-	  _templateObject24 = function _templateObject24() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject23() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-video\" data-step=", "></div>\n\t\t\t\t"]);
-
-	  _templateObject23 = function _templateObject23() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject22() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-help\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject22 = function _templateObject22() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject21() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<span class=\"ui-tutor-popup-step-item\" data-step=", " onclick=\"", "\">\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-step-item-number\">", "</span>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t"]);
-
-	  _templateObject21 = function _templateObject21() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject20() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-step-list\"></div>\n\t\t\t\t"]);
-
-	  _templateObject20 = function _templateObject20() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject19() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a class=\"ui-tutor-popup-support-link\" onclick=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t"]);
-
-	  _templateObject19 = function _templateObject19() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject18() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-step-decs\"></div>\n\t\t\t\t"]);
-
-	  _templateObject18 = function _templateObject18() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject17() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-step-title\"></div>\n\t\t\t\t"]);
-
-	  _templateObject17 = function _templateObject17() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject16() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-completed\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-completed-icon\"></div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-completed-text\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject16 = function _templateObject16() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject15() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-link ui-btn-round\" onclick=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"]);
-
-	  _templateObject15 = function _templateObject15() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject14() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-primary ui-btn-round\" onclick=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"]);
-
-	  _templateObject14 = function _templateObject14() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject13() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-success ui-btn-round\" onclick=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"]);
-
-	  _templateObject13 = function _templateObject13() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject12() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-primary ui-btn-round\" onclick=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"]);
-
-	  _templateObject12 = function _templateObject12() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject11$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tutor-popup-defer-link\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t"]);
-
-	  _templateObject11$1 = function _templateObject11() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject10$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tutor-popup-header-counter-number\"></span>\n\t\t\t\t"]);
-
-	  _templateObject10$1 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tutor-popup-header-counter-step\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t"]);
-
-	  _templateObject9$1 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tutor-popup-nav-item ui-tutor-popup-nav-item-next\" onclick=\"", "\"></span>\n\t\t\t\t"]);
-
-	  _templateObject8$1 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tutor-popup-nav-item ui-tutor-popup-nav-item-prev\" onclick=\"", "\"></span>\n\t\t\t\t"]);
-
-	  _templateObject7$1 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-nav\"></div>\n\t\t\t\t"]);
-
-	  _templateObject6$1 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-btn\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject5$1 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-content-inner\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject4$1 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-footer\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-content-block\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup ui-tutor-popup-step\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-header\">\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-icon\"></span>\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-title\">\n\t\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-counter\">\n\t\t\t\t\t\t\t\t\t", ".\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-subtitle\">", "</span>\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-content\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-step-wrap\">\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-step-inner\">\n\t\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-arrow-wrap\"></div>\n\t\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-step-list-wrap\">\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-icon-close\" onclick=\"", "\"></div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-icon-angle\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5$1, _templateObject6$1, _templateObject7$1, _templateObject8$1, _templateObject9$1, _templateObject10$1, _templateObject11$1, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16, _templateObject17, _templateObject18, _templateObject19, _templateObject20, _templateObject21, _templateObject22, _templateObject23, _templateObject24, _templateObject25, _templateObject26, _templateObject27, _templateObject28, _templateObject29;
 	var Scenario = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Scenario, _Event$EventEmitter);
 
@@ -1527,7 +1131,7 @@ this.BX.UI = this.BX.UI || {};
 	      };
 
 	      if (!this.stepPopup) {
-	        this.stepPopup = main_core.Tag.render(_templateObject$1(), main_core.Loc.getMessage('JS_UI_TUTOR_TITLE'), this.getCounterContainer(), this.title, this.getDeferLink(), this.getContentBlock(), this.getStepBlock(), clickOnCloseIcon.bind(this));
+	        this.stepPopup = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup ui-tutor-popup-step\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-header\">\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-icon\"></span>\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-title\">\n\t\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-counter\">\n\t\t\t\t\t\t\t\t\t", ".\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-header-subtitle\">", "</span>\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-content\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-step-wrap\">\n\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-step-inner\">\n\t\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-arrow-wrap\"></div>\n\t\t\t\t\t\t\t\t<div class=\"ui-tutor-popup-step-list-wrap\">\n\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-icon-close\" onclick=\"", "\"></div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-icon-angle\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_TITLE'), this.getCounterContainer(), this.title, this.getDeferLink(), this.getContentBlock(), this.getStepBlock(), clickOnCloseIcon.bind(this));
 	        this.fireCurrentStepEvent('onCreateStepPopupNode');
 	        main_core.Dom.append(this.stepPopup, document.body);
 	        this.fireCurrentStepEvent('onAfterAppendStepPopupNode');
@@ -1544,7 +1148,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getContentBlock",
 	    value: function getContentBlock() {
 	      if (!this.layout.contentBlock) {
-	        this.layout.contentBlock = main_core.Tag.render(_templateObject2$1(), this.getContentInner(), this.getFooter());
+	        this.layout.contentBlock = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-content-block\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), this.getContentInner(), this.getFooter());
 	      }
 
 	      return this.layout.contentBlock;
@@ -1558,7 +1162,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getFooter",
 	    value: function getFooter() {
 	      if (!this.layout.footer) {
-	        this.layout.footer = main_core.Tag.render(_templateObject3$1(), this.getNavigation(), this.getBtnContainer());
+	        this.layout.footer = main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-footer\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), this.getNavigation(), this.getBtnContainer());
 
 	        if (Manager.getInstance().feedbackFormId) {
 	          main_core.Dom.append(this.getSupportLink(), this.layout.footer);
@@ -1576,7 +1180,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getContentInner",
 	    value: function getContentInner() {
 	      if (!this.layout.contentInner) {
-	        this.layout.contentInner = main_core.Tag.render(_templateObject4$1(), this.getTitle(), this.getDescription(), this.getHelpBlock());
+	        this.layout.contentInner = main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-content-inner\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), this.getTitle(), this.getDescription(), this.getHelpBlock());
 	      }
 
 	      return this.layout.contentInner;
@@ -1590,7 +1194,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getBtnContainer",
 	    value: function getBtnContainer() {
 	      if (!this.layout.btnContainer) {
-	        this.layout.btnContainer = main_core.Tag.render(_templateObject5$1(), this.getStartBtn(), this.getRepeatBtn(), this.getCompletedBtn());
+	        this.layout.btnContainer = main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-btn\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), this.getStartBtn(), this.getRepeatBtn(), this.getCompletedBtn());
 	      }
 
 	      return this.layout.btnContainer;
@@ -1604,9 +1208,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getNavigation",
 	    value: function getNavigation() {
 	      if (!this.layout.navigation) {
-	        this.layout.navigation = main_core.Tag.render(_templateObject6$1());
-	        this.layout.backBtn = main_core.Tag.render(_templateObject7$1(), this.clickOnBackBtn.bind(this));
-	        this.layout.nextBtn = main_core.Tag.render(_templateObject8$1(), this.clickOnNextBtn.bind(this));
+	        this.layout.navigation = main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-nav\"></div>\n\t\t\t\t"])));
+	        this.layout.backBtn = main_core.Tag.render(_templateObject7$1 || (_templateObject7$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tutor-popup-nav-item ui-tutor-popup-nav-item-prev\" onclick=\"", "\"></span>\n\t\t\t\t"])), this.clickOnBackBtn.bind(this));
+	        this.layout.nextBtn = main_core.Tag.render(_templateObject8$1 || (_templateObject8$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tutor-popup-nav-item ui-tutor-popup-nav-item-next\" onclick=\"", "\"></span>\n\t\t\t\t"])), this.clickOnNextBtn.bind(this));
 	        main_core.Dom.append(this.layout.backBtn, this.layout.navigation);
 	        main_core.Dom.append(this.layout.nextBtn, this.layout.navigation);
 	      }
@@ -1708,7 +1312,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getCounterContainer",
 	    value: function getCounterContainer() {
 	      if (!this.layout.counterContainer) {
-	        this.layout.counterContainer = main_core.Tag.render(_templateObject9$1(), this.getCounter());
+	        this.layout.counterContainer = main_core.Tag.render(_templateObject9$1 || (_templateObject9$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tutor-popup-header-counter-step\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t"])), this.getCounter());
 	      }
 
 	      return this.layout.counterContainer;
@@ -1722,7 +1326,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getCounter",
 	    value: function getCounter() {
 	      if (!this.layout.counter) {
-	        this.layout.counter = main_core.Tag.render(_templateObject10$1());
+	        this.layout.counter = main_core.Tag.render(_templateObject10$1 || (_templateObject10$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tutor-popup-header-counter-number\"></span>\n\t\t\t\t"])));
 	      }
 
 	      return this.layout.counter;
@@ -1736,7 +1340,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getDeferLink",
 	    value: function getDeferLink() {
 	      if (!this.layout.deferLink) {
-	        this.layout.deferLink = main_core.Tag.render(_templateObject11$1(), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_DEFER'));
+	        this.layout.deferLink = main_core.Tag.render(_templateObject11$1 || (_templateObject11$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tutor-popup-defer-link\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_DEFER'));
 	        var deferMenu = new BX.PopupMenuWindow({
 	          angle: true,
 	          offsetLeft: 15,
@@ -1792,7 +1396,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getStartBtn",
 	    value: function getStartBtn() {
 	      if (!this.layout.startBtn) {
-	        this.layout.startBtn = main_core.Tag.render(_templateObject12(), this.clickStartHandler.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_START'));
+	        this.layout.startBtn = main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-primary ui-btn-round\" onclick=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), this.clickStartHandler.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_START'));
 	      }
 
 	      return this.layout.startBtn;
@@ -1806,7 +1410,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getCompletedBtn",
 	    value: function getCompletedBtn() {
 	      if (!this.layout.completedBtn) {
-	        this.layout.completedBtn = main_core.Tag.render(_templateObject13(), this.showSuccessState.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_COMPLETED'));
+	        this.layout.completedBtn = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-success ui-btn-round\" onclick=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), this.showSuccessState.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_COMPLETED'));
 	      }
 
 	      return this.layout.completedBtn;
@@ -1820,7 +1424,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getRepeatBtn",
 	    value: function getRepeatBtn() {
 	      if (!this.layout.repeatBtn) {
-	        this.layout.repeatBtn = main_core.Tag.render(_templateObject14(), this.repeatStep.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_REPEAT'));
+	        this.layout.repeatBtn = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-primary ui-btn-round\" onclick=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), this.repeatStep.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_REPEAT'));
 	      }
 
 	      return this.layout.repeatBtn;
@@ -1834,7 +1438,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getDeferBtn",
 	    value: function getDeferBtn() {
 	      if (!this.layout.deferBtn) {
-	        this.layout.deferBtn = main_core.Tag.render(_templateObject15(), this.closeStepPopup.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_DEFER'));
+	        this.layout.deferBtn = main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"ui-btn ui-btn-link ui-btn-round\" onclick=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), this.closeStepPopup.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_DEFER'));
 	      }
 
 	      return this.layout.deferBtn;
@@ -1848,7 +1452,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getCompletedBLock",
 	    value: function getCompletedBLock() {
 	      if (!this.layout.completedBlock) {
-	        this.layout.completedBlock = main_core.Tag.render(_templateObject16(), main_core.Loc.getMessage('JS_UI_TUTOR_STEP_COMPLETED'));
+	        this.layout.completedBlock = main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-completed\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-completed-icon\"></div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-completed-text\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_STEP_COMPLETED'));
 	      }
 
 	      return this.layout.completedBlock;
@@ -1862,7 +1466,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getTitle",
 	    value: function getTitle() {
 	      if (!this.layout.title) {
-	        this.layout.title = main_core.Tag.render(_templateObject17());
+	        this.layout.title = main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-step-title\"></div>\n\t\t\t\t"])));
 	      }
 
 	      return this.layout.title;
@@ -1876,7 +1480,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getDescription",
 	    value: function getDescription() {
 	      if (!this.layout.description) {
-	        this.layout.description = main_core.Tag.render(_templateObject18());
+	        this.layout.description = main_core.Tag.render(_templateObject18 || (_templateObject18 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-step-decs\"></div>\n\t\t\t\t"])));
 	      }
 
 	      return this.layout.description;
@@ -1890,7 +1494,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getSupportLink",
 	    value: function getSupportLink() {
 	      if (!this.layout.supportLink) {
-	        this.layout.supportLink = main_core.Tag.render(_templateObject19(), this.supportLinkHandler.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_SUPPORT'));
+	        this.layout.supportLink = main_core.Tag.render(_templateObject19 || (_templateObject19 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a class=\"ui-tutor-popup-support-link\" onclick=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t"])), this.supportLinkHandler.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_BTN_SUPPORT'));
 	      }
 
 	      return this.layout.supportLink;
@@ -1920,11 +1524,11 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getStepBlock",
 	    value: function getStepBlock() {
 	      if (!this.layout.stepBlock) {
-	        this.layout.stepBlock = main_core.Tag.render(_templateObject20());
+	        this.layout.stepBlock = main_core.Tag.render(_templateObject20 || (_templateObject20 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-step-list\"></div>\n\t\t\t\t"])));
 	        this.layout.stepItems = [];
 
 	        for (var i = 0; i < this.steps.length; i += 1) {
-	          var currentStepIndex = main_core.Tag.render(_templateObject21(), i, this.switchStep.bind(this), i + 1);
+	          var currentStepIndex = main_core.Tag.render(_templateObject21 || (_templateObject21 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<span class=\"ui-tutor-popup-step-item\" data-step=", " onclick=\"", "\">\n\t\t\t\t\t\t\t<span class=\"ui-tutor-popup-step-item-number\">", "</span>\n\t\t\t\t\t\t</span>\n\t\t\t\t\t"])), i, this.switchStep.bind(this), i + 1);
 	          this.layout.stepItems.push(currentStepIndex);
 	          main_core.Dom.append(currentStepIndex, this.layout.stepBlock);
 	        }
@@ -1966,7 +1570,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getHelpBlock",
 	    value: function getHelpBlock() {
 	      if (!this.layout.help) {
-	        this.layout.help = main_core.Tag.render(_templateObject22(), this.getHelpLink());
+	        this.layout.help = main_core.Tag.render(_templateObject22 || (_templateObject22 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-help\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), this.getHelpLink());
 	      }
 
 	      return this.layout.help;
@@ -1975,7 +1579,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setVideoItems",
 	    value: function setVideoItems() {
 	      for (var i = 0; i < this.steps.length; i += 1) {
-	        var currentVideo = main_core.Tag.render(_templateObject23(), i);
+	        var currentVideo = main_core.Tag.render(_templateObject23 || (_templateObject23 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-video\" data-step=", "></div>\n\t\t\t\t"])), i);
 	        main_core.Dom.prepend(currentVideo, this.getHelpBlock());
 
 	        if (window.YT && main_core.Type.isObject(window.YT) && main_core.Type.isFunction(window.YT.Player) && this.steps[i].video !== null) {
@@ -2037,7 +1641,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getHelpLink",
 	    value: function getHelpLink() {
 	      if (!this.layout.link) {
-	        this.layout.link = main_core.Tag.render(_templateObject24(), this.handleClickLinkHandler.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_ARTICLE_HELP_TOPIC'));
+	        this.layout.link = main_core.Tag.render(_templateObject24 || (_templateObject24 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tutor-popup-help-link\" onclick=\"", "\">\n\t\t\t\t\t\t<span class=\"ui-tutor-popup-help-link-text\">", "</span>\n\t\t\t\t\t</span>\n\t\t\t\t"])), this.handleClickLinkHandler.bind(this), main_core.Loc.getMessage('JS_UI_TUTOR_ARTICLE_HELP_TOPIC'));
 	      }
 
 	      return this.layout.link;
@@ -2496,7 +2100,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getFinishedBlock",
 	    value: function getFinishedBlock() {
 	      if (!this.layout.finishedBlock) {
-	        this.layout.finishedBlock = main_core.Tag.render(_templateObject25(), main_core.Loc.getMessage('JS_UI_TUTOR_FINAL_CONGRATULATIONS'), main_core.Loc.getMessage('JS_UI_TUTOR_FINAL_TEXT'));
+	        this.layout.finishedBlock = main_core.Tag.render(_templateObject25 || (_templateObject25 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-finished\">\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-finished-title\">", "</div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-finished-icon\"></div>\n\t\t\t\t\t\t<div class=\"ui-tutor-popup-finished-text\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_FINAL_CONGRATULATIONS'), main_core.Loc.getMessage('JS_UI_TUTOR_FINAL_TEXT'));
 	      }
 
 	      return this.layout.finishedBlock;
@@ -2510,7 +2114,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getFinishedNotice",
 	    value: function getFinishedNotice() {
 	      if (!this.layout.finishedNotice) {
-	        this.layout.finishedNotice = main_core.Tag.render(_templateObject26(), main_core.Loc.getMessage('JS_UI_TUTOR_FINAL_NOTICE'));
+	        this.layout.finishedNotice = main_core.Tag.render(_templateObject26 || (_templateObject26 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-finished-notice\">", "</div>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_FINAL_NOTICE'));
 	      }
 
 	      return this.layout.finishedNotice;
@@ -2524,7 +2128,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getNewStepsSection",
 	    value: function getNewStepsSection() {
 	      if (!this.layout.newStepsSection) {
-	        this.layout.newStepsSection = main_core.Tag.render(_templateObject27(), main_core.Loc.getMessage('JS_UI_TUTOR_STEP_NEW'));
+	        this.layout.newStepsSection = main_core.Tag.render(_templateObject27 || (_templateObject27 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-new-text\">", "</div>\n\t\t\t\t"])), main_core.Loc.getMessage('JS_UI_TUTOR_STEP_NEW'));
 	      }
 
 	      return this.layout.newStepsSection;
@@ -2575,7 +2179,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getPrevArrow",
 	    value: function getPrevArrow() {
 	      if (!this.prevArrow) {
-	        this.prevArrow = main_core.Tag.render(_templateObject28());
+	        this.prevArrow = main_core.Tag.render(_templateObject28 || (_templateObject28 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-arrow ui-tutor-popup-arrow-prev\"></div>\n\t\t\t\t"])));
 	      }
 
 	      return this.prevArrow;
@@ -2584,7 +2188,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getNextArrow",
 	    value: function getNextArrow() {
 	      if (!this.nextArrow) {
-	        this.nextArrow = main_core.Tag.render(_templateObject29());
+	        this.nextArrow = main_core.Tag.render(_templateObject29 || (_templateObject29 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-tutor-popup-arrow ui-tutor-popup-arrow-next\"></div>\n\t\t\t\t"])));
 	      }
 
 	      return this.nextArrow;

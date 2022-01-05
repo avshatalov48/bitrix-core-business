@@ -25,6 +25,7 @@ export class EventViewForm {
 		this.userId = options.userId || 0;
 		this.zIndex = 3100;
 		this.entryId = options.entryId || null;
+		this.calendarContext = options.calendarContext || null;
 		this.entryDateFrom = options.entryDateFrom || null;
 		this.timezoneOffset = options.timezoneOffset || null;
 		this.BX = Util.getBX();
@@ -236,9 +237,9 @@ export class EventViewForm {
 		{
 			Event.bind(this.DOM.delButton, 'click', ()=>{
 				EventEmitter.subscribeOnce('BX.Calendar.Entry:beforeDelete', ()=>{
-					this.BX.SidePanel.Instance.hide();
+					this.BX.SidePanel.Instance.close();
 				});
-				EntryManager.deleteEntry(this.entry);
+				EntryManager.deleteEntry(this.entry, this.calendarContext);
 			});
 		}
 		else
@@ -289,7 +290,7 @@ export class EventViewForm {
 			this.intranetControllButton = new ControlButton({
 				container: this.DOM.videoCall,
 				entityType: 'calendar_event',
-				entityId: this.entry.id,
+				entityId: this.entry.parentId,
 				entityData: {
 					dateFrom: Util.formatDate(this.entry.from),
 					parentId: this.entry.parentId
@@ -516,6 +517,7 @@ export class EventViewForm {
 			this.BX.ajax.runAction('calendar.api.calendarajax.updatePlanner', {
 					data: {
 						entryId: this.entry.id || 0,
+						entryLocation: this.entry.data.LOCATION || '',
 						ownerId: this.ownerId,
 						hostId: this.entry.getMeetingHost(),
 						type: this.type,
@@ -568,9 +570,9 @@ export class EventViewForm {
 			if (tagName && !['input', 'textarea'].includes(tagName))
 			{
 				EventEmitter.subscribeOnce('BX.Calendar.Entry:beforeDelete', ()=>{
-					this.BX.SidePanel.Instance.hide();
+					this.BX.SidePanel.Instance.close();
 				});
-				EntryManager.deleteEntry(this.entry);
+				EntryManager.deleteEntry(this.entry, this.calendarContext);
 			}
 		}
 	}

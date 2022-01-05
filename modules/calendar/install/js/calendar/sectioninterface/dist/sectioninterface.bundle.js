@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core_events,ui_entitySelector,main_core,calendar_util) {
+(function (exports,main_popup,main_core_events,ui_entitySelector,main_core,calendar_util) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
@@ -30,6 +30,7 @@ this.BX = this.BX || {};
 	    key: "show",
 	    value: function show() {
 	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      this.section = params.section;
 	      this.create();
 	      this.showAccess = params.showAccess !== false;
 
@@ -43,7 +44,6 @@ this.BX = this.BX || {};
 
 	      main_core.Event.bind(document, 'keydown', this.keyHandlerBinded);
 	      main_core.Dom.addClass(this.DOM.outerWrap, 'show');
-	      this.section = params.section;
 
 	      if (params.section) {
 	        if (params.section.color) {
@@ -349,53 +349,21 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "initAccessController",
 	    value: function initAccessController() {
+	      this.buildAccessController();
+
+	      if (this.sectionManager && this.sectionManager.calendarType === 'group') {
+	        this.initDialogGroup();
+	      } else {
+	        this.initDialogStandard();
+	      }
+
+	      this.initAccessSelectorPopup();
+	    }
+	  }, {
+	    key: "initAccessSelectorPopup",
+	    value: function initAccessSelectorPopup() {
 	      var _this4 = this;
 
-	      this.DOM.accessLink = this.DOM.optionsWrap.appendChild(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-list-slider-new-calendar-option-more\">", "</div>"])), main_core.Loc.getMessage('EC_SEC_SLIDER_ACCESS')));
-	      this.DOM.accessWrap = this.DOM.formFieldsWrap.appendChild(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-list-slider-access-container\">\n\t\t\t\t\t<div class=\"calendar-list-slider-access-inner-wrap\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"calendar-list-slider-new-calendar-options-container\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>"])), this.DOM.accessTable = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<table class=\"calendar-section-slider-access-table\"></table>\n\t\t\t\t\t\t"]))), this.DOM.accessButton = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<span class=\"calendar-list-slider-new-calendar-option-add\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>"])), main_core.Loc.getMessage('EC_SEC_SLIDER_ACCESS_ADD'))));
-	      this.accessControls = {};
-	      this.accessTasks = this.sectionAccessTasks;
-	      main_core.Event.bind(this.DOM.accessLink, 'click', function () {
-	        if (main_core.Dom.hasClass(_this4.DOM.accessWrap, 'shown')) {
-	          main_core.Dom.removeClass(_this4.DOM.accessWrap, 'shown');
-	        } else {
-	          main_core.Dom.addClass(_this4.DOM.accessWrap, 'shown');
-	        }
-
-	        _this4.checkAccessTableHeight();
-	      });
-	      main_core.Event.bind(this.DOM.accessButton, 'click', function () {
-	        _this4.entitySelectorDialog = new ui_entitySelector.Dialog({
-	          targetNode: _this4.DOM.accessButton,
-	          context: 'CALENDAR',
-	          preselectedItems: [],
-	          enableSearch: true,
-	          events: {
-	            'Item:onSelect': _this4.handleEntitySelectorChanges.bind(_this4),
-	            'Item:onDeselect': _this4.handleEntitySelectorChanges.bind(_this4)
-	          },
-	          popupOptions: {
-	            targetContainer: document.body
-	          },
-	          entities: [{
-	            id: 'user'
-	          }, {
-	            id: 'project'
-	          }, {
-	            id: 'department',
-	            options: {
-	              selectMode: 'usersAndDepartments'
-	            }
-	          }, {
-	            id: 'meta-user',
-	            options: {
-	              'all-users': true
-	            }
-	          }]
-	        });
-
-	        _this4.entitySelectorDialog.show();
-	      });
 	      main_core.Event.bind(this.DOM.accessWrap, 'click', function (e) {
 	        var target = calendar_util.Util.findTargetNode(e.target || e.srcElement, _this4.DOM.outerWrap);
 
@@ -428,25 +396,145 @@ this.BX = this.BX || {};
 	      });
 	    }
 	  }, {
+	    key: "buildAccessController",
+	    value: function buildAccessController() {
+	      var _this5 = this;
+
+	      this.DOM.accessLink = this.DOM.optionsWrap.appendChild(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-list-slider-new-calendar-option-more\">", "</div>"])), main_core.Loc.getMessage('EC_SEC_SLIDER_ACCESS')));
+	      this.DOM.accessWrap = this.DOM.formFieldsWrap.appendChild(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-list-slider-access-container\">\n\t\t\t\t\t<div class=\"calendar-list-slider-access-inner-wrap\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"calendar-list-slider-new-calendar-options-container\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>"])), this.DOM.accessTable = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<table class=\"calendar-section-slider-access-table\"></table>\n\t\t\t\t\t\t"]))), this.DOM.accessButton = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<span class=\"calendar-list-slider-new-calendar-option-add\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>"])), main_core.Loc.getMessage('EC_SEC_SLIDER_ACCESS_ADD'))));
+	      this.accessControls = {};
+	      this.accessTasks = this.sectionAccessTasks;
+	      main_core.Event.bind(this.DOM.accessLink, 'click', function () {
+	        if (main_core.Dom.hasClass(_this5.DOM.accessWrap, 'shown')) {
+	          main_core.Dom.removeClass(_this5.DOM.accessWrap, 'shown');
+	        } else {
+	          main_core.Dom.addClass(_this5.DOM.accessWrap, 'shown');
+	        }
+
+	        _this5.checkAccessTableHeight();
+	      });
+	    }
+	  }, {
+	    key: "initDialogStandard",
+	    value: function initDialogStandard() {
+	      var _this6 = this;
+
+	      main_core.Event.bind(this.DOM.accessButton, 'click', function () {
+	        _this6.entitySelectorDialog = new ui_entitySelector.Dialog({
+	          targetNode: _this6.DOM.accessButton,
+	          context: 'CALENDAR',
+	          preselectedItems: [],
+	          enableSearch: true,
+	          events: {
+	            'Item:onSelect': _this6.handleEntitySelectorChanges.bind(_this6),
+	            'Item:onDeselect': _this6.handleEntitySelectorChanges.bind(_this6)
+	          },
+	          popupOptions: {
+	            targetContainer: document.body
+	          },
+	          entities: [{
+	            id: 'user'
+	          }, {
+	            id: 'project'
+	          }, {
+	            id: 'department',
+	            options: {
+	              selectMode: 'usersAndDepartments'
+	            }
+	          }, {
+	            id: 'meta-user',
+	            options: {
+	              'all-users': true
+	            }
+	          }]
+	        });
+
+	        _this6.entitySelectorDialog.show();
+	      });
+	    }
+	  }, {
+	    key: "initDialogGroup",
+	    value: function initDialogGroup() {
+	      var _this7 = this;
+
+	      main_core.Event.bind(this.DOM.accessButton, 'click', function () {
+	        _this7.entitySelectorDialog = new ui_entitySelector.Dialog({
+	          targetNode: _this7.DOM.accessButton,
+	          context: 'CALENDAR',
+	          preselectedItems: [],
+	          enableSearch: true,
+	          events: {
+	            'Item:onSelect': _this7.handleEntitySelectorChanges.bind(_this7),
+	            'Item:onDeselect': _this7.handleEntitySelectorChanges.bind(_this7)
+	          },
+	          popupOptions: {
+	            targetContainer: document.body
+	          },
+	          entities: [{
+	            id: 'user'
+	          }, {
+	            id: 'department',
+	            options: {
+	              selectMode: 'usersAndDepartments'
+	            }
+	          }, {
+	            id: 'meta-user',
+	            options: {
+	              'all-users': true
+	            }
+	          }],
+	          tabs: [{
+	            id: 'groupAccess',
+	            title: _this7.sectionManager.ownerName
+	          }],
+	          items: [{
+	            id: 'SG' + _this7.sectionManager.ownerId + '_' + 'A',
+	            entityId: 'group',
+	            tabs: 'groupAccess',
+	            title: main_core.Loc.getMessage('EC_ACCESS_GROUP_ADMIN')
+	          }, {
+	            id: 'SG' + _this7.sectionManager.ownerId + '_' + 'E',
+	            entityId: 'group',
+	            tabs: 'groupAccess',
+	            title: main_core.Loc.getMessage('EC_ACCESS_GROUP_MODERATORS')
+	          }, {
+	            id: 'SG' + _this7.sectionManager.ownerId + '_' + 'K',
+	            entityId: 'group',
+	            tabs: 'groupAccess',
+	            title: main_core.Loc.getMessage('EC_ACCESS_GROUP_MEMBERS')
+	          }]
+	        });
+
+	        _this7.entitySelectorDialog.show();
+	      });
+	    }
+	  }, {
 	    key: "handleEntitySelectorChanges",
 	    value: function handleEntitySelectorChanges() {
-	      var _this5 = this;
+	      var _this8 = this;
 
 	      var entityList = this.entitySelectorDialog.getSelectedItems();
 	      this.entitySelectorDialog.hide();
 
 	      if (main_core.Type.isArray(entityList)) {
 	        entityList.forEach(function (entity) {
-	          var title = entity.title.text;
+	          var title;
+
+	          if (entity.entityId === 'group') {
+	            title = _this8.sectionManager.ownerName + ': ' + entity.title.text;
+	          } else {
+	            title = entity.title.text;
+	          }
+
 	          var code = calendar_util.Util.convertEntityToAccessCode(entity);
 	          calendar_util.Util.setAccessName(code, title);
 
-	          _this5.insertAccessRow(title, code);
+	          _this8.insertAccessRow(title, code);
 	        });
 	      }
 
 	      main_core.Runtime.debounce(function () {
-	        _this5.entitySelectorDialog.destroy();
+	        _this8.entitySelectorDialog.destroy();
 	      }, 400)();
 	    } // todo: refactor it
 
@@ -513,19 +601,19 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "checkAccessTableHeight",
 	    value: function checkAccessTableHeight() {
-	      var _this6 = this;
+	      var _this9 = this;
 
 	      if (this.checkTableTimeout) {
 	        this.checkTableTimeout = clearTimeout(this.checkTableTimeout);
 	      }
 
 	      this.checkTableTimeout = setTimeout(function () {
-	        if (main_core.Dom.hasClass(_this6.DOM.accessWrap, 'shown')) {
-	          if (_this6.DOM.accessWrap.offsetHeight - _this6.DOM.accessTable.offsetHeight < 36) {
-	            _this6.DOM.accessWrap.style.maxHeight = parseInt(_this6.DOM.accessTable.offsetHeight) + 100 + 'px';
+	        if (main_core.Dom.hasClass(_this9.DOM.accessWrap, 'shown')) {
+	          if (_this9.DOM.accessWrap.offsetHeight - _this9.DOM.accessTable.offsetHeight < 36) {
+	            _this9.DOM.accessWrap.style.maxHeight = parseInt(_this9.DOM.accessTable.offsetHeight) + 100 + 'px';
 	          }
 	        } else {
-	          _this6.DOM.accessWrap.style.maxHeight = '';
+	          _this9.DOM.accessWrap.style.maxHeight = '';
 	        }
 	      }, 300);
 	    }
@@ -1069,7 +1157,13 @@ this.BX = this.BX || {};
 	  return TrackingTypesForm;
 	}(TrackingUsersForm);
 
-	var _templateObject$4, _templateObject2$4;
+	var _templateObject$4, _templateObject2$4, _templateObject3$3, _templateObject4$2, _templateObject5$1, _templateObject6$1;
+
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+
+	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 	var SectionInterface = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(SectionInterface, _EventEmitter);
 
@@ -1098,10 +1192,12 @@ this.BX = this.BX || {};
 	    _this.deleteSectionHandlerBinded = _this.deleteSectionHandler.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.refreshSectionListBinded = _this.refreshSectionList.bind(babelHelpers.assertThisInitialized(_this));
 
-	    if (_this.calendarContext.util.config.accessNames) {
-	      var _this$calendarContext, _this$calendarContext2, _this$calendarContext3;
+	    if (_this.calendarContext !== null) {
+	      if (_this.calendarContext.util.config.accessNames) {
+	        var _this$calendarContext, _this$calendarContext2, _this$calendarContext3;
 
-	      calendar_util.Util.setAccessNames((_this$calendarContext = _this.calendarContext) === null || _this$calendarContext === void 0 ? void 0 : (_this$calendarContext2 = _this$calendarContext.util) === null || _this$calendarContext2 === void 0 ? void 0 : (_this$calendarContext3 = _this$calendarContext2.config) === null || _this$calendarContext3 === void 0 ? void 0 : _this$calendarContext3.accessNames);
+	        calendar_util.Util.setAccessNames((_this$calendarContext = _this.calendarContext) === null || _this$calendarContext === void 0 ? void 0 : (_this$calendarContext2 = _this$calendarContext.util) === null || _this$calendarContext2 === void 0 ? void 0 : (_this$calendarContext3 = _this$calendarContext2.config) === null || _this$calendarContext3 === void 0 ? void 0 : _this$calendarContext3.accessNames);
+	      }
 	    }
 
 	    return _this;
@@ -1173,45 +1269,38 @@ this.BX = this.BX || {};
 	        if (this.sectionActionMenu) {
 	          this.sectionActionMenu.close();
 	        }
+
+	        if (this.trackingTypesForm) {
+	          delete this.trackingTypesForm;
+	        }
+
+	        if (this.trackingUsersForm) {
+	          delete this.trackingUsersForm;
+	        }
+
+	        if (this.trackingGroupsForm) {
+	          delete this.trackingGroupsForm;
+	        }
 	      }
 	    }
 	  }, {
 	    key: "createContent",
 	    value: function createContent() {
-	      this.DOM.outerWrap = main_core.Dom.create('DIV', {
-	        props: {
-	          className: 'calendar-list-slider-wrap'
-	        }
-	      });
-	      this.DOM.titleWrap = this.DOM.outerWrap.appendChild(main_core.Dom.create('DIV', {
-	        props: {
-	          className: 'calendar-list-slider-title-container'
-	        },
-	        html: '<div class="calendar-list-slider-title">' + main_core.Loc.getMessage('EC_SECTION_BUTTON') + '</div>'
-	      }));
+	      this.DOM.outerWrap = main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-list-slider-wrap\"></div>\n\t\t"])));
+	      this.DOM.titleWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-list-slider-title-container\">\n\t\t\t\t\t<div class=\"calendar-list-slider-title\"> \n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('EC_SECTION_BUTTON')));
 	      var calendarContext = this.calendarContext || calendar_util.Util.getCalendarContext();
 
 	      if (calendarContext && !this.readonly) {
-	        this.DOM.sectionFormWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-list-slider-card-widget calendar-list-slider-form-wrap\">\n\t\t\t\t\t\t<div class=\"calendar-list-slider-card-widget-title\">\n\t\t\t\t\t\t\t<span class=\"calendar-list-slider-card-widget-title-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('EC_SEC_SLIDER_NEW_SECTION')));
+	        this.DOM.sectionFormWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-list-slider-card-widget calendar-list-slider-form-wrap\">\n\t\t\t\t\t\t<div class=\"calendar-list-slider-card-widget-title\">\n\t\t\t\t\t\t\t<span class=\"calendar-list-slider-card-widget-title-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('EC_SEC_SLIDER_NEW_SECTION')));
 	      }
 
 	      if (calendarContext && !this.readonly && (!calendarContext.util.isUserCalendar() || calendarContext.util.userIsOwner())) {
 	        // #1. Controls
 	        this.createAddButton(); // #2. Forms
 
-	        this.DOM.trackingCompanyFormWrap = this.DOM.outerWrap.appendChild(main_core.Dom.create('DIV', {
-	          props: {
-	            className: 'calendar-list-slider-card-widget calendar-list-slider-form-wrap'
-	          },
-	          html: "\n\t\t\t\t\t<div class=\"calendar-list-slider-card-widget-title\">\n\t\t\t\t\t\t<span class=\"calendar-list-slider-card-widget-title-text\">\n\t\t\t\t\t\t\t".concat(main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_COMP'), "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t")
-	        }));
-	        this.DOM.trackingUsersFormWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div>\n\t\t\t\t\t\t<div class=\"calendar-list-slider-card-widget-title\">\n\t\t\t\t\t\t\t<span class=\"calendar-list-slider-card-widget-title-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP')));
-	        this.DOM.trackingGroupsFormWrap = this.DOM.outerWrap.appendChild(main_core.Dom.create('DIV', {
-	          props: {
-	            className: 'calendar-list-slider-card-widget calendar-list-slider-form-wrap'
-	          },
-	          html: "\n\t\t\t\t\t<div class=\"calendar-list-slider-card-widget-title\">\n\t\t\t\t\t\t<span class=\"calendar-list-slider-card-widget-title-text\">\n\t\t\t\t\t\t\t".concat(main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP'), "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>")
-	        }));
+	        this.DOM.trackingGroupsFormWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-list-slider-card-widget calendar-list-slider-form-wrap\">\n\t\t\t\t\t\t<div class=\"calendar-list-slider-card-widget-title\">\n\t\t\t\t\t\t\t<span class=\"calendar-list-slider-card-widget-title-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\t\t\t\t\t\t\t\t\n\t\t\t\t"])), main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP')));
+	        this.DOM.trackingUsersFormWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-list-slider-card-widget calendar-list-slider-form-wrap\">\n\t\t\t\t\t\t<div class=\"calendar-list-slider-card-widget-title\">\n\t\t\t\t\t\t\t<span class=\"calendar-list-slider-card-widget-title-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_USER')));
+	        this.DOM.trackingTypesFormWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-list-slider-card-widget calendar-list-slider-form-wrap\">\n\t\t\t\t\t\t<div class=\"calendar-list-slider-card-widget-title\">\n\t\t\t\t\t\t\t<span class=\"calendar-list-slider-card-widget-title-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\t\t\t\t\t\t\t\t\n\t\t\t\t"])), main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_COMP')));
 	      } // #3. List of sections
 
 
@@ -1359,21 +1448,20 @@ this.BX = this.BX || {};
 	        return this.addBtnMenu.close();
 	      }
 
-	      var submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
-	      var menuItems = [{
-	        html: '<span>' + main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_NEW_TITLE') + '</span>',
-	        className: submenuClass
-	      }, {
+	      var menuItems = [new main_popup.MenuItem({
+	        text: main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_NEW_TITLE'),
+	        delimiter: true
+	      }), {
 	        html: main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_NEW_MENU'),
 	        onclick: function onclick() {
 	          _this3.addBtnMenu.close();
 
 	          _this3.showEditSectionForm();
 	        }
-	      }, {
-	        html: '<span>' + main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_EXIST_TITLE') + '</span>',
-	        className: submenuClass
-	      }, {
+	      }, new main_popup.MenuItem({
+	        text: main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_EXIST_TITLE'),
+	        delimiter: true
+	      }), {
 	        html: main_core.Loc.getMessage('EC_SEC_SLIDER_POPUP_MENU_ADD_COMP'),
 	        onclick: function onclick() {
 	          _this3.addBtnMenu.close();
@@ -1492,9 +1580,14 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }, {
+	    key: "findCheckBoxNodes",
+	    value: function findCheckBoxNodes(id) {
+	      return this.DOM.sectionListWrap.querySelectorAll('.calendar-list-slider-item[data-bx-calendar-section=\'' + id + '\'] .calendar-list-slider-item-checkbox');
+	    }
+	  }, {
 	    key: "switchSection",
 	    value: function switchSection(section) {
-	      var checkboxNodes = this.DOM.sectionListWrap.querySelectorAll('.calendar-list-slider-item[data-bx-calendar-section=\'' + section.id + '\'] .calendar-list-slider-item-checkbox');
+	      var checkboxNodes = this.findCheckBoxNodes(section.id);
 
 	      for (var i = 0; i < checkboxNodes.length; i++) {
 	        if (section.isShown()) {
@@ -1514,6 +1607,36 @@ this.BX = this.BX || {};
 	      this.calendarContext.reload();
 	    }
 	  }, {
+	    key: "switchOnSection",
+	    value: function switchOnSection(section) {
+	      var checkboxNodes = this.findCheckBoxNodes(section.id);
+
+	      for (var i = 0; i < checkboxNodes.length; i++) {
+	        if (!section.isShown()) {
+	          main_core.Dom.addClass(checkboxNodes[i], 'calendar-list-slider-item-checkbox-checked');
+	        }
+	      }
+
+	      if (!section.isShown()) {
+	        section.show();
+	      }
+	    }
+	  }, {
+	    key: "switchOffSection",
+	    value: function switchOffSection(section) {
+	      var checkboxNodes = this.findCheckBoxNodes(section.id);
+
+	      for (var i = 0; i < checkboxNodes.length; i++) {
+	        if (section.isShown()) {
+	          main_core.Dom.removeClass(checkboxNodes[i], 'calendar-list-slider-item-checkbox-checked');
+	        }
+	      }
+
+	      if (section.isShown()) {
+	        section.hide();
+	      }
+	    }
+	  }, {
 	    key: "showSectionMenu",
 	    value: function showSectionMenu(section, menuItemNode) {
 	      var _this4 = this;
@@ -1523,6 +1646,17 @@ this.BX = this.BX || {};
 
 	      if (main_core.Type.isElementNode(itemNode)) {
 	        main_core.Dom.addClass(itemNode, 'active');
+	      }
+
+	      if (section.canDo('view_time')) {
+	        menuItems.push({
+	          text: main_core.Loc.getMessage('EC_SEC_LEAVE_ONE'),
+	          onclick: function onclick() {
+	            _this4.sectionActionMenu.close();
+
+	            _this4.showOnlyOneSection(section, _this4.sectionManager.sections);
+	          }
+	        });
 	      }
 
 	      if (!section.isPseudo() && section.getLink() && !section.belongsToView()) {
@@ -1589,7 +1723,7 @@ this.BX = this.BX || {};
 	        });
 	      }
 
-	      if (section.canDo('edit_section') && section.belongsToView() && !section.isPseudo()) {
+	      if (section.canDo('edit_section') && section.belongsToView() && !section.isPseudo() && (!section.isGoogle() || section.data['EXTERNAL_TYPE'] === 'local')) {
 	        menuItems.push({
 	          text: main_core.Loc.getMessage('EC_SEC_DELETE'),
 	          onclick: function onclick() {
@@ -1768,7 +1902,7 @@ this.BX = this.BX || {};
 
 	      if (!this.trackingTypesForm) {
 	        this.trackingTypesForm = new TrackingTypesForm({
-	          wrap: this.DOM.trackingCompanyFormWrap,
+	          wrap: this.DOM.trackingTypesFormWrap,
 	          superposedSections: this.sectionManager.getSuperposedSectionList(),
 	          closeCallback: function closeCallback() {
 	            _this6.allowSliderClose();
@@ -1845,6 +1979,7 @@ this.BX = this.BX || {};
 	            }, 300);
 	          }
 	        }, this);
+	        this.closeForms();
 	      }
 	    }
 	  }, {
@@ -1877,11 +2012,35 @@ this.BX = this.BX || {};
 	    value: function refreshSectionList() {
 	      this.createSectionList();
 	    }
+	  }, {
+	    key: "showOnlyOneSection",
+	    value: function showOnlyOneSection(section, sections) {
+	      var _iterator = _createForOfIteratorHelper(sections),
+	          _step;
+
+	      try {
+	        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	          var curSection = _step.value;
+
+	          if (curSection.id === section.id) {
+	            this.switchOnSection(curSection);
+	          } else {
+	            this.switchOffSection(curSection);
+	          }
+	        }
+	      } catch (err) {
+	        _iterator.e(err);
+	      } finally {
+	        _iterator.f();
+	      }
+
+	      this.calendarContext.reload();
+	    }
 	  }]);
 	  return SectionInterface;
 	}(main_core_events.EventEmitter);
 
 	exports.SectionInterface = SectionInterface;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Event,BX.UI.EntitySelector,BX,BX.Calendar));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Main,BX.Event,BX.UI.EntitySelector,BX,BX.Calendar));
 //# sourceMappingURL=sectioninterface.bundle.js.map

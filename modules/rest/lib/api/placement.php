@@ -129,6 +129,7 @@ class Placement extends \IRestService
 				'APP_ID' => $appInfo['ID'],
 				'PLACEMENT' => $placement,
 				'PLACEMENT_HANDLER' => $placementHandler,
+				'OPTIONS' => static::prepareOptions($params['OPTIONS'], $placementInfo['options']),
 			);
 
 			$langList = Lang::listLanguage();
@@ -255,6 +256,31 @@ class Placement extends \IRestService
 		);
 	}
 
+	private static function prepareOptions($data = [], $setting = []): array
+	{
+		$result = [];
+
+		if (!empty($setting) && is_array($data))
+		{
+			foreach ($data as $key => $value)
+			{
+				if (!empty($setting[$key]))
+				{
+					switch ($setting[$key])
+					{
+						case 'int':
+							$result[$key] = (int) $value;
+							break;
+						case 'string':
+							$result[$key] = (string) $value;
+							break;
+					}
+				}
+			}
+		}
+
+		return $result;
+	}
 
 	public static function unbind($params, $n, \CRestServer $server)
 	{
@@ -349,6 +375,7 @@ class Placement extends \IRestService
 				$result[] = array(
 					'placement' => $placement->getPlacement(),
 					'handler' => $placement->getPlacementHandler(),
+					'options' => $placement->getOptions(),
 					'title' => $placement->getTitle(),
 					'description' => $placement->getComment(),
 					'langAll' => $langList,

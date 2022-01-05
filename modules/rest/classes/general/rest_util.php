@@ -130,6 +130,20 @@ class CRestUtil
 			return true;
 		}
 
+		if (
+			is_array($appInfo)
+			&& $appInfo['TYPE'] === \Bitrix\Rest\AppTable::TYPE_CONFIGURATION
+			&& !empty($appInfo['MANIFEST']['CODE'])
+		)
+		{
+			$access = \Bitrix\Rest\Configuration\Manifest::checkAccess(
+				\Bitrix\Rest\Configuration\Manifest::ACCESS_TYPE_IMPORT,
+				$appInfo['MANIFEST']['CODE']
+			);
+
+			return $access['result'];
+		}
+
 		$hasAccess = $USER->CanAccess(static::getInstallAccessList());
 		if($hasAccess && is_array($appInfo))
 		{
@@ -649,6 +663,7 @@ class CRestUtil
 			try
 			{
 				\Bitrix\Rest\OAuthService::register();
+				\Bitrix\Rest\OAuthService::getEngine()->getClient()->getApplicationList();
 			}
 			catch(\Bitrix\Main\SystemException $e)
 			{

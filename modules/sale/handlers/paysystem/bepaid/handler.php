@@ -133,6 +133,7 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 					'currency' => $payment->getField('CURRENCY'),
 					'description' => $this->getPaymentDescription($payment),
 					'tracking_id' => $payment->getId().self::TRACKING_ID_DELIMITER.$this->service->getField('ID'),
+					'additional_data' => self::getAdditionalData(),
 				],
 				'settings' => [
 					'success_url' => $this->getSuccessUrl($payment),
@@ -174,6 +175,7 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 					'currency' => $payment->getField('CURRENCY'),
 					'description' => $this->getPaymentDescription($payment),
 					'tracking_id' => $payment->getId().self::TRACKING_ID_DELIMITER.$this->service->getField('ID'),
+					'additional_data' => self::getAdditionalData(),
 				],
 				'settings' => [
 					'success_url' => $this->getSuccessUrl($payment),
@@ -465,18 +467,6 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 
 				$result->setPsData($fields);
 			}
-			else
-			{
-				$result->addError(
-					PaySystem\Error::create(
-						Loc::getMessage('SALE_HPS_BEPAID_ERROR_STATUS',
-							[
-								'#STATUS#' => $transaction['status'],
-							]
-						)
-					)
-				);
-			}
 		}
 		else
 		{
@@ -756,5 +746,62 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 		{
 			return false;
 		}
+	}
+
+	private static function getAdditionalData(): array
+	{
+		$additionalData = [
+			'platform_data' => self::getPlatformData(),
+		];
+
+		$integrationData = self::getIntegrationData();
+		if ($integrationData)
+		{
+			$additionalData['integration_data'] = $integrationData;
+		}
+
+		return $additionalData;
+	}
+
+	private static function getPlatformData(): string
+	{
+		if (Main\ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			$platformType = 'Bitrix24';
+		}
+		elseif (Main\ModuleManager::isModuleInstalled('intranet'))
+		{
+			$platformType = 'Self-hosted';
+		}
+		else
+		{
+			$platformType = 'Bitrix Site Manager';
+		}
+
+		return $platformType;
+	}
+
+	private static function getIntegrationData(): ?string
+	{
+		$version = self::getSaleModuleVersion();
+		if (!$version)
+		{
+			return null;
+		}
+
+		return 'bePaid system module v' . $version;
+	}
+
+	private static function getSaleModuleVersion(): ?string
+	{
+		$modulePath = getLocalPath('modules/sale/install/version.php');
+		if ($modulePath === false)
+		{
+			return null;
+		}
+
+		$arModuleVersion = array();
+		include $_SERVER['DOCUMENT_ROOT'].$modulePath;
+		return (isset($arModuleVersion['VERSION']) ? (string)$arModuleVersion['VERSION'] : null);
 	}
 }

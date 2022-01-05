@@ -1008,8 +1008,7 @@ class CAdminUiList extends CAdminList
 								$field["view"]["showInfo"], $field["view"]["inputs"]) : "";
 							break;
 						case "html":
-							$value = (trim($field["view"]["value"]) <> '' ?
-								$field["view"]["value"] : (is_array($value) ? "" : $value));
+							$value = $field["view"]["value"];
 							break;
 						default:
 							$value = htmlspecialcharsex($value);

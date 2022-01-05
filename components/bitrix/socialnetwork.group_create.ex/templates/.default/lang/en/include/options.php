@@ -1,0 +1,21 @@
+<?php
+$MESS["SONET_GCE_T_IS_EXTRANET_GROUP2_HINT"] = "External users can be invited to the workgroup";
+$MESS["SONET_GCE_T_IS_EXTRANET_GROUP2_HINT_PROJECT"] = "External users can be invited to the project";
+$MESS["SONET_GCE_T_IS_EXTRANET_GROUP3"] = "Allow access for external users";
+$MESS["SONET_GCE_T_IS_EXTRANET_TITLE"] = "External Users:";
+$MESS["SONET_GCE_T_PARAMS_CLOSED2"] = "Archived";
+$MESS["SONET_GCE_T_PARAMS_CLOSED2_HINT"] = "Workgroup is archived";
+$MESS["SONET_GCE_T_PARAMS_CLOSED2_HINT_PROJECT"] = "Project is archived";
+$MESS["SONET_GCE_T_PARAMS_CLOSED2_PROJECT"] = "Archived";
+$MESS["SONET_GCE_T_PARAMS_LANDING"] = "Bitrix24.Sites source";
+$MESS["SONET_GCE_T_PARAMS_OPEN2"] = "Open";
+$MESS["SONET_GCE_T_PARAMS_OPEN2_HINT"] = "Anyone can become a member of the workgroup without moderator's approval";
+$MESS["SONET_GCE_T_PARAMS_OPEN2_HINT_PROJECT"] = "Project membership can be obtained without approval by the owner or moderator";
+$MESS["SONET_GCE_T_PARAMS_OPEN2_PROJECT"] = "Open";
+$MESS["SONET_GCE_T_PARAMS_PROJECT"] = "Project";
+$MESS["SONET_GCE_T_PARAMS_VIS2"] = "Visible";
+$MESS["SONET_GCE_T_PARAMS_VIS2_HINT"] = "The workgroup is visible to everyone, not just workgroup members";
+$MESS["SONET_GCE_T_PARAMS_VIS2_HINT_PROJECT"] = "The project is visible to everyone, not just workgroup members";
+$MESS["SONET_GCE_T_PARAMS_VIS2_PROJECT"] = "Visible";
+$MESS["SONET_GCE_T_TITLE_TYPE"] = "Workgroup type";
+$MESS["SONET_GCE_T_TITLE_TYPE_PROJECT"] = "Project type";

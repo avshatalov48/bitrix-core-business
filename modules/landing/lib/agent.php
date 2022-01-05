@@ -203,9 +203,11 @@ class Agent
 			]);
 			while ($rowSub = $resSub->fetch())
 			{
+				Lock::lockDeleteLanding($rowSub['ID'], false);
 				$resDel = Landing::delete($rowSub['ID'], true);
 				$resDel->isSuccess();// for trigger
 			}
+			Lock::lockDeleteLanding($row['ID'], false);
 			$resDel = Landing::delete($row['ID'], true);
 			$resDel->isSuccess();// for trigger
 		}
@@ -226,6 +228,7 @@ class Agent
 		]);
 		while ($row = $res->fetch())
 		{
+			Lock::lockDeleteSite($row['ID'], false);
 			$resDel = Site::delete($row['ID']);
 			$resDel->isSuccess();// for trigger
 		}

@@ -365,8 +365,11 @@ abstract class Application
 	public function createExceptionHandlerLog()
 	{
 		$exceptionHandling = Config\Configuration::getValue("exception_handling");
-		if ($exceptionHandling === null || !is_array($exceptionHandling) || !isset($exceptionHandling["log"]) || !is_array($exceptionHandling["log"]))
+
+		if (!is_array($exceptionHandling) || !isset($exceptionHandling["log"]) || !is_array($exceptionHandling["log"]))
+		{
 			return null;
+		}
 
 		$options = $exceptionHandling["log"];
 
@@ -375,14 +378,20 @@ abstract class Application
 		if (isset($options["class_name"]) && !empty($options["class_name"]))
 		{
 			if (isset($options["extension"]) && !empty($options["extension"]) && !extension_loaded($options["extension"]))
+			{
 				return null;
+			}
 
 			if (isset($options["required_file"]) && !empty($options["required_file"]) && ($requiredFile = Loader::getLocal($options["required_file"])) !== false)
+			{
 				require_once($requiredFile);
+			}
 
 			$className = $options["class_name"];
 			if (!class_exists($className))
+			{
 				return null;
+			}
 
 			$log = new $className();
 		}

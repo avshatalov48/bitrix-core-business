@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Seo\LeadAds;
 
@@ -14,6 +14,9 @@ class Mapper
 {
 	protected $map = [];
 
+	/**
+	 * @throws ArgumentNullException
+	 */
 	public function __construct(array $items = [])
 	{
 		$this->setItems($items);
@@ -23,6 +26,7 @@ class Mapper
 	 * Get crm name.
 	 *
 	 * @param string $adsName Ads name.
+	 *
 	 * @return string|null
 	 */
 	public function getCrmName($adsName)
@@ -35,6 +39,7 @@ class Mapper
 	 * Get ads name.
 	 *
 	 * @param string $crmName Crm name.
+	 *
 	 * @return string|null
 	 */
 	public function getAdsName($crmName)
@@ -75,10 +80,11 @@ class Mapper
 	 *
 	 * @param string $crmName Crm name.
 	 * @param string $adsName Ads name.
+	 *
 	 * @return $this
 	 * @throws ArgumentNullException
 	 */
-	public function addItem($crmName, $adsName)
+	public function addItem($crmName, string $adsName)
 	{
 		if (empty($crmName))
 		{

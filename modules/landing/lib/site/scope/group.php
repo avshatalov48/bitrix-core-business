@@ -1,11 +1,13 @@
 <?php
 namespace Bitrix\Landing\Site\Scope;
 
-use \Bitrix\Landing\Domain;
-use \Bitrix\Landing\Manager;
-use \Bitrix\Landing\Role;
-use \Bitrix\Landing\Restriction;
-use \Bitrix\Landing\Site\Scope;
+use Bitrix\Landing\Domain;
+use Bitrix\Landing\Internals\BindingTable;
+use Bitrix\Landing\Manager;
+use Bitrix\Landing\Role;
+use Bitrix\Landing\Restriction;
+use Bitrix\Landing\Site\Scope;
+use Bitrix\Main\Loader;
 
 class Group extends Scope
 {
@@ -97,5 +99,39 @@ class Group extends Scope
 			'YACOUNTER',
 			'COOKIES'
 		];
+	}
+
+	/**
+	 * If for site id exists group, then returns group id.
+	 * @param int $siteId Site id.
+	 * @param bool $checkAccess If true check access to binding group.
+	 * @return int
+	 */
+	public static function getGroupIdBySiteId(int $siteId, bool $checkAccess = false): ?int
+	{
+		$res = BindingTable::getList([
+			'select' => [
+				'BINDING_ID'
+			],
+			'filter' => [
+				'=ENTITY_TYPE' => BindingTable::ENTITY_TYPE_SITE,
+				'=BINDING_TYPE' => 'G',
+				'ENTITY_ID' => $siteId
+			]
+		]);
+		if ($row = $res->fetch())
+		{
+			$groupId = (int) $row['BINDING_ID'];
+			if ($checkAccess && Loader::includeModule('socialnetwork'))
+			{
+				if (!\CSocNetGroup::canUserReadGroup(Manager::getUserId(), $groupId))
+				{
+					return null;
+				}
+			}
+			return $groupId;
+		}
+
+		return null;
 	}
 }

@@ -258,6 +258,10 @@
 .bx-flag-16.fo {
 	background-position: 0 -1168px;
 }
+.bx-flag-16.pm,
+.bx-flag-16.gf,
+.bx-flag-16.gp,
+.bx-flag-16.re,
 .bx-flag-16.fr {
 	background-position: 0 -1184px;
 }
@@ -525,6 +529,7 @@
 .bx-flag-16.nl {
 	background-position: 0 -2592px;
 }
+.bx-flag-16.sj,
 .bx-flag-16.no {
 	background-position: 0 -2608px;
 }
@@ -1039,6 +1044,10 @@
 .bx-flag-24.fo {
 	background-position: 0 -1752px;
 }
+.bx-flag-24.pm,
+.bx-flag-24.gf,
+.bx-flag-24.gp,
+.bx-flag-24.re,
 .bx-flag-24.fr {
 	background-position: 0 -1776px;
 }
@@ -1306,6 +1315,7 @@
 .bx-flag-24.nl {
 	background-position: 0 -3888px;
 }
+.bx-flag-24.sj,
 .bx-flag-24.no {
 	background-position: 0 -3912px;
 }
@@ -1821,6 +1831,10 @@
 .bx-flag-32.fo {
 	background-position: 0 -2336px;
 }
+.bx-flag-32.pm,
+.bx-flag-32.gf,
+.bx-flag-32.gp,
+.bx-flag-32.re,
 .bx-flag-32.fr {
 	background-position: 0 -2368px;
 }
@@ -2088,6 +2102,7 @@
 .bx-flag-32.nl {
 	background-position: 0 -5184px;
 }
+.bx-flag-32.sj,
 .bx-flag-32.no {
 	background-position: 0 -5216px;
 }

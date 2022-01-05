@@ -1,13 +1,15 @@
 <?
 namespace Bitrix\Calendar\Controller;
 
+use Bitrix\Calendar\Rooms;
 use Bitrix\Calendar\Internals;
 use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
-use \Bitrix\Calendar\Integration\Bitrix24Manager;
+use Bitrix\Calendar\Integration\Bitrix24Manager;
+use Bitrix\Intranet;
 
 Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/calendar/lib/controller/calendarajax.php');
 
@@ -16,6 +18,17 @@ Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/calendar/lib/contr
  */
 class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 {
+	public function configureActions()
+	{
+		return [
+			'getNearestEvents' => [
+				'+prefilters' => [
+					new Intranet\ActionFilter\IntranetUser(),
+				]
+			]
+		];
+	}
+
 	public function getNearestEventsAction()
 	{
 		$request = $this->getRequest();
@@ -275,6 +288,25 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'move_entry_access_denied'));
 		}
 
+		if(empty($this->getErrors()))
+		{
+			$entry = Internals\EventTable::getList(
+				[
+					"filter" => [
+						"=ID" => $id,
+						"=DELETED" => 'N',
+						"=SECTION_ID" => $sectionId
+					],
+					"select" => ["ID", "CAL_TYPE"]
+				]
+			);
+
+			if (!Intranet\Util::isIntranetUser($userId) && $entry['CAL_TYPE'] !== 'group')
+			{
+				$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'edit_entry_extranet_access_denied'));
+			}
+		}
+
 		$requestUid = (int)$request->getPost('requestUid');
 		$reload = $request->getPost('recursive') === 'Y';
 		$sendInvitesToDeclined = $request->getPost('sendInvitesAgain') === 'Y';
@@ -308,12 +340,10 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				$arFields["TZ_TO"] = $timezone;
 			}
 
-
-
 			if (
 				$isPlannerFeatureEnabled
 				&& !empty($location)
-				&& !\CCalendarLocation::checkAccessibility($location, ['fields' => $arFields])
+				&& !Rooms\Manager::checkAccessibility($location, ['fields' => $arFields])
 			)
 			{
 				$locationBusyWarning = true;
@@ -460,6 +490,11 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				$this->addError(new Error(Loc::getMessage('EC_SECTION_NOT_FOUND'), 'edit_entry_section_not_found'));
 			}
 
+			if (!Intranet\Util::isIntranetUser($userId) && $section['CAL_TYPE'] !== 'group')
+			{
+				$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'edit_entry_extranet_access_denied'));
+			}
+
 			if(empty($this->getErrors()))
 			{
 				// Default name for events
@@ -596,7 +631,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 					'HIDE_GUESTS' => $request['hide_guests'] === 'Y'
 				);
 
-				if (!\CCalendarLocation::checkAccessibility($entryFields['LOCATION'], ['fields' => $entryFields]))
+				if (!Rooms\Manager::checkAccessibility($entryFields['LOCATION'], ['fields' => $entryFields]))
 				{
 					$this->addError(new Error(Loc::getMessage('EC_LOCATION_BUSY'), 'edit_entry_location_busy'));
 				}

@@ -22,6 +22,11 @@ class IntegerField extends ScalarField
 	 */
 	public function cast($value)
 	{
+		if ($this->is_nullable && $value === null)
+		{
+			return $value;
+		}
+
 		return (int) $value;
 	}
 

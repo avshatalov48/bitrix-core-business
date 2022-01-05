@@ -146,155 +146,7 @@ this.BX.UI = this.BX.UI || {};
 	  return Step;
 	}(main_core.Event.EventEmitter);
 
-	function _templateObject15() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-cursor\"></div>\n\t\t\t"]);
-
-	  _templateObject15 = function _templateObject15() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject14() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button class=\"ui-btn ui-btn-sm ui-btn-primary ui-btn-round\" onclick=\"", "\">\n\t\t\t\t", "\n\t\t\t\t</button>\n\t\t\t"]);
-
-	  _templateObject14 = function _templateObject14() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject13() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"", "\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"]);
-
-	  _templateObject13 = function _templateObject13() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject12() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup\">\n\t\t\t\t\t<div class=\"ui-tour-popup-title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-tour-popup-content\">\n\t\t\t\t\t\t<div class=\"ui-tour-popup-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-tour-popup-footer-btn\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject12 = function _templateObject12() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject11() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tour-popup-index-item\">\n\t\t\t\t</span>\n\t\t\t"]);
-
-	  _templateObject11 = function _templateObject11() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject10() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tour-popup-index-items\">\n\t\t\t\t</span>\n\t\t\t"]);
-
-	  _templateObject10 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button id=\"back\" class=\"ui-tour-popup-btn-back\">\n\t\t\t\t</button>\n\t\t\t"]);
-
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button id=\"next\" class=\"ui-tour-popup-btn-next\">\n\t\t\t\t\t", "\n\t\t\t\t</button>\n\t\t\t"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup-btn-block\"></div>\n\t\t\t"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tour-popup-counter\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a target=\"_blank\" href=\"\" class=\"ui-tour-popup-link\">\n\t\t\t\t\t", "\n\t\t\t\t</a>\n\t\t\t"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup-text\"></div>\n\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup-title\"></div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup ", " ", "\" >\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-tour-popup-content\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-tour-popup-footer\">\n\t\t\t\t\t\t<div class=\"ui-tour-popup-index\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<svg class=\"ui-tour-overlay\" xmlns=\"http://www.w3.org/2000/svg\" width=\"100%\" height=\"100%\" preserveAspectRatio=\"none\">\n\t\t\t\t<mask id=\"hole\">\n\t\t\t\t\t<defs>\n\t\t\t\t\t\t<filter id=\"ui-tour-filter\">\n\t\t\t\t\t\t\t<feGaussianBlur stdDeviation=\"0\"/>\n\t\t\t\t\t\t</filter>\n\t\t\t\t\t</defs>\n\t\t\t\t\t<rect x=\"0\" y=\"0\" width=\"100%\" height=\"100%\" fill=\"white\"></rect>\n\t\t\t\t\t<rect id=\"rect\" class=\"ui-tour-overlay-element ui-tour-overlay-element-rect\" x=\"1035.5\" y=\"338\" width=\"422\" rx=\"2\" ry=\"2\" height=\"58\" filter=\"url(#ui-tour-filter)\"></rect>\n\t\t\t\t\t<circle id=\"circle\" class=\"ui-tour-overlay-element ui-tour-overlay-element-circle\" cx=\"10\" cy=\"10\" r=\"10\" filter=\"url(#ui-tour-filter)\"></circle>\n\t\t\t\t</mask>\n\t\t\t\t<rect x=\"0\" y=\"0\" width=\"100%\" height=\"100%\" fill=\"#000\" mask=\"url(#hole)\"></rect>\n\t\t\t</svg>\n\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15;
 	var Guide = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Guide, _Event$EventEmitter);
 
@@ -456,10 +308,13 @@ this.BX.UI = this.BX.UI || {};
 	      this.emit(this.constructor.getFullEventName("onFinish"), {
 	        guide: this
 	      });
-	      this.getPopup().destroy();
 
-	      if (this.getCursor()) {
-	        main_core.Dom.remove(this.getCursor());
+	      if (this.popup) {
+	        this.popup.destroy();
+	      }
+
+	      if (this.layout.cursor) {
+	        main_core.Dom.remove(this.layout.cursor);
 	        this.layout.cursor = null;
 	      }
 
@@ -714,7 +569,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "setOverlay",
 	    value: function setOverlay() {
-	      this.layout.overlay = main_core.Tag.render(_templateObject());
+	      this.layout.overlay = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<svg class=\"ui-tour-overlay\" xmlns=\"http://www.w3.org/2000/svg\" width=\"100%\" height=\"100%\" preserveAspectRatio=\"none\">\n\t\t\t\t<mask id=\"hole\">\n\t\t\t\t\t<defs>\n\t\t\t\t\t\t<filter id=\"ui-tour-filter\">\n\t\t\t\t\t\t\t<feGaussianBlur stdDeviation=\"0\"/>\n\t\t\t\t\t\t</filter>\n\t\t\t\t\t</defs>\n\t\t\t\t\t<rect x=\"0\" y=\"0\" width=\"100%\" height=\"100%\" fill=\"white\"></rect>\n\t\t\t\t\t<rect id=\"rect\" class=\"ui-tour-overlay-element ui-tour-overlay-element-rect\" x=\"1035.5\" y=\"338\" width=\"422\" rx=\"2\" ry=\"2\" height=\"58\" filter=\"url(#ui-tour-filter)\"></rect>\n\t\t\t\t\t<circle id=\"circle\" class=\"ui-tour-overlay-element ui-tour-overlay-element-circle\" cx=\"10\" cy=\"10\" r=\"10\" filter=\"url(#ui-tour-filter)\"></circle>\n\t\t\t\t</mask>\n\t\t\t\t<rect x=\"0\" y=\"0\" width=\"100%\" height=\"100%\" fill=\"#000\" mask=\"url(#hole)\"></rect>\n\t\t\t</svg>\n\t\t"])));
 	      main_core.Dom.addClass(document.body, 'ui-tour-body-overflow');
 	      main_core.Dom.append(this.layout.overlay, document.body);
 	      this.setOverlayElementForm();
@@ -835,7 +690,7 @@ this.BX.UI = this.BX.UI || {};
 	        this.onEvents ? className = className + ' popup-window-ui-tour-animate' : null;
 	        var buttons = [];
 
-	        if (this.getCurrentStep().getButtons().length > 0) {
+	        if (this.getCurrentStep() && this.getCurrentStep().getButtons().length > 0) {
 	          this.getCurrentStep().getButtons().forEach(function (item) {
 	            buttons.push(new BX.PopupWindowButton({
 	              text: item.text,
@@ -889,7 +744,7 @@ this.BX.UI = this.BX.UI || {};
 	          linkNode = this.getLink();
 	        }
 
-	        this.layout.content = main_core.Tag.render(_templateObject2(), this.simpleMode ? 'ui-tour-popup-simple' : '', this.onEvents ? 'ui-tour-popup-events' : '', this.getTitle(), this.getText(), linkNode, linkNode, this.onEvents ? '' : this.getCounterItems(), this.onEvents ? '' : this.getCurrentCounter(), this.onEvents ? '' : this.getBtnContainer());
+	        this.layout.content = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup ", " ", "\" >\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-tour-popup-content\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-tour-popup-footer\">\n\t\t\t\t\t\t<div class=\"ui-tour-popup-index\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.simpleMode ? 'ui-tour-popup-simple' : '', this.onEvents ? 'ui-tour-popup-events' : '', this.getTitle(), this.getText(), linkNode, linkNode, this.onEvents ? '' : this.getCounterItems(), this.onEvents ? '' : this.getCurrentCounter(), this.onEvents ? '' : this.getBtnContainer());
 	      }
 
 	      return this.layout.content;
@@ -964,7 +819,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getTitle",
 	    value: function getTitle() {
 	      if (this.layout.title === null) {
-	        this.layout.title = main_core.Tag.render(_templateObject3());
+	        this.layout.title = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup-title\"></div>\n\t\t\t"])));
 	      }
 
 	      return this.layout.title;
@@ -977,7 +832,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getText",
 	    value: function getText() {
 	      if (this.layout.text === null) {
-	        this.layout.text = main_core.Tag.render(_templateObject4());
+	        this.layout.text = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup-text\"></div>\n\t\t\t"])));
 	      }
 
 	      return this.layout.text;
@@ -990,7 +845,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getLink",
 	    value: function getLink() {
 	      if (!this.layout.link) {
-	        this.layout.link = main_core.Tag.render(_templateObject5(), main_core.Loc.getMessage("JS_UI_TOUR_LINK"));
+	        this.layout.link = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a target=\"_blank\" href=\"\" class=\"ui-tour-popup-link\">\n\t\t\t\t\t", "\n\t\t\t\t</a>\n\t\t\t"])), main_core.Loc.getMessage("JS_UI_TOUR_LINK"));
 	      }
 
 	      return this.layout.link;
@@ -1003,7 +858,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getCurrentCounter",
 	    value: function getCurrentCounter() {
 	      if (this.layout.currentCounter === null) {
-	        this.layout.currentCounter = main_core.Tag.render(_templateObject6(), main_core.Loc.getMessage("JS_UI_TOUR_STEP_INDEX_TEXT").replace('#NUMBER#', this.currentStepIndex + 1).replace('#NUMBER_TOTAL#', this.steps.length));
+	        this.layout.currentCounter = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tour-popup-counter\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), main_core.Loc.getMessage("JS_UI_TOUR_STEP_INDEX_TEXT").replace('#NUMBER#', this.currentStepIndex + 1).replace('#NUMBER_TOTAL#', this.steps.length));
 	      }
 
 	      return this.layout.currentCounter;
@@ -1016,9 +871,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getBtnContainer",
 	    value: function getBtnContainer() {
 	      if (this.layout.btnContainer === null) {
-	        this.layout.btnContainer = main_core.Tag.render(_templateObject7());
-	        this.layout.nextBtn = main_core.Tag.render(_templateObject8(), this.simpleMode ? main_core.Loc.getMessage("JS_UI_TOUR_BUTTON_SIMPLE") : main_core.Loc.getMessage("JS_UI_TOUR_BUTTON"));
-	        this.layout.backBtn = main_core.Tag.render(_templateObject9());
+	        this.layout.btnContainer = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup-btn-block\"></div>\n\t\t\t"])));
+	        this.layout.nextBtn = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button id=\"next\" class=\"ui-tour-popup-btn-next\">\n\t\t\t\t\t", "\n\t\t\t\t</button>\n\t\t\t"])), this.simpleMode ? main_core.Loc.getMessage("JS_UI_TOUR_BUTTON_SIMPLE") : main_core.Loc.getMessage("JS_UI_TOUR_BUTTON"));
+	        this.layout.backBtn = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button id=\"back\" class=\"ui-tour-popup-btn-back\">\n\t\t\t\t</button>\n\t\t\t"])));
 	        main_core.Dom.append(this.layout.backBtn, this.layout.btnContainer);
 	        main_core.Dom.append(this.layout.nextBtn, this.layout.btnContainer);
 	        main_core.Event.bind(this.layout.nextBtn, "click", this.handleClickOnNextBtn.bind(this));
@@ -1031,13 +886,13 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getCounterItems",
 	    value: function getCounterItems() {
 	      if (this.layout.counter === null) {
-	        this.layout.counter = main_core.Tag.render(_templateObject10());
+	        this.layout.counter = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tour-popup-index-items\">\n\t\t\t\t</span>\n\t\t\t"])));
 	      }
 
 	      this.layout.counterItems = [];
 
 	      for (var i = 0; i < this.steps.length; i++) {
-	        var currentStepIndex = main_core.Tag.render(_templateObject11());
+	        var currentStepIndex = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tour-popup-index-item\">\n\t\t\t\t</span>\n\t\t\t"])));
 	        this.layout.counterItems.push(currentStepIndex);
 	        main_core.Dom.append(currentStepIndex, this.layout.counter);
 	      }
@@ -1149,7 +1004,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getFinalContent",
 	    value: function getFinalContent() {
 	      if (!this.layout.finalContent) {
-	        this.layout.finalContent = main_core.Tag.render(_templateObject12(), this.finalTitle, this.finalText, this.getFinalBtn());
+	        this.layout.finalContent = main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup\">\n\t\t\t\t\t<div class=\"ui-tour-popup-title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-tour-popup-content\">\n\t\t\t\t\t\t<div class=\"ui-tour-popup-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-tour-popup-footer-btn\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.finalTitle, this.finalText, this.getFinalBtn());
 	      }
 
 	      return this.layout.finalContent;
@@ -1161,11 +1016,11 @@ this.BX.UI = this.BX.UI || {};
 
 	      if (this.buttons !== "") {
 	        for (var i = 0; i < this.buttons.length; i++) {
-	          var btn = main_core.Tag.render(_templateObject13(), this.buttons[i].class, this.buttons[i].events.click, this.buttons[i].text);
+	          var btn = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"", "\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), this.buttons[i].class, this.buttons[i].events.click, this.buttons[i].text);
 	          buttons.push(btn);
 	        }
 	      } else {
-	        var _btn = main_core.Tag.render(_templateObject14(), this.close.bind(this), main_core.Loc.getMessage("JS_UI_TOUR_BUTTON_CLOSE"));
+	        var _btn = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button class=\"ui-btn ui-btn-sm ui-btn-primary ui-btn-round\" onclick=\"", "\">\n\t\t\t\t", "\n\t\t\t\t</button>\n\t\t\t"])), this.close.bind(this), main_core.Loc.getMessage("JS_UI_TOUR_BUTTON_CLOSE"));
 
 	        buttons.push(_btn);
 	      }
@@ -1206,7 +1061,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getCursor",
 	    value: function getCursor() {
 	      if (!this.layout.cursor) {
-	        this.layout.cursor = main_core.Tag.render(_templateObject15());
+	        this.layout.cursor = main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-cursor\"></div>\n\t\t\t"])));
 	        main_core.Event.bind(this.layout.cursor, 'transitionend', function () {
 	          this.getCurrentStep().initTargetEvent();
 	        }.bind(this));

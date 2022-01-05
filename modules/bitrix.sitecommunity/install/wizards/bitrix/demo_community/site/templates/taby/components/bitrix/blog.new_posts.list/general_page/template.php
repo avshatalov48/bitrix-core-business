@@ -33,7 +33,7 @@ if(count($arResult["POSTS"])>0)
 							<a class="blog-author-icon" href="<?=$CurPost["urlToAuthor"]?>"></a>
 						<?endif;?>
 						<?
-						if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && (strlen($CurPost["urlToBlog"]) > 0 || strlen($CurPost["urlToAuthor"]) > 0) && array_key_exists("BLOG_USER_ALIAS", $CurPost) && strlen($CurPost["BLOG_USER_ALIAS"]) > 0)
+						if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && ($CurPost["urlToBlog"] <> '' || $CurPost["urlToAuthor"] <> '') && array_key_exists("BLOG_USER_ALIAS", $CurPost) && $CurPost["BLOG_USER_ALIAS"] <> '')
 							$arTmpUser = array(
 								"NAME" => "",
 								"LAST_NAME" => "",
@@ -41,7 +41,7 @@ if(count($arResult["POSTS"])>0)
 								"LOGIN" => "",
 								"NAME_LIST_FORMATTED" => $CurPost["~BLOG_USER_ALIAS"],
 							);
-						elseif (strlen($CurPost["urlToBlog"]) > 0 || strlen($CurPost["urlToAuthor"]) > 0)
+						elseif ($CurPost["urlToBlog"] <> '' || $CurPost["urlToAuthor"] <> '')
 							$arTmpUser = array(
 								"NAME" => $CurPost["~AUTHOR_NAME"],
 								"LAST_NAME" => $CurPost["~AUTHOR_LAST_NAME"],
@@ -169,8 +169,8 @@ if(count($arResult["POSTS"])>0)
 							</div>
 						</div>
 						<div class="blog-post-meta-util">
-							<span class="blog-post-comments-link"><a href="<?=$CurPost["urlToPost"]?>#comments"><?=GetMessage("BLOG_BLOG_BLOG_COMMENTS")?> <?=IntVal($CurPost["NUM_COMMENTS"]);?></a></span>
-							<span class="blog-post-views-link"><a href="<?=$CurPost["urlToPost"]?>"><?=GetMessage("BLOG_BLOG_BLOG_VIEWS")?> <?=IntVal($CurPost["VIEWS"]);?></a></span>
+							<span class="blog-post-comments-link"><a href="<?=$CurPost["urlToPost"]?>#comments"><?=GetMessage("BLOG_BLOG_BLOG_COMMENTS")?> <?=intval($CurPost["NUM_COMMENTS"]);?></a></span>
+							<span class="blog-post-views-link"><a href="<?=$CurPost["urlToPost"]?>"><?=GetMessage("BLOG_BLOG_BLOG_VIEWS")?> <?=intval($CurPost["VIEWS"]);?></a></span>
 							<?if ($arParams["SHOW_RATING"] == "Y"):?>
 							<span class="rating_vote_text">
 							<?
@@ -202,7 +202,7 @@ if(count($arResult["POSTS"])>0)
 			</div>
 		</div>
 		<?
-		if(strlen($arResult["NAV_STRING"])>0)
+		if($arResult["NAV_STRING"] <> '')
 			echo $arResult["NAV_STRING"];
 		?>
 	</div>

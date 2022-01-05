@@ -3,6 +3,7 @@
 namespace Bitrix\Socialnetwork\Component\LogListCommon;
 
 use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\Loader;
 use Bitrix\Main\UserCounterTable;
 use Bitrix\Socialnetwork\Component\LogList\Util;
 use Bitrix\Socialnetwork\LogCommentTable;
@@ -236,5 +237,49 @@ class Processor
 		}
 
 		return $result;
+	}
+
+	public function getResultTaskCommentsIdList(&$result): void
+	{
+		$result['RESULT_COMMENTS_ID_LIST'] = [];
+
+		$tasks2LogList = $this->getComponent()->getTask2LogListValue();
+		if (
+			empty($tasks2LogList)
+			|| !Loader::includeModule('tasks')
+			|| !class_exists("Bitrix\\Tasks\\Internals\\Task\\Result\\ResultManager")
+		)
+		{
+			return;
+		}
+
+		$resultCommentIdList = \Bitrix\Tasks\Internals\Task\Result\ResultManager::findResultComments(array_keys($tasks2LogList));
+		foreach ($tasks2LogList as $taskId => $logId)
+		{
+			if (isset($resultCommentIdList[$taskId]))
+			{
+				$result['RESULT_COMMENTS_ID_LIST'][$logId] = $resultCommentIdList[$taskId];
+			}
+		}
+	}
+
+	public function getMicroblogUserId(&$result)
+	{
+		$params = $this->getComponent()->arParams;
+
+		$result['MICROBLOG_USER_ID'] = (
+			$result['currentUserId'] > 0
+			&& (
+				$params['ENTITY_TYPE'] !== SONET_ENTITY_GROUP
+				|| (
+					\CSocNetFeaturesPerms::canPerformOperation($result['currentUserId'], SONET_ENTITY_GROUP, $params['GROUP_ID'], 'blog', 'full_post', $this->getComponent()->getCurrentUserAdmin())
+					|| \CSocNetFeaturesPerms::canPerformOperation($result['currentUserId'], SONET_ENTITY_GROUP, $params['GROUP_ID'], 'blog', 'write_post')
+					|| \CSocNetFeaturesPerms::canPerformOperation($result['currentUserId'], SONET_ENTITY_GROUP, $params['GROUP_ID'], 'blog', 'moderate_post')
+					|| \CSocNetFeaturesPerms::canPerformOperation($result['currentUserId'], SONET_ENTITY_GROUP, $params['GROUP_ID'], 'blog', 'premoderate_post')
+				)
+			)
+				? $result['currentUserId']
+				: 0
+		);
 	}
 }

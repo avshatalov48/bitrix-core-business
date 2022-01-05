@@ -42,7 +42,7 @@ final class LogComment extends Provider
 					'=ID' => $commentId,
 					'@EVENT_ID' => $this->getEventId(),
 				],
-				'select' => [ 'LOG_ID', 'MESSAGE', 'SHARE_DEST', 'EVENT_ID' ]
+				'select' => [ 'ID', 'LOG_ID', 'MESSAGE', 'SHARE_DEST', 'EVENT_ID' ]
 			]);
 			if ($logComentFields = $res->fetch())
 			{

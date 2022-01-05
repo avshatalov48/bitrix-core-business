@@ -28,6 +28,7 @@ class OrderInfo extends \Bitrix\Sale\Helpers\Admin\Blocks\OrderInfo
 						<ul class="adm-bus-orderinfoblock-content-customer-info">
 							<li>
 								<span class="adm-bus-orderinfoblock-content-customer-info-param">'.Loc::getMessage('SALE_ORDER_INFO_LINK').'</span>
+								<span class="adm-bus-orderinfoblock-content-customer-info-separator"></span>
 								<span class="adm-bus-orderinfoblock-content-customer-info-value" id="order_info_buyer_name">'.$relation['DST_ENTITY_ID'].'</span>
 							</li>
 						</ul>

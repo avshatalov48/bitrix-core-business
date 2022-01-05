@@ -69,10 +69,12 @@ export default class DropZone {
 				if (isFileTransfer)
 				{
 					this.dndObject.DIV.classList.add('bxu-file-input-over');
+					BX.onCustomEvent(this, 'dragEnter', [e]); // compatibility event
 				}
 			},
-			dragLeave : () => {
+			dragLeave : ({compatData: [e]}) => {
 				this.dndObject.DIV.classList.remove('bxu-file-input-over');
+				BX.onCustomEvent(this, 'dragLeave', [e]); // compatibility event
 			}
 		}
 		EventEmitter.subscribe(this.dndObject, 'dropFiles', handlers.dropFiles);

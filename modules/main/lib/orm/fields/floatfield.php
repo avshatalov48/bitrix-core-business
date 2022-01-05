@@ -88,6 +88,11 @@ class FloatField extends ScalarField
 	 */
 	public function cast($value)
 	{
+		if ($this->is_nullable && $value === null)
+		{
+			return $value;
+		}
+
 		$value = doubleval($value);
 
 		if ($this->precision !== null)

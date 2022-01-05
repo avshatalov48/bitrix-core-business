@@ -1,6 +1,14 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
-$arResult["SELECTOR_VERSION"] = (!empty($arParams["SELECTOR_VERSION"]) ? intval($arParams["SELECTOR_VERSION"]) : 1);
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var array $arParams */
+/** @var array $arPost */
+
+$arResult["SELECTOR_VERSION"] = (!empty($arParams["SELECTOR_VERSION"]) ? (int)$arParams["SELECTOR_VERSION"] : 1);
 
 if($arResult["CanUserComment"])
 {
@@ -106,4 +114,4 @@ if($arResult["CanUserComment"])
 		}
 	}
 }
-?>
+

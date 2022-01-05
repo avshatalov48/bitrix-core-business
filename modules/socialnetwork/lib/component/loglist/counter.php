@@ -26,7 +26,7 @@ class Counter
 		}
 		else
 		{
-			$this->request = Util::getRequest();;
+			$this->request = Util::getRequest();
 		}
 	}
 
@@ -44,16 +44,16 @@ class Counter
 		return $this->processorInstance;
 	}
 
-	public function setEmptyCounter($value = false)
+	public function setEmptyCounter($value = false): void
 	{
 		$this->emptyCounter = $value;
 	}
-	public function getEmptyCounter()
+	public function getEmptyCounter(): bool
 	{
 		return $this->emptyCounter;
 	}
 
-	public function processCounterTypeData(&$result)
+	public function processCounterTypeData(&$result): void
 	{
 		$params = $this->getComponent()->arParams;
 
@@ -66,33 +66,33 @@ class Counter
 		elseif(
 			$params['IS_CRM'] === 'Y'
 			&& (
-				$params['SET_LOG_COUNTER'] != 'N'
-				|| $params['SET_LOG_PAGE_CACHE'] != 'N'
+				$params['SET_LOG_COUNTER'] !== 'N'
+				|| $params['SET_LOG_PAGE_CACHE'] !== 'N'
 			)
 		)
 		{
 			$result['COUNTER_TYPE'] = (
 				is_set($params['CUSTOM_DATA'])
 				&& is_set($params['CUSTOM_DATA']['CRM_PRESET_TOP_ID'])
-				&& $params['CUSTOM_DATA']['CRM_PRESET_TOP_ID'] == 'all'
+				&& $params['CUSTOM_DATA']['CRM_PRESET_TOP_ID'] === 'all'
 					? 'CRM_**_ALL'
 					: 'CRM_**'
 			);
 		}
-		elseif($params['EXACT_EVENT_ID'] == 'blog_post')
+		elseif($params['EXACT_EVENT_ID'] === 'blog_post')
 		{
 			$result['COUNTER_TYPE'] = 'blog_post';
 		}
 	}
 
-	public function clearLogCounter(&$result)
+	public function clearLogCounter(&$result): void
 	{
 		$params = $this->getComponent()->arParams;
 
 		if (
-			!Util::checkUserAuthorized()
-			|| $params['SET_LOG_COUNTER'] !== 'Y'
+			$params['SET_LOG_COUNTER'] !== 'Y'
 			|| (isset($result['EXPERT_MODE_SET']) && $result['EXPERT_MODE_SET'])
+			|| !Util::checkUserAuthorized()
 		)
 		{
 			return;
@@ -142,7 +142,7 @@ class Counter
 		}
 	}
 
-	public function setLogCounter(&$result)
+	public function setLogCounter(&$result): void
 	{
 		$params = $this->getComponent()->arParams;
 
@@ -150,8 +150,8 @@ class Counter
 		$result['LOG_COUNTER_IMPORTANT'] = 0;
 
 		if (
-			!Util::checkUserAuthorized()
-			|| $params['SET_LOG_COUNTER'] !== 'Y'
+			$params['SET_LOG_COUNTER'] !== 'Y'
+			|| !Util::checkUserAuthorized()
 		)
 		{
 			return;

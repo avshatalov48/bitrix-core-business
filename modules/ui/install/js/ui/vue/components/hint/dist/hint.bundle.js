@@ -1,15 +1,7 @@
 (function (exports,main_core,main_popup,ui_hint,ui_vue) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class='ui-hint-content'></span>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	ui_vue.BitrixVue.directive('bx-hint', {
 	  bind: function bind(element, bindings) {
 	    main_core.Event.bind(element, 'mouseenter', function () {
@@ -77,7 +69,7 @@
 	      }
 
 	      if (main_core.Type.isUndefined(popupOptions.content)) {
-	        var content = main_core.Tag.render(_templateObject());
+	        var content = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<span class='ui-hint-content'></span>"])));
 	        content.innerHTML = text;
 	        popupOptions.content = content;
 	      }

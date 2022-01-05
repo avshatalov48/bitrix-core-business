@@ -10,7 +10,6 @@ class CCalendarLocation
 	{
 		return true;
 	}
-
 	public static function getList($params = [])
 	{
 		$arFilter =  array(
@@ -149,7 +148,7 @@ class CCalendarLocation
 
 	public static function checkAccessibility($location = '', $params = [])
 	{
-		$location = CCalendar::ParseLocation($location);
+		$location = \Bitrix\Calendar\Rooms\Util::parseLocation($location);
 
 		$res = true;
 		if ($location['room_id'] || $location['mrid'])

@@ -238,6 +238,11 @@
 					allowedTypes.push(BX.Landing.UI.Field.LinkURL.TYPE_CATALOG);
 				}
 
+				if (BX.Landing.Main.getInstance().options.features.includes('diskFile'))
+				{
+					allowedTypes.push(BX.Landing.UI.Field.LinkURL.TYPE_DISK_FILE);
+				}
+
 				this.field = new BX.Landing.UI.Field.Link({
 					title: this.manifest.name,
 					selector: this.selector,

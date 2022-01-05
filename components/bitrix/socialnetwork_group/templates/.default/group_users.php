@@ -1,9 +1,11 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
+
+use Bitrix\Socialnetwork\ComponentHelper;
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -29,7 +31,7 @@ $componentParameters = [
 	"USER_VAR" => $arResult["ALIASES"]["user_id"],
 	"SET_NAV_CHAIN" => $arResult["SET_NAV_CHAIN"],
 	"SET_TITLE" => $arResult["SET_TITLE"],
-	"GROUP_ID" => $arResult["VARIABLES"]["group_id"],
+	'GROUP_ID' => $arResult['VARIABLES']['group_id'],
 	"ITEMS_COUNT" => $arParams["ITEM_DETAIL_COUNT"],
 	"THUMBNAIL_LIST_SIZE" => 42,
 	"DATE_TIME_FORMAT" => $arResult["DATE_TIME_FORMAT"],
@@ -39,18 +41,24 @@ $componentParameters = [
 	"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 	"CACHE_TIME" => $arParams["CACHE_TIME"],
 	"GROUP_USE_BAN" => $arParams["GROUP_USE_BAN"],
-	"USE_AUTO_MEMBERS" => "Y"
+	"USE_AUTO_MEMBERS" => "Y",
+	'MODE' => 'MEMBERS',
+	'FILTER_ID' => 'SOCIALNETWORK_WORKGROUP_USER_LIST',
 ];
 
+/*
 $APPLICATION->IncludeComponent(
 	'bitrix:socialnetwork.group.card.menu',
 	'',
 	[
 		'GROUP_ID' => $arResult['VARIABLES']['group_id'],
 		'TAB' => 'members-list',
-		'URLS' => \Bitrix\Socialnetwork\ComponentHelper::getWorkgroupSliderMenuUrlList($arResult),
+		'URLS' => ComponentHelper::getWorkgroupSliderMenuUrlList($arResult),
+		'SIGNED_PARAMETERS' => ComponentHelper::listWorkgroupSliderMenuSignedParameters($componentParameters),
 	]
 );
+*/
+// todo: bitrix:socialnetwork.group.user.list
 
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
@@ -59,8 +67,6 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.group_users.ex',
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => $componentParameters,
-		'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
-		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE' => 'SONET_GROUP',
-		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID' => $arResult['VARIABLES']['group_id'],
+		'USE_UI_TOOLBAR' => 'Y',
 	]
 );

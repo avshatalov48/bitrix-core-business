@@ -1,6 +1,7 @@
 import {FormFieldTunnerAbstract} from "../formfieldtunnerabstract";
 import {FormFieldTunnerPopupAbstract} from "../formfieldtunnerpopupabstract";
 import {Loc, Type, Dom} from "main.core";
+import { MenuItem } from 'main.popup';
 
 export class DateSelectorFieldTunner extends FormFieldTunnerAbstract {
 	constructor()
@@ -52,13 +53,11 @@ class DateStatePopup extends FormFieldTunnerPopupAbstract
 
 	getMenuItems()
 	{
-		let submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
-
 		return [
-			{
-				html: '<span>' + Loc.getMessage('WEBF_RES_CALENDAR_STYLE') + '</span>',
-				className: submenuClass
-			},
+			new MenuItem({
+				text: Loc.getMessage('WEBF_RES_CALENDAR_STYLE'),
+				delimiter: true
+			}),
 			{
 				id: 'date-state-style-popup',
 				text: Loc.getMessage('WEBF_RES_CALENDAR_STYLE_POPUP'),
@@ -81,10 +80,10 @@ class DateStatePopup extends FormFieldTunnerPopupAbstract
 				},
 				onclick: this.menuItemClick.bind(this)
 			},
-			{
-				html: '<span>' + Loc.getMessage('WEBF_RES_CALENDAR_START_FROM') + '</span>',
-				className: submenuClass
-			},
+			new MenuItem({
+				text: Loc.getMessage('WEBF_RES_CALENDAR_START_FROM'),
+				delimiter: true
+			}),
 			{
 				id: 'date-state-start-from-today',
 				text: Loc.getMessage('WEBF_RES_CALENDAR_START_FROM_TODAY'),

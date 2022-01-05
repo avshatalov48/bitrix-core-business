@@ -161,7 +161,7 @@ class Util
 				{
 					$codeList[] = 'U'.$entity['id'];
 				}
-				elseif ($entity['entityId'] === 'project')
+				elseif ($entity['entityId'] === 'project' || $entity['entityId'] === 'project-roles')
 				{
 					$codeList[] = 'SG'.$entity['id'];
 				}
@@ -200,6 +200,14 @@ class Util
 					$entityList[] = [
 						'entityId' => 'department',
 						'id' => intval(mb_substr($code, 2))
+					];
+				}
+				elseif (preg_match('/^SG([0-9]+)_?([AEKMO])?$/', $code, $match) && isset($match[2]))
+				{
+					// todo May need to be removed/rewrite after creating new roles in projects.
+					$entityList[] = [
+						'entityId' => 'project-roles',
+						'id' => mb_substr($code, 2)
 					];
 				}
 				elseif (mb_substr($code, 0, 2) == 'SG')
@@ -277,10 +285,10 @@ class Util
 		if (!empty($userIdList))
 		{
 			$res = \Bitrix\Main\UserTable::getList(array(
-				'filter' => array(
+				'filter' => [
 					'=ID' => $userIdList,
-				),
-				'select' => array('NAME', 'LAST_NAME'),
+				],
+				'select' => ['NAME', 'LAST_NAME'],
 			));
 
 			while ($user = $res->fetch())
@@ -391,46 +399,21 @@ class Util
 	 */
 	public static function addPullEvent(string $command, int $userId, array $params = []): bool
 	{
-		if (Loader::includeModule("pull"))
+		if (!Loader::includeModule("pull"))
 		{
-			if (in_array($command, [
-				'edit_event',
-				'delete_event',
-				'set_meeting_status',
-			]))
-			{
-				\CPullWatch::AddToStack(
-					'calendar-planner-'.$userId,
-					[
-						'module_id' => 'calendar',
-						'command' => $command,
-						'params' => $params
-					]
-				);
-			}
+			return false;
+		}
 
-			if (in_array($command, [
+		if (
+			in_array($command, [
 				'edit_event',
 				'delete_event',
 				'set_meeting_status',
 			])
-				&& isset($params['fields'])
-				&& isset($params['fields']['SECTION_OWNER_ID'])
-				&& (int)$params['fields']['SECTION_OWNER_ID'] !== $userId
-			)
-			{
-				\Bitrix\Pull\Event::add(
-					(int)$params['fields']['SECTION_OWNER_ID'],
-					[
-						'module_id' => 'calendar',
-						'command' => $command,
-						'params' => $params
-					]
-				);
-			}
-
-			return \Bitrix\Pull\Event::add(
-				$userId,
+		)
+		{
+			\CPullWatch::AddToStack(
+				'calendar-planner-'.$userId,
 				[
 					'module_id' => 'calendar',
 					'command' => $command,
@@ -438,10 +421,36 @@ class Util
 				]
 			);
 		}
-		else
+
+		if (
+			in_array($command, [
+				'edit_event',
+				'delete_event',
+				'set_meeting_status',
+			])
+			&& isset($params['fields'])
+			&& isset($params['fields']['SECTION_OWNER_ID'])
+			&& (int)$params['fields']['SECTION_OWNER_ID'] !== $userId
+		)
 		{
-			return false;
+			\Bitrix\Pull\Event::add(
+				(int)$params['fields']['SECTION_OWNER_ID'],
+				[
+					'module_id' => 'calendar',
+					'command' => $command,
+					'params' => $params
+				]
+			);
 		}
+
+		return \Bitrix\Pull\Event::add(
+			$userId,
+			[
+				'module_id' => 'calendar',
+				'command' => $command,
+				'params' => $params
+			]
+		);
 	}
 
 	/**

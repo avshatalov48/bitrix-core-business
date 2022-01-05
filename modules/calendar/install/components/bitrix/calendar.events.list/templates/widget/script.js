@@ -1,15 +1,7 @@
 (function (exports,main_core,calendar_util,main_core_events) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a href=\"", "\" class=\"sidebar-widget-item\">\n\t\t\t\t<span class=\"calendar-item-date\">", "</span>\n\t\t\t\t<span class=\"calendar-item-text\">\n\t\t\t\t\t<span class=\"calendar-item-link\">", "</span>\n\t\t\t\t</span>\n\t\t\t\t<span class=\"calendar-item-icon\">\n\t\t\t\t\t<span class=\"calendar-item-icon-day\">", "</span>\n\t\t\t\t\t<span class=\"calendar-item-icon-date\">", "</span>\n\t\t\t\t</span>\n\t\t\t</a>\n\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 
 	var NextEventList = /*#__PURE__*/function () {
 	  function NextEventList() {
@@ -24,20 +16,34 @@
 	      this.displayEventList();
 	    }
 
-	    main_core_events.EventEmitter.subscribe('onPullEvent-calendar', main_core.Runtime.debounce(this.displayEventList, 3000, this));
+	    this.displayEventListDebounce = main_core.Runtime.debounce(this.displayEventList, 3000, this);
+	    main_core.Event.bind(document, 'visibilitychange', this.checkDisplayEventList.bind(this));
+	    main_core_events.EventEmitter.subscribe('SidePanel.Slider:onCloseComplete', this.checkDisplayEventList.bind(this));
+	    main_core_events.EventEmitter.subscribe('onPullEvent-calendar', this.displayEventListDebounce);
 	  }
 
 	  babelHelpers.createClass(NextEventList, [{
+	    key: "checkDisplayEventList",
+	    value: function checkDisplayEventList() {
+	      if (this.needReload) {
+	        this.displayEventListDebounce();
+	      }
+	    }
+	  }, {
 	    key: "displayEventList",
 	    value: function displayEventList() {
 	      var _this = this;
 
-	      this.showLoader();
-	      this.getEventList().then(function (entryList) {
-	        _this.hideLoader();
+	      if (this.isDisplayingNow()) {
+	        this.showLoader();
+	        this.getEventList().then(function (entryList) {
+	          _this.hideLoader();
 
-	        _this.renderList(entryList);
-	      });
+	          _this.renderList(entryList);
+	        });
+	      } else {
+	        this.needReload = true;
+	      }
 	    }
 	  }, {
 	    key: "getEventList",
@@ -109,12 +115,14 @@
 	      } else {
 	        this.hideWidget();
 	      }
+
+	      this.needReload = false;
 	    }
 	  }, {
 	    key: "renderEntry",
 	    value: function renderEntry(entry) {
 	      var fromDate = BX.Calendar.Util.parseDate(entry['DATE_FROM']);
-	      return main_core.Tag.render(_templateObject(), main_core.Text.encode(entry['~URL']), entry['~FROM_TO_HTML'], main_core.Text.encode(entry['NAME']), main_core.Text.encode(entry['~WEEK_DAY']), fromDate.getDate());
+	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a href=\"", "\" class=\"sidebar-widget-item\">\n\t\t\t\t<span class=\"calendar-item-date\">", "</span>\n\t\t\t\t<span class=\"calendar-item-text\">\n\t\t\t\t\t<span class=\"calendar-item-link\">", "</span>\n\t\t\t\t</span>\n\t\t\t\t<span class=\"calendar-item-icon\">\n\t\t\t\t\t<span class=\"calendar-item-icon-day\">", "</span>\n\t\t\t\t\t<span class=\"calendar-item-icon-date\">", "</span>\n\t\t\t\t</span>\n\t\t\t</a>\n\t\t"])), main_core.Text.encode(entry['~URL']), entry['~FROM_TO_HTML'], main_core.Text.encode(entry['NAME']), main_core.Text.encode(entry['~WEEK_DAY']), fromDate.getDate());
 	    }
 	  }, {
 	    key: "getOuterWrap",
@@ -149,6 +157,11 @@
 	        var offset = Math.min(Math.max(finishEventDate.getTime() - currentDate.getTime() + 60000, 60000), 86400000);
 	        this.reloadTimeout = setTimeout(this.displayEventList.bind(this), offset);
 	      }
+	    }
+	  }, {
+	    key: "isDisplayingNow",
+	    value: function isDisplayingNow() {
+	      return !document.hidden && !BX.SidePanel.Instance.getOpenSliders().length;
 	    }
 	  }]);
 	  return NextEventList;

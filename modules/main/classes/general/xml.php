@@ -11,7 +11,7 @@ class CDataXMLNode
 	var $name;
 	var $content;
 	/** @var CDataXMLNode[] */
-	var $children;
+	var $children = [];
 	/** @var CDataXMLNode[] */
 	var $attributes;
 	var $_parent;
@@ -136,7 +136,7 @@ class CDataXMLNode
 		return $result;
 	}
 
-	function &__toString()
+	function __toString()
 	{
 		switch ($this->name)
 		{

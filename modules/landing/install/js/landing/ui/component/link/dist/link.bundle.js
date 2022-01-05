@@ -5,7 +5,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	'use strict';
 
 	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<", " \n\t\t\t\t\tclass=\"landing-ui-component-link landing-ui-component-link-color-", "\" \n\t\t\t\t\tonclick=\"", "\">", "</", ">\n\t\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<", "\n\t\t\t\t\tclass=\"landing-ui-component-link landing-ui-component-link-color-", "\"\n\t\t\t\t\tonclick=\"", "\">", "</", ">\n\t\t\t"]);
 
 	  _templateObject = function _templateObject() {
 	    return data;
@@ -65,6 +65,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	        if (tag === 'a') {
 	          main_core.Dom.attr(element, 'href', _this3.options.href);
+	        }
+
+	        if (tag === 'a' && main_core.Type.isStringFilled(_this3.options.target)) {
+	          main_core.Dom.attr(element, 'target', _this3.options.target);
 	        }
 
 	        main_core.Dom.attr(element, _this3.options.attrs);

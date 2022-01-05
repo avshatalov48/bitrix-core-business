@@ -61,7 +61,7 @@ if (count($arParams["USER_FIELDS_SEARCH_ADV"]) > 0)
 		if (in_array($userFieldName, $arParams["USER_FIELDS_SEARCHABLE"])
 			&& in_array($userFieldName, $arParams["USER_FIELDS_SEARCH_ADV"]))
 		{
-			$requestName = StrToLower("FLTX_".$userFieldName);
+			$requestName = mb_strtolower("FLTX_".$userFieldName);
 			$arVal = array(
 				"VALUE" => htmlspecialcharsex(array_key_exists($requestName, $_REQUEST) ? $_REQUEST[$requestName] : ""),
 				"NAME" => $requestName,
@@ -112,7 +112,7 @@ if (count($arParams["USER_PROPERTIES_SEARCH_ADV"]) > 0)
 		foreach ($arResTmp as $key => $value)
 		{
 			if (in_array($value["FIELD_NAME"], $arParams["USER_PROPERTY_SEARCHABLE"]))
-				$arUserCustomProps[StrToUpper($value["FIELD_NAME"])] = $value;
+				$arUserCustomProps[mb_strtoupper($value["FIELD_NAME"])] = $value;
 		}
 	}
 
@@ -120,11 +120,11 @@ if (count($arParams["USER_PROPERTIES_SEARCH_ADV"]) > 0)
 	{
 		if (in_array($fieldName, $arParams["USER_PROPERTY_SEARCHABLE"]))
 		{
-			$arUserField["EDIT_FORM_LABEL"] = StrLen($arUserField["EDIT_FORM_LABEL"]) > 0 ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
+			$arUserField["EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"] <> '' ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
 			$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arUserField["EDIT_FORM_LABEL"]);
 			$arUserField["~EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"];
-			$arUserField["FIELD_NAME"] = StrToLower("FLTX_".$fieldName);
-			$arUserField["~FIELD_NAME"] = StrToLower("FLTX_".$fieldName);
+			$arUserField["FIELD_NAME"] = mb_strtolower("FLTX_".$fieldName);
+			$arUserField["~FIELD_NAME"] = mb_strtolower("FLTX_".$fieldName);
 			$arUserField["VALUE"] = array($_REQUEST[$arUserField["FIELD_NAME"]]);			
 			if (in_array($fieldName, $arParams["USER_PROPERTIES_SEARCH_ADV"]))
 				$arResult["UserPropertiesSearchAdv"][$fieldName] = $arUserField;

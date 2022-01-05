@@ -58,7 +58,7 @@ class CCalendarNotify
 		}
 
 		$userOrm = \Bitrix\Main\UserTable::getList([
-			'filter' => ['=ID' => $toUser, 'ACTIVE' => 'Y'],
+			'filter' => ['=ID' => $toUser, '=ACTIVE' => 'Y'],
 			'select' => ['ID']
 		]);
 		if (!$userOrm->fetch())
@@ -108,6 +108,9 @@ class CCalendarNotify
 				break;
 			case 'fail_ical_invite':
 				$notifyFields = self::NotifyFailIcalInvite($notifyFields, $params);
+				break;
+			case 'delete_location':
+				$notifyFields = self::DeleteLocation($notifyFields, $params);
 				break;
 		}
 
@@ -311,7 +314,7 @@ class CCalendarNotify
 						array(
 							'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
 							'#ACTIVE_FROM#' => $params["from"],
-							'#NEW_VALUE#' => $change['newValue']
+							'#NEW_VALUE#' => \CCalendar::GetTextLocation($change['newValue'])
 						)
 					);
 
@@ -319,7 +322,7 @@ class CCalendarNotify
 						array(
 							'#TITLE#' => $params["name"],
 							'#ACTIVE_FROM#' => $params["from"],
-							'#NEW_VALUE#' => $change['newValue']
+							'#NEW_VALUE#' => \CCalendar::GetTextLocation($change['newValue'])
 						)
 					);
 					break;
@@ -647,7 +650,7 @@ class CCalendarNotify
 					}
 				}
 
-				$commentCropped = truncateText($params['MESSAGE'], 100);
+				$commentCropped = truncateText(CTextParser::clearAllTags($params['MESSAGE']), 120);
 				foreach($attendees as $attendee)
 				{
 					if (in_array($attendee["USER_ID"], $excludeUserIdList))
@@ -774,6 +777,23 @@ class CCalendarNotify
 		}
 
 
+
+		return $fields;
+	}
+
+	public static function DeleteLocation($fields = [], $params)
+	{
+		$fields['NOTIFY_EVENT'] = "delete_location";
+		$fields['FROM_USER_ID'] = (int)$params["userId"];
+		$fields['TO_USER_ID'] = (int)$params["guestId"];
+		$fields['NOTIFY_TAG'] = "CALENDAR|LOCATION|".$params['locationId']."|".intval($params["userId"]);
+		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|LOCATION|".$params['locationId'];
+
+		$fields['MESSAGE'] = Loc::getMessage('EC_NOTIFY_DELETE_LOCATION',
+			[
+				'#LOCATION#' => $params["location"]
+			]
+		);
 
 		return $fields;
 	}

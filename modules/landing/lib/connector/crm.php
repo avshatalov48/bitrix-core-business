@@ -223,4 +223,43 @@ class Crm
 			self::clearContactsCache();
 		}
 	}
+
+	/**
+	 * Returns replace-array for str_replace.
+	 *
+	 * @param int $siteId Site id.
+	 * @param bool $attributesReplace Return replace for inner attributes.
+	 * @return array
+	 */
+	public static function getReplacesForContent(int $siteId, bool $attributesReplace = true): array
+	{
+		$replace = [];
+
+		$crmContacts = self::getContacts($siteId);
+		$replace['#crmCompanyTitle'] = \htmlspecialcharsbx($crmContacts['COMPANY']);
+
+		if (!empty($crmContacts['PHONE']))
+		{
+			$phone = $crmContacts['PHONE'];
+			$phone = \htmlspecialcharsbx($phone);
+			$replace['#crmPhoneTitle1'] = $phone;// a-tag inside
+			if ($attributesReplace)
+			{
+				$replace['#crmPhone1'] = $phone;// a-href inside
+			}
+		}
+
+		if (!empty($crmContacts['EMAIL']))
+		{
+			$email = $crmContacts['EMAIL'];
+			$email = \htmlspecialcharsbx($email);
+			$replace['#crmEmailTitle1'] = $email;// a-tag inside
+			if ($attributesReplace)
+			{
+				$replace['#crmEmail1'] = $email;// a-href inside
+			}
+		}
+
+		return $replace;
+	}
 }

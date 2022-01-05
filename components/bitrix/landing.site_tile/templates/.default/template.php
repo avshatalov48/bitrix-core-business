@@ -187,6 +187,10 @@ $isAjax = $component->isAjax();
 						{
 							BX.UI.InfoHelper.show('limit_free_domen');
 						}
+						else if (errorCode === 'EMAIL_NOT_CONFIRMED')
+						{
+							BX.UI.InfoHelper.show('limit_sites_confirm_email');
+						}
 						else if (typeof BX.Landing.AlertShow !== 'undefined')
 						{
 							BX.Landing.AlertShow({

@@ -4,12 +4,14 @@ namespace Bitrix\Sale\PaySystem;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
+use Bitrix\Main\Context;
 use Bitrix\Main\Type;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Sale\Internals\PaySystemRestHandlersTable;
 use Bitrix\Sale\PaySystem;
 use Bitrix\Sale\Payment;
 use Bitrix\Sale\Internals\Input;
+use Bitrix\Sale\Helpers\Rest;
 
 /**
  * Class RestHandler
@@ -19,6 +21,10 @@ class RestHandler extends PaySystem\ServiceHandler
 {
 	private $handlerSettings = array();
 
+	private const FORM_MODE = 'form';
+	private const CHECKOUT_MODE = 'checkout';
+	private const IFRAME_MODE = 'iframe';
+
 	/**
 	 * @param Payment $payment
 	 * @param Request|null $request
@@ -26,6 +32,319 @@ class RestHandler extends PaySystem\ServiceHandler
 	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function initiatePay(Payment $payment, Request $request = null)
+	{
+		if ($request === null)
+		{
+			$request = Context::getCurrent()->getRequest();
+		}
+
+		$mode = $this->getMode();
+
+		if ($mode === self::CHECKOUT_MODE)
+		{
+			return $this->initiateCheckoutPay($payment, $request);
+		}
+
+		if ($mode === self::IFRAME_MODE)
+		{
+			return $this->initiateIframePay($payment);
+		}
+
+		return $this->initiateFormPay($payment, $request);
+	}
+
+	private function initiateCheckoutPay(Payment $payment, Request $request): ServiceResult
+	{
+		$result = new ServiceResult();
+
+		$settings = $this->getHandlerSettings();
+
+		$actionUri = $settings['CHECKOUT_DATA']['ACTION_URI'] ?? null;
+		if (!isset($actionUri))
+		{
+			$result->addError(new Error(Loc::getMessage('SALE_HANDLERS_REST_HANDLER_ERROR_URI_MISSING')));
+			return $result;
+		}
+
+		$params = $this->getCheckoutPayParams($payment, $request);
+
+		if ($this->needMoreCheckoutParams($settings, $params))
+		{
+			$template = $this->getCheckoutFormTemplate($payment);
+		}
+		else
+		{
+			$requestResult = Rest\Http::sendRequest($actionUri, $params);
+			if (!$requestResult->isSuccess())
+			{
+				$result->addErrors($requestResult->getErrors());
+				return $result;
+			}
+
+			$requestData = $requestResult->getData();
+			if (empty($requestData['PAYMENT_URL']) || empty($requestData['PAYMENT_ID']))
+			{
+				$result->addError(new Error(Loc::getMessage('SALE_HANDLERS_REST_HANDLER_ERROR_DATA_MISSING')));
+				return $result;
+			}
+
+			$result->setPsData(['PS_INVOICE_ID' => $requestData['PAYMENT_ID']]);
+			$url = $requestData['PAYMENT_URL'];
+
+			$result->setPaymentUrl($url);
+
+			$template = $this->getCheckoutPayTemplate($url);
+		}
+
+		if ($this->initiateMode === static::STREAM)
+		{
+			echo $template;
+		}
+		else
+		{
+			$result->setTemplate($template);
+		}
+
+		return $result;
+	}
+
+	private function needMoreCheckoutParams(array $settings, array $params): bool
+	{
+		$checkoutSettings = $settings['CHECKOUT_DATA'];
+		if (isset($checkoutSettings['FIELDS']))
+		{
+			return !empty(array_diff_key($checkoutSettings['FIELDS'], $params));
+		}
+
+		return false;
+	}
+
+	private function getCheckoutPayParams(Payment $payment, Request $request): array
+	{
+		$params = [];
+
+		$checkoutSettings = $this->getHandlerSettings()['CHECKOUT_DATA'];
+		if (isset($checkoutSettings['FIELDS']))
+		{
+			$params = $this->getQueryDataFromFields($payment, $checkoutSettings['FIELDS']);
+		}
+
+		$requestData = $request->toArray();
+		foreach ($requestData as $field => $value)
+		{
+			if (isset($checkoutSettings['FIELDS'][$field]))
+			{
+				$params[$field] = $value;
+			}
+		}
+
+		return array_merge($params, $this->getSystemParams($payment));
+	}
+
+	private function getCheckoutFormTemplate(Payment $payment): string
+	{
+		$settings = $this->getHandlerSettings();
+		$formSettings = $settings['CHECKOUT_DATA'];
+
+		$template = '<div class="mb-4" id="rest-checkout">';
+		$template .= '<form name="rest-checkout-form" id="rest-checkout-form">';
+
+		if (isset($formSettings['FIELDS']))
+		{
+			$template .= $this->getTemplateFromFields($payment, $formSettings['FIELDS']);
+		}
+
+		$template .= '<input type="hidden" name="BX_PAYSYSTEM_ID" value="'.$this->service->getField('ID').'">';
+		$template .= '<input name="button" value="'.Loc::getMessage('SALE_HANDLERS_REST_HANDLER_BUTTON_PAID').'" type="submit" class="btn btn-lg btn-success pl-4 pr-4" style="border-radius: 32px;">';
+		$template .= '</form>';
+		$template .= '</div>';
+
+		$messages = Loc::loadLanguageFile(__FILE__);
+		$template .= '
+			<script>
+				BX.message(' . \CUtil::PhpToJSObject($messages) . ');
+
+				(function() {
+					"use strict";
+
+					if (!BX.Sale)
+					{
+						BX.Sale = {};
+					}
+
+					if (BX.Sale.RestHandler)
+					{
+						return;
+					}
+
+					BX.Sale.RestHandler = {
+						init: function(params)
+						{
+							this.formNode = BX(params.formId);
+							this.paysystemBlockNode = BX(params.paysystemBlockId);
+							this.ajaxUrl = params.ajaxUrl;
+							this.paymentId = params.paymentId;
+							this.paySystemId = params.paySystemId;
+							this.isAllowedSubmitting = true;
+							this.returnUrl = params.returnUrl;
+
+							this.bindEvents();
+						},
+
+						bindEvents: function()
+						{
+							BX.bind(this.formNode, "submit", BX.proxy(this.sendRequest, this));
+						},
+
+						sendRequest: function(e)
+						{
+							e.preventDefault();
+
+							if (!this.isAllowedSubmitting)
+							{
+								return;
+							}
+
+							var data,
+								formData = this.getAllFormData(),
+								submitButton = this.formNode.querySelector("input[type=\"submit\"]"),
+								i;
+
+							if (submitButton)
+							{
+								submitButton.disabled = true;
+							}
+							this.isAllowedSubmitting = false;
+
+							data = {
+								sessid: BX.bitrix_sessid(),
+								PAYMENT_ID: this.paymentId,
+								PAYSYSTEM_ID: this.paySystemId,
+								RETURN_URL: this.returnUrl,
+							};
+
+							for (i in formData)
+							{
+								if (formData.hasOwnProperty(i))
+								{
+									data[i] = formData[i];
+								}
+							}
+
+							BX.ajax({
+								method: "POST",
+								dataType: "json",
+								url: this.ajaxUrl,
+								data: data,
+								onsuccess: BX.proxy(function (result) {
+									if (result.status === "success")
+									{
+										this.isAllowedSubmitting = true;
+										this.updateTemplateHtml(result.template);
+									}
+									else if (result.status === "error")
+									{
+										this.isAllowedSubmitting = true;
+										this.showErrorTemplate(result.buyerErrors);
+										BX.onCustomEvent("onPaySystemAjaxError", [result.buyerErrors]);
+									}
+								}, this)
+							});
+						},
+
+						getAllFormData: function()
+						{
+							var prepared = BX.ajax.prepareForm(this.formNode),
+								i;
+
+							for (i in prepared.data)
+							{
+								if (prepared.data.hasOwnProperty(i) && i === "")
+								{
+									delete prepared.data[i];
+								}
+							}
+
+							return !!prepared && prepared.data ? prepared.data : {};
+						},
+
+						updateTemplateHtml: function (html)
+						{
+							BX.html(this.paysystemBlockNode, html)
+						},
+
+						showErrorTemplate: function(errors)
+						{
+							var errorsList = [
+								BX.message("SALE_HANDLERS_REST_HANDLER_TEMPLATE_ERROR_MESSAGE_HEADER"),
+							];
+							if (errors)
+							{
+								for (var error in errors)
+								{
+									if (errors.hasOwnProperty(error))
+									{
+										errorsList.push(errors[error]);
+									}
+								}
+							}
+
+							errorsList.push(BX.message("SALE_HANDLERS_REST_HANDLER_TEMPLATE_ERROR_MESSAGE_FOOTER"));
+
+							var resultDiv = BX.create("div", {
+								props: {className: "alert alert-danger"},
+								html: errorsList.join("<br />"),
+							});
+
+							this.paysystemBlockNode.innerHTML = "";
+							this.paysystemBlockNode.appendChild(resultDiv);
+						},
+					}
+				})();
+
+				BX.ready(function() {
+					BX.Sale.RestHandler.init({
+						formId: "rest-checkout-form",
+						paysystemBlockId: "rest-checkout",
+						ajaxUrl: "/bitrix/tools/sale_ps_ajax.php",
+						paymentId: "' . \CUtil::JSEscape($payment->getId()) . '",
+						paySystemId: "' . \CUtil::JSEscape($payment->getPaymentSystemId()) . '",
+						returnUrl: "' . $this->service->getContext()->getUrl() . '",
+					});
+				});
+			</script>
+		';
+
+		return $template;
+	}
+
+	private function getCheckoutPayTemplate($paymentUrl): string
+	{
+		$template = '<a class="btn btn-lg btn-success" style="border-radius: 32px;" href="' . $paymentUrl . '">';
+		$template .= Loc::getMessage('SALE_HANDLERS_REST_HANDLER_BUTTON_PAID');
+		$template .= '</a>';
+
+		return $template;
+	}
+
+	private function initiateIframePay(Payment $payment): ServiceResult
+	{
+		$result = new ServiceResult();
+
+		$template = $this->getIframeTemplate($payment);
+		if ($this->initiateMode === static::STREAM)
+		{
+			echo $template;
+		}
+		else
+		{
+			$result->setTemplate($template);
+		}
+
+		return $result;
+	}
+
+	private function initiateFormPay(Payment $payment, ?Request $request): ServiceResult
 	{
 		$result = $this->showTemplate($payment, "template");
 		if (!$result->isSuccess())
@@ -113,16 +432,132 @@ class RestHandler extends PaySystem\ServiceHandler
 
 		foreach ($fields as $key => $value)
 		{
-			if (is_array($value['CODE']))
+			if (!is_array($value['CODE']) && !empty($value['CODE']))
 			{
-				$result = [];
-				break;
+				$result[$key] = $businessValueParams[$value['CODE']];
 			}
-
-			$result[$key] = $businessValueParams[$value['CODE']];
 		}
 
 		return $result;
+	}
+
+	private function getIframeTemplate(Payment $payment): string
+	{
+		\CJSCore::Init("loader");
+
+		$settings = $this->getHandlerSettings();
+		$formSettings = $settings['IFRAME_DATA'];
+
+		$iframeData = $this->getIframePayParams($payment);
+
+		$actionUriHost = (new Uri($formSettings['ACTION_URI']))->getHost();
+
+		$template = "
+			<div class='rest-paysystem-wrapper' id='rest-paysystem-wrapper'>
+				<iframe
+					src='{$formSettings['ACTION_URI']}'
+					class='rest-payment-frame'
+					name='restPaymentFrame'
+					id='rest-payment-frame'
+					style='border: none; height: 350px; width: 100%'
+					sandbox='allow-forms allow-scripts allow-modals allow-top-navigation allow-same-origin'
+				>
+					<div class='alert alert-danger'>" . Loc::getMessage('SALE_HANDLERS_REST_HANDLER_ERROR_IFRAME') . "</div>
+				</iframe>
+				<div class='alert alert-info'>" . Loc::getMessage('SALE_HANDLERS_REST_HANDLER_TEMPLATE_WARNING_RETURN') . "</div>
+			</div>
+		";
+		$template .= '
+			<script>
+				BX.ready(function() {
+					var iframe = document.getElementById("rest-payment-frame");
+					var loader = null;
+
+					if (BX.Loader)
+					{
+						loader = new BX.Loader({
+							target: iframe.parentElement,
+							size: iframe.offsetHeight / 2,
+						});
+						loader.show();
+					}
+
+					var parent = iframe.parentElement;
+					iframe.style.width = parent.clientWidth;
+
+					iframe.onload = function () {
+						if (loader)
+						{
+							loader.hide();
+						}
+
+						var paymentFrame = iframe.contentWindow;
+						if (paymentFrame)
+						{
+							var iframeData = ' . \CUtil::PhpToJSObject($iframeData) . ';
+							iframeData.BX_COMPUTED_STYLE = JSON.parse(JSON.stringify(window.getComputedStyle(parent)));
+
+							paymentFrame.postMessage(iframeData, "' . $formSettings['ACTION_URI'] . '");
+						}
+					}
+					iframe.onerror = function () {
+						if (loader)
+						{
+							loader.hide();
+						}
+
+						var restPaysystemWrapper = document.getElementById("rest-paysystem-wrapper");
+						restPaysystemWrapper.innerHTML = "";
+						restPaysystemWrapper.appendChild(
+							BX.create("div", {
+								props: {className: "alert alert-danger"},
+								text: "' . Loc::getMessage('SALE_HANDLERS_REST_HANDLER_ERROR_IFRAME_LOAD') . '",
+							})
+						);
+					}
+
+					window.addEventListener("message", function (event) {
+						try
+						{
+							var originHost = new URL(event.origin).hostname;
+						}
+						catch(error)
+						{
+							return;
+						}
+
+						if (originHost !== "' . $actionUriHost . '")
+						{
+							return;
+						}
+
+						if (event.data.width && parseInt(event.data.width) > 0)
+						{
+							iframe.style.width = event.data.width + "px";
+						}
+						if (event.data.height && parseInt(event.data.height) > 0)
+						{
+							iframe.style.height = event.data.height + "px";
+						}
+					}, false);
+				});
+			</script>
+		';
+
+		return $template;
+	}
+
+	private function getIframePayParams(Payment $payment): array
+	{
+		$params = [];
+
+		$formSettings = $this->getHandlerSettings()['IFRAME_DATA'];
+		if (isset($formSettings['FIELDS']))
+		{
+			$params = $this->getQueryDataFromFields($payment, $formSettings['FIELDS']);
+		}
+
+		return array_merge($params, $this->getSystemParams($payment));
 	}
 
 	/**
@@ -146,8 +581,9 @@ class RestHandler extends PaySystem\ServiceHandler
 			$template .= $this->getTemplateFromParams($payment, $formSettings['PARAMS']);
 		}
 
-		$template .= '<input type="hidden" name="BX_PAYSYSTEM_ID" value="'.$this->service->getField('ID').'">';
-		$template .= '<input name="button" value="'.Loc::getMessage('SALE_HANDLERS_REST_HANDLER_BUTTON_PAID').'" type="submit" class="btn btn-lg btn-success pl-4 pr-4" style="border-radius: 32px;">';
+		$template .= '<input type="hidden" name="BX_PAYSYSTEM_ID" value="' . $this->service->getField('ID') . '">';
+		$template .= '<input type="hidden" name="BX_RETURN_URL" value="' . $this->service->getContext()->getUrl() . '">';
+		$template .= '<input name="button" value="' . Loc::getMessage('SALE_HANDLERS_REST_HANDLER_BUTTON_PAID') . '" type="submit" class="btn btn-lg btn-success pl-4 pr-4" style="border-radius: 32px;">';
 		$template .= '</form>';
 
 		return $template;
@@ -301,6 +737,42 @@ class RestHandler extends PaySystem\ServiceHandler
 		return $this->handlerSettings;
 	}
 
+	private function getMode(): string
+	{
+		$settings = $this->getHandlerSettings();
+
+		if (!empty($settings['IFRAME_DATA']))
+		{
+			return self::IFRAME_MODE;
+		}
+
+		if (!empty($settings['CHECKOUT_DATA']))
+		{
+			return self::CHECKOUT_MODE;
+		}
+
+		return self::FORM_MODE;
+	}
+
+	private function getSystemParams(Payment $payment): array
+	{
+		$params['BX_SYSTEM_PARAMS'] = [
+			'RETURN_URL' => $this->service->getContext()->getUrl(),
+			'PAYSYSTEM_ID' => $this->service->getField('ID'),
+			'PAYMENT_ID' => $payment->getId(),
+			'SUM' => $payment->getSum(),
+			'CURRENCY' => $payment->getField('CURRENCY'),
+		];
+
+		$invoiceId = $payment->getField('PS_INVOICE_ID');
+		if (isset($invoiceId))
+		{
+			$params['BX_SYSTEM_PARAMS']['EXTERNAL_PAYMENT_ID'] = $invoiceId;
+		}
+
+		return $params;
+	}
+
 	/**
 	 * @param Payment $payment
 	 * @param Request $request
@@ -363,7 +835,7 @@ class RestHandler extends PaySystem\ServiceHandler
 		{
 			$psData['PS_RECURRING_TOKEN'] = $psRecurringToken;
 		}
-		
+
 		if ($psCardNumber = $request->get('PS_CARD_NUMBER'))
 		{
 			$psData['PS_CARD_NUMBER'] = $psCardNumber;

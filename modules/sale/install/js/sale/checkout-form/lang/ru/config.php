@@ -1,0 +1,22 @@
+<?
+$MESS["SALE_BLOCKS_PROPERTIES_TITLE"] = "Введите свои данные, и мы вам перезвоним";
+$MESS["SALE_BLOCKS_PROPERTIES_SHIPPING_METHOD"] = "Способ доставки";
+$MESS["SALE_BLOCKS_PROPERTIES_SHIPPING_METHOD_DESCRIPTION"] = "Мы перезвоним вам, чтобы обсудить способ и время доставки.";
+$MESS["SALE_BLOCKS_PROPERTIES_ORDER_TITLE"] = "Заказ ##ORDER_NUMBER#";
+$MESS["SALE_BLOCKS_SUCCESS_ORDER"] = "Заказ";
+$MESS["SALE_BLOCKS_SUCCESS_ORDER_CREATED"] = "успешно создан!";
+$MESS["SALE_BLOCKS_SUCCESS_CALL"] = "Вам позвонит наш менеджер";
+$MESS["SALE_BLOCKS_SUCCESS_OR"] = "ИЛИ";
+$MESS["SALE_BLOCKS_SUCCESS_TO_PAID"] = "Оплачено, #PAID#";
+$MESS["SALE_BLOCKS_SUCCESS_DELIVERY"] = "Выполняется доставка";
+$MESS["SALE_BLOCKS_SUCCESS_CHECKOUT"] = "Оплата и доставка";
+$MESS["SALE_BLOCKS_SUCCESS_CONTINUE"] = "Продолжить покупки";
+$MESS["SALE_BLOCKS_TOTAL_ITEMS"] = "Итого";
+$MESS["SALE_BLOCKS_TOTAL_DISCOUNT"] = "Скидка";
+$MESS["SALE_BLOCKS_TOTAL_DESCRIPTION"] = "Курьером, Почтой России";
+$MESS["SALE_BLOCKS_TOTAL_NAME"] = "Доставка";
+$MESS["SALE_BLOCKS_TOTAL_TOTAL"] = "Общие";
+$MESS["SALE_BLOCKS_TOTAL_TAXES"] = "Налоги";
+$MESS["SALE_BLOCKS_PLACE_ORDER_TEXT"] = "Нажимая кнопку \"Заказать сейчас\", я даю согласие на обработку моих персональных данных в соответствии с Федеральным законом № 152-ФЗ от 27.07.2006 \"о личных данные\", на условиях и для целей.";
+$MESS["SALE_BLOCKS_PLACE_ORDER_NOW"] = "Заказать сейчас";
+$MESS["SALE_BLOCKS_BASKET_ITEMS"] = "Итого";

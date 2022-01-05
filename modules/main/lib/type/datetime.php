@@ -6,6 +6,9 @@ use Bitrix\Main\Context;
 
 class DateTime extends Date
 {
+	/** @var bool */
+	protected $userTimeEnabled = true;
+
 	/**
 	 * @param string $time String representation of datetime.
 	 * @param string $format PHP datetime format. If not specified, the format is got from the current culture.
@@ -81,7 +84,7 @@ class DateTime extends Date
 	 */
 	public function toString(Context\Culture $culture = null)
 	{
-		if(\CTimeZone::Enabled())
+		if(\CTimeZone::Enabled() && $this->userTimeEnabled)
 		{
 			$userTime = clone $this;
 			$userTime->toUserTime();
@@ -276,5 +279,33 @@ class DateTime extends Date
 			$time = null;
 		}
 		return $time;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isUserTimeEnabled()
+	{
+		return $this->userTimeEnabled;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function disableUserTime()
+	{
+		$this->userTimeEnabled = false;
+
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function enableUserTime()
+	{
+		$this->userTimeEnabled = true;
+
+		return $this;
 	}
 }

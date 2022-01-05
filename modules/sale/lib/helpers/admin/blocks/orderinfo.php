@@ -176,17 +176,18 @@ class OrderInfo
 						<ul class="adm-bus-orderinfoblock-content-customer-info">
 							<li>
 								<span class="adm-bus-orderinfoblock-content-customer-info-param">'.Loc::getMessage("SALE_ORDER_INFO_FIO").':</span>
+								<span class="adm-bus-orderinfoblock-content-customer-info-separator"></span>
 								<span class="adm-bus-orderinfoblock-content-customer-info-value" id="order_info_buyer_name">'.$name.'</span>
 							</li>
 							<li>
 								<span class="adm-bus-orderinfoblock-content-customer-info-param">E-Mail:</span>
+								<span class="adm-bus-orderinfoblock-content-customer-info-separator"></span>
 								<span class="adm-bus-orderinfoblock-content-customer-info-value"  id="order_info_buyer_email">'.$email.'</span>
 							</li>
 							<li>
 								<span class="adm-bus-orderinfoblock-content-customer-info-param">'.Loc::getMessage("SALE_ORDER_INFO_PHONE").':</span>
-								<span class="adm-bus-orderinfoblock-content-customer-info-value" id="order_info_buyer_phone">
-									'.$phone.'									
-								</span>
+								<span class="adm-bus-orderinfoblock-content-customer-info-separator"></span>
+								<span class="adm-bus-orderinfoblock-content-customer-info-value" id="order_info_buyer_phone">'.$phone.'</span>
 							</li>';
 
 		if(!empty($customData))
@@ -202,6 +203,7 @@ class OrderInfo
 				$result .='
 					<li>
 						<span class="adm-bus-orderinfoblock-content-customer-info-param">'.$custom['TITLE'].'</span>
+						<span class="adm-bus-orderinfoblock-content-customer-info-separator"></span>
 						<span class="adm-bus-orderinfoblock-content-customer-info-value"'.(!empty($custom['ID']) ? ' id="'.$custom['ID'].'"' : '' ).'>'.$custom['VALUE'].'</span>
 					</li>';
 			}

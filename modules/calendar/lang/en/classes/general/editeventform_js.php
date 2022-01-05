@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["EC_ADD_LOCATION"] = "Add meeting room";
 $MESS["EC_ASK_TZ"] = "Select your time zone:";
 $MESS["EC_ATTENDEES_EDIT"] = "edit";
@@ -11,7 +11,9 @@ $MESS["EC_DESTINATION_ADD_USERS"] = "Add persons, groups or departments";
 $MESS["EC_ENTRY_NAME"] = "Event name";
 $MESS["EC_EVENT_TZ_DEF_HINT"] = "Select your time zone. Your preference will be saved.";
 $MESS["EC_EVENT_TZ_HINT"] = "If the event is going to take place in a different time zone, select one in the list. Different time zones for event start and end times are possible.";
+$MESS["EC_LOCATION_EMPTY"] = "Meeting room was not found";
 $MESS["EC_LOCATION_LABEL"] = "Location";
+$MESS["EC_LOCATION_OVERFLOW"] = "Number of attendees exceeds meeting room capacity";
 $MESS["EC_REMIND"] = "Remind";
 $MESS["EC_REMIND1_0"] = "When the event starts";
 $MESS["EC_REMIND1_5"] = "5 minutes before";
@@ -50,6 +52,7 @@ $MESS["EC_REMIND_LABEL"] = "Remind";
 $MESS["EC_SEC_SLIDER_GROUP_CALENDARS_LIST"] = "Workgroup calendars";
 $MESS["EC_SEC_SLIDER_MY_CALENDARS_LIST"] = "My calendars";
 $MESS["EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP"] = "Workgroup calendars";
+$MESS["EC_SEC_SLIDER_POPUP_MENU_NO_ROOMS"] = "There are no meeting rooms";
 $MESS["EC_SEC_SLIDER_TITLE_COMP_CAL"] = "Company";
 $MESS["EC_SEC_SLIDER_TITLE_GROUP_CAL"] = "Workgroups and projects";
 $MESS["EC_SEC_SLIDER_TITLE_LOCATION_CAL"] = "Locations";
@@ -60,4 +63,3 @@ $MESS["EC_SEC_SLIDER_TYPE_RESOURCE_LIST"] = "Resource calendars";
 $MESS["EC_SEC_SLIDER_USER_CALENDARS_LIST"] = "User calendars";
 $MESS["EC_SOCNET_DESTINATION_3"] = "To all employees";
 $MESS["EC_SOCNET_DESTINATION_4"] = "To all users";
-?>

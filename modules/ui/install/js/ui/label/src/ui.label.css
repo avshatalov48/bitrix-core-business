@@ -108,6 +108,12 @@ a.ui-label:not(.ui-label-fill):hover,
 	--ui-label-color: #1097C2;
 }
 
+.ui-label-lightorange {
+	--ui-label-background-color: rgba(255, 169, 0, 0.37);
+	--ui-label-background-color-hover: rgba(255, 169, 0, 0.37);
+	--ui-label-color: #B47A00;
+}
+
 .ui-label-light {
 	--ui-label-background-color: rgba(168, 173, 180, 0.24);
 	--ui-label-background-color-hover: rgba(168, 173, 180, 0.91);

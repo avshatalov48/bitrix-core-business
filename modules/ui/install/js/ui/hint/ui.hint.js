@@ -72,6 +72,7 @@
 		className: 'ui-hint',
 		classNameIcon: 'ui-hint-icon',
 		classNameContent: 'ui-hint-content',
+		classNamePopup: 'ui-hint-popup',
 		popup: null,
 		content: null,
 		popupParameters: null,
@@ -205,11 +206,21 @@
 					*/
 				}
 
+				if (typeof parameters.animation  === "undefined")
+				{
+					parameters.animation = "fading-slide";
+				}
+
 				if (typeof parameters.content === "undefined")
 				{
 					parameters.content = this.content;
 				}
 
+				if (typeof parameters.className === "undefined")
+				{
+					parameters.className = this.classNamePopup;
+				}
+				
 				this.popup = new BX.PopupWindow(this.id, anchorNode, parameters);
 			}
 

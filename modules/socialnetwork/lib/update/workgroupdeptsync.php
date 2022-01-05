@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\Socialnetwork\Update;
 
 use Bitrix\Main\Update\Stepper;
@@ -12,24 +13,24 @@ Loc::loadMessages(__FILE__);
 
 final class WorkgroupDeptSync extends Stepper
 {
-	const STEP_SIZE = 5;
+	public const STEP_SIZE = 5;
 
 	protected static $moduleId = "socialnetwork";
 
-	final static function getUsers($workgroupId)
+	public static function getUsers($workgroupId)
 	{
-		static $cache = array();
+		static $cache = [];
 
 		if (isset($cache[$workgroupId]))
 		{
 			return $cache[$workgroupId];
 		}
 
-		$result = array(
-			'PLUS' => array(),
-			'MINUS' => array(),
-			'OLD_RELATIONS' => array()
-		);
+		$result = [
+			'PLUS' => [],
+			'MINUS' => [],
+			'OLD_RELATIONS' => [],
+		];
 
 		if (
 			!Loader::includeModule('socialnetwork')
@@ -39,73 +40,71 @@ final class WorkgroupDeptSync extends Stepper
 			return $result;
 		}
 
-		$newUserList = $oldUserList = $oldRelationList = array();
+		$newUserList = [];
+		$oldUserList = [];
+		$oldRelationList = [];
 
 		$groupItem = \Bitrix\Socialnetwork\Item\Workgroup::getById($workgroupId);
 		$groupFields = $groupItem->getFields();
 
 		if (
-			isset($groupFields['UF_SG_DEPT'])
-			&& isset($groupFields['UF_SG_DEPT']['VALUE'])
+			isset($groupFields['UF_SG_DEPT']['VALUE'])
 			&& !empty($groupFields['UF_SG_DEPT']['VALUE'])
 		)
 		{
 			$newDeptList = array_map('intval', $groupFields['UF_SG_DEPT']['VALUE']);
-			$res = \CIntranetUtils::getDepartmentEmployees($newDeptList, true);
+
+			$res = \CIntranetUtils::getDepartmentEmployees($newDeptList, true, false, 'Y', [ 'ID' ]);
 			while ($departmentMember = $res->fetch())
 			{
-				if ($departmentMember["ID"] != $groupFields["OWNER_ID"])
+				if ((int)$departmentMember['ID'] !== (int)$groupFields['OWNER_ID'])
 				{
-					$newUserList[] = $departmentMember["ID"];
+					$newUserList[] = (int)$departmentMember['ID'];
 				}
 			}
 
-			foreach($newDeptList as $deptId)
+			foreach ($newDeptList as $deptId)
 			{
-				$managerId = intval(\CIntranetUtils::getDepartmentManagerId($deptId));
+				$managerId = (int)\CIntranetUtils::getDepartmentManagerId($deptId);
 				if ($managerId > 0)
 				{
 					$newUserList[] = $managerId;
 				}
 			}
-
-			$newUserList = array_map('intval', array_unique($newUserList));
 		}
 
-		$res = UserToGroupTable::getList(array(
-			'filter' => array(
-				'=GROUP_ID' => intval($groupFields["ID"]),
+		$res = UserToGroupTable::getList([
+			'filter' => [
+				'=GROUP_ID' => (int)$groupFields['ID'],
 				'@ROLE' => UserToGroupTable::getRolesMember(),
-				'AUTO_MEMBER' => 'Y'
-			),
-			'select' => array('ID', 'USER_ID')
-		));
-		while($relation = $res->fetch())
+				'=AUTO_MEMBER' => 'Y',
+			],
+			'select' => [ 'ID', 'USER_ID' ]
+		]);
+		while ($relation = $res->fetch())
 		{
-			$oldUserList[] = $relation['USER_ID'];
+			$oldUserList[] = (int)$relation['USER_ID'];
 			$oldRelationList[$relation['USER_ID']] = $relation['ID'];
 		}
-		$oldUserList = array_map('intval', array_unique($oldUserList));
 
 		$membersList = [];
-		$res = UserToGroupTable::getList(array(
-			'filter' => array(
-				'=GROUP_ID' => intval($groupFields["ID"]),
+		$res = UserToGroupTable::getList([
+			'filter' => [
+				'=GROUP_ID' => (int)$groupFields["ID"],
 				'@ROLE' => UserToGroupTable::getRolesMember(),
-			),
-			'select' => array('ID', 'USER_ID')
-		));
-		while($relation = $res->fetch())
+			],
+			'select' => [ 'ID', 'USER_ID' ]
+		]);
+		while ($relation = $res->fetch())
 		{
-			$membersList[] = $relation['USER_ID'];
+			$membersList[] = (int)$relation['USER_ID'];
 		}
-		$membersList = array_map('intval', array_unique($membersList));
 
-		$result = array(
+		$result = [
 			'PLUS' => array_diff($newUserList, $membersList),
 			'MINUS' => array_diff($oldUserList, $newUserList),
-			'OLD_RELATIONS' => $oldRelationList
-		);
+			'OLD_RELATIONS' => $oldRelationList,
+		];
 
 		$cache[$workgroupId] = $result;
 
@@ -126,7 +125,7 @@ final class WorkgroupDeptSync extends Stepper
 		{
 			$nonEmptyWorkgroupList = [];
 
-			foreach($workgroupsToSync as $workgroupData)
+			foreach ($workgroupsToSync as $workgroupData)
 			{
 				$workgroupId = $workgroupData['groupId'];
 				$groupCounter = 0;
@@ -161,11 +160,11 @@ final class WorkgroupDeptSync extends Stepper
 
 				if ($groupCounter > 0)
 				{
-					$nonEmptyWorkgroupList[] = array(
+					$nonEmptyWorkgroupList[] = [
 						'groupId' => $workgroupId,
 						'initiatorId' => $workgroupData['initiatorId'],
-						'exclude' => (isset($workgroupData['exclude']) ? $workgroupData['exclude'] : false),
-					);
+						'exclude' => ($workgroupData['exclude'] ?? false),
+					];
 					$result += $groupCounter;
 				}
 				\CSocNetGroup::setStat($workgroupId);
@@ -308,11 +307,11 @@ final class WorkgroupDeptSync extends Stepper
 									'=GROUP_ID' => $workgroupId,
 									'@USER_ID' => $userListPlus,
 									'@ROLE' => array(UserToGroupTable::ROLE_REQUEST, UserToGroupTable::ROLE_BAN),
-									'AUTO_MEMBER' => 'N'
+									'=AUTO_MEMBER' => 'N'
 								),
 								'select' => array('ID', 'USER_ID', 'GROUP_ID')
 							));
-							while($relation = $res->fetch())
+							while ($relation = $res->fetch())
 							{
 								if ($counter >= self::STEP_SIZE)
 								{
@@ -320,14 +319,14 @@ final class WorkgroupDeptSync extends Stepper
 									break;
 								}
 
-								$changeList[] = intval($relation['USER_ID']);
-								UserToGroup::changeRelationAutoMembership(array(
-									'RELATION_ID' => intval($relation['ID']),
-									'USER_ID' => intval($relation['USER_ID']),
-									'GROUP_ID' => intval($relation['GROUP_ID']),
+								$changeList[] = (int)$relation['USER_ID'];
+								UserToGroup::changeRelationAutoMembership([
+									'RELATION_ID' => (int)$relation['ID'],
+									'USER_ID' => (int)$relation['USER_ID'],
+									'GROUP_ID' => (int)$relation['GROUP_ID'],
 									'ROLE' => UserToGroupTable::ROLE_USER,
-									'VALUE' => 'Y'
-								));
+									'VALUE' => 'Y',
+								]);
 
 								$counter++;
 							}
@@ -336,7 +335,7 @@ final class WorkgroupDeptSync extends Stepper
 
 							if (!$breakFlag)
 							{
-								foreach($addList as $addUserId)
+								foreach ($addList as $addUserId)
 								{
 									if ($counter >= self::STEP_SIZE)
 									{
@@ -344,13 +343,13 @@ final class WorkgroupDeptSync extends Stepper
 										break;
 									}
 
-									UserToGroup::addRelationAutoMembership(array(
+									UserToGroup::addRelationAutoMembership([
 										'CURRENT_USER_ID' => $workgroupData['initiatorId'],
 										'USER_ID' => $addUserId,
 										'GROUP_ID' => $workgroupId,
 										'ROLE' => UserToGroupTable::ROLE_USER,
-										'VALUE' => 'Y'
-									));
+										'VALUE' => 'Y',
+									]);
 
 									$counter++;
 								}
@@ -369,7 +368,7 @@ final class WorkgroupDeptSync extends Stepper
 				Option::delete("socialnetwork", array("name" => "workgroupdeptsync"));
 			}
 
-			$result["progress"] = intval($params["number"] * 100 / $params["count"]);
+			$result["progress"] = (int)($params["number"] * 100 / $params["count"]);
 			$result["steps"] = $params["number"];
 		}
 		else
@@ -380,4 +379,3 @@ final class WorkgroupDeptSync extends Stepper
 		return $return;
 	}
 }
-?>

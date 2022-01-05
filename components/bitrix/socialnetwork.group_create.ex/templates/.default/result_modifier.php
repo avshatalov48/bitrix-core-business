@@ -13,36 +13,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 /** @global CMain $APPLICATION */
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\Helper\Workgroup;
 
 Loc::loadMessages(__FILE__);
-
-$arResult['TypesProject'] = [];
-$arResult['TypesNonProject'] = [];
-$arResult['TypesAll'] = [];
 
 $arResult['ClientConfig'] = [
 	'refresh' => (empty($_REQUEST['refresh']) || $_REQUEST['refresh'] !== 'N' ? 'Y' : 'N')
 ];
-
-if (
-	is_array($arResult['Types'])
-	&& !empty($arResult['Types'])
-)
-{
-	foreach($arResult['Types'] as $code => $type)
-	{
-		$arResult['TypesAll'][$code] = $type;
-
-		if ($type['PROJECT'] === 'Y')
-		{
-			$arResult['TypesProject'][$code] = $type;
-		}
-		else
-		{
-			$arResult['TypesNonProject'][$code] = $type;
-		}
-	}
-}
 
 $arResult['openAdditional'] = false;
 
@@ -54,6 +31,11 @@ if (
 {
 	foreach($arResult["GROUP_PROPERTIES"] as $key => $userField)
 	{
+		if ($key === 'UF_SG_DEPT')
+		{
+			continue;
+		}
+
 		if ($userField['MANDATORY'] === 'Y')
 		{
 			$arResult["GROUP_PROPERTIES_MANDATORY"][$key] = $userField;
@@ -64,17 +46,6 @@ if (
 		}
 	}
 }
-
-$arResult['TypeRowNameList'] = [
-	'TypesProject' => Loc::getMessage('SONET_GCE_T_TYPE_SUBTITLE_PROJECT'),
-	'TypesNonProject' => Loc::getMessage('SONET_GCE_T_TYPE_SUBTITLE_GROUP'),
-	'TypesAll' => '',
-];
-
-//$arResult['TypeRowList'] = [ 'TypesProject', 'TypesNonProject' ];
-$arResult['TypeRowList'] = [ 'TypesAll' ];
-
-$arResult['AVATAR_UPLOADER_CID'] = 'GROUP_IMAGE_ID';
 
 if (
 	$arParams["GROUP_ID"] <= 0
@@ -93,7 +64,7 @@ if (
 
 if ($arParams['GROUP_ID'] > 0)
 {
-	$arResult['typeCode'] = \Bitrix\Socialnetwork\Helper\Workgroup::getTypeCodeByParams([
+	$arResult['typeCode'] = Workgroup::getTypeCodeByParams([
 		'typesList' => $arResult['Types'],
 		'fields' => [
 			'VISIBLE' => (isset($arResult['POST']['VISIBLE']) && $arResult['POST']['VISIBLE'] === 'Y' ? 'Y' : 'N'),
@@ -103,3 +74,49 @@ if ($arParams['GROUP_ID'] > 0)
 		]
 	]);
 }
+
+switch ($arResult['preset'])
+{
+	case 'project-open':
+		$arResult['selectedProjectType'] = 'project';
+		$arResult['selectedConfidentialityType'] = 'open';
+		break;
+	case 'project-closed':
+	case 'project-external':
+		$arResult['selectedProjectType'] = 'project';
+		$arResult['selectedConfidentialityType'] = 'secret';
+		break;
+	case 'project-scrum':
+		$arResult['selectedProjectType'] = 'scrum';
+		$arResult['selectedConfidentialityType'] = 'secret';
+		break;
+	case 'group-landing':
+		$arResult['selectedProjectType'] = 'group';
+		$arResult['selectedConfidentialityType'] = 'secret';
+		break;
+	default:
+		$arResult['selectedProjectType'] = '';
+		$arResult['selectedConfidentialityType'] = '';
+}
+
+$arResult['POST']['IMAGE_SRC'] = '';
+
+if ((int)$arResult['POST']['IMAGE_ID'] > 0)
+{
+	if ($fileTmp = \CFile::resizeImageGet(
+		(int)$arResult['POST']['IMAGE_ID'],
+		[
+			'width' => 300,
+			'height' => 300,
+		],
+		BX_RESIZE_IMAGE_PROPORTIONAL,
+		false,
+		false,
+		true,
+	))
+	{
+		$arResult['POST']['IMAGE_SRC'] = $fileTmp['src'];
+	}
+}
+
+$arResult['avatarTypesList'] = Workgroup::getAvatarTypes();

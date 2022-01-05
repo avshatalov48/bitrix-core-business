@@ -40,7 +40,12 @@ class UIFormComponent extends \CBitrixComponent
 	{
 		$this->initialize();
 		$this->emitOnUIFormInitializeEvent();
-		$this->includeComponentTemplate();
+
+		if (!$this->arParams['SKIP_TEMPLATE'])
+		{
+			$this->includeComponentTemplate();
+		}
+
 		return $this->arResult;
 	}
 
@@ -77,10 +82,12 @@ class UIFormComponent extends \CBitrixComponent
 			'CONFIG_ID' => null,
 			'READ_ONLY' => null,
 			'INITIAL_MODE' => '',
+			'SKIP_TEMPLATE' => false,
 			'ENABLE_MODE_TOGGLE' => true,
 			'ENABLE_CONFIG_CONTROL' => true,
 			'ENABLE_VISIBILITY_POLICY' => true,
 			'ENABLE_TOOL_PANEL' => true,
+			'IS_TOOL_PANEL_ALWAYS_VISIBLE' => false,
 			'ENABLE_BOTTOM_PANEL' => true,
 			'ENABLE_FIELDS_CONTEXT_MENU' => true,
 			'IS_EMBEDDED' => null,
@@ -101,6 +108,7 @@ class UIFormComponent extends \CBitrixComponent
 			'ENABLE_REQUIRED_USER_FIELD_CHECK' => true,
 			'ENABLE_USER_FIELD_CREATION' => false,
 			'ENABLE_USER_FIELD_MANDATORY_CONTROL' => true,
+			'ENABLE_PAGE_TITLE_CONTROLS' => false,
 			'USER_FIELD_ENTITY_ID' => '',
 			'USER_FIELD_PREFIX' => '',
 			'USER_FIELD_CREATE_PAGE_URL' => '',

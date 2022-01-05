@@ -8,6 +8,11 @@ namespace Bitrix\Sale\Delivery\AdminPage\DeliveryRestrictions
 
 	global $APPLICATION;
 
+	/** @global \CAdminPage $adminPage */
+	global $adminPage;
+	/** @global \CAdminSidePanelHelper $adminSidePanelHelper */
+	global $adminSidePanelHelper;
+
 	$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 	if ($saleModulePermissions < "W")
 		$APPLICATION->AuthForm(Loc::getMessage("SALE_ESDL_ACCESS_DENIED"));
@@ -148,6 +153,7 @@ namespace Bitrix\Sale\Delivery\AdminPage\DeliveryRestrictions
 				"ACTION" => "BX.Sale.Delivery.getRestrictionParamsHtml({".
 					"class: '".\CUtil::JSEscape($class).
 					"',deliveryId: ".$ID.
+					",publicMode: '".(($adminPage->publicMode || $adminSidePanelHelper->isPublicSidePanel()) ? 'Y' : 'N') . "'".
 					",title: '".$classTitle.
 					"',lang: '".LANGUAGE_ID."'".
 				"});"

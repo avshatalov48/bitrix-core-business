@@ -7,6 +7,8 @@ $MESS["CALENDAR_EVENT_DO_ADD"] = "Создать";
 $MESS["CALENDAR_EVENT_DO_SAVE"] = "Сохранить";
 $MESS["CALENDAR_EVENT_DO_CANCEL"] = "Отменить";
 $MESS["CALENDAR_EVENT_DO_OPEN"] = "Открыть";
+$MESS["CALENDAR_EVENT_DO_OPEN_PARENT"] = "Посмотреть событие";
+$MESS["CALENDAR_EVENT_WAITING_CONVERSION"] = "Происходит конвертация";
 $MESS["CALENDAR_EVENT_DO_EDIT"] = "Редактировать";
 $MESS["CALENDAR_EVENT_DO_DELETE"] = "Удалить";
 $MESS["CALENDAR_EVENT_FULL_FORM"] = "Полная форма";
@@ -19,4 +21,6 @@ $MESS["EC_BUSY_USERS_EXCLUDE_PLURAL"] = "Создать встречу без н
 $MESS["EC_BUSY_USERS_BACK2EDIT"] = "Вернуться к редактированию";
 $MESS["EC_BUSY_USERS_CLOSE"] = "Отменить и закрыть";
 $MESS["CALENDAR_DELETE_EVENT_NOTIFICATION"] = "Событие удалено";
+$MESS["CALENDAR_UPDATE"] = "Обновление";
+$MESS["CALENDAR_UPDATE_PROGRESS"] = "Выполняется обновление";
 ?>

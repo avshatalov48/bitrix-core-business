@@ -1949,9 +1949,53 @@
 			});
 		}
 
+		var entityXmlId = el.getAttribute('bx-mpl-post-entity-xml-id');
+		if (
+			el.getAttribute('bx-mpl-edit-show') == 'Y'
+			&& BX.Tasks.ResultAction
+			&& entityXmlId.indexOf('TASK_') === 0
+			&& BX.Tasks.ResultAction.getInstance().canCreateResult(+/\d+/.exec(entityXmlId))
+		)
+		{
+			var taskId = +/\d+/.exec(entityXmlId);
+			var result = BX.Tasks.ResultManager.getInstance().getResult(taskId);
+
+			if (
+				result
+				&& result.context === 'task'
+				&& result.isResult(parseInt(ID, 10))
+				&& !result.isClosed
+			)
+			{
+				panels.push({
+					text : BX.message("BPC_MES_REMOVE_TASK_RESULT"),
+					onclick : function() {
+						BX.Tasks.ResultAction.getInstance().deleteFromComment(ID);
+						this.popupWindow.close();
+						return false;
+					}
+				});
+			}
+			else if (
+				result
+				&& result.context === 'task'
+				&& !result.isResult(parseInt(ID, 10))
+			)
+			{
+				panels.push({
+					text : BX.message("BPC_MES_CREATE_TASK_RESULT"),
+					onclick : function() {
+						BX.Tasks.ResultAction.getInstance().createFromComment(ID);
+						this.popupWindow.close();
+						return false;
+					}
+				});
+			}
+		}
+
 		if (
 			el.getAttribute('bx-mpl-createtask-show') === 'Y'
-			&& !BX.type.isUndefined(oLF)
+			&& !BX.type.isUndefined(BX.Livefeed)
 		)
 		{
 			var commentEntityType = el.getAttribute('bx-mpl-comment-entity-type');
@@ -1960,7 +2004,7 @@
 			panels.push({
 				text : BX.message('BPC_MES_CREATE_TASK'),
 				onclick : function() {
-					oLF.createTask({
+					BX.Livefeed.TaskCreator.create({
 						postEntityType: (BX.type.isNotEmptyString(postEntityType) ? postEntityType : 'BLOG_POST'),
 						entityType: (BX.type.isNotEmptyString(commentEntityType) ? commentEntityType : 'BLOG_COMMENT'),
 						entityId: ID,
@@ -1973,7 +2017,7 @@
 
 		if (
 			el.getAttribute('bx-mpl-createsubtask-show') === 'Y'
-			&& !BX.type.isUndefined(oLF)
+			&& !BX.type.isUndefined(BX.Livefeed)
 		)
 		{
 			var postEntityXmlId = el.getAttribute('bx-mpl-post-entity-xml-id');
@@ -1984,7 +2028,7 @@
 				panels.push({
 					text : BX.message('BPC_MES_CREATE_SUBTASK'),
 					onclick : function() {
-						oLF.createTask({
+						BX.Livefeed.TaskCreator.create({
 							postEntityType: postEntityType,
 							entityType: commentEntityType,
 							entityId: ID,
@@ -2293,6 +2337,13 @@
 					&& params["RIGHTS"]["CREATETASK"] == "Y"
 						? "Y"
 						: "N"
+				),
+				"CREATESUBTASK_SHOW" : (
+					(!res.AUX || res.AUX.length <= 0)
+					&& BX.type.isNotEmptyString(params.RIGHTS.CREATESUBTASK)
+					&& params.RIGHTS.CREATESUBTASK === "Y"
+						? 'Y'
+						: 'N'
 				),
 				"BEFORE_HEADER" : res["BEFORE_HEADER"],
 				"BEFORE_ACTIONS" : res["BEFORE_ACTIONS"],

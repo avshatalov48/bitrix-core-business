@@ -5613,7 +5613,8 @@
 		var filesNode = this.diskDrawFiles(message.chatId, message.params.FILE_ID);
 		if (filesNode.length > 0)
 		{
-			filesNode = BX.create("div", { props : { className : "bx-messenger-file-box"+(messageText != ''? ' bx-messenger-file-box-with-message':'') }, children: filesNode});
+			var filesNodeWithText = messageText != '' || message.params.ATTACH;
+			filesNode = BX.create("div", { props : { className : "bx-messenger-file-box"+(filesNodeWithText? ' bx-messenger-file-box-with-message':'') }, children: filesNode});
 		}
 		else
 		{
@@ -7828,7 +7829,13 @@
 						}
 
 						BX.addClass(messageBox, 'bx-messenger-message-edited-anim');
-						if (messageBox.previousSibling && BX.hasClass(messageBox.previousSibling, 'bx-messenger-file-box'))
+						if (
+							messageBox.previousSibling
+							&& (
+								BX.hasClass(messageBox.previousSibling, 'bx-messenger-file-box')
+								|| params.params && params.params.ATTACH
+							)
+						)
 						{
 							BX.addClass(messageBox.previousSibling, 'bx-messenger-file-box-with-message');
 						}
@@ -7908,7 +7915,8 @@
 							}
 							else if (filesNode.length > 0)
 							{
-								filesNode = BX.create("div", { props : { className : "bx-messenger-file-box"+(params.text != ''? ' bx-messenger-file-box-with-message':'') }, children: filesNode});
+								var filesNodeWithText = params.text != '' || params.params && params.params.ATTACH;
+								filesNode = BX.create("div", { props : { className : "bx-messenger-file-box"+(filesNodeWithText? ' bx-messenger-file-box-with-message':'') }, children: filesNode});
 								if (messageBox.previousElementSibling)
 								{
 									messageBox.parentNode.insertBefore(filesNode, messageBox.previousElementSibling);
@@ -7918,7 +7926,8 @@
 									messageBox.parentNode.insertBefore(filesNode, messageBox);
 								}
 							}
-							if (messageBox.innerHTML != '' && messageBox.previousElementSibling && BX.hasClass(messageBox.previousElementSibling, 'bx-messenger-file-box'))
+
+							if ((messageBox.innerHTML != '' || params.params && params.params.ATTACH) && messageBox.previousElementSibling && BX.hasClass(messageBox.previousElementSibling, 'bx-messenger-file-box'))
 							{
 								BX.addClass(messageBox.previousElementSibling, 'bx-messenger-file-box-with-message');
 							}

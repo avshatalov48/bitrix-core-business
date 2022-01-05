@@ -60,8 +60,9 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		this._enableSectionCreation = false;
 		this._enableModeToggle = true;
 		this._enableVisibilityPolicy = true;
-		this._enablePageTitleContols = true;
+		this._enablePageTitleControls = true;
 		this._enableToolPanel = true;
+		this._isToolPanelAlwaysVisible = false;
 		this._enableBottomPanel = true;
 		this._enableConfigControl = true;
 		this._enableFieldsContextMenu = true;
@@ -122,6 +123,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 
 			this._serviceUrl = BX.prop.getString(this._settings, "serviceUrl", "");
 			this._entityTypeName = BX.prop.getString(this._settings, "entityTypeName", '');
+			this._entityTypeTitle = BX.prop.getString(this._settings, "entityTypeTitle", '');
+			this._useFieldsSearch = BX.prop.getBoolean(this._settings, "useFieldsSearch", false);
 			this._entityId = BX.prop.getInteger(this._settings, "entityId", 0);
 			this.moduleId = BX.prop.getString(this._settings, "moduleId", '');
 			this._isNew = this._entityId <= 0 && this._model.isIdentifiable();
@@ -227,9 +230,15 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			this.initializeValidators();
 
 			this._enableToolPanel = BX.prop.getBoolean(this._settings, "enableToolPanel", true);
+			this._isToolPanelAlwaysVisible = BX.prop.getBoolean(this._settings, "isToolPanelAlwaysVisible", false);
 			if(this._enableToolPanel)
 			{
 				this.initializeToolPanel();
+
+				if (this.isToolPanelAlwaysVisible())
+				{
+					this.showToolPanel();
+				}
 			}
 
 			this._enableBottomPanel = BX.prop.getBoolean(this._settings, "enableBottomPanel", true);
@@ -639,6 +648,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		isVisibilityPolicyEnabled: function()
 		{
 			return this._enableVisibilityPolicy;
+		},
+		isToolPanelAlwaysVisible: function()
+		{
+			return this._isToolPanelAlwaysVisible;
 		},
 		isBottomPanelEnabled: function()
 		{
@@ -1060,14 +1073,24 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			{
 				this.showToolPanel();
 			}
-			else
+			else if (!this.isToolPanelAlwaysVisible())
 			{
 				this.hideToolPanel();
 			}
+
+			var eventArgs = {
+				control: control,
+			}
+			BX.onCustomEvent(window, this.eventsNamespace + ":onControlModeChange", [ this, eventArgs ]);
 		},
 		processControlChange: function(control, params)
 		{
 			this.showToolPanel();
+			var eventArgs = {
+				control: control,
+				params: params,
+			}
+			BX.onCustomEvent(window, this.eventsNamespace + ":onControlChange", [ this, eventArgs ]);
 		},
 		processControlAdd: function(control)
 		{
@@ -1226,6 +1249,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		processControllerChange: function(controller)
 		{
 			this.showToolPanel();
+			var eventArgs = {
+				controller: controller,
+			}
+			BX.onCustomEvent(window, this.eventsNamespace + ":onControllerChange", [ this, eventArgs ]);
 		},
 		//endregion
 		//region Layout
@@ -1519,7 +1546,15 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		switchToViewMode: function(options)
 		{
 			this.releaseActiveControls(options);
-			this.hideToolPanel();
+			if (!this.isToolPanelAlwaysVisible())
+			{
+				this.hideToolPanel();
+			}
+
+			var eventArgs = {
+				options: options,
+			}
+			BX.onCustomEvent(window, this.eventsNamespace + ":onSwitchToViewMode", [ this, eventArgs ]);
 		},
 		switchTitleMode: function(mode)
 		{
@@ -1582,7 +1617,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		},
 		adjustTitle: function()
 		{
-			if(!this._enablePageTitleContols || !this._buttonWrapper)
+			if(!this._enablePageTitleControls || !this._buttonWrapper)
 			{
 				return;
 			}
@@ -1619,7 +1654,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		},
 		adjustSize: function()
 		{
-			if(!this._enablePageTitleContols || !this._pageTitle)
+			if(!this._enablePageTitleControls || !this._pageTitle)
 			{
 				return;
 			}
@@ -1795,9 +1830,12 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				this._modeSwitch.reset();
 				this.releaseActiveControls();
 				this.refreshLayout({ reset: true });
-				this.hideToolPanel();
+				if (!this.isToolPanelAlwaysVisible())
+				{
+					this.hideToolPanel();
+				}
 
-				BX.onCustomEvent(window, "BX.UI.EntityEditor:onNothingChanged", [ this ]);
+				BX.onCustomEvent(window, this.eventsNamespace + ":onNothingChanged", [ this ]);
 			}
 			else
 			{
@@ -1862,6 +1900,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 								if(field)
 								{
 									field.focus();
+									var toolPanelOffset = 130;
+									window.scroll(window.pageXOffset, window.pageYOffset + toolPanelOffset);
 								}
 							}
 
@@ -2444,6 +2484,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 
 			if(redirectUrl !== "")
 			{
+				eventParams.redirectUrl = redirectUrl;
+				BX.onCustomEvent(window, "beforeEntityRedirect", [eventParams]);
 				window.location.replace(
 					BX.util.add_url_param(
 						redirectUrl,
@@ -2479,7 +2521,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				}
 
 				this.refreshLayout({ reset: true });
-				this.hideToolPanel();
+				if (!this.isToolPanelAlwaysVisible())
+				{
+					this.hideToolPanel();
+				}
 			}
 		},
 		onSaveFailure: function(response)
@@ -3365,6 +3410,8 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 
 		this._nameInput = {};
 		this._usersInput = {};
+		this._usersInputTagSelector = {};
+		this._forceSetInput = {};
 		this._nameInputError = null;
 		this._usersInputError = null;
 
@@ -3397,8 +3444,6 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 
 				this._entityTypeId = this.getSetting('entityTypeId', null);
 				this.moduleId = this.getSetting('moduleId', null);
-
-				this._userSelector = null;
 			},
 			getId: function()
 			{
@@ -3456,6 +3501,7 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 				});
 				container.appendChild(this.prepareNameControl());
 				container.appendChild(this.prepareUserSelectControl());
+				container.appendChild(this.prepareForceSetToUsersControl());
 
 				return container;
 			},
@@ -3499,6 +3545,7 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 				var container = BX.create('div', {
 					style: {
 						paddingBottom: '25px',
+						marginBottom: '10px',
 						borderBottom: '1px solid #f2f2f4'
 					}
 				});
@@ -3516,20 +3563,72 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 				});
 
 				this._usersInput = BX.create("div", {
-					props:{
-						className: 'ui-ctl-element main-ui-control-entity main-ui-control'
+					style:{
+						width: '100%'
 					},
 					attrs: {
 						id: 'user-selector-item',
 					},
-					events: {
-						click: BX.proxy(function(){
-							this.openUserSelector(control);
-						}, this)
-					}
 				});
 
 				control.appendChild(this._usersInput);
+				container.appendChild(control);
+
+				this._usersInputTagSelector = new BX.UI.EntitySelector.TagSelector({
+					dialogOptions: {
+						context: 'UI_ENTITY_EDITOR_SCOPE',
+						entities: [
+							{
+								id: 'user',
+							},
+							{
+								id: 'project',
+							},
+							{
+								id: 'department',
+								options: {
+									selectMode: 'usersAndDepartments'
+								}
+							},
+						],
+					}
+				});
+
+				this._usersInputTagSelector.renderTo(this._usersInput);
+
+				return container;
+			},
+			prepareForceSetToUsersControl: function()
+			{
+				var container = BX.create('div', {
+					style: {
+						paddingBottom: '10px',
+						borderBottom: '1px solid #f2f2f4'
+					}
+				});
+
+				var control = BX.create('div', {
+					props:{
+						className: 'ui-ctl ui-ctl-checkbox ui-ctl-w100'
+					}
+				});
+
+				this._forceSetInput = BX.create("input", {
+					props:{
+						className: 'ui-ctl-element',
+						type: 'checkbox',
+						checked: true
+					},
+				});
+
+				control.appendChild(this._forceSetInput);
+				control.appendChild(BX.create('div', {
+					props:{
+						className: 'ui-ctl-label-text',
+					},
+					text: BX.message('UI_ENTITY_EDITOR_CONFIG_SCOPE_FORCE_INSTALL_TO_USERS')
+				}));
+
 				container.appendChild(control);
 
 				return container;
@@ -3576,72 +3675,6 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 			{
 				this._closeNotifier.removeListener(listener);
 			},
-			findItemIndexById: function (id)
-			{
-				for (var i = 0, length = this._items.length; i < length; i++)
-				{
-					if (this._items[i].ID === id)
-					{
-						return i;
-					}
-				}
-				return -1;
-			},
-			removeItem: function (userId)
-			{
-				var id = this.findItemIndexById(userId);
-				if (id >= 0)
-				{
-					this._items = BX.util.deleteFromArray(this._items, id);
-				}
-			},
-			adjust: function()
-			{
-				this.removeSquares();
-				this._items.forEach(function (currentUser, index, array) {
-					this.setSquare(currentUser.FORMATTED_NAME, currentUser.ID);
-				}, this);
-			},
-			addItem: function (data)
-			{
-				if (this._items === null)
-				{
-					this._items = [];
-				}
-
-				this._items.push(data);
-
-				return data;
-			},
-			setSquare: function(label, value)
-			{
-				var square = BX.decl(this.createSquareData(label, value));
-				square.setAttribute('data-user-id', value);
-
-				BX.bind(square, "click", BX.delegate(this._onSquareClick, this));
-
-				var squares = this.getSquares();
-				if(!squares.length)
-				{
-					BX.prepend(square, this._usersInput);
-				}
-				else
-				{
-					BX.insertAfter(square, squares[squares.length - 1]);
-				}
-			},
-			getSquares: function()
-			{
-				return BX.Filter.Utils.getByClass(this._usersInput, 'main-ui-square', true);
-			},
-			getItems: function()
-			{
-				return (this._items || []);
-			},
-			removeItems: function()
-			{
-				this._items = [];
-			},
 			createUserInfo: function(item)
 			{
 				return {
@@ -3653,37 +3686,6 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 			{
 				var accessCodes = BX.prop.getObject(this._config, 'accessCodes', []);
 				return !!Object.keys(accessCodes).length;
-			},
-			openUserSelector: function (anchor)
-			{
-				this.getUserSelector().open(anchor);
-			},
-			getUserSelector: function()
-			{
-				if (!this._userSelector)
-				{
-					this._userSelector = BX.UI.EntityEditorUserSelector.create(
-						'user-selector-item',
-						{
-							callback: BX.delegate(this.processItemSelect, this),
-							onlyUsers: false,
-							showSearchInput: false
-						}
-					);
-				}
-				return this._userSelector;
-			},
-			processItemSelect: function (selector, item)
-			{
-				var userId = BX.prop.getString(item, 'id', '');
-				if (this.findItemIndexById(userId) >= 0)
-				{
-					this.removeItem(userId);
-					this.adjust();
-					return;
-				}
-				this.addItem(this.createUserInfo(item));
-				this.adjust();
 			},
 			getName: function()
 			{
@@ -3698,29 +3700,49 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 				this.clearErrors();
 				this.setName(this._nameInput.value);
 
-				BX.ajax.runComponentAction('bitrix:ui.form.config', 'save', {
-					data: {
-						moduleId: this.moduleId,
-						entityTypeId: this._entityTypeId,
-						name: this.getName(),
-						accessCodes: this.getItems(),
-						config: this._config,
-						common: 'Y'
+				BX.ajax.runComponentAction(
+					'bitrix:ui.form.config',
+					'save',
+					{
+						data: {
+							moduleId: this.moduleId,
+							entityTypeId: this._entityTypeId,
+							name: this.getName(),
+							accessCodes: this.getSelectedItems(),
+							config: this._config,
+							params: {
+								forceSetToUsers: this._forceSetInput.checked,
+								categoryName: this._editor._config.categoryName,
+								common: 'Y',
+							}
+						}
 					}
-				}).then(
+				)
+				.then(
 					function(response) {
 						this.close();
 						BX.UI.EntityEditorScopeConfig.prototype.notifyShow(response);
 						var scopeId = parseInt(response.data, 10);
 						this._editor.setConfigScope(BX.UI.EntityConfigScope.custom, scopeId);
 					}.bind(this)
-				).catch(
-					function(response)
-					{
-						//todo show errors some other way
-						this.fillErrors(response.data);
-					}.bind(this)
-				);
+				).catch(function(response){
+					//todo show errors some other way
+					this.fillErrors(response.data);
+				}.bind(this));
+			},
+			/**
+			 *
+			 * @returns {{entityType: string, id: string|number}[]}
+			 */
+			getSelectedItems: function()
+			{
+				var items = this._usersInputTagSelector.getTags();
+				return items.map(function(item){
+					return {
+						id: item.id,
+						entityId: item.entityId,
+					}
+				});
 			},
 			fillErrors: function(errors)
 			{
@@ -3782,29 +3804,6 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 			{
 				this._isOpened = false;
 				this._popup = null;
-			},
-			removeSquares: function()
-			{
-				this.getSquares().forEach(BX.remove);
-			},
-			createSquareData: function(label, value)
-			{
-				return {
-					block: 'main-ui-square',
-					name: label,
-					item: {
-						'_label': label,
-						'_value': value
-					},
-				};
-			},
-			onSquareClick: function(e)
-			{
-				e.preventDefault();
-				var square = e.target.parentElement;
-				var userId = square.getAttribute('data-user-id');
-				this.removeItem(userId);
-				this.adjust();
 			},
 		};
 

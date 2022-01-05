@@ -1,8 +1,7 @@
-<?
+<?php
 /*patchlimitationmutatormark1*/
 IncludeModuleLangFile(__FILE__);
 
-global $DBType;
 CModule::AddAutoloadClasses(
 	"calendar",
 	array(
@@ -74,4 +73,3 @@ CJSCore::RegisterExt('calendar_planner', array(
 	'lang' => '/bitrix/modules/calendar/classes/general/calendar_planner.php',
 	'rel' => array('date', 'dnd', 'helper')
 ));
-?>

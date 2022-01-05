@@ -155,7 +155,11 @@ class CCalendarReminder
 			$indexParam = isset($params['index']) ? ', '.$params['index'] : '';
 
 			CAgent::AddAgent(
-				"CCalendar::ReminderAgent(".intval($params['eventId']).", ".intval($params['userId']).", '".addslashes($params['viewPath'])."', '".addslashes($params['calendarType'])."', ".intval($params['ownerId']).$indexParam.");",
+				"CCalendar::ReminderAgent(".(int)$params['eventId'].", "
+						.(int)$params['userId'].", '"
+						.addslashes($params['viewPath'])."', '"
+						.addslashes($params['calendarType'])."', "
+						.(int)$params['ownerId'].$indexParam.");",
 				"calendar",
 				"Y",
 				0,
@@ -187,7 +191,7 @@ class CCalendarReminder
 		}
 
 		$path = $params['path'];
-		if (!empty($path))
+		if (empty($path))
 		{
 			$path = CCalendar::GetPath($entryFields['CAL_TYPE'], $entryFields['OWNER_ID'], true);
 		}

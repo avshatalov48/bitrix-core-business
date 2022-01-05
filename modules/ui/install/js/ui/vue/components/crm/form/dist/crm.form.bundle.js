@@ -61,6 +61,7 @@ this.BX.Ui.Vue.Components = this.BX.Ui.Vue.Components || {};
           _this.obj.instance = window.b24form.App.createForm24(_this.obj.config, _this.obj.config.data);
 
           _this.obj.instance.subscribeAll(function (data, instance, type) {
+            data = data || {};
             data.form = instance;
 
             _this.$emit('form:' + type, data);

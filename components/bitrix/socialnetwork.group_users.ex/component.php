@@ -30,12 +30,12 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arResult["IS_IFRAME"] = ($_REQUEST["IFRAME"] == "Y");
+$arResult["IS_IFRAME"] = ($_REQUEST["IFRAME"] === "Y");
 
-$arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
+$arParams["GROUP_ID"] = (int)$arParams["GROUP_ID"];
 
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
-$arParams["USE_AUTO_MEMBERS"] = ($arParams["USE_AUTO_MEMBERS"] == "Y" ? "Y" : "N");
+$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] === "N" ? "N" : "Y");
+$arParams["USE_AUTO_MEMBERS"] = ($arParams["USE_AUTO_MEMBERS"] === "Y" ? "Y" : "N");
 
 if ($arParams["USER_VAR"] == '')
 {
@@ -77,20 +77,22 @@ if (empty($arParams["PATH_TO_GROUP_INVITE"]))
 }
 
 $arParams["PATH_TO_CONPANY_DEPARTMENT"] = trim($arParams["PATH_TO_CONPANY_DEPARTMENT"]);
-if ($arParams["PATH_TO_CONPANY_DEPARTMENT"] == '')
+if ($arParams["PATH_TO_CONPANY_DEPARTMENT"] === '')
 {
 	$arParams["PATH_TO_CONPANY_DEPARTMENT"] = Path::get('department_path_template');
 }
 
-$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = (int)$arParams["ITEMS_COUNT"];
 if ($arParams["ITEMS_COUNT"] <= 0)
 {
 	$arParams["ITEMS_COUNT"] = 20;
 }
 
-$arParams["THUMBNAIL_LIST_SIZE"] = intval($arParams["THUMBNAIL_LIST_SIZE"]);
+$arParams["THUMBNAIL_LIST_SIZE"] = (int)$arParams["THUMBNAIL_LIST_SIZE"];
 if ($arParams["THUMBNAIL_LIST_SIZE"] <= 0)
+{
 	$arParams["THUMBNAIL_LIST_SIZE"] = 42;
+}
 
 $arParams['NAME_TEMPLATE'] = $arParams['NAME_TEMPLATE'] ?: GetMessage("SONET_GUE_NAME_TEMPLATE_DEFAULT");
 $arParams["NAME_TEMPLATE_WO_NOBR"] = str_replace(
@@ -104,19 +106,23 @@ $arResult["bIntranetIncluded"] = ($arResult["bIntranetInstalled"] && Loader::inc
 
 $arGroup = CSocNetGroup::GetByID($arParams["GROUP_ID"]);
 
-if ($arGroup["CLOSED"] == "Y" && COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") != "Y")
+if ($arGroup["CLOSED"] === "Y" && COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") !== "Y")
+{
 	$arResult["HideArchiveLinks"] = true;
+}
 
 $arParams["GROUP_USE_BAN"] =
-		$arParams["GROUP_USE_BAN"] != "N"
-		&& (!CModule::IncludeModule('extranet') || (!CExtranet::IsExtranetSite() && !$arResult["HideArchiveLinks"]))
-	? "Y"
-	: "N";
+	$arParams["GROUP_USE_BAN"] !== "N"
+	&& (!CModule::IncludeModule('extranet') || (!CExtranet::IsExtranetSite() && !$arResult["HideArchiveLinks"]))
+		? "Y"
+		: "N";
+
+$arResult['isScrumProject'] = false;
 
 if (
 	!$arGroup
 	|| !is_array($arGroup)
-	|| $arGroup["ACTIVE"] != "Y"
+	|| $arGroup["ACTIVE"] !== "Y"
 )
 {
 	$arResult["FatalError"] = GetMessage("SONET_P_USER_NO_GROUP").". ";
@@ -132,7 +138,7 @@ else
 		$arGroupSites[] = $arGroupSite["LID"];
 	}
 
-	if (!in_array(SITE_ID, $arGroupSites))
+	if (!in_array(SITE_ID, $arGroupSites, true))
 	{
 		$arResult["FatalError"] = GetMessage("SONET_P_USER_NO_GROUP");
 	}
@@ -140,13 +146,16 @@ else
 	{
 		$arResult["Group"] = $arGroup;
 
+		$group = Bitrix\Socialnetwork\Item\Workgroup::getById($arResult['Group']['ID']);
+		$arResult['isScrumProject'] = $group && $group->isScrumProject();
+
 		$arResult["CurrentUserPerms"] = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
 			'groupId' => $arGroup['ID'],
 		]);
 
 		if (!$arResult["CurrentUserPerms"] || !$arResult["CurrentUserPerms"]["UserCanViewGroup"])
 		{
-			$arResult["FatalError"] = GetMessage($arResult["Group"]["PROJECT"] == 'Y' ? "SONET_GUE_NO_PERMS_PROJECT" : "SONET_GUE_NO_PERMS").". ";
+			$arResult["FatalError"] = GetMessage($arResult["Group"]["PROJECT"] === 'Y' ? "SONET_GUE_NO_PERMS_PROJECT" : "SONET_GUE_NO_PERMS").". ";
 		}
 		else
 		{
@@ -156,10 +165,19 @@ else
 			$arResult["Urls"]["GroupEdit"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_EDIT"], array("group_id" => $arResult["Group"]["ID"]));
 			$arResult["Urls"]["GroupInvite"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_INVITE"], array("group_id" => $arResult["Group"]["ID"]));
 
-			$pageTitle = Loc::getMessage($arResult["Group"]["PROJECT"] == 'Y' ? "SONET_GUE_PAGE_TITLE_PROJECT" : "SONET_GUE_PAGE_TITLE");
+			$pageTitle = Loc::getMessage('SONET_GUE_PAGE_TITLE');
+			if ($arResult['isScrumProject'])
+			{
+				$pageTitle = Loc::getMessage('SONET_GUE_PAGE_TITLE_SCRUM');
+			}
+			elseif ($arResult["Group"]["PROJECT"] === 'Y')
+			{
+				$pageTitle = Loc::getMessage('SONET_GUE_PAGE_TITLE_PROJECT');
+			}
+
 			$strTitleFormatted = $arResult["Group"]["NAME"];
 
-			if ($arParams["SET_TITLE"] == "Y")
+			if ($arParams["SET_TITLE"] === "Y")
 			{
 				if ($arResult['IS_IFRAME'])
 				{
@@ -172,7 +190,7 @@ else
 				}
 			}
 
-			if ($arParams["SET_NAV_CHAIN"] != "N")
+			if ($arParams["SET_NAV_CHAIN"] !== "N")
 			{
 				$APPLICATION->AddChainItem($strTitleFormatted, $arResult["Urls"]["Group"]);
 				$APPLICATION->AddChainItem($pageTitle);
@@ -207,8 +225,5 @@ else
 		}
 	}
 }
-
-$group = Bitrix\Socialnetwork\Item\Workgroup::getById($arResult['Group']['ID']);
-$arResult['isScrumProject'] = $group && $group->isScrumProject();
 
 $this->IncludeComponentTemplate();

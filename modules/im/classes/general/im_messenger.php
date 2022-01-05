@@ -135,7 +135,7 @@ class CIMMessenger
 
 		if (isset($arFields['MESSAGE']))
 		{
-			$arFields['MESSAGE'] = trim(str_replace(Array('[BR]', '[br]'), "\n", $arFields['MESSAGE']));
+			$arFields['MESSAGE'] = trim(str_replace(Array('[BR]', '[br]', '#BR#'), "\n", $arFields['MESSAGE']));
 			if (mb_strlen($arFields['MESSAGE']) > self::MESSAGE_LIMIT + 6)
 			{
 				$arFields['MESSAGE'] = mb_substr($arFields['MESSAGE'], 0, self::MESSAGE_LIMIT).' (...)';
@@ -1373,19 +1373,6 @@ class CIMMessenger
 						'LAST_MESSAGE_STATUS' => IM_MESSAGE_STATUS_RECEIVED
 					));
 
-					$relations = CIMChat::GetRelationById($chatId);
-					foreach ($relations as $relation)
-					{
-						CIMContactList::SetRecent([
-							'ENTITY_ID' => $relation['USER_ID'],
-							'MESSAGE_ID' => $messageID,
-							'CHAT_TYPE' => IM_MESSAGE_SYSTEM,
-							'CHAT_ID' => $relation['CHAT_ID'],
-							'RELATION_ID' => $relation['ID'],
-							'USER_ID' => $relation['USER_ID']
-						]);
-					}
-
 					CIMMessenger::SpeedFileDelete($arFields['TO_USER_ID'], IM_SPEED_NOTIFY);
 				}
 
@@ -1446,7 +1433,7 @@ class CIMMessenger
 								'push' => [
 									'type' => $arFields['NOTIFY_EVENT'],
 									'message' => $arFields['PUSH_MESSAGE'],
-									'params' => $arFields['PUSH_PARAMS'] ?? '',
+									'params' => $arFields['PUSH_PARAMS'] ?? ['TAG' => 'IM_NOTIFY'],
 									'advanced_params' => $advancedParams,
 									'important' => isset($arFields['PUSH_IMPORTANT']) && $arFields['PUSH_IMPORTANT'] === 'Y' ? 'Y': 'N',
 									'tag' => $arParams['NOTIFY_TAG'],

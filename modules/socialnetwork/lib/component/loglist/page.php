@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Component\LogList;
 
 use Bitrix\Socialnetwork\LogPageTable;
@@ -33,7 +34,7 @@ class Page
 		}
 		else
 		{
-			$this->request = Util::getRequest();;
+			$this->request = Util::getRequest();
 		}
 	}
 
@@ -51,16 +52,16 @@ class Page
 		return $this->processorInstance;
 	}
 
-	public function setNeedSetLogPage($value = false)
+	public function setNeedSetLogPage($value = false): void
 	{
 		$this->needSetLogPage = $value;
 	}
-	public function getNeedSetLogPage()
+	public function getNeedSetLogPage(): bool
 	{
 		return $this->needSetLogPage;
 	}
 
-	public function setDateLastPageStart($value = null)
+	public function setDateLastPageStart($value = null): void
 	{
 		$this->dateLastPageStart = $value;
 	}
@@ -69,7 +70,7 @@ class Page
 		return $this->dateLastPageStart;
 	}
 
-	public function setLastPageData($value = null)
+	public function setLastPageData($value = null): void
 	{
 		$this->lastPageData = $value;
 	}
@@ -87,11 +88,11 @@ class Page
 		return $this->prevPageLogIdList;
 	}
 
-	public function setDateFirstPageTimestamp($value = 0)
+	public function setDateFirstPageTimestamp($value = 0): void
 	{
 		$this->dateFirstPageTS = $value;
 	}
-	public function getDateFirstPageTimestamp()
+	public function getDateFirstPageTimestamp(): int
 	{
 		return $this->dateFirstPageTS;
 	}
@@ -127,7 +128,7 @@ class Page
 		}
 	}
 
-	public function getLogPageData(&$result)
+	public function getLogPageData(&$result): void
 	{
 		$params = $this->getComponent()->arParams;
 		$processorInstance = $this->getProcessorInstance();
@@ -212,7 +213,7 @@ class Page
 		}
 	}
 
-	public function setLogPageData(&$result)
+	public function setLogPageData(&$result): void
 	{
 		$params = $this->getComponent()->arParams;
 		$processorInstance = $this->getProcessorInstance();
@@ -262,9 +263,9 @@ class Page
 		}
 
 		if (
-			Util::checkUserAuthorized()
-			&& $params['SET_LOG_PAGE_CACHE'] === 'Y'
+			$params['SET_LOG_PAGE_CACHE'] === 'Y'
 			&& $dateLastPage
+			&& Util::checkUserAuthorized()
 			&& (
 				!$this->getDateLastPageStart()
 				|| $this->getDateLastPageStart() != $dateLastPage
@@ -308,9 +309,9 @@ class Page
 			);
 
 			if (
-				$result['PAGE_NUMBER'] == 1
-				&& $params['USE_TASKS'] == 'Y'
-				&& $result['EXPERT_MODE'] != 'Y'
+				(int)$result['PAGE_NUMBER'] === 1
+				&& $params['USE_TASKS'] === 'Y'
+				&& $result['EXPERT_MODE'] !== 'Y'
 			)
 			{
 				$result['EXPERT_MODE_SET'] = LogViewTable::checkExpertModeAuto($result['currentUserId'], $processorInstance->getTasksCount(), $params['PAGE_SIZE']);
@@ -323,15 +324,15 @@ class Page
 		}
 	}
 
-	public function deleteLogPageData($result)
+	public function deleteLogPageData($result): void
 	{
 		$params = $this->getComponent()->arParams;
 
 		if (
-			count($result['arLogTmpID']) == 0
+			empty($result['arLogTmpID'])
+			&& $params['SET_LOG_PAGE_CACHE'] === 'Y'
 			&& $this->getDateLastPageStart() !== null
 			&& Util::checkUserAuthorized()
-			&& $params['SET_LOG_PAGE_CACHE'] === 'Y'
 		)
 		{
 			\CSocNetLogPages::deleteEx($result['currentUserId'], SITE_ID, $params['PAGE_SIZE'], $result['COUNTER_TYPE']);
@@ -340,4 +341,3 @@ class Page
 	}
 
 }
-?>

@@ -5,7 +5,9 @@ $MESS["EC_CAL_INCORRECT_ERROR"] = "Календарь некорректен!";
 $MESS["EC_WRONG_TYPE"] = "Нет доступа к просмотру календаря данного типа.";
 $MESS["EC_EVENT_DEL_ERROR"] = "Ошибка удаления события!";
 $MESS["EC_CALENDAR_SAVE_ERROR"] = "Ошибка при сохранении календаря!";
+$MESS["EC_ROOM_SAVE_ERROR"] = "Ошибка при сохранении комнаты!";
 $MESS["EC_CALENDAR_DEL_ERROR"] = "Ошибка удаления календаря!";
+$MESS["EC_ROOM_DELETE_ERROR"] = "Ошибка при удалении комнаты!";
 $MESS["EC_MO_F"] = "Понедельник";
 $MESS["EC_TU_F"] = "Вторник";
 $MESS["EC_WE_F"] = "Среда";
@@ -48,6 +50,7 @@ $MESS["EC_DEF_SECT_USER"] = "Пользователь: ";
 $MESS["EC_DEF_SECT_GROUP"] = "Группа: ";
 $MESS["EC_DEF_SECT_USER_CAL"] = "Мой календарь";
 $MESS["EC_DEF_SECT_GROUP_CAL"] = "Основные события";
+$MESS["EC_DEF_SECT_LOCATION_CAL"] = "Переговорная (создано автоматически)";
 $MESS["EC_DEF_SECT_DESC"] = "Календарь был создан автоматически";
 $MESS["EC_EXP_SP_TITLE"] = "Избранные события";
 $MESS["EC_PARENT_EVENT"] = "Источник";
@@ -488,7 +491,6 @@ $MESS["EC_MOBILE_HELP_ANDROID"] = "<p>Для того, чтобы подключ
 </ol>
 Готово! Ваш календарь «Битрикс 24» появится в календаре на мобильном и все события будут автоматически синхронизированы.
 </p>";
-$MESS["EC_EVENT_NOT_FOUND"] = "Ошибка! Элемент не найден.";
 $MESS["EC_EVENT_ERROR_DEL"] = "Ошибка при удалении элемента!";
 $MESS["DEL_CON_CALENDARS"] = "Удалить календари";
 $MESS["EC_CALDAV_URL_ERROR"] = "Введены некорректные параметры подключения CalDAV";
@@ -682,4 +684,5 @@ $MESS["EC_CALENDAR_CHAT_TITLE"] = "Чат события \"#EVENT_TITLE#\"";
 $MESS["EC_CALENDAR_CHAT_FIRST_MESSAGE"] = "Чат создан из события \"#EVENT_TITLE#\" от #DATETIME_FROM#";
 $MESS["EC_CALENDAR_ERROR_CHAT_USER_NOT_FOUND"] = "Ошибка! Только участник события может создать чат";
 $MESS["EC_ICAL_NOTICE_DO_NOT_SET_EMAIL"] = "Не удалось установить адрес почтового ящика для отправки. Проверьте настройку почтового ящика у организатора события";
+$MESS["EC_CALENDAR_BITRIX24_NAME"] = "Битрикс24";
 ?>

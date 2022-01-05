@@ -9,7 +9,7 @@ $this->SetViewTarget("sidebar", 100);
 		<div class="content-list user-sidebar">
 			<div class="content-item">
 				<div class="content-avatar">
-					<a<?if ($arResult["CurrentUserPerms"]["Operations"]["viewprofile"]):?> href="<?=$arResult["Urls"]["main"]?>"<?endif;?><?if (strlen($arResult["User"]["PersonalPhotoFile"]["src"]) > 0):?> style="background:url('<?=$arResult["User"]["PersonalPhotoFile"]["src"]?>') no-repeat scroll center center transparent;"<?endif;?>>
+					<a<?if ($arResult["CurrentUserPerms"]["Operations"]["viewprofile"]):?> href="<?=$arResult["Urls"]["main"]?>"<?endif;?><?if ($arResult["User"]["PersonalPhotoFile"]["src"] <> ''):?> style="background:url('<?=$arResult["User"]["PersonalPhotoFile"]["src"]?>') no-repeat scroll center center transparent;"<?endif;?>>
 					<?
 					if ($arResult["IS_BIRTHDAY"]):
 						?><span class="birthday"></span><?

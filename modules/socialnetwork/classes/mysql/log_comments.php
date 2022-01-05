@@ -33,7 +33,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 		$arFields1 = Util::getEqualityFields($arFields);
 
 		if (
-			$bSetSource 
+			$bSetSource
 			&& $arFields["EVENT_ID"] <> '')
 		{
 			$arCommentEvent = CSocNetLogTools::FindLogCommentEventByID($arFields["EVENT_ID"]);
@@ -90,7 +90,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 					$arFields["URL"] = $arSource["URL"];
 
 				if (
-					isset($arSource["UF"]) 
+					isset($arSource["UF"])
 					&& isset($arSource["UF"]["FILE"])
 				)
 				{
@@ -101,7 +101,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 				}
 
 				if (
-					isset($arSource["UF"]) 
+					isset($arSource["UF"])
 					&& isset($arSource["UF"]["DOC"])
 				)
 				{
@@ -146,10 +146,10 @@ class CSocNetLogComments extends CAllSocNetLogComments
 		}
 
 		if (
-			!$bSetSource 
+			!$bSetSource
 			|| (
-				is_array($arSource) 
-				&& array_key_exists("SOURCE_ID", $arFields) 
+				is_array($arSource)
+				&& array_key_exists("SOURCE_ID", $arFields)
 				&& intval($arFields["SOURCE_ID"]) > 0
 			)
 		)
@@ -213,7 +213,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 								array(
 									"USER_ID" => $arLog["USER_ID"],
 									"CODE" => "L".$arFields["LOG_ID"]
-								), 
+								),
 								array("TYPE")
 							);
 
@@ -351,7 +351,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 			$arSource = CSocNetLogComments::SetSource($arFields, "UPDATE");
 
 			if (
-				isset($arSource["NO_SOURCE"]) 
+				isset($arSource["NO_SOURCE"])
 				&& $arSource["NO_SOURCE"] == "Y"
 			)
 			{
@@ -373,7 +373,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 			else
 			{
 				if (
-					isset($arSource["MESSAGE"]) 
+					isset($arSource["MESSAGE"])
 					&& $arSource["MESSAGE"] <> ''
 				)
 				{
@@ -381,7 +381,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 				}
 
 				if (
-					isset($arSource["TEXT_MESSAGE"]) 
+					isset($arSource["TEXT_MESSAGE"])
 					&& $arSource["TEXT_MESSAGE"] <> ''
 				)
 				{
@@ -389,7 +389,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 				}
 
 				if (
-					isset($arSource["UF"]) 
+					isset($arSource["UF"])
 					&& isset($arSource["UF"]["FILE"])
 				)
 				{
@@ -402,7 +402,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 				}
 
 				if (
-					isset($arSource["UF"]) 
+					isset($arSource["UF"])
 					&& isset($arSource["UF"]["DOC"])
 				)
 				{
@@ -806,7 +806,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) <= 0)
+		if (is_array($arNavStartParams) && (int)$arNavStartParams["nTopCount"] <= 0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".

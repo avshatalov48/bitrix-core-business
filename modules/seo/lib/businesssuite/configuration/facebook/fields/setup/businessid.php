@@ -14,6 +14,11 @@ final class BusinessId implements Fields\IField
 	 */
 	static function getDefaultValue()
 	{
+		if (!Service::isRegistered())
+		{
+			Service::register();
+		}
+
 		return Service::getEngine()->getInterface()->getAppID();
 	}
 

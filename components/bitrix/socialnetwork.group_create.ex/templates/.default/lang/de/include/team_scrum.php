@@ -1,0 +1,6 @@
+<?php
+$MESS["SONET_GCE_T_CHANGE_SCRUM_MASTER"] = "Master bestimmen";
+$MESS["SONET_GCE_T_CHANGE_SCRUM_MASTER_MORE"] = "Ändern";
+$MESS["SONET_GCE_T_CHANGE_SCRUM_OWNER"] = "Owner bestimmen";
+$MESS["SONET_GCE_T_CHANGE_SCRUM_OWNER_MORE"] = "Ändern";
+$MESS["SONET_GCE_T_SCRUM_MASTER"] = "Scrum-Master";

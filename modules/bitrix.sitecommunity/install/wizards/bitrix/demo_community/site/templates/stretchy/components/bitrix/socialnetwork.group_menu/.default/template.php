@@ -9,7 +9,7 @@ $this->SetViewTarget("sidebar", 100);
 		<div class="content-list user-sidebar">
 			<div class="content-item">
 				<div class="content-avatar">
-					<a<?if ($arResult["CurrentUserPerms"]["UserCanViewGroup"]):?> href="<?=$arResult["Urls"]["View"]?>"<?endif;?><?if (strlen($arResult["Group"]["IMAGE_FILE"]["src"]) > 0):?> style="background:url('<?=$arResult["Group"]["IMAGE_FILE"]["src"]?>') no-repeat scroll center center transparent;"<?endif;?>></a>
+					<a<?if ($arResult["CurrentUserPerms"]["UserCanViewGroup"]):?> href="<?=$arResult["Urls"]["View"]?>"<?endif;?><?if ($arResult["Group"]["IMAGE_FILE"]["src"] <> ''):?> style="background:url('<?=$arResult["Group"]["IMAGE_FILE"]["src"]?>') no-repeat scroll center center transparent;"<?endif;?>></a>
 				</div>			
 				<div class="content-info">
 					<div class="content-title"><a <?if ($arResult["CurrentUserPerms"]["UserCanViewGroup"]):?> href="<?=$arResult["Urls"]["View"]?>"<?endif;?>><?=$arResult["Group"]["NAME"]?></a></div>

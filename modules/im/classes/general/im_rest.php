@@ -73,6 +73,7 @@ class CIMRestService extends IRestService
 				'im.notify.delete' => array(__CLASS__, 'notifyDelete'),
 				'im.notify.read' => array(__CLASS__, 'notifyRead'),
 				'im.notify.read.list' => array(__CLASS__, 'notifyReadList'),
+				'im.notify.read.all' => array(__CLASS__, 'notifyReadAll'),
 				'im.notify.confirm' => array(__CLASS__, 'notifyConfirm'),
 				'im.notify.answer' => array(__CLASS__, 'notifyAnswer'),
 				'im.notify.history.search' => array(__CLASS__, 'notifyHistorySearch'),
@@ -818,10 +819,6 @@ class CIMRestService extends IRestService
 			{
 				$config['SKIP_DIALOG'] = 'Y';
 			}
-			if ($arParams['SKIP_NOTIFICATION'] === 'N')
-			{
-				$config['SKIP_NOTIFICATION'] = 'N';
-			}
 		}
 
 		if (isset($arParams['LAST_UPDATE'])) // TODO remove this later
@@ -856,10 +853,6 @@ class CIMRestService extends IRestService
 		if ($arParams['SKIP_DIALOG'] === 'Y')
 		{
 			$config['SKIP_DIALOG'] = 'Y';
-		}
-		if ($arParams['SKIP_NOTIFICATION'] === 'Y')
-		{
-			$config['SKIP_NOTIFICATION'] = 'Y';
 		}
 
 		if (isset($arParams['LAST_MESSAGE_DATE']) && $arParams['LAST_MESSAGE_DATE'])
@@ -2579,6 +2572,14 @@ class CIMRestService extends IRestService
 				$CIMNotify->MarkNotifyUnRead($notificationId);
 			}
 		}
+
+		return true;
+	}
+
+	public static function notifyReadAll($arParams, $n, CRestServer $server)
+	{
+		$notify = new \CIMNotify();
+		$notify->MarkNotifyRead(0, true);
 
 		return true;
 	}

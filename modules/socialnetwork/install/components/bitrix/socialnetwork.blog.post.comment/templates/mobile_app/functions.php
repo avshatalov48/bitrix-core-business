@@ -1,25 +1,38 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Config\Option;
+
 function socialnetworkBlogPostCommentMobile(
 	array $comment,
 	array $arParams,
 	array $arResult,
-	SocialnetworkBlogPostComment $component)
+	SocialnetworkBlogPostComment $component
+): array
 {
-	$arParams["AVATAR_SIZE"] = (intval($arParams["AVATAR_SIZE"]) ?: 58);
+	$arParams["AVATAR_SIZE"] = ((int)$arParams["AVATAR_SIZE"] ?: 58);
 	$arAvatarSizes = array(
-		"AVATAR_SIZE" => intval(array_key_exists("AVATAR_SIZE_COMMON", $arParams) ? $arParams["AVATAR_SIZE_COMMON"] : $arParams["AVATAR_SIZE"]),
-		"AVATAR_SIZE_COMMENT" => intval($arParams["AVATAR_SIZE_COMMENT"])
+		"AVATAR_SIZE" => (int)($arParams["AVATAR_SIZE_COMMON"] ?? $arParams["AVATAR_SIZE"]),
+		"AVATAR_SIZE_COMMENT" => (int)$arParams["AVATAR_SIZE_COMMENT"]
 	);
 	$arAvatarSizes["AVATAR_SIZE"] = ($arAvatarSizes["AVATAR_SIZE"] > 0 ? $arAvatarSizes["AVATAR_SIZE"] : 100); // reference to CBlogUser::GetUserInfoArray
 	$arAvatarSizes["AVATAR_SIZE_COMMENT"] = ($arAvatarSizes["AVATAR_SIZE_COMMENT"] > 0 ? $arAvatarSizes["AVATAR_SIZE_COMMENT"] : 100); // reference to CBlogUser::GetUserInfoArray
 	$avatarKey = "PERSONAL_PHOTO_RESIZED";
-	if ($arAvatarSizes["AVATAR_SIZE"] == $arParams["AVATAR_SIZE"])
+	if ($arAvatarSizes["AVATAR_SIZE"] === $arParams["AVATAR_SIZE"])
+	{
 		$avatarKey = "PERSONAL_PHOTO_resized";
-	else if ($arAvatarSizes["AVATAR_SIZE_COMMENT"] == $arParams["AVATAR_SIZE"])
+	}
+	elseif ($arAvatarSizes["AVATAR_SIZE_COMMENT"] === $arParams["AVATAR_SIZE"])
+	{
 		$avatarKey = "PERSONAL_PHOTO_resized_30";
+	}
 
 	$arUser = $arResult["userCache"][$comment["AUTHOR_ID"]];
-	if (!array_key_exists($avatarKey, $arUser) && intval($arUser["PERSONAL_PHOTO"]) > 0)
+	if (!array_key_exists($avatarKey, $arUser) && (int)$arUser["PERSONAL_PHOTO"] > 0)
 	{
 		$arResult["userCache"][$comment["AUTHOR_ID"]][$avatarKey] = CFile::ResizeImageGet(
 			$arUser["PERSONAL_PHOTO"],
@@ -37,11 +50,11 @@ function socialnetworkBlogPostCommentMobile(
 	if ($component->isWeb())
 	{
 		static $parser = null;
-		if ($parser == null)
+		if ($parser === null)
 		{
 			$parser = new blogTextParser(false, $arParams["PATH_TO_SMILE"]);
 			$parser->bMobile = true;
-			$parser->LAZYLOAD = (isset($arParams["LAZYLOAD"]) && $arParams["LAZYLOAD"] == "Y" ? "Y" : "N");
+			$parser->LAZYLOAD = (isset($arParams["LAZYLOAD"]) && $arParams["LAZYLOAD"] === "Y" ? "Y" : "N");
 		}
 		if (is_array($comment["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"]))
 		{
@@ -67,7 +80,7 @@ function socialnetworkBlogPostCommentMobile(
 				"LIST" => "Y",
 				"SMILES" => "Y",
 				"NL2BR" => "N",
-				"VIDEO" => (COption::GetOptionString("blog","allow_video", "Y") != "Y" || $arParams["ALLOW_VIDEO"] != "Y" ? "N" : "Y"),
+				"VIDEO" => (Option::get("blog","allow_video", "Y") !== "Y" || $arParams["ALLOW_VIDEO"] !== "Y" ? "N" : "Y"),
 				"SHORT_ANCHOR" => "Y"
 			),
 			array(
@@ -99,8 +112,8 @@ function socialnetworkBlogPostCommentMobile(
 
 	$res = array(
 		"ID" => $comment["ID"],
-		"NEW" => ($arParams["FOLLOW"] != "N" && $comment["NEW"] == "Y" ? "Y" : "N"),
-		"APPROVED" => ($comment["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH ? "Y" : "N"),
+		"NEW" => ($arParams["FOLLOW"] !== "N" && $comment["NEW"] === "Y" ? "Y" : "N"),
+		"APPROVED" => ($comment["PUBLISH_STATUS"] === BLOG_PUBLISH_STATUS_PUBLISH ? "Y" : "N"),
 		"AUX" => (!empty($comment["AuxType"]) ? $comment["AuxType"] : ''),
 		"AUX_LIVE_PARAMS" => (!empty($comment["AUX_LIVE_PARAMS"]) ? $comment["AUX_LIVE_PARAMS"] : array()),
 		"POST_TIMESTAMP" => (
@@ -115,7 +128,7 @@ function socialnetworkBlogPostCommentMobile(
 			"SECOND_NAME" => $arUser["~SECOND_NAME"],
 			"PERSONAL_GENDER" => $arUser["~PERSONAL_GENDER"],
 			"AVATAR" => array_key_exists($avatarKey, $arUser) ? $arUser[$avatarKey]["src"] : '',
-			"EXTERNAL_AUTH_ID" => (isset($arUser["EXTERNAL_AUTH_ID"]) ? $arUser["EXTERNAL_AUTH_ID"] : false)
+			"EXTERNAL_AUTH_ID" => ($arUser["EXTERNAL_AUTH_ID"] ?? false)
 		),
 		"FILES" => false,
 		"UF" => false,
@@ -132,10 +145,10 @@ function socialnetworkBlogPostCommentMobile(
 		"AFTER_RECORD" => ""
 	);
 
-	if(!empty($arResult["arImages"][$comment["ID"]]))
+	if (!empty($arResult["arImages"][$comment["ID"]]))
 	{
 		$res["FILES"] = array();
-		foreach($arResult["arImages"][$comment["ID"]] as $i => $val)
+		foreach ($arResult["arImages"][$comment["ID"]] as $i => $val)
 		{
 			$t = $arResult["Images"][$i];
 			$res["FILES"][] = array(
@@ -149,12 +162,12 @@ function socialnetworkBlogPostCommentMobile(
 		}
 	}
 
-	if($comment["COMMENT_PROPERTIES"]["SHOW"] == "Y")
+	if ($comment["COMMENT_PROPERTIES"]["SHOW"] === "Y")
 	{
 		$res["UF"] = $comment["COMMENT_PROPERTIES"]["DATA"];
 		foreach ($res["UF"] as $key => $arPostField)
 		{
-			if(!empty($arPostField["VALUE"]))
+			if (!empty($arPostField["VALUE"]))
 			{
 				$res["UF"][$key]['POST_ID'] = $arParams['POST_DATA']['ID'];
 				$res["UF"][$key]['URL_TO_POST'] = str_replace('#source_post_id#', $arPostField['POST_ID'], $arResult['urlToPost']);
@@ -162,15 +175,10 @@ function socialnetworkBlogPostCommentMobile(
 		}
 	}
 
-	if ($arParams["SHOW_RATING"] == "Y")
+	if ($arParams["SHOW_RATING"] === "Y")
 	{
-		$res["RATING_VOTE_ID"] = 'BLOG_COMMENT_'.$res['ID'].'-'.(time()+rand(0, 1000));
-		$res["RATING_USER_HAS_VOTED"] = (
-			isset($arResult['RATING'][$res["ID"]])
-			&& isset($arResult['RATING'][$res["ID"]]["USER_HAS_VOTED"])
-				? $arResult['RATING'][$res["ID"]]["USER_HAS_VOTED"]
-				: "N"
-		);
+		$res["RATING_VOTE_ID"] = 'BLOG_COMMENT_' . $res['ID'] . '-' . (time() + random_int(0, 1000));
+		$res["RATING_USER_HAS_VOTED"] = ($arResult['RATING'][$res["ID"]]["USER_HAS_VOTED"] ?? "N");
 	}
 
 	return $res;

@@ -107,6 +107,7 @@ export class DesignerBlock
 		return content
 			.replace(/<div class="[^"]*landing-designer-block-pseudo-last[^"]*"[^>]*>[\s]*<\/div>/g, '')
 			.replace(/<div class="[^"]*landing-highlight-border[^"]*"[^>]*>[\s]*<\/div>/g, '')
+			.replace(/url\(&quot;(.*?)&quot;\)/g, 'url($1)')
 			.replace(/\s*data-(landingwrapper)="[^"]+"\s*/g, ' ')
 			.replace(/\s*[\w-_]+--type-wrapper\s*/g, ' ')
 			.replace(/<div[\s]*>[\s]*<\/div>/g, '')

@@ -20,6 +20,8 @@ Loc::loadMessages(__FILE__);
  */
 class RestProfile extends Base
 {
+	private const HANDLER_CODE_PREFIX = 'BITRIX_REST_';
+
 	/** @var RestHandler Parent service. */
 	protected $restHandler;
 
@@ -99,7 +101,7 @@ class RestProfile extends Base
 		$handlerParams = $this->getHandlerParams();
 		if (
 			!isset($handlerParams['SETTINGS']['CALCULATE_URL'])
-			|| !is_array($handlerParams['SETTINGS']['CALCULATE_URL'])
+			|| !is_string($handlerParams['SETTINGS']['CALCULATE_URL'])
 			|| empty($handlerParams['SETTINGS']['CALCULATE_URL'])
 		)
 		{
@@ -175,7 +177,7 @@ class RestProfile extends Base
 	private function getHandlerParams()
 	{
 		$handlerList = Manager::getRestHandlerList();
-		$code = $this->restHandler->getHandlerCode();
+		$code = str_replace(self::HANDLER_CODE_PREFIX, '', $this->restHandler->getHandlerCode());
 
 		return $handlerList[$code];
 	}

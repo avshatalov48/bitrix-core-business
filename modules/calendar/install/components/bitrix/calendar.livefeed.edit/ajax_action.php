@@ -16,7 +16,7 @@ if (check_bitrix_sessid() && CModule::IncludeModule("calendar"))
 		$settings = CCalendar::GetSettings();
 		$from = CCalendar::Date(CCalendar::Timestamp($_REQUEST['from']));
 		$to = CCalendar::Date(CCalendar::Timestamp($_REQUEST['to']));
-		$loc_new = CCalendar::ParseLocation(trim($_REQUEST['location']));
+		$loc_new = \Bitrix\Calendar\Rooms\Util::parseLocation(trim($_REQUEST['location']));
 
 		$params = array(
 			'dateFrom' => $from,
@@ -134,7 +134,7 @@ if (check_bitrix_sessid() && CModule::IncludeModule("calendar"))
 		}
 
 		// Meeting room selection
-		$location = CCalendar::ParseLocation(trim($_REQUEST['location']));
+		$location = \Bitrix\Calendar\Rooms\Util::parseLocation(trim($_REQUEST['location']));
 		if($location['mrid'])
 		{
 			$mrid = 'MR_'.$location['mrid'];

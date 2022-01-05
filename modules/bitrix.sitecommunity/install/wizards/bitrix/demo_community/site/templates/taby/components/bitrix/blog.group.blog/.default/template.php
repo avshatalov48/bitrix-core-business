@@ -5,7 +5,7 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 endif;
 ?>
 <?
-if(strlen($arResult["FATAL_ERROR"])>0)
+if($arResult["FATAL_ERROR"] <> '')
 {
 	?>
 	<div class="blog-errors">
@@ -26,13 +26,13 @@ else
 			
 		foreach($arResult["BLOG"] as $arBlog)
 		{
-			if(IntVal($arBlog["LAST_POST_ID"])>0 || $arParams["SHOW_BLOG_WITHOUT_POSTS"] == "Y")
+			if(intval($arBlog["LAST_POST_ID"])>0 || $arParams["SHOW_BLOG_WITHOUT_POSTS"] == "Y")
 			{
 				?>
 				<div class="content-item">
 					<div class="content-sidebar">
 						<div class="content-date">
-						<?if(IntVal($arBlog["LAST_POST_ID"])>0):?>
+						<?if(intval($arBlog["LAST_POST_ID"])>0):?>
 							<div class="blog-group-meta"><?=GetMessage("B_B_GR_LAST_M")?> <a href="<?=$arBlog["urlToPost"]?>"><?=$arBlog["LAST_POST_DATE_FORMATED"]?></a></div>
 						<?endif;?>
 						</div>
@@ -56,7 +56,7 @@ else
 					</div>
 		
 					<div class="content-info">
-					<?if(IntVal($arBlog["OWNER_ID"]) > 0)
+					<?if(intval($arBlog["OWNER_ID"]) > 0)
 					{
 						?>
 						<div class="content-author" id="blogs_mainpage">
@@ -68,7 +68,7 @@ else
 							<a class="blog-author-icon" href="<?=$arBlog["urlToAuthor"]?>"></a>
 						<?endif;?>
 						<?
-						if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && (strlen($arBlog["urlToBlog"]) > 0 || strlen($arBlog["urlToAuthor"]) > 0) && array_key_exists("BLOG_USER_ALIAS", $arBlog) && strlen($arBlog["BLOG_USER_ALIAS"]) > 0)
+						if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && ($arBlog["urlToBlog"] <> '' || $arBlog["urlToAuthor"] <> '') && array_key_exists("BLOG_USER_ALIAS", $arBlog) && $arBlog["BLOG_USER_ALIAS"] <> '')
 							$arTmpUser = array(
 								"NAME" => "",
 								"LAST_NAME" => "",
@@ -76,7 +76,7 @@ else
 								"LOGIN" => "",
 								"NAME_LIST_FORMATTED" => $arBlog["~BLOG_USER_ALIAS"],
 								);
-						elseif (strlen($arBlog["urlToBlog"]) > 0 || strlen($arBlog["urlToAuthor"]) > 0)
+						elseif ($arBlog["urlToBlog"] <> '' || $arBlog["urlToAuthor"] <> '')
 							$arTmpUser = array(
 								"NAME" => $arBlog["~OWNER_NAME"],
 								"LAST_NAME" => $arBlog["~OWNER_LAST_NAME"],
@@ -121,7 +121,7 @@ else
 					}
 					?>
 					<div class="content-title"><a href="<?=$arBlog["urlToBlog"]?>"><?echo $arBlog["NAME"]; ?></a></div>
-					<?if(strlen($arBlog["DESCRIPTION"]) > 0)
+					<?if($arBlog["DESCRIPTION"] <> '')
 					{
 						?>
 						<div class="content-description"><?= $arBlog["DESCRIPTION"] ?></div>
@@ -139,7 +139,7 @@ else
 			</div>
 		</div>
 		<?		
-		if(strlen($arResult["NAV_STRING"])>0)
+		if($arResult["NAV_STRING"] <> '')
 			echo $arResult["NAV_STRING"];
 
 	}

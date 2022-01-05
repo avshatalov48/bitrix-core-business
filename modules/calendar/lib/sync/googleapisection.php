@@ -9,163 +9,53 @@ use Bitrix\Main\ORM\Query\Query;
 
 class GoogleApiSection
 {
-	private $userId,
-			$connection;
+	/**
+	 * @var array
+	 */
+	private $connection;
 
 	/**
-	 * GoogleApiSection constructor.
-	 * @param $userId
+	 * @param array $connection
+	 * @return GoogleApiSection
 	 */
-	public function __construct($userId)
+	public static function createInstance(): GoogleApiSection
 	{
-		if (!$userId)
-		{
-			$userId = \CCalendar::GetUserId();
-		}
+		return new self();
+	}
 
-		$this->userId = $userId;
+	public function __construct()
+	{
 	}
 
 	/**
 	 * @return array|bool
 	 */
-	public function sendSections()
+	public function createSection(array $section): ?array
 	{
-		$sectionIds = [];
-		$this->connection = $this->getGoogleConnection();
+		$googleApiSync = new GoogleApiSync($section['OWNER_ID']);
+		return $googleApiSync->createCalendar($section);
+	}
+	
+	public function deleteSection(array $section): void
+	{
+		(new GoogleApiSync((int )$section['OWNER_ID']))->deleteCalendar((string)$section['GAPI_CALENDAR_ID']);
+	}
 
-		if (!$this->connection)
-		{
-			return false;
-		}
-
-		$sections = $this->getLocalSections();
-
-		if (!empty($sections) && count($sections) > 0)
-		{
-			foreach ($sections as $section)
-			{
-				$responseFields = $this->sendSection($section);
-
-				if ($responseFields)
-				{
-					$sectionId = $this->saveSection($responseFields, $section);
-
-					if (isset($sectionId))
-					{
-						$sectionIds[] = $sectionId;
-					}
-				}
-				else
-				{
-					AddMessage2Log('Failed to save section in google :'.$section['ID']);
-				}
-			}
-		}
-		else
-		{
-			AddMessage2Log('User '.$this->userId.' has no sections to sync');
-			return false;
-		}
-
-		return !empty($sectionIds) ? $sectionIds : false;
+	public function updateSection(string $gApiCalendarId, array $section): void
+	{
+		$googleApiSync = new GoogleApiSync($section['OWNER_ID']);
+		$googleApiSync->updateCalendar($gApiCalendarId, $section);
 	}
 
 	/**
-	 * @param $section
-	 *
-	 * @return array|null
-	 */
-	public function sendSection($section)
-	{
-		$googleApiConnection = new GoogleApiSync($this->userId);
-		return $googleApiConnection->createCalendar($section);
-	}
-
-	/**
-	 * @param $responseFields
-	 * @param $section
-	 * @return integer
-	 */
-	private function saveSection($responseFields, $section)
-	{
-		$sectionId = \CCalendarSect::Edit(
-			['arFields' => [
-				'ID' => $section['ID'],
-				'GAPI_CALENDAR_ID' => $responseFields['GAPI_CALENDAR_ID'],
-				'CAL_DAV_CON' => $this->connection,
-			]]);
-
-		return $sectionId ?: false;
-	}
-
-	/**
+	 * @param string $gApiCalendarId
+	 * @param array $section
 	 * @return array
 	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
-	private function getLocalSections()
+	public function updateSectionList(string $gApiCalendarId, array $section): array
 	{
-		$sections =[];
-
-		$filter = Query::filter()
-			->where('CAL_TYPE', 'user')
-			->where('OWNER_ID', $this->userId)
-			->whereNull('GAPI_CALENDAR_ID', 'CAL_DAV_CON');
-
-		$sectionList = Internals\SectionTable::getList(
-			array(
-				'filter' => $filter,
-				'order' => [
-					'ID' => 'ASC',
-				],
-			)
-		);
-
-		while ($section = $sectionList->fetch())
-		{
-			$sections[] = $section;
-		}
-
-		return $sections;
-	}
-
-	/**
-	 * @return bool|mixed
-	 * @throws \Bitrix\Main\LoaderException
-	 */
-	private function getGoogleConnection()
-	{
-		if (Loader::includeModule('dav'))
-		{
-			$davConnections = \CDavConnection::GetList(
-				[],
-				[
-					'ACCOUNT_TYPE' => Google\Helper::GOOGLE_ACCOUNT_TYPE_API,
-					'ENTITY_TYPE' => 'user',
-					'ENTITY_ID' => $this->userId,
-				]
-			);
-
-			if ($connection = $davConnections->fetch())
-			{
-				return $connection['ID'];
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * @param $sectionId
-	 * @return array|false
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
-	public function getSectionById($sectionId)
-	{
-		return Internals\SectionTable::getById($sectionId)->fetch();
+		$googleApiSync = new GoogleApiSync($section['OWNER_ID']);
+		return $googleApiSync->updateCalendarList($gApiCalendarId, $section);
 	}
 }

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BUYERS_DETAIL_DESCR"] = "Details der Bestellung anzeigen";
 $MESS["BUYERS_FROM"] = "vom";
 $MESS["BUYERS_H_ACCOUNT_NUMBER"] = "Bestellnummer";
@@ -59,7 +59,6 @@ $MESS["BUYER_DONT_CAN_BUY"] = "Nicht vorrätig";
 $MESS["BUYER_EDIT"] = "Kunden bearbeiten";
 $MESS["BUYER_FILED_ADRES"] = "Adresse";
 $MESS["BUYER_FILED_FIO"] = "Voller Name";
-$MESS["BUYER_FILED_GROUP"] = "Nutzergruppen";
 $MESS["BUYER_FILED_GROUP1"] = "Aktive Gruppen des Nutzers";
 $MESS["BUYER_FILED_LAST_LOGIN"] = "Zuletzt angemeldet am";
 $MESS["BUYER_FILED_LOGIN"] = "Login";
@@ -195,4 +194,3 @@ $MESS["SOB_SHIPMENTS_DEDUCTED"] = "Ausgeliefert";
 $MESS["SOB_SHIPMENTS_MARKED"] = "Markiert";
 $MESS["SOB_SHIPMENTS_NOT_ALLOW_DELIVERY"] = "Lieferung nicht freigegeben";
 $MESS["SOB_SHIPMENTS_STATUS"] = "Status";
-?>

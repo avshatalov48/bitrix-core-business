@@ -2,12 +2,12 @@
 
 namespace Bitrix\Socialnetwork\Integration\UI\EntitySelector;
 
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Entity\Query;
 use Bitrix\Main\EO_User;
 use Bitrix\Main\EO_User_Collection;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ORM\Fields\Relations\Reference;
-use Bitrix\Main\ORM\Query\Join;
 use Bitrix\UI\EntitySelector\Dialog;
 use Bitrix\UI\EntitySelector\Item;
 use Bitrix\UI\EntitySelector\Tab;
@@ -60,16 +60,10 @@ class FiredUserProvider extends UserProvider
 			 * If a referenceClass is not null,
 			 * then we reduce the list of fired users only have reference in the referenceClass entity
 			 */
-			$query->registerRuntimeField(
-				new Reference(
-					'TABLE_ENTITY',
-					$options['referenceClass'],
-					Join::on('this.ID', 'ref.' . $options['fieldName']),
-					[
-						'join_type' => 'INNER'
-					]
-				)
-			);
+			$fieldName = Application::getConnection()->getSqlHelper()->forSql($options['fieldName']);
+			$query->addFilter('@ID', new SqlExpression(
+				"SELECT DISTINCT {$fieldName} FROM " . $options['referenceClass']::getTableName()
+			));
 		}
 
 		return $query;

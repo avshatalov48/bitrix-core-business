@@ -8,7 +8,10 @@ use Bitrix\Main\Web\Json;
 /** @var array $arParams */
 /** @var array $arResult */
 
-\Bitrix\Main\UI\Extension::load(['sender.error_handler']);
+\Bitrix\Main\UI\Extension::load([
+	'sender.error_handler',
+	'bitrix24.phoneverify'
+]);
 
 foreach ($arResult['ERRORS'] as $error)
 {
@@ -19,7 +22,13 @@ $canViewClient = $arParams['CAN_VIEW_CLIENT'];
 $canPauseStartStop = $arParams['CAN_PAUSE_START_STOP'];
 foreach ($arResult['ROWS'] as $index => $data)
 {
+	$letterId = (int)$data['ID'];
 	$canEdit = $arParams['CAN_EDIT'];
+	$enablePhoneVerificationForLetter =
+		(! $arParams['IS_PHONE_CONFIRMED'])
+		&& $arParams['IS_BX24_INSTALLED']
+		&& ($data['MESSAGE_CODE'] === \Bitrix\Sender\Message\iBase::CODE_MAIL)
+	;
 
 	// user
 	if ($data['USER'] && $data['USER_PATH'])
@@ -76,7 +85,9 @@ foreach ($arResult['ROWS'] as $index => $data)
 				$buttonTitle = Loc::getMessage('SENDER_LETTER_LIST_STATE_SEND_TITLE');
 				$buttonColor = 'grey'; // red, grey
 				$buttonIcon = 'play'; // play, resume
-				$buttonAction = "BX.Sender.LetterList.send({$data['ID']});";
+				$buttonAction = $enablePhoneVerificationForLetter
+					? "BX.Bitrix24.PhoneVerify.showSlider(function (verified) { verified && BX.Sender.LetterList.send({$letterId}); });"
+					: "BX.Sender.LetterList.send({$letterId});";
 			}
 		}
 		elseif ($data['STATE']['isSending'])
@@ -90,7 +101,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 				$buttonTitle = Loc::getMessage('SENDER_LETTER_LIST_STATE_PAUSE_TITLE');
 				$buttonColor = 'grey'; // red, grey
 				$buttonIcon = 'pause'; // play, resume
-				$buttonAction = "BX.Sender.LetterList.pause({$data['ID']});";
+				$buttonAction = "BX.Sender.LetterList.pause({$letterId});";
 			}
 		}
 		elseif ($data['STATE']['isPaused'])
@@ -104,7 +115,9 @@ foreach ($arResult['ROWS'] as $index => $data)
 				$buttonTitle = Loc::getMessage('SENDER_LETTER_LIST_STATE_RESUME_TITLE');
 				$buttonColor = 'red'; // red, grey
 				$buttonIcon = 'resume'; // play, resume
-				$buttonAction = "BX.Sender.LetterList.resume({$data['ID']});";
+				$buttonAction = $enablePhoneVerificationForLetter
+					? "BX.Bitrix24.PhoneVerify.showSlider(function (verified) { verified && BX.Sender.LetterList.resume({$letterId}); });"
+					: "BX.Sender.LetterList.resume({$letterId});";
 			}
 		}
 		else
@@ -119,7 +132,9 @@ foreach ($arResult['ROWS'] as $index => $data)
 				$buttonTitle = Loc::getMessage('SENDER_LETTER_LIST_STATE_SEND_TITLE');
 				$buttonColor = 'green'; // red, grey
 				$buttonIcon = 'play'; // play, resume
-				$buttonAction = "BX.Sender.LetterList.send({$data['ID']});";
+				$buttonAction = $enablePhoneVerificationForLetter
+					? "BX.Bitrix24.PhoneVerify.showSlider(function (verified) { verified && BX.Sender.LetterList.send({$letterId}); });"
+					: "BX.Sender.LetterList.send({$letterId});";
 			}
 		}
 
@@ -327,13 +342,13 @@ foreach ($arResult['ROWS'] as $index => $data)
 		$actions[] = array(
 			'TITLE' => Loc::getMessage('SENDER_LETTER_LIST_BTN_COPY_TITLE'),
 			'TEXT' => Loc::getMessage('SENDER_LETTER_LIST_BTN_COPY'),
-			'ONCLICK' => "BX.Sender.LetterList.copy({$data['ID']});"
+			'ONCLICK' => "BX.Sender.LetterList.copy({$letterId});"
 		);
 
 		$actions[] = array(
 			'TITLE' => Loc::getMessage('SENDER_LETTER_LIST_BTN_REMOVE_TITLE'),
 			'TEXT' => Loc::getMessage('SENDER_LETTER_LIST_BTN_REMOVE'),
-			'ONCLICK' => "BX.Sender.LetterList.remove({$data['ID']});"
+			'ONCLICK' => "BX.Sender.LetterList.remove({$letterId});"
 		);
 	}
 
@@ -344,7 +359,9 @@ foreach ($arResult['ROWS'] as $index => $data)
 		$stateActions[] = array(
 			'TITLE' => Loc::getMessage('SENDER_LETTER_LIST_STATE_SEND_TITLE'),
 			'TEXT' => Loc::getMessage('SENDER_LETTER_LIST_STATE_SEND'),
-			'ONCLICK' => "BX.Sender.LetterList.send({$data['ID']});"
+			'ONCLICK' => $enablePhoneVerificationForLetter
+				? "BX.Bitrix24.PhoneVerify.showSlider(function (verified) { verified && BX.Sender.LetterList.send({$letterId}); });"
+				: "BX.Sender.LetterList.send({$letterId});",
 		);
 	}
 	if ($data['STATE']['canPause'] && $canEdit)
@@ -352,7 +369,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 		$stateActions[] = array(
 			'TITLE' => Loc::getMessage('SENDER_LETTER_LIST_STATE_PAUSE_TITLE'),
 			'TEXT' => Loc::getMessage('SENDER_LETTER_LIST_STATE_PAUSE'),
-			'ONCLICK' => "BX.Sender.LetterList.pause({$data['ID']});"
+			'ONCLICK' => "BX.Sender.LetterList.pause({$letterId});"
 		);
 	}
 	if ($data['STATE']['canResume'] && $canEdit)
@@ -360,7 +377,9 @@ foreach ($arResult['ROWS'] as $index => $data)
 		$stateActions[] = array(
 			'TITLE' => Loc::getMessage('SENDER_LETTER_LIST_STATE_RESUME_TITLE'),
 			'TEXT' => Loc::getMessage('SENDER_LETTER_LIST_STATE_RESUME'),
-			'ONCLICK' => "BX.Sender.LetterList.resume({$data['ID']});"
+			'ONCLICK' => $enablePhoneVerificationForLetter
+				? "BX.Bitrix24.PhoneVerify.showSlider(function (verified) { verified && BX.Sender.LetterList.resume({$letterId}); });"
+				: "BX.Sender.LetterList.resume({$letterId});",
 		);
 	}
 	if ($data['STATE']['canStop'] && $canEdit)
@@ -368,7 +387,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 		$stateActions[] = array(
 			'TITLE' => Loc::getMessage('SENDER_LETTER_LIST_STATE_STOP_TITLE'),
 			'TEXT' => Loc::getMessage('SENDER_LETTER_LIST_STATE_STOP'),
-			'ONCLICK' => "BX.Sender.LetterList.stop({$data['ID']});"
+			'ONCLICK' => "BX.Sender.LetterList.stop({$letterId});"
 		);
 	}
 
@@ -486,19 +505,19 @@ $APPLICATION->IncludeComponent(
 		"AJAX_OPTION_HISTORY" => "N"
 	)
 );
-
-
-
 ?>
-	<script type="text/javascript">
-		BX.ready(function () {
-			BX.Sender.LetterList.init(<?=Json::encode(array(
-				'actionUri' => $arResult['ACTION_URI'],
-				'messages' => $arResult['MESSAGES'],
-				"gridId" => $arParams['GRID_ID'],
-				"pathToEdit" => $arParams['PATH_TO_EDIT'],
-				'mess' => array()
-			))?>);
-		});
-	</script>
-<?
+<script type="text/javascript">
+	<?php if (! $arParams['IS_PHONE_CONFIRMED'] && $arParams['IS_BX24_INSTALLED']): ?>
+	BX.Bitrix24.PhoneVerify.setVerified(false);
+	<?php endif; ?>
+
+	BX.ready(function () {
+		BX.Sender.LetterList.init(<?=Json::encode(array(
+			'actionUri' => $arResult['ACTION_URI'],
+			'messages' => $arResult['MESSAGES'],
+			"gridId" => $arParams['GRID_ID'],
+			"pathToEdit" => $arParams['PATH_TO_EDIT'],
+			'mess' => array()
+		))?>);
+	});
+</script>

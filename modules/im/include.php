@@ -201,6 +201,7 @@ CJSCore::RegisterExt('im_web', array(
 				'call_server_enabled' => \Bitrix\Im\Call\Call::isCallServerEnabled() ? 'Y' : 'N',
 				'call_server_max_users' => \Bitrix\Im\Call\Call::getMaxCallServerParticipants(),
 				'call_log_service' => \Bitrix\Im\Call\Call::getLogService(),
+				'call_collect_stats' => COption::GetOptionString('im', 'collect_call_stats', 'N'),
 				'jitsi_server' => COption::GetOptionString('im', 'jitsi_server'),
 			)
 		);
@@ -227,6 +228,7 @@ CJSCore::RegisterExt('im_page', array(
 				'call_server_enabled' => \Bitrix\Im\Call\Call::isCallServerEnabled() ? 'Y' : 'N',
 				'call_server_max_users' => \Bitrix\Im\Call\Call::getMaxCallServerParticipants(),
 				'call_log_service' => \Bitrix\Im\Call\Call::getLogService(),
+				'call_collect_stats' => COption::GetOptionString('im', 'collect_call_stats', 'N'),
 				'jitsi_server' => COption::GetOptionString('im', 'jitsi_server'),
 			)
 		);
@@ -292,6 +294,7 @@ CJSCore::RegisterExt('im_call', [
 				'call_server_enabled' => \Bitrix\Im\Call\Call::isCallServerEnabled() ? 'Y' : 'N',
 				'call_server_max_users' => \Bitrix\Main\Config\Option::get('im', 'call_server_max_users'),
 				'call_log_service' => \Bitrix\Im\Call\Call::getLogService(),
+				'call_collect_stats' => COption::GetOptionString('im', 'collect_call_stats', 'N'),
 				'jitsi_server' => COption::GetOptionString('im', 'jitsi_server'),
 			)
 		);

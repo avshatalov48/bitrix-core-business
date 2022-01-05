@@ -1,5 +1,9 @@
 <?php
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Forum\Internals\Error\Error;
 use Bitrix\Forum\Internals\Error\ErrorCollection;
@@ -517,9 +521,14 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 					"USE_SMILES" => $post["REVIEW_USE_SMILES"]
 				);
 
-				foreach (GetModuleEvents('forum', 'OnCommentAdd', true) as $arEvent) // add custom data from $_REQUEST to arElement, validate here
+				foreach (GetModuleEvents('forum', 'OnCommentSave', true) as $arEvent) // add custom data from $_REQUEST to arElement, validate here
 				{
-					if (ExecuteModuleEventEx($arEvent, array($this->feed->getEntity()->getType(), $this->feed->getEntity()->getId(), &$arPost)) === false)
+					if (ExecuteModuleEventEx($arEvent, array(
+						$this->feed->getEntity()->getType(),
+							$this->feed->getEntity()->getId(),
+							$mid,
+							&$arPost)) === false
+					)
 					{
 						$actionErrors->addOne(new Error((isset($arPost['ERROR']) ? $arPost['ERROR'] : Loc::getMessage("F_ERR_DURING_ACTIONS").print_r($arEvent, true)), self::ERROR_ACTION));
 					}

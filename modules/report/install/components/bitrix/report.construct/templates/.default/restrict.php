@@ -21,7 +21,16 @@ $APPLICATION->IncludeComponent("bitrix:ui.info.helper", "", []);
 ?>
 
 <script type="text/javascript">
-	BX(function () {
-		BX.UI.InfoHelper.show('limit_crm_tasks_constructor_reports');
-	});
+	BX.ready(
+		function ()
+		{
+			var codes = {
+				crm: 'limit_crm_tasks_constructor_reports',
+				tasks: 'limit_tasks_constructor_reports'
+			};
+			var sliderCode = (<?=($arResult['HELPER_CLASS'] === 'CTasksReportHelper')?> ? codes.tasks : codes.crm);
+
+			BX.UI.InfoHelper.show(sliderCode);
+		}
+	);
 </script>

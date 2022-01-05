@@ -477,14 +477,14 @@ class Config
 		}
 		this.startProgress();
 		const fieldData = this.prepareFieldData();
-		
+
 		let languageId = null;
 		const commonLabelInput = this.getInput('editFormLabel');
 		if(commonLabelInput && commonLabelInput.parentElement && commonLabelInput.parentElement.parentElement)
 		{
 			languageId = commonLabelInput.parentElement.parentElement.dataset['language'];
 		}
-		
+
 		const userField = new UserField(fieldData, {
 			languageId,
 			moduleId: this.moduleId,
@@ -571,7 +571,7 @@ class Config
 		const userTypeId = this.getSelectedUserTypeId();
 		if(userTypeId === 'enumeration')
 		{
-			listTab.style.display = 'block';
+			listTab.style.display = 'flex';
 		}
 		else
 		{

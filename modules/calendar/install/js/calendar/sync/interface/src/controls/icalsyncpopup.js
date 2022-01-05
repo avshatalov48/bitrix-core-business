@@ -3,6 +3,7 @@
 
 
 import {Popup} from 'main.popup';
+import {Util} from 'calendar.util';
 import {Loc, Tag} from "main.core";
 import "../css/icalpopup.css"
 
@@ -118,7 +119,10 @@ export default class IcalSyncPopup
 
 	copyLink(event)
 	{
-		window.BX.clipboard.copy(this.link);
+		window.BX.clipboard.copy(this.link)
+			? this.#showSuccessCopyNotification()
+			: this.#showFailedCopyNotification();
+
 		event.preventDefault();
 		event.stopPropagation();
 	}
@@ -126,5 +130,20 @@ export default class IcalSyncPopup
 	getShortenLink(link)
 	{
 		return link.length < this.LINK_LENGTH ? link : link.substr(0, 105) + '...' + link.slice(-7);
+	}
+
+	#showSuccessCopyNotification()
+	{
+		this.#showResultNotification(Loc.getMessage('EC_JS_ICAL_COPY_ICAL_SYNC_LINK_SUCCESS'));
+	}
+
+	#showFailedCopyNotification()
+	{
+		this.#showResultNotification(Loc.getMessage('EC_JS_ICAL_COPY_ICAL_SYNC_LINK_FAILED'));
+	}
+
+	#showResultNotification(message)
+	{
+		Util.showNotification(message);
 	}
 }

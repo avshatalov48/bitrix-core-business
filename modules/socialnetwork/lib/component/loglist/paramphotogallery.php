@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Component\LogList;
 
 use Bitrix\Main\Loader;
@@ -21,7 +22,7 @@ class ParamPhotogallery
 		return $this->component;
 	}
 
-	public function preparePhotogalleryParams(&$componentParams)
+	public function preparePhotogalleryParams(&$componentParams): void
 	{
 		if (!ModuleManager::isModuleInstalled('photogallery'))
 		{
@@ -39,7 +40,7 @@ class ParamPhotogallery
 		if (
 			(
 				!isset($componentParams['PHOTO_USER_IBLOCK_ID'])
-				|| intval($componentParams['PHOTO_USER_IBLOCK_ID']) <= 0
+				|| (int)$componentParams['PHOTO_USER_IBLOCK_ID'] <= 0
 			)
 			&& Loader::includeModule('iblock')
 		)
@@ -60,7 +61,7 @@ class ParamPhotogallery
 		if (
 			(
 				!isset($componentParams['PHOTO_FORUM_ID'])
-				|| intval($componentParams['PHOTO_FORUM_ID']) <= 0
+				|| (int)$componentParams['PHOTO_FORUM_ID'] <= 0
 			)
 			&& Loader::includeModule('forum')
 		)
@@ -86,12 +87,12 @@ class ParamPhotogallery
 		Util::checkEmptyParamString($componentParams, 'PATH_TO_GROUP_PHOTO_ELEMENT', $folderWorkgroups.'group/#group_id#/photo/#section_id#/#element_id#/');
 	}
 
-	public function prepareParentPhotogalleryParams(&$componentParams)
+	public function prepareParentPhotogalleryParams(&$componentParams): void
 	{
 		if (
 			(
-				$componentParams['PHOTO_GROUP_IBLOCK_TYPE'] == ''
-				|| intval($componentParams['PHOTO_GROUP_IBLOCK_ID']) <= 0
+				(string)$componentParams['PHOTO_GROUP_IBLOCK_TYPE'] === ''
+				|| (int)$componentParams['PHOTO_GROUP_IBLOCK_ID'] <= 0
 			)
 			&& Loader::includeModule('iblock'))
 		{
@@ -140,4 +141,3 @@ class ParamPhotogallery
 		}
 	}
 }
-?>

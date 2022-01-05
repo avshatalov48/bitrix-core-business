@@ -20,6 +20,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(LabelColor, "TAG_LIGHT", 'ui-label-tag-light');
 	babelHelpers.defineProperty(LabelColor, "LIGHT_BLUE", 'ui-label-lightblue');
 	babelHelpers.defineProperty(LabelColor, "LIGHT_GREEN", 'ui-label-lightgreen');
+	babelHelpers.defineProperty(LabelColor, "LIGHT_ORANGE", 'ui-label-lightorange');
 
 	/**
 	 * @namespace {BX.UI}
@@ -32,45 +33,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(LabelSize, "SM", 'ui-label-sm');
 	babelHelpers.defineProperty(LabelSize, "LG", 'ui-label-lg');
 
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<a href=\"", "\" class=\"", "\">", "</a>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-label-icon\"></div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-label-inner\">", "</span>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
 
 	var Label = /*#__PURE__*/function () {
 	  function Label(options) {
@@ -160,7 +123,7 @@ this.BX = this.BX || {};
 	    key: "getTextContainer",
 	    value: function getTextContainer() {
 	      if (!this.textContainer) {
-	        this.textContainer = main_core.Tag.render(_templateObject(), this.getText());
+	        this.textContainer = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-label-inner\">", "</span>"])), this.getText());
 	      }
 
 	      return this.textContainer;
@@ -220,7 +183,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getIconAction",
 	    value: function getIconAction() {
-	      this.iconNode = main_core.Tag.render(_templateObject2());
+	      this.iconNode = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-label-icon\"></div>"])));
 
 	      for (var key in this.icon) {
 	        this.iconNode.addEventListener(key, this.icon[key]);
@@ -234,9 +197,9 @@ this.BX = this.BX || {};
 	    value: function getContainer() {
 	      if (!this.container) {
 	        if (this.getLink()) {
-	          this.container = main_core.Tag.render(_templateObject3(), this.link, this.getClassList(), this.getTextContainer());
+	          this.container = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<a href=\"", "\" class=\"", "\">", "</a>"])), this.link, this.getClassList(), this.getTextContainer());
 	        } else {
-	          this.container = main_core.Tag.render(_templateObject4(), this.getClassList(), this.getTextContainer());
+	          this.container = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"])), this.getClassList(), this.getTextContainer());
 	        }
 
 	        if (babelHelpers.typeof(this.icon) === 'object') {

@@ -75,7 +75,7 @@ class UrlMetadataTable extends Entity\DataManager
 	}
 
 	/**
-	 * Returns first record filtered by $url value
+	 * Returns last record filtered by $url value
 	 *
 	 * @param string $url Url of the page with metadata.
 	 * @return array|false
@@ -83,12 +83,16 @@ class UrlMetadataTable extends Entity\DataManager
 	 */
 	public static function getByUrl($url)
 	{
-		$parameters = array(
-			'select' => array('*'),
-			'filter' => array(
+		$parameters = [
+			'select' => ['*'],
+			'filter' => [
 				'=URL' => $url,
-			)
-		);
+			],
+			'order' => [
+				'ID' => 'desc'
+			],
+			'limit' => 1
+		];
 
 		return static::getList($parameters)->fetch();
 	}

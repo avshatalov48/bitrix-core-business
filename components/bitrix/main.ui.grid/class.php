@@ -403,6 +403,11 @@ class CMainUIGrid extends CBitrixComponent
 			false
 		);
 
+		$this->arParams["ALLOW_EDIT_SELECTION"] = Grid\Params::prepareBoolean(
+			array($this->arParams["ALLOW_EDIT_SELECTION"]),
+			false
+		);
+
 		$this->arParams["SETTINGS_WINDOW_TITLE"] = Grid\Params::prepareString(
 			array($this->arParams["SETTINGS_WINDOW_TITLE"]),
 			""

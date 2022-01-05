@@ -44,6 +44,7 @@ elseif (\CModule::IncludeModule('tasks'))
 				'USER_ID' => $userId,
 				'NAME_TEMPLATE' => $arParams['NAME_TEMPLATE'],
 				'GRID_ID'=> 'TASKS_GRID_PROJECTS',
+				'MARK_SECTION_PROJECTS_LIST' => 'Y',
 
 				'PATH_TO_USER' => $arResult['PATH_TO_USER'],
 				'PATH_TO_USER_TASKS' => $arResult['PATH_TO_USER_TASKS'],

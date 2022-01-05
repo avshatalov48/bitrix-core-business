@@ -1221,7 +1221,7 @@ class CSaleActionCtrlBasketGroup extends CSaleActionCtrlAction
 					'values' => array(
 						self::ACTION_TYPE_DISCOUNT => Loc::getMessage('BT_SALE_ACT_GROUP_BASKET_SELECT_TYPE_DISCOUNT'),
 						self::ACTION_TYPE_EXTRA => Loc::getMessage('BT_SALE_ACT_GROUP_BASKET_SELECT_TYPE_EXTRA'),
-						self::ACTION_TYPE_CLOSEOUT => Loc::getMessage('BT_SALE_ACT_GROUP_BASKET_SELECT_TYPE_CLOSEOUT')
+						self::ACTION_TYPE_CLOSEOUT => Loc::getMessage('BT_SALE_ACT_GROUP_BASKET_SELECT_TYPE_CLOSEOUT_EXT')
 					),
 					'defaultText' => Loc::getMessage('BT_SALE_ACT_GROUP_BASKET_SELECT_TYPE_DEF'),
 					'defaultValue' => self::ACTION_TYPE_DISCOUNT,

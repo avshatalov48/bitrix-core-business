@@ -595,7 +595,7 @@
 				this.outerWrap.appendChild(this.smallCalendar.DIV);
 				this.smallCalendar.popup.close();
 				this.created = true;
-
+				this.paintTodayElement();
 				BX.addCustomEvent(this.calendar, 'changeViewRange', BX.proxy(this.setDate, this));
 			}
 			this.outerWrap.style.display = '';
@@ -608,12 +608,27 @@
 
 		changeDate: function(date)
 		{
-			if(date
-				&& this.calendar.util.getDayCode(this.calendar.getViewRangeDate()) != this.calendar.util.getDayCode(date)
-				&& this.calendar.getView()
-			)
+			if (date && this.calendar.getView())
 			{
 				this.calendar.getView().adjustViewRangeToDate(date);
+			}
+		},
+
+		paintTodayElement: function()
+		{
+			var todayDate = new Date();
+			todayDate.setHours(0, 0, 0, 0);
+			var timezoneOffset = parseInt(todayDate.getTimezoneOffset());
+			var timestamp = todayDate.getTime();
+			if (timezoneOffset !== 0)
+			{
+				timestamp -= ((timezoneOffset * 60) * 1000);
+			}
+
+			var todayElement = document.querySelector('[data-date="' + timestamp + '"]');
+			if (BX.Type.isDomNode(todayElement))
+			{
+				BX.Dom.addClass(todayElement, 'bx-calendar-today-date');
 			}
 		},
 
@@ -698,7 +713,7 @@
 
 			dayNode.onbxdestdragfinish = BX.delegate(function(currentNode)
 			{
-				if (currentNode.getAttribute('data-bx-entry-resizer') === 'Y' && this.resizedState)
+				if (this.calendar.util.type !== 'location' && currentNode.getAttribute('data-bx-entry-resizer') === 'Y' && this.resizedState)
 				{
 					this.calendar.entryController.moveEventToNewDate(this.resizedState.entry, this.resizedState.entry.from, this.resizedState.entry.to);
 					return true;
@@ -787,7 +802,7 @@
 			}
 			else
 			{
-				dragAllowed = this.calendar.entryController.canDo(params.entry, 'edit');
+				dragAllowed = this.calendar.entryController.canDo(params.entry, 'edit') && !params.entry.isLocation();
 			}
 
 			jsDD.registerObject(node);
@@ -971,7 +986,7 @@
 
 			node.onbxdrag = BX.delegate(function(x, y)
 			{
-				if (this.resizedState)
+				if (this.resizedState && this.calendar.util.type !== 'location')
 				{
 					var
 						entry = this.resizedState.entry,
@@ -1050,7 +1065,6 @@
 			}
 
 			var
-				submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label',
 				i, menuItems = [], icon;
 
 			if (BX.type.isArray(this.sectionGroupList))
@@ -1073,7 +1087,9 @@
 					else if (sectionGroup.type === 'company')
 					{
 						filteredList = this.sectionList.filter(function(section){
-							return section.type === 'company_calendar' || section.type === sectionGroup.type;
+							return section.type === 'company_calendar'
+								|| section.type === 'calendar_company'
+								|| section.type === sectionGroup.type;
 						});
 					}
 					else
@@ -1085,10 +1101,11 @@
 
 					if (filteredList.length > 0)
 					{
-						menuItems.push({
-							html: '<span>' + sectionGroup.title + '</span>',
-							className: submenuClass
-						});
+						menuItems.push(
+							new BX.Main.Popup.MenuItem({
+							text: sectionGroup.title,
+							delimiter: true
+						}));
 
 						for (i = 0; i < filteredList.length; i++)
 						{

@@ -1005,7 +1005,7 @@ class CBitrixComponent
 					}
 				}
 
-				if ($templateCachedData["__editButtons"])
+				if (isset($templateCachedData["__editButtons"]))
 				{
 					foreach ($templateCachedData["__editButtons"] as $button)
 					{
@@ -1016,13 +1016,17 @@ class CBitrixComponent
 					}
 				}
 
-				if ($templateCachedData["__view"])
+				if (isset($templateCachedData["__view"]))
+				{
 					foreach ($templateCachedData["__view"] as $view_id => $target)
 						foreach ($target as $view_content)
 							$APPLICATION->addViewContent($view_id, $view_content[0], $view_content[1]);
+				}
 
 				if (array_key_exists("__NavNum", $templateCachedData))
+				{
 					$GLOBALS["NavNum"]+= $templateCachedData["__NavNum"];
+				}
 
 				if (array_key_exists("__currentCounters", $templateCachedData))
 				{

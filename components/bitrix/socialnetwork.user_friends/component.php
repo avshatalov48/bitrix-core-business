@@ -1,5 +1,17 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var CBitrixComponent $this */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CMain $APPLICATION */
+/** @global CUser $USER */
+
+use Bitrix\Socialnetwork\ComponentHelper;
 
 if (!CModule::IncludeModule("socialnetwork"))
 {
@@ -11,7 +23,7 @@ $arParams["ID"] = intval($arParams["ID"]);
 if ($arParams["ID"] <= 0)
 	$arParams["ID"] = intval($USER->GetID());
 
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
+$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] === "N" ? "N" : "Y");
 
 if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
@@ -50,42 +62,10 @@ $arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 30;
 
-// for bitrix:main.user.link
-if (IsModuleInstalled('intranet'))
-{
-	$arTooltipFieldsDefault	= serialize(array(
-		"EMAIL",
-		"PERSONAL_MOBILE",
-		"WORK_PHONE",
-		"PERSONAL_ICQ",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION",
-	));
-	$arTooltipPropertiesDefault = serialize(array(
-		"UF_DEPARTMENT",
-		"UF_PHONE_INNER",
-	));
-}
-else
-{
-	$arTooltipFieldsDefault = serialize(array(
-		"PERSONAL_ICQ",
-		"PERSONAL_BIRTHDAY",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION"
-	));
-	$arTooltipPropertiesDefault = serialize(array());
-}
+$tooltipParams = ComponentHelper::checkTooltipComponentParams($arParams);
+$arParams['SHOW_FIELDS_TOOLTIP'] = $tooltipParams['SHOW_FIELDS_TOOLTIP'];
+$arParams['USER_PROPERTY_TOOLTIP'] = $tooltipParams['USER_PROPERTY_TOOLTIP'];
 
-if (!array_key_exists("SHOW_FIELDS_TOOLTIP", $arParams))
-	$arParams["SHOW_FIELDS_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_fields", $arTooltipFieldsDefault), [ 'allowed_classes' => false ]);
-if (!array_key_exists("USER_PROPERTY_TOOLTIP", $arParams))
-	$arParams["USER_PROPERTY_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_properties", $arTooltipPropertiesDefault), [ 'allowed_classes' => false ]);
-	
 if (!CSocNetUser::IsFriendsAllowed())
 {
 	$arResult["FatalError"] = GetMessage("SONET_C33_NO_FR_FUNC").". ";
@@ -105,7 +85,7 @@ else
 		{
 			$arResult["CurrentUserPerms"] = CSocNetUserPerms::InitUserPerms($GLOBALS["USER"]->GetID(), $arResult["User"]["ID"], CSocNetUser::IsCurrentUserModuleAdmin());
 
-			if ($arParams["SET_TITLE"] == "Y" || $arParams["SET_NAV_CHAIN"] != "N")
+			if ($arParams["SET_TITLE"] === "Y" || $arParams["SET_NAV_CHAIN"] !== "N")
 			{
 				if ($arParams["NAME_TEMPLATE"] == '')
 					$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
@@ -115,7 +95,7 @@ else
 					array("", ""), 
 					$arParams["NAME_TEMPLATE"]
 				);
-				$bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
+				$bUseLogin = $arParams['SHOW_LOGIN'] !== "N" ? true : false;
 
 				$arTmpUser = array(
 						'NAME' => $arResult["User"]["~NAME"],
@@ -127,16 +107,16 @@ else
 				$strTitleFormatted = CUser::FormatName($arParams['TITLE_NAME_TEMPLATE'], $arTmpUser, $bUseLogin);
 			}
 		
-			if ($arParams["SET_TITLE"] == "Y")
+			if ($arParams["SET_TITLE"] === "Y")
 				$APPLICATION->SetTitle($strTitleFormatted.": ".GetMessage("SONET_C33_PAGE_TITLE"));
 
-			if ($arParams["SET_NAV_CHAIN"] != "N")
+			if ($arParams["SET_NAV_CHAIN"] !== "N")
 			{
 				$APPLICATION->AddChainItem($strTitleFormatted, CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arResult["User"]["ID"])));
 				$APPLICATION->AddChainItem(GetMessage("SONET_C33_PAGE_TITLE"));
 			}
 
-			if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["delete"] <> '' && $arResult["CurrentUserPerms"]["IsCurrentUser"] && check_bitrix_sessid())
+			if ($_SERVER["REQUEST_METHOD"] === "POST" && $_POST["delete"] <> '' && $arResult["CurrentUserPerms"]["IsCurrentUser"] && check_bitrix_sessid())
 			{
 				$errorMessage = "";
 
@@ -145,7 +125,7 @@ else
 				{
 					for ($i = 0; $i <= intval($_POST["max_count"]); $i++)
 					{
-						if ($_POST["checked_".$i] == "Y")
+						if ($_POST["checked_".$i] === "Y")
 							$arIDs[] = intval($_POST["id_".$i]);
 					}
 
@@ -245,7 +225,7 @@ else
 							"USER_PERSONAL_PHOTO_IMG" => $arImage["IMG"],
 							"USER_PROFILE_URL" => $pu,
 							"SHOW_PROFILE_LINK" => $canViewProfile,
-							"IS_ONLINE" => ($arFriends[$pref."_USER_IS_ONLINE"] == "Y"),
+							"IS_ONLINE" => ($arFriends[$pref."_USER_IS_ONLINE"] === "Y"),
 							"ADD_TO_FRIENDS_LINK" => CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_FRIENDS_ADD"], array("user_id" => $arFriends[$pref."_USER_ID"])),
 							"DELETE_FROM_FRIENDS_LINK" => CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_FRIENDS_DELETE"], array("user_id" => $arFriends[$pref."_USER_ID"])),
 							"CAN_ADD2FRIENDS" => (!$arResult["CurrentUserPerms"]["IsCurrentUser"] && !$rel && $arFriends[$pref."_USER_ID"] != $GLOBALS["USER"]->GetID()) ? true : false,
@@ -260,5 +240,5 @@ else
 		}
 	}
 }
+
 $this->IncludeComponentTemplate();
-?>

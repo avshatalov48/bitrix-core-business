@@ -23,6 +23,8 @@ class Context
 	/** @var  Callback\Config $callback */
 	protected $callback;
 
+	protected $keepAlive;
+
 	public function __construct(array $params = null)
 	{
 		if (!empty($params) && is_array($params))
@@ -110,5 +112,21 @@ class Context
 	public function getCallback()
 	{
 		return $this->callback;
+	}
+
+	/**
+	 * @return string | null
+	 */
+	public function getKeepAlive(): ?string
+	{
+		return $this->keepAlive;
+	}
+
+	/**
+	 * @param string | null $keepAlive
+	 */
+	public function setKeepAlive(?string $keepAlive)
+	{
+		$this->keepAlive = $keepAlive;
 	}
 }

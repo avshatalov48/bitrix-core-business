@@ -379,6 +379,7 @@ class CBitrix24NetOAuthInterface
 	);
 
 	protected $arResult = array();
+	protected $networkNode;
 
 	public function __construct($appID = false, $appSecret = false, $code = false)
 	{
@@ -408,6 +409,8 @@ class CBitrix24NetOAuthInterface
 		$this->appID = $appID;
 		$this->appSecret = $appSecret;
 		$this->code = $code;
+
+		$this->networkNode = self::NET_URL;
 	}
 
 	public function getAppID()
@@ -493,7 +496,7 @@ class CBitrix24NetOAuthInterface
 
 	public function GetAuthUrl($redirect_uri, $state = '', $mode = 'popup')
 	{
-		return self::NET_URL.self::AUTH_URL.
+		return $this->networkNode . self::AUTH_URL.
 			"?user_lang=".LANGUAGE_ID.
 			"&client_id=".urlencode($this->appID).
 			"&redirect_uri=".urlencode($redirect_uri).
@@ -506,7 +509,7 @@ class CBitrix24NetOAuthInterface
 
 	public function getInviteUrl($userId, $checkword)
 	{
-		return self::NET_URL.self::INVITE_URL.
+		return $this->networkNode . self::INVITE_URL.
 			"?user_lang=".LANGUAGE_ID.
 			"&client_id=".urlencode($this->appID).
 			"&profile_id=".$userId.
@@ -551,14 +554,14 @@ class CBitrix24NetOAuthInterface
 			'streamTimeout' => $this->httpTimeout,
 		));
 
-		$result = $http->get(self::NET_URL.self::TOKEN_URL.'?'.http_build_query(array(
+		$result = $http->get($this->networkNode . self::TOKEN_URL . '?' . http_build_query([
 			'code' => $this->code,
 			'client_id' => $this->appID,
 			'client_secret' => $this->appSecret,
 			'redirect_uri' => $redirect_uri,
 			'scope' => implode(',',$this->getScope()),
 			'grant_type' => 'authorization_code',
-		)));
+		]));
 
 		try
 		{
@@ -602,13 +605,13 @@ class CBitrix24NetOAuthInterface
 			'streamTimeout' => $this->httpTimeout,
 		));
 
-		$result = $http->get(self::NET_URL.self::TOKEN_URL.'?'.http_build_query(array(
+		$result = $http->get($this->networkNode . self::TOKEN_URL . '?' . http_build_query([
 			'client_id' => $this->appID,
 			'client_secret' => $this->appSecret,
 			'refresh_token' => $refreshToken,
 			'scope' => implode(',',$this->getScope()),
 			'grant_type' => 'refresh_token',
-		)));
+		]));
 
 		try
 		{
@@ -718,6 +721,16 @@ class CBitrix24NetOAuthInterface
 	{
 		return (($this->accessTokenExpires - 30) < time()) ? false : true;
 	}
+
+	public function getNetworkNode(): string
+	{
+		return $this->networkNode;
+	}
+
+	public function setNetworkNode(string $hostWithScheme): void
+	{
+		$this->networkNode = $hostWithScheme;
+	}
 }
 
 class CBitrix24NetTransport
@@ -742,14 +755,22 @@ class CBitrix24NetTransport
 
 	protected $access_token = '';
 	protected $httpTimeout = SOCSERV_DEFAULT_HTTP_TIMEOUT;
+	protected $networkNode;
 
-	public static function init()
+	public static function init($networkNode = null)
 	{
 		$ob = new CBitrix24NetOAuthInterface();
+		if($networkNode)
+		{
+			$ob->setNetworkNode($networkNode);
+		}
 		if($ob->GetAccessToken() !== false)
 		{
 			$token = $ob->getToken();
-			return new self($token);
+			$transport = new self($token);
+			$transport->setNetworkNode($ob->getNetworkNode());
+
+			return $transport;
 		}
 
 		return false;
@@ -758,6 +779,17 @@ class CBitrix24NetTransport
 	public function __construct($access_token)
 	{
 		$this->access_token = $access_token;
+		$this->networkNode = CBitrix24NetOAuthInterface::NET_URL;
+	}
+
+	public function getNetworkNode(): string
+	{
+		return $this->networkNode;
+	}
+
+	public function setNetworkNode(string $hostWithScheme): void
+	{
+		$this->networkNode = $hostWithScheme;
 	}
 
 	protected function prepareResponse($result)
@@ -814,7 +846,7 @@ class CBitrix24NetTransport
 			$http->setCookies(['USER_LANG' => $lang]);
 		}
 		$result = $http->post(
-			CBitrix24NetOAuthInterface::NET_URL.self::SERVICE_URL.$methodName,
+			$this->networkNode . self::SERVICE_URL . $methodName,
 			$request
 		);
 
@@ -913,16 +945,21 @@ class CBitrix24NetPortalTransport extends CBitrix24NetTransport
 	protected $clientId = null;
 	protected $clientSecret = null;
 
-	public static function init()
+	public static function init($networkNode = null)
 	{
-		$result = parent::init();
+		$result = parent::init($networkNode);
 
 		if(!$result)
 		{
 			$interface = new CBitrix24NetOAuthInterface();
+			if($networkNode)
+			{
+				$interface->setNetworkNode($networkNode);
+			}
 			if($interface->getAppID())
 			{
 				$result = new self($interface->getAppID(), $interface->getAppSecret());
+				$result->setNetworkNode($interface->getNetworkNode());
 			}
 		}
 

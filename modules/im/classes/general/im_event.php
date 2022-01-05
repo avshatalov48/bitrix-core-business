@@ -876,6 +876,9 @@ class CIMEvent
 		while ($arRes = $dbRes->Fetch())
 			$arChat[$arRes['CHAT_ID']] = $arRes['CHAT_ID'];
 
+		$accessProvider = new \Bitrix\Im\Access\ChatAuthProvider;
+		$accessProvider->deleteByUser($ID);
+
 		if (count($arChat) > 0)
 		{
 			$strSQL = "DELETE FROM b_im_chat WHERE ID IN (".implode(',', $arChat).")";

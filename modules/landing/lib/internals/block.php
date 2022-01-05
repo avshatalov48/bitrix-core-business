@@ -138,25 +138,65 @@ class BlockTable extends Entity\DataManager
 	 * @param Entity\Event $event Event instance.
 	 * @return Entity\EventResult
 	 */
-	protected static function prepareChange(Entity\Event $event)
+	protected static function prepareChange(Entity\Event $event): Entity\EventResult
 	{
 		$result = new Entity\EventResult();
 		$primary = $event->getParameter('primary');
 		$fields = $event->getParameter('fields');
+		$modifyFields = [];
 
 		// calculate filter hash
-		if (array_key_exists('SOURCE_PARAMS', $fields))
+		if (($primary['ID'] ?? null) && array_key_exists('SOURCE_PARAMS', $fields))
 		{
 			\Bitrix\Landing\Source\FilterEntity::setFilter(
 				$primary['ID'],
 				$fields['SOURCE_PARAMS']
 			);
-			$result->modifyFields([
-				'SOURCE_PARAMS' => $fields['SOURCE_PARAMS']
-			]);
+			$modifyFields['SOURCE_PARAMS'] = $fields['SOURCE_PARAMS'];
+		}
+
+		// work with content
+		if (array_key_exists('CONTENT', $fields))
+		{
+			$replaced = false;
+			$oldContent = null;
+
+			if ($primary['ID'] ?? null)
+			{
+				$res = self::getList([
+					'select' => [
+						'CONTENT'
+					],
+					'filter' => [
+						'ID' => $primary['ID']
+					]
+				]);
+				$oldContent = $res->fetch()['CONTENT'] ?? null;
+			}
+
+			$fields['CONTENT'] = \Bitrix\Landing\Connector\Disk::sanitizeContent($fields['CONTENT'], $oldContent, $replaced);
+			if ($replaced)
+			{
+				$modifyFields['CONTENT'] = $fields['CONTENT'];
+			}
+		}
+
+		if ($modifyFields)
+		{
+			$result->modifyFields($modifyFields);
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Before add handler.
+	 * @param Entity\Event $event Event instance.
+	 * @return Entity\EventResult
+	 */
+	public static function onBeforeAdd(Entity\Event $event): Entity\EventResult
+	{
+		return self::prepareChange($event);
 	}
 
 	/**
@@ -164,7 +204,7 @@ class BlockTable extends Entity\DataManager
 	 * @param Entity\Event $event Event instance.
 	 * @return Entity\EventResult
 	 */
-	public static function onBeforeUpdate(Entity\Event $event)
+	public static function onBeforeUpdate(Entity\Event $event): Entity\EventResult
 	{
 		return self::prepareChange($event);
 	}
@@ -174,7 +214,7 @@ class BlockTable extends Entity\DataManager
 	 * @param Entity\Event $event Event instance.
 	 * @return Entity\EventResult
 	 */
-	public static function onAfterDelete(Entity\Event $event)
+	public static function onAfterDelete(Entity\Event $event): Entity\EventResult
 	{
 		$result = new Entity\EventResult();
 		$primary = $event->getParameter('primary');

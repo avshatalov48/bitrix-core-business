@@ -7,6 +7,7 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Request;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale;
 use Bitrix\Sale\PaymentCollection;
 use Bitrix\Sale\PaySystem;
 use Bitrix\Sale\Payment;
@@ -68,6 +69,20 @@ class LiqPayHandler extends PaySystem\ServiceHandler
 		return array('operation_xml', 'signature');
 	}
 
+	protected static function isMyResponseExtended(Request $request, $paySystemId)
+	{
+		$paymentId = self::getValueByTag(self::getOperationXml($request), 'order_id');
+		$paymentId = (int)str_replace("PAYMENT_", "", $paymentId);
+		$payment = Sale\Repository\PaymentRepository::getInstance()->getById($paymentId);
+
+		$merchantId = Sale\BusinessValue::get(
+			'LIQPAY_MERCHANT_ID', PaySystem\Service::PAY_SYSTEM_PREFIX . $paySystemId, $payment
+		);
+		$merchantIdFromRequest = self::getValueByTag(self::getOperationXml($request), 'merchant_id');
+
+		return $merchantId === $merchantIdFromRequest;
+	}
+
 	/**
 	 * @param Payment $payment
 	 * @param $request
@@ -80,7 +95,7 @@ class LiqPayHandler extends PaySystem\ServiceHandler
 			$sign = $this->getBusinessValue($payment, 'LIQPAY_SIGN');
 			if ($sign)
 			{
-				$hash = base64_encode(sha1($sign.$this->getOperationXml($request).$sign, 1));
+				$hash = base64_encode(sha1($sign.self::getOperationXml($request).$sign, 1));
 				return $request->get('signature') == $hash;
 			}
 		}
@@ -95,7 +110,7 @@ class LiqPayHandler extends PaySystem\ServiceHandler
 	 */
 	private function isCorrectSum(Payment $payment, Request $request)
 	{
-		$sum = $this->getValueByTag($this->getOperationXml($request), 'amount');
+		$sum = self::getValueByTag(self::getOperationXml($request), 'amount');
 		$paymentSum = $this->getBusinessValue($payment, 'PAYMENT_SHOULD_PAY');
 
 		return PriceMaths::roundPrecision($paymentSum) === PriceMaths::roundPrecision($sum);
@@ -107,7 +122,7 @@ class LiqPayHandler extends PaySystem\ServiceHandler
 	 */
 	public function getPaymentIdFromRequest(Request $request)
 	{
-		$orderId = $this->getValueByTag($this->getOperationXml($request), 'order_id');
+		$orderId = self::getValueByTag(self::getOperationXml($request), 'order_id');
 		return str_replace("PAYMENT_", "", $orderId);
 	}
 
@@ -140,7 +155,7 @@ class LiqPayHandler extends PaySystem\ServiceHandler
 			PaySystem\Logger::addError('LiqPay: processRequest: '.$errorMessage);
 		}
 
-		$status = $this->getValueByTag($this->getOperationXml($request), 'status');
+		$status = self::getValueByTag(self::getOperationXml($request), 'status');
 
 		if ($this->isCorrectHash($payment, $request))
 		{
@@ -172,25 +187,25 @@ class LiqPayHandler extends PaySystem\ServiceHandler
 	{
 		$result = new PaySystem\ServiceResult();
 
-		$response = $this->getOperationXml($request);
+		$response = self::getOperationXml($request);
 
-		$description = 'sender phone: '.$this->getValueByTag($response, 'sender_phone').'; ';
-		$description .= 'amount: '.$this->getValueByTag($response, 'amount').'; ';
-		$description .= 'currency: '.$this->getValueByTag($response, 'currency').'; ';
+		$description = 'sender phone: '.self::getValueByTag($response, 'sender_phone').'; ';
+		$description .= 'amount: '.self::getValueByTag($response, 'amount').'; ';
+		$description .= 'currency: '.self::getValueByTag($response, 'currency').'; ';
 
-		$statusMessage = 'status: '.$this->getValueByTag($response, 'status').'; ';
-		$statusMessage .= 'transaction_id: '.$this->getValueByTag($response, 'transaction_id').'; ';
-		$statusMessage .= 'pay_way: '.$this->getValueByTag($response, 'pay_way').'; ';
-		$statusMessage .= 'payment_id: '.$this->getValueByTag($response, 'order_id').'; ';
+		$statusMessage = 'status: '.self::getValueByTag($response, 'status').'; ';
+		$statusMessage .= 'transaction_id: '.self::getValueByTag($response, 'transaction_id').'; ';
+		$statusMessage .= 'pay_way: '.self::getValueByTag($response, 'pay_way').'; ';
+		$statusMessage .= 'payment_id: '.self::getValueByTag($response, 'order_id').'; ';
 
 
 		$fields = array(
 			"PS_STATUS" => "Y",
-			"PS_STATUS_CODE" => mb_substr($this->getValueByTag($response, 'status'), 0, 5),
+			"PS_STATUS_CODE" => mb_substr(self::getValueByTag($response, 'status'), 0, 5),
 			"PS_STATUS_DESCRIPTION" => $description,
 			"PS_STATUS_MESSAGE" => $statusMessage,
-			"PS_SUM" => $this->getValueByTag($response, 'amount'),
-			"PS_CURRENCY" => $this->getValueByTag($response, 'currency'),
+			"PS_SUM" => self::getValueByTag($response, 'amount'),
+			"PS_CURRENCY" => self::getValueByTag($response, 'currency'),
 			"PS_RESPONSE_DATE" => new DateTime(),
 		);
 
@@ -222,7 +237,7 @@ class LiqPayHandler extends PaySystem\ServiceHandler
 	 * @param $tag
 	 * @return string
 	 */
-	private function getValueByTag($string, $tag)
+	private static function getValueByTag($string, $tag)
 	{
 		$string = str_replace("\n", "", str_replace("\r", "", $string));
 		$open = '<'.$tag.'>';
@@ -237,7 +252,7 @@ class LiqPayHandler extends PaySystem\ServiceHandler
 	 * @param Request $request
 	 * @return string
 	 */
-	private function getOperationXml(Request $request)
+	private static function getOperationXml(Request $request)
 	{
 		static $operationXml = '';
 

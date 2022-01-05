@@ -4,9 +4,7 @@ if(!CModule::IncludeModule('vote'))
 	return;
 __IncludeLang(GetLangFileName(dirname(__FILE__)."/lang/", '/'.basename(__FILE__)));	
 	
-	
-if (!is_object($DB))
-	global $DB;
+global $DB;
 global $CACHE_MANAGER;	
 $CACHE_MANAGER->CleanDir("b_vote_channel");
 $CACHE_MANAGER->Clean("b_vote_channel_2_site");
@@ -22,7 +20,7 @@ $arFieldsVC = array(
 	"TITLE"				=> "'".$DB->ForSql(GetMessage('VOTING_INSTALL_CHANNEL_ANKETA'))."'",
 	"SYMBOLIC_NAME"		=> "'".$symbolycName."'");
 	
-$rsVoteChan = CVoteChannel::GetList($by, $order, array('SYMBOLIC_NAME' => $symbolycName, 'SYMBOLIC_NAME_EXACT_MATCH' => 'Y'), $is_filtered);
+$rsVoteChan = CVoteChannel::GetList('', '', array('SYMBOLIC_NAME' => $symbolycName, 'SYMBOLIC_NAME_EXACT_MATCH' => 'Y'));
 if (!$rsVoteChan->Fetch())
 {
 	$ID = $DB->Insert("b_vote_channel", $arFieldsVC);
@@ -36,7 +34,7 @@ if (!$rsVoteChan->Fetch())
 		
 		//groups
 		$DB->Query("DELETE FROM b_vote_channel_2_group WHERE CHANNEL_ID='$ID'", false);
-		$rsGroups = CGroup::GetList($by, $order, array());
+		$rsGroups = CGroup::GetList();
 		while ($arGroup = $rsGroups->Fetch())
 		{
 			$arFieldsPerm = array(
@@ -55,6 +53,7 @@ if (!$rsVoteChan->Fetch())
 			"DATE_START"		=> $DB->CharToDateFunction(GetTime(mktime(0,0,0,1,1,2000),"FULL")),
 			"DATE_END"			=> $DB->CharToDateFunction(GetTime(mktime(23,59,59,12,31,2030),"FULL")),
 			"TITLE"				=> "'".$DB->ForSql(GetMessage('VOTING_INSTALL_VOTE_ANKETA_TITLE'))."'",
+			"AUTHOR_ID"			=> "'1'",
 			"DESCRIPTION"		=> "NULL",
 			"DESCRIPTION_TYPE"	=> "'html'",
 			"EVENT1"			=> "'vote'",
@@ -62,8 +61,6 @@ if (!$rsVoteChan->Fetch())
 			"EVENT3"			=> "NULL",
 			"UNIQUE_TYPE"		=> "'1'",
 			"KEEP_IP_SEC"		=> "'0'",
-			//"DELAY"			=> "'0'",
-			//"DELAY_TYPE"		=> "NULL",
 			"TEMPLATE"			=> "'default.php'",
 			"RESULT_TEMPLATE"	=> "'default.php'",
 			"NOTIFY"			=> "'N'"

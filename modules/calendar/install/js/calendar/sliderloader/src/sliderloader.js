@@ -31,19 +31,44 @@ export class SliderLoader
 			userId: parseInt(options.userId) || null,
 		};
 
-		if (parseInt(options.organizerId))
-		{
-			this.extensionParams.organizerId = parseInt(options.organizerId);
-		}
-
 		if (Type.isArray(options.participantsEntityList))
 		{
 			this.extensionParams.participantsEntityList = options.participantsEntityList;
 		}
 
+		if (Type.isArray(options.participantsSelectorEntityList))
+		{
+			this.extensionParams.participantsSelectorEntityList = options.participantsSelectorEntityList;
+		}
+
 		if (options.formDataValue)
 		{
 			this.extensionParams.formDataValue = options.formDataValue;
+		}
+
+		if (options.calendarContext)
+		{
+			this.extensionParams.calendarContext = options.calendarContext;
+		}
+
+		if (options.isLocationCalendar)
+		{
+			this.extensionParams.isLocationCalendar = options.isLocationCalendar;
+		}
+
+		if(options.roomsManager)
+		{
+			this.extensionParams.roomsManager = options.roomsManager;
+		}
+
+		if(options.locationAccess)
+		{
+			this.extensionParams.locationAccess = options.locationAccess;
+		}
+
+		if(options.locationCapacity)
+		{
+			this.extensionParams.locationCapacity = options.locationCapacity;
 		}
 
 		if (Type.isDate(options.entryDateFrom))
@@ -74,7 +99,8 @@ export class SliderLoader
 			label: {
 				text: Loc.getMessage('CALENDAR_EVENT'),
 				bgColor: "#55D0E0"
-			}
+			},
+			type: 'calendar:slider'
 		});
 	}
 

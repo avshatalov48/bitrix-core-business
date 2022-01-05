@@ -338,7 +338,9 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 		$shipmentItemCode = $sourceItem->getBasketCode();
 
 		if ($quantity === 0)
+		{
 			return new Result();
+		}
 
 		/** @var ShipmentItemCollection $systemShipmentItemCollection */
 		$systemShipmentItemCollection = $systemShipment->getShipmentItemCollection();

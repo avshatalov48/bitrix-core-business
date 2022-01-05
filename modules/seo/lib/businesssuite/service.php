@@ -30,7 +30,7 @@ class Service implements Retargeting\IService, IInternalService
 	}
 
 	/**
-	 * @param $type
+	 * @param string $type
 	 *
 	 * @return Config
 	 */
@@ -40,7 +40,7 @@ class Service implements Retargeting\IService, IInternalService
 	}
 
 	/**
-	 * @param $type
+	 * @param string $type
 	 *
 	 * @return Extension
 	 */
@@ -50,7 +50,7 @@ class Service implements Retargeting\IService, IInternalService
 	}
 
 	/**
-	 * @param $type
+	 * @param string $type
 	 *
 	 * @return Conversion
 	 */
@@ -79,6 +79,7 @@ class Service implements Retargeting\IService, IInternalService
 		{
 			$instance = new self();
 		}
+
 		return $instance;
 	}
 
@@ -112,6 +113,7 @@ class Service implements Retargeting\IService, IInternalService
 		{
 			static::$authAdapterPool[$type] = BusinessAuthAdapter::create($type)->setService(static::getInstance());
 		}
+
 		return static::$authAdapterPool[$type];
 	}
 
@@ -124,9 +126,11 @@ class Service implements Retargeting\IService, IInternalService
 		{
 			if($engineCode == static::getEngineCode($type))
 			{
+
 				return $type;
 			}
 		}
+
 		return null;
 	}
 

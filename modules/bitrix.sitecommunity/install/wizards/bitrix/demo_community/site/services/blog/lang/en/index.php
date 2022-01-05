@@ -38,7 +38,7 @@ Bergamo is a little like Milan. Many shops, but more comfortable, and have lower
 [B]Summary of trip:[/B] [I]Everything went very well. A trip by car gives you the freedom and opportunities that are not in the usual tours. Yes, all the prices turned out a lot cheaper than they would have been through a travel agency.[/I]";
 $MESS["BLOG_MESSAGE2_TAGS"] = "Tours, Spain, Photo, Bergamo, Vacation";
 $MESS["BLOG_MESSAGE2_COMMENTS1_AUTHOR"] = "Jose";
-$MESS["BLOG_MESSAGE2_COMMENTS1_TEXT"] = "A great city, I’ve been there more than once";
+$MESS["BLOG_MESSAGE2_COMMENTS1_TEXT"] = "A great city, I've been there more than once";
 $MESS["BLOG_MESSAGE2_COMMENTS2_AUTHOR"] = "Paul";
 $MESS["BLOG_MESSAGE2_COMMENTS2_TEXT"] = "How much did it cost to get there?";
 $MESS["BLOG_MESSAGE2_COMMENTS3_TEXT"] = "2000 Euros per person";
@@ -53,7 +53,7 @@ The apartment was in Susanna, the plane flew to Girona, plus we wanted to go to 
 We were lucky. Using other people's experience, we found a English-speaking broker. Service was exceptional.  Here's what we got:
 1. A detailed explanation of the legal nuances of rental cars. For us it was more important than money.
 2. A car that met our requirements completely: no more than 300 euros for 13 days. We ordered economy class (Ford Ka), but ultimately received a five-door Seat Ibiza. Maybe it was the same class, but our son did not have to twisted and fold into the back seat, which was nice. A value analysis to other companies showed that this was simply plum.
-3. Cash deposit.  It was our special request that the manager fulfilled by arrangement with the rental company. We didn’t need a deposit for the apartment, so that left money available for the car deposit.
+3. Cash deposit.  It was our special request that the manager fulfilled by arrangement with the rental company. We didn't need a deposit for the apartment, so that left money available for the car deposit.
 4. The deposit seemed a little much - 560 euros, but since the car was returned with a full tank and without damaged, it didn't matter.
 5. The 300 euro total included full insurance. Happily that was unnecessary, despite the heavy rain on an insane Pyrenees' serpentine stretch of road, where flying into nowhere it was quite easy.
 
@@ -94,7 +94,7 @@ The project is private, the owner has spent \$ 1 million for the initial phase, 
 The temple is made in the form of a cross, each of the ends of the cross is devoted to one country. The interior is executed in the style of each of the religions with appropriate decorations.  Our guide walked and talked in each room about every deity, but he was hard to understand, and so we don't remember much.  Thai English - well, that's another story. But admiring the sheer beauty of the place was still very easy to do.";
 $MESS["BLOG_MESSAGE4_TAGS"] = "Tours, Thailand, Photo, Sanctuary of Truth";
 $MESS["BLOG_MESSAGE5_TITLE"] = "Thai Glimpses: The Million Years Stone Park";
-$MESS["BLOG_MESSAGE5_BODY"] = "The park is located close to Pattaya. To get there, you can: take an excursion bus, a tuk-tuk or 'motosay', or go by bike. It’s 15 minutes with a tailwind and we are on the spot. 
+$MESS["BLOG_MESSAGE5_BODY"] = "The park is located close to Pattaya. To get there, you can: take an excursion bus, a tuk-tuk or 'motosay', or go by bike. It's 15 minutes with a tailwind and we are on the spot. 
 
 [B]'Stones' Park[/B] - a beautiful park adorned with tropical vegetation and rocks of diverse forms. Some rocks are petrified tree.
 

@@ -1405,7 +1405,7 @@ create table if not exists b_sale_tp
 	ID int NOT NULL AUTO_INCREMENT,
 	CODE varchar(20) NOT NULL,
 	ACTIVE char(1) NOT NULL,
-	NAME varchar(50) NOT NULL,
+	NAME varchar(500) NOT NULL,
 	DESCRIPTION text NULL,
 	SETTINGS text NULL,
 	CATALOG_SECTION_TAB_CLASS_NAME varchar(255) NULL,
@@ -2094,4 +2094,13 @@ create table if not exists b_sale_delivery_yandex_taxi_claims(
     KEY IX_FURTHER_CHANGES_EXPECTED (FURTHER_CHANGES_EXPECTED),
     KEY `IX_REPORT_DATE` (`CREATED_AT`,`IS_SANDBOX_ORDER`),
     PRIMARY KEY (ID)
+);
+
+create table if not exists b_sale_facebook_conversion_params(
+	ID INT unsigned NOT NULL AUTO_INCREMENT,
+	EVENT_NAME VARCHAR(50) NOT NULL,
+	LID CHAR(2) NOT NULL,
+	ENABLED CHAR(1) NOT NULL,
+	PARAMS VARCHAR(500) NOT NULL,
+	PRIMARY KEY (ID)
 );

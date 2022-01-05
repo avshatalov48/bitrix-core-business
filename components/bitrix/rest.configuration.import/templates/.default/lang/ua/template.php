@@ -15,4 +15,5 @@ $MESS["REST_CONFIGURATION_IMPORT_ROLLBACK_SUBMIT_BTN"] = "Застосувати
 $MESS["REST_CONFIGURATION_IMPORT_ROLLBACK_TITLE_BLOCK"] = "Відновлення галузевих налаштувань";
 $MESS["REST_CONFIGURATION_IMPORT_SAVE_FILE_BTN"] = "Завантажити";
 $MESS["REST_CONFIGURATION_IMPORT_SAVE_FILE_DESCRIPTION"] = "Завантажте файл із галузевими налаштуваннями";
+$MESS["REST_CONFIGURATION_IMPORT_SAVE_FILE_PROCESS"] = "Завантажуємо файл";
 $MESS["REST_CONFIGURATION_IMPORT_TITLE_BLOCK"] = "Імпорт галузевих налаштувань";

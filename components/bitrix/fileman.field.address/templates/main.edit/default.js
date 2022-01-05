@@ -10,17 +10,23 @@ this.BX.Default.Field = this.BX.Default.Field || {};
 
 	BX.Default.Field.Address.prototype = {
 	  init: function init(params) {
+	    var _params$showMap;
+
 	    this.controlId = params['controlId'] || '';
 	    this.value = params['value'] || '';
 	    this.isMultiple = params['isMultiple'] === 'true';
 	    this.nodeJs = params['nodeJs'] || '';
 	    this.fieldNameJs = params['fieldNameJs'] || '';
+	    this.fieldName = params['fieldName'] || '';
+	    this.showMap = (_params$showMap = params['showMap']) !== null && _params$showMap !== void 0 ? _params$showMap : true;
 	    var control = new BX.Fileman.UserField.Address(BX(this.controlId), {
 	      value: this.value,
-	      multiple: this.isMultiple
+	      multiple: this.isMultiple,
+	      showMap: this.showMap
 	    });
 	    control.nodeJs = this.nodeJs;
 	    control.fieldNameJs = this.fieldNameJs;
+	    control.fieldName = this.fieldName;
 	    BX.addCustomEvent(control, 'UserFieldAddress::Change', function (value) {
 	      var node = BX(control.nodeJs);
 	      var html = '';
@@ -43,7 +49,7 @@ this.BX.Default.Field = this.BX.Default.Field || {};
 	      }
 
 	      node.innerHTML = html;
-	      BX.onCustomEvent(window, 'onCrmEntityEditorUserFieldExternalChanged', [control.fieldNameJs]);
+	      BX.onCustomEvent(window, 'onCrmEntityEditorUserFieldExternalChanged', [control.fieldName]);
 	    });
 	  }
 	};

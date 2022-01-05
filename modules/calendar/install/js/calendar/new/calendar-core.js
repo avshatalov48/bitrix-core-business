@@ -25,7 +25,7 @@
 
 		this.sectionManager = new BX.Calendar.SectionManager(data, config);
 		this.entryManager = new BX.Calendar.EntryManager(data, config);
-
+		this.roomsManager = new BX.Calendar.RoomsManager(data, config);
 		if (BX.Calendar.Controls && BX.Calendar.Controls.Location)
 		{
 			BX.Calendar.Controls.Location.setLocationList(additionalParams.locationList);
@@ -38,8 +38,6 @@
 		BX.Calendar.Util.setAccessNames(config.accessNames);
 		BX.Calendar.Util.setEventWithEmailGuestAmount(config.countEventWithEmailGuestAmount);
 		BX.Calendar.Util.setEventWithEmailGuestLimit(config.eventWithEmailGuestLimit);
-
-		BX.Calendar.Util.setCalendarContext(this);
 
 		this.requests = {};
 		this.currentUser = config.user;
@@ -56,9 +54,15 @@
 			{
 				this.showStartUpEntry(config.startupEvent);
 			}
+
+			if (config.showAfterSyncAccent)
+			{
+				this.showAfterSyncAccent(config.showAfterSyncAccent);
+			}
 		}
 
 		BX.addCustomEvent('onPullEvent-calendar', this.handlePullEvent.bind(this));
+		BX.addCustomEvent('onPullEvent-tasks', this.handlePullEventTasks.bind(this))
 	}
 
 	Calendar.prototype = {
@@ -88,10 +92,18 @@
 				{
 					this.currentViewName = 'list';
 				}
+
+				if (this.isLocationViewDisabled())
+				{
+					this.currentViewName = 'month';
+				}
 				this.buildViews();
 
 				// Build switch view control
-				this.buildViewSwitcher();
+				if (!this.isLocationViewDisabled())
+				{
+					this.buildViewSwitcher();
+				}
 
 				// Search & counters
 				if (this.util.isFilterEnabled())
@@ -109,7 +121,7 @@
 				}
 
 				// Top button container
-				if (!this.isExternalMode())
+				if (!this.isExternalMode() && !this.isLocationViewDisabled())
 				{
 					this.buildTopButtons();
 				}
@@ -156,7 +168,6 @@
 						userId: this.currentUser.id,
 						syncLinks: this.util.config.syncLinks,
 						isSetSyncCaldavSettings: this.util.config.isSetSyncCaldavSettings,
-						//sections: this.sectionController.sections,
 						sections: this.sectionManager.getSections(),
 						portalAddress: this.util.config.caldav_link_all,
 						isRuZone: this.util.config.isRuZone,
@@ -217,6 +228,18 @@
 				{
 					this.refresh();
 				}.bind(this));
+
+				if (this.isLocationViewDisabled())
+				{
+					this.buildLockView();
+
+					BX.addClass(this.mainCont, '--lock');
+
+					if (this.lockView)
+					{
+						this.mainCont.appendChild(this.lockView);
+					}
+				}
 			}
 			if (this.util.config.displayMobileBanner)
 			{
@@ -417,6 +440,31 @@
 			}
 		},
 
+		buildLockView: function()
+		{
+			this.lockView = this.mainCont.appendChild(BX.create('DIV', {
+				props: {className: 'calendar-view-locker'}
+			}));
+			this.lockViewContainer = this.lockView.appendChild(BX.create('DIV', {
+				props: {className: 'calendar-view-locker-container'}
+			}));
+			this.lockViewContainer.appendChild(BX.create('DIV', {
+				props: {className: 'calendar-view-locker-top'},
+				html: '<div class="calendar-view-locker-icon"></div>'
+					+ '<div class="calendar-view-locker-text">'
+					+ BX.message('EC_LOCATION_VIEW_LOCKED')
+					+ '</div>'
+			}));
+			this.lockViewContainer.appendChild(BX.create('DIV', {
+				props: {className: 'calendar-view-locker-button'},
+				html: '<a href="javascript:void(0)" '
+					+ 'onclick="top.BX.UI.InfoHelper.show(\'limit_office_calendar_location\');" '
+					+ 'class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round">'
+					+ BX.message('EC_LOCATION_VIEW_UNLOCK_FEATURE')
+					+ '</a>'
+			}));
+		},
+
 		setView: function(view, params)
 		{
 			if (view)
@@ -445,7 +493,7 @@
 				if (newView && (view !== this.currentViewName || !currentView.getIsBuilt()))
 				{
 					params.currentViewDate = this.getViewRangeDate();
-					if (newView === 'day' && BX.type.isDate(params.date))
+					if (BX.type.isDate(params.date))
 					{
 						params.newViewDate = params.date;
 					}
@@ -463,6 +511,15 @@
 					if (currentView.type === 'custom' || newView.type === 'custom')
 					{
 						params.animation = false;
+					}
+
+					if (this.rightBlock && (view === 'month' || view === 'week'))
+					{
+						this.rightBlock.style.display = 'none';
+					}
+					else if (this.rightBlock)
+					{
+						this.rightBlock.style.display = '';
 					}
 
 					if (params.animation)
@@ -786,6 +843,18 @@
 
 		buildTopButtons:  function()
 		{
+			if (this.util.type === 'location')
+			{
+				this.buildingTopButtonsRooms();
+			}
+			else
+			{
+				this.buildingTopButtonsCalendar();
+			}
+		},
+
+		buildingTopButtonsCalendar: function()
+		{
 			this.buttonsCont = BX(this.id + '-buttons-container');
 			if (this.buttonsCont)
 			{
@@ -848,6 +917,8 @@
 						addEntry: function(){
 							BX.Calendar.EntryManager.openEditSlider({
 								type: this.util.type,
+								isLocationCalendar: false,
+								locationAccess: this.util.config.locationAccess,
 								ownerId: this.util.ownerId,
 								userId: parseInt(this.currentUser.id)
 							});
@@ -855,6 +926,87 @@
 						addTask: this.showTasks ?
 							function(){
 								BX.SidePanel.Instance.open(this.util.getEditTaskPath(), {loader: "task-new-loader"});
+							}.bind(this)
+							: null
+					}).getWrap());
+				}
+			}
+		},
+
+		buildingTopButtonsRooms: function()
+		{
+			this.buttonsCont = BX(this.id + '-buttons-container');
+			if (this.buttonsCont)
+			{
+				this.roomsButton = this.buttonsCont.appendChild(BX.create("button", {
+					props: { className: "ui-btn ui-btn-light-border ui-btn-themes", type: "button" },
+					text: BX.message('EC_SECTION_ROOMS_LIST')
+				}));
+				BX.Event.bind(this.roomsButton, 'click', function() {
+					this.getRoomsInterface()
+						.then(function(RoomsInterface) {
+							if (!this.roomsInterface)
+							{
+								this.roomsInterface = new RoomsInterface(
+									{
+										calendarContext: this,
+										readonly: this.util.readOnlyMode(),
+										roomsManager: this.roomsManager
+									}
+								);
+							}
+
+							this.roomsInterface.show();
+						}.bind(this));
+				}.bind(this));
+				if (this.util.userIsOwner() || this.util.config.TYPE_ACCESS)
+				{
+					this.settingsButton = this.buttonsCont.appendChild(BX.create(
+						"button",
+						{
+							props: {
+								className: "ui-btn ui-btn-icon-setting ui-btn-light-border ui-btn-themes",
+							}
+						}
+					));
+
+					BX.Event.bind(this.settingsButton, 'click', function(){
+						this.getSettingsInterface()
+							.then(function(SettingsInterface){
+								if (!this.settingsInterface)
+								{
+									this.settingsInterface = new SettingsInterface(
+										{
+											calendarContext: this,
+											showPersonalSettings: this.util.userIsOwner(),
+											showGeneralSettings: false,
+											showAccessControll: true,
+											settings: this.util.config.settings
+										}
+									);
+								}
+								this.settingsInterface.show();
+							}.bind(this));
+					}.bind(this));
+				}
+
+				var addButtonWrap = BX(this.id + '-add-button-container');
+				if (this.util.type === 'location' && BX.Type.isDomNode(addButtonWrap))
+				{
+					addButtonWrap.appendChild(new BX.Calendar.Rooms.ReserveButton({
+						addEntry: function() {
+							BX.Calendar.EntryManager.openEditSlider({
+								roomsManager: this.roomsManager,
+								type: 'user',
+								isLocationCalendar: true,
+								locationAccess: this.util.config.locationAccess,
+								ownerId: this.util.ownerId,
+								userId: parseInt(this.currentUser.id)
+							});
+						}.bind(this),
+						addTask: this.showTasks ?
+							function() {
+								BX.SidePanel.Instance.open(this.util.getEditTaskPath(), { loader: "task-new-loader" });
 							}.bind(this)
 							: null
 					}).getWrap());
@@ -960,6 +1112,11 @@
 				case 'change_section_subscription':
 					this.sectionManager.handlePullChanges(params);
 					break;
+				case 'delete_room':
+				case 'create_room':
+				case 'update_room':
+					this.roomsManager.handlePullRoomChanges(params);
+					break;
 				case 'change_section_customization':
 					BX.reload();
 					break;
@@ -972,6 +1129,19 @@
 				case 'delete_sync_connection':
 					this.syncInterface.deleteSyncConnection(params);
 					break;
+			}
+		},
+
+		handlePullEventTasks: function(command, params)
+		{
+			params = BX.Type.isObjectLike(params) ? params : {};
+			params.command = command;
+			switch (command)
+			{
+				case 'task_remove':
+				case 'task_add':
+				case 'task_update':
+					this.reload()
 			}
 		},
 
@@ -1048,6 +1218,35 @@
 			}.bind(this));
 		},
 
+		getRoomsInterface: function()
+		{
+			return new Promise(function(reslve){
+				var bx = BX.Calendar.Util.getBX();
+				if (bx.Calendar.Rooms.RoomsInterface)
+				{
+					reslve(bx.Calendar.Rooms.RoomsInterface);
+				}
+				else
+				{
+					var extensionName = 'calendar.rooms';
+					bx.Runtime.loadExtension(extensionName)
+						.then(function(exports)
+							{
+								if (bx.Calendar.Rooms.RoomsInterface)
+								{
+									reslve(bx.Calendar.Rooms.RoomsInterface);
+								}
+								else
+								{
+									console.error('Extension ' + extensionName + ' not found');
+								}
+							}
+						);
+				}
+
+			}.bind(this));
+		},
+
 		updateCounters: function()
 		{
 			return new Promise(
@@ -1070,6 +1269,23 @@
 						}.bind(this));
 				}.bind(this)
 			);
+		},
+
+		showAfterSyncAccent: function(showAfterSyncAccent)
+		{
+			return;
+			BX.Calendar.Sync.Interface.AfterSyncTour.createInstance(
+				{
+					showAfterSyncAccent: showAfterSyncAccent,
+					view: this.getView()
+				})
+				.show();
+		},
+
+		isLocationViewDisabled: function()
+		{
+			return !this.util.config.locationFeatureEnabled
+				&& this.util.config.type === 'location';
 		}
 	};
 

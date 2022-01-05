@@ -8,6 +8,7 @@ $MESS["BPC_MES_CREATETASK"] = "Create task";
 $MESS["BPC_MES_DELETE"] = "Delete";
 $MESS["BPC_MES_EDIT"] = "Edit";
 $MESS["BPC_MES_HIDE"] = "Hide";
+$MESS["BPC_MES_RESULT"] = "Mark as task status summary";
 $MESS["BPC_MES_SHOW"] = "Show";
 $MESS["BPC_MES_VOTE"] = "Liked by";
 $MESS["BPC_MES_VOTE1"] = "Like";

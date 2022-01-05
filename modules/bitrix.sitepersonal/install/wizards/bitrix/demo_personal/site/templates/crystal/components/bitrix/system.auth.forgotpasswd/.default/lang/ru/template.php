@@ -3,4 +3,5 @@ $MESS ['AUTH_FORGOT_PASSWORD_1'] = "Если вы забыли пароль, в�
 $MESS ['AUTH_SEND'] = "Выслать";
 $MESS ['AUTH_AUTH'] = "Авторизация";
 $MESS ['AUTH_LOGIN'] = "Логин";
+$MESS ['AUTH_CAPTCHA_PROMT'] = "Код на картинке";
 ?>

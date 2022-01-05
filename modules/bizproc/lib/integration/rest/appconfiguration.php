@@ -12,6 +12,7 @@ use Bitrix\Main\SystemException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Event;
 use Bitrix\Rest\Configuration\Helper;
+use Bitrix\Rest\Configuration\Setting;
 use CBPDocument;
 use Exception;
 
@@ -181,7 +182,12 @@ class AppConfiguration
 		}
 
 		$result = null;
-		$userId = (int)CurrentUser::get()->getId();//TODO: get from $event
+		$userId = (int)$event->getParameter('USER_ID');
+
+		$contextUser = $event->getParameter('CONTEXT_USER');
+		$setting = new Setting($contextUser);
+		$app = $setting->get(Setting::SETTING_APP_INFO);
+		$appId = (int)$app['ID'];
 
 		try
 		{
@@ -196,7 +202,7 @@ class AppConfiguration
 						$result = static::importCrmTrigger($data);
 						break;
 					case self::ENTITY_BIZPROC_SCRIPT:
-						$result = static::importScript($data, $userId);
+						$result = static::importScript($data, $userId, $appId);
 						break;
 				}
 			}
@@ -668,7 +674,7 @@ class AppConfiguration
 		return $result;
 	}
 
-	private static function importScript($importData, int $userId)
+	private static function importScript($importData, int $userId, int $appId)
 	{
 		$result = [];
 
@@ -694,6 +700,12 @@ class AppConfiguration
 							$importData['RATIO']['CRM_STATUS']
 						);
 					}
+				}
+
+				if ($appId > 0)
+				{
+					$item['ORIGINATOR_ID'] = 'REST_APP';
+					$item['ORIGIN_ID'] = $appId;
 				}
 
 				$importResult = Script\Manager::importScript($item, $userId);

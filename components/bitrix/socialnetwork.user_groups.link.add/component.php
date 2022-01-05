@@ -48,10 +48,7 @@ if (!isset($arParams["ALLOW_CREATE_GROUP"]))
 
 		$arParams["ALLOW_CREATE_GROUP"] = (
 		$currentUserPerms["IsCurrentUser"]
-		&& (
-			CSocNetUser::IsCurrentUserModuleAdmin()
-			|| $APPLICATION->GetGroupRight("socialnetwork", false, "Y", "Y", array(SITE_ID, false)) >= "K"
-		)
+		&& \Bitrix\Socialnetwork\Helper\Workgroup::canCreate()
 			? 'Y'
 			: 'N'
 		);

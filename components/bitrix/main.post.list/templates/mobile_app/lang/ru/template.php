@@ -9,6 +9,7 @@ $MESS["BPC_MES_DELETE"] = "Удалить";
 $MESS["BLOG_C_LOADING"] = "Загрузка";
 $MESS["BPC_MES_CREATETASK"] = "Создать задачу";
 $MESS["BPC_MES_COPYLINK"] = "Копировать ссылку";
+$MESS["BPC_MES_RESULT"] = "Отметить как отчет о задаче";
 $MESS["BLOG_C_VIEW"] = "Смотреть комментарии";
 $MESS["BLOG_C_REPLY"] = "Ответить";
 $MESS["B_B_PC_COM_ERROR"] = "Ошибка:";

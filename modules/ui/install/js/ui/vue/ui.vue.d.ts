@@ -33,7 +33,8 @@ declare module 'ui.vue'
 		isCustom(): boolean;
 	}
 	class $BitrixLoc {
-		getMessage(name: string): string;
+		getMessage(name: string, replacements?: {[key: string]: string}): string;
+		hasMessage(name: string): boolean;
 		getMessages(): object;
 		setMessage(id: string | {[key: string]: string}, value?: string): void;
 	}

@@ -2,235 +2,7 @@ this.BX = this.BX || {};
 (function (exports,main_core,main_core_events,calendar_util,main_popup,calendar_controls,calendar_entry,calendar_sectionmanager,calendar_sync_interface) {
 	'use strict';
 
-	function _templateObject23() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-field calendar-field-string\">", "</span>"]);
-
-	  _templateObject23 = function _templateObject23() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject22() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-block\" style=\"display: none\">\n\t\t\t\t<div class=\"calendar-field-title\">", ":</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject22 = function _templateObject22() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject21() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-text\"></div>"]);
-
-	  _templateObject21 = function _templateObject21() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject20() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-block\" style=\"display: none\">\n\t\t\t\t<div class=\"calendar-field-title\">", ":</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject20 = function _templateObject20() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject19() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-text\"></div>"]);
-
-	  _templateObject19 = function _templateObject19() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject18() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-block\" style=\"display: none\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject18 = function _templateObject18() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject17() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-link\"></div>"]);
-
-	  _templateObject17 = function _templateObject17() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject16() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-title\"></div>"]);
-
-	  _templateObject16 = function _templateObject16() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject15() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-text\"></div>"]);
-
-	  _templateObject15 = function _templateObject15() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject14() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-block\">\n\t\t\t<div class=\"calendar-field-title\">", ":</div>\n\t\t\t", "\n\t\t</div>"]);
-
-	  _templateObject14 = function _templateObject14() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject13() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-place\"></div>"]);
-
-	  _templateObject13 = function _templateObject13() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject12() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-hide-members-container\" style=\"display: none;\">\n\t\t\t\t<div class=\"calendar-hide-members-container-inner\">\n\t\t\t\t\t<div class=\"calendar-hide-members-icon-hidden\"></div>\n\t\t\t\t\t<div class=\"calendar-hide-members-text\">", "</div>\n\t\t\t\t\t<span class=\"calendar-hide-members-helper\" data-hint=\"", "\"></span>\n\t\t\t\t</div>\n\t\t\t</div>"]);
-
-	  _templateObject12 = function _templateObject12() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject11() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-wrapper\" style=\"height: 0\">\n\t\t\t\t</div>"]);
-
-	  _templateObject11 = function _templateObject11() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject10() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-field-container-inform\">\n\t\t\t\t\t<span class=\"calendar-field-container-inform-text\">", "</span>\n\t\t\t\t</div>"]);
-
-	  _templateObject10 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-field-block\">\n\t\t\t\t\t<div class=\"calendar-members-selected\">\n\t\t\t\t\t\t<span class=\"calendar-attendees-label\"></span>\n\t\t\t\t\t\t<span class=\"calendar-attendees-list\"></span>\n\t\t\t\t\t\t<span class=\"calendar-members-more\">", "</span>\n\t\t\t\t\t\t<span class=\"calendar-members-change-link\">", "</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>"]);
-
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t<div class=\"calendar-field-container calendar-field-container-members\">\n\t\t\t\t", "\n\t\t\t\t<span class=\"calendar-videocall-wrap calendar-videocall-hidden\"></span>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t\t<div class=\"calendar-user-selector-wrap\"></div>\n\t\t\t<div class=\"calendar-add-popup-planner-wrap calendar-add-popup-show-planner\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t\t", "\n\t\t<div>"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-container calendar-field-container-datetime\"></div>"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-choice-calendar\"></div>"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field calendar-field-select calendar-field-tiny\"></div>"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input class=\"calendar-field calendar-field-string\" \n\t\t\t\tvalue=\"\" \n\t\t\t\tplaceholder=\"", "\" \n\t\t\t\ttype=\"text\" \n\t\t\t/>\n\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-field-block\">\n\t\t\t\t\t<div class=\"calendar-field-title\">", ":</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-container calendar-field-container-string-select\">\n\t\t\t\t<div class=\"calendar-field-block\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-add-popup-wrap\">\n\t\t\t", "\n\t\t\t<div class=\"calendar-field-container calendar-field-container-choice\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t\t\n\t\t\t", "\n\t\t\t\n\t\t\t", "\n\t\t\t\n\t\t\t<div class=\"calendar-field-container calendar-field-container-info\">\n\t\t\t\t", "\n\t\t\t\t\n\t\t\t\t\t", "\n\t\t\t\t\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t</div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16, _templateObject17, _templateObject18, _templateObject19, _templateObject20, _templateObject21, _templateObject22, _templateObject23, _templateObject24, _templateObject25, _templateObject26, _templateObject27, _templateObject28, _templateObject29, _templateObject30;
 	var CompactEventForm = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(CompactEventForm, _EventEmitter);
 
@@ -259,6 +31,8 @@ this.BX = this.BX || {};
 
 	    _this.userId = options.userId || calendar_util.Util.getCurrentUserId();
 	    _this.type = options.type || 'user';
+	    _this.isLocationCalendar = options.isLocationCalendar || false;
+	    _this.calendarContext = options.calendarContext || null;
 	    _this.ownerId = options.ownerId || _this.userId;
 	    _this.BX = calendar_util.Util.getBX();
 	    _this.checkForChanges = main_core.Runtime.debounce(_this.checkForChangesImmediately, 300, babelHelpers.assertThisInitialized(_this));
@@ -301,7 +75,11 @@ this.BX = this.BX || {};
 	      }
 
 	      this.prepareData().then(function () {
-	        _this2.setFormValues();
+	        if (_this2.checkLocationView()) {
+	          _this2.setFormValuesLocation();
+	        } else {
+	          _this2.setFormValues();
+	        }
 
 	        _this2.popup.show();
 
@@ -324,10 +102,15 @@ this.BX = this.BX || {};
 	          _this2.popup.getButtons()[0].button.focus();
 	        }
 
-	        if (!_this2.userPlannerSelector.isPlannerDisplayed() && _this2.getMode() === CompactEventForm.EDIT_MODE) {
+	        if (_this2.getMode() === CompactEventForm.EDIT_MODE && !_this2.userPlannerSelector.isPlannerDisplayed()) {
 	          _this2.userPlannerSelector.checkBusyTime();
 	        }
 	      });
+	    }
+	  }, {
+	    key: "checkLocationView",
+	    value: function checkLocationView() {
+	      return this.getMode() === CompactEventForm.VIEW_MODE && this.type === 'location';
 	    }
 	  }, {
 	    key: "getPopup",
@@ -344,7 +127,7 @@ this.BX = this.BX || {};
 	        lightShadow: true,
 	        className: 'calendar-simple-view-popup calendar-simple-view-popup-show',
 	        cacheable: false,
-	        content: this.getPopupContent(),
+	        content: this.checkLocationView() ? this.getPopupContentLocation() : this.getPopupContentCalendar(),
 	        buttons: this.getButtons(),
 	        events: {
 	          onPopupClose: this.close.bind(this)
@@ -387,13 +170,28 @@ this.BX = this.BX || {};
 	        this.popup.destroy();
 	      }
 
+	      if (calendar_controls.Location) {
+	        calendar_controls.Location.setCurrentCapacity(0);
+	      }
+
 	      calendar_util.Util.clearPlannerWatches();
 	      calendar_util.Util.closeAllPopups();
 	    }
 	  }, {
-	    key: "getPopupContent",
-	    value: function getPopupContent() {
-	      this.DOM.wrap = main_core.Tag.render(_templateObject(), this.DOM.titleOuterWrap = main_core.Tag.render(_templateObject2(), this.getTitleControl(), this.getColorControl()), this.getSectionControl(), this.getDateTimeControl(), this.getUserPlannerSelector(), this.getTypeInfoControl(), this.getLocationControl(), this.DOM.remindersOuterWrap = main_core.Tag.render(_templateObject3(), main_core.Loc.getMessage('EC_REMIND_LABEL'), this.createRemindersControl()), this.getRRuleInfoControl());
+	    key: "getPopupContentCalendar",
+	    value: function getPopupContentCalendar() {
+	      this.DOM.wrap = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-add-popup-wrap\">\n\t\t\t", "\n\t\t\t<div class=\"calendar-field-container calendar-field-container-choice\">\n\t\t\t\t", "\n\t\t\t</div>\n\n\t\t\t", "\n\n\t\t\t", "\n\n\t\t\t<div class=\"calendar-field-container calendar-field-container-info\">\n\t\t\t\t", "\n\n\t\t\t\t\t", "\n\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t</div>"])), this.DOM.titleOuterWrap = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-container calendar-field-container-string-select\">\n\t\t\t\t<div class=\"calendar-field-block\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>"])), this.getTitleControl(), this.getColorControl()), this.getSectionControl(), this.getDateTimeControl(), this.getUserPlannerSelector(), this.getTypeInfoControl(), this.getLocationControl(), this.DOM.remindersOuterWrap = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-field-block\">\n\t\t\t\t\t<div class=\"calendar-field-title\">", ":</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), main_core.Loc.getMessage('EC_REMIND_LABEL'), this.createRemindersControl()), this.getRRuleInfoControl());
+	      return this.DOM.wrap;
+	    }
+	  }, {
+	    key: "getPopupContentLocation",
+	    value: function getPopupContentLocation() {
+	      this.DOM.wrap = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-add-popup-wrap\">\n\t\t\t", "\n\t\t\t<div class=\"calendar-field-container calendar-field-container-choice\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t\t", "\n\t\t\t\n\t\t</div>"])), this.DOM.titleOuterWrap = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-container calendar-field-container-string-select\">\n\t\t\t\t<div class=\"calendar-field-block\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>"])), this.getTitleControlLocation(), this.getColorControlsLocationView()), this.getLocationSectionControls(), this.getDateTimeControl());
+
+	      if (this.entry.id !== this.entry.parentId) {
+	        this.DOM.wrap.appendChild(main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t", "\n\t\t\t"])), this.getHostControl()));
+	      }
+
 	      return this.DOM.wrap;
 	    }
 	  }, {
@@ -490,25 +288,53 @@ this.BX = this.BX || {};
 	          }));
 	        }
 
-	        buttons.push(new BX.UI.Button({
-	          className: "ui-btn ".concat(this.entry.isMeeting() && this.entry.getCurrentStatus() === 'Q' ? 'ui-btn-link' : 'ui-btn-primary'),
-	          text: main_core.Loc.getMessage('CALENDAR_EVENT_DO_OPEN'),
-	          events: {
-	            click: function click() {
-	              _this4.checkDataBeforeCloseMode = false;
-	              BX.Calendar.EntryManager.openViewSlider(_this4.entry.id, {
-	                entry: _this4.entry,
-	                type: _this4.type,
-	                ownerId: _this4.ownerId,
-	                userId: _this4.userId,
-	                from: _this4.entry.from,
-	                timezoneOffset: _this4.entry && _this4.entry.data ? _this4.entry.data.TZ_OFFSET_FROM : null
-	              });
+	        if (this.checkLocationView()) {
+	          if (this.entry.id !== this.entry.parentId) {
+	            buttons.push(new BX.UI.Button({
+	              className: "ui-btn ".concat(this.entry.isMeeting() && this.entry.getCurrentStatus() === 'Q' ? 'ui-btn-link' : 'ui-btn-primary'),
+	              text: main_core.Loc.getMessage('CALENDAR_EVENT_DO_OPEN_PARENT'),
+	              events: {
+	                click: function click() {
+	                  _this4.checkDataBeforeCloseMode = false;
+	                  BX.Calendar.EntryManager.openViewSlider(_this4.entry.parentId, {
+	                    userId: _this4.userId,
+	                    from: _this4.entry.from,
+	                    timezoneOffset: _this4.entry && _this4.entry.data ? _this4.entry.data.TZ_OFFSET_FROM : null
+	                  });
 
-	              _this4.close();
-	            }
+	                  _this4.close();
+	                }
+	              }
+	            }));
+	          } else {
+	            buttons.push(new BX.UI.Button({
+	              className: "ui-btn ui-btn-disabled",
+	              text: main_core.Loc.getMessage('CALENDAR_UPDATE_PROGRESS')
+	            }));
 	          }
-	        })); // For testing purposes
+	        } else {
+	          buttons.push(new BX.UI.Button({
+	            className: "ui-btn ".concat(this.entry.isMeeting() && this.entry.getCurrentStatus() === 'Q' ? 'ui-btn-link' : 'ui-btn-primary'),
+	            text: main_core.Loc.getMessage('CALENDAR_EVENT_DO_OPEN'),
+	            events: {
+	              click: function click() {
+	                _this4.checkDataBeforeCloseMode = false;
+	                BX.Calendar.EntryManager.openViewSlider(_this4.entry.id, {
+	                  entry: _this4.entry,
+	                  calendarContext: _this4.calendarContext,
+	                  type: _this4.type,
+	                  ownerId: _this4.ownerId,
+	                  userId: _this4.userId,
+	                  from: _this4.entry.from,
+	                  timezoneOffset: _this4.entry && _this4.entry.data ? _this4.entry.data.TZ_OFFSET_FROM : null
+	                });
+
+	                _this4.close();
+	              }
+	            }
+	          }));
+	        } // For testing purposes
+
 
 	        if (main_core.Type.isElementNode(buttons[buttons.length - 1].button)) {
 	          buttons[buttons.length - 1].button.setAttribute('data-role', 'openButton');
@@ -538,7 +364,7 @@ this.BX = this.BX || {};
 	          }));
 	        }
 
-	        if (!this.isNewEntry() && this.canDo('edit')) {
+	        if (!this.isNewEntry() && this.canDo('edit') && this.type !== 'location') {
 	          buttons.push(new BX.UI.Button({
 	            text: main_core.Loc.getMessage('CALENDAR_EVENT_DO_EDIT'),
 	            className: "ui-btn ui-btn-link",
@@ -548,7 +374,7 @@ this.BX = this.BX || {};
 	          }));
 	        }
 
-	        if (!this.isNewEntry() && this.canDo('delete')) {
+	        if (!this.isNewEntry() && this.canDo('delete') && this.entry.getCurrentStatus() === 'H' && !this.checkLocationView()) {
 	          if (!this.entry.isMeeting() || !this.entry.getCurrentStatus() || this.entry.getCurrentStatus() === 'H') {
 	            buttons.push(new BX.UI.Button({
 	              text: main_core.Loc.getMessage('CALENDAR_EVENT_DO_DELETE'),
@@ -659,6 +485,28 @@ this.BX = this.BX || {};
 	      this.emitOnChange();
 	    }
 	  }, {
+	    key: "checkLocationForm",
+	    value: function checkLocationForm(event) {
+	      if (event && event instanceof main_core_events.BaseEvent) {
+	        var data = event.getData();
+	        var usersCount = data.usersCount;
+	        var locationCapacity = calendar_controls.Location.getCurrentCapacity() || 0;
+
+	        if (this.locationSelector.value.type === undefined) {
+	          if (locationCapacity) {
+	            locationCapacity = 0;
+	            calendar_controls.Location.setCurrentCapacity(0);
+	          }
+	        }
+
+	        if (locationCapacity < usersCount && locationCapacity !== 0) {
+	          this.locationSelector.addCapacityAlert();
+	        } else {
+	          this.locationSelector.removeCapacityAlert();
+	        }
+	      }
+	    }
+	  }, {
 	    key: "getFormDataChanges",
 	    value: function getFormDataChanges() {
 	      var excludes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
@@ -713,6 +561,9 @@ this.BX = this.BX || {};
 	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	      this.userId = params.userId || calendar_util.Util.getCurrentUserId();
 	      this.type = params.type || 'user';
+	      this.isLocationCalendar = params.isLocationCalendar || false;
+	      this.locationAccess = params.locationAccess || false;
+	      this.calendarContext = params.calendarContext || null;
 	      this.ownerId = params.ownerId ? params.ownerId : 0;
 
 	      if (this.type === 'user' && !this.ownerId) {
@@ -735,6 +586,7 @@ this.BX = this.BX || {};
 
 	      this.locationFeatureEnabled = !!params.locationFeatureEnabled;
 	      this.locationList = params.locationList || [];
+	      this.roomsManager = params.roomsManager || null;
 	      this.iblockMeetingRoomList = params.iblockMeetingRoomList || [];
 	      this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
 	      this.setSections(params.sections, params.trackingUserList);
@@ -790,17 +642,32 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getTitleControl",
 	    value: function getTitleControl() {
-	      this.DOM.titleInput = main_core.Tag.render(_templateObject4(), main_core.Loc.getMessage('EC_ENTRY_NAME'));
+	      this.DOM.titleInput = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input class=\"calendar-field calendar-field-string\"\n\t\t\t\tvalue=\"\"\n\t\t\t\tplaceholder=\"", "\"\n\t\t\t\ttype=\"text\"\n\t\t\t/>\n\t\t"])), main_core.Loc.getMessage('EC_ENTRY_NAME'));
 	      main_core.Event.bind(this.DOM.titleInput, 'keyup', this.checkForChanges);
 	      main_core.Event.bind(this.DOM.titleInput, 'change', this.checkForChanges);
 	      return this.DOM.titleInput;
+	    }
+	  }, {
+	    key: "getTitleControlLocation",
+	    value: function getTitleControlLocation() {
+	      this.DOM.titleInput = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input class=\"calendar-field calendar-field-string\"\n\t\t\t\tvalue=\"\"\n\t\t\t\tplaceholder=\"", "\"\n\t\t\t\ttype=\"text\"\n\t\t\t\treadonly\n\t\t\t/>\n\t\t"])), main_core.Loc.getMessage('EC_ENTRY_NAME'));
+	      return this.DOM.titleInput;
+	    }
+	  }, {
+	    key: "getHostControl",
+	    value: function getHostControl() {
+	      var userId = this.entry.data.CREATED_BY;
+	      var userUrl = CompactEventForm.USER_URL.replace('#USER_ID#', userId);
+	      var userAvatar = this.BX.Calendar.EntryManager.userIndex[userId] ? this.BX.Calendar.EntryManager.userIndex[userId].AVATAR : '';
+	      this.DOM.hostBar = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-slider-detail-option-without-border\">\n\t\t\t\t<div class=\"calendar-slider-detail-option-block\">\n\t\t\t\t\t<div class=\"calendar-field-value\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<span class=\"calendar-field-location-host-img\">\n\t\t\t\t\t\t<a href=\"", "\">\n\t\t\t\t\t\t\t<img class=\"calendar-field-location-host-img-value\" src=\"", "\">\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</span>\n\t\t\t\t\t<div class=\"calendar-slider-detail-option-value\">\n\t\t\t\t\t\t<a href=\"", "\" class=\"calendar-slider-sidebar-user-info-name calendar-slider-sidebar-user-info-name-padding\">", "</a>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('EC_HOST') + ': ', userUrl, userAvatar, userUrl, BX.util.htmlspecialchars(this.entry.name));
+	      return this.DOM.hostBar;
 	    }
 	  }, {
 	    key: "getColorControl",
 	    value: function getColorControl() {
 	      var _this7 = this;
 
-	      this.DOM.colorSelect = main_core.Tag.render(_templateObject5());
+	      this.DOM.colorSelect = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field calendar-field-select calendar-field-tiny\"></div>"])));
 	      this.colorSelector = new calendar_controls.ColorSelector({
 	        wrap: this.DOM.colorSelect,
 	        mode: 'selector'
@@ -829,11 +696,21 @@ this.BX = this.BX || {};
 	      return this.DOM.colorSelect;
 	    }
 	  }, {
+	    key: "getColorControlsLocationView",
+	    value: function getColorControlsLocationView() {
+	      this.DOM.colorSelect = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field calendar-field-select calendar-colorpicker-readonly calendar-field-tiny\"></div>"])));
+	      this.colorSelector = new calendar_controls.ColorSelector({
+	        wrap: this.DOM.colorSelect,
+	        mode: 'view'
+	      });
+	      return this.DOM.colorSelect;
+	    }
+	  }, {
 	    key: "getSectionControl",
 	    value: function getSectionControl() {
 	      var _this8 = this;
 
-	      this.DOM.sectionSelectWrap = main_core.Tag.render(_templateObject6());
+	      this.DOM.sectionSelectWrap = main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-choice-calendar\"></div>"])));
 	      this.sectionSelector = new calendar_controls.SectionSelector({
 	        outerWrap: this.DOM.sectionSelectWrap,
 	        defaultCalendarType: this.type,
@@ -877,11 +754,46 @@ this.BX = this.BX || {};
 	      return this.DOM.sectionSelectWrap;
 	    }
 	  }, {
-	    key: "getDateTimeControl",
-	    value: function getDateTimeControl() {
+	    key: "getLocationSectionControls",
+	    value: function getLocationSectionControls() {
 	      var _this9 = this;
 
-	      this.DOM.dateTimeWrap = main_core.Tag.render(_templateObject7());
+	      this.DOM.sectionSelectWrap = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-choice-calendar\"></div>"])));
+	      this.sectionSelector = new calendar_controls.SectionSelector({
+	        outerWrap: this.DOM.sectionSelectWrap,
+	        defaultCalendarType: this.type,
+	        defaultOwnerId: this.ownerId,
+	        sectionList: this.sections,
+	        sectionGroupList: calendar_sectionmanager.SectionManager.getSectionGroupList({
+	          type: this.type,
+	          ownerId: this.ownerId,
+	          userId: this.userId,
+	          trackingUsersList: this.trackingUsersList
+	        }),
+	        mode: 'location',
+	        zIndex: this.zIndex,
+	        getCurrentSection: function getCurrentSection() {
+	          var section = _this9.getCurrentSection();
+
+	          if (section) {
+	            return {
+	              id: section.id,
+	              name: section.name,
+	              color: section.color
+	            };
+	          }
+
+	          return false;
+	        }
+	      });
+	      return this.DOM.sectionSelectWrap;
+	    }
+	  }, {
+	    key: "getDateTimeControl",
+	    value: function getDateTimeControl() {
+	      var _this10 = this;
+
+	      this.DOM.dateTimeWrap = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-container calendar-field-container-datetime\"></div>"])));
 	      this.dateTimeControl = new calendar_controls.DateTimeControl(null, {
 	        showTimezone: false,
 	        outerWrap: this.DOM.dateTimeWrap,
@@ -891,29 +803,29 @@ this.BX = this.BX || {};
 	        if (event instanceof main_core_events.BaseEvent) {
 	          var value = event.getData().value;
 
-	          if (_this9.remindersControl) {
-	            _this9.remindersControl.setFullDayMode(value.fullDay);
+	          if (_this10.remindersControl) {
+	            _this10.remindersControl.setFullDayMode(value.fullDay);
 
-	            if (_this9.isNewEntry() && !_this9.remindersControl.wasChangedByUser()) {
+	            if (_this10.isNewEntry() && !_this10.remindersControl.wasChangedByUser()) {
 	              var defaultReminders = calendar_entry.EntryManager.getNewEntryReminders(value.fullDay ? 'fullDay' : 'withTime');
 
-	              _this9.remindersControl.setValue(defaultReminders, false);
+	              _this10.remindersControl.setValue(defaultReminders, false);
 	            }
 	          }
 
-	          if (_this9.userPlannerSelector) {
-	            if (!_this9.userPlannerSelector.isPlannerDisplayed()) {
-	              _this9.userPlannerSelector.showPlanner();
+	          if (_this10.userPlannerSelector) {
+	            if (!_this10.userPlannerSelector.isPlannerDisplayed()) {
+	              _this10.userPlannerSelector.showPlanner();
 	            }
 
-	            _this9.userPlannerSelector.setLocationValue(_this9.locationSelector.getTextValue());
+	            _this10.userPlannerSelector.setLocationValue(_this10.locationSelector.getTextValue());
 
-	            _this9.userPlannerSelector.setDateTime(value, true);
+	            _this10.userPlannerSelector.setDateTime(value, true);
 
-	            _this9.userPlannerSelector.refreshPlanner();
+	            _this10.userPlannerSelector.refreshPlanner();
 	          }
 
-	          _this9.checkForChanges();
+	          _this10.checkForChanges();
 	        }
 	      });
 	      return this.DOM.dateTimeWrap;
@@ -921,7 +833,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getUserPlannerSelector",
 	    value: function getUserPlannerSelector() {
-	      this.DOM.userPlannerSelectorOuterWrap = main_core.Tag.render(_templateObject8(), this.DOM.userSelectorWrap = main_core.Tag.render(_templateObject9(), main_core.Loc.getMessage('EC_ATTENDEES_MORE'), main_core.Loc.getMessage('EC_SEC_SLIDER_CHANGE')), this.DOM.informWrap = main_core.Tag.render(_templateObject10(), main_core.Loc.getMessage('EC_NOTIFY_OPTION')), this.DOM.plannerOuterWrap = main_core.Tag.render(_templateObject11()), this.DOM.hideGuestsWrap = main_core.Tag.render(_templateObject12(), main_core.Loc.getMessage('EC_HIDE_GUEST_NAMES'), main_core.Loc.getMessage('EC_HIDE_GUEST_NAMES_HINT')));
+	      this.DOM.userPlannerSelectorOuterWrap = main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t<div class=\"calendar-field-container calendar-field-container-members\">\n\t\t\t\t", "\n\t\t\t\t<span class=\"calendar-videocall-wrap calendar-videocall-hidden\"></span>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t\t<div class=\"calendar-user-selector-wrap\"></div>\n\t\t\t<div class=\"calendar-add-popup-planner-wrap calendar-add-popup-show-planner\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t\t", "\n\t\t<div>"])), this.DOM.userSelectorWrap = main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-field-block\">\n\t\t\t\t\t<div class=\"calendar-members-selected\">\n\t\t\t\t\t\t<span class=\"calendar-attendees-label\"></span>\n\t\t\t\t\t\t<span class=\"calendar-attendees-list\"></span>\n\t\t\t\t\t\t<span class=\"calendar-members-more\">", "</span>\n\t\t\t\t\t\t<span class=\"calendar-members-change-link\">", "</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>"])), main_core.Loc.getMessage('EC_ATTENDEES_MORE'), main_core.Loc.getMessage('EC_SEC_SLIDER_CHANGE')), this.DOM.informWrap = main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-field-container-inform\">\n\t\t\t\t\t<span class=\"calendar-field-container-inform-text\">", "</span>\n\t\t\t\t</div>"])), main_core.Loc.getMessage('EC_NOTIFY_OPTION')), this.DOM.plannerOuterWrap = main_core.Tag.render(_templateObject18 || (_templateObject18 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-wrapper\" style=\"height: 0\">\n\t\t\t\t</div>"]))), this.DOM.hideGuestsWrap = main_core.Tag.render(_templateObject19 || (_templateObject19 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-hide-members-container\" style=\"display: none;\">\n\t\t\t\t<div class=\"calendar-hide-members-container-inner\">\n\t\t\t\t\t<div class=\"calendar-hide-members-icon-hidden\"></div>\n\t\t\t\t\t<div class=\"calendar-hide-members-text\">", "</div>\n\t\t\t\t\t<span class=\"calendar-hide-members-helper\" data-hint=\"", "\"></span>\n\t\t\t\t</div>\n\t\t\t</div>"])), main_core.Loc.getMessage('EC_HIDE_GUEST_NAMES'), main_core.Loc.getMessage('EC_HIDE_GUEST_NAMES_HINT')));
 	      this.userPlannerSelector = new calendar_controls.UserPlannerSelector({
 	        outerWrap: this.DOM.userPlannerSelectorOuterWrap,
 	        wrap: this.DOM.userSelectorWrap,
@@ -944,56 +856,63 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getLocationControl",
 	    value: function getLocationControl() {
-	      var _this10 = this;
+	      var _this11 = this;
 
-	      this.DOM.locationWrap = main_core.Tag.render(_templateObject13());
-	      this.DOM.locationOuterWrap = main_core.Tag.render(_templateObject14(), main_core.Loc.getMessage('EC_LOCATION_LABEL'), this.DOM.locationWrap);
+	      this.DOM.locationWrap = main_core.Tag.render(_templateObject20 || (_templateObject20 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-place\"></div>"])));
+	      this.DOM.locationOuterWrap = main_core.Tag.render(_templateObject21 || (_templateObject21 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-block\">\n\t\t\t<div class=\"calendar-field-title calendar-field-title-align-top\">", ":</div>\n\t\t\t", "\n\t\t</div>"])), main_core.Loc.getMessage('EC_LOCATION_LABEL'), this.DOM.locationWrap);
 	      this.locationSelector = new calendar_controls.Location({
 	        wrap: this.DOM.locationWrap,
 	        richLocationEnabled: this.locationFeatureEnabled,
 	        locationList: this.locationList || [],
+	        roomsManager: this.roomsManager || null,
+	        locationAccess: this.locationAccess || false,
 	        iblockMeetingRoomList: this.iblockMeetingRoomList || [],
-	        inlineEditModeEnabled: true,
+	        inlineEditModeEnabled: !this.isLocationCalendar,
 	        onChangeCallback: function onChangeCallback() {
-	          if (_this10.userPlannerSelector) {
-	            _this10.userPlannerSelector.setLocationValue(_this10.locationSelector.getTextValue());
+	          if (_this11.userPlannerSelector) {
+	            _this11.userPlannerSelector.setLocationValue(_this11.locationSelector.getTextValue());
 
-	            if (_this10.locationSelector.getValue().type !== undefined && !_this10.userPlannerSelector.isPlannerDisplayed()) {
-	              _this10.userPlannerSelector.showPlanner();
+	            if (_this11.locationSelector.getValue().type !== undefined && !_this11.userPlannerSelector.isPlannerDisplayed()) {
+	              _this11.userPlannerSelector.showPlanner();
 	            }
 
-	            _this10.userPlannerSelector.refreshPlanner();
+	            _this11.userPlannerSelector.refreshPlanner();
 	          }
 
-	          _this10.checkForChanges();
+	          _this11.checkForChanges();
 	        }
 	      });
+
+	      if (this.userPlannerSelector) {
+	        this.userPlannerSelector.subscribe('onDisplayAttendees', this.checkLocationForm.bind(this));
+	      }
+
 	      return this.DOM.locationOuterWrap;
 	    }
 	  }, {
 	    key: "createRemindersControl",
 	    value: function createRemindersControl() {
-	      var _this11 = this;
+	      var _this12 = this;
 
 	      this.reminderValues = [];
-	      this.DOM.remindersWrap = main_core.Tag.render(_templateObject15());
+	      this.DOM.remindersWrap = main_core.Tag.render(_templateObject22 || (_templateObject22 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-text\"></div>"])));
 	      this.remindersControl = new calendar_controls.Reminder({
 	        wrap: this.DOM.remindersWrap,
 	        zIndex: this.zIndex
 	      });
 	      this.remindersControl.subscribe('onChange', function (event) {
 	        if (event instanceof main_core_events.BaseEvent) {
-	          _this11.reminderValues = event.getData().values;
+	          _this12.reminderValues = event.getData().values;
 
-	          if (!_this11.isNewEntry() && (_this11.canDo('edit') || _this11.entry.getCurrentStatus() !== false)) {
-	            _this11.BX.ajax.runAction('calendar.api.calendarajax.updateReminders', {
+	          if (!_this12.isNewEntry() && (_this12.canDo('edit') || _this12.entry.getCurrentStatus() !== false)) {
+	            _this12.BX.ajax.runAction('calendar.api.calendarajax.updateReminders', {
 	              data: {
-	                entryId: _this11.entry.id,
-	                userId: _this11.userId,
-	                reminders: _this11.reminderValues
+	                entryId: _this12.entry.id,
+	                userId: _this12.userId,
+	                reminders: _this12.reminderValues
 	              }
 	            }).then(function (response) {
-	              _this11.entry.data.REMIND = response.data.REMIND;
+	              _this12.entry.data.REMIND = response.data.REMIND;
 	            });
 	          }
 	        }
@@ -1003,23 +922,23 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getTypeInfoControl",
 	    value: function getTypeInfoControl() {
-	      this.DOM.typeInfoTitle = main_core.Tag.render(_templateObject16());
-	      this.DOM.typeInfoLink = main_core.Tag.render(_templateObject17());
-	      this.DOM.typeInfoWrap = main_core.Tag.render(_templateObject18(), this.DOM.typeInfoTitle, this.DOM.typeInfoLink);
+	      this.DOM.typeInfoTitle = main_core.Tag.render(_templateObject23 || (_templateObject23 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-title\"></div>"])));
+	      this.DOM.typeInfoLink = main_core.Tag.render(_templateObject24 || (_templateObject24 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-field-link\"></div>"])));
+	      this.DOM.typeInfoWrap = main_core.Tag.render(_templateObject25 || (_templateObject25 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-block\" style=\"display: none\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.DOM.typeInfoTitle, this.DOM.typeInfoLink);
 	      return this.DOM.typeInfoWrap;
 	    }
 	  }, {
 	    key: "getRRuleInfoControl",
 	    value: function getRRuleInfoControl() {
-	      this.DOM.rruleInfo = main_core.Tag.render(_templateObject19());
-	      this.DOM.rruleInfoWrap = main_core.Tag.render(_templateObject20(), main_core.Loc.getMessage('EC_REPEAT'), this.DOM.rruleInfo);
+	      this.DOM.rruleInfo = main_core.Tag.render(_templateObject26 || (_templateObject26 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-text\"></div>"])));
+	      this.DOM.rruleInfoWrap = main_core.Tag.render(_templateObject27 || (_templateObject27 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-block\" style=\"display: none\">\n\t\t\t\t<div class=\"calendar-field-title\">", ":</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('EC_REPEAT'), this.DOM.rruleInfo);
 	      return this.DOM.rruleInfoWrap;
 	    }
 	  }, {
 	    key: "getTimezoneInfoControl",
 	    value: function getTimezoneInfoControl() {
-	      this.DOM.timezoneInfo = main_core.Tag.render(_templateObject21());
-	      this.DOM.timezoneInfoWrap = main_core.Tag.render(_templateObject22(), main_core.Loc.getMessage('EC_TIMEZONE'), this.DOM.timezoneInfo);
+	      this.DOM.timezoneInfo = main_core.Tag.render(_templateObject28 || (_templateObject28 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-text\"></div>"])));
+	      this.DOM.timezoneInfoWrap = main_core.Tag.render(_templateObject29 || (_templateObject29 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-block\" style=\"display: none\">\n\t\t\t\t<div class=\"calendar-field-title\">", ":</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('EC_TIMEZONE'), this.DOM.timezoneInfo);
 	      return this.DOM.timezoneInfoWrap;
 	    }
 	  }, {
@@ -1079,7 +998,7 @@ this.BX = this.BX || {};
 	          this.DOM.titleInput.type = 'hidden'; // Hide input
 	          // Add label instead
 
-	          this.DOM.titleLabel = this.DOM.titleInput.parentNode.insertBefore(main_core.Tag.render(_templateObject23(), main_core.Text.encode(entry.getName())), this.DOM.titleInput);
+	          this.DOM.titleLabel = this.DOM.titleInput.parentNode.insertBefore(main_core.Tag.render(_templateObject30 || (_templateObject30 = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-field calendar-field-string\">", "</span>"])), main_core.Text.encode(entry.getName())), this.DOM.titleInput);
 	          main_core.Dom.addClass(this.DOM.titleOuterWrap, 'calendar-field-container-view');
 	        } else {
 	          this.DOM.titleInput.disabled = true;
@@ -1123,8 +1042,15 @@ this.BX = this.BX || {};
 	      if (readOnly && !location) {
 	        this.DOM.locationOuterWrap.style.display = 'none';
 	      } else {
-	        this.DOM.locationOuterWrap.style.display = '';
-	        this.locationSelector.setValue(entry.getLocation());
+	        this.locationSelector.setViewMode(readOnly);
+
+	        if (this.isLocationCalendar) {
+	          this.locationSelector.setValue(this.locationSelector.default);
+	          location = this.locationSelector.default;
+	        } else {
+	          this.DOM.locationOuterWrap.style.display = '';
+	          this.locationSelector.setValue(entry.getLocation());
+	        }
 	      }
 
 	      if (this.userPlannerSelector && (this.canDo('viewFull') || entry.getCurrentStatus() !== false)) {
@@ -1139,6 +1065,10 @@ this.BX = this.BX || {};
 	        });
 	        this.userPlannerSelector.setDateTime(this.dateTimeControl.getValue());
 	        this.userPlannerSelector.setViewMode(readOnly);
+
+	        if (this.isLocationCalendar) {
+	          this.userPlannerSelector.showPlanner();
+	        }
 	      } else {
 	        main_core.Dom.remove(this.DOM.userPlannerSelectorOuterWrap);
 	      }
@@ -1157,9 +1087,41 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }, {
+	    key: "setFormValuesLocation",
+	    value: function setFormValuesLocation() {
+	      var entry = this.entry,
+	          section = this.getCurrentSection(),
+	          readOnly = true; // Date time
+
+	      this.dateTimeControl.setValue({
+	        from: calendar_util.Util.adjustDateForTimezoneOffset(entry.from, entry.userTimezoneOffsetFrom, entry.fullDay),
+	        to: calendar_util.Util.adjustDateForTimezoneOffset(entry.to, entry.userTimezoneOffsetTo, entry.fullDay),
+	        fullDay: entry.fullDay,
+	        timezoneFrom: entry.getTimezoneFrom() || '',
+	        timezoneTo: entry.getTimezoneTo() || '',
+	        timezoneName: this.userSettings.timezoneName
+	      });
+	      this.dateTimeControl.setInlineEditMode(this.isNewEntry() ? 'edit' : 'view');
+	      this.dateTimeControl.setViewMode(readOnly); // Title
+
+	      if (this.entry.id !== this.entry.parentId) {
+	        this.DOM.titleInput.value = section.name + ': ' + BX.util.htmlspecialchars(entry.getName());
+	      } else {
+	        this.DOM.titleInput.value = main_core.Loc.getMessage('CALENDAR_UPDATE');
+	      } // Color
+
+
+	      this.colorSelector.setValue(entry.getColor() || section.color, false);
+	      this.colorSelector.setViewMode(!readOnly); // Section
+
+	      this.sectionValue = this.getCurrentSectionId();
+	      this.sectionSelector.updateValue();
+	      this.sectionSelector.setViewMode(readOnly);
+	    }
+	  }, {
 	    key: "save",
 	    value: function save() {
-	      var _this12 = this;
+	      var _this13 = this;
 
 	      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	      if (this.state === this.STATE.REQUEST) return false;
@@ -1171,7 +1133,7 @@ this.BX = this.BX || {};
 	          callback: function callback(params) {
 	            options.emailLimitationDialogShown = true;
 
-	            _this12.save(options);
+	            _this13.save(options);
 	          }
 	        });
 	        return false;
@@ -1180,7 +1142,7 @@ this.BX = this.BX || {};
 	      if (!this.userSettings.sendFromEmail && this.userPlannerSelector.hasExternalEmailUsers()) {
 	        calendar_entry.EntryManager.showConfirmedEmailDialog({
 	          callback: function callback(params) {
-	            _this12.save(options);
+	            _this13.save(options);
 	          }
 	        });
 	        return false;
@@ -1192,7 +1154,7 @@ this.BX = this.BX || {};
 	            options.recursionMode = params.recursionMode;
 	            options.confirmed = true;
 
-	            _this12.save(options);
+	            _this13.save(options);
 	          }
 	        });
 	        return false;
@@ -1205,7 +1167,7 @@ this.BX = this.BX || {};
 	          callback: function callback(params) {
 	            options.sendInvitesAgain = params.sendInvitesAgain;
 
-	            _this12.save(options);
+	            _this13.save(options);
 	          }
 	        });
 	        return false;
@@ -1282,9 +1244,13 @@ this.BX = this.BX || {};
 	          markType: this.type
 	        }
 	      }).then(function (response) {
-	        _this12.unfreezePopup();
+	        if (_this13.isLocationCalendar) {
+	          _this13.roomsManager.unsetHiddenRoom(calendar_controls.Location.parseStringValue(data.location).room_id);
+	        }
 
-	        _this12.state = _this12.STATE.READY;
+	        _this13.unfreezePopup();
+
+	        _this13.state = _this13.STATE.READY;
 
 	        if (response.data.entryId) {
 	          if (entry.id) {
@@ -1294,14 +1260,14 @@ this.BX = this.BX || {};
 	          }
 	        }
 
-	        _this12.emit('onSave', new main_core_events.BaseEvent({
+	        _this13.emit('onSave', new main_core_events.BaseEvent({
 	          data: {
 	            responseData: response.data,
 	            options: options
 	          }
 	        }));
 
-	        _this12.close();
+	        _this13.close();
 
 	        if (response.data.displayMobileBanner) {
 	          new calendar_sync_interface.MobileSyncBanner().showInPopup();
@@ -1311,14 +1277,14 @@ this.BX = this.BX || {};
 	          calendar_util.Util.setEventWithEmailGuestAmount(response.data.countEventWithEmailGuestAmount);
 	        }
 
-	        if (main_core.Type.isArray(response.data.eventList) && response.data.eventList.length && response.data.eventList[0].REMIND && response.data.eventList[0].REMIND.length) {
+	        if (main_core.Type.isArray(response.data.eventList) && response.data.eventList.length && response.data.eventList[0].REMIND) {
 	          calendar_entry.EntryManager.setNewEntryReminders(dateTime.fullDay ? 'fullDay' : 'withTime', response.data.eventList[0].REMIND);
 	        }
 	      }, function (response) {
-	        _this12.unfreezePopup();
+	        _this13.unfreezePopup();
 
 	        if (response.data && main_core.Type.isPlainObject(response.data.busyUsersList)) {
-	          _this12.handleBusyUsersError(response.data.busyUsersList);
+	          _this13.handleBusyUsersError(response.data.busyUsersList);
 
 	          var errors = [];
 	          response.errors.forEach(function (error) {
@@ -1330,17 +1296,17 @@ this.BX = this.BX || {};
 	        }
 
 	        if (response.errors && response.errors.length) {
-	          _this12.showError(response.errors);
+	          _this13.showError(response.errors);
 	        }
 
-	        _this12.state = _this12.STATE.ERROR;
+	        _this13.state = _this13.STATE.ERROR;
 	      });
 	      return true;
 	    }
 	  }, {
 	    key: "handleBusyUsersError",
 	    value: function handleBusyUsersError(busyUsers) {
-	      var _this13 = this;
+	      var _this14 = this;
 
 	      var users = [],
 	          userIds = [];
@@ -1354,9 +1320,9 @@ this.BX = this.BX || {};
 
 	      this.busyUsersDialog = new calendar_controls.BusyUsersDialog();
 	      this.busyUsersDialog.subscribe('onSaveWithout', function () {
-	        _this13.excludeUsers = userIds.join(',');
+	        _this14.excludeUsers = userIds.join(',');
 
-	        _this13.save();
+	        _this14.save();
 	      });
 	      this.busyUsersDialog.show({
 	        users: users
@@ -1365,23 +1331,23 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "handleKeyPress",
 	    value: function handleKeyPress(e) {
-	      var _this14 = this;
+	      var _this15 = this;
 
-	      if (this.getMode() === CompactEventForm.EDIT_MODE && e.keyCode === calendar_util.Util.getKeyCode('enter')) {
+	      if (this.getMode() === CompactEventForm.EDIT_MODE && e.keyCode === calendar_util.Util.getKeyCode('enter') && this.checkTopSlider()) {
 	        this.checkDataBeforeCloseMode = false;
 	        this.save();
-	      } else if (e.keyCode === calendar_util.Util.getKeyCode('escape') && this.couldBeClosedByEsc()) {
+	      } else if (this.checkTopSlider() && e.keyCode === calendar_util.Util.getKeyCode('escape') && this.couldBeClosedByEsc()) {
 	        this.close();
 	      } else if (e.keyCode === calendar_util.Util.getKeyCode('delete') // || e.keyCode === Util.getKeyCode('backspace')
-	      && !this.isNewEntry() && this.canDo('delete')) {
+	      && !this.isNewEntry() && this.canDo('delete') && this.checkTopSlider()) {
 	        var target = event.target || event.srcElement;
 	        var tagName = main_core.Type.isElementNode(target) ? target.tagName.toLowerCase() : null;
 
 	        if (tagName && !['input', 'textarea'].includes(tagName)) {
 	          main_core_events.EventEmitter.subscribeOnce('BX.Calendar.Entry:beforeDelete', function () {
-	            _this14.checkDataBeforeCloseMode = false;
+	            _this15.checkDataBeforeCloseMode = false;
 
-	            _this14.close();
+	            _this15.close();
 	          });
 	          calendar_entry.EntryManager.deleteEntry(this.entry);
 	        }
@@ -1446,6 +1412,11 @@ this.BX = this.BX || {};
 	      BX.Calendar.EntryManager.openEditSlider({
 	        entry: this.entry,
 	        type: this.type,
+	        isLocationCalendar: this.isLocationCalendar,
+	        locationAccess: this.locationAccess,
+	        roomsManager: this.roomsManager,
+	        locationCapacity: calendar_controls.Location.getCurrentCapacity(),
+	        // for location component
 	        ownerId: this.ownerId,
 	        userId: this.userId,
 	        formDataValue: {
@@ -1467,8 +1438,15 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "outsideMouseDownClose",
 	    value: function outsideMouseDownClose(event) {
-	      var target = event.target || event.srcElement;
-	      this.outsideMouseDown = !target.closest('div.popup-window');
+	      if (this.checkTopSlider()) {
+	        var target = event.target || event.srcElement;
+	        this.outsideMouseDown = !target.closest('div.popup-window');
+	      }
+	    }
+	  }, {
+	    key: "checkTopSlider",
+	    value: function checkTopSlider() {
+	      return !calendar_util.Util.getBX().SidePanel.Instance.getTopSlider();
 	    }
 	  }, {
 	    key: "checkOutsideClickClose",
@@ -1483,10 +1461,10 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "couldBeClosedByEsc",
 	    value: function couldBeClosedByEsc() {
-	      var _this15 = this;
+	      var _this16 = this;
 
 	      return !main_popup.PopupManager._popups.find(function (popup) {
-	        return popup && popup.getId() !== _this15.popupId && popup.isShown();
+	        return popup && popup.getId() !== _this16.popupId && popup.isShown();
 	      });
 	    }
 	  }, {
@@ -1531,11 +1509,52 @@ this.BX = this.BX || {};
 	    value: function checkCurrentUsersAccessibility() {
 	      return this.getFormDataChanges().includes('date&time');
 	    }
+	  }, {
+	    key: "handlePull",
+	    value: function handlePull(params) {
+	      var _this$userPlannerSele,
+	          _this$userPlannerSele2,
+	          _params$fields5,
+	          _this17 = this;
+
+	      if (this.userPlannerSelector && (_this$userPlannerSele = this.userPlannerSelector) !== null && _this$userPlannerSele !== void 0 && (_this$userPlannerSele2 = _this$userPlannerSele.planner) !== null && _this$userPlannerSele2 !== void 0 && _this$userPlannerSele2.isShown()) {
+	        var _params$fields, _params$fields2, _params$fields3, _params$fields4;
+
+	        var userIdList = main_core.Type.isArray(params === null || params === void 0 ? void 0 : (_params$fields = params.fields) === null || _params$fields === void 0 ? void 0 : _params$fields.ATTENDEES) ? params.fields.ATTENDEES : [];
+	        var eventOwner = (params === null || params === void 0 ? void 0 : (_params$fields2 = params.fields) === null || _params$fields2 === void 0 ? void 0 : _params$fields2.CAL_TYPE) === 'user' ? parseInt(params === null || params === void 0 ? void 0 : (_params$fields3 = params.fields) === null || _params$fields3 === void 0 ? void 0 : _params$fields3.OWNER_ID) : parseInt(params === null || params === void 0 ? void 0 : (_params$fields4 = params.fields) === null || _params$fields4 === void 0 ? void 0 : _params$fields4.CREATED_BY);
+
+	        if (!userIdList.includes(eventOwner)) {
+	          userIdList.push(eventOwner);
+	        }
+
+	        this.userPlannerSelector.clearAccessibilityData(userIdList);
+	        this.userPlannerSelector.refreshPlannerState();
+	      }
+
+	      var entry = this.getCurrentEntry();
+
+	      if (!this.isNewEntry() && entry && entry.parentId === parseInt(params === null || params === void 0 ? void 0 : (_params$fields5 = params.fields) === null || _params$fields5 === void 0 ? void 0 : _params$fields5.PARENT_ID)) {
+	        var _params$fields6;
+
+	        if (params.command === 'delete_event' && entry.getType() === (params === null || params === void 0 ? void 0 : (_params$fields6 = params.fields) === null || _params$fields6 === void 0 ? void 0 : _params$fields6.CAL_TYPE)) {
+	          this.close();
+	        } else {
+	          var onEntryListReloadHandler = function onEntryListReloadHandler() {
+	            _this17.reloadEntryData();
+
+	            BX.Event.EventEmitter.unsubscribe('BX.Calendar:onEntryListReload', onEntryListReloadHandler);
+	          };
+
+	          BX.Event.EventEmitter.subscribe('BX.Calendar:onEntryListReload', onEntryListReloadHandler);
+	        }
+	      }
+	    }
 	  }]);
 	  return CompactEventForm;
 	}(main_core_events.EventEmitter);
 	babelHelpers.defineProperty(CompactEventForm, "VIEW_MODE", 'view');
 	babelHelpers.defineProperty(CompactEventForm, "EDIT_MODE", 'edit');
+	babelHelpers.defineProperty(CompactEventForm, "USER_URL", '/company/personal/user/#USER_ID#/');
 
 	exports.CompactEventForm = CompactEventForm;
 

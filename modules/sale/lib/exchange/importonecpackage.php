@@ -59,7 +59,7 @@ class ImportOneCPackage extends ImportOneCBase
 			if (Configuration::useStoreControl() ||
 				Option::get('catalog', 'enable_reservation', 'N')=='Y')
 			{
-				$result->addError(new Error($message["CC_BSC1_USE_STORE_SALE"]));
+				$result->addError(new Error($message["CC_BSC1_USE_STORE_SALE_1"]));
 			}
 
 			if(Option::get("main", "~sale_converted_15", 'N') <> 'Y')

@@ -66,7 +66,7 @@ if(
 {
 	$APPLICATION->RestartBuffer();
 	include($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/auth/wrapper_auth_result.php");
-	die();
+	CMain::FinalActions();
 }
 
 $post_data = '';

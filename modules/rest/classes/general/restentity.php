@@ -962,7 +962,7 @@ class CBitrixRestEntity extends IRestService
 		if(CModule::IncludeModule('iblock'))
 		{
 			$dbRes = \CIBlock::GetList(array(), array(
-				'TYPE' => self::getIBlockType(),
+				'=TYPE' => self::getIBlockType(),
 				'CODE' => self::ENTITY_IBLOCK_CODE_PREFIX."_".$appId.'%'
 			));
 			while ($arRes = $dbRes->Fetch())
@@ -1018,8 +1018,8 @@ class CBitrixRestEntity extends IRestService
 	protected static function getIBlock($code, $bSkipCheck = false)
 	{
 		$dbRes = \CIBlock::GetList(array(), array(
-			'TYPE' => self::getIBlockType(),
-			'CODE' => $code
+			'=TYPE' => self::getIBlockType(),
+			'=CODE' => $code,
 		));
 
 		$arRes = $dbRes->Fetch();
@@ -1035,7 +1035,7 @@ class CBitrixRestEntity extends IRestService
 	protected static function getIBlocks($server)
 	{
 		return \CIBlock::GetList(array(), array(
-			'TYPE' => self::getIBlockType(),
+			'=TYPE' => self::getIBlockType(),
 			'CODE' => self::getEntityIBlockCode('%', $server)
 		));
 	}

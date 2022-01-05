@@ -227,7 +227,7 @@ else if ($_POST['IM_FILE_UPLOAD_FROM_DISK'] == 'Y')
 
 	$result = CIMDisk::UploadFileFromDisk($_POST['CHAT_ID'], $_POST['FILES'], $_POST['MESSAGE'], [
 		'LINES_SILENT_MODE' => $_POST['OL_SILENT'] == 'Y',
-		'SYMLINK' => true
+		//'SYMLINK' => true
 	]);
 	if (!$result)
 	{

@@ -30,3 +30,11 @@ elseif (
 		$arResult['TOP_RATING_DATA'] = $ratingData[$arParams["LOG_ID"]];
 	}
 }
+
+if (
+	!isset($arResult['PUSH&PULL_ACTION'])
+	&& !empty($_REQUEST['REVIEW_ACTION'])
+)
+{
+	$arResult['PUSH&PULL_ACTION'] = $_REQUEST['REVIEW_ACTION'];
+}

@@ -527,6 +527,10 @@ class Conference
 			return $result->addErrors($deleteAliasResult->getErrors());
 		}
 
+		//delete access codes
+		$accessProvider = new \Bitrix\Im\Access\ChatAuthProvider;
+		$accessProvider->deleteChatCodes((int)$this->getChatId());
+
 		return $result;
 	}
 
@@ -653,7 +657,7 @@ class Conference
 			return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_CREATING')));
 		}
 
-		$result->setData(['CHAT_ID' => $chatId]);
+		$result->setData(['CHAT_ID' => $chatId, 'ALIAS_DATA' => $addData['VIDEOCONF']['ALIAS_DATA']]);
 
 		return $result;
 	}

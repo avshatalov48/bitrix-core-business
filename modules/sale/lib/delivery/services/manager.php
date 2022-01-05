@@ -817,6 +817,11 @@ class Manager
 	{
 		self::initHandlers();
 
+		if (!empty($fields["CLASS_NAME"]) && class_exists($fields["CLASS_NAME"]))
+		{
+			$fields["CLASS_NAME"]::onBeforeUpdate($id, $fields);
+		}
+
 		$res = \Bitrix\Sale\Delivery\Services\Table::update($id, $fields);
 
 		if ($res->isSuccess())

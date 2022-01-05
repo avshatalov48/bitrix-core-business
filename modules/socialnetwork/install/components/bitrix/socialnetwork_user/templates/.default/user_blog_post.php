@@ -1,4 +1,10 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -6,7 +12,7 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-?><div class="feed-blog-post-list feed-blog-post-detail"><?
+?><div class="feed-blog-post-list feed-blog-post-detail"><?php
 
 $pageId = "user_blog";
 include("util_menu.php");
@@ -53,8 +59,8 @@ $arComponentParams = [
 	"SHARE_SHORTEN_URL_KEY" => $arParams["SHARE_SHORTEN_URL_KEY"],
 	"SHOW_RATING" => $arParams["SHOW_RATING"],
 	"RATING_TYPE" => $arParams["RATING_TYPE"],
-	"IMAGE_MAX_WIDTH" => $arParams["BLOG_IMAGE_MAX_WIDTH"],
-	"IMAGE_MAX_HEIGHT" => $arParams["BLOG_IMAGE_MAX_HEIGHT"],
+	"IMAGE_MAX_WIDTH" => $arParams["IMAGE_MAX_WIDTH"],
+	"IMAGE_MAX_HEIGHT" => $arParams["IMAGE_MAX_HEIGHT"],
 	"ALLOW_POST_CODE" => $arParams["BLOG_ALLOW_POST_CODE"],
 	"PATH_TO_GROUP" => $arParams["PATH_TO_GROUP"],
 	"ALLOW_VIDEO" => $arParams["BLOG_COMMENT_ALLOW_VIDEO"],

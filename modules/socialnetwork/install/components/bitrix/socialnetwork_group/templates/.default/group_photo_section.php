@@ -1,6 +1,6 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -128,7 +128,7 @@ $photogalleryDetailListComponentParams = [
 	"USE_RATING" => $arParams["PHOTO"]["ALL"]["USE_RATING"],
 	"DISPLAY_AS_RATING" => $arParams["PHOTO"]["ALL"]["DISPLAY_AS_RATING"],
 	"RATING_MAIN_TYPE" => $arParams["PHOTO"]["ALL"]["RATING_MAIN_TYPE"],
-	"READ_ONLY" => (array_key_exists("CLOSED", $arGroup) && $arGroup["CLOSED"] === "Y" ? "Y" : ""),
+	"READ_ONLY" => (isset($arGroup["CLOSED"]) && $arGroup["CLOSED"] === "Y" ? "Y" : ""),
 	"USE_COMMENTS" => $arParams["PHOTO"]["ALL"]["USE_COMMENTS"],
 	"DRAG_SORT" => "Y",
 	"MORE_PHOTO_NAV" => "Y",

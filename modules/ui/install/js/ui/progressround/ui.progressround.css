@@ -28,7 +28,7 @@
 
 .ui-progressround-track { position: relative; }
 
-.ui-progressround-track svg{
+.ui-progressround-track svg {
 	display: block;
 	transform: rotate(-90deg);
 }
@@ -43,7 +43,7 @@
 .ui-progressround-track-bar-progress {
 	fill: transparent;
 	stroke: var(--ui-current-round-color) !important;
-	transition: 120ms linear;
+	transition: 120ms ease-in-out;
 }
 
 .ui-progressround-status,
@@ -76,7 +76,7 @@
 .ui-progressround-pie:after { }
 
 .ui-progressround-rotation svg {
-	animation: infinite uiProgressbarRotation 1500ms linear;
+	animation: infinite uiProgressbarRotation 2500ms linear;
 }
 
 @keyframes uiProgressbarRotation {

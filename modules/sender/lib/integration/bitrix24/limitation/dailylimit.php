@@ -67,12 +67,12 @@ class DailyLimit
 	 */
 	public function getLimit()
 	{
-		if (!\CBitrix24::isEmailConfirmed())
+		if (! Verification::isVerifiedSender())
 		{
 			return 0;
 		}
 
-		$senderLimit = intval(Config\Option::get("sender", "~mail_counter_limit_daily", 1000));
+		$senderLimit = (int)Config\Option::get("sender", "~mail_counter_limit_daily", 1000);
 
 		$b24MailCounter = new Bitrix24\MailCounter();
 		$b24Limit = $b24MailCounter->getDailyLimit();

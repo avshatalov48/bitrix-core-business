@@ -11,6 +11,7 @@ use Bitrix\Main\Text\HtmlFilter;
 /**
  * @var AddressUfComponent $component
  * @var array $arResult
+ * @var array $arParams
  */
 
 $component = $this->getComponent();
@@ -40,7 +41,9 @@ if($arResult['canUseMap'])
 					'value' => $arResult['value'],
 					'isMultiple' => ($userField['MULTIPLE'] === 'Y' ? 'true' : 'false'),
 					'nodeJs' => $nodeId,
-					'fieldNameJs' => $arResult['fieldName']
+					'fieldNameJs' => $arResult['fieldName'],
+					'fieldName' => $arParams['userField']['FIELD_NAME'],
+					'showMap' => $arResult['showMap'],
 				])?>
 			);
 		});

@@ -560,7 +560,7 @@ $APPLICATION->IncludeComponent('bitrix:ui.image.input', '', [
 										<?=Loc::getMessage('CRM_ADS_RTG_AD_SUMMARY_BUDGET');?></span>
 									<div class="crm-ads-new-campaign-item-total-value">
 										<span class="seo-ads-budget-total-value"></span>
-										<span class="crm-ads-new-campaign-item-rub seo-ads-current-currency"></span>
+										<span class="seo-ads-current-currency"></span>
 									</div>
 								</div>
 								<div class="crm-ads-new-campaign-item-total-block">
@@ -568,7 +568,7 @@ $APPLICATION->IncludeComponent('bitrix:ui.image.input', '', [
 										<?=Loc::getMessage('CRM_ADS_RTG_AD_BUDGET_TOTAL');?></span>
 									<div class="crm-ads-new-campaign-item-total-value">
 										<span class="seo-ads-budget-total-value"></span>
-										<span class="crm-ads-new-campaign-item-rub seo-ads-current-currency"></span>
+										<span class="seo-ads-current-currency"></span>
 									</div>
 								</div>
 							</div>

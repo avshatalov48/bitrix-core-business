@@ -7,6 +7,7 @@ import {ConfirmStatusDialog, ConfirmEditDialog, ReinviteUserDialog, ConfirmedEma
 import {CompactEventForm} from "calendar.compacteventform";
 import "ui.notification";
 import { EventViewForm } from 'calendar.eventviewform';
+import { RoomsManager } from 'calendar.roomsmanager';
 
 
 export class EntryManager {
@@ -27,7 +28,15 @@ export class EntryManager {
 		newEntryData.NAME = EntryManager.getNewEntryName();
 		newEntryData.dateFrom = dateTime.from;
 		newEntryData.dateTo = dateTime.to;
-		newEntryData.SECT_ID = SectionManager.getNewEntrySectionId(options.type, parseInt(options.ownerId));
+		if(options.type === 'location')
+		{
+			newEntryData.SECT_ID = RoomsManager.getNewEntrySectionId(options.type, parseInt(options.ownerId));
+		}
+		else
+		{
+			newEntryData.SECT_ID = SectionManager.getNewEntrySectionId(options.type, parseInt(options.ownerId));
+
+		}
 		newEntryData.REMIND = EntryManager.getNewEntryReminders();
 
 		newEntryData.attendeesEntityList = [{entityId: 'user', id: userId}];
@@ -55,6 +64,24 @@ export class EntryManager {
 	static getNewEntryTime(date, duration)
 	{
 		date = Util.getUsableDateTime(date);
+
+		const calendarContext = Util.getCalendarContext();
+		if (calendarContext)
+		{
+			const displayedViewRange = calendarContext.getDisplayedViewRange();
+			if (Type.isDate(displayedViewRange?.start))
+			{
+				const dateTime = date.getTime();
+				if (
+					dateTime < displayedViewRange.start.getTime()
+					|| dateTime > displayedViewRange.end.getTime()
+				)
+				{
+					date = Util.getUsableDateTime(displayedViewRange.start);
+				}
+			}
+		}
+
 		return {
 			from : date,
 			to : new Date(date.getTime() + (duration || 3600) * 1000)
@@ -148,6 +175,10 @@ export class EntryManager {
 				{
 					entry: options.entry || null,
 					type: options.type,
+					isLocationCalendar: options.isLocationCalendar || false,
+					roomsManager: options.roomsManager || null,
+					locationAccess: options.locationAccess || false,
+					locationCapacity: options.locationCapacity || 0,
 					ownerId: options.ownerId,
 					userId: options.userId,
 					formDataValue: options.formDataValue || null
@@ -165,18 +196,20 @@ export class EntryManager {
 			{
 				new bx.Calendar.SliderLoader(eventId, {
 					entryDateFrom: options.from,
-					timezoneOffset: options.timezoneOffset
+					timezoneOffset: options.timezoneOffset,
+					calendarContext: options.calendarContext || null,
 				}).show();
 			}
 		}
 	}
 
-	static deleteEntry(entry)
+	static deleteEntry(entry, calendarContext = null)
 	{
 		if (entry instanceof Entry)
 		{
+			const slider = Util.getBX().SidePanel.Instance.getTopSlider();
 			const beforeDeleteHandler = () => {
-				if (Util.getBX().SidePanel.Instance)
+				if (slider && slider.options.type === 'calendar:slider')
 				{
 					Util.getBX().SidePanel.Instance.close();
 				}
@@ -185,12 +218,19 @@ export class EntryManager {
 
 			const deleteHandler = () => {
 				const calendar = Util.getCalendarContext();
-				if (!calendar)
+				if (!calendar && !calendarContext)
 				{
 					return Util.getBX().reload();
 				}
 
-				calendar.reload();
+				if (calendar)
+				{
+					calendar.reload();
+				}
+				else if (calendarContext)
+				{
+					calendarContext.reload();
+				}
 				EventEmitter.unsubscribe('BX.Calendar.Entry:delete', deleteHandler);
 				EventEmitter.unsubscribe('BX.Calendar.Entry:beforeDelete', beforeDeleteHandler);
 			};
@@ -440,35 +480,7 @@ export class EntryManager {
 		if (compactForm
 			&& compactForm.isShown())
 		{
-			if (compactForm.userPlannerSelector
-				&& compactForm.userPlannerSelector?.planner?.isShown())
-			{
-				compactForm?.userPlannerSelector?.refreshPlannerState();
-			}
-
-			const entry = compactForm.getCurrentEntry();
-			if (
-				!compactForm.isNewEntry()
-				&& entry
-				&& entry.parentId === parseInt(params?.fields?.PARENT_ID)
-			)
-			{
-				if (params.command === 'delete_event')
-				{
-					compactForm.close();
-				}
-				else
-				{
-					const onEntryListReloadHandler = () => {
-						if (compactForm)
-						{
-							compactForm.reloadEntryData()
-						}
-						BX.Event.EventEmitter.unsubscribe('BX.Calendar:onEntryListReload', onEntryListReloadHandler);
-					};
-					BX.Event.EventEmitter.subscribe('BX.Calendar:onEntryListReload', onEntryListReloadHandler);
-				}
-			}
+			compactForm.handlePull(params);
 		}
 
 		BX.SidePanel.Instance.getOpenSliders().forEach(slider =>
@@ -480,7 +492,9 @@ export class EntryManager {
 				&& data.entry.parentId === parseInt(params?.fields?.PARENT_ID)
 			)
 			{
-				if (params.command === 'delete_event')
+				if (params.command === 'delete_event'
+					&& data.entry.getType() === params?.fields?.CAL_TYPE
+				)
 				{
 					slider.close();
 				}
@@ -619,8 +633,7 @@ export class EntryManager {
 	static setNewEntryReminders(type = 'withTime', reminders)
 	{
 		const userSettings = Util.getUserSettings();
-		if (Type.isObjectLike(userSettings.defaultReminders)
-			&& reminders.length)
+		if (Type.isObjectLike(userSettings.defaultReminders))
 		{
 			userSettings.defaultReminders[type] = reminders;
 		}

@@ -438,11 +438,7 @@
 				}
 				else if (BX.type.isArray(data["errors"]))
 				{
-					message = "";
-					for (var ii = 0; ii < data["errors"].length; ii++)
-					{
-						message += data["errors"][ii]["message"];
-					}
+					message = data["errors"].map(function(error) { return error.message; }).join('<br \>');
 				}
 				this.showError(message);
 			}

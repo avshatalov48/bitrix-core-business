@@ -414,8 +414,8 @@ function __run()
 
 			if (action == this.actionColor)
 			{
-				this.pContLetter.style.color = color || '#000';
-				this.pContStrip.style.backgroundColor = color || '#000';
+				this.pContLetter.style.color = color || '#525C69';
+				this.pContStrip.style.backgroundColor = color || '#525C69';
 			}
 			else
 			{

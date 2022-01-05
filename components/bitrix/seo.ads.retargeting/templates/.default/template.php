@@ -40,11 +40,25 @@ $multiClients = array_key_exists('CLIENTS', $arParams['PROVIDER']);
 
 	<div data-bx-ads-block="login" style="display: none;" class="crm-ads-rtg-popup-settings">
 		<div class="crm-ads-rtg-popup-social crm-ads-rtg-popup-social-<?=$type?>">
-			<span
-				id="seo-ads-login-btn"
-				class="webform-small-button webform-small-button-transparent">
-				<?=Loc::getMessage('CRM_ADS_RTG_LOGIN')?>
-			</span>
+
+			<?php if($type === 'google'):?>
+				<div class="crm-ads-goo-btn-container">
+					<div
+						id="seo-ads-login-btn"
+						class="crm-ads-goo-btn"
+					>
+						<div class="crm-ads-goo-btn-icon"></div>
+						<div class="crm-ads-goo-btn-text"><?php echo Loc::getMessage('CRM_ADS_RTG_LOGIN_GOOGLE')?></div>
+					</div>
+				</div>
+			<?php else:?>
+				<span
+					id="seo-ads-login-btn"
+					class="webform-small-button webform-small-button-transparent"
+				>
+					<?=Loc::getMessage('CRM_ADS_RTG_LOGIN')?>
+				</span>
+			<?php endif;?>
 		</div>
 	</div>
 

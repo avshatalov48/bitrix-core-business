@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Component\LogList;
 
 class FilterHandler
@@ -10,9 +11,8 @@ class FilterHandler
 		$this->filterItems = $params['filterItems'];
 	}
 
-	public function OnBeforeSonetLogFilterFill(&$pageParamsToClear, &$itemsTop, &$items)
+	public function OnBeforeSonetLogFilterFill(&$pageParamsToClear, &$itemsTop, &$items): void
 	{
 		$items = $this->filterItems;
 	}
 }
-?>

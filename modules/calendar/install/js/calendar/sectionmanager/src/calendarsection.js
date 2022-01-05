@@ -7,7 +7,7 @@ export class CalendarSection
 	{
 		this.updateData(data);
 		this.calendarContext = Util.getCalendarContext();
-		this.sectionManager = this.calendarContext.sectionManager;
+		// this.sectionManager = this.calendarContext.sectionManager;
 	}
 
 	getId(): number
@@ -201,7 +201,7 @@ export class CalendarSection
 
 	isGoogle()
 	{
-		return this.data.GAPI_CALENDAR_ID;
+		return !!this.data.GAPI_CALENDAR_ID;
 	}
 
 	isCalDav()
@@ -212,6 +212,11 @@ export class CalendarSection
 	isCompanyCalendar()
 	{
 		return !this.isPseudo() && this.type !== 'user' && this.type !== 'group' && !this.ownerId;
+	}
+
+	isLocationRoom()
+	{
+		return this.type === 'location';
 	}
 
 	belongsToView()

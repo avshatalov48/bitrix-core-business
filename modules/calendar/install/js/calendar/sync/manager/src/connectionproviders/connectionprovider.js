@@ -15,6 +15,8 @@ export class ConnectionProvider
 	{
 		this.status = options.status;
 		this.connected = options.connected;
+		this.mainPanel = options.mainPanel === true;
+		this.pendingStatus = options.pendingStatus === true;
 		this.gridTitle = options.gridTitle;
 		this.gridColor = options.gridColor;
 		this.gridIcon = options.gridIcon;
@@ -126,6 +128,10 @@ export class ConnectionProvider
 				? "success"
 				: "failed";
 		}
+		else if (this.pendingStatus)
+		{
+			return 'pending';
+		}
 		else
 		{
 			return 'not_connected';
@@ -213,5 +219,15 @@ export class ConnectionProvider
 		}
 
 		return null;
+	}
+
+	getSyncPanelTitle()
+	{
+		return this.gridTitle;
+	}
+
+	getSyncPanelLogo()
+	{
+		return '--' + this.type;
 	}
 }

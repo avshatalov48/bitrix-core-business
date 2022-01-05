@@ -364,10 +364,11 @@ class TransportBase implements Transport\iBase
 
 	protected function getOrderData($dealId)
 	{
-		$dbRes = \Bitrix\Crm\Order\DealBinding::getList([
+		$dbRes = \Bitrix\Crm\Order\EntityBinding::getList([
 			'select' => ['PAYMENT_ID' => 'ORDER.PAYMENT.ID', 'PAYMENT_ORDER_ID' => 'ORDER.PAYMENT.ORDER_ID'],
 			'filter' => [
-				'DEAL_ID' => $dealId,
+				'OWNER_ID' => $dealId,
+				'OWNER_TYPE_ID' => \CCrmOwnerType::Deal,
 				'!ORDER.PAYMENT.PS_RECURRING_TOKEN' => '',
 				'=ORDER.PAYMENT.PAID' => 'Y',
 			],
@@ -446,8 +447,9 @@ class TransportBase implements Transport\iBase
 					$newShipmentItem->setQuantity($item->getQuantity());
 				}
 
-				$newDealBinding = $newOrder->createDealBinding();
-				$newDealBinding->setField('DEAL_ID', $toDealId);
+				$binding = $newOrder->createEntityBinding();
+				$binding->setField('OWNER_ID', $toDealId);
+				$binding->setField('OWNER_TYPE_ID', \CCrmOwnerType::Deal);
 
 				/** @var ContactCompanyEntity $item */
 				foreach ($order->getContactCompanyCollection()->getCompanies() as $item)

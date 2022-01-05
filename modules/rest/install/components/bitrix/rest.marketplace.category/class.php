@@ -101,29 +101,40 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 				'type' => 'checkbox',
 				'default' => true,
 			];
+			$appType = [
+				'Y' => Loc::getMessage('MARKETPLACE_FILTER_PAID'),
+				'N' => Loc::getMessage('MARKETPLACE_FILTER_FREE'),
+			];
+			if (\Bitrix\Rest\Marketplace\Client::isSubscriptionAccess())
+			{
+				$appType['BY_SUBSCRIPTION'] = Loc::getMessage('MARKETPLACE_FILTER_BY_SUBSCRIPTION');
+			}
+
 			$filter[] = [
 				'id' => 'PAID',
 				'name' => Loc::getMessage('MARKETPLACE_FILTER_PAID'),
 				'type' => 'list',
 				'default' => true,
-				'items' => [
-					'Y' => Loc::getMessage('MARKETPLACE_FILTER_PAID'),
-					'N' => Loc::getMessage('MARKETPLACE_FILTER_FREE'),
-					'BY_SUBSCRIPTION' => Loc::getMessage('MARKETPLACE_FILTER_BY_SUBSCRIPTION'),
-				],
+				'items' => $appType,
 			];
 		}
 		else
 		{
+			$appType = [
+				'N' => Loc::getMessage('MARKETPLACE_FILTER_FREE'),
+			];
+
+			if (\Bitrix\Rest\Marketplace\Client::isSubscriptionAccess())
+			{
+				$appType['BY_SUBSCRIPTION'] = Loc::getMessage('MARKETPLACE_FILTER_BY_SUBSCRIPTION');
+			}
+
 			$filter[] = [
 				'id' => 'PAID',
 				'name' => Loc::getMessage('MARKETPLACE_FILTER_PAID'),
 				'type' => 'list',
 				'default' => true,
-				'items' => [
-					'N' => Loc::getMessage('MARKETPLACE_FILTER_FREE'),
-					'BY_SUBSCRIPTION' => Loc::getMessage('MARKETPLACE_FILTER_BY_SUBSCRIPTION'),
-				],
+				'items' => $appType,
 			];
 		}
 

@@ -32,7 +32,9 @@ $componentParams = isset($componentData['params']) && is_array($componentData['p
 $APPLICATION->IncludeComponent(
 	'bitrix:rest.marketplace',
 	'',
-	$componentParams,
+	[
+		'SEF_MODE' => $componentParams['SEF_MODE'] ?? null,
+	],
 	false,
 	array('HIDE_ICONS' => 'Y')
 );

@@ -72,7 +72,7 @@
 							attrs: {'data-bx-counter': this.counters[i].id},
 							html: '<span class="calendar-counter-inner">' +
 								'<span class="calendar-counter-number">' + this.counters[i].value + '</span>' +
-								'<span class="calendar-counter-text">' + this.util.getMessagePlural(this.counters[i].pluralMessageId,this.counters[i].value) + '</span>' +
+								'<span class="calendar-counter-text">' + BX.Loc.getMessagePlural(this.counters[i].pluralMessageId, this.counters[i].value) + '</span>' +
 							'</span>',
 							events: {
 								click: (function (counter)

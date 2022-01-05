@@ -21,6 +21,7 @@ return [
 		'calendar.planner',
 		'ui.entity-selector',
 		'calendar.sync.interface',
+		'calendar.roomsmanager',
 	],
 	'skip_core' => false,
 	'lang' => '/bitrix/modules/calendar/classes/general/editeventform_js.php'

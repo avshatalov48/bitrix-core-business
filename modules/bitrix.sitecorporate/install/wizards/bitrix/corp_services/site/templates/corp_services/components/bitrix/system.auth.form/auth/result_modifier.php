@@ -7,7 +7,7 @@ if (CModule::IncludeModule("blog") && $GLOBALS["USER"]->IsAuthorized())
 {
 
 	$arOwnBlog = CBlog::GetByOwnerID($GLOBALS["USER"]->GetID());
-	if ($arOwnBlog && array_key_exists("URL", $arOwnBlog) && strlen($arOwnBlog["URL"]) > 0)
+	if ($arOwnBlog && array_key_exists("URL", $arOwnBlog) && $arOwnBlog["URL"] <> '')
 	{
 		$arResult["urlToOwnBlog"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], 
 			array("blog" => $arOwnBlog["URL"], "user_id" => $GLOBALS["USER"]->GetID()));

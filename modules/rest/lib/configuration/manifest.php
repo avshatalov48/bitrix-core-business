@@ -12,6 +12,7 @@ class Manifest
 	public const ACCESS_TYPE_EXPORT = 'export';
 	public const ON_REST_APP_CONFIGURATION_GET_MANIFEST = 'OnRestApplicationConfigurationGetManifest';
 	public const ON_REST_APP_CONFIGURATION_GET_MANIFEST_SETTING = 'OnRestApplicationConfigurationGetManifestSetting';
+	public const PROPERTY_REST_IMPORT_AVAILABLE = 'REST_IMPORT_AVAILABLE';
 	private static $manifestList = [];
 
 	public static function getList()
@@ -59,7 +60,9 @@ class Manifest
 					'STEP' => $step,
 					'NEXT' => isset($params['NEXT']) ? $params['NEXT'] : null,
 					'ITEM_CODE' => $params['ITEM_CODE'] ? : null,
-					'SETTING' => $setting->get(Setting::SETTING_MANIFEST)
+					'ADDITIONAL_OPTION' => is_array($params['ADDITIONAL_OPTION']) ? $params['ADDITIONAL_OPTION'] : [],
+					'SETTING' => $setting->get(Setting::SETTING_MANIFEST),
+					'USER_ID' => $setting->get(Setting::SETTING_USER_ID) ?? 0,
 				]
 			);
 			EventManager::getInstance()->send($event);
@@ -150,7 +153,7 @@ class Manifest
 	 *
 	 * @return bool
 	 */
-	public static function isEntityAvailable(string $entityCode, array $option, $uses = []) : bool
+	public static function isEntityAvailable(string $entityCode, array $option, $uses = []): bool
 	{
 		$manifest = [];
 		if (!empty($option['IMPORT_MANIFEST']['USES']))
@@ -174,5 +177,16 @@ class Manifest
 		}
 
 		return true;
+	}
+
+	/**
+	 * @param string $entityCode
+	 *
+	 * @return bool
+	 */
+	public static function isRestImportAvailable(string $entityCode): bool
+	{
+		$manifest = static::get($entityCode);
+		return isset($manifest[static::PROPERTY_REST_IMPORT_AVAILABLE]) && $manifest[static::PROPERTY_REST_IMPORT_AVAILABLE] === 'Y';
 	}
 }

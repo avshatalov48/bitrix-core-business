@@ -40,3 +40,5 @@ $MESS["IMPORTANT_FOR_WEEK"] = "неделю";
 $MESS["IMPORTANT_FOR_MONTH"] = "месяц";
 $MESS["IMPORTANT_FOR_CUSTOM"] = "до точной даты";
 $MESS["BLOG_POST_EDIT_T_GRAT_ERROR_NO_EMPLOYEES"] = "Не выбрано ни одного сотрудника для награждения.";
+$MESS["BLOG_POST_EDIT_T_GRAT_ERROR_NO_DESTINATION"] = "Выберите получателей сообщения.";
+$MESS["CREATED_ON_THE_BASIC_OF_THE_MESSAGE"] = "Создано на основании письма";

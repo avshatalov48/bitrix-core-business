@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["REST_CONFIGURATION_IMPORT_INSTALL_ACCEPT_CLEAR"] = "I want to replace the current Bitrix24 settings with those from the downloaded CRM solution preset.";
 $MESS["REST_CONFIGURATION_IMPORT_INSTALL_ACCEPT_CLEAR_ROLLBACK"] = "I want to replace the current Bitrix24 settings with those from the selected CRM solution preset.";
 $MESS["REST_CONFIGURATION_IMPORT_INSTALL_APP_DESCRIPTION"] = "By clicking \"Continue\" you agree that some or all of the current Bitrix24 settings may be changed by the imported CRM solution preset and cannot be restored thereafter.";
@@ -18,8 +18,8 @@ $MESS["REST_CONFIGURATION_IMPORT_INSTALL_START_BTN"] = "Continue";
 $MESS["REST_CONFIGURATION_IMPORT_INSTALL_STEP"] = "Importing settings";
 $MESS["REST_CONFIGURATION_IMPORT_INSTALL_STEP_CLEAR"] = "Getting your Bitrix24 ready to import data";
 $MESS["REST_CONFIGURATION_IMPORT_INSTALL_STEP_FINISH"] = "Finishing";
+$MESS["REST_CONFIGURATION_IMPORT_INSTALL_STEP_INIT_BACKGROUND"] = "Loading content";
 $MESS["REST_CONFIGURATION_IMPORT_INSTALL_STEP_START"] = "Collecting information";
 $MESS["REST_CONFIGURATION_IMPORT_PRE_INSTALL_APP_DESCRIPTION"] = "Click \"Continue\" to install the solution preset \"#APP_NAME#\".";
 $MESS["REST_CONFIGURATION_IMPORT_PRE_INSTALL_LATER_APP_POPUP_DESCRIPTION"] = "You can install the solution preset \"#APP_NAME#\" anytime, just find it in the solution list. Learn more #HELP_DESK_LINK#.";
 $MESS["REST_CONFIGURATION_IMPORT_PRE_INSTALL_LATER_APP_POPUP_HELP_DESK_LINK_LABEL"] = "here";
-?>

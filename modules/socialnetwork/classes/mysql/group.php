@@ -25,22 +25,20 @@ class CSocNetGroup extends CAllSocNetGroup
 		{
 			return false;
 		}
-		else
+
+		$arSiteID = [];
+		if(array_key_exists("SITE_ID", $arFields))
 		{
-			$arSiteID = array();
-			if(array_key_exists("SITE_ID", $arFields))
+			if(is_array($arFields["SITE_ID"]))
 			{
-				if(is_array($arFields["SITE_ID"]))
+				foreach($arFields["SITE_ID"] as $site_id)
 				{
-					foreach($arFields["SITE_ID"] as $site_id)
-					{
-						$arSiteID[$site_id] = $DB->ForSQL($site_id);
-					}
+					$arSiteID[$site_id] = $DB->ForSQL($site_id);
 				}
-				else
-				{
-					$arSiteID[$arFields["SITE_ID"]] = $DB->ForSQL($arFields["SITE_ID"]);
-				}
+			}
+			else
+			{
+				$arSiteID[$arFields["SITE_ID"]] = $DB->ForSQL($arFields["SITE_ID"]);
 			}
 		}
 
@@ -89,7 +87,7 @@ class CSocNetGroup extends CAllSocNetGroup
 				"VALUES(".$arInsert[1].")";
 			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-			$ID = intval($DB->LastID());
+			$ID = (int)$DB->LastID();
 
 			$events = GetModuleEvents("socialnetwork", "OnSocNetGroupAdd");
 			while ($arEvent = $events->Fetch())
@@ -172,7 +170,7 @@ class CSocNetGroup extends CAllSocNetGroup
 			return false;
 		}
 
-		$ID = intval($ID);
+		$ID = (int)$ID;
 
 		$arGroupOld = CSocNetGroup::GetByID($ID);
 		if (!$arGroupOld)
@@ -187,35 +185,37 @@ class CSocNetGroup extends CAllSocNetGroup
 		{
 			return false;
 		}
-		else
+
+		$arSiteID = [];
+
+		if (is_set($arFields, "SITE_ID"))
 		{
-			$arSiteID = array();
-
-			if(is_set($arFields, "SITE_ID"))
+			if(is_array($arFields["SITE_ID"]))
 			{
-				if(is_array($arFields["SITE_ID"]))
-				{
-					$arSiteID = $arFields["SITE_ID"];
-				}
-				else
-				{
-					$arSiteID[] = $arFields["SITE_ID"];
-				}
+				$arSiteID = $arFields["SITE_ID"];
+			}
+			else
+			{
+				$arSiteID[] = $arFields["SITE_ID"];
+			}
 
-				$arFields["SITE_ID"] = false;
-				$str_SiteID = "''";
-				foreach($arSiteID as $v)
-				{
-					$arFields["SITE_ID"] = $v;
-					$str_SiteID .= ", '".$DB->ForSql($v)."'";
-				}
+			$arFields["SITE_ID"] = false;
+			$str_SiteID = "''";
+			foreach($arSiteID as $v)
+			{
+				$arFields["SITE_ID"] = $v;
+				$str_SiteID .= ", '".$DB->ForSql($v)."'";
 			}
 		}
 
 		$db_events = GetModuleEvents("socialnetwork", "OnBeforeSocNetGroupUpdate");
 		while ($arEvent = $db_events->Fetch())
-			if (ExecuteModuleEventEx($arEvent, array($ID, &$arFields))===false)
+		{
+			if (ExecuteModuleEventEx($arEvent, array($ID, &$arFields)) === false)
+			{
 				return false;
+			}
+		}
 
 		if (
 			array_key_exists("IMAGE_ID", $arFields)
@@ -504,6 +504,7 @@ class CSocNetGroup extends CAllSocNetGroup
 			"SCRUM_MASTER_ID" => ["FIELD" => "G.SCRUM_MASTER_ID", "TYPE" => "int"],
 			"SCRUM_SPRINT_DURATION" => ["FIELD" => "G.SCRUM_SPRINT_DURATION", "TYPE" => "int"],
 			"SCRUM_TASK_RESPONSIBLE" => ["FIELD" => "G.SCRUM_TASK_RESPONSIBLE", "TYPE" => "string"],
+			'AVATAR_TYPE' => [ 'FIELD' => 'G.AVATAR_TYPE', 'TYPE' => 'string'],
 		);
 
 		if (array_key_exists("SITE_ID", $arFilter))
@@ -512,7 +513,7 @@ class CSocNetGroup extends CAllSocNetGroup
 			$strDistinct = " DISTINCT ";
 			foreach ($arSelectFields as $i => $strFieldTmp)
 			{
-				if ($strFieldTmp == "SITE_ID")
+				if ($strFieldTmp === "SITE_ID")
 				{
 					unset($arSelectFields[$i]);
 				}

@@ -83,7 +83,7 @@ class Department
 			return false;
 		}
 
-		$cacheId = 'im_sonet_extranet_v2_'.$userId;
+		$cacheId = 'im_sonet_extranet_v3_'.$userId;
 		$cachePath = '/bx/imc/sonet/extranet'.\Bitrix\Im\Common::getCacheUserPostfix($userId);
 
 		$cache = \Bitrix\Main\Application::getInstance()->getCache();

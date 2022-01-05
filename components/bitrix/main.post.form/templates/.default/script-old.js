@@ -266,7 +266,8 @@ BX.addCustomEvent(window, 'BX.MPF.MentionSelector:open', function(params) {
 	var bindNode = (BX.type.isDomNode(params.bindNode) ? params.bindNode : null);
 	var bindPosition = (BX.type.isNotEmptyObject(params.bindPosition) ? params.bindPosition : null);
 
-	var dialog = BX.UI.EntitySelector.Dialog.getById(selectorId);
+	var dialog = BX.UI.EntitySelector.Dialog.getById(BX.type.isDomNode(bindNode) ? selectorId + '-withsearch' : selectorId);
+
 	if (dialog)
 	{
 		dialog.deselectAll();
@@ -275,6 +276,7 @@ BX.addCustomEvent(window, 'BX.MPF.MentionSelector:open', function(params) {
 
 		if (BX.type.isDomNode(bindNode))
 		{
+			dialog.focusSearch();
 			dialog.popup.setBindElement(bindNode);
 		}
 		else if (BX.type.isNotEmptyObject(bindPosition))
@@ -351,10 +353,14 @@ window.onKeyDownHandler = function(e, editor, formID)
 		|| (
 			typeof e.getModifierState === 'function'
 			&& !!e.getModifierState('AltGraph')
-			&& BX.util.in_array(keyCode, [ 81, 50 ])
+			&& BX.util.in_array(keyCode, [ 81, 50, 48 ])
 			&& typeof e.key !== 'undefined'
 			&& e.key === '@'
-		) /* Win German @ == AltGr + Q, Win Spanish @ == AltGr + 2 */
+		) /* Win German @ == AltGr + Q, Win Spanish @ == AltGr + 2, Win French @ == AltGr + 0 */
+		|| (
+			BX.util.in_array(keyCode, [ 192 ])
+			&& e.key === '@'
+		) /* MacOS FR */
 	)
 	{
 		setTimeout(function()
@@ -408,7 +414,10 @@ window.onKeyDownHandler = function(e, editor, formID)
 	{
 		var activeDialogTab = null;
 		var dialog = (BX.type.isNotEmptyString(selectorId) ? BX.UI.EntitySelector.Dialog.getById(selectorId) : null);
-		if (dialog)
+		if (
+			dialog
+			&& dialog.getActiveTab()
+		)
 		{
 			activeDialogTab = dialog.getActiveTab().getId();
 		}
@@ -936,6 +945,49 @@ window.MPFgetSelectorId = function(formId)
 	return result;
 };
 
+window.MPFcreateSelectorDialog = function(dialogParams)
+{
+	new BX.UI.EntitySelector.Dialog({
+		targetNode: 'mpf-mention-' + dialogParams.formId,
+		id: dialogParams.selectorId,
+		context: 'MENTION',
+		multiple: false,
+		preload: true,
+		enableSearch: dialogParams.enableSearch,
+		clearSearchOnSelect: true,
+		hideOnSelect: true,
+		hideByEsc: true,
+		entities: dialogParams.params.entities,
+		height: 300,
+		width: 400,
+		compactView: true,
+		events: {
+			onShow: function() {
+				window.BXfpdOnDialogOpen();
+			},
+			onHide: function() {
+				window.BXfpdOnDialogClose({
+					editorId: dialogParams.params.editorId,
+				});
+			},
+			'Item:onSelect': function (event) {
+				var selectedItem = event.getData().item;
+				if (selectedItem)
+				{
+					window['BXfpdSelectCallbackMent' + dialogParams.formId]({
+						item: {
+							name: selectedItem.getTitle(),
+							entityId: selectedItem.getId(),
+						},
+						entityType: selectedItem.getEntityId(),
+					});
+				}
+			}
+		},
+	});
+};
+
+
 window.MPFMentionInit = function(formId, params)
 {
 	if (params.initDestination === true)
@@ -1053,6 +1105,7 @@ window.MPFMentionInit = function(formId, params)
 			}
 		});
 	}
+
 	var handler = LHEPostForm.getHandlerByFormId(formId);
 	if (handler)
 	{
@@ -1061,43 +1114,18 @@ window.MPFMentionInit = function(formId, params)
 
 			if (selectorId)
 			{
-				new BX.UI.EntitySelector.Dialog({
-					targetNode: 'mpf-mention-' + formId,
-					id: selectorId,
-					context: 'MENTION',
-					multiple: false,
-					preload: true,
+				window.MPFcreateSelectorDialog({
+					formId: formId,
+					selectorId: selectorId,
 					enableSearch: false,
-					clearSearchOnSelect: true,
-					hideOnSelect: true,
-					hideByEsc: true,
-					entities: params.entities,
-					height: 300,
-					width: 400,
-					compactView: true,
-					events: {
-						onShow: function(event) {
-							window.BXfpdOnDialogOpen();
-						},
-						onHide: function(event) {
-							window.BXfpdOnDialogClose({
-								editorId: params.editorId,
-							});
-						},
-						'Item:onSelect': function (event) {
-							var selectedItem = event.getData().item;
-							if (selectedItem)
-							{
-								window['BXfpdSelectCallbackMent' + formId]({
-									item: {
-										name: selectedItem.getTitle(),
-										entityId: selectedItem.getId(),
-									},
-									entityType: selectedItem.getEntityId(),
-								});
-							}
-						}
-					},
+					params: params,
+				});
+
+				window.MPFcreateSelectorDialog({
+					formId: formId,
+					selectorId: selectorId + '-withsearch',
+					enableSearch: true,
+					params: params,
 				});
 			}
 		});

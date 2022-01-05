@@ -1,6 +1,7 @@
 import { Helper } from './helper';
 import { Event, Loc, Tag } from "main.core";
 import {type PostSelectorOptions} from './types/postselectoroptions'
+import {TextCrop} from 'ui.textcrop';
 
 export class SeoPostSelector
 {
@@ -140,7 +141,7 @@ export class SeoPostSelector
 								</span>
 								<div class="crm-order-instagram-view-item-decs-block">
 									<div class="crm-order-instagram-view-item-decs">
-										<span class="crm-order-instagram-view-item-name">${postListItem.caption||''}</span>
+										<span class="crm-order-instagram-view-item-name">${BX.util.htmlspecialchars(postListItem.caption||'')}</span>
 										<span class="crm-order-instagram-view-item-edit"></span>
 									</div>
 								</div>
@@ -163,8 +164,15 @@ export class SeoPostSelector
 				this.listContent.appendChild(postBlock);
 
 				Event.bind(postBlock, 'click', this.selectPost.bind(this));
+
 				this.dataContent[postListItem.id] = postListItem;
 				this.showListContentBlock();
+
+				const text = new BX.UI.TextCrop({
+					rows: 3,
+					target: postBlock.querySelector('.crm-order-instagram-view-item-name'),
+				});
+				text.init();
 			}
 		);
 

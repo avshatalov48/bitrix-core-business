@@ -80,13 +80,13 @@ class SaleBasketLineComponent extends CBitrixComponent
 		if ($arParams['SHOW_PRODUCTS'] != 'Y')
 			$arParams['SHOW_PRODUCTS'] = 'N';
 
-		if ($arParams['SHOW_DELAY'] != 'N')
+		if (!isset($arParams['SHOW_DELAY']) || $arParams['SHOW_DELAY'] != 'N')
 			$arParams['SHOW_DELAY'] = 'Y';
 
-		if ($arParams['SHOW_NOTAVAIL'] != 'N')
+		if (!isset($arParams['SHOW_NOTAVAIL']) || $arParams['SHOW_NOTAVAIL'] != 'N')
 			$arParams['SHOW_NOTAVAIL'] = 'Y';
 
-		if ($arParams['SHOW_IMAGE'] != 'N')
+		if (!isset($arParams['SHOW_IMAGE']) || $arParams['SHOW_IMAGE'] != 'N')
 			$arParams['SHOW_IMAGE'] = 'Y';
 
 		if (($arParams['SHOW_PRICE'] ?? '') != 'N')
@@ -100,10 +100,10 @@ class SaleBasketLineComponent extends CBitrixComponent
 		if ($arParams['POSITION_FIXED'] != 'Y')
 			$arParams['POSITION_FIXED'] = 'N';
 
-		if ($arParams['POSITION_VERTICAL'] != 'bottom' && $arParams['POSITION_VERTICAL'] != 'vcenter')
+		if (!isset($arParams['POSITION_VERTICAL']) || ($arParams['POSITION_VERTICAL'] != 'bottom' && $arParams['POSITION_VERTICAL'] != 'vcenter'))
 			$arParams['POSITION_VERTICAL'] = 'top';
 
-		if ($arParams['POSITION_HORIZONTAL'] != 'left' && $arParams['POSITION_HORIZONTAL'] != 'hcenter')
+		if (!isset($arParams['POSITION_HORIZONTAL']) || ($arParams['POSITION_HORIZONTAL'] != 'left' && $arParams['POSITION_HORIZONTAL'] != 'hcenter'))
 			$arParams['POSITION_HORIZONTAL'] = 'right';
 
 		$arParams['MAX_IMAGE_SIZE'] = (isset($arParams['MAX_IMAGE_SIZE']) ? (int)$arParams['MAX_IMAGE_SIZE'] : 70);

@@ -781,7 +781,51 @@ class CIBlockPropertyMapYandex extends CIBlockPropertyMapInterface
 {
 	public static function GetUserTypeDescription()
 	{
-		return array(
+		// This property should be disabled in Ukraine
+		if (Loader::includeModule('bitrix24'))
+		{
+			$licensePrefix = \CBitrix24::getLicensePrefix();
+			if ($licensePrefix === 'ua' || $licensePrefix === 'ur')
+			{
+				return [];
+			}
+		}
+		elseif (Loader::includeModule('intranet'))
+		{
+			$portalZone = \CIntranetUtils::getPortalZone();
+			if ($portalZone === 'ua')
+			{
+				return [];
+			}
+		}
+		else
+		{
+			$languageIterator = \Bitrix\Main\Localization\LanguageTable::getList([
+				'select' => ['ID'],
+				'filter' => ['=ID' => 'ru', '=ACTIVE' => 'Y']
+			]);
+			$row = $languageIterator->fetch();
+			unset($languageIterator);
+			if (!empty($row))
+			{
+				$languageIterator = \Bitrix\Main\Localization\LanguageTable::getList([
+					'select' => ['ID'],
+					'filter' => [
+						'=ID' => 'ua',
+						'=ACTIVE' => 'Y',
+					],
+					'limit' => 1
+				]);
+				$row = $languageIterator->fetch();
+				unset($languageIterator);
+				if (!empty($row))
+				{
+					return [];
+				}
+			}
+		}
+
+		return [
 			"PROPERTY_TYPE" => "S",
 			"USER_TYPE" => "map_yandex",
 			"DESCRIPTION" => GetMessage("IBLOCK_PROP_MAP_YANDEX"),
@@ -795,7 +839,7 @@ class CIBlockPropertyMapYandex extends CIBlockPropertyMapInterface
 			'GetUIEntityEditorProperty' => array(__CLASS__, 'GetUIEntityEditorProperty'),
 			'GetUIEntityEditorPropertyEditHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyEditHtml'),
 			'GetUIEntityEditorPropertyViewHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyViewHtml'),
-		);
+		];
 	}
 
 	public static function _DrawKeyInputControl($MAP_ID, $strDomain)

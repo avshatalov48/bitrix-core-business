@@ -230,12 +230,18 @@ export default class Package extends EventEmitter {
 	{
 		this.filesInprogress.forEach((itemId) => {
 			const item = this.files.get(itemId);
+			const currentPercent = percent * (item.packPercent || 0);
+			if (!item['previousPackPercent'])
+			{
+				item['previousPackPercent'] = currentPercent;
+			}
 			this.emit('fileIsInProgress',
 				{
 					itemId: itemId,
 					item: item.item,
-					percent: Math.ceil(percent * (item.packPercent || 0) / 100)
+					percent: Math.ceil(Math.max(item['previousPackPercent'], currentPercent) / 100)
 				});
+			item['previousPackPercent'] = currentPercent;
 		});
 	}
 

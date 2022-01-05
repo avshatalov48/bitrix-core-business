@@ -6,7 +6,7 @@ COption::SetOptionString('main', 'new_user_registration', 'Y');
 COption::SetOptionString('main', 'captcha_registration', 'Y');
 COption::SetOptionInt("search", "suggest_save_days", 250);
 
-if(strlen(COption::GetOptionString('main', 'CAPTCHA_presets', '')) <= 0)
+if(COption::GetOptionString('main', 'CAPTCHA_presets', '') == '')
 {
 	COption::SetOptionString('main', 'CAPTCHA_transparentTextPercent', '0');
 	COption::SetOptionString('main', 'CAPTCHA_arBGColor_1', 'FFFFFF');
@@ -96,7 +96,7 @@ if (WIZARD_INSTALL_DEMO_DATA)
 	$user->Add($arFields);
 }
 	
-$rsGroups = CGroup::GetList(($by="c_sort"), ($order="desc"), array("ACTIVE"=>"Y", "ADMIN"=>"N", "ANONYMOUS"=>"N")); 
+$rsGroups = CGroup::GetList("c_sort", "desc", array("ACTIVE"=>"Y", "ADMIN"=>"N", "ANONYMOUS"=>"N"));
 if(!($rsGroups->Fetch()))
 {
 	$group = new CGroup;
@@ -118,7 +118,7 @@ if(!($rsGroups->Fetch()))
 }
 
 $userGroupID = "";
-$dbGroup = CGroup::GetList($by = "", $order = "", Array("STRING_ID" => "community_administrator"));
+$dbGroup = CGroup::GetList("", "", Array("STRING_ID" => "community_administrator"));
 
 if($arGroup = $dbGroup -> Fetch())
 {
@@ -136,11 +136,11 @@ else
 	  "STRING_ID"      => "community_administrator",
 	  );
 	$userGroupID = $group->Add($arFields);
-	$DB->Query("INSERT INTO b_sticker_group_task(GROUP_ID, TASK_ID)	SELECT ".intVal($userGroupID).", ID FROM b_task WHERE NAME='stickers_edit' AND MODULE_ID='fileman'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+	$DB->Query("INSERT INTO b_sticker_group_task(GROUP_ID, TASK_ID)	SELECT ".intval($userGroupID).", ID FROM b_task WHERE NAME='stickers_edit' AND MODULE_ID='fileman'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 }
 
 $userGroupID = "";
-$dbGroup = CGroup::GetList($by = "", $order = "", Array("STRING_ID" => "content_editor"));
+$dbGroup = CGroup::GetList("", "", Array("STRING_ID" => "content_editor"));
 
 if($arGroup = $dbGroup -> Fetch())
 {
@@ -158,10 +158,10 @@ else
 	  "STRING_ID"      => "content_editor",
 	  );
 	$userGroupID = $group->Add($arFields);
-	$DB->Query("INSERT INTO b_sticker_group_task(GROUP_ID, TASK_ID)	SELECT ".intVal($userGroupID).", ID FROM b_task WHERE NAME='stickers_edit' AND MODULE_ID='fileman'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+	$DB->Query("INSERT INTO b_sticker_group_task(GROUP_ID, TASK_ID)	SELECT ".intval($userGroupID).", ID FROM b_task WHERE NAME='stickers_edit' AND MODULE_ID='fileman'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 }
 
-if(IntVal($userGroupID) > 0)
+if(intval($userGroupID) > 0)
 {
 	WizardServices::SetFilePermission(Array($siteID, "/bitrix/admin"), Array($userGroupID => "R"));
 	CMain::SetGroupRight("blog", $userGroupID, "W");

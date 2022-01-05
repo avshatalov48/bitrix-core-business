@@ -324,6 +324,30 @@ final class LocationHelper extends NameHelper
 	}
 
 	/**
+	 * @return int
+	 */
+	public static function getYandexMarketExternalServiceId(): int
+	{
+		static $result;
+
+		if ($result === null)
+		{
+			$result = 0;
+
+			$yandexMarketEs = Location\ExternalServiceTable::getList([
+				'filter' => ['=CODE' => \CSaleYMLocation::EXTERNAL_SERVICE_CODE]
+			])->fetch();
+
+			if ($yandexMarketEs)
+			{
+				$result = (int)$yandexMarketEs['ID'];
+			}
+		}
+
+		return $result;
+	}
+
+	/**
 	 * @deprecated
 	 * 
 	 * Use TypeHelper::getTypes() instead

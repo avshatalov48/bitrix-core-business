@@ -29,6 +29,7 @@ create table b_sonet_group
 	OWNER_ID int not null,
 	KEYWORDS varchar(255) null,
 	IMAGE_ID int null,
+	AVATAR_TYPE varchar(50) null,
 	NUMBER_OF_MEMBERS int not null default 0,
 	NUMBER_OF_MODERATORS int not null default 0,
 	INITIATE_PERMS char(1) not null default 'K',
@@ -77,7 +78,8 @@ create table b_sonet_user2group
   primary key (ID),
   unique IX_SONET_USER2GROUP_1(USER_ID, GROUP_ID),
   index IX_SONET_USER2GROUP_2(USER_ID, GROUP_ID, ROLE),
-  index IX_SONET_USER2GROUP_3(GROUP_ID, USER_ID, ROLE)
+  index IX_SONET_USER2GROUP_3(GROUP_ID, USER_ID, ROLE),
+  index IX_SONET_USER2GROUP_4(USER_ID, ROLE)
 );
 
 create table b_sonet_features
@@ -91,7 +93,8 @@ create table b_sonet_features
   DATE_CREATE datetime not null,
   DATE_UPDATE datetime not null,
   primary key (ID),
-  unique IX_SONET_GROUP_FEATURES_1(ENTITY_TYPE, ENTITY_ID, FEATURE)
+  unique IX_SONET_GROUP_FEATURES_1(ENTITY_TYPE, ENTITY_ID, FEATURE),
+  unique IX_SONET_GROUP_FEATURES_2 (ENTITY_TYPE, FEATURE, ACTIVE, ENTITY_ID)
 );
 
 create table b_sonet_features2perms
@@ -345,7 +348,8 @@ create table b_sonet_log_subscribe
 	LOG_ID int(11) not null,
 	TYPE char(3) not null,
 	END_DATE datetime,
-	primary key (USER_ID, LOG_ID, TYPE)
+	primary key (USER_ID, LOG_ID, TYPE),
+	index IX_SONET_LOG_SUBSCRIBE_1(`LOG_ID`)
 );
 
 create table b_sonet_log_smartfilter

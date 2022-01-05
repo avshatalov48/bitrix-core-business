@@ -207,10 +207,17 @@
 
 	          if (isFileTransfer) {
 	            _this.dndObject.DIV.classList.add('bxu-file-input-over');
+
+	            BX.onCustomEvent(_this, 'dragEnter', [e]); // compatibility event
 	          }
 	        },
-	        dragLeave: function dragLeave() {
+	        dragLeave: function dragLeave(_ref3) {
+	          var _ref3$compatData = babelHelpers.slicedToArray(_ref3.compatData, 1),
+	              e = _ref3$compatData[0];
+
 	          _this.dndObject.DIV.classList.remove('bxu-file-input-over');
+
+	          BX.onCustomEvent(_this, 'dragLeave', [e]); // compatibility event
 	        }
 	      };
 	      main_core_events.EventEmitter.subscribe(this.dndObject, 'dropFiles', handlers.dropFiles);

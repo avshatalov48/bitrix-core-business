@@ -369,7 +369,6 @@ class CFacebookInterface extends CSocServOAuthTransport
 
 	protected $scope = array(
 		"email",
-		"user_friends",
 	);
 
 	public function __construct($appID = false, $appSecret = false, $code=false)

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SENDER_LETTER_LIST_COMP_TITLE"] = "Рассылки";
 $MESS["SENDER_LETTER_LIST_COMP_UI_COLUMN_DATE_INSERT"] = "Дата";
 $MESS["SENDER_LETTER_LIST_COMP_UI_COLUMN_TITLE"] = "Название";
@@ -23,3 +23,5 @@ $MESS["SENDER_LETTER_LIST_COMP_UI_COLUMN_COUNT_CLICK"] = "Количество �
 $MESS["SENDER_LETTER_LIST_COMP_UI_COLUMN_CONSENT_SUPPORT"] = "Согласие";
 $MESS["SENDER_LETTER_LIST_LETTER_SENDING_TODAY"] = "сегодня";
 $MESS["SENDER_LETTER_LIST_LETTER_SENDING_TOMORROW"] = "завтра";
+$MESS["SENDER_LETTER_LIST_COMP_UI_COLUMN_COUNT_UNSUB"] = "Количество отписавшихся";
+$MESS["SENDER_DISPATCH_STATE_M"] = "Идет подготовка сегмента";

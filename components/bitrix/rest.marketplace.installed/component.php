@@ -39,6 +39,7 @@ else if (!\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
 	try
 	{
 		\Bitrix\Rest\OAuthService::register();
+		\Bitrix\Rest\OAuthService::getEngine()->getClient()->getApplicationList();
 	}
 	catch(\Bitrix\Main\SystemException $e)
 	{

@@ -33,10 +33,12 @@ create table b_calendar_section
 	CAL_DAV_CAL varchar(255) null,
 	CAL_DAV_MOD varchar(255) null,
 	IS_EXCHANGE char(1) null,
-	SYNC_TOKEN varchar(100) null,
+	SYNC_TOKEN varchar(255) null,
+	PAGE_TOKEN varchar(255) null,
 	EXTERNAL_TYPE varchar(20) null,
 	primary key (ID),
-	INDEX ix_cal_sect_owner (CAL_TYPE, OWNER_ID)
+	INDEX ix_cal_sect_owner (CAL_TYPE, OWNER_ID),
+	INDEX ix_cal_section_page_token (PAGE_TOKEN)
 );
 
 create table b_calendar_event
@@ -89,6 +91,7 @@ create table b_calendar_event
   RELATIONS varchar(255) null,
   SEARCHABLE_CONTENT text null,
   SECTION_ID int null,
+  SYNC_STATUS varchar(20) null,
   primary key (ID),
   INDEX ix_cal_event_date_utc (DATE_FROM_TS_UTC, DATE_TO_TS_UTC),
   INDEX ix_cal_event_owner_id_date (OWNER_ID, DATE_FROM_TS_UTC, DATE_TO_TS_UTC),
@@ -98,8 +101,11 @@ create table b_calendar_event
   INDEX ix_cal_event_recurrence_id (RECURRENCE_ID),
   INDEX ix_cal_google_event_id (G_EVENT_ID),
   INDEX ix_cal_dav_xml_id (DAV_XML_ID),
-  INDEX ix_cal_perf_001 (OWNER_ID, DELETED, DATE_TO_TS_UTC, DATE_FROM_TS_UTC),
-  INDEX ix_cal_perf_002 (CAL_TYPE, DELETED, DATE_TO_TS_UTC, DATE_FROM_TS_UTC)
+  INDEX ix_cal_owner_del_date (OWNER_ID, DELETED, DATE_TO_TS_UTC, DATE_FROM_TS_UTC),
+  INDEX ix_cal_type_del_date (CAL_TYPE, DELETED, DATE_TO_TS_UTC, DATE_FROM_TS_UTC),
+  INDEX ix_event_location (LOCATION),
+  INDEX ix_event_section_del (SECTION_ID,DELETED),
+  INDEX ix_cal_google_sync_status (SYNC_STATUS)
 );
 
 create table b_calendar_event_sect
@@ -175,4 +181,14 @@ create table b_calendar_resource
   SERVICE_NAME varchar(200) null,
   primary key (ID),
   INDEX ix_ufid_parenttype_parentid (UF_ID, PARENT_TYPE, PARENT_ID)
+);
+
+create table b_calendar_location
+(
+  ID int not null auto_increment,
+  SECTION_ID int not null,
+  NECESSITY char(1) default 'N',
+  CAPACITY int default 0,
+  PRIMARY KEY(ID),
+  INDEX ix_location_section(SECTION_ID)
 );

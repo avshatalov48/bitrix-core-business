@@ -43,6 +43,7 @@ $arParamsApp = [
 	'CODE' => $arResult['APP']['CODE'],
 	'VERSION' => $arResult['APP']['VER'],
 	'IFRAME' => $arParams['IFRAME'],
+	'SILENT_INSTALL' => $arResult['APP']['SILENT_INSTALL'],
 	'REDIRECT_PRIORITY' => $arResult['REDIRECT_PRIORITY'],
 	'FROM' => $arResult['ANALYTIC_FROM'],
 ];
@@ -137,23 +138,6 @@ if ($arResult['CAN_INSTALL'])
 						'class' => 'ui-btn ui-btn-md ui-btn-primary ui-btn-round',
 					],
 					'TEXT' => GetMessage('MARKETPLACE_APP_UPDATE_BUTTON')
-				];
-			}
-
-			//delete
-			if ($arResult['ADMIN'])
-			{
-				$buttonList[] = [
-					'TAGS' => [
-						'href' => 'javascript:void(0)',
-						'onclick' => 'BX.rest.Marketplace.uninstallConfirm(\''
-									. CUtil::JSEscape($arResult['APP']['CODE'])
-									. '\',\''
-									. CUtil::JSEscape($arResult['ANALYTIC_FROM'])
-									. '\');',
-						'class' => 'ui-btn ui-btn-md ui-btn-light-border ui-btn-round',
-					],
-					'TEXT' => GetMessage('MARKETPLACE_APP_DELETE')
 				];
 			}
 		}
@@ -320,6 +304,23 @@ if ($arResult['CAN_INSTALL'])
 			];
 		}
 	}
+}
+
+//delete
+if ($arResult['APP']['ACTIVE'] === 'Y' && $arResult['ADMIN'])
+{
+	$buttonList[] = [
+		'TAGS' => [
+			'href' => 'javascript:void(0)',
+			'onclick' => 'BX.rest.Marketplace.uninstallConfirm(\''
+				. CUtil::JSEscape($arResult['APP']['CODE'])
+				. '\',\''
+				. CUtil::JSEscape($arResult['ANALYTIC_FROM'])
+				. '\');',
+			'class' => 'ui-btn ui-btn-md ui-btn-light-border ui-btn-round',
+		],
+		'TEXT' => GetMessage('MARKETPLACE_APP_DELETE'),
+	];
 }
 ?>
 <div class="mp-detail" id="detail_cont">

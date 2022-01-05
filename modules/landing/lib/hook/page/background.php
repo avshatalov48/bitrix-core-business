@@ -141,6 +141,12 @@ class Background extends \Bitrix\Landing\Hook\Page
 							background-position: center;
 							background-repeat: no-repeat;
 						}
+						.bx-ios.bx-touch body {
+								background-attachment: scroll;
+								background-position: top;
+								background-repeat: repeat-y;
+								background-size: 100%;
+						}
 					</style>'
 				);
 			}

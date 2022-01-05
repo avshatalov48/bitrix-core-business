@@ -22,8 +22,129 @@ BX.rest.Marketplace = (function(){
 		});
 	};
 
+	var queryInstall = function(params)
+	{
+		var queryParam = {
+			code: params.CODE
+		};
+
+		if (!!params.VERSION)
+		{
+			queryParam.version = params.VERSION;
+		}
+
+		if (!!params.CHECK_HASH)
+		{
+			queryParam.check_hash = params.CHECK_HASH;
+			queryParam.install_hash = params.INSTALL_HASH;
+		}
+
+		if (!!params.FROM)
+		{
+			queryParam.from = params.FROM;
+		}
+
+		query(
+			'install',
+			queryParam,
+			BX.delegate(
+				function (result)
+				{
+					if (!!result.error)
+					{
+						if (!!result.helperCode && result.helperCode !== '')
+						{
+							top.BX.UI.InfoHelper.show(result.helperCode);
+						}
+						var errorDom = BX('mp_error');
+						var errorMessage = result.error + (
+							!!result.error_description
+								? '<br />' + result.error_description
+								: ''
+						);
+						if (errorDom)
+						{
+							errorDom.innerHTML = errorMessage;
+							BX.show(errorDom);
+						}
+						else
+						{
+							BX.UI.Notification.Center.notify(
+								{
+									content: errorMessage
+								}
+							);
+						}
+					}
+					else if (!!result.redirect && params['REDIRECT_PRIORITY'] === true)
+					{
+						top.location.href = result.redirect;
+					}
+					else if (!params.IFRAME)
+					{
+						if (!!result.redirect)
+						{
+							top.location.href = result.redirect;
+						}
+						else
+						{
+							top.location.href = BX.util.remove_url_param(
+								top.location.href,
+								[
+									'install',
+								]
+							);
+						}
+					}
+					else
+					{
+						if (result.installed)
+						{
+							var eventResult = {};
+							top.BX.onCustomEvent(
+								top,
+								'Rest:AppLayout:ApplicationInstall',
+								[
+									true,
+									eventResult,
+								],
+								false
+							);
+						}
+
+						if (!!result.open)
+						{
+							BX.SidePanel.Instance.reload();
+							top.BX.rest.AppLayout.openApplication(
+								result.id,
+								{}
+							);
+						}
+						else
+						{
+							BX.SidePanel.Instance.reload();
+						}
+					}
+				},
+				this
+			)
+		);
+	};
+
 	return {
 		install: function(params)
+		{
+			if (!!params.SILENT_INSTALL && params.SILENT_INSTALL === 'Y')
+			{
+				queryInstall(params);
+			}
+			else
+			{
+				this.installPopup(params);
+			}
+		},
+
+		installPopup: function(params)
 		{
 			params = params || {url:location.href};
 			params.IFRAME = location.href.indexOf("IFRAME=Y") > 0;
@@ -37,7 +158,6 @@ BX.rest.Marketplace = (function(){
 				offsetTop: 0,
 				overlay: true,
 				draggable: {restrict: true},
-//				titleBar: "...",
 				closeByEsc: true,
 				closeIcon: {right: "12px", top: "10px"},
 				buttons: [
@@ -74,83 +194,9 @@ BX.rest.Marketplace = (function(){
 									return;
 								}
 
-								var form = document.forms["left-menu-preset-form"];
 								BX.addClass(button.buttonNode, "popup-window-button-wait");
 
-								var queryParam = {
-									code: params.CODE
-								};
-
-								if(!!params.VERSION)
-								{
-									queryParam.version = params.VERSION;
-								}
-
-								if(!!params.CHECK_HASH)
-								{
-									queryParam.check_hash = params.CHECK_HASH;
-									queryParam.install_hash = params.INSTALL_HASH;
-								}
-
-								if (!!params.FROM)
-								{
-									queryParam.from = params.FROM;
-								}
-
-								query(
-									'install',
-									queryParam,
-									BX.delegate(function(result)
-									{
-										if(!!result.error)
-										{
-											if (!!result.helperCode && result.helperCode !== '')
-											{
-												top.BX.UI.InfoHelper.show(result.helperCode);
-											}
-											BX('mp_error').innerHTML = result.error
-												+ (!!result.error_description
-													? '<br /><br />' + result.error_description
-													: ''
-												);
-
-											BX.show(BX('mp_error'));
-										}
-										else if(!!result.redirect && params['REDIRECT_PRIORITY'] === true)
-										{
-											top.location.href = result.redirect;
-										}
-										else if(!params.IFRAME)
-										{
-											if(!!result.redirect)
-											{
-												top.location.href = result.redirect;
-											}
-											else
-											{
-												top.location.href = BX.util.remove_url_param(top.location.href, ['install']);
-											}
-										}
-										else
-										{
-											if(result.installed)
-											{
-												var eventResult = {};
-												top.BX.onCustomEvent(top, 'Rest:AppLayout:ApplicationInstall', [true, eventResult], false);
-											}
-
-											if(!!result.open)
-											{
-												BX.SidePanel.Instance.reload();
-												top.BX.rest.AppLayout.openApplication(result.id, {});
-											}
-											else
-											{
-												BX.SidePanel.Instance.reload();
-											}
-										}
-									}, this)
-								);
+								queryInstall(params);
 							}
 						}
 					})),

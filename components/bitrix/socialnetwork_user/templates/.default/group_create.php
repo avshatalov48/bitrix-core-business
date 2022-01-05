@@ -12,7 +12,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-$pageId = "";
+$pageId = "group_create";
 include("util_menu.php");
 
 $componentParameters = array(
@@ -49,5 +49,9 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE' => 'SONET_GROUP',
 		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID' => $arResult['VARIABLES']['group_id'],
 		'POPUP_COMPONENT_BITRIX24_THEME_BEHAVIOUR' => 'return',
+		'PAGE_MODE' => false,
+		'PAGE_MODE_OFF_BACK_URL' => \Bitrix\Socialnetwork\Helper\Path::get('workgroups_page'),
+		'PLAIN_VIEW' => true,
+		'USE_PADDING' => false,
 	]
 );

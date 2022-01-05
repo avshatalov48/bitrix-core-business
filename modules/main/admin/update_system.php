@@ -4,7 +4,9 @@
 //**    MODIFICATION OF THIS FILE WILL ENTAIL SITE FAILURE            **/
 //**********************************************************************/
 if (!defined("UPDATE_SYSTEM_VERSION"))
-	define("UPDATE_SYSTEM_VERSION", "20.600.1");
+{
+	define("UPDATE_SYSTEM_VERSION", "21.1200.0");
+}
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 define("HELP_FILE", "marketplace/sysupdate.php");
@@ -271,17 +273,17 @@ elseif (($DB->type === "MSSQL") || ($DB->type === "ORACLE"))
 $curPhpVer = PhpVersion();
 
 $minPhpErrorVersion = "7.2.0";
-$minPhpWarningVersion = "7.3.0";
+$minPhpWarningVersion = "7.4.0";
 $minPhpWarningVersionBest = "7.4.0";
-$minPhpWarningVersionDate = "2021-04-01";
+$minPhpWarningVersionDate = "2022-02-01";
 
-if (date("Y-m-d") < "2019-03-01")
-{
-	$minPhpErrorVersion = "7.2.0";
-	$minPhpWarningVersion = "";
-	$minPhpWarningVersionBest = "7.4.0";
-	$minPhpWarningVersionDate = "2021-04-01";
-}
+// if (date("Y-m-d") < "2019-03-01")
+// {
+// 	$minPhpErrorVersion = "7.2.0";
+// 	$minPhpWarningVersion = "";
+// 	$minPhpWarningVersionBest = "7.4.0";
+// 	$minPhpWarningVersionDate = "2021-04-01";
+// }
 
 if (version_compare($curPhpVer, $minPhpErrorVersion) < 0)
 {
@@ -1990,7 +1992,7 @@ $tabControl->BeginNextTab();
 					</tr>
 					<?if($arUpdateList["CLIENT"][0]["@"]["B24SUBSC_DATE"] != ""):?>
 					<tr>
-						<td nowrap><?echo GetMessage("SUP_MARKET_SUBSCRIPTION")?>&nbsp;&nbsp;</td>
+						<td nowrap><?=($arUpdateList["CLIENT"][0]["@"]["B24SUBSC"] == "T") ? GetMessage("SUP_MARKET_SUBSCRIPTION_DEMO") : GetMessage("SUP_MARKET_SUBSCRIPTION")?>&nbsp;&nbsp;</td>
 						<td><?echo ConvertTimeStamp($arUpdateList["CLIENT"][0]["@"]["B24SUBSC_DATE"]);?></td>
 					</tr>
 					<?endif;?>

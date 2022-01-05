@@ -4,16 +4,18 @@ namespace Bitrix\Rest\Preset\Data;
 
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Data\Cache;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 use Bitrix\Rest\Dictionary\Integration;
+
+Loc::loadMessages(__FILE__);
 
 /**
  * Class Element
  * @package Bitrix\Rest\Preset\Data
  */
-class Element
+class Element extends Base
 {
-	private const CACHE_TIME = 86400;
 	private const CACHE_DIR = '/rest/integration/element/';
 	public const DEFAULT_APPLICATION = 'application';
 	public const DEFAULT_IN_WEBHOOK = 'in-hook';
@@ -49,6 +51,7 @@ class Element
 						$data = Json::decode(base64_decode($el['option']));
 						if (is_array($data))
 						{
+							$data = static::changeMessage($data);
 							$data['CODE'] = $data['ELEMENT_CODE'];
 							$result = $data;
 						}
@@ -87,6 +90,7 @@ class Element
 					$data = Json::decode(base64_decode($el['option']));
 					if (is_array($data) && $sectionCode === $data['SECTION_CODE'])
 					{
+						$data = static::changeMessage($data);
 						$data['CODE'] = $data['ELEMENT_CODE'];
 						$result[$data['CODE']] = $data;
 					}

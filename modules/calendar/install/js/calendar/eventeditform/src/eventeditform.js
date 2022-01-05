@@ -1,5 +1,5 @@
 "use strict";
-import {Type, Event, Loc, Dom, Browser, Tag, Runtime} from 'main.core';
+import {Type, Event, Loc, Dom, Tag, Runtime} from 'main.core';
 import {SliderDateTimeControl} from './sliderdatetimecontrol.js';
 import {SectionSelector, Reminder, ColorSelector, Location, RepeatSelector, BusyUsersDialog} from 'calendar.controls';
 import {Util} from 'calendar.util';
@@ -9,6 +9,7 @@ import {EventEmitter, BaseEvent} from 'main.core.events';
 import {Planner} from "calendar.planner";
 import {TagSelector as EntityTagSelector} from 'ui.entity-selector';
 import {MobileSyncBanner} from 'calendar.sync.interface';
+import { RoomsManager } from 'calendar.roomsmanager';
 
 export class EventEditForm
 {
@@ -23,11 +24,17 @@ export class EventEditForm
 	sectionIndex = {};
 	trackingUsersList = [];
 	userSettings = {};
+	prevUserList = [];
+	loadedAccessibilityData = {};
 
 	constructor(options = {})
 	{
 		this.name = options.name || 'eventeditform';
 		this.type = options.type || 'user';
+		this.isLocationCalendar = options.isLocationCalendar || false;
+		this.locationAccess = options.locationAccess || false;
+		this.locationCapacity = options.locationCapacity || 0;
+		this.roomsManager = options.roomsManager || null;
 		this.userId = options.userId || parseInt(Loc.getMessage('USER_ID'));
 		this.ownerId = options.ownerId;
 		this.entryId = parseInt(options.entryId) || null;
@@ -51,12 +58,12 @@ export class EventEditForm
 			this.formDataValue.to = new Date(options.entryDateFrom.getTime() + 3600);
 		}
 
-		this.organizerId = Type.isInteger(parseInt(options.organizerId))
-			? parseInt(options.organizerId)
-			: this.userId;
-
 		this.participantsEntityList = Type.isArray(options.participantsEntityList)
 			? options.participantsEntityList
+			: [];
+
+		this.participantsSelectorEntityList = Type.isArray(options.participantsSelectorEntityList)
+			? options.participantsSelectorEntityList
 			: [];
 
 		if (options.entryName && !this.entryId)
@@ -333,6 +340,12 @@ export class EventEditForm
 				markType: this.type
 			}
 		}).then((response) => {
+				if(this.isLocationCalendar)
+				{
+					this.roomsManager.unsetHiddenRoom(
+						Location.parseStringValue(this.DOM.form.location.value).room_id
+					);
+				}
 				this.state = this.STATE.READY;
 				this.allowSliderClose();
 				this.close();
@@ -475,6 +488,10 @@ export class EventEditForm
 			Event.unbind(document, 'keydown', this.keyHandlerBind);
 			EventEmitter.unsubscribe('onPullEvent-calendar', this.handlePullBind);
 			this.BX.SidePanel.Instance.destroy(this.sliderId);
+			if(Location)
+			{
+				Location.setCurrentCapacity(0);
+			}
 			Util.closeAllPopups();
 			this.planner = null;
 			this.opened = false;
@@ -517,7 +534,7 @@ export class EventEditForm
 
 						if (!entry.id && this.participantsEntityList.length)
 						{
-							attendeesEntityList = [...attendeesEntityList, ...this.participantsEntityList];
+							attendeesEntityList = this.participantsEntityList;
 						}
 
 						if (Type.isArray(attendeesEntityList))
@@ -538,6 +555,7 @@ export class EventEditForm
 						Util.setEventWithEmailGuestLimit(params.eventWithEmailGuestLimit);
 						this.handleSections(params.sections, params.trackingUsersList);
 						this.handleLocationData(params.locationFeatureEnabled, params.locationList, params.iblockMeetingRoomList);
+						this.locationAccess = params.locationAccess;
 						this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
 						if (this.planner && !this.plannerFeatureEnabled)
 						{
@@ -573,7 +591,6 @@ export class EventEditForm
 	initControls(uid)
 	{
 		this.DOM.title = this.DOM.content.querySelector(`#${uid}_title`);
-
 		this.DOM.formWrap = this.DOM.content.querySelector(`#${uid}_form_wrap`);
 		this.DOM.form = this.DOM.content.querySelector(`#${uid}_form`);
 		this.DOM.buttonsWrap = this.DOM.content.querySelector('.calendar-form-buttons-fixed');
@@ -586,7 +603,7 @@ export class EventEditForm
 		this.initDateTimeControl(uid);
 		this.initNameControl(uid);
 		this.initEditorControl(uid);
-		this.initAttendeesControl(uid);
+		this.initAttendeesControl();
 		this.initPlanner(uid);
 		this.initReminderControl(uid);
 		this.initSectionSelector(uid);
@@ -696,7 +713,7 @@ export class EventEditForm
 		);
 
 		// Recursion
-		this.repeatSelector.setValue(entry.getRrule());
+		this.repeatSelector.setValue(this.formDataValue.rrule || entry.getRrule());
 
 		// accessibility
 		if (this.DOM.accessibilityInput)
@@ -705,8 +722,11 @@ export class EventEditForm
 		}
 
 		// Location
-		this.locationSelector.setValue(this.formDataValue.location || entry.getLocation());
-
+		if(this.locationSelector)
+		{
+			this.locationSelector.setValue(this.formDataValue.location
+				|| this.locationSelector.default || entry.getLocation());
+		}
 		// Private
 		if (this.DOM.privateEventCheckbox)
 		{
@@ -830,6 +850,12 @@ export class EventEditForm
 		this.DOM.additionalBlock = this.DOM.content.querySelector(`#${uid}_additional_block`);
 		this.DOM.pinnedNamesWrap = this.DOM.content.querySelector(`#${uid}_additional_pinned_names`);
 		this.DOM.additionalSwitch = this.DOM.content.querySelector(`#${uid}_additional_switch`);
+
+
+		if(this.isLocationCalendar && !this.fieldIsPinned('location'))
+		{
+			this.pinField('location');
+		}
 
 		Event.bind(this.DOM.additionalSwitch, 'click', () => {
 			Dom.toggleClass(this.DOM.additionalSwitch, 'opened');
@@ -1044,7 +1070,9 @@ export class EventEditForm
 				inputName: 'lo_cation', // don't use 'location' word here mantis:107863
 				wrap: this.DOM.locationWrap,
 				richLocationEnabled: this.locationFeatureEnabled,
-				locationList: this.locationList,
+				locationList: this.locationList || [],
+				roomsManager: this.roomsManager || null,
+				locationAccess: this.locationAccess || false,
 				iblockMeetingRoomList: this.iblockMeetingRoomList,
 				onChangeCallback: this.refreshPlanner
 			}
@@ -1070,7 +1098,7 @@ export class EventEditForm
 		});
 	}
 
-	initAttendeesControl(uid)
+	initAttendeesControl()
 	{
 		this.DOM.userSelectorWrap = this.DOM.content.querySelector('.calendar-attendees-selector-wrap');
 		this.DOM.userSelectorValueWarp = this.DOM.userSelectorWrap.appendChild(Tag.render`<div></div>`);
@@ -1084,26 +1112,7 @@ export class EventEditForm
 					'Item:onSelect': this.handleUserSelectorChanges.bind(this),
 					'Item:onDeselect': this.handleUserSelectorChanges.bind(this),
 				},
-				entities: [
-					{
-						id: 'user',
-						options: {
-							inviteGuestLink: true,
-							emailUsers: true,
-						}
-					},
-					{
-						id: 'project'
-					},
-					{
-						id: 'department',
-						options: {selectMode: 'usersAndDepartments'}
-					},
-					{
-						id: 'meta-user',
-						options: { 'all-users': true }
-					}
-				],
+				entities: this.getParticipantsSelectorEntityList(),
 				searchTabOptions: {
 					stubOptions: {
 						title: Loc.getMessage('EC_USER_DIALOG_404_TITLE'),
@@ -1171,6 +1180,7 @@ export class EventEditForm
 
 		this.planner.subscribe('onDateChange', this.handlePlannerSelectorChanges.bind(this));
 		this.planner.subscribe('onExpandTimeline', this.handleExpandPlannerTimeline.bind(this));
+		this.planner.subscribe('onDisplayAttendees', this.checkLocationForm.bind(this));
 
 		this.planner.show();
 		this.planner.showLoader();
@@ -1179,11 +1189,11 @@ export class EventEditForm
 	loadPlannerData(params = {})
 	{
 		this.planner.showLoader();
-
 		return new Promise((resolve) => {
 			this.BX.ajax.runAction('calendar.api.calendarajax.updatePlanner', {
 				data: {
 					entryId: this.entry.id || 0,
+					entryLocation: this.entry.data.LOCATION || '',
 					ownerId: this.ownerId,
 					type: this.type,
 					entityList: params.entityList || [],
@@ -1191,19 +1201,45 @@ export class EventEditForm
 					dateTo: params.to || '',
 					timezone: params.timezone || '',
 					location: params.location || '',
-					entries: params.entrieIds || false
+					prevUserList: this.prevUserList
 				}
 			})
 				.then((response) => {
 						if (this.planner)
 						{
+							for (let id in response.data.accessibility)
+							{
+								if (response.data.accessibility.hasOwnProperty(id))
+								{
+									this.loadedAccessibilityData[id] = response.data.accessibility[id];
+								}
+							}
+
+							if (Type.isArray(response.data.entries))
+							{
+								response.data.entries.forEach((entry) => {
+									if (entry.type === 'user' && !this.prevUserList.includes(parseInt(entry.id)))
+									{
+										this.prevUserList.push(parseInt(entry.id));
+									}
+								});
+							}
+
 							this.planner.hideLoader();
 							let dateTime = this.dateTimeControl.getValue();
 							this.planner.update(
 								response.data.entries,
-								response.data.accessibility
+								this.loadedAccessibilityData
 							);
-							this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
+
+							this.planner.updateSelector(
+								dateTime.from,
+								dateTime.to,
+								dateTime.fullDay,
+								{
+									focus: params.focusSelector !== false
+								}
+							);
 						}
 
 						if (this.hasExternalEmailUsers())
@@ -1218,7 +1254,6 @@ export class EventEditForm
 					},
 					(response) => {resolve(response);}
 				);
-
 		});
 	}
 
@@ -1347,7 +1382,15 @@ export class EventEditForm
 
 		if (!section)
 		{
-			section = SectionManager.getNewEntrySectionId();
+			if (this.type === 'location')
+			{
+				section = RoomsManager.getNewEntrySectionId();
+			}
+			else
+			{
+				section = SectionManager.getNewEntrySectionId();
+
+			}
 			if (!this.sectionIndex[section])
 			{
 				section = null;
@@ -1661,14 +1704,15 @@ export class EventEditForm
 			let data = event.getData();
 			if (data.reload)
 			{
-				//this.refreshPlanner();
+				this.prevUserList = [];
 				let dateTime = this.dateTimeControl.getValue();
 				this.loadPlannerData({
 					entityList: this.getUserSelectorEntityList(),
 					from: Util.formatDate(data.dateFrom),
 					to: Util.formatDate(data.dateTo),
 					timezone: dateTime.timezoneFrom,
-					location: this.locationSelector.getTextValue()
+					location: this.locationSelector.getTextValue(),
+					focusSelector: false
 				});
 			}
 		}
@@ -1694,6 +1738,40 @@ export class EventEditForm
 			timezone: dateTime.timezoneFrom,
 			location: this.locationSelector.getTextValue()
 		});
+	}
+
+	checkLocationForm(event)
+	{
+		if(event && event instanceof BaseEvent)
+		{
+			const data = event.getData();
+			const usersCount = data.usersCount;
+
+			if(this.locationCapacity !== 0)
+			{
+				Location.setCurrentCapacity(this.locationCapacity);
+				this.locationCapacity = 0;
+			}
+			let locationCapacity = Location.getCurrentCapacity() || 0;
+
+			if(this.locationSelector.value.type === undefined)
+			{
+				if(locationCapacity)
+				{
+					locationCapacity = 0;
+					Location.setCurrentCapacity(0);
+				}
+			}
+
+			if(locationCapacity < usersCount && locationCapacity !== 0)
+			{
+				this.locationSelector.addCapacityAlert();
+			}
+			else
+			{
+				this.locationSelector.removeCapacityAlert();
+			}
+		}
 	}
 
 	plannerIsShown()
@@ -1828,15 +1906,99 @@ export class EventEditForm
 
 		const data = event.getData();
 		const command = data[0];
-		// const params = Type.isObjectLike(data[1]) ? data[1] : {};
+
+		const params = Type.isObjectLike(data[1]) ? data[1] : {};
 
 		switch(command)
 		{
 			case 'edit_event':
 			case 'delete_event':
 			case 'set_meeting_status':
+				const userIdList = Type.isArray(params?.fields?.ATTENDEES) ? params.fields.ATTENDEES: [];
+				const eventOwner = params?.fields?.CAL_TYPE === 'user'
+					? parseInt(params?.fields?.OWNER_ID)
+					: parseInt(params?.fields?.CREATED_BY);
+				if (!userIdList.includes(eventOwner))
+				{
+					userIdList.push(eventOwner);
+				}
+				this.clearAccessibilityData(userIdList);
+
 				this.refreshPlannerState();
 				break;
 		}
+	}
+
+	clearAccessibilityData(userIdList: Object): void
+	{
+		if (Type.isArray(userIdList) && userIdList.length && this.prevUserList.length)
+		{
+			this.prevUserList = this.prevUserList.filter((userId) => {
+				return !userIdList.includes(userId);
+			});
+		}
+	}
+
+	getParticipantsSelectorEntityList()
+	{
+		if (this.participantsSelectorEntityList && this.participantsSelectorEntityList.length)
+		{
+			return this.participantsSelectorEntityList;
+		}
+
+		let entityList = [
+			{
+				id: 'user',
+				options: {
+					inviteGuestLink: true,
+					emailUsers: true,
+				}
+			},
+			{
+				id: 'project'
+			},
+			{
+				id: 'department',
+				options: {selectMode: 'usersAndDepartments'}
+			},
+			{
+				id: 'meta-user',
+				options: { 'all-users': true }
+			}
+		];
+
+		if (this.attendeesPreselectedItems)
+		{
+			let projectRole = null;
+
+			this.attendeesPreselectedItems
+				.forEach((item) => {
+					const type = item[0];
+					const role = item[1];
+					if (type === 'project-roles')
+					{
+						projectRole = role;
+					}
+				})
+			;
+
+			if (projectRole)
+			{
+				entityList = [
+					{
+						id: 'user'
+					},
+					{
+						id: 'project-roles',
+						options: {
+							projectId: projectRole.split('_')[0]
+						},
+						dynamicLoad: true
+					}
+				];
+			}
+		}
+
+		return entityList;
 	}
 }

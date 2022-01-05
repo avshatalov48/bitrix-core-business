@@ -35,6 +35,7 @@ $MESS["EC_MESS_VIEW_OWN_CALENDAR_OUT"] = "You can view other events and meetings
 $MESS["EC_NOTIFY_ATTENDEES_CHANGED"] = "Event \"#TITLE#\" you are attending has changed guests, event date: #ACTIVE_FROM#";
 $MESS["EC_NOTIFY_DATE_FROM_CHANGED"] = "Event \"#TITLE#\" you are attending has changed start time from \"#OLD_DATE_FROM#\" to \"#NEW_DATE_FROM#\"";
 $MESS["EC_NOTIFY_DATE_TO_CHANGED"] = "Event \"#TITLE#\" you are attending has changed end time from \"#OLD_DATE_TO#\" to \"#NEW_DATE_TO#\"";
+$MESS["EC_NOTIFY_DELETE_LOCATION"] = "Meeting room <b>\"#LOCATION#\"</b> has been deleted and removed from your events.";
 $MESS["EC_NOTIFY_DESCRIPTION_CHANGED"] = "Event \"#TITLE#\" you are attending has changed description, event date: #ACTIVE_FROM#";
 $MESS["EC_NOTIFY_ENTRY_CHANGED"] = "Event \"#TITLE#\" you are attending on #ACTIVE_FROM# has changed. Changed parameters: #CHANGED_FIELDS_LIST#";
 $MESS["EC_NOTIFY_FAIL_ICAL_CANCEL"] = "Could not send #NAME# event cancellation notification to users #USERS_LIST#. Email address may be incorrect or destination email server does not respond. Please make sure the email address is valid and try again later.";

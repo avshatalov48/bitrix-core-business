@@ -1,4 +1,6 @@
-<?
+<?php
+$MESS["CALENDAR_UPDATE_EVENT_WITH_LOCATION"] = "Converting events";
+$MESS["CALENDAR_UPDATE_STRUCTURE_TITLE"] = "Optimizing structure";
 $MESS["EC_CALENDAR_INDEX"] = "Index calendar events";
 $MESS["EC_CALENDAR_SPOTLIGHT_LIST"] = "Switch between various calendar views for your convenience. Try our new Schedule view created for busy professionals who need a list view of all meetings and appointments.";
 $MESS["EC_CALENDAR_SPOTLIGHT_SYNC"] = "Synchronize your calendars with other services and mobile devices automatically. The synchronization works both ways.";
@@ -10,4 +12,3 @@ $MESS["EC_IBLOCK_MODULE_NOT_INSTALLED"] = "The \"Information Blocks\" module is 
 $MESS["EC_INTRANET_MODULE_NOT_INSTALLED"] = "The \"Intranet Portal\" module is not installed.";
 $MESS["EC_USER_ID_NOT_FOUND"] = "Cannot show the user calendar because the user ID is not specified.";
 $MESS["EC_USER_NOT_FOUND"] = "The user was not found.";
-?>

@@ -15,6 +15,8 @@ return [
 		'calendar.controls',
 		'main.core',
 		'ui.entity-selector',
+		'main.core.events',
+		'ui.messagecard',
 	],
 	'skip_core' => false,
 ];

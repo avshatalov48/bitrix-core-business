@@ -2853,12 +2853,12 @@ class CIMChat
 				$friendId = $this->user_id == $arFriends["FIRST_USER_ID"]? $arFriends["SECOND_USER_ID"]: $arFriends["FIRST_USER_ID"];
 				$arFriendUsers[$friendId] = $friendId;
 			}
-			foreach ($arUserId as $id => $userId)
+			foreach ($arUserId as $id => $uid)
 			{
-				if ($userId == $this->user_id)
+				if ($uid == $this->user_id)
 					continue;
 
-				if (!isset($arFriendUsers[$userId]) && CIMSettings::GetPrivacy(CIMSettings::PRIVACY_CHAT, $userId) == CIMSettings::PRIVACY_RESULT_CONTACT)
+				if (!isset($arFriendUsers[$uid]) && CIMSettings::GetPrivacy(CIMSettings::PRIVACY_CHAT, $uid) == CIMSettings::PRIVACY_RESULT_CONTACT)
 					unset($arUserId[$id]);
 			}
 
@@ -2953,11 +2953,11 @@ class CIMChat
 
 		if ($chatEntityType == 'LINES')
 		{
-			foreach ($arUserId as $id => $userId)
+			foreach ($arUserId as $id => $uid)
 			{
 				if (
-					!\Bitrix\Im\User::getInstance($userId)->isConnector() &&
-					(\Bitrix\Im\User::getInstance($userId)->isExtranet() || \Bitrix\Im\User::getInstance($userId)->isNetwork())
+					!\Bitrix\Im\User::getInstance($uid)->isConnector() &&
+					(\Bitrix\Im\User::getInstance($uid)->isExtranet() || \Bitrix\Im\User::getInstance($uid)->isNetwork())
 				)
 				{
 					unset($arUserId[$id]);
@@ -3048,9 +3048,9 @@ class CIMChat
 		}
 
 		$arUsersName = Array();
-		foreach ($arUserId as $userId)
+		foreach ($arUserId as $uid)
 		{
-			$arUsersName[] = '[USER='.$userId.'][/USER]';
+			$arUsersName[] = '[USER='.$uid.'][/USER]';
 		}
 
 		$message = '';
@@ -3135,15 +3135,15 @@ class CIMChat
 			$replicaUpdate = false;
 		}
 
-		foreach ($arUserId as $userId)
+		foreach ($arUserId as $uid)
 		{
 			if ($publicPullWatch)
 			{
-				CPullWatch::Delete($userId, 'IM_PUBLIC_'.$chatId);
+				\CPullWatch::Delete($uid, 'IM_PUBLIC_'.$chatId);
 			}
 
 			$hideHistoryFlag = $hideHistory;
-			if ($chatEntityType != 'LINES' && $arRes['CHAT_TYPE'] != IM_MESSAGE_PRIVATE && \Bitrix\Im\User::getInstance($userId)->isExtranet())
+			if ($chatEntityType != 'LINES' && $arRes['CHAT_TYPE'] != IM_MESSAGE_PRIVATE && \Bitrix\Im\User::getInstance($uid)->isExtranet())
 			{
 				$hideHistoryFlag = true;
 			}
@@ -3157,7 +3157,7 @@ class CIMChat
 			$orm = IM\Model\RelationTable::add(array(
 				"CHAT_ID" => $chatId,
 				"MESSAGE_TYPE" => $arRes['CHAT_TYPE'],
-				"USER_ID" => $userId,
+				"USER_ID" => $uid,
 				"START_ID" => $hideHistoryFlag? $startId: 0,
 				"LAST_ID" => $maxId,
 				"LAST_SEND_ID" => $maxId,
@@ -3173,12 +3173,12 @@ class CIMChat
 
 			if ($arRes['CHAT_TYPE'] != IM_MESSAGE_OPEN)
 			{
-				CIMContactList::CleanChatCache($userId);
+				\CIMContactList::CleanChatCache($uid);
 			}
 		}
 		if ($arRes['CHAT_TYPE'] == IM_MESSAGE_OPEN)
 		{
-			CIMContactList::CleanAllChatCache();
+			\CIMContactList::CleanAllChatCache();
 		}
 
 		$newUsersCount = $this->getChatActiveUserCount($chatId);
@@ -3240,15 +3240,15 @@ class CIMChat
 
 		CIMDisk::ChangeFolderMembers($chatId, $arUserId);
 
-		foreach ($arUserId as $userId)
+		foreach ($arUserId as $uid)
 		{
-			if (IM\User::getInstance($userId)->isBot())
+			if (IM\User::getInstance($uid)->isBot())
 			{
-				IM\Bot::changeChatMembers($chatId, $userId);
+				IM\Bot::changeChatMembers($chatId, $uid);
 				IM\Bot::onJoinChat('chat'.$chatId, Array(
 					'CHAT_TYPE' => $chatType,
 					'MESSAGE_TYPE' => $chatType,
-					'BOT_ID' => $userId,
+					'BOT_ID' => $uid,
 					'USER_ID' => $this->user_id,
 					'CHAT_ID' => $chatId,
 					"CHAT_AUTHOR_ID" => $arRes['CHAT_AUTHOR_ID'],
@@ -3813,8 +3813,8 @@ class CIMChat
 		$chatData = \Bitrix\Im\Model\ChatTable::getList(Array(
 			'select' => ['ID'],
 			'filter' => [
-				'=ENTITY_TYPE' => $arParams['ENTITY_TYPE'],
-				'=ENTITY_ID' => $arParams['ENTITY_ID'],
+				'=ENTITY_TYPE' => $entityType,
+				'=ENTITY_ID' => $entityId,
 			]
 		))->fetch();
 

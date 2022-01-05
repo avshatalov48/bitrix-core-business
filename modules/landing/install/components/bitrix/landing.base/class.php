@@ -1107,6 +1107,7 @@ class LandingBaseComponent extends \CBitrixComponent
 	/**
 	 * Detects site special type and returns it.
 	 * @param int $siteId Site id.
+	 * @deprecated since 21.700.0
 	 * @return string|null
 	 */
 	protected function getSpecialTypeSite(int $siteId): ?string
@@ -1119,6 +1120,27 @@ class LandingBaseComponent extends \CBitrixComponent
 				'crm', FormLanding::OPT_CODE_LANDINGS_SITE_ID
 			);
 			if ($storedSiteId == $siteId)
+			{
+				$specialType = \Bitrix\Landing\Site\Type::PSEUDO_SCOPE_CODE_FORMS;
+			}
+		}
+
+		return $specialType;
+	}
+
+	/**
+	 * Detects site special type and returns it.
+	 * @param Landing $landing Landing instance.
+	 * @return string|null
+	 */
+	protected function getSpecialTypeSiteByLanding(Landing $landing): ?string
+	{
+		$specialType = null;
+		$meta = $landing->getMeta();
+
+		if ($meta['SITE_SPECIAL'] === 'Y')
+		{
+			if (preg_match('#^/' . Site\Type::PSEUDO_SCOPE_CODE_FORMS . '[\d]*/$#', $meta['SITE_CODE']))
 			{
 				$specialType = \Bitrix\Landing\Site\Type::PSEUDO_SCOPE_CODE_FORMS;
 			}

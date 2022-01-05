@@ -30,6 +30,7 @@ class CRestProvider
 		"basic" => "basic",
 		"std" => "std",
 		"pro" => "pro",
+		"ent" => "ent",
 	);
 
 	protected static $arApp = null;
@@ -123,6 +124,7 @@ class CRestProvider
 			if(!\Bitrix\Main\ModuleManager::isModuleInstalled('oauth'))
 			{
 				$ownMethods[\CRestUtil::GLOBAL_SCOPE]['app.info'] = array(__CLASS__, 'appInfo');
+				$ownMethods[\CRestUtil::GLOBAL_SCOPE]['feature.get'] = array(__CLASS__, 'getFeature');
 			}
 
 			$arDescription = array();
@@ -457,6 +459,69 @@ class CRestProvider
 	}
 
 	/**
+	 * Return feature information.
+	 *
+	 * @param $params
+	 * @param $n
+	 * @param CRestServer $server
+	 *
+	 * @return array
+	 *
+	 * @throws RestException
+	 * @throws \Bitrix\Main\LoaderException
+	 */
+	public static function getFeature($params, $n, \CRestServer $server)
+	{
+		$params = array_change_key_case($params, CASE_UPPER);
+		$result = [
+			'value' => '',
+		];
+		if (empty($params['CODE']))
+		{
+			throw new RestException(
+				'CODE can\'t be empty',
+				'CODE_EMPTY',
+				\CRestServer::STATUS_WRONG_REQUEST
+			);
+		}
+
+		if(\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24') && Loader::includeModule('bitrix24'))
+		{
+			$result['value'] = \Bitrix\Bitrix24\Feature::isFeatureEnabled($params['CODE']) ? 'Y' : 'N';
+		}
+		else
+		{
+			foreach (GetModuleEvents('rest', 'onRestGetFeature', true) as $event)
+			{
+				$eventData = ExecuteModuleEventEx(
+					$event,
+					[
+						$params['CODE'],
+					]
+				);
+				if (is_array($eventData))
+				{
+					if ($eventData['value'] === true || $eventData['value'] === 'Y')
+					{
+						$result['value'] = 'Y';
+					}
+					else
+					{
+						$result['value'] = 'N';
+					}
+				}
+			}
+
+			if (empty($result['value']))
+			{
+				$result['value'] = LANGUAGE_ID . '_selfhosted';
+			}
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Gets application option values
 	 *
 	 * @param array $params array([option => option_name])
@@ -700,7 +765,7 @@ class CRestProvider
 
 		$licenseInfo = COption::GetOptionString("main", $licenseOption);
 
-		list($lang, $licenseName, $additional) = explode("_", $licenseInfo, 3);
+		[$lang, $licenseName, $additional] = explode("_", $licenseInfo, 3);
 
 		if(!array_key_exists($licenseName, static::$licenseList))
 		{

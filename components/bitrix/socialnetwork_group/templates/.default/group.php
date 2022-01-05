@@ -120,4 +120,3 @@ $APPLICATION->IncludeComponent(
 );
 
 $APPLICATION->SetPageProperty('FavoriteTitleTemplate', $arResult['PAGES_TITLE_TEMPLATE']);
-$APPLICATION->SetPageProperty('FavoriteUrl', (!empty($arResult['PATH_TO_GROUP_GENERAL']) ? str_replace('#group_id#', $arResult['VARIABLES']['group_id'], $arResult['PATH_TO_GROUP_GENERAL']) : ''));

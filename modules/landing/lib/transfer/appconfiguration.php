@@ -138,6 +138,12 @@ class AppConfiguration
 	 */
 	public static function onCheckAccess(string $type, array $manifest): array
 	{
+		if ($manifest['CODE'] ?? null)
+		{
+			$siteType = substr($manifest['CODE'], strlen(AppConfiguration::PREFIX_CODE));
+			\Bitrix\Landing\Site\Type::setScope($siteType);
+		}
+
 		if ($type === 'export')
 		{
 			$access = in_array(Rights::ACCESS_TYPES['read'], Rights::getOperationsForSite(0));

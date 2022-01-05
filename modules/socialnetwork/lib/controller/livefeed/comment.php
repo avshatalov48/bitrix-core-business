@@ -40,8 +40,6 @@ class Comment extends Base
 			return null;
 		}
 
-		$result = false;
-
 		$commentData = \CSocNetLogComponent::getCommentByRequest($commentId, $postId, 'edit');
 		if ($commentData)
 		{

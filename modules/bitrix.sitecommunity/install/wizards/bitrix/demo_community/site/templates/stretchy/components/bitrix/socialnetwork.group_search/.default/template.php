@@ -7,7 +7,7 @@
 	<div class="sonet-add-group-button-clear"></div>
 	</div>
 <?endif;?>
-<?if (strlen($arResult["ERROR_MESSAGE"]) <= 0):?>
+<?if ($arResult["ERROR_MESSAGE"] == ''):?>
 	<?if (count($arResult["SEARCH_RESULT"]) > 0):?>
 		<br /><?foreach ($arResult["SEARCH_RESULT"] as $v):?>
 		<table width="100%" class="sonet-user-profile-friends data-table">
@@ -20,7 +20,7 @@
 						<div class="content-sidebar">
 						<div class="content-change"><?= GetMessage("SONET_C24_T_ACTIVITY") ?>: <?= $v["FULL_DATE_CHANGE_FORMATED"]; ?></div>
 						<?
-						if (IntVal($v["NUMBER_OF_MEMBERS"]) > 0)
+						if (intval($v["NUMBER_OF_MEMBERS"]) > 0)
 						{
 							?>
 							<div class="content-members">
@@ -32,7 +32,7 @@
 						</div>		
 						<a href="<?= $v["URL"] ?>"><b><?= $v["TITLE_FORMATED"] ?></b></a>
 						<?
-						if (strlen($v["SUBJECT_NAME"]) > 0)
+						if ($v["SUBJECT_NAME"] <> '')
 						{
 							?>
 							<div class="content-subject"><?= GetMessage("SONET_C24_T_SUBJ") ?>: <?= $v["SUBJECT_NAME"] ?></div>
@@ -47,7 +47,7 @@
 							<b><?= GetMessage("SONET_C39_ARCHIVE_GROUP") ?></b>
 							<?
 						}
-						if (strlen($v["BODY_FORMATED"]) > 0)
+						if ($v["BODY_FORMATED"] <> '')
 						{
 							?>
 							<br />
@@ -65,11 +65,11 @@
 		<br />
 		<?endforeach;?>
 
-		<?if (strlen($arResult["NAV_STRING"]) > 0):?>
+		<?if ($arResult["NAV_STRING"] <> ''):?>
 			<p><?=$arResult["NAV_STRING"]?></p>
 		<?endif;?>
 			
-		<?if (strlen($arResult["ORDER_LINK"]) > 0):?>
+		<?if ($arResult["ORDER_LINK"] <> ''):?>
 			<?if ($arResult["how"] == "d"):?>
 				<p><a href="<?= $arResult["ORDER_LINK"] ?>"><?= GetMessage("SONET_C24_T_ORDER_REL") ?></a>&nbsp;|&nbsp;<b><?= GetMessage("SONET_C24_T_ORDER_DATE") ?></b></p>
 			<?else:?>

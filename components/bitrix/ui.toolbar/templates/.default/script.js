@@ -313,7 +313,7 @@
 			//default page
 			if (
 				BX.type.isDomNode(this.currentPageInMenu)
-				&& this.currentPageInMenu.getAttribute('data-type') === 'default')
+				&& this.currentPageInMenu.getAttribute('data-type') !== 'standard')
 			{
 				this.starContNode.title = BX.message('UI_TOOLBAR_STAR_TITLE_DEFAULT_PAGE');
 				BX.bind(this.starContNode, 'click', function ()

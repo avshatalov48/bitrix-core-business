@@ -1581,7 +1581,6 @@ if (
 							$arFields["AUTHOR_ID"] = $arResult["UserID"];
 							$arFields["BLOG_ID"] = $arBlog["ID"];
 
-							$ar = (is_array($arFields["UF_BLOG_POST_FILE"]) ? array_values($arFields["UF_BLOG_POST_FILE"]) : array());
 							$dbDuplPost = CBlogPost::GetList(
 								array("ID" => "DESC"),
 								array("BLOG_ID" => $arBlog["ID"]),
@@ -1614,12 +1613,22 @@ if (
 									}
 								}
 
+								$filesList = (
+									is_array($arFields["UF_BLOG_POST_FILE"])
+										? array_values($arFields["UF_BLOG_POST_FILE"])
+										: []
+								);
+								$filesList = array_values(array_filter($filesList, static function($val) {
+									return !empty($val);
+								}));
+
 								$diff1 = array_diff($logRights, $arFields["SOCNET_RIGHTS"]);
 								$diff2 = array_diff($arFields["SOCNET_RIGHTS"], $logRights);
 
 								if(
-									empty($ar[0]) // no files
+									empty($filesList) // no files
 									&& !$bNeedAddGrat // no gratitudes
+									&& empty($_POST['UF_MAIL_MESSAGE'])
 									&& (int)$arDuplPost['BLOG_ID'] === (int)$arFields['BLOG_ID']
 									&& (int)$arDuplPost['AUTHOR_ID'] === (int)$arFields['AUTHOR_ID']
 									&& md5($arDuplPost['DETAIL_TEXT']) === md5($arFields['DETAIL_TEXT'])

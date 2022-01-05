@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Component\LogList;
 
 use Bitrix\Main\Config\Option;
@@ -26,7 +27,7 @@ class Path
 		}
 		else
 		{
-			$this->request = Util::getRequest();;
+			$this->request = Util::getRequest();
 		}
 	}
 
@@ -40,85 +41,53 @@ class Path
 		return $this->component;
 	}
 
-	public function setFolderUsersValue($value = '')
+	public function setFolderUsersValue($value = ''): void
 	{
 		$this->folderUsers = $value;
 	}
-	public function getFolderUsersValue()
+	public function getFolderUsersValue(): string
 	{
 		return $this->folderUsers;
 	}
 
-	public function setFolderWorkgroupsValue($value = '')
+	public function setFolderWorkgroupsValue($value = ''): void
 	{
 		$this->folderWorkgroups = $value;
 	}
-	public function getFolderWorkgroupsValue()
+	public function getFolderWorkgroupsValue(): string
 	{
 		return $this->folderWorkgroups;
 	}
 
-	public function preparePathParams(&$componentParams)
+	public function preparePathParams(&$componentParams): array
 	{
 		$result = [];
 
 		$extranetSite = $this->getComponent()->getExtranetSiteValue();
 
 		$result['folderUsers'] = Option::get('socialnetwork', 'user_page', false, SITE_ID);
-		$result['folderUsers'] = (
-			$result['folderUsers']
-				? $result['folderUsers']
-				: ($extranetSite ? SITE_DIR.'contacts/personal/' : SITE_DIR.'company/personal/')
-		);
+		$result['folderUsers'] = ($result['folderUsers'] ?: ($extranetSite ? SITE_DIR.'contacts/personal/' : SITE_DIR.'company/personal/'));
 
 		$result['folderWorkgroups'] = Option::get('socialnetwork', 'workgroups_page', false, SITE_ID);
-		$result['folderWorkgroups'] = (
-			$result['folderWorkgroups']
-				? $result['folderWorkgroups']
-				: SITE_DIR.'workgroups/'
-		);
+		$result['folderWorkgroups'] = ($result['folderWorkgroups'] ?: SITE_DIR.'workgroups/');
 
 		$result['pathToUserBlogPost'] = \Bitrix\Socialnetwork\Helper\Path::get('userblogpost_page');
-		$result['pathToUserBlogPost'] = (
-			$result['pathToUserBlogPost']
-				? $result['pathToUserBlogPost']
-				: $result['folderUsers'].'user/#user_id#/blog/#post_id#/'
-		);
+		$result['pathToUserBlogPost'] = ($result['pathToUserBlogPost'] ?: $result['folderUsers'].'user/#user_id#/blog/#post_id#/');
 
 		$result['pathToLogEntry'] = Option::get('socialnetwork', 'log_entry_page', false, SITE_ID);
-		$result['pathToLogEntry'] = (
-			$result['pathToLogEntry']
-				? $result['pathToLogEntry']
-				: $result['folderUsers'].'personal/log/#log_id#/'
-		);
+		$result['pathToLogEntry'] = ($result['pathToLogEntry'] ?: $result['folderUsers'].'personal/log/#log_id#/');
 
 		$result['pathToMessagesChat'] = Option::get('main', 'TOOLTIP_PATH_TO_MESSAGES_CHAT', false, SITE_ID);
-		$result['pathToMessagesChat']  = (
-			$result['pathToMessagesChat']
-				? $result['pathToMessagesChat']
-				: $result['folderUsers'].'messages/chat/#user_id#/'
-		);
+		$result['pathToMessagesChat']  = ($result['pathToMessagesChat'] ?: $result['folderUsers'].'messages/chat/#user_id#/');
 
 		$result['pathToVideoCall'] = Option::get('main', 'TOOLTIP_PATH_TO_VIDEO_CALL', false, SITE_ID);
-		$result['pathToVideoCall'] = (
-			$result['pathToVideoCall']
-				? $result['pathToVideoCall']
-				: $result['folderUsers'].'video/#user_id#/'
-		);
+		$result['pathToVideoCall'] = ($result['pathToVideoCall'] ?: $result['folderUsers'].'video/#user_id#/');
 
 		$result['pathToSmile'] = Option::get('socialnetwork', 'smile_page', false, SITE_ID);
-		$result['pathToSmile'] = (
-			$result['pathToSmile']
-				? $result['pathToSmile']
-				: '/bitrix/images/socialnetwork/smile/'
-		);
+		$result['pathToSmile'] = ($result['pathToSmile'] ?: '/bitrix/images/socialnetwork/smile/');
 
 		$pathToUser = Option::get('main', 'TOOLTIP_PATH_TO_USER', false, SITE_ID);
-		$pathToUser = (
-			$pathToUser
-				? $pathToUser
-				: $result['folderUsers'].'user/#user_id#/'
-		);
+		$pathToUser = ($pathToUser ?: $result['folderUsers'].'user/#user_id#/');
 
 		Util::checkEmptyParamString($componentParams, 'PATH_TO_USER', $pathToUser);
 		Util::checkEmptyParamString($componentParams, 'PATH_TO_USER_MICROBLOG', $result['folderUsers'].'user/#user_id#/blog/');
@@ -139,7 +108,7 @@ class Path
 		return $result;
 	}
 
-	public function setPaths(&$params)
+	public function setPaths(&$params): void
 	{
 		$pathResult = $this->preparePathParams($params);
 		$this->setFolderUsersValue($pathResult['folderUsers']);
@@ -152,4 +121,3 @@ class Path
 		$this->pathToSmile = $pathResult['pathToSmile'];
 	}
 }
-?>

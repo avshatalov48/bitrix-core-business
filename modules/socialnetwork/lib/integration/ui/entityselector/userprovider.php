@@ -436,7 +436,7 @@ class UserProvider extends BaseProvider
 
 			$filter = [
 				'=ID' => $userId,
-				'IS_REAL_USER' => true
+				'=IS_REAL_USER' => true
 			];
 
 			if ($role === 'intranet')
@@ -634,15 +634,15 @@ class UserProvider extends BaseProvider
 		{
 			$query->registerRuntimeField(
 				new Reference(
-					'INDEX_SELECTOR',
-					\Bitrix\Main\UserIndexSelectorTable::class,
+					'USER_INDEX',
+					\Bitrix\Main\UserIndexTable::class,
 					Join::on('this.ID', 'ref.USER_ID'),
 					['join_type' => 'INNER']
 				)
 			);
 
 			$query->whereMatch(
-				'INDEX_SELECTOR.SEARCH_SELECTOR_CONTENT',
+				'USER_INDEX.SEARCH_USER_CONTENT',
 				Filter\Helper::matchAgainstWildcard(
 					Content::prepareStringToken($options['searchQuery']), '*', 1
 				)
@@ -662,22 +662,25 @@ class UserProvider extends BaseProvider
 		$isIntranetUser = $intranetInstalled && self::isIntranetUser($currentUserId);
 		if ($intranetInstalled)
 		{
+			$emptyValue = serialize([]);
+			$emptyValue2 = serialize([0]);
+
 			$query->registerRuntimeField(new ExpressionField(
 				'IS_INTRANET_USER',
 				'IF(
-					(%s IS NOT NULL AND %s != \'a:0:{}\') AND
+					(%s IS NOT NULL AND %s != \'' . $emptyValue . '\' AND %s != \'' . $emptyValue2 . '\') AND
 					(%s IS NULL OR %s NOT IN (\''.join('\', \'', UserTable::getExternalUserTypes()).'\')), \'Y\', \'N\'
 				)',
-				['UF_DEPARTMENT', 'UF_DEPARTMENT', 'EXTERNAL_AUTH_ID', 'EXTERNAL_AUTH_ID'])
+				['UF_DEPARTMENT', 'UF_DEPARTMENT', 'UF_DEPARTMENT', 'EXTERNAL_AUTH_ID', 'EXTERNAL_AUTH_ID'])
 			);
 
 			$query->registerRuntimeField(new ExpressionField(
 				'IS_EXTRANET_USER',
 				'IF(
-					(%s IS NULL OR %s = \'a:0:{}\') AND
+					(%s IS NULL OR %s = \'' . $emptyValue . '\' OR %s = \'' . $emptyValue2 . '\') AND
 					(%s IS NULL OR %s NOT IN (\''.join('\', \'', UserTable::getExternalUserTypes()).'\')), \'Y\', \'N\'
 				)',
-				['UF_DEPARTMENT', 'UF_DEPARTMENT', 'EXTERNAL_AUTH_ID', 'EXTERNAL_AUTH_ID'])
+				['UF_DEPARTMENT', 'UF_DEPARTMENT', 'UF_DEPARTMENT', 'EXTERNAL_AUTH_ID', 'EXTERNAL_AUTH_ID'])
 			);
 
 			$query->registerRuntimeField(
@@ -777,6 +780,10 @@ class UserProvider extends BaseProvider
 				else if ($extranetUsersOnly)
 				{
 					$query->where('IS_EXTRANET_USER', 'Y');
+				}
+				else
+				{
+					$query->addFilter('!=EXTERNAL_AUTH_ID', UserTable::getExternalUserTypes());
 				}
 
 				if ($extranetUsersQuery)
@@ -880,7 +887,7 @@ class UserProvider extends BaseProvider
 		}
 
 		$query = UserToGroupTable::query();
-		$query->addSelect(new ExpressionField('DISTINCT_USER_ID', 'DISTINCT %s', 'USER_ID'));
+		$query->addSelect(new ExpressionField('DISTINCT_USER_ID', 'DISTINCT %s', 'USER.ID'));
 		// $query->where('ROLE', '<=', UserToGroupTable::ROLE_USER);
 		$query->whereIn('ROLE', self::EXTRANET_ROLES);
 		$query->registerRuntimeField(
@@ -1040,7 +1047,18 @@ class UserProvider extends BaseProvider
 				}
 				else
 				{
-					$type = empty($user->getUfDepartment()) ? 'extranet' : 'employee';
+					$ufDepartment = $user->getUfDepartment();
+					if (
+						empty($ufDepartment)
+						|| (is_array($ufDepartment) && count($ufDepartment) === 1 && (int)$ufDepartment[0] === 0)
+					)
+					{
+						$type = 'extranet';
+					}
+					else
+					{
+						$type = 'employee';
+					}
 				}
 			}
 			else

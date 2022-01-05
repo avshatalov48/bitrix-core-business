@@ -67,6 +67,8 @@ class AppTable extends Main\Entity\DataManager
 	const TYPE_CONFIGURATION = 'C';
 	const TYPE_SMART_ROBOTS = 'R';
 
+	const MODE_SITE = 'S';
+
 	const STATUS_LOCAL = 'L';
 	const STATUS_FREE = 'F';
 	const STATUS_PAID = 'P';
@@ -224,11 +226,22 @@ class AppTable extends Main\Entity\DataManager
 		);
 	}
 
+	/**
+	 * Holds sending changed data to oauth.
+	 *
+	 * @param $v bool
+	 */
 	public static function setSkipRemoteUpdate($v)
 	{
 		static::$skipRemoteUpdate = $v;
 	}
 
+	/**
+	 * Event on before add application.
+	 *
+	 * @param Main\Entity\Event $event
+	 * @return Main\Entity\EventResult
+	 */
 	public static function onBeforeAdd(Main\Entity\Event $event)
 	{
 		$result = new Main\Entity\EventResult();
@@ -250,6 +263,13 @@ class AppTable extends Main\Entity\DataManager
 		return $result;
 	}
 
+	/**
+	 * Event on after add application.
+	 *
+	 * @param Main\Entity\Event $event
+	 * @return bool
+	 * @throws OAuthException
+	 */
 	public static function onAfterAdd(Main\Entity\Event $event)
 	{
 		EventController::onAddApp($event);
@@ -329,6 +349,13 @@ class AppTable extends Main\Entity\DataManager
 		return true;
 	}
 
+	/**
+	 * Event on after update application.
+	 *
+	 * @param Main\Entity\Event $event
+	 * @return bool
+	 * @throws OAuthException
+	 */
 	public static function onAfterUpdate(Main\Entity\Event $event)
 	{
 		$data = $event->getParameters();
@@ -379,6 +406,11 @@ class AppTable extends Main\Entity\DataManager
 		return true;
 	}
 
+	/**
+	 * Event on before delete application.
+	 *
+	 * @param Main\Entity\Event $event
+	 */
 	public static function onDelete(Main\Entity\Event $event)
 	{
 		if(!static::$skipRemoteUpdate)
@@ -408,6 +440,11 @@ class AppTable extends Main\Entity\DataManager
 		}
 	}
 
+	/**
+	 * Event on after delete application.
+	 *
+	 * @param Main\Entity\Event $event
+	 */
 	public static function onAfterDelete(Main\Entity\Event $event)
 	{
 		$data = $event->getParameters();
@@ -433,6 +470,12 @@ class AppTable extends Main\Entity\DataManager
 		}
 	}
 
+	/**
+	 * Uninstalls application.
+	 *
+	 * @param string|int $appId
+	 * @param int $clean
+	 */
 	public static function uninstall($appId, $clean = 0)
 	{
 		$appInfo = static::getByClientId($appId);
@@ -449,6 +492,13 @@ class AppTable extends Main\Entity\DataManager
 		}
 	}
 
+	/**
+	 * Checks opportunity of deleting application.
+	 *
+	 * @param int $appId
+	 * @param int $clean
+	 * @return Main\ErrorCollection
+	 */
 	public static function checkUninstallAvailability($appId, $clean = 0)
 	{
 		$event = new Main\Event('rest', 'onBeforeApplicationUninstall', [
@@ -477,6 +527,13 @@ class AppTable extends Main\Entity\DataManager
 		return $result;
 	}
 
+	/**
+	 * Updates applications status from OAuth.
+	 *
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
 	public static function updateAppStatusInfo()
 	{
 		$appList = OAuthService::getEngine()->getClient()->getApplicationList();
@@ -560,6 +617,11 @@ class AppTable extends Main\Entity\DataManager
 		}
 	}
 
+	/**
+	 * Sends event applications payment information.
+	 *
+	 * @param $appId
+	 */
 	public static function callAppPaymentEvent($appId)
 	{
 		// for compatibility purpose module_id is bitrix24 here
@@ -569,15 +631,28 @@ class AppTable extends Main\Entity\DataManager
 		}
 	}
 
+	/**
+	 * Returns applications information.
+	 *
+	 * @param mixed $app
+	 * @param string $detailUrl
+	 * @return array
+	 */
 	public static function getAppStatusInfo($app, $detailUrl)
 	{
 		$res = array();
 
-		if(!is_array($app) && intval($app) > 0)
+		if (
+			!empty($app)
+			&& (
+				is_string($app)
+				|| is_integer($app)
+			)
+		)
 		{
 			$appInfo = $app = static::getByClientId($app);
 		}
-		elseif ($app['CODE'])
+		elseif (isset($app['CODE']))
 		{
 			$appInfo = static::getByClientId($app['CODE']);
 		}
@@ -711,7 +786,9 @@ class AppTable extends Main\Entity\DataManager
 	}
 
 	/**
-	 * @param $suffix
+	 * Returns message with applications status.
+	 *
+	 * @param string $suffix
 	 * @param array|null $replace
 	 * @param bool $checkAdmin
 	 * @param string|null $language
@@ -739,6 +816,10 @@ class AppTable extends Main\Entity\DataManager
 		return Loc::getMessage('PAYMENT_MESSAGE' . $suffix, $replace, $language);
 	}
 
+	/**
+	 * @param string|int $appId
+	 * @return array|false
+	 */
 	public static function getAccess($appId)
 	{
 		$appInfo = static::getByClientId($appId);
@@ -767,7 +848,11 @@ class AppTable extends Main\Entity\DataManager
 		return false;
 	}
 
-
+	/**
+	 * @param string|int $appId
+	 * @param array $newRights
+	 * @throws \Exception
+	 */
 	public static function setAccess($appId, $newRights = array())
 	{
 		$appInfo = static::getByClientId($appId);
@@ -799,6 +884,13 @@ class AppTable extends Main\Entity\DataManager
 		}
 	}
 
+	/**
+	 * @param string|int $clientId
+	 * @return mixed
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
 	public static function getByClientId($clientId)
 	{
 		if(!array_key_exists($clientId, static::$applicationCache))
@@ -1081,6 +1173,10 @@ class AppTable extends Main\Entity\DataManager
 		);
 	}
 
+	/**
+	 * @param array $permissionList
+	 * @return array
+	 */
 	public static function cleanLocalPermissionList(array $permissionList)
 	{
 		foreach($permissionList as $key => $perm)
@@ -1094,6 +1190,11 @@ class AppTable extends Main\Entity\DataManager
 		return array_values($permissionList);
 	}
 
+	/**
+	 * @param string $code
+	 * @param false $version
+	 * @return bool
+	 */
 	public static function canUninstallByType($code, $version = false)
 	{
 		$result = true;
@@ -1111,6 +1212,11 @@ class AppTable extends Main\Entity\DataManager
 		return $result;
 	}
 
+	/**
+	 * @param $code
+	 * @param false $version
+	 * @return false|mixed
+	 */
 	public static function getAppType($code, $version = false)
 	{
 		$result = false;

@@ -1298,7 +1298,7 @@ class CAllIMContactList
 		$arParams['ENTITY_TYPE'] = $arParams['CHAT_TYPE'] ?? $arParams['ENTITY_TYPE'];
 		if (in_array(
 			$arParams['ENTITY_TYPE'],
-			[IM_MESSAGE_OPEN, IM_MESSAGE_CHAT, IM_MESSAGE_OPEN_LINE, IM_MESSAGE_SYSTEM]
+			[IM_MESSAGE_OPEN, IM_MESSAGE_CHAT, IM_MESSAGE_OPEN_LINE]
 		))
 		{
 			$itemType = $arParams['ENTITY_TYPE'];
@@ -1357,7 +1357,7 @@ class CAllIMContactList
 		return true;
 	}
 
-	public static function DeleteRecent($entityId, $isChat = false, $userId = false, $isNotification = false)
+	public static function DeleteRecent($entityId, $isChat = false, $userId = false)
 	{
 		global $DB;
 
@@ -1394,10 +1394,6 @@ class CAllIMContactList
 		if ($isChat)
 		{
 			$itemType = "ITEM_TYPE IN ('".implode("','", \Bitrix\Im\Chat::getTypes())."')";
-		}
-		else if ($isNotification)
-		{
-			$itemType = "ITEM_TYPE = '".IM_MESSAGE_SYSTEM."'";
 		}
 		else
 		{
@@ -1459,10 +1455,6 @@ class CAllIMContactList
 		{
 			$chatId = mb_substr($dialogId, 4);
 			CIMContactList::DeleteRecent($chatId, true);
-		}
-		else if ($dialogId === 'notify')
-		{
-			CIMContactList::DeleteRecent($userId, false, false ,true);
 		}
 		else
 		{
@@ -1563,10 +1555,6 @@ class CAllIMContactList
 				{
 					continue;
 				}
-			}
-			else if ($arRes['ITEM_TYPE'] === IM_MESSAGE_SYSTEM)
-			{
-				continue;
 			}
 
 			$arMessageId[] = $arRes['M_ID'];

@@ -51,7 +51,7 @@ class AnalyticBoardBatchManager extends Base
 			{
 				self::$analyticBoardBatchList[$batch->getKey()] = $batch;
 				self::$indices['batchKey'][$batch->getKey()][] = $batch->getKey();
-				self::$indices['group'][$batch->getGroup()][] = $batch->getGroup();
+				self::$indices['group'][$batch->getGroup()][] = $batch->getKey();
 			}
 		}
 		return self::$analyticBoardBatchList;

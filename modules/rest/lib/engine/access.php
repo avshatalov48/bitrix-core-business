@@ -20,6 +20,7 @@ class Access
 	public const ENTITY_TYPE_APP = 'app';
 	public const ENTITY_TYPE_APP_STATUS = 'status';
 	public const ENTITY_TYPE_INTEGRATION = 'integration';
+	public const ENTITY_TYPE_AP_CONNECT = 'ap_connect';
 	public const ENTITY_TYPE_WEBHOOK = 'webhook';
 	public const ENTITY_COUNT = 'count';
 
@@ -335,7 +336,7 @@ class Access
 		}
 
 		$isFreeEntity = false;
-		if ($entityType === static::ENTITY_TYPE_INTEGRATION)
+		if ($entityType === static::ENTITY_TYPE_INTEGRATION || $entityType === static::ENTITY_TYPE_AP_CONNECT)
 		{
 			$isFreeEntity = true;
 		}
@@ -405,6 +406,10 @@ class Access
 				{
 					$code = 'limit_free_rest_hold_no_demo';
 				}
+				elseif ($entityType === static::ENTITY_TYPE_AP_CONNECT)
+				{
+					$code = 'limit_market_bus';
+				}
 				else
 				{
 					$code = 'limit_free_rest_hold';
@@ -431,14 +436,21 @@ class Access
 					$code = 'limit_subscription_market_tarifwithmarket';
 					if ($action === static::ACTION_OPEN)
 					{
-						$code = 'limit_free_apps_buy_license_with_plus';
+						$code = 'installed_plus_buy_license_with_plus';
 					}
 				}
 			}
 			elseif ($isB24 && !$isUsedDemoLicense)
 			{
 				// activate demo license
-				$code = 'limit_free_rest_hold';
+				if ($entityType === static::ENTITY_TYPE_AP_CONNECT)
+				{
+					$code = 'limit_market_bus';
+				}
+				else
+				{
+					$code = 'limit_free_rest_hold';
+				}
 			}
 			elseif ($isB24 && !$isMaxApplicationDemo)
 			{
@@ -470,7 +482,14 @@ class Access
 			if (!$isUsedDemoLicense)
 			{
 				// activate demo license
-				$code = 'limit_free_apps_need_demo';
+				if ($entityType === static::ENTITY_TYPE_AP_CONNECT)
+				{
+					$code = 'limit_market_bus';
+				}
+				else
+				{
+					$code = 'limit_free_apps_need_demo';
+				}
 			}
 			else
 			{

@@ -68,7 +68,7 @@ class PublicAction
 			$action = self::getNamespacePublicClasses() . '\\' . $action;
 			if (is_callable(explode('::', $action)))
 			{
-				list($class, $method) = explode('::', $action);
+				[$class, $method] = explode('::', $action);
 				$info = array(
 					'action' => $actionOriginal,
 					'class' => $class,
@@ -121,6 +121,27 @@ class PublicAction
 	}
 
 	/**
+	 * Returns true if current user out of the extranet.
+	 * @return bool
+	 */
+	protected static function checkForExtranet(): bool
+	{
+		if (\Bitrix\Landing\Manager::isAdmin())
+		{
+			return true;
+		}
+		if (\Bitrix\Main\Loader::includeModule('extranet'))
+		{
+			return \CExtranet::isIntranetUser(
+				\CExtranet::getExtranetSiteID(),
+				\Bitrix\Landing\Manager::getUserId()
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Processing the AJAX/REST action.
 	 * @param string $action Action name.
 	 * @param mixed $data Data.
@@ -150,7 +171,7 @@ class PublicAction
 		$error = new Error;
 
 		// not for guest
-		if (!Manager::getUserId())
+		if (!Manager::getUserId() || !self::checkForExtranet())
 		{
 			$error->addError(
 				'ACCESS_DENIED',

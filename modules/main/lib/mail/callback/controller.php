@@ -4,10 +4,16 @@ namespace Bitrix\Main\Mail\Callback;
 
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Address;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Mail\Internal;
+use Bitrix\Main\Mail\SenderSendCounter;
+use Bitrix\Main\Mail\Sender;
+use CIMNotify;
+use CModule;
 
 /**
  * Class Controller
@@ -16,13 +22,14 @@ use Bitrix\Main\Mail\Internal;
  */
 class Controller
 {
-	const STATUS_DEFERED = 'defered';
-	const STATUS_BOUNCED = 'bounced';
-	const STATUS_DELIVERED = 'delivered';
+	public const STATUS_DEFERED = 'defered';
+	public const STATUS_BOUNCED = 'bounced';
+	public const STATUS_DELIVERED = 'delivered';
 
-	const DESC_AUTH = 'AUTH_ERROR';
-	const DESC_UNKNOWN_USER = 'UNKNOWN_USER';
-	const DESC_UNROUTEABLE = 'UNROUTEABLE';
+	public const DESC_AUTH = 'AUTH_ERROR';
+	public const DESC_UNKNOWN_USER = 'UNKNOWN_USER';
+	public const DESC_UNROUTEABLE = 'UNROUTEABLE';
+	private const DESC_SMTP_LIMITED = 'SMTP_LIMITED';
 
 	/** @var  string $id ID of mail. */
 	protected $id;
@@ -38,6 +45,9 @@ class Controller
 
 	/** @var string[] $blacklist Black list of emails. */
 	protected $blacklist = [];
+
+	/** @var  string[] $smtpLimited List of emails which out of limit. */
+	protected $smtpLimited = [];
 
 	/** @var bool $answerExceptions Flush exceptions in answer. */
 	protected static $answerExceptions = true;
@@ -208,6 +218,7 @@ class Controller
 		$this->countItems = count($list);
 
 		$this->blacklist = [];
+		$this->smtpLimited = [];
 		foreach ($list as $index => $item)
 		{
 			$this->countItemsProcessed++;
@@ -231,6 +242,29 @@ class Controller
 		}
 
 		Internal\BlacklistTable::insertBatch($this->blacklist);
+		$this->decreaseLimit();
+	}
+
+	/**
+	 * Decrease limits.
+	 *
+	 * @return void
+	 */
+	public function decreaseLimit()
+	{
+		if (!$this->smtpLimited)
+		{
+			return;
+		}
+
+		foreach ($this->smtpLimited as $email)
+		{
+			Sender::setEmailLimit(
+				$email,
+				SenderSendCounter::DEFAULT_LIMIT,
+				false,
+			);
+		}
 	}
 
 	/**
@@ -259,6 +293,11 @@ class Controller
 		if (!$email)
 		{
 			return false;
+		}
+
+		if (!empty($item['sender']) && self::isSmtpLimited($item['statusDescription']) )
+		{
+			$this->smtpLimited[] = $this->address->set($item['sender'])->getEmail();
 		}
 
 		$this->result
@@ -329,4 +368,16 @@ class Controller
 	{
 		return $description && in_array($description, [self::DESC_UNKNOWN_USER, self::DESC_UNROUTEABLE]);
 	}
+
+	/**
+	 * Return true if status descriptions is available for smtp.
+	 *
+	 * @param string $description Description.
+	 * @return bool
+	 */
+	private static function isSmtpLimited(string $description)
+	{
+		return $description && in_array($description, [self::DESC_SMTP_LIMITED], true);
+	}
+
 }

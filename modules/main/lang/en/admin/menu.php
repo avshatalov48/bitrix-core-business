@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["MAIN_MENU_AGENT"] = "Agents";
 $MESS["MAIN_MENU_AGENT_ALT"] = "Agent Management";
 $MESS["MAIN_MENU_CACHE"] = "Cache Settings";
@@ -86,6 +86,8 @@ $MESS["MAIN_MENU_SMILE_GALLERY_LIST"] = "Galleries and packs";
 $MESS["MAIN_MENU_SMILE_GALLERY_LIST_ALT"] = "Manage emoticon galleries and packs";
 $MESS["MAIN_MENU_SMILE_IMPORT_LIST"] = "Import smileys";
 $MESS["MAIN_MENU_SMILE_IMPORT_LIST_ALT"] = "Import smileys from external files";
+$MESS["MAIN_MENU_SMTP_CONFIG"] = "SMTP settings";
+$MESS["MAIN_MENU_SMTP_CONFIG_TITLE"] = "SMTP settings";
 $MESS["MAIN_MENU_SQL"] = "SQL query";
 $MESS["MAIN_MENU_SQL_ALT"] = "Execute the database SQL query";
 $MESS["MAIN_MENU_SYSTEM_CHECKER"] = "System check";
@@ -137,4 +139,3 @@ $MESS["main_menu_reg_sett_title"] = "Set data output format, encoding and other 
 $MESS["main_menu_sms_templates"] = "SMS templates";
 $MESS["main_menu_sms_templates_title"] = "SMS templates";
 $MESS["main_menu_urlrewrite_title"] = "Friendly URL settings";
-?>

@@ -3,6 +3,7 @@
 namespace Bitrix\Rest\Configuration;
 
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Rest\Configuration\Core\StorageTable;
 
 /**
  * Temp work with current context for step by step action
@@ -13,12 +14,15 @@ class Setting
 	public const MANIFEST_CODE = 'MANIFEST_CODE';
 	public const SETTING_RATIO = 'SETTING_RATIO';
 	public const SETTING_APP_INFO = 'APP_INFO';
+	public const SETTING_USER_ID = 'USER_ID';
+	public const SETTING_UNINSTALL_APP_CODE = 'UNINSTALL_APP_CODE';
 	public const SETTING_EXPORT_ARCHIVE_NAME = 'EXPORT_ARCHIVE_NAME';
 	public const SETTING_ACTION_INFO = 'ACTION_INFO';
+	public const SETTING_ACTION_ADDITIONAL_OPTION = 'ACTION_ADDITIONAL_OPTION';
 	public const SETTING_NOTICE_COLLECTION = 'NOTICE_COLLECTION';
+	private const TTL_CONTEXT = 259200;
 
 	private $context = 'null';
-	private $ttlContext = 14400;//3600*4
 	private $multipleCode = [];
 
 	/**
@@ -33,7 +37,16 @@ class Setting
 		}
 	}
 
-	public function addMultipleCode($code) : bool
+	/**
+	 * Returns working context
+	 * @return string
+	 */
+	public function getContext(): string
+	{
+		return $this->context;
+	}
+
+	public function addMultipleCode($code): bool
 	{
 		$this->multipleCode[] = $code;
 		return true;
@@ -112,7 +125,7 @@ class Setting
 		);
 		while ($item = $res->fetch())
 		{
-			$item['CREATE_TIME']->add($this->ttlContext . 'second');
+			$item['CREATE_TIME']->add(self::TTL_CONTEXT . 'second');
 			if ($item['CREATE_TIME'] > $now)
 			{
 				if (!$isMultiple)

@@ -11,7 +11,7 @@ if ($arResult["FORM_TYPE"] != "login")
 			{
 				?><li><a href="<?=$arResult["urlToCreateMessageInBlog"]?>"><?=GetMessage("AUTH_BLOG_MESSAGE")?></a></li><?
 			}
-			if (array_key_exists("PATH_TO_SONET_LOG", $arParams) && strlen($arParams["PATH_TO_SONET_LOG"]) > 0)
+			if (array_key_exists("PATH_TO_SONET_LOG", $arParams) && $arParams["PATH_TO_SONET_LOG"] <> '')
 			{
 				?><li>
 					<a href="<?=$arParams["PATH_TO_SONET_LOG"]?>"><?=GetMessage("AUTH_SONET_LOG")?></a><?
@@ -20,7 +20,7 @@ if ($arResult["FORM_TYPE"] != "login")
 				?></li><?
 			}
 		?></ul>
-		<a href="<?=$GLOBALS["APPLICATION"]->GetCurPageParam("logout=yes", array("logout"))?>" id="logout" title="<?=GetMessage("AUTH_LOGOUT")?>"><?=GetMessage("AUTH_LOGOUT")?></a>
+		<a href="<?=$GLOBALS["APPLICATION"]->GetCurPageParam("logout=yes&".bitrix_sessid_get(), array("logout", "sessid"))?>" id="logout" title="<?=GetMessage("AUTH_LOGOUT")?>"><?=GetMessage("AUTH_LOGOUT")?></a>
 	</div><?
 }
 else 
@@ -48,7 +48,7 @@ else
 			</tr>
 			<tr>
 				<td class="field-name"><label for="password-textbox"><?=GetMessage("AUTH_PASSWORD")?>:</label></td>
-				<td><input type="password" name="USER_PASSWORD" maxlength="50" class="textbox" id="password-textbox" /></td>
+				<td><input type="password" name="USER_PASSWORD" maxlength="255" class="textbox" id="password-textbox" /></td>
 			</tr><?
 			if ($arResult["STORE_PASSWORD"] == "Y")
 			{

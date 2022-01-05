@@ -115,7 +115,7 @@ abstract class BasketBase extends BasketItemCollection
 
 		/** @var BasketBase $collection */
 		return $basket->loadFromDb([
-			"FUSER_ID" => $fUserId,
+			"=FUSER_ID" => $fUserId,
 			"=LID" => $siteId,
 			"ORDER_ID" => null
 		]);
@@ -414,9 +414,9 @@ abstract class BasketBase extends BasketItemCollection
 			if ($this->isLoadForFUserId)
 			{
 				$filter = array(
-					'FUSER_ID' => $this->getFUserId(),
+					'=FUSER_ID' => $this->getFUserId(),
 					'ORDER_ID' => null,
-					'LID' => $this->getSiteId()
+					'=LID' => $this->getSiteId()
 				);
 			}
 
@@ -1069,7 +1069,7 @@ abstract class BasketBase extends BasketItemCollection
 		$basket->setOrder($order);
 		$basket->setSiteId($order->getSiteId());
 
-		return $basket->loadFromDb(array("ORDER_ID" => $order->getId()));
+		return $basket->loadFromDb(array("=ORDER_ID" => $order->getId()));
 	}
 
 	/**

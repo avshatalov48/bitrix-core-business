@@ -1,6 +1,9 @@
 <?php
 
-if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Fileman\UserField\Types\AddressType;
 use Bitrix\Main\Page\Asset;
@@ -11,6 +14,7 @@ $arResult['canUseMap'] = AddressType::canUseMap();
 $arResult['useRestriction'] = AddressType::useRestriction();
 $arResult['checkRestriction'] = AddressType::checkRestriction();
 $arResult['apiKey'] = AddressType::getApiKey();
+$arResult['showMap'] = ($arParams['userField']['SETTINGS']['SHOW_MAP'] === 'Y');
 
 /**
  * @var $component AddressUfComponent

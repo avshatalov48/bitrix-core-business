@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Sale\Handlers\Delivery;
 
 use Bitrix\Main\Error;
@@ -10,6 +11,11 @@ use Bitrix\Sale\Delivery\CalculationResult;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class SpsrProfile
+ *
+ * @package Sale\Handlers\Delivery
+ */
 class SpsrProfile extends \Bitrix\Sale\Delivery\Services\Base
 {
 	/** @var SpsrHandler Parent service. */
@@ -66,7 +72,7 @@ class SpsrProfile extends \Bitrix\Sale\Delivery\Services\Base
 	}
 
 	/**
-	 * @return string
+	 * @inheritDoc
 	 */
 	public static function getClassTitle()
 	{
@@ -74,7 +80,7 @@ class SpsrProfile extends \Bitrix\Sale\Delivery\Services\Base
 	}
 
 	/**
-	 * @return string
+	 * @inheritDoc
 	 */
 	public static function getClassDescription()
 	{
@@ -114,33 +120,11 @@ class SpsrProfile extends \Bitrix\Sale\Delivery\Services\Base
 	}
 
 	/**
-	 * Calculates price
-	 * @param Shipment $shipment
-	 * @return CalculationResult
+	 * @inheritDoc
 	 */
 	protected function calculateConcrete(Shipment $shipment)
 	{
-		$srvRes = $this->spsrHandler->getServiceTypes($shipment);
-		$srvList = $srvRes->getData();
-
-		if(empty($srvList[$this->serviceType]['Name']))
-		{
-			$result = new CalculationResult();
-			$result->addError(new Error(Loc::getMessage('SALE_DLV_SRV_SPSR_ERROR_HTTP_PUBLIC')));
-
-			$eventLog = new \CEventLog;
-			$eventLog->Add(array(
-				"SEVERITY" => $eventLog::SEVERITY_ERROR,
-				"AUDIT_TYPE_ID" => "SALE_DELIVERY_HANDLER_SPSR_PROFILE_CONF_TYPE_ERROR",
-				"MODULE_ID" => "sale",
-				"ITEM_ID" => $this->getId(),
-				"DESCRIPTION" => Loc::getMessage('SALE_DLV_SRV_SPSR_ERROR_CONFIG_SRV_TYPE'),
-			));
-
-			return $result;
-		}
-
-		return $this->spsrHandler->calculateTariff($shipment, $srvList[$this->serviceType]['Name']);
+		return (new CalculationResult())->addError(new Error(Loc::getMessage('The company no longer exists')));
 	}
 
 	public function isCalculatePriceImmediately()
@@ -210,15 +194,11 @@ class SpsrProfile extends \Bitrix\Sale\Delivery\Services\Base
 	}
 
 	/**
-	 * @param Shipment $shipment
-	 * @return bool
+	 * @inheritDoc
 	 */
 	public function isCompatible(Shipment $shipment)
 	{
-		return in_array(
-			$this->serviceType,
-			$this->spsrHandler->getCompatibleProfiles($shipment)
-		);
+		return false;
 	}
 
 	/**
@@ -244,26 +224,41 @@ class SpsrProfile extends \Bitrix\Sale\Delivery\Services\Base
 		return isset($extraServices[$profileId]) ? $extraServices[$profileId] : array();
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public static function install()
 	{
 		SpsrHandler::install();
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public static function unInstall()
 	{
 		SpsrHandler::unInstall();
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public static function isInstalled()
 	{
 		SpsrHandler::isInstalled();
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public static function isProfile()
 	{
 		return self::$isProfile;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public static function whetherAdminExtraServicesShow()
 	{
 		return self::$whetherAdminExtraServicesShow;

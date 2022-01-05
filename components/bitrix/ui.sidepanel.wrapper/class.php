@@ -1,11 +1,11 @@
 <?php
 
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
-use \Bitrix\Main\Loader;
+use Bitrix\Main\Loader;
 
 /**
  * Class UIPageSliderWrapperComponent
@@ -18,7 +18,7 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 	/**
 	 * Is page slider context.
 	 */
-	protected function isPageSliderContext()
+	protected function isPageSliderContext(): bool
 	{
 		return
 			$this->request->get('IFRAME') === 'Y' ||
@@ -60,15 +60,12 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 		{
 			$this->arParams['POPUP_COMPONENT_USE_BITRIX24_THEME'] = "N";
 		}
-		else
+		elseif (
+			!isset($this->arParams["POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID"])
+			|| (int)$this->arParams["POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID"] < 0
+		)
 		{
-			if (
-				!isset($this->arParams["POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID"])
-				|| intval($this->arParams["POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID"]) < 0
-			)
-			{
-				$this->arParams["POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID"] = $USER->GetID();
-			}
+			$this->arParams["POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID"] = $USER->GetID();
 		}
 
 		$notification = [
@@ -86,22 +83,22 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 				$notifyOptions = $this->arParams['NOTIFICATION'];
 				foreach ($notification as $key => $defaultValue)
 				{
-					$notification[$key] = isset($notifyOptions[$key]) ? $notifyOptions[$key] : $defaultValue;
+					$notification[$key] = ($notifyOptions[$key] ?? $defaultValue);
 				}
 			}
 		}
 		$this->arParams['NOTIFICATION'] = $notification;
 
-		$this->arParams['USE_LINK_TARGETS_REPLACING'] = isset($this->arParams['USE_LINK_TARGETS_REPLACING']) ? (bool) $this->arParams['USE_LINK_TARGETS_REPLACING'] : false;
-		$this->arParams['PLAIN_VIEW'] = isset($this->arParams['PLAIN_VIEW']) ? (bool) $this->arParams['PLAIN_VIEW'] : false;
-		$this->arParams['USE_PADDING'] = isset($this->arParams['USE_PADDING']) ? (bool) $this->arParams['USE_PADDING'] : true;
-		$this->arParams['USE_BACKGROUND_CONTENT'] = isset($this->arParams['USE_BACKGROUND_CONTENT']) ? (bool) $this->arParams['USE_BACKGROUND_CONTENT'] : true;
-		$this->arParams['BUTTONS'] = isset($this->arParams['BUTTONS']) ? $this->arParams['BUTTONS'] : [];
-		$this->arParams['PAGE_MODE'] = isset($this->arParams['PAGE_MODE']) ? (bool) $this->arParams['PAGE_MODE'] : true;
-		$this->arParams['RETURN_CONTENT'] = isset($this->arParams['RETURN_CONTENT']) ? (bool) $this->arParams['RETURN_CONTENT'] : false;
-		$this->arParams['PAGE_MODE_OFF_BACK_URL'] = isset($this->arParams['PAGE_MODE_OFF_BACK_URL']) ? $this->arParams['PAGE_MODE_OFF_BACK_URL'] : '/';
-		$this->arParams['CLOSE_AFTER_SAVE'] = isset($this->arParams['CLOSE_AFTER_SAVE']) ? (bool) $this->arParams['CLOSE_AFTER_SAVE'] : false;
-		$this->arParams['RELOAD_PAGE_AFTER_SAVE'] = isset($this->arParams['RELOAD_PAGE_AFTER_SAVE']) ? (bool) $this->arParams['RELOAD_PAGE_AFTER_SAVE'] : false;
+		$this->arParams['USE_LINK_TARGETS_REPLACING'] = isset($this->arParams['USE_LINK_TARGETS_REPLACING']) && $this->arParams['USE_LINK_TARGETS_REPLACING'];
+		$this->arParams['PLAIN_VIEW'] = isset($this->arParams['PLAIN_VIEW']) && $this->arParams['PLAIN_VIEW'];
+		$this->arParams['USE_PADDING'] = !isset($this->arParams['USE_PADDING']) || $this->arParams['USE_PADDING'];
+		$this->arParams['USE_BACKGROUND_CONTENT'] = !isset($this->arParams['USE_BACKGROUND_CONTENT']) || $this->arParams['USE_BACKGROUND_CONTENT'];
+		$this->arParams['BUTTONS'] = $this->arParams['BUTTONS'] ?? [];
+		$this->arParams['PAGE_MODE'] = !isset($this->arParams['PAGE_MODE']) || $this->arParams['PAGE_MODE'];
+		$this->arParams['RETURN_CONTENT'] = isset($this->arParams['RETURN_CONTENT']) && $this->arParams['RETURN_CONTENT'];
+		$this->arParams['PAGE_MODE_OFF_BACK_URL'] = $this->arParams['PAGE_MODE_OFF_BACK_URL'] ?? '/';
+		$this->arParams['CLOSE_AFTER_SAVE'] = isset($this->arParams['CLOSE_AFTER_SAVE']) && $this->arParams['CLOSE_AFTER_SAVE'];
+		$this->arParams['RELOAD_PAGE_AFTER_SAVE'] = isset($this->arParams['RELOAD_PAGE_AFTER_SAVE']) && $this->arParams['RELOAD_PAGE_AFTER_SAVE'];
 		$this->arParams['RELOAD_GRID_AFTER_SAVE'] = isset($this->arParams['RELOAD_GRID_AFTER_SAVE'])
 			?
 			is_string($this->arParams['RELOAD_GRID_AFTER_SAVE'])
@@ -120,6 +117,33 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 		}
 
 		$this->arResult["SKIP_NOTIFICATION"] = $this->request->get("notifyAfterSave") === "N";
+		$this->arParams['USE_TOP_MENU'] =
+			isset($this->arParams['USE_TOP_MENU']) && $this->arParams['USE_TOP_MENU'] === true
+		;
+
+		if ($this->arParams['USE_TOP_MENU'])
+		{
+			$this->arParams['TOP_MENU_TEMPLATE'] = $this->arParams['TOP_MENU_TEMPLATE'] ?? 'top_horizontal';
+			$this->arParams['TOP_MENU_PARAMS'] = array_merge(
+				[
+					"ROOT_MENU_TYPE" => "left",
+					"CHILD_MENU_TYPE" => "sub",
+					"MENU_CACHE_TYPE" => "N",
+					"MENU_CACHE_TIME" => "604800",
+					"MENU_CACHE_USE_GROUPS" => "N",
+					"MENU_CACHE_USE_USERS" => "Y",
+					"CACHE_SELECTED_ITEMS" => "Y",
+					"MENU_CACHE_GET_VARS" => array(),
+					"MAX_LEVEL" => "3",
+					"USE_EXT" => "Y",
+					"DELAY" => "N",
+					"ALLOW_MULTI_SELECT" => "N"
+				],
+				isset($this->arParams['TOP_MENU_PARAMS']) && is_array($this->arParams['TOP_MENU_PARAMS'])
+					? $this->arParams['TOP_MENU_PARAMS']
+					: []
+			);
+		}
 
 		if (
 			Loader::includeModule("intranet")
@@ -127,6 +151,7 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 			&& SITE_TEMPLATE_ID === "bitrix24"
 		)
 		{
+
 			$this->arResult["SHOW_BITRIX24_THEME"] = "Y";
 		}
 		else
@@ -138,7 +163,6 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 		{
 			self::$isWrapperCalled = true;
 
-			/** @var \CAllMain $APPLICATION */
 			global $APPLICATION;
 			$APPLICATION->RestartBuffer();
 			$this->includeComponentTemplate();
@@ -152,14 +176,12 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 
 				return $APPLICATION->EndBufferContentMan();
 			}
-			else
-			{
-				require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_after.php');
-				exit;
-			}
 
+			require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_after.php');
+			exit;
 		}
-		elseif ($this->arParams['PAGE_MODE'] || self::$isWrapperCalled)
+
+		if ($this->arParams['PAGE_MODE'] || self::$isWrapperCalled)
 		{
 			$this->includeComponentTemplate('content');
 		}

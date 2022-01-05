@@ -1527,8 +1527,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	var type1icon = "/bitrix/js/landing/ui/panel/formsettingspanel/dist/internal/content/embed/images/type1.svg";
 
-	var type2icon = "/bitrix/js/landing/ui/panel/formsettingspanel/dist/internal/content/embed/images/type2.svg";
-
 	var type3icon = "/bitrix/js/landing/ui/panel/formsettingspanel/dist/internal/content/embed/images/type3.svg";
 
 	var type4icon = "/bitrix/js/landing/ui/panel/formsettingspanel/dist/internal/content/embed/images/type4.svg";
@@ -1574,13 +1572,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return this.cache.remember('typeButtons', function () {
 	        return new landing_ui_field_radiobuttonfield.RadioButtonField({
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_EMBED_TYPE_FIELD_TITLE'),
-	          items: [1, 3, 4, 2, 5, 6].map(function (item) {
+	          items: [1, 3, 4, 2, 6, 5].map(function (item) {
 	            return {
 	              id: "type".concat(item),
 	              title: landing_loc.Loc.getMessage("LANDING_FORM_EMBED_TYPE_".concat(item)),
 	              icon: "landing-ui-form-embed-type".concat(item),
-	              soon: [2, 5, 6].includes(item),
-	              disabled: [2, 5, 6].includes(item)
+	              soon: [5].includes(item),
+	              disabled: [5].includes(item)
 	            };
 	          }),
 	          onChange: _this2.onTypeChange.bind(_this2),
@@ -1616,6 +1614,19 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        return new landing_ui_card_messagecard.MessageCard({
 	          header: landing_loc.Loc.getMessage('LANDING_FORM_EMBED_TYPE_1_MESSAGE_TITLE'),
 	          description: landing_loc.Loc.getMessage('LANDING_FORM_EMBED_TYPE_1_MESSAGE_TEXT'),
+	          angle: false,
+	          closeable: false,
+	          hideActions: true
+	        });
+	      });
+	    }
+	  }, {
+	    key: "getType2Message",
+	    value: function getType2Message() {
+	      return this.cache.remember('type2Message', function () {
+	        return new landing_ui_card_messagecard.MessageCard({
+	          header: landing_loc.Loc.getMessage('LANDING_FORM_EMBED_TYPE_2_MESSAGE_TITLE'),
+	          description: landing_loc.Loc.getMessage('LANDING_FORM_EMBED_TYPE_2_MESSAGE_TEXT'),
 	          angle: false,
 	          closeable: false,
 	          hideActions: true
@@ -1769,21 +1780,23 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "getCopyLinkField",
 	    value: function getCopyLinkField() {
+	      var _this5 = this;
+
 	      return this.cache.remember('copyLinkField', function () {
 	        return new CopyLinkField({
-	          link: 'https://bitrix24.io/pub/my/form/link'
+	          link: _this5.options.values.link
 	        });
 	      });
 	    }
 	  }, {
 	    key: "getDelayDropdown",
 	    value: function getDelayDropdown() {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      return this.cache.remember('delayDropdown', function () {
 	        return new BX.Landing.UI.Field.DropdownInline({
 	          selector: 'showDelay',
-	          content: _this5.options.values.views.auto.delay,
+	          content: _this6.options.values.views.auto.delay,
 	          items: [{
 	            name: '5c',
 	            value: '5'
@@ -1794,7 +1807,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            name: '15c',
 	            value: '15'
 	          }],
-	          onChange: _this5.onChange.bind(_this5),
+	          onChange: _this6.onChange.bind(_this6),
 	          skipInitialEvent: true
 	        });
 	      });
@@ -1802,14 +1815,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "getType3PositionField",
 	    value: function getType3PositionField() {
-	      var _this6 = this;
+	      var _this7 = this;
 
 	      return this.cache.remember('type3PositionField', function () {
 	        return new PositionField({
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_EMBED_POSITION_FIELD_TITLE'),
 	          value: {
-	            vertical: _this6.options.values.views.click.vertical,
-	            horizontal: _this6.options.values.views.click.position
+	            vertical: _this7.options.values.views.click.vertical,
+	            horizontal: _this7.options.values.views.click.position
 	          }
 	        });
 	      });
@@ -1817,14 +1830,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "getType4PositionField",
 	    value: function getType4PositionField() {
-	      var _this7 = this;
+	      var _this8 = this;
 
 	      return this.cache.remember('type4PositionField', function () {
 	        return new PositionField({
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_EMBED_POSITION_FIELD_TITLE'),
 	          value: {
-	            vertical: _this7.options.values.views.auto.vertical,
-	            horizontal: _this7.options.values.views.auto.position
+	            vertical: _this8.options.values.views.auto.vertical,
+	            horizontal: _this8.options.values.views.auto.position
 	          }
 	        });
 	      });
@@ -1832,7 +1845,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "getType3ShowTypeField",
 	    value: function getType3ShowTypeField() {
-	      var _this8 = this;
+	      var _this9 = this;
 
 	      return this.cache.remember('type3ShowTypeField', function () {
 	        return new BX.Landing.UI.Field.Dropdown({
@@ -1845,14 +1858,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            name: landing_loc.Loc.getMessage('LANDING_FORM_EMBED_SHOW_SLIDER'),
 	            value: 'panel'
 	          }],
-	          content: _this8.options.values.views.click.type
+	          content: _this9.options.values.views.click.type
 	        });
 	      });
 	    }
 	  }, {
 	    key: "getType4ShowTypeField",
 	    value: function getType4ShowTypeField() {
-	      var _this9 = this;
+	      var _this10 = this;
 
 	      return this.cache.remember('type4ShowTypeField', function () {
 	        return new BX.Landing.UI.Field.Dropdown({
@@ -1865,7 +1878,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            name: landing_loc.Loc.getMessage('LANDING_FORM_EMBED_SHOW_SLIDER'),
 	            value: 'panel'
 	          }],
-	          content: _this9.options.values.views.auto.type
+	          content: _this10.options.values.views.auto.type
 	        });
 	      });
 	    }
@@ -1892,10 +1905,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 
 	      if (data.item.id === 'type2') {
-	        typeDropdown.setIcon(type2icon); // this.addItem(this.getType2Header());
-	        // this.addItem(this.getLinkTextField());
-
+	        typeDropdown.setIcon(type3icon);
 	        embedField.setValue(this.options.values.scripts.click.text);
+	        var positionField = this.getType3PositionField();
+	        positionField.setValue({
+	          vertical: this.options.values.views.click.vertical,
+	          horizontal: this.options.values.views.click.position
+	        });
+	        this.addItem(this.getType2Message());
+	        this.addItem(this.getType2Header());
+	        this.addItem(positionField);
+	        this.addItem(this.getType3ShowTypeField());
 	        this.addItem(embedField);
 	      }
 
@@ -1903,14 +1923,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        typeDropdown.setIcon(type3icon); // this.addItem(this.getLinkTextField());
 
 	        embedField.setValue(this.options.values.scripts.click.text);
-	        var positionField = this.getType3PositionField();
-	        positionField.setValue({
+
+	        var _positionField = this.getType3PositionField();
+
+	        _positionField.setValue({
 	          vertical: this.options.values.views.click.vertical,
 	          horizontal: this.options.values.views.click.position
 	        });
+
 	        this.addItem(this.getType3Message());
 	        this.addItem(this.getType3Header());
-	        this.addItem(positionField);
+	        this.addItem(_positionField);
 	        this.addItem(this.getType3ShowTypeField());
 	        this.addItem(embedField);
 	      }
@@ -1921,14 +1944,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        this.addItem(this.getType4Header());
 	        this.addItem(this.getType4Checkbox());
 
-	        var _positionField = this.getType4PositionField();
+	        var _positionField2 = this.getType4PositionField();
 
-	        _positionField.setValue({
+	        _positionField2.setValue({
 	          vertical: this.options.values.views.auto.vertical,
 	          horizontal: this.options.values.views.auto.position
 	        });
 
-	        this.addItem(_positionField);
+	        this.addItem(_positionField2);
 	        this.addItem(this.getType4ShowTypeField());
 	        embedField.setValue(this.options.values.scripts.auto.text);
 	        this.addItem(embedField);
@@ -1957,7 +1980,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "getValue",
 	    value: function getValue() {
-	      var _this10 = this;
+	      var _this11 = this;
 
 	      var type3positionValue = this.getType3PositionField().getValue();
 	      var type4positionValue = this.getType4PositionField().getValue();
@@ -1966,11 +1989,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          views: {
 	            auto: {
 	              delay: function () {
-	                if (_this10.getType4Checkbox().getValue().includes('pageLoaded')) {
+	                if (_this11.getType4Checkbox().getValue().includes('pageLoaded')) {
 	                  return 0;
 	                }
 
-	                return _this10.getDelayDropdown().getValue();
+	                return _this11.getDelayDropdown().getValue();
 	              }(),
 	              position: type4positionValue.horizontal,
 	              vertical: type4positionValue.vertical,

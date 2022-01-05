@@ -679,6 +679,10 @@ export class Util
 			{
 				return 'DR' + entity.id;
 			}
+			else if (entity.entityId === 'group')
+			{
+				return entity.id;
+			}
 		}
 	}
 

@@ -1,10 +1,13 @@
-import {Tag, Type, Loc, Dom, Event, Text} from 'main.core';
-import {Util} from 'calendar.util';
+import { Tag, Type, Loc, Dom, Event, Text, Runtime } from 'main.core';
+import { RoomsManager } from 'calendar.roomsmanager';
+import { Util } from 'calendar.util';
 
 export class Location
 {
 	static locationList = [];
 	static meetingRoomList = [];
+	static currentRoomCapacity = 0;
+	viewMode = false;
 
 	constructor(params)
 	{
@@ -15,22 +18,33 @@ export class Location
 		this.DOM = {
 			wrapNode: params.wrap
 		};
-
+		this.roomsManager = params.roomsManager || null;
+		this.locationAccess = params.locationAccess || false;
 		this.disabled = !params.richLocationEnabled;
 		this.value = {type: '', text: '', value: ''};
 		this.inlineEditModeEnabled = params.inlineEditModeEnabled;
-
 		this.meetingRooms = params.iblockMeetingRoomList || [];
 		Location.setMeetingRoomList(params.iblockMeetingRoomList);
 		Location.setLocationList(params.locationList);
-
+		if (!this.disabled)
+		{
+			this.default = this.setDefaultRoom(params.locationList) || '';
+		}
 		this.create();
+		this.setViewMode(params.viewMode === true)
 	}
 
 	create()
 	{
-		this.DOM.inputWrap = this.DOM.wrapNode.appendChild(Dom.create('DIV', {props: {className: 'calendar-field-block'}}));
+		this.DOM.inputWrap = this.DOM.wrapNode.appendChild(Tag.render`
+			<div class="calendar-field-block"></div>
+		`)
 
+		this.DOM.alertIconLocation = Tag.render`
+			<div class="ui-alert-icon-danger calendar-location-alert-icon" data-hint-no-icon="Y" data-hint="${Loc.getMessage('EC_LOCATION_OVERFLOW')}">
+			<i></i>
+			</div>
+		`;
 		if (this.inlineEditModeEnabled)
 		{
 			this.DOM.inlineEditLinkWrap = this.DOM.wrapNode.appendChild(Tag.render`
@@ -43,26 +57,29 @@ export class Location
 
 		if (this.disabled)
 		{
-			BX.addClass(this.DOM.wrapNode, 'locked');
+			Dom.addClass(this.DOM.wrapNode, 'locked');
 			this.DOM.inputWrap.appendChild(Dom.create('DIV', {
-			props: {className: 'calendar-lock-icon'},
-			events: {
-				click: () => {
-					B24.licenseInfoPopup.show('calendar_location', Loc.getMessage('EC_B24_LOCATION_LIMITATION_TITLE'), Loc.getMessage('EC_B24_LOCATION_LIMITATION'));
+				props: {className: 'calendar-lock-icon'},
+				events: {
+					click: () => {
+						top.BX.UI.InfoHelper.show('limit_office_calendar_location');
+					}
 				}
-			}
 			}))
 		}
 
 		this.DOM.input = this.DOM.inputWrap.appendChild(Dom.create('INPUT', {
 			attrs: {
 				name: this.params.inputName || '',
-				placeholder: Loc.getMessage('EC_LOCATION_LABEL'),
+				placeholder: Loc.getMessage('EC_LOCATION_PLACEHOLDER'),
 				type: 'text',
-				autocomplete: this.disabled ? 'on' : 'off'
+				autocomplete: this.disabled ? 'on' : 'off',
 			},
 			props: {
 				className: 'calendar-field calendar-field-select'
+			},
+			style: {
+				paddingRight: 25 + "px",
 			}
 		}));
 	}
@@ -82,9 +99,10 @@ export class Location
 				room.ID = parseInt(room.ID);
 				menuItemList.push({
 					ID: room.ID,
-					label: BX.util.htmlspecialchars(room.NAME),
+					label: room.NAME,
 					labelRaw: room.NAME,
 					value: room.ID,
+					capacity: 0,
 					type: 'mr'
 				});
 
@@ -108,10 +126,15 @@ export class Location
 				locationList.forEach(function(room)
 				{
 					room.ID = parseInt(room.ID);
+					room.LOCATION_ID = parseInt(room.LOCATION_ID);
 					menuItemList.push({
 						ID: room.ID,
-						label: BX.util.htmlspecialchars(room.NAME),
+						LOCATION_ID: room.LOCATION_ID,
+						label: room.NAME,
+						capacity: parseInt(room.CAPACITY) || 0,
+						color: room.COLOR,
 						labelRaw: room.NAME,
+						labelCapacity: this.getCapacityMessage(room.CAPACITY),
 						value: room.ID,
 						type: 'calendar'
 					});
@@ -123,27 +146,45 @@ export class Location
 					}
 				}, this);
 
-				menuItemList.push({delimiter: true});
-				menuItemList.push({
-					label: Loc.getMessage('EC_LOCATION_MEETING_ROOM_SET'),
-					callback: this.editMeetingRooms.bind(this)
-				});
+				if (this.locationAccess)
+				{
+					this.loadRoomSlider();
+					menuItemList.push({delimiter: true});
+					menuItemList.push({
+						label: Loc.getMessage('EC_LOCATION_MEETING_ROOM_SET'),
+						callback: this.openRoomsSlider.bind(this)
+					});
+				}
 			}
 			else
 			{
-				menuItemList.push({
-					label: Loc.getMessage('EC_ADD_LOCATION'),
-					callback: this.editMeetingRooms.bind(this)
-				});
+				if (this.locationAccess)
+				{
+					this.loadRoomSlider();
+					menuItemList.push({
+						label: Loc.getMessage('EC_ADD_LOCATION'),
+						callback: this.openRoomsSlider.bind(this)
+					});
+				}
 			}
 		}
 
 		if (this.value)
 		{
 			this.DOM.input.value = this.value.str || '';
-			if (this.value.type && this.value.str === this.getTextLocation(this.value))
+			if (this.value.type &&
+				(this.value.str === this.getTextLocation(this.value) ||
+					this.getTextLocation(this.value) === Loc.getMessage('EC_LOCATION_EMPTY')))
 			{
-				this.DOM.input.value = Loc.getMessage('EC_LOCATION_404');
+				this.DOM.input.value = Loc.getMessage('EC_LOCATION_CHOOSE');
+			}
+			for (const locationListElement of Location.locationList)
+			{
+				if (parseInt(locationListElement.ID) === this.value.room_id)
+				{
+					Location.setCurrentCapacity(parseInt(locationListElement.CAPACITY));
+					break;
+				}
 			}
 		}
 
@@ -158,6 +199,7 @@ export class Location
 			valueIndex: selectedIndex,
 			zIndex: this.zIndex,
 			disabled: this.disabled,
+			minWidth: 300,
 			onChangeCallback: BX.delegate(function()
 			{
 				let i, value = this.DOM.input.value;
@@ -168,6 +210,7 @@ export class Location
 					{
 						this.value.type = menuItemList[i].type;
 						this.value.value = menuItemList[i].value;
+						Location.setCurrentCapacity(menuItemList[i].capacity)
 						break;
 					}
 				}
@@ -178,6 +221,60 @@ export class Location
 				}
 			}, this)
 		});
+	}
+
+	setViewMode(viewMode)
+	{
+		this.viewMode = viewMode;
+		if (this.viewMode)
+		{
+			Dom.addClass(this.DOM.wrapNode, 'calendar-location-readonly')
+		}
+		else
+		{
+			Dom.removeClass(this.DOM.wrapNode, 'calendar-location-readonly')
+		}
+	}
+
+	addCapacityAlert()
+	{
+		if (!Dom.hasClass(this.DOM.input, 'calendar-field-location-select-border'))
+		{
+			Dom.addClass(this.DOM.input, 'calendar-field-location-select-border');
+		}
+		if (Type.isDomNode(this.DOM.alertIconLocation))
+		{
+			Util.initHintNode(this.DOM.alertIconLocation);
+		}
+		setTimeout(() => {
+			this.DOM.inputWrap.appendChild(this.DOM.alertIconLocation)
+		}, 200);
+	}
+
+	removeCapacityAlert()
+	{
+		if (Dom.hasClass(this.DOM.input, 'calendar-field-location-select-border'))
+		{
+			Dom.removeClass(this.DOM.input, 'calendar-field-location-select-border');
+		}
+		if (this.DOM.alertIconLocation.parentNode === this.DOM.inputWrap)
+		{
+			this.DOM.inputWrap.removeChild(this.DOM.alertIconLocation);
+		}
+	}
+
+	getCapacityMessage(capacity)
+	{
+		let suffix;
+		if ((capacity % 100 > 10) && (capacity % 100 < 20))
+		{
+			suffix = 5;
+		}
+		else
+		{
+			suffix = capacity % 10;
+		}
+		return Loc.getMessage("EC_LOCATION_CAPACITY_" + suffix, {'#NUM#': capacity})
 	}
 
 	editMeetingRooms()
@@ -194,6 +291,31 @@ export class Location
 		}
 
 		this.buildLocationEditControl(params);
+	}
+
+	loadRoomSlider()
+	{
+		this.getRoomsManager()
+			.then(this.getRoomsManagerData()
+		);
+	}
+	openRoomsSlider()
+	{
+		this.getRoomsInterface()
+			.then(function(RoomsInterface) {
+				if (!this.roomsInterface)
+				{
+					this.roomsInterface = new RoomsInterface(
+						{
+							calendarContext: null,
+							readonly: false,
+							roomsManager: this.roomsManagerFromDB,
+							isConfigureList: true
+						}
+					);
+				}
+				this.roomsInterface.show();
+			}.bind(this));
 	}
 
 	showEditMeetingRooms()
@@ -268,7 +390,10 @@ export class Location
 				{
 					this.locationRoomList.push({
 						id: parseInt(room.ID),
-						name: room.NAME
+						name: room.NAME,
+						color: room.COLOR,
+						location_id: parseInt(room.LOCATION_ID),
+
 					});
 				}
 			}, this);
@@ -541,6 +666,7 @@ export class Location
 
 		if (Type.isArray(this.meetingRooms) && value.type === 'mr')
 		{
+			str = Loc.getMessage('EC_LOCATION_EMPTY');
 			for (i = 0; i < this.meetingRooms.length; i++)
 			{
 				if (parseInt(value.value) === parseInt(this.meetingRooms[i].ID))
@@ -553,6 +679,7 @@ export class Location
 
 		if (Type.isArray(Location.locationList) && value.type === 'calendar')
 		{
+			str = Loc.getMessage('EC_LOCATION_EMPTY');
 			for (i = 0; i < Location.locationList.length; i++)
 			{
 				if (parseInt(value.value) === parseInt(Location.locationList[i].ID))
@@ -571,7 +698,23 @@ export class Location
 		if (Type.isArray(locationList))
 		{
 			Location.locationList = locationList;
+			this.sortLocationList();
 		}
+	}
+
+	static sortLocationList()
+	{
+		Location.locationList.sort((a,b) => {
+			if (a.NAME.toLowerCase() > b.NAME.toLowerCase())
+			{
+				return 1;
+			}
+			if (a.NAME.toLowerCase() < b.NAME.toLowerCase())
+			{
+				return -1;
+			}
+			return 0;
+		})
 	}
 
 	static getLocationList()
@@ -587,6 +730,16 @@ export class Location
 		}
 	}
 
+	static getCurrentCapacity()
+	{
+		return Location.currentRoomCapacity || 0;
+	}
+
+	static setCurrentCapacity(capacity)
+	{
+		Location.currentRoomCapacity = capacity;
+	}
+
 	static getMeetingRoomList()
 	{
 		return Location.meetingRoomList;
@@ -596,5 +749,112 @@ export class Location
 	{
 		this.DOM.inlineEditLinkWrap.style.display = 'none';
 		this.DOM.inputWrap.style.display = '';
+	}
+
+	setDefaultRoom(locationList)
+	{
+		if (this.roomsManager && !RoomsManager.isEmpty(locationList))
+		{
+			this.activeRooms = this.roomsManager.getRoomsInfo().active;
+			if (!RoomsManager.isEmpty(this.activeRooms))
+			{
+				const activeRoomId = this.activeRooms[0];
+				for (const locationListElement of locationList)
+				{
+					if (parseInt(locationListElement.ID) === activeRoomId)
+					{
+						Location.setCurrentCapacity(parseInt(locationListElement.CAPACITY));
+						return 'calendar_' + activeRoomId;
+					}
+				}
+			}
+			else
+			{
+				Location.setCurrentCapacity(parseInt(locationList[0].CAPACITY));
+				return 'calendar_' + locationList[0].ID;
+			}
+		}
+		else
+		{
+			return '';
+		}
+	}
+
+	getRoomsInterface()
+	{
+		return new Promise((resolve) => {
+			const bx = BX.Calendar.Util.getBX();
+			const extensionName = 'calendar.rooms';
+			bx.Runtime.loadExtension(extensionName)
+				.then(() =>
+					{
+						if (bx.Calendar.Rooms.RoomsInterface)
+						{
+							resolve(bx.Calendar.Rooms.RoomsInterface);
+						}
+						else
+						{
+							console.error('Extension ' + extensionName + ' not found');
+							resolve(bx.Calendar.Rooms.RoomsInterface);
+						}
+					}
+				);
+		});
+	}
+
+	getRoomsManager()
+	{
+		return new Promise((resolve) => {
+			const bx = BX.Calendar.Util.getBX();
+			const extensionName = 'calendar.roomsmanager';
+			bx.Runtime.loadExtension(extensionName)
+				.then(() =>
+					{
+						if (bx.Calendar.RoomsManager)
+						{
+							resolve(bx.Calendar.RoomsManager);
+						}
+						else
+						{
+							console.error('Extension ' + extensionName + ' not found');
+							resolve(bx.Calendar.RoomsManager);
+						}
+					}
+				);
+		});
+	}
+
+	getRoomsManagerData()
+	{
+		return new Promise((resolve) => {
+			BX.ajax.runAction('calendar.api.locationajax.getRoomsManagerData')
+				.then((response) => {
+
+						this.roomsManagerFromDB = new RoomsManager(
+							{
+								sections: response.data.sections,
+								rooms: response.data.rooms
+							},
+							{
+								locationAccess: response.data.config.locationAccess,
+								hiddenSections: response.data.config.hiddenSections,
+								type: response.data.config.type,
+								ownerId: response.data.config.ownerId,
+								userId: response.data.config.userId,
+								new_section_access: response.data.config.defaultSectionAccess,
+								sectionAccessTasks: response.data.config.sectionAccessTasks,
+								showTasks: response.data.config.showTasks,
+								locationContext: this //for updating list of locations in event creation menu
+							}
+						)
+						resolve(response.data);
+					},
+					// Failure
+					(response) => {
+						console.error('Extension not found');
+						resolve(response.data);
+					}
+				);
+		});
 	}
 }

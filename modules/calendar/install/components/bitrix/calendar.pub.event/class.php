@@ -613,9 +613,12 @@ class CalendarPubEventComponent extends CBitrixComponent implements Controllerab
 		$this->arResult['IS_SHOW_LOCATION_BOX'] = false;
 		if ($this->event['LOCATION'] !== '')
 		{
-			$this->arResult['EVENT_LOCATION'] = $this->event['LOCATION'];
-			$this->arResult['IS_SHOW_LOCATION_BOX'] = true;
-			$this->arResult['IS_SHOW_LIST_BOX'] = true;
+			$this->arResult['EVENT_LOCATION'] = CCalendar::GetTextLocation($this->event['LOCATION']);
+			if(!empty($this->arResult['EVENT_LOCATION']))
+			{
+				$this->arResult['IS_SHOW_LOCATION_BOX'] = true;
+				$this->arResult['IS_SHOW_LIST_BOX'] = true;
+			}
 		}
 	}
 }

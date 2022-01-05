@@ -308,7 +308,7 @@ class CreateEntity extends Base
 			$result = $parser->convertText($result);
 		}
 
-		return $result;
+		return (string)$result;
 	}
 
 	protected function getNotFoundMessage(): string

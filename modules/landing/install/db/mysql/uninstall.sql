@@ -26,3 +26,4 @@ drop table if exists b_landing_designer_repo;
 drop table if exists b_landing_urlchecker_whitelist;
 drop table if exists b_landing_urlchecker_status;
 drop table if exists b_landing_urlchecker_host;
+drop table if exists b_landing_block_last_used;

@@ -190,7 +190,7 @@ class Event
 		{
 			$eventMessage = MailInternal\EventMessageTable::getRowById($arMessage['ID']);
 
-			$eventMessage['FILES'] = array();
+			$eventMessage['FILE'] = array();
 			$attachmentDb = MailInternal\EventMessageAttachmentTable::getList(array(
 				'select' => array('FILE_ID'),
 				'filter' => array('=EVENT_MESSAGE_ID' => $arMessage['ID']),

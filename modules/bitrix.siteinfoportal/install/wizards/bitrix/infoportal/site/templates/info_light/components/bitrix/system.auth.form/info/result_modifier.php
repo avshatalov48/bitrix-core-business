@@ -15,7 +15,7 @@ if (!$GLOBALS['USER']->IsAuthorized())
 	
 	$arResult['AUTH_URL'] = 
 		$arParams["REGISTER_URL"]
-		.(strpos($arParams["REGISTER_URL"], "?") !== false ? "&" : "?")
+		.(mb_strpos($arParams["REGISTER_URL"], "?") !== false ? "&" : "?")
 		."backurl=".urlencode($APPLICATION->GetCurPageParam(
 			"", array_merge($arParamsToDelete, array("backurl")), $get_index_page=false
 		));

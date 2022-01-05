@@ -1,4 +1,12 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Socialnetwork\ComponentHelper;
+
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -51,8 +59,8 @@ if (!function_exists('getRelatedGroup'))
 	}
 }
 
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
-$bAutoSubscribe = (array_key_exists("USE_AUTOSUBSCRIBE", $arParams) && $arParams["USE_AUTOSUBSCRIBE"] == "N" ? false : true);
+$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] === "N" ? "N" : "Y");
+$bAutoSubscribe = (array_key_exists("USE_AUTOSUBSCRIBE", $arParams) && $arParams["USE_AUTOSUBSCRIBE"] === "N" ? false : true);
 
 $arParams["USER_ID"] = intval($arParams["USER_ID"]);
 if ($arParams["USER_ID"] < 0)
@@ -82,43 +90,11 @@ if ($arParams["THUMBNAIL_LIST_SIZE"] <= 0)
 $arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
 
 $arParams['NAME_TEMPLATE'] = $arParams['NAME_TEMPLATE'] ? $arParams['NAME_TEMPLATE'] : CSite::GetNameFormat();
-$bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
+$bUseLogin = $arParams['SHOW_LOGIN'] !== "N" ? true : false;
 
-// for bitrix:main.user.link
-if (IsModuleInstalled('intranet'))
-{
-	$arTooltipFieldsDefault	= serialize(array(
-		"EMAIL",
-		"PERSONAL_MOBILE",
-		"WORK_PHONE",
-		"PERSONAL_ICQ",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION",
-	));
-	$arTooltipPropertiesDefault = serialize(array(
-		"UF_DEPARTMENT",
-		"UF_PHONE_INNER",
-	));
-}
-else
-{
-	$arTooltipFieldsDefault = serialize(array(
-		"PERSONAL_ICQ",
-		"PERSONAL_BIRTHDAY",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION"
-	));
-	$arTooltipPropertiesDefault = serialize(array());
-}
-
-if (!array_key_exists("SHOW_FIELDS_TOOLTIP", $arParams))
-	$arParams["SHOW_FIELDS_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_fields", $arTooltipFieldsDefault), [ 'allowed_classes' => false ]);
-if (!array_key_exists("USER_PROPERTY_TOOLTIP", $arParams))
-	$arParams["USER_PROPERTY_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_properties", $arTooltipPropertiesDefault), [ 'allowed_classes' => false ]);
+$tooltipParams = ComponentHelper::checkTooltipComponentParams($arParams);
+$arParams['SHOW_FIELDS_TOOLTIP'] = $tooltipParams['SHOW_FIELDS_TOOLTIP'];
+$arParams['USER_PROPERTY_TOOLTIP'] = $tooltipParams['USER_PROPERTY_TOOLTIP'];
 
 if (!$USER->IsAuthorized())
 {	
@@ -128,12 +104,12 @@ else
 {
 	/***********************  ACTIONS  *******************************/
 	if (
-		$_SERVER["REQUEST_METHOD"] == "POST" 
+		$_SERVER["REQUEST_METHOD"] === "POST"
 		&& (in_array($_POST["action"], array("accept", "reject"))) 
 		&& check_bitrix_sessid()
 	)
 	{
-		if ($_POST["ajax_request"] == "Y")
+		if ($_POST["ajax_request"] === "Y")
 		{
 			CUtil::JSPostUnescape();
 		}
@@ -146,9 +122,9 @@ else
 		{
 			for ($i = 0; $i <= intval($_POST["max_count"]); $i++)
 			{
-				if ($_POST["checked_".$i] == "Y")
+				if ($_POST["checked_".$i] === "Y")
 				{
-					if ($_POST["type_".$i] == "INVITE_GROUP")
+					if ($_POST["type_".$i] === "INVITE_GROUP")
 					{
 						$arGroupRelationIDs[] = intval($_POST["id_".$i]);
 					}
@@ -167,16 +143,16 @@ else
 
 		if ($errorMessage == '')
 		{
-			$type = ($_POST["type"] == "out" ? "out" : "in");
+			$type = ($_POST["type"] === "out" ? "out" : "in");
 
-			if ($type == "in")
+			if ($type === "in")
 			{
 				if (count($arGroupRelationIDs) > 0)
 				{
 					foreach ($arGroupRelationIDs as $relationID)
 					{
 						$errorMessage = "";
-						if ($_POST["action"] == "accept")
+						if ($_POST["action"] === "accept")
 						{
 							if (!CSocNetUserToGroup::UserConfirmRequestToBeMember($arParams["USER_ID"], $relationID, $bAutoSubscribe))
 							{
@@ -186,7 +162,7 @@ else
 								}
 							}
 						}
-						elseif ($_POST["action"] == "reject")
+						elseif ($_POST["action"] === "reject")
 						{
 							if (!CSocNetUserToGroup::UserRejectRequestToBeMember($arParams["USER_ID"], $relationID))
 							{
@@ -204,7 +180,7 @@ else
 					$errorMessage = "";
 					foreach ($arUserRelationIDs as $relationID)
 					{
-						if ($_POST["action"] == "accept")
+						if ($_POST["action"] === "accept")
 						{
 							if (!CSocNetUserRelations::ConfirmRequestToBeFriend($arParams["USER_ID"], $relationID, $bAutoSubscribe))
 							{
@@ -214,7 +190,7 @@ else
 								}
 							}
 						}
-						elseif ($_POST["action"] == "reject")
+						elseif ($_POST["action"] === "reject")
 						{
 							$arRelation = CSocNetUserRelations::GetByID($relationID);
 
@@ -236,7 +212,7 @@ else
 			}
 			else //outgoing
 			{
-				if ($_POST["action"] == "reject")
+				if ($_POST["action"] === "reject")
 				{
 					// groups
 					if (count($arGroupRelationIDs) > 0)
@@ -296,7 +272,7 @@ else
 			}
 		}
 
-		if ($_POST["ajax_request"] == "Y")
+		if ($_POST["ajax_request"] === "Y")
 		{
 			$APPLICATION->RestartBuffer();
 			echo CUtil::PhpToJsObject(array(
@@ -310,7 +286,7 @@ else
 
 	//Handling confirmation with e-mail links
 	if (
-		$_SERVER["REQUEST_METHOD"] == "GET" 
+		$_SERVER["REQUEST_METHOD"] === "GET"
 		&& isset($_GET["CONFIRM"])
 	)
 	{
@@ -329,7 +305,7 @@ else
 		{
 			$relationID = intval($_GET["INVITE_GROUP"]);
 
-			if ($_GET["CONFIRM"] == "Y")
+			if ($_GET["CONFIRM"] === "Y")
 			{
 				if (CSocNetUserToGroup::UserConfirmRequestToBeMember($arParams["USER_ID"], $relationID, $bAutoSubscribe))
 				{
@@ -341,7 +317,7 @@ else
 						$errorMessage .= $e->GetString();
 				}
 			}
-			elseif ($_GET["CONFIRM"] == "N")
+			elseif ($_GET["CONFIRM"] === "N")
 			{
 				$group = getRelatedGroup($relationID);
 				
@@ -362,7 +338,7 @@ else
 		{
 			$relationID = intval($_GET["INVITE_USER"]);
 
-			if ($_GET["CONFIRM"] == "Y")
+			if ($_GET["CONFIRM"] === "Y")
 			{
 				if (CSocNetUserRelations::ConfirmRequestToBeFriend($arParams["USER_ID"], $relationID, $bAutoSubscribe))
 				{
@@ -374,7 +350,7 @@ else
 						$errorMessage .= $e->GetString();
 				}
 			}
-			elseif ($_GET["CONFIRM"] == "N")
+			elseif ($_GET["CONFIRM"] === "N")
 			{
 				$secondUser = getRelatedUser($arParams["USER_ID"], $relationID);
 				if ($secondUser && CSocNetUserRelations::RejectRequestToBeFriend($arParams["USER_ID"], $relationID))
@@ -397,10 +373,10 @@ else
 
 	$arResult["User"]["NAME_FORMATTED"] = CUser::FormatName($arParams['NAME_TEMPLATE'], $arResult['User'], $bUseLogin);
 
-	if ($arParams["SET_TITLE"] == "Y")
+	if ($arParams["SET_TITLE"] === "Y")
 		$APPLICATION->SetTitle(htmlspecialcharsback($arResult["User"]["NAME_FORMATTED"]).": ".GetMessage("SONET_URE_PAGE_TITLE"));
 
-	if ($arParams["SET_NAV_CHAIN"] != "N")
+	if ($arParams["SET_NAV_CHAIN"] !== "N")
 		$APPLICATION->AddChainItem(GetMessage("SONET_URE_PAGE_TITLE"));
 
 	if (is_array($arResult["User"]))
@@ -488,7 +464,7 @@ else
 					"USER_PERSONAL_PHOTO_IMG" => $arImage,
 					"USER_PROFILE_URL" => $pu,
 					"SHOW_PROFILE_LINK" => $canViewProfile,
-					"IS_ONLINE" => ($arUserRequest["FIRST_USER_IS_ONLINE"] == "Y"),
+					"IS_ONLINE" => ($arUserRequest["FIRST_USER_IS_ONLINE"] === "Y"),
 					"DATE_UPDATE" => $arUserRequest["DATE_UPDATE"],
 					"MESSAGE" => $parser->convert(
 						$arUserRequest["~MESSAGE"],
@@ -658,12 +634,12 @@ else
 					"USER_LAST_NAME" => $arUserRequest["SECOND_USER_LAST_NAME"],
 					"USER_SECOND_NAME" => $arUserRequest["SECOND_USER_SECOND_NAME"],
 					"USER_LOGIN" => $arUserRequest["SECOND_USER_LOGIN"],
-					"USER_NAME_FORMATTED" => $strNameFormatted,			
+					"USER_NAME_FORMATTED" => $strNameFormatted,
 					"USER_PERSONAL_PHOTO" => $arUserRequest["SECOND_USER_PERSONAL_PHOTO"],
 					"USER_PERSONAL_PHOTO_IMG" => $arImage,
 					"USER_PROFILE_URL" => $pu,
 					"SHOW_PROFILE_LINK" => $canViewProfile,
-					"IS_ONLINE" => ($arUserRequest["SECOND_USER_IS_ONLINE"] == "Y"),
+					"IS_ONLINE" => ($arUserRequest["SECOND_USER_IS_ONLINE"] === "Y"),
 					"DATE_UPDATE" => $arUserRequest["DATE_UPDATE"],
 					"MESSAGE" => $parser->convert(
 						$arUserRequest["~MESSAGE"],
@@ -776,5 +752,3 @@ else
 }
 
 $this->IncludeComponentTemplate();
-
-?>

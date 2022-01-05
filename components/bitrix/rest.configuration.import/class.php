@@ -18,6 +18,7 @@ use Bitrix\Rest\Configuration\Manifest;
 use Bitrix\Rest\Configuration\Helper;
 use Bitrix\Rest\Configuration\Setting;
 use Bitrix\Rest\Configuration\Structure;
+use Bitrix\Rest\Configuration\Action\Import;
 use Bitrix\Rest\Marketplace\Client;
 use Bitrix\Rest\AppLogTable;
 use Bitrix\Disk\Driver;
@@ -32,20 +33,6 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 
 	protected function checkRequiredParams()
 	{
-		$access = Manifest::checkAccess(Manifest::ACCESS_TYPE_IMPORT, $this->arParams['MANIFEST_CODE']);
-		if ($access['result'] !== true)
-		{
-			$this->errors->setError(
-				new Error(
-					$access['message'] !== ''
-						? htmlspecialcharsbx($access['message'])
-						: Loc::getMessage('REST_CONFIGURATION_IMPORT_ACCESS_DENIED')
-				)
-			);
-
-			return false;
-		}
-
 		return true;
 	}
 
@@ -119,13 +106,81 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 		return $result;
 	}
 
+	private function registerImport(array $app, array $config)
+	{
+		$result = [];
+		if (!empty($config['MANIFEST']['CODE']))
+		{
+			$additional = [];
+			if (!empty($this->arParams['ADDITIONAL']) && is_array($this->arParams['ADDITIONAL']))
+			{
+				$additional = $this->arParams['ADDITIONAL'];
+			}
+
+			$userId = 0;
+			global $USER;
+			if ($USER->isAuthorized())
+			{
+				$userId = $USER->getId();
+			}
+
+			$import = new Import();
+			$register = $import->register(
+				$config,
+				$additional,
+				$userId,
+				$app['CODE'] ?? '',
+				false
+			);
+			if ($register['processId'] > 0)
+			{
+				$result['IMPORT_PROCESS_ID'] = $register['processId'];
+				$result['IMPORT_ACCESS'] = true;
+				$result['APP'] = $app;
+				$result['MANIFEST_CODE'] = $config['MANIFEST']['CODE'];
+			}
+			else
+			{
+				$this->errors->setError(new Error(Loc::getMessage('REST_CONFIGURATION_IMPORT_ERROR_PROCESS_REGISTRATION')));
+				return false;
+			}
+		}
+		else
+		{
+			$this->errors->setError(new Error(Loc::getMessage('REST_CONFIGURATION_IMPORT_MANIFEST_NOT_FOUND')));
+			return false;
+		}
+
+		return $result;
+	}
+
+	private function isManifestAccess($code = '')
+	{
+		$access = Manifest::checkAccess(Manifest::ACCESS_TYPE_IMPORT, $code);
+		if ($access['result'] !== true)
+		{
+			$this->errors->setError(
+				new Error(
+					$access['message'] !== ''
+						? htmlspecialcharsbx($access['message'])
+						: Loc::getMessage('REST_CONFIGURATION_IMPORT_ACCESS_DENIED')
+				)
+			);
+
+			return false;
+		}
+
+		return true;
+	}
+
 	protected function prepareResult()
 	{
 		$result = [
 			'IMPORT_ACCESS' => false,
 			'IMPORT_FOLDER_FILES' => '',
 			'IMPORT_MANIFEST_FILE' => [],
-			'MANIFEST' => []
+			'MANIFEST' => [],
+			'MANIFEST_CODE' => '',
 		];
 		$title = '';
 
@@ -146,8 +201,13 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 			}
 		}
 
-		if($this->arParams['MODE'] == 'ROLLBACK')
+		if ($this->arParams['MODE'] == 'ROLLBACK')
 		{
+			if (!$this->isManifestAccess($result['MANIFEST_CODE']))
+			{
+				return false;
+			}
+
 			$expertMode = ($this->request->getQuery('expert') && $this->request->getQuery('expert') == 'Y') ? true : false;
 			$result['ROLLBACK_ITEMS'] = [];
 			$appList = Helper::getInstance()->getBasicAppList();
@@ -253,35 +313,48 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 		if (
 			$this->arParams['MODE'] === 'ZIP'
 			&& (int)$this->arParams['ZIP_ID'] > 0
-			&& defined('LANDING_DEMO_ZIP_URL')
 		)
 		{
-			$http = new Bitrix\Main\Web\HttpClient;
-			$zip = $http->post(
-				LANDING_DEMO_ZIP_URL,
-					[
-						'id' => (int)$this->arParams['ZIP_ID'],
-						'zip' => 'Y'
-					]
-			);
-			if ($zip)
+			$site = Client::getSite((int)$this->arParams['ZIP_ID']);
+			if (!$this->isManifestAccess($site['CONFIG']['MANIFEST']['CODE'] ?? ''))
 			{
-				$zip = Json::decode($zip);
+				return false;
 			}
 
-			$app = AppTable::getByClientId($zip['app_code']);
-			if ($app['ACTIVE'] === 'Y' && $app['INSTALLED'] === 'Y' && !empty($zip['path']))
+			$app = AppTable::getByClientId($site['APP_CODE']);
+
+			if ($app['ACTIVE'] === 'Y' && $app['INSTALLED'] === 'Y')
 			{
-				$result = array_merge($result, $this->getArchive($zip['path'], $app));
+				if (!empty($site['CONFIG']))
+				{
+					$registerResult = $this->registerImport($app, $site['CONFIG']);
+					if ($registerResult === false)
+					{
+						return $result;
+					}
+					else
+					{
+						$result = array_merge($result, $registerResult);
+					}
+				}
+				elseif (!empty($site['PATH']))
+				{
+					$result = array_merge($result, $this->getArchive($site['PATH'], $app));
+				}
 			}
 			else
 			{
-				$result['INSTALL_APP'] = $zip['app_code'];
+				$result['INSTALL_APP'] = $site['APP_CODE'];
 				$title = Loc::getMessage('REST_CONFIGURATION_IMPORT_PREPARATION_TITLE');
 			}
 		}
 		elseif (!empty($this->arParams['APP']))
 		{
+			if (!$this->isManifestAccess($result['MANIFEST_CODE']))
+			{
+				return false;
+			}
+
 			$app = AppTable::getByClientId($this->arParams['APP']);
 			if ($app['ACTIVE'] === 'Y')
 			{
@@ -317,6 +390,11 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 				&& check_bitrix_sessid()
 			)
 			{
+				if (!$this->isManifestAccess($result['MANIFEST_CODE']))
+				{
+					return false;
+				}
+
 				$result['ERRORS_UPLOAD_FILE'] = CFile::CheckFile(
 					$_FILES["CONFIGURATION"],
 					$result['MAX_FILE_SIZE']['BYTE'],
@@ -356,6 +434,11 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 
 		if($result['IMPORT_FOLDER_FILES'])
 		{
+			if (!$this->isManifestAccess($result['MANIFEST_CODE']))
+			{
+				return false;
+			}
+
 			$fileList = scandir($result['IMPORT_FOLDER_FILES']);
 			$key = array_search('manifest.json', $fileList);
 			if($key !== false)
@@ -396,6 +479,11 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 		}
 		elseif($result['IMPORT_ROLLBACK_DISK_FOLDER_ID'] && $result['IMPORT_ROLLBACK_STORAGE_PARAMS'])
 		{
+			if (!$this->isManifestAccess($result['MANIFEST_CODE']))
+			{
+				return false;
+			}
+
 			try
 			{
 				$storage = Driver::getInstance()->addStorageIfNotExist(
@@ -453,10 +541,18 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 			}
 			else
 			{
-				if (empty($result['MANIFEST']) && !empty($result['IMPORT_MANIFEST_FILE']['CODE']))
+				if (empty($result['MANIFEST']))
 				{
-					$result['MANIFEST'] = Manifest::get($result['IMPORT_MANIFEST_FILE']['CODE']);
+					if (!empty($result['IMPORT_MANIFEST_FILE']['CODE']))
+					{
+						$result['MANIFEST'] = Manifest::get($result['IMPORT_MANIFEST_FILE']['CODE']);
+					}
+					elseif (!empty($result['MANIFEST_CODE']))
+					{
+						$result['MANIFEST'] = Manifest::get($result['MANIFEST_CODE']);
+					}
 				}
+
 				if ($title === '')
 				{
 					if (!empty($result['MANIFEST']['IMPORT_TITLE_PAGE']))

@@ -269,7 +269,7 @@ if (
 			'ID'
 		),
 		'filter' => array(
-			'SITE_ID' => SITE_ID,
+			'=SITE_ID' => SITE_ID,
 			'=CONDITION' => $condition
 		)
 	));

@@ -285,6 +285,10 @@ if (isset($arResult['ITEM']))
 			? $item['DISPLAY_PROPERTIES'][$arParams['BRAND_PROPERTY']]['DISPLAY_VALUE']
 			: null;
 
+		$jsParams['IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED'] =
+			$arResult['IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED']
+		;
+
 		$templateData = array(
 			'JS_OBJ' => $obName,
 			'ITEM' => array(

@@ -3,6 +3,22 @@ namespace Bitrix\Highloadblock;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class HighloadBlockRightsTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_HighloadBlockRights_Query query()
+ * @method static EO_HighloadBlockRights_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_HighloadBlockRights_Result getById($id)
+ * @method static EO_HighloadBlockRights_Result getList(array $parameters = array())
+ * @method static EO_HighloadBlockRights_Entity getEntity()
+ * @method static \Bitrix\Highloadblock\EO_HighloadBlockRights createObject($setDefaultValues = true)
+ * @method static \Bitrix\Highloadblock\EO_HighloadBlockRights_Collection createCollection()
+ * @method static \Bitrix\Highloadblock\EO_HighloadBlockRights wakeUpObject($row)
+ * @method static \Bitrix\Highloadblock\EO_HighloadBlockRights_Collection wakeUpCollection($rows)
+ */
 class HighloadBlockRightsTable extends Entity\DataManager
 {
 	/**

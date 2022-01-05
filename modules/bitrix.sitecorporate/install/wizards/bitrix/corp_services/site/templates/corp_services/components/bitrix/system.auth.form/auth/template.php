@@ -47,7 +47,7 @@ if ($arResult["FORM_TYPE"] != "login")
 	}
 	?>
 	</ul>
-	<a href="<?=$GLOBALS["APPLICATION"]->GetCurPageParam("logout=yes", array("logout"))?>" id="logout" title="<?=GetMessage("AUTH_LOGOUT")?>"><?=GetMessage("AUTH_LOGOUT")?></a>
+	<a href="<?=$GLOBALS["APPLICATION"]->GetCurPageParam("logout=yes&".bitrix_sessid_get(), array("logout", "sessid"))?>" id="logout" title="<?=GetMessage("AUTH_LOGOUT")?>"><?=GetMessage("AUTH_LOGOUT")?></a>
 </div>
 <? 
 } 
@@ -83,7 +83,7 @@ else
 		</tr>
 		<tr>
 			<td class="field-name"><label for="password-textbox"><?=GetMessage("AUTH_PASSWORD")?>:</label></td>
-			<td><input type="password" name="USER_PASSWORD" maxlength="50" class="textbox" id="password-textbox" /></td>
+			<td><input type="password" name="USER_PASSWORD" maxlength="255" class="textbox" id="password-textbox" /></td>
 		</tr>
 <?
 	if ($arResult["STORE_PASSWORD"] == "Y")

@@ -67,15 +67,20 @@ if(typeof BX.UI.EntityEditorToolPanel === "undefined")
 
 			this._isLocked = locked;
 
-			if (this._editButton)
+			var activeButton = this._editButton;
+			if (this._clickedButton)
+			{
+				activeButton = this._clickedButton;
+			}
+			if (activeButton)
 			{
 				if(locked)
 				{
-					BX.addClass(this._editButton, "ui-btn-clock");
+					BX.addClass(activeButton, "ui-btn-clock");
 				}
 				else
 				{
-					BX.removeClass(this._editButton, "ui-btn-clock");
+					BX.removeClass(activeButton, "ui-btn-clock");
 				}
 			}
 		},
@@ -88,6 +93,7 @@ if(typeof BX.UI.EntityEditorToolPanel === "undefined")
 
 			this._editButton.disabled = true;
 			BX.addClass(this._editButton, 'ui-btn-disabled');
+			BX.onCustomEvent(window, "onEntityEditorToolbarSaveButtonDisabled", [this]);
 		},
 		enableSaveButton: function()
 		{
@@ -98,6 +104,7 @@ if(typeof BX.UI.EntityEditorToolPanel === "undefined")
 
 			this._editButton.disabled = false;
 			BX.removeClass(this._editButton, 'ui-btn-disabled');
+			BX.onCustomEvent(window, "onEntityEditorToolbarSaveButtonEnabled", [this]);
 		},
 		isSaveButtonEnabled: function()
 		{
@@ -170,6 +177,7 @@ if(typeof BX.UI.EntityEditorToolPanel === "undefined")
 	};
 	BX.UI.EntityEditorToolPanel.prototype.onSaveButtonClick = function(e)
 	{
+		this._clickedButton = e.target;
 		if(!this._isLocked)
 		{
 			this._editor.saveChanged();

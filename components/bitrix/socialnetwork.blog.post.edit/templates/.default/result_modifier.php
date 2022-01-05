@@ -1,10 +1,16 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\UI\EntitySelector;
 
@@ -13,8 +19,8 @@ if (
 	&& $arResult["BLOG_POST_TASKS"]
 )
 {
-	$userPage = \Bitrix\Main\Config\Option::get('socialnetwork', 'user_page', SITE_DIR.'company/personal/');
-	$workgroupPage = \Bitrix\Main\Config\Option::get('socialnetwork', 'workgroups_page', SITE_DIR.'workgroups/');
+	$userPage = Option::get('socialnetwork', 'user_page', SITE_DIR.'company/personal/');
+	$workgroupPage = Option::get('socialnetwork', 'workgroups_page', SITE_DIR.'workgroups/');
 
 	$arParams['PATH_TO_USER_PROFILE'] = (!empty($arParams['PATH_TO_USER_PROFILE']) ? $arParams['PATH_TO_USER_PROFILE'] : $workgroupPage.'user/#user_id#/');
 	$arParams['PATH_TO_GROUP'] = (!empty($arParams['PATH_TO_GROUP']) ? $arParams['PATH_TO_GROUP'] : $workgroupPage.'group/#group_id#/');
@@ -23,6 +29,7 @@ if (
 	$arParams['PATH_TO_GROUP_TASKS'] = (!empty($arParams['PATH_TO_GROUP_TASKS']) ? $arParams['PATH_TO_GROUP_TASKS'] : $workgroupPage.'group/#group_id#/tasks/');
 	$arParams['PATH_TO_GROUP_TASKS_TASK'] = (!empty($arParams['PATH_TO_GROUP_TASKS_TASK']) ? $arParams['PATH_TO_GROUP_TASKS_TASK'] : $workgroupPage.'group/#group_id#/tasks/task/#action#/#task_id#/');
 	$arParams['PATH_TO_USER_TASKS_PROJECTS_OVERVIEW'] = (!empty($arParams['PATH_TO_USER_TASKS_PROJECTS_OVERVIEW']) ? $arParams['PATH_TO_USER_TASKS_PROJECTS_OVERVIEW'] : $userPage.'user/#user_id#/tasks/projects/');
+	$arParams['PATH_TO_USER_TASKS_SCRUM_OVERVIEW'] = (!empty($arParams['PATH_TO_USER_TASKS_SCRUM_OVERVIEW']) ? $arParams['PATH_TO_USER_TASKS_SCRUM_OVERVIEW'] : $userPage.'user/#user_id#/tasks/scrum/');
 	$arParams['PATH_TO_USER_TASKS_TEMPLATES'] = (!empty($arParams['PATH_TO_USER_TASKS_TEMPLATES']) ? $arParams['PATH_TO_USER_TASKS_TEMPLATES'] : $userPage.'user/#user_id#/tasks/templates/');
 	$arParams['PATH_TO_USER_TEMPLATES_TEMPLATE'] = (!empty($arParams['PATH_TO_USER_TEMPLATES_TEMPLATE']) ? $arParams['PATH_TO_USER_TEMPLATES_TEMPLATE'] : $userPage.'user/#user_id#/tasks/templates/template/#action#/#template_id#/');
 	$arParams['TASK_SUBMIT_BACKURL'] = $APPLICATION->GetCurPageParam(isset($arParams["LOG_EXPERT_MODE"]) && $arParams["LOG_EXPERT_MODE"] === 'Y' ? "taskIdCreated=#task_id#" : "", [
@@ -47,18 +54,18 @@ if (
 )
 {
 	$_SESSION["SL_TASK_ID_CREATED"] = (int)$_GET["taskIdCreated"];
-	LocalRedirect($APPLICATION->GetCurPageParam("", [ "taskIdCreated", "EVENT_TYPE", "EVENT_TASK_ID", "EVENT_OPTION" ]));
+	LocalRedirect($APPLICATION->GetCurPageParam("", [ "taskIdCreated", "EVENT_TYPE", "EVENT_TASK_ID", "EVENT_OPTION", "EVENT_OPTIONS" ]));
 }
 
 $arResult["SHOW_BLOG_FORM_TARGET"] = isset($arParams["SHOW_BLOG_FORM_TARGET"]) && $arParams["SHOW_BLOG_FORM_TARGET"];
-if (isset($arResult["POST_PROPERTIES"]["DATA"])
-	&& isset($arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"])
-	&& isset($arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"])
-	&& $arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"])
+if (
+	isset($arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"])
+	&& $arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"]
+)
 {
 	$postImportantTillDate = new \Bitrix\Main\Type\DateTime($arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"]);
 	$postImportantTillDate = $postImportantTillDate->add("1D");
-	$arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"] = $postImportantTillDate->format(\Bitrix\Main\Type\Date::convertFormatToPhp(\CSite::GetDateFormat('SHORT')));
+	$arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"] = $postImportantTillDate->format(\Bitrix\Main\Type\Date::convertFormatToPhp(CSite::GetDateFormat('SHORT')));
 }
 
 if (is_array($arResult["REMAIN_IMPORTANT_TILL"]))
@@ -82,25 +89,32 @@ if (is_array($arResult["REMAIN_IMPORTANT_TILL"]))
 	}
 }
 
-$arResult['bVarsFromForm'] = (array_key_exists("POST_MESSAGE", $_REQUEST) || $arResult["ERROR_MESSAGE"] <> '' || $arResult["needShow"]);
+$arResult['bVarsFromForm'] = (
+	array_key_exists("POST_MESSAGE", $_REQUEST)
+	|| (string)$arResult["ERROR_MESSAGE"] !== ''
+	|| $arResult["needShow"]
+);
 $arResult['tabActive'] = ($arResult['bVarsFromForm'] ? $_REQUEST["changePostFormTab"] : "message");
 
 $arResult['tabs'] = [];
 $gratCurrentUsersList = $arResult['selectedGratitudeEntities'] = [];
 
 if (
-	ModuleManager::isModuleInstalled("intranet")
-	&& (
+	(
 		(
-			is_array($arResult["PostToShow"]["GRATS"])
-			&& !empty($arResult["PostToShow"]["GRATS"])
-			&& (!isset($arParams["PAGE_ID"]) || $arParams["PAGE_ID"] !== "user_blog_post_edit_profile")
-		)
-		|| (
 			isset($arParams["PAGE_ID"])
 			&& $arParams["PAGE_ID"] === "user_blog_post_edit_grat"
 		)
+		|| (
+			!empty($arResult["PostToShow"]["GRATS"])
+			&& (
+				!isset($arParams["PAGE_ID"])
+				|| $arParams["PAGE_ID"] !== "user_blog_post_edit_profile"
+			)
+			&& is_array($arResult["PostToShow"]["GRATS"])
+		)
 	)
+	&& ModuleManager::isModuleInstalled("intranet")
 )
 {
 	$arResult['tabs'][] = 'grat';

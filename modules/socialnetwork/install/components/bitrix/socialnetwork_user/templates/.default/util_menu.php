@@ -1,10 +1,27 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var CBitrixComponentTemplate $this */
+/** @var CBitrixComponent $component */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CDatabase $DB */
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
+/** @var string $pageId */
+
 if (
-	SITE_TEMPLATE_ID != "bitrix24"
-	|| !$GLOBALS["USER"]->IsAuthorized() 
-	|| $arResult["VARIABLES"]["user_id"] != $GLOBALS["USER"]->GetID() 
-	|| $pageId == "user"
+	$pageId !== 'group_create'
+	&& (
+		SITE_TEMPLATE_ID !== 'bitrix24'
+		|| (int)$arResult['VARIABLES']['user_id'] !== (int)$USER->getId()
+		|| $pageId === 'user'
+		|| !$USER->isAuthorized()
+	)
 )
 {
 	$APPLICATION->IncludeComponent(
@@ -40,8 +57,7 @@ if (
 		array("HIDE_ICONS" => "Y")
 	);
 }
-?>
-<?
+
 $APPLICATION->IncludeComponent(
 	"bitrix:socialnetwork.admin.set",
 	"",
@@ -49,4 +65,3 @@ $APPLICATION->IncludeComponent(
 	$component,
 	array("HIDE_ICONS" => "Y")
 );
-?>

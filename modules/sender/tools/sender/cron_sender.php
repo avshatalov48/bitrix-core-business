@@ -16,6 +16,6 @@ if(CModule::IncludeModule('sender'))
 {
 	\Bitrix\Sender\MailingManager::checkSend();
 }
-
+\Bitrix\Main\Mail\Smtp\Mailer::closeConnections();
 CMain::FinalActions();
 ?>

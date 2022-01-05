@@ -3,6 +3,8 @@
 import SyncButton from './controls/syncbutton';
 import {EventEmitter} from "main.core.events";
 import {GoogleProvider} from "./connectionproviders/googleprovider";
+import {Office365Provider} from "./connectionproviders/office365provider";
+import {ICloudProvider} from "./connectionproviders/icloudprovider";
 import {AndroidProvider} from "./connectionproviders/androidprovider";
 import {CaldavConnection} from "./connectionproviders/caldavconnection";
 import {CaldavProvider} from "./connectionproviders/caldavprovider";
@@ -115,6 +117,15 @@ export default class Manager extends EventEmitter
 				sections: sectionsByType.google || {},
 				syncLink: this.syncLinks.google || null,
 				isSetSyncCaldavSettings: this.isSetSyncCaldavSettings,
+				mainPanel: true
+			}),
+			office365: Office365Provider.createInstance({
+				syncInfo: syncInfo.office365 || {},
+				mainPanel: true
+			}),
+			icloud: ICloudProvider.createInstance({
+				syncInfo: syncInfo.icloud || {},
+				mainPanel: true
 			}),
 			caldav: CaldavProvider.createInstance({
 				status: CaldavConnection.calculateStatus(caldavConnections),
@@ -265,12 +276,11 @@ export default class Manager extends EventEmitter
 		const openSliders = BX.SidePanel.Instance.getOpenSliders();
 		if (openSliders.length > 0)
 		{
-			const syncPanel = this.syncButton.getSyncPanel();
 			openSliders.forEach(slider =>
 			{
-				if (slider.getUrl() === 'calendar:sync-slider')
+				if (slider.getUrl() === 'calendar:auxiliary-sync-slider')
 				{
-					this.refreshMainSlider(syncPanel, slider);
+					this.refreshMainSlider(this.syncButton.getSyncPanel());
 				}
 				else if (slider.getUrl().indexOf('calendar:item-sync-') !== -1)
 				{
@@ -303,7 +313,7 @@ export default class Manager extends EventEmitter
 		slider.reload();
 	}
 
-	refreshMainSlider(syncPanel, slider)
+	refreshMainSlider(syncPanel)
 	{
 		syncPanel.refresh(this.status, this.connectionsProviders);
 	}
@@ -398,7 +408,10 @@ export default class Manager extends EventEmitter
 			}
 		}
 
-		this.status = this.STATUS_SUCCESS;
+		if (this.status !== 'not_connected')
+		{
+			this.status = this.STATUS_SUCCESS;
+		}
 		this.refreshContent();
 	}
 

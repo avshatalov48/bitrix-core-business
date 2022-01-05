@@ -13,7 +13,17 @@ define("NO_AGENT_STATISTIC", true);
 define("NO_AGENT_CHECK", true);
 define("NOT_CHECK_PERMISSIONS", true);
 
+if (isset($_REQUEST['publicMode']) && $_REQUEST['publicMode'] === 'Y')
+{
+	define("PUBLIC_MODE", true);
+}
+
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+
+if (isset($_REQUEST['publicMode']) && $_REQUEST['publicMode'] === 'Y')
+{
+	define('SELF_FOLDER_URL', '/shop/settings/');
+}
 
 $lang = isset($_REQUEST['lang']) ? trim($_REQUEST['lang']) : "ru";
 \Bitrix\Main\Context::getCurrent()->setLanguage($lang);

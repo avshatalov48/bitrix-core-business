@@ -2,105 +2,7 @@ this.BX = this.BX || {};
 (function (exports,main_loader,ui_dialogs_messagebox,main_popup,main_core_events,main_core) {
 	'use strict';
 
-	function _templateObject10() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-timeline-item-context-menu\"></div>"]);
-
-	  _templateObject10 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section-icon\"></div>"]);
-
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-detail\">", "</div>"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<a class=\"ui-item-detail-stream-content-employee\" href=\"", "\" target=\"_blank\" title=\"", "\" ", "></a>"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<a></a>"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-event\"></div>"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section-content\">", "</div>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-item-detail-stream-section-top-fixed-btn\"></span>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section ", "\"></div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10;
 	/**
 	 * @mixes EventEmitter
 	 * @memberOf BX.UI.Timeline
@@ -321,13 +223,13 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderContainer",
 	    value: function renderContainer() {
-	      return main_core.Tag.render(_templateObject(), this.isLast ? 'ui-item-detail-stream-section-last' : '');
+	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section ", "\"></div>"])), this.isLast ? 'ui-item-detail-stream-section-last' : '');
 	    }
 	  }, {
 	    key: "renderPin",
 	    value: function renderPin() {
 	      if (!this.layout.pin) {
-	        this.layout.pin = main_core.Tag.render(_templateObject2());
+	        this.layout.pin = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-item-detail-stream-section-top-fixed-btn\"></span>"])));
 	      }
 
 	      if (this.isFixed) {
@@ -341,7 +243,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderContent",
 	    value: function renderContent() {
-	      this.layout.content = main_core.Tag.render(_templateObject3(), this.renderDescription());
+	      this.layout.content = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section-content\">", "</div>"])), this.renderDescription());
 	      return this.getContent();
 	    }
 	  }, {
@@ -352,7 +254,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderDescription",
 	    value: function renderDescription() {
-	      this.layout.description = main_core.Tag.render(_templateObject4());
+	      this.layout.description = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-event\"></div>"])));
 	      var header = this.renderHeader();
 
 	      if (header) {
@@ -382,16 +284,16 @@ this.BX = this.BX || {};
 	      }
 
 	      if (!userData) {
-	        return main_core.Tag.render(_templateObject5());
+	        return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<a></a>"])));
 	      }
 
-	      var safeFullName = main_core.Tag.safe(_templateObject6(), userData.fullName);
-	      return main_core.Tag.render(_templateObject7(), userData.link, safeFullName, userData.photo ? 'style="background-image: url(\'' + userData.photo + '\'); background-size: 100%;"' : '');
+	      var safeFullName = main_core.Tag.safe(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["", ""])), userData.fullName);
+	      return main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<a class=\"ui-item-detail-stream-content-employee\" href=\"", "\" target=\"_blank\" title=\"", "\" ", "></a>"])), userData.link, safeFullName, userData.photo ? 'style="background-image: url(\'' + userData.photo + '\'); background-size: 100%;"' : '');
 	    }
 	  }, {
 	    key: "renderMain",
 	    value: function renderMain() {
-	      this.layout.main = main_core.Tag.render(_templateObject8(), this.description);
+	      this.layout.main = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-detail\">", "</div>"])), this.description);
 	      return this.getMain();
 	    }
 	  }, {
@@ -402,7 +304,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderIcon",
 	    value: function renderIcon() {
-	      this.layout.icon = main_core.Tag.render(_templateObject9());
+	      this.layout.icon = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section-icon\"></div>"])));
 	      return this.layout.icon;
 	    }
 	  }, {
@@ -518,7 +420,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderActionsButton",
 	    value: function renderActionsButton() {
-	      this.layout.contextMenuButton = main_core.Tag.render(_templateObject10());
+	      this.layout.contextMenuButton = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-timeline-item-context-menu\"></div>"])));
 	      return this.getActionsButton();
 	    }
 	  }, {
@@ -596,65 +498,7 @@ this.BX = this.BX || {};
 	  return Item;
 	}();
 
-	function _templateObject6$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-title\">\n\t\t\t<span class=\"ui-item-detail-stream-content-title-text\">", "</span>\n\t\t</div>"]);
-
-	  _templateObject6$1 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-detail-info ui-item-detail-stream-content-detail-info-break\">\n\t\t\t\t", "\n\t\t\t</div>"]);
-
-	  _templateObject5$1 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-detail-field\">", "</div>"]);
-
-	  _templateObject4$1 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-detail-info\">\n\t\t\t\t<span class=\"ui-item-detail-stream-content-detail-info-status\">", "</span>\n\t\t\t\t<span class=\"ui-item-detail-stream-content-detail-info-separator\"></span>\n\t\t\t\t<span class=\"ui-item-detail-stream-content-detail-info-status\">", "</span>\n\t\t\t</div>"]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-title\">\n\t\t\t<span class=\"ui-item-detail-stream-content-title-text\">", "</span>\n\t\t</div>"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-header\">\n\t\t\t<div class=\"ui-item-detail-stream-content-title\">\n\t\t\t\t<span class=\"ui-item-detail-stream-content-title-text\">", "</span>\n\t\t\t\t<span class=\"ui-item-detail-stream-content-title-time\">", "</span>\n\t\t\t</div>\n\t\t\t", "\n\t\t</div>"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5$1, _templateObject6$1;
 	var History = /*#__PURE__*/function (_Item) {
 	  babelHelpers.inherits(History, _Item);
 
@@ -679,12 +523,12 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderHeader",
 	    value: function renderHeader() {
-	      return main_core.Tag.render(_templateObject$1(), main_core.Text.encode(this.getTitle()), this.formatTime(this.getCreatedTime()), this.renderHeaderUser(this.getUserId()));
+	      return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-header\">\n\t\t\t<div class=\"ui-item-detail-stream-content-title\">\n\t\t\t\t<span class=\"ui-item-detail-stream-content-title-text\">", "</span>\n\t\t\t\t<span class=\"ui-item-detail-stream-content-title-time\">", "</span>\n\t\t\t</div>\n\t\t\t", "\n\t\t</div>"])), main_core.Text.encode(this.getTitle()), this.formatTime(this.getCreatedTime()), this.renderHeaderUser(this.getUserId()));
 	    }
 	  }, {
 	    key: "renderStageChangeTitle",
 	    value: function renderStageChangeTitle() {
-	      return main_core.Tag.render(_templateObject2$1(), main_core.Loc.getMessage('UI_TIMELINE_STAGE_CHANGE_SUBTITLE'));
+	      return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-title\">\n\t\t\t<span class=\"ui-item-detail-stream-content-title-text\">", "</span>\n\t\t</div>"])), main_core.Loc.getMessage('UI_TIMELINE_STAGE_CHANGE_SUBTITLE'));
 	    }
 	  }, {
 	    key: "renderStageChange",
@@ -693,7 +537,7 @@ this.BX = this.BX || {};
 	      var stageTo = this.getStageTo();
 
 	      if (stageFrom && stageTo && stageFrom.id !== stageTo.id) {
-	        return main_core.Tag.render(_templateObject3$1(), main_core.Text.encode(stageFrom.name), main_core.Text.encode(stageTo.name));
+	        return main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-detail-info\">\n\t\t\t\t<span class=\"ui-item-detail-stream-content-detail-info-status\">", "</span>\n\t\t\t\t<span class=\"ui-item-detail-stream-content-detail-info-separator\"></span>\n\t\t\t\t<span class=\"ui-item-detail-stream-content-detail-info-status\">", "</span>\n\t\t\t</div>"])), main_core.Text.encode(stageFrom.name), main_core.Text.encode(stageTo.name));
 	      }
 
 	      return null;
@@ -733,9 +577,9 @@ this.BX = this.BX || {};
 	      if (fields) {
 	        var list = [];
 	        fields.forEach(function (field) {
-	          list.push(main_core.Tag.render(_templateObject4$1(), main_core.Text.encode(field.title)));
+	          list.push(main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-detail-field\">", "</div>"])), main_core.Text.encode(field.title)));
 	        });
-	        return main_core.Tag.render(_templateObject5$1(), list);
+	        return main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-detail-info ui-item-detail-stream-content-detail-info-break\">\n\t\t\t\t", "\n\t\t\t</div>"])), list);
 	      }
 
 	      return null;
@@ -743,21 +587,13 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderFieldsChangeTitle",
 	    value: function renderFieldsChangeTitle() {
-	      return main_core.Tag.render(_templateObject6$1(), main_core.Loc.getMessage('UI_TIMELINE_FIELDS_CHANGE_SUBTITLE'));
+	      return main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-title\">\n\t\t\t<span class=\"ui-item-detail-stream-content-title-text\">", "</span>\n\t\t</div>"])), main_core.Loc.getMessage('UI_TIMELINE_FIELDS_CHANGE_SUBTITLE'));
 	    }
 	  }]);
 	  return History;
 	}(Item);
 
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-detail\">\n\t\t\t", "\n\t\t\t", "\n\t\t</div>"]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$2;
 	var StageChange = /*#__PURE__*/function (_History) {
 	  babelHelpers.inherits(StageChange, _History);
 
@@ -781,21 +617,13 @@ this.BX = this.BX || {};
 	        fieldsChange = '';
 	      }
 
-	      return main_core.Tag.render(_templateObject$2(), stageChange, fieldsChange);
+	      return main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-detail\">\n\t\t\t", "\n\t\t\t", "\n\t\t</div>"])), stageChange, fieldsChange);
 	    }
 	  }]);
 	  return StageChange;
 	}(History);
 
-	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-detail\">\n\t\t\t", "\n\t\t</div>"]);
-
-	  _templateObject$3 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$3;
 	var FieldsChange = /*#__PURE__*/function (_History) {
 	  babelHelpers.inherits(FieldsChange, _History);
 
@@ -813,7 +641,7 @@ this.BX = this.BX || {};
 	        fieldsChange = '';
 	      }
 
-	      return main_core.Tag.render(_templateObject$3(), fieldsChange);
+	      return main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-detail\">\n\t\t\t", "\n\t\t</div>"])), fieldsChange);
 	    }
 	  }]);
 	  return FieldsChange;
@@ -910,75 +738,7 @@ this.BX = this.BX || {};
 	  return Editor;
 	}();
 
-	function _templateObject7$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-timeline-wait\"></div>"]);
-
-	  _templateObject7$1 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-timeline-comment-editor\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>"]);
-
-	  _templateObject6$2 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span onclick=\"", "\" class=\"ui-btn ui-btn-xs ui-btn-link\">", "</span>"]);
-
-	  _templateObject5$2 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<button onclick=\"", "\" class=\"ui-btn ui-btn-xs ui-btn-primary\">", "</button>"]);
-
-	  _templateObject4$2 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section-new-comment-btn-container\">\n\t\t\t", "\n\t\t\t", "\n\t\t</div>"]);
-
-	  _templateObject3$2 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-timeline-comment-visual-editor\"></div>"]);
-
-	  _templateObject2$2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<textarea onfocus=\"", "\" rows=\"1\" class=\"ui-item-detail-stream-section-new-comment-textarea\" placeholder=\"", "\"></textarea>"]);
-
-	  _templateObject$4 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$4, _templateObject2$2, _templateObject3$2, _templateObject4$2, _templateObject5$2, _templateObject6$2, _templateObject7$1;
 	/**
 	 * @memberOf BX.UI.Timeline
 	 * @mixes EventEmitter
@@ -1022,7 +782,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderTextarea",
 	    value: function renderTextarea() {
-	      this.layout.textarea = main_core.Tag.render(_templateObject$4(), this.onFocus.bind(this), main_core.Loc.getMessage('UI_TIMELINE_EDITOR_COMMENT_TEXTAREA'));
+	      this.layout.textarea = main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["<textarea onfocus=\"", "\" rows=\"1\" class=\"ui-item-detail-stream-section-new-comment-textarea\" placeholder=\"", "\"></textarea>"])), this.onFocus.bind(this), main_core.Loc.getMessage('UI_TIMELINE_EDITOR_COMMENT_TEXTAREA'));
 	      return this.getTextarea();
 	    }
 	  }, {
@@ -1033,7 +793,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderVisualEditorContainer",
 	    value: function renderVisualEditorContainer() {
-	      this.layout.visualEditorContainer = main_core.Tag.render(_templateObject2$2());
+	      this.layout.visualEditorContainer = main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-timeline-comment-visual-editor\"></div>"])));
 	      return this.getVisualEditorContainer();
 	    }
 	  }, {
@@ -1044,7 +804,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderButtons",
 	    value: function renderButtons() {
-	      this.layout.buttonsContainer = main_core.Tag.render(_templateObject3$2(), this.renderSaveButton(), this.renderCancelButton());
+	      this.layout.buttonsContainer = main_core.Tag.render(_templateObject3$2 || (_templateObject3$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section-new-comment-btn-container\">\n\t\t\t", "\n\t\t\t", "\n\t\t</div>"])), this.renderSaveButton(), this.renderCancelButton());
 	      return this.getButtonsContainer();
 	    }
 	  }, {
@@ -1055,7 +815,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderSaveButton",
 	    value: function renderSaveButton() {
-	      this.layout.saveButton = main_core.Tag.render(_templateObject4$2(), this.save.bind(this), main_core.Loc.getMessage('UI_TIMELINE_EDITOR_COMMENT_SEND'));
+	      this.layout.saveButton = main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["<button onclick=\"", "\" class=\"ui-btn ui-btn-xs ui-btn-primary\">", "</button>"])), this.save.bind(this), main_core.Loc.getMessage('UI_TIMELINE_EDITOR_COMMENT_SEND'));
 	      return this.getSaveButton();
 	    }
 	  }, {
@@ -1066,13 +826,13 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderCancelButton",
 	    value: function renderCancelButton() {
-	      this.layout.cancelButton = main_core.Tag.render(_templateObject5$2(), this.cancel.bind(this), main_core.Loc.getMessage('UI_TIMELINE_EDITOR_COMMENT_CANCEL'));
+	      this.layout.cancelButton = main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["<span onclick=\"", "\" class=\"ui-btn ui-btn-xs ui-btn-link\">", "</span>"])), this.cancel.bind(this), main_core.Loc.getMessage('UI_TIMELINE_EDITOR_COMMENT_CANCEL'));
 	      return this.getCancelButton();
 	    }
 	  }, {
 	    key: "render",
 	    value: function render() {
-	      this.layout.container = main_core.Tag.render(_templateObject6$2(), this.renderTextarea(), this.renderButtons(), this.renderVisualEditorContainer());
+	      this.layout.container = main_core.Tag.render(_templateObject6$2 || (_templateObject6$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-timeline-comment-editor\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>"])), this.renderTextarea(), this.renderButtons(), this.renderVisualEditorContainer());
 	      return this.getContainer();
 	    }
 	  }, {
@@ -1159,7 +919,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "showEditorLoader",
 	    value: function showEditorLoader() {
-	      this.editorLoader = main_core.Tag.render(_templateObject7$1());
+	      this.editorLoader = main_core.Tag.render(_templateObject7$1 || (_templateObject7$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-timeline-wait\"></div>"])));
 	      main_core.Dom.append(this.editorLoader, this.getContainer());
 	    }
 	  }, {
@@ -1313,65 +1073,7 @@ this.BX = this.BX || {};
 	  return CommentEditor;
 	}(Editor);
 
-	function _templateObject6$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-timeline-section-files-inner\"></div>"]);
-
-	  _templateObject6$3 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<a class=\"ui-timeline-content-description-expand-btn\" onclick=\"", "\">\n\t\t\t", "\n\t\t</a>"]);
-
-	  _templateObject5$3 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-timeline-content-description-expand-container\">", "</div>"]);
-
-	  _templateObject4$3 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-description\" onclick=\"", "\">", "</div>"]);
-
-	  _templateObject3$3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-detail\">\n\t\t\t", "\n\t\t</div>"]);
-
-	  _templateObject2$3 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-timeline-section-files\">", "</div>"]);
-
-	  _templateObject$5 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$5, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$3, _templateObject6$3;
 	var COLLAPSE_TEXT_MAX_LENGTH = 128;
 	/**
 	 * @memberOf BX.UI.Timeline
@@ -1422,7 +1124,7 @@ this.BX = this.BX || {};
 	      }
 
 	      if (this.hasFiles()) {
-	        this.getContent().appendChild(main_core.Tag.render(_templateObject$5(), this.renderFilesContainer()));
+	        this.getContent().appendChild(main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-timeline-section-files\">", "</div>"])), this.renderFilesContainer()));
 	        main_core.Event.ready(function () {
 	          setTimeout(function () {
 	            _this2.loadFilesContent();
@@ -1460,7 +1162,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderMain",
 	    value: function renderMain() {
-	      this.layout.main = main_core.Tag.render(_templateObject2$3(), this.renderMainDescription());
+	      this.layout.main = main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-detail\">\n\t\t\t", "\n\t\t</div>"])), this.renderMainDescription());
 	      return this.getMain();
 	    }
 	  }, {
@@ -1471,7 +1173,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderMainDescription",
 	    value: function renderMainDescription() {
-	      this.layout.mainDescription = main_core.Tag.render(_templateObject3$3(), this.onMainClick.bind(this), this.htmlDescription);
+	      this.layout.mainDescription = main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content-description\" onclick=\"", "\">", "</div>"])), this.onMainClick.bind(this), this.htmlDescription);
 	      return this.getMainDescription();
 	    }
 	  }, {
@@ -1482,7 +1184,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderExpandBlock",
 	    value: function renderExpandBlock() {
-	      this.layout.expandBlock = main_core.Tag.render(_templateObject4$3(), this.renderExpandButton());
+	      this.layout.expandBlock = main_core.Tag.render(_templateObject4$3 || (_templateObject4$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-timeline-content-description-expand-container\">", "</div>"])), this.renderExpandButton());
 	      return this.getExpandBlock();
 	    }
 	  }, {
@@ -1493,7 +1195,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderExpandButton",
 	    value: function renderExpandButton() {
-	      this.layout.expandButton = main_core.Tag.render(_templateObject5$3(), this.onExpandButtonClick.bind(this), main_core.Loc.getMessage(this.isCollapsed ? 'UI_TIMELINE_EXPAND_SM' : 'UI_TIMELINE_COLLAPSE_SM'));
+	      this.layout.expandButton = main_core.Tag.render(_templateObject5$3 || (_templateObject5$3 = babelHelpers.taggedTemplateLiteral(["<a class=\"ui-timeline-content-description-expand-btn\" onclick=\"", "\">\n\t\t\t", "\n\t\t</a>"])), this.onExpandButtonClick.bind(this), main_core.Loc.getMessage(this.isCollapsed ? 'UI_TIMELINE_EXPAND_SM' : 'UI_TIMELINE_COLLAPSE_SM'));
 	      return this.getExpandButton();
 	    }
 	  }, {
@@ -1548,7 +1250,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderFilesContainer",
 	    value: function renderFilesContainer() {
-	      this.layout.filesContainer = main_core.Tag.render(_templateObject6$3());
+	      this.layout.filesContainer = main_core.Tag.render(_templateObject6$3 || (_templateObject6$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-timeline-section-files-inner\"></div>"])));
 	      return this.getFilesContainer();
 	    }
 	  }, {
@@ -1805,15 +1507,7 @@ this.BX = this.BX || {};
 	  return Animation;
 	}();
 
-	function _templateObject$6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section ui-item-detail-stream-section-shadow\"></div>"]);
-
-	  _templateObject$6 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$6;
 	var Drop = /*#__PURE__*/function (_Animation) {
 	  babelHelpers.inherits(Drop, _Animation);
 
@@ -1858,7 +1552,7 @@ this.BX = this.BX || {};
 	      node.style.top = main_core.Dom.getPosition(this.container).top + "px";
 	      node.style.left = main_core.Dom.getPosition(this.container).left + "px";
 	      document.body.appendChild(node);
-	      this.anchor = main_core.Tag.render(_templateObject$6());
+	      this.anchor = main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section ui-item-detail-stream-section-shadow\"></div>"])));
 	      main_core.Dom.prepend(this.anchor, this.container);
 
 	      if (main_core.Type.isDomNode(this.insertAfter)) {
@@ -2130,15 +1824,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(Show, "EXPAND_DURATION", 150);
 	babelHelpers.defineProperty(Show, "FADE_IN_DURATION", 150);
 
-	function _templateObject$7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section ui-item-detail-stream-section-shadow\"></div>"]);
-
-	  _templateObject$7 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$7;
 	var TaskComplete = /*#__PURE__*/function (_Animation) {
 	  babelHelpers.inherits(TaskComplete, _Animation);
 
@@ -2181,7 +1867,7 @@ this.BX = this.BX || {};
 	        node.style.zIndex = "999";
 	        main_core.Dom.addClass(node, 'ui-item-detail-stream-section-show');
 	        document.body.appendChild(node);
-	        _this2.anchor = main_core.Tag.render(_templateObject$7());
+	        _this2.anchor = main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section ui-item-detail-stream-section-shadow\"></div>"])));
 	        main_core.Dom.prepend(_this2.anchor, _this2.container);
 
 	        if (main_core.Type.isDomNode(_this2.insertAfter)) {
@@ -2312,9 +1998,17 @@ this.BX = this.BX || {};
 	}(Animation);
 	babelHelpers.defineProperty(Hide, "DURATION", 1000);
 
-	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } return value; }
+	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "set"); _classApplyDescriptorSet(receiver, descriptor, value); return value; }
 
-	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+	function _classApplyDescriptorSet(receiver, descriptor, value) { if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } }
+
+	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
+
+	function _classCheckPrivateStaticFieldDescriptor(descriptor, action) { if (descriptor === undefined) { throw new TypeError("attempted to " + action + " private static field before its declaration"); } }
+
+	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+
+	function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
 	var Queue = /*#__PURE__*/function () {
 	  function Queue() {
 	    babelHelpers.classCallCheck(this, Queue);
@@ -2372,125 +2066,7 @@ this.BX = this.BX || {};
 	  value: false
 	};
 
-	function _templateObject12() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section ui-item-detail-stream-section-history-label\">\n\t\t\t<div class=\"ui-item-detail-stream-section-content\">\n\t\t\t\t<div class=\"ui-item-detail-stream-history-text\">", "</div>\n\t\t\t</div>\n\t\t</div>"]);
-
-	  _templateObject12 = function _templateObject12() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject11() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section ui-item-detail-stream-section-planned-label\">\n\t\t\t\t<div class=\"ui-item-detail-stream-section-content\">\n\t\t\t\t\t<div class=\"ui-item-detail-stream-planned-text\">", "</div>\n\t\t\t\t</div>\n\t\t\t</div>"]);
-
-	  _templateObject11 = function _templateObject11() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject10$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section-fixed-anchor\"></div>"]);
-
-	  _templateObject10$1 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<a class=\"ui-item-detail-stream-section-new-action ", "\">", "</a>"]);
-
-	  _templateObject9$1 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section ui-item-detail-stream-section-new\">\n\t\t\t\t<div class=\"ui-item-detail-stream-section-icon\"></div>\n\t\t\t\t<div class=\"ui-item-detail-stream-section-content\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>"]);
-
-	  _templateObject8$1 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section-new-detail\"></div>"]);
-
-	  _templateObject7$2 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section-new-header\"></div>"]);
-
-	  _templateObject6$4 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-container-list\"></div>"]);
-
-	  _templateObject5$4 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-container-list\"></div>"]);
-
-	  _templateObject4$4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-container-list ui-item-detail-stream-container-list-fixed\"></div>"]);
-
-	  _templateObject3$4 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content\"></div>"]);
-
-	  _templateObject2$4 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-container\"></div>"]);
-
-	  _templateObject$8 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$8, _templateObject2$4, _templateObject3$4, _templateObject4$4, _templateObject5$4, _templateObject6$4, _templateObject7$2, _templateObject8$1, _templateObject9$1, _templateObject10$1, _templateObject11, _templateObject12;
 	/**
 	 * @mixes EventEmitter
 	 * @memberOf BX.UI.Timeline
@@ -2675,7 +2251,7 @@ this.BX = this.BX || {};
 	    key: "render",
 	    value: function render() {
 	      if (!this.layout.container) {
-	        this.layout.container = main_core.Tag.render(_templateObject$8());
+	        this.layout.container = main_core.Tag.render(_templateObject$8 || (_templateObject$8 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-container\"></div>"])));
 	      }
 
 	      if (this.editors.size > 0) {
@@ -2683,26 +2259,26 @@ this.BX = this.BX || {};
 	      }
 
 	      if (!this.layout.content) {
-	        this.layout.content = main_core.Tag.render(_templateObject2$4());
+	        this.layout.content = main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-content\"></div>"])));
 	        this.layout.container.appendChild(this.layout.content);
 	      }
 
 	      if (!this.layout.pinnedItemsContainer) {
-	        this.layout.pinnedItemsContainer = main_core.Tag.render(_templateObject3$4());
+	        this.layout.pinnedItemsContainer = main_core.Tag.render(_templateObject3$4 || (_templateObject3$4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-container-list ui-item-detail-stream-container-list-fixed\"></div>"])));
 	        this.layout.content.appendChild(this.layout.pinnedItemsContainer);
 	      }
 
 	      this.renderPinnedItems();
 
 	      if (!this.layout.tasksContainer) {
-	        this.layout.tasksContainer = main_core.Tag.render(_templateObject4$4());
+	        this.layout.tasksContainer = main_core.Tag.render(_templateObject4$4 || (_templateObject4$4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-container-list\"></div>"])));
 	        this.layout.content.appendChild(this.layout.tasksContainer);
 	      }
 
 	      this.renderTasks();
 
 	      if (!this.layout.itemsContainer) {
-	        this.layout.itemsContainer = main_core.Tag.render(_templateObject5$4());
+	        this.layout.itemsContainer = main_core.Tag.render(_templateObject5$4 || (_templateObject5$4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-container-list\"></div>"])));
 	        this.layout.content.appendChild(this.layout.itemsContainer);
 	      }
 
@@ -2725,12 +2301,12 @@ this.BX = this.BX || {};
 	      }
 
 	      if (!this.layout.editors) {
-	        this.layout.editorsTitle = main_core.Tag.render(_templateObject6$4());
-	        this.layout.editorsContent = main_core.Tag.render(_templateObject7$2());
-	        this.layout.editors = main_core.Tag.render(_templateObject8$1(), this.layout.editorsTitle, this.layout.editorsContent);
+	        this.layout.editorsTitle = main_core.Tag.render(_templateObject6$4 || (_templateObject6$4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section-new-header\"></div>"])));
+	        this.layout.editorsContent = main_core.Tag.render(_templateObject7$2 || (_templateObject7$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section-new-detail\"></div>"])));
+	        this.layout.editors = main_core.Tag.render(_templateObject8$1 || (_templateObject8$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section ui-item-detail-stream-section-new\">\n\t\t\t\t<div class=\"ui-item-detail-stream-section-icon\"></div>\n\t\t\t\t<div class=\"ui-item-detail-stream-section-content\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>"])), this.layout.editorsTitle, this.layout.editorsContent);
 	        var isTitleActive = true;
 	        Array.from(this.editors.values()).forEach(function (editor) {
-	          _this4.layout.editorsTitle.appendChild(main_core.Tag.render(_templateObject9$1(), isTitleActive ? 'ui-item-detail-stream-section-new-action-active' : '', editor.getTitle()));
+	          _this4.layout.editorsTitle.appendChild(main_core.Tag.render(_templateObject9$1 || (_templateObject9$1 = babelHelpers.taggedTemplateLiteral(["<a class=\"ui-item-detail-stream-section-new-action ", "\">", "</a>"])), isTitleActive ? 'ui-item-detail-stream-section-new-action-active' : '', editor.getTitle()));
 
 	          _this4.layout.editorsContent.appendChild(editor.render());
 
@@ -2757,7 +2333,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "createFixedAnchor",
 	    value: function createFixedAnchor() {
-	      this.fixedAnchor = main_core.Tag.render(_templateObject10$1());
+	      this.fixedAnchor = main_core.Tag.render(_templateObject10$1 || (_templateObject10$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section-fixed-anchor\"></div>"])));
 	      main_core.Dom.prepend(this.fixedAnchor, this.layout.pinnedItemsContainer);
 	    }
 	  }, {
@@ -2852,7 +2428,7 @@ this.BX = this.BX || {};
 	    key: "renderTasksTitle",
 	    value: function renderTasksTitle() {
 	      if (!this.layout.tasksTitle) {
-	        this.layout.tasksTitle = main_core.Tag.render(_templateObject11(), main_core.Loc.getMessage('UI_TIMELINE_TASKS_TITLE'));
+	        this.layout.tasksTitle = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section ui-item-detail-stream-section-planned-label\">\n\t\t\t\t<div class=\"ui-item-detail-stream-section-content\">\n\t\t\t\t\t<div class=\"ui-item-detail-stream-planned-text\">", "</div>\n\t\t\t\t</div>\n\t\t\t</div>"])), main_core.Loc.getMessage('UI_TIMELINE_TASKS_TITLE'));
 	      }
 
 	      return this.layout.tasksTitle;
@@ -2894,7 +2470,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderDateSeparator",
 	    value: function renderDateSeparator(day) {
-	      return main_core.Tag.render(_templateObject12(), day);
+	      return main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-item-detail-stream-section ui-item-detail-stream-section-history-label\">\n\t\t\t<div class=\"ui-item-detail-stream-section-content\">\n\t\t\t\t<div class=\"ui-item-detail-stream-history-text\">", "</div>\n\t\t\t</div>\n\t\t</div>"])), day);
 	    }
 	  }, {
 	    key: "getItemClassName",

@@ -397,8 +397,10 @@ class CCalendarConvert
 
 	public static function Log($mess = '')
 	{
-		if ($mess != '')
-			echo '<div> - '.$mess.'</div>';
+		if (!empty($mess))
+		{
+			echo '<div> - '.htmlspecialcharsbx($mess).'</div>';
+		}
 	}
 
 	public static function CreateSectionProperty($iblockId)

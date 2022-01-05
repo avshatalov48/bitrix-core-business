@@ -346,10 +346,8 @@ $MESS["SC_HELP_CHECK_MYSQL_MODE"] = "The parameter <i>sql_mode</i> specifies the
 <code>\$connection = Bitrix\\Main\\Application::getConnection();
 \$connection-&gt;queryExecute(&quot;SET sql_mode=''&quot;);
 \$connection-&gt;queryExecute(&quot;SET innodb_strict_mode=0&quot;);</code>
-And this code to <i>/bitrix/php_interface/after_connect.php</i>:
-<code>\$DB->Query(&quot;SET sql_mode=''&quot;);
-\$DB->Query(&quot;SET innodb_strict_mode=0&quot;);</code>
-";
+
+Note that you may need to have database user privilege SESSION_VARIABLES_ADMIN on MySQL 8.0.26 and newer. If your current privilege is insufficient, you have to contact your database administrator or edit the MySQL configuration file.";
 $MESS["SC_HELP_CHECK_MYSQL_TABLE_CHARSET"] = "The charset of all the tables and fields must match the database charset. If the charset of any of the tables is defferent, you have to fix it manually using the SQL commands.
 
 The table collation should match the database collations as well. If the charsets are configured correctly, mismatching collation will be fixed automatically.
@@ -412,7 +410,7 @@ Sending notification to Apple and Android devices is performed using the secure 
 
 Your Intranet needs access to this server for push notifications to work as designed.
 ";
-$MESS["SC_HELP_CHECK_REST"] = "The REST module is required to integrate external applications and run a number of Bitrix24.Market applications. To integrate your own applications into Bitrix24, please follow <a href=\"https://training.bitrix24.com/support/training/course/?COURSE_ID=68&INDEX=Y\" target=\"_blank\">the guidelines</a>.";
+$MESS["SC_HELP_CHECK_REST"] = "The REST module is required to integrate external applications and run a number of Bitrix24.Market applications. To integrate your own applications into Bitrix24, please follow <a href=\"https://training.bitrix24.com/rest_help/\" target=\"_blank\">the guidelines</a>.";
 $MESS["SC_HELP_CHECK_SEARCH"] = "The system can search text in documents in Open XML format (introduced in Microsoft Office 2007) out of the box. To support other file formats, specify paths to parsing applications <a href=\"/bitrix/admin/settings.php?mid=intranet\">in the Intranet module settings</a>. Otherwise, the system will be able to search filenames only.
 
 <a href=\"http://www.1c-bitrix.ru/products/vmbitrix/index.php\">Bitrix Virtual Appliance</a> supports it by default.";

@@ -6,6 +6,9 @@
  * @copyright 2001-2013 Bitrix
  */
 
+use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\Session\SessionConfigurationResolver;
+
 /**
  * Class CSecurityEnvironmentTest
  * @since 12.5.0
@@ -44,6 +47,13 @@ class CSecurityEnvironmentTest
 		IncludeModuleLangFile(__FILE__);
 	}
 
+	protected function getSessionGeneralHandlerType(): ?string
+	{
+		$resolver = new SessionConfigurationResolver(Configuration::getInstance());
+		$sessionConfig = $resolver->getSessionConfig();
+
+		return $sessionConfig['handlers']['general']['type'] ?? null;
+	}
 
 	/**
 	 * Check if any server-side script executed in /upload dir and push those information to detail error
@@ -330,7 +340,7 @@ HTACCESS;
 		if(self::isRunOnWin())
 			return self::STATUS_PASSED;
 
-		if(COption::GetOptionString("security", "session") == "Y")
+		if($this->getSessionGeneralHandlerType() !== SessionConfigurationResolver::TYPE_FILE)
 			return self::STATUS_PASSED;
 
 		if(ini_get("session.save_handler") != "files")
@@ -400,7 +410,7 @@ HTACCESS;
 		if (self::isRunOnWin())
 			return self::STATUS_PASSED;
 
-		if (COption::GetOptionString("security", "session") == "Y")
+		if ($this->getSessionGeneralHandlerType() !== SessionConfigurationResolver::TYPE_FILE)
 			return self::STATUS_PASSED;
 
 		if (ini_get("session.save_handler") != "files")

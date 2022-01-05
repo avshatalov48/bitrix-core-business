@@ -66,7 +66,6 @@ class TimeLineQueueTable extends DataManager
 			],
 			'CONTACT_TYPE_ID' => [
 				'data_type' => 'integer',
-				'required'  => true,
 			],
 			'CONTACT_CODE'    => [
 				'data_type' => 'string',

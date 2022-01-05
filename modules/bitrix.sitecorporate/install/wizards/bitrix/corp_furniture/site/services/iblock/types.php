@@ -30,7 +30,7 @@ $arTypes = Array(
 );
 
 $arLanguages = Array();
-$rsLanguage = CLanguage::GetList($by, $order, array());
+$rsLanguage = CLanguage::GetList();
 while($arLanguage = $rsLanguage->Fetch())
 	$arLanguages[] = $arLanguage["LID"];
 
@@ -45,7 +45,7 @@ foreach($arTypes as $arType)
 	{
 		WizardServices::IncludeServiceLang("type.php", $languageID);
 
-		$code = strtoupper($arType["ID"]);
+		$code = mb_strtoupper($arType["ID"]);
 		$arType["LANG"][$languageID]["NAME"] = GetMessage($code."_TYPE_NAME");
 		$arType["LANG"][$languageID]["ELEMENT_NAME"] = GetMessage($code."_ELEMENT_NAME");
 

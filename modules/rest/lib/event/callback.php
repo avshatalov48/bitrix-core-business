@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Rest\Event;
 
+use Bitrix\Rest\AppTable;
 use Bitrix\Rest\EventTable;
 
 /**
@@ -65,17 +66,41 @@ class Callback
 
 		if(array_key_exists('EVENT_REST', $event))
 		{
-			$dbRes = EventTable::getList(array(
-				'filter' => array(
-					'=EVENT_NAME' => toUpper($event['EVENT_REST']['EVENT']),
-				),
-				'select' => array('*', 'APP_CODE' => 'REST_APP.CLIENT_ID'),
-			));
+			$dbRes = EventTable::getList(
+				[
+					'filter' => [
+						'=EVENT_NAME' => toUpper($event['EVENT_REST']['EVENT']),
+					],
+					'select' => [
+						'*',
+						'APP_CODE' => 'REST_APP.CLIENT_ID',
+						'APP_ACTIVE' => 'REST_APP.ACTIVE',
+						'APP_INSTALLED' => 'REST_APP.INSTALLED',
+					],
+				]
+			);
 
 			$dataProcessed = !is_array($event['EVENT_REST']['HANDLER']) || !is_callable($event['EVENT_REST']['HANDLER']);
 			$call = array();
-			while($handler = $dbRes->fetch())
+			while ($handler = $dbRes->fetch())
 			{
+				if (!empty($handler['APP_CODE']))
+				{
+					if (
+						$handler['APP_ACTIVE'] !== AppTable::ACTIVE
+						|| $handler['APP_INSTALLED'] !== AppTable::INSTALLED
+					)
+					{
+						continue;
+					}
+
+					$appStatus = AppTable::getAppStatusInfo($handler['APP_CODE'], '');
+					if ($appStatus['PAYMENT_EXPIRED'] === 'Y')
+					{
+						continue;
+					}
+				}
+
 				$handlerArguments = $arguments;
 				$handlerFound = true;
 

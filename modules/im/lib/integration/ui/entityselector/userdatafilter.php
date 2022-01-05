@@ -58,6 +58,7 @@ class UserDataFilter extends BaseFilter
 			if ($item->getId() === Helper\User::getCurrentUserId())
 			{
 				$item->addBadges([[
+					'id' => 'IT_IS_YOU',
 					'title' => Loc::getMessage('IM_UI_ENTITY_SELECTOR_IT_IS_YOU'),
 				]]);
 			}

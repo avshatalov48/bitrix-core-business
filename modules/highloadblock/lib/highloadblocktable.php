@@ -19,6 +19,19 @@ Main\Localization\Loc::loadLanguageFile(__FILE__);
  * Class description
  * @package    bitrix
  * @subpackage highloadblock
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_HighloadBlock_Query query()
+ * @method static EO_HighloadBlock_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_HighloadBlock_Result getById($id)
+ * @method static EO_HighloadBlock_Result getList(array $parameters = array())
+ * @method static EO_HighloadBlock_Entity getEntity()
+ * @method static \Bitrix\Highloadblock\HighloadBlock createObject($setDefaultValues = true)
+ * @method static \Bitrix\Highloadblock\EO_HighloadBlock_Collection createCollection()
+ * @method static \Bitrix\Highloadblock\HighloadBlock wakeUpObject($row)
+ * @method static \Bitrix\Highloadblock\EO_HighloadBlock_Collection wakeUpCollection($rows)
  */
 class HighloadBlockTable extends Entity\DataManager
 {

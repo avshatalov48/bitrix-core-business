@@ -1,0 +1,23 @@
+<?php
+$MESS["CORRECTION_CHECK_EXPORT_CSV_TITLE"] = "Експорт записів у CSV";
+$MESS["CORRECTION_CHECK_EXPORT_EXCEL_TITLE"] = "Експорт записів у Excel";
+$MESS["CORRECTION_CHECK_STEXPORT_SUMMARY"] = "Буде сформований файл експорту для записів у таблиці. Виконання цієї операції може зайняти тривалий час при великій кількості даних.";
+$MESS["SALE_CASHBOX_CORRECTION_ACCESS_DENIED"] = "Доступ заборонено.";
+$MESS["SALE_CASHBOX_CORRECTION_ADD"] = "Додати чек корекції";
+$MESS["SALE_CASHBOX_CORRECTION_GROUP_ADD"] = "Додати чек";
+$MESS["SALE_CASHBOX_CORRECTION_GROUP_EXPORT_TO_CSV"] = "Експорт оплат у CSV";
+$MESS["SALE_CASHBOX_CORRECTION_GROUP_EXPORT_TO_EXCEL"] = "Експорт оплат у Excel";
+$MESS["SALE_CASHBOX_CORRECTION_SAVE_CHECK"] = "Чек створений і відправлений на друк";
+$MESS["SALE_CASHBOX_CORRECTION_TITLE"] = "Корекція";
+$MESS["SALE_CHECK_CORRECTION_ORDER_DATE_BILL"] = "Дата створення оплати";
+$MESS["SALE_CHECK_CORRECTION_ORDER_ID"] = "ID замовлення";
+$MESS["SALE_CHECK_CORRECTION_ORDER_PAID"] = "Оплачено";
+$MESS["SALE_CHECK_CORRECTION_ORDER_PAID_N"] = "Ні";
+$MESS["SALE_CHECK_CORRECTION_ORDER_PAID_Y"] = "Так";
+$MESS["SALE_CHECK_CORRECTION_ORDER_SUM"] = "Сума";
+$MESS["SALE_CHECK_CORRECTION_PAYMENT_ID"] = "ID оплати";
+$MESS["SALE_CHECK_CORRECTION_PAY_SYSTEM_NAME"] = "Платіжна система";
+$MESS["SALE_F_CORRECTION_CHECK_PRINTED"] = "Чек надрукований";
+$MESS["SALE_F_CORRECTION_DATE_BILL"] = "Дата створення";
+$MESS["SALE_F_CORRECTION_ORDER_ID"] = "ID замовлення";
+$MESS["SALE_F_CORRECTION_PAID"] = "Оплачено";

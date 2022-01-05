@@ -6,45 +6,7 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 
 	tagItem = tagItem && tagItem.hasOwnProperty('default') ? tagItem['default'] : tagItem;
 
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input name=\"", "\" type=\"hidden\" value=\"", "\"/>\n\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div></div>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-ctl-w100\"></div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input \n\t\t\t\tname=\"", "_input\" \n\t\t\t\ttype=\"text\" \n\t\t\t\tclass=\"ui-ctl-element main-ui-control main-enum-dialog-input\" \n\t\t\t\tautocomplete=\"off\"\n\t\t\t/>\n\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
 	var Dialog = /*#__PURE__*/function () {
 	  function Dialog(params) {
 	    var _this = this;
@@ -136,17 +98,26 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	  }, {
 	    key: "prepareInput",
 	    value: function prepareInput(node) {
-	      this.input = main_core.Tag.render(_templateObject(), node.id);
+	      this.input = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input \n\t\t\t\tname=\"", "_input\" \n\t\t\t\ttype=\"text\" \n\t\t\t\tclass=\"ui-ctl-element main-ui-control main-enum-dialog-input\" \n\t\t\t\tautocomplete=\"off\"\n\t\t\t/>\n\t\t"])), node.id);
 	      main_core.Dom.append(this.input, node);
 	      var dialogSelector = this.dialogSelector;
 	      var input = this.input;
 	      main_core.Event.bind(this.input, 'keyup', function (event) {
 	        if (!input.value.length) {
+	          dialogSelector.search('');
+	          dialogSelector.clearSearch();
 	          dialogSelector.deselectAll();
 	          dialogSelector.hide();
 	        } else {
-	          dialogSelector.show();
-	          dialogSelector.search(input.value);
+	          var selectedItems = dialogSelector.getSelectedItems();
+
+	          if (!selectedItems.some(function (item) {
+	            return item.title.getText() === input.value;
+	          })) {
+	            dialogSelector.show();
+	            dialogSelector.clearSearch();
+	            dialogSelector.search(input.value);
+	          }
 	        }
 	      });
 	    }
@@ -159,13 +130,13 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	  }, {
 	    key: "createWrapper",
 	    value: function createWrapper() {
-	      this.wrapper = main_core.Tag.render(_templateObject2());
+	      this.wrapper = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-ctl-w100\"></div>"])));
 	      this.targetNode.appendChild(this.wrapper);
 	    }
 	  }, {
 	    key: "createValuesWrapper",
 	    value: function createValuesWrapper() {
-	      this.valuesWrapper = main_core.Tag.render(_templateObject3());
+	      this.valuesWrapper = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div></div>"])));
 	      this.wrapper.appendChild(this.valuesWrapper);
 	    }
 	  }, {
@@ -308,7 +279,7 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	  }, {
 	    key: "createInputTag",
 	    value: function createInputTag(id) {
-	      return main_core.Tag.render(_templateObject4(), this.fieldName.toUpperCase(), id);
+	      return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input name=\"", "\" type=\"hidden\" value=\"", "\"/>\n\t\t"])), this.fieldName.toUpperCase(), id);
 	    }
 	  }, {
 	    key: "getMessage",
@@ -348,8 +319,6 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	  babelHelpers.createClass(Ui, [{
 	    key: "bindElement",
 	    value: function bindElement() {
-	      var _this = this;
-
 	      this.container.appendChild(BX.decl({
 	        block: this.block,
 	        name: this.fieldName,
@@ -360,14 +329,12 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	      }));
 	      this.onChangeHandler = this.onChange.bind(this);
 	      main_core_events.EventEmitter.subscribe('UI::Select::change', this.onChangeHandler);
-	      var params = this.params;
-	      var node = this.container.firstChild;
-	      main_core.Event.bind(this.container, 'click', function () {
-	        _this.onChange({
-	          params: params,
-	          node: node
+	      BX.bind(this.container, 'click', BX.defer(function () {
+	        this.onChange({
+	          params: this.params,
+	          node: this.container.firstChild
 	        });
-	      });
+	      }.bind(this)));
 	    }
 	  }, {
 	    key: "onChange",

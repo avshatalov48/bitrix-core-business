@@ -378,7 +378,7 @@ export class CommentAux
 	static getEntityVisibility(params)
 	{
 		const result = {};
-		const currentUserId = Loc.getMessage('USER_ID');
+		const currentUserId = parseInt(Loc.getMessage('USER_ID'));
 
 		if (params.entityType.toUpperCase() === 'TASK')
 		{

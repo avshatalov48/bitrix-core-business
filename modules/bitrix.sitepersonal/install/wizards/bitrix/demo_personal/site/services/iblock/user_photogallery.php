@@ -37,7 +37,7 @@ if ($iblockID == false)
 	
 	if ($iblockID > 0)
 	{
-		$arGalleries = unserialize(COption::GetOptionString("photogallery", "UF_GALLERY_SIZE"));
+		$arGalleries = unserialize(COption::GetOptionString("photogallery", "UF_GALLERY_SIZE"), ["allowed_classes" => false]);
 		$arGalleries = (is_array($arGalleries) ? $arGalleries : array());
 		if (!$arGalleries[$iblockID])
 		{
@@ -64,8 +64,8 @@ if ($iblockID == false)
 			$rsUser = CUser::GetByID(1);
 			if ($arUser = $rsUser->Fetch())
 			{
-				$userName = $arUser["NAME"].(strlen($arUser["NAME"])<=0 || strlen($arUser["LAST_NAME"])<=0?"":" ").$arUser["LAST_NAME"];
-				if (strlen(trim($userName)) > 0)
+				$userName = $arUser["NAME"].($arUser["NAME"] == '' || $arUser["LAST_NAME"] == ''?"":" ").$arUser["LAST_NAME"];
+				if (trim($userName) <> '')
 					$arFields["NAME"] = $userName;
 			}
 		}

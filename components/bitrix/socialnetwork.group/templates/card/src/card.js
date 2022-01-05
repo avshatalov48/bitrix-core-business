@@ -15,6 +15,7 @@ class WorkgroupCard
 		this.canModify = null;
 		this.groupId = null;
 		this.isProject = null;
+		this.isScrumProject = null;
 		this.styles = null;
 		this.urls = null;
 		this.containerNode = null;
@@ -40,6 +41,7 @@ class WorkgroupCard
 		this.groupId = parseInt(params.groupId);
 		this.groupType = params.groupType;
 		this.isProject = !!params.isProject;
+		this.isScrumProject = !!params.isScrumProject;
 		this.isOpened = !!params.isOpened;
 		this.canInitiate = !!params.canInitiate;
 		this.canProcessRequestsIn = !!params.canProcessRequestsIn;
@@ -136,6 +138,7 @@ class WorkgroupCard
 					editFeaturesAllowed: this.editFeaturesAllowed,
 					copyFeatureAllowed: this.copyFeatureAllowed,
 					isProject: this.isProject,
+					isScrumProject: this.isScrumProject,
 					isOpened: this.isOpened,
 					perms: {
 						canInitiate: this.canInitiate,

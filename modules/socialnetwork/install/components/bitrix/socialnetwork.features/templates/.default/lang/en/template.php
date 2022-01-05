@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SONET_C4_FUNC_TITLE"] = "The feature '#NAME#' is enabled";
 $MESS["SONET_C4_FUNC_TITLE_OFF"] = "The feature '#NAME#' is disabled";
 $MESS["SONET_C4_FUNC_TITLE_ON"] = "The feature '#NAME#' is enabled";
@@ -14,4 +14,4 @@ $MESS["SONET_C4_T_CANCEL"] = "Cancel";
 $MESS["SONET_C4_T_ERROR"] = "Error processing request.";
 $MESS["SONET_C4_US_SUCCESS"] = "The user parameters have been changed successfully.";
 $MESS["SONET_FEATURES_NAME"] = "Name";
-?>
+$MESS["SONET_C4_SPAM_OPERATION"] = "Permission to send messages to group members";

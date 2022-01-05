@@ -31,11 +31,20 @@
 				entries = [],
 				entriesRaw = this.entriesRaw;
 
-
-			this.calendar.sectionManager.getSectionsInfo().allActive.forEach(function(sectionId)
+			if(this.calendar.util.type === 'location')
 			{
-				activeSectionIndex[sectionId === 'tasks' ? sectionId : parseInt(sectionId)] = true;
-			});
+				this.calendar.roomsManager.getRoomsInfo().allActive.forEach(function(sectionId)
+				{
+					activeSectionIndex[sectionId === 'tasks' ? sectionId : parseInt(sectionId)] = true;
+				});
+			}
+			else
+			{
+				this.calendar.sectionManager.getSectionsInfo().allActive.forEach(function(sectionId)
+				{
+					activeSectionIndex[sectionId === 'tasks' ? sectionId : parseInt(sectionId)] = true;
+				});
+			}
 
 			for (var i = 0; i < entriesRaw.length; i++)
 			{
@@ -72,6 +81,10 @@
 		{
 			if (typeof entry !== 'object' && action === 'add_event')
 			{
+				if(this.calendar.util.type === 'location')
+				{
+					return true;
+				}
 				return !this.calendar.util.readOnlyMode();
 			}
 
@@ -237,7 +250,14 @@
 			}
 			else
 			{
-				params.sections = params.sections || this.calendar.sectionManager.getSectionsInfo().allActive;
+				if(this.calendar.util.type === 'location')
+				{
+					params.sections = params.sections || this.calendar.roomsManager.getRoomsInfo().allActive;
+				}
+				else
+				{
+					params.sections = params.sections || this.calendar.sectionManager.getSectionsInfo().allActive;
+				}
 				params.index = params.index || this.pulledEntriesIndex;
 				var i, sectionId;
 				for (i = 0; i < params.sections.length; i++)
@@ -296,7 +316,14 @@
 			}
 			else
 			{
-				params.sections = params.sections || this.calendar.sectionManager.getSectionsInfo().allActive;
+				if(this.calendar.util.type === 'location')
+				{
+					params.sections = params.sections || this.calendar.roomsManager.getRoomsInfo().allActive;
+				}
+				else
+				{
+					params.sections = params.sections || this.calendar.sectionManager.getSectionsInfo().allActive;
+				}
 				params.index = params.index || this.pulledEntriesIndex;
 
 				var index = params.index;
@@ -347,8 +374,9 @@
 					}
 
 					this.loadInProgress = true;
-
-					var sections = this.calendar.sectionManager.getSectionsInfo();
+					var sections = this.calendar.util.type === 'location'
+						? this.calendar.roomsManager.getRoomsInfo()
+						: this.calendar.sectionManager.getSectionsInfo();
 
 					BX.ajax.runAction('calendar.api.calendarentryajax.loadEntries', {
 						data: {
@@ -639,14 +667,21 @@
 		this.important = data.IMPORTANCE === 'high';
 		this.private = !!data.PRIVATE_EVENT;
 		this.sectionId = this.isTask() ? 'tasks' : parseInt(data.SECT_ID);
-		this.name = data.NAME;
+		this.name = this.isLocation()
+			? this.calendar.roomsManager.getRoomName(data.SECT_ID) + ': ' + data.NAME
+			: data.NAME
+		;
+
 		this.parts = [];
 
 		var
 			_this = this,
 			util = this.calendar.util,
 			startDayCode, endDayCode,
-			color = data.COLOR || this.calendar.sectionManager.getSection(this.sectionId).color;
+			color = data.COLOR || (this.isLocation()
+				? this.calendar.roomsManager.getRoom(this.sectionId).color
+				: this.calendar.sectionManager.getSection(this.sectionId).color)
+			;
 
 		Object.defineProperties(this, {
 			startDayCode: {
@@ -845,6 +880,11 @@
 		isTask: function()
 		{
 			return this.data['~TYPE'] === 'tasks';
+		},
+
+		isLocation: function()
+		{
+			return this.data.CAL_TYPE === 'location';
 		},
 
 		isFullDay: function()

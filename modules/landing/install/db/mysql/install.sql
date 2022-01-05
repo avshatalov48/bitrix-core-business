@@ -31,6 +31,7 @@ create table if not exists b_landing
     INDEX IX_B_LAND_DELETED (DELETED),
     INDEX IX_B_LAND_SYS (SYS),
     INDEX IX_B_LAND_XML_ID (XML_ID),
+    INDEX IX_B_LAND_SITE_ID (SITE_ID),
     INDEX IX_B_LAND_SITEMAP (SITEMAP),
     INDEX IX_B_LAND_FOLDER (FOLDER),
     INDEX IX_B_LAND_FOLDER_ID (FOLDER_ID)
@@ -181,7 +182,8 @@ create table if not exists b_landing_hook_data
     VALUE text default null,
     PUBLIC char(1) not null default 'N',
     PRIMARY KEY(ID),
-    INDEX K_ENTITY (ENTITY_ID, ENTITY_TYPE)
+    INDEX K_ENTITY (ENTITY_ID, ENTITY_TYPE),
+	INDEX K_HOOK_CODE (HOOK,CODE)
 );
 
 create table if not exists b_landing_file
@@ -446,4 +448,15 @@ create table if not exists b_landing_urlchecker_host
 	DATE_MODIFY timestamp not null default CURRENT_TIMESTAMP,
 	PRIMARY KEY(ID),
 	INDEX IX_B_CHECKER_STATUS_HOST (STATUS_ID, HOST)
+);
+
+create table if not exists b_landing_block_last_used
+(
+	ID int(18) not null auto_increment,
+	USER_ID int(18) not null,
+	CODE varchar(255) not null,
+	DATE_CREATE timestamp not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(ID),
+	INDEX IX_B_BLOCK_LU_USER (USER_ID),
+	INDEX IX_B_BLOCK_LU_USER_CODE (USER_ID, CODE)
 );

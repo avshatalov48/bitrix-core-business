@@ -136,14 +136,25 @@ class ImageInput
 
 		$this->values = [];
 		$photoCollection = $this->entity->getFrontImageCollection();
-		foreach ($photoCollection as $item)
+		if ($this->isMorePhotoEnabled())
 		{
-			if ($item instanceof MorePhotoImage)
+			foreach ($photoCollection as $item)
 			{
-				$propName = str_replace('n#IND#', $item->getPropertyValueId(), $this->getInputName());
-				$this->values[$propName] = $item->getId();
+				if ($item instanceof MorePhotoImage)
+				{
+					$propName = str_replace('n#IND#', $item->getPropertyValueId(), $this->getInputName());
+					$this->values[$propName] = $item->getId();
+				}
+				else
+				{
+					$this->values[$item::CODE] = $item->getId();
+				}
 			}
-			else
+		}
+		else
+		{
+			$item = $photoCollection->getFrontImage();
+			if ($item)
 			{
 				$this->values[$item::CODE] = $item->getId();
 			}

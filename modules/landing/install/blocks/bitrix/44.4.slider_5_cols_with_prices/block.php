@@ -47,7 +47,7 @@
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
-					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-pa-10 g-color-primary--hover g-bg-white--hover"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -67,7 +67,7 @@
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
-					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-pa-10 g-color-primary--hover g-bg-white--hover"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -86,7 +86,7 @@
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
-					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-pa-10 g-color-primary--hover g-bg-white--hover"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -105,7 +105,7 @@
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
-					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-pa-10 g-color-primary--hover g-bg-white--hover"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -124,7 +124,7 @@
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
-					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-pa-10 g-color-primary--hover g-bg-white--hover"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -143,7 +143,7 @@
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
-					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-pa-10 g-color-primary--hover g-bg-white--hover"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -162,7 +162,7 @@
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
-					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-pa-10 g-color-primary--hover g-bg-white--hover"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -181,7 +181,7 @@
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
-					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-pa-10 g-color-primary--hover g-bg-white--hover"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -200,7 +200,7 @@
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
-					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-pa-10 g-color-primary--hover g-bg-white--hover"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -219,7 +219,7 @@
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
-					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-pa-10 g-color-primary--hover g-bg-white--hover"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -238,7 +238,7 @@
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
-					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-pa-10 g-color-primary--hover g-bg-white--hover"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -257,7 +257,7 @@
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
-					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeIn d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-pa-10 g-color-primary--hover g-bg-white--hover"
 						 href="#">$350.00
 					</div>
 				</div>

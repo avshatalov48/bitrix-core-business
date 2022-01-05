@@ -1,20 +1,53 @@
-<?
+<?php
 
 namespace Bitrix\Seo\LeadAds\Services;
 
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Error;
 use Bitrix\Main\Context;
-use Bitrix\Main\Text\Encoding;
-use Bitrix\Main\Web\Json;
-
+use Bitrix\Main\SystemException;
 use Bitrix\Seo\LeadAds;
+use Bitrix\Seo\Retargeting\Paginator;
+use Bitrix\Seo\Retargeting\Response;
+use Bitrix\Seo\Retargeting\Services\ResponseFacebook;
+use Bitrix\Seo\LeadAds\Response\FormResponse;
+use Bitrix\Seo\LeadAds\Response\Builder\FacebookFormBuilder;
 use Bitrix\Seo\WebHook;
 
 class FormFacebook extends LeadAds\Form
 {
-	const TYPE_CODE = LeadAds\Service::TYPE_FACEBOOK;
+	public const TYPE_CODE = LeadAds\Service::TYPE_FACEBOOK;
 
-	const URL_FORM_LIST = 'https://www.facebook.com/ads/manager/audiences/manage/';
+	public const URL_FORM_LIST = 'https://www.facebook.com/ads/manager/audiences/manage/';
+
+	public const FIELD_MAP = [
+		['CRM_NAME' => LeadAds\Field::TYPE_COMPANY_NAME, 'ADS_NAME' => 'COMPANY_NAME'],
+		['CRM_NAME' => LeadAds\Field::TYPE_NAME, 'ADS_NAME' => 'FIRST_NAME'],
+		['CRM_NAME' => LeadAds\Field::TYPE_LAST_NAME, 'ADS_NAME' => 'LAST_NAME'],
+		['CRM_NAME' => LeadAds\Field::TYPE_EMAIL, 'ADS_NAME' => 'EMAIL'],
+		['CRM_NAME' => LeadAds\Field::TYPE_PHONE, 'ADS_NAME' => 'PHONE'],
+		['CRM_NAME' => LeadAds\Field::TYPE_WORK_EMAIL, 'ADS_NAME' => 'WORK_EMAIL'],
+		['CRM_NAME' => LeadAds\Field::TYPE_WORK_PHONE, 'ADS_NAME' => 'WORK_PHONE_NUMBER'],
+		['CRM_NAME' => LeadAds\Field::TYPE_JOB_TITLE, 'ADS_NAME' => 'JOB_TITLE'],
+		['CRM_NAME' => LeadAds\Field::TYPE_MILITARY_STATUS, 'ADS_NAME' => 'MILITARY_STATUS'],
+		['CRM_NAME' => LeadAds\Field::TYPE_MARITIAL_STATUS, 'ADS_NAME' => 'MARITIAL_STATUS'],
+		['CRM_NAME' => LeadAds\Field::TYPE_GENDER, 'ADS_NAME' => 'GENDER'],
+		['CRM_NAME' => LeadAds\Field::TYPE_BIRTHDAY, 'ADS_NAME' => 'DOB'],
+		['CRM_NAME' => LeadAds\Field::TYPE_LOCATION_COUNTRY, 'ADS_NAME' => 'COUNTRY'],
+		['CRM_NAME' => LeadAds\Field::TYPE_LOCATION_STATE, 'ADS_NAME' => 'STATE'],
+		['CRM_NAME' => LeadAds\Field::TYPE_LOCATION_CITY, 'ADS_NAME' => 'CITY'],
+		['CRM_NAME' => LeadAds\Field::TYPE_LOCATION_STREET_ADDRESS, 'ADS_NAME' => 'STREET_ADDRESS'],
+		['CRM_NAME' => LeadAds\Field::TYPE_FULL_NAME, 'ADS_NAME' => 'FULL_NAME'],
+		['CRM_NAME' => LeadAds\Field::TYPE_LOCATION_ZIP, 'ADS_NAME' => 'ZIP'],
+		['CRM_NAME' => LeadAds\Field::TYPE_RELATIONSHIP_STATUS, 'ADS_NAME' => 'RELATIONSHIP_STATUS'],
+		['CRM_NAME' => LeadAds\Field::TYPE_CPF, 'ADS_NAME' => 'ID_CPF'],
+		['CRM_NAME' => LeadAds\Field::TYPE_DNI_ARGENTINA, 'ADS_NAME' => 'ID_AR_DNI'],
+		['CRM_NAME' => LeadAds\Field::TYPE_DNI_PERU, 'ADS_NAME' => 'ID_PE_DNI'],
+		['CRM_NAME' => LeadAds\Field::TYPE_RUT, 'ADS_NAME' => 'ID_CL_RUT'],
+		['CRM_NAME' => LeadAds\Field::TYPE_CC, 'ADS_NAME' => 'ID_CO_CC'],
+		['CRM_NAME' => LeadAds\Field::TYPE_CI, 'ADS_NAME' => 'ID_EC_CI'],
+		['CRM_NAME' => LeadAds\Field::TYPE_DATE_TIME, 'ADS_NAME' => 'DATE_TIME'],
+	];
 
 	protected static $listRowMap = array(
 		'ID' => 'ID',
@@ -22,57 +55,33 @@ class FormFacebook extends LeadAds\Form
 		'LOCALE' => 'LOCALE',
 	);
 
-	protected function getLocaleByLanguageId($languageId = null)
+	protected function getLocaleByLanguageId($languageId = null): string
 	{
-		if (!$languageId)
+		switch ($languageId = $languageId ?? Context::getCurrent()->getLanguage())
 		{
-			$languageId = Context::getCurrent()->getLanguage();
-		}
-
-		switch ($languageId)
-		{
-			case 'en':
-				$locale = 'en_US';
-				break;
-
 			case 'ru':
 			case 'kz':
 			case 'ua':
 			case 'by':
-				$locale = 'ru_RU';
-				break;
-
+				return 'ru_RU';
 			case 'pl':
 			case 'fr':
 			case 'it':
 			case 'tr':
 			case 'de':
 			case 'es':
-				$locale = mb_strtolower($languageId).'_'.mb_strtoupper($languageId);
-				break;
-
+				return mb_strtolower($languageId).'_'.mb_strtoupper($languageId);
 			case 'la':
-				$locale = 'es_LA';
-				break;
-
+				return 'es_LA';
 			case 'br': // Brazilian
-				$locale = 'pt_BR';
-				break;
-
+				return 'pt_BR';
 			case 'sc': // simplified Chinese
-				$locale = 'zh_CN';
-				break;
-
+				return 'zh_CN';
 			case 'tc': // traditional Chinese
-				$locale = 'zh_TW';
-				break;
-
+				return 'zh_TW';
 			default:
-				$locale = 'en_US';
-				break;
+				return'en_US';
 		}
-
-		return $locale;
 	}
 
 	/**
@@ -81,18 +90,11 @@ class FormFacebook extends LeadAds\Form
 	 * @param LeadAds\Field $field Field.
 	 * @return array
 	 */
-	public static function convertField(LeadAds\Field $field)
+	public static function convertField(LeadAds\Field $field) : array
 	{
-		$map = [
-			['CRM_NAME' => 'COMPANY_NAME', 'ADS_NAME' => 'COMPANY_NAME'],
-			['CRM_NAME' => 'NAME', 'ADS_NAME' => 'FIRST_NAME'],
-			['CRM_NAME' => 'LAST_NAME', 'ADS_NAME' => 'LAST_NAME'],
-			['CRM_NAME' => 'EMAIL', 'ADS_NAME' => 'EMAIL'],
-			['CRM_NAME' => 'PHONE', 'ADS_NAME' => 'PHONE'],
-		];
-		$mapper = new LeadAds\Mapper($map);
-		$adsName = $mapper->getAdsName($field->getName());
-		if ($adsName)
+		$mapper = static::getFieldMapper();
+
+		if ($adsName = $mapper->getAdsName($field->getName()))
 		{
 			return ['type' => $adsName, 'key' => $field->getKey()];
 		}
@@ -105,7 +107,7 @@ class FormFacebook extends LeadAds\Form
 		if (!empty($field->getOptions()))
 		{
 			$item['options'] = array_map(
-				function ($option)
+				static function ($option)
 				{
 					return [
 						'value' => $option['label'],
@@ -125,10 +127,10 @@ class FormFacebook extends LeadAds\Form
 	 * @param array $data Data.
 	 * @return \Bitrix\Seo\Retargeting\Response
 	 */
-	public function add(array $data)
+	public function add(array $data) : Response
 	{
 		// https://developers.facebook.com/docs/marketing-api/guides/lead-ads/create/v2.9#create-forms
-		$locale = isset($data['LOCALE']) ? $data['LOCALE'] : $this->getLocaleByLanguageId();
+		$locale = $data['LOCALE'] ?? $this->getLocaleByLanguageId();
 		$questions = static::convertFields($data['FIELDS']);
 		$privacyPolicy = array(
 			'url' => $data['PRIVACY_POLICY_URL']
@@ -153,46 +155,39 @@ class FormFacebook extends LeadAds\Form
 			$contextCard['content'] = [$data['TITLE']];
 		}
 
+		$response = $this->getRequest()->send([
+			'methodName' => 'leadads.form.create',
+			'parameters' => [
+				'page_id'=> $this->accountId,
+				'params' => [
+					'name' => $data['NAME'],
+					'privacy_policy' => $privacyPolicy,
+					'follow_up_action_url' => $data['SUCCESS_URL'],
+					'locale' => mb_strtoupper($locale),
+					'context_card' => $contextCard,
+					'questions' => $questions
+				]
+			]
+		]);
 
-		$account = $this->service->getAccount(static::TYPE_CODE);
-		/** @var AccountFacebook $account */
-		$accountData = $account->getRowById($this->accountId);
-
-		$requestParameters = array(
-			'method' => 'POST',
-			'endpoint' => $this->accountId . '/leadgen_forms',
-			'fields' => array(
-				'access_token' => $accountData['ACCESS_TOKEN'],
-				'name' => Encoding::convertEncoding(
-					$data['NAME'],
-					Context::getCurrent()->getCulture()->getCharset(),
-					'UTF-8'
-				),
-				'privacy_policy' => Json::encode($privacyPolicy),
-				'follow_up_action_url' => $data['SUCCESS_URL'],
-				'locale' => mb_strtoupper($locale),
-				'context_card' => Json::encode($contextCard),
-				'questions' => Json::encode($questions)
-			)
-		);
-		$response = $this->getRequest()->send($requestParameters);
-
-		$responseData = $response->getData();
-		if (isset($responseData['id']))
+		if (!$response->isSuccess() || !$formId = $response->getData()["id"] ?? null)
 		{
-			if (!$this->subscribeAppToPageEvents($accountData['ACCESS_TOKEN']))
-			{
-				$response->addError(new Error('Can not subscribe App to Page events.'));
-				return $response;
-			}
+			return $response;
+		}
+		$response->setId($formId);
 
-			if(!static::registerFormWebHook($responseData['id']))
-			{
-				$response->addError(new Error('Can not register Form web hook.'));
-				return $response;
-			}
+		if (!$this->subscribeAppToPageEvents())
+		{
+			$response->addError(new Error('Can not subscribe App to Page events.'));
 
-			$response->setId($responseData['id']);
+			return $response;
+		}
+
+		if(!$this->registerFormWebHook($formId))
+		{
+			$response->addError(new Error('Can not register Form web hook.'));
+
+			return $response;
 		}
 
 		return $response;
@@ -202,39 +197,60 @@ class FormFacebook extends LeadAds\Form
 	 * Unlink.
 	 *
 	 * @param string $id ID.
+	 *
 	 * @return bool
 	 */
-	public function unlink($id)
+	public function unlink(string $id) : bool
 	{
-		return static::removeFormWebHook($id);
+		return $this->removeFormWebHook($id);
 	}
 
-	protected function subscribeAppToPageEvents($pageAccessToken)
+	protected function subscribeAppToPageEvents(): bool
 	{
 		$response = $this->getRequest()->send(array(
-			'method' => 'POST',
-			'endpoint' => $this->accountId . '/subscribed_apps',
-			'fields' => array(
-				'subscribed_fields' => 'leadgen',
-				'access_token' => $pageAccessToken
-			)
+			'methodName' => 'leadads.event.subscribe',
+			'parameters' => [
+				'page_id' => $this->accountId,
+				'params' => [
+					'subscribed_fields' => ['leadgen'],
+				]
+			]
 		));
+
 		return $response->isSuccess();
 	}
 
-	public function getList()
+
+	public function getList() : LeadAds\Response\FormResponse
 	{
-		// https://developers.facebook.com/docs/marketing-api/guides/lead-ads/create/v2.9#readingforms
-
-		$response = $this->getRequest()->send(array(
-			'method' => 'GET',
-			'endpoint' => $this->accountId . '/leadgen_forms',
-			'fields' => array(
-				//'fields' => 'id,name,approximate_count'
+		$paginator = new Paginator(
+			$this->getRequest(),
+			array(
+				'methodName' => 'leadads.form.list',
+				'parameters' => [
+					'page_id' => $this->accountId,
+					'fields' => [
+						'privacy_policy_url',
+						'id',
+						'context_card',
+						'name',
+						'status',
+						'thank_you_page',
+						'follow_up_action_url',
+						'tracking_parameters',
+						'questions'
+					],
+					'params' => [
+						'limit' => 50
+					]
+				]
 			)
-		));
+		);
 
-		return $response;
+		return new FormResponse(
+			new FacebookFormBuilder($this::getFieldMapper()),
+			...iterator_to_array($paginator)
+		);
 	}
 
 	/**
@@ -243,17 +259,18 @@ class FormFacebook extends LeadAds\Form
 	 * @param WebHook\Payload\LeadItem $item Payload item instance.
 	 * @return LeadAds\Result
 	 */
-	public function getResult(WebHook\Payload\LeadItem $item)
+	public function getResult(WebHook\Payload\LeadItem $item) : LeadAds\Result
 	{
-		$id = $item->getLeadId();
 		$result = new LeadAds\Result();
 
 		// https://developers.facebook.com/docs/marketing-api/guides/lead-ads/create/v2.9#readingforms
 		$response = $this->getRequest()->send(array(
-			'method' => 'GET',
-			'endpoint' => $id,
-			'fields' => array()
+			'methodName' => 'leadads.lead.get',
+			'parameters' => [
+				'lead_id' => $item->getLeadId()
+			]
 		));
+
 		if (!$response->isSuccess())
 		{
 			foreach ($response->getErrors() as $error)
@@ -264,31 +281,35 @@ class FormFacebook extends LeadAds\Form
 			return $result;
 		}
 
-		$responseData = $response->getData();
-		if (!$responseData)
+		if (!$responseData = $response->getData())
 		{
 			$result->addError(new Error('Can not retrieve result. Empty data.'));
+
 			return $result;
 		}
 
 		if (!isset($responseData['id']) || !$responseData['id'])
 		{
 			$result->addError(new Error('Can not retrieve result. Empty `id`.'));
-			return $result;
-		}
-		if (!isset($responseData['field_data']) || !is_array($responseData['field_data']) || !$responseData['field_data'])
-		{
-			$result->addError(new Error('Can not retrieve result. Empty `field_data`.'));
+
 			return $result;
 		}
 
-		$result->setId($id);
+		if (!isset($responseData['field_data']) || !is_array($responseData['field_data']) || !$responseData['field_data'])
+		{
+			$result->addError(new Error('Can not retrieve result. Empty `field_data`.'));
+
+			return $result;
+		}
+
+		$result->setId($item->getLeadId());
 		foreach ($responseData['field_data'] as $field)
 		{
 			if (!isset($field['name']) || !$field['name'])
 			{
 				continue;
 			}
+
 			if (!isset($field['values']) || !$field['values'])
 			{
 				continue;
@@ -303,5 +324,51 @@ class FormFacebook extends LeadAds\Form
 		}
 
 		return $result;
+	}
+
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @params int|string|mixed $formId
+	 *
+	 * @throws ArgumentException|SystemException
+	 */
+	public function getForm($formId) : LeadAds\Response\FormResponse
+	{
+		/**@var ResponseFacebook $response*/
+		$response = $this->getRequest()->send([
+			'methodName' => 'leadads.form.get',
+			'parameters' => [
+				'page_id' => $this->accountId,
+				'form_id' => $formId,
+				'fields' => [
+					'privacy_policy_url',
+					'id',
+					'context_card',
+					'name',
+					'status',
+					'thank_you_page',
+					'follow_up_action_url',
+					'tracking_parameters',
+					'questions'
+				],
+			]
+		]);
+
+		return new FormResponse(
+			new FacebookFormBuilder($this::getFieldMapper()),
+			$response
+		);
+	}
+
+	/**
+	 * @param string|int|mixed $formId ads-form Id.
+	 *
+	 * @return bool
+	 */
+	public function register($formId) : bool
+	{
+		return isset($formId,$this->accountId) && $this->subscribeAppToPageEvents() && $this->registerFormWebHook($formId);
 	}
 }

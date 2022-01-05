@@ -243,6 +243,11 @@ class CRestServer
 
 		$this->timeProcessFinish = microtime(true);
 
+		if (!empty($result['error']) && !empty($result['error_description']))
+		{
+			return $result;
+		}
+
 		$result = array("result" => $result);
 		if(is_array($result['result']))
 		{
@@ -375,6 +380,7 @@ class CRestServer
 			try
 			{
 				\Bitrix\Rest\OAuthService::register();
+				\Bitrix\Rest\OAuthService::getEngine()->getClient()->getApplicationList();
 			}
 			catch(\Bitrix\Main\SystemException $e)
 			{

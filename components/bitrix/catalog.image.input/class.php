@@ -75,6 +75,10 @@ class CatalogImageInput extends \CBitrixComponent implements Errorable
 
 		$this->arResult['JS_PARAMS']['inputId'] = $this->arParams['INPUT_ID'] ?? '';
 		$this->arResult['JS_PARAMS']['values'] = $this->arParams['FILE_SIGNED_VALUES'] ?? [];
+		if (isset($this->arParams['FILE_SETTINGS']['maxCount']) && $this->arParams['FILE_SETTINGS']['maxCount'] <= 1)
+		{
+			$this->arResult['JS_PARAMS']['hideAddButton'] = true;
+		}
 
 		$uiKeys = ['FILE_VALUES', 'FILE_SETTINGS', 'LOADER_PREVIEW', 'DISABLED'];
 		$this->arResult['UI_PARAMS'] = array_intersect_key($this->arParams, array_flip($uiKeys));

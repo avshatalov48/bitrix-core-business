@@ -1,11 +1,17 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /**
  * @var CMain $APPLICATION
  * @var array $arResult
  * @var array $arParams
  * @var CBitrixComponentTemplate $this
- * @var SocialnetworkBlogPostComment $this->__component
  */
+
 $arResult["RECORDS"] = array();
 $arParams["SHOW_MINIMIZED"] = "Y";
 $arParams["ENTITY_TYPE"] = "BG";
@@ -16,7 +22,7 @@ include_once(__DIR__."/functions.php");
 include_once(__DIR__."/../mobile_app/functions.php");
 $arResult["PUSH&PULL"] = false;
 
-if(
+if (
 	!empty($arResult["CommentsResult"])
 	&& is_array($arResult["CommentsResult"])
 )
@@ -50,6 +56,10 @@ if(
 		{
 			$filter = "ID";
 			$commentId = (!!$arResult["ajax_comment"] ? $arResult["ajax_comment"] : $_REQUEST[$arParams["COMMENT_ID_VAR"]]);
+			if (empty($commentId))
+			{
+				$commentId = $_REQUEST["FILTER"][$filter];
+			}
 		}
 	}
 	else if (
@@ -60,33 +70,7 @@ if(
 		$filter = ">=ID";
 		$commentId = $_REQUEST[$arParams["COMMENT_ID_VAR"]];
 	}
-/*
-	else if (
-		!empty($arParams['LOG_CONTENT_ITEM_TYPE'])
-		&& $arParams['LOG_CONTENT_ITEM_TYPE'] == \Bitrix\Socialnetwork\LogIndexTable::ITEM_TYPE_COMMENT
-		&& !empty($arParams['LOG_CONTENT_ITEM_ID'])
-		&& intval($arParams['LOG_CONTENT_ITEM_ID']) > 0
-		&& !empty($arParams['LOG_ID'])
-		&& intval($arParams['LOG_ID']) > 0
-	)
-	{
-		$res = \Bitrix\Socialnetwork\LogCommentTable::getList(array(
-			'filter' => array(
-				'=ID' =>  intval($arParams['LOG_CONTENT_ITEM_ID'])
-			),
-			'select' => array('SOURCE_ID', 'LOG_ID')
-		));
-		if (
-			($logCommentFields = $res->fetch())
-			&& intval($logCommentFields['LOG_ID']) == intval($arParams['LOG_ID'])
-			&& intval($logCommentFields['SOURCE_ID']) > 0
-		)
-		{
-			$filter = ">=ID";
-			$commentId = intval($logCommentFields['SOURCE_ID']);
-		}
-	}
-*/
+
 	if (!!$filter)
 	{
 		$id = reset($arResult["IDS"]);
@@ -96,31 +80,39 @@ if(
 			array_unshift($CommentsResult, array_pop($arResult["CommentsResult"]));
 			$id = next($arResult["IDS"]);
 		}
-		if ($filter == "<ID")
+		if ($filter === "<ID")
+		{
 			$arResult["CommentsResult"] = $CommentsResult;
-		else if ($filter == ">ID")
+		}
+		elseif ($filter === ">ID")
+		{
 			array_unshift($CommentsResult, array_pop($arResult["CommentsResult"]));
-		else if ($filter == "ID")
+		}
+		elseif ($filter === "ID")
+		{
 			$arResult["CommentsResult"] = array(array_pop($arResult["CommentsResult"]));
+		}
 		else
 		{
 			if (count($arResult["CommentsResult"]) > $arResult["newCount"])
 			{
 				$arResult["newCount"] = count($arResult["CommentsResult"]);
 				if (
-					$filter == ">=ID"
+					$filter === ">=ID"
 					&& $commentId > 0
 				) // commentId in $_REQUEST
 				{
 					$arParams["PAGE_SIZE"] = $arResult["newCount"];
 				}
 			}
+
 			$arResult["CommentsResult"] = $arResult["~CommentsResult"];
 		}
 	}
+
 	if (
 		!$filter
-		|| $filter == ">=ID"
+		|| $filter === ">=ID"
 	)
 	{
 		unset($_GET["commentId"]);
@@ -129,7 +121,7 @@ if(
 	$arResult["NAV_RESULT"] = $res = new CDBResult;
 
 	if (
-		$arParams["NAV_TYPE_NEW"] == 'Y'
+		$arParams["NAV_TYPE_NEW"] === 'Y'
 		&& !$filter
 		&& $arResult['firstPage']
 		&& ($arResult["Post"]["NUM_COMMENTS_ALL"] - count($arResult["CommentsResult"])) > 0
@@ -171,7 +163,7 @@ if(
 	$arResult["NAV_RESULT"]->NavStart($arParams["PAGE_SIZE"], false);
 
 	if (
-		$arParams["NAV_TYPE_NEW"] == 'Y'
+		$arParams["NAV_TYPE_NEW"] === 'Y'
 		&& !$filter
 		&& $arResult['firstPage']
 	)
@@ -181,20 +173,20 @@ if(
 
 	$arResult["NAV_STRING"] = str_replace(
 		array("#source_post_id#", "#post_id#", "#comment_id#", "&IFRAME=Y", "#LAST_LOG_TS#"),
-		array($arResult["Post"]["ID"], $arResult["Post"]["ID"], 0, "", intval($arParams["LAST_LOG_TS"])),
+		array($arResult["Post"]["ID"], $arResult["Post"]["ID"], 0, "", (int)$arParams["LAST_LOG_TS"]),
 		$arResult["urlToMore"]
 	);
 
-	while($comment = $res->Fetch())
+	while ($comment = $res->Fetch())
 	{
 		if (empty($comment['ID']))
 		{
 			continue;
 		}
 
-		$arResult["RECORDS"][$comment["ID"]] = socialnetworkBlogPostCommentWeb($comment, $arParams, $arResult, $this->__component);
+		$arResult["RECORDS"][$comment["ID"]] = socialnetworkBlogPostCommentWeb($comment, $arParams, $arResult, $this->getComponent());
 
-		if (intval($arResult["ajax_comment"]) == intval($comment["ID"]))
+		if ((int)$arResult["ajax_comment"] === (int)$comment["ID"])
 		{
 			if ($this->__component->prepareMobileData && function_exists("socialnetworkBlogPostCommentMobile"))
 			{
@@ -202,7 +194,7 @@ if(
 					$comment,
 					$arParams,
 					$arResult,
-					$this->__component
+					$this->getComponent()
 				);
 
 				if (
@@ -215,13 +207,13 @@ if(
 					// parse inline disk object ids
 					if (preg_match_all("#\\[disk file id=(n\\d+)\\]#is".BX_UTF_PCRE_MODIFIER, $comment['POST_TEXT'], $matches))
 					{
-						$inlineDiskObjectIdList = array_map(function($a) { return intval(mb_substr($a, 1)); }, $matches[1]);
+						$inlineDiskObjectIdList = array_map(function($a) { return (int)mb_substr($a, 1); }, $matches[1]);
 					}
 
 					// parse inline disk attached object ids
 					if (preg_match_all("#\\[disk file id=(\\d+)\\]#is".BX_UTF_PCRE_MODIFIER, $comment['POST_TEXT'], $matches))
 					{
-						$inlineDiskAttachedObjectIdList = array_map(function($a) { return intval($a); }, $matches[1]);
+						$inlineDiskAttachedObjectIdList = array_map(function($a) { return (int)$a; }, $matches[1]);
 					}
 
 					// get inline attached images;
@@ -248,7 +240,7 @@ if(
 							$subFilter['@ID'] = $inlineDiskAttachedObjectIdList;
 						}
 
-						if(count($subFilter) > 1)
+						if (count($subFilter) > 1)
 						{
 							$subFilter['LOGIC'] = 'OR';
 							$filter[] = $subFilter;
@@ -264,9 +256,9 @@ if(
 						));
 						while ($attachedObjectFields = $res->fetch())
 						{
-							if (intval($attachedObjectFields['ENTITY_ID']) == intval($comment["ID"]))
+							if ((int)$attachedObjectFields['ENTITY_ID'] === (int)$comment["ID"])
 							{
-								$inlineDiskAttachedObjectIdImageList[] = intval($attachedObjectFields['ID']);
+								$inlineDiskAttachedObjectIdImageList[] = (int)$attachedObjectFields['ID'];
 							}
 						}
 					}
@@ -287,17 +279,21 @@ if(
 			}
 			$arResult["PUSH&PULL"] = array(
 				"ID" => $comment["ID"],
-				"ACTION" => ($_GET["delete_comment_id"] == $arResult["ajax_comment"] ? "DELETE" : (
-						$_GET["show_comment_id"] == $arResult["ajax_comment"] || $_GET["hide_comment_id"] == $arResult["ajax_comment"] ? "MODERATE" : (
-							$_POST["act"] == "edit" ? "EDIT" : "REPLY"
+				"ACTION" => (
+					$arResult['deleteCommentId'] === (int)$arResult["ajax_comment"]
+						? "DELETE"
+						: (
+							$arResult['showCommentId'] === (int)$arResult["ajax_comment"]
+							|| $arResult['hideCommentId'] === (int)$arResult['ajax_comment']
+								? "MODERATE"
+								: ($_POST["act"] === "edit" ? "EDIT" : "REPLY")
 						)
-					)
 				)
 			);
 		}
 	}
 }
-else if ($arResult["ajax_comment"] > 0 && $_GET["delete_comment_id"] > 0)
+else if ($arResult["ajax_comment"] > 0 && $arResult['deleteCommentId'] > 0)
 {
 	$arResult["PUSH&PULL"] = array(
 		"ID" => $arResult["ajax_comment"],

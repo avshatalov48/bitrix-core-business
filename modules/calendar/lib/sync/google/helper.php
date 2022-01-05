@@ -19,4 +19,9 @@ class Helper
 	{
 		return in_array($accountType, [self::GOOGLE_ACCOUNT_TYPE_CALDAV, self::GOOGLE_ACCOUNT_TYPE_API], true);
 	}
+
+	public function isDeletedResource($errorText): bool
+	{
+		return !empty($errorText) && preg_match("/^(\[410\] Resource has been deleted)/i", $errorText);
+	}
 }

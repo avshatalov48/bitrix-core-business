@@ -252,6 +252,11 @@ export class Entry
 		return this.data['~TYPE'] === 'tasks';
 	}
 
+	isLocation()
+	{
+		return this.getType() === 'location';
+	}
+
 	isFullDay()
 	{
 		return this.fullDay;

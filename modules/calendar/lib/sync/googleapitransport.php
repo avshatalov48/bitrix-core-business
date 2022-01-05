@@ -1,7 +1,9 @@
 <?
 namespace Bitrix\Calendar\Sync;
 
+use Bitrix\Fileman\UserField\Types\AddressType;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Text\BinaryString;
@@ -18,16 +20,32 @@ final class GoogleApiTransport
 	private $client;
 	private $errors;
 	private $currentMethod = '';
+	/**
+	 * @var \CSocServGoogleOAuth
+	 */
+	private $oAuth;
 
 	/**
 	 * @param $channelInfo
 	 * @return array
 	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\LoaderException
 	 */
-	public function openCalendarListChannel($channelInfo)
+	public function openCalendarListChannel($channelInfo): array
 	{
+		$url = self::API_BASE_URL. '/users/me/calendarList/watch';
+		$apikey = $this->getApiKey();
+		if ($apikey !== null)
+		{
+			$url .= "?key=" . $apikey;
+		}
+
+		$this->currentMethod = __METHOD__;
 		$requestBody = Web\Json::encode($channelInfo, JSON_UNESCAPED_SLASHES);
-		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . '/users/me/calendarList/watch', $requestBody);
+
+		return $this->doRequest(Web\HttpClient::HTTP_POST, $url, $requestBody);
 	}
 
 	/**
@@ -35,12 +53,23 @@ final class GoogleApiTransport
 	 * @param $channelInfo
 	 * @return array
 	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\LoaderException
 	 */
-	public function openEventsWatchChannel($calendarId, $channelInfo)
+	public function openEventsWatchChannel($calendarId, $channelInfo): array
 	{
+		$url = self::API_BASE_URL . '/calendars/' . urlencode($calendarId) . '/events/watch';
+		$apikey = $this->getApiKey();
+		if ($apikey !== null)
+		{
+			$url .= "?key=" . $apikey;
+		}
+
 		$this->currentMethod = __METHOD__;
 		$requestBody = Web\Json::encode($channelInfo, JSON_UNESCAPED_SLASHES);
-		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . '/calendars/' . urlencode($calendarId) . '/events/watch', $requestBody);
+
+		return $this->doRequest(Web\HttpClient::HTTP_POST, $url, $requestBody);
 	}
 
 	/**
@@ -48,12 +77,23 @@ final class GoogleApiTransport
 	 * @param $resourceId
 	 * @return array
 	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\LoaderException
 	 */
-	public function stopChannel($channelId, $resourceId)
+	public function stopChannel($channelId, $resourceId): array
 	{
+		$url = self::API_BASE_URL . '/channels/stop';
+		$apikey = $this->getApiKey();
+		if ($apikey !== null)
+		{
+			$url .= "?key=" . $apikey;
+		}
+
 		$this->currentMethod = __METHOD__;
 		$requestBody = Web\Json::encode(array('id' => $channelId, 'resourceId' => $resourceId), JSON_UNESCAPED_SLASHES);
-		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . '/channels/stop', $requestBody);
+
+		return $this->doRequest(Web\HttpClient::HTTP_POST, $url, $requestBody);
 	}
 
 	/**
@@ -71,12 +111,18 @@ final class GoogleApiTransport
 		$this->client = new Web\HttpClient();
 
 		$oAuth = new \CSocServGoogleOAuth($userId);
-		$oAuth->getEntityOAuth()->addScope(array('https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.readonly'));
+		$oAuth->getEntityOAuth()->addScope(
+			[
+				'https://www.googleapis.com/auth/calendar',
+				'https://www.googleapis.com/auth/calendar.readonly',
+			]
+		);
 		$oAuth->getEntityOAuth()->setUser($userId);
 		if ($oAuth->getEntityOAuth()->GetAccessToken())
 		{
 			$this->client->setHeader('Authorization', 'Bearer ' . $oAuth->getEntityOAuth()->getToken());
 			$this->client->setHeader('Content-Type', 'application/json');
+			$this->client->setHeader('Referer', $this->getDomain());
 			unset($oAuth);
 		}
 		else
@@ -98,7 +144,7 @@ final class GoogleApiTransport
 	{
 		$this->errors = $response = [];
 
-		if (!in_array($type, [Web\HttpClient::HTTP_PATCH, Web\HttpClient::HTTP_PUT, Web\HttpClient::HTTP_DELETE, Web\HttpClient::HTTP_GET, Web\HttpClient::HTTP_POST]))
+		if (!in_array($type, [Web\HttpClient::HTTP_PATCH, Web\HttpClient::HTTP_PUT, Web\HttpClient::HTTP_DELETE, Web\HttpClient::HTTP_GET, Web\HttpClient::HTTP_POST], true))
 		{
 			throw new ArgumentException('Bad request type');
 		}
@@ -209,15 +255,20 @@ final class GoogleApiTransport
 		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . '/calendars/' . $calendarId . '/events/import', $requestBody);
 	}
 
+
 	/**
-	 * @param string $syncToken
-	 * @return array|mixed
+	 * @param $params
+	 * @return array
+	 * @throws ArgumentException
 	 */
-	public function getCalendarList($syncToken = '')
+	public function getCalendarList(array $requestParameters = null): array
 	{
 		$this->currentMethod = __METHOD__;
-		$params = $syncToken ? '?' . http_build_query(array('syncToken' => $syncToken)) : '';
-		return $this->doRequest(Web\HttpClient::HTTP_GET, self::API_BASE_URL . '/users/me/calendarList' . $params);
+
+		$url = self::API_BASE_URL . '/users/me/calendarList';
+		$url .= empty($requestParameters) ? '' : '?' . preg_replace('/(%3D)/', '=', http_build_query($requestParameters));
+
+		return $this->doRequest(Web\HttpClient::HTTP_GET, $url);
 	}
 
 	/**
@@ -390,7 +441,12 @@ final class GoogleApiTransport
 		return $postData;
 	}
 
-	public function multipartDecode($response)
+	/**
+	 * @param $response
+	 * @return array
+	 * @throws ArgumentException
+	 */
+	public function multipartDecode($response): array
 	{
 		$events = [];
 		$boundaryParts = explode('=', $this->client->getHeaders()->getBoundary());
@@ -405,18 +461,31 @@ final class GoogleApiTransport
 			if (!empty($part))
 			{
 				$partEvent = explode("\r\n\r\n", $part);
-				$data = static::getMetaInfo($partEvent[1]);
+				$data = $this->getMetaInfo($partEvent[1]);
 
 				if ($data['status'] === 200)
 				{
-					$id = static::getId($partEvent[0]);
-					$event = Web\Json::decode($partEvent[2]);
+					$id = $this->getId($partEvent[0]);
+					if ($id === null)
+					{
+						continue;
+					}
+
+					try
+					{
+						$event = Web\Json::decode($partEvent[2]);
+					}
+					catch(\Exception $exception)
+					{
+						continue;
+					}
+
 					$event['etag'] = $data['etag'];
 					$events[$id] = $event;
 				}
 				else
 				{
-					AddMessage2Log('Event sync error. ID: '.static::getId($partEvent[0]));
+					AddMessage2Log('Event sync error. ID: ' . $this->getId($partEvent[0]));
 				}
 			}
 		}
@@ -424,21 +493,22 @@ final class GoogleApiTransport
 		return $events;
 	}
 
-	private function getMetaInfo($headers)
+	private function getMetaInfo($headers): array
 	{
+		$data = [];
 		foreach (explode("\n", $headers) as $k => $header)
 		{
-			if($k == 0)
+			if($k === 0)
 			{
 				if(preg_match('#HTTP\S+ (\d+)#', $header, $find))
 				{
-					$data['status'] = intval($find[1]);
+					$data['status'] = (int)$find[1];
 				}
 			}
 			elseif(mb_strpos($header, ':') !== false)
 			{
-				list($headerName, $headerValue) = explode(':', $header, 2);
-				if(mb_strtolower($headerName) == 'etag')
+				[$headerName, $headerValue] = explode(':', $header, 2);
+				if(mb_strtolower($headerName) === 'etag')
 				{
 					$data['etag'] = trim($headerValue);
 				}
@@ -448,14 +518,19 @@ final class GoogleApiTransport
 		return $data;
 	}
 
-	private function getId ($headers)
+	/**
+	 * @param $headers
+	 * @return int|null
+	 */
+	private function getId ($headers): ?int
 	{
+		$id = null;
 		foreach (explode("\n", $headers) as $k => $header)
 		{
 			if(mb_strpos($header, ':') !== false)
 			{
-				list($headerName, $headerValue) = explode(':', $header, 2);
-				if(mb_strtolower($headerName) == 'content-id')
+				[$headerName, $headerValue] = explode(':', $header, 2);
+				if(mb_strtolower($headerName) === 'content-id')
 				{
 					$part = explode(':', $headerValue);
 					$id = rtrim($part[1], ">");
@@ -463,6 +538,91 @@ final class GoogleApiTransport
 			}
 		}
 
-		return $id;
+		return (int)$id;
+	}
+
+	/**
+	 * @param string $calendarId
+	 * @return array
+	 * @throws ArgumentException
+	 */
+	public function deleteCalendar(string $calendarId): array
+	{
+		$this->currentMethod = __METHOD__;
+		return $this->doRequest(Web\HttpClient::HTTP_DELETE, self::API_BASE_URL . '/calendars/' . $calendarId . '');
+	}
+
+	/**
+	 * @return string|null
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\LoaderException
+	 */
+	private function getApiKey(): ?string
+	{
+		if (Loader::includeModule('fileman'))
+		{
+			$apiKey = AddressType::getApiKey();
+			if (!empty($apiKey))
+			{
+				return $apiKey;
+			}
+		}
+
+		return Option::get('fileman', 'google_map_api_key', null)
+			?? Option::get('bitrix24', 'google_map_api_key', null)
+		;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getDomain(): string
+	{
+		if (\CCalendar::isBitrix24())
+		{
+			return 'https://bitrix24.com';
+		}
+
+		if (defined('BX24_HOST_NAME') && BX24_HOST_NAME)
+		{
+			return "https://" . (string)BX24_HOST_NAME;
+		}
+
+		$server = \Bitrix\Main\Application::getInstance()->getContext()->getServer();
+
+		return "https://" . (string)$server['HTTP_HOST'];
+	}
+
+	/**
+	 * @param string $calendarId
+	 * @param $calendarData
+	 * @return array
+	 * @throws ArgumentException
+	 */
+	public function updateCalendar(string $calendarId, $calendarData): array
+	{
+		$this->currentMethod = __METHOD__;
+		$requestBody = Web\Json::encode($calendarData, JSON_UNESCAPED_SLASHES);
+
+		return $this->doRequest(Web\HttpClient::HTTP_PUT, self::API_BASE_URL . '/calendars/' . $calendarId, $requestBody);
+	}
+
+	/**
+	 * @param string $calendarId
+	 * @param $calendarData
+	 * @return array
+	 * @throws ArgumentException
+	 */
+	public function updateCalendarList(string $calendarId, $calendarData): array
+	{
+		$this->currentMethod = __METHOD__;
+
+		$url = self::API_BASE_URL . '/users/me/calendarList/' . $calendarId;
+		$url .= '?' . preg_replace('/(%3D)/', '=', http_build_query(['colorRgbFormat' => "True"]));
+
+		$requestBody = Web\Json::encode($calendarData, JSON_UNESCAPED_SLASHES);
+
+		return $this->doRequest(Web\HttpClient::HTTP_PUT, $url, $requestBody);
 	}
 }

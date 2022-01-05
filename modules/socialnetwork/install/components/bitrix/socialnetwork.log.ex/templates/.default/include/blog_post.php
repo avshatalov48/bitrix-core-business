@@ -1,4 +1,9 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -7,6 +12,8 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 /** @var boolean $is_unread */
+/** @var array $arEvent */
+/** @var string $ind */
 
 $component = $this->getComponent();
 
@@ -58,8 +65,8 @@ $arComponentParams = [
 	"SHARE_SHORTEN_URL_KEY" => $arParams["SHARE_SHORTEN_URL_KEY"],
 	"SHOW_RATING" => $arParams["SHOW_RATING"],
 	"RATING_TYPE" => $arParams["RATING_TYPE"],
-	"IMAGE_MAX_WIDTH" => $arParams["BLOG_IMAGE_MAX_WIDTH"],
-	"IMAGE_MAX_HEIGHT" => $arParams["BLOG_IMAGE_MAX_HEIGHT"],
+	"IMAGE_MAX_WIDTH" => $arParams["IMAGE_MAX_WIDTH"],
+	"IMAGE_MAX_HEIGHT" => $arParams["IMAGE_MAX_HEIGHT"],
 	"ALLOW_POST_CODE" => $arParams["ALLOW_POST_CODE"],
 	"ID" => $arEvent["SOURCE_ID"],
 	"LOG_ID" => $arEvent["ID"],
@@ -85,11 +92,12 @@ $arComponentParams = [
 	"AVATAR_SIZE_COMMENT" => $arParams["AVATAR_SIZE_COMMENT"],
 	"LAZYLOAD" => "Y",
 	"CHECK_COMMENTS_PERMS" => (isset($arParams["CHECK_COMMENTS_PERMS"]) && $arParams["CHECK_COMMENTS_PERMS"] === "Y" ? "Y" : "N"),
-	"GROUP_READ_ONLY" => (isset($arResult["Group"]) && isset($arResult["Group"]["READ_ONLY"]) && $arResult["Group"]["READ_ONLY"] === "Y" ? "Y" : "N"),
+	"GROUP_READ_ONLY" => (isset($arResult["Group"]["READ_ONLY"]) && $arResult["Group"]["READ_ONLY"]	=== "Y" ? "Y" : "N"),
 	"BLOG_NO_URL_IN_COMMENTS" => $arParams["BLOG_NO_URL_IN_COMMENTS"],
 	"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
 	'TOP_RATING_DATA' => ($arResult['TOP_RATING_DATA'][$arEvent["ID"]] ?? false),
 	"SELECTOR_VERSION" => 2,
+	'FORM_ID' => $arParams['BLOG_FORM_ID'],
 ];
 
 if ($arResult["SHOW_FOLLOW_CONTROL"] === "Y")
@@ -105,7 +113,12 @@ if (
 	&& $USER->isAuthorized()
 )
 {
-	$arComponentParams["FAVORITES_USER_ID"] = (array_key_exists("FAVORITES_USER_ID", $arEvent) && intval($arEvent["FAVORITES_USER_ID"]) > 0 ? intval($arEvent["FAVORITES_USER_ID"]) : 0);
+	$arComponentParams["FAVORITES_USER_ID"] = (
+		array_key_exists("FAVORITES_USER_ID", $arEvent)
+		&& (int)$arEvent["FAVORITES_USER_ID"] > 0
+			? (int)$arEvent["FAVORITES_USER_ID"]
+			: 0
+	);
 }
 
 if (!empty($arEvent['CONTENT_ID']))
@@ -124,7 +137,7 @@ if (
 )
 {
 	$arComponentParams['LOG_CONTENT_ITEM_TYPE'] = $arEvent['CONTENT_ITEM_TYPE'];
-	$arComponentParams['LOG_CONTENT_ITEM_ID'] = intval($arEvent['CONTENT_ITEM_ID']);
+	$arComponentParams['LOG_CONTENT_ITEM_ID'] = (int)$arEvent['CONTENT_ITEM_ID'];
 }
 
 $arComponentParams['PINNED_PANEL_DATA'] = [];

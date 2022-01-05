@@ -2,6 +2,8 @@
 
 namespace Bitrix\Main\Diag;
 
+use Psr\Log\LogLevel;
+
 abstract class ExceptionHandlerLog
 {
 	const UNCAUGHT_EXCEPTION = 0;
@@ -13,23 +15,40 @@ abstract class ExceptionHandlerLog
 
 	public static function logTypeToString($logType)
 	{
-		switch ($logType)
+		static $types = [
+			self::UNCAUGHT_EXCEPTION => 'UNCAUGHT_EXCEPTION',
+			self::CAUGHT_EXCEPTION => 'CAUGHT_EXCEPTION',
+			self::IGNORED_ERROR => 'IGNORED_ERROR',
+			self::LOW_PRIORITY_ERROR => 'LOW_PRIORITY_ERROR',
+			self::ASSERTION => 'ASSERTION',
+			self::FATAL => 'FATAL',
+		];
+
+		if (isset($types[$logType]))
 		{
-			case 0:
-				return 'UNCAUGHT_EXCEPTION';
-			case 1:
-				return 'CAUGHT_EXCEPTION';
-			case 2:
-				return 'IGNORED_ERROR';
-			case 3:
-				return 'LOW_PRIORITY_ERROR';
-			case 4:
-				return 'ASSERTION';
-			case 5:
-				return 'FATAL';
-			default:
-				return 'UNKNOWN';
+			return $types[$logType];
 		}
+
+		return 'UNKNOWN';
+	}
+
+	public static function logTypeToLevel($logType)
+	{
+		static $types = [
+			self::UNCAUGHT_EXCEPTION => LogLevel::ERROR,
+			self::CAUGHT_EXCEPTION => LogLevel::ERROR,
+			self::IGNORED_ERROR => LogLevel::ERROR,
+			self::LOW_PRIORITY_ERROR => LogLevel::WARNING,
+			self::ASSERTION => LogLevel::CRITICAL,
+			self::FATAL => LogLevel::CRITICAL,
+		];
+
+		if (isset($types[$logType]))
+		{
+			return $types[$logType];
+		}
+
+		return LogLevel::INFO;
 	}
 
 	abstract public function write($exception, $logType);

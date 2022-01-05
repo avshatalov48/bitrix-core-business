@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Im\Configuration\Notification;
+
 IncludeModuleLangFile(__FILE__);
 
 class CIMNotifySchema
@@ -13,68 +16,24 @@ class CIMNotifySchema
 	{
 		if (is_null(self::$arNotifySchema))
 		{
-			self::$arNotifySchema = Array();
-			foreach(GetModuleEvents("im", "OnGetNotifySchema", true) as $arEvent)
-			{
-				$ar = ExecuteModuleEventEx($arEvent);
-				if(is_array($ar))
-				{
-					foreach($ar as $moduleId => $arNotifyType)
-					{
-						self::$arNotifySchema[$moduleId]['NAME'] = isset($arNotifyType['NOTIFY']) && isset($arNotifyType['NAME'])? $arNotifyType['NAME']: '';
-
-						$arNotify = $arNotifyType;
-						if (isset($arNotifyType['NOTIFY']))
-							$arNotify = $arNotifyType['NOTIFY'];
-
-						foreach($arNotify as $notifyEvent => $arConfig)
-						{
-							if (!isset($arConfig['PUSH']) || $arConfig['PUSH'] == 'NONE')
-							{
-								$arConfig['DISABLED'][] = IM_NOTIFY_FEATURE_PUSH;
-							}
-
-							$arConfig['SITE'] = !isset($arConfig['SITE']) || $arConfig['SITE'] == 'Y'? true: false;
-							$arConfig['MAIL'] = !isset($arConfig['MAIL']) || $arConfig['MAIL'] == 'Y'? true: false;
-							$arConfig['XMPP'] = !isset($arConfig['XMPP']) || $arConfig['XMPP'] == 'Y'? true: false;
-							$arConfig['PUSH'] = isset($arConfig['PUSH']) && $arConfig['PUSH'] == 'Y'? true: false;
-
-							$arDisabled['SITE'] = isset($arConfig['DISABLED']) && in_array(IM_NOTIFY_FEATURE_SITE, $arConfig['DISABLED'])? true: false;
-							$arDisabled['MAIL'] = isset($arConfig['DISABLED']) && in_array(IM_NOTIFY_FEATURE_MAIL, $arConfig['DISABLED'])? true: false;
-							$arDisabled['XMPP'] = isset($arConfig['DISABLED']) && in_array(IM_NOTIFY_FEATURE_XMPP, $arConfig['DISABLED'])? true: false;
-							$arDisabled['PUSH'] = isset($arConfig['DISABLED']) && in_array(IM_NOTIFY_FEATURE_PUSH, $arConfig['DISABLED'])? true: false;
-							$arConfig['DISABLED'] = $arDisabled;
-
-							$arConfig['LIFETIME'] = intval($arConfig['LIFETIME']);
-
-							self::$arNotifySchema[$moduleId]['NOTIFY'][$notifyEvent] = $arConfig;
-						}
-					}
-				}
-			}
+			self::$arNotifySchema = Notification::getDefaultSettings();
 		}
 		return self::$arNotifySchema;
 	}
 
 	public static function CheckDisableFeature($moduleId, $notifyEvent, $feature)
 	{
-		$arNotifySchema = self::GetNotifySchema();
-
-		return (bool)$arNotifySchema[$moduleId]['NOTIFY'][$notifyEvent]['DISABLED'][mb_strtoupper($feature)];
+		return (new Notification($moduleId, $notifyEvent))->checkDisableFeature($feature);
 	}
 
 	public static function GetDefaultFeature($moduleId, $notifyEvent, $feature)
 	{
-		$arNotifySchema = self::GetNotifySchema();
-
-		return (bool)$arNotifySchema[$moduleId]['NOTIFY'][$notifyEvent][mb_strtoupper($feature)];
+		return (new Notification($moduleId, $notifyEvent))->getDefaultFeature($feature);
 	}
 
 	public static function GetLifetime($moduleId, $notifyEvent)
 	{
-		$arNotifySchema = self::GetNotifySchema();
-
-		return intval($arNotifySchema[$moduleId]['NOTIFY'][$notifyEvent]['LIFETIME']);
+		return (new Notification($moduleId, $notifyEvent))->getLifetime();
 	}
 
 	public static function OnGetNotifySchema()

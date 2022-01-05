@@ -27,7 +27,7 @@ $APPLICATION->SetTitle("Фото");
 	"ALBUM_PHOTO_THUMBS_SIZE" => "120",	
 	"THUMBNAIL_SIZE" => "90",	
 	"ORIGINAL_SIZE" => "1280",
-	"UPLOADER_TYPE" => "flash",
+	"UPLOADER_TYPE" => "form",
 	"JPEG_QUALITY1" => "95",
 	"JPEG_QUALITY2" => "95",
 	"JPEG_QUALITY" => "90",

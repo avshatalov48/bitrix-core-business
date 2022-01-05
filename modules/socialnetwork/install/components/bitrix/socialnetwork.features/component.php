@@ -120,6 +120,7 @@ else
 				$arResult["InitiatePermsList"] = \Bitrix\Socialnetwork\Item\Workgroup::getInitiatePermOptionsList(array(
 					'project' => ($arGroup['PROJECT'] === 'Y')
 				));
+				$arResult['SpamPermsList'] = \Bitrix\Socialnetwork\Item\Workgroup::getSpamPermOptionsList();
 
 				if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"])
 				{
@@ -348,16 +349,31 @@ else
 
 			$errorMessage = "";
 
-			if (
-				$arParams["PAGE_ID"] == "group_features"
-				&& $_POST["GROUP_INITIATE_PERMS"] <> ''
-				&& in_array($_POST["GROUP_INITIATE_PERMS"], UserToGroupTable::getRolesMember())
-			)
+			if ($arParams['PAGE_ID'] === "group_features")
 			{
-				CSocNetGroup::update($arResult["Group"]["ID"], array(
-					'INITIATE_PERMS' => $_POST["GROUP_INITIATE_PERMS"],
-					'=DATE_UPDATE' => $DB->currentTimeFunction()
-				));
+				$updateFields = [];
+
+				if (
+					(string)$_POST['GROUP_SPAM_PERMS'] !== ''
+					&& in_array((string)$_POST['GROUP_SPAM_PERMS'], array_merge(UserToGroupTable::getRolesMember(), [ SONET_ROLES_ALL ]), true)
+				)
+				{
+					$updateFields['SPAM_PERMS'] = (string)$_POST['GROUP_SPAM_PERMS'];
+				}
+
+				if (
+					(string)$_POST['GROUP_INITIATE_PERMS'] !== ''
+					&& in_array($_POST['GROUP_INITIATE_PERMS'], UserToGroupTable::getRolesMember())
+				)
+				{
+					$updateFields['INITIATE_PERMS'] = $_POST['GROUP_INITIATE_PERMS'];
+				}
+
+				if (!empty($updateFields))
+				{
+					$updateFields['=DATE_UPDATE'] = \CDatabase::CurrentTimeFunction();
+					CSocNetGroup::update($arResult['Group']['ID'], $updateFields);
+				}
 			}
 
 			foreach ($arResult["Features"] as $feature => $arFeature)

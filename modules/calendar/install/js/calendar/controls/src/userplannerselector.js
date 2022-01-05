@@ -5,7 +5,7 @@ import {Planner} from "calendar.planner";
 import {Popup, MenuManager} from 'main.popup';
 import {Dialog as EntitySelectorDialog} from 'ui.entity-selector';
 import { ControlButton } from 'intranet.control-button';
-import {AttendeesList} from "calendar.controls";
+import {AttendeesList, Location} from "calendar.controls";
 
 export class UserPlannerSelector extends EventEmitter
 {
@@ -20,6 +20,8 @@ export class UserPlannerSelector extends EventEmitter
 	userSelectorDialog = null;
 	attendeesEntityList = [];
 	inlineEditMode = UserPlannerSelector.VIEW_MODE;
+	prevUserList = [];
+	loadedAccessibilityData = {};
 
 	constructor(params = {})
 	{
@@ -131,6 +133,7 @@ export class UserPlannerSelector extends EventEmitter
 		this.DOM.attendeesLabel.innerHTML = Text.encode(Loc.getMessage('EC_ATTENDEES_LABEL_ONE'));
 
 		this.planner.subscribe('onDateChange', (event) => {this.emit('onDateChange', event);});
+		this.planner.subscribe('onExpandTimeline', this.handleExpandPlannerTimeline.bind(this));
 
 		if (this.DOM.hideGuestsWrap && !this.isReadOnly())
 		{
@@ -175,7 +178,7 @@ export class UserPlannerSelector extends EventEmitter
 			this.intranetControllButton = new ControlButton({
 				container: this.DOM.videocallWrap,
 				entityType: 'calendar_event',
-				entityId: this.entryId,
+				entityId: this.entry.parentId,
 				mainItem: 'chat',
 				entityData: {
 					dateFrom: Util.formatDate(this.entry.from),
@@ -255,9 +258,11 @@ export class UserPlannerSelector extends EventEmitter
 
 	checkBusyTime()
 	{
-		let dateTime = this.getDateTime();
+		const dateTime = this.getDateTime();
+		const entityList = this.getEntityList();
+
 		this.runPlannerDataRequest({
-			entityList: this.getEntityList(),
+			entityList: entityList,
 			from: Util.formatDate(dateTime.from.getTime() - Util.getDayLength() * 3),
 			to: Util.formatDate(dateTime.to.getTime() + Util.getDayLength() * 10),
 			timezone: dateTime.timezoneFrom,
@@ -266,6 +271,24 @@ export class UserPlannerSelector extends EventEmitter
 		})
 			.then((response) =>
 			{
+				for (let id in response.data.accessibility)
+				{
+					if (response.data.accessibility.hasOwnProperty(id))
+					{
+						this.loadedAccessibilityData[id] = response.data.accessibility[id];
+					}
+				}
+
+				if (Type.isArray(response.data.entries))
+				{
+					response.data.entries.forEach((entry) => {
+						if (entry.type === 'user' && !this.prevUserList.includes(parseInt(entry.id)))
+						{
+							this.prevUserList.push(parseInt(entry.id));
+						}
+					});
+				}
+
 				if (Type.isArray(response.data.accessibility[this.ownerId]))
 				{
 					const from = this.getDateTime().from;
@@ -319,7 +342,8 @@ export class UserPlannerSelector extends EventEmitter
 				to: Util.formatDate(dateTime.to.getTime() + Util.getDayLength() * 10),
 				timezone: dateTime.timezoneFrom,
 				location: this.getLocationValue(),
-				entryId: this.entryId
+				entryId: this.entryId,
+				prevUserList: this.prevUserList
 			})
 				.then((response) => {
 					this.displayAttendees(this.prepareAttendeesForDisplay(response.data.entries || []));
@@ -333,19 +357,43 @@ export class UserPlannerSelector extends EventEmitter
 		return new Promise((resolve) => {
 			this.runPlannerDataRequest(params)
 				.then((response) => {
+						for (let id in response.data.accessibility)
+						{
+							if (response.data.accessibility.hasOwnProperty(id))
+							{
+								this.loadedAccessibilityData[id] = response.data.accessibility[id];
+							}
+						}
+
+						if (Type.isArray(response.data.entries))
+						{
+							response.data.entries.forEach((entry) => {
+								if (entry.type === 'user' && !this.prevUserList.includes(parseInt(entry.id)))
+								{
+									this.prevUserList.push(parseInt(entry.id));
+								}
+							});
+						}
+
 						this.planner.hideLoader();
 						let dateTime = this.getDateTime();
 						this.planner.update(
 							response.data.entries,
-							response.data.accessibility
+							this.loadedAccessibilityData
 						);
-						this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
+						this.planner.updateSelector(
+							dateTime.from,
+							dateTime.to,
+							dateTime.fullDay,
+							{
+								focus: params.focusSelector !== false
+							}
+						);
 
 						resolve(response);
 					},
 					(response) => {resolve(response);}
 				);
-
 		});
 	}
 
@@ -354,6 +402,7 @@ export class UserPlannerSelector extends EventEmitter
 		return this.BX.ajax.runAction('calendar.api.calendarajax.updatePlanner', {
 			data: {
 				entryId: params.entryId || 0,
+				entryLocation: this.entry.data.LOCATION || '',
 				ownerId: this.ownerId,
 				type: this.type,
 				entityList: params.entityList || [],
@@ -361,7 +410,8 @@ export class UserPlannerSelector extends EventEmitter
 				dateTo: params.to || '',
 				timezone: params.timezone || '',
 				location: params.location || '',
-				entries: params.entrieIds || false
+				entries: params.entrieIds || false,
+				prevUserList: params.prevUserList || []
 			}
 		});
 	}
@@ -394,6 +444,13 @@ export class UserPlannerSelector extends EventEmitter
 	{
 		Dom.clean(this.DOM.attendeesList);
 		this.attendeeList = AttendeesList.sortAttendees(attendees);
+		const usersCount = this.attendeeList.accepted.length
+			+ this.attendeeList.requested.length;
+		this.emit('onDisplayAttendees', new BaseEvent({
+			data: {
+				usersCount: usersCount
+			}
+		}));
 
 		let userLength = this.attendeeList.accepted.length;
 		if (userLength > 0)
@@ -421,14 +478,7 @@ export class UserPlannerSelector extends EventEmitter
 
 		if (userLength < attendees.length)
 		{
-			if (userLength === 1)
-			{
-				this.DOM.moreLink.innerHTML = Text.encode(Loc.getMessage('EC_ATTENDEES_ALL_COUNT').replace('#COUNT#', attendees.length));
-			}
-			else
-			{
-				this.DOM.moreLink.innerHTML = Text.encode(Loc.getMessage('EC_ATTENDEES_ALL_COUNT').replace('#COUNT#', attendees.length));
-			}
+			this.DOM.moreLink.innerHTML = Text.encode(Loc.getMessage('EC_ATTENDEES_ALL_COUNT').replace('#COUNT#', attendees.length));
 			Dom.show(this.DOM.moreLink);
 		}
 		else
@@ -460,9 +510,9 @@ export class UserPlannerSelector extends EventEmitter
 		else
 		{
 			imageNode = Tag.render`
-			<img 
-				title="${Text.encode(user.DISPLAY_NAME)}" 
-				class="calendar-member" 
+			<img
+				title="${Text.encode(user.DISPLAY_NAME)}"
+				class="calendar-member"
 				id="simple_popup_${parseInt(user.ID)}"
 				src="${img}"
 			>`;
@@ -574,5 +624,36 @@ export class UserPlannerSelector extends EventEmitter
 		return calendarEventsAccessibility.map((item) => {
 			return Planner.prepareAccessibilityItem(item);
 		});
+	}
+
+	clearAccessibilityData(userIdList: Object): void
+	{
+		if (Type.isArray(userIdList) && userIdList.length && this.prevUserList.length)
+		{
+			this.prevUserList = this.prevUserList.filter((userId) => {
+				return !userIdList.includes(userId);
+			});
+		}
+	}
+
+	handleExpandPlannerTimeline(event)
+	{
+		if (event && event.getData)
+		{
+			let data = event.getData();
+			if (data.reload)
+			{
+				const dateTime = this.getDateTime();
+				this.loadPlannerData({
+					entityList: this.getEntityList(),
+					from: Util.formatDate(data.dateFrom),
+					to: Util.formatDate(data.dateTo),
+					timezone: dateTime.timezoneFrom,
+					location: this.getLocationValue(),
+					entryId: this.entryId,
+					focusSelector: false
+				});
+			}
+		}
 	}
 }

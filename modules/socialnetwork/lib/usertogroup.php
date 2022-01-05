@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -8,7 +9,9 @@
 namespace Bitrix\Socialnetwork;
 
 use Bitrix\Main\Entity;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\NotImplementedException;
+use Bitrix\Main\ORM\Query\Join;
 
 /**
  * Class UserToGroupTable
@@ -42,9 +45,14 @@ class UserToGroupTable extends Entity\DataManager
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_sonet_user2group';
+	}
+
+	public static function getUfId(): string
+	{
+		return 'USER_TO_WORKGROUP';
 	}
 
 	/**
@@ -52,9 +60,9 @@ class UserToGroupTable extends Entity\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getRolesAll()
+	public static function getRolesAll(): array
 	{
-		return array(self::ROLE_OWNER, self::ROLE_MODERATOR, self::ROLE_USER, self::ROLE_BAN, self::ROLE_REQUEST);
+		return [ self::ROLE_OWNER, self::ROLE_MODERATOR, self::ROLE_USER, self::ROLE_BAN, self::ROLE_REQUEST ];
 	}
 
 	/**
@@ -62,9 +70,9 @@ class UserToGroupTable extends Entity\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getRolesMember()
+	public static function getRolesMember(): array
 	{
-		return array(self::ROLE_OWNER, self::ROLE_MODERATOR, self::ROLE_USER);
+		return [ self::ROLE_OWNER, self::ROLE_MODERATOR, self::ROLE_USER ];
 	}
 
 	/**
@@ -72,15 +80,15 @@ class UserToGroupTable extends Entity\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getInitiatedByAll()
+	public static function getInitiatedByAll(): array
 	{
-		return array(self::INITIATED_BY_USER, self::INITIATED_BY_GROUP);
+		return [ self::INITIATED_BY_USER, self::INITIATED_BY_GROUP ];
 	}
 
 	/**
 	 * Returns entity map definition
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return array(
 			'ID' => array(
@@ -92,8 +100,9 @@ class UserToGroupTable extends Entity\DataManager
 				'data_type' => 'integer',
 			),
 			'USER' => array(
-				'data_type' => 'Bitrix\Main\UserTable',
+				'data_type' => (ModuleManager::isModuleInstalled('intranet') ? 'Bitrix\Intranet\UserTable' : 'Bitrix\Main\UserTable'),
 				'reference' => array('=this.USER_ID' => 'ref.ID'),
+				'join_type' => Join::TYPE_INNER,
 			),
 			'GROUP_ID' => array(
 				'data_type' => 'integer',
@@ -101,6 +110,7 @@ class UserToGroupTable extends Entity\DataManager
 			'GROUP' => array(
 				'data_type' => 'Bitrix\Socialnetwork\WorkgroupTable',
 				'reference' => array('=this.GROUP_ID' => 'ref.ID'),
+				'join_type' => Join::TYPE_INNER,
 			),
 			'ROLE' => array(
 				'data_type' => 'enum',

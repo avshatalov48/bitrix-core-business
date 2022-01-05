@@ -156,7 +156,11 @@ this.BX = this.BX || {};
 	        var blocksPanel = _this2.createBlocksPanel();
 
 	        setTimeout(function () {
-	          blocksPanel.sidebarButtons.get(_this2.options.default_section).layout.click();
+	          if (blocksPanel.sidebarButtons.get(_this2.options.default_section)) {
+	            blocksPanel.sidebarButtons.get(_this2.options.default_section).layout.click();
+	          } else {
+	            babelHelpers.toConsumableArray(blocksPanel.sidebarButtons)[0].layout.click();
+	          }
 	        });
 	        blocksPanel.layout.hidden = true;
 	        blocksPanel.content.hidden = false;
@@ -1172,6 +1176,8 @@ this.BX = this.BX || {};
 	}(main_core.Event.EventEmitter);
 	babelHelpers.defineProperty(Main, "TYPE_PAGE", 'PAGE');
 	babelHelpers.defineProperty(Main, "TYPE_STORE", 'STORE');
+	babelHelpers.defineProperty(Main, "TYPE_KNOWLEDGE", 'KNOWLEDGE');
+	babelHelpers.defineProperty(Main, "TYPE_GROUP", 'GROUP');
 
 	exports.Main = Main;
 

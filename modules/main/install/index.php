@@ -173,6 +173,9 @@ class main extends CModule
 		$eventManager->registerEventHandler('main', 'onGetUserFieldValues', 'main', '\Bitrix\Main\UserField\Internal\UserFieldHelper', 'onGetUserFieldValues');
 		$eventManager->registerEventHandler('main', 'onUpdateUserFieldValues', 'main', '\Bitrix\Main\UserField\Internal\UserFieldHelper', 'onUpdateUserFieldValues');
 		$eventManager->registerEventHandler('main', 'onDeleteUserFieldValues', 'main', '\Bitrix\Main\UserField\Internal\UserFieldHelper', 'onDeleteUserFieldValues');
+		$eventManager->registerEventHandler('main', 'OnAfterUserTypeAdd', 'main', '\Bitrix\Main\ORM\Entity', 'onUserTypeChange');
+		$eventManager->registerEventHandler('main', 'OnAfterUserTypeUpdate', 'main', '\Bitrix\Main\ORM\Entity', 'onUserTypeChange');
+		$eventManager->registerEventHandler('main', 'OnAfterUserTypeDelete', 'main', '\Bitrix\Main\ORM\Entity', 'onUserTypeChange');
 
 		if (LANGUAGE_ID == "ru")
 			COption::SetOptionString("main", "vendor", "1c_bitrix");

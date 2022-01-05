@@ -2,8 +2,9 @@
 return [
 	'controllers' => [
 		'value' => [
+			'defaultNamespace' => '\\Bitrix\\Socialnetwork\\Controller',
 			'namespaces' => [
-				'\\Bitrix\\SocialNetwork\\Controller' => 'api',
+				'\\Bitrix\\Socialnetwork\\Controller' => 'api',
 			],
 			'restIntegration' => [
 				'enabled' => true
@@ -54,7 +55,14 @@ return [
 						'moduleId' => 'socialnetwork',
 						'className' => '\\Bitrix\\SocialNetwork\\Integration\\UI\\EntitySelector\\ProjectTagProvider',
 					],
-				]
+				],
+				[
+					'entityId' => 'project-roles',
+					'provider' => [
+						'moduleId' => 'socialnetwork',
+						'className' => '\\Bitrix\\SocialNetwork\\Integration\\UI\\EntitySelector\\ProjectRolesProvider',
+					],
+				],
 			],
 			'extensions' => ['socialnetwork.entity-selector'],
 		],

@@ -1839,7 +1839,7 @@ class CSiteCheckerTest
 
 			$strRes = GetHttpResponse($res, $strRequest, $strHeaders);
 
-			if (preg_match('#Location: (.+)#', $strHeaders, $regs))
+			if (preg_match('#Location: (.+)#i', $strHeaders, $regs))
 			{
 				$url = trim($regs[1]);
 				if (!$url)

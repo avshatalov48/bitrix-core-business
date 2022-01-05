@@ -53,7 +53,7 @@ class AnalyticBoardManager extends Base
 				self::$analyticBoardList[$board->getBoardKey()] = $board;
 				self::$indices['boardKey'][$board->getBoardKey()][] = $board->getBoardKey();
 				self::$indices['boardBatchKey'][$board->getBatchKey()][] = $board->getBoardKey();
-				self::$indices['group'][$board->getGroup()][] = $board->getGroup();
+				self::$indices['group'][$board->getGroup()][] = $board->getBoardKey();
 			}
 		}
 		return self::$analyticBoardList;

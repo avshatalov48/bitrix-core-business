@@ -212,6 +212,8 @@ abstract class CAllDatabase
 	{
 		if ($this->connection && $this->connection->isConnected())
 		{
+			// the connection can reconnect outside
+			$this->db_Conn = $this->connection->getResource();
 			return true;
 		}
 
@@ -1048,9 +1050,9 @@ abstract class CAllDBResult
 		$this->SIZEN = $arParams["SIZEN"];
 		$this->NavShowAll = $arParams["SHOW_ALL"];
 		$this->NavPageSize = $arParams["SIZEN"];
-		$this->SESS_SIZEN = $arParams["SESS_SIZEN"];
-		$this->SESS_PAGEN = $arParams["SESS_PAGEN"];
-		$this->SESS_ALL = $arParams["SESS_ALL"];
+		$this->SESS_SIZEN = $arParams["SESS_SIZEN"] ?? null;
+		$this->SESS_PAGEN = $arParams["SESS_PAGEN"] ?? null;
+		$this->SESS_ALL = $arParams["SESS_ALL"] ?? null;
 
 		global $NavNum;
 

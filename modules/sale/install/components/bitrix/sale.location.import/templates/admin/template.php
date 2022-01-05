@@ -202,7 +202,7 @@ Loc::loadMessages(__FILE__);
 				</td>
 			</tr>
 
-			<?if(LANGUAGE_ID === 'ru'):?>
+			<?if(LANGUAGE_ID === 'ru' && Bitrix\Sale\Delivery\Helper::getPortalZone() !== 'ua'):?>
 				<tr class="bx-ui-load-remote">
 					<td>
 						<label for="loc-i-additional-yamarket"><?=Loc::getMessage('SALE_SLI_EXTRA_EXTERNAL_YAMARKET')?></label>

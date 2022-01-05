@@ -1,6 +1,6 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 
-<?if (strlen($arResult["ERROR_MESSAGE"]) <= 0):?>
+<?if ($arResult["ERROR_MESSAGE"] == ''):?>
 	<?if (count($arResult["SEARCH_RESULT"]) > 0):?>
 		<br />
 		<?if ($arResult['CURRENT_VIEW'] == "list"):?>
@@ -9,7 +9,7 @@
 			?>
 				<div class="content-item">
 					<div class="content-avatar">
-						<? if (strlen($v["IMAGE_FILE"]["SRC"]) > 0):?>
+						<? if ($v["IMAGE_FILE"]["SRC"] <> ''):?>
 							<a href="<?= $v["URL"] ?>" style="background: transparent url('<?= $v["IMAGE_FILE"]["SRC"] ?>') no-repeat center center;"></a>
 						<? else:?>
 							<a href="<?= $v["URL"] ?>"></a>
@@ -51,7 +51,7 @@
 							<?foreach ($v["UserFieldsMain"]["DATA"] as $fieldName => $arUserField):?>
 							
 							<?if($fieldName == 'DATE_REGISTER'):?><div class="content-date"><?= GetMessage("SONET_IN_SITE") ?> <?=FormatDate("Q", MakeTimeStamp($arUserField["VALUE"]))?></div><?endif;?><?if($fieldName == 'PERSONAL_CITY'):?><div class="content-city"><?endif;?>
-								<?if (StrLen($arUserField["VALUE"]) > 0 && $fieldName != 'LAST_LOGIN' && $fieldName != 'DATE_REGISTER'):?>
+								<?if ($arUserField["VALUE"] <> '' && $fieldName != 'LAST_LOGIN' && $fieldName != 'DATE_REGISTER'):?>
 									<div><?if($fieldName != 'PERSONAL_CITY'):?><?= $arUserField["NAME"] ?>: <?endif;?><?= $arUserField["VALUE"] ?></div>
 								<?endif;?>
 							<?if($fieldName == 'PERSONAL_CITY'):?></div><?endif;?>
@@ -60,7 +60,7 @@
 						<?if ($v["UserPropertiesMain"]["SHOW"] == "Y"):?>
 							<?foreach ($v["UserPropertiesMain"]["DATA"] as $fieldName => $arUserField):?>
 							<?=$fieldName?>
-								<?if ((is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) > 0) || (!is_array($arUserField["VALUE"]) && StrLen($arUserField["VALUE"]) > 0)):?>
+								<?if ((is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) > 0) || (!is_array($arUserField["VALUE"]) && $arUserField["VALUE"] <> '')):?>
 									<div>
 									<?=$arUserField["EDIT_FORM_LABEL"]?>:
 									<?
@@ -117,7 +117,7 @@
 			</div>
 		<?endif;?>
 
-		<?if (strlen($arResult["NAV_STRING"]) > 0):?>
+		<?if ($arResult["NAV_STRING"] <> ''):?>
 			<p><?=$arResult["NAV_STRING"]?></p>
 		<?endif;?>
 	
@@ -134,11 +134,11 @@
 <?
 foreach($_REQUEST as $key => $value)
 {
-	if (StrToLower(SubStr($key, 0, 4)) == "flt_")
+	if (mb_strtolower(mb_substr($key, 0, 4)) == "flt_")
 	{
 		unset($_REQUEST[$key]);
-		$keyTmp = StrToUpper(SubStr($key, 4));
-		$_REQUEST[StrToLower("FLTX_".$keyTmp)] = $value;
+		$keyTmp = mb_strtoupper(mb_substr($key, 4));
+		$_REQUEST[mb_strtolower("FLTX_".$keyTmp)] = $value;
 	}
 }
 ?>

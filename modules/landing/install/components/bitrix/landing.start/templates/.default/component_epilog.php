@@ -55,30 +55,33 @@ $menuItems = [
 		'COUNTER_ID' => 'default'
 	]
 ];
-$menuItems[] = [
-	'TEXT' => Loc::getMessage('LANDING_TPL_MENU_FORMS'),
-	'URL' => SITE_DIR . 'crm/webform/',
-	'ID' => 'webform',
-	'IS_ACTIVE' => 0,
-	'COUNTER' => 0,
-	'COUNTER_ID' => 'webform'
-];
-$menuItems[] = [
-	'TEXT' => Loc::getMessage('LANDING_TPL_MENU_TRACKING'),
-	'URL' => SITE_DIR . 'crm/tracking/',
-	'ID' => 'tracking',
-	'IS_ACTIVE' => 0,
-	'COUNTER' => 0,
-	'COUNTER_ID' => 'tracking'
-];
-$menuItems[] = [
-	'TEXT' => Loc::getMessage('LANDING_TPL_MENU_MARKETING'),
-	'URL' => SITE_DIR . 'marketing/?marketing_title=Y',
-	'ID' => 'marketing',
-	'IS_ACTIVE' => 0,
-	'COUNTER' => 0,
-	'COUNTER_ID' => 'marketing'
-];
+if (\Bitrix\Landing\Site\Type::isPublicScope())
+{
+	$menuItems[] = [
+		'TEXT' => Loc::getMessage('LANDING_TPL_MENU_FORMS'),
+		'URL' => SITE_DIR . 'crm/webform/',
+		'ID' => 'webform',
+		'IS_ACTIVE' => 0,
+		'COUNTER' => 0,
+		'COUNTER_ID' => 'webform'
+	];
+	$menuItems[] = [
+		'TEXT' => Loc::getMessage('LANDING_TPL_MENU_TRACKING'),
+		'URL' => SITE_DIR . 'crm/tracking/',
+		'ID' => 'tracking',
+		'IS_ACTIVE' => 0,
+		'COUNTER' => 0,
+		'COUNTER_ID' => 'tracking'
+	];
+	$menuItems[] = [
+		'TEXT' => Loc::getMessage('LANDING_TPL_MENU_MARKETING'),
+		'URL' => SITE_DIR . 'marketing/?marketing_title=Y',
+		'ID' => 'marketing',
+		'IS_ACTIVE' => 0,
+		'COUNTER' => 0,
+		'COUNTER_ID' => 'marketing'
+	];
+}
 $menuItems[] = [
 	'TEXT' => Loc::getMessage('LANDING_TPL_MENU_AGREEMENT'),
 	'URL' => '#',

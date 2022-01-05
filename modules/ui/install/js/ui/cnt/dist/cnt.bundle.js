@@ -14,6 +14,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(CounterColor, "PRIMARY", "ui-counter-primary");
 	babelHelpers.defineProperty(CounterColor, "GRAY", "ui-counter-gray");
 	babelHelpers.defineProperty(CounterColor, "LIGHT", "ui-counter-light");
+	babelHelpers.defineProperty(CounterColor, "WHITE", "ui-counter-white");
 	babelHelpers.defineProperty(CounterColor, "DARK", "ui-counter-dark");
 
 	/**
@@ -23,7 +24,7 @@ this.BX = this.BX || {};
 	  babelHelpers.classCallCheck(this, CounterSize);
 	};
 
-	babelHelpers.defineProperty(CounterSize, "SMALL", "ui-counter-lg");
+	babelHelpers.defineProperty(CounterSize, "SMALL", "ui-counter-sm");
 	babelHelpers.defineProperty(CounterSize, "LARGE", "ui-counter-lg");
 	babelHelpers.defineProperty(CounterSize, "MEDIUM", "ui-counter-md");
 

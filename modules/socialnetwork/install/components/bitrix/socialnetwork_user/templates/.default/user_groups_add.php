@@ -12,7 +12,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-$pageId = "";
+$pageId = "group_create";
 include("util_menu.php");
 
 $componentParameters = array(

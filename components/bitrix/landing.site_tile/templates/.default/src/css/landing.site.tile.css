@@ -59,6 +59,10 @@
 	--font_os_semibold: "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+.landing-sites {
+	overflow: hidden;
+}
+
 /*grid styles*/
 .landing-sites__grid {
 	margin: 0 -11px;
@@ -597,6 +601,7 @@
 	transition: .1s;
 }
 
+.landing-sites__status_disabled,
 .landing-sites__status {
 	display: flex;
 	align-items: center;

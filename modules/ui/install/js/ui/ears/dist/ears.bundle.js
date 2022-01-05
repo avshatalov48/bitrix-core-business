@@ -2,35 +2,7 @@ this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
 
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='ui-ear ui-ear-right'></div>\n\t\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='ui-ear ui-ear-left'></div>\n\t\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='ui-ears-wrapper ", " ", "'>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3;
 	var Ears = /*#__PURE__*/function () {
 	  function Ears(options) {
 	    babelHelpers.classCallCheck(this, Ears);
@@ -126,21 +98,21 @@ this.BX = this.BX || {};
 	      var _this4 = this;
 
 	      return this.cache.remember('wrapper', function () {
-	        return main_core.Tag.render(_templateObject(), _this4.smallSize ? ' ui-ears-wrapper-sm' : '', _this4.className ? _this4.className : '', _this4.getLeftEar(), _this4.getRightEar(), _this4.container);
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='ui-ears-wrapper ", " ", "'>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), _this4.smallSize ? ' ui-ears-wrapper-sm' : '', _this4.className ? _this4.className : '', _this4.getLeftEar(), _this4.getRightEar(), _this4.container);
 	      });
 	    }
 	  }, {
 	    key: "getLeftEar",
 	    value: function getLeftEar() {
 	      return this.cache.remember('leftEar', function () {
-	        return main_core.Tag.render(_templateObject2());
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='ui-ear ui-ear-left'></div>\n\t\t\t\t"])));
 	      });
 	    }
 	  }, {
 	    key: "getRightEar",
 	    value: function getRightEar() {
 	      return this.cache.remember('rightEar', function () {
-	        return main_core.Tag.render(_templateObject3());
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='ui-ear ui-ear-right'></div>\n\t\t\t\t"])));
 	      });
 	    }
 	  }, {

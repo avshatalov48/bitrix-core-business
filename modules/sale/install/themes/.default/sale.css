@@ -1635,29 +1635,27 @@ a.dashed-link:hover { text-decoration: none; }
 }
 
 .adm-bus-orderinfoblock-content-customer-info li {
+	display: flex;
+	align-items: stretch;
 	position: relative;
-	height: 22px;
-	border-bottom: 1px dotted #cfd5b0;
+	min-height: 22px;
+	/*height: 22px;*/
+	/*border-bottom: 1px dotted #cfd5b0;*/
 }
 
 .adm-bus-orderinfoblock-content-customer-info-param {
 	font-size: 13px;
-	position: absolute;
-	bottom: -1px;
-	left: 0;
+}
+
+.adm-bus-orderinfoblock-content-customer-info-separator {
+	flex-grow: 1;
 	height: 15px;
-	padding-right: 10px;
-	background: #fbfae2;
+	border-bottom: 1px dotted #cfd5b0;
 }
 
 .adm-bus-orderinfoblock-content-customer-info-value {
 	font-size: 13px;
-	position: absolute;
-	right: 0;
-	bottom: -1px;
-	height: 15px;
-	padding-left: 10px;
-	background: #fbfae2;
+	text-align: right;
 }
 
 .adm-bus-orderinfoblock-content-block-order {

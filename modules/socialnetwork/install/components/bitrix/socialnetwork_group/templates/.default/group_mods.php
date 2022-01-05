@@ -1,6 +1,6 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -39,18 +39,22 @@ $componentParameters = [
 	"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 	"CACHE_TIME" => $arParams["CACHE_TIME"],
 	"GROUP_USE_BAN" => $arParams["GROUP_USE_BAN"],
-	"USE_AUTO_MEMBERS" => "Y"
+	"USE_AUTO_MEMBERS" => "Y",
+	'MODE' => 'MODERATORS',
+	'FILTER_ID' => 'SOCIALNETWORK_WORKGROUP_MODS_LIST',
 ];
 
+// todo: bitrix:socialnetwork.group.user.list
+
 $APPLICATION->IncludeComponent(
-	"bitrix:ui.sidepanel.wrapper",
-	"",
-	array(
+	'bitrix:ui.sidepanel.wrapper',
+	'',
+	[
 		'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.group_users.ex',
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => $componentParameters,
 		'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
 		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE' => 'SONET_GROUP',
 		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID' => $arResult['VARIABLES']['group_id'],
-	)
+	]
 );

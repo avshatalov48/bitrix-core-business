@@ -132,7 +132,7 @@ class Lock
 	 */
 	public static function lockDeleteSite(int $siteId, bool $lock = true): bool
 	{
-		if (Site::ping($siteId))
+		if (Site::ping($siteId, !$lock))
 		{
 			return self::lockEntity($siteId, self::ENTITY_TYPE_SITE, self::LOCK_TYPE_DELETE, $lock);
 		}
@@ -147,7 +147,7 @@ class Lock
 	 */
 	public static function lockDeleteLanding(int $landingId, bool $lock = true): bool
 	{
-		if (Landing::ping($landingId))
+		if (Landing::ping($landingId, !$lock))
 		{
 			return self::lockEntity($landingId, self::ENTITY_TYPE_LANDING, self::LOCK_TYPE_DELETE, $lock);
 		}

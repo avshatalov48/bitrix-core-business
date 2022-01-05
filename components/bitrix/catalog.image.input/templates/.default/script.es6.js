@@ -1,6 +1,5 @@
-import {ajax, Dom, Event, Reflection, Runtime, Tag, Text, Type} from 'main.core';
+import {ajax, Reflection, Runtime, Text, Type} from 'main.core';
 import {type BaseEvent, EventEmitter} from 'main.core.events';
-import {Loader} from 'main.loader';
 
 class ImageInput
 {
@@ -17,6 +16,15 @@ class ImageInput
 		this.iblockId = options.iblockId;
 		this.saveable = options.saveable;
 		this.inputId = options.inputId;
+		if (options.hideAddButton === true)
+		{
+			const addButton = this.wrapper.querySelector('[data-role="image-add-button"]');
+			console.log(addButton);
+			if (Type.isDomNode(addButton))
+			{
+				addButton.style.display = 'none';
+			}
+		}
 
 		if (Type.isObject(options.values))
 		{

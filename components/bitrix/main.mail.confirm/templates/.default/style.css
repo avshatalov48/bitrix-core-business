@@ -182,5 +182,35 @@
 	top: 0;
 	right: 0;
 	height: 100%;
+	width: 16px;
+}
+
+.main-mail-edit-icon {
+	cursor: pointer;
+	position: absolute;
+	top: 0;
+	right: 16px;
+	height: 100%;
 	width: 32px;
+	outline: none;
+	opacity: 0.5;
+	-webkit-transition: opacity 0.2s linear;
+	transition: opacity 0.2s linear;
+}
+
+.main-mail-edit-icon:after {
+	display: block;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate3d(-50%, -50%, 0);
+	width: 10px;
+	height: 10px;
+	background-image: url(../../images/edit.svg);
+	background-repeat: no-repeat;
+	background-size: cover;
+	content: "";
+}
+.menu-popup-no-icon .menu-popup-item-text {
+	padding: 0 30px;
 }

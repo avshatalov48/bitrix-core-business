@@ -5,9 +5,11 @@ namespace Bitrix\Main\Mail;
 use Bitrix\Main;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Mail\Internal\SenderTable;
+use Bitrix\Main\Event;
 
 class Sender
 {
+	public const MAIN_SENDER_SMTP_LIMIT_DECREASE = 'MainSenderSmtpLimitDecrease';
 
 	public static function add(array $fields)
 	{
@@ -16,29 +18,10 @@ class Sender
 			$fields['OPTIONS'] = array();
 		}
 
-		if (empty($fields['IS_CONFIRMED']) && !empty($fields['OPTIONS']['smtp']))
+		self::checkEmail($fields, $error, $errors);
+		if ($error || $errors)
 		{
-			$smtpConfig = $fields['OPTIONS']['smtp'];
-			$smtpConfig = new Smtp\Config(array(
-				'from' => $fields['EMAIL'],
-				'host' => $smtpConfig['server'],
-				'port' => $smtpConfig['port'],
-				'protocol' => $smtpConfig['protocol'],
-				'login' => $smtpConfig['login'],
-				'password' => $smtpConfig['password'],
-			));
-
-			if ($smtpConfig->canCheck())
-			{
-				if ($smtpConfig->check($error, $errors))
-				{
-					$fields['IS_CONFIRMED'] = true;
-				}
-				else
-				{
-					return array('error' => $error, 'errors' => $errors);
-				}
-			}
+			return array('error' => $error, 'errors' => $errors);
 		}
 
 		if (empty($fields['IS_CONFIRMED']))
@@ -88,6 +71,37 @@ class Sender
 		}
 
 		return ['senderId' => $senderId, 'confirmed' => !empty($fields['IS_CONFIRMED'])];
+	}
+
+	/**
+	 * Check smtp connection
+	 * @param $fields
+	 * @param null $error
+	 * @param Main\ErrorCollection|null $errors
+	 */
+	public static function checkEmail(&$fields, &$error = null, Main\ErrorCollection &$errors = null)
+	{
+
+		if (empty($fields['IS_CONFIRMED']) && !empty($fields['OPTIONS']['smtp']))
+		{
+			$smtpConfig = $fields['OPTIONS']['smtp'];
+			$smtpConfig = new Smtp\Config(array(
+				'from' => $fields['EMAIL'],
+				'host' => $smtpConfig['server'],
+				'port' => $smtpConfig['port'],
+				'protocol' => $smtpConfig['protocol'],
+				'login' => $smtpConfig['login'],
+				'password' => $smtpConfig['password'],
+			));
+
+			if ($smtpConfig->canCheck())
+			{
+				if ($smtpConfig->check($error, $errors))
+				{
+					$fields['IS_CONFIRMED'] = true;
+				}
+			}
+		}
 	}
 
 	public static function confirm($ids)
@@ -250,6 +264,168 @@ class Sender
 		return $smtp[$email];
 	}
 
+	/**
+	 * get sending limit by email, returns null if no limit.
+	 * @param $email
+	 * @return int|null
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public static function getEmailLimit($email): ?int
+	{
+		$address = new \Bitrix\Main\Mail\Address($email);
+
+		if (!$address->validate())
+		{
+			return null;
+		}
+
+		$email = $address->getEmail();
+		static $mailLimit = array();
+
+		if (!isset($mailLimit[$email]))
+		{
+			$cache = new \CPHPCache();
+
+			if ($cache->initCache(3600, $email, '/main/mail/limit'))
+			{
+				$mailLimit[$email]  = $cache->getVars();
+			}
+			else
+			{
+				$res = Internal\SenderTable::getList(array(
+					'filter' => array(
+						'IS_CONFIRMED' => true,
+						'=EMAIL' => $email,
+					),
+					'order' => array(
+						'ID' => 'DESC',
+					),
+				));
+				$limit = null;
+				while ($item = $res->fetch())
+				{
+					if ($item['OPTIONS']['smtp']['limit'] !== null)
+					{
+						$limit = (int)$item['OPTIONS']['smtp']['limit'];
+						break;
+					}
+				}
+
+				$mailLimit[$email] = $limit;
+
+				$cache->startDataCache();
+				$cache->endDataCache($mailLimit[$email]);
+			}
+		}
+
+		return $mailLimit[$email] < 0 ? 0 : $mailLimit[$email];
+	}
+
+	/**
+	 * Set sender limit by email. Finding all senders with same email and set up limit from option
+	 * Returns true if change some email limit.
+	 * Returns false if has no changes.
+	 * @param string $email
+	 * @param int $limit
+	 * @return bool
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public static function setEmailLimit(string $email, int $limit, bool $quite = true): bool
+	{
+		$address = new \Bitrix\Main\Mail\Address($email);
+
+		if (!$address->validate())
+		{
+			return false;
+		}
+
+		$email = $address->getEmail();
+
+		$cache = new \CPHPCache();
+		$cache->clean($email, '/main/mail/limit');
+
+		$res = Internal\SenderTable::getList(array(
+			'filter' => array(
+				'IS_CONFIRMED' => true,
+				'=EMAIL' => $email,
+			),
+			'order' => array(
+				'ID' => 'DESC',
+			),
+		));
+
+		if ($limit < 0)
+		{
+			$limit = 0;
+		}
+
+		$hasChanges = false;
+		while ($item = $res->fetch())
+		{
+			$oldLimit = (int)($item['OPTIONS']['smtp']['limit'] ?? 0);
+			if ($item['OPTIONS']['smtp'] && $limit !== $oldLimit)
+			{
+				$item['OPTIONS']['smtp']['limit'] = $limit;
+				$updateResult = Internal\SenderTable::update($item['ID'], ['OPTIONS' => $item['OPTIONS']]);
+				$hasChanges = true;
+				if (!$quite && $limit < $oldLimit && $updateResult->isSuccess())
+				{
+					$event = new Event('main', self::MAIN_SENDER_SMTP_LIMIT_DECREASE, ['EMAIL'=>$email]);
+					$event->send();
+				}
+			}
+		}
+
+		return $hasChanges;
+	}
+
+	/**
+	 * Remove limit from all connected senders.
+	 * @param string $email
+	 * @return bool
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public static function removeEmailLimit(string $email): bool
+	{
+		$address = new \Bitrix\Main\Mail\Address($email);
+
+		if (!$address->validate())
+		{
+			return false;
+		}
+
+		$email = $address->getEmail();
+		$cache = new \CPHPCache();
+		$cache->clean($email, '/main/mail/limit');
+
+		$res = Internal\SenderTable::getList(array(
+			'filter' => array(
+				'IS_CONFIRMED' => true,
+				'=EMAIL' => $email,
+			),
+			'order' => array(
+				'ID' => 'DESC',
+			),
+		));
+
+		while ($item = $res->fetch())
+		{
+			if (isset($item['OPTIONS']['smtp']['limit']))
+			{
+				unset($item['OPTIONS']['smtp']['limit']);
+				Internal\SenderTable::update($item['ID'], ['OPTIONS' => $item['OPTIONS']]);
+			}
+		}
+
+		return true;
+	}
+
 	public static function applyCustomSmtp($event)
 	{
 		$headers = $event->getParameter('arguments')->additional_headers;
@@ -394,6 +570,11 @@ class Sender
 					'email' => $item['EMAIL'],
 					'can_delete' => $userId == $item['USER_ID'] || $item['IS_PUBLIC'] && $isAdmin,
 				);
+			}
+			else if (!isset($mailboxes[$userId][$key]['id']))
+			{
+				$mailboxes[$userId][$key]['id'] =  $item['ID'];
+				$mailboxes[$userId][$key]['can_delete'] =  $userId == $item['USER_ID'] || $item['IS_PUBLIC'] && $isAdmin;
 			}
 		}
 

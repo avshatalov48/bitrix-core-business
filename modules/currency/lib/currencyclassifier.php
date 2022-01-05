@@ -463,6 +463,9 @@ final class CurrencyClassifier
 			'USD' => [
 				'TEMPLATE' => 'USD#VALUE#',
 			],
+			'COP' => [
+				'TEMPLATE' => 'COP#VALUE#',
+			],
 		],
 		'co' => [
 			self::MODIFIER_ALL => [
@@ -472,6 +475,9 @@ final class CurrencyClassifier
 			],
 			'USD' => [
 				'TEMPLATE' => 'USD#VALUE#',
+			],
+			'MXN' => [
+				'TEMPLATE' => 'MXN#VALUE#',
 			],
 		],
 	];

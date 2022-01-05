@@ -19,6 +19,6 @@ CopyDirFiles(
 COption::SetOptionString("main", "wizard_".WIZARD_TEMPLATE_ID."_".WIZARD_THEME_ID."_forum_theme_id", WIZARD_THEME_ID, "", WIZARD_SITE_ID);
 
 //Color scheme for main.interface.grid/form
-require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($GLOBALS["DB"]->type)."/favorites.php");
+require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 CUserOptions::SetOption("main.interface", "global", array("theme" => WIZARD_THEME_ID), true);
 ?>

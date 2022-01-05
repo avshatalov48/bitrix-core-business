@@ -109,7 +109,26 @@ class Component extends Base
 			$extensionContent = $this->getExtensionsContent($loadExtensionsSeparately);
 			$lang = $this->getLangDefinitionExpression();
 			$object = Utils::jsonEncode($this->getInfo());
-			$componentList = Utils::jsonEncode(Manager::getAvailableComponents());
+			$relativeComponents = $this->getComponentDependencies();
+			$componentScope = Manager::getAvailableComponents();
+			if ($relativeComponents !== null) {
+				$relativeComponentsScope = [];
+				foreach ($relativeComponents as $scope)
+				{
+					if (array_key_exists($scope, $componentScope)) {
+						$relativeComponentsScope[$scope] = $componentScope[$scope];
+					}
+				}
+
+				$componentScope = $relativeComponentsScope;
+			}
+
+			$componentList = array_map(function ($component) {
+				return $component->getInfo();
+			}, $componentScope);
+
+
+			$componentList = Utils::jsonEncode($componentList);
 			$isExtranetModuleInstalled = Loader::includeModule('extranet');
 
 			if ($isExtranetModuleInstalled)
@@ -287,6 +306,26 @@ JS;
 	public function getPublicPath(): string
     {
 		return "/mobileapp/jn/{$this->name}/?version=" . $this->getVersion();
+	}
+
+	public function getComponentDependencies(): ?array
+	{
+		$componentDependencies = parent::getComponentDependencies();
+		if (is_array($componentDependencies)) {
+			$dependencies = $this->getDependencies();
+
+			foreach ($dependencies as $dependency)
+			{
+				$list = (new Extension($dependency))->getComponentDependencies();
+				if ($list !== null) {
+					$componentDependencies = array_merge($componentDependencies, $list);
+				}
+			}
+
+			return array_unique($componentDependencies);
+		}
+
+		return null;
 	}
 
 	/**

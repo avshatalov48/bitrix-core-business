@@ -568,6 +568,17 @@ this.BX.UI = this.BX.UI || {};
 	  return TouchSensor;
 	}(Sensor);
 
+	var DragBeforeStartEvent = /*#__PURE__*/function (_BaseEvent) {
+	  babelHelpers.inherits(DragBeforeStartEvent, _BaseEvent);
+
+	  function DragBeforeStartEvent() {
+	    babelHelpers.classCallCheck(this, DragBeforeStartEvent);
+	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DragBeforeStartEvent).apply(this, arguments));
+	  }
+
+	  return DragBeforeStartEvent;
+	}(BaseEvent);
+
 	var DragStartEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragStartEvent, _BaseEvent);
 
@@ -711,35 +722,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragDropEvent;
 	}(BaseEvent);
 
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div></div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div></div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3;
 	var defaultSensors = [MouseSensor, TouchSensor];
 	var optionsKey = Symbol('options');
 	var sensorsKey = Symbol('sensors');
@@ -1049,7 +1032,7 @@ this.BX.UI = this.BX.UI || {};
 	        var source = _this11.getSource();
 
 	        if (source === null) {
-	          return main_core.Tag.render(_templateObject());
+	          return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div></div>"])));
 	        }
 
 	        var sourceRect = _this11.getSourceClientRect();
@@ -1060,7 +1043,7 @@ this.BX.UI = this.BX.UI || {};
 	          dropPreview = main_core.Runtime.clone(source);
 	          main_core.Dom.addClass(dropPreview, 'ui-draggable--drop-preview-clone');
 	        } else {
-	          dropPreview = main_core.Tag.render(_templateObject2());
+	          dropPreview = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div></div>"])));
 	        }
 
 	        main_core.Dom.addClass(dropPreview, 'ui-draggable--drop-preview');
@@ -1520,6 +1503,20 @@ this.BX.UI = this.BX.UI || {};
 	          clientX = _event$data.clientX,
 	          clientY = _event$data.clientY;
 	      var source = this.getDraggableElementByChild(originalSource);
+	      var dragBeforeStartEvent = new DragBeforeStartEvent({
+	        clientX: clientX,
+	        clientY: clientY,
+	        source: source,
+	        sourceContainer: sourceContainer,
+	        originalSource: originalSource
+	      });
+	      this.emit('beforeStart', dragBeforeStartEvent);
+
+	      if (dragBeforeStartEvent.isDefaultPrevented()) {
+	        event.preventDefault();
+	        return;
+	      }
+
 	      this.setSource(source);
 	      var sourceDepth = this.getElementDepth(source);
 	      var sourceRect = this.getSourceClientRect();
@@ -1534,7 +1531,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (type !== Draggable.HEADLESS) {
 	        var clone = main_core.Runtime.clone(source);
 	        main_core.Dom.style(clone, 'margin', 0);
-	        draggable = main_core.Tag.render(_templateObject3(), clone);
+	        draggable = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"])), clone);
 	        main_core.Dom.style(draggable, {
 	          width: "".concat(sourceRect.width, "px"),
 	          height: "".concat(sourceRect.height, "px"),

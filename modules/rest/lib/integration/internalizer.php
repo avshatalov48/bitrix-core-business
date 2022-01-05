@@ -4,18 +4,11 @@
 namespace Bitrix\Rest\Integration;
 
 
+use Bitrix\Main\Result;
 use Bitrix\Sale\Controller\Controller;
-use Bitrix\Sale\Result;
 
 final class Internalizer extends ModificationFieldsBase
 {
-	public function __construct(ViewManager $manager, $data=[])
-	{
-		$this->format = self::TO_WHITE_LIST | self::TO_SNAKE | self::CHECK_REQUIRED;
-
-		parent::__construct($manager, $data);
-	}
-
 	/**
 	 * @return Result
 	 */
@@ -25,12 +18,12 @@ final class Internalizer extends ModificationFieldsBase
 
 		$arguments = $this->getArguments();
 
-		if($this->format & self::TO_SNAKE)
+		if(in_array(self::TO_SNAKE, $this->format))
 		{
 			$arguments = $this->convertToSnakeCase($arguments);
 		}
 
-		if($this->format & self::CHECK_REQUIRED)
+		if(in_array(self::CHECK_REQUIRED, $this->format))
 		{
 			$check = $this->check($arguments);
 			if(!$check->isSuccess())
@@ -41,7 +34,7 @@ final class Internalizer extends ModificationFieldsBase
 
 		if($r->isSuccess())
 		{
-			if($this->format & self::TO_WHITE_LIST)
+			if(in_array(self::TO_WHITE_LIST, $this->format))
 			{
 				$arguments = $this->internalize($arguments);
 			}

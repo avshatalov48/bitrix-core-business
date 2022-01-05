@@ -6,3 +6,4 @@ $MESS['REST_CONFIGURATION_IMPORT_TITLE'] = 'Импорт отраслевых н
 $MESS['REST_CONFIGURATION_IMPORT_ROLLBACK_TITLE'] = 'Восстановление отраслевых настроек';
 $MESS["REST_CONFIGURATION_ROLLBACK_DEFAULT_TITLE"] = "настройки до установки отраслевых настроек из приложения (#CREATE_TIME#)";
 $MESS["REST_CONFIGURATION_IMPORT_PREPARATION_TITLE"] = 'Подготовка к импорту';
+$MESS['REST_CONFIGURATION_IMPORT_ERROR_PROCESS_REGISTRATION'] = 'Ошибка регистрации импорта';

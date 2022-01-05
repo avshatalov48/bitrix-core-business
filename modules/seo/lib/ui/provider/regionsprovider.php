@@ -45,6 +45,9 @@ class RegionsProvider extends InterestsProvider
 						'tagOptions' => [
 							'bgColor' => "#{$this->stringToColor($value['key'])}",
 							'textColor' => "#fff"
+						],
+						'customData' => [
+							'type' => $value['type'],
 						]
 					]
 				);

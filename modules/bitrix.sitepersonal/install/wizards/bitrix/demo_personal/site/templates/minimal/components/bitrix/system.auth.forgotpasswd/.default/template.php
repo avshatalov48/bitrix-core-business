@@ -6,7 +6,7 @@ ShowMessage($arParams["~AUTH_RESULT"]);
 ?>
 <form name="bform" method="post" target="_top" action="<?=$arResult["AUTH_URL"]?>">
 <?
-if (strlen($arResult["BACKURL"]) > 0)
+if ($arResult["BACKURL"] <> '')
 {
 ?>
 	<input type="hidden" name="backurl" value="<?=$arResult["BACKURL"]?>" />
@@ -25,6 +25,13 @@ if (strlen($arResult["BACKURL"]) > 0)
 			<label class="field-title">E-Mail</label>
 			<div class="form-input"><input type="text" name="USER_EMAIL" maxlength="255" /></div>
 		</div>
+<?if($arResult["USE_CAPTCHA"]):?>
+		<div class="field">
+			<label class="field-title"><?=GetMessage("AUTH_CAPTCHA_PROMT")?></label>
+			<div class="form-input"><input type="text" name="captcha_word" maxlength="50" class="input-field" /></div>
+			<p style="clear: left;"><input type="hidden" name="captcha_sid" value="<?echo $arResult["CAPTCHA_CODE"]?>" /><img src="/bitrix/tools/captcha.php?captcha_sid=<?echo $arResult["CAPTCHA_CODE"]?>" width="180" height="40" alt="CAPTCHA" /></p>
+		</div>
+<?endif;?>
 
 		<div class="field field-button"><input type="submit" name="send_account_info" value="<?=GetMessage("AUTH_SEND")?>" /></div>
 

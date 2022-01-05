@@ -16,6 +16,7 @@ return [
 		'calendar.compacteventform',
 		'ui.notification',
 		'calendar.eventviewform',
+		'calendar.roomsmanager',
 		'main.core',
 	],
 	'skip_core' => false,

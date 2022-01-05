@@ -396,6 +396,8 @@ class CAllSocNetFeatures
 	{
 		global $arSocNetAllowedEntityTypes, $APPLICATION;
 
+		$arReturn = [];
+
 		$type = Trim($type);
 		if (($type == '') || !in_array($type, $arSocNetAllowedEntityTypes))
 		{

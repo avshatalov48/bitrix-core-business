@@ -124,7 +124,7 @@
 	      return node.tagName === 'SELECT';
 	    },
 	    createDropdown: function createDropdown(data, relative) {
-	      var container = this.createContainer(data.ID, relative);
+	      var container = this.createContainer(data.ID, relative, {});
 	      var dropdown = BX.create('div', {
 	        props: {
 	          className: 'main-dropdown main-grid-panel-control',
@@ -148,7 +148,7 @@
 	      return container;
 	    },
 	    createCheckbox: function createCheckbox(data, relative) {
-	      var checkbox = this.createContainer(data.ID, relative);
+	      var checkbox = this.createContainer(data.ID, relative, {});
 	      var inner = BX.create('span', {
 	        props: {
 	          className: 'main-grid-checkbox-container'
@@ -205,7 +205,7 @@
 	     * @returns {*}
 	     */
 	    createText: function createText(data, relative) {
-	      var container = this.createContainer(data.ID, relative);
+	      var container = this.createContainer(data.ID, relative, {});
 	      var title = BX.type.isNotEmptyString(data["TITLE"]) ? data["TITLE"] : "";
 
 	      if (title !== "") {
@@ -235,7 +235,9 @@
 	      return container;
 	    },
 	    createHidden: function createHidden(data, relative) {
-	      var container = this.createContainer(data.ID, relative);
+	      var container = this.createContainer(data.ID, relative, {
+	        CLASS: 'main-grid-panel-hidden-control-container'
+	      });
 	      container.appendChild(BX.create('input', {
 	        props: {
 	          id: data.ID + '_control',
@@ -265,7 +267,7 @@
 	      }
 
 	      this.prepareButton();
-	      var container = this.createContainer(data.ID, relative);
+	      var container = this.createContainer(data.ID, relative, {});
 	      container.appendChild(this.button);
 	      return container;
 	    },
@@ -307,7 +309,7 @@
 	     * @returns {*}
 	     */
 	    createLink: function createLink(data, relative) {
-	      var container = this.createContainer(data.ID, relative);
+	      var container = this.createContainer(data.ID, relative, {});
 	      var link = BX.create('a', {
 	        props: {
 	          className: 'main-grid-link' + (data.CLASS ? ' ' + data.CLASS : ''),
@@ -323,7 +325,9 @@
 	      return container;
 	    },
 	    createCustom: function createCustom(data, relative) {
-	      var container = this.createContainer(data.ID, relative);
+	      var container = this.createContainer(data.ID, relative, {
+	        CLASS: 'main-grid-panel-hidden-control-container'
+	      });
 	      var custom = BX.create('div', {
 	        props: {
 	          className: 'main-grid-panel-custom' + (data.CLASS ? ' ' + data.CLASS : '')
@@ -333,12 +337,13 @@
 	      container.appendChild(custom);
 	      return container;
 	    },
-	    createContainer: function createContainer(id, relative) {
+	    createContainer: function createContainer(id, relative, options) {
 	      id = id.replace('_control', '');
 	      relative = relative.replace('_control', '');
+	      options = options || {};
 	      return BX.create('span', {
 	        props: {
-	          className: this.parent.settings.get('classPanelControlContainer'),
+	          className: this.parent.settings.get('classPanelControlContainer') + (options.CLASS ? ' ' + options.CLASS : ''),
 	          id: id
 	        },
 	        attrs: {
@@ -401,7 +406,7 @@
 	      return BX.type.isPlainObject(controlObject) && 'TYPE' in controlObject && 'ID' in controlObject;
 	    },
 	    createDate: function createDate(data, relative) {
-	      var container = this.createContainer(data.ID, relative);
+	      var container = this.createContainer(data.ID, relative, {});
 	      var date = BX.decl({
 	        block: 'main-ui-date',
 	        mix: ['main-grid-panel-date'],
@@ -4746,11 +4751,6 @@
 	      if (event) {
 	        this.getActionsMenu().popupWindow.popupContainer.style.top = event.pageY - 25 + BX.PopupWindow.getOption("offsetTop") + "px";
 	        this.getActionsMenu().popupWindow.popupContainer.style.left = event.pageX + 20 + BX.PopupWindow.getOption("offsetLeft") + "px";
-	      } else {
-	        var popupWindow = this.actionsMenu.getPopupWindow();
-	        var pos = BX.pos(this.getActionsButton());
-	        BX.style(popupWindow.getPopupContainer(), 'top', pos.top - 20 + 'px');
-	        BX.style(popupWindow.getPopupContainer(), 'left', pos.left + 25 + 'px');
 	      }
 	    },
 	    closeActionsMenu: function closeActionsMenu() {
@@ -4806,10 +4806,13 @@
 
 	      return result;
 	    },
+	    isSelectable: function isSelectable() {
+	      return !this.isEdit() || this.parent.getParam('ALLOW_EDIT_SELECTION');
+	    },
 	    select: function select() {
 	      var checkbox;
 
-	      if (!this.isEdit() && (this.parent.getParam('ADVANCED_EDIT_MODE') || !this.parent.getRows().hasEditable())) {
+	      if (this.isSelectable() && (this.parent.getParam('ADVANCED_EDIT_MODE') || !this.parent.getRows().hasEditable())) {
 	        checkbox = this.getCheckbox();
 
 	        if (checkbox) {
@@ -4824,7 +4827,7 @@
 	      }
 	    },
 	    unselect: function unselect() {
-	      if (!this.isEdit()) {
+	      if (this.isSelectable()) {
 	        BX.removeClass(this.getNode(), this.settings.get('classCheckedRow'));
 	        this.bindNodes.forEach(function (row) {
 	          BX.removeClass(row, this.settings.get('classCheckedRow'));
@@ -4963,6 +4966,7 @@
 	              return label;
 	            });
 	            var labelsContainer = BX.Tag.render(_templateObject5(), labels);
+	            BX.Dom.clean(container);
 	            var oldLabelsContainer = container.querySelector('.main-grid-labels');
 
 	            if (BX.Type.isDomNode(oldLabelsContainer)) {
@@ -10001,5 +10005,5 @@
 	  };
 	})();
 
-}((this.window = this.window || {}),BX.Event,BX,BX));
+}((this.window = this.window || {}),BX.Event,BX.UI,BX));
 //# sourceMappingURL=script.js.map

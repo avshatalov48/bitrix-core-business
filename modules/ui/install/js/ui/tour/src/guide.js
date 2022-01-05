@@ -162,11 +162,14 @@ export class Guide extends Event.EventEmitter
 
 		this.emit(this.constructor.getFullEventName("onFinish"), { guide: this});
 
-		this.getPopup().destroy();
-
-		if (this.getCursor())
+		if (this.popup)
 		{
-			Dom.remove(this.getCursor());
+			this.popup.destroy();
+		}
+
+		if (this.layout.cursor)
+		{
+			Dom.remove(this.layout.cursor);
 			this.layout.cursor = null;
 		}
 
@@ -591,7 +594,7 @@ export class Guide extends Event.EventEmitter
 
 			let buttons = [];
 
-			if(this.getCurrentStep().getButtons().length > 0)
+			if(this.getCurrentStep() && this.getCurrentStep().getButtons().length > 0)
 			{
 				this.getCurrentStep().getButtons().forEach((item)=> {
 					buttons.push(new BX.PopupWindowButton({

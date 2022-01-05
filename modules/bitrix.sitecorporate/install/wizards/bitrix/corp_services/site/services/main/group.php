@@ -5,7 +5,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 COption::SetOptionString('socialnetwork', 'allow_tooltip', 'N', false , $site_id);
 	
 $userGroupID = "";
-$dbGroup = CGroup::GetList($by = "", $order = "", Array("STRING_ID" => "content_editor"));
+$dbGroup = CGroup::GetList("", "", Array("STRING_ID" => "content_editor"));
 
 if($arGroup = $dbGroup -> Fetch())
 {
@@ -23,9 +23,9 @@ else
 	  "STRING_ID"      => "content_editor",
 	  );
 	$userGroupID = $group->Add($arFields);
-	$DB->Query("INSERT INTO b_sticker_group_task(GROUP_ID, TASK_ID)	SELECT ".intVal($userGroupID).", ID FROM b_task WHERE NAME='stickers_edit' AND MODULE_ID='fileman'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+	$DB->Query("INSERT INTO b_sticker_group_task(GROUP_ID, TASK_ID)	SELECT ".intval($userGroupID).", ID FROM b_task WHERE NAME='stickers_edit' AND MODULE_ID='fileman'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 }
-if(IntVal($userGroupID) > 0)
+if(intval($userGroupID) > 0)
 {
 	WizardServices::SetFilePermission(Array($siteID, "/bitrix/admin"), Array($userGroupID => "R"));
 

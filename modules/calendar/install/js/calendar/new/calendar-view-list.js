@@ -12,11 +12,12 @@
 		this.contClassName = 'calendar-list-view';
 		this.loadDaysBefore = 30;
 		this.animateAmount = 5;
-		this.loadLimitPrevious = 5;
-		this.loadLimit = 15;
+		this.loadLimitPrevious = 30;
+		this.loadLimit = 30;
 		this.loadDaysAfter = 60;
 		this.SCROLL_DELTA_HEIGHT = 200;
 		this.todayCode = this.calendar.util.getDayCode(new Date());
+		this.todayDate = new Date();
 		this.DOM = {};
 
 		this.preBuild();
@@ -45,7 +46,7 @@
 			BX.create('DIV', {
 				props: {className: 'calendar-timeline-stream-container calendar-custom-scroll'},
 				style: {height: this.util.getViewHeight() + 'px'},
-				events: {scroll: BX.proxy(this.scrollHandle, this)}
+				events: {scroll: BX.Runtime.debounce(this.scrollHandle, 500, this)}
 		}));
 
 		this.streamContentWrap = this.streamScrollWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-container-content'}}));
@@ -95,7 +96,7 @@
 		this.calendar.setDisplayedViewRange(this.displayedRange);
 		if (params.displayEntries !== false)
 		{
-			this.displayEntries();
+			this.displayEntries({focusDate: this.todayDate});
 		}
 		this.nothingToLoadNext = false;
 		this.nothingToLoadPrevious = false;
@@ -166,7 +167,7 @@
 			this.entries,
 			!!params.animation,
 			function(){
-				this.focusOnDate(params.focusDate || null);
+				this.focusOnDate(params.focusDate || this.getCurrentViewDate() || null);
 			}.bind(this),
 			params.focusDate
 		);
@@ -374,8 +375,10 @@
 			{
 				location = '<span class="calendar-timeline-stream-content-event-location">(' + BX.util.htmlspecialchars(location) + ')</span>';
 			}
+			wrap.appendChild(BX.create(
+				'DIV', {props: {className: 'calendar-timeline-stream-content-event-name'},
+					html: '<span class="calendar-timeline-stream-content-event-color" style="background-color: ' + entry.color + '"></span><div class="calendar-timeline-stream-content-event-name-link"><span>' + BX.util.htmlspecialchars(entry.name) + '</span></div>' + location}));
 
-			wrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-content-event-name'}, html: '<span class="calendar-timeline-stream-content-event-color" style="background-color: ' + entry.color + '"></span><div class="calendar-timeline-stream-content-event-name-link"><span>' + BX.util.htmlspecialchars(entry.name) + '</span></div>' + location}));
 
 			if (
 				(parseInt(this.calendar.util.userId) !== parseInt(entry.data.MEETING_HOST))
@@ -409,38 +412,40 @@
 
 			part.DOM = {};
 
-			if (part.dayCode === focusDayCode && BX.type.isFunction(focusCallback))
-			{
-				focusCallback();
-			}
+			// if (part.dayCode === focusDayCode && BX.type.isFunction(focusCallback))
+			// {
+			// 	focusCallback();
+			// }
 		}
 
 		if (this.currentDisplayedEntry < this.entryParts.length - 1)
 		{
 			this.currentDisplayedEntry++;
+			this.displayEntry(this.entryParts[this.currentDisplayedEntry], animation, focusCallback);
+			// temporarily left if something went wrong
 
-			if (animation && show)
-			{
-				this.actuallyAnimatedEntryCount++;
-				setTimeout(BX.delegate(function()
-				{
-					this.displayEntry(this.entryParts[this.currentDisplayedEntry], animation, focusCallback);
-				}, this), 300);
-			}
-			else
-			{
-				if (this.currentDisplayedEntry % 30 == 0)
-				{
-					setTimeout(BX.delegate(function ()
-					{
-						this.displayEntry(this.entryParts[this.currentDisplayedEntry], animation, focusCallback);
-					}, this), 1000);
-				}
-				else
-				{
-					this.displayEntry(this.entryParts[this.currentDisplayedEntry], animation, focusCallback);
-				}
-			}
+			// if (animation && show)
+			// {
+			// 	this.actuallyAnimatedEntryCount++;
+				// setTimeout(BX.delegate(function()
+				// {
+				// 	this.displayEntry(this.entryParts[this.currentDisplayedEntry], animation, focusCallback);
+				// }, this), 300);
+			// }
+			// else
+			// {
+			// 	if (this.currentDisplayedEntry % 30 == 0)
+			// 	{
+					// setTimeout(BX.delegate(function ()
+					// {
+					// 	this.displayEntry(this.entryParts[this.currentDisplayedEntry], animation, focusCallback);
+					// }, this), 1000);
+				// }
+			// 	else
+			// 	{
+			// 		this.displayEntry(this.entryParts[this.currentDisplayedEntry], animation, focusCallback);
+			// 	}
+			// }
 		}
 		else if (this.currentDisplayedEntry == this.entryParts.length - 1 && !this.filterMode)
 		{
@@ -506,13 +511,16 @@
 							html: '<i></i>',
 						}));
 					}
-					(function (userId)
-					{
-						setTimeout(function ()
-						{
-							BX.tooltip(userId, "simple_view_popup_" + userId);
-						}, 100)
-					})(user.USER_ID);
+					BX.tooltip(user.USER_ID, "simple_view_popup_" + user.USER_ID);
+					// temporarily left if something went wrong
+
+					// (function (userId)
+					// {
+						// setTimeout(function ()
+						// {
+						// 	BX.tooltip(userId, "simple_view_popup_" + userId);
+						// }, 100)
+					// })(user.USER_ID);
 				}
 				if (attendeesCount >= userLength)
 				{
@@ -738,14 +746,8 @@
 		{
 			monthIndex[month].dayIndex[day].node.appendChild(wrap);
 		}
-		else
-		{
-		}
 
-		setTimeout(function(){
-			wrap.style.opacity = '1';
-			//wrap.style.height = 'auto';
-		}, 0);
+		wrap.style.opacity = '1';
 	};
 
 	ListView.prototype.hide = function()
@@ -774,6 +776,7 @@
 
 	ListView.prototype.adjustViewRangeToDate = function(date, animate)
 	{
+		animate = false;
 		if (this.viewCont.style.display === 'none')
 		{
 			var viewRangeDate = false;
@@ -883,12 +886,18 @@
 	ListView.prototype.focusOnDate = function(date, animate)
 	{
 		var dayCode = false;
-		if(BX.type.isDate(date))
+		if (BX.type.isDate(date))
+		{
 			dayCode = this.calendar.util.getDayCode(date);
-		else if(BX.type.isString(date))
+		}
+		else if (BX.type.isString(date))
+		{
 			dayCode = date;
+		}
 		else
+		{
 			dayCode = this.todayCode;
+		}
 
 		// Hide loader
 		BX.cleanNode(this.centerLoaderWrap);
@@ -917,27 +926,59 @@
 			}
 			else
 			{
-				setTimeout(BX.delegate(function(){
-					if (this.streamScrollWrap && this.groupsIndex[dayCode] !== undefined && this.groups[this.groupsIndex[dayCode]])
-					{
-						this.streamScrollWrap.scrollTop = this.groups[this.groupsIndex[dayCode]].wrap.offsetTop;
-					}
-				}, this), 200);
+				if (this.streamScrollWrap && this.groupsIndex[dayCode] !== undefined && this.groups[this.groupsIndex[dayCode]])
+				{
+					this.streamScrollWrap.scrollTop = this.groups[this.groupsIndex[dayCode]].wrap.offsetTop;
+				}
+				// temporarily left if something went wrong
 
-				setTimeout(BX.delegate(function(){
-					if (this.streamScrollWrap && this.groupsIndex[dayCode] !== undefined && this.groups[this.groupsIndex[dayCode]])
-					{
-						this.streamScrollWrap.scrollTop = this.groups[this.groupsIndex[dayCode]].wrap.offsetTop;
-					}
-				}, this), 500);
+				// setTimeout(BX.delegate(function(){
+				// 	if (this.streamScrollWrap && this.groupsIndex[dayCode] !== undefined && this.groups[this.groupsIndex[dayCode]])
+				// 	{
+				// 		this.streamScrollWrap.scrollTop = this.groups[this.groupsIndex[dayCode]].wrap.offsetTop;
+				// 	}
+				// }, this), 200);
 
-				setTimeout(BX.delegate(function(){
-					if (this.streamScrollWrap && this.groupsIndex[dayCode] !== undefined && this.groups[this.groupsIndex[dayCode]])
-					{
-						this.streamScrollWrap.scrollTop = this.groups[this.groupsIndex[dayCode]].wrap.offsetTop;
-					}
-				}, this), 1000);
+				// setTimeout(BX.delegate(function(){
+				// 	if (this.streamScrollWrap && this.groupsIndex[dayCode] !== undefined && this.groups[this.groupsIndex[dayCode]])
+				// 	{
+				// 		this.streamScrollWrap.scrollTop = this.groups[this.groupsIndex[dayCode]].wrap.offsetTop;
+				// 	}
+				// }, this), 500);
+
+				// setTimeout(BX.delegate(function(){
+				// 	if (this.streamScrollWrap && this.groupsIndex[dayCode] !== undefined && this.groups[this.groupsIndex[dayCode]])
+				// 	{
+				// 		this.streamScrollWrap.scrollTop = this.groups[this.groupsIndex[dayCode]].wrap.offsetTop;
+				// 	}
+				// }, this), 1000);
 			}
+		}
+	};
+
+	ListView.prototype.getCurrentViewDate = function()
+	{
+		var container = document.querySelector('.calendar-timeline-stream-container');
+		if (container)
+		{
+			var curScroll = container.scrollTop;
+			var minDiff = Infinity;
+			var curDiff;
+			var element;
+			for (var i = 0; i < this.groups.length; i++)
+			{
+				curDiff = Math.abs(this.groups[i].wrap.offsetTop - curScroll);
+				if (minDiff > curDiff)
+				{
+					minDiff = curDiff;
+					element = this.groups[i];
+				}
+			}
+			if (element)
+			{
+				return element.dayCode;
+			}
+			return null;
 		}
 	};
 
@@ -971,20 +1012,30 @@
 		{
 			// Show loader
 			this.loader = this.bottomLoaderBlock.appendChild(BX.adjust(this.calendar.util.getLoader(), {style: {height: '180px'}}));
+			this.displayedRange.start = new Date(this.displayedRange.start.getFullYear(), this.displayedRange.start.getMonth() + 1, this.displayedRange.start.getDate());
+			this.displayedRange.end = new Date(this.displayedRange.end.getFullYear(), this.displayedRange.end.getMonth() + 1, this.displayedRange.end.getDate());
+			this.calendar.setDisplayedViewRange(this.displayedRange);
 			this.entryController.getList({
-				loadNext: true,
-				loadLimit: this.loadLimit,
-				startDate: new Date(this.displayedRange.end.getFullYear(), this.displayedRange.end.getMonth(), this.displayedRange.end.getDate() + 1),
+				// loadNext: true,
+				// loadLimit: this.loadLimit,
+				// finishDate: new Date(this.displayedRange.start.getFullYear(), this.displayedRange.start.getMonth(), this.displayedRange.start.getDate() - 1),
+				startDate: this.displayedRange.start,
+				finishDate: this.displayedRange.end,
 				finishCallback: BX.proxy(this.loadMoreCallback, this)
 			});
 		}
 		else
 		{
 			this.loader = this.topLoaderBlock.appendChild(BX.adjust(this.calendar.util.getLoader(), {style: {height: '180px'}}));
+			this.displayedRange.start = new Date(this.displayedRange.start.getFullYear(), this.displayedRange.start.getMonth() - 1, this.displayedRange.start.getDate());
+			this.displayedRange.end = new Date(this.displayedRange.end.getFullYear(), this.displayedRange.end.getMonth() - 1, this.displayedRange.end.getDate());
+			this.calendar.setDisplayedViewRange(this.displayedRange);
 			this.entryController.getList({
-				loadPrevious: true,
-				loadLimit: this.loadLimitPrevious,
-				finishDate: new Date(this.displayedRange.start.getFullYear(), this.displayedRange.start.getMonth(), this.displayedRange.start.getDate() - 1),
+				// loadPrevious: true,
+				// loadLimit: this.loadLimitPrevious,
+				// finishDate: new Date(this.displayedRange.start.getFullYear(), this.displayedRange.start.getMonth(), this.displayedRange.start.getDate() - 1),
+				startDate: this.displayedRange.start,
+				finishDate: this.displayedRange.end,
 				finishCallback: BX.proxy(this.loadMoreCallback, this)
 			});
 		}
@@ -1001,9 +1052,9 @@
 			finishCallback: BX.proxy(this.loadMoreCallback, this)
 		});
 
-		if (this.currentLoadMode == 'next' && params.finish)
+		if (this.currentLoadMode == 'next' && params.data.finish)
 			this.nothingToLoadNext = true;
-		if (this.currentLoadMode == 'previous' && params.finish)
+		if (this.currentLoadMode == 'previous' && params.data.finish)
 			this.nothingToLoadPrevious = true;
 
 		if (!this.entries)
@@ -1075,7 +1126,7 @@
 			else if (params.specialTarget && (dayCode = params.specialTarget.getAttribute('data-bx-calendar-show-all-events')))
 			{
 			}
-			else if (!this.calendar.util.readOnlyMode()
+			else if ((!this.calendar.util.readOnlyMode())
 				&& this.entryController.canDo(true, 'add_event')
 				&& (dayCode = params.specialTarget && params.specialTarget.getAttribute('data-bx-calendar-week-day')))
 			{

@@ -357,6 +357,11 @@
 			return BX.message('call_server_enabled') === 'Y'
 		},
 
+		shouldCollectStats: function()
+		{
+			return BX.message('call_collect_stats') === 'Y'
+		},
+
 		getUserLimit: function()
 		{
 			if (this.isCallServerAllowed())

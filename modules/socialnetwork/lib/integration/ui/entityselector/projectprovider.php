@@ -204,7 +204,7 @@ class ProjectProvider extends BaseProvider
 	public static function getProjects(array $options = []): EO_Workgroup_Collection
 	{
 		$query = WorkgroupTable::query();
-		$query->setSelect(['ID', 'NAME', 'ACTIVE', 'PROJECT', 'CLOSED', 'VISIBLE', 'OPENED', 'IMAGE_ID', 'LANDING']);
+		$query->setSelect(['ID', 'NAME', 'ACTIVE', 'PROJECT', 'CLOSED', 'VISIBLE', 'OPENED', 'IMAGE_ID', 'AVATAR_TYPE', 'LANDING']);
 
 		if (isset($options['visible']) && is_bool(isset($options['visible'])))
 		{
@@ -356,7 +356,7 @@ class ProjectProvider extends BaseProvider
 					}
 				}
 			}
-			else if (!is_array($options[$projectFilter]) && intval($options[$projectFilter]) > 0)
+			else if (!is_array($options[$projectFilter]) && (int)$options[$projectFilter] > 0)
 			{
 				if ($projectFilter === 'projectId')
 				{
@@ -694,13 +694,11 @@ class ProjectProvider extends BaseProvider
 		{
 			return new EO_Workgroup_Collection();
 		}
-		else
+
+		$wrongIds = array_diff($projects->getIdList(), $availableIds);
+		foreach ($wrongIds as $wrongId)
 		{
-			$wrongIds = array_diff($projects->getIdList(), $availableIds);
-			foreach ($wrongIds as $wrongId)
-			{
-				$projects->removeByPrimary($wrongId);
-			}
+			$projects->removeByPrimary($wrongId);
 		}
 
 		return $projects;
@@ -762,19 +760,25 @@ class ProjectProvider extends BaseProvider
 
 	public static function makeProjectAvatar(EO_Workgroup $project): ?string
 	{
-		if (empty($project->getImageId()))
+		if (!empty($project->getImageId()))
 		{
-			return null;
+			$avatar = \CFile::resizeImageGet(
+				$project->getImageId(),
+				['width' => 100, 'height' => 100],
+				BX_RESIZE_IMAGE_EXACT,
+				false
+			);
+
+			return !empty($avatar['src']) ? $avatar['src'] : null;
 		}
 
-		$avatar = \CFile::resizeImageGet(
-			$project->getImageId(),
-			['width' => 100, 'height' => 100],
-			BX_RESIZE_IMAGE_EXACT,
-			false
-		);
+		if (!empty($project->getAvatarType()))
+		{
+			$url = \Bitrix\Socialnetwork\Helper\Workgroup::getAvatarEntitySelectorUrl($project->getAvatarType());
+			return !empty($url) ? $url : null;
+		}
 
-		return !empty($avatar['src']) ? $avatar['src'] : null;
+		return null;
 	}
 
 	public static function getProjectUrl(?int $projectId = null, ?int $currentUserId = null): string
@@ -813,10 +817,7 @@ class ProjectProvider extends BaseProvider
 
 	public static function canCreateProject(): bool
 	{
-		return (
-			\CSocNetUser::isCurrentUserModuleAdmin()
-			|| $GLOBALS['APPLICATION']->getGroupRight('socialnetwork', false, 'Y', 'Y', [SITE_ID, false]) >= 'K'
-		);
+		return \Bitrix\Socialnetwork\Helper\Workgroup::canCreate();
 	}
 
 	private function fillRecentTab(Dialog $dialog, EO_Workgroup_Collection $projects): void

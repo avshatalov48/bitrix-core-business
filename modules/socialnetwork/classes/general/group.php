@@ -5,8 +5,10 @@ IncludeModuleLangFile(__FILE__);
 use Bitrix\Main\Context;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Text\Emoji;
+use Bitrix\Socialnetwork\Helper\Workgroup;
 use Bitrix\Socialnetwork\Helper\Path;
 use Bitrix\Socialnetwork\UserToGroupTable;
+use Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\ScrumLimit;
 
 class CAllSocNetGroup
 {
@@ -19,7 +21,7 @@ class CAllSocNetGroup
 	{
 		global $DB, $APPLICATION, $USER_FIELD_MANAGER, $arSocNetAllowedInitiatePerms, $arSocNetAllowedSpamPerms;
 
-		if ($ACTION != "ADD" && intval($ID) <= 0)
+		if ($ACTION !== "ADD" && (int)$ID <= 0)
 		{
 			$APPLICATION->ThrowException("System error 870164", "ERROR");
 			return false;
@@ -57,7 +59,7 @@ class CAllSocNetGroup
 			}
 		}
 
-		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && $arFields["NAME"] == '')
+		if ((is_set($arFields, "NAME") || $ACTION === "ADD") && $arFields["NAME"] == '')
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GB_EMPTY_NAME"), "EMPTY_NAME");
 			return false;
@@ -81,12 +83,13 @@ class CAllSocNetGroup
 			return false;
 		}
 
-		if ((is_set($arFields, "OWNER_ID") || $ACTION=="ADD") && intval($arFields["OWNER_ID"]) <= 0)
+		if ((is_set($arFields, "OWNER_ID") || $ACTION === "ADD") && (int)$arFields["OWNER_ID"] <= 0)
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GB_EMPTY_OWNER_ID"), "EMPTY_OWNER_ID");
 			return false;
 		}
-		elseif (is_set($arFields, "OWNER_ID"))
+
+		if (is_set($arFields, "OWNER_ID"))
 		{
 			$dbResult = CUser::GetByID($arFields["OWNER_ID"]);
 			if (!$dbResult->Fetch())
@@ -96,12 +99,13 @@ class CAllSocNetGroup
 			}
 		}
 
-		if ((is_set($arFields, "SUBJECT_ID") || $ACTION=="ADD") && intval($arFields["SUBJECT_ID"]) <= 0)
+		if ((is_set($arFields, "SUBJECT_ID") || $ACTION === "ADD") && (int)$arFields["SUBJECT_ID"] <= 0)
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GB_EMPTY_SUBJECT_ID"), "EMPTY_SUBJECT_ID");
 			return false;
 		}
-		elseif (is_set($arFields, "SUBJECT_ID"))
+
+		if (is_set($arFields, "SUBJECT_ID"))
 		{
 			$arResult = CSocNetGroupSubject::GetByID($arFields["SUBJECT_ID"]);
 			if ($arResult == false)
@@ -111,41 +115,51 @@ class CAllSocNetGroup
 			}
 		}
 
-		if ((is_set($arFields, "ACTIVE") || $ACTION=="ADD") && $arFields["ACTIVE"] != "Y" && $arFields["ACTIVE"] != "N")
+		if ((is_set($arFields, "ACTIVE") || $ACTION === "ADD") && $arFields["ACTIVE"] !== "Y" && $arFields["ACTIVE"] !== "N")
+		{
 			$arFields["ACTIVE"] = "Y";
+		}
 
-		if ((is_set($arFields, "VISIBLE") || $ACTION=="ADD") && $arFields["VISIBLE"] != "Y" && $arFields["VISIBLE"] != "N")
+		if ((is_set($arFields, "VISIBLE") || $ACTION === "ADD") && $arFields["VISIBLE"] !== "Y" && $arFields["VISIBLE"] !== "N")
+		{
 			$arFields["VISIBLE"] = "Y";
+		}
 
-		if ((is_set($arFields, "OPENED") || $ACTION=="ADD") && $arFields["OPENED"] != "Y" && $arFields["OPENED"] != "N")
+		if ((is_set($arFields, "OPENED") || $ACTION === "ADD") && $arFields["OPENED"] !== "Y" && $arFields["OPENED"] !== "N")
+		{
 			$arFields["OPENED"] = "N";
+		}
 
-		if ((is_set($arFields, "CLOSED") || $ACTION=="ADD") && $arFields["CLOSED"] != "Y" && $arFields["CLOSED"] != "N")
+		if ((is_set($arFields, "CLOSED") || $ACTION=="ADD") && $arFields["CLOSED"] != "Y" && $arFields["CLOSED"] !== "N")
+		{
 			$arFields["CLOSED"] = "N";
+		}
 
-		if ((is_set($arFields, "INITIATE_PERMS") || $ACTION=="ADD") && $arFields["INITIATE_PERMS"] == '')
+		if ((is_set($arFields, "INITIATE_PERMS") || $ACTION === "ADD") && $arFields["INITIATE_PERMS"] == '')
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_UG_EMPTY_INITIATE_PERMS"), "EMPTY_INITIATE_PERMS");
 			return false;
 		}
-		elseif (is_set($arFields, "INITIATE_PERMS") && !in_array($arFields["INITIATE_PERMS"], $arSocNetAllowedInitiatePerms))
+
+		if (is_set($arFields, "INITIATE_PERMS") && !in_array($arFields["INITIATE_PERMS"], $arSocNetAllowedInitiatePerms))
 		{
 			$APPLICATION->ThrowException(str_replace("#ID#", $arFields["INITIATE_PERMS"], GetMessage("SONET_UG_ERROR_NO_INITIATE_PERMS")), "ERROR_NO_INITIATE_PERMS");
 			return false;
 		}
 
-		if ((is_set($arFields, "SPAM_PERMS") || $ACTION=="ADD") && $arFields["SPAM_PERMS"] == '')
+		if ((is_set($arFields, "SPAM_PERMS") || $ACTION === "ADD") && $arFields["SPAM_PERMS"] == '')
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_UG_EMPTY_SPAM_PERMS"), "EMPTY_SPAM_PERMS");
 			return false;
 		}
-		elseif (is_set($arFields, "SPAM_PERMS") && !in_array($arFields["SPAM_PERMS"], $arSocNetAllowedSpamPerms))
+
+		if (is_set($arFields, "SPAM_PERMS") && !in_array($arFields["SPAM_PERMS"], $arSocNetAllowedSpamPerms))
 		{
 			$APPLICATION->ThrowException(str_replace("#ID#", $arFields["SPAM_PERMS"], GetMessage("SONET_UG_ERROR_NO_SPAM_PERMS")), "ERROR_NO_SPAM_PERMS");
 			return false;
 		}
 
-		if (is_set($arFields, "IMAGE_ID") && $arFields["IMAGE_ID"]["name"] == '' && ($arFields["IMAGE_ID"]["del"] == '' || $arFields["IMAGE_ID"]["del"] != "Y"))
+		if (is_set($arFields, "IMAGE_ID") && $arFields["IMAGE_ID"]["name"] == '' && ($arFields["IMAGE_ID"]["del"] == '' || $arFields["IMAGE_ID"]["del"] !== "Y"))
 			unset($arFields["IMAGE_ID"]);
 
 		if (is_set($arFields, "IMAGE_ID"))
@@ -156,6 +170,14 @@ class CAllSocNetGroup
 				$APPLICATION->ThrowException(GetMessage("SONET_GP_ERROR_IMAGE_ID").": ".$arResult, "ERROR_IMAGE_ID");
 				return false;
 			}
+		}
+
+		if (
+			is_set($arFields, 'AVATAR_TYPE')
+			&& !array_key_exists($arFields['AVATAR_TYPE'], Workgroup::getAvatarTypes())
+		)
+		{
+			unset($arFields['AVATAR_TYPE']);
 		}
 
 		if (!$USER_FIELD_MANAGER->CheckFields("SONET_GROUP", $ID, $arFields))
@@ -548,7 +570,11 @@ class CAllSocNetGroup
 			}
 
 			$select = [
-				"ID", "SITE_ID", "NAME", "DESCRIPTION", "DATE_CREATE", "DATE_UPDATE", "ACTIVE", "VISIBLE", "OPENED", "CLOSED", "SUBJECT_ID", "OWNER_ID", "KEYWORDS", "IMAGE_ID", "NUMBER_OF_MEMBERS", "NUMBER_OF_MODERATORS", "INITIATE_PERMS", "SPAM_PERMS", "DATE_ACTIVITY", "SUBJECT_NAME", "UF_*",
+				"ID", "SITE_ID", "NAME", "DESCRIPTION", "DATE_CREATE", "DATE_UPDATE", "ACTIVE", "VISIBLE", "OPENED", "CLOSED", "SUBJECT_ID", "OWNER_ID", "KEYWORDS",
+				'IMAGE_ID', 'AVATAR_TYPE',
+				"NUMBER_OF_MEMBERS", "NUMBER_OF_MODERATORS",
+				"INITIATE_PERMS", "SPAM_PERMS",
+				"DATE_ACTIVITY", "SUBJECT_NAME", "UF_*",
 			];
 			if (ModuleManager::isModuleInstalled('intranet'))
 			{
@@ -601,6 +627,9 @@ class CAllSocNetGroup
 						$result['SITE_LIST'][] = $groupSiteFields['LID'];
 					}
 				}
+
+				$result['SCRUM'] = (isset($result['SCRUM_MASTER_ID']) && (int)$result['SCRUM_MASTER_ID'] > 0 ? 'Y' : 'N');
+				$result['SCRUM_PROJECT'] = $result['SCRUM'];
 			}
 			else
 			{
@@ -740,7 +769,7 @@ class CAllSocNetGroup
 	{
 		global $APPLICATION, $DB;
 
-		$ownerID = intval($ownerID);
+		$ownerID = (int)$ownerID;
 		if ($ownerID <= 0)
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_UR_EMPTY_OWNERID").". ", "ERROR_OWNERID");
@@ -753,21 +782,31 @@ class CAllSocNetGroup
 			return false;
 		}
 
+		if (!empty($arFields['SCRUM_MASTER_ID']) && CModule::includeModule("tasks"))
+		{
+			if (ScrumLimit::isLimitExceeded())
+			{
+				$APPLICATION->ThrowException("Scrum limit exceeded");
+
+				return false;
+			}
+		}
+
 		$DB->StartTransaction();
 
 		if (!isset($arFields["DATE_CREATE"]))
 		{
-			$arFields["=DATE_CREATE"] = $DB->CurrentTimeFunction();
+			$arFields["=DATE_CREATE"] = CDatabase::currentTimeFunction();
 		}
 
 		if (!isset($arFields["DATE_UPDATE"]))
 		{
-			$arFields["=DATE_UPDATE"] = $DB->CurrentTimeFunction();
+			$arFields["=DATE_UPDATE"] = CDatabase::currentTimeFunction();
 		}
 
 		if (!isset($arFields["DATE_ACTIVITY"]))
 		{
-			$arFields["=DATE_ACTIVITY"] = $DB->CurrentTimeFunction();
+			$arFields["=DATE_ACTIVITY"] = CDatabase::currentTimeFunction();
 		}
 
 		$arFields["ACTIVE"] = "Y";

@@ -107,7 +107,7 @@ class ScopeManager
 
 	public static function cleanCache() : bool
 	{
-		return Cache::clearCache(false, self::CACHE_DIR);
+		return Cache::clearCache(true, self::CACHE_DIR);
 	}
 
 	public function getAlias($code) : ?string
@@ -155,7 +155,7 @@ class ScopeManager
 
 			foreach ($actionParts as $partScope)
 			{
-				$scopeFind .= ($scope !== '' ? self::METHOD_DELIMITER : '') . $partScope;
+				$scopeFind .= ($scopeFind !== '' ? self::METHOD_DELIMITER : '') . $partScope;
 				$moduleFind = $this->getAlias($scopeFind);
 				if ($moduleFind)
 				{

@@ -11,6 +11,9 @@ if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)die();
  * @global CMain $APPLICATION
  * @global CUser $USER
  */
+
+$formId = 'feedback_form_' . $this->randString();
+
 ?>
 <div class="mb-4">
 	<?if(!empty($arResult["ERROR_MESSAGE"]))
@@ -23,7 +26,7 @@ if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)die();
 		?><div class="alert alert-success"><?=$arResult["OK_MESSAGE"]?></div><?
 	}
 	?>
-	<form action="<?=POST_FORM_ACTION_URI?>" method="POST">
+	<form id="<?=$formId?>" action="<?=POST_FORM_ACTION_URI?>" method="POST">
 		<?=bitrix_sessid_post()?>
 		<div class="form-group">
 			<label for="mainFeedback_name"><?=GetMessage("MFT_NAME");?><?
@@ -75,4 +78,15 @@ if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)die();
 		<input type="hidden" name="PARAMS_HASH" value="<?=$arResult["PARAMS_HASH"]?>">
 		<input type="submit" name="submit"  value="<?=GetMessage("MFT_SUBMIT")?>" class="btn btn-primary">
 	</form>
+	<?php if ($arResult['FACEBOOK_CONVERSION_ENABLED']): ?>
+	<script>
+		var form = document.getElementById('<?=$formId?>');
+		BX.Event.bind(form, 'submit', function() {
+			if (form.elements && form.elements['user_email'] && form.elements['user_email'].value)
+			{
+				BX.ajax.runAction('sale.facebookconversion.contact', {data: {contactBy: form.elements['user_email'].value}});
+			}
+		});
+	</script>
+	<?php endif; ?>
 </div>

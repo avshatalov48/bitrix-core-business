@@ -21,6 +21,9 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SystemException;
 use Bitrix\Rest\APAuth\PasswordTable;
+use Bitrix\Rest\Engine\Access;
+use Bitrix\Rest\Url\DevOps;
+
 
 class CAPConnectComponent extends CBitrixComponent
 {
@@ -34,6 +37,8 @@ class CAPConnectComponent extends CBitrixComponent
 	protected $errors;
 	protected $clientInfo = null;
 	protected $clientAccess = array();
+	protected $isRestAvailable = false;
+	protected $landingCode = '';
 
 	public function __construct($component = null)
 	{
@@ -86,14 +91,20 @@ class CAPConnectComponent extends CBitrixComponent
 	 */
 	protected function processRequest()
 	{
-		if($this->arParams['USER_ID'] <= 0)
+		if ($this->arParams['USER_ID'] <= 0)
 		{
 			throw new SystemException(Loc::getMessage('APC_NOT_AUTHORIZED'));
 		}
 
-		if($this->arParams['CLIENT_ID'] == '')
+		if ($this->arParams['CLIENT_ID'] == '')
 		{
 			throw new SystemException(Loc::getMessage('APC_NO_CLIENT'));
+		}
+
+		$this->isRestAvailable = Access::isAvailable() && Access::isAvailableCount(Access::ENTITY_TYPE_AP_CONNECT);
+		if (!$this->isRestAvailable)
+		{
+			$this->landingCode = Access::getHelperCode(Access::ACTION_INSTALL, Access::ENTITY_TYPE_AP_CONNECT);
 		}
 
 		$request = Context::getCurrent()->getRequest();
@@ -103,50 +114,60 @@ class CAPConnectComponent extends CBitrixComponent
 			$this->clientAccess = static::$presetPermission[$request['preset']];
 		}
 
-		if($request->isPost() && check_bitrix_sessid() && !empty($_SESSION[static::SESSION_KEY][$this->arParams['CLIENT_ID']]))
+		if ($request->isPost() && check_bitrix_sessid() && !empty($_SESSION[static::SESSION_KEY][$this->arParams['CLIENT_ID']]))
 		{
-			$clientInfo = $_SESSION[static::SESSION_KEY][$this->arParams['CLIENT_ID']];
-
-			$password = PasswordTable::createPassword($this->arParams['USER_ID'], $this->clientAccess, $clientInfo['TITLE']);
-			if($password != false)
+			if ($this->isRestAvailable)
 			{
-				$connection = $this->getConnectionData($password);
+				$clientInfo = $_SESSION[static::SESSION_KEY][$this->arParams['CLIENT_ID']];
 
-				$client = \CBitrix24NetPortalTransport::init();
-				$result = $client->call(
-					'client.authorize',
-					array(
-						'CLIENT_ID' => $clientInfo['CLIENT_ID'],
-						'CONNECTION' => $connection,
-					)
-				);
-
-				if(!$result['result'])
+				$password = PasswordTable::createPassword($this->arParams['USER_ID'], $this->clientAccess, $clientInfo['TITLE']);
+				if ($password != false)
 				{
-					if($result['error'])
+					$connection = $this->getConnectionData($password);
+
+					$client = \CBitrix24NetPortalTransport::init();
+					$result = $client->call(
+						'client.authorize',
+						array(
+							'CLIENT_ID' => $clientInfo['CLIENT_ID'],
+							'CONNECTION' => $connection,
+						)
+					);
+
+					if (!$result['result'])
 					{
-						throw new SystemException($result['error'].': '.$result['error_description']);
+						if ($result['error'])
+						{
+							throw new SystemException($result['error'].': '.$result['error_description']);
+						}
+						else
+						{
+							throw new SystemException(Loc::getMessage('APC_PASSWORD_NOT_REGISTERD'));
+						}
 					}
-					else
-					{
-						throw new SystemException(Loc::getMessage('APC_PASSWORD_NOT_REGISTERD'));
-					}
+
+					$url = $clientInfo['REDIRECT_URI'];
+
+					$url .= (mb_strpos($url, '?') !== false ? '&' : '?')
+						. http_build_query(
+							[
+								'apcode' => $result['result']['apcode'],
+								'state' => $this->arParams['CLIENT_STATE'],
+							]
+						);
+
+					unset($_SESSION[static::SESSION_KEY]);
+
+					LocalRedirect($url, true);
 				}
-
-				$url = $clientInfo['REDIRECT_URI'];
-
-				$url .= (mb_strpos($url, '?') !== false ? '&' : '?').http_build_query(array(
-					'apcode' => $result['result']['apcode'],
-					'state' => $this->arParams['CLIENT_STATE'],
-				));
-
-				unset($_SESSION[static::SESSION_KEY]);
-
-				LocalRedirect($url, true);
+				else
+				{
+					$this->errors[] = new Error(Loc::getMessage('APC_PASSWORD_NOT_CREATED'));
+				}
 			}
 			else
 			{
-				$this->errors[] = new Error(Loc::getMessage('APC_PASSWORD_NOT_CREATED'));
+				$this->errors[] = new Error(Loc::getMessage('APC_ERROR_REST_AVAILABLE'));
 			}
 		}
 
@@ -230,9 +251,12 @@ class CAPConnectComponent extends CBitrixComponent
 		$this->arResult['CLIENT_INFO'] = $this->clientInfo;
 		$this->arResult['ERRORS'] = $this->errors;
 
-		$this->arResult['AP_MANAGE_URL'] = static::PATH_AP_MANAGE;
+		$urlDevOps = DevOps::getInstance();
+		$this->arResult['AP_MANAGE_URL'] = $urlDevOps->getListUrl();
 
 		$this->arResult['CLIENT_ACCESS'] = $this->clientAccess;
+		$this->arResult['IS_REST_AVAILABLE'] = $this->isRestAvailable;
+		$this->arResult['LANDING_CODE'] = $this->landingCode;
 	}
 
 	/**

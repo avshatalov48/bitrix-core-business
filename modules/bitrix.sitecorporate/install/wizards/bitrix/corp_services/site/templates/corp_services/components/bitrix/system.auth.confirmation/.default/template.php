@@ -33,7 +33,7 @@
 	<form method="post" action="<?echo $arResult["FORM_ACTION"]?>">
 		<div class="field">
 			<label class="field-title"><?echo GetMessage("CT_BSAC_LOGIN")?></label>
-			<div class="form-input"><input type="text" name="<?echo $arParams["LOGIN"]?>" maxlength="50" value="<?echo (strlen($arResult["LOGIN"]) > 0? $arResult["LOGIN"]: $arResult["USER"]["LOGIN"])?>" size="17" /></div>
+			<div class="form-input"><input type="text" name="<?echo $arParams["LOGIN"]?>" maxlength="50" value="<?echo ($arResult["LOGIN"] <> ''? $arResult["LOGIN"]: $arResult["USER"]["LOGIN"])?>" size="17" /></div>
 		</div>
 		<div class="field">
 			<label class="field-title"><?echo GetMessage("CT_BSAC_CONFIRM_CODE")?></label>

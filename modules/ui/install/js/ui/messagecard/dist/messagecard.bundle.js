@@ -2,35 +2,7 @@ this.BX = this.BX || {};
 (function (exports,main_core,main_core_events) {
 	'use strict';
 
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-card-body\"></div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-card-header\"></div>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-card\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3;
 	var BaseCard = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(BaseCard, _EventEmitter);
 
@@ -75,21 +47,21 @@ this.BX = this.BX || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('layout', function () {
-	        return main_core.Tag.render(_templateObject(), _this2.getHeader(), _this2.getBody());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-card\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this2.getHeader(), _this2.getBody());
 	      });
 	    }
 	  }, {
 	    key: "getHeader",
 	    value: function getHeader() {
 	      return this.cache.remember('header', function () {
-	        return main_core.Tag.render(_templateObject2());
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-card-header\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
 	    key: "getBody",
 	    value: function getBody() {
 	      return this.cache.remember('body', function () {
-	        return main_core.Tag.render(_templateObject3());
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-card-body\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
@@ -132,55 +104,7 @@ this.BX = this.BX || {};
 	  return BaseCard;
 	}(main_core_events.EventEmitter);
 
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-card-message-actions\"></div>\n\t\t\t"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-card-message-close-button\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></div>\n\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-card-message-description\">", "</div>\n\t\t\t"]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-card-message-title\">", "</div>\n\t\t\t"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-card-message-icon\" style=\"background-image: url(", ")\"></div>\n\t\t\t"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4, _templateObject5;
 	var MessageCard = /*#__PURE__*/function (_BaseCard) {
 	  babelHelpers.inherits(MessageCard, _BaseCard);
 
@@ -241,7 +165,7 @@ this.BX = this.BX || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('icon', function () {
-	        return main_core.Tag.render(_templateObject$1(), _this2.options.icon);
+	        return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-card-message-icon\" style=\"background-image: url(", ")\"></div>\n\t\t\t"])), _this2.options.icon);
 	      });
 	    }
 	  }, {
@@ -250,7 +174,7 @@ this.BX = this.BX || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('title', function () {
-	        return main_core.Tag.render(_templateObject2$1(), _this3.options.header);
+	        return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-card-message-title\">", "</div>\n\t\t\t"])), _this3.options.header);
 	      });
 	    }
 	  }, {
@@ -259,7 +183,7 @@ this.BX = this.BX || {};
 	      var _this4 = this;
 
 	      return this.cache.remember('description', function () {
-	        return main_core.Tag.render(_templateObject3$1(), _this4.options.description);
+	        return main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-card-message-description\">", "</div>\n\t\t\t"])), _this4.options.description);
 	      });
 	    }
 	  }, {
@@ -268,7 +192,7 @@ this.BX = this.BX || {};
 	      var _this5 = this;
 
 	      return this.cache.remember('closeButton', function () {
-	        return main_core.Tag.render(_templateObject4(), _this5.onCloseClick);
+	        return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-card-message-close-button\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></div>\n\t\t\t"])), _this5.onCloseClick);
 	      });
 	    }
 	  }, {
@@ -287,7 +211,7 @@ this.BX = this.BX || {};
 	      var _this6 = this;
 
 	      return this.cache.remember('actionsContainer', function () {
-	        var actionWrapper = main_core.Tag.render(_templateObject5());
+	        var actionWrapper = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-card-message-actions\"></div>\n\t\t\t"])));
 
 	        _this6.options.actionElements.forEach(function (element) {
 	          actionWrapper.appendChild(element);

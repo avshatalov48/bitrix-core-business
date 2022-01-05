@@ -15,6 +15,7 @@ export class GoogleProvider extends ConnectionProvider
 			interfaceClassName: '',
 			viewClassification: 'web',
 			templateClass: 'BX.Calendar.Sync.Interface.GoogleTemplate',
+			mainPanel: options.mainPanel
 		});
 		this.syncTimestamp = options.syncInfo.syncTimestamp;
 		this.connectionName = options.syncInfo.userName

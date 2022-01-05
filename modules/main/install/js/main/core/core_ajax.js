@@ -676,11 +676,13 @@ BX.ajax.promise = function(config)
 	{
 		result.fulfill(data);
 	};
-	config.onfailure = function(reason, data)
+	config.onfailure = function(reason, httpStatus, config)
 	{
 		result.reject({
 			reason: reason,
-			data: data
+			data: httpStatus,
+			ajaxConfig: config,
+			xhr: config.xhr
 		});
 	};
 
@@ -941,6 +943,18 @@ var buildAjaxPromiseToRestoreCsrf = function(config, withoutRestoringCsrf)
 		return response;
 	}).catch(function(data) {
 		var ajaxReject = new BX.Promise();
+
+		var originalJsonResponse;
+		if (BX.type.isPlainObject(data) && data.xhr && data.xhr.responseText)
+		{
+			try
+			{
+				originalJsonResponse = JSON.parse(data.xhr.responseText);
+				data = originalJsonResponse;
+			}
+			catch (err)
+			{}
+		}
 
 		if (BX.type.isPlainObject(data) && data.status && data.hasOwnProperty('data'))
 		{

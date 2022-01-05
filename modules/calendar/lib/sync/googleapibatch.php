@@ -2,337 +2,71 @@
 
 namespace Bitrix\Calendar\Sync;
 
+use Bitrix\Calendar\Sync\Google\Dictionary;
+use Bitrix\Calendar\Util;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Type;
 use Bitrix\Calendar\Internals;
+use Bitrix\Main\Web\HttpClient;
 use CCalendarEvent;
 
 class GoogleApiBatch
 {
-	const SIZE = 50;
-	const FINISH = true;
-	const NEXT = false;
-
-	private $sectionId,
-			$dateSync;
-
-	private $userId = 0,
-		$gApiCalendarId = '';
+	protected const FINISH = true;
+	protected const NEXT = false;
 
 	/**
-	 * GoogleApiBatch constructor.
-	 * @param $sectionId
+	 * @return GoogleApiBatch
 	 */
-	public function __construct($sectionId)
+	public static function createInstance(): GoogleApiBatch
 	{
-		$this->sectionId = $sectionId;
-		$this->dateSync = $this->getDateSync();
+		return new self();
 	}
 
 	/**
-	 * @return bool
+	 * @throws \Bitrix\Main\ObjectException
 	 */
-	public function syncStepLocalEvents()
+	public function __construct()
 	{
-		if (empty($this->sectionId))
-		{
-			return self::FINISH;
-		}
-
-		$section = $this->getSectionById($this->sectionId);
-
-		if (!empty($section))
-		{
-			$this->gApiCalendarId = $section['GAPI_CALENDAR_ID'];
-			$this->userId = $section['OWNER_ID'];
-			$events = $this->getEvents();
-
-			if (!empty($events))
-			{
-				$res = $this->syncEvents($events);
-			}
-			else
-			{
-				$res = $this->syncInstances();
-			}
-		}
-		else
-		{
-			AddMessage2Log('Can\'t find section: '.$this->sectionId, 'calendar');
-			$res = self::FINISH;
-		}
-
-		return $res;
 	}
 
-	/**
-	 * @param $events
-	 * @return bool
-	 */
-	private function syncEvents($events)
+	public function syncLocalEvents(array $events, int $userId, string $gApiCalendarId): array
 	{
-		$params['method'] = 'POST';
-		foreach ($events as &$event)
-		{
-			if (!empty($event['RRULE']) && !empty($event['EXDATE']))
-			{
-				$baseExdate[$event['ID']]['EXDATE'] = $event['EXDATE'];
-				$event['EXDATE'] = $this->getExDate($event);
-			}
-		}
+		return $this->syncEvents($events, $userId, $gApiCalendarId);
+	}
 
-		unset($event);
 
-		$googleApiConnection = new GoogleApiSync($this->userId);
-		$externalFields = $googleApiConnection->saveBatchEvents($events, $this->gApiCalendarId, $params);
-
-		if (!empty($externalFields))
-		{
-			foreach ($events as $event)
-			{
-				$resultEvents[] = array_merge($event, $externalFields[$event['ID']], $baseExdate[$event['ID']]);
-			}
-		}
-		else
-		{
-			AddMessage2Log('Failed to sync events of section: '.$this->sectionId, 'calendar');
-		}
-
-		$this->saveEvents($resultEvents);
-
-		return self::NEXT;
+	private function syncEvents($events, $userId, $gApiCalendarId): array
+	{
+		return $this->mergeLocalEventWithExternalData(
+			$events, $this->getEventsExternalFields($userId, $events, $gApiCalendarId));
 	}
 
 	/**
 	 * @return bool
 	 * @throws \Bitrix\Main\ObjectException
 	 */
-	private function syncInstances()
+	public function syncLocalInstances(array $instances, int $userId, string $gApiCalendarId): array
 	{
-		$batch = [];
-		$resultEvents =[];
-		$params['method'] = 'PUT';
-		$instances = $this->getInstances();
-		$size = count($instances);
-
-		if (!empty($instances) && $size > 0)
-		{
-			foreach ($instances as $instance)
-			{
-				$recurrenceIds[] = $instance['RECURRENCE_ID'];
-			}
-
-			$eventIds = array_unique($recurrenceIds);
-			$events = $this->getEventsById($eventIds);
-
-			foreach ($events as $event)
-			{
-				$instanceData[$event['ID']]['originalTz'] = $event['TZ_FROM'];
-				$instanceData[$event['ID']]['dateFrom'] = $event['DATE_FROM'];
-				$instanceData[$event['ID']]['DAV_XML_ID'] = $event['G_EVENT_ID'];
-			}
-
-			foreach ($instances as $instance)
-			{
-				$currentInstance = $instance;
-				$instanceDate = \CCalendar::GetOriginalDate($instanceData[$instance['RECURRENCE_ID']]['dateFrom'], $instance['DATE_FROM'], $instanceData[$instance['RECURRENCE_ID']]['originalTz']);
-				$instanceOriginalTz = $this->prepareTimezone($instanceData[$instance['RECURRENCE_ID']]['originalTz']);
-				$eventOriginalStart = new Type\DateTime($instanceDate, Type\Date::convertFormatToPhp(FORMAT_DATETIME), $instanceOriginalTz);
-				$currentInstance['ORIGINAL_DATE_FROM'] = $eventOriginalStart;
-				$currentInstance['DAV_XML_ID'] = $instanceData[$instance['RECURRENCE_ID']]['DAV_XML_ID'];
-				$utcTz = $this->prepareTimezone();
-				$suffixIdInstance = $eventOriginalStart->setTimeZone($utcTz)->format('Ymd\THis\Z');
-				$currentInstance['gEventId'] = $instanceData[$instance['RECURRENCE_ID']]['DAV_XML_ID'].'_'.$suffixIdInstance;
-				$batch[] = $currentInstance;
-			}
-
-			$googleApiConnection = new GoogleApiSync($this->userId);
-			$externalFields = $googleApiConnection->saveBatchEvents($batch, $this->gApiCalendarId, $params);
-
-			if (!empty($externalFields))
-			{
-				foreach ($instances as $instance)
-				{
-					$resultEvents[] = array_merge($instance, $externalFields[$instance['ID']]);
-				}
-
-				$this->saveEvents($resultEvents);
-			}
-			else
-			{
-				AddMessage2Log('Failed to sync instances of section: '.$this->sectionId, 'calendar');
-			}
-
-			if ($size < self::SIZE)
-			{
-				$res = self::FINISH;
-			}
-			else
-			{
-				$res = self::NEXT;
-			}
-		}
-		else
-		{
-			$res = self::FINISH;
-		}
-
-		return $res;
+		return $this->mergeLocalEventWithExternalData(
+			$instances,
+			$this->getInstancesExternalFields($userId, $instances, $gApiCalendarId)
+		);
 	}
 
 	/**
-	 * @return int
-	 * @throws \Bitrix\Main\ObjectException
-	 */
-	private function getDateSync()
-	{
-		$now = new Type\Date();
-		return $now->add('-2 months')->getTimestamp();
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getEvents()
-	{
-		$parameters = [
-				'filter' => [
-					'=RECURRENCE_ID' => null,
-					'=CAL_TYPE' => 'user',
-					'=OWNER_ID' => $this->userId,
-					'=DELETED' => 'N',
-					'>=DATE_TO_TS_UTC' => $this->dateSync,
-					'=SECTION_ID' => $this->sectionId,
-					'=G_EVENT_ID' => null,
-				],
-				'order' => [
-					'ID',
-				],
-				'limit' => self::SIZE,
-		];
-
-		return $this->getDbEvents($parameters);
-	}
-
-	/**
-	 * @return array
-	 */
-	private function getInstances()
-	{
-		$parameters = [
-			'filter' => [
-				'!=RECURRENCE_ID' => null,
-				'=CAL_TYPE' => 'user',
-				'=OWNER_ID' => $this->userId,
-				'=DELETED' => 'N',
-				'>=DATE_TO_TS_UTC' => $this->dateSync,
-				'=SECTION_ID' => $this->sectionId,
-				'=G_EVENT_ID' => null,
-			],
-			'order' => [
-				'ID',
-			],
-			'limit' => self::SIZE,
-		];
-
-		return $this->getDbEvents($parameters);
-	}
-
-	/**
-	 * @param $parameters
-	 * @return array
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
-	private function getDbEvents($parameters)
-	{
-		$result = [];
-		$events = Internals\EventTable::getList($parameters)->fetchAll();
-
-		foreach ($events as $event)
-		{
-			$result[] = $this->updateEventFields($event);
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @param $events
-	 * @return bool
-	 */
-	private function saveEvents($events)
-	{
-		foreach ($events as $event)
-		{
-			$this->prepareEvent($event);
-			\CCalendarEvent::Edit([
-				'arFields' => $event,
-				'currentEvent' => $event,
-			]);
-		}
-
-		return true;
-	}
-
-	/**
-	 * @param $eventIds
-	 * @return array
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
-	public function getEventsById($eventIds)
-	{
-		$parameters = [
-			'filter' => [
-				'=ID' => $eventIds,
-			],
-		];
-
-		return $this->getDbEvents($parameters);
-	}
-
-	/**
-	 * @param bool $timeZone
-	 * @return \DateTimeZone
-	 */
-	private function prepareTimezone ($timeZone = false)
-	{
-		return !empty($timeZone) && $timeZone !== false ? new \DateTimeZone($timeZone) : new \DateTimeZone("UTC");
-	}
-
-	/**
-	 * @param $sectionId
-	 * @return array|false
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
-	private function getSectionById($sectionId)
-	{
-		return Internals\SectionTable::getById($sectionId)->fetch();
-	}
-
-	/**
-	 * @param $event
+	 * @param int $eventId
+	 * @param string $exDates
 	 * @return string
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	private function getExDate($event)
+	private function calculateExDate(int $eventId, string $exDates): string
 	{
-		$excludeDates = [];
-		$instances = $this->getInstanceByRecurrenceId($event['ID']);
-
-		foreach ($instances as $instance)
-		{
-			$excludeDates[] = \CCalendar::Date(\CCalendar::Timestamp($instance['DATE_FROM']), false);
-		}
-
-		$eventExDate = explode(';', $event['EXDATE']);
-		$result = array_diff($eventExDate, $excludeDates);
-
-		return implode(';', $result);
+		return implode(';', array_diff(
+			explode(';', $exDates), $this->getExDatesByInstances($eventId)
+		));
 	}
 
 	/**
@@ -342,19 +76,14 @@ class GoogleApiBatch
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	private function getInstanceByRecurrenceId($eventId)
+	private function getInstanceByRecurrenceId(int $eventId): array
 	{
+		$instancesDb = Internals\EventTable::getList([
+			'filter' => Query::filter()->where('RECURRENCE_ID', $eventId),
+		]);
+
 		$instances =[];
-		$filter = Query::filter()
-			->where('RECURRENCE_ID', $eventId);
-
-		$instancesList = Internals\EventTable::getList(
-			array(
-				'filter' => $filter,
-			)
-		);
-
-		while ($instance = $instancesList->fetch())
+		while ($instance = $instancesDb->fetch())
 		{
 			$instances[] = $instance;
 		}
@@ -362,28 +91,121 @@ class GoogleApiBatch
 		return $instances;
 	}
 
+
 	/**
-	 * @param $event
+	 * @param array $events
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	private function prepareEvent(&$event)
+	private function preparedEventToBatch(array $events): array
 	{
-		$event['RRULE'] = CCalendarEvent::ParseRRULE($event['RRULE']);
+		return $events;
 	}
 
 	/**
-	 * @param $event
-	 * @return mixed
+	 * @param $originalEventId
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	private function getExDatesByInstances(int $originalEventId): array
+	{
+		$instances = $this->getInstanceByRecurrenceId($originalEventId);
+
+		$excludeDates = [];
+		foreach ($instances as $instance)
+		{
+			$excludeDates[] = \CCalendar::Date(\CCalendar::Timestamp($instance['DATE_FROM']), false);
+		}
+
+		return $excludeDates;
+	}
+
+	/**
+	 * @param array $instances
+	 * @return array
 	 * @throws \Bitrix\Main\ObjectException
 	 */
-	private function updateEventFields($event)
+	private function prepareInstanceToBatch(array $instances): array
 	{
-		\CTimeZone::Disable();
-		$tzFrom = $this->prepareTimezone($event['TZ_FROM']);
-		$event['DATE_FROM'] = (new Type\DateTime($event['DATE_FROM'], Type\Date::convertFormatToPhp(FORMAT_DATETIME), $tzFrom))->toString();
-		$tzTo = $this->prepareTimezone($event['TZ_TO']);
-		$event['DATE_TO'] = (new Type\DateTime($event['DATE_TO'], Type\Date::convertFormatToPhp(FORMAT_DATETIME), $tzTo))->toString();
-		$event['ORIGINAL_DATE_FROM'] = (new Type\DateTime($event['ORIGINAL_DATE_FROM'], Type\Date::convertFormatToPhp(FORMAT_DATETIME), $tzFrom))->toString();
-		\CTimeZone::Enable();
-		return $event;
+		$batch = [];
+		foreach ($instances as $instance)
+		{
+			$currentInstance = $instance;
+			$instanceDate = \CCalendar::GetOriginalDate(
+					$instance['PARENT_DATE_FROM'],
+					$instance['DATE_FROM'],
+					$instance['PARENT_TZ_FROM']
+				);
+			/** @var Type\DateTime $eventOriginalStart */
+			$eventOriginalStart = Util::getDateObject($instanceDate, false, $instance['PARENT_TZ_FROM']);
+			$currentInstance['ORIGINAL_DATE_FROM'] =
+				$eventOriginalStart->format(Type\Date::convertFormatToPhp(FORMAT_DATETIME));
+			$currentInstance['DAV_XML_ID'] = $instance['PARENT_DAV_XML_ID'];
+			$currentInstance['gEventId'] = $instance['PARENT_G_EVENT_ID'] . '_'
+				. $eventOriginalStart->setTimeZone(Util::prepareTimezone())->format('Ymd\THis\Z');
+			$batch[] = $currentInstance;
+		}
+
+		return $batch;
+	}
+
+	/**
+	 * @param array $events
+	 * @param array $externalFields
+	 * @return array
+	 */
+	private function mergeLocalEventWithExternalData(array $events, array $externalFields): array
+	{
+		$resultEvents = [];
+
+		foreach ($events as $event)
+		{
+			if (isset($externalFields[$event['ID']]))
+			{
+				$event['SYNC_STATUS'] = Dictionary::SYNC_STATUS['success'];
+				$resultEvents[] = array_merge($event, $externalFields[$event['ID']]);
+			}
+			else
+			{
+				\CCalendarEvent::updateSyncStatus($event['ID'], Dictionary::SYNC_STATUS['undefined']);
+			}
+		}
+
+		return $resultEvents;
+	}
+
+	/**
+	 * @param int $userId
+	 * @param array $instances
+	 * @param string $gApiCalendarId
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectException
+	 */
+	private function getInstancesExternalFields(int $userId, array $instances, string $gApiCalendarId): array
+	{
+		return (new GoogleApiSync($userId))
+			->saveBatchEvents($this->prepareInstanceToBatch($instances), $gApiCalendarId, ['method' => HttpClient::HTTP_PUT])
+		;
+	}
+
+	/**
+	 * @param int $userId
+	 * @param array $events
+	 * @param string $gApiCalendarId
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	private function getEventsExternalFields(int $userId, array $events, string $gApiCalendarId): array
+	{
+		return (new GoogleApiSync($userId))
+			->saveBatchEvents($this->preparedEventToBatch($events), $gApiCalendarId, ['method' => HttpClient::HTTP_POST])
+		;
 	}
 }

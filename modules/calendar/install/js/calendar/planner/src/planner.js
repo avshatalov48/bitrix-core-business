@@ -1,5 +1,5 @@
 // @flow
-import {Runtime, Type, Event, Loc, Dom, Tag, Text} from 'main.core';
+import {Runtime, Type, Event, Loc, Dom, Tag, Text, Browser} from 'main.core';
 import {Util} from 'calendar.util';
 import {EventEmitter, BaseEvent} from 'main.core.events';
 import {Selector} from './selector.js';
@@ -55,34 +55,8 @@ export class Planner extends EventEmitter
 		this.DOM.wrap = params.wrap;
 		this.SCALE_TIME_FORMAT = BX.isAmPmMode() ? 'g a' : 'G';
 
+		this.expandTimelineDebounce = Runtime.debounce(this.expandTimeline, this.EXPAND_DELAY, this);
 		this.setConfig(params);
-		// this.SetLoadedDataLimits(this.scaleDateFrom, this.scaleDateTo);
-
-		// BX.addCustomEvent('OnCalendarPlannerDoUpdate', BX.proxy(this.DoUpdate, this));
-		// BX.addCustomEvent('OnCalendarPlannerDoExpand', BX.proxy(this.DoExpand, this));
-		// BX.addCustomEvent('OnCalendarPlannerDoResize', BX.proxy(this.DoResize, this));
-		// BX.addCustomEvent('OnCalendarPlannerDoSetConfig', BX.proxy(this.DoSetConfig, this));
-		// BX.addCustomEvent('OnCalendarPlannerDoUninstall', BX.proxy(this.DoUninstall, this));
-
-		//BX.addCustomEvent('OnCalendarPlannerDoProposeTime', BX.proxy(this.DoProposeTime, this));
-		// if (initialUpdateParams)
-		// {
-		// 	initialUpdateParams.plannerId = this.id;
-		// 	if (initialUpdateParams.selector)
-		// 	{
-		// 		if (initialUpdateParams.selector.from && !initialUpdateParams.selector.from.getTime)
-		// 		{
-		// 			initialUpdateParams.selector.from = Util.parseDate(initialUpdateParams.selector.from);
-		// 		}
-		// 		if (initialUpdateParams.selector.to && !initialUpdateParams.selector.to.getTime)
-		// 		{
-		// 			initialUpdateParams.selector.to = Util.parseDate(initialUpdateParams.selector.to);
-		// 		}
-		// 	}
-		// 	this.useAnimation = false;
-		// 	this.DoUpdate(initialUpdateParams);
-		// 	setTimeout(BX.delegate(function(){this.useAnimation = true;}, this), 2000);
-		// }
 	}
 
 	show(options = {animation: false})
@@ -1108,18 +1082,17 @@ export class Planner extends EventEmitter
 	bindEventHandlers()
 	{
 		Event.bind(this.DOM.wrap, 'click', this.handleClick.bind(this));
-		Event.bind(this.DOM.wrap, 'mousedown', BX.proxy(this.handleMousedown, this));
-		Event.bind(document, "mousemove", BX.proxy(this.handleMousemove, this));
-		Event.bind(document, "mouseup", BX.proxy(this.handleMouseup, this));
+		Event.bind(this.DOM.wrap, 'mousedown', this.handleMousedown.bind(this));
+		Event.bind(document, 'mousemove', this.handleMousemove.bind(this));
+		Event.bind(document, 'mouseup', this.handleMouseup.bind(this));
 
-		if ('onwheel' in document)
-		{
-			Event.bind(this.DOM.timelineFixedWrap, "wheel", this.mouseWheelTimelineHandler.bind(this));
-		}
-		else
-		{
-			Event.bind(this.DOM.timelineFixedWrap, "mousewheel", this.mouseWheelTimelineHandler.bind(this));
-		}
+
+			Event.bind(
+				this.DOM.timelineFixedWrap,
+				'onwheel' in document ? 'wheel' : 'mousewheel',
+				this.mouseWheelTimelineHandler.bind(this)
+			);
+
 	}
 
 	handleClick(e)
@@ -1268,34 +1241,52 @@ export class Planner extends EventEmitter
 		e = e || window.event;
 		if (this.shown && !this.readonly)
 		{
-			let delta = e.deltaY || e.detail || e.wheelDelta;
-			if (Math.abs(delta) > 0)
+			if (Browser.isMac())
 			{
-				let newScroll = this.DOM.timelineFixedWrap.scrollLeft + Math.round(delta / 3);
-				this.DOM.timelineFixedWrap.scrollLeft = Math.max(newScroll, 0);
 				this.checkTimelineScroll();
-				return BX.PreventDefault(e);
+			}
+			else
+			{
+				const delta = e.deltaY || e.detail || e.wheelDelta;
+				if (Math.abs(delta) > 0)
+				{
+					this.DOM.timelineFixedWrap.scrollLeft = Math.max(
+						this.DOM.timelineFixedWrap.scrollLeft + Math.round(delta / 3),
+						0
+					);
+					this.checkTimelineScroll();
+					return BX.PreventDefault(e);
+				}
 			}
 		}
 	}
 
-
 	checkTimelineScroll()
 	{
-		let
-			minScroll = this.scrollStep,
-			maxScroll = this.DOM.timelineFixedWrap.scrollWidth - this.DOM.timelineFixedWrap.offsetWidth - this.scrollStep;
+		const minScroll = this.scrollStep;
+		const maxScroll = this.DOM.timelineFixedWrap.scrollWidth
+							- this.DOM.timelineFixedWrap.offsetWidth
+							- this.scrollStep;
 
 		// Check and expand only if it is visible
 		if (this.DOM.timelineFixedWrap.offsetWidth > 0)
 		{
 			if (this.DOM.timelineFixedWrap.scrollLeft <= minScroll)
 			{
-				Runtime.debounce(()=>{this.expandTimeline('left')}, this.EXPAND_DELAY)();
+				this.expandTimelineDirection = 'past';
 			}
 			else if (this.DOM.timelineFixedWrap.scrollLeft >= maxScroll)
 			{
-				Runtime.debounce(()=>{this.expandTimeline('right')}, this.EXPAND_DELAY)();
+				this.expandTimelineDirection = 'future';
+			}
+
+			if (this.expandTimelineDirection)
+			{
+				if (!this.isLoaderShown())
+				{
+					this.showLoader();
+				}
+				this.expandTimelineDebounce();
 			}
 		}
 	}
@@ -1603,31 +1594,7 @@ export class Planner extends EventEmitter
 		}
 	}
 
-	// ExpandFromCompactMode()
-	// {
-	// 	this.readonly = false;
-	// 	this.compactMode = false;
-	// 	this.showTimelineDayTitle = true;
-	// 	Dom.removeClass(this.DOM.mainWrap, 'calendar-planner-readonly');
-	// 	Dom.removeClass(this.DOM.mainWrap, 'calendar-planner-compact');
-	// 	this.DOM.entriesOuterWrap.style.display = '';
-	//
-	// 	if (this.scaleDateFrom && this.scaleDateFrom.getTime)
-	// 	{
-	// 		this.scaleDateFrom = new Date(this.scaleDateFrom.getTime() - Util.getDayLength() * this.SCALE_OFFSET_BEFORE /* days before */);
-	// 	}
-	//
-	// 	if (this.scaleDateTo && this.scaleDateTo.getTime)
-	// 	{
-	// 		this.scaleDateTo = new Date(this.scaleDateTo.getTime() + Util.getDayLength() * this.SCALE_OFFSET_AFTER /* days after */);
-	// 	}
-	//
-	// 	this.rebuild();
-	//
-	// 	this.FocusSelector(false, 300);
-	// }
-
-	expandTimeline(direction, scaleDateFrom, scaleDateTo)
+	expandTimeline(scaleDateFrom, scaleDateTo)
 	{
 		let loadedTimelineSize;
 		let scrollLeft;
@@ -1639,7 +1606,7 @@ export class Planner extends EventEmitter
 		if (!scaleDateTo)
 			scaleDateTo = this.scaleDateTo;
 
-		if (direction === 'left')
+		if (this.expandTimelineDirection === 'past')
 		{
 			let oldScaleDateFrom = new Date(this.scaleDateFrom.getTime());
 			this.scaleDateFrom = new Date(scaleDateFrom.getTime() - Util.getDayLength()  * this.EXPAND_OFFSET);
@@ -1654,7 +1621,7 @@ export class Planner extends EventEmitter
 			}
 			scrollLeft = this.getPosByDate(oldScaleDateFrom);
 		}
-		else if (direction === 'right')
+		else if (this.expandTimelineDirection === 'future')
 		{
 			let oldDateTo = this.scaleDateTo;
 			scrollLeft = this.DOM.timelineFixedWrap.scrollLeft;
@@ -1684,6 +1651,7 @@ export class Planner extends EventEmitter
 		const reloadData = this.scaleDateFrom.getTime() < prevScaleDateFrom.getTime()
 		|| this.scaleDateTo.getTime() > prevScaleDateTo.getTime();
 
+		this.hideLoader();
 		this.emit('onExpandTimeline', new BaseEvent({
 			data: {
 				reload: reloadData,
@@ -1691,12 +1659,16 @@ export class Planner extends EventEmitter
 				dateTo: this.scaleDateTo
 			} }));
 
-		this.rebuildDebounce();
+		this.rebuild({
+			updateSelector: false
+		});
 
 		if (scrollLeft !== undefined)
 		{
 			this.DOM.timelineFixedWrap.scrollLeft = scrollLeft;
 		}
+
+		this.expandTimelineDirection = null;
 	}
 
 	update(entries = [], accessibility = {})
@@ -1808,6 +1780,11 @@ export class Planner extends EventEmitter
 			{
 				this.entriesListTitleCounter.innerHTML = usersCount > this.MAX_ENTRY_ROWS ? '(' + usersCount + ')' : '';
 			}
+			this.emit('onDisplayAttendees', new BaseEvent({
+				data:  {
+					usersCount: usersCount
+				}
+			}));
 
 			if (cutAmount > 0)
 			{
@@ -1898,16 +1875,21 @@ export class Planner extends EventEmitter
 				||
 				from.getTime() < this.scaleDateFrom.getTime())
 			{
-				this.expandTimeline(false, from, to);
+				this.expandTimelineDirection = false;
+				this.expandTimeline(from, to);
 			}
 
 			this.selector.update({
 				from: from,
 				to: to,
-				fullDay: fullDay
+				fullDay: fullDay,
+				focus: options.focus !== false
 			});
 
-			this.selector.focus(false, 300);
+			if (options.focus !== false)
+			{
+				this.selector.focus(false, 300);
+			}
 		}
 	}
 
@@ -2367,8 +2349,9 @@ export class Planner extends EventEmitter
 	showLoader()
 	{
 		this.hideLoader();
-		this.DOM.loader = this.DOM.mainWrap.appendChild(Util.getLoader(50));
+		this.DOM.loader = this.DOM.mainWrap.appendChild(Util.getLoader(40));
 		Dom.addClass(this.DOM.loader, 'calendar-planner-main-loader');
+		this.loaderShown = true;
 	}
 
 	hideLoader()
@@ -2377,6 +2360,12 @@ export class Planner extends EventEmitter
 		{
 			Dom.remove(this.DOM.loader);
 		}
+		this.loaderShown = false;
+	}
+
+	isLoaderShown()
+	{
+		return this.loaderShown;
 	}
 
 	isShown()

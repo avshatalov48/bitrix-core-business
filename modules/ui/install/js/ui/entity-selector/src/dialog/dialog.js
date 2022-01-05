@@ -1414,6 +1414,7 @@ export default class Dialog extends EventEmitter
 				forceBindPosition: true
 			},
 			autoHide: this.isAutoHide(),
+			autoHideHandler: this.handleAutoHide.bind(this),
 			closeByEsc: this.shouldHideByEsc(),
 			cacheable: this.isCacheable(),
 			events: {
@@ -1916,6 +1917,30 @@ export default class Dialog extends EventEmitter
 		});
 
 		this.observeTabOverlapping();
+	}
+
+	/**
+	 * @private
+	 */
+	handleAutoHide(event: MouseEvent): void
+	{
+		const target = event.target;
+		const el = this.getPopup().getPopupContainer();
+		if (target === el || el.contains(target))
+		{
+			return false;
+		}
+
+		if (
+			this.isTagSelectorOutside()
+			&& target === this.getTagSelector().getTextBox()
+			&& Type.isStringFilled(this.getTagSelector().getTextBoxValue())
+		)
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

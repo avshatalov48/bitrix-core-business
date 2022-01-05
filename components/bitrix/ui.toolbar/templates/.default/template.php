@@ -21,6 +21,8 @@ $filter = Toolbar::getFilter();
 $afterTitleButtons = Toolbar::renderAfterTitleButtons();
 $rightButtons = Toolbar::renderRightButtons();
 $filterButtons = Toolbar::renderAfterFilterButtons();
+$afterTitleHtml = Toolbar::getAfterTitleHtml();
+$rightCustomHtml = Toolbar::getRightCustomHtml();
 
 $favoriteTitleTemplate = (!empty($arParams['~FAVORITES_TITLE_TEMPLATE']) ? $arParams['~FAVORITES_TITLE_TEMPLATE'] : '');
 if (mb_strlen($favoriteTitleTemplate) <= 0)
@@ -74,6 +76,10 @@ $titleStyles = !empty($titleProps) ? ' style="'.$titleProps.'"' : "";
 		<div class="ui-toolbar-after-title-buttons"><?= $afterTitleButtons ?></div><?php
 	endif;
 
+	if (!empty($afterTitleHtml)):
+		?><div class="ui-toolbar-after-title"><?=$afterTitleHtml?></div><?
+	endif;
+
 	if($filter <> ''):
 		?>
 		<div class="ui-toolbar-filter-box"><?= $filter ?><?php
@@ -87,6 +93,10 @@ $titleStyles = !empty($titleProps) ? ' style="'.$titleProps.'"' : "";
 	if($rightButtons <> ''):
 		?>
 		<div class="ui-toolbar-right-buttons"><?= $rightButtons ?></div><?php
+	endif;
+
+	if (!empty($rightCustomHtml)):
+		?><div class="ui-toolbar-after-title"><?=$rightCustomHtml?></div><?
 	endif;
 ?></div>
 

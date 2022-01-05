@@ -14,7 +14,7 @@ class ResponseVkontakte extends Response
 
 	public function parse($data)
 	{
-		$parsed = Json::decode($data);
+		$parsed = is_array($data) ? $data : Json::decode($data);
 		if ($parsed['error'])
 		{
 			$errorMessage = $parsed['error']['error_msg'];

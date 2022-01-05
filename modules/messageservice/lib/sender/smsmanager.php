@@ -62,6 +62,10 @@ class SmsManager
 			{
 				self::$senders[] = new Sms\SmsEdnaru();
 			}
+			if (Sms\Ednaru::isSupported())
+			{
+				self::$senders[] = new Sms\Ednaru();
+			}
 
 			self::fireSendersEvent();
 		}
@@ -116,6 +120,7 @@ class SmsManager
 			$info[] = array(
 				'id' => $sender->getId(),
 				'type' => $sender->getType(),
+				'isTemplatesBased' => ($sender->isConfigurable() && $sender->isTemplatesBased()),
 				'name' => $sender->getName(),
 				'shortName' => $sender->getShortName(),
 				'canUse' => $sender->canUse()

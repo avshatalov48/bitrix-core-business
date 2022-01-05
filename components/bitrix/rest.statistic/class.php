@@ -48,7 +48,8 @@ class CRestStatisticComponent extends CBitrixComponent implements Controllerable
 
 		if (!\CRestUtil::isAdmin())
 		{
-			throw new SystemException(new Error(Loc::getMessage('REST_STATISTIC_ACCESS_DENIED')));
+			ShowError(Loc::getMessage('REST_STATISTIC_ACCESS_DENIED'));
+			return false;
 		}
 
 		return true;
@@ -823,8 +824,10 @@ class CRestStatisticComponent extends CBitrixComponent implements Controllerable
 		try
 		{
 			$this->processResultData('grid');
-			$this->checkRequiredParams();
-			$this->includeComponentTemplate();
+			if ($this->checkRequiredParams())
+			{
+				$this->includeComponentTemplate();
+			}
 		}
 		catch (SystemException $e)
 		{
@@ -847,15 +850,17 @@ class CRestStatisticComponent extends CBitrixComponent implements Controllerable
 
 		try
 		{
-			$this->checkRequiredParams();
-			$this->processResultData('graphs');
-			if (isset($this->arResult['CHART_DATA']['DATA']))
+			if ($this->checkRequiredParams())
 			{
-				$result['dataProvider'] = $this->arResult['CHART_DATA']['DATA'];
-			}
-			if (isset($this->arResult['CHART_DATA']['ID_LIST']))
-			{
-				$result['idList'] = $this->arResult['CHART_DATA']['ID_LIST'];
+				$this->processResultData('graphs');
+				if (isset($this->arResult['CHART_DATA']['DATA']))
+				{
+					$result['dataProvider'] = $this->arResult['CHART_DATA']['DATA'];
+				}
+				if (isset($this->arResult['CHART_DATA']['ID_LIST']))
+				{
+					$result['idList'] = $this->arResult['CHART_DATA']['ID_LIST'];
+				}
 			}
 		}
 		catch (SystemException $e)

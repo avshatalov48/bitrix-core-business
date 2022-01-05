@@ -306,7 +306,15 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 	public function getLimiters(Message\iBase $message = null)
 	{
 		$limiters = Integration\Bitrix24\Limitation\Limiter::getList();
-		$limiters[] = self::getTimeLimiter($message);
+
+		if ($message)
+		{
+			$limiters[] = self::getTimeLimiter($message);
+			$email = $message->getConfiguration()->get('EMAIL_FROM');
+			$address = new \Bitrix\Main\Mail\Address($email);
+			$limiters[] = Integration\Bitrix24\Limitation\Limiter::getEmailMonthly($address->getEmail());
+		}
+
 		return $limiters;
 	}
 
@@ -340,6 +348,8 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 			$this->mailContext = new Mail\Context();
 			$this->mailContext->setCategory(Mail\Context::CAT_EXTERNAL);
 			$this->mailContext->setPriority(Mail\Context::PRIORITY_LOW);
+			$this->mailContext->setKeepAlive(Mail\Smtp\Mailer::KEEP_ALIVE_ALWAYS);
+
 			if (Integration\Bitrix24\Service::isCloud())
 			{
 				$this->mailContext->setCallback(

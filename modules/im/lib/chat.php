@@ -842,67 +842,11 @@ class Chat
 			$ormParams['order'] = $params['ORDER'];
 		}
 
-		$generalChatId = \CIMChat::GetGeneralChatId();
-
 		$orm = \Bitrix\Im\Model\ChatTable::getList($ormParams);
 		$chats = array();
 		while ($row = $orm->fetch())
 		{
-			$avatar = \CIMChat::GetAvatarImage($row['AVATAR'], 200, false);
-			$color = $row['COLOR'] <> ''? Color::getColor($row['COLOR']): Color::getColorByNumber($row['ID']);
-
-			$chatType = \Bitrix\Im\Chat::getType($row);
-
-			if ($generalChatId == $row['ID'])
-			{
-				$row["ENTITY_TYPE"] = 'GENERAL';
-			}
-
-			$muteList = Array();
-			if ($row['RELATION_NOTIFY_BLOCK'] == 'Y')
-			{
-				$muteList[] = (int)$row['RELATION_USER_ID'];
-			}
-
-			$counter = (int)$row['RELATION_COUNTER'];
-			$startCounter = (int)$row['RELATION_START_COUNTER'];
-			$userCounter = (int)$row['USER_COUNT'];
-			$unreadId = (int)$row['RELATION_UNREAD_ID'];
-			$lastMessageId = (int)$row['LAST_MESSAGE_ID'];
-
-			$publicOption = '';
-			if ($row['ALIAS_NAME'])
-			{
-				$publicOption = [
-					'code' => $row['ALIAS_NAME'],
-					'link' => Alias::getPublicLink($row['ENTITY_TYPE'], $row['ALIAS_NAME'])
-				];
-			}
-
-			$chats[] = Array(
-				'ID' => (int)$row['ID'],
-				'NAME' => $row['TITLE'],
-				'OWNER' => (int)$row['AUTHOR_ID'],
-				'EXTRANET' => $row['EXTRANET'] == 'Y',
-				'AVATAR' => $avatar,
-				'COLOR' => $color,
-				'TYPE' => $chatType,
-				'COUNTER' => $counter,
-				'USER_COUNTER' => $userCounter,
-				'MESSAGE_COUNT' => (int)$row['MESSAGE_COUNT'] - $startCounter,
-				'UNREAD_ID' => $unreadId,
-				'LAST_MESSAGE_ID' => $lastMessageId,
-				'DISK_FOLDER_ID' => (int)$row['DISK_FOLDER_ID'],
-				'ENTITY_TYPE' => (string)$row['ENTITY_TYPE'],
-				'ENTITY_ID' => (string)$row['ENTITY_ID'],
-				'ENTITY_DATA_1' => (string)$row['ENTITY_DATA_1'],
-				'ENTITY_DATA_2' => (string)$row['ENTITY_DATA_2'],
-				'ENTITY_DATA_3' => (string)$row['ENTITY_DATA_3'],
-				'MUTE_LIST' => $muteList,
-				'DATE_CREATE' => $row['DATE_CREATE'],
-				'MESSAGE_TYPE' => $row["TYPE"],
-				'PUBLIC' => $publicOption,
-			);
+			$chats[] = self::formatChatData($row);
 		}
 
 		if ($params['JSON'])
@@ -911,6 +855,66 @@ class Chat
 		}
 
 		return $chats;
+	}
+
+	public static function formatChatData($chat): array
+	{
+		$generalChatId = \CIMChat::GetGeneralChatId();
+		$avatar = \CIMChat::GetAvatarImage($chat['AVATAR'], 200, false);
+		$color = $chat['COLOR'] <> ''? Color::getColor($chat['COLOR']): Color::getColorByNumber($chat['ID']);
+
+		$chatType = \Bitrix\Im\Chat::getType($chat);
+
+		if ($generalChatId == $chat['ID'])
+		{
+			$chat["ENTITY_TYPE"] = 'GENERAL';
+		}
+
+		$muteList = Array();
+		if ($chat['RELATION_NOTIFY_BLOCK'] == 'Y')
+		{
+			$muteList[] = (int)$chat['RELATION_USER_ID'];
+		}
+
+		$counter = (int)$chat['RELATION_COUNTER'];
+		$startCounter = (int)$chat['RELATION_START_COUNTER'];
+		$userCounter = (int)$chat['USER_COUNT'];
+		$unreadId = (int)$chat['RELATION_UNREAD_ID'];
+		$lastMessageId = (int)$chat['LAST_MESSAGE_ID'];
+
+		$publicOption = '';
+		if ($chat['ALIAS_NAME'])
+		{
+			$publicOption = [
+				'code' => $chat['ALIAS_NAME'],
+				'link' => Alias::getPublicLink($chat['ENTITY_TYPE'], $chat['ALIAS_NAME'])
+			];
+		}
+
+		return Array(
+			'ID' => (int)$chat['ID'],
+			'NAME' => $chat['TITLE'],
+			'OWNER' => (int)$chat['AUTHOR_ID'],
+			'EXTRANET' => $chat['EXTRANET'] == 'Y',
+			'AVATAR' => $avatar,
+			'COLOR' => $color,
+			'TYPE' => $chatType,
+			'COUNTER' => $counter,
+			'USER_COUNTER' => $userCounter,
+			'MESSAGE_COUNT' => (int)$chat['MESSAGE_COUNT'] - $startCounter,
+			'UNREAD_ID' => $unreadId,
+			'LAST_MESSAGE_ID' => $lastMessageId,
+			'DISK_FOLDER_ID' => (int)$chat['DISK_FOLDER_ID'],
+			'ENTITY_TYPE' => (string)$chat['ENTITY_TYPE'],
+			'ENTITY_ID' => (string)$chat['ENTITY_ID'],
+			'ENTITY_DATA_1' => (string)$chat['ENTITY_DATA_1'],
+			'ENTITY_DATA_2' => (string)$chat['ENTITY_DATA_2'],
+			'ENTITY_DATA_3' => (string)$chat['ENTITY_DATA_3'],
+			'MUTE_LIST' => $muteList,
+			'DATE_CREATE' => $chat['DATE_CREATE'],
+			'MESSAGE_TYPE' => $chat["TYPE"],
+			'PUBLIC' => $publicOption,
+		);
 	}
 
 	public static function getListParams($params)

@@ -1,18 +1,19 @@
-<?
+<?php
 
 namespace Bitrix\Seo\LeadAds;
 
 use Bitrix\Main\Context;
+use Bitrix\Seo\LeadAds;
 use Bitrix\Seo\Retargeting\BaseApiObject;
-use Bitrix\Seo\Retargeting\IRequestDirectly;
 use Bitrix\Seo\Retargeting\Response;
 use Bitrix\Seo\WebHook;
 use Bitrix\Seo\Retargeting;
 
-abstract class Form extends BaseApiObject implements IRequestDirectly
+abstract class Form extends BaseApiObject
 {
-	const URL_FORM_LIST = '';
-	const USE_GROUP_AUTH = false;
+	public const URL_FORM_LIST = '';
+	public const USE_GROUP_AUTH = false;
+	public const FIELD_MAP = [];
 
 	/** @var  array $listRowMap Map. */
 	protected static $listRowMap = array(
@@ -31,7 +32,7 @@ abstract class Form extends BaseApiObject implements IRequestDirectly
 	 *
 	 * @param string|null $accountId Account ID.
 	 */
-	public function __construct($accountId = null)
+	public function __construct(string $accountId = null)
 	{
 		$this->accountId = $accountId;
 		parent::__construct();
@@ -41,19 +42,47 @@ abstract class Form extends BaseApiObject implements IRequestDirectly
 	 * Set account id.
 	 *
 	 * @param string $accountId Account ID.
-	 * @return mixed
+	 *
+	 * @return self
 	 */
-	public function setAccountId($accountId)
+	public function setAccountId(string $accountId): Form
 	{
-		return $this->accountId = $accountId;
+		$this->accountId = $accountId;
+
+		return $this;
 	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getAccountId(): ?string
+	{
+		return $this->accountId;
+	}
+
+	/**
+	 * @return Mapper
+	 */
+	protected static function getFieldMapper(): Mapper
+	{
+		static $mapper;
+		return $mapper = $mapper ?? new LeadAds\Mapper(static::FIELD_MAP);
+	}
+
+
+	/**
+	 * @param $formId
+	 *
+	 * @return LeadAds\Response\FormResponse
+	 */
+	abstract public function getForm($formId):  LeadAds\Response\FormResponse;
 
 	/**
 	 * Get list.
 	 *
-	 * @return Response
+	 * @return LeadAds\Response\FormResponse
 	 */
-	abstract public function getList();
+	abstract public function getList(): LeadAds\Response\FormResponse;
 
 	/**
 	 * Get result.
@@ -61,7 +90,7 @@ abstract class Form extends BaseApiObject implements IRequestDirectly
 	 * @param WebHook\Payload\LeadItem $item Payload item instance.
 	 * @return Result
 	 */
-	abstract public function getResult(WebHook\Payload\LeadItem $item);
+	abstract public function getResult(WebHook\Payload\LeadItem $item): Result;
 
 	/**
 	 * Add.
@@ -69,22 +98,34 @@ abstract class Form extends BaseApiObject implements IRequestDirectly
 	 * @param array $data Data.
 	 * @return Response
 	 */
-	abstract public function add(array $data);
+	abstract public function add(array $data): Response;
+
+	/**
+	 * Register WebHook
+	 * @param $formId
+	 * @return bool
+	 */
+	abstract public function register($formId): bool;
 
 	/**
 	 * Unlink.
 	 *
 	 * @param string $id.
+	 *
 	 * @return bool
 	 */
-	abstract public function unlink($id);
+	abstract public function unlink(string $id): bool;
+
 
 	/**
 	 * Get registered groups.
 	 *
 	 * @return string[]
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function getRegisteredGroups()
+	public function getRegisteredGroups(): array
 	{
 		$rows = Internals\CallbackSubscriptionTable::getList([
 			'select' => ['GROUP_ID'],
@@ -100,9 +141,13 @@ abstract class Form extends BaseApiObject implements IRequestDirectly
 	 * Unregister group.
 	 *
 	 * @param string $groupId Group ID.
+	 *
 	 * @return bool
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function unRegisterGroup($groupId)
+	public function unRegisterGroup(string $groupId) : bool
 	{
 		$row = Internals\CallbackSubscriptionTable::getRow([
 			'filter' => [
@@ -110,23 +155,22 @@ abstract class Form extends BaseApiObject implements IRequestDirectly
 				'=GROUP_ID' => $groupId
 			]
 		]);
-		if (!$row)
-		{
-			return true;
-		}
 
-		return Internals\CallbackSubscriptionTable::delete($row['ID'])->isSuccess();
+		return $row && Internals\CallbackSubscriptionTable::delete($row['ID'])->isSuccess();
 	}
 
 	/**
 	 * Register group.
 	 *
 	 * @param string $groupId Group ID.
+	 *
 	 * @return bool
+	 *
 	 */
-	public function registerGroup($groupId)
+	public function registerGroup(string $groupId): bool
 	{
 		$hasGroup = false;
+
 		$list = Internals\CallbackSubscriptionTable::getList([
 			'filter' => [
 				'=TYPE' => static::TYPE_CODE
@@ -134,25 +178,25 @@ abstract class Form extends BaseApiObject implements IRequestDirectly
 		]);
 		foreach ($list as $row)
 		{
-			if ($row['GROUP_ID'] == $groupId)
+			if ($row['GROUP_ID'] === $groupId)
 			{
 				$hasGroup = true;
+				continue;
 			}
-			else
-			{
-				Internals\CallbackSubscriptionTable::delete($row['ID']);
-			}
-		}
 
+			Internals\CallbackSubscriptionTable::delete($row['ID']);
+		}
 		if ($hasGroup)
 		{
 			return true;
 		}
 
-		return Internals\CallbackSubscriptionTable::add([
+		$callbackSubscriptionResult = Internals\CallbackSubscriptionTable::add([
 			'TYPE' => static::TYPE_CODE,
 			'GROUP_ID' => $groupId
-		])->isSuccess();
+		]);
+
+		return $callbackSubscriptionResult->isSuccess();
 	}
 
 	/**
@@ -161,10 +205,9 @@ abstract class Form extends BaseApiObject implements IRequestDirectly
 	 * @param Field $field Field.
 	 * @return array
 	 */
-	public static function convertField(Field $field)
+	public static function convertField(Field $field): array
 	{
-		$item = $field->toArray();
-		foreach ($item as $key => $value)
+		foreach ($item = $field->toArray() as $key => $value)
 		{
 			if (empty($value))
 			{
@@ -181,15 +224,15 @@ abstract class Form extends BaseApiObject implements IRequestDirectly
 	 * @param Field[] $fields Fields.
 	 * @return array
 	 */
-	public static function convertFields(array $fields)
+	public static function convertFields(array $fields): array
 	{
-		$list = [];
-		foreach ($fields as $field)
-		{
-			$list[] = static::convertField($field);
-		}
-
-		return $list;
+		return array_map(
+			static function($field)
+			{
+				return static::convertField($field);
+			},
+			$fields
+		);
 	}
 
 	/**
@@ -197,7 +240,7 @@ abstract class Form extends BaseApiObject implements IRequestDirectly
 	 *
 	 * @return string
 	 */
-	public static function getUrlFormList()
+	public static function getUrlFormList(): string
 	{
 		return static::URL_FORM_LIST;
 	}
@@ -207,7 +250,7 @@ abstract class Form extends BaseApiObject implements IRequestDirectly
 	 *
 	 * @return bool
 	 */
-	public static function isSupportAccount()
+	public static function isSupportAccount(): bool
 	{
 		return true;
 	}
@@ -217,10 +260,9 @@ abstract class Form extends BaseApiObject implements IRequestDirectly
 	 *
 	 * @return string
 	 */
-	public static function getPrivacyPolicyUrl()
+	public static function getPrivacyPolicyUrl(): string
 	{
-		$langId = Context::getCurrent()->getLanguage();
-		switch ($langId)
+		switch ($langId = Context::getCurrent()->getLanguage())
 		{
 			case 'ua':
 			case 'ru':
@@ -235,16 +277,20 @@ abstract class Form extends BaseApiObject implements IRequestDirectly
 		}
 	}
 
-	protected function registerFormWebHook($adsFormId, array $parameters = [])
+	protected function registerFormWebHook($adsFormId, array $parameters = []): bool
 	{
-		$type = Service::getEngineCode(static::TYPE_CODE);
-		return WebHook\Service::create($type, $adsFormId)->register($parameters);
+		return WebHook\Service::create(
+			Service::getEngineCode(static::TYPE_CODE),
+			$adsFormId
+		)->register($parameters);
 	}
 
-	protected function removeFormWebHook($adsFormId)
+	protected function removeFormWebHook($adsFormId): bool
 	{
-		$type = Service::getEngineCode(static::TYPE_CODE);
-		return WebHook\Service::create($type, $adsFormId)->remove();
+		return WebHook\Service::create(
+			Service::getEngineCode(static::TYPE_CODE),
+			$adsFormId
+		)->remove();
 	}
 
 	/**
@@ -252,12 +298,12 @@ abstract class Form extends BaseApiObject implements IRequestDirectly
 	 *
 	 * @return bool
 	 */
-	public static function isGroupAuthUsed()
+	public static function isGroupAuthUsed(): bool
 	{
 		return static::USE_GROUP_AUTH;
 	}
 
-	protected function getAuthParameters()
+	protected function getAuthParameters(): array
 	{
 		return [];
 	}
@@ -267,24 +313,21 @@ abstract class Form extends BaseApiObject implements IRequestDirectly
 	 *
 	 * @return Retargeting\AuthAdapter|null
 	 */
-	public function getGroupAuthAdapter()
+	public function getGroupAuthAdapter(): ?Retargeting\AuthAdapter
 	{
-		if (!$this->isGroupAuthUsed())
+		if (!self::isGroupAuthUsed())
 		{
 			return null;
 		}
 
-		$type = static::TYPE_CODE;
-		$adapter = Retargeting\AuthAdapter::create(static::TYPE_CODE . '.groups')
-			->setService(Service::getInstance())
-			->setParameters($this->getAuthParameters());
-
-
+		$adapter = Retargeting\AuthAdapter::create(static::TYPE_CODE . '.groups', $this->service);
+		$adapter = $adapter->setParameters($this->getAuthParameters());
 		$row = Internals\CallbackSubscriptionTable::getRow([
 			'filter' => [
-				'=TYPE' => $type,
+				'=TYPE' => static::TYPE_CODE,
 			]
 		]);
+
 		if ($row && $row['HAS_AUTH'] !== 'Y' && $adapter->hasAuth())
 		{
 			Internals\CallbackSubscriptionTable::update($row['ID'], ['HAS_AUTH' => 'Y']);

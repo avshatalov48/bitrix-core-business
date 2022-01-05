@@ -141,7 +141,7 @@ ul#submenu-list li.selected a { text-decoration: none; }
 #content { overflow: hidden; padding:0 35px 23px 42px; zoom:1;}
 #workarea { width: 67%; margin: 0 2% 0 0; float: left; position: relative;  }
 #workarea-single { width:auto; float:none;}
-#workarea-content { margin-top: 2em; overflow:hidden; zoom:1; position: relative;}
+#workarea-content { margin-top: 2em; zoom:1; position: relative;}
 
 #sidebar 
 { 

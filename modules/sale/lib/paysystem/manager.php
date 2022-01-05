@@ -926,7 +926,7 @@ final class Manager
 		}
 
 		$handlerData = PaySystemRestHandlersTable::getList([
-			'filter' => ['CODE' => $handler],
+			'filter' => ['=CODE' => $handler],
 			'limit' => 1,
 		])->fetch();
 		$result[$handler] = (bool)$handlerData;

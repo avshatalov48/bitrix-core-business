@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Calendar\Rooms;
+
 use \Bitrix\Calendar\Integration\Bitrix24Manager;
 
 class CCalendarPlanner
@@ -85,11 +88,19 @@ class CCalendarPlanner
 			$users = CCalendar::GetDestinationUsers($params['codes'], true);
 		}
 
+		$prevUsersId = (isset($params['prevUserList']) && is_array($params['prevUserList']))
+			? array_unique(array_map('intval', $params['prevUserList']))
+			: [];
+
 		if (!empty($users))
 		{
 			foreach($users as $user)
 			{
-				$userIds[] = $user['USER_ID'];
+				if (!in_array((int)$user['USER_ID'], $prevUsersId))
+				{
+					$userIds[] = (int)$user['USER_ID'];
+				}
+
 				$status = ($hostUserId && $hostUserId === (int)$user['USER_ID']
 					|| !$hostUserId && $curUserId == $user['USER_ID'])
 					? 'h'
@@ -112,7 +123,7 @@ class CCalendarPlanner
 		{
 			foreach($params['entries'] as $userId)
 			{
-				$userIds[] = intval($userId);
+				$userIds[] = (int)$userId;
 			}
 		}
 
@@ -190,8 +201,9 @@ class CCalendarPlanner
 
 		if (isset($params['location']))
 		{
-			$location = CCalendar::ParseLocation($params['location']);
-			$roomEventId = $location['room_event_id'];
+			$location = \Bitrix\Calendar\Rooms\Util::parseLocation($params['location']);
+			$entryLocation = \Bitrix\Calendar\Rooms\Util::parseLocation($params['entryLocation']);
+			$roomEventId = $entryLocation['room_event_id'];
 
 			if ($roomEventId && !in_array($roomEventId, $skipEntryList))
 			{
@@ -256,8 +268,8 @@ class CCalendarPlanner
 					'name' => 'meeting room'
 				];
 
-				$sectionList = CCalendarLocation::getList();
-				foreach ($sectionList as $room)
+				$sectionList = Rooms\Manager::getRoomsList();
+				foreach($sectionList as $room)
 				{
 					if ($room['ID'] == $location['room_id'])
 					{
@@ -270,7 +282,7 @@ class CCalendarPlanner
 
 				if ($isPlannerFeatureEnabled)
 				{
-					$meetingRoomRes = CCalendarLocation::getRoomAccessibility(
+					$meetingRoomRes = Rooms\Manager::getRoomAccessibility(
 						$location['room_id'],
 						$from,
 						$to
@@ -363,6 +375,11 @@ class CCalendarPlanner
 		}
 
 		return $result;
+	}
+
+	private static function getUsersIdList($params = [])
+	{
+
 	}
 }
 

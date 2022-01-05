@@ -9,8 +9,11 @@
 	{
 		if ($arResult[$i]["PERMISSION"] <= "D") 
 			continue;
-		if ($firstNum == 0) $firstNum = $i;
-		$lastNum = i;
+		
+		if ($firstNum == 0)
+			$firstNum = $i;
+
+		$lastNum = $i;
 	}
 
 	?>
@@ -23,16 +26,16 @@
 	
 			$cssClass = "";
 			if ($i == $firstNum) 
-				$cssClass .= (strlen($cssClass) > 0 ? " first-item" : "first-item");
+				$cssClass .= ($cssClass <> '' ? " first-item" : "first-item");
 				
 			if ($arItem["SELECTED"]) 
-				$cssClass .= (strlen($cssClass) > 0 ? " selected" : "selected");
+				$cssClass .= ($cssClass <> '' ? " selected" : "selected");
 				
 			if ($i == $lastNum) 
-				$cssClass .= (strlen($cssClass) > 0 ? " last-item" : "last-item");
+				$cssClass .= ($cssClass <> '' ? " last-item" : "last-item");
                 
 			?>
-			<li <? if (strlen($cssClass) > 0) { ?>class="<?= $cssClass ?>"<? } ?>>
+			<li <? if ($cssClass <> '') { ?>class="<?= $cssClass ?>"<? } ?>>
 				<a href="<?=$arItem["LINK"]?>"><span><?=$arItem["TEXT"]?></span></a>
 		            </li>
 			<?

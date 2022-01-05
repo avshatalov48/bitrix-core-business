@@ -275,11 +275,9 @@ if (!$arResult['SLIDER'])
 							?>
 
 							<?if ($app["ACTIVE"] == "Y" && $arResult['ADMIN']):?>
-								<? if($app['TYPE'] !== \Bitrix\Rest\AppTable::TYPE_CONFIGURATION):?>
-									<button class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round" onclick="BX.rest.Marketplace.uninstallConfirm('<?=CUtil::JSEscape($app["CODE"])?>')">
-										<?=GetMessage("MARKETPLACE_DELETE_BUTTON")?>
-									</button>
-								<? endif;?>
+								<button class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round" onclick="BX.rest.Marketplace.uninstallConfirm('<?=CUtil::JSEscape($app["CODE"])?>')">
+									<?=GetMessage("MARKETPLACE_DELETE_BUTTON")?>
+								</button>
 
 								<button class="ui-btn ui-btn-sm ui-btn-link ui-btn-round"
 										onclick="BX.rest.Marketplace.setRights('<?=CUtil::JSEscape($app["ID"])?>');">

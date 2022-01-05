@@ -118,10 +118,15 @@ final class CustomData
 	{
 		if (!empty($contents))
 		{
-			$this->container['contents'] = array_filter($contents,function($item){
-				return is_array($item) && isset($item['id'],$item['quantity']);
-			});
+			$this->container['contents'] = array_filter(
+				$contents,
+				static function($item)
+				{
+					return is_array($item) && isset($item['product_id'],$item['quantity']);
+				}
+			);
 		}
+
 		return $this;
 	}
 

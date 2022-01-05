@@ -66,21 +66,6 @@ if($isBitrix24Template)
 ?>
 
 <?
-$stepperHtml = \Bitrix\Main\Update\Stepper::getHtml(["calendar" => ['Bitrix\Calendar\Update\IndexCalendar']],
-\Bitrix\Main\Localization\Loc::getMessage("EC_CALENDAR_INDEX"));
-if ($stepperHtml)
-{
-	echo '<div class="calendar-stepper-block">'.$stepperHtml.'</div>';
-}
-
-if ($stepperHtml = \Bitrix\Main\Update\Stepper::getHtml(["calendar" => ['Bitrix\Calendar\Update\SectionStructureUpdate']],
-	\Bitrix\Main\Localization\Loc::getMessage("CALENDAR_UPDATE_STRUCTURE_TITLE")))
-{
-	echo '<div class="calendar-stepper-block">'.$stepperHtml.'</div>';
-}
-?>
-
-<?
 $currentUserId = CCalendar::GetCurUserId();
 $config = array(
 	'id' => $arParams['ID'],

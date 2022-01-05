@@ -1,4 +1,10 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -10,12 +16,13 @@
 /** @global CMain $APPLICATION */
 /** @global CCacheManager $CACHE_MANAGER */
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
+
 global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
-use \Bitrix\Socialnetwork\UserToGroupTable;
+use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\ModuleManager;
-use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\Loc;
 
 if (!CModule::IncludeModule("socialnetwork"))
 {
@@ -26,7 +33,7 @@ if (!CModule::IncludeModule("socialnetwork"))
 CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 CSocNetTools::InitGlobalExtranetArrays();
 
-if ($arParams["USE_KEYWORDS"] != "N")
+if ($arParams["USE_KEYWORDS"] !== "N")
 {
 	$arParams["USE_KEYWORDS"] = "Y";
 }
@@ -34,22 +41,22 @@ if ($arParams["USE_KEYWORDS"] != "N")
 $arResult["NAV_ID"] = "sonet_user_groups";
 $arResult['USE_PROJECTS'] = (
 	isset($arParams['USE_PROJECTS'])
-	&& $arParams['USE_PROJECTS'] == 'Y'
+	&& $arParams['USE_PROJECTS'] === 'Y'
 		? 'Y'
 		: 'N'
 );
 
-$arParams["USER_ID"] = intval($arParams["USER_ID"]);
+$arParams["USER_ID"] = (int)$arParams["USER_ID"];
 $currentUser = false;
 if ($arParams["USER_ID"] <= 0)
 {
-	$arParams["USER_ID"] = intval($USER->GetID());
+	$arParams["USER_ID"] = (int)$USER->GetID();
 	$currentUser = true;
 }
 
 $arResult["AJAX_CALL"] = (
 	isset($_REQUEST["refreshAjax"])
-	&& $_REQUEST["refreshAjax"] == "Y"
+	&& $_REQUEST["refreshAjax"] === "Y"
 );
 
 if ($currentUser)
@@ -61,21 +68,21 @@ if ($currentUser)
 	$cacheId = 'user_has_groups_'.SITE_ID.'_'.$arParams["USER_ID"];
 	$cacheDir = '/sonet/user_group_member/'.SITE_ID.'/'.$arParams["USER_ID"];
 
-	if($currentCache->startDataCache($cacheTtl, $cacheId, $cacheDir))
+	if ($currentCache->startDataCache($cacheTtl, $cacheId, $cacheDir))
 	{
-		$res = UserToGroupTable::getList(array(
-			'filter' => array(
+		$res = UserToGroupTable::getList([
+			'filter' => [
 				'USER_ID' => $arParams["USER_ID"],
-				'ROLE' => UserToGroupTable::getRolesMember()
-			),
-			'select' => array('ID')
-		));
+				'@ROLE' => UserToGroupTable::getRolesMember(),
+			],
+			'select' => [ 'ID' ],
+		]);
 		if ($group = $res->fetch())
 		{
 			$hasGroups = true;
 		}
 
-		if(defined("BX_COMP_MANAGED_CACHE"))
+		if (defined("BX_COMP_MANAGED_CACHE"))
 		{
 			$CACHE_MANAGER->startTagCache($cacheDir);
 			$CACHE_MANAGER->registerTag("sonet_user2group_U".$arParams["USER_ID"]);
@@ -95,14 +102,14 @@ $arParams["PAGE"] = Trim($arParams["PAGE"]);
 
 if (!in_array($arParams["PAGE"], array("group_request_group_search", "user_groups", "user_projects", "groups_list", "groups_subject")))
 {
-	$arParams["PAGE"] = ($arResult["USE_PROJECTS"]  == 'Y' ? "user_projects" : "user_groups");
+	$arParams["PAGE"] = ($arResult["USE_PROJECTS"] === 'Y' ? "user_projects" : "user_groups");
 }
 
 $arResult["USER_GROUPS_EMPTY_MODE"] = false;
 
 
 if (
-	$arParams["PAGE"] == 'user_groups'
+	$arParams["PAGE"] === 'user_groups'
 	&& $currentUser
 	&& !$hasGroups
 )
@@ -117,20 +124,20 @@ if (empty($arResult["ORDER_KEY"]))
 	$arResult["ORDER_KEY"] = ($arResult["USER_GROUPS_EMPTY_MODE"] ? 'members_count' : 'alpha');
 }
 
-if (intval($arParams["THUMBNAIL_SIZE"]) <= 0)
+if ((int)$arParams["THUMBNAIL_SIZE"] <= 0)
 {
 	$arParams["THUMBNAIL_SIZE"] = 48;
 }
-if (intval($arParams["THUMBNAIL_SIZE_COMMON"]) <= 0)
+if ((int)$arParams["THUMBNAIL_SIZE_COMMON"] <= 0)
 {
 	$arParams["THUMBNAIL_SIZE_COMMON"] = 100;
 }
 
 $user4Groups = $arParams["USER_ID"];
 $user2Request = 0;
-if ($arParams["PAGE"] == "group_request_group_search")
+if ($arParams["PAGE"] === "group_request_group_search")
 {
-	$user4Groups = intval($USER->GetID());
+	$user4Groups = (int)$USER->GetID();
 	$user2Request = $arParams["USER_ID"];
 }
 
@@ -151,7 +158,7 @@ $arGroupFilter = array(
 	"=ACTIVE" => "Y"
 );
 
-$arResult["USE_UI_FILTER"] = (isset($arParams["USE_UI_FILTER"]) && $arParams["USE_UI_FILTER"] == 'Y');
+$arResult["USE_UI_FILTER"] = (isset($arParams["USE_UI_FILTER"]) && $arParams["USE_UI_FILTER"] === 'Y');
 
 if ($arResult["USE_UI_FILTER"])
 {
@@ -193,15 +200,15 @@ if ($arResult["USE_UI_FILTER"])
 		if (
 			isset($filterData['MEMBER'])
 			&& !empty($filterData['MEMBER'])
-			&& preg_match('/^U(\d+)$/is', $filterData['MEMBER'], $matches)
+			&& preg_match('/^U(\d+)$/i', $filterData['MEMBER'], $matches)
 			&& !empty($matches[1])
-			&& intval($matches[1]) > 0
+			&& (int)$matches[1] > 0
 		)
 		{
 			$filtered = true;
-			$arResult["filter_member"] = intval($matches[1]);
+			$arResult["filter_member"] = (int)$matches[1];
 
-			if (SITE_TEMPLATE_ID != 'bitrix24')
+			if (SITE_TEMPLATE_ID !== 'bitrix24')
 			{
 				\Bitrix\Main\FinderDestTable::merge(array(
 					"CONTEXT" => "SONET_GROUP_LIST_FILTER_MEMBER",
@@ -213,15 +220,15 @@ if ($arResult["USE_UI_FILTER"])
 		if (
 			isset($filterData['OWNER'])
 			&& !empty($filterData['OWNER'])
-			&& preg_match('/^U(\d+)$/is', $filterData['OWNER'], $matches)
+			&& preg_match('/^U(\d+)$/i', $filterData['OWNER'], $matches)
 			&& !empty($matches[1])
-			&& intval($matches[1]) > 0
+			&& (int)$matches[1] > 0
 		)
 		{
 			$filtered = true;
-			$arResult["filter_owner"] = intval($matches[1]);
+			$arResult["filter_owner"] = (int)$matches[1];
 
-			if (SITE_TEMPLATE_ID != 'bitrix24')
+			if (SITE_TEMPLATE_ID !== 'bitrix24')
 			{
 				\Bitrix\Main\FinderDestTable::merge(array(
 					"CONTEXT" => "SONET_GROUP_LIST_FILTER_OWNER",
@@ -237,7 +244,7 @@ if ($arResult["USE_UI_FILTER"])
 
 		if (
 			isset($filterData['FAVORITES'])
-			&& $filterData['FAVORITES'] == 'Y'
+			&& $filterData['FAVORITES'] === 'Y'
 		)
 		{
 			$arResult["filter_favorites"] = 'Y';
@@ -245,7 +252,7 @@ if ($arResult["USE_UI_FILTER"])
 
 		if (
 			isset($filterData['LANDING'])
-			&& $filterData['LANDING'] == 'Y'
+			&& $filterData['LANDING'] === 'Y'
 		)
 		{
 			$arResult["filter_landing"] = 'Y';
@@ -298,11 +305,11 @@ if ($arResult["USE_UI_FILTER"])
 		$groupPropertiesList = $USER_FIELD_MANAGER->GetUserFields("SONET_GROUP", 0, LANGUAGE_ID);
 		$availableUFTypes = ['date', 'datetime', 'string', 'double', 'boolean', 'crm'];
 
-		foreach($groupPropertiesList as $field => $arUserField)
+		foreach ($groupPropertiesList as $field => $arUserField)
 		{
 			if (
 				empty($arUserField['SHOW_FILTER'])
-				|| $arUserField['SHOW_FILTER'] == 'N'
+				|| $arUserField['SHOW_FILTER'] === 'N'
 			)
 			{
 				unset($groupPropertiesList[$field]);
@@ -315,17 +322,17 @@ if ($arResult["USE_UI_FILTER"])
 			{
 				$type = 'string';
 			}
-			if ($type == 'datetime')
+			if ($type === 'datetime')
 			{
 				$type = 'date';
 			}
 
-			if ($type == 'double')
+			if ($type === 'double')
 			{
 				$type = 'number';
 			}
 
-			if ($type == 'date')
+			if ($type === 'date')
 			{
 				if (!empty($filterData[$field."_from"]))
 				{
@@ -340,8 +347,8 @@ if ($arResult["USE_UI_FILTER"])
 				}
 			}
 			elseif (
-				in_array($type, array('number', 'string', 'boolean'))
-				&& isset($filterData[$field])
+				isset($filterData[$field])
+				&& in_array($type, array('number', 'string', 'boolean'))
 			)
 			{
 				$filtered = true;
@@ -360,29 +367,35 @@ if ($filtered)
 	$arParams["CACHE_TIME"] = 0;
 }
 
-if ($arParams["PAGE"] == "groups_list")
+if ($arParams["PAGE"] === "groups_list")
 {
 	if (
 		array_key_exists("filter_my", $_REQUEST)
-		&& $_REQUEST["filter_my"] == "Y"
+		&& $_REQUEST["filter_my"] === "Y"
 	)
 	{
 		$arResult["filter_my"] = $_REQUEST["filter_my"];
 	}
 
-	if (array_key_exists("filter_subject_id", $_REQUEST) && intval($_REQUEST["filter_subject_id"]) > 0)
+	if (array_key_exists("filter_subject_id", $_REQUEST) && (int)$_REQUEST["filter_subject_id"] > 0)
+	{
 		$arResult["filter_subject_id"] = $_REQUEST["filter_subject_id"];
+	}
 
-	if (array_key_exists("filter_archive", $_REQUEST) && $_REQUEST["filter_archive"] == "Y")
+	if (array_key_exists("filter_archive", $_REQUEST) && $_REQUEST["filter_archive"] === "Y")
+	{
 		$arResult["filter_archive"] = $_REQUEST["filter_archive"];
+	}
 
-	if (intval($arParams["SUBJECT_ID"]) == -1)
+	if ((int)$arParams["SUBJECT_ID"] == -1)
 	{
 		$arResult["filter_archive"] = "Y";
 	}
 
 	if (array_key_exists("filter_extranet", $_REQUEST) && $_REQUEST["filter_extranet"] <> '')
+	{
 		$arResult["filter_extranet"] = $_REQUEST["filter_extranet"];
+	}
 
 	if (
 		!isset($arResult["filter_project"])
@@ -422,70 +435,107 @@ if ($arParams["PAGE"] == "groups_list")
 }
 
 if (
-	$arParams["PAGE"] == "groups_subject"
-	&& intval($arParams["SUBJECT_ID"]) > 0
+	$arParams["PAGE"] === "groups_subject"
+	&& (int)$arParams["SUBJECT_ID"] > 0
 )
 {
-	$arResult["filter_subject_id"] = intval($arParams["SUBJECT_ID"]);
+	$arResult["filter_subject_id"] = (int)$arParams["SUBJECT_ID"];
 }
 
-$arResult["WORKGROUPS_PATH"] = COption::GetOptionString("socialnetwork", "workgroups_list_page", false, SITE_ID);
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
+$arResult["WORKGROUPS_PATH"] = Option::get("socialnetwork", "workgroups_list_page", false, SITE_ID);
+$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] === "N" ? "N" : "Y");
 
-if($arParams["USER_VAR"] == '')
+if ($arParams["USER_VAR"] == '')
+{
 	$arParams["USER_VAR"] = "user_id";
-if($arParams["GROUP_VAR"] == '')
+}
+if ($arParams["GROUP_VAR"] == '')
+{
 	$arParams["GROUP_VAR"] = "group_id";
-if($arParams["PAGE_VAR"] == '')
+}
+if ($arParams["PAGE_VAR"] == '')
+{
 	$arParams["PAGE_VAR"] = "page";
+}
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if($arParams["PATH_TO_USER"] == '')
+if ($arParams["PATH_TO_USER"] === '')
+{
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
+}
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if ($arParams["PATH_TO_GROUP"] == '')
+if ($arParams["PATH_TO_GROUP"] === '')
+{
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
+}
 
 $arParams["PATH_TO_GROUP_EDIT"] = trim($arParams["PATH_TO_GROUP_EDIT"]);
-if ($arParams["PATH_TO_GROUP_EDIT"] == '')
+if ($arParams["PATH_TO_GROUP_EDIT"] === '')
+{
 	$arParams["PATH_TO_GROUP_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_edit&".$arParams["GROUP_VAR"]."=#group_id#");
+}
 
 $arParams["PATH_TO_GROUP_CREATE"] = trim($arParams["PATH_TO_GROUP_CREATE"]);
-if ($arParams["PATH_TO_GROUP_CREATE"] == '')
+if ($arParams["PATH_TO_GROUP_CREATE"] === '')
+{
 	$arParams["PATH_TO_GROUP_CREATE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_create&".$arParams["USER_VAR"]."=#user_id#");
+}
 
 $arParams["PATH_TO_GROUP_SEARCH"] = trim($arParams["PATH_TO_GROUP_SEARCH"]);
-if ($arParams["PATH_TO_GROUP_SEARCH"] == '')
+if ($arParams["PATH_TO_GROUP_SEARCH"] === '')
+{
 	$arParams["PATH_TO_GROUP_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_search");
+}
 
 $arParams["PATH_TO_GROUP_REQUEST_USER"] = trim($arParams["PATH_TO_GROUP_REQUEST_USER"]);
-if ($arParams["PATH_TO_GROUP_REQUEST_USER"] == '')
+if ($arParams["PATH_TO_GROUP_REQUEST_USER"] === '')
+{
 	$arParams["PATH_TO_GROUP_REQUEST_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_request_user&".$arParams["USER_VAR"]."=#user_id#&".$arParams["GROUP_VAR"]."=#group_id#");
+}
 
 $arParams["PATH_TO_LOG"] = trim($arParams["PATH_TO_LOG"]);
 if ($arParams["PATH_TO_LOG"] == '')
+{
 	$arParams["PATH_TO_LOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=log");
+}
 
-$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = (int)$arParams["ITEMS_COUNT"];
 if ($arParams["ITEMS_COUNT"] <= 0)
+{
 	$arParams["ITEMS_COUNT"] = 30;
+}
 
 /* obsolete parameter for default template */
-$arParams["COLUMNS_COUNT"] = intval($arParams["COLUMNS_COUNT"]);
+$arParams["COLUMNS_COUNT"] = (int)$arParams["COLUMNS_COUNT"];
 if ($arParams["COLUMNS_COUNT"] <= 0)
+{
 	$arParams["COLUMNS_COUNT"] = 3;
+}
 
 $arParams["DATE_TIME_FORMAT"] = Trim($arParams["DATE_TIME_FORMAT"]);
-$arParams["DATE_TIME_FORMAT"] = (($arParams["DATE_TIME_FORMAT"] == '') ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+$arParams["DATE_TIME_FORMAT"] = (($arParams["DATE_TIME_FORMAT"] == '') ? CDatabase::DateFormatToPHP(CSite::GetDateFormat()) : $arParams["DATE_TIME_FORMAT"]);
 
 /***************** CACHE ****************************************/
-if(!isset($arParams["CACHE_TIME"]))
+if (!isset($arParams["CACHE_TIME"]))
+{
 	$arParams["CACHE_TIME"] = 3600;
-if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
-	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
+}
+
+if (
+	$arParams["CACHE_TYPE"] === "Y"
+	|| (
+		$arParams["CACHE_TYPE"] === "A"
+		&& Option::get("main", "component_cache_on", "Y") === "Y"
+	)
+)
+{
+	$arParams["CACHE_TIME"] = (int)$arParams["CACHE_TIME"];
+}
 else
+{
 	$arParams["CACHE_TIME"] = 0;
+}
 
 $groupCache = new CPHPCache;
 $cachePath = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName);
@@ -494,30 +544,34 @@ $cachePath = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName);
 $arResult["FatalError"] = "";
 
 if (
-	(
+	$user4Groups <= 0
+	&& (
 		in_array($arParams["PAGE"], array("group_request_group_search", "user_groups"))
-		|| $arResult["filter_my"] == "Y"
+		|| $arResult["filter_my"] === "Y"
 	)
-	&& $user4Groups <= 0
 )
 {
 	$arResult["FatalError"] = Loc::getMessage("SONET_C36_NO_USER_ID").". ";
 }
 
-if ($arResult["FatalError"] == '')
+if (
+	($arResult["FatalError"] == '')
+	&& $arParams["PAGE"] === "group_request_group_search"
+)
 {
-	if ($arParams["PAGE"] == "group_request_group_search")
+	if ($user2Request <= 0)
 	{
-		if ($user2Request <= 0)
-			$arResult["FatalError"] = Loc::getMessage("SONET_C36_NO_USER_ID").". ";
-		elseif ($user2Request == $user4Groups)
-			$arResult["FatalError"] = Loc::getMessage("SONET_C36_SELF").". ";
+		$arResult["FatalError"] = Loc::getMessage("SONET_C36_NO_USER_ID").". ";
+	}
+	elseif ($user2Request == $user4Groups)
+	{
+		$arResult["FatalError"] = Loc::getMessage("SONET_C36_SELF").". ";
 	}
 }
 
 if ($arResult["FatalError"] == '')
 {
-	if ($arParams["PAGE"] == "groups_list")
+	if ($arParams["PAGE"] === "groups_list")
 	{
 		$arResult["Subjects"] = array();
 		$dbSubjects = CSocNetGroupSubject::GetList(
@@ -528,36 +582,43 @@ if ($arResult["FatalError"] == '')
 			array("ID", "NAME")
 		);
 		while ($arSubject = $dbSubjects->GetNext())
+		{
 			$arResult["Subjects"][$arSubject["ID"]] = $arSubject["NAME"];
+		}
 	}
-	elseif ($arParams["PAGE"] == "groups_subject" && intval($arResult["filter_subject_id"]) > 0)
+	elseif ($arParams["PAGE"] === "groups_subject" && (int)$arResult["filter_subject_id"] > 0)
 	{
-
 		$arResult["Subjects"] = array();
 		$dbSubjects = CSocNetGroupSubject::GetList(
 			array("SORT" => "ASC", "NAME" => "ASC"),
-			array("SITE_ID" => SITE_ID, "ID" => intval($arResult["filter_subject_id"])),
+			array("SITE_ID" => SITE_ID, "ID" => (int)$arResult["filter_subject_id"]),
 			false,
 			false,
 			array("ID", "NAME")
 		);
 		if ($arSubject = $dbSubjects->GetNext())
+		{
 			$arResult["Subject"] = $arSubject;
+		}
 	}
 }
 
 if (
 	$arResult["FatalError"] == ''
-	&& intval($user4Groups) > 0
+	&& $user4Groups > 0
 )
 {
 	$dbUser = CUser::GetByID($user4Groups);
 	$arResult["User"] = $dbUser->GetNext();
 
 	if (!is_array($arResult["User"]))
+	{
 		$arResult["FatalError"] = Loc::getMessage("SONET_P_USER_NO_USER").". ";
+	}
 	if (CModule::IncludeModule('extranet') && !CExtranet::IsProfileViewable($arResult["User"]))
+	{
 		return false;
+	}
 }
 
 if ($arResult["FatalError"] == '')
@@ -569,23 +630,27 @@ if ($arResult["FatalError"] == '')
 		$arResult["UserRequest"] = $dbUser->GetNext();
 
 		if (!is_array($arResult["UserRequest"]))
+		{
 			$arResult["FatalError"] = Loc::getMessage("SONET_P_USER_NO_USER").". ";
+		}
 		if (CModule::IncludeModule('extranet') && !CExtranet::IsProfileViewable($arResult["UserRequest"]))
+		{
 			return false;
+		}
 	}
 }
 
 if ($arResult["FatalError"] == '')
 {
 	$arResult["CurrentUserPerms"] = CSocNetUserPerms::InitUserPerms($USER->GetID(), $arResult["User"]["ID"], CSocNetUser::IsCurrentUserModuleAdmin());
-	$arResult["ALLOW_CREATE_GROUP"] = (CSocNetUser::IsCurrentUserModuleAdmin() || $APPLICATION->GetGroupRight("socialnetwork", false, "Y", "Y", array(SITE_ID, false)) >= "K");
+	$arResult["ALLOW_CREATE_GROUP"] = \Bitrix\Socialnetwork\Helper\Workgroup::canCreate();
 
 	$arCacheKeys = array();
 	$arNavigation = array();
 
 	foreach ($arResult as $key => $value)
 	{
-		if (mb_substr($key, 0, 7) == "filter_")
+		if (mb_substr($key, 0, 7) === "filter_")
 		{
 			$arCacheKeys[] = $key."_".$value;
 		}
@@ -610,7 +675,7 @@ if ($arResult["FatalError"] == '')
 	$arCacheKeys[] = $arResult["ORDER_KEY"];
 	$arCacheResult = array();
 
-	$cacheId = "socnet_user_groups_".SITE_ID.LANGUAGE_ID.'_'.$arParams["PAGE"]."_".$USER->GetID()."_"."_".$arResult["User"]["ID"]."_".md5(serialize($arCacheKeys))."_".intval(CSocNetUser::IsCurrentUserModuleAdmin());
+	$cacheId = "socnet_user_groups_".SITE_ID.LANGUAGE_ID.'_'.$arParams["PAGE"]."_".$USER->GetID()."_"."_".$arResult["User"]["ID"]."_".md5(serialize($arCacheKeys))."_" . (int)CSocNetUser::IsCurrentUserModuleAdmin();
 	if (
 		$arParams["CACHE_TIME"] > 0
 		&& $groupCache->InitCache($arParams["CACHE_TIME"], $cacheId, $cachePath)
@@ -623,15 +688,15 @@ if ($arResult["FatalError"] == '')
 		{
 			if (!empty($arCacheResult["ASSETS"]["CSS"]))
 			{
-				foreach($arCacheResult["ASSETS"]["CSS"] as $cssFile)
+				foreach ($arCacheResult["ASSETS"]["CSS"] as $cssFile)
 				{
 					\Bitrix\Main\Page\Asset::getInstance()->addCss($cssFile);
 				}
 			}
 
-			if (!empty($arCacheResult["ASSETS"]["JS"]))
+			if (!empty ($arCacheResult["ASSETS"]["JS"]))
 			{
-				foreach($arCacheResult["ASSETS"]["JS"] as $jsFile)
+				foreach ($arCacheResult["ASSETS"]["JS"] as $jsFile)
 				{
 					\Bitrix\Main\Page\Asset::getInstance()->addJs($jsFile);
 				}
@@ -649,7 +714,7 @@ if ($arResult["FatalError"] == '')
 
 			if (
 				isset($arResult["ORDER_KEY"])
-				&& $arResult["ORDER_KEY"] == 'date_view'
+				&& $arResult["ORDER_KEY"] === 'date_view'
 				&& $arParams["USER_ID"] == $USER->getId()
 			)
 			{
@@ -661,7 +726,7 @@ if ($arResult["FatalError"] == '')
 
 			if (
 				isset($arResult["ORDER_KEY"])
-				&& $arResult["ORDER_KEY"] == 'date_activity'
+				&& $arResult["ORDER_KEY"] === 'date_activity'
 			)
 			{
 				$CACHE_MANAGER->registerTag("sonet_group_activity");
@@ -679,8 +744,11 @@ if ($arResult["FatalError"] == '')
 		$arGroupID = Array();
 
 		if (
-			in_array($arParams["PAGE"], array("groups_list", "groups_subject")) 
-			|| $arResult["CurrentUserPerms"] && $arResult["CurrentUserPerms"]["Operations"]["viewgroups"]
+			(
+				$arResult["CurrentUserPerms"]
+				&& $arResult["CurrentUserPerms"]["Operations"]["viewgroups"]
+			)
+			|| in_array($arParams["PAGE"], array("groups_list", "groups_subject"))
 		)
 		{
 			$arNavParams = array("nPageSize" => $arParams["ITEMS_COUNT"], "bDescPageNumbering" => false);
@@ -749,15 +817,15 @@ if ($arResult["FatalError"] == '')
 			}
 
 			if (
-				COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") != "Y" 
-				&& $arResult["filter_tags"] != "Y"
+				Option::get("socialnetwork", "work_with_closed_groups", "N") !== "Y"
+				&& $arResult["filter_tags"] !== "Y"
 			)
 			{
 				if (isset($arResult["filter_archive"])) // bitrix24 ui.filter
 				{
 					if (!empty($arResult["filter_archive"]))
 					{
-						$arGroupFilter["=CLOSED"] = ($arResult["filter_archive"] == "Y" ? "Y" : "N");
+						$arGroupFilter["=CLOSED"] = ($arResult["filter_archive"] === "Y" ? "Y" : "N");
 					}
 				}
 				else // not bitrix24
@@ -766,14 +834,14 @@ if ($arResult["FatalError"] == '')
 				}
 			}
 
-			if (intval($arResult["filter_subject_id"]) > 0)
+			if ((int)$arResult["filter_subject_id"] > 0)
 			{
-				$arGroupFilter["WORKGROUP_SUBJECT.ID"] = intval($arResult["filter_subject_id"]);
+				$arGroupFilter["WORKGROUP_SUBJECT.ID"] = (int)$arResult["filter_subject_id"];
 			}
 
 			// get my groups for extranet
 			if (
-				CModule::IncludeModule("extranet") 
+				CModule::IncludeModule("extranet")
 				&& CExtranet::IsExtranetSite()
 			)
 			{
@@ -815,7 +883,7 @@ if ($arResult["FatalError"] == '')
 			{
 				// not extranet
 				if (
-					$arResult["filter_my"] == "Y"
+					$arResult["filter_my"] === "Y"
 					|| in_array($arParams["PAGE"], array("user_groups", "user_projects"))
 				)
 				{
@@ -827,7 +895,7 @@ if ($arResult["FatalError"] == '')
 				{
 					$arGroupFilter["=PROJECT"] = $arResult["filter_project"];
 				}
-				elseif ($arParams["PAGE"] == "user_projects")
+				elseif ($arParams["PAGE"] === "user_projects")
 				{
 					$arGroupFilter["=PROJECT"] = 'Y';
 				}
@@ -844,7 +912,7 @@ if ($arResult["FatalError"] == '')
 
 				)
 				{
-					if ($arResult["filter_extranet"] == 'Y')
+					if ($arResult["filter_extranet"] === 'Y')
 					{
 						$arUserGroupFilter["=GROUP_SITE_ID"] = CExtranet::GetExtranetSiteID();
 						if (!CSocNetUser::isCurrentUserModuleAdmin())
@@ -899,8 +967,8 @@ if ($arResult["FatalError"] == '')
 			}
 
 			if (
-				$arParams["USE_KEYWORDS"] == "Y"
-				&& $arResult["~tags"] <> '' 
+				$arParams["USE_KEYWORDS"] === "Y"
+				&& $arResult["~tags"] <> ''
 			)
 			{
 				$arGroupFilter['Bitrix\Socialnetwork\WorkgroupTag:GROUP.NAME'] = ToLower($arResult["~tags"]);
@@ -961,25 +1029,25 @@ if ($arResult["FatalError"] == '')
 		if (
 			!$bNoMyGroups
 			&& (
-				$arResult["filter_my"] == "Y"
+				$arResult["filter_my"] === "Y"
 				|| (
-					$arParams["PAGE"] == "user_groups"
+					$arParams["PAGE"] === "user_groups"
 					&& !$USER->IsAdmin()
 					&& !CSocNetUser::IsCurrentUserModuleAdmin()
 				)
 				|| (
-					$arParams["PAGE"] == "user_groups"
+					$arParams["PAGE"] === "user_groups"
 					&& (
 						$USER->IsAdmin()
 						|| CSocNetUser::IsCurrentUserModuleAdmin()
 					)
-					&& (intval($USER->GetID()) != $arParams["USER_ID"])
+					&& ((int)$USER->GetID() != $arParams["USER_ID"])
 				)
-				|| $arResult["filter_extranet"] == "Y"
+				|| $arResult["filter_extranet"] === "Y"
 			)
 			&& (
-				!array_key_exists("ID", $arGroupFilter) 
-				|| !is_array($arGroupFilter["ID"]) 
+				!array_key_exists("ID", $arGroupFilter)
+				|| !is_array($arGroupFilter["ID"])
 				|| count($arGroupFilter["ID"]) <= 0
 			)
 		)
@@ -1068,7 +1136,7 @@ if ($arResult["FatalError"] == '')
 				}
 
 				if (
-					$arResult["filter_favorites"] == "Y"
+					$arResult["filter_favorites"] === "Y"
 					&& $USER->isAuthorized()
 				)
 				{
@@ -1097,6 +1165,7 @@ if ($arResult["FatalError"] == '')
 				$query->addSelect('OPENED');
 				$query->addSelect('CLOSED');
 				$query->addSelect('NUMBER_OF_MEMBERS');
+				$query->addSelect('AVATAR_TYPE');
 
 				$query->countTotal(true);
 				$query->setOffset($nav->getOffset());
@@ -1121,9 +1190,9 @@ if ($arResult["FatalError"] == '')
 
 					$pu = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP"], array("group_id" => $arGroup["ID"]));
 
-					if (intval($arGroup["IMAGE_ID"]) <= 0)
+					if ((int)$arGroup["IMAGE_ID"] <= 0)
 					{
-						$arGroup["IMAGE_ID"] = COption::GetOptionInt("socialnetwork", "default_group_picture", false, SITE_ID);
+						$arGroup["IMAGE_ID"] = Option::get("socialnetwork", "default_group_picture", false, SITE_ID);
 					}
 
 					$arImageResized = $arImageResizedCommon = false;
@@ -1144,8 +1213,10 @@ if ($arResult["FatalError"] == '')
 
 					$arImage = CSocNetTools::InitImage($arGroup["IMAGE_ID"], 150, "/bitrix/images/socialnetwork/nopic_group_150.gif", 150, $pu, true);
 
-					if ($arParams["PAGE"] == "group_request_group_search")
+					if ($arParams["PAGE"] === "group_request_group_search")
+					{
 						$arCurrentUserPerms4Group = CSocNetUserToGroup::InitUserPerms($arResult["User"]["ID"], array("ID" => $arGroup["ID"], "OWNER_ID" => $arGroup["OWNER_ID"], "INITIATE_PERMS" => $arGroup["INITIATE_PERMS"], "VISIBLE" => $arGroup["VISIBLE"], "OPENED" => $arGroup["OPENED"]), CSocNetUser::IsCurrentUserModuleAdmin());
+					}
 
 					$arCacheResult["Groups"]["List"][] = array(
 						"GROUP_ID" => $arGroup["ID"],
@@ -1158,9 +1229,10 @@ if ($arResult["FatalError"] == '')
 						"GROUP_PHOTO_IMG" => $arImage["IMG"],
 						"GROUP_PHOTO_RESIZED" => $arImageResized,
 						"GROUP_PHOTO_RESIZED_COMMON" => $arImageResizedCommon,
+						"GROUP_AVATAR_TYPE" => $arGroup['AVATAR_TYPE'],
 						"GROUP_URL" => $pu,
 						"GROUP_REQUEST_USER_URL" => CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_REQUEST_USER"], array("group_id" => $arGroup["ID"], "user_id" => $arResult["UserRequest"]["ID"])),
-						"CAN_INVITE2GROUP" => (($arParams["PAGE"] != "user_groups") ? $arCurrentUserPerms4Group && $arCurrentUserPerms4Group["UserCanInitiate"] : false),
+						"CAN_INVITE2GROUP" => (($arParams["PAGE"] !== "user_groups") ? $arCurrentUserPerms4Group && $arCurrentUserPerms4Group["UserCanInitiate"] : false),
 						"FULL" => array(
 							"DATE_CREATE_FORMATTED" => date($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($arGroup["DATE_CREATE"], CSite::GetDateFormat("FULL"))),
 							"DATE_UPDATE_FORMATTED" => date($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($arGroup["DATE_UPDATE"], CSite::GetDateFormat("FULL"))),
@@ -1190,17 +1262,17 @@ if ($arResult["FatalError"] == '')
 						false,
 						array("ID")
 					);
-					while($arGroupTmp = $dbGroupTmp->Fetch())
+					while ($arGroupTmp = $dbGroupTmp->Fetch())
 					{
 						$arExtranetGroupID[] = $arGroupTmp["ID"];
 					}
 
 					if (
-						count($arExtranetGroupID) > 0 
+						count($arExtranetGroupID) > 0
 						&& is_array($arCacheResult["Groups"]["List"])
 					)
 					{
-						foreach($arCacheResult["Groups"]["List"] as $key => $arGroupTmp)
+						foreach ($arCacheResult["Groups"]["List"] as $key => $arGroupTmp)
 						{
 							$arCacheResult["Groups"]["List"][$key]["IS_EXTRANET"] = (in_array($arGroupTmp["GROUP_ID"], $arExtranetGroupID) ? "Y" : "N");
 						}
@@ -1223,8 +1295,7 @@ if ($arResult["FatalError"] == '')
 					false
 				);
 
-				$arCacheResult["NAV_STRING"] = ob_get_contents();
-				ob_end_clean();
+				$arCacheResult["NAV_STRING"] = ob_get_clean();
 
 				$arAssets["CSS"] = array_diff($APPLICATION->sPath2css, $arCss);
 				$arAssets["JS"] = array_diff($APPLICATION->arHeadScripts, $arJs);
@@ -1232,18 +1303,20 @@ if ($arResult["FatalError"] == '')
 				$arCacheResult["ASSETS"] = $arAssets;
 			}
 		}
-	
+
 		if ($arParams["CACHE_TIME"] > 0)
 		{
 			if (defined("BX_COMP_MANAGED_CACHE"))
+			{
 				$CACHE_MANAGER->EndTagCache();
+			}
 
 			$groupCache->StartDataCache($arParams["CACHE_TIME"], $cacheId, $cachePath);
 			$groupCache->EndDataCache(array("arCacheResult" => $arCacheResult));
 		}
 	}
 
-	if ($arParams["PAGE"] == "user_projects")
+	if ($arParams["PAGE"] === "user_projects")
 	{
 		$arResult["filter_project"] = "Y";
 	}
@@ -1255,7 +1328,7 @@ if ($arResult["FatalError"] == '')
 	)
 	{
 		$groupIdList = array();
-		foreach($arCacheResult['Groups']['List'] as $group)
+		foreach ($arCacheResult['Groups']['List'] as $group)
 		{
 			$groupIdList[] = $group['GROUP_ID'];
 		}
@@ -1270,14 +1343,14 @@ if ($arResult["FatalError"] == '')
 				),
 				'select' => array('GROUP_ID')
 			));
-			while($groupFavorites = $res->fetch())
+			while ($groupFavorites = $res->fetch())
 			{
 				$favoritesGroupIdList[] = $groupFavorites['GROUP_ID'];
 			}
 
 			if (!empty($favoritesGroupIdList))
 			{
-				foreach($arCacheResult['Groups']['List'] as $key => $group)
+				foreach ($arCacheResult['Groups']['List'] as $key => $group)
 				{
 					$arCacheResult['Groups']['List'][$key]['IN_FAVORITES'] = (in_array($group['GROUP_ID'], $favoritesGroupIdList) ? 'Y' : 'N');
 				}
@@ -1289,12 +1362,12 @@ if ($arResult["FatalError"] == '')
 
 	if (
 		$currentUser
-		&& $arParams["PAGE"] == "groups_list"
+		&& $arParams["PAGE"] === "groups_list"
 		&& !empty($arResult["Groups"]["List"])
 	)
 	{
 		$arGroupID = $arRelations = array();
-		foreach($arResult["Groups"]["List"] as $arGroup)
+		foreach ($arResult["Groups"]["List"] as $arGroup)
 		{
 			$arGroupID[] = $arGroup["GROUP_ID"];
 		}
@@ -1313,25 +1386,27 @@ if ($arResult["FatalError"] == '')
 				$arRelations[$relation['GROUP_ID']] = $relation;
 			}
 		}
-		foreach($arResult["Groups"]["List"] as $key => $arGroup)
+		foreach ($arResult["Groups"]["List"] as $key => $arGroup)
 		{
 			$arResult["Groups"]["List"][$key]['ROLE'] = (isset($arRelations[$arGroup['GROUP_ID']]) ? $arRelations[$arGroup['GROUP_ID']]['ROLE'] : false);
 		}
 	}
 
-	if ($arParams["SET_TITLE"] == "Y" || $arParams["SET_NAV_CHAIN"] != "N")
+	if ($arParams["SET_TITLE"] === "Y" || $arParams["SET_NAV_CHAIN"] !== "N")
 	{
 		if ($arParams["NAME_TEMPLATE"] == '')
+		{
 			$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
+		}
 
 		$arParams["TITLE_NAME_TEMPLATE"] = str_replace(
 			array("#NOBR#", "#/NOBR#"),
 			array("", ""),
 			$arParams["NAME_TEMPLATE"]
 		);
-		$bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
+		$bUseLogin = $arParams['SHOW_LOGIN'] !== "N" ? true : false;
 
-		if ($arParams["PAGE"] == "group_request_group_search")
+		if ($arParams["PAGE"] === "group_request_group_search")
 		{
 			$arTmpUser = array(
 				"NAME" => $arResult["UserRequest"]["~NAME"],
@@ -1341,7 +1416,7 @@ if ($arResult["FatalError"] == '')
 			);
 			$strTitleFormatted = CUser::FormatName($arParams['TITLE_NAME_TEMPLATE'], $arTmpUser, $bUseLogin);
 		}
-		elseif ($arParams["PAGE"] == "user_groups")
+		elseif ($arParams["PAGE"] === "user_groups")
 		{
 			$arTmpUser = array(
 				"NAME" => $arResult["User"]["~NAME"],
@@ -1352,25 +1427,25 @@ if ($arResult["FatalError"] == '')
 			$strTitleFormatted = CUser::FormatName($arParams['TITLE_NAME_TEMPLATE'], $arTmpUser, $bUseLogin);
 		}
 
-		if ($arParams["SET_TITLE"] == "Y")
+		if ($arParams["SET_TITLE"] === "Y")
 		{
 			if ($arResult["USE_UI_FILTER"])
 			{
 				$APPLICATION->SetTitle(Loc::getMessage("SONET_C36_PAGE_TITLE_COMMON"));
 			}
 			elseif (
-				$arParams["PAGE"] == "user_groups"
+				$arParams["PAGE"] === "user_groups"
 				&& !empty($_REQUEST['IFRAME'])
-				&& $_REQUEST['IFRAME'] == 'Y'
+				&& $_REQUEST['IFRAME'] === 'Y'
 			)
 			{
 				$APPLICATION->SetTitle($strTitleFormatted.": ".Loc::getMessage("SONET_C36_PAGE_TITLE1"));
 			}
-			elseif ($arParams["PAGE"] == "group_request_group_search")
+			elseif ($arParams["PAGE"] === "group_request_group_search")
 			{
 				$APPLICATION->SetTitle($strTitleFormatted.": ".Loc::getMessage("SONET_C36_PAGE_TITLE"));
 			}
-			elseif ($arParams["PAGE"] == "user_groups")
+			elseif ($arParams["PAGE"] === "user_groups")
 			{
 				if ($currentUser)
 				{
@@ -1381,7 +1456,7 @@ if ($arResult["FatalError"] == '')
 					$APPLICATION->SetTitle($strTitleFormatted.": ".Loc::getMessage("SONET_C36_PAGE_TITLE1"));
 				}
 			}
-			elseif ($arParams["PAGE"] == "user_projects")
+			elseif ($arParams["PAGE"] === "user_projects")
 			{
 				if ($currentUser)
 				{
@@ -1393,59 +1468,64 @@ if ($arResult["FatalError"] == '')
 				}
 			}
 			elseif (
-				$arParams["PAGE"] == "groups_subject" &&
+				$arParams["PAGE"] === "groups_subject" &&
 				is_array($arResult["Subject"])
 			)
 			{
 				$APPLICATION->SetTitle($arResult["Subject"]["NAME"]);
 			}
+			elseif (isset($arResult["filter_my"]) && $arResult["filter_my"] === "Y")
+			{
+				$APPLICATION->SetTitle(Loc::getMessage($arResult["filter_project"] === "Y" ? "SONET_C36_PAGE_TITLE2_1_PROJECT" : "SONET_C36_PAGE_TITLE2_1"));
+			}
+			elseif (isset($arResult["filter_archive"]) && $arResult["filter_archive"] === "Y")
+			{
+				$APPLICATION->SetTitle(Loc::getMessage("SONET_C36_PAGE_TITLE2_2"));
+			}
+			elseif (isset($arResult["filter_extranet"]) && $arResult["filter_extranet"] === "Y")
+			{
+				$APPLICATION->SetTitle(Loc::getMessage("SONET_C36_PAGE_TITLE2_3"));
+			}
+			elseif (isset($arResult["filter_favorites"]) && $arResult["filter_favorites"] === "Y")
+			{
+				$APPLICATION->SetTitle(Loc::getMessage("SONET_C36_PAGE_TITLE2_4"));
+			}
 			else
 			{
-				if (isset($arResult["filter_my"]) && $arResult["filter_my"] == "Y")
-				{
-					$APPLICATION->SetTitle(Loc::getMessage($arResult["filter_project"] == "Y" ? "SONET_C36_PAGE_TITLE2_1_PROJECT" : "SONET_C36_PAGE_TITLE2_1"));
-				}
-				elseif (isset($arResult["filter_archive"]) && $arResult["filter_archive"] == "Y")
-				{
-					$APPLICATION->SetTitle(Loc::getMessage("SONET_C36_PAGE_TITLE2_2"));
-				}
-				elseif (isset($arResult["filter_extranet"]) && $arResult["filter_extranet"] == "Y")
-				{
-					$APPLICATION->SetTitle(Loc::getMessage("SONET_C36_PAGE_TITLE2_3"));
-				}
-				elseif (isset($arResult["filter_favorites"]) && $arResult["filter_favorites"] == "Y")
-				{
-					$APPLICATION->SetTitle(Loc::getMessage("SONET_C36_PAGE_TITLE2_4"));
-				}
-				else
-				{
-					$APPLICATION->SetTitle(Loc::getMessage($arResult["filter_project"] == "Y" ? "SONET_C36_PAGE_TITLE2_PROJECT" : "SONET_C36_PAGE_TITLE2"));
-				}
+				$APPLICATION->SetTitle(Loc::getMessage($arResult["filter_project"] === "Y" ? "SONET_C36_PAGE_TITLE2_PROJECT" : "SONET_C36_PAGE_TITLE2"));
 			}
 		}
 
-		if ($arParams["SET_NAV_CHAIN"] != "N")
+		if ($arParams["SET_NAV_CHAIN"] !== "N")
 		{
-			if ($arParams["PAGE"] == "group_request_group_search")
+			if ($arParams["PAGE"] === "group_request_group_search")
 			{
 				$APPLICATION->AddChainItem($strTitleFormatted, CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arResult["UserRequest"]["ID"])));
 				$APPLICATION->AddChainItem(Loc::getMessage("SONET_C36_PAGE_TITLE"));
 			}
-			elseif ($arParams["PAGE"] == "user_groups")
+			elseif ($arParams["PAGE"] === "user_groups")
 			{
 				$APPLICATION->AddChainItem($strTitleFormatted, CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arResult["User"]["ID"])));
 				$APPLICATION->AddChainItem(Loc::getMessage("SONET_C36_PAGE_TITLE1"));
 			}
 			else
 			{
-				if ($arResult["filter_my"] == "Y")
+				if ($arResult["filter_my"] === "Y")
+				{
 					$APPLICATION->AddChainItem(Loc::getMessage("SONET_C36_PAGE_TITLE2_1"));
-				elseif ($arResult["filter_archive"] == "Y")
+				}
+				elseif ($arResult["filter_archive"] === "Y")
+				{
 					$APPLICATION->AddChainItem(Loc::getMessage("SONET_C36_PAGE_TITLE2_2"));
-				elseif ($arResult["filter_extranet"] == "Y")
+				}
+				elseif ($arResult["filter_extranet"] === "Y")
+				{
 					$APPLICATION->AddChainItem(Loc::getMessage("SONET_C36_PAGE_TITLE2_3"));
+				}
 				else
+				{
 					$APPLICATION->AddChainItem(Loc::getMessage("SONET_C36_PAGE_TITLE2"));
+				}
 			}
 		}
 	}

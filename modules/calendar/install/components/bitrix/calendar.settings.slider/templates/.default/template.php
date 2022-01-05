@@ -218,7 +218,14 @@ $showPersonalTitle = $showGeneralSettings && $isPersonal;
 
 				<!-- access -->
 				<?if ($showAccess):?>
-				<div class="calendar-settings-title"><?=Loc::getMessage('EC_SECT_ACCESS_TAB')?></div>
+				<div class="calendar-settings-title"><?=Loc::getMessage('EC_SECT_ACCESS_TAB')?>
+					<div
+						class="ui-hint calendar-settings-access-hint"
+						data-hint="<?=Loc::getMessage('EC_ACCESS_HINT_TITLE')?>">
+						<span class="ui-hint-icon"></span>
+					</div>
+					<div data-role="type-access-message-card" class="calendar-settings-message-card"></div>
+				</div>
 					<div class="calendar-settings-access-rights">
 						<div data-role="type-access-values-cont" class="bxec-access-cont"></div>
 					</div>

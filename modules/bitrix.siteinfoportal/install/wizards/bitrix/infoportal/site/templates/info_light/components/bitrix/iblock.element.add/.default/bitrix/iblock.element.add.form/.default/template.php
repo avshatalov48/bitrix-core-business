@@ -10,7 +10,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 <?if (count($arResult["ERRORS"])):?>
 	<?=ShowError(implode("<br />", $arResult["ERRORS"]))?>
 <?endif?>
-<?if (strlen($arResult["MESSAGE"]) > 0):?>
+<?if ($arResult["MESSAGE"] <> ''):?>
 	<?=ShowNote($arResult["MESSAGE"])?>
 <?endif?>
 <form name="iblock_add" action="<?=POST_FORM_ACTION_URI?>" method="post" enctype="multipart/form-data">
@@ -170,7 +170,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 										$value = "";
 									}
 								?>
-								<input type="text" name="PROPERTY[<?=$propertyID?>][<?=$i?>]" size="25" value="<?=$value?>" id="input_<?=strtolower($propertyID)?>"/><br /><?
+								<input type="text" name="PROPERTY[<?=$propertyID?>][<?=$i?>]" size="25" value="<?=$value?>" id="input_<?= mb_strtolower($propertyID)?>"/><br /><?
 								if($arResult["PROPERTY_LIST_FULL"][$propertyID]["USER_TYPE"] == "DateTime"):?><?
 									$APPLICATION->IncludeComponent(
 										'bitrix:main.calendar',
@@ -313,11 +313,11 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 			<div class="data-form-line">
 				<div class="data-form-submit">
 					<input type="submit" name="iblock_submit" value="<?=GetMessage("IBLOCK_FORM_SUBMIT")?>" />
-					<?if (strlen($arParams["LIST_URL"]) > 0 && $arParams["ID"] > 0):?><input type="submit" name="iblock_apply" value="<?=GetMessage("IBLOCK_FORM_APPLY")?>" /><?endif?>
+					<?if ($arParams["LIST_URL"] <> '' && $arParams["ID"] > 0):?><input type="submit" name="iblock_apply" value="<?=GetMessage("IBLOCK_FORM_APPLY")?>" /><?endif?>
 					<?/*<input type="reset" value="<?=GetMessage("IBLOCK_FORM_RESET")?>" />*/?>
 				</div>
 			</div>
 	</div>
 	<br />
-	<?if (strlen($arParams["LIST_URL"]) > 0):?><a href="<?=$arParams["LIST_URL"]?>"><?=GetMessage("IBLOCK_FORM_BACK")?></a><?endif?>
+	<?if ($arParams["LIST_URL"] <> ''):?><a href="<?=$arParams["LIST_URL"]?>"><?=GetMessage("IBLOCK_FORM_BACK")?></a><?endif?>
 </form>

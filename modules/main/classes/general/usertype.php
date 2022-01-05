@@ -1005,6 +1005,7 @@ class CUserTypeManager
 			if($arUserType)
 			{
 				$user_type_id = $arUserType["USER_TYPE_ID"];
+				$arUserField += $arUserType;
 			}
 		}
 
@@ -3153,16 +3154,21 @@ class CUserTypeManager
 				case 'int':
 				case 'enum':
 				case 'file':
-					$field = new Entity\IntegerField($fieldName, $fieldParameters);
+					$field = (new Entity\IntegerField($fieldName, $fieldParameters))
+						->configureNullable();
 					break;
 				case 'double':
-					$field = new Entity\FloatField($fieldName, $fieldParameters);
+					$field = (new Entity\FloatField($fieldName, $fieldParameters))
+						->configureNullable();
 					break;
 				case 'string':
-					$field = new Entity\StringField($fieldName, $fieldParameters);
+					$field = (new Entity\StringField($fieldName, $fieldParameters))
+						->configureNullable();
 					break;
 				case 'datetime':
-					$field = new Entity\DatetimeField($fieldName, $fieldParameters);
+					$field = (new Entity\DatetimeField($fieldName, $fieldParameters))
+						->configureNullable()
+						->configureUseTimezone($arUserField['SETTINGS']['USE_TIMEZONE'] == 'Y');
 					break;
 				default:
 					throw new \Bitrix\Main\ArgumentException(sprintf(

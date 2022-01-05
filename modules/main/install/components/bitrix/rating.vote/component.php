@@ -68,7 +68,7 @@ if (!array_key_exists('TOTAL_VALUE', $arParams) ||
 	}
 }
 
-$arResult['VOTE_BUTTON'] = $arResult['USER_HAS_VOTED'] == 'Y'? ($arResult['USER_VOTE'] > 0? 'PLUS': 'MINUS'): 'NONE';
+$arResult['VOTE_BUTTON'] = $arResult['USER_HAS_VOTED'] == 'Y'? ($arResult['USER_VOTE'] >= 0? 'PLUS': 'MINUS'): 'NONE';
 if ($isLikeTemplate && $arResult['VOTE_BUTTON'] == 'MINUS')
 	$arResult['USER_HAS_VOTED'] = 'N';
 

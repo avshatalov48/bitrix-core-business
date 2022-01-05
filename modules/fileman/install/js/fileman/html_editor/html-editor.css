@@ -18,8 +18,8 @@ div.bx-html-editor-absolute{
 .bxhtmled-toolbar-cnt{
 	background-color: #F4F8F9;
 	background-image: linear-gradient(to bottom, #FBFDFD, #EEF4F5);
-	border-bottom: 1px solid #E4E4E4;
-	height: 33px;
+	border-bottom: 1px solid rgba(130,139,149,.08);
+	height: 39px;
 }
 
 .bxhtmled-top-bar-left-wrap {
@@ -38,6 +38,7 @@ div.bx-html-editor-absolute{
 .bxhtmled-top-bar-right-wrap {
 	float: right;
 	margin-right: 4px;
+	margin-left: auto;
 }
 .bxhtmled-top-bar-hidden-wrap{
 	position: absolute;
@@ -57,37 +58,40 @@ div.bx-html-editor-absolute{
 	width: 24px;
 }
 
-.bxhtmled-top-bar-btn:hover {
-	background-color: #e0e8ea;
-	-webkit-box-shadow: 0 1px 0 #f8fafb, inset 0 -1px 0 #d7dfe1;
-	box-shadow: 0 1px 0 #f8fafb, inset 0 -1px 0 #d7dfe1, inset 0 -2px 0 #dbe3e4;
-}
+/*.bxhtmled-top-bar-btn:hover {*/
+/*	background-color: #e0e8ea;*/
+/*	-webkit-box-shadow: 0 1px 0 #f8fafb, inset 0 -1px 0 #d7dfe1;*/
+/*	box-shadow: 0 1px 0 #f8fafb, inset 0 -1px 0 #d7dfe1, inset 0 -2px 0 #dbe3e4;*/
+/*}*/
 
 .bxhtmled-top-bar-btn i {
 	background: url(/bitrix/images/fileman/htmleditor/html-editor-sprite.png?v=2) no-repeat 100px 100px;
 	display: block;
-	height: 20px;
-	margin: 2px 0 0 2px;
 	width: 20px;
+	height: 20px;
+	/*margin: 2px 0 0 2px;*/
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	opacity: 0.7;
+	transition: .2s;
 }
 
-.bxhtmled-top-bar-btn-active i {
-	margin: 1px 0 0 1px;
+.bxhtmled-top-bar-btn:hover i {
+	opacity: 1;
 }
 
 .bxhtmled-top-bar-btn-active {
-	background-image: -webkit-linear-gradient(top, #afdcef, #c2e3f1) !important;
-	background-image:    -moz-linear-gradient(top, #afdcef, #c2e3f1) !important;
-	background-image:     -ms-linear-gradient(top, #afdcef, #c2e3f1) !important;
-	background-image:      -o-linear-gradient(top, #afdcef, #c2e3f1) !important;
-	background-image:         linear-gradient(to bottom, #afdcef, #c2e3f1) !important;
-	border: 1px solid;
-	border-color: #93b7c7 #add2e2 #bcdce8!important;
-	-webkit-box-shadow: inset 0 1px 0 #a6d0e2, inset 0 -1px 0 #bedeeb;
-	box-shadow: inset 0 1px 0 #a6d0e2, inset 0 -1px 0 #bedeeb;
-	height: 22px;
-	width: 22px;
+	background-color: #D3F1FB;
+	/*height: 22px;*/
+	/*width: 22px;*/
 }
+
+.bxhtmled-top-bar-btn-active i {
+	opacity: 1;
+}
+
 
 .bxhtmled-top-bar-btn-disabled,
 .bxhtmled-top-bar-btn-disabled:active {
@@ -224,7 +228,7 @@ span.bxhtmled-top-bar-dd-active:before {
 	cursor: auto !important;
 }
 
-.bxhtmled-dropdown-cont{z-index: 3000; padding: 7px !important;}
+.bxhtmled-dropdown-cont{z-index: 3000; padding: 6px 7px !important;}
 
 .bxhtmled-dropdown-list-cont{
 	position: absolute;
@@ -329,70 +333,212 @@ span.bxhtmled-top-bar-dd-active:before {
 
 /* Button icons */
 .bxhtmled-button-search i {background-position: center -370px;}
-.bxhtmled-button-bold i {background-position: center -461px;}
-.bxhtmled-button-italic i {background-position: center -491px;}
-.bxhtmled-button-underline i {background-position: center -520px;}
-.bxhtmled-button-strike i {background-position: -4px -549px;}
+
+.bxhtmled-button-bold i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-bold.svg") no-repeat center;
+}
+
+.bxhtmled-button-italic i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-italic.svg") no-repeat center;
+}
+
+.bxhtmled-button-underline i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-underline.svg?v=4") no-repeat center;
+}
+
+.bxhtmled-button-strike i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-strike.svg") no-repeat center;
+}
+
+.bxhtmled-button-remove-format i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-remove-format.svg?v=3") no-repeat center;
+}
+
+.bxhtmled-button-fontsize i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-fontsize.svg?v=4") no-repeat center;
+}
+
+.bxhtmled-button-ordered-list i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-ordered-list.svg") no-repeat center;
+}
+
+.bxhtmled-button-unordered-list i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-unordered-list.svg") no-repeat center;
+}
+
+.bxhtmled-button-align-left i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-align-left.svg") no-repeat center;
+}
+
+.bxhtmled-button-align-center i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-align-center.svg") no-repeat center;
+}
+
+.bxhtmled-button-align-right i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-align-right.svg") no-repeat center;
+}
+
+.bxhtmled-button-align-justify i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-align-justify.svg") no-repeat center;
+}
+
+.bxhtmled-button-link i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-link.svg") no-repeat center;
+}
+
+.bxhtmled-button-remove-link i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-remove-link.svg") no-repeat center;
+}
+
+.bxhtmled-button-image i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-image.svg") no-repeat center;
+}
+
+.bxhtmled-button-video i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-video.svg?v=4") no-repeat center;
+}
+
+.bxhtmled-button-table i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-table.svg?v=4") no-repeat center;
+}
+
+.bxhtmled-button-code i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-code.svg") no-repeat center;
+}
+
+.bxhtmled-button-smile i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-smile.svg") no-repeat center;
+	width: 24px;
+	height: 24px;
+	margin: 0;
+}
+
+.bxhtmled-button-smile.bxhtmled-top-bar-btn-active i {
+	margin: -1px;
+}
+
+.bxhtmled-button-fullscreen i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-fullscreen.svg") no-repeat center;
+}
+
+.bxhtmled-button-bbcode i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-bbcode.svg") no-repeat center;
+}
+
+.bxhtmled-button-anchor i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-anchor.svg") no-repeat center;
+}
+
+.bxhtmled-button-more i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-more.svg") no-repeat center;
+}
+
+.bxhtmled-button-specialchar i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-specialchar.svg") no-repeat center;
+}
+
+.bxhtmled-button-print-break i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-print-break.svg") no-repeat center;
+}
+
+.bxhtmled-button-page-break i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-page-break.svg") no-repeat center;
+}
+
+.bxhtmled-button-spell i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-spell.svg") no-repeat center;
+}
+
+.bxhtmled-button-hr i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-hr.svg") no-repeat center;
+}
+
+.bxhtmled-button-sub i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-sub.svg") no-repeat center;
+}
+
+.bxhtmled-button-sup i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-sup.svg") no-repeat center;
+}
+
+/* View mode button - list */
+.bxhtmled-button-viewmode-wysiwyg i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-viewmode-wysiwyg.svg") no-repeat center;
+}
+
+.bxhtmled-button-viewmode-code i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-viewmode-code.svg") no-repeat center;
+}
+
+.bxhtmled-button-viewmode-split-hor i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-viewmode-split-hor.svg") no-repeat center;
+}
+
+.bxhtmled-button-viewmode-split-ver i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-viewmode-split-ver.svg") no-repeat center;
+}
+
+.bxhtmled-button-undo i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-undo.svg") no-repeat center;
+}
+
+.bxhtmled-button-redo i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-redo.svg") no-repeat center;
+}
+
+.bxhtmled-button-settings i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-settings.svg") no-repeat center;
+}
+
+.bxhtmled-button-indent i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-indent.svg") no-repeat center;
+}
+
+.bxhtmled-button-outdent i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-outdent.svg") no-repeat center;
+}
+
+.bxhtmled-top-bar-btn.spoiler i {
+	background-position: center!important;
+}
+
+
+
+
 .bxhtmled-button-color i {background-position: center -882px;}
 .bxhtmled-button-bg-color i {background-position: center -821px;}
-.bxhtmled-button-remove-format i {background-position: -3px -1690px;}
-.bxhtmled-button-fontsize i {background-position: -1px -850px;}
-.bxhtmled-button-specialchar i {background-position: -3px -1744px;}
-.bxhtmled-button-anchor i {background-position: center -1774px;}
-.bxhtmled-button-ordered-list i {background-position: center -699px;}
-.bxhtmled-button-unordered-list i {background-position: center -729px;}
-.bxhtmled-button-indent i {background-position: center -788px;}
-.bxhtmled-button-outdent i {background-position: center -758px;}
+
 .bxhtmled-button-align i {background-position: center -581px;}
-.bxhtmled-button-align-left i {background-position: center -1569px;}
-.bxhtmled-button-align-center i {background-position: center -1599px;}
-.bxhtmled-button-align-right i {background-position: center -1631px;}
-.bxhtmled-button-align-justify i {background-position: center -1660px;}
-.bxhtmled-button-link i {background-position: center -941px;}
-.bxhtmled-button-remove-link i {background-position: center -971px;}
-.bxhtmled-button-image i {background-position: -3px -1000px;}
-.bxhtmled-button-table i {background-position: center -641px;}
-.bxhtmled-button-undo i {background-position: -4px -1027px;}
-.bxhtmled-button-redo i {background-position: -3px -1058px;}
-.bxhtmled-button-settings i {background-position: center -1916px;}
-.bxhtmled-button-fullscreen i {background-position: center -1803px;}
-.bxhtmled-button-print-break i {background-position: center -1836px;}
-.bxhtmled-button-page-break i {background-position: center -1876px;}
-.bxhtmled-button-hr i {background-position: center -1442px;}
-.bxhtmled-button-more i {background-position: center -2078px;}
-.bxhtmled-button-video i {background-position: center -611px;}
-.bxhtmled-button-spell i {background-position: -3px -2339px;}
-.bxhtmled-button-sup i {background-position: -3px -2374px;}
-.bxhtmled-button-sub i {background-position: -3px -2413px;}
-.bxhtmled-button-bbcode i {background-position: -3px -2574px;}
+
 .bxhtmled-button-htmlcode i {background-position: -3px -2662px;}
 
-.bxhtmled-button-smile i {background-position: center -2499px; width: 21px;}
 .bxhtmled-button-quote i {background-position: center -2541px;}
-.bxhtmled-button-code i {background-position: center -2459px;}
 
 .bxhtmled-button-toolbar-pin i {background-position: center -2605px;}
 .bxhtmled-button-toolbar-pined i {background-position: center -2632px;}
 
-/* View mode button - list */
-.bxhtmled-button-viewmode-wysiwyg i{background-position: center -1504px !important;}
-.bxhtmled-button-viewmode-code i{background-position: center -401px !important;}
-.bxhtmled-button-viewmode-split-hor i{background-position: center -1474px !important;}
-.bxhtmled-button-viewmode-split-ver i{background-position: center -1534px !important;}
 
 /* */
+.bxhtmled-button-fontsize-active,
+.bxhtmled-button-fontsize:active {
+	width: 30px;
+}
+
 .bxhtmled-button-fontsize-wrap{margin-left: -4px; display: inline-block; width: 33px; /*overflow: hidden;*/ vertical-align: top !important;}
 .bxhtmled-button-fontsize-wrap .bxhtmled-top-bar-select{width: 14px; padding-left: 3px; font-size: 12px; text-align: center;}
 .bxhtmled-button-fontsize{width: 32px;}
-.bxhtmled-button-fontsize-active,
-.bxhtmled-button-fontsize:active
-{width: 32px;}
+
 .bxhtmled-button-fontsize-disabled
 {width: 32px;}
 .bxhtmled-button-fontsize i {width: 22px;}
-.bxhtmled-top-bar-wrap {display: inline-block; margin-left: 6px;}
+.bxhtmled-top-bar-wrap {
+	display: flex;
+	margin-left: 6px;
+}
 
 /* Button icons END*/
+
+
 
 /* +++ Insert table button +++ */
 .bxhtmled-pattern-tbl{}
@@ -457,7 +603,10 @@ span.bxhtmled-top-bar-dd-active:before {
 /* +++ Insert char button & dialog END +++*/
 
 
-.bxhtmled-button-remove-fontsize i {background-position: center -1719px;}
+.bxhtmled-button-remove-fontsize i {
+	background: url("/bitrix/images/fileman/htmleditor/bxhtmled-button-remove-fontsize.svg?v=1") no-repeat center;
+}
+
 .bxhtmled-font-size-popup {height: 300px; overflow: auto; margin: 5px; width: 45px;}
 .bxhtmled-font-size-popup .bxhtmled-dd-list-item{
 	text-align: center;
@@ -655,7 +804,10 @@ span.bxhtmled-top-bar-dd-active:before {
 	height: 27px;
 }
 
-.bxhtmled-toolbar{ text-align: left !important;}
+.bxhtmled-toolbar{
+	text-align: left !important;
+	display: flex;
+}
 .bxhtmled-area-cnt{position: absolute; top: 34px; left: 0; z-index: 100;}
 .bxhtmled-iframe-cnt{
 	position: absolute; top: 0; left: 0; background-color: #FFF !important;
@@ -1370,23 +1522,38 @@ span.bxhtmled-top-bar-dd-active:before {
 
 /* Colorpicker */
 .bxhtmled-top-bar-color .bxhtmled-top-bar-btn-text {
-	color: #31404a;
+	color: #525C69;
 	display: block;
 	font-size: 15px;
 	line-height: 13px;
 	height: 13px;
-	margin: 3px auto 0;
+	margin: 3px auto 0 6px;
 	text-shadow: 0 1px rgba(255,255,255,.7);
 	text-align: center;
 	width: 13px;
+	font-weight: 600;
+	opacity: 0.7;
+	transition: .2s;
+}
+
+.bxhtmled-top-bar-btn.bxhtmled-top-bar-btn-active .bxhtmled-top-bar-btn-text {
+	margin: 2px auto 0 5px;
 }
 
 .bxhtmled-top-bar-color-strip {
-	background-color: #000;
+	background-color: #525C69;
 	display: block;
-	margin: 1px auto 0;
+	margin: 0 auto 0;
 	height: 3px;
-	width: 13px;
+	width: 11px;
+	opacity: 0.7;
+	border-radius: 1px;
+	transition: .2s;
+}
+
+.bxhtmled-top-bar-color:hover .bxhtmled-top-bar-btn-text,
+.bxhtmled-top-bar-color:hover .bxhtmled-top-bar-color-strip {
+	opacity: 1;
 }
 
 .bxhtmled-top-bar-btn:active .bxhtmled-top-bar-btn-text,
@@ -1443,48 +1610,51 @@ border-radius: 2px; cursor: pointer;
 /* ~~~ Popup with corner ~~~ */
 .bxhtmled-popup {
 	background-color: #fff;
-	border: 1px solid;
-	border-color: #d4e1e4 #d2dfe2 #cfdce0;
-	border-radius: 3px;
-	-webkit-box-shadow: 0 15px 12px 0 rgba(88, 112, 118, .3);
-	box-shadow: 0 18px 18px 0 rgba(88, 112, 118, .3);
+	box-shadow: 0px 3px 5px rgba(0,0,0,.18);
+	border-radius: 2px;
 	padding: 15px;
 	position: absolute;
 	z-index: 3005;
 }
 
-.bxhtmled-popup-corner {
-	background: url(/bitrix/images/fileman/htmleditor/html-editor-sprite.png?v=1) no-repeat center -1959px;
-	height: 17px;
-	margin-left: -9px;
-	top: -9px;
-	left: 50%;
-	position: absolute;
-	width: 17px;
-}
+/*.bxhtmled-popup-corner {*/
+/*	background: url(/bitrix/images/fileman/htmleditor/html-editor-sprite.png?v=1) no-repeat center -1959px;*/
+/*	height: 17px;*/
+/*	margin-left: -9px;*/
+/*	top: -9px;*/
+/*	left: 50%;*/
+/*	position: absolute;*/
+/*	width: 17px;*/
+/*}*/
 
-.bxhtmled-popup-left .bxhtmled-popup-corner {
-	background-position: center -1983px;
-	margin: -9px 0 0 0;
-	top: 50%;
-	left: -12px;
-}
+/*.bxhtmled-popup-left .bxhtmled-popup-corner {*/
+/*	background-position: center -1983px;*/
+/*	margin: -9px 0 0 0;*/
+/*	top: 50%;*/
+/*	left: -12px;*/
+/*}*/
 
-.bxhtmled-popup-right .bxhtmled-popup-corner {
-	background-position: center -2017px;
-	margin: -9px 0 0 0;
-	top: 50%;
-	left: auto;
-	right: -12px;
-}
+/*.bxhtmled-popup-right .bxhtmled-popup-corner {*/
+/*	background-position: center -2017px;*/
+/*	margin: -9px 0 0 0;*/
+/*	top: 50%;*/
+/*	left: auto;*/
+/*	right: -12px;*/
+/*}*/
 
-.bxhtmled-popup-bottom .bxhtmled-popup-corner {
-	background-position: center -2042px;
-	top: auto;
-	bottom: -9px;
-	left: 50%;
-}
+/*.bxhtmled-popup-bottom .bxhtmled-popup-corner {*/
+/*	background-position: center -2042px;*/
+/*	top: auto;*/
+/*	bottom: -9px;*/
+/*	left: 50%;*/
+/*}*/
 /* ~~~ Popup with corner ~~~ END */
+
+.bxhtmled-popup .bxhtmled-top-bar-btn{
+	width: 30px;
+	height: 30px;
+	margin: 0px 2px;
+}
 
 /* ~~~ Combobox ~~~ */
 .bxhtmled-combo-cont {
@@ -1498,7 +1668,10 @@ border-radius: 2px; cursor: pointer;
 }
 
 /* ~~~ Combobox ~~~ END */
-.bxhtmled-more-cnt {width: 100%;}
+.bxhtmled-more-cnt {
+	width: 100%;
+	display: flex;
+}
 
 .bxhtmled-dummy-target{position: absolute; height: 0; width: 0;}
 

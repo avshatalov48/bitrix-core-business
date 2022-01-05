@@ -4252,8 +4252,7 @@ abstract class Base extends \CBitrixComponent
 
 				$APPLICATION->RestartBuffer();
 				header('Content-Type: application/json');
-				echo Main\Web\Json::encode($addResult);
-				die();
+				\CMain::FinalActions(Main\Web\Json::encode($addResult));
 			}
 			else
 			{

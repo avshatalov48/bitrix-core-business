@@ -1,5 +1,6 @@
 <?php
 define('ADMIN_SECTION', false);
+define('B24CONNECTOR_SKIP', true);
 if (
 	isset($_GET['template']) &&
 	preg_match('/^[a-z0-9_]+$/i', $_GET['template'])

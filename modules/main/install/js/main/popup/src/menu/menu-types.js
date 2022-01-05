@@ -1,7 +1,8 @@
 import { PopupOptions } from '../popup/popup-types';
 
 export type MenuOptions = PopupOptions & {
-	items: MenuItemOptions[]
+	items: MenuItemOptions[],
+	subMenuOptions?: PopupOptions,
 };
 
 export type MenuItemOptions = {

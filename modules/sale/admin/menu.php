@@ -169,6 +169,61 @@ if ($APPLICATION->GetGroupRight("sale")!="D")
 		"items_id" => "update_system_market",
 	);
 
+	$hasShops = false;
+	$shops = [];
+	$siteIterator = \Bitrix\Main\SiteTable::getList([
+		'select' => ['LID', 'NAME', 'SORT'],
+		'order' => ['SORT' => 'ASC'],
+	]);
+	while ($site = $siteIterator->fetch())
+	{
+		$saleSite = \Bitrix\Main\Config\Option::get('sale', 'SHOP_SITE_'.$site['LID']);
+		if ($site['LID'] === $saleSite)
+		{
+			$hasShops = true;
+			break;
+		}
+	}
+
+	if ($hasShops)
+	{
+		$aMenu[] = array(
+			"parent_menu" => "global_menu_marketing",
+			"sort" => 1200,
+			"text" => GetMessage("SALE_MENU_MARKETING_FACEBOOK_AUDIENCES"),
+			"title" => GetMessage("SALE_MENU_MARKETING_FACEBOOK_AUDIENCES"),
+			"icon" => "sale_menu_icon_facebook",
+			"items_id" => "facebook_audiences",
+			"items" => [
+				[
+					"text" => GetMessage("SALE_MENU_MARKETING_FACEBOOK_AUDIENCES_ADD_TO_CART"),
+					"url" => "facebook_audiences_add_to_cart.php?lang=" . LANGUAGE_ID,
+					"title" => GetMessage("SALE_MENU_MARKETING_FACEBOOK_AUDIENCES_ADD_TO_CART"),
+				],
+				[
+					"text" => GetMessage("SALE_MENU_MARKETING_FACEBOOK_AUDIENCES_INITIATE_CHECKOUT"),
+					"url" => "facebook_audiences_initiate_checkout.php?lang=" . LANGUAGE_ID,
+					"title" => GetMessage("SALE_MENU_MARKETING_FACEBOOK_AUDIENCES_INITIATE_CHECKOUT"),
+				],
+				[
+					"text" => GetMessage("SALE_MENU_MARKETING_FACEBOOK_AUDIENCES_ADD_PAYMENT_INFO"),
+					"url" => "facebook_audiences_add_payment_info.php?lang=" . LANGUAGE_ID,
+					"title" => GetMessage("SALE_MENU_MARKETING_FACEBOOK_AUDIENCES_ADD_PAYMENT_INFO"),
+				],
+				[
+					"text" => GetMessage("SALE_MENU_MARKETING_FACEBOOK_AUDIENCES_CUSTOMIZE_PRODUCT"),
+					"url" => "facebook_audiences_customize_product.php?lang=" . LANGUAGE_ID,
+					"title" => GetMessage("SALE_MENU_MARKETING_FACEBOOK_AUDIENCES_CUSTOMIZE_PRODUCT"),
+				],
+				[
+					"text" => GetMessage("SALE_MENU_MARKETING_FACEBOOK_AUDIENCES_CONTACT"),
+					"url" => "facebook_audiences_contact.php?lang=" . LANGUAGE_ID,
+					"title" => GetMessage("SALE_MENU_MARKETING_FACEBOOK_AUDIENCES_CONTACT"),
+				],
+			]
+		);
+	}
+
 	/* Catalog Begin*/
 	// included in catalog/general/admin.php
 	/* Catalog End*/
@@ -464,8 +519,8 @@ if ($boolStore || $bViewAll)
 	$arMenu = array(
 		"parent_menu" => "global_menu_store",
 		"sort" => 550,
-		"text" => GetMessage("SALE_STORE"),
-		"title" => GetMessage("SALE_STORE_DESCR"),
+		"text" => GetMessage("SALE_STORE_1"),
+		"title" => GetMessage("SALE_STORE_DESCR_1"),
 		"icon" => "sale_menu_icon_store",
 		"page_icon" => "sale_page_icon_store",
 		"items_id" => "menu_catalog_store",

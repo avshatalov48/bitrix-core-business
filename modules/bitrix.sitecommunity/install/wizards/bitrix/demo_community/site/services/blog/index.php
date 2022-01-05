@@ -100,7 +100,7 @@ if ($GLOBALS["APPLICATION"]->GetGroupRight("blog", array(2)) < "N")
 {
 	$arFilter["!ID"] = 1; 
 	$arFilter["GROUPS"] = array(); 
-	$db_res = CGroup::GetList($by = "ID", $order = "DESC", array("ACTIVE" => "Y", "!ID" => 2)); 
+	$db_res = CGroup::GetList("ID", "DESC", array("ACTIVE" => "Y", "!ID" => 2));
 	if ($db_res && $res = $db_res->Fetch())
 	{
 		do 
@@ -110,7 +110,7 @@ if ($GLOBALS["APPLICATION"]->GetGroupRight("blog", array(2)) < "N")
 		} while ($res = $db_res->Fetch()); 
 	}
 }
-$db_res = CUser::GetList($by = "ID", $order = "DESC", $arFilter, 
+$db_res = CUser::GetList("ID", "DESC", $arFilter,
 	array("NAV_PARAMS" => array("nPageSize" => 3, "iNumPage" => 1, "bDescPageNumbering" => false)));
 $arUsers = array(); 
 if ($db_res && $res = $db_res-> Fetch())
@@ -418,7 +418,7 @@ foreach ($arUsers as $key => $arUser)
 				$arSoFields = Array(
 					"EVENT_ID" => "blog_post",
 					"=LOG_DATE" => (
-						strlen($arPost["DATE_PUBLISH"]) > 0? 
+						$arPost["DATE_PUBLISH"] <> ''? 
 							(MakeTimeStamp($arPost["DATE_PUBLISH"], CSite::GetDateFormat("FULL", $SITE_ID)) > time()+CTimeZone::GetOffset()?
 								$DB->CharToDateFunction($arPost["DATE_PUBLISH"], "FULL", SITE_ID) : 
 								$DB->CurrentTimeFunction()) : 

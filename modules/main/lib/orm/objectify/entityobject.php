@@ -93,6 +93,9 @@ abstract class EntityObject implements ArrayAccess
 	/** @var Context */
 	protected $_authContext;
 
+	/** @var bool Save lock */
+	protected $_savingInProgress = false;
+
 	/**
 	 * Cache for lastName => LAST_NAME transforming
 	 * @var string[]
@@ -296,6 +299,13 @@ abstract class EntityObject implements ArrayAccess
 				$result = new Result;
 		}
 
+		if ($this->_savingInProgress)
+		{
+			return $result;
+		}
+
+		$this->_savingInProgress = true;
+
 		$dataClass = $this->entity->getDataClass();
 
 		// check for object fields, it could be changed without notification
@@ -335,6 +345,8 @@ abstract class EntityObject implements ArrayAccess
 			// check for error
 			if (!$result->isSuccess())
 			{
+				$this->_savingInProgress = false;
+
 				return $result;
 			}
 
@@ -364,6 +376,8 @@ abstract class EntityObject implements ArrayAccess
 				// check for error
 				if (!$result->isSuccess())
 				{
+					$this->_savingInProgress = false;
+
 					return $result;
 				}
 			}
@@ -379,6 +393,8 @@ abstract class EntityObject implements ArrayAccess
 		}
 
 		$this->sysPostSave();
+
+		$this->_savingInProgress = false;
 
 		return $result;
 	}

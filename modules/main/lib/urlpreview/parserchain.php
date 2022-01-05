@@ -56,7 +56,7 @@ class ParserChain
 			if(class_exists($parserClassName))
 			{
 				$parser = new $parserClassName();
-				if(is_a($parser, '\Bitrix\Main\UrlPreview\Parser'))
+				if ($parser instanceof Parser)
 				{
 					$parser->handle($document);
 				}

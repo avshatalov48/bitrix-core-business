@@ -2,6 +2,7 @@
 
 namespace Bitrix\Catalog\Component;
 
+use Bitrix\Catalog\Url;
 use Bitrix\Catalog\Config\State;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
@@ -56,7 +57,7 @@ abstract class BaseForm
 	/** @var array|null */
 	protected $propertyDescriptions;
 
-	/** @var null|Crm\Product\Url\ShopBuilder */
+	/** @var null|Url\ShopBuilder */
 	protected $urlBuilder;
 
 	public function __construct(BaseIblockElementEntity $entity, array $params = [])
@@ -64,7 +65,7 @@ abstract class BaseForm
 		$this->entity = $entity;
 		$this->params = $params;
 
-		$this->urlBuilder = BuilderManager::getInstance()->getBuilder(Crm\Product\Url\ShopBuilder::TYPE_ID);
+		$this->urlBuilder = BuilderManager::getInstance()->getBuilder(Url\ShopBuilder::TYPE_ID);
 	}
 
 	protected function prepareFieldName(string $name): string

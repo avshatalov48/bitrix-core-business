@@ -16,7 +16,7 @@ ShowMessage($arParams["~AUTH_RESULT"]);
 <noindex>
 <form method="post" action="<?=$arResult["AUTH_URL"]?>" name="bform">
 <?
-if (strlen($arResult["BACKURL"]) > 0)
+if ($arResult["BACKURL"] <> '')
 {
 ?>
 	<input type="hidden" name="backurl" value="<?=$arResult["BACKURL"]?>" />
@@ -39,11 +39,11 @@ if (strlen($arResult["BACKURL"]) > 0)
 		</div>
 		<div class="field">
 			<label class="field-title"><?=GetMessage("AUTH_PASSWORD_REQ")?><span class="starrequired">*</span></label>
-			<div class="form-input"><input type="password" name="USER_PASSWORD" maxlength="50" value="<?=$arResult["USER_PASSWORD"]?>" /></div>
+			<div class="form-input"><input type="password" name="USER_PASSWORD" maxlength="255" value="<?=$arResult["USER_PASSWORD"]?>" /></div>
 		</div>
 		<div class="field">
 			<label class="field-title"><?=GetMessage("AUTH_CONFIRM")?><span class="starrequired">*</span></label>
-			<div class="form-input"><input type="password" name="USER_CONFIRM_PASSWORD" maxlength="50" value="<?=$arResult["USER_CONFIRM_PASSWORD"]?>" /></div>
+			<div class="form-input"><input type="password" name="USER_CONFIRM_PASSWORD" maxlength="255" value="<?=$arResult["USER_CONFIRM_PASSWORD"]?>" /></div>
 		</div>
 		<div class="field">
 			<label class="field-title">E-Mail<span class="starrequired">*</span></label>
@@ -51,7 +51,7 @@ if (strlen($arResult["BACKURL"]) > 0)
 		</div>
 <?// ********************* User properties ***************************************************?>
 <?if($arResult["USER_PROPERTIES"]["SHOW"] == "Y"):?>
-	<div class="field"><?=strLen(trim($arParams["USER_PROPERTY_NAME"])) > 0 ? $arParams["USER_PROPERTY_NAME"] : GetMessage("USER_TYPE_EDIT_TAB")?></div>
+	<div class="field"><?=trim($arParams["USER_PROPERTY_NAME"]) <> '' ? $arParams["USER_PROPERTY_NAME"] : GetMessage("USER_TYPE_EDIT_TAB")?></div>
 	<?foreach ($arResult["USER_PROPERTIES"]["DATA"] as $FIELD_NAME => $arUserField):?>
 	<div class="field">
 		<label class="field-title">

@@ -169,6 +169,7 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 						'TYPE' => 'EXPORT',
 						'CONTEXT' => $this->getContextPostFix(),
 						'CONTEXT_USER' => $context,
+						'USER_ID' => $setting->get(Setting::SETTING_USER_ID) ?? 0,
 						'MANIFEST_CODE' => $manifest['CODE'],
 						'IMPORT_MANIFEST' => [],//TODO: delete this after fix crm
 						'MANIFEST' => $manifest,

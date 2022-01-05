@@ -670,8 +670,11 @@ class CAdminSidePanelHelper extends CAdminAjaxHelper
 	{
 		if ($this->isPublicFrame())
 		{
+			$url = (strpos($url, '/') === 0 ? $url: '/');
+			$url = '/'.ltrim($url, '/');
+
 			echo "<script>";
-			echo "top.window.location.href = '".$url."';";
+			echo "top.window.location.href = '".CUtil::JSEscape($url)."';";
 			echo "</script>";
 			exit;
 		}

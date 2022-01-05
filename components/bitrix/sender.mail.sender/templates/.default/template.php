@@ -13,7 +13,10 @@
 
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;
-\Bitrix\Main\UI\Extension::load("ui.icons.b24");
+\Bitrix\Main\UI\Extension::load([
+	"ui.icons.b24",
+	"main.maillimiter"
+]);
 
 $GLOBALS['APPLICATION']->IncludeComponent('bitrix:main.mail.confirm',
 	'',

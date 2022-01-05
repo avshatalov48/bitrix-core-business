@@ -48,11 +48,11 @@ export class AddButton extends EventEmitter
 					})
 				]
 			});
-
 			this.DOM.addButtonExtra = Dom.create("span", {
 				props: {className: "ui-btn-extra"},
 				events: {click: this.showPopup.bind(this)}
 			});
+
 			this.DOM.wrap.appendChild(this.DOM.addButtonExtra)
 		}
 		else
@@ -63,6 +63,7 @@ export class AddButton extends EventEmitter
 				events: {click: this.addEntry.bind(this)}
 			});
 		}
+		this.DOM.wrap.setAttribute('data-role', 'addButton');
 	}
 
 	getWrap()

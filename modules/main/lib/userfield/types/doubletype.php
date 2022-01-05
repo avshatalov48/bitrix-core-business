@@ -53,10 +53,10 @@ class DoubleType extends BaseType
 			'SIZE' => ($size <= 1 ? 20 : ($size > 255 ? 225 : $size)),
 			'MIN_VALUE' => $min,
 			'MAX_VALUE' => $max,
-			'DEFAULT_VALUE' => (
-			$userField['SETTINGS']['DEFAULT_VALUE'] <> '' ?
-				(double)$userField['SETTINGS']['DEFAULT_VALUE'] : ''
-			)
+			'DEFAULT_VALUE' => $userField['SETTINGS']['DEFAULT_VALUE'] <> ''
+				? (double)$userField['SETTINGS']['DEFAULT_VALUE']
+				: null
+			,
 		];
 	}
 

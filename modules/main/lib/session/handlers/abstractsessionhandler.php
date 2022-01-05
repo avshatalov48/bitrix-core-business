@@ -9,6 +9,8 @@ use Bitrix\Main\Security\Random;
 
 abstract class AbstractSessionHandler implements \SessionHandlerInterface, \SessionUpdateTimestampHandlerInterface, \SessionIdInterface
 {
+	public const LOCK_ERROR_MESSAGE = 'Unable to get session lock within 60 seconds.';
+
 	/** @var bool */
 	protected $readOnly = false;
 	/** @var string */
@@ -21,6 +23,8 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
     private $lastCreatedId;
     /** @var array */
     private $listValidatedIds = [];
+	/** @var bool */
+	private $releaseLockAfterClose = true;
 
 	/**
 	 * @return string
@@ -49,7 +53,7 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 
 		if (!$this->readOnly && !$this->lock($this->sessionId))
 		{
-			$this->triggerLockFatalError("Unable to get session lock within 60 seconds.");
+			$this->triggerLockFatalError();
 		}
 
 		return $this->processRead($sessionId);
@@ -57,8 +61,14 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 
 	abstract protected function processRead($sessionId): string;
 
-	protected function triggerLockFatalError(string $text): void
+	protected function triggerLockFatalError(string $additionalText = ''): void
 	{
+		$text = self::LOCK_ERROR_MESSAGE;
+		if ($additionalText)
+		{
+			$text .= $additionalText;
+		}
+
 		\CHTTP::SetStatus("500 Internal Server Error");
 		trigger_error($text, E_USER_ERROR);
 		die;
@@ -94,7 +104,7 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 			unset($this->listValidatedIds[$this->sessionId]);
 		}
 	}
-	
+
 	public function close()
 	{
 		if (!$this->readOnly && $this->validateSessionId($this->sessionId))
@@ -104,7 +114,11 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 				$this->destroy($this->sessionId);
 			}
 
-			$this->unlock($this->sessionId);
+			if ($this->releaseLockAfterClose)
+			{
+				$this->unlock($this->sessionId);
+			}
+
 			$this->releaseLocksAfterValidate();
 		}
 
@@ -179,5 +193,15 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 			is_string($sessionId) &&
 			preg_match('/^[\da-z\-,]{6,}$/iD', $sessionId)
 		;
+	}
+
+	public function turnOffReleaseLockAfterCloseSession(): void
+	{
+		$this->releaseLockAfterClose = false;
+	}
+
+	public function turnOnReleaseLockAfterCloseSession(): void
+	{
+		$this->releaseLockAfterClose = true;
 	}
 }

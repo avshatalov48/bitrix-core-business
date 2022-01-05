@@ -155,6 +155,8 @@ if ($server->getRequestMethod() == "POST"
 		$errorMessage = Loc::getMessage('SALE_PSE_ERROR_ACTION_SAVE');
 	}
 
+	$psMode = $request->get('PS_MODE');
+
 	// temp crutch because of CSalePdf does not support all images
 	if (mb_strpos($actionFile, 'bill') === 0)
 	{
@@ -201,9 +203,7 @@ if ($server->getRequestMethod() == "POST"
 		}
 	}
 
-	if ($actionFile === 'orderdocument'
-		&& !$request->get('PS_MODE')
-	)
+	if ($actionFile === 'orderdocument' && !$psMode)
 	{
 		$errorMessage .= Loc::getMessage('SALE_PSE_ERROR_DOCUMENT_TEMPLATE_EMPTY');
 	}
@@ -211,20 +211,20 @@ if ($server->getRequestMethod() == "POST"
 	if ($errorMessage === '')
 	{
 		$fields = array(
-			"NAME" => $name,
-			"PSA_NAME" => $request->get('PSA_NAME'),
-			"ACTIVE" => ($request->get('ACTIVE') != 'Y') ? 'N' : $request->get('ACTIVE'),
-			"CAN_PRINT_CHECK" => ($request->get('CAN_PRINT_CHECK') != 'Y') ? 'N' : $request->get('CAN_PRINT_CHECK'),
-			"CODE" => $request->get('CODE'),
-			"NEW_WINDOW" => ($request->get('NEW_WINDOW') != 'Y') ? 'N' : $request->get('NEW_WINDOW'),
-			"ALLOW_EDIT_PAYMENT" => ($request->get('ALLOW_EDIT_PAYMENT') != 'Y') ? 'N' : $request->get('ALLOW_EDIT_PAYMENT'),
-			"IS_CASH" => (!in_array($request->get('IS_CASH'), array('Y', 'A'))) ? 'N' : $request->get('IS_CASH'),
-			"ENTITY_REGISTRY_TYPE" => \Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER,
-			"SORT" => $sort,
-			"ENCODING" => $request->get('ENCODING'),
-			"DESCRIPTION" => htmlspecialcharsback($request->get('DESCRIPTION')),
-			"ACTION_FILE" => $actionFile,
-			'PS_MODE' => ($request->get('PS_MODE')) ? $request->get('PS_MODE') : '',
+			'NAME' => $name,
+			'PSA_NAME' => $request->get('PSA_NAME'),
+			'ACTIVE' => ($request->get('ACTIVE') != 'Y') ? 'N' : $request->get('ACTIVE'),
+			'CAN_PRINT_CHECK' => ($request->get('CAN_PRINT_CHECK') != 'Y') ? 'N' : $request->get('CAN_PRINT_CHECK'),
+			'CODE' => $request->get('CODE'),
+			'NEW_WINDOW' => ($request->get('NEW_WINDOW') != 'Y') ? 'N' : $request->get('NEW_WINDOW'),
+			'ALLOW_EDIT_PAYMENT' => ($request->get('ALLOW_EDIT_PAYMENT') != 'Y') ? 'N' : $request->get('ALLOW_EDIT_PAYMENT'),
+			'IS_CASH' => (!in_array($request->get('IS_CASH'), array('Y', 'A'))) ? 'N' : $request->get('IS_CASH'),
+			'ENTITY_REGISTRY_TYPE' => \Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER,
+			'SORT' => $sort,
+			'ENCODING' => $request->get('ENCODING'),
+			'DESCRIPTION' => htmlspecialcharsback($request->get('DESCRIPTION')),
+			'ACTION_FILE' => $actionFile,
+			'PS_MODE' => $psMode ?? '',
 			'XML_ID' => ($request->get('XML_ID')) ?: PaySystem\Manager::generateXmlId()
 		);
 
@@ -312,12 +312,9 @@ if ($server->getRequestMethod() == "POST"
 		}
 		elseif ($id <= 0)
 		{
-			$psMode = $request->get('PS_MODE');
-			$handler = $request->get('ACTION_FILE');
-
 			if ($psMode)
 			{
-				$image = '/bitrix/images/sale/sale_payments/'.$handler.'/'.$psMode.'.png';
+				$image = '/bitrix/images/sale/sale_payments/'.$actionFile.'/'.$psMode.'.png';
 				if (IO\File::isFileExists($documentRoot.$image))
 				{
 					$fields['LOGOTIP'] = CFile::MakeFileArray($image);
@@ -328,7 +325,7 @@ if ($server->getRequestMethod() == "POST"
 
 			if (!isset($fields['LOGOTIP']))
 			{
-				$image = '/bitrix/images/sale/sale_payments/'.$handler.'.png';
+				$image = '/bitrix/images/sale/sale_payments/'.$actionFile.'.png';
 				if (IO\File::isFileExists($documentRoot.$image))
 				{
 					$fields['LOGOTIP'] = CFile::MakeFileArray($image);
@@ -340,6 +337,12 @@ if ($server->getRequestMethod() == "POST"
 
 		$data = PaySystem\Manager::getHandlerDescription($request->get('ACTION_FILE'), $request->get('PS_MODE'));
 
+		$paySysntemStatisticLabel = $actionFile;
+		if (!empty($psMode))
+		{
+			$paySysntemStatisticLabel .= ':' . $psMode;
+		}
+
 		if ($id > 0)
 		{
 			$result = PaySystem\Manager::update($id, $fields);
@@ -350,7 +353,7 @@ if ($server->getRequestMethod() == "POST"
 			}
 			else
 			{
-				AddEventToStatFile('sale', 'updatePaysystem', $id, $actionFile);
+				AddEventToStatFile('sale', 'updatePaysystem', $id, $paySysntemStatisticLabel);
 			}
 		}
 		else
@@ -365,7 +368,7 @@ if ($server->getRequestMethod() == "POST"
 				$id = $result->getId();
 				if ($id > 0)
 				{
-					AddEventToStatFile('sale', 'addPaysystem', $id, $actionFile);
+					AddEventToStatFile('sale', 'addPaysystem', $id, $paySysntemStatisticLabel);
 
 					$fields = array(
 						'PARAMS' => serialize(array('BX_PAY_SYSTEM_ID' => $id)),
@@ -393,6 +396,8 @@ if ($server->getRequestMethod() == "POST"
 				}
 			}
 		}
+
+		unset($paySysntemStatisticLabel);
 
 		if ($errorMessage === '')
 		{

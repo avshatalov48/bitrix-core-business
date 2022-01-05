@@ -1,5 +1,16 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var CBitrixComponent $this */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CMain $APPLICATION */
+
+use Bitrix\Socialnetwork\ComponentHelper;
 
 if (!CModule::IncludeModule("socialnetwork"))
 {
@@ -7,8 +18,8 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
-$bAutoSubscribe = (array_key_exists("USE_AUTOSUBSCRIBE", $arParams) && $arParams["USE_AUTOSUBSCRIBE"] == "N" ? false : true);
+$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] === "N" ? "N" : "Y");
+$bAutoSubscribe = (array_key_exists("USE_AUTOSUBSCRIBE", $arParams) && $arParams["USE_AUTOSUBSCRIBE"] === "N" ? false : true);
 
 if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
@@ -30,43 +41,11 @@ if ($arParams["ITEMS_COUNT"] <= 0)
 $arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
 
 $arParams['NAME_TEMPLATE'] = $arParams['NAME_TEMPLATE'] ? $arParams['NAME_TEMPLATE'] : CSite::GetNameFormat();
-$bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
+$bUseLogin = $arParams['SHOW_LOGIN'] !== "N" ? true : false;
 
-// for bitrix:main.user.link
-if (IsModuleInstalled('intranet'))
-{
-	$arTooltipFieldsDefault	= serialize(array(
-		"EMAIL",
-		"PERSONAL_MOBILE",
-		"WORK_PHONE",
-		"PERSONAL_ICQ",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION",
-	));
-	$arTooltipPropertiesDefault = serialize(array(
-		"UF_DEPARTMENT",
-		"UF_PHONE_INNER",
-	));
-}
-else
-{
-	$arTooltipFieldsDefault = serialize(array(
-		"PERSONAL_ICQ",
-		"PERSONAL_BIRTHDAY",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION"
-	));
-	$arTooltipPropertiesDefault = serialize(array());
-}
-
-if (!array_key_exists("SHOW_FIELDS_TOOLTIP", $arParams))
-	$arParams["SHOW_FIELDS_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_fields", $arTooltipFieldsDefault), [ 'allowed_classes' => false ]);
-if (!array_key_exists("USER_PROPERTY_TOOLTIP", $arParams))
-	$arParams["USER_PROPERTY_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_properties", $arTooltipPropertiesDefault), [ 'allowed_classes' => false ]);
+$tooltipParams = ComponentHelper::checkTooltipComponentParams($arParams);
+$arParams['SHOW_FIELDS_TOOLTIP'] = $tooltipParams['SHOW_FIELDS_TOOLTIP'];
+$arParams['USER_PROPERTY_TOOLTIP'] = $tooltipParams['USER_PROPERTY_TOOLTIP'];
 
 if (!$GLOBALS["USER"]->IsAuthorized())
 {	
@@ -75,11 +54,11 @@ if (!$GLOBALS["USER"]->IsAuthorized())
 else
 {
 	/***********************  ACTIONS  *******************************/
-	if ($_REQUEST["EventType"] == "FriendRequest" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
+	if ($_REQUEST["EventType"] === "FriendRequest" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
 	{
 		$errorMessage = "";
 
-		if ($_REQUEST["action"] == "add")
+		if ($_REQUEST["action"] === "add")
 		{
 			if (!CSocNetUserRelations::ConfirmRequestToBeFriend($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"]), $bAutoSubscribe))
 			{
@@ -87,7 +66,7 @@ else
 					$errorMessage .= $e->GetString();
 			}
 		}
-		elseif ($_REQUEST["action"] == "reject")
+		elseif ($_REQUEST["action"] === "reject")
 		{
 			if (!CSocNetUserRelations::RejectRequestToBeFriend($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 			{
@@ -102,11 +81,11 @@ else
 		if ($_REQUEST["action"] <> '' && $_REQUEST["backurl"] <> '' && $arResult["ErrorMessage"] == '')
 			LocalRedirect($_REQUEST["backurl"]);
 	}
-	elseif ($_REQUEST["EventType"] == "GroupRequest" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
+	elseif ($_REQUEST["EventType"] === "GroupRequest" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
 	{
 		$errorMessage = "";
 
-		if ($_REQUEST["action"] == "add")
+		if ($_REQUEST["action"] === "add")
 		{
 			if (!CSocNetUserToGroup::UserConfirmRequestToBeMember($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"]), $bAutoSubscribe))
 			{
@@ -114,7 +93,7 @@ else
 					$errorMessage .= $e->GetString();
 			}
 		}
-		elseif ($_REQUEST["action"] == "reject")
+		elseif ($_REQUEST["action"] === "reject")
 		{
 			if (!CSocNetUserToGroup::UserRejectRequestToBeMember($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 			{
@@ -131,10 +110,10 @@ else
 	}
 	/*********************  END ACTIONS  *****************************/
 
-	if ($arParams["SET_TITLE"]=="Y")
+	if ($arParams["SET_TITLE"] === "Y")
 		$APPLICATION->SetTitle(GetMessage("SONET_C29_PAGE_TITLE"));
 
-	if ($arParams["SET_NAV_CHAIN"] != "N")
+	if ($arParams["SET_NAV_CHAIN"] !== "N")
 		$APPLICATION->AddChainItem(GetMessage("SONET_C29_PAGE_TITLE"));
 
 	$parser = new CSocNetTextParser(LANGUAGE_ID, $arParams["PATH_TO_SMILE"]);
@@ -191,13 +170,13 @@ else
 			"USER_LAST_NAME" => $arUserRequests["FIRST_USER_LAST_NAME"],
 			"USER_SECOND_NAME" => $arUserRequests["FIRST_USER_SECOND_NAME"],
 			"USER_LOGIN" => $arUserRequests["FIRST_USER_LOGIN"],
-			"USER_NAME_FORMATTED" => $strNameFormatted,			
+			"USER_NAME_FORMATTED" => $strNameFormatted,
 			"USER_PERSONAL_PHOTO" => $arUserRequests["FIRST_USER_PERSONAL_PHOTO"],
 			"USER_PERSONAL_PHOTO_FILE" => $arImage["FILE"],
 			"USER_PERSONAL_PHOTO_IMG" => $arImage["IMG"],
 			"USER_PROFILE_URL" => $pu,
 			"SHOW_PROFILE_LINK" => $canViewProfile,
-			"IS_ONLINE" => ($arUserRequests["FIRST_USER_IS_ONLINE"] == "Y"),
+			"IS_ONLINE" => ($arUserRequests["FIRST_USER_IS_ONLINE"] === "Y"),
 			"DATE_UPDATE" => $arUserRequests["DATE_UPDATE"],
 			"MESSAGE" => $parser->convert(
 				$arUserRequests["~MESSAGE"],
@@ -249,7 +228,7 @@ else
 		$arImage = CSocNetTools::InitImage($arUserRequests["INITIATED_BY_USER_PHOTO"], 150, "/bitrix/images/socialnetwork/nopic_user_150.gif", 150, $pu, $canViewProfileU);
 
 		$pg = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP"], array("group_id" => $arUserRequests["GROUP_ID"]));
-		$canViewProfileG = (CSocNetUser::IsCurrentUserModuleAdmin() || ($arUserRequests["GROUP_VISIBLE"] == "Y"));
+		$canViewProfileG = (CSocNetUser::IsCurrentUserModuleAdmin() || ($arUserRequests["GROUP_VISIBLE"] === "Y"));
 
 		if (intval($arUserRequests["GROUP_IMAGE_ID"]) <= 0)
 			$arUserRequests["GROUP_IMAGE_ID"] = COption::GetOptionInt("socialnetwork", "default_group_picture", false, SITE_ID);
@@ -312,4 +291,3 @@ else
 
 	$this->IncludeComponentTemplate();
 }
-?>

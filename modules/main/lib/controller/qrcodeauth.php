@@ -38,7 +38,7 @@ class QrCodeAuth extends Main\Engine\Controller
 		$this->pushToken($siteId, $uniqueId, $channelTag, $redirectUrl);
 	}
 
-	public function authenticateAction($token, $remember = false)
+	public function authenticateAction($token, bool $remember = false)
 	{
 		global $USER;
 

@@ -3,6 +3,7 @@
 namespace Bitrix\Socialnetwork;
 
 use Bitrix\Blog\Item\Post;
+use Bitrix\Main\Component\ParameterSigner;
 use Bitrix\Disk\Driver;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
@@ -10,6 +11,7 @@ use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\EventManager;
+use Bitrix\Main\Security\Sign\BadSignatureException;
 use Bitrix\Main\Update\Stepper;
 use Bitrix\Main\UrlPreview\UrlPreview;
 use Bitrix\Socialnetwork\Item\Log;
@@ -1504,7 +1506,7 @@ class ComponentHelper
 
 				if ($activity = $result->fetch())
 				{
-					$res = ($activity['TYPE_ID'] === \CCrmActivityType::Task);
+					$res = ((int)$activity['TYPE_ID'] === \CCrmActivityType::Task);
 				}
 			}
 			else
@@ -2432,44 +2434,16 @@ class ComponentHelper
 			&& $params["PULL"] === "Y"
 		)
 		{
-			if (!empty($params["ENTITY_XML_ID"]))
-			{
-				$entityXMLId = $params["ENTITY_XML_ID"];
-			}
-			else
-			{
-				$forumMetaData = \CSocNetLogTools::getForumCommentMetaData($logEntry["EVENT_ID"]);
+			$liveFeedCommentsParams = self::getLFCommentsParams([
+				'ID' => $logEntry['ID'],
+				'EVENT_ID' => $logEntry['EVENT_ID'],
+				'ENTITY_TYPE' => $logEntry['ENTITY_TYPE'],
+				'ENTITY_ID' => $logEntry['ENTITY_ID'],
+				'SOURCE_ID' => $logEntry['SOURCE_ID'],
+				'PARAMS' => $logEntry['PARAMS']
+			]);
 
-				if (
-					$logEntry["ENTITY_TYPE"] === "CRMACTIVITY"
-					&& Loader::includeModule("crm")
-					&& ($activity = \CCrmActivity::getByID($logEntry["ENTITY_ID"], false))
-					&& ($activity["TYPE_ID"] == \CCrmActivityType::Task)
-				)
-				{
-					$entityXMLId = "TASK_".$activity["ASSOCIATED_ENTITY_ID"];
-				}
-				elseif (
-					$logEntry["ENTITY_TYPE"] === "WF"
-					&& $logEntry["SOURCE_ID"] > 0
-					&& Loader::includeModule("bizproc")
-					&& ($workflowId = \CBPStateService::getWorkflowByIntegerId($logEntry["SOURCE_ID"]))
-				)
-				{
-					$entityXMLId = "WF_".$workflowId;
-				}
-				elseif (
-					$forumMetaData
-					&& $logEntry["SOURCE_ID"] > 0
-				)
-				{
-					$entityXMLId = $forumMetaData[0]."_".$logEntry["SOURCE_ID"];
-				}
-				else
-				{
-					$entityXMLId = mb_strtoupper($logEntry["EVENT_ID"])."_".$logEntry["ID"];
-				}
-			}
+			$entityXMLId = $liveFeedCommentsParams['ENTITY_XML_ID'];
 
 			$listCommentId = (
 				!!$comment["SOURCE_ID"]
@@ -4458,6 +4432,7 @@ class ComponentHelper
 		static $allowedTypes = array(
 			'post_general',
 			'post',
+			'post_urlpreview',
 			'posts_popular',
 			'post_comments',
 			'posts_last',
@@ -4475,7 +4450,7 @@ class ComponentHelper
 
 		if (
 			!$type
-			|| !in_array($type, $allowedTypes)
+			|| !in_array($type, $allowedTypes, true)
 		)
 		{
 			return $result;
@@ -4490,7 +4465,7 @@ class ComponentHelper
 
 		if (
 			!$postId
-			&& in_array($type, array('post_general', 'post', 'post_comments'))
+			&& in_array($type, array('post_general', 'post', 'post_comments', 'post_urlpreview'))
 		)
 		{
 			return $result;
@@ -4505,6 +4480,9 @@ class ComponentHelper
 				break;
 			case 'post_general':
 				$result = "/blog/socnet_post/gen/".(int)($postId / 100)."/".$postId;
+				break;
+			case 'post_urlpreview':
+				$result = "/blog/socnet_post/urlpreview/".(int)($postId / 100)."/".$postId;
 				break;
 			case 'posts_popular':
 				$result = "/".$siteId."/blog/popular_posts/";
@@ -5188,6 +5166,189 @@ class ComponentHelper
 			'REQUESTS_IN' => (string)($componentResult['PATH_TO_GROUP_REQUESTS'] ?? ''),
 			'REQUESTS_OUT' => (string)($componentResult['PATH_TO_GROUP_REQUESTS_OUT'] ?? ''),
 			'FEATURES' => (string)($componentResult['PATH_TO_GROUP_FEATURES'] ?? ''),
+		];
+	}
+
+	public static function listWorkgroupSliderMenuSignedParameters(array $componentParameters = []): array
+	{
+		return array_filter($componentParameters, static function ($key) {
+/*
+			'PATH_TO_USER',
+			'PATH_TO_GROUP_EDIT',
+			'PATH_TO_GROUP_INVITE',
+			'PATH_TO_GROUP_CREATE',
+			'PATH_TO_GROUP_COPY',
+			'PATH_TO_GROUP_REQUEST_SEARCH',
+			'PATH_TO_USER_REQUEST_GROUP',
+			'PATH_TO_GROUP_REQUESTS',
+			'PATH_TO_GROUP_REQUESTS_OUT',
+			'PATH_TO_GROUP_MODS',
+			'PATH_TO_GROUP_USERS',
+			'PATH_TO_USER_LEAVE_GROUP',
+			'PATH_TO_GROUP_DELETE',
+			'PATH_TO_GROUP_FEATURES',
+			'PATH_TO_GROUP_BAN',
+			'PATH_TO_SEARCH',
+			'PATH_TO_SEARCH_TAG',
+			'PATH_TO_GROUP_BLOG_POST',
+			'PATH_TO_GROUP_BLOG',
+			'PATH_TO_BLOG',
+			'PATH_TO_POST',
+			'PATH_TO_POST_EDIT',
+			'PATH_TO_USER_BLOG_POST_IMPORTANT',
+			'PATH_TO_GROUP_FORUM',
+			'PATH_TO_GROUP_FORUM_TOPIC',
+			'PATH_TO_GROUP_FORUM_MESSAGE',
+			'PATH_TO_GROUP_SUBSCRIBE',
+			'PATH_TO_MESSAGE_TO_GROUP',
+			'PATH_TO_GROUP_TASKS',
+			'PATH_TO_GROUP_TASKS_TASK',
+			'PATH_TO_GROUP_TASKS_VIEW',
+			'PATH_TO_GROUP_CONTENT_SEARCH',
+			'PATH_TO_MESSAGES_CHAT',
+			'PATH_TO_VIDEO_CALL',
+			'PATH_TO_CONPANY_DEPARTMENT',
+			'PATH_TO_USER_LOG',
+			'PATH_TO_GROUP_LOG',
+
+			'PAGE_VAR',
+			'USER_VAR',
+			'GROUP_VAR',
+			'TASK_VAR',
+			'TASK_ACTION_VAR',
+
+			'SET_NAV_CHAIN',
+			'USER_ID',
+			'GROUP_ID',
+			'ITEMS_COUNT',
+			'FORUM_ID',
+			'BLOG_GROUP_ID',
+			'TASK_FORUM_ID',
+			'THUMBNAIL_LIST_SIZE',
+			'DATE_TIME_FORMAT',
+			'SHOW_YEAR',
+			'NAME_TEMPLATE',
+			'SHOW_LOGIN',
+			'CAN_OWNER_EDIT_DESKTOP',
+			'CACHE_TYPE',
+			'CACHE_TIME',
+			'USE_MAIN_MENU',
+			'LOG_SUBSCRIBE_ONLY',
+			'GROUP_PROPERTY',
+			'GROUP_USE_BAN',
+			'BLOG_ALLOW_POST_CODE',
+			'SHOW_RATING',
+			'LOG_THUMBNAIL_SIZE',
+			'LOG_COMMENT_THUMBNAIL_SIZE',
+			'LOG_NEW_TEMPLATE',
+
+*/
+			return (in_array($key, [
+				'GROUP_ID',
+				'SET_TITLE',
+				'PATH_TO_GROUP',
+			]));
+		}, ARRAY_FILTER_USE_KEY);
+	}
+
+	public static function getWorkgroupSliderMenuSignedParameters(array $params): string
+	{
+		return Main\Component\ParameterSigner::signParameters(self::getWorkgroupSliderMenuSignedParametersSalt(), $params);
+	}
+
+
+	public static function getWorkgroupSliderMenuUnsignedParameters(array $sourceParametersList = [])
+	{
+		foreach ($sourceParametersList as $source)
+		{
+			if (isset($source['signedParameters']) && is_string($source['signedParameters']))
+			{
+				try
+				{
+					$componentParameters = ParameterSigner::unsignParameters(
+						self::getWorkgroupSliderMenuSignedParametersSalt(),
+						$source['signedParameters']
+					);
+					$componentParameters['IFRAME'] = 'Y';
+					return $componentParameters;
+				}
+				catch (BadSignatureException $exception)
+				{}
+
+				return [];
+			}
+		}
+
+		return [];
+	}
+
+	public static function getWorkgroupSliderMenuSignedParametersSalt(): string
+	{
+		return 'bitrix:socialnetwork.group.card.menu';
+	}
+
+	public static function getWorkgroupAvatarToken($fileId = 0): string
+	{
+		if ($fileId <= 0)
+		{
+			return '';
+		}
+
+		$filePath = \CFile::getPath($fileId);
+		if ((string)$filePath === '')
+		{
+			return '';
+		}
+
+		$signer = new \Bitrix\Main\Security\Sign\Signer;
+		return $signer->sign(serialize([ $fileId, $filePath ]), 'workgroup_avatar_token');
+	}
+
+	public static function checkEmptyParamInteger(&$params, $paramName, $defaultValue): void
+	{
+		$params[$paramName] = (isset($params[$paramName]) && (int)$params[$paramName] > 0 ? (int)$params[$paramName] : $defaultValue);
+	}
+
+	public static function checkEmptyParamString(&$params, $paramName, $defaultValue): void
+	{
+		$params[$paramName] = (isset($params[$paramName]) && trim($params[$paramName]) <> '' ? trim($params[$paramName]) : $defaultValue);
+	}
+
+	public static function checkTooltipComponentParams($params): array
+	{
+		if (ModuleManager::isModuleInstalled('intranet'))
+		{
+			$defaultFields = [
+				'EMAIL',
+				'PERSONAL_MOBILE',
+				'WORK_PHONE',
+				'PERSONAL_ICQ',
+				'PERSONAL_PHOTO',
+				'PERSONAL_CITY',
+				'WORK_COMPANY',
+				'WORK_POSITION',
+			];
+			$defaultProperties = [
+				'UF_DEPARTMENT',
+				'UF_PHONE_INNER',
+			];
+		}
+		else
+		{
+			$defaultFields = [
+				"PERSONAL_ICQ",
+				"PERSONAL_BIRTHDAY",
+				"PERSONAL_PHOTO",
+				"PERSONAL_CITY",
+				"WORK_COMPANY",
+				"WORK_POSITION"
+			];
+			$defaultProperties = [];
+		}
+
+		return [
+			'SHOW_FIELDS_TOOLTIP' => ($params['SHOW_FIELDS_TOOLTIP'] ?? unserialize(Option::get('socialnetwork', 'tooltip_fields', serialize($defaultFields)), ['allowed_classes' => false])),
+			'USER_PROPERTY_TOOLTIP' => ($params['USER_PROPERTY_TOOLTIP'] ?? unserialize(Option::get('socialnetwork', 'tooltip_properties', serialize($defaultProperties)), ['allowed_classes' => false])),
 		];
 	}
 

@@ -625,7 +625,8 @@
 
 					if ($this->bHtmlSpecChars)
 					{
-						$entQuotes =$openTagsStack[0] !== 'style' ? ENT_QUOTES : ENT_NOQUOTES;
+						$openTagsStackSize = count($openTagsStack);
+						$entQuotes = ($openTagsStackSize && $openTagsStack[$openTagsStackSize-1] === 'style' ? ENT_NOQUOTES : ENT_QUOTES);
 
 						$seg[$i]['value'] = htmlspecialchars(
 							$seg[$i]['value'],

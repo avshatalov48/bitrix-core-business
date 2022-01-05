@@ -8,6 +8,7 @@ use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\IO\File;
 use Bitrix\Disk\Driver;
+use Bitrix\Rest\Configuration\Core\StorageTable;
 use Bitrix\Disk\Internals\ObjectTable;
 use CTempFile;
 use CFile;
@@ -45,7 +46,7 @@ class Structure
 	public function getFolder()
 	{
 		$folder = $this->setting->get('FOLDER');
-		if(empty($folder))
+		if (empty($folder))
 		{
 			$folder = CTempFile::GetDirectoryName(
 				4,
@@ -54,7 +55,7 @@ class Structure
 					uniqid($this->context, true)
 				]
 			);
-			if(CheckDirPath($folder))
+			if (CheckDirPath($folder))
 			{
 				$this->setting->set('FOLDER', $folder);
 			}
@@ -81,11 +82,11 @@ class Structure
 
 		try
 		{
-			if(is_array($content))
+			if (is_array($content))
 			{
 				$content = Json::encode($content);
 			}
-			elseif(!is_string($content))
+			elseif (!is_string($content))
 			{
 				return $return;
 			}
@@ -102,7 +103,7 @@ class Structure
 				'configuration/export'
 			);
 
-			if($id > 0)
+			if ($id > 0)
 			{
 				$return = $this->saveConfigurationFile($id, $path);
 			}
@@ -171,7 +172,7 @@ class Structure
 	{
 		$result = false;
 		$fileContent = File::getFileContents($fileInfo["tmp_name"]);
-		if($fileContent)
+		if ($fileContent)
 		{
 			$type = (in_array($fileInfo["type"], $this->zipMimeType)) ? 'ZIP' : 'TAR.GZ';
 			$folder = $this->getFolder();
@@ -180,7 +181,7 @@ class Structure
 			File::putFileContents($filePath, $fileContent);
 			$archive = \CBXArchive::GetArchive($filePath, $type);
 			$res = $archive->Unpack($folder);
-			if($res)
+			if ($res)
 			{
 				$this->initUnpackFilesList();
 				$result = true;
@@ -194,13 +195,13 @@ class Structure
 	private function initUnpackFilesList()
 	{
 		$folder = $this->getFolder();
-		if(File::isFileExists($folder.Helper::STRUCTURE_FILES_NAME.Helper::CONFIGURATION_FILE_EXTENSION))
+		if (File::isFileExists($folder.Helper::STRUCTURE_FILES_NAME.Helper::CONFIGURATION_FILE_EXTENSION))
 		{
 			$content = File::getFileContents($folder.Helper::STRUCTURE_FILES_NAME.Helper::CONFIGURATION_FILE_EXTENSION);
 			try
 			{
 				$files = Json::decode($content);
-				if(is_array($files))
+				if (is_array($files))
 				{
 					foreach ($files as $file)
 					{
@@ -220,6 +221,28 @@ class Structure
 	}
 
 	/**
+	 * Adds files list to current context
+	 * @param array $filesInfo
+	 * @param array $files
+	 *
+	 * @return bool
+	 */
+	public function addFileList(array $filesInfo, array $files): bool
+	{
+		foreach ($filesInfo as $file)
+		{
+			$id = (int) $file['ID'];
+			if ($id > 0 && $files[$id])
+			{
+				$file['PATH'] = $files[$id];
+				$this->setting->set(self::CODE_UNPACK_FILE_PREFIX . $id, $file);
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Set Disk work folder with external files
 	 * @param $folderId
 	 * @param $storageParams
@@ -229,14 +252,14 @@ class Structure
 	public function setUnpackFilesFromDisk($folderId, $storageParams)
 	{
 		$result = false;
-		if(Loader::includeModule('disk'))
+		if (Loader::includeModule('disk'))
 		{
 			try
 			{
 				$storage = Driver::getInstance()->addStorageIfNotExist(
 					$storageParams
 				);
-				if($storage)
+				if ($storage)
 				{
 					$folder = $storage->getChild(
 						[
@@ -332,7 +355,7 @@ class Structure
 	{
 		$result = false;
 		$name = preg_replace('/[^a-zA-Z0-9_]/', '', $name);
-		if(!empty($name))
+		if (!empty($name))
 		{
 			$result = $this->setting->set(Setting::SETTING_EXPORT_ARCHIVE_NAME, $name);
 		}

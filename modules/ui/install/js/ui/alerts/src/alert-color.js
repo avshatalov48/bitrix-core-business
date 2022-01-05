@@ -8,4 +8,5 @@ export default class AlertColor
 	static SUCCESS = 'ui-alert-success';
 	static WARNING = 'ui-alert-warning';
 	static PRIMARY = 'ui-alert-primary';
+	static INFO = 'ui-alert-info';
 }

@@ -68,6 +68,7 @@ Vue.component('bx-crm-form', {
 				this.obj.config.data
 			);
 			this.obj.instance.subscribeAll((data, instance, type) => {
+				data = data || {};
 				data.form = instance;
 				this.$emit('form:' + type, data);
 			})

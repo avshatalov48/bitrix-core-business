@@ -95,18 +95,37 @@ if (
 }
 
 $stub = '
-	<div class="bx-placeholder">
-		<table class="bx-feed-curtain">
-			<tr class="bx-curtain-row-0"><td class="bx-curtain-cell-1"></td><td class="bx-curtain-cell-2 transparent"></td><td class="bx-curtain-cell-3"></td><td class="bx-curtain-cell-4"></td><td class="bx-curtain-cell-5"></td><td class="bx-curtain-cell-6"></td><td class="bx-curtain-cell-7"></td></tr><tr class="bx-curtain-row-1 2"><td class="bx-curtain-cell-1"></td><td class="bx-curtain-cell-2 transparent"></td><td class="bx-curtain-cell-3"></td><td class="bx-curtain-cell-4 transparent"></td><td class="bx-curtain-cell-5" colspan="3"></td></tr><tr class="bx-curtain-row-2 3"><td class="bx-curtain-cell-1"></td><td class="bx-curtain-cell-2 transparent"><div class="bx-bx-curtain-avatar"></div></td><td class="bx-curtain-cell-3" colspan="5"></td></tr>
-			<tr class="bx-curtain-row-1"><td class="bx-curtain-cell-1"></td><td class="bx-curtain-cell-2 transparent"></td><td class="bx-curtain-cell-3"></td><td class="bx-curtain-cell-4 transparent" colspan="3"></td><td class="bx-curtain-cell-7"></td></tr>
-			<tr class="bx-curtain-row-2"><td class="bx-curtain-cell-1" colspan="7"></td></tr>
-			<tr class="bx-curtain-row-1"><td class="bx-curtain-cell-1" colspan="3"></td><td class="bx-curtain-cell-4 transparent" colspan="3"></td><td class="bx-curtain-cell-7"></td></tr>
-			<tr class="bx-curtain-row-2"><td class="bx-curtain-cell-1" colspan="7"></td></tr>
-			<tr class="bx-curtain-row-1"><td class="bx-curtain-cell-1" colspan="3"></td><td class="bx-curtain-cell-4 transparent" colspan="3"></td><td class="bx-curtain-cell-7"></td></tr>
-			<tr class="bx-curtain-row-2"><td class="bx-curtain-cell-1" colspan="7"></td></tr>
-			<tr class="bx-curtain-row-1"><td class="bx-curtain-cell-1" colspan="3"></td><td class="bx-curtain-cell-4 transparent" colspan="2"></td><td class="bx-curtain-cell-6" colspan="2"></td></tr><tr class="bx-curtain-row-last"><td class="bx-curtain-cell-1" colspan="7"></td></tr>
-		</table>
-	</div>
+<svg style="margin-bottom: 12px;" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" width="100%" height="230">
+	<svg>
+		<rect width="100%" height="230" y="0" fill="#fff"/>
+	</svg>
+	<svg>
+		<defs>
+			<g fill="none" fill-rule="evenodd" id="content">
+				<circle cx="40" cy="45" r="25" fill="#9EA6AD" opacity=".2"/>
+				<rect width="145" height="8" x="85" y="28" fill="#9EA6AD" opacity=".2" rx="2"/>
+				<rect width="280" height="8" x="265" y="28" fill="#9EA6AD" opacity=".2" rx="2"/>
+				<rect width="110" height="5" x="85" y="50" fill="#9EA6AD" opacity=".2" rx="2"/>
+				<rect width="70%" height="8" x="85" y="72" fill="#9EA6AD" opacity=".2" rx="2"/>
+				<rect width="70%" height="8" x="85" y="100" fill="#9EA6AD" opacity=".2" rx="2"/>
+				<rect width="70%" height="8" x="85" y="128" fill="#9EA6AD" opacity=".2" rx="2"/>
+				<rect width="70%" height="8" x="85" y="156" fill="#9EA6AD" opacity=".2" rx="2"/>
+				<rect width="70%" height="8" x="85" y="184" fill="#9EA6AD" opacity=".2" rx="2"/>
+			</g>
+		</defs>
+		<use xlink:href="#content" y="0" x="0"/>
+	</svg>
+	<rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#mask)" height="230"/>
+	<mask id="mask" fill="white">
+		<use xlink:href="#content"/>
+	</mask>
+	<linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+		<stop stop-color="#9EA6AD" stop-opacity="0" offset="0%"/>
+		<stop stop-color="#9EA6AD" stop-opacity="1" offset="50%"/>
+		<stop stop-color="#9EA6AD" stop-opacity="0" offset="100%"/>
+	</linearGradient>
+	<animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+</svg>
 ';
 $stub = '<div class="bx-placeholder-wrap">'.str_repeat($stub, 4).'</div>';
 
@@ -198,7 +217,7 @@ if (
 	ob_start();
 
 	?><script>
-			<?php
+		<?php
 		if ($arResult['PAGE_MODE'] === 'first')
 		{
 			?>
@@ -227,7 +246,7 @@ if (
 				sonetRatingType : '<?=CUtil::JSEscape($arParams["RATING_TYPE"])?>',
 				sonetLIsCRM : '<?=CUtil::JSEscape($arParams["IS_CRM"])?>',
 				sonetLCanDelete : '<?=($arResult["CAN_DELETE"] ? 'Y' : 'N')?>',
-				sonetLForumID : <?=intval($arParams["FORUM_ID"])?>,
+				sonetLForumID : <?= (int)$arParams["FORUM_ID"] ?>,
 				SONET_C30_T_LINK_COPIED: '<?=GetMessageJS("SONET_C30_T_LINK_COPIED")?>',
 				SONET_C30_T_EMPTY: '<?=GetMessageJS("SONET_C30_T_EMPTY")?>',
 				SONET_C30_T_EMPTY_SEARCH: '<?=GetMessageJS("SONET_C30_T_EMPTY_SEARCH")?>'
@@ -245,8 +264,9 @@ if (
 					crmEntityTypeName: '<?= (!empty($arResult['CRM_ENTITY_TYPE_NAME']) ? CUtil::JSEscape($arResult['CRM_ENTITY_TYPE_NAME']) : '') ?>',
 					crmEntityId: <?= (!empty($arResult['CRM_ENTITY_ID']) ? (int)$arResult['CRM_ENTITY_ID'] : 0) ?>,
 					filterId: '<?= (!empty($arResult['FILTER_ID']) ? CUtil::JSEscape($arResult["FILTER_ID"]) : '') ?>',
+					commentFormUID: '<?= (!empty($arParams['UID']) ? CUtil::JSEscape($arParams['UID']) : '') ?>',
 					signedParameters: '<?= $this->getComponent()->getSignedParameters() ?>',
-					componentName: '<?= $this->getComponent()->getName() ?>'
+					componentName: '<?= $this->getComponent()->getName() ?>',
 				});
 			});
 			<?php
@@ -257,17 +277,18 @@ if (
 			?>
 			BX.ready(function(){
 				oLF.init({
-					firstPageLastTS : <?=intval($arResult["dateLastPageTS"])?>,
-					firstPageLastId : <?=intval($arResult["dateLastPageId"])?>,
-					useBXMainFilter: '<?=(isset($arParams["useBXMainFilter"]) && $arParams["useBXMainFilter"] === 'Y' ? 'Y' : 'N')?>'
+					firstPageLastTS : <?= (int)$arResult["dateLastPageTS"] ?>,
+					firstPageLastId : <?= (int)$arResult["dateLastPageId"] ?>,
+					useBXMainFilter: '<?=(isset($arParams["useBXMainFilter"]) && $arParams["useBXMainFilter"] === 'Y' ? 'Y' : 'N')?>',
+					blogCommentFormUID: '<?= (!empty($arParams['BLOG_UID']) ? CUtil::JSEscape($arParams['BLOG_UID']) : '') ?>',
 				});
 			});
 			<?php
 		}
 
 		if (
-			in_array($arResult['PAGE_MODE'], [ 'refresh', 'next' ])
-			&& $arParams["SHOW_RATING"] === "Y"
+			$arParams["SHOW_RATING"] === "Y"
+			&& in_array($arResult['PAGE_MODE'], [ 'refresh', 'next' ])
 		)
 		{
 			$likeTemplate = (
@@ -290,7 +311,7 @@ if (
 			{
 				BX.ready(function(){
 					window.bRefreshed = true;
-					__logOnReload(<?=intval($arResult["LOG_COUNTER"])?>);
+					__logOnReload(<?= (int)$arResult["LOG_COUNTER"] ?>);
 				});
 			}
 			<?php
@@ -349,7 +370,7 @@ if (
 						BX.Livefeed.MoreButton.recalcPostsList()
 						BX.Livefeed.ContentView.registerAreaList();
 					}, 1000);
-			<?php
+					<?php
 				}
 				elseif (!empty($arParams["CRM_ENTITY_ID"]))
 				{
@@ -360,7 +381,7 @@ if (
 						}, 1000);
 						BX.Livefeed.ContentView.registerAreaList();
 					});
-			<?php
+					<?php
 				}
 				else
 				{
@@ -373,7 +394,7 @@ if (
 					BX.bind(window, 'load', function() {
 						BX.Livefeed.ContentView.registerAreaList();
 					});
-			<?php
+					<?php
 				}
 			}
 		}
@@ -387,6 +408,14 @@ if (
 			{
 				BX('sonet_log_comment_text').onkeydown = BX.eventCancelBubble;
 			}
+			<?php
+			if (!empty($arResult['RESULT_COMMENTS_ID_LIST']))
+			{
+				?>
+				BX.Livefeed.CommentForm.appendTaskResultComments(<?= CUtil::PhpToJSObject($arResult['RESULT_COMMENTS_ID_LIST']) ?>);
+				<?php
+			}
+			?>
 		});
 
 	</script><?php
@@ -413,11 +442,9 @@ if (
 		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?php
 	}
 
-	$hasBlogEvent = (
-		in_array($arResult['PAGE_MODE'], [ 'first', 'refresh'])
+	$hasBlogEvent = !(
+		in_array($arResult['PAGE_MODE'], ['first', 'refresh'])
 		|| $_REQUEST['noblog'] === 'Y'
-			? false
-			: true
 	);
 
 	ob_start();
@@ -437,25 +464,24 @@ if (
 				continue;
 			}
 
-			$ind = randString(8);
+			$ind = \Bitrix\Main\Security\Random::getString(8);
 
-			$event_date_log_ts = (
-				isset($arEvent["LOG_DATE_TS"])
-					? $arEvent["LOG_DATE_TS"]
-					: (MakeTimeStamp($arEvent["LOG_DATE"]) - intval($arResult["TZ_OFFSET"]))
+			$event_date_log_ts = ($arEvent["LOG_DATE_TS"] ?? (MakeTimeStamp($arEvent["LOG_DATE"]) - (int)$arResult["TZ_OFFSET"])
 			);
 
 			$is_unread = (
 				$arResult["SHOW_UNREAD"] === "Y"
 				&& in_array($arResult["COUNTER_TYPE"], [ '**', 'CRM_**', 'blog_post' ])
 				&& $arEvent["USER_ID"] != $arResult["currentUserId"]
-				&& intval($arResult["LAST_LOG_TS"]) > 0
+				&& (int)$arResult["LAST_LOG_TS"] > 0
 				&& $event_date_log_ts > $arResult["LAST_LOG_TS"]
 			);
 
-			if(in_array($arEvent["EVENT_ID"], array_merge($blogPostEventIdList, array("blog_comment", "blog_comment_micro"))))
+			if(
+				in_array($arEvent["EVENT_ID"], array_merge($blogPostEventIdList, ["blog_comment", "blog_comment_micro"]), true)
+			)
 			{
-				if (intval($arEvent["SOURCE_ID"]) <= 0)
+				if ((int)$arEvent["SOURCE_ID"] <= 0)
 				{
 					continue;
 				}
@@ -560,12 +586,12 @@ if (
 
 		if ($request->get('flt_date_from'))
 		{
-			$uriParams['flt_date_from'] = preg_replace('/[^0-9\/]/i', '', $request->get('flt_date_from'));
+			$uriParams['flt_date_from'] = preg_replace('/[^0-9\/]/', '', $request->get('flt_date_from'));
 		}
 
 		if ($request->get('flt_date_to'))
 		{
-			$uriParams['flt_date_to'] = preg_replace('/[^0-9\/]/i', '', $request->get('flt_date_to'));
+			$uriParams['flt_date_to'] = preg_replace('/[^0-9\/]/', '', $request->get('flt_date_to'));
 		}
 
 		$uri->addParams($uriParams);
@@ -578,7 +604,7 @@ if (
 
 				<?php
 				if (
-					$arResult["PAGE_NUMBER"] == 1
+					(int)$arResult["PAGE_NUMBER"] === 1
 					&& in_array($arResult['PAGE_MODE'], [ 'first', 'refresh' ])
 				)
 				{

@@ -46,7 +46,8 @@ export default class PostFormEditor extends EventEmitter
 			autoSave: params.autoSave,
 			handler: (LHEPostForm && LHEPostForm.getHandler(params.editorID)),
 			editor: (LHEPostForm && LHEPostForm.getEditor(params.editorID)),
-			restoreAutosave: !!params.restoreAutosave
+			restoreAutosave: !!params.restoreAutosave,
+			createdFromEmail: !!params.createdFromEmail,
 		};
 
 		EventEmitter.subscribe('onInitialized', (event: BaseEvent) => {
@@ -60,7 +61,7 @@ export default class PostFormEditor extends EventEmitter
 
 		EventEmitter.subscribe('OnEditorInitedAfter', (event: BaseEvent) => {
 			const [ editor ] = event.getData();
-			this.onEditorInited.bind(editor);
+			this.onEditorInited(editor);
 		});
 
 		if (this.formParams.editor)
@@ -283,6 +284,24 @@ export default class PostFormEditor extends EventEmitter
 			}
 
 			if (
+				[
+					PostFormTabs.getInstance().config.id.message,
+					PostFormTabs.getInstance().config.id.file,
+					PostFormTabs.getInstance().config.id.gratitude,
+					PostFormTabs.getInstance().config.id.important,
+					PostFormTabs.getInstance().config.id.vote,
+				].includes(activeTab)
+			)
+			{
+				if (!this.checkDestinationValue({
+					buttonType: value,
+				}))
+				{
+					return;
+				}
+			}
+
+			if (
 				activeTab === PostFormTabs.getInstance().config.id.gratitude
 				&& PostFormGratSelector.getInstance()
 			)
@@ -301,48 +320,59 @@ export default class PostFormEditor extends EventEmitter
 		}
 	};
 
+	checkDestinationValue({ buttonType }): boolean
+	{
+		if (Type.isUndefined(MPFEntitySelector))
+		{
+			return true;
+		}
+
+		const tagSelector = new MPFEntitySelector({
+			id: `oPostFormLHE_${this.formId}`,
+		});
+		if (
+			!tagSelector
+			|| !Type.isArray(tagSelector.tags)
+			|| tagSelector.tags.length > 0
+		)
+		{
+			return true;
+		}
+
+		this.enableSubmitButton({
+			buttonType,
+		});
+
+		this.showBottomAlert({
+			text: Loc.getMessage('BLOG_POST_EDIT_T_GRAT_ERROR_NO_DESTINATION'),
+		});
+
+		tagSelector.subscribeOnce('onContainerClick', this.hideAlert);
+
+		return false;
+	}
+
 	checkEmployeesValue({ buttonType }): boolean
 	{
 		const employeesValueNode = document.getElementById(this.formId).elements[PostFormGratSelector.getInstance().config.fields.employeesValue.name];
 		if (
-			!employeesValueNode
-			|| !Type.isStringFilled(employeesValueNode.value)
-			|| employeesValueNode.value === '[]'
+			employeesValueNode
+			&& Type.isStringFilled(employeesValueNode.value)
+			&& employeesValueNode.value !== '[]'
 		)
 		{
-			const submitButton = this.getSubmitButton({
-				buttonType,
-			});
-
-			if (submitButton)
-			{
-				submitButton.classList.remove('ui-btn-clock');
-				this.disabled = false;
-			}
-
-			const alertNode = document.getElementById('feed-add-post-bottom-alertblogPostForm');
-			if (alertNode)
-			{
-				Dom.clean(alertNode);
-				alertNode.appendChild(Dom.create('div', {
-					props: {
-						className: 'ui-alert ui-alert-danger',
-					},
-					children: [
-						Dom.create('span', {
-							props: {
-								className: 'ui-alert-message',
-							},
-							text: Loc.getMessage('BLOG_POST_EDIT_T_GRAT_ERROR_NO_EMPLOYEES'),
-						}),
-					],
-				}));
-			}
-
-			return false;
+			return true;
 		}
 
-		return true;
+		this.enableSubmitButton({
+			buttonType,
+		});
+
+		this.showBottomAlert({
+			text: Loc.getMessage('BLOG_POST_EDIT_T_GRAT_ERROR_NO_EMPLOYEES'),
+		});
+
+		return false;
 	}
 
 	checkHideAlert(event) {
@@ -366,6 +396,19 @@ export default class PostFormEditor extends EventEmitter
 		Dom.clean(alertNode);
 	}
 
+	enableSubmitButton({ buttonType })
+	{
+		const submitButton = this.getSubmitButton({
+			buttonType,
+		});
+
+		if (submitButton)
+		{
+			submitButton.classList.remove('ui-btn-clock');
+			this.disabled = false;
+		}
+	}
+
 	getSubmitButton({ buttonType })
 	{
 		let result = null;
@@ -386,6 +429,36 @@ export default class PostFormEditor extends EventEmitter
 		}
 
 		return result;
+	}
+
+	showBottomAlert(params)
+	{
+		if (
+			!Type.isPlainObject(params)
+			|| !Type.isStringFilled(params.text)
+		)
+		{
+			return;
+		}
+
+		const alertNode = document.getElementById('feed-add-post-bottom-alertblogPostForm');
+		if (alertNode)
+		{
+			Dom.clean(alertNode);
+			alertNode.appendChild(Dom.create('div', {
+				props: {
+					className: 'ui-alert ui-alert-danger',
+				},
+				children: [
+					Dom.create('span', {
+						props: {
+							className: 'ui-alert-message',
+						},
+						text: params.text,
+					}),
+				],
+			}));
+		}
 	}
 
 	onHandlerInited(obj, form)
@@ -412,7 +485,7 @@ export default class PostFormEditor extends EventEmitter
 		{
 			this.OnAfterShowLHE();
 		}
-	};
+	}
 
 	OnAfterShowLHE()
 	{
@@ -444,6 +517,7 @@ export default class PostFormEditor extends EventEmitter
 		{
 			this.showPanelTitle(true, false);
 		}
+
 	};
 
 	OnAfterHideLHE()
@@ -488,7 +562,7 @@ export default class PostFormEditor extends EventEmitter
 		}
 
 		this.formParams.editor = editor;
-		if(this.formParams.autoSave !== 'N')
+		if (this.formParams.autoSave !== 'N')
 		{
 			new PostFormAutoSave(this.formParams.autoSave, this.formParams.restoreAutosave);
 		}
@@ -593,7 +667,15 @@ export default class PostFormEditor extends EventEmitter
 			editor.Focus();
 		}
 		PostForm.getInstance().initedEditorsList.push(editor.id);
-	};
+
+		EventEmitter.subscribe(editor, 'OnSetViewAfter', () => {
+			if (this.formParams.createdFromEmail)
+			{
+				editor.SetContent(`${editor.GetContent()}${Loc.getMessage('CREATED_ON_THE_BASIC_OF_THE_MESSAGE')}`);
+				editor.Focus(true);
+			}
+		});
+	}
 
 	reinit()
 	{

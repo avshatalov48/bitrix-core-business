@@ -21,7 +21,7 @@ class CWizardSolPanel
 
 		if($USER->IsAdmin())
 		{
-			if($_REQUEST['add_new_site_sol']=='sol' && check_bitrix_sessid())
+			if(isset($_REQUEST['add_new_site_sol']) && $_REQUEST['add_new_site_sol']=='sol' && check_bitrix_sessid())
 			{
 				$dbrSites = CSite::GetList();
 				$arSitesID = Array();
@@ -109,7 +109,7 @@ class CWizardSolPanel
 				}
 			}
 
-			if($_REQUEST['delete_button_sol']=='sol' && check_bitrix_sessid())
+			if(isset($_REQUEST['delete_button_sol']) && $_REQUEST['delete_button_sol']=='sol' && check_bitrix_sessid())
 			{
 				UnRegisterModuleDependences('main', 'OnBeforeProlog', 'main', 'CWizardSolPanel', 'ShowPanel', '/modules/main/install/wizard_sol/panel_button.php');
 				LocalRedirect($APPLICATION->GetCurPage());

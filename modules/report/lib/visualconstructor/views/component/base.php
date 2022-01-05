@@ -104,7 +104,15 @@ abstract class Base extends View
 			$resultWidget['content']['params']['color'] = $widget->getWidgetHandler()->getFormElement('color')->getValue();
 		}
 
-		$result = $this->getCalculatedPerformedData($widget, $withCalculatedData);
+		try
+		{
+			$result = $this->getCalculatedPerformedData($widget, $withCalculatedData);
+		}
+		catch (\Throwable $exception)
+		{
+			$result = [];
+			$error = $exception->getMessage();
+		}
 
 		if (!empty($result['data']) && static::MAX_RENDER_REPORT_COUNT > 1)
 		{
@@ -134,12 +142,44 @@ abstract class Base extends View
 		$this->addComponentParameters('WIDGET', $widget);
 		$this->addComponentParameters('RESULT', $result);
 
-		$componentResult = $this->includeComponent();
+		if (!isset($error))
+		{
+			$componentResult = $this->includeComponent();
 
-		$resultWidget['content']['params']['html'] = $componentResult['html'];
-		$resultWidget['content']['params']['css'] = $componentResult['css'];
-		$resultWidget['content']['params']['js'] = $componentResult['js'];
+			$resultWidget['content']['params']['html'] = $componentResult['html'];
+			$resultWidget['content']['params']['css'] = $componentResult['css'];
+			$resultWidget['content']['params']['js'] = $componentResult['js'];
+		}
+		else
+		{
+			$errorResult = static::GetErrorHTML($error);
+
+			$resultWidget['content']['params']['html'] = $errorResult['html'];
+			$resultWidget['content']['params']['css'] = $errorResult['css'];
+			$resultWidget['content']['params']['js'] = $errorResult['js'];
+		}
+
 		return $resultWidget;
+	}
+
+	protected static function GetErrorHTML($errorText)
+	{
+		global $APPLICATION;
+		ob_start();
+		ShowError($errorText);
+		$result['html'] = ob_get_clean();;
+		$result['js'] = $APPLICATION->arHeadScripts;
+		$result['css'] = $APPLICATION->sPath2css;
+
+		foreach ($result['js'] as $key => $value)
+		{
+			$result['js'][$key] = \CUtil::GetAdditionalFileURL($value);
+		}
+		foreach ($result['css'] as $key => $value)
+		{
+			$result['css'][$key] = \CUtil::GetAdditionalFileURL($value);
+		}
+		return $result;
 	}
 
 	/**

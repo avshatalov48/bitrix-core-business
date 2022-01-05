@@ -203,6 +203,10 @@ class EventTable extends Main\Entity\DataManager
 			new Entity\DatetimeField('ORIGINAL_DATE_FROM', array(
 				'title' => Loc::getMessage('SECTION_ENTITY_ORIGINAL_DATE_FROM_FIELD'),
 			)),
+			new Entity\StringField('SYNC_STATUS', array(
+				'validation' => array(__CLASS__, 'validateSyncStatus'),
+				'title' => Loc::getMessage('SECTION_ENTITY_SYNC_STATUS'),
+			)),
 		);
 	}
 
@@ -422,10 +426,25 @@ class EventTable extends Main\Entity\DataManager
 		);
 	}
 
-	public static function validateMeetingStatus()
+	/**
+	 * @return Entity\Validator\Length[]
+	 * @throws Main\ArgumentTypeException
+	 */
+	public static function validateMeetingStatus(): array
 	{
 		return [
 			new Main\Entity\Validator\Length(null, 1),
 		];
+	}
+
+	/**
+	 * @return Entity\Validator\Length[]
+	 * @throws Main\ArgumentTypeException
+	 */
+	public static function validateSyncStatus(): array
+	{
+		return array(
+			new Main\Entity\Validator\Length(null, 20),
+		);
 	}
 }

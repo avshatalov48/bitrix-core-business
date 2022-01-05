@@ -309,7 +309,7 @@
 
 	        if (this.isMultipleInput()) {
 	          this.getAddButton().style.display = '';
-	          main_core.Event.unbind(this.getAddButton(), 'click', this.addImageHandler);
+	          main_core.Event.unbindAll(this.getAddButton());
 	          main_core.Event.bind(this.getAddButton(), 'click', this.addImageHandler);
 	        }
 	      } else {
@@ -319,7 +319,7 @@
 
 	        if (this.isMultipleInput()) {
 	          this.getAddButton().style.display = 'none';
-	          main_core.Event.unbind(this.getAddButton(), 'click', this.addImageHandler);
+	          main_core.Event.unbindAll(this.getAddButton());
 	        }
 	      }
 

@@ -3,12 +3,12 @@
 	position: relative;
 	display: flex;
 	background-color: #fff;
-	padding: 0 20px;
+	padding: 0 14px;
 }
 
 .main-post-form-toolbar-buttons {
 	flex: 1;
-	height: 47px;
+	height: 41px;
 	overflow: hidden;
 	text-align: left;
 	user-select: none;
@@ -34,7 +34,7 @@
 	user-select: none;
 	overflow: hidden;
 	position: relative;
-	height: 25px;
+	height: 27px;
 	align-items: center;
 	display: flex;
 	flex-wrap: wrap;
@@ -45,7 +45,7 @@
 	display: inline-flex;
 	align-items: center;
 	margin: 0 29px 0 0;
-	height: 25px;
+	height: 27px;
 	font: 13px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: #515E68;
 	text-align: left;
@@ -118,10 +118,69 @@
 .main-post-form-toolbar-button .bxhtmled-top-bar-btn {
 	display: none;
 }
-.feed-add-post-text .bxhtmled-top-bar-btn {
-	margin-left: 0;
-	margin-right: 0;
+
+.feed-add-post-text .bxhtmled-top-bar-wrap {
+	margin-left: 10px;
+	margin-right: 10px;
 }
+
+.feed-add-post-text .bxhtmled-top-bar-btn {
+	margin: 6px 1px 0 0;
+	width: 30px;
+	height: 30px;
+}
+
+.feed-add-post-text .bxhtmled-top-bar-color .bxhtmled-top-bar-btn-text {
+	margin: 7px auto 0 9px;
+}
+
+.bxhtmled-popup .bxhtmled-top-bar-select,
+.feed-add-post-text .bx-html-editor .bxhtmled-top-bar-select {
+	font-size: 14px;
+	height: 30px;
+	color: #525C69;
+	width: 89px!important;
+	margin: 6px 7px 0 4px;
+	background: #FFFFFF;
+	border: 1px solid #C6CDD3;
+	box-sizing: border-box;
+	border-radius: 2px;
+	padding: 4px 13px 0 9px;
+	transition: .2s;
+}
+
+.bxhtmled-popup .bxhtmled-top-bar-select {
+	margin-top: 0;
+}
+
+.bxhtmled-popup .bxhtmled-top-bar-select:hover,
+.feed-add-post-text .bx-html-editor .bxhtmled-top-bar-select:hover {
+	border: 1px solid rgba(82,92,105,.7);
+}
+
+.bxhtmled-popup .bxhtmled-top-bar-select:before,
+.feed-add-post-text .bxhtmled-top-bar-select:before {
+	background: none;
+	width: 5px;
+	height: 5px;
+	border-left: 2px solid #828B95;
+	border-bottom: 2px solid #828B95;
+	transform: rotate(-45deg);
+	right: 11px;
+	top: 9px;
+}
+
+.feed-add-post-text .bxhtmled-top-bar-separator {
+	border: none;
+	margin: 10px 10px 0px 9px;
+	background-color: rgba(130,139,149,.2);
+	height: 20px;
+}
+
+
+
+
+
 
 .main-post-form-toolbar-button i {
 	display: none;
@@ -322,6 +381,7 @@
 }
 .feed-add-post-edit-form .bx-html-editor .bxhtmled-toolbar-cnt {
 	opacity: 0;
+	height: 42px;
 }
 
 
@@ -362,7 +422,7 @@ html.bx-ios.bx-ios-fix-frame-focus, html.bx-ios.bx-ios-fix-frame-focus iframe, .
 .feed-add-post-text {
 	color: #bfbfbf;
 	font-size: 17px;
-	padding: 15px 10px 0 10px;
+	/*padding: 15px 10px 0 10px;*/
 }
 
 .feed-comments-block .feed-add-post-text {

@@ -230,8 +230,7 @@ class LandingSiteTileComponent extends LandingBaseComponent
 			}
 			else
 			{
-				$isBitrix24Domain = Domain::getBitrix24Subdomain($item['DOMAIN_NAME']) !== null;
-				if ($isBitrix24Domain)
+				if (!$item['DOMAIN_PREV'])
 				{
 					$domainStatus = $this::DOMAIN_STATUS['alert'];
 					$domainStatusMessage = Loc::getMessage('LANDING_CMP_DOMAIN_CREATE_DOMAIN_NAME');
@@ -261,7 +260,14 @@ class LandingSiteTileComponent extends LandingBaseComponent
 				'pagesUrl' => $this->replaceLink($this->arParams['PAGE_URL_SITE'], $item),
 				'ordersUrl' => $this->replaceLink($this->arParams['PAGE_URL_CRM_ORDERS'], $item),
 				'menuItems' => array_values($menuItems),
-				'menuBottomItems' => $menuBottomItems
+				'menuBottomItems' => $menuBottomItems,
+				'access' => [
+					'edit' => $item['ACCESS_EDIT'] === 'Y',
+					'settings' => $item['ACCESS_SETTINGS'] === 'Y',
+					'publication' => $item['ACCESS_PUBLICATION'] === 'Y',
+					'delete' => $item['ACCESS_DELETE'] === 'Y',
+					'site_new' => $item['ACCESS_SITE_NEW'] === 'Y'
+				]
 			];
 		}
 

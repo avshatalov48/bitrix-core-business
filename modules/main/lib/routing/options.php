@@ -42,6 +42,7 @@ class Options
 	 */
 	public function mergeWith($anotherOptions)
 	{
+		$this->where = array_merge($this->where, $anotherOptions->where);
 		$this->middleware = array_merge($this->middleware, $anotherOptions->middleware);
 
 		if ($anotherOptions->prefix != '')

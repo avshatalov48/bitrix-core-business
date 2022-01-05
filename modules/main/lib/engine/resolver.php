@@ -75,10 +75,14 @@ final class Resolver
 			return $alias . '\\' . implode('\\', $actionParts);
 		}
 
-		$furtherNamespace = self::buildClassNameByAction($vendor, $module, $actionParts);
-		if (self::checkClassUnderAllowedNamespaces($module, $furtherNamespace))
+		$furtherControllerClassName = self::buildClassNameByAction(
+			$vendor,
+			$module,
+			array_merge($actionParts, [$controllerName])
+		);
+		if (self::checkClassUnderAllowedNamespaces($module, $furtherControllerClassName))
 		{
-			return $furtherNamespace . '\\' . $controllerName;
+			return $furtherControllerClassName;
 		}
 
 		$defaultNamespaceByModule = self::getDefaultNamespaceByModule($module);
@@ -182,7 +186,7 @@ final class Resolver
 		$namespaces = self::listAllowedNamespaces($module);
 		foreach ($namespaces as $namespace)
 		{
-			if (mb_stripos(ltrim($class, '\\'), ltrim($namespace, '\\')) === 0)
+			if (mb_stripos(trim($class, '\\'), trim($namespace, '\\') . '\\') === 0)
 			{
 				return true;
 			}
@@ -217,7 +221,7 @@ final class Resolver
 
 		return "{$namespace}\\" . trim(implode('\\', $actionParts), '\\');
 	}
-	
+
 	/**
 	 * Returns name of controller for using in routing.
 	 * The name is built by rules: fully qualified name contains delimiters by dot.

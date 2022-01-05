@@ -208,6 +208,12 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 				$this->addError('ACCESS_DENIED', '', true);
 			}
 
+			if (!$this->id)
+			{
+				parent::executeComponent();
+				return;
+			}
+
 			// rights
 			if ($this->arResult['SHOW_RIGHTS'])
 			{

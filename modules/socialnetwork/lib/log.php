@@ -74,6 +74,9 @@ class LogTable extends ORM\Data\DataManager
 			'URL' => array(
 				'data_type' => 'string',
 			),
+			'MODULE_ID' => [
+				'data_type' => 'string',
+			],
 			'PARAMS' => array(
 				'data_type' => 'text',
 			),

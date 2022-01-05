@@ -50,27 +50,31 @@ class ServiceAdapter
 	 * Create Adapter from [instagram, facebook] service types
 	 * @return ServiceAdapter|null
 	 */
-	public static function loadFacebookService()
+	public static function loadFacebookService(): ?ServiceAdapter
 	{
 		if($serviceWrapper = Utils\ServicePool::getService([Service::INSTAGRAM_TYPE,Service::FACEBOOK_TYPE]))
 		{
+
 			return (new static())->setWrapper($serviceWrapper);
 		}
+
 		return null;
 	}
 
 	/**
-	 * Create Adapte
+	 * Create Adapter
 	 * @param $type
 	 *
 	 * @return ServiceAdapter|null
 	 */
-	public static function load($type)
+	public static function load($type): ?ServiceAdapter
 	{
 		if($serviceWrapper = Utils\ServicePool::getService($type))
 		{
+
 			return (new static())->setWrapper($serviceWrapper);
 		}
+
 		return null;
 	}
 
@@ -83,19 +87,22 @@ class ServiceAdapter
 	{
 		if(isset($this->wrapper))
 		{
+
 			return $this->getWrapper()::getAuthAdapter($this->wrapper->getMetaData()->getType())->hasAuth();
 		}
+
 		return false;
 	}
 
 	/**
 	 *
 	 * Wrapper setter
-	 * @param ServiceWrapper $wrapper
+	 *
+	 * @param ServiceWrapper|null $wrapper
 	 *
 	 * @return ServiceAdapter
 	 */
-	public function setWrapper(?ServiceWrapper $wrapper)
+	public function setWrapper(?ServiceWrapper $wrapper): ServiceAdapter
 	{
 		$this->wrapper = $wrapper;
 		return $this;
@@ -143,7 +150,7 @@ class ServiceAdapter
 	 * get conversion base api
 	 * @return Conversion
 	 */
-	public function getConversion()
+	public function getConversion(): Conversion
 	{
 		return Conversion::create($this->wrapper->getMetaData()->getType())->setService($this->wrapper);
 	}

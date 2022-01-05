@@ -1,4 +1,10 @@
 <?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -6,15 +12,13 @@
  * @copyright 2001-2014 Bitrix
  */
 
-/**
- * Bitrix vars
- * @global CUser $USER
- * @global CMain $APPLICATION
- * @param array $arParams
- * @param array $arResult
- * @param CBitrixComponent $this
- */
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+use Bitrix\Socialnetwork\ComponentHelper;
+
+/** @var CBitrixComponent $this */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
 
 if (!CModule::IncludeModule("socialnetwork"))
 {
@@ -24,7 +28,7 @@ if (!CModule::IncludeModule("socialnetwork"))
 
 $arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
 
-$arParams["SET_NAVCHAIN"] = ($arParams["SET_NAVCHAIN"] == "N" ? "N" : "Y");
+$arParams["SET_NAVCHAIN"] = ($arParams["SET_NAVCHAIN"] === "N" ? "N" : "Y");
 
 if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
@@ -49,41 +53,9 @@ if ($arParams["ITEMS_COUNT"] <= 0)
 
 $arParams["PATH_TO_SMILE"] = Trim($arParams["PATH_TO_SMILE"]);
 
-// for bitrix:main.user.link
-if (IsModuleInstalled('intranet'))
-{
-	$arTooltipFieldsDefault	= serialize(array(
-		"EMAIL",
-		"PERSONAL_MOBILE",
-		"WORK_PHONE",
-		"PERSONAL_ICQ",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION",
-	));
-	$arTooltipPropertiesDefault = serialize(array(
-		"UF_DEPARTMENT",
-		"UF_PHONE_INNER",
-	));
-}
-else
-{
-	$arTooltipFieldsDefault = serialize(array(
-		"PERSONAL_ICQ",
-		"PERSONAL_BIRTHDAY",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION"
-	));
-	$arTooltipPropertiesDefault = serialize(array());
-}
-
-if (!array_key_exists("SHOW_FIELDS_TOOLTIP", $arParams))
-	$arParams["SHOW_FIELDS_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_fields", $arTooltipFieldsDefault), [ 'allowed_classes' => false ]);
-if (!array_key_exists("USER_PROPERTY_TOOLTIP", $arParams))
-	$arParams["USER_PROPERTY_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_properties", $arTooltipPropertiesDefault), [ 'allowed_classes' => false ]);
+$tooltipParams = ComponentHelper::checkTooltipComponentParams($arParams);
+$arParams['SHOW_FIELDS_TOOLTIP'] = $tooltipParams['SHOW_FIELDS_TOOLTIP'];
+$arParams['USER_PROPERTY_TOOLTIP'] = $tooltipParams['USER_PROPERTY_TOOLTIP'];
 
 if (!$USER->IsAuthorized())
 {
@@ -96,7 +68,7 @@ else
 	if (
 		!$arGroup 
 		|| !is_array($arGroup) 
-		|| $arGroup["ACTIVE"] != "Y" 
+		|| $arGroup["ACTIVE"] !== "Y"
 	)
 		$arResult["FatalError"] = GetMessage("SONET_P_USER_NO_GROUP");
 	else
@@ -123,10 +95,10 @@ else
 				$arResult["Urls"]["Group"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP"], array("group_id" => $arResult["Group"]["ID"]));
 				$arResult["Urls"]["RequestSearch"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_REQUEST_SEARCH"], array("group_id" => $arResult["Group"]["ID"]));
 
-				if ($arParams["SET_TITLE"] == "Y")
+				if ($arParams["SET_TITLE"] === "Y")
 					$APPLICATION->SetTitle($arResult["Group"]["NAME"].": ".GetMessage("SONET_C12_TITLE"));
 
-				if ($arParams["SET_NAVCHAIN"] != "N")
+				if ($arParams["SET_NAVCHAIN"] !== "N")
 				{
 					$APPLICATION->AddChainItem($arResult["Group"]["NAME"], $arResult["Urls"]["Group"]);
 					$APPLICATION->AddChainItem(GetMessage("SONET_C12_TITLE"));
@@ -139,7 +111,7 @@ else
 					$arNavParams = array("nPageSize" => $arParams["ITEMS_COUNT"], "bDescPageNumbering" => false);
 					$arNavigation = CDBResult::GetNavParams($arNavParams);
 
-					if ($_SERVER["REQUEST_METHOD"]=="POST" && ($_POST["resend"] <> '' || $_POST["reject"] <> '') && check_bitrix_sessid())
+					if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST["resend"] <> '' || $_POST["reject"] <> '') && check_bitrix_sessid())
 					{
 						$errorMessage = "";
 
@@ -148,7 +120,7 @@ else
 						{
 							for ($i = 0; $i <= intval($_POST["max_count"]); $i++)
 							{
-								if ($_POST["checked_".$i] == "Y")
+								if ($_POST["checked_".$i] === "Y")
 									$arIDs[] = intval($_POST["id_".$i]);
 							}
 
@@ -171,7 +143,7 @@ else
 									{
 										if ($e = $APPLICATION->GetException())
 											$errorMessage .= $e->GetString();
-										if ($errorMessage == '')
+										if ($errorMessage === '')
 											$errorMessage .= GetMessage("SONET_C12_CANT_DELETE_INVITATION").$arRelation["ID"];
 									}
 								}
@@ -189,7 +161,6 @@ else
 						{
 							if ($arInvitedUser["LAST_LOGIN"] == '' && $arInvitedUser["LAST_ACTIVITY_DATE"] == '')
 							{
-								$event = new CEvent;
 								$arFields = Array(
 									"USER_ID"	=>	$arInvitedUser["ID"],
 									"CHECKWORD"	=>	$arInvitedUser["CONFIRM_CODE"],
@@ -197,7 +168,7 @@ else
 									"USER_TEXT" => ''
 								);
 
-								$event->Send("EXTRANET_INVITATION", SITE_ID, $arFields);
+								CEvent::Send("EXTRANET_INVITATION", SITE_ID, $arFields);
 
 								LocalRedirect($APPLICATION->GetCurPageParam("invite_sent=Y", array("invite_user_id", "employee")));
 							}
@@ -287,4 +258,5 @@ else
 		}
 	}
 }
+
 $this->IncludeComponentTemplate();

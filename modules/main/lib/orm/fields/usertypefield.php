@@ -11,6 +11,8 @@ use Bitrix\Main\ArgumentException;
 
 /**
  * UserType proxy fields. Works like expressions and allows to be set.
+ *
+ * @property ScalarField|UserTypeUtsMultipleField $valueField
  * @package    bitrix
  * @subpackage main
  */
@@ -42,7 +44,7 @@ class UserTypeField extends ExpressionField
 				// array of values
 				foreach ($value as &$_value)
 				{
-					$_value = parent::cast($_value);
+					$_value = $this->valueField->getUtmField()->cast($_value);
 				}
 			}
 
@@ -92,5 +94,19 @@ class UserTypeField extends ExpressionField
 		return $this->isMultiple
 			? $this->getConnection()->getSqlHelper()->convertToDbString($value) // serialized values
 			: parent::convertValueToDb($value);
+	}
+
+	public function getFetchDataModifiers()
+	{
+		$srcField = $this->getBuildFromChains()[0]->getLastElement()->getValue();
+
+		return array_merge(parent::getFetchDataModifiers(), $srcField->getFetchDataModifiers());
+	}
+
+	public function getSaveDataModifiers()
+	{
+		$srcField = $this->getBuildFromChains()[0]->getLastElement()->getValue();
+
+		return array_merge(parent::getSaveDataModifiers(), $srcField->getSaveDataModifiers());
 	}
 }

@@ -80,7 +80,7 @@ class SiteSettingsStep extends CSiteSettingsWizardStep
 		</div>';
 		}
 
-		$firstStep = COption::GetOptionString("main", "wizard_first" . substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), false, $wizard->GetVar("siteID"));
+		$firstStep = COption::GetOptionString("main", "wizard_first".mb_substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), false, $wizard->GetVar("siteID"));
 		$styleMeta = 'style="display:block"';
 		if($firstStep == "Y") $styleMeta = 'style="display:none"';
 		$this->content .= '

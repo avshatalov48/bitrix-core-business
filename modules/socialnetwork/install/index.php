@@ -182,6 +182,8 @@ Class socialnetwork extends CModule
 		$eventManager->registerEventHandler('main', 'OnUISelectorActionProcessAjax', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UISelector\Handler', 'OnUISelectorActionProcessAjax');
 		$eventManager->registerEventHandler('main', 'OnUISelectorEntitiesGetList', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UISelector\Handler', 'OnUISelectorEntitiesGetList');
 		$eventManager->registerEventHandler('main', 'OnUISelectorGetProviderByEntityType', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UISelector\Handler', 'OnUISelectorGetProviderByEntityType');
+		$eventManager->registerEventHandler('main', 'OnBuildFilterFactoryMethods', 'socialnetwork', '\Bitrix\Socialnetwork\Filter\FactorySocialnetwork', 'onBuildFilterFactoryMethods');
+
 		$eventManager->registerEventHandler('tasks', 'onTaskUpdateViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Tasks\Task', 'onTaskUpdateViewed');
 		$eventManager->registerEventHandler('calendar', 'onViewEvent', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Calendar\CalendarEvent', 'onViewEvent');
 		$eventManager->registerEventHandler('main', 'onRatingListViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\RatingVoteList', 'onViewed');
@@ -418,6 +420,8 @@ Class socialnetwork extends CModule
 		$eventManager->unregisterEventHandler('main', 'OnUISelectorActionProcessAjax', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UISelector\Handler', 'OnUISelectorActionProcessAjax');
 		$eventManager->unregisterEventHandler('main', 'OnUISelectorEntitiesGetList', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UISelector\Handler', 'OnUISelectorEntitiesGetList');
 		$eventManager->unregisterEventHandler('main', 'OnUISelectorGetProviderByEntityType', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UISelector\Handler', 'OnUISelectorGetProviderByEntityType');
+		$eventManager->unregisterEventHandler('main', 'OnBuildFilterFactoryMethods', 'socialnetwork', '\Bitrix\Socialnetwork\Filter\FactorySocialnetwork', 'onBuildFilterFactoryMethods');
+
 		$eventManager->unregisterEventHandler('tasks', 'onTaskUpdateViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Tasks\Task', 'onTaskUpdateViewed');
 		$eventManager->unregisterEventHandler('calendar', 'onViewEvent', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Calendar\CalendarEvent', 'onViewEvent');
 		$eventManager->unregisterEventHandler('main', 'onRatingListViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\RatingVoteList', 'onViewed');
@@ -624,7 +628,7 @@ Class socialnetwork extends CModule
 						$errors = $strEx->GetString();
 					}
 					else if (
-						$arField["FIELD_NAME"] == "UF_BLOG_POST_IMPRTNT" 
+						$arField["FIELD_NAME"] == "UF_BLOG_POST_IMPRTNT"
 						&& $DB->TableExists("b_uts_blog_post")
 						&& !$DB->IndexExists("b_uts_blog_post", array("UF_BLOG_POST_IMPRTNT", "VALUE_ID"))
 					)

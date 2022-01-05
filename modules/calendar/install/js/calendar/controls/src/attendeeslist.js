@@ -1,5 +1,5 @@
 import {Loc, Type} from "main.core";
-import {MenuManager} from "main.popup";
+import {MenuManager, MenuItem} from "main.popup";
 import {UserPlannerSelector} from "calendar.controls";
 
 export class AttendeesList
@@ -65,7 +65,6 @@ export class AttendeesList
 
 	getMenuItems()
 	{
-		const submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
 		const menuItems = [];
 		[
 			{
@@ -85,10 +84,10 @@ export class AttendeesList
 			let groupUsers = this.attendeesList[group.code];
 			if (groupUsers.length > 0)
 			{
-				menuItems.push({
-					html: '<span>' + group.title.replace('#COUNT#', groupUsers.length) + '</span>',
-					className: submenuClass
-				});
+				menuItems.push(new MenuItem({
+					text: group.title.replace('#COUNT#', groupUsers.length),
+					delimiter: true
+				}))
 
 				groupUsers.forEach((user) =>
 				{

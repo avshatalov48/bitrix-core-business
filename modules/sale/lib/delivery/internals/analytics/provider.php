@@ -37,11 +37,17 @@ final class Provider extends Analytics\Provider
 		 */
 		foreach ($providers as $providerCode => $provider)
 		{
+			$orders = $provider->provideOrders($dateFrom, $dateTo);
+			if (!$orders)
+			{
+				continue;
+			}
+
 			$result[] = [
 				'delivery' => $providerCode,
 				'date_from' => $dateFrom->getTimestamp(),
 				'date_to' => $dateTo->getTimestamp(),
-				'orders' => $provider->provideOrders($dateFrom, $dateTo),
+				'orders' => $orders,
 			];
 		}
 

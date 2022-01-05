@@ -193,7 +193,7 @@ class catalog extends CModule
 			'iblock',
 			'onGetUrlBuilders',
 			'catalog',
-			'\Bitrix\Catalog\Url\AdminPage\Registry',
+			'\Bitrix\Catalog\Url\Registry',
 			'getBuilderList'
 		);
 
@@ -438,7 +438,7 @@ class catalog extends CModule
 			'iblock',
 			'onGetUrlBuilders',
 			'catalog',
-			'\Bitrix\Catalog\Url\AdminPage\Registry',
+			'\Bitrix\Catalog\Url\Registry',
 			'getBuilderList'
 		);
 

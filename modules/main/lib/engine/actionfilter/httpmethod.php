@@ -11,8 +11,14 @@ use Bitrix\Main\EventResult;
 
 final class HttpMethod extends Base
 {
-	const METHOD_GET  = 'GET';
-	const METHOD_POST = 'POST';
+	public const METHOD_GET = 'GET';
+	public const METHOD_POST = 'POST';
+	public const METHOD_PUT = 'PUT';
+	public const METHOD_PATCH = 'PATCH';
+	public const METHOD_DELETE = 'DELETE';
+	public const METHOD_CONNECT = 'CONNECT';
+	public const METHOD_OPTIONS = 'OPTIONS';
+	public const METHOD_TRACE = 'TRACE';
 
 	const ERROR_INVALID_HTTP_METHOD = 'invalid_http_method';
 	/**

@@ -1,5 +1,16 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var CBitrixComponent $this */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CMain $APPLICATION */
+
+use Bitrix\Socialnetwork\ComponentHelper;
 
 if (!CModule::IncludeModule("socialnetwork"))
 {
@@ -9,7 +20,7 @@ if (!CModule::IncludeModule("socialnetwork"))
 
 $arParams["USER_ID"] = intval($arParams["USER_ID"]);
 
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
+$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] === "N" ? "N" : "Y");
 
 if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
@@ -44,41 +55,9 @@ if ($arParams["ITEMS_COUNT"] <= 0)
 
 $arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
 
-// for bitrix:main.user.link
-if (IsModuleInstalled('intranet'))
-{
-	$arTooltipFieldsDefault	= serialize(array(
-		"EMAIL",
-		"PERSONAL_MOBILE",
-		"WORK_PHONE",
-		"PERSONAL_ICQ",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION",
-	));
-	$arTooltipPropertiesDefault = serialize(array(
-		"UF_DEPARTMENT",
-		"UF_PHONE_INNER",
-	));
-}
-else
-{
-	$arTooltipFieldsDefault = serialize(array(
-		"PERSONAL_ICQ",
-		"PERSONAL_BIRTHDAY",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION"
-	));
-	$arTooltipPropertiesDefault = serialize(array());
-}
-
-if (!array_key_exists("SHOW_FIELDS_TOOLTIP", $arParams))
-	$arParams["SHOW_FIELDS_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_fields", $arTooltipFieldsDefault), [ 'allowed_classes' => false ]);
-if (!array_key_exists("USER_PROPERTY_TOOLTIP", $arParams))
-	$arParams["USER_PROPERTY_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_properties", $arTooltipPropertiesDefault), [ 'allowed_classes' => false ]);
+$tooltipParams = ComponentHelper::checkTooltipComponentParams($arParams);
+$arParams['SHOW_FIELDS_TOOLTIP'] = $tooltipParams['SHOW_FIELDS_TOOLTIP'];
+$arParams['USER_PROPERTY_TOOLTIP'] = $tooltipParams['USER_PROPERTY_TOOLTIP'];
 
 if (!$GLOBALS["USER"]->IsAuthorized())
 {	
@@ -90,7 +69,7 @@ else
 	$arNavigation = CDBResult::GetNavParams($arNavParams);
 
 	/***********************  ACTIONS  *******************************/
-	if ($_REQUEST["action"] == "close" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
+	if ($_REQUEST["action"] === "close" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
 	{
 		$errorMessage = "";
 
@@ -103,7 +82,7 @@ else
 		if ($errorMessage <> '')
 			$arResult["ErrorMessage"] = $errorMessage;
 	}
-	if ($_REQUEST["action"] == "delete" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
+	if ($_REQUEST["action"] === "delete" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
 	{
 		$errorMessage = "";
 
@@ -116,7 +95,7 @@ else
 		if ($errorMessage <> '')
 			$arResult["ErrorMessage"] = $errorMessage;
 	}
-	if ($_REQUEST["action"] == "ban" && check_bitrix_sessid() && intval($_REQUEST["userID"]) > 0)
+	if ($_REQUEST["action"] === "ban" && check_bitrix_sessid() && intval($_REQUEST["userID"]) > 0)
 	{
 		$errorMessage = "";
 
@@ -129,7 +108,7 @@ else
 		if ($errorMessage <> '')
 			$arResult["ErrorMessage"] = $errorMessage;
 	}
-	if ($_SERVER["REQUEST_METHOD"]=="POST" && ($_POST["do_read"] <> '' || $_POST["do_delete"] <> '') && check_bitrix_sessid())
+	if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST["do_read"] <> '' || $_POST["do_delete"] <> '') && check_bitrix_sessid())
 	{
 		$errorMessage = "";
 
@@ -138,7 +117,7 @@ else
 		{
 			for ($i = 0; $i <= intval($_POST["max_count"]); $i++)
 			{
-				if ($_POST["checked_".$i] == "Y")
+				if ($_POST["checked_".$i] === "Y")
 					$arIDs[] = intval($_POST["id_".$i]);
 			}
 
@@ -171,12 +150,12 @@ else
 	}
 	/*********************  END ACTIONS  *****************************/
 
-	$arResult["Urls"]["ReadAll"] = htmlspecialcharsbx($APPLICATION->GetCurUri("eventID=".$arMessages["ID"]."&action=close&".bitrix_sessid_get().""));
+	$arResult["Urls"]["ReadAll"] = htmlspecialcharsbx($APPLICATION->GetCurUri("action=close&".bitrix_sessid_get().""));
 
-	if ($arParams["SET_TITLE"]=="Y")
+	if ($arParams["SET_TITLE"] === "Y")
 		$APPLICATION->SetTitle(GetMessage("SONET_C27_PAGE_TITLE"));
 
-	if ($arParams["SET_NAV_CHAIN"] != "N")
+	if ($arParams["SET_NAV_CHAIN"] !== "N")
 		$APPLICATION->AddChainItem(GetMessage("SONET_C27_PAGE_TITLE"));
 
 	$parser = new CSocNetTextParser(LANGUAGE_ID, $arParams["PATH_TO_SMILE"]);
@@ -274,4 +253,3 @@ else
 }
 
 $this->IncludeComponentTemplate();
-?>

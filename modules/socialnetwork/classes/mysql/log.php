@@ -666,7 +666,7 @@ class CSocNetLog extends CAllSocNetLog
 			unset($arFilter["TMP_ID"]);
 		}
 
-		if($arParams["IS_CRM"] == "Y")
+		if (isset($arParams["IS_CRM"]) && $arParams["IS_CRM"] == "Y")
 		{
 			$events = GetModuleEvents("socialnetwork", "OnFillSocNetLogFields");
 			while ($arEvent = $events->Fetch())
@@ -878,8 +878,9 @@ class CSocNetLog extends CAllSocNetLog
 		}
 
 		if (
-			$arParams["USE_SUBSCRIBE"] == "Y"
-			&& intval($arParams["SUBSCRIBE_USER_ID"]) > 0
+			isset($arParams["USE_SUBSCRIBE"])
+			&& $arParams["USE_SUBSCRIBE"] == "Y"
+			&& (int)$arParams["SUBSCRIBE_USER_ID"] > 0
 		)
 		{
 			$arSqls["SUBSCRIBE"] = CSocNetLogEvents::GetSQL(
@@ -1032,7 +1033,10 @@ class CSocNetLog extends CAllSocNetLog
 			$bWhereStarted = true;
 		}
 
-		if ($arSqls["CRM_RIGHTS"] <> '')
+		if (
+			isset($arSqls["CRM_RIGHTS"])
+			&& $arSqls["CRM_RIGHTS"] <> ''
+		)
 		{
 			$strSql .= ($bWhereStarted ? " AND " : " WHERE ").$arSqls["CRM_RIGHTS"]." ";
 			$bWhereStarted = true;

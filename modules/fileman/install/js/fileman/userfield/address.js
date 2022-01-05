@@ -55,6 +55,7 @@
 		this.geocoder = param.geocoder || null;
 		this.map = param.map || null;
 		this.resultDisplay = param.resultDisplay || null;
+		this.showMap = (typeof param.showMap !== 'undefined' ? param.showMap : true);
 
 		this.multiple = !!param.multiple;
 
@@ -96,7 +97,7 @@
 
 	BX.Fileman.UserField.Address.prototype.isMapEnabled = function()
 	{
-		return true;
+		return this.showMap;
 	};
 
 	BX.Fileman.UserField.Address.prototype.callChangeEvent = function(input, value)
@@ -471,6 +472,11 @@
 
 	BX.Fileman.UserField.AddressSearchResultDisplay.prototype.resultHoverHandler = function(item, bindNode, callback, displayChangeCallback)
 	{
+		if (!this.dispatcher.isMapEnabled())
+		{
+			return function(){};
+		}
+
 		var geocoder = this.dispatcher.getGeoCoder();
 
 		return function(e)

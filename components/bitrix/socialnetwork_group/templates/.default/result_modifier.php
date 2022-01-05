@@ -1,6 +1,6 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -12,11 +12,13 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-
 if (empty($arParams["RATING_TYPE"]))
+{
 	$arParams["RATING_TYPE"] = COption::GetOptionString("main", "rating_vote_template", COption::GetOptionString("main", "rating_vote_type", "standart") === "like"? "like": "standart");
+}
+
 $arParams["RATING_TYPE"] = ($arParams["RATING_TYPE"] === "like_graphic" ? "like" : ($arParams["RATING_TYPE"] === "standart" ? "standart_text" : $arParams["RATING_TYPE"]));
-$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/lang/".LANGUAGE_ID."/result_modifier.php")));
+$file = trim(preg_replace("'[\\\\/]+'", "/", (__DIR__ ."/lang/".LANGUAGE_ID."/result_modifier.php")));
 __IncludeLang($file);
 
 if ($this->__page === "user_files_menu" || $this->__page === "group_files_menu" || isset($_REQUEST['ajax_call']) || isset($_REQUEST["AJAX_CALL"]))
@@ -74,6 +76,8 @@ if (IsModuleInstalled('webdav'))
 		if (typeof oObjectWD != "object")
 			var oObjectWD = {};
 	</script>
-	<?
+	<?php
 }
 
+$arParams['IMAGE_MAX_WIDTH'] = 600;
+$arParams['IMAGE_MAX_HEIGHT'] = 600;

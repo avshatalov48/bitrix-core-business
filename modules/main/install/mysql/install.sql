@@ -1408,6 +1408,14 @@ CREATE TABLE b_main_mail_sender
 	INDEX IX_B_MAIN_MAIL_SENDER_USER_ID (USER_ID, IS_CONFIRMED, IS_PUBLIC)
 );
 
+CREATE TABLE b_main_mail_sender_send_counter
+(
+    DATE_STAT DATE NOT NULL,
+    EMAIL VARCHAR(255) NOT NULL,
+    CNT INT NOT NULL,
+    PRIMARY KEY (DATE_STAT, EMAIL)
+);
+
 CREATE TABLE b_main_mail_blacklist
 (
 	ID int NOT NULL auto_increment,

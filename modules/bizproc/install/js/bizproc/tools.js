@@ -68,7 +68,7 @@ if (typeof BX.Bizproc.doInlineTask === 'undefined')
 					BX.removeClass(scope, 'bp-button-wait');
 				}
 				var wrapper = BX.create('div', {
-					style: {width: '800px'}
+					style: {width: '980px'}
 				});
 				wrapper.innerHTML = HTML;
 

@@ -17,12 +17,12 @@ else:
 ?>
 	<a href="<?=$arResult['PROFILE_URL']?>"><?
 	$name = trim($USER->GetFullName());
-	if (strlen($name) <= 0)
+	if ($name == '')
 		$name = $USER->GetLogin();
 		
 	echo htmlspecialcharsEx($name);
 ?></a>
-	<a href="<?=$APPLICATION->GetCurPageParam("logout=yes", Array("logout"))?>"><?=GetMessage("AUTH_LOGOUT")?></a>
+	<a href="<?=$APPLICATION->GetCurPageParam("logout=yes&".bitrix_sessid_get(), Array("logout", "sessid"))?>"><?=GetMessage("AUTH_LOGOUT")?></a>
 <?
 endif;
 ?>

@@ -333,7 +333,9 @@ class Comment extends BaseObject
 				"AUTHOR_NAME" => (array_key_exists("AUTHOR_NAME", $params) ? trim($params["AUTHOR_NAME"]) : $this->message["AUTHOR_NAME"]),
 				"AUTHOR_EMAIL" => (array_key_exists("AUTHOR_EMAIL", $params) ? trim($params["AUTHOR_EMAIL"]) : $this->message["AUTHOR_EMAIL"]),
 				"USE_SMILES" => $params["USE_SMILES"],
-				"FILES" => $params["FILES"]
+				"FILES" => $params["FILES"],
+				"AUX" => $params["AUX"],
+				"AUX_DATA" => $params["AUX_DATA"],
 			)) && $this->prepareFields($params, $this->errorCollection))
 			{
 				if (array_key_exists("POST_DATE", $paramsRaw))
@@ -387,9 +389,6 @@ class Comment extends BaseObject
 
 					$this->setComment($mid);
 					$fields["PARAMS"] = $params;
-					/***************** Events OnCommentUpdate ************************/
-					$event = new Event("forum", "OnCommentUpdate", $fields);
-					$event->send();
 					/***************** Events OnAfterCommentUpdate *******************/
 					$event = new Event("forum", "OnAfterCommentUpdate", $fields);
 					$event->send();

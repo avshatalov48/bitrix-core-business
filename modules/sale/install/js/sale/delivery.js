@@ -135,6 +135,7 @@
 			params.params = params.params || {};
 			params.restrictionId = params.restrictionId || 0;
 			params.sort = params.sort || 100;
+			params.publicMode = params.publicMode || 'N';
 
 			ShowWaitWindow();
 
@@ -145,6 +146,7 @@
 				deliveryId: params.deliveryId,
 				sort: params.sort,
 				lang: params.lang,
+				publicMode: params.publicMode,
 				sessid: BX.bitrix_sessid()
 			};
 

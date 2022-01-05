@@ -211,4 +211,8 @@ export class InterfaceTemplate extends EventEmitter
 			.setConnections([this.connection]);
 		Dom.replace(document.getElementById('status-info-block'), this.statusBlock.getContent());
 	}
+
+	handleConnectButton()
+	{
+	}
 }

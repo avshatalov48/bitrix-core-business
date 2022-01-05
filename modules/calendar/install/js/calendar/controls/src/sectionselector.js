@@ -1,6 +1,6 @@
 import {Type, Dom, Event, Tag, Text, Loc} from "main.core";
 import "ui.icons.b24";
-import {MenuManager} from "main.popup";
+import {MenuManager, MenuItem} from "main.popup";
 
 export class SectionSelector
 {
@@ -35,6 +35,13 @@ export class SectionSelector
 			this.DOM.selectImageWrap = this.DOM.select.appendChild(Tag.render`<span class="calendar-field-choice-calendar-img"></span>`);
 
 			this.DOM.selectInnerText = this.DOM.select.appendChild(Tag.render`<span class="calendar-field-choice-calendar-name">${Text.encode(Loc.getMessage('EC_CALENDAR_SECTION_TITLE') + ' ' + this.getCurrentTitle())}</span>`);
+		}
+		else if(this.mode === 'location')
+		{
+			this.DOM.select = this.DOM.outerWrap;
+			this.DOM.selectImageWrap = this.DOM.select.appendChild(Tag.render`<span class="calendar-field-choice-calendar-img"></span>`);
+
+			this.DOM.selectInnerText = this.DOM.select.appendChild(Tag.render`<span class="calendar-field-choice-calendar-name calendar-field-choice-calendar-name-location">${Text.encode(Loc.getMessage('EC_CALENDAR_LOCATION_TITLE') + ' ' + this.getCurrentTitle())}</span>`);
 		}
 		else
 		{
@@ -71,7 +78,6 @@ export class SectionSelector
 			return this.sectionMenu.close();
 		}
 
-		const submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
 		const menuItems = [];
 		const sectionIdList = [];
 		const sectionList = this.getSectionList();
@@ -88,7 +94,7 @@ export class SectionSelector
 							&& SectionSelector.getSectionOwner(section) === this.defaultOwnerId;
 					}, this);
 				}
-				else if (sectionGroup.type === 'user')
+				else if (sectionGroup.type === 'user' || sectionGroup.type === 'location')
 				{
 					filteredList = sectionList.filter((section) => {
 						return SectionSelector.getSectionType(section) === 'user'
@@ -99,6 +105,7 @@ export class SectionSelector
 				{
 					filteredList = sectionList.filter((section) => {
 						return SectionSelector.getSectionType(section) === 'company_calendar'
+							|| SectionSelector.getSectionType(section) === 'calendar_company'
 							|| SectionSelector.getSectionType(section) === sectionGroup.type;
 					});
 				}
@@ -119,10 +126,11 @@ export class SectionSelector
 
 				if (filteredList.length > 0)
 				{
-					menuItems.push({
-						html: '<span>' + sectionGroup.title + '</span>',
-						className: submenuClass
-					});
+					menuItems.push(
+						new MenuItem({
+						text: sectionGroup.title,
+						delimiter: true
+					}));
 
 					for (let i = 0; i < filteredList.length; i++)
 					{
@@ -144,7 +152,7 @@ export class SectionSelector
 		{
 			offsetLeft = 40;
 		}
-		else if(this.mode === 'textselect')
+		else if(this.mode === 'textselect' || this.mode === 'location')
 		{
 			offsetLeft = 0;
 		}
@@ -342,6 +350,16 @@ export class SectionSelector
 					title: Loc.getMessage('EC_CALENDAR_SECTION_TITLE') + ' ' + this.getCurrentTitle()
 				},
 				text: Loc.getMessage('EC_CALENDAR_SECTION_TITLE') + ' ' + this.getCurrentTitle(),
+			}));
+		}
+		else if(this.mode === 'location')
+		{
+			this.updateSectionImageNode();
+			this.DOM.select.appendChild(Dom.adjust(this.DOM.selectInnerText, {
+				props: {
+					title: Loc.getMessage('EC_CALENDAR_LOCATION_TITLE') + ' ' + this.getCurrentTitle()
+				},
+				text: Loc.getMessage('EC_CALENDAR_LOCATION_TITLE') + ' ' + this.getCurrentTitle(),
 			}));
 		}
 	}

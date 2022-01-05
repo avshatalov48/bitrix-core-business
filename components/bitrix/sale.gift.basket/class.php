@@ -45,7 +45,7 @@ class CSaleGiftBasketComponent extends CCatalogViewedProductsComponent
 	protected function initGiftManager()
 	{
 		global $USER;
-		$userId = $USER instanceof CAllUser? $USER->getId() : null;
+		$userId = $USER instanceof CUser? $USER->getId() : null;
 		$this->giftManager = \Bitrix\Sale\Discount\Gift\Manager::getInstance()->setUserId($userId);
 	}
 

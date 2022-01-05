@@ -99,7 +99,7 @@ this.BX = this.BX || {};
 	      name: main_core.Loc.getMessage('MPF_SPOILER'),
 	      iconClassName: 'spoiler',
 	      disabledForTextarea: false,
-	      src: main_core.Loc.getMessage('MPF_TEMPLATE_FOLDER') + '/images/lhespoiler.png',
+	      src: main_core.Loc.getMessage('MPF_TEMPLATE_FOLDER') + '/images/lhespoiler.svg',
 	      toolbarSort: 205
 	    });
 	    return _this;
@@ -487,15 +487,7 @@ this.BX = this.BX || {};
 	  return DiskController;
 	}(Controller);
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n<span type=\"button\" onclick=\"", "\" data-role=\"button-insert\" class=\"insert-btn\">\n\t<span data-role=\"insert-btn\" class=\"insert-btn-text\">", "</span>\n\t<span data-role=\"in-text-btn\" class=\"insert-btn-text\">", "</span>\n</span>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	/*
 	* @deprecated
 	* */
@@ -633,7 +625,7 @@ this.BX = this.BX || {};
 
 	      if (tr instanceof HTMLTableRowElement && tr.querySelector('.files-info')) {
 	        if (!data.buttonNode) {
-	          data.buttonNode = main_core.Tag.render(_templateObject(), insertFile, main_core.Loc.getMessage('MPF_FILE_INSERT_IN_TEXT'), main_core.Loc.getMessage('MPF_FILE_IN_TEXT'));
+	          data.buttonNode = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n<span type=\"button\" onclick=\"", "\" data-role=\"button-insert\" class=\"insert-btn\">\n\t<span data-role=\"insert-btn\" class=\"insert-btn-text\">", "</span>\n\t<span data-role=\"in-text-btn\" class=\"insert-btn-text\">", "</span>\n</span>"])), insertFile, main_core.Loc.getMessage('MPF_FILE_INSERT_IN_TEXT'), main_core.Loc.getMessage('MPF_FILE_IN_TEXT'));
 	          tr.querySelector('.files-info').appendChild(data.buttonNode);
 	          this.checkButtonsDebounced();
 	        }
@@ -920,15 +912,7 @@ this.BX = this.BX || {};
 	  return UploadImage;
 	}(Default);
 
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n<span class=\"insert-btn\" data-role=\"button-insert\" onclick=\"", "\">\n\t<span data-role=\"insert-btn\" class=\"insert-btn-text\">", "</span>\n\t<span data-role=\"in-text-btn\" class=\"insert-btn-text\" style=\"display: none;\">", "</span>\n</span>"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1;
 	/*
 	* @deprecated
 	* */
@@ -1101,7 +1085,7 @@ this.BX = this.BX || {};
 	      }
 
 	      if (tr instanceof HTMLTableRowElement && !data.buttonNode) {
-	        data.buttonNode = main_core.Tag.render(_templateObject$1(), insertFile, main_core.Loc.getMessage('MPF_FILE_INSERT_IN_TEXT'), main_core.Loc.getMessage('MPF_FILE_IN_TEXT'));
+	        data.buttonNode = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n<span class=\"insert-btn\" data-role=\"button-insert\" onclick=\"", "\">\n\t<span data-role=\"insert-btn\" class=\"insert-btn-text\">", "</span>\n\t<span data-role=\"in-text-btn\" class=\"insert-btn-text\" style=\"display: none;\">", "</span>\n</span>"])), insertFile, main_core.Loc.getMessage('MPF_FILE_INSERT_IN_TEXT'), main_core.Loc.getMessage('MPF_FILE_IN_TEXT'));
 	        setTimeout(function () {
 	          if (tr.querySelector('.files-info')) {
 	            tr.querySelector('.files-info').appendChild(data.buttonNode);
@@ -1501,15 +1485,7 @@ this.BX = this.BX || {};
 	  }
 	}
 
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"main-post-form-toolbar-button\" data-bx-role=\"toolbar-item\"></div>"]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$2;
 	var intersectionObserver;
 
 	function observeIntersection(entity, callback) {
@@ -1552,7 +1528,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      var item = main_core.Tag.render(_templateObject$2());
+	      var item = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"main-post-form-toolbar-button\" data-bx-role=\"toolbar-item\"></div>"])));
 
 	      if (main_core.Type.isElementNode(button['BODY'])) {
 	        item.appendChild(button['BODY']);
@@ -1749,7 +1725,13 @@ this.BX = this.BX || {};
 	  return TasksLimit;
 	}();
 
-	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
+
+	function _classCheckPrivateStaticFieldDescriptor(descriptor, action) { if (descriptor === undefined) { throw new TypeError("attempted to " + action + " private static field before its declaration"); } }
+
+	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+
+	function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
 
 	var Editor = /*#__PURE__*/function () {
 	  function Editor(options, editorParams) {
@@ -2880,7 +2862,8 @@ BX.addCustomEvent(window, 'BX.MPF.MentionSelector:open', function(params) {
 	var bindNode = (BX.type.isDomNode(params.bindNode) ? params.bindNode : null);
 	var bindPosition = (BX.type.isNotEmptyObject(params.bindPosition) ? params.bindPosition : null);
 
-	var dialog = BX.UI.EntitySelector.Dialog.getById(selectorId);
+	var dialog = BX.UI.EntitySelector.Dialog.getById(BX.type.isDomNode(bindNode) ? selectorId + '-withsearch' : selectorId);
+
 	if (dialog)
 	{
 		dialog.deselectAll();
@@ -2889,6 +2872,7 @@ BX.addCustomEvent(window, 'BX.MPF.MentionSelector:open', function(params) {
 
 		if (BX.type.isDomNode(bindNode))
 		{
+			dialog.focusSearch();
 			dialog.popup.setBindElement(bindNode);
 		}
 		else if (BX.type.isNotEmptyObject(bindPosition))
@@ -2965,10 +2949,14 @@ window.onKeyDownHandler = function(e, editor, formID)
 		|| (
 			typeof e.getModifierState === 'function'
 			&& !!e.getModifierState('AltGraph')
-			&& BX.util.in_array(keyCode, [ 81, 50 ])
+			&& BX.util.in_array(keyCode, [ 81, 50, 48 ])
 			&& typeof e.key !== 'undefined'
 			&& e.key === '@'
-		) /* Win German @ == AltGr + Q, Win Spanish @ == AltGr + 2 */
+		) /* Win German @ == AltGr + Q, Win Spanish @ == AltGr + 2, Win French @ == AltGr + 0 */
+		|| (
+			BX.util.in_array(keyCode, [ 192 ])
+			&& e.key === '@'
+		) /* MacOS FR */
 	)
 	{
 		setTimeout(function()
@@ -3022,7 +3010,10 @@ window.onKeyDownHandler = function(e, editor, formID)
 	{
 		var activeDialogTab = null;
 		var dialog = (BX.type.isNotEmptyString(selectorId) ? BX.UI.EntitySelector.Dialog.getById(selectorId) : null);
-		if (dialog)
+		if (
+			dialog
+			&& dialog.getActiveTab()
+		)
 		{
 			activeDialogTab = dialog.getActiveTab().getId();
 		}
@@ -3550,6 +3541,49 @@ window.MPFgetSelectorId = function(formId)
 	return result;
 };
 
+window.MPFcreateSelectorDialog = function(dialogParams)
+{
+	new BX.UI.EntitySelector.Dialog({
+		targetNode: 'mpf-mention-' + dialogParams.formId,
+		id: dialogParams.selectorId,
+		context: 'MENTION',
+		multiple: false,
+		preload: true,
+		enableSearch: dialogParams.enableSearch,
+		clearSearchOnSelect: true,
+		hideOnSelect: true,
+		hideByEsc: true,
+		entities: dialogParams.params.entities,
+		height: 300,
+		width: 400,
+		compactView: true,
+		events: {
+			onShow: function() {
+				window.BXfpdOnDialogOpen();
+			},
+			onHide: function() {
+				window.BXfpdOnDialogClose({
+					editorId: dialogParams.params.editorId,
+				});
+			},
+			'Item:onSelect': function (event) {
+				var selectedItem = event.getData().item;
+				if (selectedItem)
+				{
+					window['BXfpdSelectCallbackMent' + dialogParams.formId]({
+						item: {
+							name: selectedItem.getTitle(),
+							entityId: selectedItem.getId(),
+						},
+						entityType: selectedItem.getEntityId(),
+					});
+				}
+			}
+		},
+	});
+};
+
+
 window.MPFMentionInit = function(formId, params)
 {
 	if (params.initDestination === true)
@@ -3667,6 +3701,7 @@ window.MPFMentionInit = function(formId, params)
 			}
 		});
 	}
+
 	var handler = LHEPostForm.getHandlerByFormId(formId);
 	if (handler)
 	{
@@ -3675,43 +3710,18 @@ window.MPFMentionInit = function(formId, params)
 
 			if (selectorId)
 			{
-				new BX.UI.EntitySelector.Dialog({
-					targetNode: 'mpf-mention-' + formId,
-					id: selectorId,
-					context: 'MENTION',
-					multiple: false,
-					preload: true,
+				window.MPFcreateSelectorDialog({
+					formId: formId,
+					selectorId: selectorId,
 					enableSearch: false,
-					clearSearchOnSelect: true,
-					hideOnSelect: true,
-					hideByEsc: true,
-					entities: params.entities,
-					height: 300,
-					width: 400,
-					compactView: true,
-					events: {
-						onShow: function(event) {
-							window.BXfpdOnDialogOpen();
-						},
-						onHide: function(event) {
-							window.BXfpdOnDialogClose({
-								editorId: params.editorId,
-							});
-						},
-						'Item:onSelect': function (event) {
-							var selectedItem = event.getData().item;
-							if (selectedItem)
-							{
-								window['BXfpdSelectCallbackMent' + formId]({
-									item: {
-										name: selectedItem.getTitle(),
-										entityId: selectedItem.getId(),
-									},
-									entityType: selectedItem.getEntityId(),
-								});
-							}
-						}
-					},
+					params: params,
+				});
+
+				window.MPFcreateSelectorDialog({
+					formId: formId,
+					selectorId: selectorId + '-withsearch',
+					enableSearch: true,
+					params: params,
 				});
 			}
 		});

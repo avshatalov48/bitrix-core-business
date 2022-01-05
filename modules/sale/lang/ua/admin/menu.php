@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CAM_EXPORT_DESCR"] = "Експорт даних з експортером";
 $MESS["CAM_EXPORT_DESCR_EDIT"] = "Налаштування профілю експорту";
 $MESS["CAM_EXPORT_DESCR_EXPORT"] = "Налагодження та експорт даних з експортером";
@@ -50,6 +50,7 @@ $MESS["SALE_BUYERS"] = "Покупці";
 $MESS["SALE_BUYERS_DESCR"] = "Список покупців";
 $MESS["SALE_CASHBOX"] = "Каси ККМ";
 $MESS["SALE_CASHBOX_CHECK"] = "Чеки за день";
+$MESS["SALE_CASHBOX_CHECK_CORRECTION"] = "Корекція";
 $MESS["SALE_CASHBOX_LIST"] = "Список кас";
 $MESS["SALE_CASHBOX_TITLE"] = "Каси";
 $MESS["SALE_CASHBOX_ZREPORT"] = "Z-звіти";
@@ -60,12 +61,6 @@ $MESS["SALE_CURRENCY"] = "Валюти";
 $MESS["SALE_CURRENCY_DESCR"] = "Налаштування валют";
 $MESS["SALE_CURRENCY_RATES"] = "Курси валют";
 $MESS["SALE_CURRENCY_RATES_DESCR"] = "Налаштування курсів валют";
-$MESS["SALE_DELIVERY"] = "Служби доставки";
-$MESS["SALE_DELIVERY_DESCR"] = "Налаштування служб доставки";
-$MESS["SALE_DELIVERY_HANDLERS"] = "Автоматизовані";
-$MESS["SALE_DELIVERY_HANDLERS_DESCR"] = "Редагування автоматизованих служб доставки";
-$MESS["SALE_DELIVERY_OLD"] = "Налаштовувані";
-$MESS["SALE_DELIVERY_OLD_DESCR"] = "Редагування налаштовуваних служб доставки";
 $MESS["SALE_DISCOUNT"] = "Знижки";
 $MESS["SALE_DISCOUNT_DESCR"] = "Налаштування знижок";
 $MESS["SALE_LOCATION"] = "Місцезнаходження";
@@ -105,6 +100,7 @@ $MESS["SALE_MENU_LOCATION_SERVICES_TITLE"] = "Зовнішні сервіси";
 $MESS["SALE_MENU_LOCATION_TYPES"] = "Типи місцезнаходжень";
 $MESS["SALE_MENU_LOCATION_TYPES_TITLE"] = "Типи місцезнаходжень";
 $MESS["SALE_MENU_LOCATION_ZONES"] = "Місцезнаходження для сайтів";
+$MESS["SALE_MENU_LOCATION_ZONES_TITLE"] = "Місцезнаходження для сайтів";
 $MESS["SALE_MENU_MARKETING_MARKETPLACE_ADD"] = "Встановити з Маркетплейс";
 $MESS["SALE_MENU_MARKETPLACE_READY_SHOPS"] = "Встановити готовий магазин з Маркетплейс";
 $MESS["SALE_MENU_SUBSCRIPTION_PRODUCT"] = "Підписка на товари";
@@ -206,4 +202,3 @@ $MESS["sale_menu_taxes"] = "Список податків";
 $MESS["sale_menu_taxes_title"] = "Управління податками";
 $MESS["sale_menu_uf_properties"] = "Користувацькі властивісті";
 $MESS["sale_menu_uf_properties_title"] = "Управління користувацькими властивостями замовлення";
-?>

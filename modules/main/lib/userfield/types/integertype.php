@@ -46,10 +46,10 @@ class IntegerType extends BaseType
 		$size = (int)$userField['SETTINGS']['SIZE'];
 		$min = (int)$userField['SETTINGS']['MIN_VALUE'];
 		$max = (int)$userField['SETTINGS']['MAX_VALUE'];
-		$default = (
-		$userField['SETTINGS']['DEFAULT_VALUE'] !== '' ?
-			(int)$userField['SETTINGS']['DEFAULT_VALUE'] : ''
-		);
+		$default = $userField['SETTINGS']['DEFAULT_VALUE'] !== ''
+			? (int)$userField['SETTINGS']['DEFAULT_VALUE']
+			: null
+		;
 
 		return [
 			'SIZE' => ($size <= 1 ? 20 : ($size > 255 ? 225 : $size)),

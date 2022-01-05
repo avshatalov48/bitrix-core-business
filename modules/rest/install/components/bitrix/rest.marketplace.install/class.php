@@ -11,6 +11,7 @@ use Bitrix\Main\Loader;
 USE Bitrix\Rest\Marketplace\Client;
 use Bitrix\Rest\AppTable;
 use Bitrix\Rest\Engine\ScopeManager;
+use Bitrix\Rest\Marketplace;
 
 Loc::loadMessages(__FILE__);
 
@@ -52,45 +53,23 @@ class RestMarketplaceInstallComponent extends CBitrixComponent
 		$res = AppTable::getList(
 			[
 				'filter' => [
-					'=CODE' => $this->arParams['APP']
+					'=CODE' => $this->arParams['APP_CODE']
 				],
 			]
 		);
 		$app = $res->fetch();
 
-		if (
-			(
-				$app['ID'] > 0
-				&& $app['ACTIVE'] === AppTable::ACTIVE
-				&& $app['INSTALLED'] === AppTable::INSTALLED
-			)
-			||
-			(
-				$this->arParams['VER'] > 0
-				&& isset($this->arParams['CHECK_HASH'], $this->arParams['INSTALL_HASH'])
-			)
-		)
-		{
-			$appExternal = Client::getApp(
-				$this->arParams['APP_CODE'],
-				$this->arParams['VER'],
-				$this->arParams['CHECK_HASH'],
-				$this->arParams['INSTALL_HASH']
-			);
-		}
-		else
-		{
-			$appExternal = Client::getAppPublic(
-				$this->arParams['APP_CODE'],
-				$this->arParams['VER'],
-				$this->arParams['CHECK_HASH'],
-				$this->arParams['INSTALL_HASH']
-			);
-		}
+		$appExternal = Client::getApp(
+			$this->arParams['APP_CODE'],
+			$this->arParams['VER'],
+			$this->arParams['CHECK_HASH'],
+			$this->arParams['INSTALL_HASH']
+		);
 
 		if ($appExternal)
 		{
 			$appData = $appExternal['ITEMS'];
+			$appData['SILENT_INSTALL'] = $appData['SILENT_INSTALL'] !== 'Y' ? 'N' : 'Y';
 
 			if ($app)
 			{
@@ -109,6 +88,17 @@ class RestMarketplaceInstallComponent extends CBitrixComponent
 		{
 			ShowError(Loc::getMessage('REST_MP_INSTALL_ACCESS_DENIED'));
 			return false;
+		}
+
+		if (isset($result['APP']['SILENT_INSTALL']) && $result['APP']['SILENT_INSTALL'] === 'Y')
+		{
+			$result['INSTALL_FINISH'] = Marketplace\Application::install(
+				$result['APP']['CODE'],
+				$result['APP']['VER'],
+				!empty($this->arParams['CHECK_HASH']) ? $this->arParams['CHECK_HASH'] : false,
+				!empty($this->arParams['INSTALL_HASH']) ? $this->arParams['INSTALL_HASH'] : false,
+				$this->arParams['FROM'] ?? null
+			);
 		}
 
 		$scopeList = ScopeManager::getInstance()->listScope();

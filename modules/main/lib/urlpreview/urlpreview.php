@@ -53,11 +53,22 @@ class UrlPreview
 		{
 			if($metadata = UrlMetadataTable::getByUrl($url))
 			{
-				if($metadata['TYPE'] == UrlMetadataTable::TYPE_TEMPORARY && $addIfNew)
+				if($metadata['TYPE'] === UrlMetadataTable::TYPE_TEMPORARY && $addIfNew)
 				{
 					$metadata = static::resolveTemporaryMetadata($metadata['ID']);
+					return $metadata;
 				}
-				return $metadata;
+				if ($metadata['TYPE'] !== UrlMetadataTable::TYPE_STATIC
+					|| !isset($metadata['DATE_EXPIRE'])
+					|| $metadata['DATE_EXPIRE']->getTimestamp() > time()
+				)
+				{
+					return $metadata;
+				}
+				if (static::refreshMetadata($metadata))
+				{
+					return $metadata;
+				}
 			}
 		}
 
@@ -226,22 +237,35 @@ class UrlPreview
 		if(!static::isEnabled())
 			return false;
 
-		$result = array();
+		$result = [];
 
-		$queryResult = UrlMetadataTable::getList(array(
-			'filter' => array(
+		$queryResult = UrlMetadataTable::getList([
+			'filter' => [
 				'ID' => $ids,
-				'!=TYPE' => UrlMetadataTable::TYPE_TEMPORARY
-			)
-		));
+				'!=TYPE' => UrlMetadataTable::TYPE_TEMPORARY,
+			]
+		]);
 
-		while($metadata = $queryResult->fetch())
+		while ($metadata = $queryResult->fetch())
 		{
-			if($metadata['TYPE'] == UrlMetadataTable::TYPE_DYNAMIC)
+			if ($metadata['TYPE'] == UrlMetadataTable::TYPE_DYNAMIC)
 			{
 				$metadata['HTML'] = static::getDynamicPreview($metadata['URL'], $checkAccess, $userId);
 				if($metadata['HTML'] === false)
+				{
 					continue;
+				}
+			}
+			if ($metadata['TYPE'] == UrlMetadataTable::TYPE_STATIC
+				&& isset($metadata['DATE_EXPIRE'])
+				&& $metadata['DATE_EXPIRE']->getTimestamp() <= time()
+			)
+			{
+				$refreshResult = static::refreshMetadata($metadata);
+				if (!$refreshResult)
+				{
+					continue;
+				}
 			}
 			$result[$metadata['ID']] = $metadata;
 		}
@@ -283,7 +307,7 @@ class UrlPreview
 	 */
 	public static function resolveTemporaryMetadata($id, $checkAccess = true, $userId = 0)
 	{
-		$metadata = UrlMetadataTable::getById($id)->fetch();
+		$metadata = UrlMetadataTable::getRowById($id);
 		if(!is_array($metadata))
 			return false;
 
@@ -314,6 +338,28 @@ class UrlPreview
 		}
 
 		return false;
+	}
+
+	protected static function refreshMetadata(array &$metadata): bool
+	{
+		if ($metadata['TYPE'] !== UrlMetadataTable::TYPE_STATIC)
+		{
+			return false;
+		}
+		$url = static::normalizeUrl($metadata['URL']);
+		$refreshedMetadata = static::fetchUrlMetadata($url);
+		if (!$refreshedMetadata)
+		{
+			return false;
+		}
+		if ($metadata['ID'])
+		{
+			UrlMetadataTable::update($metadata['ID'], $refreshedMetadata);
+			$refreshedMetadata['ID'] = $metadata['ID'];
+		}
+		$metadata = $refreshedMetadata;
+
+		return true;
 	}
 
 	/**
@@ -498,7 +544,7 @@ class UrlPreview
 		else
 		{
 			$metadataRemote = static::getRemoteUrlMetadata($uriParser);
-			if(is_array($metadataRemote) && count($metadataRemote) > 0)
+			if(is_array($metadataRemote) && !empty($metadataRemote))
 			{
 				$metadata = array(
 					'URL' => $url,
@@ -508,7 +554,8 @@ class UrlPreview
 					'IMAGE_ID' => $metadataRemote['IMAGE_ID'],
 					'IMAGE' => $metadataRemote['IMAGE'],
 					'EMBED' => $metadataRemote['EMBED'],
-					'EXTRA' => $metadataRemote['EXTRA']
+					'EXTRA' => $metadataRemote['EXTRA'],
+					'DATE_EXPIRE' => $metadataRemote['DATE_EXPIRE'] ?? null,
 				);
 			}
 		}

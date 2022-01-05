@@ -3,6 +3,127 @@ this.BX.Landing = this.BX.Landing || {};
 (function (exports,main_core,landing_sliderhacks) {
 	'use strict';
 
+	var DiskFile = /*#__PURE__*/function () {
+	  /**
+	   * Constructor.
+	   */
+	  function DiskFile() {
+	    babelHelpers.classCallCheck(this, DiskFile);
+	    document.addEventListener('click', this.onClick.bind(this));
+	  }
+	  /**
+	   * Click callback.
+	   *
+	   * @return {void}
+	   */
+
+
+	  babelHelpers.createClass(DiskFile, [{
+	    key: "onClick",
+	    value: function onClick(event) {
+	      var target = event.target;
+
+	      if (target.nodeName === 'A') {
+	        if (target.getAttribute('data-viewer-type')) {
+	          return;
+	        }
+
+	        var href = target.getAttribute('href');
+
+	        if (href.indexOf('/bitrix/services/main/ajax.php?action=landing.api.diskFile.download') === 0) {
+	          BX.ajax.get(href.replace('landing.api.diskFile.download', 'landing.api.diskFile.view'), function (data) {
+	            if (typeof data === 'string') {
+	              data = JSON.parse(data);
+	            }
+
+	            if (!data.data) {
+	              return;
+	            }
+
+	            Object.keys(data.data).map(function (key) {
+	              target.setAttribute(key, data.data[key]);
+	            });
+	            target.click();
+	          });
+	          event.preventDefault();
+	          event.stopPropagation();
+	          return false;
+	        }
+	      }
+	    }
+	  }]);
+	  return DiskFile;
+	}();
+
+	var SearchResult = /*#__PURE__*/function () {
+	  /**
+	   * Constructor.
+	   */
+	  function SearchResult() {
+	    babelHelpers.classCallCheck(this, SearchResult);
+	    this.scrollToFirstBlock();
+	  }
+	  /**
+	   * Finds first highlight word and scroll to it.
+	   * @return {void}
+	   */
+
+
+	  babelHelpers.createClass(SearchResult, [{
+	    key: "scrollToFirstBlock",
+	    value: function scrollToFirstBlock() {
+	      var result = document.querySelector('.landing-highlight');
+
+	      if (result) {
+	        var parent = result.parentNode;
+
+	        while (parent) {
+	          if (parent.classList.contains('block-wrapper')) {
+	            window.scrollTo({
+	              top: parent.offsetTop,
+	              behavior: 'smooth'
+	            });
+	            break;
+	          }
+
+	          parent = parent.parentNode;
+	        }
+	      }
+	    }
+	  }]);
+	  return SearchResult;
+	}();
+
+	var TimeStamp = /*#__PURE__*/function () {
+	  /**
+	   * Constructor.
+	   */
+	  function TimeStamp() {
+	    babelHelpers.classCallCheck(this, TimeStamp);
+	    this.removeTimestamp();
+	  }
+	  /**
+	   * Removes 'ts' param from query string.
+	   * @return {void}
+	   */
+
+
+	  babelHelpers.createClass(TimeStamp, [{
+	    key: "removeTimestamp",
+	    value: function removeTimestamp() {
+	      var uri = window.location.toString();
+	      uri = uri.replace(/(ts=[\d]+[&]*)/, '');
+
+	      if (uri.slice(-1) === '?' || uri.slice(-1) === '&') {
+	        uri = uri.slice(0, -1);
+	      }
+
+	      window.history.replaceState({}, document.title, uri);
+	    }
+	  }]);
+	  return TimeStamp;
+	}();
+
 	var onEditButtonClick = Symbol('onEditButtonClick');
 	var onBackButtonClick = Symbol('onBackButtonClick');
 	var onForwardButtonClick = Symbol('onForwardButtonClick');
@@ -132,78 +253,10 @@ this.BX.Landing = this.BX.Landing || {};
 	babelHelpers.defineProperty(TopPanel, "cache", new main_core.Cache.MemoryCache());
 	babelHelpers.defineProperty(TopPanel, "history", []);
 
-	var SearchResult = /*#__PURE__*/function () {
-	  /**
-	   * Constructor.
-	   */
-	  function SearchResult() {
-	    babelHelpers.classCallCheck(this, SearchResult);
-	    this.scrollToFirstBlock();
-	  }
-	  /**
-	   * Finds first highlight word and scroll to it.
-	   * @return {void}
-	   */
-
-
-	  babelHelpers.createClass(SearchResult, [{
-	    key: "scrollToFirstBlock",
-	    value: function scrollToFirstBlock() {
-	      var result = document.querySelector('.landing-highlight');
-
-	      if (result) {
-	        var parent = result.parentNode;
-
-	        while (parent) {
-	          if (parent.classList.contains('block-wrapper')) {
-	            window.scrollTo({
-	              top: parent.offsetTop,
-	              behavior: 'smooth'
-	            });
-	            break;
-	          }
-
-	          parent = parent.parentNode;
-	        }
-	      }
-	    }
-	  }]);
-	  return SearchResult;
-	}();
-
-	var TimeStamp = /*#__PURE__*/function () {
-	  /**
-	   * Constructor.
-	   */
-	  function TimeStamp() {
-	    babelHelpers.classCallCheck(this, TimeStamp);
-	    this.removeTimestamp();
-	  }
-	  /**
-	   * Removes 'ts' param from query string.
-	   * @return {void}
-	   */
-
-
-	  babelHelpers.createClass(TimeStamp, [{
-	    key: "removeTimestamp",
-	    value: function removeTimestamp() {
-	      var uri = window.location.toString();
-	      uri = uri.replace(/(ts=[\d]+[&]*)/, '');
-
-	      if (uri.slice(-1) === '?' || uri.slice(-1) === '&') {
-	        uri = uri.slice(0, -1);
-	      }
-
-	      window.history.replaceState({}, document.title, uri);
-	    }
-	  }]);
-	  return TimeStamp;
-	}();
-
-	exports.TopPanel = TopPanel;
+	exports.DiskFile = DiskFile;
 	exports.SearchResult = SearchResult;
 	exports.TimeStamp = TimeStamp;
+	exports.TopPanel = TopPanel;
 
 }((this.BX.Landing.Pub = this.BX.Landing.Pub || {}),BX,BX.Landing));
 //# sourceMappingURL=script.js.map

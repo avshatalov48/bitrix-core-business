@@ -81,11 +81,20 @@ final class CheckManager
 		$validateResult = $check->validate();
 		if (!$validateResult->isSuccess())
 		{
-			if (class_exists('\Bitrix\Crm\Order\Order') && $order instanceof \Bitrix\Crm\Order\Order)
+			if (Main\Loader::includeModule('crm'))
 			{
-				$order->addTimelineCheckEntryOnFailure([
-					'ERROR_TEXT' => Loc::getMessage('SALE_CASHBOX_ERROR_CHECK_NOT_CREATED'),
-				]);
+				\Bitrix\Crm\Timeline\OrderCheckController::getInstance()->onCheckFailure(
+					[
+						'ORDER_FIELDS' => $order->getFieldValues(),
+						'SETTINGS' => [
+							'FAILURE' => 'Y',
+							'PRINTED' => 'N',
+							'ERROR_TEXT' => Loc::getMessage('SALE_CASHBOX_ERROR_CHECK_NOT_CREATED'),
+						],
+						'BINDINGS' => Bitrix\Crm\Order\BindingsMaker\TimelineBindingsMaker::makeByOrder($order),
+
+					]
+				);
 			}
 
 			$notifyClassName = $registry->getNotifyClassName();
@@ -445,8 +454,10 @@ final class CheckManager
 			{
 				self::addStatisticOnSuccessCheckPrint($checkId);
 
-				/** @ToDO Will be removed after OrderCheckCollection is realized */
-				self::addTimelineCheckEntryOnCreateToOrder($order, $checkId, ['PRINTED' => 'Y']);
+				if (Main\Loader::includeModule('crm'))
+				{
+					self::addTimelineCheckEntryOnCreateToOrder($order, $checkId, ['PRINTED' => 'Y']);
+				}
 
 				$isSend = false;
 				$event = new Main\Event(
@@ -502,10 +513,14 @@ final class CheckManager
 
 	private static function addTimelineCheckEntryOnCreateToOrder($order, $checkId, $params)
 	{
-		if (class_exists('\Bitrix\Crm\Order\Order') && $order instanceof \Bitrix\Crm\Order\Order)
-		{
-			$order->addTimelineCheckEntryOnCreate($checkId, $params);
-		}
+		\Bitrix\Crm\Timeline\OrderCheckController::getInstance()->onPrintCheck(
+			$checkId,
+			[
+				'ORDER_FIELDS' => $order->getFieldValues(),
+				'SETTINGS' => $params,
+				'BINDINGS' => \Bitrix\Crm\Order\BindingsMaker\TimelineBindingsMaker::makeByOrder($order),
+			]
+		);
 	}
 
 	/**

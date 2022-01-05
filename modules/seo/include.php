@@ -1,5 +1,6 @@
-<?
-global $DB, $APPLICATION, $MESS, $DBType;
+<?php
+
+global $DB, $APPLICATION, $MESS;
 
 \Bitrix\Main\Loader::registerAutoLoadClasses(
 	"seo",
@@ -9,6 +10,7 @@ global $DB, $APPLICATION, $MESS, $DBType;
 		'CSeoPageChecker' => 'classes/general/seo_page_checker.php'
 	)
 );
+
 
 if (!defined('SEO_COUNTERS_DEFAULT'))
 {
@@ -68,7 +70,7 @@ class CSeoEventHandlers
 
 		$prop_code = ToUpper(COption::GetOptionString('seo', 'property_window_title', 'title'));
 
-		if (is_array($APPLICATION->arPagePropertiesChanger[$prop_code]))
+		if (isset($APPLICATION->arPagePropertiesChanger[$prop_code]) && is_array($APPLICATION->arPagePropertiesChanger[$prop_code]))
 		{
 			if (isset($APPLICATION->arPagePropertiesChanger[$prop_code]['PUBLIC_EDIT_LINK']))
 				$encWinTitleChangerLink = urlencode(base64_encode($APPLICATION->arPagePropertiesChanger[$prop_code]['PUBLIC_EDIT_LINK']));
@@ -77,7 +79,7 @@ class CSeoEventHandlers
 		}
 
 		$encTitle = urlencode(base64_encode($APPLICATION->sDocTitle));
-		$encWinTitle = urlencode(base64_encode($APPLICATION->arPageProperties[$prop_code]));
+		$encWinTitle = urlencode(base64_encode($APPLICATION->arPageProperties[$prop_code] ?? ''));
 
 		$APPLICATION->AddPanelButton(array(
 			"HREF"=> 'javascript:'.$APPLICATION->GetPopupLink(
@@ -390,4 +392,3 @@ class CSeoEventHandlers
 		}
 	}
 }
-?>

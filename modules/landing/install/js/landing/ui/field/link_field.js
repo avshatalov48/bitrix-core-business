@@ -427,7 +427,11 @@
 				{
 					this.targetInput.disable();
 
-					if (
+					if (/^#diskFile([0-9]+)$/.test(value.href))
+					{
+						this.targetInput.setValue('_blank');
+					}
+					else if (
 						// #landing123 || #block123 || #myAnchor
 						/^#(\w+)([0-9])$/.test(value.href)
 					)

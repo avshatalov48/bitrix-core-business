@@ -13,6 +13,11 @@ return [
 	],
 	'services' => [
 		'value' => [
+			'seo.leadads.service' => [
+				"className" => static function(){
+					return \Bitrix\Seo\LeadAds\Service::getInstance();
+				}
+			],
 			'seo.business.service' => [
 				'className' => static function() {
 					return \Bitrix\Seo\BusinessSuite\Service::getInstance();

@@ -1349,11 +1349,15 @@ class CSocNetLogTools
 				htmlspecialcharsbx($arResult["EVENT_FORMATTED"]["MESSAGE"])
 			);
 
-			if ($arParams["MOBILE"] != "Y" && $arParams["NEW_TEMPLATE"] != "Y")
+			if ($arParams["MOBILE"] !== "Y" && $arParams["NEW_TEMPLATE"] !== "Y")
+			{
 				$arResult["EVENT_FORMATTED"]["IS_MESSAGE_SHORT"] = CSocNetLogTools::FormatEvent_IsMessageShort(
-					$arResult["EVENT_FORMATTED"]["MESSAGE"], $arResult["EVENT_FORMATTED"]["SHORT_MESSAGE"]);
+					$arResult["EVENT_FORMATTED"]["MESSAGE"],
+					$arResult["EVENT_FORMATTED"]["SHORT_MESSAGE"]
+				);
+			}
 
-			if ($arFields["ENTITY_TYPE"] == SONET_SUBSCRIBE_ENTITY_GROUP)
+			if ($arFields["ENTITY_TYPE"] === SONET_SUBSCRIBE_ENTITY_GROUP)
 			{
 				$arResult["EVENT_FORMATTED"]["DESTINATION"] = array(
 					array(
@@ -1369,16 +1373,20 @@ class CSocNetLogTools
 		{
 			$url = CSocNetLogTools::FormatEvent_GetURL($arFields);
 			if ($url <> '')
+			{
 				$arResult["EVENT_FORMATTED"]["URL"] = $url;
+			}
 		}
 
-		$arResult["HAS_COMMENTS"] = (intval($arFields["SOURCE_ID"]) > 0 ? "Y" : "N");
+		$arResult["HAS_COMMENTS"] = ((int)$arFields["SOURCE_ID"] > 0 ? "Y" : "N");
 
 		if (
 			$bMail
 			&& $arFields["MAIL_LANGUAGE_ID"] <> ''
 		)
+		{
 			IncludeModuleLangFile(__FILE__, LANGUAGE_ID);
+		}
 
 		return $arResult;
 	}
@@ -1402,7 +1410,7 @@ class CSocNetLogTools
 			$arResult["CREATED_BY"] = CSocNetLogTools::FormatEvent_GetCreatedBy($arFields, $arParams, $bMail);
 			$arResult["ENTITY"] = CSocNetLogTools::FormatEvent_GetEntity($arLog, $arParams, $bMail);
 		}
-		elseif($arParams["USE_COMMENT"] != "Y")
+		elseif ($arParams["USE_COMMENT"] !== "Y")
 		{
 			$arResult["ENTITY"] = CSocNetLogTools::FormatEvent_GetEntity($arFields, $arParams, false);
 		}
@@ -1436,10 +1444,21 @@ class CSocNetLogTools
 			}
 
 			$parser->pathToUser = $parser->userPath = $arParams["PATH_TO_USER"];
-			$parser->bMobile = ($arParams["MOBILE"] == "Y");
-			$parser->LAZYLOAD = (isset($arParams["LAZYLOAD"]) && $arParams["LAZYLOAD"] == "Y" ? "Y" : "N");
+			$parser->bMobile = ($arParams["MOBILE"] === "Y");
+			$parser->LAZYLOAD = (isset($arParams["LAZYLOAD"]) && $arParams["LAZYLOAD"] === "Y" ? "Y" : "N");
 
 			$arFields["FILES"] = CForumFiles::GetByMessageID($arFields["SOURCE_ID"]);
+			if ($arParams['MOBILE'] !== 'Y')
+			{
+				if (!empty($arParams['IMAGE_MAX_WIDTH']))
+				{
+					$parser->imageWidth = (int)$arParams['IMAGE_MAX_WIDTH'];
+				}
+				if (!empty($arParams['IMAGE_MAX_HEIGHT']))
+				{
+					$parser->imageHeight = (int)$arParams['IMAGE_MAX_HEIGHT'];
+				}
+			}
 		}
 
 		$arResult["EVENT_FORMATTED"] = array(
@@ -1450,7 +1469,7 @@ class CSocNetLogTools
 
 		if (!$bMail)
 		{
-			if ($arParams["MOBILE"] != "Y")
+			if ($arParams["MOBILE"] !== "Y")
 			{
 				static $parserLog = false;
 				if (!$parserLog)
@@ -1486,7 +1505,7 @@ class CSocNetLogTools
 			}
 
 			$parser = (is_object($parser) ? $parser : (is_object($parserLog) ? $parserLog : new logTextParser(false, $arParams["PATH_TO_SMILE"])));
-			if (get_class($parser) == "forumTextParser")
+			if (get_class($parser) === "forumTextParser")
 			{
 				$parser->arUserfields = $arFields["UF"];
 				$arResult["EVENT_FORMATTED"]["MESSAGE"] = htmlspecialcharsbx($parser->convert(
@@ -4265,77 +4284,109 @@ class CSocNetLogTools
 			function __DestinationRightsSort($a, $b)
 			{
 				if ($a == $b)
+				{
 					return 0;
+				}
 				elseif (preg_match('/^US\d+$/', $a))
+				{
 					return -1;
+				}
 				elseif (in_array($a, array("G2", "AU")))
 				{
 					if (in_array($b, array("G2", "AU")))
+					{
 						return 0;
-					elseif (preg_match('/^US\d+$/', $b))
+					}
+
+					if (preg_match('/^US\d+$/', $b))
+					{
 						return 1;
-					else
-						return -1;
+					}
+
+					return -1;
 				}
 				elseif (preg_match('/^CRMDEAL\d+$/', $a))
 				{
 					if (preg_match('/^CRMDEAL\d+$/', $b))
+					{
 						return 0;
-					elseif (
+					}
+
+					if (
 						preg_match('/^US\d+$/', $b)
 						|| in_array($b, array("G2", "AU"))
 					)
+					{
 						return 1;
-					else
-						return -1;
+					}
+
+					return -1;
 				}
 				elseif (preg_match('/^CRMCONTACT\d+$/', $a))
 				{
 					if (preg_match('/^CRMCONTACT\d+$/', $b))
+					{
 						return 0;
-					elseif (
+					}
+
+					if (
 						preg_match('/^US\d+$/', $b)
 						|| in_array($b, array("G2", "AU"))
 						|| preg_match('/^CRMDEAL\d+$/', $b)
 					)
+					{
 						return 1;
-					else
-						return -1;
+					}
+
+					return -1;
 				}
 				elseif (preg_match('/^CRMCOMPANY\d+$/', $a))
 				{
 					if (preg_match('/^CRMCOMPANY\d+$/', $b))
+					{
 						return 0;
-					elseif (
+					}
+
+					if (
 						preg_match('/^US\d+$/', $b)
 						|| in_array($b, array("G2", "AU"))
 						|| preg_match('/^CRMDEAL\d+$/', $b)
 						|| preg_match('/^CRMCONTACT\d+$/', $b)
 					)
+					{
 						return 1;
-					else
-						return -1;
+					}
+
+					return -1;
 				}
 				elseif (preg_match('/^CRMLEAD\d+$/', $a))
 				{
 					if (preg_match('/^CRMLEAD\d+$/', $b))
+					{
 						return 0;
-					elseif (
+					}
+
+					if (
 						preg_match('/^US\d+$/', $b)
 						|| in_array($b, array("G2", "AU"))
 						|| preg_match('/^CRMDEAL\d+$/', $b)
 						|| preg_match('/^CRMCONTACT\d+$/', $b)
 						|| preg_match('/^CRMCOMPANY\d+$/', $b)
 					)
+					{
 						return 1;
-					else
-						return -1;
+					}
+
+					return -1;
 				}
-				elseif (preg_match('/^SG\d+_'.SONET_ROLES_USER.'$/', $a))
+				elseif (preg_match('/^CRMDYNAMIC\d+ENTITY\d+$/', $a))
 				{
-					if (preg_match('/^SG\d+_'.SONET_ROLES_USER.'$/', $b))
+					if (preg_match('/^CRMDYNAMIC\d+ENTITY\d+$/', $b))
+					{
 						return 0;
-					elseif (
+					}
+
+					if (
 						preg_match('/^US\d+$/', $b)
 						|| in_array($b, array("G2", "AU"))
 						|| preg_match('/^CRMDEAL\d+$/', $b)
@@ -4343,15 +4394,65 @@ class CSocNetLogTools
 						|| preg_match('/^CRMCOMPANY\d+$/', $b)
 						|| preg_match('/^CRMLEAD\d+$/', $b)
 					)
+					{
 						return 1;
-					else
-						return -1;
+					}
+
+					return -1;
+				}
+				elseif (preg_match('/^CRMSUSDYNAMIC\d+ENTITY\d+$/', $a))
+				{
+					if (preg_match('/^CRMSUSDYNAMIC\d+ENTITY\d+$/', $b))
+					{
+						return 0;
+					}
+
+					if (
+						preg_match('/^US\d+$/', $b)
+						|| in_array($b, array("G2", "AU"))
+						|| preg_match('/^CRMDEAL\d+$/', $b)
+						|| preg_match('/^CRMCONTACT\d+$/', $b)
+						|| preg_match('/^CRMCOMPANY\d+$/', $b)
+						|| preg_match('/^CRMLEAD\d+$/', $b)
+						|| preg_match('/^CRMDYNAMIC\d+ENTITY\d+$/', $b)
+					)
+					{
+						return 1;
+					}
+
+					return -1;
+				}
+				elseif (preg_match('/^SG\d+_'.SONET_ROLES_USER.'$/', $a))
+				{
+					if (preg_match('/^SG\d+_'.SONET_ROLES_USER.'$/', $b))
+					{
+						return 0;
+					}
+
+					if (
+						preg_match('/^US\d+$/', $b)
+						|| in_array($b, array("G2", "AU"))
+						|| preg_match('/^CRMDEAL\d+$/', $b)
+						|| preg_match('/^CRMCONTACT\d+$/', $b)
+						|| preg_match('/^CRMCOMPANY\d+$/', $b)
+						|| preg_match('/^CRMLEAD\d+$/', $b)
+						|| preg_match('/^CRMDYNAMIC\d+ENTITY\d+$/', $b)
+						|| preg_match('/^CRMSUSDYNAMIC\d+ENTITY\d+$/', $b)
+					)
+					{
+						return 1;
+					}
+
+					return -1;
 				}
 				elseif (preg_match('/^SG\d+_'.SONET_ROLES_MODERATOR.'$/', $a))
 				{
 					if (preg_match('/^SG\d+_'.SONET_ROLES_MODERATOR.'$/', $b))
+					{
 						return 0;
-					elseif (
+					}
+
+					if (
 						preg_match('/^US\d+$/', $b)
 						|| in_array($b, array("G2", "AU"))
 						|| preg_match('/^SG\d+_'.SONET_ROLES_USER.'$/', $b)
@@ -4359,16 +4460,25 @@ class CSocNetLogTools
 						|| preg_match('/^CRMCONTACT\d+$/', $b)
 						|| preg_match('/^CRMCOMPANY\d+$/', $b)
 						|| preg_match('/^CRMLEAD\d+$/', $b)
+						|| preg_match('/^CRMDYNAMIC\d+ENTITY\d+$/', $b)
+						|| preg_match('/^CRMSUSDYNAMIC\d+ENTITY\d+$/', $b)
 					)
+					{
 						return 1;
+					}
 					else
+					{
 						return -1;
+					}
 				}
 				elseif (preg_match('/^SG\d+_'.SONET_ROLES_OWNER.'$/', $a))
 				{
 					if (preg_match('/^SG\d+_'.SONET_ROLES_OWNER.'$/', $b))
+					{
 						return 0;
-					elseif (
+					}
+
+					if (
 						preg_match('/^US\d+$/', $b)
 						|| in_array($b, array("G2", "AU"))
 						|| preg_match('/^SG\d+_'.SONET_ROLES_USER.'$/', $b)
@@ -4377,15 +4487,23 @@ class CSocNetLogTools
 						|| preg_match('/^CRMCONTACT\d+$/', $b)
 						|| preg_match('/^CRMCOMPANY\d+$/', $b)
 						|| preg_match('/^CRMLEAD\d+$/', $b)
+						|| preg_match('/^CRMDYNAMIC\d+ENTITY\d+$/', $b)
+						|| preg_match('/^CRMSUSDYNAMIC\d+ENTITY\d+$/', $b)
 					)
+					{
 						return 1;
+					}
 					else
+					{
 						return -1;
+					}
 				}
 				elseif (preg_match('/^D\d+$/', $a))
 				{
 					if (preg_match('/^D\d+$/', $b))
+					{
 						return 0;
+					}
 					elseif (
 						preg_match('/^US\d+$/', $b)
 						|| in_array($b, array("G2", "AU"))
@@ -4396,15 +4514,23 @@ class CSocNetLogTools
 						|| preg_match('/^CRMCONTACT\d+$/', $b)
 						|| preg_match('/^CRMCOMPANY\d+$/', $b)
 						|| preg_match('/^CRMLEAD\d+$/', $b)
+						|| preg_match('/^CRMDYNAMIC\d+ENTITY\d+$/', $b)
+						|| preg_match('/^CRMSUSDYNAMIC\d+ENTITY\d+$/', $b)
 					)
+					{
 						return 1;
+					}
 					else
+					{
 						return -1;
+					}
 				}
 				elseif (preg_match('/^DR\d+$/', $a))
 				{
 					if (preg_match('/^DR\d+$/', $b))
+					{
 						return 0;
+					}
 					elseif (
 						preg_match('/^US\d+$/', $b)
 						|| in_array($b, array("G2", "AU"))
@@ -4416,18 +4542,26 @@ class CSocNetLogTools
 						|| preg_match('/^CRMCONTACT\d+$/', $b)
 						|| preg_match('/^CRMCOMPANY\d+$/', $b)
 						|| preg_match('/^CRMLEAD\d+$/', $b)
+						|| preg_match('/^CRMDYNAMIC\d+ENTITY\d+$/', $b)
+						|| preg_match('/^CRMSUSDYNAMIC\d+ENTITY\d+$/', $b)
 					)
+					{
 						return 1;
+					}
 					else
+					{
 						return -1;
+					}
 				}
 				elseif(preg_match('/^U\d+$/', $a))
 				{
 					if (preg_match('/^U\d+$/', $b))
+					{
 						return 0;
+					}
 					elseif (
 						preg_match('/^US\d+$/', $b)
-						|| in_array($b, array("G2", "AU"))
+						|| in_array($b, [ "G2", "AU" ])
 						|| preg_match('/^SG\d+_'.SONET_ROLES_USER.'$/', $b)
 						|| preg_match('/^SG\d+_'.SONET_ROLES_MODERATOR.'$/', $b)
 						|| preg_match('/^SG\d+_'.SONET_ROLES_OWNER.'$/', $b)
@@ -4437,18 +4571,26 @@ class CSocNetLogTools
 						|| preg_match('/^CRMCONTACT\d+$/', $b)
 						|| preg_match('/^CRMCOMPANY\d+$/', $b)
 						|| preg_match('/^CRMLEAD\d+$/', $b)
+						|| preg_match('/^CRMDYNAMIC\d+ENTITY\d+$/', $b)
+						|| preg_match('/^CRMSUSDYNAMIC\d+ENTITY\d+$/', $b)
 					)
+					{
 						return 1;
+					}
 					else
+					{
 						return -1;
+					}
 				}
 				elseif(preg_match('/^G\d+$/', $a))
 				{
 					if (preg_match('/^G\d+$/', $b))
+					{
 						return 0;
+					}
 					elseif (
 						preg_match('/^US\d+$/', $b)
-						|| in_array($b, array("G2", "AU"))
+						|| in_array($b, [ "G2", "AU" ])
 						|| preg_match('/^SG\d+_'.SONET_ROLES_USER.'$/', $b)
 						|| preg_match('/^SG\d+_'.SONET_ROLES_MODERATOR.'$/', $b)
 						|| preg_match('/^SG\d+_'.SONET_ROLES_OWNER.'$/', $b)
@@ -4459,13 +4601,21 @@ class CSocNetLogTools
 						|| preg_match('/^CRMCONTACT\d+$/', $b)
 						|| preg_match('/^CRMCOMPANY\d+$/', $b)
 						|| preg_match('/^CRMLEAD\d+$/', $b)
+						|| preg_match('/^CRMDYNAMIC\d+ENTITY\d+$/', $b)
+						|| preg_match('/^CRMSUSDYNAMIC\d+ENTITY\d+$/', $b)
 					)
+					{
 						return 1;
+					}
 					else
+					{
 						return -1;
+					}
 				}
 				else
+				{
 					return 0;
+				}
 			}
 		}
 
@@ -4492,7 +4642,7 @@ class CSocNetLogTools
 			$arModuleEvents[] = $arEvent;
 		}
 
-		foreach($arRights as $right_tmp)
+		foreach ($arRights as $right_tmp)
 		{
 			if ($cnt >= $arParams["DESTINATION_LIMIT"])
 			{
@@ -4500,7 +4650,7 @@ class CSocNetLogTools
 			}
 
 			if (
-				in_array($right_tmp, array("G1"))
+				$right_tmp === "G1"
 				&& count($arRights) > 1
 			)
 			{
@@ -4867,31 +5017,39 @@ class CSocNetLogTools
 		$arRights = array_unique($arRights);
 
 		$bAll = false;
-		$arParams["DESTINATION_LIMIT"] = (intval($arParams["DESTINATION_LIMIT"]) <= 0 ? 3 : $arParams["DESTINATION_LIMIT"]);
-		$bCheckPermissions = (!array_key_exists("CHECK_PERMISSIONS_DEST", $arParams) || $arParams["CHECK_PERMISSIONS_DEST"] != "N");
+		$arParams["DESTINATION_LIMIT"] = ((int)$arParams["DESTINATION_LIMIT"] <= 0 ? 3 : $arParams["DESTINATION_LIMIT"]);
+		$bCheckPermissions = (!array_key_exists("CHECK_PERMISSIONS_DEST", $arParams) || $arParams["CHECK_PERMISSIONS_DEST"] !== 'N');
 
-		foreach($arRights as $right_tmp)
+		foreach ($arRights as $right_tmp)
 		{
-			if (in_array($right_tmp, array("G1")) && count($arRights) > 1)
+			if ($right_tmp === "G1" && count($arRights) > 1)
+			{
 				continue;
+			}
 			elseif (in_array($right_tmp, array("G2", "AU")))
 			{
 				if ($bAll)
+				{
 					continue;
+				}
 
 				$arDestination[] = $right_tmp;
 				$bAll = true;
 			}
 			elseif (preg_match('/^G(\d+)$/', $right_tmp, $matches))
+			{
 				$arDestination[] = $matches[1];
+			}
 			elseif (preg_match('/^U(\d+)$/', $right_tmp, $matches))
 			{
 				if (
 					array_key_exists("CREATED_BY", $arParams)
-					&& intval($arParams["CREATED_BY"]) > 0
+					&& (int)$arParams["CREATED_BY"] > 0
 					&& $arParams["CREATED_BY"] == $matches[1]
 				)
+				{
 					continue;
+				}
 
 				$arDestination[] = $right_tmp;
 			}
@@ -4899,7 +5057,9 @@ class CSocNetLogTools
 				preg_match('/^D(\d+)$/', $right_tmp, $matches)
 				|| preg_match('/^DR(\d+)$/', $right_tmp, $matches)
 			)
+			{
 				$arDestination[] = $right_tmp;
+			}
 			elseif (
 				preg_match('/^SG(\d+)_'.SONET_ROLES_USER.'$/', $right_tmp, $matches)
 				|| preg_match('/^SG(\d+)$/', $right_tmp, $matches)
@@ -4908,9 +5068,11 @@ class CSocNetLogTools
 				if (
 					array_key_exists($matches[1], $arSonetGroups)
 					&& is_array($arSonetGroups[$matches[1]])
-					&& in_array(SONET_ROLES_USER, $arSonetGroups[$matches[1]])
+					&& in_array(SONET_ROLES_USER, $arSonetGroups[$matches[1]], true)
 				)
+				{
 					continue;
+				}
 
 				// already cached
 				$arSonetGroup = CSocNetGroup::GetByID($matches[1], $bCheckPermissions);
@@ -4935,7 +5097,10 @@ class CSocNetLogTools
 						$arDestination[] = "SG".$matches[1];
 
 						if (!array_key_exists($arSonetGroup["ID"], $arSonetGroups))
-							$arSonetGroups[$arSonetGroup["ID"]] = array();
+						{
+							$arSonetGroups[$arSonetGroup["ID"]] = [];
+						}
+
 						$arSonetGroups[$arSonetGroup["ID"]][] = SONET_ROLES_MODERATOR;
 					}
 				}
@@ -4943,8 +5108,8 @@ class CSocNetLogTools
 			elseif (preg_match('/^SG(\d+)_'.SONET_ROLES_OWNER.'$/', $right_tmp, $matches))
 			{
 				if (
-					!in_array("SG".$matches[1]."_".SONET_ROLES_USER, $arRights)
-					&& !in_array("SG".$matches[1]."_".SONET_ROLES_MODERATOR, $arRights)
+					!in_array("SG" . $matches[1] . "_" . SONET_ROLES_USER, $arRights, true)
+					&& !in_array("SG" . $matches[1] . "_" . SONET_ROLES_MODERATOR, $arRights, true)
 				)
 				{
 					$arSonetGroup = CSocNetGroup::GetByID($matches[1], $bCheckPermissions);
@@ -4953,7 +5118,10 @@ class CSocNetLogTools
 						$arDestination[] = "SG".$matches[1];
 
 						if (!array_key_exists($arSonetGroup["ID"], $arSonetGroups))
-							$arSonetGroups[$arSonetGroup["ID"]] = array();
+						{
+							$arSonetGroups[$arSonetGroup["ID"]] = [];
+						}
+
 						$arSonetGroups[$arSonetGroup["ID"]][] = SONET_ROLES_OWNER;
 					}
 				}
@@ -4968,7 +5136,9 @@ class CSocNetLogTools
 		static $arIntranetUsers, $arSiteData, $extranet_site_id, $intranet_site_id;
 
 		if (!is_array($arUrl))
+		{
 			$arUrl = array($arUrl);
+		}
 
 		if (
 			CModule::IncludeModule("extranet")
@@ -5864,19 +6034,19 @@ class CSocNetLogTools
 	{
 		$arRes = array();
 
-		$messageId = intval($arFields["SOURCE_ID"]);
+		$messageId = (int)$arFields["SOURCE_ID"];
 		$forumId = COption::GetOptionString("tasks", "task_forum_id", 0, '');
 
 		if (
 			!empty($arFields)
 			&& !empty($arFields["LOG_SOURCE_ID"])
-			&& intval($arFields["LOG_SOURCE_ID"]) > 0
+			&& (int)$arFields["LOG_SOURCE_ID"] > 0
 			&& intval($forumId) > 0
 			&& CModule::IncludeModule('forum')
 		)
 		{
 			$feed = new \Bitrix\Forum\Comments\Feed(
-				intval($forumId),
+				(int)$forumId,
 				array(
 					"type" => 'TK',
 					"id" => intval($arFields["LOG_SOURCE_ID"]),
@@ -5918,24 +6088,24 @@ class CSocNetLogTools
 		if (
 			!empty($arParams)
 			&& !empty($arParams["LOG_SOURCE_ID"])
-			&& intval($arParams["LOG_SOURCE_ID"]) > 0
+			&& (int)$arParams["LOG_SOURCE_ID"] > 0
 			&& !empty($arParams["USER_ID"])
-			&& intval($arParams["USER_ID"]) > 0
-			&& intval($forumId) > 0
+			&& (int)$arParams["USER_ID"] > 0
+			&& (int)$forumId > 0
 			&& CModule::IncludeModule('forum')
 		)
 		{
 			try
 			{
 				$feed = new \Bitrix\Forum\Comments\Feed(
-					intval($forumId),
+					(int)$forumId,
 					array(
 						"type" => 'TK',
-						"id" => intval($arParams["LOG_SOURCE_ID"]),
+						"id" => (int)$arParams["LOG_SOURCE_ID"],
 						"xml_id" => "TASK_".$arParams["LOG_SOURCE_ID"]
 					)
 				);
-				$res = $feed->getEntity()->canEdit(intval($arParams["USER_ID"]));
+				$res = $feed->getEntity()->canEdit((int)$arParams["USER_ID"]);
 			}
 			catch (Exception $e)
 			{
@@ -5954,20 +6124,20 @@ class CSocNetLogTools
 		if (
 			!empty($arParams)
 			&& !empty($arParams["LOG_SOURCE_ID"])
-			&& intval($arParams["LOG_SOURCE_ID"]) > 0
+			&& (int)$arParams["LOG_SOURCE_ID"] > 0
 			&& !empty($arParams["USER_ID"])
-			&& intval($arParams["USER_ID"]) > 0
-			&& intval($forumId) > 0
+			&& (int)$arParams["USER_ID"] > 0
+			&& (int)$forumId > 0
 			&& CModule::IncludeModule('forum')
 		)
 		{
 			try
 			{
 				$feed = new \Bitrix\Forum\Comments\Feed(
-					intval($forumId),
+					(int)$forumId,
 					array(
 						"type" => 'TK',
-						"id" => intval($arParams["LOG_SOURCE_ID"]),
+						"id" => (int)$arParams["LOG_SOURCE_ID"],
 						"xml_id" => "TASK_".$arParams["LOG_SOURCE_ID"]
 					)
 				);
@@ -6035,35 +6205,35 @@ class logTextParser extends CTextParser
 	function convert($text, $arImages = array(), $allow = array("HTML" => "N", "ANCHOR" => "Y", "BIU" => "Y", "IMG" => "Y", "QUOTE" => "Y", "CODE" => "Y", "FONT" => "Y", "LIST" => "Y", "SMILES" => "Y", "NL2BR" => "N", "VIDEO" => "Y", "TABLE" => "Y", "CUT_ANCHOR" => "N", "SHORT_ANCHOR" => "N"), $arParams = Array())
 	{
 		$this->allow = array(
-			"HTML" => ($allow["HTML"] == "Y" ? "Y" : "N"),
-			"NL2BR" => ($allow["NL2BR"] == "Y" ? "Y" : "N"),
-			"LOG_NL2BR" => ($allow["LOG_NL2BR"] == "N" ? "N" : "Y"),
-			"MULTIPLE_BR" => ($allow["MULTIPLE_BR"] == "N" ? "N" : "Y"),
-			"CODE" => ($allow["CODE"] == "N" ? "N" : "Y"),
-			"LOG_CODE" => ($allow["LOG_CODE"] == "N" ? "N" : "Y"),
-			"VIDEO" => ($allow["VIDEO"] == "N" ? "N" : "Y"),
-			"LOG_VIDEO" => ($allow["LOG_VIDEO"] == "N" ? "N" : "Y"),
-			"ANCHOR" => ($allow["ANCHOR"] == "N" ? "N" : "Y"),
-			"LOG_ANCHOR" => ($allow["LOG_ANCHOR"] == "N" ? "N" : "Y"),
-			"BIU" => ($allow["BIU"] == "N" ? "N" : "Y"),
-			"IMG" => ($allow["IMG"] == "N" ? "N" : "Y"),
-			"LOG_IMG" => ($allow["LOG_IMG"] == "N" ? "N" : "Y"),
-			"QUOTE" => ($allow["QUOTE"] == "N" ? "N" : "Y"),
-			"LOG_QUOTE" => ($allow["LOG_QUOTE"] == "N" ? "N" : "Y"),
-			"FONT" => ($allow["FONT"] == "N" ? "N" : "Y"),
+			"HTML" => ($allow["HTML"] === "Y" ? "Y" : "N"),
+			"NL2BR" => ($allow["NL2BR"] === "Y" ? "Y" : "N"),
+			"LOG_NL2BR" => ($allow["LOG_NL2BR"] === "N" ? "N" : "Y"),
+			"MULTIPLE_BR" => ($allow["MULTIPLE_BR"] === "N" ? "N" : "Y"),
+			"CODE" => ($allow["CODE"] === "N" ? "N" : "Y"),
+			"LOG_CODE" => ($allow["LOG_CODE"] === "N" ? "N" : "Y"),
+			"VIDEO" => ($allow["VIDEO"] === "N" ? "N" : "Y"),
+			"LOG_VIDEO" => ($allow["LOG_VIDEO"] === "N" ? "N" : "Y"),
+			"ANCHOR" => ($allow["ANCHOR"] === "N" ? "N" : "Y"),
+			"LOG_ANCHOR" => ($allow["LOG_ANCHOR"] === "N" ? "N" : "Y"),
+			"BIU" => ($allow["BIU"] === "N" ? "N" : "Y"),
+			"IMG" => ($allow["IMG"] === "N" ? "N" : "Y"),
+			"LOG_IMG" => ($allow["LOG_IMG"] === "N" ? "N" : "Y"),
+			"QUOTE" => ($allow["QUOTE"] === "N" ? "N" : "Y"),
+			"LOG_QUOTE" => ($allow["LOG_QUOTE"] === "N" ? "N" : "Y"),
+			"FONT" => ($allow["FONT"] === "N" ? "N" : "Y"),
 			"LOG_FONT" => ($allow["LOG_FONT"] == "N" ? "N" : "Y"),
-			"LIST" => ($allow["LIST"] == "N" ? "N" : "Y"),
-			"SMILES" => ($allow["SMILES"] == "N" ? "N" : "Y"),
-			"TABLE" => ($allow["TABLE"] == "N" ? "N" : "Y"),
-			"ALIGN" => ($allow["ALIGN"] == "N" ? "N" : "Y"),
-			"CUT_ANCHOR" => ($allow["CUT_ANCHOR"] == "Y" ? "Y" : "N"),
-			"SHORT_ANCHOR" => ($allow["SHORT_ANCHOR"] == "Y" ? "Y" : "N"),
-			"HEADER" => ($allow["HEADER"] == "N" ? "N" : "Y"),
+			"LIST" => ($allow["LIST"] === "N" ? "N" : "Y"),
+			"SMILES" => ($allow["SMILES"] === "N" ? "N" : "Y"),
+			"TABLE" => ($allow["TABLE"] === "N" ? "N" : "Y"),
+			"ALIGN" => ($allow["ALIGN"] === "N" ? "N" : "Y"),
+			"CUT_ANCHOR" => ($allow["CUT_ANCHOR"] === "Y" ? "Y" : "N"),
+			"SHORT_ANCHOR" => ($allow["SHORT_ANCHOR"] === "Y" ? "Y" : "N"),
+			"HEADER" => ($allow["HEADER"] === "N" ? "N" : "Y"),
 			"USERFIELDS" => (!!$allow["USERFIELDS"] ? $allow["USERFIELDS"] : "N"),
-			"USER" => ($allow["USER"] == "N" ? "N" : "Y")
+			"USER" => ($allow["USER"] === "N" ? "N" : "Y")
 		);
 
-		if ($this->allow["HTML"] != "Y")
+		if ($this->allow["HTML"] !== "Y")
 		{
 			$text = preg_replace("#(<br[\s]*\/>)#is".BX_UTF_PCRE_MODIFIER, "", $text);
 
@@ -6124,19 +6294,19 @@ class logTextParser extends CTextParser
 					),
 				$text);
 
-			if ($this->allow["QUOTE"]=="Y")
+			if ($this->allow["QUOTE"] === "Y")
 				$text = preg_replace("#<(/?)quote(.*?)>#is", "[\\1quote]", $text);
 
 		}
-		if ($this->allow["LOG_IMG"] == "N")
+		if ($this->allow["LOG_IMG"] === "N")
 			$text = preg_replace("/(\[file([^\]]*)id\s*=\s*([0-9]+)([^\]]*)\])/is", "", $text);
 
-		if ($this->allow["LOG_NL2BR"] == "Y")
+		if ($this->allow["LOG_NL2BR"] === "Y")
 		{
 			$text = str_replace("<br />", "\n", $text);
 		}
 		$text = $this->convertText($text);
-		if ($this->allow["LOG_NL2BR"] == "Y")
+		if ($this->allow["LOG_NL2BR"] === "Y")
 		{
 			$text = str_replace("\n", "<br />", $text);
 		}
@@ -6144,7 +6314,7 @@ class logTextParser extends CTextParser
 		$text = preg_replace("#^(<br[\s]*\/>[\s\n]*)+#is".BX_UTF_PCRE_MODIFIER, "", $text);
 		$text = preg_replace("#(<br[\s]*\/>[\s\n]*)+$#is".BX_UTF_PCRE_MODIFIER, "", $text);
 
-		if ($this->allow["MULTIPLE_BR"] == "N")
+		if ($this->allow["MULTIPLE_BR"] === "N")
 			$text = preg_replace("#(<br[\s]*\/>[\s\n]*)+#is".BX_UTF_PCRE_MODIFIER, "<br />", $text);
 
 		return trim($text);
@@ -6152,7 +6322,7 @@ class logTextParser extends CTextParser
 
 	function convert_anchor_tag($url, $text, $pref="")
 	{
-		if ($this->allow["LOG_ANCHOR"] == "N")
+		if ($this->allow["LOG_ANCHOR"] === "N")
 			return "[URL]".$text."[/URL]";
 		else
 			return parent::convert_anchor_tag($url, $text, $pref);
@@ -6160,7 +6330,7 @@ class logTextParser extends CTextParser
 
 	function convert_image_tag($url = "", $params = "")
 	{
-		if ($this->allow["LOG_IMG"] == "N")
+		if ($this->allow["LOG_IMG"] === "N")
 		{
 // use thumbnail?
 			return "";
@@ -6185,7 +6355,7 @@ class logTextParser extends CTextParser
 	function convert_code_tag($text = "")
 	{
 		$text = preg_replace("#(<br[\s]*\/>)#is".BX_UTF_PCRE_MODIFIER, "", $text);
-		if ($this->allow["LOG_CODE"] == "N")
+		if ($this->allow["LOG_CODE"] === "N")
 		{
 			$text = str_replace(Array("[nomodify]", "[/nomodify]"), Array("", ""), $text);
 			return $text;
@@ -6196,7 +6366,7 @@ class logTextParser extends CTextParser
 
 	function convert_quote_tag($text = "")
 	{
-		if ($this->allow["LOG_QUOTE"] == "N")
+		if ($this->allow["LOG_QUOTE"] === "N")
 		{
 			return preg_replace(
 				array(
@@ -6206,10 +6376,8 @@ class logTextParser extends CTextParser
 				"",
 			$text);
 		}
-		else
-		{
-			return parent::convert_quote_tag($text);
-		}
+
+		return parent::convert_quote_tag($text);
 	}
 
 	function convert_font_attr($attr, $value = "", $text = "")
@@ -6218,26 +6386,22 @@ class logTextParser extends CTextParser
 		$text = str_replace("\\\"", "\"", $text);
 		if ($value == '') return $text;
 
-		if ($this->allow["LOG_FONT"] == "N")
+		if ($this->allow["LOG_FONT"] === "N")
 		{
 			return $text;
 		}
-		else
-		{
-			return parent::convert_font_attr($attr, $value, $text);
-		}
+
+		return parent::convert_font_attr($attr, $value, $text);
 	}
 
 	function convert_video($params)
 	{
-		if ($this->allow["LOG_VIDEO"] == "N")
+		if ($this->allow["LOG_VIDEO"] === "N")
 		{
 			return '<a href="'.$params['PATH'].'">'.$params['PATH'].'</a>';
 		}
-		else
-		{
-			return parent::convert_video($params);
-		}
+
+		return parent::convert_video($params);
 	}
 }
 
@@ -6303,9 +6467,9 @@ class CSocNetLogComponent
 				}
 				elseif
 				(
-					$arPresetFilterTmp["ID"] == "work"
+					$arPresetFilterTmp["ID"] === "work"
 					&& $isCrmAvailable
-					&& \Bitrix\Main\Config\Option::get("crm", "enable_livefeed_merge", "N") == "Y"
+					&& \Bitrix\Main\Config\Option::get("crm", "enable_livefeed_merge", "N") === "Y"
 					&& !empty($arPresetFilterTmp["FILTER"])
 					&& is_array($arPresetFilterTmp["FILTER"]["EVENT_ID"])
 				)
@@ -6327,7 +6491,7 @@ class CSocNetLogComponent
 				foreach ($arPresetFilterTmp["FILTER"]["EVENT_ID"] as $eventKey => $eventId)
 				{
 					if (
-						($eventId == "tasks" && !$isTasksAvailable)
+						($eventId === "tasks" && !$isTasksAvailable)
 						|| (in_array($eventId, array("timeman_entry", "report")) && !$isTimemanAvailable)
 					)
 					{
@@ -6348,11 +6512,11 @@ class CSocNetLogComponent
 			{
 				if (
 					(
-						$arPresetFilterTmp["FILTER"]["EXACT_EVENT_ID"] == "lists_new_element"
+						$arPresetFilterTmp["FILTER"]["EXACT_EVENT_ID"] === "lists_new_element"
 						&& (
 							(
 								isset($arParams["GROUP_ID"])
-								&& intval($arParams["GROUP_ID"]) > 0
+								&& (int)$arParams["GROUP_ID"] > 0
 							)
 							|| !$isListsAvailable
 							|| $isExtranetSite
@@ -6399,16 +6563,16 @@ class CSocNetLogComponent
 				&& is_array($arPresetFilterTmp["FILTER"])
 			)
 			{
-				foreach($arPresetFilterTmp["FILTER"] as $tmp_id_2 => $filterTmp)
+				foreach ($arPresetFilterTmp["FILTER"] as $tmp_id_2 => $filterTmp)
 				{
 					if (
 						(
 							!is_array($filterTmp)
-							&& $filterTmp == "#CURRENT_USER_ID#"
+							&& $filterTmp === "#CURRENT_USER_ID#"
 						)
 						|| (
 							is_array($filterTmp)
-							&& in_array("#CURRENT_USER_ID#", $filterTmp)
+							&& in_array("#CURRENT_USER_ID#", $filterTmp, true)
 						)
 					)
 					{
@@ -6425,7 +6589,7 @@ class CSocNetLogComponent
 						{
 							foreach($filterTmp as $tmp_id_3 => $valueTmp)
 							{
-								if ($valueTmp == "#CURRENT_USER_ID#")
+								if ($valueTmp === "#CURRENT_USER_ID#")
 								{
 									$arPresetFilterTmp["FILTER"][$tmp_id_2][$tmp_id_3] = $USER->getId();
 								}
@@ -6435,7 +6599,7 @@ class CSocNetLogComponent
 					elseif (
 						(
 							!is_array($filterTmp)
-							&& $filterTmp == "#EXTRANET_SITE_ID#"
+							&& $filterTmp === "#EXTRANET_SITE_ID#"
 						)
 						|| (
 							is_array($filterTmp)
@@ -6451,15 +6615,16 @@ class CSocNetLogComponent
 							$bCorrect = false;
 							break;
 						}
-						elseif (!is_array($filterTmp))
+
+						if (!is_array($filterTmp))
 						{
 							$arPresetFilterTmp["FILTER"][$tmp_id_2] = COption::GetOptionString("extranet", "extranet_site");
 						}
-						elseif (is_array($filterTmp))
+						else
 						{
 							foreach($filterTmp as $tmp_id_3 => $valueTmp)
 							{
-								if ($valueTmp == "#EXTRANET_SITE_ID#")
+								if ($valueTmp === "#EXTRANET_SITE_ID#")
 								{
 									$arPresetFilterTmp["FILTER"][$tmp_id_2][$tmp_id_3] = COption::GetOptionString("extranet", "extranet_site");
 								}
@@ -6514,7 +6679,7 @@ class CSocNetLogComponent
 
 			if (
 				array_key_exists("FAVORITES_USER_ID", $arResultPresetFilters[$preset_filter_id]["FILTER"])
-				&& $arResultPresetFilters[$preset_filter_id]["FILTER"]["FAVORITES_USER_ID"] == "Y"
+				&& $arResultPresetFilters[$preset_filter_id]["FILTER"]["FAVORITES_USER_ID"] === "Y"
 			)
 			{
 				$arResult["PARAMS"]["FAVORITES"] = "Y";
@@ -6651,11 +6816,11 @@ class CSocNetLogComponent
 				{
 					if (isset($arRelation[intval($matches[1])]))
 					{
-						if ($type == "disk")
+						if ($type === "disk")
 						{
 							return "[DISK FILE ID=".$arRelation[intval($matches[1])]."]";
 						}
-						elseif ($type == "webdav")
+						elseif ($type === "webdav")
 						{
 							return "[DOCUMENT ID=".intval($arRelation[intval($matches[1])])."]";
 						}
@@ -6688,7 +6853,7 @@ class CSocNetLogComponent
 
 		if (
 			!$userId
-			|| intval($userId) <= 0
+			|| (int)$userId <= 0
 		)
 		{
 			$userId = $USER->GetID();
@@ -6707,7 +6872,7 @@ class CSocNetLogComponent
 		if ($isWebDavEnabled === false)
 		{
 			$isWebDavEnabled = (
-				$isDiskEnabled == 'N'
+				$isDiskEnabled === 'N'
 				&& CModule::includeModule('webdav')
 					? "Y"
 					: "N"
@@ -6720,7 +6885,7 @@ class CSocNetLogComponent
 				"ENABLED" => "N"
 			);
 
-			if ($isDiskEnabled == "Y")
+			if ($isDiskEnabled === "Y")
 			{
 				if (
 					($storage = \Bitrix\Disk\Driver::getInstance()->getStorageByUserId($userId))
@@ -6742,7 +6907,7 @@ class CSocNetLogComponent
 				"ENABLED" => "N"
 			);
 
-			if ($isWebDavEnabled == "Y" && $USER instanceof \CUser)
+			if ($isWebDavEnabled === "Y" && $USER instanceof \CUser)
 			{
 				$webDavData = CWebDavIblock::getRootSectionDataForUser($userId);
 
@@ -6774,7 +6939,7 @@ class CSocNetLogComponent
 							if ($arParent["not_found"])
 							{
 								$rMKCOL = $webDavObject->MKCOL($tmpOptions);
-								if (intval($rMKCOL) == 201)
+								if ((int)$rMKCOL == 201)
 								{
 									$webDavData["SECTION_ID"] = $webDavObject->arParams["changed_element_id"];
 								}
@@ -6809,7 +6974,7 @@ class CSocNetLogComponent
 		if(is_array($arFile))
 		{
 			$resultId = false;
-			if ($arDiskData[$userId]["ENABLED"] == "Y")
+			if ($arDiskData[$userId]["ENABLED"] === "Y")
 			{
 				$type = "disk";
 				$file = $arDiskData[$userId]["FOLDER"]->uploadFile(
@@ -6873,7 +7038,7 @@ class CSocNetLogComponent
 			isset($GLOBALS[$fieldName])
 			&& is_array($GLOBALS[$fieldName])
 			&& count($GLOBALS[$fieldName]) == 1
-			&& $GLOBALS[$fieldName][0] == 'empty'
+			&& $GLOBALS[$fieldName][0] === 'empty'
 		)
 		{
 			$GLOBALS[$fieldName] = array();
@@ -6884,15 +7049,15 @@ class CSocNetLogComponent
 	{
 		if (
 			!isset($arParams["TRAFFIC_SET_PERIOD"])
-			|| intval($arParams["TRAFFIC_SET_PERIOD"]) <= 0
+			|| (int)$arParams["TRAFFIC_SET_PERIOD"] <= 0
 		)
 		{
 			$arParams["TRAFFIC_SET_PERIOD"] = 60*60*24;
 		}
 
 		return (
-			intval($arParams["PAGE_NUMBER"]) == 1
-			&& $arParams["GROUP_CODE"] == '**'
+			(int)$arParams["PAGE_NUMBER"] == 1
+			&& $arParams["GROUP_CODE"] === '**'
 			&& (time() - $arParams['TRAFFIC_LAST_DATE_TS']) > $arParams["TRAFFIC_SET_PERIOD"]
 		);
 	}
@@ -6911,11 +7076,11 @@ class CSocNetLogComponent
 
 		$arParams["DATE_TIME_FORMAT"] = trim(
 			!empty($arParams['DATE_TIME_FORMAT'])
-				? ($arParams['DATE_TIME_FORMAT'] == 'FULL'
-					? $DB->DateFormatToPHP(FORMAT_DATETIME)
+				? ($arParams['DATE_TIME_FORMAT'] === 'FULL'
+					? CDatabase::DateFormatToPHP(FORMAT_DATETIME)
 					: $arParams['DATE_TIME_FORMAT']
 				)
-				: $DB->DateFormatToPHP(FORMAT_DATETIME)
+				: CDatabase::DateFormatToPHP(FORMAT_DATETIME)
 		);
 		$arParams["DATE_TIME_FORMAT"] = preg_replace('/[\/.,\s:][s]/', '', $arParams["DATE_TIME_FORMAT"]);
 		$arParams["DATE_TIME_FORMAT_WITHOUT_YEAR"] = (
@@ -6965,7 +7130,7 @@ class CSocNetLogComponent
 
 		$bCheckAdminSession = (
 			!isset($arParams["CHECK_ADMIN_SESSION"])
-			|| $arParams["CHECK_ADMIN_SESSION"] != "N"
+			|| $arParams["CHECK_ADMIN_SESSION"] !== "N"
 		);
 
 		$arCommentEventMeta = CSocNetLogTools::FindLogCommentEventByLogEventID($logEventId);
@@ -6974,7 +7139,7 @@ class CSocNetLogComponent
 			is_array($arCommentEventMeta)
 			&& isset($arCommentEventMeta["UPDATE_CALLBACK"])
 			&& (
-				$arCommentEventMeta["UPDATE_CALLBACK"] == "NO_SOURCE"
+				$arCommentEventMeta["UPDATE_CALLBACK"] === "NO_SOURCE"
 				|| is_callable($arCommentEventMeta["UPDATE_CALLBACK"])
 			)
 		);
@@ -6983,7 +7148,7 @@ class CSocNetLogComponent
 			is_array($arCommentEventMeta)
 			&& isset($arCommentEventMeta["DELETE_CALLBACK"])
 			&& (
-				$arCommentEventMeta["DELETE_CALLBACK"] == "NO_SOURCE"
+				$arCommentEventMeta["DELETE_CALLBACK"] === "NO_SOURCE"
 				|| is_callable($arCommentEventMeta["DELETE_CALLBACK"])
 			)
 		);
@@ -7003,7 +7168,7 @@ class CSocNetLogComponent
 			{
 				$res = call_user_func($arEventMeta["COMMENT_EVENT"]["METHOD_CANEDIT"], array(
 					"LOG_SOURCE_ID" => $logSourceId,
-					"USER_ID" => intval($arParams["USER_ID"])
+					"USER_ID" => (int)$arParams["USER_ID"]
 				));
 
 				if ($res)
@@ -7017,7 +7182,7 @@ class CSocNetLogComponent
 					{
 						$res = call_user_func($arEventMeta["COMMENT_EVENT"]["METHOD_CANEDITOWN"], array(
 							"LOG_SOURCE_ID" => $logSourceId,
-							"USER_ID" => intval($arParams["USER_ID"])
+							"USER_ID" => (int)$arParams["USER_ID"]
 						));
 
 						if ($res)
@@ -7066,7 +7231,7 @@ class CSocNetLogComponent
 
 		if (
 			!isset($arParams["USER_ID"])
-			|| intval($arParams["USER_ID"]) <= 0
+			|| (int)$arParams["USER_ID"] <= 0
 		)
 		{
 			$arParams["USER_ID"] = $USER->GetId();
@@ -7086,15 +7251,15 @@ class CSocNetLogComponent
 			"USER_ID" => $arParams["USER_ID"]
 		));
 
-		$key = ($arParams["ACTION"] == "EDIT" ? "COMMENT_RIGHTS_EDIT" : "COMMENT_RIGHTS_DELETE");
+		$key = ($arParams["ACTION"] === "EDIT" ? "COMMENT_RIGHTS_EDIT" : "COMMENT_RIGHTS_DELETE");
 
 		if (
-			$rights[$key] == "ALL"
+			$rights[$key] === "ALL"
 			|| (
-				$rights[$key] == "OWN"
+				$rights[$key] === "OWN"
 				&& !empty($arParams["COMMENT_USER_ID"])
-				&& intval($arParams["COMMENT_USER_ID"]) > 0
-				&& intval($arParams["COMMENT_USER_ID"]) == intval($arParams["USER_ID"])
+				&& (int)$arParams["COMMENT_USER_ID"] > 0
+				&& (int)$arParams["COMMENT_USER_ID"] === (int)$arParams["USER_ID"]
 			)
 		)
 		{
@@ -7150,7 +7315,7 @@ class CSocNetLogComponent
 
 	public static function redirectExtranetSite($arRedirectSite, $componentPage, $arVariables, $arDefaultUrlTemplates404, $entity = "user")
 	{
-		if ($entity != "user")
+		if ($entity !== "user")
 		{
 			$entity = "workgroup";
 		}
@@ -7161,7 +7326,7 @@ class CSocNetLogComponent
 				? (CMain::IsHTTPS() ? "https" : "http")."://".$arRedirectSite["SERVER_NAME"]
 				: ''
 		).
-		COption::GetOptionString("socialnetwork", ($entity == "user" ? "user_page" : "workgroups_page"), false, $arRedirectSite["LID"]).
+		COption::GetOptionString("socialnetwork", ($entity === "user" ? "user_page" : "workgroups_page"), false, $arRedirectSite["LID"]).
 		CComponentEngine::MakePathFromTemplate(
 			$arDefaultUrlTemplates404[$componentPage],
 			$arVariables
@@ -7169,7 +7334,7 @@ class CSocNetLogComponent
 
 		if (!empty($_GET["MID"]))
 		{
-			$url .= (mb_strpos($url, '?') === false ? '?' : '&').'MID='.intval($_GET["MID"]);
+			$url .= (mb_strpos($url, '?') === false ? '?' : '&').'MID=' . (int)$_GET["MID"];
 		}
 
 		LocalRedirect($url);
@@ -7292,8 +7457,8 @@ class CSocNetLogComponent
 			$res = $arCommentEventMeta["RATING_TYPE_ID"];
 		}
 		elseif (
-			$logEventId == "photo_photo"
-			&& intval($logId) > 0
+			$logEventId === "photo_photo"
+			&& (int)$logId > 0
 		)
 		{
 			$commentType = CSocNetPhotoCommentEvent::FindLogType($logId);
@@ -7302,11 +7467,11 @@ class CSocNetLogComponent
 				&& isset($commentType["TYPE"])
 			)
 			{
-				if ($commentType["TYPE"] == "FORUM")
+				if ($commentType["TYPE"] === "FORUM")
 				{
 					$res = "FORUM_POST";
 				}
-				elseif ($commentType["TYPE"] == "BLOG")
+				elseif ($commentType["TYPE"] === "BLOG")
 				{
 					$res = "BLOG_COMMENT";
 				}
@@ -7316,7 +7481,7 @@ class CSocNetLogComponent
 		{
 			$res = "FORUM_POST";
 		}
-		elseif (in_array($logEventId, array("idea")))
+		elseif ($logEventId === "idea")
 		{
 			$res = "BLOG_COMMENT";
 		}

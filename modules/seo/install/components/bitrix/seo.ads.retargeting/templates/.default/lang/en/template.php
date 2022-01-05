@@ -29,6 +29,7 @@ $MESS["CRM_ADS_RTG_CREATE_LOOKALIKE_SIZE_HINT"] = "Smaller source audience will 
 $MESS["CRM_ADS_RTG_ERROR_ACTION"] = "Action has been canceled because an error occurred.";
 $MESS["CRM_ADS_RTG_ERROR_NO_AUDIENCES"] = "No audience has been found. Please proceed to %name% to create an audience.";
 $MESS["CRM_ADS_RTG_LOGIN"] = "Connect";
+$MESS["CRM_ADS_RTG_LOGIN_GOOGLE"] = "Sign in with Google";
 $MESS["CRM_ADS_RTG_LOGOUT"] = "Disconnect";
 $MESS["CRM_ADS_RTG_NEW_AUDIENCE_NAME_LABEL"] = "Audience name";
 $MESS["CRM_ADS_RTG_REFRESH"] = "Update";

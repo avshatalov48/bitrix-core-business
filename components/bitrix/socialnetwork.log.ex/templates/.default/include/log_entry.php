@@ -20,7 +20,7 @@ $component = $this->getComponent();
 $arComponentParams = array_merge($arParams, [
 	"LOG_ID" => $arEvent["ID"],
 	"LAST_LOG_TS" => (
-		$arParams["SET_LOG_COUNTER"] == "Y"
+		$arParams["SET_LOG_COUNTER"] === "Y"
 		&& !(isset($arResult["EXPERT_MODE_SET"]) && $arResult["EXPERT_MODE_SET"])
 			? $arResult["LAST_LOG_TS"] :
 			0
@@ -37,6 +37,8 @@ $arComponentParams = array_merge($arParams, [
 	"FROM_LOG" => (isset($arParams["LOG_ID"]) && (int)$arParams["LOG_ID"] > 0 ? "N" : "Y"),
 	"PATH_TO_LOG_TAG" => $arResult["PATH_TO_LOG_TAG"],
 	'TOP_RATING_DATA' => ($arResult['TOP_RATING_DATA'][$arEvent["ID"]] ?? false),
+	'FORM_ID' => $arParams['FORM_ID'],
+	'FORUM_ID' => $arParams['FORUM_ID'],
 ]);
 
 if (isset($arResult['UNREAD_COMMENTS_ID_LIST'][$arEvent['ID']]))

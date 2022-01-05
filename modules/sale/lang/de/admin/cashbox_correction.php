@@ -1,0 +1,23 @@
+<?php
+$MESS["CORRECTION_CHECK_EXPORT_CSV_TITLE"] = "Elemente nach CSV exportieren";
+$MESS["CORRECTION_CHECK_EXPORT_EXCEL_TITLE"] = "Elemente nach Microsoft Excel exportieren";
+$MESS["CORRECTION_CHECK_STEXPORT_SUMMARY"] = "Elemente der Tabelle werden in eine Datei exportiert. Das kann einige Zeit in Anspruch nehmen, wenn es viele Daten gibt.";
+$MESS["SALE_CASHBOX_CORRECTION_ACCESS_DENIED"] = "Zugriff verweigert.";
+$MESS["SALE_CASHBOX_CORRECTION_ADD"] = "Korrektur-Kassenzettel hinzufügen";
+$MESS["SALE_CASHBOX_CORRECTION_GROUP_ADD"] = "Kassenzettel hinzufügen";
+$MESS["SALE_CASHBOX_CORRECTION_GROUP_EXPORT_TO_CSV"] = "Export von Zahlungen nach CSV";
+$MESS["SALE_CASHBOX_CORRECTION_GROUP_EXPORT_TO_EXCEL"] = "Export von Zahlungen nach Microsoft Excel";
+$MESS["SALE_CASHBOX_CORRECTION_SAVE_CHECK"] = "Kassenzettel wurde erstellt und wird ausgedruckt";
+$MESS["SALE_CASHBOX_CORRECTION_TITLE"] = "Korrektur";
+$MESS["SALE_CHECK_CORRECTION_ORDER_DATE_BILL"] = "Zahlung erstellt am";
+$MESS["SALE_CHECK_CORRECTION_ORDER_ID"] = "ID der Bestellung";
+$MESS["SALE_CHECK_CORRECTION_ORDER_PAID"] = "Bezahlt";
+$MESS["SALE_CHECK_CORRECTION_ORDER_PAID_N"] = "Nein";
+$MESS["SALE_CHECK_CORRECTION_ORDER_PAID_Y"] = "Ja";
+$MESS["SALE_CHECK_CORRECTION_ORDER_SUM"] = "Betrag";
+$MESS["SALE_CHECK_CORRECTION_PAYMENT_ID"] = "ID der Zahlung";
+$MESS["SALE_CHECK_CORRECTION_PAY_SYSTEM_NAME"] = "Zahlungssystem";
+$MESS["SALE_F_CORRECTION_CHECK_PRINTED"] = "Kassenzettel gedruckt";
+$MESS["SALE_F_CORRECTION_DATE_BILL"] = "Erstellt am";
+$MESS["SALE_F_CORRECTION_ORDER_ID"] = "ID der Bestellung";
+$MESS["SALE_F_CORRECTION_PAID"] = "Bezahlt";

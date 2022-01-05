@@ -266,7 +266,19 @@ class Signaling
 
 	public static function filterPushesForApple($message, $deviceType, $deviceToken)
 	{
-		return Loader::includeModule("pull") && ($deviceType !== \CPushDescription::TYPE_APPLE);
+		if (!Loader::includeModule('pull'))
+		{
+			return false;
+		}
+		$result = !in_array(
+			$deviceType,
+			[
+				\CPushDescription::TYPE_APPLE,
+				\CPushDescription::TYPE_APPLE_VOIP,
+			],
+			true)
+		;
+		return $result;
 	}
 
 	protected function getPublicIds(array $userIds)

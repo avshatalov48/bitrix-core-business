@@ -29,6 +29,7 @@ import MenuManager from './menu/menu-manager';
 import MenuItem from './menu/menu-item';
 import { type PopupOptions } from './popup/popup-types';
 import { type MenuOptions, type MenuItemOptions } from './menu/menu-types';
+import type PositionEvent from './popup/position-event';
 
 import PopupWindow from './compatibility/popup-window';
 import PopupWindowButton from './compatibility/popup-window-button';
@@ -57,7 +58,8 @@ export {
 export type {
 	PopupOptions,
 	MenuOptions,
-	MenuItemOptions
+	MenuItemOptions,
+	PositionEvent,
 };
 
 //Compatibility

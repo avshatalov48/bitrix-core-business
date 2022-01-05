@@ -108,6 +108,9 @@ class WorkgroupTable extends Entity\DataManager
 			'IMAGE_ID' => array(
 				'data_type' => 'integer',
 			),
+			'AVATAR_TYPE' => [
+				'data_type' => 'string',
+			],
 			'OWNER_ID' => array(
 				'data_type' => 'integer',
 			),

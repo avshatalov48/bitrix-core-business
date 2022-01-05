@@ -2,10 +2,13 @@
 
 use Bitrix\Main\Loader;
 
-//main usually is included directly
-Loader::registerNamespace("Bitrix\\Main", Loader::getDocumentRoot()."/bitrix/modules/main/lib");
-Loader::registerNamespace("Bitrix\\UI", Loader::getDocumentRoot()."/bitrix/modules/ui/lib");
-Loader::registerNamespace("Psr\\Container", Loader::getDocumentRoot()."/bitrix/modules/main/vendor/psr/container/src");
+//main is usually included directly
+$documentRoot = Loader::getDocumentRoot();
+Loader::registerNamespace("Bitrix\\Main", $documentRoot."/bitrix/modules/main/lib");
+Loader::registerNamespace("Bitrix\\UI", $documentRoot."/bitrix/modules/ui/lib");
+Loader::registerNamespace("Psr\\Container", $documentRoot."/bitrix/modules/main/vendor/psr/container/src");
+Loader::registerNamespace("Psr\\Log", $documentRoot."/bitrix/modules/main/vendor/psr/log/Psr/Log");
+Loader::registerNamespace("PHPMailer\\PHPMailer", $documentRoot."/bitrix/modules/main/vendor/phpmailer/phpmailer/src");
 
 \spl_autoload_register([Loader::class, 'autoLoad']);
 
@@ -147,6 +150,8 @@ Loader::registerAutoLoadClasses(
 		"_CLangDBResult" => "classes/general/langdbresult.php",
 		"CAllAgent" => "classes/general/agent.php",
 		"CAgent" => "classes/mysql/agent.php",
+		"CApplicationException" => "classes/general/applicationexception.php",
+		"CAdminException" => "classes/general/adminexception.php",
 	)
 );
 

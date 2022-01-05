@@ -109,8 +109,6 @@ Loader::registerAutoLoadClasses(
 		"CDBResultEventMultiResult" => "classes/general/eventmessage.php",
 		"CDebugInfo" => "classes/general/debuginfo.php",
 		"CCaptchaAgent" => "classes/general/captchaagent.php",
-		"CApplicationException" => "classes/general/applicationexception.php",
-		"CAdminException" => "classes/general/adminexception.php",
 		"CAllFilterQuery" => "classes/general/filterquery.php",
 		"CFilterQuery" => "classes/general/filterquery.php",
 		"CConvertorsPregReplaceHelper" => "classes/general/convertorspregreplacehelper.php",

@@ -52,7 +52,7 @@ abstract class Base
 	abstract public function canUse();
 
 	abstract public function getFromList();
-	
+
 	/**
 	 * Get default From.
 	 * @return null|string
@@ -127,5 +127,18 @@ abstract class Base
 	public static function resolveStatus($serviceStatus)
 	{
 		return null;
+	}
+
+	public function getManageUrl()
+	{
+		return $this->isConfigurable() ? '/crm/configs/sms/?sender='.$this->getId() : '';
+	}
+
+	/**
+	 * Prepares text for message body.
+	 */
+	public function prepareMessageBodyForSave(string $text): string
+	{
+		return $text;
 	}
 }

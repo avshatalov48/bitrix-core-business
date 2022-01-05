@@ -524,20 +524,25 @@
 			if (this.iframeView.IsShown())
 			{
 				var
-					padding = 8,
+					padding = 15,
 					minHeight,
 					doc = this.GetIframeDoc();
 
 				if (doc && doc.body)
 				{
 					minHeight = doc.body.parentNode.offsetHeight - padding * 2;
+					
 					if (minHeight <= 20)
 					{
 						setTimeout(BX.proxy(this.CheckBodyHeight, this), 300);
 					}
 					else if (this.config.autoResize || minHeight > doc.body.offsetHeight)
 					{
-						doc.body.style.minHeight = minHeight + 'px';
+						setTimeout(function()
+						{
+							minHeight = doc.body.parentNode.offsetHeight - padding * 2;
+							doc.body.style.minHeight = minHeight + 'px';
+						}, 300);
 					}
 				}
 			}

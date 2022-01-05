@@ -2011,8 +2011,8 @@ if ($arResult['allowHorizontalScroll'])
 		BX.ready(function () {
 			BX.loadScript(
 				[
-					'/bitrix/components/bitrix/main.ui.grid/templates/.default/js/utils.js',
-					'/bitrix/components/bitrix/main.ui.grid/templates/.default/js/fader.js'
+					'/bitrix/components/bitrix/main.ui.grid/templates/.default/src/js/utils.js',
+					'/bitrix/components/bitrix/main.ui.grid/templates/.default/src/js/fader.js'
 				],
 				function() {
 					setTimeout(

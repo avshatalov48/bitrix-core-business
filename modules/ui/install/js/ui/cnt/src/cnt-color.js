@@ -8,5 +8,6 @@ export default class CounterColor
 	static PRIMARY = "ui-counter-primary";
 	static GRAY = "ui-counter-gray";
 	static LIGHT = "ui-counter-light";
+	static WHITE = "ui-counter-white";
 	static DARK = "ui-counter-dark";
 }

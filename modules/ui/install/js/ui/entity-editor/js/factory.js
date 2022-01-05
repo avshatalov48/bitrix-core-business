@@ -129,6 +129,10 @@ if(typeof BX.UI.EntityEditorControlFactory === "undefined")
 			{
 				return BX.UI.EntityEditorImage.create(controlId, settings);
 			}
+			else if(type === "file")
+			{
+				return BX.UI.EntityEditorFile.create(controlId, settings);
+			}
 			else if(type === "custom")
 			{
 				return BX.UI.EntityEditorCustom.create(controlId, settings);

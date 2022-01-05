@@ -11,6 +11,9 @@ BX.UI.ActionPanel.Item = function(options)
 	this.text = options.text;
 	this.html = options.text;
 	this.icon = options.icon;
+	this.title = options.title;
+	this.iconOnly = options.iconOnly;
+	this.additionalClassForPanel = options.additionalClassForPanel;
 	this.submenuOptions = {};
 	if (options.submenuOptions && BX.type.isString(options.submenuOptions))
 	{
@@ -54,7 +57,7 @@ BX.UI.ActionPanel.Item.prototype =
 
 		this.href ? selectorType = "a" : selectorType = "div";
 
-		var className = "ui-action-panel-item " + (this.disabled ? 'ui-action-panel-item-is-disabled' : '');
+		var className = "ui-action-panel-item " + (this.additionalClassForPanel ? this.additionalClassForPanel+' ':'') + (this.disabled ? 'ui-action-panel-item-is-disabled' : '');
 		if (this.buttonIconClass)
 		{
 			className = 'ui-btn ui-btn-lg ui-btn-link ' + this.buttonIconClass;
@@ -98,8 +101,8 @@ BX.UI.ActionPanel.Item.prototype =
 					className: className
 				},
 				children: [
-					this.icon ? '<span class="ui-action-panel-item-icon"><img src="' + this.icon + '" title=" "></span>' : null,
-					(this.text && !this.buttonIconClass) ? '<span class="ui-action-panel-item-title">' + this.text + '</span>' : this.text
+					this.icon ? '<span class="ui-action-panel-item-icon"><img src="' + this.icon + '"></span>' : null,
+					(this.text && !this.buttonIconClass && this.iconOnly !== true ) ? '<span class="ui-action-panel-item-title">' + this.text + '</span>' : (this.iconOnly !== true ? this.text : null)
 				],
 				attrs: this.attributes,
 				dataset: {
@@ -112,7 +115,7 @@ BX.UI.ActionPanel.Item.prototype =
 		}
 
 		this.href ? this.layout.container.setAttribute('href', this.href) : null;
-		this.href ? this.layout.container.setAttribute('title', this.text) : null;
+		(this.href || this.title) ? this.layout.container.setAttribute('title', (this.title ? this.title :this.text)) : null;
 
 		if (BX.type.isString(this.onclick))
 		{
@@ -135,6 +138,11 @@ BX.UI.ActionPanel.Item.prototype =
 	show: function ()
 	{
 		BX.show(this.layout.container, 'block');
+	},
+
+	showAsInlineBlock: function ()
+	{
+		BX.style(this.layout.container,'display','inline-block');
 	},
 
 	hide: function ()

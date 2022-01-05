@@ -1,4 +1,10 @@
 <?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -10,19 +16,14 @@ use Bitrix\Main\Loader;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Main\ModuleManager;
 
-/**
- * Bitrix vars
- * @global CUser $USER
- * @global CMain $APPLICATION
- * @global CDatabase $DB
- * @global CUserTypeManager $USER_FIELD_MANAGER
- * @global CCacheManager $CACHE_MANAGER
- * @param array $arParams
- * @param array $arResult
- * @param CBitrixComponent $this
- */
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
-	die();
+/** @var CBitrixComponent $this */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CMain $APPLICATION */
+/** @global CUser $USER */
+/** @global CDatabase $DB */
+/** @global CCacheManager $CACHE_MANAGER */
+/** @global CUserTypeManager $USER_FIELD_MANAGER */
 
 global $USER_FIELD_MANAGER, $CACHE_MANAGER;
 
@@ -43,11 +44,11 @@ if($arParams["PAGE_VAR"] == '')
 if($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
 
-$arParams["SHOW_YEAR"] = $arParams["SHOW_YEAR"] == "Y" ? "Y" : ($arParams["SHOW_YEAR"] == "M" ? "M" : "N");
+$arParams["SHOW_YEAR"] = $arParams["SHOW_YEAR"] === "Y" ? "Y" : ($arParams["SHOW_YEAR"] === "M" ? "M" : "N");
 // activation rating
 CRatingsComponentsMain::GetShowRating($arParams);
 
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
+$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] === "N" ? "N" : "Y");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
 if($arParams["PATH_TO_USER"] == '')
@@ -160,8 +161,8 @@ $arParams["PATH_TO_USER_CODES"] = trim($arParams["PATH_TO_USER_CODES"]);
 if ($arParams["PATH_TO_USER_CODES"] == '')
 	$arParams["PATH_TO_USER_CODES"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_codes&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
-$arParams["SHORT_FORM"] = $arParams["SHORT_FORM"] == "Y";
+$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? CDatabase::DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+$arParams["SHORT_FORM"] = $arParams["SHORT_FORM"] === "Y";
 
 if (!isset($arParams["USER_PROPERTY_MAIN"]) || !is_array($arParams["USER_PROPERTY_MAIN"]))
 	$arParams["USER_PROPERTY_MAIN"] = array();
@@ -216,48 +217,16 @@ $arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 6;
 
-$arParams["USE_MAIN_MENU"] = (isset($arParams["USE_MAIN_MENU"]) && $arParams["USE_MAIN_MENU"] == "Y" ? $arParams["USE_MAIN_MENU"] : false);
+$arParams["USE_MAIN_MENU"] = (isset($arParams["USE_MAIN_MENU"]) && $arParams["USE_MAIN_MENU"] === "Y" ? $arParams["USE_MAIN_MENU"] : false);
 
-// for bitrix:main.user.link
-if (IsModuleInstalled('intranet'))
-{
-	$arTooltipFieldsDefault	= serialize(array(
-		"EMAIL",
-		"PERSONAL_MOBILE",
-		"WORK_PHONE",
-		"PERSONAL_ICQ",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION",
-	));
-	$arTooltipPropertiesDefault = serialize(array(
-		"UF_DEPARTMENT",
-		"UF_PHONE_INNER",
-	));
-}
-else
-{
-	$arTooltipFieldsDefault = serialize(array(
-		"PERSONAL_ICQ",
-		"PERSONAL_BIRTHDAY",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION"
-	));
-	$arTooltipPropertiesDefault = serialize(array());
-}
-
-if (!array_key_exists("SHOW_FIELDS_TOOLTIP", $arParams))
-	$arParams["SHOW_FIELDS_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_fields", $arTooltipFieldsDefault), [ 'allowed_classes' => false ]);
-if (!array_key_exists("USER_PROPERTY_TOOLTIP", $arParams))
-	$arParams["USER_PROPERTY_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_properties", $arTooltipPropertiesDefault), [ 'allowed_classes' => false ]);
+$tooltipParams = ComponentHelper::checkTooltipComponentParams($arParams);
+$arParams['SHOW_FIELDS_TOOLTIP'] = $tooltipParams['SHOW_FIELDS_TOOLTIP'];
+$arParams['USER_PROPERTY_TOOLTIP'] = $tooltipParams['USER_PROPERTY_TOOLTIP'];
 
 if (IsModuleInstalled("intranet"))
-	$arParams['CAN_OWNER_EDIT_DESKTOP'] = $arParams['CAN_OWNER_EDIT_DESKTOP'] != "Y" ? "N" : "Y";
+	$arParams['CAN_OWNER_EDIT_DESKTOP'] = $arParams['CAN_OWNER_EDIT_DESKTOP'] !== "Y" ? "N" : "Y";
 else
-	$arParams['CAN_OWNER_EDIT_DESKTOP'] = $arParams['CAN_OWNER_EDIT_DESKTOP'] != "N" ? "Y" : "N";
+	$arParams['CAN_OWNER_EDIT_DESKTOP'] = $arParams['CAN_OWNER_EDIT_DESKTOP'] !== "N" ? "Y" : "N";
 
 if ($arParams["ID"] <= 0)
 {
@@ -267,7 +236,7 @@ else
 {
 	$arListParams = array("SELECT" => array("UF_*"));
 
-	if ($arParams["SHOW_RATING"] == 'Y' && array_key_exists("RATING_ID", $arParams))
+	if ($arParams["SHOW_RATING"] === 'Y' && array_key_exists("RATING_ID", $arParams))
 	{
 		if (is_array($arParams["RATING_ID"]) && count($arParams["RATING_ID"]) > 0)
 		{
@@ -311,7 +280,7 @@ else
 		$arResult["User"] = $dbUser->GetNext();
 		if (
 			!IsModuleInstalled("intranet")
-			&& $arResult["User"]["ACTIVE"] != "Y"
+			&& $arResult["User"]["ACTIVE"] !== "Y"
 		)
 		{
 			$arResult["User"] = false;
@@ -398,7 +367,7 @@ else
 		$arResult["User"]["TYPE"] = '';
 
 		if (
-			$arResult["User"]["EXTERNAL_AUTH_ID"] == 'email'
+			$arResult["User"]["EXTERNAL_AUTH_ID"] === 'email'
 			&& IsModuleInstalled('mail')
 		)
 		{
@@ -412,19 +381,19 @@ else
 		}
 
 
-		elseif ($arResult["User"]["IS_EXTRANET"] == "Y")
+		elseif ($arResult["User"]["IS_EXTRANET"] === "Y")
 		{
 			$arResult["User"]["TYPE"] = 'extranet';
 		}
 
-		$arResult["ALLOW_CREATE_GROUP"] = (CSocNetUser::IsCurrentUserModuleAdmin() || $APPLICATION->GetGroupRight("socialnetwork", false, "Y", "Y", array(SITE_ID, false)) >= "K");
+		$arResult["ALLOW_CREATE_GROUP"] = (\Bitrix\Socialnetwork\Helper\Workgroup::canCreate());
 
 		if(!CModule::IncludeModule("video"))
 			$arResult["CurrentUserPerms"]["Operations"]["videocall"] = false;
 		elseif(!CVideo::CanUserMakeCall())
 			$arResult["CurrentUserPerms"]["Operations"]["videocall"] = false;
 
-		$arResult["IS_ONLINE"] = ($arResult["User"]["IS_ONLINE"] == "Y");
+		$arResult["IS_ONLINE"] = ($arResult["User"]["IS_ONLINE"] === "Y");
 
 		if (CModule::IncludeModule('intranet'))
 		{
@@ -570,7 +539,7 @@ else
 			array("", ""),
 			$arParams["NAME_TEMPLATE"]
 		);
-		$bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
+		$bUseLogin = $arParams['SHOW_LOGIN'] !== "N" ? true : false;
 
 		$arTmpUser = array(
 				"NAME" => $arResult["User"]["~NAME"],
@@ -581,10 +550,10 @@ else
 
 		$strTitleFormatted = CUser::FormatName($arParams['TITLE_NAME_TEMPLATE'], $arTmpUser, $bUseLogin);
 
-		if ($arParams["SET_TITLE"] == "Y")
+		if ($arParams["SET_TITLE"] === "Y")
 				$APPLICATION->SetTitle($strTitleFormatted);
 
-		if (!$arParams["SHORT_FORM"] && $arParams["SET_NAV_CHAIN"] != "N")
+		if (!$arParams["SHORT_FORM"] && $arParams["SET_NAV_CHAIN"] !== "N")
 			$APPLICATION->AddChainItem($strTitleFormatted);
 
 		$arResult["User"]["NAME_FORMATTED"] = CUser::FormatName($arParams["NAME_TEMPLATE"], $arTmpUser, $bUseLogin);
@@ -689,7 +658,7 @@ else
 										}
 									}
 								}
-								$val = join(', ', $arEmails_tmp);
+								$val = implode(', ', $arEmails_tmp);
 								break;
 
 							case 'PERSONAL_WWW':
@@ -733,7 +702,7 @@ else
 							case 'PERSONAL_GENDER':
 								if (in_array($userFieldName, $arParams["SONET_USER_FIELDS_SEARCHABLE"]))
 									$strSearch = $arParams["PATH_TO_SEARCH_INNER"].(mb_strpos($arParams["PATH_TO_SEARCH_INNER"], "?") !== false? "&" : "?")."flt_".mb_strtolower($userFieldName)."=".UrlEncode($val);
-								$val = (($val == 'F') ? GetMessage("SONET_P_USER_SEX_F") : (($val == 'M') ? GetMessage("SONET_P_USER_SEX_M") : ""));
+								$val = (($val === 'F') ? GetMessage("SONET_P_USER_SEX_F") : (($val === 'M') ? GetMessage("SONET_P_USER_SEX_M") : ""));
 								break;
 
 							case 'PERSONAL_BIRTHDAY':
@@ -756,20 +725,20 @@ else
 								break;
 
 							case 'TIME_ZONE':
-								if($arResult["User"]["AUTO_TIME_ZONE"] <> "N")
+								if($arResult["User"]["AUTO_TIME_ZONE"] !== "N")
 									continue 2;
 								break;
 
 							case 'LAST_LOGIN':
 								if ($val <> '')
 								{
-									$val = \CUser::FormatLastActivityDate(MakeTimeStamp($val));
+									$val = CUser::FormatLastActivityDate(MakeTimeStamp($val));
 								}
 								break;
 							case 'LAST_ACTIVITY_DATE':
 								if ($val <> '')
 								{
-									$val = \CUser::FormatLastActivityDate(MakeTimeStamp($val, 'YYYY-MM-DD HH:MI:SS'));
+									$val = CUser::FormatLastActivityDate(MakeTimeStamp($val, 'YYYY-MM-DD HH:MI:SS'));
 								}
 								break;
 
@@ -820,7 +789,7 @@ else
 					$arUserField["PROPERTY_VALUE_LINK"] = "";
 					if (in_array($arUserField["FIELD_NAME"], $arParams["SONET_USER_PROPERTY_SEARCHABLE"]))
 					{
-						if ($arUserField["FIELD_NAME"] == "UF_DEPARTMENT" && IsModuleInstalled("intranet"))
+						if ($arUserField["FIELD_NAME"] === "UF_DEPARTMENT" && IsModuleInstalled("intranet"))
 						{
 							$arUserField["PROPERTY_VALUE_LINK"] = $arParams["PATH_TO_SEARCH_INNER"].(mb_strpos($arParams["PATH_TO_SEARCH_INNER"], "?") !== false ? "&" : "?")."set_filter_structure=Y&structure_".$arUserField["FIELD_NAME"]."=#VALUE#";
 						}
@@ -936,7 +905,7 @@ else
 						"GROUP_ACTIVE" => "Y"
 					);
 
-					if (COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") != "Y")
+					if (COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") !== "Y")
 					{
 						$arGroupFilter["GROUP_CLOSED"] = "N";
 					}
@@ -1052,7 +1021,7 @@ else
 				$arResult["ActiveFeatures"] = CSocNetFeatures::GetActiveFeaturesNames(SONET_ENTITY_USER, $arResult["User"]["ID"]);
 
 				$arResult["BLOG"] = array("SHOW" => false, "TITLE" => GetMessage("SONET_C39_BLOG_TITLE"));
-				if(array_key_exists("blog", $arResult["ActiveFeatures"]) && (CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "blog", "view_post", CSocNetUser::IsCurrentUserModuleAdmin()) || $APPLICATION->GetGroupRight("blog") >= "W") && CModule::IncludeModule("blog"))
+				if(array_key_exists("blog", $arResult["ActiveFeatures"]) && (CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "blog", "view_post", CSocNetUser::IsCurrentUserModuleAdmin()) || CMain::GetGroupRight("blog") >= "W") && CModule::IncludeModule("blog"))
 				{
 					$arResult["BLOG"]["SHOW"] = true;
 					if ($arResult["ActiveFeatures"]["blog"] <> '')
@@ -1060,7 +1029,7 @@ else
 				}
 
 				$arResult["forum"] = array("SHOW" => false, "TITLE" => GetMessage("SONET_C39_FORUM_TITLE"));
-				if(array_key_exists("forum", $arResult["ActiveFeatures"]) && (CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "forum", "view", CSocNetUser::IsCurrentUserModuleAdmin())  || $APPLICATION->GetGroupRight("forum") >= "W") && CModule::IncludeModule("forum"))
+				if(array_key_exists("forum", $arResult["ActiveFeatures"]) && (CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "forum", "view", CSocNetUser::IsCurrentUserModuleAdmin())  || CMain::GetGroupRight("forum") >= "W") && CModule::IncludeModule("forum"))
 				{
 					$arResult["forum"]["SHOW"] = true;
 					if ($arResult["ActiveFeatures"]["forum"] <> '')
@@ -1068,7 +1037,7 @@ else
 				}
 
 				$arResult["tasks"] = array("SHOW" => false, "TITLE" => GetMessage("SONET_C39_TASKS_TITLE"));
-				if(array_key_exists("tasks", $arResult["ActiveFeatures"]) && (CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "tasks", "view", CSocNetUser::IsCurrentUserModuleAdmin())  || $APPLICATION->GetGroupRight("intranet") >= "W") && CModule::IncludeModule("intranet"))
+				if(array_key_exists("tasks", $arResult["ActiveFeatures"]) && (CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "tasks", "view", CSocNetUser::IsCurrentUserModuleAdmin())  || CMain::GetGroupRight("intranet") >= "W") && CModule::IncludeModule("intranet"))
 				{
 					$arResult["tasks"]["SHOW"] = true;
 					if ($arResult["ActiveFeatures"]["tasks"] <> '')

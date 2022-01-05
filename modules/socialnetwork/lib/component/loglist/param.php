@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Component\LogList;
 
 use Bitrix\Main\Config\Option;
@@ -37,7 +38,7 @@ class Param
 		return $this->component;
 	}
 
-	public function prepareDateFilterParams(&$componentParams)
+	public function prepareDateFilterParams(&$componentParams): void
 	{
 		$request = $this->getRequest();
 
@@ -104,7 +105,7 @@ class Param
 		}
 	}
 
-	public function prepareRatingParams(&$componentParams)
+	public function prepareRatingParams(&$componentParams): void
 	{
 		\CRatingsComponentsMain::getShowRating($componentParams);
 		if (
@@ -126,14 +127,14 @@ class Param
 		}
 	}
 
-	public function prepareRequestVarParams(&$componentParams)
+	public function prepareRequestVarParams(&$componentParams): void
 	{
 		Util::checkEmptyParamString($componentParams, 'USER_VAR', 'user_id');
 		Util::checkEmptyParamString($componentParams, 'GROUP_VAR', 'group_id');
 		Util::checkEmptyParamString($componentParams, 'PAGE_VAR', 'page');
 	}
 
-	public function prepareRequestParams(&$componentParams)
+	public function prepareRequestParams(&$componentParams): void
 	{
 		$request = $this->getRequest();
 
@@ -154,7 +155,7 @@ class Param
 			}
 			elseif (!empty($request->get('flt_group_id')))
 			{
-				$componentParams['GROUP_ID'] = intval($request->get('flt_group_id'));
+				$componentParams['GROUP_ID'] = (int)$request->get('flt_group_id');
 			}
 		}
 
@@ -166,11 +167,11 @@ class Param
 				&& is_array($request->get('TO_CODE'))
 			)
 			{
-				foreach($request->get('TO_CODE') as $codeGroup => $codeList)
+				foreach($request->get('TO_CODE') as $codeList)
 				{
 					if (is_array($codeList))
 					{
-						foreach($codeList as $key => $code)
+						foreach($codeList as $code)
 						{
 							$componentParams['DESTINATION'][] = $code;
 						}
@@ -186,25 +187,22 @@ class Param
 		{
 			$componentParams['ENTITY_TYPE'] = SONET_ENTITY_GROUP;
 		}
+		elseif (
+			!empty($request->get('TO_CODE'))
+			&& is_array($request->get('TO_CODE'))
+			&& !empty($request->get('TO_CODE')['U'])
+			&& is_array($request->get('TO_CODE')['U'])
+		)
+		{
+			preg_match('/^U(\d+)$/', $request->get('TO_CODE')['U'][0], $matches);
+			if (!empty($matches))
+			{
+				$componentParams['TO_USER_ID'] = (int)$matches[1];
+			}
+		}
 		else
 		{
-			if (
-				!empty($request->get('TO_CODE'))
-				&& is_array($request->get('TO_CODE'))
-				&& !empty($request->get('TO_CODE')['U'])
-				&& is_array($request->get('TO_CODE')['U'])
-			)
-			{
-				preg_match('/^U(\d+)$/', $request->get('TO_CODE')['U'][0], $matches);
-				if (!empty($matches))
-				{
-					$componentParams['TO_USER_ID'] = intval($matches[1]);
-				}
-			}
-			else
-			{
-				$componentParams['TO_USER_ID'] = intval($request->get('flt_to_user_id'));
-			}
+			$componentParams['TO_USER_ID'] = (int)$request->get('flt_to_user_id');
 		}
 
 		if (
@@ -221,7 +219,7 @@ class Param
 			&& !empty($request->get('flt_user_id'))
 		)
 		{
-			$componentParams['USER_ID'] = intval($request->get('flt_user_id'));
+			$componentParams['USER_ID'] = (int)$request->get('flt_user_id');
 		}
 
 		$componentParams['CREATED_BY_ID'] = 0;
@@ -236,7 +234,7 @@ class Param
 			preg_match('/^U(\d+)$/', $request->get('CREATED_BY_CODE')['U'][0], $matches);
 			if (!empty($matches))
 			{
-				$componentParams['CREATED_BY_ID'] = intval($matches[1]);
+				$componentParams['CREATED_BY_ID'] = (int)$matches[1];
 			}
 		}
 		elseif (!empty($request->get('flt_created_by_id')))
@@ -271,23 +269,19 @@ class Param
 		$componentParams['FIND'] = ($request->get('FIND') ? trim($request->get('FIND')) : '');
 	}
 
-	public function prepareCommentsParams(&$componentParams)
+	public function prepareCommentsParams(&$componentParams): void
 	{
-		$componentParams['USE_COMMENTS'] = (
-			isset($componentParams['USE_COMMENTS'])
-				? $componentParams['USE_COMMENTS']
-				: 'N'
-		);
+		$componentParams['USE_COMMENTS'] = ($componentParams['USE_COMMENTS'] ?? 'N');
 		Util::checkEmptyParamInteger($componentParams, 'COMMENTS_IN_EVENT', 3);
 	}
 
-	public function prepareDestinationParams(&$componentParams)
+	public function prepareDestinationParams(&$componentParams): void
 	{
 		Util::checkEmptyParamInteger($componentParams, 'DESTINATION_LIMIT', 100);
 		Util::checkEmptyParamInteger($componentParams, 'DESTINATION_LIMIT_SHOW', 3);
 	}
 
-	public function prepareCommentPropertyParams(&$componentParams)
+	public function prepareCommentPropertyParams(&$componentParams): void
 	{
 		$componentParams['COMMENT_PROPERTY'] = [ 'UF_SONET_COM_FILE', 'UF_SONET_COM_URL_PRV' ];
 		if (
@@ -299,111 +293,111 @@ class Param
 		}
 	}
 
-	public function prepareDateTimeFormatParams(&$componentParams)
+	public function prepareDateTimeFormatParams(&$componentParams): void
 	{
 		\CSocNetLogComponent::processDateTimeFormatParams($componentParams);
 	}
 
-	public function prepareCounterParams(&$componentParams)
+	public function prepareCounterParams(&$componentParams): void
 	{
 		$request = $this->getRequest();
 
 		$componentParams['SET_LOG_COUNTER'] = (
-			$componentParams['SHOW_UNREAD'] == 'Y'
+			$componentParams['SHOW_UNREAD'] === 'Y'
 			&& (
 				empty($request->get('logajax'))
-				|| $request->get('RELOAD') == 'Y'
+				|| $request->get('RELOAD') === 'Y'
 			)
 			&& (
 				empty($request->get('action'))
-				|| $request->get('action') != 'SBPE_get_full_form'
+				|| $request->get('action') !== 'SBPE_get_full_form'
 			)
 			&& (
 				empty($request->get('startVideoRecorder'))
-				|| $request->get('startVideoRecorder') != 'Y'
+				|| $request->get('startVideoRecorder') !== 'Y'
 			)
 				? 'Y'
 				: 'N'
 		);
 	}
 
-	public function preparePageParams(&$componentParams)
+	public function preparePageParams(&$componentParams): void
 	{
 		$componentParams['SET_LOG_PAGE_CACHE'] = (
 			$componentParams['LOG_ID'] <= 0
-			&& $componentParams['MODE'] != 'LANDING'
+			&& $componentParams['MODE'] !== 'LANDING'
 				? 'Y'
 				: 'N'
 		);
 	}
 
-	public function prepareParentParams(&$componentParams)
+	public function prepareParentParams(&$componentParams): void
 	{
 		$parentParams = $this->getComponent()->getParent()->arParams;
 
-		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_WIDTH', intval($parentParams['BLOG_IMAGE_MAX_WIDTH']));
-		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_HEIGHT', intval($parentParams['BLOG_IMAGE_MAX_HEIGHT']));
+		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_WIDTH', (int)$parentParams['BLOG_IMAGE_MAX_WIDTH']);
+		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_HEIGHT', (int)$parentParams['BLOG_IMAGE_MAX_HEIGHT']);
 		Util::checkEmptyParamString($componentParams, 'BLOG_COMMENT_ALLOW_IMAGE_UPLOAD', trim($parentParams['BLOG_COMMENT_ALLOW_IMAGE_UPLOAD']));
 		Util::checkEmptyParamString($componentParams, 'BLOG_ALLOW_POST_CODE', trim($parentParams['BLOG_ALLOW_POST_CODE']));
 		Util::checkEmptyParamString($componentParams, 'BLOG_COMMENT_ALLOW_VIDEO', trim($parentParams['BLOG_COMMENT_ALLOW_VIDEO']));
 
-		$componentParams['BLOG_GROUP_ID'] = intval($parentParams['BLOG_GROUP_ID']);
+		$componentParams['BLOG_GROUP_ID'] = (int)$parentParams['BLOG_GROUP_ID'];
 		$componentParams['BLOG_USE_CUT'] = (isset($parentParams['BLOG_USE_CUT']) ? trim($parentParams['BLOG_USE_CUT']) : (isset($componentParams['BLOG_USE_CUT']) ? trim($componentParams['BLOG_USE_CUT']) : ''));
 		$componentParams['PHOTO_USER_IBLOCK_TYPE'] = trim($parentParams['PHOTO_USER_IBLOCK_TYPE']);
-		$componentParams['PHOTO_USER_IBLOCK_ID'] = intval($parentParams['PHOTO_USER_IBLOCK_ID']);
+		$componentParams['PHOTO_USER_IBLOCK_ID'] = (int)$parentParams['PHOTO_USER_IBLOCK_ID'];
 		$componentParams['PHOTO_GROUP_IBLOCK_TYPE'] = trim($parentParams['PHOTO_GROUP_IBLOCK_TYPE']);
-		$componentParams['PHOTO_GROUP_IBLOCK_ID'] = intval($parentParams['PHOTO_GROUP_IBLOCK_ID']);
-		$componentParams['PHOTO_MAX_VOTE'] = intval($parentParams['PHOTO_MAX_VOTE']);
+		$componentParams['PHOTO_GROUP_IBLOCK_ID'] = (int)$parentParams['PHOTO_GROUP_IBLOCK_ID'];
+		$componentParams['PHOTO_MAX_VOTE'] = (int)$parentParams['PHOTO_MAX_VOTE'];
 		$componentParams['PHOTO_USE_COMMENTS'] = trim($parentParams['PHOTO_USE_COMMENTS']);
 		$componentParams['PHOTO_COMMENTS_TYPE'] = trim($parentParams['PHOTO_COMMENTS_TYPE']);
-		$componentParams['PHOTO_FORUM_ID'] = intval($parentParams['PHOTO_FORUM_ID']);
+		$componentParams['PHOTO_FORUM_ID'] = (int)$parentParams['PHOTO_FORUM_ID'];
 		$componentParams['PHOTO_BLOG_URL'] = trim($parentParams['PHOTO_BLOG_URL']);
 		$componentParams['PHOTO_USE_CAPTCHA'] = trim($parentParams['PHOTO_USE_CAPTCHA']);
-		$componentParams['PHOTO_COUNT'] = intval($parentParams['LOG_PHOTO_COUNT']);
-		$componentParams['PHOTO_THUMBNAIL_SIZE'] = intval($parentParams['LOG_PHOTO_THUMBNAIL_SIZE']);
-		$componentParams['FORUM_ID'] = intval($parentParams['FORUM_ID']);
+		$componentParams['PHOTO_COUNT'] = (int)$parentParams['LOG_PHOTO_COUNT'];
+		$componentParams['PHOTO_THUMBNAIL_SIZE'] = (int)$parentParams['LOG_PHOTO_THUMBNAIL_SIZE'];
+		$componentParams['FORUM_ID'] = (int)$parentParams['FORUM_ID'];
 	}
 
-	public function prepareParent2Params(&$componentParams)
+	public function prepareParent2Params(&$componentParams): void
 	{
 		$parent2Params = $this->getComponent()->getParent()->getParent()->arParams;
 
-		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_WIDTH', intval($parent2Params['BLOG_IMAGE_MAX_WIDTH']));
-		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_HEIGHT', intval($parent2Params['BLOG_IMAGE_MAX_HEIGHT']));
+		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_WIDTH', (int)$parent2Params['BLOG_IMAGE_MAX_WIDTH']);
+		Util::checkEmptyParamInteger($componentParams, 'BLOG_IMAGE_MAX_HEIGHT', (int)$parent2Params['BLOG_IMAGE_MAX_HEIGHT']);
 		Util::checkEmptyParamString($componentParams, 'BLOG_COMMENT_ALLOW_IMAGE_UPLOAD', trim($parent2Params['BLOG_COMMENT_ALLOW_IMAGE_UPLOAD']));
 		Util::checkEmptyParamString($componentParams, 'BLOG_ALLOW_POST_CODE', trim($parent2Params['BLOG_ALLOW_POST_CODE']));
 		Util::checkEmptyParamString($componentParams, 'BLOG_COMMENT_ALLOW_VIDEO', trim($parent2Params['BLOG_COMMENT_ALLOW_VIDEO']));
-		Util::checkEmptyParamInteger($componentParams, 'BLOG_GROUP_ID', intval($parent2Params['BLOG_GROUP_ID']));
+		Util::checkEmptyParamInteger($componentParams, 'BLOG_GROUP_ID', (int)$parent2Params['BLOG_GROUP_ID']);
 		Util::checkEmptyParamString($componentParams, 'PHOTO_USER_IBLOCK_TYPE', trim($parent2Params['PHOTO_USER_IBLOCK_TYPE']));
-		Util::checkEmptyParamInteger($componentParams, 'PHOTO_USER_IBLOCK_ID', intval($parent2Params['PHOTO_USER_IBLOCK_ID']));
+		Util::checkEmptyParamInteger($componentParams, 'PHOTO_USER_IBLOCK_ID', (int)$parent2Params['PHOTO_USER_IBLOCK_ID']);
 		Util::checkEmptyParamString($componentParams, 'PHOTO_GROUP_IBLOCK_TYPE', trim($parent2Params['PHOTO_GROUP_IBLOCK_TYPE']));
-		Util::checkEmptyParamInteger($componentParams, 'PHOTO_GROUP_IBLOCK_ID', intval($parent2Params['PHOTO_GROUP_IBLOCK_ID']));
-		Util::checkEmptyParamInteger($componentParams, 'PHOTO_MAX_VOTE', intval($parent2Params['PHOTO_MAX_VOTE']));
+		Util::checkEmptyParamInteger($componentParams, 'PHOTO_GROUP_IBLOCK_ID', (int)$parent2Params['PHOTO_GROUP_IBLOCK_ID']);
+		Util::checkEmptyParamInteger($componentParams, 'PHOTO_MAX_VOTE', (int)$parent2Params['PHOTO_MAX_VOTE']);
 		Util::checkEmptyParamString($componentParams, 'PHOTO_USE_COMMENTS', trim($parent2Params['PHOTO_USE_COMMENTS']));
 		Util::checkEmptyParamString($componentParams, 'PHOTO_COMMENTS_TYPE', trim($parent2Params['PHOTO_COMMENTS_TYPE']));
-		Util::checkEmptyParamInteger($componentParams, 'PHOTO_FORUM_ID', intval($parent2Params['PHOTO_FORUM_ID']));
+		Util::checkEmptyParamInteger($componentParams, 'PHOTO_FORUM_ID', (int)$parent2Params['PHOTO_FORUM_ID']);
 		Util::checkEmptyParamString($componentParams, 'PHOTO_BLOG_URL', trim($parent2Params['PHOTO_BLOG_URL']));
 		Util::checkEmptyParamString($componentParams, 'PHOTO_USE_CAPTCHA', trim($parent2Params['PHOTO_USE_CAPTCHA']));
-		Util::checkEmptyParamInteger($componentParams, 'PHOTO_COUNT', intval($parent2Params['LOG_PHOTO_COUNT']));
-		Util::checkEmptyParamInteger($componentParams, 'PHOTO_THUMBNAIL_SIZE', intval($parent2Params['LOG_PHOTO_THUMBNAIL_SIZE']));
-		Util::checkEmptyParamInteger($componentParams, 'FORUM_ID', intval($parent2Params['FORUM_ID']));
+		Util::checkEmptyParamInteger($componentParams, 'PHOTO_COUNT', (int)$parent2Params['LOG_PHOTO_COUNT']);
+		Util::checkEmptyParamInteger($componentParams, 'PHOTO_THUMBNAIL_SIZE', (int)$parent2Params['LOG_PHOTO_THUMBNAIL_SIZE']);
+		Util::checkEmptyParamInteger($componentParams, 'FORUM_ID', (int)$parent2Params['FORUM_ID']);
 
 		$componentParams['BLOG_USE_CUT'] = (isset($parent2Params['BLOG_USE_CUT']) ? trim($parent2Params['BLOG_USE_CUT']) : (isset($componentParams['BLOG_USE_CUT']) ? trim($componentParams['BLOG_USE_CUT']) : ''));
 	}
 
-	public function preparePageTitleParams(&$componentParams)
+	public function preparePageTitleParams(&$componentParams): void
 	{
 		Util::checkEmptyParamString($componentParams, 'SET_TITLE', 'N');
 		Util::checkEmptyParamString($componentParams, 'SET_NAV_CHAIN', '');
 	}
 
-	public function prepareBehaviourParams(&$componentParams)
+	public function prepareBehaviourParams(&$componentParams): void
 	{
 		global $USER;
 
 		if (
-			$USER->isAuthorized()
-			|| $componentParams['AUTH'] === 'Y'
+			$componentParams['AUTH'] === 'Y'
+			|| $USER->isAuthorized()
 		)
 		{
 			$presetFilterId = $this->getComponent()->getPresetFilterIdValue();
@@ -417,8 +411,8 @@ class Param
 				$componentParams['SHOW_EVENT_ID_FILTER'] = 'N';
 
 				if (
-					in_array($componentParams['DISPLAY'], [ 'mine', 'forme' ])
-					|| $componentParams['DISPLAY'] > 0 // ???
+					$componentParams['DISPLAY'] > 0 // ???
+					|| in_array($componentParams['DISPLAY'], [ 'mine', 'forme' ])
 				)
 				{
 					$componentParams['SET_LOG_COUNTER'] = 'N';
@@ -466,15 +460,15 @@ class Param
 					&& $componentParams['EXACT_EVENT_ID'] <> ''
 				)
 				|| (
-					is_array($componentParams['EVENT_ID'])
-					&& !in_array('all', $componentParams['EVENT_ID'])
-				)
-				|| (
 					!is_array($componentParams['EVENT_ID'])
 					&& $componentParams['EVENT_ID'] <> ''
 				)
 				|| $presetFilterId === 'extranet'
 				|| $componentParams['CREATED_BY_ID'] > 0
+				|| (
+					is_array($componentParams['EVENT_ID'])
+					&& !in_array('all', $componentParams['EVENT_ID'], true)
+				)
 				|| (
 					isset($componentParams['LOG_DATE_FROM'])
 					&& $componentParams['LOG_DATE_FROM'] <> ''
@@ -539,7 +533,31 @@ class Param
 		}
 	}
 
-	public function processPresetFilterParams(&$componentParams)
+	public function prepareCommentFormParams(&$componentParams): void
+	{
+		$requestParams = $this->getRequest()->getPost('params');
+
+		$componentParams['UID'] = (
+			!empty($requestParams)
+			&& is_array($requestParams)
+			&& !empty($requestParams['commentFormUID'])
+				? $requestParams['commentFormUID']
+				: \Bitrix\Main\Security\Random::getString(4)
+		);
+
+		$componentParams['BLOG_UID'] = (
+			!empty($requestParams)
+			&& is_array($requestParams)
+			&& !empty($requestParams['blogCommentFormUID'])
+				? $requestParams['blogCommentFormUID']
+				: \Bitrix\Main\Security\Random::getString(4)
+		);
+
+		$componentParams['FORM_ID'] = 'sonetCommentForm' . $componentParams['UID'];
+		$componentParams['BLOG_FORM_ID'] = 'blogCommentForm' . $componentParams['BLOG_UID'];
+	}
+
+	public function processPresetFilterParams(&$componentParams): void
 	{
 		global $USER;
 
@@ -583,8 +601,8 @@ class Param
 
 		$presetFiltersOptions = $presetFiltersList = false;
 		if (
-			$USER->isAuthorized()
-			&& $componentParams['SHOW_EVENT_ID_FILTER'] !== 'N'
+			$componentParams['SHOW_EVENT_ID_FILTER'] !== 'N'
+			&& $USER->isAuthorized()
 		)
 		{
 			$presetFiltersOptions = \CUserOptions::getOption('socialnetwork', '~log_filter_'.SITE_ID);
@@ -616,8 +634,8 @@ class Param
 
 		if (
 			$componentParams['IS_CRM'] === 'Y'
-			&& Loader::includeModule('crm')
 			&& isset($componentParams['CRM_ENTITY_TYPE'])
+			&& Loader::includeModule('crm')
 		)
 		{
 			$liveFeedFilter = new \CCrmLiveFeedFilter([ 'EntityTypeID' => \CCrmLiveFeedEntity::resolveEntityTypeID($componentParams['CRM_ENTITY_TYPE']) ]);
@@ -674,7 +692,7 @@ class Param
 		$this->getComponent()->setCommentsNeededValue($commentsNeeded);
 	}
 
-	public function prepareFollowParams(&$componentParams)
+	public function prepareFollowParams(&$componentParams): void
 	{
 		global $USER;
 
@@ -701,7 +719,7 @@ class Param
 		}
 	}
 
-	public function prepareModeParams(&$componentParams)
+	public function prepareModeParams(&$componentParams): void
 	{
 		if (
 			!empty($componentParams['PUBLIC_MODE'])
@@ -736,14 +754,14 @@ class Param
 		}
 	}
 
-	public function prepareAvatarParams(&$componentParams)
+	public function prepareAvatarParams(&$componentParams): void
 	{
 		Util::checkEmptyParamInteger($componentParams, 'AVATAR_SIZE_COMMON', 100);
 		Util::checkEmptyParamInteger($componentParams, 'AVATAR_SIZE', 100);
 		Util::checkEmptyParamInteger($componentParams, 'AVATAR_SIZE_COMMENT', 100);
 	}
 
-	public function prepareNameTemplateParams(&$componentParams)
+	public function prepareNameTemplateParams(&$componentParams): void
 	{
 		Util::checkEmptyParamString($componentParams, 'NAME_TEMPLATE', \CSite::getNameFormat());
 
@@ -755,4 +773,3 @@ class Param
 		$componentParams['NAME_TEMPLATE'] = $componentParams['NAME_TEMPLATE_WO_NOBR'];
 	}
 }
-?>

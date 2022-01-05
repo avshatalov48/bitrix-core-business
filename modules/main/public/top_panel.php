@@ -1293,15 +1293,6 @@ class CTopPanel
 				. Loc::getMessage("top_panel_cache_new_tooltip_title") . '</span></a>';
 		}
 
-		if ($USER->CanDoOperation("edit_php"))
-		{
-			$tmp = self::getDebugSettings();
- 			$result .= '<span class="bx-panel-small-button" style="margin-left: 19px !important;">'
-			. '<a id="bx_topmenu_btn_2" href="' . $tmp['URL'] . '"><span class="bx-panel-small-button-icon bx-panel-performance-icon"></span>'
-			. '<span class="bx-panel-small-button-text">' . Loc::getMessage("top_panel_debug_tooltip_title")
-			. '</span></a></span>';
-		}
-
 		$result .= '</div><div id="bx-panel-userinfo">';
 
 		$bCanProfile = $USER->CanDoOperation('view_own_profile') || $USER->CanDoOperation('edit_own_profile');

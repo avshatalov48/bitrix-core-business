@@ -116,9 +116,13 @@ class ProjectTagProvider extends BaseProvider
 			])
 		);
 
-		$dialog->addItems(
-			$this->getTagItems(['selected' => true])
-		);
+		$options = $this->getOptions();
+		if ($options['groupId'])
+		{
+			$dialog->addItems(
+				$this->getTagItems(['selected' => true])
+			);
+		}
 
 		if ($dialog->getItemCollection()->count() < self::$maxCount)
 		{

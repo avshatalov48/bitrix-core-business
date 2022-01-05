@@ -74,9 +74,9 @@ $APPLICATION->IncludeFile(
 		</div>
 		
 		<div id="banner">		
-			<table id="banner-layout" cellspacing="0">
+			<table id="banner-layout">
 				<tr>
-					<td id="banner-image"><div><img src="<?=SITE_TEMPLATE_PATH?>/images/head.jpg" /></div></td>
+					<td id="banner-image"><div><img src="<?=SITE_TEMPLATE_PATH?>/images/head.jpg" alt=""/></div></td>
 					<td id="banner-slogan">
 <?
 $APPLICATION->IncludeFile(

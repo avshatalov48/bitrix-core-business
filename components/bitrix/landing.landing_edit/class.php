@@ -268,8 +268,8 @@ class LandingEditComponent extends LandingBaseFormComponent
 
 			$this->arResult['TEMPLATES'] = $this->getTemplates();
 			$this->arResult['LANDING'] = $landing = $this->getRow();
-			$this->arResult['SPECIAL_TYPE'] = $this->getSpecialTypeSite(
-				$this->arParams['SITE_ID']
+			$this->arResult['SPECIAL_TYPE'] = $this->getSpecialTypeSiteByLanding(
+				\Bitrix\Landing\Landing::createInstance($this->id, ['skip_blocks' => true])
 			);
 			$this->arResult['LANDINGS'] = $this->arParams['SITE_ID'] > 0
 				? $this->getLandings(array(
@@ -297,54 +297,54 @@ class LandingEditComponent extends LandingBaseFormComponent
 				$this->addError('ACCESS_DENIED', '', true);
 			}
 
+			if (!$this->id)
+			{
+				parent::executeComponent();
+				return;
+			}
+
 			// if current page in folder
-			if ($this->id)
+			$this->arResult['FOLDER'] = array();
+			if ($this->arResult['LANDING']['FOLDER_ID']['CURRENT'])
 			{
-				$this->arResult['FOLDER'] = array();
-				if ($this->arResult['LANDING']['FOLDER_ID']['CURRENT'])
+				$folderId = $this->arResult['LANDING']['FOLDER_ID']['CURRENT'];
+				$res = Landing::getList(array(
+					'select' => array(
+						'*'
+					),
+					'filter' => array(
+						'ID' => $folderId
+					)
+				));
+				if ($row = $res->fetch())
 				{
-					$folderId = $this->arResult['LANDING']['FOLDER_ID']['CURRENT'];
-					$res = Landing::getList(array(
-						'select' => array(
-							'*'
-						),
-						'filter' => array(
-							'ID' => $folderId
-						)
-					));
-					if ($row = $res->fetch())
-					{
-						$this->arResult['FOLDER'] = $row;
-					}
+					$this->arResult['FOLDER'] = $row;
 				}
 			}
 
-			if ($this->id)
+			$this->arResult['SITES'] = $sites = $this->getSites();
+
+			// types mismatch
+			$availableType = [$this->arParams['TYPE']];
+			if ($this->arParams['TYPE'] == 'STORE')
 			{
-				$this->arResult['SITES'] = $sites = $this->getSites();
-
-				// types mismatch
-				$availableType = [$this->arParams['TYPE']];
-				if ($this->arParams['TYPE'] == 'STORE')
-				{
-					$availableType[] = 'SMN';
-				}
-				if (
-					!isset($sites[$this->arParams['SITE_ID']]) ||
-					!in_array($sites[$this->arParams['SITE_ID']]['TYPE'], $availableType)
-				)
-				{
-					\localRedirect($this->getRealFile());
-				}
-
-				$this->arResult['IS_INTRANET'] = $this->isIntranet();
-				\Bitrix\Landing\Hook::setEditMode();
-				$this->arResult['HOOKS'] = $this->getHooks();
-				$this->arResult['HOOKS_SITE'] = $this->getHooks('Site', $this->arParams['SITE_ID']);
-				$this->arResult['TEMPLATES_REF'] = TemplateRef::getForLanding($this->id);
-				$this->arResult['META'] = $this->getMeta();
-				$this->arResult['DOMAINS'] = $this->getDomains();
+				$availableType[] = 'SMN';
 			}
+			if (
+				!isset($sites[$this->arParams['SITE_ID']]) ||
+				!in_array($sites[$this->arParams['SITE_ID']]['TYPE'], $availableType)
+			)
+			{
+				\localRedirect($this->getRealFile());
+			}
+
+			$this->arResult['IS_INTRANET'] = $this->isIntranet();
+			\Bitrix\Landing\Hook::setEditMode();
+			$this->arResult['HOOKS'] = $this->getHooks();
+			$this->arResult['HOOKS_SITE'] = $this->getHooks('Site', $this->arParams['SITE_ID']);
+			$this->arResult['TEMPLATES_REF'] = TemplateRef::getForLanding($this->id);
+			$this->arResult['META'] = $this->getMeta();
+			$this->arResult['DOMAINS'] = $this->getDomains();
 
 			$this->arResult['COLORS'] = Theme::getColorCodes();
 			$this->arResult['PREPARE_COLORS'] = self::prepareColors($this->arResult['COLORS']);

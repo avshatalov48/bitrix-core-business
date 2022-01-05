@@ -8,4 +8,5 @@ $MESS ['AUTH_CHANGE'] = "Change Password";
 $MESS ['AUTH_REQ'] = "Required Fields";
 $MESS ['AUTH_AUTH'] = "Authorization";
 $MESS ['AUTH_NEW_PASSWORD_REQ'] = "New Password";
+$MESS ['AUTH_CAPTCHA_PROMT'] = "CAPTCHA Code";
 ?>

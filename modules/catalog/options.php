@@ -345,12 +345,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['Update']) && !$bReadO
 			}
 			else
 			{
-				$strWarning .= Loc::getMessage("CAT_STORE_SYNCHRONIZE_WARNING");
+				$strWarning .= Loc::getMessage("CAT_STORE_SYNCHRONIZE_WARNING_1");
 			}
 		}
 		elseif($strUseStoreControl == 'N')
 		{
-			$strWarning .= Loc::getMessage("CAT_STORE_DEACTIVATE_NOTICE");
+			$strWarning .= Loc::getMessage("CAT_STORE_DEACTIVATE_NOTICE_1");
 		}
 	}
 
@@ -1456,10 +1456,10 @@ if (!$readOnly)
 }
 ?>
 <tr class="heading">
-	<td colspan="2"><? echo Loc::getMessage("CAT_STORE") ?></td>
+	<td colspan="2"><? echo Loc::getMessage("CAT_STORE_1") ?></td>
 </tr>
 <tr id='cat_store_tr'>
-	<td style="width: 40%;"><label for="use_store_control_y"><? echo Loc::getMessage("CAT_USE_STORE_CONTROL"); ?></label></td>
+	<td style="width: 40%;"><label for="use_store_control_y"><? echo Loc::getMessage("CAT_USE_STORE_CONTROL_1"); ?></label></td>
 	<td>
 		<input type="hidden" name="use_store_control" id="use_store_control_n" value="N">
 		<input type="checkbox" onclick="onClickStoreControl(this);" name="use_store_control" id="use_store_control_y" value="Y"<?if($strUseStoreControl == "Y")echo " checked";?>>

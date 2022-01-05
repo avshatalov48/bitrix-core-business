@@ -391,7 +391,11 @@ $APPLICATION->SetTitle($nameToDisplay <> ''? Loc::getMessage('SALE_LOCATION_E_IT
 	<?$tabControl->BeginNextFormTab();?>
 	<?$tabControl->BeginCustomField('EXTERNAL', Loc::getMessage('SALE_LOCATION_E_HEADING_EXTERNAL'));?>
 
-		<?$services = Helper::getExternalServicesList();?>
+		<?
+		$services = Helper::getExternalServicesList();
+		$yandexMarketEsId = Helper::getYandexMarketExternalServiceId();
+		$isUaPortal = (Bitrix\Sale\Delivery\Helper::getPortalZone() === 'ua');
+		?>
 		<tr>
 			<td>
 
@@ -416,14 +420,28 @@ $APPLICATION->SetTitle($nameToDisplay <> ''? Loc::getMessage('SALE_LOCATION_E_IT
 
 								<?if(is_array($formData['EXTERNAL']) && !empty($formData['EXTERNAL'])):?>
 
-									<?foreach($formData['EXTERNAL'] as $id => $ext):?>
-										<tr>
+									<?foreach($formData['EXTERNAL'] as $id => $ext):
+										$isYandexMarketOnUaPortal = (
+											$isUaPortal
+											&& (int)$ext['SERVICE_ID'] === $yandexMarketEsId
+										);
+									?>
+										<tr style="<?=($isYandexMarketOnUaPortal ? 'visibility:hidden; position:absolute;' : '')?>;">
 											<?foreach($externalMap as $code => $field):?>
 												<?$value = Helper::makeSafeDisplay($ext[$code], $code);?>
 												<td>
 													<?if($code == 'SERVICE_ID'):?>
 														<select name="element[EXTERNAL][<?=$ext['ID']?>][<?=$code?>]">
-															<?foreach($services as $sId => $serv):?>
+															<?foreach($services as $sId => $serv):
+																if (
+																	$isUaPortal
+																	&& !$isYandexMarketOnUaPortal
+																	&& (int)$serv['ID'] === $yandexMarketEsId
+																)
+																{
+																	continue;
+																}
+															?>
 																<option value="<?=intval($serv['ID'])?>"<?=($serv['ID'] == $value ? ' selected' : '')?>><?=htmlspecialcharsbx($serv['CODE'])?></option>
 															<?endforeach?>
 														</select>
@@ -452,7 +470,12 @@ $APPLICATION->SetTitle($nameToDisplay <> ''? Loc::getMessage('SALE_LOCATION_E_IT
 										<td></td>
 										<td>
 											<select name="element[EXTERNAL][n{{column_id}}][SERVICE_ID]">
-												<?foreach($services as $sId => $serv):?>
+												<?foreach($services as $sId => $serv):
+													if ($isUaPortal && (int)$serv['ID'] === $yandexMarketEsId)
+													{
+														continue;
+													}
+												?>
 													<option value="<?=intval($serv['ID'])?>"><?=htmlspecialcharsbx($serv['CODE'])?></option>
 												<?endforeach?>
 											</select>

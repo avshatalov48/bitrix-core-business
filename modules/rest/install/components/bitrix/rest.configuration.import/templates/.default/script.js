@@ -41,8 +41,31 @@
 				);
 			},
 
-			submitForm: function (event) {
+			submitForm: function (event)
+			{
 				event.preventDefault();
+				BX.addClass(
+					BX.findChildByClassName(
+						BX(this.id),
+						'rest-configuration-start-icon-main'
+					),
+					'rest-configuration-start-icon-main-loading'
+				);
+				BX.style(
+					BX.findChildByClassName(
+						BX(this.id),
+						'rest-configuration-upload-file'
+					),
+					'display',
+					'none'
+				);
+				BX.html(
+					BX.findChildByClassName(
+						BX(this.id),
+						'rest-configuration-info'
+					),
+					BX.message('REST_CONFIGURATION_IMPORT_SAVE_FILE_PROCESS')
+				);
 				BX(this.id + '-file-form').submit();
 			}
 		};

@@ -1951,7 +1951,7 @@
 		this.topControls = topControls;
 		this.showMoreButton = false;
 		this.shown = true;
-		this.height = 34;
+		this.height = null;
 		this.Init();
 	}
 

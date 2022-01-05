@@ -2093,7 +2093,7 @@ class CSaleOrderLoader
 		 */
 
 		if(Sale\Configuration::useStoreControl() || \Bitrix\Main\Config\Option::get('catalog', 'enable_reservation', 'N')=='Y')
-			$this->strErrorDocument .= "\n".GetMessage("CC_BSC1_USE_STORE_SALE");
+			$this->strErrorDocument .= "\n".GetMessage("CC_BSC1_USE_STORE_SALE_1");
 		else
 		{
 			if(\Bitrix\Main\Config\Option::get("main", "~sale_converted_15", 'N') <> 'Y')

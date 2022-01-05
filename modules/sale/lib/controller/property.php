@@ -188,6 +188,8 @@ class Property extends Controller
 	{
 		$fields = self::prepareFields($fields);
 
+		$fields = array_merge($fields, $fields['SETTINGS']);
+
 		$r = $this->checkFileds($fields);
 
 		if(!isset($fields['PERSON_TYPE_ID']) || trim($fields['PERSON_TYPE_ID'])=='')

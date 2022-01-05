@@ -1,4 +1,10 @@
-<?
+<?php
+
+use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Session\Handlers\StrictSessionHandler;
+use Bitrix\Main\Session\SessionConfigurationResolver;
+
 define("ADMIN_MODULE_NAME", "security");
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -18,9 +24,9 @@ if(!$canRead && !$canWrite)
 $aTabs = array(
 	array(
 		"DIV" => "savedb",
-		"TAB" => GetMessage("SEC_SESSION_ADMIN_SAVEDB_TAB"),
+		"TAB" => GetMessage("SEC_SESSION_ADMIN_SAVEDB_TAB_V2"),
 		"ICON"=>"main_user_edit",
-		"TITLE"=>GetMessage("SEC_SESSION_ADMIN_SAVEDB_TAB_TITLE"),
+		"TITLE"=>GetMessage("SEC_SESSION_ADMIN_SAVEDB_TAB_TITLE_V2"),
 	),
 	array(
 		"DIV" => "sessid",
@@ -37,22 +43,12 @@ if(
 	$_SERVER['REQUEST_METHOD'] == "POST"
 	&& (
 		$_REQUEST['save'].$_REQUEST['apply'] != ""
-		|| $_REQUEST['db_session_on'].$_REQUEST['db_session_off'] != ""
 		|| $_REQUEST['sessid_ttl_off'].$_REQUEST['sessid_ttl_on'] != ""
 	)
 	&& $canWrite
 	&& check_bitrix_sessid()
 )
 {
-	if(isset($_POST["db_session_on"]))
-	{
-		CSecuritySession::activate();
-	}
-	elseif(isset($_POST["db_session_off"]))
-	{
-		CSecuritySession::deactivate();
-	}
-
 	$ttl = intval($_POST["sessid_ttl"]);
 	if($ttl <= 0)
 		$ttl = 60;
@@ -76,12 +72,32 @@ if(
 $APPLICATION->SetTitle(GetMessage("SEC_SESSION_ADMIN_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
+$session = \Bitrix\Main\Application::getInstance()->getSession();
+if (method_exists($session, 'getSessionHandler'))
+{
+	$sessionHandler = $session->getSessionHandler();
+}
+else
+{
+	$reflectionClass = new \ReflectionClass($session);
+	$reflectionProperty = $reflectionClass->getProperty('sessionHandler');
+	$reflectionProperty->setAccessible(true);
+	$sessionHandler = $reflectionProperty->getValue($session);
+}
+
+$resolver = new SessionConfigurationResolver(Configuration::getInstance());
+$sessionConfig = $resolver->getSessionConfig();
+$generalHandlerType = $sessionConfig['handlers']['general']['type'] ?? null;
+$sessionInFiles = $sessionHandler instanceof StrictSessionHandler;
+
 $showSecondMessage = true;
 $messages = array();
-if(COption::GetOptionString("security", "session") == "Y")
+if (!$sessionInFiles)
 {
 	$messageType = "OK";
-	$messageText = GetMessage("SEC_SESSION_ADMIN_DB_ON");
+	$nameOfStorage = Loc::getMessage("SEC_SESSION_ADMIN_STORAGE_NAME_TYPE_" . strtoupper($generalHandlerType));
+	$messageText = GetMessage("SEC_SESSION_ADMIN_STORAGE_WITH_SESSION_DATA", ['#NAME#' => $nameOfStorage]);
+
 	if(COption::GetOptionString("main", "use_session_id_ttl") == "Y")
 	{
 		$messageText .= "<br>";
@@ -93,7 +109,7 @@ if(COption::GetOptionString("security", "session") == "Y")
 else
 {
 	$messageType = "ERROR";
-	$messageText = GetMessage("SEC_SESSION_ADMIN_DB_OFF");
+	$messageText = GetMessage("SEC_SESSION_ADMIN_STORAGE_IN_FILES");
 	if(COption::GetOptionString("main", "use_session_id_ttl") != "Y")
 	{
 		$messageText .= "<br>";
@@ -136,36 +152,9 @@ foreach($messages as $message)
 $tabControl->Begin();
 $tabControl->BeginNextTab();
 ?>
-<?if(COption::GetOptionString("security", "session") == "Y"):?>
-	<tr>
-		<td colspan="2" align="left">
-			<input type="submit" name="db_session_off" value="<?echo GetMessage("SEC_SESSION_ADMIN_DB_BUTTON_OFF")?>"<?if(!$canWrite) echo " disabled"?>>
-		</td>
-	</tr>
-<?else:?>
-	<?if(CSecuritySession::checkSessionId(session_id())):?>
-	<tr>
-		<td colspan="2" align="left">
-			<input type="submit" name="db_session_on" value="<?echo GetMessage("SEC_SESSION_ADMIN_DB_BUTTON_ON")?>"<?if(!$canWrite) echo " disabled"?> class="adm-btn-save">
-		</td>
-	</tr>
-	<?else:?>
-	<tr>
-		<td colspan="2" align="left">
-			<?
-				CAdminMessage::ShowMessage(array(
-						"TYPE" => "ERROR",
-						"DETAILS" => GetMessage("SEC_SESSION_ADMIN_SESSID_WARNING"),
-						"HTML" => true
-					));
-			?>
-		</td>
-	</tr>
-	<?endif;?>
-<?endif;?>
 <tr>
 	<td colspan="2">
-		<?echo BeginNote();?><?echo GetMessage("SEC_SESSION_ADMIN_DB_NOTE")?>
+		<?echo BeginNote();?><?echo GetMessage("SEC_SESSION_ADMIN_DB_NOTE_V2")?>
 		<?echo EndNote(); ?>
 	</td>
 </tr>

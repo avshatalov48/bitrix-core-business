@@ -21,7 +21,7 @@ $this->SetViewTarget("sidebar", 100);
 			<li class="<?if ($arParams["PAGE_ID"] == "user_ban"):?>selected<?endif?>"><a href="<?=$arResult["Urls"]["UserBan"]?>"><?=GetMessage("SONET_UM_USER_BAN")?></a></li>
 			<li class="<?if ($arParams["PAGE_ID"] == "log"):?>selected<?endif?>"><a href="<?=$arResult["Urls"]["Log"]?>"><?=GetMessage("SONET_UM_LOG")?></li>
 			<li class="<?if ($arParams["PAGE_ID"] == "subscribe"):?>selected<?endif?>"><a href="<?=$arResult["Urls"]["Subscribe"]?>"><?=GetMessage("SONET_UM_SUBSCRIBE")?></a></li>
-			<?if(strlen($arResult["Urls"]["BizProc"]) > 0):?>
+			<?if($arResult["Urls"]["BizProc"] <> ''):?>
 				<li class="<?if ($arParams["PAGE_ID"] == "bizproc"):?>selected<?endif?>"><a href="<?=$arResult["Urls"]["BizProc"]?>"><?=GetMessage("SONET_UM_BIZPROC")?></a></li>
 			<?endif;?>
 		</ul>

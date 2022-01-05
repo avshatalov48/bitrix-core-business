@@ -27,7 +27,7 @@ if($iblockID == false)
 			"1" => "X",
 			"2" => "R"
 		);
-	$dbGroup = CGroup::GetList($by = "", $order = "", Array("STRING_ID" => "info_administrator"));
+	$dbGroup = CGroup::GetList("", "", Array("STRING_ID" => "info_administrator"));
 	if($arGroup = $dbGroup -> Fetch())
 	{
 		$permissions[$arGroup["ID"]] = 'W';
@@ -80,7 +80,7 @@ $codeProperty = '4 => "' . $arProperty['E_MAIL'] . '", 5 => "' . $arProperty['UR
 $dbSite = CSite::GetByID(WIZARD_SITE_ID);
 if($arSite = $dbSite -> Fetch())
 	$lang = $arSite["LANGUAGE_ID"];
-if(strlen($lang) <= 0)
+if($lang == '')
 	$lang = "ru";
 	
 WizardServices::IncludeServiceLang("board.php", $lang);

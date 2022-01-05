@@ -280,7 +280,7 @@ class Dialog
 				R.LAST_READ = NOW(),
 				R.STATUS = " . IM_STATUS_READ . ",
 				R.COUNTER = 0
-				WHERE R.MESSAGE_TYPE <> '" . IM_MESSAGE_OPEN_LINE . "'
+				WHERE R.MESSAGE_TYPE NOT IN ('" . IM_MESSAGE_OPEN_LINE . "', '" . IM_MESSAGE_SYSTEM . "')
 				AND R.COUNTER > 0
 				AND R.USER_ID = " . $userId
 		);
@@ -290,9 +290,6 @@ class Dialog
 			SET R.UNREAD = 'N'
 			WHERE R.UNREAD = 'Y'"
 		);
-
-		$notify = new \CIMNotify();
-		$notify->MarkNotifyRead(0, true);
 
 		if (\CModule::IncludeModule("pull"))
 		{

@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'ui.entity-selector',
 		'main.core.events',
+		'main.popup',
 		'helper',
 		'main.core',
 		'calendar.resourcebookinguserfield',

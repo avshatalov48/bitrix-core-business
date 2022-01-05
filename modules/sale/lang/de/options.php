@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ARCHIVE_BLOCKED_ORDER_ACCEPT"] = "Archivierung von gesperrten Bestellungen erlauben";
 $MESS["BX_SALE_SETTINGS_OPTION_DISCOUNT_APPLY_MODE"] = "Das Verhalten der Warenkorbregeln, wenn andere Module auch Rabatte haben";
 $MESS["BX_SALE_SETTINGS_OPTION_PERCENT_FROM_BASE_PRICE"] = "Den vollen Produktpreis benutzen, um einen Rabatt in Prozent/ einen Preisaufschlag zu kalkulieren";
@@ -15,26 +15,6 @@ $MESS["F_DELIVERY"] = "Kennzeichnung \"Geliefert\"";
 $MESS["F_OUT"] = "Kennzeichnung \"Bereitgestellt\"";
 $MESS["F_PAY"] = "Kennzeichnung \"Bezahlt\"";
 $MESS["NUMERATOR_NOT_USE_CHECKBOX_TITLE"] = "Nicht nutzen";
-$MESS["SALE_ACCOUNT_NUMBER_DATE"] = "Zeitraum:";
-$MESS["SALE_ACCOUNT_NUMBER_DATE_1"] = "Innerhalb von einem Tag";
-$MESS["SALE_ACCOUNT_NUMBER_DATE_2"] = "Innerhalb von einem Monat";
-$MESS["SALE_ACCOUNT_NUMBER_DATE_3"] = "Innerhalb von einem Jahr";
-$MESS["SALE_ACCOUNT_NUMBER_NUMBER"] = "Angangszahl:";
-$MESS["SALE_ACCOUNT_NUMBER_NUMBER_DESC"] = "1 bis 7 Zeichen. Der neue Wert muss höher sein als der vorherige.";
-$MESS["SALE_ACCOUNT_NUMBER_NUMBER_WARNING"] = "Die Anfangszahl \"#NUMBER#\" der Bestellnummerierung ist ungültig.";
-$MESS["SALE_ACCOUNT_NUMBER_PREFIX"] = "Präfix:";
-$MESS["SALE_ACCOUNT_NUMBER_PREFIX_DESC"] = "1 bis 7 Zeichen (lateinische Buchstaben, Zahlen, Gedankenstrich, Unterstrich). Zum Beispiel: TEST1234";
-$MESS["SALE_ACCOUNT_NUMBER_PREFIX_WARNING"] = "Das Bestellpräfix \"#PREFIX#\" ist ungültig.";
-$MESS["SALE_ACCOUNT_NUMBER_RANDOM"] = "Zeichenanzahl:";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE"] = "Vorlage der Bestellnummer:";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE_0"] = "Wird nicht genutzt";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE_1"] = "Nummerierung starten von";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE_2"] = "Präfix benutzen";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE_3"] = "Zufallszahl";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE_4"] = "ID des Nutzers und der Bestellung";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE_5"] = "Nummerierung für einen bestimmten Zeitraum";
-$MESS["SALE_ACCOUNT_NUMBER_TEMPLATE_EXAMPLE"] = "Beispiel:";
-$MESS["SALE_ACCOUNT_NUMBER_WARNING"] = "Präfix:";
 $MESS["SALE_ADDRESS_POST"] = "Parameter 1";
 $MESS["SALE_ADMIN_NEW_PRODUCT"] = "Neue Produkte können direkt im Bearbeitungsformular der Bestellung hinzugefügt werden:";
 $MESS["SALE_ADMIN_USE_CARDS"] = "Kreditkarten benutzen";
@@ -247,4 +227,3 @@ $MESS["SMO_VALUE_PRECISION_2"] = ".00";
 $MESS["SMO_VALUE_PRECISION_3"] = ".000";
 $MESS["SMO_VALUE_PRECISION_4"] = ".0000";
 $MESS["SMO_VALUE_PRECISION_TITLE"] = "Präzision beim Runden";
-?>

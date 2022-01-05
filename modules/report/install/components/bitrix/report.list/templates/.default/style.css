@@ -2,12 +2,12 @@
 	height: 100%;
 	padding: 0 !important;
 }
-.reports-list-wrap {
+.reports-list-wrap-restricted {
 	position: relative;
 	height: 100%;
 }
 
-.reports-list-wrap.--lock:after {
+.reports-list-wrap-restricted.--lock:after {
 	content: '';
 	position: absolute;
 	top: 0;

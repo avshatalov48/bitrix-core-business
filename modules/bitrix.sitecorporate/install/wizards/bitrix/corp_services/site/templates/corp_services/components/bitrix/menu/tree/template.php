@@ -5,7 +5,7 @@
 <ul class="left-menu">
 <?
 if(!function_exists("__DrawLevelMenuTreeT")):
-function __DrawLevelMenuTreeT($ar, $ind, &$f)
+function __DrawLevelMenuTreeT($ar, $ind, &$f = false)
 {
 	$res = '';
 	$l = count($ar);
@@ -49,7 +49,7 @@ endif;
 
 foreach($arResult as $ind=>$arItem)
 	if($arItem["DEPTH_LEVEL"]==1)
-		echo __DrawLevelMenuTreeT($arResult, $ind, $f = false);
+		echo __DrawLevelMenuTreeT($arResult, $ind);
 ?>
 </ul>
 <?endif?>

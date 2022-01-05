@@ -1,4 +1,10 @@
 <?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -6,15 +12,13 @@
  * @copyright 2001-2014 Bitrix
  */
 
-/**
- * Bitrix vars
- * @global CUser $USER
- * @global CMain $APPLICATION
- * @param array $arParams
- * @param array $arResult
- * @param CBitrixComponent $this
- */
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+use Bitrix\Socialnetwork\ComponentHelper;
+
+/** @var CBitrixComponent $this */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
 
 if (!CModule::IncludeModule("socialnetwork"))
 {
@@ -30,7 +34,7 @@ $arParams["IUS_INPUT_NAME_EXTRANET"] = "ius_ids_extranet";
 $arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"] = "ius_susp_extranet";
 $arParams["IUS_INPUT_NAME_STRING_EXTRANET"] = "users_list_string_ius_extranet";
 
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
+$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] === "N" ? "N" : "Y");
 
 if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
@@ -58,41 +62,9 @@ if ($arParams["ITEMS_COUNT"] <= 0)
 $arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
 $arParams["USER_ID"] = intval($USER->GetID());
 
-// for bitrix:main.user.link
-if (IsModuleInstalled('intranet'))
-{
-	$arTooltipFieldsDefault	= serialize(array(
-		"EMAIL",
-		"PERSONAL_MOBILE",
-		"WORK_PHONE",
-		"PERSONAL_ICQ",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION",
-	));
-	$arTooltipPropertiesDefault = serialize(array(
-		"UF_DEPARTMENT",
-		"UF_PHONE_INNER",
-	));
-}
-else
-{
-	$arTooltipFieldsDefault = serialize(array(
-		"PERSONAL_ICQ",
-		"PERSONAL_BIRTHDAY",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION"
-	));
-	$arTooltipPropertiesDefault = serialize(array());
-}
-
-if (!array_key_exists("SHOW_FIELDS_TOOLTIP", $arParams))
-	$arParams["SHOW_FIELDS_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_fields", $arTooltipFieldsDefault), [ 'allowed_classes' => false ]);
-if (!array_key_exists("USER_PROPERTY_TOOLTIP", $arParams))
-	$arParams["USER_PROPERTY_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_properties", $arTooltipPropertiesDefault), [ 'allowed_classes' => false ]);
+$tooltipParams = ComponentHelper::checkTooltipComponentParams($arParams);
+$arParams['SHOW_FIELDS_TOOLTIP'] = $tooltipParams['SHOW_FIELDS_TOOLTIP'];
+$arParams['USER_PROPERTY_TOOLTIP'] = $tooltipParams['USER_PROPERTY_TOOLTIP'];
 
 $arResult["ShowForm"] = "Input";
 
@@ -136,10 +108,10 @@ else
 				'groupId' => $arGroup['ID'],
 			]);
 
-			if ($arParams["SET_TITLE"] == "Y")
+			if ($arParams["SET_TITLE"] === "Y")
 				$APPLICATION->SetTitle($arResult["Group"]["NAME"].": ".GetMessage("SONET_C33_PAGE_TITLE"));
 
-			if ($arParams["SET_NAV_CHAIN"] != "N")
+			if ($arParams["SET_NAV_CHAIN"] !== "N")
 			{
 				$APPLICATION->AddChainItem($arResult["Group"]["NAME"], $arResult["Urls"]["Group"]);
 				$APPLICATION->AddChainItem(GetMessage("SONET_C33_PAGE_TITLE"));
@@ -153,7 +125,7 @@ else
 				$arErrorUsers = array();
 				$arResult["SuccessUsers"] = false;
 				$arResult["ErrorUsers"] = false;
-				if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["save"] <> '' && check_bitrix_sessid())
+				if ($_SERVER["REQUEST_METHOD"] === "POST" && $_POST["save"] <> '' && check_bitrix_sessid())
 				{
 					$errorMessage = "";
 					$warningMessage = "";
@@ -325,7 +297,7 @@ else
 						// get all suspicious intranet emails
 						if ($arParams["IUS_INPUT_NAME_SUSPICIOUS"] <> '' && $_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS"]] <> '')
 						{
-							$arEmailOriginal = preg_split("/[\n\r\t\,;]+/", $_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS"]]);
+							$arEmailOriginal = preg_split("/[\n\r\t,;]+/", $_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS"]]);
 	
 							foreach($arEmailOriginal as $addr)
 							{
@@ -363,7 +335,7 @@ else
 						{
 							if ($arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"] <> '' && $_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"]] <> '')
 							{
-								$arEmailOriginal = preg_split("/[\n\r\t\,;]+/", $_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"]]);
+								$arEmailOriginal = preg_split("/[\n\r\t,;]+/", $_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"]]);
 
 								foreach($arEmailOriginal as $addr)
 								{
@@ -400,7 +372,7 @@ else
 						// get all suspicious extranet emails from an old form
 						if ($arResult["bExtranet"] && (!is_array($arEmail) || count($arEmail) <= 0) && $_POST["EMAILS"] <> '')
 						{
-							$arEmailOriginal = preg_split("/[\n\r\t\,;]+/", $_POST["EMAILS"]);
+							$arEmailOriginal = preg_split("/[\n\r\t,;]+/", $_POST["EMAILS"]);
 	
 							foreach($arEmailOriginal as $addr)
 							{
@@ -518,7 +490,7 @@ else
 									$GROUP_ID = [];
 								}
 
-								$password = \CUser::GeneratePasswordByPolicy($GROUP_ID);
+								$password = CUser::GeneratePasswordByPolicy($GROUP_ID);
 
 								$checkword = randString(8);
 
@@ -550,14 +522,13 @@ else
 								{
 									$arUserToRequest[] = array("NAME"=>($email["NAME"] <> '' ? $email["NAME"]." " : "")."&lt;".$email["EMAIL"]."&gt;", "ID"=>$NEW_USER_ID);
 	
-									$event = new CEvent;
 									$arFields = Array(
 										"USER_ID"	=>	$NEW_USER_ID,
 										"CHECKWORD"	=>	$checkword,
 										"EMAIL"	=>	$email["EMAIL"],
 										"USER_TEXT" => ''
 									);
-									$event->Send("EXTRANET_INVITATION", SITE_ID, $arFields);
+									CEvent::Send("EXTRANET_INVITATION", SITE_ID, $arFields);
 								}
 								else
 								{
@@ -600,7 +571,7 @@ else
 						$arResult["ShowForm"] = "Confirm";
 				}
 
-				if ($arResult["ShowForm"] == "Input")
+				if ($arResult["ShowForm"] === "Input")
 				{
 					if (!CModule::IncludeModule('extranet') || CExtranet::IsIntranetUser())
 						$arResult["isCurrentUserIntranet"] = true;
@@ -667,7 +638,7 @@ else
 									"USER_PERSONAL_PHOTO_IMG" => $arImage["IMG"],
 									"USER_PROFILE_URL" => $pu,
 									"SHOW_PROFILE_LINK" => $canViewProfile,
-									"IS_ONLINE" => ($arFriends[$pref."_USER_IS_ONLINE"] == "Y")
+									"IS_ONLINE" => ($arFriends[$pref."_USER_IS_ONLINE"] === "Y")
 								);
 							}
 						}
@@ -678,4 +649,5 @@ else
 	}
 	$arResult["bIntranet"] = $bIntranet;
 }
+
 $this->IncludeComponentTemplate();

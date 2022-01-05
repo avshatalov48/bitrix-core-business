@@ -60,7 +60,11 @@
 	box-shadow: var(--ui-btn-box-shadow);
 	text-shadow: var(--ui-btn-text-shadow);
 	cursor: pointer;
-	transition: 160ms background-color linear, 160ms color linear, 160ms opacity linear, 160ms border-color linear;
+	transition: 160ms linear background-color,
+				160ms linear color,
+				160ms linear opacity,
+				160ms linear box-shadow,
+				160ms linear border-color;
 }
 
 .ui-btn,
@@ -552,6 +556,14 @@ a.ui-btn-split:focus,
 	font-size: calc(var(--ui-btn-font-size) + 2px);
 	font-family: "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
+
+.ui-btn-shadow,
+.ui-btn-shadow:hover,
+.ui-btn-shadow.ui-btn-hover { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.18); }
+
+.ui-btn-shadow:active,
+.ui-btn-shadow.ui-btn-active { box-shadow: 0 0 1px 0 rgba(0,0,0,0.18); }
 
 /*region Counter*/
 .ui-btn-counter {

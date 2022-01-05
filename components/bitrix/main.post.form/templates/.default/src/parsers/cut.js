@@ -8,7 +8,7 @@ export default class Spoiler extends Default
 	buttonParams: ?Object = {
 		iconClassName: 'spoiler',
 		disabledForTextarea: false,
-		src: Loc.getMessage('MPF_TEMPLATE_FOLDER') + '/images/lhespoiler.png',
+		src: Loc.getMessage('MPF_TEMPLATE_FOLDER') + '/images/lhespoiler.svg',
 		toolbarSort: 205,
 	}
 

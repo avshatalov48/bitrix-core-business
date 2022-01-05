@@ -222,7 +222,9 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				'select' => array(
 					'*',
 					'SITE_TPL_ID' => 'SITE.TPL_ID',
+					'SITE_CODE' => 'SITE.CODE',
 					'SITE_TYPE' => 'SITE.TYPE',
+					'SITE_SPECIAL' => 'SITE.SPECIAL',
 					'SITE_TITLE' => 'SITE.TITLE',
 					'DOMAIN_ID' => 'SITE.DOMAIN_ID',
 					'SITE_LANDING_ID_INDEX' => 'SITE.LANDING_ID_INDEX'
@@ -295,7 +297,8 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			// fill meta data
 			$keys = [
 				'CREATED_BY_ID', 'MODIFIED_BY_ID', 'DATE_CREATE', 'DATE_MODIFY',
-				'INITIATOR_APP_CODE', 'VIEWS', 'ACTIVE', 'PUBLIC'
+				'INITIATOR_APP_CODE', 'VIEWS', 'ACTIVE', 'PUBLIC',
+				'SITE_CODE', 'SITE_SPECIAL'
 			];
 			foreach ($keys as $key)
 			{
@@ -324,19 +327,33 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	 */
 	public static function ping($id, $deleted = false)
 	{
+		$returnCheckDelete = false;
 		$filter = [
 			'ID' => $id
 		];
+
 		if ($deleted)
 		{
+			if (self::$checkDelete)
+			{
+				$returnCheckDelete = true;
+				self::$checkDelete = false;
+			}
 			$filter['=DELETED'] = ['Y', 'N'];
 		}
+
 		$check = self::getList([
 			'select' => [
 				'ID'
 			],
 				'filter' => $filter
 		]);
+
+		if ($returnCheckDelete)
+		{
+			self::$checkDelete = true;
+		}
+
 		return (boolean) $check->fetch();
 	}
 
@@ -990,7 +1007,6 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			$options = array(
 				'site_id' => $this->siteId,
 				'server_name' => $_SERVER['SERVER_NAME'],
-				'url' => $this->getPublicUrl(),
 				'xml_id' => $this->xmlId,
 				'blocks' => Block::getRepository(),
 				'style' => Block::getStyle(),
@@ -1064,49 +1080,30 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 		$contentMain = ob_get_contents();
 		ob_end_clean();
 
-		// implode content and templates parts
-		if ($content && mb_strpos($content, '#CONTENT#') !== false)
+		$replace = [];
+
+		if (!$content)
 		{
-			$replace = ['#CONTENT#' => '<a id="workarea"></a>' . $contentMain];
+			$content = $contentMain;
+		}
 
-			// crm replace
-			if (self::$siteCode === 'STORE' && mb_strpos($content, '#crm') !== false)
-			{
-				$crmContacts = \Bitrix\Landing\Connector\Crm::getContacts(
-					$this->siteId
-				);
-				$replace['#crmCompanyTitle'] = \htmlspecialcharsbx($crmContacts['COMPANY']);
-				if (!empty($crmContacts['PHONE']))
-				{
-					$phone = $crmContacts['PHONE'];
-					$phone = \htmlspecialcharsbx($phone);
-					$replace['#crmPhoneTitle1'] = $phone;// a-tag inside
-					if (!$blockEditMode)
-					{
-						$replace['#crmPhone1'] = $phone;// a-href inside
-					}
-				}
-				if (!empty($crmContacts['EMAIL']))
-				{
-					$email = $crmContacts['EMAIL'];
-					$email = \htmlspecialcharsbx($email);
-					$replace['#crmEmailTitle1'] = $email;// a-tag inside
-					if (!$blockEditMode)
-					{
-						$replace['#crmEmail1'] = $email;// a-href inside
-					}
-				}
-			}
+		if (mb_strpos($content, '#CONTENT#') !== false)
+		{
+			$replace['#CONTENT#'] = '<a id="workarea"></a>' . $contentMain;
+		}
 
+		if (mb_strpos($content . $contentMain, '#crm') !== false)
+		{
+			$replace = array_merge($replace, Connector\Crm::getReplacesForContent($this->siteId, !$blockEditMode));
+		}
+
+		if ($replace)
+		{
 			$content = str_replace(
 				array_keys($replace),
 				array_values($replace),
 				$content
 			);
-		}
-		else
-		{
-			$content = $contentMain;
 		}
 
 		// breadcrumb (see chain_template.php in tpl) and title
@@ -1891,9 +1888,10 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	 * Add new block to the landing.
 	 * @param string $code Code of block.
 	 * @param array $data Data array of block.
+	 * @param bool $saveInLastUsed Save this block as last used for current user.
 	 * @return int|false Id of new block or false on failure.
 	 */
-	public function addBlock(string $code, array $data = array())
+	public function addBlock(string $code, array $data = array(), bool $saveInLastUsed = false)
 	{
 		if (!$this->canEdit())
 		{
@@ -1913,6 +1911,11 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 
 		if ($block)
 		{
+			if ($saveInLastUsed)
+			{
+				Block::markAsUsed($code);
+			}
+
 			$this->touch();
 			$this->addBlockToCollection($block);
 			return $block->getId();

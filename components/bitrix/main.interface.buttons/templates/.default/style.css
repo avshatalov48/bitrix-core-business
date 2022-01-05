@@ -274,6 +274,7 @@
 
 .main-buttons-submenu-item .menu-popup-item-icon {
     display: inline;
+	width: 0;
 }
 
 .main-buttons-submenu-item.noicon .menu-popup-item-icon {
@@ -512,11 +513,11 @@
 	position: relative;
 }
 
-.main-buttons-submenu-setting::after {
+.main-buttons-submenu-setting .menu-popup-item-text::after {
 	content: '';
 	position: relative;
 	top: 6px;
-	right: 9px;
+	right: 0;
 	display: inline-block;
 	height: 18px;
 	width: 24px;
@@ -532,11 +533,11 @@
 	display: none;
 }
 
-.menu-popup .menu-popup-item.main-buttons-submenu-item.main-buttons-submenu-settings-apply::after {
+.menu-popup .menu-popup-item.main-buttons-submenu-item.main-buttons-submenu-settings-apply .menu-popup-item-text::after {
 	content: '';
 	position: relative;
 	top: 6px;
-	right: 9px;
+	right: 0;
 	display: inline-block;
 	height: 18px;
 	width: 24px;

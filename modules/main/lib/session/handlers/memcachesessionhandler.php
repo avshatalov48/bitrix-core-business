@@ -151,7 +151,7 @@ class MemcacheSessionHandler extends AbstractSessionHandler
 			$lockWait -= $waitStep;
 			if ($lockWait < 0)
 			{
-				$errorText = 'Unable to get session lock within 60 seconds.';
+				$errorText = '';
 				if ($lock !== 1)
 				{
 					$lockedUri = $this->connection->get($sid . $sessionId . ".lock");

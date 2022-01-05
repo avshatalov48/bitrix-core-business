@@ -657,7 +657,14 @@ class SaleOrderCheckout extends \CBitrixComponent
 			{
 				/** @var Catalog\v2\Product\Product $parent */
 				$parent = $product->getParent();
-				$basketItems[$item]['DETAIL_PAGE_URL'] = $parent->getDetailUrl();
+				if ($parent instanceof Catalog\v2\Product\Product)
+				{
+					$basketItems[$item]['DETAIL_PAGE_URL'] = $parent->getDetailUrl();
+				}
+				else
+				{
+					$basketItems[$item]['DETAIL_PAGE_URL'] = '';
+				}
 			}
 		}
 

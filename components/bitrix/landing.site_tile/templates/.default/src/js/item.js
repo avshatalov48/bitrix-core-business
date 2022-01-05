@@ -31,6 +31,7 @@ export default class Item {
 		this.domainBitrix24 = options.domainStatus;
 		this.menuItems = options.menuItems || [];
 		this.menuBottomItems = options.menuBottomItems || [];
+		this.access = options.access || {};
 		this.articles = options.articles || [];
 		this.editableTitle = null;
 		this.editableUrl = null;
@@ -190,6 +191,7 @@ export default class Item {
 				text: this.deleted
 					? Loc.getMessage('LANDING_SITE_TILE_RESTORE')
 					: Loc.getMessage('LANDING_SITE_TILE_REMOVE'),
+				access: 'delete',
 				onclick: () => {
 					if (!this.deleted)
 					{
@@ -240,6 +242,19 @@ export default class Item {
 		return items;
 	}
 
+	disableMenuItems(items: Array<Object>): Array<Object>
+	{
+		items = items.map(item => {
+			if (item.access && this.access[item.access] !== true)
+			{
+				item.disabled = true;
+			}
+			return item;
+		});
+
+		return items;
+	}
+
 	getPopupConfig()
 	{
 		if(!this.popupConfig)
@@ -254,7 +269,7 @@ export default class Item {
 				angle: {
 					offset: 97,
 				},
-				items: this.mergeMenuItems(this.menuItems),
+				items: this.disableMenuItems(this.mergeMenuItems(this.menuItems)),
 				events: {
 					onPopupClose: () => {
 						this.getContainerSiteMore().classList.remove('--hover');
@@ -316,18 +331,21 @@ export default class Item {
 		if(!this.$containerSiteStatus)
 		{
 			this.$containerSiteStatus = Tag.render`
-				<div class="landing-sites__status">
+				<div class="${this.access.publication ? 'landing-sites__status' : 'landing-sites__status_disabled'}">
 					${this.getContainerSiteStatusRound()}
 					${this.getContainerSiteStatusTitle()}
-					<div class="landing-sites__status-arrow"></div>
+					${this.access.publication ? Tag.render`<div class="landing-sites__status-arrow"></div>` : ''}
 				</div>
 			`;
 
-			Event.bind(this.$containerSiteStatus, 'click', (ev)=> {
-				this.getPopupStatus().layout.menuContainer.style.left = this.$containerSiteStatus.getBoundingClientRect().left + 'px';
-				this.getPopupStatus().show();
-				ev.stopPropagation()
-			});
+			if (this.access.publication)
+			{
+				Event.bind(this.$containerSiteStatus, 'click', (ev)=> {
+					this.getPopupStatus().layout.menuContainer.style.left = this.$containerSiteStatus.getBoundingClientRect().left + 'px';
+					this.getPopupStatus().show();
+					ev.stopPropagation()
+				});
+			}
 		}
 
 		return this.$containerSiteStatus;
@@ -400,7 +418,8 @@ export default class Item {
 				phone: this.phone,
 				type: 'title',
 				item: this,
-				url: this.contactsUrl
+				url: this.contactsUrl,
+				disabled: !this.access.settings
 			})
 		}
 
@@ -415,7 +434,7 @@ export default class Item {
 				<div class="landing-sites__container --white-bg">
 					<div class="landing-sites__container-left">
 						<div class="landing-sites__title">
-							<div class="landing-sites__title-text" title="${Text.encode(this.title)}">${Text.encode(this.title)}</div>
+							<div class="landing-sites__title-text">${Text.encode(this.title)}</div>
 						</div>
 						${this.phone ? this.getEditableTitle().getContainer() : ''}
 					</div>
@@ -463,7 +482,8 @@ export default class Item {
 				title: this.url,
 				type: 'url',
 				item: this,
-				url: this.domainUrl
+				url: this.domainUrl,
+				disabled: !this.access.settings
 			});
 		}
 

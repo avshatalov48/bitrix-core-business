@@ -123,7 +123,7 @@ $res = array_merge(
 	array(
 		'height' => 200,
 		'minBodyWidth' => 350,
-		'normalBodyWidth' => 555,
+		'normalBodyWidth' => 740,
 		'bAllowPhp' => false,
 		'limitPhpAccess' => false,
 		'showTaskbars' => false,

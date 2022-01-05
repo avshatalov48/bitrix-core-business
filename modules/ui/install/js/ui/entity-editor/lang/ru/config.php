@@ -88,6 +88,7 @@ $MESS["UI_ENTITY_EDITOR_UPDATE_SCOPE"] = "Изменить/удалить пре
 $MESS["UI_ENTITY_EDITOR_CONFIG_SCOPE_NAME"] = "Название представления:";
 $MESS["UI_ENTITY_EDITOR_CONFIG_SCOPE_NAME_PLACEHOLDER"] = "Введите название";
 $MESS["UI_ENTITY_EDITOR_CONFIG_SCOPE_MEMBERS"] = "Выбрать относящихся к представлению:";
+$MESS["UI_ENTITY_EDITOR_CONFIG_SCOPE_FORCE_INSTALL_TO_USERS"] = "Установить представление выбранным пользователям";
 $MESS["UI_ENTITY_EDITOR_CONFIG_SCOPE_SAVE"] = "Сохранить";
 $MESS["UI_ENTITY_EDITOR_CONFIG_SCOPE_CANCEL"] = "Отменить";
 $MESS["UI_ENTITY_EDITOR_CONFIG_SCOPE_SAVED"] = "Представление сохранено";

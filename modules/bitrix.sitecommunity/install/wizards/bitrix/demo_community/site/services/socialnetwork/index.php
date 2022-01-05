@@ -34,7 +34,7 @@ if (WIZARD_INSTALL_DEMO_DATA)
 	COption::SetOptionString("main", "wizard_".WIZARD_TEMPLATE_ID."_sm_theme_id", $sm_theme, "", WIZARD_SITE_ID); 
 
 	$cnt = CSocNetGroupSubject::GetList(array(), array("SITE_ID" => WIZARD_SITE_ID), array());
-	if (IntVal($cnt) > 0)
+	if (intval($cnt) > 0)
 		return;
 
 	$arGroupSubjects = array();
@@ -62,7 +62,7 @@ if (WIZARD_INSTALL_DEMO_DATA)
 			$idTmp = CSocNetGroupSubject::Add($arGroupSubject);
 			if ($idTmp)
 			{
-				$arGroupSubjectsId[$ind] = IntVal($idTmp);
+				$arGroupSubjectsId[$ind] = intval($idTmp);
 			}
 			else
 			{
@@ -72,7 +72,7 @@ if (WIZARD_INSTALL_DEMO_DATA)
 		}
 	}
 
-	if (StrLen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		$pathToImages = WIZARD_SERVICE_ABSOLUTE_PATH."/images/";
 
@@ -161,7 +161,7 @@ if (WIZARD_INSTALL_DEMO_DATA)
 				$idTmp = CSocNetGroup::Add($arGroup);
 				if ($idTmp)
 				{
-					$arGroupsId[$ind] = IntVal($idTmp);
+					$arGroupsId[$ind] = intval($idTmp);
 				}
 				else
 				{
@@ -172,7 +172,7 @@ if (WIZARD_INSTALL_DEMO_DATA)
 		}
 	}
 
-	if (StrLen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		foreach ($arGroupsId as $ind => $val)
 		{

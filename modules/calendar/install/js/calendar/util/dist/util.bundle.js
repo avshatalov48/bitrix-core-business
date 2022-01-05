@@ -898,15 +898,7 @@ this.BX = this.BX || {};
 	  };
 	})(window);
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t<div class=\"", "\">\n\t\t\t<svg class=\"calendar-loader-circular\"\n\t\t\t\tstyle=\"width:", "px; height:", "px;\"\n\t\t\t\tviewBox=\"25 25 50 50\">\n\t\t\t\t\t<circle class=\"calendar-loader-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t\t\t<circle class=\"calendar-loader-inner-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t</svg>\n\t\t</div>\n"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	var Util = /*#__PURE__*/function () {
 	  function Util() {
 	    babelHelpers.classCallCheck(this, Util);
@@ -1148,7 +1140,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getLoader",
 	    value: function getLoader(size, className) {
-	      return main_core.Tag.render(_templateObject(), className || 'calendar-loader', parseInt(size), parseInt(size));
+	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t<div class=\"", "\">\n\t\t\t<svg class=\"calendar-loader-circular\"\n\t\t\t\tstyle=\"width:", "px; height:", "px;\"\n\t\t\t\tviewBox=\"25 25 50 50\">\n\t\t\t\t\t<circle class=\"calendar-loader-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t\t\t<circle class=\"calendar-loader-inner-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t</svg>\n\t\t</div>\n"])), className || 'calendar-loader', parseInt(size), parseInt(size));
 	    }
 	  }, {
 	    key: "getDayCode",
@@ -1491,6 +1483,8 @@ this.BX = this.BX || {};
 	          return 'SG' + entity.id;
 	        } else if (entity.entityId === 'department') {
 	          return 'DR' + entity.id;
+	        } else if (entity.entityId === 'group') {
+	          return entity.id;
 	        }
 	      }
 	    }
@@ -1545,10 +1539,10 @@ this.BX = this.BX || {};
 
 	      var bx = Util.getBX();
 
-	      if (main_core.Type.isElementNode(hintNode) && (bx === null || bx === void 0 ? void 0 : (_bx$UI = bx.UI) === null || _bx$UI === void 0 ? void 0 : _bx$UI.Hint)) {
+	      if (main_core.Type.isElementNode(hintNode) && bx !== null && bx !== void 0 && (_bx$UI = bx.UI) !== null && _bx$UI !== void 0 && _bx$UI.Hint) {
 	        var _bx$UI2, _bx$UI2$Hint;
 
-	        if (bx === null || bx === void 0 ? void 0 : (_bx$UI2 = bx.UI) === null || _bx$UI2 === void 0 ? void 0 : (_bx$UI2$Hint = _bx$UI2.Hint) === null || _bx$UI2$Hint === void 0 ? void 0 : _bx$UI2$Hint.popup) {
+	        if (bx !== null && bx !== void 0 && (_bx$UI2 = bx.UI) !== null && _bx$UI2 !== void 0 && (_bx$UI2$Hint = _bx$UI2.Hint) !== null && _bx$UI2$Hint !== void 0 && _bx$UI2$Hint.popup) {
 	          bx.UI.Hint.popup.destroy();
 	          bx.UI.Hint.popup = null;
 	          bx.UI.Hint.content = null;

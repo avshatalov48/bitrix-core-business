@@ -4,6 +4,7 @@ import Editor from "./editor";
 import TasksLimit from "./taskslimit";
 
 	window['LHEPostForm'] = {
+
 		//region compatibility
 		getEditor: function(editor)
 		{
@@ -43,7 +44,6 @@ import TasksLimit from "./taskslimit";
 			});
 
 			const handler = this.getHandler(editorID);
-
 			if (handler && (handler.isReady || Type.isStringFilled(text) || Object.values(files).length > 0))
 			{
 				handler.exec(handler.reinit, [text, files]);

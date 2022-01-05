@@ -82,6 +82,7 @@ class im extends CModule
 		RegisterModuleDependences("main", "OnUserOnlineStatusGetCustomOfflineStatus", "im", "CIMStatus", "OnUserOnlineStatusGetCustomStatus");
 		RegisterModuleDependences('rest', 'OnRestServiceBuildDescription', 'im', 'CIMRestService', 'OnRestServiceBuildDescription');
 		RegisterModuleDependences('rest', 'OnRestAppDelete', 'im', 'CIMRestService', 'OnRestAppDelete');
+		RegisterModuleDependences('main', 'OnAuthProvidersBuildList', 'im', '\Bitrix\Im\Access\ChatAuthProvider', 'getProviders');
 
 		CAgent::AddAgent("CIMMail::MailNotifyAgent();", "im", "N", 600);
 		CAgent::AddAgent("CIMMail::MailMessageAgent();", "im", "N", 600);
@@ -396,6 +397,7 @@ class im extends CModule
 		UnRegisterModuleDependences("main", "OnApplicationsBuildList", "im", "DesktopApplication", "OnApplicationsBuildList");
 		UnRegisterModuleDependences('rest', 'OnRestServiceBuildDescription', 'im', 'CIMRestService', 'OnRestServiceBuildDescription');
 		UnRegisterModuleDependences('rest', 'OnRestAppDelete', 'im', 'CIMRestService', 'OnRestAppDelete');
+		UnRegisterModuleDependences('main', 'OnAuthProvidersBuildList', 'im', '\Bitrix\Im\Access\ChatAuthProvider', 'getProviders');
 
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
 		$eventManager->unRegisterEventHandler('pull', 'onGetMobileCounter', 'im', '\Bitrix\Im\Counter', 'onGetMobileCounter');

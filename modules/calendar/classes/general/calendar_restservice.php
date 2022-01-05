@@ -111,7 +111,31 @@ final class CCalendarRestService extends IRestService
 					 array(
 						 "sendRefreshToken" => true,
 					 )
-				 )
+				 ),
+				 'OnCalendarRoomCreate' => array(
+					 'calendar',
+					 'OnAfterCalendarRoomCreate',
+					 array(__CLASS__, 'PrepareOnCalendarRoomEvent'),
+					 array(
+						 "sendRefreshToken" => true,
+					 )
+				 ),
+				 'OnCalendarRoomUpdate' => array(
+					 'calendar',
+					 'OnAfterCalendarRoomUpdate',
+					 array(__CLASS__, 'PrepareOnCalendarRoomEvent'),
+					 array(
+						 "sendRefreshToken" => true,
+					 )
+				 ),
+				 'OnCalendarRoomDelete' => array(
+					 'calendar',
+					 'OnAfterCalendarRoomDelete',
+					 array(__CLASS__, 'PrepareOnCalendarRoomEvent'),
+					 array(
+						 "sendRefreshToken" => true,
+					 )
+				 ),
 			 ]
 		];
 
@@ -384,7 +408,9 @@ final class CCalendarRestService extends IRestService
 		{
 			$color = CCalendar::Color($params['color']);
 			if ($color)
+			{
 				$arFields["COLOR"] = $color;
+			}
 		}
 
 		if (isset($params['text_color']))
@@ -1979,6 +2005,11 @@ final class CCalendarRestService extends IRestService
 	 * @return array - array('id' => number) - id of section which triggered event
 	 */
 	public static function PrepareOnCalendarSectionEvent($params, $handler)
+	{
+		return ['id' => $params[0]];
+	}
+
+	public static function PrepareOnCalendarRoomEvent($params)
 	{
 		return ['id' => $params[0]];
 	}

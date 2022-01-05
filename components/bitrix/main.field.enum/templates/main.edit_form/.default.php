@@ -2,6 +2,9 @@
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
+/** @var array $arResult */
+/** @var \EnumUfComponent $component */
+
 use Bitrix\Main\UserField\Types\EnumType;
 use Bitrix\Main\Text\HtmlFilter;
 

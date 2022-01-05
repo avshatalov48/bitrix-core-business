@@ -4731,7 +4731,7 @@ abstract class DiscountBase
 			if ($this->currentStep['stop'])
 				break;
 
-			if ($this->currentStep['stopLevel'])
+			if (isset($this->currentStep['stopLevel']) && $this->currentStep['stopLevel'])
 			{
 				$skipPriorityLevel = $discount['PRIORITY'];
 			}
@@ -5431,15 +5431,22 @@ abstract class DiscountBase
 		$this->discountIds = array();
 		$userGroups = $this->context->getUserGroups();
 		if (empty($userGroups))
+		{
 			return;
+		}
+		$customFilter = array_diff_key(
+			$filter,
+			[
+				'@GROUP_ID' => true,
+				'=ACTIVE' => true,
+			]
+		);
+
 		$filter['@GROUP_ID'] = $userGroups;
 		$filter['=ACTIVE'] = 'Y';
 
 		//RuntimeCache works only with basic filter.
-		if(!array_diff_assoc($filter, array(
-			'@GROUP_ID' => $userGroups,
-			'=ACTIVE' => 'Y',
-		)))
+		if (empty($customFilter))
 		{
 			$this->discountIds = Discount\RuntimeCache\DiscountCache::getInstance()->getDiscountIds($userGroups);
 		}

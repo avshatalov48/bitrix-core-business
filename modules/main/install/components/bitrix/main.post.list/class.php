@@ -513,7 +513,8 @@ HTML;
 					"ENTITY_ID" => $result["ID"],
 					"OWNER_ID" => $result["AUTHOR"]["ID"],
 					"PATH_TO_USER_PROFILE" => $this->arParams["AUTHOR_URL"],
-					"VOTE_ID" => (!empty($res["RATING_VOTE_ID"]) ? $res["RATING_VOTE_ID"] : "")
+					"VOTE_ID" => (!empty($res["RATING_VOTE_ID"]) ? $res["RATING_VOTE_ID"] : ""),
+					'CURRENT_USER_ID' => (isset($this->arParams['CURRENT_USER_ID']) ? (int)$this->arParams['CURRENT_USER_ID'] : 0),
 				) + $ratingValues,
 				$this,
 				array("HIDE_ICONS" => "Y")

@@ -300,6 +300,7 @@ this.BX = this.BX || {};
 	    this.canModify = null;
 	    this.groupId = null;
 	    this.isProject = null;
+	    this.isScrumProject = null;
 	    this.styles = null;
 	    this.urls = null;
 	    this.containerNode = null;
@@ -322,6 +323,7 @@ this.BX = this.BX || {};
 	      this.groupId = parseInt(params.groupId);
 	      this.groupType = params.groupType;
 	      this.isProject = !!params.isProject;
+	      this.isScrumProject = !!params.isScrumProject;
 	      this.isOpened = !!params.isOpened;
 	      this.canInitiate = !!params.canInitiate;
 	      this.canProcessRequestsIn = !!params.canProcessRequestsIn;
@@ -400,6 +402,7 @@ this.BX = this.BX || {};
 	            editFeaturesAllowed: _this.editFeaturesAllowed,
 	            copyFeatureAllowed: _this.copyFeatureAllowed,
 	            isProject: _this.isProject,
+	            isScrumProject: _this.isScrumProject,
 	            isOpened: _this.isOpened,
 	            perms: {
 	              canInitiate: _this.canInitiate,

@@ -1,10 +1,9 @@
 // @flow
 'use strict';
 
-import {ajax, Dom, Loc, Tag} from "main.core";
+import {Dom, Loc, Tag, Event} from "main.core";
 import {InterfaceTemplate} from "./interfacetemplate";
 import ConnectionControls from "../controls/connectioncontrols";
-import {Popup} from "main.popup";
 import { MessageBox } from 'ui.dialogs.messagebox';
 
 export default class GoogleTemplate extends InterfaceTemplate
@@ -49,22 +48,7 @@ export default class GoogleTemplate extends InterfaceTemplate
 		const bodyHeader = this.getContentInfoBodyHeader();
 		const content = bodyHeader.querySelector('.calendar-sync-slider-header');
 
-		if (this.provider.hasSetSyncCaldavSettings())
-		{
-			button.addEventListener('click', () =>
-			{
-				this.createConnection();
-			});
-		}
-		else
-		{
-			button.addEventListener('click', () =>
-			{
-				this.showAlertPopup();
-			});
-		}
-
-
+		Event.bind(button, 'click', this.handleConnectButton.bind(this));
 		Dom.append(button, buttonWrapper);
 		Dom.append(buttonWrapper, content);
 
@@ -172,5 +156,17 @@ export default class GoogleTemplate extends InterfaceTemplate
 			},
 		});
 		messageBox.show();
+	}
+
+	handleConnectButton()
+	{
+		if (this.provider.hasSetSyncCaldavSettings())
+		{
+			this.createConnection();
+		}
+		else
+		{
+			this.showAlertPopup();
+		}
 	}
 }

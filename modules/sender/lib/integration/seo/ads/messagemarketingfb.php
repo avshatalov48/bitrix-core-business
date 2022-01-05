@@ -334,13 +334,16 @@ class MessageMarketingFb
 			['CODE' => 'utm_campaign', 'VALUE' => $campaignName]
 		];
 
-		$preparedMarks = [];
-		foreach($utmMarks as $utmMark)
+		if (!mb_strpos($targetUrl, 'b24_sender_'.static::CODE))
 		{
-			$preparedMarks[$utmMark['CODE']] = $utmMark['VALUE'];
-		}
+			$preparedMarks = [];
+			foreach($utmMarks as $utmMark)
+			{
+				$preparedMarks[$utmMark['CODE']] = $utmMark['VALUE'];
+			}
 
-		$config->getOption('TARGET_URL')->setValue(sprintf('%s/?%s',$targetUrl, http_build_query($preparedMarks)));
+			$config->getOption('TARGET_URL')->setValue(sprintf('%s/?%s',$targetUrl, http_build_query($preparedMarks)));
+		}
 
 		return Entity\Message::create()
 			->setCode($this->getCode())
@@ -458,6 +461,17 @@ class MessageMarketingFb
 		$config->set('STATUS', self::STATUS_ACTIVE);
 
 		$this->saveConfiguration($config);
+		$result->setSuccess(true);
+
+		if (isset($response['RESULT']))
+		{
+			$responseResult = json_decode($response['RESULT'], true);
+			$result->setSuccess(false);
+
+			$errors[] = new \Bitrix\Main\Error($responseResult['error']['message']?? '');
+			$result->addErrors($errors);
+
+		}
 		$result->setSuccess(true);
 		return $result;
 	}

@@ -9,6 +9,7 @@ export default class EditableTitle {
 		this.type = options.type;
 		this.item = options.item;
 		this.url = options.url;
+		this.disabled = options.disabled || false;
 		this.isEditMode = false;
 
 		this.$container = null;
@@ -154,13 +155,25 @@ export default class EditableTitle {
 	{
 		if(!this.$container)
 		{
-			this.$container = Tag.render`
-				<a href="${this.url}" class="landing-sites__title">
-					${this.getContainerInput()}
-					${this.getContainerTitle()}
-					${this.getContainerEdit()}
-				</a>
-			`;
+			if (this.disabled)
+			{
+				this.$container = Tag.render`
+					<span class="landing-sites__title">
+						${this.getContainerInput()}
+						${this.getContainerTitle()}
+					</span>
+				`;
+			}
+			else
+			{
+				this.$container = Tag.render`
+					<a href="${this.url}" class="landing-sites__title">
+						${this.getContainerInput()}
+						${this.getContainerTitle()}
+						${this.getContainerEdit()}
+					</a>
+				`;
+			}
 		}
 
 		return this.$container;

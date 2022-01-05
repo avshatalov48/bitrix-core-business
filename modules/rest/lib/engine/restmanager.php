@@ -22,10 +22,14 @@ use Bitrix\Rest\RestException;
 
 class RestManager extends \IRestService
 {
+	public const DONT_CALCULATE_COUNT = -1;
+
 	/** @var \CRestServer */
 	protected $restServer;
 	/** @var PageNavigation */
 	private $pageNavigation;
+	/** @var bool */
+	private $calculateTotalCount = true;
 
 	public static function onFindMethodDescription($potentialAction)
 	{
@@ -147,7 +151,6 @@ class RestManager extends \IRestService
 
 		if ($result instanceof Engine\Response\File)
 		{
-			/** @noinspection PhpVoidFunctionResultUsedInspection */
 			return $result->send();
 		}
 
@@ -175,6 +178,12 @@ class RestManager extends \IRestService
 			}
 		}
 
+		$this->calculateTotalCount = true;
+		if ((int)$start === self::DONT_CALCULATE_COUNT)
+		{
+			$this->calculateTotalCount = false;
+		}
+
 		return $this->processData($result);
 	}
 
@@ -186,7 +195,7 @@ class RestManager extends \IRestService
 	{
 		$pageNavigation = new PageNavigation('nav');
 		$pageNavigation->setPageSize(static::LIST_LIMIT);
-		if ($start)
+		if ($start > 0)
 		{
 			$pageNavigation->setCurrentPage((int)($start / static::LIST_LIMIT) + 1);
 		}
@@ -201,8 +210,13 @@ class RestManager extends \IRestService
 	 *
 	 * @return array
 	 */
-	private function getNavigationData(Engine\Response\DataType\Page $page)
+	private function getNavigationData(Engine\Response\DataType\Page $page): array
 	{
+		if (!$this->calculateTotalCount)
+		{
+			return [];
+		}
+
 		$result = [];
 		$offset = $this->pageNavigation->getOffset();
 		$total = $page->getTotalCount();

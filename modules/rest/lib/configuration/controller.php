@@ -4,6 +4,7 @@ namespace Bitrix\Rest\Configuration;
 
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Event;
+use Bitrix\Rest\Configuration\Core\OwnerEntityTable;
 
 class Controller
 {
@@ -25,7 +26,7 @@ class Controller
 		foreach ($event->getResults() as $eventResult)
 		{
 			$codeList = $eventResult->getParameters();
-			if(is_array($codeList))
+			if (is_array($codeList))
 			{
 				$result = array_merge($result, $codeList);
 			}
@@ -38,13 +39,13 @@ class Controller
 	public static function callEventExport($manifestCode, $code, $step = 0, $next = '', $itemCode = '', $contextUser = false)
 	{
 		$result = [];
-		if($manifestCode == '')
+		if ($manifestCode == '')
 		{
 			return $result;
 		}
 
 		$manifest = Manifest::get($manifestCode);
-		if(!is_null($manifest))
+		if (!is_null($manifest))
 		{
 			$setting = new Setting($contextUser);
 
@@ -57,7 +58,8 @@ class Controller
 					'NEXT' => $next,
 					'MANIFEST' => $manifest,
 					'ITEM_CODE' => $itemCode,
-					'SETTING' => $setting->get(Setting::SETTING_MANIFEST)
+					'SETTING' => $setting->get(Setting::SETTING_MANIFEST),
+					'USER_ID' => $setting->get(Setting::SETTING_USER_ID) ?? 0,
 				]
 			);
 			EventManager::getInstance()->send($event);
@@ -85,10 +87,11 @@ class Controller
 		];
 
 		$data['SETTING'] = null;
-		if(isset($data['CONTEXT_USER']))
+		if (isset($data['CONTEXT_USER']))
 		{
 			$setting = new Setting($data['CONTEXT_USER']);
 			$data['SETTING'] = $setting->get(Setting::SETTING_MANIFEST);
+			$data['USER_ID'] = $setting->get(Setting::SETTING_USER_ID) ?? 0;
 		}
 
 		$event = new Event(
@@ -107,7 +110,7 @@ class Controller
 				'ERROR_EXCEPTION' => $parameters['ERROR_EXCEPTION']
 			];
 
-			if(is_array($parameters['OWNER_DELETE']))
+			if (is_array($parameters['OWNER_DELETE']))
 			{
 				OwnerEntityTable::deleteMulti($parameters['OWNER_DELETE']);
 			}
@@ -123,7 +126,7 @@ class Controller
 		$setting = new Setting($params['CONTEXT_USER']);
 
 		$app = $setting->get(Setting::SETTING_APP_INFO);
-		if($app['ID'] > 0)
+		if ($app['ID'] > 0)
 		{
 			$owner = $app['ID'];
 			$ownerType = OwnerEntityTable::ENTITY_TYPE_APPLICATION;
@@ -144,9 +147,11 @@ class Controller
 				'CONTEXT' => $params['CONTEXT'],
 				'CONTEXT_USER' => $params['CONTEXT_USER'],
 				'SETTING' => $setting->get(Setting::SETTING_MANIFEST),
+				'USER_ID' => $setting->get(Setting::SETTING_USER_ID) ?? 0,
 				'MANIFEST_CODE' => $params['MANIFEST_CODE'],
 				'IMPORT_MANIFEST' => $params['IMPORT_MANIFEST'],
-				'APP_ID' => intVal($owner)
+				'ADDITIONAL_OPTION' => is_array($params['ADDITIONAL_OPTION']) ? $params['ADDITIONAL_OPTION'] : [],
+				'APP_ID' => intVal($owner),
 			]
 		);
 
@@ -161,12 +166,12 @@ class Controller
 				'ERROR_EXCEPTION' => $parameters['ERROR_EXCEPTION']
 			];
 
-			if(is_array($parameters['OWNER_DELETE']))
+			if (is_array($parameters['OWNER_DELETE']))
 			{
 				OwnerEntityTable::deleteMulti($parameters['OWNER_DELETE']);
 			}
 
-			if($parameters['OWNER'])
+			if ($parameters['OWNER'])
 			{
 				OwnerEntityTable::saveMulti($owner, $ownerType, $parameters['OWNER']);
 			}
@@ -188,7 +193,8 @@ class Controller
 		{
 			$parameters = $eventResult->getParameters();
 			$result[] = [
-				'CREATE_DOM_LIST' => $parameters['CREATE_DOM_LIST']
+				'CREATE_DOM_LIST' => $parameters['CREATE_DOM_LIST'],
+				'ADDITIONAL' => $parameters['ADDITIONAL'],
 			];
 		}
 

@@ -92,7 +92,7 @@ export default class Button extends BaseButton
 	 * @public
 	 * @return {?ButtonSize}
 	 */
-	getColor(): ButtonSize | null
+	getColor(): ButtonColor | null
 	{
 		return this.color;
 	}
@@ -118,7 +118,7 @@ export default class Button extends BaseButton
 	 * @public
 	 * @return {?ButtonIcon}
 	 */
-	getIcon(): ButtonIcon | null
+	getIcon(): ButtonColor | null
 	{
 		return this.icon;
 	}

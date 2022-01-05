@@ -306,7 +306,7 @@ if (
 
 				$placementHandlerList = \Bitrix\Rest\PlacementTable::getHandlersList('SONET_GROUP_DETAIL_TAB');
 
-				if(is_array($placementHandlerList))
+				if (is_array($placementHandlerList))
 				{
 					foreach($placementHandlerList as $placementHandler)
 					{
@@ -343,6 +343,9 @@ if (
 				$filter = \Bitrix\Tasks\Helper\Filter::getInstance($USER->getId(), $groupId);
 				$arResult['Tasks']['DefaultRoleId'] = $filter->getDefaultRoleId();
 			}
+
+			$group = \Bitrix\Socialnetwork\Item\Workgroup::getById($arResult['Group']['ID']);
+			$arResult['isScrumProject'] = $group && $group->isScrumProject();
 
 			$this->IncludeComponentTemplate();
 		}

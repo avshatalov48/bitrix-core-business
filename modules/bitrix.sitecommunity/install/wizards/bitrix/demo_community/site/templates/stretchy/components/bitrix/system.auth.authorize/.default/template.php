@@ -12,7 +12,7 @@ ShowMessage($arResult['ERROR_MESSAGE']);
 
 	<input type="hidden" name="AUTH_FORM" value="Y" />
 	<input type="hidden" name="TYPE" value="AUTH" />
-	<?if (strlen($arResult["BACKURL"]) > 0):?>
+	<?if ($arResult["BACKURL"] <> ''):?>
 	<input type="hidden" name="backurl" value="<?=$arResult["BACKURL"]?>" />
 	<?endif?>
 	<?
@@ -29,7 +29,7 @@ ShowMessage($arResult['ERROR_MESSAGE']);
 	</div>	
 	<div class="field">
 		<label class="field-title"><?=GetMessage("AUTH_PASSWORD")?></label>
-		<div class="form-input"><input type="password" name="USER_PASSWORD" maxlength="50" class="input-field" />
+		<div class="form-input"><input type="password" name="USER_PASSWORD" maxlength="255" class="input-field" />
 <?if($arResult["SECURE_AUTH"]):?>
 				<span class="bx-auth-secure" id="bx_auth_secure" title="<?echo GetMessage("AUTH_SECURE_NOTE")?>" style="display:none">
 					<div class="bx-auth-secure-icon"></div>
@@ -91,7 +91,7 @@ if ($arParams["NOT_SHOW_LINKS"] != "Y")
 </form>
 <script type="text/javascript">
 <?
-if (strlen($arResult["LAST_LOGIN"])>0)
+if ($arResult["LAST_LOGIN"] <> '')
 {
 ?>
 try{document.form_auth.USER_PASSWORD.focus();}catch(e){}

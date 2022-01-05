@@ -49,13 +49,13 @@ export default class EmbedContent extends ContentWrapper
 		return this.cache.remember('typeButtons', () => {
 			return new RadioButtonField({
 				title: Loc.getMessage('LANDING_FORM_EMBED_TYPE_FIELD_TITLE'),
-				items: [1, 3, 4, 2, 5, 6].map((item) => {
+				items: [1, 3, 4, 2, 6, 5].map((item) => {
 					return {
 						id: `type${item}`,
 						title: Loc.getMessage(`LANDING_FORM_EMBED_TYPE_${item}`),
 						icon: `landing-ui-form-embed-type${item}`,
-						soon: [2, 5, 6].includes(item),
-						disabled: [2, 5, 6].includes(item),
+						soon: [5].includes(item),
+						disabled: [5].includes(item),
 					};
 				}),
 				onChange: this.onTypeChange.bind(this),
@@ -88,6 +88,19 @@ export default class EmbedContent extends ContentWrapper
 			return new MessageCard({
 				header: Loc.getMessage('LANDING_FORM_EMBED_TYPE_1_MESSAGE_TITLE'),
 				description: Loc.getMessage('LANDING_FORM_EMBED_TYPE_1_MESSAGE_TEXT'),
+				angle: false,
+				closeable: false,
+				hideActions: true,
+			});
+		});
+	}
+
+	getType2Message(): MessageCard
+	{
+		return this.cache.remember('type2Message', () => {
+			return new MessageCard({
+				header: Loc.getMessage('LANDING_FORM_EMBED_TYPE_2_MESSAGE_TITLE'),
+				description: Loc.getMessage('LANDING_FORM_EMBED_TYPE_2_MESSAGE_TEXT'),
 				angle: false,
 				closeable: false,
 				hideActions: true,
@@ -251,7 +264,7 @@ export default class EmbedContent extends ContentWrapper
 	{
 		return this.cache.remember('copyLinkField', () => {
 			return new CopyLinkField({
-				link: 'https://bitrix24.io/pub/my/form/link',
+				link: this.options.values.link,
 			});
 		});
 	}
@@ -365,11 +378,20 @@ export default class EmbedContent extends ContentWrapper
 
 		if (data.item.id === 'type2')
 		{
-			typeDropdown.setIcon(type2icon);
-			// this.addItem(this.getType2Header());
-			// this.addItem(this.getLinkTextField());
+			typeDropdown.setIcon(type3icon);
 
 			embedField.setValue(this.options.values.scripts.click.text);
+			const positionField = this.getType3PositionField();
+
+			positionField.setValue({
+				vertical: this.options.values.views.click.vertical,
+				horizontal: this.options.values.views.click.position,
+			});
+
+			this.addItem(this.getType2Message());
+			this.addItem(this.getType2Header());
+			this.addItem(positionField);
+			this.addItem(this.getType3ShowTypeField());
 			this.addItem(embedField);
 		}
 

@@ -36,10 +36,10 @@ Class fileman extends CModule
 
 	function InstallDB()
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 
 		if (!$DB->Query("SELECT 'x' FROM b_medialib_collection", true))
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/install/db/".$DBType."/install.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/install/db/mysql/install.sql");
 
 		if (!empty($errors))
 		{
@@ -79,11 +79,11 @@ Class fileman extends CModule
 
 	function UnInstallDB()
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 
 		//if(array_key_exists("savedata", $arParams) && $arParams["savedata"] != "Y")
 		//{
-		$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/install/db/".$DBType."/uninstall.sql");
+		$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/install/db/'mysql'/uninstall.sql");
 		if (!empty($errors))
 		{
 			$APPLICATION->ThrowException(implode("", $errors));

@@ -8,14 +8,14 @@ return [
 	'css' => 'dist/syncinterface.bundle.css',
 	'js' => 'dist/syncinterface.bundle.js',
 	'rel' => [
-		'main.core.events',
-		'ui.dialogs.messagebox',
-		'calendar.util',
 		'calendar.sync.manager',
 		'ui.tilegrid',
 		'ui.forms',
-		'main.popup',
+		'main.core.events',
+		'ui.dialogs.messagebox',
 		'main.core',
+		'calendar.util',
+		'main.popup',
 	],
 	'skip_core' => false,
 ];

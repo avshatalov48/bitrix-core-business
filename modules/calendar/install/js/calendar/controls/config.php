@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/controls.bundle.css',
 	'js' => 'dist/controls.bundle.js',
 	'rel' => [
+		'calendar.roomsmanager',
 		'ui.icons.b24',
 		'calendar.entry',
 		'calendar.planner',

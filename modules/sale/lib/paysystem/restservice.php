@@ -600,13 +600,48 @@ class RestService extends \IRestService
 			throw new RestException('Parameter SETTINGS[CODES] is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
+		if (
+			empty($params['SETTINGS']['FORM_DATA'])
+			&& empty($params['SETTINGS']['CHECKOUT_DATA'])
+			&& empty($params['SETTINGS']['IFRAME_DATA'])
+		)
+		{
+			throw new RestException(
+				'Parameter SETTINGS[FORM_DATA] or SETTINGS[CHECKOUT_DATA] or SETTINGS[IFRAME_DATA] is not defined',
+				self::ERROR_CHECK_FAILURE
+			);
+		}
+
+		if (
+			!empty($params['SETTINGS']['FORM_DATA'])
+			&& empty($params['SETTINGS']['FORM_DATA']['ACTION_URI'])
+		)
+		{
+			throw new RestException('Parameter SETTINGS[FORM_DATA][ACTION_URI] is not defined', self::ERROR_CHECK_FAILURE);
+		}
+
+		if (
+			!empty($params['SETTINGS']['CHECKOUT_DATA'])
+			&& empty($params['SETTINGS']['CHECKOUT_DATA']['ACTION_URI'])
+		)
+		{
+			throw new RestException('Parameter SETTINGS[IFRAME_DATA][ACTION_URI] is not defined', self::ERROR_CHECK_FAILURE);
+		}
+
+		if (
+			!empty($params['SETTINGS']['IFRAME_DATA'])
+			&& empty($params['SETTINGS']['IFRAME_DATA']['ACTION_URI'])
+		)
+		{
+			throw new RestException('Parameter SETTINGS[IFRAME_DATA][ACTION_URI] is not defined', self::ERROR_CHECK_FAILURE);
+		}
 
 		$dbRes = Internals\PaySystemRestHandlersTable::getList([
 			'filter' => [
 				'=CODE' => $params['CODE']
 			]
 		]);
-		if ($data = $dbRes->fetch())
+		if ($dbRes->fetch())
 		{
 			throw new RestException('Handler already exists!', self::ERROR_HANDLER_ALREADY_EXIST);
 		}
@@ -1054,7 +1089,7 @@ class RestService extends \IRestService
 	 */
 	private static function arrayChangeKeyCaseRecursive(array $data, $case = CASE_UPPER)
 	{
-		return array_map(static function($item) use ($case) {
+		return array_map(static function ($item) use ($case) {
 			if (is_array($item))
 			{
 				$item = self::arrayChangeKeyCaseRecursive($item, $case);
@@ -1489,7 +1524,7 @@ class RestService extends \IRestService
 			'filter' => ['CODE' => $code],
 			'limit' => 1,
 		])->fetch();
-		if ($handlerData)
+		if (is_array($handlerData))
 		{
 			$result[$code] = $handlerData;
 		}

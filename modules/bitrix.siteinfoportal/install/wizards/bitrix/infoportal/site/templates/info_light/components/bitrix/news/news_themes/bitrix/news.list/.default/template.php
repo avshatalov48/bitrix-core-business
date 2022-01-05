@@ -8,8 +8,8 @@
 <?
 	$this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT"));
 	$this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"));
-	
-	$themeLetter = strtoupper ( strtr( substr($arItem["NAME"], 0, 1), 'éöóêåíãøùçõúôûâàïðîëäæýÿ÷ñìèòüáþ¸', 'ÉÖÓÊÅÍÃØÙÇÕÚÔÛÂÀÏÐÎËÄÆÝß×ÑÌÈÒÜÁÞ¨') );
+
+	$themeLetter = mb_strtoupper(strtr(mb_substr($arItem["NAME"], 0, 1), 'éöóêåíãøùçõúôûâàïðîëäæýÿ÷ñìèòüáþ¸', 'ÉÖÓÊÅÍÃØÙÇÕÚÔÛÂÀÏÐÎËÄÆÝß×ÑÌÈÒÜÁÞ¨'));
 	if($themeLetter != $themeLetterPrew ):
 	$themeLetterPrew = $themeLetter;?>
 	<tr >

@@ -16,6 +16,7 @@ abstract class Base
 {
 	protected static $modificationDates = [];
 	protected static $dependencies = [];
+	protected static $expandedDependencies = [];
 	protected $path;
 	protected $namespace;
 	protected $baseFileName;
@@ -87,12 +88,19 @@ abstract class Base
 		if ($file->isExists())
 		{
 			/** @noinspection PhpIncludeInspection */
-			$list = include($file->getPath());
+			$depsContent = include($file->getPath());
 
-			if (is_array($list))
+			if (is_array($depsContent))
 			{
-				if(array_key_exists("extensions", $list))
-					$list = $list["extensions"];
+				if (array_keys($depsContent) !== range(0, count($depsContent) - 1)) {
+					if(array_key_exists('extensions', $depsContent)) {
+						$list = $depsContent['extensions'];
+					}
+				}
+				else
+				{
+					$list = $depsContent;
+				}
 			}
 		}
 
@@ -105,16 +113,57 @@ abstract class Base
 		return $list;
 	}
 
+	public function getComponentDependencies(): ?array
+	{
+		$file = new File("$this->path/deps.php");
+		$result = [];
+		if ($file->isExists())
+		{
+			/** @noinspection PhpIncludeInspection */
+			$depsContent = include($file->getPath());
+			if (is_array($depsContent))
+			{
+				if (array_keys($depsContent) !== range(0, count($depsContent) - 1)) {
+					if (array_key_exists('components', $depsContent)) {
+						if (is_array($depsContent['components'])) {
+							return $depsContent['components'];
+						}
+					}
+				}
+				else
+				{
+					$result = null;
+				}
+
+			}
+		}
+
+		return $result;
+	}
+
 	/**
 	 * @param $ext
 	 * @return array
 	 * @throws FileNotFoundException
 	 */
-	private static function expandDependency($ext)
+	private static function expandDependency($ext): array
 	{
+
+		$result = [];
+
+		if (!is_string($ext))
+		{
+			return [];
+		}
+
+		if (array_key_exists($ext, self::$expandedDependencies))
+		{
+			return self::$expandedDependencies[$ext];
+		}
+
 		$findChildren = false;
 		$relativeExtDir = $ext;
-		$result = [];
+
 
 		if(mb_strpos($ext, "*") == (mb_strlen($ext) - 1))
 		{
@@ -155,9 +204,9 @@ abstract class Base
 			$result[] = $relativeExtDir;
 		}
 
+		self::$expandedDependencies[$ext] = $result;
 		return $result;
 	}
-
 
 	public function getLangDefinitionExpression()
 	{

@@ -239,6 +239,8 @@ Class sale extends CModule
 		$eventManager->registerEventHandler('rest', 'onRestAppDelete', 'sale', '\Bitrix\Sale\Delivery\Rest\BaseService', 'onRestAppDelete');
 		$eventManager->registerEventHandler('rest', 'onRestAppDelete', 'sale', '\Bitrix\Sale\Cashbox\Rest\RestService', 'onRestAppDelete');
 
+		$eventManager->registerEventHandler('main', 'OnSiteDelete','sale', '\Bitrix\Sale\Internals\FacebookConversion', 'OnSiteDeleteHandler');
+
 		COption::SetOptionString("sale", "viewed_capability", "N");
 		COption::SetOptionString("sale", "viewed_count", 10);
 		COption::SetOptionString("sale", "viewed_time", 5);
@@ -515,6 +517,11 @@ Class sale extends CModule
 		$eventManager->unRegisterEventHandler('rest', 'onRestAppDelete', 'sale', '\Bitrix\Sale\PaySystem\RestService', 'onRestAppDelete');
 		$eventManager->unRegisterEventHandler('rest', 'onRestAppDelete', 'sale', '\Bitrix\Sale\Delivery\Rest\BaseService', 'onRestAppDelete');
 		$eventManager->unRegisterEventHandler('rest', 'onRestAppDelete', 'sale', '\Bitrix\Sale\Cashbox\Rest\RestService', 'onRestAppDelete');
+
+		$eventManager->unRegisterEventHandler('sale', 'OnBasketAdd', 'sale', '\Bitrix\Sale\Internals\FacebookConversion', 'onAddToCartHandler');
+		$eventManager->unRegisterEventHandler('sale', 'OnSaleComponentOrderCreated', 'sale', '\Bitrix\Sale\Internals\FacebookConversion', 'onOrderCreatedHandler');
+		$eventManager->unregisterEventHandler('main', 'OnSiteDelete','sale', '\Bitrix\Sale\Internals\FacebookConversion', 'OnSiteDeleteHandler');
+		$eventManager->unregisterEventHandler('main', 'onFeedbackFormSubmit','sale', '\Bitrix\Sale\Internals\FacebookConversion', 'onFeedbackFormContactHandler');
 
 		if (\Bitrix\Main\Loader::includeModule('sale'))
 		{

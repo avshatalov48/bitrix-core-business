@@ -5,7 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\ComponentHelper;
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -34,7 +34,9 @@ $this->SetViewTarget('left-panel');
 ?><script>
 	BX.ready(function() {
 		(new BX.Socialnetwork.WorkgroupSliderMenu()).init({
+			pageBodyStyles: <?= CUtil::PhpToJSObject($arResult['PAGE_BODY_STYLES'])?>,
 			menuNodeId: '<?= CUtil::JSEscape($sliderMenuContainerId) ?>',
+			signedParameters: '<?= ComponentHelper::getWorkgroupSliderMenuSignedParameters($arParams['~SIGNED_PARAMETERS']) ?>',
 		});
 	});
 </script><?php

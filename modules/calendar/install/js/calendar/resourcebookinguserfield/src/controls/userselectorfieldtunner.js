@@ -4,6 +4,7 @@ import {FormFieldTunnerValuePopupAbstract} from "../formfieldtunnervaluepopupabs
 import {ResourcebookingUserfield} from "../resourcebookinguserfield";
 import {BookingUtil} from "calendar.resourcebooking";
 import {Loc, Type, Dom, Tag, Text} from "main.core";
+import {MenuItem} from "main.popup";
 import { Dialog as EntitySelectorDialog } from 'ui.entity-selector';
 import {EventEmitter} from 'main.core.events';
 
@@ -155,13 +156,11 @@ class UsersStatePopup extends FormFieldTunnerPopupAbstract
 
 	getMenuItems()
 	{
-		let submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
-
 		return [
-			{
-				html: '<span>' + Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
-				className: submenuClass
-			},
+			new MenuItem({
+				text: Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE'),
+				delimiter: true
+			}),
 			{
 				id: 'users-state-list',
 				text: Loc.getMessage('WEBF_RES_SELECT_DEFAULT_EMPTY'),

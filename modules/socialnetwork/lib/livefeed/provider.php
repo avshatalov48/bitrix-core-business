@@ -78,9 +78,9 @@ abstract class Provider
 	/**
 	 * @return string the fully qualified name of this class.
 	 */
-	public static function className()
+	public static function className(): string
 	{
-		return get_called_class();
+		return static::class;
 	}
 
 	public function setSiteId($siteId): void
@@ -154,7 +154,7 @@ abstract class Provider
 		return $this->parentProvider;
 	}
 
-	private static function getTypes()
+	private static function getTypes(): array
 	{
 		return [
 			self::TYPE_POST,
@@ -433,7 +433,7 @@ abstract class Provider
 		return $result;
 	}
 
-	public function getLogCommentId($params = [])
+	public function getLogCommentId()
 	{
 		$result = false;
 
@@ -495,7 +495,7 @@ abstract class Provider
 			{
 				if (preg_match('/^SG(\d+)/', $groupCode, $matches))
 				{
-					$result[] = $matches[1];
+					$result[] = (int)$matches[1];
 				}
 			}
 		}
@@ -856,7 +856,7 @@ abstract class Provider
 		)
 		{
 			$result = preg_replace_callback(
-				"#\\[disk file id=(n\\d+)\\]#is".BX_UTF_PCRE_MODIFIER,
+				"#\\[disk file id=(n\\d+)\\]#is" . BX_UTF_PCRE_MODIFIER,
 				[ $this, 'parseDiskObjectsCloned' ],
 				$result
 			);
@@ -868,7 +868,7 @@ abstract class Provider
 		)
 		{
 			$result = preg_replace_callback(
-				"#\\[disk file id=(\\d+)\\]#is".BX_UTF_PCRE_MODIFIER,
+				"#\\[disk file id=(\\d+)\\]#is" . BX_UTF_PCRE_MODIFIER,
 				[ $this, 'parseAttachedDiskObjectsCloned' ],
 				$result
 			);
@@ -1173,7 +1173,7 @@ abstract class Provider
 				{
 					if (Loader::includeModule('pull'))
 					{
-						\CPullWatch::addToStack('CONTENTVIEW'.$contentTypeId . '-' . $contentEntityId,
+						\CPullWatch::addToStack('CONTENTVIEW' . $contentTypeId . '-' . $contentEntityId,
 							[
 								'module_id' => 'contentview',
 								'command' => 'add',
@@ -1435,7 +1435,7 @@ abstract class Provider
 			$logCommentId = $this->getLogCommentId();
 			if ($logCommentId > 0)
 			{
-				$code = 'LC'.$logCommentId;
+				$code = 'LC' . $logCommentId;
 			}
 		}
 		else
@@ -1443,7 +1443,7 @@ abstract class Provider
 			$logId = $this->getLogId();
 			if ($logId > 0)
 			{
-				$code = 'L'.$logId;
+				$code = 'L' . $logId;
 			}
 		}
 
@@ -1490,7 +1490,7 @@ abstract class Provider
 				\CUserCounter::addValueToPullMessage($row, [ $siteId ], $pullMessage);
 			}
 
-			$connection->query("UPDATE b_user_counter SET SENT = '1' WHERE SENT = '0' AND USER_ID = ".$userId." AND CODE = '".\CUserCounter::LIVEFEED_CODE."'");
+			$connection->query("UPDATE b_user_counter SET SENT = '1' WHERE SENT = '0' AND USER_ID = " . $userId . " AND CODE = '" . \CUserCounter::LIVEFEED_CODE . "'");
 		}
 
 		if (

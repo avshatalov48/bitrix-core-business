@@ -1,11 +1,13 @@
-<?
+<?php
 
 use Bitrix\Main\Context;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Mail\SenderSendCounter;
 use Bitrix\Main\Type;
 use Bitrix\Main\Web\Uri;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Sender\Access\ActionDictionary;
 use Bitrix\Sender\Dispatch;
 use Bitrix\Sender\Entity;
@@ -48,6 +50,8 @@ class SenderLetterTimeComponent extends CommonSenderComponent
 
 	protected function initParams()
 	{
+		global $USER;
+
 		if (empty($this->arParams['ID']))
 		{
 			$this->arParams['ID'] = (int) $this->request->get('ID');
@@ -55,12 +59,26 @@ class SenderLetterTimeComponent extends CommonSenderComponent
 
 		$this->arParams['IS_OUTSIDE'] = isset($this->arParams['IS_OUTSIDE']) ? (bool) $this->arParams['IS_OUTSIDE'] : $this->request->get('isOutside') === 'Y';
 		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
+		$this->arParams['IS_BX24_INSTALLED'] = Integration\Bitrix24\Service::isCloud();
+		$this->arParams['IS_PHONE_CONFIRMED'] = \Bitrix\Sender\Integration\Bitrix24\Limitation\Verification::isPhoneConfirmed();
 
-		$this->arParams['CAN_VIEW'] = isset($this->arParams['CAN_VIEW'])
-			?
-			$this->arParams['CAN_VIEW']
-			:
-			Security\Access::getInstance()->canViewLetters();
+		$this->arParams['CAN_VIEW'] =
+			isset($this->arParams['CAN_VIEW'])
+				? $this->arParams['CAN_VIEW']
+				: Security\Access::getInstance()->canViewLetters()
+		;
+
+		$transportCode = self::getTransportCode($this->arParams['ID'], $this->arParams['MESSAGE_CODE_LIST']);
+		$this->arParams['IS_MAIL_TRANSPORT'] = $transportCode === \Bitrix\Sender\Transport\iBase::CODE_MAIL;
+	}
+
+	private static function getTransportCode($letterId, $transportCodesAlist): ?string
+	{
+		if ($letter = Entity\Letter::createInstanceById($letterId, $transportCodesAlist))
+		{
+			return $letter->getMessage()->getTransport()->getCode();
+		}
+		return null;
 	}
 
 	protected function preparePost()
@@ -187,6 +205,12 @@ class SenderLetterTimeComponent extends CommonSenderComponent
 			return false;
 		}
 
+		$email = $this->letter->getMessage()->getConfiguration()->get('EMAIL_FROM', false);
+
+		if ($email)
+		{
+			$this->arParams['DAY_LIMIT'] = Bitrix\Main\Mail\Sender::getEmailLimit($email);
+		}
 
 		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT'])
 			?

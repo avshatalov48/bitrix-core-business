@@ -38,6 +38,8 @@ class Transport
 	const METHOD_SET_INSTALL = 'is_installed';
 	const METHOD_SEARCH_APP = 'search_app';
 	const METHOD_FILTER_APP = 'search_app_adv';
+	const METHOD_GET_SITE_LIST = 'sites_list';
+	const METHOD_GET_SITE_ITEM = 'sites_item';
 
 	protected static $instance = null;
 

@@ -68,6 +68,7 @@
 		popup: null,
 		content: null,
 		popupParameters: null,
+		loading: false,
 
 		init: function (options)
 		{
@@ -154,6 +155,14 @@
 		/**
 		 * Return Node of switcher.
 		 */
+		renderTo: function (targetNode)
+		{
+			return targetNode.appendChild(this.getNode());
+		},
+
+		/**
+		 * Return Node of switcher.
+		 */
 		getNode: function ()
 		{
 			return this.node;
@@ -173,6 +182,7 @@
 				'<span class="ui-switcher-cursor"></span>\n' +
 				'<span class="ui-switcher-enabled">' + BX.message('UI_SWITCHER_ON') + '</span>\n' +
 				'<span class="ui-switcher-disabled">' + BX.message('UI_SWITCHER_OFF') + '</span>\n';
+
 			if (this.inputName)
 			{
 				this.inputNode = document.createElement('input');
@@ -217,6 +227,11 @@
 		 */
 		check: function (checked, fireEvents)
 		{
+			if (this.loading)
+			{
+				return;
+			}
+
 			this.checked = checked;
 			if (this.inputNode)
 			{
@@ -238,6 +253,37 @@
 
 			BX.onCustomEvent(this, this.events.toggled);
 			fireEvents ? this.fireEvent(this.events.toggled) : null;
+		},
+
+		/**
+		 * Set `loading` state.
+		 */
+		setLoading: function (mode)
+		{
+			this.loading = !!mode;
+
+			var cursor = this.getNode().querySelector('.ui-switcher-cursor');
+
+			//ui-switcher-cursor
+			if (this.loading)
+			{
+				cursor.innerHTML = '<svg viewBox="25 25 50 50">' +
+					'<circle class="ui-sidepanel-wrapper-loader-path" cx="50" cy="50" r="19" fill="none" stroke-width="5" stroke-miterlimit="10"></circle>' +
+					'</svg>'
+				;
+			}
+			else
+			{
+				cursor.innerHTML = '';
+			}
+		},
+
+		/**
+		 * Return true if switcher is loading.
+		 */
+		isLoading: function ()
+		{
+			return this.loading;
 		}
 	};
 	

@@ -98,85 +98,57 @@ this.BX = this.BX || {};
 	  return Button;
 	}();
 
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"popup-window-overlay\" id=\"popup-window-overlay-", "\"></div>\n\t\t\t\t"]);
+	var _left = new WeakMap();
 
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
+	var _top = new WeakMap();
 
-	  return data;
-	}
+	var PositionEvent = /*#__PURE__*/function (_BaseEvent) {
+	  babelHelpers.inherits(PositionEvent, _BaseEvent);
 
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"popup-window-resize\" onmousedown=\"", "\"></div>\n\t\t\t\t"]);
+	  function PositionEvent() {
+	    var _this;
 
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
+	    babelHelpers.classCallCheck(this, PositionEvent);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(PositionEvent).call(this));
 
-	  return data;
-	}
+	    _left.set(babelHelpers.assertThisInitialized(_this), {
+	      writable: true,
+	      value: void 0
+	    });
 
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"", " ", "-", "\"></div>"]);
+	    _top.set(babelHelpers.assertThisInitialized(_this), {
+	      writable: true,
+	      value: void 0
+	    });
 
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
+	    return _this;
+	  }
 
-	  return data;
-	}
+	  babelHelpers.createClass(PositionEvent, [{
+	    key: "left",
+	    get: function get() {
+	      return babelHelpers.classPrivateFieldGet(this, _left);
+	    },
+	    set: function set(value) {
+	      if (main_core.Type.isNumber(value)) {
+	        babelHelpers.classPrivateFieldSet(this, _left, value);
+	      }
+	    }
+	  }, {
+	    key: "top",
+	    get: function get() {
+	      return babelHelpers.classPrivateFieldGet(this, _top);
+	    },
+	    set: function set(value) {
+	      if (main_core.Type.isNumber(value)) {
+	        babelHelpers.classPrivateFieldSet(this, _top, value);
+	      }
+	    }
+	  }]);
+	  return PositionEvent;
+	}(main_core_events.BaseEvent);
 
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"popup-window-buttons\">", "</div>"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div \n\t\t\t\tclass=\"", "\" \n\t\t\t\tid=\"", "\"\n\t\t\t\tstyle=\"display: none; position: absolute; left: 0; top: 0;\"\n\t\t\t>", "</div>"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div id=\"popup-window-content-", "\" class=\"popup-window-content\"></div>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"", "\" onclick=\"", "\"></span>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"popup-window-titlebar\" id=\"popup-window-titlebar-", "\"></div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9;
 	var aliases = {
 	  onPopupWindowInit: {
 	    namespace: 'BX.Main.Popup',
@@ -332,6 +304,7 @@ this.BX = this.BX || {};
 	    _this.closeIcon = null;
 	    _this.resizeIcon = null;
 	    _this.angle = null;
+	    _this.angleArrowElement = null;
 	    _this.overlay = null;
 	    _this.titleBar = null;
 	    _this.bindOptions = babelHelpers.typeof(params.bindOptions) === 'object' ? params.bindOptions : {};
@@ -380,10 +353,6 @@ this.BX = this.BX || {};
 
 	    var popupClassName = 'popup-window';
 
-	    if (params.contentColor && main_core.Type.isStringFilled(params.contentColor)) {
-	      popupClassName += ' popup-window-content-' + params.contentColor;
-	    }
-
 	    if (params.titleBar) {
 	      popupClassName += ' popup-window-with-titlebar';
 	    }
@@ -397,12 +366,12 @@ this.BX = this.BX || {};
 	    }
 
 	    if (params.titleBar) {
-	      _this.titleBar = main_core.Tag.render(_templateObject(), popupId);
+	      _this.titleBar = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"popup-window-titlebar\" id=\"popup-window-titlebar-", "\"></div>\n\t\t\t"])), popupId);
 	    }
 
 	    if (params.closeIcon) {
 	      var className = 'popup-window-close-icon' + (params.titleBar ? ' popup-window-titlebar-close-icon' : '');
-	      _this.closeIcon = main_core.Tag.render(_templateObject2(), className, _this.handleCloseIconClick.bind(babelHelpers.assertThisInitialized(_this)));
+	      _this.closeIcon = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"", "\" onclick=\"", "\"></span>\n\t\t\t"])), className, _this.handleCloseIconClick.bind(babelHelpers.assertThisInitialized(_this)));
 
 	      if (main_core.Type.isPlainObject(params.closeIcon)) {
 	        main_core.Dom.style(_this.closeIcon, params.closeIcon);
@@ -413,17 +382,25 @@ this.BX = this.BX || {};
 	     */
 
 
-	    _this.contentContainer = main_core.Tag.render(_templateObject3(), popupId);
+	    _this.contentContainer = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div id=\"popup-window-content-", "\" class=\"popup-window-content\"></div>"])), popupId);
 	    /**
 	     * @private
 	     */
 
-	    _this.popupContainer = main_core.Tag.render(_templateObject4(), popupClassName, popupId, [_this.titleBar, _this.contentContainer, _this.closeIcon]);
+	    _this.popupContainer = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div\n\t\t\t\tclass=\"", "\"\n\t\t\t\tid=\"", "\"\n\t\t\t\tstyle=\"display: none; position: absolute; left: 0; top: 0;\"\n\t\t\t>", "</div>"])), popupClassName, popupId, [_this.titleBar, _this.contentContainer, _this.closeIcon]);
 
 	    _this.targetContainer.appendChild(_this.popupContainer);
 
 	    _this.zIndexComponent = main_core_zIndexManager.ZIndexManager.register(_this.popupContainer, params.zIndexOptions);
 	    _this.buttonsContainer = null;
+
+	    if (params.contentColor && main_core.Type.isStringFilled(params.contentColor)) {
+	      if (params.contentColor === 'white' || params.contentColor === 'gray') {
+	        popupClassName += ' popup-window-content-' + params.contentColor;
+	      }
+
+	      _this.setContentColor(params.contentColor);
+	    }
 
 	    if (params.angle) {
 	      _this.setAngle(params.angle);
@@ -559,7 +536,7 @@ this.BX = this.BX || {};
 	          }
 	        }
 
-	        this.buttonsContainer = this.contentContainer.parentNode.appendChild(main_core.Tag.render(_templateObject5(), newButtons));
+	        this.buttonsContainer = this.contentContainer.parentNode.appendChild(main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div class=\"popup-window-buttons\">", "</div>"])), newButtons));
 	      }
 	    }
 	  }, {
@@ -695,6 +672,7 @@ this.BX = this.BX || {};
 	        }
 
 	        this.angle = null;
+	        this.angleArrowElement = null;
 	        return;
 	      }
 
@@ -710,8 +688,14 @@ this.BX = this.BX || {};
 	          defaultOffset += angleLeftOffset - Popup.defaultOptions.angleLeftOffset;
 	        }
 
+	        this.angleArrowElement = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<div class=\"popup-window-angly--arrow\"></div>"])));
+
+	        if (this.background) {
+	          this.angleArrowElement.style.background = this.background;
+	        }
+
 	        this.angle = {
-	          element: main_core.Tag.render(_templateObject6(), className, className, position),
+	          element: main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"", " ", "-", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), className, className, position, this.angleArrowElement),
 	          position: position,
 	          offset: 0,
 	          defaultOffset: Math.max(defaultOffset, angleMinLeft) //Math.max(Type.isNumber(params.offset) ? params.offset : 0, angleMinLeft)
@@ -928,14 +912,31 @@ this.BX = this.BX || {};
 	      return this.contentPadding;
 	    }
 	  }, {
+	    key: "setContentColor",
+	    value: function setContentColor(color) {
+	      if (main_core.Type.isString(color) && this.contentContainer) {
+	        this.contentContainer.style.backgroundColor = color;
+	      } else if (color === null) {
+	        this.contentContainer.style.style.removeProperty('background-color');
+	      }
+	    }
+	  }, {
 	    key: "setBackground",
 	    value: function setBackground(background) {
 	      if (main_core.Type.isStringFilled(background)) {
 	        this.background = background;
 	        this.getPopupContainer().style.background = background;
+
+	        if (this.angleArrowElement) {
+	          this.angleArrowElement.style.background = background;
+	        }
 	      } else if (background === null) {
 	        this.background = null;
 	        this.getPopupContainer().style.removeProperty('background');
+
+	        if (this.angleArrowElement) {
+	          this.angleArrowElement.style.removeProperty('background');
+	        }
 	      }
 	    }
 	  }, {
@@ -989,7 +990,7 @@ this.BX = this.BX || {};
 	    value: function setResizeMode(mode) {
 	      if (mode === true || main_core.Type.isPlainObject(mode)) {
 	        if (!this.resizeIcon) {
-	          this.resizeIcon = main_core.Tag.render(_templateObject7(), this.handleResizeMouseDown.bind(this));
+	          this.resizeIcon = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"popup-window-resize\" onmousedown=\"", "\"></div>\n\t\t\t\t"])), this.handleResizeMouseDown.bind(this));
 	          this.getPopupContainer().appendChild(this.resizeIcon);
 	        } //Compatibility
 
@@ -1325,7 +1326,7 @@ this.BX = this.BX || {};
 	    value: function setOverlay(params) {
 	      if (this.overlay === null) {
 	        this.overlay = {
-	          element: main_core.Tag.render(_templateObject8(), this.getId())
+	          element: main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"popup-window-overlay\" id=\"popup-window-overlay-", "\"></div>\n\t\t\t\t"])), this.getId())
 	        };
 	        this.resizeOverlay();
 	        this.targetContainer.appendChild(this.overlay.element);
@@ -1422,6 +1423,14 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
+	      this.emit('onBeforeShow');
+	      this.showOverlay();
+	      this.getPopupContainer().style.display = 'block';
+
+	      if (this.shouldFrontOnShow()) {
+	        this.bringToFront();
+	      }
+
 	      if (!this.firstShow) {
 	        this.emit('onFirstShow', new main_core_events.BaseEvent({
 	          compatData: [this]
@@ -1432,13 +1441,6 @@ this.BX = this.BX || {};
 	      this.emit('onShow', new main_core_events.BaseEvent({
 	        compatData: [this]
 	      }));
-	      this.showOverlay();
-	      this.getPopupContainer().style.display = 'block';
-
-	      if (this.shouldFrontOnShow()) {
-	        this.bringToFront();
-	      }
-
 	      this.adjustPosition();
 	      this.animateOpening(function () {
 	        if (_this4.isDestroyed()) {
@@ -1641,6 +1643,7 @@ this.BX = this.BX || {};
 	      this.titleBar = null;
 	      this.buttonsContainer = null;
 	      this.angle = null;
+	      this.angleArrowElement = null;
 	      this.resizeIcon = null;
 	    }
 	  }, {
@@ -1733,10 +1736,14 @@ this.BX = this.BX || {};
 	        top = 0;
 	      }
 
+	      var event = new PositionEvent();
+	      event.left = left;
+	      event.top = top;
+	      this.emit('onBeforeAdjustPosition', event);
 	      main_core.Dom.adjust(this.popupContainer, {
 	        style: {
-	          top: top + 'px',
-	          left: left + 'px'
+	          top: event.top + 'px',
+	          left: event.left + 'px'
 	        }
 	      });
 	    }
@@ -2191,15 +2198,7 @@ this.BX = this.BX || {};
 	PopupManager.handleOnAfterInit = PopupManager.handleOnAfterInit.bind(PopupManager);
 	main_core_events.EventEmitter.subscribe('BX.Main.Popup:onAfterInit', PopupManager.handleOnAfterInit);
 
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"popup-window-delimiter\">"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1;
 	var aliases$1 = {
 	  onSubMenuShow: {
 	    namespace: 'BX.Main.Menu.Item',
@@ -2328,7 +2327,7 @@ this.BX = this.BX || {};
 	        if (main_core.Type.isStringFilled(this.getText())) {
 	          this.layout.item = main_core.Dom.create('span', {
 	            props: {
-	              className: 'popup-window-delimiter-section'
+	              className: ['popup-window-delimiter-section', this.className ? this.className : ''].join(' ')
 	            },
 	            children: [this.layout.text = main_core.Dom.create('span', {
 	              props: {
@@ -2338,7 +2337,7 @@ this.BX = this.BX || {};
 	            })]
 	          });
 	        } else {
-	          this.layout.item = main_core.Tag.render(_templateObject$1());
+	          this.layout.item = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<span class=\"popup-window-delimiter\">"])));
 	        }
 	      } else {
 	        this.layout.item = main_core.Dom.create(this.href ? 'a' : 'span', {
@@ -2436,7 +2435,10 @@ this.BX = this.BX || {};
 	      }
 
 	      var rootMenuWindow = this.getMenuWindow().getRootMenuWindow() || this.getMenuWindow();
-	      var options = rootMenuWindow.params; //Override root menu options
+	      var rootOptions = Object.assign({}, rootMenuWindow.params);
+	      delete rootOptions.events;
+	      var subMenuOptions = main_core.Type.isPlainObject(rootMenuWindow.params.subMenuOptions) ? rootMenuWindow.params.subMenuOptions : {};
+	      var options = Object.assign({}, rootOptions, subMenuOptions); //Override root menu options
 
 	      options.autoHide = false;
 	      options.menuShowDelay = this.menuShowDelay;
@@ -2447,7 +2449,6 @@ this.BX = this.BX || {};
 	        forceLeft: true,
 	        forceBindPosition: true
 	      };
-	      delete options.events;
 	      delete options.angle;
 	      delete options.overlay;
 	      this.subMenuWindow = new Menu('popup-submenu-' + this.id, this.layout.item, items, options);
@@ -2673,14 +2674,24 @@ this.BX = this.BX || {};
 
 	  }, {
 	    key: "onItemMouseEnter",
-	    value: function onItemMouseEnter(event) {
+	    value: function onItemMouseEnter(mouseEvent) {
 	      if (this.isDisabled()) {
 	        return;
 	      }
 
-	      main_core_events.EventEmitter.emit(this, 'onMouseEnter', undefined, {
+	      var event = new main_core_events.BaseEvent({
+	        data: {
+	          mouseEvent: mouseEvent
+	        }
+	      });
+	      main_core_events.EventEmitter.emit(this, 'onMouseEnter', event, {
 	        thisArg: this
 	      });
+
+	      if (event.isDefaultPrevented()) {
+	        return;
+	      }
+
 	      this.clearSubMenuTimeout();
 
 	      if (this.hasSubMenu()) {
@@ -2699,14 +2710,24 @@ this.BX = this.BX || {};
 
 	  }, {
 	    key: "onItemMouseLeave",
-	    value: function onItemMouseLeave(event) {
+	    value: function onItemMouseLeave(mouseEvent) {
 	      if (this.isDisabled()) {
 	        return;
 	      }
 
-	      main_core_events.EventEmitter.emit(this, 'onMouseLeave', undefined, {
+	      var event = new main_core_events.BaseEvent({
+	        data: {
+	          mouseEvent: mouseEvent
+	        }
+	      });
+	      main_core_events.EventEmitter.emit(this, 'onMouseLeave', event, {
 	        thisArg: this
 	      });
+
+	      if (event.isDefaultPrevented()) {
+	        return;
+	      }
+
 	      this.clearSubMenuTimeout();
 	    }
 	    /**
@@ -2735,25 +2756,7 @@ this.BX = this.BX || {};
 	  return MenuItem;
 	}(main_core_events.EventEmitter);
 
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"menu-popup\">", "</div>\n\t\t"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"menu-popup-items\">", "</div>\n\t\t"]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$2, _templateObject2$1;
 
 	/**
 	 * @memberof BX.Main
@@ -2834,8 +2837,8 @@ this.BX = this.BX || {};
 	      options.noAllPaddings = true;
 	      options.darkMode = false;
 	      options.autoHideHandler = this.handleAutoHide.bind(this);
-	      this.layout.itemsContainer = main_core.Tag.render(_templateObject$2(), domItems);
-	      this.layout.menuContainer = main_core.Tag.render(_templateObject2$1(), this.layout.itemsContainer);
+	      this.layout.itemsContainer = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"menu-popup-items\">", "</div>\n\t\t"])), domItems);
+	      this.layout.menuContainer = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"menu-popup\">", "</div>\n\t\t"])), this.layout.itemsContainer);
 	      this.itemsContainer = this.layout.itemsContainer;
 	      options.content = this.layout.menuContainer; //Make internal event handlers first in the queue.
 

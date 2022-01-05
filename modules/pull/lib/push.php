@@ -101,7 +101,7 @@ class Push
 
 		$pushDisabled = !\Bitrix\Pull\Push::getStatus($userId);
 
-		$userOptions = \CUserOptions::GetOption('im', 'notify', Array(), $userId);
+		$userOptions = \CIMSettings::Get($userId)[\CIMSettings::NOTIFY] ?? [];
 
 		$result = Array();
 		foreach ($userOptions as $optionId => $optionValue)
@@ -168,7 +168,7 @@ class Push
 
 		$types = self::getTypes();
 		$userConfig = self::getConfig($userId);
-		$userOptions = \CUserOptions::GetOption('im', 'notify', Array(), $userId);
+		$userOptions = \CIMSettings::Get($userId)[\CIMSettings::NOTIFY] ?? [];
 
 		$needUpdate = false;
 		foreach ($types as $moduleId => $module)
@@ -193,7 +193,7 @@ class Push
 
 		if ($needUpdate)
 		{
-			\CUserOptions::SetOption('im', 'notify', $userOptions, false, $userId);
+			\CIMSettings::Set(\CIMSettings::NOTIFY, $userOptions, $userId);
 			\CIMSettings::ClearCache($userId);
 			unset(self::$config[$userId]);
 		}

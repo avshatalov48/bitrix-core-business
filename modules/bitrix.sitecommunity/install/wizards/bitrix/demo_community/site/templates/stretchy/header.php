@@ -1,6 +1,6 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-if (strpos($GLOBALS["APPLICATION"]->GetCurPage(true), SITE_DIR."people/index.php") === 0 || strpos($GLOBALS["APPLICATION"]->GetCurPage(true), SITE_DIR."groups/index.php") === 0)
+if (mb_strpos($GLOBALS["APPLICATION"]->GetCurPage(true), SITE_DIR."people/index.php") === 0 || mb_strpos($GLOBALS["APPLICATION"]->GetCurPage(true), SITE_DIR."groups/index.php") === 0)
 	$GLOBALS["bRightColumnVisible"] = true;
 else
 	$GLOBALS["bRightColumnVisible"] = ($GLOBALS["APPLICATION"]->GetProperty("hide_sidebar") == "Y" ? false : true);

@@ -1,0 +1,20 @@
+<?php
+$MESS["smtp_configuration_admin_add"] = "Add SMTP connection";
+$MESS["smtp_configuration_admin_add_title"] = "Add a new connection";
+$MESS["smtp_configuration_admin_all"] = "(all)";
+$MESS["smtp_configuration_admin_copy"] = "Make a copy";
+$MESS["smtp_configuration_admin_del"] = "Delete";
+$MESS["smtp_configuration_admin_del_conf"] = "Are you sure you want to delete the connection?";
+$MESS["smtp_configuration_admin_edit"] = "Edit connection";
+$MESS["smtp_configuration_admin_edit1"] = "Edit";
+$MESS["smtp_configuration_admin_email"] = "Sender email";
+$MESS["smtp_configuration_admin_find"] = "Search for:";
+$MESS["smtp_configuration_admin_host"] = "Host";
+$MESS["smtp_configuration_admin_is_confirmed"] = "Confirmed";
+$MESS["smtp_configuration_admin_is_public"] = "Make available to everyone";
+$MESS["smtp_configuration_admin_nav"] = "SMTP parameters";
+$MESS["smtp_configuration_admin_no"] = "No";
+$MESS["smtp_configuration_admin_sites"] = "Sites";
+$MESS["smtp_configuration_admin_title"] = "SMTP connection parameters";
+$MESS["smtp_configuration_admin_username"] = "Name";
+$MESS["smtp_configuration_admin_yes"] = "Yes";

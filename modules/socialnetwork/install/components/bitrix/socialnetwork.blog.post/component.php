@@ -20,6 +20,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
 use Bitrix\Blog\Item\Permissions;
+use Bitrix\Main\Page\Asset;
 use Bitrix\Socialnetwork\Item\Helper;
 use Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Main\ModuleManager;
@@ -101,6 +102,8 @@ if ($arResult["bExtranetUser"] && !$arResult["bPublicPage"])
 	$arUserIdVisible = CExtranet::GetMyGroupsUsersSimple(SITE_ID);
 }
 
+$arParams['FORM_ID'] = ($arParams['FORM_ID'] ?? '');
+
 $arResult["bTasksInstalled"] = CModule::IncludeModule("tasks");
 $arResult["bTasksAvailable"] = (
 	!$arResult["bPublicPage"]
@@ -114,42 +117,64 @@ $arResult["bTasksAvailable"] = (
 
 if (!$arResult["bPublicPage"])
 {
-	if($arParams["BLOG_VAR"] == '')
+	if ($arParams["BLOG_VAR"] == '')
+	{
 		$arParams["BLOG_VAR"] = "blog";
-	if($arParams["PAGE_VAR"] == '')
+	}
+	if ($arParams["PAGE_VAR"] == '')
+	{
 		$arParams["PAGE_VAR"] = "page";
-	if($arParams["USER_VAR"] == '')
+	}
+	if ($arParams["USER_VAR"] == '')
+	{
 		$arParams["USER_VAR"] = "id";
-	if($arParams["POST_VAR"] == '')
+	}
+	if ($arParams["POST_VAR"] == '')
+	{
 		$arParams["POST_VAR"] = "id";
+	}
 
 	$applicationCurPage = $APPLICATION->GetCurPage();
 
 	$arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
-	if($arParams["PATH_TO_BLOG"] == '')
+	if ($arParams["PATH_TO_BLOG"] == '')
+	{
 		$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($applicationCurPage."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
+	}
 
 	$arParams["PATH_TO_POST_IMPORTANT"] = trim($arParams["PATH_TO_POST_IMPORTANT"]);
-	if($arParams["PATH_TO_POST_IMPORTANT"] == '')
+	if ($arParams["PATH_TO_POST_IMPORTANT"] == '')
+	{
 		$arParams["PATH_TO_POST_IMPORTANT"] = "/company/personal/user/#user_id#/blog/important/";
+	}
 
 	$arParams["PATH_TO_BLOG_CATEGORY"] = trim($arParams["PATH_TO_BLOG_CATEGORY"]);
-	if($arParams["PATH_TO_BLOG_CATEGORY"] == '')
+	if ($arParams["PATH_TO_BLOG_CATEGORY"] == '')
+	{
 		$arParams["PATH_TO_BLOG_CATEGORY"] = htmlspecialcharsbx($applicationCurPage."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#"."&category=#category_id#");
+	}
 
 	$arParams["PATH_TO_POST_EDIT"] = trim($arParams["PATH_TO_POST_EDIT"]);
-	if($arParams["PATH_TO_POST_EDIT"] == '')
+	if ($arParams["PATH_TO_POST_EDIT"] == '')
+	{
 		$arParams["PATH_TO_POST_EDIT"] = "/company/personal/user/#user_id#/blog/edit/#post_id#/";
+	}
 
 	$arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-	if($arParams["PATH_TO_USER"] == '')
+	if ($arParams["PATH_TO_USER"] == '')
+	{
 		$arParams["PATH_TO_USER"] = htmlspecialcharsbx($applicationCurPage."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
+	}
 
-	if($arParams["PATH_TO_SEARCH_TAG"] == '')
+	if ($arParams["PATH_TO_SEARCH_TAG"] == '')
+	{
 		$arParams["PATH_TO_SEARCH_TAG"] = SITE_DIR."search/?tags=#tag#";
+	}
 
 	if (!isset($arParams["PATH_TO_CONPANY_DEPARTMENT"]) || $arParams["PATH_TO_CONPANY_DEPARTMENT"] == '')
+	{
 		$arParams["PATH_TO_CONPANY_DEPARTMENT"] = "/company/structure.php?set_filter_structure=Y&structure_UF_DEPARTMENT=#ID#";
+	}
 }
 
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
@@ -184,11 +209,11 @@ $arParams["SEF"] = (isset($arParams["SEF"]) && $arParams["SEF"] === "N" ? "N" : 
 
 $arParams["IMAGE_MAX_WIDTH"] = (int)$arParams["IMAGE_MAX_WIDTH"];
 $arParams["IMAGE_MAX_HEIGHT"] = (int)$arParams["IMAGE_MAX_HEIGHT"];
-if((int)$arParams["IMAGE_MAX_WIDTH"] <= 0)
+if ($arParams["IMAGE_MAX_WIDTH"] <= 0)
 {
 	$arParams["IMAGE_MAX_WIDTH"] = \Bitrix\Blog\Util::getImageMaxWidth();
 }
-if((int)$arParams["IMAGE_MAX_HEIGHT"] <= 0)
+if ($arParams["IMAGE_MAX_HEIGHT"] <= 0)
 {
 	$arParams["IMAGE_MAX_HEIGHT"] = \Bitrix\Blog\Util::getImageMaxHeight();
 }
@@ -488,11 +513,11 @@ if(
 			}
 			else
 			{
-				$permsResult = $postItem->getSonetPerms(array(
+				$permsResult = $postItem->getSonetPerms([
 					"PUBLIC" => $arResult["bPublicPage"],
 					"CHECK_FULL_PERMS" => true,
-					"LOG_ID" => (isset($arParams["LOG_ID"]) ? $arParams["LOG_ID"] : false)
-				));
+					"LOG_ID" => (isset($arParams["LOG_ID"]) ? $arParams["LOG_ID"] : false),
+				]);
 				$arResult["PostPerm"] = $permsResult['PERM'];
 				$arResult["ReadOnly"] = (
 					$permsResult['PERM'] <= Permissions::READ
@@ -511,7 +536,7 @@ if(
 		$arResult["PostSrc"]["bExtranetSite"] = $arResult["bExtranetSite"];
 
 		$arResult["urlToPost"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("post_id"=>CBlogPost::GetPostID($arResult["Post"]["ID"], $arResult["Post"]["CODE"], $arParams["ALLOW_POST_CODE"]), "user_id" => $arPost["AUTHOR_ID"]));
-		$arResult["urlToPostPub"] = (isset($arParams["POST_DATA"]) && is_array($arParams["POST_DATA"]) && isset($arParams["POST_DATA"]["urlToPub"])? $arParams["POST_DATA"]["urlToPub"] : '');
+		$arResult["urlToPostPub"] = (isset($arParams["POST_DATA"]["urlToPub"]) && is_array($arParams["POST_DATA"]) ? $arParams["POST_DATA"]["urlToPub"] : '');
 
 		if (
 			!$arResult["bPublicPage"]
@@ -519,12 +544,12 @@ if(
 		)
 		{
 			$strSiteWorkgroupsPage = COption::GetOptionString("socialnetwork", "workgroups_page", SITE_DIR."workgroups/", SITE_ID);
-			if ($strSiteWorkgroupsPage <> '')
+			if (
+				($strSiteWorkgroupsPage <> '')
+				&& mb_strpos($arParams["PATH_TO_GROUP"], $strSiteWorkgroupsPage) === 0
+			)
 			{
-				if (mb_strpos($arParams["PATH_TO_GROUP"], $strSiteWorkgroupsPage) === 0)
-				{
-					$arParams["PATH_TO_GROUP"] = "#GROUPS_PATH#".mb_substr($arParams["PATH_TO_GROUP"], mb_strlen($strSiteWorkgroupsPage), mb_strlen($arParams["PATH_TO_GROUP"]) - mb_strlen($strSiteWorkgroupsPage));
-				}
+				$arParams["PATH_TO_GROUP"] = "#GROUPS_PATH#".mb_substr($arParams["PATH_TO_GROUP"], mb_strlen($strSiteWorkgroupsPage), mb_strlen($arParams["PATH_TO_GROUP"]) - mb_strlen($strSiteWorkgroupsPage));
 			}
 		}
 
@@ -598,9 +623,13 @@ if(
 						);
 
 						if(mb_strpos($url, "?") === false)
+						{
 							$url .= "?";
+						}
 						else
+						{
 							$url .= "&";
+						}
 						$url .= "hide_id=".$arParams["ID"]."&success=Y";
 
 						LocalRedirect($url);
@@ -755,7 +784,7 @@ if(
 						'status' => "error",
 					);
 					$APPLICATION->restartBuffer();
-					while (ob_end_clean());
+					while (ob_end_clean()) {}
 					header('Content-Type:application/json; charset=UTF-8');
 					?><?= \Bitrix\Main\Web\Json::encode($response) ?><?php
 					CMain::finalActions();
@@ -765,7 +794,7 @@ if(
 				die();
 			}
 			/* end share */
-			if(!$arResult["bFromList"])
+			if (!$arResult["bFromList"])
 			{
 				if ($arPost["MICRO"] !== "Y")
 				{
@@ -858,10 +887,10 @@ if(
 				$arResult["images"] = $Vars["images"];
 				$arResult["Category"] = $Vars["Category"];
 				$arResult["GRATITUDE"] = $Vars["GRATITUDE"];
-				$arResult["URL_PREVIEW"] = (isset($Vars["URL_PREVIEW"]) ? $Vars["URL_PREVIEW"] : '');
+				$arResult["URL_PREVIEW"] = ($Vars["URL_PREVIEW"] ?? '');
 				$arResult["POST_PROPERTIES"] = $Vars["POST_PROPERTIES"];
 				$arResult["arUser"] = $Vars["arUser"];
-				$arResult["Assets"] = (isset($Vars["Assets"]) ? $Vars["Assets"] : array());
+				$arResult["Assets"] = ($Vars["Assets"] ?? []);
 
 				if (!empty($arResult["Assets"]))
 				{
@@ -869,7 +898,7 @@ if(
 					{
 						foreach($arResult["Assets"]["CSS"] as $cssFile)
 						{
-							\Bitrix\Main\Page\Asset::getInstance()->addCss($cssFile);
+							Asset::getInstance()->addCss($cssFile);
 						}
 					}
 
@@ -877,7 +906,7 @@ if(
 					{
 						foreach($arResult["Assets"]["JS"] as $jsFile)
 						{
-							\Bitrix\Main\Page\Asset::getInstance()->addJs($jsFile);
+							Asset::getInstance()->addJs($jsFile);
 						}
 					}
 				}
@@ -1027,27 +1056,6 @@ if(
 										}
 									}
 								}
-								elseif(
-									$FIELD_NAME === "UF_BLOG_POST_URL_PRV"
-									&& array_key_exists("VALUE", $arPostField)
-									&& (int)$arPostField["VALUE"] > 0
-								)
-								{
-									$bHasProps = true;
-
-									$arCss = $APPLICATION->sPath2css;
-									$arJs = $APPLICATION->arHeadScripts;
-
-									$arResult['URL_PREVIEW'] = ComponentHelper::getUrlPreviewContent($arPostField, array(
-										"LAZYLOAD" => $arParams["LAZYLOAD"],
-										"MOBILE" => (isset($arParams["MOBILE"]) && $arParams["MOBILE"] === "Y" ? "Y" : "N"),
-										"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
-										"PATH_TO_USER" => $arParams["~PATH_TO_USER"]
-									));
-
-									$arResult["Assets"]["CSS"] = array_merge($arResult["Assets"]["CSS"], array_diff($APPLICATION->sPath2css, $arCss));
-									$arResult["Assets"]["JS"] = array_merge($arResult["Assets"]["JS"], array_diff($APPLICATION->arHeadScripts, $arJs));
-								}
 								else
 								{
 									$arPostField["EDIT_FORM_LABEL"] = $arPostField["EDIT_FORM_LABEL"] <> '' ? $arPostField["EDIT_FORM_LABEL"] : $arPostField["FIELD_NAME"];
@@ -1055,7 +1063,7 @@ if(
 									$arPostField["~EDIT_FORM_LABEL"] = $arPostField["EDIT_FORM_LABEL"];
 									$arResult["POST_PROPERTIES"]["DATA"][$FIELD_NAME] = $arPostField;
 
-									if(!empty($arPostField["VALUE"]))
+									if (!empty($arPostField["VALUE"]))
 									{
 										$bHasProps = true;
 									}
@@ -1517,7 +1525,6 @@ if(
 						"images" => $arResult["images"],
 						"Category" => $arResult["Category"],
 						"GRATITUDE" => $arResult["GRATITUDE"],
-						"URL_PREVIEW" => (isset($arResult["URL_PREVIEW"]) ? $arResult["URL_PREVIEW"] : ''),
 						"POST_PROPERTIES" => $arResult["POST_PROPERTIES"],
 						"arUser" => $arResult["arUser"],
 						"Assets" => (isset($arResult["Assets"]) ? $arResult["Assets"] : array()),
@@ -1528,6 +1535,19 @@ if(
 					}
 					$cache->EndDataCache($arCacheData);
 				}
+			}
+
+			if (
+				!isset($arResult['URL_PREVIEW'])
+				&& isset($arResult['POST_PROPERTIES']['DATA']['UF_BLOG_POST_URL_PRV'])
+			)
+			{
+				$this->processUrlPreview([
+					'fieldData' => $arResult['POST_PROPERTIES']['DATA']['UF_BLOG_POST_URL_PRV'],
+					'postId' => $arPost['ID'],
+				]);
+
+				unset($arResult['POST_PROPERTIES']['DATA']['UF_BLOG_POST_URL_PRV']);
 			}
 
 			$arResult["arUser"]["urlToPostImportant"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST_IMPORTANT"], array("user_id"=> $arPost["AUTHOR_ID"]));

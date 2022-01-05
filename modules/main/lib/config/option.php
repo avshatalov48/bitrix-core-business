@@ -371,7 +371,7 @@ class Option
 	 * Deletes options from a DB.
 	 *
 	 * @param string $moduleId The module ID.
-	 * @param array $filter The array with filter keys:
+	 * @param array $filter {name: string, site_id: string} The array with filter keys:
 	 * 		name - the name of the option;
 	 * 		site_id - the site ID (can be empty).
 	 * @throws Main\ArgumentNullException

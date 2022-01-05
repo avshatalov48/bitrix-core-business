@@ -153,6 +153,9 @@
 				void style(this.wrapperNode, {
 					height: 'auto'
 				});
+				void style(this.headerNode, {
+					top: '0'
+				});
 			}
 			addClass(this.headerNode, BX.Landing.BlockHeaderEntry.IN_FLOW_CLASSES);
 			removeClass(this.headerNode, BX.Landing.BlockHeaderEntry.ON_TOP_CLASSES);

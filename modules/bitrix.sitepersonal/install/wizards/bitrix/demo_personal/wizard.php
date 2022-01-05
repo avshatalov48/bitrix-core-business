@@ -72,7 +72,7 @@ class SiteSettingsStep extends CSiteSettingsWizardStep
 		$this->content .= '<div class="wizard-upload-img-block"><div class="wizard-catalog-title">'.GetMessage("wiz_company_copyright").'</div>';
 		$this->content .= $this->ShowInputField("text", "copyright", Array("id" => "site-copyright", "class" => "wizard-field"))."</div>";
 
-		$firstStep = COption::GetOptionString("main", "wizard_first" . substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), false, $wizard->GetVar("siteID")); 
+		$firstStep = COption::GetOptionString("main", "wizard_first".mb_substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), false, $wizard->GetVar("siteID"));
 		if($firstStep == "Y")
 		{
 			$this->content .= $this->ShowCheckboxField(

@@ -7,12 +7,15 @@
  */
 namespace Bitrix\Main\Web;
 
-use Bitrix\Main\Text\BinaryString;
 use Bitrix\Main\IO;
 use Bitrix\Main\Config\Configuration;
+use Psr\Log;
+use Bitrix\Main\Diag;
 
-class HttpClient
+class HttpClient implements Log\LoggerAwareInterface
 {
+	use Log\LoggerAwareTrait;
+
 	const HTTP_1_0 = "1.0";
 	const HTTP_1_1 = "1.1";
 	const HTTP_GET = "GET";
@@ -38,7 +41,7 @@ class HttpClient
 	protected $resource;
 	protected $socketTimeout = self::DEFAULT_SOCKET_TIMEOUT;
 	protected $streamTimeout = self::DEFAULT_STREAM_TIMEOUT;
-	protected $error = array();
+	protected $error = [];
 	protected $peerSocketName;
 
 	/** @var HttpHeaders */
@@ -67,29 +70,32 @@ class HttpClient
 	/** @var IpAddress */
 	protected $effectiveIp;
 	protected $effectiveUrl;
+	protected $queryMethod;
 	protected $receivedBytesLength = 0;
 
 	protected $contextOptions = [];
+	protected $debugLevel = HttpDebug::REQUEST_HEADERS | HttpDebug::RESPONSE_HEADERS;
 
 	/**
-	 * @param array $options Optional array with options:
-	 *		"redirect" bool Follow redirects (default true)
-	 *		"redirectMax" int Maximum number of redirects (default 5)
-	 *		"waitResponse" bool Read the body or disconnect just after reading headers (default true)
-	 *		"socketTimeout" int Connection timeout in seconds (default 30)
-	 *		"streamTimeout" int Stream reading timeout in seconds (default 60 for waitResponse == true and 1 for waitResponse == false)
-	 *		"version" string HTTP version (HttpClient::HTTP_1_0, HttpClient::HTTP_1_1) (default "1.0")
-	 *		"proxyHost" string Proxy host name/address
-	 *		"proxyPort" int Proxy port number
-	 *		"proxyUser" string Proxy username
-	 *		"proxyPassword" string Proxy password
-	 *		"compress" bool Accept gzip encoding (default false)
-	 *		"charset" string Charset for body in POST and PUT
-	 *		"disableSslVerification" bool Pass true to disable ssl check
+	 * @param array|null $options Optional array with options:
+	 *		"redirect" bool Follow redirects (default true).
+	 *		"redirectMax" int Maximum number of redirects (default 5).
+	 *		"waitResponse" bool Read the body or disconnect just after reading headers (default true).
+	 *		"socketTimeout" int Connection timeout in seconds (default 30).
+	 *		"streamTimeout" int Stream reading timeout in seconds (default 60 for waitResponse == true and 1 for waitResponse == false).
+	 *		"version" string HTTP version (HttpClient::HTTP_1_0, HttpClient::HTTP_1_1) (default "1.0").
+	 *		"proxyHost" string Proxy host name/address.
+	 *		"proxyPort" int Proxy port number.
+	 *		"proxyUser" string Proxy username.
+	 *		"proxyPassword" string Proxy password.
+	 *		"compress" bool Accept gzip encoding (default false).
+	 *		"charset" string Charset for body in POST and PUT.
+	 *		"disableSslVerification" bool Pass true to disable ssl check.
 	 *		"bodyLengthMax" int Maximum length of the body.
 	 *		"privateIp" bool Enable or disable requests to private IPs (default true).
-	 * 	"cookies" array of cookies for HTTP request.
-	 * 	"headers" array of headers for HTTP request.
+	 *		"debugLevel" int Debug level using HttpDebug::* constants.
+	 * 		"cookies" array of cookies for HTTP request.
+	 * 		"headers" array of headers for HTTP request.
 	 * 	All the options can be set separately with setters.
 	 */
 	public function __construct(array $options = null)
@@ -156,6 +162,10 @@ class HttpClient
 			{
 				$this->setPrivateIp($options["privateIp"]);
 			}
+			if(isset($options["debugLevel"]))
+			{
+				$this->setDebugLevel((int)$options["debugLevel"]);
+			}
 			if(isset($options["cookies"]))
 			{
 				$this->setCookies($options["cookies"]);
@@ -210,7 +220,7 @@ class HttpClient
 	 *
 	 * @param string $url Absolute URI eg. "http://user:pass @ host:port/path/?query".
 	 * @param array|string|resource $postData Entity of POST/PUT request. If it's resource handler then data will be read directly from the stream.
-	 * @param boolean $multipart Whether or not to use multipart/form-data encoding. If true, method accepts file as a resource or as an array with keys 'resource' (or 'content') and optionally 'filename' and 'contentType'
+	 * @param boolean $multipart Whether to use multipart/form-data encoding. If true, method accepts file as a resource or as an array with keys 'resource' (or 'content') and optionally 'filename' and 'contentType'
 	 * @return string|bool Response entity string or false on error. Note, it's empty string if outputStream is set.
 	 */
 	public function post($url, $postData = null, $multipart = false)
@@ -270,8 +280,7 @@ class HttpClient
 							}
 							else
 							{
-								$this->error["MULTIPART"] = "File `{$k}` not found for multipart upload";
-								trigger_error($this->error["MULTIPART"], E_USER_WARNING);
+								$this->addError('MULTIPART', "File `{$k}` not found for multipart upload.", true);
 								return false;
 							}
 						}
@@ -317,11 +326,11 @@ class HttpClient
 	 * @param string $method HTTP method (GET, POST, etc.). Note, it must be in UPPERCASE.
 	 * @param string $url Absolute URI eg. "http://user:pass @ host:port/path/?query".
 	 * @param array|string|resource $entityBody Entity body of the request. If it's resource handler then data will be read directly from the stream.
-	 * @return bool Query result (true or false). Response entity string can be get via getResult() method. Note, it's empty string if outputStream is set.
+	 * @return bool Query result (true or false). Response entity string can be got via getResult() method. Note, it's empty string if outputStream is set.
 	 */
 	public function query($method, $url, $entityBody = null)
 	{
-		$queryMethod = $method;
+		$this->queryMethod = $method;
 		$this->effectiveUrl = $url;
 		$this->effectiveIp = null;
 		$this->error = [];
@@ -340,14 +349,14 @@ class HttpClient
 			$parsedUrl = new Uri($this->effectiveUrl);
 			if($parsedUrl->getHost() == '')
 			{
-				$this->error["URI"] = "Incorrect URI: ".$this->effectiveUrl;
+				$this->addError('URI', "Incorrect URI: {$this->effectiveUrl}");
 				return false;
 			}
 
 			$error = $parsedUrl->convertToPunycode();
 			if($error instanceof \Bitrix\Main\Error)
 			{
-				$this->error["URI"] = "Error converting hostname to punycode: ".$error->getMessage();
+				$this->addError('URI', "Error converting hostname to punycode: {$error->getMessage()}");
 				return false;
 			}
 
@@ -356,7 +365,7 @@ class HttpClient
 				$ip = IpAddress::createByUri($parsedUrl);
 				if($ip->isPrivate())
 				{
-					$this->error["PRIVATE_IP"] = "Resolved IP is incorrect or private: ".$ip->get();
+					$this->addError('PRIVATE_IP', "Resolved IP is incorrect or private: {$ip->get()}");
 					return false;
 				}
 				$this->effectiveIp = $ip;
@@ -370,7 +379,7 @@ class HttpClient
 				return false;
 			}
 
-			$this->sendRequest($queryMethod, $parsedUrl, $entityBody);
+			$this->sendRequest($this->queryMethod, $parsedUrl, $entityBody);
 
 			if(!$this->readHeaders())
 			{
@@ -394,14 +403,13 @@ class HttpClient
 					$this->effectiveUrl = $location;
 					if($this->status == 302 || $this->status == 303)
 					{
-						$queryMethod = self::HTTP_GET;
+						$this->queryMethod = self::HTTP_GET;
 					}
 					$this->redirectCount++;
 				}
 				else
 				{
-					$this->error["REDIRECT"] = "Maximum number of redirects (".$this->redirectMax.") has been reached at URL ".$url;
-					trigger_error($this->error["REDIRECT"], E_USER_WARNING);
+					$this->addError('REDIRECT', "Maximum number of redirects ({$this->redirectMax}) has been reached at URL {$url}", true);
 					return false;
 				}
 			}
@@ -488,7 +496,7 @@ class HttpClient
 	 */
 	public function setRedirect($value, $max = null)
 	{
-		$this->redirect = ($value? true : false);
+		$this->redirect = (bool)$value;
 		if($max !== null)
 		{
 			$this->redirectMax = intval($max);
@@ -564,7 +572,7 @@ class HttpClient
 	}
 
 	/**
-	 * Sets charset for entity-body (used in the Content-Type request header field for POST and PUT)
+	 * Sets charset for the entity-body (used in the Content-Type request header field for POST and PUT).
 	 *
 	 * @param string $value Charset.
 	 * @return $this
@@ -661,21 +669,18 @@ class HttpClient
 
 		$file = new IO\File($filePath);
 		$handler = $file->open("w+");
-		if($handler !== false)
+
+		$this->setOutputStream($handler);
+
+		$res = $this->query(self::HTTP_GET, $url);
+		if($res)
 		{
-			$this->setOutputStream($handler);
-			$res = $this->query(self::HTTP_GET, $url);
-			if($res)
-			{
-				$res = $this->readBody();
-			}
-			$this->disconnect();
-
-			fclose($handler);
-			return $res;
+			$res = $this->readBody();
 		}
+		$this->disconnect();
 
-		return false;
+		$file->close();
+		return $res;
 	}
 
 	/**
@@ -750,11 +755,11 @@ class HttpClient
 
 		if(intval($errno) > 0)
 		{
-			$this->error["CONNECTION"] = "[".$errno."] ".$errstr;
+			$this->addError('CONNECTION', "[{$errno}] {$errstr}");
 		}
 		else
 		{
-			$this->error["SOCKET"] = "Socket connection error.";
+			$this->addError('SOCKET', 'Socket connection error.');
 		}
 
 		return false;
@@ -818,6 +823,8 @@ class HttpClient
 		$this->responseHeaders->clear();
 		$this->responseCookies->clear();
 		$this->receivedBytesLength = 0;
+		$addedContentType = false;
+		$addedContentLength = false;
 
 		if($this->proxyHost <> '')
 		{
@@ -868,14 +875,17 @@ class HttpClient
 						$contentType .= "; charset=".$this->requestCharset;
 					}
 					$this->setHeader("Content-Type", $contentType);
+					$addedContentType = true;
 				}
 			}
+
 			if($entityBody <> '' || $method == self::HTTP_POST || $method == self::HTTP_PUT)
 			{
 				// A valid Content-Length field value is required on all HTTP/1.0 request messages containing an entity body.
 				if($this->requestHeaders->get("Content-Length") === null)
 				{
 					$this->setHeader("Content-Length", strlen($entityBody));
+					$addedContentLength = true;
 				}
 			}
 		}
@@ -883,7 +893,29 @@ class HttpClient
 		$request .= $this->requestHeaders->toString();
 		$request .= "\r\n";
 
+		if ($logger = $this->getLogger())
+		{
+			if ($this->debugLevel)
+			{
+				$logger->debug("{date} - {host}\n{trace}", ['trace' => Diag\Helper::getBackTrace(6, DEBUG_BACKTRACE_IGNORE_ARGS, 3)]);
+			}
+			if ($this->debugLevel & HttpDebug::REQUEST_HEADERS)
+			{
+				$logger->debug("REQUEST>>>\n" . $request);
+			}
+		}
+
 		$this->send($request);
+
+		// clear automatically added headers
+		if ($addedContentType)
+		{
+			$this->requestHeaders->delete('Content-Type');
+		}
+		if ($addedContentLength)
+		{
+			$this->requestHeaders->delete('Content-Length');
+		}
 
 		if(is_resource($entityBody))
 		{
@@ -895,6 +927,11 @@ class HttpClient
 		}
 		elseif($entityBody <> '')
 		{
+			if ($logger && ($this->debugLevel & HttpDebug::REQUEST_BODY))
+			{
+				$logger->debug($entityBody);
+			}
+
 			$this->send($entityBody);
 		}
 	}
@@ -916,6 +953,14 @@ class HttpClient
 			}
 
 			$headers .= $line;
+		}
+
+		if ($logger = $this->getLogger())
+		{
+			if ($this->debugLevel & HttpDebug::RESPONSE_HEADERS)
+			{
+				$logger->debug("\nRESPONSE<<<\n" . $headers);
+			}
 		}
 
 		$this->parseHeaders($headers);
@@ -983,6 +1028,19 @@ class HttpClient
 			$this->decompress();
 		}
 
+		if ($logger = $this->getLogger())
+		{
+			if ($this->debugLevel & HttpDebug::RESPONSE_BODY)
+			{
+				$logger->debug("\n");
+				$logger->debug($this->result);
+			}
+			if ($this->debugLevel)
+			{
+				$logger->debug("\n{delimiter}\n");
+			}
+		}
+
 		return true;
 	}
 
@@ -1015,20 +1073,20 @@ class HttpClient
 			$info = stream_get_meta_data($this->resource);
 			if($info['timed_out'])
 			{
-				$this->error['STREAM_TIMEOUT'] = "Stream reading timeout of ".$this->streamTimeout." second(s) has been reached";
+				$this->addError('STREAM_TIMEOUT', "Stream reading timeout of {$this->streamTimeout} second(s) has been reached.");
 				return false;
 			}
 		}
 
 		if($buf === false)
 		{
-			$this->error['STREAM_READING'] = "Stream reading error";
+			$this->addError('STREAM_READING', 'Stream reading error.');
 			return false;
 		}
 
 		if($this->bodyLengthMax > 0 && $this->receivedBytesLength > $this->bodyLengthMax)
 		{
-			$this->error['STREAM_LENGTH'] = "Maximum content length has been reached. Break reading";
+			$this->addError('STREAM_LENGTH', 'Maximum content length has been reached. Breaking reading.');
 			return false;
 		}
 
@@ -1175,7 +1233,9 @@ class HttpClient
 	public function getPeerAddress()
 	{
 		if(!preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+):(\d+)$/', $this->peerSocketName, $matches))
+		{
 			return false;
+		}
 
 		return sprintf('%d.%d.%d.%d', $matches[1], $matches[2], $matches[3], $matches[4]);
 	}
@@ -1187,8 +1247,51 @@ class HttpClient
 	public function getPeerPort()
 	{
 		if(!preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+):(\d+)$/', $this->peerSocketName, $matches))
+		{
 			return false;
+		}
 
 		return (int)$matches[5];
+	}
+
+	protected function addError($code, $message, $triggerWarning = false)
+	{
+		$this->error[$code] = $message;
+
+		if ($triggerWarning)
+		{
+			trigger_error($message, E_USER_WARNING);
+		}
+
+		if ($logger = $this->getLogger())
+		{
+			$logger->error($message);
+		}
+	}
+
+	protected function getLogger()
+	{
+		if ($this->logger === null)
+		{
+			$logger = Diag\Logger::create('main.HttpClient', [$this, $this->queryMethod, $this->effectiveUrl]);
+
+			if ($logger !== null)
+			{
+				$this->setLogger($logger);
+			}
+		}
+
+		return $this->logger;
+	}
+
+	/**
+	 * Sets debug level using HttpDebug::* constants.
+	 * @param int $debugLevel
+	 * @return $this
+	 */
+	public function setDebugLevel(int $debugLevel)
+	{
+		$this->debugLevel = $debugLevel;
+		return $this;
 	}
 }

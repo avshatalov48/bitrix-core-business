@@ -12,7 +12,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Crm\Integration\NotificationsManager;
 use \Bitrix\Landing\Manager;
-use \Bitrix\Landing\Restriction;
 use \Bitrix\Main\Loader;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Main\Localization\Loc;
@@ -48,7 +47,7 @@ if ($arResult['FATAL'])
 // assets
 Manager::setPageView(
 	'BodyClass',
-	'no-all-paddings landing-tile no-background no-hidden'
+	'no-all-paddings landing-tile no-background'
 );
 \Bitrix\Main\UI\Extension::load([
 	'sidepanel', 'landing_master', 'action_dialog', 'ui.buttons'
@@ -64,6 +63,7 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 		$arResult['SITES']
 	);
 }
+
 
 // feedback form
 if (
@@ -84,11 +84,6 @@ if (
 	<?
 }
 
-// slider's script
-if ($arResult['EXPORT_DISABLED'] === 'Y')
-{
-	echo '<script>function landingExportDisabled(){' . Restriction\Manager::getActionCode('limit_sites_transfer') . '}</script>';
-}
 ?>
 <?if ($request->get('IS_AJAX') != 'Y'):?>
 <script>
@@ -130,22 +125,19 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 			[
 				'text' => Loc::getMessage('LANDING_TPL_ACTION_EDIT_CATALOG'),
 				'href' => $arParams['~PAGE_URL_SITE_EDIT'] . '?tpl=catalog',
+				'access' => 'settings',
 				'sidepanel' => true
 			],
 			[
 				'text' => $component->getMessageType('LANDING_TPL_ACTION_EDIT'),
 				'href' => $arParams['~PAGE_URL_SITE_EDIT'],
+				'access' => 'settings',
 				'sidepanel' => true
 			],
 			[
 				'delimiter' => true
 			],
-			$arResult['EXPORT_DISABLED'] === 'Y'
-			? [
-				  'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
-				  'onclick' => 'landingExportDisabled();'
-			]
-			: [
+			[
 				'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
 				'href' => $arParams['~PAGE_URL_SITE_EXPORT'],
 				'sidepanel' => true
@@ -203,6 +195,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 			[
 				'text' => Loc::getMessage('LANDING_TPL_ACTION_ADDPAGE2'),
 				'href' => $arParams['~PAGE_URL_LANDING_EDIT'],
+				'access' => 'edit',
 				'sidepanel' => true
 			],
 			[
@@ -211,22 +204,19 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 			[
 				'text' => $component->getMessageType('LANDING_TPL_ACTION_EDIT'),
 				'href' => $arParams['~PAGE_URL_SITE_EDIT'],
+				'access' => 'settings',
 				'sidepanel' => true
 			],
 			[
 				'text' => $component->getMessageType('LANDING_TPL_ACTION_EDIT_DESIGN_2'),
 				'href' => $arParams['~PAGE_URL_SITE_DESIGN'],
+				'access' => 'settings',
 				'sidepanel' => true
 			],
 			[
 				'delimiter' => true
 			],
-			$arResult['EXPORT_DISABLED'] === 'Y'
-			? [
-				'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
-				'onclick' => 'landingExportDisabled();'
-			]
-			: [
+			[
 				'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
 				'href' => $arParams['~PAGE_URL_SITE_EXPORT'],
 				'sidepanel' => true
@@ -234,6 +224,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 			[
 				'text' => $component->getMessageType('LANDING_TPL_ACTION_IMPORT'),
 				'href' => \Bitrix\Landing\Transfer\Import\Site::getUrl($arParams['TYPE']),
+				'access' => 'site_new',
 				'sidepanel' => true
 			],
 			[
@@ -481,6 +472,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 									 switchDomainPage: '',
 									 deleteSite: '',
 									 editSite: '/bitrix/admin/site_edit.php?lang=<?= LANGUAGE_ID;?>&amp;LID=<?= $item['LID'] ?>',
+									 editSiteDesign: '/bitrix/admin/site_edit.php?lang=<?= LANGUAGE_ID;?>&amp;LID=<?= $item['LID'] ?>',
 									 exportSite: '',
 									 publicPage: '',
 									 isActive: <?= ($item['ACTIVE'] == 'Y') ? 'true' : 'false' ?>,
@@ -797,7 +789,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 						<?if ($arResult['EXPORT_DISABLED'] == 'Y'):?>
 						onclick: function(event)
 						{
-							landingExportDisabled();
+							<?= \Bitrix\Landing\Restriction\Manager::getActionCode('limit_sites_transfer');?>
 							BX.PreventDefault(event);
 						}
 						<?php else: ?>

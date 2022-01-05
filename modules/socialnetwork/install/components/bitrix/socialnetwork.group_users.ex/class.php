@@ -1,4 +1,9 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 final class SocialnetworkGroupUsersEx extends CBitrixComponent
 {
@@ -7,20 +12,20 @@ final class SocialnetworkGroupUsersEx extends CBitrixComponent
 		global $USER;
 
 		$userList = false;
-		$bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
+		$bUseLogin = $arParams['SHOW_LOGIN'] !== "N" ? true : false;
 
 		if (
 			(
-				$key == 'UsersAuto'
+				$key === 'UsersAuto'
 				&& (
-					$arParams["USE_AUTO_MEMBERS"] != "Y"
+					$arParams["USE_AUTO_MEMBERS"] !== "Y"
 					|| !$arResult["bIntranetInstalled"]
 				)
 			)
 			|| (
-				$key == 'Ban'
+				$key === 'Ban'
 				&& !(
-					$arParams["GROUP_USE_BAN"] == "Y"
+					$arParams["GROUP_USE_BAN"] === "Y"
 					&& $arResult["CurrentUserPerms"]
 					&& $arResult["CurrentUserPerms"]["UserCanModerateGroup"]
 				)
@@ -52,21 +57,18 @@ final class SocialnetworkGroupUsersEx extends CBitrixComponent
 				$arFilter["<=ROLE"] = \Bitrix\Socialnetwork\UserToGroupTable::ROLE_USER;
 		}
 
-		if (true || !$arResult["CurrentUserPerms"]["UserCanModifyGroup"])
-		{
-			$arFilter["USER_ACTIVE"] = "Y";
-		}
+		$arFilter["USER_ACTIVE"] = "Y";
 
 		if ($arResult["bIntranetInstalled"])
 		{
 			if (
-				$key == 'Users'
-				&& $arParams["USE_AUTO_MEMBERS"] == "Y"
+				$key === 'Users'
+				&& $arParams["USE_AUTO_MEMBERS"] === "Y"
 			)
 			{
 				$arFilter["!=AUTO_MEMBER"] = "Y";
 			}
-			elseif ($key == 'UsersAuto')
+			elseif ($key === 'UsersAuto')
 			{
 				$arFilter["=AUTO_MEMBER"] = "Y";
 			}
@@ -91,9 +93,9 @@ final class SocialnetworkGroupUsersEx extends CBitrixComponent
 				$canViewProfile = CSocNetUserPerms::CanPerformOperation($USER->GetID(), $arRequests["USER_ID"], "viewprofile", CSocNetUser::IsCurrentUserModuleAdmin());
 
 				$arImage = false;
-				if (intval($arParams["THUMBNAIL_LIST_SIZE"]) > 0)
+				if ((int)$arParams["THUMBNAIL_LIST_SIZE"] > 0)
 				{
-					if (intval($arRequests["USER_PERSONAL_PHOTO"]) <= 0)
+					if ((int)$arRequests["USER_PERSONAL_PHOTO"] <= 0)
 					{
 						switch ($arRequests["USER_PERSONAL_GENDER"])
 						{
@@ -145,13 +147,14 @@ final class SocialnetworkGroupUsersEx extends CBitrixComponent
 					"USER_WORK_POSITION" => $arRequests["USER_WORK_POSITION"],
 					"USER_PROFILE_URL" => $pu,
 					"SHOW_PROFILE_LINK" => $canViewProfile,
-					"IS_ONLINE" => ($arRequests["USER_IS_ONLINE"] == "Y"),
+					"IS_ONLINE" => ($arRequests["USER_IS_ONLINE"] === "Y"),
 					"USER_IS_EXTRANET" => (isset($GLOBALS["arExtranetUserID"]) && is_array($GLOBALS["arExtranetUserID"]) && in_array($arRequests["USER_ID"], $GLOBALS["arExtranetUserID"]) ? "Y" : "N")
 				);
 
 				if (in_array($key, array("Moderators", "Users")))
 				{
-					$record["IS_OWNER"] = ($arRequests["ROLE"] == \Bitrix\Socialnetwork\UserToGroupTable::ROLE_OWNER);
+					$record["IS_OWNER"] = ($arRequests["ROLE"] === \Bitrix\Socialnetwork\UserToGroupTable::ROLE_OWNER);
+					$record["IS_SCRUM_MASTER"] = ((int)$arRequests["USER_ID"] === (int)$arResult['Group']['SCRUM_MASTER_ID']);
 				}
 				$userList["List"][] = $record;
 			}

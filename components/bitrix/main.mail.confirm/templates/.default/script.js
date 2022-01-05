@@ -60,6 +60,10 @@
 					{
 						action = 'delete';
 					}
+					if (BX.hasClass(event.target, "sender-hint") || BX.findParent(event.target, { class: "sender-hint" }, item.layout.item))
+					{
+						action = 'edit';
+					}
 				}
 
 				if ('delete' == action)
@@ -78,7 +82,10 @@
 							}
 						}
 					);
-
+				}
+				else if ('edit' === action)
+				{
+					BXMainMailConfirm.showEditForm(item.id);
 				}
 				else
 				{
@@ -110,10 +117,15 @@
 						itemText += '<span class="main-mail-confirm-menu-delete-icon popup-window-close-icon popup-window-titlebar-close-icon"\
 								title="' + BX.util.htmlspecialchars(BX.message('MAIN_MAIL_CONFIRM_DELETE')) + '"></span>';
 						itemClass = 'menu-popup-no-icon menu-popup-right-icon';
+						itemText += '<span data-role="sender-hint"  class="sender-hint main-mail-edit-icon"\
+								title="' + BX.util.htmlspecialchars(BX.message('MAIN_MAIL_CONFIRM_EDIT')) + '"></span>';
+						itemClass = 'menu-popup-no-icon menu-popup-right-icon';
 					}
+
 					items.push({
 						html: itemText,
 						title: mailboxes[i].formated,
+						mailbox: mailboxes[i],
 						onclick: handler,
 						className: itemClass,
 						id: mailboxes[i].id
@@ -157,10 +169,10 @@
 		},
 		showForm: function(callback, params)
 		{
-			var step = 'email';
+			window.step = 'email';
 			var senderId;
 
-			var mode = params && params.mode ? params.mode : 'add';
+			window.mode = params && params.mode ? params.mode : 'add';
 
 			var dlg = new BX.PopupWindow('add_from_email', null, {
 				titleBar: BX.message('MAIN_MAIL_CONFIRM_TITLE'),
@@ -171,224 +183,14 @@
 				contentNoPaddings: true,
 				cacheable: false,
 				content: BX('new_from_email_dialog_content').innerHTML,
-				buttons: [
-					new BX.PopupWindowButton({
-						text: BX.message('MAIN_MAIL_CONFIRM_GET_CODE'),
-						className: 'popup-window-button-create',
-						events: {
-							click: function()
-							{
-								var btn = this;
-
-								if (BX.hasClass(btn.buttonNode, 'popup-window-button-wait'))
-									return;
-
-								var emailBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-email-block', true);
-								var codeBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-code-block', true);
-
-								var nameField = BX.findChild(emailBlock, { attr: { 'data-name': 'name' } }, true);
-								var emailField = BX.findChild(emailBlock, { attr: { 'data-name': 'email' } }, true);
-								var codeField = BX.findChild(codeBlock, { attr: { 'data-name': 'code' } }, true);
-								var publicField = BX.findChild(dlg.contentContainer, { attr: { 'data-name': 'public' } }, true);
-
-								var smtpServerField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-server' } }, true);
-								var smtpPortField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-port' } }, true);
-								var smtpSslField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-ssl' } }, true);
-								var smtpLoginField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-login' } }, true);
-								var smtpPassField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-password' } }, true);
-
-								dlg.formFieldHint(smtpPassField);
-
-								if ('email' == step || 'smtp' == step)
-								{
-									codeField.value = '';
-
-									var atom = "[=a-z0-9_+~'!$&*^`|#%/?{}-]";
-									var pattern = new RegExp('^' + atom + '+(\\.' + atom + '+)*@([a-z0-9-]+\\.)+[a-z0-9-]{2,20}$', 'i');
-									if (!emailField.value.match(pattern))
-									{
-										dlg.showNotify(BX.message(emailField.value.length > 0
-											? 'MAIN_MAIL_CONFIRM_INVALID_EMAIL'
-											: 'MAIN_MAIL_CONFIRM_EMPTY_EMAIL'
-										));
-										return;
-									}
-								}
-
-								if ('smtp' == step)
-								{
-									if (!smtpServerField.value.match(/^([a-z0-9-]+\.)+[a-z0-9-]{2,20}$/))
-									{
-										dlg.showNotify(BX.message(smtpServerField.value.length > 0
-											? 'MAIN_MAIL_CONFIRM_INVALID_SMTP_SERVER'
-											: 'MAIN_MAIL_CONFIRM_EMPTY_SMTP_SERVER'
-										));
-										return;
-									}
-
-									if (!smtpPortField.value.match(/^[0-9]+$/) || smtpPortField.value < 1 || smtpPortField.value > 65535)
-									{
-										dlg.showNotify(BX.message(smtpPortField.value.length > 0
-											? 'MAIN_MAIL_CONFIRM_INVALID_SMTP_PORT'
-											: 'MAIN_MAIL_CONFIRM_EMPTY_SMTP_PORT'
-										));
-										return;
-									}
-
-									if (!(smtpLoginField.value.length > 0))
-									{
-										dlg.showNotify(BX.message('MAIN_MAIL_CONFIRM_EMPTY_SMTP_LOGIN'));
-										return;
-									}
-
-									if (smtpPassField.value.length > 0)
-									{
-										if (smtpPassField.value.match(/^\^/))
-										{
-											dlg.showNotify(BX.message('MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_CARET'));
-											return;
-										}
-										else if (smtpPassField.value.match(/\x00/))
-										{
-											dlg.showNotify(BX.message('MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_NULL'));
-											return;
-										}
-										else if (smtpPassField.value.match(/^\s|\s$/))
-										{
-											dlg.formFieldHint(smtpPassField, 'warning', BX.message('MAIN_MAIL_CONFIRM_SPACE_SMTP_PASSWORD'));
-										}
-									}
-									else
-									{
-										dlg.showNotify(BX.message('MAIN_MAIL_CONFIRM_EMPTY_SMTP_PASSWORD'));
-										return;
-									}
-								}
-
-								if ('code' == step)
-								{
-									if (codeField.value.length == 0)
-									{
-										dlg.showNotify(BX.message('MAIN_MAIL_CONFIRM_EMPTY_CODE'));
-										return;
-									}
-								}
-
-								dlg.hideNotify();
-								BX.addClass(btn.buttonNode, 'popup-window-button-wait');
-
-								var data = {
-									name: nameField.value,
-									email: emailField.value,
-									smtp: {},
-									code: '',
-									public: publicField.checked ? publicField.value : ''
-								};
-
-								if ('smtp' == step)
-								{
-									data.smtp = {
-										server: smtpServerField.value,
-										port: smtpPortField.value,
-										ssl: smtpSslField.checked ? smtpSslField.value : '',
-										login: smtpLoginField.value,
-										password: smtpPassField.value
-									};
-								}
-
-								if ('code' == step)
-								{
-									data.code = codeField.value;
-								}
-
-								if (params && params.data)
-								{
-									for (var i in params.data)
-									{
-										if (params.data.hasOwnProperty(i))
-										{
-											data[i] = params.data[i];
-										}
-									}
-								}
-
-								BX.ajax({
-									'url': BX.util.add_url_param(action, {
-										'act': 'add'
-									}),
-									'method': 'POST',
-									'dataType': 'json',
-									'data': data,
-									onsuccess: function(data)
-									{
-										BX.removeClass(btn.buttonNode, 'popup-window-button-wait');
-
-										if (data.senderId)
-										{
-											senderId = data.senderId;
-										}
-
-										if (data.result == 'error')
-										{
-											dlg.showNotify(data.error);
-										}
-										else if (('email' == step || 'smtp' == step) && !data.confirmed)
-										{
-											dlg.formFieldHint(smtpPassField);
-
-											dlg.switchBlock('code');
-										}
-										else
-										{
-											btn.popupWindow.close();
-
-											if (BX.type.isFunction(callback))
-											{
-												var mailboxName = nameField.value.length > 0
-													? nameField.value
-													: BX.message('MAIN_MAIL_CONFIRM_USER_FULL_NAME');
-												callback(
-													{
-														name: mailboxName,
-														email: emailField.value,
-														id: senderId
-													},
-													mailboxName.length > 0 ? mailboxName + ' <' + emailField.value + '>' : emailField.value
-												);
-											}
-										}
-									},
-									onfailure: function(data)
-									{
-										BX.removeClass(btn.buttonNode, 'popup-window-button-wait');
-										dlg.showNotify(BX.message('MAIN_MAIL_CONFIRM_AJAX_ERROR'));
-									}
-								});
-							}
-						}
-					}),
-					new BX.PopupWindowButton({
-						text: BX.message('MAIN_MAIL_CONFIRM_CANCEL'),
-						className: 'popup-window-button-link',
-						events: {
-							click: function()
-							{
-								if ('code' == step && 'confirm' != mode)
-								{
-									var smtpBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-smtp-block', true);
-
-									dlg.switchBlock(smtpBlock && smtpBlock.offsetHeight > 0 ? 'smtp' : 'email');
-								}
-								else
-								{
-									this.popupWindow.close();
-								}
-							}
-						}
-					})
-				]
+				buttons: this.prepareDialogButtons(null, 'add', params, callback)
 			});
 
+			this.prepareDialog(dlg);
+		},
+
+		prepareDialog: function(dlg)
+		{
 			dlg.formFieldHint = function(field, type, text)
 			{
 				if (!field)
@@ -426,14 +228,21 @@
 			dlg.hideNotify = function()
 			{
 				var error = BX.findChild(dlg.contentContainer, { class: 'new-from-email-dialog-error' }, true);
-				BX.hide(error, 'block');
+
+				if (error)
+				{
+					BX.hide(error, 'block');
+				}
 			};
 			dlg.showNotify = function(text)
 			{
 				var error = BX.findChild(dlg.contentContainer, { class: 'new-from-email-dialog-error' }, true);
 
-				error.innerHTML = text;
-				BX.show(error, 'block');
+				if (error)
+				{
+					error.innerHTML = text;
+					BX.show(error, 'block');
+				}
 			};
 
 			dlg.switchBlock = function(block, immediately)
@@ -495,6 +304,22 @@
 
 			var smtpLink = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-smtp-link', true);
 			var smtpBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-smtp-block', true);
+			var useLimitCheckbox = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-smtp-use-limit', true);
+
+			if (useLimitCheckbox)
+			{
+				BX.bind(
+					useLimitCheckbox,
+					'click',
+					function()
+					{
+						var useLimitCheckbox = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-smtp-use-limit', true);
+						var emailBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-email-block', true);
+						var smtpLimitField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-limit' } }, true);
+						smtpLimitField.disabled = !useLimitCheckbox.checked;
+					}
+				)
+			}
 
 			if (smtpLink && smtpBlock)
 			{
@@ -529,7 +354,7 @@
 				);
 			}
 
-			if ('confirm' == mode)
+			if ('confirm' == window.mode)
 			{
 				dlg.switchBlock('code', true);
 				dlg.setOverlay(true);
@@ -550,6 +375,307 @@
 			{
 				nameField.focus();
 			}
+		},
+
+		showEditForm: function(senderId)
+		{
+			window.step = 'email';
+			window.mode = 'edit';
+			var dlg = new BX.PopupWindow('edit_from_email', null, {
+				titleBar: BX.message('MAIN_MAIL_CONFIRM_EDIT_TITLE'),
+				draggable: true,
+				closeIcon: true,
+				lightShadow: true,
+				contentColor: 'white',
+				contentNoPaddings: true,
+				cacheable: false,
+				content: BX('new_from_email_dialog_content').innerHTML,
+				events: {
+					onPopupShow: function () {
+						BX.ajax({
+							'url': BX.util.add_url_param(action, {
+								'act': 'info',
+								senderId: senderId,
+							}),
+							'method': 'GET',
+							'dataType': 'json',
+							onsuccess: function (data)
+							{
+								var emailBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-email-block', true);
+
+								var smtpLink = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-smtp-link', true);
+								var useLimitCheckbox = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-smtp-use-limit', true);
+
+								var nameField = BX.findChild(emailBlock, { attr: { 'data-name': 'name' } }, true);
+								var emailField = BX.findChild(emailBlock, { attr: { 'data-name': 'email' } }, true);
+
+								var smtpServerField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-server' } }, true);
+								var smtpPortField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-port' } }, true);
+								var smtpSslField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-ssl' } }, true);
+								var smtpLoginField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-login' } }, true);
+								var smtpLimitField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-limit' } }, true);
+
+								nameField.value = data.name || '';
+								emailField.value = BX.util.htmlspecialchars(data.email);
+								smtpServerField.value = BX.util.htmlspecialchars(data.server || '');
+								smtpPortField.value = BX.util.htmlspecialchars(data.port || '');
+								smtpLoginField.value = BX.util.htmlspecialchars(data.login || '');
+								smtpLimitField.value = data.limit === null ?smtpLimitField.value : data.limit;
+
+								if (data.limit !== null)
+								{
+									useLimitCheckbox.checked = true;
+									smtpLimitField.disabled = false;
+								}
+
+								if (data.protocol === 'smtps')
+								{
+									smtpSslField.checked = true;
+								}
+
+								if (data.server)
+								{
+									BX.fireEvent(smtpLink, 'click');
+								}
+							},
+							onfailure: function (data)
+							{
+
+							},
+						})
+					}
+				},
+				buttons: this.prepareDialogButtons(senderId, 'edit')
+			});
+
+			this.prepareDialog(dlg);
+
+		},
+
+		prepareDialogButtons: function(senderId, act, params, callback)
+		{
+			return [
+				new BX.PopupWindowButton({
+					text: BX.message('MAIN_MAIL_CONFIRM_GET_CODE'),
+					className: 'popup-window-button-create',
+					events: {
+						click: function(event, popup)
+						{
+							var btn = this;
+							var dlg = btn.popupWindow;
+
+							if (BX.hasClass(btn.buttonNode, 'popup-window-button-wait'))
+								return;
+
+							var emailBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-email-block', true);
+							var codeBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-code-block', true);
+
+							var nameField = BX.findChild(emailBlock, { attr: { 'data-name': 'name' } }, true);
+							var emailField = BX.findChild(emailBlock, { attr: { 'data-name': 'email' } }, true);
+							var codeField = BX.findChild(codeBlock, { attr: { 'data-name': 'code' } }, true);
+							var publicField = BX.findChild(dlg.contentContainer, { attr: { 'data-name': 'public' } }, true);
+
+							var smtpServerField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-server' } }, true);
+							var smtpPortField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-port' } }, true);
+							var smtpSslField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-ssl' } }, true);
+							var smtpLoginField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-login' } }, true);
+							var smtpPassField = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-password' } }, true);
+							var smtpLimit = BX.findChild(emailBlock, { attr: { 'data-name': 'smtp-limit' } }, true);
+
+							dlg.formFieldHint(smtpPassField);
+
+							if ('email' == window.step || 'smtp' == window.step)
+							{
+								codeField.value = '';
+
+								var atom = "[=a-z0-9_+~'!$&*^`|#%/?{}-]";
+								var pattern = new RegExp('^' + atom + '+(\\.' + atom + '+)*@([a-z0-9-]+\\.)+[a-z0-9-]{2,20}$', 'i');
+								if (!emailField.value.match(pattern))
+								{
+									dlg.showNotify(BX.message(emailField.value.length > 0
+										? 'MAIN_MAIL_CONFIRM_INVALID_EMAIL'
+										: 'MAIN_MAIL_CONFIRM_EMPTY_EMAIL'
+									));
+									return;
+								}
+							}
+
+							if ('smtp' == window.step)
+							{
+								if (!smtpServerField.value.match(/^([a-z0-9-]+\.)+[a-z0-9-]{2,20}$/))
+								{
+									dlg.showNotify(BX.message(smtpServerField.value.length > 0
+										? 'MAIN_MAIL_CONFIRM_INVALID_SMTP_SERVER'
+										: 'MAIN_MAIL_CONFIRM_EMPTY_SMTP_SERVER'
+									));
+									return;
+								}
+
+								if (!smtpPortField.value.match(/^[0-9]+$/) || smtpPortField.value < 1 || smtpPortField.value > 65535)
+								{
+									dlg.showNotify(BX.message(smtpPortField.value.length > 0
+										? 'MAIN_MAIL_CONFIRM_INVALID_SMTP_PORT'
+										: 'MAIN_MAIL_CONFIRM_EMPTY_SMTP_PORT'
+									));
+									return;
+								}
+
+								if (!(smtpLoginField.value.length > 0))
+								{
+									dlg.showNotify(BX.message('MAIN_MAIL_CONFIRM_EMPTY_SMTP_LOGIN'));
+									return;
+								}
+
+								if (!senderId && smtpPassField.value.length > 0)
+								{
+									if (smtpPassField.value.match(/^\^/))
+									{
+										dlg.showNotify(BX.message('MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_CARET'));
+										return;
+									}
+									else if (smtpPassField.value.match(/\x00/))
+									{
+										dlg.showNotify(BX.message('MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_NULL'));
+										return;
+									}
+									else if (smtpPassField.value.match(/^\s|\s$/))
+									{
+										dlg.formFieldHint(smtpPassField, 'warning', BX.message('MAIN_MAIL_CONFIRM_SPACE_SMTP_PASSWORD'));
+									}
+								}
+								else if (!senderId)
+								{
+									dlg.showNotify(BX.message('MAIN_MAIL_CONFIRM_EMPTY_SMTP_PASSWORD'));
+									return;
+								}
+							}
+
+							if ('code' == window.step)
+							{
+								if (codeField.value.length == 0)
+								{
+									dlg.showNotify(BX.message('MAIN_MAIL_CONFIRM_EMPTY_CODE'));
+									return;
+								}
+							}
+
+							dlg.hideNotify();
+							BX.addClass(btn.buttonNode, 'popup-window-button-wait');
+
+							var data = {
+								id: senderId,
+								name: nameField.value,
+								email: emailField.value,
+								smtp: {},
+								code: '',
+								public: publicField.checked ? publicField.value : ''
+							};
+
+							if ('smtp' == window.step)
+							{
+								data.smtp = {
+									server: smtpServerField.value,
+									port: smtpPortField.value,
+									ssl: smtpSslField.checked ? smtpSslField.value : '',
+									login: smtpLoginField.value,
+									password: smtpPassField.value,
+									limit: smtpLimit.disabled ? null : smtpLimit.value
+								};
+							}
+
+							if ('code' == window.step)
+							{
+								data.code = codeField.value;
+							}
+
+							if (params && params.data)
+							{
+								for (var i in params.data)
+								{
+									if (params.data.hasOwnProperty(i))
+									{
+										data[i] = params.data[i];
+									}
+								}
+							}
+
+							BX.ajax({
+								'url': BX.util.add_url_param(action, {
+									'act': act
+								}),
+								'method': 'POST',
+								'dataType': 'json',
+								'data': data,
+								onsuccess: function(data)
+								{
+									BX.removeClass(btn.buttonNode, 'popup-window-button-wait');
+
+									if (data.senderId)
+									{
+										senderId = data.senderId;
+									}
+
+									if (data.result == 'error')
+									{
+										dlg.showNotify(data.error);
+									}
+									else if (('email' == window.step || 'smtp' == window.step) && !data.confirmed)
+									{
+										dlg.formFieldHint(smtpPassField);
+
+										dlg.switchBlock('code');
+									}
+									else
+									{
+										btn.popupWindow.close();
+
+										if (callback && BX.type.isFunction(callback))
+										{
+											var mailboxName = nameField.value.length > 0
+												? nameField.value
+												: BX.message('MAIN_MAIL_CONFIRM_USER_FULL_NAME');
+											callback(
+												{
+													name: mailboxName,
+													email: emailField.value,
+													id: senderId
+												},
+												mailboxName.length > 0 ? mailboxName + ' <' + emailField.value + '>' : emailField.value
+											);
+										}
+									}
+								},
+								onfailure: function()
+								{
+									BX.removeClass(btn.buttonNode, 'popup-window-button-wait');
+									dlg.showNotify(BX.message('MAIN_MAIL_CONFIRM_AJAX_ERROR'));
+								}
+							});
+						}
+					}
+				}),
+				new BX.PopupWindowButton({
+					text: BX.message('MAIN_MAIL_CONFIRM_CANCEL'),
+					className: 'popup-window-button-link',
+					events: {
+						click: function()
+						{
+							var dlg = this.popupWindow;
+
+							if ('code' == window.step && 'confirm' != window.mode)
+							{
+								var smtpBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-smtp-block', true);
+
+								dlg.switchBlock(smtpBlock && smtpBlock.offsetHeight > 0 ? 'smtp' : 'email');
+							}
+							else
+							{
+								this.popupWindow.close();
+							}
+						}
+					}
+				})
+			]
 		},
 		updateListCanDel: function(id)
 		{

@@ -10,7 +10,6 @@ if (!CModule::IncludeModule('mobileapp'))
 $menuBuildParams = array(
 			'MENU_FILE' => $arParams['MENU_FILE_PATH'],
 			'EVENT_NAME' => $arParams['BUILD_MENU_EVENT_NAME'],
-			'MOBILE_APP_INDEX_PAGE' => MOBILE_APP_ADMIN_PATH
 	);
 
 $arResult['MENU'] = CAdminMobileMenu::buildMenu($menuBuildParams);

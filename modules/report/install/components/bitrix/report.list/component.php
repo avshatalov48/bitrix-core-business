@@ -14,17 +14,6 @@ foreach ($requiredModules as $requiredModule)
 	}
 }
 
-$arResult['IS_RESTRICTED'] = false;
-if (
-	\Bitrix\Main\Loader::includeModule('bitrix24')
-	&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('report')
-)
-{
-	$arResult['IS_RESTRICTED'] = true;
-	$this->IncludeComponentTemplate('restrict');
-	return 1;
-}
-
 $isPost = $_SERVER['REQUEST_METHOD'] === 'POST';
 if ($isPost && !check_bitrix_sessid())
 {
@@ -44,6 +33,17 @@ if (!is_string($helperClassName)
 {
 	ShowError(GetMessage("REPORT_HELPER_NOT_DEFINED"));
 	return 0;
+}
+
+$arResult['IS_RESTRICTED'] = false;
+if (
+	\Bitrix\Main\Loader::includeModule('bitrix24')
+	&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('report')
+)
+{
+	$arResult['IS_RESTRICTED'] = true;
+	$this->IncludeComponentTemplate('restrict');
+	return 1;
 }
 
 $ownerId = $arResult['OWNER_ID'] = call_user_func(array($helperClassName, 'getOwnerId'));

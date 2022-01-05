@@ -13,6 +13,8 @@ use Bitrix\Main\Result;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Rest\Integration\Externalizer;
+use Bitrix\Rest\Integration\Internalizer;
+use Bitrix\Rest\Integration\ModificationFieldsBase;
 use Bitrix\Rest\Integration\ViewManager;
 
 class Base extends Controller
@@ -28,10 +30,7 @@ class Base extends Controller
 	{
 		$action = parent::create($actionName);
 
-		if($this->getScope() == Engine\Controller::SCOPE_REST)
-		{
-			$this->viewManager = $this->createViewManager($action);
-		}
+		$this->viewManager = $this->createViewManager($action);
 
 		return $action;
 	}
@@ -45,28 +44,6 @@ class Base extends Controller
 		throw new NotImplementedException('The method createViewManager is not implemented.');
 	}
 
-	/**
-	 * @return array
-	 */
-	public function configureActions()
-	{
-		return [
-			'getFields' => [
-				'+prefilters' => [
-					function()
-					{
-						/** @var ClosureWrapper $this */
-						/** @var Action $action */
-						$action = $this->getAction();
-						if($action->getController()->getScope() !== \Bitrix\Main\Engine\Controller::SCOPE_REST)
-						{
-							throw new SystemException('the method is only available in the rest service');
-						}
-					}
-				],
-			],
-		];
-	}
 
 	/**
 	 * @return ViewManager
@@ -88,26 +65,25 @@ class Base extends Controller
 
 		if($r->isSuccess())
 		{
-			if($this->getScope() == Engine\Controller::SCOPE_REST)
+			$internalizer = new Internalizer(
+				$this->getViewManager()
+			);
+			$internalizer->setFormat([
+				ModificationFieldsBase::TO_WHITE_LIST,
+				ModificationFieldsBase::TO_SNAKE ,
+				ModificationFieldsBase::CHECK_REQUIRED
+			]);
+			$r = $internalizer->process();
+
+			if($r->isSuccess())
 			{
-				$internalizer = new \Bitrix\Rest\Integration\Internalizer($this->getViewManager());
-
-				$r = $internalizer->process();
-
-				if($r->isSuccess())
-				{
-					$action->setArguments($r->getData()['data']);
-					return parent::processBeforeAction($action);
-				}
-				else
-				{
-					$this->addErrors($r->getErrors());
-					return null;
-				}
+				$action->setArguments($r->getData()['data']);
+				return parent::processBeforeAction($action);
 			}
 			else
 			{
-				return parent::processBeforeAction($action);
+				$this->addErrors($r->getErrors());
+				return null;
 			}
 		}
 		else
@@ -119,23 +95,36 @@ class Base extends Controller
 
 	protected function processAfterAction(Engine\Action $action, $result)
 	{
-		if($this->getScope() == Engine\Controller::SCOPE_REST)
+		$externalizer = null;
+		if($this->errorCollection->count()==0)
 		{
-			if($this->errorCollection->count()==0)
+			if($result instanceof Engine\Response\DataType\Page || is_array($result))
 			{
+				$data = $result instanceof Engine\Response\DataType\Page ?
+					$result->toArray():$result;
 
-				if($result instanceof Engine\Response\DataType\Page || is_array($result))
+				$externalizer = new Externalizer(
+					$this->getViewManager(),
+					$data
+				);
+			}
+
+			if($externalizer instanceof ModificationFieldsBase)
+			{
+				$externalizer->setFormat([
+					ModificationFieldsBase::TO_WHITE_LIST,
+					ModificationFieldsBase::TO_CAMEL,
+					ModificationFieldsBase::SORTING_KEYS
+				]);
+
+				if($this->getScope() == Engine\Controller::SCOPE_REST)
 				{
-					$data = $result instanceof Engine\Response\DataType\Page ?
-						$result->toArray():$result;
-
-					$externalizer = new Externalizer(
-						$this->getViewManager(),
-						$data
-					);
-
 					return $result instanceof Engine\Response\DataType\Page ?
 						$externalizer->getPage($result):$externalizer;
+				}
+				else if($this->getScope() == Engine\Controller::SCOPE_AJAX)
+				{
+					return $externalizer;
 				}
 			}
 		}
@@ -151,8 +140,6 @@ class Base extends Controller
 	 */
 	private function checkPermission($name, $arguments=[])
 	{
-
-
 		if($name == 'add')
 		{
 			$r = $this->checkCreatePermissionEntity();
@@ -297,9 +284,11 @@ class Base extends Controller
 	 */
 	protected function count($filter)
 	{
-		$entityTable = $this->getEntityTable();
-
-		return $entityTable::getCount([$filter]);
+		return function() use ($filter)
+		{
+			$entityTable = $this->getEntityTable();
+			return $entityTable::getCount([$filter]);
+		};
 	}
 
 	/**

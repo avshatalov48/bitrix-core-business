@@ -38,13 +38,13 @@ class sender extends CModule
 
 	function InstallDB($arParams = array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 
 		// Database tables creation
 		if(!$DB->Query("SELECT 'x' FROM b_sender_contact WHERE 1=0", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/db/".$DBType."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/db/mysql/install.sql");
 		}
 
 		if($this->errors !== false)
@@ -57,14 +57,11 @@ class sender extends CModule
 			RegisterModule("sender");
 			CModule::IncludeModule("sender");
 
-			if ($DB->type == 'MYSQL')
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/db/mysql/install_ft.sql");
+			if ($errors === false)
 			{
-				$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/db/".$DBType."/install_ft.sql");
-				if ($errors === false)
-				{
-					$entity = \Bitrix\Sender\Internals\Model\LetterTable::getEntity();
-					$entity->enableFullTextIndex("SEARCH_CONTENT");
-				}
+				$entity = \Bitrix\Sender\Internals\Model\LetterTable::getEntity();
+				$entity->enableFullTextIndex("SEARCH_CONTENT");
 			}
 
 			// read and click notifications
@@ -125,7 +122,7 @@ class sender extends CModule
 
 	function UnInstallDB($arParams = array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 
 		CModule::IncludeModule("sender");
@@ -133,7 +130,7 @@ class sender extends CModule
 
 		if(!array_key_exists("save_tables", $arParams) || ($arParams["save_tables"] != "Y"))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/db/".$DBType."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/db/mysql/uninstall.sql");
 		}
 
 		CAgent::RemoveModuleAgents('sender');

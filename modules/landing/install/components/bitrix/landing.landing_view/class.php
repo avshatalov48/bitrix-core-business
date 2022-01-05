@@ -7,7 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Landing;
-use Bitrix\Landing\Site\Type;
+use \Bitrix\Landing\Site\Type;
 use \Bitrix\Landing\Syspage;
 use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\Rights;
@@ -15,6 +15,7 @@ use \Bitrix\Main\EventManager;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Landing\Source\Selector;
 use \Bitrix\Landing\PublicAction\Demos;
+use \Bitrix\Main\UI\Extension;
 
 \CBitrixComponent::includeComponentClass('bitrix:landing.base');
 
@@ -122,7 +123,7 @@ class LandingViewComponent extends LandingBaseComponent
 		return [
 			'type' => $this->arParams['TYPE'],
 			'id' => $landing->getId(),
-			'url' => $landing->getPublicUrl(),
+			'url' => $this->arResult['~LANDING_FULL_URL'] ?? $landing->getPublicUrl(),
 			'siteId' => $landing->getSiteId(),
 			'siteTitle' => $site['TITLE'],
 			'active' => $landing->isActive(),
@@ -557,6 +558,7 @@ class LandingViewComponent extends LandingBaseComponent
 				$isStore = \Bitrix\Landing\Manager::isStoreEnabled();
 				$options = $event->getParameter('options');
 				$meta = $landing->getMeta();
+				$options['url'] = $arResult['~LANDING_FULL_URL'] ?? $landing->getPublicUrl();
 				$options['folder_id'] = $landing->getFolderId();
 				$options['version'] = Manager::getVersion();
 				$options['default_section'] = $this->getCurrentBlockSection($type);
@@ -603,10 +605,21 @@ class LandingViewComponent extends LandingBaseComponent
 				$options['helps'] = [
 					'DYNAMIC_BLOCKS' => \Bitrix\Landing\Help::getHelpUrl('DYNAMIC_BLOCKS')
 				];
+				// features
 				$options['features'] = [];
+				if (
+					($type === 'KNOWLEDGE' || $type === 'GROUP') &&
+					\Bitrix\Main\Loader::includeModule('disk')
+				)
+				{
+					Extension::load('file_dialog');
+					$options['features'][] = 'diskFile';
+				}
+				// rights
 				$options['rights'] = Rights::getOperationsForSite(
 					$landing->getSiteId()
 				);
+				// placements
 				$options['placements'] = array(
 					'blocks' => array(),
 					'image' => array()
@@ -1080,7 +1093,7 @@ class LandingViewComponent extends LandingBaseComponent
 
 			if ($landing->exist())
 			{
-				$this->arResult['SPECIAL_TYPE'] = $this->getSpecialTypeSite($landing->getSiteId());
+				$this->arResult['SPECIAL_TYPE'] = $this->getSpecialTypeSiteByLanding($landing);
 				$this->arResult['SITES_COUNT'] = $this->getSitesCount();
 				$this->arResult['PAGES_COUNT'] = $this->getPagesCount($landing->getSiteId());
 				$this->arResult['SITE'] = $this->getSites(array(

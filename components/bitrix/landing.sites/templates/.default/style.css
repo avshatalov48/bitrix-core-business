@@ -847,6 +847,10 @@ body > a[style*="background: highlight"] {
 	align-items: center;
 }
 
+.landing-content-title-admin .main-ui-filter-search-square:nth-last-child(3)::after {
+	background: transparent;
+}
+
 .landing-content-title-admin .landing-filter-buttons-container {
 	display: flex;
 	flex: 1;

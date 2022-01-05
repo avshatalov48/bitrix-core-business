@@ -1,12 +1,11 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Component\LogList;
 
 class Assets
 {
 	private static $assetFiles = [
 		'/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css',
-//		'/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/script.js',
-//		'/bitrix/js/socialnetwork/livefeed/dist/livefeed.bundle.js'
 	];
 
 	public function __construct($params)
@@ -22,7 +21,7 @@ class Assets
 		return $this->component;
 	}
 
-	public function checkRefreshNeeded(&$result)
+	public function checkRefreshNeeded(&$result): bool
 	{
 		$params = $this->getComponent()->arParams;
 		if (empty($params['assetsCheckSum']))
@@ -30,7 +29,7 @@ class Assets
 			return true;
 		}
 
-		$currentAssetsCheckSum = \Bitrix\Socialnetwork\Component\LogList\Assets::getCheckSum();
+		$currentAssetsCheckSum = self::getCheckSum();
 		if (empty($currentAssetsCheckSum))
 		{
 			return true;
@@ -46,9 +45,9 @@ class Assets
 		return false;
 	}
 
-	public function getAssetsCheckSum(&$result)
+	public function getAssetsCheckSum(&$result): void
 	{
-		$result['ASSETS_CHECKSUM'] = \Bitrix\Socialnetwork\Component\LogList\Assets::getCheckSum();
+		$result['ASSETS_CHECKSUM'] = self::getCheckSum();
 	}
 
 	public static function getCheckSum()
@@ -65,7 +64,7 @@ class Assets
 		$documentRoot = \Bitrix\Main\Application::getDocumentRoot();
 		foreach(self::$assetFiles as $filePath)
 		{
-			$file = new \Bitrix\Main\IO\File($documentRoot.$filePath);
+			$file = new \Bitrix\Main\IO\File($documentRoot . $filePath);
 			if (!$file->isExists())
 			{
 				continue;
@@ -76,9 +75,6 @@ class Assets
 			];
 		}
 
-		$result = md5(serialize($assetsData));
-
-		return $result;
+		return md5(serialize($assetsData));
 	}
 }
-?>

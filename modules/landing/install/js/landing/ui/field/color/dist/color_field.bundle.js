@@ -4042,6 +4042,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    }
 	    /**
 	     * Set value by new format
+	     * @param value {string: string}
 	     */
 
 	  }, {

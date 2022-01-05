@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BLOG_MODULE_NOT_INSTALL"] = "Blog module is not installed.";
 $MESS["SONET_MODULE_NOT_INSTALL"] = "The Social Network module is not installed.";
 $MESS["B_B_PC_CAPTCHA_ERROR"] = "The automated form submission prevention code is incorrect.";
@@ -17,7 +17,6 @@ $MESS["B_B_PC_MES_ERROR_SHOW"] = "Error showing the comment.";
 $MESS["B_B_PC_MES_ERROR_HIDE"] = "Error hiding the comment.";
 $MESS["B_B_PC_MES_NAME_TEMPLATE_DEFAULT"] = "#NOBR##NAME# #LAST_NAME##/NOBR#";
 $MESS["B_B_PC_HIDDEN_POSTED"] = "You comment has been added successfully. Comments in this blog are premoderated; your comment will become visible as soon as the blog owner has approved it.";
-$MESS["B_B_PC_MES_ERROR_SESSION"] = "Your session has expired. Please post your comment again.";
 $MESS["B_B_PC_MES_HIDDEN_ADDED"] = "You comment has been added successfully. Comments in this blog are premoderated; your comment will become visible as soon as the blog owner has approved it.";
 $MESS["B_B_PC_MES_HIDDEN_EDITED"] = "Your comment has been successfully edited. This blog is moderated and your comment will appear after checking by the moderator (owner) of the blog.";
 $MESS["B_B_PC_MES_NOCOMMENTREASON_L"] = "System parameters disallow using links.";
@@ -32,4 +31,3 @@ $MESS["B_B_SHARE"] = "Shared with: ";
 $MESS["B_B_SHARE_1"] = "Shared with: ";
 $MESS["B_B_SHARE_HIDDEN_1"] = "Hidden recipient";
 $MESS["B_B_PC_DUPLICATE_COMMENT"] = "You have already added your comment";
-?>

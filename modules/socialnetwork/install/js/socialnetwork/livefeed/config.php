@@ -30,6 +30,7 @@ return [
 		'main.core.events',
 		'socialnetwork.commentaux',
 		'intranet.control-button',
+		'tasks.result',
 	],
 	'skip_core' => false,
 ];

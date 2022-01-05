@@ -287,7 +287,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 		{
 			$filter = array(
 				'filter' => array(
-					'ACCOUNT_NUMBER' => $fields['ACCOUNT_NUMBER'],
+					'=ACCOUNT_NUMBER' => $fields['ACCOUNT_NUMBER'],
 					'!ID' => $order->getId()
 				),
 				'select' => array('ID')

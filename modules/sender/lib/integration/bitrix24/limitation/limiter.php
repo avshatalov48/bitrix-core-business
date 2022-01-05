@@ -12,6 +12,8 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Bitrix24\MailCounter as B24MailCounter;
 
+use Bitrix\Main\Mail\Sender;
+use Bitrix\Main\Mail\SenderSendCounter;
 use Bitrix\Sender\Integration\Bitrix24\Service;
 use Bitrix\Sender\Transport;
 
@@ -101,6 +103,38 @@ class Limiter
 				'javascript:top.BX.Helper.show("redirect=detail&code=6904325")'
 			)
 			->setParameter('percentage', self::getMonthlyLimitPercentage());
+
+		if (!Service::isLicenceTop())
+		{
+			$limiter->setParameter('setupUri', 'javascript: top.BX.Sender.B24License.showMailLimitPopup();');
+		}
+
+		return $limiter;
+	}
+
+	/**
+	 * Return email limiter.
+	 *
+	 * @return Transport\CountLimiter
+	 */
+	public static function getEmailMonthly($email)
+	{
+		$counter = new SenderSendCounter();
+		$limiter = Transport\CountLimiter::create()
+			->withName('mail_per_email_per_day')
+			->withLimit(Sender::getEmailLimit($email))
+			->withUnit("1 " . Transport\iLimiter::DAYS)
+			->withCurrent(
+				function () use ($counter, $email)
+				{
+					return Sender::getEmailLimit($email) === null ? -1 : $counter->get($email);
+				}
+			)
+			->setHidden(true)
+			->setParameter(
+				'globalHelpUri',
+				'javascript:top.BX.Helper.show("redirect=detail&code=6904325")'
+			);
 
 		if (!Service::isLicenceTop())
 		{

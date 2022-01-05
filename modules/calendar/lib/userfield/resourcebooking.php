@@ -770,7 +770,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 			$orm = UserTable::getList([
 				'filter' => [
 				   '=ID' => $userIdList,
-				   'ACTIVE' => 'Y'
+				   '=ACTIVE' => 'Y'
 				],
 				'select' => ['ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'TITLE', 'PERSONAL_PHOTO']
 		   ]);
@@ -788,7 +788,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 				array(
 					"filter" => array(
 						"=ACTIVE" => 'Y',
-						"!=CAL_TYPE" => ['user', 'group', 'company_calendar'],
+						"!=CAL_TYPE" => ['user', 'group', 'company_calendar', 'company', 'calendar_company'],
 						"ID" => $resourceIdList
 					),
 					"select" => array("ID", "CAL_TYPE", "NAME")
@@ -937,7 +937,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 			$orm = UserTable::getList([
 				   'filter' => [
 					   '=ID' => $userIdList,
-					   'ACTIVE' => 'Y'
+					   '=ACTIVE' => 'Y'
 				   ],
 				   'select' => ['ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'TITLE', 'PERSONAL_PHOTO']
 			   ]);
@@ -955,7 +955,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 				array(
 					"filter" => array(
 						"=ACTIVE" => 'Y',
-						"!=CAL_TYPE" => ['user', 'group', 'company_calendar'],
+						"!=CAL_TYPE" => ['user', 'group', 'company_calendar', 'company', 'calendar_company'],
 						"ID" => $resourseIdList
 					),
 					"select" => array("ID", "CAL_TYPE", "NAME")
@@ -1194,7 +1194,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 			$orm = UserTable::getList([
 				'filter' => [
 					'=ID' => $selectedUsers,
-					'ACTIVE' => 'Y'
+					'=ACTIVE' => 'Y'
 				],
 				'select' => ['ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL']
 			]);
@@ -1328,7 +1328,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 				[
 					'filter' => [
 						'=ID' => $userIdList,
-						'ACTIVE' => 'Y'
+						'=ACTIVE' => 'Y'
 					],
 					'select' => ['ID', 'LOGIN', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL']
 				]

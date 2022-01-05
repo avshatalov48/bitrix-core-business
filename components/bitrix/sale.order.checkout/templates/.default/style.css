@@ -1970,3 +1970,158 @@ input.checkout-item-quantity-field {
 }
 
 /*endregion*/
+
+/* region PAYMENT POPUP */
+
+.checkout-order-payment-popup-wrap {
+	position: fixed;
+	top: 0;
+	left: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	width: 100vw;
+	z-index: 1200;
+	background: rgba(0, 0, 0, 0.8);
+	transition: .17s linear;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.checkout-order-payment-popup {
+	position: relative;
+	min-width: 320px;
+	max-width: 375px;
+	min-height: 449px;
+	transition: .17s linear;
+	z-index: 1220;
+	opacity: 0;
+}
+
+.checkout-order-payment-popup-head {
+	display: flex;
+	justify-content: space-between;
+	padding: 0 14px;
+	margin-bottom: 14px;
+}
+
+.checkout-order-payment-help {
+	display: flex;
+	align-items: center;
+}
+
+.checkout-order-payment-help .ui-hint {
+	margin-right: 5px;
+	width: auto;
+	height: auto;
+	line-height: 0;
+	opacity: .5;
+}
+
+.checkout-order-payment-help .ui-hint-icon {
+	margin: 0;
+	width: 18px;
+	height: 18px;
+	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 19 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M18.047 8.994A8.952 8.952 0 0 0 9.095.04a8.952 8.952 0 1 0 0 17.904 8.952 8.952 0 0 0 8.952-8.951ZM5.637 6.649c0-.438.14-.882.422-1.331.28-.45.691-.822 1.23-1.117.54-.295 1.17-.443 1.889-.443.668 0 1.258.123 1.77.37s.907.582 1.186 1.006c.279.425.418.885.418 1.383 0 .392-.08.736-.238 1.03-.16.296-.348.55-.567.765a41.31 41.31 0 0 1-1.18 1.082 4.783 4.783 0 0 0-.376.377 1.527 1.527 0 0 0-.211.298 1.45 1.45 0 0 0-.107.27c-.026.09-.064.247-.115.473-.087.48-.362.72-.823.72a.841.841 0 0 1-.605-.236c-.163-.156-.245-.39-.245-.698 0-.388.06-.723.18-1.006.12-.284.279-.533.477-.747.198-.215.465-.47.802-.765.295-.258.508-.453.64-.584.131-.131.242-.278.332-.44.09-.16.135-.336.135-.525 0-.369-.138-.68-.412-.933-.274-.254-.628-.38-1.061-.38-.508 0-.881.127-1.12.383-.24.256-.443.633-.61 1.13-.156.522-.454.782-.892.782a.877.877 0 0 1-.653-.273c-.178-.182-.266-.38-.266-.591Zm2.638 7.306c.21.182.455.274.737.274.272 0 .511-.093.719-.277.207-.184.311-.438.311-.76 0-.291-.1-.536-.297-.734a.996.996 0 0 0-.733-.297c-.296 0-.545.099-.747.297a.984.984 0 0 0-.305.733c0 .328.105.582.315.764Z' fill='%23fff'/%3E%3C/svg%3E");
+}
+
+.checkout-order-payment-help-text,
+.checkout-order-payment-close {
+	font: 16px/21px "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #fff;
+	transition: opacity .3s;
+	opacity: .6;
+	cursor: pointer;
+}
+
+.checkout-order-payment-help:hover .ui-hint,
+.checkout-order-payment-help:hover .checkout-order-payment-help-text:hover,
+.checkout-order-payment-close:hover {
+	opacity: 1;
+}
+
+.checkout-order-payment-popup-main {
+	padding: 20px 19px;
+	background-color: #fff;
+	border-radius: 12px;
+}
+
+.checkout-order-payment-title {
+	display: flex;
+	padding-bottom: 14px;
+	margin-bottom: 18px;
+	border-bottom: 1px solid rgba(18, 18, 18, .1);
+}
+
+.checkout-order-payment-title .checkout-basket-pay-method-item-logo-block {
+	margin-right: 18px;
+}
+
+.checkout-order-payment-title-text {
+	font: 700 18px/24px "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #121212;
+}
+
+.checkout-order-payment-content {
+	margin-bottom: 19px;
+}
+
+.checkout-order-payment-content p {
+	margin-bottom: 18px;
+	font: 400 15px/24px "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #121212;
+}
+
+.checkout-order-payment-content p:last-child {
+	margin-bottom: 0;
+}
+
+.checkout-order-payment-popup-text-bold {
+	font: 700 15px/24px "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #121212;
+}
+
+.checkout-order-payment-content .ui-ctl {
+	min-height: 51px;
+	width: 100%;
+}
+
+.checkout-order-payment-content .ui-ctl-element {
+	height: 51px;
+	border: 1px solid #C4C4C4;
+	font-size: 18px;
+	color: #121212;
+}
+
+.checkout-order-payment-content .ui-ctl-element::placeholder {
+	color: #121212;
+	opacity: .5;
+}
+
+.checkout-order-payment-btn-container {
+	padding: 0 14px;
+}
+
+.checkout-order-payment-btn-container .btn {
+	margin-bottom: 16px;
+	width: 100%;
+}
+
+.checkout-order-payment-btn-container .btn:last-child {
+	margin-bottom: 0;
+}
+
+.checkout-order-payment-btn-container .btn-primary {
+	background-color: transparent;
+	border: 1px solid #b5b5b5;
+	color: #121212;
+}
+
+.checkout-order-payment--active .checkout-order-payment-popup-wrap,
+.checkout-order-payment--active .checkout-order-payment-popup {
+	pointer-events: auto;
+	opacity: 1;
+}
+
+/*endregion*/

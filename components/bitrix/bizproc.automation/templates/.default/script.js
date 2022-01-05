@@ -1303,7 +1303,7 @@
 				|| robot.data.Type === 'RpaApproveActivity'
 			)
 			{
-				popupMinWidth += 140;
+				popupMinWidth += 170;
 				if (popupWidth < popupMinWidth)
 				{
 					popupWidth = popupMinWidth;

@@ -40,7 +40,7 @@ Bergamo is a little like Milan. Many shops, but more comfortable, and have lower
 [B]Summary of trip:[/B] [I]Everything went very well. A trip by car gives you the freedom and opportunities that are not in the usual tours. Yes, all the prices turned out a lot cheaper than they would have been through a travel agency.[/I]";
 $MESS["BLOG_MESSAGE2_TAGS"] = "Tours, Spain, Photo, Bergamo, Vacation";
 $MESS["BLOG_MESSAGE2_COMMENTS1_AUTHOR"] = "Jose";
-$MESS["BLOG_MESSAGE2_COMMENTS1_TEXT"] = "A great city, I’ve been there more than once";
+$MESS["BLOG_MESSAGE2_COMMENTS1_TEXT"] = "A great city, I've been there more than once";
 $MESS["BLOG_MESSAGE2_COMMENTS2_AUTHOR"] = "Paul";
 $MESS["BLOG_MESSAGE2_COMMENTS2_TEXT"] = "How much did it cost to get there?";
 $MESS["BLOG_MESSAGE2_COMMENTS3_TEXT"] = "2000 Euros per person";

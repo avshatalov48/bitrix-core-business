@@ -3,6 +3,7 @@ namespace Bitrix\Calendar\Internals;
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Entity\ReferenceField;
 
 /**
  * Class SectionTable
@@ -33,6 +34,7 @@ use Bitrix\Main\Localization\Loc;
  * <li> IS_EXCHANGE string(1) optional
  * <li> GAPI_CALENDAR_ID string(255) optional
  * <li> SYNC_TOKEN string(100) optional
+ * <li> PAGE_TOKEN string(100) optional
  * <li> EXTERNAL_TYPE string(20) optional
  * </ul>
  *
@@ -186,6 +188,11 @@ class SectionTable extends Main\Entity\DataManager
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateSyncToken'),
 				'title' => Loc::getMessage('SECTION_ENTITY_SYNC_TOKEN_FIELD'),
+			),
+			'PAGE_TOKEN' => array(
+				'data_type' => 'string',
+				'validation' => array(__CLASS__, 'validatePageToken'),
+				'title' => Loc::getMessage('SECTION_ENTITY_PAGE_TOKEN_FIELD'),
 			),
 			'EXTERNAL_TYPE' => array(
 				'data_type' => 'string',
@@ -354,6 +361,16 @@ class SectionTable extends Main\Entity\DataManager
 	 * @return array
 	 */
 	public static function validateSyncToken()
+	{
+		return array(
+			new Main\Entity\Validator\Length(null, 100),
+		);
+	}
+	/**
+	 * @return Main\Entity\Validator\Length[]
+	 * @throws Main\ArgumentTypeException
+	 */
+	public static function validatePageToken()
 	{
 		return array(
 			new Main\Entity\Validator\Length(null, 100),

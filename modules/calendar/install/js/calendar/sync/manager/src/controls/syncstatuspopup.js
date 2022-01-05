@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 
-import {Tag, Loc, Dom} from 'main.core';
+import {Tag, Loc, Dom, Type} from 'main.core';
 import {Popup} from 'main.popup';
 import {EventEmitter} from "main.core.events";
 
@@ -156,17 +156,26 @@ export default class SyncStatusPopup extends EventEmitter
 
 	removeRefreshStatusBlock()
 	{
-		this.refreshStatusBlock.remove();
+		if (Type.isElementNode(this.refreshStatusBlock))
+		{
+			this.refreshStatusBlock.remove();
+		}
 	}
 
 	enableRefreshButton()
 	{
-		this.refreshButton.className = 'calendar-sync-popup-footer-btn';
+		if (Type.isElementNode(this.refreshButton))
+		{
+			this.refreshButton.className = 'calendar-sync-popup-footer-btn';
+		}
 	}
 
 	disableRefreshButton()
 	{
-		this.refreshButton.className = 'calendar-sync-popup-footer-btn calendar-sync-popup-footer-btn-disabled';
+		if (Type.isElementNode(this.refreshButton))
+		{
+			this.refreshButton.className = 'calendar-sync-popup-footer-btn calendar-sync-popup-footer-btn-disabled';
+		}
 	}
 
 	getContentRefreshBlock()

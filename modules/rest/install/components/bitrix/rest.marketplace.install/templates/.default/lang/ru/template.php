@@ -1,6 +1,7 @@
 <?
 $MESS["REST_MARKETPLACE_INSTALL_REQUIRED_RIGHTS"] = "Приложение запрашивает разрешение на следующие действия:";
 $MESS["REST_MARKETPLACE_INSTALL_APP_VERSION"] = "Версия";
+$MESS["REST_MARKETPLACE_INSTALL_APP_AUTHOR"] = "Разработчик:";
 $MESS["REST_MARKETPLACE_INSTALL_ERROR"] = "Ошибка! Приложение не было установлено";
 $MESS["REST_MARKETPLACE_INSTALL_MODULE_UNINSTALL_BITRIX24"] = "Некоторые сервисы, требуемые для работы приложения, были удалены. Для корректной работы приложения установите их в <a href='#PATH_CONFIGS#'>настройках портала</a>.";
 $MESS["REST_MARKETPLACE_INSTALL_MODULE_UNINSTALL"] = "Некоторые сервисы, требуемые для работы приложения, были удалены. Для корректной работы приложения установите требуемые модули.";

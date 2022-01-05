@@ -401,6 +401,10 @@
 					this.useCompare = false;
 				}
 			}
+
+			this.isFacebookConversionCustomizeProductEventEnabled
+				= arParams.IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED
+			;
 		}
 
 		if (this.errorCode === 0)
@@ -1485,6 +1489,22 @@
 								BX.removeClass(rowItems[i], 'selected');
 							}
 						}
+					}
+
+					if (
+						this.isFacebookConversionCustomizeProductEventEnabled
+						&& BX.Type.isArrayFilled(this.offers)
+						&& BX.Type.isObject(this.offers[this.offerNum])
+					)
+					{
+						BX.ajax.runAction(
+							'sale.facebookconversion.customizeProduct',
+							{
+								data: {
+									offerId: this.offers[this.offerNum]['ID']
+								}
+							}
+						);
 					}
 				}
 			}

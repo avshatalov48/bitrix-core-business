@@ -19,85 +19,7 @@ this.BX.UI = this.BX.UI || {};
 	  canceling: 'CANCELING'
 	};
 
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-alert-message\">", "</span>"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"", "\"></div>"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-alert-message\">", "</span>"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"", "\" style=\"display:none\"></div>"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\"></div>"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<label for=\"", "_inp\">", "</label>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\"></div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"", " ", "\"></div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
 	var BaseField = /*#__PURE__*/function () {
 	  function BaseField(options) {
 	    babelHelpers.classCallCheck(this, BaseField);
@@ -160,13 +82,13 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.container) {
-	        this.container = main_core.Tag.render(_templateObject(), DialogStyle.ProcessOptionContainer, this.className);
-	        this.container.appendChild(main_core.Tag.render(_templateObject2(), DialogStyle.ProcessOptionsTitle)).appendChild(main_core.Tag.render(_templateObject3(), this.id, this.title));
-	        this.container.appendChild(main_core.Tag.render(_templateObject4(), DialogStyle.ProcessOptionsInput)).appendChild(this.render());
+	        this.container = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"", " ", "\"></div>"])), DialogStyle.ProcessOptionContainer, this.className);
+	        this.container.appendChild(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\"></div>"])), DialogStyle.ProcessOptionsTitle)).appendChild(main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<label for=\"", "_inp\">", "</label>"])), this.id, this.title));
+	        this.container.appendChild(main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\"></div>"])), DialogStyle.ProcessOptionsInput)).appendChild(this.render());
 
 	        if (this.obligatory) {
 	          var alertId = this.id + '_alert';
-	          this.container.appendChild(main_core.Tag.render(_templateObject5(), alertId, DialogStyle.ProcessOptionsObligatory)).appendChild(main_core.Tag.render(_templateObject6(), this.emptyMessage));
+	          this.container.appendChild(main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"", "\" style=\"display:none\"></div>"])), alertId, DialogStyle.ProcessOptionsObligatory)).appendChild(main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-alert-message\">", "</span>"])), this.emptyMessage));
 	        }
 	      }
 
@@ -189,7 +111,7 @@ this.BX.UI = this.BX.UI || {};
 	        var _message = _message ? _message : this.emptyMessage;
 
 	        if (main_core.Type.isStringFilled(_message)) {
-	          this.container.appendChild(main_core.Tag.render(_templateObject7(), alertId, DialogStyle.ProcessOptionsObligatory)).appendChild(main_core.Tag.render(_templateObject8(), _message));
+	          this.container.appendChild(main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"", "\"></div>"])), alertId, DialogStyle.ProcessOptionsObligatory)).appendChild(main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-alert-message\">", "</span>"])), _message));
 	        }
 	      }
 
@@ -211,15 +133,7 @@ this.BX.UI = this.BX.UI || {};
 	  return BaseField;
 	}();
 
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<textarea id=\"", "\" name=\"", "\" cols=\"", "\" rows=\"", "\"></textarea>"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1;
 	var TextField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(TextField, _BaseField);
 
@@ -281,7 +195,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "render",
 	    value: function render() {
 	      if (!this.field) {
-	        this.field = main_core.Tag.render(_templateObject$1(), this.id, this.name, this.cols, this.rows);
+	        this.field = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<textarea id=\"", "\" name=\"", "\" cols=\"", "\" rows=\"", "\"></textarea>"])), this.id, this.name, this.cols, this.rows);
 	      }
 
 	      if (this.value) {
@@ -302,15 +216,7 @@ this.BX.UI = this.BX.UI || {};
 	  return TextField;
 	}(BaseField);
 
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"file\" id=\"", "\" name=\"", "\">"]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$2;
 	var FileField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(FileField, _BaseField);
 
@@ -370,7 +276,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "render",
 	    value: function render() {
 	      if (!this.field) {
-	        this.field = main_core.Tag.render(_templateObject$2(), this.id, this.name);
+	        this.field = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["<input type=\"file\" id=\"", "\" name=\"", "\">"])), this.id, this.name);
 	      }
 
 	      return this.field;
@@ -387,75 +293,7 @@ this.BX.UI = this.BX.UI || {};
 	  return FileField;
 	}(BaseField);
 
-	function _templateObject7$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"checkbox\" id=\"", "_inp\" name=\"", "\" value=\"", ">\""]);
-
-	  _templateObject7$1 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"checkbox\" id=\"", "_inp\" name=\"", "\" value=\"", "\" checked>"]);
-
-	  _templateObject6$1 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"checkbox\" id=\"", "_inp\" name=\"", "\" value=\"Y\">"]);
-
-	  _templateObject5$1 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"checkbox\" id=\"", "_inp\" name=\"", "\" value=\"Y\" checked>"]);
-
-	  _templateObject4$1 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<label><input type=\"checkbox\" name=\"", "[]\" value=\"", "\">", "</label>"]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<label><input type=\"checkbox\" name=\"", "[]\" value=\"", "\" checked>", "</label>"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\"></div>"]);
-
-	  _templateObject$3 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$3, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5$1, _templateObject6$1, _templateObject7$1;
 	var CheckboxField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(CheckboxField, _BaseField);
 
@@ -585,29 +423,29 @@ this.BX.UI = this.BX.UI || {};
 	      var _this2 = this;
 
 	      if (!this.field) {
-	        this.field = main_core.Tag.render(_templateObject$3(), this.id);
+	        this.field = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\"></div>"])), this.id);
 	      }
 
 	      if (this.multiple) {
 	        Object.keys(this.list).forEach(function (itemId) {
 	          if (_this2.value.indexOf(itemId) !== -1) {
-	            _this2.field.appendChild(main_core.Tag.render(_templateObject2$1(), _this2.name, itemId, _this2.list[itemId]));
+	            _this2.field.appendChild(main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<label><input type=\"checkbox\" name=\"", "[]\" value=\"", "\" checked>", "</label>"])), _this2.name, itemId, _this2.list[itemId]));
 	          } else {
-	            _this2.field.appendChild(main_core.Tag.render(_templateObject3$1(), _this2.name, itemId, _this2.list[itemId]));
+	            _this2.field.appendChild(main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["<label><input type=\"checkbox\" name=\"", "[]\" value=\"", "\">", "</label>"])), _this2.name, itemId, _this2.list[itemId]));
 	          }
 	        });
 	      } else {
 	        if (main_core.Type.isBoolean(this.value)) {
 	          if (this.value) {
-	            this.field.appendChild(main_core.Tag.render(_templateObject4$1(), this.id, this.name));
+	            this.field.appendChild(main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["<input type=\"checkbox\" id=\"", "_inp\" name=\"", "\" value=\"Y\" checked>"])), this.id, this.name));
 	          } else {
-	            this.field.appendChild(main_core.Tag.render(_templateObject5$1(), this.id, this.name));
+	            this.field.appendChild(main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["<input type=\"checkbox\" id=\"", "_inp\" name=\"", "\" value=\"Y\">"])), this.id, this.name));
 	          }
 	        } else {
 	          if (this.value !== '') {
-	            this.field.appendChild(main_core.Tag.render(_templateObject6$1(), this.id, this.name, this.value));
+	            this.field.appendChild(main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["<input type=\"checkbox\" id=\"", "_inp\" name=\"", "\" value=\"", "\" checked>"])), this.id, this.name, this.value));
 	          } else {
-	            this.field.appendChild(main_core.Tag.render(_templateObject7$1(), this.id, this.name, this.value));
+	            this.field.appendChild(main_core.Tag.render(_templateObject7$1 || (_templateObject7$1 = babelHelpers.taggedTemplateLiteral(["<input type=\"checkbox\" id=\"", "_inp\" name=\"", "\" value=\"", ">\""])), this.id, this.name, this.value));
 	          }
 	        }
 	      }
@@ -636,25 +474,7 @@ this.BX.UI = this.BX.UI || {};
 	  return CheckboxField;
 	}(BaseField);
 
-	function _templateObject2$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<option value=\"", "\">", "</option>"]);
-
-	  _templateObject2$2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<select id=\"", "\" name=\"", "\"></select>"]);
-
-	  _templateObject$4 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$4, _templateObject2$2;
 	var SelectField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(SelectField, _BaseField);
 
@@ -744,7 +564,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this2 = this;
 
 	      if (!this.field) {
-	        this.field = main_core.Tag.render(_templateObject$4(), this.id, this.name);
+	        this.field = main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["<select id=\"", "\" name=\"", "\"></select>"])), this.id, this.name);
 	      }
 
 	      if (this.multiple) {
@@ -764,7 +584,7 @@ this.BX.UI = this.BX.UI || {};
 	          selected = itemId === _this2.value;
 	        }
 
-	        var option = _this2.field.appendChild(main_core.Tag.render(_templateObject2$2(), itemId, _this2.list[itemId]));
+	        var option = _this2.field.appendChild(main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["<option value=\"", "\">", "</option>"])), itemId, _this2.list[itemId]));
 
 	        if (selected) {
 	          option.selected = 'selected';
@@ -784,35 +604,7 @@ this.BX.UI = this.BX.UI || {};
 	  return SelectField;
 	}(BaseField);
 
-	function _templateObject3$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<label><input type=\"radio\" name=\"", "\" value=\"", "\">", "</label>"]);
-
-	  _templateObject3$2 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<label><input type=\"radio\" name=\"", "\" value=\"", "\" checked>", "</label>"]);
-
-	  _templateObject2$3 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\"></div>"]);
-
-	  _templateObject$5 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$5, _templateObject2$3, _templateObject3$2;
 	var RadioField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(RadioField, _BaseField);
 
@@ -903,14 +695,14 @@ this.BX.UI = this.BX.UI || {};
 	      var _this2 = this;
 
 	      if (!this.field) {
-	        this.field = main_core.Tag.render(_templateObject$5(), this.id);
+	        this.field = main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\"></div>"])), this.id);
 	      }
 
 	      Object.keys(this.list).forEach(function (itemId) {
 	        if (itemId === _this2.value) {
-	          _this2.field.appendChild(main_core.Tag.render(_templateObject2$3(), _this2.name, itemId, _this2.list[itemId]));
+	          _this2.field.appendChild(main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["<label><input type=\"radio\" name=\"", "\" value=\"", "\" checked>", "</label>"])), _this2.name, itemId, _this2.list[itemId]));
 	        } else {
-	          _this2.field.appendChild(main_core.Tag.render(_templateObject3$2(), _this2.name, itemId, _this2.list[itemId]));
+	          _this2.field.appendChild(main_core.Tag.render(_templateObject3$2 || (_templateObject3$2 = babelHelpers.taggedTemplateLiteral(["<label><input type=\"radio\" name=\"", "\" value=\"", "\">", "</label>"])), _this2.name, itemId, _this2.list[itemId]));
 	        }
 	      });
 	      return this.field;
@@ -937,45 +729,7 @@ this.BX.UI = this.BX.UI || {};
 	  return RadioField;
 	}(BaseField);
 
-	function _templateObject4$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\"></div>"]);
-
-	  _templateObject4$2 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\" style=\"display:none\"></div>"]);
-
-	  _templateObject3$3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\" style=\"display:none\"></div>"]);
-
-	  _templateObject2$4 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"]);
-
-	  _templateObject$6 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$6, _templateObject2$4, _templateObject3$3, _templateObject4$2;
 	/**
 	 * @namespace {BX.UI.StepProcessing}
 	 */
@@ -1254,19 +1008,19 @@ this.BX.UI = this.BX.UI || {};
 	    value: function _prepareDialogContent() {
 	      var _this = this;
 
-	      this.summaryBlock = main_core.Tag.render(_templateObject$6(), DialogStyle.ProcessSummary, this.getMessage('summary'));
+	      this.summaryBlock = main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"])), DialogStyle.ProcessSummary, this.getMessage('summary'));
 	      this.errorBlock = this.error.getContainer();
 	      this.warningBlock = this.warning.getContainer();
 	      this.errorBlock.style.display = 'none';
 	      this.warningBlock.style.display = 'none';
 
 	      if (this.progressBar) {
-	        this.progressBarBlock = main_core.Tag.render(_templateObject2$4(), DialogStyle.ProcessProgressbar);
+	        this.progressBarBlock = main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\" style=\"display:none\"></div>"])), DialogStyle.ProcessProgressbar);
 	        this.progressBarBlock.appendChild(this.progressBar.getContainer());
 	      }
 
 	      if (!this.optionsFieldsBlock) {
-	        this.optionsFieldsBlock = main_core.Tag.render(_templateObject3$3(), DialogStyle.ProcessOptions);
+	        this.optionsFieldsBlock = main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\" style=\"display:none\"></div>"])), DialogStyle.ProcessOptions);
 	      } else {
 	        main_core.Dom.clean(this.optionsFieldsBlock);
 	      }
@@ -1284,7 +1038,7 @@ this.BX.UI = this.BX.UI || {};
 	          _this.optionsFieldsBlock.style.display = 'block';
 	        }
 	      });
-	      var dialogContent = main_core.Tag.render(_templateObject4$2(), DialogStyle.ProcessPopup);
+	      var dialogContent = main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\"></div>"])), DialogStyle.ProcessPopup);
 	      dialogContent.appendChild(this.summaryBlock);
 	      dialogContent.appendChild(this.warningBlock);
 	      dialogContent.appendChild(this.errorBlock);
@@ -2845,5 +2599,5 @@ this.BX.UI = this.BX.UI || {};
 	exports.Dialog = Dialog;
 	exports.DialogEvent = DialogEvent;
 
-}((this.BX.UI.StepProcessing = this.BX.UI.StepProcessing || {}),BX,BX.Event,BX.Main,BX.UI,BX.UI,BX));
+}((this.BX.UI.StepProcessing = this.BX.UI.StepProcessing || {}),BX.UI,BX.Event,BX.Main,BX.UI,BX.UI,BX));
 //# sourceMappingURL=process.bundle.js.map

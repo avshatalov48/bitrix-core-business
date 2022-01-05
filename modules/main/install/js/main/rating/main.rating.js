@@ -620,7 +620,7 @@ BXRL.render = {
 				finish: {
 					width: 305,
 					left: (bindElementPosition.left + (bindElementPosition.width / 2) - 133),
-					top: (bindElementPosition.top + deltaY),
+					top: (bindElementPosition.top + deltaY - 5),
 					borderRadius: 50,
 					opacity: 100
 				},

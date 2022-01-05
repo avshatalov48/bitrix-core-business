@@ -10,6 +10,7 @@ use Bitrix\Main\Type\Date;
 use Bitrix\Sale;
 use Bitrix\Sale\Payment;
 use Bitrix\Sale\PaySystem;
+use Bitrix\Currency;
 
 Loc::loadMessages(__FILE__);
 /**
@@ -192,7 +193,21 @@ class BillHandler
 	 */
 	public function getCurrencyList()
 	{
-		return array('RUB');
+		$currencyList = [];
+
+		if (Loader::includeModule('currency'))
+		{
+			$currencyIterator = Currency\CurrencyTable::getList([
+				'select' => ['CURRENCY'],
+				'cache' => ['ttl' => 86400],
+			]);
+			while ($currency = $currencyIterator->fetch())
+			{
+				$currencyList[] = $currency['CURRENCY'];
+			}
+		}
+
+		return $currencyList;
 	}
 
 	/**

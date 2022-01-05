@@ -52,6 +52,28 @@
 	z-index: 3;
 }
 
+.ui-switcher-cursor svg {
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+	height: inherit;
+	width: inherit;
+	-webkit-animation: rotate 1s linear infinite;
+	animation: rotate 1s linear infinite;
+	-webkit-transform-origin: center center;
+	transform-origin: center center;
+}
+
+.ui-switcher-cursor svg circle {
+	stroke: #ccc;
+	stroke-dasharray: 60, 200;
+	stroke-dashoffset: 0;
+	animation: dash 1.5s linear infinite;
+	stroke-linecap: round;
+}
+
 /* region ---STATES--- */
 .ui-switcher-size-sm.ui-switcher {
 	width: 42px;

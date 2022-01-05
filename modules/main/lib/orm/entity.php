@@ -53,8 +53,11 @@ class Entity
 
 	protected $references;
 
-	/** @var static[] */
+	/** @var static[] dataClass => entity */
 	protected static $instances;
+
+	/** @var array ufId => dataClass */
+	protected static $ufIdIndex = [];
 
 	/** @var bool */
 	protected $isClone = false;
@@ -329,7 +332,11 @@ class Entity
 
 		if (!empty($this->uf_id))
 		{
+			// attach uf fields and create uts/utm entities
 			Main\UserFieldTable::attachFields($this, $this->uf_id);
+
+			// save index
+			static::$ufIdIndex[$this->uf_id] = $this->className;
 		}
 	}
 
@@ -1257,6 +1264,40 @@ class Entity
 		}
 
 		return false;
+	}
+
+	public static function onUserTypeChange($userfield, $id = null)
+	{
+		// resolve UF ENTITY_ID
+		if (!empty($userfield['ENTITY_ID']))
+		{
+			$ufEntityId = $userfield['ENTITY_ID'];
+		}
+		elseif (!empty($id))
+		{
+			$usertype = new \CUserTypeEntity();
+			$userfield =  $usertype->GetList([], ["ID" => $id])->Fetch();
+
+			if ($userfield)
+			{
+				$ufEntityId = $userfield['ENTITY_ID'];
+			}
+		}
+
+		if (empty($ufEntityId))
+		{
+			throw new Main\ArgumentException('Invalid ENTITY_ID');
+		}
+
+		// find orm entity with uf ENTITY_ID
+		if (!empty(static::$ufIdIndex[$ufEntityId]))
+		{
+			if (!empty(static::$instances[static::$ufIdIndex[$ufEntityId]]))
+			{
+				// clear for further reinitialization
+				static::destroy(static::$instances[static::$ufIdIndex[$ufEntityId]]);
+			}
+		}
 	}
 
 	/**

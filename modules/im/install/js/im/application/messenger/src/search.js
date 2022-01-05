@@ -16,7 +16,7 @@ export class Search
 		this.dialog = new BX.UI.EntitySelector.Dialog({
 			targetNode: params.targetNode,
 			enableSearch: true,
-			context: 'IM_NEXT_SEARCH',
+			context: 'IM_CHAT_SEARCH',
 			multiple: false,
 			entities: [
 				{

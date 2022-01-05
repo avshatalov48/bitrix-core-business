@@ -597,6 +597,16 @@ abstract class Base
 	 * @param array $fields
 	 * @return bool
 	 */
+	public static function onBeforeUpdate($serviceId, array &$fields = array())
+	{
+		return true;
+	}
+
+	/**
+	 * @param int $serviceId
+	 * @param array $fields
+	 * @return bool
+	 */
 	public static function onAfterUpdate($serviceId, array $fields = array())
 	{
 		return true;

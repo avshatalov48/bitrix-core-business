@@ -126,7 +126,7 @@ class IblockMoneyProperty
 		$currentCurrency = $explode[1] ? $explode[1] : '';
 
 		if (!$currentCurrency)
-			return intval($currentValue) ? $currentValue : '';
+			return is_numeric($currentValue) ? $currentValue : '';
 
 		if (CurrencyManager::isCurrencyExist($currentCurrency))
 		{
@@ -168,7 +168,7 @@ class IblockMoneyProperty
 		$currentCurrency = ($explode[1] ? $explode[1] : '');
 
 		if(!$currentCurrency)
-			return intval($currentValue) ? $result : array(Loc::getMessage('CIMP_FORMAT_ERROR'));
+			return is_numeric($currentValue) ? $result : array(Loc::getMessage('CIMP_FORMAT_ERROR'));
 
 		if(CurrencyManager::isCurrencyExist($currentCurrency))
 		{

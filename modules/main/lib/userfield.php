@@ -299,7 +299,6 @@ class UserFieldTable extends ORM\Data\DataManager
 
 				/** @var \Bitrix\Main\ORM\Fields\ScalarField $utsField */
 				$utsField = $utsEntity->getField($utsFieldName);
-				$fieldAsType = $USER_FIELD_MANAGER->getEntityField($userfield);
 
 				$aliasField = new ORM\Fields\UserTypeField(
 					$utsFieldName,
@@ -308,12 +307,11 @@ class UserFieldTable extends ORM\Data\DataManager
 					array('data_type' => get_class($utsField))
 				);
 
-				$aliasField->configureValueType(get_class($fieldAsType));
+				$aliasField->configureValueField($utsField);
 
 				if ($userfield['MULTIPLE'] == 'Y')
 				{
 					$aliasField->configureMultiple();
-					static::setMultipleFieldSerialization($aliasField, $fieldAsType);
 				}
 
 				$entity->addField($aliasField);
@@ -435,10 +433,15 @@ class UserFieldTable extends ORM\Data\DataManager
 			}
 		}
 
-		foreach ($utmFields as $utmField)
+		foreach ($utmFields as $utmFieldMeta)
 		{
+			// better to get field from UtmEntity
+			$utmField = $USER_FIELD_MANAGER->getEntityField($utmFieldMeta);
+
 			// add serialized utm cache-fields
-			$cacheField = new ORM\Fields\TextField($utmField['FIELD_NAME']);
+			$cacheField = (new ORM\Fields\UserTypeUtsMultipleField($utmField->getName()))
+				->configureUtmField($utmField);
+
 			static::setMultipleFieldSerialization($cacheField, $utmField);
 			$entity->addField($cacheField);
 		}

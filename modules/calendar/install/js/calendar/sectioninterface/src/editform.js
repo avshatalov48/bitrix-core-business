@@ -24,6 +24,7 @@ export class EditForm extends EventEmitter
 
 	show(params = {})
 	{
+		this.section = params.section;
 		this.create();
 		this.showAccess = params.showAccess !== false;
 		if (this.showAccess)
@@ -40,7 +41,6 @@ export class EditForm extends EventEmitter
 		Event.bind(document, 'keydown', this.keyHandlerBinded);
 		Dom.addClass(this.DOM.outerWrap, 'show');
 
-		this.section = params.section;
 		if (params.section)
 		{
 			if (params.section.color)
@@ -366,8 +366,62 @@ export class EditForm extends EventEmitter
 
 	initAccessController()
 	{
+		this.buildAccessController();
+		if (this.sectionManager && this.sectionManager.calendarType === 'group')
+		{
+			this.initDialogGroup();
+		}
+		else
+		{
+			this.initDialogStandard();
+		}
+		this.initAccessSelectorPopup();
+	}
+
+	initAccessSelectorPopup()
+	{
+		Event.bind(this.DOM.accessWrap, 'click', (e) => {
+			const target = Util.findTargetNode(e.target || e.srcElement, this.DOM.outerWrap);
+			if (Type.isElementNode(target))
+			{
+				if (target.getAttribute('data-bx-calendar-access-selector') !== null)
+				{
+					// show selector
+					const code = target.getAttribute('data-bx-calendar-access-selector');
+					if (this.accessControls[code])
+					{
+						this.showAccessSelectorPopup({
+								node: this.accessControls[code].removeIcon,
+								setValueCallback: (value) => {
+									if (this.accessTasks[value] && this.accessControls[code])
+									{
+										this.accessControls[code].valueNode.innerHTML =
+											Text.encode(this.accessTasks[value].title);
+										this.access[code] = value;
+									}
+								},
+							},
+						);
+					}
+				}
+				else if (target.getAttribute('data-bx-calendar-access-remove') !== null)
+				{
+					const code = target.getAttribute('data-bx-calendar-access-remove');
+					if (this.accessControls[code])
+					{
+						Dom.remove(this.accessControls[code].rowNode);
+						this.accessControls[code] = null;
+						delete this.access[code];
+					}
+				}
+			}
+		});
+	}
+
+	buildAccessController()
+	{
 		this.DOM.accessLink = this.DOM.optionsWrap.appendChild(
-			Tag.render`<div class="calendar-list-slider-new-calendar-option-more">${Loc.getMessage('EC_SEC_SLIDER_ACCESS')}</div>`
+			Tag.render`<div class="calendar-list-slider-new-calendar-option-more">${Loc.getMessage('EC_SEC_SLIDER_ACCESS')}</div>`,
 		);
 
 		this.DOM.accessWrap = this.DOM.formFieldsWrap.appendChild(
@@ -379,13 +433,13 @@ export class EditForm extends EventEmitter
 						`}
 					</div>
 					<div class="calendar-list-slider-new-calendar-options-container">
-						${this.DOM.accessButton = Tag.render `
+						${this.DOM.accessButton = Tag.render`
 							<span class="calendar-list-slider-new-calendar-option-add">
 								${Loc.getMessage('EC_SEC_SLIDER_ACCESS_ADD')}
 							</span>`
-						}
+			}
 					</div>
-				</div>`
+				</div>`,
 		);
 
 		this.accessControls = {};
@@ -402,7 +456,10 @@ export class EditForm extends EventEmitter
 			}
 			this.checkAccessTableHeight();
 		});
+	}
 
+	initDialogStandard()
+	{
 		Event.bind(this.DOM.accessButton, 'click', () => {
 			this.entitySelectorDialog = new EntitySelectorDialog({
 				targetNode: this.DOM.accessButton,
@@ -414,63 +471,85 @@ export class EditForm extends EventEmitter
 					'Item:onDeselect': this.handleEntitySelectorChanges.bind(this),
 				},
 				popupOptions: {
-					targetContainer: document.body
+					targetContainer: document.body,
 				},
 				entities: [
 					{
-						id: 'user'
+						id: 'user',
 					},
 					{
-						id: 'project'
+						id: 'project',
 					},
 					{
 						id: 'department',
-						options: {selectMode: 'usersAndDepartments'}
+						options: { selectMode: 'usersAndDepartments' },
 					},
 					{
 						id: 'meta-user',
-						options: { 'all-users': true }
-					}
+						options: { 'all-users': true },
+					},
 				]
 			});
 			this.entitySelectorDialog.show();
 		});
+	}
 
-		Event.bind(this.DOM.accessWrap, 'click', (e) => {
-			const target = Util.findTargetNode(e.target || e.srcElement, this.DOM.outerWrap);
-			if (Type.isElementNode(target))
-			{
-				if(target.getAttribute('data-bx-calendar-access-selector') !== null)
-				{
-					// show selector
-					const code = target.getAttribute('data-bx-calendar-access-selector');
-					if (this.accessControls[code])
+	initDialogGroup()
+	{
+		Event.bind(this.DOM.accessButton, 'click', () => {
+			this.entitySelectorDialog = new EntitySelectorDialog({
+				targetNode: this.DOM.accessButton,
+				context: 'CALENDAR',
+				preselectedItems: [],
+				enableSearch: true,
+				events: {
+					'Item:onSelect': this.handleEntitySelectorChanges.bind(this),
+					'Item:onDeselect': this.handleEntitySelectorChanges.bind(this),
+				},
+				popupOptions: {
+					targetContainer: document.body,
+				},
+				entities: [
 					{
-						this.showAccessSelectorPopup({
-								node: this.accessControls[code].removeIcon,
-								setValueCallback: (value) => {
-									if (this.accessTasks[value] && this.accessControls[code])
-									{
-										this.accessControls[code].valueNode.innerHTML =
-											Text.encode(this.accessTasks[value].title);
-										this.access[code] = value;
-									}
-								}
-							}
-						);
-					}
-				}
-				else if(target.getAttribute('data-bx-calendar-access-remove') !== null)
-				{
-					const code = target.getAttribute('data-bx-calendar-access-remove');
-					if (this.accessControls[code])
+						id: 'user',
+					},
 					{
-						Dom.remove(this.accessControls[code].rowNode)
-						this.accessControls[code] = null;
-						delete this.access[code];
-					}
-				}
-			}
+						id: 'department',
+						options: { selectMode: 'usersAndDepartments' },
+					},
+					{
+						id: 'meta-user',
+						options: { 'all-users': true },
+					},
+				],
+				tabs: [
+					{
+						id: 'groupAccess',
+						title: this.sectionManager.ownerName,
+					},
+				],
+				items: [
+					{
+						id: 'SG' + this.sectionManager.ownerId + '_' + 'A',
+						entityId: 'group',
+						tabs: 'groupAccess',
+						title: Loc.getMessage('EC_ACCESS_GROUP_ADMIN'),
+					},
+					{
+						id: 'SG' + this.sectionManager.ownerId + '_' + 'E',
+						entityId: 'group',
+						tabs: 'groupAccess',
+						title: Loc.getMessage('EC_ACCESS_GROUP_MODERATORS'),
+					},
+					{
+						id: 'SG' + this.sectionManager.ownerId + '_' + 'K',
+						entityId: 'group',
+						tabs: 'groupAccess',
+						title: Loc.getMessage('EC_ACCESS_GROUP_MEMBERS'),
+					},
+				],
+			});
+			this.entitySelectorDialog.show();
 		});
 	}
 
@@ -481,7 +560,15 @@ export class EditForm extends EventEmitter
 		if (Type.isArray(entityList))
 		{
 			entityList.forEach((entity) => {
-				const title = entity.title.text;
+				let title;
+				if (entity.entityId === 'group')
+				{
+					title = this.sectionManager.ownerName + ': ' + entity.title.text;
+				}
+				else
+				{
+					title = entity.title.text;
+				}
 				const code = Util.convertEntityToAccessCode(entity);
 				Util.setAccessName(code, title);
 				this.insertAccessRow(title, code);

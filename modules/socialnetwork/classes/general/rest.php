@@ -1,11 +1,14 @@
 <?php
 
+use Bitrix\Disk\File;
+use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Rest\RestException;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Socialnetwork\Helper\Workgroup;
 use Bitrix\Socialnetwork\Item\Helper;
 use Bitrix\Socialnetwork\UserToGroupTable;
 
@@ -264,7 +267,6 @@ class CSocNetLogRestService extends IRestService
 						"AUTHOR_ID",
 						"ENABLE_COMMENTS",
 						"NUM_COMMENTS",
-						"VIEWS",
 						"CODE",
 						"MICRO",
 						"DETAIL_TEXT",
@@ -620,14 +622,19 @@ class CSocNetLogRestService extends IRestService
 
 		$blogPostPermsNewList = $fields['DEST'];
 
+		if (!is_array($blogPostPermsNewList))
+		{
+			$blogPostPermsNewList = array($blogPostPermsNewList);
+		}
+
 		foreach ($blogPostPermsNewList as $key => $code)
 		{
 			if (
-				!preg_match('/^SG(\d+)$/', $code, $matches)
+				$code !== 'UA'
+				&& !preg_match('/^SG(\d+)$/', $code, $matches)
 				&& !preg_match('/^U(\d+)$/', $code, $matches)
 				&& !preg_match('/^UE(.+)$/', $code, $matches)
 				&& !preg_match('/^DR(\d+)$/', $code, $matches)
-				&& $code !== 'UA'
 			)
 			{
 				unset($blogPostPermsNewList[$key]);
@@ -637,11 +644,6 @@ class CSocNetLogRestService extends IRestService
 		if (empty($blogPostPermsNewList))
 		{
 			throw new Exception('Wrong destinations');
-		}
-
-		if (!is_array($blogPostPermsNewList))
-		{
-			$blogPostPermsNewList = array($blogPostPermsNewList);
 		}
 
 		$currentUserId = (
@@ -1699,6 +1701,27 @@ class CSocNetLogRestService extends IRestService
 			}
 		}
 
+		if (isset($fields['IMAGE_FILE_ID']) && Loader::includeModule('disk'))
+		{
+			if (
+				(($imageFileId = (int)$fields['IMAGE_FILE_ID']) > 0)
+				&& ($file = File::loadById($imageFileId))
+				&& $file->canRead($file->getStorage()->getSecurityContext(self::getCurrentUserId()))
+			)
+			{
+				$image = \CFile::MakeFileArray($file->getFileId());
+				$image['del'] = 'N';
+				\CFile::ResizeImage($image, ['width' => 300, 'height' => 300]);
+				$fields['IMAGE_ID'] = $image;
+
+				unset($fields['IMAGE']);
+			}
+			else
+			{
+				unset($fields['IMAGE_FILE_ID']);
+			}
+		}
+
 		if (isset($fields['IMAGE']))
 		{
 			$fields['IMAGE_ID'] = CRestUtil::saveFile($fields['IMAGE']);
@@ -1735,6 +1758,30 @@ class CSocNetLogRestService extends IRestService
 			}
 		}
 
+		$initiatePerms = [
+			UserToGroupTable::ROLE_OWNER,
+			UserToGroupTable::ROLE_MODERATOR,
+			UserToGroupTable::ROLE_USER,
+		];
+		if (
+			!isset($fields['INITIATE_PERMS'])
+			|| !in_array($fields['INITIATE_PERMS'], $initiatePerms, true)
+		)
+		{
+			$isExtranetInstalled =  (
+				ModuleManager::isModuleInstalled('intranet')
+				&& ModuleManager::isModuleInstalled('extranet')
+				&& !empty(Option::get('extranet', 'extranet_site'))
+			);
+			$isExtranet = (
+				$isExtranetInstalled
+				&& Loader::includeModule('extranet')
+				&& \CExtranet::IsExtranetSite()
+			);
+
+			$fields['INITIATE_PERMS'] = ($isExtranet ? UserToGroupTable::ROLE_MODERATOR : UserToGroupTable::ROLE_USER);
+		}
+
 		if (!empty($fields['PROJECT_DATE_START']))
 		{
 			$fields['PROJECT_DATE_START'] = CRestUtil::unConvertDate($fields['PROJECT_DATE_START']);
@@ -1752,9 +1799,9 @@ class CSocNetLogRestService extends IRestService
 				: self::getCurrentUserId()
 		);
 
-		$groupID = CSocNetGroup::createGroup($ownerId, $fields, false);
+		$groupId = CSocNetGroup::createGroup($ownerId, $fields, false);
 
-		if ($groupID <= 0)
+		if ($groupId <= 0)
 		{
 			throw new Exception('Cannot create group');
 		}
@@ -1762,14 +1809,41 @@ class CSocNetLogRestService extends IRestService
 		{
 			CSocNetFeatures::SetFeature(
 				SONET_ENTITY_GROUP,
-				$groupID,
+				$groupId,
 				'files',
-				true,
-				false
+				true
 			);
+
+			if (
+				isset($fields['GROUP_THEME_ID'])
+				&& Loader::includeModule('intranet')
+			)
+			{
+				$siteTemplateId = 'bitrix24';
+
+				if ($themePicker = new ThemePicker($siteTemplateId, SITE_ID, self::getCurrentUserId(), ThemePicker::ENTITY_TYPE_SONET_GROUP, $groupId))
+				{
+					if (empty($fields['GROUP_THEME_ID']))
+					{
+						$themesList = $themePicker->getPatternThemes();
+						$themePickerData = $themesList[array_rand($themesList)];
+						$fields['GROUP_THEME_ID'] = $themePickerData['id'];
+					}
+
+					try
+					{
+						$themePicker->setCurrentThemeId($fields['GROUP_THEME_ID']);
+						unset($themePicker);
+					}
+					catch (\Bitrix\Main\ArgumentException $exception)
+					{
+
+					}
+				}
+			}
 		}
 
-		return $groupID;
+		return $groupId;
 	}
 
 	public static function updateGroup($arFields)
@@ -1779,6 +1853,34 @@ class CSocNetLogRestService extends IRestService
 			if (in_array(mb_substr($key, 0, 1), [ '~', '=' ]))
 			{
 				unset($arFields[$key]);
+			}
+		}
+
+		if (isset($arFields['IMAGE_FILE_ID']) && Loader::includeModule('disk'))
+		{
+			$imageFileId = (int)$arFields['IMAGE_FILE_ID'];
+
+			if ($imageFileId === 0)
+			{
+				$arFields['IMAGE_ID'] = ['del' => 'Y'];
+				unset($arFields['IMAGE']);
+			}
+			else if (
+				$imageFileId > 0
+				&& ($file = File::loadById($imageFileId))
+				&& $file->canRead($file->getStorage()->getSecurityContext(self::getCurrentUserId()))
+			)
+			{
+				$image = \CFile::MakeFileArray($file->getFileId());
+				$image['del'] = 'N';
+				\CFile::ResizeImage($image, ['width' => 300, 'height' => 300]);
+				$arFields['IMAGE_ID'] = $image;
+
+				unset($arFields['IMAGE']);
+			}
+			else
+			{
+				unset($arFields['IMAGE_FILE_ID']);
 			}
 		}
 
@@ -1809,39 +1911,20 @@ class CSocNetLogRestService extends IRestService
 			throw new Exception('Wrong group ID');
 		}
 
-		$arFilter = array(
-			"ID" => $groupID
-		);
-
-		if (!self::isCurrentUserAdmin())
+		if (!Workgroup::canUpdate([
+			'groupId' => $groupID,
+		]))
 		{
-			$arFilter['CHECK_PERMISSIONS'] = self::getCurrentUserId();
+			throw new Exception('User has no permissions to update group');
 		}
 
-		$dbRes = CSocNetGroup::GetList(array(), $arFilter);
-		$arGroup = $dbRes->Fetch();
-		if (is_array($arGroup))
+		$res = CSocNetGroup::Update($groupID, $arFields, false);
+		if ((int)$res <= 0)
 		{
-			if (
-				(int)$arGroup['OWNER_ID'] === self::getCurrentUserId()
-				|| self::isCurrentUserAdmin()
-			)
-			{
-				$res = CSocNetGroup::Update($arGroup["ID"], $arFields, false);
-				if ((int)$res <= 0)
-				{
-					throw new Exception('Cannot update group');
-				}
-			}
-			else
-			{
-				throw new Exception('User has no permissions to update group');
-			}
-
-			return $res;
+			throw new Exception('Cannot update group');
 		}
 
-		throw new Exception('Socialnetwork group not found');
+		return $res;
 	}
 
 	public static function deleteGroup($arFields): bool
@@ -1891,54 +1974,17 @@ class CSocNetLogRestService extends IRestService
 
 	public static function setGroupOwner($arFields): bool
 	{
-		$groupId = $arFields['GROUP_ID'];
-		$newOwnerId = $arFields['USER_ID'];
-
-		if ((int)$groupId <= 0)
+		try
 		{
-			throw new Exception('Wrong group ID');
+			return Workgroup::setOwner([
+				'groupId' => $arFields['GROUP_ID'],
+				'userId' => $arFields['USER_ID'],
+			]);
 		}
-
-		if ((int)$newOwnerId <= 0)
+		catch(Exception $e)
 		{
-			throw new Exception('Wrong new owner ID');
+			throw new Exception($e->getMessage(), $e->getCode());
 		}
-
-		$filter = [
-			'ID' => $groupId,
-		];
-
-		if (!self::isCurrentUserAdmin())
-		{
-			$filter['CHECK_PERMISSIONS'] = self::getCurrentUserId();
-		}
-
-		$dbRes = CSocNetGroup::getList(array(), $filter);
-		$groupFields = $dbRes->fetch();
-		if (is_array($groupFields))
-		{
-			if (
-				(int)$groupFields['OWNER_ID'] === self::getCurrentUserId()
-				|| self::isCurrentUserAdmin()
-			)
-			{
-				if (!CSocNetUserToGroup::setOwner($newOwnerId, $groupFields["ID"], $groupFields))
-				{
-					throw new Exception('Cannot change group owner');
-				}
-			}
-			else
-			{
-				throw new Exception('User has no permissions to change group owner');
-			}
-		}
-		else
-		{
-			throw new Exception('Socialnetwork group not found');
-		}
-
-		return true;
-
 	}
 
 	public static function getGroup($arFields, $n, $server)
@@ -2833,7 +2879,7 @@ class CSocNetLogRestService extends IRestService
 		return $value;
 	}
 
-	private static function getCurrentUserType(): string
+	public static function getCurrentUserType(): string
 	{
 		$result = '';
 
@@ -2857,7 +2903,7 @@ class CSocNetLogRestService extends IRestService
 		return $result;
 	}
 
-	private static function getExtranetSiteId()
+	public static function getExtranetSiteId()
 	{
 		static $result = null;
 

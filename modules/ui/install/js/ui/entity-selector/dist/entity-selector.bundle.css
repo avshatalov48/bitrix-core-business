@@ -868,7 +868,6 @@
 
 .ui-selector-item-box-open > .ui-selector-item-children {
 	height: auto;
-	margin-bottom: 15px;
 	display: block;
 }
 
@@ -1108,7 +1107,7 @@
 	overflow: hidden;
 	-o-text-overflow: ellipsis;
 	   text-overflow: ellipsis;
-	font: bold 13px/13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: bold 13px/29px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	margin-left: 13px;
 }
 

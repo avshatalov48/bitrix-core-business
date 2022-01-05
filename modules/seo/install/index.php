@@ -46,7 +46,7 @@ class seo extends CModule
 
 		$this->errors = false;
 		if(!$DB->Query("SELECT 'x' FROM b_seo_search_engine", true))
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/seo/install/db/".mb_strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/seo/install/db/mysql/install.sql");
 
 		if($this->errors !== false)
 		{
@@ -174,7 +174,7 @@ class seo extends CModule
 
 		if (!$arParams['savedata'])
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/seo/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/seo/install/db/mysql/uninstall.sql");
 
 			if(empty($this->errors))
 			{

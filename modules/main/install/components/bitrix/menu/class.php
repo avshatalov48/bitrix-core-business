@@ -92,7 +92,16 @@ class CBitrixMenuComponent extends CBitrixComponent
 				if(!preg_match("'^(([a-z]+://)|mailto:|javascript:)'i", $arMenu[$menuIndex]["LINK"]))
 				{
 					if(mb_substr($arMenu[$menuIndex]["LINK"], -1) == "/")
-						$bDir = true;
+					{
+						if ($parentItem && $parentItem['LINK'] === $arMenu[$menuIndex]["LINK"])
+						{
+							$bDir = false;
+						}
+						else
+						{
+							$bDir = true;
+						}
+					}
 				}
 				if($bDir)
 				{

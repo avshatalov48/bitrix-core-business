@@ -1,4 +1,7 @@
 <?
+
+use \Bitrix\Sale\Internals\FacebookConversion;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 class CatalogItemComponent extends CBitrixComponent
@@ -27,6 +30,10 @@ class CatalogItemComponent extends CBitrixComponent
 
 	public function executeComponent()
 	{
+		$this->arResult['IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED'] =
+			\Bitrix\Main\Loader::includeModule('sale')
+			&& FacebookConversion::isEventEnabled('CustomizeProduct')
+		;
 		$this->includeComponentTemplate();
 	}
 }

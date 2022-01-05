@@ -253,9 +253,9 @@ class UserTable extends DataManager
 		else
 		{
 			$sql = "
-				SELECT COUNT(ID) 
-				FROM b_user U 
-				WHERE U.ACTIVE = 'Y' 
+				SELECT COUNT(ID)
+				FROM b_user U
+				WHERE U.ACTIVE = 'Y'
 				   {$filter}
 			";
 		}

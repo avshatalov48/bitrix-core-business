@@ -1,5 +1,17 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var CBitrixComponent $this */
+/** @var array $arParams */
+/** @var array $arResult */
+/** @global CMain $APPLICATION */
+/** @global CUser $USER */
+
+use Bitrix\Socialnetwork\ComponentHelper;
 
 if (!CModule::IncludeModule("socialnetwork"))
 {
@@ -11,7 +23,7 @@ $arParams["USER_ID"] = intval($arParams["USER_ID"]);
 if ($arParams["USER_ID"] <= 0)
 	$arParams["USER_ID"] = intval($USER->GetID());
 
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
+$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] === "N" ? "N" : "Y");
 
 if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
@@ -26,41 +38,9 @@ $arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 6;
 
-// for bitrix:main.user.link
-if (IsModuleInstalled('intranet'))
-{
-	$arTooltipFieldsDefault	= serialize(array(
-		"EMAIL",
-		"PERSONAL_MOBILE",
-		"WORK_PHONE",
-		"PERSONAL_ICQ",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION",
-	));
-	$arTooltipPropertiesDefault = serialize(array(
-		"UF_DEPARTMENT",
-		"UF_PHONE_INNER",
-	));
-}
-else
-{
-	$arTooltipFieldsDefault = serialize(array(
-		"PERSONAL_ICQ",
-		"PERSONAL_BIRTHDAY",
-		"PERSONAL_PHOTO",
-		"PERSONAL_CITY",
-		"WORK_COMPANY",
-		"WORK_POSITION"
-	));
-	$arTooltipPropertiesDefault = serialize(array());
-}
-
-if (!array_key_exists("SHOW_FIELDS_TOOLTIP", $arParams))
-	$arParams["SHOW_FIELDS_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_fields", $arTooltipFieldsDefault), [ 'allowed_classes' => false ]);
-if (!array_key_exists("USER_PROPERTY_TOOLTIP", $arParams))
-	$arParams["USER_PROPERTY_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_properties", $arTooltipPropertiesDefault), [ 'allowed_classes' => false ]);
+$tooltipParams = ComponentHelper::checkTooltipComponentParams($arParams);
+$arParams['SHOW_FIELDS_TOOLTIP'] = $tooltipParams['SHOW_FIELDS_TOOLTIP'];
+$arParams['USER_PROPERTY_TOOLTIP'] = $tooltipParams['USER_PROPERTY_TOOLTIP'];
 
 if (CSocNetUser::IsFriendsAllowed())
 {
@@ -159,7 +139,7 @@ if (CSocNetUser::IsFriendsAllowed())
 							"SHOW_PROFILE_LINK" => $canViewProfile,
 							"BIRTHDAY" => $val,
 							"NOW" => ($nowDay == $day && $nowMonth == $month),
-							"IS_ONLINE" => ($arFriends["IS_ONLINE"] == "Y")
+							"IS_ONLINE" => ($arFriends["IS_ONLINE"] === "Y")
 						);
 
 						$cnt++;
@@ -175,4 +155,3 @@ if (CSocNetUser::IsFriendsAllowed())
 
 	$this->IncludeComponentTemplate();
 }
-?>

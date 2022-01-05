@@ -1,4 +1,5 @@
 import {Type} from 'main.core';
+import {BaseEvent} from 'main.core.events';
 
 import {MoreButton} from './morebutton';
 
@@ -7,8 +8,9 @@ export class Forum
 	static cssClass = {
 	};
 
-	static processSpoilerToggle(params)
+	static processSpoilerToggle(event: BaseEvent)
 	{
+		let [ params ] = event.getCompatData();
 		if (!Type.isPlainObject(params))
 		{
 			params = {};

@@ -29,8 +29,8 @@ if (file_exists($abs_path))
 			__IncludeLang(WIZARD_THEME_ABSOLUTE_PATH."/lang/".LANGUAGE_ID."/description.php");
 	}
 
-	@include(WIZARD_THEME_ABSOLUTE_PATH."/description.php"); 
-$strThemeName = strtolower($arTemplate["NAME"]); 
+	@include(WIZARD_THEME_ABSOLUTE_PATH."/description.php");
+	$strThemeName = mb_strtolower($arTemplate["NAME"]);
 
 	if (is_file(WIZARD_TEMPLATE_ABSOLUTE_PATH."/description.php"))
 	{

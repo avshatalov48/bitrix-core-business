@@ -670,7 +670,7 @@
 				container = BX.create("DIV", {
 					attrs : {
 						id : ("record-" + id.join('-') + '-cover'),
-						className : "feed-com-block-cover",
+						className : "feed-com-block-cover post-comment-active-progress",
 						"bx-mpl-xml-id" : this.getXmlId(),
 						"bx-mpl-entity-id" : id[1],
 						"bx-mpl-read-status" : "old"
@@ -946,6 +946,21 @@
 							entityType: (BX.type.isNotEmptyString(commentEntityType) ? commentEntityType : 'BLOG_COMMENT'),
 							entityId: id
 						});
+					}
+				});
+			}
+
+			if (
+				commentNode.getAttribute('bx-mpl-edit-show') == 'Y'
+				&& BX.Tasks.ResultAction
+				&& entityXmlId.indexOf('TASK_') === 0
+				&& BX.Tasks.ResultAction.getInstance().canCreateResult(+/\d+/.exec(entityXmlId))
+			)
+			{
+				menuItems.push({
+					title: BX.message('BPC_MES_RESULT'),
+					callback: function() {
+						BX.Tasks.ResultAction.getInstance().createFromComment(id);
 					}
 				});
 			}

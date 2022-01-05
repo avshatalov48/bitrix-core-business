@@ -882,6 +882,11 @@ if (CModule::IncludeModule("intranet"))
 		"DEFAULT" => "user/#user_id#/tasks/projects/",
 		"VARIABLES" => array("user_id"),
 	);
+	$arComponentParameters["PARAMETERS"]["SEF_MODE"]["user_tasks_scrum_overview"] = array(
+		"NAME" => GetMessage("SONET_SEF_USER_TASKS_SCRUM_OVERVIEW"),
+		"DEFAULT" => "user/#user_id#/tasks/scrum/",
+		"VARIABLES" => array("user_id"),
+	);
 	$arComponentParameters["PARAMETERS"]["SEF_MODE"]["user_tasks_report"] = array(
 		"NAME" => GetMessage("SONET_SEF_USER_TASKS_REPORT"),
 		"DEFAULT" => "user/#user_id#/tasks/report/",

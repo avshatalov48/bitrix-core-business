@@ -2,6 +2,7 @@ import {FormFieldTunnerAbstract} from "../formfieldtunnerabstract";
 import {FormFieldTunnerPopupAbstract} from "../formfieldtunnerpopupabstract";
 import {BookingUtil} from "calendar.resourcebooking";
 import {Loc, Type} from "main.core";
+import {MenuItem} from "main.popup";
 
 export class TimeSelectorFieldTunner extends FormFieldTunnerAbstract {
 	constructor()
@@ -70,14 +71,11 @@ class TimeStatePopup extends FormFieldTunnerPopupAbstract
 
 	getMenuItems()
 	{
-		let
-			submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
-
 		return [
-			{
-				html: '<span>' + Loc.getMessage('WEBF_RES_TIME_STYLE') + '</span>',
-				className: submenuClass
-			},
+			new MenuItem({
+				text: Loc.getMessage('WEBF_RES_TIME_STYLE'),
+				delimiter: true
+			}),
 			{
 				id: 'time-state-style-select',
 				text: Loc.getMessage('WEBF_RES_TIME_STYLE_SELECT'),

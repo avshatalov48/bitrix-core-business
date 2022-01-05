@@ -395,23 +395,11 @@ class Site
 
 			if ($mark)
 			{
-				$publicRes = $landing->publication();
+				$landing->publication();
 			}
 			else
 			{
-				$publicRes = $landing->unpublic();
-			}
-
-			if (!$publicRes)
-			{
-				$error = new \Bitrix\Landing\Error();
-				$error->addError(
-					'PUBLIC_SITE_REACHED',
-					\Bitrix\Landing\Restriction\Manager::getSystemErrorMessage('limit_sites_number')
-				);
-				$result->setError($error);
-				$wasError = true;
-				break;
+				$landing->unpublic();
 			}
 
 			if (!$landing->getError()->isEmpty())

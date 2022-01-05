@@ -338,8 +338,8 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 					<span class="checklist-testlist-level3-cont">
 						<span class="checklist-testlist-level3-cont-nom"><?=$num++.". ";?></span>
 						<span class="checklist-testlist-level3-cont-right">
-							<span class="checklist-testlist-level3-cont-border" onclick="ShowPopupWindow('<?=$pkey;?>', '<?=addslashes($pFields["NAME"]);?>');"><?=$pFields["NAME"];?></span>
-							<span id="comments_<?=$pkey;?>" onclick="ShowPopupWindow('<?=$pkey;?>','<?=addslashes($pFields["NAME"]);?>');" class="checklist-testlist-comments" ><?=(is_array($pFields["STATE"]["COMMENTS"])? count($pFields["STATE"]["COMMENTS"]) : 0);?></span>
+							<span class="checklist-testlist-level3-cont-border" onclick="ShowPopupWindow('<?=$pkey;?>', '<?=htmlspecialcharsbx(CUtil::JSEscape($pFields["NAME"]));?>');"><?=$pFields["NAME"];?></span>
+							<span id="comments_<?=$pkey;?>" onclick="ShowPopupWindow('<?=$pkey;?>','<?=htmlspecialcharsbx(CUtil::JSEscape($pFields["NAME"]));?>');" class="checklist-testlist-comments" ><?=(is_array($pFields["STATE"]["COMMENTS"])? count($pFields["STATE"]["COMMENTS"]) : 0);?></span>
 						</span>
 					</span>
 					<span id="mark_<?=$pkey;?>"></span>
@@ -356,8 +356,8 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 									<span class="checklist-testlist-level3-cont">
 										<span class="checklist-testlist-level3-cont-nom"><?=$num++.". ";?></span>
 										<span class="checklist-testlist-level3-cont-right">
-											<span class="checklist-testlist-level3-cont-border" onclick="ShowPopupWindow('<?=$pkey;?>','<?=addslashes($pFields["NAME"]);?>');"><?=$pFields["NAME"];?></span>
-											<span id="comments_<?=$pkey;?>" class="checklist-testlist-comments" onclick="ShowPopupWindow('<?=$pkey;?>','<?=addslashes($pFields["NAME"]);?>');"><?=(is_array($pFields["STATE"]["COMMENTS"])? count($pFields["STATE"]["COMMENTS"]) : 0);?></span>
+											<span class="checklist-testlist-level3-cont-border" onclick="ShowPopupWindow('<?=$pkey;?>','<?=htmlspecialcharsbx(CUtil::JSEscape($pFields["NAME"]));?>');"><?=$pFields["NAME"];?></span>
+											<span id="comments_<?=$pkey;?>" class="checklist-testlist-comments" onclick="ShowPopupWindow('<?=$pkey;?>','<?=htmlspecialcharsbx(CUtil::JSEscape($pFields["NAME"]));?>');"><?=(is_array($pFields["STATE"]["COMMENTS"])? count($pFields["STATE"]["COMMENTS"]) : 0);?></span>
 										</span>
 									</span>
 									<span id="mark_<?=$pkey;?>"></span>

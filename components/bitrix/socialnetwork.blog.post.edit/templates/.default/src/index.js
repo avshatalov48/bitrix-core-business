@@ -13,5 +13,5 @@ export {
 	PostFormDateEnd,
 	PostFormGratSelector,
 	PostFormAutoSave,
-	PostFormEditor
+	PostFormEditor,
 }

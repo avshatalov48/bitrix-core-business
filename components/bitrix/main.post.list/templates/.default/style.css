@@ -668,7 +668,7 @@ div.feed-com-avatar-Y { background: none; }
 }
 
 .feed-com-block-outer .feed-new-like {
-	padding: 5px 13px 5px 19px;
+	padding: 5px 13px 5px 23px;
 }
 
 .feed-com-block-outer .feed-com-informers-bottom .feed-com-reply {
@@ -739,7 +739,7 @@ div.feed-com-avatar-Y { background: none; }
 	min-height: 39px;
 	max-width: 820px;
 	border: 1px solid rgba(143, 148, 151, 0.27);
-	border-radius: 22px;
+	border-radius: 20px;
 }
 
 @media (max-width: 1335px) {

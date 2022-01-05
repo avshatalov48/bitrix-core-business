@@ -50,6 +50,14 @@
 	contain: layout;
 }
 
+.landing-ui-panel-show-from-right.landing-ui-panel-content {
+	left: auto;
+	right: 0;
+	-webkit-transform: translateX(100%);
+	    -ms-transform: translateX(100%);
+	        transform: translateX(100%);
+}
+
 .landing-ui-panel.landing-ui-panel-link {
 	z-index: 333;
 }
@@ -70,6 +78,17 @@
 .landing-ui-panel-content.landing-ui-hide {
 	-webkit-animation: hideContentPanel 400ms ease both;
 	        animation: hideContentPanel 400ms ease both;
+	visibility: visible;
+}
+
+.landing-ui-panel-show-from-right.landing-ui-panel-content.landing-ui-show {
+	-webkit-animation: showContentPanelFromRight 400ms ease both;
+	        animation: showContentPanelFromRight 400ms ease both;
+}
+
+.landing-ui-panel-show-from-right.landing-ui-panel-content.landing-ui-hide {
+	-webkit-animation: hideContentPanelToRight 400ms ease both;
+	        animation: hideContentPanelToRight 400ms ease both;
 	visibility: visible;
 }
 
@@ -130,6 +149,64 @@
 		opacity: 0;
 		-webkit-transform: translateX(-100%);
 		        transform: translateX(-100%);
+	}
+}
+
+@-webkit-keyframes showContentPanelFromRight {
+	0% {
+		opacity: 0;
+		-webkit-transform: translateX(100%);
+		        transform: translateX(100%);
+	}
+	100% {
+		visibility: visible;
+		opacity: 1;
+		-webkit-transform: translateX(0);
+		        transform: translateX(0);
+	}
+}
+
+@keyframes showContentPanelFromRight {
+	0% {
+		opacity: 0;
+		-webkit-transform: translateX(100%);
+		        transform: translateX(100%);
+	}
+	100% {
+		visibility: visible;
+		opacity: 1;
+		-webkit-transform: translateX(0);
+		        transform: translateX(0);
+	}
+}
+
+@-webkit-keyframes hideContentPanelToRight {
+	0% {
+		visibility: visible;
+		opacity: 1;
+		-webkit-transform: translateX(0);
+		        transform: translateX(0);
+	}
+	100% {
+		visibility: hidden;
+		opacity: 0;
+		-webkit-transform: translateX(100%);
+		        transform: translateX(100%);
+	}
+}
+
+@keyframes hideContentPanelToRight {
+	0% {
+		visibility: visible;
+		opacity: 1;
+		-webkit-transform: translateX(0);
+		        transform: translateX(0);
+	}
+	100% {
+		visibility: hidden;
+		opacity: 0;
+		-webkit-transform: translateX(100%);
+		        transform: translateX(100%);
 	}
 }
 
@@ -329,4 +406,8 @@
 .landing-ui-hide-action-panels .landing-ui-panel-content-action,
 .landing-ui-hide-action-panels .landing-ui-panel-block-action {
 	display: none!important;
+}
+
+.landing-ui-panel-show-from-right .landing-ui-panel-content-close {
+	display: none;
 }

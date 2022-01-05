@@ -1572,6 +1572,8 @@
 					},
 					height: params.countryPopupHeight,
 					offsetRight: 35,
+					padding: 0,
+					contentPadding: 10,
 					angle: {
 						offset: 33
 					},

@@ -36,7 +36,7 @@ class CAllSQLWhere
 		"=%" => "M", //Identical by like
 		"%=" => "M", //Identical by like
 		"!@" => "NIN", //not in
-		"==" => "SE",  // strong equality for boolean and null
+		"==" => "SE",  // strong equality (no is null)
 		"=" => "I", //Identical
 		"%" => "S", //substring
 		"?" => "?", //logical
@@ -449,6 +449,7 @@ class CAllSQLWhere
 		case "E":
 		case "S":
 		case "M":
+		case "SE":
 			if (is_array($FIELD_VALUE))
 			{
 				if (!empty($FIELD_VALUE))
@@ -461,7 +462,7 @@ class CAllSQLWhere
 			}
 			elseif (is_object($FIELD_VALUE))
 				$result[] = $FIELD_NAME." = ".$FIELD_VALUE->compile();
-			elseif ($FIELD_VALUE == 0)
+			elseif ($FIELD_VALUE == 0 && $operation !== "SE")
 				$result[] = "(".$FIELD_NAME." IS NULL OR ".$FIELD_NAME." = 0)";
 			else
 				$result[] = $FIELD_NAME." = ".$FIELD_VALUE;

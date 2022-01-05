@@ -7,6 +7,7 @@ $MESS["CRM_ADS_RTG_CREATE"] = "Создать";
 $MESS["CRM_ADS_RTG_CANCEL"] = "Отменить";
 $MESS["CRM_ADS_RTG_CANCEL_ALT"] = "Отмена";
 $MESS["CRM_ADS_RTG_LOGIN"] = "Подключить";
+$MESS["CRM_ADS_RTG_LOGIN_GOOGLE"] = "Войти с Google";
 $MESS["CRM_ADS_RTG_LOGOUT"] = "Отключить";
 $MESS["CRM_ADS_RTG_REFRESH"] = "Обновить";
 $MESS["CRM_ADS_RTG_ADD_AUDIENCE"] = "Создать аудиторию";

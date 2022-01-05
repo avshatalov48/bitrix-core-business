@@ -1,4 +1,4 @@
-(function (exports,main_core,main_core_events,main_loader) {
+(function (exports,main_core,main_core_events) {
 	'use strict';
 
 	var ImageInput = /*#__PURE__*/function () {
@@ -14,6 +14,15 @@
 	    this.iblockId = options.iblockId;
 	    this.saveable = options.saveable;
 	    this.inputId = options.inputId;
+
+	    if (options.hideAddButton === true) {
+	      var addButton = this.wrapper.querySelector('[data-role="image-add-button"]');
+	      console.log(addButton);
+
+	      if (main_core.Type.isDomNode(addButton)) {
+	        addButton.style.display = 'none';
+	      }
+	    }
 
 	    if (main_core.Type.isObject(options.values)) {
 	      for (var key in options.values) {
@@ -181,5 +190,5 @@
 
 	main_core.Reflection.namespace('BX.Catalog').ImageInput = ImageInput;
 
-}((this.window = this.window || {}),BX,BX.Event,BX));
+}((this.window = this.window || {}),BX,BX.Event));
 //# sourceMappingURL=script.js.map

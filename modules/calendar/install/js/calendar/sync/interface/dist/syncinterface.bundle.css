@@ -971,6 +971,600 @@
 	z-index: 1;
 }
 
+
+
+.calendar-sync__scope {
+	--font_os_light: 	"OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--font_os_regular: 	"OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--font_os_semibold: "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--font_os_bold: 	"OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--font_helvetica:	"Helvetica Neue", Helvetica, Arial, sans-serif;
+
+	--white: rgba(255,255,255,1);
+	--white_alpha_10: rgba(255,255,255,.1);
+	--white_alpha_15: rgba(255,255,255,.15);
+	--white_alpha_20: rgba(255,255,255,.2);
+	--white_alpha_25: rgba(255,255,255,.25);
+	--white_alpha_30: rgba(255,255,255,.3);
+	--white_alpha_35: rgba(255,255,255,.35);
+	--white_alpha_40: rgba(255,255,255,.4);
+	--white_alpha_50: rgba(255,255,255,.5);
+	--white_alpha_70: rgba(255,255,255,.7);
+	--white_alpha_75: rgba(255,255,255,.75);
+	--white_alpha_80: rgba(255,255,255,.8);
+	--white_alpha_90: rgba(255,255,255,.9);
+
+	--graphite: rgba(82,92,105,1);
+	--graphite_alpha_04: rgba(82,92,105,.04);
+	--graphite_alpha_07: rgba(82,92,105,.07);
+	--graphite_alpha_08: rgba(82,92,105,.08);
+	--graphite_alpha_10: rgba(82,92,105,.1);
+	--graphite_alpha_15: rgba(82,92,105,.15);
+	--graphite_alpha_30: rgba(82,92,105,.3);
+	--graphite_alpha_40: rgba(82,92,105,.4);
+	--graphite_alpha_50: rgba(82,92,105,.5);
+	--graphite_alpha_60: rgba(82,92,105,.6);
+	--graphite_alpha_70: rgba(82,92,105,.7);
+	--graphite_alpha_80: rgba(82,92,105,.8);
+
+	--gray: rgba(51,51,51,1);
+	--gray_alpha_80: rgba(51,51,51,.8);
+
+	--green: rgba(157,207,0,1);
+	--green_alpha_30: rgba(157,207,0,.3);
+	--green_alpha_60: rgba(157,207,0,.6);
+
+	--blue: rgba(22,181,232,1);
+	--blue_alpha_50: rgba(22,181,232,.5);
+}
+
+.calendar-sync__wrapper {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+	position: relative;
+	padding: 33px;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+	min-height: 100%;
+}
+
+.calendar-sync__header {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	overflow: hidden;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	margin-bottom: 20px;
+	padding: 25px 0;
+	min-height: 117px;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+	background: var(--white_alpha_80);
+	-webkit-box-shadow: 0 4px 13px 0 var(--graphite_alpha_04);
+	        box-shadow: 0 4px 13px 0 var(--graphite_alpha_04);
+	border-radius: 22px;
+}
+
+.calendar-sync__header-logo {
+	display: block;
+	width: 68px;
+	min-width: 68px;
+	height: 68px;
+	margin: 0 23px 0 21px;
+	background: var(--green_alpha_30) url(../image/calendar_sync__icon-header-logo.svg) 15px 16px no-repeat;
+	background-size: 65%;
+	border-radius: 100%;
+}
+
+.calendar-sync__header-container {
+	-webkit-box-flex: 1;
+	    -ms-flex: 1;
+	        flex: 1;
+	padding-right: 30px;
+	font-family: var(--font_os_light);
+}
+
+.calendar-sync__header-title {
+	margin-bottom: 10px;
+	font-size: 28px;
+	line-height: 32px;
+	color: #202020;
+}
+
+.calendar-sync__header-sub-title {
+	font-size: 18px;
+	line-height: 24px;
+	color: var(--graphite_alpha_80);
+}
+
+.calendar-sync__content {
+	-webkit-box-flex: 1;
+	    -ms-flex: 1;
+	        flex: 1;
+	display: block;
+	overflow: hidden;
+	padding: 25px 28px;
+	background: var(--white_alpha_80);
+	-webkit-box-shadow: 0 4px 13px 0 var(--graphite_alpha_04);
+	        box-shadow: 0 4px 13px 0 var(--graphite_alpha_04);
+	border-radius: 22px;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+}
+
+.calendar-sync__content-block {
+	display: block;
+}
+
+.calendar-sync__content-block.--align-center {
+	text-align: center;
+}
+
+.calendar-sync__content-block.--space-bottom {
+	margin-bottom: 20px;
+}
+
+.calendar-sync__content-block.--space-bottom-xl {
+	margin-bottom: 40px;
+}
+
+.calendar-sync__content-block.--space-left {
+	padding-left: 30px;
+}
+
+.calendar-sync__content-block:last-child {
+	margin-bottom: 0;
+}
+
+.calendar-sync__content-text {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	font: 15px/21px var(--font_os_regular);
+	color: var(--graphite_alpha_80);
+}
+
+.calendar-sync__content-text.--disabled {
+	color: var(--graphite_alpha_40);
+}
+
+.calendar-sync__content-link {
+	display: inline-block;
+	font: 12px/18px var(--font_os_regular);
+	color: var(--graphite_alpha_80);
+	border-bottom: 1px dashed var(--graphite_alpha_60);
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.calendar-sync__content-link:hover {
+	border-bottom: 1px dashed var(--graphite_alpha_80);
+}
+
+.calendar-sync__content-text.--icon-check:before {
+	content: '';
+	display: block;
+	min-width: 20px;
+	height: 20px;
+	margin: 1px 10px 0 0;
+	background: url(../image/calendar-sync__icon-check.svg) center no-repeat;
+}
+
+.calendar-sync__content-text.--icon-check.--disabled:before {
+	background-image: url(../image/calendar-sync__icon-check--disabled.svg);
+}
+
+.calendar-sync__calendar-list {
+	display: block;
+	margin-bottom: 30px;
+}
+
+.calendar-sync__calendar-item {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	position: relative;
+	min-height: 100px;
+	margin-bottom: 10px;
+	background: var(--white);
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	    -ms-user-select: none;
+	        user-select: none;
+	cursor: pointer;
+}
+
+.calendar-sync__calendar-item:last-child {
+	margin-bottom: 0;
+}
+
+.calendar-sync__calendar-item:hover {
+	background: -webkit-gradient(
+		linear, left bottom, left top, from(rgba(47, 198, 246, 0.04)), to(rgba(47, 198, 246, 0.04))), #FFFFFF;
+	background: -o-linear-gradient(
+		bottom, rgba(47, 198, 246, 0.04), rgba(47, 198, 246, 0.04)), #FFFFFF;
+	background: linear-gradient(
+		0deg, rgba(47, 198, 246, 0.04), rgba(47, 198, 246, 0.04)), #FFFFFF;
+}
+
+.calendar-sync__calendar-item:after {
+	content: '';
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	pointer-events: none;
+	border: 1px solid rgba(168,173,180,.31);
+	-webkit-box-shadow: 0 1px 4px var(--graphite_alpha_07);
+	        box-shadow: 0 1px 4px var(--graphite_alpha_07);
+	border-radius: 8px;
+	-webkit-transition: .1s;
+	-o-transition: .1s;
+	transition: .1s;
+}
+
+.calendar-sync__calendar-item:hover:after {
+	border: 1px solid var(--blue_alpha_50);
+	-webkit-box-shadow: 0 4px 13px var(--graphite_alpha_04);
+	        box-shadow: 0 4px 13px var(--graphite_alpha_04);
+}
+
+.calendar-sync__calendar-item.--active {
+	background: -webkit-gradient(linear, left bottom, left top, from(rgba(47, 198, 246, 0.06)), to(rgba(47, 198, 246, 0.06))), #fff !important;
+	background: -o-linear-gradient(bottom, rgba(47, 198, 246, 0.06), rgba(47, 198, 246, 0.06)), #fff !important;
+	background: linear-gradient(0deg, rgba(47, 198, 246, 0.06), rgba(47, 198, 246, 0.06)), #fff !important;
+}
+
+.calendar-sync__calendar-item.--active:after {
+	border: 2px solid var(--blue) !important;
+	-webkit-box-shadow: 0 4px 13px var(--graphite_alpha_04);
+	        box-shadow: 0 4px 13px var(--graphite_alpha_04);
+}
+
+.calendar-sync__calendar-item.--pending {
+	pointer-events: none;
+}
+
+.calendar-sync__calendar-item--logo {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	-webkit-box-pack: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	width: 95px;
+	max-width: 95px;
+	background: center no-repeat;
+}
+
+.calendar-sync__calendar-item--logo-image {
+	display: block;
+	width: 64px;
+	height: 64px;
+	background: var(--graphite_alpha_04) center no-repeat;
+	border-radius: 100%;
+}
+
+.calendar-sync__calendar-item--logo-image.--office365 {
+	background-image: url(../image/calendar-sync__icon-office365.svg);
+}
+
+.calendar-sync__calendar-item--logo-image.--google {
+	background-image: url(../image/calendar-sync__icon-google.svg);
+}
+
+.calendar-sync__calendar-item--logo-image.--icloud {
+	background-image: url(../image/calendar-sync__icon-icloud.svg);
+}
+
+.calendar-sync__calendar-item--logo-image.--iphone {
+	background-image: url(../image/calendar-sync__icon-icloud.svg);
+}
+
+.calendar-sync__calendar-item--logo-image.--mac {
+	background-image: url(../image/calendar-sync__icon-icloud.svg);
+}
+
+.calendar-sync__calendar-item--logo-image.--yandex {
+	background-image: url(../image/calendar-sync__icon-yandex.svg);
+	background-size: 21px;
+	background-position: 20px 16px;
+}
+
+.calendar-sync__calendar-item--logo-image.--exchange {
+	background-image: url(../image/calendar-sync__icon-ms-exchange.svg);
+	background-size: 36px;
+}
+
+.calendar-sync__calendar-item--logo-image.--android {
+	background-image: url(../image/calendar-sync__icon-android.svg);
+	background-size: 31px;
+}
+
+.calendar-sync__calendar-item--logo-image.--outlook {
+	background-image: url(../image/calendar-sync__icon-outlook.svg);
+	background-size: 36px;
+}
+
+.calendar-sync__calendar-item--logo-image.--caldav {
+	background-image: url(../image/calendar-sync__icon-caldav.svg);
+	background-position: 16px center;
+	background-size: 36px;
+}
+
+.calendar-sync__calendar-item--container {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-flex: 1;
+	    -ms-flex: 1;
+	        flex: 1;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	overflow: hidden;
+	padding: 10px 20px 10px 0;
+}
+
+.calendar-sync__calendar-item--title {
+	-webkit-box-flex: 1;
+	    -ms-flex: 1;
+	        flex: 1;
+	overflow: hidden;
+	font-size: 15px;
+	line-height: 22px;
+	font-family: var(--font_os_semibold);
+	color: var(--graphite);
+}
+
+.calendar-sync__calendar-item--buttons {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	overflow: hidden;
+}
+
+.calendar-sync__calendar-item--more {
+	display: block;
+	overflow: hidden;
+	width: 39px;
+	height: 39px;
+	background: url(../image/calendar-sync__icon-dotted.svg) center no-repeat;
+	opacity: .7;
+	-webkit-transition: .2s;
+	-o-transition: .2s;
+	transition: .2s;
+}
+
+.calendar-sync__calendar-item--more.--active,
+.calendar-sync__calendar-item--more:hover {
+	opacity: 1;
+	-webkit-transition: none;
+	-o-transition: none;
+	transition: none;
+}
+
+.calendar-sync__steps {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: space-evenly;
+	    -ms-flex-pack: space-evenly;
+	        justify-content: space-evenly;
+	margin-bottom: 15px;
+}
+
+.calendar-sync__steps--item {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	opacity: .4;
+	-webkit-transition: .2s;
+	-o-transition: .2s;
+	transition: .2s;
+}
+
+.calendar-sync__steps--item.--active {
+	opacity: 1;
+}
+
+.calendar-sync__steps--value {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	-webkit-box-pack: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	width: 20px;
+	height: 20px;
+	margin-bottom: 10px;
+	border-radius: 100%;
+	background: var(--graphite_alpha_70);
+	font: 10px var(--font_os_semibold);
+	color: var(--white);
+	-webkit-transition: .2s;
+	-o-transition: .2s;
+	transition: .2s;
+}
+
+.calendar-sync__steps--item.--active .calendar-sync__steps--value {
+	background: var(--green);
+}
+
+.calendar-sync__steps--title {
+	font: 12px/18px var(--font_os_regular);
+	color: var(--graphite_alpha_80);
+}
+
+.calendar-sync__account {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	margin-bottom: 30px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid var(--graphite_alpha_10);
+}
+
+.calendar-sync__account-logo {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	width: 64px;
+	max-width: 64px;
+	margin-right: 15px;
+}
+
+.calendar-sync__account-logo--image {
+	display: block;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	-webkit-box-pack: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	width: 64px;
+	height: 64px;
+	border-radius: 100%;
+	background: var(--green_alpha_30) url(../image/calendar_sync__icon-header-logo.svg) 14px 16px no-repeat;
+	background-size: 40px;
+}
+
+.calendar-sync__account-content {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+	-webkit-box-pack: space-evenly;
+	    -ms-flex-pack: space-evenly;
+	        justify-content: space-evenly;
+	-webkit-box-flex: 1;
+	    -ms-flex: 1;
+	        flex: 1;
+	overflow: hidden;
+}
+
+.calendar-sync__account-title {
+	display: block;
+	overflow: hidden;
+	white-space: nowrap;
+	-o-text-overflow: ellipsis;
+	   text-overflow: ellipsis;
+	font: 21px/24px var(--font_os_regular);
+	color: var(--graphite);
+}
+
+.calendar-sync__account-info {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	font: 10px/23px var(--font_os_bold);
+	color: var(--graphite_alpha_80);
+}
+
+.calendar-sync__account-info--icon {
+	display: block;
+	width: 18px;
+	height: 18px;
+	margin-right: 2px;
+	background: url(../image/calendar-sync__icon-refresh.svg) center no-repeat;
+}
+
+.calendar-sync__account-info--icon.--animate {
+	-webkit-animation: calendar-sync__account-info--icon-animate 1s linear forwards;
+	        animation: calendar-sync__account-info--icon-animate 1s linear forwards;
+	-webkit-animation-iteration-count: infinite;
+	        animation-iteration-count: infinite;
+}
+
+@-webkit-keyframes calendar-sync__account-info--icon-animate {
+	0% {
+		-webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
+	}
+	100% {
+		-webkit-transform: rotate(360deg);
+		        transform: rotate(360deg);
+	}
+}
+
+@keyframes calendar-sync__account-info--icon-animate {
+	0% {
+		-webkit-transform: rotate(0deg);
+		        transform: rotate(0deg);
+	}
+	100% {
+		-webkit-transform: rotate(360deg);
+		        transform: rotate(360deg);
+	}
+}
+
+.calendar-sync__notification {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	padding: 40px 20px;
+	background: -webkit-gradient(linear, left bottom, left top, from(rgba(47, 198, 246, 0.08)), to(rgba(47, 198, 246, 0.08))), #FFFFFF;
+	background: -o-linear-gradient(bottom, rgba(47, 198, 246, 0.08), rgba(47, 198, 246, 0.08)), #FFFFFF;
+	background: linear-gradient(0deg, rgba(47, 198, 246, 0.08), rgba(47, 198, 246, 0.08)), #FFFFFF;
+	border-radius: 10px;
+}
+
+.calendar-sync__notification-title {
+	font: 33px/48px var(--font_os_light);
+	color: var(--gray);
+}
+
+.calendar-sync__notification-message {
+	font: 21px/29px var(--font_os_light);
+	color: var(--graphite_alpha_80);
+}
+
+
+
+
+
+
+
+
 .calendar-ical-popup-wrapper {
 	padding: 0 7px;
 	border-bottom: 1px solid #EDEEF0;

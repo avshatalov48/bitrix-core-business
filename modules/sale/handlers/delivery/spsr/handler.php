@@ -1,25 +1,17 @@
-<?
+<?php
+
 namespace Sale\Handlers\Delivery;
 
 use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
-use Bitrix\Main\ModuleManager;
 use Bitrix\Sale\Internals\CompanyTable;
 use Bitrix\Sale\Result;
 use \Bitrix\Sale\Shipment;
 use Bitrix\Main\EventManager;
-use Bitrix\Main\Text\Encoding;
-use Bitrix\Sale\BusinessValue;
-use Bitrix\Main\SystemException;
 use Bitrix\Main\Localization\Loc;
-use Sale\Handlers\Delivery\Spsr\Cache;
-use Sale\Handlers\Delivery\Spsr\Request;
 use Sale\Handlers\Delivery\Spsr\Location;
-use Bitrix\Sale\Delivery\Services\Manager;
-use Sale\Handlers\Delivery\Spsr\Calculator;
 use Bitrix\Sale\Delivery\CalculationResult;
-use Bitrix\Sale\Delivery\ExtraServices\Table;
 
 Loc::loadMessages(__FILE__);
 
@@ -40,8 +32,6 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	/** @var string */
 	protected $handlerCode = 'BITRIX_SPSR';
 
-	protected static $url_test_request = "http://spsr.ru/testxml";
-
 	/** @var bool $canHasProfiles This handler can has profiles */
 	protected static $canHasProfiles = true;
 	/** @var bool $whetherAdminExtraServicesShow This handler uses extra services */
@@ -50,7 +40,7 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	protected $trackingClass = '\Sale\Handlers\Delivery\SpsrTracking';
 
 	/**
-	 * @return string
+	 * @inheritDoc
 	 */
 	public static function getClassTitle()
 	{
@@ -58,7 +48,7 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	}
 
 	/**
-	 * @return string
+	 * @inheritDoc
 	 */
 	public static function getClassDescription()
 	{
@@ -72,61 +62,6 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	}
 
 	/**
-	 * Returns string for http request.
-	 * @param Shipment $shipment
-	 * @return Result
-	 */
-	protected function getTarifsReq(Shipment $shipment)
-	{
-		$result = new Result();
-		$icn = $this->getICN($shipment);
-		$res = $this->getSidResult($shipment);
-
-		if(!$res->isSuccess())
-		{
-			$result->addErrors($res->getErrors());
-			return $result;
-		}
-
-		$data = $res->getData();
-		$sid = $data[0];
-		$additional = array();
-
-		if(!empty($this->config['MAIN']['NATURE']))
-			$additional['NATURE'] = $this->config['MAIN']['NATURE'];
-
-		if(isset($this->config['MAIN']['AMOUNT_CHECK']) && intval($this->config['MAIN']['AMOUNT_CHECK']) >= 0)
-			$additional['AMOUNT_CHECK'] = $this->config['MAIN']['AMOUNT_CHECK'];
-
-		if(!empty($icn))
-			$additional['ICN'] = $icn;
-
-		$additional['DEFAULT_WEIGHT'] = $this->config['MAIN']['DEFAULT_WEIGHT'];
-
-		if($sid <> '')
-			$additional['SID'] = $sid;
-
-		foreach($shipment->getExtraServices() as $srvId => $value)
-		{
-			$srvItem = $this->extraServices->getItem($srvId);
-
-			if($srvItem && $srvItem->getCode() <> '')
-				$additional['EXTRA_SERVICES'][$srvItem->getCode()] = $value;
-		}
-
-		$res = Calculator::calculate($shipment, $additional);
-
-		if(!$res->isSuccess())
-		{
-			$result->addErrors($res->getErrors());
-			return $result;
-		}
-
-		$result->setData($res->getData());
-		return $result;
-	}
-
-	/**
 	 * Calculates prices for concrete service
 	 * @param Shipment $shipment
 	 * @param $tariff
@@ -134,51 +69,11 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	 */
 	public function calculateTariff(Shipment $shipment, $tariff)
 	{
-		$result = new CalculationResult();
-		$res = $this->getTarifsReq($shipment);
-
-		if(!$res->isSuccess())
-		{
-			$result->addErrors($res->getErrors());
-			return $result;
-		}
-
-		foreach($res->getData() as $tarffParams)
-		{
-			if(mb_strpos(ToUpper($tarffParams['TariffType']), ToUpper($tariff)) !== false)
-			{
-				$result->setData($res->getData());
-				$result->setDeliveryPrice(
-					floatval($tarffParams['Total_Dost'])+
-					floatval($tarffParams['Insurance'])+
-					floatval($tarffParams['worth'])
-				);
-				$result->setExtraServicesPrice(floatval($tarffParams['Total_DopUsl']));
-
-				if($tarffParams['DP'] <> '')
-				{
-					$result->setPeriodDescription($tarffParams['DP'].' ('.Loc::getMessage('SALE_DLV_SRV_SPSR_DAYS').')');
-
-					$hyphenPos = mb_strpos($tarffParams['DP'], '-');
-
-					if($hyphenPos !== false)
-					{
-						$result->setPeriodFrom(intval(mb_substr($tarffParams['DP'], 0, $hyphenPos)));
-						$result->setPeriodTo(intval(mb_substr($tarffParams['DP'], $hyphenPos + 1)));
-						$result->setPeriodType(CalculationResult::PERIOD_TYPE_DAY);
-					}
-				}
-
-				return $result;
-			}
-		}
-
-		$result->addError(new Error(Loc::getMessage('SALE_DLV_SRV_SPSR_ERROR_TARIF_CALCULATE')));
-		return $result;
+		return (new CalculationResult())->addError(new Error('The company no longer exists'));
 	}
 
 	/**
-	 * @return array Configuration structure
+	 * @inheritDoc
 	 */
 	protected function getConfigStructure()
 	{
@@ -351,20 +246,7 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	}
 
 	/**
-	 * Decodes income data if it needs
-	 * @param $str
-	 * @return array|bool|string
-	 */
-	protected static function utfDecode($str)
-	{
-		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-			$str = Encoding::convertEncodingArray($str, 'UTF-8', SITE_CHARSET);
-
-		return $str;
-	}
-
-	/**
-	 * @return array Class names for profiles.
+	 * @inheritDoc
 	 */
 	public static function getChildrenClassNames()
 	{
@@ -378,10 +260,6 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	 */
 	public static function getCompanyName()
 	{
-		/*
-		 * todo:
- 		 * $companyName = BusinessValue::getValueFromProvider($shipment, 'COMPANY_NAME', 'SHIPMENT');
- 		 */
 		return '';
 	}
 
@@ -391,82 +269,7 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	 */
 	public function getSidResult($shipment = null)
 	{
-		$result = new Result();
-		$login = $this->getLogin($shipment);
-		$pass = $this->getPass($shipment);
-		$sid = Cache::getSidResult($login, $pass);
-
-		if($sid === false)
-		{
-			if(!empty($login) && !empty($pass))
-			{
-				$request = new Request();
-				$res = $request->getSidResult($login, $pass, self::getCompanyName());
-
-				if(!$res->isSuccess())
-				{
-					$result->addErrors($res->getErrors());
-					return $result;
-				}
-
-				$data = $res->getData();
-				$sid = $data[0];
-			}
-			else
-			{
-				$sid = "";
-			}
-
-			Cache::setSid($sid, $login, $pass);
-		}
-
-		$result->setData(array($sid));
-		return $result;
-	}
-
-	/**
-	 * @param string $fieldName
-	 * @param Shipment|null $shipment
-	 * @return string
-	 */
-	protected function getAuthField($fieldName, $shipment = null)
-	{
-		$result = "";
-
-		if($shipment && self::isHoldingUsed())
-		{
-			$result = BusinessValue::get('DELIVERY_SPSR_'.$fieldName, 'DELIVERY_'.$this->getId(), $shipment);
-
-			if($result == '')
-				$result = $this->config['MAIN'][$fieldName];
-		}
-		else
-		{
-			$result = $this->config['MAIN'][$fieldName];
-
-			if($result == '' && self::isHoldingUsed())
-				$result = BusinessValue::get('DELIVERY_SPSR_'.$fieldName, 'DELIVERY_'.$this->getId(), $shipment);
-		}
-
-		return strval($result);
-	}
-
-	/**
-	 * @param Shipment|null $shipment
-	 * @return string
-	 */
-	protected function getLogin($shipment = null)
-	{
-		return $this->getAuthField('LOGIN', $shipment);
-	}
-
-	/**
-	 * @param Shipment|null $shipment
-	 * @return string
-	 */
-	protected function getPass($shipment = null)
-	{
-		return $this->getAuthField('PASS', $shipment);
+		return (new Result())->addError(new Error('The company no longer exists'));
 	}
 
 	/**
@@ -475,7 +278,7 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	 */
 	public function getICN($shipment = null)
 	{
-		return $this->getAuthField('ICN', $shipment);
+		return '';
 	}
 
 	/**
@@ -484,69 +287,7 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	 */
 	public function getServiceTypes($shipment = null)
 	{
-		$result = new Result();
-		$login = $this->getLogin($shipment);
-		$pass = $this->getPass($shipment);
-		$types = Cache::getServiceTypes($login, $pass);
-
-		if($types === false)
-		{
-			$res = self::getSidResult($shipment);
-
-			if($res->isSuccess())
-			{
-				$data = $res->getData();
-				$sessId = $data[0];
-			}
-			else
-			{
-				$result->addErrors($res->getErrors());
-				$sessId = '';
-			}
-
-			$request = new Request();
-			$res = $request->getServiceTypes($sessId, $this->getKnownServices());
-
-			if(!$res->isSuccess())
-			{
-				$result->addErrors($res->getErrors());
-				return $result;
-			}
-
-			$types = $res->getData();
-			$types = self::getOnLineSrvs() + $types;
-			Cache::setServiceTypes($types, $login, $pass);
-		}
-
-		if(!is_array($types))
-			$types = array();
-
-		$result->setData($types);
-		return $result;
-	}
-
-	protected static function getOnLineSrvs()
-	{
-		return array(
-			"28" => array(
-				"ID" => "28",
-				"Name" => Loc::getMessage('SALE_DLV_SRV_SPSR_PELICAN_ONLINE'),
-				"ShortDescription" => Loc::getMessage('SALE_DLV_SRV_SPSR_PELICAN_ONLINE_SDESCR'),
-				"Description" => Loc::getMessage('SALE_DLV_SRV_SPSR_PELICAN_ONLINE_DESCR'),
-			),
-			"35" => array(
-				"ID" => "35",
-				"Name" => Loc::getMessage('SALE_DLV_SRV_SPSR_GEPARD_ONLINE'),
-				"ShortDescription" => Loc::getMessage('SALE_DLV_SRV_SPSR_GEPARD_ONLINE_SDESCR'),
-				"Description" => Loc::getMessage('SALE_DLV_SRV_SPSR_GEPARD_ONLINE_DESCR'),
-			),
-			"36" => array(
-				"ID" => "36",
-				"Name" => Loc::getMessage('SALE_DLV_SRV_SPSR_ZEBRA_ONLINE'),
-				"ShortDescription" => Loc::getMessage('SALE_DLV_SRV_SPSR_ZEBRA_ONLINE_SDESCR'),
-				"Description" => Loc::getMessage('SALE_DLV_SRV_SPSR_ZEBRA_ONLINE_DESCR'),
-			)
-		);
+		return (new Result())->addError(new Error('The company no longer exists'));
 	}
 
 	/**
@@ -558,7 +299,7 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	}
 
 	/**
-	 * @return array Extra services list we can use
+	 * @inheritDoc
 	 */
 	public function getEmbeddedExtraServicesList()
 	{
@@ -647,15 +388,7 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	 */
 	public function getProfilesList($shipment = null)
 	{
-		$result = array();
-		$resSrv = $this->getServiceTypes($shipment);
-		$data = $resSrv->getData();
-
-		if(is_array($data))
-			foreach($data as $id => $params)
-				$result[$id] = $params['Name'];
-
-		return $result;
+		return [];
 	}
 
 	/**
@@ -664,85 +397,12 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	 */
 	public function getCompatibleProfiles(Shipment $shipment)
 	{
-		static $compatibleProfiles = null;
-
-		if($compatibleProfiles !== null)
-			return $compatibleProfiles;
-
-		$profilesList = $this->getProfilesList($shipment);
-
-		if($this->isCalculatePriceImmediately())
-		{
-			$res = $this->getTarifsReq($shipment);
-
-			if(!$res->isSuccess())
-				return array();
-
-			$compatibleProfiles =  array();
-
-			foreach($res->getData() as $tarffParams)
-			{
-				foreach($profilesList as $id => $name)
-				{
-					if(mb_strpos(ToUpper($tarffParams['TariffType']), ToUpper($name)) !== false)
-					{
-						$compatibleProfiles[] = $id;
-						break;
-					}
-				}
-			}
-		}
-		else
-		{
-			$compatibleProfiles = array_keys($profilesList);
-		}
-
-		return $compatibleProfiles;
-	}
-
-	public static function onAfterUpdate($serviceId, array $fields = array())
-	{
-		Cache::cleanAll();
+		return [];
 	}
 
 	/**
-	 * @param int $serviceId
-	 * @param array $fields
-	 * @return bool
+	 * @inheritDoc
 	 */
-	public static function onAfterAdd($serviceId, array $fields = array())
-	{
-		if($serviceId <= 0)
-			return false;
-
-		$result = true;
-
-		//Add profiles
-		$fields["ID"] = $serviceId;
-		$srv = new self($fields);
-		$profiles = $srv->getProfilesDefaultParams();
-
-		if(is_array($profiles))
-		{
-			foreach($profiles as $profile)
-			{
-				$res = Manager::add($profile);
-				$result = $result && $res->isSuccess();
-			}
-		}
-
-		//Add extra services
-		foreach(self::getAlltExtraServices() as $code => $esFields)
-		{
-			$esFields['DELIVERY_ID'] = $serviceId;
-			$esFields['CODE'] = $code;
-			$res = Table::add($esFields);
-			$result = $result && $res->isSuccess();
-		}
-
-		return $result;
-	}
-
 	public static function install()
 	{
 		$eventManager = EventManager::getInstance();
@@ -757,6 +417,9 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 		Location::install();
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public static function unInstall()
 	{
 		$eventManager = EventManager::getInstance();
@@ -781,6 +444,9 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 		);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public static function isInstalled()
 	{
 		return Location::isInstalled();
@@ -788,48 +454,28 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 
 	public function getProfilesDefaultParams()
 	{
-		$result = array();
-
-		$resSrv = $this->getServiceTypes();
-		$srvTypes = $resSrv->getData();
-
-		if(is_array($srvTypes))
-		{
-			foreach($srvTypes as $profId => $params)
-			{
-				$result[] = array(
-					"CODE" => "",
-					"PARENT_ID" => $this->id,
-					"NAME" => $params["Name"],
-					"ACTIVE" => $this->active ? "Y" : "N",
-					"SORT" => $this->sort,
-					"DESCRIPTION" => $params["ShortDescription"],
-					"CLASS_NAME" => '\Sale\Handlers\Delivery\SpsrProfile',
-					"CURRENCY" => $this->currency,
-					"CONFIG" => array(
-						"MAIN" => array(
-							"SERVICE_TYPE" => $profId,
-							"SERVICE_TYPE_NAME" => $params["Name"],
-							"DESCRIPTION_INNER" => $params["Description"]
-						)
-					)
-				);
-			}
-		}
-
-		return $result;
+		return [];
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public static function canHasProfiles()
 	{
 		return self::$canHasProfiles;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public static function whetherAdminExtraServicesShow()
 	{
 		return self::$whetherAdminExtraServicesShow;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function getAdminAdditionalTabs()
 	{
 		global $APPLICATION;
@@ -858,15 +504,6 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	/** @inheritDoc */
 	public static function isHandlerCompatible()
 	{
-		if(!parent::isHandlerCompatible())
-		{
-			return false;
-		}
-
-		return in_array(
-			\Bitrix\Sale\Delivery\Helper::getPortalZone(),
-			['', 'ru', 'kz', 'by'],
-			true
-		);
+		return false;
 	}
 }

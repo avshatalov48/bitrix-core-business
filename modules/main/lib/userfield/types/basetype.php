@@ -312,7 +312,7 @@ abstract class BaseType
 	 */
 	public static function getDefaultValue(array $userField, array $additionalParameters = [])
 	{
-		$value = ($userField['SETTINGS']['DEFAULT_VALUE'] ?? '');
+		$value = ($userField['SETTINGS']['DEFAULT_VALUE'] ?? null);
 		return ($userField['MULTIPLE'] === 'Y' ? [$value] : $value);
 	}
 

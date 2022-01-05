@@ -245,10 +245,11 @@ class SocialNetwork
 	/**
 	 * Returns group path by id.
 	 * @param int $groupId Group id.
-	 * @param string $pagePath Page of landing.
+	 * @param string|null $pagePath Page of landing.
+	 * @param bool $generalPath Returns only general path of group.
 	 * @return string
 	 */
-	public static function getTabUrl($groupId, $pagePath = null)
+	public static function getTabUrl(int $groupId, ?string $pagePath = null, bool $generalPath = false): ?string
 	{
 		static $groupPath = null;
 
@@ -261,10 +262,18 @@ class SocialNetwork
 			}
 		}
 
-		$groupId = intval($groupId);
 		if ($groupId && $groupPath)
 		{
 			$groupPath = str_replace('#group_id#', $groupId, $groupPath);
+		}
+
+		if ($generalPath)
+		{
+			return $groupPath;
+		}
+
+		if ($groupId && $groupPath)
+		{
 			$uri = new \Bitrix\Main\Web\Uri($groupPath);
 			$uri->addParams([
 				'tab' => self::SETTINGS_CODE_SHORT

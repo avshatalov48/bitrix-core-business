@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BUYERS_DETAIL_DESCR"] = "Переглянути детальну інформацію про замовлення";
 $MESS["BUYERS_FROM"] = "від";
 $MESS["BUYERS_H_ACCOUNT_NUMBER"] = "Номер замовлення";
@@ -59,7 +59,6 @@ $MESS["BUYER_DONT_CAN_BUY"] = "Товар відсутній";
 $MESS["BUYER_EDIT"] = "Редагувати покупця";
 $MESS["BUYER_FILED_ADRES"] = "Адреса";
 $MESS["BUYER_FILED_FIO"] = "П.І.Б. покупця";
-$MESS["BUYER_FILED_GROUP"] = "Групи користувача";
 $MESS["BUYER_FILED_GROUP1"] = "Активні групи користувача";
 $MESS["BUYER_FILED_LAST_LOGIN"] = "Дата останнього входу";
 $MESS["BUYER_FILED_LOGIN"] = "Логін";
@@ -195,4 +194,3 @@ $MESS["SOB_SHIPMENTS_DEDUCTED"] = "Відвантажена";
 $MESS["SOB_SHIPMENTS_MARKED"] = "Проблемний";
 $MESS["SOB_SHIPMENTS_NOT_ALLOW_DELIVERY"] = "Доставка не дозволена";
 $MESS["SOB_SHIPMENTS_STATUS"] = "Статус";
-?>

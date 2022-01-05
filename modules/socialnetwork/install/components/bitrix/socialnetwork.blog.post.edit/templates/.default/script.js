@@ -625,7 +625,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	                }
 	              } else if (main_core.Type.isStringFilled(messageBody.childNodes[_ii].className) && (messageBody.childNodes[_ii].className.indexOf('wduf-selectdialog') >= 0 || messageBody.childNodes[_ii].className.indexOf('diskuf-selectdialog') >= 0)) {
 	                var nodeDocs = messageBody.childNodes[_ii];
-	                var webdavValues = nodeDocs.querySelectorAll('wd-inline-file');
+	                var webdavValues = nodeDocs.querySelectorAll('.wd-inline-file');
 	                hasValuesDocs = !!webdavValues && webdavValues.length > 0;
 	              } else if (main_core.Type.isDomNode(messageBody.childNodes[_ii]) && messageBody.childNodes[_ii].classList && !messageBody.childNodes[_ii].classList.contains('urlpreview') && !messageBody.childNodes[_ii].classList.contains('feed-add-post-strings-blocks')) {
 	                main_core.Dom.adjust(messageBody.childNodes[_ii], {
@@ -1619,7 +1619,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        autoSave: params.autoSave,
 	        handler: LHEPostForm && LHEPostForm.getHandler(params.editorID),
 	        editor: LHEPostForm && LHEPostForm.getEditor(params.editorID),
-	        restoreAutosave: !!params.restoreAutosave
+	        restoreAutosave: !!params.restoreAutosave,
+	        createdFromEmail: !!params.createdFromEmail
 	      };
 	      main_core_events.EventEmitter.subscribe('onInitialized', function (event) {
 	        var _event$getData = event.getData(),
@@ -1639,7 +1640,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	            _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
 	            editor = _event$getData4[0];
 
-	        _this2.onEditorInited.bind(editor);
+	        _this2.onEditorInited(editor);
 	      });
 
 	      if (this.formParams.editor) {
@@ -1818,6 +1819,14 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          document.getElementById(this.formId).action = actionUrl;
 	        }
 
+	        if ([PostFormTabs.getInstance().config.id.message, PostFormTabs.getInstance().config.id.file, PostFormTabs.getInstance().config.id.gratitude, PostFormTabs.getInstance().config.id.important, PostFormTabs.getInstance().config.id.vote].includes(activeTab)) {
+	          if (!this.checkDestinationValue({
+	            buttonType: value
+	          })) {
+	            return;
+	          }
+	        }
+
 	        if (activeTab === PostFormTabs.getInstance().config.id.gratitude && PostFormGratSelector.getInstance()) {
 	          if (!this.checkEmployeesValue({
 	            buttonType: value
@@ -1831,42 +1840,48 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      }
 	    }
 	  }, {
-	    key: "checkEmployeesValue",
-	    value: function checkEmployeesValue(_ref) {
+	    key: "checkDestinationValue",
+	    value: function checkDestinationValue(_ref) {
 	      var buttonType = _ref.buttonType;
-	      var employeesValueNode = document.getElementById(this.formId).elements[PostFormGratSelector.getInstance().config.fields.employeesValue.name];
 
-	      if (!employeesValueNode || !main_core.Type.isStringFilled(employeesValueNode.value) || employeesValueNode.value === '[]') {
-	        var submitButton = this.getSubmitButton({
-	          buttonType: buttonType
-	        });
-
-	        if (submitButton) {
-	          submitButton.classList.remove('ui-btn-clock');
-	          this.disabled = false;
-	        }
-
-	        var alertNode = document.getElementById('feed-add-post-bottom-alertblogPostForm');
-
-	        if (alertNode) {
-	          main_core.Dom.clean(alertNode);
-	          alertNode.appendChild(main_core.Dom.create('div', {
-	            props: {
-	              className: 'ui-alert ui-alert-danger'
-	            },
-	            children: [main_core.Dom.create('span', {
-	              props: {
-	                className: 'ui-alert-message'
-	              },
-	              text: main_core.Loc.getMessage('BLOG_POST_EDIT_T_GRAT_ERROR_NO_EMPLOYEES')
-	            })]
-	          }));
-	        }
-
-	        return false;
+	      if (main_core.Type.isUndefined(MPFEntitySelector)) {
+	        return true;
 	      }
 
-	      return true;
+	      var tagSelector = new MPFEntitySelector({
+	        id: "oPostFormLHE_".concat(this.formId)
+	      });
+
+	      if (!tagSelector || !main_core.Type.isArray(tagSelector.tags) || tagSelector.tags.length > 0) {
+	        return true;
+	      }
+
+	      this.enableSubmitButton({
+	        buttonType: buttonType
+	      });
+	      this.showBottomAlert({
+	        text: main_core.Loc.getMessage('BLOG_POST_EDIT_T_GRAT_ERROR_NO_DESTINATION')
+	      });
+	      tagSelector.subscribeOnce('onContainerClick', this.hideAlert);
+	      return false;
+	    }
+	  }, {
+	    key: "checkEmployeesValue",
+	    value: function checkEmployeesValue(_ref2) {
+	      var buttonType = _ref2.buttonType;
+	      var employeesValueNode = document.getElementById(this.formId).elements[PostFormGratSelector.getInstance().config.fields.employeesValue.name];
+
+	      if (employeesValueNode && main_core.Type.isStringFilled(employeesValueNode.value) && employeesValueNode.value !== '[]') {
+	        return true;
+	      }
+
+	      this.enableSubmitButton({
+	        buttonType: buttonType
+	      });
+	      this.showBottomAlert({
+	        text: main_core.Loc.getMessage('BLOG_POST_EDIT_T_GRAT_ERROR_NO_EMPLOYEES')
+	      });
+	      return false;
 	    }
 	  }, {
 	    key: "checkHideAlert",
@@ -1892,9 +1907,22 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      main_core.Dom.clean(alertNode);
 	    }
 	  }, {
+	    key: "enableSubmitButton",
+	    value: function enableSubmitButton(_ref3) {
+	      var buttonType = _ref3.buttonType;
+	      var submitButton = this.getSubmitButton({
+	        buttonType: buttonType
+	      });
+
+	      if (submitButton) {
+	        submitButton.classList.remove('ui-btn-clock');
+	        this.disabled = false;
+	      }
+	    }
+	  }, {
 	    key: "getSubmitButton",
-	    value: function getSubmitButton(_ref2) {
-	      var buttonType = _ref2.buttonType;
+	    value: function getSubmitButton(_ref4) {
+	      var buttonType = _ref4.buttonType;
 	      var result = null;
 
 	      if (buttonType === 'save' && document.getElementById('blog-submit-button-save')) {
@@ -1904,6 +1932,30 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      }
 
 	      return result;
+	    }
+	  }, {
+	    key: "showBottomAlert",
+	    value: function showBottomAlert(params) {
+	      if (!main_core.Type.isPlainObject(params) || !main_core.Type.isStringFilled(params.text)) {
+	        return;
+	      }
+
+	      var alertNode = document.getElementById('feed-add-post-bottom-alertblogPostForm');
+
+	      if (alertNode) {
+	        main_core.Dom.clean(alertNode);
+	        alertNode.appendChild(main_core.Dom.create('div', {
+	          props: {
+	            className: 'ui-alert ui-alert-danger'
+	          },
+	          children: [main_core.Dom.create('span', {
+	            props: {
+	              className: 'ui-alert-message'
+	            },
+	            text: params.text
+	          })]
+	        }));
+	      }
 	    }
 	  }, {
 	    key: "onHandlerInited",
@@ -1975,6 +2027,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }, {
 	    key: "onEditorInited",
 	    value: function onEditorInited(editor) {
+	      var _this4 = this;
+
 	      if (PostForm.getInstance().initedEditorsList.includes(editor.id)) {
 	        return;
 	      }
@@ -2071,6 +2125,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      }
 
 	      PostForm.getInstance().initedEditorsList.push(editor.id);
+	      main_core_events.EventEmitter.subscribe(editor, 'OnSetViewAfter', function () {
+	        if (_this4.formParams.createdFromEmail) {
+	          editor.SetContent("".concat(editor.GetContent()).concat(main_core.Loc.getMessage('CREATED_ON_THE_BASIC_OF_THE_MESSAGE')));
+	          editor.Focus(true);
+	        }
+	      });
 	    }
 	  }, {
 	    key: "reinit",

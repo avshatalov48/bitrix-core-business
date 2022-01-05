@@ -394,9 +394,10 @@
 	position: absolute;
 	overflow: hidden;
 	width: 33px;
+	pointer-events: none;
 }
 
-.popup-window-angly:before {
+.popup-window-angly--arrow {
 	background-color: #fff;
 	-webkit-box-shadow: 0 0 21px rgba(83, 92, 105, .13);
 	box-shadow: 0 0 21px rgba(83, 92, 105, .13);
@@ -421,7 +422,7 @@
 	top: -22px;
 }
 
-.popup-window-angly-top:before { }
+.popup-window-angly-top .popup-window-angly--arrow { }
 
 .popup-window-angly-right {
 	display: block;
@@ -431,7 +432,7 @@
 	width: 17px;
 }
 
-.popup-window-angly-right::before {
+.popup-window-angly-right .popup-window-angly--arrow {
 	left: -9px;
 	top: 8px;
 }
@@ -443,7 +444,7 @@
 	margin-left: 10px;
 }
 
-.popup-window-angly-bottom::before {
+.popup-window-angly-bottom .popup-window-angly--arrow {
 	top: -9px;
 }
 
@@ -455,7 +456,7 @@
 	width: 14px;
 }
 
-.popup-window-angly-left::before {
+.popup-window-angly-left .popup-window-angly--arrow {
 	left: 8px;
 	top: 8px;
 }
@@ -504,16 +505,25 @@
 
 .menu-popup .menu-popup-item {
 	background-color: transparent;
-	display: block;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
 	cursor: pointer;
 	height: 36px;
 	position: relative;
 	text-decoration: none;
 	outline: none;
 	white-space: nowrap;
-	-webkit-transition: background-color 0.3s linear;
-	-o-transition: background-color 0.3s linear;
-	transition: background-color 0.3s linear;
+}
+
+/* A super hack for legacy code which directly reads and writes menu-popup-item.style.display */
+.menu-popup .menu-popup-item[style*="block"] {
+	display: -webkit-box !important;
+	display: -ms-flexbox !important;
+	display: flex !important;
 }
 
 .menu-popup .menu-popup-item-disabled {
@@ -537,6 +547,9 @@
 
 .menu-popup-item-text {
 	display: inline-block;
+	-webkit-box-flex: 1;
+	    -ms-flex: 1;
+	        flex: 1;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: #525c68;
 	line-height: 36px;
@@ -546,6 +559,11 @@
 	-webkit-transition: color 0.2s linear;
 	-o-transition: color 0.2s linear;
 	transition: color 0.2s linear;
+}
+
+/* A temporary hack for the custom menu separators */
+.menu-popup .menu-popup-items .main-buttons-submenu-item.main-buttons-submenu-separator.main-buttons-hidden-label .menu-popup-item-text span {
+	top: -10px !important;
 }
 
 .menu-popup-item-text .tariff-lock {
@@ -572,7 +590,7 @@
 
 .menu-popup-item:hover,
 .menu-popup-item.menu-popup-item-open {
-	background-color: #f6f8f9;
+	background-color: #f5f5f6;
 }
 
 .menu-popup-item:hover .menu-popup-item-text {
@@ -686,7 +704,7 @@
 	margin: 0;
 }
 
-.popup-window-dark .popup-window-angly:before {
+.popup-window-dark .popup-window-angly--arrow {
 	background-color: rgba(0, 0, 0, 0.8);
 }
 

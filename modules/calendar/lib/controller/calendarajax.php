@@ -1,6 +1,7 @@
-<?
+<?php
 namespace Bitrix\Calendar\Controller;
 
+use Bitrix\Calendar\Rooms;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
@@ -10,6 +11,7 @@ use Bitrix\Main\Engine\ActionFilter\Authentication;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
 use Bitrix\Calendar\Integration\Bitrix24Manager;
 use Bitrix\Calendar\Ui\CountersManager;
+use Bitrix\Intranet;
 
 Loc::loadMessages(__FILE__);
 
@@ -27,12 +29,24 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 				]
 			],
 			'handleMobileSync' => [
-//				'+prefilters' => [
-//					new CloseSession()
-//				],
 				'-prefilters' => [
 					Authentication::class,
 					Csrf::class
+				]
+			],
+			'editCalendarSection' => [
+				'+prefilters' => [
+					new Intranet\ActionFilter\IntranetUser(),
+				]
+			],
+			'deleteCalendarSection' => [
+				'+prefilters' => [
+					new Intranet\ActionFilter\IntranetUser(),
+				]
+			],
+			'getTrackingSections' => [
+				'+prefilters' => [
+					new Intranet\ActionFilter\IntranetUser(),
 				]
 			]
 		];
@@ -76,7 +90,8 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			'COLOR' => $color,
 			'CAL_TYPE' => $type,
 			'OWNER_ID' => $ownerId,
-			'ACCESS' => $request->getPost('access')
+			'ACCESS' => $request->getPost('access'),
+			'EXTERNAL_TYPE' => $request->getPost('external_type') ?? 'local',
 		];
 
 		if ($customization && !$isNew)
@@ -381,7 +396,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			{
 				if ($type === 'user' && $ownerId !== $userId || $type !== 'user')
 				{
-					$sectionList = \CCalendar::GetSectionList([
+					$sectionList = \CCalendar::getSectionList([
 						'CAL_TYPE' => $type,
 						'OWNER_ID' => $ownerId,
 						'ACTIVE' => 'Y',
@@ -396,6 +411,14 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 							$sections[] = $section;
 						}
 					}
+				}
+
+				if (empty($sections) && $type === 'group')
+				{
+					$sections[] = \CCalendarSect::createDefault(array(
+						'type' => $type,
+						'ownerId' => $ownerId
+					));
 				}
 			}
 			$sections = array_merge($sections, \CCalendar::getSectionListAvailableForUser($userId, [$entry['SECTION_ID']]));
@@ -424,7 +447,8 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			$responseParams['locationFeatureEnabled'] = Bitrix24Manager::isFeatureEnabled("calendar_location");
 			if ($responseParams['locationFeatureEnabled'])
 			{
-				$responseParams['locationList'] = \CCalendarLocation::GetList();
+				$responseParams['locationList'] = Rooms\Manager::getRoomsList();
+				$responseParams['locationAccess'] = \CCalendarType::CanDo('calendar_type_edit', 'location');
 			}
 			$responseParams['plannerFeatureEnabled'] = Bitrix24Manager::isPlannerFeatureEnabled();
 
@@ -463,6 +487,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		$uniqueId = 'calendar_view_slider_'.rand();
 		$entryId = (int)$request->get('entryId');
 		$userId = \CCalendar::GetCurUserId();
+		$entry = null;
 
 		if ($entryId)
 		{
@@ -600,6 +625,8 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			$codes[] = 'U'.$userId;
 		}
 
+		$prevUserList = is_array($request['prevUserList']) ? $request['prevUserList'] : [];
+
 		$dateFrom = isset($request['dateFrom']) ? $request['dateFrom'] : $request['date_from'];
 		$dateTo = isset($request['dateTo']) ? $request['dateTo'] : $request['date_to'];
 
@@ -608,13 +635,15 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			'user_id' => $userId,
 			'host_id' => $hostId,
 			'codes' => $codes,
+			'entryLocation' => trim($request['entryLocation']),
 			'entries' => $entries,
 			'date_from' => $dateFrom,
 			'date_to' => $dateTo,
 			'timezone' => $request['timezone'],
 			'location' => trim($request['location']),
 			'roomEventId' => (int)$request['roomEventId'],
-			'initPullWatches' => true
+			'initPullWatches' => true,
+			'prevUserList' => $prevUserList
 		]);
 	}
 
@@ -633,7 +662,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		{
 			if ($location['id'] && ($location['deleted'] == 'Y' || $location['name'] === ''))
 			{
-				\CCalendarLocation::delete($location['id']);
+				Rooms\Manager::deleteRoom($location['id']);
 			}
 			elseif ((!$location['id'] || $location['changed'] == 'Y') && $location['name'] !== '')
 			{
@@ -643,9 +672,9 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 				));
 			}
 		}
-		\CCalendarLocation::clearCache();
+		Rooms\Manager::clearCache();
 
-		return ['locationList' => \CCalendarLocation::getList()];
+		return ['locationList' => Rooms\Manager::getRoomsList()];
 	}
 
 	public function deleteCalendarEntryAction($entryId, $recursionMode, $requestUid)
@@ -1014,13 +1043,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 		if (\CCalendarSect::CanDo('calendar_edit', $entry['SECTION_ID'], $userId))
 		{
-			$response['id'] = \CCalendar::SaveEvent([
-				'arFields' => [
-					'ID' => $entryId,
-					'COLOR' => $request->getPost('color')
-				]
-			]);
-
+			\CCalendarEvent::updateColor($entryId, $request->getPost('color'));
 			\CCalendar::ClearCache('event_list');
 		}
 
@@ -1099,6 +1122,10 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			'getPermissions' => true,
 			'getImages' => true
 		]);
+		if($type === 'location')
+		{
+			$sectionList = array_merge($sectionList, \CCalendar::getSectionListAvailableForUser($userId));
+		}
 
 		return [
 			'sections' => $sectionList

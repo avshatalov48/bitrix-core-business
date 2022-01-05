@@ -539,43 +539,12 @@
 			return result;
 		},
 
+		/**
+		 * @deprecated
+		 */
 		getMessagePlural: function(messageId, number)
 		{
-			var pluralForm, langId;
-
-			langId = BX.message('LANGUAGE_ID') || 'en';
-			number = parseInt(number);
-
-			if (number < 0)
-			{
-				number = -1*number;
-			}
-
-			if (langId)
-			{
-				switch (langId)
-				{
-					case 'de':
-					case 'en':
-						pluralForm = ((number !== 1) ? 1 : 0);
-						break;
-
-					case 'ru':
-					case 'ua':
-						pluralForm = (((number%10 === 1) && (number%100 !== 11)) ? 0 : (((number%10 >= 2) && (number%10 <= 4) && ((number%100 < 10) || (number%100 >= 20))) ? 1 : 2));
-						break;
-
-					default:
-						pluralForm = 1;
-						break;
-				}
-			}
-			else
-			{
-				pluralForm = 1;
-			}
-
-			return BX.message(messageId + '_PLURAL_' + pluralForm);
+			return BX.Loc.getMessagePlural(messageId, number);
 		},
 
 		getUserOption: function(name, defaultValue)
@@ -982,6 +951,7 @@
 
 			if (value.type == 'mr')
 			{
+				str = BX.message('EC_LOCATION_EMPTY');
 				var meetingRooms = this.calendar.util.getMeetingRoomList();
 				for (i = 0; i < meetingRooms.length; i++)
 				{
@@ -995,6 +965,7 @@
 
 			if (value.type == 'calendar')
 			{
+				str = BX.message('EC_LOCATION_EMPTY');
 				var locationList = BX.Calendar.Controls.Location.getLocationList();
 
 				for (i = 0; i < locationList.length; i++)
@@ -1032,14 +1003,12 @@
 		readOnlyMode: function()
 		{
 			this.readOnly = this.config.readOnly;
-
 			if (this.readOnly === undefined)
 			{
 				var sectionList = this.calendar.sectionController.getSectionListForEdit();
 				if (!sectionList || !sectionList.length)
 					this.readOnly = true;
 			}
-
 			this.readOnlyMode = BX.proxy(function(){return this.readOnly;}, this);
 			return this.readOnly;
 		},

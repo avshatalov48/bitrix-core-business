@@ -1,11 +1,12 @@
 <?php
 
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
     die();
 }
 
 use Bitrix\Blog\Item;
+use Bitrix\Main\Loader;
 
 /**
  * @var array $arParams
@@ -15,32 +16,35 @@ use Bitrix\Blog\Item;
  */
 CJSCore::Init(array("tooltip", "popup", "fx", "viewer", "content_view", "videorecorder"));
 
-if(!empty($arResult["FATAL_MESSAGE"]))
+if (!empty($arResult["FATAL_MESSAGE"]))
 {
 	?><div class="feed-add-error">
 		<span class="feed-add-info-text"><span class="feed-add-info-icon"></span><?=$arResult["FATAL_MESSAGE"]?></span>
 	</div><?php
 }
-else if($arResult["imageUploadFrame"] == "Y")
+else if($arResult["imageUploadFrame"] === "Y")
 {
 	?>
-	<script type="text/javascript">
+	<script>
 		<?php
-		if (!empty($arResult["Image"])):
+		if (!empty($arResult["Image"]))
+		{
 			?>
-			if(!top.arImagesId) { top.arImagesId = []; }
-			if(!top.arImagesSrc) { top.arImagesSrc = []; }
+			if (!top.arImagesId) { top.arImagesId = []; }
+			if (!top.arImagesSrc) { top.arImagesSrc = []; }
 			top.arImagesId.push('<?=$arResult["Image"]["ID"]?>');
 			top.arImagesSrc.push('<?=CUtil::JSEscape($arResult["Image"]["SRC"])?>');
 			top.bxBlogImageId = '<?=$arResult["Image"]["ID"]?>';
 			top.bxBlogImageIdWidth = '<?=CUtil::JSEscape($arResult["Image"]["WIDTH"])?>';
 			top.bxBlogImageIdSrc = '<?=CUtil::JSEscape($arResult["Image"]["SRC"])?>';
 			<?php
-		elseif($arResult["ERROR_MESSAGE"] <> ''):
+		}
+		elseif ((string)$arResult["ERROR_MESSAGE"] !== '')
+		{
 			?>
 			top.bxBlogImageError = '<?=CUtil::JSEscape($arResult["ERROR_MESSAGE"])?>';
 			<?php
-		endif;
+		}
 		?>
 	</script>
 	<?php
@@ -48,11 +52,7 @@ else if($arResult["imageUploadFrame"] == "Y")
 }
 
 $rights = "N";
-if (
-	$arResult["Perm"] >= Item\Permissions::FULL
-	|| CSocNetUser::IsCurrentUserModuleAdmin()
-	|| $APPLICATION->GetGroupRight("blog") >= "W"
-)
+if ($arResult["Perm"] >= Item\Permissions::FULL)
 {
 	$rights = "ALL";
 }
@@ -62,12 +62,31 @@ elseif ($USER->IsAuthorized())
 }
 
 $eventHandlerID = AddEventHandler('main', 'system.field.view.file', Array('CBlogTools', 'blogUFfileShow'));
+$commentUrl = (
+	$arParams["bPublicPage"]
+		? ''
+		: str_replace([ '##comment_id#', '#comment_id#' ], [ '', '#ID#' ], $arResult["commentUrl"])
+);
+
+$commentUrl = (new \Bitrix\Main\Web\Uri($commentUrl))->deleteParams([
+	'sessid',
+	'AJAX_POST',
+	'ENTITY_XML_ID',
+	'ENTITY_TYPE',
+	'ENTITY_ID',
+	'REVIEW_ACTION',
+	'ACTION',
+	'MODE',
+	'FILTER',
+	'result',
+]);
+
 $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 	"bitrix:main.post.list",
 	"",
 	array(
 		"TEMPLATE_ID" => 'BLOG_COMMENT_BG_',
-		"RATING_TYPE_ID" => ($arParams["SHOW_RATING"] == "Y" ? "BLOG_COMMENT" : ""),
+		"RATING_TYPE_ID" => ($arParams["SHOW_RATING"] === "Y" ? "BLOG_COMMENT" : ""),
 		"ENTITY_XML_ID" => $arParams["ENTITY_XML_ID"],
 		"RECORDS" => $arResult["RECORDS"],
 		"NAV_STRING" => $arResult["NAV_STRING"],
@@ -92,19 +111,9 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 		"ERROR_MESSAGE" => ($arResult["ERROR_MESSAGE"] ?: $arResult["COMMENT_ERROR"]),
 		"OK_MESSAGE" => $arResult["MESSAGE"],
 		"RESULT" => ($arResult["ajax_comment"] ?: $_GET["commentId"]),
+		'MODE' => $arResult['MODE'],
 		"PUSH&PULL" => $arResult["PUSH&PULL"],
-		"VIEW_URL" => ($arParams["bPublicPage"] ? "" : str_replace(array("##comment_id#", "#comment_id#"), array("", "#ID#"), $arResult["commentUrl"])),
-		"EDIT_URL" => "__blogEditComment('#ID#', '".$arParams["ID"]."');",
-		"MODERATE_URL" => str_replace(
-			array("#source_post_id#", "#post_id#", "#comment_id#", "&".bitrix_sessid_get(), "hide_comment_id="),
-			array($arParams["ID"], $arParams["ID"], "#ID#", "", "#action#_comment_id="),
-			$arResult["urlToHide"]
-		),
-		"DELETE_URL" => str_replace(
-			array("#source_post_id#", "#post_id#", "#comment_id#", "&".bitrix_sessid_get()),
-			array($arParams["ID"], $arParams["ID"], "#ID#", ""),
-			$arResult["urlToDelete"]
-		),
+		"VIEW_URL" => $commentUrl,
 		"AUTHOR_URL" => ($arParams["bPublicPage"] ? "" : $arParams["PATH_TO_USER"]),
 
 		"AVATAR_SIZE" => $arParams["AVATAR_SIZE_COMMENT"],
@@ -119,6 +128,7 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 		"NOTIFY_TEXT" => ($arParams["bFromList"] ? TruncateText(str_replace(Array("\r\n", "\n"), " ", $arParams["POST_DATA"]["~TITLE"]), 100) : ""),
 		"SHOW_MINIMIZED" => "Y",
 		"SHOW_POST_FORM" => ($arResult["CanUserComment"] ? "Y" : "N"),
+		'FORM_ID' => ($arResult["CanUserComment"] ? 'blogCommentForm' . $arResult['FORM_ID'] : ''),
 
 		"IMAGE_SIZE" => $arParams["IMAGE_SIZE"],
 		"mfi" => $arParams["mfi"],
@@ -134,12 +144,12 @@ if ($eventHandlerID > 0 )
 {
 	RemoveEventHandler('main', 'system.field.view.file', $eventHandlerID);
 }
-
+//AddMessage2Log($arResult["OUTPUT_LIST"]);
 $blockClassName = "feed-comments-block";
 if (
 	!empty($arResult["OUTPUT_LIST"]["DATA"])
 	&& !empty($arResult["OUTPUT_LIST"]["DATA"]["NAV_STRING_COUNT_MORE"])
-	&& intval($arResult["OUTPUT_LIST"]["DATA"]["NAV_STRING_COUNT_MORE"]) > 0
+	&& (int)$arResult["OUTPUT_LIST"]["DATA"]["NAV_STRING_COUNT_MORE"] > 0
 )
 {
 	$blockClassName .= " feed-comments-block-nav";
@@ -147,15 +157,16 @@ if (
 
 ?><div
  class="<?=$blockClassName?>" id="blg-comment-<?=$arParams["ID"]?>"
- data-bx-comments-entity-xml-id="<?=\Bitrix\Main\Text\HtmlFilter::encode($arParams['ENTITY_XML_ID'])?>"
- data-bx-follow="<?=($arParams['FOLLOW'] === 'Y' ? 'Y' : 'N')?>"
-><?php
+ data-bx-comments-entity-xml-id="<?= \Bitrix\Main\Text\HtmlFilter::encode($arParams['ENTITY_XML_ID']) ?>"
+ data-bx-follow="<?=($arParams['FOLLOW'] === 'Y' ? 'Y' : 'N')?>"><?php
 	?><a name="comments"></a><?php
 	?><?=$arResult["OUTPUT_LIST"]["HTML"]?><?php
 ?></div><?php
 ?><script>
 BX.ready(function() {
-	BX.bind(BX("blg-post-img-<?=$arResult["Post"]["ID"]?>"), "mouseup", function(e){ checkForQuote(e, this, '<?=$arParams["ENTITY_XML_ID"]?>', 'bp_<?=$arResult["Post"]["ID"]?>')});
+	BX.bind(BX("blg-post-img-<?=$arResult["Post"]["ID"]?>"), "mouseup", function(e) {
+		checkForQuote(e, this, '<?=$arParams["ENTITY_XML_ID"]?>', 'bp_<?=$arResult["Post"]["ID"]?>');
+	});
 	BX.addCustomEvent(window, 'OnUCAfterRecordAdd', function(ENTITY_XML_ID, response) {
 		if (ENTITY_XML_ID == '<?=$arParams["ENTITY_XML_ID"]?>')
 		{
@@ -166,17 +177,28 @@ BX.ready(function() {
 	BX.SocialnetworkBlogPostComment.registerViewAreaList({
 		containerId: 'blg-comment-<?=$arParams["ID"]?>',
 		className: 'feed-com-text-inner',
-		fullContentClassName: 'feed-com-text-inner-inner'
+		fullContentClassName: 'feed-com-text-inner-inner',
 	});
-} );
+});
 </script>
 <?php
 
-if ($GLOBALS["USER"]->IsAuthorized() && CModule::IncludeModule("pull") && CPullOptions::GetNginxStatus())
+if (
+	$USER->IsAuthorized()
+	&& Loader::includeModule("pull")
+	&& CPullOptions::GetNginxStatus())
 {
 	?>
 	<script>
-	BX.addCustomEvent("onPullEvent-unicomments", function(command, params) { if (params["ENTITY_XML_ID"] == '<?=$arParams["ENTITY_XML_ID"]?>' && BX('blg-comment-<?=$arParams["ID"]?>')) { BX.show(BX('blg-comment-<?=$arParams["ID"]?>')); } } );
+		BX.addCustomEvent("onPullEvent-unicomments", function(command, params) {
+			if (
+				params["ENTITY_XML_ID"] == '<?=$arParams["ENTITY_XML_ID"]?>'
+				&& BX('blg-comment-<?=$arParams["ID"]?>')
+			)
+			{
+				BX.show(BX('blg-comment-<?=$arParams["ID"]?>'));
+			}
+		});
 	</script>
 	<?php
 }
@@ -187,7 +209,8 @@ if ($arResult["CanUserComment"])
 		BX.viewElementBind(
 			'blg-comment-<?=$arParams["ID"]?>',
 			{},
-			function(node){
+			function(node)
+			{
 				return BX.type.isElementNode(node) && (node.getAttribute('data-bx-viewer') || node.getAttribute('data-bx-image'));
 			}
 		);
@@ -196,8 +219,8 @@ if ($arResult["CanUserComment"])
 	<?php
 	if (
 		(empty($_REQUEST["bxajaxid"]) && empty($_REQUEST["logajax"]))
-		|| ($_REQUEST["RELOAD"] == "Y" && !(empty($_REQUEST["bxajaxid"]) && empty($_REQUEST["logajax"])))
-		|| (isset($_REQUEST["noblog"]) && $_REQUEST["noblog"] == "Y")
+		|| ($_REQUEST["RELOAD"] === "Y" && !(empty($_REQUEST["bxajaxid"]) && empty($_REQUEST["logajax"])))
+		|| (isset($_REQUEST["noblog"]) && $_REQUEST["noblog"] === "Y")
 	)
 	{
 		include_once(__DIR__."/script.php");

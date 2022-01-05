@@ -107,7 +107,7 @@ class TradingPlatformTable extends Entity\DataManager
 	public static function validateName()
 	{
 		return array(
-			new Entity\Validator\Length(null, 50),
+			new Entity\Validator\Length(null, 500),
 		);
 	}
 	public static function validateDescription()

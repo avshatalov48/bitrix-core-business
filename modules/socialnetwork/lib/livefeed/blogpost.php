@@ -23,7 +23,7 @@ class BlogPost extends Provider
 
 	public function getEventId(): array
 	{
-		$result = array('blog_post', 'blog_post_important', 'blog_post_micro');
+		$result = [ 'blog_post', 'blog_post_important', 'blog_post_micro' ];
 		if (ModuleManager::isModuleInstalled('intranet'))
 		{
 			$result[] = 'blog_post_grat';
@@ -130,7 +130,7 @@ class BlogPost extends Provider
 		}
 
 		$result = truncateText(str_replace('&#39;', "'", htmlspecialcharsBack(\CTextParser::clearAllTags($post['DETAIL_TEXT']))), 100);
-		$result = preg_replace('/^'.(\Bitrix\Main\Application::isUtfMode() ? "\xC2\xA0" : "\xA0").'$/', '', $result);
+		$result = preg_replace('/^' . (\Bitrix\Main\Application::isUtfMode() ? "\xC2\xA0" : "\xA0") . '$/', '', $result);
 
 		if (
 			$result === ''
@@ -173,15 +173,15 @@ class BlogPost extends Provider
 			&& (int)$params > 0
 		)
 		{
-			$params = array(
-				'POST' => \CBlogPost::getById($params)
-			);
+			$params = [
+				'POST' => \CBlogPost::getById($params),
+			];
 		}
 
 		$result = false;
 		if (
-			isset($params["POST"])
-			&& is_array($params["POST"])
+			isset($params['POST'])
+			&& is_array($params['POST'])
 		)
 		{
 			if ($blogPostProvider === null)
@@ -189,7 +189,7 @@ class BlogPost extends Provider
 				$blogPostProvider = new self;
 			}
 
-			$permissions = $blogPostProvider->getPermissions($params["POST"]);
+			$permissions = $blogPostProvider->getPermissions($params['POST']);
 			$result = ($permissions > self::PERMISSION_DENY);
 		}
 
@@ -204,20 +204,20 @@ class BlogPost extends Provider
 
 		if (Loader::includeModule('blog'))
 		{
-			if((int)$post["AUTHOR_ID"] === (int)$USER->getId())
+			if ((int)$post['AUTHOR_ID'] === (int)$USER->getId())
 			{
 				$result = self::PERMISSION_FULL;
 			}
 			else
 			{
-				$perms = \CBlogPost::getSocNetPostPerms(array(
-					"POST_ID" => $post["ID"],
-					"NEED_FULL" => true,
-					"USER_ID" => false,
-					"POST_AUTHOR_ID" => $post["AUTHOR_ID"],
-					"PUBLIC" => false,
-					"LOG_ID" => false
-				));
+				$perms = \CBlogPost::getSocNetPostPerms([
+					'POST_ID' => $post['ID'],
+					'NEED_FULL' => true,
+					'USER_ID' => false,
+					'POST_AUTHOR_ID' => $post['AUTHOR_ID'],
+					'PUBLIC' => false,
+					'LOG_ID' => false,
+				]);
 
 				if ($perms >= BLOG_PERMS_FULL)
 				{

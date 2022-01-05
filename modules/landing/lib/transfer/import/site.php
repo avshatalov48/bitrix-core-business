@@ -348,11 +348,11 @@ class Site
 				$landings = array_reverse($landings, true);
 				foreach ($blocks as $oldId => $newId)
 				{
-					$replace['#block' . $oldId] = '#block' . $newId;
+					$replace['/#block' . $oldId . '([^\d]{1})/'] = '#block' . $newId . '$1';
 				}
 				foreach ($landings as $oldId => $newId)
 				{
-					$replace['#landing' . $oldId] = '#landing' . $newId;
+					$replace['/#landing' . $oldId . '([^\d]{1})/'] = '#landing' . $newId . '$1';
 				}
 
 				$res = BlockTable::getList([
@@ -367,10 +367,11 @@ class Site
 				while ($row = $res->fetch())
 				{
 					$count = 0;
-					$row['CONTENT'] = str_replace(
+					$row['CONTENT'] = preg_replace(
 						array_keys($replace),
 						array_values($replace),
 						$row['CONTENT'],
+						-1,
 						$count
 					);
 					if ($count)

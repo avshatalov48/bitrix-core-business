@@ -137,18 +137,6 @@ namespace Bitrix\Highloadblock {
 }
 namespace Bitrix\Highloadblock {
 	/**
-	 * @method static EO_HighloadBlock_Query query()
-	 * @method static EO_HighloadBlock_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_HighloadBlock_Result getById($id)
-	 * @method static EO_HighloadBlock_Result getList(array $parameters = array())
-	 * @method static EO_HighloadBlock_Entity getEntity()
-	 * @method static \Bitrix\Highloadblock\HighloadBlock createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Highloadblock\EO_HighloadBlock_Collection createCollection()
-	 * @method static \Bitrix\Highloadblock\HighloadBlock wakeUpObject($row)
-	 * @method static \Bitrix\Highloadblock\EO_HighloadBlock_Collection wakeUpCollection($rows)
-	 */
-	class HighloadBlockTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -288,18 +276,6 @@ namespace Bitrix\Highloadblock {
 	}
 }
 namespace Bitrix\Highloadblock {
-	/**
-	 * @method static EO_HighloadBlockLang_Query query()
-	 * @method static EO_HighloadBlockLang_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_HighloadBlockLang_Result getById($id)
-	 * @method static EO_HighloadBlockLang_Result getList(array $parameters = array())
-	 * @method static EO_HighloadBlockLang_Entity getEntity()
-	 * @method static \Bitrix\Highloadblock\EO_HighloadBlockLang createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Highloadblock\EO_HighloadBlockLang_Collection createCollection()
-	 * @method static \Bitrix\Highloadblock\EO_HighloadBlockLang wakeUpObject($row)
-	 * @method static \Bitrix\Highloadblock\EO_HighloadBlockLang_Collection wakeUpCollection($rows)
-	 */
-	class HighloadBlockLangTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -478,18 +454,6 @@ namespace Bitrix\Highloadblock {
 	}
 }
 namespace Bitrix\Highloadblock {
-	/**
-	 * @method static EO_HighloadBlockRights_Query query()
-	 * @method static EO_HighloadBlockRights_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_HighloadBlockRights_Result getById($id)
-	 * @method static EO_HighloadBlockRights_Result getList(array $parameters = array())
-	 * @method static EO_HighloadBlockRights_Entity getEntity()
-	 * @method static \Bitrix\Highloadblock\EO_HighloadBlockRights createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Highloadblock\EO_HighloadBlockRights_Collection createCollection()
-	 * @method static \Bitrix\Highloadblock\EO_HighloadBlockRights wakeUpObject($row)
-	 * @method static \Bitrix\Highloadblock\EO_HighloadBlockRights_Collection wakeUpCollection($rows)
-	 */
-	class HighloadBlockRightsTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

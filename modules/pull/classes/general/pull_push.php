@@ -800,7 +800,7 @@ class CPushManager
 				if(isset(static::$pushServices[$deviceType]) && count($filteredMessages) > 0)
 				{
 					$arPushMessages[$deviceType][$deviceToken] = [
-						"messages" => $tmpMessage,
+						"messages" => $filteredMessages,
 						"mode" => $mode
 					];
 				}
@@ -813,7 +813,7 @@ class CPushManager
 				if(isset(static::$pushServices[$deviceType]) && count($filteredMessages) > 0)
 				{
 					$arPushMessages[$deviceType][$deviceToken] = [
-						"messages" => $voipMessage,
+						"messages" => $filteredMessages,
 						"mode" => $mode
 					];
 				}
@@ -911,7 +911,10 @@ class CPushManager
 				{
 					unset($messages[$k]);
 				}
-				unset($messages[$k]['ADVANCED_PARAMS']['filterCallback']);
+				else
+				{
+					unset($messages[$k]['ADVANCED_PARAMS']['filterCallback']);
+				}
 			}
 		}
 		return $messages;

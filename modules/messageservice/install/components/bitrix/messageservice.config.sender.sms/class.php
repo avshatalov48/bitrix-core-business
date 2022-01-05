@@ -12,7 +12,6 @@ class MessageServiceConfigSenderSmsComponent extends CBitrixComponent
 {
 	public function executeComponent()
 	{
-
 		if (!Main\Loader::includeModule('messageservice'))
 		{
 			ShowError(Loc::getMessage('MESSAGESERVICE_MODULE_NOT_INSTALLED'));

@@ -11,16 +11,20 @@ BX.Default.Field.Address.prototype = {
 		this.isMultiple = (params['isMultiple'] === 'true');
 		this.nodeJs = (params['nodeJs'] || '');
 		this.fieldNameJs = (params['fieldNameJs'] || '');
+		this.fieldName = (params['fieldName'] || '');
+		this.showMap = (params['showMap'] ?? true);
 
-		let control = new BX.Fileman.UserField.Address(BX(this.controlId),
+		const control = new BX.Fileman.UserField.Address(BX(this.controlId),
 			{
 				value: this.value,
-				multiple: this.isMultiple
+				multiple: this.isMultiple,
+				showMap: this.showMap,
 			}
 		);
 
 		control.nodeJs = this.nodeJs;
 		control.fieldNameJs = this.fieldNameJs;
+		control.fieldName = this.fieldName;
 
 		BX.addCustomEvent(control, 'UserFieldAddress::Change', function (value)
 		{
@@ -46,7 +50,7 @@ BX.Default.Field.Address.prototype = {
 
 			node.innerHTML = html;
 
-			BX.onCustomEvent(window, 'onCrmEntityEditorUserFieldExternalChanged', [control.fieldNameJs]);
+			BX.onCustomEvent(window, 'onCrmEntityEditorUserFieldExternalChanged', [control.fieldName]);
 		});
 	},
 };

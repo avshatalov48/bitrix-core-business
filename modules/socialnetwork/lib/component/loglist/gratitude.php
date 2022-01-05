@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Socialnetwork\Component\LogList;
 
 use Bitrix\Main\Loader;
@@ -17,7 +18,7 @@ class Gratitude
 		}
 	}
 
-	public static function getGratitudesIblockData(array $params = [])
+	public static function getGratitudesIblockData(array $params = []): array
 	{
 		$result = [
 			'BADGES_DATA' => [],
@@ -25,7 +26,7 @@ class Gratitude
 			'GRAT_VALUE' => ''
 		];
 
-		$userId = (!empty($params['userId']) && intval($params['userId']) > 0 ? intval($params['userId']) : 0);
+		$userId = (!empty($params['userId']) && (int)$params['userId'] > 0 ? (int)$params['userId'] : 0);
 		if ($userId <= 0)
 		{
 			return $result;
@@ -40,7 +41,7 @@ class Gratitude
 		$filter = [
 			'IBLOCK_ID' => $honourIblockId,
 			'ACTIVE' => 'Y',
-			'PROPERTY_USERS' => $userId
+			'=PROPERTY_USERS' => $userId,
 		];
 
 		$gratCode = (!empty($params['gratCode']) ? $params['gratCode'] : false);
@@ -76,13 +77,13 @@ class Gratitude
 			$badgeEnumId = $iblockElementFields['PROPERTY_GRATITUDE_ENUM_ID'];
 			if (!isset($badgesData[$badgeEnumId]))
 			{
-				$badgesData[$badgeEnumId] = array(
+				$badgesData[$badgeEnumId] = [
 					'NAME' => $iblockElementFields['PROPERTY_GRATITUDE_VALUE'],
 					'COUNT' => 0,
-					'ID' => []
-				);
+					'ID' => [],
+				];
 			}
-			$badgesData[$badgeEnumId]['ID'][] = intval($iblockElementFields['ID']);
+			$badgesData[$badgeEnumId]['ID'][] = (int)$iblockElementFields['ID'];
 			$iblockElementsIdList[] = $iblockElementFields['ID'];
 		}
 
@@ -97,7 +98,7 @@ class Gratitude
 		return \Bitrix\Socialnetwork\Helper\Gratitude::getIblockId();
 	}
 
-	public static function getGratitudesBlogData(array $params = [])
+	public static function getGratitudesBlogData(array $params = []): array
 	{
 		global $CACHE_MANAGER;
 
@@ -136,8 +137,8 @@ class Gratitude
 
 			if (defined('BX_COMP_MANAGED_CACHE'))
 			{
-				$CACHE_MANAGER->registerTag('blog_post_'.$postFields['ID']);
-				$CACHE_MANAGER->registerTag('USER_CARD_'.intval($postFields['AUTHOR_ID'] / TAGGED_user_card_size));
+				$CACHE_MANAGER->registerTag('blog_post_' . $postFields['ID']);
+				$CACHE_MANAGER->registerTag('USER_CARD_' . (int)($postFields['AUTHOR_ID'] / TAGGED_user_card_size));
 			}
 		}
 
@@ -154,7 +155,7 @@ class Gratitude
 	 * @param array $result component result.
 	 * @return void
 	 */
-	public function prepareGratPostFilter(&$result)
+	public function prepareGratPostFilter(&$result): void
 	{
 		global $APPLICATION;
 
@@ -163,7 +164,7 @@ class Gratitude
 		$result['GRAT_POST_FILTER'] = [];
 		$result['RETURN_EMPTY_LIST'] = false;
 
-		$userId = intval($request->get('gratUserId'));
+		$userId = (int)$request->get('gratUserId');
 		$gratCode = $request->get('gratCode');
 
 		if (
@@ -188,7 +189,7 @@ class Gratitude
 				$filterParams['gratCode'] = $gratCode;
 			}
 
-			$gratitudesData = \Bitrix\Socialnetwork\Component\LogList\Gratitude::getGratitudesIblockData($filterParams);
+			$gratitudesData = self::getGratitudesIblockData($filterParams);
 			$iblockElementsIdList = $gratitudesData['ELEMENT_ID_LIST'];
 			$gratValue = '';
 
@@ -200,8 +201,8 @@ class Gratitude
 			$postIdList = [];
 			if (!empty($iblockElementsIdList))
 			{
-				$gratitudesData = \Bitrix\Socialnetwork\Component\LogList\Gratitude::getGratitudesBlogData([
-					'iblockElementsIdList' => $iblockElementsIdList
+				$gratitudesData = self::getGratitudesBlogData([
+					'iblockElementsIdList' => $iblockElementsIdList,
 				]);
 				$postIdList = $gratitudesData['POST_ID_LIST'];
 			}
@@ -216,10 +217,9 @@ class Gratitude
 			{
 				$APPLICATION->setTitle(Loc::getMessage($gratValue <> '' ? 'SONET_LOG_LIST_TITLE_GRAT2' : 'SONET_LOG_LIST_TITLE_GRAT', [
 					'#USER_NAME#' => $gratUserName,
-					'#GRAT_NAME#' => $gratValue
+					'#GRAT_NAME#' => $gratValue,
 				]));
 			}
 		}
 	}
 }
-?>

@@ -3,6 +3,7 @@ import {FormFieldTunnerPopupAbstract} from "../formfieldtunnerpopupabstract";
 import {FormFieldTunnerMultipleChecknoxPopupAbstract} from "../formfieldtunnervaluepopupabstract";
 import {ResourcebookingUserfield} from "../resourcebookinguserfield";
 import {Loc, Type, Dom} from "main.core";
+import {MenuItem} from "main.popup";
 
 export class ResourceSelectorFieldTunner extends FormFieldTunnerAbstract {
 	constructor()
@@ -81,13 +82,11 @@ class ResourcesStatePopup extends FormFieldTunnerPopupAbstract
 
 	getMenuItems()
 	{
-		var submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label';
-
 		return [
-			{
-				html: '<span>' + Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE') + '</span>',
-				className: submenuClass
-			},
+			new MenuItem({
+				text: Loc.getMessage('WEBF_RES_SELECT_DEFAULT_TITLE'),
+				delimiter: true
+			}),
 			{
 				id: 'resources-state-list',
 				text: Loc.getMessage('WEBF_RES_SELECT_DEFAULT_EMPTY'),

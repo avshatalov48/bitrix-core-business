@@ -19,9 +19,9 @@ foreach($arResult['ITEMS'] as $key=>$val)
 	$arResult['ITEMS'][$key]["DETAIL_TEXT"] = preg_replace_callback("/(<|\[)CODE(>|\])(.+?)(<|\[)\/CODE(>|\])/is",code_replace_func,$arResult['ITEMS'][$key]["DETAIL_TEXT"]);
 */
 
-	if(strtoupper($arResult['ITEMS'][$key]["PREVIEW_TEXT_TYPE"]) == "TEXT")
+	if(mb_strtoupper($arResult['ITEMS'][$key]["PREVIEW_TEXT_TYPE"]) == "TEXT")
 		$arResult['ITEMS'][$key]["PREVIEW_TEXT"] = nl2br($arResult['ITEMS'][$key]["PREVIEW_TEXT"]);
-	if(strtoupper($arResult['ITEMS'][$key]["DETAIL_TEXT_TYPE"]) == "TEXT")
+	if(mb_strtoupper($arResult['ITEMS'][$key]["DETAIL_TEXT_TYPE"]) == "TEXT")
 		$arResult['ITEMS'][$key]["DETAIL_TEXT"] = nl2br($arResult['ITEMS'][$key]["DETAIL_TEXT"]);
 	
 	//create button
@@ -38,7 +38,7 @@ foreach($arResult['ITEMS'] as $key=>$val)
 					if(preg_match("/[^A-Z0-9_]ID=\d+/", $arButton["URL"]))
 					{
 						$arButton["URL"] = preg_replace("/&return_url=(.+?)&/", "&", $arButton["URL"]);
-						$arResult['ITEMS'][$key]['EDIT_BUTTON'] = '<a href="'.htmlspecialcharsbx($arButton["URL"]).'" title="'.htmlspecialcharsbx($arButton["TITLE"]).'"><img src="'.$arButton["IMAGE"].'" width="20" height="20" border="0" /></a>';
+						$arResult['ITEMS'][$key]['EDIT_BUTTON'] = '<a href="'.htmlspecialcharsbx($arButton["URL"]).'" title="'.htmlspecialcharsbx($arButton["TITLE"]).'"><img src="'.$arButton["IMAGE"].'" width="20" height="20" alt="" /></a>';
 					}
 				}
 			}

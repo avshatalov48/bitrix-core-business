@@ -9,6 +9,7 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Result;
 use Bitrix\Sale\Delivery\Services\Base;
 use Bitrix\Sale\Delivery\Services\Manager;
+use Bitrix\Sale\Delivery\Services\Table;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Tariffs\Repository;
 use Sale\Handlers\Delivery\YandexTaxi\Common\TariffNameBuilder;
 use Sale\Handlers\Delivery\YandexTaxi\EventJournal\JournalProcessor;
@@ -119,6 +120,33 @@ final class YandextaxiHandler extends Base
 		}
 
 		return $instance->installer->install($serviceId)->isSuccess();
+	}
+
+	/**
+	 * @param int $serviceId
+	 * @param array $fields
+	 * @return bool
+	 */
+	public static function onBeforeUpdate($serviceId, array &$fields = array())
+	{
+		$service = Table::getList([
+			'filter' => ['=ID' =>  $serviceId]
+		])->fetch();
+
+		if (
+			$service
+			&& isset($fields['CONFIG']['MAIN']['OAUTH_TOKEN'])
+			&& isset($service['CONFIG']['MAIN']['OAUTH_TOKEN'])
+			&& $fields['CONFIG']['MAIN']['OAUTH_TOKEN'] !== $service['CONFIG']['MAIN']['OAUTH_TOKEN']
+		)
+		{
+			/**
+			 * Reset history cursor if oauth token has been changed
+			 */
+			$fields['CONFIG']['MAIN']['CURSOR'] = '';
+		}
+
+		return true;
 	}
 
 	/**

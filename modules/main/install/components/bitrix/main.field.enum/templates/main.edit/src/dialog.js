@@ -138,13 +138,22 @@ export class Dialog
 		Event.bind(this.input, 'keyup', (event: Event) => {
 			if (!input.value.length)
 			{
+				dialogSelector.search('');
+				dialogSelector.clearSearch();
 				dialogSelector.deselectAll();
 				dialogSelector.hide();
 			}
 			else
 			{
-				dialogSelector.show();
-				dialogSelector.search(input.value);
+				const selectedItems = dialogSelector.getSelectedItems();
+				if (!selectedItems.some(item => {
+					return (item.title.getText() === input.value);
+				}))
+				{
+					dialogSelector.show();
+					dialogSelector.clearSearch();
+					dialogSelector.search(input.value);
+				}
 			}
 		});
 	}

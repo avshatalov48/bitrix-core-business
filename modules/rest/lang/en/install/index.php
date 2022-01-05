@@ -1,5 +1,4 @@
 <?php
-$MESS["REST_DB_NOT_SUPPORTED"] = "This module supports only MySQL.";
 $MESS["REST_IBLOCK_ELEMENT_NAME"] = "Items";
 $MESS["REST_IBLOCK_NAME_2"] = "Application data storage";
 $MESS["REST_IBLOCK_SECTION_NAME"] = "Sections";

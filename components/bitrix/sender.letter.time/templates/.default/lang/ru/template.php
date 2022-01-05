@@ -27,4 +27,7 @@ $MESS["SENDER_LETTER_TIME_TMPL_SCHEDULE_DAY_SAT"] = "Сб";
 $MESS["SENDER_LETTER_TIME_TMPL_SCHEDULE_DAY_SUN"] = "Вс";
 $MESS["SENDER_LETTER_TIME_OUTSIDE_ADD_SUCCESS"] = "Рассылка успешно сохранена!<br>
 Найти ее можно в CRM-маркетинге, в разделе <a href=\"%path%\">Рассылки</a>";
+$MESS["SENDER_LETTER_TIME_LIMITATION_MAX"] = "Максимум в сутки может быть отправлено %max% email";
+$MESS["SENDER_LETTER_TIME_LIMITATION_LIMITS_INFO"] = "Подробнее читайте в %link_start%статье%link_end%";
+
 ?>

@@ -12,7 +12,7 @@ if (COption::GetOptionString("main", "site_personal_create", "N") == "Y")
 {
 	$site_id = COption::GetOptionString("main", "site_personal_id"); 
 	
-	$db_res = CSite::GetList($by="sort", $order="desc", array("LID" => $site_id));
+	$db_res = CSite::GetList("sort", "desc", array("LID" => $site_id));
 	if (!($db_res && $res = $db_res->Fetch()))
 	{
 		$culture = CultureTable::getRow(array('filter'=>array(

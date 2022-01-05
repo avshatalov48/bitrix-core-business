@@ -31,7 +31,7 @@ class UserDataProvider extends EntityDataProvider
 		return $result;
 	}
 
-	public static function getFiredAvailability()
+	public static function getFiredAvailability(): bool
 	{
 		global $USER;
 
@@ -41,7 +41,7 @@ class UserDataProvider extends EntityDataProvider
 		{
 			$result = (
 				(
-					Option::get("bitrix24", "show_fired_employees", "Y") == "Y"
+					Option::get('bitrix24', 'show_fired_employees', 'Y') === 'Y'
 					|| $USER->canDoOperation('edit_all_users')
 				)
 				&& !self::extranetSite()
@@ -51,7 +51,7 @@ class UserDataProvider extends EntityDataProvider
 		return $result;
 	}
 
-	public static function getExtranetAvailability()
+	public static function getExtranetAvailability(): bool
 	{
 		static $result = null;
 
@@ -59,7 +59,7 @@ class UserDataProvider extends EntityDataProvider
 		{
 			$result = (
 				ModuleManager::isModuleInstalled('extranet')
-				&& Option::get("extranet", "extranet_site") <> ''
+				&& Option::get('extranet', 'extranet_site') !== ''
 			);
 		}
 

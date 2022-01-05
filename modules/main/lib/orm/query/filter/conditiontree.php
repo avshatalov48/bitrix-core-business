@@ -272,7 +272,10 @@ class ConditionTree
 	 */
 	public function whereIn($column, $values)
 	{
-		$this->conditions[] = new Condition($column, 'in', $values);
+		if (!empty($values))
+		{
+			$this->conditions[] = new Condition($column, 'in', $values);
+		}
 
 		return $this;
 	}

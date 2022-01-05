@@ -1,9 +1,10 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
-};
+}
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -11,6 +12,13 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
+use Bitrix\Bitrix24\Feature;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Page\Asset;
+use Bitrix\Main\Page\FrameStatic;
+use Bitrix\Main\Security\Random;
 use Bitrix\Main\UI;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\Integration\Calendar\ApiVersion;
@@ -36,21 +44,21 @@ $extensionsList = [
 	'ui.info-helper',
 ];
 
-if (in_array('tasks', $arResult['tabs']))
+if (in_array('tasks', $arResult['tabs'], true))
 {
-	CModule::IncludeModule('tasks');
+	Loader::includeModule('tasks');
 	$extensionsList[] = 'tasks_component';
 	$extensionsList[] = 'tasks_integration_socialnetwork';
 }
 
-if (in_array('lists', $arResult['tabs']))
+if (in_array('lists', $arResult['tabs'], true))
 {
 	$extensionsList[] = 'lists';
 }
 
 UI\Extension::load($extensionsList);
 
-if($arResult["delete_blog_post"] === "Y")
+if ($arResult["delete_blog_post"] === "Y")
 {
 	$APPLICATION->RestartBuffer();
 	if (!empty($arResult["ERROR_MESSAGE"]))
@@ -61,7 +69,8 @@ if($arResult["delete_blog_post"] === "Y")
 		</div>
 		<?php
 	}
-	if(!empty($arResult["OK_MESSAGE"]))
+
+	if (!empty($arResult["OK_MESSAGE"]))
 	{
 		?><div class="feed-add-successfully">
 			<span class="feed-add-info-text"><span class="feed-add-info-icon"></span><?=$arResult["OK_MESSAGE"]?></span>
@@ -70,7 +79,7 @@ if($arResult["delete_blog_post"] === "Y")
 	die();
 }
 
-if(!empty($arResult["FATAL_MESSAGE"]))
+if (!empty($arResult["FATAL_MESSAGE"]))
 {
 	ob_start();
 
@@ -78,12 +87,11 @@ if(!empty($arResult["FATAL_MESSAGE"]))
 		<span class="feed-add-info-text"><span class="feed-add-info-icon"></span><?=$arResult["FATAL_MESSAGE"]?></span>
 	</div><?php
 
-	$strFullForm = ob_get_contents();
-	ob_end_clean();
+	$strFullForm = ob_get_clean();
 
 	if ($_POST["action"] === "SBPE_get_full_form")
 	{
-		while (ob_end_clean());
+		while (ob_end_clean()) {}
 
 		echo CUtil::PhpToJSObject([
 			"PROPS" => [
@@ -107,13 +115,13 @@ if(!empty($arResult["FATAL_MESSAGE"]))
 if (!empty($arResult["OK_MESSAGE"]) || !empty($arResult["ERROR_MESSAGE"]))
 {
 	?><div id="feed-add-post-form-notice-block<?=$arParams["FORM_ID"]?>" class="feed-notice-block" style="display:none;"><?php
-	if(!empty($arResult["OK_MESSAGE"]))
+	if (!empty($arResult["OK_MESSAGE"]))
 	{
 		?><div class="feed-add-successfully">
 			<span class="feed-add-info-icon"></span><span class="feed-add-info-text"><?=$arResult["OK_MESSAGE"]?></span>
 		</div><?php
 	}
-	if(!empty($arResult["ERROR_MESSAGE"]))
+	if (!empty($arResult["ERROR_MESSAGE"]))
 	{
 		?><div class="feed-add-error">
 			<span class="feed-add-info-icon"></span><span class="feed-add-info-text"><?=$arResult["ERROR_MESSAGE"]?></span>
@@ -121,7 +129,7 @@ if (!empty($arResult["OK_MESSAGE"]) || !empty($arResult["ERROR_MESSAGE"]))
 	}
 	?></div><?php
 }
-if(!empty($arResult["UTIL_MESSAGE"]))
+if (!empty($arResult["UTIL_MESSAGE"]))
 {
 	?>
 	<div class="feed-add-successfully">
@@ -147,7 +155,7 @@ elseif ($arResult["imageUploadFrame"] === "Y") // Frame with file input to ajax 
 		top.bxPostFileIdWidth = '<?= CUtil::JSEscape($arResult["Image"]["source"]["width"]) ?>';
 		<?php
 	}
-	elseif ($arResult["ERROR_MESSAGE"] <> '')
+	elseif ((string)$arResult["ERROR_MESSAGE"] !== '')
 	{
 		?>
 		window.bxPostFileError = top.bxPostFileError = '<?=CUtil::JSEscape($arResult["ERROR_MESSAGE"])?>';
@@ -180,7 +188,7 @@ else
 		]
 	];
 
-	if(in_array('tasks', $arResult['tabs']))
+	if (in_array('tasks', $arResult['tabs'], true))
 	{
 		$arTabs[] = [
 			"ID" => "tasks",
@@ -189,7 +197,7 @@ else
 		];
 	}
 
-	if (in_array('calendar', $arResult['tabs']))
+	if (in_array('calendar', $arResult['tabs'], true))
 	{
 		$arTabs[] = [
 			"ID" => "calendar",
@@ -198,11 +206,11 @@ else
 		];
 	}
 
-	if (in_array('vote', $arResult['tabs']))
+	if (in_array('vote', $arResult['tabs'], true))
 	{
 		$limited = (
-			\Bitrix\Main\Loader::includeModule('bitrix24')
-			&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('socialnetwork_livefeed_vote')
+			Loader::includeModule('bitrix24')
+			&& !Feature::isFeatureEnabled('socialnetwork_livefeed_vote')
 		);
 
 		$arTabs[] = [
@@ -218,7 +226,7 @@ else
 		];
 	}
 
-	if (in_array('file', $arResult['tabs']))
+	if (in_array('file', $arResult['tabs'], true))
 	{
 		$arTabs[] = [
 			"ID" => "file",
@@ -226,7 +234,7 @@ else
 		];
 	}
 
-	if (in_array('grat', $arResult['tabs']))
+	if (in_array('grat', $arResult['tabs'], true))
 	{
 		$arTabs[] = [
 			"ID" => "grat",
@@ -235,8 +243,8 @@ else
 	}
 
 	$limited = (
-		\Bitrix\Main\Loader::includeModule('bitrix24')
-		&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('socialnetwork_livefeed_important')
+		Loader::includeModule('bitrix24')
+		&& !Feature::isFeatureEnabled('socialnetwork_livefeed_important')
 	);
 
 	$arTabs[] = [
@@ -250,13 +258,13 @@ else
 		"LIMITED" => $limited ? 'Y' : 'N',
 	];
 
-	if(in_array('lists', $arResult['tabs']))
+	if (in_array('lists', $arResult['tabs'], true))
 	{
 		$arTabs[] = [
 			"ID" => "lists",
 			"NAME" => Loc::getMessage("BLOG_TAB_LISTS"),
 			"ONCLICK" => (
-				!\CLists::isFeatureEnabled()
+				!CLists::isFeatureEnabled()
 					? "BX.UI.InfoHelper.show('limit_office_bp_stream');"
 					: "BX.Socialnetwork.Livefeed.PostFormTabs.getInstance().getLists();"
 			)
@@ -270,7 +278,7 @@ else
 	{
 		$arTab = $arTabs[$i];
 		$moreClass = ($arResult['tabActive'] == $arTab["ID"] ? " feed-add-post-form-link-active" : "");
-		if($arTab["ID"] === "lists")
+		if ($arTab["ID"] === "lists")
 		{
 			?><span class="feed-add-post-form-link<?=$moreClass?>" id="feed-add-post-form-tab-<?=$arTab["ID"]?>"><?php
 				?><span id="feed-add-post-form-tab-lists" class="feed-add-post-form-link-text"><?=$arTab["NAME"]?></span><?php
@@ -292,15 +300,15 @@ else
 				?><span><?=$arTab["NAME"]?></span><?php
 			?></span><?php
 			?><script>
-				BX.bind(BX('feed-add-post-form-tab-<?=$arTab["ID"]?>'), 'click', function(e) {
+				BX.bind(BX('feed-add-post-form-tab-<?=$arTab["ID"]?>'), 'click', function() {
 					<?php
 					if (isset($arTab["ONCLICK_SLIDER"]))
 					{
-						?><?=$arTab["ONCLICK_SLIDER"]?><?php
+						?><?= $arTab["ONCLICK_SLIDER"] ?><?php
 					}
 					elseif ($arTab["LIMITED"] === 'Y')
 					{
-						?><?= (isset($arTab["ONCLICK"]) ? $arTab["ONCLICK"] : "") ?><?php
+						?><?= ($arTab["ONCLICK"] ?? '') ?><?php
 					}
 					else
 					{
@@ -309,7 +317,7 @@ else
 							callback: function() {
 								setTimeout(function() {
 									BX.Socialnetwork.Livefeed.PostFormTabs.getInstance().changePostFormTab('<?= $arTab["ID"] ?>');
-									<?= (isset($arTab["ONCLICK"]) ? $arTab["ONCLICK"] : "") ?>
+									<?= ($arTab["ONCLICK"] ?? '') ?>
 								}, 10);
 							}
 						});
@@ -330,7 +338,7 @@ else
 		for ($i = $maxTabs; $i < $tabsCnt; $i++)
 		{
 			$arTab = $arTabs[$i];
-			$pseudoTabs .= '<span class="feed-add-post-form-link" data-onclick="'.(isset($arTab["ONCLICK"]) ? $arTab["ONCLICK"] : "").'" data-name="'.$arTab["NAME"].'" data-limited="'.$arTab["LIMITED"].'" id="feed-add-post-form-tab-'.$arTab["ID"].'" style="display:none;"></span>';
+			$pseudoTabs .= '<span class="feed-add-post-form-link" data-onclick="'.($arTab["ONCLICK"] ?? '').'" data-name="'.$arTab["NAME"].'" data-limited="'.$arTab["LIMITED"].'" id="feed-add-post-form-tab-'.$arTab["ID"].'" style="display:none;"></span>';
 			if (
 				$arResult['tabActive'] == $arTab["ID"]
 				&& $maxTabs > 0
@@ -361,8 +369,7 @@ else
 		</script><?php
 	}
 
-	$strGratVote = ob_get_contents();
-	ob_end_clean();
+	$strGratVote = ob_get_clean();
 
 	if (
 		$arParams["TOP_TABS_VISIBLE"] === "Y"
@@ -398,7 +405,7 @@ else
 				"element_content_type" => $arFile["CONTENT_TYPE"],
 				"element_thumbnail" => $arFile["SRC"],
 				"element_image" => $arFile["THUMBNAIL"],
-				"isImage" => (mb_substr($arFile["CONTENT_TYPE"], 0, 6) === "image/"),
+				"isImage" => (mb_strpos($arFile["CONTENT_TYPE"], 'image/') === 0),
 				"del_url" => $arFile["DEL_URL"]
 			];
 			$title = Loc::getMessage("MPF_INSERT_FILE");
@@ -429,7 +436,7 @@ HTML;
 		BX.Socialnetwork.Livefeed.PostForm.getInstance().get({
 			callback: function() {
 				BX.onCustomEvent(BX('div<?=$jsObjName?>'), 'OnControlClick');
-				if(BX('div<?=$jsObjName?>').style.display=='none')
+				if (BX('div<?=$jsObjName?>').style.display == 'none')
 				{
 					BX.onCustomEvent(BX('div<?=$jsObjName?>'), 'OnShowLHE', ['show']);
 				}
@@ -454,7 +461,7 @@ HTML;
 		BX.message(<?=Json::encode(Loc::loadLanguageFile(__FILE__))?>);
 
 		BX.message({
-			PATH_TO_USER_TASKS_TASK : '<?=CUtil::JSEscape($arParams['PATH_TO_USER_TASKS_TASK'])?>'
+			PATH_TO_USER_TASKS_TASK : '<?=CUtil::JSEscape($arParams['PATH_TO_USER_TASKS_TASK'])?>',
 		});
 
 		new BX.Socialnetwork.Livefeed.PostForm({
@@ -467,22 +474,21 @@ HTML;
 		});
 	</script><?php
 
-	$dynamicArea = new \Bitrix\Main\Page\FrameStatic("sbpe_dynamic");
+	$dynamicArea = new FrameStatic("sbpe_dynamic");
 	$dynamicArea->startDynamicArea();
 	?><script>
 		BX.ready(function() {
 			<?php
 			if (
-				in_array('tasks', $arResult['tabs'])
-				&& isset($_SESSION["SL_TASK_ID_CREATED"])
-
+				isset($_SESSION["SL_TASK_ID_CREATED"])
+				&& in_array('tasks', $arResult['tabs'], true)
 			)
 			{
 				if ((int)$_SESSION["SL_TASK_ID_CREATED"] > 0)
 				{
 					?>
 					BX.Socialnetwork.Livefeed.PostForm.getInstance().tasksTaskEvent(<?=(int)$_SESSION["SL_TASK_ID_CREATED"]?>);
-			<?php
+					<?php
 				}
 				unset($_SESSION["SL_TASK_ID_CREATED"]);
 			}
@@ -501,7 +507,7 @@ HTML;
 			$APPLICATION->ShowAjaxHead();
 		}
 
-		$postFormActionUri = (isset($arParams["POST_FORM_ACTION_URI"]) ? $arParams["POST_FORM_ACTION_URI"] : htmlspecialcharsback(POST_FORM_ACTION_URI));
+		$postFormActionUri = ($arParams["POST_FORM_ACTION_URI"] ?? htmlspecialcharsback(POST_FORM_ACTION_URI));
 		$uri = new Bitrix\Main\Web\Uri($postFormActionUri);
 		$uri->deleteParams([ "b24statAction", "b24statTab", "b24statAddEmailUserCrmContact" ]);
 		$uri->addParams([
@@ -509,12 +515,12 @@ HTML;
 		]);
 		$postFormActionUri = $uri->getUri();
 
-		$selectorId = \Bitrix\Main\Security\Random::getString(6);
+		$selectorId = Random::getString(6);
 
 		?><div id="microblog-form">
 		<form action="<?=htmlspecialcharsbx($postFormActionUri)?>" id="blogPostForm" name="blogPostForm" method="POST" enctype="multipart/form-data" target="_self" data-bx-selector-id="<?=htmlspecialcharsbx($selectorId)?>">
 			<input type="hidden" name="show_title" id="show_title" value="<?=($bShowTitle ? "Y" : "N")?>">
-			<?=bitrix_sessid_post();?>
+			<?= bitrix_sessid_post() ?>
 			<div class="feed-add-post-form-wrap"><?php
 				if (
 					$arParams["TOP_TABS_VISIBLE"] !== "Y"
@@ -629,7 +635,7 @@ HTML;
 								"USE_SEARCH" => "Y",
 								"FILTER" => "blog",
 							],
-							"SMILES" => COption::GetOptionInt("blog", "smile_gallery_id", 0),
+							"SMILES" => (int)Option::get('blog', 'smile_gallery_id', 0),
 							"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 							"AT_THE_END_HTML" => $htmlAfterTextarea,
 							"LHE" => [
@@ -684,10 +690,10 @@ HTML;
 				}
 			?></div><?php //feed-add-post-form-wrap
 			?><div id="feed-add-post-content-message-add-ins"><?php
-				if (in_array('vote', $arResult['tabs']))
+				if (in_array('vote', $arResult['tabs'], true))
 				{
 					?><div id="feed-add-post-content-vote" style="display: none;"><?php
-					if (IsModuleInstalled("vote"))
+					if (ModuleManager::isModuleInstalled("vote"))
 					{
 						$APPLICATION->IncludeComponent(
 							"bitrix:system.field.edit",
@@ -729,18 +735,20 @@ HTML;
 						{
 							$dateTillPostIsShowing = $arResult["POST_PROPERTIES"]["DATA"]["UF_IMPRTANT_DATE_END"]["VALUE"];
 						}
-						$ufPostEndTimeEditing = $dateTillPostIsShowing ? $dateTillPostIsShowing : "";
+						$ufPostEndTimeEditing = $dateTillPostIsShowing ?: '';
 						?>
 						<div class="feed-add-post-expire-date">
 							<div class="feed-add-post-expire-date-wrap">
 								<div class="feed-add-post-expire-date-inner js-post-expire-date-block
-								<?= $ufPostEndTimeEditing ? 'feed-add-post-expire-date-customize' : ''; ?>">
-									<span class="feed-add-post-expire-date-text"><?= htmlspecialcharsbx(GetMessage("IMPORTANT_TILL_TITLE")); ?></span>
+								<?= ($ufPostEndTimeEditing ? 'feed-add-post-expire-date-customize' : '') ?>">
+									<span class="feed-add-post-expire-date-text"><?= htmlspecialcharsbx(Loc::getMessage('IMPORTANT_TILL_TITLE')) ?></span>
 									<span id="js-post-expire-date-wrapper" class="feed-add-post-expire-date-period ">
 										<span class="feed-add-post-expire-date-duration js-important-till-popup-trigger"><?php
-											?><?= htmlspecialcharsbx($dateTillPostIsShowing ?
-												GetMessage("IMPORTANT_FOR_CUSTOM") :
-												GetMessage($arResult["REMAIN_IMPORTANT_DEFAULT_OPTION"]["TEXT_KEY"])) ?><?php
+											?><?= htmlspecialcharsbx(
+												$dateTillPostIsShowing
+													? Loc::getMessage("IMPORTANT_FOR_CUSTOM")
+													: Loc::getMessage($arResult["REMAIN_IMPORTANT_DEFAULT_OPTION"]["TEXT_KEY"])
+											) ?><?php
 										?></span>
 										<div class="js-post-showing-duration-options-container main-ui-hide">
 											<?php
@@ -748,17 +756,17 @@ HTML;
 											{
 												?>
 												<span class="main-ui-hide js-post-showing-duration-option"
-													  data-value="<?=htmlspecialcharsbx($periodAttributes['VALUE']) ; ?>"
-													  data-class="<?=htmlspecialcharsbx($periodAttributes['CLASS']) ; ?>"
-													  data-text="<?= htmlspecialcharsbx(GetMessage($periodAttributes['TEXT_KEY']));?>"></span><?php
-											};
+													  data-value="<?= htmlspecialcharsbx($periodAttributes['VALUE']) ?>"
+													  data-class="<?= htmlspecialcharsbx($periodAttributes['CLASS']) ?>"
+													  data-text="<?= htmlspecialcharsbx(GetMessage($periodAttributes['TEXT_KEY'])) ?>"></span><?php
+											}
 											?>
 										</div>
-										<span class="js-date-post-showing-custom feed-add-post-expire-date-final"><?= htmlspecialcharsbx($ufPostEndTimeEditing); ?></span>
-										<input class="js-form-editing-post-end-time" type="hidden" name="UF_IMPRTANT_DATE_END_SAVED" value="<?= htmlspecialcharsbx($ufPostEndTimeEditing); ?>">
-										<input class="js-form-post-end-time" type="hidden" name="UF_IMPRTANT_DATE_END" value="<?= htmlspecialcharsbx($ufPostEndTimeEditing); ?>">
+										<span class="js-date-post-showing-custom feed-add-post-expire-date-final"><?= htmlspecialcharsbx($ufPostEndTimeEditing) ?></span>
+										<input class="js-form-editing-post-end-time" type="hidden" name="UF_IMPRTANT_DATE_END_SAVED" value="<?= htmlspecialcharsbx($ufPostEndTimeEditing) ?>">
+										<input class="js-form-post-end-time" type="hidden" name="UF_IMPRTANT_DATE_END" value="<?= htmlspecialcharsbx($ufPostEndTimeEditing) ?>">
 										<input class="js-form-post-end-period" type="hidden" name="postShowingDuration"
-											   value="<?= htmlspecialcharsbx($dateTillPostIsShowing ? "CUSTOM" : $arResult["REMAIN_IMPORTANT_DEFAULT_OPTION"]["VALUE"]); ?>">
+											   value="<?= htmlspecialcharsbx($dateTillPostIsShowing ? "CUSTOM" : $arResult["REMAIN_IMPORTANT_DEFAULT_OPTION"]["VALUE"]) ?>">
 									</span>
 								</div>
 							</div>
@@ -770,7 +778,7 @@ HTML;
 						</script><?php
 					}
 				?></div><?php
-				if (in_array('grat', $arResult['tabs']))
+				if (in_array('grat', $arResult['tabs'], true))
 				{
 					?><div id="feed-add-post-content-grat" style="display: <?=($arResult['tabActive'] === "grat" ? "block" : "none")?>;"><?php
 
@@ -809,7 +817,7 @@ HTML;
 								<?php
 								if (is_array($arResult["PostToShow"]["GRATS"]))
 								{
-									foreach($arResult["PostToShow"]["GRATS"] as $i => $arGrat)
+									foreach ($arResult["PostToShow"]["GRATS"] as $i => $arGrat)
 									{
 										?>
 										arGrats[<?=CUtil::JSEscape($i)?>] = {
@@ -821,7 +829,7 @@ HTML;
 									}
 								}
 
-								$selectorId = \Bitrix\Main\Security\Random::getString(6);
+								$selectorId = Random::getString(6);
 								?>
 
 								new BX.Socialnetwork.Livefeed.PostFormGratSelector({
@@ -842,7 +850,7 @@ HTML;
 						<div class="feed-add-grat-right">
 							<div class="feed-add-grat-label"><?=Loc::getMessage("BLOG_TITLE_GRAT")?></div>
 							<div class="feed-add-grat-form">
-								<input type="hidden" id="entity-selector-data-<?=htmlspecialcharsbx($selectorId)?>" name="GRAT_DEST_DATA" value="<?=htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($arResult['selectedGratitudeEntities']))?>" />
+								<input type="hidden" id="entity-selector-data-<?= htmlspecialcharsbx($selectorId) ?>" name="GRAT_DEST_DATA" value="<?= htmlspecialcharsbx(Json::encode($arResult['selectedGratitudeEntities'])) ?>" />
 								<div id="entity-selector-<?=htmlspecialcharsbx($selectorId)?>"></div>
 							</div>
 						</div>
@@ -870,7 +878,7 @@ HTML;
 
 				foreach ($arResult["POST_PROPERTIES"]["DATA"] as $FIELD_NAME => $arPostField)
 				{
-					if(in_array($FIELD_NAME, $arParams["POST_PROPERTY_SOURCE"]))
+					if (in_array($FIELD_NAME, $arParams["POST_PROPERTY_SOURCE"], true))
 					{
 						?>
 						<div id="blog-post-user-fields-<?=$FIELD_NAME?>"><?=$arPostField["EDIT_FORM_LABEL"].":"?>
@@ -889,12 +897,12 @@ HTML;
 					}
 				}
 
-				if (in_array('calendar', $arResult['tabs']))
+				if (in_array('calendar', $arResult['tabs'], true))
 				{
 					?><div id="feed-add-post-content-calendar" style="display: none;"></div><?php
 				}
 
-				if(in_array('lists', $arResult['tabs']))
+				if (in_array('lists', $arResult['tabs'], true))
 				{
 					?>
 					<div id="feed-add-post-content-lists" style="display: none;">
@@ -903,7 +911,7 @@ HTML;
 							[
 								"SOCNET_GROUP_ID" => $arParams["SOCNET_GROUP_ID"],
 								"DESTINATION" => $arResult["PostToShow"],
-								"IBLOCK_ID" => isset($_GET['bp_setting']) ? $_GET['bp_setting'] : 0
+								"IBLOCK_ID" => $_GET['bp_setting'] ?? 0
 							],
 							null,
 							[ "HIDE_ICONS" => "Y" ]
@@ -913,7 +921,7 @@ HTML;
 					<?php
 				}
 
-				if(in_array('tasks', $arResult['tabs']))
+				if (in_array('tasks', $arResult['tabs'], true))
 				{
 					?><div id="feed-add-post-content-tasks" style="display: none;"><div id="feed-add-post-content-tasks-container"><?php
 
@@ -929,7 +937,7 @@ HTML;
 								if (
 									!empty($taskAction['OPERATION'])
 									&& $taskAction['OPERATION'] === 'task.add'
-									&& CModule::IncludeModule('tasks')
+									&& Loader::includeModule('tasks')
 								)
 								{
 									$taskSubmitted = true;
@@ -1001,7 +1009,7 @@ HTML;
 						'LISTS_CATALOG_PROCESSES_ACCESS_DENIED' : '<?=GetMessageJS("LISTS_CATALOG_PROCESSES_ACCESS_DENIED")?>'
 					});
 					<?php
-					if(in_array('tasks', $arResult['tabs']))
+					if (in_array('tasks', $arResult['tabs'], true))
 					{
 						?>
 						BX.message({
@@ -1026,14 +1034,15 @@ HTML;
 						autoSave: '<?=(COption::GetOptionString("blog", "use_autosave", "Y") === "Y" ? ($arParams["ID"] > 0 ? "onDemand" : "Y") : 'N')?>',
 						activeTab: '<?=($arResult['bVarsFromForm'] || $arParams["ID"] > 0 ? CUtil::JSEscape($arResult['tabActive']) : '')?>',
 						text: '<?=CUtil::JSEscape($formParams["TEXT"]["VALUE"])?>',
-						restoreAutosave: <?=(empty($arResult["ERROR_MESSAGE"]) ? 'true' : 'false')?>
+						restoreAutosave: <?=(empty($arResult["ERROR_MESSAGE"]) ? 'true' : 'false')?>,
+						createdFromEmail: <?= (!empty($arResult['POST_PROPERTIES']['DATA']['UF_MAIL_MESSAGE']['VALUE']) ? 'true' : 'false') ?>,
 					});
 
 				</script>
 				<?php
-				if(COption::GetOptionString("blog", "use_autosave", "Y") === "Y")
+				if (Option::get('blog', 'use_autosave', 'Y') === "Y")
 				{
-					$dynamicArea = new \Bitrix\Main\Page\FrameStatic("post-autosave");
+					$dynamicArea = new FrameStatic("post-autosave");
 					$dynamicArea->startDynamicArea();
 					$as = new CAutoSave();
 					$as->Init(false);
@@ -1047,10 +1056,10 @@ HTML;
 					],
 				];
 
-				if(
+				if (
 					$arParams["MICROBLOG"] !== "Y"
-					&& !in_array($arParams["PAGE_ID"], [ "user_blog_post_edit_profile", "user_blog_post_edit_grat", "user_grat", "user_blog_post_edit_post" ])
 					&& (int)$arResult['UserID'] === (int)$arResult['Blog']['OWNER_ID']
+					&& !in_array($arParams["PAGE_ID"], [ "user_blog_post_edit_profile", "user_blog_post_edit_grat", "user_grat", "user_blog_post_edit_post" ])
 				)
 				{
 					$arButtons[] = [
@@ -1072,15 +1081,15 @@ HTML;
 
 				?><div class="feed-buttons-block" id="feed-add-buttons-block<?=$arParams["FORM_ID"]?>" style="display:none;"><?php
 					$scriptFunc = [];
-					foreach($arButtons as $val)
+					foreach ($arButtons as $val)
 					{
 						$onclick = $val["CLICK"];
-						if($onclick == '')
+						if ((string)$onclick === '')
 						{
 							$onclick = "submitBlogPostForm('".$val["NAME"]."'); ";
 						}
 						$scriptFunc[$val["NAME"]] = $onclick;
-						if($val["CLEAR_CANCEL"] === "Y")
+						if ($val["CLEAR_CANCEL"] === "Y")
 						{
 							?><button class="ui-btn ui-btn-lg ui-btn-link" id="blog-submit-button-<?=$val["NAME"]?>"><?=$val["TEXT"]?></button><?php
 						}
@@ -1091,7 +1100,8 @@ HTML;
 					}
 					if (!empty($scriptFunc))
 					{
-						?><script>BX.ready(function(){
+						?><script>
+						BX.ready(function(){
 							<?php
 							foreach ($scriptFunc as $id => $handler)
 							{
@@ -1114,22 +1124,22 @@ HTML;
 		if ($_POST["action"] === "SBPE_get_full_form")
 		{
 			$strFullForm = ob_get_contents();
-			while (ob_end_clean());
+			while (ob_end_clean()) {}
 
 			$JSList = $stringsList = [];
 
-			\Bitrix\Main\Page\Asset::getInstance()->getJs();
-			$CSSStrings = \Bitrix\Main\Page\Asset::getInstance()->getCss();
-			\Bitrix\Main\Page\Asset::getInstance()->getStrings();
+			Asset::getInstance()->getJs();
+			$CSSStrings = Asset::getInstance()->getCss();
+			Asset::getInstance()->getStrings();
 
 			$targetTypeList = [ 'JS'/*, 'CSS'*/ ];
-			foreach($targetTypeList as $targetType)
+			foreach ($targetTypeList as $targetType)
 			{
-				$targetAssetList = \Bitrix\Main\Page\Asset::getInstance()->getTargetList($targetType);
+				$targetAssetList = Asset::getInstance()->getTargetList($targetType);
 
-				foreach($targetAssetList as $targetAsset)
+				foreach ($targetAssetList as $targetAsset)
 				{
-					$assetInfo = \Bitrix\Main\Page\Asset::getInstance()->getAssetInfo($targetAsset['NAME'], \Bitrix\Main\Page\AssetMode::ALL);
+					$assetInfo = Asset::getInstance()->getAssetInfo($targetAsset['NAME'], \Bitrix\Main\Page\AssetMode::ALL);
 					if (!empty($assetInfo['JS']))
 					{
 						$JSList = array_merge($JSList, $assetInfo['JS']);

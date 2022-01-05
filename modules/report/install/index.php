@@ -36,13 +36,13 @@ Class report extends CModule
 
 	function InstallDB($arParams = array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 
 		// Database tables creation
 		if(!$DB->Query("SELECT 'x' FROM b_report WHERE 1=0", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/report/install/db/".ToLower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/report/install/db/mysql/install.sql");
 		}
 
 		if($this->errors !== false)
@@ -66,14 +66,14 @@ Class report extends CModule
 
 	function UnInstallDB($arParams = array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 
 
 
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/report/install/db/".ToLower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/report/install/db/mysql/uninstall.sql");
 		}
 
 		UnRegisterModuleDependences('report', 'OnReportDelete', 'report', '\Bitrix\Report\Sharing', 'OnReportDelete');

@@ -25,17 +25,17 @@ class SectionsList
 	private $exportId;
 	private $iblocksIds = array();
 	private $currSectionSettings = array();
-	
+
 	const CACHE_DIR = '/sale/vkexport/';
 	const CACHE_TTL = 86400;
 	const CACHE_ID_PREFIX = "vk_sectionslist_cache";
 	const CACHE_ID_SECTIONS = "iblock_sections";
 	const CACHE_ID_MAPPED_SECTIONS = "mapped_sections";
 	const CACHE_ID_MAPPED_SECTIONS_LIST = "mapped_sections_list";
-	
+
 	const VK_ICON = '<img src="/bitrix/images/sale/vk/vk_icon.png" style="height:16px; width:16px; margin-right: 1em;" />';
 	const VK_ICON_EMPTY = '<span style="width:16px; margin-right: 1em; display:inline-block;"></span>';
-	
+
 	/**
 	 * SectionsList constructor.
 	 * @param $exportId
@@ -56,13 +56,13 @@ class SectionsList
 			$cacheManager->set($this->createCacheIdMappedSections(), $mappedSections);
 		}
 		$this->mappedSections = $mappedSections;
-		
+
 		if (!Loader::includeModule('iblock'))
 		{
 			throw new SystemException("Can't include module \"IBlock\"! " . __METHOD__);
 		}
 	}
-	
+
 	/**
 	 * @return string
 	 * Create name for cache
@@ -70,10 +70,10 @@ class SectionsList
 	private function createCacheId($cacheName = null)
 	{
 		$cacheId = self::CACHE_ID_PREFIX . '__' . $this->exportId;
-		
+
 		return $cacheName ? $cacheId . '__' . $cacheName : self::CACHE_ID_PREFIX;
 	}
-	
+
 	/**
 	 * Create cache ID for iblock sections
 	 * @return string
@@ -84,7 +84,7 @@ class SectionsList
 			($onlyMapped ? '_mapped' : '_all');
 		return $this->createCacheId($cacheName);
 	}
-	
+
 	/**
 	 * Create cache ID for mapped sections list
 	 * @return string
@@ -93,7 +93,7 @@ class SectionsList
 	{
 		return $this->createCacheId(self::CACHE_ID_MAPPED_SECTIONS);
 	}
-	
+
 	/**
 	 * Create cache ID for mapped sections list
 	 * @return string
@@ -102,8 +102,8 @@ class SectionsList
 	{
 		return $this->createCacheId(self::CACHE_ID_MAPPED_SECTIONS_LIST);
 	}
-	
-	
+
+
 	/**
 	 * Clean all caches for class. Run in moment of changed sections settings
 	 */
@@ -115,8 +115,8 @@ class SectionsList
 		$cacheManager->clean($this->createCacheIdMappedSections());
 		$cacheManager->clean($this->createCacheIdMappedSectionsList());
 	}
-	
-	
+
+
 	/**
 	 * Return list of iblock sections. At the first run saving list in cache.
 	 *
@@ -129,7 +129,7 @@ class SectionsList
 //		We can save data in cache.Cache must be reload only if sections settings will be changed.
 		$cacheManager = Application::getInstance()->getManagedCache();
 		$sections = array();
-		
+
 		if ($cacheManager->read(self::CACHE_TTL, $this->createCacheIdSections($onlyMapped)))
 		{
 			$sections = $cacheManager->get($this->createCacheIdSections($onlyMapped));
@@ -162,13 +162,13 @@ class SectionsList
 					"ELEMENT_CNT",
 				)
 			);
-			
+
 			while ($currSection = $resSections->Fetch())
 			{
 //				output format - list or tree separated on iblocks
 				$sections[$currSection["IBLOCK_ID"]][$currSection["ID"]] = $currSection;
 			}
-			
+
 			$cacheManager->set($this->createCacheIdSections($onlyMapped), $sections);
 		}
 
@@ -180,18 +180,18 @@ class SectionsList
 			{
 				$sectionsList += $iblock;
 			}
-			
+
 			$sections = $sectionsList;
 		}
-		
+
 		return $sections;
 	}
-	
-	
+
+
 	protected function getIblockIds($onlyMapped)
 	{
 		$iblockIds = [];
-		
+
 		if ($onlyMapped)
 		{
 			$iblockIds = $this->getMappedIblocks();
@@ -213,8 +213,8 @@ class SectionsList
 
 return $iblockIds;
 }
-	
-	
+
+
 	/**
 	 * Collect IBLOCK for all mapped sections. Need at creation FEEDs for product export
 	 *
@@ -232,11 +232,11 @@ return $iblockIds;
 				$this->iblocksIds[$id] = $id;
 			}
 		}
-		
+
 		return $this->iblocksIds;
 	}
-	
-	
+
+
 	/**
 	 * Find and converted all section to product export.
 	 * Check inhering of parameters and define which sections will be exported
@@ -260,15 +260,15 @@ return $iblockIds;
 				$sectionsToExport[$params["IBLOCK"]][$mappedSection["BX_ID"]] = $mappedSection["BX_ID"];
 			}
 		}
-		
+
 		return $sectionsToExport;
 	}
-	
-	
+
+
 	private function getListMappedSections()
 	{
 		$result = array();
-		
+
 		foreach ($this->mappedSections as $mappedSection)
 		{
 			$params = $mappedSection["PARAMS"];
@@ -318,11 +318,11 @@ return $iblockIds;
 				}
 			}
 		}
-		
+
 		return $result;
 	}
-	
-	
+
+
 	/**
 	 * Find and converted all section to albums export.
 	 * Check inhering of parameters and define which sections will be exported
@@ -333,7 +333,7 @@ return $iblockIds;
 	{
 		$sectionsToExport = array();
 		$sectionsAliases = array();
-		
+
 		foreach ($this->mappedSections as $mappedSection)
 		{
 			$params = $mappedSection["PARAMS"];
@@ -372,11 +372,11 @@ return $iblockIds;
 				}
 			}
 		}
-		
+
 		return array("SECTIONS" => $sectionsToExport, "ALIASES" => $sectionsAliases);
 	}
-	
-	
+
+
 	public function getMultiSectionsToProduct($pdoructsIds)
 	{
 		$sections = SectionElementTable::getList(array(
@@ -385,17 +385,17 @@ return $iblockIds;
 				"ADDITIONAL_PROPERTY_ID" => null,
 			),
 		));
-		
+
 		$result = array();
 		while ($section = $sections->fetch())
 		{
 			$result[$section["IBLOCK_ELEMENT_ID"]][] = $section["IBLOCK_SECTION_ID"];
 		}
-		
+
 		return $result;
 	}
-	
-	
+
+
 	/**
 	 * Prepare mapped sections to print export map
 	 */
@@ -410,7 +410,7 @@ return $iblockIds;
 					<td class="internal-right">' . Loc::getMessage("VK_EXPORT_MAP__SECTIONS_NAME") . '</td>
 				</tr>
 			';
-		
+
 		foreach ($mappedSectionGroupped as $currAlbum)
 		{
 			$result .= '<tr>';
@@ -443,11 +443,11 @@ return $iblockIds;
 			$result .= '</tr>';
 		}
 		$result .= '</table>';
-		
+
 		return $result;
 	}
-	
-	
+
+
 	/**
 	 * Get extend sections array - group sections by VK-album, add URL to VK album, add URL to section edit page,
 	 * add count of element
@@ -464,7 +464,7 @@ return $iblockIds;
 		{
 			$this->mappedSections = Map::getMappedSections($this->exportId);
 		}
-		
+
 		$sectionsUnformatted = $this->getListMappedSections();
 		$sectionsFormatted = array();
 
@@ -473,11 +473,11 @@ return $iblockIds;
 		{
 			return array();
 		}
-		
+
 		$sections = $this->getSections(true);
 		$vkCategories = new VkCategories($this->exportId);
 		$vkCategoriesList = $vkCategories->getList(false);
-		
+
 		foreach ($sectionsUnformatted as $sectionUnformatted)
 		{
 			$currSection = $sections[$sectionUnformatted["IBLOCK"]][$sectionUnformatted["BX_ID"]];
@@ -494,7 +494,7 @@ return $iblockIds;
 					"ITEMS" => array(),
 					"ELEMENT_CNT" => 0,
 				);
-				
+
 				if (array_key_exists($sectionUnformatted["TO_ALBUM"], $this->mappedAlbums))
 				{
 					$albumVkId = $this->mappedAlbums[$sectionUnformatted["TO_ALBUM"]]["ALBUM_VK_ID"];
@@ -515,7 +515,7 @@ return $iblockIds;
 			$vkCategoryName = $vkCategoriesList[$sectionUnformatted["VK_CATEGORY"]]['NAME'];
 			$sectionName = $currSection["NAME"];
 			$sectionElementCnt = $currSection["ELEMENT_CNT"];
-			
+
 			$item = array(
 				"BX_ID" => $sectionUnformatted["BX_ID"],
 				"NAME" => $sectionName,
@@ -526,22 +526,22 @@ return $iblockIds;
 				"LEFT_MARGIN" => $currSection["LEFT_MARGIN"],
 				"DEPTH_LEVEL" => $currSection["DEPTH_LEVEL"],
 			);
-			
+
 			if (isset($item["BX_ID"]) && isset($item["IBLOCK"]))
 			{
 				$item["SECTION_URL"] = $this->createSectionLink($item["IBLOCK"], $item["BX_ID"]);
 			}
-			
+
 			$sectionsFormatted[$sectionUnformatted["TO_ALBUM"]]["ITEMS"][$item["LEFT_MARGIN"]] = $item;
 			$sectionsFormatted[$sectionUnformatted["TO_ALBUM"]]["ELEMENT_CNT"] += $sectionElementCnt;
 		}
 
 //		sorted sections for each album by level, add tabs to names
 		$sectionsFormatted = self::sortMapElementItems($sectionsFormatted);
-		
+
 		return $sectionsFormatted;
 	}
-	
+
 	private static function sortMapElementItems($sectionsFormatted)
 	{
 		$sectionsSorted = array();
@@ -572,14 +572,14 @@ return $iblockIds;
 					$item["NAME"] = str_repeat('- ', $tabsCount) . $item["NAME"];
 				}
 			}
-			
+
 			$sectionsSorted[$albumKey] = $album;
 		}
-		
+
 		return $sectionsSorted;
 	}
-	
-	
+
+
 	/**
 	 * Create URL to VK album by VK album ID
 	 * @param $albumVkId
@@ -589,7 +589,7 @@ return $iblockIds;
 	{
 		$vk = Vk::getInstance();
 		$groupId = str_replace('-', '', $vk->getGroupId($this->exportId));
-		
+
 		if ($groupId)
 		{
 			return Vk::VK_URL . Vk::VK_URL__MARKET_PREFIX . $groupId . Vk::VK_URL__ALBUM_PREFIX . $albumVkId;
@@ -599,8 +599,8 @@ return $iblockIds;
 			return false;
 		}
 	}
-	
-	
+
+
 	/**
 	 * Create URL to section setting page, to trading platform settings TAB, by iblock ID and section ID
 	 * @param $iblockId
@@ -610,13 +610,13 @@ return $iblockIds;
 	private function createSectionLink($iblockId, $sectionId)
 	{
 		$sectionTabControlName = 'form_section_' . $iblockId . '_active_tab';
-		
-		return \CAllIBlock::GetAdminSectionEditLink($iblockId, $sectionId, array(
+
+		return \CIBlock::GetAdminSectionEditLink($iblockId, $sectionId, array(
 			$sectionTabControlName => "SALE_TRADING_PLATFORM_edit_trading_platforms",
 		));
 	}
-	
-	
+
+
 	/**
 	 * Find parameter TO_ALBUM to section. Check INHERING and parent settings
 	 *
@@ -653,14 +653,14 @@ return $iblockIds;
 		{
 			return $parentParams["TO_ALBUM"];
 		}
-		
+
 		else
 		{
 			return 0;
 		}
 	}
-	
-	
+
+
 	/**
 	 * Create selector for HTML. Not create <select> tag, only inner <options>
 	 *
@@ -676,13 +676,13 @@ return $iblockIds;
 
 //		get mapped sections for checking activity
 		$sectionsTree = $this->getSections(true, $onlyMapped);
-		
+
 		$result = '';
 		$result .= '<option value="0">' . Loc::getMessage("SALE_CATALOG_VK_MAIN_ALBUM") . '</option>';
 		foreach ($iblockIds as $iblockId)
 		{
 			$iblock = \CIBlock::GetByID($iblockId)->GetNext();
-			
+
 			$result .= '<option disabled value="-1">'.
 				mb_strtoupper(is_array($iblock)? $iblock["NAME"] : $iblockId) .
 				'</option>';
@@ -697,11 +697,11 @@ return $iblockIds;
 					'</option>';
 			}
 		}
-		
+
 		return $result;
 	}
-	
-	
+
+
 	/**
 	 * Return vk default category from settings.
 	 *
@@ -713,12 +713,12 @@ return $iblockIds;
 //		get category from mapped
 //		if not set - get from VK-settings (if set '-1' = default)
 		$vkCategory = $this->mappedSections[$sectionId]['VK_ID'];
-//		todo: or get parent category 
+//		todo: or get parent category
 		if (!isset($vkCategory) || $vkCategory <= 0)
 		{
 			$vk = Vk::getInstance();
 			$settings = $vk->getSettings($this->exportId);
-			
+
 			if (isset($settings["EXPORT_SETTINGS"]["CATEGORY_DEFAULT"]))
 			{
 				$vkCategory = $settings["EXPORT_SETTINGS"]["CATEGORY_DEFAULT"];
@@ -728,11 +728,11 @@ return $iblockIds;
 				$vkCategory = Vk::VERY_DEFAULT_VK_CATEGORY;
 			}    //hardcoooooooooooode
 		}
-		
+
 		return $vkCategory;
 	}
-	
-	
+
+
 	/**
 	 * Get saved values for selected section and export ID and format them.
 	 * Check settings dependence, adjust them if needed or set default values.
@@ -745,7 +745,7 @@ return $iblockIds;
 	{
 		$sections = $this->getSections(false, false);
 		$section = $sections[$sectionId];
-		
+
 		$currParams = $this->mappedSections[$sectionId]['PARAMS'];
 		$parentParams = $currParams["PARENT_SETTINGS"];
 
@@ -785,10 +785,10 @@ return $iblockIds;
 		{
 			$currParams[$key . '__PARENT'] = $param;
 		}
-		
+
 		return $currParams;
 	}
-	
+
 	/**
 	 * Set visibility for controls according by settings. Return settings array
 	 *
@@ -826,7 +826,7 @@ return $iblockIds;
 				{
 					$params["TO_ALBUM_ALIAS__DISPLAY"] = 'display: block';
 				}
-				
+
 				$params["INCLUDE_CHILDS__DISPLAY"] = $params["TO_ALBUM"] > 0 ? "" : " disabled ";
 			}
 		}
@@ -843,11 +843,11 @@ return $iblockIds;
 				$params[$key] = '';
 			}
 		}
-		
+
 		return $params;
-		
+
 	}
-	
+
 	/**
 	 * Prepare setting of parent settings to showing inhering in current section
 	 *
@@ -858,7 +858,7 @@ return $iblockIds;
 	private function prepareParentSettingToShow($settings, $section)
 	{
 		$preparedSettings = array();
-		
+
 		$preparedSettings["ENABLE"] = $settings["ENABLE"];
 		$preparedSettings["INCLUDE_CHILDS"] = false;    // always false, tak pravilno
 		$preparedSettings["VK_CATEGORY"] = $settings["VK_CATEGORY"] > 0 ? $settings["VK_CATEGORY"] : Vk::VK_CATEGORY_TO_CHANGE;
@@ -872,11 +872,11 @@ return $iblockIds;
 			$preparedSettings["TO_ALBUM"] = $section["ID"];
 			$preparedSettings["TO_ALBUM_ALIAS"] = $section["NAME"];
 		}
-		
+
 		return $preparedSettings;
 	}
-	
-	
+
+
 	/**
 	 * Default params for current section - need if have not current and parent params
 	 *
@@ -886,11 +886,11 @@ return $iblockIds;
 	private function getDefaultExportParams($sectionId)
 	{
 		$sections = $this->getSections(false, false);
-		
+
 		$vk = Vk::getInstance();
 		$vkSettings = $vk->getSettings($this->exportId);
 		$vkCategory = $vkSettings['EXPORT_SETTINGS']['CATEGORY_DEFAULT'];
-		
+
 		return array(
 			"INHERIT" => true,
 			"ENABLE" => false,
@@ -900,8 +900,8 @@ return $iblockIds;
 			"VK_CATEGORY" => $vkCategory ? $vkCategory : Vk::VK_CATEGORY_TO_CHANGE,
 		);
 	}
-	
-	
+
+
 	/**
 	 * @param $settings array
 	 */
@@ -913,7 +913,7 @@ return $iblockIds;
 			$this->currSectionSettings = $settings;
 		}
 	}
-	
+
 	/**
 	 * Validate settings before saving
 	 * Check settings dependence, adjust them if neede or set default values.
@@ -932,7 +932,7 @@ return $iblockIds;
 		$sections = $this->getSections(false, false);
 		$iblockId = $sections[$sectionId]["IBLOCK_ID"];
 		$currParentSettings = $this->mappedSections[$sectionId]['PARAMS']['PARENT_SETTINGS'];
-		
+
 		$dataToDelete = array();
 		$settingsToSave = array();
 
@@ -1000,7 +1000,7 @@ return $iblockIds;
 		}
 
 //		VALUE_EXTERNAL is required, but we might be have not this value. Get some default
-		
+
 		if (!empty($dataToDelete))
 		{
 			return array(
@@ -1009,7 +1009,7 @@ return $iblockIds;
 				),
 			);
 		}
-		
+
 		else
 		{
 			return array(
@@ -1023,8 +1023,8 @@ return $iblockIds;
 			);
 		}
 	}
-	
-	
+
+
 	/**
 	 * Create settings for childs.
 	 * For childs set only INHERIT option and VK CATEGORY. Other settings will be getting in export
@@ -1039,14 +1039,14 @@ return $iblockIds;
 		{
 			return false;
 		}
-		
+
 		$sections = $this->getSections();
 		$currParentSettings = $this->mappedSections[$sectionId]['PARAMS']['PARENT_SETTINGS'];
 		$iblockId = $sections[$sectionId]["IBLOCK_ID"];
-		
+
 		$currLeftMargin = intval($sections[$sectionId]["LEFT_MARGIN"]);
 		$currRightMargin = intval($sections[$sectionId]["RIGHT_MARGIN"]);
-		
+
 		$dataToSave = array();
 		$dataToDelete = array();
 
@@ -1065,8 +1065,8 @@ return $iblockIds;
 				$settings = $currParentSettings;
 			}
 		}
-		
-		
+
+
 		foreach ($sections as $section)
 		{
 //			find CHILDS
@@ -1137,18 +1137,18 @@ return $iblockIds;
 				}
 			}
 		}
-		
+
 		$result = array();
 		if (!empty($dataToSave))
 		{
 			$result['TO_SAVE'] = $dataToSave;
 		}
-		
+
 		if (!empty($dataToDelete))
 		{
 			$result['TO_DELETE'] = $dataToDelete;
 		}
-		
+
 		return $result;
 	}
 }

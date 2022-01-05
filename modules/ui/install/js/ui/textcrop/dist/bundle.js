@@ -8,6 +8,7 @@ this.BX = this.BX || {};
 	    babelHelpers.classCallCheck(this, TextCrop);
 	    this.target = options.target || null;
 	    this.rows = options.rows || 2;
+	    this.resize = options.resize || false;
 	    this.text = null;
 	    this.rowHeight = null;
 	    this.$wrapper = null;
@@ -61,6 +62,13 @@ this.BX = this.BX || {};
 	      return this.rowHeight;
 	    }
 	  }, {
+	    key: "cropResize",
+	    value: function cropResize() {
+	      if (this.resize) {
+	        window.addEventListener('resize', BX.delegate(this.init, this));
+	      }
+	    }
+	  }, {
 	    key: "crop",
 	    value: function crop() {
 	      this.init();
@@ -74,6 +82,7 @@ this.BX = this.BX || {};
 
 	      this.getText();
 	      this.target.innerText = '';
+	      this.$wrapper = '';
 	      this.target.appendChild(this.getWrapper());
 	      var rowHeight = this.getRowHeight();
 	      var cropText = '';
@@ -87,6 +96,8 @@ this.BX = this.BX || {};
 	          this.$wrapper.innerHTML = cropText + '...';
 	        }
 	      }
+
+	      this.cropResize();
 	    }
 	  }]);
 	  return TextCrop;

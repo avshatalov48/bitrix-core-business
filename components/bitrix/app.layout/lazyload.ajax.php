@@ -34,7 +34,18 @@ $componentParams['LAZYLOAD'] = true;
 $APPLICATION->IncludeComponent(
 	'bitrix:app.layout',
 	'',
-	$componentParams,
+	[
+		'PLACEMENT' => $componentParams['PLACEMENT'] ?? null,
+		'PLACEMENT_OPTIONS' => $componentParams['PLACEMENT_OPTIONS'] ?? null,
+		'ID' => $componentParams['ID'] ?? null,
+		'PLACEMENT_ID' => $componentParams['PLACEMENT_ID'] ?? null,
+		'APP_VIEW' => $componentParams['APP_VIEW'] ?? null,
+		'USE_PADDING' => $componentParams['USE_PADDING'] ?? null,
+		'POPUP' => $componentParams['POPUP'] ?? null,
+		'IS_SLIDER' => $componentParams['IS_SLIDER'] ?? null,
+		'INITIALIZE' => $componentParams['INITIALIZE'] ?? null,
+		'LAZYLOAD' => $componentParams['LAZYLOAD'],
+	],
 	false,
 	array('HIDE_ICONS' => 'Y')
 );

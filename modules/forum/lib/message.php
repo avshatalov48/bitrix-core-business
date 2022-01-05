@@ -684,8 +684,9 @@ class Message extends Internals\Entity
 		$result = new Main\ORM\Data\UpdateResult();
 		$result->setPrimary(["ID" => $id]);
 		$data = [];
+		$temporaryFields = ['AUX', 'AUX_DATA'];
 
-		foreach ([
+		foreach (array_merge([
 			"USE_SMILES",
 			"POST_MESSAGE",
 			"ATTACH_IMG",
@@ -696,8 +697,14 @@ class Message extends Internals\Entity
 			"EDITOR_NAME",
 			"EDITOR_EMAIL",
 			"EDIT_REASON",
-			"EDIT_DATE"
-		] as $field)
+			"EDIT_DATE",
+			'SERVICE_TYPE',
+			'SERVICE_DATA',
+			'SOURCE_ID',
+			'PARAM1',
+			'PARAM2',
+			'XML_ID',
+		], $temporaryFields) as $field)
 		{
 			if (array_key_exists($field, $fields))
 			{
@@ -730,6 +737,21 @@ class Message extends Internals\Entity
 				}
 			}
 			$data["UPLOAD_DIR"] = $strUploadDir;
+		}
+
+		foreach ($temporaryFields as $field)
+		{
+			unset($data[$field]);
+		}
+
+		if (isset($fields['EDITOR_ID']))
+		{
+			$authContext = new Main\Authentication\Context();
+			$authContext->setUserId($fields['EDITOR_ID']);
+			$data = [
+				'fields' => $data,
+				'auth_context' => $authContext
+			];
 		}
 
 		$dbResult = MessageTable::update($id, $data);
@@ -774,16 +796,6 @@ class Message extends Internals\Entity
 			"AUTHOR_REAL_IP" => "<no address>",
 			"GUEST_ID" => $_SESSION["SESS_GUEST_ID"]
 		];
-
-		if (isset($fields['SERVICE_TYPE']))
-		{
-			$data['SERVICE_TYPE'] = $fields['SERVICE_TYPE'];
-		}
-		if (isset($fields['SERVICE_DATA']))
-		{
-			$data['SERVICE_DATA'] = $fields['SERVICE_DATA'];
-		}
-
 		if ($realIp = Main\Service\GeoIp\Manager::getRealIp())
 		{
 			$data["AUTHOR_IP"] = $realIp;
@@ -799,8 +811,8 @@ class Message extends Internals\Entity
 			$data += array_intersect_key($fields, $USER_FIELD_MANAGER->getUserFields(MessageTable::getUfId()));
 		}
 
-		$temporaryFields = ["AUX", "AUX_DATA"];
-		$additionalFields = array_merge(["SOURCE_ID", "PARAM1", "PARAM2", "XML_ID"], $temporaryFields);
+		$temporaryFields = ['AUX', 'AUX_DATA'];
+		$additionalFields = array_merge(['SERVICE_TYPE', 'SERVICE_DATA', 'SOURCE_ID', 'PARAM1', 'PARAM2', 'XML_ID'], $temporaryFields);
 		foreach ($additionalFields as $key)
 		{
 			if (array_key_exists($key, $fields))

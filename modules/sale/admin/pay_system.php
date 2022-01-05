@@ -113,7 +113,12 @@ if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 				}
 				elseif (is_array($paySystem))
 				{
-					AddEventToStatFile('sale', 'deletePaysystem', '', $paySystem['ACTION_FILE']);
+					$paySysntemStatisticLabel = $paySystem['ACTION_FILE'];
+					if (!empty($paySystem['PS_MODE']))
+					{
+						$paySysntemStatisticLabel .= ':' . $paySystem['PS_MODE'];
+					}
+					AddEventToStatFile('sale', 'deletePaysystem', '', $paySysntemStatisticLabel);
 				}
 
 				break;

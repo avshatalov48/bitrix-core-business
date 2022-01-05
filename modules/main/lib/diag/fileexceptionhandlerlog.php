@@ -1,38 +1,45 @@
 <?php
+
 namespace Bitrix\Main\Diag;
 
 use Bitrix\Main;
+use Psr\Log;
 
-class FileExceptionHandlerLog
-	extends ExceptionHandlerLog
+class FileExceptionHandlerLog extends ExceptionHandlerLog
 {
 	const MAX_LOG_SIZE = 1000000;
 	const DEFAULT_LOG_FILE = "bitrix/modules/error.log";
 
-	private $logFile;
-	private $logFileHistory;
-
-	private $maxLogSize;
 	private $level;
+
+	/** @var Log\LoggerInterface */
+	protected $logger;
 
 	public function initialize(array $options)
 	{
-		$this->logFile = static::DEFAULT_LOG_FILE;
+		$logFile = static::DEFAULT_LOG_FILE;
 		if (isset($options["file"]) && !empty($options["file"]))
-			$this->logFile = $options["file"];
+		{
+			$logFile = $options["file"];
+		}
 
-		$this->logFile = preg_replace("'[\\\\/]+'", "/", $this->logFile);
-		if ((mb_substr($this->logFile, 0, 1) !== "/") && !preg_match("#^[a-z]:/#", $this->logFile))
-			$this->logFile = Main\Application::getDocumentRoot()."/".$this->logFile;
+		if ((substr($logFile, 0, 1) !== "/") && !preg_match("#^[a-z]:/#", $logFile))
+		{
+			$logFile = Main\Application::getDocumentRoot()."/".$logFile;
+		}
 
-		$this->logFileHistory = $this->logFile.".old";
+		$maxLogSize = static::MAX_LOG_SIZE;
+		if (isset($options["log_size"]) && $options["log_size"] > 0)
+		{
+			$maxLogSize = (int)$options["log_size"];
+		}
 
-		$this->maxLogSize = static::MAX_LOG_SIZE;
-		if (isset($options["log_size"]) && ($options["log_size"] > 0))
-			$this->maxLogSize = intval($options["log_size"]);
+		$this->logger = new FileLogger($logFile, $maxLogSize);
 
-		if (isset($options["level"]) && ($options["level"] > 0))
-			$this->level = intval($options["level"]);
+		if (isset($options["level"]) && $options["level"] > 0)
+		{
+			$this->level = (int)$options["level"];
+		}
 	}
 
 	/**
@@ -42,39 +49,23 @@ class FileExceptionHandlerLog
 	public function write($exception, $logType)
 	{
 		$text = ExceptionHandlerFormatter::format($exception, false, $this->level);
-		$this->writeToLog(date("Y-m-d H:i:s")." - Host: ".$_SERVER["HTTP_HOST"]." - ".static::logTypeToString($logType)." - ".$text."\n");
+
+		$context = [
+			'type' => static::logTypeToString($logType),
+		];
+
+		$logLevel = static::logTypeToLevel($logType);
+
+		$message = "{date} - Host: {host} - {type} - {$text}\n";
+
+		$this->logger->log($logLevel, $message, $context);
 	}
 
+	/**
+	 * @deprecated
+	 */
 	protected function writeToLog($text)
 	{
-		if (empty($text))
-			return;
-
-		$logFile = $this->logFile;
-		$logFileHistory = $this->logFileHistory;
-
-		$oldAbortStatus = ignore_user_abort(true);
-
-		if ($fp = @fopen($logFile, "ab"))
-		{
-			if (@flock($fp, LOCK_EX))
-			{
-				$logSize = @filesize($logFile);
-				$logSize = intval($logSize);
-
-				if ($logSize > $this->maxLogSize)
-				{
-					@copy($logFile, $logFileHistory);
-					ftruncate($fp, 0);
-				}
-
-				@fwrite($fp, $text);
-				@fflush($fp);
-				@flock($fp, LOCK_UN);
-				@fclose($fp);
-			}
-		}
-
-		ignore_user_abort($oldAbortStatus);
+		$this->logger->debug($text);
 	}
 }

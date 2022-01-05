@@ -83,9 +83,8 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 
 			$this->arParams["IS_PROJECT"] = $this->isProject($this->arParams["GROUP_ID"]);
 
-			$this->setTitle();
-
 			$this->setResult();
+			$this->setTitle();
 
 			$this->includeComponentTemplate();
 		}
@@ -251,10 +250,14 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 		$name = Loc::getMessage("SOCNET_GROUP_COPY_TITLE_BASE");
 		if ($this->arParams["GROUP_ID"])
 		{
-			$name = ($this->arParams["IS_PROJECT"] ? Loc::getMessage("SOCNET_GROUP_COPY_TITLE_BASE_PROJECT") :
-				Loc::getMessage("SOCNET_GROUP_COPY_TITLE_BASE_GROUP"));
+			$name = (
+				$this->arParams['IS_PROJECT']
+					? Loc::getMessage('SOCNET_GROUP_COPY_TITLE_BASE_PROJECT')
+					: Loc::getMessage('SOCNET_GROUP_COPY_TITLE_BASE_GROUP')
+			);
 		}
 
+		$this->arResult['PageTitle'] = $name;
 		$APPLICATION->SetTitle($name);
 	}
 
@@ -551,7 +554,7 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 		return $subjects;
 	}
 
-	private function getInitiatePerms()
+	private function getInitiatePerms(): array
 	{
 		return [
 			"group" => Workgroup::getInitiatePermOptionsList(),
@@ -559,14 +562,9 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 		];
 	}
 
-	private function getSpamPerms()
+	private function getSpamPerms(): array
 	{
-		return [
-			UserToGroupTable::ROLE_OWNER => Loc::getMessage("SOCNET_GROUP_COPY_SPAM_OWNER"),
-			UserToGroupTable::ROLE_MODERATOR => Loc::getMessage("SOCNET_GROUP_COPY_SPAM_MOD"),
-			UserToGroupTable::ROLE_USER => Loc::getMessage("SOCNET_GROUP_COPY_SPAM_USER"),
-			SONET_ROLES_ALL => GetMessage("SOCNET_GROUP_COPY_SPAM_ALL")
-		];
+		return Workgroup::getSpamPermOptionsList();
 	}
 
 	private function isExtranet()
@@ -578,7 +576,7 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 		);
 	}
 
-	private function isExtranetInstalled()
+	private function isExtranetInstalled(): bool
 	{
 		return (
 			ModuleManager::isModuleInstalled("intranet") &&

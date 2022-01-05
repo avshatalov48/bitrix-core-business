@@ -53,7 +53,14 @@ class WizardServices
 		}
 
 		closedir($handle);
-		uasort($arWizardTemplates, create_function('$a, $b', 'return strcmp($a["SORT"], $b["SORT"]);'));
+
+		uasort(
+			$arWizardTemplates,
+			function ($a, $b) {
+				return strcmp($a["SORT"], $b["SORT"]);
+			}
+		);
+
 		return $arWizardTemplates;
 	}
 
@@ -154,9 +161,9 @@ class WizardServices
 
 	function GetCurrentSiteID($selectedSiteID = null)
 	{
-		if (strlen($selectedSiteID) > 0)
+		if ($selectedSiteID <> '')
 		{
-			$obSite = CSite::GetList($by = "def", $order = "desc", Array("LID" => $selectedSiteID));
+			$obSite = CSite::GetList("def", "desc", Array("LID" => $selectedSiteID));
 			if (!$arSite = $obSite->Fetch())
 				$selectedSiteID = null;
 		}
@@ -167,7 +174,7 @@ class WizardServices
 			$currentSiteID = SITE_ID;
 			if (defined("ADMIN_SECTION"))
 			{
-				$obSite = CSite::GetList($by = "def", $order = "desc", Array("ACTIVE" => "Y"));
+				$obSite = CSite::GetList("def", "desc", Array("ACTIVE" => "Y"));
 				if ($arSite = $obSite->Fetch())
 					$currentSiteID = $arSite["LID"];
 			}
@@ -221,7 +228,13 @@ class WizardServices
 			@closedir($handle);
 		}
 
-		uasort($arThemes, create_function('$a, $b', 'return strcmp($a["SORT"], $b["SORT"]);'));
+		uasort(
+			$arThemes,
+			function ($a, $b) {
+				return strcmp($a["SORT"], $b["SORT"]);
+			}
+		);
+
 		return $arThemes;
 	}
 
@@ -234,13 +247,13 @@ class WizardServices
 
 		$path = rtrim($path, "/");
 
-		if (strlen($path) <= 0)
+		if ($path == '')
 			$path = "/";
 
-		if( ($position = strrpos($path, "/")) !== false)
+		if( ($position = mb_strrpos($path, "/")) !== false)
 		{
-			$pathFile = substr($path, $position+1);
-			$pathDir = substr($path, 0, $position);
+			$pathFile = mb_substr($path, $position + 1);
+			$pathDir = mb_substr($path, 0, $position);
 		}
 		else
 			return false;
@@ -307,7 +320,7 @@ class WizardServices
 		if (!is_array($siteID))
 			$siteID = Array($siteID);
 
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/classes/".strtolower($GLOBALS["DB"]->type)."/cml2.php");
+		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/classes/".mb_strtolower($GLOBALS["DB"]->type)."/cml2.php");
 		ImportXMLFile($xmlFile, $iblockType, $siteID, $section_action = "N", $element_action = "N");
 
 		$iblockID = false;
@@ -329,7 +342,7 @@ class WizardServices
 	function SetIBlockFormSettings($iblockID, $settings)
 	{
 		global $DBType;
-		require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/classes/".strtolower($DBType)."/favorites.php");
+		require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/classes/".mb_strtolower($DBType)."/favorites.php");
 
 		CUserOptions::SetOption(
 			"form", 
@@ -342,7 +355,7 @@ class WizardServices
 	function SetUserOption($category, $option, $settings, $common = false, $userID = false)
 	{
 		global $DBType;
-		require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/classes/".strtolower($DBType)."/favorites.php");
+		require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/classes/".mb_strtolower($DBType)."/favorites.php");
 
 		CUserOptions::SetOption(
 			$category, 

@@ -202,9 +202,10 @@ class LandingPubComponent extends LandingBaseComponent
 	 * Build and gets link for different links in the copyright.
 	 * @param string $type Type of the link.
 	 * @param bool $addAdvCode Add or not adv code.
+	 * @param bool $addWWW Add www-part.
 	 * @return string
 	 */
-	public function getRefLink($type, $addAdvCode = true)
+	public function getRefLink(string $type, bool $addAdvCode = true, bool $addWWW = false): string
 	{
 		static $partnerId = null;
 
@@ -213,7 +214,7 @@ class LandingPubComponent extends LandingBaseComponent
 			$partnerId = (int)Option::get('bitrix24', 'partner_id', 0);
 		}
 
-		$link = 'https://' . $this->getParentDomain();
+		$link = 'https://'. ($addWWW ? 'www.' : '') . $this->getParentDomain();
 		$link .= $this->getCopyLinkPath($type);
 
 		if ($addAdvCode)
@@ -1297,17 +1298,7 @@ class LandingPubComponent extends LandingBaseComponent
 	 */
 	protected function isOpenedGroupSite(int $siteId): bool
 	{
-		\CBitrixComponent::includeComponentClass('bitrix:landing.socialnetwork.group_redirect');
-
-		$groupId = \LandingSocialnetworkGroupRedirectComponent::getGroupIdBySiteId(
-			$siteId
-		);
-		if ($groupId && \Bitrix\Main\Loader::includeModule('socialnetwork'))
-		{
-			return \CSocNetGroup::canUserReadGroup(Manager::getUserId(), $groupId);
-		}
-
-		return false;
+		return \Bitrix\Landing\Site\Scope\Group::getGroupIdBySiteId($siteId, true) > 0;
 	}
 
 	/**
@@ -1422,7 +1413,7 @@ class LandingPubComponent extends LandingBaseComponent
 				self::$landingMain['LANDING_ID'] = $lid;
 				self::$landingMain['LANDING_INSTANCE'] = $landing;
 				$this->arResult['LANDING'] = $landing;
-				$this->arResult['SPECIAL_TYPE'] = $this->getSpecialTypeSite($landing->getSiteId());
+				$this->arResult['SPECIAL_TYPE'] = $this->getSpecialTypeSiteByLanding($landing);
 				$this->arResult['DOMAIN'] = $this->getParentDomain();
 				$this->arResult['COPY_LINK'] = $this->getCopyLinkPath();
 				$this->arResult['ADV_CODE'] = $this->getAdvCode();

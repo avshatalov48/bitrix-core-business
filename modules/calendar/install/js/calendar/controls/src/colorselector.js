@@ -1,12 +1,13 @@
-import {Tag, Loc, Dom, Event, Type} from 'main.core';
-import {Util} from 'calendar.util';
-import {MenuManager} from 'main.popup';
-import {EventEmitter, BaseEvent} from 'main.core.events';
+import { Tag, Loc, Dom, Event, Type } from 'main.core';
+import { Util } from 'calendar.util';
+import { MenuManager } from 'main.popup';
+import { EventEmitter, BaseEvent } from 'main.core.events';
 
 export class ColorSelector extends EventEmitter
 {
 	LINE_MODE = 'line';
 	SELECTOR_MODE = 'selector';
+	VIEW_MODE = 'view';
 
 	constructor(params)
 	{
@@ -16,7 +17,7 @@ export class ColorSelector extends EventEmitter
 		this.defaultColors = Util.getDefaultColorList();
 		this.colors = [];
 		this.zIndex = 3100;
-		this.mode =  params.mode || this.LINE_MODE;
+		this.mode = params.mode || this.LINE_MODE;
 
 		this.DOM = {
 			wrap: params.wrap
@@ -33,51 +34,61 @@ export class ColorSelector extends EventEmitter
 			for (let i = 0; i < this.defaultColors.length; i++)
 			{
 				this.colors.push(
-				{
-					color: this.defaultColors[i],
-					node: this.DOM.wrap.appendChild(Dom.create('LI',
 					{
-						props: {className: 'calendar-field-colorpicker-color-item'},
-						attrs: {'data-bx-calendar-color': this.defaultColors[i]},
-						style: {backgroundColor: this.defaultColors[i]},
-						html: '<span class="calendar-field-colorpicker-color"></span>'
-					}))
-				});
+						color: this.defaultColors[i],
+						node: this.DOM.wrap.appendChild(Dom.create('LI',
+							{
+								props: { className: 'calendar-field-colorpicker-color-item' },
+								attrs: { 'data-bx-calendar-color': this.defaultColors[i] },
+								style: { backgroundColor: this.defaultColors[i] },
+								html: '<span class="calendar-field-colorpicker-color"></span>'
+							}))
+					});
 			}
 
 			this.DOM.customColorNode = this.DOM.wrap.appendChild(Dom.create('LI',
 				{
-					props: {className: 'calendar-field-colorpicker-color-item'},
+					props: { className: 'calendar-field-colorpicker-color-item' },
 					style:
-					{
-						backgroundColor: 'transparent',
-						width: 0
-					},
+						{
+							backgroundColor: 'transparent',
+							width: 0
+						},
 					html: '<span class="calendar-field-colorpicker-color"></span>'
 				}
 			));
 
 			this.DOM.customColorLink = this.DOM.wrap.appendChild(Dom.create('LI', {
-				props: {className: 'calendar-field-colorpicker-color-item-more'},
+				props: { className: 'calendar-field-colorpicker-color-item-more' },
 				html: '<span class="calendar-field-colorpicker-color-item-more-link">' + Loc.getMessage('EC_COLOR') + '</span>',
-				events: {click: ()=>{
-					if (!this.colorPickerPopup)
-					{
-						this.colorPickerPopup = new BX.ColorPicker({
-							bindElement: this.DOM.customColorLink,
-							onColorSelected: this.setValue.bind(this),
-							popupOptions: {zIndex: this.zIndex}
-						});
+				events: {
+					click: () => {
+						if (!this.colorPickerPopup)
+						{
+							this.colorPickerPopup = new BX.ColorPicker({
+								bindElement: this.DOM.customColorLink,
+								onColorSelected: this.setValue.bind(this),
+								popupOptions: { zIndex: this.zIndex }
+							});
+						}
+						this.colorPickerPopup.open();
 					}
-					this.colorPickerPopup.open();
-				}}
+				}
 			}));
 			Event.bind(this.DOM.wrap, 'click', this.handleColorClick.bind(this));
 		}
 		else if (this.mode === this.SELECTOR_MODE)
 		{
-			this.DOM.colorIcon = this.DOM.wrap.appendChild(Tag.render`<div style="background-color: #000;" class="calendar-field-select-icon"></div>`);
+			this.DOM.colorIcon = this.DOM.wrap.appendChild(Tag.render`
+				<div style="background-color: #000;" class="calendar-field-select-icon"></div>
+			`);
 			Event.bind(this.DOM.wrap, 'click', this.openPopup.bind(this));
+		}
+		else if (this.mode === this.VIEW_MODE)
+		{
+			this.DOM.colorIcon = this.DOM.wrap.appendChild(Tag.render`
+				<div style="background-color: #000;" class="calendar-field-select-icon"></div>
+			`);
 		}
 	}
 
@@ -92,7 +103,7 @@ export class ColorSelector extends EventEmitter
 		if (target && target.getAttribute)
 		{
 			let value = target.getAttribute('data-bx-calendar-color');
-			if(value !== null)
+			if (value !== null)
 			{
 				this.setValue(value);
 			}
@@ -135,7 +146,7 @@ export class ColorSelector extends EventEmitter
 				}
 			}
 		}
-		else if (this.mode === this.SELECTOR_MODE)
+		else if (this.mode === this.SELECTOR_MODE || this.mode === this.VIEW_MODE)
 		{
 			if (this.DOM.colorIcon)
 			{
@@ -149,7 +160,7 @@ export class ColorSelector extends EventEmitter
 
 		if (emitChanges)
 		{
-			this.emit('onChange', new BaseEvent({data: {value: this.activeColor}}));
+			this.emit('onChange', new BaseEvent({ data: { value: this.activeColor } }));
 		}
 	}
 
@@ -157,7 +168,6 @@ export class ColorSelector extends EventEmitter
 	{
 		return this.activeColor;
 	}
-
 
 	openPopup()
 	{
@@ -174,20 +184,20 @@ export class ColorSelector extends EventEmitter
 		let
 			i, menuItems = [], icon;
 
-			this.defaultColors.forEach((color) => {
-					menuItems.push({
-							text: color,
-							color: color,
-							className: 'calendar-add-popup-color-menu-item',
-							onclick: ((color) => {
-								return () => {
-									this.setValue(color);
-									this.popup.close();
-								}
-							})(color)
-						}
-					);
-			});
+		this.defaultColors.forEach((color) => {
+			menuItems.push({
+					text: color,
+					color: color,
+					className: 'calendar-add-popup-color-menu-item',
+					onclick: ((color) => {
+						return () => {
+							this.setValue(color);
+							this.popup.close();
+						};
+					})(color)
+				}
+			);
+		});
 
 		this.popup = MenuManager.create(
 			this.id,
@@ -196,8 +206,8 @@ export class ColorSelector extends EventEmitter
 			{
 				className: 'calendar-color-popup-wrap',
 				width: 162,
-				closeByEsc : true,
-				autoHide : true,
+				closeByEsc: true,
+				autoHide: true,
 				zIndex: this.zIndex,
 				offsetTop: 0,
 				offsetLeft: 52,

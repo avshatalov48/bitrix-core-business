@@ -402,6 +402,8 @@ class Manager
 		$templateFields['DOCUMENT_TYPE'] = $documentType;
 		$templateFields['NAME'] = $data['NAME'];
 		$templateFields['DESCRIPTION'] = $data['DESCRIPTION'];
+		$templateFields['ORIGINATOR_ID'] = $data['ORIGINATOR_ID'];
+		$templateFields['ORIGIN_ID'] = $data['ORIGIN_ID'];
 
 		$result = self::importWorkflowTemplate($templateFields, $userId);
 

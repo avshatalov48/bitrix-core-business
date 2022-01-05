@@ -33,7 +33,7 @@ class BotProvider extends BaseProvider
 
 	public function isAvailable(): bool
 	{
-		return $GLOBALS['USER']->isAuthorized();
+		return $GLOBALS['USER']->isAuthorized() && !User::getInstance()->isExtranet();
 	}
 
 	public function doSearch(SearchQuery $searchQuery, Dialog $dialog): void

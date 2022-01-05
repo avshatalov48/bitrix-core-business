@@ -3,7 +3,7 @@
  */
 export default class CounterSize
 {
-	static SMALL = "ui-counter-lg";
+	static SMALL = "ui-counter-sm";
 	static LARGE = "ui-counter-lg";
 	static MEDIUM = "ui-counter-md";
 }

@@ -217,6 +217,10 @@ if (isset($arResult['ITEM']))
 		$jsParams['PRODUCT']['RCM_ID'] = $item['RCM_ID'];
 	}
 
+	$jsParams['IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED'] =
+		$arResult['IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED']
+	;
+
 	?>
 	<script>
 		var <?=$obName?> = new JCCatalogItem(<?=CUtil::PhpToJSObject($jsParams, false, true)?>);

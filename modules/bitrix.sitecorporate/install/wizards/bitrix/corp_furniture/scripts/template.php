@@ -24,7 +24,7 @@ class WizardTemplate extends CWizardTemplate
 			foreach ($arErrors as $arError)
 				$strError .= $arError[0]."<br />";
 
-			if (strlen($strError) > 0)
+			if ($strError <> '')
 				$strError = '<div id="step-error">'.$strError."</div>";
 		}
 
@@ -129,7 +129,7 @@ class WizardTemplate extends CWizardTemplate
 			$stepNumber++;
 		}
 
-		if (strlen($strNavigation) > 0)
+		if ($strNavigation <> '')
 			$strNavigation = '<table width="100%" cellpadding="0" cellspacing="0" id="menu">'.$strNavigation.'</table>';
 
 		$jsCode = "";

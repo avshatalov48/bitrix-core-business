@@ -1,7 +1,6 @@
-import { Reflection, Dom, Tag, Loc, Type, Runtime, Text} from 'main.core';
+import { Reflection, Dom, Tag, Type, Runtime, Text, Event} from 'main.core';
 import { Util } from 'calendar.util';
 import { EventEmitter } from 'main.core.events';
-
 
 class NextEventList
 {
@@ -19,17 +18,37 @@ class NextEventList
 			this.displayEventList();
 		}
 
-		EventEmitter.subscribe('onPullEvent-calendar', Runtime.debounce(this.displayEventList, 3000, this));
+		this.displayEventListDebounce = Runtime.debounce(this.displayEventList, 3000, this);
+
+		Event.bind(document, 'visibilitychange', this.checkDisplayEventList.bind(this));
+		EventEmitter.subscribe('SidePanel.Slider:onCloseComplete', this.checkDisplayEventList.bind(this));
+
+		EventEmitter.subscribe('onPullEvent-calendar', this.displayEventListDebounce);
+	}
+
+	checkDisplayEventList()
+	{
+		if (this.needReload)
+		{
+			this.displayEventListDebounce();
+		}
 	}
 
 	displayEventList()
 	{
-		this.showLoader();
-		this.getEventList()
-			.then((entryList) => {
-				this.hideLoader();
-				this.renderList(entryList);
-			});
+		if (this.isDisplayingNow())
+		{
+			this.showLoader();
+			this.getEventList()
+				.then((entryList) => {
+					this.hideLoader();
+					this.renderList(entryList);
+				});
+		}
+		else
+		{
+			this.needReload = true;
+		}
 	}
 
 	getEventList()
@@ -103,6 +122,8 @@ class NextEventList
 		{
 			this.hideWidget();
 		}
+
+		this.needReload = false;
 	}
 
 	renderEntry(entry)
@@ -162,6 +183,11 @@ class NextEventList
 
 			this.reloadTimeout = setTimeout(this.displayEventList.bind(this), offset);
 		}
+	}
+
+	isDisplayingNow()
+	{
+		return !document.hidden && !BX.SidePanel.Instance.getOpenSliders().length;
 	}
 }
 

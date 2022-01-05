@@ -331,7 +331,8 @@
 
 		showRequiredUserAction: function(data)
 		{
-			this.node.innerHTML = (
+			var nodeMap = this.node.querySelector('[data-map]');
+			nodeMap.innerHTML = (
 				"<div class=\"landing-block-user-action\">" +
 					"<div class=\"landing-block-user-action-inner\">" +
 						(data.header ? (
@@ -342,7 +343,7 @@
 						) : "") +
 						((data.href || data.onClick || data.className) && data.text ? (
 							"<div>" +
-								"<a href=\""+data.href+"\" class=\"ui-btn "+data.className+"\" target=\""+(data.target ? data.target : '')+"\">"+data.text+"</a>" +
+								"<a href=\""+data.href+"\" class=\"landing-trusted-link ui-btn "+data.className+"\" target=\""+(data.target ? data.target : '')+"\">"+data.text+"</a>" +
 							"</div>"
 						) : "") +
 					"</div>" +

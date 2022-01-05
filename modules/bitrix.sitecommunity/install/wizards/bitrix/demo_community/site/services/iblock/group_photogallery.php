@@ -25,7 +25,7 @@ if ($iblockID == false)
 		"2" => "R"
 	);
 
-	$dbGroup = CGroup::GetList($by = "", $order = "", Array("STRING_ID" => "community_administrator"));
+	$dbGroup = CGroup::GetList("", "", Array("STRING_ID" => "community_administrator"));
 	if($arGroup = $dbGroup -> Fetch())
 	{
 		$permissions[$arGroup["ID"]] = 'W';

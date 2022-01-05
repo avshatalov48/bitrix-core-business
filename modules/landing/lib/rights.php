@@ -973,10 +973,7 @@ class Rights
 						'ID'
 					],
 					'filter' => [
-						'=CODE' => [
-							'/' . Site\Type::PSEUDO_SCOPE_CODE_FORMS . '/',
-							'/' . Site\Type::PSEUDO_SCOPE_CODE_FORMS . '2/'// :(
-						],
+						'CODE' => '/' . Site\Type::PSEUDO_SCOPE_CODE_FORMS . '%',
 						'=SPECIAL' => 'Y',
 						'CHECK_PERMISSIONS' => 'N'
 					]

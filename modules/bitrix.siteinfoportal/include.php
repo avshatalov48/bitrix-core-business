@@ -2,7 +2,7 @@
 IncludeModuleLangFile(__FILE__);
 class CSiteInfoportal
 {
-	function ShowPanel()
+	public static function ShowPanel()
 	{
 		if ($GLOBALS["USER"]->IsAdmin() && COption::GetOptionString("main", "wizard_solution", "", SITE_ID) == "infoportal")
 		{

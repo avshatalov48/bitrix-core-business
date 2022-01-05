@@ -18,12 +18,19 @@ class Recent
 			return false;
 		}
 
-		$isOperator = \Bitrix\Im\Integration\Imopenlines\User::isOperator();
+		$showOpenlines = (
+			\Bitrix\Main\Loader::includeModule('imopenlines')
+			&& (
+				$options['ONLY_OPENLINES'] === 'Y'
+				|| $options['SKIP_OPENLINES'] !== 'Y'
+			)
+		);
+
 		$generalChatId = \CIMChat::GetGeneralChatId();
 
 		$ormParams = self::getOrmParams([
 			'USER_ID' => $userId,
-			'IS_OPERATOR' => $isOperator,
+			'SHOW_OPENLINES' => $showOpenlines,
 			'WITHOUT_COMMON_USERS' => true,
 		]);
 
@@ -62,10 +69,6 @@ class Recent
 			if ($options['SKIP_DIALOG'] === 'Y')
 			{
 				$skipTypes[] = IM_MESSAGE_PRIVATE;
-			}
-			if ($options['SKIP_NOTIFICATION'] !== 'N')
-			{
-				$skipTypes[] = IM_MESSAGE_SYSTEM;
 			}
 			if (!empty($skipTypes))
 			{
@@ -112,7 +115,6 @@ class Recent
 
 			$item = self::formatRow($row, [
 				'GENERAL_CHAT_ID' => $generalChatId,
-				'IS_OPERATOR' => $isOperator,
 			]);
 			if (!$item)
 			{
@@ -157,25 +159,20 @@ class Recent
 
 		$generalChatId = \CIMChat::GetGeneralChatId();
 
-		if ($options['SKIP_OPENLINES'] === 'Y')
-		{
-			$isOperator = false;
-		}
-		else if (isset($options['IS_OPERATOR']))
-		{
-			$isOperator = $options['IS_OPERATOR'] === 'Y';
-		}
-		else
-		{
-			$isOperator = \Bitrix\Im\Integration\Imopenlines\User::isOperator();
-		}
-
 		$viewCommonUsers = (bool)\CIMSettings::GetSetting(\CIMSettings::SETTINGS, 'viewCommonUsers');
 		$withoutCommonUsers = !$viewCommonUsers || $options['ONLY_OPENLINES'] === 'Y';
 
+		$showOpenlines = (
+			\Bitrix\Main\Loader::includeModule('imopenlines')
+			&& (
+				$options['ONLY_OPENLINES'] === 'Y'
+				|| $options['SKIP_OPENLINES'] !== 'Y'
+			)
+		);
+
 		$ormParams = self::getOrmParams([
 			'USER_ID' => $userId,
-			'IS_OPERATOR' => $isOperator,
+			'SHOW_OPENLINES' => $showOpenlines,
 			'WITHOUT_COMMON_USERS' => $withoutCommonUsers,
 		]);
 
@@ -200,10 +197,6 @@ class Recent
 			if ($options['SKIP_DIALOG'] === 'Y')
 			{
 				$skipTypes[] = IM_MESSAGE_PRIVATE;
-			}
-			if ($options['SKIP_NOTIFICATION'] === 'Y')
-			{
-				$skipTypes[] = IM_MESSAGE_SYSTEM;
 			}
 			if (!empty($skipTypes))
 			{
@@ -245,8 +238,7 @@ class Recent
 		{
 			$counter++;
 			$isUser = $row['ITEM_TYPE'] == IM_MESSAGE_PRIVATE;
-			$isNotification = $row['ITEM_TYPE'] == IM_MESSAGE_SYSTEM;
-			$id = $isUser? (int)$row['ITEM_ID']: ($isNotification? 'notify' : 'chat'.$row['ITEM_ID']);
+			$id = $isUser? (int)$row['ITEM_ID']: 'chat'.$row['ITEM_ID'];
 
 			if ($isUser)
 			{
@@ -262,7 +254,6 @@ class Recent
 
 			$item = self::formatRow($row, [
 				'GENERAL_CHAT_ID' => $generalChatId,
-				'IS_OPERATOR' => $isOperator,
 				'WITHOUT_COMMON_USERS' => $withoutCommonUsers,
 			]);
 			if (!$item)
@@ -304,12 +295,11 @@ class Recent
 			return false;
 		}
 
-		$isOperator = \Bitrix\Im\Integration\Imopenlines\User::isOperator($userId);
 		$generalChatId = \CIMChat::GetGeneralChatId();
 
 		$ormParams = self::getOrmParams([
 			'USER_ID' => $userId,
-			'IS_OPERATOR' => $isOperator,
+			'SHOW_OPENLINES' => $itemType === IM_MESSAGE_OPEN_LINE,
 			'WITHOUT_COMMON_USERS' => true,
 		]);
 
@@ -340,7 +330,6 @@ class Recent
 
 			$item = self::formatRow($row, [
 				'GENERAL_CHAT_ID' => $generalChatId,
-				'IS_OPERATOR' => $isOperator,
 			]);
 			if (!$item)
 			{
@@ -361,7 +350,7 @@ class Recent
 	private static function getOrmParams($params)
 	{
 		$userId = (int)$params['USER_ID'];
-		$isOperator = \Bitrix\Main\Loader::includeModule('imopenlines') && (bool)$params['IS_OPERATOR'];
+		$showOpenlines = \Bitrix\Main\Loader::includeModule('imopenlines') && $params['SHOW_OPENLINES'] !== false;
 		$isIntranet = \Bitrix\Main\Loader::includeModule('intranet') && \Bitrix\Intranet\Util::isIntranetUser($userId);
 		$withoutCommonUsers = $params['WITHOUT_COMMON_USERS'] === true || !$isIntranet;
 
@@ -406,7 +395,7 @@ class Recent
 		{
 			$select['INVITATION_ORIGINATOR_ID'] = 'INVITATION.ORIGINATOR_ID';
 		}
-		if ($isOperator)
+		if ($showOpenlines)
 		{
 			$select['LINES_ID'] = 'LINES.ID';
 			$select['LINES_STATUS'] = 'LINES.STATUS';
@@ -463,7 +452,7 @@ class Recent
 				array("join_type"=>"LEFT")
 			);
 		}
-		if ($isOperator)
+		if ($showOpenlines)
 		{
 			$runtime[] = new \Bitrix\Main\Entity\ReferenceField(
 				'LINES',
@@ -492,12 +481,10 @@ class Recent
 	private static function formatRow($row, $options = []):? array
 	{
 		$generalChatId = (int)$options['GENERAL_CHAT_ID'];
-		$isOperator = (bool)$options['IS_OPERATOR'];
 		$withoutCommonUsers = $options['WITHOUT_COMMON_USERS'] === true;
 
 		$isUser = $row['ITEM_TYPE'] == IM_MESSAGE_PRIVATE;
-		$isNotification = $row['ITEM_TYPE'] == IM_MESSAGE_SYSTEM;
-		$id = $isUser? (int)$row['ITEM_ID']: ($isNotification? 'notify' : 'chat'.$row['ITEM_ID']);
+		$id = $isUser? (int)$row['ITEM_ID']: 'chat'.$row['ITEM_ID'];
 
 		if (!$isUser && (!$row['MESSAGE_ID'] || !$row['RELATION_USER_ID'] || !$row['CHAT_ID']))
 		{
@@ -540,7 +527,7 @@ class Recent
 		$item = [
 			'ID' => $id,
 			'CHAT_ID' => (int)$row['CHAT_ID'],
-			'TYPE' => $isUser ? 'user' : ($isNotification ? 'notification' : 'chat'),
+			'TYPE' => $isUser ? 'user' : 'chat',
 			'AVATAR' => [],
 			'TITLE' => [],
 			'MESSAGE' => $message,
@@ -570,16 +557,6 @@ class Recent
 			$item['USER'] = [
 				'ID' => (int)$row['ITEM_ID'],
 			];
-		}
-		else if ($isNotification)
-		{
-			$parser = new \CTextParser();
-
-			$item['ID'] = 'notify';
-			$item['USER'] = [
-				'ID' => (int)$row['MESSAGE_AUTHOR_ID'],
-			];
-			$item['MESSAGE']['TEXT'] = $parser->convert4mail($item['MESSAGE']['TEXT']);
 		}
 		else
 		{
@@ -639,12 +616,12 @@ class Recent
 				'DATE_CREATE' => $row['CHAT_DATE_CREATE'],
 				'MESSAGE_TYPE' => $row["CHAT_TYPE"],
 			];
-			if ($row["CHAT_ENTITY_TYPE"] == 'LINES' && $isOperator)
+			if ($row["CHAT_ENTITY_TYPE"] == 'LINES')
 			{
 				$item['LINES'] = [
 					'ID' => (int)$row['LINES_ID'],
 					'STATUS' => (int)$row['LINES_STATUS'],
-					'DATE_CREATE' => $row['LINES_DATE_CREATE'],
+					'DATE_CREATE' => $row['LINES_DATE_CREATE'] ?? $row['DATE_UPDATE'],
 				];
 			}
 			$item['USER'] = [
@@ -772,11 +749,6 @@ class Recent
 		{
 			$itemTypes = \Bitrix\Im\Chat::getTypes();
 			$id = mb_substr($dialogId, 4);
-		}
-		else if ($dialogId === 'notify')
-		{
-			$itemTypes = IM_MESSAGE_SYSTEM;
-			$id = $userId;
 		}
 		else
 		{
@@ -906,11 +878,6 @@ class Recent
 		{
 			$itemTypes = \Bitrix\Im\Chat::getTypes();
 			$id = mb_substr($dialogId, 4);
-		}
-		else if ($dialogId === 'notify')
-		{
-			$itemTypes = IM_MESSAGE_SYSTEM;
-			$id = $userId;
 		}
 		else
 		{

@@ -196,7 +196,7 @@ class CCalendarType
 					$strUpdate = $DB->PrepareUpdate("b_calendar_type", $arFields);
 					$strSql =
 						"UPDATE b_calendar_type SET ".
-							$strUpdate.
+						$strUpdate.
 						" WHERE XML_ID='".$DB->ForSql($XML_ID)."'";
 					$DB->QueryBind($strSql, array('DESCRIPTION' => $arFields['DESCRIPTION']));
 				}

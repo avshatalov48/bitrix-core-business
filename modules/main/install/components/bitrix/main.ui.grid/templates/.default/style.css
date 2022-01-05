@@ -1412,10 +1412,16 @@ label.main-grid-checkbox {
 
 .main-grid-row-custom:hover > .main-grid-cell { background: #fff !important; }
 
-.main-grid-panel-control-container {
+.main-grid-panel-control-container,
+.main-grid-panel-hidden-control-container {
 	display: table-cell;
 	padding: 7px;
 	vertical-align: middle;
+}
+
+.main-grid-panel-hidden-control-container {
+	padding-left: 0;
+	padding-right: 0;
 }
 
 .main-grid-panel-control-container .main-grid-control-panel-btn {

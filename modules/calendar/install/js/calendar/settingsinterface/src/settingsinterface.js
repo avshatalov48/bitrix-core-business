@@ -2,6 +2,8 @@ import { Util } from 'calendar.util';
 import {EmailSelectorControl} from 'calendar.controls';
 import { Type, Event, Loc, Tag, Dom, Text, Runtime } from 'main.core';
 import { Dialog as EntitySelectorDialog } from 'ui.entity-selector';
+import { EventEmitter } from 'main.core.events';
+import { MessageCard } from 'ui.messagecard';
 
 type SettingsInterfaceOptions = {
 	name: string;
@@ -30,6 +32,7 @@ export class SettingsInterface
 
 		this.settings = options.settings;
 		this.BX = Util.getBX();
+		this.hideMessageBinded = this.hideMessage.bind(this);
 	}
 
 	show()
@@ -227,11 +230,70 @@ export class SettingsInterface
 
 		if (this.showAccessControl)
 		{
+			this.DOM.accessMessageWrap = this.DOM.content.querySelector('[data-role="type-access-message-card"]');
 			this.DOM.accessOuterWrap = this.DOM.content.querySelector('[data-role="type-access-values-cont"]');
+			this.DOM.accessHelpIcon = this.DOM.content.querySelector('.calendar-settings-access-hint');
+			if(Type.isElementNode(this.DOM.accessHelpIcon) && this.calendarContext.util.type === 'location')
+			{
+				this.initMessageControl();
+			}
+			else if(Type.isElementNode(this.DOM.accessHelpIcon))
+			{
+				this.DOM.accessHelpIcon.remove();
+			}
 			if (Type.isElementNode(this.DOM.accessOuterWrap))
 			{
 				this.initAccessController();
 			}
+		}
+	}
+
+	initMessageControl()
+	{
+		const moreMessageButton = Tag.render`
+			<a class="ui-btn ui-btn-primary">${Loc.getMessage('EC_LOCATION_SETTINGS_MORE_INFO')}</a>
+		`;
+		Event.bind(moreMessageButton, 'click', this.openHelpDesk);
+		const header = "";
+		const description = Loc.getMessage('EC_LOCATION_SETTINGS_MESSAGE_DESCRIPTION')
+
+		this.message = new MessageCard({
+			id: 'locationSettingsInfo',
+			header,
+			description,
+			angle: false,
+			hidden: true,
+			actionElements: [moreMessageButton]
+		})
+		EventEmitter.subscribe(this.message, 'onClose', this.hideMessageBinded);
+		Event.bind(this.DOM.accessHelpIcon, 'click', () => {
+			this.onClickHint();
+		});
+
+		if(this.DOM.accessMessageWrap)
+		{
+			this.DOM.accessMessageWrap.appendChild(this.message.getLayout());
+			this.DOM.accessMessageWrap.firstChild.childNodes[1].remove();
+			if(!this.calendarContext.util.config.hideSettingsHintLocation)
+			{
+				this.showMessage();
+			}
+		}
+	}
+
+	onClickHint()
+	{
+		if (!this.message)
+		{
+			return;
+		}
+		if (this.message.isShown())
+		{
+			this.hideMessage();
+		}
+		else
+		{
+			this.showMessage();
 		}
 	}
 
@@ -717,5 +779,41 @@ export class SettingsInterface
 
 		this.accessPopupMenu.show();
 		this.denySliderClose();
+	}
+
+	openHelpDesk()
+	{
+		let helpDeskCode = 14326208;
+		top.BX.Helper.show('redirect=detail&code=' + helpDeskCode);
+	}
+
+	showMessage()
+	{
+		if (this.message)
+		{
+			this.message.show();
+			this.DOM.accessMessageWrap.style.maxHeight = 300 + "px";
+			Dom.addClass(this.DOM.accessHelpIcon, 'calendar-settings-message-arrow-target');
+		}
+	}
+
+	hideMessage()
+	{
+		if (this.message)
+		{
+			Dom.removeClass(this.DOM.accessHelpIcon, 'calendar-settings-message-arrow-target');
+			this.message.hide();
+			this.DOM.accessMessageWrap.style.maxHeight = 0;
+			if(!this.calendarContext.util.config.hideSettingsHintLocation)
+			{
+				BX.ajax.runAction('calendar.api.locationajax.hideSettingsHintLocation',
+						{
+							data: {
+								value: true
+							}
+						})
+					.then(() => {});
+			}
+		}
 	}
 }

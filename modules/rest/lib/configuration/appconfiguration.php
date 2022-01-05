@@ -46,7 +46,7 @@ class AppConfiguration
 	{
 		$result = null;
 		$code = $event->getParameter('CODE');
-		if(
+		if (
 			!static::$entityList[$code]
 			|| !Manifest::isEntityAvailable($code, $event->getParameters(), static::$accessManifest)
 		)
@@ -54,7 +54,7 @@ class AppConfiguration
 			return $result;
 		}
 
-		if(static::checkRequiredParams($code))
+		if (static::checkRequiredParams($code))
 		{
 			$step = $event->getParameter('STEP');
 			$setting = $event->getParameter('SETTING');
@@ -72,13 +72,13 @@ class AppConfiguration
 	public static function onEventClearController(Event $event)
 	{
 		$result = null;
-		if(!static::checkAccessImport($event))
+		if (!static::checkAccessImport($event))
 		{
 			return $result;
 		}
 
 		$code = $event->getParameter('CODE');
-		if(static::checkRequiredParams($code))
+		if (static::checkRequiredParams($code))
 		{
 			$option = $event->getParameters();
 			switch ($code)
@@ -95,13 +95,13 @@ class AppConfiguration
 	public static function onEventImportController(Event $event)
 	{
 		$result = null;
-		if(!static::checkAccessImport($event))
+		if (!static::checkAccessImport($event))
 		{
 			return $result;
 		}
 
 		$code = $event->getParameter('CODE');
-		if(static::checkRequiredParams($code))
+		if (static::checkRequiredParams($code))
 		{
 			$data = $event->getParameters();
 			switch ($code)
@@ -118,7 +118,7 @@ class AppConfiguration
 	private static function checkAccessImport(Event $event)
 	{
 		$code = $event->getParameter('CODE');
-		if(
+		if (
 			!static::$entityList[$code]
 			|| !Manifest::isEntityAvailable($code, $event->getParameters(), static::$accessManifest)
 		)
@@ -143,11 +143,11 @@ class AppConfiguration
 	private static function importApp($item)
 	{
 		$result = false;
-		if(!empty($item['CONTENT']['DATA']['code']))
+		if (!empty($item['CONTENT']['DATA']['code']))
 		{
 			$code = $item['CONTENT']['DATA']['code'];
 			$result = CRestUtil::InstallApp($code);
-			if($result === true)
+			if ($result === true)
 			{
 				$res = AppTable::getList(
 					[
@@ -160,7 +160,7 @@ class AppConfiguration
 						'limit' => 1
 					]
 				);
-				if($app = $res->fetch())
+				if ($app = $res->fetch())
 				{
 					$res = EventTable::getList(
 						[
@@ -172,7 +172,7 @@ class AppConfiguration
 							'limit' => 1
 						]
 					);
-					if(!$event = $res->fetch())
+					if (!$event = $res->fetch())
 					{
 						$res = EventTable::add(
 							[
@@ -211,7 +211,7 @@ class AppConfiguration
 		$result = [
 			'NEXT' => false
 		];
-		if($option['CLEAR_FULL'])
+		if ($option['CLEAR_FULL'])
 		{
 			$dbRes = AppTable::getList(
 				[
@@ -227,18 +227,18 @@ class AppConfiguration
 				]
 			);
 
-			while($appInfo = $dbRes->Fetch())
+			while ($appInfo = $dbRes->Fetch())
 			{
 				$result['NEXT'] = $appInfo['ID'];
 
 				$currentApp = Helper::getInstance()->getContextAction($appInfo['ID']);
-				if(!empty($option['CONTEXT']) && $option['CONTEXT'] === $currentApp)
+				if (!empty($option['CONTEXT']) && $option['CONTEXT'] === $currentApp)
 				{
 					continue;
 				}
 
 				$checkResult = AppTable::checkUninstallAvailability($appInfo['ID']);
-				if($checkResult->isEmpty())
+				if ($checkResult->isEmpty())
 				{
 					AppTable::uninstall($appInfo['ID']);
 					$appFields = [

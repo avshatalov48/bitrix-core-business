@@ -9,6 +9,7 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Type\Collection;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\Internals\FacebookConversion;
 
 /**
  * @global \CUser $USER
@@ -284,6 +285,14 @@ abstract class Element extends Base
 		if ($this->checkElementId())
 		{
 			parent::processResultData();
+			$this->arResult['IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED'] = false;
+			if (Loader::includeModule('sale'))
+			{
+				$this->arResult['IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED'] = FacebookConversion::isEventEnabled(
+					'CustomizeProduct'
+				);
+			}
+
 		}
 		else
 		{

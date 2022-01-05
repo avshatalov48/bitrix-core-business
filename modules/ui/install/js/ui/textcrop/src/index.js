@@ -6,6 +6,7 @@ export class TextCrop
 	{
 		this.target = options.target || null;
 		this.rows = options.rows || 2;
+		this.resize = options.resize || false;
 		this.text = null;
 		this.rowHeight = null;
 
@@ -73,6 +74,14 @@ export class TextCrop
 		return this.rowHeight;
 	}
 
+	cropResize()
+	{
+		if(this.resize)
+		{
+			window.addEventListener('resize', BX.delegate(this.init, this));
+		}
+	}
+
 	crop()
 	{
 		this.init();
@@ -87,6 +96,7 @@ export class TextCrop
 
 		this.getText();
 		this.target.innerText = '';
+		this.$wrapper = '';
 		this.target.appendChild(this.getWrapper());
 
 		let rowHeight = this.getRowHeight();
@@ -103,5 +113,7 @@ export class TextCrop
 				this.$wrapper.innerHTML = cropText + '...';
 			}
 		}
+
+		this.cropResize();
 	}
 }

@@ -26,8 +26,9 @@ if($arResult['ERROR'])
 		'',
 		array(
 			'ZIP_ID' => $arResult['VARIABLES']['ZIP_ID'],
+			'ADDITIONAL' => $arResult['VARIABLES']['ADDITIONAL_PARAMS'],
 			'MODE' => 'ZIP',
-			'SET_TITLE' => 'Y'
+			'SET_TITLE' => 'Y',
 		)
 	);
 ?>

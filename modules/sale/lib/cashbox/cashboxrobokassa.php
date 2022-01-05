@@ -23,7 +23,7 @@ class CashboxRobokassa extends CashboxPaySystem
 
 	private const CHECK_PAYMENT_TYPE = 2;
 
-	private const MAX_NAME_LENGTH = 64;
+	private const MAX_NAME_LENGTH = 128;
 
 	public static function getName(): string
 	{

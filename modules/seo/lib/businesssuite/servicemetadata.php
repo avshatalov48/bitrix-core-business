@@ -22,7 +22,7 @@ class ServiceMetaData
 	 * create instance of ServiceMetaData
 	 * @return static
 	 */
-	public static function create()
+	public static function create(): ServiceMetaData
 	{
 		return new static();
 	}
@@ -31,7 +31,7 @@ class ServiceMetaData
 	 * Type getter
 	 * @return string|null
 	 */
-	public function getType()
+	public function getType(): ?string
 	{
 		return $this->type;
 	}
@@ -40,7 +40,7 @@ class ServiceMetaData
 	 * Engine code getter
 	 * @return string|null
 	 */
-	public function getEngineCode()
+	public function getEngineCode(): ?string
 	{
 		return $this->engineCode;
 	}
@@ -60,9 +60,10 @@ class ServiceMetaData
 	 *
 	 * @return $this
 	 */
-	public function setType(string $type)
+	public function setType(string $type): ServiceMetaData
 	{
 		$this->type = $type;
+
 		return $this;
 	}
 
@@ -72,9 +73,10 @@ class ServiceMetaData
 	 *
 	 * @return $this
 	 */
-	public function setClientId(int $clientId)
+	public function setClientId(int $clientId): ServiceMetaData
 	{
 		$this->clientId = $clientId;
+
 		return $this;
 	}
 
@@ -84,9 +86,10 @@ class ServiceMetaData
 	 *
 	 * @return $this
 	 */
-	public function setEngineCode(string $code)
+	public function setEngineCode(string $code): ServiceMetaData
 	{
 		$this->engineCode = $code;
+
 		return $this;
 	}
 
@@ -96,9 +99,10 @@ class ServiceMetaData
 	 *
 	 * @return $this
 	 */
-	public function setService(?IInternalService $service)
+	public function setService(?IInternalService $service): ServiceMetaData
 	{
 		$this->service = $service;
+
 		return $this;
 	}
 

@@ -7,17 +7,6 @@ $arParams['REPORT_ID'] = isset($arParams['REPORT_ID']) ? (int)$arParams['REPORT_
 
 $requiredModules = array('report');
 
-$arResult['IS_RESTRICTED'] = false;
-if (
-	\Bitrix\Main\Loader::includeModule('bitrix24')
-	&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('report')
-)
-{
-	$arResult['IS_RESTRICTED'] = true;
-	$this->IncludeComponentTemplate('restrict');
-	return 1;
-}
-
 foreach ($requiredModules as $requiredModule)
 {
 	if (!CModule::IncludeModule($requiredModule))
@@ -27,13 +16,27 @@ foreach ($requiredModules as $requiredModule)
 	}
 }
 
-if (!isset($arParams['REPORT_HELPER_CLASS'])
-	|| mb_strlen($arParams['REPORT_HELPER_CLASS']) < 1
-	|| !class_exists($arParams['REPORT_HELPER_CLASS'])
-	|| !is_subclass_of($arParams['REPORT_HELPER_CLASS'], 'CReportHelper'))
+$helperClassName = $arResult['HELPER_CLASS'] = ($arParams['REPORT_HELPER_CLASS'] ?? '');
+if (
+	!is_string($helperClassName)
+	|| mb_strlen($helperClassName) < 1
+	|| !class_exists($helperClassName)
+	|| !is_subclass_of($helperClassName, 'CReportHelper')
+)
 {
 	ShowError(GetMessage("REPORT_HELPER_NOT_DEFINED"));
 	return 0;
+}
+
+$arResult['IS_RESTRICTED'] = false;
+if (
+	\Bitrix\Main\Loader::includeModule('bitrix24')
+	&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('report')
+)
+{
+	$arResult['IS_RESTRICTED'] = true;
+	$this->IncludeComponentTemplate('restrict');
+	return 1;
 }
 
 use Bitrix\Main\Entity;

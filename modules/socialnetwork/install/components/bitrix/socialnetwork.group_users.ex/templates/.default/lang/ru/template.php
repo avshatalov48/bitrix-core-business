@@ -1,10 +1,13 @@
-<?
+<?php
 $MESS["SONET_GUE_T_OWNER_SUBTITLE"] = "Владелец";
 $MESS["SONET_GUE_T_OWNER_SUBTITLE_PROJECT"] = "Руководитель";
+$MESS["SONET_GUE_T_OWNER_SUBTITLE_SCRUM"] = "Владелец продукта";
 $MESS["SONET_GUE_T_MODS_SUBTITLE"] = "Модераторы";
 $MESS["SONET_GUE_T_MODS_SUBTITLE_PROJECT"] = "Руководитель и помощники";
+$MESS["SONET_GUE_T_MODS_SUBTITLE_SCRUM_PROJECT2"] = "Скрам-мастер и команда";
 $MESS["SONET_GUE_T_USERS_SUBTITLE"] = "Кто в группе";
 $MESS["SONET_GUE_T_USERS_SUBTITLE_PROJECT"] = "Кто в проекте";
+$MESS["SONET_GUE_T_USERS_SUBTITLE_SCRUM"] = "Все участники";
 $MESS["SONET_GUE_T_USERS_AUTO_SUBTITLE"] = "Подключенные пользователи";
 $MESS["SONET_GUE_T_USERS_AUTO_SUBTITLE_HINT"] = "Сотрудники привязанных к группе подразделений. Они добавляются автоматически и смогут покинуть группу, только если их отдел будет удален из нее.";
 $MESS["SONET_GUE_T_USERS_AUTO_SUBTITLE_HINT_PROJECT"] = "Сотрудники привязанных к проекту подразделений. Они добавляются автоматически и смогут покинуть проект, только если их отдел будет удален из него.";
@@ -16,6 +19,8 @@ $MESS["SONET_GUE_T_ACTIONLINK_ADD"] = "Добавить";
 $MESS["SONET_GUE_T_ACTIONLINK_INVITE"] = "Пригласить";
 $MESS["SONET_GUE_T_OWNER"] = "владелец";
 $MESS["SONET_GUE_T_OWNER_PROJECT"] = "руководитель";
+$MESS["SONET_GUE_T_OWNER_SCRUM"] = "владелец продукта";
+$MESS["SONET_GUE_T_SCRUM_MASTER"] = "скрам-мастер";
 $MESS["SONET_GUE_T_ACTION_ADDTOUSERS"] = "Пригласить пользователей";
 $MESS["SONET_GUE_T_ACTION_ADDTOMODERATORS"] = "Назначить модератором";
 $MESS["SONET_GUE_T_ACTION_ADDTOMODERATORS_PROJECT"] = "Назначить помощником руководителя";
@@ -56,5 +61,3 @@ $MESS["SONET_GUE_T_BUTTON_UNBAN"] = "разблокировать";
 $MESS["SONET_GUE_T_BUTTON_UNCONNECT"] = "удалить";
 $MESS["SONET_GRE_T_ERROR"] = "Произошла ошибка обработки запроса";
 $MESS["SONET_GUE_T_STEPPER_TITLE"] = "Синхронизация участников";
-$MESS["SONET_GUE_T_MODS_SUBTITLE_SCRUM_PROJECT"] = "Руководитель и команда";
-?>

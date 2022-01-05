@@ -310,7 +310,7 @@ class ImageInput
 			{
 				this.getAddButton().style.display = '';
 
-				Event.unbind(this.getAddButton(), 'click', this.addImageHandler);
+				Event.unbindAll(this.getAddButton());
 				Event.bind(this.getAddButton(), 'click', this.addImageHandler);
 			}
 		}
@@ -325,7 +325,7 @@ class ImageInput
 			{
 				this.getAddButton().style.display = 'none';
 
-				Event.unbind(this.getAddButton(), 'click', this.addImageHandler);
+				Event.unbindAll(this.getAddButton());
 			}
 		}
 

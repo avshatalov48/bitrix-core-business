@@ -26,6 +26,8 @@ export class Main extends Event.EventEmitter
 {
 	static TYPE_PAGE = 'PAGE';
 	static TYPE_STORE = 'STORE';
+	static TYPE_KNOWLEDGE = 'KNOWLEDGE';
+	static TYPE_GROUP = 'GROUP';
 
 	static getMode()
 	{
@@ -103,7 +105,14 @@ export class Main extends Event.EventEmitter
 		return this.cache.remember('blockPanel', () => {
 			const blocksPanel = this.createBlocksPanel();
 			setTimeout(() => {
-				blocksPanel.sidebarButtons.get(this.options.default_section).layout.click();
+				if (blocksPanel.sidebarButtons.get(this.options.default_section))
+				{
+					blocksPanel.sidebarButtons.get(this.options.default_section).layout.click();
+				}
+				else
+				{
+					[...blocksPanel.sidebarButtons][0].layout.click();
+				}
 			});
 			blocksPanel.layout.hidden = true;
 			blocksPanel.content.hidden = false;

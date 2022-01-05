@@ -25,15 +25,16 @@ class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientS
 	{}
 
 	/**
-	 * get
+	 * Get instance of service Wrapper
 	 * @return static
 	 */
-	public static function getInstance()
+	public static function getInstance(): ServiceWrapper
 	{
 		if (!static::$instance[$key = get_called_class()])
 		{
 			static::$instance[$key] = new static();
 		}
+
 		return static::$instance[$key];
 	}
 
@@ -49,7 +50,7 @@ class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientS
 	/**
 	 * @return string
 	 */
-	public function getClientId()
+	public function getClientId(): string
 	{
 		return $this->metaData->getClientId();
 	}
@@ -74,8 +75,10 @@ class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientS
 	{
 		if($service = static::getInstance()->getMetaData()->getService())
 		{
+
 			return $service::getEngineCode($type);
 		}
+
 		return null;
 	}
 
@@ -86,8 +89,10 @@ class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientS
 	{
 		if($service = static::getInstance()->getMetaData()->getService())
 		{
+
 			return $service::getTypes();
 		}
+
 		return null;
 	}
 
@@ -104,6 +109,7 @@ class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientS
 		{
 			static::$authAdapterPool[$key][$type] = BusinessAuthAdapter::create($type)->setService(static::getInstance());
 		}
+
 		return static::$authAdapterPool[$key][$type];
 	}
 
@@ -114,8 +120,10 @@ class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientS
 	{
 		if($service = static::getInstance()->getMetaData()->getService())
 		{
-			return $service->getTypeByEngine($engineCode);
+
+			return $service::getTypeByEngine($engineCode);
 		}
+
 		return null;
 	}
 
@@ -126,8 +134,10 @@ class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientS
 	{
 		if($service = static::getInstance()->getMetaData()->getService())
 		{
-			return $service->canUseAsInternal();
+
+			return $service::canUseAsInternal();
 		}
+
 		return false;
 	}
 
@@ -136,11 +146,11 @@ class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientS
 	 */
 	public static function getMethodPrefix(): string
 	{
-		$meta = static::getInstance()->getMetaData();
-		if($meta && $service = $meta->getService())
+		if(($meta = static::getInstance()->getMetaData()) && $service = $meta->getService())
 		{
-			return $service->getMethodPrefix();
+			return $service::getMethodPrefix();
 		}
+
 		return '';
 	}
 
@@ -151,9 +161,10 @@ class ServiceWrapper implements  Retargeting\IService, Retargeting\IMultiClientS
 	 *
 	 * @return ServiceWrapper
 	 */
-	public function setMeta(?ServiceMetaData $metaData)
+	public function setMeta(?ServiceMetaData $metaData): ServiceWrapper
 	{
 		$this->metaData = $metaData;
+
 		return $this;
 	}
 

@@ -19,6 +19,7 @@ this.BX = this.BX || {};
 	    this.userId = options.userId || 0;
 	    this.zIndex = 3100;
 	    this.entryId = options.entryId || null;
+	    this.calendarContext = options.calendarContext || null;
 	    this.entryDateFrom = options.entryDateFrom || null;
 	    this.timezoneOffset = options.timezoneOffset || null;
 	    this.BX = calendar_util.Util.getBX();
@@ -214,9 +215,9 @@ this.BX = this.BX || {};
 	      if (this.canDo(this.entry, 'delete')) {
 	        main_core.Event.bind(this.DOM.delButton, 'click', function () {
 	          main_core_events.EventEmitter.subscribeOnce('BX.Calendar.Entry:beforeDelete', function () {
-	            _this2.BX.SidePanel.Instance.hide();
+	            _this2.BX.SidePanel.Instance.close();
 	          });
-	          calendar_entry.EntryManager.deleteEntry(_this2.entry);
+	          calendar_entry.EntryManager.deleteEntry(_this2.entry, _this2.calendarContext);
 	        });
 	      } else {
 	        this.BX.remove(this.DOM.delButton);
@@ -249,12 +250,12 @@ this.BX = this.BX || {};
 
 	      this.DOM.videoCall = this.DOM.sidebarInner.querySelector('.calendar-slider-sidebar-videocall');
 
-	      if (((_BX = BX) === null || _BX === void 0 ? void 0 : (_BX$Intranet = _BX.Intranet) === null || _BX$Intranet === void 0 ? void 0 : _BX$Intranet.ControlButton) && main_core.Type.isElementNode(this.DOM.videoCall) && this.entry.getCurrentStatus() !== false) {
+	      if ((_BX = BX) !== null && _BX !== void 0 && (_BX$Intranet = _BX.Intranet) !== null && _BX$Intranet !== void 0 && _BX$Intranet.ControlButton && main_core.Type.isElementNode(this.DOM.videoCall) && this.entry.getCurrentStatus() !== false) {
 	        this.DOM.videoCall.style.display = '';
 	        this.intranetControllButton = new intranet_controlButton.ControlButton({
 	          container: this.DOM.videoCall,
 	          entityType: 'calendar_event',
-	          entityId: this.entry.id,
+	          entityId: this.entry.parentId,
 	          entityData: {
 	            dateFrom: calendar_util.Util.formatDate(this.entry.from),
 	            parentId: this.entry.parentId
@@ -502,6 +503,7 @@ this.BX = this.BX || {};
 	        _this7.BX.ajax.runAction('calendar.api.calendarajax.updatePlanner', {
 	          data: {
 	            entryId: _this7.entry.id || 0,
+	            entryLocation: _this7.entry.data.LOCATION || '',
 	            ownerId: _this7.ownerId,
 	            hostId: _this7.entry.getMeetingHost(),
 	            type: _this7.type,
@@ -536,9 +538,9 @@ this.BX = this.BX || {};
 
 	        if (tagName && !['input', 'textarea'].includes(tagName)) {
 	          main_core_events.EventEmitter.subscribeOnce('BX.Calendar.Entry:beforeDelete', function () {
-	            _this8.BX.SidePanel.Instance.hide();
+	            _this8.BX.SidePanel.Instance.close();
 	          });
-	          calendar_entry.EntryManager.deleteEntry(this.entry);
+	          calendar_entry.EntryManager.deleteEntry(this.entry, this.calendarContext);
 	        }
 	      }
 	    }

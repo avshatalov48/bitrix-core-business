@@ -6,8 +6,7 @@ this.BX = this.BX || {};
 	  function CalendarSection(data) {
 	    babelHelpers.classCallCheck(this, CalendarSection);
 	    this.updateData(data);
-	    this.calendarContext = calendar_util.Util.getCalendarContext();
-	    this.sectionManager = this.calendarContext.sectionManager;
+	    this.calendarContext = calendar_util.Util.getCalendarContext(); // this.sectionManager = this.calendarContext.sectionManager;
 	  }
 
 	  babelHelpers.createClass(CalendarSection, [{
@@ -176,7 +175,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "isGoogle",
 	    value: function isGoogle() {
-	      return this.data.GAPI_CALENDAR_ID;
+	      return !!this.data.GAPI_CALENDAR_ID;
 	    }
 	  }, {
 	    key: "isCalDav",
@@ -187,6 +186,11 @@ this.BX = this.BX || {};
 	    key: "isCompanyCalendar",
 	    value: function isCompanyCalendar() {
 	      return !this.isPseudo() && this.type !== 'user' && this.type !== 'group' && !this.ownerId;
+	    }
+	  }, {
+	    key: "isLocationRoom",
+	    value: function isLocationRoom() {
+	      return this.type === 'location';
 	    }
 	  }, {
 	    key: "belongsToView",
@@ -278,6 +282,7 @@ this.BX = this.BX || {};
 	    this.setSectons(data.sections);
 	    this.setConfig(config);
 	    this.addTaskSection();
+	    this.sortSections();
 	    main_core_events.EventEmitter.subscribeOnce('BX.Calendar.Section:delete', this.deleteSectionHandler.bind(this)); //BX.addCustomEvent("BXCalendar:onSectionDelete", BX.proxy(this.unsetSectionHandler, this));
 	  }
 
@@ -324,6 +329,7 @@ this.BX = this.BX || {};
 	      this.setHiddenSections(config.hiddenSections);
 	      this.calendarType = config.type;
 	      this.ownerId = config.ownerId;
+	      this.ownerName = config.ownerName || '';
 	      this.userId = config.userId;
 	      this.defaultSectionAccess = config.new_section_access || {};
 	      this.sectionAccessTasks = config.sectionAccessTasks;
@@ -351,11 +357,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "handlePullChanges",
 	    value: function handlePullChanges(params) {
-	      var _params$fields;
-
-	      if ((params === null || params === void 0 ? void 0 : (_params$fields = params.fields) === null || _params$fields === void 0 ? void 0 : _params$fields.CAL_TYPE) === 'location') {
-	        this.handleLocationPullChanges(params);
-	      } else if (params.command === 'delete_section') {
+	      if (params.command === 'delete_section') {
 	        var sectionId = parseInt(params.fields.ID, 10);
 
 	        if (this.sectionIndex[sectionId]) {
@@ -377,9 +379,6 @@ this.BX = this.BX || {};
 	        this.reloadData();
 	      }
 	    }
-	  }, {
-	    key: "handleLocationPullChanges",
-	    value: function handleLocationPullChanges(params) {}
 	  }, {
 	    key: "reloadData",
 	    value: function reloadData() {
@@ -430,11 +429,10 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getSectionListForEdit",
 	    value: function getSectionListForEdit() {
-	      var i,
-	          result = [];
+	      var result = [];
 
-	      for (i = 0; i < this.sections.length; i++) {
-	        if (this.sections[i].canDo('add') && !this.sections[i].isPseudo() && this.sections[i].isActive()) {
+	      for (var i = 0; i < this.sections.length; i++) {
+	        if (this.sections[i].canDo('add') && !this.sections[i].isPseudo() && this.sections[i].isActive() && !this.sections[i].isLocationRoom()) {
 	          result.push(this.sections[i]);
 	        }
 	      }
@@ -539,12 +537,22 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getSectionsInfo",
 	    value: function getSectionsInfo() {
+	      var _this6 = this;
+
 	      var allActive = [];
 	      var superposed = [];
 	      var active = [];
 	      var hidden = [];
 	      this.sections.forEach(function (section) {
-	        if (section.isShown()) {
+	        if (section.isShown() && _this6.calendarType === 'location' && section.type === 'location') {
+	          if (section.isSuperposed()) {
+	            superposed.push(section.id);
+	          } else {
+	            active.push(section.id);
+	          }
+
+	          allActive.push(section.id);
+	        } else if (section.isShown() && _this6.calendarType !== 'location') {
 	          if (section.isSuperposed()) {
 	            superposed.push(section.id);
 	          } else {
@@ -631,8 +639,16 @@ this.BX = this.BX || {};
 	      var calendarContext = calendar_util.Util.getCalendarContext();
 
 	      if (calendarContext && !calendarContext.isExternalMode()) {
-	        var section = calendarContext.sectionManager.getDefaultSection(calendarType, ownerId);
-	        return parseInt(section.id, 10);
+	        calendarType = calendarType || calendarContext.util.type;
+
+	        if (calendarType === 'location') {
+	          var section = calendarContext.sectionManager.getDefaultSection('user', calendarContext.util.userId);
+	          return parseInt(section.id, 10);
+	        } else {
+	          var _section = calendarContext.sectionManager.getDefaultSection(calendarType, ownerId);
+
+	          return parseInt(_section.id, 10);
+	        }
 	      }
 
 	      return SectionManager.newEntrySectionId;
@@ -684,7 +700,7 @@ this.BX = this.BX || {};
 	      } // 2. Company calendar
 
 
-	      if (type !== 'company' && type !== 'company_calendar') {
+	      if (type !== 'company' && type !== 'company_calendar' && type !== 'calendar_company') {
 	        sectionGroups.push({
 	          title: main_core.Loc.getMessage('EC_SEC_SLIDER_TITLE_COMP_CAL'),
 	          type: 'company'

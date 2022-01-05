@@ -12,7 +12,10 @@ $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_BROADCAST_MODE"] = "Режим тран
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_BROADCAST_MODE_HINT"] = "Режим трансляции позволяет выбрать спикеров, которые будут транслировать видео и звук. Все остальные пользователи могут смотреть трансляцию и общаться в чате.";
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_PRESENTERS"] = "Спикеры";
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_BUTTON_START"] = "Начать конференцию";
+$MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_BUTTON_SAVE"] = "Сохранить и скопировать ссылку";
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_BUTTON_CANCEL"] = "Отменить";
+$MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_BUTTON_CLOSE"] = "Закрыть";
+$MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_SUCCESS"] = "Конференция успешно создана!";
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_COPY_CONFIRMATION"] = "Ссылка скопирована";
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_PUSH_ERROR"] = "Для использования конференций обновите используемый на вашем портале Push-сервер";
 $MESS["BX_IM_COMPONENT_CONFERENCE_CREATE_VOXIMPLANT_ERROR_WITH_LINK"] = 'Для использования конференций необходимо настроить окружение. <a onclick="top.BX.Helper.show(\'redirect=detail&code=11392174\')"> Подробнее</a>';

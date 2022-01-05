@@ -193,10 +193,21 @@ class Notify
 
 	private function requestData(int $requestType, int $limit): array
 	{
-		$ormParams = $this->prepareGetListParams($requestType, $limit);
+		$collection = [];
+		$ormParams = $this->prepareGettingIdParams($requestType, $limit);
+		$ids = \Bitrix\Im\Model\MessageTable::getList($ormParams)->fetchAll();
+		if (count($ids) === 0)
+		{
+			return $collection;
+		}
+
+		$ids = array_map(static function($item) {
+			return (int)$item['ID'];
+		}, $ids);
+
+		$ormParams = $this->prepareFilteringByIdParams($ids);
 		$ormResult = \Bitrix\Im\Model\MessageTable::getList($ormParams);
 
-		$collection = [];
 		foreach ($ormResult as $notifyItem)
 		{
 			if ($notifyItem['NOTIFY_EVENT'] === 'private_system')
@@ -281,11 +292,13 @@ class Notify
 			}
 		}
 
-		$params = \CIMMessageParam::Get(array_keys($collection));
-
-		foreach ($params as $notificationId => $param)
+		if (count($collection) > 0)
 		{
-			$collection[$notificationId]['PARAMS'] = empty($param) ? null : $param;
+			$params = \CIMMessageParam::Get(array_keys($collection));
+			foreach ($params as $notificationId => $param)
+			{
+				$collection[$notificationId]['PARAMS'] = empty($param) ? null : $param;
+			}
 		}
 
 		return $collection;
@@ -505,39 +518,23 @@ class Notify
 		return (int)$totalSearchCount['CNT'];
 	}
 
-	private function prepareGetListParams(int $requestType, int $limit = 0): array
+	/**
+	 * Generates params for GetList to get only IDs of the necessary notifications with filters.
+	 *
+	 * @param int $requestType Notification type.
+	 * @param int $limit Amount of requested notifications.
+	 *
+	 * @return array
+	 * @throws \Bitrix\Main\ObjectException
+	 */
+	private function prepareGettingIdParams(int $requestType, int $limit): array
 	{
 		$ormParams = [
+			'select' => ['ID'],
 			'filter' => ['=CHAT_ID' => $this->chatId],
-			'order' => ['DATE_CREATE' => 'DESC']
+			'order' => ['ID' => 'DESC'],
+			'limit' => $limit
 		];
-
-		if ($limit <= 0)
-		{
-			$ormParams['select'] = ['ID'];
-		}
-		else
-		{
-			$ormParams['select'] = [
-				'ID',
-				'AUTHOR_ID',
-				'MESSAGE',
-				'DATE_CREATE',
-				'NOTIFY_TYPE',
-				'NOTIFY_EVENT',
-				'NOTIFY_MODULE',
-				'NOTIFY_TAG',
-				'NOTIFY_SUB_TAG',
-				'NOTIFY_TITLE',
-				'NOTIFY_READ',
-				'NOTIFY_BUTTONS',
-				'USER_LAST_ACTIVITY_DATE' => 'AUTHOR.LAST_ACTIVITY_DATE',
-				'USER_IDLE' => 'STATUS.IDLE',
-				'USER_MOBILE_LAST_DATE' => 'STATUS.MOBILE_LAST_DATE',
-				'USER_DESKTOP_LAST_DATE' => 'STATUS.DESKTOP_LAST_DATE',
-			];
-			$ormParams['limit'] = $limit;
-		}
 
 		if ($requestType === self::CONFIRM_TYPE)
 		{
@@ -593,6 +590,39 @@ class Notify
 		}
 
 		return $ormParams;
+	}
+
+	/**
+	 * Generates params for GetList to get all the necessary notification data filtering by notifications IDs.
+	 *
+	 * @param int[] $ids Notification IDs.
+	 *
+	 * @return array
+	 */
+	private function prepareFilteringByIdParams(array $ids): array
+	{
+		return [
+			'select' => [
+				'ID',
+				'AUTHOR_ID',
+				'MESSAGE',
+				'DATE_CREATE',
+				'NOTIFY_TYPE',
+				'NOTIFY_EVENT',
+				'NOTIFY_MODULE',
+				'NOTIFY_TAG',
+				'NOTIFY_SUB_TAG',
+				'NOTIFY_TITLE',
+				'NOTIFY_READ',
+				'NOTIFY_BUTTONS',
+				'USER_LAST_ACTIVITY_DATE' => 'AUTHOR.LAST_ACTIVITY_DATE',
+				'USER_IDLE' => 'STATUS.IDLE',
+				'USER_MOBILE_LAST_DATE' => 'STATUS.MOBILE_LAST_DATE',
+				'USER_DESKTOP_LAST_DATE' => 'STATUS.DESKTOP_LAST_DATE',
+			],
+			'filter' => ['=ID' => $ids],
+			'order' => ['ID' => 'DESC'],
+		];
 	}
 
 	public function getLastId(): ?int

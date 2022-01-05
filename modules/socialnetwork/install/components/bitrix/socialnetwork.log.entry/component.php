@@ -43,7 +43,7 @@ if (
 	|| (string)$arParams['IND'] === ''
 )
 {
-	$arParams["IND"] = RandString(8);
+	$arParams["IND"] = \Bitrix\Main\Security\Random::getString(8);
 }
 
 if (empty($arParams["LOG_PROPERTY"]))
@@ -58,8 +58,13 @@ if (empty($arParams["LOG_PROPERTY"]))
 if (empty($arParams["COMMENT_PROPERTY"]))
 {
 	$arParams["COMMENT_PROPERTY"] = array("UF_SONET_COM_FILE");
-	if (IsModuleInstalled("webdav") || IsModuleInstalled("disk"))
+	if (
+		ModuleManager::isModuleInstalled('webdav')
+		|| ModuleManager::isModuleInstalled('disk')
+	)
+	{
 		$arParams["COMMENT_PROPERTY"][] = "UF_SONET_COM_DOC";
+	}
 
 	$arParams["COMMENT_PROPERTY"][] = "UF_SONET_COM_URL_PRV";
 }
@@ -78,7 +83,7 @@ CSocNetLogComponent::processDateTimeFormatParams($arParams);
 
 $bCurrentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin();
 
-$arParams["COMMENT_ID"] = intval($arParams["COMMENT_ID"]);
+$arParams["COMMENT_ID"] = (int)$arParams["COMMENT_ID"];
 
 $arResult["TZ_OFFSET"] = CTimeZone::GetOffset();
 $arResult['LAST_LOG_TS'] = (int)$arParams['LAST_LOG_TS'];
@@ -123,7 +128,7 @@ if (
 {
 	$postProviderClassName = get_class($postProvider);
 	$reflectionClass = new ReflectionClass($postProviderClassName);
-	$arResult["canGetPostContent"] = ($reflectionClass->getMethod('initSourceFields')->class == $postProviderClassName);
+	$arResult["canGetPostContent"] = ($reflectionClass->getMethod('initSourceFields')->class === $postProviderClassName);
 	if ($arResult["canGetPostContent"])
 	{
 		$arResult["POST_CONTENT_TYPE_ID"] = $postProvider->getContentTypeId();
@@ -135,7 +140,7 @@ if (
 		$commentProviderClassName = get_class($commentProvider);
 		$reflectionClass = new ReflectionClass($commentProviderClassName);
 
-		$arResult["canGetCommentContent"] = ($reflectionClass->getMethod('initSourceFields')->class == $commentProviderClassName);
+		$arResult["canGetCommentContent"] = ($reflectionClass->getMethod('initSourceFields')->class === $commentProviderClassName);
 		if ($arResult["canGetCommentContent"])
 		{
 			$arResult["COMMENT_CONTENT_TYPE_ID"] = $commentProvider->getContentTypeId();
@@ -162,10 +167,10 @@ if (
 		&& is_callable($commentEvent["METHOD_GET_URL"])
 	)
 	{
-		$arResult["COMMENT_URL"] = call_user_func_array($commentEvent["METHOD_GET_URL"], array(array(
+		$arResult["COMMENT_URL"] = call_user_func($commentEvent["METHOD_GET_URL"], [
 			"ENTRY_ID" => $arEvent["EVENT"]["SOURCE_ID"],
-			"ENTRY_USER_ID" => $arEvent["EVENT"]["USER_ID"]
-		)));
+			"ENTRY_USER_ID" => $arEvent["EVENT"]["USER_ID"],
+		]);
 	}
 	else
 	{
@@ -179,7 +184,7 @@ if (
 		'timeZoneOffzet' => $arResult['TZ_OFFSET'],
 		'commentEvent' => $commentEvent,
 		'commentProvider' => $commentProvider
-	]);
+	], $arResult);
 
 	$arCommentsFullListCut = array();
 	$arCommentID = array();
@@ -197,9 +202,9 @@ if (
 		}
 
 		if (
-			isset($arCommentTmp['EVENT_FORMATTED'])
-			&& isset($arCommentTmp['EVENT_FORMATTED']['MESSAGE'])
-			&& ($handler = $handlerManager->getHandlerByPostText($arCommentTmp['EVENT_FORMATTED']['MESSAGE']))
+			isset($arCommentTmp['EVENT_FORMATTED']['MESSAGE'])
+			&& ($handler = $handlerManager->getHandlerByPostText($arCommentTmp['EVENT_FORMATTED']['MESSAGE'])
+		)
 		)
 		{
 			$arCommentTmp["AUX"] = $handler->getType();
@@ -231,10 +236,10 @@ if (
 
 		if (
 			$arResult["bGetComments"]
-			&& intval($arParams["CREATED_BY_ID"]) > 0
+			&& (int)$arParams["CREATED_BY_ID"] > 0
 		)
 		{
-			if ($arCommentTmp["EVENT"]["USER_ID"] == $arParams["CREATED_BY_ID"])
+			if ((int)$arCommentTmp["EVENT"]["USER_ID"] === (int)$arParams["CREATED_BY_ID"])
 			{
 				$arCommentsFullListCut[] = $arCommentTmp;
 			}
@@ -291,7 +296,7 @@ if (
 
 	$arEvent["COMMENTS"] = array_reverse($arCommentsFullListCut);
 	$arResult["RATING_COMMENTS"] = array();
-	if(
+	if (
 		!empty($arCommentID)
 		&& $arParams['SHOW_RATING'] === 'Y'
 		&& $rating_entity_type <> ''
@@ -325,27 +330,24 @@ if (
 	&& $contentId
 )
 {
-	$arResult["CONTENT_ID"] = (!empty($arParams["CONTENT_ID"]) ? $arParams["CONTENT_ID"] : $contentId['ENTITY_TYPE'].'-'.intval($contentId['ENTITY_ID']));
+	$arResult["CONTENT_ID"] = (!empty($arParams["CONTENT_ID"]) ? $arParams["CONTENT_ID"] : $contentId['ENTITY_TYPE'].'-'.(int)$contentId['ENTITY_ID']);
 
 	if (isset($arParams["CONTENT_VIEW_CNT"]))
 	{
-		$arResult["CONTENT_VIEW_CNT"] = intval($arParams["CONTENT_VIEW_CNT"]);
+		$arResult["CONTENT_VIEW_CNT"] = (int)$arParams["CONTENT_VIEW_CNT"];
+	}
+	elseif (
+		($contentViewData = \Bitrix\Socialnetwork\Item\UserContentView::getViewData(array(
+			'contentId' => array($arResult["CONTENT_ID"])
+		)))
+		&& !empty($contentViewData[$arResult["CONTENT_ID"]])
+	)
+	{
+		$arResult["CONTENT_VIEW_CNT"] = (int)$contentViewData[$arResult["CONTENT_ID"]]["CNT"];
 	}
 	else
 	{
-		if (
-			($contentViewData = \Bitrix\Socialnetwork\Item\UserContentView::getViewData(array(
-				'contentId' => array($arResult["CONTENT_ID"])
-			)))
-			&& !empty($contentViewData[$arResult["CONTENT_ID"]])
-		)
-		{
-			$arResult["CONTENT_VIEW_CNT"] = intval($contentViewData[$arResult["CONTENT_ID"]]["CNT"]);
-		}
-		else
-		{
-			$arResult["CONTENT_VIEW_CNT"] = 0;
-		}
+		$arResult["CONTENT_VIEW_CNT"] = 0;
 	}
 }
 
@@ -354,7 +356,7 @@ $arResult["WORKGROUPS_PAGE"] = COption::GetOptionString("socialnetwork", "workgr
 
 $arResult['isCurrentUserEventOwner'] = (
 	((int)$arEvent['EVENT']['USER_ID'] === (int)$USER->getId())
-	|| \CSocNetUser::isCurrentUserModuleAdmin(SITE_ID, false)
+	|| CSocNetUser::isCurrentUserModuleAdmin(SITE_ID, false)
 );
 
 $this->IncludeComponentTemplate();

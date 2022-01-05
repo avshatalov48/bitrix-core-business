@@ -641,7 +641,7 @@ this.BX.UI.Vue = this.BX.UI.Vue || {};
 	  }
 	});
 
-	var _vue = new WeakMap();
+	var _vue = /*#__PURE__*/new WeakMap();
 
 	var DatePick = /*#__PURE__*/function () {
 	  function DatePick() {

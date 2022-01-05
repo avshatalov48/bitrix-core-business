@@ -69,16 +69,38 @@ export class BitrixVue
 		{
 			messages: {},
 
-			getMessage: function(messageId: string): string
+			getMessage: function(messageId: string, replacements:? {[key: string]: string} = null): string
 			{
-				if (typeof this.messages[messageId] !== 'undefined')
+				let message = '';
+				if (!Type.isUndefined(this.messages[messageId]))
 				{
-					return this.messages[messageId];
+					message = this.messages[messageId];
+				}
+				else
+				{
+					message = Loc.getMessage(messageId);
+					this.messages[messageId] = message;
 				}
 
-				this.messages[messageId] = Loc.getMessage(messageId);
+				if (Type.isString(message) && Type.isPlainObject(replacements))
+				{
+					Object.keys(replacements).forEach((replacement: string) => {
+						const globalRegexp = new RegExp(replacement, 'gi');
+						message = message.replace(
+							globalRegexp,
+							() => {
+								return Type.isNil(replacements[replacement]) ? '' : String(replacements[replacement]);
+							}
+						);
+					});
+				}
 
-				return this.messages[messageId];
+				return message;
+			},
+
+			hasMessage: function (messageId: string): boolean
+			{
+				return Type.isString(messageId) && !Type.isNil(this.getMessages()[messageId]);
 			},
 
 			getMessages: function (): object

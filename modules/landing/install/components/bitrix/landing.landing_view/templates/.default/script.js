@@ -735,6 +735,10 @@ var landingAlertMessage = function landingAlertMessage(errorText, payment, error
 	{
 		top.BX.UI.InfoHelper.show('limit_free_domen');
 	}
+	else if (errorCode === 'EMAIL_NOT_CONFIRMED')
+	{
+		top.BX.UI.InfoHelper.show('limit_sites_confirm_email');
+	}
 	else if (payment === true && typeof BX.Landing.PaymentAlertShow !== 'undefined')
 	{
 		BX.Landing.PaymentAlertShow({

@@ -281,9 +281,7 @@ class Landing
 					[
 						'PUBLIC' => 'N',
 						'SORT' => $sort,
-						'ANCHOR' => isset($block['anchor'])
-							? $block['anchor']
-							: ''
+						'ANCHOR' => $block['anchor'] ?? ''
 					]
 				);
 				if ($blockId)
@@ -310,6 +308,7 @@ class Landing
 				return $blockId;
 			}
 		}
+
 		if (!isset($block['code']))
 		{
 			return $blockId;
@@ -319,9 +318,7 @@ class Landing
 		$blockFields = [
 			'PUBLIC' => 'N',
 			'SORT' => $sort,
-			'ANCHOR' => isset($block['anchor'])
-				? $block['anchor']
-				: ''
+			'ANCHOR' => $block['anchor'] ?? ''
 		];
 		if ($block['full_content'] ?? null)
 		{
@@ -371,7 +368,7 @@ class Landing
 		$contextUser = $event->getParameter('CONTEXT_USER');
 		$structure = new Configuration\Structure($contextUser);
 		$return = [
-			'RATIO' => isset($ratio[$code]) ? $ratio[$code] : [],
+			'RATIO' => $ratio[$code] ?? [],
 			'ERROR_MESSAGES' => []
 		];
 
@@ -388,7 +385,7 @@ class Landing
 		}
 
 		$data = $content['~DATA'];
-		$oldId = isset($data['ID']) ? $data['ID'] : null;
+		$oldId = $data['ID'] ?? null;
 
 		// clear old keys
 		$notAllowedKeys = [

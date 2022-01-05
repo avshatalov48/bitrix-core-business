@@ -228,11 +228,11 @@ class BasketComponentHelper
 		$basketList = array();
 		$res = $basketClassName::getList(array(
 			'filter' => array(
-				'FUSER_ID' => $fuserId,
-				'ORDER_ID' => null,
-				'LID' => $siteId,
-				'CAN_BUY' => 'Y',
-				'DELAY' => 'N'
+				'=FUSER_ID' => $fuserId,
+				'=ORDER_ID' => null,
+				'=LID' => $siteId,
+				'=CAN_BUY' => 'Y',
+				'=DELAY' => 'N'
 			)
 		));
 		while ($data = $res->fetch())
@@ -500,7 +500,7 @@ class BasketComponentHelper
 							}
 						}
 					}
-					
+
 					if (!isset($ratioList[$basketItemCode]))
 					{
 						$result->addError(new ResultError(Main\Localization\Loc::getMessage('SALE_BASKET_COMPONENT_HELPER_PRODUCT_RATIO_NOT_FOUND', array(

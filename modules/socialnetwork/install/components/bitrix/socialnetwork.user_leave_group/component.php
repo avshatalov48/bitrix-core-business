@@ -1,4 +1,10 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -17,11 +23,14 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arResult["IS_IFRAME"] = $_REQUEST["IFRAME"] == "Y";
+$arResult['IS_IFRAME'] = (
+	$_REQUEST['IFRAME'] === 'Y'
+	|| $arParams['IFRAME'] === 'Y'
+);
 
-$arParams["USER_ID"] = intval($USER->GetID());
-$arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
-$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
+$arParams['USER_ID'] = (int)$USER->GetID();
+$arParams['GROUP_ID'] = (int)$arParams["GROUP_ID"];
+$arParams['SET_NAV_CHAIN'] = ($arParams['SET_NAV_CHAIN'] === 'N' ? 'N' : 'Y');
 
 if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
@@ -42,6 +51,8 @@ if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 }
 
+$arResult['PageTitle'] = '';
+
 if (!$USER->IsAuthorized())
 {
 	$arResult["NEED_AUTH"] = "Y";
@@ -53,7 +64,7 @@ else
 	if (
 		!$arGroup 
 		|| !is_array($arGroup) 
-		|| $arGroup["ACTIVE"] != "Y" 
+		|| $arGroup['ACTIVE'] !== 'Y'
 	)
 	{
 		$arResult["FatalError"] = GetMessage("SONET_P_USER_NO_GROUP").". ";
@@ -82,12 +93,13 @@ else
 			$arResult["Urls"]["Group"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP"], array("group_id" => $arResult["Group"]["ID"]));
 			$arResult["Urls"]["GroupsList"] = \Bitrix\Socialnetwork\ComponentHelper::getWorkgroupSEFUrl();
 
-			if ($arParams["SET_TITLE"] == "Y")
+			if ($arParams['SET_TITLE'] === 'Y')
 			{
-				$APPLICATION->SetTitle(GetMessage("SONET_C37_PAGE_TITLE"));
+				$arResult['PageTitle'] = Loc::getMessage('SONET_C37_PAGE_TITLE');
+				$APPLICATION->SetTitle($arResult['PageTitle']);
 			}
 
-			if ($arParams["SET_NAV_CHAIN"] != "N")
+			if ($arParams['SET_NAV_CHAIN'] !== 'N')
 			{
 				$APPLICATION->AddChainItem($arResult["Group"]["NAME"], $arResult["Urls"]["Group"]);
 				$APPLICATION->AddChainItem(GetMessage("SONET_C37_PAGE_TITLE"));
@@ -107,27 +119,33 @@ else
 			}
 			else
 			{
-				if ($arParams["SET_TITLE"] == "Y")
+				if ($arParams['SET_TITLE'] === 'Y')
 				{
-					if ($arResult["IS_IFRAME"])
+					$arResult['PageTitle'] = (
+						$arResult['Group']['PROJECT'] === 'Y'
+							? Loc::getMessage('SONET_C37_PAGE_TITLE_PROJECT')
+							: Loc::getMessage('SONET_C37_PAGE_TITLE')
+					);
+					if (!$arResult['IS_IFRAME'])
 					{
-						$APPLICATION->SetTitle(Loc::getMessage($arResult["Group"]["PROJECT"] == "Y" ? "SONET_C37_PAGE_TITLE_PROJECT" : "SONET_C37_PAGE_TITLE"));
-						$APPLICATION->SetPageProperty('PageSubtitle', $arResult["Group"]["NAME"]);
+						$arResult['PageTitle'] = $arResult['Group']['NAME'] . ': ' . $arResult['PageTitle'];
 					}
-					else
+					$APPLICATION->SetTitle($arResult['PageTitle']);
+
+					if ($arResult['IS_IFRAME'])
 					{
-						$APPLICATION->SetTitle($arResult["Group"]["NAME"].": ".Loc::getMessage($arResult["Group"]["PROJECT"] == "Y" ? "SONET_C37_PAGE_TITLE_PROJECT" : "SONET_C37_PAGE_TITLE"));
+						$APPLICATION->SetPageProperty('PageSubtitle', $arResult["Group"]["NAME"]);
 					}
 				}
 
 				$arResult["ShowForm"] = "Input";
 				if (
-					$_SERVER["REQUEST_METHOD"] == "POST"
+					$_SERVER['REQUEST_METHOD'] === 'POST'
 					&& $_POST["save"] <> ''
 					&& check_bitrix_sessid()
 				)
 				{
-					if ($_POST["ajax_request"] == "Y")
+					if ($_POST['ajax_request'] === 'Y')
 					{
 						CUtil::JSPostUnescape();
 					}
@@ -154,7 +172,7 @@ else
 						$arResult["ShowForm"] = "Confirm";
 					}
 
-					if ($_POST["ajax_request"] == "Y")
+					if ($_POST['ajax_request'] === 'Y')
 					{
 						$APPLICATION->RestartBuffer();
 						echo CUtil::PhpToJsObject(array(
@@ -170,5 +188,5 @@ else
 		}
 	}
 }
+
 $this->IncludeComponentTemplate();
-?>

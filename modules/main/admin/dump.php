@@ -13,6 +13,8 @@
  * @global CDatabase $DB
  */
 
+use Bitrix\Main\Security\Random;
+
 define('NO_AGENT_CHECK', true);
 define("STATISTIC_SKIP_ACTIVITY_CHECK", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -226,7 +228,7 @@ elseif($_REQUEST['process'] == "Y")
 
 		if ($NS['BUCKET_ID'] == -1) // Bitrixcloud
 		{
-			$name = DOCUMENT_ROOT.BX_ROOT."/backup/".date('Ymd_His_').rand(11111111,99999999);
+			$name = DOCUMENT_ROOT . BX_ROOT . "/backup/" . date('Ymd_His_') . Random::getStringByAlphabet(16, Random::ALPHABET_NUM);
 			$NS['arc_name'] = $name.'.enc'.($bUseCompression ? ".gz" : '');
 			$NS['dump_name'] = $name.'.sql';
 		}
@@ -292,7 +294,9 @@ elseif($_REQUEST['process'] == "Y")
 		if (IntOption('dump_base'))
 		{
 			if (!CBackup::MakeDump($NS['dump_name'], $NS['dump_state']))
+			{
 				RaiseErrorAndDie(GetMessage('DUMP_NO_PERMS'));
+			}
 
 			$TotalTables = $NS['dump_state']['TableCount'];
 			$FinishedTables = $TotalTables - count($NS['dump_state']['TABLES']);
@@ -337,7 +341,9 @@ elseif($_REQUEST['process'] == "Y")
 				$tar->ReadBlockCurrent = intval($NS['ReadBlockCurrent']);
 
 				if (!$tar->openWrite($NS["arc_name"]))
+				{
 					RaiseErrorAndDie(GetMessage('DUMP_NO_PERMS'));
+				}
 
 				if (!$tar->ReadBlockCurrent && file_exists($f = DOCUMENT_ROOT.BX_ROOT.'/.config.php'))
 					$tar->addFile($f);
@@ -489,7 +495,9 @@ elseif($_REQUEST['process'] == "Y")
 				$tar->ReadFileSize = intval($NS['ReadFileSize']);
 
 				if (!$tar->openWrite($NS["arc_name"]))
+				{
 					RaiseErrorAndDie(GetMessage('DUMP_NO_PERMS'));
+				}
 
 				$Block = $tar->Block;
 

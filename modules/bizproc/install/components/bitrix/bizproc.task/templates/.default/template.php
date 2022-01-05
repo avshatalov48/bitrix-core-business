@@ -272,7 +272,7 @@ if (empty($arResult['DOCUMENT_ICON']))
 						var wrapper = BX.findChild(innerDoc.body, {id: 'wrapper'});
 						if (!wrapper)
 							return false;
-						f.style.height = wrapper.offsetHeight + 'px';
+						f.style.height = wrapper.offsetHeight + 24 + 'px';
 					};
 					resizer(me);
 					var interval = setInterval(function(){

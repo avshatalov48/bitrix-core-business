@@ -131,10 +131,6 @@ class calendar extends CModule
 	{
 		global $DB, $APPLICATION;
 
-		$arCurPhpVer = Explode(".", PhpVersion());
-		if (intval($arCurPhpVer[0]) < 5)
-			return true;
-
 		$errors = static::InstallUserFields();
 		if (!empty($errors))
 		{
@@ -143,7 +139,7 @@ class calendar extends CModule
 		}
 
 		if (!$DB->Query("SELECT 'x' FROM b_calendar_access ", true))
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/'.$this->MODULE_ID.'/install/db/'.mb_strtolower($DB->type).'/install.sql');
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/'.$this->MODULE_ID.'/install/db/mysql/install.sql');
 		$this->InstallTasks();
 
 		if (!empty($errors))
@@ -182,8 +178,7 @@ class calendar extends CModule
 
 		$eventManager->registerEventHandler('mail', 'onReplyReceivedICAL_INVENT', 'calendar', '\Bitrix\Calendar\ICal\MailInvitation\IncomingInvitationReplyHandler', 'handleFromRequest');
 
-		if($DB->type === "MYSQL"
-			&& $DB->Query("CREATE fulltext index IXF_B_CALENDAR_EVENT_SEARCHABLE_CONTENT on b_calendar_event (SEARCHABLE_CONTENT)", true))
+		if($DB->Query("CREATE fulltext index IXF_B_CALENDAR_EVENT_SEARCHABLE_CONTENT on b_calendar_event (SEARCHABLE_CONTENT)", true))
 		{
 			COption::SetOptionString("calendar", "~ft_b_calendar_event", true);
 		}
@@ -199,6 +194,8 @@ class calendar extends CModule
 			\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::checkPushChannel();", "calendar", "N", 14400);
 		}
 		CAgent::AddAgent("CCalendarSync::doSync();", "calendar", "N", 120);
+		CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\Google\\QueueManager::checkNotSendEvents();", "calendar", "N", 3600);
+		CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\Google\\QueueManager::checkIncompleteSync();", 'calendar', 'N', 3600);
 
 		return true;
 	}
@@ -214,7 +211,7 @@ class calendar extends CModule
 		if ((true == array_key_exists("savedata", $arParams)) && ($arParams["savedata"] != 'Y'))
 		{
 			$GLOBALS["USER_FIELD_MANAGER"]->OnEntityDelete("CALENDAR_EVENT");
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/'.$this->MODULE_ID.'/install/db/'.mb_strtolower($DB->type).'/uninstall.sql');
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/'.$this->MODULE_ID.'/install/db/mysql/uninstall.sql');
 
 			if (!empty($errors))
 			{
@@ -296,10 +293,6 @@ class calendar extends CModule
 	function InstallEvents()
 	{
 		global $DB;
-
-		$arCurPhpVer = Explode(".", PhpVersion());
-		if (intval($arCurPhpVer[0]) < 5)
-			return true;
 
 		$sIn = "'CALENDAR_INVITATION'";
 		$rs = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -414,10 +407,6 @@ class calendar extends CModule
 	function InstallFiles()
 	{
 		global $APPLICATION;
-
-		$arCurPhpVer = Explode(".", PhpVersion());
-		if (intval($arCurPhpVer[0]) < 5)
-			return true;
 
 		if($_ENV["COMPUTERNAME"]!='BX')
 		{

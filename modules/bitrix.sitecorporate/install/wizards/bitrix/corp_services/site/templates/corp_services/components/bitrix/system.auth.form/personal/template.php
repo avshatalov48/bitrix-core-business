@@ -9,10 +9,10 @@
 
 <form method="post" target="_top" action="<?=$arResult["AUTH_URL"]?>">
 	<?
-	if (strlen($arResult["BACKURL"]) > 0)
+	if ($arResult["BACKURL"] <> '')
 	{
 	?>
-		<input type='hidden' name='backurl' value='<?=$arResult["BACKURL"]?>' />
+		<input type="hidden" name="backurl" value="<?=$arResult["BACKURL"]?>" />
 	<?
 	}
 	?>
@@ -36,7 +36,7 @@
 			<tr>
 				<td colspan="2">
 				<?=GetMessage("AUTH_PASSWORD")?>:<br />
-				<input type="password" name="USER_PASSWORD" maxlength="50" size="17" /></td>
+				<input type="password" name="USER_PASSWORD" maxlength="255" size="17" /></td>
 			</tr>
 		<?
 		if ($arResult["STORE_PASSWORD"] == "Y") 
@@ -73,5 +73,5 @@
 <a href="<?=$arResult["AUTH_REGISTER_URL"]?>" onclick="return ShowLoginForm();"><?=GetMessage("AUTH_LOGIN_BUTTON")?></a>
 
 <?else:?>
-	<a href="<?=$APPLICATION->GetCurPageParam("logout=yes", Array("logout"))?>"><?=GetMessage("AUTH_LOGOUT_BUTTON")?></a>
+	<a href="<?=$APPLICATION->GetCurPageParam("logout=yes&".bitrix_sessid_get(), Array("logout", "sessid"))?>"><?=GetMessage("AUTH_LOGOUT_BUTTON")?></a>
 <?endif?>

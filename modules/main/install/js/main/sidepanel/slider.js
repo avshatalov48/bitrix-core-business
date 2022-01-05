@@ -77,7 +77,7 @@ BX.SidePanel.Slider = function(url, options)
 	this.cache = new BX.Cache.MemoryCache();
 
 	this.loader =
-		BX.type.isNotEmptyString(options.loader)
+		BX.type.isNotEmptyString(options.loader) || BX.type.isElementNode(options.loader)
 			? options.loader
 			: BX.type.isNotEmptyString(options.typeLoader) ? options.typeLoader : "default-loader"
 	;
@@ -583,7 +583,7 @@ BX.SidePanel.Slider.prototype =
 	showLoader: function()
 	{
 		var loader = this.getLoader();
-		if (!this.layout.loader || this.layout.loader.dataset.loader !== loader)
+		if (!this.layout.loader)
 		{
 			this.createLoader(loader);
 		}
@@ -1317,7 +1317,7 @@ BX.SidePanel.Slider.prototype =
 	{
 		BX.remove(this.layout.loader);
 
-		loader = BX.type.isNotEmptyString(loader) ? loader : "default-loader";
+		loader = BX.type.isNotEmptyString(loader) || BX.type.isElementNode(loader) ? loader : "default-loader";
 
 		var oldLoaders = [
 			"task-new-loader",
@@ -1331,7 +1331,12 @@ BX.SidePanel.Slider.prototype =
 		];
 
 		var matches = null;
-		if (BX.util.in_array(loader, oldLoaders) && this.loaderExists(loader))
+
+		if (BX.type.isElementNode(loader))
+		{
+			this.layout.loader = this.createHTMLLoader(loader);
+		}
+		else if (BX.util.in_array(loader, oldLoaders) && this.loaderExists(loader))
 		{
 			this.layout.loader = this.createOldLoader(loader);
 		}
@@ -1352,7 +1357,6 @@ BX.SidePanel.Slider.prototype =
 			this.layout.loader = this.createDefaultLoader();
 		}
 
-		this.layout.loader.dataset.loader = loader;
 		this.getContainer().appendChild(this.layout.loader);
 	},
 
@@ -1489,6 +1493,20 @@ BX.SidePanel.Slider.prototype =
 				]
 			});
 		}
+	},
+
+	/**
+	 * @private
+	 * @param {HTMLElement} loader
+	 * @returns {Element}
+	 */
+	createHTMLLoader: function(loader)
+	{
+		return BX.create("div", {
+			children: [
+				loader
+			]
+		});
 	},
 
 	loaderExists: function(loader)

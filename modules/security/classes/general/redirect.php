@@ -240,7 +240,7 @@ class CSecurityRedirect
 		//There was no looped local redirects
 		//so it's only true referer
 		if(!defined("BX_SECURITY_LOCAL_REDIRECT"))
-			\Bitrix\Main\Application::getInstance()->getKernelSession()["LOCAL_REDIRECTS"] = array("C" => 0, "R" => $_SERVER["HTTP_REFERER"]);
+			\Bitrix\Main\Application::getInstance()->getKernelSession()["LOCAL_REDIRECTS"] = array("C" => 0, "R" => ($_SERVER["HTTP_REFERER"] ?? ''));
 
 		if(COption::GetOptionString("security", "redirect_href_sign") == "Y")
 			$content = preg_replace_callback("#(<a\\s[^>/]*?href\\s*=\\s*)(['\"])(.+?)(\\2)#i", array("self", "ReplaceHREF"), $content);

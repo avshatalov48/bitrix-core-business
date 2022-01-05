@@ -10,7 +10,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 <?if (count($arResult["ERRORS"])):?>
 	<?=ShowError(implode("<br />", $arResult["ERRORS"]))?>
 <?endif?>
-<?if (strlen($arResult["MESSAGE"]) > 0):?>
+<?if ($arResult["MESSAGE"] <> ''):?>
 	<?=ShowNote($arResult["MESSAGE"])?>
 <?endif?>
 <form name="iblock_add" action="<?=POST_FORM_ACTION_URI?>" method="post" enctype="multipart/form-data">
@@ -323,12 +323,12 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 			<tr>
 				<td colspan="2">
 					<input type="submit" name="iblock_submit" value="<?=GetMessage("IBLOCK_FORM_SUBMIT")?>" />
-					<?if (strlen($arParams["LIST_URL"]) > 0 && $arParams["ID"] > 0):?><input type="submit" name="iblock_apply" value="<?=GetMessage("IBLOCK_FORM_APPLY")?>" /><?endif?>
+					<?if ($arParams["LIST_URL"] <> '' && $arParams["ID"] > 0):?><input type="submit" name="iblock_apply" value="<?=GetMessage("IBLOCK_FORM_APPLY")?>" /><?endif?>
 					<?/*<input type="reset" value="<?=GetMessage("IBLOCK_FORM_RESET")?>" />*/?>
 				</td>
 			</tr>
 		</tfoot>
 	</table>
 	<br />
-	<?if (strlen($arParams["LIST_URL"]) > 0):?><a href="<?=$arParams["LIST_URL"]?>"><?=GetMessage("IBLOCK_FORM_BACK")?></a><?endif?>
+	<?if ($arParams["LIST_URL"] <> ''):?><a href="<?=$arParams["LIST_URL"]?>"><?=GetMessage("IBLOCK_FORM_BACK")?></a><?endif?>
 </form>

@@ -131,63 +131,15 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	});
 
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-creation-menu-item\" onclick=\"", "\">\n\t\t\t<div class=\"ui-userfieldfactory-creation-menu-item-title\">", "</div>\n\t\t\t<div class=\"ui-userfieldfactory-creation-menu-item-desc\">", "</div>\n\t\t</div>"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-creation-menu-list\"></div>"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-creation-menu-scroll-bottom\">", "</div>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-creation-menu-scroll-top\">", "</div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-creation-menu-container\"></div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
 	var SCROLL_OFFSET = 3;
 	/**
 	 * @memberof BX.UI.UserFieldFactory
 	 */
 
-	var _enableScrollToBottom = new WeakMap();
+	var _enableScrollToBottom = /*#__PURE__*/new WeakMap();
 
-	var _enableScrollToTop = new WeakMap();
+	var _enableScrollToTop = /*#__PURE__*/new WeakMap();
 
 	var CreationMenu = /*#__PURE__*/function () {
 	  function CreationMenu(id, types, params) {
@@ -252,10 +204,10 @@ this.BX.UI = this.BX.UI || {};
 	    key: "render",
 	    value: function render(onItemClick) {
 	      if (!this.container) {
-	        this.container = main_core.Tag.render(_templateObject());
+	        this.container = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-creation-menu-container\"></div>"])));
 	        var scrollIcon = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"42\" height=\"13\" viewBox=\"0 0 42 13\">\n" + "  <polyline fill=\"none\" stroke=\"#CACDD1\" stroke-width=\"2\" points=\"274 98 284 78.614 274 59\" transform=\"rotate(90 186 -86.5)\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n" + "</svg>\n";
-	        this.topScrollButton = main_core.Tag.render(_templateObject2(), scrollIcon);
-	        this.bottomScrollButton = main_core.Tag.render(_templateObject3(), scrollIcon);
+	        this.topScrollButton = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-creation-menu-scroll-top\">", "</div>"])), scrollIcon);
+	        this.bottomScrollButton = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-creation-menu-scroll-bottom\">", "</div>"])), scrollIcon);
 	        this.container.appendChild(this.topScrollButton);
 	        this.container.appendChild(this.bottomScrollButton);
 	        this.container.appendChild(this.renderList(onItemClick));
@@ -269,7 +221,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this = this;
 
 	      if (!this.containerList) {
-	        this.containerList = main_core.Tag.render(_templateObject4());
+	        this.containerList = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-creation-menu-list\"></div>"])));
 	        this.items.forEach(function (item) {
 	          _this.containerList.appendChild(_this.renderItem(item, onItemClick));
 	        });
@@ -282,7 +234,7 @@ this.BX.UI = this.BX.UI || {};
 	    value: function renderItem(item, onClick) {
 	      var _this2 = this;
 
-	      return main_core.Tag.render(_templateObject5(), function () {
+	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-creation-menu-item\" onclick=\"", "\">\n\t\t\t<div class=\"ui-userfieldfactory-creation-menu-item-title\">", "</div>\n\t\t\t<div class=\"ui-userfieldfactory-creation-menu-item-desc\">", "</div>\n\t\t</div>"])), function () {
 	        _this2.handleItemClick(item, onClick);
 	      }, item.title, item.description);
 	    }
@@ -482,175 +434,7 @@ this.BX.UI = this.BX.UI || {};
 	  return EnumItem;
 	}();
 
-	function _templateObject17() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t\t<label class=\"ui-ctl ui-ctl-checkbox ui-ctl-xs\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-ctl-label-text\">", "</div>\n\t\t\t\t</label>\n\t\t\t</div>"]);
-
-	  _templateObject17 = function _templateObject17() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject16() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input class=\"ui-ctl-element\" type=\"checkbox\">"]);
-
-	  _templateObject16 = function _templateObject16() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject15() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t\t<label class=\"ui-ctl ui-ctl-checkbox ui-ctl-xs\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-ctl-label-text\">", "</div>\n\t\t\t\t</label>\n\t\t\t</div>"]);
-
-	  _templateObject15 = function _templateObject15() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject14() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input class=\"ui-ctl-element\" type=\"checkbox\">"]);
-
-	  _templateObject14 = function _templateObject14() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject13() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t\t<label class=\"ui-ctl ui-ctl-checkbox ui-ctl-xs\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-ctl-label-text\">", "</div>\n\t\t\t\t</label>\n\t\t\t</div>"]);
-
-	  _templateObject13 = function _templateObject13() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject12() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input class=\"ui-ctl-element\" type=\"checkbox\">"]);
-
-	  _templateObject12 = function _templateObject12() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject11() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-configurator-block\"></div>"]);
-
-	  _templateObject11 = function _templateObject11() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject10() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div style=\"margin-bottom: 10px;\" class=\"ui-ctl ui-ctl-textbox ui-ctl-w100 ui-ctl-row\">\n\t\t\t<input class=\"ui-ctl-element\" type=\"text\" value=\"", "\">\n\t\t\t<div class=\"ui-userfieldfactory-configurator-remove-enum\" onclick=\"", "\"></div>\n\t\t</div>"]);
-
-	  _templateObject10 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-configurator-block\">\n\t\t\t<div class=\"ui-userfieldfactory-configurator-title\">\n\t\t\t\t<span class=\"ui-userfieldfactory-configurator-title-text\">", "</span>\n\t\t\t</div>\n\t\t\t", "\n\t\t\t", "\n\t\t</div>"]);
-
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-configurator-block-add-field\">\n\t\t\t<span class=\"ui-userfieldfactory-configurator-add-button\" onclick=\"", "\">", "</span>\n\t\t</div>"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-configurator-block\"></div>"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-configurator-block\">\n\t\t\t", "", "\n\t\t</div>"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-btn ui-btn-light-border\" onclick=\"", "\">", "</span>"]);
-
-	  _templateObject5$1 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-btn ui-btn-primary\" onclick=\"", "\">", "</span>"]);
-
-	  _templateObject4$1 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-configurator-block\">\n\t\t\t<div class=\"ui-userfieldfactory-configurator-title\">\n\t\t\t\t<span class=\"ui-userfieldfactory-configurator-title-text\">", "</span>\n\t\t\t</div>\n\t\t\t<div class=\"ui-userfieldfactory-configurator-content\">\n\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-w100\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</div>"]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input class=\"ui-ctl-element\" type=\"text\" value=\"", "\" />"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-configurator\"></div>"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5$1, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16, _templateObject17;
 	/**
 	 * @memberof BX.UI.UserFieldFactory
 	 */
@@ -681,9 +465,9 @@ this.BX.UI = this.BX.UI || {};
 	    value: function render() {
 	      var _this = this;
 
-	      this.node = main_core.Tag.render(_templateObject$1());
-	      this.labelInput = main_core.Tag.render(_templateObject2$1(), main_core.Text.encode(this.userField.getTitle()));
-	      this.node.appendChild(main_core.Tag.render(_templateObject3$1(), main_core.Loc.getMessage('UI_USERFIELD_FACTORY_CONFIGURATOR_FIELD_TITLE'), this.labelInput));
+	      this.node = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-configurator\"></div>"])));
+	      this.labelInput = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<input class=\"ui-ctl-element\" type=\"text\" value=\"", "\" />"])), main_core.Text.encode(this.userField.getTitle()));
+	      this.node.appendChild(main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-configurator-block\">\n\t\t\t<div class=\"ui-userfieldfactory-configurator-title\">\n\t\t\t\t<span class=\"ui-userfieldfactory-configurator-title-text\">", "</span>\n\t\t\t</div>\n\t\t\t<div class=\"ui-userfieldfactory-configurator-content\">\n\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-w100\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</div>"])), main_core.Loc.getMessage('UI_USERFIELD_FACTORY_CONFIGURATOR_FIELD_TITLE'), this.labelInput));
 
 	      if (this.userField.getUserTypeId() === FieldTypes.getTypes().enumeration) {
 	        this.node.appendChild(this.renderEnumeration());
@@ -709,9 +493,9 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      };
 
-	      this.saveButton = main_core.Tag.render(_templateObject4$1(), save.bind(this), main_core.Loc.getMessage('UI_USERFIELD_SAVE'));
-	      this.cancelButton = main_core.Tag.render(_templateObject5$1(), cancel.bind(this), main_core.Loc.getMessage('UI_USERFIELD_CANCEL'));
-	      this.node.appendChild(main_core.Tag.render(_templateObject6(), this.saveButton, this.cancelButton));
+	      this.saveButton = main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-btn ui-btn-primary\" onclick=\"", "\">", "</span>"])), save.bind(this), main_core.Loc.getMessage('UI_USERFIELD_SAVE'));
+	      this.cancelButton = main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-btn ui-btn-light-border\" onclick=\"", "\">", "</span>"])), cancel.bind(this), main_core.Loc.getMessage('UI_USERFIELD_CANCEL'));
+	      this.node.appendChild(main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-configurator-block\">\n\t\t\t", "", "\n\t\t</div>"])), this.saveButton, this.cancelButton));
 	      return this.node;
 	    }
 	  }, {
@@ -739,11 +523,11 @@ this.BX.UI = this.BX.UI || {};
 	    value: function renderEnumeration() {
 	      var _this2 = this;
 
-	      this.enumItemsContainer = main_core.Tag.render(_templateObject7());
-	      this.enumAddItemContainer = main_core.Tag.render(_templateObject8(), function () {
+	      this.enumItemsContainer = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-configurator-block\"></div>"])));
+	      this.enumAddItemContainer = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-configurator-block-add-field\">\n\t\t\t<span class=\"ui-userfieldfactory-configurator-add-button\" onclick=\"", "\">", "</span>\n\t\t</div>"])), function () {
 	        _this2.addEnumInput().focus();
 	      }, main_core.Loc.getMessage('UI_USERFIELD_ADD'));
-	      this.enumContainer = main_core.Tag.render(_templateObject9(), main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_ENUM_ITEMS'), this.enumItemsContainer, this.enumAddItemContainer);
+	      this.enumContainer = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-configurator-block\">\n\t\t\t<div class=\"ui-userfieldfactory-configurator-title\">\n\t\t\t\t<span class=\"ui-userfieldfactory-configurator-title-text\">", "</span>\n\t\t\t</div>\n\t\t\t", "\n\t\t\t", "\n\t\t</div>"])), main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_ENUM_ITEMS'), this.enumItemsContainer, this.enumAddItemContainer);
 	      this.userField.getEnumeration().forEach(function (item) {
 	        _this2.addEnumInput(item);
 	      });
@@ -763,7 +547,7 @@ this.BX.UI = this.BX.UI || {};
 	        enumItem = new EnumItem();
 	      }
 
-	      var node = main_core.Tag.render(_templateObject10(), main_core.Text.encode(enumItem.getValue()), function (event) {
+	      var node = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["<div style=\"margin-bottom: 10px;\" class=\"ui-ctl ui-ctl-textbox ui-ctl-w100 ui-ctl-row\">\n\t\t\t<input class=\"ui-ctl-element\" type=\"text\" value=\"", "\">\n\t\t\t<div class=\"ui-userfieldfactory-configurator-remove-enum\" onclick=\"", "\"></div>\n\t\t</div>"])), main_core.Text.encode(enumItem.getValue()), function (event) {
 	        event.preventDefault();
 
 	        _this3.deleteEnumItem(enumItem);
@@ -782,21 +566,21 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "renderOptions",
 	    value: function renderOptions() {
-	      this.optionsContainer = main_core.Tag.render(_templateObject11());
-	      this.mandatoryCheckbox = main_core.Tag.render(_templateObject12());
+	      this.optionsContainer = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-userfieldfactory-configurator-block\"></div>"])));
+	      this.mandatoryCheckbox = main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["<input class=\"ui-ctl-element\" type=\"checkbox\">"])));
 	      this.mandatoryCheckbox.checked = this.userField.isMandatory();
-	      this.optionsContainer.appendChild(main_core.Tag.render(_templateObject13(), this.mandatoryCheckbox, main_core.Loc.getMessage('UI_USERFIELD_FACTORY_FIELD_REQUIRED')));
+	      this.optionsContainer.appendChild(main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t\t<label class=\"ui-ctl ui-ctl-checkbox ui-ctl-xs\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-ctl-label-text\">", "</div>\n\t\t\t\t</label>\n\t\t\t</div>"])), this.mandatoryCheckbox, main_core.Loc.getMessage('UI_USERFIELD_FACTORY_FIELD_REQUIRED')));
 
 	      if (!this.userField.isSaved() && (this.userField.getUserTypeId() === FieldTypes.getTypes().date || this.userField.getUserTypeId() === FieldTypes.getTypes().datetime)) {
-	        this.timeCheckbox = main_core.Tag.render(_templateObject14());
+	        this.timeCheckbox = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["<input class=\"ui-ctl-element\" type=\"checkbox\">"])));
 	        this.timeCheckbox.checked = this.userField.getUserTypeId() === FieldTypes.getTypes().datetime;
-	        this.optionsContainer.appendChild(main_core.Tag.render(_templateObject15(), this.timeCheckbox, main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_ENABLE_TIME')));
+	        this.optionsContainer.appendChild(main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t\t<label class=\"ui-ctl ui-ctl-checkbox ui-ctl-xs\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-ctl-label-text\">", "</div>\n\t\t\t\t</label>\n\t\t\t</div>"])), this.timeCheckbox, main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_ENABLE_TIME')));
 	      }
 
 	      if (!this.userField.isSaved() && this.userField.getUserTypeId() !== FieldTypes.getTypes().boolean) {
-	        this.multipleCheckbox = main_core.Tag.render(_templateObject16());
+	        this.multipleCheckbox = main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["<input class=\"ui-ctl-element\" type=\"checkbox\">"])));
 	        this.multipleCheckbox.checked = this.userField.isMultiple();
-	        this.optionsContainer.appendChild(main_core.Tag.render(_templateObject17(), this.multipleCheckbox, main_core.Loc.getMessage('UI_USERFIELD_FACTORY_FIELD_MULTIPLE')));
+	        this.optionsContainer.appendChild(main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t\t<label class=\"ui-ctl ui-ctl-checkbox ui-ctl-xs\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-ctl-label-text\">", "</div>\n\t\t\t\t</label>\n\t\t\t</div>"])), this.multipleCheckbox, main_core.Loc.getMessage('UI_USERFIELD_FACTORY_FIELD_MULTIPLE')));
 	      }
 
 	      return this.optionsContainer;

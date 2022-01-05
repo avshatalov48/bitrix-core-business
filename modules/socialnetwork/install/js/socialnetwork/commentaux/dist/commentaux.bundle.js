@@ -261,7 +261,7 @@
 	    key: "getEntityVisibility",
 	    value: function getEntityVisibility(params) {
 	      var result = {};
-	      var currentUserId = main_core.Loc.getMessage('USER_ID');
+	      var currentUserId = parseInt(main_core.Loc.getMessage('USER_ID'));
 
 	      if (params.entityType.toUpperCase() === 'TASK') {
 	        result.userId = !main_core.Type.isUndefined(params.taskResponsibleId) && parseInt(params.taskResponsibleId) > 0 ? parseInt(params.taskResponsibleId) : 0;

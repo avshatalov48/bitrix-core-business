@@ -450,9 +450,19 @@ class CRatings extends CAllRatings
 	{
 		global $USER;
 
-		$userId = $USER->GetId();
-		$bUserAuth = $USER->IsAuthorized();
-		$bAllGroups = false;
+		if (
+			isset($arVoteParam['CURRENT_USER_ID'])
+			&& (int)$arVoteParam['CURRENT_USER_ID'] > 0
+		)
+		{
+			$userId = (int)$arVoteParam['CURRENT_USER_ID'];
+			$bUserAuth = ($userId > 0);
+		}
+		else
+		{
+			$userId = (int)$USER->GetId();
+			$bUserAuth = $USER->IsAuthorized();
+		}
 
 		$arInfo = array(
 			'RESULT' => true,

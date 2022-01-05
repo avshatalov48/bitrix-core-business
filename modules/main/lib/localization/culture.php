@@ -7,8 +7,10 @@
  */
 namespace Bitrix\Main\Localization;
 
+use Bitrix\Main;
 use Bitrix\Main\ORM;
 use Bitrix\Main\ORM\Data;
+use Bitrix\Translate\IO\Directory;
 
 /**
  * Class CultureTable

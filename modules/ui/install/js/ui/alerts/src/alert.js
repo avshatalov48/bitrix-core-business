@@ -13,6 +13,8 @@ type AlertOptions = {
 	customClass: string;
 	closeBtn: boolean;
 	animated: boolean;
+	beforeMessageHtml: HTMLElement;
+	afterMessageHtml: HTMLElement;
 };
 
 export default class Alert {
@@ -28,6 +30,8 @@ export default class Alert {
 	closeBtn: boolean;
 	animated: boolean;
 	customClass: string;
+	beforeMessageHtml: HTMLElement;
+	afterMessageHtml: HTMLElement;
 
 	constructor(options: AlertOptions)
 	{
@@ -38,6 +42,8 @@ export default class Alert {
 		this.closeBtn = !!options.closeBtn ? true : options.closeBtn;
 		this.animated = !!options.animated ? true : options.animated;
 		this.customClass = options.customClass;
+		this.beforeMessageHtml = Type.isElementNode(options.beforeMessageHtml) ? options.beforeMessageHtml : false ;
+		this.afterMessageHtml = Type.isElementNode(options.afterMessageHtml) ? options.afterMessageHtml : false ;
 
 		this.setText(this.text);
 		this.setSize(this.size);
@@ -159,6 +165,35 @@ export default class Alert {
 		}
 	}
 
+	// endregion
+
+	// region Custom HTML
+	setBeforeMessageHtml(element: HTMLElement)
+	{
+		if (Type.isElementNode(element) && element !== false)
+		{
+			this.beforeMessageHtml = element;
+		}
+	}
+
+	getBeforeMessageHtml(): HTMLElement
+	{
+		return this.beforeMessageHtml;
+	}
+
+	setAfterMessageHtml(element: HTMLElement)
+	{
+		if (Type.isElementNode(element) && element !== false)
+		{
+			this.afterMessageHtml = element;
+		}
+	}
+
+	getAfterMessageHtml(): HTMLElement
+	{
+		return this.afterMessageHtml;
+	}
+
 	//endregion
 
 	//region CUSTOM CLASS
@@ -254,7 +289,7 @@ export default class Alert {
 	{
 		this.container.style.overflow = "hidden";
 
-		var alertWrapPos = Dom.pos(this.container);
+		var alertWrapPos = Dom.getPosition(this.container);
 		this.container.style.height = alertWrapPos.height + "px";
 
 		setTimeout(
@@ -300,6 +335,16 @@ export default class Alert {
 		if (this.closeBtn === true)
 		{
 			Dom.append(this.getCloseBtn(), this.container);
+		}
+
+		if (Type.isElementNode(this.beforeMessageHtml))
+		{
+			Dom.prepend(this.getBeforeMessageHtml(), this.getTextContainer());
+		}
+
+		if (Type.isElementNode(this.afterMessageHtml))
+		{
+			Dom.append(this.getAfterMessageHtml(), this.getTextContainer());
 		}
 
 		return this.container;

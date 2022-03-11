@@ -1,15 +1,7 @@
 (function (exports,main_core,main_core_events,main_loader) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-image-item-shadow\"></div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	var instances = new Map();
 
 	var ImageInput = /*#__PURE__*/function () {
@@ -142,8 +134,8 @@
 	          return;
 	        } // disable default file dialog open
 	        else {
-	            event.preventDefault();
-	          }
+	          event.preventDefault();
+	        }
 	      }
 
 	      var inputInstance = this.getInputInstance();
@@ -274,7 +266,7 @@
 	      var shadowElement = wrapper.querySelector('div.ui-image-item-shadow');
 
 	      if (!shadowElement) {
-	        shadowElement = main_core.Tag.render(_templateObject());
+	        shadowElement = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-image-item-shadow\"></div>"])));
 	        main_core.Dom.prepend(shadowElement, wrapper);
 	      }
 

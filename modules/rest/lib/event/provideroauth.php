@@ -2,6 +2,7 @@
 namespace Bitrix\Rest\Event;
 
 use Bitrix\Rest\OAuthService;
+use Bitrix\Rest\Tools\Diagnostics\LoggerManager;
 
 class ProviderOAuth implements ProviderInterface
 {
@@ -24,7 +25,23 @@ class ProviderOAuth implements ProviderInterface
 	{
 		if(OAuthService::getEngine()->isRegistered())
 		{
-			OAuthService::getEngine()->getClient()->sendEvent($queryData);
+			$result = OAuthService::getEngine()->getClient()->sendEvent($queryData);
+			$logger = LoggerManager::getInstance()->getLogger();
+			if ($logger)
+			{
+				$logger->debug(
+					"\n{delimiter}\n"
+					. "{date} - {host}\n{delimiter}\n"
+					. "Event sends oauth\n"
+					. "Count: {eventCount}"
+					. "Result:\n"
+					. "{result}",
+					[
+						'eventCount' => count($queryData),
+						'result' => $result,
+					]
+				);
+			}
 		}
 	}
 }

@@ -4,6 +4,8 @@ namespace Bitrix\Sender\Access\Service;
 use Bitrix\Main;
 use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sender\Access\AccessController;
+use Bitrix\Sender\Access\ActionDictionary;
 use Bitrix\Sender\Access\Permission\PermissionDictionary;
 use Bitrix\Sender\Access\Role\RoleUtil;
 
@@ -68,7 +70,9 @@ class RoleDealCategoryService implements RoleDealCategoryServiceInterface
 	{
 		$ableDealCategories = $this->getAbleDealCategories($userId);
 		$dealCategories = [];
-		$allowAll = false;
+
+		$this->accessController = new AccessController($userId);
+		$allowAll = $this->accessController->isAdmin();
 
 		$dealCategories[''] =  $categories['']??Loc::getMessage('SENDER_DEAL_CATEGORY_WITHOUT_DEAL');
 		foreach ($ableDealCategories as $ableDealCategory)
@@ -107,15 +111,41 @@ class RoleDealCategoryService implements RoleDealCategoryServiceInterface
 		$query = [];
 		$map = RoleUtil::preparedRoleMap();
 
+		$managerRoleId = null;
+		$adminRoleId = null;
 		foreach ($map as $roleKey => $permissions)
 		{
 			$roleName = RoleUtil::getLocalizedName($roleKey);
 
 			$roleId = $this->rolePermissionService->saveRole($roleName, $dealCategoryId);
 			$query = array_merge($query, RoleUtil::buildInsertPermissionQuery($permissions, $roleId));
+
+			if ($roleKey === 'MANAGER')
+			{
+				$managerRoleId = $roleId;
+			}
+
+			if ($roleKey === 'ADMIN')
+			{
+				$adminRoleId = $roleId;
+			}
 		}
 
 		RoleUtil::insertPermissions($query);
+		(new RoleRelationService())->saveRoleRelation([
+			[
+				'id' => $managerRoleId,
+				'accessCodes' => [
+					'AE0' => 'usergroups'
+				],
+			],
+			[
+				'id' => $adminRoleId,
+				'accessCodes' => [
+					'G1' => ''
+				],
+			],
+		]);
 
 		return $this->rolePermissionService->getRoleList(
 			[

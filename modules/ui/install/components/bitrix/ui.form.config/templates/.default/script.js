@@ -1,30 +1,18 @@
 (function (exports,main_core,main_core_events) {
 	'use strict';
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<a href=\"", "\" class=\"ui-icon ui-icon-xs ui-icon-common-user\" title=\"", "\"><i></i></a>"]);
+	var _templateObject, _templateObject2;
 
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<a href=\"", "\" class=\"ui-editor-config-item-avatar\"  title=\"", "\" style=\"background-image: url('", "')\"></a>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
 
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	var namespace = main_core.Reflection.namespace('BX.Ui.Form');
 
-	var _items = new WeakMap();
+	var _items = /*#__PURE__*/new WeakMap();
 
 	var Config = function Config(options) {
 	  var _this = this;
@@ -32,7 +20,7 @@
 	  babelHelpers.classCallCheck(this, Config);
 	  babelHelpers.defineProperty(this, "isOpen", false);
 
-	  _items.set(this, {
+	  _classPrivateFieldInitSpec(this, _items, {
 	    writable: true,
 	    value: []
 	  });
@@ -45,35 +33,35 @@
 	  this.popupContainer = options.componentId;
 	};
 
-	var _scopeId = new WeakMap();
+	var _scopeId = /*#__PURE__*/new WeakMap();
 
-	var _members = new WeakMap();
+	var _members = /*#__PURE__*/new WeakMap();
 
-	var _node = new WeakMap();
+	var _node = /*#__PURE__*/new WeakMap();
 
-	var _selectedItems = new WeakMap();
+	var _selectedItems = /*#__PURE__*/new WeakMap();
 
-	var _moduleId = new WeakMap();
+	var _moduleId = /*#__PURE__*/new WeakMap();
 
-	var _openPopupEvent = new WeakMap();
+	var _openPopupEvent = /*#__PURE__*/new WeakMap();
 
-	var _reinitDialogEvent = new WeakMap();
+	var _reinitDialogEvent = /*#__PURE__*/new WeakMap();
 
-	var _drawMembers = new WeakSet();
+	var _drawMembers = /*#__PURE__*/new WeakSet();
 
-	var _createMember = new WeakSet();
+	var _createMember = /*#__PURE__*/new WeakSet();
 
-	var _createPlusButton = new WeakSet();
+	var _createPlusButton = /*#__PURE__*/new WeakSet();
 
-	var _showPopup = new WeakSet();
+	var _showPopup = /*#__PURE__*/new WeakSet();
 
-	var _addEvents = new WeakSet();
+	var _addEvents = /*#__PURE__*/new WeakSet();
 
-	var _getSelectedItems = new WeakSet();
+	var _getSelectedItems = /*#__PURE__*/new WeakSet();
 
-	var _removeEvents = new WeakSet();
+	var _removeEvents = /*#__PURE__*/new WeakSet();
 
-	var _adjust = new WeakSet();
+	var _adjust = /*#__PURE__*/new WeakSet();
 
 	var ConfigItem = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(ConfigItem, _EventEmitter);
@@ -84,53 +72,53 @@
 	    babelHelpers.classCallCheck(this, ConfigItem);
 	    _this2 = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ConfigItem).call(this));
 
-	    _adjust.add(babelHelpers.assertThisInitialized(_this2));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this2), _adjust);
 
-	    _removeEvents.add(babelHelpers.assertThisInitialized(_this2));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this2), _removeEvents);
 
-	    _getSelectedItems.add(babelHelpers.assertThisInitialized(_this2));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this2), _getSelectedItems);
 
-	    _addEvents.add(babelHelpers.assertThisInitialized(_this2));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this2), _addEvents);
 
-	    _showPopup.add(babelHelpers.assertThisInitialized(_this2));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this2), _showPopup);
 
-	    _createPlusButton.add(babelHelpers.assertThisInitialized(_this2));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this2), _createPlusButton);
 
-	    _createMember.add(babelHelpers.assertThisInitialized(_this2));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this2), _createMember);
 
-	    _drawMembers.add(babelHelpers.assertThisInitialized(_this2));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this2), _drawMembers);
 
-	    _scopeId.set(babelHelpers.assertThisInitialized(_this2), {
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this2), _scopeId, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _members.set(babelHelpers.assertThisInitialized(_this2), {
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this2), _members, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _node.set(babelHelpers.assertThisInitialized(_this2), {
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this2), _node, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _selectedItems.set(babelHelpers.assertThisInitialized(_this2), {
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this2), _selectedItems, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _moduleId.set(babelHelpers.assertThisInitialized(_this2), {
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this2), _moduleId, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _openPopupEvent.set(babelHelpers.assertThisInitialized(_this2), {
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this2), _openPopupEvent, {
 	      writable: true,
 	      value: 'BX.Ui.Form.ConfigItem:onComponentOpen'
 	    });
 
-	    _reinitDialogEvent.set(babelHelpers.assertThisInitialized(_this2), {
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this2), _reinitDialogEvent, {
 	      writable: true,
 	      value: 'BX.Main.SelectorV2:reInitDialog'
 	    });
@@ -214,7 +202,7 @@
 	  return ConfigItem;
 	}(main_core_events.EventEmitter);
 
-	var _drawMembers2 = function _drawMembers2() {
+	function _drawMembers2() {
 	  if (babelHelpers.classPrivateFieldGet(this, _members)) {
 	    var i = 0;
 
@@ -229,19 +217,19 @@
 	  }
 
 	  babelHelpers.classPrivateFieldGet(this, _node).appendChild(_classPrivateMethodGet(this, _createPlusButton, _createPlusButton2).call(this));
-	};
+	}
 
-	var _createMember2 = function _createMember2(member) {
-	  var children = member.avatar ? main_core.Tag.render(_templateObject(), member.url, main_core.Text.encode(member.name), member.avatar) : main_core.Tag.render(_templateObject2(), member.url, main_core.Text.encode(member.name));
+	function _createMember2(member) {
+	  var children = member.avatar ? main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<a href=\"", "\" class=\"ui-editor-config-item-avatar\"  title=\"", "\" style=\"background-image: url('", "')\"></a>"])), member.url, main_core.Text.encode(member.name), member.avatar) : main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<a href=\"", "\" class=\"ui-icon ui-icon-xs ui-icon-common-user\" title=\"", "\"><i></i></a>"])), member.url, main_core.Text.encode(member.name));
 	  return main_core.Dom.create('div', {
 	    attrs: {
-	      class: 'ui-editor-config-item'
+	      "class": 'ui-editor-config-item'
 	    },
 	    children: [children]
 	  });
-	};
+	}
 
-	var _createPlusButton2 = function _createPlusButton2() {
+	function _createPlusButton2() {
 	  var _this4 = this;
 
 	  return main_core.Dom.create('div', {
@@ -253,12 +241,12 @@
 	      }
 	    },
 	    attrs: {
-	      class: 'ui-editor-config-item ui-editor-config-item--add'
+	      "class": 'ui-editor-config-item ui-editor-config-item--add'
 	    }
 	  });
-	};
+	}
 
-	var _showPopup2 = function _showPopup2() {
+	function _showPopup2() {
 	  this.config.isOpen = true;
 
 	  _classPrivateMethodGet(this, _addEvents, _addEvents2).call(this);
@@ -273,15 +261,15 @@
 	    selectorId: this.config.popupContainer,
 	    selectedItems: _classPrivateMethodGet(this, _getSelectedItems, _getSelectedItems2).call(this)
 	  }]);
-	};
+	}
 
-	var _addEvents2 = function _addEvents2() {
+	function _addEvents2() {
 	  main_core_events.EventEmitter.subscribe('BX.Ui.Form.ConfigItem:addToAccessCodes', this.addToAccessCodesHandler);
 	  main_core_events.EventEmitter.subscribe('BX.Ui.Form.ConfigItem:removeFromAccessCodes', this.removeFromAccessCodesHandler);
 	  main_core_events.EventEmitter.subscribe('BX.Ui.Form.ConfigItem:closePopup', this.closePopupHandler);
-	};
+	}
 
-	var _getSelectedItems2 = function _getSelectedItems2() {
+	function _getSelectedItems2() {
 	  if (babelHelpers.classPrivateFieldGet(this, _members) && !babelHelpers.classPrivateFieldGet(this, _selectedItems)) {
 	    var items = {};
 
@@ -293,15 +281,15 @@
 	  }
 
 	  return babelHelpers.classPrivateFieldGet(this, _selectedItems) || {};
-	};
+	}
 
-	var _removeEvents2 = function _removeEvents2() {
+	function _removeEvents2() {
 	  main_core_events.EventEmitter.unsubscribe('BX.Ui.Form.ConfigItem:addToAccessCodes', this.addToAccessCodesHandler);
 	  main_core_events.EventEmitter.unsubscribe('BX.Ui.Form.ConfigItem:removeFromAccessCodes', this.removeFromAccessCodesHandler);
 	  main_core_events.EventEmitter.unsubscribe('BX.Ui.Form.ConfigItem:closePopup', this.closePopupHandler);
-	};
+	}
 
-	var _adjust2 = function _adjust2(members) {
+	function _adjust2(members) {
 	  babelHelpers.classPrivateFieldSet(this, _node, BX("ui-editor-config-".concat(babelHelpers.classPrivateFieldGet(this, _scopeId))));
 
 	  if (members) {
@@ -315,7 +303,7 @@
 
 	    _classPrivateMethodGet(this, _drawMembers, _drawMembers2).call(this);
 	  }
-	};
+	}
 
 	namespace.Config = Config;
 	namespace.ConfigItem = ConfigItem;

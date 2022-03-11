@@ -180,17 +180,37 @@ export class ConnectionProvider
 	openActiveConnectionSlider(connection)
 	{
 		const itemInterface = this.getClassTemplateItem().createInstance(this, connection);
-		const content = itemInterface.getActiveConnectionContent();
-		this.openSlider({
-			sliderId: 'calendar:item-sync-' + connection.id,
-			content: content,
-			cacheable: false,
-			data: {
-				provider: this,
-				connection: connection,
-				itemInterface: itemInterface,
-			},
-		});
+		if (this.type === 'google')
+		{
+			itemInterface.getSectionsForGoogle().then(() => {
+				const content = itemInterface.getActiveConnectionContent();
+				
+				this.openSlider({
+					sliderId: 'calendar:item-sync-' + connection.id,
+					content: content,
+					cacheable: false,
+					data: {
+						provider: this,
+						connection: connection,
+						itemInterface: itemInterface,
+					},
+				});
+			})
+		}
+		else
+		{
+			const content = itemInterface.getActiveConnectionContent();
+			this.openSlider({
+				sliderId: 'calendar:item-sync-' + connection.id,
+				content: content,
+				cacheable: false,
+				data: {
+					provider: this,
+					connection: connection,
+					itemInterface: itemInterface,
+				},
+			});
+		}
 	}
 
 	getClassTemplateItem()

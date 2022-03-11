@@ -1,4 +1,5 @@
 <?php
+
 use Bitrix\Lists\Internals\Error\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;

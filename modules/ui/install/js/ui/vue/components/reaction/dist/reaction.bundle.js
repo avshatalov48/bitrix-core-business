@@ -26,13 +26,13 @@
 	   */
 	  props: {
 	    values: {
-	      default: {}
+	      "default": {}
 	    },
 	    userId: {
-	      default: 0
+	      "default": 0
 	    },
 	    openList: {
-	      default: true
+	      "default": true
 	    }
 	  },
 	  data: function data() {

@@ -14,13 +14,13 @@ this.BX = this.BX || {};
 
 	    this.blurElement = params.blurElement;
 	    this.direction = Uploader.direction[params.direction] ? params.direction : Uploader.direction.vertical;
-	    params.sizes = params.sizes && babelHelpers.typeof(params.sizes) === 'object' ? params.sizes : {};
+	    params.sizes = params.sizes && babelHelpers["typeof"](params.sizes) === 'object' ? params.sizes : {};
 	    this.sizes = {
 	      circle: params.sizes.circle ? params.sizes.circle : 54,
 	      progress: params.sizes.progress ? params.sizes.progress : 4,
 	      margin: params.sizes.margin ? params.sizes.margin : 0
 	    };
-	    params.labels = params.labels && babelHelpers.typeof(params.labels) === 'object' ? params.labels : {};
+	    params.labels = params.labels && babelHelpers["typeof"](params.labels) === 'object' ? params.labels : {};
 	    this.labels = {
 	      loading: params.labels.loading ? params.labels.loading : '',
 	      completed: params.labels.completed ? params.labels.completed : '',

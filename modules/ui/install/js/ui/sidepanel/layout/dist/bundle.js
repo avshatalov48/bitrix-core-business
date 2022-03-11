@@ -5,7 +5,17 @@ this.BX.UI = this.BX.UI || {};
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10;
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var UI = BX.UI;
 	var SidePanel = BX.SidePanel;
 
@@ -13,7 +23,7 @@ this.BX.UI = this.BX.UI || {};
 	  var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	  options = Object.assign({}, options);
 	  options.design = Object.assign({}, options.design || {});
-	  options.design = babelHelpers.objectSpread({
+	  options.design = _objectSpread({
 	    margin: true,
 	    section: true
 	  }, options.design);
@@ -60,19 +70,19 @@ this.BX.UI = this.BX.UI || {};
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, Layout);
 
-	    _onMenuItemClick.add(this);
+	    _classPrivateMethodInitSpec(this, _onMenuItemClick);
 
-	    _container.set(this, {
+	    _classPrivateFieldInitSpec(this, _container, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _options.set(this, {
+	    _classPrivateFieldInitSpec(this, _options, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _menu.set(this, {
+	    _classPrivateFieldInitSpec(this, _menu, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -131,7 +141,7 @@ this.BX.UI = this.BX.UI || {};
 
 	        if (main_core.Type.isFunction(babelHelpers.classPrivateFieldGet(this, _options).toolbar)) {
 	          var toolbar = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-sidepanel-layout-toolbar\"></div>"])));
-	          babelHelpers.classPrivateFieldGet(this, _options).toolbar(babelHelpers.objectSpread({}, UI)).forEach(function (button) {
+	          babelHelpers.classPrivateFieldGet(this, _options).toolbar(_objectSpread({}, UI)).forEach(function (button) {
 	            if (button instanceof ui_buttons.BaseButton) {
 	              button.renderTo(toolbar);
 	            } else if (main_core.Type.isDomNode(button)) {
@@ -199,7 +209,8 @@ this.BX.UI = this.BX.UI || {};
 	            return SidePanel.Instance.close();
 	          }
 	        });
-	        var defaults = babelHelpers.objectSpread({}, UI, {
+
+	        var defaults = _objectSpread(_objectSpread({}, UI), {}, {
 	          cancelButton: cancelButton,
 	          closeButton: closeButton
 	        });

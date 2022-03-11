@@ -52,7 +52,7 @@
 	      showSectionNames: true,
 	      resultList: {},
 	      itemTypes: {
-	        default: 'default',
+	        "default": 'default',
 	        placeholder: 'placeholder'
 	      },
 	      cssPrefix: '',
@@ -83,13 +83,13 @@
 	      if (typeof listItem.type !== "undefined" && this.itemTypes[listItem.type]) {
 	        itemResult.type = listItem.type;
 	      } else {
-	        itemResult.type = this.itemTypes.default;
+	        itemResult.type = this.itemTypes["default"];
 	      }
 
 	      if (typeof listItem.title !== "undefined") {
 	        itemResult.title = {};
 
-	        if (babelHelpers.typeof(listItem.title) === 'object' && listItem.title) {
+	        if (babelHelpers["typeof"](listItem.title) === 'object' && listItem.title) {
 	          if (typeof listItem.title.value === 'string') {
 	            itemResult.title.value = listItem.title.value;
 	          }
@@ -109,7 +109,7 @@
 	      if (typeof listItem.subtitle !== "undefined") {
 	        itemResult.subtitle = {};
 
-	        if (babelHelpers.typeof(listItem.subtitle) === 'object' && listItem.subtitle) {
+	        if (babelHelpers["typeof"](listItem.subtitle) === 'object' && listItem.subtitle) {
 	          if (typeof listItem.subtitle.value === 'string') {
 	            itemResult.subtitle.value = listItem.subtitle.value;
 	          }
@@ -125,7 +125,7 @@
 	      if (typeof listItem.avatar !== 'undefined') {
 	        itemResult.avatar = {};
 
-	        if (babelHelpers.typeof(listItem.avatar) === 'object' && listItem.avatar) {
+	        if (babelHelpers["typeof"](listItem.avatar) === 'object' && listItem.avatar) {
 	          //TODO: avatar processing
 	          if (typeof listItem.avatar.url === 'string') {
 	            itemResult.avatar.url = listItem.avatar.url;
@@ -147,7 +147,7 @@
 	      if (typeof listItem.date !== 'undefined') {
 	        itemResult.date = {};
 
-	        if (babelHelpers.typeof(listItem.date) === 'object' && listItem.date && !(listItem.date instanceof Date)) {
+	        if (babelHelpers["typeof"](listItem.date) === 'object' && listItem.date && !(listItem.date instanceof Date)) {
 	          if (listItem.date.value instanceof Date) {
 	            itemResult.date.value = this.formatDate(listItem.date.value);
 	          }

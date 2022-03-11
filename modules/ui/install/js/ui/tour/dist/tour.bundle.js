@@ -1016,7 +1016,7 @@ this.BX.UI = this.BX.UI || {};
 
 	      if (this.buttons !== "") {
 	        for (var i = 0; i < this.buttons.length; i++) {
-	          var btn = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"", "\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), this.buttons[i].class, this.buttons[i].events.click, this.buttons[i].text);
+	          var btn = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"", "\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), this.buttons[i]["class"], this.buttons[i].events.click, this.buttons[i].text);
 	          buttons.push(btn);
 	        }
 	      } else {
@@ -1171,7 +1171,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "remove",
 	    value: function remove(id) {
-	      this.guides.delete(id);
+	      this.guides["delete"](id);
 	    }
 	    /**
 	     * @public

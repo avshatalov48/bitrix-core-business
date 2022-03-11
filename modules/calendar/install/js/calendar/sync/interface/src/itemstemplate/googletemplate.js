@@ -26,6 +26,7 @@ export default class GoogleTemplate extends InterfaceTemplate
 		});
 
 		this.sectionStatusObject = {};
+		this.sectionList = [];
 	}
 
 	createConnection()
@@ -115,7 +116,7 @@ export default class GoogleTemplate extends InterfaceTemplate
 	getContentActiveBodySections(connectionId)
 	{
 		const sectionList = [];
-		this.provider.getConnection().getSections().forEach(section => {
+		this.sectionList.forEach(section => {
 			sectionList.push(Tag.render`
 				<li class="calendar-sync-slider-item">
 					<label class="ui-ctl ui-ctl-checkbox ui-ctl-xs">
@@ -127,6 +128,23 @@ export default class GoogleTemplate extends InterfaceTemplate
 		});
 
 		return sectionList;
+	}
+	
+	getSectionsForGoogle()
+	{
+		return new Promise((resolve) => {
+			BX.ajax.runAction('calendar.api.calendarajax.getAllSectionsForGoogle')
+			.then(
+				(response) => {
+					this.sectionList = response.data;
+					resolve(response.data);
+				},
+				(response) => {
+					resolve(response.errors);
+				}
+			);
+			
+		})
 	}
 
 	onClickCheckSection(event)

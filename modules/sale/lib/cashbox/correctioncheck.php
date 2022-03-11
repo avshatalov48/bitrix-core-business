@@ -146,7 +146,7 @@ abstract class CorrectionCheck extends AbstractCheck
 		foreach ($cashboxList as $item)
 		{
 			$cashbox = Cashbox::create($item);
-			if (!$cashbox instanceof ICorrection)
+			if (!$cashbox || !$cashbox->isCorrection())
 			{
 				throw new Main\SystemException('Cashbox '.$cashbox::getName().' is not supported correction check');
 			}

@@ -25,8 +25,8 @@ this.BX.UI = this.BX.UI || {};
 	        url: 'url',
 	        file: 'file',
 	        money: 'money',
-	        boolean: 'boolean',
-	        double: 'double',
+	        "boolean": 'boolean',
+	        "double": 'double',
 	        employee: 'employee',
 	        crm: 'crm',
 	        crmStatus: 'crm_status'
@@ -69,11 +69,11 @@ this.BX.UI = this.BX.UI || {};
 	          description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_MONEY_LEGEND"),
 	          defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_MONEY_LABEL')
 	        },
-	        boolean: {
+	        "boolean": {
 	          title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_BOOLEAN_TITLE"),
 	          description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_BOOLEAN_LEGEND")
 	        },
-	        double: {
+	        "double": {
 	          title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_DOUBLE_TITLE"),
 	          description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_DOUBLE_LEGEND"),
 	          defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_DOUBLE_LABEL')
@@ -124,7 +124,7 @@ this.BX.UI = this.BX.UI || {};
 	      DISPLAY: 'UI'
 	    }
 	  },
-	  double: {
+	  "double": {
 	    settings: {
 	      PRECISION: 2
 	    }
@@ -132,6 +132,14 @@ this.BX.UI = this.BX.UI || {};
 	});
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
+
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	var SCROLL_OFFSET = 3;
 	/**
 	 * @memberof BX.UI.UserFieldFactory
@@ -145,12 +153,12 @@ this.BX.UI = this.BX.UI || {};
 	  function CreationMenu(id, types, params) {
 	    babelHelpers.classCallCheck(this, CreationMenu);
 
-	    _enableScrollToBottom.set(this, {
+	    _classPrivateFieldInitSpec(this, _enableScrollToBottom, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _enableScrollToTop.set(this, {
+	    _classPrivateFieldInitSpec(this, _enableScrollToTop, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -179,7 +187,8 @@ this.BX.UI = this.BX.UI || {};
 	      var onItemClick = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
 	      if (!this.popup) {
-	        var options = babelHelpers.objectSpread({}, CreationMenu.getDefaultPopupOptions(), this.params);
+	        var options = _objectSpread(_objectSpread({}, CreationMenu.getDefaultPopupOptions()), this.params);
+
 	        options.events = {
 	          onPopupShow: this.onPopupShow.bind(this),
 	          onPopupDestroy: this.onPopupDestroy.bind(this)
@@ -561,7 +570,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "deleteEnumItem",
 	    value: function deleteEnumItem(item) {
 	      this.enumItemsContainer.removeChild(item.getNode());
-	      this.enumItems.delete(item);
+	      this.enumItems["delete"](item);
 	    }
 	  }, {
 	    key: "renderOptions",
@@ -577,7 +586,7 @@ this.BX.UI = this.BX.UI || {};
 	        this.optionsContainer.appendChild(main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t\t<label class=\"ui-ctl ui-ctl-checkbox ui-ctl-xs\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-ctl-label-text\">", "</div>\n\t\t\t\t</label>\n\t\t\t</div>"])), this.timeCheckbox, main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_ENABLE_TIME')));
 	      }
 
-	      if (!this.userField.isSaved() && this.userField.getUserTypeId() !== FieldTypes.getTypes().boolean) {
+	      if (!this.userField.isSaved() && this.userField.getUserTypeId() !== FieldTypes.getTypes()["boolean"]) {
 	        this.multipleCheckbox = main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["<input class=\"ui-ctl-element\" type=\"checkbox\">"])));
 	        this.multipleCheckbox.checked = this.userField.isMultiple();
 	        this.optionsContainer.appendChild(main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t\t<label class=\"ui-ctl ui-ctl-checkbox ui-ctl-xs\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-ctl-label-text\">", "</div>\n\t\t\t\t</label>\n\t\t\t</div>"])), this.multipleCheckbox, main_core.Loc.getMessage('UI_USERFIELD_FACTORY_FIELD_MULTIPLE')));
@@ -604,6 +613,9 @@ this.BX.UI = this.BX.UI || {};
 	  return Configurator;
 	}();
 
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	/**
 	 * @memberof BX.UI.UserFieldFactory
 	 * @mixes EventEmitter
@@ -647,7 +659,7 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getFieldTypes() {
 	      var types = [];
 	      Object.keys(FieldTypes.getDescriptions()).forEach(function (name) {
-	        types.push(babelHelpers.objectSpread({}, FieldTypes.getDescriptions()[name], {
+	        types.push(_objectSpread$1(_objectSpread$1({}, FieldTypes.getDescriptions()[name]), {
 	          name: name
 	        }));
 	      });
@@ -670,7 +682,8 @@ this.BX.UI = this.BX.UI || {};
 	      var types = this.types;
 
 	      if (this.customTypesUrl && !this.isCustomTypeAdded) {
-	        var customType = babelHelpers.objectSpread({}, FieldTypes.getCustomTypeDescription());
+	        var customType = _objectSpread$1({}, FieldTypes.getCustomTypeDescription());
+
 	        customType.onClick = this.onCustomTypeClick.bind(this);
 	        types.push(customType);
 	        this.isCustomTypeAdded = true;
@@ -711,7 +724,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "createUserField",
 	    value: function createUserField(fieldType, fieldName) {
-	      var data = babelHelpers.objectSpread({}, DefaultData, DefaultFieldData[fieldType], {
+	      var data = _objectSpread$1(_objectSpread$1(_objectSpread$1({}, DefaultData), DefaultFieldData[fieldType]), {
 	        userTypeId: fieldType
 	      });
 

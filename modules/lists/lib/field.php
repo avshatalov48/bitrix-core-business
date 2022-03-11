@@ -1,6 +1,8 @@
 <?php
+
 namespace Bitrix\Lists;
 
+use Bitrix\Crm\UserField\Types\ElementType;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
@@ -341,7 +343,7 @@ class Field
 	 */
 	public static function prepareFieldDataForFilter(array $field)
 	{
-		$customEntityType = array('employee', 'ECrm');
+		$customEntityType = array('employee');
 		if($field['TYPE'] == 'SORT' || $field['TYPE'] == 'N')
 		{
 			$result = array(
@@ -481,6 +483,19 @@ class Field
 					'type' => 'number',
 					'filterable' => ''
 				);
+			}
+			elseif($type === 'ECrm')
+			{
+				$result = [
+					'id' => $field['FIELD_ID'],
+					'name' => $field['NAME'],
+					'type' => 'dest_selector',
+					'params' => ElementType::getDestSelectorParametersForFilter(
+						$field['USER_TYPE_SETTINGS'],
+						$isMultiple = (isset($field['MULTIPLE']) && $field['MULTIPLE'] === 'Y')
+					),
+					'filterable' => '',
+				];
 			}
 			elseif(in_array($type, $customEntityType))
 			{
@@ -974,7 +989,7 @@ class Field
 		$listValue = array();
 		foreach($field['VALUE'] as $value)
 		{
-			list($type, $realId) = \Bitrix\Disk\Uf\FileUserType::detectType($value);
+			[$type, $realId] = \Bitrix\Disk\Uf\FileUserType::detectType($value);
 			if($type == \Bitrix\Disk\Uf\FileUserType::TYPE_NEW_OBJECT)
 			{
 				$fileModel = \Bitrix\Disk\File::loadById($realId, array('STORAGE'));

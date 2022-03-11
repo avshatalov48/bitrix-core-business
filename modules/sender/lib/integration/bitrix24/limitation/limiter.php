@@ -162,7 +162,7 @@ class Limiter
 					return $counter->getCurrent();
 				}
 			)
-			->setParameter('setupUri', 'javascript:BX.Helper.show("redirect=detail&code=6846227")')
+			->setParameter('setupUri', 'javascript:top.BX.Helper.show("redirect=detail&code=6846227")')
 			->setParameter('setupCaption', Loc::getMessage('SENDER_INTEGRATION_BITRIX24_LIMITER_DAILY_DETAILS'));
 	}
 }

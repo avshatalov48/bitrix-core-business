@@ -668,6 +668,10 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonStyle, "DROPDOWN", 'ui-btn-dropdown');
 	babelHelpers.defineProperty(ButtonStyle, "COLLAPSED", 'ui-btn-collapsed');
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	/**
 	 * @namespace {BX.UI}
 	 */
@@ -923,7 +927,7 @@ this.BX = this.BX || {};
 	    value: function setMenu(options) {
 	      if (main_core.Type.isPlainObject(options) && main_core.Type.isArray(options.items) && options.items.length > 0) {
 	        this.setMenu(false);
-	        this.menuWindow = new main_popup.Menu(babelHelpers.objectSpread({
+	        this.menuWindow = new main_popup.Menu(_objectSpread({
 	          id: "ui-btn-menu-".concat(main_core.Text.getRandom().toLowerCase()),
 	          bindElement: this.getMenuBindElement()
 	        }, options));

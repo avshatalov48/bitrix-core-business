@@ -1,3 +1,4 @@
-<?
+<?php
+$MESS["SALE_CASHBOX_MEASURE_SUPPORT_SETTINGS"] = "Units of measurement";
+$MESS["SALE_CASHBOX_MEASURE_SUPPORT_SETTINGS_DEFAULT_VALUE"] = "Default";
 $MESS["SALE_CASHBOX_VALIDATE_ERROR"] = "This field is required: #FIELD_ID#";
-?>

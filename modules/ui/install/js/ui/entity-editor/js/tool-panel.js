@@ -13,6 +13,11 @@ if(typeof BX.UI.EntityEditorToolPanel === "undefined")
 		this._isLocked = false;
 		this._hasLayout = false;
 		this._keyPressHandler = BX.delegate(this.onKeyPress, this);
+		this._customButtons = {};
+		this._buttonsOrder = {
+			VIEW: [],
+			EDIT: [BX.UI.EntityEditorActionIds.defaultActionId, BX.UI.EntityEditorActionIds.cancelActionId],
+		};
 	};
 
 	BX.UI.EntityEditorToolPanel.prototype =
@@ -25,6 +30,98 @@ if(typeof BX.UI.EntityEditorToolPanel === "undefined")
 			this._container = BX.prop.getElementNode(this._settings, "container", null);
 			this._editor = BX.prop.get(this._settings, "editor", null);
 			this._isVisible = BX.prop.getBoolean(this._settings, "visible", false);
+			var customButtons = BX.prop.getArray(this._settings, 'customButtons', []);
+			for (var i = 0, length = customButtons.length; i < length; i++)
+			{
+				var customButtonProps = customButtons[i];
+				this._customButtons[customButtonProps.ID] = this.createCustomButton(customButtonProps);
+			}
+
+			var buttonsOrder = BX.prop.getObject(this._settings, 'buttonsOrder', {});
+			var editButtonsOrder = BX.prop.getArray(buttonsOrder, 'EDIT', []);
+			var viewButtonsOrder = BX.prop.getArray(buttonsOrder, 'VIEW', []);
+			if (editButtonsOrder.length > 0 || viewButtonsOrder.length > 0)
+			{
+				this._buttonsOrder = buttonsOrder;
+			}
+
+			this.attachToEditorEvents();
+		},
+		attachToEditorEvents: function()
+		{
+			BX.addCustomEvent(this._editor.eventsNamespace + ':onControlModeChange', BX.delegate(function(editor, additionalData) {
+				if (editor !== this._editor || !additionalData.control)
+				{
+					return;
+				}
+				var control = additionalData.control;
+				if(control.getMode() === BX.UI.EntityEditorMode.edit)
+				{
+					this.showEditModeButtons();
+				}
+				else
+				{
+					this.showViewModeButtons();
+				}
+			}, this));
+			BX.addCustomEvent(this._editor.eventsNamespace + ':onControlChange', BX.delegate(function(editor) {
+				if (editor !== this._editor)
+				{
+					return;
+				}
+				this.showEditModeButtons();
+			}, this));
+			BX.addCustomEvent(this._editor.eventsNamespace + ':onControllerChange', BX.delegate(function(editor) {
+				if (editor !== this._editor)
+				{
+					return;
+				}
+				this.showEditModeButtons();
+			}, this));
+			BX.addCustomEvent(this._editor.eventsNamespace + ':onSwitchToViewMode', BX.delegate(function(editor) {
+				if (editor !== this._editor)
+				{
+					return;
+				}
+				this.showViewModeButtons();
+			}, this));
+			BX.addCustomEvent(this._editor.eventsNamespace + ':onNothingChanged', BX.delegate(function(editor) {
+				if (editor !== this._editor)
+				{
+					return;
+				}
+				this.showViewModeButtons();
+			}, this));
+		},
+		showEditModeButtons: function ()
+		{
+			var editButtonsOrder = BX.prop.getArray(this._buttonsOrder, 'EDIT', []);
+			if (editButtonsOrder.length > 0)
+			{
+				if (this._viewModeSectionControl)
+				{
+					BX.hide(this._viewModeSectionControl);
+				}
+				if (this._editModeSectionControl)
+				{
+					BX.show(this._editModeSectionControl);
+				}
+			}
+		},
+		showViewModeButtons: function ()
+		{
+			var viewButtonsOrder = BX.prop.getArray(this._buttonsOrder, 'VIEW', []);
+			if (viewButtonsOrder.length > 0)
+			{
+				if (this._editModeSectionControl)
+				{
+					BX.hide(this._editModeSectionControl);
+				}
+				if (this._viewModeSectionControl)
+				{
+					BX.show(this._viewModeSectionControl);
+				}
+			}
 		},
 		getId: function()
 		{
@@ -91,8 +188,21 @@ if(typeof BX.UI.EntityEditorToolPanel === "undefined")
 				return;
 			}
 
-			this._editButton.disabled = true;
-			BX.addClass(this._editButton, 'ui-btn-disabled');
+			var buttonsToDisable = [this._editButton];
+
+			var _this = this;
+			Object.keys(this._customButtons).forEach(function (button) {
+				if (_this._buttonsOrder.EDIT.includes(button))
+				{
+					buttonsToDisable.push(_this._customButtons[button]);
+				}
+			});
+
+			buttonsToDisable.forEach(function (button) {
+				button.disabled = true;
+				BX.addClass(button, 'ui-btn-disabled');
+			});
+
 			BX.onCustomEvent(window, "onEntityEditorToolbarSaveButtonDisabled", [this]);
 		},
 		enableSaveButton: function()
@@ -102,8 +212,21 @@ if(typeof BX.UI.EntityEditorToolPanel === "undefined")
 				return;
 			}
 
-			this._editButton.disabled = false;
-			BX.removeClass(this._editButton, 'ui-btn-disabled');
+			var buttonsToEnable = [this._editButton];
+
+			var _this = this;
+			Object.keys(this._customButtons).forEach(function (button) {
+				if (_this._buttonsOrder.EDIT.includes(button))
+				{
+					buttonsToEnable.push(_this._customButtons[button]);
+				}
+			});
+
+			buttonsToEnable.forEach(function (button) {
+				button.disabled = false;
+				BX.removeClass(button, 'ui-btn-disabled');
+			});
+
 			BX.onCustomEvent(window, "onEntityEditorToolbarSaveButtonEnabled", [this]);
 		},
 		isSaveButtonEnabled: function()
@@ -132,6 +255,71 @@ if(typeof BX.UI.EntityEditorToolPanel === "undefined")
 			this._errorContainer = BX.create("DIV", { props: { className: "ui-entity-section-control-error-block" } });
 			this._errorContainer.style.maxHeight = "0";
 
+			var sectionControlChildren = [];
+
+			var editModeButtonsOrder = BX.prop.getArray(this._buttonsOrder, 'EDIT', []);
+			var viewModeButtonsOrder = BX.prop.getArray(this._buttonsOrder, 'VIEW', []);
+			if (editModeButtonsOrder.length > 0 || viewModeButtonsOrder.length > 0)
+			{
+				var editModeSectionControlChildren = [];
+				var viewModeSectionControlChildren = [];
+				for (var i = 0, length = editModeButtonsOrder.length; i < length; i++)
+				{
+					if (editModeButtonsOrder[i] === BX.UI.EntityEditorActionIds.defaultActionId)
+					{
+						editModeSectionControlChildren.push(this._editButton);
+					}
+					else if (editModeButtonsOrder[i] === BX.UI.EntityEditorActionIds.cancelActionId)
+					{
+						editModeSectionControlChildren.push(this._cancelButton);
+					}
+					else if (this._customButtons[editModeButtonsOrder[i]])
+					{
+						editModeSectionControlChildren.push(this._customButtons[editModeButtonsOrder[i]]);
+					}
+				}
+				for (var i = 0, length = viewModeButtonsOrder.length; i < length; i++)
+				{
+					if (viewModeButtonsOrder[i] === BX.UI.EntityEditorActionIds.defaultActionId)
+					{
+						viewModeSectionControlChildren.push(this._editButton);
+					}
+					else if (viewModeButtonsOrder[i] === BX.UI.EntityEditorActionIds.cancelActionId)
+					{
+						viewModeSectionControlChildren.push(this._cancelButton);
+					}
+					else if (this._customButtons[viewModeButtonsOrder[i]])
+					{
+						viewModeSectionControlChildren.push(this._customButtons[viewModeButtonsOrder[i]]);
+					}
+				}
+				this._editModeSectionControl = BX.create("DIV",
+					{
+						props: { className: "ui-entity-section ui-entity-section-control-edit-mode" },
+						children : editModeSectionControlChildren,
+					}
+				);
+				this._viewModeSectionControl = BX.create("DIV",
+					{
+						props: { className: "ui-entity-section ui-entity-section-control-view-mode" },
+						children : viewModeSectionControlChildren,
+					}
+				);
+				if (this._editor.getMode() === BX.UI.EntityEditorMode.edit)
+				{
+					this.showEditModeButtons();
+				}
+				else
+				{
+					this.showViewModeButtons();
+				}
+				sectionControlChildren = [ this._editModeSectionControl, this._viewModeSectionControl, this._errorContainer ];
+			}
+			else
+			{
+				sectionControlChildren = [ this._editButton, this._cancelButton, this._errorContainer ];
+			}
+
 			this._wrapper = BX.create("DIV",
 				{
 					props: { className: "ui-entity-wrap" },
@@ -140,7 +328,7 @@ if(typeof BX.UI.EntityEditorToolPanel === "undefined")
 							BX.create("DIV",
 								{
 									props: { className: "ui-entity-section ui-entity-section-control" },
-									children : [ this._editButton, this._cancelButton, this._errorContainer ]
+									children : sectionControlChildren
 								}
 							)
 						]
@@ -170,6 +358,25 @@ if(typeof BX.UI.EntityEditorToolPanel === "undefined")
 				BX.bind(document, "keydown", this._keyPressHandler);
 			}
 		},
+		createCustomButton: function(buttonProps)
+		{
+			var actionId = buttonProps.ACTION_ID;
+			var className = "ui-btn";
+			if (buttonProps.CLASS)
+			{
+				className += " " + buttonProps.CLASS;
+			}
+			return BX.create("button",
+				{
+					props: { className: className, id: "ui-entity-section-control-" + buttonProps.ID },
+					text: BX.util.htmlspecialchars(buttonProps.TEXT),
+					events: { click: BX.delegate(this.onCustomButtonClick, this) },
+					dataset: {
+						actionId: actionId,
+					}
+				}
+			);
+		},
 		getPosition: function()
 		{
 			return this._hasLayout ? BX.pos(this._wrapper) : null;
@@ -181,6 +388,14 @@ if(typeof BX.UI.EntityEditorToolPanel === "undefined")
 		if(!this._isLocked)
 		{
 			this._editor.saveChanged();
+		}
+	};
+	BX.UI.EntityEditorToolPanel.prototype.onCustomButtonClick = function(e)
+	{
+		this._clickedButton = e.target;
+		if(!this._isLocked)
+		{
+			this._editor.performAction(this._clickedButton.dataset.actionId);
 		}
 	};
 	BX.UI.EntityEditorToolPanel.prototype.onCancelButtonClick = function(e)

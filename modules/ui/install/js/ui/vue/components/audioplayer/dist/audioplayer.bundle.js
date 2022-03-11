@@ -20,16 +20,16 @@
 	ui_vue.BitrixVue.component('bx-audioplayer', {
 	  props: {
 	    id: {
-	      default: 0
+	      "default": 0
 	    },
 	    src: {
-	      default: ''
+	      "default": ''
 	    },
 	    autoPlayNext: {
-	      default: true
+	      "default": true
 	    },
 	    background: {
-	      default: 'light'
+	      "default": 'light'
 	    }
 	  },
 	  data: function data() {

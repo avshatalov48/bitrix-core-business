@@ -4,7 +4,22 @@ namespace Bitrix\Conversion\Internals;
 
 use Bitrix\Main\Entity;
 
-/** @internal */
+/**
+ * @internal
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ContextEntityItem_Query query()
+ * @method static EO_ContextEntityItem_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ContextEntityItem_Result getById($id)
+ * @method static EO_ContextEntityItem_Result getList(array $parameters = array())
+ * @method static EO_ContextEntityItem_Entity getEntity()
+ * @method static \Bitrix\Conversion\Internals\EO_ContextEntityItem createObject($setDefaultValues = true)
+ * @method static \Bitrix\Conversion\Internals\EO_ContextEntityItem_Collection createCollection()
+ * @method static \Bitrix\Conversion\Internals\EO_ContextEntityItem wakeUpObject($row)
+ * @method static \Bitrix\Conversion\Internals\EO_ContextEntityItem_Collection wakeUpCollection($rows)
+ */
 class ContextEntityItemTable extends Entity\DataManager
 {
 	public static function getTableName()

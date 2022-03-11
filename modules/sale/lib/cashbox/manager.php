@@ -334,7 +334,10 @@ final class Manager
 
 		if (
 			is_subclass_of($data['HANDLER'], ICheckable::class)
-			|| is_subclass_of($data['HANDLER'], ICorrection::class)
+			|| (
+				is_subclass_of($data['HANDLER'], ICorrection::class)
+				&& $data['HANDLER']::isCorrectionOn()
+			)
 		)
 		{
 			static::addCheckStatusAgent();
@@ -504,7 +507,7 @@ final class Manager
 			$cashbox = Cashbox::create($item);
 			if (
 				$cashbox instanceof ICheckable
-				|| $cashbox instanceof ICorrection
+				|| $cashbox->isCorrection()
 			)
 			{
 				$availableCashboxList[$item['ID']] = $cashbox;

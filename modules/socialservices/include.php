@@ -1,7 +1,5 @@
 <?php
 
-global $DBType;
-
 define("SOCSERV_AUTHORISATION_ERROR", 1);
 define("SOCSERV_REGISTRATION_DENY", 2);
 define("SOCSERV_DEFAULT_HTTP_TIMEOUT", 10);
@@ -73,7 +71,14 @@ class CSocServEventHandlers
 
 		$title = "";
 
-		$arEventParams = unserialize($arFields["~PARAMS"] <> '' ? $arFields["~PARAMS"] : $arFields["PARAMS"]);
+		$arEventParams = unserialize($arFields["~PARAMS"] <> '' ? $arFields["~PARAMS"] : $arFields["PARAMS"], ['allowed_classes' => [
+			\Bitrix\Main\Type\DateTime::class,
+			\Bitrix\Main\Type\Date::class,
+			\Bitrix\Main\Web\Uri::class,
+			\DateTime::class,
+			\DateTimeZone::class,
+		]]);
+
 		if (
 			in_array($arFields["ENTITY_TYPE"], array(SONET_SUBSCRIBE_ENTITY_GROUP, SONET_SUBSCRIBE_ENTITY_USER))
 			&& is_array($arEventParams)
@@ -124,7 +129,14 @@ class CSocServEventHandlers
 			'LOGIN' => $arFields['~CREATED_BY_LOGIN'],
 		);
 		$arResult['CREATED_BY']['TOOLTIP_FIELDS'] = CSocNetLog::FormatEvent_FillTooltip($arFieldsTooltip, $arParams);
-		$twitInfo = unserialize($arFields['~PARAMS']);
+		$twitInfo = unserialize($arFields['~PARAMS'], ['allowed_classes' => [
+			\Bitrix\Main\Type\DateTime::class,
+			\Bitrix\Main\Type\Date::class,
+			\Bitrix\Main\Web\Uri::class,
+			\DateTime::class,
+			\DateTimeZone::class,
+		]]);
+
 		$arResult["EVENT_FORMATTED"] = array(
 			"TITLE" => $arFields["TITLE"],
 			"TITLE_24" => "",
@@ -195,7 +207,6 @@ class CSocServEventHandlers
 	public static function GetEntity_Data($arFields, $bMail)
 	{
 		$arEntity = array();
-		$arEventParams = unserialize($arFields["~PARAMS"] <> '' ? $arFields["~PARAMS"] : $arFields["PARAMS"]);
 
 		global $arProviders;
 

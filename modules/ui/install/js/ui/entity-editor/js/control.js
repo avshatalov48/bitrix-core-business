@@ -4552,6 +4552,17 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 				this.saveScheme();
 			}
 
+			if (!this.getEditor().canChangeCommonConfiguration())
+			{
+				if(showAlways !== null)
+				{
+					this._editor.setOption("show_always", showAlways ? "Y" : "N");
+				}
+				BX.delegate(this.onUserFieldUpdate, this);
+				this.removeFieldConfigurator();
+				return;
+			}
+
 			fieldData["FIELD"] = field.getName();
 			fieldData["ENTITY_VALUE_ID"] = field.getEntityValueId();
 
@@ -5501,7 +5512,6 @@ if(typeof BX.UI.EntityEditorText === "undefined")
 		if(this.isContextMenuEnabled())
 		{
 			this._wrapper.appendChild(this.createContextMenuButton());
-			// BX.addClass(this._wrapper, "sdsds");
 		}
 
 		if(this.isDragEnabled())

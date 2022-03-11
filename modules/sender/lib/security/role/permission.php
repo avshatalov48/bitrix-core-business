@@ -101,8 +101,8 @@ class Permission
 			$user = User::get($userId);
 			if ($user->isPortalAdmin() || $user->isAdmin())
 			{
-				$cache[$userId] = self::getAdminPermissions();
-				return $cache[$userId];
+				static::$cache[$userId] = self::getAdminPermissions();
+				return  static::$cache[$userId];
 			}
 			
 			//everybody else's permissions are defined by their role
@@ -111,8 +111,8 @@ class Permission
 			
 			if (!is_array($userAccessCodes) || count($userAccessCodes) === 0)
 			{
-				$cache[$userId] = [];
-				return $cache[$userId];
+				static::$cache[$userId] = [];
+				return static::$cache[$userId];
 			}
 			
 			$list = Model\Role\PermissionTable::getList(array(

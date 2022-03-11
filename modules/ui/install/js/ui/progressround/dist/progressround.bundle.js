@@ -30,6 +30,10 @@ this.BX = this.BX || {};
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6;
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
 	var _setCustomColors = /*#__PURE__*/new WeakSet();
@@ -39,7 +43,7 @@ this.BX = this.BX || {};
 	  function ProgressRound(options) {
 	    babelHelpers.classCallCheck(this, ProgressRound);
 
-	    _setCustomColors.add(this);
+	    _classPrivateMethodInitSpec(this, _setCustomColors);
 
 	    this.options = main_core.Type.isPlainObject(options) ? options : {};
 	    this.value = main_core.Type.isNumber(this.options.value) ? this.options.value : 0;

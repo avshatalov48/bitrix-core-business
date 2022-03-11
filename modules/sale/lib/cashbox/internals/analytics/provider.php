@@ -58,6 +58,9 @@ final class Provider extends Analytics\Provider
 			\Bitrix\Sale\Cashbox\CashboxOrangeData::class,
 			\Bitrix\Sale\Cashbox\CashboxCheckbox::class,
 			\Bitrix\Sale\Cashbox\CashboxBusinessRu::class,
+			\Bitrix\Sale\Cashbox\CashboxAtolFarmV5::class,
+			\Bitrix\Sale\Cashbox\CashboxBusinessRuV5::class,
+			\Bitrix\Sale\Cashbox\CashboxOrangeDataFfd12::class,
 		];
 	}
 

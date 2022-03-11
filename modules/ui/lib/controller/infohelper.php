@@ -88,4 +88,9 @@ class InfoHelper extends Engine\Controller
 
 		return $result;
 	}
+
+	public function showLimitSliderAction(): bool
+	{
+		return true;
+	}
 }

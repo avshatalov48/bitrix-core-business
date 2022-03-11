@@ -141,7 +141,7 @@ class Rest extends Sender\Base
 
 		$auth = $messageFields['AUTHOR_ID'] > 0 ? array(
 			'CODE' => $restSender['CODE'],
-			\Bitrix\Rest\Event\Session::PARAM_SESSION => $session,
+			\Bitrix\Rest\Event\Session::PARAM_SESSION => \Bitrix\Rest\Event\Session::get(),
 			\Bitrix\Rest\OAuth\Auth::PARAM_LOCAL_USER => $messageFields['AUTHOR_ID'],
 			"application_token" => \CRestUtil::getApplicationToken($application),
 		) : array();

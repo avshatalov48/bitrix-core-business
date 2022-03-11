@@ -169,9 +169,8 @@ class CAllSiteMap extends CDBResult
 				}
 				else
 				{
-					fwrite($f, $strToWrite);
 					$NS["CNT"]++;
-					$NS["FILE_SIZE"] += mb_strlen($strToWrite);
+					$NS["FILE_SIZE"] += fwrite($f, $strToWrite);
 					$NS["FILE_URL_CNT"]++;
 				}
 				//Next File on file size or url count limit
@@ -258,7 +257,13 @@ class CAllSiteMap extends CDBResult
 			if (mb_substr($r["URL"], 0, 1) == "=")
 			{
 				foreach ($this->m_events as $arEvent)
-					$r["URL"] = ExecuteModuleEventEx($arEvent, array($r));
+				{
+					$newUrl = ExecuteModuleEventEx($arEvent, array($r));
+					if (isset($newUrl))
+					{
+						$r["URL"] = $newUrl;
+					}
+				}
 			}
 			$r["URL"] = str_replace(
 				array("#LANG#", "#SITE_DIR#", "#SERVER_NAME#"),

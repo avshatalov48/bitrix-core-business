@@ -143,7 +143,11 @@ class SenderConnectorResultListComponent extends Bitrix\Sender\Internals\CommonS
 
 			$result = !$segmentBuilder
 				? $connector->getResult()
-				: new Connector\Result($segmentBuilder->getData($nav))
+				: new Connector\Result(
+					$segmentBuilder
+						->setDataFilter($this->getDataFilter())
+						->getData($nav)
+				)
 			;
 
 			$result->setDataTypeId($connector->getDataTypeId());

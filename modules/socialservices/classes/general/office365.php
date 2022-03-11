@@ -308,7 +308,7 @@ class COffice365OAuthInterface extends CSocServOAuthTransport
 	const REDIRECT_URI = "/bitrix/tools/oauth/office365.php";
 
 	protected $resource = "https://graph.microsoft.com";
-	protected $scope = "User.Read";
+	protected $scope = ["User.Read"];
 
 	public function __construct($appID = false, $appSecret = false, $code=false)
 	{
@@ -331,8 +331,15 @@ class COffice365OAuthInterface extends CSocServOAuthTransport
 		"?client_id=".urlencode($this->appID).
 		"&redirect_uri=".urlencode($redirect_uri).
 		"&response_type=code".
-		"&scope=".urlencode($this->scope).
+		"&scope=".$this->getScopeEncode().
 		($state <> ''? '&state='.urlencode($state):'');
+	}
+
+	public function getScopeEncode(): string
+	{
+		$scopesAsString = implode(' ', array_unique($this->getScope()));
+
+		return rawurlencode($scopesAsString);
 	}
 
 	public function GetAccessToken($redirect_uri = false)
@@ -381,14 +388,16 @@ class COffice365OAuthInterface extends CSocServOAuthTransport
 
 		$httpClient = new \Bitrix\Main\Web\HttpClient();
 
-		$result = $httpClient->post(static::TOKEN_URL, array(
-			"code"=>$this->code,
-			"client_id"=>$this->appID,
-			"client_secret"=>$this->appSecret,
-			"redirect_uri"=>$redirect_uri,
-			"grant_type"=>"authorization_code",
-			"scope" => $this->scope,
-		));
+		$requestData = http_build_query([
+			"code" => $this->code,
+			"client_id" => $this->appID,
+			"client_secret" => $this->appSecret,
+			"redirect_uri" => $redirect_uri,
+			"grant_type" => "authorization_code",
+			"scope" => implode(' ', array_unique($this->getScope())),
+		], '', '&', PHP_QUERY_RFC3986);
+
+		$result = $httpClient->post(static::TOKEN_URL, $requestData);
 
 		$arResult = \Bitrix\Main\Web\Json::decode($result);
 

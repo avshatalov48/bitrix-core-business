@@ -81,7 +81,7 @@
   }
 
   var castQueryParamValue = function castQueryParamValue(value) {
-    return value == null || babelHelpers.typeof(value) === 'object' ? value : String(value);
+    return value == null || babelHelpers["typeof"](value) === 'object' ? value : String(value);
   };
 
   function parseQuery(query) {
@@ -176,7 +176,7 @@
   function clone(value) {
     if (Array.isArray(value)) {
       return value.map(clone);
-    } else if (value && babelHelpers.typeof(value) === 'object') {
+    } else if (value && babelHelpers["typeof"](value) === 'object') {
       var res = {};
 
       for (var key in value) {
@@ -249,7 +249,7 @@
 
       if (aVal == null || bVal == null) return aVal === bVal; // check nested equality
 
-      if (babelHelpers.typeof(aVal) === 'object' && babelHelpers.typeof(bVal) === 'object') {
+      if (babelHelpers["typeof"](aVal) === 'object' && babelHelpers["typeof"](bVal) === 'object') {
         return isObjectEqual(aVal, bVal);
       }
 
@@ -294,7 +294,7 @@
     props: {
       name: {
         type: String,
-        default: 'default'
+        "default": 'default'
       }
     },
     render: function render(_, _ref2) {
@@ -425,7 +425,7 @@
   }
 
   function resolveProps(route, config) {
-    switch (babelHelpers.typeof(config)) {
+    switch (babelHelpers["typeof"](config)) {
       case 'undefined':
         return;
 
@@ -440,7 +440,7 @@
 
       default:
         {
-          warn(false, "props in \"".concat(route.path, "\" is a ").concat(babelHelpers.typeof(config), ", ") + "expecting an object, function or boolean.");
+          warn(false, "props in \"".concat(route.path, "\" is a ").concat(babelHelpers["typeof"](config), ", ") + "expecting an object, function or boolean.");
         }
     }
   }
@@ -661,7 +661,7 @@
     var matches = new Array(tokens.length); // Compile all the patterns before compilation.
 
     for (var i = 0; i < tokens.length; i++) {
-      if (babelHelpers.typeof(tokens[i]) === 'object') {
+      if (babelHelpers["typeof"](tokens[i]) === 'object') {
         matches[i] = new RegExp('^(?:' + tokens[i].pattern + ')$', flags(options));
       }
     }
@@ -1004,7 +1004,7 @@
       next = extend({}, raw);
       var params = next.params;
 
-      if (params && babelHelpers.typeof(params) === 'object') {
+      if (params && babelHelpers["typeof"](params) === 'object') {
         next.params = extend({}, params);
       }
 
@@ -1069,7 +1069,7 @@
       },
       tag: {
         type: String,
-        default: 'a'
+        "default": 'a'
       },
       custom: Boolean,
       exact: Boolean,
@@ -1080,11 +1080,11 @@
       exactActiveClass: String,
       ariaCurrentValue: {
         type: String,
-        default: 'page'
+        "default": 'page'
       },
       event: {
         type: eventTypes,
-        default: 'click'
+        "default": 'click'
       }
     },
     render: function render(h) {
@@ -1134,9 +1134,9 @@
       }
 
       var data = {
-        class: classes
+        "class": classes
       };
-      var scopedSlot = !this.$scopedSlots.$hasNormal && this.$scopedSlots.default && this.$scopedSlots.default({
+      var scopedSlot = !this.$scopedSlots.$hasNormal && this.$scopedSlots["default"] && this.$scopedSlots["default"]({
         href: href,
         route: route,
         navigate: handler,
@@ -1180,7 +1180,7 @@
         };
       } else {
         // find the first <a> child and apply listener and href
-        var a = findAnchor(this.$slots.default);
+        var a = findAnchor(this.$slots["default"]);
 
         if (a) {
           // in case the <a> is a static node
@@ -1215,7 +1215,7 @@
         }
       }
 
-      return h(this.tag, data, this.$slots.default);
+      return h(this.tag, data, this.$slots["default"]);
     }
   };
 
@@ -1378,7 +1378,7 @@
       path: normalizedPath,
       regex: compileRouteRegex(normalizedPath, pathToRegexpOptions),
       components: route.components || {
-        default: route.component
+        "default": route.component
       },
       alias: route.alias ? typeof route.alias === 'string' ? [route.alias] : route.alias : [],
       instances: {},
@@ -1390,7 +1390,7 @@
       beforeEnter: route.beforeEnter,
       meta: route.meta || {},
       props: route.props == null ? {} : route.components ? route.props : {
-        default: route.props
+        "default": route.props
       }
     };
 
@@ -1478,7 +1478,7 @@
     }
 
     function addRoute(parentOrRoute, route) {
-      var parent = babelHelpers.typeof(parentOrRoute) !== 'object' ? nameMap[parentOrRoute] : undefined; // $flow-disable-line
+      var parent = babelHelpers["typeof"](parentOrRoute) !== 'object' ? nameMap[parentOrRoute] : undefined; // $flow-disable-line
 
       createRouteMap([route || parentOrRoute], pathList, pathMap, nameMap, parent); // add aliases of parent
 
@@ -1515,11 +1515,11 @@
           return key.name;
         });
 
-        if (babelHelpers.typeof(location.params) !== 'object') {
+        if (babelHelpers["typeof"](location.params) !== 'object') {
           location.params = {};
         }
 
-        if (currentRoute && babelHelpers.typeof(currentRoute.params) === 'object') {
+        if (currentRoute && babelHelpers["typeof"](currentRoute.params) === 'object') {
           for (var key in currentRoute.params) {
             if (!(key in location.params) && paramNames.indexOf(key) > -1) {
               location.params[key] = currentRoute.params[key];
@@ -1556,7 +1556,7 @@
         };
       }
 
-      if (!redirect || babelHelpers.typeof(redirect) !== 'object') {
+      if (!redirect || babelHelpers["typeof"](redirect) !== 'object') {
         {
           warn(false, "invalid redirect option: ".concat(JSON.stringify(redirect)));
         }
@@ -1740,7 +1740,7 @@
       if (typeof shouldScroll.then === 'function') {
         shouldScroll.then(function (shouldScroll) {
           scrollToPosition(shouldScroll, position);
-        }).catch(function (err) {
+        })["catch"](function (err) {
           {
             assert(false, err.toString());
           }
@@ -1813,7 +1813,7 @@
   var hashStartsWithNumberRE = /^#\d/;
 
   function scrollToPosition(shouldScroll, position) {
-    var isObject = babelHelpers.typeof(shouldScroll) === 'object';
+    var isObject = babelHelpers["typeof"](shouldScroll) === 'object';
 
     if (isObject && typeof shouldScroll.selector === 'string') {
       // getElementById would still fail if the selector contains a more complicated query like #main[data-attr]
@@ -1823,7 +1823,7 @@
       : document.querySelector(shouldScroll.selector);
 
       if (el) {
-        var offset = shouldScroll.offset && babelHelpers.typeof(shouldScroll.offset) === 'object' ? shouldScroll.offset : {};
+        var offset = shouldScroll.offset && babelHelpers["typeof"](shouldScroll.offset) === 'object' ? shouldScroll.offset : {};
         offset = normalizeOffset(offset);
         position = getElementPosition(el, offset);
       } else if (isValidPosition(shouldScroll)) {
@@ -1980,7 +1980,7 @@
           pending++;
           var resolve = once(function (resolvedDef) {
             if (isESModule(resolvedDef)) {
-              resolvedDef = resolvedDef.default;
+              resolvedDef = resolvedDef["default"];
             } // save resolved on async factory in case it's used elsewhere
 
 
@@ -2039,7 +2039,7 @@
     return Array.prototype.concat.apply([], arr);
   }
 
-  var hasSymbol = typeof Symbol === 'function' && babelHelpers.typeof(Symbol.toStringTag) === 'symbol';
+  var hasSymbol = typeof Symbol === 'function' && babelHelpers["typeof"](Symbol.toStringTag) === 'symbol';
 
   function isESModule(obj) {
     return obj.__esModule || hasSymbol && obj[Symbol.toStringTag] === 'Module';
@@ -2226,11 +2226,11 @@
                 _this3.ensureURL(true);
 
                 abort(to);
-              } else if (typeof to === 'string' || babelHelpers.typeof(to) === 'object' && (typeof to.path === 'string' || typeof to.name === 'string')) {
+              } else if (typeof to === 'string' || babelHelpers["typeof"](to) === 'object' && (typeof to.path === 'string' || typeof to.name === 'string')) {
                 // next('/') or next({ path: '/' }) -> redirect
                 abort(createNavigationRedirectedError(current, route));
 
-                if (babelHelpers.typeof(to) === 'object' && to.replace) {
+                if (babelHelpers["typeof"](to) === 'object' && to.replace) {
                   _this3.replace(to);
                 } else {
                   _this3.push(to);

@@ -208,7 +208,11 @@ export default class Manager extends EventEmitter
 			{
 				exchangeSections.push(section.data);
 			}
-			else if (section.data['GAPI_CALENDAR_ID'] && section.data['CAL_DAV_CON'])
+			else if (
+				section.data['GAPI_CALENDAR_ID']
+				&& section.data['CAL_DAV_CON']
+				&& section.data['EXTERNAL_TYPE'] !== 'local'
+			)
 			{
 				googleSections.push(section.data);
 			}

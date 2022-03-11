@@ -126,33 +126,33 @@ this.BX.UI.Vue = this.BX.UI.Vue || {};
 	  props: {
 	    show: {
 	      type: Boolean,
-	      default: true
+	      "default": true
 	    },
 	    value: {
 	      type: String,
-	      default: ''
+	      "default": ''
 	    },
 	    format: {
 	      type: String,
-	      default: 'MM/DD/YYYY'
+	      "default": 'MM/DD/YYYY'
 	    },
 	    displayFormat: {
 	      type: String
 	    },
 	    editable: {
 	      type: Boolean,
-	      default: true
+	      "default": true
 	    },
 	    hasInputElement: {
 	      type: Boolean,
-	      default: true
+	      "default": true
 	    },
 	    inputAttributes: {
 	      type: Object
 	    },
 	    selectableYearRange: {
 	      type: Number,
-	      default: 40
+	      "default": 40
 	    },
 	    parseDate: {
 	      type: Function
@@ -162,57 +162,57 @@ this.BX.UI.Vue = this.BX.UI.Vue || {};
 	    },
 	    pickTime: {
 	      type: Boolean,
-	      default: false
+	      "default": false
 	    },
 	    pickMinutes: {
 	      type: Boolean,
-	      default: true
+	      "default": true
 	    },
 	    pickSeconds: {
 	      type: Boolean,
-	      default: false
+	      "default": false
 	    },
 	    isDateDisabled: {
 	      type: Function,
-	      default: function _default() {
+	      "default": function _default() {
 	        return false;
 	      }
 	    },
 	    nextMonthCaption: {
 	      type: String,
-	      default: 'Next month'
+	      "default": 'Next month'
 	    },
 	    prevMonthCaption: {
 	      type: String,
-	      default: 'Previous month'
+	      "default": 'Previous month'
 	    },
 	    setTimeCaption: {
 	      type: String,
-	      default: 'Set time:'
+	      "default": 'Set time:'
 	    },
 	    closeButtonCaption: {
 	      type: String,
-	      default: 'Close'
+	      "default": 'Close'
 	    },
 	    mobileBreakpointWidth: {
 	      type: Number,
-	      default: 530
+	      "default": 530
 	    },
 	    weekdays: {
 	      type: Array,
-	      default: function _default() {
+	      "default": function _default() {
 	        return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 	      }
 	    },
 	    months: {
 	      type: Array,
-	      default: function _default() {
+	      "default": function _default() {
 	        return ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 	      }
 	    },
 	    startWeekOnSunday: {
 	      type: Boolean,
-	      default: false
+	      "default": false
 	    }
 	  },
 	  data: function data() {
@@ -592,6 +592,9 @@ this.BX.UI.Vue = this.BX.UI.Vue || {};
 	  return date1.getDate() === date2.getDate() && date1.getMonth() === date2.getMonth() && date1.getFullYear() === date2.getFullYear();
 	}
 
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	ui_vue.Vue.component('bx-date-pick', {
 	  props: ["value", "hasTime", "sundayFirstly", "format"],
 	  components: {
@@ -648,7 +651,7 @@ this.BX.UI.Vue = this.BX.UI.Vue || {};
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, DatePick);
 
-	    _vue.set(this, {
+	    _classPrivateFieldInitSpec(this, _vue, {
 	      writable: true,
 	      value: void 0
 	    });

@@ -94,7 +94,12 @@ class CSocServGoogleOAuth extends CSocServAuth
 			$redirect_uri = static::getControllerUrl()."/redirect.php";
 			$state = $this->getEntityOAuth()->getRedirectUri()."?check_key=".$_SESSION["UNIQUE_KEY"]."&state=";
 			$backurl = $GLOBALS["APPLICATION"]->GetCurPageParam('', array("logout", "auth_service_error", "auth_service_id", "backurl"));
-			$state .= urlencode('provider='.static::ID. "&state=".urlencode("backurl=".urlencode($backurl).'&mode='.$location.(isset($arParams['BACKURL']) ? '&redirect_url='.urlencode($arParams['BACKURL']) : '')));
+			$state .= urlencode('provider='.static::ID.
+				"&state=".urlencode("backurl=".urlencode($backurl)
+					.'&mode='.$location.(isset($arParams['BACKURL'])
+						? '&redirect_url='.urlencode($arParams['BACKURL'])
+						: '')
+			));
 		}
 		else
 		{
@@ -102,7 +107,7 @@ class CSocServGoogleOAuth extends CSocServAuth
 			$redirect_uri = $this->getEntityOAuth()->getRedirectUri();
 		}
 
-		return $this->entityOAuth->GetAuthUrl($redirect_uri, $state);
+		return $this->entityOAuth->GetAuthUrl($redirect_uri, $state, $arParams['APIKEY']);
 	}
 
 	public function getStorageToken()
@@ -485,7 +490,7 @@ class CGoogleOAuthInterface extends CSocServOAuthTransport
 			: '';
 	}
 
-	public function GetAuthUrl($redirect_uri, $state = '')
+	public function GetAuthUrl($redirect_uri, $state = '', $apiKey = '')
 	{
 		return static::AUTH_URL.
 			"?client_id=".urlencode($this->appID).
@@ -494,7 +499,9 @@ class CGoogleOAuthInterface extends CSocServOAuthTransport
 			"&response_type=code".
 			"&access_type=offline".
 			($this->refresh_token <> '' ? '' : '&approval_prompt=force').
-			($state <> '' ? '&state='.urlencode($state) : '');
+			($state <> '' ? '&state='.urlencode($state) : '').
+			($apiKey !== '' ? '&key=' . urlencode($apiKey) : '')
+		;
 	}
 
 	public function GetAccessToken($redirect_uri = false)

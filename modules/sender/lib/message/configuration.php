@@ -403,7 +403,7 @@ class Configuration
 	 */
 	protected function checkRequiredOptions(Result $result = null)
 	{
-		if (!$result)
+		if (is_null($result))
 		{
 			$result = new Result;
 		}

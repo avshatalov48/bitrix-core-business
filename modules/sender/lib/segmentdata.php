@@ -112,6 +112,10 @@ class SegmentDataTable extends DataManager
 				'data_type' => 'string',
 				'required' => false,
 			),
+			'SENDER_TYPE_ID' => array(
+				'data_type' => 'integer',
+				'required' => false,
+			),
 			'GROUP' => array(
 				'data_type' => 'Bitrix\Sender\GroupTable',
 				'reference' => array('=this.GROUP_ID' => 'ref.ID'),

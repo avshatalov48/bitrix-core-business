@@ -1,8 +1,11 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
-class CBPCreateListsDocumentActivity
-	extends CBPActivity
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+class CBPCreateListsDocumentActivity extends CBPActivity
 {
 	public function __construct($name)
 	{
@@ -45,8 +48,33 @@ class CBPCreateListsDocumentActivity
 				}
 		}
 
+		$documentId = $this->GetDocumentId();
 		$documentService = $this->workflow->GetService("DocumentService");
-		$this->ElementId = $documentService->CreateDocument($documentType, $fields);
+		$documentFields = $documentService->GetDocumentFields($documentType);
+		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
+
+		$resultFields = [];
+		foreach ($fields as $key => $field)
+		{
+			if (!isset($documentFields[$key]) && isset($documentFieldsAliasesMap[$key]))
+			{
+				$key = $documentFieldsAliasesMap[$key];
+			}
+
+			if (($property = $documentFields[$key]) && $field)
+			{
+				$fieldTypeObject = $documentService->getFieldTypeObject($documentType, $property);
+				if ($fieldTypeObject)
+				{
+					$fieldTypeObject->setDocumentId($documentId);
+					$field = $fieldTypeObject->externalizeValue('Document', $field);
+				}
+			}
+
+			$resultFields[$key] = $field;
+		}
+
+		$this->ElementId = $documentService->CreateDocument($documentType, $resultFields);
 
 		return CBPActivityExecutionStatus::Closed;
 	}

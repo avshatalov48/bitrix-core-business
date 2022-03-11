@@ -90,7 +90,7 @@ this.BX = this.BX || {};
 	          if (exports && exports[_this.extensionName]) {
 	            var calendarForm = new exports[_this.extensionName](_this.extensionParams);
 
-	            if (babelHelpers.typeof(calendarForm.initInSlider)) {
+	            if (babelHelpers["typeof"](calendarForm.initInSlider)) {
 	              calendarForm.initInSlider(slider, resolve);
 	            }
 	          } else {

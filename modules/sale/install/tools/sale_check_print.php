@@ -54,14 +54,19 @@ if ($json)
 
 if (isset($data['kkm']) && count($data['kkm']) > 0)
 {
-	if (isset($data['api_version']) && (string)$data['api_version'] == '2')
+	if (isset($data['api_version']) && (string)$data['api_version'] === '3')
+	{
+		/** @var Cashbox\CashboxBitrixV3 $cashboxHandler */
+		$cashboxHandler = Cashbox\CashboxBitrixV3::class;
+	}
+	elseif (isset($data['api_version']) && (string)$data['api_version'] === '2')
 	{
 		/** @var Cashbox\CashboxBitrix $cashboxHandler */
 		$cashboxHandler = Cashbox\CashboxBitrixV2::class;
 	}
 	else
 	{
-		/** @var Cashbox\CashboxBitrixV2 $cashboxHandler */
+		/** @var Cashbox\CashboxBitrix $cashboxHandler */
 		$cashboxHandler = Cashbox\CashboxBitrix::class;
 	}
 

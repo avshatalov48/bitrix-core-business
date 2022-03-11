@@ -167,15 +167,6 @@ CJSCore::Init(array('amcharts', 'amcharts_serial'));
 
 function conversion_renderRate(array $rate, array $rateType)
 {
-	if (isset($rateType['UNITS']['SUM']))
-	{
-		$sanitizer = new \CBXSanitizer();
-		$sanitizer->delAllTags();
-		$sanitizer->addTags(array(array()));
-
-		$rateType['UNITS']['SUM'] = $sanitizer->sanitizeHtml($rateType['UNITS']['SUM']);
-	}
-
 	?>
 	<div class="stat-item">
 		<span class="stat-item-subtitle"><?=$rateType['NAME']?></span>

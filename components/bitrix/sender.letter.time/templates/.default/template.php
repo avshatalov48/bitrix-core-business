@@ -40,12 +40,6 @@ $enablePhoneVerification =
 ?>
 <div id="<?= htmlspecialcharsbx($containerId) ?>" class="sender-letter-time">
 	<script type="text/javascript">
-		<?php if ($enablePhoneVerification): ?>
-		BX.Bitrix24.PhoneVerify
-			.setVerified(false)
-			.setMandatory(false);
-		<?php endif; ?>
-
 		function BXPhoneVerifyOnSliderClose(result)
 		{
 			if (result)
@@ -61,6 +55,10 @@ $enablePhoneVerification =
 		BX.ready(function ()
 		{
 			<?php if ($enablePhoneVerification): ?>
+			BX.Bitrix24.PhoneVerify
+				.setVerified(false)
+				.setMandatory(false);
+
 			BX.Bitrix24.PhoneVerify.showSlider(); // open slider on page load, also triggered on save btn
 			<?php endif; ?>
 

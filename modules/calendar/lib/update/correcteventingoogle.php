@@ -29,7 +29,7 @@ class CorrectEventInGoogle extends Stepper
 	 */
 	public function execute(array &$result): bool
 	{
-		if (!Loader::includeModule("calendar"))
+		if (!Loader::includeModule("calendar") || !Loader::includeModule("dav"))
 		{
 			return self::FINISH_EXECUTION;
 		}

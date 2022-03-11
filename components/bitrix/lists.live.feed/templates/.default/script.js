@@ -13,7 +13,7 @@ BX.Lists.LiveFeedClass = (function ()
 			_this.init(iblock);
 		});
 
-		if(this.listData)
+		if (this.listData)
 		{
 			var iblock = [
 				this.listData.ID,
@@ -22,7 +22,14 @@ BX.Lists.LiveFeedClass = (function ()
 				this.listData.PICTURE,
 				this.listData.CODE
 			];
-			window.SBPETabs.changePostFormTab('lists', iblock);
+
+			BX.addCustomEvent('BX.Socialnetwork.Livefeed.Post.Form.Tabs:onInitialized', function(event) {
+				var tabsInstance = event.getData().tabsInstance;
+				if (tabsInstance)
+				{
+					tabsInstance.changePostFormTab('lists', iblock);
+				}
+			});
 		}
 	};
 
@@ -407,7 +414,7 @@ BX.Lists.LiveFeedClass = (function ()
 						title: BX.message("LISTS_SELECT_STAFF_SET_RIGHT"),
 						draggable: true,
 						overlay: false,
-						autoHide: true,
+						autoHide: false,
 						contentStyle: {
 							width: '600px',
 							paddingTop: '10px',

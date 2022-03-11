@@ -1487,8 +1487,7 @@ export default class ItemNode
 	{
 		if (this.constructor.#isEllipsisActive(this.getTitleContainer()))
 		{
-			Dom.attr(
-				this.getContainer(),
+			this.getContainer().setAttribute(
 				'title',
 				this.constructor.#sanitizeTitle(this.getTitleContainer().textContent)
 			);
@@ -1508,11 +1507,7 @@ export default class ItemNode
 		containers.forEach(container => {
 			if (this.constructor.#isEllipsisActive(container))
 			{
-				Dom.attr(
-					container,
-					'title',
-					this.constructor.#sanitizeTitle(container.textContent)
-				);
+				container.setAttribute('title', this.constructor.#sanitizeTitle(container.textContent));
 			}
 			else
 			{

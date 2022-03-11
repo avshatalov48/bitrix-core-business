@@ -194,6 +194,8 @@ if (!empty($htmlEditorConfigs))
 						context: <?=CUtil::PhpToJSObject($arResult['CONTEXT'])?>,
 						options: <?=CUtil::PhpToJSObject($arResult['EDITOR_OPTIONS'])?>,
 						ajaxData: <?=CUtil::PhpToJSObject($arResult['COMPONENT_AJAX_DATA'])?>,
+						customToolPanelButtons: <?=CUtil::PhpToJSObject($arResult['CUSTOM_TOOL_PANEL_BUTTONS'])?>,
+						toolPanelButtonsOrder: <?=CUtil::PhpToJSObject($arResult['TOOL_PANEL_BUTTONS_ORDER'])?>,
 						isEmbedded: <?=$arResult['IS_EMBEDDED'] ? 'true' : 'false'?>,
 					}
 				)

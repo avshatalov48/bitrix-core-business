@@ -1,20 +1,20 @@
 <?php
 
 /** var CMain $APPLICATION */
+
+use Bitrix\Calendar\Integration\Bitrix24Manager;
+use Bitrix\Calendar\Rooms;
 use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\Sync\GoogleApiPush;
+use Bitrix\Calendar\Sync\GoogleApiSync;
+use Bitrix\Calendar\Ui\CountersManager;
+use Bitrix\Calendar\UserSettings;
 use Bitrix\Calendar\Util;
 use Bitrix\Main;
 use Bitrix\Main\DI\ServiceLocator;
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Calendar\PushTable;
-use Bitrix\Calendar\Sync\GoogleApiSync;
 use Bitrix\Main\Loader;
-use Bitrix\Calendar\UserSettings;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type;
-use Bitrix\Calendar\Integration\Bitrix24Manager;
-use Bitrix\Calendar\Ui\CountersManager;
-use Bitrix\Calendar\Rooms;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -439,6 +439,7 @@ class CCalendar
 			$sectionList = self::getSectionList([
 				'CAL_TYPE' => self::$type,
 				'OWNER_ID' => self::$ownerId,
+				'ACTIVE' => 'Y',
 				'ADDITIONAL_IDS' => $followedSectionList,
 				'checkPermissions' => true,
 				'getPermissions' => true,
@@ -4890,8 +4891,12 @@ class CCalendar
 	{
 		if (!isset(self::$isGoogleApiEnabled))
 		{
-			self::$isGoogleApiEnabled = \Bitrix\Main\ModuleManager::isModuleInstalled('socialservices') &&
-				(is_null(\Bitrix\Main\Config\Configuration::getValue("calendar_integration")) || \Bitrix\Main\Config\Configuration::getValue("calendar_integration") === self::INTEGRATION_GOOGLE_API);
+			self::$isGoogleApiEnabled = \Bitrix\Main\ModuleManager::isModuleInstalled('dav')
+				&& \Bitrix\Main\ModuleManager::isModuleInstalled('socialservices')
+				&& (
+					is_null(\Bitrix\Main\Config\Configuration::getValue("calendar_integration"))
+					|| \Bitrix\Main\Config\Configuration::getValue("calendar_integration") === self::INTEGRATION_GOOGLE_API
+				);
 
 			if (self::$isGoogleApiEnabled
 				&& !self::IsBitrix24()

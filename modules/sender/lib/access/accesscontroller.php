@@ -60,6 +60,11 @@ class AccessController extends BaseAccessController
 		return $isAccess;
 	}
 
+	public function isAdmin()
+	{
+		return $this->user->isAdmin();
+	}
+
 	protected function getRuleName(string $actionCode): ?string
 	{
 		$actionName = ActionDictionary::getActionName($actionCode);

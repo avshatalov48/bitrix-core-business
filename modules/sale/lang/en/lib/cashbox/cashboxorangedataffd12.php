@@ -1,0 +1,2 @@
+<?php
+$MESS["SALE_CASHBOX_ORANGE_DATA_TITLE_FFD_12"] = "Orange Data (FFD 1.2)";

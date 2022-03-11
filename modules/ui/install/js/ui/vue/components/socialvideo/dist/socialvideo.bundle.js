@@ -20,28 +20,28 @@
 	ui_vue.BitrixVue.component('bx-socialvideo', {
 	  props: {
 	    id: {
-	      default: 0
+	      "default": 0
 	    },
 	    src: {
-	      default: ''
+	      "default": ''
 	    },
 	    preview: {
-	      default: ''
+	      "default": ''
 	    },
 	    autoplay: {
-	      default: true
+	      "default": true
 	    },
 	    containerClass: {
-	      default: null
+	      "default": null
 	    },
 	    containerStyle: {
-	      default: null
+	      "default": null
 	    },
 	    elementStyle: {
-	      default: null
+	      "default": null
 	    },
 	    showControls: {
-	      default: true
+	      "default": true
 	    }
 	  },
 	  data: function data() {

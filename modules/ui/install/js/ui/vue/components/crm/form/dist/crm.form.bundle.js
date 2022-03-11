@@ -5,6 +5,9 @@ this.BX.Ui.Vue.Components = this.BX.Ui.Vue.Components || {};
 (function (exports,ui_vue) {
     'use strict';
 
+    function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+    function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
     var loadAppPromise = null;
     ui_vue.Vue.component('bx-crm-form', {
       props: {
@@ -19,19 +22,19 @@ this.BX.Ui.Vue.Components = this.BX.Ui.Vue.Components || {};
         lang: {
           type: String,
           required: true,
-          default: 'en'
+          "default": 'en'
         },
         address: {
           type: String,
           required: true,
-          default: function _default() {
+          "default": function _default() {
             return window.location.origin;
           }
         },
         design: {
           type: Object,
           required: false,
-          default: function _default() {
+          "default": function _default() {
             return {
               compact: true
             };
@@ -57,7 +60,7 @@ this.BX.Ui.Vue.Components = this.BX.Ui.Vue.Components || {};
           _this.isLoading = false;
           _this.message = '';
           _this.obj.config.data.node = _this.$el;
-          _this.obj.config.data.design = babelHelpers.objectSpread({}, _this.obj.config.data.design, _this.design);
+          _this.obj.config.data.design = _objectSpread(_objectSpread({}, _this.obj.config.data.design), _this.design);
           _this.obj.instance = window.b24form.App.createForm24(_this.obj.config, _this.obj.config.data);
 
           _this.obj.instance.subscribeAll(function (data, instance, type) {
@@ -117,10 +120,10 @@ this.BX.Ui.Vue.Components = this.BX.Ui.Vue.Components || {};
             });
           }
 
-          loadAppPromise.then(loadForm).catch(function (e) {
+          loadAppPromise.then(loadForm)["catch"](function (e) {
             _this.message = 'App load failed:' + e;
           });
-        }).catch(function (error) {
+        })["catch"](function (error) {
           _this.isLoading = false;
           _this.message = error;
         });

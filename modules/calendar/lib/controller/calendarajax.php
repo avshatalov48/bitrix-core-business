@@ -195,6 +195,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 						[
 							'CAL_TYPE' => $type,
 							'OWNER_ID' => $ownerId,
+							'ACTIVE' => 'Y',
 							'ADDITIONAL_IDS' => UserSettings::getFollowedSectionIdList($userId),
 							'checkPermissions' => true,
 							'getPermissions' => true,
@@ -231,23 +232,53 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		{
 			\CCalendarSect::Edit([
 				'arFields' => [
-					"ID" => $id,
-					"ACTIVE" => "N"
-				]]);
+					'ID' => $id,
+					'ACTIVE' => 'N'
+				]
+            ]);
 
 			// Check if it's last section from connection - remove it
-			$sections = \CCalendarSect::GetList(
-				['arFilter' => [
+			$sections = \CCalendarSect::GetList([
+				'arFilter' => [
 					'CAL_DAV_CON' => $section['CAL_DAV_CON'],
 					'ACTIVE' => 'Y'
-				]]);
+				]
+			]);
 
-			if(!$sections || count($sections) === 0)
+			if (!$sections || count($sections) === 0)
 			{
 				\CCalendar::RemoveConnection(['id' => (int) $section['CAL_DAV_CON'], 'del_calendars' => 'Y']);
 			}
 		}
 
+		return $response;
+	}
+	
+	public function getAllSectionsForGoogleAction()
+	{
+		$type = 'user';
+		$ownerId = \CCalendar::GetUserId();
+		$response = [];
+		
+		$sections = \CCalendar::GetSectionList([
+		    'CAL_TYPE' => $type,
+		    'OWNER_ID' => $ownerId,
+		    'checkPermissions' => true,
+		    'getPermissions' => true,
+		    'getImages' => true
+		]);
+		foreach ($sections as $section)
+		{
+			if (
+				$section['GAPI_CALENDAR_ID']
+				&& $section['CAL_DAV_CON']
+				&& $section['EXTERNAL_TYPE'] !== 'local'
+			)
+			{
+				$response[] = $section;
+			}
+		}
+		
 		return $response;
 	}
 
@@ -1117,6 +1148,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		$sectionList = \CCalendar::getSectionList([
 			'CAL_TYPE' => $type,
 			'OWNER_ID' => $ownerId,
+			'ACTIVE' => 'Y',
 			'ADDITIONAL_IDS' => UserSettings::getFollowedSectionIdList($userId),
 			'checkPermissions' => true,
 			'getPermissions' => true,

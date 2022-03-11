@@ -3,89 +3,77 @@
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
+use Bitrix\Main\UserField\Types\EnumType;
+use Bitrix\Highloadblock\HighloadBlockTable;
 
-IncludeModuleLangFile(__FILE__);
-
-class CUserTypeHlblock extends CUserTypeEnum
+class CUserTypeHlblock extends EnumType
 {
-	const USER_TYPE_ID = "hlblock";
+	public const USER_TYPE_ID = 'hlblock';
 
-	const DISPLAY_LIST = 'LIST';
-	const DISPLAY_CHECKBOX = 'CHECKBOX';
+	public const DISPLAY_LIST = 'LIST';
+	public const DISPLAY_CHECKBOX = 'CHECKBOX';
 
-	public static function GetUserTypeDescription()
+	public static function getDescription(): array
 	{
-		return array(
-			"USER_TYPE_ID" => self::USER_TYPE_ID,
-			"CLASS_NAME" => "CUserTypeHlblock",
-			"DESCRIPTION" => GetMessage('USER_TYPE_HLEL_DESCRIPTION'),
-			"BASE_TYPE" => "int",
-		);
+		return [
+			'DESCRIPTION' => Loc::getMessage('USER_TYPE_HLEL_DESCRIPTION'),
+			'BASE_TYPE' => CUserTypeManager::BASE_TYPE_INT,
+		];
 	}
 
-	public static function GetDBColumnType($arUserField)
+	public static function getDBColumnType(): string
 	{
-		global $DB;
-		switch($DB->type)
-		{
-			case "MYSQL":
-				return "int(18)";
-			case "ORACLE":
-				return "number(18)";
-			case "MSSQL":
-				return "int";
-		}
-		return "int";
+		return 'int(18)';
 	}
 
-	function PrepareSettings($arUserField)
+	public static function prepareSettings(array $userField): array
 	{
 		$multiple = false;
-		if (isset($arUserField['MULTIPLE']) && $arUserField['MULTIPLE'] === 'Y')
+		if (isset($userField['MULTIPLE']) && $userField['MULTIPLE'] === 'Y')
 		{
 			$multiple = true;
 		}
 
 		$settings = [];
-		if (!empty($arUserField['SETTINGS']) && is_array($arUserField['SETTINGS']))
+		if (!empty($userField['SETTINGS']) && is_array($userField['SETTINGS']))
 		{
-			$settings = $arUserField['SETTINGS'];
+			$settings = $userField['SETTINGS'];
 		}
 
 		return self::verifySettings($settings, $multiple);
 	}
 
-	function GetSettingsHTML($arUserField, $arHtmlControl, $bVarsFromForm)
+	public static function getSettingsHtml($userField, ?array $additionalParameters, $varsFromForm): string
 	{
 		$result = '';
 
-		if (empty($arUserField) || !is_array($arUserField))
+		if (empty($userField) || !is_array($userField))
 		{
-			$arUserField = null;
+			$userField = null;
 		}
-		if (empty($arHtmlControl) || !is_array($arHtmlControl))
+		if (empty($additionalParameters) || !is_array($additionalParameters))
 		{
-			$arHtmlControl = null;
+			$additionalParameters = null;
 		}
-		if ($arHtmlControl === null)
+		if ($additionalParameters === null)
 		{
 			return $result;
 		}
 
-		$name = $arHtmlControl['NAME'];
+		$name = $additionalParameters['NAME'];
 		$multiple = false;
-		if (isset($arUserField['MULTIPLE']) && $arUserField['MULTIPLE'] === 'Y')
+		if (isset($userField['MULTIPLE']) && $userField['MULTIPLE'] === 'Y')
 		{
 			$multiple = true;
 		}
 		$defaultSettings = self::getDefaultSettings($multiple);
-		if ($bVarsFromForm)
+		if ($varsFromForm)
 		{
-			$settings = self::getSettingsFromForm($arUserField, $arHtmlControl);
+			$settings = self::getSettingsFromForm($userField, $additionalParameters);
 		}
 		else
 		{
-			$settings = $arUserField["SETTINGS"] ?? $defaultSettings;
+			$settings = $userField["SETTINGS"] ?? $defaultSettings;
 		}
 		if (empty($settings) || !is_array($settings))
 		{
@@ -119,10 +107,10 @@ class CUserTypeHlblock extends CUserTypeEnum
 
 			$result .= '
 			<tr>
-				<td>'.GetMessage("USER_TYPE_HLEL_DEFAULT_VALUE").':</td>
+				<td>'.Loc::getMessage("USER_TYPE_HLEL_DEFAULT_VALUE").':</td>
 				<td>
 					<select name="' . htmlspecialcharsbx($name) . '[DEFAULT_VALUE]'.($multiple ? '[]' : '').'"' . ($multiple ? ' multiple' : '') . ' size="5">
-						<option value="">'.GetMessage("IBLOCK_VALUE_ANY").'</option>
+						<option value="">'.htmlspecialcharsbx(Loc::getMessage("IBLOCK_VALUE_ANY")).'</option>
 			';
 
 			$rows = static::getHlRows(['SETTINGS' => $settings]);
@@ -178,17 +166,17 @@ class CUserTypeHlblock extends CUserTypeEnum
 
 		$result .= '
 		<tr>
-			<td class="adm-detail-valign-top">'.GetMessage("USER_TYPE_ENUM_DISPLAY").':</td>
+			<td class="adm-detail-valign-top">'.Loc::getMessage("USER_TYPE_ENUM_DISPLAY").':</td>
 			<td>
-				<label><input type="radio" name="'.htmlspecialcharsbx($name).'[DISPLAY]" value="'.self::DISPLAY_LIST.'" '.(self::DISPLAY_LIST == $settings['DISPLAY'] ? 'checked="checked"' : '').'>'.GetMessage("USER_TYPE_HLEL_LIST").'</label><br>
-				<label><input type="radio" name="'.htmlspecialcharsbx($name).'[DISPLAY]" value="'.self::DISPLAY_CHECKBOX.'" '.(self::DISPLAY_CHECKBOX == $settings['DISPLAY'] ? 'checked="checked"': '').'>'.GetMessage("USER_TYPE_HLEL_CHECKBOX").'</label><br>
+				<label><input type="radio" name="'.htmlspecialcharsbx($name).'[DISPLAY]" value="'.self::DISPLAY_LIST.'" '.(self::DISPLAY_LIST == $settings['DISPLAY'] ? 'checked="checked"' : '').'>'.Loc::getMessage("USER_TYPE_HLEL_LIST").'</label><br>
+				<label><input type="radio" name="'.htmlspecialcharsbx($name).'[DISPLAY]" value="'.self::DISPLAY_CHECKBOX.'" '.(self::DISPLAY_CHECKBOX == $settings['DISPLAY'] ? 'checked="checked"': '').'>'.Loc::getMessage("USER_TYPE_HLEL_CHECKBOX").'</label><br>
 			</td>
 		</tr>
 		';
 
 		$result .= '
 		<tr>
-			<td>'.GetMessage("USER_TYPE_HLEL_LIST_HEIGHT").':</td>
+			<td>'.Loc::getMessage("USER_TYPE_HLEL_LIST_HEIGHT").':</td>
 			<td>
 				<input type="text" name="'.htmlspecialcharsbx($name).'[LIST_HEIGHT]" size="10" value="'.$settings['LIST_HEIGHT'].'">
 			</td>
@@ -268,7 +256,7 @@ class CUserTypeHlblock extends CUserTypeEnum
 		];
 	}
 
-	private function getSettingsFromForm(?array $userField, ?array $control): array
+	private static function getSettingsFromForm(?array $userField, ?array $control): array
 	{
 		$multiple = ($userField['MULTIPLE'] ?? 'N') === 'Y';
 		$result = self::getDefaultSettings($multiple);
@@ -298,7 +286,8 @@ class CUserTypeHlblock extends CUserTypeEnum
 			}
 			else
 			{
-				$result['DEFAULT_VALUE'] = is_string($GLOBALS[$name]['DEFAULT_VALUE']) && is_int($GLOBALS[$name]['DEFAULT_VALUE'])
+				$result['DEFAULT_VALUE'] =
+					is_string($GLOBALS[$name]['DEFAULT_VALUE'])
 					? $GLOBALS[$name]['DEFAULT_VALUE']
 					: ''
 				;
@@ -326,7 +315,7 @@ class CUserTypeHlblock extends CUserTypeEnum
 
 		// hlblock selector
 		$html = '<select name="' . $name . '[HLBLOCK_ID]" onchange="hlChangeFieldOnHlblockChanged(this)">';
-		$html .= '<option value="">'.htmlspecialcharsbx(GetMessage('USER_TYPE_HLEL_SEL_HLBLOCK')).'</option>';
+		$html .= '<option value="">'.htmlspecialcharsbx(Loc::getMessage('USER_TYPE_HLEL_SEL_HLBLOCK')).'</option>';
 
 		foreach ($list as $_hlblockId => $hlblockData)
 		{
@@ -340,7 +329,7 @@ class CUserTypeHlblock extends CUserTypeEnum
 
 		// field selector
 		$html .= '<select name="' . $name . '[HLFIELD_ID]" id="hl_ufsett_field_selector">';
-		$html .= '<option value="">'.htmlspecialcharsbx(GetMessage('USER_TYPE_HLEL_SEL_HLBLOCK_FIELD')).'</option>';
+		$html .= '<option value="">'.htmlspecialcharsbx(Loc::getMessage('USER_TYPE_HLEL_SEL_HLBLOCK_FIELD')).'</option>';
 
 		if ($select['HLBLOCK_ID'] > 0)
 		{
@@ -363,7 +352,7 @@ class CUserTypeHlblock extends CUserTypeEnum
 					for(var i=fieldSelect.length-1; i >= 0; i--)
 						fieldSelect.remove(i);
 
-					var newOption = new Option(\''.GetMessageJS('USER_TYPE_HLEL_SEL_HLBLOCK_FIELD').'\', "", false, false);
+					var newOption = new Option(\''.CUtil::JSEscape(Loc::getMessage('USER_TYPE_HLEL_SEL_HLBLOCK_FIELD')).'\', "", false, false);
 					fieldSelect.options.add(newOption);
 
 					if (list[hlSelect.value])
@@ -381,29 +370,27 @@ class CUserTypeHlblock extends CUserTypeEnum
 		return $html;
 	}
 
-	function CheckFields($arUserField, $value)
+	public static function checkFields(array $userField, $value): array
 	{
-		$aMsg = array();
-		return $aMsg;
+		return [];
 	}
 
-	public static function GetList($arUserField)
+	public static function GetList($userField)
 	{
 		$rs = false;
 
-		if(CModule::IncludeModule('highloadblock'))
+		if (Loader::includeModule('highloadblock'))
 		{
-			$rows = static::getHlRows($arUserField, true);
+			$rows = static::getHlRows($userField, true);
 
 			$rs = new CDBResult();
 			$rs->InitFromArray($rows);
-
 		}
 
 		return $rs;
 	}
 
-	function getEntityReferences($userfield, \Bitrix\Main\Entity\ScalarField $entityField)
+	public static function getEntityReferences($userfield, \Bitrix\Main\Entity\ScalarField $entityField): array
 	{
 		if ($userfield['SETTINGS']['HLBLOCK_ID'])
 		{
@@ -420,13 +407,13 @@ class CUserTypeHlblock extends CUserTypeEnum
 					$hlentity = \Bitrix\Highloadblock\HighloadBlockTable::compileEntity($hlblock);
 				}
 
-				return array(
+				return [
 					new \Bitrix\Main\Entity\ReferenceField(
 						$entityField->getName().'_REF',
 						$hlentity,
-						array('=this.'.$entityField->getName() => 'ref.ID')
+						['=this.'.$entityField->getName() => 'ref.ID']
 					)
-				);
+				];
 			}
 		}
 
@@ -439,8 +426,12 @@ class CUserTypeHlblock extends CUserTypeEnum
 
 		$rows = array();
 
-		$hlblock_id = $userfield['SETTINGS']['HLBLOCK_ID'];
-		$hlfield_id = $userfield['SETTINGS']['HLFIELD_ID'];
+		$hlblock_id = (int)$userfield['SETTINGS']['HLBLOCK_ID'];
+		$hlfield_id = (int)$userfield['SETTINGS']['HLFIELD_ID'];
+		if ($hlfield_id <= 0)
+		{
+			$hlfield_id = 0;
+		}
 
 		if (!empty($hlblock_id))
 		{
@@ -451,22 +442,33 @@ class CUserTypeHlblock extends CUserTypeEnum
 		{
 			$userfield = null;
 
+			if ($hlfield_id > 0)
+			{
+				$iterator = Main\UserFieldTable::getList([
+					'select' => [
+						'*',
+					],
+					'filter' => [
+						'=ENTITY_ID' => HighloadBlockTable::compileEntityId($hlblock['ID']),
+						'=ID' => $hlfield_id,
+					],
+				]);
+				$row = $iterator->fetch();
+				unset($iterator);
+				if (!empty($row))
+				{
+					$row['USER_TYPE'] = $USER_FIELD_MANAGER->GetUserType($row['USER_TYPE_ID']);
+					$userfield = $row;
+				}
+				else
+				{
+					$hlfield_id = 0;
+				}
+			}
+
 			if ($hlfield_id == 0)
 			{
 				$userfield = array('FIELD_NAME' => 'ID');
-			}
-			else
-			{
-				$userfields = $USER_FIELD_MANAGER->GetUserFields('HLBLOCK_'.$hlblock['ID'], 0, LANGUAGE_ID);
-
-				foreach ($userfields as $_userfield)
-				{
-					if ($_userfield['ID'] == $hlfield_id)
-					{
-						$userfield = $_userfield;
-						break;
-					}
-				}
 			}
 
 			if ($userfield)
@@ -505,25 +507,25 @@ class CUserTypeHlblock extends CUserTypeEnum
 		return $rows;
 	}
 
-	function GetAdminListViewHTML($arUserField, $arHtmlControl)
+	public static function getAdminListViewHtml(array $userField, ?array $additionalParameters): string
 	{
-		static $cache = array();
+		static $cache = [];
 		$empty_caption = '&nbsp;';
 
-		$cacheKey = $arUserField['SETTINGS']['HLBLOCK_ID'].'_v'.$arHtmlControl["VALUE"];
+		$cacheKey = $userField['SETTINGS']['HLBLOCK_ID'].'_v'.$additionalParameters["VALUE"];
 
-		if(!array_key_exists($cacheKey, $cache) && !empty($arHtmlControl["VALUE"]))
+		if(!array_key_exists($cacheKey, $cache) && !empty($additionalParameters["VALUE"]))
 		{
 			$rsEnum = call_user_func_array(
-				array($arUserField["USER_TYPE"]["CLASS_NAME"], "getlist"),
-				array(
-					$arUserField,
-				)
+				[$userField["USER_TYPE"]["CLASS_NAME"], "getlist"],
+				[
+					$userField,
+				]
 			);
 			if(!$rsEnum)
 				return $empty_caption;
 			while($arEnum = $rsEnum->GetNext())
-				$cache[$arUserField['SETTINGS']['HLBLOCK_ID'].'_v'.$arEnum["ID"]] = $arEnum["VALUE"];
+				$cache[$userField['SETTINGS']['HLBLOCK_ID'].'_v'.$arEnum["ID"]] = $arEnum["VALUE"];
 		}
 		if(!array_key_exists($cacheKey, $cache))
 			$cache[$cacheKey] = $empty_caption;
@@ -537,17 +539,17 @@ class CUserTypeHlblock extends CUserTypeEnum
 
 		$hlblocks = \Bitrix\Highloadblock\HighloadBlockTable::getList(array('order' => 'NAME'))->fetchAll();
 
-		$list = array();
+		$list = [];
 
 		foreach ($hlblocks as $hlblock)
 		{
 			// add hlblock itself
-			$list[$hlblock['ID']] = array(
+			$list[$hlblock['ID']] = [
 				'name' => $hlblock['NAME'],
-				'fields' => array(
+				'fields' => [
 					0 => 'ID'
-				)
-			);
+				]
+			];
 
 			$userfields = $USER_FIELD_MANAGER->GetUserFields('HLBLOCK_'.$hlblock['ID'], 0, LANGUAGE_ID);
 
@@ -570,64 +572,36 @@ class CUserTypeHlblock extends CUserTypeEnum
 				'HLFIELD_ID' => (int)$hlfieldId,
 			]
 		);
-/*		$list = static::getDropDownData();
+	}
 
-		// hlblock selector
-		$html = '<select name="SETTINGS[HLBLOCK_ID]" onchange="hlChangeFieldOnHlblockChanged(this)">';
-		$html .= '<option value="">'.htmlspecialcharsbx(GetMessage('USER_TYPE_HLEL_SEL_HLBLOCK')).'</option>';
-
-		foreach ($list as $_hlblockId => $hlblockData)
+	public static function getDefaultValue(array $userField, array $additionalParameters = [])
+	{
+		if (!isset($userField['MULTIPLE']))
 		{
-			$html .= '<option value="'.$_hlblockId.'" '.($_hlblockId == $hlblockId?'selected':'').'>'.htmlspecialcharsbx($hlblockData['name']).'</option>';
+			return null;
 		}
 
-		$html .= '</select> &nbsp; ';
-
-		// field selector
-		$html .= '<select name="SETTINGS[HLFIELD_ID]" id="hl_ufsett_field_selector">';
-		$html .= '<option value="">'.htmlspecialcharsbx(GetMessage('USER_TYPE_HLEL_SEL_HLBLOCK_FIELD')).'</option>';
-
-		if ($hlblockId)
+		if (!empty($userField['SETTINGS']) && is_array($userField['SETTINGS']))
 		{
-			if($hlfieldId <> '')
+			if ($userField['MULTIPLE'] === 'Y')
 			{
-				$hlfieldId = (int)$hlfieldId;
-			}
-
-			foreach ($list[$hlblockId]['fields'] as $fieldId => $fieldName)
-			{
-				$html .= '<option value="'.$fieldId.'" '.($fieldId === $hlfieldId?'selected':'').'>'.htmlspecialcharsbx($fieldName).'</option>';
-			}
-		}
-
-		$html .= '</select>';
-
-		// js: changing field selector
-		$html .= '
-			<script type="text/javascript">
-				function hlChangeFieldOnHlblockChanged(hlSelect)
+				if (!is_array($userField['SETTINGS']['DEFAULT_VALUE']))
 				{
-					var list = '.CUtil::PhpToJSObject($list).';
-					var fieldSelect = BX("hl_ufsett_field_selector");
-
-					for(var i=fieldSelect.length-1; i >= 0; i--)
-						fieldSelect.remove(i);
-
-					var newOption = new Option(\''.GetMessageJS('USER_TYPE_HLEL_SEL_HLBLOCK_FIELD').'\', "", false, false);
-					fieldSelect.options.add(newOption);
-
-					if (list[hlSelect.value])
-					{
-						for(var j in list[hlSelect.value]["fields"])
-						{
-							var newOption = new Option(list[hlSelect.value]["fields"][j], j, false, false);
-							fieldSelect.options.add(newOption);
-						}
-					}
+					$userField['SETTINGS']['DEFAULT_VALUE'] = [
+						$userField['SETTINGS']['DEFAULT_VALUE']
+					];
 				}
-			</script>
-		';
+				$result = $userField['SETTINGS']['DEFAULT_VALUE'];
+				Main\Type\Collection::normalizeArrayValuesByInt($result, false);
+			}
+			else
+			{
+				$result = (int)($userField['SETTINGS']['DEFAULT_VALUE'] ?? 0);
+			}
 
-		return $html; */
+			return $result;
+		}
+
+		return null;
 	}
 }

@@ -696,12 +696,12 @@ this.BX = this.BX || {};
 
 
 	      if (this.locationSelector) {
-	        this.locationSelector.setValue(this.formDataValue.location || this.locationSelector.default || entry.getLocation());
+	        this.locationSelector.setValue(this.formDataValue.location || this.locationSelector["default"] || entry.getLocation());
 	      } // Private
 
 
 	      if (this.DOM.privateEventCheckbox) {
-	        this.DOM.privateEventCheckbox.checked = entry.private;
+	        this.DOM.privateEventCheckbox.checked = entry["private"];
 	      } // Importance
 
 

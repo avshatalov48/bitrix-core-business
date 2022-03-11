@@ -55,12 +55,12 @@ class highloadblock extends CModule
 
 	function InstallDB($arParams = array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 		// Database tables creation
 		if (!$DB->Query("SELECT 'x' FROM b_hlblock_entity WHERE 1=0", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/highloadblock/install/db/".mb_strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/highloadblock/install/db/mysql/install.sql");
 		}
 		if ($this->errors !== false)
 		{
@@ -84,7 +84,7 @@ class highloadblock extends CModule
 
 	function UnInstallDB($arParams = array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 		if (!array_key_exists("save_tables", $arParams) || $arParams["save_tables"] != "Y")
 		{
@@ -100,7 +100,7 @@ class highloadblock extends CModule
 			$this->UnInstallTasks();
 
 			// remove hl system data
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/highloadblock/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/highloadblock/install/db/mysql/uninstall.sql");
 		}
 
 		UnRegisterModule("highloadblock");

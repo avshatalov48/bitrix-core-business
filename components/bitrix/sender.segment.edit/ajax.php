@@ -11,6 +11,7 @@ use Bitrix\Sender\Internals\QueryController as Controller;
 use Bitrix\Sender\ListTable;
 use Bitrix\Sender\Posting\SegmentDataBuilder;
 use Bitrix\Sender\UI;
+use Bitrix\Sender\Entity;
 
 if (!Bitrix\Main\Loader::includeModule('sender'))
 {
@@ -102,11 +103,38 @@ $actions[] = Controller\Action::create('getFilterData')->setHandler(
 		$connector->setDataTypeId(null);
 		$connector->setFieldValues($fields);
 
+		$entitySegment = new Entity\Segment($groupId);
+		$endpoints = $entitySegment->getData()['ENDPOINTS'];
+
+		for ($i = 0; $i < count($endpoints); $i++)
+		{
+			if ($endpoints[$i]['FILTER_ID'] === $filterId)
+			{
+				unset($endpoints[$i]);
+			}
+		}
+
+		$endpoint['FILTER_ID'] = $filterId;
+		$endpoints[] = $endpoint;
+		$data = [
+			'NAME' => trim($request->get('name')),
+			'HIDDEN' => $request->get('hidden') == 'Y' ? 'Y' : 'N',
+			'ENDPOINTS' => $endpoints,
+		];
+		$entitySegment->mergeData($data);
+		$entitySegment->save();
+
+		if ($entitySegment->getErrors())
+		{
+			$content->addError($entitySegment->getErrors()[0]);
+			return;
+		}
+
 		$dataBuilder = new SegmentDataBuilder($groupId, $filterId, $endpoint);
 		if (!$dataBuilder->prepareForAgent(false, true))
 		{
 			$content->add('count', (
-				$connector instanceof Connector\IncrementallyConnector
+			$connector instanceof Connector\IncrementallyConnector
 				? $dataBuilder->calculateCurrentFilterCount()->getArray()
 				: $connector->getDataCounter()->getArray()
 			));

@@ -290,12 +290,13 @@ class CMailRu2Interface extends CSocServOAuthTransport
 
 	public function GetAuthUrl($redirect_uri, $state = '')
 	{
-		return self::AUTH_URL .
-			"?client_id=" . $this->appID .
-			"&redirect_uri=" . urlencode($redirect_uri) .
-			"&scope=" . $this->getScopeEncode() .
-			"&response_type=" . "code" .
-			($state <> '' ? '&state=' . urlencode($state) : '');
+		return self::AUTH_URL
+			."?client_id=".$this->appID
+			."&redirect_uri=".urlencode($redirect_uri)
+			."&scope=".$this->getScopeEncode()
+			."&response_type="."code"
+			.($state <> '' ? '&state='.urlencode($state) : '')
+			.'&prompt_force=1';
 	}
 
 	public function getResult()

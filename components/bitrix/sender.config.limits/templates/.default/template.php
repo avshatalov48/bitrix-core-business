@@ -25,11 +25,13 @@ $sendingEndTime = strtotime($arResult['SENDING_END']);
 <div id="<?=htmlspecialcharsbx($containerId)?>" class="sender-config-limits-wrap">
 
 	<?php $counter = 0;?>
+	<?php $active = false;?>
+	<?php $defaultTab = null;?>
 	<?foreach ($arResult['LIST'] as $item):?>
+		<?php $active = false;?>
 		<div class="sender-config-limits-box sender-type-tab" data-tab="<?=$item['CODE']?>">
 
 			<?php
-			$active = false;
 			if (0 == $counter++)
 			{
 				$active = true;
@@ -310,7 +312,7 @@ $sendingEndTime = strtotime($arResult['SENDING_END']);
 			BX.Sender.Config.Limits.init(<?=Json::encode(array(
 				'containerId' => $containerId,
 				'actionUri' => $arResult['ACTION_URI'],
-				'defaultTab' => $defaultTab,
+				'defaultTab' => !$defaultTab ? 'others' : $defaultTab,
 				'mess' => array(
 					'mailDailyLimit' => Loc::getMessage('SENDER_LIMIT_MAIL_DAILY_DESC'),
 					'mailDailyLimitTitle' => Loc::getMessage('SENDER_LIMIT_MAIL_DAILY_DESC_TITLE'),
@@ -329,6 +331,7 @@ $menuItems[] = [
 		'onclick' => "BX.Sender.Config.Limits.changeLeftMenuOption('others')",
 		'data-role' => 'others',
 	],
+	'ACTIVE' => !$defaultTab
 ];
 
 $APPLICATION->IncludeComponent(

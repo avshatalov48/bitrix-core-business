@@ -1,10 +1,8 @@
 <?php
 
-global $DBType;
-
 $arClasses = array(
 	"CSocServAuthManager" => "classes/general/authmanager.php",
-	"CSocServAuthDB" => "classes/".$DBType."/authmanager.php",
+	"CSocServAuthDB" => "classes/mysql/authmanager.php",
 	"CSocServUtil" => "classes/general/authmanager.php",
 	"CSocServAuth" => "classes/general/authmanager.php",
 	"CSocServOAuthTransport" => "classes/general/oauthtransport.php",
@@ -36,7 +34,7 @@ $arClasses = array(
 	"COffice365OAuthInterfaceBeta" => "classes/general/office365.php",
 	"CSocServOdnoklassniki" => "classes/general/odnoklassniki.php",
 	"COpenIDClient" => "classes/general/openidclient.php",
-	"CSocServMessage" => "classes/".$DBType."/authmanager.php",
+	"CSocServMessage" => "classes/mysql/authmanager.php",
 	"CSocServBitrixOAuth" => "classes/general/bitrix24.php",
 	"CBitrixOAuthInterface" => "classes/general/bitrix24.php",
 	"CBitrixPHPAppTransport" => "classes/general/bitrix24.php",

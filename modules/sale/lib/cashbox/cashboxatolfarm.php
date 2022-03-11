@@ -627,7 +627,51 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 			)
 		);
 
+		if (static::hasMeasureSettings())
+		{
+			$settings['MEASURE'] = static::getMeasureSettings();
+		}
+
 		return $settings;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected static function hasMeasureSettings(): bool
+	{
+		return false;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected static function getMeasureSettings(): array
+	{
+		$measureItems = [
+			'DEFAULT' => [
+				'TYPE' => 'STRING',
+				'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_MEASURE_SUPPORT_SETTINGS_DEFAULT_VALUE'),
+				'VALUE' => 0,
+			]
+		];
+		if (Main\Loader::includeModule('catalog'))
+		{
+			$measuresList = \CCatalogMeasure::getList();
+			while ($measure = $measuresList->fetch())
+			{
+				$measureItems[$measure['CODE']] = [
+					'TYPE' => 'STRING',
+					'LABEL' => $measure['MEASURE_TITLE'],
+					'VALUE' => MeasureCodeToTag2108Mapper::getTag2108Value($measure['CODE']),
+				];
+			}
+		}
+
+		return [
+			'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_MEASURE_SUPPORT_SETTINGS'),
+			'ITEMS' => $measureItems,
+		];
 	}
 
 	/**
@@ -663,7 +707,15 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 	 */
 	private function getOptionName()
 	{
-		return static::TOKEN_OPTION_NAME.'_'.ToLower($this->getField('NUMBER_KKM'));
+		return static::getOptionPrefix() . '_' .ToLower($this->getField('NUMBER_KKM'));
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getOptionPrefix(): string
+	{
+		return static::TOKEN_OPTION_NAME;
 	}
 
 	/**

@@ -1,0 +1,80 @@
+.ui-stepbystep__scope {
+	--ui-stepbystep--white: rgba(255,255,255,1);
+
+	--ui-stepbystep--gray__alpha_10: rgba(82,92,105,.1);
+	--ui-stepbystep--gray__alpha_08: rgba(82,92,105,.08);
+
+	--ui-stepbystep--light-gray: rgba(248,249,250,1);
+
+	--ui-stepbystep--dark-grey: rgba(51,51,51,1);
+
+	--ui-stepbystep--green: rgba(157,207,0,1);
+}
+
+.ui-stepbystep__section-item {
+	display: flex;
+	padding: 14px 16px 25px;
+	box-sizing: border-box;
+	background: var(--ui-stepbystep--light-gray);
+	border-radius: 8px;
+	margin-bottom: 16px;
+}
+
+.ui-stepbystep__section-item--counter {
+	margin-right: 12px;
+	position: relative;
+	z-index: 0;
+}
+
+.ui-stepbystep__section-item--counter-number {
+	font: 16px/17px "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	color: var(--ui-stepbystep--white);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 31px;
+	height: 31px;
+	background: var(--ui-stepbystep--green);
+	border-radius: 50%;
+	box-sizing: border-box;
+	padding: 0 3px;
+}
+
+.ui-stepbystep__section-item--counter-number::before,
+.ui-stepbystep__section-item--counter-number::after {
+	content: '';
+	display: block;
+	width: 3px;
+	height: calc(100% + 11px);
+	background: var(--ui-stepbystep--gray__alpha_10);
+	position: absolute;
+	left: 14px;
+	top: 14px;
+	z-index: -1;
+}
+
+.ui-stepbystep__section-item--counter-number::before {
+	top: -14px;
+	height: 29px;
+}
+
+.ui-stepbystep__section-item--counter-number.--first::before,
+.ui-stepbystep__section-item--counter-number.--last::after {
+	display: none;
+}
+
+.ui-stepbystep__section-item--information {
+	flex: 1;
+}
+
+.ui-stepbystep__section-item--title {
+	padding: 3px 0 17px;
+	border-bottom: 1px solid var(--ui-stepbystep--gray__alpha_08);
+	margin-bottom: 19px;
+	font: 18px/24px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: var(--ui-stepbystep--dark-grey);
+}
+
+.ui-stepbystep__section-item--hint.ui-hint {
+	margin: -1px 0 -1px 3px;
+}

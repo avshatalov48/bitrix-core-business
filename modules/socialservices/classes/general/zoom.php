@@ -603,7 +603,6 @@ class CZoomInterface extends CSocServOAuthTransport
 			'?client_id=' . $this->appID .
 			'&redirect_uri=' . urlencode($redirect_uri) .
 			'&response_type=' . 'code' .
-			'&scope=' . $this->getScopeEncode() .
 			'&response_mode=' . 'form_post' .
 			($state <> '' ? '&state=' . JWT::urlsafeB64Encode($state) : '');
 	}

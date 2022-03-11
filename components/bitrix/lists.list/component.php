@@ -988,7 +988,10 @@ while($obElement = $rsElements->GetNextElement())
 		/* *** */
 	}
 
-	if (CLists::isEnabledLockFeature($IBLOCK_ID) && in_array("LOCK_STATUS", $grid_columns))
+	if (
+		CLists::isEnabledLockFeature($IBLOCK_ID)
+		&& in_array("LOCK_STATUS", $grid_columns) || empty($grid_columns)
+	)
 	{
 		ob_start();
 		$APPLICATION->IncludeComponent(

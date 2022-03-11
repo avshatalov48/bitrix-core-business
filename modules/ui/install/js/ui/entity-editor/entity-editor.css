@@ -1433,10 +1433,13 @@ input.ui-entity-editor-header-title-text {
 
 .ui-entity-editor-popup-field-selector-list {
 	padding-top: 8px;
-	padding-bottom: 16px;
 	border-bottom: 1px rgba(0, 0, 0, .05) solid;
+}
+
+.ui-entity-editor-popup-field-selector-list-section {
 	-webkit-column-count: 3;
 	column-count: 3;
+	padding-bottom: 16px;
 }
 
 .ui-entity-editor-popup-field-selector-list-label { padding-bottom: 5px; }

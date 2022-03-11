@@ -5,7 +5,6 @@ namespace Bitrix\Sale\Cashbox;
 use Bitrix\Main;
 use Bitrix\Main\Text;
 use Bitrix\Main\Localization;
-use Bitrix\Sale;
 use Bitrix\Sale\Cashbox\Errors;
 use Bitrix\Sale\Result;
 use Bitrix\Catalog;
@@ -41,6 +40,7 @@ class CashboxOrangeData
 	const CODE_CALC_VAT_20 = 3;
 
 	private const MAX_TEXT_LENGTH = 128;
+
 	/**
 	 * @return string
 	 */
@@ -92,56 +92,54 @@ class CashboxOrangeData
 	 */
 	public function buildCheckQuery(Check $check)
 	{
-		$data = $check->getDataForCheck();
+		return $this->buildCheckQueryByCheckData(
+			$this->getCheckData($check),
+			($check->getType() === 'sellreturn')
+		);
+	}
 
+	/**
+	 * @param AbstractCheck $check
+	 * @return array
+	 */
+	protected function getCheckData(AbstractCheck $check): array
+	{
+		return $check->getDataForCheck();
+	}
+
+	/**
+	 * @param array $checkData
+	 * @param bool $isSellReturn
+	 * @return array
+	 */
+	protected function buildCheckQueryByCheckData(array $checkData, bool $isSellReturn): array
+	{
 		$calculatedSignMap = $this->getCalculatedSignMap();
 
 		$result = [
-			'id' => static::buildUuid(static::UUID_TYPE_CHECK, $data['unique_id']),
+			'id' => static::buildUuid(static::UUID_TYPE_CHECK, $checkData['unique_id']),
 			'inn' => $this->getValueFromSettings('SERVICE', 'INN'),
 			'group' => $this->getField('NUMBER_KKM') ?: null,
 			'key' => $this->getValueFromSettings('SECURITY', 'KEY_SIGN') ?: null,
 			'content' => [
-				'type' => $calculatedSignMap[$data['calculated_sign']],
+				'type' => $calculatedSignMap[$checkData['calculated_sign']],
 				'positions' => [],
 				'checkClose' => [
 					'payments' => [],
 					'taxationSystem' => $this->getValueFromSettings('TAX', 'SNO'),
 				],
-				'customerContact' => $this->getCustomerContact($data),
+				'customerContact' => $this->getCustomerContact($checkData),
 			],
 			'meta' => self::PARTNER_CODE_BITRIX
 		];
 
-		$checkType = $this->getCheckTypeMap();
-		$paymentObjectMap = $this->getPaymentObjectMap();
-		foreach ($data['items'] as $item)
+		foreach ($checkData['items'] as $item)
 		{
-			$vat = $this->getValueFromSettings('VAT', $item['vat']);
-			if ($vat === null)
-			{
-				$vat = $this->getValueFromSettings('VAT', 'NOT_VAT');
-			}
-
-			$position = [
-				'text' => mb_substr($item['name'], 0, self::MAX_TEXT_LENGTH),
-				'quantity' => $item['quantity'],
-				'price' => $item['price'],
-				'tax' => $this->mapVatValue($data['type'], $vat),
-				'paymentMethodType' => $checkType[$data['type']],
-				'paymentSubjectType' => $paymentObjectMap[$item['payment_object']]
-			];
-
-			if (isset($item['nomenclature_code']))
-			{
-				$position['nomenclatureCode'] = base64_encode($item['nomenclature_code']);
-			}
-
-			$result['content']['positions'][] = $position;
+			$result['content']['positions'][] = $this->buildPosition($checkData, $item, $isSellReturn);
 		}
 
 		$paymentTypeMap = $this->getPaymentTypeMap();
-		foreach ($data['payments'] as $payment)
+		foreach ($checkData['payments'] as $payment)
 		{
 			$result['content']['checkClose']['payments'][] = [
 				'type' => $paymentTypeMap[$payment['type']],
@@ -150,6 +148,105 @@ class CashboxOrangeData
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param array $checkData
+	 * @param array $item
+	 * @param bool $isSellReturn
+	 * @return array
+	 */
+	protected function buildPosition(array $checkData, array $item, bool $isSellReturn): array
+	{
+		$result = [
+			'text' => $this->buildPositionText($item),
+			'quantity' => $this->buildPositionQuantity($item),
+			'price' => $this->buildPositionPrice($item),
+			'tax' => $this->buildPositionTax($checkData, $item),
+			'paymentMethodType' => $this->buildPositionPaymentMethodType($checkData),
+			'paymentSubjectType' => $this->buildPositionPaymentSubjectType($item),
+		];
+
+		if (isset($item['nomenclature_code']))
+		{
+			$result['nomenclatureCode'] = $this->buildPositionNomenclatureCode($item);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param array $item
+	 * @return string
+	 */
+	protected function buildPositionText(array $item)
+	{
+		return mb_substr($item['name'], 0, self::MAX_TEXT_LENGTH);
+	}
+
+	/**
+	 * @param array $item
+	 * @return mixed
+	 */
+	protected function buildPositionQuantity(array $item)
+	{
+		return $item['quantity'];
+	}
+
+	/**
+	 * @param array $item
+	 * @return mixed
+	 */
+	protected function buildPositionPrice(array $item)
+	{
+		return $item['price'];
+	}
+
+	/**
+	 * @param array $checkData
+	 * @return int|mixed
+	 */
+	protected function buildPositionPaymentMethodType(array $checkData)
+	{
+		$checkType = $this->getCheckTypeMap();
+
+		return $checkType[$checkData['type']];
+	}
+
+	/**
+	 * @param array $item
+	 * @return int|mixed
+	 */
+	protected function buildPositionPaymentSubjectType(array $item)
+	{
+		$paymentObjectMap = $this->getPaymentObjectMap();
+
+		return $paymentObjectMap[$item['payment_object']];
+	}
+
+	/**
+	 * @param array $checkData
+	 * @param $item
+	 * @return int|mixed
+	 */
+	protected function buildPositionTax(array $checkData, $item)
+	{
+		$vat = $this->getValueFromSettings('VAT', $item['vat']);
+		if ($vat === null)
+		{
+			$vat = $this->getValueFromSettings('VAT', 'NOT_VAT');
+		}
+
+		return $this->mapVatValue($checkData['type'], $vat);
+	}
+
+	/**
+	 * @param array $item
+	 * @return string
+	 */
+	private function buildPositionNomenclatureCode(array $item)
+	{
+		return base64_encode($item['nomenclature_code']);
 	}
 
 	/**
@@ -221,7 +318,7 @@ class CashboxOrangeData
 	/**
 	 * @return array
 	 */
-	private function getPaymentObjectMap()
+	protected function getPaymentObjectMap()
 	{
 		return [
 			Check::PAYMENT_OBJECT_COMMODITY => 1,
@@ -241,6 +338,18 @@ class CashboxOrangeData
 			Check::PAYMENT_OBJECT_NON_OPERATING_GAIN => 15,
 			Check::PAYMENT_OBJECT_SALES_TAX => 17,
 			Check::PAYMENT_OBJECT_RESORT_FEE => 18,
+			Check::PAYMENT_OBJECT_DEPOSIT => 19,
+			Check::PAYMENT_OBJECT_EXPENSE => 20,
+			Check::PAYMENT_OBJECT_PENSION_INSURANCE_IP => 21,
+			Check::PAYMENT_OBJECT_PENSION_INSURANCE => 22,
+			Check::PAYMENT_OBJECT_MEDICAL_INSURANCE_IP => 23,
+			Check::PAYMENT_OBJECT_MEDICAL_INSURANCE => 24,
+			Check::PAYMENT_OBJECT_SOCIAL_INSURANCE => 25,
+			Check::PAYMENT_OBJECT_CASINO_PAYMENT => 26,
+			Check::PAYMENT_OBJECT_COMMODITY_MARKING_NO_MARKING_EXCISE => 2,
+			Check::PAYMENT_OBJECT_COMMODITY_MARKING_EXCISE => 2,
+			Check::PAYMENT_OBJECT_COMMODITY_MARKING_NO_MARKING => 1,
+			Check::PAYMENT_OBJECT_COMMODITY_MARKING => 1,
 		];
 	}
 
@@ -807,6 +916,11 @@ class CashboxOrangeData
 			]
 		];
 
+		if (static::hasMeasureSettings())
+		{
+			$settings['MEASURE'] = static::getMeasureSettings();
+		}
+
 		$settings['INTERACTION'] = [
 			'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ORANGE_DATA_SETTINGS_INTERACTION'),
 			'ITEMS' => [
@@ -822,6 +936,45 @@ class CashboxOrangeData
 		];
 
 		return $settings;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected static function hasMeasureSettings(): bool
+	{
+		return false;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected static function getMeasureSettings(): array
+	{
+		$measureItems = [
+			'DEFAULT' => [
+				'TYPE' => 'STRING',
+				'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_MEASURE_SUPPORT_SETTINGS_DEFAULT_VALUE'),
+				'VALUE' => 0,
+			]
+		];
+		if (Main\Loader::includeModule('catalog'))
+		{
+			$measuresList = \CCatalogMeasure::getList();
+			while ($measure = $measuresList->fetch())
+			{
+				$measureItems[$measure['CODE']] = [
+					'TYPE' => 'STRING',
+					'LABEL' => $measure['MEASURE_TITLE'],
+					'VALUE' => MeasureCodeToTag2108Mapper::getTag2108Value($measure['CODE']),
+				];
+			}
+		}
+
+		return [
+			'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_MEASURE_SUPPORT_SETTINGS'),
+			'ITEMS' => $measureItems,
+		];
 	}
 
 	/**
@@ -851,11 +1004,11 @@ class CashboxOrangeData
 	}
 
 	/**
-	 * @return bool
+	 * @inheritDoc
 	 */
-	public static function isSupportedFFD105()
+	public static function getFfdVersion(): ?float
 	{
-		return true;
+		return 1.05;
 	}
 
 	/**
@@ -867,9 +1020,17 @@ class CashboxOrangeData
 	public function printCorrectionImmediately(CorrectionCheck $check)
 	{
 		return $this->registerCheck(
-			$this->getUrl().'/corrections/',
+			$this->getUrl() . $this->getCorrectionUrlPath(),
 			$this->buildCorrectionCheckQuery($check)
 		);
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getCorrectionUrlPath(): string
+	{
+		return '/corrections/';
 	}
 
 	/**
@@ -879,11 +1040,9 @@ class CashboxOrangeData
 	 */
 	public function buildCorrectionCheckQuery(CorrectionCheck $check)
 	{
-		$data = $check->getDataForCheck();
+		$data = $this->getCheckData($check);
 
 		$calculatedSignMap = $this->getCalculatedSignMap();
-
-		$documentDate = new Main\Type\DateTime($data['correction_info']['document_date']);
 
 		$result = [
 			'id' => static::buildUuid(static::UUID_TYPE_CHECK, $data['unique_id']),
@@ -893,9 +1052,9 @@ class CashboxOrangeData
 			'content' => [
 				'type' => $calculatedSignMap[$data['calculated_sign']],
 				'correctionType' => $this->getCorrectionTypeMap($data['correction_info']['type']),
-				'causeDocumentDate' => $documentDate->format('Y-m-d\TH:i:s'),
-				'causeDocumentNumber' => $data['correction_info']['document_number'],
-				'totalSum' => $data['correction_info']['total_sum'],
+				'causeDocumentDate' => $this->getCorrectionCauseDocumentDate($data['correction_info']),
+				'causeDocumentNumber' => $this->getCorrectionCauseDocumentNumber($data['correction_info']),
+				'totalSum' => $this->getCorrectionTotalSum($data['correction_info']),
 				'taxationSystem' => $this->getValueFromSettings('TAX', 'SNO')
 			],
 		];
@@ -912,33 +1071,98 @@ class CashboxOrangeData
 			}
 		}
 
-		foreach ($data['vats'] as $item)
+		$vats = $this->getVatsByCheckData($data);
+		if (is_array($vats))
 		{
-			$vat = $this->getValueFromSettings('VAT', $item['vat']);
-			if ($vat === null)
+			foreach ($vats as $vat)
 			{
-				$vat = $this->getValueFromSettings('VAT', 'NOT_VAT');
-			}
-
-			if ($vat === self::CODE_VAT_0)
-			{
-				$result['content']['tax3Sum'] = $item['SUM'];
-			}
-			elseif ($vat === self::CODE_VAT_10)
-			{
-				$result['content']['tax2Sum'] = $item['SUM'];
-			}
-			elseif ($vat === self::CODE_VAT_20)
-			{
-				$result['content']['tax1Sum'] = $item['SUM'];
-			}
-			else
-			{
-				$result['content']['tax4Sum'] = $item['SUM'];
+				$result['content'][$vat['code']] = $vat['value'];
 			}
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param $correctionInfo
+	 * @return string
+	 */
+	protected function getCorrectionCauseDocumentDate($correctionInfo)
+	{
+		$documentDate = new Main\Type\DateTime($correctionInfo['document_date']);
+
+		return $documentDate->format('Y-m-d\TH:i:s');
+	}
+
+	/**
+	 * @param $correctionInfo
+	 * @return mixed
+	 */
+	protected function getCorrectionCauseDocumentNumber($correctionInfo)
+	{
+		return $correctionInfo['document_number'];
+	}
+
+	/**
+	 * @param $correctionInfo
+	 * @return mixed
+	 */
+	protected function getCorrectionTotalSum($correctionInfo)
+	{
+		return $correctionInfo['total_sum'];
+	}
+
+	/**
+	 * @param array $data
+	 * @return array|null
+	 */
+	protected function getVatsByCheckData(array $data): ?array
+	{
+		if (!isset($data['vats']) || !is_array($data['vats']) || empty($data['vats']))
+		{
+			return null;
+		}
+
+		$result = [];
+		foreach ($data['vats'] as $item)
+		{
+			$vat = $this->getValueFromSettings('VAT', $item['type']);
+			if (is_null($vat) || $vat === '')
+			{
+				$vat = $this->getValueFromSettings('VAT', 'NOT_VAT');
+			}
+
+			switch ($vat)
+			{
+				case self::CODE_VAT_0:
+					$vatKey = '3Sum';
+					break;
+				case self::CODE_VAT_10:
+					$vatKey = '2Sum';
+					break;
+				case self::CODE_VAT_20:
+					$vatKey = '1Sum';
+					break;
+				default:
+					$vatKey = '4Sum';
+					break;
+			}
+
+			$result[] = [
+				'code' => $this->getVatKeyPrefix() . $vatKey,
+				'value' => $item['sum']
+			];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getVatKeyPrefix(): string
+	{
+		return 'tax';
 	}
 
 	/**
@@ -962,9 +1186,12 @@ class CashboxOrangeData
 	 */
 	public function checkCorrection(CorrectionCheck $check)
 	{
-		$url = $this->getUrl();
-		$url .= '/corrections/'.$this->getValueFromSettings('SERVICE', 'INN').'/status/'.$check->getField('EXTERNAL_UUID');
-
-		return $this->checkInternal($url);
+		return $this->checkInternal(
+			$this->getUrl()
+			. $this->getCorrectionUrlPath()
+			. $this->getValueFromSettings('SERVICE', 'INN')
+			. '/status/'
+			. $check->getField('EXTERNAL_UUID')
+		);
 	}
 }

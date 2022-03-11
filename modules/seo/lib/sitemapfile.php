@@ -68,7 +68,7 @@ class SitemapFile
 		);
 		
 		$fileName = $this->prepareFileName($fileName);
-		$this->partFile = $this->partFile ? $fileName : $this->partFile;
+		$this->partFile = $this->partFile ?: $fileName;
 		$this->pathPhysical = null; // hack for object reconstuct during file splitting
 		parent::__construct($this->siteRoot.'/'.$fileName, $this->settings['SITE_ID']);
 		$this->partChanged = $this->isExists() && !$this->isSplitNeeded();

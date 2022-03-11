@@ -160,7 +160,6 @@
 
 		this.initUi();
 		this.initItems();
-		BX.addCustomEvent("SidePanel.Slider:onClose", this.actualizeSegment.bind(this));
 
 		this.contactList = new ContactList({manager: this});
 		Helper.hint.init(this.context);
@@ -416,16 +415,16 @@
 		}
 
 		var items = this.availableConnectors
-			.filter(function (item) {
-				return item.ID !== 'sender_contact_list';
-			})
-			.map(function (item) {
-				return {
-					id: item.ID,
-					text: item.NAME,
-					onclick: this.onMenuAddClick.bind(this, item.ID)
-				};
-			}, this);
+		.filter(function (item) {
+			return item.ID !== 'sender_contact_list';
+		})
+		.map(function (item) {
+			return {
+				id: item.ID,
+				text: item.NAME,
+				onclick: this.onMenuAddClick.bind(this, item.ID)
+			};
+		}, this);
 
 		this.menuAdd = BX.PopupMenu.create(
 			'sender-segment-edit-menu-add',
@@ -508,7 +507,11 @@
 			onsuccess: this.onFilterData.bind(this, filterId, callback),
 			data: {
 				'filterId': filterId,
-				'groupId': this.groupId
+				'groupId': this.groupId,
+				'name': this.ui.title.value,
+				'hidden': document.querySelector('[name="HIDDEN"]')
+					? (document.querySelector('[name="HIDDEN"]').checked ? 'Y' : 'N')
+					: 'N'
 			}
 		});
 	};
@@ -667,10 +670,10 @@
 
 			var fieldNode = container.querySelector(
 				"[data-name='"
-					.concat(field.id, "'] [data-name='")
-					.concat(field.id, "'], [data-name='")
-					.concat(field.id, "'] [name='")
-					.concat(field.id, "']"));
+				.concat(field.id, "'] [data-name='")
+				.concat(field.id, "'], [data-name='")
+				.concat(field.id, "'] [name='")
+				.concat(field.id, "']"));
 
 			if (fieldNode) {
 				var dataValue = fieldNode.getAttribute('data-value');

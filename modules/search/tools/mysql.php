@@ -164,7 +164,7 @@ class CSearchMysql extends CSearchFullText
 				SELECT
 					sct.SEARCH_CONTENT_ID
 					,scsite.SITE_ID
-					,".$query." RANK
+					,".$query." `RANK`
 				FROM
 					b_search_content_text sct
 					INNER JOIN b_search_content sc ON sc.ID = sct.SEARCH_CONTENT_ID
@@ -251,10 +251,10 @@ class CSearchMysql extends CSearchFullText
 				case "RANK":
 					if (!($this->flagsUseRatingSort & 0x02))
 						$this->flagsUseRatingSort = 0x01;
-					$arOrder[] = $key." ".$ord;
+					$arOrder[] = "`RANK` ".$ord;
 					break;
 				case "TITLE_RANK":
-					$arOrder[] = "RANK ".$ord;
+					$arOrder[] = "`RANK` ".$ord;
 					break;
 				case "CUSTOM_RANK":
 					$arOrder[] = $strSearchContentAlias.$key." ".$ord;
@@ -279,7 +279,7 @@ class CSearchMysql extends CSearchFullText
 			if (!$arOrder)
 			{
 				$arOrder[] = "CUSTOM_RANK DESC";
-				$arOrder[] = "RANK DESC";
+				$arOrder[] = "`RANK` DESC";
 				$arOrder[] = $strSearchContentAlias."DATE_CHANGE DESC";
 				$this->flagsUseRatingSort = 0x01;
 			}

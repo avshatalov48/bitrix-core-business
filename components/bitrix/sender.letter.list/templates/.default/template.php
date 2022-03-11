@@ -507,11 +507,11 @@ $APPLICATION->IncludeComponent(
 );
 ?>
 <script type="text/javascript">
-	<?php if (! $arParams['IS_PHONE_CONFIRMED'] && $arParams['IS_BX24_INSTALLED']): ?>
-	BX.Bitrix24.PhoneVerify.setVerified(false);
-	<?php endif; ?>
-
 	BX.ready(function () {
+		<?php if (! $arParams['IS_PHONE_CONFIRMED'] && $arParams['IS_BX24_INSTALLED']): ?>
+		BX.Bitrix24.PhoneVerify.setVerified(false);
+		<?php endif; ?>
+
 		BX.Sender.LetterList.init(<?=Json::encode(array(
 			'actionUri' => $arResult['ACTION_URI'],
 			'messages' => $arResult['MESSAGES'],

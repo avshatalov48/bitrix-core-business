@@ -36,7 +36,7 @@
 						html : item.name
 					}),
 					BX.create("span", {
-						props : { 'className' : "feed-add-post-del-but"},
+						props : { 'className' : "bizproc-type-control-user-delete"},
 						events : {
 							'click' : function(e){
 								BX.SocNetLogDestination.deleteItem(item.id, 'users', window["BXSocNetLogListsFormName"]);

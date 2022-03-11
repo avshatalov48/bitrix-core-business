@@ -100,6 +100,16 @@ class Service
 	}
 
 	/**
+	 * Return true if Security is available.
+	 *
+	 * @return bool
+	 */
+	public static function isPermissionEnabled()
+	{
+		return !self::isCloud() || Feature::isFeatureEnabled('sender_security');
+	}
+
+	/**
 	 * Return true if Campaigns is available.
 	 *
 	 * @return bool

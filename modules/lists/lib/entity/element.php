@@ -72,23 +72,36 @@ class Element implements Controllable, Errorable
 	 */
 	public function add()
 	{
-		$this->param->checkRequiredInputParams(["IBLOCK_TYPE_ID", "IBLOCK_CODE", "IBLOCK_ID",
-			"ELEMENT_CODE", ["FIELDS" => ["NAME"]]]);
+		$this->param->checkRequiredInputParams(
+			[
+				"IBLOCK_TYPE_ID",
+				"IBLOCK_CODE",
+				"IBLOCK_ID",
+				"ELEMENT_CODE",
+				[
+					"FIELDS" => ["NAME"]
+				],
+			]
+		);
+
 		if ($this->param->hasErrors())
 		{
 			$this->errorCollection->add($this->param->getErrors());
+
 			return false;
 		}
 
 		$this->setUrlTemplate();
 
 		$this->validateFields();
-		if ($this->hasErrors())
+
+		$isEnabledBp = $this->isEnabledBizproc($this->params["IBLOCK_TYPE_ID"]);
+		$hasBpTemplatesWithAutoStart = false;
+		if ($isEnabledBp)
 		{
-			return false;
+			$hasBpTemplatesWithAutoStart = $this->hasBpTemplatesWithAutoStart(\CBPDocumentEventType::Create);
 		}
 
-		list($documentStates, $bizprocParameters, $startUpBp) = $this->getBizprocData();
 		if ($this->hasErrors())
 		{
 			return false;
@@ -100,13 +113,9 @@ class Element implements Controllable, Errorable
 		$this->elementId = $elementObject->add($elementFields, false, true, true);
 		if ($this->elementId)
 		{
-			if ($startUpBp)
+			if ($isEnabledBp && $hasBpTemplatesWithAutoStart)
 			{
-				$this->startBizproc($documentStates, $bizprocParameters, []);
-			}
-			if ($this->hasErrors())
-			{
-				return false;
+				$this->startBp($this->elementId, \CBPDocumentEventType::Create);
 			}
 
 			return $this->elementId;
@@ -115,12 +124,17 @@ class Element implements Controllable, Errorable
 		{
 			if ($elementObject->LAST_ERROR)
 			{
-				$this->errorCollection->setError(new Error($elementObject->LAST_ERROR, self::ERROR_ADD_ELEMENT));
+				$this->errorCollection->setError(
+					new Error($elementObject->LAST_ERROR, self::ERROR_ADD_ELEMENT)
+				);
 			}
 			else
 			{
-				$this->errorCollection->setError(new Error("Unknown error", self::ERROR_ADD_ELEMENT));
+				$this->errorCollection->setError(
+					new Error("Unknown error", self::ERROR_ADD_ELEMENT)
+				);
 			}
+
 			return false;
 		}
 	}
@@ -151,21 +165,31 @@ class Element implements Controllable, Errorable
 	 */
 	public function update()
 	{
-		$this->param->checkRequiredInputParams(["IBLOCK_TYPE_ID", "IBLOCK_CODE", "IBLOCK_ID",
-			"ELEMENT_CODE", "ELEMENT_ID"]);
+		$this->param->checkRequiredInputParams(
+			[
+				"IBLOCK_TYPE_ID",
+				"IBLOCK_CODE",
+				"IBLOCK_ID",
+				"ELEMENT_CODE",
+				"ELEMENT_ID",
+			]
+		);
 		if ($this->param->hasErrors())
 		{
 			$this->errorCollection->add($this->param->getErrors());
+
 			return false;
 		}
 
 		$this->validateFields();
-		if ($this->hasErrors())
+
+		$isEnabledBp = $this->isEnabledBizproc($this->params["IBLOCK_TYPE_ID"]);
+		$hasBpTemplatesWithAutoStart = false;
+		if ($isEnabledBp)
 		{
-			return false;
+			$hasBpTemplatesWithAutoStart = $this->hasBpTemplatesWithAutoStart(\CBPDocumentEventType::Edit);
 		}
 
-		list($documentStates, $bizprocParameters, $startUpBp) = $this->getBizprocData();
 		if ($this->hasErrors())
 		{
 			return false;
@@ -179,15 +203,22 @@ class Element implements Controllable, Errorable
 		$updateResult = $elementObject->update($this->elementId, $fields, false, true, true);
 		if ($updateResult)
 		{
-			if ($startUpBp)
+			if ($isEnabledBp && $hasBpTemplatesWithAutoStart)
 			{
 				$changedElementFields = \CLists::checkChangedFields(
-					$this->iblockId, $this->elementId, $elementSelect, $elementFields, $elementProperty);
-				$this->startBizproc($documentStates, $bizprocParameters, $changedElementFields);
-			}
-			if ($this->hasErrors())
-			{
-				return false;
+					$this->iblockId,
+					$this->elementId,
+					$elementSelect,
+					$elementFields,
+					$elementProperty
+				);
+
+				$this->startBp($this->elementId, \CBPDocumentEventType::Edit, $changedElementFields);
+
+				if ($this->hasErrors())
+				{
+					return false;
+				}
 			}
 
 			return true;
@@ -196,12 +227,17 @@ class Element implements Controllable, Errorable
 		{
 			if ($elementObject->LAST_ERROR)
 			{
-				$this->errorCollection->setError(new Error($elementObject->LAST_ERROR, self::ERROR_UPDATE_ELEMENT));
+				$this->errorCollection->setError(
+					new Error($elementObject->LAST_ERROR, self::ERROR_UPDATE_ELEMENT)
+				);
 			}
 			else
 			{
-				$this->errorCollection->setError(new Error("Unknown error", self::ERROR_UPDATE_ELEMENT));
+				$this->errorCollection->setError(
+					new Error("Unknown error", self::ERROR_UPDATE_ELEMENT)
+				);
 			}
+
 			return false;
 		}
 	}
@@ -547,26 +583,20 @@ class Element implements Controllable, Errorable
 		{
 			if (is_array($value))
 			{
-				if (intval($value))
-				{
-					$elementFields["PROPERTY_VALUES"][$fieldData["ID"]][$key]["VALUE"] = \CFile::makeFileArray($value);
-				}
-				else
-				{
-					$elementFields["PROPERTY_VALUES"][$fieldData["ID"]][$key]["VALUE"] = \CRestUtil::saveFile($value);
-				}
+				$elementFields["PROPERTY_VALUES"][$fieldData["ID"]][$key]["VALUE"] = \CRestUtil::saveFile($value);
 			}
 			else
 			{
-				if (intval($value))
+				if (is_numeric($value))
 				{
 					$elementFields["PROPERTY_VALUES"][$fieldData["ID"]][$key]["VALUE"] = \CFile::makeFileArray($value);
 				}
 				else
 				{
 					$elementFields["PROPERTY_VALUES"][$fieldData["ID"]][$key]["VALUE"] = \CRestUtil::saveFile($fieldValue);
+
+					break;
 				}
-				break;
 			}
 		}
 
@@ -694,118 +724,104 @@ class Element implements Controllable, Errorable
 		}
 	}
 
-	private function getBizprocData()
+	private function hasBpTemplatesWithAutoStart(int $execType): bool
 	{
-		$bizprocParameters = [];
-		$startUpTemplate = false;
-
-		if (!$this->isEnabledBizproc($this->params["IBLOCK_TYPE_ID"]))
-		{
-			return [[], $bizprocParameters, $startUpTemplate];
-		}
-
-		$elementId = $this->elementId;
-
 		$documentType = \BizProcDocument::generateDocumentComplexType(
 			$this->params["IBLOCK_TYPE_ID"],
 			$this->iblockId
 		);
-		$documentId = ($elementId ? \BizProcDocument::getDocumentComplexId(
-			$this->params["IBLOCK_TYPE_ID"], $elementId) : null);
-		$documentStates = \CBPDocument::getDocumentStates($documentType, $documentId);
 
-		global $USER;
-		$userId = $USER->getID();
-		$currentUserGroups = $USER->getUserGroupArray();
-		if (!$elementId || $this->params["CREATED_BY"] == $userId)
-		{
-			$currentUserGroups[] = "author";
-		}
-
-		if ($elementId)
-		{
-			$canWrite = \CBPDocument::canUserOperateDocument(
-				\CBPCanUserOperateOperation::WriteDocument, $userId, $documentId,
-				["AllUserGroups" => $currentUserGroups, "DocumentStates" => $documentStates]
-			);
-		}
-		else
-		{
-			$canWrite = \CBPDocument::canUserOperateDocumentType(
-				\CBPCanUserOperateOperation::WriteDocument, $userId, $documentType,
-				["AllUserGroups" => $currentUserGroups, "DocumentStates" => $documentStates]
-			);
-		}
-		if (!$canWrite)
-		{
-			$this->errorCollection->setError(new Error(
-				"You do not have enough permissions to edit this record in its current bizproc state",
-				self::ERROR_ADD_ELEMENT)
-			);
-			return [$documentStates, $bizprocParameters, $startUpTemplate];
-		}
-
-		foreach ($documentStates as $documentState)
-		{
-			if ($documentState["ID"] == '')
-			{
-				$startUpTemplate = true;
-				$tmpError = [];
-				$bizprocParameters[$documentState["TEMPLATE_ID"]] = \CBPDocument::startWorkflowParametersValidate(
-					$documentState["TEMPLATE_ID"],
-					$documentState["TEMPLATE_PARAMETERS"],
-					$documentType,
-					$tmpError
-				);
-				foreach ($tmpError as $message)
-				{
-					$this->errorCollection->setError(new Error($message, self::ERROR_ADD_ELEMENT));
-				}
-			}
-		}
-		$templates = array_merge(
-			\CBPWorkflowTemplateLoader::searchTemplatesByDocumentType($documentType, \CBPDocumentEventType::Create),
-			\CBPWorkflowTemplateLoader::searchTemplatesByDocumentType($documentType, \CBPDocumentEventType::Edit)
+		$bpTemplatesWithAutoStart = \CBPWorkflowTemplateLoader::searchTemplatesByDocumentType(
+			$documentType,
+			$execType
 		);
 
-		foreach ($templates as $template)
+		foreach ($bpTemplatesWithAutoStart as $template)
 		{
 			if (!\CBPWorkflowTemplateLoader::isConstantsTuned($template["ID"]))
 			{
-				$this->errorCollection->setError(new Error(
-					"Workflow constants need to be configured", self::ERROR_ADD_ELEMENT));
-				break;
+				$this->errorCollection->setError(
+					new Error("Workflow constants need to be configured", self::ERROR_ADD_ELEMENT)
+				);
 			}
 		}
 
-		return [$documentStates, $bizprocParameters, $startUpTemplate];
+		return !empty($bpTemplatesWithAutoStart);
 	}
 
-	private function startBizproc($documentStates, $bizprocParameters, $changedElementFields)
+	private function startBp(int $elementId, int $execType, $changedElementFields = []): void
 	{
-		$bizprocWorkflowId = [];
+		$documentType = \BizprocDocument::generateDocumentComplexType(
+			$this->params["IBLOCK_TYPE_ID"],
+			$this->iblockId
+		);
+		$documentId = \BizProcDocument::getDocumentComplexId(
+			$this->params["IBLOCK_TYPE_ID"],
+			$elementId
+		);
+		$documentStates = \CBPWorkflowTemplateLoader::getDocumentTypeStates(
+			$documentType,
+			$execType
+		);
 
-		global $USER;
-		$userId = $USER->getID();
-
-		$elementId = $this->elementId;
-
-		foreach ($documentStates as $documentState)
+		if (is_array($documentStates) && !empty($documentStates))
 		{
-			if ($documentState["ID"] == '')
+			global $USER;
+
+			$userId = $USER->getID();
+
+			$currentUserGroups = $USER->getUserGroupArray();
+			if ($this->params["CREATED_BY"] == $userId)
 			{
-				$errors = [];
-				$bizprocWorkflowId[$documentState["TEMPLATE_ID"]] = \CBPDocument::startWorkflow(
+				$currentUserGroups[] = "author";
+			}
+
+			$canWrite = \CBPDocument::canUserOperateDocument(
+				\CBPCanUserOperateOperation::WriteDocument,
+				$userId,
+				$documentId,
+				[
+					"AllUserGroups" => $currentUserGroups,
+					"DocumentStates" => $documentStates
+				]
+			);
+			if (!$canWrite)
+			{
+				$this->errorCollection->setError(
+					new Error("You do not have enough permissions to edit this record in its current bizproc state")
+				);
+
+				return;
+			}
+
+			$errors = [];
+
+			foreach ($documentStates as $documentState)
+			{
+				$parameters = \CBPDocument::startWorkflowParametersValidate(
 					$documentState["TEMPLATE_ID"],
-					\BizProcDocument::getDocumentComplexId($this->params["IBLOCK_TYPE_ID"], $elementId),
-					array_merge($bizprocParameters[$documentState["TEMPLATE_ID"]], array(
-						\CBPDocument::PARAM_TAGRET_USER => "user_".intval($userId),
-						\CBPDocument::PARAM_MODIFIED_DOCUMENT_FIELDS => $changedElementFields
-					)),
+					$documentState["TEMPLATE_PARAMETERS"],
+					$documentType,
 					$errors
 				);
-				foreach($errors as $message)
-					$this->errorCollection->setError(new Error($message, self::ERROR_ADD_ELEMENT));
+
+				\CBPDocument::startWorkflow(
+					$documentState["TEMPLATE_ID"],
+					\BizProcDocument::getDocumentComplexId($this->params["IBLOCK_TYPE_ID"], $elementId),
+					array_merge(
+						$parameters,
+						[
+							\CBPDocument::PARAM_TAGRET_USER => "user_" . intval($userId),
+							\CBPDocument::PARAM_MODIFIED_DOCUMENT_FIELDS => $changedElementFields,
+						]
+					),
+					$errors
+				);
+			}
+
+			foreach($errors as $message)
+			{
+				$this->errorCollection->setError(new Error($message));
 			}
 		}
 	}

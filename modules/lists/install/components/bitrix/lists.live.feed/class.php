@@ -14,6 +14,10 @@ class ListsSelectElementComponent extends CBitrixComponent
 		{
 			$arParams['ERROR'][] = Loc::getMessage('CC_BLL_MODULE_NOT_INSTALLED');
 		}
+		if (!Loader::includeModule('socialnetwork'))
+		{
+			$arParams['ERROR'][] = 'socialnetwork module not installed';
+		}
 		return $arParams;
 	}
 
@@ -28,6 +32,7 @@ class ListsSelectElementComponent extends CBitrixComponent
 		$this->arResult['SOCNET_GROUP_ID'] = $this->arParams['SOCNET_GROUP_ID'];
 		$this->arResult['RAND_STRING'] = $this->randString();
 		$this->arResult['DESTINATION'] = $this->arParams['DESTINATION'];
+		$this->arResult['COMPANY_STRUCTURE'] = \CSocNetLogDestination::getStucture();
 		$path = rtrim(SITE_DIR, '/');
 		$this->arResult['LISTS_URL'] = $path.COption::GetOptionString('lists', 'livefeed_url');
 		$this->arResult['IBLOCK_ID'] = intval($this->arParams['IBLOCK_ID']);

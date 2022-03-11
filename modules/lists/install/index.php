@@ -39,7 +39,7 @@ Class lists extends CModule
 		// Database tables creation
 		if(!$DB->Query("SELECT 'x' FROM b_lists_permission WHERE 1=0", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/lists/install/db/".mb_strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/lists/install/db/mysql/install.sql");
 		}
 
 		if($this->errors !== false)
@@ -202,7 +202,7 @@ Class lists extends CModule
 
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/lists/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/lists/install/db/mysql/uninstall.sql");
 		}
 
 		UnRegisterModuleDependences("iblock", "OnAfterIBlockUpdate", "lists", "CLists", "OnAfterIBlockUpdate");

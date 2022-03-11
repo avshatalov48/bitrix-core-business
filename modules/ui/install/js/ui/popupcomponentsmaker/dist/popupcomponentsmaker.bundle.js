@@ -27,7 +27,7 @@ this.BX = this.BX || {};
 	    };
 
 	    if (_this.awaitContent) {
-	      _this.await();
+	      _this["await"]();
 	    }
 
 	    return _this;
@@ -133,6 +133,7 @@ this.BX = this.BX || {};
 	  function PopupComponentsMaker() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, PopupComponentsMaker);
+	    this.id = main_core.Type.isString(options.id) ? options.id : null;
 	    this.target = main_core.Type.isElementNode(options.target) ? options.target : null;
 	    this.content = options.content || null;
 	    this.contentWrapper = null;
@@ -140,6 +141,7 @@ this.BX = this.BX || {};
 	    this.loader = null;
 	    this.items = [];
 	    this.width = main_core.Type.isNumber(options.width) ? options.width : null;
+	    this.cacheable = main_core.Type.isBoolean(options.cacheable) ? options.cacheable : true;
 	  }
 
 	  babelHelpers.createClass(PopupComponentsMaker, [{
@@ -167,7 +169,8 @@ this.BX = this.BX || {};
 	    value: function getPopup() {
 	      if (!this.popup) {
 	        var popupWidth = this.width ? this.width : 350;
-	        this.popup = new main_popup.Popup(null, this.target, {
+	        var popupId = this.id ? this.id + '-popup' : null;
+	        this.popup = new main_popup.Popup(popupId, this.target, {
 	          className: 'ui-qr-popupcomponentmaker',
 	          // background: 'transparent',
 	          contentBackground: 'transparent',
@@ -180,7 +183,8 @@ this.BX = this.BX || {};
 	          closeByEsc: true,
 	          padding: 13,
 	          animation: 'fading-slide',
-	          content: this.getContentWrapper()
+	          content: this.getContentWrapper(),
+	          cacheable: this.cacheable
 	        });
 	        this.popup.getContentContainer().style.overflowX = null;
 	      }

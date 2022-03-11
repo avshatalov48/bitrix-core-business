@@ -8,7 +8,7 @@ if(!isset($arParams["PAGE"]) || $arParams["PAGE"] == '')
 
 $arResult["CATEGORIES"] = array();
 
-$query = ltrim($_POST["q"]);
+$query = ltrim($_POST["q"] ?? '');
 if(
 	!empty($query)
 	&& $_REQUEST["ajax_call"] === "y"
@@ -270,7 +270,8 @@ if(
 $arResult["FORM_ACTION"] = htmlspecialcharsbx(str_replace("#SITE_DIR#", SITE_DIR, $arParams["PAGE"]));
 
 if (
-	$_REQUEST["ajax_call"] === "y"
+	isset($_REQUEST["ajax_call"])
+	&& $_REQUEST["ajax_call"] === "y"
 	&& (
 		!isset($_REQUEST["INPUT_ID"])
 		|| $_REQUEST["INPUT_ID"] == $arParams["INPUT_ID"]

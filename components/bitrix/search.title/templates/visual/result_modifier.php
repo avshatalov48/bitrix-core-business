@@ -8,7 +8,7 @@ $PREVIEW_HEIGHT = intval($arParams["PREVIEW_HEIGHT"]);
 if ($PREVIEW_HEIGHT <= 0)
 	$PREVIEW_HEIGHT = 75;
 
-$arParams["PRICE_VAT_INCLUDE"] = $arParams["PRICE_VAT_INCLUDE"] !== "N";
+$arParams["PRICE_VAT_INCLUDE"] = (!isset($arParams["PRICE_VAT_INCLUDE"]) || $arParams["PRICE_VAT_INCLUDE"] !== "N");
 
 $arCatalogs = false;
 

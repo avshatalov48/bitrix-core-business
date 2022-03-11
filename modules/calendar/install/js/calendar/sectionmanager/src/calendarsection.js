@@ -114,16 +114,31 @@ export class CalendarSection
 					}
 				})
 				.then(
-					// Success
-					BX.delegate(function (response)
-					{
-						this.calendar.reload();
-					}, this),
-					// Failure
-					BX.delegate(function (response)
-					{
-						this.calendar.displayError(response.errors);
-					}, this)
+					() => {
+						const sectionManager = Util.getCalendarContext().sectionManager;
+						let reload = true;
+						let section;
+						
+						for (let i = 0; i < sectionManager.sections.length; i++)
+						{
+							section = sectionManager.sections[i];
+							if (section.id !== this.id && section.belongsToView())
+							{
+								reload = false;
+								break;
+							}
+						}
+						
+						const calendar = Util.getCalendarContext();
+						if (!calendar || reload)
+						{
+							return Util.getBX().reload();
+						}
+						calendar.reload();
+					},
+					(response) => {
+						// this.calendar.displayError(response.errors);
+					}
 				);
 		}
 	}

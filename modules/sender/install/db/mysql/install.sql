@@ -432,7 +432,8 @@ create table b_sender_group_data
 	PHONE varchar(128),
 	HAS_EMAIL varchar(1),
 	HAS_IMOL varchar(1),
-	HAS_PHONE varchar(1)
+	HAS_PHONE varchar(1),
+	SENDER_TYPE_ID int null
 );
 create index IX_SENDER_GROUP_DATA_GROUP_ID_FILTER_ID
 	on b_sender_group_data (GROUP_ID, FILTER_ID);
@@ -475,3 +476,14 @@ CONSTRAINT `IX_SENDER_GROUP_THREAD_INFO_THREAD_ID_GROUP_STATE` UNIQUE
 (`THREAD_ID`, `GROUP_STATE_ID`)
 );
 
+CREATE TABLE b_sender_file
+(
+	`ID`  INT UNSIGNED  auto_increment primary key,
+	`FILE_ID`  INT UNSIGNED NOT NULL,
+	`ENTITY_TYPE`  INT UNSIGNED NOT NULL,
+	`ENTITY_ID`     INT UNSIGNED NOT NULL,
+	`DATE_INSERT` datetime NOT NULL
+);
+
+create index IX_SENDER_FILE_ENTITY_TYPE_ENTITY_ID
+    on b_sender_file (`ENTITY_TYPE`, `ENTITY_ID`);

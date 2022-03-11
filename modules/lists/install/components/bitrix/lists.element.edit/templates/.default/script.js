@@ -31,16 +31,6 @@ BX.Lists.ListsElementEditClass = (function ()
 		BX.bind(this.actionButton, 'click', BX.delegate(this.showListAction, this));
 
 		if(this.isConstantsTuned) this.setConstants();
-
-		if (this.lockStatus)
-		{
-			window.addEventListener("beforeunload", this.onBeforeUnloadHandler.bind(this));
-		}
-	};
-
-	ListsElementEditClass.prototype.onBeforeUnloadHandler = function()
-	{
-		this.unLock(true);
 	};
 
 	ListsElementEditClass.prototype.showListAction = function ()

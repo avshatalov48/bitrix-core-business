@@ -2,12 +2,12 @@
 
 namespace Bitrix\Conversion;
 
+use CCurrencyLang;
 use Bitrix\Main\Loader;
-use Bitrix\Currency\CurrencyLangTable;
 
 final class Utils
 {
-	static public function convertToBaseCurrency($value, $currency)
+	public static function convertToBaseCurrency($value, $currency)
 	{
 		static $module, $baseCurrency;
 
@@ -25,7 +25,7 @@ final class Utils
 		return $value;
 	}
 
-	static public function formatToBaseCurrency($value, $format = null)
+	public static function formatToBaseCurrency($value, $format = null)
 	{
 		static $module, $baseCurrency;
 
@@ -44,29 +44,18 @@ final class Utils
 	}
 
 	/** @deprecated */
-	static public function getBaseCurrencyUnit() // TODO remove from sale
+	public static function getBaseCurrencyUnit() // TODO remove from sale
 	{
 		static $unit;
 
-		if (! $unit)
+		if (!$unit)
 		{
 			$unit = Config::getBaseCurrency();
-
-			if (LANGUAGE_ID == 'ru' && Loader::includeModule('currency'))
+			if (Loader::includeModule('currency'))
 			{
-				switch ($unit)
-				{
-					case 'RUB':
-					case 'BYR':
-					case 'UAH':
-
-						if ($row = CurrencyLangTable::getByPrimary(array('CURRENCY' => $unit, 'LID' => LANGUAGE_ID))->fetch())
-						{
-							$unit = trim(str_replace('#', '', $row['FORMAT_STRING']));
-						}
-
-						break;
-				}
+				$unit = trim(
+					CCurrencyLang::getPriceControl(' ', $unit)
+				);
 			}
 		}
 

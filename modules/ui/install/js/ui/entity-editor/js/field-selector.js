@@ -187,7 +187,7 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 					var parentName = section.getName();
 					var parentTitle = section.getTitle();
 
-					this._contentWrapper.appendChild(
+					container.appendChild(
 						BX.create(
 							"div",
 							{
@@ -196,6 +196,14 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 							}
 						)
 					);
+
+					var sectionContainer = BX.create(
+						"div",
+						{
+							attrs: { className: "ui-entity-editor-popup-field-selector-list-section" }
+						}
+					);
+					container.appendChild(sectionContainer);
 
 					for(var j = 0; j < effectiveElements.length; j++)
 					{
@@ -211,7 +219,7 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 								attrs: { className: "ui-entity-editor-popup-field-selector-list-item" }
 							}
 						);
-						container.appendChild(itemWrapper);
+						sectionContainer.appendChild(itemWrapper);
 
 						itemWrapper.appendChild(
 							BX.create(

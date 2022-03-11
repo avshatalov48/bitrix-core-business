@@ -4080,8 +4080,8 @@ this.BX = this.BX || {};
 	          label = main_core.Loc.getMessage('USER_TYPE_DURATION_X_HOUR').replace('#NUM#', val / 60);
 	        } // Minutes
 	      else {
-	          label = main_core.Loc.getMessage('USER_TYPE_DURATION_X_MIN').replace('#NUM#', val);
-	        }
+	        label = main_core.Loc.getMessage('USER_TYPE_DURATION_X_MIN').replace('#NUM#', val);
+	      }
 
 	      return label;
 	    }

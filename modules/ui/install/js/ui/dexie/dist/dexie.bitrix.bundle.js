@@ -27,7 +27,7 @@
    var _global = typeof self !== 'undefined' ? self : typeof window !== 'undefined' ? window : global;
 
    function extend(obj, extension) {
-     if (babelHelpers.typeof(extension) !== 'object') return obj;
+     if (babelHelpers["typeof"](extension) !== 'object') return obj;
      keys(extension).forEach(function (key) {
        obj[key] = extension[key];
      });
@@ -44,7 +44,7 @@
    function props(proto, extension) {
      if (typeof extension === 'function') extension = extension(getProto(proto)); // tag start 28122018
 
-     if (babelHelpers.typeof(extension) !== 'object') return; // tag end 28122018
+     if (babelHelpers["typeof"](extension) !== 'object') return; // tag end 28122018
 
      keys(extension).forEach(function (key) {
        setProp(proto, key, extension[key]);
@@ -225,7 +225,7 @@
    });
 
    function deepClone(any) {
-     if (!any || babelHelpers.typeof(any) !== 'object') return any;
+     if (!any || babelHelpers["typeof"](any) !== 'object') return any;
      var rv;
 
      if (isArray(any)) {
@@ -256,12 +256,12 @@
      keys(a).forEach(function (prop) {
        if (!hasOwn(b, prop)) rv[prfx + prop] = undefined; // Property removed
        else {
-           var ap = a[prop],
-               bp = b[prop];
-           if (babelHelpers.typeof(ap) === 'object' && babelHelpers.typeof(bp) === 'object' && ap && bp && // Now compare constructors are same (not equal because wont work in Safari)
-           '' + ap.constructor === '' + bp.constructor) // Same type of object but its properties may have changed
-             getObjectDiff(ap, bp, rv, prfx + prop + ".");else if (ap !== bp) rv[prfx + prop] = b[prop]; // Primitive value changed
-         }
+         var ap = a[prop],
+             bp = b[prop];
+         if (babelHelpers["typeof"](ap) === 'object' && babelHelpers["typeof"](bp) === 'object' && ap && bp && // Now compare constructors are same (not equal because wont work in Safari)
+         '' + ap.constructor === '' + bp.constructor) // Same type of object but its properties may have changed
+           getObjectDiff(ap, bp, rv, prfx + prop + ".");else if (ap !== bp) rv[prfx + prop] = b[prop]; // Primitive value changed
+       }
      });
      keys(b).forEach(function (prop) {
        if (!hasOwn(a, prop)) {
@@ -470,7 +470,7 @@
        } else if (typeof msgOrInner === 'string') {
          this.message = msgOrInner;
          this.inner = inner || null;
-       } else if (babelHelpers.typeof(msgOrInner) === 'object') {
+       } else if (babelHelpers["typeof"](msgOrInner) === 'object') {
          this.message = msgOrInner.name + " " + msgOrInner.message;
          this.inner = msgOrInner;
        }
@@ -745,7 +745,7 @@
    var tickFinalizers = []; // Finalizers to call when there are no more async calls scheduled within current physical tick.
 
    function Promise(fn) {
-     if (babelHelpers.typeof(this) !== 'object') throw new TypeError('Promises must be constructed via new');
+     if (babelHelpers["typeof"](this) !== 'object') throw new TypeError('Promises must be constructed via new');
      this._listeners = [];
      this.onuncatched = nop; // Deprecate in next major. Not needed. Better to use global error handler.
      // A library may set `promise._lib = true;` after promise is created to make resolve() or reject()
@@ -826,7 +826,7 @@
        // A little tinier version of then() that don't have to create a resulting promise.
        propagateToListener(this, new Listener(null, null, onFulfilled, onRejected, PSD));
      },
-     catch: function _catch(onRejected) {
+     "catch": function _catch(onRejected) {
        if (arguments.length === 1) return this.then(null, onRejected); // First argument is the Error type to catch
 
        var type = arguments[0],
@@ -842,7 +842,7 @@
          return err && err.name === type ? handler(err) : PromiseReject(err);
        });
      },
-     finally: function _finally(onFinally) {
+     "finally": function _finally(onFinally) {
        return this.then(function (value) {
          onFinally();
          return value;
@@ -875,7 +875,7 @@
            return reject(new exceptions.Timeout(msg));
          }, ms);
 
-         _this.then(resolve, reject).finally(clearTimeout.bind(null, handle));
+         _this.then(resolve, reject)["finally"](clearTimeout.bind(null, handle));
        }) : this;
      }
    });
@@ -1021,7 +1021,7 @@
      reason = rejectionMapper(reason);
      promise._state = false;
      promise._value = reason;
-     debug && reason !== null && babelHelpers.typeof(reason) === 'object' && !reason._promise && tryCatch(function () {
+     debug && reason !== null && babelHelpers["typeof"](reason) === 'object' && !reason._promise && tryCatch(function () {
        var origProp = getPropertyDescriptor(reason, "stack");
        reason._promise = promise;
        setProp(reason, "stack", {
@@ -1546,7 +1546,7 @@
      return rv;
 
      function add(eventName, chainFunction, defaultFunction) {
-       if (babelHelpers.typeof(eventName) === 'object') return addConfiguredEvents(eventName);
+       if (babelHelpers["typeof"](eventName) === 'object') return addConfiguredEvents(eventName);
        if (!chainFunction) chainFunction = reverseStoppableEventChain;
        if (!defaultFunction) defaultFunction = nop;
        var context = {
@@ -1806,7 +1806,7 @@
 
        trans.create(idbtrans);
 
-       trans._completion.catch(reject);
+       trans._completion["catch"](reject);
 
        var rejectTransaction = trans._reject.bind(trans);
 
@@ -1820,8 +1820,8 @@
            });
            Promise.follow(function () {
              return db.on.populate.fire(trans);
-           }).catch(rejectTransaction);
-         } else updateTablesAndIndexes(oldVersion, trans, idbtrans).catch(rejectTransaction);
+           })["catch"](rejectTransaction);
+         } else updateTablesAndIndexes(oldVersion, trans, idbtrans)["catch"](rejectTransaction);
        });
      }
 
@@ -2012,7 +2012,7 @@
        if (!openComplete && !PSD.letThrough) {
          if (!isBeingOpened) {
            if (!autoOpen) return rejection(new exceptions.DatabaseClosed());
-           db.open().catch(nop); // Open in background. If if fails, it will be catched by the final promise anyway.
+           db.open()["catch"](nop); // Open in background. If if fails, it will be catched by the final promise anyway.
          }
 
          return dbReadyPromise.then(function () {
@@ -2062,7 +2062,7 @@
              return;
            }
 
-           db.open().catch(nop); // Open in background. If if fails, it will be catched by the final promise anyway.
+           db.open()["catch"](nop); // Open in background. If if fails, it will be catched by the final promise anyway.
          }
 
          dbReadyPromise.then(resolve, reject);
@@ -2150,7 +2150,7 @@
            if (!hasNativeGetDatabaseNames && dbName !== '__dbnames') {
              dbNamesDB.dbnames.put({
                name: dbName
-             }).catch(nop);
+             })["catch"](nop);
            }
 
            resolve();
@@ -2169,13 +2169,13 @@
              return Promise.resolve(Dexie.vip(remainders)).then(fireRemainders);
            }
          });
-       }).finally(function () {
+       })["finally"](function () {
          onReadyBeingFired = null;
        }).then(function () {
          // Resolve the db.open() with the db instance.
          isBeingOpened = false;
          return db;
-       }).catch(function (err) {
+       })["catch"](function (err) {
          try {
            // Did we fail within onupgradeneeded? Make sure to abort the upgrade transaction so it doesnt commit.
            upgradeTransaction && upgradeTransaction.abort();
@@ -2189,7 +2189,7 @@
          dbOpenError = err; // Record the error. It will be used to reject further promises of db operations.
 
          return rejection(dbOpenError);
-       }).finally(function () {
+       })["finally"](function () {
          openComplete = true;
          resolveDbReady(); // dbReadyPromise is resolved no matter if open() rejects or resolved. It's just to wake up waiters.
        });
@@ -2219,7 +2219,7 @@
        });
      };
 
-     this.delete = function () {
+     this["delete"] = function () {
        var hasArguments = arguments.length > 0;
        return new Promise(function (resolve, reject) {
          if (hasArguments) throw new exceptions.InvalidArgument("Arguments not allowed in db.delete()");
@@ -2235,7 +2235,7 @@
            var req = indexedDB.deleteDatabase(dbName);
            req.onsuccess = wrap(function () {
              if (!hasNativeGetDatabaseNames) {
-               dbNamesDB.dbnames.delete(dbName).catch(nop);
+               dbNamesDB.dbnames["delete"](dbName)["catch"](nop);
              }
 
              resolve();
@@ -2437,7 +2437,7 @@
                if (returnValue.constructor === NativePromise) {
                  var decrementor = decrementExpectedAwaits.bind(null, null);
                  returnValue.then(decrementor, decrementor);
-               } else if (typeof returnValue.next === 'function' && typeof returnValue.throw === 'function') {
+               } else if (typeof returnValue.next === 'function' && typeof returnValue["throw"] === 'function') {
                  // scopeFunc returned an iterator with throw-support. Handle yield as await.
                  returnValue = awaitIterator(returnValue);
                }
@@ -2458,7 +2458,7 @@
              return trans._completion.then(function () {
                return x;
              });
-           }).catch(function (e) {
+           })["catch"](function (e) {
              trans._reject(e); // Yes, above then-handler were maybe not called because of an unhandled rejection in scopeFunc!
 
 
@@ -2514,7 +2514,7 @@
 
          if (!hasDeleteHook) {
            for (var i = 0; i < len; ++i) {
-             var req = idbstore.delete(keysOrTuples[i]);
+             var req = idbstore["delete"](keysOrTuples[i]);
              req.onerror = eventRejectHandler(reject);
              if (i === lastItem) req.onsuccess = wrap(function () {
                return resolve();
@@ -2532,7 +2532,7 @@
                };
                var tuple = keysOrTuples[i];
                deletingHook.call(hookCtx, tuple[0], tuple[1], trans);
-               var req = idbstore.delete(tuple[0]);
+               var req = idbstore["delete"](tuple[0]);
                req._hookCtx = hookCtx;
                req.onerror = errorHandler;
                if (i === lastItem) req.onsuccess = hookedEventSuccessHandler(resolve);else req.onsuccess = successHandler;
@@ -2701,7 +2701,7 @@
              resolve(_bulkDelete(idbstore, trans, keys$$1, false, nop));
            });
          } else {
-           return this.where(':id').anyOf(keys$$1).delete().then(function () {}); // Resolve with undefined.
+           return this.where(':id').anyOf(keys$$1)["delete"]().then(function () {}); // Resolve with undefined.
          }
        },
        bulkPut: function bulkPut(objects, keys$$1) {
@@ -2754,7 +2754,7 @@
              })).modify(function () {
                this.value = objectLookup[this.primKey];
                objectLookup[this.primKey] = null; // Mark as "don't add this"
-             }).catch(ModifyError, function (e) {
+             })["catch"](ModifyError, function (e) {
                errorList = e.failures; // No need to concat here. These are the first errors added.
              }).then(function () {
                // Now, let's examine which items didnt exist so we can add them:
@@ -2784,11 +2784,11 @@
 
                return lastEffectiveKey != null ? lastEffectiveKey : lastAddedKey;
              });
-             promise.then(done).catch(BulkError, function (e) {
+             promise.then(done)["catch"](BulkError, function (e) {
                // Concat failure from ModifyError and reject using our 'done' method.
                errorList = errorList.concat(e.failures);
                done();
-             }).catch(reject);
+             })["catch"](reject);
            }
          }, "locked"); // If called from transaction scope, lock transaction til all steps are done.
        },
@@ -2961,11 +2961,11 @@
          if (this.hook.deleting.subscribers.length) {
            // People listens to when("deleting") event. Must implement delete using Collection.delete() that will
            // call the CRUD event. Only Collection.delete() will know whether an object was actually deleted.
-           return this.where(":id").equals(key).delete();
+           return this.where(":id").equals(key)["delete"]();
          } else {
            // No one listens. Use standard IDB delete() method.
            return this._idbstore(READWRITE, function (resolve, reject, idbstore) {
-             var req = idbstore.delete(key);
+             var req = idbstore["delete"](key);
              req.onerror = eventRejectHandler(reject);
              req.onsuccess = wrap(function () {
                resolve(req.result);
@@ -2977,7 +2977,7 @@
          if (this.hook.deleting.subscribers.length) {
            // People listens to when("deleting") event. Must implement delete using Collection.delete() that will
            // call the CRUD event. Only Collection.delete() will knows which objects that are actually deleted.
-           return this.toCollection().delete();
+           return this.toCollection()["delete"]();
          } else {
            return this._idbstore(READWRITE, function (resolve, reject, idbstore) {
              var req = idbstore.clear();
@@ -2989,9 +2989,9 @@
          }
        },
        update: function update(keyOrObject, modifications) {
-         if (babelHelpers.typeof(modifications) !== 'object' || isArray(modifications)) throw new exceptions.InvalidArgument("Modifications must be an object.");
+         if (babelHelpers["typeof"](modifications) !== 'object' || isArray(modifications)) throw new exceptions.InvalidArgument("Modifications must be an object.");
 
-         if (babelHelpers.typeof(keyOrObject) === 'object' && !isArray(keyOrObject)) {
+         if (babelHelpers["typeof"](keyOrObject) === 'object' && !isArray(keyOrObject)) {
            // object to modify. Also modify given object with the modifications:
            keys(modifications).forEach(function (keyPath) {
              setByKeyPath(keyOrObject, keyPath, modifications[keyPath]);
@@ -3162,7 +3162,7 @@
                var rv = fn(resolve, reject, _this);
                if (rv && rv.then) rv.then(resolve, reject);
              });
-             p.finally(function () {
+             p["finally"](function () {
                return _this._unlock();
              });
              p._lib = true;
@@ -3217,7 +3217,7 @@
              return root._waitingQueue.push(wrap(resolve.bind(null, res)));
            }, function (err) {
              return root._waitingQueue.push(wrap(reject.bind(null, err)));
-           }).finally(function () {
+           })["finally"](function () {
              if (root._waitingFor === currentWaitPromise) {
                // No one added a wait after us. Safe to stop the spinning.
                root._waitingFor = null;
@@ -3386,7 +3386,7 @@
 
              if (lowestPossibleCasing !== null) {
                advance(function () {
-                 cursor.continue(lowestPossibleCasing + nextKeySuffix);
+                 cursor["continue"](lowestPossibleCasing + nextKeySuffix);
                });
              } else {
                advance(resolve);
@@ -3527,7 +3527,7 @@
              } else {
                // cursor.key not yet at set[i]. Forward cursor to the next key to hunt for.
                advance(function () {
-                 cursor.continue(set[i]);
+                 cursor["continue"](set[i]);
                });
                return false;
              }
@@ -3671,7 +3671,7 @@
              } else {
                // cursor.key not yet at set[i]. Forward cursor to the next key to hunt for.
                advance(function () {
-                 if (sortDirection === ascending) cursor.continue(set[i][0]);else cursor.continue(set[i][1]);
+                 if (sortDirection === ascending) cursor["continue"](set[i][0]);else cursor["continue"](set[i][1]);
                });
                return false;
              }
@@ -4224,7 +4224,7 @@
                  var bDelete = !hasOwn(thisContext, "value");
                  ++count;
                  tryCatch(function () {
-                   var req = bDelete ? cursor.delete() : cursor.update(thisContext.value);
+                   var req = bDelete ? cursor["delete"]() : cursor.update(thisContext.value);
                    req._hookCtx = thisContext;
                    req.onerror = hookedEventRejectHandler(onerror);
                    req.onsuccess = hookedEventSuccessHandler(function () {
@@ -4281,7 +4281,7 @@
                countReq.onsuccess = function () {
                  var count = countReq.result;
                  tryCatch(function () {
-                   var delReq = range ? idbstore.delete(range) : idbstore.clear();
+                   var delReq = range ? idbstore["delete"](range) : idbstore.clear();
                    delReq.onerror = onerror;
 
                    delReq.onsuccess = function () {
@@ -4395,7 +4395,7 @@
 
            if (cursor) {
              var c = function c() {
-               cursor.continue();
+               cursor["continue"]();
              };
 
              if (filter(cursor, function (advancer) {
@@ -4414,7 +4414,7 @@
 
            if (cursor) {
              var c = function c() {
-               cursor.continue();
+               cursor["continue"]();
              };
 
              wrappedFn(cursor.value, cursor, function (advancer) {
@@ -4563,7 +4563,7 @@
        return new type();
      } else if (isArray(type)) {
        return [parseType(type[0])];
-     } else if (type && babelHelpers.typeof(type) === 'object') {
+     } else if (type && babelHelpers["typeof"](type) === 'object') {
        var rv = {};
        applyStructure(rv, type);
        return rv;
@@ -4641,7 +4641,7 @@
        return iterator.next(result);
      },
          doThrow = function doThrow(error) {
-       return iterator.throw(error);
+       return iterator["throw"](error);
      },
          onSuccess = step(callNext),
          onError = step(doThrow);
@@ -4716,9 +4716,9 @@
      //
      // Static delete() method.
      //
-     delete: function _delete(databaseName) {
+     "delete": function _delete(databaseName) {
        var db = new Dexie(databaseName),
-           promise = db.delete();
+           promise = db["delete"]();
 
        promise.onblocked = function (fn) {
          db.on("blocked", fn);
@@ -4734,7 +4734,7 @@
        return new Dexie(name).open().then(function (db) {
          db.close();
          return true;
-       }).catch(Dexie.NoSuchDatabaseError, function () {
+       })["catch"](Dexie.NoSuchDatabaseError, function () {
          return false;
        });
      },
@@ -4912,7 +4912,7 @@
      // https://github.com/dfahlander/Dexie.js/issues/186
      // typescript compiler tsc in mode ts-->es5 & commonJS, will expect require() to return
      // x.default. Workaround: Set Dexie.default = Dexie.
-     default: Dexie,
+     "default": Dexie,
      // Make it possible to import {Dexie} (non-default import)
      // Reason 1: May switch to that in future.
      // Reason 2: We declare it both default and named exported in d.ts to make it possible
@@ -4933,12 +4933,12 @@
      var DBNAMES = 'Dexie.DatabaseNames';
 
      try {
-       if ((typeof localStorage === "undefined" ? "undefined" : babelHelpers.typeof(localStorage)) !== undefined && _global.document !== undefined) {
+       if ((typeof localStorage === "undefined" ? "undefined" : babelHelpers["typeof"](localStorage)) !== undefined && _global.document !== undefined) {
          // Have localStorage and is not executing in a worker. Lets migrate from Dexie 1.x.
          JSON.parse(localStorage.getItem(DBNAMES) || "[]").forEach(function (name) {
            return dbNamesDB.dbnames.put({
              name: name
-           }).catch(nop);
+           })["catch"](nop);
          });
          localStorage.removeItem(DBNAMES);
        }
@@ -4961,7 +4961,7 @@
      return new Dexie(database);
    };
 
-   Dexie$1.delete = Dexie.delete;
+   Dexie$1["delete"] = Dexie["delete"];
    Dexie$1.exists = Dexie.exists;
    Dexie$1.getDatabaseNames = Dexie.getDatabaseNames;
    Dexie$1.defineClass = Dexie.defineClass;
@@ -4997,7 +4997,7 @@
    Dexie$1.dependencies = Dexie.dependencies;
    Dexie$1.semVer = Dexie.semVer;
    Dexie$1.version = Dexie.version;
-   Dexie$1.default = Dexie.default;
+   Dexie$1["default"] = Dexie["default"];
    Dexie$1.Dexie = Dexie.Dexie;
 
    exports.Dexie = Dexie$1;

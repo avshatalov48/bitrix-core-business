@@ -382,7 +382,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  return SyncButton;
 	}();
 
-	var isConnectionItemProperty = Symbol.for('BX.Calendar.Sync.Manager.ConnectionItem.isConnectionItem');
+	var isConnectionItemProperty = Symbol["for"]('BX.Calendar.Sync.Manager.ConnectionItem.isConnectionItem');
 
 	var ConnectionItem = /*#__PURE__*/function () {
 	  function ConnectionItem(options) {
@@ -621,18 +621,38 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }, {
 	    key: "openActiveConnectionSlider",
 	    value: function openActiveConnectionSlider(connection) {
+	      var _this2 = this;
+
 	      var itemInterface = this.getClassTemplateItem().createInstance(this, connection);
-	      var content = itemInterface.getActiveConnectionContent();
-	      this.openSlider({
-	        sliderId: 'calendar:item-sync-' + connection.id,
-	        content: content,
-	        cacheable: false,
-	        data: {
-	          provider: this,
-	          connection: connection,
-	          itemInterface: itemInterface
-	        }
-	      });
+
+	      if (this.type === 'google') {
+	        itemInterface.getSectionsForGoogle().then(function () {
+	          var content = itemInterface.getActiveConnectionContent();
+
+	          _this2.openSlider({
+	            sliderId: 'calendar:item-sync-' + connection.id,
+	            content: content,
+	            cacheable: false,
+	            data: {
+	              provider: _this2,
+	              connection: connection,
+	              itemInterface: itemInterface
+	            }
+	          });
+	        });
+	      } else {
+	        var content = itemInterface.getActiveConnectionContent();
+	        this.openSlider({
+	          sliderId: 'calendar:item-sync-' + connection.id,
+	          content: content,
+	          cacheable: false,
+	          data: {
+	            provider: this,
+	            connection: connection,
+	            itemInterface: itemInterface
+	          }
+	        });
+	      }
 	    }
 	  }, {
 	    key: "getClassTemplateItem",
@@ -1177,6 +1197,10 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  return YandexProvider;
 	}(CaldavConnection);
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	var Manager = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Manager, _EventEmitter);
 
@@ -1351,7 +1375,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 
 	        if (section.data['IS_EXCHANGE'] === true) {
 	          exchangeSections.push(section.data);
-	        } else if (section.data['GAPI_CALENDAR_ID'] && section.data['CAL_DAV_CON']) {
+	        } else if (section.data['GAPI_CALENDAR_ID'] && section.data['CAL_DAV_CON'] && section.data['EXTERNAL_TYPE'] !== 'local') {
 	          googleSections.push(section.data);
 	        } else if (section.data['CAL_DAV_CON'] && section.data['CAL_DAV_CAL']) {
 	          sectionsByType.caldav['caldav' + section.data['CAL_DAV_CON']] = section.data;
@@ -1485,7 +1509,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 
 	      for (var connectionName in params.syncInfo) {
 	        if (this.syncInfo[connectionName]) {
-	          this.syncInfo[connectionName] = babelHelpers.objectSpread({}, this.syncInfo[connectionName], params.syncInfo[connectionName]);
+	          this.syncInfo[connectionName] = _objectSpread(_objectSpread({}, this.syncInfo[connectionName]), params.syncInfo[connectionName]);
 	        }
 	      }
 
@@ -1502,7 +1526,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 
 	        if (BX.Calendar.Util.checkRequestId(params.requestUid)) {
 	          if (this.syncInfo[connectionName]) {
-	            this.syncInfo[connectionName] = babelHelpers.objectSpread({}, this.syncInfo[connectionName], params.syncInfo[connectionName]);
+	            this.syncInfo[connectionName] = _objectSpread(_objectSpread({}, this.syncInfo[connectionName]), params.syncInfo[connectionName]);
 	          }
 	        }
 	      }

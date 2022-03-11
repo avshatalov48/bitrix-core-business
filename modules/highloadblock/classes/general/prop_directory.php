@@ -26,7 +26,7 @@ class CIBlockPropertyDirectory
 	 *
 	 * @return array
 	 */
-	public static function GetUserTypeDescription()
+	public static function GetUserTypeDescription(): array
 	{
 		return array(
 			'PROPERTY_TYPE' => 'S',
@@ -35,7 +35,6 @@ class CIBlockPropertyDirectory
 			'GetSettingsHTML' => array(__CLASS__, 'GetSettingsHTML'),
 			'GetPropertyFieldHtml' => array(__CLASS__, 'GetPropertyFieldHtml'),
 			'PrepareSettings' => array(__CLASS__, 'PrepareSettings'),
-			'GetOptionsData' => array(__CLASS__, 'GetOptionsData'), //TODO: remove this row after iblock 19.0.0 will be stabled
 			'GetAdminListViewHTML' => array(__CLASS__, 'GetAdminListViewHTML'),
 			'GetPublicViewHTML' => array(__CLASS__, 'GetPublicViewHTML'),
 			'GetPublicEditHTML' => array(__CLASS__, 'GetPublicEditHTML'),
@@ -57,7 +56,7 @@ class CIBlockPropertyDirectory
 	 * @param array $arProperty				Property description.
 	 * @return array
 	 */
-	public static function PrepareSettings($arProperty)
+	public static function PrepareSettings($arProperty): array
 	{
 		$size = 1;
 		$width = 0;
@@ -133,7 +132,7 @@ class CIBlockPropertyDirectory
 	 * @param array $arPropertyFields		Property fields for edit form.
 	 * @return string
 	 */
-	public static function GetSettingsHTML($arProperty, $strHTMLControlName, &$arPropertyFields)
+	public static function GetSettingsHTML($arProperty, $strHTMLControlName, &$arPropertyFields): string
 	{
 		$iblockID = 0;
 		if (isset($arProperty['IBLOCK_ID']))
@@ -374,7 +373,7 @@ HIBSELECT;
 	 * @param array $strHTMLControlName		Control description.
 	 * @return string
 	 */
-	public static function GetPropertyFieldHtml($arProperty, $value, $strHTMLControlName)
+	public static function GetPropertyFieldHtml($arProperty, $value, $strHTMLControlName): string
 	{
 		$settings = CIBlockPropertyDirectory::PrepareSettings($arProperty);
 		$size = ($settings["size"] > 1 ? ' size="'.$settings["size"].'"' : '');
@@ -395,7 +394,7 @@ HIBSELECT;
 	 * @param array $control			Control description.
 	 * @return string
 	 */
-	public static function GetPublicEditHTML($property, $value, $control)
+	public static function GetPublicEditHTML($property, $value, $control): string
 	{
 		$multi = (isset($property['MULTIPLE']) && $property['MULTIPLE'] == 'Y');
 
@@ -418,7 +417,7 @@ HIBSELECT;
 	 * @param array $control			Control description.
 	 * @return string
 	 */
-	public static function GetPublicEditHTMLMulty($property, $value, $control)
+	public static function GetPublicEditHTMLMulty($property, $value, $control): string
 	{
 		$settings = CIBlockPropertyDirectory::PrepareSettings($property);
 		$settings['size'] = ($settings['size'] <= 1 ? 5 : $settings['size']);
@@ -439,7 +438,7 @@ HIBSELECT;
 	 * @param array $values				Current value.
 	 * @return string
 	 */
-	public static function GetOptionsHtml($arProperty, $values)
+	public static function GetOptionsHtml($arProperty, $values): string
 	{
 		$selectedValue = false;
 		$cellOption = '';
@@ -481,7 +480,7 @@ HIBSELECT;
 	 * @param array $arProperty Property description.
 	 * @return array
 	 */
-	public static function GetOptionsData($arProperty)
+	public static function GetOptionsData($arProperty): array
 	{
 		$listData = array();
 
@@ -591,7 +590,7 @@ HIBSELECT;
 		$arProperty,
 		$value,
 		/** @noinspection PhpUnusedParameterInspection */$strHTMLControlName
-	)
+	): string
 	{
 		$dataValue = self::GetExtendedValue($arProperty, $value);
 		if ($dataValue)
@@ -609,7 +608,7 @@ HIBSELECT;
 	 * @param array $strHTMLControlName		Control description.
 	 * @return string
 	 */
-	public static function GetPublicViewHTML($arProperty, $value, $strHTMLControlName)
+	public static function GetPublicViewHTML($arProperty, $value, $strHTMLControlName): string
 	{
 		$dataValue = self::GetExtendedValue($arProperty, $value);
 		if ($dataValue)
@@ -631,7 +630,7 @@ HIBSELECT;
 	 * @param array $strHTMLControlName		Control description.
 	 * @return string
 	 */
-	public static function GetAdminFilterHTML($arProperty, $strHTMLControlName)
+	public static function GetAdminFilterHTML($arProperty, $strHTMLControlName): string
 	{
 		$lAdmin = new CAdminList($strHTMLControlName["TABLE_ID"]);
 		$lAdmin->InitFilter(array($strHTMLControlName["VALUE"]));
@@ -665,7 +664,7 @@ HIBSELECT;
 		$arProperty,
 		$value,
 		/** @noinspection PhpUnusedParameterInspection */$strHTMLControlName
-	)
+	): string
 	{
 		$dataValue = self::GetExtendedValue($arProperty, $value);
 		if ($dataValue)
@@ -687,7 +686,7 @@ HIBSELECT;
 	 * @param bool &$filtered
 	 * @return void
 	 */
-	public static function AddFilterFields($arProperty, $strHTMLControlName, &$arFilter, &$filtered)
+	public static function AddFilterFields($arProperty, $strHTMLControlName, &$arFilter, &$filtered): void
 	{
 		$filtered = false;
 		$values = array();
@@ -755,7 +754,7 @@ HIBSELECT;
 	 * @param array $listDescr				Params for getList.
 	 * @return array
 	 */
-	private static function getEntityFieldsByFilter($tableName, $listDescr = array())
+	private static function getEntityFieldsByFilter($tableName, $listDescr = array()): array
 	{
 		$arResult = array();
 		$tableName = (string)$tableName;
@@ -819,7 +818,7 @@ HIBSELECT;
 		return $arResult;
 	}
 
-	private static function normalizeValue($value)
+	private static function normalizeValue($value): array
 	{
 		$result = [];
 		if (!is_array($value))
@@ -860,7 +859,7 @@ HIBSELECT;
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	private static function getDefaultXmlId($identifier)
+	private static function getDefaultXmlId($identifier): ?string
 	{
 		$result = null;
 		$entity = HL\HighloadBlockTable::compileEntity($identifier);

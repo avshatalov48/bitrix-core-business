@@ -11,6 +11,7 @@ use Bitrix\Rest\OAuth\Auth;
 use Bitrix\Rest\OAuthService;
 use Bitrix\Rest\Sqs;
 use Bitrix\Rest\UsageStatTable;
+use Bitrix\Rest\Tools\Diagnostics\LoggerManager;
 
 /**
  * Class Sender
@@ -154,6 +155,19 @@ class Sender
 		global $USER;
 
 		$offlineEvents = array();
+		$logger = LoggerManager::getInstance()->getLogger();
+		if ($logger)
+		{
+			$logger->debug(
+				"\n{delimiter}\n"
+				. "{date} - {host}\n{delimiter}\n"
+				. " Sender::call() starts.\n"
+				. "{handlersList}\n{delimiter} ",
+				[
+					'handlersList' => $handlersList,
+				]
+			);
+		}
 
 		foreach($handlersList as $handlerInfo)
 		{
@@ -172,6 +186,18 @@ class Sender
 			$session = Session::get();
 			if(!$session)
 			{
+				if ($logger)
+				{
+					$logger->debug(
+						"\n{delimiter}\n"
+						. "{date} - {host}\n{delimiter}\n"
+						. "Session ttl exceeded {session}.\n",
+						[
+							'session' => $session,
+						]
+					);
+				}
+
 				// ttl exceeded, kill session
 				return;
 			}
@@ -245,13 +271,39 @@ class Sender
 			}
 		}
 
-		if(count($offlineEvents) > 0)
+		if (count($offlineEvents) > 0)
 		{
+			if ($logger)
+			{
+				$logger->debug(
+					"\n{delimiter}\n"
+					. "{date} - {host}\n{delimiter}\n"
+					. "Event count: {eventCount}\n{delimiter}"
+					. "Offline event list:\n"
+					. "{offlineEvents}",
+					[
+						'eventCount' => count($offlineEvents),
+						'offlineEvents' => $offlineEvents,
+					]
+				);
+			}
 			static::getProviderOffline()->send($offlineEvents);
 		}
 
-		if(count(static::$queryData) > 0 && !static::$forkSet)
+		if (count(static::$queryData) > 0 && !static::$forkSet)
 		{
+			if ($logger)
+			{
+				$logger->debug(
+					"\n{delimiter}\n"
+					. "{date} - {host}\n{delimiter}\n"
+					. "Registers send event background job.\n"
+					. "count: {eventCount}",
+					[
+						'eventCount' => count(static::$queryData),
+					]
+				);
+			}
 			\Bitrix\Main\Application::getInstance()->addBackgroundJob(array(__CLASS__, "send"));
 			static::$forkSet = true;
 		}
@@ -262,7 +314,23 @@ class Sender
 	 */
 	public static function send()
 	{
-		if(count(self::$queryData) > 0)
+		$logger = LoggerManager::getInstance()->getLogger();
+		if ($logger)
+		{
+			$logger->debug(
+				"\n{delimiter}\n"
+				. "{date} - {host}\n{delimiter}\n"
+				. "Starts method Sender::send()\n"
+				. "count: {eventCount}"
+				. "Event list:\n"
+				. "{eventList}",
+				[
+					'eventCount' => count(static::$queryData),
+					'eventList' => static::$queryData,
+				]
+			);
+		}
+		if (count(self::$queryData) > 0)
 		{
 			UsageStatTable::finalize();
 			static::getProvider()->send(self::$queryData);

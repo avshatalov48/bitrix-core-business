@@ -529,6 +529,8 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 /*unchain*/
 .ui-ctl-icon-unchain { background-image: url(/bitrix/js/ui/forms/images/unchain.svg); }
 
+.ui-ctl-icon-change { background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2215%22%20height%3D%2218%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M9.928%205.836H1.073V4.415h8.855V.895l4.24%204.241-4.24%204.24v-3.54zm-4.91%206.692h8.886v1.42H5.018v3.52l-4.24-4.24%204.24-4.24v3.54z%22%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22/%3E%3C/svg%3E') }
+
 /*forward*/
 .ui-ctl-icon-forward {
 	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2213%22%20height%3D%2213%22%3E%3Cpath%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20opacity%3D%221%22%20d%3D%22M4.89%201.551l3.962%203.961H.383v1.977h8.469L4.89%2011.45l1.398%201.398L12.636%206.5%206.288.153z%22/%3E%3C/svg%3E);
@@ -733,6 +735,7 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 .ui-ctl-textarea textarea.ui-ctl-element {
 	min-height: calc(var(--ui-field-size) * 3 - 2px);
 	height: calc(var(--ui-field-size) * 3 - 2px);
+	white-space: pre-wrap;
 }
 
 /*region Fix for IE*/

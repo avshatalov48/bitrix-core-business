@@ -1,8 +1,11 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
-class CBPUpdateListsDocumentActivity
-	extends CBPActivity
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+class CBPUpdateListsDocumentActivity extends CBPActivity
 {
 	public function __construct($name)
 	{
@@ -138,6 +141,11 @@ class CBPUpdateListsDocumentActivity
 					$arErrors
 				);
 			}
+		}
+
+		if (!array_key_exists('fields', $arCurrentValues))
+		{
+			$arCurrentValues['fields'] = [];
 		}
 
 		$dialog = new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, array(

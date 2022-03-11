@@ -15,7 +15,7 @@ export class RoomsManager extends SectionManager
 		this.setRooms(data.rooms);
 		this.setConfig(config);
 		this.sortRooms();
-		this.setSectons(data.sections);
+		this.setSections(data.sections);
 		this.sortSections();
 
 		EventEmitter.subscribeOnce('BX.Calendar.Rooms:delete', this.deleteRoomHandler.bind(this));
@@ -86,7 +86,7 @@ export class RoomsManager extends SectionManager
 						const sectionList = response.data.sections || [];
 						this.setRooms(roomList);
 						this.sortRooms();
-						this.setSectons(sectionList);
+						this.setSections(sectionList);
 						this.sortSections();
 
 						Util.getBX().Event.EventEmitter.emit(
@@ -133,7 +133,7 @@ export class RoomsManager extends SectionManager
 						const sectionList = response.data.sections || [];
 						this.setRooms(roomList);
 						this.sortRooms();
-						this.setSectons(sectionList);
+						this.setSections(sectionList);
 						this.sortSections();
 						this.unsetHiddenRoom(params.id)
 
@@ -182,7 +182,7 @@ export class RoomsManager extends SectionManager
 							}
 							this.setRooms(roomList);
 							this.sortRooms();
-							this.setSectons(sectionList);
+							this.setSections(sectionList);
 							this.sortSections();
 
 							Util.getBX().Event.EventEmitter.emit(

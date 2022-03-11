@@ -9,18 +9,15 @@ use Bitrix\Sender\Connector\IncrementallyConnector;
 use Bitrix\Sender\GroupConnectorTable;
 use Bitrix\Sender\GroupTable;
 use Bitrix\Sender\Integration\Crm\Connectors\QueryCount;
-use Bitrix\Sender\Internals\Model\GroupQueueTable;
+use Bitrix\Sender\Internals\Model\GroupCounterTable;
 use Bitrix\Sender\Internals\Model\GroupStateTable;
 use Bitrix\Sender\Internals\Model\GroupThreadTable;
 use Bitrix\Sender\Internals\Model\LetterSegmentTable;
 use Bitrix\Sender\Internals\Model\LetterTable;
-use Bitrix\Sender\Posting\ThreadStrategy\IThreadStrategy;
+use Bitrix\Sender\Recipient\Type;
 use Bitrix\Sender\Runtime\SegmentDataBuilderJob;
 use Bitrix\Sender\SegmentDataTable;
 use Bitrix\Sender\Posting\SegmentThreadStrategy\AbstractThreadStrategy;
-use Bitrix\Sender\Posting\SegmentThreadStrategy\TenThreadsStrategy;
-use Bitrix\Sender\Posting\SegmentThreadStrategy\ThreadStrategyContext;
-use Bitrix\Sender\Service\GroupQueueService;
 use Bitrix\Sender\UI\PageNavigation;
 use CModule;
 use Bitrix\Main\Localization\Loc;
@@ -41,6 +38,7 @@ class SegmentDataBuilder
 
 	private $endpoint;
 
+	private $dataFilter = [];
 	private const PER_PAGE = 100000;
 	private const MINIMAL_PER_PAGE = 500;
 	private const SEGMENT_TABLE = 'sender_segment_data';
@@ -98,9 +96,7 @@ class SegmentDataBuilder
 	{
 		$groupState = $this->getCurrentGroupState();
 
-		return $groupState
-			? (int)$groupState['STATE'] === (int)GroupStateTable::STATES['COMPLETED']
-			: true
+		return !$groupState || (int)$groupState['STATE'] === (int)GroupStateTable::STATES['COMPLETED']
 			;
 	}
 
@@ -352,7 +348,11 @@ class SegmentDataBuilder
 		if ($data)
 		{
 			$rows = [];
+			$rowsDataCounter = [
+				$this->groupId => [
 
+				],
+			];
 			$counter = 0;
 			while ($row = $data->fetch())
 			{
@@ -371,8 +371,18 @@ class SegmentDataBuilder
 					'HAS_EMAIL' => $row['EMAIL'] ? 'Y' : 'N',
 					'HAS_IMOL' => $row['IM'] ? 'Y' : 'N',
 					'HAS_PHONE' => $row['PHONE'] ? 'Y' : 'N',
+					'SENDER_TYPE_ID' => $this->detectSenderType($row),
 				];
+				$detectedTypes = $this->detectSenderTypes($row);
 
+				foreach ($detectedTypes as $type)
+				{
+					if (!isset($rowsDataCounter[$this->groupId][$type]))
+					{
+						$rowsDataCounter[$this->groupId][$type] = 0;
+					}
+					$rowsDataCounter[$this->groupId][$type]++;
+				}
 				$counter++;
 
 				if ($counter === self::MINIMAL_PER_PAGE)
@@ -385,8 +395,8 @@ class SegmentDataBuilder
 
 			if ($rows)
 			{
+				$this->updateCounters($rowsDataCounter);
 				SegmentDataTable::addMulti($rows, true);
-				$this->calculateCurrentFilterCount();
 			}
 		}
 	}
@@ -481,6 +491,7 @@ class SegmentDataBuilder
 		{
 			SegmentDataBuilderJob::removeAgentFromDB($groupState['ID']);
 			$this->clearBuilding($groupState['ID']);
+			GroupCounterTable::deleteByGroupId($this->groupId);
 
 			$groupState = $this->getCurrentGroupState();
 
@@ -530,11 +541,68 @@ class SegmentDataBuilder
 		return $query;
 	}
 
+	private function prepareEntityTypeFilter($type)
+	{
+		switch ($type) {
+			case Type::EMAIL:
+				return ['=HAS_EMAIL' => 'Y'];
+			case Type::IM:
+				return ['=HAS_IMOL' => 'Y'];
+			case Type::PHONE:
+				return ['=HAS_PHONE' => 'Y'];
+			case Type::CRM_COMPANY_ID:
+				return ['=CRM_ENTITY_TYPE_ID' => 4];
+			case Type::CRM_CONTACT_ID:
+				return ['=CRM_ENTITY_TYPE_ID' => 3];
+			case Type::CRM_DEAL_PRODUCT_CONTACT_ID:
+			case Type::CRM_ORDER_PRODUCT_CONTACT_ID:
+			case Type::CRM_DEAL_PRODUCT_COMPANY_ID:
+			case Type::CRM_ORDER_PRODUCT_COMPANY_ID:
+			default:
+				return null;
+		}
+	}
+
+	public function setDataFilter(array $filter = []): SegmentDataBuilder
+	{
+		$this->dataFilter = [];
+
+		$whiteList = [
+			'EMAIL' => '=EMAIL',
+			'PHONE' => '=PHONE',
+			'IM' => '=IM',
+			'NAME' => 'NAME',
+			'SENDER_RECIPIENT_TYPE_ID' => "",
+		];
+
+		foreach ($filter as $key => $filterValue)
+		{
+			if (!isset($whiteList[$key]) || $filterValue == "undefined")
+			{
+				continue;
+			}
+
+			if ($key === 'SENDER_RECIPIENT_TYPE_ID')
+			{
+				$type =  $this->prepareEntityTypeFilter($filterValue);
+				if ($type)
+				{
+					$this->dataFilter[] =  $this->prepareEntityTypeFilter($filterValue);
+				}
+
+				continue;
+			}
+
+			$this->dataFilter[$whiteList[$key]] = $filterValue;
+		}
+
+		return $this;
+	}
 	/**
 	 * @return Result
 	 * @throws \Exception
 	 */
-	public function getData(PageNavigation $nav = null): Result
+	public function getData(PageNavigation $nav = null, bool $useFilterId = true): Result
 	{
 		$params = [
 			'select' => [
@@ -542,10 +610,7 @@ class SegmentDataBuilder
 				'CRM_COMPANY_ID' => 'COMPANY_ID',
 				'CRM_CONTACT_ID' => 'CONTACT_ID',
 			],
-			'filter' => [
-				'=GROUP_ID' => $this->groupId,
-				'=FILTER_ID' => $this->filterId,
-			]
+			'filter' => $this->prepareFilter($useFilterId),
 		];
 
 		if ($nav)
@@ -555,6 +620,24 @@ class SegmentDataBuilder
 		}
 
 		return SegmentDataTable::getList($params);
+	}
+
+	private function prepareFilter(bool $useFilterId = true)
+	{
+		$filter = [];
+		$filter['=GROUP_ID'] = $this->groupId;
+
+		if ($useFilterId)
+		{
+			$filter['=FILTER_ID'] = $this->filterId;
+		}
+
+		if ($this->dataFilter)
+		{
+			$filter = array_merge($this->dataFilter, $filter);
+		}
+
+		return $filter;
 	}
 
 	/**
@@ -594,12 +677,9 @@ class SegmentDataBuilder
 	 * @return int
 	 * @throws \Exception
 	 */
-	public function getDataCount(): int
+	public function getDataCount(bool $useFilterId = true): int
 	{
-		return SegmentDataTable::getCount([
-			'=GROUP_ID' => $this->groupId,
-			'=FILTER_ID' => $this->filterId,
-		]);
+		return SegmentDataTable::getCount($this->prepareFilter($useFilterId));
 	}
 
 	private function connectorIterable()
@@ -886,5 +966,121 @@ class SegmentDataBuilder
 		}
 
 		return '\\Bitrix\Sender\\Posting\\SegmentDataBuilder::checkNotCompleted();';
+	}
+
+	private function detectSenderType(array $row)
+	{
+		if ($row['PROD_CRM_ORDER_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 5)
+			return Type::CRM_ORDER_PRODUCT_CONTACT_ID;
+		if ($row['CRM_ENTITY_TYPE_ID'] == 5)
+			return Type::CRM_CONTACT_ID;
+		if ($row['SGT_DEAL_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 5)
+			return Type::CRM_DEAL_PRODUCT_CONTACT_ID;
+
+		if ($row['PROD_CRM_ORDER_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 4)
+			return Type::CRM_ORDER_PRODUCT_COMPANY_ID;
+		if ($row['CRM_ENTITY_TYPE_ID'] == 4)
+			return Type::CRM_COMPANY_ID;
+		if ($row['SGT_DEAL_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 4)
+			return Type::CRM_DEAL_PRODUCT_COMPANY_ID;
+
+		if ($row['IM'])
+			return Type::IM;
+		if ($row['EMAIL'])
+			return Type::EMAIL;
+		if ($row['PHONE'])
+			return Type::PHONE;
+
+		return Type::EMAIL;
+	}
+
+	private function detectSenderTypes(array $row)
+	{
+		$types = [];
+		if ($row['PROD_CRM_ORDER_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 5)
+			$types[] = Type::CRM_ORDER_PRODUCT_CONTACT_ID;
+		if ($row['CRM_ENTITY_TYPE_ID'] == 5)
+			$types[] = Type::CRM_CONTACT_ID;
+		if ($row['SGT_DEAL_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 5)
+			$types[] = Type::CRM_DEAL_PRODUCT_CONTACT_ID;
+
+		if ($row['PROD_CRM_ORDER_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 4)
+			$types[] = Type::CRM_ORDER_PRODUCT_COMPANY_ID;
+		if ($row['CRM_ENTITY_TYPE_ID'] == 4)
+			$types[] = Type::CRM_COMPANY_ID;
+		if ($row['SGT_DEAL_ID'] && $row['CRM_ENTITY_TYPE_ID'] == 4)
+			$types[] = Type::CRM_DEAL_PRODUCT_COMPANY_ID;
+
+		if ($row['IM'])
+			$types[] = Type::IM;
+		if ($row['EMAIL'])
+			$types[] = Type::EMAIL;
+		if ($row['PHONE'])
+			$types[] = Type::PHONE;
+
+		return $types;
+	}
+
+	private function updateCounters(array $rowsDataCounter)
+	{
+		Locker::lock(self::SEGMENT_LOCK_KEY, $this->groupId);
+		$counter = GroupCounterTable::getList([
+			'select' => [
+				'GROUP_ID', 'TYPE_ID', 'CNT'
+			],
+			'filter' => [
+				'=GROUP_ID' => $this->groupId
+			],
+		]);
+
+		while ($item = $counter->fetch())
+		{
+			if (!isset($rowsDataCounter[$item['GROUP_ID']][$item['TYPE_ID']]))
+			{
+				$rowsDataCounter[$item['GROUP_ID']][$item['TYPE_ID']] = $item['CNT'];
+			}
+
+			$rowsDataCounter[$item['GROUP_ID']][$item['TYPE_ID']] += $item['CNT'];
+		}
+
+		GroupCounterTable::deleteByGroupId($this->groupId);
+		foreach ($rowsDataCounter as $groupId => $dataCounter)
+		{
+			foreach ($dataCounter as $typeId => $count)
+			{
+				GroupCounterTable::add(array(
+					'GROUP_ID' => $groupId,
+					'TYPE_ID' => $typeId,
+					'CNT' => $count,
+				));
+			}
+		}
+		Locker::unlock(self::SEGMENT_LOCK_KEY, $this->groupId);
+
+		$groupState = $this->getCurrentGroupState();
+		if (!$groupState)
+		{
+			return;
+		}
+
+		$counter = new Connector\DataCounter($rowsDataCounter);
+
+		if (CModule::IncludeModule('pull'))
+		{
+			\CPullWatch::AddToStack(
+				self::FILTER_COUNTER_TAG,
+				[
+					'module_id' => 'sender',
+					'command' => 'updateFilterCounter',
+					'params' => [
+						'groupId' => $this->groupId,
+						'filterId' => $this->filterId,
+						'count' => $counter->getArray(),
+						'state' => $groupState['STATE'],
+						'completed' => (int)$groupState['STATE'] === GroupStateTable::STATES['COMPLETED']
+					],
+				]
+			);
+		}
 	}
 }

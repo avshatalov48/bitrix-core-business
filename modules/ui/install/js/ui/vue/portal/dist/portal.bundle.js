@@ -16,24 +16,6 @@
 		return;
 	}
 
-;(function() {
-
-	if (
-		typeof this.BX !== 'undefined'
-		&& typeof this.BX.Vue !== 'undefined'
-		&& typeof this.BX.Vue.PortalVue !== 'undefined'
-	)
-	{
-		var currentVersion = '2.1.7';
-
-		if (this.BX.Vue.PortalVue.version !== currentVersion)
-		{
-			console.warn('BX.Vuex already loaded. Loaded: ' + this.BX.Vue.PortalVue.version + ', Skipped: ' + currentVersion + '. Version differences may cause errors!');
-		}
-
-		return;
-	}
-
 this.BX = this.BX || {};
 (function (exports,ui_vue) {
 	'use strict';
@@ -51,13 +33,13 @@ this.BX = this.BX || {};
 	*/
 
 	function _typeof(obj) {
-	  if (typeof Symbol === "function" && babelHelpers.typeof(Symbol.iterator) === "symbol") {
+	  if (typeof Symbol === "function" && babelHelpers["typeof"](Symbol.iterator) === "symbol") {
 	    _typeof = function _typeof(obj) {
-	      return babelHelpers.typeof(obj);
+	      return babelHelpers["typeof"](obj);
 	    };
 	  } else {
 	    _typeof = function _typeof(obj) {
-	      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : babelHelpers.typeof(obj);
+	      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : babelHelpers["typeof"](obj);
 	    };
 	  }
 
@@ -253,30 +235,30 @@ this.BX = this.BX || {};
 	    },
 	    name: {
 	      type: String,
-	      default: function _default() {
+	      "default": function _default() {
 	        return String(_id++);
 	      }
 	    },
 	    order: {
 	      type: Number,
-	      default: 0
+	      "default": 0
 	    },
 	    slim: {
 	      type: Boolean
 	    },
 	    slotProps: {
 	      type: Object,
-	      default: function _default() {
+	      "default": function _default() {
 	        return {};
 	      }
 	    },
 	    tag: {
 	      type: String,
-	      default: 'DIV'
+	      "default": 'DIV'
 	    },
 	    to: {
 	      type: String,
-	      default: function _default() {
+	      "default": function _default() {
 	        return String(Math.round(Math.random() * 10000000));
 	      }
 	    }
@@ -319,7 +301,7 @@ this.BX = this.BX || {};
 	      wormhole.close(closer);
 	    },
 	    normalizeSlots: function normalizeSlots() {
-	      return this.$scopedSlots.default ? [this.$scopedSlots.default] : this.$slots.default;
+	      return this.$scopedSlots["default"] ? [this.$scopedSlots["default"]] : this.$slots["default"];
 	    },
 	    normalizeOwnChildren: function normalizeOwnChildren(children) {
 	      return typeof children === 'function' ? children(this.slotProps) : children;
@@ -341,14 +323,14 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  render: function render(h) {
-	    var children = this.$slots.default || this.$scopedSlots.default || [];
+	    var children = this.$slots["default"] || this.$scopedSlots["default"] || [];
 	    var Tag = this.tag;
 
 	    if (children && this.disabled) {
 	      return children.length <= 1 && this.slim ? this.normalizeOwnChildren(children)[0] : h(Tag, [this.normalizeOwnChildren(children)]);
 	    } else {
 	      return this.slim ? h() : h(Tag, {
-	        class: {
+	        "class": {
 	          'v-portal': true
 	        },
 	        style: {
@@ -364,7 +346,7 @@ this.BX = this.BX || {};
 	  props: {
 	    multiple: {
 	      type: Boolean,
-	      default: false
+	      "default": false
 	    },
 	    name: {
 	      type: String,
@@ -372,17 +354,17 @@ this.BX = this.BX || {};
 	    },
 	    slim: {
 	      type: Boolean,
-	      default: false
+	      "default": false
 	    },
 	    slotProps: {
 	      type: Object,
-	      default: function _default() {
+	      "default": function _default() {
 	        return {};
 	      }
 	    },
 	    tag: {
 	      type: String,
-	      default: 'div'
+	      "default": 'div'
 	    },
 	    transition: {
 	      type: [String, Object, Function]
@@ -444,7 +426,7 @@ this.BX = this.BX || {};
 	  methods: {
 	    // can't be a computed prop because it has to "react" to $slot changes.
 	    children: function children() {
-	      return this.passengers.length !== 0 ? this.passengers : this.$scopedSlots.default ? this.$scopedSlots.default(this.slotProps) : this.$slots.default || [];
+	      return this.passengers.length !== 0 ? this.passengers : this.$scopedSlots["default"] ? this.$scopedSlots["default"](this.slotProps) : this.$slots["default"] || [];
 	    },
 	    // can't be a computed prop because it has to "react" to this.children().
 	    noWrapper: function noWrapper() {
@@ -466,7 +448,7 @@ this.BX = this.BX || {};
 	        // if we have a transition component, pass the tag if it exists
 	        tag: this.transition && this.tag ? this.tag : undefined
 	      },
-	      class: {
+	      "class": {
 	        'vue-portal-target': true
 	      }
 	    }, children);
@@ -496,51 +478,51 @@ this.BX = this.BX || {};
 	    // name for the portal
 	    name: {
 	      type: String,
-	      default: function _default() {
+	      "default": function _default() {
 	        return 'mounted_' + String(_id$1++);
 	      }
 	    },
 	    order: {
 	      type: Number,
-	      default: 0
+	      "default": 0
 	    },
 	    slim: {
 	      type: Boolean
 	    },
 	    slotProps: {
 	      type: Object,
-	      default: function _default() {
+	      "default": function _default() {
 	        return {};
 	      }
 	    },
 	    tag: {
 	      type: String,
-	      default: 'DIV'
+	      "default": 'DIV'
 	    },
 	    // name for the target
 	    to: {
 	      type: String,
-	      default: function _default() {
+	      "default": function _default() {
 	        return String(Math.round(Math.random() * 10000000));
 	      }
 	    },
 	    // Target
 	    multiple: {
 	      type: Boolean,
-	      default: false
+	      "default": false
 	    },
 	    targetSlim: {
 	      type: Boolean
 	    },
 	    targetSlotProps: {
 	      type: Object,
-	      default: function _default() {
+	      "default": function _default() {
 	        return {};
 	      }
 	    },
 	    targetTag: {
 	      type: String,
-	      default: 'div'
+	      "default": 'div'
 	    },
 	    transition: {
 	      type: [String, Object, Function]
@@ -614,7 +596,7 @@ this.BX = this.BX || {};
 	        attrs: this.$attrs,
 	        on: this.$listeners,
 	        scopedSlots: this.$scopedSlots
-	      }, this.$slots.default);
+	      }, this.$slots["default"]);
 	    } // else, we render the scoped slot
 
 
@@ -653,9 +635,6 @@ this.BX = this.BX || {};
 
 }((this.BX.Vue = this.BX.Vue || {}),BX));
 
-
-
-})();
 
 
 })();

@@ -49,7 +49,7 @@ this.BX = this.BX || {};
 	            _this.subscribe();
 	          }
 	        }
-	      }).catch(function () {});
+	      })["catch"](function () {});
 	    }
 	  }, {
 	    key: "subscribe",

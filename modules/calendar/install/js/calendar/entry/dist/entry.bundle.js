@@ -256,7 +256,7 @@ this.BX = this.BX || {};
 	        };
 
 	        main_core_events.EventEmitter.subscribe('BX.Calendar.Entry:delete', deleteHandler);
-	        entry.delete();
+	        entry["delete"]();
 	      }
 	    }
 	  }, {
@@ -646,7 +646,7 @@ this.BX = this.BX || {};
 	      this.fullDay = this.data.DT_SKIP_TIME === 'Y';
 	      this.accessibility = this.data.ACCESSIBILITY || 'busy';
 	      this.important = this.data.IMPORTANCE === 'high';
-	      this.private = !!this.data.PRIVATE_EVENT;
+	      this["private"] = !!this.data.PRIVATE_EVENT;
 	      this.setSectionId(this.data.SECT_ID);
 	      this.name = this.data.NAME;
 	      this.userTimezoneOffsetFrom = parseInt(this.data['~USER_OFFSET_FROM']) || 0;
@@ -1198,7 +1198,7 @@ this.BX = this.BX || {};
 	          data: data
 	        });
 	      } else if (this.hasRecurrenceId()) {
-	        this.delete({
+	        this["delete"]({
 	          confirmed: true,
 	          recursionMode: 'this'
 	        });
@@ -1246,7 +1246,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "deleteAll",
 	    value: function deleteAll() {
-	      return this.delete({
+	      return this["delete"]({
 	        confirmed: true,
 	        recursionMode: 'all'
 	      });
@@ -1259,7 +1259,7 @@ this.BX = this.BX || {};
 
 	        if (deleteTimeoutData) {
 	          EntryManager.unregisterDeleteTimeout(deleteTimeoutData);
-	          this.delayTimeoutMap.delete(this.delayTimeoutMap);
+	          this.delayTimeoutMap["delete"](this.delayTimeoutMap);
 	        }
 
 	        clearTimeout(this.deleteTimeout);

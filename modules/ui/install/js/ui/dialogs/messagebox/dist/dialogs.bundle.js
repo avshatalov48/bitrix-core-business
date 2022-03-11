@@ -20,6 +20,9 @@ this.BX.UI = this.BX.UI || {};
 	babelHelpers.defineProperty(MessageBoxButtons, "YES_CANCEL", "yes_cancel");
 	babelHelpers.defineProperty(MessageBoxButtons, "YES_NO_CANCEL", "yes_no_cancel");
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	/**
 	 * @namespace {BX.UI.Dialogs}
 	 */
@@ -112,7 +115,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getPopupWindow",
 	    value: function getPopupWindow() {
 	      if (this.popupWindow === null) {
-	        this.popupWindow = new main_popup.Popup(babelHelpers.objectSpread({
+	        this.popupWindow = new main_popup.Popup(_objectSpread({
 	          bindElement: null,
 	          className: this.isMediumButtonSize() ? 'ui-message-box ui-message-box-medium-buttons' : 'ui-message-box',
 	          content: this.getMessage(),

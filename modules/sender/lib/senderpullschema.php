@@ -10,7 +10,6 @@ class SenderPullSchema
 			'MODULE_ID' => 'sender',
 			'USE' => [
 				'PUBLIC_SECTION',
-				'ADMIN_SECTION',
 			],
 		];
 	}

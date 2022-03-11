@@ -15,6 +15,7 @@ use Bitrix\Sender\Access\Map\MailingAction;
 use Bitrix\Sender\Entity;
 use Bitrix\Sender\Integration;
 use Bitrix\Sender\Internals\PostFiles;
+use Bitrix\Sender\Internals\SqlBatch;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Security;
 use Bitrix\Sender\Templates;
@@ -40,6 +41,8 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 
 	/** @var Entity\Letter $letter Letter. */
 	protected $letter;
+
+	protected $contentValue = null;
 
 	protected function checkRequiredParams()
 	{
@@ -150,6 +153,7 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 				case Message\ConfigurationOption::TYPE_MAIL_EDITOR:
 					$value = Security\Sanitizer::fixReplacedStyles($value);
 					$value = Security\Sanitizer::sanitizeHtml($value, $option->getValue());
+					$this->contentValue = $value;
 					break;
 				case Message\ConfigurationOption::TYPE_USER_LIST:
 					$value = array_filter(
@@ -366,6 +370,11 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			if (is_array($this->request->get('DISPATCH')))
 			{
 				$uri->addParams($this->request->get('DISPATCH'));
+			}
+
+			if ($this->contentValue)
+			{
+				\Bitrix\Sender\FileTable::syncFiles($this->letter->getId(), 0, $this->contentValue);
 			}
 
 			LocalRedirect($uri->getLocator());

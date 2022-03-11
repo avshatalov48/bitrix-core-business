@@ -75,7 +75,7 @@ class currency extends CModule
 		$this->errors = false;
 
 		if (!$DB->Query("SELECT COUNT(CURRENCY) FROM b_catalog_currency", true)):
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/db/".mb_strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/db/mysql/install.sql");
 		endif;
 
 		if ($this->errors !== false)
@@ -103,7 +103,7 @@ class currency extends CModule
 			\Bitrix\Currency\CurrencyManager::clearCurrencyCache();
 		if (!isset($arParams["savedata"]) || $arParams["savedata"] != "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/install/db/mysql/uninstall.sql");
 			if($this->errors !== false)
 			{
 				$APPLICATION->ThrowException(implode('', $this->errors));

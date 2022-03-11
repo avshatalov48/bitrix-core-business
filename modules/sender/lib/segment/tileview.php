@@ -239,6 +239,11 @@ class TileView
 			$hasStatic = [];
 			foreach ($connectors as $connector)
 			{
+				if (!is_array($connector['ENDPOINT']))
+				{
+					$hasStatic[$connector['GROUP_ID']] = false;
+					continue;
+				}
 				$entityConnector = \Bitrix\Sender\Connector\Manager::getConnector($connector['ENDPOINT']);
 				$hasStatic[$connector['GROUP_ID']] = $entityConnector instanceof Contact && $connector['ADDRESS_COUNT'] > 0;
 			}

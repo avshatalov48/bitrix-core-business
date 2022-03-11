@@ -1,6 +1,6 @@
 <?php
 
-/* ORMENTITYANNOTATION:Bitrix\Conversion\Internals\ContextTable:conversion/lib/internals/context.php:b9b58732d90e6d7934ed111cf87b78e9 */
+/* ORMENTITYANNOTATION:Bitrix\Conversion\Internals\ContextTable:conversion/lib/internals/context.php:ba79646ac34afd88620655a0ef08cf37 */
 namespace Bitrix\Conversion\Internals {
 	/**
 	 * EO_Context
@@ -103,18 +103,6 @@ namespace Bitrix\Conversion\Internals {
 }
 namespace Bitrix\Conversion\Internals {
 	/**
-	 * @method static EO_Context_Query query()
-	 * @method static EO_Context_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Context_Result getById($id)
-	 * @method static EO_Context_Result getList(array $parameters = array())
-	 * @method static EO_Context_Entity getEntity()
-	 * @method static \Bitrix\Conversion\Internals\EO_Context createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Conversion\Internals\EO_Context_Collection createCollection()
-	 * @method static \Bitrix\Conversion\Internals\EO_Context wakeUpObject($row)
-	 * @method static \Bitrix\Conversion\Internals\EO_Context_Collection wakeUpCollection($rows)
-	 */
-	class ContextTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -140,7 +128,7 @@ namespace Bitrix\Conversion\Internals {
 	 */
 	class EO_Context_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Conversion\Internals\ContextAttributeTable:conversion/lib/internals/contextattribute.php:533082027c664f7f0b10ade071746963 */
+/* ORMENTITYANNOTATION:Bitrix\Conversion\Internals\ContextAttributeTable:conversion/lib/internals/contextattribute.php:6a19d6bcda5b18f8b4275d8c2846d04d */
 namespace Bitrix\Conversion\Internals {
 	/**
 	 * EO_ContextAttribute
@@ -243,18 +231,6 @@ namespace Bitrix\Conversion\Internals {
 }
 namespace Bitrix\Conversion\Internals {
 	/**
-	 * @method static EO_ContextAttribute_Query query()
-	 * @method static EO_ContextAttribute_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ContextAttribute_Result getById($id)
-	 * @method static EO_ContextAttribute_Result getList(array $parameters = array())
-	 * @method static EO_ContextAttribute_Entity getEntity()
-	 * @method static \Bitrix\Conversion\Internals\EO_ContextAttribute createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Conversion\Internals\EO_ContextAttribute_Collection createCollection()
-	 * @method static \Bitrix\Conversion\Internals\EO_ContextAttribute wakeUpObject($row)
-	 * @method static \Bitrix\Conversion\Internals\EO_ContextAttribute_Collection wakeUpCollection($rows)
-	 */
-	class ContextAttributeTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -280,7 +256,7 @@ namespace Bitrix\Conversion\Internals {
 	 */
 	class EO_ContextAttribute_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Conversion\Internals\ContextCounterDayTable:conversion/lib/internals/contextcounterday.php:aa6fe64d8291e0bdbd9ea18b33d8b1bf */
+/* ORMENTITYANNOTATION:Bitrix\Conversion\Internals\ContextCounterDayTable:conversion/lib/internals/contextcounterday.php:7d637168e28deb76b548945683bc9a9f */
 namespace Bitrix\Conversion\Internals {
 	/**
 	 * EO_ContextCounterDay
@@ -395,18 +371,6 @@ namespace Bitrix\Conversion\Internals {
 }
 namespace Bitrix\Conversion\Internals {
 	/**
-	 * @method static EO_ContextCounterDay_Query query()
-	 * @method static EO_ContextCounterDay_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ContextCounterDay_Result getById($id)
-	 * @method static EO_ContextCounterDay_Result getList(array $parameters = array())
-	 * @method static EO_ContextCounterDay_Entity getEntity()
-	 * @method static \Bitrix\Conversion\Internals\EO_ContextCounterDay createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Conversion\Internals\EO_ContextCounterDay_Collection createCollection()
-	 * @method static \Bitrix\Conversion\Internals\EO_ContextCounterDay wakeUpObject($row)
-	 * @method static \Bitrix\Conversion\Internals\EO_ContextCounterDay_Collection wakeUpCollection($rows)
-	 */
-	class ContextCounterDayTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -432,7 +396,7 @@ namespace Bitrix\Conversion\Internals {
 	 */
 	class EO_ContextCounterDay_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Conversion\Internals\ContextEntityItemTable:conversion/lib/internals/contextentityitem.php:9e5fb95d49517c44d9682448a897aebc */
+/* ORMENTITYANNOTATION:Bitrix\Conversion\Internals\ContextEntityItemTable:conversion/lib/internals/contextentityitem.php:bebe527db2a4782fe1dd5f3f74e4e26a */
 namespace Bitrix\Conversion\Internals {
 	/**
 	 * EO_ContextEntityItem
@@ -534,18 +498,6 @@ namespace Bitrix\Conversion\Internals {
 	}
 }
 namespace Bitrix\Conversion\Internals {
-	/**
-	 * @method static EO_ContextEntityItem_Query query()
-	 * @method static EO_ContextEntityItem_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ContextEntityItem_Result getById($id)
-	 * @method static EO_ContextEntityItem_Result getList(array $parameters = array())
-	 * @method static EO_ContextEntityItem_Entity getEntity()
-	 * @method static \Bitrix\Conversion\Internals\EO_ContextEntityItem createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Conversion\Internals\EO_ContextEntityItem_Collection createCollection()
-	 * @method static \Bitrix\Conversion\Internals\EO_ContextEntityItem wakeUpObject($row)
-	 * @method static \Bitrix\Conversion\Internals\EO_ContextEntityItem_Collection wakeUpCollection($rows)
-	 */
-	class ContextEntityItemTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

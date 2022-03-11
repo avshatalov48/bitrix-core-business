@@ -43,7 +43,7 @@ Asset::getInstance()->addJs($this->GetFolder().'/right.js');
 
 <? $frame = $this->createFrame("bp-livefeed")->begin(""); ?>
 <script type="text/javascript">
-	BX(function () {
+	BX.ready(function () {
 		BX.Lists['LiveFeedClass_<?= $arResult['RAND_STRING']?>'] = new BX.Lists.LiveFeedClass({
 			socnetGroupId: '<?= $arResult['SOCNET_GROUP_ID'] ?>',
 			randomString: '<?= $arResult['RAND_STRING'] ?>',
@@ -112,8 +112,8 @@ Asset::getInstance()->addJs($this->GetFolder().'/right.js');
 						'users' : {},
 						'groups' : {},
 						'sonetgroups' : {},
-						'department' : <?=(empty($arResult["DESTINATION"]["FEED_DESTINATION"]['DEPARTMENT'])? '{}': CUtil::PhpToJSObject($arResult["DESTINATION"]["FEED_DESTINATION"]['DEPARTMENT']))?>,
-						'departmentRelation' : <?=(empty($arResult["DESTINATION"]["FEED_DESTINATION"]['DEPARTMENT_RELATION']) ? "false" : CUtil::PhpToJSObject($arResult["DESTINATION"]["FEED_DESTINATION"]['DEPARTMENT_RELATION']))?>
+						'department' : <?=CUtil::phpToJSObject($arResult['COMPANY_STRUCTURE']['department']) ?>,
+						'departmentRelation' : <?=CUtil::phpToJSObject($arResult['COMPANY_STRUCTURE']['department_relation']) ?>
 					},
 					'itemsLast' : {
 						'users' : {},

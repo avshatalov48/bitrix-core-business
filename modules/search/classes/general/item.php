@@ -187,7 +187,13 @@ class CSearchItem extends CDBResult
 			if (mb_substr($r["URL"], 0, 1) == "=")
 			{
 				foreach (GetModuleEvents("search", "OnSearchGetURL", true) as $arEvent)
-					$r["URL"] = ExecuteModuleEventEx($arEvent, array($r));
+				{
+					$newUrl = ExecuteModuleEventEx($arEvent, array($r));
+					if (isset($newUrl))
+					{
+						$r["URL"] = $newUrl;
+					}
+				}
 			}
 
 			$r["URL"] = str_replace(

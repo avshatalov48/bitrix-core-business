@@ -6,6 +6,7 @@ export class PopupComponentsMaker
 {
 	constructor(options = {})
 	{
+		this.id = Type.isString(options.id) ? options.id : null;
 		this.target = Type.isElementNode(options.target) ? options.target : null;
 		this.content = options.content || null;
 		this.contentWrapper = null;
@@ -13,6 +14,7 @@ export class PopupComponentsMaker
 		this.loader = null;
 		this.items = [];
 		this.width = Type.isNumber(options.width) ? options.width : null;
+		this.cacheable = Type.isBoolean(options.cacheable) ? options.cacheable : true;
 	}
 
 	getItems()
@@ -41,9 +43,11 @@ export class PopupComponentsMaker
 	{
 		if (!this.popup)
 		{
-			let popupWidth = this.width ? this.width : 350;
+			const popupWidth = this.width ? this.width : 350;
 
-			this.popup = new Popup(null, this.target, {
+			const popupId = this.id ? this.id + '-popup' : null;
+
+			this.popup = new Popup(popupId, this.target, {
 				className: 'ui-qr-popupcomponentmaker',
 				// background: 'transparent',
 				contentBackground: 'transparent',
@@ -56,7 +60,8 @@ export class PopupComponentsMaker
 				closeByEsc: true,
 				padding: 13,
 				animation: 'fading-slide',
-				content: this.getContentWrapper()
+				content: this.getContentWrapper(),
+				cacheable: this.cacheable
 			});
 
 			this.popup.getContentContainer().style.overflowX = null;

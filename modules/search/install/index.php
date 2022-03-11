@@ -35,7 +35,7 @@ Class search extends CModule
 
 	function InstallDB($arParams = array())
 	{
-		global $DBType, $APPLICATION;
+		global $APPLICATION;
 		$this->errors = false;
 
 		$node_id = $arParams["DATABASE"] <> ''? intval($arParams["DATABASE"]): false;
@@ -47,7 +47,7 @@ Class search extends CModule
 		// Database tables creation
 		if(!$DB->Query("SELECT 'x' FROM b_search_content WHERE 1=0", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/install/db/".mb_strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/install/db/mysql/install.sql");
 			if($this->errors === false && $DB->type == "MSSQL")
 			{
 				$rs = $DB->Query("
@@ -130,7 +130,7 @@ Class search extends CModule
 
 	function UnInstallDB($arParams = array())
 	{
-		global $DBType, $APPLICATION;
+		global $APPLICATION;
 		$this->errors = false;
 		$DB = CDatabase::GetModuleConnection('search', true);
 
@@ -148,12 +148,12 @@ Class search extends CModule
 		{
 			if(!array_key_exists("savedata", $arParams) || ($arParams["savedata"] != "Y"))
 			{
-				$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
+				$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/install/db/mysql/uninstall.sql");
 			}
 
 			if(!array_key_exists("savestat", $arParams) || ($arParams["savestat"] != "Y"))
 			{
-				$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/install/db/".mb_strtolower($DB->type)."/stat_uninstall.sql");
+				$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/install/db/mysql/stat_uninstall.sql");
 			}
 		}
 

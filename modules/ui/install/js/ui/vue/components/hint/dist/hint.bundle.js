@@ -113,16 +113,16 @@
 	ui_vue.BitrixVue.component('bx-hint', {
 	  props: {
 	    text: {
-	      default: ''
+	      "default": ''
 	    },
 	    html: {
-	      default: ''
+	      "default": ''
 	    },
 	    position: {
-	      default: 'bottom'
+	      "default": 'bottom'
 	    },
 	    popupOptions: {
-	      default: function _default() {
+	      "default": function _default() {
 	        return {};
 	      }
 	    }

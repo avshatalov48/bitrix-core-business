@@ -1843,7 +1843,7 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 
 		if(this._typeId !== "boolean")
 		{
-			if(this._enableMandatoryControl)
+			if(this.getEditor().canChangeCommonConfiguration() && this._enableMandatoryControl)
 			{
 				if(this._mandatoryConfigurator)
 				{

@@ -132,9 +132,6 @@ foreach($arResult["FILTER_CUSTOM_ENTITY"] as $fieldType => $listField)
 		case 'employee':
 			$filterId = $arResult["FILTER_ID"];
 			break;
-		case 'ECrm':
-			$filterId = $arResult["FILTER_ID"];
-			break;
 		case 'E':
 			$filterId = $arResult["FILTER_ID"];
 			break;
@@ -208,7 +205,7 @@ if($isBitrix24Template)
 $sectionId = $arResult["SECTION_ID"] ? $arResult["SECTION_ID"] : 0;
 $socnetGroupId = $arParams["SOCNET_GROUP_ID"] ? $arParams["SOCNET_GROUP_ID"] : 0;
 $rebuildedData = Option::get("lists", "rebuild_seachable_content");
-$rebuildedData = unserialize($rebuildedData);
+$rebuildedData = unserialize($rebuildedData, ['allowed_classes' => false]);
 $shouldStartRebuildSeachableContent = isset($rebuildedData[$arResult["IBLOCK_ID"]]);
 $dataForAjax = array(
 	"iblockTypeId" => $arParams["IBLOCK_TYPE_ID"],

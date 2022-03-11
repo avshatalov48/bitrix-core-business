@@ -97,6 +97,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "hideGoogle",
 	    value: function hideGoogle() {
+	      var _this3 = this;
+
 	      if (confirm(BX.message('EC_CAL_GOOGLE_HIDE_CONFIRM'))) {
 	        this.hide();
 	        BX.onCustomEvent(this.calendar, 'BXCalendar:onSectionDelete', [this.id]);
@@ -109,13 +111,29 @@ this.BX = this.BX || {};
 	          data: {
 	            id: this.id
 	          }
-	        }).then( // Success
-	        BX.delegate(function (response) {
-	          this.calendar.reload();
-	        }, this), // Failure
-	        BX.delegate(function (response) {
-	          this.calendar.displayError(response.errors);
-	        }, this));
+	        }).then(function () {
+	          var sectionManager = calendar_util.Util.getCalendarContext().sectionManager;
+	          var reload = true;
+	          var section;
+
+	          for (var i = 0; i < sectionManager.sections.length; i++) {
+	            section = sectionManager.sections[i];
+
+	            if (section.id !== _this3.id && section.belongsToView()) {
+	              reload = false;
+	              break;
+	            }
+	          }
+
+	          var calendar = calendar_util.Util.getCalendarContext();
+
+	          if (!calendar || reload) {
+	            return calendar_util.Util.getBX().reload();
+	          }
+
+	          calendar.reload();
+	        }, function (response) {// this.calendar.displayError(response.errors);
+	        });
 	      }
 	    }
 	  }, {
@@ -279,7 +297,7 @@ this.BX = this.BX || {};
 	var SectionManager = /*#__PURE__*/function () {
 	  function SectionManager(data, config) {
 	    babelHelpers.classCallCheck(this, SectionManager);
-	    this.setSectons(data.sections);
+	    this.setSections(data.sections);
 	    this.setConfig(config);
 	    this.addTaskSection();
 	    this.sortSections();
@@ -287,8 +305,8 @@ this.BX = this.BX || {};
 	  }
 
 	  babelHelpers.createClass(SectionManager, [{
-	    key: "setSectons",
-	    value: function setSectons() {
+	    key: "setSections",
+	    value: function setSections() {
 	      var _this = this;
 
 	      var rawSections = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
@@ -391,7 +409,7 @@ this.BX = this.BX || {};
 	            'ownerId': _this3.ownerId
 	          }
 	        }).then(function (response) {
-	          _this3.setSectons(response.data.sections || []);
+	          _this3.setSections(response.data.sections || []);
 
 	          if (response.data.config) {
 	            _this3.setConfig(config);
@@ -488,7 +506,7 @@ this.BX = this.BX || {};
 
 	          var sectionList = response.data.sectionList || [];
 
-	          _this4.setSectons(sectionList);
+	          _this4.setSections(sectionList);
 
 	          _this4.sortSections();
 

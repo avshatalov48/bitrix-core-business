@@ -55,7 +55,7 @@ Class conversion extends CModule
 				Option::set('conversion', 'GENERATE_INITIAL_DATA', 'generated');
 			}
 
-			$DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/conversion/install/db/'.mb_strtolower($DB->type).'/install.sql');
+			$DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/conversion/install/db/mysql/install.sql');
 		}
 
 		ModuleManager::registerModule('conversion');
@@ -82,7 +82,7 @@ Class conversion extends CModule
 		if ($params['SAVE_TABLES'] !== 'Y')
 		{
 			global $DB;
-			$DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/conversion/install/db/'.mb_strtolower($DB->type).'/uninstall.sql');
+			$DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/conversion/install/db/mysql/uninstall.sql');
 
 			Option::delete('conversion', array('name' => 'START_DATE_TIME'      ));
 			Option::delete('conversion', array('name' => 'BASE_CURRENCY'        ));

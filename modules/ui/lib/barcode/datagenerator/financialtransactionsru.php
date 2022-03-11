@@ -11,6 +11,8 @@ use Bitrix\Main\Text\Encoding;
  * This class implements "Standards of financial transactions. Two-dimensional barcode symbols for payments by individuals"
  *
  * ГОСТ Р 56042-2014. Стандарты финансовых операций. Двумерные символы штрихового кода для осуществления платежей физических лиц
+ *
+ * Maximum length of BankName is increased up to 120, standard states it should not be more than 45.
  */
 final class FinancialTransactionsRu
 {
@@ -88,7 +90,7 @@ final class FinancialTransactionsRu
 
 	public function __construct()
 	{
-		$this->charsetCode = self::CHARSET_WIN1251;
+		$this->charsetCode = self::CHARSET_UTF8;
 
 		$this->fields = [];
 	}
@@ -103,10 +105,8 @@ final class FinancialTransactionsRu
 		{
 			throw new ArgumentOutOfRangeException('charsetCode', static::CHARSET_WIN1251, static::CHARSET_KOI8R);
 		}
-		else
-		{
-			$this->charsetCode = $charsetCode;
-		}
+
+		$this->charsetCode = $charsetCode;
 
 		return $this;
 	}
@@ -234,7 +234,7 @@ final class FinancialTransactionsRu
 		static $maximumFieldLengths = [
 			self::FIELD_NAME => 160,
 			self::FIELD_PERSONAL_ACCOUNT => 20,
-			self::FIELD_BANK_NAME => 45,
+			self::FIELD_BANK_NAME => 120,
 			self::FIELD_BIC => 9,
 			self::FIELD_CORRESPONDENT_ACCOUNT => 20,
 		];
@@ -278,7 +278,7 @@ final class FinancialTransactionsRu
 		$allValues = implode(' ', $this->fields);
 		foreach ($possibleDelimiters as $delimiter)
 		{
-			if (!mb_strpos($allValues, $delimiter))
+			if (mb_strpos($allValues, $delimiter) === false)
 			{
 				return $delimiter;
 			}
@@ -289,18 +289,18 @@ final class FinancialTransactionsRu
 
 	protected function pickupCharsetCode(): string
 	{
-		if ($this->charsetCode === static::CHARSET_UTF8)
+		if ($this->charsetCode === static::CHARSET_WIN1251)
 		{
-			return 'UTF-8';
+			return 'Windows-1251';
 		}
 		if ($this->charsetCode === static::CHARSET_KOI8R)
 		{
 			return 'KOI8-R';
 		}
 
-		$this->charsetCode = static::CHARSET_WIN1251;
+		$this->charsetCode = static::CHARSET_UTF8;
 
-		return 'Windows-1251';
+		return 'UTF-8';
 	}
 
 	protected function decodeFields(): array

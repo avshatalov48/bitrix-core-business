@@ -197,7 +197,7 @@ final class CheckManager
 			}
 
 			$cashbox = Manager::getObjectById($item['ID']);
-			if ($cashbox instanceof ICorrection)
+			if ($cashbox->isCorrection())
 			{
 				return true;
 			}
@@ -240,7 +240,7 @@ final class CheckManager
 			$result->setId($check->getField('ID'));
 
 			$cashbox = Manager::getObjectById($cashboxId);
-			if ($cashbox instanceof ICorrection)
+			if ($cashbox->isCorrection())
 			{
 				CashboxCheckTable::update(
 					$check->getField('ID'),
@@ -513,14 +513,17 @@ final class CheckManager
 
 	private static function addTimelineCheckEntryOnCreateToOrder($order, $checkId, $params)
 	{
-		\Bitrix\Crm\Timeline\OrderCheckController::getInstance()->onPrintCheck(
-			$checkId,
-			[
-				'ORDER_FIELDS' => $order->getFieldValues(),
-				'SETTINGS' => $params,
-				'BINDINGS' => \Bitrix\Crm\Order\BindingsMaker\TimelineBindingsMaker::makeByOrder($order),
-			]
-		);
+		if ($order && Main\Loader::includeModule('crm'))
+		{
+			\Bitrix\Crm\Timeline\OrderCheckController::getInstance()->onPrintCheck(
+				$checkId,
+				[
+					'ORDER_FIELDS' => $order->getFieldValues(),
+					'SETTINGS' => $params,
+					'BINDINGS' => \Bitrix\Crm\Order\BindingsMaker\TimelineBindingsMaker::makeByOrder($order),
+				]
+			);
+		}
 	}
 
 	/**

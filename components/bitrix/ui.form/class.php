@@ -123,6 +123,13 @@ class UIFormComponent extends \CBitrixComponent
 			'CONTEXT_ID' => '',
 			'CONTEXT' => [],
 			'COMPONENT_AJAX_DATA' => [],
+			'CUSTOM_TOOL_PANEL_BUTTONS' => [],
+			'TOOL_PANEL_BUTTONS_ORDER' => [
+				'VIEW' => [],
+				'EDIT' => [
+					UI\EntityEditor\Action::DEFAULT_ACTION_BUTTON_ID, UI\EntityEditor\Action::CANCEL_ACTION_BUTTON_ID,
+				],
+			],
 			'SCOPE' => null,
 			'SCOPE_PREFIX' => '',
 		];

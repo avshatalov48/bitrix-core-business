@@ -60,7 +60,7 @@ this.BX = this.BX || {};
 
 	    _this.sortRooms();
 
-	    _this.setSectons(data.sections);
+	    _this.setSections(data.sections);
 
 	    _this.sortSections();
 
@@ -141,7 +141,7 @@ this.BX = this.BX || {};
 
 	          _this4.sortRooms();
 
-	          _this4.setSectons(sectionList);
+	          _this4.setSections(sectionList);
 
 	          _this4.sortSections();
 
@@ -187,7 +187,7 @@ this.BX = this.BX || {};
 
 	          _this5.sortRooms();
 
-	          _this5.setSectons(sectionList);
+	          _this5.setSections(sectionList);
 
 	          _this5.sortSections();
 
@@ -238,7 +238,7 @@ this.BX = this.BX || {};
 
 	            _this6.sortRooms();
 
-	            _this6.setSectons(sectionList);
+	            _this6.setSections(sectionList);
 
 	            _this6.sortSections();
 

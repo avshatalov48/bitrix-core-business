@@ -865,7 +865,7 @@ this.BX = this.BX || {};
 	          setTimeout(function () {
 	            _this2.editorContent = _this2.postForm.oEditor.GetContent();
 	          }, 300);
-	        }).catch(function () {
+	        })["catch"](function () {
 	          _this2.cancel();
 
 	          _this2.emit('error', {
@@ -911,7 +911,7 @@ this.BX = this.BX || {};
 	          } else {
 	            reject();
 	          }
-	        }).catch(function () {
+	        })["catch"](function () {
 	          reject();
 	        });
 	      });
@@ -976,7 +976,7 @@ this.BX = this.BX || {};
 	        });
 
 	        _this4.cancel();
-	      }).catch(function () {
+	      })["catch"](function () {
 	        //todo why are we here?
 	        _this4.stopProgress();
 
@@ -1324,7 +1324,7 @@ this.BX = this.BX || {};
 	            _this3.onDelete();
 
 	            resolve();
-	          }).catch(function () {
+	          })["catch"](function () {
 	            _this3.stopProgress();
 
 	            var message = event.getData().message;
@@ -1432,7 +1432,7 @@ this.BX = this.BX || {};
 	        if (main_core.Type.isString(html)) {
 	          main_core.Runtime.html(_this5.getFilesContainer(), html);
 	        }
-	      }).catch(function () {
+	      })["catch"](function () {
 	        _this5.stopProgress();
 
 	        var message = event.getData().message;
@@ -1473,7 +1473,7 @@ this.BX = this.BX || {};
 
 	          _this6.updateData(comment);
 	        }
-	      }).catch(function () {
+	      })["catch"](function () {
 	        _this6.stopProgress();
 
 	        var message = event.getData().message;

@@ -4960,7 +4960,7 @@ this.BX = this.BX || {};
 	                TimezoneSelector.timezoneList.push({
 	                  value: response.data[key].timezone_id,
 	                  label: response.data[key].title,
-	                  selected: response.data[key].default
+	                  selected: response.data[key]["default"]
 	                });
 	              }
 	            }

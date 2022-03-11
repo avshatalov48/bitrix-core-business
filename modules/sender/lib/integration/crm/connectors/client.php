@@ -128,7 +128,10 @@ class Client extends Connector\BaseFilter implements Connector\IncrementallyConn
 	{
 		$lastContact = \CCrmContact::GetListEx(
 			['ID' => 'DESC'],
-			['CHECK_PERMISSIONS' => 'N'],
+			[
+				'CHECK_PERMISSIONS' => 'N',
+				'@CATEGORY_ID' => 0,
+			],
 			false,
 			['nTopCount' => '1'],
 			['ID'],
@@ -137,7 +140,10 @@ class Client extends Connector\BaseFilter implements Connector\IncrementallyConn
 
 		$lastCompany = \CCrmCompany::GetListEx(
 			['ID' => 'DESC'],
-			['CHECK_PERMISSIONS' => 'N'],
+			[
+				'CHECK_PERMISSIONS' => 'N',
+				'@CATEGORY_ID' => 0,
+			],
 			false,
 			['nTopCount' => '1'],
 			['ID']
@@ -174,6 +180,10 @@ class Client extends Connector\BaseFilter implements Connector\IncrementallyConn
 	{
 		$query = CrmContactTable::query();
 		$query->setFilter($this->getCrmEntityFilter(\CCrmOwnerType::ContactName));
+		if ($query->getEntity()->hasField('CATEGORY_ID'))
+		{
+			$query->where('CATEGORY_ID', 0);
+		}
 		$this->addCrmEntityReferences($query);
 		$query->registerRuntimeField(new Entity\ExpressionField('CRM_ENTITY_TYPE_ID', \CCrmOwnerType::Contact));
 		$query->registerRuntimeField(new Entity\ExpressionField('CRM_ENTITY_TYPE', '\''.\CCrmOwnerType::ContactName.'\''));
@@ -202,6 +212,10 @@ class Client extends Connector\BaseFilter implements Connector\IncrementallyConn
 	{
 		$query = CrmCompanyTable::query();
 		$query->setFilter($this->getCrmEntityFilter(\CCrmOwnerType::CompanyName));
+		if ($query->getEntity()->hasField('CATEGORY_ID'))
+		{
+			$query->where('CATEGORY_ID', 0);
+		}
 		$this->addCrmEntityReferences($query);
 		$query->registerRuntimeField(new Entity\ExpressionField('CRM_ENTITY_TYPE_ID', \CCrmOwnerType::Company));
 		$query->registerRuntimeField(new Entity\ExpressionField('CRM_ENTITY_TYPE', '\''.\CCrmOwnerType::CompanyName.'\''));
@@ -560,6 +574,7 @@ class Client extends Connector\BaseFilter implements Connector\IncrementallyConn
 			array('join_type' => 'LEFT')
 		));
 
+		$query->addSelect("SGT_DEAL.ID", "SGT_DEAL_ID");
 		$extraQuery->setFilter($query->getFilter()); // apply actual user filter
 
 		$extraQuery->registerRuntimeField(new Entity\ReferenceField(
@@ -568,6 +583,7 @@ class Client extends Connector\BaseFilter implements Connector\IncrementallyConn
 			$orderRef,
 			array('join_type' => 'LEFT')
 		));
+		$extraQuery->addSelect("PROD_CRM_ORDER.ID", "PROD_CRM_ORDER_ID");
 
 		$extraQuery->registerRuntimeField(new Entity\ReferenceField(
 			'PROD_CRM_ORDER_PRODUCT',

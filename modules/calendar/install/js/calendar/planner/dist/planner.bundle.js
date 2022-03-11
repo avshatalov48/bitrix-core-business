@@ -1971,11 +1971,11 @@ this.BX = this.BX || {};
 	    value: function getPosByDate(date) {
 	      var x = 0;
 
-	      if (date && babelHelpers.typeof(date) !== 'object') {
+	      if (date && babelHelpers["typeof"](date) !== 'object') {
 	        date = calendar_util.Util.parseDate(date);
 	      }
 
-	      if (date && babelHelpers.typeof(date) === 'object') {
+	      if (date && babelHelpers["typeof"](date) === 'object') {
 	        var curInd = 0;
 	        var timestamp = date.getTime();
 

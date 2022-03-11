@@ -313,6 +313,17 @@ class Access
 	}
 
 	/**
+	 * Return true if can view segment contacts.
+	 *
+	 * @return bool
+	 * @throws ArgumentException
+	 */
+	public function canViewSegmentContact()
+	{
+		return AccessController::can($this->user->getId(), ActionDictionary::ACTION_SEGMENT_CLIENT_VIEW);
+	}
+
+	/**
 	 * Return true if can modify segments.
 	 *
 	 * @return bool

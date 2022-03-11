@@ -42,6 +42,49 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'n
 		</li>
 	</ul>
 </div>
+<!-- Rounding -->
+<div class="ui-slider-section ui-slider-section-icon --rounding --icon-sm">
+	<span class="ui-icon ui-slider-icon"><i></i></span>
+	<div class="ui-slider-text-box">
+		<div class="ui-slider-heading-3">Подключите бота своей компании</div>
+		<div class="ui-slider-inner-box">
+			<p class="ui-slider-paragraph-2">Для подключения необходимо создать публичный аккаунт в Viber или подключить уже существующий. Если у вас еще нет публичного аккаунта, мы поможем создать его в несколько шагов и подключить к вашему Битрикс24</p>
+			<a href="#" class="ui-slider-link">Подробнее о подключении</a>
+		</div>
+	</div>
+</div>
+<div class="ui-slider-section --rounding">
+	<div class="ui-slider-content-box">
+		<div class="ui-slider-heading-box">
+			<div class="ui-slider-heading-main">
+				<div class="ui-slider-heading-2">Заголовок первой секции слайдера. Heading 3</div>
+			</div>
+			<div class="ui-slider-heading-rest">
+				<a href="#" class="ui-slider-link">Подробнее о подключении</a>
+			</div>
+		</div>
+		<p class="ui-slider-paragraph">Paragraph 1. Текст слайдера. Теперь при загрузке картинки автоматически попадают в графический редактор. Вы можете обрезать изображение до нужного размера, настроить параметры, добавить текст и стикеры</p>
+	</div>
+	<div class="ui-slider-content-box">
+		<div class="ui-slider-heading-4 --no-border-bottom">Заголовок раздела слайдера. Heading 4</div>
+		<p class="ui-slider-paragraph-2">Paragraph 2. Текст слайдера. Теперь при загрузке картинки автоматически попадают в графический редактор. Вы можете обрезать изображение до нужного размера, настроить параметры, добавить текст и стикеры</p>
+	</div>
+</div>
+<div class="ui-slider-section --rounding --icon-xs">
+	<div class="ui-slider-heading-box --no-border-bottom">
+		<div class="ui-slider-heading-main">
+			<span class="ui-icon ui-slider-icon"><i></i></span>
+			<a href="#" class="ui-slider-link">Подробнее о подключении</a>
+		</div>
+	</div>
+	<div class="ui-slider-content-box">
+		<div class="ui-slider-heading-3">Подключите бота своей компании</div>
+		<div class="ui-slider-inner-box">
+			<p class="ui-slider-paragraph-2">Для подключения необходимо создать публичный аккаунт в Viber или подключить уже существующий. Если у вас еще нет публичного аккаунта, мы поможем создать его в несколько шагов и подключить к вашему Битрикс24</p>
+		</div>
+	</div>
+</div>
+<!-- end of Rounding -->
 
 <div class="ui-slider-no-access">
 	<div class="ui-slider-no-access-inner">

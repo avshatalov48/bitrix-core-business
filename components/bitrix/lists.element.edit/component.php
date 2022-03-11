@@ -414,9 +414,17 @@ if(!empty($arResult["EXTERNAL_CONTEXT"]))
 	}
 }
 
-if (CLists::isEnabledLockFeature($arResult["IBLOCK_ID"]) && $arParams["CAN_EDIT"] && $ELEMENT_ID > 0)
+if (
+	CLists::isEnabledLockFeature($arResult["IBLOCK_ID"])
+	&& $arParams["CAN_EDIT"]
+	&& $ELEMENT_ID > 0
+)
 {
-	if (!CIBlockElement::WF_IsLocked($ELEMENT_ID, $lockedBy, $dateLock))
+	if (CIBlockElement::WF_IsLocked($ELEMENT_ID, $lockedBy, $dateLock))
+	{
+		$arParams["CAN_EDIT"] = false;
+	}
+	else
 	{
 		CIBlockElement::WF_Lock($ELEMENT_ID);
 	}

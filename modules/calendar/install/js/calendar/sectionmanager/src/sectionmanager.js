@@ -12,7 +12,7 @@ export class SectionManager
 
 	constructor(data, config)
 	{
-		this.setSectons(data.sections);
+		this.setSections(data.sections);
 		this.setConfig(config);
 		this.addTaskSection();
 		this.sortSections();
@@ -20,7 +20,7 @@ export class SectionManager
 		//BX.addCustomEvent("BXCalendar:onSectionDelete", BX.proxy(this.unsetSectionHandler, this));
 	}
 
-	setSectons(rawSections = [])
+	setSections(rawSections = [])
 	{
 		this.sections = [];
 		this.sectionIndex = {};
@@ -139,7 +139,7 @@ export class SectionManager
 					}
 				})
 				.then((response) => {
-						this.setSectons(response.data.sections || []);
+						this.setSections(response.data.sections || []);
 						if (response.data.config)
 						{
 							this.setConfig(config);
@@ -261,7 +261,7 @@ export class SectionManager
 						}
 
 						const sectionList = response.data.sectionList || [];
-						this.setSectons(sectionList);
+						this.setSections(sectionList);
 						this.sortSections();
 
 						Util.getBX().Event.EventEmitter.emit(

@@ -314,7 +314,7 @@ this.BX.UI = this.BX.UI || {};
 	    _this.multiple = _this.list.length > 1;
 
 	    if (_this.multiple) {
-	      _this.class = DialogStyle.ProcessOptionMultiple;
+	      _this["class"] = DialogStyle.ProcessOptionMultiple;
 	    }
 
 	    return _this;
@@ -2100,44 +2100,44 @@ this.BX.UI = this.BX.UI || {};
 	        this.getDialog().setError(this.getMessage('AuthError'));
 	      } // check errors
 	      else if (main_core.Type.isPlainObject(response) && 'errors' in response && main_core.Type.isArrayFilled(response.errors)) {
-	          var abortingState = false;
-	          var networkError = false;
-	          response.errors.forEach(function (err) {
-	            if (err.code === 'NETWORK_ERROR') {
-	              if (_this2.state === ProcessState.canceling) {
-	                abortingState = true;
-	              } else {
-	                networkError = true;
-	              }
+	        var abortingState = false;
+	        var networkError = false;
+	        response.errors.forEach(function (err) {
+	          if (err.code === 'NETWORK_ERROR') {
+	            if (_this2.state === ProcessState.canceling) {
+	              abortingState = true;
+	            } else {
+	              networkError = true;
 	            }
-	          }); // ignoring error of manual aborting
+	          }
+	        }); // ignoring error of manual aborting
 
-	          if (abortingState) {
+	        if (abortingState) {
+	          return;
+	        }
+
+	        if (networkError) {
+	          this.networkErrorCount++; // Let's give it more chance to complete
+
+	          if (this.networkErrorCount <= 2) {
+	            setTimeout(BX.delegate(this.startRequest, this), 15000);
 	            return;
 	          }
-
-	          if (networkError) {
-	            this.networkErrorCount++; // Let's give it more chance to complete
-
-	            if (this.networkErrorCount <= 2) {
-	              setTimeout(BX.delegate(this.startRequest, this), 15000);
-	              return;
-	            }
-	          }
-
-	          var errors = response.errors.slice(-10);
-	          var errMessages = [];
-	          errors.forEach(function (err) {
-	            if (err.code === 'NETWORK_ERROR') {
-	              errMessages.push(_this2.getMessage('RequestError'));
-	            } else {
-	              errMessages.push(err.message);
-	            }
-	          });
-	          this.getDialog().setErrors(errMessages, true);
-	        } else {
-	          this.getDialog().setError(this.getMessage('RequestError'));
 	        }
+
+	        var errors = response.errors.slice(-10);
+	        var errMessages = [];
+	        errors.forEach(function (err) {
+	          if (err.code === 'NETWORK_ERROR') {
+	            errMessages.push(_this2.getMessage('RequestError'));
+	          } else {
+	            errMessages.push(err.message);
+	          }
+	        });
+	        this.getDialog().setErrors(errMessages, true);
+	      } else {
+	        this.getDialog().setError(this.getMessage('RequestError'));
+	      }
 
 	      this.xhr = null;
 	      this.currentStep = -1;
@@ -2582,7 +2582,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.instances) {
 	        if (this.instances.has(id)) {
 	          this.instances.get(id).destroy();
-	          this.instances.delete(id);
+	          this.instances["delete"](id);
 	        }
 	      }
 	    }

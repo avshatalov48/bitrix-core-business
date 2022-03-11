@@ -108,40 +108,120 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 			];
 		}
 
-		$checkTypeMap = $this->getCheckTypeMap();
-		$paymentObjectMap = $this->getPaymentObjectMap();
 		foreach ($data['items'] as $i => $item)
 		{
-			$vat = $this->getValueFromSettings('VAT', $item['vat']);
-			if ($vat === null)
-			{
-				$vat = $this->getValueFromSettings('VAT', 'NOT_VAT');
-			}
-
-			$position = [
-				'name' => mb_substr($item['name'], 0, static::MAX_NAME_LENGTH),
-				'price' => (float)$item['price'],
-				'sum' => (float)$item['sum'],
-				'quantity' => $item['quantity'],
-				'payment_method' => $checkTypeMap[$data['type']],
-				'payment_object' => $paymentObjectMap[$item['payment_object']],
-				'vat' => [
-					'type' => $this->mapVatValue($data['type'], $vat)
-				],
-			];
-
-			if (isset($item['nomenclature_code']))
-			{
-				$position['nomenclature_code'] = $this->buildNomenclatureCode($item['nomenclature_code']);
-			}
-
-			$result['receipt']['items'][] = $position;
+			$result['receipt']['items'][] = $this->buildPosition($data, $item);
 		}
 
 		return $result;
 	}
 
-	protected function buildNomenclatureCode($code)
+	/**
+	 * @param array $checkData
+	 * @param array $item
+	 * @return array
+	 */
+	protected function buildPosition(array $checkData, array $item): array
+	{
+		$result = [
+			'name' => $this->buildPositionName($item),
+			'price' => $this->buildPositionPrice($item),
+			'sum' => $this->buildPositionSum($item),
+			'quantity' => $this->buildPositionQuantity($item),
+			'payment_method' => $this->buildPositionPaymentMethod($checkData),
+			'payment_object' => $this->buildPositionPaymentObject($item),
+			'vat' => [
+				'type' => $this->buildPositionVatType($checkData, $item)
+			],
+		];
+
+		if (isset($item['nomenclature_code']))
+		{
+			$result['nomenclature_code'] = $this->buildPositionNomenclatureCode($item['nomenclature_code']);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param array $item
+	 * @return string
+	 */
+	protected function buildPositionName(array $item)
+	{
+		return mb_substr($item['name'], 0, static::MAX_NAME_LENGTH);
+	}
+
+	/**
+	 * @param array $item
+	 * @return float
+	 */
+	protected function buildPositionPrice(array $item)
+	{
+		return (float)$item['price'];
+	}
+
+	/**
+	 * @param array $item
+	 * @return float
+	 */
+	protected function buildPositionSum(array $item)
+	{
+		return (float)$item['sum'];
+	}
+
+	/**
+	 * @param array $item
+	 * @return mixed
+	 */
+	protected function buildPositionQuantity(array $item)
+	{
+		return $item['quantity'];
+	}
+
+	/**
+	 * @param array $checkData
+	 * @return mixed|string
+	 */
+	protected function buildPositionPaymentMethod(array $checkData)
+	{
+		$checkTypeMap = $this->getCheckTypeMap();
+
+		return $checkTypeMap[$checkData['type']];
+	}
+
+	/**
+	 * @param array $item
+	 * @return mixed|string
+	 */
+	protected function buildPositionPaymentObject(array $item)
+	{
+		$paymentObjectMap = $this->getPaymentObjectMap();
+
+		return $paymentObjectMap[$item['payment_object']];
+	}
+
+	/**
+	 * @param array $checkData
+	 * @param array $item
+	 * @return mixed|string
+	 */
+	protected function buildPositionVatType(array $checkData, array $item)
+	{
+		$vat = $this->getValueFromSettings('VAT', $item['vat']);
+		if ($vat === null)
+		{
+			$vat = $this->getValueFromSettings('VAT', 'NOT_VAT');
+		}
+
+		return $this->mapVatValue($checkData['type'], $vat);
+	}
+
+	/**
+	 * @param $code
+	 * @return string
+	 */
+	protected function buildPositionNomenclatureCode($code)
 	{
 		$hexCode = bin2hex($code);
 		$hexCodeArray = str_split($hexCode, 2);
@@ -217,8 +297,8 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 
 		foreach ($data['vats'] as $item)
 		{
-			$vat = $this->getValueFromSettings('VAT', $item['vat']);
-			if ($vat === null)
+				$vat = $this->getValueFromSettings('VAT', $item['type']);
+				if (is_null($vat) || $vat === '')
 			{
 				$vat = $this->getValueFromSettings('VAT', 'NOT_VAT');
 			}
@@ -271,7 +351,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 	/**
 	 * @return array
 	 */
-	private function getPaymentObjectMap()
+	protected function getPaymentObjectMap()
 	{
 		return [
 			Check::PAYMENT_OBJECT_COMMODITY => 'commodity',
@@ -291,6 +371,18 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 			Check::PAYMENT_OBJECT_NON_OPERATING_GAIN => 'non-operating_gain',
 			Check::PAYMENT_OBJECT_SALES_TAX => 'sales_tax',
 			Check::PAYMENT_OBJECT_RESORT_FEE => 'resort_fee',
+			Check::PAYMENT_OBJECT_DEPOSIT => 'deposit',
+			Check::PAYMENT_OBJECT_EXPENSE => 'expense',
+			Check::PAYMENT_OBJECT_PENSION_INSURANCE_IP => 'pension_insurance_ip',
+			Check::PAYMENT_OBJECT_PENSION_INSURANCE => 'pension_insurance',
+			Check::PAYMENT_OBJECT_MEDICAL_INSURANCE_IP => 'medical_insurance_ip',
+			Check::PAYMENT_OBJECT_MEDICAL_INSURANCE => 'medical_insurance',
+			Check::PAYMENT_OBJECT_SOCIAL_INSURANCE => 'social_insurance',
+			Check::PAYMENT_OBJECT_CASINO_PAYMENT => 'casino_payment',
+			Check::PAYMENT_OBJECT_COMMODITY_MARKING_NO_MARKING_EXCISE => 'excise',
+			Check::PAYMENT_OBJECT_COMMODITY_MARKING_EXCISE => 'excise',
+			Check::PAYMENT_OBJECT_COMMODITY_MARKING_NO_MARKING => 'commodity',
+			Check::PAYMENT_OBJECT_COMMODITY_MARKING => 'commodity',
 		];
 	}
 
@@ -441,10 +533,10 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 	}
 
 	/**
-	 * @return bool
+	 * @inheritDoc
 	 */
-	public static function isSupportedFFD105()
+	public static function getFfdVersion(): ?float
 	{
-		return true;
+		return 1.05;
 	}
 }

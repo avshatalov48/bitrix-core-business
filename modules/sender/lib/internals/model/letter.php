@@ -10,6 +10,7 @@ namespace Bitrix\Sender\Internals\Model;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type;
+use Bitrix\Sender\FileTable;
 use Bitrix\Sender\MailingChainTable;
 use Bitrix\Sender\Message\iBase;
 
@@ -256,6 +257,16 @@ class LetterTable extends Entity\DataManager
 						\CFile::Delete((int)$file);
 					}
 				}
+			}
+
+			$messageQuery = MessageFieldTable::getById([
+				'MESSAGE_ID' => $fields['MESSAGE_ID'],
+				'CODE' => 'MESSAGE',
+			]);
+
+			if($row = $messageQuery->fetch())
+			{
+				FileTable::syncFiles($data['primary']['ID'], 0, $row['VALUE']);
 			}
 
 			MessageTable::delete($fields['MESSAGE_ID']);

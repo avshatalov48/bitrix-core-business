@@ -347,6 +347,7 @@ class CYandexOAuthInterface extends CSocServOAuthTransport
 			.(!empty($deviceId) ? "&device_id=".$deviceId : '')
 			."&display=popup"
 			."&redirect_uri=".urlencode($redirect_uri)
+			.'&force_confirm=yes'
 			.(!empty($state) ? "&state=".urlencode($state) : '');
 	}
 

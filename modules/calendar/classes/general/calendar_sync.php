@@ -751,7 +751,10 @@ class CCalendarSync
 
 		if ($bGoogleApi && $hasGoogleConnection)
 		{
-			if ($arDavFields['EXDATE'] !== '')
+			if ($arDavFields['EXDATE'] !== ''
+				&& !empty($arDavFields['ID'])
+				&& (int)$arDavFields['ID'] > 0
+			)
 			{
 				$arDavFields['EXDATE'] = self::GetPassDates($arDavFields['ID'], $arDavFields['EXDATE']);
 			}

@@ -726,13 +726,16 @@ export class SectionInterface extends EventEmitter
 				});
 			}
 
-			menuItems.push({
-				text: Loc.getMessage('EC_ACTION_HIDE'),
-				onclick: () => {
-					this.sectionActionMenu.close();
-					section.hideGoogle();
-				}
-			});
+			if (section.data['EXTERNAL_TYPE'] !== 'local')
+			{
+				menuItems.push({
+					text: Loc.getMessage('EC_ACTION_HIDE'),
+					onclick: () => {
+						this.sectionActionMenu.close();
+						section.hideGoogle();
+					}
+				});
+			}
 		}
 
 		if (section.isPseudo())

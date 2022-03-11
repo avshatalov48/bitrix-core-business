@@ -5,6 +5,12 @@ this.BX.UI = this.BX.UI || {};
 
 	var _templateObject;
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
 	var _list = /*#__PURE__*/new WeakMap();
@@ -25,19 +31,19 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classCallCheck(this, Collection);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Collection).call(this));
 
-	    _addSilent.add(babelHelpers.assertThisInitialized(_this));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _addSilent);
 
-	    _list.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _list, {
 	      writable: true,
 	      value: []
 	    });
 
-	    _node.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _node, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _sync.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _sync, {
 	      writable: true,
 	      value: false
 	    });
@@ -196,6 +202,12 @@ this.BX.UI = this.BX.UI || {};
 
 	var _templateObject$1, _templateObject2, _templateObject3;
 
+	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
 	var _id = /*#__PURE__*/new WeakMap();
@@ -225,41 +237,41 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classCallCheck(this, Item);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Item).call(this));
 
-	    _handleClick.add(babelHelpers.assertThisInitialized(_this));
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _handleClick);
 
-	    _emitChange.add(babelHelpers.assertThisInitialized(_this));
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _emitChange);
 
-	    _id.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _id, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _label.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _label, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _active.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _active, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _notice.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _notice, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _onclick.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _onclick, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _collection.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _collection, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _node$1.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _node$1, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -433,6 +445,10 @@ this.BX.UI = this.BX.UI || {};
 
 	var _templateObject$2;
 
+	function _classPrivateFieldInitSpec$2(obj, privateMap, value) { _checkPrivateRedeclaration$2(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	var _node$2 = /*#__PURE__*/new WeakMap();
 
 	var Menu = /*#__PURE__*/function (_Collection) {
@@ -447,7 +463,7 @@ this.BX.UI = this.BX.UI || {};
 	      items: options.items
 	    }));
 
-	    _node$2.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec$2(babelHelpers.assertThisInitialized(_this), _node$2, {
 	      writable: true,
 	      value: void 0
 	    });

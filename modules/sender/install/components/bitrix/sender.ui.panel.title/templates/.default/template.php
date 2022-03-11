@@ -11,7 +11,11 @@ use Bitrix\Sender\Internals\Model;
 /** @var array $arParams */
 /** @var array $arResult */
 /** @var \CBitrixComponentTemplate $this */
-
+Extension::load(
+	[
+		'ui.feedback.form',
+	]
+);
 $isBitrix24Template = defined('SITE_TEMPLATE_ID') && SITE_TEMPLATE_ID === "bitrix24";
 if (!$isBitrix24Template)
 {

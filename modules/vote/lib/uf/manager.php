@@ -3,6 +3,7 @@
 namespace Bitrix\Vote\Uf;
 
 use Bitrix\Vote\Attach;
+use Bitrix\Vote\Attachment\Connector;
 use Bitrix\Vote\Attachment\DefaultConnector;
 use Bitrix\Vote\Attachment\BlogPostConnector;
 use Bitrix\Vote\Attachment\ForumMessageConnector;
@@ -115,7 +116,7 @@ final class Manager
 		$id1 = VoteUserType::NEW_VOTE_PREFIX.$id;
 		if(!isset($this->loadedAttachedObjects[$id1]))
 		{
-			list($entityType, $moduleId) = $this->getConnectorDataByEntityType($this->params["ENTITY_ID"]);
+			[$entityType, $moduleId] = $this->getConnectorDataByEntityType($this->params["ENTITY_ID"]);
 			$attach = \Bitrix\Vote\Attachment\Manager::loadFromVoteId(array(
 				"ENTITY_ID" => ($this->params["ENTITY_VALUE_ID"] ?: $this->params["VALUE_ID"]), // http://hg.office.bitrix.ru/repos/modules/rev/b614a075ce64
 				"ENTITY_TYPE" => $entityType,
@@ -130,7 +131,7 @@ final class Manager
 	 */
 	public function loadEmptyObject()
 	{
-		list($entityType, $moduleId) = $this->getConnectorDataByEntityType($this->params["ENTITY_ID"]);
+		[$entityType, $moduleId] = $this->getConnectorDataByEntityType($this->params["ENTITY_ID"]);
 		return \Bitrix\Vote\Attachment\Manager::loadEmptyAttach(array(
 			"ENTITY_ID" => ($this->params["ENTITY_VALUE_ID"] ?: $this->params["VALUE_ID"]), // http://hg.office.bitrix.ru/repos/modules/rev/b614a075ce64,
 			"ENTITY_TYPE" => $entityType,
@@ -144,7 +145,7 @@ final class Manager
 	 */
 	public function loadFromEntity()
 	{
-		list($entityType, $moduleId) = $this->getConnectorDataByEntityType($this->params["ENTITY_ID"]);
+		[$entityType, $moduleId] = $this->getConnectorDataByEntityType($this->params["ENTITY_ID"]);
 		$res = array(
 			"ENTITY_ID" => ($this->params["ENTITY_VALUE_ID"] ?: $this->params["VALUE_ID"]), // http://hg.office.bitrix.ru/repos/modules/rev/b614a075ce64
 			"=ENTITY_TYPE" => $entityType,
@@ -160,7 +161,7 @@ final class Manager
 	 */
 	public function belongsToEntity(Attach $attachedObject, $entityType, $entityId)
 	{
-		list($connectorClass, $moduleId) = $this->getConnectorDataByEntityType($entityType);
+		[$connectorClass, $moduleId] = $this->getConnectorDataByEntityType($entityType);
 
 		return
 			$attachedObject->getEntityId()   == $entityId &&
@@ -257,7 +258,7 @@ final class Manager
 					throw new SystemException('Wrong event result by building AdditionalConnectorList. Could not find CLASS.');
 				}
 
-				if(is_string($connector['CLASS']) && class_exists($connector['CLASS']))
+				if(is_string($connector['CLASS']) && class_exists($connector['CLASS']) && is_a($connector['CLASS'], Connector::class, true))
 				{
 					$this->additionalConnectorList[mb_strtolower($connector['ENTITY_TYPE'])] = array(
 						$connector['CLASS'],

@@ -1,4 +1,3 @@
-import { EventEmitter } from 'main.core.events';
 import type { BaseEvent } from 'main.core.events';
 import type Dialog from '../dialog';
 
@@ -17,6 +16,7 @@ export default class SliderIntegration
 
 		this.handleSliderOpen = this.handleSliderOpen.bind(this);
 		this.handleSliderClose = this.handleSliderClose.bind(this);
+		this.handleSliderDestroy = this.handleSliderDestroy.bind(this);
 	}
 
 	getDialog(): Dialog
@@ -24,35 +24,53 @@ export default class SliderIntegration
 		return this.dialog;
 	}
 
-	bindEvents()
+	bindEvents(): void
 	{
 		this.unbindEvents();
 
-		EventEmitter.subscribe('SidePanel.Slider:onOpen', this.handleSliderOpen);
-		EventEmitter.subscribe('SidePanel.Slider:onCloseComplete', this.handleSliderClose);
-		EventEmitter.subscribe('SidePanel.Slider:onDestroy', this.handleSliderClose);
+		if (top.BX)
+		{
+			top.BX.Event.EventEmitter.subscribe('SidePanel.Slider:onOpen', this.handleSliderOpen);
+			top.BX.Event.EventEmitter.subscribe('SidePanel.Slider:onCloseComplete', this.handleSliderClose);
+			top.BX.Event.EventEmitter.subscribe('SidePanel.Slider:onDestroy', this.handleSliderDestroy);
+		}
 	}
 
-	unbindEvents()
+	unbindEvents(): void
 	{
-		EventEmitter.unsubscribe('SidePanel.Slider:onOpen', this.handleSliderOpen);
-		EventEmitter.unsubscribe('SidePanel.Slider:onCloseComplete', this.handleSliderClose);
-		EventEmitter.unsubscribe('SidePanel.Slider:onDestroy', this.handleSliderClose);
+		if (top.BX)
+		{
+			top.BX.Event.EventEmitter.unsubscribe('SidePanel.Slider:onOpen', this.handleSliderOpen);
+			top.BX.Event.EventEmitter.unsubscribe('SidePanel.Slider:onCloseComplete', this.handleSliderClose);
+			top.BX.Event.EventEmitter.unsubscribe('SidePanel.Slider:onDestroy', this.handleSliderDestroy);
+		}
 	}
 
-	handleDialogShow()
+	isDialogInSlider(slider): boolean
+	{
+		if (slider.getFrameWindow())
+		{
+			return slider.getFrameWindow().document.contains(this.getDialog().getContainer());
+		}
+		else
+		{
+			return  slider.getContainer().contains(this.getDialog().getContainer());
+		}
+	}
+
+	handleDialogShow(): void
 	{
 		this.bindEvents();
 	}
 
-	handleDialogHide()
+	handleDialogHide(): void
 	{
 		this.sliders.clear();
 		this.unbindEvents();
 		this.getDialog().unfreeze();
 	}
 
-	handleDialogDestroy()
+	handleDialogDestroy(): void
 	{
 		this.sliders.clear();
 		this.unbindEvents();
@@ -64,9 +82,11 @@ export default class SliderIntegration
 		const [sliderEvent] = event.getData();
 		const slider = sliderEvent.getSlider();
 
-		this.sliders.add(slider);
-
-		this.getDialog().freeze();
+		if (!this.isDialogInSlider(slider))
+		{
+			this.sliders.add(slider);
+			this.getDialog().freeze();
+		}
 	}
 
 	handleSliderClose(event: BaseEvent): void
@@ -75,10 +95,29 @@ export default class SliderIntegration
 		const slider = sliderEvent.getSlider();
 
 		this.sliders.delete(slider);
-
 		if (this.sliders.size === 0)
 		{
 			this.getDialog().unfreeze();
+		}
+	}
+
+	handleSliderDestroy(event: BaseEvent): void
+	{
+		const [sliderEvent] = event.getData();
+		const slider = sliderEvent.getSlider();
+
+		if (this.isDialogInSlider(slider))
+		{
+			this.unbindEvents();
+			this.dialog.destroy();
+		}
+		else
+		{
+			this.sliders.delete(slider);
+			if (this.sliders.size === 0)
+			{
+				this.getDialog().unfreeze();
+			}
 		}
 	}
 }

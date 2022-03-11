@@ -229,10 +229,10 @@ abstract class CashboxPaySystem extends Cashbox implements IPrintImmediately, IC
 	}
 
 	/**
-	 * @return bool
+	 * @inheritDoc
 	 */
-	public static function isSupportedFFD105(): bool
+	public static function getFfdVersion(): ?float
 	{
-		return true;
+		return 1.05;
 	}
 }

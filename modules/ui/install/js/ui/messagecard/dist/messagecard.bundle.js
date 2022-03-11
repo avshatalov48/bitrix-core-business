@@ -3,6 +3,10 @@ this.BX = this.BX || {};
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3;
+
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var BaseCard = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(BaseCard, _EventEmitter);
 
@@ -13,7 +17,7 @@ this.BX = this.BX || {};
 	    babelHelpers.classCallCheck(this, BaseCard);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BaseCard).call(this));
 	    _this.cache = new main_core.Cache.MemoryCache();
-	    _this.data = babelHelpers.objectSpread({}, options);
+	    _this.data = _objectSpread({}, options);
 	    _this.options = _this.data;
 	    _this.id = main_core.Type.isStringFilled(_this.options.id) ? _this.options.id : main_core.Text.getRandom();
 	    _this.hidden = main_core.Text.toBoolean(_this.options.hidden);

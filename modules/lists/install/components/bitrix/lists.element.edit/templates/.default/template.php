@@ -415,7 +415,7 @@ if (
 
 					$arTab2Fields[] = array(
 						"id" => "BIZPROC_TASKS".$bizProcIndex,
-						"name" => GetMessage("CT_BLEE_BIZPROC_TASKS"),
+						"name" => GetMessage("CT_BLEE_BIZPROC_TASKS_1"),
 						"type" => "label",
 						"value" => $html,
 					);

@@ -16,6 +16,10 @@ this.BX.UI.Icons = this.BX.UI.Icons || {};
 	babelHelpers.defineProperty(FileType, "PICTURE", "picture");
 	babelHelpers.defineProperty(FileType, "NONE", "none");
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var presets = {
 	  'RAR': {
@@ -94,7 +98,7 @@ this.BX.UI.Icons = this.BX.UI.Icons || {};
 	  function FileIcon(iconOptions) {
 	    babelHelpers.classCallCheck(this, FileIcon);
 
-	    _createSvgElement.add(this);
+	    _classPrivateMethodInitSpec(this, _createSvgElement);
 
 	    var options = main_core.Type.isPlainObject(iconOptions) ? iconOptions : {};
 	    this.name = null;

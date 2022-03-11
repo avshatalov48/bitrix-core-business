@@ -1045,8 +1045,8 @@ this.BX = this.BX || {};
 	        this.locationSelector.setViewMode(readOnly);
 
 	        if (this.isLocationCalendar) {
-	          this.locationSelector.setValue(this.locationSelector.default);
-	          location = this.locationSelector.default;
+	          this.locationSelector.setValue(this.locationSelector["default"]);
+	          location = this.locationSelector["default"];
 	        } else {
 	          this.DOM.locationOuterWrap.style.display = '';
 	          this.locationSelector.setValue(entry.getLocation());

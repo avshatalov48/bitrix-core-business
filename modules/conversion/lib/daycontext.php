@@ -75,6 +75,31 @@ final class DayContext extends Internals\BaseContext
 			}
 		}
 	}
+	
+	/**
+	 * Subtraction value from counter. If counter not exists does nothing.
+	 *
+	 * @param Date $day
+	 * @param string $name
+	 * @param int|float $value
+	 * @return void
+	 */
+	public function subDayCounter($day, $name, $value)
+	{
+		$this->subCounter($day, $name, $value);
+		
+		// is today - clear session
+		$isToday = $day instanceof Date ? $day->format('dmY') === date('dmY') : false;
+		if ($isToday)
+		{
+			$unique =& self::$session['UNIQUE'];
+			if (($i = array_search($name, $unique, true)) !== false)
+			{
+				unset($unique[$i]);
+				$this->setCookie();
+			}
+		}
+	}
 
 	/**
 	 * Add currency value to counter. If counter not exists set counter to value.
@@ -87,6 +112,20 @@ final class DayContext extends Internals\BaseContext
 	public function addCurrencyCounter($name, $value, $currency)
 	{
 		$this->addCounter($name, Utils::convertToBaseCurrency($value, $currency));
+	}
+
+	/**
+	 * Subtraction currency value from counter
+	 *
+	 * @param Date $day
+	 * @param string $name
+	 * @param int|float $value
+	 * @param string $currency
+	 * @return void
+	 */
+	public function subCurrencyCounter($day, $name, $value, $currency)
+	{
+		$this->subCounter($day, $name, Utils::convertToBaseCurrency($value, $currency));
 	}
 
 	/**

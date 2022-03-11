@@ -175,6 +175,18 @@ class TemplateTable extends ORM\Data\DataManager
 		return $result;
 	}
 
+	public static function onAfterAdd(ORM\Event $event)
+	{
+		$result = new ORM\EventResult;
+		$data = $event->getParameters();
+		if (isset($data['fields']['CONTENT']))
+		{
+			\Bitrix\Sender\FileTable::syncFiles($data['primary']['ID'], 1, $data['fields']['CONTENT']);
+		}
+
+		return $result;
+	}
+
 	/**
 	 * Handler of before delete event.
 	 *
@@ -190,6 +202,7 @@ class TemplateTable extends ORM\Data\DataManager
 		{
 			$data['fields']['CONTENT'] = Security\Sanitizer::fixTemplateStyles($data['fields']['CONTENT']);
 			$result->modifyFields($data['fields']);
+			\Bitrix\Sender\FileTable::syncFiles($data['primary']['ID'], 1, $data['fields']['CONTENT']);
 		}
 
 		return $result;
@@ -229,6 +242,10 @@ class TemplateTable extends ORM\Data\DataManager
 			$result->addError(new ORM\EntityError($message));
 		}
 
+		if (!$result->getErrors())
+		{
+			\Bitrix\Sender\FileTable::syncFiles($data['primary']['ID'], 1, '');
+		}
 		return $result;
 	}
 

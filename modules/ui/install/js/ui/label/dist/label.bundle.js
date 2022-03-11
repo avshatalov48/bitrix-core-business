@@ -202,7 +202,7 @@ this.BX = this.BX || {};
 	          this.container = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"])), this.getClassList(), this.getTextContainer());
 	        }
 
-	        if (babelHelpers.typeof(this.icon) === 'object') {
+	        if (babelHelpers["typeof"](this.icon) === 'object') {
 	          this.container.appendChild(this.getIconAction());
 	        }
 	      }

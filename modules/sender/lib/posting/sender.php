@@ -588,7 +588,7 @@ class Sender
 				{
 					$this->updateRecipientStatus($recipient['ID'],PostingRecipientTable::SEND_RESULT_ERROR);
 					$sendResult = false;
-					$eventData = $this->executeEvent($recipient,$sendResult);
+					$eventData = $this->executeEvent($recipient, $sendResult);
 				}
 				elseif($this->canSendMessageToRecipient($recipient))
 				{
@@ -915,6 +915,7 @@ class Sender
 			empty($recipient['CONTACT_CODE']) ||
 			$recipient['CONTACT_BLACKLISTED'] === 'Y' ||
 			$recipient['CONTACT_UNSUBSCRIBED'] === 'Y' ||
+			$recipient['CONTACT_MAILING_UNSUBSCRIBED'] === 'Y' ||
 			Consent::isUnsub(
 				$recipient['CONTACT_CONSENT_STATUS'],
 				$recipient['CONTACT_CONSENT_REQUEST'],
@@ -978,8 +979,6 @@ class Sender
 				'MAILING_CHAIN_ID' => $this->letterId,
 			]
 		];
-		$event = new Event('sender', 'OnAfterPostingSendRecipient', [$eventData, $this->letter]);
-		$event->send();
 
 		return $eventData;
 	}

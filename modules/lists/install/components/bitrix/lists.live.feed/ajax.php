@@ -1,4 +1,5 @@
 <?php
+
 use Bitrix\Lists\Internals\Error\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
@@ -201,9 +202,11 @@ class LiveFeedAjaxController extends Controller
 			return;
 		}
 		$this->iblockId = intval($this->request->getPost('iblockId'));
-		if(!CIBlockRights::UserHasRightTo($this->iblockId, $this->iblockId, 'iblock_edit'))
+
+		if (!CIBlockRights::UserHasRightTo($this->iblockId, $this->iblockId, 'iblock_rights_edit'))
 		{
 			ShowError(Loc::getMessage('LISTS_SEAC_ACCESS_DENIED'));
+
 			return;
 		}
 
@@ -318,9 +321,7 @@ class LiveFeedAjaxController extends Controller
 			$this->sendJsonErrorResponse();
 		}
 
-		$admin = true;
-		if($this->listPerm < CListPermissions::IS_ADMIN && !CIBlockRights::UserHasRightTo($this->iblockId, $this->iblockId, 'iblock_edit'))
-			$admin = false;
+		$admin = CIBlockRights::UserHasRightTo($this->iblockId, $this->iblockId, 'iblock_rights_edit');
 
 		$isConstantsTuned = true;
 		foreach($templateData as $templateId => $templateName)

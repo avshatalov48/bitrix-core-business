@@ -78,7 +78,7 @@ $this->addExternalJs($this->GetFolder() . '/template.js');
 		{
 			$themePicker->setThemeForCurrentPage($arParams['THEME_ID']);
 		}
-		elseif (isset($arParams['DEFAULT_THEME_ID']) && $themePicker->getCurrentThemeId() === 'default')
+		elseif (isset($arParams['DEFAULT_THEME_ID']) && stripos($themePicker->getCurrentThemeId(),'default') !== false )
 		{
 			$themePicker->setThemeForCurrentPage($arParams['DEFAULT_THEME_ID']);
 		}

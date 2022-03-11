@@ -1237,6 +1237,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      popupWithUpdateButton: true
 	    }));
 	    _this.sectionStatusObject = {};
+	    _this.sectionList = [];
 	    return _this;
 	  }
 
@@ -1294,10 +1295,24 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      var _this3 = this;
 
 	      var sectionList = [];
-	      this.provider.getConnection().getSections().forEach(function (section) {
+	      this.sectionList.forEach(function (section) {
 	        sectionList.push(main_core.Tag.render(_templateObject5$6 || (_templateObject5$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<li class=\"calendar-sync-slider-item\">\n\t\t\t\t\t<label class=\"ui-ctl ui-ctl-checkbox ui-ctl-xs\">\n\t\t\t\t\t\t<input type=\"checkbox\" class=\"ui-ctl-element\" value=\"", "\" onclick=\"", "\" ", ">\n\t\t\t\t\t\t<div class=\"ui-ctl-label-text\">", "</div>\n\t\t\t\t\t</label>\n\t\t\t\t</li>\n\t\t\t"])), BX.util.htmlspecialchars(section['ID']), _this3.onClickCheckSection.bind(_this3), section['ACTIVE'] === 'Y' ? 'checked' : '', BX.util.htmlspecialchars(section['NAME'])));
 	      });
 	      return sectionList;
+	    }
+	  }, {
+	    key: "getSectionsForGoogle",
+	    value: function getSectionsForGoogle() {
+	      var _this4 = this;
+
+	      return new Promise(function (resolve) {
+	        BX.ajax.runAction('calendar.api.calendarajax.getAllSectionsForGoogle').then(function (response) {
+	          _this4.sectionList = response.data;
+	          resolve(response.data);
+	        }, function (response) {
+	          resolve(response.errors);
+	        });
+	      });
 	    }
 	  }, {
 	    key: "onClickCheckSection",
@@ -1537,6 +1552,10 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 
 	var _templateObject$c, _templateObject2$c;
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
 	var _showSuccessCopyNotification = /*#__PURE__*/new WeakSet();
@@ -1549,11 +1568,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  function IcalSyncPopup(options) {
 	    babelHelpers.classCallCheck(this, IcalSyncPopup);
 
-	    _showResultNotification.add(this);
+	    _classPrivateMethodInitSpec(this, _showResultNotification);
 
-	    _showFailedCopyNotification.add(this);
+	    _classPrivateMethodInitSpec(this, _showFailedCopyNotification);
 
-	    _showSuccessCopyNotification.add(this);
+	    _classPrivateMethodInitSpec(this, _showSuccessCopyNotification);
 
 	    babelHelpers.defineProperty(this, "LINK_LENGTH", 112);
 	    this.link = this.getIcalLink(options);

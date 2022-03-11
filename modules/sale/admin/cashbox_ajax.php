@@ -179,7 +179,7 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 			$handler = $cashbox['HANDLER'];
 			if (is_subclass_of($handler, Cashbox\Cashbox::class))
 			{
-				if ($handler === '\\'.Cashbox\CashboxOrangeData::class)
+				if (is_a($handler, Cashbox\CashboxOrangeData::class, true))
 				{
 					$arResult['OFD'] = '\\'.Cashbox\TaxcomOfd::class;
 				}

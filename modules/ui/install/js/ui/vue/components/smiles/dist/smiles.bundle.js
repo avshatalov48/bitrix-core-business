@@ -1,6 +1,9 @@
 (function (exports,ui_vue_directives_lazyload,ui_vue,ui_dexie) {
 	'use strict';
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var SmileManager = /*#__PURE__*/function () {
 	  function SmileManager(restClient) {
 	    babelHelpers.classCallCheck(this, SmileManager);
@@ -29,10 +32,10 @@
 	      this.db.transaction('r', this.db.sets, this.db.smiles, function () {
 	        _this.db.sets.each(function (set) {
 	          return _this.db.smiles.where('setId').equals(set.id).first().then(function (smile) {
-	            sets.push(babelHelpers.objectSpread({}, set, {
+	            sets.push(_objectSpread(_objectSpread({}, set), {}, {
 	              image: smile.image
 	            }));
-	          }).catch(function (error) {
+	          })["catch"](function (error) {
 	            return promise.reject(error);
 	          });
 	        }).then(function () {
@@ -45,7 +48,7 @@
 	            smiles: smiles
 	          };
 	          promise.resolve(promiseResult);
-	        }).catch(function (error) {
+	        })["catch"](function (error) {
 	          return promise.reject(error);
 	        });
 	      });
@@ -83,13 +86,13 @@
 	            originalHeight = originalHeight * 4;
 	          }
 
-	          return babelHelpers.objectSpread({}, smile, {
+	          return _objectSpread(_objectSpread({}, smile), {}, {
 	            originalWidth: originalWidth,
 	            originalHeight: originalHeight
 	          });
 	        });
 	        answer.sets.forEach(function (set) {
-	          sets.push(babelHelpers.objectSpread({}, set, {
+	          sets.push(_objectSpread(_objectSpread({}, set), {}, {
 	            image: setImage[set.id]
 	          }));
 	        });
@@ -109,13 +112,13 @@
 	            _this2.db.sets.bulkAdd(sets);
 
 	            _this2.db.smiles.bulkAdd(answer.smiles);
-	          }).catch(function (error) {
+	          })["catch"](function (error) {
 	            return promise.reject(error);
 	          });
-	        }).catch(function (error) {
+	        })["catch"](function (error) {
 	          return promise.reject(error);
 	        });
-	      }).catch(function (error) {
+	      })["catch"](function (error) {
 	        return promise.reject(error);
 	      });
 	      return promise;
@@ -126,7 +129,7 @@
 	      var promise = new BX.Promise();
 	      this.db.smiles.where('setId').equals(setId).toArray(function (smiles) {
 	        promise.resolve(smiles);
-	      }).catch(function (error) {
+	      })["catch"](function (error) {
 	        return promise.reject(error);
 	      });
 	      return promise;

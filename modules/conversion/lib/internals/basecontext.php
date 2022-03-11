@@ -79,6 +79,19 @@ class BaseContext
 		$result->isSuccess(); // TODO isSuccess
 	}
 
+	/**
+	 * Subtraction from counter value
+	 *
+	 * @param Date $day
+	 * @param string $name
+	 * @param int|float $value
+	 * @return void
+	 */
+	public function subCounter($day, $name, $value = 1)
+	{
+		return $this->addCounter($day, $name, -$value);
+	}
+
 	/** Set attribute with value.
 	 * @param string                $name  - attribute name
 	 * @param string|int|float|null $value - attribute value

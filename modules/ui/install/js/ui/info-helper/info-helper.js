@@ -251,6 +251,11 @@ BX.UI.InfoHelper =
 			return;
 		}
 
+		if (params.isLimit)
+		{
+			this.sendLimitSliderAnalyticsAjax(code, params);
+		}
+
 		BX.SidePanel.Instance.open(this.getSliderId(), {
 			contentCallback: function(slider) {
 				return new Promise(function(resolve, reject) {
@@ -302,6 +307,30 @@ BX.UI.InfoHelper =
 				}
 			}
 		});
+	},
+
+	sendLimitSliderAnalyticsAjax: function(code, params)
+	{
+		var analyticsLabels = {};
+		var defaultAnalyticsLabels = {
+			limits: 'Y',
+			code: code
+		};
+
+		if (
+			params.limitAnalyticsLabels
+			&& BX.Type.isPlainObject(params.limitAnalyticsLabels)
+		)
+		{
+			analyticsLabels = Object.assign({}, params.limitAnalyticsLabels, defaultAnalyticsLabels);
+		}
+
+		if (!analyticsLabels.module)
+		{
+			console.info('Analytics labels must contain module name as a parameter!');
+		}
+
+		void BX.ajax.runAction('ui.infoHelper.showLimitSlider', {analyticsLabel: analyticsLabels});
 	},
 
 	close: function()

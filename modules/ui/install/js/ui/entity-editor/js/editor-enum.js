@@ -134,6 +134,27 @@ if(typeof BX.UI.EntityEditorModeSwitchType === "undefined")
 		};
 }
 //endregion
+
+//region EDITOR ACTIONS
+if(typeof BX.UI.EntityEditorActionIds === "undefined")
+{
+	BX.UI.EntityEditorActionIds =
+		{
+			defaultActionId: 'DEFAULT',
+			cancelActionId: 'CANCEL',
+		};
+}
+
+if(typeof BX.UI.EntityEditorActionTypes === "undefined")
+{
+	BX.UI.EntityEditorActionTypes =
+		{
+			save: 'save',
+			direct: 'direct',
+		};
+}
+//endregion
+
 if(typeof BX.UI.EditorFileStorageType === "undefined")
 {
 	BX.UI.EditorFileStorageType =

@@ -27,7 +27,7 @@ BX.ImMobile = function(params)
 
 	this.callController = null;
 
-	this.revision = 9;
+	this.revision = 19;
 	this.errorMessage = '';
 	this.isAdmin = false;
 	this.bitrixNetwork = false;
@@ -1335,7 +1335,7 @@ BX.ImMobile.prototype.checkRevision = function(revision)
 	if (typeof(revision) == "number" && this.revision < revision)
 	{
 		console.log('NOTICE: Window reload, because REVISION UP ('+this.revision+' -> '+revision+')');
-		reload();
+		location.reload();
 
 		return false;
 	}
@@ -1514,8 +1514,8 @@ BX.ImMessengerMobile = function(BXIM, params)
 	this.popupMessengerConnectionStatusText = null;
 	this.popupMessengerConnectionStatusTimeout = null;
 
-	this.recent = params.recent? params.recent: [];
-	this.recentListLoad = params.recent? true: false;
+	this.recent = [];
+	this.recentListLoad = false;
 
 	this.recentListTab = null;
 	this.recentListTabCounter = null;
@@ -1556,11 +1556,14 @@ BX.ImMessengerMobile = function(BXIM, params)
 	this.linesSilentMode = {};
 }
 
+BX.ImMessengerMobile.prototype.linesShowPromo = function() {}
+
 BX.ImMessengerMobile.prototype.init = function(params)
 {
 	this.openChatEnable = params.openChatEnable || true;
 	this.updateStateInterval = params.updateStateInterval;
-	this.recent = params.recent || {};
+	this.recent = [];
+	this.linesWritingList = {};
 	this.users = params.users || {};
 
 	for (var userId in this.users)

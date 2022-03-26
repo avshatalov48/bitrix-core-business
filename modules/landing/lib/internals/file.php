@@ -28,7 +28,7 @@ class FileTable extends Entity\DataManager
 	 * Returns DB table name for entity.
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_landing_file';
 	}
@@ -37,7 +37,7 @@ class FileTable extends Entity\DataManager
 	 * Returns entity map definition.
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return array(
 			'ID' => new Entity\IntegerField('ID', array(
@@ -56,7 +56,17 @@ class FileTable extends Entity\DataManager
 			'FILE_ID' => new Entity\IntegerField('FILE_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_FILE_ID'),
 				'required' => true
-			))
+			)),
+			'TEMP' => new Entity\StringField('TEMP', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_FILE_TEMP'),
+				'required' => true,
+				'default_value' => 'N'
+			)),
+			'FILE' => new Entity\ReferenceField(
+				'FILE',
+				'\Bitrix\Main\FileTable',
+				array('=this.FILE_ID' => 'ref.ID')
+			)
 		);
 	}
 }

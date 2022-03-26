@@ -2695,7 +2695,7 @@ function ImgShw(ID, width, height, alt)
 					$response->addHeader("Cache-Control", "private, max-age=".$cache_time.", pre-check=".$cache_time);
 
 					$response->writeHeaders();
-					$application->terminate();
+					self::terminate();
 				}
 
 				$response->addHeader("ETag", $ETag);
@@ -2710,7 +2710,7 @@ function ImgShw(ID, width, height, alt)
 						$response->addHeader("Cache-Control", "private, max-age=".$cache_time.", pre-check=".$cache_time);
 
 						$response->writeHeaders();
-						$application->terminate();
+						self::terminate();
 					}
 				}
 			}
@@ -2787,7 +2787,7 @@ function ImgShw(ID, width, height, alt)
 					$response->addHeader('X-Accel-Redirect', $filename);
 				}
 				$response->writeHeaders();
-				$application->terminate();
+				self::terminate();
 			}
 			else
 			{
@@ -2837,10 +2837,22 @@ function ImgShw(ID, width, height, alt)
 				}
 				@ob_flush();
 				flush();
-				$application->terminate();
+				self::terminate();
 			}
 		}
 		return true;
+	}
+
+	private static function terminate(): void
+	{
+		/** @see \Bitrix\Main\HttpResponse::flush */
+		if (function_exists("fastcgi_finish_request"))
+		{
+			//php-fpm
+			fastcgi_finish_request();
+		}
+
+		Main\Application::getInstance()->terminate();
 	}
 
 	/**

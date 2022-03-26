@@ -288,8 +288,6 @@ $MESS["expire_mess2"] = "Your free 30-day trial period is over. You are welcome 
 If you have a commercial license key, please use it to <a href=\"/bitrix/coupon_activation.php?lang=en\" target=\"_blank\">activate and unblock</a> your product copy.";
 $MESS["main_tools_menu_left"] = "Section menu";
 $MESS["main_tools_menu_top"] = "Main menu";
-$MESS["ABC_LOWER"] = "q";
-$MESS["ABC_UPPER"] = "Q";
 $MESS["MONTH_1"] = "January";
 $MESS["MONTH_2"] = "February";
 $MESS["MONTH_3"] = "March";

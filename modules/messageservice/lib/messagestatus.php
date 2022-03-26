@@ -23,6 +23,8 @@ class MessageStatus
 	const FAILED = 16;
 	const READ = 17;
 
+	const UNKNOWN = 64;
+
 	const SEMANTIC_PROCESS = 'process';
 	const SEMANTIC_SUCCESS = 'success';
 	const SEMANTIC_FAILURE = 'failure';
@@ -43,6 +45,7 @@ class MessageStatus
 			static::UNDELIVERED => Loc::getMessage('MESSAGESERVICE_MESSAGESTATUS_UNDELIVERED'),
 			static::FAILED => Loc::getMessage('MESSAGESERVICE_MESSAGESTATUS_FAILED'),
 			static::READ => Loc::getMessage('MESSAGESERVICE_MESSAGESTATUS_READ'),
+			static::UNKNOWN => Loc::getMessage('MESSAGESERVICE_MESSAGESTATUS_SENDING'),
 		);
 	}
 
@@ -62,6 +65,7 @@ class MessageStatus
 			static::UNDELIVERED => static::SEMANTIC_FAILURE,
 			static::FAILED => static::SEMANTIC_FAILURE,
 			static::READ => static::SEMANTIC_SUCCESS,
+			static::UNKNOWN => static::SEMANTIC_PROCESS,
 		);
 	}
 }

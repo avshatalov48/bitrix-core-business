@@ -28,7 +28,8 @@ class Landing
 		{
 			$filter = [
 				'CHECK_PERMISSIONS' => 'N',
-				'=SITE.TYPE' => $params['type']
+				'=SITE.TYPE' => $params['type'],
+				'!=SITE.SPECIAL' => 'Y'
 			];
 			if ($params['action_type'] == 'publication')
 			{

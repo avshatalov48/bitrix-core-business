@@ -70,7 +70,7 @@
 							<h6 class="landing-block-node-block-subtitle landing-semantic-subtitle-small text-uppercase g-color-white g-mb-20">
 								Fusce pretium
 								augue quis sem consectetur</h6>
-							<div class="landing-block-node-block-text landing-semantic-text-small mb-0" data-auto-font-scale>
+							<div class="landing-block-node-block-text landing-semantic-text-small mb-0">
 								<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in
 									blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 								<p>Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros,

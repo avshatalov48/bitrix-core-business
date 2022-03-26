@@ -107,4 +107,12 @@ class ShopBuilder extends AdminPage\CatalogBuilder
 			.'?#LANGUAGE#'
 			.'#ADDITIONAL_PARAMETERS#';
 	}
+
+	protected function getSliderPathTemplates(): array
+	{
+		return [
+			'/^\/shop\/catalog\/[0-9]+\/product\/[0-9]+\/$/',
+			'/^\/shop\/catalog\/[0-9]+\/product\/[0-9]+\/variation\/[0-9]+\/$/',
+		];
+	}
 }

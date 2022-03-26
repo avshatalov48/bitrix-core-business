@@ -1,6 +1,10 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -109,17 +113,22 @@ else
 			elseif (
 				$arGroup
 				&& (
-					$arGroup["OWNER_ID"] == $USER->GetID()
+					(int)$arGroup['OWNER_ID'] === (int)$USER->getId()
 					|| CSocNetUser::IsCurrentUserModuleAdmin()
 				)
 			)
 			{
+				$group = \Bitrix\Socialnetwork\Item\Workgroup::getById($arParams['GROUP_ID']);
+				$arGroup['isScrumProject'] = ($group && $group->isScrumProject());
+
 				$arResult["CurrentUserPerms"] = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
 					'groupId' => $arParams['GROUP_ID'],
 				]);
-				$arResult["InitiatePermsList"] = \Bitrix\Socialnetwork\Item\Workgroup::getInitiatePermOptionsList(array(
-					'project' => ($arGroup['PROJECT'] === 'Y')
-				));
+				$arResult['InitiatePermsList'] = \Bitrix\Socialnetwork\Item\Workgroup::getInitiatePermOptionsList([
+					'project' => ($arGroup['PROJECT'] === 'Y'),
+					'scrum' => $arGroup['isScrumProject'],
+				]);
+
 				$arResult['SpamPermsList'] = \Bitrix\Socialnetwork\Item\Workgroup::getSpamPermOptionsList();
 
 				if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"])
@@ -309,13 +318,28 @@ else
 			$strTitleFormatted = $arResult["Group"]["NAME"];
 		}
 
-		$pageTitle = (
-			$arParams["PAGE_ID"] == "group_features"
-				? Loc::getMessage($arResult["Group"]["PROJECT"] == 'Y' ? "SONET_C3_GROUP_SETTINGS_PROJECT" : "SONET_C3_GROUP_SETTINGS")
-				: Loc::getMessage("SONET_C3_USER_SETTINGS")
-		);
+		if ($arParams["PAGE_ID"] === "group_features")
+		{
+			if ($arResult['Group']['isScrumProject'])
+			{
+				$pageTitle = Loc::getMessage('SONET_C3_GROUP_SETTINGS_SCRUM');
+			}
+			elseif ($arResult['Group']['PROJECT'] === 'Y')
+			{
+				$pageTitle = Loc::getMessage('SONET_C3_GROUP_SETTINGS_PROJECT');
+			}
+			else
+			{
+				$pageTitle = Loc::getMessage('SONET_C3_GROUP_SETTINGS');
+			}
+		}
+		else
+		{
+			$pageTitle = Loc::getMessage('SONET_C3_USER_SETTINGS');
+		}
 
-		if ($arParams["SET_TITLE"] == "Y")
+
+		if ($arParams["SET_TITLE"] === "Y")
 		{
 			if ($arResult['IS_IFRAME'])
 			{
@@ -480,20 +504,33 @@ else
 			}
 		}
 
-		if ($arResult["ShowForm"] == "Input")
+		if ($arResult["ShowForm"] === "Input")
 		{
-			if ($arParams["PAGE_ID"] == "group_features")
+			if ($arParams['PAGE_ID'] === "group_features")
 			{
-				$arResult["ENTITY_TYPE"] = SONET_ENTITY_GROUP;
-				$arResult["PermsVar"] = array(
-					UserToGroupTable::ROLE_OWNER => GetMessage("SONET_C3_PVG_OWNER"),
-					UserToGroupTable::ROLE_MODERATOR => GetMessage("SONET_C3_PVG_MOD"),
-					UserToGroupTable::ROLE_USER => GetMessage("SONET_C3_PVG_USER"),
-					SONET_ROLES_AUTHORIZED => GetMessage("SONET_C3_PVG_AUTHORIZED")
-				);
+				$arResult['ENTITY_TYPE'] = SONET_ENTITY_GROUP;
+
+				$suffix = '';
+
+				if ($arResult['Group']['isScrumProject'])
+				{
+					$suffix = '_SCRUM';
+				}
+				elseif ($arResult['Group']['PROJECT'] === 'Y')
+				{
+					$suffix = '_PROJECT';
+				}
+
+				$arResult['PermsVar'] = [
+					UserToGroupTable::ROLE_OWNER => Loc::getMessage('SONET_C3_PVG_OWNER' . $suffix),
+					UserToGroupTable::ROLE_MODERATOR => Loc::getMessage('SONET_C3_PVG_MOD' . $suffix),
+					UserToGroupTable::ROLE_USER => Loc::getMessage('SONET_C3_PVG_USER' . $suffix),
+					SONET_ROLES_AUTHORIZED => Loc::getMessage('SONET_C3_PVG_AUTHORIZED')
+				];
+
 				if (!ModuleManager::isModuleInstalled('bitrix24'))
 				{
-					$arResult["PermsVar"][SONET_ROLES_ALL] = GetMessage("SONET_C3_PVG_ALL");
+					$arResult['PermsVar'][SONET_ROLES_ALL] = Loc::getMessage('SONET_C3_PVG_ALL');
 				}
 			}
 			else

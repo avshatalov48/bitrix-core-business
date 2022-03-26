@@ -11,6 +11,11 @@ use Bitrix\Main\Loader,
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/iblock/prolog.php');
 
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
+
 Loader::includeModule('iblock');
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
@@ -45,6 +50,18 @@ define("DOCUMENT_TYPE", "iblock_".$IBLOCK_ID);
 
 $bCustomForm = false;
 $customFormFile = '';
+
+$urlBuilder = Iblock\Url\AdminPage\BuilderManager::getInstance()->getBuilder();
+if ($urlBuilder === null)
+{
+	$APPLICATION->SetTitle($arIBTYPE["NAME"]);
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	ShowError(GetMessage("IBLOCK_ELEMENT_ERR_BUILDER_ADSENT"));
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	die();
+}
+$urlBuilder->setIblockId($IBLOCK_ID);
+$urlBuilder->setUrlParams(array());
 
 /* autocomplete */
 $strLookup = (isset($_REQUEST['lookup']) && is_string($_REQUEST['lookup']) ? preg_replace("/[^a-zA-Z0-9_:]/", "", $_REQUEST['lookup']) : '');
@@ -2065,7 +2082,7 @@ if ($adminSidePanelHelper->isPublicFrame())
 	$arEditLinkParams["IFRAME_TYPE"] = "PUBLIC_FRAME";
 }
 $tabControl->Begin(array(
-	"FORM_ACTION" => $selfFolderUrl.CIBlock::GetAdminElementEditLink($IBLOCK_ID, null, $arEditLinkParams)
+	"FORM_ACTION" => $urlBuilder->getElementSaveUrl(null, $arEditLinkParams)
 ));
 
 $tabControl->BeginNextFormTab();
@@ -3176,7 +3193,12 @@ if ($arShowTabs['sku'])
 	$strSubTMP_ID = $TMP_ID;
 
 	$additionalParams = (defined("SELF_FOLDER_URL") ? "&public=y" : "");
-	$strSubElementAjaxPath = $selfFolderUrl.'iblock_subelement_admin.php?WF=Y&IBLOCK_ID='.$intSubIBlockID.'&type='.urlencode($strSubIBlockType).'&lang='.LANGUAGE_ID.'&find_section_section=0&find_el_property_'.$arSubCatalog['SKU_PROPERTY_ID'].'='.((0 == $ID) || ($bCopy) ? '-'.$TMP_ID : $ID).'&TMP_ID='.urlencode($strSubTMP_ID).$additionalParams;
+	$strSubElementAjaxPath = '/bitrix/tools/iblock/iblock_subelement_admin.php?WF=Y&IBLOCK_ID=' . $intSubIBlockID
+		. '&type='.urlencode($strSubIBlockType) . '&lang=' . LANGUAGE_ID
+		. '&find_section_section=0&find_el_property_' . $arSubCatalog['SKU_PROPERTY_ID']
+		. '='.(0 == $ID || $bCopy ? '-' . $TMP_ID : $ID)
+		. '&TMP_ID=' . urlencode($strSubTMP_ID) . $additionalParams
+	;
 	if ($boolIncludeOffers && file_exists($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/iblock/admin/templates/iblock_subelement_list.php'))
 	{
 		require($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/iblock/admin/templates/iblock_subelement_list.php');

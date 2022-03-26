@@ -26,6 +26,10 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.16_NODE--VIDEO'),
 			'type' => 'animation',
 		),
+		'.landing-block-node-row' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33_16_NODE_BLOCK'),
+			'type' => 'align-items',
+		),
 	),
 	'assets' => array(
 		'ext' => array('landing_inline_video', 'landing_form'),

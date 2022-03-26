@@ -42,7 +42,9 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	public function findItemByBasketCode($basketCode)
 	{
 		if ((string)$this->getBasketCode() === (string)$basketCode)
+		{
 			return $this;
+		}
 
 		return null;
 	}
@@ -79,10 +81,14 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	public function findItemById($id)
 	{
 		if ($id <= 0)
+		{
 			return null;
+		}
 
-		if ((int)$this->getId() === (int)$id)
+		if ($this->getId() === (int)$id)
+		{
 			return $this;
+		}
 
 		return null;
 	}
@@ -1231,7 +1237,7 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 
 		$result = new Result();
 
-		$id = (int)$this->getId();
+		$id = $this->getId();
 		$isNew = $id === 0;
 
 		$this->onBeforeSave();
@@ -1279,7 +1285,8 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 			return $r;
 		}
 
-		$r = $this->saveProperties();
+		$propertyCollection = $this->getPropertyCollection();
+		$r = $propertyCollection->save();
 		if (!$r->isSuccess())
 		{
 			$result->addErrors($r->getErrors());
@@ -1327,18 +1334,6 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	}
 
 	/**
-	 * @return Result
-	 * @throws Main\ArgumentException
-	 * @throws Main\NotImplementedException
-	 */
-	private function saveProperties()
-	{
-		/** @var BasketPropertiesCollection $propertyCollection */
-		$propertyCollection = $this->getPropertyCollection();
-		return $propertyCollection->save();
-	}
-
-	/**
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\ObjectNotFoundException
@@ -1349,18 +1344,11 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 		/** @var BasketItemCollection $collection */
 		$collection = $this->getCollection();
 
-		/** @var BasketBase $basket */
-		if (!$basket = $collection->getBasket())
-		{
-			throw new Main\ObjectNotFoundException('Entity "Basket" not found');
-		}
-
-		/** @var BasketBase $basket */
 		$basket = $collection->getBasket();
 
 		if ($this->getField('ORDER_ID') <= 0)
 		{
-			$orderId = (int)$collection->getOrderId();
+			$orderId = $collection->getOrderId();
 			if ($orderId > 0)
 			{
 				$this->setFieldNoDemand('ORDER_ID', $orderId);
@@ -1373,7 +1361,9 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 			{
 				$fUserId = (int)$basket->getFUserId(true);
 				if ($fUserId <= 0)
+				{
 					throw new Main\ArgumentNullException('FUSER_ID');
+				}
 
 				$this->setFieldNoDemand('FUSER_ID', $fUserId);
 			}
@@ -1573,11 +1563,16 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	/**
 	 * @return bool
 	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentTypeException
 	 * @throws Main\NotImplementedException
+	 * @throws Main\ObjectNotFoundException
+	 * @throws Main\SystemException
 	 */
 	public function isChanged()
 	{
 		$isChanged = parent::isChanged();
+
 		if ($isChanged === false)
 		{
 			$propertyCollection = $this->getPropertyCollection();

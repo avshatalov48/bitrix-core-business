@@ -14,7 +14,7 @@ $MESS["BP_V1ST_TASK_DESC"] = "You have to approve or reject the document \"{=Doc
 
 Author: {=Document:CREATED_BY_PRINTABLE}";
 $MESS["BP_V1ST_VNAME"] = "Respond Concerning a Document";
-$MESS["BP_V1ST_S2"] = "Sequence Of Actions";
+$MESS["BP_V1ST_S2_1"] = "Sequence of Activities";
 $MESS["BP_V1ST_MAIL_SUBJ"] = "Voting on {=Document:NAME}: The document has been approved.";
 $MESS["BP_V1ST_MAIL_TEXT"] = "Voting on \"{=Document:NAME}\" has been completed.
 

@@ -17,9 +17,13 @@ use Bitrix\Sale\Result;
 class Externalizer extends ModificationFieldsBase
 	implements Arrayable
 {
-	public function __construct($name, $arguments, $controller, array $data = [], $scope = '')
+	public function __construct($name, $arguments, $controller, $data = [], $scope = '')
 	{
-		$this->format = self::TO_WHITE_LIST | self::TO_CAMEL | self::SORTING_KEYS;
+		$this->setFormat([
+			self::TO_WHITE_LIST,
+			self::TO_CAMEL,
+			self::SORTING_KEYS
+		]);
 
 		parent::__construct($name, $arguments, $controller, $data, $scope);
 	}
@@ -32,20 +36,17 @@ class Externalizer extends ModificationFieldsBase
 		$id = $this->getIdList($data);
 
 		$data = $data[$id];
-		if($this->getScope() == Controller::SCOPE_REST)
+		if(in_array(self::TO_WHITE_LIST, $this->format))
 		{
-			if($this->format & self::TO_WHITE_LIST)
-			{
-				$data = $this->externalize($data);
-			}
+			$data = $this->externalize($data);
 		}
 
-		if($this->format & self::TO_CAMEL)
+		if(in_array(self::TO_CAMEL, $this->format))
 		{
 			$data = $this->convertKeysToCamelCase([$id=>$data]);
 		}
 
-		if($this->format & self::SORTING_KEYS)
+		if(in_array(self::SORTING_KEYS, $this->format))
 		{
 			$data = $this->multiSortKeysArray($data);
 		}

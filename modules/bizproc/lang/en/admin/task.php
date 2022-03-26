@@ -1,9 +1,9 @@
 <?
 $MESS["BPAT_BACK"] = "Back";
 $MESS["BPAT_GOTO_DOC"] = "Go to Element";
-$MESS["BPAT_TAB"] = "Task";
-$MESS["BPAT_TAB_TITLE"] = "Task";
-$MESS["BPAT_TITLE"] = "Task #ID#";
+$MESS["BPAT_TAB_1"] = "Assignment";
+$MESS["BPAT_TAB_TITLE_1"] = "Assignment";
+$MESS["BPAT_TITLE_1"] = "Assignment #ID#";
 $MESS["BPAT_DESCR"] = "Task Description";
 $MESS["BPAT_NAME"] = "Task Name";
 $MESS["BPAT_NO_TASK"] = "The task was not found.";

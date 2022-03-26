@@ -6,7 +6,7 @@
              data-infinite="true"
 			 data-speed="10000"
              data-slides-show="4"
-			 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-60 g-font-size-60 g-color-white g-bg-primary"
+			 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-60 g-font-size-40 g-color-white g-bg-primary"
 			 data-arrow-left-classes="fa fa-angle-left g-left-10"
 			 data-arrow-right-classes="fa fa-angle-right g-right-10"
 			 data-responsive='[{

@@ -17,7 +17,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  recentTitle: 'recentTitle',
 	  recentLinesTitle: 'recentLinesTitle',
 	  readedTitle: 'readedTitle',
-	  default: 'default',
+	  "default": 'default',
 	  vacationTitle: 'vacationTitle'
 	});
 
@@ -50,7 +50,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  none: 'none',
 	  add: 'delete',
 	  update: 'update',
-	  delete: 'delete',
+	  "delete": 'delete',
 	  set: 'set',
 	  setAfter: 'after',
 	  setBefore: 'before'
@@ -184,7 +184,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @copyright 2001-2020 Bitrix
 	 */
 	var DialogType = Object.freeze({
-	  private: 'private',
+	  "private": 'private',
 	  chat: 'chat',
 	  open: 'open',
 	  call: 'call',

@@ -52,6 +52,7 @@ if ($arResult['FATAL'])
 
 // vars
 $isIndex = false;
+$isFolderIndex = false;
 $domainId = 0;
 $domainName = Domain::getHostUrl();
 $domainProtocol = '';
@@ -67,6 +68,18 @@ $siteCurrent = isset($sites[$row['SITE_ID']['CURRENT']])
 				? $sites[$row['SITE_ID']['CURRENT']]
 				: null;
 $isSMN = $siteCurrent['TYPE'] === 'SMN';
+
+// check if this page is folder's index
+if (
+	$row['FOLDER_ID']['CURRENT'] &&
+	(
+		$row['CODE']['CURRENT'] === ($arResult['LAST_FOLDER']['CODE'] ?? null)
+		|| $row['ID']['CURRENT'] === ($arResult['LAST_FOLDER']['INDEX_ID'] ?? null)
+	)
+)
+{
+	$isFolderIndex = true;
+}
 
 // correct some vars
 if (!$row['SITE_ID']['CURRENT'])
@@ -222,19 +235,26 @@ if ($arParams['SUCCESS_SAVE'])
 										$request->get('site')
 									));
 								}
-								if ($arResult['FOLDER'])
+								if ($arResult['FOLDER_PATH'])
 								{
-									echo htmlspecialcharsbx($arResult['FOLDER']['CODE']) . '/';
+									echo htmlspecialcharsbx(ltrim($arResult['FOLDER_PATH'], '/'));
 								}
 								?>
 							</span>
-							<input type="<?= $isIndex ? 'hidden' : 'text' ?>" name="fields[CODE]" value="<?= $row['CODE']['CURRENT'] ?>" class="ui-input" />
-							<?= $isIndex ? '' : '<span class="landing-form-site-name-label">/</span>' ?>
+							<input type="<?= ($isIndex || $isFolderIndex) ? 'hidden' : 'text' ?>" name="fields[CODE]" value="<?= $row['CODE']['CURRENT'] ?>" class="ui-input" />
+							<?= ($isIndex || $isFolderIndex) ? '' : '<span class="landing-form-site-name-label">/</span>' ?>
 							<?php if ($isIndex):?>
 								<div class="ui-form-field-description">
 									<?= $component->getMessageType('LANDING_TPL_CODE_SETTINGS', [
 										'#LINK1#' => $arParams['PAGE_URL_SITE_EDIT'] ? '<a href="' . $arParams['PAGE_URL_SITE_EDIT'] . '">' : '',
 										'#LINK2#' => $arParams['PAGE_URL_SITE_EDIT'] ? '</a>' : ''
+									]) ?>
+								</div>
+							<?php elseif ($isFolderIndex):?>
+								<div class="ui-form-field-description">
+									<?= $component->getMessageType('LANDING_TPL_CODE_FOLDER_SETTINGS', [
+										'#LINK1#' => $arParams['PAGE_URL_FOLDER_EDIT'] ? '<a href="' . str_replace('#folder_edit#', $row['FOLDER_ID']['CURRENT'], $arParams['PAGE_URL_FOLDER_EDIT']) . '">' : '',
+										'#LINK2#' => $arParams['PAGE_URL_FOLDER_EDIT'] ? '</a>' : ''
 									]) ?>
 								</div>
 							<?php endif;?>

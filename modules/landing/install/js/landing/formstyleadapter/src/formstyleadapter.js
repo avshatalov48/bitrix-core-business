@@ -5,6 +5,8 @@ import {Loc} from 'landing.loc';
 import {ColorPickerField} from 'landing.ui.field.colorpickerfield';
 import {Backend} from 'landing.backend';
 import {Env} from 'landing.env';
+import {ColorField} from 'landing.ui.field.color';
+import {PageObject} from 'landing.pageobject';
 
 import themesMap from './internal/themes-map';
 
@@ -71,7 +73,8 @@ export class FormStyleAdapter extends EventEmitter
 	{
 		return this.cache.remember('themeField', () => {
 			const {theme} = this.getFormOptions().data.design;
-			return new BX.Landing.UI.Field.Dropdown({
+			const rootWindow = PageObject.getRootWindow();
+			return new rootWindow.BX.Landing.UI.Field.Dropdown({
 				selector: 'theme',
 				title: Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_THEME_FIELD_TITLE'),
 				content: Type.isString(theme) ? theme.split('-')[0] : '',
@@ -106,7 +109,8 @@ export class FormStyleAdapter extends EventEmitter
 	{
 		return this.cache.remember('darkField', () => {
 			const {theme} = this.getFormOptions().data.design;
-			return new BX.Landing.UI.Field.Dropdown({
+			const rootWindow = PageObject.getRootWindow();
+			return new rootWindow.BX.Landing.UI.Field.Dropdown({
 				selector: 'dark',
 				title: Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_DARK_FIELD_TITLE'),
 				content: Type.isString(theme) ? theme.split('-')[1] : '',
@@ -134,13 +138,27 @@ export class FormStyleAdapter extends EventEmitter
 		{
 			if (Type.isPlainObject(theme.color))
 			{
-				this.getPrimaryColorField().setValue(theme.color.primary, true);
-				this.getPrimaryTextColorField().setValue(theme.color.primaryText, true);
-				this.getBackgroundColorField().setValue(theme.color.background);
-				this.getTextColorField().setValue(theme.color.text, true);
-				this.getFieldBackgroundColorField().setValue(theme.color.fieldBackground, true);
-				this.getFieldFocusBackgroundColorField().setValue(theme.color.fieldFocusBackground, true);
-				this.getFieldBorderColorField().setValue(theme.color.fieldBorder);
+				this.getPrimaryColorField().setValue({
+					'--color': FormStyleAdapter.prepareColorFieldValue(theme.color.primary),
+				});
+				this.getPrimaryTextColorField().setValue({
+					'--color': FormStyleAdapter.prepareColorFieldValue(theme.color.primaryText),
+				});
+				this.getBackgroundColorField().setValue({
+					'--color': FormStyleAdapter.prepareColorFieldValue(theme.color.background),
+				});
+				this.getTextColorField().setValue({
+					'--color': FormStyleAdapter.prepareColorFieldValue(theme.color.text),
+				});
+				this.getFieldBackgroundColorField().setValue({
+					'--color': FormStyleAdapter.prepareColorFieldValue(theme.color.fieldBackground),
+				});
+				this.getFieldFocusBackgroundColorField().setValue({
+					'--color': FormStyleAdapter.prepareColorFieldValue(theme.color.fieldFocusBackground),
+				});
+				this.getFieldBorderColorField().setValue({
+					'--color': FormStyleAdapter.prepareColorFieldValue(theme.color.fieldBorder),
+				});
 			}
 
 			this.getStyleField().setValue(theme.style);
@@ -180,7 +198,8 @@ export class FormStyleAdapter extends EventEmitter
 	getShadowField(): BX.Landing.UI.Field.Dropdown
 	{
 		return this.cache.remember('shadow', () => {
-			return new BX.Landing.UI.Field.Dropdown({
+			const rootWindow = PageObject.getRootWindow();
+			return new rootWindow.BX.Landing.UI.Field.Dropdown({
 				selector: 'shadow',
 				title: Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_SHADOW'),
 				content: this.getFormOptions().data.design.shadow,
@@ -201,7 +220,8 @@ export class FormStyleAdapter extends EventEmitter
 	getStyleField()
 	{
 		return this.cache.remember('styleField', () => {
-			return new BX.Landing.UI.Field.Dropdown({
+			const rootWindow = PageObject.getRootWindow();
+			return new rootWindow.BX.Landing.UI.Field.Dropdown({
 				selector: 'style',
 				title: Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_STYLE_FIELD_TITLE'),
 				content: this.getFormOptions().data.design.style,
@@ -219,80 +239,164 @@ export class FormStyleAdapter extends EventEmitter
 		});
 	}
 
+	static prepareColorFieldValue(color: string): string
+	{
+		return ColorPickerField.toRgba(
+			...ColorPickerField.parseHex(color),
+		);
+	}
+
+	static convertColorFieldValueToHexa(value: string, opacity: string = null): string
+	{
+		const parsedPrimary = ColorPickerField.parseHex(value);
+
+		if (!Type.isNil(opacity))
+		{
+			parsedPrimary[3] = opacity;
+		}
+
+		return ColorPickerField.toHex(...parsedPrimary);
+	}
+
 	getPrimaryColorField(): ColorPickerField
 	{
 		return this.cache.remember('primaryColorField', () => {
-			return new ColorPickerField({
+			const rootWindow = PageObject.getRootWindow();
+			const field = new rootWindow.BX.Landing.UI.Field.ColorField({
 				selector: 'primary',
 				title: Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_PRIMARY_COLOR'),
-				value: this.getFormOptions().data.design.color.primary,
+				subtype: 'color',
 			});
+
+			Dom.hide(field.layout.querySelector('.landing-ui-field-color-primary'));
+
+			field.setValue({
+				'--color': FormStyleAdapter.prepareColorFieldValue(this.getFormOptions().data.design.color.primary),
+			});
+
+			return field;
 		});
 	}
 
 	getPrimaryTextColorField(): ColorPickerField
 	{
 		return this.cache.remember('primaryTextColorField', () => {
-			return new ColorPickerField({
+			const rootWindow = PageObject.getRootWindow();
+			const field = new rootWindow.BX.Landing.UI.Field.ColorField({
 				selector: 'primaryText',
 				title: Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_PRIMARY_TEXT_COLOR'),
-				value: this.getFormOptions().data.design.color.primaryText,
+				subtype: 'color',
 			});
+
+			Dom.hide(field.layout.querySelector('.landing-ui-field-color-primary'));
+
+			field.setValue({
+				'--color': FormStyleAdapter.prepareColorFieldValue(this.getFormOptions().data.design.color.primaryText),
+			});
+
+			return field;
 		});
 	}
 
 	getBackgroundColorField(): ColorPickerField
 	{
 		return this.cache.remember('backgroundColorField', () => {
-			return new ColorPickerField({
+			const rootWindow = PageObject.getRootWindow();
+			const field = new rootWindow.BX.Landing.UI.Field.ColorField({
 				selector: 'background',
 				title: Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_BACKGROUND_COLOR'),
-				value: this.getFormOptions().data.design.color.background,
+				subtype: 'color',
 			});
+
+			Dom.hide(field.layout.querySelector('.landing-ui-field-color-primary'));
+
+			field.setValue({
+				'--color': FormStyleAdapter.prepareColorFieldValue(this.getFormOptions().data.design.color.background),
+			});
+
+			return field;
 		});
 	}
 
 	getTextColorField(): ColorPickerField
 	{
 		return this.cache.remember('textColorField', () => {
-			return new ColorPickerField({
+			const rootWindow = PageObject.getRootWindow();
+			const field = new rootWindow.BX.Landing.UI.Field.ColorField({
 				selector: 'text',
 				title: Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_TEXT_COLOR'),
-				value: this.getFormOptions().data.design.color.text,
+				subtype: 'color',
 			});
+
+			Dom.hide(field.layout.querySelector('.landing-ui-field-color-primary'));
+
+			field.setValue({
+				'--color': FormStyleAdapter.prepareColorFieldValue(this.getFormOptions().data.design.color.text),
+			});
+
+			return field;
 		});
 	}
 
 	getFieldBackgroundColorField(): ColorPickerField
 	{
 		return this.cache.remember('fieldBackgroundColorField', () => {
-			return new ColorPickerField({
+			const rootWindow = PageObject.getRootWindow();
+			const field = new rootWindow.BX.Landing.UI.Field.ColorField({
 				selector: 'fieldBackground',
 				title: Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FIELD_BACKGROUND_COLOR'),
-				value: this.getFormOptions().data.design.color.fieldBackground,
+				subtype: 'color',
 			});
+
+			Dom.hide(field.layout.querySelector('.landing-ui-field-color-primary'));
+
+			field.setValue({
+				'--color': FormStyleAdapter.prepareColorFieldValue(this.getFormOptions().data.design.color.fieldBackground),
+			});
+
+			return field;
 		});
 	}
 
 	getFieldFocusBackgroundColorField(): ColorPickerField
 	{
 		return this.cache.remember('fieldFocusBackgroundColorField', () => {
-			return new ColorPickerField({
+			const rootWindow = PageObject.getRootWindow();
+			const field = new rootWindow.BX.Landing.UI.Field.ColorField({
 				selector: 'fieldFocusBackground',
 				title: Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FIELD_FOCUS_BACKGROUND_COLOR'),
 				value: this.getFormOptions().data.design.color.fieldFocusBackground,
+				subtype: 'color',
 			});
+
+			Dom.hide(field.layout.querySelector('.landing-ui-field-color-primary'));
+
+			field.setValue({
+				'--color': FormStyleAdapter.prepareColorFieldValue(this.getFormOptions().data.design.color.fieldFocusBackground),
+			});
+
+			return field;
 		});
 	}
 
 	getFieldBorderColorField(): ColorPickerField
 	{
 		return this.cache.remember('fieldBorderColorField', () => {
-			return new ColorPickerField({
+			const rootWindow = PageObject.getRootWindow();
+			const field = new rootWindow.BX.Landing.UI.Field.ColorField({
 				selector: 'fieldBorder',
 				title: Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FIELD_BORDER_COLOR'),
 				value: this.getFormOptions().data.design.color.fieldBorder,
+				subtype: 'color',
 			});
+
+			Dom.hide(field.layout.querySelector('.landing-ui-field-color-primary'));
+
+			field.setValue({
+				'--color': FormStyleAdapter.prepareColorFieldValue(this.getFormOptions().data.design.color.fieldBorder),
+			});
+
+			return field;
 		});
 	}
 
@@ -374,19 +478,40 @@ export class FormStyleAdapter extends EventEmitter
 					this.getBorderField(),
 				],
 				onChange: Runtime.throttle(this.onFormChange.bind(this), 16),
-				serializeModifier(value) {
+				serializeModifier: (value) => {
 					value.theme = `${value.theme}-${value.dark}`;
 					value.dark = value.dark === 'dark';
 					value.shadow = Text.toBoolean(value.shadow);
 
 					value.color = {
-						primary: value.primary,
-						primaryText: value.primaryText,
-						text: value.text,
-						background: value.background,
-						fieldBackground: value.fieldBackground,
-						fieldFocusBackground: value.fieldFocusBackground,
-						fieldBorder: value.fieldBorder,
+						primary: FormStyleAdapter.convertColorFieldValueToHexa(
+							value.primary.getHex(),
+							value.primary.getOpacity(),
+						),
+						primaryText: FormStyleAdapter.convertColorFieldValueToHexa(
+							value.primaryText.getHex(),
+							value.primaryText.getOpacity(),
+						),
+						text: FormStyleAdapter.convertColorFieldValueToHexa(
+							value.text.getHex(),
+							value.text.getOpacity(),
+						),
+						background: FormStyleAdapter.convertColorFieldValueToHexa(
+							value.background.getHex(),
+							value.background.getOpacity(),
+						),
+						fieldBackground: FormStyleAdapter.convertColorFieldValueToHexa(
+							value.fieldBackground.getHex(),
+							value.fieldBackground.getOpacity(),
+						),
+						fieldFocusBackground: FormStyleAdapter.convertColorFieldValueToHexa(
+							value.fieldFocusBackground.getHex(),
+							value.fieldFocusBackground.getOpacity(),
+						),
+						fieldBorder: FormStyleAdapter.convertColorFieldValueToHexa(
+							value.fieldBorder.getHex(),
+							value.fieldBorder.getOpacity(),
+						),
 					};
 
 					value.border = {

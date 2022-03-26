@@ -1,5 +1,6 @@
 <?
 $MESS ['SALE_DSE_TAB_GENERAL'] = "Общие настройки";
+$MESS ['SALE_DSE_TAB_SETTINGS'] = "Настройки";
 $MESS ['SALE_DSE_TAB_DELIVERY_GENERAL'] = "Общие настройки службы доставки";
 $MESS ['SALE_DSE_ERROR_NO_NAME'] = "Не указано название";
 $MESS ['SALE_DSE_ERROR_NO_CLASS_NAME'] = "Не указан тип";

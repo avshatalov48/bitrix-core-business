@@ -17,6 +17,16 @@ $response = $context->getResponse();
 
 CModule::includeModule('mail');
 
+function handleError($rcpt,$rcptErrors)
+{
+	if (count($rcptErrors) >= count($rcpt))
+	{
+		throw new Bitrix\Mail\ReceiverException(join('; ', $rcptErrors));
+	}
+
+	throw new Bitrix\Main\SystemException(sprintf('Message processing failed (rcpt: %s)', join(', ', $rcpt)));
+}
+
 try
 {
 	$hostname = $request->getPostList()->getRaw('hostname');
@@ -54,6 +64,46 @@ try
 
 	if (empty($rcpt))
 		throw new Bitrix\Mail\ReceiverException('Invalid recipients list');
+
+	$preSuccess = false;
+	$success = false;
+	$rcptErrors = [];
+
+	$emails = [];
+
+	foreach ($rcpt as $to)
+	{
+		$emailRecipient = null;
+		$emailRelation = null;
+
+		$emailRecipient = Bitrix\Mail\User::parseEmailRecipient($to);
+
+		$token = $emailRecipient['token'];
+
+		if($emailRecipient === false)
+		{
+			$rcptErrors[$to] = sprintf('Invalid recipient (%s)', $to);
+			break;
+		}
+
+		$emailRelation = Bitrix\Mail\User::getUserRelation($token);
+
+		if ($emailRelation === false)
+		{
+			$rcptErrors[$to] = sprintf('Unknown recipient (%s)', $to);
+			break;
+		}
+
+		$preSuccess = true;
+		$emails[$to] = [];
+		$emails[$to]['recipient'] = $emailRecipient;
+		$emails[$to]['relation'] = $emailRelation;
+	}
+
+	if (!$preSuccess)
+	{
+		handleError($rcpt,$rcptErrors);
+	}
 
 	$message['files'] = array();
 	if (!empty($message['attachments']) && is_array($message['attachments']))
@@ -127,12 +177,21 @@ try
 		unset($item);
 	}
 
-	$success    = false;
-	$rcptErrors = array();
 	foreach ($rcpt as $to)
 	{
+		if(!isset($emails[$to]))
+		{
+			continue;
+		}
+
 		$error  = null;
-		$result = Bitrix\Mail\User::onEmailReceived($to, $message, $error);
+		$result = Bitrix\Mail\User::onEmailReceived(
+			$to,
+			$message,
+			$emails[$to]['recipient'],
+			$emails[$to]['relation'],
+			$error
+		);
 
 		if ($result)
 			$success = true;
@@ -142,10 +201,7 @@ try
 
 	if (!$success)
 	{
-		if (count($rcptErrors) == count($rcpt))
-			throw new Bitrix\Mail\ReceiverException(join('; ', $rcptErrors));
-
-		throw new Bitrix\Main\SystemException(sprintf('Message processing failed (rcpt: %s)', join(', ', $rcpt)));
+		handleError($rcpt,$rcptErrors);
 	}
 
 	$response->setStatus('204 No Content');

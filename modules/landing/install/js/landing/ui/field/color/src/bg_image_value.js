@@ -136,6 +136,7 @@ export default class BgImageValue implements IColorValue
 	setOverlay(value: ColorValue)
 	{
 		this.setValue({overlay: value});
+		return this;
 	}
 
 	getUrl(): string

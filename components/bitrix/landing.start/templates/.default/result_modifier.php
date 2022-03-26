@@ -177,6 +177,17 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 	// add site import button
 	else if ($arResult['ACCESS_SITE_NEW'] == 'Y')
 	{
+		if (\Bitrix\Landing\Rights::isAdmin())
+		{
+			$settingsLink[] = [
+				'TITLE' => Loc::getMessage('LANDING_TPL_MENU_RIGHTS'),
+				'LINK' => $arParams['PAGE_URL_ROLES'],
+				'DATASET' => [
+					'skipSlider' => true
+				],
+			];
+		}
+
 		$importUrl = \Bitrix\Landing\Transfer\Import\Site::getUrl(
 			$arParams['TYPE']
 		);
@@ -188,6 +199,19 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 				'LINK' => $importUrl
 			];
 		}
+
+		if (count($settingsLink) > 0)
+		{
+			$settingsLink[] = ['TITLE' => '', 'LINK' => '', 'DELIMITER' => true];
+		}
+
+		$settingsLink[] = [
+			'TITLE' => Loc::getMessage('LANDING_TPL_MENU_AGREEMENT'),
+			'LINK' => 'javascript:landingAgreementPopup()',
+			'DATASET' => [
+				'skipSlider' => true
+			],
+		];
 	}
 
 	if (
@@ -200,6 +224,14 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 		$settingsLink[] = [
 			'TITLE' => Loc::getMessage('LANDING_TPL_DEV_SITE'),
 			'LINK' => '/bitrix/components/bitrix/sale.bsm.site.master/slider.php'
+		];
+	}
+
+	if ($folderId)
+	{
+		$settingsLink[] = [
+			'TITLE' => Loc::getMessage('LANDING_TPL_FOLDER_EDIT'),
+			'LINK' => str_replace('#folder_edit#', $folderId, $arParams['PAGE_URL_FOLDER_EDIT'])
 		];
 	}
 
@@ -221,7 +253,8 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 							: array(),
 			'TYPE' => $arParams['TYPE'],
 			'DRAFT_MODE' => $arParams['DRAFT_MODE'],
-			'FOLDER_SITE_ID' => !$folderId ? $arResult['VARS']['site_show'] : 0
+			'FOLDER_ID' => $folderId,
+			'FOLDER_SITE_ID' => $arResult['VARS']['site_show']
 		),
 		$this->__component
 	);

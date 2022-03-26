@@ -198,7 +198,7 @@ return [
 				'id' => 'project-tag',
 				'options' => [
 					'dynamicLoad' => true,
-					'dynamicSearch' => false,
+					'dynamicSearch' => true,
 					'itemOptions' => [
 						'default' => [
 							'avatar' => '/bitrix/js/socialnetwork/entity-selector/src/images/default-tag.svg',

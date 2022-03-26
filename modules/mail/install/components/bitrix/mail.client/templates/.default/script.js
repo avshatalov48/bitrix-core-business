@@ -899,8 +899,10 @@
 					{
 						'complete': -1,
 						'status': -1,
-						'errors': json.errors
-					}
+						'errors': json.errors,
+						'is_fatal_error': json.data.is_fatal_error,
+					},
+
 				);
 			}
 		);
@@ -953,7 +955,7 @@
 			}
 		}
 
-		BXMailMailbox.updateStepper(stepper, params.complete, params.status, params.errors);
+		BXMailMailbox.updateStepper(stepper, params.complete, params.status, params.errors, params.is_fatal_error);
 
 		if (params.complete < 0 || params.complete > 0)
 		{
@@ -979,7 +981,7 @@
 		}
 	}
 
-	BXMailMailbox.updateStepper = function(stepper, complete, status, errors)
+	BXMailMailbox.updateStepper = function(stepper, complete, status, errors, is_fatal_error)
 	{
 		stepper.hideTimeout = clearTimeout(stepper.hideTimeout);
 
@@ -1035,7 +1037,8 @@
 
 				stepper.showErrorBox();
 			}
-			else
+
+			if(!stepperError || is_fatal_error)
 			{
 				BXMailMailbox.toggleStepper(stepper, false);
 			}
@@ -1085,13 +1088,23 @@
 
 	var siteDir = ('/' + (BX.message.SITE_DIR || '/').replace(/[\\*+?.()|[\]{}]/g, '\\$&') + '/').replace(/\/+/g, '/');
 
+	this.mailLoader = BX.create("div", {
+		props: {
+			className: 'mail-loader-node'
+		},
+	})
+
 	top.BX.SidePanel.Instance.bindAnchors({
 		rules: [
 			{
 				condition: [
-					siteDir + 'mail/',
+					siteDir + 'mail(\/|$)',
 				],
 				options: {
+					//loading animation is assigned to this class
+					contentClassName: "mail-loader-modifier",
+					//replacing the standard loader with an empty element
+					loader: this.mailLoader,
 					cacheable: false,
 					customLeftBoundary: 0,
 				}
@@ -1107,7 +1120,7 @@
 			},
 			{
 				condition: [
-					'^' + siteDir + 'mail/(blacklist|signature|config|message)'
+					'^' + siteDir + 'mail/(blacklist|signature|config|message|addressbook)'
 				],
 				options: {
 					width: 1080

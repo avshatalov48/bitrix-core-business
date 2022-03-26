@@ -171,7 +171,8 @@ BX.Catalog.ProductSearchDialog = (function () {
 	};
 
 	ProductSearchDialog.prototype.onIblockChange = function (id, iblockName) {
-		var me = this, url = this.buildUrl({action: 'change_iblock', IBLOCK_ID: id, SECTION_ID: 0});
+		var me = this,
+			url = this.buildUrl({action: 'change_iblock', IBLOCK_ID: id, SECTION_ID: 0});
 		if (iblockName)
 			me.iblockName = iblockName;
 		BX.ajax.get(
@@ -310,7 +311,8 @@ BX.Catalog.ProductSearchDialog = (function () {
 	ProductSearchDialog.prototype.setBreadcrumbs = function (data) {
 		var title = this.iblockName,
 			arHtml = ['<a class="adm-navchain-item adm-navchain-item-desktop" href="#" onclick="return '+this.tableId+'_helper.onSectionClick(0)">'+BX.util.htmlspecialchars(title)+'</a>'],
-			arPath = [];
+			arPath = [],
+			breadcrumbs = BX(this.tableId+'_breadcrumbs');
 		for(var i in data)
 		{
 			if (data.hasOwnProperty(i))
@@ -324,7 +326,10 @@ BX.Catalog.ProductSearchDialog = (function () {
 		{
 			this.popup.SetTitle(BX.util.htmlspecialcharsback(title));
 		}
-		BX(this.tableId+'_breadcrumbs').innerHTML = arHtml.join('<span class="adm-navchain-delimiter"></span>');
+		if (BX.type.isDomNode(breadcrumbs))
+		{
+			breadcrumbs.innerHTML = arHtml.join('<span class="adm-navchain-delimiter"></span>');
+		}
 		this.openBranchByPath(arPath);
 	};
 
@@ -335,12 +340,24 @@ BX.Catalog.ProductSearchDialog = (function () {
 	ProductSearchDialog.prototype.buildUrl = function (appendParameters) {
 		var params = BX.ajax.prepareForm(this.getForm()),
 			url = [],
-			k;
+			k,
+			changeIblock = false;
+		if (BX.type.isPlainObject(appendParameters))
+		{
+			changeIblock = (
+				BX.type.isNotEmptyString(appendParameters.action)
+				&& appendParameters.action === 'change_iblock'
+			);
+		}
 		for (k in params.data) {
 			if (params.data.hasOwnProperty(k) && params.data[k])
 			{
 				if (this.ignoreFilter && k.indexOf('filter_') === 0)
 					continue;
+				if (changeIblock && k === 'mode')
+				{
+					continue;
+				}
 				url.push(encodeURIComponent(k) + '=' + encodeURIComponent(params.data[k]));
 			}
 		}

@@ -25,9 +25,9 @@ $settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
 									Call Us
 								</div>
 								<a class="landing-block-node-card-link g-color-primary g-font-size-14 g-font-weight-700"
-								   href="tel:#PHONE1#"
+								   href="tel:#crmPhone1"
 								   target="_blank">
-									#PHONE1#
+									#crmPhoneTitle1
 								</a>
 							</div>
 						</div>
@@ -59,9 +59,9 @@ $settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
 									Email us
 								</div>
 								<a class="landing-block-node-card-link g-color-primary g-font-size-14 g-font-weight-700"
-									 href="mailto:#EMAIL1#"
+									 href="mailto:#crmEmail1"
 									 target="_blank">
-									#EMAIL1#
+									#crmEmailTitle1
 								</a>
 							</div>
 						</div>

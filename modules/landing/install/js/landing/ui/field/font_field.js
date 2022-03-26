@@ -153,18 +153,30 @@
 
 		setConditionLink: function()
 		{
-			this.defaultFontFamily = getComputedStyle(document.body).fontFamily;
-			this.defaultFont = this.defaultFontFamily.match(REG_NAME_FONT)[0];
-			this.currentFont = getComputedStyle(this.element).fontFamily.match(REG_NAME_FONT)[0];
-			if (this.defaultFont !== this.currentFont)
+			if (this.element)
 			{
-				this.linkContainer.append(this.defaultFontLink.getLayout());
-			}
-			else
-			{
-				if (this.linkContainer.hasChildNodes())
+				var setHeaderTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7'];
+				this.defaultFontFamily = getComputedStyle(document.body).fontFamily;
+				this.isHeaderElement = setHeaderTags.includes(this.element.tagName);
+				if (this.isHeaderElement)
 				{
-					this.linkContainer.removeChild(this.linkContainer.firstChild);
+					var emptyHeader = document.createElement("H2");
+					document.body.appendChild(emptyHeader);
+					this.defaultFontFamily = getComputedStyle(emptyHeader).fontFamily;
+					emptyHeader.remove();
+				}
+				this.defaultFont = this.defaultFontFamily.match(REG_NAME_FONT)[0];
+				this.currentFont = getComputedStyle(this.element).fontFamily.match(REG_NAME_FONT)[0];
+				if (this.defaultFont !== this.currentFont)
+				{
+					this.linkContainer.append(this.defaultFontLink.getLayout());
+				}
+				else
+				{
+					if (this.linkContainer.hasChildNodes())
+					{
+						this.linkContainer.removeChild(this.linkContainer.firstChild);
+					}
 				}
 			}
 		},

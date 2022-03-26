@@ -46,6 +46,11 @@ export class ImCallPullHandler
 
 	handleChatUserAdd(params)
 	{
+		if (params.dialogId !== this.store.state.application.dialog.dialogId)
+		{
+			return false;
+		}
+
 		const users = Object.values(params.users).map(user => {
 			return {...user, lastActivityDate: new Date()};
 		});
@@ -56,7 +61,12 @@ export class ImCallPullHandler
 
 	handleChatUserLeave(params)
 	{
-		if (params.userId === this.controller.getUserId() && params.dialogId === this.store.state.application.dialog.dialogId)
+		if (params.dialogId !== this.store.state.application.dialog.dialogId)
+		{
+			return false;
+		}
+
+		if (params.userId === this.controller.getUserId())
 		{
 			this.application.kickFromCall();
 		}

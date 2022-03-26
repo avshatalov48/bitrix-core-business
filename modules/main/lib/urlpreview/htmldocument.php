@@ -166,7 +166,7 @@ class HtmlDocument
 		if($image <> '')
 		{
 			$imageUrl = $this->normalizeImageUrl($image);
-			if(!is_null($imageUrl) && $this->validateImage($imageUrl))
+			if(!is_null($imageUrl) && $this->validateImage($imageUrl, true))
 				$this->metadata['IMAGE'] = $imageUrl;
 		}
 	}
@@ -492,7 +492,7 @@ class HtmlDocument
 	 * @param string $url Absolute image's URL.
 	 * @return bool
 	 */
-	protected function validateImage($url)
+	protected function validateImage($url, $skipForPrivateIp = false)
 	{
 		$httpClient = new HttpClient();
 		$httpClient->setTimeout(5);
@@ -500,7 +500,10 @@ class HtmlDocument
 		$httpClient->setPrivateIp(false);
 		$httpClient->setHeader('User-Agent', UrlPreview::USER_AGENT, true);
 		if(!$httpClient->query('GET', $url))
-			return false;
+		{
+			$errorCode = array_key_first($httpClient->getError());
+			return ($skipForPrivateIp && $errorCode === 'PRIVATE_IP');
+		}
 
 		if($httpClient->getStatus() !== 200)
 			return false;

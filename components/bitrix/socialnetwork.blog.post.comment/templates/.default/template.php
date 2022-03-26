@@ -128,7 +128,7 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 		"NOTIFY_TEXT" => ($arParams["bFromList"] ? TruncateText(str_replace(Array("\r\n", "\n"), " ", $arParams["POST_DATA"]["~TITLE"]), 100) : ""),
 		"SHOW_MINIMIZED" => "Y",
 		"SHOW_POST_FORM" => ($arResult["CanUserComment"] ? "Y" : "N"),
-		'FORM_ID' => ($arResult["CanUserComment"] ? 'blogCommentForm' . $arResult['FORM_ID'] : ''),
+		'FORM_ID' => ($arResult["CanUserComment"] ? $arResult['FORM_ID'] : ''),
 
 		"IMAGE_SIZE" => $arParams["IMAGE_SIZE"],
 		"mfi" => $arParams["mfi"],

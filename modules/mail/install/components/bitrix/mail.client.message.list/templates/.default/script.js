@@ -139,10 +139,11 @@
 	var _name = /*#__PURE__*/new WeakMap();
 
 	var Counters = /*#__PURE__*/function () {
-	  function Counters(name) {
+	  function Counters(name, selectedDirectory) {
 	    babelHelpers.classCallCheck(this, Counters);
 	    babelHelpers.defineProperty(this, "counters", []);
 	    babelHelpers.defineProperty(this, "hiddenCountersForTotalCounter", []);
+	    babelHelpers.defineProperty(this, "shortcuts", []);
 
 	    _name.set(this, {
 	      writable: true,
@@ -150,9 +151,53 @@
 	    });
 
 	    babelHelpers.classPrivateFieldSet(this, _name, name);
+	    this.setDirectory(selectedDirectory);
 	  }
 
 	  babelHelpers.createClass(Counters, [{
+	    key: "getDirPath",
+	    value: function getDirPath(shortcut) {
+	      if (shortcut === undefined) {
+	        shortcut = '';
+	      }
+
+	      if (this.shortcuts[shortcut] !== undefined) {
+	        return this.shortcuts[shortcut];
+	      }
+
+	      return shortcut;
+	    }
+	  }, {
+	    key: "getShortcut",
+	    value: function getShortcut(path) {
+	      //because they have a closure
+	      return this.getDirPath(path);
+	    }
+	  }, {
+	    key: "setDirectory",
+	    value: function setDirectory(name) {
+	      if (name === undefined) {
+	        name = '';
+	      }
+
+	      if (this.shortcuts[name]) {
+	        this.selectedDirectory = this.shortcuts[name];
+	      } else {
+	        this.selectedDirectory = name;
+	      }
+
+	      var resultCounters = {};
+	      resultCounters[this.selectedDirectory] = this.getCounter(this.selectedDirectory);
+	      this.senCounterUpdateEvent(resultCounters);
+	    }
+	  }, {
+	    key: "setShortcut",
+	    value: function setShortcut(shortcutName, name) {
+	      //backlink
+	      this.shortcuts[shortcutName] = name;
+	      this.shortcuts[name] = shortcutName;
+	    }
+	  }, {
 	    key: "getName",
 	    value: function getName() {
 	      return babelHelpers.classPrivateFieldGet(this, _name);
@@ -173,6 +218,15 @@
 	      } finally {
 	        _iterator.f();
 	      }
+	    }
+	  }, {
+	    key: "isHidden",
+	    value: function isHidden(name) {
+	      if (this.hiddenCountersForTotalCounter[name] === 'disabled') {
+	        return true;
+	      }
+
+	      return false;
 	    }
 	  }, {
 	    key: "getTotalCounter",
@@ -214,16 +268,15 @@
 	        var counter = counters[i];
 	        var path = counter['path'];
 	        this.addCounter(path, counter['count']);
-	        resultCounters[path] = counter['count'];
+
+	        if (this.shortcuts[path]) {
+	          resultCounters[this.shortcuts[path]] = counter['count'];
+	        } else {
+	          resultCounters[path] = counter['count'];
+	        }
 	      }
 
-	      var event = new main_core_events.BaseEvent({
-	        data: {
-	          counters: resultCounters,
-	          name: this.getName()
-	        }
-	      });
-	      main_core_events.EventEmitter.emit('BX.Mail.Home:updatingCounters', event);
+	      this.senCounterUpdateEvent(resultCounters);
 	    }
 	    /*Set counters as when adding. Old counters with different names are retained*/
 
@@ -306,12 +359,23 @@
 	          this.increaseCounter(name, counter['count']);
 	        }
 
-	        resultCounters[name] = this.getCounter(name);
+	        if (this.shortcuts[name]) {
+	          resultCounters[this.shortcuts[name]] = this.getCounter(name);
+	        } else {
+	          resultCounters[name] = this.getCounter(name);
+	        }
 	      }
 
+	      this.senCounterUpdateEvent(resultCounters);
+	    }
+	  }, {
+	    key: "senCounterUpdateEvent",
+	    value: function senCounterUpdateEvent(counters) {
 	      var event = new main_core_events.BaseEvent({
 	        data: {
-	          counters: resultCounters,
+	          counters: counters,
+	          hidden: this.hiddenCountersForTotalCounter,
+	          selectedDirectory: this.selectedDirectory,
 	          name: this.getName()
 	        }
 	      });
@@ -325,13 +389,21 @@
 	  var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
 	    dirsWithUnseenMailCounters: {},
 	    mailboxId: '',
-	    filterId: ''
+	    filterId: '',
+	    systemDirs: {
+	      spam: 'Spam',
+	      trash: 'Trash',
+	      outcome: 'Outcome',
+	      drafts: 'Drafts',
+	      inbox: 'Inbox'
+	    }
 	  };
 	  babelHelpers.classCallCheck(this, LeftMenu);
 	  var leftDirectoryMenuWrapper = document.querySelector('.mail-left-menu-wrapper');
 	  this.directoryMenu = new mail_directorymenu.DirectoryMenu({
 	    dirsWithUnseenMailCounters: config['dirsWithUnseenMailCounters'],
-	    filterId: config['filterId']
+	    filterId: config['filterId'],
+	    systemDirs: config['systemDirs']
 	  });
 	  main_core_events.EventEmitter.subscribe('BX.Mail.Sync:newLettersArrived', function () {
 	    BX.ajax.runComponentAction('bitrix:mail.client.message.list', 'getDirsWithUnseenMailCounters', {
@@ -350,8 +422,6 @@
 	var List = /*#__PURE__*/function () {
 	  function List(options) {
 	    babelHelpers.classCallCheck(this, List);
-	    this.pageCounter = options.pageCounter;
-	    this.pageCounterTitle = options.pageCounterTitle;
 	    this.mailReadAllButton = options.mailReadAllButton;
 	    this.gridId = options.gridId;
 	    this.mailboxId = options.mailboxId;
@@ -389,7 +459,6 @@
 
 	        BX.data(menuItem.getSubMenu().getPopupWindow().getPopupContainer(), 'grid-row-id', menuItem.gridRowId || id);
 	      });
-	      BX.Mail.Home.LeftMenuNode.directoryMenu.setDirectory(this.getCurrentFolder());
 	      main_core_events.EventEmitter.subscribe('Mail::directoryChanged', function () {
 	        _this.resetGridSelection();
 	      });
@@ -400,10 +469,6 @@
 
 	          var currentFolderCount = counters[_this.getCurrentFolder()];
 
-	          if (currentFolderCount !== undefined) {
-	            _this.changeCurrentFolderCount(currentFolderCount);
-	          }
-
 	          BX.Mail.Home.mailboxCounters.setCounters([{
 	            path: 'unseenCountInCurrentMailbox',
 	            count: BX.Mail.Home.Counters.getTotalCounter()
@@ -411,9 +476,6 @@
 	        } else {
 	          _this.userInterfaceManager.updateLeftMenuCounter();
 	        }
-	      });
-	      main_core_events.EventEmitter.subscribe('BX.DirectoryMenu:onChangeFilter', function (event) {
-	        _this.changeCurrentFolderCount(BX.Mail.Home.Counters.getCounter(event['data']['directory']));
 	      });
 	      main_core_events.EventEmitter.subscribe('BX.Main.Menu.Item:onmouseenter', function (event) {
 	        var menuItem = event.target;
@@ -473,18 +535,6 @@
 	      BX.bindDelegate(document.body, 'click', {
 	        className: 'ical-event-control-button'
 	      }, this.onClickICalButton.bind(this));
-	    }
-	  }, {
-	    key: "changeCurrentFolderCount",
-	    value: function changeCurrentFolderCount(count) {
-	      if (count > 0) {
-	        this.pageCounter.textContent = count;
-	        this.pageCounterTitle.classList.remove("main-ui-hide");
-	        this.mailReadAllButton.classList.remove("main-ui-hide");
-	      } else {
-	        this.pageCounterTitle.classList.add("main-ui-hide");
-	        this.mailReadAllButton.classList.add("main-ui-hide");
-	      }
 	    }
 	  }, {
 	    key: "loadLevelMenu",
@@ -581,6 +631,12 @@
 	      }
 
 	      if (addToCrm) {
+	        var crmBtnInRow = row.node.querySelector('.mail-binding-crm.mail-ui-not-active');
+
+	        if (crmBtnInRow) {
+	          crmBtnInRow.startWait();
+	        }
+
 	        if (babelHelpers.typeof(this.isAddingToCrmInProgress) !== "object") {
 	          this.isAddingToCrmInProgress = {};
 	        }
@@ -603,6 +659,10 @@
 	          this.isAddingToCrmInProgress[id] = false;
 	          this.notify(main_core.Loc.getMessage('MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM'));
 	        }.bind(this, id), function (json) {
+	          if (crmBtnInRow) {
+	            crmBtnInRow.stopWait();
+	          }
+
 	          this.isAddingToCrmInProgress[id] = false;
 
 	          if (json.errors && json.errors.length > 0) {
@@ -614,6 +674,7 @@
 	          }
 	        }.bind(this));
 	      } else {
+	        this.userInterfaceManager.onCrmBindingDeleted(messageIdNode.dataset.messageId);
 	        BX.ajax.runComponentAction('bitrix:mail.client', 'removeCrmActivity', {
 	          mode: 'ajax',
 	          data: {
@@ -624,7 +685,6 @@
 	            'bindings': this.getRowsBindings([row])
 	          }
 	        }).then(function (messageIdNode) {
-	          this.userInterfaceManager.onCrmBindingDeleted(messageIdNode.dataset.messageId);
 	          this.notify(main_core.Loc.getMessage('MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM'));
 	        }.bind(this, messageIdNode));
 	      }
@@ -713,6 +773,14 @@
 	    key: "onMoveToFolderClick",
 	    value: function onMoveToFolderClick(event) {
 	      var folderOptions = event.currentTarget.dataset;
+	      var toFolderByPath = folderOptions.path;
+	      var toFolderByName = toFolderByPath;
+
+	      if (toFolderByPath === this.getCurrentFolder()) {
+	        this.notify(main_core.Loc.getMessage('MESSAGES_ALREADY_EXIST_IN_FOLDER'));
+	        return;
+	      }
+
 	      var id = undefined;
 	      var popupSubmenu = BX.findParent(event.currentTarget, {
 	        className: 'popup-window'
@@ -723,8 +791,6 @@
 	      }
 
 	      var isDisabled = JSON.parse(folderOptions.isDisabled);
-	      var toFolderByPath = folderOptions.path;
-	      var toFolderByName = toFolderByPath;
 
 	      if (id === undefined && this.getGridInstance().getRows().getSelectedIds().length === 0 || isDisabled) {
 	        return;
@@ -1137,11 +1203,6 @@
 	    key: "onDisabledGroupActionClick",
 	    value: function onDisabledGroupActionClick() {}
 	  }, {
-	    key: "onUnreadCounterClick",
-	    value: function onUnreadCounterClick() {
-	      this.userInterfaceManager.onUnreadCounterClick();
-	    }
-	  }, {
 	    key: "getCurrentFolder",
 	    value: function getCurrentFolder() {
 	      return this.userInterfaceManager.getCurrentFolder();
@@ -1332,9 +1393,11 @@
 	  namespaceMailHome.ProgressBar.setErrorHintNode(document.querySelector('[data-role="error-box-hint"]'));
 	  namespaceMailHome.ProgressBar.setErrorTitleNode(document.querySelector('[data-role="error-box-title"]'));
 	});
-	namespaceMailHome.Counters = new Counters();
-	namespaceMailHome.mailboxCounters = new Counters('mailboxCounters');
-	namespaceMailHome.Grid = new mail_messagegrid.MessageGrid();
+	BX.ready(function () {
+	  namespaceMailHome.Counters = new Counters('dirs', main_core.Loc.getMessage("DEFAULT_DIR"));
+	  namespaceMailHome.mailboxCounters = new Counters('mailboxCounters');
+	  namespaceMailHome.Grid = new mail_messagegrid.MessageGrid();
+	});
 	namespaceMailHome.LeftMenu = LeftMenu;
 	var namespaceClientMessage = main_core.Reflection.namespace('BX.Mail.Client.Message');
 	namespaceClientMessage.List = List;

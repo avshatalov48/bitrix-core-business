@@ -2092,6 +2092,8 @@ class CTextParser
 
 		$arPattern[] = "/\\<(\\/?)(code|font|color|video)(.*?)\\>/is".BX_UTF_PCRE_MODIFIER;
 		$arReplace[] = "";
+		$arPattern[] = "/\\[\\/td(.*?)\\]\\[td(.*?)\\]/is".BX_UTF_PCRE_MODIFIER;
+		$arReplace[] = " ";
 		$arPattern[] = "/\\[(\\/?)(p|b|i|u|s|list|code|quote|size|font|color|url|img|video|td|tr|table|file|document id|disk file id|user|project|left|right|center|justify|\\*)(.*?)\\]/is".BX_UTF_PCRE_MODIFIER;
 		$arReplace[] = "";
 

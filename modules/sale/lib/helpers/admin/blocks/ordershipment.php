@@ -146,9 +146,6 @@ class OrderShipment
 			$title = Loc::getMessage('SALE_ORDER_SHIPMENT_BLOCK_NEW_SHIPMENT_TITLE');
 		}
 
-		$curFormat = \CCurrencyLang::GetFormatDescription($data['CURRENCY']);
-		$currencyLang = preg_replace("/(^|[^&])#/", '$1', $curFormat["FORMAT_STRING"]);
-
 		$customPriceDelivery = isset($post['CUSTOM_PRICE_DELIVERY']) ? htmlspecialcharsbx($post['CUSTOM_PRICE_DELIVERY']) : $data['CUSTOM_PRICE_DELIVERY'];
 		$customWeightDelivery = isset($post['CUSTOM_WEIGHT_DELIVERY']) ? htmlspecialcharsbx($post['CUSTOM_WEIGHT_DELIVERY']) : $data['CUSTOM_WEIGHT_DELIVERY'];
 
@@ -311,7 +308,12 @@ class OrderShipment
 									<tbody>
 										<tr style="display: none;">
 											<td class="adm-detail-content-cell-l" width="40%">'.Loc::getMessage('SALE_ORDER_SHIPMENT_DELIVERY_SUM_PRICE').':</td>
-											<td class="adm-detail-content-cell-r tal"><span id="BASE_PRICE_DELIVERY_T_'.$index.'">'.$basePriceDelivery.'</span> '.htmlspecialcharsbx($currencyLang).'<br></td>
+											<td class="adm-detail-content-cell-r tal">'
+											.\CCurrencyLang::getPriceControl(
+												'<span id="BASE_PRICE_DELIVERY_T_'.$index.'">'.$basePriceDelivery.'</span>',
+												$data['CURRENCY']
+											)
+											. '<br></td>
 										</tr>
 										<tr id="sale-order-shipment-discounts-row-'.$index.'" style="display: none;">
 											<td class="adm-detail-content-cell-l" width="40%">'.Loc::getMessage('SALE_ORDER_SHIPMENT_DISCOUNT').':</td>
@@ -319,7 +321,12 @@ class OrderShipment
 										</tr>
 										<tr>
 											<td class="adm-detail-content-cell-l" width="40%">'.Loc::getMessage('SALE_ORDER_SHIPMENT_DELIVERY_SUM_DISCOUNT_PRICE').':</td>
-											<td class="adm-detail-content-cell-r tal"><input type="text" class="adm-bus-input-price" name="SHIPMENT['.$index.'][PRICE_DELIVERY]" id="PRICE_DELIVERY_'.$index.'" value="'.$priceDelivery.'"> '.htmlspecialcharsbx($currencyLang).'</td>
+											<td class="adm-detail-content-cell-r tal">'
+											.\CCurrencyLang::getPriceControl(
+											'<input type="text" class="adm-bus-input-price" name="SHIPMENT['.$index.'][PRICE_DELIVERY]" id="PRICE_DELIVERY_'.$index.'" value="'.$priceDelivery.'">',
+												$data['CURRENCY']
+											)
+											.'</td>
 										</tr>
 									</tbody>
 								</table>

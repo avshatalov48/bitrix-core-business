@@ -40,7 +40,7 @@
 }
 
 .landing-ui-field-small-switch .landing-ui-field-switch-slider::after {
-	font-family: OpenSans-Bold, Helvetca, Arial, sans-sarif;
+	font-family: OpenSans-Bold, Helvetca, Arial, sans-serif;
 	opacity: 0.25;
 	font-size: 7px;
 	color: #515C69;

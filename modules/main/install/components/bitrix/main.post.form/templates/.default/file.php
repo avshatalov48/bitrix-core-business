@@ -35,25 +35,19 @@ if (is_array($arParams["UPLOAD_WEBDAV_ELEMENT"]) && !empty($arParams["UPLOAD_WEB
 
 if (is_array($arParams["PROPERTIES"]))
 {
+	$newParsers = [];
 	foreach ($arParams["PROPERTIES"] as $val)
 	{
 		if (isset($val["USER_TYPE_ID"]) && in_array($val["USER_TYPE_ID"], array("disk_file", "webdav_element", "file")))
 		{
-			if (!array_key_exists($val["USER_TYPE_ID"], $handlers))
+			if (array_key_exists("TAG", $val["USER_TYPE"]) )
 			{
-				if (array_key_exists("TAG", $val["USER_TYPE"]) )
-				{
-					$arParams["PARSER"][] = [$val["USER_TYPE_ID"] => $val["USER_TYPE"]["TAG"]];
-				}
-
-				if ($val["USER_TYPE_ID"] == "file")
-					$handlers["file"] = $handlers["system.field.edit.file"] = AddEventHandler('main', 'system.field.edit.file', "__main_post_form_replace_template");
-				else
-					$handlers[$val["USER_TYPE_ID"]] = AddEventHandler("main", $val["USER_TYPE_ID"], "__main_post_form_replace_template");
+				$newParsers[$val["USER_TYPE_ID"]] = [$val["USER_TYPE_ID"] => $val["USER_TYPE"]["TAG"]];
 			}
 			$arParams["UPLOADS"][] = $val;
 		}
 	}
+	$arParams["PARSER"] += array_values($newParsers);
 }
 if (empty($arParams["UPLOADS"]))
 	return;
@@ -86,20 +80,34 @@ foreach ($arParams["UPLOADS"] as $v)
 				'TAG' => $v['USER_TYPE']['TAG'],
 				'REGEXP' => $v['USER_TYPE']['REGEXP'],
 			];
+			$handlerId = AddEventHandler("main", $val["USER_TYPE_ID"], "__main_post_form_replace_template");
 		}
 		elseif ($v['USER_TYPE_ID'] === 'file')
 		{
 			$additionalParameters['mode'] = 'main.drag_n_drop';
+			$handlerId = AddEventHandler("main", $val["USER_TYPE_ID"], "__main_post_form_replace_template");
 		}
-		$APPLICATION->IncludeComponent(
+
+		if ($val["USER_TYPE_ID"] == "file")
+			$handlerId = AddEventHandler('main', 'main.file.input', "__main_post_form_replace_template");
+		else
+			$handlerId = AddEventHandler("main", $val["USER_TYPE_ID"], "__main_post_form_replace_template");
+
+		$res = $APPLICATION->IncludeComponent(
 			'bitrix:system.field.edit',
 			$v['USER_TYPE_ID'],
 			$additionalParameters,
 			null,
-			array("HIDE_ICONS" => "Y")
+			array("HIDE_ICONS" => "Y"),
+			true
 		);
-		$arParams["UPLOADS_CID"][__main_post_form_replace_template()] = array(
-			"parser" => $v["USER_TYPE_ID"],
+		RemoveEventHandler("main",  $val["USER_TYPE_ID"], $handlerId);
+
+		$cid = __main_post_form_replace_template();
+
+		$arParams["UPLOADS_CID"][$cid] = array(
+			"parser" => $v['USER_TYPE']['TAG'] ? $v["USER_TYPE_ID"] : null,
+			"tag" => $v['USER_TYPE']['TAG'] ? $v["USER_TYPE_ID"] : null,
 			"value" => ($v["USER_TYPE_ID"] == "file" ? $v["VALUE"] : array()),
 			"postfix" => $v["POSTFIX"]
 		);
@@ -125,10 +133,9 @@ foreach ($arParams["UPLOADS"] as $v)
 			null,
 			array("HIDE_ICONS" => true)
 		);
-		$parser = "file";
 		$arParams["UPLOADS_CID"][$cid] = array(
 			"storage" => "bfile",
-			"parser" => $parser,
+			"parser" => 'file',
 			"postfix" => $v["POSTFIX"]
 		);
 	}

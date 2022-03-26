@@ -1,6 +1,6 @@
 <?php
-$MESS["BPSWFA_ACCESS_DENIED"] = "Only the portal administrators can access action properties.";
-$MESS["BPSWFA_DOCTYPE_ERROR"] = "Document type does not match the one specified in the workflow template";
+$MESS["BPSWFA_ACCESS_DENIED_1"] = "Only the account administrators can access activity properties.";
+$MESS["BPSWFA_DOCTYPE_ERROR_1"] = "Element type does not match the one specified in the workflow template";
 $MESS["BPSWFA_DOCTYPE_NOT_FOUND_ERROR"] = "Cannot find target entity (incorrect ID?)";
 $MESS["BPSWFA_ERROR_DOCUMENT_ID"] = "Element ID is not specified";
 $MESS["BPSWFA_ERROR_TEMPLATE"] = "No template selected.";

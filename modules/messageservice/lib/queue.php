@@ -4,6 +4,8 @@ namespace Bitrix\MessageService;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config;
 use Bitrix\Main\Error;
+use Bitrix\Main\Event;
+use Bitrix\Main\EventManager;
 use Bitrix\Main\Type;
 use Bitrix\MessageService\Sender\Result\SendMessage;
 use Bitrix\MessageService\Sender\SmsManager;
@@ -13,6 +15,8 @@ Loc::loadMessages(__FILE__);
 
 class Queue
 {
+	public const EVENT_SEND_RESULT = 'messageSendResult';
+
 	private static function hasMessages()
 	{
 		$connection = Application::getConnection();
@@ -75,6 +79,7 @@ class Queue
 		}
 
 		$now = date('Y-m-d H:i:s');
+		$nextDay = static::getNextExecTime();
 
 		$strSql = "SELECT ID ,TYPE, SENDER_ID, AUTHOR_ID,
 			MESSAGE_FROM, MESSAGE_TO, MESSAGE_HEADERS, MESSAGE_BODY
@@ -83,126 +88,52 @@ class Queue
 			ORDER BY ID
 			LIMIT ".$limit;
 		$messagesResult = $connection->query($strSql);
-		$notifyUpdateMessages = array();
-
-		if($messagesResult)
+		while($messageFields = $messagesResult->fetch())
 		{
-			$nextDay = Type\DateTime::createFromTimestamp(time() + 86400);
-			$retryTime = Sender\Limitation::getRetryTime();
-			if (!$retryTime['auto'])
+			$messageFields['MESSAGE_HEADERS'] = unserialize($messageFields['MESSAGE_HEADERS'], ['allowed_classes' => false]);
+			$serviceId = $messageFields['SENDER_ID'] . ':' . $messageFields['MESSAGE_FROM'];
+			$message = Message::createFromFields($messageFields);
+
+			if (!isset($counts[$serviceId]))
+				$counts[$serviceId] = 0;
+
+			$sender = $message->getSender();
+			if ($sender)
 			{
-				if ($nextDay->getTimeZone()->getName() !== $retryTime['tz'])
+				$limit = Sender\Limitation::getDailyLimit($sender->getId(), $messageFields['MESSAGE_FROM']);
+				$current = $counts[$serviceId];
+
+				if ($limit > 0 && $current >= $limit)
 				{
-					try //if TZ is incorrect
-					{
-						$nextDay->setTimeZone(new \DateTimeZone($retryTime['tz']));
-					}
-					catch (\Exception $e) {}
+					$message->update([
+						'STATUS_ID' => MessageStatus::DEFERRED,
+						'NEXT_EXEC' => $nextDay,
+					]);
+					continue;
 				}
-				$nextDay->setTime($retryTime['h'], $retryTime['i'], 0);
+				++$counts[$serviceId];
 			}
 
-			while($message = $messagesResult->fetch())
+			try
 			{
-				$serviceId = $message['SENDER_ID'] . ':' . $message['MESSAGE_FROM'];
+				$result = static::sendMessage($messageFields);
+				$message->updateWithSendResult($result, $nextDay);
+			}
+			catch (\Throwable $e)
+			{
+				Application::getInstance()->getExceptionHandler()->writeToLog($e);
 
-				if (!isset($counts[$serviceId]))
-					$counts[$serviceId] = 0;
-
-				$sender = SmsManager::getSenderById($message['SENDER_ID']);
-				if ($sender)
-				{
-					$limit = Sender\Limitation::getDailyLimit($sender->getId(), $message['MESSAGE_FROM']);
-					$current = $counts[$serviceId];
-
-					if ($limit > 0 && $current >= $limit)
-					{
-						Internal\Entity\MessageTable::update($message['ID'], array(
-							'NEXT_EXEC' => $nextDay,
-							'STATUS_ID' => MessageStatus::DEFERRED
-						));
-						$notifyUpdateMessages[] = array(
-							'ID' => $message['ID'],
-							'STATUS_ID' => MessageStatus::DEFERRED,
-							'NEXT_EXEC' => (string)$nextDay
-						);
-						continue;
-					}
-					++$counts[$serviceId];
-				}
-
-				$message['MESSAGE_HEADERS'] = unserialize($message['MESSAGE_HEADERS'], ['allowed_classes' => false]);
-				$toUpdate = array('SUCCESS_EXEC' => "E", 'DATE_EXEC' => new Type\DateTime);
-
-				try
-				{
-					$result = static::sendMessage($message);
-					if ($result->isSuccess())
-					{
-						$toUpdate['SUCCESS_EXEC'] = 'Y';
-						if ($result->getExternalId() !== null)
-						{
-							$toUpdate['EXTERNAL_ID'] = $result->getExternalId();
-						}
-						if ($result->getStatus() !== null)
-						{
-							$toUpdate['STATUS_ID'] = $result->getStatus();
-						}
-					}
-					elseif ($result->getStatus() === MessageStatus::DEFERRED)
-					{
-						$toUpdate = array(
-							'NEXT_EXEC' => $nextDay,
-							'STATUS_ID' => MessageStatus::DEFERRED
-						);
-					}
-					else
-					{
-						$toUpdate['STATUS_ID'] = MessageStatus::ERROR;
-					}
-
-					$errors = $result->getErrorMessages();
-					if ($errors)
-					{
-						$toUpdate['EXEC_ERROR'] = implode(PHP_EOL, $errors);
-					}
-
-					Internal\Entity\MessageTable::update($message["ID"], $toUpdate);
-					$toUpdate['ID'] = $message['ID'];
-					if (isset($toUpdate['DATE_EXEC']))
-					{
-						$toUpdate['DATE_EXEC'] = (string)$toUpdate['DATE_EXEC'];
-					}
-					if (isset($toUpdate['NEXT_EXEC']))
-					{
-						$toUpdate['NEXT_EXEC'] = (string)$toUpdate['NEXT_EXEC'];
-					}
-					$notifyUpdateMessages[] = $toUpdate;
-				}
-				catch (\Throwable $e)
-				{
-					$application = \Bitrix\Main\Application::getInstance();
-					$exceptionHandler = $application->getExceptionHandler();
-					$exceptionHandler->writeToLog($e);
-					$toUpdate['EXEC_ERROR'] = $e->getMessage();
-					$toUpdate['STATUS_ID'] = MessageStatus::EXCEPTION;
-					Internal\Entity\MessageTable::update($message["ID"], $toUpdate);
-					$toUpdate['ID'] = $message["ID"];
-					$toUpdate['DATE_EXEC'] = (string)$toUpdate['DATE_EXEC'];
-					unset($toUpdate['EXEC_ERROR']);
-					$notifyUpdateMessages[] = $toUpdate;
-					break;
-				}
+				$message->update([
+					'STATUS_ID' => MessageStatus::EXCEPTION,
+					'SUCCESS_EXEC' => 'E',
+					'DATE_EXEC' => new Type\DateTime(),
+					'EXEC_ERROR' => $e->getMessage(),
+				]);
+				break;
 			}
 		}
 
 		$connection->query("SELECT RELEASE_LOCK('".$lockTag."')");
-
-		if ($notifyUpdateMessages)
-		{
-			Integration\Pull::onMessagesUpdate($notifyUpdateMessages);
-		}
-
 		return null;
 	}
 
@@ -218,17 +149,50 @@ class Queue
 			$sender = SmsManager::getSenderById($messageFields['SENDER_ID']);
 			if (!$sender)
 			{
-				$result = new SendMessage();
-				$result->addError(new Error(Loc::getMessage("MESSAGESERVICE_QUEUE_SENDER_NOT_FOUND")));
-				return $result;
+				$sendResult = new SendMessage();
+				$sendResult->addError(new Error(Loc::getMessage("MESSAGESERVICE_QUEUE_SENDER_NOT_FOUND")));
 			}
-
-			return $sender->sendMessage($messageFields);
+			else
+			{
+				$sendResult = $sender->sendMessage($messageFields);
+			}
 		}
+		else
+		{
+			$sendResult = new SendMessage();
+			$sendResult->addError(new Error(Loc::getMessage("MESSAGESERVICE_QUEUE_MESSAGE_TYPE_ERROR")));
+		}
+		EventManager::getInstance()->send(new Event("messageservice", static::EVENT_SEND_RESULT, [
+			'message' => $messageFields,
+			'sendResult' => $sendResult,
+		]));
 
-		$result = new SendMessage();
-		$result->addError(new Error(Loc::getMessage("MESSAGESERVICE_QUEUE_MESSAGE_TYPE_ERROR")));
-		return $result;
+
+		return $sendResult;
+	}
+
+	/**
+	 * Returns next date to exec message, if it will be deferred due to the send limits.
+	 *
+	 * @return Type\DateTime
+	 */
+	private static function getNextExecTime(): Type\DateTime
+	{
+		$nextDay = Type\DateTime::createFromTimestamp(time() + 86400);
+		$retryTime = Sender\Limitation::getRetryTime();
+		if (!$retryTime['auto'])
+		{
+			if ($nextDay->getTimeZone()->getName() !== $retryTime['tz'])
+			{
+				try //if TZ is incorrect
+				{
+					$nextDay->setTimeZone(new \DateTimeZone($retryTime['tz']));
+				}
+				catch (\Exception $e) {}
+			}
+			$nextDay->setTime($retryTime['h'], $retryTime['i'], 0);
+		}
+		return $nextDay;
 	}
 
 	/**

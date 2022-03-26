@@ -1028,16 +1028,38 @@ class CIBlockDocument
 	public static function getDocumentTypeName($documentType)
 	{
 		if (mb_strpos($documentType, 'iblock_') !== 0)
+		{
 			return $documentType;
+		}
 
 		$id = (int)mb_substr($documentType, 7);
 
 		$iterator = CIBlock::GetList(false,array('ID' => $id));
 		$result = $iterator->fetch();
 		if (!$result)
+		{
 			return $documentType;
+		}
 
 		return '['.$result['IBLOCK_TYPE_ID'].'] '.$result['NAME'];
+	}
+
+	public static function getDocumentTypeCaption($documentType)
+	{
+		if (mb_strpos($documentType, 'iblock_') !== 0)
+		{
+			return $documentType;
+		}
+
+		$id = (int)mb_substr($documentType, 7);
+
+		$result = (CIBlock::GetList(false, ['ID' => $id]))->fetch();
+		if (!$result)
+		{
+			return $documentType;
+		}
+
+		return $result['NAME'];
 	}
 
 	/**

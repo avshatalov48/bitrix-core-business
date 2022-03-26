@@ -160,6 +160,13 @@ class LandingSiteTileComponent extends LandingBaseComponent
 			$item['DOMAIN_NAME'] = $item['DOMAIN_NAME'] ?? null;
 			$item['PUBLIC_URL'] = $item['PUBLIC_URL'] ?? null;
 
+			// can delete?
+			$item['ACCESS_DELETE'] = 'Y';
+			if (is_array($this->arParams['DELETE_LOCKED']) && in_array($item['ID'], $this->arParams['DELETE_LOCKED']))
+			{
+				$item['ACCESS_DELETE'] = 'N';
+			}
+
 			$published = $item['ACTIVE'] === 'Y' && $item['DELETED'] === 'N';
 			$deleted = $item['DELETED'] === 'Y';
 
@@ -252,7 +259,6 @@ class LandingSiteTileComponent extends LandingBaseComponent
 				'deleted' => $deleted,
 				'domainStatus' => $domainStatus,
 				'domainStatusMessage' => $domainStatusMessage,
-				'domainBitrix24' => $isBitrix24Domain,
 				'fullUrl' => $item['PUBLIC_URL'] ?: '',
 				'domainProvider' => $item['DOMAIN_PROVIDER'],
 				'domainUrl' => $this->replaceLink($this->arParams['PAGE_URL_DOMAIN'], $item),
@@ -290,6 +296,7 @@ class LandingSiteTileComponent extends LandingBaseComponent
 		$this->checkParam('ITEMS', []);
 		$this->checkParam('MENU_ITEMS', []);
 		$this->checkParam('~AGREEMENT', []);
+		$this->checkParam('DELETE_LOCKED', []);
 
 		if (Manager::isB24())
 		{

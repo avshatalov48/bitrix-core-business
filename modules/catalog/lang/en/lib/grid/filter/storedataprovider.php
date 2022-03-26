@@ -1,0 +1,27 @@
+<?php
+$MESS["ADDRESS"] = "Address";
+$MESS["CSTORE_SORT"] = "Sort";
+$MESS["DATE_CREATE"] = "Created on";
+$MESS["DATE_MODIFY"] = "Modified on";
+$MESS["DELETE_STORE_ALT"] = "Delete";
+$MESS["DELETE_STORE_CONFIRM"] = "Are you sure you want to delete the warehouse?";
+$MESS["DESCRIPTION"] = "Description";
+$MESS["EDIT_STORE_ALT"] = "Edit";
+$MESS["GPS_N"] = "GPS latitude";
+$MESS["GPS_S"] = "GPS longitude";
+$MESS["ISSUING_CENTER"] = "Pick-up location";
+$MESS["IS_DEFAULT"] = "Default";
+$MESS["MODIFIED_BY"] = "Modified by";
+$MESS["PHONE"] = "Phone";
+$MESS["SCHEDULE"] = "Business hours";
+$MESS["SHIPPING_CENTER"] = "Ready for shipment";
+$MESS["STORE_ACTIVE"] = "Active";
+$MESS["STORE_ADD_NEW"] = "Add";
+$MESS["STORE_ADD_NEW_ALT"] = "Add new warehouse";
+$MESS["STORE_CODE"] = "Symbolic code";
+$MESS["STORE_IMAGE"] = "Image";
+$MESS["STORE_SITE_ID"] = "Site";
+$MESS["STORE_TITLE"] = "Warehouses";
+$MESS["STORE_XML_ID"] = "External ID";
+$MESS["TITLE"] = "Name";
+$MESS["USER_ID"] = "Created by";

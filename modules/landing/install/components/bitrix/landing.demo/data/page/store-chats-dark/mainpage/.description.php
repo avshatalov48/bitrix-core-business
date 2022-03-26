@@ -33,9 +33,7 @@ return array(
 	),
 	
 	'disable_import' => 'Y',
-	'site_group_item' => 'Y',
-	'site_group_parent' => 'store-chats',
-	
+
 	'items' => array(
 		'0' => array(
 			'code' => '35.10.header_shop_top_and_phone_bottom',

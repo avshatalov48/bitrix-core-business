@@ -15,6 +15,8 @@ return [
 		'landing.ui.field.colorpickerfield',
 		'landing.backend',
 		'landing.env',
+		'landing.ui.field.color',
+		'landing.pageobject',
 	],
 	'skip_core' => false,
 ];

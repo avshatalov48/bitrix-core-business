@@ -76,7 +76,7 @@ class AppTable extends Main\Entity\DataManager
 	const STATUS_TRIAL = 'T';
 	const STATUS_SUBSCRIPTION = 'S';
 
-	const PAID_NOTIFY_DAYS = 14;
+	const PAID_NOTIFY_DAYS = 5;
 	const PAID_GRACE_PERIOD = -14;
 
 	const CACHE_TTL = 86400;

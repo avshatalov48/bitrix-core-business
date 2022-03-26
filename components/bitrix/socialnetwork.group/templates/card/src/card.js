@@ -58,7 +58,6 @@ class WorkgroupCard
 			groupId: this.groupId,
 			value: !!params.favoritesValue,
 			containerNode: this.containerNode,
-			styles: params.styles.fav,
 		});
 
 		this.subscriptionInstance = new WorkgroupCardSubscription({

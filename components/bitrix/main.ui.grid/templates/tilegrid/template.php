@@ -98,7 +98,8 @@ if (\Bitrix\Main\Context::getCurrent()->getRequest()->isAjaxRequest())
 					tileGridId: '<?=$arParams["GRID_ID"]?>'
 				},
 				renderTo: document.querySelector("<?= CUtil::JSEscape($arParams['TOP_ACTION_PANEL_RENDER_TO']) ?>"),
-				groupActions: <?= \Bitrix\Main\Web\Json::encode($arParams['ACTION_PANEL']) ?>
+				groupActions: <?= \Bitrix\Main\Web\Json::encode($arParams['ACTION_PANEL']) ?>,
+				maxHeight: <?= (int)$arParams['ACTION_PANEL_OPTIONS']['MAX_HEIGHT']?>
 			});
 			actionPanel.draw();
 		<? endif; ?>

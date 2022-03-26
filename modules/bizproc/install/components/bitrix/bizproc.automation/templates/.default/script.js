@@ -12,6 +12,7 @@
 
 		//set current instance
 		Designer.component = this;
+		showGlobals.component = this;
 	};
 
 	Component.ViewMode = {
@@ -83,7 +84,7 @@
 		{
 			var me = this;
 
-			this.viewMode = viewMode || Component.ViewMode.View;
+			this.viewMode = viewMode || Component.ViewMode.Edit;
 
 			if (typeof data === 'undefined')
 				data = {};
@@ -91,13 +92,14 @@
 			this.data = data;
 			this.initData();
 
+			this.initActionPanel();
 			this.initTracker();
+			this.initSearch();
 			this.initTriggerManager();
 			this.initTemplateManager();
 			this.initButtons();
 			this.initButtonsPosition();
 			this.initHelpTips();
-			this.setTitle();
 			this.fixTitleColors();
 
 			if (!this.embeddedMode)
@@ -178,6 +180,246 @@
 			}
 			return this.currentStatusIndex > -1 && needleIndex > this.currentStatusIndex;
 		},
+		initActionPanel: function ()
+		{
+			var panelNode = document.querySelector('[data-role="automation-actionpanel"]');
+			if (!panelNode)
+			{
+				return;
+			}
+
+			this.actionPanel = new BX.UI.ActionPanel({
+				renderTo: panelNode,
+				removeLeftPosition: true,
+				maxHeight: 58,
+				parentPosition: "bottom",
+				autoHide: false,
+			});
+
+			this.actionPanel.draw();
+
+			var pathToIcons = '/bitrix/components/bitrix/bizproc.automation/templates/.default/image/';
+			this.actionPanel.appendItem({
+				id: 'automation_choose_all',
+				text: BX.message('BIZPROC_AUTOMATION_CMP_ACTIONPANEL_CHOOSE_ALL'),
+				icon: pathToIcons + 'bizproc-automation--panel-icon-choose-all.svg',
+				onclick: function ()
+				{
+					var status = this.templateManager.targetManageModeStatus;
+					var template = this.templateManager.getTemplateByStatusId(status);
+					if (template)
+					{
+						template.robots.forEach(function (robot)
+						{
+							robot.selectNode();
+						});
+					}
+				}.bind(this),
+			});
+
+			this.actionPanel.appendItem({
+				id: 'automation_copy_to',
+				text: BX.message('BIZPROC_AUTOMATION_CMP_ACTIONPANEL_COPY'),
+				icon: pathToIcons + 'bizproc-automation--panel-icon-copy.svg',
+				onclick: this.onCopyMoveButtonClick.bind(this, 'copy'),
+			});
+
+			this.actionPanel.appendItem({
+				id: 'automation_move_to',
+				text: BX.message('BIZPROC_AUTOMATION_CMP_ACTIONPANEL_MOVE'),
+				icon: pathToIcons + 'bizproc-automation--panel-icon-move.svg',
+				onclick: this.onCopyMoveButtonClick.bind(this, 'move'),
+			});
+
+			this.actionPanel.appendItem({
+				id: 'automation_delete',
+				text: BX.message('BIZPROC_AUTOMATION_CMP_ACTIONPANEL_DELETE'),
+				icon: pathToIcons + 'bizproc-automation--panel-icon-delete.svg',
+				onclick: this.onDeleteButtonClick.bind(this),
+			});
+
+			BX.addCustomEvent("BX.UI.ActionPanel:hidePanel", function ()
+			{
+				if (this.templateManager.isManageModeEnabled())
+				{
+					this.disableManageMode();
+				}
+			}.bind(this));
+		},
+		onCopyMoveButtonClick: function (action)
+		{
+			var selectedStatus = this.templateManager.targetManageModeStatus;
+			var template = this.templateManager.getTemplateByStatusId(selectedStatus);
+			var selectedRobots = template.getSelectedRobotNames();
+			if (selectedRobots.length === 0)
+			{
+				BX.UI.Notification.Center.notify({
+					content: BX.message('BIZPOC_AUTOMATION_NO_ROBOT_SELECTED'),
+					autoHideDelay: 4000,
+				});
+				return;
+			}
+
+			BX.SidePanel.Instance.open('/bitrix/components/bitrix/bizproc.automation.scheme/index.php', {
+				width: 569,
+				cacheable: false,
+				requestMethod: 'post',
+				requestParams: {
+					documentSigned: this.documentSigned,
+					templateStatus: this.templateManager.targetManageModeStatus,
+					action: action,
+					selectedRobots: selectedRobots,
+				},
+				events: {
+					onDestroy: function (event)
+					{
+						var slider = event.slider;
+						if (slider)
+						{
+							var data = slider.getData();
+							var restoreData = data.get('restoreData');
+							var targetScope = data.get('targetScope');
+
+							var acceptedRobots = action === 'copy' ? data.get('copied') : data.get('moved');
+							var deniedRobots = data.get('denied');
+
+							if (!BX.type.isArray(acceptedRobots) || !BX.type.isArray(deniedRobots))
+							{
+								return;
+							}
+
+							var messageId = 'BIZPROC_AUTOMATION_CMP_ROBOTS_' + (action === 'copy' ? 'COPIED' : 'MOVED');
+							var notifyMessage = BX.message(messageId);
+							notifyMessage = notifyMessage.replace('#ACCEPTED_COUNT#', acceptedRobots.length);
+							notifyMessage =
+								notifyMessage.replace('#TOTAL_COUNT#', acceptedRobots.length + deniedRobots.length)
+							;
+
+							BX.UI.Notification.Center.notify({
+								content: notifyMessage,
+								actions: [
+									{
+										title: BX.message('JS_CORE_WINDOW_CANCEL'),
+										events: {
+											click: function(event, balloon) {
+												event.preventDefault();
+												if (BX.type.isArray(restoreData))
+												{
+													this.saveTemplates(restoreData);
+													balloon.close();
+												}
+											}.bind(this)
+										}
+									}
+								]
+							});
+							var updatedTemplateStatuses = [];
+							var targetStatus = this.templateManager.targetManageModeStatus;
+							if (action === 'move')
+							{
+								updatedTemplateStatuses.push(targetStatus);
+							}
+							if (
+								targetScope
+								&& this.data.DOCUMENT_TYPE_SIGNED === targetScope.documentType.Type
+								&& this.templateManager.getTemplateByStatusId(targetScope.status.Id)
+							)
+							{
+								updatedTemplateStatuses.push(targetScope.status.Id);
+							}
+
+							this.templateManager.updateTemplates(updatedTemplateStatuses).onload = function ()
+							{
+								var srcTemplate = this.templateManager.getTemplateByStatusId(targetStatus);
+
+								deniedRobots.forEach(function(robotName)
+								{
+									var robot = srcTemplate.getRobotByName(robotName);
+									if (robot)
+									{
+										BX.Dom.addClass(robot.node, '--denied');
+										setTimeout(
+											BX.Dom.removeClass.bind(null, robot.node, '--denied'),
+											10 * 1000
+										);
+									}
+								}.bind(this));
+							}.bind(this);
+						}
+						this.disableManageMode();
+					}.bind(this)
+				}
+			});
+		},
+		onDeleteButtonClick: function()
+		{
+			var status = this.templateManager.targetManageModeStatus;
+			var template = this.templateManager.getTemplateByStatusId(status);
+			if (!template)
+			{
+				return;
+			}
+			var templateIndex = this.templateManager.templatesData.findIndex(function (templateData) {
+				return templateData.ID === template.data.ID;
+			});
+
+			var deletingRobots = template.getSelectedRobotNames();
+			if (deletingRobots.length === 0)
+			{
+				BX.UI.Notification.Center.notify({
+					content: BX.message('BIZPOC_AUTOMATION_NO_ROBOT_SELECTED'),
+					autoHideDelay: 4000,
+				});
+				return;
+			}
+			BX.ajax({
+				method: 'POST',
+				dataType: 'json',
+				url: this.getAjaxUrl(),
+				data: {
+					ajax_action: 'delete_robots',
+					document_signed: this.documentSigned,
+					selected_status: template.data.DOCUMENT_STATUS,
+					robot_names: toJsonString(deletingRobots),
+				},
+				onsuccess: function (response)
+				{
+					var notifyMessage = BX.message('BIZPROC_AUTOMATION_CMP_ROBOTS_DELETED');
+					notifyMessage = notifyMessage.replace('#TOTAL_COUNT#', deletingRobots.length);
+					if (response.SUCCESS)
+					{
+						template.reInit(response.DATA.template, this.viewMode);
+						this.templateManager.templatesData[templateIndex] = response.DATA.template;
+						this.disableManageMode();
+						notifyMessage = notifyMessage.replace('#ACCEPTED_COUNT#', deletingRobots.length);
+
+						var restoreData = response.DATA.restoreData;
+					}
+					else
+					{
+						notifyMessage = notifyMessage.replace('#ACCEPTED_COUNT#', 0);
+					}
+					BX.UI.Notification.Center.notify({
+						content: notifyMessage,
+						actions: [
+							{
+								title: BX.message('JS_CORE_WINDOW_CANCEL'),
+								events: {
+									click: function(event, balloon) {
+										event.preventDefault();
+										if (BX.type.isArray(restoreData))
+										{
+											this.saveTemplates(restoreData);
+											balloon.close();
+										}
+									}.bind(this)
+								}
+							}
+						]
+					});
+				}.bind(this)
+			});
+		},
 		initTriggerManager: function()
 		{
 			this.triggerManager = new TriggerManager(this);
@@ -206,14 +448,10 @@
 
 			if (buttonsNode)
 			{
-				if (this.viewMode === Component.ViewMode.View)
-				{
-					BX.hide(buttonsNode);
-				}
 				this.bindSaveButton();
 				this.bindCancelButton();
 			}
-			this.bindChangeViewButton();
+			this.bindCreationButton();
 		},
 		initButtonsPosition: function()
 		{
@@ -227,38 +465,59 @@
 				}
 			}
 		},
+		initSearch: function()
+		{
+			var searchNode = this.node.querySelector('[data-role="automation-search"]');
+			if (searchNode)
+			{
+				BX.bind(searchNode, 'input', BX.debounce(this.onSearch.bind(this, searchNode), 255));
+				BX.Event.EventEmitter.setMaxListeners(this, 'BX.Bizproc.Automation.Component:onSearch', 500);
+
+				var clearNode = this.node.querySelector('[data-role="automation-search-clear"]');
+				if (clearNode)
+				{
+					BX.bind(clearNode, 'click', this.onClearSearch.bind(this, searchNode));
+				}
+			}
+		},
+		reInitSearch: function()
+		{
+			var searchNode = this.node.querySelector('[data-role="automation-search"]');
+			if (searchNode)
+			{
+				this.onSearch(searchNode);
+			}
+		},
+		onSearch: function(searchNode)
+		{
+			BX.Event.EventEmitter.emit(
+				this,
+				'BX.Bizproc.Automation.Component:onSearch', {
+					queryString: searchNode.value.toLowerCase(),
+				}
+			);
+		},
+		onClearSearch: function(searchNode)
+		{
+			if (searchNode.value !== '')
+			{
+				searchNode.value = '';
+				this.onSearch(searchNode);
+			}
+		},
 		initHelpTips: function()
 		{
 			BX.UI.Hint.init(this.node);
 		},
-		reInitButtons: function()
+		enableDragAndDrop: function()
 		{
-			var buttonsNode = this.node.querySelector('[data-role="automation-buttons"]');
-			if (buttonsNode && this.viewMode === Component.ViewMode.View)
-			{
-				BX.hide(buttonsNode);
-			}
-			else if (buttonsNode && this.viewMode === Component.ViewMode.Edit)
-			{
-				BX.show(buttonsNode);
-			}
-
-			var changeViewBtn = this.node.querySelector('[data-role="automation-btn-change-view"]');
-			if (changeViewBtn)
-			{
-				changeViewBtn.innerHTML = changeViewBtn.getAttribute('data-label-'
-					+(this.viewMode === Component.ViewMode.View ? 'edit' : 'view'));
-			}
+			this.templateManager.enableDragAndDrop();
+			this.triggerManager.enableDragAndDrop();
 		},
-		setTitle: function()
+		disableDragAndDrop: function()
 		{
-			var titleNode = this.node.querySelector('[data-role="automation-title"]');
-			if (titleNode)
-			{
-				titleNode.innerHTML = titleNode.getAttribute('data-title-'
-					+(this.viewMode === Component.ViewMode.View ? 'view' : 'edit')
-				);
-			}
+			this.templateManager.disableDragAndDrop();
+			this.triggerManager.disableDragAndDrop();
 		},
 		fixTitleColors: function()
 		{
@@ -309,28 +568,86 @@
 				BX.bind(button, 'click', function(e)
 				{
 					e.preventDefault();
-					me.changeViewMode(Component.ViewMode.View, true);
+					me.reInitTriggerManager();
+					me.reInitTemplateManager();
+					me.reInitSearch();
+					me.markModified(false);
 				});
 			}
 		},
-		bindChangeViewButton: function()
+		bindCreationButton: function()
 		{
-			var me = this, button = this.node.querySelector('[data-role="automation-btn-change-view"]');
+			var me = this, button = this.node.querySelector('[data-role="automation-btn-create"]');
 
 			if (button)
 			{
-				button.innerHTML = button.getAttribute('data-label-'
-						+(this.viewMode === Component.ViewMode.View ? 'edit' : 'view'));
-
 				if (me.canEdit())
 				{
 					BX.bind(button, 'click', function(e)
 					{
 						e.preventDefault();
-						var viewMode = me.viewMode === Component.ViewMode.Edit?
-							Component.ViewMode.View : Component.ViewMode.Edit;
 
-						me.changeViewMode(viewMode);
+						if (me.viewMode === Component.ViewMode.View)
+						{
+							me.changeViewMode(Component.ViewMode.Edit);
+						}
+
+						var items = [
+							{
+								text: BX.message('BIZPROC_AUTOMATION_CMP_CREATE_ROBOT'),
+								onclick: function(e) {
+									this.popupWindow.close();
+
+									var robotData = BX.clone(
+										me.templateManager.getRobotDescription('SocNetMessageActivity')
+									);
+
+									if (robotData['ROBOT_SETTINGS'] && robotData['ROBOT_SETTINGS']['TITLE'])
+									{
+										robotData['NAME'] = robotData['ROBOT_SETTINGS']['TITLE'];
+									}
+
+									var template = me.templateManager.templates[0];
+
+									template.addRobot(robotData, function(robot)
+									{
+										this.openRobotSettingsDialog(robot);
+									});
+								}
+							}
+						];
+
+						if (BX.type.isArray(me.data.AVAILABLE_TRIGGERS) && me.data.AVAILABLE_TRIGGERS.length)
+						{
+							items.push({
+								text: BX.message('BIZPROC_AUTOMATION_CMP_CREATE_TRIGGER'),
+								onclick: function(e) {
+									this.popupWindow.close();
+
+									me.triggerManager.addTrigger(
+										{
+											DOCUMENT_STATUS: me.statusesSort[0],
+											CODE: me.data.AVAILABLE_TRIGGERS[0].CODE
+										}, function(trigger)
+										{
+											this.openTriggerSettingsDialog(trigger);
+										}
+									);
+								}
+							});
+						}
+
+						BX.PopupMenu.show(
+							Component.generateUniqueId(),
+							button,
+							items,
+							{
+								autoHide: true,
+								offsetLeft: (BX.pos(button)['width'] / 2),
+								angle: true
+							}
+						);
+
 					});
 				}
 			}
@@ -387,7 +704,7 @@
 				ajax_action: 'save_automation',
 				document_signed: this.documentSigned,
 				triggers_json: toJsonString(this.triggerManager.serialize()),
-				templates_json: toJsonString(this.templateManager.serialize())
+				templates_json: toJsonString(this.templateManager.serializeModified())
 			};
 
 			this.savingAutomation = true;
@@ -399,15 +716,64 @@
 				onsuccess: function(response)
 				{
 					me.savingAutomation = null;
+					response.DATA.templates.forEach(function (updatedTemplate) {
+						var updatedTemplateIndex = me.data.TEMPLATES.findIndex(function (template) {
+							return template.ID === updatedTemplate.ID;
+						});
+
+						me.data.TEMPLATES[updatedTemplateIndex] = updatedTemplate;
+					});
 					if (response.SUCCESS)
 					{
-						me.reInitTemplateManager(response.DATA.templates);
 						me.reInitTriggerManager(response.DATA.triggers);
-						me.changeViewMode(Component.ViewMode.View);
+						me.reInitTemplateManager();
+						me.reInitSearch();
+						me.markModified(false);
 						if (callback)
 						{
 							callback(response.DATA)
 						}
+					}
+					else
+					{
+						alert(response.ERRORS[0]);
+					}
+				}
+			});
+		},
+		saveTemplates: function(templatesData)
+		{
+			if (this.savingAutomation)
+			{
+				return;
+			}
+
+			var data = {
+				ajax_action: 'save_automation',
+				document_signed: this.documentSigned,
+				templates_json: toJsonString(templatesData)
+			};
+
+			this.savingAutomation = true;
+			var self = this;
+			return BX.ajax({
+				method: 'POST',
+				dataType: 'json',
+				url: this.getAjaxUrl(),
+				data: data,
+				onsuccess: function(response)
+				{
+					self.savingAutomation = null;
+
+					if (response.SUCCESS)
+					{
+						templatesData.forEach(function(updatedTemplate) {
+							var template = self.templateManager.getTemplateById(updatedTemplate.ID);
+							if (template)
+							{
+								template.reInit(updatedTemplate, self.viewMode);
+							}
+						});
 					}
 					else
 					{
@@ -431,8 +797,36 @@
 
 			this.reInitTriggerManager();
 			this.reInitTemplateManager();
-			this.reInitButtons();
-			this.setTitle();
+		},
+		enableManageMode: function (status)
+		{
+			this.templateManager.enableManageMode(status);
+			this.triggerManager.enableManageMode();
+		},
+		disableManageMode: function()
+		{
+			this.templateManager.disableManageMode();
+			this.triggerManager.disableManageMode();
+		},
+		markModified: function(modified)
+		{
+			modified = modified !== false;
+
+			var buttonsNode = this.node.querySelector('[data-role="automation-buttons"]');
+
+			if (!buttonsNode)
+			{
+				return;
+			}
+
+			if (modified && this.canEdit() && this.viewMode === Component.ViewMode.Edit)
+			{
+				BX.show(buttonsNode);
+			}
+			else
+			{
+				BX.hide(buttonsNode);
+			}
 		},
 		canEdit: function()
 		{
@@ -454,7 +848,7 @@
 					if (response.DATA && response.DATA.LOG)
 					{
 						me.tracker.reInit(response.DATA.LOG);
-						if (me.viewMode === Component.ViewMode.View)
+						if (me.viewMode === Component.ViewMode.View)// TODO
 						{
 							me.templateManager.reInit();
 						}
@@ -467,7 +861,7 @@
 			e.preventDefault();
 			if (top.BX.Helper)
 			{
-				top.BX.Helper.show('redirect=detail&code=6908975');
+				top.BX.Helper.show('redirect=detail&code=14889274#after');
 			}
 		},
 		getUserOption: function(category, key, defaultValue)
@@ -503,19 +897,31 @@
 		},
 		getConstants: function()
 		{
-			if (!this.data.GLOBAL_CONSTANTS)
+			if (!this.data['GLOBAL_CONSTANTS'])
 			{
 				return [];
 			}
 			var constants = [];
-			Object.keys(this.data.GLOBAL_CONSTANTS).forEach(function(id)
+			var visibilityNames = this.data['G_CONSTANTS_VISIBILITY'];
+			Object.keys(this.data['GLOBAL_CONSTANTS']).forEach(function(id)
 			{
-				var constant = BX.clone(this.data.GLOBAL_CONSTANTS[id]);
+				var constant = BX.clone(this.data['GLOBAL_CONSTANTS'][id]);
 				constant.Id = id;
 				constant.ObjectId = 'GlobalConst';
-				constant.SystemExpression = constant.Expression = '{=GlobalConst:' + id + '}';
+				constant.SystemExpression = '{=GlobalConst:' + id + '}';
+				constant.Expression = '{=GlobalConst:' + id + '}';
+
+				var constantVisibility = String(constant.Visibility).toUpperCase();
+				var visibilityName = visibilityNames[constantVisibility];
+				if (visibilityName)
+				{
+					constant.Expression = '{{' + visibilityName + ': ' + constant.Name + '}}';
+					constant.supertitle = visibilityName;
+				}
+
 				constants.push(constant);
 			}, this);
+
 			return constants;
 		},
 		getConstant: function(id)
@@ -539,12 +945,23 @@
 			}
 
 			var variables = [];
+			var visibilityNames = this.data['G_VARIABLES_VISIBILITY'];
 			BX.util.object_keys(this.data['GLOBAL_VARIABLES']).forEach(function(id)
 			{
 				var variable = BX.clone(this.data['GLOBAL_VARIABLES'][id]);
 				variable.Id = id;
 				variable.ObjectId = 'GlobalVar';
-				variable.SystemExpression = variable.Expression = '{=GlobalVar:' + id + '}';
+				variable.SystemExpression = '{=GlobalVar:' + id + '}';
+				variable.Expression = '{=GlobalVar:' + id + '}';
+
+				var variableVisibility = String(variable.Visibility).toUpperCase();
+				var visibilityName = visibilityNames[variableVisibility];
+				if (visibilityName)
+				{
+					variable.Expression = '{{' + visibilityName + ': ' + variable.Name + '}}';
+					variable.supertitle = visibilityName;
+				}
+
 				variables.push(variable);
 			}, this);
 
@@ -562,7 +979,21 @@
 			}
 
 			return null;
-		}
+		},
+		getDocumentFields: function ()
+		{
+			if (!this.data['DOCUMENT_FIELDS'])
+			{
+				return [];
+			}
+
+			if (BX.type.isArray(this.data['DOCUMENT_FIELDS']))
+			{
+				return this.data['DOCUMENT_FIELDS'];
+			}
+
+			return [];
+		},
 	};
 
 	var TemplateManager = function(component)
@@ -577,14 +1008,8 @@
 			if (!BX.type.isPlainObject(data))
 				data = {};
 
-			this.viewMode = viewMode || Component.ViewMode.View;
+			this.viewMode = viewMode || Component.ViewMode.Edit;
 			this.availableRobots = BX.type.isArray(data.AVAILABLE_ROBOTS) ? data.AVAILABLE_ROBOTS : [];
-			this.availableRobotsMap = {};
-			for (var i = 0; i < this.availableRobots.length; ++i)
-			{
-				this.availableRobotsMap[this.availableRobots[i]['CLASS']] = this.availableRobots[i];
-			}
-
 			this.templatesData = BX.type.isArray(data.TEMPLATES) ? data.TEMPLATES : [];
 
 			this.initTemplates();
@@ -594,11 +1019,109 @@
 			if (!BX.type.isPlainObject(data))
 				data = {};
 
-			this.viewMode = viewMode || Component.ViewMode.View;
+			this.viewMode = viewMode || Component.ViewMode.Edit;
 			if (BX.type.isArray(data.TEMPLATES))
+			{
 				this.templatesData = data.TEMPLATES;
+			}
+			if (this.viewMode !== Component.ViewMode.Edit)
+			{
+				this.targetManageModeStatus = '';
+			}
 
 			this.reInitTemplates(this.templatesData);
+			if (this.isManageModeEnabled())
+			{
+				this.enableManageMode(this.targetManageModeStatus);
+			}
+			else
+			{
+				this.disableManageMode();
+			}
+		},
+		isManageModeSupported: function ()
+		{
+			return this.component.data.IS_TEMPLATES_SCHEME_SUPPORTED;
+		},
+		isManageModeEnabled: function ()
+		{
+			return (BX.type.isString(this.targetManageModeStatus) && this.targetManageModeStatus !== '');
+		},
+		enableManageMode: function (status)
+		{
+			this.targetManageModeStatus = status;
+
+			var deleteButtons = document.querySelectorAll('.bizproc-automation-robot-btn-delete');
+			deleteButtons.forEach(function (node)
+			{
+				BX.Dom.hide(node)
+			});
+
+			this.templates.forEach(function (template)
+			{
+				if (template.data.DOCUMENT_STATUS === status)
+				{
+					template.enableManageMode();
+				}
+				else
+				{
+					template.disableManageMode();
+					if (template.isExternalModified())
+					{
+						BX.Dom.addClass(template.listNode.firstChild, '--locked-node');
+					}
+					else
+					{
+						template.robots.forEach(function(robot) {
+							BX.Dom.addClass(robot.node, '--locked-node');
+						});
+					}
+				}
+			}.bind(this));
+
+			this.component.disableDragAndDrop();
+			this.component.actionPanel.showPanel();
+		},
+		disableManageMode: function ()
+		{
+			this.targetManageModeStatus = '';
+			this.component.actionPanel.hidePanel();
+
+			this.templates.forEach(function (template)
+			{
+				template.disableManageMode();
+				if (template.isExternalModified())
+				{
+					BX.Dom.removeClass(template.listNode.firstChild, '--locked-node');
+				}
+				else
+				{
+					template.robots.forEach(function(robot) {
+						BX.Dom.removeClass(robot.node, '--locked-node');
+					});
+				}
+			});
+
+			this.component.enableDragAndDrop();
+			var deleteButtons = document.querySelectorAll('.bizproc-automation-robot-btn-delete');
+			deleteButtons.forEach(function (node)
+			{
+				BX.Dom.show(node)
+			});
+		},
+		enableDragAndDrop: function ()
+		{
+			this.templates.forEach(function (template)
+			{
+				template.enableDragAndDrop();
+			});
+		},
+		disableDragAndDrop: function ()
+		{
+			this.templates.forEach(function (template)
+			{
+				template.disableDragAndDrop();
+			});
 		},
 		initTemplates: function()
 		{
@@ -624,13 +1147,48 @@
 				}
 			}
 		},
+		updateTemplates: function (statuses)
+		{
+			return BX.ajax({
+				method: 'POST',
+				dataType: 'json',
+				url: this.component.getAjaxUrl(),
+				data: {
+					ajax_action: 'update_templates',
+					document_signed: this.component.documentSigned,
+					statuses: statuses,
+				},
+				onsuccess: function (response)
+				{
+					if (response.SUCCESS)
+					{
+						var updatedTemplates = response.DATA.templates;
+						for (var updatedStatus in updatedTemplates)
+						{
+							if (updatedTemplates.hasOwnProperty(updatedStatus))
+							{
+								var template = this.getTemplateByStatusId(updatedStatus);
+								var templateIndex = this.templatesData.findIndex(function (templateData) {
+									return templateData.ID === template.data.ID;
+								});
+
+								template.reInit(updatedTemplates[updatedStatus], this.viewMode);
+								this.templatesData[templateIndex] = updatedTemplates[updatedStatus];
+							}
+						}
+					}
+				}.bind(this),
+			});
+		},
 		getAvailableRobots: function()
 		{
 			return this.availableRobots;
 		},
 		getRobotDescription: function(type)
 		{
-			return this.availableRobotsMap[type] || null;
+			return this.availableRobots.find(function(item) {
+				return item['CLASS'] === type;
+			});
 		},
 		serialize: function()
 		{
@@ -640,6 +1198,19 @@
 			{
 				templates.push(this.templates[i].serialize());
 			}
+
+			return templates;
+		},
+		serializeModified: function()
+		{
+			var templates = [];
+
+			this.templates.forEach(function (template) {
+				if (template.isModified())
+				{
+					templates.push(template.serialize());
+				}
+			})
 
 			return templates;
 		},
@@ -658,9 +1229,20 @@
 			var statusId = node.getAttribute('data-status-id');
 			return this.getTemplateByStatusId(statusId);
 		},
+		getTemplateById: function(id)
+		{
+			return this.templates.find(function (template)
+			{
+				return template.data.ID === id;
+			});
+		},
 		getTemplateByStatusId: function(statusId)
 		{
 			return this.templatesMap[statusId] || null;
+		},
+		canEdit: function()
+		{
+			return this.component && this.component.canEdit();
 		},
 		needSave: function()
 		{
@@ -703,10 +1285,15 @@
 				{
 					this.data.PARAMETERS = {};
 				}
+				if (!BX.type.isPlainObject(this.data.VARIABLES))
+				{
+					this.data.VARIABLES = {};
+				}
+				this.markExternalModified(this.data['IS_EXTERNAL_MODIFIED']);
+				this.markModified(false);
 			}
 
-			this.modified = false;
-			this.viewMode = (viewMode === undefined) ? Component.ViewMode.View : viewMode;
+			this.viewMode = (viewMode === undefined) ? Component.ViewMode.Edit : viewMode;
 
 			if (this.viewMode !== Component.ViewMode.None)
 			{
@@ -715,13 +1302,20 @@
 				);
 				this.listNode = this.node.querySelector('[data-role="robot-list"]');
 				this.buttonsNode = this.node.querySelector('[data-role="buttons"]');
+				this.topButtonsNode = this.node.querySelector('[data-role="top-buttons"]');
+
 				this.initRobots();
 				this.initButtons();
+				this.updateTopButtonsVisibility();
 
-				if (!this.isExternalModified())
+				if (!this.isExternalModified() && this.canEdit())
 				{
 					//register DD
 					jsDD.registerDest(this.node, 10);
+				}
+				else
+				{
+					jsDD.unregisterDest(this.node);
 				}
 			}
 		},
@@ -729,8 +1323,32 @@
 		{
 			BX.cleanNode(this.listNode);
 			BX.cleanNode(this.buttonsNode);
+			BX.cleanNode(this.topButtonsNode);
+
+			if (this.robots)
+			{
+				this.robots.forEach(function(robot) {
+					robot.destroy();
+				});
+			}
 
 			this.init(data, viewMode)
+		},
+		isManageMode: function()
+		{
+			return BX.hasClass(this.listNode, '--multiselect-mode');
+		},
+		canEnableManageMode: function ()
+		{
+			return (
+				!this.manager.targetManageModeStatus
+				&& this.component.viewMode === Component.ViewMode.Edit
+				&& !this.manager.needSave()
+			);
+		},
+		canEdit: function()
+		{
+			return this.manager.canEdit();
 		},
 		initRobots: function()
 		{
@@ -745,6 +1363,29 @@
 					this.robots.push(robot);
 				}
 			}
+		},
+		getSelectedRobotNames: function ()
+		{
+			var selectedRobots = [];
+			this.robots.forEach(function (robot)
+			{
+				if (robot.isSelected())
+				{
+					selectedRobots.push(robot.data.Name);
+				}
+			});
+
+			return selectedRobots;
+		},
+		getSerializedRobots: function ()
+		{
+			var serialized = [];
+			this.robots.forEach(function (robot)
+			{
+				serialized.push(robot.serialize());
+			});
+
+			return serialized;
 		},
 		getStatusId: function()
 		{
@@ -761,65 +1402,121 @@
 			{
 				this.createExternalLocker();
 			}
-			else if (this.viewMode === Component.ViewMode.Edit)
+			else
 			{
-				if (!this.isExternalModified())
-					this.createAddButton();
+				this.createAddButton();
 
 				if (this.getTemplateId() > 0)
 				{
 					this.createConstantsEditButton();
 					this.createParametersEditButton();
 					this.createExternalEditTemplateButton();
+					this.createManageModeButton();
 				}
 			}
-
-			if (this.viewMode === Component.ViewMode.View && this.component.canEdit())
+		},
+		enableManageMode: function ()
+		{
+			if (this.listNode)
 			{
-				this.createEditButton();
+				BX.addClass(this.listNode, '--multiselect-mode');
+
+				this.robots.forEach(function (robot)
+				{
+					robot.enableManageMode();
+				});
 			}
+		},
+		disableManageMode: function ()
+		{
+			if (this.listNode)
+			{
+				BX.removeClass(this.listNode, '--multiselect-mode');
+				this.robots.forEach(function (robot)
+				{
+					robot.disableManageMode();
+				});
+
+				this.node.querySelectorAll('.bizproc-automation-robot-container-wrapper').forEach(function (node)
+				{
+					BX.Dom.addClass(node, 'bizproc-automation-robot-container-wrapper-draggable');
+				});
+			}
+		},
+		enableDragAndDrop: function ()
+		{
+			this.robots.forEach(function (robot)
+			{
+				robot.registerItem(robot.node);
+			});
+			this.node.querySelectorAll('.bizproc-automation-robot-container-wrapper').forEach(function (node)
+			{
+				BX.Dom.addClass(node, 'bizproc-automation-robot-container-wrapper-draggable');
+			});
+		},
+		disableDragAndDrop: function ()
+		{
+			this.robots.forEach(function (robot)
+			{
+				robot.unregisterItem(robot.node);
+			});
+			this.node.querySelectorAll('.bizproc-automation-robot-container-wrapper').forEach(function (node)
+			{
+				BX.Dom.removeClass(node, 'bizproc-automation-robot-container-wrapper-draggable');
+			});
 		},
 		createAddButton: function()
 		{
-			var me = this,
-				anchor = BX.create('a', {
-							text: BX.message('BIZPROC_AUTOMATION_CMP_ADD'),
-							props: {
-								href: '#'
-							},
-							events: {
-								click: function(e)
-								{
-									e.preventDefault();
-									me.onAddButtonClick(this);
-								}
-							},
-							attrs:{
-								className: 'bizproc-automation-robot-btn-add'
-							}
-
-						});
-
-			this.buttonsNode.appendChild(anchor);
-		},
-		createEditButton: function()
-		{
-			var me = this,
-				anchor = BX.create('a', {
-					text: BX.message('BIZPROC_AUTOMATION_CMP_AUTOMATION_EDIT'),
-					props: {
-						href: '#'
-					},
+			var anchor = function(context)
+			{
+				return BX.create('span', {
 					events: {
-						click: function(e)
+						click: (function(event)
 						{
-							e.preventDefault();
-							me.manager.component.changeViewMode(Component.ViewMode.Edit);
-						}
+							if (!this.canEdit())
+							{
+								HelpHint.showNoPermissionsHint(event.target);
+							}
+							else if (!this.manager.isManageModeEnabled())
+							{
+								this.onAddButtonClick(event.target);
+							}
+						}).bind(context)
 					},
-					attrs: { className: "bizproc-automation-robot-btn-set" }
+					attrs: {
+						className: 'bizproc-automation-robot-btn-add'
+					},
+					children: [
+						BX.create('span', {
+							attrs: {
+								className: 'bizproc-automation-btn-add-text',
+							},
+							text: BX.message('BIZPROC_AUTOMATION_CMP_ADD'),
+						})
+					]
 				});
-			this.buttonsNode.appendChild(anchor);
+			};
+
+			if (this.topButtonsNode)
+			{
+				this.topButtonsNode.appendChild(anchor(this));
+			}
+
+			this.buttonsNode.appendChild(anchor(this));
+		},
+		updateTopButtonsVisibility: function()
+		{
+			if (this.topButtonsNode)
+			{
+				var fn = (this.robots && this.robots.length < 1) ? 'hide' : 'show';
+
+				if (this.isExternalModified())
+				{
+					fn = 'show';
+				}
+
+				BX[fn](this.topButtonsNode);
+			}
 		},
 		createExternalEditTemplateButton: function()
 		{
@@ -828,20 +1525,18 @@
 				return false;
 			}
 
-			var url = this.manager.component.bizprocEditorUrl.replace('#ID#', this.getTemplateId());
-
 			var me = this,
 				anchor = BX.create('a', {
 				text: BX.message('BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT'),
 				props: {
-					href: url
+					href: '#'
 				},
 				events: {
 					click: function(e)
 					{
-						if (!url.length)
+						e.preventDefault();
+						if (!me.manager.isManageModeEnabled())
 						{
-							e.preventDefault();
 							me.onExternalEditTemplateButtonClick(this);
 						}
 					}
@@ -859,6 +1554,41 @@
 
 			this.buttonsNode.appendChild(anchor);
 		},
+		createManageModeButton: function ()
+		{
+			if (!this.manager.isManageModeSupported())
+			{
+				return;
+			}
+
+			var component = this.component;
+			var manageButton = BX.create('a', {
+				text: BX.message('BIZPROC_AUTOMATION_CMP_MANAGE_ROBOTS'),
+				attrs: {
+					className: "bizproc-automation-robot-btn-set",
+					target: '_top',
+				},
+				style: {
+					cursor: 'pointer',
+				},
+				events: {
+					click: function(event)
+					{
+						event.preventDefault();
+						if (!component.canEdit())
+						{
+							HelpHint.showNoPermissionsHint(manageButton);
+						}
+						else if (this.canEnableManageMode())
+						{
+							this.component.enableManageMode(this.data.DOCUMENT_STATUS);
+						}
+					}.bind(this),
+				}
+			});
+
+			this.buttonsNode.appendChild(manageButton);
+		},
 		createConstantsEditButton: function()
 		{
 			if (this.manager.component.constantsEditorUrl === null)
@@ -866,7 +1596,11 @@
 				return false;
 			}
 
-			var url = this.manager.component.constantsEditorUrl.replace('#ID#', this.getTemplateId());
+			var url =
+				!this.manager.isManageModeEnabled()
+					? this.manager.component.constantsEditorUrl.replace('#ID#', this.getTemplateId())
+					: '#'
+			;
 
 			if (!url.length)
 			{
@@ -893,7 +1627,7 @@
 
 			var url = this.manager.component.parametersEditorUrl.replace('#ID#', this.getTemplateId());
 
-			if (!url.length)
+			if (!url.length || this.manager.isManageModeEnabled())
 			{
 				return false;
 			}
@@ -911,6 +1645,17 @@
 		},
 		createExternalLocker: function()
 		{
+			if (this.topButtonsNode)
+			{
+				this.topButtonsNode.appendChild(
+					BX.create('span', {
+						attrs: {
+							className: 'bizproc-automation-robot-btn-prohibit'
+						}
+					})
+				);
+			}
+
 			var me = this, div = BX.create("div", {
 				attrs: {
 					className: "bizproc-automation-robot-container"
@@ -943,10 +1688,13 @@
 				});
 				BX.bind(div, 'click', function(e)
 				{
-					me.onExternalEditTemplateButtonClick(this);
+					e.stopPropagation();
+					if (!me.manager.isManageModeEnabled())
+					{
+						me.onExternalEditTemplateButtonClick(this);
+					}
 				});
 				div.appendChild(settingsBtn);
-				BX.addClass(div.firstChild, 'bizproc-automation-robot-container-wrapper-border');
 				var deleteBtn = BX.create('SPAN', {
 					attrs: {
 						className: 'bizproc-automation-robot-btn-delete'
@@ -955,18 +1703,45 @@
 				BX.bind(deleteBtn, 'click', function(e)
 				{
 					e.stopPropagation();
-					me.onUnsetExternalModifiedClick(this);
+					if (!me.manager.isManageModeEnabled())
+					{
+						me.onUnsetExternalModifiedClick(this);
+					}
 				});
 				div.lastChild.appendChild(deleteBtn);
 			}
 
 			this.listNode.appendChild(div);
+			this.node = div;
+
+			if (this.component)
+			{
+				this.searchHandler = this.onSearch.bind(this);
+				BX.Event.EventEmitter.subscribe(
+					this.component,
+					'BX.Bizproc.Automation.Component:onSearch',
+					this.searchHandler
+				);
+			}
 		},
-		onAddButtonClick: function(button)
+		onSearch: function(event)
+		{
+			if (this.node)
+			{
+				var query = event.getData().queryString;
+				BX[!query ? 'removeClass' : 'addClass'](this.node, '--search-mismatch');
+			}
+		},
+		onAddButtonClick: function(button, context)
 		{
 			var me = this, i, j, menuItems = {employee: [], client: [], ads: [], other: []};
-
 			var title, settings, categories, availableRobots = this.manager.getAvailableRobots();
+
+			if (!BX.Type.isPlainObject(context))
+			{
+				context = {};
+			}
+
 			var menuItemClickHandler = function(e, item)
 			{
 				var robotData = BX.clone(item.robotData);
@@ -986,7 +1761,8 @@
 
 				me.addRobot(robotData, function(robot)
 				{
-					me.openRobotSettingsDialog(robot, {ADD_MENU_CATEGORY: item.category});
+					context.ADD_MENU_CATEGORY = item.category;
+					this.openRobotSettingsDialog(robot, context);
 				});
 
 				this.getRootMenuWindow().close();
@@ -1106,6 +1882,10 @@
 				}
 			);
 		},
+		onChangeRobotClick: function(event)
+		{
+			this.onAddButtonClick(event.target, {changeRobot: true});
+		},
 		onExternalEditTemplateButtonClick: function(button)
 		{
 			if (!this.manager.component.bizprocEditorUrl.length)
@@ -1124,7 +1904,18 @@
 		},
 		onUnsetExternalModifiedClick: function(button)
 		{
-			this.data['IS_EXTERNAL_MODIFIED'] = false;
+			this.node = null;
+			if (this.searchHandler)
+			{
+				BX.Event.EventEmitter.unsubscribe(
+					this.component,
+					'BX.Bizproc.Automation.Component:onSearch',
+					this.searchHandler
+				);
+			}
+
+			this.markExternalModified(false);
+			this.markModified();
 			this.reInit(null, this.viewMode);
 		},
 		openBizprocEditor: function(templateId)
@@ -1155,7 +1946,9 @@
 			robot.init(initData, this.viewMode);
 			robot.draft = true;
 			if (callback)
-				callback(robot);
+			{
+				callback.call(this, robot);
+			}
 		},
 		insertRobot: function(robot, beforeRobot)
 		{
@@ -1173,7 +1966,7 @@
 			{
 				this.robots.push(robot);
 			}
-			this.modified = true;
+			this.markModified();
 		},
 		getNextRobot: function(robot)
 		{
@@ -1188,6 +1981,8 @@
 		},
 		deleteRobot: function(robot, callback)
 		{
+			robot.destroy();
+
 			for(var i = 0; i < this.robots.length; ++i)
 			{
 				if (this.robots[i] === robot)
@@ -1198,7 +1993,8 @@
 			}
 			if (callback)
 				callback(robot);
-			this.modified = true;
+			this.markModified();
+			this.updateTopButtonsVisibility();
 		},
 		insertRobotNode: function(robotNode, beforeNode)
 		{
@@ -1210,6 +2006,7 @@
 			{
 				this.listNode.appendChild(robotNode);
 			}
+			this.updateTopButtonsVisibility();
 		},
 		/**
 		 * @param {Robot} robot
@@ -1218,8 +2015,22 @@
 		 */
 		openRobotSettingsDialog: function(robot, context, saveCallback)
 		{
+			if (!BX.type.isPlainObject(context))
+			{
+				context = {};
+			}
+
 			if (Designer.getRobotSettingsDialog())
-				return;
+			{
+				if (context.changeRobot)
+				{
+					Designer.getRobotSettingsDialog().popup.close();
+				}
+				else
+				{
+					return;
+				}
+			}
 
 			var me = this, formName = 'bizproc_automation_robot_dialog';
 
@@ -1228,11 +2039,6 @@
 					name: formName
 				}
 			});
-
-			if (!BX.type.isPlainObject(context))
-			{
-				context = {};
-			}
 
 			Designer.setRobotSettingsDialog({
 				template: this,
@@ -1243,6 +2049,10 @@
 
 			form.appendChild(me.renderDelaySettings(robot));
 			form.appendChild(me.renderConditionSettings(robot));
+			if (robot.hasBrokenLink())
+			{
+				form.appendChild(me.renderBrokenLinkAlert());
+			}
 
 			if (this.component)
 			{
@@ -1286,6 +2096,7 @@
 		 */
 		showRobotSettingsPopup: function(robot, form, saveCallback)
 		{
+			var me = this;
 			var popupMinWidth = 580;
 			var popupWidth = popupMinWidth;
 
@@ -1310,8 +2121,16 @@
 				}
 			}
 
-			var me = this, popup = new BX.PopupWindow(Component.generateUniqueId(), null, {
-				titleBar: robot.component ? robot.getTitle() : BX.message('BIZPROC_AUTOMATION_ROBOT_SETTINGS_TITLE'),
+			var titleBar;
+			var robotTitle = robot.component ? robot.getTitle() : BX.message('BIZPROC_AUTOMATION_ROBOT_SETTINGS_TITLE');
+
+			if (robot.draft)
+			{
+				titleBar = this.createChangeRobotTitleBar(robotTitle);
+			}
+
+			var popup = new BX.PopupWindow(Component.generateUniqueId(), null, {
+				titleBar: titleBar || robotTitle,
 				content: form,
 				closeIcon: true,
 				width: popupWidth,
@@ -1333,6 +2152,11 @@
 						if (me.component)
 						{
 							BX.removeClass(me.component.node, 'automation-base-blocked');
+						}
+
+						if (robot.draft)
+						{
+							robot.destroy();
 						}
 					},
 					onPopupResize: function()
@@ -1372,16 +2196,38 @@
 						className : "popup-window-button-link-cancel",
 						events : {
 							click: function(){
-								this.popupWindow.close()
+								this.popupWindow.close();
 							}
 						}
 					})
 				]
 			});
 
-			me.currentRobot = robot;
+			this.currentRobot = robot;
 			Designer.getRobotSettingsDialog().popup = popup;
 			popup.show();
+		},
+		createChangeRobotTitleBar: function(title)
+		{
+			return {
+				content: BX.Dom.create('div', {
+					props: {
+						className: 'popup-window-titlebar-text bizproc-automation-popup-titlebar-with-link'
+					},
+					children: [
+						document.createTextNode(title),
+						BX.Dom.create('span', {
+							props: {
+								className: 'bizproc-automation-popup-titlebar-link'
+							},
+							text: BX.message('BIZPROC_AUTOMATION_CMP_CHANGE_ROBOT'),
+							events: {
+								click: this.onChangeRobotClick.bind(this)
+							}
+						})
+					]
+				})
+			};
 		},
 		initRobotSettingsControls: function(robot, node)
 		{
@@ -1683,6 +2529,29 @@
 			robot.setCondition(ConditionGroup.createFromForm(formFields));
 			return this;
 		},
+		renderBrokenLinkAlert: function ()
+		{
+			var alert = BX.create('div', {
+				attrs: {className:'ui-alert ui-alert-warning ui-alert-icon-info ui-alert-xs'}
+			});
+
+			var message = BX.create('span', {
+				attrs: {className: 'ui-alert-message'},
+				text: BX.message('BIZPROC_AUTOMATION_BROKEN_LINK_MESSAGE_ERROR')
+			});
+
+			alert.appendChild(message);
+			alert.appendChild(BX.create('span', {
+				attrs: {className: 'ui-alert-close-btn'},
+				events: {
+					click: function () {
+						alert.style.display = 'none';
+					}
+				}
+			}));
+
+			return alert;
+		},
 		saveRobotSettings: function(form, robot, callback, btnNode)
 		{
 			if (btnNode)
@@ -1727,7 +2596,7 @@
 						delete robot.draft;
 
 						robot.reInit();
-						me.modified = true;
+						me.markModified();
 						if (callback)
 						{
 							callback(response.DATA)
@@ -1753,7 +2622,17 @@
 		},
 		isExternalModified: function()
 		{
-			return (this.data['IS_EXTERNAL_MODIFIED'] === true);
+			return (this.externalModified === true);
+		},
+		markExternalModified: function(modified)
+		{
+			this.externalModified = modified !== false;
+		},
+		getRobotByName: function (name)
+		{
+			return this.robots.find(function (robot) {
+				return robot.data.Name === name;
+			})
 		},
 		getRobotById: function(id)
 		{
@@ -1764,6 +2643,14 @@
 		isModified: function()
 		{
 			return this.modified;
+		},
+		markModified: function(modified)
+		{
+			this.modified = modified !== false;
+			if (this.modified && this.component)
+			{
+				this.component.markModified();
+			}
 		},
 		getConstants: function()
 		{
@@ -1917,6 +2804,21 @@
 			}
 			return false;
 		},
+		getVariables: function()
+		{
+			var variables = [];
+			Object.keys(this.data.VARIABLES).forEach(function(id)
+			{
+				var variable = BX.clone(this.data.VARIABLES[id]);
+				variable.Id = id;
+				variable.ObjectId = 'Variable';
+				variable.SystemExpression = '{=Variable:' + id + '}';
+				variable.Expression = '{=Variable:' + id + '}';
+				variables.push(variable);
+			}, this);
+
+			return variables;
+		},
 		generatePropertyId: function(prefix, existsList)
 		{
 			for(var index = 1; index <= 1000; ++index)
@@ -1931,7 +2833,15 @@
 		},
 		collectUsages: function()
 		{
-			var usages = {Document: new Set(), Constant: new Set(), Parameter: new Set()};
+			var usages = {
+				Document: new Set(),
+				Constant: new Set(),
+				Variable: new Set(),
+				Parameter: new Set(),
+				GlobalConstant: new Set(),
+				GlobalVariable: new Set(),
+				Activity: new Set()
+			};
 
 			this.robots.forEach(function(robot) {
 				var robotUsages = robot.collectUsages();
@@ -1947,7 +2857,7 @@
 			}, this);
 
 			return usages;
-		}
+		},
 	};
 
 	var Robot = function(template)
@@ -1958,6 +2868,16 @@
 			this.templateManager = template.manager;
 			this.component = this.templateManager.component;
 			this.tracker = template.manager.component.tracker;
+
+			if (this.component)
+			{
+				this.searchHandler = this.onSearch.bind(this);
+				BX.Event.EventEmitter.subscribe(
+					this.component,
+					'BX.Bizproc.Automation.Component:onSearch',
+					this.searchHandler
+				);
+			}
 		}
 	};
 
@@ -1986,7 +2906,7 @@
 			{
 				this.condition.type = ConditionGroup.Type.Mixed;
 			}
-			this.viewMode = (viewMode === undefined) ? Component.ViewMode.View : viewMode;
+			this.viewMode = (viewMode === undefined) ? Component.ViewMode.Edit : viewMode;
 			if (this.viewMode !== Component.ViewMode.None)
 			{
 				this.node = this.createNode();
@@ -2002,7 +2922,24 @@
 			var node = this.node;
 			this.node = this.createNode();
 			if (node.parentNode)
+			{
 				node.parentNode.replaceChild(this.node, node);
+			}
+		},
+		destroy: function()
+		{
+			if (this.searchHandler)
+			{
+				BX.Event.EventEmitter.unsubscribe(
+					this.component,
+					'BX.Bizproc.Automation.Component:onSearch',
+					this.searchHandler
+				);
+			}
+		},
+		canEdit: function()
+		{
+			return this.template.canEdit();
 		},
 		getProperties: function()
 		{
@@ -2067,14 +3004,55 @@
 			}
 			return [];
 		},
+		selectNode: function ()
+		{
+			if (this.node)
+			{
+				BX.addClass(this.node, '--selected');
+				this.component.actionPanel.setTotalSelectedItems(this.template.getSelectedRobotNames().length);
+			}
+		},
+		unselectNode: function ()
+		{
+			if (this.node)
+			{
+				BX.removeClass(this.node, '--selected');
+				this.component.actionPanel.setTotalSelectedItems(this.template.getSelectedRobotNames().length);
+			}
+		},
+		isSelected: function ()
+		{
+			return this.node && BX.hasClass(this.node, '--selected');
+		},
+		enableManageMode: function ()
+		{
+			this.node.onclick = function ()
+			{
+				if (!this.isSelected())
+				{
+					this.selectNode();
+				}
+				else
+				{
+					this.unselectNode();
+				}
+			}.bind(this)
+		},
+		disableManageMode: function ()
+		{
+			this.unselectNode();
+			this.node.onclick = undefined;
+		},
+		/**
+		 *
+		 * @returns {HTMLElement}
+		 */
 		createNode: function()
 		{
-			var me = this, status = this.getLogStatus(), loader;
-
-			var settings = this.getDescriptionSettings();
-
 			var wrapperClass = 'bizproc-automation-robot-container-wrapper';
-			if (this.viewMode === Component.ViewMode.Edit)
+			var containerClass = 'bizproc-automation-robot-container';
+
+			if (this.canEdit())
 			{
 				wrapperClass += ' bizproc-automation-robot-container-wrapper-draggable';
 			}
@@ -2158,78 +3136,69 @@
 				delayLabel += ', ' + BX.message('BIZPROC_AUTOMATION_CMP_BY_CONDITION');
 			}
 
-			var delayNode;
-			if (this.viewMode === Component.ViewMode.Edit)
-			{
-				delayNode = BX.create("a", {
-					attrs: {
-						className: "bizproc-automation-robot-link",
-						title: delayLabel
-					},
-					text: delayLabel
-				});
-			}
-			else
-			{
-				delayNode = BX.create("span", {
-					attrs: { className: "bizproc-automation-robot-text" },
-					text: delayLabel
-				});
-			}
+			var delayNode = BX.create("a", {
+				attrs: {
+					className: "bizproc-automation-robot-link",
+					title: delayLabel
+				},
+				text: delayLabel
+			});
 
-			if (this.viewMode === Component.ViewMode.View)
+			var statusNode = BX.create("div", {
+				attrs: {
+					className: "bizproc-automation-robot-information"
+				}
+			});
+
+			switch (this.getLogStatus())
 			{
-				switch (status)
-				{
-					case Component.LogStatus.Running:
-						if (this.component.isCurrentStatus(this.template.getStatusId()))
+				case Component.LogStatus.Running:
+					if (this.component.isCurrentStatus(this.template.getStatusId()))
+					{
+						statusNode.classList.add('--loader');
+
+						var delayNotes = this.getDelayNotes();
+						if (delayNotes.length)
 						{
-							loader = BX.create("div", {
-								attrs: { className: "bizproc-automation-robot-loader" }
-							});
-
-							var delayNotes = this.getDelayNotes();
-							if (delayNotes.length)
-							{
-								loader.setAttribute('data-text', delayNotes.join('\n'));
-								HelpHint.bindToNode(loader);
-							}
+							statusNode.setAttribute('data-text', delayNotes.join('\n'));
+							HelpHint.bindToNode(statusNode);
 						}
-						break;
-					case Component.LogStatus.Completed:
-					case Component.LogStatus.AutoCompleted:
-						wrapperClass += ' bizproc-automation-robot-container-wrapper-complete';
-						break;
-				}
+					}
+					break;
+				case Component.LogStatus.Completed:
+				case Component.LogStatus.AutoCompleted:
+					containerClass += ' --complete';
+					statusNode.classList.add('--complete');
+					break;
+			}
 
-				var errors = this.getLogErrors();
-				if (errors.length > 0)
-				{
-					loader = BX.create("div", {
-						attrs: {
-							className: "bizproc-automation-robot-errors",
-							'data-text': errors.join('\n')
-						}
-					});
-
-					HelpHint.bindToNode(loader);
-				}
+			var errors = this.getLogErrors();
+			if (errors.length > 0)
+			{
+				statusNode.classList.add('--errors');
+				statusNode.setAttribute('data-text', errors.join('\n'));
+				HelpHint.bindToNode(statusNode);
 			}
 
 			var titleClassName = 'bizproc-automation-robot-title-text';
-			if (this.viewMode === Component.ViewMode.Edit)
+			if (this.canEdit())
 			{
 				titleClassName += ' bizproc-automation-robot-title-text-editable';
 			}
 
 			var div = BX.create("div", {
 				attrs: {
-					className: "bizproc-automation-robot-container",
+					className: containerClass,
 					'data-role': 'robot-container',
 					'data-type': 'item-robot',
 					'data-id': this.getId()
 				},
 				children: [
+					BX.create("div", {
+						props: {
+							className: "bizproc-automation-robot-container-checkbox"
+						}
+					}),
 					BX.create('div', {
 						attrs: {
 							className: wrapperClass
@@ -2250,8 +3219,13 @@
 										},
 										html: this.clipTitle(this.getTitle()),
 										events: {
-											click: this.viewMode === Component.ViewMode.Edit ?
-												this.onTitleEditClick.bind(this) : null
+											click: function (event)
+											{
+												if (this.canEdit() && !this.templateManager.isManageModeEnabled())
+												{
+													this.onTitleEditClick(event);
+												}
+											}.bind(this),
 										}
 									})
 								]
@@ -2266,78 +3240,96 @@
 									targetNode
 								]
 							}),
-							loader
+							statusNode,
 						]
 					})
 				]
 			});
 
-			if (this.viewMode === Component.ViewMode.Edit)
+			if (this.canEdit())
 			{
 				this.registerItem(div);
-
-				var deleteBtn = BX.create('SPAN', {
-					attrs: {
-						className: 'bizproc-automation-robot-btn-delete'
-					}
-				});
-				BX.bind(deleteBtn, 'click', function(e)
-				{
-					e.preventDefault();
-					e.stopPropagation();
-					me.onDeleteButtonClick(this);
-				});
-				div.lastChild.appendChild(deleteBtn);
-
-				var settingsBtn = BX.create('div', {
-					attrs: {
-						className: 'bizproc-automation-robot-btn-settings'
-					},
-					text: BX.message('BIZPROC_AUTOMATION_CMP_EDIT')
-				});
-				BX.bind(div, 'click', me.onSettingsButtonClick.bind(me));
-				div.appendChild(settingsBtn);
-				BX.addClass(div.firstChild, 'bizproc-automation-robot-container-wrapper-border');
-
-				var copyBtn = BX.create('div', {
-					attrs: {
-						className: 'bizproc-automation-robot-btn-copy'
-					},
-					text: BX.message('BIZPROC_AUTOMATION_CMP_COPY') || 'copy'
-				});
-				BX.bind(copyBtn, 'click', me.onCopyButtonClick.bind(me));
-				div.appendChild(copyBtn);
 			}
+
+			var deleteBtn = BX.create('SPAN', {
+				attrs: {
+					className: 'bizproc-automation-robot-btn-delete'
+				}
+			});
+			BX.bind(deleteBtn, 'click', this.onDeleteButtonClick.bind(this, deleteBtn));
+			div.lastChild.appendChild(deleteBtn);
+
+			var copyBtn = BX.create('div', {
+				attrs: {
+					className: 'bizproc-automation-robot-btn-copy'
+				},
+				text: BX.message('BIZPROC_AUTOMATION_CMP_COPY') || 'copy'
+			});
+			BX.bind(copyBtn, 'click', this.onCopyButtonClick.bind(this, copyBtn));
+			div.appendChild(copyBtn);
+
+			var settingsBtn = BX.create('div', {
+				attrs: {
+					className: 'bizproc-automation-robot-btn-settings'
+				},
+				text: BX.message('BIZPROC_AUTOMATION_CMP_EDIT')
+			});
+			BX.bind(div, 'click', this.onSettingsButtonClick.bind(this, div));
+
+			div.appendChild(settingsBtn);
 
 			return div;
 		},
-		onDeleteButtonClick: function()
-		{
-			BX.remove(this.node);
-			this.template.deleteRobot(this);
-		},
-		onSettingsButtonClick: function()
-		{
-			this.template.openRobotSettingsDialog(this);
-		},
-		onCopyButtonClick: function(event)
+		onDeleteButtonClick: function(button, event)
 		{
 			event.stopPropagation();
 
-			var robot = new Robot(this.template);
-			var beforeRobot = this.template.getNextRobot(this);
-			var robotData = this.serialize();
-			delete robotData['Name'];
-			delete robotData['DelayName'];
-			if (robotData['Properties'] && robotData['Properties']['Title'])
+			if (!this.canEdit())
 			{
-				robotData['Properties']['Title'] += ' ' + BX.message('BIZPROC_AUTOMATION_CMP_COPY_CAPTION');
+				HelpHint.showNoPermissionsHint(button);
 			}
+			else if (!this.templateManager.isManageModeEnabled())
+			{
+				BX.remove(this.node);
+				this.template.deleteRobot(this);
+			}
+		},
+		onSettingsButtonClick: function(button)
+		{
+			if (!this.canEdit())
+			{
+				HelpHint.showNoPermissionsHint(button);
+			}
+			else if (!this.templateManager.isManageModeEnabled())
+			{
+				this.template.openRobotSettingsDialog(this);
+			}
+		},
+		onCopyButtonClick: function(button, event)
+		{
+			event.stopPropagation();
 
-			robot.init(robotData, this.viewMode);
+			if (!this.canEdit())
+			{
+				HelpHint.showNoPermissionsHint(button);
+			}
+			else if (!this.templateManager.isManageModeEnabled())
+			{
+				var robot = new Robot(this.template);
+				var beforeRobot = this.template.getNextRobot(this);
+				var robotData = this.serialize();
+				delete robotData['Name'];
+				delete robotData['DelayName'];
+				if (robotData['Properties'] && robotData['Properties']['Title'])
+				{
+					robotData['Properties']['Title'] += ' ' + BX.message('BIZPROC_AUTOMATION_CMP_COPY_CAPTION');
+				}
 
-			this.template.insertRobot(robot, beforeRobot);
-			this.template.insertRobotNode(robot.node, beforeRobot ? beforeRobot.node : null);
+				robot.init(robotData, this.viewMode);
+
+				this.template.insertRobot(robot, beforeRobot);
+				this.template.insertRobotNode(robot.node, beforeRobot ? beforeRobot.node : null);
+			}
 		},
 		onTitleEditClick: function(e)
 		{
@@ -2397,7 +3389,7 @@
 								var nameNode = form.elements.name;
 								me.setProperty('Title', nameNode.value);
 								me.reInit();
-								me.template.modified = true;
+								me.template.markModified();
 								this.popupWindow.close();
 							}
 						}
@@ -2415,6 +3407,18 @@
 			});
 
 			popup.show();
+		},
+		onSearch: function(event)
+		{
+			if (!this.node)
+			{
+				return;
+			}
+
+			var query = event.getData().queryString;
+			var match = !query || this.getTitle().toLowerCase().indexOf(query) >= 0;
+
+			BX[match ? 'removeClass' : 'addClass'](this.node, '--search-mismatch');
 		},
 		clipTitle: function (fullTitle)
 		{
@@ -2481,17 +3485,28 @@
 		},
 		registerItem: function(object)
 		{
-			object.onbxdragstart = BX.proxy(this.dragStart, this);
-			object.onbxdrag = BX.proxy(this.dragMove, this);
-			object.onbxdragstop = BX.proxy(this.dragStop, this);
-			object.onbxdraghover = BX.proxy(this.dragOver, this);
-			jsDD.registerObject(object);
-			jsDD.registerDest(object, 1);
+			if (BX.Type.isNil(object["__bxddid"]))
+			{
+				object.onbxdragstart = BX.proxy(this.dragStart, this);
+				object.onbxdrag = BX.proxy(this.dragMove, this);
+				object.onbxdragstop = BX.proxy(this.dragStop, this);
+				object.onbxdraghover = BX.proxy(this.dragOver, this);
+				jsDD.registerObject(object);
+				jsDD.registerDest(object, 1);
+			}
+		},
+		unregisterItem: function(object)
+		{
+			object.onbxdragstart = undefined;
+			object.onbxdrag = undefined;
+			object.onbxdragstop = undefined;
+			object.onbxdraghover = undefined;
+			jsDD.unregisterObject(object);
+			jsDD.unregisterDest(object);
 		},
 		dragStart: function()
 		{
 			this.draggableItem = BX.proxy_context;
-			this.draggableItem.className = "bizproc-automation-robot-container";
 
 			if (!this.draggableItem)
 			{
@@ -2504,7 +3519,7 @@
 				var itemWidth = this.draggableItem.offsetWidth;
 				this.stub = this.draggableItem.cloneNode(true);
 				this.stub.style.position = "absolute";
-				this.stub.className = "bizproc-automation-robot-container bizproc-automation-robot-container-drag";
+				this.stub.classList.add("bizproc-automation-robot-container-drag");
 				this.stub.style.width = itemWidth + "px";
 				document.body.appendChild(this.stub);
 			}
@@ -2520,12 +3535,12 @@
 		{
 			if (this.droppableItem)
 			{
-				this.droppableItem.className = "bizproc-automation-robot-container";
+				this.droppableItem.classList.remove("bizproc-automation-robot-container-pre");
 			}
 
 			if (this.droppableColumn)
 			{
-				this.droppableColumn.className = "bizproc-automation-robot-list";
+				this.droppableColumn.classList.remove("bizproc-automation-robot-list-pre");
 			}
 
 			var type = destination.getAttribute("data-type");
@@ -2538,18 +3553,18 @@
 
 			if (type === "column-robot")
 			{
-				this.droppableColumn = destination.children[0];
+				this.droppableColumn = destination.querySelector('[data-role="robot-list"]');
 				this.droppableItem = null;
 			}
 
 			if (this.droppableItem)
 			{
-				this.droppableItem.className = "bizproc-automation-robot-container bizproc-automation-robot-container-pre";
+				this.droppableItem.classList.add("bizproc-automation-robot-container-pre");
 			}
 
 			if (this.droppableColumn)
 			{
-				this.droppableColumn.className = "bizproc-automation-robot-list bizproc-automation-robot-list-pre";
+				this.droppableColumn.classList.add("bizproc-automation-robot-list-pre");
 			}
 		},
 
@@ -2563,7 +3578,7 @@
 			{
 				if (this.droppableItem)
 				{
-					this.droppableItem.className = "bizproc-automation-robot-container";
+					this.droppableItem.classList.remove("bizproc-automation-robot-container-pre");
 					tpl = this.templateManager.getTemplateByColumnNode(this.droppableItem.parentNode);
 					if (tpl)
 					{
@@ -2578,7 +3593,7 @@
 				}
 				else if (this.droppableColumn)
 				{
-					this.droppableColumn.className = "bizproc-automation-robot-list";
+					this.droppableColumn.classList.remove("bizproc-automation-robot-list-pre");
 					tpl = this.templateManager.getTemplateByColumnNode(this.droppableColumn);
 					if (tpl)
 					{
@@ -2755,16 +3770,28 @@
 		collectUsages: function()
 		{
 			var properties = this.getProperties();
-			var usages = {Document: new Set(), Constant: new Set(), Parameter: new Set()};
+			var usages = {
+				Document: new Set(),
+				Constant: new Set(),
+				Variable: new Set(),
+				Parameter: new Set(),
+				GlobalConstant: new Set(),
+				GlobalVariable: new Set(),
+				Activity: new Set()
+			};
 
 			Object.keys(properties).forEach(function(propertyId) {
 				var property = properties[propertyId];
 				this.collectExpressions(property, usages);
 			}, this);
 
+			var conditions = this.getCondition().serialize();
+			conditions.items.forEach(function (item) {
+				this.collectParsedExpressions(item[0], usages);
+			}, this);
+
 			return usages;
 		},
-
 		collectExpressions: function(value, usages)
 		{
 			if (BX.Type.isArray(value))
@@ -2783,20 +3810,109 @@
 			{
 				var found, systemExpressionRegExp = new RegExp(systemExpressionPattern, 'ig');
 				while ((found = systemExpressionRegExp.exec(value)) !== null) {
-					switch (found.groups.object)
+					this.collectParsedExpressions(found.groups, usages);
+				}
+			}
+		},
+		collectParsedExpressions: function (parsedUsage, usages)
+		{
+			if (BX.Type.isPlainObject(parsedUsage) && parsedUsage['object'] && parsedUsage['field'])
+			{
+				switch (parsedUsage['object'])
+				{
+					case 'Document':
+						usages.Document.add(parsedUsage['field']);
+						return;
+					case 'Constant':
+						usages.Constant.add(parsedUsage['field']);
+						return;
+					case 'Variable':
+						usages.Variable.add(parsedUsage['field']);
+						return;
+					case 'Template':
+						usages.Parameter.add(parsedUsage['field']);
+						return;
+					case 'GlobalConst':
+						usages.GlobalConstant.add(parsedUsage['field']);
+						return;
+					case 'GlobalVar':
+						usages.GlobalVariable.add(parsedUsage['field']);
+						return;
+				}
+
+				var activityRegExp = new RegExp(/^A[_0-9]+$/, 'ig');
+				if (activityRegExp.exec(parsedUsage['object']))
+				{
+					usages.Activity.add([parsedUsage['object'], parsedUsage['field']]);
+				}
+			}
+		},
+		hasBrokenLink: function ()
+		{
+			var usages = BX.clone(this.collectUsages());
+
+			if (!this.component || !this.template)
+			{
+				return false;
+			}
+
+			var objectsData = {
+				Document: this.component.getDocumentFields(),
+				Constant: this.template.getConstants(),
+				Variable: this.template.getVariables(),
+				GlobalConstant: this.component.getConstants(),
+				GlobalVariable: this.component.getGVariables(),
+				Parameter: this.template.getParameters(),
+				Activity: this.template.getSerializedRobots()
+			};
+
+			for (var object in usages)
+			{
+				if (usages[object].size > 0)
+				{
+					var source = new Set();
+
+					for (var key in objectsData[object])
 					{
-						case 'Document':
-							usages.Document.add(found.groups.field);
-							break;
-						case 'Constant':
-							usages.Constant.add(found.groups.field);
-							break;
-						case 'Template':
-							usages.Parameter.add(found.groups.field);
-							break;
+						if (objectsData[object][key]['Id'])
+						{
+							source.add(objectsData[object][key]['Id']);
+						}
+						else if (objectsData[object][key]['Name'])
+						{
+							source.add(objectsData[object][key]['Name']);
+						}
+					}
+
+					for (var value of usages[object].values())
+					{
+						var searchInSource = value;
+						var id = value;
+
+						if (BX.Type.isArray(searchInSource))
+						{
+							searchInSource = value[0];
+							id = value[1];
+						}
+
+						if (!source.has(searchInSource))
+						{
+							return true;
+						}
+
+						if (object === 'Activity')
+						{
+							var robot = this.template.getRobotById(searchInSource);
+							if (!robot.getReturnProperty(id))
+							{
+								return true;
+							}
+						}
 					}
 				}
 			}
+
+			return false;
 		}
 	};
 
@@ -2812,7 +3928,7 @@
 			if (!BX.type.isPlainObject(data))
 				data = {};
 
-			this.viewMode = viewMode || Component.ViewMode.View;
+			this.viewMode = viewMode || Component.ViewMode.Edit;
 			this.availableTriggers = BX.type.isArray(data.AVAILABLE_TRIGGERS) ? data.AVAILABLE_TRIGGERS : [];
 			this.triggersData = BX.type.isArray(data.TRIGGERS) ? data.TRIGGERS : [];
 			this.columnNodes = document.querySelectorAll('[data-type="column-trigger"]');
@@ -2821,7 +3937,7 @@
 			this.initButtons();
 			this.initTriggers();
 
-			this.modified = false;
+			this.markModified(false);
 
 			//register DD
 			for(var i = 0; i < this.columnNodes.length; i++)
@@ -2841,7 +3957,7 @@
 				data = {};
 
 			var i;
-			this.viewMode = viewMode || Component.ViewMode.View;
+			this.viewMode = viewMode || Component.ViewMode.Edit;
 			for (i = 0; i < this.listNodes.length; ++i)
 			{
 				BX.cleanNode(this.listNodes[i]);
@@ -2851,12 +3967,19 @@
 				BX.cleanNode(this.buttonsNodes[i]);
 			}
 
+			if (this.triggers)
+			{
+				this.triggers.forEach(function(trigger) {
+					trigger.destroy();
+				});
+			}
+
 			this.triggersData = BX.type.isArray(data.TRIGGERS) ? data.TRIGGERS : [];
 
 			this.initTriggers();
 			this.initButtons();
 
-			this.modified = false;
+			this.markModified(false);
 		},
 		initTriggers: function()
 		{
@@ -2879,36 +4002,73 @@
 				}
 			}
 		},
+		enableManageMode: function()
+		{
+			var deleteButtons = document.querySelectorAll('[data-role="btn-delete-trigger"]');
+			deleteButtons.forEach(function (node)
+			{
+				BX.Dom.hide(node);
+			});
+
+			this.triggers.forEach(function (trigger)
+			{
+				BX.Dom.addClass(trigger.node, '--locked-node');
+			});
+		},
+		disableManageMode: function()
+		{
+			var deleteButtons = document.querySelectorAll('[data-role="btn-delete-trigger"]');
+			deleteButtons.forEach(function (node)
+			{
+				BX.Dom.show(node);
+			});
+
+			this.triggers.forEach(function (trigger)
+			{
+				BX.Dom.removeClass(trigger.node, '--locked-node');
+			});
+		},
 		createAddButton: function(containerNode)
 		{
 			var me = this,
-				div = BX.create('a', {
-							text: BX.message('BIZPROC_AUTOMATION_CMP_ADD'),
-							props: {
-								href: '#'
-							},
+				div = BX.create('span', {
 							events: {
 								click: function(e)
 								{
-									e.preventDefault();
-									me.onAddButtonClick(this);
+									if (!me.canEdit())
+									{
+										HelpHint.showNoPermissionsHint(this);
+									}
+									else if (!me.component.templateManager.isManageModeEnabled())
+									{
+										me.onAddButtonClick(this);
+									}
 								}
 							},
 							attrs: {
 								className: 'bizproc-automation-btn-add',
 								'data-status-id': containerNode.getAttribute('data-status-id')
 							}
+							,
+							children: [
+								BX.create('span', {
+									attrs: {
+										className: 'bizproc-automation-btn-add-text',
+									},
+									text: BX.message('BIZPROC_AUTOMATION_CMP_ADD'),
+								})
+							]
 						});
 			containerNode.appendChild(div);
 		},
-		onAddButtonClick: function(button)
+		onAddButtonClick: function(button, context)
 		{
 			var me = this, i, menuItems = [];
 			var onMenuClick = function(e, item)
 			{
 				me.addTrigger(item.triggerData, function(trigger)
 				{
-					me.openTriggerSettingsDialog(trigger);
+					this.openTriggerSettingsDialog(trigger, context);
 				});
 
 				this.popupWindow.close();
@@ -2928,7 +4088,7 @@
 				menuItems.push({
 					text: this.availableTriggers[i].NAME,
 					triggerData: {
-						DOCUMENT_STATUS: button.getAttribute('data-status-id'),
+						DOCUMENT_STATUS: button.getAttribute('data-status-id') || context.statusId,
 						CODE: this.availableTriggers[i].CODE
 					},
 					onclick: onMenuClick
@@ -2949,6 +4109,10 @@
 				}
 			);
 		},
+		onChangeTriggerClick: function(statusId, event)
+		{
+			this.onAddButtonClick(event.target, {changeTrigger: true, statusId: statusId});
+		},
 		createAppTriggerMenuItem: function(status, triggerData)
 		{
 			var me = this, menuItems = [];
@@ -2956,7 +4120,7 @@
 			{
 				me.addTrigger(item.triggerData, function(trigger)
 				{
-					me.openTriggerSettingsDialog(trigger);
+					this.openTriggerSettingsDialog(trigger);
 				});
 
 				this.getRootMenuWindow().close();
@@ -3007,10 +4171,14 @@
 			trigger.init(triggerData, this.viewMode);
 			trigger.draft = true;
 			if (callback)
-				callback(trigger);
+			{
+				callback.call(this, trigger);
+			}
 		},
 		deleteTrigger: function(trigger, callback)
 		{
+			trigger.destroy();
+
 			if (trigger.getId() > 0)
 			{
 				trigger.markDeleted();
@@ -3026,7 +4194,29 @@
 			if (callback)
 				callback(trigger);
 
-			this.modified = true;
+			this.markModified();
+		},
+		enableDragAndDrop: function ()
+		{
+			this.triggers.forEach(function (trigger)
+			{
+				trigger.registerItem(trigger.node);
+			});
+			this.component.node.querySelectorAll('.bizproc-automation-trigger-item-wrapper').forEach(function(node)
+			{
+				BX.Dom.addClass(node, 'bizproc-automation-trigger-item-wrapper-draggable');
+			})
+		},
+		disableDragAndDrop: function ()
+		{
+			this.triggers.forEach(function (trigger)
+			{
+				trigger.unregisterItem(trigger.node);
+			});
+			this.component.node.querySelectorAll('.bizproc-automation-trigger-item-wrapper').forEach(function(node)
+			{
+				BX.Dom.removeClass(node, 'bizproc-automation-trigger-item-wrapper-draggable');
+			})
 		},
 		insertTriggerNode: function(documentStatus, triggerNode)
 		{
@@ -3079,15 +4269,34 @@
 			}
 			return null;
 		},
+		canEdit: function()
+		{
+			return this.component && this.component.canEdit();
+		},
 		needSave: function()
 		{
 			return this.modified;
 		},
-		openTriggerSettingsDialog: function(trigger)
+		markModified: function(modified)
+		{
+			this.modified = modified !== false;
+			if (this.modified && this.component)
+			{
+				this.component.markModified();
+			}
+		},
+		openTriggerSettingsDialog: function(trigger, context)
 		{
 			if (Designer.getTriggerSettingsDialog())
 			{
-				return;
+				if (context && context.changeTrigger)
+				{
+					Designer.getTriggerSettingsDialog().popup.close();
+				}
+				else
+				{
+					return;
+				}
 			}
 
 			var me = this, formName = 'bizproc_automation_trigger_dialog';
@@ -3423,8 +4632,10 @@
 				form: form
 			});
 
+			var titleBar = trigger.draft ? this.createChangeTriggerTitleBar(title, trigger.data['DOCUMENT_STATUS']) : null;
+
 			var popup = new BX.PopupWindow(Component.generateUniqueId(), null, {
-				titleBar: title,
+				titleBar: titleBar || title,
 				content: form,
 				closeIcon: true,
 				offsetLeft: 0,
@@ -3439,6 +4650,11 @@
 						me.destroySettingsDialogControls();
 						popup.destroy();
 						BX.removeClass(me.component.node, 'automation-base-blocked');
+
+						if (trigger.draft)
+						{
+							trigger.destroy();
+						}
 					}
 				},
 				buttons: [
@@ -3511,7 +4727,7 @@
 								delete trigger.draft;
 
 								trigger.reInit();
-								me.modified = true;
+								me.markModified();
 								this.popupWindow.close();
 							}
 						}
@@ -3521,14 +4737,37 @@
 						className : "popup-window-button-link-cancel",
 						events : {
 							click: function(){
-								this.popupWindow.close()
+								this.popupWindow.close();
 							}
 						}
 					})
 				]
 			});
 
+			Designer.getTriggerSettingsDialog().popup = popup;
 			popup.show();
+		},
+		createChangeTriggerTitleBar: function(title, statusId)
+		{
+			return {
+				content: BX.Dom.create('div', {
+					props: {
+						className: 'popup-window-titlebar-text bizproc-automation-popup-titlebar-with-link'
+					},
+					children: [
+						document.createTextNode(title),
+						BX.Dom.create('span', {
+							props: {
+								className: 'bizproc-automation-popup-titlebar-link'
+							},
+							text: BX.message('BIZPROC_AUTOMATION_CMP_CHANGE_TRIGGER'),
+							events: {
+								click: this.onChangeTriggerClick.bind(this, statusId)
+							}
+						})
+					]
+				})
+			};
 		},
 		/**
 		 * @param {Trigger} trigger
@@ -3705,13 +4944,23 @@
 		this.droppableColumn = null;
 		this.stub = null;
 		this.column = null;
+
+		if (this.component)
+		{
+			this.searchHandler = this.onSearch.bind(this);
+			BX.Event.EventEmitter.subscribe(
+				this.component,
+				'BX.Bizproc.Automation.Component:onSearch',
+				this.searchHandler
+			);
+		}
 	};
 
 	Trigger.prototype =
 	{
 		init: function(data, viewMode)
 		{
-			this.data = data || {};
+			this.data = BX.clone(data) || {};
 
 			if (!BX.type.isPlainObject(this.data['APPLY_RULES']))
 			{
@@ -3727,7 +4976,7 @@
 				this.condition = new ConditionGroup();
 			}
 
-			this.viewMode = viewMode || Component.ViewMode.View;
+			this.viewMode = viewMode || Component.ViewMode.Edit;
 			this.node = this.createNode();
 		},
 		reInit: function(data, viewMode)
@@ -3736,6 +4985,21 @@
 			this.node = this.createNode();
 			if (node.parentNode)
 				node.parentNode.replaceChild(this.node, node);
+		},
+		destroy: function()
+		{
+			if (this.searchHandler)
+			{
+				BX.Event.EventEmitter.unsubscribe(
+					this.component,
+					'BX.Bizproc.Automation.Component:onSearch',
+					this.searchHandler
+				);
+			}
+		},
+		canEdit: function()
+		{
+			return this.manager.canEdit();
 		},
 		getId: function()
 		{
@@ -3786,39 +5050,50 @@
 		},
 		createNode: function()
 		{
-			var me = this, status = this.getLogStatus();
-
 			var wrapperClass = 'bizproc-automation-trigger-item-wrapper';
 
-			if (this.viewMode === Component.ViewMode.Edit)
+			if (this.canEdit())
 			{
 				wrapperClass += ' bizproc-automation-trigger-item-wrapper-draggable';
-
-				var settingsBtn = BX.create("div", {
-					attrs: {
-						className: "bizproc-automation-trigger-item-wrapper-edit"
-					},
-					text: BX.message('BIZPROC_AUTOMATION_CMP_EDIT')
-				});
 			}
-			else
+
+			var settingsBtn = BX.create("div", {
+				attrs: {
+					className: "bizproc-automation-trigger-item-wrapper-edit"
+				},
+				text: BX.message('BIZPROC_AUTOMATION_CMP_EDIT')
+			});
+
+			var copyBtn = BX.create('div', {
+				attrs: {
+					className: 'bizproc-automation-trigger-btn-copy'
+				},
+				text: BX.message('BIZPROC_AUTOMATION_CMP_COPY') || 'copy'
+			});
+			BX.bind(copyBtn, 'click', this.onCopyButtonClick.bind(this, copyBtn));
+
+			if (this.getLogStatus() === Component.LogStatus.Completed)
 			{
-				if (status == Component.LogStatus.Completed)
-				{
-					wrapperClass += ' bizproc-automation-trigger-item-wrapper-complete';
-				}
-				else if (this.component.isPreviousStatus(this.getStatusId()))
-				{
-					wrapperClass += ' bizproc-automation-trigger-item-wrapper-complete-light';
-				}
+				wrapperClass += ' bizproc-automation-trigger-item-wrapper-complete';
+			}
+			else if (this.component.isPreviousStatus(this.getStatusId()))
+			{
+				wrapperClass += ' bizproc-automation-trigger-item-wrapper-complete-light';
 			}
 
 			var triggerName = this.getName();
 
+			var containerClass = 'bizproc-automation-trigger-item';
+
+			if (this.getLogStatus() === Component.LogStatus.Completed)
+			{
+				containerClass += ' --complete';
+			}
+
 			var div = BX.create('DIV', {
 				attrs: {
 					'data-role': 'trigger-container',
-					className: 'bizproc-automation-trigger-item',
+					className: containerClass,
 					'data-type': 'item-trigger'
 				},
 				children: [
@@ -3833,59 +5108,102 @@
 							})
 						]
 					}),
+					copyBtn,
 					settingsBtn
 				]
 			});
 
-			if (this.viewMode === Component.ViewMode.Edit)
+			if (this.canEdit())
 			{
 				this.registerItem(div);
-
-				var deleteBtn = BX.create('SPAN', {
-					attrs: {
-						'data-role': 'btn-delete-trigger',
-						className: 'bizproc-automation-trigger-btn-delete'
-					}
-				});
-
-				BX.bind(deleteBtn, 'click', function(e)
-				{
-					e.preventDefault();
-					e.stopPropagation();
-					me.onDeleteButtonClick(this);
-				});
-
-				div.appendChild(deleteBtn);
-				BX.addClass(div.firstChild, 'bizproc-automation-trigger-item-wrapper-border');
 			}
 
-			if (this.viewMode === Component.ViewMode.Edit)
-			{
-				BX.bind(div, 'click', function(e)
-				{
-					me.onSettingsButtonClick(this);
-				});
-			}
+			var deleteBtn = BX.create('SPAN', {
+				attrs: {
+					'data-role': 'btn-delete-trigger',
+					className: 'bizproc-automation-trigger-btn-delete'
+				}
+			});
+
+			BX.bind(deleteBtn, 'click', this.onDeleteButtonClick.bind(this, deleteBtn));
+
+			div.appendChild(deleteBtn);
+
+			BX.bind(div, 'click', this.onSettingsButtonClick.bind(this, div));
 
 			return div;
 		},
 		onSettingsButtonClick: function(button)
 		{
-			this.manager.openTriggerSettingsDialog(this);
+			if (!this.canEdit())
+			{
+				HelpHint.showNoPermissionsHint(button);
+			}
+			else if (!this.component.templateManager.isManageModeEnabled())
+			{
+				this.manager.openTriggerSettingsDialog(this);
+			}
+		},
+		onCopyButtonClick: function(button, event)
+		{
+			event.stopPropagation();
+
+			if (!this.canEdit())
+			{
+				HelpHint.showNoPermissionsHint(button);
+			}
+			else if (!this.component.templateManager.isManageModeEnabled())
+			{
+				var trigger = new Trigger(this.manager);
+				var initData = this.serialize();
+				delete initData['ID'];
+				//TODO: refactoring
+				if (initData['CODE'] === 'WEBHOOK')
+				{
+					initData['APPLY_RULES'] = {};
+				}
+				trigger.init(initData, this.viewMode);
+				this.manager.triggers.push(trigger);
+				this.manager.insertTriggerNode(trigger.getStatusId(), trigger.node);
+				this.manager.markModified();
+			}
+		},
+		onSearch: function(event)
+		{
+			if (!this.node)
+			{
+				return;
+			}
+
+			var query = event.getData().queryString;
+			var match = !query || this.getName().toLowerCase().indexOf(query) >= 0;
+
+			BX[match ? 'removeClass' : 'addClass'](this.node, '--search-mismatch');
 		},
 		registerItem: function(object)
 		{
-			object.onbxdragstart = BX.proxy(this.dragStart, this);
-			object.onbxdrag = BX.proxy(this.dragMove, this);
-			object.onbxdragstop = BX.proxy(this.dragStop, this);
-			object.onbxdraghover = BX.proxy(this.dragOver, this);
-			jsDD.registerObject(object);
-			jsDD.registerDest(object, 1);
+			if (BX.Type.isNil(object["__bxddid"]))
+			{
+				object.onbxdragstart = BX.proxy(this.dragStart, this);
+				object.onbxdrag = BX.proxy(this.dragMove, this);
+				object.onbxdragstop = BX.proxy(this.dragStop, this);
+				object.onbxdraghover = BX.proxy(this.dragOver, this);
+				jsDD.registerObject(object);
+				jsDD.registerDest(object, 1);
+			}
+		},
+		unregisterItem: function(object)
+		{
+			object.onbxdragstart = undefined;
+			object.onbxdrag = undefined;
+			object.onbxdragstop = undefined;
+			object.onbxdraghover = undefined;
+			jsDD.unregisterObject(object);
+			jsDD.unregisterDest(object);
 		},
 		dragStart: function()
 		{
 			this.draggableItem = BX.proxy_context;
-			this.draggableItem.className = "bizproc-automation-trigger-item";
 
 			if (!this.draggableItem)
 			{
@@ -3898,7 +5216,7 @@
 				var itemWidth = this.draggableItem.offsetWidth;
 				this.stub = this.draggableItem.cloneNode(true);
 				this.stub.style.position = "absolute";
-				this.stub.className = "bizproc-automation-trigger-item bizproc-automation-trigger-item-drag";
+				this.stub.classList.add("bizproc-automation-trigger-item-drag");
 				this.stub.style.width = itemWidth + "px";
 				document.body.appendChild(this.stub);
 			}
@@ -3914,16 +5232,15 @@
 		{
 			if (this.droppableItem)
 			{
-				this.droppableItem.className = "bizproc-automation-trigger-item";
+				this.droppableItem.classList.remove("bizproc-automation-trigger-item-pre");
 			}
 
 			if (this.droppableColumn)
 			{
-				this.droppableColumn.className = "bizproc-automation-trigger-list";
+				this.droppableColumn.classList.remove("bizproc-automation-trigger-list-pre");
 			}
 
 			var type = destination.getAttribute("data-type");
-
 
 			if (type === "item-trigger")
 			{
@@ -3933,18 +5250,18 @@
 
 			if (type === "column-trigger")
 			{
-				this.droppableColumn = destination.children[0];
+				this.droppableColumn = destination.querySelector('[data-role="trigger-list"]');
 				this.droppableItem = null;
 			}
 
 			if (this.droppableItem)
 			{
-				this.droppableItem.className = "bizproc-automation-trigger-item bizproc-automation-trigger-item-pre";
+				this.droppableItem.classList.add("bizproc-automation-trigger-item-pre");
 			}
 
 			if (this.droppableColumn)
 			{
-				this.droppableColumn.className = "bizproc-automation-trigger-list bizproc-automation-trigger-list-pre";
+				this.droppableColumn.classList.add("bizproc-automation-trigger-list-pre");
 			}
 		},
 
@@ -3971,7 +5288,7 @@
 			{
 				if (this.droppableItem)
 				{
-					this.droppableItem.className = "bizproc-automation-trigger-item";
+					this.droppableItem.classList.remove("bizproc-automation-trigger-item-pre");
 					var thisColumn = this.droppableItem.parentNode;
 					if (!isCopy)
 					{
@@ -3987,7 +5304,7 @@
 				}
 				else if (this.droppableColumn)
 				{
-					this.droppableColumn.className = "bizproc-automation-trigger-list";
+					this.droppableColumn.classList.remove("bizproc-automation-trigger-list-pre");
 					if (!isCopy)
 					{
 						this.droppableColumn.appendChild(this.draggableItem);
@@ -4003,7 +5320,7 @@
 				if (trigger)
 				{
 					this.manager.triggers.push(trigger);
-					this.manager.modified = true;
+					this.manager.markModified();
 				}
 			}
 
@@ -4012,11 +5329,19 @@
 			this.draggableItem = null;
 			this.droppableItem = null;
 		},
-
-		onDeleteButtonClick: function(button)
+		onDeleteButtonClick: function(button, event)
 		{
-			BX.remove(button.parentNode);
-			this.manager.deleteTrigger(this);
+			event.stopPropagation();
+
+			if (!this.canEdit())
+			{
+				HelpHint.showNoPermissionsHint(button);
+			}
+			else if (!this.component.templateManager.isManageModeEnabled())
+			{
+				BX.remove(button.parentNode);
+				this.manager.deleteTrigger(this);
+			}
 		},
 		updateData: function(data)
 		{
@@ -4059,8 +5384,7 @@
 		moveTo: function(statusId)
 		{
 			this.data['DOCUMENT_STATUS'] = statusId;
-			//TODO: ref.
-			this.manager.modified = true;
+			this.manager.markModified();
 		},
 		getReturnProperties: function()
 		{
@@ -4806,9 +6130,9 @@
 				}
 
 				//CONSTANTS GROUP
+				var constantList = [];
 				if (tpl && tpl.data.CONSTANTS && !this.showTemplatePropertiesMenuOnSelecting)
 				{
-					var constantList = [];
 					tpl.getConstants().forEach(function(constant)
 					{
 						constantList.push({
@@ -4816,50 +6140,41 @@
 							customData: {property: constant},
 							entityId: 'bp',
 							tabs: 'recents',
-							id: constant.SystemExpression
+							id: constant.SystemExpression,
+							supertitle: BX.message('BIZPROC_AUTOMATION_CMP_TEMPLATE_CONSTANTS_LIST')
 						});
 					});
-
-					if (constantList.length)
-					{
-						menuGroups['__CONSTANTS'] = {
-							title: BX.message('BIZPROC_AUTOMATION_CMP_CONSTANTS_LIST'),
-							entityId: 'bp',
-							tabs: 'recents',
-							id: '__CONSTANTS',
-							children: constantList
-						};
-					}
 				}
 
 				//GLOBAL CONST GROUP
 				if (this.component && this.component.data['GLOBAL_CONSTANTS'])
 				{
-					var globalConstantList = [];
 					this.component.getConstants().forEach(function(constant)
 					{
-						globalConstantList.push({
+						constantList.push({
 							title: constant['Name'],
 							customData: {property: constant},
 							entityId: 'bp',
 							tabs: 'recents',
-							id: constant.SystemExpression
+							id: constant.SystemExpression,
+							supertitle: constant.supertitle
 						});
 					}, this);
+				}
 
-					if (globalConstantList.length)
-					{
-						menuGroups['__GLOB_CONSTANTS'] = {
-							title: BX.message('BIZPROC_AUTOMATION_CMP_GLOB_CONSTANTS_LIST'),
-							entityId: 'bp',
-							tabs: 'recents',
-							id: '__GLOB_CONSTANTS',
-							children: globalConstantList
-						};
-					}
+				if (constantList.length)
+				{
+					menuGroups['__CONSTANTS'] = {
+						title: BX.message('BIZPROC_AUTOMATION_CMP_CONSTANTS_LIST'),
+						entityId: 'bp',
+						tabs: 'recents',
+						id: '__CONSTANTS',
+						children: constantList
+					};
 				}
 
 				//GLOBAL VAR GROUP
+				// todo: add Variables?
 				if (this.component && this.component.data['GLOBAL_VARIABLES'])
 				{
 					var globalVariableList = [];
@@ -4870,14 +6185,15 @@
 							customData: {property: variable},
 							entityId: 'bp',
 							tabs: 'recents',
-							id: variable.SystemExpression
+							id: variable.SystemExpression,
+							supertitle: variable.supertitle
 						});
 					}, this);
 
 					if (globalVariableList.length > 0)
 					{
 						menuGroups['__GLOB_VARIABLES'] = {
-							title: BX.message('BIZPROC_AUTOMATION_CMP_GLOB_VARIABLES_LIST'),
+							title: BX.message('BIZPROC_AUTOMATION_CMP_GLOB_VARIABLES_LIST_1'),
 							entityId: 'bp',
 							tabs: 'recents',
 							id: '__GLOB_VARIABLES',
@@ -5003,7 +6319,9 @@
 		injectDialogMenuSupertitles: function(title, children)
 		{
 			children.forEach(function(child) {
-				child.supertitle = title;
+				if (!child.supertitle) {
+					child.supertitle = title;
+				}
 				if (BX.type.isArray(child.children))
 				{
 					child.searchable = false;
@@ -7566,6 +8884,7 @@
 
 	var HelpHint = {
 		popupHint: null,
+		timeout: null,
 
 		bindToNode: function(node)
 		{
@@ -7601,6 +8920,35 @@
 
 			return true;
 		},
+		showNoPermissionsHint: function(node)
+		{
+			this.showAngleHint(node, BX.message('BIZPROC_AUTOMATION_RIGHTS_ERROR'));
+		},
+		showAngleHint: function(node, text)
+		{
+			if (this.timeout)
+			{
+				clearTimeout(this.timeout);
+			}
+
+			this.popupHint = BX.UI.Hint.createInstance({
+				popupParameters: {
+					width: 334,
+					height: 104,
+					closeByEsc: true,
+					autoHide: true,
+					angle: {offset: BX.Dom.getPosition(node).width / 2},
+					bindOptions: {position: 'top'},
+				}
+			});
+
+			this.popupHint.close = function ()
+			{
+				this.hide();
+			};
+			this.popupHint.show(node, text);
+			this.timeout = setTimeout(this.hideHint.bind(this), 5000);
+		},
 		hideHint: function()
 		{
 			if (this.popupHint)
@@ -7629,10 +8977,55 @@
 			tpl.openRobotSettingsDialog(robot, null, onSaveCallback);
 		}
 	};
+
+	var showGlobals = {
+		showVariables: function (documentType)
+		{
+			var me = this;
+			BX.Bizproc.Globals.Manager.Instance.showGlobals(
+				BX.Bizproc.Globals.Manager.Instance.mode.variable,
+				documentType
+			).then(function (slider) {
+				me.onAfterSliderClose(slider, 'GLOBAL_VARIABLES');
+			});
+		},
+		showConstants: function (documentType)
+		{
+			var me = this;
+			BX.Bizproc.Globals.Manager.Instance.showGlobals(
+				BX.Bizproc.Globals.Manager.Instance.mode.constant,
+				documentType
+			).then(function (slider) {
+				me.onAfterSliderClose(slider, 'GLOBAL_CONSTANTS');
+			});
+		},
+		onAfterSliderClose: function (slider, componentDataKey)
+		{
+			var sliderInfo = slider.getData();
+			if (sliderInfo.get('upsert'))
+			{
+				var newGFields = sliderInfo.get('upsert');
+				for (var fieldId in newGFields)
+				{
+					this.component.data[componentDataKey][fieldId] = newGFields[fieldId];
+				}
+			}
+			if (sliderInfo.get('delete'))
+			{
+				var deletedGFields = sliderInfo.get('delete');
+				for (var i in deletedGFields)
+				{
+					delete this.component.data[componentDataKey][deletedGFields[i]];
+				}
+			}
+		}
+	}
+
 	BX.Bizproc.Automation.Component = Component;
 	BX.Bizproc.Automation.Designer = Designer;
 	BX.Bizproc.Automation.API = API;
 	BX.Bizproc.Automation.ConditionGroup = ConditionGroup;
 	BX.Bizproc.Automation.ConditionGroupSelector = ConditionGroupSelector;
+	BX.Bizproc.Automation.showGlobals = showGlobals;
 
 })(window.BX || window.top.BX);

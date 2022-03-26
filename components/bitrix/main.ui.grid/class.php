@@ -355,7 +355,10 @@ class CMainUIGrid extends CBitrixComponent
 		);
 
 		$this->arParams["ALLOW_COLUMNS_RESIZE"] = Grid\Params::prepareBoolean(
-			array($this->arParams["ALLOW_COLUMN_RESIZE"]),
+			array(
+				$this->arParams["ALLOW_COLUMNS_RESIZE"],
+				$this->arParams["ALLOW_COLUMN_RESIZE"]
+			),
 			true
 		);
 

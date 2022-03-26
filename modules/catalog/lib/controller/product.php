@@ -1,16 +1,11 @@
 <?php
 
-
 namespace Bitrix\Catalog\Controller;
-
 
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
-use Bitrix\Main\Engine\Action;
-use Bitrix\Main\Engine\ActionFilter\ClosureWrapper;
 use Bitrix\Main\Engine\ActionFilter\Scope;
-use Bitrix\Main\SystemException;
 use Bitrix\Main\UI\PageNavigation;
 
 final class Product extends Controller
@@ -18,23 +13,12 @@ final class Product extends Controller
 	public function configureActions()
 	{
 		return [
-			'getFields' => [
-				'+prefilters' => [
-					function()
-					{
-						/** @var ClosureWrapper $this */
-						/** @var Action $action */
-						$action = $this->getAction();
-						if($action->getController()->getScope() !== \Bitrix\Main\Engine\Controller::SCOPE_REST)
-						{
-							throw new SystemException('the method is only available in the rest service');
-						}
-					}
-				],
-			],
 			'addProperty' => [
 				'+prefilters' => [new Scope(Scope::AJAX)]
-			]
+			],
+			'getSkuTreeProperties' => [
+				'+prefilters' => [new Scope(Scope::AJAX)]
+			],
 		];
 	}
 	//region Actions
@@ -58,23 +42,51 @@ final class Product extends Controller
 		}
 	}
 
+	static protected function perfGetList(array $select, array $filter, array $order, $pageNavigation): array
+	{
+		$rawRows = [];
+		$elementIds = [];
+
+		$rsData = \CIBlockElement::GetList(
+			$order,
+			$filter,
+			false,
+			$pageNavigation,
+			array('ID', 'IBLOCK_ID')
+		);
+		while($row = $rsData->Fetch())
+		{
+			$rawRows[$row['ID']] = $row;
+			$elementIds[] = $row['ID'];
+		}
+
+		foreach (array_chunk($elementIds, \IRestService::LIST_LIMIT) as $pageIds)
+		{
+			$elementFilter = [
+				'IBLOCK_ID' => $filter['IBLOCK_ID'],
+				'ID' => $pageIds,
+			];
+			$iterator = \CIBlockElement::GetList([], $elementFilter, false, false, $select);
+			while ($row = $iterator->Fetch())
+			{
+				$rawRows[$row['ID']] += $row;
+			}
+		}
+
+		return $rawRows;
+	}
+
 	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
 	{
 		$r = $this->checkPermissionIBlockElementList($filter['IBLOCK_ID']);
 		if($r->isSuccess())
 		{
 			$result = [];
-			$list = [];
 
 			$select = empty($select)? array_merge(['*'], $this->getAllowedFieldsProduct()):$select;
 			$order = empty($order)? ['ID'=>'ASC']:$order;
 
-			$r = \CIBlockElement::GetList($order, $filter, false, self::getNavData($pageNavigation->getOffset()), $select);
-			while ($l = $r->Fetch())
-			{
-				$list[$l['ID']] = $l;
-			}
-
+			$list = self::perfGetList($select, $filter, $order, self::getNavData($pageNavigation->getOffset()));
 			$list = $this->preparePropertyValues($list, $filter['IBLOCK_ID']);
 
 			foreach ($list as $row)
@@ -84,12 +96,7 @@ final class Product extends Controller
 
 			return new Page('PRODUCTS', $result, function() use ($filter)
 			{
-				$list = [];
-				$r = \CIBlockElement::GetList([], $filter, false);
-				while ($l = $r->Fetch())
-					$list[] = $l;
-
-				return count($list);
+				return (int)\CIBlockElement::GetList([], $filter, []);
 			});
 		}
 		else
@@ -213,7 +220,7 @@ final class Product extends Controller
 					{
 						$r->addError(new Error($element->LAST_ERROR));
 					}
-					else
+					elseif (!empty($productFields))
 					{
 						$r = \Bitrix\Catalog\Model\Product::update($id, $productFields);
 					}

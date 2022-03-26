@@ -106,4 +106,5 @@ $MESS["IBLOCK_TCATALOG"] = "Commercial catalog";
 $MESS["IBLOCK_UPPER_LEVEL"] = "Upper level";
 $MESS["IBLOCK_WRONG_SESSION"] = "Your session has expired. Please save your document again.";
 $MESS["IBLOCK_WRONG_WF_STATUS"] = "Invalid status";
+$MESS["IBLOCK_ELEMENT_ERR_BUILDER_ADSENT"] = "Link builder was not found.";
 ?>

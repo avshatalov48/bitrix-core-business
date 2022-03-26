@@ -1,69 +1,67 @@
 <?php
 
-global $DBType;
-
 CModule::AddAutoloadClasses(
 	"sale",
 	[
 		"sale" => "install/index.php",
 		"CAllSaleDelivery" => "general/delivery.php",
-		"CSaleDelivery" => $DBType."/delivery.php",
-		"CSaleDeliveryHandler" => $DBType."/delivery_handler.php",
+		"CSaleDelivery" => "mysql/delivery.php",
+		"CSaleDeliveryHandler" => "mysql/delivery_handler.php",
 		"CSaleDeliveryHelper" => "general/delivery_helper.php",
 		"CSaleDelivery2PaySystem" => "general/delivery_2_pay_system.php",
-		"CSaleLocation" => $DBType."/location.php",
-		"CSaleLocationGroup" => $DBType."/location_group.php",
+		"CSaleLocation" => "mysql/location.php",
+		"CSaleLocationGroup" => "mysql/location_group.php",
 
-		"CSaleBasket" => $DBType."/basket.php",
+		"CSaleBasket" => "mysql/basket.php",
 		"CSaleBasketHelper" => "general/basket_helper.php",
-		"CSaleUser" => $DBType."/basket.php",
+		"CSaleUser" => "mysql/basket.php",
 
-		"CSaleOrder" => $DBType."/order.php",
-		"CSaleOrderPropsGroup" => $DBType."/order_props_group.php",
-		"CSaleOrderPropsVariant" => $DBType."/order_props_variant.php",
-		"CSaleOrderUserProps" => $DBType."/order_user_props.php",
-		"CSaleOrderUserPropsValue" => $DBType."/order_user_props_value.php",
-		"CSaleOrderTax" => $DBType."/order_tax.php",
+		"CSaleOrder" => "mysql/order.php",
+		"CSaleOrderPropsGroup" => "mysql/order_props_group.php",
+		"CSaleOrderPropsVariant" => "mysql/order_props_variant.php",
+		"CSaleOrderUserProps" => "mysql/order_user_props.php",
+		"CSaleOrderUserPropsValue" => "mysql/order_user_props_value.php",
+		"CSaleOrderTax" => "mysql/order_tax.php",
 		"CSaleOrderHelper" => "general/order_helper.php",
 
-		"CSalePaySystem" => $DBType."/pay_system.php",
-		"CSalePaySystemAction" => $DBType."/pay_system_action.php",
+		"CSalePaySystem" => "mysql/pay_system.php",
+		"CSalePaySystemAction" => "mysql/pay_system_action.php",
 		"CSalePaySystemsHelper" => "general/pay_system_helper.php",
 		"CSalePaySystemTarif" => "general/pay_system_tarif.php",
 
-		"CSaleTax" => $DBType."/tax.php",
-		"CSaleTaxRate" => $DBType."/tax_rate.php",
+		"CSaleTax" => "mysql/tax.php",
+		"CSaleTaxRate" => "mysql/tax_rate.php",
 
-		"CSalePersonType" => $DBType."/person_type.php",
-		"CSaleDiscount" => $DBType."/discount.php",
+		"CSalePersonType" => "mysql/person_type.php",
+		"CSaleDiscount" => "mysql/discount.php",
 		"CSaleBasketDiscountConvert" => "general/step_operations.php",
 		"CSaleDiscountReindex" => "general/step_operations.php",
 		"CSaleDiscountConvertExt" => "general/step_operations.php",
-		"CSaleUserAccount" => $DBType."/user.php",
-		"CSaleUserTransact" => $DBType."/user_transact.php",
-		"CSaleUserCards" => $DBType."/user_cards.php",
-		"CSaleRecurring" => $DBType."/recurring.php",
+		"CSaleUserAccount" => "mysql/user.php",
+		"CSaleUserTransact" => "mysql/user_transact.php",
+		"CSaleUserCards" => "mysql/user_cards.php",
+		"CSaleRecurring" => "mysql/recurring.php",
 
 
-		"CSaleLang" => $DBType."/settings.php",
-		"CSaleGroupAccessToSite" => $DBType."/settings.php",
-		"CSaleGroupAccessToFlag" => $DBType."/settings.php",
+		"CSaleLang" => "mysql/settings.php",
+		"CSaleGroupAccessToSite" => "mysql/settings.php",
+		"CSaleGroupAccessToFlag" => "mysql/settings.php",
 
-		"CSaleAuxiliary" => $DBType."/auxiliary.php",
+		"CSaleAuxiliary" => "mysql/auxiliary.php",
 
-		"CSaleAffiliate" => $DBType."/affiliate.php",
-		"CSaleAffiliatePlan" => $DBType."/affiliate_plan.php",
-		"CSaleAffiliatePlanSection" => $DBType."/affiliate_plan_section.php",
-		"CSaleAffiliateTier" => $DBType."/affiliate_tier.php",
-		"CSaleAffiliateTransact" => $DBType."/affiliate_transact.php",
+		"CSaleAffiliate" => "mysql/affiliate.php",
+		"CSaleAffiliatePlan" => "mysql/affiliate_plan.php",
+		"CSaleAffiliatePlanSection" => "mysql/affiliate_plan_section.php",
+		"CSaleAffiliateTier" => "mysql/affiliate_tier.php",
+		"CSaleAffiliateTransact" => "mysql/affiliate_transact.php",
 		"CSaleExport" => "general/export.php",
 		"ExportOneCCRM" => "general/export.php",
 		"CSaleOrderLoader" => "general/order_loader.php",
 
 		"CSaleMeasure" => "general/measurement.php",
-		"CSaleProduct" => $DBType."/product.php",
+		"CSaleProduct" => "mysql/product.php",
 
-		"CSaleViewedProduct" => $DBType."/product.php",
+		"CSaleViewedProduct" => "mysql/product.php",
 
 		"CSaleHelper" => "general/helper.php",
 		"CSaleMobileOrderUtils" => "general/mobile_order.php",
@@ -77,9 +75,9 @@ CModule::AddAutoloadClasses(
 		"CSaleReportSaleFuserHelper" => "general/sale_report_helper.php",
 
 		"IBXSaleProductProvider" => "general/product_provider.php",
-		"CSaleStoreBarcode" => $DBType."/store_barcode.php",
+		"CSaleStoreBarcode" => "mysql/store_barcode.php",
 
-		"CSaleOrderChange" => $DBType."/order_change.php",
+		"CSaleOrderChange" => "mysql/order_change.php",
 		"CSaleOrderChangeFormat" => "general/order_change.php",
 
 		"\\Bitrix\\Sale\\Internals\\FuserTable" => "lib/internals/fuser.php",
@@ -102,7 +100,7 @@ CModule::AddAutoloadClasses(
 		'\Bitrix\Sale\Internals\StatusGroupTaskTable' => 'lib/internals/status_grouptask.php',
 		'CSaleOrderProps'                                => 'general/order_props.php',
 		'CSaleOrderPropsAdapter'                         => 'general/order_props.php',
-		'CSaleOrderPropsValue'                           => $DBType.'/order_props_values.php',
+		'CSaleOrderPropsValue'                           => 'mysql/order_props_values.php',
 		'\Bitrix\Sale\PropertyValueCollection'           => 'lib/propertyvaluecollection.php',
 		'\Bitrix\Sale\Internals\OrderPropsTable'         => 'lib/internals/orderprops.php',
 		'\Bitrix\Sale\Internals\OrderPropsGroupTable'    => 'lib/internals/orderprops_group.php',
@@ -303,7 +301,7 @@ CModule::AddAutoloadClasses(
 
 		// db util
 		"Bitrix\\Sale\\Location\\DB\\CommonHelper" => "lib/location/db/commonhelper.php",
-		"Bitrix\\Sale\\Location\\DB\\Helper" => "lib/location/db/".ToLower($DBType)."/helper.php",
+		"Bitrix\\Sale\\Location\\DB\\Helper" => "lib/location/db/mysql/helper.php",
 		"Bitrix\\Sale\\Location\\DB\\BlockInserter" => "lib/location/db/blockinserter.php",
 
 		// admin logic

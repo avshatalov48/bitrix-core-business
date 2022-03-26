@@ -11,26 +11,21 @@ use Bitrix\Main\Result;
 use Bitrix\Main\Text\StringHelper;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
+use Bitrix\MessageService\DTO;
 use Bitrix\MessageService\MessageStatus;
 use Bitrix\MessageService\Sender;
 
 class SmsEdnaru extends Sender\BaseConfigurable
 {
+	use Sender\Traits\RussianProvider;
+
+	public const ID = 'smsednaru';
+
 	protected const JSON_API_URL = 'https://sms.edna.ru/connector_sme/api/';
-
-	public static function isSupported()
-	{
-		if (Loader::includeModule('bitrix24'))
-		{
-			return in_array(\CBitrix24::getPortalZone(), ['ru', 'kz', 'by']);
-		}
-
-		return true;
-	}
 
 	public function getId()
 	{
-		return 'smsednaru';
+		return static::ID;
 	}
 
 	public function getName()
@@ -133,6 +128,8 @@ class SmsEdnaru extends Sender\BaseConfigurable
 		];
 
 		$apiResult = $this->callExternalMethod('smsOutMessage', $params);
+		$result->setServiceRequest($apiResult->getHttpRequest());
+		$result->setServiceResponse($apiResult->getHttpResponse());
 
 		if (!$apiResult->isSuccess())
 		{
@@ -224,7 +221,7 @@ class SmsEdnaru extends Sender\BaseConfigurable
 		}
 	}
 
-	protected function callExternalMethod(string $method, ?array $params = null): Result
+	protected function callExternalMethod(string $method, ?array $params = null): Sender\Result\HttpRequestResult
 	{
 		$url = static::JSON_API_URL . $method;
 		$queryMethod = HttpClient::HTTP_GET;
@@ -245,7 +242,13 @@ class SmsEdnaru extends Sender\BaseConfigurable
 			$params = Json::encode($params);
 		}
 
-		$result = new Result();
+		$result = new Sender\Result\HttpRequestResult();
+		$result->setHttpRequest(new DTO\Request([
+			'method' => $queryMethod,
+			'uri' => $url,
+			'headers' => method_exists($httpClient, 'getRequestHeaders') ? $httpClient->getRequestHeaders()->toArray() : [],
+			'body' => $params
+		]));
 
 		if ($httpClient->query($queryMethod, $url, $params))
 		{
@@ -269,6 +272,12 @@ class SmsEdnaru extends Sender\BaseConfigurable
 				'error' => current($error),
 			];
 		}
+		$result->setHttpResponse(new DTO\Response([
+			'statusCode' => $httpClient->getStatus(),
+			'headers' => $httpClient->getHeaders()->toArray(),
+			'body' => $httpClient->getResult(),
+			'error' => Sender\Util::getHttpClientErrorString($httpClient)
+		]));
 
 		if (array_key_exists('code', $answer) && $answer['code'] !== 'ok')
 		{

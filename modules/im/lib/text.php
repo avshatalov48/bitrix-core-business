@@ -165,6 +165,7 @@ class Text
 
 	public static function removeBbCodes($text, $withFile = false, $withAttach = false)
 	{
+		$text = preg_replace("/\[s\](.*?)\[\/s\]/i", "", $text);
 		$text = preg_replace("/\[[buis]\](.*?)\[\/[buis]\]/i", "$1", $text);
 		$text = preg_replace("/\[url\](.*?)\[\/url\]/i".BX_UTF_PCRE_MODIFIER, "$1", $text);
 		$text = preg_replace("/\[url\\s*=\\s*((?:[^\\[\\]]++|\\[ (?: (?>[^\\[\\]]+) | (?:\\1) )* \\])+)\\s*\\](.*?)\\[\\/url\\]/ixs".BX_UTF_PCRE_MODIFIER, "$2", $text);

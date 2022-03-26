@@ -2,17 +2,22 @@
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
 
-\Bitrix\Main\UI\Extension::load(["mail.messagegrid",
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+\Bitrix\Main\UI\Extension::load([
+	"mail.client",
+	"mail.messagegrid",
 	"mail.avatar",
 	"mail.directorymenu",
-	"mail.directorymenu",
 	"ui.progressbar",
-	'ui.info-helper'
+	'ui.info-helper',
+	'mail.secretary',
 ]);
-
-
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 Main\UI\Extension::load(['ui.buttons', 'ui.buttons.icons', 'ui.alerts', 'ui.dialogs.messagebox', 'ui.hint']);
 Main\UI\Extension::load("ui.icons.service");
@@ -23,7 +28,7 @@ Main\Page\Asset::getInstance()->addJS('/bitrix/components/bitrix/mail.client.mes
 \Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
 
 $bodyClass = $APPLICATION->getPageProperty('BodyClass', false);
-$APPLICATION->setPageProperty('BodyClass', trim(sprintf('%s %s', $bodyClass, 'pagetitle-toolbar-field-view pagetitle-mail-view')));
+$APPLICATION->setPageProperty('BodyClass', trim(sprintf('%s %s', $bodyClass, 'pagetitle-toolbar-field-view pagetitle-mail-view no-background')));
 $filterOptions = [
 	'FILTER_ID' => $arResult['FILTER_ID'],
 	'GRID_ID' => $arResult['GRID_ID'],
@@ -75,6 +80,7 @@ foreach ($arResult['MAILBOXES'] as $mailboxId => $item)
 
 $addMailboxMenuItem = array(
 	'text' => Loc::getMessage('MAIL_CLIENT_MAILBOX_ADD'),
+	'html' => '<span class="main-buttons-item-text">' . Loc::getMessage('MAIL_CLIENT_MAILBOX_ADD') . '</span>',
 	'className' => 'dummy',
 	'href' => \CComponentEngine::makePathFromTemplate(
 		$arParams['PATH_TO_MAIL_CONFIG'],
@@ -121,6 +127,11 @@ $settingsMenu = [
 		'href' => htmlspecialcharsbx($configPath),
 		'disabled' => $USER->getId() != $arResult['MAILBOX']['USER_ID'] && !$USER->isAdmin() && !$USER->canDoOperation('bitrix24_config'),
 	],
+	/*[
+		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_MANAGEMENT'),
+		'className' => '',
+		'onclick' => 'BX.Mail.Home.Grid.openGridSettingsWindow()',
+	],*/
 	[
 		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_SIGNATURE_LINK'),
 		'href' => htmlspecialcharsbx($arParams['PATH_TO_MAIL_SIGNATURES']),
@@ -139,24 +150,8 @@ $settingsMenu = [
 $this->setViewTarget('mail-msg-counter-panel');
 
 ?>
-<div class="mail-msg-counter">
-	<div class="mail-msg-counter-title main-ui-hide" data-role="mail-msg-counter-title">
-		<span class="mail-msg-counter-name"><?=Loc::getMessage('MAIL_MESSAGE_LIST_COUNTERS_TITLE') ?>:</span>
-		<span class="mail-msg-counter-container"
-			data-role="unreadCounter"
-			onclick="BX.Mail.Client.Message.List['<?=CUtil::JSEscape($component->getComponentId())?>'].onUnreadCounterClick()">
-			<span class="mail-msg-counter-inner">
-				<span class="mail-msg-counter-number" data-role="unread-counter-number"></span>
-				<span class="mail-msg-counter-text"><?=Loc::getMessage('MAIL_MESSAGE_LIST_COUNTERS_UNSEEN') ?></span>
-			</span>
-		</span>
-	</div>
-	<div class="mail-read-all-button-wrapper <?=($isVisibleCounters ? '' : 'main-ui-hide') ?>" data-role="mail-read-all-button">
-		<a href="javascript:;" onclick="BX.Mail.Client.Message.List['<?=CUtil::JSEscape($component->getComponentId())?>'].onReadClick('all')" class="tasks-counter-counter-button" data-role="mail-read-all-button-a">
-			<span class="tasks-counter-counter-button-icon" data-hint="{$readAllTitle}" data-hint-no-icon></span>
-			<span class="tasks-counter-counter-button-text"><?=Loc::getMessage('MAIL_READ_ALL_BUTTON') ?></span>
-		</a href="javascript:;">
-	</div>
+<div class="mail-msg-counter-wrapper">
+	<div class = 'mail-counter-toolbar' data-role="mail-counter-toolbar"></div>
 	<div data-role = "error-box" class="mail-home-error-box mail-hidden-element">
 		<div data-role = "error-box-title" class="error-box-title"></div>
 		<div data-role = "error-box-text" class="error-box-text"></div>
@@ -175,30 +170,57 @@ $this->endViewTarget();
 
 	$this->setViewTarget('inside_pagetitle')?>
 		<div></div>
+	<?php
+		$siteLogo = \Bitrix\Intranet\Util::getClientLogo();
+		$siteTitle = trim(COption::GetOptionString("bitrix24", "site_title", ""));
+
+		$logo24 = \Bitrix\Intranet\Util::getLogo24();
+
+		if ($siteTitle == '')
+		{
+		$siteTitle =
+			ModuleManager::isModuleInstalled("bitrix24")
+				? Loc::getMessage('BITRIX')
+				: COption::GetOptionString("main", "site_name", "");
+		}
+	?>
 	<?$this->endViewTarget();
 
 	$this->setViewTarget('left-panel');?>
 		<div class="mail-left-menu-wrapper">
 			<div class="mail-left-menu-head">
 				<h2 class="mail-left-menu-title">
-					<?=Loc::getMessage('MAIL_CLIENT_HOME_TITLE')?>
+					<span class="logo-text-container">
+						<span class="logo-color"><?=htmlspecialcharsbx($siteTitle)?></span><?
+						if ($logo24):
+							?><span class="logo-color"><?=htmlspecialcharsbx($logo24)?></span><?
+						endif
+						?>
+						</span>
+					<span class="logo-mail"><span class="logo-point">.</span><?=Loc::getMessage('MAIL_CLIENT_HOME_TITLE')?></span>
 				</h2>
 			</div>
-			<a class="ui-btn ui-btn-themes ui-btn-light-border mail-btn-dropdown ui-btn-round"
-			   style="min-width: auto; "
+			<div class="mailbox-sync-panel">
+				<a class="mailbox-panel ui-btn ui-btn-themes ui-btn-light-border ui-btn-themes mail-btn-dropdown ui-btn-round"
 			   data-role="mailbox-current-title"
-			   data-mailbox-id="<?=intval($arResult['MAILBOX']['ID']) ?>">
-				<span class="ui-icon ui-icon-common-user mail-btn-dropdown-icon mail-ui-avatar" user-name="<?=htmlspecialcharsbx($arResult['MAILBOX']['NAME']) ?>" email="<?=htmlspecialcharsbx($arResult['MAILBOX']['NAME']) ?>"></span>
-				<span class="mail-btn-dropdown-title">
-					<?=htmlspecialcharsbx($arResult['MAILBOX']['NAME']) ?>
-				</span>
-				<span class="mail-btn-dropdown-icon mail-btn-dropdown-icon--arrow"><span class="unread-message-marker-for-all-mailboxes <?=($unseenCountInOtherMailboxes > 0 ? '' : 'mail-hidden-element') ?>" data-role="unreadMessageMailboxesMarker"></span></span>
-			</a>
+			   data-mailbox-id="<?=intval($arResult['MAILBOX']['ID']) ?>" title="<?=htmlspecialcharsbx($arResult['MAILBOX']['NAME']) ?>">
+<!--					<span class="ui-icon ui-icon-common-user mail-btn-dropdown-icon mail-ui-avatar" user-name="--><?//=htmlspecialcharsbx($arResult['MAILBOX']['NAME']) ?><!--" email="--><?//=htmlspecialcharsbx($arResult['MAILBOX']['NAME']) ?><!--"></span>-->
+					<div class="mail-btn-dropdown-title">
+						<span class="mail-btn-dropdown-title-mail-name" title="<?=htmlspecialcharsbx($arResult['MAILBOX_NAME'].$arResult['MAILBOX_DOMAIN'])?>">
+							<?=htmlspecialcharsbx($arResult['MAILBOX_NAME'])?><?=htmlspecialcharsbx($arResult['MAILBOX_DOMAIN'])?>
+						</span>
+					</div>
+					<span class="ui-btn ui-btn-sm ui-btn-light ui-btn-dropdown"></span>
+					<span class="unread-message-marker-for-all-mailboxes <?=($unseenCountInOtherMailboxes > 0 ? '' : 'mail-hidden-element') ?>" data-role="unreadMessageMailboxesMarker"></span>
+				</a>
+				<div class='mailbox-sync-btn' data-role="mail-msg-sync-button-wrapper">
+					</div>
+				</div>
 			</div>
 			<div class="ui-mail-left-menu-underscore"></div>
 			<? if (!empty($arResult['MAILBOX']['LINK'])): ?>
-				<div style="float: left;">
-					<a class="ui-btn ui-btn-themes ui-btn-xs ui-btn-light-border ui-btn-round ui-btn-no-caps"
+				<div>
+					<a class="ui-btn ui-btn-themes ui-btn-xs ui-btn-light-border ui-btn-round ui-btn-no-caps mail-go-to-mail"
 					   href="<?=htmlspecialcharsbx($arResult['MAILBOX']['LINK']) ?>" target="_blank"><?=Loc::getMessage('MAIL_MESSAGE_LIST_LINK') ?>
 					</a>
 				</div>
@@ -207,21 +229,10 @@ $this->endViewTarget();
 
 	$this->setViewTarget('above_pagetitle'); ?>
 	<div class="mail-home-head">
-		<a class="ui-btn ui-btn-primary" href="<?=htmlspecialcharsbx($createPath) ?>"
+		<a class="ui-btn ui-btn-success mail-message-new-btn" href="<?=htmlspecialcharsbx($createPath) ?>"
 		   style="overflow: hidden; text-overflow: ellipsis; ">
 			<?=Loc::getMessage('MAIL_MESSAGE_NEW_BTN') ?>
 		</a>
-
-		<div data-role="mail-msg-sync-button-wrapper"
-			class="<?php if(\Bitrix\Mail\Helper\LicenseManager::isSyncAvailable() && !empty($arResult['CONFIG_SYNC_DIRS']))
-			{
-				echo 'mail-visible-element';
-			}
-			else
-			{
-				echo 'mail-hidden-element';
-			}?>">
-		</div>
 
 		<div class="pagetitle-container mail-pagetitle-flexible-space">
 			<? $APPLICATION->includeComponent(
@@ -303,13 +314,7 @@ if ($arResult['MAILBOX']['SYNC_LOCK'] > 0)
 
 ?>
 
-<? if (!\Bitrix\Mail\Helper\LicenseManager::isSyncAvailable()): ?>
-	<div style="background: #eef2f4; padding-bottom: 1px; margin-bottom: -1px; ">
-		<div class="ui-alert ui-alert-warning ui-alert-icon-warning">
-			<span class="ui-alert-message"><?=Loc::getMessage('MAIL_CLIENT_CANCELATION_WARNING_3') ?></span>
-		</div>
-	</div>
-<? elseif (empty($arResult['CONFIG_SYNC_DIRS'])): ?>
+<? if (empty($arResult['CONFIG_SYNC_DIRS'])): ?>
 	<div style="background: #eef2f4; padding-bottom: 1px; margin-bottom: -1px; ">
 		<div class="ui-alert ui-alert-warning ui-alert-icon-warning">
 			<span class="ui-alert-message"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_SYNC_EMPTY_WARNING') ?></span>
@@ -334,28 +339,11 @@ $snippet = new Main\Grid\Panel\Snippet();
 
 $actionPanelActionButtons = [
 	[
-		'TYPE' => Main\Grid\Panel\Types::BUTTON,
-		'ID' => $arResult['gridActionsData']['delete']['id'],
-		'ICON' => $arResult['gridActionsData']['delete']['icon'],
-		'TEXT' => $arResult['gridActionsData']['delete']['text'],
-		'ONCHANGE' => [
-			[
-				'ACTION' => Main\Grid\Panel\Actions::CALLBACK,
-				'CONFIRM' => true,
-				'CONFIRM_APPLY_BUTTON' => 'CONFIRM_APPLY_BUTTON',
-				'DATA' => [
-					[
-						'JS' => "BX.Mail.Client.Message.List['" . CUtil::JSEscape($component->getComponentId()) . "'].onDeleteClick()",
-					],
-				],
-			],
-		],
-	],
-	[
 		'TYPE' => \Bitrix\Main\Grid\Panel\Types::BUTTON,
 		'ID' => $arResult['gridActionsData']['read']['id'],
 		'ICON' => $arResult['gridActionsData']['read']['icon'],
-		'TEXT' => '<span data-role="read-action">' . $arResult['gridActionsData']['read']['text'] . '</span>',
+		'TITLE'=> $arResult['gridActionsData']['read']['text'],
+
 		'ONCHANGE' => [
 			[
 				'ACTION' => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
@@ -371,7 +359,8 @@ $actionPanelActionButtons = [
 		'TYPE' => \Bitrix\Main\Grid\Panel\Types::BUTTON,
 		'ID' => $arResult['gridActionsData']['notRead']['id'],
 		'ICON' => $arResult['gridActionsData']['notRead']['icon'],
-		'TEXT' => '<span data-role="not-read-action">' . $arResult['gridActionsData']['notRead']['text'] . '</span>',
+		'TITLE'=> $arResult['gridActionsData']['notRead']['text'],
+		'ICON_ONLY'=>true,
 		'ONCHANGE' => [
 			[
 				'ACTION' => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
@@ -384,10 +373,20 @@ $actionPanelActionButtons = [
 		],
 	],
 	[
+		'TYPE' => Main\Grid\Panel\Types::DROPDOWN,
+		'ID' => $arResult['gridActionsData']['move']['id'],
+		'ICON' => $arResult['gridActionsData']['move']['icon'],
+		'TITLE' => $arResult['gridActionsData']['move']['text'],
+		'ICON_ONLY'=>true,
+		'ITEMS' => $arResult['foldersItems'],
+	],
+	[
 		'TYPE' => Main\Grid\Panel\Types::BUTTON,
 		'ID' => $arResult['gridActionsData']['spam']['id'],
 		'ICON' => $arResult['gridActionsData']['spam']['icon'],
-		'TEXT' => '<span data-role="spam-action">' . $arResult['gridActionsData']['spam']['text'] . '</span>',
+		'ICON_ONLY'=>true,
+		'TITLE'=> $arResult['gridActionsData']['spam']['text'],
+
 		'ONCHANGE' => [
 			[
 				'ACTION' => Main\Grid\Panel\Actions::CALLBACK,
@@ -402,8 +401,10 @@ $actionPanelActionButtons = [
 	[
 		'TYPE' => Main\Grid\Panel\Types::BUTTON,
 		'ICON' => $arResult['gridActionsData']['notSpam']['icon'],
+		'ICON_ONLY'=>true,
 		'ID' => $arResult['gridActionsData']['notSpam']['id'],
-		'TEXT' => '<span data-role="not-spam-action">' . $arResult['gridActionsData']['notSpam']['text'] . '</span>',
+		'TITLE' => $arResult['gridActionsData']['notSpam']['text'],
+
 		'ONCHANGE' => [
 			[
 				'ACTION' => Main\Grid\Panel\Actions::CALLBACK,
@@ -416,38 +417,49 @@ $actionPanelActionButtons = [
 		],
 	],
 	[
-		'TYPE' => Main\Grid\Panel\Types::DROPDOWN,
-		'ID' => $arResult['gridActionsData']['move']['id'],
-		'ICON' => $arResult['gridActionsData']['move']['icon'],
-		'TEXT' => $arResult['gridActionsData']['move']['text'],
-		'ITEMS' => $arResult['foldersItems'],
-	],
-	[
 		'TYPE' => Main\Grid\Panel\Types::BUTTON,
-		'ID' => $arResult['gridActionsData']['task']['id'],
-		'ICON' => $arResult['gridActionsData']['task']['icon'],
-		'TEXT' => $arResult['gridActionsData']['task']['text'],
-		'DISABLED' => true,
+		'ID' => $arResult['gridActionsData']['delete']['id'],
+		'ICON' => $arResult['gridActionsData']['delete']['icon'],
+		'ICON_ONLY'=>true,
+		'TITLE'=> $arResult['gridActionsData']['delete']['text'],
+
 		'ONCHANGE' => [
 			[
-				'ACTION' => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
+				'ACTION' => Main\Grid\Panel\Actions::CALLBACK,
+				'CONFIRM' => true,
+				'CONFIRM_APPLY_BUTTON' => 'CONFIRM_APPLY_BUTTON',
 				'DATA' => [
 					[
-						'JS' => "BX.Mail.Client.Message.List['" . CUtil::JSEscape($component->getComponentId()) . "'].onDisabledGroupActionClick()",
+						'JS' => "BX.Mail.Client.Message.List['" . CUtil::JSEscape($component->getComponentId()) . "'].onDeleteClick()",
 					],
 				],
 			],
 		],
-	]
+	],
+	[
+		'TYPE' => Main\Grid\Panel\Types::BUTTON,
+		'ID' => 'separator',
+		'ADDITIONAL_CLASS_FOR_PANEL' => 'mail-separator',
+		'ONCHANGE' => [
+			[
+				'ACTION' => Main\Grid\Panel\Actions::CALLBACK,
+				'DATA' => [
+					[
+
+					],
+				],
+			],
+		],
+	],
 ];
-if ($arResult['userHasCrmActivityPermission'])
-{
+
 	$actionPanelActionButtons = array_merge($actionPanelActionButtons, [
 		[
 			'TYPE' => Main\Grid\Panel\Types::BUTTON,
 			'ID' => $arResult['gridActionsData']['addToCrm']['id'],
-			'ICON' => $arResult['gridActionsData']['addToCrm']['icon'],
+			'ADDITIONAL_CLASS_FOR_PANEL' => 'mail-crm-action',
 			'TEXT' => '<span data-role="crm-action">' . $arResult['gridActionsData']['addToCrm']['text'] . '</span>',
+			'TITLE' => $arResult['gridActionsData']['addToCrm']['title'],
 			'DISABLED' => true,
 			'ONCHANGE' => [
 				[
@@ -462,9 +474,10 @@ if ($arResult['userHasCrmActivityPermission'])
 		],
 		[
 			'TYPE' => Main\Grid\Panel\Types::BUTTON,
-			'ICON' => $arResult['gridActionsData']['excludeFromCrm']['icon'],
+			'ADDITIONAL_CLASS_FOR_PANEL' => 'mail-not-crm-action',
 			'ID' => $arResult['gridActionsData']['excludeFromCrm']['id'],
 			'TEXT' => '<span data-role="not-crm-action">' . $arResult['gridActionsData']['excludeFromCrm']['text'] . '</span>',
+			'TITLE' => $arResult['gridActionsData']['excludeFromCrm']['text'],
 			'DISABLED' => true,
 			'ONCHANGE' => [
 				[
@@ -478,13 +491,14 @@ if ($arResult['userHasCrmActivityPermission'])
 			],
 		],
 	]);
-}
+
 $actionPanelActionButtons = array_merge($actionPanelActionButtons, [
 	[
 		'TYPE' => Main\Grid\Panel\Types::BUTTON,
-		'ICON' => $arResult['gridActionsData']['liveFeed']['icon'],
-		'ID' => $arResult['gridActionsData']['liveFeed']['id'],
-		'TEXT' => $arResult['gridActionsData']['liveFeed']['text'],
+		'ID' => $arResult['gridActionsData']['task']['id'],
+		'TEXT' => $arResult['gridActionsData']['task']['text'],
+		'TITLE' => $arResult['gridActionsData']['task']['title'],
+		'ADDITIONAL_CLASS_FOR_PANEL' => 'mail-task',
 		'DISABLED' => true,
 		'ONCHANGE' => [
 			[
@@ -498,27 +512,20 @@ $actionPanelActionButtons = array_merge($actionPanelActionButtons, [
 		],
 	],
 	[
-		'TYPE' => Main\Grid\Panel\Types::BUTTON,
+		'TYPE' => Main\Grid\Panel\Types::DROPDOWN,
 		'ID' => $arResult['gridActionsData']['discuss']['id'],
-		'ICON' => $arResult['gridActionsData']['discuss']['icon'],
 		'TEXT' => $arResult['gridActionsData']['discuss']['text'],
+		'ADDITIONAL_CLASS_FOR_PANEL' => 'mail-discuss',
+		'TITLE' => $arResult['gridActionsData']['discuss']['title'],
 		'DISABLED' => true,
-		'ONCHANGE' => [
-			[
-				'ACTION' => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
-				'DATA' => [
-					[
-						'JS' => "BX.Mail.Client.Message.List['" . CUtil::JSEscape($component->getComponentId()) . "'].onDisabledGroupActionClick()",
-					],
-				],
-			],
-		],
 	],
+
 	[
 		'TYPE' => Main\Grid\Panel\Types::BUTTON,
-		'ICON' => $arResult['gridActionsData']['event']['icon'],
 		'ID' => $arResult['gridActionsData']['event']['id'],
 		'TEXT' => $arResult['gridActionsData']['event']['text'],
+		'TITLE' => $arResult['gridActionsData']['event']['title'],
+		'ADDITIONAL_CLASS_FOR_PANEL' => 'mail-meeting',
 		'DISABLED' => true,
 		'ONCHANGE' => [
 			[
@@ -532,11 +539,12 @@ $actionPanelActionButtons = array_merge($actionPanelActionButtons, [
 		],
 	],
 	[
+		'HIDDEN_IN_PANEL' => true,
 		'DISABLED' => ($arResult['currentDir'] !== '[Gmail]/All Mail') ? false : true,
 		'TYPE' => Main\Grid\Panel\Types::BUTTON,
 		'ID' => $arResult['gridActionsData']['deleteImmediately']['id'],
-		'ICON' => $arResult['gridActionsData']['deleteImmediately']['icon'],
 		'TEXT' => $arResult['gridActionsData']['deleteImmediately']['text'],
+		'TITLE' => $arResult['gridActionsData']['deleteImmediately']['text'],
 		'ONCHANGE' => [
 			[
 				'ACTION' => Main\Grid\Panel\Actions::CALLBACK,
@@ -551,13 +559,37 @@ $actionPanelActionButtons = array_merge($actionPanelActionButtons, [
 ]);
 
 ?>
-
+<div class="mail-msg-list-actionpanel-container" data-role="mail-msg-list-actionpanel-container"></div>
 <div class="mail-msg-list-grid" data-role="mail-msg-list-grid">
 
 <script type="text/javascript">
 	BX.ready(function()
 	{
 		var Mail = BX.Mail.Home;
+
+		Mail.Counters.setHiddenCountersForTotalCounter(<?= Main\Web\Json::encode($arResult['invisibleDirsToCounters']) ?>);
+
+		var client = new BX.Mail.Client.Mailer({
+			startDir: '<?= CUtil::JSEscape($arResult['defaultDir']) ?>',
+			mailboxId: <?= intval($arResult['MAILBOX']['ID']) ?>,
+			filterId: '<?= $arResult['FILTER_ID'] ?>',
+			syncAvailable: '<?= \Bitrix\Mail\Helper\LicenseManager::isSyncAvailable() ?>',
+		});
+
+		Mail.FilterToolbar = client.getFilterToolbar();
+
+		Mail.Counters.addCounters(<?= Main\Web\Json::encode($arResult['DIRS_WITH_UNSEEN_MAIL_COUNTERS']) ?>);
+
+		Mail.mailboxCounters.addCounters([
+			{
+				'path': 'unseenCountInOtherMailboxes',
+				'count': <?= $unseenCountInOtherMailboxes ?>
+			},
+			{
+				'path': 'unseenCountInCurrentMailbox',
+				'count': <?= $unseenCountInCurrentMailbox ?>
+			}
+		]);
 
 		BX.addCustomEvent(
 			'BX.UI.ActionPanel:created',
@@ -611,16 +643,20 @@ $APPLICATION->includeComponent(
 		'AJAX_OPTION_JUMP' => 'N',
 		'AJAX_OPTION_STYLE' => 'N',
 		'TOP_ACTION_PANEL_CLASS' => 'mail-msg-list-action-panel',
-		'TOP_ACTION_PANEL_RENDER_TO' => '.main-grid-header',
+		'TOP_ACTION_PANEL_RENDER_TO' => '.mail-msg-list-actionpanel-container',
 		'SHOW_ACTION_PANEL' => false,
 		'TOP_ACTION_PANEL_PINNED_MODE' => true,
 		'HEADERS' => array(
-			array('id' => 'ID', 'name' => 'ID', 'default' => false, 'editable' => false),
 			array('id' => 'FROM', 'name' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_FROM'), 'class' => 'mail-msg-list-from-cell-head', 'default' => true, 'editable' => false, 'showname' => false),
 			array('id' => 'SUBJECT', 'name' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_SUBJECT'), 'class' => 'mail-msg-list-subject-cell-head', 'default' => true, 'editable' => false, 'showname' => false),
 			array('id' => 'DATE', 'name' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_DATE'), 'class' => 'mail-msg-list-date-cell-head', 'default' => true, 'editable' => false, 'showname' => false),
-			array('id' => 'BIND', 'name' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_BIND'), 'class' => 'mail-msg-list-bind-cell-head', 'default' => true, 'editable' => false, 'showname' => false),
-			array('id' => 'ICAL', 'name' => 'ICal', 'class' => 'mail-msg-list-ical-cell-head', 'default' => true, 'editable' => false, 'showname' => false),
+			//array('id' => 'ICAL', 'name' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_ICAL'), 'class' => 'mail-msg-list-ical-cell-head', 'default' => false, 'editable' => false, 'showname' => false),
+
+			array('id' => 'CRM_BIND', 'name' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_CRM_BIND'), 'class' => 'mail-msg-list-crm-cell-head', 'default' => true, 'editable' => false, 'showname' => false),
+			array('id' => 'TASK_BIND', 'name' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_TASK_BIND'), 'class' => 'mail-msg-list-task-cell-head', 'default' => true, 'editable' => false, 'showname' => false),
+			array('id' => 'CHAT_BIND', 'name' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_CHAT_BIND'), 'class' => 'mail-msg-list-chat-cell-head', 'default' => true, 'editable' => false, 'showname' => false),
+			array('id' => 'POST_BIND', 'name' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_POST_BIND'), 'class' => 'mail-msg-list-post-cell-head', 'default' => true, 'editable' => false, 'showname' => false),
+			array('id' => 'MEETING_BIND', 'name' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_MEETING_BIND'), 'class' => 'mail-msg-list-meeting-cell-head', 'default' => true, 'editable' => false, 'showname' => false),
 		),
 
 		'ROWS' => $arResult['ROWS'],
@@ -635,10 +671,13 @@ $APPLICATION->includeComponent(
 		'NAV_PARAM_NAME' => $arResult['NAV_OBJECT']->getId(),
 		'CURRENT_PAGE' => $arResult['NAV_OBJECT']->getCurrentPage(),
 		'ACTION_PANEL' => array(
-			'GROUPS' => array(
-				array('ITEMS' => $actionPanelActionButtons),
-			),
+			'GROUPS' => [
+				['ITEMS' => $actionPanelActionButtons],
+			],
 		),
+		'ACTION_PANEL_OPTIONS' => [
+			'MAX_HEIGHT' => 56
+		],
 
 		'SHOW_CHECK_ALL_CHECKBOXES' => true,
 	)
@@ -657,11 +696,16 @@ $APPLICATION->includeComponent(
 	}
 
 	BX.message({
+		DEFAULT_DIR: '<?= CUtil::JSEscape($arResult['defaultDir']) ?>',
+		MESSAGES_ALREADY_EXIST_IN_FOLDER : '<?= Loc::getMessage('MESSAGES_ALREADY_EXIST_IN_FOLDER') ?>',
+		MAIL_CLIENT_ACTIVITY_PERMISSION_DENIED_ERROR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_ACTIVITY_PERMISSION_DENIED_ERROR')) ?>',
 		MAILBOX_LINK: '<?= CUtil::JSEscape($arResult['MAILBOX']['LINK'])?>',
 		MAIL_MESSAGE_GRID_ID: '<?= CUtil::JSEscape($arResult['GRID_ID'])?>',
 		INTERFACE_MAIL_CHECK_ALL: '<?=Loc::getMessage('INTERFACE_MAIL_CHECK_ALL')?>',
 		MAIL_MESSAGE_LIST_COLUMN_BIND_TASKS_TASK: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_BIND_TASKS_TASK')) ?>',
 		MAIL_MESSAGE_LIST_COLUMN_BIND_CRM_ACTIVITY: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_BIND_CRM_ACTIVITY')) ?>',
+		MAIL_MESSAGE_LIST_COLUMN_BIND_IM_CHAT: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_BIND_IM_CHAT')) ?>',
+		MAIL_MESSAGE_LIST_COLUMN_BIND_CALENDAR_EVENT: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_BIND_CALENDAR_EVENT')) ?>',
 		MAIL_MESSAGE_LIST_COLUMN_BIND_BLOG_POST: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_BIND_BLOG_POST')) ?>',
 		MAIL_CLIENT_AJAX_ERROR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_AJAX_ERROR')) ?>',
 		MAIL_MESSAGE_LIST_BTN_SEEN: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_BTN_SEEN')) ?>',
@@ -717,30 +761,21 @@ $APPLICATION->includeComponent(
 		}
 		?>
 
-		Mail.Counters.addCounters(<?= Main\Web\Json::encode($arResult['DIRS_WITH_UNSEEN_MAIL_COUNTERS']) ?>);
-		Mail.Counters.setHiddenCountersForTotalCounter(<?= Main\Web\Json::encode($arResult['invisibleDirsToCounters']) ?>);
-
-		Mail.mailboxCounters.addCounters([
-			{
-				'path': 'unseenCountInOtherMailboxes',
-				'count': <?= $unseenCountInOtherMailboxes ?>
-			},
-			{
-				'path': 'unseenCountInCurrentMailbox',
-				'count': <?= $unseenCountInCurrentMailbox ?>
-			}
-		]);
-
 		BX.Mail.Home.LeftMenuNode = new Mail.LeftMenu({
 			mailboxId: <?= intval($arResult['MAILBOX']['ID']) ?>,
 			dirsWithUnseenMailCounters: <?= Main\Web\Json::encode($arResult['DIRECTORY_HIERARCHY_WITH_UNSEEN_MAIL_COUNTERS']) ?>,
 			filterId: '<?= $arResult['FILTER_ID'] ?>',
+			systemDirs :
+				{
+					spam: '<?= CUtil::JSEscape($arResult['spamDir']) ?>',
+					trash: '<?= CUtil::JSEscape($arResult['trashDir']) ?>',
+					drafts: '<?= CUtil::JSEscape($arResult['draftsDir']) ?>',
+					outcome: '<?= CUtil::JSEscape($arResult['outcomeDir']) ?>',
+					inbox: '<?= CUtil::JSEscape($arResult['defaultDir']) ?>',
+				}
 		});
 
 		var mailMessageList = new BX.Mail.Client.Message.List({
-			pageCounter: document.querySelector('[data-role="unread-counter-number"]'),
-			pageCounterTitle: document.querySelector('[data-role="mail-msg-counter-title"]'),
-			mailReadAllButton: document.querySelector('[data-role="mail-read-all-button"]'),
 			id: '<?= CUtil::JSEscape($component->getComponentId())?>',
 			gridId: '<?= CUtil::JSEscape($arResult['GRID_ID'])?>',
 			mailboxId: <?= intval($arResult['MAILBOX']['ID']) ?>,
@@ -750,20 +785,19 @@ $APPLICATION->includeComponent(
 			settingsMenu: <?= Main\Web\Json::encode($settingsMenu) ?>,
 			canDelete: <?= CUtil::PhpToJSObject((bool)$arResult['trashDir']); ?>,
 			canMarkSpam: <?= CUtil::PhpToJSObject((bool)$arResult['spamDir']); ?>,
-			userHasCrmActivityPermission: <?= \CUtil::PhpToJSObject($arResult['userHasCrmActivityPermission'])?>,
 			outcomeDir: '<?= CUtil::JSEscape($arResult['outcomeDir']) ?>',
-			inboxDir: '<?= CUtil::JSEscape($arResult['inboxDir']) ?>',
+			inboxDir: '<?= CUtil::JSEscape($arResult['defaultDir']) ?>',
 			spamDir: '<?= CUtil::JSEscape($arResult['spamDir']) ?>',
 			trashDir: '<?= CUtil::JSEscape($arResult['trashDir']) ?>',
 			ENTITY_TYPE_NO_BIND: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_NO_BIND) ?>',
 			ENTITY_TYPE_CRM_ACTIVITY: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_CRM_ACTIVITY) ?>',
 			ENTITY_TYPE_TASKS_TASK: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_TASKS_TASK) ?>',
 			ENTITY_TYPE_BLOG_POST: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_BLOG_POST) ?>',
+			ENTITY_TYPE_IM_CHAT: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_IM_CHAT) ?>',
+			ENTITY_TYPE_CALENDAR_EVENT: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_CALENDAR_EVENT) ?>',
 			ERROR_CODE_CAN_NOT_MARK_SPAM: 'MAIL_CLIENT_SPAM_FOLDER_NOT_SELECTED_ERROR',
 			ERROR_CODE_CAN_NOT_DELETE: 'MAIL_CLIENT_TRASH_FOLDER_NOT_SELECTED_ERROR'
 		});
-
-		BX.onCustomEvent('BX.DirectoryMenu:onChangeFilter',{directory:'INBOX'});
 
 		var mailboxData = <?=Main\Web\Json::encode(array(
 			'ID'       => $arResult['MAILBOX']['ID'],
@@ -777,7 +811,7 @@ $APPLICATION->includeComponent(
 			'LINK'     => $arResult['MAILBOX']['LINK'],
 			'OPTIONS'  => array(
 				'flags' => !empty($arResult['MAILBOX']['OPTIONS']['flags']) ? $arResult['MAILBOX']['OPTIONS']['flags'] : [],
-				'inboxDir' => $arResult['inboxDir'],
+				'inboxDir' => $arResult['defaultDir'],
 			),
 		)) ?>;
 

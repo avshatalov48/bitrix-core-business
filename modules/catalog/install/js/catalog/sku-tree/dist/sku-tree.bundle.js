@@ -3,75 +3,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 (function (exports,main_core,catalog_skuTree,main_core_events) {
 	'use strict';
 
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"product-item-scu-list ui-ctl-spacing-right\"></div>"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"product-item-detail-info-container\">\n\t\t\t\t<div class=\"product-item-detail-info-container-title\">", "</div>\n\t\t\t\t<div class=\"product-item-scu-container\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label \tclass=\"ui-ctl ui-ctl-radio-selector\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\tdata-property-id=\"", "\"\n\t\t\t\t\tdata-property-value=\"", "\">\n\t\t\t\t<input type=\"radio\"\n\t\t\t\t\tdisabled=\"", "\"\n\t\t\t\t\tname=\"property-", "-", "-", "\"\n\t\t\t\t\tclass=\"ui-ctl-element\">\n\t\t\t\t<span class=\"ui-ctl-inner\">\n\t\t\t\t\t<span class=\"ui-ctl-label-text\">", "</span>\n\t\t\t\t</span>\n\t\t\t</label>\n\t\t"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label \tclass=\"ui-ctl ui-ctl-radio-selector\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\tdata-property-id=\"", "\"\n\t\t\t\t\tdata-property-value=\"", "\">\n\t\t\t\t<input type=\"radio\"\n\t\t\t\t\tdisabled=\"", "\"\n\t\t\t\t\tname=\"property-", "-", "-", "\"\n\t\t\t\t\tclass=\"ui-ctl-element\">\n\t\t\t\t<span class=\"ui-ctl-inner\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</label>\n\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-ctl-label-text\">-</span>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-ctl-label-img\" style=\"", "\"></span>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-ctl-label-text\">", "</span>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7;
 
 	var SkuProperty = /*#__PURE__*/function () {
 	  function SkuProperty(options) {
@@ -98,7 +30,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getSelectedSkuId",
 	    value: function getSelectedSkuId() {
-	      return this.parent.getSelectedSku().ID;
+	      return this.parent.getSelectedSkuId();
 	    }
 	  }, {
 	    key: "hasSkuValues",
@@ -112,27 +44,27 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      var nameNode = '';
 
 	      if (main_core.Type.isStringFilled(propertyName)) {
-	        nameNode = main_core.Tag.render(_templateObject(), propertyName);
+	        nameNode = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-ctl-label-text\">", "</span>"])), propertyName);
 	      }
 
 	      var iconNode = '';
 
 	      if (propertyValue.PICT && propertyValue.PICT.SRC) {
 	        var style = "background-image: url('" + propertyValue.PICT.SRC + "');";
-	        iconNode = main_core.Tag.render(_templateObject2(), style);
+	        iconNode = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-ctl-label-img\" style=\"", "\"></span>"])), style);
 	      } else if (nameNode) {
 	        nameNode.style.paddingLeft = '0';
 	      } else {
-	        nameNode = main_core.Tag.render(_templateObject3());
+	        nameNode = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-ctl-label-text\">-</span>"])));
 	      }
 
-	      return main_core.Tag.render(_templateObject4(), this.skuSelectHandler, propertyName, this.getId(), propertyValue.ID, !this.parent.isSelectable(), this.getSelectedSkuId(), this.getId(), uniqueId, iconNode, nameNode);
+	      return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label \tclass=\"ui-ctl ui-ctl-radio-selector\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\tdata-property-id=\"", "\"\n\t\t\t\t\tdata-property-value=\"", "\">\n\t\t\t\t<input type=\"radio\"\n\t\t\t\t\tdisabled=\"", "\"\n\t\t\t\t\tname=\"property-", "-", "-", "\"\n\t\t\t\t\tclass=\"ui-ctl-element\">\n\t\t\t\t<span class=\"ui-ctl-inner\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</label>\n\t\t"])), this.skuSelectHandler, propertyName, this.getId(), propertyValue.ID, !this.parent.isSelectable(), this.getSelectedSkuId(), this.getId(), uniqueId, iconNode, nameNode);
 	    }
 	  }, {
 	    key: "renderTextSku",
 	    value: function renderTextSku(propertyValue, uniqueId) {
 	      var propertyName = main_core.Type.isStringFilled(propertyValue.NAME) ? main_core.Text.encode(propertyValue.NAME) : '-';
-	      return main_core.Tag.render(_templateObject5(), this.skuSelectHandler, propertyName, this.getId(), propertyValue.ID, !this.parent.isSelectable(), this.getSelectedSkuId(), this.getId(), uniqueId, propertyName);
+	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label \tclass=\"ui-ctl ui-ctl-radio-selector\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\tdata-property-id=\"", "\"\n\t\t\t\t\tdata-property-value=\"", "\">\n\t\t\t\t<input type=\"radio\"\n\t\t\t\t\tdisabled=\"", "\"\n\t\t\t\t\tname=\"property-", "-", "-", "\"\n\t\t\t\t\tclass=\"ui-ctl-element\">\n\t\t\t\t<span class=\"ui-ctl-inner\">\n\t\t\t\t\t<span class=\"ui-ctl-label-text\">", "</span>\n\t\t\t\t</span>\n\t\t\t</label>\n\t\t"])), this.skuSelectHandler, propertyName, this.getId(), propertyValue.ID, !this.parent.isSelectable(), this.getSelectedSkuId(), this.getId(), uniqueId, propertyName);
 	    }
 	  }, {
 	    key: "layout",
@@ -143,14 +75,14 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	      this.skuList = this.renderProperties();
 	      this.toggleSkuPropertyValues();
-	      return main_core.Tag.render(_templateObject6(), main_core.Text.encode(this.property.NAME), this.skuList);
+	      return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"product-item-detail-info-container\">\n\t\t\t\t<div class=\"product-item-detail-info-container-title\">", "</div>\n\t\t\t\t<div class=\"product-item-scu-container\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Text.encode(this.property.NAME), this.skuList);
 	    }
 	  }, {
 	    key: "renderProperties",
 	    value: function renderProperties() {
 	      var _this = this;
 
-	      var skuList = main_core.Tag.render(_templateObject7());
+	      var skuList = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div class=\"product-item-scu-list ui-ctl-spacing-right\"></div>"])));
 	      this.property.VALUES.forEach(function (propertyValue) {
 	        var propertyValueId = propertyValue.ID;
 	        var node;
@@ -194,7 +126,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          main_core.Dom.removeClass(item.node, 'selected');
 	        }
 
-	        if (_this2.hideUnselected && selectedSkuProperty !== id || !activeSkuProperties.includes(id)) {
+	        if (_this2.hideUnselected && selectedSkuProperty !== id || !activeSkuProperties.includes(item.propertyValueId)) {
 	          main_core.Dom.style(item.node, {
 	            display: 'none'
 	          });
@@ -208,6 +140,8 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "handleSkuSelect",
 	    value: function handleSkuSelect(event) {
+	      var _this3 = this;
+
 	      event.stopPropagation();
 	      var selectedSkuProperty = event.target.closest('[data-property-id]');
 
@@ -217,37 +151,47 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	      var propertyId = main_core.Text.toNumber(selectedSkuProperty.getAttribute('data-property-id'));
 	      var propertyValue = main_core.Text.toNumber(selectedSkuProperty.getAttribute('data-property-value'));
+	      var innerText = selectedSkuProperty.querySelector('.ui-ctl-inner');
+	      main_core.Dom.addClass(innerText, ['ui-ctl-before', 'ui-ctl-icon-loader']);
 	      this.parent.setSelectedProperty(propertyId, propertyValue);
-	      this.parent.toggleSkuProperties();
-	      main_core_events.EventEmitter.emit('SkuProperty::onChange', [this.parent.getSelectedSku(), this.property]);
+	      this.parent.getSelectedSku().then(function (selectedSkuData) {
+	        main_core.Dom.removeClass(innerText, ['ui-ctl-before', 'ui-ctl-icon-loader']);
+	        main_core_events.EventEmitter.emit('SkuProperty::onChange', [selectedSkuData, _this3.property]);
 
-	      if (this.parent) {
-	        this.parent.emit('SkuProperty::onChange', [this.parent.getSelectedSku(), this.property]);
-	      }
+	        if (_this3.parent) {
+	          _this3.parent.emit('SkuProperty::onChange', [selectedSkuData, _this3.property]);
+	        }
+	      });
+	      this.parent.toggleSkuProperties();
 	    }
 	  }]);
 	  return SkuProperty;
 	}();
 
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"product-item-scu-wrapper\"></div>"]);
+	var _templateObject$1;
 
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
+
+	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+	var iblockSkuProperties = new Map();
+	var iblockSkuList = new Map();
+	var propertyPromises = new Map();
 	var SkuTree = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(SkuTree, _EventEmitter);
 
 	  function SkuTree(options) {
+	    var _this$skuTree;
+
 	    var _this;
 
 	    babelHelpers.classCallCheck(this, SkuTree);
@@ -256,18 +200,59 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	    _this.setEventNamespace('BX.Catalog.SkuTree');
 
+	    _this.id = main_core.Text.getRandom();
 	    _this.skuTree = options.skuTree || {};
+	    _this.productId = (_this$skuTree = _this.skuTree) === null || _this$skuTree === void 0 ? void 0 : _this$skuTree.PRODUCT_ID;
+	    _this.skuTreeOffers = _this.skuTree.OFFERS || [];
+
+	    if (!main_core.Type.isNil(options.skuTree.OFFERS_JSON) && !main_core.Type.isArrayFilled(_this.skuTreeOffers)) {
+	      _this.skuTreeOffers = JSON.parse(_this.skuTree.OFFERS_JSON);
+	    }
+
+	    _this.iblockId = _this.skuTree.IBLOCK_ID || SkuTree.DEFAULT_IBLOCK_ID;
+
+	    if (!iblockSkuProperties.has(_this.iblockId)) {
+	      if (main_core.Type.isObject(_this.skuTree.OFFERS_PROP)) {
+	        iblockSkuProperties.set(_this.iblockId, _this.skuTree.OFFERS_PROP);
+	      } else {
+	        iblockSkuProperties.set(_this.iblockId, {});
+	        var promise = new Promise(function (resolve) {
+	          main_core.ajax.runAction('catalog.skuTree.getIblockProperties', {
+	            json: {
+	              iblockId: _this.iblockId
+	            }
+	          }).then(function (result) {
+	            iblockSkuProperties.set(_this.iblockId, result.data);
+	            resolve();
+	            propertyPromises["delete"](_classStaticPrivateMethodGet(SkuTree, SkuTree, _getIblockPropertiesRequestName).call(SkuTree, _this.iblockId));
+	          });
+	        });
+	        propertyPromises.set(_classStaticPrivateMethodGet(SkuTree, SkuTree, _getIblockPropertiesRequestName).call(SkuTree, _this.iblockId), promise);
+	      }
+	    }
+
 	    _this.selectable = options.selectable !== false;
 	    _this.hideUnselected = options.hideUnselected === true;
 
 	    if (_this.hasSku()) {
-	      _this.selectedValues = _this.skuTree.SELECTED_VALUES || babelHelpers.objectSpread({}, _this.skuTree.OFFERS[0].TREE);
+	      _this.selectedValues = _this.skuTree.SELECTED_VALUES || _objectSpread({}, _this.skuTreeOffers[0].TREE);
+	    }
+
+	    _this.existingValues = _this.skuTree.EXISTING_VALUES || {};
+
+	    if (!main_core.Type.isNil(options.skuTree.EXISTING_VALUES_JSON) && main_core.Type.isNil(options.skuTree.EXISTING_VALUES)) {
+	      _this.existingValues = JSON.parse(options.skuTree.EXISTING_VALUES_JSON);
 	    }
 
 	    return _this;
 	  }
 
 	  babelHelpers.createClass(SkuTree, [{
+	    key: "getProperties",
+	    value: function getProperties() {
+	      return iblockSkuProperties.get(this.iblockId);
+	    }
+	  }, {
 	    key: "isSelectable",
 	    value: function isSelectable() {
 	      return this.selectable;
@@ -280,7 +265,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "setSelectedProperty",
 	    value: function setSelectedProperty(propertyId, propertyValue) {
-	      this.selectedValues[propertyId] = propertyValue;
+	      this.selectedValues[propertyId] = main_core.Text.toNumber(propertyValue);
 	      var remainingProperties = this.getRemainingProperties(propertyId);
 
 	      if (remainingProperties.length) {
@@ -331,7 +316,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      var filter = [];
 	      var found = false;
 
-	      for (var _i = 0, _Object$values = Object.values(this.skuTree.OFFERS_PROP); _i < _Object$values.length; _i++) {
+	      for (var _i = 0, _Object$values = Object.values(this.getProperties()); _i < _Object$values.length; _i++) {
 	        var prop = _Object$values[_i];
 
 	        if (prop.ID === propertyId) {
@@ -346,25 +331,63 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "hasSku",
 	    value: function hasSku() {
-	      return main_core.Type.isArrayFilled(this.skuTree.OFFERS);
+	      return main_core.Type.isArrayFilled(this.skuTreeOffers);
 	    }
 	  }, {
 	    key: "hasSkuProps",
 	    value: function hasSkuProps() {
-	      return main_core.Type.isPlainObject(this.skuTree.OFFERS_PROP) && Object.keys(this.skuTree.OFFERS_PROP).length;
+	      return Object.values(this.getProperties()).length > 0;
+	    }
+	  }, {
+	    key: "getSelectedSkuId",
+	    value: function getSelectedSkuId() {
+	      var _this2 = this;
+
+	      if (!this.hasSku()) {
+	        return;
+	      }
+
+	      var item = this.skuTreeOffers.filter(function (item) {
+	        return JSON.stringify(item.TREE) === JSON.stringify(_this2.selectedValues);
+	      })[0];
+	      return item === null || item === void 0 ? void 0 : item.ID;
 	    }
 	  }, {
 	    key: "getSelectedSku",
 	    value: function getSelectedSku() {
-	      var _this2 = this;
+	      var _this3 = this;
 
-	      if (!this.hasSku()) {
-	        return null;
-	      }
+	      return new Promise(function (resolve, reject) {
+	        var skuId = _this3.getSelectedSkuId();
 
-	      return this.skuTree.OFFERS.filter(function (item) {
-	        return JSON.stringify(item.TREE) === JSON.stringify(_this2.selectedValues);
-	      })[0];
+	        if (skuId <= 0) {
+	          reject();
+	          return;
+	        }
+
+	        if (iblockSkuList.has(skuId)) {
+	          var skuData = iblockSkuList.get(skuId);
+	          resolve(skuData);
+	        } else {
+	          if (propertyPromises.has(_classStaticPrivateMethodGet(SkuTree, SkuTree, _getSkuRequestName).call(SkuTree, skuId))) {
+	            propertyPromises.get(_classStaticPrivateMethodGet(SkuTree, SkuTree, _getSkuRequestName).call(SkuTree, skuId)).then(function (skuFields) {
+	              resolve(skuFields);
+	            });
+	          } else {
+	            var skuRequest = main_core.ajax.runAction('catalog.skuTree.getSku', {
+	              json: {
+	                skuId: skuId
+	              }
+	            }).then(function (result) {
+	              var skuData = result.data;
+	              iblockSkuList.set(skuId, skuData);
+	              resolve(skuData);
+	              propertyPromises["delete"](_classStaticPrivateMethodGet(SkuTree, SkuTree, _getSkuRequestName).call(SkuTree, skuId), skuRequest);
+	            });
+	            propertyPromises.set(_classStaticPrivateMethodGet(SkuTree, SkuTree, _getSkuRequestName).call(SkuTree, skuId), skuRequest);
+	          }
+	        }
+	      });
 	    }
 	  }, {
 	    key: "getActiveSkuProperties",
@@ -383,7 +406,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    value: function getFilterProperties(propertyId) {
 	      var filter = [];
 
-	      for (var _i2 = 0, _Object$values2 = Object.values(this.skuTree.OFFERS_PROP); _i2 < _Object$values2.length; _i2++) {
+	      for (var _i2 = 0, _Object$values2 = Object.values(this.getProperties()); _i2 < _Object$values2.length; _i2++) {
 	        var prop = _Object$values2[_i2];
 
 	        if (prop.ID === propertyId) {
@@ -399,19 +422,19 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "filterSku",
 	    value: function filterSku(filter) {
 	      if (filter.length === 0) {
-	        return this.skuTree.OFFERS;
+	        return this.skuTreeOffers;
 	      }
 
 	      var selectedValues = this.getSelectedValues();
-	      return this.skuTree.OFFERS.filter(function (sku) {
+	      return this.skuTreeOffers.filter(function (sku) {
 	        var _iterator3 = _createForOfIteratorHelper(filter),
 	            _step3;
 
 	        try {
 	          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-	            var prop = _step3.value;
+	            var propertyId = _step3.value;
 
-	            if (sku.TREE[prop] !== selectedValues[prop]) {
+	            if (sku.TREE[propertyId] !== selectedValues[propertyId]) {
 	              return false;
 	            }
 	          }
@@ -427,28 +450,45 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getSelectedSkuProperty",
 	    value: function getSelectedSkuProperty(propertyId) {
-	      return this.getSelectedSku()['TREE'][propertyId];
+	      return main_core.Text.toNumber(this.selectedValues[propertyId]);
 	    }
 	  }, {
 	    key: "layout",
 	    value: function layout() {
-	      var container = main_core.Tag.render(_templateObject$1());
+	      var _this4 = this;
+
+	      var container = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"product-item-scu-wrapper\" id=\"", "\"></div>"])), this.id);
 	      this.skuProperties = [];
 
-	      if (this.hasSku() && this.hasSkuProps()) {
-	        for (var i in this.skuTree.OFFERS_PROP) {
-	          if (this.skuTree.OFFERS_PROP.hasOwnProperty(i)) {
-	            var skuProperty = new SkuProperty({
-	              parent: this,
-	              property: this.skuTree.OFFERS_PROP[i],
-	              existingValues: this.skuTree.EXISTING_VALUES[i],
-	              offers: this.skuTree.OFFERS,
-	              hideUnselected: this.hideUnselected
-	            });
-	            container.appendChild(skuProperty.layout());
-	            this.skuProperties.push(skuProperty);
+	      if (this.hasSku()) {
+	        new Promise(function (resolve) {
+	          if (propertyPromises.has(_classStaticPrivateMethodGet(SkuTree, SkuTree, _getIblockPropertiesRequestName).call(SkuTree, _this4.iblockId))) {
+	            propertyPromises.get(_classStaticPrivateMethodGet(SkuTree, SkuTree, _getIblockPropertiesRequestName).call(SkuTree, _this4.iblockId)).then(resolve);
+	          } else {
+	            resolve();
 	          }
-	        }
+	        }).then(function () {
+	          if (!_this4.hasSkuProps()) {
+	            return;
+	          }
+
+	          var skuProperties = _this4.getProperties();
+
+	          for (var i in skuProperties) {
+	            if (skuProperties.hasOwnProperty(i) && !main_core.Type.isNil(_this4.existingValues[i])) {
+	              var skuProperty = new SkuProperty({
+	                parent: _this4,
+	                property: skuProperties[i],
+	                existingValues: main_core.Type.isArray(_this4.existingValues[i]) ? _this4.existingValues[i] : Object.values(_this4.existingValues[i]),
+	                offers: _this4.skuTreeOffers,
+	                hideUnselected: _this4.hideUnselected
+	              });
+	              main_core.Dom.append(skuProperty.layout(), container);
+
+	              _this4.skuProperties.push(skuProperty);
+	            }
+	          }
+	        });
 	      }
 
 	      return container;
@@ -463,6 +503,16 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }]);
 	  return SkuTree;
 	}(main_core_events.EventEmitter);
+
+	function _getIblockPropertiesRequestName(iblockId) {
+	  return 'IblockPropertiesRequest_' + iblockId;
+	}
+
+	function _getSkuRequestName(skuId) {
+	  return 'SkuFieldsRequest_' + skuId;
+	}
+
+	babelHelpers.defineProperty(SkuTree, "DEFAULT_IBLOCK_ID", 0);
 
 	exports.SkuTree = SkuTree;
 

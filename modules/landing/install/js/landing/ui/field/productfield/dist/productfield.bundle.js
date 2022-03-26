@@ -52,16 +52,38 @@ this.BX.Landing.Ui = this.BX.Landing.Ui || {};
 	    key: "getValue",
 	    value: function getValue() {
 	      return this.getProducts().reduce(function (acc, item) {
-	        if (!main_core.Type.isNil(item.fields.productId)) {
+	        if (!main_core.Type.isNil(item.offerId) || !main_core.Type.isNil(item.fields.productId)) {
+	          var pics = [];
+
+	          if (item.image && item.image.path) {
+	            pics.push(item.image.path);
+	          } else if (item.image && item.image.preview) {
+	            var ic = document.createElement('div');
+	            ic.innerHTML = item.image.preview;
+	            ic = ic.querySelector('img');
+
+	            if (ic && ic.src) {
+	              pics.push(ic.src);
+	            }
+	          }
+
+	          var value = item.offerId || item.fields.productId;
+
+	          if (acc.some(function (item) {
+	            return item.value === value;
+	          })) {
+	            return acc;
+	          }
+
 	          acc.push({
 	            label: item.fields.name,
 	            changeablePrice: false,
 	            discount: item.fields.discount,
-	            pics: [],
+	            pics: pics,
 	            price: item.fields.price,
 	            quantity: [],
 	            selected: false,
-	            value: item.fields.productId
+	            value: value
 	          });
 	        }
 

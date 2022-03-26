@@ -385,6 +385,10 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 
 	    _this.init();
 
+	    _this.emit('onInitialized', {
+	      tabsInstance: babelHelpers.assertThisInitialized(_this)
+	    });
+
 	    PostFormTabs.setInstance(babelHelpers.assertThisInitialized(_this));
 	    window.SBPETabs = babelHelpers.assertThisInitialized(_this);
 	    return _this;

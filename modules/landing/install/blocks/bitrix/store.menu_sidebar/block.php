@@ -35,6 +35,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 			'CACHE_TIME' => '36000000',
 			'CACHE_TYPE' => 'A',
 			'SHOW_ANGLE' => 'N',
+			'ADD_SECTIONS_CHAIN' => 'N',
 		]
 	); ?>
 	<ul class="g-font-size-16 g-font-roboto u-list-inline g-py-10">

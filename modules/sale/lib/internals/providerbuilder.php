@@ -37,96 +37,126 @@ class ProviderBuilder extends ProviderBuilderBase
 	}
 
 	/**
-	 * @param array $basketItemProductData
-	 */
-	public function addProductByBasketItemProductData(array $basketItemProductData)
-	{
-		$this->addItem($basketItemProductData['PRODUCT_ID'], $basketItemProductData);
-	}
-
-	/**
 	 * @param Sale\ShipmentItem $shipmentItem
 	 */
 	public function addProductByShipmentItem(Sale\ShipmentItem $shipmentItem)
 	{
 		$basketItem = $shipmentItem->getBasketItem();
 		$productId = $basketItem->getProductId();
-		$fields = array(
+
+		$fields = [
 			'ITEM_CODE' => $productId,
 			'BASKET_CODE' => $basketItem->getBasketCode(),
 			'PRODUCT_ID' => $productId,
 			'QUANTITY' => $shipmentItem->getQuantity(),
-			'RESERVED_QUANTITY' => $shipmentItem->getReservedQuantity(),
 			'IS_BARCODE_MULTI' => $basketItem->isBarcodeMulti(),
 			'BUNDLE_CHILD' => $basketItem->isBundleChild(),
-			'SHIPMENT_ITEM_DATA' => array(
+			'SHIPMENT_ITEM_DATA' => [
 				$shipmentItem->getInternalIndex() => $shipmentItem->getQuantity()
-			),
+			],
 			'SHIPMENT_ITEM' => $shipmentItem,
-			'NEED_RESERVE' => array(
-				$shipmentItem->getInternalIndex() => $shipmentItem->needReserve()
-			),
-		);
+		];
 
 		if (Sale\Configuration::useStoreControl())
 		{
 			$storeData = Sale\Internals\Catalog\Provider::createMapShipmentItemStoreData($shipmentItem);
 
+			$reservedQuantity = 0;
+			$needReserveByStore = [];
+			if ($storeData)
+			{
+				foreach ($storeData as $item)
+				{
+					$reservedQuantity += $item['RESERVED_QUANTITY'];
+
+					$needReserveByStore[$item['STORE_ID']] = $item['RESERVED_QUANTITY'] > 0;
+				}
+			}
+
 			$fields['STORE_DATA'] = array(
 				$shipmentItem->getInternalIndex() => $storeData
 			);
+
+			$fields['NEED_RESERVE_BY_STORE'] = [
+				$shipmentItem->getInternalIndex() => $needReserveByStore
+			];
 		}
+		else
+		{
+			$reservedQuantity = $basketItem->getReserveQuantityCollection()->getQuantity();
+		}
+
+		$fields['RESERVED_QUANTITY'] = $reservedQuantity;
+		$fields['NEED_RESERVE'] = [
+			$shipmentItem->getInternalIndex() => $reservedQuantity > 0
+		];
 
 		$this->addItem($productId, $fields);
 	}
 
 	/**
-	 * @param array $shipmentProductData
-	 *
-	 * @return bool
+	 * @param array $productData
+	 * @throws Main\ObjectNotFoundException
 	 */
-	public function addProductByShipmentProductData(array $shipmentProductData)
+	public function addProductData(array $productData)
 	{
-		if ($shipmentProductData['QUANTITY'] == 0)
+		if ($productData['QUANTITY'] == 0)
 		{
-			return false;
+			return;
 		}
 
 		/** @var Sale\ShipmentItem $shipmentItem */
-		$shipmentItem = $shipmentProductData['SHIPMENT_ITEM'];
+		$shipmentItem = $productData['SHIPMENT_ITEM'] ?? null;
+		$basketItem = $productData['BASKET_ITEM'];
 
-
-		$basketItem = $shipmentItem->getBasketItem();
 		$productId = $basketItem->getProductId();
 
-		$fields = array(
+		$fields = [
 			'ITEM_CODE' => $productId,
 			'BASKET_CODE' => $basketItem->getBasketCode(),
 			'PRODUCT_ID' => $productId,
-			'QUANTITY' => $shipmentProductData['QUANTITY'],
+			'QUANTITY' => $productData['QUANTITY'],
 			'BUNDLE_PARENT' => $basketItem->isBundleParent(),
 			'BUNDLE_CHILD' => $basketItem->isBundleChild(),
 			'IS_BARCODE_MULTI' => $basketItem->isBarcodeMulti(),
-			'SHIPMENT_ITEM_DATA' => array(
-				$shipmentItem->getInternalIndex() => $shipmentItem->getQuantity()
-			),
-			'SHIPMENT_ITEM' => $shipmentItem,
-			'RESERVED_QUANTITY' => $shipmentProductData['RESERVED_QUANTITY'],
-			'NEED_RESERVE' => array(
-				$shipmentItem->getInternalIndex() => $shipmentProductData["NEED_RESERVE"]
-			),
-		);
+			'RESERVED_QUANTITY' => $productData['RESERVED_QUANTITY'],
+		];
+
+		if ($shipmentItem)
+		{
+			$fields['SHIPMENT_ITEM'] = $shipmentItem;
+			$fields['SHIPMENT_ITEM_DATA'] = [$shipmentItem->getInternalIndex() => $shipmentItem->getQuantity()];
+			$fields['NEED_RESERVE'] = [$shipmentItem->getInternalIndex() => $productData["NEED_RESERVE"] ?? null];
+		}
 
 		if (Sale\Configuration::useStoreControl())
 		{
-			$storeData = Sale\Internals\Catalog\Provider::createMapShipmentItemStoreData($shipmentItem);
-
-			if (!empty($storeData))
+			if ($shipmentItem)
 			{
-				$fields['STORE_DATA'] = array(
-					$shipmentItem->getInternalIndex() => $storeData
-				);
+				$storeData = Sale\Internals\Catalog\Provider::createMapShipmentItemStoreData($shipmentItem);
+
+				if (!empty($storeData))
+				{
+					$fields['STORE_DATA'] = [
+						$shipmentItem->getInternalIndex() => $storeData
+					];
+				}
 			}
+		}
+
+		if (isset($productData['NEED_RESERVE_BY_STORE']))
+		{
+			$fields['NEED_RESERVE_BY_STORE'] = $productData['NEED_RESERVE_BY_STORE'];
+		}
+
+		if (isset($productData['QUANTITY_BY_STORE']))
+		{
+			$fields['QUANTITY_BY_STORE'] = $productData['QUANTITY_BY_STORE'];
+		}
+
+		if (isset($productData['RESERVED_QUANTITY_BY_STORE']))
+		{
+			$fields['RESERVED_QUANTITY_BY_STORE'] = $productData['RESERVED_QUANTITY_BY_STORE'];
 		}
 
 		$this->addItem($productId, $fields);
@@ -156,10 +186,14 @@ class ProviderBuilder extends ProviderBuilderBase
 			}
 
 			if (empty($productData['SHIPMENT_ITEM_DATA_LIST']))
+			{
 				continue;
+			}
 
 			if (empty($productData['SHIPMENT_ITEM_LIST']))
+			{
 				continue;
+			}
 
 			/**
 			 * @var int $shipmentItemIndex
@@ -167,65 +201,57 @@ class ProviderBuilder extends ProviderBuilderBase
 			 */
 			foreach ($productData['SHIPMENT_ITEM_DATA_LIST'] as $shipmentItemIndex => $shipmentItemQuantity)
 			{
-				$shipmentItem = null;
-				$shipment = null;
+				$shipmentItem = $productData['SHIPMENT_ITEM_LIST'][$shipmentItemIndex] ?? null;
+				if ($shipmentItem === null)
+				{
+					continue;
+				}
+
+				$shipment = $shipmentItem->getCollection()->getShipment();
 
 				$coefficient = -1;
-				if (isset($productData['SHIPMENT_ITEM_LIST'][$shipmentItemIndex]))
+				if ($shipment->needShip() === Sale\Internals\Catalog\Provider::SALE_TRANSFER_PROVIDER_SHIPMENT_NEED_NOT_SHIP)
 				{
-					/** @var Sale\ShipmentItem $shipmentItem */
-					$shipmentItem = $productData['SHIPMENT_ITEM_LIST'][$shipmentItemIndex];
+					$coefficient = 1;
+				}
 
-					/** @var Sale\ShipmentItemCollection $shipmentItemCollection */
-					$shipmentItemCollection = $shipmentItem->getCollection();
-					if (!$shipmentItemCollection)
-					{
-						throw new Main\ObjectNotFoundException('Entity "ShipmentItemCollection" not found');
-					}
+				$shipmentItemQuantity = $shipmentItem->getQuantity();
 
-					$shipment = $shipmentItemCollection->getShipment();
-					if (!$shipment)
-					{
-						throw new Main\ObjectNotFoundException('Entity "Shipment" not found');
-					}
+				/** @var Sale\ShipmentItemStore $shipmentItemStore */
+				foreach ($shipmentItem->getShipmentItemStoreCollection() as $shipmentItemStore)
+				{
+					$quantity = $coefficient * $shipmentItemStore->getQuantity();
+					$pool->addByStore(PoolQuantity::POOL_QUANTITY_TYPE, $productId, $shipmentItemStore->getStoreId(), $quantity);
 
-					if ($shipment->needShip() === Sale\Internals\Catalog\Provider::SALE_TRANSFER_PROVIDER_SHIPMENT_NEED_NOT_SHIP)
+					$shipmentItemQuantity -= $shipmentItemStore->getQuantity();
+				}
+
+				if ($shipmentItemQuantity > 0)
+				{
+					$pool->add(PoolQuantity::POOL_QUANTITY_TYPE, $productId, $shipmentItemQuantity);
+				}
+
+				$foundItem = false;
+				$poolItems = Sale\Internals\ItemsPool::get($shipment->getOrder()->getInternalId(), $productId);
+				if (!empty($poolItems))
+				{
+					/** @var Sale\ShipmentItem $poolItem */
+					foreach ($poolItems as $poolItem)
 					{
-						$coefficient = 1;
+						if (
+							$poolItem instanceof Sale\ShipmentItem
+							&& $poolItem->getInternalIndex() == $shipmentItem->getInternalIndex()
+						)
+						{
+							$foundItem = true;
+							break;
+						}
 					}
 				}
 
-				$quantity = $coefficient * $shipmentItemQuantity;
-				$pool->add(PoolQuantity::POOL_QUANTITY_TYPE, $productId, $quantity);
-
-				if ($shipmentItem && $shipment)
+				if (!$foundItem)
 				{
-					$order = $shipment->getParentOrder();
-					if (!$order)
-					{
-						throw new Main\ObjectNotFoundException('Entity "Order" not found');
-					}
-
-					$foundItem = false;
-					$poolItems = Sale\Internals\ItemsPool::get($order->getInternalId(), $productId);
-					if (!empty($poolItems))
-					{
-						/** @var Sale\ShipmentItem $poolItem */
-						foreach ($poolItems as $poolItem)
-						{
-							if ($poolItem->getInternalIndex() == $shipmentItem->getInternalIndex())
-							{
-								$foundItem = true;
-								break;
-							}
-						}
-					}
-
-					if (!$foundItem)
-					{
-						Sale\Internals\ItemsPool::add($order->getInternalId(), $productId, $shipmentItem);
-					}
-
+					Sale\Internals\ItemsPool::add($shipment->getOrder()->getInternalId(), $productId, $shipmentItem);
 				}
 			}
 		}

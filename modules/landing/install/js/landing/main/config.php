@@ -11,9 +11,11 @@ return [
 		'landing.env',
 		'landing.loc',
 		'landing.ui.panel.content',
+		'landing.ui.panel.saveblock',
 		'landing.sliderhacks',
 		'landing.pageobject',
 		'main.core',
+		'landing.backend',
 	],
 	'skip_core' => false,
 ];

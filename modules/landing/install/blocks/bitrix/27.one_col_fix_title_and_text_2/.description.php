@@ -29,11 +29,11 @@ return [
 		'nodes' => [
 			'.landing-block-node-title' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_9_ONE_COL_FIX_TITLE_AND_TEXT_2_STYLE_LANDINGBLOCKNODETITLE'),
-				'type' => ['typo', 'heading'],
+				'type' => ['typo', 'heading', 'animation'],
 			],
 			'.landing-block-node-text' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_9_ONE_COL_FIX_TITLE_AND_TEXT_2_STYLE_LANDINGBLOCKNODETEXT'),
-				'type' => 'typo',
+				'type' => ['typo', 'animation'],
 			],
 			'.landing-block-node-text-container' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_9_ONE_COL_FIX_TITLE_AND_TEXT_2_STYLE_LANDINGBLOCKNODETEXT'),

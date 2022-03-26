@@ -5,6 +5,7 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\Date;
 use Bitrix\Sale\Basket;
 use Bitrix\Sale\BasketItem;
 use Bitrix\Sale\BasketItemBase;
@@ -154,56 +155,61 @@ abstract class BasketBuilder
 
 	public function removeDeletedItems()
 	{
-		if($this->builder->getSettingsContainer()->getItemValue('deleteBasketItemsIfNotExists'))
+		$deleteBasketItemsIfNotExists = $this->builder->getSettingsContainer()->getItemValue('deleteBasketItemsIfNotExists');
+		$itemsBasketCodes = [];
+
+		foreach($this->formData["PRODUCT"] as $basketCode => $productData)
 		{
-			$itemsBasketCodes = [];
-
-			foreach($this->formData["PRODUCT"] as $basketCode => $productData)
+			if (!isset($productData["PROPS"]))
 			{
-				if (!isset($productData["PROPS"]))
-				{
-					$productData["PROPS"] = array();
-				}
-
-				$item = $this->getExistsItem($productData["MODULE"], $productData["OFFER_ID"], $productData["PROPS"]);
-
-				if ($item == null)
-				{
-					DiscountCouponsManager::useSavedCouponsForApply(false);
-				}
-
-				if($item == null && $basketCode != \Bitrix\Sale\Helpers\Admin\OrderEdit::BASKET_CODE_NEW)
-				{
-					$item = $this->getBasket()->getItemByBasketCode($basketCode);
-				}
-
-				if($item && $item->isBundleChild())
-				{
-					continue;
-				}
-
-				if(!$item)
-				{
-					continue;
-				}
-
-				$itemsBasketCodes[] = $item->getBasketCode();
+				$productData["PROPS"] = array();
 			}
 
-			/** @var  \Bitrix\Sale\BasketItem  $item */
-			$basketItems = $this->getBasket()->getBasketItems();
+			$item = $this->getItemFromBasket($basketCode, $productData);
 
-			foreach($basketItems as $item)
+			if ($item == null && $deleteBasketItemsIfNotExists)
 			{
-				if(!in_array($item->getBasketCode(), $itemsBasketCodes))
-				{
-					$res = $item->delete();
+				DiscountCouponsManager::useSavedCouponsForApply(false);
+			}
 
-					if (!$res->isSuccess())
+			if($item == null && $basketCode != \Bitrix\Sale\Helpers\Admin\OrderEdit::BASKET_CODE_NEW)
+			{
+				$item = $this->getBasket()->getItemByBasketCode($basketCode);
+			}
+
+			if($item && $item->isBundleChild())
+			{
+				continue;
+			}
+
+			if(!$item)
+			{
+				continue;
+			}
+
+			$itemsBasketCodes[] = $item->getBasketCode();
+		}
+
+		/** @var  \Bitrix\Sale\BasketItem  $item */
+		$basketItems = $this->getBasket()->getBasketItems();
+
+		foreach($basketItems as $item)
+		{
+			if(!in_array($item->getBasketCode(), $itemsBasketCodes))
+			{
+				if ($deleteBasketItemsIfNotExists)
+				{
+					$itemDeleteResult = $item->delete();
+
+					if (!$itemDeleteResult->isSuccess())
 					{
-						$this->builder->getErrorsContainer()->addErrors($res->getErrors());
+						$this->builder->getErrorsContainer()->addErrors($itemDeleteResult->getErrors());
 						throw new BuildingException();
 					}
+				}
+				else
+				{
+					$this->clearReservesForItem($item);
 				}
 			}
 		}
@@ -609,9 +615,91 @@ abstract class BasketBuilder
 			}
 
 			self::setBasketItemFields($item, $product);
+
+			if (!empty($productFormData['RESERVE']) && is_array($productFormData['RESERVE']))
+			{
+				$reserveData = $productFormData['RESERVE'];
+				$this->setReserveDataForItem($item, $reserveData);
+			}
+			elseif ($this->getSettingsContainer()->getItemValue('clearReservesIfEmpty') === true)
+			{
+				$this->clearReservesForItem($item);
+			}
 		}
 
 		return $this;
+	}
+
+	protected function clearReservesForItem(BasketItem $item)
+	{
+		$item->getReserveQuantityCollection()->clearCollection();
+	}
+
+	protected function setReserveDataForItem(BasketItem $item, array $reserveData)
+	{
+		$reserveCollection = $item->getReserveQuantityCollection();
+
+		// if some reserves were created upon order creation, we have to clear them and set the manual reserves
+		if ($this->getOrder()->isNew())
+		{
+			$this->clearReservesForItem($item);
+		}
+
+		foreach ($reserveData as $reserveCode => $reserve)
+		{
+			$isNewReserve = mb_strpos($reserveCode, 'n') === 0;
+			if ($isNewReserve)
+			{
+				$reserveCollectionItem = $reserveCollection->create();
+			}
+			else
+			{
+				$reserveCollectionItem = $reserveCollection->getItemById($reserveCode);
+				if (!$reserveCollectionItem)
+				{
+					continue;
+				}
+			}
+
+			if (isset($reserve['STORE_ID']) && (int)$reserve['STORE_ID'] !== $reserveCollectionItem->getStoreId())
+			{
+				if (!$isNewReserve)
+				{
+					// drop the old reserve and create a new one instead since we can't just change the store id like that
+					$deleteResult = $reserveCollectionItem->delete();
+					if (!$deleteResult->isSuccess())
+					{
+						$this->getErrorsContainer()->addErrors($deleteResult->getErrors());
+						continue;
+					}
+
+					$reserveCollectionItem = $reserveCollection->create();
+				}
+
+				$reserveCollectionItem->setStoreId((int)$reserve['STORE_ID']);
+			}
+
+			if (isset($reserve['QUANTITY']))
+			{
+				$quantity = (float)$reserve['QUANTITY'];
+				if ($quantity < 0)
+				{
+					$quantity = 0;
+				}
+				$reserveCollectionItem->setQuantity($quantity);
+			}
+
+			if (isset($reserve['DATE_RESERVE_END']) && $reserve['DATE_RESERVE_END'] !== '')
+			{
+				$dateReserveEnd = new Date($reserve['DATE_RESERVE_END']);
+				$reserveCollectionItem->setField('DATE_RESERVE_END', $dateReserveEnd);
+			}
+
+			if (isset($reserve['RESERVED_BY']))
+			{
+				$reserveCollectionItem->setField('RESERVED_BY', $reserve['RESERVED_BY']);
+			}
+		}
 	}
 
 	public function getOrder()

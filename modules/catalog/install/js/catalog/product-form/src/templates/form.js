@@ -37,10 +37,15 @@ Vue.component(config.templateName,
 			this.$root.$app.changeProduct(item);
 		},
 
+		emitErrorsChange()
+		{
+			this.$root.$app.emitErrorsChange();
+		},
+
 		changeRowData(item)
 		{
-			delete(item.fields.fields);
-			this.$store.dispatch('productList/changeItem', item);
+			delete(item.product.fields);
+			this.$store.commit('productList/updateItem', item);
 		},
 
 		removeItem(item)
@@ -111,40 +116,42 @@ Vue.component(config.templateName,
 	template: `
 	<div class="catalog-product-form-container">
 		<${config.templatePanelButtons}
-			:options="options" 
-			:mode="mode" 
-			@refreshBasket="refreshBasket" 
+			:options="options"
+			:mode="mode"
+			@refreshBasket="refreshBasket"
 			@addItem="addItem"
 			@changeRowData="changeRowData"
-			@changeProduct="changeProduct" 
+			@changeProduct="changeProduct"
 			v-if="showButtonsTop"
 		/>
 		<div v-for="(item, index) in productList.basket" :key="item.selectorId">
-			<${config.templateRowName} 
-				:basketItem="item" 
-				:basketItemIndex="index"  
+			<${config.templateRowName}
+				:basketItem="item"
+				:basketItemIndex="index"
+				:basketLength="productList.basket.length"
 				:countItems="countItems"
 				:options="options"
 				:mode="mode"
-				@changeProduct="changeProduct" 
-				@changeRowData="changeRowData" 
-				@removeItem="removeItem" 
-				@refreshBasket="refreshBasket" 
+				@changeProduct="changeProduct"
+				@changeRowData="changeRowData"
+				@removeItem="removeItem"
+				@refreshBasket="refreshBasket"
+				@emitErrorsChange="emitErrorsChange"
 			/>
 		</div>
 		<${config.templatePanelButtons}
-			:options="options" 
+			:options="options"
 			:mode="mode"
-			@refreshBasket="refreshBasket" 
+			@refreshBasket="refreshBasket"
 			@addItem="addItem"
 			@changeRowData="changeRowData"
-			@changeProduct="changeProduct" 
+			@changeProduct="changeProduct"
 			v-if="showButtonsBottom"
 		/>
-		<${config.templatePanelCompilation}  
+		<${config.templatePanelCompilation}
 			v-if="options.showCompilationModeSwitcher"
-			:compilationOptions="options.compilationFormOption" 
-			:mode="mode" 
+			:compilationOptions="options.compilationFormOption"
+			:mode="mode"
 		/>
 		<div class="catalog-pf-result-line"></div>
 		<div class="catalog-pf-result-wrapper" v-if="showResultBlock">

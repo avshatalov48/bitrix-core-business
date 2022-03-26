@@ -61,8 +61,12 @@ class FiredUserProvider extends UserProvider
 			 * then we reduce the list of fired users only have reference in the referenceClass entity
 			 */
 			$fieldName = Application::getConnection()->getSqlHelper()->forSql($options['fieldName']);
-			$query->addFilter('@ID', new SqlExpression(
-				"SELECT DISTINCT {$fieldName} FROM " . $options['referenceClass']::getTableName()
+			$tableName = mb_strtolower($query->getEntity()->getCode());
+
+			$query->whereExists(new SqlExpression(
+				"SELECT 1 FROM "
+				. $options['referenceClass']::getTableName()
+				. " WHERE {$fieldName} = {$tableName}.ID"
 			));
 		}
 

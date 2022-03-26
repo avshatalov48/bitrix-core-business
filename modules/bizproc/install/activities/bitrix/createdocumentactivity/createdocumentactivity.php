@@ -242,7 +242,7 @@ class CBPCreateDocumentActivity
 		self::$executionDepth[$key]++;
 
 		if (self::$executionDepth[$key] > self::EXECUTION_MAX_DEPTH)
-			throw new Exception(GetMessage('BPCDA_RECURSION_ERROR'));
+			throw new Exception(GetMessage('BPCDA_RECURSION_ERROR_1'));
 	}
 	private static function resetExecutionDepth($key)
 	{

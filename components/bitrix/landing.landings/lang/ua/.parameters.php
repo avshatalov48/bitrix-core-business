@@ -1,6 +1,7 @@
 <?php
 $MESS["LANDING_CMP_PAR_DRAFT_MODE"] = "Завжди працювати в режимі чернетки";
 $MESS["LANDING_CMP_PAR_LANDING_TYPE"] = "Тип сайту";
+$MESS["LANDING_CMP_PAR_PAGE_URL_FOLDER_EDIT"] = "Посилання на редагування папки";
 $MESS["LANDING_CMP_PAR_PAGE_URL_LANDING_DESIGN"] = "Посилання на редагування дизайну лендінга";
 $MESS["LANDING_CMP_PAR_PAGE_URL_LANDING_EDIT"] = "Посилання на редагування лендінга";
 $MESS["LANDING_CMP_PAR_PAGE_URL_LANDING_VIEW"] = "Посилання на перегляд (наповнення) лендінгу";

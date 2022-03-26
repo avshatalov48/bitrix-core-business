@@ -65,10 +65,12 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 		$phone = \NormalizePhone($data['client_phone']);
 		if (is_string($phone))
 		{
-			if ($phone[0] === '7')
+			if ($phone[0] !== '7')
 			{
-				$phone = mb_substr($phone, 1);
+				$phone = '7'.$phone;
 			}
+
+			$phone = '+'.$phone;
 		}
 		else
 		{
@@ -99,16 +101,19 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 			}
 		}
 
-		$paymentTypeMap = $this->getPaymentTypeMap();
-		foreach ($data['payments'] as $payment)
+		if (isset($data['payments']))
 		{
-			$result['receipt']['payments'][] = [
-				'type' => $paymentTypeMap[$payment['type']],
-				'sum' => (float)$payment['sum']
-			];
+			$paymentTypeMap = $this->getPaymentTypeMap();
+			foreach ($data['payments'] as $payment)
+			{
+				$result['receipt']['payments'][] = [
+					'type' => $paymentTypeMap[$payment['type']],
+					'sum' => (float)$payment['sum']
+				];
+			}
 		}
 
-		foreach ($data['items'] as $i => $item)
+		foreach ($data['items'] as $item)
 		{
 			$result['receipt']['items'][] = $this->buildPosition($data, $item);
 		}
@@ -259,6 +264,12 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 		/** @var Main\Type\DateTime $dateTime */
 		$dateTime = $data['date_create'];
 
+		$documentDate = $data['correction_info']['document_date'];
+		if (!$documentDate instanceof Main\Type\Date)
+		{
+			$documentDate = new Main\Type\Date($documentDate);
+		}
+
 		$result = [
 			'timestamp' => $dateTime->format('d.m.Y H:i:s'),
 			'external_id' => static::buildUuid(static::UUID_TYPE_CHECK, $data['unique_id']),
@@ -273,7 +284,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 				],
 				'correction_info' => [
 					'type' => $data['correction_info']['type'],
-					'base_date' => $data['correction_info']['document_date'],
+					'base_date' => $documentDate->format('d.m.Y H:i:s'),
 					'base_number' => $data['correction_info']['document_number'],
 					'base_name' => mb_substr(
 						$data['correction_info']['description'],
@@ -286,27 +297,33 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm implements ICorrection
 			]
 		];
 
-		$paymentTypeMap = $this->getPaymentTypeMap();
-		foreach ($data['payments'] as $payment)
+		if (isset($data['payments']))
 		{
-			$result['correction']['payments'][] = [
-				'type' => $paymentTypeMap[$payment['type']],
-				'sum' => (float)$payment['sum']
-			];
+			$paymentTypeMap = $this->getPaymentTypeMap();
+			foreach ($data['payments'] as $payment)
+			{
+				$result['correction']['payments'][] = [
+					'type' => $paymentTypeMap[$payment['type']],
+					'sum' => (float)$payment['sum']
+				];
+			}
 		}
 
-		foreach ($data['vats'] as $item)
+		if (isset($data['vats']))
 		{
+			foreach ($data['vats'] as $item)
+			{
 				$vat = $this->getValueFromSettings('VAT', $item['type']);
 				if (is_null($vat) || $vat === '')
-			{
-				$vat = $this->getValueFromSettings('VAT', 'NOT_VAT');
-			}
+				{
+					$vat = $this->getValueFromSettings('VAT', 'NOT_VAT');
+				}
 
-			$result['correction']['vats'][] = [
-				'type' => $vat,
-				'sum' => (float)$item['sum']
-			];
+				$result['correction']['vats'][] = [
+					'type' => $vat,
+					'sum' => (float)$item['sum']
+				];
+			}
 		}
 
 		return $result;

@@ -4,5 +4,4 @@ $MESS ['BPRIOA_DESCR_DESCR'] = "Запрос дополнительной инф
 $MESS ['BPRIOA_DESCR_CM'] = "Комментарий";
 $MESS ['BPRIOA_DESCR_LU'] = "Пользователь, предоставивший информацию";
 $MESS ['BPRIOA_DESCR_TA1'] = "Автоматическое завершение";
-$MESS ['BPRIOA_DESCR_TASKS'] = 'Задания';
 ?>

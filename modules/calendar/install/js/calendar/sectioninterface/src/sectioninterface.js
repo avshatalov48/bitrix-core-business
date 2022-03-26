@@ -668,6 +668,7 @@ export class SectionInterface extends EventEmitter
 				text: Loc.getMessage('EC_ACTION_EXPORT'),
 				onclick: () => {
 					this.sectionActionMenu.close();
+
 					const options = {
 						sectionLink: section.data.EXPORT.LINK,
 						calendarPath: this.calendarContext.util.config.path,
@@ -684,11 +685,22 @@ export class SectionInterface extends EventEmitter
 			});
 		}
 
+		let provider = undefined;
+		let connection = undefined;
+
+		if (section.data.CAL_DAV_CON)
+		{
+			[provider, connection] = this.calendarContext.syncInterface.getProviderById(section.data.CAL_DAV_CON);
+		}
+
 		if (
 			section.canDo('edit_section')
 			&& section.belongsToView()
 			&& !section.isPseudo()
-			&& (!section.isGoogle() || section.data['EXTERNAL_TYPE'] === 'local')
+			&& ((!section.isGoogle() && !connection)
+				|| section.data['EXTERNAL_TYPE'] === 'local'
+				|| !connection
+			)
 		)
 		{
 			menuItems.push({
@@ -717,7 +729,6 @@ export class SectionInterface extends EventEmitter
 					text : Loc.getMessage('EC_ACTION_EXTERNAL_ADJUST'),
 					onclick: () => {
 						this.sectionActionMenu.close();
-						const [provider, connection] = this.calendarContext.syncInterface.getProviderById(section.data.CAL_DAV_CON);
 						if (provider)
 						{
 							provider.openActiveConnectionSlider(connection);

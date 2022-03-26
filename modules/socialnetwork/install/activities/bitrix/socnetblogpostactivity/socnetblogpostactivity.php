@@ -252,22 +252,44 @@ class CBPSocnetBlogPostActivity
 
 	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
 	{
-		$arErrors = array();
-		if (!array_key_exists("PostMessage", $arTestProperties) || $arTestProperties["PostMessage"] == '')
-			$arErrors[] = array("code" => "NotExist", "parameter" => "GroupName", "message" => GetMessage("SNBPA_EMPTY_POST_MESSAGE"));
-		if (!array_key_exists("OwnerId", $arTestProperties) || count($arTestProperties["OwnerId"]) <= 0)
-			$arErrors[] = array("code" => "NotExist", "parameter" => "OwnerId", "message" => GetMessage("SNBPA_EMPTY_OWNER"));
-
-		$ownerId = array_key_exists("OwnerId", $arTestProperties) ? $arTestProperties["OwnerId"] : null;
-		if ($user && $ownerId !== $user->getBizprocId() && !$user->isAdmin())
+		$errors = [];
+		if (empty($arTestProperties["PostMessage"]))
 		{
-			$arErrors[] = array("code" => "NotExist", "parameter" => "OwnerId", "message" => GetMessage("SNBPA_EMPTY_OWNER"));
+			$errors[] = [
+				"code" => "NotExist",
+				"parameter" => "GroupName",
+				"message" => GetMessage("SNBPA_EMPTY_POST_MESSAGE"),
+			];
+		}
+		if (empty($arTestProperties["OwnerId"]))
+		{
+			$errors[] = [
+				"code" => "NotExist",
+				"parameter" => "OwnerId",
+				"message" => GetMessage("SNBPA_EMPTY_OWNER"),
+			];
 		}
 
-		if (!array_key_exists("UsersTo", $arTestProperties) || count($arTestProperties["UsersTo"]) <= 0)
-			$arErrors[] = array("code" => "NotExist", "parameter" => "UsersTo", "message" => GetMessage("SNBPA_EMPTY_USERS"));
+		$ownerId = $arTestProperties["OwnerId"] ?? null;
+		if ($user && $ownerId && $ownerId !== $user->getBizprocId() && !$user->isAdmin())
+		{
+			$errors[] = [
+				"code" => "NotExist",
+				"parameter" => "OwnerId",
+				"message" => GetMessage("SNBPA_OWNER_DENIED"),
+			];
+		}
 
-		return array_merge($arErrors, parent::ValidateProperties($arTestProperties, $user));
+		if (empty($arTestProperties["UsersTo"]))
+		{
+			$errors[] = [
+				"code" => "NotExist",
+				"parameter" => "UsersTo",
+				"message" => GetMessage("SNBPA_EMPTY_USERS"),
+			];
+		}
+
+		return array_merge($errors, parent::ValidateProperties($arTestProperties, $user));
 	}
 
 	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "")

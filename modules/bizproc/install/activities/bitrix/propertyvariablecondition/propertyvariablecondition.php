@@ -1,10 +1,13 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Bizproc;
 
-class CBPPropertyVariableCondition
-	extends CBPActivityCondition
+class CBPPropertyVariableCondition extends CBPActivityCondition
 {
 	const CONDITION_JOINER_AND = 0;
 	const CONDITION_JOINER_OR = 1;
@@ -56,10 +59,13 @@ class CBPPropertyVariableCondition
 				$result[$i] = $r;
 			}
 			elseif (!$r)
+			{
 				$result[$i] = false;
+			}
 		}
 		$result = array_filter($result);
-		return sizeof($result) > 0 ? true : false;
+
+		return sizeof($result) > 0;
 	}
 
 	public function collectUsages(CBPActivity $ownerActivity)
@@ -68,7 +74,7 @@ class CBPPropertyVariableCondition
 		$rootActivity = $ownerActivity->GetRootActivity();
 		foreach ($this->condition as $cond)
 		{
-			if ($rootActivity->IsPropertyExists($cond[0]))
+			if ($rootActivity->isPropertyExists($cond[0]))
 			{
 				$usages[] = [\Bitrix\Bizproc\Workflow\Template\SourceType::Parameter, $cond[0]];
 			}
@@ -76,7 +82,25 @@ class CBPPropertyVariableCondition
 			{
 				$usages[] = [\Bitrix\Bizproc\Workflow\Template\SourceType::Variable, $cond[0]];
 			}
+			else
+			{
+				// don't know what type, but use broken link
+				$usages[] = [\Bitrix\Bizproc\Workflow\Template\SourceType::Variable, $cond[0]];
+			}
+
+			if (is_string($cond[2]))
+			{
+				$parsed = $ownerActivity::parseExpression($cond[2]);
+				if ($parsed)
+				{
+					$usages[] = \Bitrix\Bizproc\Workflow\Template\SourceType::getObjectSourceType(
+						$parsed['object'],
+						$parsed['field']
+					);
+				}
+			}
 		}
+
 		return $usages;
 	}
 
@@ -111,7 +135,15 @@ class CBPPropertyVariableCondition
 		return $condition->checkValue($field, $fieldType, $rootActivity->GetDocumentId());
 	}
 
-	public static function GetPropertiesDialog($documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $defaultValue, $arCurrentValues = null, $formName = "")
+	public static function GetPropertiesDialog(
+		$documentType,
+		$arWorkflowTemplate,
+		$arWorkflowParameters,
+		$arWorkflowVariables,
+		$defaultValue,
+		$arCurrentValues = null,
+		$formName = ""
+	)
 	{
 		if (count($arWorkflowParameters) <= 0 && count($arWorkflowVariables) <= 0)
 		{
@@ -131,13 +163,15 @@ class CBPPropertyVariableCondition
 				foreach ($defaultValue as $value)
 				{
 					if ($arCurrentValues["variable_condition_count"] <> '')
+					{
 						$arCurrentValues["variable_condition_count"] .= ",";
+					}
 					$arCurrentValues["variable_condition_count"] .= $i;
 
-					$arCurrentValues["variable_condition_field_".$i] = $value[0];
-					$arCurrentValues["variable_condition_condition_".$i] = $value[1];
-					$arCurrentValues["variable_condition_value_".$i] = $value[2];
-					$arCurrentValues["variable_condition_joiner_".$i] = $value[3];
+					$arCurrentValues["variable_condition_field_" . $i] = $value[0];
+					$arCurrentValues["variable_condition_condition_" . $i] = $value[1];
+					$arCurrentValues["variable_condition_value_" . $i] = $value[2];
+					$arCurrentValues["variable_condition_joiner_" . $i] = $value[3];
 
 					$i++;
 				}
@@ -155,18 +189,21 @@ class CBPPropertyVariableCondition
 
 				$i = intval($i);
 
-				if (!array_key_exists("variable_condition_field_".$i, $arCurrentValues) || $arCurrentValues["variable_condition_field_".$i] == '')
+				if (
+					!array_key_exists("variable_condition_field_" . $i, $arCurrentValues)
+					|| $arCurrentValues["variable_condition_field_".$i] == ''
+				)
 				{
 					continue;
 				}
 
-				$n = $arCurrentValues["variable_condition_field_".$i];
+				$n = $arCurrentValues["variable_condition_field_" . $i];
 
 				$errors = [];
-				$arCurrentValues["variable_condition_value_".$i] = $documentService->GetFieldInputValue(
+				$arCurrentValues["variable_condition_value_" . $i] = $documentService->GetFieldInputValue(
 					$documentType,
 					array_key_exists($n, $arWorkflowParameters) ? $arWorkflowParameters[$n] : $arWorkflowVariables[$n],
-					"variable_condition_value_".$i,
+					"variable_condition_value_" . $i,
 					$arCurrentValues,
 					$errors
 				);
@@ -178,27 +215,38 @@ class CBPPropertyVariableCondition
 		return $runtime->ExecuteResourceFile(
 			__FILE__,
 			"properties_dialog.php",
-			array(
+			[
 				"arCurrentValues" => $arCurrentValues,
 				"arProperties" => $arWorkflowParameters,
 				"arVariables" => $arWorkflowVariables,
 				"formName" => $formName,
 				"arFieldTypes" => $arFieldTypes,
 				"javascriptFunctions" => $javascriptFunctions,
-			)
+			]
 		);
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues, &$errors)
+	public static function GetPropertiesDialogValues(
+		$documentType,
+		$arWorkflowTemplate,
+		$arWorkflowParameters,
+		$arWorkflowVariables,
+		$arCurrentValues,
+		&$errors
+	)
 	{
 		$errors = [];
 
-		if (!array_key_exists("variable_condition_count", $arCurrentValues) || $arCurrentValues["variable_condition_count"] == '')
+		if (
+			!array_key_exists("variable_condition_count", $arCurrentValues)
+			|| $arCurrentValues["variable_condition_count"] == ''
+		)
 		{
-			$errors[] = array(
+			$errors[] = [
 				"code" => "",
 				"message" => GetMessage("BPPVC_EMPTY_CONDITION"),
-			);
+			];
+
 			return null;
 		}
 
@@ -217,15 +265,18 @@ class CBPPropertyVariableCondition
 
 			$i = intval($i);
 
-			if (!array_key_exists("variable_condition_field_".$i, $arCurrentValues) || $arCurrentValues["variable_condition_field_".$i] == '')
+			if (
+				!array_key_exists("variable_condition_field_" . $i, $arCurrentValues)
+				|| $arCurrentValues["variable_condition_field_" . $i] == ''
+			)
 			{
 				continue;
 			}
 
-			$n = $arCurrentValues["variable_condition_field_".$i];
+			$n = $arCurrentValues["variable_condition_field_" . $i];
 
 			$errors = [];
-			$arCurrentValues["variable_condition_value_".$i] = $documentService->GetFieldInputValue(
+			$arCurrentValues["variable_condition_value_" . $i] = $documentService->GetFieldInputValue(
 				$documentType,
 				array_key_exists($n, $arWorkflowParameters) ? $arWorkflowParameters[$n] : $arWorkflowVariables[$n],
 				"variable_condition_value_".$i,
@@ -233,20 +284,21 @@ class CBPPropertyVariableCondition
 				$errors
 			);
 
-			$result[] = array(
-				$arCurrentValues["variable_condition_field_".$i],
-				htmlspecialcharsback($arCurrentValues["variable_condition_condition_".$i]),
-				$arCurrentValues["variable_condition_value_".$i],
-				(int) $arCurrentValues["variable_condition_joiner_".$i],
-			);
+			$result[] = [
+				$arCurrentValues["variable_condition_field_" . $i],
+				htmlspecialcharsback($arCurrentValues["variable_condition_condition_" . $i]),
+				$arCurrentValues["variable_condition_value_" . $i],
+				(int) $arCurrentValues["variable_condition_joiner_" . $i],
+			];
 		}
 
 		if (count($result) <= 0)
 		{
-			$errors[] = array(
+			$errors[] = [
 				"code" => "",
 				"message" => GetMessage("BPPVC_EMPTY_CONDITION"),
-			);
+			];
+
 			return null;
 		}
 

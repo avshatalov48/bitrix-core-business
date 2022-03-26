@@ -4,9 +4,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use \Bitrix\Landing\Manager;
-use \Bitrix\Landing\Hook\Page\Settings;
-use \Bitrix\Main\ModuleManager;
+use Bitrix\Landing\Manager;
+use Bitrix\Landing\Hook\Page\Settings;
+use Bitrix\Main\ModuleManager;
 
 class StoreCatalogDetailBlockStoreV3 extends \Bitrix\Landing\LandingBlock
 {
@@ -99,8 +99,8 @@ class StoreCatalogDetailBlockStoreV3 extends \Bitrix\Landing\LandingBlock
 
 		// calc variables
 		$variables = \Bitrix\Landing\Landing::getVariables();
-		$sectionCode = isset($variables['sef'][0]) ? $variables['sef'][0] : '';
-		$elementCode = isset($variables['sef'][1]) ? $variables['sef'][1] : '';
+		$sectionCode = $variables['sef'][0] ?? '';
+		$elementCode = $variables['sef'][1] ?? '';
 
 		// set default view (for edit mode)
 		if (!$sectionCode && !$elementCode)

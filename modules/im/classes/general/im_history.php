@@ -52,6 +52,10 @@ class CIMHistory
 		{
 			$chat = new CIMChat();
 			$chatId = $chat->GetPersonalChat();
+			if (!$chatId)
+			{
+				return false;
+			}
 			$startId = 0;
 		}
 		else
@@ -188,6 +192,10 @@ class CIMHistory
 		{
 			$chat = new CIMChat();
 			$chatId = $chat->GetPersonalChat();
+			if (!$chatId)
+			{
+				return false;
+			}
 			$startId = 0;
 		}
 		else
@@ -308,6 +316,10 @@ class CIMHistory
 		{
 			$chat = new CIMChat();
 			$chatId = $chat->GetPersonalChat();
+			if (!$chatId)
+			{
+				return false;
+			}
 			$startId = 0;
 		}
 		else

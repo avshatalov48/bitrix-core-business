@@ -88,10 +88,6 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_7_CONTACTS_4_COLS_NODES_LANDINGBLOCKNODECONTACTIMG'),
 			'type' => 'color',
 		],
-		'.landing-block-node-contact-icon' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_7_CONTACTS_4_COLS_NODES_LANDINGBLOCKNODECONTACTIMG'),
-			'type' => 'color',
-		],
 	],
 	'groups' => [
 		'contact' => Loc::getMessage('LANDING_BLOCK_7_CONTACTS_4_COLS_NODES_LANDINGBLOCKNODE_CARD'),

@@ -69,23 +69,27 @@
 	color: white;
 	background-color: #f34829;
     display: inline-block;
-    padding: 0 7px;
+    padding: 1px 8px;
     height: 16px;
-    -webkit-border-radius: 30px;
     border-radius: 30px;
-    border: 1px solid #f34829;
     font: bold 11px/16px 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     vertical-align: middle;
-    -webkit-transition: .2s;
     transition: .2s;
+	margin-right: 5px;
+}
+
+.mail-msg-counter-number.mail-counter-zero {
+	background: rgba(255,255,255,.3);
+}
+
+.bitrix24-dark-theme .mail-msg-counter-number.mail-counter-zero {
+	color: rgba(82,92,105,1);
+	background: rgba(82,92,105,.15);
 }
 
 .mail-msg-counter-text {
 	position: relative;
 	display: inline-block;
-	margin: -1px 0 0 0;
-	max-width: -webkit-calc(100% - 7px);
-	max-width: calc(100% - 7px);
 	border: 1px solid transparent;
 	color: #535c69;
 	-webkit-transition: .2s;
@@ -95,6 +99,47 @@
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	outline: 0;
+}
+
+.mail-msg-counter-remove {
+	display: block;
+	position: absolute;
+	top: 0;
+	right: -1px;
+	bottom: 0;
+	width: 18px;
+	opacity: 0;
+	transform: translateX(-5px);
+	transition: .2s;
+}
+
+.mail-toolbar-counter.mail-msg-counter-number-selected .mail-msg-counter-remove {
+	opacity: 1;
+	transform: translateX(0);
+}
+
+.mail-msg-counter-remove:after {
+	content: '';
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7'%3E%3Cpath fill='%23525C69' opacity='.5' d='M5.526.276L3.5 2.303 1.474.276c-.369-.368-.83-.368-1.198 0-.368.369-.368.83 0 1.198L2.303 3.5.276 5.526c-.368.369-.368.83 0 1.198.369.368.83.368 1.198 0L3.5 4.697l2.026 2.027c.369.368.83.368 1.198 0 .368-.369.368-.83 0-1.198L4.697 3.5l2.027-2.026c.368-.369.368-.83 0-1.198C6.355 0 5.803 0 5.526.276z'/%3E%3C/svg%3E") 5px center no-repeat;
+	background-size: 7px 7px;
+	transition: .1s;
+}
+
+.mail-msg-counter-remove:hover:after {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7'%3E%3Cpath fill='%23525C69' opacity='.9' d='M5.526.276L3.5 2.303 1.474.276c-.369-.368-.83-.368-1.198 0-.368.369-.368.83 0 1.198L2.303 3.5.276 5.526c-.368.369-.368.83 0 1.198.369.368.83.368 1.198 0L3.5 4.697l2.026 2.027c.369.368.83.368 1.198 0 .368-.369.368-.83 0-1.198L4.697 3.5l2.027-2.026c.368-.369.368-.83 0-1.198C6.355 0 5.803 0 5.526.276z'/%3E%3C/svg%3E");
+}
+
+.bitrix24-light-theme .mail-msg-counter-remove:after {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7'%3E%3Cpath fill='%23fff' opacity='.5' d='M5.526.276L3.5 2.303 1.474.276c-.369-.368-.83-.368-1.198 0-.368.369-.368.83 0 1.198L2.303 3.5.276 5.526c-.368.369-.368.83 0 1.198.369.368.83.368 1.198 0L3.5 4.697l2.026 2.027c.369.368.83.368 1.198 0 .368-.369.368-.83 0-1.198L4.697 3.5l2.027-2.026c.368-.369.368-.83 0-1.198C6.355 0 5.803 0 5.526.276z'/%3E%3C/svg%3E");
+}
+
+.bitrix24-light-theme .mail-msg-counter-remove:hover:after {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7'%3E%3Cpath fill='%23fff' opacity='.9' d='M5.526.276L3.5 2.303 1.474.276c-.369-.368-.83-.368-1.198 0-.368.369-.368.83 0 1.198L2.303 3.5.276 5.526c-.368.369-.368.83 0 1.198.369.368.83.368 1.198 0L3.5 4.697l2.026 2.027c.369.368.83.368 1.198 0 .368-.369.368-.83 0-1.198L4.697 3.5l2.027-2.026c.368-.369.368-.83 0-1.198C6.355 0 5.803 0 5.526.276z'/%3E%3C/svg%3E");
 }
 
 .mail-msg-counter-inner:after {
@@ -130,13 +175,6 @@
 .bitrix24-light-theme .mail-msg-counter-text,
 .bitrix24-light-theme .mail-msg-counter-empty {
 	color: #fff !important;
-}
-
-.bitrix24-light-theme .mail-msg-counter-number,
-.bitrix24-light-theme .mail-msg-counter-container:hover .mail-msg-counter-inner:after
-{
-	border: 1px solid rgba(255,255,255,.4);
-	background: rgba(255,255,255,.15);
 }
 
 .mail-msg-userpic {
@@ -186,6 +224,7 @@
 	height: 15px;
 	background: url(images/task-list-sprite.svg?1);
 	background-position: -115px -183px;
+	flex-shrink: 0;
 }
 
 .mail-msg-show-animation {
@@ -345,4 +384,11 @@
 
 .mail-pagetitle-flexible-space {
 	flex: 1 1 auto;
+}
+
+.mail-loader-modifier {
+	background-color: #fff;
+	background-image: url("/bitrix/images/mail/mail-loader.svg");
+	background-position: 50% 40%;
+	background-repeat: no-repeat;
 }

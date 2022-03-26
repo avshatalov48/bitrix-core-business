@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,landing_env,landing_loc,landing_ui_panel_content,landing_sliderhacks,landing_pageobject,main_core) {
+(function (exports,landing_env,landing_loc,landing_ui_panel_content,landing_ui_panel_saveblock,landing_sliderhacks,landing_pageobject,main_core,landing_backend) {
 	'use strict';
 
 	/**
@@ -113,6 +113,7 @@ this.BX = this.BX || {};
 	    var options = landing_env.Env.getInstance().getOptions();
 	    _this.id = id;
 	    _this.options = Object.freeze(options);
+	    _this.blocks = _this.options.blocks;
 	    _this.currentBlock = null;
 	    _this.isDesignBlockModeFlag = _this.options["design_block"] === true;
 	    _this.loadedDeps = {};
@@ -143,9 +144,25 @@ this.BX = this.BX || {};
 	  }
 
 	  babelHelpers.createClass(Main, [{
+	    key: "isCrmFormPage",
+	    value: function isCrmFormPage() {
+	      return landing_env.Env.getInstance().getOptions().specialType === 'crm_forms';
+	    }
+	  }, {
 	    key: "isDesignBlockMode",
 	    value: function isDesignBlockMode() {
 	      return this.isDesignBlockModeFlag;
+	    }
+	  }, {
+	    key: "getSaveBlockPanel",
+	    value: function getSaveBlockPanel() {
+	      var panel = new landing_ui_panel_saveblock.SaveBlock('save_block_panel', {
+	        block: this.currentBlock
+	      });
+	      panel.layout.hidden = true;
+	      panel.content.hidden = false;
+	      main_core.Dom.append(panel.layout, document.body);
+	      return panel;
 	    }
 	  }, {
 	    key: "getBlocksPanel",
@@ -382,19 +399,35 @@ this.BX = this.BX || {};
 	     * @param {BX.Landing.Block} block
 	     * @param {HTMLElement} [area]
 	     * @param [button]
+	     * @param [insertBefore]
 	     */
 
 	  }, {
 	    key: "showBlocksPanel",
-	    value: function showBlocksPanel(block, area, button) {
+	    value: function showBlocksPanel(block, area, button, insertBefore) {
 	      this.currentBlock = block;
 	      this.currentArea = area;
+	      this.insertBefore = insertBefore;
+	      BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
+
+	      if (this.isCrmFormPage()) {
+	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        main_core.Dom.append(this.getBlocksPanel().layout, rootWindow.document.body);
+	        main_core.Dom.append(this.getBlocksPanel().overlay, rootWindow.document.body);
+	      }
+
 	      this.getBlocksPanel().show();
 	      this.disableAddBlockButtons();
 
 	      if (!!area && !!button) {
 	        this.onCreateButtonMouseout(area, button);
 	      }
+	    }
+	  }, {
+	    key: "showSaveBlock",
+	    value: function showSaveBlock(block) {
+	      this.currentBlock = block;
+	      this.getSaveBlockPanel().show();
 	    }
 	  }, {
 	    key: "disableAddBlockButtons",
@@ -473,6 +506,7 @@ this.BX = this.BX || {};
 	      var _this4 = this;
 
 	      var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      var rootWindow = landing_pageobject.PageObject.getRootWindow();
 
 	      if (!this.sliderFeedbackInited) {
 	        this.sliderFeedbackInited = true;
@@ -480,7 +514,9 @@ this.BX = this.BX || {};
 	          title: landing_loc.Loc.getMessage('LANDING_PANEL_FEEDBACK_TITLE'),
 	          className: 'landing-ui-panel-feedback'
 	        });
-	        main_core.Dom.append(this.sliderFeedback.layout, document.body);
+	        main_core.Dom.append(this.sliderFeedback.overlay, rootWindow.document.body);
+	        main_core.Dom.style(this.sliderFeedback.overlay, 'z-index', 322);
+	        main_core.Dom.append(this.sliderFeedback.layout, rootWindow.document.body);
 	        this.sliderFormLoader = new BX.Loader({
 	          target: this.sliderFeedback.content
 	        });
@@ -503,7 +539,7 @@ this.BX = this.BX || {};
 	      }();
 
 	      var form = this.getFeedbackFormOptions();
-	      window.b24formFeedBack({
+	      rootWindow.b24formFeedBack({
 	        id: form.id,
 	        lang: form.lang,
 	        sec: form.sec,
@@ -609,6 +645,8 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "initFeedbackForm",
 	    value: function initFeedbackForm() {
+	      var rootWindow = landing_pageobject.PageObject.getRootWindow();
+
 	      (function (w, d, u, b) {
 	        w.Bitrix24FormObject = b;
 
@@ -626,7 +664,7 @@ this.BX = this.BX || {};
 	        s.src = "".concat(u, "?").concat(r);
 	        var h = d.getElementsByTagName('script')[0];
 	        h.parentNode.insertBefore(s, h);
-	      })(window, document, 'https://landing.bitrix24.ru/bitrix/js/crm/form_loader.js', 'b24formFeedBack');
+	      })(rootWindow, rootWindow.document, 'https://landing.bitrix24.ru/bitrix/js/crm/form_loader.js', 'b24formFeedBack');
 	    }
 	    /**
 	     * Creates blocks list panel sidebar button
@@ -646,6 +684,52 @@ this.BX = this.BX || {};
 	      });
 	    }
 	    /**
+	     * Adds dynamically new block to the category.
+	     * @param {string} category Category code.
+	     * @param {{code: string, name: string, preview: string, section: Array<string>}} block Block data.
+	     */
+
+	  }, {
+	    key: "addNewBlockToCategory",
+	    value: function addNewBlockToCategory(category, block) {
+	      if (this.blocks[category]) {
+	        var blockCode = block['codeOriginal'] || block['code'];
+
+	        if (category === 'last') {
+	          if (!this.lastBlocks) {
+	            this.lastBlocks = Object.keys(this.blocks.last.items);
+	          }
+
+	          this.lastBlocks.unshift(blockCode);
+	        } else {
+	          this.blocks[category].items[blockCode] = block;
+	        }
+
+	        this.onBlocksListCategoryChange(category);
+	      }
+	    }
+	    /**
+	     * Returns page's template code if exists.
+	     * @return {string|null}
+	     */
+
+	  }, {
+	    key: "getTemplateCode",
+	    value: function getTemplateCode() {
+	      var _Env$getInstance$getO = landing_env.Env.getInstance().getOptions(),
+	          tplCode = _Env$getInstance$getO.tplCode;
+
+	      if (tplCode.indexOf('@') > 0) {
+	        tplCode = tplCode.split('@')[1];
+	      }
+
+	      if (!tplCode || tplCode.length <= 0) {
+	        tplCode = null;
+	      }
+
+	      return tplCode;
+	    }
+	    /**
 	     * Handles event on blocks list category change
 	     * @param {string} category - Category id
 	     */
@@ -655,6 +739,7 @@ this.BX = this.BX || {};
 	    value: function onBlocksListCategoryChange(category) {
 	      var _this5 = this;
 
+	      var templateCode = this.getTemplateCode();
 	      this.getBlocksPanel().content.hidden = false;
 	      this.getBlocksPanel().sidebarButtons.forEach(function (button) {
 	        var action = button.id === category ? 'add' : 'remove';
@@ -664,7 +749,7 @@ this.BX = this.BX || {};
 
 	      if (category === 'last') {
 	        if (!this.lastBlocks) {
-	          this.lastBlocks = Object.keys(this.options.blocks.last.items);
+	          this.lastBlocks = Object.keys(this.blocks.last.items);
 	        }
 
 	        this.lastBlocks = babelHelpers.toConsumableArray(new Set(this.lastBlocks));
@@ -676,10 +761,13 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      Object.keys(this.options.blocks[category].items).forEach(function (blockKey) {
-	        var block = _this5.options.blocks[category].items[blockKey];
+	      Object.keys(this.blocks[category].items).forEach(function (blockKey) {
+	        var block = _this5.blocks[category].items[blockKey];
+	        var blockTplCode = block['tpl_code'] && block['tpl_code'].length > 0 ? block['tpl_code'] : null;
 
-	        _this5.getBlocksPanel().appendCard(_this5.createBlockCard(blockKey, block));
+	        if (!templateCode || !blockTplCode || blockTplCode && blockTplCode === templateCode) {
+	          _this5.getBlocksPanel().appendCard(_this5.createBlockCard(blockKey, block));
+	        }
 	      });
 
 	      if (this.getBlocksPanel().content.scrollTop) {
@@ -793,7 +881,7 @@ this.BX = this.BX || {};
 	    key: "addBlock",
 	    value: function addBlock(res, preventHistory, withoutAnimation) {
 	      if (this.lastBlocks) {
-	        this.lastBlocks.unshift(res.manifest.code);
+	        this.lastBlocks.unshift(res.manifest.codeOriginal || res.manifest.code);
 	      }
 
 	      var self = this;
@@ -847,7 +935,8 @@ this.BX = this.BX || {};
 	          php: res.php,
 	          designed: res.designed,
 	          anchor: res.anchor,
-	          dynamicParams: res.dynamicParams
+	          dynamicParams: res.dynamicParams,
+	          repoId: res.repoId
 	        });
 	        return self.runBlockScripts(res).then(function () {
 	          return block;
@@ -878,7 +967,11 @@ this.BX = this.BX || {};
 	          }, 500);
 	        });
 	      }).then(function (res) {
-	        var p = _this7.addBlock(res, preventHistory);
+	        res.manifest.codeOriginal = blockCode;
+
+	        var p = _this7.addBlock(res, preventHistory, false);
+
+	        _this7.insertBefore = false;
 
 	        _this7.adjustEmptyAreas();
 
@@ -898,11 +991,15 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "insertToBlocksFlow",
 	    value: function insertToBlocksFlow(element) {
-	      var insertAfterCurrentBlock = this.currentBlock && this.currentBlock.node && this.currentBlock.node.parentNode;
+	      var isCurrentBlockAvailable = this.currentBlock && this.currentBlock.node && this.currentBlock.node.parentNode;
 
-	      if (insertAfterCurrentBlock) {
+	      if (isCurrentBlockAvailable && !this.insertBefore) {
 	        main_core.Dom.insertAfter(element, this.currentBlock.node);
 	        return;
+	      }
+
+	      if (isCurrentBlockAvailable && this.insertBefore) {
+	        main_core.Dom.insertBefore(element, this.currentBlock.node);
 	      }
 
 	      main_core.Dom.prepend(element, this.currentArea);
@@ -1076,8 +1173,20 @@ this.BX = this.BX || {};
 
 	        if (!restoreId) {
 	          requestBody.fields = fields;
-	          return BX.Landing.Backend.getInstance().action('Landing::addBlock', requestBody, {
+	          return landing_backend.Backend.getInstance().action('Landing::addBlock', requestBody, {
 	            code: blockCode
+	          }).then(function (result) {
+	            if (_this9.insertBefore) {
+	              return landing_backend.Backend.getInstance().action('Landing::upBlock', {
+	                lid: lid,
+	                siteId: siteId,
+	                block: result.id
+	              }).then(function () {
+	                return result;
+	              });
+	            }
+
+	            return result;
 	          });
 	        }
 
@@ -1122,6 +1231,10 @@ this.BX = this.BX || {};
 	        title: block.name,
 	        image: block.preview,
 	        code: blockKey,
+	        app_expired: block.app_expired,
+	        favorite: !!block.favorite,
+	        favoriteMy: !!block.favoriteMy,
+	        repo_id: block.repo_id,
 	        mode: mode,
 	        isNew: block.new === true,
 	        onClick: this.onAddBlock.bind(this, blockKey)
@@ -1181,5 +1294,5 @@ this.BX = this.BX || {};
 
 	exports.Main = Main;
 
-}((this.BX.Landing = this.BX.Landing || {}),BX.Landing,BX.Landing,BX.Landing.UI.Panel,BX.Landing,BX.Landing,BX));
+}((this.BX.Landing = this.BX.Landing || {}),BX.Landing,BX.Landing,BX.Landing.UI.Panel,BX.Landing.UI.Panel,BX.Landing,BX.Landing,BX,BX.Landing));
 //# sourceMappingURL=main.bundle.js.map

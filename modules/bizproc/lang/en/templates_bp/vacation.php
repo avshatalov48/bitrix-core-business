@@ -13,7 +13,7 @@ $MESS["BPT1_BT_SFA1_TITLE"] = "Save Leave Parameters";
 $MESS["BPT1_BT_STA1_STATE_TITLE"] = "Approval";
 $MESS["BPT1_BT_STA1_TITLE"] = "Set Status Text";
 $MESS["BPT1_BT_CYCLE"] = "Approval Cycle";
-$MESS["BPT1_BT_SA1_TITLE"] = "Sequence of Actions";
+$MESS["BPT1_BT_SA1_TITLE_1"] = "Sequence of Activities";
 $MESS["BPT1_BT_AA11_NAME"] = "Approve {=Template:TargetUser_printable}'s leave from {=Template:date_start} through {=Template:date_end}";
 $MESS["BPT1_BT_AA11_DESCR"] = "Employee: {=Template:TargetUser_printable}
 Leave starts on: {=Template:date_start}

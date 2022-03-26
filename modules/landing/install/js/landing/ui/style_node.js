@@ -33,6 +33,7 @@
 		this.inlineProperties = [];
 		this.computedProperties = [];
 		this.pseudoElement = null;
+		this.isSelectGroupFlag = null;
 		this.onFrameLoad();
 	};
 
@@ -129,12 +130,32 @@
 			BX.fireEvent(node.parentNode, "mouseenter");
 		},
 
-
 		isSelectGroup: function()
 		{
+			if (this.isSelectGroupFlag !== null)
+			{
+				return this.isSelectGroupFlag;
+			}
+
 			return window.localStorage.getItem("selectGroup") === "true";
 		},
 
+		/**
+		 * Forced set isSelectGroup flag just for current style node
+ 		 * @param value
+		 */
+		setIsSelectGroup: function(value)
+		{
+			this.isSelectGroupFlag = !!value;
+		},
+
+		/**
+		 * Unset force set isSelectGroup flag
+		 */
+		unsetIsSelectGroupFlag: function()
+		{
+			this.isSelectGroupFlag = null;
+		},
 
 		/**
 		 * Highlights this node
@@ -355,20 +376,20 @@
 		getValue: function(isNeedComputed)
 		{
 			var node = this.getNode().length ? this.getNode()[0] : null;
-
 			if (node)
 			{
 				var style = {};
-				var hasInlineProps = false;
+				var isAllInlineProps = false;
 				if (this.inlineProperties.length)
 				{
+					isAllInlineProps = true;
 					var styleObj = node.style;
 					this.inlineProperties.forEach(function (prop) {
 						style[prop] = styleObj.getPropertyValue(prop).trim() || null;
-						hasInlineProps = hasInlineProps || !!style[prop];
+						isAllInlineProps = isAllInlineProps && !!style[prop];
 					});
 				}
-				if (!!isNeedComputed && this.computedProperties.length && !hasInlineProps)
+				if (!!isNeedComputed && this.computedProperties.length && !isAllInlineProps)
 				{
 					this.computedProperties.forEach(function (prop) {
 						style[prop] =

@@ -10,14 +10,16 @@ use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Sale\Internals\BusinessValuePersonDomainTable;
 use Bitrix\Sale\Result;
 
-class BusinessValuePersonDomain extends Controller
+class BusinessValuePersonDomain extends ControllerBase
 {
 	//region Actions
 	public function getFieldsAction()
 	{
-		$entity = new \Bitrix\Sale\Rest\Entity\BusinessValuePersonDomain();
-		return ['BUSINESS_VALUE_PERSON_DOMAIN'=>$entity->prepareFieldInfos(
-			$entity->getFields()
+		$view = $this->getViewManager()
+			->getView($this);
+
+		return ['BUSINESS_VALUE_PERSON_DOMAIN'=>$view->prepareFieldInfos(
+			$view->getFields()
 		)];
 	}
 
@@ -38,9 +40,7 @@ class BusinessValuePersonDomain extends Controller
 
 		return new Page('BUSINESS_VALUE_PERSON_DOMAINS', $items, function() use ($filter)
 		{
-			return count(
-				BusinessValuePersonDomainTable::getList(['filter'=>$filter])->fetchAll()
-			);
+			return BusinessValuePersonDomainTable::getCount([$filter]);
 		});
 	}
 
@@ -215,6 +215,30 @@ class BusinessValuePersonDomain extends Controller
 		else
 		{
 			$r = parent::checkPermissionEntity($name);
+		}
+		return $r;
+	}
+
+	protected function checkModifyPermissionEntity()
+	{
+		$r = new Result();
+
+		$saleModulePermissions = self::getApplication()->GetGroupRight("sale");
+		if ($saleModulePermissions  < "W")
+		{
+			$r->addError(new Error('Access Denied', 200040300020));
+		}
+		return $r;
+	}
+
+	protected function checkReadPermissionEntity()
+	{
+		$r = new Result();
+
+		$saleModulePermissions = self::getApplication()->GetGroupRight("sale");
+		if ($saleModulePermissions  == "D")
+		{
+			$r->addError(new Error('Access Denied', 200040300010));
 		}
 		return $r;
 	}

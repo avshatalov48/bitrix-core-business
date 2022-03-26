@@ -103,10 +103,11 @@ Event.ready(() => {
 	namespaceMailHome.ProgressBar.setErrorTitleNode(document.querySelector('[data-role="error-box-title"]'));
 });
 
-namespaceMailHome.Counters = new Counters();
-namespaceMailHome.mailboxCounters = new Counters('mailboxCounters');
-namespaceMailHome.Grid = new MessageGrid();
-
+BX.ready(function() {
+	namespaceMailHome.Counters = new Counters('dirs', Loc.getMessage("DEFAULT_DIR"));
+	namespaceMailHome.mailboxCounters = new Counters('mailboxCounters');
+	namespaceMailHome.Grid = new MessageGrid();
+});
 namespaceMailHome.LeftMenu = LeftMenu;
 
 const namespaceClientMessage = Reflection.namespace('BX.Mail.Client.Message');

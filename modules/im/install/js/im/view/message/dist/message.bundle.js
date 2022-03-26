@@ -24,59 +24,59 @@
 	   */
 	  props: {
 	    userId: {
-	      default: 0
+	      "default": 0
 	    },
 	    dialogId: {
-	      default: 0
+	      "default": 0
 	    },
 	    chatId: {
-	      default: 0
+	      "default": 0
 	    },
 	    enableReactions: {
-	      default: true
+	      "default": true
 	    },
 	    enableDateActions: {
-	      default: true
+	      "default": true
 	    },
 	    enableCreateContent: {
-	      default: true
+	      "default": true
 	    },
 	    enableGestureQuote: {
-	      default: true
+	      "default": true
 	    },
 	    enableGestureQuoteFromRight: {
-	      default: true
+	      "default": true
 	    },
 	    enableGestureMenu: {
-	      default: false
+	      "default": false
 	    },
 	    showAvatar: {
-	      default: true
+	      "default": true
 	    },
 	    showMenu: {
-	      default: true
+	      "default": true
 	    },
 	    showName: {
-	      default: true
+	      "default": true
 	    },
 	    showLargeFont: {
-	      default: true
+	      "default": true
 	    },
 	    capturedMoveEvent: {
-	      default: null
+	      "default": null
 	    },
 	    referenceContentClassName: {
-	      default: ''
+	      "default": ''
 	    },
 	    referenceContentBodyClassName: {
-	      default: ''
+	      "default": ''
 	    },
 	    referenceContentNameClassName: {
-	      default: ''
+	      "default": ''
 	    },
 	    message: {
 	      type: Object,
-	      default: im_model.MessagesModel.create().getElementState
+	      "default": im_model.MessagesModel.create().getElementState
 	    }
 	  },
 	  data: function data() {

@@ -2,8 +2,8 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 $arActivityDescription = array(
-	"NAME" => GetMessage("BPRIA_DESCR_NAME"),
-	"DESCRIPTION" => GetMessage("BPRIA_DESCR_DESCR"),
+	"NAME" => GetMessage("BPRIA_DESCR_NAME_1"),
+	"DESCRIPTION" => GetMessage("BPRIA_DESCR_DESCR_1"),
 	"TYPE" => "activity",
 	"CLASS" => "RequestInformationActivity",
 	"JSCLASS" => "BizProcActivity",

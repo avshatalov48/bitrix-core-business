@@ -1,8 +1,7 @@
-<?
+<?php
+
 use Bitrix\Main\Loader;
 define("SALE_DEBUG", false); // Debug
-
-global $DBType;
 
 IncludeModuleLangFile(__FILE__);
 

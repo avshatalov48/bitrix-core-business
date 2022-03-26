@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CAT_STORE_INDEX_TITLE"] = "Список складов хранения товаров";
 $MESS["TITLE"] = "Название";
 $MESS["ADDRESS"] = "Адрес";
@@ -33,4 +33,15 @@ $MESS["BX_CATALOG_STORE_LIST_FILTER_NO_VALUE"] = "нет";
 $MESS["BX_CATALOG_STORE_LIST_EMPTY_FILTER"] = "(не фильтровать)";
 $MESS["BX_CATALOG_STORE_LIST_FILTER_EMPTY_SITE_ID"] = "не имеет привязки к сайту";
 $MESS["BX_CATALOG_STORE_LIST_FILTER_ANY_VALUE"] = "(все)";
-?>
+$MESS["BX_CATALOG_STORE_LIST_FIELD_IS_DEFAULT"] = "По умолчанию";
+$MESS["BX_CATALOG_STORE_LIST_ACTION_ACTIVATE"] = "Активировать";
+$MESS["BX_CATALOG_STORE_LIST_ACTION_DEACTIVATE"] = "Деактивировать";
+$MESS["BX_CATALOG_STORE_LIST_ACTION_SET_DEFAULT"] = "Сделать складом по умолчанию";
+$MESS["BX_CATALOG_STORE_LIST_ERR_CANNOT_DELETE_STORE"] = "Невозможно удалить склад с кодом ##ID#";
+$MESS["BX_CATALOG_STORE_LIST_ERR_CANNOT_DELETE_DEFAULT_STORE"] = "Запрещено удалять склад по умолчанию";
+$MESS["BX_CATALOG_STORE_LIST_ERR_CANNOT_ACTIVATE_STORE"] = "Невозможно активировать склад с кодом ##ID#";
+$MESS["BX_CATALOG_STORE_LIST_ERR_CANNOT_DEACTIVATE_DEFAULT_STORE"] = "Запрещено деактивировать склад по умолчанию";
+$MESS["BX_CATALOG_STORE_LIST_ERR_CANNOT_DEACTIVATE_STORE"] = "Невозможно деактивировать склад с кодом ##ID#";
+$MESS["BX_CATALOG_STORE_LIST_ERR_CANNOT_SET_DEFAULT_NON_ACTIVE_STORE"] = "Нельзя сделать складом по умолчанию неактивный склад";
+$MESS["BX_CATALOG_STORE_LIST_ERR_CANNOT_SET_DEFAULT_SITE_STORE"] = "Склад по умолчанию не может быть привязан к сайту";
+$MESS["BX_CATALOG_STORE_LIST_ERR_CANNOT_SET_DEFAULT_STORE_INTERNAL"] = "Ошибка указания склада по умолчанию: #ERROR#";

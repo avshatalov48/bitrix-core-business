@@ -56,7 +56,7 @@ $contactsRaw = $arResult['CRM_CONTACTS_RAW'];
 ?>
 
 <div class="landing-site-contacts">
-	<form method="post" action="<?= $component->getUri(['save' => 'Y']);?>">
+	<form method="post" action="<?= \htmlspecialcharsbx($component->getUri(['save' => 'Y']))?>">
 		<input type="hidden" name="save" value="Y" />
 		<input type="hidden" name="action" value="save" />
 		<input type="hidden" name="IFRAME" value="<?= $component->request('IFRAME') == 'Y' ? 'Y' : 'N';?>" />
@@ -93,7 +93,7 @@ $contactsRaw = $arResult['CRM_CONTACTS_RAW'];
 <script>
 	BX.ready(function() {
 		var nodesHint = document.body.querySelectorAll('[data-role="landing-site-contacts__return"]');
-		
+
 		if (nodesHint.length > 0)
 		{
 			for (var i = 0; i < nodesHint.length; i++)

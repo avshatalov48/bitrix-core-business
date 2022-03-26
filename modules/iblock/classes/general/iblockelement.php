@@ -1962,7 +1962,7 @@ class CAllIBlockElement
 
 	public function MkPropertySelect($PR_ID, $db_prop, &$arJoinProps, $bWasGroup, $sGroupBy, &$sSelect, $bSort = false)
 	{
-		global $DB, $DBType;
+		global $DB;
 
 		if($bSort && $db_prop["PROPERTY_TYPE"] != "L")
 			return;
@@ -1970,10 +1970,7 @@ class CAllIBlockElement
 		static $arJoinEFields = false;
 
 		//define maximum alias length
-		if($DBType == "oracle" || $DBType == "mssql")
-			$mal = 29;
-		else
-			$mal = false;
+		$mal = false;
 
 		$bSubQuery = isset($this) && is_object($this) && isset($this->subQueryProp);
 

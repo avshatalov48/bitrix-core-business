@@ -1,7 +1,7 @@
-import {BasePresetPanel, Preset, ContentWrapper} from 'landing.ui.panel.basepresetpanel';
+import {BasePresetPanel, Preset, ContentWrapper, PresetCategory} from 'landing.ui.panel.basepresetpanel';
 import {PageObject} from 'landing.pageobject';
 import {Loc} from 'landing.loc';
-import {Dom, Reflection, Runtime, Tag, Text, Type, Uri} from 'main.core';
+import {Dom, Reflection, Runtime, Tag, Text, Type, Uri, Cache, Event} from 'main.core';
 import type {BaseEvent} from 'main.core.events';
 import {Backend} from 'landing.backend';
 import {Loader} from 'main.loader';
@@ -9,29 +9,13 @@ import {FormClient} from 'crm.form.client';
 import {Button} from 'ui.buttons';
 import {Env} from 'landing.env';
 import {StylePanel} from 'landing.ui.panel.stylepanel';
-import {MessageBox} from 'ui.dialogs.messagebox';
+import {MessageBox, MessageBoxButtons} from 'ui.dialogs.messagebox';
 import type {FormDictionary, FormOptions} from 'crm.form.type';
 import {Alert, AlertColor} from 'ui.alerts';
-
-import HeaderAndButtonContent from './internal/content/header-and-buttons/header-and-buttons';
-import AgreementsContent from './internal/content/agreements/agreements';
-import SpamProtection from './internal/content/spam-protection/spam-protection';
-import AnalyticsContent from './internal/content/analytics/analytics';
-import FieldsContent from './internal/content/fields/fields';
-import FieldsRulesContent from './internal/content/fields-rules/fields-rules';
-import ActionsContent from './internal/content/actions/actions';
-import EmbedContent from './internal/content/embed/embed';
-import Identify from './internal/content/identify/identify';
-import CrmContent from './internal/content/crm/crm';
-import DefaultValues from './internal/content/defaultvalues/defaultvalues';
-import FacebookContent from './internal/content/facebook/facebook';
-import VkContent from './internal/content/vk/vk';
-import Callback from './internal/content/callback/callback';
-import Other from './internal/content/other/other';
-
-import sidebarButtons from './internal/sidebar-buttons';
-import presetCategories from './internal/preset-categories';
-import presets from './internal/presets';
+import {SidebarButton} from 'landing.ui.button.sidebarbutton';
+import {Guide} from 'ui.tour';
+import {FieldsPanel} from 'landing.ui.panel.fieldspanel';
+import 'ui.switcher';
 
 import './css/style.css';
 
@@ -86,33 +70,161 @@ export class FormSettingsPanel extends BasePresetPanel
 		this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel');
 		this.setTitle(Loc.getMessage('LANDING_FORM_SETTINGS_PANEL_TITLE'));
 
+		this.lsCache = new Cache.LocalStorageCache();
+
 		this.disableOverlay();
 
-		const preparedSidebarButtons = sidebarButtons.filter((button) => {
-			return this.isCrmFormPage() || button.id !== 'embed';
-		});
+		if (this.isCrmFormPage())
+		{
+			const {dictionary} = Env.getInstance().getOptions().formEditorData;
 
-		this.setSidebarButtons(preparedSidebarButtons);
-		this.setCategories(presetCategories);
+			const preparedSidebarButtons = dictionary.sidebarButtons.map((buttonOptions) => {
+				return new SidebarButton({...buttonOptions, child: true});
+			});
+			this.setSidebarButtons(preparedSidebarButtons);
 
-		const filteredPresets = presets.filter((preset) => {
-			return (
-				Loc.getMessage('LANGUAGE_ID') === 'ru'
-				|| (
-					Loc.getMessage('LANGUAGE_ID') !== 'ru'
-					&& preset.options.id !== 'vk'
-				)
-			);
-		});
+			const preparedPresets = dictionary.scenarios.map((presetOptions) => {
+				return new Preset(presetOptions);
+			});
+			this.setPresets(preparedPresets);
 
-		this.setPresets(filteredPresets);
-
-		if (!this.isCrmFormPage())
+			const preparedPresetCategories = dictionary.scenarioCategories.map((categoryOptions) => {
+				return new PresetCategory(categoryOptions);
+			});
+			this.setCategories(preparedPresetCategories);
+		}
+		else
 		{
 			Dom.append(this.getBlockSettingsButton().render(), this.getRightHeaderControls());
 		}
 
 		this.subscribe('onCancel', this.onCancelClick.bind(this));
+
+		Dom.append(this.getExpertSwitcherLayout(), this.layout);
+	}
+
+	getExpertSwitcherLayout(): HTMLDivElement
+	{
+		return this.cache.remember('switcherLayout', () => {
+			const onClick = () => {
+				this.getExpertModeSwitcher().node.click();
+			};
+			return Tag.render`
+				<div class="landing-ui-expert-switcher">
+					${this.getExpertModeSwitcher().node}
+					<span onclick="${onClick}" class="landing-ui-expert-switcher-label">
+						${Loc.getMessage('LANDING_FORM_EXPERT_MODE_SWITCHER_LABEL')}
+					</span>
+				</div>
+			`;
+		});
+	}
+
+	getExpertModeSwitcher(): Switcher
+	{
+		return this.cache.remember('expertModeSwitcher', () => {
+			const rootWindow = PageObject.getRootWindow();
+			const switcher = new rootWindow.BX.UI.Switcher({
+				checked: this.isExpertModeEnabled(),
+			});
+
+			Dom.addClass(switcher.node, 'ui-switcher-size-sm ui-switcher-color-green');
+
+			Event.bind(switcher.node, 'click', this.onExpertSwitcherClick.bind(this));
+
+			return switcher;
+		});
+	}
+
+	onExpertSwitcherClick()
+	{
+		this.lsCache.set('formEditorExpertMode', this.getExpertModeSwitcher().isChecked());
+		this.onExpertModeChange();
+	}
+
+	getCurrentPreset(): ?Preset
+	{
+		const {templateId} = this.getFormOptions();
+		const preset = this.getPresets().find((currentPreset) => {
+			return currentPreset.options.id === templateId;
+		});
+
+		if (preset)
+		{
+			return preset;
+		}
+
+		return this.getPresets().find((currentPreset) => {
+			return currentPreset.options.id === 'expert';
+		});
+	}
+
+	onExpertModeChange()
+	{
+		const currentPreset = this.getCurrentPreset();
+
+		if (
+			this.getExpertModeSwitcher().isChecked()
+			&& Type.isArrayFilled(currentPreset.options.expertModeItems)
+		)
+		{
+			this.clearSidebar();
+			this.getSidebarButtons()
+				.filter((button) => {
+					return currentPreset.options.expertModeItems.includes(button.id);
+				})
+				.forEach((button) => {
+					if (!currentPreset.options.items.includes(button.id))
+					{
+						button.deactivate();
+					}
+					this.appendSidebarButton(button);
+				});
+		}
+		else
+		{
+			const currentSidebarButton = this.getSidebarButtons().find((button) => {
+				return button.isActive();
+			});
+
+			const buttons = this.getSidebarButtons().filter((button) => {
+				return currentPreset.options.items.includes(button.id);
+			});
+
+			this.clearSidebar();
+			buttons.forEach((button) => {
+				this.appendSidebarButton(button);
+			});
+
+			if (
+				currentSidebarButton
+				&& !currentPreset.options.items.includes(currentSidebarButton.id)
+			)
+			{
+				const defaultSection = (() => {
+					if (Type.isStringFilled(currentPreset.options.defaultSection))
+					{
+						return currentPreset.options.defaultSection;
+					}
+
+					return 'fields';
+				})();
+
+				const defaultSectionButton = this.getSidebarButtons().find((button) => {
+					return button.id === defaultSection;
+				});
+
+				if (defaultSectionButton)
+				{
+					defaultSectionButton.getLayout().click();
+				}
+			}
+		}
+	}
+
+	isExpertModeEnabled(): boolean
+	{
+		return this.lsCache.get('formEditorExpertMode', false);
 	}
 
 	// eslint-disable-next-line class-methods-use-this
@@ -121,14 +233,28 @@ export class FormSettingsPanel extends BasePresetPanel
 		return Env.getInstance().getOptions().specialType === 'crm_forms';
 	}
 
+	getFormDesignButton()
+	{
+		return this.cache.remember('formDesignButton', () => {
+			return new Button({
+				text: Loc.getMessage('LANDING_FORM_DESIGN_BUTTON'),
+				color: Button.Color.LIGHT_BORDER,
+				round: true,
+				className: 'landing-ui-panel-top-button',
+				onclick: this.onFormDesignButtonClick.bind(this),
+			});
+		});
+	}
+
 	getBlockSettingsButton()
 	{
 		return this.cache.remember('blockSettingsButton', () => {
 			return new Button({
 				text: Loc.getMessage('LANDING_FORM_SETTINGS_BLOCK_SETTINGS_BUTTON_TEXT'),
 				color: Button.Color.LIGHT_BORDER,
+				round: true,
+				className: 'landing-ui-panel-top-button',
 				onclick: this.onBlockSettingsButtonClick.bind(this),
-				size: Button.Size.SMALL,
 			});
 		});
 	}
@@ -144,6 +270,14 @@ export class FormSettingsPanel extends BasePresetPanel
 		}
 	}
 
+	onFormDesignButtonClick()
+	{
+		if (this.getCurrentBlock())
+		{
+			this.getCurrentBlock().onFormDesignClick();
+		}
+	}
+
 	getLoader(): Loader
 	{
 		return this.cache.remember('loader', () => {
@@ -155,18 +289,36 @@ export class FormSettingsPanel extends BasePresetPanel
 
 	showLoader()
 	{
+		Dom.addClass(this.layout, 'landing-ui-panel-state-content-load');
 		void this.getLoader().show();
 		Dom.hide(this.sidebar);
 		Dom.hide(this.content);
-		Dom.hide(this.getPresetField().getLayout());
+		Dom.hide(this.getExpertSwitcherLayout());
 	}
 
 	hideLoader()
 	{
+		Dom.removeClass(this.layout, 'landing-ui-panel-state-content-load');
 		this.getLoader().hide();
 		Dom.show(this.sidebar);
 		Dom.show(this.content);
-		Dom.show(this.getPresetField().getLayout());
+
+		if (Type.isArrayFilled(this.getCurrentPreset().options.expertModeItems))
+		{
+			Dom.show(this.getExpertSwitcherLayout());
+		}
+	}
+
+	showContentLoader()
+	{
+		Dom.addClass(this.layout, 'landing-ui-panel-state-body-load');
+		super.showContentLoader();
+	}
+
+	hideContentLoader()
+	{
+		Dom.removeClass(this.layout, 'landing-ui-panel-state-body-load');
+		super.hideContentLoader();
 	}
 
 	load(options = {}): Promise<any>
@@ -174,6 +326,22 @@ export class FormSettingsPanel extends BasePresetPanel
 		if (options.showWithOptions)
 		{
 			const editorData = Env.getInstance().getOptions().formEditorData;
+			const {dictionary} = editorData;
+
+			const preparedSidebarButtons = dictionary.sidebarButtons.map((buttonOptions) => {
+				return new SidebarButton({...buttonOptions, child: true});
+			});
+			this.setSidebarButtons(preparedSidebarButtons);
+
+			const preparedPresets = dictionary.scenarios.map((presetOptions) => {
+				return new Preset(presetOptions);
+			});
+			this.setPresets(preparedPresets);
+
+			const preparedPresetCategories = dictionary.scenarioCategories.map((categoryOptions) => {
+				return new PresetCategory(categoryOptions);
+			});
+			this.setCategories(preparedPresetCategories);
 
 			this.setCrmFields(editorData.crmFields);
 			this.setCrmCompanies(editorData.crmCompanies);
@@ -236,6 +404,21 @@ export class FormSettingsPanel extends BasePresetPanel
 			.getDictionary()
 			.then((dictionary) => {
 				this.setFormDictionary(dictionary);
+
+				const preparedSidebarButtons = dictionary.sidebarButtons.map((buttonOptions) => {
+					return new SidebarButton({...buttonOptions, child: true});
+				});
+				this.setSidebarButtons(preparedSidebarButtons);
+
+				const preparedPresets = dictionary.scenarios.map((presetOptions) => {
+					return new Preset(presetOptions);
+				});
+				this.setPresets(preparedPresets);
+
+				const preparedPresetCategories = dictionary.scenarioCategories.map((categoryOptions) => {
+					return new PresetCategory(categoryOptions);
+				});
+				this.setCategories(preparedPresetCategories);
 			});
 
 		return Promise.all([
@@ -328,39 +511,6 @@ export class FormSettingsPanel extends BasePresetPanel
 				this.hideLoader();
 
 				const formOptions = this.getFormOptions();
-
-				if (!this.isLeadEnabled())
-				{
-					const presets = this.getPresets().map((preset: Preset) => {
-						if (
-							Type.isPlainObject(preset.options.options)
-							&& Type.isPlainObject(preset.options.options.data)
-						)
-						{
-							if (Type.isArrayFilled(preset.options.options.data.fields))
-							{
-								preset.options.options.data.fields = preset.options.options.data.fields.map((field) => {
-									const preparedField = {...field};
-									if (Type.isStringFilled(field.name))
-									{
-										preparedField.name = field.name.replace(/^LEAD_/, 'CONTACT_');
-									}
-									return preparedField;
-								});
-							}
-
-							if (Type.isPlainObject(preset.options.options.document))
-							{
-								preset.options.options.document.scheme = 3;
-							}
-						}
-
-						return preset;
-					});
-
-					this.setPresets(presets);
-				}
-
 				if (Type.isPlainObject(options.formOptions))
 				{
 					const formOptions = Runtime.merge(
@@ -386,7 +536,7 @@ export class FormSettingsPanel extends BasePresetPanel
 					{
 						this.applyPreset(preset);
 					}
-					else if (formOptions.templateId !== 'callback')
+					else
 					{
 						this.onPresetFieldClick();
 						this.activatePreset(formOptions.templateId);
@@ -405,9 +555,10 @@ export class FormSettingsPanel extends BasePresetPanel
 						});
 					}
 
-					if (this.isFormCreated() && formOptions.templateId !== 'callback')
+					if (this.isFormCreated())
 					{
 						this.applyPreset(preset);
+						this.onPresetFieldClick();
 					}
 					else
 					{
@@ -418,6 +569,11 @@ export class FormSettingsPanel extends BasePresetPanel
 				this.setInitialFormOptions(
 					Runtime.clone(this.getFormOptions()),
 				);
+
+				if (!this.isFormCreated())
+				{
+					this.onExpertModeChange();
+				}
 			})
 			.catch((error) => {
 				if (Type.isArrayFilled(error))
@@ -440,9 +596,18 @@ export class FormSettingsPanel extends BasePresetPanel
 				console.error(error);
 			});
 
+		const editorWindow = PageObject.getEditorWindow();
+		Dom.addClass(editorWindow.document.body, 'landing-ui-hide-action-panels-form');
+
 		void StylePanel.getInstance().hide();
 
-		return super.show(options);
+		return super.show(options).then(() => {
+			setTimeout(() => {
+				this.getCurrentBlock().node.scrollIntoView({behavior: 'smooth'});
+			}, 300);
+
+			return Promise.resolve(true);
+		});
 	}
 
 	getAccessError(): HTMLDivElement
@@ -468,7 +633,8 @@ export class FormSettingsPanel extends BasePresetPanel
 	// eslint-disable-next-line class-methods-use-this
 	isFormCreated(): boolean
 	{
-		const uri = new Uri(window.location.origin);
+		const rootWindow = PageObject.getRootWindow();
+		const uri = new Uri(rootWindow.location.href);
 		return Text.toBoolean(uri.getQueryParam('formCreated'));
 	}
 
@@ -563,7 +729,23 @@ export class FormSettingsPanel extends BasePresetPanel
 				return formApp.get(this.getCurrentFormInstanceId());
 			}
 
-			return formApp.list()[0];
+			let tmpIndex = -1;
+			const currentFormIndex = [
+				...this.getCurrentBlock().node.parentElement.childNodes,
+			].reduce((acc, item) => {
+				if (Dom.attr(item, 'data-subtype') === 'form')
+				{
+					tmpIndex += 1;
+					if (item === this.getCurrentBlock().node)
+					{
+						return tmpIndex;
+					}
+				}
+
+				return acc;
+			}, 0);
+
+			return formApp.list()[currentFormIndex];
 		}
 
 		return null;
@@ -580,34 +762,6 @@ export class FormSettingsPanel extends BasePresetPanel
 				if (eventData.skipPrepare)
 				{
 					const formOptions = this.getFormOptions();
-
-					if (
-						Type.isArrayFilled(formOptions.data.dependencies)
-						&& Type.isArrayFilled(value.fields)
-					)
-					{
-						const {dependencies} = formOptions.data;
-						formOptions.data.dependencies = dependencies.reduce((acc, item) => {
-							const preparedItem = {...item};
-							preparedItem.list = preparedItem.list.filter((rule) => {
-								return (
-									value.fields.some((field) => {
-										return field.id === rule.condition.target;
-									})
-									&& value.fields.some((field) => {
-										return field.id === rule.action.target;
-									})
-								);
-							});
-
-							if (preparedItem.list.length > 0)
-							{
-								acc.push(preparedItem);
-							}
-
-							return acc;
-						}, []);
-					}
 
 					if (
 						Reflect.has(value, 'presetFields')
@@ -632,6 +786,7 @@ export class FormSettingsPanel extends BasePresetPanel
 					if (
 						Reflect.has(value, 'embedding')
 						|| Reflect.has(value, 'callback')
+						|| Reflect.has(value, 'whatsapp')
 						|| (
 							Reflect.has(value, 'name')
 							&& Reflect.has(value, 'data')
@@ -657,11 +812,24 @@ export class FormSettingsPanel extends BasePresetPanel
 						const {key, secret} = value.recaptcha;
 						delete value.recaptcha.key;
 						delete value.recaptcha.secret;
-						const captcha = {key, secret};
+						const captcha = {};
+
+						if (!Type.isNil(key))
+						{
+							captcha.key = key;
+						}
+
+						if (!Type.isNil(secret))
+						{
+							captcha.secret = secret;
+						}
 
 						return {
 							...formOptions,
-							captcha,
+							captcha: {
+								...formOptions.captcha,
+								...captcha,
+							},
 							data: {
 								...formOptions.data,
 								...value,
@@ -680,10 +848,15 @@ export class FormSettingsPanel extends BasePresetPanel
 
 				return FormClient.getInstance()
 					.prepareOptions(this.getFormOptions(), value)
-					.then((result) => {
+					.then(result => {
 						if (value.agreements)
 						{
 							result.data = Runtime.merge(result.data, value);
+						}
+
+						if (value.integration)
+						{
+							result.integration = value.integration;
 						}
 
 						if (value.fields)
@@ -697,6 +870,9 @@ export class FormSettingsPanel extends BasePresetPanel
 					});
 			})
 			.then((result) => {
+				BX.Landing.UI.Panel.Top
+					.getInstance()
+					.setFormName(result.name);
 				this.setFormOptions(result);
 				this.getCrmForm().adjust(Runtime.clone(result.data));
 			});
@@ -739,254 +915,257 @@ export class FormSettingsPanel extends BasePresetPanel
 		});
 	}
 
-	getContent(id: string): ContentWrapper
+	getContent(id: string): Promise<ContentWrapper>
 	{
-		const crmForm = this.getCrmForm();
-		if (crmForm)
-		{
-			crmForm.sent = false;
-			crmForm.error = false;
-		}
+		const currentButton = this.getSidebarButtons().find((button) => {
+			return id === button.options.id;
+		});
 
-		if (id === 'button_and_header')
-		{
-			return new HeaderAndButtonContent({
-				personalizationVariables: this.getPersonalizationVariables(),
-				values: {
-					title: FormSettingsPanel.sanitize(this.getFormOptions().data.title),
-					desc: FormSettingsPanel.sanitize(this.getFormOptions().data.desc),
-					buttonCaption: this.getFormOptions().data.buttonCaption,
-				},
-			});
-		}
+		const {extension} = currentButton.options.data;
 
-		if (id === 'spam_protection')
-		{
-			return new SpamProtection({
-				dictionary: this.getFormDictionary(),
-				values: {
-					key: this.getFormOptions().captcha.key,
-					secret: this.getFormOptions().captcha.secret,
-					use: Text.toBoolean(this.getFormOptions().data.recaptcha.use),
-				},
-			});
-		}
-
-		if (id === 'agreements')
-		{
-			return new AgreementsContent({
-				formOptions: this.getFormOptions(),
-				agreementsList: this.getAgreements(),
-				values: {
-					agreements: this.getFormOptions().data.agreements,
-				},
-			});
-		}
-
-		if (id === 'analytics')
-		{
-			return new AnalyticsContent({
-				events: this.getFormOptions().analytics.steps,
-				values: {},
-			});
-		}
-
-		if (id === 'fields')
-		{
-			return new FieldsContent({
-				crmFields: this.getCrmFields(),
-				formOptions: this.getFormOptions(),
-				dictionary: this.getFormDictionary(),
-				isLeadEnabled: this.isLeadEnabled(),
-				values: {
-					fields: this.getFormOptions().data.fields,
-				},
-			});
-		}
-
-		if (id === 'fields_rules')
-		{
-			return new FieldsRulesContent({
-				fields: this.getFormOptions().data.fields,
-				values: this.getFormOptions().data.dependencies,
-				dictionary: this.getFormDictionary(),
-			});
-		}
-
-		if (id === 'actions')
-		{
-			const actionsContent = new ActionsContent({
-				fields: this.getFormOptions().data.fields,
-				values: this.getFormOptions().result,
-			});
-
-			actionsContent
-				.subscribe('onShowSuccess', () => {
-					crmForm.stateText = this.getFormOptions().result.success.text;
-					crmForm.sent = !crmForm.sent;
-					crmForm.error = false;
-				})
-				.subscribe('onShowFailure', () => {
-					crmForm.stateText = this.getFormOptions().result.failure.text;
-					crmForm.error = !crmForm.error;
-					crmForm.sent = false;
+		const contentExtension = this.cache.remember(extension, () => {
+			const rootWindow = PageObject.getRootWindow();
+			return rootWindow.BX.Runtime
+				.loadExtension(extension)
+				.then((exports) => {
+					return exports.default;
 				});
+		});
 
-			return actionsContent;
-		}
+		return contentExtension.then((ContentWrapperClass) => {
+			if (Type.isFunction(ContentWrapperClass))
+			{
+				return new ContentWrapperClass({
+					formOptions: this.getFormOptions(),
+					dictionary: this.getFormDictionary(),
+					crmFields: this.getCrmFields(),
+					companies: this.getCrmCompanies(),
+					categories: this.getCrmCategories(),
+					agreements: this.getAgreements(),
+					isLeadEnabled: this.isLeadEnabled(),
+					form: this.getCrmForm(),
+				});
+			}
 
-		if (id === 'embed')
+			return null;
+		});
+	}
+
+	onPresetClick(event: BaseEvent)
+	{
+		if (event.getTarget().options.openable)
 		{
-			return new EmbedContent({
-				fields: this.getFormOptions().data.fields,
-				values: this.getFormOptions().embedding,
-			});
+			this.disableTransparentMode();
 		}
 
-		if (id === 'identify')
-		{
-			return new Identify({
-				fields: this.getFormOptions().data.fields,
-				values: {},
-			});
-		}
+		const uri = new Uri(window.top.location.toString());
+		uri.removeQueryParam('formCreated');
+		uri.removeQueryParam('preset');
+		window.top.history.replaceState(null, document.title, uri.toString());
 
-		if (id === 'crm')
-		{
-			return new CrmContent({
-				fields: this.getFormOptions().data.fields,
-				companies: this.getCrmCompanies(),
-				categories: this.getCrmCategories(),
-				isLeadEnabled: this.isLeadEnabled(),
-				formDictionary: this.getFormDictionary(),
-				values: {
-					scheme: this.getFormOptions().document.scheme,
-					duplicatesEnabled: this.getFormOptions().document.deal.duplicatesEnabled || 'Y',
-					category: this.getFormOptions().document.deal.category,
-					dynamicCategory: this.getFormOptions().document.dynamic.category,
-					payment: this.getFormOptions().payment.use,
-					duplicateMode: this.getFormOptions().document.duplicateMode,
-				},
-			});
-		}
+		this.applyPreset(event.getTarget());
+	}
 
-		if (id === 'default_values')
-		{
-			return new DefaultValues({
-				crmFields: this.getCrmFields(),
-				formOptions: this.getFormOptions(),
-				dictionary: this.getFormDictionary(),
-				isLeadEnabled: this.isLeadEnabled(),
-				personalizationVariables: this.getDefaultValuesVariables(),
-				values: {
-					fields: this.getFormOptions().presetFields,
-				},
+	getCheckActionConfirm(): MessageBox
+	{
+		return this.cache.remember('checkActionConfirm', () => {
+			const rootWindow = PageObject.getRootWindow();
+			return new rootWindow.BX.UI.Dialogs.MessageBox({
+				buttons: MessageBoxButtons.OK_CANCEL,
 			});
-		}
-
-		if (id === 'facebook')
-		{
-			return new FacebookContent({
-				formOptions: this.getFormOptions(),
-			});
-		}
-
-		if (id === 'vk')
-		{
-			return new VkContent({
-				formOptions: this.getFormOptions(),
-			});
-		}
-
-		if (id === 'callback')
-		{
-			return new Callback({
-				dictionary: this.getFormDictionary(),
-				values: this.getFormOptions().callback,
-			});
-		}
-
-		if (id === 'other')
-		{
-			return new Other({
-				formOptions: this.getFormOptions(),
-				dictionary: this.getFormDictionary(),
-				values: {
-					name: this.getFormOptions().name,
-					useSign: this.getFormOptions().data.useSign,
-					users: this.getFormOptions().responsible.users,
-					checkWorkTime: this.getFormOptions().responsible.checkWorkTime,
-					language: this.getFormOptions().data.language,
-				},
-			});
-		}
-
-		return null;
+		});
 	}
 
 	applyPreset(preset: Preset, skipOptions = false)
 	{
+		const lastPreset = this.getPresets().find((currentPreset: Preset) => {
+			return Dom.hasClass(currentPreset.getLayout(), 'landing-ui-panel-preset-active');
+		});
+
 		this.getPresets().forEach((currentPreset) => {
 			currentPreset.deactivate();
 		});
 
-		preset.activate();
-
-		if (Type.isPlainObject(preset.options.options) && !skipOptions)
+		if (!skipOptions)
 		{
-			this.showLoader();
-			const clonedPresetOptions = {
-				data: {},
-				...Runtime.clone(preset.options.options),
-			};
+			const runAction = (() => {
+				if (Type.isArrayFilled(preset.options.actions))
+				{
+					return Promise.all(
+						preset.options.actions.map((action) => {
+							if (action.id === 'showTour')
+							{
+								const rootWindow = PageObject.getRootWindow();
+								const guide = new rootWindow.BX.UI.Tour.Guide({
+									onEvents: false,
+									steps: action.data.steps,
+								});
 
-			let agreementsOptions = [];
+								guide.start();
+							}
 
-			if (Reflect.has(clonedPresetOptions.data, 'agreements'))
-			{
-				const sourceAgreements = this.getAgreements();
-				agreementsOptions = [...clonedPresetOptions.data.agreements];
+							if (action.id === 'showHelp')
+							{
+								if (window.top.BX.Helper)
+								{
+									window.top.BX.Helper.show(action.data.href);
+								}
+							}
 
-				clonedPresetOptions.data.agreements = (
-					clonedPresetOptions.data.agreements.map((item, index) => {
-						return sourceAgreements[index].id;
-					})
-				);
-			}
+							if (action.id === 'check')
+							{
+								return FormClient
+									.getInstance()
+									.check({
+										templateId: preset.options.id,
+									})
+									.then((result) => {
+										if (result.success === false)
+										{
+											const checkActionConfirm = this.getCheckActionConfirm();
+											checkActionConfirm.setTitle(result.message.title);
+											checkActionConfirm.setMessage(result.message.description);
+											checkActionConfirm.setOkCaption(result.message.confirmButton);
+											checkActionConfirm.setCancelCaption(result.message.cancelButton);
 
-			FormClient.getInstance()
-				.prepareOptions(this.getFormOptions(), clonedPresetOptions.data)
-				.then((result) => {
-					if (Reflect.has(clonedPresetOptions.data, 'fields'))
-					{
-						delete clonedPresetOptions.data.fields;
-					}
+											return new Promise((resolve) => {
+												checkActionConfirm.setOkCallback(() => {
+													checkActionConfirm.getOkButton().setDisabled(false);
+													checkActionConfirm.getCancelButton().setDisabled(false);
+													checkActionConfirm.close();
+													resolve(true);
+												});
 
-					if (Reflect.has(clonedPresetOptions.data, 'agreements'))
-					{
-						delete clonedPresetOptions.data.agreements;
-					}
+												checkActionConfirm.setCancelCallback(() => {
+													checkActionConfirm.getOkButton().setDisabled(false);
+													checkActionConfirm.getCancelButton().setDisabled(false);
+													checkActionConfirm.close();
+													resolve(false);
+												});
 
-					const preparedOptions = Runtime.merge({}, result, clonedPresetOptions);
+												checkActionConfirm.show();
+											});
+										}
 
-					preparedOptions.data.agreements = (
-						preparedOptions.data.agreements.map((agreement, index) => {
-							return {
-								...agreement,
-								...agreementsOptions[index],
-							};
-						})
+										return Promise.resolve(true);
+									});
+							}
+
+							return Promise.resolve();
+						}),
 					);
+				}
 
-					this.setFormOptions(preparedOptions);
-					this.getCrmForm().adjust(Runtime.clone(preparedOptions.data));
-					super.applyPreset(preset);
-					this.hideLoader();
-				});
+				return Promise.resolve();
+			})();
+
+			if (preset.options.openable)
+			{
+				this.showLoader();
+
+				void runAction
+					.then((actions) => {
+						const actionsResult = (() => {
+							if (Type.isArrayFilled(preset.options.actions))
+							{
+								return preset.options.actions.reduce((acc, item, index) => {
+									return {...acc, [item.id]: actions[index]};
+								}, {});
+							}
+
+							return {};
+						})();
+
+						if (
+							(
+								Reflect.has(actionsResult, 'check')
+								&& actionsResult.check === true
+							)
+							|| (
+								!Reflect.has(actionsResult, 'check')
+							)
+						)
+						{
+							this.getPresets().forEach((currentPreset) => {
+								currentPreset.deactivate();
+							});
+
+							preset.activate();
+
+							FormClient.getInstance()
+								.prepareOptions(this.getFormOptions(), {templateId: preset.options.id})
+								.then((result) => {
+									return Backend.getInstance()
+										.action('Form::getCrmFields')
+										.then((crmFields) => {
+											this.setCrmFields(crmFields);
+											FieldsPanel.getInstance().setCrmFields(crmFields);
+											return result;
+										});
+								})
+								.then((result) => {
+									BX.Landing.UI.Panel.Top
+										.getInstance()
+										.setFormName(result.name);
+									this.setFormOptions({
+										...result,
+										templateId: preset.options.id,
+									});
+									this.getCrmForm().adjust(Runtime.clone(result.data));
+									if (this.isFormCreated())
+									{
+										this.onPresetFieldClick();
+										this.activatePreset(preset.options.id);
+									}
+									else
+									{
+										super.applyPreset(preset);
+
+										if (Type.isArrayFilled(preset.options.expertModeItems))
+										{
+											Dom.show(this.getExpertSwitcherLayout());
+											this.onExpertModeChange();
+										}
+										else
+										{
+											Dom.hide(this.getExpertSwitcherLayout());
+										}
+									}
+									this.hideLoader();
+								});
+						}
+						else
+						{
+							this.hideLoader();
+							this.enableTransparentMode();
+
+							if (lastPreset)
+							{
+								lastPreset.activate();
+								preset.deactivate();
+							}
+						}
+					});
+			}
 		}
 		else
 		{
-			super.applyPreset(preset);
+			if (preset.options.openable)
+			{
+				super.applyPreset(preset);
+				if (Type.isArrayFilled(preset.options.expertModeItems))
+				{
+					Dom.show(this.getExpertSwitcherLayout());
+					this.onExpertModeChange();
+				}
+				else
+				{
+					Dom.hide(this.getExpertSwitcherLayout());
+				}
+				this.hideLoader();
+			}
+
+			preset.activate();
 		}
 	}
 
@@ -1039,16 +1218,16 @@ export class FormSettingsPanel extends BasePresetPanel
 
 			const messageDescription = (() => {
 				const entityName = Loc.getMessage('LANDING_SYNCHRONIZATION_POPUP_ENTITY_TEMPLATE')
-					.replace('{entityName}', this.getCurrentCrmEntityName());
+					.replace('{entityName}', Text.encode(this.getCurrentCrmEntityName()));
 
 				return Loc.getMessage('LANDING_SYNCHRONIZATION_POPUP_DESCRIPTION')
-					.replace('{entityName}', entityName);
+					.replace('{entityName}', Text.encode(entityName));
 			})();
 
 			const messageText = (() => {
 				const fields = [...notSynchronizedFields].map((field) => {
 					return Loc.getMessage('LANDING_SYNCHRONIZATION_POPUP_FIELD_TEMPLATE')
-						.replace('{fieldName}', field);
+						.replace('{fieldName}', Text.encode(field));
 				});
 
 				if (notSynchronizedFields.length > 1)
@@ -1085,8 +1264,35 @@ export class FormSettingsPanel extends BasePresetPanel
 		window.top.BX.UI.Dialogs.MessageBox.alert(message);
 	}
 
+	getErrorAlert(): MessageBox
+	{
+		return this.cache.remember('errorAlert', () => {
+			const rootWindow = PageObject.getRootWindow();
+			return new rootWindow.BX.UI.Dialogs.MessageBox({
+				title: Loc.getMessage('LANDING_FORM_SAVE_ERROR_ALERT_TITLE'),
+				buttons: MessageBoxButtons.OK,
+				popupOptions: {
+					maxHeight: 310,
+				},
+			});
+		});
+	}
+
 	onSaveClick()
 	{
+		const dictionary = this.getFormDictionary();
+
+		if (
+			Type.isPlainObject(dictionary.permissions)
+			&& Type.isPlainObject(dictionary.permissions.form)
+			&& dictionary.permissions.form.edit === false
+		)
+		{
+			const rootWindow = PageObject.getRootWindow();
+			rootWindow.BX.UI.Dialogs.MessageBox.alert(Loc.getMessage('LANDING_FORM_SAVE_PERMISSION_DENIED'));
+			return;
+		}
+
 		Dom.addClass(this.getSaveButton().layout, 'ui-btn-wait');
 
 		this.getNotSynchronizedFields()
@@ -1131,13 +1337,97 @@ export class FormSettingsPanel extends BasePresetPanel
 						return currentOptions;
 					})();
 
+					if (
+						options.data.recaptcha.use
+						&& (
+							!this.getFormDictionary().captcha.hasKeys
+							&& !options.captcha.hasDefaults
+						)
+					)
+					{
+						options.data.recaptcha.use = false;
+
+						const rootWindow = PageObject.getRootWindow();
+						const alert: MessageBox = new rootWindow.BX.UI.Dialogs.MessageBox({
+							title: Loc.getMessage('LANDING_FORM_SAVE_CAPTCHA_ALERT_TITLE'),
+							message: Loc.getMessage('LANDING_FORM_SAVE_CAPTCHA_ALERT_TEXT_2'),
+							buttons: MessageBoxButtons.OK,
+							onOk: () => {
+								alert.close();
+								Dom.removeClass(this.getSaveButton().layout, 'ui-btn-wait');
+							},
+						});
+
+						alert.show();
+					}
+
 					void FormClient.getInstance()
 						.saveOptions(options)
 						.then((result) => {
 							this.setFormOptions(result);
+							this.setInitialFormOptions(result);
 							FormClient.getInstance().resetCache(result.id);
 							Dom.removeClass(this.getSaveButton().layout, 'ui-btn-wait');
-							void this.hide();
+
+							const activeButton = this.getSidebarButtons().find((button) => {
+								return button.isActive();
+							});
+
+							return Backend.getInstance()
+								.action('Form::getCrmFields')
+								.then((crmFields) => {
+									this.setCrmFields(crmFields);
+									FieldsPanel.getInstance().setCrmFields(crmFields);
+
+									if (
+										activeButton
+										&& !Dom.hasClass(this.layout, 'landing-ui-panel-mode-transparent')
+									)
+									{
+										activeButton.getLayout().click();
+									}
+
+									return result;
+								});
+
+							if (this.isCrmFormPage())
+							{
+								Dom.addClass(this.getSaveButton().layout, 'ui-btn-icon-done');
+								const currentButtonText = this.getSaveButton().layout.innerText;
+								this.getSaveButton().setText(Loc.getMessage('LANDING_FORM_EDITOR_SAVE_BUTTON_STATE_SAVED'));
+								setTimeout(() => {
+									Dom.removeClass(this.getSaveButton().layout, 'ui-btn-icon-done');
+									this.getSaveButton().setText(currentButtonText);
+								}, 1500);
+							}
+							else
+							{
+								void this.hide();
+							}
+						})
+						.catch((errors) => {
+							if (Type.isArrayFilled(errors))
+							{
+								const errorMessage = errors
+									.map((item) => {
+										return Text.encode(item.message);
+									})
+									.join('<br><br>');
+
+								const errorAlert = this.getErrorAlert();
+								errorAlert.setMessage(errorMessage);
+								errorAlert.show();
+							}
+							else
+							{
+								const rootWindow = PageObject.getRootWindow();
+								rootWindow.BX.UI.Dialogs.MessageBox.alert(
+									Loc.getMessage('LANDING_FORM_SAVE_UNKNOWN_ERROR_ALERT_TEXT'),
+									Loc.getMessage('LANDING_FORM_SAVE_ERROR_ALERT_TITLE'),
+								);
+							}
+
+							Dom.removeClass(this.getSaveButton().layout, 'ui-btn-wait');
 						});
 
 					if (this.useBlockDesign() && this.isCrmFormPage())
@@ -1150,6 +1440,11 @@ export class FormSettingsPanel extends BasePresetPanel
 					Dom.removeClass(this.getSaveButton().layout, 'ui-btn-wait');
 				}
 			});
+	}
+
+	isChanged(): boolean
+	{
+		return JSON.stringify(this.getFormOptions()) !== JSON.stringify(this.getInitialFormOptions());
 	}
 
 	disableUseBlockDesign()
@@ -1179,7 +1474,19 @@ export class FormSettingsPanel extends BasePresetPanel
 
 	onCancelClick()
 	{
-		this.getCrmForm().adjust(this.getInitialFormOptions().data);
+		const initialFormOptions = this.getInitialFormOptions();
+		this.getCrmForm().adjust(initialFormOptions.data);
+		BX.Landing.UI.Panel.Top
+			.getInstance()
+			.setFormName(initialFormOptions.name);
+
 		void this.hide();
+	}
+
+	hide(): Promise<*>
+	{
+		const editorWindow = PageObject.getEditorWindow();
+		Dom.removeClass(editorWindow.document.body, 'landing-ui-hide-action-panels-form');
+		return super.hide();
 	}
 }

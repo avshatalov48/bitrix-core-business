@@ -1,4 +1,8 @@
 <?php
+$MESS["FACEBOOK_CONVERSION_ERROR_ACCESS_DENIED"] = "Доступ заборонено.";
+$MESS["FACEBOOK_CONVERSION_ERROR_EVENT_NAME"] = "Подія не знайдена.";
+$MESS["FACEBOOK_CONVERSION_ERROR_MODULE_SALE"] = "Модуль sale не встановлений.";
+$MESS["FACEBOOK_CONVERSION_ERROR_MODULE_SEO"] = "Модуль SEO не встановлено.";
 $MESS["FACEBOOK_CONVERSION_EVENT_TITLE_ADD_PAYMENT_INFO"] = "Надіслати подію \"Додавання платіжної інформації\"";
 $MESS["FACEBOOK_CONVERSION_EVENT_TITLE_ADD_TO_CART"] = "Надіслати подію \"Додавання товару в кошик\"";
 $MESS["FACEBOOK_CONVERSION_EVENT_TITLE_CONTACT"] = "Надіслати подію \"Звернення користувача у вашу компанію\"";

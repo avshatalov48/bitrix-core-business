@@ -7,12 +7,14 @@ use Bitrix\Catalog;
 use Bitrix\Catalog\Component\ImageInput;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Crm\Order\Import\Instagram;
+use Bitrix\Crm;
 use Bitrix\Currency;
 use Bitrix\Iblock;
 use Bitrix\Iblock\Grid\ActionType;
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\UI\Extension;
+use Bitrix\Main\Web\Json;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 Loader::includeModule("iblock");
@@ -115,6 +117,7 @@ switch ($urlBuilder->getId())
 {
 	case 'SHOP':
 	case 'CRM':
+	case 'INVENTORY':
 		$pageConfig['LIST_ID_PREFIX'] = 'tbl_product_list_';
 		$pageConfig['CHECK_NEW_CARD'] = true;
 		$pageConfig['SHOW_NAVCHAIN'] = false;
@@ -259,10 +262,22 @@ if ($bCatalog)
 	}
 	if ($bCatalog)
 	{
-		$pageConfig['USE_NEW_CARD'] = (
-			$pageConfig['CHECK_NEW_CARD']
-			&& Catalog\Config\State::isProductCardSliderEnabled()
-		);
+		if ($pageConfig['CHECK_NEW_CARD'])
+		{
+			switch ($urlBuilder->getId())
+			{
+				case 'SHOP':
+				case 'INVENTORY':
+					$pageConfig['USE_NEW_CARD'] = Catalog\Config\State::isProductCardSliderEnabled();
+					break;
+				case 'CRM':
+					if (Loader::includeModule('crm'))
+					{
+						$pageConfig['USE_NEW_CARD'] = Crm\Settings\LayoutSettings::getCurrent()->isFullCatalogEnabled();
+					}
+					break;
+			}
+		}
 		if ($pageConfig['USE_NEW_CARD'])
 		{
 			$pageConfig['LIST_ID'] .= '.NEW';
@@ -991,14 +1006,20 @@ if($bCatalog)
 	{
 		$arHeader[] = array(
 			"id" => "CATALOG_QUANTITY",
-			"content" => GetMessage("IBLIST_A_CATALOG_QUANTITY_EXT"),
+			"content" => ($pageConfig["USE_NEW_CARD"]
+				? GetMessage("IBLIST_A_CATALOG_QUANTITY_NEW_CARD")
+				: GetMessage("IBLIST_A_CATALOG_QUANTITY_EXT")
+			),
 			"align" => "right",
-			"sort" => "QUANTITY",
+			"sort" => ($pageConfig["USE_NEW_CARD"] ? "" : "QUANTITY"),
 			"column_sort" => 400,
 		);
 		$arHeader[] = array(
 			"id" => "CATALOG_QUANTITY_RESERVED",
-			"content" => GetMessage("IBLIST_A_CATALOG_QUANTITY_RESERVED"),
+			"content" => ($pageConfig["USE_NEW_CARD"]
+				? GetMessage("IBLIST_A_CATALOG_QUANTITY_RESERVED_NEW_CARD")
+				: GetMessage("IBLIST_A_CATALOG_QUANTITY_RESERVED")
+			),
 			"align" => "right",
 		);
 		$arHeader[] = array(
@@ -2706,7 +2727,7 @@ $selectedSkuMap = [];
 
 if (
 		$boolSKU
-		&& Catalog\Config\Feature::isCommonProductProcessingEnabled()
+		&& $pageConfig['USE_NEW_CARD']
 )
 {
 	/** @var \Bitrix\Catalog\Component\SkuTree $skuTree */
@@ -2744,9 +2765,11 @@ if (!empty($elementIds))
 		if ($boolSKU && $skuTree)
 		{
 			$pageSkuIds = [];
+			$skuTreeFormatted = [];
 			$pageProductSkuTree = $skuTree->load($pageIds);
 			foreach ($pageProductSkuTree as $productId => $item)
 			{
+				$offers = [];
 				if (!empty($item['OFFERS']))
 				{
 					$offerIds = array_column($item['OFFERS'], 'ID');
@@ -2759,13 +2782,27 @@ if (!empty($elementIds))
 					{
 						$pageSkuIds[$productId] = reset($offerIds);
 					}
+
+					foreach ($item['OFFERS'] as $offer)
+					{
+						$offers[] = array_intersect_key(
+							$offer,
+							array_flip(['TREE', 'ID'])
+						);
+					}
 				}
+
+				$skuTreeFormatted[$productId] = [
+					'EXISTING_VALUES' => $item['EXISTING_VALUES'],
+					'OFFERS' => $offers,
+					'IBLOCK_ID' => $IBLOCK_ID,
+				];
 			}
 			$selectedSkuMap += $pageSkuIds;
 
 			if ($isUsedNewProductField)
 			{
-				$productSkuTree += $pageProductSkuTree;
+				$productSkuTree += $skuTreeFormatted;
 				if (!empty($pageSkuIds))
 				{
 					$fieldsToSelect = $skuFields;
@@ -2915,9 +2952,14 @@ foreach (array_keys($rawRows) as $rowId)
 
 		if (isset($arVisibleColumnsMap['CATALOG_TYPE']))
 		{
+			$hideSkuCatalog = (
+					$arRes['CATALOG_TYPE'] == \Bitrix\Catalog\ProductTable::TYPE_SKU
+					|| $arRes['CATALOG_TYPE'] == \Bitrix\Catalog\ProductTable::TYPE_EMPTY_SKU
+				)
+				&& !$showCatalogWithOffers
+			;
 			if (
-				$arRes['CATALOG_TYPE'] == \Bitrix\Catalog\ProductTable::TYPE_SKU
-				|| $arRes['CATALOG_TYPE'] == \Bitrix\Catalog\ProductTable::TYPE_EMPTY_SKU
+				$hideSkuCatalog
 				|| $arRes['CATALOG_TYPE'] == \Bitrix\Catalog\ProductTable::TYPE_SET
 			)
 			{
@@ -2925,11 +2967,7 @@ foreach (array_keys($rawRows) as $rowId)
 					$arRes['CATALOG_QUANTITY_RESERVED'] = '';
 			}
 			if (
-				(
-					$arRes['CATALOG_TYPE'] == \Bitrix\Catalog\ProductTable::TYPE_SKU
-					|| $arRes['CATALOG_TYPE'] == \Bitrix\Catalog\ProductTable::TYPE_EMPTY_SKU
-				)
-				&& !$showCatalogWithOffers
+				$hideSkuCatalog
 			)
 			{
 				if (isset($arRes['CATALOG_QUANTITY']))
@@ -3845,7 +3883,7 @@ foreach (array_keys($rawRows) as $rowId)
 	}
 	else
 	{
-		if (!$bExcel && $bCatalog && Catalog\Config\Feature::isCommonProductProcessingEnabled())
+		if (!$bExcel && $bCatalog && $pageConfig['USE_NEW_CARD'])
 		{
 			if (!$isChangeVariationRequest)
 			{
@@ -4833,6 +4871,39 @@ if($bCatalog && $boolCatalogPrice)
 			var priceChanger = (new top.BX.CAdminDialog(paramsWindowChanger));
 			priceChanger.Show();
 		}
+
+		function openSlider(url, options)
+		{
+			options = {...{cacheable: false, allowChangeHistory: false, events: {}}, ...options};
+			return new Promise((resolve) =>
+			{
+				if(url.length > 1)
+				{
+					options.events.onClose = function(event)
+					{
+						resolve(event.getSlider());
+					};
+					return BX.SidePanel.Instance.open(url, options);
+				}
+				else
+				{
+					resolve();
+				}
+			});
+		}
+
+		function openWarehousePanel(url)
+		{
+			openSlider(url, {data: {closeSliderOnDone: false}})
+			.then(() => {
+				this.reloadGrid();
+			});
+		}
+
+		function reloadGrid()
+		{
+			document.location.reload();
+		}
 	</script>
 
 	<?
@@ -5074,7 +5145,8 @@ if (!empty($productLimits))
 }
 $lAdmin->EndPrologContent();
 
-if (Loader::includeModule('crm') && Instagram::isAvailable() && Instagram::isActiveStatus())
+$enableInstagram = Loader::includeModule('crm') && Instagram::isAvailable() && Instagram::isActiveStatus();
+if ($enableInstagram)
 {
 	$lAdmin->setFilterPresets([
 		'import_instagram' => [
@@ -5094,26 +5166,8 @@ if($bWorkFlow || $bBizproc):
 	<?echo EndNote();
 endif;
 
-$sliderPath = \Bitrix\Main\Context::getCurrent()->getRequest()->get('slider_path');
-if (!empty($sliderPath))
-{
-	?><script>window.history.replaceState({}, '', '<?=CUtil::JSEscape('?' . $arParams['PAGE_PARAMS'])?>');</script><?
-	if (
-		preg_match('/^\/(shop|crm)\/catalog\/[0-9]+\/product\/[0-9]+\/variation\/[0-9]+\/$/', $sliderPath)
-		|| preg_match('/^\/(shop|crm)\/catalog\/[0-9]+\/product\/[0-9]+\/$/', $sliderPath)
-	)
-	{
-		?>
-		<script>
-			BX.ready(function () {
-				BX.SidePanel.Instance.open(
-					'<?=CUtil::JSEscape($sliderPath)?>'
-				);
-			});
-		</script>
-		<?
-	}
-}
+$urlBuilder->showDetailPageSlider();
+
 if ($pageConfig['IBLOCK_EDIT'] && CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "iblock_edit"))
 {
 	echo
@@ -5126,12 +5180,12 @@ if ($pageConfig['IBLOCK_EDIT'] && CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBL
 	;
 }
 
-if ($publicMode && !$bExcel && Loader::includeModule('crm'))
+if ($publicMode && !$bExcel && $enableInstagram)
 {
 	$APPLICATION->IncludeComponent('bitrix:crm.order.import.instagram.observer', '');
 }
 
-if ($bCatalog && !$isChangeVariationRequest && Catalog\Config\Feature::isCommonProductProcessingEnabled())
+if ($bCatalog && !$isChangeVariationRequest && $pageConfig['USE_NEW_CARD'])
 {
 	$listData = [
 		'gridId' => $sTableID,

@@ -1480,7 +1480,7 @@ this.BX = this.BX || {};
 	        } else if (entity.entityId === 'user') {
 	          return 'U' + entity.id;
 	        } else if (entity.entityId === 'project') {
-	          return 'SG' + entity.id;
+	          return 'SG' + entity.id + '_K'; // for all members of group
 	        } else if (entity.entityId === 'department') {
 	          return 'DR' + entity.id;
 	        } else if (entity.entityId === 'group') {
@@ -1550,6 +1550,11 @@ this.BX = this.BX || {};
 
 	        bx.UI.Hint.initNode(hintNode);
 	      }
+	    }
+	  }, {
+	    key: "documentIsDisplayingNow",
+	    value: function documentIsDisplayingNow() {
+	      return !document.hidden;
 	    }
 	  }]);
 	  return Util;

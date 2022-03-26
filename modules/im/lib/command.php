@@ -295,11 +295,15 @@ class Command
 	public static function onCommandAdd($messageId, $messageFields)
 	{
 		if ($messageFields['SKIP_COMMAND'] == 'Y' || $messageFields['SYSTEM'] == 'Y')
+		{
 			return true;
+		}
 
 		$commands = self::getListCache();
 		if (empty($commands))
+		{
 			return false;
+		}
 
 		$commandList = Array();
 		if (preg_match_all("/^\\/(?P<COMMAND>[^\\040\\n]*)(\\040?)(?P<PARAMS>.*)$/m", $messageFields['MESSAGE'], $matches))
@@ -308,19 +312,25 @@ class Command
 			{
 				$commandData = self::findCommands(Array('COMMAND' => $cmd, 'EXEC_PARAMS' => $matches['PARAMS'][$idx], 'MESSAGE_FIELDS' => $messageFields));
 				if (!$commandData)
+				{
 					continue;
+				}
 
 				$commandList = array_merge($commandList, $commandData);
 			}
 		}
 		if (empty($commandList))
+		{
 			return false;
+		}
 
-		$messageFields['DIALOG_ID'] = \Bitrix\Im\Command::getDialogId($messageFields);
-		unset($messageFields['MESSAGE_OUT']);
-		unset($messageFields['NOTIFY_EVENT']);
-		unset($messageFields['NOTIFY_MODULE']);
-		unset($messageFields['URL_PREVIEW']);
+		$messageFields['DIALOG_ID'] = self::getDialogId($messageFields);
+		unset(
+			$messageFields['MESSAGE_OUT'],
+			$messageFields['NOTIFY_EVENT'],
+			$messageFields['NOTIFY_MODULE'],
+			$messageFields['URL_PREVIEW']
+		);
 
 		$count = 0;
 		$executed = Array();
@@ -368,10 +378,12 @@ class Command
 				call_user_func_array(array($params["CLASS"], $params["METHOD_COMMAND_ADD"]), Array($messageId, $messageFields));
 			}
 		}
-		unset($messageFields['COMMAND']);
-		unset($messageFields['COMMAND_ID']);
-		unset($messageFields['COMMAND_PARAMS']);
-		unset($messageFields['COMMAND_CONTEXT']);
+		unset(
+			$messageFields['COMMAND'],
+			$messageFields['COMMAND_ID'],
+			$messageFields['COMMAND_PARAMS'],
+			$messageFields['COMMAND_CONTEXT']
+		);
 
 		foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("im", "onImCommandAdd") as $event)
 		{

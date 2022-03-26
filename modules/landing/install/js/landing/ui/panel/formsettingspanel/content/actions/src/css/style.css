@@ -1,0 +1,34 @@
+.landing-ui-form-actions-type1 {
+	background-image: url("images/type1.svg");
+}
+
+.landing-ui-form-actions-type2 {
+	background-image: url("images/type2.svg");
+}
+
+.landing-ui-form-actions-type3 {
+	background-image: url("images/type3.svg");
+}
+
+.landing-ui-actions-content-wrapper .landing-ui-field-link-url .landing-ui-field-input {
+	max-width: none;
+}
+
+.landing-ui-actions-content-wrapper .landing-ui-field-preset-layout .landing-ui-field-preset-icon {
+	width: 49px;
+	height: 45px;
+	margin-bottom: 12px;
+}
+
+.landing-ui-actions-content-wrapper .landing-ui-field-preset-layout .landing-ui-field-preset-right {
+	margin-top: 6px;
+	margin-left: 2px;
+}
+
+.landing-ui-actions-content-wrapper .landing-ui-field-preset-layout .landing-ui-field-preset-left {
+	margin-left: 0;
+}
+
+.landing-ui-actions-content-wrapper .landing-ui-field-preset-layout .landing-ui-field-preset-link {
+	margin-top: 3px;
+}

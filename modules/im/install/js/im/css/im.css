@@ -754,25 +754,34 @@
 .bx-messenger-cl-avatar-support24Notifier .bx-messenger-cl-avatar-img-default,
 .bx-messenger-panel-avatar-support24Notifier .bx-messenger-panel-avatar-img-default,
 .bx-messenger-panel-avatar-support24Notifier .bx-messenger-panel-avatar-status,
-.bx-messenger-cl-avatar-support24Notifier .bx-messenger-cl-status {
+.bx-messenger-cl-avatar-support24Notifier .bx-messenger-cl-status,
+.bx-messenger-cl-avatar-support24Question .bx-messenger-cl-avatar-img-default,
+.bx-messenger-panel-avatar-support24Question .bx-messenger-panel-avatar-img-default,
+.bx-messenger-panel-avatar-support24Question .bx-messenger-panel-avatar-status,
+.bx-messenger-cl-avatar-support24Question .bx-messenger-cl-status,
+.bx-notifier-item-avatar-img-default-support24Question
+{
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20viewBox%3D%220%200%2019%2013%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M6.198%203.918c0-1.066-.882-1.44-1.82-1.44-1.258%200-2.29.411-3.248.841L.473%201.355C1.543.87%203.026.327%204.791.327c2.759%200%204.091%201.384%204.091%203.329%200%203.404-4.692%204.358-5.48%206.958h5.65v2.17H.06C.567%206.705%206.198%206.35%206.198%203.918zm6.814%203.872h1.126V6.462c0-.954.075-2.058.113-2.3l-2.797%203.684a30.661%2030.661%200%200%201%201.558-.056zM8.6%208.22L14.795.364h1.84V7.79h1.839v2.057h-1.84v2.937h-2.496V9.847H8.601V8.22z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22/%3E%3C/svg%3E');
+	background-repeat: no-repeat;
 	background-size: 23px;
 	background-position: 7px 9px;
 	background-color: #0165af!important;
 }
 .bx-messenger-panel-avatar-support24Notifier .bx-messenger-panel-avatar-status,
-.bx-messenger-cl-avatar-support24Notifier .bx-messenger-cl-status  {
+.bx-messenger-cl-avatar-support24Notifier .bx-messenger-cl-status,
+.bx-messenger-panel-avatar-support24Question .bx-messenger-panel-avatar-status,
+.bx-messenger-cl-avatar-support24Question .bx-messenger-cl-status  {
 	background-size: 9px;
 	background-position: center;
 }
 .bx-messenger-cl-item-chat-support24Notifier .bx-messenger-cl-user-title,
-.bx-messenger-context-chat-support24Notifier .bx-messenger-panel-title {
+.bx-messenger-context-chat-support24Notifier .bx-messenger-panel-title,
+.bx-messenger-cl-item-chat-support24Question .bx-messenger-cl-user-title,
+.bx-messenger-context-chat-support24Question .bx-messenger-panel-title span {
 	color:#005390;
 	background-repeat: no-repeat;
 	background-size: contain;
 }
-.bx-messenger-context-chat-support24Notifier .bx-messenger-panel-mute { display:none!important;  }
-.bx-messenger-context-chat-support24Notifier .bx-messenger-panel-unmute { display:none!important;  }
 
 .bx-messenger-cl-avatar-crm .bx-messenger-cl-avatar-img-default,
 .bx-messenger-panel-avatar-crm .bx-messenger-panel-avatar-img-default {
@@ -1652,15 +1661,16 @@
 .bx-messenger-cl-avatar-notifications .bx-messenger-cl-avatar-img-default,
 .bx-messenger-panel-avatar-notifications .bx-messenger-panel-avatar-status,
 .bx-messenger-cl-avatar-notifications .bx-messenger-cl-status {
-	background-image: url(data:image/svg+xml,%3Csvg%20width%3D%2223%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M2%200h19a2%202%200%20012%202v10.98a2%202%200%2001-2%202H9.148l-4.26%204.547V14.98H2a2%202%200%2001-2-2V2a2%202%200%20012-2zm4.896%208.648c0-.434-.108-.794-.323-1.08-.216-.285-.6-.552-1.154-.801-.577-.264-.931-.446-1.061-.545-.13-.1-.196-.213-.196-.339%200-.117.051-.215.154-.294.102-.079.267-.119.492-.119.437%200%20.955.138%201.556.413l.532-1.34c-.692-.307-1.37-.461-2.035-.461-.753%200-1.345.165-1.776.496-.43.331-.646.793-.646%201.385%200%20.316.051.59.152.821a1.7%201.7%200%2000.466.616c.21.178.524.363.943.553.462.208.747.346.854.413.09.052.168.12.233.2a.413.413%200%2001-.107.576c-.12.09-.31.134-.567.134-.3%200-.627-.048-.985-.143a5.17%205.17%200%2001-1.032-.397v1.546c.313.15.615.255.905.315.29.06.649.09%201.076.09.513%200%20.96-.086%201.34-.257.382-.172.673-.412.875-.721a1.9%201.9%200%2000.304-1.061zm3.792%201.95h1.652l1.297-4.618h.04c-.024.438-.044.876-.06%201.314-.004.179-.007.341-.007.488v2.817h1.596V4.174H12.89l-1.314%204.562h-.035L10.2%204.174H7.888v6.425h1.538v-2.79c0-.437-.031-1.05-.093-1.838h.04l1.314%204.628.001-.001zm10.103-1.95c0-.434-.108-.794-.323-1.08-.215-.285-.6-.552-1.154-.801-.577-.264-.93-.446-1.06-.545-.131-.1-.196-.213-.196-.339%200-.117.05-.215.153-.294.103-.079.267-.119.493-.119.436%200%20.955.138%201.555.413l.532-1.34c-.691-.307-1.37-.461-2.035-.461-.753%200-1.344.165-1.775.496-.43.331-.646.793-.646%201.385%200%20.316.05.59.152.821a1.7%201.7%200%2000.465.616c.21.178.524.363.943.553.463.208.748.346.855.413.09.052.168.12.233.2a.38.38%200%2001.072.231c0%20.14-.06.256-.18.345-.12.09-.31.134-.567.134-.299%200-.627-.048-.984-.143a5.17%205.17%200%2001-1.033-.397v1.546c.313.15.615.255.905.315.29.06.65.09%201.077.09.513%200%20.96-.086%201.34-.257a1.99%201.99%200%2000.875-.721c.202-.31.303-.663.303-1.061z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E);
-	background-size: 22px;
-	background-position: center 10px;
+	background-image: url(data:image/svg+xml,%3Csvg%20width%3D%2228%22%20height%3D%2228%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22%23FFF%22%20fill-rule%3D%22nonzero%22%3E%3Cpath%20d%3D%22M0%2027.67l1.936-6.876a13.76%2013.76%200%2001-1.9-6.992C.036%206.192%206.227%200%2013.837%200S27.64%206.192%2027.64%2013.802c0%207.61-6.191%2013.802-13.802%2013.802-2.37%200-4.693-.607-6.747-1.76L0%2027.67zm7.452-4.337l.423.258a11.437%2011.437%200%20005.962%201.672c6.32%200%2011.461-5.142%2011.461-11.461%200-6.32-5.141-11.46-11.46-11.46-6.32%200-11.461%205.14-11.461%2011.46%200%202.202.626%204.34%201.81%206.184l.284.443-1.115%203.959%204.096-1.055z%22%2F%3E%3Cpath%20d%3D%22M10.056%207.49l-.896-.048a1.083%201.083%200%2000-.77.263c-.434.377-1.128%201.106-1.341%202.056-.318%201.416.173%203.15%201.445%204.885%201.272%201.734%203.642%204.509%207.833%205.694%201.35.382%202.413.124%203.233-.4a2.891%202.891%200%20001.258-1.835l.143-.668a.464.464%200%2000-.26-.519l-3.026-1.395a.464.464%200%2000-.562.138l-1.188%201.54a.34.34%200%2001-.382.114c-.814-.286-3.54-1.427-5.036-4.308a.343.343%200%2001.044-.383l1.135-1.314a.464.464%200%2000.076-.486l-1.305-3.052a.464.464%200%2000-.401-.281z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E);
+	background-size: 21px;
+	background-color: #5dcc41!important;
 }
 .bx-messenger-panel-avatar-notifications .bx-messenger-panel-avatar-status,
 .bx-messenger-cl-avatar-notifications .bx-messenger-cl-status {
-	background-size: 10px;
-	background-position: center;
-	background-color: #5f4747;
+	background-color: #5dcc41;
+	background-size: 13px;
+	background-position: center 1px;
+	border: 0;
 }
 
 .bx-messenger-panel-avatar-status-support24 .bx-messenger-panel-avatar-img-default,
@@ -1939,6 +1949,7 @@
 	border-color: #00c1ff;
 }
 .bx-messenger-context-chat .bx-messenger-panel-mute { display: inline-block; }
+.bx-messenger-panel-mute-hide { display: none!important; }
 
 .bx-messenger-panel-transfer {
 	display:none;
@@ -2259,7 +2270,7 @@
 	opacity: 0; position: relative;
 }
 .bx-messenger-cl-status-support24 .bx-messenger-cl-status,
-.bx-messenger-panel-avatar-status-support24 .bx-messenger-panel-avatar-status{
+.bx-messenger-panel-avatar-status-support24 .bx-messenger-panel-avatar-status {
 	opacity: 0; position: relative;
 }
 .bx-messenger-cl-status-writing .bx-messenger-cl-status,
@@ -3031,6 +3042,24 @@
 		!important
 	;
 }
+
+.bx-messenger-textarea-icon-marketplace-app-question {
+	background:
+		url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkiIGhlaWdodD0iMTQiIHZpZXdCb3g9IjAgMCAxOSAxNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aAogICAgIGZpbGwtcnVsZT0iZXZlbm9kZCIKICAgICBjbGlwLXJ1bGU9ImV2ZW5vZGQiCiAgICAgZD0ibSAyLjE4OTY1MjMsMS4xOTgwODM5IGMgLTAuNTE4Mjg0MiwwIC0wLjkzODQzNjksMC40MDIyNzM5IC0wLjkzODQzNjksMC44OTg1Mzc5IHYgNS44OTMzOTkzIGMgMCwwLjQ5NjIxMzUgMC40MjAxNTI3LDAuODk4NTM3OSAwLjkzODQzNjksMC44OTg1Mzc5IEggNC4wODQ1MDU3IEwgNC4wNDQ5MDk3LDEwLjc3NDk3OCA1LjkzNDQwOTgsOC45NTY5OTM2IFYgMTAuNjU1NDMzIEwgNC41NjI1ODc5LDExLjk3NTM4NSBDIDMuODk0ODU4OSwxMi42MTc4NjIgMi43NjQ2NTM4LDEyLjE0MzcyIDIuNzgzNDQxNiwxMS4yNDk2MjYgbCAwLjAyNDQ0NCwtMS4xNjMwMzMgSCAyLjE4OTY1MjMgQyAwLjk4MDM0NjA0LDEwLjA4NjU5MyAwLDkuMTQ3OTAzMiAwLDcuOTkwMDIxMSBWIDIuMDk2NjIxOCBDIDAsMC45Mzg2ODkzNSAwLjk4MDM0NjA0LDAgMi4xODk2NTIzLDAgSCAxMi4zMTkwNzMgYyAxLjA4MzEzMywwIDEuOTgyNjMxLDAuNzUzMDgyODIgMi4xNTg0OTEsMS43NDIyMjY4IEggMTMuMTgxNjUyIEMgMTMuMDM4MDY1LDEuNDIyMTc1NSAxMi43MDU4OTMsMS4xOTgwODM5IDEyLjMxOTA3MywxLjE5ODA4MzkgWiBtIDE1LjU1OTEzMjcsMy45NjM4NDkgYyAwLC0wLjQ5NjI2MzkgLTAuNDIwMTU0LC0wLjg5ODU4ODIgLTAuOTM4NDM4LC0wLjg5ODU4ODIgSCA5LjM5MDQ3OTUgYyAtMC41MTgyODQyLDAgLTAuOTM4NDM2OSwwLjQwMjMyNDMgLTAuOTM4NDM2OSwwLjg5ODU4ODIgdiA0Ljg1MDY3MDEgYyAwLDAuNDk2MjY0IDAuNDIwMTUyNywwLjg5ODUzOCAwLjkzODQzNjksMC44OTg1MzggaCA0LjcxNzI4NTUgbCAxLjUyMjE3NSwxLjMxMjAyMyAtMC4wMzA3NiwtMS4zMTIwMjMgaCAxLjIxMTE2NCBjIDAuNTE4Mjg0LDAgMC45Mzg0MzYsLTAuNDAyMjc0IDAuOTM4NDM2LC0wLjg5ODUzOCB6IE0gMTYuODEwMzQ3LDMuMDY1MzExMyBDIDE4LjAxOTY0MywzLjA2NTMxMTMgMTksNC4wMDQwMDA2IDE5LDUuMTYxOTMyOSB2IDQuODUwNjcwMSBjIDAsMS4xMzYwMTMgLTAuOTQzNTg5LDIuMDYwOTY1IC0yLjEyMTIxOCwyLjA5NTYxMSBsIDAuMDEyNTgsMC41MzU4NiBjIDAuMDExMTYsMC40Nzc0MjUgLTAuMzI1NjU3LDAuODAyMjc1IC0wLjY2Nzg4LDAuOTI3OTgzIC0wLjM0MTAxMSwwLjEyNTI1MiAtMC43ODYxNjYsMC4wOTcwMiAtMS4xMjQ0NDgsLTAuMTk0NDk2IEwgMTMuNjI3NTYxLDEyLjEwOTIyNCBIIDkuMzkwNDc5NSBjIC0xLjIwOTI5NjEsMCAtMi4xODk2NTIzLC0wLjkzODY4OSAtMi4xODk2NTIzLC0yLjA5NjYyMiBWIDUuMTYxOTMyOSBjIDAsLTEuMTU3OTMyMyAwLjk4MDM1NjIsLTIuMDk2NjIxNiAyLjE4OTY1MjMsLTIuMDk2NjIxNiB6IgogICAgIGZpbGw9IiNiM2I3YmMiLz4KPC9zdmc+Cg==")
+		no-repeat
+		center
+		!important
+	;
+}
+.bx-messenger-textarea-icon-marketplace-app-question:hover {
+	background:
+		url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkiIGhlaWdodD0iMTQiIHZpZXdCb3g9IjAgMCAxOSAxNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4NCiAgPHBhdGgNCiAgICAgZmlsbC1ydWxlPSJldmVub2RkIg0KICAgICBjbGlwLXJ1bGU9ImV2ZW5vZGQiDQogICAgIGQ9Im0gMi4xODk2NTIzLDEuMTk4MDgzOSBjIC0wLjUxODI4NDIsMCAtMC45Mzg0MzY5LDAuNDAyMjczOSAtMC45Mzg0MzY5LDAuODk4NTM3OSB2IDUuODkzMzk5MyBjIDAsMC40OTYyMTM1IDAuNDIwMTUyNywwLjg5ODUzNzkgMC45Mzg0MzY5LDAuODk4NTM3OSBIIDQuMDg0NTA1NyBMIDQuMDQ0OTA5NywxMC43NzQ5NzggNS45MzQ0MDk4LDguOTU2OTkzNiBWIDEwLjY1NTQzMyBMIDQuNTYyNTg3OSwxMS45NzUzODUgQyAzLjg5NDg1ODksMTIuNjE3ODYyIDIuNzY0NjUzOCwxMi4xNDM3MiAyLjc4MzQ0MTYsMTEuMjQ5NjI2IGwgMC4wMjQ0NDQsLTEuMTYzMDMzIEggMi4xODk2NTIzIEMgMC45ODAzNDYwNCwxMC4wODY1OTMgMCw5LjE0NzkwMzIgMCw3Ljk5MDAyMTEgViAyLjA5NjYyMTggQyAwLDAuOTM4Njg5MzUgMC45ODAzNDYwNCwwIDIuMTg5NjUyMywwIEggMTIuMzE5MDczIGMgMS4wODMxMzMsMCAxLjk4MjYzMSwwLjc1MzA4MjgyIDIuMTU4NDkxLDEuNzQyMjI2OCBIIDEzLjE4MTY1MiBDIDEzLjAzODA2NSwxLjQyMjE3NTUgMTIuNzA1ODkzLDEuMTk4MDgzOSAxMi4zMTkwNzMsMS4xOTgwODM5IFogbSAxNS41NTkxMzI3LDMuOTYzODQ5IGMgMCwtMC40OTYyNjM5IC0wLjQyMDE1NCwtMC44OTg1ODgyIC0wLjkzODQzOCwtMC44OTg1ODgyIEggOS4zOTA0Nzk1IGMgLTAuNTE4Mjg0MiwwIC0wLjkzODQzNjksMC40MDIzMjQzIC0wLjkzODQzNjksMC44OTg1ODgyIHYgNC44NTA2NzAxIGMgMCwwLjQ5NjI2NCAwLjQyMDE1MjcsMC44OTg1MzggMC45Mzg0MzY5LDAuODk4NTM4IGggNC43MTcyODU1IGwgMS41MjIxNzUsMS4zMTIwMjMgLTAuMDMwNzYsLTEuMzEyMDIzIGggMS4yMTExNjQgYyAwLjUxODI4NCwwIDAuOTM4NDM2LC0wLjQwMjI3NCAwLjkzODQzNiwtMC44OTg1MzggeiBNIDE2LjgxMDM0NywzLjA2NTMxMTMgQyAxOC4wMTk2NDMsMy4wNjUzMTEzIDE5LDQuMDA0MDAwNiAxOSw1LjE2MTkzMjkgdiA0Ljg1MDY3MDEgYyAwLDEuMTM2MDEzIC0wLjk0MzU4OSwyLjA2MDk2NSAtMi4xMjEyMTgsMi4wOTU2MTEgbCAwLjAxMjU4LDAuNTM1ODYgYyAwLjAxMTE2LDAuNDc3NDI1IC0wLjMyNTY1NywwLjgwMjI3NSAtMC42Njc4OCwwLjkyNzk4MyAtMC4zNDEwMTEsMC4xMjUyNTIgLTAuNzg2MTY2LDAuMDk3MDIgLTEuMTI0NDQ4LC0wLjE5NDQ5NiBMIDEzLjYyNzU2MSwxMi4xMDkyMjQgSCA5LjM5MDQ3OTUgYyAtMS4yMDkyOTYxLDAgLTIuMTg5NjUyMywtMC45Mzg2ODkgLTIuMTg5NjUyMywtMi4wOTY2MjIgViA1LjE2MTkzMjkgYyAwLC0xLjE1NzkzMjMgMC45ODAzNTYyLC0yLjA5NjYyMTYgMi4xODk2NTIzLC0yLjA5NjYyMTYgeiINCiAgICAgZmlsbD0iIzJGQzdGNyIvPg0KPC9zdmc+DQo=")
+		no-repeat
+		center
+		!important
+	;
+}
+
 .bx-messenger-textarea-icon-marketplace-app-BxSupportTranslate-translate,
 .bx-messenger-textarea-icon-marketplace-app-SupportItr-translate {
 	background:
@@ -3533,6 +3562,7 @@
 	z-index: 1;
 	transition: opacity .4;
 }
+.bx-messenger-history-lines .bx-messenger-history-item-menu { display:none; }
 .bx-messenger-history-item:hover .bx-messenger-history-item-menu { opacity: 1; }
 
 .bx-messenger-history-item-2 .bx-messenger-history-item-name {color: #6488a4}
@@ -3753,7 +3783,13 @@
 .bx-notifier-item-delete:hover {background-position: -106px -962px;}
 .bx-notifier-item-delete-fake { cursor: none; background: none;}
 
-.bx-notifier-item-help-popup {background-color:#fff; display: block; max-height: 157px; overflow-y:auto; overflow-x:hidden; width: 180px;
+.bx-notifier-item-help-popup {
+	background-color:#fff;
+	display: block;
+	max-height: 157px;
+	overflow-y:auto;
+	overflow-x:hidden;
+	width: 200px;
 }
 .bx-notifier-item-help-popup .bx-notifier-popup-avatar { position: absolute;
 	margin-left: 6px;
@@ -3761,7 +3797,7 @@
 }
 .bx-notifier-popup-user-name, .bx-notifier-item-help-popup-name {cursor:pointer; display: inline-block; font: 13px/30px "Helvetica Neue", Helvetica, Arial, sans-serif;padding-left: 40px;
 	text-decoration:underline; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-	width: 80%;
+	width: calc(100% - 40px);
 }
 .bx-notifier-item-help-popup-img {display: block; color:#656365; text-decoration:none; overflow:hidden; zoom:1;
 	position: relative;
@@ -4902,7 +4938,13 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 .bx-messenger-file-progress {height: 6px; border: 1px solid #c1c1c1;width: 280px;background-color: #fff;margin: 4px 0;display: inline-block;vertical-align: top;border-radius: 5px;overflow: hidden;}
 .bx-messenger-file-progress-line {height: inherit; width: 0;background-color: #2989da;display: inline-block;vertical-align: top;transition: width 1s;}
 .bx-messenger-file-progress-infinite {height: inherit; width: inherit; display: inline-block;background: url(./../images/im-sprite-v37.png) 0 -797px repeat-x;-webkit-animation: imFileProgress .7s linear infinite; animation: imFileProgress .7s linear infinite;}
-.bx-messenger-file-status-error {margin-top: 2px;display: inline-block;font: 11px/13px "Helvetica Neue", Helvetica, Arial, sans-serif;color: #d31919;}
+.bx-messenger-file-status-error {
+	margin-top: 2px;
+	display: inline-block;
+	font: 11px/13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #d31919;
+	padding-right: 130px;
+}
 .bx-messenger-file-delete { display: none; width: 16px; height: 16px; background: url(./../images/im-sprite-v37.png) -113px -1074px no-repeat; margin-left: 5px; cursor: pointer; }
 
 .bx-messenger-file-deleted { color: #7d7d7d; font-style: italic;padding-left: 11px;}
@@ -5089,6 +5131,8 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 	max-width: 100%;
 	max-height: 300px;
 	border-radius: 10px;
+}
+.bx-messenger-settings-hardware-camera-image-video-flipped {
 	transform: rotateY(180deg);
 	-webkit-transform: rotateY(180deg);
 	-moz-transform:rotateY(180deg);
@@ -5809,4 +5853,67 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 
 .bx-theme-dark .bx-desktop-client-search-button-close {
 	background-image: url(data:image/svg+xml,%3Csvg%20width%3D%2211%22%20height%3D%2211%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22m7.142%205.637%203.904%203.905-1.504%201.504-3.905-3.904-3.905%203.904L.227%209.542l3.905-3.905L.227%201.732%201.732.227l3.905%203.905L9.542.227l1.504%201.505z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.9%22%2F%3E%3C%2Fsvg%3E);
+}
+
+.bx-messenger-support24-question-popup-header {
+	display: flex;
+	align-items: center;
+	height: 34px;
+	background-color: #f3f5f7;
+	color: #535c69;
+}
+
+.bx-messenger-support24-question-popup-header-dark {
+	background-color: #4a4a4a;
+	color: #c3c3c3;
+}
+
+.bx-messenger-support24-question-popup-title {
+	position: relative;
+	left: 12px;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	line-height: 14px;
+}
+
+.bx-messenger-support24-question-placeholder {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: calc(100% - 35px);
+}
+
+.bx-messenger-support24-question-loader {
+	position: relative;
+	top: -12px;
+	height: 39px;
+	width: 39px;
+}
+
+.bx-messenger-support24-question-loader-title {
+	position: relative;
+	top: -3px;
+	font-family: "Open Sans", Helvetica, Arial, sans-serif;
+	font-size: 15px;
+	line-height: 26px;
+	color: #959CA4;
+}
+
+.bx-messenger-support24-question-loader-svg-circle {
+	stroke: #868F99;
+	stroke-opacity: .6;
+	stroke-width: 3;
+}
+
+.bx-messenger-support24-question-loader-svg-circle-dark {
+	stroke: #fff;
+}
+
+.bx-messenger-support24-question-loader-title-dark {
+	color: #c0c2c1;
+}
+
+.bx-messenger-support24-question-loader-title-dark {
+	color: #c0c2c1;
 }

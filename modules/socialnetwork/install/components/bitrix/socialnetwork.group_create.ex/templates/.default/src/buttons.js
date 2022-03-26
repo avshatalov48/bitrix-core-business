@@ -19,53 +19,8 @@ export class Buttons
 			return;
 		}
 
-		this.submitButton.addEventListener('click', (e) => {
-
-			const button = ButtonManager.createFromNode(e.currentTarget);
-			if (
-				button
-				&& button.isDisabled()
-			)
-			{
-				return;
-			}
-
-			WorkgroupForm.getInstance().alertManager.hideAllAlerts();
-
-			const errorDataList = FieldsManager.check().filter((errorData) => {
-				return (
-					Type.isPlainObject(errorData)
-					&& Type.isStringFilled(errorData.message)
-					&& Type.isDomNode(errorData.bindNode)
-				);
-			});
-
-			if (errorDataList.length > 0)
-			{
-				errorDataList.forEach((errorData) => {
-					FieldsManager.showError(errorData);
-				});
-			}
-			else if (WorkgroupForm.getInstance().wizardManager.currentStep < WorkgroupForm.getInstance().wizardManager.stepsCount)
-			{
-				WorkgroupForm.getInstance().wizardManager.currentStep++;
-				if (
-					WorkgroupForm.getInstance().wizardManager.currentStep === 3
-					&& Object.entries(WorkgroupForm.getInstance().confidentialityTypes) <= 1
-				) // skip confidentiality step
-				{
-					WorkgroupForm.getInstance().wizardManager.currentStep++;
-				}
-
-				WorkgroupForm.getInstance().wizardManager.showCurrentStep();
-			}
-			else
-			{
-				WorkgroupForm.getInstance().submitForm(e);
-			}
-
-			return e.preventDefault();
-		});
+		this.submitButtonClickHandler = this.submitButtonClickHandler.bind(this);
+		this.submitButton.addEventListener('click', this.submitButtonClickHandler);
 
 		this.backButton = document.getElementById('sonet_group_create_popup_form_button_step_2_back');
 		if (this.backButton)
@@ -148,6 +103,58 @@ export class Buttons
 		}
 	}
 
+	submitButtonClickHandler(e)
+	{
+		const button = ButtonManager.createFromNode(e.currentTarget);
+		if (
+			button
+			&& button.isDisabled()
+		)
+		{
+			return;
+		}
+
+		WorkgroupForm.getInstance().alertManager.hideAllAlerts();
+
+		const errorDataList = FieldsManager.check().filter((errorData) => {
+			return (
+				Type.isPlainObject(errorData)
+				&& Type.isStringFilled(errorData.message)
+				&& Type.isDomNode(errorData.bindNode)
+			);
+		});
+
+		if (errorDataList.length > 0)
+		{
+			errorDataList.forEach((errorData) => {
+				FieldsManager.showError(errorData);
+			});
+		}
+		else if (WorkgroupForm.getInstance().wizardManager.currentStep < WorkgroupForm.getInstance().wizardManager.stepsCount)
+		{
+			WorkgroupForm.getInstance().wizardManager.currentStep++;
+			if (
+				WorkgroupForm.getInstance().wizardManager.currentStep === 3
+				&& Object.entries(WorkgroupForm.getInstance().confidentialityTypes) <= 1
+			) // skip confidentiality step
+			{
+				WorkgroupForm.getInstance().wizardManager.currentStep++;
+			}
+
+			WorkgroupForm.getInstance().wizardManager.showCurrentStep();
+		}
+		else
+		{
+			const submitFunction = function(event) {
+				WorkgroupForm.getInstance().submitForm(event)
+			}.bind(WorkgroupForm.getInstance());
+
+			submitFunction(e);
+		}
+
+		return e.preventDefault();
+	}
+
 	static showWaitSubmitButton(disable)
 	{
 		disable = !!disable;
@@ -166,7 +173,7 @@ export class Buttons
 			{
 				button.setWaiting(true);
 			}
-			buttonNode.removeEventListener('click', WorkgroupForm.getInstance().submitForm);
+			buttonNode.removeEventListener('click', WorkgroupForm.getInstance().submitButtonClickHandler);
 		}
 		else
 		{
@@ -174,7 +181,7 @@ export class Buttons
 			{
 				button.setWaiting(false);
 			}
-			buttonNode.addEventListener('click', WorkgroupForm.getInstance().submitForm);
+			buttonNode.addEventListener('click', WorkgroupForm.getInstance().submitButtonClickHandler);
 		}
 	}
 

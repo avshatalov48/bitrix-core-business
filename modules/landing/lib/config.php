@@ -22,6 +22,11 @@ class Config
 			'icon_src' => '/bitrix/templates/landing24/assets/vendor/icon/',
 			'icon_vendors' => [
 				'fa',
+				'fat',
+				'fal',
+				'far',
+				'fas',
+				'fab',
 				'et-icon',
 				'hs-icon',
 				'icon-christmas',
@@ -43,6 +48,23 @@ class Config
 				'icon-travel',
 				'icon-weather',
 				'icon',
+			],
+			'icon_vendors_config' => [
+				'fat' => [
+					'class_prefix' => 'fa',
+				],
+				'fal' => [
+					'class_prefix' => 'fa',
+				],
+				'far' => [
+					'class_prefix' => 'fa',
+				],
+				'fas' => [
+					'class_prefix' => 'fa',
+				],
+				'fab' => [
+					'class_prefix' => 'fa',
+				],
 			],
 		];
 	}

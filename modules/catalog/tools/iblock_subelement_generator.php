@@ -23,7 +23,7 @@ $arJSDescription = array(
 CJSCore::RegisterExt('iblock_generator', $arJSDescription);
 CJSCore::Init(array('iblock_generator', 'file_input'));
 
-define('IB_SEG_ROW_PREFIX','IB_SEG_');
+const IB_SEG_ROW_PREFIX = 'IB_SEG_';
 
 $subIBlockId = intval($_REQUEST["subIBlockId"]);
 $subPropValue = intval($_REQUEST["subPropValue"]);
@@ -50,9 +50,8 @@ $APPLICATION->SetTitle(GetMessage("IB_SEG_MAIN_TITLE"));
  */
 function __AddCellPriceType($intRangeID, $strPrefix)
 {
-	$dbCatalogGroups = CCatalogGroup::GetList(array("SORT" => "ASC","NAME" => "ASC","ID" => "ASC"));
 	$priceTypeCellOption = '';
-	while($arCatalogGroup = $dbCatalogGroups->Fetch())
+	foreach (CCatalogGroup::GetListArray() as $arCatalogGroup)
 	{
 		$priceTypeCellOption .= "<option value=".$arCatalogGroup['ID'].">".htmlspecialcharsbx($arCatalogGroup["NAME"])."</option>";
 	}
@@ -331,7 +330,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !$bReadOnly && check_bitrix_sessid()
 	$title = $_POST["IB_SEG_TITLE"];
 	if(trim($title) == '')
 		$title = '{=this.property.CML2_LINK.NAME} ';
-	if(is_array($_POST['IB_SEG_PRICETYPE']))
+	if (isset($_POST['IB_SEG_PRICETYPE']) && is_array($_POST['IB_SEG_PRICETYPE']))
 	{
 		foreach($_POST['IB_SEG_PRICETYPE'] as $key => $priceTypeId)
 		{
@@ -829,6 +828,8 @@ else
 		</tr>
 		<?
 		}
+		$priceTypeList = CCatalogGroup::GetListArray();
+		if (!empty($priceTypeList)):
 		?>
 		<tr>
 			<td class="adm-detail-content-cell-l"><?= GetMessage("IB_SEG_PRICE_SHORT") ?>:</td>
@@ -850,6 +851,9 @@ else
 				<input type="hidden" value="1" id="generator_price_table_max_id">
 			</td>
 		</tr>
+		<?
+		endif;
+		?>
 	</table>
 	</div></div>
 </td></tr>

@@ -13,7 +13,7 @@
 	/**
 	 * @extends {BX.Landing.Block.Node}
 	 * @param options
-	 * @constructor
+	 * @constructo
 	 */
 	BX.Landing.Block.Node.Map = function(options)
 	{
@@ -21,19 +21,7 @@
 		this.type = "map";
 		this.attribute = "data-map";
 		this.hidden = true;
-		this.map = new BX.Landing.Provider.Map.GoogleMap({
-			mapContainer: this.node,
-			mapOptions: data(this.node, "data-map"),
-			theme: data(this.node, "data-map-theme"),
-			roads: data(this.node, "data-map-roads") || [],
-			landmarks: data(this.node, "data-map-landmarks") || [],
-			labels: data(this.node, "data-map-labels") || [],
-			onMapClick: proxy(this.onMapClick, this),
-			onChange: debounce(this.onChange, 500, this),
-			fullscreenControl: false,
-			mapTypeControl: false
-		});
-
+		this.createMap();
 		this.lastValue = this.getValue();
 		onCustomEvent("BX.Landing.Block:updateStyleWithoutDebounce", this.onBlockUpdateStyles.bind(this));
 		onCustomEvent("BX.Landing.Block:Node:updateAttr", this.onBlockUpdateAttrs.bind(this));
@@ -44,23 +32,29 @@
 		constructor: BX.Landing.Block.Node.Map,
 		__proto__: BX.Landing.Block.Node.prototype,
 
+		createMap: function()
+		{
+			var options = {
+				mapContainer: this.node,
+				mapOptions: data(this.node, "data-map"),
+				theme: data(this.node, "data-map-theme"),
+				roads: data(this.node, "data-map-roads") || [],
+				landmarks: data(this.node, "data-map-landmarks") || [],
+				labels: data(this.node, "data-map-labels") || [],
+				onMapClick: proxy(this.onMapClick, this),
+				onChange: debounce(this.onChange, 500, this),
+				fullscreenControl: false,
+				mapTypeControl: false,
+				zoomControl: false,
+			};
+			this.map = BX.Landing.Provider.Map.create(this.node, options);
+		},
+
 		onBlockUpdateAttrs: function(event)
 		{
 			if (event.node === this.node)
 			{
-				this.map = new BX.Landing.Provider.Map.GoogleMap({
-					mapContainer: this.node,
-					mapOptions: data(this.node, "data-map"),
-					theme: data(this.node, "data-map-theme"),
-					roads: data(this.node, "data-map-roads") || [],
-					landmarks: data(this.node, "data-map-landmarks") || [],
-					labels: data(this.node, "data-map-labels") || [],
-					onMapClick: proxy(this.onMapClick, this),
-					onChange: debounce(this.onChange, 500, this),
-					fullscreenControl: false,
-					mapTypeControl: false
-				});
-
+				this.createMap();
 				this.lastValue = this.getValue();
 			}
 		},
@@ -69,19 +63,7 @@
 		{
 			if (event.block.contains(this.node))
 			{
-				this.map = new BX.Landing.Provider.Map.GoogleMap({
-					mapContainer: this.node,
-					mapOptions: data(this.node, "data-map"),
-					theme: data(this.node, "data-map-theme"),
-					roads: data(this.node, "data-map-roads") || [],
-					landmarks: data(this.node, "data-map-landmarks") || [],
-					labels: data(this.node, "data-map-labels") || [],
-					onMapClick: proxy(this.onMapClick, this),
-					onChange: debounce(this.onChange, 500, this),
-					fullscreenControl: false,
-					mapTypeControl: false
-				});
-
+				this.createMap();
 				this.lastValue = this.getValue();
 			}
 		},
@@ -94,7 +76,7 @@
 			}
 
 			this.map.addMarker({
-				latLng: event.latLng,
+				latLng: this.map.getPointByEvent(event),
 				title: "",
 				description: "",
 				showByDefault: false,

@@ -9,7 +9,7 @@ export class ConfirmEditDialog extends EventEmitter
 		super();
 		this.setEventNamespace('BX.Calendar.Controls.ConfirmEditDialog');
 		this.zIndex = 3200;
-		this.id = 'confirm-status-dialog-' + Math.round(Math.random() * 10000);
+		this.id = 'confirm-edit-dialog-' + Math.round(Math.random() * 10000);
 	}
 
 	show()

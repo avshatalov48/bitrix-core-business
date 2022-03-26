@@ -15,7 +15,7 @@ import {TeamManager} from './team';
 import {FeaturesManager} from './features';
 import {UFManager} from './uf';
 
-class WorkgroupForm
+class WorkgroupForm extends EventEmitter
 {
 	static instance = null;
 
@@ -42,6 +42,10 @@ class WorkgroupForm
 		}
 	)
 	{
+		super();
+
+		this.setEventNamespace('BX.Socialnetwork.WorkgroupForm');
+
 		this.componentName = params.componentName;
 		this.signedParameters = params.signedParameters;
 		this.userSelector = '';
@@ -74,7 +78,6 @@ class WorkgroupForm
 		this.alertManager = new AlertManager({
 			errorContainerId: 'sonet_group_create_error_block',
 		});
-
 
 		WorkgroupForm.instance = this;
 
@@ -119,7 +122,6 @@ class WorkgroupForm
 
 		new TypePresetSelector();
 		new ConfidentialitySelector();
-		new TeamManager();
 		new FeaturesManager();
 
 		const groupNameNode = document.getElementById('GROUP_NAME_input');
@@ -128,6 +130,24 @@ class WorkgroupForm
 			groupNameNode.focus();
 		}
 
+		this.bindEvents();
+
+		Util.initExpandSwitches();
+		Util.initDropdowns();
+
+		if (Type.isStringFilled(params.expandableSettingsNodeId))
+		{
+			BX.UI.Hint.init(document.getElementById(params.expandableSettingsNodeId));
+		}
+
+		if (this.groupId <= 0 && this.selectedProjectType === 'scrum')
+		{
+			this.saveScrumAnalyticData();
+		}
+	}
+
+	bindEvents()
+	{
 		if (BX.SidePanel.Instance.getTopSlider())
 		{
 			EventEmitter.subscribe(BX.SidePanel.Instance.getTopSlider().getWindow(), 'SidePanel.Slider:onClose', (event) => {
@@ -150,7 +170,7 @@ class WorkgroupForm
 		)
 		{
 			extranetCheckboxNode.addEventListener('click', () => {
-				this.switchExtranet(extranetCheckboxNode.checked, true);
+				this.switchExtranet(extranetCheckboxNode.checked);
 			});
 		}
 
@@ -176,18 +196,7 @@ class WorkgroupForm
 			});
 		}
 
-		Util.initExpandSwitches();
-		Util.initDropdowns();
-
-		if (Type.isStringFilled(params.expandableSettingsNodeId))
-		{
-			BX.UI.Hint.init(document.getElementById(params.expandableSettingsNodeId));
-		}
-
-		if (this.groupId <= 0 && this.selectedProjectType === 'scrum')
-		{
-			this.saveScrumAnalyticData();
-		}
+		EventEmitter.subscribe('BX.Socialnetwork.WorkgroupFormTeamManager::onEventsBinded', this.recalcFormDependencies.bind(this));
 	}
 
 	recalcForm(params)
@@ -252,7 +261,7 @@ class WorkgroupForm
 		const extranetCheckboxNode = document.getElementById('IS_EXTRANET_GROUP');
 		if (extranetCheckboxNode)
 		{
-			this.switchExtranet(Util.getCheckedValue(extranetCheckboxNode, false));
+			this.switchExtranet(Util.getCheckedValue(extranetCheckboxNode));
 		}
 
 		const visibleCheckboxNode = document.getElementById('GROUP_VISIBLE');
@@ -267,40 +276,13 @@ class WorkgroupForm
 		}
 	}
 
-	switchExtranet(isChecked, useAnimation)
+	switchExtranet(isChecked)
 	{
-		const extranetBlockNode = document.getElementById('INVITE_EXTRANET_block');
-		const extranetBlockContainerNode = document.getElementById('INVITE_EXTRANET_block_container')
-		if (
-			extranetBlockNode
-			&& extranetBlockContainerNode
-		)
-		{
-			if (isChecked)
-			{
-				extranetBlockContainerNode.style.display = 'block';
-			}
-
-			this.showHideBlock({
-				container: extranetBlockContainerNode,
-				block: extranetBlockNode,
-				show: isChecked,
-				duration: (useAnimation ? 1000 : 0),
-				callback: {
-					complete: () => {
-						if (isChecked)
-						{
-							extranetBlockContainerNode.classList.remove('--hidden');
-						}
-						else
-						{
-							extranetBlockContainerNode.style.display = 'none';
-							extranetBlockContainerNode.classList.add('--hidden');
-						}
-					}
-				}
-			});
-		}
+		this.emit('onSwitchExtranet', new BaseEvent({
+			data: {
+				isChecked,
+			},
+		}));
 
 		const openedBlock = document.getElementById('GROUP_OPENED');
 		if (openedBlock)
@@ -349,18 +331,6 @@ class WorkgroupForm
 				}
 			}
 		}
-
-		if (isChecked)
-		{
-			ConfidentialitySelector.unselectAll();
-			ConfidentialitySelector.select('secret')
-			ConfidentialitySelector.disableAll();
-			ConfidentialitySelector.enable('secret')
-		}
-		else
-		{
-			ConfidentialitySelector.enableAll();
-		}
 	}
 
 	switchNotVisible(isChecked)
@@ -385,12 +355,6 @@ class WorkgroupForm
 
 	submitForm(e)
 	{
-		const inviteActionNode = document.getElementById('EXTRANET_INVITE_ACTION');
-		if (inviteActionNode)
-		{
-			inviteActionNode.value = this.lastAction;
-		}
-
 		let actionUrl = document.getElementById('sonet_group_create_popup_form').action;
 
 		if (actionUrl)
@@ -766,5 +730,6 @@ class WorkgroupForm
 
 export {
 	WorkgroupForm,
+	TeamManager as WorkgroupFormTeamManager,
 	UFManager as WorkgroupFormUFManager,
 }

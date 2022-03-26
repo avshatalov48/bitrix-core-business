@@ -11,7 +11,7 @@ use Bitrix\Main\Result;
 
 Loc::loadMessages(__FILE__);
 
-final class Profile extends ControllerBase
+class Profile extends ControllerBase
 {
 	//region Actions
 	public function getFieldsAction()
@@ -37,12 +37,7 @@ final class Profile extends ControllerBase
 
 		return new Page('PROFILES', $result, function() use ($filter)
 		{
-			$list = [];
-			$r = \CSaleOrderUserProps::GetList([], $filter);
-			while ($l = $r->fetch())
-				$list[] = $l;
-
-			return count($list);
+			return (int) \CSaleOrderUserProps::GetList([], $filter, []);
 		});
 	}
 

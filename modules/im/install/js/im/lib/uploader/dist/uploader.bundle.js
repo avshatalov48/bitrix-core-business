@@ -89,7 +89,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            _this.createFileFromUploadedChunks();
 	          }
 	        }
-	      }).catch(function (err) {
+	      })["catch"](function (err) {
 	        _this.status = Uploader.STATUSES.FAILED;
 
 	        _this.listener('onUploadFileError', {
@@ -131,7 +131,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        return response.json();
 	      }).then(function (result) {
 	        return console.log(result);
-	      }).catch(function (err) {
+	      })["catch"](function (err) {
 	        return console.error(err);
 	      });
 	    }
@@ -200,7 +200,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            result: result
 	          });
 	        }
-	      }).catch(function (err) {
+	      })["catch"](function (err) {
 	        _this2.status = Uploader.STATUSES.FAILED;
 
 	        _this2.listener('onCreateFileError', {
@@ -316,7 +316,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	              return _this3.getImageDimensions(blob);
 	            }).then(function (result) {
 	              return resolve(result);
-	            }).catch(function (reason) {
+	            })["catch"](function (reason) {
 	              return reject(reason);
 	            });
 	          } else if (file.type.startsWith('image')) {
@@ -559,7 +559,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 
 	        _this9.emit('onSelectFile', data);
-	      }).catch(function (err) {
+	      })["catch"](function (err) {
 	        console.warn("Couldn't get preview for file ".concat(file.name, ". Error: ").concat(err));
 
 	        _this9.emit('onSelectFile', data);

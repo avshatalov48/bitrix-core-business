@@ -3,11 +3,19 @@ this.BX.Messenger = this.BX.Messenger || {};
 (function (exports) {
 	'use strict';
 
-	var _types = new WeakMap();
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	var _config = new WeakMap();
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
-	var _custom = new WeakMap();
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	var _types = /*#__PURE__*/new WeakMap();
+
+	var _config = /*#__PURE__*/new WeakMap();
+
+	var _custom = /*#__PURE__*/new WeakMap();
 
 	/**
 	 * Bitrix Messenger
@@ -21,17 +29,17 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  function Logger() {
 	    babelHelpers.classCallCheck(this, Logger);
 
-	    _types.set(this, {
+	    _classPrivateFieldInitSpec(this, _types, {
 	      writable: true,
 	      value: {}
 	    });
 
-	    _config.set(this, {
+	    _classPrivateFieldInitSpec(this, _config, {
 	      writable: true,
 	      value: {}
 	    });
 
-	    _custom.set(this, {
+	    _classPrivateFieldInitSpec(this, _custom, {
 	      writable: true,
 	      value: {}
 	    });
@@ -195,7 +203,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	          if (typeof custom === 'string') {
 	            babelHelpers.classPrivateFieldSet(this, _custom, JSON.parse(custom));
-	            babelHelpers.classPrivateFieldSet(this, _types, babelHelpers.objectSpread({}, babelHelpers.classPrivateFieldGet(this, _types), babelHelpers.classPrivateFieldGet(this, _custom)));
+	            babelHelpers.classPrivateFieldSet(this, _types, _objectSpread(_objectSpread({}, babelHelpers.classPrivateFieldGet(this, _types)), babelHelpers.classPrivateFieldGet(this, _custom)));
 	          }
 	        } catch (e) {}
 	      }

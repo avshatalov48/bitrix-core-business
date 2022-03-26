@@ -34,6 +34,7 @@ class CDeliveryDHLUSA
 	public static function Init()
 	{
 		$arReturn = array(
+			"DEPRECATED" => "Y",
 			/* Basic description */
 			"SID" => "dhlusa",
 			"NAME" => GetMessage('SALE_DH_DHL_USA_NAME'),

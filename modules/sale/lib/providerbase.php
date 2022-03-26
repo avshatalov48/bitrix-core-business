@@ -395,7 +395,7 @@ abstract class ProviderBase
 						if ($providerClass instanceof SaleProviderBase)
 						{
 							$shipmentProductData = $creator->createItemForShip($shipmentItem);
-							$creator->addShipmentProductData($shipmentProductData);
+							$creator->addProductData($shipmentProductData);
 						}
 					}
 
@@ -718,7 +718,10 @@ abstract class ProviderBase
 			throw new ObjectNotFoundException('Entity "Order" not found');
 		}
 
-		if (!$shipment->needReservation())
+		if (
+			Configuration::isEnableAutomaticReservation()
+			&& !$shipment->needReservation()
+		)
 		{
 			if ($needShip === false)
 			{
@@ -1926,7 +1929,7 @@ abstract class ProviderBase
 						if ($providerClass instanceof SaleProviderBase)
 						{
 							$shipmentProductData = $creator->createItemForShip($shipmentItem);
-							$creator->addShipmentProductData($shipmentProductData);
+							$creator->addProductData($shipmentProductData);
 						}
 					}
 
@@ -2223,7 +2226,7 @@ abstract class ProviderBase
 				$creator = Internals\ProviderCreator::create($context);
 
 				$shipmentProductData = $creator->createItemForShip($shipmentItem);
-				$creator->addShipmentProductData($shipmentProductData);
+				$creator->addProductData($shipmentProductData);
 
 				$r = $creator->tryShip();
 				if ($r->isSuccess())
@@ -2809,8 +2812,8 @@ abstract class ProviderBase
 			if ($providerClass instanceof SaleProviderBase)
 			{
 				$creator = Internals\ProviderCreator::create($context);
-				$shipmentProductData = $creator->createItemForReserve($shipmentItem);
-				$creator->addShipmentProductData($shipmentProductData);
+				$shipmentProductData = $creator->createItemForReserveByShipmentItem($shipmentItem);
+				$creator->addProductData($shipmentProductData);
 
 				$r = $creator->getAvailableQuantity();
 				if ($r->isSuccess())
@@ -3421,15 +3424,7 @@ abstract class ProviderBase
 				$creator->addShipmentItem($shipmentItem);
 
 				$r = $creator->reserve();
-				if ($r->isSuccess())
-				{
-					$r = $creator->setItemsResultAfterReserve($r);
-					if (!$r->isSuccess())
-					{
-						$result->addErrors($r->getErrors());
-					}
-				}
-				else
+				if (!$r->isSuccess())
 				{
 					$result->addErrors($r->getErrors());
 				}

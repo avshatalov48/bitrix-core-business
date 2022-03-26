@@ -211,49 +211,49 @@ class FileType extends BaseType
 			{
 				return $value['old_id'];
 			}
-			else
+
+			if($value['old_id'])
 			{
-				if($value['old_id'])
-				{
-					\CFile::Delete($value['old_id']);
-				}
-				$value['MODULE_ID'] = 'main';
+				\CFile::Delete($value['old_id']);
+			}
+			$value['MODULE_ID'] = 'main';
 
-				if (!empty($value['name']))
-				{
-					return \CFile::SaveFile($value, 'uf');
-				}
+			if (!empty($value['name']))
+			{
+				return \CFile::SaveFile($value, 'uf');
+			}
+			return false;
+		}
 
+		// new mechanism - mail.file.input
+		$fileInputUtility = FileInputUtility::instance();
+		$controlId = $fileInputUtility->getUserFieldCid($userField);
+
+		if($value > 0)
+		{
+			$delResult = $fileInputUtility->checkDeletedFiles($controlId);
+			if(in_array($value, $delResult))
+			{
 				return false;
 			}
-		}
-		// new mechanism - mail.file.input
-		else
-		{
-			$fileInputUtility = FileInputUtility::instance();
-			$controlId = $fileInputUtility->getUserFieldCid($userField);
 
-			if($value > 0)
+			if (is_array($userField['VALUE']) && in_array($value, $userField['VALUE']))
 			{
-				$checkResult = $fileInputUtility->checkFiles($controlId, [$value]);
-
-				if(!in_array($value, $checkResult))
-				{
-					$value = false;
-				}
+				return $value;
 			}
 
-			if($value > 0)
+			if (!is_array($userField['VALUE']) && (int)$userField['VALUE'] === $value)
 			{
-				$delResult = $fileInputUtility->checkDeletedFiles($controlId);
-				if(in_array($value, $delResult))
-				{
-					$value = false;
-				}
+				return $value;
 			}
 
-			return $value;
+			$checkResult = $fileInputUtility->checkFiles($controlId, [$value]);
+			if(!in_array($value, $checkResult))
+			{
+				$value = false;
+			}
 		}
+		return $value;
 	}
 
 	public static function onSearchIndex(array $userField): ?string

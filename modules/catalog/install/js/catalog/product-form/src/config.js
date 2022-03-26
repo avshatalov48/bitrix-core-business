@@ -8,6 +8,7 @@ export const config = Object.freeze({
 	templateRowName: 'bx-form-row',
 	templateFieldInlineSelector: 'bx-field-inline-selector',
 	templateFieldPrice: 'bx-field-price',
+	templateFieldResultSum: 'bx-field-result-sum',
 	templateFieldQuantity: 'bx-field-quantity',
 	templateFieldDiscount: 'bx-field-discount',
 	templateFieldTax: 'bx-field-tax',

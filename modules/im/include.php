@@ -74,15 +74,13 @@ define("IM_NOTIFY_FEATURE_XMPP", "xmpp");
 define("IM_NOTIFY_FEATURE_MAIL", "mail");
 define("IM_NOTIFY_FEATURE_PUSH", "push");
 
-global $DBType;
-
 CModule::AddAutoloadClasses(
 	"im",
 	array(
 		"CIMSettings" => "classes/general/im_settings.php",
 		"CIMMessenger" => "classes/general/im_messenger.php",
 		"CIMNotify" => "classes/general/im_notify.php",
-		"CIMContactList" => "classes/".$DBType."/im_contact_list.php",
+		"CIMContactList" => "classes/mysql/im_contact_list.php",
 		"CIMChat" => "classes/general/im_chat.php",
 		"CIMMessage" => "classes/general/im_message.php",
 		"CIMMessageLink" => "classes/general/im_message_param.php",
@@ -114,6 +112,7 @@ if (IsModuleInstalled('voximplant'))
 if (IsModuleInstalled('disk'))
 {
 	$jsCoreRel[] = 'file_dialog';
+	$jsCoreRel[] = 'im.integration.viewer';
 }
 if (IsModuleInstalled('calendar'))
 {
@@ -161,6 +160,8 @@ $jsImCall = [
 	'/bitrix/js/im/call/floating_screenshare.js',
 	'/bitrix/js/im/call/logger.js',
 	'/bitrix/js/im/call/video_strategy.js',
+	'/bitrix/js/im/call/sidebar.js',
+	'/bitrix/js/im/call/promo_popup.js',
 ];
 
 $jsIm = array_merge(
@@ -186,7 +187,9 @@ CJSCore::RegisterExt('im_web', array(
 	'js' => $jsIm,
 	'css' => array(
 		'/bitrix/js/im/css/im.css',
-		'/bitrix/js/im/css/call/view.css'
+		'/bitrix/js/im/css/call/view.css',
+		'/bitrix/js/im/css/call/sidebar.css',
+		'/bitrix/js/im/css/call/promo-popup.css',
 	),
 	'lang' => '/bitrix/modules/im/lang/'.LANGUAGE_ID.'/js_im.php',
 	'oninit' => function()
@@ -202,6 +205,8 @@ CJSCore::RegisterExt('im_web', array(
 				'call_server_max_users' => \Bitrix\Im\Call\Call::getMaxCallServerParticipants(),
 				'call_log_service' => \Bitrix\Im\Call\Call::getLogService(),
 				'call_collect_stats' => COption::GetOptionString('im', 'collect_call_stats', 'N'),
+				'call_docs_status' => \Bitrix\Im\Integration\Disk\Documents::getDocumentsInCallStatus(),
+				'call_resumes_status' => \Bitrix\Im\Integration\Disk\Documents::getResumesOfCallStatus(),
 				'jitsi_server' => COption::GetOptionString('im', 'jitsi_server'),
 			)
 		);
@@ -213,7 +218,9 @@ CJSCore::RegisterExt('im_page', array(
 	'js' => $jsIm,
 	'css' => array(
 		'/bitrix/js/im/css/im.css',
-		'/bitrix/js/im/css/call/view.css'
+		'/bitrix/js/im/css/call/view.css',
+		'/bitrix/js/im/css/call/sidebar.css',
+		'/bitrix/js/im/css/call/promo-popup.css',
 	),
 	'lang' => '/bitrix/modules/im/js_im.php',
 	'oninit' => function()
@@ -229,6 +236,8 @@ CJSCore::RegisterExt('im_page', array(
 				'call_server_max_users' => \Bitrix\Im\Call\Call::getMaxCallServerParticipants(),
 				'call_log_service' => \Bitrix\Im\Call\Call::getLogService(),
 				'call_collect_stats' => COption::GetOptionString('im', 'collect_call_stats', 'N'),
+				'call_docs_status' => \Bitrix\Im\Integration\Disk\Documents::getDocumentsInCallStatus(),
+				'call_resumes_status' => \Bitrix\Im\Integration\Disk\Documents::getResumesOfCallStatus(),
 				'jitsi_server' => COption::GetOptionString('im', 'jitsi_server'),
 			)
 		);
@@ -279,7 +288,9 @@ CJSCore::RegisterExt('im_call', [
 	'js' => $jsImCall,
 	'css' => [
 		'/bitrix/js/im/css/im.css',
-		'/bitrix/js/im/css/call/view.css'
+		'/bitrix/js/im/css/call/view.css',
+		'/bitrix/js/im/css/call/sidebar.css',
+		'/bitrix/js/im/css/call/promo-popup.css',
 	],
 	'rel' => $imCallRel,
 	'oninit' => function()
@@ -295,6 +306,8 @@ CJSCore::RegisterExt('im_call', [
 				'call_server_max_users' => \Bitrix\Main\Config\Option::get('im', 'call_server_max_users'),
 				'call_log_service' => \Bitrix\Im\Call\Call::getLogService(),
 				'call_collect_stats' => COption::GetOptionString('im', 'collect_call_stats', 'N'),
+				'call_docs_status' => \Bitrix\Im\Integration\Disk\Documents::getDocumentsInCallStatus(),
+				'call_resumes_status' => \Bitrix\Im\Integration\Disk\Documents::getResumesOfCallStatus(),
 				'jitsi_server' => COption::GetOptionString('im', 'jitsi_server'),
 			)
 		);
@@ -302,5 +315,5 @@ CJSCore::RegisterExt('im_call', [
 ]);
 
 $GLOBALS["APPLICATION"]->AddJSKernelInfo('im', array_merge(['/bitrix/js/im/common.js', '/bitrix/js/im/window.js'], $jsIm));
-$GLOBALS["APPLICATION"]->AddCSSKernelInfo('im', array('/bitrix/js/im/css/common.css', '/bitrix/js/im/css/window.css', '/bitrix/js/im/css/im.css', '/bitrix/js/im/css/call/view.css'));
+$GLOBALS["APPLICATION"]->AddCSSKernelInfo('im', array('/bitrix/js/im/css/common.css', '/bitrix/js/im/css/window.css', '/bitrix/js/im/css/im.css', '/bitrix/js/im/css/call/view.css', '/bitrix/js/im/css/call/sidebar.css', '/bitrix/js/im/css/call/promo-popup.css'));
 ?>

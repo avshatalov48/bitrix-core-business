@@ -5,12 +5,12 @@ namespace Bitrix\Iblock\UserField\Types;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type;
 use Bitrix\Main\UserField\Types\EnumType;
+use Bitrix\Iblock;
 use CDBResult;
 use CUserTypeManager;
 use CIBlockElementEnum;
-
-Loc::loadMessages(__FILE__);
 
 /**
  * Class ElementType
@@ -82,8 +82,12 @@ class ElementType extends EnumType
 	public static function onSearchIndex(array $userField): ?string
 	{
 		$res = '';
+		if (!isset($userField['VALUE']))
+		{
+			return $res;
+		}
 
-		if(is_array($userField['VALUE']))
+		if (is_array($userField['VALUE']))
 		{
 			$val = $userField['VALUE'];
 		}
@@ -92,31 +96,27 @@ class ElementType extends EnumType
 			$val = [$userField['VALUE']];
 		}
 
-		$val = array_filter($val, 'strlen');
-		if(count($val) && Loader::includeModule('iblock'))
-		{
-			$ob = new \CIBlockElement();
-			$rs = $ob->GetList(
-				[],
-				['=ID' => $val],
-				false,
-				false,
-				['NAME']
-			);
+		Type\Collection::normalizeArrayValuesByInt($val);
 
-			while($ar = $rs->Fetch())
+		if (!empty($val) && Loader::includeModule('iblock'))
+		{
+			$iterator = Iblock\ElementTable::getList([
+				'select' => [
+					'NAME',
+				],
+				'filter' => [
+					'@ID' => $val,
+				],
+			]);
+			while ($row = $iterator->fetch())
 			{
-				$res .= $ar['NAME'] . '\r\n';
+				$res .= $row['NAME'] . "\r\n";
 			}
+			unset($row, $iterator);
 		}
+		unset($val);
 
 		return $res;
-	}
-
-	public static function renderField(array $userField, ?array $additionalParameters = []): string
-	{
-		static::getEnumList($userField);
-		return parent::renderField($userField, $additionalParameters);
 	}
 
 	/**
@@ -246,7 +246,7 @@ class ElementType extends EnumType
 			$result = [];
 			$elements = \Bitrix\Iblock\ElementTable::getList([
 				'select' => ['ID', 'NAME'],
-				'filter' => $filter,
+				'filter' => \CIBlockElement::getPublicElementsOrmFilter($filter),
 				'order' => ['NAME' => 'ASC', 'ID' => 'ASC']
 			]);
 

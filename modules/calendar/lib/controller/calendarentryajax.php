@@ -7,6 +7,7 @@ use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Error;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\Integration\Bitrix24Manager;
 use Bitrix\Intranet;
@@ -18,19 +19,21 @@ Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/calendar/lib/contr
  */
 class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 {
-	public function configureActions()
+	public function configureActions(): array
 	{
-		return [
-			'getNearestEvents' => [
-				'+prefilters' => [
-					new Intranet\ActionFilter\IntranetUser(),
-				]
-			]
-		];
+		return [];
 	}
 
 	public function getNearestEventsAction()
 	{
+		if (Loader::includeModule('intranet'))
+		{
+			if (!\Bitrix\Intranet\Util::isIntranetUser())
+			{
+				return [];
+			}
+		}
+		
 		$request = $this->getRequest();
 		$calendarType = $request->getPost('type');
 		$ownerId = (int)$request->getPost('ownerId');
@@ -45,7 +48,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				'maxAmount' => $maxEntryAmount
 			]
 		);
-
+		
 		return [
 			'entries' => $entries,
 		];
@@ -198,7 +201,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			$firstDateTimestamp = INF;
 			foreach($res as $entry)
 			{
-				if(in_array($entry['SECT_ID'], $params['section']))
+				if (in_array($entry['SECT_ID'], $params['section']))
 				{
 					$entries[] = $entry;
 
@@ -206,7 +209,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 					{
 						$lastDateTimestamp = $entry['DATE_TO_TS_UTC'];
 					}
-					elseif($loadPrevious && !\CCalendarEvent::CheckRecurcion($entry) && $entry['DATE_FROM_TS_UTC'] < $lastDateTimestamp)
+					elseif ($loadPrevious && !\CCalendarEvent::CheckRecurcion($entry) && $entry['DATE_FROM_TS_UTC'] < $lastDateTimestamp)
 					{
 						$firstDateTimestamp = $entry['DATE_FROM_TS_UTC'];
 					}
@@ -222,7 +225,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				$params['fromLimit'] = \CCalendar::Date($firstDateTimestamp);
 			}
 
-			if(!$parseRecursion)
+			if (!$parseRecursion)
 			{
 				foreach($entries as $entry)
 				{
@@ -252,7 +255,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				]
 			);
 
-			if(count($tasksEntries) > 0)
+			if (count($tasksEntries) > 0)
 			{
 				$entries = array_merge($entries, $tasksEntries);
 			}
@@ -288,7 +291,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'move_entry_access_denied'));
 		}
 
-		if(empty($this->getErrors()))
+		if (empty($this->getErrors()))
 		{
 			$entry = Internals\EventTable::getList(
 				[
@@ -301,9 +304,12 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				]
 			);
 
-			if (!Intranet\Util::isIntranetUser($userId) && $entry['CAL_TYPE'] !== 'group')
+			if (Loader::includeModule('intranet'))
 			{
-				$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'edit_entry_extranet_access_denied'));
+				if (!Intranet\Util::isIntranetUser($userId) && $entry['CAL_TYPE'] !== 'group')
+				{
+					$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'edit_entry_extranet_access_denied'));
+				}
 			}
 		}
 
@@ -321,7 +327,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		$locationBusyWarning = false;
 		$busyWarning = false;
 
-		if(empty($this->getErrors()))
+		if (empty($this->getErrors()))
 		{
 			$arFields = [
 				"ID" => $id,
@@ -343,7 +349,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			if (
 				$isPlannerFeatureEnabled
 				&& !empty($location)
-				&& !Rooms\Manager::checkAccessibility($location, ['fields' => $arFields])
+				&& !Rooms\AccessibilityManager::checkAccessibility($location, ['fields' => $arFields])
 			)
 			{
 				$locationBusyWarning = true;
@@ -473,7 +479,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'edit_entry_access_denied'));
 		}
 
-		if(empty($this->getErrors()))
+		if (empty($this->getErrors()))
 		{
 			$sectionList = Internals\SectionTable::getList(
 				array(
@@ -490,16 +496,19 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				$this->addError(new Error(Loc::getMessage('EC_SECTION_NOT_FOUND'), 'edit_entry_section_not_found'));
 			}
 
-			if (!Intranet\Util::isIntranetUser($userId) && $section['CAL_TYPE'] !== 'group')
+			if (Loader::includeModule('intranet'))
 			{
-				$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'edit_entry_extranet_access_denied'));
+				if (!Intranet\Util::isIntranetUser($userId) && $section['CAL_TYPE'] !== 'group')
+				{
+					$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'edit_entry_extranet_access_denied'));
+				}
 			}
 
-			if(empty($this->getErrors()))
+			if (empty($this->getErrors()))
 			{
 				// Default name for events
 				$name = trim($request['name']);
-				if(empty($name))
+				if (empty($name))
 				{
 					$name = Loc::getMessage('EC_DEFAULT_EVENT_NAME');
 				}
@@ -510,18 +519,18 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				{
 					$rrule['INTERVAL'] = 1;
 				}
-				if($request['rrule_endson'] === 'never')
+				if ($request['rrule_endson'] === 'never')
 				{
 					unset($rrule['COUNT']);
 					unset($rrule['UNTIL']);
 				}
-				elseif($request['rrule_endson'] === 'count')
+				elseif ($request['rrule_endson'] === 'count')
 				{
-					if(intval($rrule['COUNT']) <= 0)
+					if (intval($rrule['COUNT']) <= 0)
 						$rrule['COUNT'] = 10;
 					unset($rrule['UNTIL']);
 				}
-				elseif($request['rrule_endson'] === 'until')
+				elseif ($request['rrule_endson'] === 'until')
 				{
 					unset($rrule['COUNT']);
 				}
@@ -530,7 +539,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				$dateFrom = $request['date_from'];
 				$dateTo = $request['date_to'];
 				$skipTime = isset($request['skip_time']) && $request['skip_time'] == 'Y';
-				if(!$skipTime)
+				if (!$skipTime)
 				{
 					$dateFrom .= ' '.$request['time_from'];
 					$dateTo .= ' '.$request['time_to'];
@@ -541,16 +550,16 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				// Timezone
 				$tzFrom = $request['tz_from'];
 				$tzTo = $request['tz_to'];
-				if(!$tzFrom && isset($request['default_tz']))
+				if (!$tzFrom && isset($request['default_tz']))
 				{
 					$tzFrom = $request['default_tz'];
 				}
-				if(!$tzTo && isset($request['default_tz']))
+				if (!$tzTo && isset($request['default_tz']))
 				{
 					$tzTo = $request['default_tz'];
 				}
 
-				if(isset($request['default_tz']) && $request['default_tz'] != '')
+				if (isset($request['default_tz']) && $request['default_tz'] != '')
 				{
 					\CCalendar::SaveUserTimezoneName(\CCalendar::GetUserId(), $request['default_tz']);
 				}
@@ -587,19 +596,16 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 
 				$entryFields['IS_MEETING'] = $accessCodes != ['U'.$userId];
 
-				if($entryFields['IS_MEETING'])
-				{
-					$entryFields['ATTENDEES_CODES'] = $accessCodes;
-					$entryFields['ATTENDEES'] = \CCalendar::GetDestinationUsers($accessCodes);
-					$response['reload'] = true;
-				}
+				$entryFields['ATTENDEES_CODES'] = $accessCodes;
+				$entryFields['ATTENDEES'] = \CCalendar::GetDestinationUsers($accessCodes);
+				$response['reload'] = true;
 
-				if($request['exclude_users'] && count($entryFields['ATTENDEES']) > 0)
+				if ($request['exclude_users'] && count($entryFields['ATTENDEES']) > 0)
 				{
 					$excludeUsers = explode(",", $request['exclude_users']);
 					$entryFields['ATTENDEES_CODES'] = [];
 
-					if(count($excludeUsers) > 0)
+					if (count($excludeUsers) > 0)
 					{
 						$entryFields['ATTENDEES'] = array_diff($entryFields['ATTENDEES'], $excludeUsers);
 						foreach($entryFields['ATTENDEES'] as $attendee)
@@ -612,31 +618,39 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				{
 					$excludeUsers = [];
 				}
-
-				if(\CCalendar::GetType() == 'user' && \CCalendar::GetOwnerId() != \CCalendar::GetUserId())
+				
+				$meetingHost = (int)$request['meeting_host'];
+				$chatId = (int)$request['chat_id'];
+				
+				if ($meetingHost)
 				{
-					$entryFields['MEETING_HOST'] = \CCalendar::GetOwnerId();
+					$entryFields['MEETING_HOST'] = $meetingHost;
 				}
 				else
 				{
 					$entryFields['MEETING_HOST'] = \CCalendar::GetUserId();
 				}
 
-				$entryFields['MEETING'] = array(
+				$entryFields['MEETING'] = [
 					'HOST_NAME' => \CCalendar::GetUserName($entryFields['MEETING_HOST']),
 					'NOTIFY' => $request['meeting_notify'] === 'Y',
 					'REINVITE' => $request['meeting_reinvite'] === 'Y',
 					'ALLOW_INVITE' => $request['allow_invite'] === 'Y',
-					'MEETING_CREATOR' => \CCalendar::GetUserId(),
+					'MEETING_CREATOR' => $entryFields['MEETING_HOST'],
 					'HIDE_GUESTS' => $request['hide_guests'] === 'Y'
-				);
+				];
+				
+				if ($chatId)
+				{
+					$entryFields['MEETING']['CHAT_ID'] = $chatId;
+				}
 
-				if (!Rooms\Manager::checkAccessibility($entryFields['LOCATION'], ['fields' => $entryFields]))
+				if (!Rooms\AccessibilityManager::checkAccessibility($entryFields['LOCATION'], ['fields' => $entryFields]))
 				{
 					$this->addError(new Error(Loc::getMessage('EC_LOCATION_BUSY'), 'edit_entry_location_busy'));
 				}
 
-				if($entryFields['IS_MEETING'] && $isPlannerFeatureEnabled)
+				if ($entryFields['IS_MEETING'] && $isPlannerFeatureEnabled)
 				{
 					$usersToCheck = [];
 					if ($checkCurrentUsersAccessibility)
@@ -647,7 +661,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 							if ($attId !== \CCalendar::GetUserId())
 							{
 								$userSettings = UserSettings::get($attId);
-								if($userSettings && $userSettings['denyBusyInvitation'])
+								if ($userSettings && $userSettings['denyBusyInvitation'])
 								{
 									$usersToCheck[] = $attId;
 								}
@@ -665,7 +679,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 								if ($attId !== \CCalendar::GetUserId())
 								{
 									$userSettings = UserSettings::get($attId);
-									if($userSettings && $userSettings['denyBusyInvitation'])
+									if ($userSettings && $userSettings['denyBusyInvitation'])
 									{
 										$usersToCheck[] = $attId;
 									}
@@ -727,13 +741,13 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				$arUFFields = [];
 				foreach($request as $field => $value)
 				{
-					if(mb_substr($field, 0, 3) == "UF_")
+					if (mb_substr($field, 0, 3) == "UF_")
 					{
 						$arUFFields[$field] = $value;
 					}
 				}
 
-				if(empty($this->getErrors()))
+				if (empty($this->getErrors()))
 				{
 					$newId = \CCalendar::SaveEvent(
 						[
@@ -751,7 +765,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 					$eventList = [];
 					$eventIdList = [$newId];
 
-					if($newId && !count($errors))
+					if ($newId && !count($errors))
 					{
 						$response['entryId'] = $newId;
 
@@ -774,7 +788,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 							]
 						);
 
-						if($entryFields['IS_MEETING'])
+						if ($entryFields['IS_MEETING'])
 						{
 							\Bitrix\Main\FinderDestTable::merge(
 								[
@@ -787,7 +801,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 							);
 						}
 
-						if(in_array($_REQUEST['rec_edit_mode'], ['this', 'next']))
+						if (in_array($_REQUEST['rec_edit_mode'], ['this', 'next']))
 						{
 							unset($filter['ID']);
 							$filter['RECURRENCE_ID'] = ($eventList && $eventList[0] && $eventList[0]['RECURRENCE_ID']) ? $eventList[0]['RECURRENCE_ID'] : $newId;
@@ -807,13 +821,11 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 							}
 							$eventList = array_merge($eventList, $resRelatedEvents);
 						}
-						elseif($id && $eventList && $eventList[0] && \CCalendarEvent::CheckRecurcion($eventList[0]))
+						elseif ($id && $eventList && $eventList[0] && \CCalendarEvent::CheckRecurcion($eventList[0]))
 						{
-							$recId = $eventList[0]['RECURRENCE_ID']
-								? $eventList[0]['RECURRENCE_ID']
-								: $eventList[0]['ID'];
+							$recId = $eventList[0]['RECURRENCE_ID'] ?? $eventList[0]['ID'];
 
-							if($eventList[0]['RECURRENCE_ID'] && $eventList[0]['RECURRENCE_ID'] !== $eventList[0]['ID'])
+							if ($eventList[0]['RECURRENCE_ID'] && $eventList[0]['RECURRENCE_ID'] !== $eventList[0]['ID'])
 							{
 								unset($filter['RECURRENCE_ID']);
 								$filter['ID'] = $eventList[0]['RECURRENCE_ID'];
@@ -830,7 +842,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 							}
 							$name = trim($request['name']);
 
-							if($recId)
+							if ($recId)
 							{
 								unset($filter['ID']);
 								$filter['RECURRENCE_ID'] = $recId;

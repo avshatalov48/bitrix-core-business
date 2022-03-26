@@ -195,18 +195,106 @@
 	font: 8px/16px "OpenSans-Bold", "Helvetica Neue", Helvetica, sans-serif;
 }
 
+.landing-item-bottom
+{
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+}
+
+.landing-item-description {
+	background-color: #fff;
+	display: block;
+	font-size: 0;
+	height: 47px;
+	width: 100%;
+	padding: 10px 0 9px 0;
+	box-sizing: border-box;
+}
+
+.landing-item-description:before {
+	content: '';
+	display: inline-block;
+	margin-left: -1px;
+	height: 100%;
+	vertical-align: middle;
+	width: 1px;
+}
+
+
+.landing-item-unactive .landing-title-wrap,
+.landing-item-unactive .landing-item-description,
+.landing-item-unactive .landing-item-cover {
+	opacity: 0.3;
+}
+
+.landing-item-folder.landing-item-unactive .landing-title,
+.landing-item-folder.landing-item-unactive .landing-item-description,
+.landing-item-folder.landing-item-unactive .landing-item-cover {
+	opacity: 1;
+}
+
+.landing-item-folder.landing-item-unactive .landing-title-wrap{
+	opacity: 0.3;
+}
+
+.landing-item-disabled .landing-item-cover {
+	opacity: 0.1;
+}
+
+.landing-item-disabled .landing-item-description {
+	text-align: center;
+}
+
+.landing-item-disabled .landing-item-desc-inner {
+	height: 19px;
+	line-height:normal;
+}
+
+.landing-item-disabled .landing-item-desc-open {
+	display: none;
+}
+
 .landing-item-designed {
 	background-color: rgba(40, 100, 242, .85);
-	bottom: 47px;
-	display: block;
-	left: 0;
+	display: inline-block;
 	font: 8px/16px "OpenSans-Bold", "Helvetica Neue", Helvetica, sans-serif;
 	color: rgba(255, 255, 255, .8);
 	transition: color .2s linear;
-	position: absolute;
 	padding: 0 7px 1px;
 }
 
 .landing-item-designed:hover {
 	color: rgba(255, 255, 255, 1);
 }
+
+.landing-item-label {
+	background-color: #44c3d3;
+	color: #ffffff;
+	display: inline-block;
+	font: 8px/16px "OpenSans-Bold", "Helvetica Neue", Helvetica, sans-serif;
+	text-transform: uppercase;
+	position: absolute;
+	top: 5px;
+	left: -10px;
+	padding: 0 7px;
+	height: 20px;
+	line-height: 20px;
+	box-shadow: 7px 2px 10px hsla(187, 62%, 11%, 0.3);
+}
+.landing-item-label::after{
+	content: '';
+	display: block;
+	position: absolute;
+	left: 100%;
+	top: 0;
+	bottom: 0;
+	border-top: 10px solid #44c3d3;
+	border-bottom: 10px solid #44c3d3;
+	border-right: 10px solid transparent;
+}
+.workarea-content-paddings
+{
+	overflow-x: visible !important;
+}
+

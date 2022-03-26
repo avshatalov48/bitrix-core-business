@@ -1,0 +1,96 @@
+.landing-ui-rule-entry + .landing-ui-rule-entry {
+	margin-top: 20px;
+}
+
+.landing-ui-rule-entry-body {
+	display: flex;
+	position: relative;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.landing-ui-rule-entry-conditions {
+	flex-grow: 1;
+	min-width: 50%;
+	max-width: 50%;
+	position: relative;
+	padding-right: 12px;
+}
+
+.landing-ui-rule-entry-expressions {
+	position: relative;
+	display: flex;
+	flex-grow: 1;
+	flex-direction: column;
+	padding-left: 17px;
+	margin-top: 69px;
+}
+
+.landing-ui-rule-entry-expressions::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border-radius: 3px;
+	border: 1px #0dbef7 solid;
+}
+
+.landing-ui-rule-entry-expressions::after {
+	background-color: #f4f6f8;
+	content: '';
+	position: absolute;
+	top: -2px;
+	left: 5px;
+	right: -2px;
+	bottom: -2px;
+}
+
+.landing-ui-rule-value + [class*="landing-ui-field-element"],
+.landing-ui-rule-field-action-panel + [class*="landing-ui-field-element"] {
+	margin-top: 20px;
+}
+
+
+.landing-ui-rule-entry-add-expression-field-link {
+	position: sticky;
+	top: 0;
+	display: flex;
+	align-items: center;
+	padding-top: 15px;
+	margin-bottom: -7px;
+	z-index: 1;
+}
+
+.landing-ui-rule-entry-add-expression-field-link-action-panel .landing-ui-component-action-panel {
+	margin-top: 0;
+}
+
+.landing-ui-rule-entry-add-expression-field-link-separator {
+	position: relative;
+	flex-grow: 1;
+}
+
+.landing-ui-rule-entry-add-expression-field-link-separator::before {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 10px;
+	right: 0;
+	transform: translateY(-50%);
+	border-bottom: 1px #cbced2 solid;
+}
+
+.landing-ui-rule-entry-expressions > [class*="landing-ui-field-element"] {
+	z-index: 1;
+}
+
+.landing-ui-rule-entry-expressions > [class^="landing-ui-field-element-"] + [class^="landing-ui-field-element-"] {
+	margin-top: 10px;
+}
+
+.landing-ui-rule-entry-add-expression-field-link:first-child {
+	padding-top: 0;
+	top: 15px;
+}

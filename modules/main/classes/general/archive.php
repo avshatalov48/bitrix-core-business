@@ -64,7 +64,7 @@ class CBXArchive
 	public static function DetectTypeByFilename($filename)
 	{
 		$arFormats = self::GetAvailableFormats();
-		$filename = ToLower($filename);
+		$filename = mb_strtolower($filename);
 
 		foreach ($arFormats as $type => $data)
 		{
@@ -119,7 +119,7 @@ class CBXArchive
 	public static function IsArchive($strFilename)
 	{
 		$result = false;
-		$strFileExt = ToLower(GetFileExtension($strFilename));
+		$strFileExt = mb_strtolower(GetFileExtension($strFilename));
 		$arFormats = self::GetAvailableFormats();
 
 		foreach ($arFormats as $type => $data)

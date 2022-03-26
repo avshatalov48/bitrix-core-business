@@ -71,8 +71,6 @@ class Notification extends Base
 	 */
 	public function isAllowed(int $userId, string $type): bool
 	{
-		$type = $type === 'email' ? self::MAIL : $type;
-
 		$encodedSetting = self::encodeName($this->module, $this->name, $type);
 
 		$defaultSettings = self::getDefaultSettings();
@@ -152,8 +150,6 @@ class Notification extends Base
 		{
 			return [];
 		}
-
-		$type = $type === 'email' ? self::MAIL : $type;
 
 		$encodedSetting = self::encodeName($this->module, $this->name, $type);
 

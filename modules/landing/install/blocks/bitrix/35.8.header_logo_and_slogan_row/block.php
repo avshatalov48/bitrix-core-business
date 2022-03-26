@@ -7,7 +7,7 @@
 			</div>
 			<div class="landing-block-node-col-right col-6 text-right">
 				<h5 class="landing-block-node-text landing-semantic-link-medium g-font-size-12 mb-0">
-					<a href="tel:#PHONE1#">#PHONE1#</a>
+					<a href="tel:#crmPhone1">#crmPhoneTitle1</a>
 				</h5>
 			</div>
 		</div>

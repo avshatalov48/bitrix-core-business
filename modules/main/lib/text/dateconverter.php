@@ -31,7 +31,7 @@ class DateConverter
 		}
 
 		$originalText = $text;
-		$text = ToLower($text);
+		$text = mb_strtolower($text);
 
 		$workTimeStart = explode('.', \Bitrix\Main\Config\Option::get('calendar', 'work_time_start', '9'));
 		$timeOfStartDate = str_pad(intval($workTimeStart[0]), 2, "0", STR_PAD_LEFT).':'.str_pad(intval($workTimeStart[1]), 2, "0", STR_PAD_LEFT);
@@ -46,7 +46,7 @@ class DateConverter
 		$pattern = Array();
 		for ($i = 1; $i <= 11; $i++)
 		{
-			$pattern[$i] = ToLower(Loc::getMessage("MAIN_TDC_METRIC_1_".$i));
+			$pattern[$i] = mb_strtolower(Loc::getMessage("MAIN_TDC_METRIC_1_".$i));
 			$pattern[$i] = $pattern[$i] <> ''? $pattern[$i]: 'bxt2dmetricskip';
 			$pattern[$i] = str_replace($defaultPregExceptionSearch, $defaultPregExceptionReplace, $pattern[$i]);
 		}
@@ -106,7 +106,7 @@ class DateConverter
 		$pattern = Array();
 		for ($i = 1; $i <= 10; $i++)
 		{
-			$pattern[$i] = ToLower(Loc::getMessage("MAIN_TDC_METRIC_2_".$i));
+			$pattern[$i] = mb_strtolower(Loc::getMessage("MAIN_TDC_METRIC_2_".$i));
 			$pattern[$i] = $pattern[$i] <> ''? $pattern[$i]: 'bxt2dmetricskip';
 			$pattern[$i] = str_replace($defaultPregExceptionSearch, $defaultPregExceptionReplace, $pattern[$i]);
 		}
@@ -182,7 +182,7 @@ class DateConverter
 		$pattern = Array();
 		for ($i = 1; $i <= 9; $i++)
 		{
-			$pattern[$i] = ToLower(Loc::getMessage("MAIN_TDC_METRIC_3_".$i));
+			$pattern[$i] = mb_strtolower(Loc::getMessage("MAIN_TDC_METRIC_3_".$i));
 			$pattern[$i] = $pattern[$i] <> ''? $pattern[$i]: 'bxt2dmetricskip';
 			$pattern[$i] = str_replace($defaultPregExceptionSearch, $defaultPregExceptionReplace, $pattern[$i]);
 		}
@@ -287,7 +287,7 @@ class DateConverter
 		$patternLength = Array();
 		for ($i = 1; $i <= 3; $i++)
 		{
-			$patternOriginal[$i] = ToLower(Loc::getMessage("MAIN_TDC_METRIC_4_".$i));
+			$patternOriginal[$i] = mb_strtolower(Loc::getMessage("MAIN_TDC_METRIC_4_".$i));
 			$patternOriginal[$i] = $patternOriginal[$i] <> ''? $patternOriginal[$i]: 'bxt2dmetricskip';
 			$patternLength[$i] = mb_strlen($patternOriginal[$i]);
 			if ($patternOriginal[$i] != 'bxt2dmetricskip')
@@ -360,7 +360,7 @@ class DateConverter
 		$pattern = Array();
 		for ($i = 1; $i <= 5; $i++)
 		{
-			$pattern[$i] = ToLower(Loc::getMessage("MAIN_TDC_METRIC_5_".$i));
+			$pattern[$i] = mb_strtolower(Loc::getMessage("MAIN_TDC_METRIC_5_".$i));
 			$pattern[$i] = $pattern[$i] <> ''? $pattern[$i]: 'bxt2dmetricskip';
 			$pattern[$i] = str_replace($defaultPregExceptionSearch, $defaultPregExceptionReplace, $pattern[$i]);
 		}
@@ -752,9 +752,9 @@ class DateConverter
 					}
 					else if ($metric['TYPE'] == 'WEEKEND')
 					{
-						if (ToLower($metricDate->format('l')) == 'saturday')
+						if (strtolower($metricDate->format('l')) == 'saturday')
 							$metricDate->add('SUNDAY');
-						else if (ToLower($metricDate->format('l')) != 'sunday')
+						else if (strtolower($metricDate->format('l')) != 'sunday')
 							$metricDate->add('SATURDAY');
 					}
 					else if ($metric['TYPE'] == 'MONTH')
@@ -834,7 +834,7 @@ class DateConverter
 				}
 				if (!$modificator)
 				{
-					$modificator = ToLower($metric['TYPE']) == ToLower($metricDate->format('l'))? 'NEXT ': '';
+					$modificator = strtolower($metric['TYPE']) == strtolower($metricDate->format('l'))? 'NEXT ': '';
 					$metricDate->add($modificator.$metric['TYPE']);
 				}
 
@@ -935,7 +935,7 @@ class DateConverter
 
 				if (!$modificator)
 				{
-					$modificator = ToLower($metric['TYPE']) == ToLower($metricDate->format('l'))? 'NEXT ': '';
+					$modificator = strtolower($metric['TYPE']) == strtolower($metricDate->format('l'))? 'NEXT ': '';
 					$metricDate->add($modificator.$metric['TYPE']);
 				}
 

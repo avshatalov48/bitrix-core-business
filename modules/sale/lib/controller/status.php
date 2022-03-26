@@ -10,20 +10,30 @@ use Bitrix\Main\Localization\LanguageTable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\TaskTable;
 use Bitrix\Main\UI\PageNavigation;
+use Bitrix\Sale\DeliveryStatus;
 use Bitrix\Sale\Internals\StatusGroupTaskTable;
 use Bitrix\Sale\Internals\StatusLangTable;
 use Bitrix\Sale\Internals\StatusTable;
+use Bitrix\Sale\OrderStatus;
 use Bitrix\Sale\Result;
+use phpDocumentor\Reflection\Types\This;
 
-class Status extends Controller
+class Status extends ControllerBase
 {
 	//region Actions
 	public function getFieldsAction()
 	{
-		$entity = new \Bitrix\Sale\Rest\Entity\Status();
-		return ['STATUS'=>$entity->prepareFieldInfos(
-			$entity->getFields()
+		$view = $this->getViewManager()
+			->getView($this);
+
+		return ['STATUS'=>$view->prepareFieldInfos(
+			$view->getFields()
 		)];
+	}
+
+	protected function getEntityTable(): StatusTable
+	{
+		return new StatusTable();
 	}
 
 	public function addAction($fields)
@@ -37,7 +47,7 @@ class Status extends Controller
 			if($r->isSuccess())
 			{
 				$fields = $this->prepareFields($fields);
-				$r  = StatusTable::add($fields);
+				$r  = $this->getEntityTable()::add($fields);
 			}
 		}
 		else
@@ -66,7 +76,7 @@ class Status extends Controller
 			$r = $this->validate($fields);
 			if($r->isSuccess())
 			{
-				$r  = StatusTable::update($id, $fields);
+				$r  = $this->getEntityTable()::update($id, $fields);
 			}
 		}
 
@@ -87,17 +97,17 @@ class Status extends Controller
 		if($r->isSuccess())
 		{
 			if (in_array($id, [
-				\Bitrix\Sale\OrderStatus::getInitialStatus(),
-				\Bitrix\Sale\OrderStatus::getFinalStatus(),
-				\Bitrix\Sale\DeliveryStatus::getInitialStatus(),
-				\Bitrix\Sale\DeliveryStatus::getFinalStatus()]))
+				OrderStatus::getInitialStatus(),
+				OrderStatus::getFinalStatus(),
+				DeliveryStatus::getInitialStatus(),
+				DeliveryStatus::getFinalStatus()]))
 			{
 				$r->addError(new Error('delete status type loced',201350000002));
 			}
 
 			if($r->isSuccess())
 			{
-				$r  = StatusTable::delete($id);
+				$r  = $this->getEntityTable()::delete($id);
 			}
 		}
 
@@ -131,7 +141,7 @@ class Status extends Controller
 		$select = empty($select)? ['*']:$select;
 		$order = empty($order)? ['ID'=>'ASC']:$order;
 
-		$items = \Bitrix\Sale\Internals\StatusTable::getList(
+		$items = $this->getEntityTable()::getList(
 			[
 				'select'=>$select,
 				'filter'=>$filter,
@@ -143,9 +153,7 @@ class Status extends Controller
 
 		return new Page('STATUSES', $items, function() use ($filter)
 		{
-			return count(
-				\Bitrix\Sale\Internals\StatusTable::getList(['filter'=>$filter])->fetchAll()
-			);
+			return $this->getEntityTable()::getCount([$filter]);
 		});
 	}
 	//endregion
@@ -154,7 +162,7 @@ class Status extends Controller
 	{
 		if(!isset($fields['XML_ID']) && $fields['XML_ID'] == '')
 		{
-			$fields['XML_ID'] = \Bitrix\Sale\Internals\StatusTable::generateXmlId();
+			$fields['XML_ID'] = $this->getEntityTable()::generateXmlId();
 		}
 
 		$fields['COLOR'] = isset($fields['COLOR']) ? $fields['COLOR']:'';
@@ -169,8 +177,8 @@ class Status extends Controller
 		$r = new Result();
 
 		if(!in_array($fields['TYPE'], [
-			\Bitrix\Sale\OrderStatus::TYPE,
-			\Bitrix\Sale\DeliveryStatus::TYPE
+			OrderStatus::TYPE,
+			DeliveryStatus::TYPE
 		]))
 		{
 			$r->addError(new Error(Loc::getMessage('CONTROLLER_ERROR_STATUS_TYPE_OUT_OF_RANGE'), 201350000003));
@@ -235,13 +243,13 @@ class Status extends Controller
 	protected function getLockedStatusType($statusId)
 	{
 		$lockedStatusList = [
-			\Bitrix\Sale\OrderStatus::TYPE=>[
-				\Bitrix\Sale\OrderStatus::getInitialStatus(),
-				\Bitrix\Sale\OrderStatus::getFinalStatus()
+			OrderStatus::TYPE=>[
+				OrderStatus::getInitialStatus(),
+				OrderStatus::getFinalStatus()
 			],
-			\Bitrix\Sale\DeliveryStatus::TYPE=>[
-				\Bitrix\Sale\DeliveryStatus::getInitialStatus(),
-				\Bitrix\Sale\DeliveryStatus::getFinalStatus()
+			DeliveryStatus::TYPE=>[
+				DeliveryStatus::getInitialStatus(),
+				DeliveryStatus::getFinalStatus()
 			]
 		];
 
@@ -260,7 +268,7 @@ class Status extends Controller
 
 	protected function get($id)
 	{
-		return StatusTable::getById($id)->fetch();
+		return $this->getEntityTable()::getById($id)->fetch();
 	}
 
 	protected function exists($id)
@@ -269,6 +277,30 @@ class Status extends Controller
 		if(isset($this->get($id)['ID']) == false)
 			$r->addError(new Error('status is not exists', 201340400001));
 
+		return $r;
+	}
+
+	protected function checkModifyPermissionEntity(): Result
+	{
+		$r = new Result();
+
+		$saleModulePermissions = self::getApplication()->GetGroupRight("sale");
+		if ($saleModulePermissions  < "W")
+		{
+			$r->addError(new Error('Access Denied', 200040300020));
+		}
+		return $r;
+	}
+
+	protected function checkReadPermissionEntity(): Result
+	{
+		$r = new Result();
+
+		$saleModulePermissions = self::getApplication()->GetGroupRight("sale");
+		if ($saleModulePermissions  == "D")
+		{
+			$r->addError(new Error('Access Denied', 200040300010));
+		}
 		return $r;
 	}
 }

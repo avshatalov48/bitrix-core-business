@@ -169,13 +169,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      return item === null ? false : typeof item == "function" || item instanceof Function;
 	    },
 	    isDomNode: function isDomNode(item) {
-	      return item && babelHelpers.typeof(item) == "object" && "nodeType" in item;
+	      return item && babelHelpers["typeof"](item) == "object" && "nodeType" in item;
 	    },
 	    isDate: function isDate(item) {
 	      return item && Object.prototype.toString.call(item) == "[object Date]";
 	    },
 	    isPlainObject: function isPlainObject(item) {
-	      if (!item || babelHelpers.typeof(item) !== "object" || item.nodeType) {
+	      if (!item || babelHelpers["typeof"](item) !== "object" || item.nodeType) {
 	        return false;
 	      }
 
@@ -192,6 +192,14 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      var key;
 
 	      return typeof key === "undefined" || hasProp.call(item, key);
+	    },
+	    isUuidV4: function isUuidV4(uuid) {
+	      if (!this.isString(uuid)) {
+	        return false;
+	      }
+
+	      var uuidV4pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
+	      return uuid.search(uuidV4pattern) === 0;
 	    }
 	  },
 	  dialog: {
@@ -377,7 +385,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      if (params && params.FILE_ID && params.FILE_ID.length > 0) {
 	        var filesText = [];
 
-	        if (babelHelpers.typeof(files) === 'object') {
+	        if (babelHelpers["typeof"](files) === 'object') {
 	          params.FILE_ID.forEach(function (fileId) {
 	            if (typeof files[fileId] === 'undefined') ; else if (files[fileId].type === 'image') {
 	              filesText.push(localize['IM_UTILS_TEXT_IMAGE']);
@@ -456,7 +464,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  },
 	  date: {
 	    getFormatType: function getFormatType() {
-	      var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : im_const.DateFormat.default;
+	      var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : im_const.DateFormat["default"];
 	      var localize = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
 	      if (!localize) {
@@ -505,7 +513,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      var localize = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
 	      if (!format) {
-	        format = this.getFormatType(im_const.DateFormat.default, localize);
+	        format = this.getFormatType(im_const.DateFormat["default"], localize);
 	      }
 
 	      return this.getDateFunction(localize).format(format, timestamp);
@@ -686,7 +694,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    var string = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
 	    var hash = 0;
 
-	    if (babelHelpers.typeof(string) === 'object' && string) {
+	    if (babelHelpers["typeof"](string) === 'object' && string) {
 	      string = JSON.stringify(string);
 	    } else if (typeof string !== 'string') {
 	      string = string.toString();
@@ -697,8 +705,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    }
 
 	    for (var i = 0; i < string.length; i++) {
-	      var char = string.charCodeAt(i);
-	      hash = (hash << 5) - hash + char;
+	      var _char = string.charCodeAt(i);
+
+	      hash = (hash << 5) - hash + _char;
 	      hash = hash & hash;
 	    }
 
@@ -807,7 +816,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        files = _params$files === void 0 ? null : _params$files;
 	    name = encodeURIComponent(name);
 
-	    if (data && !(data instanceof Array) && babelHelpers.typeof(data) === 'object') {
+	    if (data && !(data instanceof Array) && babelHelpers["typeof"](data) === 'object') {
 	      var dataArray = [];
 
 	      for (var _name in data) {

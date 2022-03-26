@@ -4,8 +4,28 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,main_core,main_core_events) {
 	'use strict';
 
-	function _templateObject3() {
+	function _templateObject5() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card-body-warning\">", "</div>\n\t\t\t"]);
+
+	  _templateObject5 = function _templateObject5() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject4() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card-body\"></div>\n\t\t\t"]);
+
+	  _templateObject4 = function _templateObject4() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject3() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card-header\"></div>\n\t\t\t"]);
 
 	  _templateObject3 = function _templateObject3() {
 	    return data;
@@ -15,7 +35,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	}
 
 	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card-header\"></div>\n\t\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card-block-remove\"></div>\n\t\t\t"]);
 
 	  _templateObject2 = function _templateObject2() {
 	    return data;
@@ -25,7 +45,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	}
 
 	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card\">\n\t\t\t\t\t<div class=\"landing-ui-card-header-wrapper\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
 
 	  _templateObject = function _templateObject() {
 	    return data;
@@ -88,18 +108,31 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      });
 	    }
 	  }, {
+	    key: "getRemoveButton",
+	    value: function getRemoveButton() {
+	      return this.cache.remember('remove', function () {
+	        return main_core.Tag.render(_templateObject2());
+	      });
+	    }
+	  }, {
 	    key: "getHeader",
 	    value: function getHeader() {
 	      return this.cache.remember('header', function () {
-	        return main_core.Tag.render(_templateObject2());
+	        return main_core.Tag.render(_templateObject3());
 	      });
 	    }
 	  }, {
 	    key: "getBody",
 	    value: function getBody() {
 	      return this.cache.remember('body', function () {
-	        return main_core.Tag.render(_templateObject3());
+	        return main_core.Tag.render(_templateObject4());
 	      });
+	    }
+	  }, {
+	    key: "addWarning",
+	    value: function addWarning(warning) {
+	      main_core.Dom.append(main_core.Tag.render(_templateObject5(), warning), this.getBody());
+	      main_core.Dom.addClass(this.getBody(), '--warning');
 	    }
 	  }, {
 	    key: "setTitle",

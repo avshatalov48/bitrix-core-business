@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["STORE_TITLE_UPDATE"] = "Редактирование склада #ID#";
 $MESS["STORE_TITLE_ADD"] = "Новый склад";
 $MESS["STORE_LIST"] = "Список";
@@ -28,4 +28,6 @@ $MESS["STORE_XML_ID"] = "Внешний код";
 $MESS["STORE_SELECT_SITE_ID"] = "Выберите сайт";
 $MESS["CAT_FEATURE_NOT_ALLOW"] = "Данный функционал не входит в Вашу редакцию продукта.";
 $MESS["STORE_SAVE_ERROR"] = "Ошибка сохранения склада";
-?>
+$MESS["STORE_MESS_YES"] = "Да";
+$MESS["STORE_MESS_NO"] = "Нет";
+$MESS["STORE_FIELD_IS_DEFAULT"] = "Склад по умолчанию";

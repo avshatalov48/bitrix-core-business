@@ -10,26 +10,33 @@ return [
 	'block' => [
 		'name' => Loc::getMessage("LANDING_BLOCK_16_1_GOOGLE_MAP--NAME"),
 		'section' => ['contacts'],
-		'version' => '18.5.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
+		'version' => '18.5.0',
+		// old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
 		'subtype' => 'map',
-		'subtype_params' =>[
-			'required' => 'google'
-		],
 	],
 	'cards' => [],
 	'nodes' => [
 		'.landing-block-node-map' => [
 			'name' => 'Map',
 			'type' => 'map',
-		]
+		],
 	],
 	'style' => [
 		'block' => [
-			'type' => ['block-default-wo-background-vh-animation', 'block-border']
+			// spec list only for maps, have not appropriate group
+			'type' => [
+				'display',
+				'height-vh',
+				'animation',
+				'block-border-type',
+				'block-border-margin',
+				'border-radius',
+				'block-border-position',
+			],
 		],
 		'nodes' => [],
 	],
 	'assets' => [
-		'ext' => ['landing_google_maps_new'],
-	]
+		'ext' => ['landing_map'],
+	],
 ];

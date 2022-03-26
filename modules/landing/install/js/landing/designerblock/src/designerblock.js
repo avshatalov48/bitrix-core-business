@@ -25,6 +25,7 @@ export type DesignerBlockOptions = {
 	lid: number,
 	code: string,
 	designed: boolean,
+	autoPublicationEnabled: boolean,
 	access: string,
 	active: boolean,
 	anchor: string,
@@ -54,6 +55,7 @@ export class DesignerBlock
 	changed: boolean = false;
 	saving: boolean = false;
 	designed: boolean;
+	autoPublicationEnabled: boolean;
 	blockCode: string;
 	blockId: number;
 	landingId: number;
@@ -76,6 +78,7 @@ export class DesignerBlock
 		this.blockCode = options.code;
 		this.blockId = options.id;
 		this.designed = options.designed;
+		this.autoPublicationEnabled = options.autoPublicationEnabled;
 		this.landingId = options.lid;
 		this.nodes = options.manifest.nodes;
 		this.highlight = new Highlight();
@@ -207,19 +210,34 @@ export class DesignerBlock
 			}
 
 			this.saving = true;
-			Backend.getInstance()
-				.action(
-					'Block::updateContent',
-					{
-						lid: this.landingId,
-						block: this.blockId,
-						content: this.clearHtml(this.originalNode.innerHTML).replaceAll(' style="', ' bxstyle="'),
-						designed: 1
+
+			const batch = {};
+			batch['Block::updateContent'] = {
+				action: 'Block::updateContent',
+				data: {
+					lid: this.landingId,
+					block: this.blockId,
+					content: this.clearHtml(this.originalNode.innerHTML).replaceAll(' style="', ' bxstyle="'),
+					designed: 1
+				}
+			};
+			if (this.autoPublicationEnabled)
+			{
+				batch['Landing::publication'] = {
+					action: 'Landing::publication',
+					data: {
+						lid: this.landingId
 					}
-				).then(() => {
+				};
+			}
+
+			Backend.getInstance()
+				.batch('Block::updateContent', batch)
+				.then(() => {
 					this.saving = false;
 					finishCallback();
 				});
+
 			this.sendLabel(
 				'designerBlock',
 				'save' +

@@ -19,7 +19,6 @@ class PreProcessing
 		PreProcessing\Theme::processing($block);
 		PreProcessing\Icon::processing($block);
 		PreProcessing\Font::processing($block);
-		PreProcessing\CrmContacts::processing($block);
 	}
 
 	/**
@@ -31,7 +30,6 @@ class PreProcessing
 	{
 		PreProcessing\Icon::processing($block);
 		PreProcessing\Font::processing($block);
-		PreProcessing\CrmContacts::processing($block);
 	}
 
 	/**

@@ -22,6 +22,20 @@ class PriceCollection extends BaseCollection
 		$this->factory = $factory;
 	}
 
+	public function findBasePrice(): ?BasePrice
+	{
+		/** @var \Bitrix\Catalog\v2\Price\BasePrice $price */
+		foreach ($this->getIterator() as $price)
+		{
+			if ($price->isPriceBase())
+			{
+				return $price;
+			}
+		}
+
+		return null;
+	}
+
 	public function findByGroupId(int $groupId): ?BasePrice
 	{
 		/** @var \Bitrix\Catalog\v2\Price\BasePrice $price */

@@ -1,12 +1,10 @@
-<?
+<?php
 /** @global \CMain $APPLICATION */
-use Bitrix\Main\Localization\Loc,
-	Bitrix\Main,
-	Bitrix\Currency,
-	Bitrix\Catalog,
-	Bitrix\Sale;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main;
+use Bitrix\Currency;
+use Bitrix\Catalog;
+use	Bitrix\Sale;
 
 class CAllCatalogProduct
 {
@@ -376,7 +374,6 @@ class CAllCatalogProduct
 							$arFields['TYPE'] == Catalog\ProductTable::TYPE_PRODUCT
 							|| $arFields['TYPE'] == Catalog\ProductTable::TYPE_OFFER
 						)
-						&& !isset($arFields['AVAILABLE'])
 					)
 					{
 						$needCalculateAvailable = true;
@@ -394,10 +391,12 @@ class CAllCatalogProduct
 						unset($availableField);
 						if ($needCalculateAvailable && !empty($needFields))
 						{
-							$product = $productIterator = Catalog\ProductTable::getList(array(
+							$productIterator = Catalog\ProductTable::getList(array(
 								'select' => $needFields,
 								'filter' => array('=ID' => $ID)
-							))->fetch();
+							));
+							$product = $productIterator->fetch();
+							unset($productIterator);
 							if (!empty($product) && is_array($product))
 							{
 								foreach ($availableFieldsList as $availableField)
@@ -413,7 +412,7 @@ class CAllCatalogProduct
 						unset($needFields);
 					}
 				}
-				elseif (isset($arFields['TYPE']) && $arFields['TYPE'] == CCatalogProduct::TYPE_SKU)
+				elseif ($arFields['TYPE'] == Catalog\ProductTable::TYPE_SKU)
 				{
 					$offerList = CCatalogSku::getOffersList(array($ID), 0, array('ACTIVE' => 'Y'), array('ID'));
 					if (!empty($offerList[$ID]))
@@ -603,7 +602,6 @@ class CAllCatalogProduct
 			return false;
 		if ($result['TIMESTAMP_X'] !== null and $result['TIMESTAMP_X'] instanceof Main\Type\DateTime)
 		{
-			/** @noinspection PhpUndefinedMethodInspection */
 			$result['TIMESTAMP_X'] = $result['TIMESTAMP_X']->toString();
 		}
 		return $result;
@@ -1485,7 +1483,7 @@ class CAllCatalogProduct
 				}
 				else
 				{
-					$vatList[$productId]['RATE'] = (float)$vatList[$productId]['RATE'] * 0.01;
+					$vatList[$productId]['RATE'] = (float)$vatValue['RATE'] * 0.01;
 				}
 			}
 		}
@@ -2624,7 +2622,6 @@ class CAllCatalogProduct
 			'PRICE_TYPE_ID' => (int)$priceData['CATALOG_GROUP_ID']
 		);
 
-		/** @noinspection PhpInternalEntityUsedInspection */
 		$basketItem->setFieldsNoDemand($fields);
 
 		$discount = Sale\Discount::buildFromBasket($basket, new Sale\Discount\Context\UserGroup($userGroups));

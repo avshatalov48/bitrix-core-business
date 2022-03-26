@@ -923,6 +923,7 @@ if (
 								'postId' => $arPost['ID'],
 								'blogId' => $arPost['BLOG_ID'],
 								'siteId' => SITE_ID,
+								'clearCache' => false,
 							]);
 						}
 

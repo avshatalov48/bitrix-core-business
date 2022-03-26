@@ -7,6 +7,14 @@ export class LeftMenu
 		dirsWithUnseenMailCounters: {},
 		mailboxId:'',
 		filterId: '',
+		systemDirs :
+		{
+			spam: 'Spam',
+			trash: 'Trash',
+			outcome: 'Outcome',
+			drafts: 'Drafts',
+			inbox: 'Inbox',
+		}
 	})
 	{
 		const leftDirectoryMenuWrapper = document.querySelector('.mail-left-menu-wrapper');
@@ -14,6 +22,7 @@ export class LeftMenu
 		this.directoryMenu = new DirectoryMenu({
 			dirsWithUnseenMailCounters: config['dirsWithUnseenMailCounters'],
 			filterId: config['filterId'],
+			systemDirs: config['systemDirs'],
 		});
 
 		EventEmitter.subscribe('BX.Mail.Sync:newLettersArrived', () => {

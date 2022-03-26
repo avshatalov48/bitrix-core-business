@@ -59,7 +59,7 @@ Array(
 'Name' => 'A64611_46822_29561_87975',
 'Properties' =>
 Array(
-'Title' => GetMessage("BP_EXPR_ST")
+'Title' => GetMessage("BP_EXPR_ST_1")
 )
 ),
 Array(
@@ -67,7 +67,7 @@ Array(
 'Name' => 'A68833_77308_5845_73466',
 'Properties' =>
 Array(
-'Title' => GetMessage("BP_EXPR_ST")
+'Title' => GetMessage("BP_EXPR_ST_1")
 )
 ))
 ),
@@ -108,7 +108,7 @@ Array(
 'Name' => 'A22532_2878_32169_11537',
 'Properties' =>
 Array(
-'Title' => GetMessage("BP_EXPR_ST")
+'Title' => GetMessage("BP_EXPR_ST_1")
 ),
 'Children' => Array(
 Array(
@@ -150,7 +150,7 @@ Array(
 'Name' => 'A51489_50805_51908_16085',
 'Properties' =>
 Array(
-'Title' => GetMessage("BP_EXPR_ST")
+'Title' => GetMessage("BP_EXPR_ST_1")
 ),
 'Children' => Array(
 Array(

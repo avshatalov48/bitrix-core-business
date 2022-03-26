@@ -529,10 +529,13 @@ class AdditionalHandler extends Base
 	protected function addRestriction($type, $profileId, array $params)
 	{
 		$fields  = array();
+		$className = null;
 
 		switch($type)
 		{
 			case "WEIGHT":
+				$className = \Bitrix\Sale\Delivery\Restrictions\ByWeight::class;
+
 				$p = array();
 				if(isset($params['MIN']))	$p['MIN_WEIGHT'] = $params['MIN'];
 				if(isset($params['MAX']))	$p['MAX_WEIGHT'] = $params['MAX'];
@@ -541,7 +544,6 @@ class AdditionalHandler extends Base
 				{
 					$fields = array(
 						"SERVICE_ID" => $profileId,
-						"CLASS_NAME" => '\Bitrix\Sale\Delivery\Restrictions\ByWeight',
 						"SERVICE_TYPE" => \Bitrix\Sale\Services\Base\RestrictionManager::SERVICE_TYPE_SHIPMENT,
 						"PARAMS" => $p
 					);
@@ -550,6 +552,8 @@ class AdditionalHandler extends Base
 				break;
 
 			case "DIMENSIONS":
+				$className = \Bitrix\Sale\Delivery\Restrictions\ByDimensions::class;
+
 				$p = array();
 				if(isset($params['LENGTH']))	$p['LENGTH'] = $params['LENGTH'];
 				if(isset($params['WIDTH']))	$p['WIDTH'] = $params['WIDTH'];
@@ -559,7 +563,6 @@ class AdditionalHandler extends Base
 				{
 					$fields = array(
 						"SERVICE_ID" => $profileId,
-						"CLASS_NAME" => '\Bitrix\Sale\Delivery\Restrictions\ByDimensions',
 						"SERVICE_TYPE" => \Bitrix\Sale\Services\Base\RestrictionManager::SERVICE_TYPE_SHIPMENT,
 						"PARAMS" => $p
 					);
@@ -569,6 +572,8 @@ class AdditionalHandler extends Base
 
 			case "MAX_SIZE":
 
+				$className = \Bitrix\Sale\Delivery\Restrictions\ByMaxSize::class;
+
 				$p = array();
 				if(isset($params['MAX_SIZE']) && intval($params['MAX_SIZE']) > 0)	$p['MAX_SIZE'] = $params['MAX_SIZE'];
 
@@ -576,7 +581,6 @@ class AdditionalHandler extends Base
 				{
 					$fields = array(
 						"SERVICE_ID" => $profileId,
-						"CLASS_NAME" => '\Bitrix\Sale\Delivery\Restrictions\ByMaxSize',
 						"SERVICE_TYPE" => \Bitrix\Sale\Services\Base\RestrictionManager::SERVICE_TYPE_SHIPMENT,
 						"PARAMS" => $p
 					);
@@ -584,10 +588,34 @@ class AdditionalHandler extends Base
 
 				break;
 
+			case 'BY_LOCATION':
+			case 'EXCLUDE_LOCATION':
+
+				$className = ($type === 'BY_LOCATION')
+					? \Bitrix\Sale\Delivery\Restrictions\ByLocation::class
+					: \Bitrix\Sale\Delivery\Restrictions\ExcludeLocation::class;
+
+				if (isset($params['LOCATION']))
+				{
+					$p['LOCATION'] = $params['LOCATION'];
+				}
+
+				if(!empty($p))
+				{
+					$fields = array(
+						'SERVICE_ID' => $profileId,
+						'SERVICE_TYPE' => \Bitrix\Sale\Services\Base\RestrictionManager::SERVICE_TYPE_SHIPMENT,
+						'PARAMS' => $p,
+					);
+				}
+
+				break;
 		}
 
-		if(!empty($fields))
-			ServiceRestrictionTable::add($fields);
+		if($className && !empty($fields))
+		{
+			$className::save($fields);
+		}
 	}
 
 	/**
@@ -844,8 +872,10 @@ class AdditionalHandler extends Base
 			"ITEMS" => array(),
 			"LOCATION_FROM" => $locFromRequest['EXTERNAL_ID'],
 			"LOCATION_FROM_NAME" => $locFromRequest['NAME'],
+			"LOCATION_FROM_CODE" => (!empty($shopLocation['CODE'])) ? $shopLocation['CODE'] : '',
 			"LOCATION_TO" => $locToRequest['EXTERNAL_ID'],
 			"LOCATION_TO_NAME" => $locToRequest['NAME'],
+			"LOCATION_TO_CODE" => $locToInternalCode,
 			"LOCATION_TO_TYPES" => self::getLocationChainByTypes($locToInternalCode, LANGUAGE_ID)
 		);
 
@@ -992,47 +1022,58 @@ class AdditionalHandler extends Base
 	 * @param int $locationCode Location code.
 	 * @param string $lang Language identifier.
 	 * @return array Location components by type.
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	protected static function getLocationChainByTypes($locationCode, $lang = LANGUAGE_ID)
 	{
-		if($locationCode == '')
-			return array();
+		if ($locationCode == '')
+		{
+			return [];
+		}
+
+		$res = LocationTable::getList([
+			'filter' => [
+				'=CODE' => $locationCode,
+			],
+			'select' => [
+				'ID',
+				'CODE',
+				'LEFT_MARGIN',
+				'RIGHT_MARGIN',
+			]
+		]);
+
+		if (!$loc = $res->fetch())
+		{
+			return [];
+		}
+
+		$result = [];
 
 		$res = LocationTable::getList(array(
-			'filter' => array(
-				array(
-					'LOGIC' => 'OR',
-					'=CODE' => $locationCode
-				),
-			),
-			'select' => array(
-				'ID', 'CODE', 'LEFT_MARGIN', 'RIGHT_MARGIN'
-			)
-		));
-
-		if(!$loc = $res->fetch())
-			return array();
-
-		$result = array();
-
-		$res = LocationTable::getList(array(
-			'filter' => array(
+			'filter' => [
 				'<=LEFT_MARGIN' => $loc['LEFT_MARGIN'],
 				'>=RIGHT_MARGIN' => $loc['RIGHT_MARGIN'],
 				'NAME.LANGUAGE_ID' => $lang,
-				'TYPE.NAME.LANGUAGE_ID' => $lang
-			),
-			'select' => array(
-				'ID', 'CODE',
+				'TYPE.NAME.LANGUAGE_ID' => $lang,
+			],
+			'select' => [
+				'ID',
+				'CODE',
 				'LOCATION_NAME' => 'NAME.NAME',
 				'TYPE_NAME' => 'TYPE.NAME.NAME',
-				'TYPE_CODE' => 'TYPE.CODE'
-			)
+				'TYPE_CODE' => 'TYPE.CODE',
+			]
 		));
 
-		while($locParent = $res->fetch())
-			$result[$locParent['TYPE_CODE']] = $locParent['LOCATION_NAME'];
+		while ($locParent = $res->fetch())
+		{
+			if (!isset($result[$locParent['TYPE_CODE']]))
+			{
+				$result[$locParent['TYPE_CODE']] = [];
+			}
+
+			$result[$locParent['TYPE_CODE']][] = $locParent['LOCATION_NAME'];
+		}
 
 		return $result;
 	}

@@ -45,17 +45,8 @@ class im extends CModule
 	{
 		global $DB, $APPLICATION;
 
-		if($DB->type !== 'MYSQL')
-		{
-			$this->errors = array(
-				GetMessage('IM_DB_NOT_SUPPORTED'),
-			);
-		}
-		else
-		{
-			if(!$DB->Query("SELECT 'x' FROM b_im_chat", true))
-				$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/im/install/db/".mb_strtolower($DB->type)."/install.sql");
-		}
+		if(!$DB->Query("SELECT 'x' FROM b_im_chat", true))
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/im/install/db/mysql/install.sql");
 
 		if(!empty($this->errors))
 		{
@@ -91,6 +82,7 @@ class im extends CModule
 		CAgent::AddAgent("\\Bitrix\\Im\\Bot::deleteExpiredTokenAgent();", "im", "N", 86400);
 		CAgent::AddAgent("\\Bitrix\\Im\\Disk\\NoRelationPermission::cleaningAgent();", "im", "N", 3600);
 		CAgent::AddAgent("\\Bitrix\\Im\\Call\\Conference::removeTemporaryAliases();", "im", "N", 86400);
+		CAgent::AddAgent("\\Bitrix\\Im\\Message\\Uuid::cleanOldRecords();", "im", "N", 86400);
 
 		$eventManager = \Bitrix\Main\EventManager::getInstance();
 		$eventManager->registerEventHandler('pull', 'onGetMobileCounter', 'im', '\Bitrix\Im\Counter', 'onGetMobileCounter');
@@ -354,7 +346,7 @@ class im extends CModule
 
 		if (!$arParams['savedata'])
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/im/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/im/install/db/mysql/uninstall.sql");
 			COption::RemoveOption("im", "general_chat_id");
 		}
 
@@ -379,6 +371,7 @@ class im extends CModule
 		CAgent::RemoveAgent("\\Bitrix\\Im\\Bot::deleteExpiredTokenAgent();", "im");
 		CAgent::RemoveAgent("\\Bitrix\\Im\\Disk\\NoRelationPermission::cleaningAgent();", "im");
 		CAgent::RemoveAgent("\\Bitrix\\Im\\Call\\Conference::removeTemporaryAliases();", "im");
+		CAgent::RemoveAgent("\\Bitrix\\Im\\Message\\Uuid::cleanOldRecords();", "im");
 		UnRegisterModuleDependences("im", "OnGetNotifySchema", "im", "CIMNotifySchema", "OnGetNotifySchema");
 		UnRegisterModuleDependences("main", "OnFileDelete", "im", "CIMEvent", "OnFileDelete");
 		UnRegisterModuleDependences("disk", "onAfterDeleteFile", "im", "CIMDisk", "OnAfterDeleteFile");

@@ -847,7 +847,7 @@ return [
 								</span>
 							</div>
 							<div class="media-body">
-								<a href="tel:#PHONE1#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#PHONE1#</a>
+								<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmPhoneTitle1</a>
 							</div>
 						</div>
 					</div>
@@ -861,7 +861,7 @@ return [
 									<i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
 								</span>
 							</div>
-							<a href="tel:#PHONE2#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#PHONE2#</a>
+							<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmPhoneTitle1</a>
 						</div>
 					</div>
 					<!-- End Icon Block -->
@@ -874,7 +874,7 @@ return [
 									<i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
 								</span>
 							</div>
-							<a href="tel:#PHONE3#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#PHONE3#</a>
+							<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmPhoneTitle1</a>
 						</div>
 					</div>
 					<!-- End Icon Block -->
@@ -887,7 +887,7 @@ return [
 									<i class="landing-block-card-contact-icon icon-communication-062 u-line-icon-pro"></i>
 								</span>
 							</div>
-							<a href="mailto:#EMAIL1#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#EMAIL1#</a>
+							<a href="mailto:#crmEmail1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmEmailTitle1</a>
 						</div>
 					</div>
 					<!-- End Icon Block -->

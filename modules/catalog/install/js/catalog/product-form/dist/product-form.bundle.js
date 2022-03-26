@@ -1,247 +1,235 @@
 this.BX = this.BX || {};
-(function (exports,currency,ui_layoutForm,ui_forms,ui_buttons,ui_common,ui_alerts,catalog_productSelector,ui_entitySelector,ui_vue_vuex,ui_vue,main_popup,main_core,main_loader,ui_label,ui_messagecard,ui_vue_components_hint,ui_notification,ui_infoHelper,main_qrcode,clipboard,helper,main_core_events,currency_currencyCore,catalog_productCalculator) {
+(function (exports,currency,ui_layoutForm,ui_forms,ui_buttons,ui_common,ui_alerts,catalog_productSelector,ui_entitySelector,catalog_productModel,ui_vue_vuex,ui_vue,main_popup,main_core,main_loader,ui_label,ui_messagecard,ui_vue_components_hint,ui_notification,ui_infoHelper,main_qrcode,clipboard,helper,catalog_storeUse,main_core_events,currency_currencyCore,catalog_productCalculator) {
 	'use strict';
 
-	var FormElementPosition = function FormElementPosition() {
-	  babelHelpers.classCallCheck(this, FormElementPosition);
-	};
-	babelHelpers.defineProperty(FormElementPosition, "TOP", 'TOP');
-	babelHelpers.defineProperty(FormElementPosition, "BOTTOM", 'BOTTOM');
+	class FormElementPosition {}
+	FormElementPosition.TOP = 'TOP';
+	FormElementPosition.BOTTOM = 'BOTTOM';
 
-	var ProductList = /*#__PURE__*/function (_VuexBuilderModel) {
-	  babelHelpers.inherits(ProductList, _VuexBuilderModel);
-
-	  function ProductList() {
-	    babelHelpers.classCallCheck(this, ProductList);
-	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ProductList).apply(this, arguments));
+	class ProductList extends ui_vue_vuex.VuexBuilderModel {
+	  /**
+	   * @inheritDoc
+	   */
+	  getName() {
+	    return 'productList';
 	  }
 
-	  babelHelpers.createClass(ProductList, [{
-	    key: "getName",
+	  getState() {
+	    return {
+	      currency: '',
+	      taxIncluded: 'N',
+	      basket: [],
+	      total: {
+	        sum: 0,
+	        discount: 0,
+	        taxSum: 0,
+	        result: 0
+	      }
+	    };
+	  }
 
-	    /**
-	     * @inheritDoc
-	     */
-	    value: function getName() {
-	      return 'productList';
-	    }
-	  }, {
-	    key: "getState",
-	    value: function getState() {
-	      return {
-	        currency: '',
+	  static getBaseProduct() {
+	    const random = main_core.Text.getRandom();
+	    return {
+	      offerId: null,
+	      selectorId: random,
+	      fields: {
+	        innerId: random,
+	        productId: null,
+	        skuId: null,
+	        code: null,
+	        module: null,
+	        sort: 0,
+	        price: null,
+	        basePrice: null,
+	        priceExclusive: null,
+	        quantity: 1,
+	        name: '',
+	        discount: 0,
+	        discountRate: 0,
+	        discountInfos: [],
+	        discountType: catalog_productCalculator.DiscountType.PERCENTAGE,
+	        tax: 0,
+	        taxSum: 0,
 	        taxIncluded: 'N',
-	        basket: [],
-	        total: {
-	          sum: 0,
-	          discount: 0,
-	          taxSum: 0,
-	          result: 0
-	        }
-	      };
-	    }
-	  }, {
-	    key: "getActions",
-	    value: function getActions() {
-	      return {
-	        resetBasket: function resetBasket(_ref) {
-	          var commit = _ref.commit;
-	          commit('clearBasket');
+	        measureCode: 0,
+	        measureName: '',
+	        measureRatio: 1,
+	        isCustomPrice: 'N',
+	        additionalFields: [],
+	        properties: [],
+	        brands: []
+	      },
+	      calculatedFields: [],
+	      catalogFields: {},
+	      showDiscount: 'N',
+	      showTax: 'N',
+	      skuTree: [],
+	      image: null,
+	      sum: 0,
+	      catalogPrice: null,
+	      discountSum: 0,
+	      detailUrl: '',
+	      encodedFields: null,
+	      errors: []
+	    };
+	  }
+
+	  getActions() {
+	    return {
+	      resetBasket({
+	        commit
+	      }) {
+	        commit('clearBasket');
+	        commit('addItem', {});
+	      },
+
+	      removeItem({
+	        dispatch,
+	        commit,
+	        state
+	      }, payload) {
+	        commit('deleteItem', payload);
+
+	        if (state.basket.length === 0) {
 	          commit('addItem', {});
-	        },
-	        removeItem: function removeItem(_ref2, payload) {
-	          var dispatch = _ref2.dispatch,
-	              commit = _ref2.commit,
-	              state = _ref2.state;
-	          commit('deleteItem', payload);
-
-	          if (state.basket.length === 0) {
-	            commit('addItem', {});
-	          } else {
-	            state.basket.forEach(function (item, i) {
-	              commit('updateItem', {
-	                index: i,
-	                fields: {
-	                  sort: i
-	                }
-	              });
-	            });
-	          }
-
-	          dispatch('calculateTotal');
-	        },
-	        changeItem: function changeItem(_ref3, payload) {
-	          var dispatch = _ref3.dispatch,
-	              commit = _ref3.commit;
-	          commit('updateItem', payload);
-	          dispatch('calculateTotal');
-	        },
-	        setCurrency: function setCurrency(_ref4, payload) {
-	          var commit = _ref4.commit;
-	          var currency$$1 = payload || '';
-	          commit('setCurrency', currency$$1);
-	        },
-	        addItem: function addItem(_ref5, payload) {
-	          var dispatch = _ref5.dispatch,
-	              commit = _ref5.commit;
-	          var item = payload.item || {
-	            fields: {}
-	          };
-	          commit('addItem', {
-	            item: item,
-	            position: payload.position || FormElementPosition.TOP
-	          });
-	          dispatch('calculateTotal');
-	        },
-	        calculateTotal: function calculateTotal(_ref6) {
-	          var commit = _ref6.commit,
-	              state = _ref6.state;
-	          var total = {
-	            sum: 0,
-	            taxSum: 0,
-	            discount: 0,
-	            result: 0
-	          };
-	          state.basket.forEach(function (item) {
-	            var basePrice = main_core.Text.toNumber(item.fields.basePrice || 0);
-	            var quantity = main_core.Text.toNumber(item.fields.quantity || 0);
-	            var discount = main_core.Text.toNumber(item.fields.discount || 0);
-	            var taxSum = main_core.Text.toNumber(item.fields.taxSum || 0);
-	            total.sum += basePrice * quantity;
-	            total.result += main_core.Text.toNumber(item.sum);
-	            total.discount += discount * quantity;
-	            total.taxSum += taxSum * quantity;
-	          });
-	          total.discount = total.discount > total.sum ? total.sum : total.discount;
-	          commit('setTotal', total);
-	        }
-	      };
-	    }
-	  }, {
-	    key: "getGetters",
-	    value: function getGetters() {
-	      return {
-	        getBasket: function getBasket(state) {
-	          return function () {
-	            return state.basket;
-	          };
-	        },
-	        getBaseProduct: function getBaseProduct() {
-	          return function () {
-	            return ProductList.getBaseProduct();
-	          };
-	        }
-	      };
-	    }
-	  }, {
-	    key: "getMutations",
-	    value: function getMutations() {
-	      return {
-	        addItem: function addItem(state, payload) {
-	          var item = ProductList.getBaseProduct();
-	          item = Object.assign(item, payload.item);
-
-	          if (payload.position === FormElementPosition.BOTTOM) {
-	            state.basket.push(item);
-	          } else {
-	            state.basket.unshift(item);
-	          }
-
-	          state.basket.forEach(function (item, index) {
-	            item.fields.sort = index;
-	          });
-	        },
-	        updateItem: function updateItem(state, payload) {
-	          if (typeof state.basket[payload.index] === 'undefined') {
-	            ui_vue.Vue.set(state.basket, payload.index, ProductList.getBaseProduct());
-	          }
-
-	          state.basket[payload.index] = Object.assign(state.basket[payload.index], payload.fields);
-	        },
-	        clearBasket: function clearBasket(state) {
-	          state.basket = [];
-	        },
-	        deleteItem: function deleteItem(state, payload) {
-	          state.basket.splice(payload.index, 1);
-	          state.basket.forEach(function (item, index) {
-	            item.fields.sort = index;
-	          });
-	        },
-	        setErrors: function setErrors(state, payload) {
-	          state.errors = payload;
-	        },
-	        clearErrors: function clearErrors(state) {
-	          state.errors = [];
-	        },
-	        setCurrency: function setCurrency(state, payload) {
-	          state.currency = payload;
-	        },
-	        setTotal: function setTotal(state, payload) {
-	          var formattedTotal = payload;
-
-	          if (main_core.Type.isStringFilled(state.currency)) {
-	            for (var key in payload) {
-	              if (payload.hasOwnProperty(key)) {
-	                formattedTotal[key] = currency_currencyCore.CurrencyCore.currencyFormat(payload[key], state.currency);
+	        } else {
+	          state.basket.forEach((item, i) => {
+	            commit('updateItem', {
+	              index: i,
+	              fields: {
+	                sort: i
 	              }
+	            });
+	          });
+	        }
+
+	        dispatch('calculateTotal');
+	      },
+
+	      changeItem: ({
+	        dispatch,
+	        commit
+	      }, payload) => {
+	        commit('updateItem', payload);
+	        dispatch('calculateTotal');
+	      },
+	      setCurrency: ({
+	        commit
+	      }, payload) => {
+	        const currency$$1 = payload || '';
+	        commit('setCurrency', currency$$1);
+	      },
+	      addItem: ({
+	        dispatch,
+	        commit
+	      }, payload) => {
+	        const item = payload.item || {
+	          fields: {}
+	        };
+	        commit('addItem', {
+	          item,
+	          position: payload.position || FormElementPosition.TOP
+	        });
+	        dispatch('calculateTotal');
+	      },
+	      calculateTotal: ({
+	        commit,
+	        state
+	      }) => {
+	        const total = {
+	          sum: 0,
+	          taxSum: 0,
+	          discount: 0,
+	          result: 0
+	        };
+	        state.basket.forEach(item => {
+	          const basePrice = main_core.Text.toNumber(item.fields.basePrice || 0);
+	          const quantity = main_core.Text.toNumber(item.fields.quantity || 0);
+	          const discount = main_core.Text.toNumber(item.fields.discount || 0);
+	          const taxSum = main_core.Text.toNumber(item.fields.taxSum || 0);
+	          total.sum += basePrice * quantity;
+	          total.result += main_core.Text.toNumber(item.sum);
+	          total.discount += discount * quantity;
+	          total.taxSum += taxSum * quantity;
+	        });
+	        total.discount = total.discount > total.sum ? total.sum : total.discount;
+	        commit('setTotal', total);
+	      }
+	    };
+	  }
+
+	  getGetters() {
+	    return {
+	      getBasket: state => () => {
+	        return state.basket;
+	      },
+	      getBaseProduct: () => () => {
+	        return ProductList.getBaseProduct();
+	      }
+	    };
+	  }
+
+	  getMutations() {
+	    return {
+	      addItem: (state, payload) => {
+	        let item = ProductList.getBaseProduct();
+	        item = Object.assign(item, payload.item);
+
+	        if (payload.position === FormElementPosition.BOTTOM) {
+	          state.basket.push(item);
+	        } else {
+	          state.basket.unshift(item);
+	        }
+
+	        state.basket.forEach((item, index) => {
+	          item.fields.sort = index;
+	        });
+	      },
+	      updateItem: (state, payload) => {
+	        if (main_core.Type.isNil(state.basket[payload.index])) {
+	          ui_vue.Vue.set(state.basket, payload.index, ProductList.getBaseProduct());
+	        }
+
+	        state.basket[payload.index] = Object.assign(state.basket[payload.index], payload.product);
+	      },
+	      clearBasket: state => {
+	        state.basket = [];
+	      },
+	      deleteItem: (state, payload) => {
+	        state.basket.splice(payload.index, 1);
+	        state.basket.forEach((item, index) => {
+	          item.fields.sort = index;
+	        });
+	      },
+	      setErrors: (state, payload) => {
+	        state.errors = payload;
+	      },
+	      clearErrors: state => {
+	        state.errors = [];
+	      },
+	      setCurrency: (state, payload) => {
+	        state.currency = payload;
+	      },
+	      setTotal: (state, payload) => {
+	        const formattedTotal = payload;
+
+	        if (main_core.Type.isStringFilled(state.currency)) {
+	          for (const key in payload) {
+	            if (payload.hasOwnProperty(key)) {
+	              formattedTotal[key] = currency_currencyCore.CurrencyCore.currencyFormat(payload[key], state.currency);
 	            }
 	          }
-
-	          state.total = Object.assign(state.total, formattedTotal);
 	        }
-	      };
-	    }
-	  }], [{
-	    key: "getBaseProduct",
-	    value: function getBaseProduct() {
-	      var random = main_core.Text.getRandom();
-	      return {
-	        offerId: null,
-	        selectorId: random,
-	        fields: {
-	          innerId: random,
-	          productId: null,
-	          skuId: null,
-	          code: null,
-	          module: null,
-	          sort: 0,
-	          price: 0,
-	          basePrice: 0,
-	          priceExclusive: 0,
-	          quantity: 1,
-	          name: '',
-	          discount: 0,
-	          discountRate: 0,
-	          discountInfos: [],
-	          discountType: catalog_productCalculator.DiscountType.PERCENTAGE,
-	          tax: 0,
-	          taxSum: 0,
-	          taxIncluded: 'N',
-	          measureCode: 0,
-	          measureName: '',
-	          measureRatio: 1,
-	          isCustomPrice: 'N',
-	          additionalFields: [],
-	          properties: [],
-	          brands: []
-	        },
-	        calculatedFields: [],
-	        showDiscount: 'N',
-	        showTax: 'N',
-	        skuTree: [],
-	        image: null,
-	        sum: 0,
-	        discountSum: 0,
-	        detailUrl: '',
-	        encodedFields: null,
-	        errors: []
-	      };
-	    }
-	  }]);
-	  return ProductList;
-	}(ui_vue_vuex.VuexBuilderModel);
 
-	var config = Object.freeze({
+	        state.total = Object.assign(state.total, formattedTotal);
+	      }
+	    };
+	  }
+
+	}
+
+	const config = Object.freeze({
 	  databaseConfig: {
 	    name: 'catalog.product-form'
 	  },
@@ -251,6 +239,7 @@ this.BX = this.BX || {};
 	  templateRowName: 'bx-form-row',
 	  templateFieldInlineSelector: 'bx-field-inline-selector',
 	  templateFieldPrice: 'bx-field-price',
+	  templateFieldResultSum: 'bx-field-result-sum',
 	  templateFieldQuantity: 'bx-field-quantity',
 	  templateFieldDiscount: 'bx-field-discount',
 	  templateFieldTax: 'bx-field-tax',
@@ -258,38 +247,34 @@ this.BX = this.BX || {};
 	  moduleId: 'catalog'
 	});
 
-	var FormInputCode = function FormInputCode() {
-	  babelHelpers.classCallCheck(this, FormInputCode);
-	};
-	babelHelpers.defineProperty(FormInputCode, "PRODUCT_SELECTOR", 'product-selector');
-	babelHelpers.defineProperty(FormInputCode, "IMAGE_EDITOR", 'image-editor');
-	babelHelpers.defineProperty(FormInputCode, "QUANTITY", 'quantity');
-	babelHelpers.defineProperty(FormInputCode, "PRICE", 'price');
-	babelHelpers.defineProperty(FormInputCode, "RESULT", 'result');
-	babelHelpers.defineProperty(FormInputCode, "DISCOUNT", 'discount');
-	babelHelpers.defineProperty(FormInputCode, "TAX", 'tax');
-	babelHelpers.defineProperty(FormInputCode, "BRAND", 'brand');
+	class FormInputCode {}
+	FormInputCode.PRODUCT_SELECTOR = 'product-selector';
+	FormInputCode.IMAGE_EDITOR = 'image-editor';
+	FormInputCode.QUANTITY = 'quantity';
+	FormInputCode.PRICE = 'price';
+	FormInputCode.RESULT = 'result';
+	FormInputCode.DISCOUNT = 'discount';
+	FormInputCode.TAX = 'tax';
+	FormInputCode.BRAND = 'brand';
+	FormInputCode.MEASURE = 'measure';
 
-	var FormErrorCode = function FormErrorCode() {
-	  babelHelpers.classCallCheck(this, FormErrorCode);
-	};
-	babelHelpers.defineProperty(FormErrorCode, "EMPTY_PRODUCT_SELECTOR", 0);
-	babelHelpers.defineProperty(FormErrorCode, "EMPTY_IMAGE", 1);
-	babelHelpers.defineProperty(FormErrorCode, "EMPTY_QUANTITY", 2);
-	babelHelpers.defineProperty(FormErrorCode, "EMPTY_PRICE", 3);
-	babelHelpers.defineProperty(FormErrorCode, "EMPTY_BRAND", 4);
+	class FormErrorCode {}
+	FormErrorCode.EMPTY_PRODUCT_SELECTOR = 0;
+	FormErrorCode.EMPTY_IMAGE = 1;
+	FormErrorCode.EMPTY_QUANTITY = 2;
+	FormErrorCode.EMPTY_PRICE = 3;
+	FormErrorCode.EMPTY_BRAND = 4;
+	FormErrorCode.IS_NULLABLE_PRICE = 5;
 
-	var FormMode = function FormMode() {
-	  babelHelpers.classCallCheck(this, FormMode);
-	};
-	babelHelpers.defineProperty(FormMode, "REGULAR", 'REGULAR');
-	babelHelpers.defineProperty(FormMode, "READ_ONLY", 'READ_ONLY');
-	babelHelpers.defineProperty(FormMode, "COMPILATION", 'COMPILATION');
+	class FormMode {}
+	FormMode.REGULAR = 'REGULAR';
+	FormMode.READ_ONLY = 'READ_ONLY';
+	FormMode.COMPILATION = 'COMPILATION';
 
 	ui_vue.Vue.component(config.templateFieldQuantity, {
 	  /**
-	   * @emits 'changeQuantity' {quantity: number}
-	   * @emits 'changeMeasure' {quantity: number, }
+	   * @emits 'onChangeQuantity' {quantity: number}
+	   * @emits 'onSelectMeasure' {quantity: number, }
 	   */
 	  props: {
 	    measureCode: Number,
@@ -297,21 +282,24 @@ this.BX = this.BX || {};
 	    measureName: String,
 	    quantity: Number,
 	    editable: Boolean,
+	    saveableMeasure: Boolean,
 	    hasError: Boolean,
 	    options: Object
 	  },
-	  created: function created() {
+
+	  created() {
 	    this.onInputQuantityHandler = main_core.Runtime.debounce(this.onInputQuantity, 500, this);
 	  },
+
 	  methods: {
-	    onInputQuantity: function onInputQuantity(event) {
+	    onInputQuantity(event) {
 	      if (!this.editable) {
 	        return;
 	      }
 
 	      event.target.value = event.target.value.replace(/[^.\d]/g, '.');
-	      var newQuantity = parseFloat(event.target.value);
-	      var lastSymbol = event.target.value.substr(-1);
+	      const newQuantity = main_core.Text.toNumber(event.target.value);
+	      const lastSymbol = event.target.value.substr(-1);
 
 	      if (lastSymbol === '.') {
 	        return;
@@ -319,10 +307,11 @@ this.BX = this.BX || {};
 
 	      this.changeQuantity(newQuantity);
 	    },
-	    calculateCorrectionFactor: function calculateCorrectionFactor(quantity, measureRatio) {
-	      var factoredQuantity = quantity;
-	      var factoredRatio = measureRatio;
-	      var correctionFactor = 1;
+
+	    calculateCorrectionFactor(quantity, measureRatio) {
+	      let factoredQuantity = quantity;
+	      let factoredRatio = measureRatio;
+	      let correctionFactor = 1;
 
 	      while (!(Number.isInteger(factoredQuantity) && Number.isInteger(factoredRatio))) {
 	        correctionFactor *= 10;
@@ -332,38 +321,40 @@ this.BX = this.BX || {};
 
 	      return correctionFactor;
 	    },
-	    incrementValue: function incrementValue() {
+
+	    incrementValue() {
 	      if (!this.editable) {
 	        return;
 	      }
 
-	      var correctionFactor = this.calculateCorrectionFactor(this.quantity, this.measureRatio);
-	      var quantity = (this.quantity * correctionFactor + this.measureRatio * correctionFactor) / correctionFactor;
+	      const correctionFactor = this.calculateCorrectionFactor(this.quantity, this.measureRatio);
+	      const quantity = (this.quantity * correctionFactor + this.measureRatio * correctionFactor) / correctionFactor;
 	      this.changeQuantity(quantity);
 	    },
-	    decrementValue: function decrementValue() {
+
+	    decrementValue() {
 	      if (this.quantity > this.measureRatio && this.editable) {
-	        var correctionFactor = this.calculateCorrectionFactor(this.quantity, this.measureRatio);
-	        var quantity = (this.quantity * correctionFactor - this.measureRatio * correctionFactor) / correctionFactor;
+	        const correctionFactor = this.calculateCorrectionFactor(this.quantity, this.measureRatio);
+	        const quantity = (this.quantity * correctionFactor - this.measureRatio * correctionFactor) / correctionFactor;
 	        this.changeQuantity(quantity);
 	      }
 	    },
-	    changeQuantity: function changeQuantity(value) {
-	      this.$emit('changeQuantity', value);
-	    },
-	    showPopupMenu: function showPopupMenu(target) {
-	      var _this = this;
 
+	    changeQuantity(value) {
+	      this.$emit('onChangeQuantity', value);
+	    },
+
+	    showPopupMenu(target) {
 	      if (!this.editable || !main_core.Type.isArray(this.options.measures)) {
 	        return;
 	      }
 
-	      var menuItems = [];
-	      this.options.measures.forEach(function (item) {
+	      const menuItems = [];
+	      this.options.measures.forEach(item => {
 	        menuItems.push({
 	          text: item.SYMBOL,
 	          item: item,
-	          onclick: _this.changeMeasure
+	          onclick: this.selectMeasure
 	        });
 	      });
 
@@ -375,36 +366,60 @@ this.BX = this.BX || {};
 	        this.popupMenu.show();
 	      }
 	    },
-	    changeMeasure: function changeMeasure(event, params) {
-	      this.$emit('changeMeasure', {
-	        code: param.options.item.CODE,
-	        name: param.options.item.SYMBOL
+
+	    selectMeasure(event, params) {
+	      var _params$options, _params$options2;
+
+	      this.$emit('onSelectMeasure', {
+	        code: (_params$options = params.options) == null ? void 0 : _params$options.item.CODE,
+	        name: (_params$options2 = params.options) == null ? void 0 : _params$options2.item.SYMBOL
 	      });
 
 	      if (this.popupMenu) {
 	        this.popupMenu.close();
 	      }
 	    }
+
 	  },
 	  // language=Vue
-	  template: "\n\t\t<div class=\"catalog-pf-product-input-wrapper\" v-bind:class=\"{ 'ui-ctl-danger': hasError }\">\n\t\t\t<input \t\n\t\t\t\ttype=\"text\" class=\"catalog-pf-product-input\"\n\t\t\t\tv-bind:class=\"{ 'catalog-pf-product-input--disabled': !editable }\"\n\t\t\t\t:value=\"quantity\"\n\t\t\t\t@input=\"onInputQuantity\"\n\t\t\t\t:disabled=\"!editable\"\n\t\t\t>\n\t\t\t<div \n\t\t\t\tclass=\"catalog-pf-product-input-info catalog-pf-product-input-info--action\" \n\t\t\t\t@click=\"showPopupMenu($event.target)\"\n\t\t\t>\n\t\t\t\t<span>{{ measureName }}</span>\n\t\t\t</div>\n\t\t</div>\n\t"
+	  template: `
+		<div class="catalog-pf-product-input-wrapper" v-bind:class="{ 'ui-ctl-danger': hasError }">
+			<input 	
+				type="text" class="catalog-pf-product-input"
+				v-bind:class="{ 'catalog-pf-product-input--disabled': !editable }"
+				:value="quantity"
+				@input="onInputQuantityHandler"
+				:disabled="!editable"
+			>
+			<div 
+				class="catalog-pf-product-input-info catalog-pf-product-input-info--action" 
+				@click="showPopupMenu($event.target)"
+			>
+				<span>{{ measureName }}</span>
+			</div>
+		</div>
+	`
 	});
 
 	ui_vue.Vue.component(config.templateFieldPrice, {
 	  /**
-	   * @emits 'changePrice' {price: number}
+	   * @emits 'onChangePrice' {price: number}
+	   * @emits 'saveCatalogField' {}
 	   */
 	  props: {
-	    basePrice: Number,
+	    selectorId: String,
+	    price: Number,
 	    editable: Boolean,
 	    hasError: Boolean,
 	    options: Object
 	  },
-	  created: function created() {
+
+	  created() {
 	    this.onInputPriceHandler = main_core.Runtime.debounce(this.onInputPrice, 500, this);
 	  },
+
 	  methods: {
-	    onInputPrice: function onInputPrice(event) {
+	    onInputPrice(event) {
 	      if (!this.editable) {
 	        return;
 	      }
@@ -415,31 +430,48 @@ this.BX = this.BX || {};
 	        event.target.value = 0;
 	      }
 
-	      var lastSymbol = event.target.value.substr(-1);
+	      const lastSymbol = event.target.value.substr(-1);
 
 	      if (lastSymbol === ',') {
 	        event.target.value = event.target.value.replace(',', ".");
 	      }
 
-	      var newPrice = parseFloat(event.target.value);
+	      let newPrice = main_core.Text.toNumber(event.target.value);
 
-	      if (newPrice < 0 || lastSymbol === '.' || lastSymbol === ',') {
+	      if (lastSymbol === '.' || lastSymbol === ',') {
 	        return;
 	      }
 
-	      this.$emit('changePrice', newPrice);
+	      if (newPrice < 0) {
+	        newPrice *= -1;
+	      }
+
+	      this.$emit('onChangePrice', newPrice);
 	    }
+
 	  },
 	  computed: {
-	    localize: function localize() {
+	    localize() {
 	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
 	    },
-	    currencySymbol: function currencySymbol() {
+
+	    currencySymbol() {
 	      return this.options.currencySymbol || '';
 	    }
+
 	  },
 	  // language=Vue
-	  template: "\n\t\t<div class=\"catalog-pf-product-input-wrapper\" v-bind:class=\"{ 'ui-ctl-danger': hasError }\">\n\t\t\t<input \ttype=\"text\" class=\"catalog-pf-product-input catalog-pf-product-input--align-right\"\n\t\t\t\t\tv-bind:class=\"{ 'catalog-pf-product-input--disabled': !editable }\"\n\t\t\t\t\t:value=\"basePrice\"\n\t\t\t\t\t@input=\"onInputPriceHandler\"\n\t\t\t\t\t:disabled=\"!editable\">\n\t\t\t<div class=\"catalog-pf-product-input-info\" v-html=\"currencySymbol\"></div>\n\t\t</div>\n\t"
+	  template: `
+		<div class="catalog-pf-product-input-wrapper" v-bind:class="{ 'ui-ctl-danger': hasError }">
+			<input 	type="text" class="catalog-pf-product-input catalog-pf-product-input--align-right"
+					v-bind:class="{ 'catalog-pf-product-input--disabled': !editable }"
+					v-model.lazy="price"
+					@input="onInputPriceHandler"
+					:disabled="!editable"
+			>
+			<div class="catalog-pf-product-input-info" v-html="currencySymbol"></div>
+		</div>
+	`
 	});
 
 	ui_vue.Vue.component(config.templateFieldDiscount, {
@@ -454,27 +486,30 @@ this.BX = this.BX || {};
 	    discountType: Number,
 	    discountRate: Number
 	  },
-	  created: function created() {
+
+	  created() {
 	    this.onInputDiscount = main_core.Runtime.debounce(this.onChangeDiscount, 500, this);
 	    this.currencySymbol = this.options.currencySymbol;
 	  },
+
 	  methods: {
-	    onChangeType: function onChangeType(event, params) {
+	    onChangeType(event, params) {
 	      var _params$options;
 
 	      if (!this.editable) {
 	        return;
 	      }
 
-	      var type = main_core.Text.toNumber(params === null || params === void 0 ? void 0 : (_params$options = params.options) === null || _params$options === void 0 ? void 0 : _params$options.type) === catalog_productCalculator.DiscountType.MONETARY ? catalog_productCalculator.DiscountType.MONETARY : catalog_productCalculator.DiscountType.PERCENTAGE;
+	      const type = main_core.Text.toNumber(params == null ? void 0 : (_params$options = params.options) == null ? void 0 : _params$options.type) === catalog_productCalculator.DiscountType.MONETARY ? catalog_productCalculator.DiscountType.MONETARY : catalog_productCalculator.DiscountType.PERCENTAGE;
 	      this.$emit('changeDiscountType', type);
 
 	      if (this.popupMenu) {
 	        this.popupMenu.close();
 	      }
 	    },
-	    onChangeDiscount: function onChangeDiscount(event) {
-	      var discountValue = main_core.Text.toNumber(event.target.value) || 0;
+
+	    onChangeDiscount(event) {
+	      const discountValue = main_core.Text.toNumber(event.target.value) || 0;
 
 	      if (discountValue === main_core.Text.toNumber(this.discount) || !this.editable) {
 	        return;
@@ -482,12 +517,13 @@ this.BX = this.BX || {};
 
 	      this.$emit('changeDiscount', discountValue);
 	    },
-	    showPopupMenu: function showPopupMenu(target) {
+
+	    showPopupMenu(target) {
 	      if (!this.editable || !main_core.Type.isArray(this.options.allowedDiscountTypes)) {
 	        return;
 	      }
 
-	      var menuItems = [];
+	      const menuItems = [];
 
 	      if (this.options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.PERCENTAGE)) {
 	        menuItems.push({
@@ -513,21 +549,39 @@ this.BX = this.BX || {};
 	        this.popupMenu.show();
 	      }
 	    }
+
 	  },
 	  computed: {
-	    getDiscountInputValue: function getDiscountInputValue() {
+	    getDiscountInputValue() {
 	      if (main_core.Text.toNumber(this.discountType) === catalog_productCalculator.DiscountType.PERCENTAGE) {
 	        return main_core.Text.toNumber(this.discountRate);
 	      }
 
 	      return main_core.Text.toNumber(this.discount);
 	    },
-	    getDiscountSymbol: function getDiscountSymbol() {
+
+	    getDiscountSymbol() {
 	      return main_core.Text.toNumber(this.discountType) === catalog_productCalculator.DiscountType.PERCENTAGE ? '%' : this.currencySymbol;
 	    }
+
 	  },
 	  // language=Vue
-	  template: "\n\t\t<div class=\"catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--left\">\n\t\t\t<input class=\"catalog-pf-product-input catalog-pf-product-input--align-right catalog-pf-product-input--right\"\n\t\t\t\t\tv-bind:class=\"{ 'catalog-pf-product-input--disabled': !editable }\"\n\t\t\t\t\tref=\"discountInput\" \n\t\t\t\t\t:value=\"getDiscountInputValue\"\n\t\t\t\t\t@input=\"onInputDiscount\"\n\t\t\t\t\tplaceholder=\"0\"\n\t\t\t\t\t:disabled=\"!editable\">\n\t\t\t<div class=\"catalog-pf-product-input-info catalog-pf-product-input-info--action\" \n\t\t\t\t@click=\"showPopupMenu\">\n\t\t\t\t<span v-html=\"getDiscountSymbol\"></span>\n\t\t\t</div>\n\t\t</div>\n\t"
+	  template: `
+		<div class="catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--left">
+			<input class="catalog-pf-product-input catalog-pf-product-input--align-right catalog-pf-product-input--right"
+					v-bind:class="{ 'catalog-pf-product-input--disabled': !editable }"
+					ref="discountInput" 
+					:value="getDiscountInputValue"
+					:v-model="discountRate"
+					@input="onInputDiscount"
+					placeholder="0"
+					:disabled="!editable">
+			<div class="catalog-pf-product-input-info catalog-pf-product-input-info--action" 
+				@click="showPopupMenu">
+				<span v-html="getDiscountSymbol"></span>
+			</div>
+		</div>
+	`
 	});
 
 	ui_vue.Vue.component(config.templateFieldTax, {
@@ -539,47 +593,49 @@ this.BX = this.BX || {};
 	    editable: Boolean,
 	    options: Object
 	  },
-	  data: function data() {
+
+	  data() {
 	    return {
 	      taxValue: this.getTaxList()[this.taxId] || 0
 	    };
 	  },
+
 	  methods: {
-	    onChangeValue: function onChangeValue(event, params) {
+	    onChangeValue(event, params) {
 	      var _params$options, _params$options2;
 
-	      var taxValue = main_core.Text.toNumber(params === null || params === void 0 ? void 0 : (_params$options = params.options) === null || _params$options === void 0 ? void 0 : _params$options.item);
+	      const taxValue = main_core.Text.toNumber(params == null ? void 0 : (_params$options = params.options) == null ? void 0 : _params$options.item);
 
 	      if (taxValue === main_core.Text.toNumber(this.taxValue) || !this.editable) {
 	        return;
 	      }
 
 	      this.$emit('changeTax', {
-	        taxValue: taxValue,
-	        taxId: params === null || params === void 0 ? void 0 : (_params$options2 = params.options) === null || _params$options2 === void 0 ? void 0 : _params$options2.id
+	        taxValue,
+	        taxId: params == null ? void 0 : (_params$options2 = params.options) == null ? void 0 : _params$options2.id
 	      });
 
 	      if (this.popupMenu) {
 	        this.popupMenu.close();
 	      }
 	    },
-	    getTaxList: function getTaxList() {
+
+	    getTaxList() {
 	      return main_core.Type.isArray(this.options.taxList) ? this.options.taxList : [];
 	    },
-	    showPopupMenu: function showPopupMenu(target) {
-	      var _this = this;
 
+	    showPopupMenu(target) {
 	      if (!this.editable || !main_core.Type.isArray(this.options.taxList)) {
 	        return;
 	      }
 
-	      var menuItems = [];
-	      this.options.taxList.forEach(function (item, id) {
+	      const menuItems = [];
+	      this.options.taxList.forEach((item, id) => {
 	        menuItems.push({
-	          id: id,
+	          id,
 	          text: item + '%',
 	          item: item,
-	          onclick: _this.onChangeValue
+	          onclick: this.onChangeValue
 	        });
 	      });
 
@@ -591,9 +647,15 @@ this.BX = this.BX || {};
 	        this.popupMenu.show();
 	      }
 	    }
+
 	  },
 	  // language=Vue
-	  template: "\n\t\t<div class=\"catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--right\" @click=\"showPopupMenu\">\n\t\t\t<div class=\"catalog-pf-product-input\">{{this.taxValue}}%</div>\n\t\t\t<div class=\"catalog-pf-product-input-info catalog-pf-product-input-info--dropdown\"></div>\n\t\t</div>\n\t"
+	  template: `
+		<div class="catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--right" @click="showPopupMenu">
+			<div class="catalog-pf-product-input">{{this.taxValue}}%</div>
+			<div class="catalog-pf-product-input-info catalog-pf-product-input-info--dropdown"></div>
+		</div>
+	`
 	});
 
 	ui_vue.Vue.component(config.templateFieldInlineSelector, {
@@ -602,10 +664,13 @@ this.BX = this.BX || {};
 	   */
 	  props: {
 	    editable: Boolean,
+	    basketLength: Number,
 	    options: Object,
-	    basketItem: Object
+	    basketItem: Object,
+	    model: Object
 	  },
-	  data: function data() {
+
+	  data() {
 	    return {
 	      currencySymbol: null,
 	      productSelector: null,
@@ -613,25 +678,37 @@ this.BX = this.BX || {};
 	      selectorId: this.basketItem.selectorId
 	    };
 	  },
-	  created: function created() {
+
+	  created() {
 	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.onProductChange.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onClear', this.onProductClear.bind(this));
 	  },
-	  mounted: function mounted() {
+
+	  mounted() {
 	    this.productSelector = new catalog_productSelector.ProductSelector(this.selectorId, this.prepareSelectorParams());
 	    this.productSelector.renderTo(this.$refs.selectorWrapper);
 	  },
+
 	  methods: {
-	    prepareSelectorParams: function prepareSelectorParams() {
-	      var selectorOptions = {
+	    prepareSelectorParams() {
+	      const fields = {
+	        NAME: this.getField('name') || ''
+	      };
+
+	      if (!main_core.Type.isNil(this.getField('basePrice'))) {
+	        fields.PRICE = this.getField('basePrice');
+	        fields.CURRENCY = this.options.currency;
+	      }
+
+	      const selectorOptions = {
 	        iblockId: this.options.iblockId,
 	        basePriceId: this.options.basePriceId,
-	        productId: this.getField('productId'),
-	        skuId: this.getField('skuId'),
+	        currency: this.options.currency,
 	        skuTree: this.getDefaultSkuTree(),
 	        fileInputId: '',
 	        morePhotoValues: [],
 	        fileInput: '',
+	        model: this.model,
 	        config: {
 	          DETAIL_PATH: this.basketItem.detailUrl || '',
 	          ENABLE_SEARCH: true,
@@ -645,14 +722,9 @@ this.BX = this.BX || {};
 	          URL_BUILDER_CONTEXT: this.options.urlBuilderContext
 	        },
 	        mode: this.editable ? catalog_productSelector.ProductSelector.MODE_EDIT : catalog_productSelector.ProductSelector.MODE_VIEW,
-	        isSimpleModel: this.getField('name', '') !== '' && this.getField('productId') <= 0 && this.getField('skuId') <= 0,
-	        fields: {
-	          NAME: this.getField('name') || '',
-	          PRICE: this.getField('basePrice') || 0,
-	          CURRENCY: this.options.currency
-	        }
+	        fields
 	      };
-	      var formImage = this.basketItem.image;
+	      const formImage = this.basketItem.image;
 
 	      if (main_core.Type.isObject(formImage)) {
 	        selectorOptions.fileView = formImage.preview;
@@ -663,11 +735,17 @@ this.BX = this.BX || {};
 
 	      return selectorOptions;
 	    },
-	    isRequiredField: function isRequiredField(code) {
+
+	    isEnabledSaving() {
+	      return this.options.enableCatalogSaving && this.basketItem.hasEditRights;
+	    },
+
+	    isRequiredField(code) {
 	      return main_core.Type.isArray(this.options.requiredFields) && this.options.requiredFields.includes(code);
 	    },
-	    getDefaultSkuTree: function getDefaultSkuTree() {
-	      var skuTree = this.basketItem.skuTree || {};
+
+	    getDefaultSkuTree() {
+	      let skuTree = this.basketItem.skuTree || {};
 
 	      if (main_core.Type.isStringFilled(skuTree)) {
 	        skuTree = JSON.parse(skuTree);
@@ -675,16 +753,17 @@ this.BX = this.BX || {};
 
 	      return skuTree;
 	    },
-	    getField: function getField(name) {
-	      var defaultValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+	    getField(name, defaultValue = null) {
 	      return this.basketItem.fields[name] || defaultValue;
 	    },
-	    onProductChange: function onProductChange(event) {
-	      var data = event.getData();
+
+	    onProductChange(event) {
+	      const data = event.getData();
 
 	      if (main_core.Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId()) {
-	        var basePrice = main_core.Text.toNumber(data.fields.PRICE);
-	        var fields = {
+	        const basePrice = data.fields.BASE_PRICE;
+	        const fields = {
 	          BASE_PRICE: basePrice,
 	          MODULE: 'catalog',
 	          NAME: data.fields.NAME,
@@ -693,44 +772,33 @@ this.BX = this.BX || {};
 	          SKU_ID: data.fields.SKU_ID,
 	          PROPERTIES: data.fields.PROPERTIES,
 	          URL_BUILDER_CONTEXT: this.options.urlBuilderContext,
-	          CUSTOMIZED: main_core.Type.isNil(data.fields.PRICE) ? 'Y' : 'N',
+	          CUSTOMIZED: main_core.Type.isNil(data.fields.PRICE) || data.fields.CUSTOMIZED === 'Y' ? 'Y' : 'N',
 	          MEASURE_CODE: data.fields.MEASURE_CODE,
-	          MEASURE_NAME: data.fields.MEASURE_NAME
+	          MEASURE_NAME: data.fields.MEASURE_NAME,
+	          IS_NEW: data.isNew
 	        };
 	        this.$emit('onProductChange', fields);
 	      }
 	    },
-	    onProductClear: function onProductClear(event) {
-	      var data = event.getData();
+
+	    onProductClear(event) {
+	      const data = event.getData();
 
 	      if (main_core.Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId()) {
 	        this.$emit('onProductClear');
 	      }
 	    }
+
 	  },
 	  // language=Vue
-	  template: "\n\t\t<div class=\"catalog-pf-product-item-section\" :id=\"selectorId\" ref=\"selectorWrapper\"></div>\n\t"
+	  template: `
+		<div class="catalog-pf-product-item-section" :id="selectorId" ref="selectorWrapper"></div>
+	`
 	});
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	let _ = t => t,
+	    _t,
+	    _t2;
 	ui_vue.Vue.component(config.templateFieldBrand, {
 	  /**
 	   * @emits 'changeBrand' {values: Array<any>}
@@ -742,12 +810,14 @@ this.BX = this.BX || {};
 	    hasError: Boolean,
 	    selectorId: String
 	  },
-	  data: function data() {
+
+	  data() {
 	    return {
 	      cache: new main_core.Cache.MemoryCache()
 	    };
 	  },
-	  created: function created() {
+
+	  created() {
 	    this.selector = new ui_entitySelector.TagSelector({
 	      id: this.selectorId,
 	      dialogOptions: {
@@ -763,8 +833,8 @@ this.BX = this.BX || {};
 	        searchTabOptions: {
 	          stub: true,
 	          stubOptions: {
-	            title: main_core.Tag.message(_templateObject(), 'CATALOG_FORM_BRAND_SELECTOR_IS_EMPTY_TITLE'),
-	            subtitle: main_core.Tag.message(_templateObject2(), 'CATALOG_FORM_BRAND_SELECTOR_IS_EMPTY_SUBTITLE'),
+	            title: main_core.Tag.message(_t || (_t = _`${0}`), 'CATALOG_FORM_BRAND_SELECTOR_IS_EMPTY_TITLE'),
+	            subtitle: main_core.Tag.message(_t2 || (_t2 = _`${0}`), 'CATALOG_FORM_BRAND_SELECTOR_IS_EMPTY_SUBTITLE'),
 	            arrow: true
 	          }
 	        },
@@ -782,50 +852,54 @@ this.BX = this.BX || {};
 	      }
 	    });
 	  },
-	  mounted: function mounted() {
+
+	  mounted() {
 	    this.selector.renderTo(this.$refs.brandSelectorWrapper);
 	  },
+
 	  methods: {
-	    getPreselectedBrands: function getPreselectedBrands() {
+	    getPreselectedBrands() {
 	      if (!main_core.Type.isArray(this.brands) || this.brands.length === 0) {
 	        return [];
 	      }
 
-	      return this.brands.map(function (item) {
+	      return this.brands.map(item => {
 	        return ['brand', item];
 	      });
 	    },
-	    onBrandChange: function onBrandChange(event) {
-	      var items = event.getTarget().getSelectedItems();
-	      var resultValues = [];
+
+	    onBrandChange(event) {
+	      const items = event.getTarget().getSelectedItems();
+	      const resultValues = [];
 
 	      if (main_core.Type.isArray(items)) {
-	        items.forEach(function (item) {
+	        items.forEach(item => {
 	          resultValues.push(item.getId());
 	        });
 	      }
 
 	      this.$emit('changeBrand', resultValues);
 	    },
-	    createBrand: function createBrand(event) {
-	      var _event$getData = event.getData(),
-	          searchQuery = _event$getData.searchQuery;
 
-	      var iblockId = this.options.iblockId;
-	      return new Promise(function (resolve, reject) {
-	        var dialog = event.getTarget();
-	        var fields = {
+	    createBrand(event) {
+	      const {
+	        searchQuery
+	      } = event.getData();
+	      const iblockId = this.options.iblockId;
+	      return new Promise((resolve, reject) => {
+	        const dialog = event.getTarget();
+	        const fields = {
 	          name: searchQuery.getQuery(),
-	          iblockId: iblockId
+	          iblockId
 	        };
 	        dialog.showLoader();
 	        main_core.ajax.runAction('catalog.productForm.createBrand', {
 	          data: {
-	            fields: fields
+	            fields
 	          }
-	        }).then(function (response) {
+	        }).then(response => {
 	          dialog.hideLoader();
-	          var item = dialog.addItem({
+	          const item = dialog.addItem({
 	            id: response.data.id,
 	            entityId: 'brand',
 	            title: searchQuery.getQuery(),
@@ -838,47 +912,127 @@ this.BX = this.BX || {};
 
 	          dialog.hide();
 	          resolve();
-	        }).catch(function () {
-	          return reject();
-	        });
+	        }).catch(() => reject());
 	      });
 	    }
+
 	  },
 	  computed: {
-	    localize: function localize() {
+	    localize() {
 	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
 	    }
+
 	  },
 	  // language=Vue
-	  template: "\n\t\t<div class=\"catalog-pf-product-control ui-ctl-w100\" v-bind:class=\"{ 'ui-ctl-danger': hasError }\">\n\t\t\t<div class=\"catalog-pf-product-input-wrapper\" ref=\"brandSelectorWrapper\" :id=\"selectorId\"></div>\n\t\t</div>\n\t"
+	  template: `
+		<div class="catalog-pf-product-control ui-ctl-w100" v-bind:class="{ 'ui-ctl-danger': hasError }">
+			<div class="catalog-pf-product-input-wrapper" ref="brandSelectorWrapper" :id="selectorId"></div>
+		</div>
+	`
 	});
 
-	var FormCompilationType = function FormCompilationType() {
-	  babelHelpers.classCallCheck(this, FormCompilationType);
-	};
-	babelHelpers.defineProperty(FormCompilationType, "REGULAR", 'REGULAR');
-	babelHelpers.defineProperty(FormCompilationType, "FACEBOOK", 'FACEBOOK');
+	ui_vue.Vue.component(config.templateFieldResultSum, {
+	  /**
+	   * @emits 'onChangeSum' {sum: number}
+	   */
+	  props: {
+	    sum: Number,
+	    editable: Boolean,
+	    options: Object
+	  },
+
+	  created() {
+	    this.onInputSumHandler = main_core.Runtime.debounce(this.onInputSum, 500, this);
+	  },
+
+	  methods: {
+	    onInputSum(event) {
+	      if (!this.editable) {
+	        return;
+	      }
+
+	      event.target.value = event.target.value.replace(/[^.,\d]/g, '');
+
+	      if (event.target.value === '') {
+	        event.target.value = 0;
+	      }
+
+	      let lastSymbol = event.target.value.substr(-1);
+
+	      if (lastSymbol === ',') {
+	        event.target.value = event.target.value.replace(',', ".");
+	      }
+
+	      let newSum = main_core.Text.toNumber(event.target.value);
+
+	      if (lastSymbol === '.' || lastSymbol === ',') {
+	        return;
+	      }
+
+	      if (newSum < 0) {
+	        newSum *= -1;
+	      }
+
+	      this.$emit('onChangeSum', newSum);
+	    }
+
+	  },
+	  computed: {
+	    localize() {
+	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
+	    },
+
+	    currencySymbol() {
+	      return this.options.currencySymbol || '';
+	    }
+
+	  },
+	  // language=Vue
+	  template: `
+		<div class="catalog-pf-product-input-wrapper">
+			<input 	type="text" 
+					class="catalog-pf-product-input catalog-pf-product-input--align-right"
+					:class="{ 'catalog-pf-product-input--disabled': !editable }"
+					:value="sum"
+					@input="onInputSumHandler"
+					:disabled="!editable"
+			>
+			<div class="catalog-pf-product-input-info"
+				 :class="{ 'catalog-pf-product-input--disabled': !editable }"
+				 v-html="currencySymbol"
+			></div>
+		</div>
+	`
+	});
 
 	ui_vue.Vue.component(config.templateRowName, {
 	  /**
 	   * @emits 'changeProduct' {index: number, fields: object}
 	   * @emits 'changeRowData' {index: number, fields: object}
+	   * @emits 'emitErrorsChange' {index: number, errors: object}
 	   * @emits 'refreshBasket'
 	   * @emits 'removeItem' {index: number}
 	   */
 	  props: {
 	    basketItem: Object,
 	    basketItemIndex: Number,
+	    basketLength: Number,
 	    countItems: Number,
 	    options: Object,
 	    mode: String
 	  },
-	  data: function data() {
+
+	  data() {
 	    return {
+	      model: null,
 	      currencySymbol: null,
 	      productSelector: null,
 	      imageControlId: null,
 	      selectorId: this.basketItem.selectorId,
+	      defaultMeasure: {
+	        name: '',
+	        id: null
+	      },
 	      blocks: {
 	        productSelector: FormInputCode.PRODUCT_SELECTOR,
 	        quantity: FormInputCode.QUANTITY,
@@ -886,7 +1040,8 @@ this.BX = this.BX || {};
 	        result: FormInputCode.RESULT,
 	        discount: FormInputCode.DISCOUNT,
 	        tax: FormInputCode.TAX,
-	        brand: FormInputCode.BRAND
+	        brand: FormInputCode.BRAND,
+	        measure: FormInputCode.MEASURE
 	      },
 	      errorCodes: {
 	        emptyProductSelector: FormErrorCode.EMPTY_PRODUCT_SELECTOR,
@@ -897,192 +1052,221 @@ this.BX = this.BX || {};
 	      }
 	    };
 	  },
-	  created: function created() {
-	    var _this = this;
 
-	    var defaultFields = this.basketItem.fields;
-	    var defaultPrice = main_core.Text.toNumber(defaultFields.price);
-	    var basePrice = defaultFields.basePrice || defaultPrice;
-	    var calculatorFields = {
-	      'QUANTITY': main_core.Text.toNumber(defaultFields.quantity),
-	      'BASE_PRICE': basePrice,
-	      'PRICE': defaultPrice,
-	      'PRICE_NETTO': basePrice,
-	      'PRICE_BRUTTO': defaultPrice,
-	      'PRICE_EXCLUSIVE': this.basketItem.fields.priceExclusive || defaultPrice,
-	      'DISCOUNT_TYPE_ID': main_core.Text.toNumber(defaultFields.discountType) || catalog_productCalculator.DiscountType.PERCENTAGE,
-	      'DISCOUNT_RATE': main_core.Text.toNumber(defaultFields.discountRate),
-	      'DISCOUNT_SUM': main_core.Text.toNumber(defaultFields.discount),
-	      'TAX_INCLUDED': defaultFields.taxIncluded || this.options.taxIncluded,
-	      'TAX_RATE': defaultFields.tax || 0,
-	      'CUSTOMIZED': defaultFields.isCustomPrice || 'N'
-	    };
-	    var pricePrecision = this.options.pricePrecision || 2;
-	    this.calculator = new catalog_productCalculator.ProductCalculator(calculatorFields, {
-	      currencyId: this.options.currency,
-	      pricePrecision: pricePrecision,
-	      commonPrecision: pricePrecision
-	    });
-	    this.calculator.setCalculationStrategy(new catalog_productCalculator.TaxForPriceStrategy(this.calculator));
+	  created() {
 	    this.currencySymbol = this.options.currencySymbol;
-	    this.defaultMeasure = {
-	      name: '',
-	      id: null
-	    };
+	    this.model = this.initModel();
 
 	    if (main_core.Type.isArray(this.options.measures)) {
-	      this.options.measures.map(function (measure) {
+	      this.options.measures.map(measure => {
 	        if (measure['IS_DEFAULT'] === 'Y') {
-	          _this.defaultMeasure.name = measure.SYMBOL;
-	          _this.defaultMeasure.code = measure.CODE;
+	          this.defaultMeasure.name = measure.SYMBOL;
+	          this.defaultMeasure.code = measure.CODE;
 
-	          if (!defaultFields.measureName && !defaultFields.measureCode) {
-	            _this.changeProduct({
-	              measureCode: _this.defaultMeasure.code,
-	              measureName: _this.defaultMeasure.name
+	          if (!this.basketItem.fields.measureName && !this.basketItem.fields.measureCode) {
+	            this.changeProductFields({
+	              measureCode: this.defaultMeasure.code,
+	              measureName: this.defaultMeasure.name
 	            });
 	          }
 	        }
 	      });
 	    }
+	  },
 
-	    this.onInputDiscount = main_core.Runtime.debounce(this.changeDiscount, 500, this);
-	  },
-	  updated: function updated() {
-	    if (main_core.Type.isObject(this.basketItem.calculatedFields)) {
-	      var changedFields = this.basketItem.calculatedFields;
-	      changedFields['PRICES'] = {};
-	      changedFields['PRICES'][this.options.basePriceId] = {
-	        PRICE: changedFields.BASE_PRICE || changedFields.PRICE,
-	        CURRENCY: this.options.currency
-	      };
-	      changedFields['MEASURE_CODE'] = this.basketItem.fields.measureCode;
-	      main_core_events.EventEmitter.emit(this, 'ProductList::onChangeFields', {
-	        rowId: this.selectorId,
-	        fields: changedFields
-	      });
-	    }
-	  },
 	  methods: {
-	    getField: function getField(name) {
-	      var defaultValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-	      return this.basketItem.fields[name] || defaultValue;
+	    prepareModelFields() {
+	      var _this$basketItem$fiel, _this$basketItem$fiel2, _this$basketItem$fiel3, _this$basketItem$fiel4, _this$basketItem$fiel5, _this$basketItem$fiel6, _this$basketItem$fiel7, _this$basketItem$fiel8;
+
+	      const defaultFields = this.basketItem.fields;
+	      const defaultPrice = main_core.Text.toNumber(defaultFields.price);
+	      let basePrice = defaultFields.basePrice ? defaultFields.basePrice : defaultFields.price;
+
+	      if (!main_core.Type.isNil(basePrice)) {
+	        basePrice = main_core.Text.toNumber(basePrice);
+	      }
+
+	      return {
+	        NAME: ((_this$basketItem$fiel = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel.name) || '',
+	        MODULE: ((_this$basketItem$fiel2 = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel2.module) || '',
+	        PROPERTIES: ((_this$basketItem$fiel3 = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel3.properties) || {},
+	        BRAND: ((_this$basketItem$fiel4 = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel4.brand) || {},
+	        PRODUCT_ID: (_this$basketItem$fiel5 = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel5.productId,
+	        ID: ((_this$basketItem$fiel6 = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel6.skuId) || ((_this$basketItem$fiel7 = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel7.productId),
+	        SKU_ID: (_this$basketItem$fiel8 = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel8.skuId,
+	        QUANTITY: main_core.Text.toNumber(defaultFields.quantity),
+	        BASE_PRICE: basePrice,
+	        PRICE: defaultPrice,
+	        PRICE_NETTO: basePrice,
+	        PRICE_BRUTTO: defaultPrice,
+	        PRICE_EXCLUSIVE: this.basketItem.fields.priceExclusive || defaultPrice,
+	        DISCOUNT_TYPE_ID: main_core.Text.toNumber(defaultFields.discountType) || catalog_productCalculator.DiscountType.PERCENTAGE,
+	        DISCOUNT_RATE: main_core.Text.toNumber(defaultFields.discountRate),
+	        DISCOUNT_SUM: main_core.Text.toNumber(defaultFields.discount),
+	        TAX_INCLUDED: defaultFields.taxIncluded || this.options.taxIncluded,
+	        TAX_RATE: defaultFields.tax || 0,
+	        CUSTOMIZED: defaultFields.isCustomPrice || 'N',
+	        MEASURE_CODE: defaultFields.measureCode || this.defaultMeasure.code,
+	        MEASURE_NAME: defaultFields.measureName || this.defaultMeasure.name
+	      };
 	    },
-	    getCalculator: function getCalculator() {
-	      return this.calculator;
+
+	    initModel() {
+	      var _this$basketItem$fiel9, _this$basketItem$fiel10, _this$basketItem$fiel11;
+
+	      const productId = main_core.Text.toNumber((_this$basketItem$fiel9 = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel9.productId);
+	      const skuId = main_core.Text.toNumber((_this$basketItem$fiel10 = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel10.skuId);
+	      const model = new catalog_productModel.ProductModel({
+	        iblockId: main_core.Text.toNumber(this.options.iblockId),
+	        basePriceId: main_core.Text.toNumber(this.options.basePriceId),
+	        currency: this.options.currency,
+	        isSimpleModel: main_core.Type.isStringFilled((_this$basketItem$fiel11 = this.basketItem.fields) == null ? void 0 : _this$basketItem$fiel11.name) && productId <= 0 && skuId <= 0,
+	        fields: this.prepareModelFields()
+	      });
+	      main_core_events.EventEmitter.subscribe(model, 'onErrorsChange', this.onErrorsChange);
+	      return model;
 	    },
-	    setCalculatedFields: function setCalculatedFields(fields) {
-	      var map = {
+
+	    onErrorsChange() {
+	      const errors = Object.values(this.model.getErrorCollection().getErrors());
+	      this.changeRowData({
+	        errors
+	      });
+	      this.$emit('emitErrorsChange', {
+	        index: this.basketItemIndex,
+	        errors
+	      });
+	    },
+
+	    setCalculatedFields(fields) {
+	      this.model.getCalculator().setFields(fields);
+	      const map = {
 	        calculatedFields: fields
 	      };
-	      var productFields = this.basketItem.fields;
-
-	      if (!main_core.Type.isNil(fields.ID)) {
-	        map.offerId = main_core.Text.toNumber(fields.ID);
-	        productFields.productId = main_core.Text.toNumber(fields.PRODUCT_ID);
-	        productFields.skuId = main_core.Text.toNumber(fields.SKU_ID);
-	      }
-
-	      if (!main_core.Type.isNil(fields.NAME)) {
-	        productFields.name = fields.NAME;
-	      }
-
-	      if (!main_core.Type.isNil(fields.MODULE)) {
-	        productFields.module = fields.MODULE;
-	      }
-
-	      if (main_core.Text.toNumber(fields.BASE_PRICE) >= 0) {
-	        productFields.basePrice = main_core.Text.toNumber(fields.BASE_PRICE);
-	      }
-
-	      if (main_core.Text.toNumber(fields.PRICE) >= 0) {
-	        productFields.price = main_core.Text.toNumber(fields.PRICE);
-	        productFields.priceExclusive = main_core.Text.toNumber(fields.PRICE_EXCLUSIVE);
-	      }
-
-	      if (main_core.Text.toNumber(fields.PRICE_EXCLUSIVE) >= 0 && fields.TAX_INCLUDED === 'Y') {
-	        productFields.priceExclusive = main_core.Text.toNumber(fields.PRICE);
-	      }
-
-	      if (main_core.Text.toNumber(fields.QUANTITY) >= 0) {
-	        productFields.quantity = main_core.Text.toNumber(fields.QUANTITY);
-	      }
-
-	      if (!main_core.Type.isNil(fields.DISCOUNT_RATE)) {
-	        productFields.discountRate = main_core.Text.toNumber(fields.DISCOUNT_RATE);
-	      }
-
-	      if (!main_core.Type.isNil(fields.DISCOUNT_SUM)) {
-	        productFields.discount = main_core.Text.toNumber(fields.DISCOUNT_SUM);
-	      }
-
-	      if (!main_core.Type.isNil(fields.DISCOUNT_TYPE_ID)) {
-	        productFields.discountType = fields.DISCOUNT_TYPE_ID;
-	      }
 
 	      if (main_core.Text.toNumber(fields.SUM) >= 0) {
 	        map.sum = main_core.Text.toNumber(fields.SUM);
 	      }
 
-	      if (!main_core.Type.isNil(fields.CUSTOMIZED)) {
-	        productFields.isCustomPrice = fields.CUSTOMIZED;
-	      }
-
-	      if (!main_core.Type.isNil(fields.MEASURE_CODE)) {
-	        productFields.measureCode = fields.MEASURE_CODE;
-	      }
-
-	      if (!main_core.Type.isNil(fields.MEASURE_NAME)) {
-	        productFields.measureName = fields.MEASURE_NAME;
-	      }
-
-	      if (!main_core.Type.isNil(fields.PROPERTIES)) {
-	        productFields.properties = fields.PROPERTIES;
-	      }
-
-	      if (!main_core.Type.isNil(fields.BRANDS)) {
-	        productFields.brands = fields.BRANDS;
-	      }
-
-	      if (!main_core.Type.isNil(fields.TAX_ID)) {
-	        productFields.taxId = fields.TAX_ID;
+	      if (!main_core.Type.isNil(fields.ID)) {
+	        map.offerId = main_core.Text.toNumber(fields.ID);
 	      }
 
 	      this.changeRowData(map);
-	      this.changeProduct(productFields);
 	    },
-	    changeRowData: function changeRowData(fields) {
+
+	    getProductFieldsFromModel() {
+	      const modelFields = this.model.getFields();
+	      return {
+	        productId: modelFields.PRODUCT_ID,
+	        skuId: modelFields.SKU_ID,
+	        name: modelFields.NAME,
+	        module: modelFields.MODULE,
+	        basePrice: modelFields.BASE_PRICE,
+	        price: modelFields.PRICE,
+	        priceExclusive: modelFields.PRICE_EXCLUSIVE,
+	        quantity: modelFields.QUANTITY,
+	        discountRate: modelFields.DISCOUNT_RATE,
+	        discount: modelFields.DISCOUNT_SUM,
+	        discountType: modelFields.DISCOUNT_TYPE_ID,
+	        isCustomPrice: modelFields.CUSTOMIZED || 'N',
+	        measureCode: modelFields.MEASURE_CODE || '',
+	        measureName: modelFields.MEASURE_NAME || '',
+	        properties: modelFields.PROPERTIES || {},
+	        brands: modelFields.BRANDS || {},
+	        taxId: modelFields.TAX_ID
+	      };
+	    },
+
+	    changeRowData(product) {
 	      this.$emit('changeRowData', {
 	        index: this.basketItemIndex,
-	        fields: fields
+	        product
 	      });
 	    },
-	    changeProduct: function changeProduct(fields) {
+
+	    changeProductFields(fields) {
 	      fields = Object.assign(this.basketItem.fields, fields);
 	      this.$emit('changeProduct', {
 	        index: this.basketItemIndex,
-	        fields: fields
+	        product: {
+	          fields
+	        },
+	        skipFieldChecking: this.model.isSimple() && this.basketLength === 1
 	      });
 	    },
-	    onProductChange: function onProductChange(fields) {
-	      fields = Object.assign(this.getCalculator().calculatePrice(fields.BASE_PRICE), fields);
-	      this.getCalculator().setFields(fields);
+
+	    saveCatalogField(changedFields) {
+	      return this.model.save(changedFields);
+	    },
+
+	    onProductChange(fields) {
+	      fields = Object.assign(this.model.getCalculator().calculateBasePrice(fields.BASE_PRICE), fields);
+	      this.changeRowData({
+	        catalogPrice: fields.BASE_PRICE
+	      });
+	      this.processFields(fields);
 	      this.setCalculatedFields(fields);
 	    },
-	    onProductClear: function onProductClear() {
-	      var fields = this.getCalculator().calculatePrice(0);
+
+	    onProductClear() {
+	      const fields = this.model.getCalculator().calculatePrice(0);
 	      fields.BASE_PRICE = 0;
 	      fields.NAME = '';
 	      fields.ID = 0;
 	      fields.PRODUCT_ID = 0;
 	      fields.SKU_ID = 0;
 	      fields.MODULE = '';
-	      this.getCalculator().setFields(fields);
 	      this.setCalculatedFields(fields);
 	    },
-	    toggleDiscount: function toggleDiscount(value) {
-	      var _this2 = this;
 
+	    onChangeSum(sum) {
+	      const price = sum / main_core.Text.toNumber(this.basketItem.fields.quantity) + main_core.Text.toNumber(this.basketItem.fields.discount);
+	      this.onChangePrice(price);
+	    },
+
+	    onChangePrice(newPrice) {
+	      if (!this.options.isCatalogPriceSaveEnabled) {
+	        this.changeBasePrice(newPrice);
+	        return;
+	      }
+
+	      this.model.showSaveNotifier('priceChanger_' + this.selectorId, {
+	        title: main_core.Loc.getMessage('CATALOG_PRODUCT_MODEL_SAVING_NOTIFICATION_PRICE_CHANGED_QUERY'),
+	        events: {
+	          onCancel: () => {
+	            const calculatorFields = this.changePrice(newPrice);
+
+	            if (calculatorFields.DISCOUNT_SUM > 0) {
+	              this.toggleDiscount('Y');
+	              this.$root.$app.changeFormOption('showDiscountBlock', 'Y');
+	            }
+	          },
+	          onSave: () => {
+	            this.changeBasePrice(newPrice);
+	            this.saveCatalogField(['BASE_PRICE']).then(() => {
+	              this.changeRowData({
+	                catalogPrice: newPrice
+	              });
+	            });
+	          }
+	        }
+	      });
+	    },
+
+	    onSelectMeasure(measure) {
+	      this.changeMeasure(measure);
+	      this.model.showSaveNotifier('measureChanger_' + this.selectorId, {
+	        title: main_core.Loc.getMessage('CATALOG_PRODUCT_MODEL_SAVING_NOTIFICATION_MEASURE_CHANGED_QUERY'),
+	        events: {
+	          onSave: () => {
+	            this.saveCatalogField(['MEASURE_CODE', 'MEASURE_NAME']);
+	          }
+	        }
+	      });
+	    },
+
+	    toggleDiscount(value) {
 	      if (this.isReadOnly) {
 	        return;
 	      }
@@ -1092,116 +1276,198 @@ this.BX = this.BX || {};
 	      });
 
 	      if (value === 'Y') {
-	        setTimeout(function () {
-	          var _this2$$refs, _this2$$refs$discount, _this2$$refs$discount2, _this2$$refs$discount3;
+	        setTimeout(() => {
+	          var _this$$refs, _this$$refs$discountW, _this$$refs$discountW2, _this$$refs$discountW3;
 
-	          return (_this2$$refs = _this2.$refs) === null || _this2$$refs === void 0 ? void 0 : (_this2$$refs$discount = _this2$$refs.discountWrapper) === null || _this2$$refs$discount === void 0 ? void 0 : (_this2$$refs$discount2 = _this2$$refs$discount.$refs) === null || _this2$$refs$discount2 === void 0 ? void 0 : (_this2$$refs$discount3 = _this2$$refs$discount2.discountInput) === null || _this2$$refs$discount3 === void 0 ? void 0 : _this2$$refs$discount3.focus();
+	          return (_this$$refs = this.$refs) == null ? void 0 : (_this$$refs$discountW = _this$$refs.discountWrapper) == null ? void 0 : (_this$$refs$discountW2 = _this$$refs$discountW.$refs) == null ? void 0 : (_this$$refs$discountW3 = _this$$refs$discountW2.discountInput) == null ? void 0 : _this$$refs$discountW3.focus();
 	        });
 	      }
 	    },
-	    toggleTax: function toggleTax(value) {
+
+	    toggleTax(value) {
 	      this.changeRowData({
 	        showTax: value
 	      });
 	    },
-	    changeBrand: function changeBrand(values) {
-	      var fields = this.getCalculator().getFields();
-	      fields.BRANDS = main_core.Type.isArray(values) ? values : [];
-	      this.setCalculatedFields(fields);
+
+	    processFields(fields) {
+	      this.model.getCalculator().setFields(fields);
+	      this.model.setFields(fields);
+	      this.changeProductFields({ ...this.basketItem.fields,
+	        ...this.getProductFieldsFromModel()
+	      });
+
+	      if (!main_core.Type.isNil(fields.SUM)) {
+	        this.changeRowData({
+	          sum: fields.SUM
+	        });
+	      }
 	    },
-	    processFields: function processFields(fields) {
-	      this.setCalculatedFields(fields);
-	      this.getCalculator().setFields(fields);
+
+	    changeBrand(values) {
+	      const brands = main_core.Type.isArray(values) ? values : [];
+	      this.processFields({
+	        BRANDS: brands
+	      });
 	    },
-	    changeQuantity: function changeQuantity(quantity) {
-	      this.processFields(this.getCalculator().calculateQuantity(quantity));
+
+	    onChangeQuantity(quantity) {
+	      this.model.getCalculator().setFields();
+	      this.processFields(this.model.getCalculator().calculateQuantity(quantity));
 	    },
-	    changeMeasure: function changeMeasure(measure) {
-	      var productFields = this.basketItem.fields;
+
+	    changeMeasure(measure) {
+	      const productFields = this.basketItem.fields;
 	      productFields['measureCode'] = measure.code;
 	      productFields['measureName'] = measure.name;
-	      this.changeProduct(productFields);
+	      this.processFields({
+	        MEASURE_CODE: measure.code,
+	        MEASURE_NAME: measure.name
+	      });
 	    },
-	    changePrice: function changePrice(price) {
-	      var calculatedFields = this.getCalculator().calculatePrice(price);
-	      calculatedFields.BASE_PRICE = price;
+
+	    changeBasePrice(price) {
+	      this.model.setField('BASE_PRICE', price);
+	      this.processFields(this.model.getCalculator().calculateBasePrice(price));
+	    },
+
+	    changePrice(price) {
+	      this.model.getCalculator().setFields(this.model.getCalculator().calculateBasePrice(this.basketItem.catalogPrice));
+	      const calculatedFields = this.model.getCalculator().calculatePrice(price);
 	      this.processFields(calculatedFields);
+	      return calculatedFields;
 	    },
-	    changeDiscountType: function changeDiscountType(discountType) {
-	      var type = main_core.Text.toNumber(discountType) === catalog_productCalculator.DiscountType.MONETARY ? catalog_productCalculator.DiscountType.MONETARY : catalog_productCalculator.DiscountType.PERCENTAGE;
-	      this.processFields(this.getCalculator().calculateDiscountType(type));
+
+	    changeDiscountType(discountType) {
+	      const type = main_core.Text.toNumber(discountType) === catalog_productCalculator.DiscountType.MONETARY ? catalog_productCalculator.DiscountType.MONETARY : catalog_productCalculator.DiscountType.PERCENTAGE;
+	      const calculatedFields = this.model.getCalculator().calculateDiscountType(type);
+	      this.processFields(calculatedFields);
+	      return calculatedFields;
 	    },
-	    changeDiscount: function changeDiscount(discount) {
-	      this.processFields(this.getCalculator().calculateDiscount(discount));
+
+	    changeDiscount(discount) {
+	      const calculatedFields = this.model.getCalculator().calculateDiscount(discount);
+	      this.processFields(calculatedFields);
+	      return calculatedFields;
 	    },
-	    changeTax: function changeTax(fields) {
-	      var calculatedFields = this.getCalculator().calculateTax(fields.taxValue);
+
+	    changeTax(fields) {
+	      const calculatedFields = this.model.getCalculator().calculateTax(fields.taxValue);
 	      calculatedFields.TAX_ID = fields.taxId;
 	      this.processFields(calculatedFields);
+	      return calculatedFields;
 	    },
-	    changeTaxIncluded: function changeTaxIncluded(taxIncluded) {
+
+	    changeTaxIncluded(taxIncluded) {
 	      if (taxIncluded === this.basketItem.taxIncluded || !this.isEditableField(this.blocks.tax)) {
 	        return;
 	      }
 
-	      var calculatedFields = this.getCalculator().calculateTaxIncluded(taxIncluded);
-	      this.getCalculator().setFields(calculatedFields);
-	      this.setCalculatedFields(calculatedFields);
+	      const calculatedFields = this.model.getCalculator().calculateTaxIncluded(taxIncluded);
+	      this.processFields(calculatedFields);
+	      return calculatedFields;
 	    },
-	    removeItem: function removeItem() {
+
+	    removeItem() {
 	      this.$emit('removeItem', {
 	        index: this.basketItemIndex
 	      });
 	    },
-	    isRequiredField: function isRequiredField(code) {
+
+	    isRequiredField(code) {
 	      return main_core.Type.isArray(this.options.requiredFields) && this.options.requiredFields.includes(code);
 	    },
-	    isVisibleBlock: function isVisibleBlock(code) {
+
+	    isVisibleBlock(code) {
 	      return main_core.Type.isArray(this.options.visibleBlocks) && this.options.visibleBlocks.includes(code);
 	    },
-	    hasError: function hasError(code) {
-	      if (this.basketItem.errors.length === 0) {
+
+	    hasError(code) {
+	      if (this.basketItem.errors.length === 0 || this.model.isEmpty() && !this.model.isChanged()) {
 	        return false;
 	      }
 
-	      var filteredErrors = this.basketItem.errors.filter(function (error) {
+	      const filteredErrors = this.basketItem.errors.filter(error => {
 	        return error.code === code;
 	      });
 	      return filteredErrors.length > 0;
 	    },
-	    isEditableField: function isEditableField(code) {
-	      var _this$options;
 
-	      return (_this$options = this.options) === null || _this$options === void 0 ? void 0 : _this$options.editableFields.includes(code);
+	    isEditablePrice() {
+	      var _this$options, _this$options2;
+
+	      return ((_this$options = this.options) == null ? void 0 : _this$options.editableFields.includes(FormInputCode.PRICE)) && (this.model.isNew() || !this.model.isCatalogExisted() || ((_this$options2 = this.options) == null ? void 0 : _this$options2.isCatalogPriceEditEnabled));
+	    },
+
+	    isEditableField(code) {
+	      var _this$options3, _this$options4;
+
+	      if (code === FormInputCode.PRICE && !((_this$options3 = this.options) != null && _this$options3.isCatalogPriceEditEnabled)) {
+	        return this.isEditablePrice();
+	      }
+
+	      return (_this$options4 = this.options) == null ? void 0 : _this$options4.editableFields.includes(code);
+	    },
+
+	    getHint(code) {
+	      var _this$options5;
+
+	      return (_this$options5 = this.options) == null ? void 0 : _this$options5.fieldHints[code];
+	    },
+
+	    hasHint(code) {
+	      var _this$options6;
+
+	      if (code === FormInputCode.PRICE && !((_this$options6 = this.options) != null && _this$options6.isCatalogPriceEditEnabled)) {
+	        return !this.isEditablePrice();
+	      }
+
+	      return false;
+	    },
+
+	    showPriceNotify() {
+	      const hint = this.getHint(this.blocks.price);
+
+	      if (main_core.Text.toNumber(hint == null ? void 0 : hint.ARTICLE_CODE) > 0) {
+	        top.BX.Helper.show("redirect=detail&code=" + main_core.Text.toNumber(hint == null ? void 0 : hint.ARTICLE_CODE));
+	      }
 	    }
+
 	  },
 	  watch: {
-	    taxIncluded: function taxIncluded(value, oldValue) {
+	    taxIncluded(value, oldValue) {
 	      if (value !== oldValue) {
 	        this.changeTaxIncluded(value);
 	      }
 	    }
+
 	  },
 	  computed: {
-	    localize: function localize() {
+	    localize() {
 	      return ui_vue.Vue.getFilteredPhrases('CATALOG_FORM_');
 	    },
-	    showDiscount: function showDiscount() {
+
+	    showDiscount() {
 	      return this.showDiscountBlock && this.basketItem.showDiscount === 'Y';
 	    },
-	    getBrandsSelectorId: function getBrandsSelectorId() {
+
+	    getBrandsSelectorId() {
 	      return this.basketItem.selectorId + '_brands';
 	    },
-	    getPriceExclusive: function getPriceExclusive() {
+
+	    getPriceExclusive() {
 	      return this.basketItem.fields.priceExclusive || this.basketItem.fields.price;
 	    },
-	    showDiscountBlock: function showDiscountBlock() {
+
+	    showDiscountBlock() {
 	      return this.options.showDiscountBlock === 'Y' && this.isVisibleBlock(this.blocks.discount) && !this.isReadOnly;
 	    },
-	    showTaxBlock: function showTaxBlock() {
+
+	    showTaxBlock() {
 	      return this.options.showTaxBlock === 'Y' && this.getTaxList.length > 0 && this.isVisibleBlock(this.blocks.tax) && !this.isReadOnly;
 	    },
-	    showRemoveIcon: function showRemoveIcon() {
+
+	    showRemoveIcon() {
 	      if (this.isReadOnly) {
 	        return false;
 	      }
@@ -1210,148 +1476,198 @@ this.BX = this.BX || {};
 	        return true;
 	      }
 
-	      return this.basketItem.offerId !== null;
+	      return !main_core.Type.isNil(this.basketItem.offerId);
 	    },
-	    showTaxSelector: function showTaxSelector() {
+
+	    showTaxSelector() {
 	      return this.basketItem.showTax === 'Y';
 	    },
-	    showBasePrice: function showBasePrice() {
+
+	    showBasePrice() {
 	      return this.basketItem.fields.discount > 0 || main_core.Text.toNumber(this.basketItem.fields.price) !== main_core.Text.toNumber(this.basketItem.fields.basePrice);
 	    },
-	    getMeasureName: function getMeasureName() {
+
+	    getMeasureName() {
 	      return this.basketItem.fields.measureName || this.defaultMeasure.name;
 	    },
-	    getMeasureCode: function getMeasureCode() {
+
+	    getMeasureCode() {
 	      return this.basketItem.fields.measureCode || this.defaultMeasure.code;
 	    },
-	    getTaxList: function getTaxList() {
+
+	    getTaxList() {
 	      return main_core.Type.isArray(this.options.taxList) ? this.options.taxList : [];
 	    },
-	    taxIncluded: function taxIncluded() {
+
+	    taxIncluded() {
 	      return this.basketItem.fields.taxIncluded;
 	    },
-	    isTaxIncluded: function isTaxIncluded() {
+
+	    isTaxIncluded() {
 	      return this.taxIncluded === 'Y';
 	    },
-	    isReadOnly: function isReadOnly() {
+
+	    isReadOnly() {
 	      return this.mode === FormMode.READ_ONLY;
 	    }
+
 	  },
 	  // language=Vue
-	  template: "\n\t\t<div class=\"catalog-pf-product-item\" v-bind:class=\"{ 'catalog-pf-product-item--borderless': !isReadOnly && basketItemIndex === 0 }\">\n\t\t\t<div class=\"catalog-pf-product-item--remove\" @click=\"removeItem\" v-if=\"showRemoveIcon\"></div>\n\t\t\t<div class=\"catalog-pf-product-item--num\">\n\t\t\t\t<div class=\"catalog-pf-product-index\">{{basketItemIndex + 1}}</div>\n\t\t\t</div>\n\t\t\t<div class=\"catalog-pf-product-item--left\">\n\t\t\t\t<div v-if=\"isVisibleBlock(blocks.productSelector)\">\n\t\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-label\">{{localize.CATALOG_FORM_NAME}}</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<".concat(config.templateFieldInlineSelector, " \n\t\t\t\t\t\t:basketItem=\"basketItem\" \n\t\t\t\t\t\t:options=\"options\"\n\t\t\t\t\t\t:editable=\"isEditableField(blocks.productSelector)\"\n\t\t\t\t\t\t@onProductChange=\"onProductChange\" \n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"isVisibleBlock(blocks.brand)\" class=\"catalog-pf-product-input-brand-wrapper\">\n\t\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-label\">{{localize.CATALOG_FORM_BRAND_TITLE}}</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<").concat(config.templateFieldBrand, " \n\t\t\t\t\t\t:brands=\"basketItem.fields.brands\"\n\t\t\t\t\t\t:selectorId=\"getBrandsSelectorId\"\n\t\t\t\t\t\t:hasError=\"hasError(errorCodes.emptyBrand)\"\n\t\t\t\t\t\t:options=\"options\"\n\t\t\t\t\t\t:editable=\"isEditableField(blocks.brand)\"\n\t\t\t\t\t\t@changeBrand=\"changeBrand\" \n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t\t\n\t\t\t</div>\n\t\t\t<div class=\"catalog-pf-product-item--right\">\n\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div v-if=\"isVisibleBlock(blocks.price)\" class=\"catalog-pf-product-label\" style=\"width: 94px\">\n\t\t\t\t\t\t{{localize.CATALOG_FORM_PRICE}}\n\t\t\t\t\t</div>\n\t\t\t\t\t<div v-if=\"isVisibleBlock(blocks.quantity)\" class=\"catalog-pf-product-label\" style=\"width: 72px\">\n\t\t\t\t\t\t{{localize.CATALOG_FORM_QUANTITY}}\n\t\t\t\t\t</div>\n\t\t\t\t\t<div v-if=\"isVisibleBlock(blocks.result)\" class=\"catalog-pf-product-label\" style=\"width: 94px\">\n\t\t\t\t\t\t{{localize.CATALOG_FORM_RESULT}}\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"catalog-pf-product-item-section\">\n\t\t\t\t\n\t\t\t\t\t<div v-if=\"isVisibleBlock(blocks.price)\" class=\"catalog-pf-product-control\" style=\"width: 94px\">\n\t\t\t\t\t\t<").concat(config.templateFieldPrice, " \n\t\t\t\t\t\t\t:basePrice=\"basketItem.fields.basePrice\"\n\t\t\t\t\t\t\t:options=\"options\"\n\t\t\t\t\t\t\t:editable=\"isEditableField(blocks.price)\"\n\t\t\t\t\t\t\t:hasError=\"hasError(errorCodes.emptyPrice)\"\n\t\t\t\t\t\t\t@changePrice=\"changePrice\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t\t<div v-if=\"isVisibleBlock(blocks.quantity)\" class=\"catalog-pf-product-control\" style=\"width: 72px\">\n\t\t\t\t\t\t<").concat(config.templateFieldQuantity, " \n\t\t\t\t\t\t\t:quantity=\"basketItem.fields.quantity\"\n\t\t\t\t\t\t\t:measureCode=\"getMeasureCode\"\n\t\t\t\t\t\t\t:measureRatio=\"basketItem.fields.measureRatio\"\n\t\t\t\t\t\t\t:measureName=\"getMeasureName\"\n\t\t\t\t\t\t\t:hasError=\"hasError(errorCodes.emptyQuantity)\"\n\t\t\t\t\t\t\t:options=\"options\"\n\t\t\t\t\t\t\t:editable=\"isEditableField(blocks.quantity)\"\n\t\t\t\t\t\t\t@changeQuantity=\"changeQuantity\" \n\t\t\t\t\t\t\t@changeMeasure=\"changeMeasure\" \n\t\t\t\t\t\t/>\n\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t\t<div v-if=\"isVisibleBlock(blocks.result)\" class=\"catalog-pf-product-control\" style=\"width: 94px\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-input-wrapper\">\n\t\t\t\t\t\t\t<input disabled type=\"text\" class=\"catalog-pf-product-input catalog-pf-product-input--disabled catalog-pf-product-input--gray catalog-pf-product-input--align-right\" :value=\"basketItem.sum\">\n\t\t\t\t\t\t\t<div class=\"catalog-pf-product-input-info catalog-pf-product-input--disabled catalog-pf-product-input--gray\" v-html=\"currencySymbol\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"hasError(errorCodes.emptyQuantity)\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-product-error\">{{localize.CATALOG_FORM_ERROR_EMPTY_QUANTITY}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"hasError(errorCodes.emptyPrice)\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div class=\"catalog-product-error\">{{localize.CATALOG_FORM_ERROR_EMPTY_PRICE}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showDiscountBlock\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<div v-if=\"showDiscount\" class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide\" @click=\"toggleDiscount('N')\">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>\n\t\t\t\t\t<div v-else class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show\" @click=\"toggleDiscount('Y')\">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>\n\t\t\t\t</div>\n\t\t\t\t\n\t\t\t\t<div v-if=\"showDiscount\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<").concat(config.templateFieldDiscount, " \n\t\t\t\t\t\t:discount=\"basketItem.fields.discount\"\n\t\t\t\t\t\t:discountType=\"basketItem.fields.discountType\"\n\t\t\t\t\t\t:discountRate=\"basketItem.fields.discountRate\"\n\t\t\t\t\t\t:options=\"options\"\n\t\t\t\t\t\t:editable=\"isEditableField(blocks.discount)\"\n\t\t\t\t\t\tref=\"discountWrapper\"\n\t\t\t\t\t\t@changeDiscount=\"changeDiscount\" \n\t\t\t\t\t\t@changeDiscountType=\"changeDiscountType\" \n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t\t\n\t\t\t\t<div v-if=\"showTaxBlock\" class=\"catalog-pf-product-item-section catalog-pf-product-item-section--dashed\">\n\t\t\t\t\t<div v-if=\"showTaxSelector\" class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide\" @click=\"toggleTax('N')\">{{localize.CATALOG_FORM_TAX_TITLE}}</div>\n\t\t\t\t\t<div v-else class=\"catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show\" @click=\"toggleTax('Y')\">{{localize.CATALOG_FORM_TAX_TITLE}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showTaxSelector && showTaxBlock\" class=\"catalog-pf-product-item-section\">\n\t\t\t\t\t<").concat(config.templateFieldTax, " \n\t\t\t\t\t\t:taxId=\"basketItem.fields.taxId\"\n\t\t\t\t\t\t:options=\"options\"\n\t\t\t\t\t\t:editable=\"isEditableField(blocks.tax)\"\n\t\t\t\t\t\t@changeProduct=\"changeProduct\" \n\t\t\t\t\t/>\n\t\t\t\t</div>\t\t\t\t\n\t\t\t\t<div class=\"catalog-pf-product-item-section catalog-pf-product-item-section--dashed\"></div>\n\t\t\t</div>\n\t\t</div>\n\t")
+	  template: `
+		<div class="catalog-pf-product-item" v-bind:class="{ 'catalog-pf-product-item--borderless': !isReadOnly && basketItemIndex === 0 }">
+			<div class="catalog-pf-product-item--remove" @click="removeItem" v-if="showRemoveIcon"></div>
+			<div class="catalog-pf-product-item--num">
+				<div class="catalog-pf-product-index">{{basketItemIndex + 1}}</div>
+			</div>
+			<div class="catalog-pf-product-item--left">
+				<div v-if="isVisibleBlock(blocks.productSelector)">
+					<div class="catalog-pf-product-item-section">
+						<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_NAME}}</div>
+					</div>
+					<${config.templateFieldInlineSelector}
+						:basketItem="basketItem"
+						:basketLength="basketLength"
+						:options="options"
+						:model="model"
+						:editable="isEditableField(blocks.productSelector)"
+						@onProductChange="onProductChange"
+						@saveCatalogField="saveCatalogField"
+					/>
+				</div>
+				<div v-if="isVisibleBlock(blocks.brand)" class="catalog-pf-product-input-brand-wrapper">
+					<div class="catalog-pf-product-item-section">
+						<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_BRAND_TITLE}}</div>
+					</div>
+					<${config.templateFieldBrand}
+						:brands="basketItem.fields.brands"
+						:selectorId="getBrandsSelectorId"
+						:hasError="hasError(errorCodes.emptyBrand)"
+						:options="options"
+						:editable="isEditableField(blocks.brand)"
+						@changeBrand="changeBrand"
+						@saveCatalogField="saveCatalogField"
+					/>
+				</div>
+
+			</div>
+			<div class="catalog-pf-product-item--right">
+				<div class="catalog-pf-product-item-section">
+					<div v-if="isVisibleBlock(blocks.price)" class="catalog-pf-product-label" style="width: 94px">
+						{{localize.CATALOG_FORM_PRICE}}
+						<span v-if="hasHint(blocks.price)" class="ui-hint-icon" @click="showPriceNotify"></span>
+					</div>
+					<div v-if="isVisibleBlock(blocks.quantity)" class="catalog-pf-product-label" style="width: 72px">
+						{{localize.CATALOG_FORM_QUANTITY}}
+					</div>
+					<div v-if="isVisibleBlock(blocks.result)" class="catalog-pf-product-label" style="width: 94px">
+						{{localize.CATALOG_FORM_RESULT}}
+					</div>
+				</div>
+				<div class="catalog-pf-product-item-section">
+
+					<div v-if="isVisibleBlock(blocks.price)" class="catalog-pf-product-control" style="width: 94px">
+						<${config.templateFieldPrice}
+							:selectorId="basketItem.selectorId"
+							:price="basketItem.fields.basePrice"
+							:options="options"
+							:editable="isEditableField(blocks.price)"
+							:hasError="hasError(errorCodes.emptyPrice)"
+							@onChangePrice="onChangePrice"
+							@saveCatalogField="saveCatalogField"
+						/>
+					</div>
+
+					<div v-if="isVisibleBlock(blocks.quantity)" class="catalog-pf-product-control" style="width: 72px">
+						<${config.templateFieldQuantity}
+							:quantity="basketItem.fields.quantity"
+							:measureCode="getMeasureCode"
+							:measureRatio="basketItem.fields.measureRatio"
+							:measureName="getMeasureName"
+							:hasError="hasError(errorCodes.emptyQuantity)"
+							:options="options"
+							:editable="isEditableField(blocks.quantity)"
+							@onChangeQuantity="onChangeQuantity"
+							@onSelectMeasure="onSelectMeasure"
+						/>
+					</div>
+
+					<div v-if="isVisibleBlock(blocks.result)" class="catalog-pf-product-control" style="width: 94px">
+						<${config.templateFieldResultSum}
+								:sum="basketItem.sum"
+								:options="options"
+								:editable="isEditableField(blocks.result)"
+								@onChangeSum="onChangeSum"
+						/>
+					</div>
+				</div>
+				<div v-if="hasError(errorCodes.emptyQuantity)" class="catalog-pf-product-item-section">
+					<div class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_QUANTITY}}</div>
+				</div>
+				<div v-if="hasError(errorCodes.emptyPrice)" class="catalog-pf-product-item-section">
+					<div class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_PRICE}}</div>
+				</div>
+				<div v-if="showDiscountBlock" class="catalog-pf-product-item-section">
+					<div v-if="showDiscount" class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide" @click="toggleDiscount('N')">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>
+					<div v-else class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show" @click="toggleDiscount('Y')">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>
+				</div>
+
+				<div v-if="showDiscount" class="catalog-pf-product-item-section">
+					<${config.templateFieldDiscount}
+						:discount="basketItem.fields.discount"
+						:discountType="basketItem.fields.discountType"
+						:discountRate="basketItem.fields.discountRate"
+						:options="options"
+						:editable="isEditableField(blocks.discount)"
+						ref="discountWrapper"
+						@changeDiscount="changeDiscount"
+						@changeDiscountType="changeDiscountType"
+					/>
+				</div>
+
+				<div v-if="showTaxBlock" class="catalog-pf-product-item-section catalog-pf-product-item-section--dashed">
+					<div v-if="showTaxSelector" class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide" @click="toggleTax('N')">{{localize.CATALOG_FORM_TAX_TITLE}}</div>
+					<div v-else class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show" @click="toggleTax('Y')">{{localize.CATALOG_FORM_TAX_TITLE}}</div>
+				</div>
+				<div v-if="showTaxSelector && showTaxBlock" class="catalog-pf-product-item-section">
+					<${config.templateFieldTax}
+						:taxId="basketItem.fields.taxId"
+						:options="options"
+						:editable="isEditableField(blocks.tax)"
+						@changeProduct="changeProduct"
+					/>
+				</div>
+				<div class="catalog-pf-product-item-section catalog-pf-product-item-section--dashed"></div>
+			</div>
+		</div>
+	`
 	});
 
-	var FormHelpdeskCode = function FormHelpdeskCode() {
-	  babelHelpers.classCallCheck(this, FormHelpdeskCode);
-	};
-	babelHelpers.defineProperty(FormHelpdeskCode, "COMPILATION_FACEBOOK", 13856526);
-	babelHelpers.defineProperty(FormHelpdeskCode, "COMMON_COMPILATION", 13841876);
+	class FormCompilationType {}
+	FormCompilationType.REGULAR = 'REGULAR';
+	FormCompilationType.FACEBOOK = 'FACEBOOK';
 
-	function _templateObject10() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"catalog-product-form-popup--container\">\n\t\t\t\t\t<div class=\"catalog-product-form-popup--title\">", "</div>\n\t\t\t\t\t<div class=\"catalog-product-form-popup--loader-block catalog-product-form-popup--done\"></div>\n\t\t\t\t\t<div class=\"catalog-product-form-popup--text\">", "</div>\n\t\t\t\t</div>\n\t\t\t"]);
+	class FormHelpdeskCode {}
+	FormHelpdeskCode.COMPILATION_FACEBOOK = 13856526;
+	FormHelpdeskCode.COMMON_COMPILATION = 13841876;
 
-	  _templateObject10 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"catalog-product-form-popup--container\">\n\t\t\t\t\t<div class=\"catalog-product-form-popup--title\">", "</div>\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"catalog-product-form-popup--text\">", "</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"catalog-product-form-popup--loader-block\"></div>\n\t\t\t"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t\t<div>\n\t\t\t\t\t\t\t\t\t\t<span>", "</span>\n\t\t\t\t\t\t\t\t\t\t<a href=\"/shop/stores/\" target=\"_blank\">\n\t\t\t\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"catalog-pf-product-qr-popup\">\n\t\t\t\t\t\t<div class=\"catalog-pf-product-qr-popup-content\">\n\t\t\t\t\t\t\t<div class=\"catalog-pf-product-qr-popup-text\">", "</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<div class=\"catalog-pf-product-qr-popup-buttons\">\n\t\t\t\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"ui-btn ui-btn-light-border ui-btn-round\">", "</a>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"catalog-pf-product-qr-popup-bottom\">\n\t\t\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"catalog-pf-product-qr-popup--url\">", "</a>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\t\t\t\t\t\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-pf-product-qr-popup-image\"></div>"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"catalog-pf-product-qr-popup-copy\">", "</div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<p>", "</p>\n\t\t\t\t<p>", "</p>\n\t\t\t"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a class=\"ui-btn ui-btn-primary\">", "</a>\n\t\t"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	let _$1 = t => t,
+	    _t$1,
+	    _t2$1,
+	    _t3,
+	    _t4,
+	    _t5,
+	    _t6,
+	    _t7,
+	    _t8,
+	    _t9,
+	    _t10;
 	ui_vue.Vue.component(config.templatePanelCompilation, {
 	  props: {
 	    compilationOptions: Object,
 	    mode: String
 	  },
-	  created: function created() {
+
+	  created() {
 	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.destroyPopup.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onClear', this.destroyPopup.bind(this));
 	    this.newLabel = new ui_label.Label({
@@ -1359,14 +1675,19 @@ this.BX = this.BX || {};
 	      color: ui_label.LabelColor.PRIMARY,
 	      fill: true
 	    });
-	    var moreMessageButton = main_core.Tag.render(_templateObject$1(), this.localize.CATALOG_FORM_COMPILATION_INFO_BUTTON_MORE);
+	    const moreMessageButton = main_core.Tag.render(_t$1 || (_t$1 = _$1`
+			<a class="ui-btn ui-btn-primary">${0}</a>
+		`), this.localize.CATALOG_FORM_COMPILATION_INFO_BUTTON_MORE);
 	    main_core.Event.bind(moreMessageButton, 'click', this.openHelpDesk);
-	    var header = '';
-	    var description = '';
+	    let header = '';
+	    let description = '';
 
 	    if (this.isFacebookForm()) {
 	      header = this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_TITLE_FACEBOOK;
-	      description = main_core.Tag.render(_templateObject2$1(), this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_BODY_FACEBOOK_FIRST_BLOCK, this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_BODY_FACEBOOK_SECOND_BLOCK);
+	      description = main_core.Tag.render(_t2$1 || (_t2$1 = _$1`
+				<p>${0}</p>
+				<p>${0}</p>
+			`), this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_BODY_FACEBOOK_FIRST_BLOCK, this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_BODY_FACEBOOK_SECOND_BLOCK);
 	    } else {
 	      header = this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_TITLE;
 	      description = this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_BODY_MARKETING;
@@ -1374,15 +1695,16 @@ this.BX = this.BX || {};
 
 	    this.message = new ui_messagecard.MessageCard({
 	      id: 'compilationInfo',
-	      header: header,
-	      description: description,
+	      header,
+	      description,
 	      angle: false,
 	      hidden: true,
 	      actionElements: [moreMessageButton]
 	    });
 	    main_core_events.EventEmitter.subscribe(this.message, 'onClose', this.hideMessage);
 	  },
-	  mounted: function mounted() {
+
+	  mounted() {
 	    this.$refs.label.appendChild(this.newLabel.render());
 	    this.$refs.message.appendChild(this.message.getLayout());
 
@@ -1390,22 +1712,24 @@ this.BX = this.BX || {};
 	      this.showMessage();
 	    }
 	  },
-	  data: function data() {
+
+	  data() {
 	    return {
 	      compilationLink: null
 	    };
 	  },
+
 	  methods: {
-	    isFacebookForm: function isFacebookForm() {
+	    isFacebookForm() {
 	      return this.compilationOptions.type === FormCompilationType.FACEBOOK;
 	    },
-	    openHelpDesk: function openHelpDesk() {
+
+	    openHelpDesk() {
 	      this.helpdeskCode = this.isFacebookForm() ? FormHelpdeskCode.COMPILATION_FACEBOOK : FormHelpdeskCode.COMMON_COMPILATION;
 	      top.BX.Helper.show('redirect=detail&code=' + this.helpdeskCode);
 	    },
-	    showPopup: function showPopup(event) {
-	      var _this = this;
 
+	    showPopup(event) {
 	      if (this.compilationOptions.disabledSwitcher) {
 	        return;
 	      }
@@ -1421,22 +1745,22 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      var basket = this.$store.getters['productList/getBasket']();
-	      var productIds = basket.map(function (basketItem) {
+	      const basket = this.$store.getters['productList/getBasket']();
+	      const productIds = basket.map(basketItem => {
 	        var _basketItem$fields;
 
-	        return basketItem === null || basketItem === void 0 ? void 0 : (_basketItem$fields = basketItem.fields) === null || _basketItem$fields === void 0 ? void 0 : _basketItem$fields.skuId;
+	        return basketItem == null ? void 0 : (_basketItem$fields = basketItem.fields) == null ? void 0 : _basketItem$fields.skuId;
 	      });
-	      return new Promise(function (resolve, reject) {
+	      return new Promise((resolve, reject) => {
 	        main_core.ajax.runAction('salescenter.api.store.getLinkToProductCollection', {
 	          json: {
-	            productIds: productIds
+	            productIds
 	          }
-	        }).then(function (response) {
-	          _this.compilationLink = response.data.link;
-	          _this.popup = new main_popup.Popup({
+	        }).then(response => {
+	          this.compilationLink = response.data.link;
+	          this.popup = new main_popup.Popup({
 	            bindElement: event.target,
-	            content: _this.getQRPopupContent(),
+	            content: this.getQRPopupContent(),
 	            width: 375,
 	            closeIcon: {
 	              top: '5px',
@@ -1451,38 +1775,50 @@ this.BX = this.BX || {};
 	              offset: 30
 	            }
 	          });
-
-	          _this.popup.show();
-
+	          this.popup.show();
 	          resolve();
-	        }).catch(function () {
-	          return reject();
-	        });
+	        }).catch(() => reject());
 	      });
 	    },
-	    destroyPopup: function destroyPopup() {
+
+	    destroyPopup() {
 	      if (this.popup instanceof main_popup.Popup) {
 	        this.popup.destroy();
 	        this.popup = null;
 	      }
 	    },
-	    getQRPopupContent: function getQRPopupContent() {
-	      var _this2 = this;
 
+	    getQRPopupContent() {
 	      if (!this.compilationLink) {
 	        return '';
 	      }
 
-	      var buttonCopy = main_core.Tag.render(_templateObject3(), this.localize.CATALOG_FORM_COMPILATION_QR_COPY);
-	      main_core.Event.bind(buttonCopy, 'click', function () {
-	        BX.clipboard.copy(_this2.compilationLink);
+	      const buttonCopy = main_core.Tag.render(_t3 || (_t3 = _$1`
+				<div class="catalog-pf-product-qr-popup-copy">${0}</div>
+			`), this.localize.CATALOG_FORM_COMPILATION_QR_COPY);
+	      main_core.Event.bind(buttonCopy, 'click', () => {
+	        BX.clipboard.copy(this.compilationLink);
 	        BX.UI.Notification.Center.notify({
-	          content: _this2.localize.CATALOG_FORM_COMPILATION_QR_COPY_NOTIFY_MESSAGE,
+	          content: this.localize.CATALOG_FORM_COMPILATION_QR_COPY_NOTIFY_MESSAGE,
 	          autoHideDelay: 2000
 	        });
 	      });
-	      var qrWrapper = main_core.Tag.render(_templateObject4());
-	      var content = main_core.Tag.render(_templateObject5(), this.localize.CATALOG_FORM_COMPILATION_QR_POPUP_TITLE, qrWrapper, this.compilationLink, this.localize.CATALOG_FORM_COMPILATION_QR_POPUP_INPUT_TITLE, this.compilationLink, this.compilationLink, buttonCopy);
+	      const qrWrapper = main_core.Tag.render(_t4 || (_t4 = _$1`<div class="catalog-pf-product-qr-popup-image"></div>`));
+	      const content = main_core.Tag.render(_t5 || (_t5 = _$1`
+					<div class="catalog-pf-product-qr-popup">
+						<div class="catalog-pf-product-qr-popup-content">
+							<div class="catalog-pf-product-qr-popup-text">${0}</div>
+							${0}
+							<div class="catalog-pf-product-qr-popup-buttons">
+								<a href="${0}" target="_blank" class="ui-btn ui-btn-light-border ui-btn-round">${0}</a>
+							</div>
+						</div>
+						<div class="catalog-pf-product-qr-popup-bottom">
+							<a href="${0}" target="_blank" class="catalog-pf-product-qr-popup--url">${0}</a>
+							${0}
+						</div>					
+					</div>
+				`), this.localize.CATALOG_FORM_COMPILATION_QR_POPUP_TITLE, qrWrapper, this.compilationLink, this.localize.CATALOG_FORM_COMPILATION_QR_POPUP_INPUT_TITLE, this.compilationLink, this.compilationLink, buttonCopy);
 	      new QRCode(qrWrapper, {
 	        text: this.compilationLink,
 	        width: 250,
@@ -1490,14 +1826,13 @@ this.BX = this.BX || {};
 	      });
 	      return content;
 	    },
-	    setSetting: function setSetting(event) {
-	      var _this3 = this;
 
-	      var value = event.target.checked ? 'Y' : 'N';
+	    setSetting(event) {
+	      const value = event.target.checked ? 'Y' : 'N';
 
 	      if (!this.compilationOptions.hasStore) {
 	        this.compilationOptions.disabledSwitcher = true;
-	        var creationStorePopup = new main_popup.Popup({
+	        const creationStorePopup = new main_popup.Popup({
 	          bindElement: event.target,
 	          className: 'catalog-product-form-popup--creating-shop',
 	          content: this.getOnBeforeCreationStorePopupContent(),
@@ -1510,38 +1845,52 @@ this.BX = this.BX || {};
 	        creationStorePopup.show();
 	        main_core.ajax.runAction('salescenter.api.store.getStoreInfo', {
 	          json: {}
-	        }).then(function (response) {
+	        }).then(response => {
 	          var _response$data, _response$data$deacti;
 
-	          if (main_core.Type.isStringFilled((_response$data = response.data) === null || _response$data === void 0 ? void 0 : (_response$data$deacti = _response$data.deactivatedStore) === null || _response$data$deacti === void 0 ? void 0 : _response$data$deacti.TITLE)) {
+	          if (main_core.Type.isStringFilled((_response$data = response.data) == null ? void 0 : (_response$data$deacti = _response$data.deactivatedStore) == null ? void 0 : _response$data$deacti.TITLE)) {
 	            var _response$data2, _response$data2$deact;
 
-	            var title = main_core.Loc.getMessage('CATALOG_FORM_COMPILATION_UNPUBLISHED_STORE', {
-	              '#STORE_TITLE#': main_core.Tag.safe(_templateObject6(), (_response$data2 = response.data) === null || _response$data2 === void 0 ? void 0 : (_response$data2$deact = _response$data2.deactivatedStore) === null || _response$data2$deact === void 0 ? void 0 : _response$data2$deact.TITLE)
+	            const title = main_core.Loc.getMessage('CATALOG_FORM_COMPILATION_UNPUBLISHED_STORE', {
+	              '#STORE_TITLE#': main_core.Tag.safe(_t6 || (_t6 = _$1`${0}`), (_response$data2 = response.data) == null ? void 0 : (_response$data2$deact = _response$data2.deactivatedStore) == null ? void 0 : _response$data2$deact.TITLE)
 	            });
 	            BX.UI.Notification.Center.notify({
-	              content: main_core.Tag.render(_templateObject7(), title, main_core.Loc.getMessage('CATALOG_FORM_COMPILATION_UNPUBLISHED_STORE_LINK'))
+	              content: main_core.Tag.render(_t7 || (_t7 = _$1`
+									<div>
+										<span>${0}</span>
+										<a href="/shop/stores/" target="_blank">
+											${0}
+										</a>
+									</div>
+								`), title, main_core.Loc.getMessage('CATALOG_FORM_COMPILATION_UNPUBLISHED_STORE_LINK'))
 	            });
 	          }
 
-	          creationStorePopup.setContent(_this3.getOnAfterCreationStorePopupContent());
+	          creationStorePopup.setContent(this.getOnAfterCreationStorePopupContent());
 	          creationStorePopup.setClosingByEsc(true);
 	          creationStorePopup.setAutoHide(true);
 	          creationStorePopup.show();
-
-	          _this3.$root.$app.changeFormOption('isCompilationMode', value);
-
-	          _this3.compilationOptions.disabledSwitcher = _this3.compilationOptions.isLimitedStore;
-	          _this3.compilationOptions.hasStore = true;
+	          this.$root.$app.changeFormOption('isCompilationMode', value);
+	          this.compilationOptions.disabledSwitcher = this.compilationOptions.isLimitedStore;
+	          this.compilationOptions.hasStore = true;
 	        });
 	      } else {
 	        this.$root.$app.changeFormOption('isCompilationMode', value);
 	      }
 	    },
-	    getOnBeforeCreationStorePopupContent: function getOnBeforeCreationStorePopupContent() {
-	      var loaderContent = main_core.Tag.render(_templateObject8());
-	      var node = main_core.Tag.render(_templateObject9(), main_core.Loc.getMessage('CATALOG_FORM_POPUP_BEFORE_MARKET_CREATING'), loaderContent, main_core.Loc.getMessage('CATALOG_FORM_POPUP_BEFORE_MARKET_CREATING_INFO'));
-	      var loader = new main_loader.Loader({
+
+	    getOnBeforeCreationStorePopupContent() {
+	      const loaderContent = main_core.Tag.render(_t8 || (_t8 = _$1`
+				<div class="catalog-product-form-popup--loader-block"></div>
+			`));
+	      const node = main_core.Tag.render(_t9 || (_t9 = _$1`
+				<div class="catalog-product-form-popup--container">
+					<div class="catalog-product-form-popup--title">${0}</div>
+					${0}
+					<div class="catalog-product-form-popup--text">${0}</div>
+				</div>
+			`), main_core.Loc.getMessage('CATALOG_FORM_POPUP_BEFORE_MARKET_CREATING'), loaderContent, main_core.Loc.getMessage('CATALOG_FORM_POPUP_BEFORE_MARKET_CREATING_INFO'));
+	      const loader = new main_loader.Loader({
 	        color: "#2fc6f6",
 	        target: loaderContent,
 	        size: 40
@@ -1549,15 +1898,24 @@ this.BX = this.BX || {};
 	      loader.show();
 	      return node;
 	    },
-	    getOnAfterCreationStorePopupContent: function getOnAfterCreationStorePopupContent() {
-	      return main_core.Tag.render(_templateObject10(), main_core.Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING'), main_core.Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING_INFO'));
+
+	    getOnAfterCreationStorePopupContent() {
+	      return main_core.Tag.render(_t10 || (_t10 = _$1`
+				<div class="catalog-product-form-popup--container">
+					<div class="catalog-product-form-popup--title">${0}</div>
+					<div class="catalog-product-form-popup--loader-block catalog-product-form-popup--done"></div>
+					<div class="catalog-product-form-popup--text">${0}</div>
+				</div>
+			`), main_core.Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING'), main_core.Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING_INFO'));
 	    },
-	    onLabelClick: function onLabelClick() {
+
+	    onLabelClick() {
 	      if (this.compilationOptions.isLimitedStore) {
 	        BX.UI.InfoHelper.show('limit_sites_number');
 	      }
 	    },
-	    onClickHint: function onClickHint(event) {
+
+	    onClickHint(event) {
 	      event.preventDefault();
 	      event.stopImmediatePropagation();
 
@@ -1571,13 +1929,15 @@ this.BX = this.BX || {};
 	        this.showMessage();
 	      }
 	    },
-	    showMessage: function showMessage() {
+
+	    showMessage() {
 	      if (this.message) {
 	        main_core.Dom.addClass(this.$refs.hintIcon, 'catalog-pf-product-panel-message-arrow-target');
 	        this.message.show();
 	      }
 	    },
-	    hideMessage: function hideMessage() {
+
+	    hideMessage() {
 	      if (this.message) {
 	        main_core.Dom.removeClass(this.$refs.hintIcon, 'catalog-pf-product-panel-message-arrow-target');
 	      }
@@ -1585,52 +1945,62 @@ this.BX = this.BX || {};
 	      this.message.hide();
 	      this.$root.$app.changeFormOption('hiddenCompilationInfoMessage', 'Y');
 	    }
+
 	  },
-	  computed: babelHelpers.objectSpread({
-	    localize: function localize() {
+	  computed: {
+	    localize() {
 	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
 	    },
-	    showQrLink: function showQrLink() {
+
+	    showQrLink() {
 	      return this.mode === FormMode.COMPILATION;
-	    }
-	  }, ui_vue_vuex.Vuex.mapState({
-	    productList: function productList(state) {
-	      return state.productList;
-	    }
-	  })),
+	    },
+
+	    ...ui_vue_vuex.Vuex.mapState({
+	      productList: state => state.productList
+	    })
+	  },
 	  // language=Vue
-	  template: "\n\t\t<div>\n\t\t\t<div class=\"catalog-pf-product-panel-compilation\">\n\t\t\t\t<div class=\"catalog-pf-product-panel-compilation-wrapper\">\n\t\t\t\t\t<label class=\"ui-ctl ui-ctl-checkbox\" @click=\"onLabelClick\">\n\t\t\t\t\t\t<input \n\t\t\t\t\t\t\ttype=\"checkbox\" \n\t\t\t\t\t\t\t:disabled=\"compilationOptions.disabledSwitcher\"\n\t\t\t\t\t\t\tclass=\"ui-ctl-element\" \n\t\t\t\t\t\t\t@change=\"setSetting\" \n\t\t\t\t\t\t\tdata-setting-id=\"isCompilationMode\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t<div class=\"ui-ctl-label-text\">{{localize.CATALOG_FORM_COMPILATION_PRODUCT_SWITCHER}}</div>\n\t\t\t\t\t\t<div ref=\"hintIcon\">\n\t\t\t\t\t\t\t<div data-hint-init=\"vue\" class=\"ui-hint\" @click=\"onClickHint\">\n\t\t\t\t\t\t\t\t<span class=\"ui-hint-icon\"></span>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div ref=\"label\"></div>\n\t\t\t\t\t\t<div class=\"tariff-lock\" v-if=\"compilationOptions.isLimitedStore\"></div>\n\t\t\t\t\t</label>\n\t\t\t\t</div>\n\t\t\t\t<div \t\t\t\t\n\t\t\t\t\tv-if=\"showQrLink\"\n\t\t\t\t\tclass=\"catalog-pf-product-panel-compilation-link --icon-qr\"\n\t\t\t\t\t@click=\"showPopup\"\n\t\t\t\t\tref=\"qrLink\"\n\t\t\t\t>\n\t\t\t\t\t{{localize.CATALOG_FORM_COMPILATION_QR_LINK}}\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class=\"catalog-pf-product-panel-compilation-message\" ref=\"message\"></div>\n\t\t</div>\n\t"
+	  template: `
+		<div>
+			<div class="catalog-pf-product-panel-compilation">
+				<div class="catalog-pf-product-panel-compilation-wrapper">
+					<label class="ui-ctl ui-ctl-checkbox" @click="onLabelClick">
+						<input 
+							type="checkbox" 
+							:disabled="compilationOptions.disabledSwitcher"
+							class="ui-ctl-element" 
+							@change="setSetting" 
+							data-setting-id="isCompilationMode"
+						>
+						<div class="ui-ctl-label-text">{{localize.CATALOG_FORM_COMPILATION_PRODUCT_SWITCHER}}</div>
+						<div ref="hintIcon">
+							<div data-hint-init="vue" class="ui-hint" @click="onClickHint">
+								<span class="ui-hint-icon"></span>
+							</div>
+						</div>
+						<div ref="label"></div>
+						<div class="tariff-lock" v-if="compilationOptions.isLimitedStore"></div>
+					</label>
+				</div>
+				<div 				
+					v-if="showQrLink"
+					class="catalog-pf-product-panel-compilation-link --icon-qr"
+					@click="showPopup"
+					ref="qrLink"
+				>
+					{{localize.CATALOG_FORM_COMPILATION_QR_LINK}}
+				</div>
+			</div>
+			<div class="catalog-pf-product-panel-compilation-message" ref="message"></div>
+		</div>
+	`
 	});
 
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='catalog-pf-product-config-popup'></div>\n\t\t\t\t"]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label class=\"ui-ctl ui-ctl-checkbox ui-ctl-w100\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-ctl-label-text\">", "</div>\n\t\t\t\t</label>\n\t\t\t"]);
-
-	  _templateObject2$2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<input type=\"checkbox\"  class=\"ui-ctl-element\">\n\t\t\t\t"]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	let _$2 = t => t,
+	    _t$2,
+	    _t2$2,
+	    _t3$1;
 	ui_vue.Vue.component(config.templatePanelButtons, {
 	  /**
 	   * @emits 'changeRowData' {index: number, fields: object}
@@ -1641,26 +2011,35 @@ this.BX = this.BX || {};
 	    options: Object,
 	    mode: String
 	  },
+
+	  data() {
+	    return {
+	      settings: []
+	    };
+	  },
+
 	  methods: {
-	    refreshBasket: function refreshBasket() {
+	    refreshBasket() {
 	      this.$emit('refreshBasket');
 	    },
-	    changeBasketItem: function changeBasketItem(item) {
+
+	    changeBasketItem(item) {
 	      this.$emit('changeRowData', item);
 	    },
-	    addBasketItemForm: function addBasketItemForm() {
+
+	    addBasketItemForm() {
 	      this.$emit('addItem');
 	    },
-	    getInternalIndexByProductId: function getInternalIndexByProductId(skuId) {
-	      var basket = this.$store.getters['productList/getBasket']();
-	      return Object.keys(basket).findIndex(function (inx) {
+
+	    getInternalIndexByProductId(skuId) {
+	      const basket = this.$store.getters['productList/getBasket']();
+	      return Object.keys(basket).findIndex(inx => {
 	        return parseInt(basket[inx].skuId) === parseInt(skuId);
 	      });
 	    },
-	    handleAddItem: function handleAddItem(id, params) {
-	      var _this = this;
 
-	      var skuType = 4;
+	    handleAddItem(id, params) {
+	      const skuType = 4;
 
 	      if (main_core.Text.toNumber(params.type) === skuType) {
 	        main_core.ajax.runAction('catalog.productSelector.getSelectedSku', {
@@ -1669,41 +2048,44 @@ this.BX = this.BX || {};
 	            options: {
 	              priceId: this.options.basePriceId,
 	              urlBuilder: this.options.urlBuilder,
+	              currency: this.options.currency,
 	              resetSku: true
 	            }
 	          }
-	        }).then(function (response) {
-	          return _this.processResponse(response);
-	        });
+	        }).then(response => this.processResponse(response));
 	      } else {
 	        main_core.ajax.runAction('catalog.productSelector.getProduct', {
 	          json: {
 	            productId: id,
 	            options: {
 	              priceId: this.options.basePriceId,
-	              urlBuilder: this.options.urlBuilder
+	              urlBuilder: this.options.urlBuilder,
+	              currency: this.options.currency
 	            }
 	          }
-	        }).then(function (response) {
-	          return _this.processResponse(response);
-	        });
+	        }).then(response => this.processResponse(response));
 	      }
 	    },
-	    processResponse: function processResponse(response) {
-	      var index = this.getInternalIndexByProductId(response.data.skuId);
+
+	    processResponse(response) {
+	      const index = this.getInternalIndexByProductId(response.data.skuId);
 
 	      if (index < 0) {
-	        var productData = response.data;
-	        var price = main_core.Text.toNumber(productData.fields.PRICE);
+	        const productData = response.data;
+	        const basePrice = main_core.Text.toNumber(productData.fields.BASE_PRICE);
 	        productData.fields = productData.fields || {};
-	        var newItem = this.$store.getters['productList/getBaseProduct']();
+	        let newItem = this.$store.getters['productList/getBaseProduct']();
 	        newItem.fields = Object.assign(newItem.fields, {
-	          price: price,
-	          priceExclusive: price,
-	          basePrice: price,
+	          price: basePrice,
+	          priceExclusive: basePrice,
+	          basePrice,
 	          name: productData.fields.NAME || '',
 	          productId: productData.productId,
 	          skuId: productData.skuId,
+	          measureCode: productData.fields.MEASURE_CODE,
+	          measureName: productData.fields.MEASURE_NAME,
+	          measureRatio: productData.fields.MEASURE_RATIO,
+	          properties: productData.fields.PROPERTIES,
 	          offerId: productData.skuId > 0 ? productData.skuId : productData.productId,
 	          module: 'catalog',
 	          isCustomPrice: main_core.Type.isNil(productData.fields.PRICE) ? 'Y' : 'N',
@@ -1711,11 +2093,12 @@ this.BX = this.BX || {};
 	        });
 	        delete productData.fields;
 	        newItem = Object.assign(newItem, productData);
-	        newItem.sum = price;
+	        newItem.sum = basePrice;
 	        this.$root.$app.addProduct(newItem);
 	      }
 	    },
-	    onUpdateBasketItem: function onUpdateBasketItem(inx, item) {
+
+	    onUpdateBasketItem(inx, item) {
 	      this.$store.dispatch('productList/changeRowData', {
 	        index: inx,
 	        fields: item
@@ -1732,23 +2115,22 @@ this.BX = this.BX || {};
 	    * Also, products can be added to the form and become an empty string,
 	    *  while stay a item of basket collection
 	    * */
-	    removeEmptyItems: function removeEmptyItems() {
-	      var _this2 = this;
-
-	      var basket = this.$store.getters['productList/getBasket']();
-	      basket.forEach(function (item, i) {
+	    removeEmptyItems() {
+	      const basket = this.$store.getters['productList/getBasket']();
+	      basket.forEach((item, i) => {
 	        if (basket[i].name === '' && basket[i].price < 1e-10) {
-	          _this2.$store.commit('productList/deleteItem', {
+	          this.$store.commit('productList/deleteItem', {
 	            index: i
 	          });
 	        }
 	      });
 	    },
-	    modifyBasketItem: function modifyBasketItem(params) {
-	      var skuId = parseInt(params.id);
+
+	    modifyBasketItem(params) {
+	      const skuId = parseInt(params.id);
 
 	      if (skuId > 0) {
-	        var index = this.getInternalIndexByProductId(skuId);
+	        const index = this.getInternalIndexByProductId(skuId);
 
 	        if (index >= 0) {
 	          this.showDialogProductExists(params);
@@ -1758,13 +2140,12 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    },
-	    showDialogProductExists: function showDialogProductExists(params) {
-	      var _this3 = this;
 
+	    showDialogProductExists(params) {
 	      this.popup = new main_popup.Popup(null, null, {
 	        events: {
-	          onPopupClose: function onPopupClose() {
-	            _this3.popup.destroy();
+	          onPopupClose: () => {
+	            this.popup.destroy();
 	          }
 	        },
 	        zIndex: 4000,
@@ -1782,48 +2163,41 @@ this.BX = this.BX || {};
 	      });
 	      this.popup.show();
 	    },
-	    getButtons: function getButtons(product) {
-	      var _this4 = this;
 
-	      var buttons = [];
-	      var params = product;
+	    getButtons(product) {
+	      const buttons = [];
+	      const params = product;
 	      buttons.push(new BX.UI.SaveButton({
 	        text: main_core.Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_OK'),
-	        onclick: function onclick() {
-	          var productId = parseInt(params.id);
+	        onclick: () => {
+	          const productId = parseInt(params.id);
+	          const index = this.getInternalIndexByProductId(productId);
 
-	          var inx = _this4.getInternalIndexByProductId(productId);
-
-	          if (inx >= 0) {
-	            var item = _this4.$store.getters['productList/getBasket']()[inx];
-
+	          if (index >= 0) {
+	            const item = this.$store.getters['productList/getBasket']()[index];
 	            item.fields.quantity++;
 	            item.calculatedFields.QUANTITY++;
-
-	            _this4.onUpdateBasketItem(inx, item);
+	            this.onUpdateBasketItem(index, item);
 	          }
 
-	          _this4.popup.destroy();
+	          this.popup.destroy();
 	        }
 	      }));
 	      buttons.push(new BX.UI.CancelButton({
 	        text: main_core.Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_NO'),
-	        onclick: function onclick() {
-	          _this4.popup.destroy();
+	        onclick: () => {
+	          this.popup.destroy();
 	        }
 	      }));
 	      return buttons;
 	    },
-	    showDialogProductSearch: function showDialogProductSearch() {
-	      var _this5 = this;
 
-	      var funcName = 'addBasketItemFromDialogProductSearch';
+	    showDialogProductSearch() {
+	      const funcName = 'addBasketItemFromDialogProductSearch';
 
-	      window[funcName] = function (params) {
-	        return _this5.modifyBasketItem(params);
-	      };
+	      window[funcName] = params => this.modifyBasketItem(params);
 
-	      var popup = new BX.CDialog({
+	      const popup = new BX.CDialog({
 	        content_url: '/bitrix/tools/sale/product_search_dialog.php?' + //todo: 'lang='+this._settings.languageId+
 	        //todo: '&LID='+this._settings.siteId+
 	        '&caller=order_edit' + '&func_name=' + funcName + '&STORE_FROM_ID=0' + '&public_mode=Y',
@@ -1837,32 +2211,73 @@ this.BX = this.BX || {};
 	      });
 	      popup.Show();
 	    },
-	    setSetting: function setSetting(event) {
+
+	    setSetting(event) {
 	      if (event.target.dataset.settingId === 'taxIncludedOption') {
-	        var value = event.target.checked ? 'Y' : 'N';
+	        const value = event.target.checked ? 'Y' : 'N';
 	        this.$root.$app.changeFormOption('taxIncluded', value);
 	      } else if (event.target.dataset.settingId === 'showDiscountInputOption') {
-	        var _value = event.target.checked ? 'Y' : 'N';
-
-	        this.$root.$app.changeFormOption('showDiscountBlock', _value);
+	        const value = event.target.checked ? 'Y' : 'N';
+	        this.$root.$app.changeFormOption('showDiscountBlock', value);
 	      } else if (event.target.dataset.settingId === 'showTaxInputOption') {
-	        var _value2 = event.target.checked ? 'Y' : 'N';
+	        const value = event.target.checked ? 'Y' : 'N';
+	        this.$root.$app.changeFormOption('showTaxBlock', value);
+	      } else if (event.target.dataset.settingId === 'warehouseOption') {
+	        const value = event.target.checked ? 'Y' : 'N';
 
-	        this.$root.$app.changeFormOption('showTaxBlock', _value2);
+	        if (value === 'Y') {
+	          this.popupMenu.close();
+	          new catalog_storeUse.Slider().open('/bitrix/components/bitrix/catalog.warehouse.master.clear/slider.php', {}).then(() => {
+	            main_core.ajax.runAction('catalog.config.isUsedInventoryManagement', {}).then(response => {
+	              const index = this.getSettingItems().findIndex(item => {
+	                return item.id === event.target.dataset.settingId;
+	              });
+	              this.settings[index].checked = response.data === true;
+	            });
+	          });
+	        } else {
+	          new catalog_storeUse.DialogDisable().popup();
+	          main_core_events.EventEmitter.subscribe(catalog_storeUse.EventType.popup.disable, () => {
+	            main_core.ajax.runAction('catalog.config.InventoryManagementN', {}).then(response => {
+	              const index = this.getSettingItems().findIndex(item => {
+	                return item.id === event.target.dataset.settingId;
+	              });
+	              BX.UI.Notification.Center.notify({
+	                content: main_core.Loc.getMessage('CATALOG_FORM_ADD_WAREHOUSE_DISABLED'),
+	                width: 'auto',
+	                autoHideDelay: 3000
+	              });
+	              this.settings[index].checked = !response.data;
+	            });
+	          });
+	          main_core_events.EventEmitter.subscribe(catalog_storeUse.EventType.popup.disableCancel, () => {
+	            const index = this.getSettingItems().findIndex(item => {
+	              return item.id === event.target.dataset.settingId;
+	            });
+	            this.settings[index].checked = true;
+	          });
+	        }
 	      }
 	    },
-	    getSettingItem: function getSettingItem(item) {
-	      var input = main_core.Tag.render(_templateObject$2());
+
+	    getSettingItem(item) {
+	      const input = main_core.Tag.render(_t$2 || (_t$2 = _$2`
+					<input type="checkbox"  class="ui-ctl-element">
+				`));
 	      input.checked = item.checked;
 	      input.dataset.settingId = item.id;
-	      var setting = main_core.Tag.render(_templateObject2$2(), input, item.title);
+	      const setting = main_core.Tag.render(_t2$2 || (_t2$2 = _$2`
+				<label class="ui-ctl ui-ctl-checkbox ui-ctl-w100">
+					${0}
+					<div class="ui-ctl-label-text">${0}</div>
+				</label>
+			`), input, item.title);
 	      main_core.Event.bind(setting, 'change', this.setSetting.bind(this));
 	      return setting;
 	    },
-	    prepareSettingsContent: function prepareSettingsContent() {
-	      var _this6 = this;
 
-	      var settings = [// {
+	    getSettingItems() {
+	      return [// {
 	      // 	id: 'taxIncludedOption',
 	      // 	checked: (this.options.taxIncluded === 'Y'),
 	      // 	title: this.localize.CATALOG_FORM_ADD_TAX_INCLUDED,
@@ -1871,51 +2286,103 @@ this.BX = this.BX || {};
 	        id: 'showDiscountInputOption',
 	        checked: this.options.showDiscountBlock !== 'N',
 	        title: this.localize.CATALOG_FORM_ADD_SHOW_DISCOUNTS_OPTION
-	      } // {
+	      }, // {
 	      // 	id: 'showTaxInputOption',
 	      // 	checked: (this.options.showTaxBlock !== 'N'),
 	      // 	title: this.localize.CATALOG_FORM_ADD_SHOW_TAXES_OPTION,
 	      // },
-	      ];
-	      var content = main_core.Tag.render(_templateObject3$1());
-	      settings.forEach(function (item) {
-	        content.append(_this6.getSettingItem(item));
+	      {
+	        id: 'warehouseOption',
+	        checked: this.options.warehouseOption,
+	        title: this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_OPTION
+	      }];
+	    },
+
+	    prepareSettingsContent() {
+	      const content = main_core.Tag.render(_t3$1 || (_t3$1 = _$2`
+					<div class='catalog-pf-product-config-popup'></div>
+				`));
+	      this.settings.forEach(item => {
+	        content.append(this.getSettingItem(item));
 	      });
 	      return content;
 	    },
-	    showConfigPopup: function showConfigPopup(event) {
-	      if (!this.popupMenu) {
-	        this.popupMenu = new main_popup.Popup(null, event.target, {
-	          autoHide: true,
-	          draggable: false,
-	          offsetLeft: 0,
-	          offsetTop: 0,
-	          noAllPaddings: true,
-	          bindOptions: {
-	            forceBindPosition: true
-	          },
-	          closeByEsc: true,
-	          content: this.prepareSettingsContent()
-	        });
-	      }
+
+	    showConfigPopup(event) {
+	      // if (!this.popupMenu)
+	      // {
+	      this.popupMenu = new main_popup.Popup(null, event.target, {
+	        autoHide: true,
+	        draggable: false,
+	        offsetLeft: 0,
+	        offsetTop: 0,
+	        noAllPaddings: true,
+	        bindOptions: {
+	          forceBindPosition: true
+	        },
+	        closeByEsc: true,
+	        content: this.prepareSettingsContent()
+	      }); // }
 
 	      this.popupMenu.show();
+	    },
+
+	    openSlider(url, options) {
+	      if (!main_core.Type.isPlainObject(options)) {
+	        options = {};
+	      }
+
+	      options = { ...{
+	          cacheable: false,
+	          allowChangeHistory: false,
+	          events: {}
+	        },
+	        ...options
+	      };
+	      return new Promise(resolve => {
+	        if (main_core.Type.isString(url) && url.length > 1) {
+	          options.events.onClose = function (event) {
+	            resolve(event.getSlider());
+	          };
+
+	          BX.SidePanel.Instance.open(url, options);
+	        } else {
+	          resolve();
+	        }
+	      });
 	    }
+
 	  },
-	  computed: babelHelpers.objectSpread({
-	    localize: function localize() {
+	  computed: {
+	    localize() {
 	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
 	    },
-	    countItems: function countItems() {
+
+	    countItems() {
 	      return this.order.basket.length;
-	    }
-	  }, ui_vue_vuex.Vuex.mapState({
-	    productList: function productList(state) {
-	      return state.productList;
-	    }
-	  })),
+	    },
+
+	    ...ui_vue_vuex.Vuex.mapState({
+	      productList: state => state.productList
+	    })
+	  },
+
+	  mounted() {
+	    this.settings = this.getSettingItems();
+	  },
+
 	  // language=Vue
-	  template: "\n\t\t<div>\n\t\t\t<div class=\"catalog-pf-product-add\">\n\t\t\t\t<div class=\"catalog-pf-product-add-wrapper\">\n\t\t\t\t\t<span class=\"catalog-pf-product-add-link\" @click=\"addBasketItemForm\">{{localize.CATALOG_FORM_ADD_PRODUCT}}</span>\n\t\t\t\t\t<span class=\"catalog-pf-product-add-link catalog-pf-product-add-link--gray\" @click=\"showDialogProductSearch\">{{localize.CATALOG_FORM_ADD_PRODUCT_FROM_CATALOG}}</span>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"catalog-pf-product-configure-link\" @click=\"showConfigPopup\">{{localize.CATALOG_FORM_DISCOUNT_EDIT_PAGE_URL_TITLE}}</div>\n\t\t\t</div>\n\t\t</div>\n\t"
+	  template: `
+		<div>
+			<div class="catalog-pf-product-add">
+				<div class="catalog-pf-product-add-wrapper">
+					<span class="catalog-pf-product-add-link" @click="addBasketItemForm">{{localize.CATALOG_FORM_ADD_PRODUCT}}</span>
+					<span class="catalog-pf-product-add-link catalog-pf-product-add-link--gray" @click="showDialogProductSearch">{{localize.CATALOG_FORM_ADD_PRODUCT_FROM_CATALOG}}</span>
+				</div>
+				<div class="catalog-pf-product-configure-link" @click="showConfigPopup">{{localize.CATALOG_FORM_DISCOUNT_EDIT_PAGE_URL_TITLE}}</div>
+			</div>
+		</div>
+	`
 	});
 
 	ui_vue.Vue.component(config.templateName, {
@@ -1923,452 +2390,520 @@ this.BX = this.BX || {};
 	    options: Object,
 	    mode: String
 	  },
-	  created: function created() {
+
+	  created() {
 	    BX.ajax.runAction("catalog.productSelector.getFileInput", {
 	      json: {
 	        iblockId: this.options.iblockId
 	      }
 	    });
 	  },
+
 	  methods: {
-	    refreshBasket: function refreshBasket() {
+	    refreshBasket() {
 	      this.$store.dispatch('productList/refreshBasket');
 	    },
-	    changeProduct: function changeProduct(item) {
+
+	    changeProduct(item) {
 	      this.$root.$app.changeProduct(item);
 	    },
-	    changeRowData: function changeRowData(item) {
-	      delete item.fields.fields;
-	      this.$store.dispatch('productList/changeItem', item);
+
+	    emitErrorsChange() {
+	      this.$root.$app.emitErrorsChange();
 	    },
-	    removeItem: function removeItem(item) {
+
+	    changeRowData(item) {
+	      delete item.product.fields;
+	      this.$store.commit('productList/updateItem', item);
+	    },
+
+	    removeItem(item) {
 	      this.$root.$app.removeProduct(item);
 	    },
-	    addItem: function addItem() {
+
+	    addItem() {
 	      this.$root.$app.addProduct();
 	    }
+
 	  },
-	  computed: babelHelpers.objectSpread({
-	    localize: function localize() {
+	  computed: {
+	    localize() {
 	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
 	    },
-	    showTaxResult: function showTaxResult() {
+
+	    showTaxResult() {
 	      return this.options.showTaxBlock !== 'N';
 	    },
-	    showResults: function showResults() {
+
+	    showResults() {
 	      return this.options.showResults !== false;
 	    },
-	    showButtonsTop: function showButtonsTop() {
+
+	    showButtonsTop() {
 	      return this.options.singleProductMode !== true && this.mode !== FormMode.READ_ONLY && this.options.buttonsPosition !== FormElementPosition.BOTTOM;
 	    },
-	    showButtonsBottom: function showButtonsBottom() {
+
+	    showButtonsBottom() {
 	      return this.options.singleProductMode !== true && this.mode !== FormMode.READ_ONLY && this.options.buttonsPosition === FormElementPosition.BOTTOM;
 	    },
-	    showResultBlock: function showResultBlock() {
+
+	    showResultBlock() {
 	      return this.showResults || this.enableAddButtons;
 	    },
-	    countItems: function countItems() {
+
+	    countItems() {
 	      return this.productList.basket.length;
 	    },
-	    totalResultLabel: function totalResultLabel() {
+
+	    totalResultLabel() {
 	      return this.options.hasOwnProperty('totalResultLabel') && this.options.totalResultLabel ? this.options.totalResultLabel : this.localize.CATALOG_FORM_TOTAL_RESULT;
-	    }
-	  }, ui_vue_vuex.Vuex.mapState({
-	    productList: function productList(state) {
-	      return state.productList;
-	    }
-	  })),
+	    },
+
+	    ...ui_vue_vuex.Vuex.mapState({
+	      productList: state => state.productList
+	    })
+	  },
 	  // language=Vue
-	  template: "\n\t<div class=\"catalog-product-form-container\">\n\t\t<".concat(config.templatePanelButtons, "\n\t\t\t:options=\"options\" \n\t\t\t:mode=\"mode\" \n\t\t\t@refreshBasket=\"refreshBasket\" \n\t\t\t@addItem=\"addItem\"\n\t\t\t@changeRowData=\"changeRowData\"\n\t\t\t@changeProduct=\"changeProduct\" \n\t\t\tv-if=\"showButtonsTop\"\n\t\t/>\n\t\t<div v-for=\"(item, index) in productList.basket\" :key=\"item.selectorId\">\n\t\t\t<").concat(config.templateRowName, " \n\t\t\t\t:basketItem=\"item\" \n\t\t\t\t:basketItemIndex=\"index\"  \n\t\t\t\t:countItems=\"countItems\"\n\t\t\t\t:options=\"options\"\n\t\t\t\t:mode=\"mode\"\n\t\t\t\t@changeProduct=\"changeProduct\" \n\t\t\t\t@changeRowData=\"changeRowData\" \n\t\t\t\t@removeItem=\"removeItem\" \n\t\t\t\t@refreshBasket=\"refreshBasket\" \n\t\t\t/>\n\t\t</div>\n\t\t<").concat(config.templatePanelButtons, "\n\t\t\t:options=\"options\" \n\t\t\t:mode=\"mode\"\n\t\t\t@refreshBasket=\"refreshBasket\" \n\t\t\t@addItem=\"addItem\"\n\t\t\t@changeRowData=\"changeRowData\"\n\t\t\t@changeProduct=\"changeProduct\" \n\t\t\tv-if=\"showButtonsBottom\"\n\t\t/>\n\t\t<").concat(config.templatePanelCompilation, "  \n\t\t\tv-if=\"options.showCompilationModeSwitcher\"\n\t\t\t:compilationOptions=\"options.compilationFormOption\" \n\t\t\t:mode=\"mode\" \n\t\t/>\n\t\t<div class=\"catalog-pf-result-line\"></div>\n\t\t<div class=\"catalog-pf-result-wrapper\" v-if=\"showResultBlock\">\n\t\t\t<table class=\"catalog-pf-result\" v-if=\"showResultBlock\">\n\t\t\t\t<tr v-if=\"showResults\">\n\t\t\t\t\t<td>\n\t\t\t\t\t\t<span class=\"catalog-pf-text\">{{localize.CATALOG_FORM_PRODUCTS_PRICE}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td>\n\t\t\t\t\t\t<span v-html=\"productList.total.sum\"\n\t\t\t\t\t\t\t:class=\"productList.total.result !== productList.total.sum ? 'catalog-pf-text catalog-pf-text--line-through' : 'catalog-pf-text'\"\n\t\t\t\t\t\t></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr v-if=\"showResults\">\n\t\t\t\t\t<td class=\"catalog-pf-result-padding-bottom\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--discount\">{{localize.CATALOG_FORM_TOTAL_DISCOUNT}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td class=\"catalog-pf-result-padding-bottom\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--discount\" v-html=\"productList.total.discount\"></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr v-if=\"showResults && showTaxResult\">\n\t\t\t\t\t<td class=\"catalog-pf-tax\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--tax\">{{localize.CATALOG_FORM_TAX_TITLE}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td class=\"catalog-pf-tax\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--tax\" v-html=\"productList.total.taxSum\"></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t\t<tr v-if=\"showResults\">\n\t\t\t\t\t<td class=\"catalog-pf-result-padding\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--total catalog-pf-text--border\">{{totalResultLabel}}:</span>\n\t\t\t\t\t</td>\n\t\t\t\t\t<td class=\"catalog-pf-result-padding\">\n\t\t\t\t\t\t<span class=\"catalog-pf-text catalog-pf-text--total\" v-html=\"productList.total.result\"></span>\n\t\t\t\t\t\t<span class=\"catalog-pf-symbol catalog-pf-symbol--total\" v-html=\"options.currencySymbol\"></span>\n\t\t\t\t\t</td>\n\t\t\t\t</tr>\n\t\t\t</table>\n\t\t</div>\n\t</div>\n")
+	  template: `
+	<div class="catalog-product-form-container">
+		<${config.templatePanelButtons}
+			:options="options"
+			:mode="mode"
+			@refreshBasket="refreshBasket"
+			@addItem="addItem"
+			@changeRowData="changeRowData"
+			@changeProduct="changeProduct"
+			v-if="showButtonsTop"
+		/>
+		<div v-for="(item, index) in productList.basket" :key="item.selectorId">
+			<${config.templateRowName}
+				:basketItem="item"
+				:basketItemIndex="index"
+				:basketLength="productList.basket.length"
+				:countItems="countItems"
+				:options="options"
+				:mode="mode"
+				@changeProduct="changeProduct"
+				@changeRowData="changeRowData"
+				@removeItem="removeItem"
+				@refreshBasket="refreshBasket"
+				@emitErrorsChange="emitErrorsChange"
+			/>
+		</div>
+		<${config.templatePanelButtons}
+			:options="options"
+			:mode="mode"
+			@refreshBasket="refreshBasket"
+			@addItem="addItem"
+			@changeRowData="changeRowData"
+			@changeProduct="changeProduct"
+			v-if="showButtonsBottom"
+		/>
+		<${config.templatePanelCompilation}
+			v-if="options.showCompilationModeSwitcher"
+			:compilationOptions="options.compilationFormOption"
+			:mode="mode"
+		/>
+		<div class="catalog-pf-result-line"></div>
+		<div class="catalog-pf-result-wrapper" v-if="showResultBlock">
+			<table class="catalog-pf-result" v-if="showResultBlock">
+				<tr v-if="showResults">
+					<td>
+						<span class="catalog-pf-text">{{localize.CATALOG_FORM_PRODUCTS_PRICE}}:</span>
+					</td>
+					<td>
+						<span v-html="productList.total.sum"
+							:class="productList.total.result !== productList.total.sum ? 'catalog-pf-text catalog-pf-text--line-through' : 'catalog-pf-text'"
+						></span>
+						<span class="catalog-pf-symbol" v-html="options.currencySymbol"></span>
+					</td>
+				</tr>
+				<tr v-if="showResults">
+					<td class="catalog-pf-result-padding-bottom">
+						<span class="catalog-pf-text catalog-pf-text--discount">{{localize.CATALOG_FORM_TOTAL_DISCOUNT}}:</span>
+					</td>
+					<td class="catalog-pf-result-padding-bottom">
+						<span class="catalog-pf-text catalog-pf-text--discount" v-html="productList.total.discount"></span>
+						<span class="catalog-pf-symbol" v-html="options.currencySymbol"></span>
+					</td>
+				</tr>
+				<tr v-if="showResults && showTaxResult">
+					<td class="catalog-pf-tax">
+						<span class="catalog-pf-text catalog-pf-text--tax">{{localize.CATALOG_FORM_TAX_TITLE}}:</span>
+					</td>
+					<td class="catalog-pf-tax">
+						<span class="catalog-pf-text catalog-pf-text--tax" v-html="productList.total.taxSum"></span>
+						<span class="catalog-pf-symbol" v-html="options.currencySymbol"></span>
+					</td>
+				</tr>
+				<tr v-if="showResults">
+					<td class="catalog-pf-result-padding">
+						<span class="catalog-pf-text catalog-pf-text--total catalog-pf-text--border">{{totalResultLabel}}:</span>
+					</td>
+					<td class="catalog-pf-result-padding">
+						<span class="catalog-pf-text catalog-pf-text--total" v-html="productList.total.result"></span>
+						<span class="catalog-pf-symbol catalog-pf-symbol--total" v-html="options.currencySymbol"></span>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+`
 	});
 
-	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"\"></div>"]);
+	let _$3 = t => t,
+	    _t$3;
 
-	  _templateObject$3 = function _templateObject() {
-	    return data;
-	  };
+	var _onBasketChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onBasketChange");
 
-	  return data;
-	}
+	var _checkRequiredFields = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("checkRequiredFields");
 
-	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var _changeCompilationModeSetting = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("changeCompilationModeSetting");
 
-	var _onBasketChange = new WeakSet();
+	var _setMode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setMode");
 
-	var _checkRequiredFields = new WeakSet();
-
-	var _changeCompilationModeSetting = new WeakSet();
-
-	var _setMode = new WeakSet();
-
-	var ProductForm = /*#__PURE__*/function () {
-	  function ProductForm() {
-	    var _this = this;
-
-	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	    babelHelpers.classCallCheck(this, ProductForm);
-
-	    _setMode.add(this);
-
-	    _changeCompilationModeSetting.add(this);
-
-	    _checkRequiredFields.add(this);
-
-	    _onBasketChange.add(this);
-
+	class ProductForm {
+	  constructor(options = {}) {
+	    Object.defineProperty(this, _setMode, {
+	      value: _setMode2
+	    });
+	    Object.defineProperty(this, _changeCompilationModeSetting, {
+	      value: _changeCompilationModeSetting2
+	    });
+	    Object.defineProperty(this, _checkRequiredFields, {
+	      value: _checkRequiredFields2
+	    });
+	    Object.defineProperty(this, _onBasketChange, {
+	      value: _onBasketChange2
+	    });
 	    this.options = this.prepareOptions(options);
 	    this.defaultOptions = Object.assign({}, this.options);
 	    this.editable = true;
 
-	    _classPrivateMethodGet(this, _setMode, _setMode2).call(this, FormMode.REGULAR);
+	    babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](FormMode.REGULAR);
 
-	    this.wrapper = main_core.Tag.render(_templateObject$3());
+	    this.wrapper = main_core.Tag.render(_t$3 || (_t$3 = _$3`<div class=""></div>`));
 
 	    if (main_core.Text.toNumber(options.iblockId) <= 0) {
 	      return;
 	    }
 
-	    ProductForm.initStore().then(function (result) {
-	      return _this.initTemplate(result);
-	    }).catch(function (error) {
-	      return ProductForm.showError(error);
+	    ProductForm.initStore().then(result => this.initTemplate(result)).catch(error => ProductForm.showError(error));
+	  }
+
+	  static initStore() {
+	    const builder = new ui_vue_vuex.VuexBuilder();
+	    return builder.addModel(ProductList.create()).build();
+	  }
+
+	  prepareOptions(options = {}) {
+	    const settingsCollection = main_core.Extension.getSettings('catalog.product-form');
+	    const defaultOptions = {
+	      basket: [],
+	      measures: [],
+	      iblockId: null,
+	      basePriceId: settingsCollection.get('basePriceId'),
+	      taxList: [],
+	      singleProductMode: false,
+	      showResults: true,
+	      showCompilationModeSwitcher: false,
+	      enableEmptyProductError: true,
+	      pricePrecision: 2,
+	      currency: settingsCollection.get('currency'),
+	      currencySymbol: settingsCollection.get('currencySymbol'),
+	      taxIncluded: settingsCollection.get('taxIncluded'),
+	      warehouseOption: settingsCollection.get('warehouseOption'),
+	      showDiscountBlock: settingsCollection.get('showDiscountBlock'),
+	      showTaxBlock: settingsCollection.get('showTaxBlock'),
+	      allowedDiscountTypes: [catalog_productCalculator.DiscountType.PERCENTAGE, catalog_productCalculator.DiscountType.MONETARY],
+	      visibleBlocks: [FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.QUANTITY, FormInputCode.RESULT, FormInputCode.DISCOUNT],
+	      requiredFields: [],
+	      editableFields: [],
+	      newItemPosition: FormElementPosition.TOP,
+	      buttonsPosition: FormElementPosition.TOP,
+	      urlBuilderContext: 'SHOP',
+	      hideUnselectedProperties: false,
+	      isCatalogPriceEditEnabled: settingsCollection.get('isCatalogPriceEditEnabled'),
+	      isCatalogPriceSaveEnabled: settingsCollection.get('isCatalogPriceSaveEnabled'),
+	      fieldHints: settingsCollection.get('fieldHints'),
+	      compilationFormType: FormCompilationType.REGULAR,
+	      compilationFormOption: {}
+	    };
+
+	    if (options.visibleBlocks && !main_core.Type.isArray(options.visibleBlocks)) {
+	      delete options.visibleBlocks;
+	    }
+
+	    if (options.requiredFields && !main_core.Type.isArray(options.requiredFields)) {
+	      delete options.requiredFields;
+	    }
+
+	    options = { ...defaultOptions,
+	      ...options
+	    };
+	    options.showTaxBlock = 'N';
+
+	    if (settingsCollection.get('isEnabledLanding')) {
+	      options.compilationFormOption = {
+	        type: options.compilationFormType,
+	        hasStore: settingsCollection.get('hasLandingStore'),
+	        isLimitedStore: settingsCollection.get('isLimitedLandingStore'),
+	        disabledSwitcher: settingsCollection.get('isLimitedLandingStore'),
+	        hiddenInfoMessage: settingsCollection.get('hiddenCompilationInfoMessage')
+	      };
+	    } else {
+	      options.showCompilationModeSwitcher = false;
+	    }
+
+	    options.defaultDiscountType = '';
+
+	    if (main_core.Type.isArray(options.allowedDiscountTypes)) {
+	      if (options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.PERCENTAGE)) {
+	        options.defaultDiscountType = catalog_productCalculator.DiscountType.PERCENTAGE;
+	      } else if (options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.MONETARY)) {
+	        options.defaultDiscountType = catalog_productCalculator.DiscountType.MONETARY;
+	      }
+	    }
+
+	    return options;
+	  }
+
+	  layout() {
+	    return this.wrapper;
+	  }
+
+	  initTemplate(result) {
+	    return new Promise(resolve => {
+	      const context = this;
+	      this.store = result.store;
+	      this.templateEngine = ui_vue.BitrixVue.createApp({
+	        el: this.wrapper,
+	        store: this.store,
+	        data: {
+	          options: this.options,
+	          mode: this.mode
+	        },
+
+	        created() {
+	          this.$app = context;
+	        },
+
+	        mounted() {
+	          resolve();
+	        },
+
+	        template: `<${config.templateName} :options="options" :mode="mode"/>`
+	      });
+
+	      if (main_core.Type.isStringFilled(this.options.currency)) {
+	        this.setData({
+	          currency: this.options.currency
+	        });
+	        currency_currencyCore.CurrencyCore.loadCurrencyFormat(this.options.currency);
+	      }
+
+	      if (this.options.basket.length > 0) {
+	        this.setData({
+	          basket: this.options.basket
+	        }, {
+	          newItemPosition: FormElementPosition.BOTTOM
+	        });
+
+	        if (main_core.Type.isObject(this.options.totals)) {
+	          this.store.commit('productList/setTotal', this.options.totals);
+	        } else {
+	          this.store.dispatch('productList/calculateTotal');
+	        }
+	      } else {
+	        const newItem = this.store.getters['productList/getBaseProduct']();
+	        newItem.fields.discountType = this.options.defaultDiscountType;
+	        this.addProduct(newItem);
+	      }
+
+	      main_core_events.EventEmitter.emit(this, 'onAfterInit');
 	    });
 	  }
 
-	  babelHelpers.createClass(ProductForm, [{
-	    key: "prepareOptions",
-	    value: function prepareOptions() {
-	      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	      var settingsCollection = main_core.Extension.getSettings('catalog.product-form');
-	      var defaultOptions = {
-	        basket: [],
-	        measures: [],
-	        iblockId: null,
-	        basePriceId: settingsCollection.get('basePriceId'),
-	        taxList: [],
-	        singleProductMode: false,
-	        showResults: true,
-	        showCompilationModeSwitcher: false,
-	        enableEmptyProductError: true,
-	        pricePrecision: 2,
-	        currency: settingsCollection.get('currency'),
-	        currencySymbol: settingsCollection.get('currencySymbol'),
-	        taxIncluded: settingsCollection.get('taxIncluded'),
-	        showDiscountBlock: settingsCollection.get('showDiscountBlock'),
-	        showTaxBlock: settingsCollection.get('showTaxBlock'),
-	        allowedDiscountTypes: [catalog_productCalculator.DiscountType.PERCENTAGE, catalog_productCalculator.DiscountType.MONETARY],
-	        visibleBlocks: [FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.QUANTITY, FormInputCode.RESULT, FormInputCode.DISCOUNT],
-	        requiredFields: [],
-	        editableFields: [],
-	        newItemPosition: FormElementPosition.TOP,
-	        buttonsPosition: FormElementPosition.TOP,
-	        urlBuilderContext: 'SHOP',
-	        hideUnselectedProperties: false,
-	        compilationFormType: FormCompilationType.REGULAR,
-	        compilationFormOption: {}
-	      };
+	  addProduct(item = {}) {
+	    this.store.dispatch('productList/addItem', {
+	      item,
+	      position: this.options.newItemPosition
+	    }).then(() => {
+	      babelHelpers.classPrivateFieldLooseBase(this, _onBasketChange)[_onBasketChange]();
+	    });
+	  }
 
-	      if (options.visibleBlocks && !main_core.Type.isArray(options.visibleBlocks)) {
-	        delete options.visibleBlocks;
-	      }
+	  emitErrorsChange() {
+	    main_core_events.EventEmitter.emit(this, 'ProductForm:onErrorsChange');
+	  }
 
-	      if (options.requiredFields && !main_core.Type.isArray(options.requiredFields)) {
-	        delete options.requiredFields;
-	      }
+	  changeProduct(item) {
+	    const product = item.product;
+	    product.errors = [];
 
-	      options = babelHelpers.objectSpread({}, defaultOptions, options);
-	      options.showTaxBlock = 'N';
+	    if (item.skipFieldChecking !== true) {
+	      const result = babelHelpers.classPrivateFieldLooseBase(this, _checkRequiredFields)[_checkRequiredFields](product.fields);
 
-	      if (settingsCollection.get('isEnabledLanding')) {
-	        options.compilationFormOption = {
-	          type: options.compilationFormType,
-	          hasStore: settingsCollection.get('hasLandingStore'),
-	          isLimitedStore: settingsCollection.get('isLimitedLandingStore'),
-	          disabledSwitcher: settingsCollection.get('isLimitedLandingStore'),
-	          hiddenInfoMessage: settingsCollection.get('hiddenCompilationInfoMessage')
-	        };
-	      } else {
-	        options.showCompilationModeSwitcher = false;
-	      }
-
-	      options.defaultDiscountType = '';
-
-	      if (main_core.Type.isArray(options.allowedDiscountTypes)) {
-	        if (options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.PERCENTAGE)) {
-	          options.defaultDiscountType = catalog_productCalculator.DiscountType.PERCENTAGE;
-	        } else if (options.allowedDiscountTypes.includes(catalog_productCalculator.DiscountType.MONETARY)) {
-	          options.defaultDiscountType = catalog_productCalculator.DiscountType.MONETARY;
-	        }
-	      }
-
-	      return options;
+	      product.errors = (result == null ? void 0 : result.errors) || [];
 	    }
-	  }, {
-	    key: "layout",
-	    value: function layout() {
-	      return this.wrapper;
-	    }
-	  }, {
-	    key: "initTemplate",
-	    value: function initTemplate(result) {
-	      var _this2 = this;
 
-	      return new Promise(function (resolve) {
-	        var context = _this2;
-	        _this2.store = result.store;
-	        _this2.templateEngine = ui_vue.BitrixVue.createApp({
-	          el: _this2.wrapper,
-	          store: _this2.store,
-	          data: {
-	            options: _this2.options,
-	            mode: _this2.mode
-	          },
-	          created: function created() {
-	            this.$app = context;
-	          },
-	          mounted: function mounted() {
-	            resolve();
-	          },
-	          template: "<".concat(config.templateName, " :options=\"options\" :mode=\"mode\"/>")
-	        });
+	    this.store.dispatch('productList/changeItem', {
+	      index: item.index,
+	      product
+	    }).then(() => {
+	      babelHelpers.classPrivateFieldLooseBase(this, _onBasketChange)[_onBasketChange]();
+	    });
+	  }
 
-	        if (main_core.Type.isStringFilled(_this2.options.currency)) {
-	          _this2.setData({
-	            currency: _this2.options.currency
-	          });
+	  removeProduct(product) {
+	    this.store.dispatch('productList/removeItem', {
+	      index: product.index
+	    }).then(() => {
+	      babelHelpers.classPrivateFieldLooseBase(this, _onBasketChange)[_onBasketChange]();
+	    });
+	  }
 
-	          currency_currencyCore.CurrencyCore.loadCurrencyFormat(_this2.options.currency);
-	        }
-
-	        if (_this2.options.basket.length > 0) {
-	          _this2.setData({
-	            basket: _this2.options.basket
-	          }, {
-	            newItemPosition: FormElementPosition.BOTTOM
-	          });
-
-	          if (main_core.Type.isObject(_this2.options.totals)) {
-	            _this2.store.commit('productList/setTotal', _this2.options.totals);
-	          } else {
-	            _this2.store.dispatch('productList/calculateTotal');
-	          }
-	        } else {
-	          var newItem = _this2.store.getters['productList/getBaseProduct']();
-
-	          newItem.fields.discountType = _this2.options.defaultDiscountType;
-
-	          _this2.addProduct(newItem);
-	        }
-	      });
-	    }
-	  }, {
-	    key: "addProduct",
-	    value: function addProduct() {
-	      var _this3 = this;
-
-	      var item = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	      this.store.dispatch('productList/addItem', {
-	        item: item,
-	        position: this.options.newItemPosition
-	      }).then(function () {
-	        _classPrivateMethodGet(_this3, _onBasketChange, _onBasketChange2).call(_this3);
-	      });
-	    }
-	  }, {
-	    key: "changeProduct",
-	    value: function changeProduct(product) {
-	      var _this4 = this;
-
-	      var fields = product.fields;
-
-	      var result = _classPrivateMethodGet(this, _checkRequiredFields, _checkRequiredFields2).call(this, fields);
-
-	      fields.errors = (result === null || result === void 0 ? void 0 : result.errors) || [];
-	      this.store.dispatch('productList/changeItem', {
-	        index: product.index,
-	        fields: fields
-	      }).then(function () {
-	        _classPrivateMethodGet(_this4, _onBasketChange, _onBasketChange2).call(_this4);
-	      });
-	    }
-	  }, {
-	    key: "removeProduct",
-	    value: function removeProduct(product) {
-	      var _this5 = this;
-
-	      this.store.dispatch('productList/removeItem', {
-	        index: product.index
-	      }).then(function () {
-	        _classPrivateMethodGet(_this5, _onBasketChange, _onBasketChange2).call(_this5);
-	      });
-	    }
-	  }, {
-	    key: "setData",
-	    value: function setData(data) {
-	      var _this6 = this;
-
-	      var option = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-	      if (main_core.Type.isObject(data.basket)) {
-	        var formBasket = this.store.getters['productList/getBasket']();
-	        data.basket.forEach(function (fields) {
-	          if (!main_core.Type.isObject(fields)) {
-	            return;
-	          }
-
-	          var itemPosition = option.newItemPosition || _this6.options.newItemPosition;
-	          var innerId = fields.selectorId;
-
-	          if (main_core.Type.isNil(innerId)) {
-	            _this6.store.dispatch('productList/addItem', {
-	              item: fields,
-	              position: itemPosition
-	            });
-
-	            return;
-	          }
-
-	          var basketIndex = formBasket.findIndex(function (item) {
-	            return item.selectorId === innerId;
-	          });
-
-	          if (basketIndex === -1) {
-	            _this6.store.dispatch('productList/addItem', {
-	              item: fields,
-	              position: itemPosition
-	            });
-	          } else {
-	            _this6.store.dispatch('productList/changeItem', {
-	              basketIndex: basketIndex,
-	              fields: fields
-	            });
-	          }
-	        });
-	      }
-
-	      if (main_core.Type.isStringFilled(data.currency)) {
-	        this.store.dispatch('productList/setCurrency', data.currency);
-	      }
-
-	      if (main_core.Type.isObject(data.total)) {
-	        this.store.commit('productList/setTotal', {
-	          sum: data.total.sum,
-	          taxSum: data.total.taxSum,
-	          discount: data.total.discount,
-	          result: data.total.result
-	        });
-	      }
-
-	      if (main_core.Type.isObject(data.errors)) {
-	        this.store.commit('productList/setErrors', data.errors);
-	      }
-	    }
-	  }, {
-	    key: "changeFormOption",
-	    value: function changeFormOption(optionName, value) {
-	      var _this7 = this;
-
-	      value = value === 'Y' ? 'Y' : 'N';
-
-	      if (optionName === 'isCompilationMode') {
-	        if (!this.options.showCompilationModeSwitcher) {
+	  setData(data, option = {}) {
+	    if (main_core.Type.isObject(data.basket)) {
+	      const formBasket = this.store.getters['productList/getBasket']();
+	      data.basket.forEach(fields => {
+	        if (!main_core.Type.isObject(fields)) {
 	          return;
 	        }
 
-	        var mode = value === 'Y' ? FormMode.COMPILATION : FormMode.REGULAR;
+	        const itemPosition = option.newItemPosition || this.options.newItemPosition;
+	        const innerId = fields.selectorId;
 
-	        _classPrivateMethodGet(this, _changeCompilationModeSetting, _changeCompilationModeSetting2).call(this, mode);
-
-	        return;
-	      }
-
-	      this.options[optionName] = value;
-
-	      if (optionName !== 'hiddenCompilationInfoMessage') {
-	        var basket = this.store.getters['productList/getBasket']();
-	        basket.forEach(function (item, index) {
-	          if (optionName === 'showDiscountBlock') {
-	            item.showDiscountBlock = value;
-	          } else if (optionName === 'showTaxBlock') {
-	            item.showTaxBlock = value;
-	          } else if (optionName === 'taxIncluded') {
-	            item.fields.taxIncluded = value;
-	          }
-
-	          _this7.store.dispatch('productList/changeItem', {
-	            index: index,
-	            fields: item
+	        if (main_core.Type.isNil(innerId)) {
+	          this.store.dispatch('productList/addItem', {
+	            item: fields,
+	            position: itemPosition
 	          });
-	        });
-	      }
+	          return;
+	        }
 
-	      main_core.ajax.runAction('catalog.productForm.setConfig', {
-	        data: {
-	          configName: optionName,
-	          value: value
+	        const basketIndex = formBasket.findIndex(item => item.selectorId === innerId);
+
+	        if (basketIndex === -1) {
+	          this.store.dispatch('productList/addItem', {
+	            item: fields,
+	            position: itemPosition
+	          });
+	        } else {
+	          this.store.dispatch('productList/changeItem', {
+	            basketIndex,
+	            fields
+	          });
 	        }
 	      });
 	    }
-	  }, {
-	    key: "getTotal",
-	    value: function getTotal() {
-	      this.store.dispatch('productList/getTotal');
-	    }
-	  }, {
-	    key: "setEditable",
-	    value: function setEditable(value) {
-	      this.editable = value;
 
-	      if (!value) {
-	        _classPrivateMethodGet(this, _setMode, _setMode2).call(this, FormMode.READ_ONLY);
-	      } else {
-	        _classPrivateMethodGet(this, _setMode, _setMode2).call(this, FormMode.REGULAR);
-	      }
+	    if (main_core.Type.isStringFilled(data.currency)) {
+	      this.store.dispatch('productList/setCurrency', data.currency);
 	    }
-	  }, {
-	    key: "hasErrors",
-	    value: function hasErrors() {
-	      if (!this.store) {
-	        return false;
-	      }
 
-	      var basket = this.store.getters['productList/getBasket']();
-	      var errorItems = basket.filter(function (item) {
-	        return item.errors.length > 0;
+	    if (main_core.Type.isObject(data.total)) {
+	      this.store.commit('productList/setTotal', {
+	        sum: data.total.sum,
+	        taxSum: data.total.taxSum,
+	        discount: data.total.discount,
+	        result: data.total.result
 	      });
-	      return errorItems.length > 0;
 	    }
-	  }], [{
-	    key: "initStore",
-	    value: function initStore() {
-	      var builder = new ui_vue_vuex.VuexBuilder();
-	      return builder.addModel(ProductList.create()).build();
-	    }
-	  }, {
-	    key: "showError",
-	    value: function showError(error) {
-	      console.error(error);
-	    }
-	  }]);
-	  return ProductForm;
-	}();
 
-	var _onBasketChange2 = function _onBasketChange2() {
+	    if (main_core.Type.isObject(data.errors)) {
+	      this.store.commit('productList/setErrors', data.errors);
+	    }
+	  }
+
+	  changeFormOption(optionName, value) {
+	    value = value === 'Y' ? 'Y' : 'N';
+
+	    if (optionName === 'isCompilationMode') {
+	      if (!this.options.showCompilationModeSwitcher) {
+	        return;
+	      }
+
+	      const mode = value === 'Y' ? FormMode.COMPILATION : FormMode.REGULAR;
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _changeCompilationModeSetting)[_changeCompilationModeSetting](mode);
+
+	      return;
+	    }
+
+	    this.options[optionName] = value;
+
+	    if (optionName !== 'hiddenCompilationInfoMessage') {
+	      const basket = this.store.getters['productList/getBasket']();
+	      basket.forEach((item, index) => {
+	        if (optionName === 'showDiscountBlock') {
+	          item.showDiscountBlock = value;
+	        } else if (optionName === 'showTaxBlock') {
+	          item.showTaxBlock = value;
+	        } else if (optionName === 'taxIncluded') {
+	          item.fields.taxIncluded = value;
+	        }
+
+	        this.store.dispatch('productList/changeItem', {
+	          index,
+	          fields: item
+	        });
+	      });
+	    }
+
+	    main_core.ajax.runAction('catalog.productForm.setConfig', {
+	      data: {
+	        configName: optionName,
+	        value: value
+	      }
+	    });
+	  }
+
+	  getTotal() {
+	    this.store.dispatch('productList/getTotal');
+	  }
+
+	  setEditable(value) {
+	    this.editable = value;
+
+	    if (!value) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](FormMode.READ_ONLY);
+	    } else {
+	      babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](FormMode.REGULAR);
+	    }
+	  }
+
+	  hasErrors() {
+	    if (!this.store) {
+	      return false;
+	    }
+
+	    const basket = this.store.getters['productList/getBasket']();
+	    const errorItems = basket.filter(item => item.errors.length > 0);
+	    return errorItems.length > 0;
+	  }
+
+	  static showError(error) {
+	    console.error(error);
+	  }
+
+	}
+
+	function _onBasketChange2() {
 	  main_core_events.EventEmitter.emit(this, 'ProductForm:onBasketChange', {
 	    basket: this.store.getters['productList/getBasket']()
 	  });
-	};
+	}
 
-	var _checkRequiredFields2 = function _checkRequiredFields2(fields) {
-	  var result = {};
+	function _checkRequiredFields2(fields) {
+	  const result = {};
 
-	  if (this.options.requiredFields.length === 0) {
+	  if (!main_core.Type.isArray(this.options.requiredFields) || this.options.requiredFields.length === 0) {
 	    return result;
 	  }
 
 	  result.errors = [];
-	  this.options.requiredFields.forEach(function (code) {
+	  this.options.requiredFields.forEach(code => {
 	    switch (code) {
 	      case FormInputCode.PRICE:
 	        if (fields.price <= 0) {
@@ -2402,39 +2937,34 @@ this.BX = this.BX || {};
 	    }
 	  });
 	  return result;
-	};
+	}
 
-	var _changeCompilationModeSetting2 = function _changeCompilationModeSetting2(mode) {
-	  var _this8 = this;
-
+	function _changeCompilationModeSetting2(mode) {
 	  this.options.requiredFields = [];
 
 	  if (mode === FormMode.COMPILATION) {
-	    var compilationRequiredFields = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.BRAND];
-	    this.options.requiredFields = this.options.visibleBlocks.filter(function (item) {
-	      return compilationRequiredFields.includes(item);
-	    });
+	    const compilationRequiredFields = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.BRAND];
+	    this.options.requiredFields = this.options.visibleBlocks.filter(item => compilationRequiredFields.includes(item));
 	  }
 
-	  _classPrivateMethodGet(this, _setMode, _setMode2).call(this, mode);
+	  babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](mode);
 
-	  var basket = this.store.getters['productList/getBasket']();
-	  basket.forEach(function (item, index) {
-	    return _this8.changeProduct({
-	      index: index,
-	      fields: item.fields
-	    });
-	  });
-	};
+	  const basket = this.store.getters['productList/getBasket']();
+	  basket.forEach((item, index) => this.changeProduct({
+	    index,
+	    product: item,
+	    skipFieldChecking: basket.length === 1 && index === 0 && item.offerId === null
+	  }));
+	}
 
-	var _setMode2 = function _setMode2(mode) {
+	function _setMode2(mode) {
 	  this.mode = mode;
 
 	  if (mode === FormMode.READ_ONLY) {
 	    this.options.editableFields = [];
 	  } else if (mode === FormMode.COMPILATION) {
 	    this.options.editableFields = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.BRAND];
-	    this.options.visibleBlocks = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE];
+	    this.options.visibleBlocks = this.defaultOptions.visibleBlocks;
 
 	    if (this.options.compilationFormType === FormCompilationType.FACEBOOK) {
 	      this.options.visibleBlocks.push(FormInputCode.BRAND);
@@ -2445,13 +2975,7 @@ this.BX = this.BX || {};
 	    mode = FormMode.REGULAR;
 	    this.options.visibleBlocks = this.defaultOptions.visibleBlocks;
 	    this.options.showResults = this.defaultOptions.showResults;
-	    var visibleBlocks = this.options.visibleBlocks.slice(0);
-
-	    if (visibleBlocks.includes(FormInputCode.RESULT)) {
-	      visibleBlocks.splice(visibleBlocks.indexOf(FormInputCode.RESULT), 1);
-	    }
-
-	    this.options.editableFields = visibleBlocks;
+	    this.options.editableFields = this.defaultOptions.visibleBlocks;
 	  }
 
 	  if (this.templateEngine) {
@@ -2459,11 +2983,11 @@ this.BX = this.BX || {};
 	  }
 
 	  main_core_events.EventEmitter.emit(this, 'ProductForm:onModeChange', {
-	    mode: mode
+	    mode
 	  });
-	};
+	}
 
 	exports.ProductForm = ProductForm;
 
-}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX.UI,BX,BX.UI,BX,BX.UI,BX.Catalog,BX.UI.EntitySelector,BX,BX,BX.Main,BX,BX,BX.UI,BX.UI,window,BX,BX,BX,BX,BX,BX.Event,BX.Currency,BX.Catalog));
+}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX.UI,BX,BX.UI,BX,BX.UI,BX.Catalog,BX.UI.EntitySelector,BX.Catalog,BX,BX,BX.Main,BX,BX,BX.UI,BX.UI,window,BX,BX,BX,BX,BX,BX.Catalog.StoreUse,BX.Event,BX.Currency,BX.Catalog));
 //# sourceMappingURL=product-form.bundle.js.map

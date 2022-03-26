@@ -5,6 +5,8 @@ global $APPLICATION;
 global $DB;
 global $USER;
 
+use Bitrix\Catalog;
+
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = $selfFolderUrl."cat_contractor_list.php?lang=".LANGUAGE_ID;
 $listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
@@ -34,11 +36,13 @@ $ID = (isset($_REQUEST["ID"]) ? (int)$_REQUEST["ID"] : 0);
 $typeReadOnly = false;
 $userId = (int)$USER->GetID();
 
+$typeList = Catalog\ContractorTable::getTypeList(true);
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid() && $_REQUEST["Update"] <> '' && !$bReadOnly)
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
-	if($PERSON_TYPE == CONTRACTOR_INDIVIDUAL)
+	if ($PERSON_TYPE == Catalog\ContractorTable::TYPE_INDIVIDUAL)
 		$INN = $KPP = $COMPANY = '';
 	$PERSON_NAME = ($_REQUEST["PERSON_NAME"] == GetMessage("CONTRACTOR_NAME")) ? '' : $_REQUEST["PERSON_NAME"];
 	$PERSON_LASTNAME = ($_REQUEST["PERSON_LASTNAME"] == GetMessage("CONTRACTOR_LAST_NAME")) ? '' : $_REQUEST["PERSON_LASTNAME"];
@@ -256,10 +260,12 @@ $context->Show();
 			<td width="40%"><?= GetMessage("CONTRACTOR_TYPE") ?>:</td>
 			<td width="60%">
 				<input type="hidden" name="PERSON_TYPE" value="<?=$str_PERSON_TYPE?>">
-				<select <?if($typeReadOnly) echo " disabled";?> name="PERSON_TYPE" onchange="fContractorChangeType(this);">
-					<option <? if(intval($str_PERSON_TYPE) == CONTRACTOR_INDIVIDUAL) echo" selected";?> value="1"><?= GetMessage("CONTRACTOR_INDIVIDUAL") ?></option>
-					<option <? if(intval($str_PERSON_TYPE) == CONTRACTOR_JURIDICAL) echo" selected";?> value="2"><?= GetMessage("CONTRACTOR_JURIDICAL") ?></option>
-				</select>
+				<select <?if($typeReadOnly) echo " disabled";?> name="PERSON_TYPE" onchange="fContractorChangeType(this);"><?
+					foreach ($typeList as $typeId => $item)
+					{
+						?><option value="<?=(int)$typeId; ?>"<?=($str_PERSON_TYPE == $typeId ? ' selected' : ''); ?>><?=htmlspecialcharsbx($item); ?></option><?
+					}
+				?></select>
 			</td>
 		</tr>
 

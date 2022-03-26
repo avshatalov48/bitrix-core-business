@@ -37,7 +37,7 @@ return array(
 		'.landing-block-node-card-img' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.1.FOUR_COLUMNS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDIMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 248),
+			'dimensions' => array('minWidth' => 166),
 			'useInDesigner' => false,
 		),
 	),

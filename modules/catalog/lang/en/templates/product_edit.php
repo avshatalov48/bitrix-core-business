@@ -1,4 +1,4 @@
-<?php
+<?
 $MESS["BASE_CURRENCY"] = "Base price currency";
 $MESS["BASE_PRICE"] = "Base price";
 $MESS["BASE_QUANTITY_RESERVED"] = "Items reserved";
@@ -123,3 +123,5 @@ $MESS["SET_NOTICE_QUANTITY"] = "Available quantity of a bundle is derived from t
 $MESS["SET_NOTICE_WEIGHT"] = "The bundle weight is auto calculated using the weight of all the products in a bundle.";
 $MESS["VAL_BASE"] = "< base >";
 $MESS["VAL_NOT_SET"] = "< not set >";
+$MESS["C2IT_PROD_QUANTITY_RESERVED"] = "Reserved";
+?>

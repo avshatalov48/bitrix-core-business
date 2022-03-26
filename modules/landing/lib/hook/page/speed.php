@@ -14,6 +14,8 @@ class Speed extends \Bitrix\Landing\Hook\Page
 {
 	const LAZYLOAD_EXTENSION_NAME = 'landing_lazyload';
 
+	protected $isNeedPublication = true;
+
 	/**
 	 * Map of the field.
 	 * @return array

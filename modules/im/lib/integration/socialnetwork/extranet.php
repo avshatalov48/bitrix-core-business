@@ -77,7 +77,7 @@ class Extranet
 		$db = \CSocNetUserToGroup::GetList(
 			array(),
 			array(
-				"GROUP_ID" => $groupIds,
+				"@GROUP_ID" => $groupIds,
 				"<=ROLE" => SONET_ROLES_USER,
 				"USER_ACTIVE" => "Y",
 				"USER_CONFIRM_CODE" => false

@@ -305,6 +305,7 @@ export default class Gradient extends BaseControl
 	setPreset(preset: Preset)
 	{
 		this.preset = preset;
+		this.preset.unsetActive();
 		this.preset.subscribe('onChange', (event) => {
 			this.setValue(event.getData().color);
 			this.unsetColorpickerActive();
@@ -393,6 +394,7 @@ export default class Gradient extends BaseControl
 
 	onChange(event: ?BaseEvent)
 	{
+		this.cache.delete('value');
 		this.emit('onChange', {gradient: this.getValue()});
 	}
 

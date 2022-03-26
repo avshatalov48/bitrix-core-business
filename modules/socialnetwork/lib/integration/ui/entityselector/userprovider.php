@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\Socialnetwork\Integration\UI\EntitySelector;
 
 use Bitrix\Intranet\Integration\Mail\EmailUser;
@@ -115,6 +116,12 @@ class UserProvider extends BaseProvider
 			$this->options['inviteEmployeeLink'] = $options['inviteEmployeeLink'];
 		}
 
+		$this->options['inviteExtranetLink'] = false;
+		if (isset($options['inviteExtranetLink']) && is_bool($options['inviteExtranetLink']))
+		{
+			$this->options['inviteExtranetLink'] = $options['inviteExtranetLink'];
+		}
+
 		$this->options['inviteGuestLink'] = false;
 		if (isset($options['inviteGuestLink']) && is_bool($options['inviteGuestLink']))
 		{
@@ -158,6 +165,12 @@ class UserProvider extends BaseProvider
 
 			$this->options['selectFields'] = array_unique($selectFields);
 		}
+
+		$this->options['fillDialog'] = true;
+		if (isset($options['fillDialog']) && is_bool($options['fillDialog']))
+		{
+			$this->options['fillDialog'] = $options['fillDialog'];
+		}
 	}
 
 	public function isAvailable(): bool
@@ -173,11 +186,21 @@ class UserProvider extends BaseProvider
 			return self::isIntranetUser() || self::isExtranetUser();
 		}
 
-		return true;
+		return \Bitrix\Socialnetwork\ComponentHelper::getModuleUsed();
+	}
+
+	public function shouldFillDialog(): bool
+	{
+		return $this->getOption('fillDialog', true);
 	}
 
 	public function getItems(array $ids): array
 	{
+		if (!$this->shouldFillDialog())
+		{
+			return [];
+		}
+
 		return $this->getUserItems([
 			'userId' => $ids
 		]);
@@ -193,6 +216,11 @@ class UserProvider extends BaseProvider
 
 	public function fillDialog(Dialog $dialog): void
 	{
+		if (!$this->shouldFillDialog())
+		{
+			return;
+		}
+
 		// Preload first 50 users ('doSearch' method has to have the same filter).
 		$preloadedUsers = $this->getPreloadedUsersCollection();
 
@@ -241,7 +269,21 @@ class UserProvider extends BaseProvider
 		if (Loader::includeModule('intranet'))
 		{
 			$inviteEmployeeLink = null;
-			if ($this->options['inviteEmployeeLink'] && self::isIntranetUser() && Invitation::canCurrentUserInvite())
+			$employeeInvitationAvailable = Invitation::canCurrentUserInvite();
+			$extranetInvitationAvailable = (
+				ModuleManager::isModuleInstalled('extranet')
+				&& Option::get('extranet', 'extranet_site')
+				&& !$this->options['intranetUsersOnly']
+			);
+
+			if (
+				$this->options['inviteEmployeeLink']
+				&& (
+					$employeeInvitationAvailable
+					|| $extranetInvitationAvailable
+				)
+				&& self::isIntranetUser()
+			)
 			{
 				$inviteEmployeeLink = UrlManager::getInstance()->create('getSliderContent', [
 					'c' => 'bitrix:intranet.invitation',
@@ -270,6 +312,10 @@ class UserProvider extends BaseProvider
 
 				$footerOptions['inviteEmployeeLink'] = $inviteEmployeeLink;
 				$footerOptions['inviteGuestLink'] = $inviteGuestLink;
+				if ($inviteEmployeeLink)
+				{
+					$footerOptions['inviteEmployeeScope'] = ($employeeInvitationAvailable ? 'I' : '').($extranetInvitationAvailable ? 'E' : '');
+				}
 
 				$dialog->setFooter('BX.SocialNetwork.EntitySelector.Footer', $footerOptions);
 			}
@@ -692,7 +738,8 @@ class UserProvider extends BaseProvider
 				)
 			);
 
-			$extranetUsersQuery = self::getExtranetUsersQuery($currentUserId);
+			$extranetUsersQuery = (empty($options['searchByEmail']) ? self::getExtranetUsersQuery($currentUserId) : null);
+
 			$intranetUsersOnly = isset($options['intranetUsersOnly']) && $options['intranetUsersOnly'] === true;
 			$extranetUsersOnly = isset($options['extranetUsersOnly']) && $options['extranetUsersOnly'] === true;
 			$emailUsersOnly = isset($options['emailUsersOnly']) && $options['emailUsersOnly'] === true;
@@ -736,12 +783,27 @@ class UserProvider extends BaseProvider
 				else if ($extranetUsersOnly)
 				{
 					$query->where('IS_EXTRANET_USER', 'Y');
-					$query->whereIn('ID', $extranetUsersQuery);
+					if ($extranetUsersQuery)
+					{
+						$query->whereIn('ID', $extranetUsersQuery);
+					}
 				}
 				else
 				{
 					$filter = Query::filter()->logic('or');
-					$filter->where('IS_INTRANET_USER', 'Y');
+
+					if (empty($options['searchByEmail']))
+					{
+						$filter->where('IS_INTRANET_USER', 'Y');
+					}
+					else
+					{
+						$filter->addCondition(Query::filter()
+							->logic('or')
+							->whereNotIn('EXTERNAL_AUTH_ID', UserTable::getExternalUserTypes())
+							->whereNull('EXTERNAL_AUTH_ID')
+						);
+					}
 
 					if ($emailUsers === true)
 					{
@@ -766,6 +828,14 @@ class UserProvider extends BaseProvider
 					if ($extranetUsersQuery)
 					{
 						$filter->whereIn('ID', $extranetUsersQuery);
+						$filter->addCondition(Query::filter()
+							->where(Query::filter()
+								->logic('or')
+								->whereNull('EXTERNAL_AUTH_ID')
+								->whereNot('EXTERNAL_AUTH_ID', 'email')
+							)
+							->whereNotNull('INVITATION.ID')
+						);
 					}
 
 					$query->where($filter);

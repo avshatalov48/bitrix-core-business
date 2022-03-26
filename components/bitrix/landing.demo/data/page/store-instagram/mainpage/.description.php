@@ -26,7 +26,7 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '1construction',
-
+			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/store-instagram/preview@2x.jpg',
 		),
 	),
 	'layout' => array(

@@ -6,7 +6,7 @@ use Bitrix\Main\Localization\Loc,
 	Bitrix\Iblock\Url\AdminPage\BuilderManager,
 	Bitrix\Catalog;
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Loader;
 
 class CCatalogAdminToolsAll
 {
@@ -76,10 +76,24 @@ class CCatalogAdminToolsAll
 
 		$productCardEnabled = false;
 		$builderId = $urlBuilder->getId();
-		$publicShop = ($builderId == 'SHOP' || $builderId == 'CRM');
+		$publicShop = !(
+			$builderId === Iblock\Url\AdminPage\IblockBuilder::TYPE_ID
+			|| $builderId === Catalog\Url\AdminPage\CatalogBuilder::TYPE_ID
+		);
 		if ($publicShop)
 		{
-			$productCardEnabled = Catalog\Config\State::isProductCardSliderEnabled();
+			// TODO: need fix this hack
+			if ($builderId === 'CRM')
+			{
+				if (Loader::includeModule('crm'))
+				{
+					$productCardEnabled = \Bitrix\Crm\Settings\LayoutSettings::getCurrent()->isFullCatalogEnabled();
+				}
+			}
+			else
+			{
+				$productCardEnabled = Catalog\Config\State::isProductCardSliderEnabled();
+			}
 		}
 
 		$arItems = array();
@@ -92,8 +106,8 @@ class CCatalogAdminToolsAll
 			{
 				$arItems[] = [
 					'ICON' => 'btn_lock',
-					'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_PROD'),
-					'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_PROD'),
+					'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_PROD_EXT'),
+					'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_PROD_EXT'),
 					$productLimits['HELP_MESSAGE']['TYPE'] => $productLimits['HELP_MESSAGE']['LINK'],
 				];
 			}
@@ -105,7 +119,7 @@ class CCatalogAdminToolsAll
 				$arParams[self::$strMainPrefix.self::TAB_KEY] = self::TAB_CATALOG;
 				$arItems[] = array(
 					'ICON' => 'btn_new',
-					'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_PROD'),
+					'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_PROD_EXT'),
 					'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_PROD_TITLE'),
 					'ID' => 'create_new_product_button_' . $gridId,
 					'LINK' => $urlBuilder->getElementDetailUrl(0, $arParams),
@@ -595,7 +609,7 @@ class CCatalogAdminToolsAll
 				)
 			);
 			$productButton = array(
-				'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_PROD'),
+				'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_PROD_EXT'),
 				'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_PROD_TITLE'),
 				'ACTION' => 'javascript:'.$action,
 				'ACTION_URL' => $url,

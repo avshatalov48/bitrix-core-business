@@ -362,6 +362,31 @@
 			return BX.message('call_collect_stats') === 'Y'
 		},
 
+		shouldShowDocumentButton: function()
+		{
+			return BX.message('call_docs_status') !== 'N' || BX.message('call_resumes_status') !== 'N';
+		},
+
+		getDocumentsArticleCode: function()
+		{
+			if (!BX.message('call_docs_status').startsWith('L'))
+			{
+				return false;
+			}
+
+			return BX.message('call_docs_status').substr(2);
+		},
+
+		getResumesArticleCode: function()
+		{
+			if (!BX.message('call_resumes_status').startsWith('L'))
+			{
+				return false;
+			}
+
+			return BX.message('call_resumes_status').substr(2);
+		},
+
 		getUserLimit: function()
 		{
 			if (this.isCallServerAllowed())

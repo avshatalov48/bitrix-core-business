@@ -30,7 +30,7 @@ $settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
 							<div class="landing-block-node-card col-md g-mb-10 g-mb-0--md g-brd-right--md g-brd-gray-light-v4"
 								 data-card-preset="contact-link">
 
-								<a href="tel:#PHONE1#"
+								<a href="tel:#crmPhone1"
 								   class="landing-block-node-card-contactlink-link g-pa-10--md row align-items-center justify-content-center justify-content-sm-start justify-content-md-center justify-content-lg-start g-text-decoration-none--hover">
 							<span class="landing-block-node-card-icon-container text-md-center text-lg-left w-auto g-width-100x--md g-width-auto--lg g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-valign-top g-color-primary g-mr-10 g-mr-0--md g-mr-10--lg">
 								<i class="landing-block-node-card-contactlink-icon icon icon-screen-smartphone"></i>
@@ -40,7 +40,7 @@ $settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
 									Call Us
 								</span>
 								<span class="landing-block-node-card-contactlink-text landing-block-node-card-text-style d-block g-color-gray-dark-v2 g-font-weight-700 g-text-decoration-none g-text-underline--hover">
-									#PHONE1#
+									#crmPhoneTitle1
 								</span>
 							</span>
 								</a>

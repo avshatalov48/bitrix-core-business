@@ -45,6 +45,8 @@
 	var addButtonPosition = 1001;
 	var maximumNotifications = 5;
 
+	var MIN_WIDTH = 250;
+
 	var SIDE_USER_WIDTH = 160; // keep in sync with .bx-messenger-videocall-user-block .bx-messenger-videocall-user width
 	var SIDE_USER_HEIGHT = 90; // keep in sync with .bx-messenger-videocall-user height
 
@@ -70,6 +72,7 @@
 		this.showUsersButton = (config.showUsersButton === true);
 		this.showShareButton = (config.showShareButton !== false);
 		this.showRecordButton = (config.showRecordButton !== false);
+		this.showDocumentButton = (config.showDocumentButton !== false);
 		this.showButtonPanel = (config.showButtonPanel !== false);
 
 		this.broadcastingMode = BX.prop.getBoolean(config, "broadcastingMode", false);
@@ -127,6 +130,7 @@
 		this.visible = false;
 		this.elements = {
 			root: null,
+			wrap: null,
 			watermark: null,
 			container: null,
 			overlay: null,
@@ -167,6 +171,7 @@
 			add: null,
 			share: null,
 			record: null,
+			document: null,
 			microphone: null,
 			camera: null,
 			speaker: null,
@@ -185,10 +190,12 @@
 			participantsMobile: null,
 			watermark: null,
 			hd: null,
-			protected: null
+			protected: null,
+			more: null,
 		};
 
 		this.size = BX.Call.View.Size.Full;
+		this.maxWidth = null;
 		this.isMuted = false;
 		this.isCameraOn = false;
 		this.isFullScreen = false;
@@ -204,6 +211,7 @@
 		}, this);
 
 		this.hiddenButtons = {};
+		this.overflownButtons = {};
 		if (!this.showUsersButton)
 		{
 			this.hiddenButtons['users'] = true;
@@ -283,6 +291,13 @@
 		{
 			this.appendUsers(config.userStates);
 		}
+
+		/*this.resizeCalled = 0;
+		this.reportResizeCalled = BX.debounce(function()
+		{
+			console.log('resizeCalled ' + this.resizeCalled + ' times');
+			this.resizeCalled = 0;
+		}.bind(this), 100)*/
 	};
 
 	BX.Call.View.prototype.init = function()
@@ -775,9 +790,12 @@
 		var containerSize = this.elements.userList.container.getBoundingClientRect();
 		var columns = Math.floor(containerSize.width / MIN_GRID_USER_WIDTH) || 1;
 		var rows = Math.floor(containerSize.height / MIN_GRID_USER_HEIGHT) || 1;
-
-
 		var usersPerPage = columns * rows - 1;
+
+		if (!usersPerPage)
+		{
+			return 1000;
+		}
 
 		if (usersPerPage <= MAX_USERS_PER_PAGE)
 		{
@@ -1321,10 +1339,18 @@
 		}
 	};
 
+	BX.Call.View.prototype.flipLocalVideo = function(flipVideo)
+	{
+		this.localUser.flipVideo = !!flipVideo;
+	}
+
 	BX.Call.View.prototype.setLocalStream = function(mediaStream, flipVideo)
 	{
 		this.localUser.videoTrack = mediaStream.getVideoTracks().length > 0 ? mediaStream.getVideoTracks()[0] : null;
-		this.localUser.flipVideo = !!flipVideo;
+		if (!BX.type.isUndefined(flipVideo))
+		{
+			this.flipLocalVideo(flipVideo);
+		}
 		this.setCameraState(this.localUser.hasVideo());
 		this.localUser.userModel.cameraState = this.localUser.hasVideo();
 
@@ -1556,6 +1582,18 @@
 				this.blockButtons(['record']);
 			}
 		}
+
+		if (this.elements.topPanel)
+		{
+			if (this.recordState.state === BX.Call.View.RecordState.Stopped)
+			{
+				delete (this.elements.topPanel.dataset.recordState);
+			}
+			else
+			{
+				this.elements.topPanel.dataset.recordState = recordState.state;
+			}
+		}
 	};
 
 	BX.Call.View.prototype.show = function()
@@ -1582,6 +1620,10 @@
 
 	BX.Call.View.prototype.hide = function()
 	{
+		if (this.overflownButtonsPopup)
+		{
+			this.overflownButtonsPopup.close();
+		}
 		BX.remove(this.elements.root);
 		this.visible = false;
 	};
@@ -1960,10 +2002,16 @@
 
 	BX.Call.View.prototype.close = function()
 	{
-		clearInterval(this.updateViewInterval);
+		if (this.buttons.recordStatus)
+		{
+			this.buttons.recordStatus.stopViewUpdate();
+		}
 		this.recordState = this.getDefaultRecordState();
 
-		BX.cleanNode(this.container);
+		if (this.elements.root)
+		{
+			BX.remove(this.elements.root);
+		}
 
 		this.visible = false;
 		this.eventEmitter.emit(EventName.onClose);
@@ -1980,12 +2028,17 @@
 
 		if(this.size == BX.Call.View.Size.Folded)
 		{
-			if(this.elements.panel)
+			if (this.overflownButtonsPopup)
+			{
+				this.overflownButtonsPopup.close();
+			}
+			if (this.elements.panel)
 			{
 				this.elements.panel.classList.add('bx-messenger-videocall-panel-folded');
 			}
 			BX.remove(this.elements.container);
 			BX.remove(this.elements.topPanel);
+			this.elements.root.style.removeProperty('max-width');
 			this.updateButtons();
 		}
 		else
@@ -1996,7 +2049,10 @@
 			}
 			this.elements.wrap.appendChild(this.elements.topPanel);
 			this.elements.wrap.appendChild(this.elements.container);
-
+			if (this.maxWidth > 0)
+			{
+				this.elements.root.style.maxWidth = Math.max(this.maxWidth, MIN_WIDTH)  + 'px';
+			}
 			this.updateButtons();
 			this.updateUserList();
 			this.resumeVideo();
@@ -2019,6 +2075,8 @@
 				return !this.showUsersButton || this.blockedButtons[buttonName] === true;
 			case 'record':
 				return !this.showRecordButton || this.blockedButtons[buttonName] === true;
+			case 'document':
+				return !this.showDocumentButton || this.blockedButtons[buttonName] === true;
 			default:
 				return this.blockedButtons[buttonName] === true;
 		}
@@ -2037,6 +2095,76 @@
 	BX.Call.View.prototype.hideButton = function(buttonCode)
 	{
 		this.hideButtons([buttonCode]);
+	};
+
+	/**
+	 * @return {bool} Returns true if buttons update is required
+	 */
+	BX.Call.View.prototype.checkPanelOverflow = function()
+	{
+		var delta = this.elements.panel.scrollWidth - this.elements.panel.offsetWidth
+		var mediumButtonMinWidth = 55; // todo: move to constants maybe? or maybe even calculate dynamically somehow?
+		if (delta > 0)
+		{
+			var countOfButtonsToHide = Math.ceil(delta / mediumButtonMinWidth);
+			if (Object.keys(this.overflownButtons).length === 0)
+			{
+				countOfButtonsToHide += 1;
+			}
+
+			var buttons = this.getButtonList();
+
+			for (var i = buttons.length - 1; i > 0; i--)
+			{
+				if (buttons[i] === 'hangup' || buttons[i] === 'close' || buttons[i] === 'more')
+				{
+					continue;
+				}
+
+				this.overflownButtons[buttons[i]] = true;
+				countOfButtonsToHide -= 1;
+				if (!countOfButtonsToHide)
+				{
+					break;
+				}
+			}
+			return true;
+		}
+		else
+		{
+			var hiddenButtonsCount = Object.keys(this.overflownButtons).length;
+			if (hiddenButtonsCount > 0)
+			{
+				var unusedPanelSpace = this.calculateUnusedPanelSpace();
+				if (unusedPanelSpace > mediumButtonMinWidth)
+				{
+					var countOfButtonsToShow = Math.min(Math.floor(unusedPanelSpace / mediumButtonMinWidth), hiddenButtonsCount);
+					var buttonsLeftHidden = hiddenButtonsCount - countOfButtonsToShow;
+					if (buttonsLeftHidden === 1)
+					{
+						countOfButtonsToShow += 1;
+					}
+
+					if (countOfButtonsToShow == hiddenButtonsCount)
+					{
+						// show all buttons;
+						this.overflownButtons = {};
+					}
+					else
+					{
+						for (i = 0; i < countOfButtonsToShow; i++)
+						{
+							delete this.overflownButtons[Object.keys(this.overflownButtons)[0]]
+						}
+					}
+
+					return true;
+				}
+			}
+
+		}
+
+		return false;
 	};
 
 	/**
@@ -2210,6 +2338,17 @@
 			result.push('floorRequest');
 			result.push('screen');
 			result.push('record');
+			result.push('document');
+		}
+
+		result = result.filter(function(buttonCode)
+		{
+			return !this.hiddenButtons.hasOwnProperty(buttonCode) && !this.overflownButtons.hasOwnProperty(buttonCode);
+		}, this);
+
+		if (Object.keys(this.overflownButtons).length > 0)
+		{
+			result.push('more');
 		}
 
 		if(this.uiState == UiState.Preparing)
@@ -2220,11 +2359,6 @@
 		{
 			result.push('hangup');
 		}
-
-		result = result.filter(function(buttonCode)
-		{
-			return !this.hiddenButtons.hasOwnProperty(buttonCode);
-		}, this);
 
 		return result;
 	};
@@ -2496,6 +2630,7 @@
 		}
 
 		this.resizeObserver.observe(this.elements.root);
+		this.resizeObserver.observe(this.container);
 		return this.elements.root;
 	};
 
@@ -2883,6 +3018,22 @@
 					}
 					center.appendChild(this.buttons.record.render());
 					break;
+				case "document":
+					if (!this.buttons.document)
+					{
+						this.buttons.document = new SimpleButton({
+							class: "document",
+							text: BX.message("IM_M_CALL_BTN_DOCUMENT"),
+							blocked: this.isButtonBlocked("document"),
+							onClick: this._onDocumentButtonClick.bind(this)
+						});
+					}
+					else
+					{
+						this.buttons.document.setBlocked(this.isButtonBlocked('document'));
+					}
+					center.appendChild(this.buttons.document.render());
+					break;
 				case "returnToCall":
 					this.buttons.returnToCall = new SimpleButton({
 						class: "returnToCall",
@@ -2977,6 +3128,16 @@
 						this.buttons.floorRequest.setBlocked(this.isButtonBlocked('floorRequest'));
 					}
 					center.appendChild(this.buttons.floorRequest.render());
+					break;
+				case "more":
+					if (!this.buttons.more)
+					{
+						this.buttons.more = new SimpleButton({
+							class: "more",
+							onClick: this._onMoreButtonClick.bind(this)
+						})
+					}
+					center.appendChild(this.buttons.more.render());
 					break;
 				case "spacer":
 					panelInner.appendChild(BX.create("div", {
@@ -3089,13 +3250,25 @@
 						foldButtonState = ParticipantsButton.FoldButtonState.Hidden;
 					}
 
-					this.buttons.participants = new ParticipantsButton({
-						foldButtonState: foldButtonState,
-						allowAdding: !this.isButtonBlocked("add"),
-						count: this.getConnectedUserCount(true),
-						onListClick: this._onParticipantsButtonListClick.bind(this),
-						onAddClick: this._onAddButtonClick.bind(this)
-					});
+					if (this.buttons.participants)
+					{
+						this.buttons.participants.update({
+							foldButtonState: foldButtonState,
+							allowAdding: !this.isButtonBlocked("add"),
+							count: this.getConnectedUserCount(true),
+						});
+					}
+					else
+					{
+						this.buttons.participants = new ParticipantsButton({
+							foldButtonState: foldButtonState,
+							allowAdding: !this.isButtonBlocked("add"),
+							count: this.getConnectedUserCount(true),
+							onListClick: this._onParticipantsButtonListClick.bind(this),
+							onAddClick: this._onAddButtonClick.bind(this)
+						});
+					}
+
 					result.appendChild(this.buttons.participants.render());
 					break;
 				case "participantsMobile":
@@ -3118,6 +3291,27 @@
 			}
 		}
 		return result;
+	};
+
+	BX.Call.View.prototype.calculateUnusedPanelSpace = function(buttonList)
+	{
+		if (!buttonList)
+		{
+			buttonList = this.getButtonList();
+		}
+
+		var totalButtonWidth = 0;
+		for (var i = 0; i < buttonList.length; i++)
+		{
+			var button = this.buttons[buttonList[i]];
+			if (!button)
+			{
+				continue;
+			}
+			buttonWidth = button.elements.root ? button.elements.root.getBoundingClientRect().width : 0;
+			totalButtonWidth += buttonWidth;
+		}
+		return this.elements.panel.scrollWidth - totalButtonWidth - 32;
 	};
 
 	BX.Call.View.prototype.setButtonActive = function(buttonName, isActive)
@@ -3171,7 +3365,7 @@
 			}
 			return;
 		}
-		if (this.layout == Layouts.Grid)
+		if (this.layout == Layouts.Grid && this.size == BX.Call.View.Size.Full)
 		{
 			this.recalculatePages();
 		}
@@ -3195,6 +3389,40 @@
 		}
 		this.toggleEars();
 	};
+
+	BX.Call.View.prototype.showOverflownButtonsPopup = function()
+	{
+		if (this.overflownButtonsPopup)
+		{
+			this.overflownButtonsPopup.show();
+			return;
+		}
+
+		var bindElement = this.buttons.more && this.buttons.more.elements.root ? this.buttons.more.elements.root : this.elements.panel;
+
+		this.overflownButtonsPopup = new BX.PopupWindow('bx-call-buttons-popup', bindElement, {
+			targetContainer: this.container,
+			content: this.renderButtons(Object.keys(this.overflownButtons)),
+			cacheable: false,
+			closeIcon: false,
+			autoHide: true,
+			overlay: {backgroundColor: 'white', opacity: 0},
+			bindOptions: {
+				position: 'top'
+			},
+			angle: {position: 'bottom', offset: 49},
+			className: 'bx-call-buttons-popup',
+			contentBackground: 'unset',
+			events: {
+				onPopupDestroy: function()
+				{
+					this.overflownButtonsPopup = null;
+					this.buttons.more.setActive(false);
+				}.bind(this),
+			}
+		});
+		this.overflownButtonsPopup.show();
+	}
 
 	BX.Call.View.prototype.resumeVideo = function()
 	{
@@ -3539,6 +3767,9 @@
 
 	BX.Call.View.prototype._onResize = function()
 	{
+		// this.resizeCalled++;
+		// this.reportResizeCalled();
+
 		if(!this.elements.root)
 		{
 			return;
@@ -3559,6 +3790,28 @@
 		{
 			this.updateCentralUserAvatarSize();
 			this.toggleEars();
+		}
+
+		var rootDimensions = this.elements.root.getBoundingClientRect()
+		this.elements.root.classList.toggle("bx-messenger-videocall-width-lt-450", rootDimensions.width < 450);
+		this.elements.root.classList.toggle("bx-messenger-videocall-width-lt-550", rootDimensions.width < 550);
+		this.elements.root.classList.toggle("bx-messenger-videocall-width-lt-650", rootDimensions.width < 650);
+		this.elements.root.classList.toggle("bx-messenger-videocall-width-lt-700", rootDimensions.width < 700);
+		this.elements.root.classList.toggle("bx-messenger-videocall-width-lt-850", rootDimensions.width < 850);
+		this.elements.root.classList.toggle("bx-messenger-videocall-width-lt-900", rootDimensions.width < 900);
+
+		/*if (this.maxWidth === 0)
+		{
+			this.elements.root.style.maxWidth = this.container.clientWidth + 'px';
+		}*/
+
+		if (this.checkPanelOverflow())
+		{
+			this.updateButtons();
+			if (this.overflownButtonsPopup && !Object.keys(this.overflownButtons).length)
+			{
+				this.overflownButtonsPopup.close();
+			}
 		}
 	};
 
@@ -3949,6 +4202,15 @@
 		this.hintManager.hide();
 	};
 
+	BX.Call.View.prototype._onDocumentButtonClick = function(e)
+	{
+		e.stopPropagation();
+		this.eventEmitter.emit(EventName.onButtonClick, {
+			buttonName: 'document',
+			node: e.target
+		});
+	};
+
 	BX.Call.View.prototype._onGridButtonClick = function(e)
 	{
 		this.setLayout(this.layout == Layouts.Centered ? Layouts.Grid : Layouts.Centered);
@@ -4103,6 +4365,21 @@
 			buttonName: 'floorRequest',
 			node: e.target
 		});
+	};
+
+	BX.Call.View.prototype._onMoreButtonClick = function(e)
+	{
+		e.stopPropagation();
+		if (this.overflownButtonsPopup)
+		{
+			this.overflownButtonsPopup.close();
+			this.buttons.more.setActive(false);
+		}
+		else
+		{
+			this.showOverflownButtonsPopup();
+			this.buttons.more.setActive(true);
+		}
 	};
 
 	BX.Call.View.prototype._onHistoryButtonClick = function(e)
@@ -4324,6 +4601,57 @@
 		this.setCurrentPage(this.currentPage + 1)
 	};
 
+	BX.Call.View.prototype.setMaxWidth = function(maxWidth)
+	{
+		if (this.maxWidth !== maxWidth)
+		{
+			var MAX_WIDTH_SPEAKER_MODE = 650;
+			if (maxWidth < MAX_WIDTH_SPEAKER_MODE
+				&& (!this.maxWidth || this.maxWidth > MAX_WIDTH_SPEAKER_MODE)
+				&& this.layout === Layouts.Centered
+			)
+			{
+				this.setLayout(Layouts.Grid)
+			}
+
+			var animateUnsetProperty = this.maxWidth === null;
+			this.maxWidth = maxWidth;
+			if (this.size !== BX.Call.View.Size.Folded)
+			{
+				this._applyMaxWidth(animateUnsetProperty);
+			}
+		}
+	};
+
+	BX.Call.View.prototype.removeMaxWidth = function()
+	{
+		this.setMaxWidth(null);
+	}
+
+	BX.Call.View.prototype._applyMaxWidth = function(animateUnsetProperty)
+	{
+		var containerDimensions = this.container.getBoundingClientRect();
+		if (this.maxWidth !== null)
+		{
+			if (!this.elements.root.style.maxWidth && animateUnsetProperty)
+			{
+				this.elements.root.style.maxWidth = containerDimensions.width + 'px';
+			}
+			setTimeout(function() {
+				this.elements.root.style.maxWidth = Math.max(this.maxWidth, MIN_WIDTH)  + 'px';
+			}.bind(this), 0)
+		}
+		else
+		{
+			this.elements.root.style.maxWidth = containerDimensions.width + 'px';
+			this.elements.root.addEventListener('transitionend', function(){
+				this.elements.root.style.removeProperty('max-width');
+			}.bind(this), {
+				once: true
+			})
+		}
+	};
+
 	BX.Call.View.prototype.releaseLocalMedia = function()
 	{
 		this.localUser.releaseStream();
@@ -4335,6 +4663,10 @@
 
 	BX.Call.View.prototype.destroy = function()
 	{
+		if (this.overflownButtonsPopup)
+		{
+			this.overflownButtonsPopup.close();
+		}
 		if(this.elements.root)
 		{
 			BX.cleanNode(this.elements.root, true);
@@ -4368,8 +4700,12 @@
 
 		clearTimeout(this.switchPresenterTimeout);
 
-		clearInterval(this.updateViewInterval);
+		if (this.buttons.recordStatus)
+		{
+			this.buttons.recordStatus.stopViewUpdate();
+		}
 		this.recordState = this.getDefaultRecordState();
+		this.buttons = null;
 
 		this.eventEmitter.emit(EventName.onDestroy);
 		this.eventEmitter.unsubscribeAll();
@@ -4891,11 +5227,11 @@
 		{
 			if (this.visible)
 			{
-				this.elements.video.pause();
+				this.elements.video.play();
 			}
 			else
 			{
-				this.elements.video.play();
+				this.elements.video.pause();
 			}
 		}
 	};
@@ -5069,7 +5405,6 @@
 			{
 				targetContainer: this.parentContainer,
 				autoHide: true,
-				zIndex: window['BX'] && BX.MessengerCommon ? (BX.MessengerCommon.getDefaultZIndex() + 500) : 500,
 				closeByEsc: true,
 				offsetTop: 0,
 				offsetLeft: 0,
@@ -7139,6 +7474,15 @@
 		}
 	};
 
+	RecordStatusButton.prototype.stopViewUpdate = function()
+	{
+		if (this.updateViewInterval)
+		{
+			clearInterval(this.updateViewInterval);
+			this.updateViewInterval = null;
+		}
+	};
+
 	/**
 	 * @param config
 	 * @param {Node} config.parentElement
@@ -7450,6 +7794,11 @@
 		this.eventEmitter.emit(DeviceSelector.Events.onChangeHdVideo, {
 			allowHdVideo: this.allowHdVideo
 		})
+	};
+
+	DeviceSelector.prototype.onAllowMirroringVideoChange = function(e)
+	{
+		BX.Call.Hardware.enableMirroring = e.target.checked;
 	};
 
 	DeviceSelector.prototype.onFaceImproveChange = function(e)
@@ -8108,4 +8457,9 @@
 
 	BX.Call.View.DeviceSelector = DeviceSelector;
 	BX.Call.View.NotificationManager = NotificationManager;
+
+	Object.defineProperty(BX.Call.View, 'MIN_WIDTH', {
+		value: MIN_WIDTH,
+		writable: false
+	});
 })();

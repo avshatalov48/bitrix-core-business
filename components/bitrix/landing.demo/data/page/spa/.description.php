@@ -744,7 +744,7 @@ return [
 
 							<div class="landing-block-card-contact js-animation fadeIn col-sm-6 g-brd-left g-brd-bottom g-brd-gray-light-v4 g-px-15 g-py-25"
 								 data-card-preset="link">
-								<a href="tel:#PHONE1#" class="landing-block-card-linkcontact-link g-text-decoration-none--hover">
+								<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link g-text-decoration-none--hover">
 									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 										<i class="landing-block-card-linkcontact-icon icon-call-in"></i>
 									</span>
@@ -752,14 +752,14 @@ return [
 										Phone number
 									</span>
 									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11">
-										#PHONE1#
+										#crmPhoneTitle1
 									</span>
 								</a>
 							</div>
 
 							<div class="landing-block-card-contact js-animation fadeIn col-sm-6 g-brd-left g-brd-bottom g-brd-gray-light-v4 g-px-15 g-py-25"
 								 data-card-preset="link">
-								<a href="mailto:#EMAIL1#" class="landing-block-card-linkcontact-link g-text-decoration-none--hover">
+								<a href="mailto:#crmEmail1" class="landing-block-card-linkcontact-link g-text-decoration-none--hover">
 									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 										<i class="landing-block-card-linkcontact-icon icon-line icon-envelope-letter"></i>
 									</span>
@@ -767,7 +767,7 @@ return [
 										Email
 									</span>
 									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11">
-										#EMAIL1#
+										#crmEmailTitle1
 									</span>
 								</a>
 							</div>

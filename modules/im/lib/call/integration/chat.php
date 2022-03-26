@@ -14,7 +14,7 @@ use Bitrix\Main\UserTable;
 class Chat extends AbstractEntity
 {
 	protected $chatId;
-	protected $chatFields;
+	public $chatFields;
 	protected $chatUsers = [];
 
 	const MUTE_MESSAGE = true;
@@ -23,23 +23,18 @@ class Chat extends AbstractEntity
 	{
 		parent::__construct($call, $entityId);
 
-		if(Common::isChatId($entityId))
+		if(Common::isChatId($entityId) || (int)$entityId > 0)
 		{
-			$chatId = \Bitrix\Im\Dialog::getChatId($entityId, $this->userId);
-		}
-		else if ((int)$entityId > 0)
-		{
-			$otherUserId = $this->userId == $entityId ? $this->call->getInitiatorId() : $entityId;
-			$chatId = \Bitrix\Im\Dialog::getChatId($otherUserId , $this->userId);
+			$chatId = \Bitrix\Im\Dialog::getChatId($entityId, $this->initiatorId);
 		}
 		else
 		{
-			throw new ArgumentException("Ivalid chat id {$entityId}");
+			throw new ArgumentException("Invalid chat id {$entityId}");
 		}
 
 		$result = \CIMChat::GetChatData([
 			'ID' => $chatId,
-			'USER_ID' => $this->userId
+			'USER_ID' => $this->initiatorId
 		]);
 
 		if ($result['chat'][$chatId])
@@ -105,17 +100,31 @@ class Chat extends AbstractEntity
 	}
 
 	/**
-	 * Returns true is user can call users in the associated chat and false otherwise.
+	 * Returns true is user has access to the associated chat and false otherwise.
 	 *
 	 * @param int $userId
 	 * @return bool
 	 */
-	public function checkAccess($userId)
+	public function checkAccess(int $userId): bool
 	{
-		if (
-			Common::isChatId($this->entityId)
-			|| IsModuleInstalled('intranet')
-		)
+		if (Common::isChatId($this->entityId))
+		{
+			return Dialog::hasAccess($this->entityId, $userId);
+		}
+
+		// one-to-one dialog
+		return ($userId === (int)$this->entityId || $userId === (int)$this->initiatorId);
+	}
+
+	/**
+	 * Returns true is user can call users in the associated chat and false otherwise.
+	 *
+	 * @param int $userId
+	 * @return bool
+ 	*/
+	public function canStartCall(int $userId): bool
+	{
+		if (Common::isChatId($this->entityId))
 		{
 			return Dialog::hasAccess($this->entityId, $userId);
 		}
@@ -129,11 +138,12 @@ class Chat extends AbstractEntity
 		{
 			return false;
 		}
+
 		if (
 			\CIMSettings::GetPrivacy(\CIMSettings::PRIVACY_CALL, $this->entityId) === \CIMSettings::PRIVACY_RESULT_CONTACT
 			&& \CModule::IncludeModule('socialnetwork')
 			&& \CSocNetUser::IsFriendsAllowed()
-			&& !\CSocNetUserRelations::IsFriends($this->entityId, $this->userId)
+			&& !\CSocNetUserRelations::IsFriends($this->entityId, $userId)
 		)
 		{
 			return false;
@@ -205,13 +215,17 @@ class Chat extends AbstractEntity
 		return false;
 	}
 
-	public function isPrivateChat() : bool
+	public function isPrivateChat(): bool
 	{
 		return $this->chatFields && $this->chatFields['message_type'] === IM_MESSAGE_PRIVATE;
 	}
 
 	public function onUserAdd($userId)
 	{
+		if (!$this->canExtendChat())
+		{
+			return false;
+		}
 		if($this->chatFields['message_type'] == IM_MESSAGE_PRIVATE)
 		{
 			$chat = new \CIMChat();
@@ -320,7 +334,7 @@ class Chat extends AbstractEntity
 	{
 		if($currentUserId == 0)
 		{
-			$currentUserId = $this->userId;
+			$currentUserId = $this->initiatorId;
 		}
 
 		return [
@@ -338,5 +352,20 @@ class Chat extends AbstractEntity
 				'entityData3' => $this->chatFields['entity_data_3']
 			]
 		];
+	}
+
+	public function canExtendChat(): bool
+	{
+		if (!$this->chatFields)
+		{
+			return false;
+		}
+		if ($this->chatFields['message_type'] === IM_MESSAGE_PRIVATE)
+		{
+			return true;
+		}
+		$entityType = $this->chatFields['entity_type'];
+		$options = \CIMChat::GetChatOptions();
+		return (bool)($options[$entityType]['EXTEND'] ?? true);
 	}
 }

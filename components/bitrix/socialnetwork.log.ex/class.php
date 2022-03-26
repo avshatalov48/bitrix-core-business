@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\ComponentHelper;
 
 if (!Loader::includeModule('socialnetwork'))
 {
@@ -28,7 +29,7 @@ final class SocialnetworkLogList extends \Bitrix\Socialnetwork\Component\LogList
 
 			if (!empty($options['GROUP']))
 			{
-				$APPLICATION->setPageProperty('title', \Bitrix\Socialnetwork\ComponentHelper::getWorkgroupPageTitle([
+				$APPLICATION->setPageProperty('title', ComponentHelper::getWorkgroupPageTitle([
 					'WORKGROUP_NAME' => $options['GROUP']['NAME'],
 					'TITLE' => $title
 				]));
@@ -43,6 +44,7 @@ final class SocialnetworkLogList extends \Bitrix\Socialnetwork\Component\LogList
 
 	public function executeComponent()
 	{
+		ComponentHelper::setModuleUsed();
 		CPageOption::setOptionString('main', 'nav_page_in_session', 'N');
 
 		$this->arResult = $this->prepareData();

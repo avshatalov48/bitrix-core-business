@@ -24,15 +24,18 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 			return CBPActivityExecutionStatus::Closed;
 		}
 
-		foreach ($variableValue as $varId => $value)
+		foreach ($variableValue as $variable => $value)
 		{
-			$var = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getById($varId);
-			if ($var === null)
+			[$groupId, $varId] = static::getGroupIdAndIdFromSystemExpression($variable);
+			$varId = $varId ?? $variable;
+
+			$property = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getById($varId);
+			if ($property === null)
 			{
 				continue;
 			}
-			$var['Default'] = $this->parseValue($value, $var['Type']);
-			\Bitrix\Bizproc\Workflow\Type\GlobalVar::upsert($varId, $var);
+			$property['Default'] = $this->parseValue($value, $property['Type']);
+			\Bitrix\Bizproc\Workflow\Type\GlobalVar::upsert($varId, $property);
 		}
 
 		return CBPActivityExecutionStatus::Closed;
@@ -50,9 +53,10 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 	{
 		$runtime = CBPRuntime::GetRuntime();
 		$documentService = $runtime->GetService('DocumentService');
+		$documentFields = $documentService->GetDocumentFields($documentType);
 		$fieldTypes = $documentService->GetDocumentFieldTypes($documentType);
 
-		$variables = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll();
+		$variables = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll($documentType);
 
 		$javascriptFunctions = $documentService->GetJSFunctionsForFields(
 			$documentType,
@@ -72,20 +76,212 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 		);
 
 		$currentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-		$variableValues =
+		$variableValuesTmp =
 			is_array($currentActivity['Properties']['GlobalVariableValue'])
 				? $currentActivity['Properties']['GlobalVariableValue']
 				: []
 		;
 
+		$variableValues = [];
+		foreach ($variableValuesTmp as $varId => $value)
+		{
+			if (array_key_exists($varId, $variables))
+			{
+				$varId = '{=GlobalVar:' . $varId . '}';
+			}
+			$id = \Bitrix\Bizproc\Automation\Helper::unConvertExpressions($varId, $documentType);
+			[$object, $gVar] = static::getGroupIdAndIdFromSystemExpression($id);
+			if (!array_key_exists($gVar, $variables))
+			{
+				continue;
+			}
+			if (is_array($value))
+			{
+				$result = [];
+				foreach ($value as $valueItem)
+				{
+					$unconvertedValue = \Bitrix\Bizproc\Automation\Helper::unConvertExpressions($valueItem, $documentType);
+					if (!static::getGroupIdAndIdFromSystemExpression($unconvertedValue))
+					{
+						$result[] = $valueItem;
+					}
+					else
+					{
+						$result[] = $unconvertedValue;
+					}
+				}
+			}
+			else
+			{
+				$result = \Bitrix\Bizproc\Automation\Helper::unConvertExpressions($value, $documentType);
+				if (!static::getGroupIdAndIdFromSystemExpression($result))
+				{
+					$result = $value;
+				}
+			}
+			$variableValues[$id] = $result;
+		}
+
 		$dialog->setRuntimeData([
-			'arCurrentValues' => $variableValues,
-			'arVariables' => $variables,
+			'currentValues' => $variableValues,
+			'variables' => static::getVariables($documentType),
+			'constants' => static::getConstants($documentType),
+			'documentFields' => static::getDocumentFields($documentType),
 			'javascriptFunctions' => $javascriptFunctions,
-			'isAdmin' => static::checkAdminPermission(),
+			'visibilityMessages' => static::getVisibilityMessages($documentType),
 		]);
 
 		return $dialog;
+	}
+
+	private static function getVariables(array $parameterDocumentType): array
+	{
+		$variables = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll($parameterDocumentType);
+
+		return static::prepareGlobalsForMenu(
+			$variables,
+			\Bitrix\Bizproc\Workflow\Type\GlobalVar::getObjectNameForExpressions()
+		);
+	}
+
+	private static function getConstants(array $parameterDocumentType): array
+	{
+		$constants = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll($parameterDocumentType);
+
+		return static::prepareGlobalsForMenu(
+			$constants,
+			\Bitrix\Bizproc\Workflow\Type\GlobalConst::getObjectNameForExpressions()
+		);
+	}
+
+	private static function prepareGlobalsForMenu(array $globals, string $objectName):array
+	{
+		$result = [];
+		foreach ($globals as $id => $property)
+		{
+			$visibility = $property['Visibility'];
+			if (!$result[$visibility])
+			{
+				$result[$visibility] = [];
+			}
+
+			$result[$visibility][] = [
+				'title' => $property['Name'],
+				'entityId' => 'bp',
+				'tabs' => 'recents',
+				'id' => '{='. $objectName . ':' . $id . '}',
+				'customData' => [
+					'property' => $property,
+					'groupId' => $objectName . ':' . $visibility,
+					'title' => $property['Name'],
+				],
+			];
+		}
+
+		return $result;
+	}
+
+	private static function getDocumentFields(array $parameterDocumentType): array
+	{
+		$runtime = CBPRuntime::GetRuntime();
+		$documentService = $runtime->GetService("DocumentService");
+		$documentFields = $documentService->GetDocumentFields($parameterDocumentType);
+
+		return static::prepareDocumentFieldsForMenu(
+			$documentFields,
+			$documentService->getEntityName($parameterDocumentType[0], $parameterDocumentType[1])
+		);
+	}
+
+	private static function prepareDocumentFieldsForMenu(array $documentFields, string $entityName): array
+	{
+		$result = [
+			'ROOT' => [
+				'title' => $entityName,
+				'entityId' => 'bp',
+				'tabs' => 'recents',
+				'id' => 'ROOT',
+				'children' => [],
+			],
+		];
+
+		foreach ($documentFields as $id => $property)
+		{
+			$posDot = mb_strpos($id, '.');
+			$groupKey = ($posDot === false) ? 'ROOT' : mb_substr($id, 0, $posDot);
+
+			$groupName = '';
+			$fieldName = $property['Name'];
+			$posColon = mb_strpos($fieldName, ': ');
+			if ($fieldName && $groupKey !== 'ROOT' && $posColon !== false)
+			{
+				$names = mb_split(': ', $fieldName);
+				$groupName = array_shift($names);
+				$fieldName = join(': ', $names);
+			}
+
+			$posAssignedBy = mb_strpos($fieldName, 'ASSIGNED_BY_');
+			if ($posAssignedBy !== false && !in_array($fieldName, ['ASSIGNED_BY_ID', 'ASSIGNED_BY_PRINTABLE']))
+			{
+				$groupKey = 'ASSIGNED_BY';
+				$names = mb_split(' ', $fieldName);
+				$groupName = array_shift($names);
+				$fieldName = join(' ', $names);
+				$fieldName = mb_ereg_replace('(', '', $fieldName);
+				$fieldName = mb_ereg_replace(')', '', $fieldName);
+			}
+
+			if (!$result[$groupKey])
+			{
+				$result[$groupKey] = [
+					'title' => $groupName,
+					'entityId' => 'bp',
+					'tabs' => 'recents',
+					'id' => $groupName,
+					'children' => [],
+				];
+			}
+
+			$systemExpression = '{=Document:'. $id . '}';
+			$absoluteName = ($groupKey === 'ROOT') ? $entityName . ': ' . $property['Name'] : $property['Name'];
+
+			$result[$groupKey]['children'][] = [
+				'title' => $fieldName ?? $id,
+				'entityId' => 'bp',
+				'tabs' => 'recents',
+				'id' => $systemExpression,
+				'customData' => [
+					'property' => $property,
+					'groupId' => 'Document:Document',
+					'title' => $absoluteName,
+				],
+			];
+		}
+
+		return $result;
+	}
+
+	private static function getVisibilityMessages(array $documentType): array
+	{
+		$variables = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getVisibilityFullNames($documentType);
+		$constants = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getVisibilityFullNames($documentType);
+
+		return [
+			\Bitrix\Bizproc\Workflow\Type\GlobalVar::getObjectNameForExpressions() => $variables,
+			\Bitrix\Bizproc\Workflow\Type\GlobalConst::getObjectNameForExpressions() => $constants,
+			'Document' => ['Document' => \Bitrix\Main\Localization\Loc::getMessage('BPSGVA_DOCUMENT')],
+		];
+	}
+
+	private static function getGroupIdAndIdFromSystemExpression(string $text): array
+	{
+		$result = CBPActivity::parseExpression($text);
+		if ($result === null || $result['modifiers'])
+		{
+			return [];
+		}
+
+		return [$result['object'], $result['field']];
 	}
 
 	public static function GetPropertiesDialogValues(
@@ -99,12 +295,12 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 	): bool
 	{
 		$arErrors = [];
-		$arProperties = ['GlobalVariableValue' => []];
+		$properties = ['GlobalVariableValue' => []];
 
 		$runtime = CBPRuntime::GetRuntime();
 		$documentService = $runtime->GetService('DocumentService');
 
-		$allVariables = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll();
+		$allVariables = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll($documentType);
 		if (!$allVariables)
 		{
 			$arErrors[] = [
@@ -116,7 +312,8 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 			return false;
 		}
 
-		$htmlVariableCode = 'global_variable_field_';
+		$htmlVariableCode = 'bp_sgva_variable_';
+		$htmlValueCode = 'bp_sgva_value_';
 		$lenHtmlVariableCode = mb_strlen($htmlVariableCode);
 		foreach ($arCurrentValues as $htmlCode => $variableId)
 		{
@@ -126,30 +323,82 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 			}
 
 			$index = mb_substr($htmlCode, $lenHtmlVariableCode);
-			if ($index . '!' === intval($index) . '!')
+			if ($index . '!' !== intval($index) . '!')
 			{
-				if (array_key_exists($variableId, $allVariables))
-				{
-					$arProperties['GlobalVariableValue'][$variableId] = $documentService->GetFieldInputValue(
-						$documentType,
-						$allVariables[$variableId],
-						$variableId,
-						$arCurrentValues,
-						$arErrors
-					);
-				}
+				continue;
 			}
+
+			$var = $documentService->GetFieldInputValue(
+				$documentType,
+				'string',
+				$htmlCode,
+				$arCurrentValues,
+				$arErrors
+			);
+			[$groupId, $varId] = static::getGroupIdAndIdFromSystemExpression($var);
+
+			if ($arErrors)
+			{
+				return false;
+			}
+
+			if (!$allVariables[$varId])
+			{
+				$arErrors[] = [
+					'code' => 'NotExist',
+					'parameter' => 'GlobalVariableValue',
+					'message' => GetMessage('BPSGCA_EMPTY_VARIABLES'),
+				];
+
+				return false;
+			}
+
+			$value = $documentService->GetFieldInputValue(
+				$documentType,
+				$allVariables[$varId],
+				$htmlValueCode . $index,
+				$arCurrentValues,
+				$arErrors
+			);
+
+			if ($arErrors)
+			{
+				return false;
+			}
+
+			if ($value === null || $value === [])
+			{
+				$value = $documentService->GetFieldInputValue(
+					$documentType,
+					$allVariables[$varId],
+					$varId,
+					$arCurrentValues,
+					$arErrors
+				);
+			}
+
+			if ($arErrors)
+			{
+				return false;
+			}
+
+			if ($var === null || $var === '')
+			{
+				continue;
+			}
+
+			$properties['GlobalVariableValue'][$var] = $value;
 		}
 
 		$user = new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser);
-		$arErrors = self::validateProperties($arProperties, $user);
+		$arErrors = static::validateProperties($properties, $user);
 		if ($arErrors)
 		{
 			return false;
 		}
 
 		$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-		$arCurrentActivity['Properties'] = $arProperties;
+		$arCurrentActivity['Properties'] = $properties;
 
 		return true;
 	}
@@ -180,19 +429,16 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 		$usages = parent::collectUsages();
 		if (is_array($this->arProperties['GlobalVariableValue']))
 		{
-			foreach (array_keys($this->arProperties['GlobalVariableValue']) as $value)
+			foreach (array_keys($this->arProperties['GlobalVariableValue']) as $variable)
 			{
-				$usages[] = $this->getObjectSourceType('GlobalVar', $value);
+				[$groupId, $varId] = static::getGroupIdAndIdFromSystemExpression($variable);
+				$varId = $varId ?? $variable;
+				$groupId = $groupId ?? 'GlobalVar';
+
+				$usages[] = $this->getObjectSourceType($groupId, $varId);
 			}
 		}
 
 		return $usages;
-	}
-
-	private static function checkAdminPermission(): bool
-	{
-		$user = new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser);
-
-		return $user->isAdmin();
 	}
 }

@@ -78,11 +78,10 @@
 	 */
 	function getBackgroundUrl(node)
 	{
-		var style = node.node.getAttribute('style');
-
-		if (style)
+		var bg = node.node.style.getPropertyValue('background-image');
+		if (bg)
 		{
-			var res = style.split(";")[0].match(/url\((.*?)\)/);
+			var res = bg.match(/url\((.*?)\)/);
 
 			if (res && res[1])
 			{
@@ -100,11 +99,10 @@
 	 */
 	function getBackgroundUrl2x(node)
 	{
-		var style = node.node.getAttribute('style');
-
-		if (style)
+		var bg = node.node.style.getPropertyValue('background-image');
+		if (bg)
 		{
-			var res = style.match(/1x, url\(["|'](.*)["|']\) 2x\); /);
+			var res = bg.match(/1x, url\(["|'](.*)["|']\) 2x\)/);
 
 			if (res && res[1])
 			{

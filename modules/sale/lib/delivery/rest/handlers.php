@@ -37,8 +37,7 @@ class Handlers
 				'sale.delivery.extra.service.add' => [ExtraServicesService::class, 'addExtraServices'],
 				'sale.delivery.extra.service.update' => [ExtraServicesService::class, 'updateExtraServices'],
 				'sale.delivery.extra.service.delete' => [ExtraServicesService::class, 'deleteExtraServices'],
-				'sale.delivery.extra.service.getByDeliveryId' => [ExtraServicesService::class, 'getExtraServiceByDeliveryId'],
-				'sale.delivery.extra.service.type.list' => [ExtraServicesService::class, 'getExtraServicesTypeList'],
+				'sale.delivery.extra.service.get' => [ExtraServicesService::class, 'get'],
 			],
 		];
 	}

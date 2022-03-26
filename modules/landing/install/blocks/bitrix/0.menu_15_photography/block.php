@@ -8,8 +8,8 @@
 						<div class="landing-block-node-menu-contact-title landing-semantic-text-small d-inline-block">
 							Phone Number:
 						</div>
-						<a href="tel:#PHONE1#" class="landing-block-node-menu-contact-link landing-semantic-link-small d-inline-block g-font-weight-700">
-							#PHONE1#
+						<a href="tel:#crmPhone1" class="landing-block-node-menu-contact-link landing-semantic-link-small d-inline-block g-font-weight-700">
+							#crmPhoneTitle1
 						</a>
 					</div>
 
@@ -17,8 +17,8 @@
 						<div class="landing-block-node-menu-contact-title landing-semantic-text-small d-inline-block">
 							Email:
 						</div>
-						<a href="mailto:#EMAIL1#" class="landing-block-node-menu-contact-link landing-semantic-link-small d-inline-block g-font-weight-700">
-							#EMAIL1#
+						<a href="mailto:#crmEmail1" class="landing-block-node-menu-contact-link landing-semantic-link-small d-inline-block g-font-weight-700">
+							#crmEmailTitle1
 						</a>
 					</div>
 

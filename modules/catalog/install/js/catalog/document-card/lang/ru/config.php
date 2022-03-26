@@ -1,0 +1,21 @@
+<?php
+$MESS['SAVE_AND_CONDUCT_BUTTON'] = 'Сохранить и провести';
+$MESS['CONDUCT_BUTTON'] = 'Провести документ';
+$MESS['CANCEL_CONDUCT_BUTTON'] = 'Отменить проведение';
+$MESS['DOCUMENT_LINK_COPIED'] = 'Ссылка на документ скопирована в буфер обмена';
+$MESS['DOCUMENT_CONTRACTOR_FIELD_PLACEHOLDER'] = 'Найти или создать поставщика';
+$MESS['DOCUMENT_CONTRACTOR_NOT_FILLED'] = 'не заполнено';
+$MESS['DOCUMENT_ADD_CONTRACTOR'] = 'Создать поставщика:';
+$MESS['DOCUMENT_PRODUCTS_TOTAL'] = 'Итого';
+$MESS['DOCUMENT_PRODUCTS_ADD_PRODUCT'] = '+ добавить товары';
+$MESS['DOCUMENT_PRODUCTS_NOT_SHOWN'] = 'Ещё #COUNT#';
+$MESS['SLIDER_LABEL_A'] = 'Приход';
+$MESS['SLIDER_LABEL_S'] = 'Оприходование';
+$MESS['SLIDER_LABEL_M'] = 'Перемещение';
+$MESS['SLIDER_LABEL_D'] = 'Списание';
+$MESS['SLIDER_LABEL_W'] = 'Реализация';
+$MESS['DOCUMENT_ADD_CONTRACTOR_ERROR'] = 'При создании поставщика произошла ошибка';
+$MESS['DOCUMENT_CONDUCT_SUCCESSFUL'] = 'Документ проведён';
+$MESS['DOCUMENT_CONDUCT_SUCCESSFUL_VIEW'] = 'Просмотреть';
+$MESS['DOCUMENT_FIRST_TIME_HINT_TITLE'] = 'Тип документа';
+$MESS['DOCUMENT_FIRST_TIME_HINT_TEXT'] = 'Складской учёт начинается с документа "Оприходование товара". Нужно создать приход? Просто поменяйте здесь тип документа';

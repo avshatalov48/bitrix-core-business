@@ -39,6 +39,11 @@ export default class BaseControl extends EventEmitter
 		});
 	}
 
+	isNeedSetValue(value): boolean
+	{
+		return value !== this.getValue();
+	}
+
 	setValue(value)
 	{
 		this.cache.set('value', value);
@@ -47,7 +52,7 @@ export default class BaseControl extends EventEmitter
 	onChange(event: ?BaseEvent)
 	{
 		this.cache.delete('value');
-		this.emit('onChange', event);
+		this.emit('onChange', {color: this.getValue()});
 	}
 
 	setActive(): void

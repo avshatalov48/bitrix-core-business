@@ -196,7 +196,9 @@ class ArrayField extends ScalarField
 	 */
 	public function convertValueToDb($value)
 	{
-		return $this->getConnection()->getSqlHelper()->convertToDbString($value);
+		return $value === null && $this->is_nullable
+			? $value
+			: $this->getConnection()->getSqlHelper()->convertToDbString($value);
 	}
 
 	/**

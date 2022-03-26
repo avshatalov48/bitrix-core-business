@@ -17,6 +17,16 @@
 		return value;
 	};
 
+	var normalizeDateValue = function(value)
+	{
+		return value ? value.replace(/(\s\[-?[0-9]+\])$/, '') : '';
+	};
+
+	var getOptions = function (property)
+	{
+		return property.Options ? property.Options : {};
+	};
+
 	var FieldType = {
 		renderControl: function (documentType, property, fieldName, value, renderMode) {
 			if (!renderMode || renderMode === 'public')
@@ -54,6 +64,13 @@
 							me[renderer](property, fieldName, v)
 						);
 					});
+
+					if (subNodes.length <= 0)
+					{
+						subNodes.push(
+							me[renderer](property, fieldName)
+						);
+					}
 
 					node = this.wrapMultipleControls(property, fieldName, subNodes);
 				}
@@ -183,6 +200,8 @@
 				case 'date':
 				case 'UF:date':
 				case 'datetime':
+					result = normalizeDateValue(value);
+					break;
 				case 'text':
 				case 'int':
 				case 'double':
@@ -313,6 +332,86 @@
 				}
 			}
 		},
+		createControlOptions: function (property, callbackFunction)
+		{
+			var options = getOptions(property);
+			var str = '';
+			for (var i in options)
+			{
+				if (String(i) !== String(options[i]))
+				{
+					str += '[' + i + ']' + options[i];
+				}
+				else
+				{
+					str += options[i];
+				}
+				str += '\n';
+			}
+			var rnd = BX.util.getRandomString(3);
+			var textarea = BX.create('textarea', {
+				attrs: {
+					id: "bizproc_fieldtype_select_form_options_" + rnd
+				}
+			});
+			textarea.innerHTML = BX.util.htmlspecialchars(str);
+
+			var me = this;
+			var button = BX.create('button', {
+				attrs: {
+					type: 'button'
+				},
+				text: BX.Loc.getMessage('BIZPROC_JS_BP_FIELD_TYPE_SELECT_OPTIONS3'),
+				events: {
+					click: function () {
+						callbackFunction(me.parseSelectFormOptions(rnd));
+					}
+				}
+			});
+
+			var wrapper = BX.create('div');
+			wrapper.appendChild(textarea);
+			wrapper.appendChild(BX.create('br'));
+			wrapper.innerHTML += BX.Loc.getMessage('BIZPROC_JS_BP_FIELD_TYPE_SELECT_OPTIONS1');
+			wrapper.appendChild(BX.create('br'));
+			wrapper.innerHTML += BX.Loc.getMessage('BIZPROC_JS_BP_FIELD_TYPE_SELECT_OPTIONS2');
+			wrapper.appendChild(BX.create('br'));
+			wrapper.appendChild(button);
+
+			return wrapper;
+		},
+		parseSelectFormOptions: function(rnd)
+		{
+			var result = {};
+			var str = document.getElementById('bizproc_fieldtype_select_form_options_' + rnd).value;
+			if (!str)
+			{
+				return result;
+			}
+
+			var rows = str.split(/[\r\n]+/);
+			var pattern = /\[([^\]]+)].+/;
+
+			for (var i in rows)
+			{
+				var row = BX.util.trim(rows[i]);
+				if (row.length > 0)
+				{
+					var matches = row.match(pattern);
+					if (matches)
+					{
+						var position = row.indexOf(']');
+						result[matches[1]] = row.substr(position + 1);
+					}
+					else
+					{
+						result[row] = row;
+					}
+				}
+			}
+
+			return result;
+		},
 		createBoolNode: function(property, fieldName, value)
 		{
 			var yesLabel = BX.message('BIZPROC_JS_BP_FIELD_TYPE_YES');
@@ -383,7 +482,7 @@
 				props: {
 					type: 'text',
 					name: fieldName + (isMultiple(property) ? '[]' : ''),
-					value: (value || '')
+					value: normalizeDateValue(value)
 				}
 			});
 

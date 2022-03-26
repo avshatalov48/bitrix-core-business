@@ -212,7 +212,34 @@ class TransferProvider extends TransferProviderBase
 	 */
 	public function getAvailableQuantity(array $products)
 	{
-		return $this->callProviderMethod('getAvailableQuantity', $products);
+		$result = $this->callProviderMethod('getAvailableQuantity', $products);
+
+		$resultData = $result->getData();
+		if (!array_key_exists('AVAILABLE_QUANTITY_LIST', $resultData))
+		{
+			return $result;
+		}
+
+		return $result->setData(['AVAILABLE_QUANTITY_LIST' => $resultData['AVAILABLE_QUANTITY_LIST']]);
+	}
+
+	/**
+	 * @param array $products
+	 *
+	 * @return Sale\Result
+	 * @throws Main\ObjectNotFoundException
+	 */
+	public function getAvailableQuantityByStore(array $products)
+	{
+		$result = $this->callProviderMethod('getAvailableQuantityByStore', $products);
+
+		$resultData = $result->getData();
+		if (!array_key_exists('AVAILABLE_QUANTITY_LIST_BY_STORE', $resultData))
+		{
+			return $result;
+		}
+
+		return $result->setData(['AVAILABLE_QUANTITY_LIST_BY_STORE' => $resultData['AVAILABLE_QUANTITY_LIST_BY_STORE']]);
 	}
 
 	/**
@@ -223,7 +250,16 @@ class TransferProvider extends TransferProviderBase
 	 */
 	public function getAvailableQuantityAndPrice(array $products)
 	{
-		return $this->callProviderMethod('getAvailableQuantityAndPrice', $products);
+		$result = $this->callProviderMethod('getAvailableQuantityAndPrice', $products);
+
+		$resultData = $result->getData();
+
+		return $result->setData([
+			'PRODUCT_DATA_LIST' => [
+				'PRICE_LIST' => $resultData['PRODUCT_DATA_LIST']['PRICE_LIST'],
+				'AVAILABLE_QUANTITY_LIST' => $resultData['PRODUCT_DATA_LIST']['AVAILABLE_QUANTITY_LIST']
+			]
+		]);
 	}
 
 	/**

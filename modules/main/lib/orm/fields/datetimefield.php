@@ -107,7 +107,9 @@ class DatetimeField extends DateField
 	{
 		try
 		{
-			return $this->getConnection()->getSqlHelper()->convertToDbDateTime($value);
+			return $value === null && $this->is_nullable
+				? $value
+				: $this->getConnection()->getSqlHelper()->convertToDbDateTime($value);
 		}
 		catch (ArgumentTypeException $e)
 		{

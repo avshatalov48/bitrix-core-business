@@ -19,6 +19,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\Component\BlogPostEdit;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Socialnetwork\Helper\Mention;
 use Bitrix\Main\Localization\Loc;
@@ -931,53 +932,9 @@ if (
 				{
 					$DB->StartTransaction();
 
-					$CATEGORYtmp = array();
-					if(!empty($_POST["TAGS"]))
-					{
-						$dbCategory = CBlogCategory::GetList(Array(), Array("BLOG_ID" => $arBlog["ID"]));
-						while ($arCategory = $dbCategory->Fetch())
-						{
-							$arCatBlog[ToLower($arCategory["NAME"])] = $arCategory["ID"];
-						}
-						$tags = explode (",", $_POST["TAGS"]);
-						foreach ($tags as $tg)
-						{
-							$tg = trim($tg);
-							if (
-								$tg <> ''
-								&& !in_array($arCatBlog[ToLower($tg)], $CATEGORYtmp)
-							)
-							{
-								$CATEGORYtmp[] = (
-									(int)$arCatBlog[ToLower($tg)] > 0
-										? $arCatBlog[ToLower($tg)]
-										: CBlogCategory::add([
-											'BLOG_ID' => $arBlog['ID'],
-											'NAME' => $tg,
-										])
-								);
-								$tagList[] = $tg;
-							}
-						}
-					}
-					elseif (!empty($_POST["CATEGORY_ID"]))
-					{
-						foreach ($_POST['CATEGORY_ID'] as $v)
-						{
-							$CATEGORYtmp[] = (
-								mb_substr($v, 0, 4) === 'new_'
-									? CBlogCategory::add([
-										'BLOG_ID' => $arBlog['ID'],
-										'NAME' => mb_substr($v, 4),
-									])
-									: $v
-							);
-						}
-					}
-					else
-					{
-						$CATEGORY_ID = "";
-					}
+					$categoryIdListFromPostData = BlogPostEdit\Tag::getTagsFromPostData([
+						'blogId' => $arBlog['ID'],
+					]);
 
 					$DATE_PUBLISH = "";
 					if ($_POST["DATE_PUBLISH_DEF"] <> '')
@@ -1056,6 +1013,7 @@ if (
 							while ($db->Fetch());
 						}
 					}
+
 					$arFields["PERMS_POST"] = array();
 					$arFields["PERMS_COMMENT"] = array();
 
@@ -1088,91 +1046,14 @@ if (
 						$checkTitle = true;
 					}
 
-					$arTagPrev = array();
+					$newCategoryIdList = BlogPostEdit\Tag::parseTagsFromFields([
+						'blogCategoryIdList' => $categoryIdListFromPostData,
+						'postFields' => $arFields,
+						'blogId' => $arBlog['ID'],
+					]);
 
-					if(!empty($CATEGORYtmp))
-					{
-						$res = CBlogCategory::getList(
-							array(),
-							array(
-								'@ID' => $CATEGORYtmp
-							),
-							false,
-							false,
-							array('NAME')
-						);
-						while($arCategory = $res->fetch())
-						{
-							$arTagPrev[] = $arCategory["NAME"];
-						}
-					}
-
-					$newCategoryIdList = array();
-					$postItem = new \Bitrix\Blog\Item\Post;
-					$postItem->setFields($arFields);
-
-					$codeList = array('DETAIL_TEXT');
-					if (
-						!isset($arFields['MICRO'])
-						|| $arFields['MICRO'] !== 'Y'
-					)
-					{
-						$codeList[] = 'TITLE';
-					}
-					$arTagInline = \Bitrix\Socialnetwork\Util::detectTags($arFields, $codeList);
-
-					$arTag = array_merge($arTagPrev, $arTagInline);
-					$arTag = array_intersect_key($arTag, array_unique(array_map('ToLower', $arTag)));
-
-					if (count($arTag) > count($arTagPrev))
-					{
-						$arTagPrevLower = array_unique(array_map('ToLower', $arTagPrev));
-						$newTagList = array();
-
-						foreach($arTagInline as $tagInline)
-						{
-							if (!in_array(ToLower($tagInline), $arTagPrevLower))
-							{
-								$newTagList[] = $tagInline;
-							}
-						}
-
-						if (!empty($newTagList))
-						{
-							$newTagList = array_unique($newTagList);
-
-							$existingCategoriesList = array();
-							$res = CBlogCategory::getList(
-								array(),
-								array(
-									"@NAME" => $newTagList,
-									"BLOG_ID" => $arBlog["ID"]
-								),
-								false,
-								false,
-								array('ID', 'NAME')
-							);
-							while ($arCategory = $res->fetch())
-							{
-								$existingCategoriesList[$arCategory['NAME']] = $arCategory['ID'];
-							}
-
-							foreach($newTagList as $newTag)
-							{
-								if (array_key_exists($newTag, $existingCategoriesList))
-								{
-									$newCategoryIdList[] = $existingCategoriesList[$newTag];
-								}
-								else
-								{
-									$newCategoryIdList[] = CBlogCategory::add(array("BLOG_ID" => $arBlog["ID"], "NAME" => $newTag));
-								}
-							}
-						}
-					}
-
-					$CATEGORYtmp = array_merge($CATEGORYtmp, $newCategoryIdList);
-					$CATEGORY_ID = implode(",", $CATEGORYtmp);
+					$categoryIdList = array_merge($categoryIdListFromPostData, $newCategoryIdList);
+					$CATEGORY_ID = implode(",", $categoryIdList);
 
 					$arFields["CATEGORY_ID"] = $CATEGORY_ID;
 					$arFields["SOCNET_RIGHTS"] = array();
@@ -1718,9 +1599,13 @@ if (
 							}
 
 							CBlogPostCategory::DeleteByPostID($newID);
-							foreach($CATEGORYtmp as $v)
+							foreach ($categoryIdList as $categoryId)
 							{
-								CBlogPostCategory::Add(Array("BLOG_ID" => $arBlog["ID"], "POST_ID" => $newID, "CATEGORY_ID"=>$v));
+								CBlogPostCategory::add([
+									'BLOG_ID' => $arBlog['ID'],
+									'POST_ID' => $newID,
+									'CATEGORY_ID' => $categoryId,
+								]);
 							}
 
 							$DB->Query("UPDATE b_blog_image SET POST_ID=".$newID." WHERE BLOG_ID=".$arBlog["ID"]." AND POST_ID=0", true);
@@ -1730,12 +1615,25 @@ if (
 							$bHasProps = false;
 							$bHasOnlyAll = false;
 
-							if(!empty($CATEGORYtmp))
+							if (!empty($categoryIdList))
+							{
 								$bHasTag = true;
+							}
 
-							$dbImg = CBlogImage::GetList(Array(), Array("BLOG_ID" => $arBlog["ID"], "POST_ID" => $newID, "IS_COMMENT" => "N"), false, false, Array("ID"));
-							if($dbImg->Fetch())
+							if (CBlogImage::GetList(
+								[],
+								[
+									'BLOG_ID' => $arBlog['ID'],
+									'POST_ID' => $newID,
+									'IS_COMMENT' => 'N',
+								],
+								false,
+								false,
+								[ 'ID' ]
+							)->fetch())
+							{
 								$bHasImg = true;
+							}
 
 							$arPostFieldsOLD = $arPostFields;
 
@@ -2319,10 +2217,12 @@ if (
 
 		$arResult["Category"] = Array();
 
-		if($arResult["PostToShow"]["CategoryText"] == '' && !empty($arResult["PostToShow"]["CATEGORY_ID"]))
+		if ($arResult["PostToShow"]["CategoryText"] == '' && !empty($arResult["PostToShow"]["CATEGORY_ID"]))
 		{
-			$res = CBlogCategory::GetList(array("NAME"=>"ASC"),array("BLOG_ID"=>$arBlog["ID"]));
-			while ($arCategory=$res->GetNext())
+
+			$selectedCategoriesList = [];
+			$res = CBlogCategory::GetList(array("NAME" => "ASC"), array("BLOG_ID" => $arBlog["ID"]));
+			while ($arCategory = $res->GetNext())
 			{
 				if (is_array($arResult["PostToShow"]["CATEGORY_ID"]))
 				{
@@ -2338,12 +2238,29 @@ if (
 
 				if ($arCategory['Selected'] === 'Y')
 				{
-					$arResult["PostToShow"]["CategoryText"] .= $arCategory["~NAME"].",";
+					$selectedCategoriesList[(int)$arCategory['ID']] = $arCategory["~NAME"];
 				}
 
 				$arResult["Category"][$arCategory["ID"]] = $arCategory;
 			}
-			$arResult["PostToShow"]["CategoryText"] = mb_substr($arResult["PostToShow"]["CategoryText"], 0, mb_strlen($arResult["PostToShow"]["CategoryText"]) - 1);
+
+			$categoryIdList = $arResult["PostToShow"]["CATEGORY_ID"];
+			if (!is_array($categoryIdList))
+			{
+				$categoryIdList = [ $categoryIdList ];
+			}
+
+			$selectedCategoriesNameList = [];
+			foreach($categoryIdList as $categoryId)
+			{
+				if (!isset($selectedCategoriesList[(int)$categoryId]))
+				{
+					continue;
+				}
+				$selectedCategoriesNameList[] = $selectedCategoriesList[(int)$categoryId];
+			}
+
+			$arResult['PostToShow']['CategoryText'] = implode(',', $selectedCategoriesNameList);
 		}
 
 		foreach ($arParams["POST_PROPERTY"] as $FIELD_NAME)

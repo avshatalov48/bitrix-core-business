@@ -138,7 +138,7 @@ class Bot
 			return false;
 		}
 
-		$botFields['LOGIN'] = mb_substr(self::LOGIN_START.$userCode.'_'.randString(5), 0, 50);
+		$botFields['LOGIN'] = mb_substr(self::LOGIN_START. mb_substr($userCode, 0, 40). '_'. randString(5), 0, 50);
 		$botFields['PASSWORD'] = md5($botFields['LOGIN'].'|'.rand(1000,9999).'|'.time());
 		$botFields['CONFIRM_PASSWORD'] = $botFields['PASSWORD'];
 		$botFields['EXTERNAL_AUTH_ID'] = self::EXTERNAL_AUTH_ID;
@@ -564,7 +564,9 @@ class Bot
 	{
 		$botExecModule = self::getBotsForMessage($messageFields);
 		if (!$botExecModule)
+		{
 			return true;
+		}
 
 		if ($messageFields['MESSAGE_TYPE'] != IM_MESSAGE_PRIVATE)
 		{
@@ -586,7 +588,9 @@ class Bot
 		foreach ($botExecModule as $params)
 		{
 			if (!$params['MODULE_ID'] || !\Bitrix\Main\Loader::includeModule($params['MODULE_ID']))
+			{
 				continue;
+			}
 
 			$messageFields['BOT_ID'] = $params['BOT_ID'];
 
@@ -610,7 +614,11 @@ class Bot
 			ExecuteModuleEventEx($event, Array($botExecModule, $messageId, $messageFields));
 		}
 
-		if ($messageFields['CHAT_ENTITY_TYPE'] == 'LINES' && trim($messageFields['MESSAGE']) == '0' && \Bitrix\Main\Loader::includeModule('imopenlines'))
+		if (
+			$messageFields['CHAT_ENTITY_TYPE'] == 'LINES'
+			&& trim($messageFields['MESSAGE']) === '0'
+			&& \Bitrix\Main\Loader::includeModule('imopenlines')
+		)
 		{
 			$chat = new \Bitrix\Imopenlines\Chat($messageFields['TO_CHAT_ID']);
 			$chat->endBotSession();
@@ -623,7 +631,9 @@ class Bot
 	{
 		$botExecModule = self::getBotsForMessage($messageFields);
 		if (!$botExecModule)
+		{
 			return true;
+		}
 
 		if ($messageFields['MESSAGE_TYPE'] != IM_MESSAGE_PRIVATE)
 		{
@@ -645,7 +655,9 @@ class Bot
 		foreach ($botExecModule as $params)
 		{
 			if (!$params['MODULE_ID'] || !\Bitrix\Main\Loader::includeModule($params['MODULE_ID']))
+			{
 				continue;
+			}
 
 			$messageFields['BOT_ID'] = $params['BOT_ID'];
 
@@ -672,7 +684,9 @@ class Bot
 	{
 		$botExecModule = self::getBotsForMessage($messageFields);
 		if (!$botExecModule)
+		{
 			return true;
+		}
 
 		$messageFields['DIALOG_ID'] = \Bitrix\Im\Bot::getDialogId($messageFields);
 		$messageFields = self::removeFieldsToEvent($messageFields);
@@ -680,7 +694,9 @@ class Bot
 		foreach ($botExecModule as $params)
 		{
 			if (!$params['MODULE_ID'] || !\Bitrix\Main\Loader::includeModule($params['MODULE_ID']))
+			{
 				continue;
+			}
 
 			$messageFields['BOT_ID'] = $params['BOT_ID'];
 
@@ -707,15 +723,21 @@ class Bot
 	{
 		$bots = self::getListCache();
 		if (empty($bots))
+		{
 			return true;
+		}
 
 		if (!isset($joinFields['BOT_ID']) || !$bots[$joinFields['BOT_ID']])
+		{
 			return false;
+		}
 
 		$bot = $bots[$joinFields['BOT_ID']];
 
 		if (!\Bitrix\Main\Loader::includeModule($bot['MODULE_ID']))
+		{
 			return false;
+		}
 
 		if ($joinFields['CHAT_TYPE'] == IM_MESSAGE_PRIVATE)
 		{
@@ -794,15 +816,21 @@ class Bot
 	{
 		$bots = self::getListCache();
 		if (empty($bots))
+		{
 			return true;
+		}
 
 		if (!isset($leaveFields['BOT_ID']) || !$bots[$leaveFields['BOT_ID']])
+		{
 			return false;
+		}
 
 		$bot = $bots[$leaveFields['BOT_ID']];
 
 		if (!\Bitrix\Main\Loader::includeModule($bot['MODULE_ID']))
+		{
 			return false;
+		}
 
 		if ($leaveFields['CHAT_TYPE'] == IM_MESSAGE_PRIVATE)
 		{
@@ -829,20 +857,30 @@ class Bot
 		$appId = isset($bot['APP_ID'])? $bot['APP_ID']: '';
 
 		if (intval($botId) <= 0)
+		{
 			return false;
+		}
 
 		if (!\Bitrix\Im\User::getInstance($botId)->isExists() || !\Bitrix\Im\User::getInstance($botId)->isBot())
+		{
 			return false;
+		}
 
 		$bots = self::getListCache();
 		if (!isset($bots[$botId]))
+		{
 			return false;
+		}
 
 		if ($moduleId <> '' && $bots[$botId]['MODULE_ID'] != $moduleId)
+		{
 			return false;
+		}
 
 		if ($appId <> '' && $bots[$botId]['APP_ID'] != $appId)
+		{
 			return false;
+		}
 
 		\CIMMessenger::StartWriting($dialogId, $botId, $userName);
 
@@ -880,20 +918,30 @@ class Bot
 		$appId = isset($bot['APP_ID'])? $bot['APP_ID']: '';
 
 		if (intval($botId) <= 0)
+		{
 			return false;
+		}
 
 		if (!\Bitrix\Im\User::getInstance($botId)->isExists() || !\Bitrix\Im\User::getInstance($botId)->isBot())
+		{
 			return false;
+		}
 
 		$bots = self::getListCache();
 		if (!isset($bots[$botId]))
+		{
 			return false;
+		}
 
 		if ($moduleId <> '' && $bots[$botId]['MODULE_ID'] != $moduleId)
+		{
 			return false;
+		}
 
 		if ($appId <> '' && $bots[$botId]['APP_ID'] != $appId)
+		{
 			return false;
+		}
 
 		$isPrivateSystem = false;
 		if ($messageFields['FROM_USER_ID'] && $messageFields['TO_USER_ID'])
@@ -916,7 +964,9 @@ class Bot
 		{
 			$chatId = \Bitrix\Im\Dialog::getChatId($messageFields['DIALOG_ID']);
 			if ($chatId <= 0)
+			{
 				return false;
+			}
 
 			if (\CIMChat::GetGeneralChatId() == $chatId && !\CIMChat::CanSendMessageToGeneralChat($botId))
 			{
@@ -1179,7 +1229,7 @@ class Bot
 		}
 		else
 		{
-			$dialogId = 'chat'.$messageFields['TO_CHAT_ID'];
+			$dialogId = 'chat'.($messageFields['TO_CHAT_ID'] ?? $messageFields['CHAT_ID']);
 		}
 
 		return $dialogId;
@@ -1486,17 +1536,29 @@ class Bot
 	 * @param $messageFields
 	 * @return array
 	 */
-	private static function getBotsForMessage($messageFields)
+	private static function getBotsForMessage($messageFields): array
 	{
 		$bots = self::getListCache();
 		if (empty($bots))
-			return Array();
+		{
+			return [];
+		}
 
 		if (isset($bots[$messageFields['FROM_USER_ID']]))
-			return Array();
+		{
+			return [];
+		}
+		if (
+			$messageFields['MESSAGE_TYPE'] === \IM_MESSAGE_CHAT
+			&& $messageFields['CHAT_ENTITY_TYPE'] === 'SUPPORT24_QUESTION' /** @see \Bitrix\ImBot\Bot\Support24::CHAT_ENTITY_TYPE */
+			&& isset($bots[$messageFields['AUTHOR_ID']])
+		)
+		{
+			return [];
+		}
 
-		$botExecModule = Array();
-		if ($messageFields['MESSAGE_TYPE'] == IM_MESSAGE_PRIVATE)
+		$botExecModule = [];
+		if ($messageFields['MESSAGE_TYPE'] === \IM_MESSAGE_PRIVATE)
 		{
 			if (isset($bots[$messageFields['TO_USER_ID']]))
 			{
@@ -1505,8 +1567,11 @@ class Bot
 		}
 		else
 		{
-			$botFound = Array();
-			if ($messageFields['CHAT_ENTITY_TYPE'] == 'LINES')
+			$botFound = [];
+			if (
+				$messageFields['CHAT_ENTITY_TYPE'] === 'LINES'
+				|| $messageFields['CHAT_ENTITY_TYPE'] === 'SUPPORT24_QUESTION' /** @see \Bitrix\ImBot\Bot\Support24::CHAT_ENTITY_TYPE */
+			)
 			{
 				$botFound = $messageFields['BOT_IN_CHAT'];
 			}

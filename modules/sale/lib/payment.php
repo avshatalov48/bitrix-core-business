@@ -435,7 +435,11 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 		{
 			if ($value === "Y")
 			{
-				$this->setField('DATE_PAID', new Main\Type\DateTime());
+				if (!$this->getFields()->isChanged('DATE_PAID'))
+				{
+					$this->setField('DATE_PAID', new Main\Type\DateTime());
+				}
+
 				$this->setField('EMP_PAID_ID', $USER->GetID());
 
 				if ($this->getField('IS_RETURN') === self::RETURN_INNER)
@@ -598,6 +602,19 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 		}
 
 		return parent::onFieldModify($name, $oldValue, $value);
+	}
+
+	public function onBeforeBasketItemDelete(BasketItem $basketItem)
+	{
+		$result = new Result();
+
+		$r = $this->getPayableItemCollection()->onBeforeBasketItemDelete($basketItem);
+		if (!$r->isSuccess())
+		{
+			$result->addErrors($r->getErrors());
+		}
+
+		return $result;
 	}
 
 	/**

@@ -29,7 +29,7 @@
 .landing-ui-field-checkbox-item {
 	display: flex;
 	width: 100%;
-	align-items: baseline;
+	align-items: center;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
@@ -38,6 +38,7 @@
 
 .landing-ui-field-checkbox-item-checkbox {
 	transform: translateY(6%);
+	margin-top: -2px;
 }
 
 .landing-ui-field-checkbox-item-label {

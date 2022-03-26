@@ -329,14 +329,16 @@ class UICommon
 				else
 				{
 					copyGroupItem.onclick = () => {
-						if (!!params.isProject)
-						{
-							BX.UI.InfoHelper.show('limit_task_copy_project');
-						}
-						else
-						{
-							BX.UI.InfoHelper.show('limit_task_copy_group');
-						}
+						BX.UI.InfoHelper.show(
+							(!!params.isProject ? 'limit_task_copy_project' : 'limit_task_copy_group'),
+							{
+								isLimit: true,
+								limitAnalyticsLabels: {
+									module: 'socialnetwork',
+									source: 'projectCardActions',
+								},
+							}
+						);
 					};
 				}
 

@@ -53,6 +53,7 @@
 		microphoneState: 'Call::microphoneState',
 		cameraState: 'Call::cameraState',
 		videoPaused: 'Call::videoPaused',
+		customMessage: 'Call::customMessage',
 		hangup: 'Call::hangup',
 		userInviteTimeout: 'Call::userInviteTimeout'
 	};
@@ -770,6 +771,14 @@
 		}
 	}
 
+	BX.Call.PlainCall.prototype.sendCustomMessage = function(message)
+	{
+		this.signaling.sendCustomMessage({
+			userId: this.users,
+			message: message
+		});
+	}
+
 	/**
 	 * @param {Object} config
 	 * @param {bool} [config.useVideo]
@@ -1111,7 +1120,8 @@
 			'Call::userInviteTimeout': this.__onPullEventUserInviteTimeout.bind(this),
 			'Call::associatedEntityReplaced': this.__onPullEventAssociatedEntityReplaced.bind(this),
 			'Call::finish': this.__onPullEventFinish.bind(this),
-			'Call::repeatAnswer': this.__onPullEventRepeatAnswer.bind(this)
+			'Call::repeatAnswer': this.__onPullEventRepeatAnswer.bind(this),
+			'Call::customMessage': this.__onPullEventCallCustomMessage.bind(this),
 		};
 
 		if(handlers[command])
@@ -1419,6 +1429,11 @@
 		}
 	};
 
+	BX.Call.PlainCall.prototype.__onPullEventCallCustomMessage = function(params)
+	{
+		this.runCallback(BX.Call.Event.onCustomMessage, {message: params.message});
+	}
+
 	BX.Call.PlainCall.prototype.__onPeerStateChanged = function(e)
 	{
 		this.runCallback(BX.Call.Event.onUserStateChanged, e);
@@ -1647,6 +1662,14 @@
 		if (BX.CallEngine.getPullClient().isPublishingEnabled())
 		{
 			this.__sendPullEvent(pullEvents.ping, data, 5);
+		}
+	};
+
+	BX.Call.PlainCall.Signaling.prototype.sendCustomMessage = function(data)
+	{
+		if (BX.CallEngine.getPullClient().isPublishingEnabled())
+		{
+			this.__sendPullEvent(pullEvents.customMessage, data, 5);
 		}
 	};
 

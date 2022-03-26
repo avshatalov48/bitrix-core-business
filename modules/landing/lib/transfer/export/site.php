@@ -134,6 +134,29 @@ class Site
 	}
 
 	/**
+	 * Get all site's folders in new format.
+	 * @param int $siteId Site id.
+	 * @return array
+	 */
+	private static function getFolders(int $siteId): array
+	{
+		$folders = [];
+
+		foreach (SiteCore::getFolders($siteId) as $folder)
+		{
+			$folders[$folder['ID']] = [
+				'PARENT_ID' => $folder['PARENT_ID'],
+				'ACTIVE' => $folder['ACTIVE'],
+				'TITLE' => $folder['TITLE'],
+				'CODE' => $folder['CODE'],
+				'INDEX_ID' => $folder['INDEX_ID']
+			];
+		}
+
+		return $folders;
+	}
+
+	/**
 	 * Exports site meta information.
 	 * @param int $siteId Site id.
 	 * @return array|null
@@ -155,6 +178,7 @@ class Site
 		$site['DATE_CREATE'] = (string)$site['DATE_CREATE'];
 		$site['DATE_MODIFY'] = (string)$site['DATE_MODIFY'];
 		$site['SYS_PAGES'] = \Bitrix\Landing\Syspage::get($siteId);
+		$site['FOLDERS_NEW'] = self::getFolders($siteId);
 
 		// layout templates
 		$site['TEMPLATES'] = [];

@@ -1,0 +1,24 @@
+<?php
+$MESS["STORE_LIST_ACTION_ACTIVATE_ERROR"] = "Неможливо активувати склад із кодом ##ID#";
+$MESS["STORE_LIST_ACTION_ACTIVATE_TEXT"] = "Активувати";
+$MESS["STORE_LIST_ACTION_ACTIVATE_TITLE"] = "Активувати";
+$MESS["STORE_LIST_ACTION_DEACTIVATE_ERROR"] = "Неможливо деактивувати склад із кодом ##ID#";
+$MESS["STORE_LIST_ACTION_DEACTIVATE_TEXT"] = "Деактивувати";
+$MESS["STORE_LIST_ACTION_DEACTIVATE_TITLE"] = "Деактивувати";
+$MESS["STORE_LIST_ACTION_DEFAULT_STORE_DEACTIVATE_ERROR"] = "Заборонено деактивувати склад за замовчуванням";
+$MESS["STORE_LIST_ACTION_DEFAULT_STORE_DELETE_ERROR"] = "Заборонено видаляти склад за замовчуванням";
+$MESS["STORE_LIST_ACTION_DELETE_CONFIRM"] = "Ви впевнені, що хочете видалити склад?";
+$MESS["STORE_LIST_ACTION_DELETE_ERROR"] = "Неможливо видалити склад із кодом ##ID#";
+$MESS["STORE_LIST_ACTION_DELETE_TEXT"] = "Видалити";
+$MESS["STORE_LIST_ACTION_DELETE_TITLE"] = "Видалити";
+$MESS["STORE_LIST_ACTION_OPEN_TEXT"] = "Редагувати";
+$MESS["STORE_LIST_ACTION_OPEN_TITLE"] = "Редагувати";
+$MESS["STORE_LIST_ACTION_SET_AS_DEFAULT_ERROR"] = "Помилка при вказуванні складу за замовчуванням: #ERROR#";
+$MESS["STORE_LIST_ACTION_SET_AS_DEFAULT_NON_ACTIVE_ERROR"] = "Неможливо зробити складом за замовчуванням неактивний склад";
+$MESS["STORE_LIST_ACTION_SET_AS_DEFAULT_SITE_ERROR"] = "Склад за замовчуванням не може бути прив'язаний до сайту";
+$MESS["STORE_LIST_ACTION_SET_AS_DEFAULT_TEXT"] = "Зробити складом за замовчуванням";
+$MESS["STORE_LIST_ACTION_SET_AS_DEFAULT_TITLE"] = "Зробити складом за замовчуванням";
+$MESS["STORE_LIST_ADD_STORE_BUTTON"] = "Додати";
+$MESS["STORE_LIST_NO_VIEW_RIGHTS_ERROR"] = "Недостатньо прав для перегляду списку складів";
+$MESS["STORE_LIST_NO_WRITE_RIGHTS_ERROR"] = "Недостатньо прав для редагування складів";
+$MESS["STORE_LIST_SITE_NAME_TEMPLATE"] = "#SITE_NAME# (#SITE_ID#)";

@@ -78,6 +78,6 @@ else
 	Sale\PaySystem\Logger::addDebugInfo('Robokassa redirect request: '.($debugInfo ?: 'empty'));
 }
 
-LocalRedirect($redirectUrl);
+LocalRedirect($redirectUrl, true);
 
 require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/footer.php');

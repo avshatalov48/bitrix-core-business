@@ -40,7 +40,9 @@ Extension::load([
 				fileView: <?=CUtil::PhpToJSObject($arResult['FILE_PREVIEW'])?>,
 				rowIdMask: '<?=CUtil::JSEscape($arParams['ROW_ID_MASK'])?>',
 				mode: '<?=CUtil::JSEscape($arResult['MODE'])?>',
-				fileType: '<?=CUtil::JSEscape($arResult['FILE_TYPE'])?>'
+				fileType: '<?=CUtil::JSEscape($arResult['FILE_TYPE'])?>',
+				immutableFields: ['NAME'],
+				storeMap: [],
 			}
 		);
 	});

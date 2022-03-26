@@ -16,7 +16,10 @@ Loc::loadMessages(__FILE__);
 
 class Rest extends Sender\Base
 {
+	public const ID = 'rest';
+
 	static $langFields;
+	static $countRestApps;
 
 	public static function isSupported()
 	{
@@ -25,7 +28,7 @@ class Rest extends Sender\Base
 
 	public function getId()
 	{
-		return 'rest';
+		return static::ID;
 	}
 
 	public function getName()
@@ -42,7 +45,12 @@ class Rest extends Sender\Base
 	{
 		if (Loader::includeModule('rest') && \Bitrix\Rest\OAuthService::getEngine()->isRegistered())
 		{
-			return RestAppTable::getCount() > 0;
+			if (static::$countRestApps === null)
+			{
+				static::$countRestApps = RestAppTable::getCount();
+			}
+
+			return static::$countRestApps > 0;
 		}
 		return false;
 	}

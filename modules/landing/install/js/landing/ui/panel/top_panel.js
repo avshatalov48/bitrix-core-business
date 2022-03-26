@@ -508,7 +508,25 @@
 			{
 				this.pageMenu.close();
 			}
-		}
+		},
+
+		getFormNameLayout: function()
+		{
+			return this.layout.querySelector('.landing-ui-panel-top-form-name');
+		},
+
+		setFormName: function(text)
+		{
+			if (BX.Type.isString(text))
+			{
+				var formNameLayout = this.getFormNameLayout();
+				if (BX.Type.isDomNode(formNameLayout))
+				{
+					formNameLayout.firstElementChild.textContent = text;
+					formNameLayout.firstElementChild.setAttribute('title', text);
+				}
+			}
+		},
 	};
 
 })();

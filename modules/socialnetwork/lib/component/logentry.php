@@ -45,6 +45,13 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 		return [];
 	}
 
+	public function onPrepareComponentParams($params = [])
+	{
+		$this->errorCollection = new ErrorCollection();
+
+		return $params;
+	}
+
 	public static function addComment(array $params = []): array
 	{
 		global $USER, $USER_FIELD_MANAGER;
@@ -742,13 +749,14 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 
 			if (
 				!empty($commentEvent)
+				&& !empty($commentEvent['RATING_TYPE_ID'])
 				&& $logCommentId > 0
 			)
 			{
 				$res = \CSocNetLogComments::getList(
 					[],
 					[
-						'EVENT_ID' => $commentEvent['EVENT_ID'],
+						'RATING_TYPE_ID' => $commentEvent['RATING_TYPE_ID'],
 						'RATING_ENTITY_ID' => $logCommentId,
 					],
 					false,

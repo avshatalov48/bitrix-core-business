@@ -112,11 +112,27 @@ class RestProfile extends Base
 			$handlerParams['SETTINGS']['CALCULATE_URL'],
 			[
 				'SHIPMENT' => DataProviders\Shipment::getData($shipment),
+			],
+			[
+				'JSON_REQUEST' => true,
 			]
 		);
 		if ($sendRequestResult->isSuccess())
 		{
 			$calculatedData = $sendRequestResult->getData();
+
+			if (!(isset($calculatedData['SUCCESS']) && $calculatedData['SUCCESS'] === 'Y'))
+			{
+				$errorText = (
+					isset($calculatedData['REASON']['TEXT'])
+					&& is_string($calculatedData['REASON']['TEXT'])
+					&& !empty($calculatedData['REASON']['TEXT'])
+				)
+					? $calculatedData['REASON']['TEXT']
+					: Loc::getMessage('SALE_DELIVERY_REST_PROFILE_PRICE_CALCULATION_ERROR');
+
+				$result->addError(new Main\Error($errorText, 'DELIVERY_CALCULATION'));
+			}
 
 			if (!empty($calculatedData['PRICE']))
 			{
@@ -180,14 +196,6 @@ class RestProfile extends Base
 		$code = str_replace(self::HANDLER_CODE_PREFIX, '', $this->restHandler->getHandlerCode());
 
 		return $handlerList[$code];
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isCalculatePriceImmediately(): bool
-	{
-		return $this->restHandler->isCalculatePriceImmediately();
 	}
 
 	/**

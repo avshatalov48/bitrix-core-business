@@ -4,95 +4,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,main_core,main_core_events,landing_env) {
 	'use strict';
 
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-form-footer\"></div>"]);
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9;
 
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-form-body\"></div>"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-form-description\"></div>"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-form-header\"></div>"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-form\"></div>"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a href=\"", "\" class=\"landing-ui-form-header-checkbox-help\" target=\"_blank\"> </a>\n\t\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-form-header-checkbox\">", "", "</div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label for=\"", "\" class=\"landing-ui-form-header-checkbox-label\">", "</label>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input type=\"checkbox\" id=\"", "\" class=\"landing-ui-form-header-checkbox-input\">\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 	/**
 	 * @memberOf BX.Landing.UI.Form
@@ -109,7 +25,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    _this.setEventNamespace('BX.Landing.UI.Form.BaseForm');
 
-	    _this.data = babelHelpers.objectSpread({}, data);
+	    _this.data = _objectSpread({}, data);
 	    _this.options = _this.data;
 	    _this.id = Reflect.has(_this.data, 'id') ? _this.data.id : main_core.Text.getRandom();
 	    _this.selector = Reflect.has(_this.data, 'selector') ? _this.data.selector : '';
@@ -196,9 +112,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            help = _this2$headerCheckbox.help,
 	            state = _this2$headerCheckbox.state,
 	            onChange = _this2$headerCheckbox.onChange;
-	        var input = main_core.Tag.render(_templateObject(), checkboxId);
-	        var label = main_core.Tag.render(_templateObject2(), checkboxId, text);
-	        var layout = main_core.Tag.render(_templateObject3(), input, label);
+	        var input = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input type=\"checkbox\" id=\"", "\" class=\"landing-ui-form-header-checkbox-input\">\n\t\t\t"])), checkboxId);
+	        var label = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label for=\"", "\" class=\"landing-ui-form-header-checkbox-label\">", "</label>\n\t\t\t"])), checkboxId, text);
+	        var layout = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-form-header-checkbox\">", "", "</div>\n\t\t\t"])), input, label);
 
 	        if (main_core.Text.toBoolean(state)) {
 	          input.setAttribute('checked', true);
@@ -214,7 +130,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        }
 
 	        if (main_core.Type.isString(help) && help !== '') {
-	          var helpButton = main_core.Tag.render(_templateObject4(), help);
+	          var helpButton = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a href=\"", "\" class=\"landing-ui-form-header-checkbox-help\" target=\"_blank\"> </a>\n\t\t\t\t"])), help);
 	          main_core.Dom.append(helpButton, layout);
 	        }
 
@@ -342,27 +258,27 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }], [{
 	    key: "createLayout",
 	    value: function createLayout() {
-	      return main_core.Tag.render(_templateObject5());
+	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-form\"></div>"])));
 	    }
 	  }, {
 	    key: "createHeader",
 	    value: function createHeader() {
-	      return main_core.Tag.render(_templateObject6());
+	      return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-form-header\"></div>"])));
 	    }
 	  }, {
 	    key: "createDescription",
 	    value: function createDescription() {
-	      return main_core.Tag.render(_templateObject7());
+	      return main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-form-description\"></div>"])));
 	    }
 	  }, {
 	    key: "createBody",
 	    value: function createBody() {
-	      return main_core.Tag.render(_templateObject8());
+	      return main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-form-body\"></div>"])));
 	    }
 	  }, {
 	    key: "createFooter",
 	    value: function createFooter() {
-	      return main_core.Tag.render(_templateObject9());
+	      return main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-form-footer\"></div>"])));
 	    }
 	  }]);
 	  return BaseForm;

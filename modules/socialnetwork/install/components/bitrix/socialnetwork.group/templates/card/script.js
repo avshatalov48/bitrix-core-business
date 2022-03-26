@@ -55,32 +55,15 @@ this.BX = this.BX || {};
 	    babelHelpers.classCallCheck(this, WorkgroupCardFavorites);
 	    this.value = !!params.value;
 	    this.containerNode = params.containerNode;
-	    this.styles = params.styles;
 	    this.groupId = parseInt(params.groupId);
 
 	    if (this.containerNode) {
-	      if (main_core.Type.isPlainObject(this.styles) && main_core.Type.isStringFilled(this.styles.switch)) {
-	        this.containerNode.querySelectorAll(".".concat(this.styles.switch)).forEach(function (node) {
-	          node.addEventListener('click', function (e) {
-	            _this.set(e);
-	          }, true);
-	        });
-	      }
-
 	      main_core_events.EventEmitter.subscribe('BX.Socialnetwork.WorkgroupMenu:onSetFavorites', function (event) {
 	        var _event$getCompatData = event.getCompatData(),
 	            _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
 	            params = _event$getCompatData2[0];
 
 	        _this.setValue(params.value);
-
-	        if (parseInt(params.groupId) === _this.groupId) {
-	          var targetNode = _this.containerNode.querySelector(".".concat(_this.styles.switch));
-
-	          if (targetNode) {
-	            _this.switch(targetNode, params.value);
-	          }
-	        }
 	      });
 	    }
 	  }
@@ -106,16 +89,6 @@ this.BX = this.BX || {};
 	      this.setValue(newValue);
 	      sonetGroupMenu.favoritesValue = newValue;
 	      sonetGroupMenu.setItemTitle(newValue);
-	      var targetNode = event.target.classList.contains(this.styles.switch) ? event.target : null;
-
-	      if (!targetNode) {
-	        targetNode = this.containerNode.querySelector(".".concat(this.styles.switch));
-	      }
-
-	      if (targetNode) {
-	        this.switch(targetNode, newValue);
-	      }
-
 	      BX.SocialnetworkUICommon.setFavoritesAjax({
 	        groupId: this.groupId,
 	        favoritesValue: currentValue,
@@ -150,25 +123,10 @@ this.BX = this.BX || {};
 	            if (main_core.Type.isStringFilled(data.ERROR)) {
 	              WorkgroupCardUtil.processAJAXError(data.ERROR);
 	            }
-
-	            _this2.switch(targetNode, currentValue);
 	          }
 	        }
 	      });
 	      event.preventDefault();
-	    }
-	  }, {
-	    key: "switch",
-	    value: function _switch(node, active) {
-	      if (!main_core.Type.isDomNode(node) || !main_core.Type.isPlainObject(this.styles) || !main_core.Type.isStringFilled(this.styles.activeSwitch)) {
-	        return;
-	      }
-
-	      if (active) {
-	        node.classList.add(this.styles.activeSwitch);
-	      } else {
-	        node.classList.remove(this.styles.activeSwitch);
-	      }
 	    }
 	  }]);
 	  return WorkgroupCardFavorites;
@@ -338,8 +296,7 @@ this.BX = this.BX || {};
 	      this.favoritesInstance = new WorkgroupCardFavorites({
 	        groupId: this.groupId,
 	        value: !!params.favoritesValue,
-	        containerNode: this.containerNode,
-	        styles: params.styles.fav
+	        containerNode: this.containerNode
 	      });
 	      this.subscriptionInstance = new WorkgroupCardSubscription({
 	        groupId: this.groupId,

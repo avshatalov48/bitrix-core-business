@@ -25,7 +25,7 @@ return [
 		'nodes' => [
 			'.landing-block-node-title' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_27_3_ONE_COL_FIX_TITLE_AND_TEXT_2_STYLE_LANDINGBLOCKNODETITLE'),
-				'type' => ['typo', 'container', 'heading'],
+				'type' => ['typo', 'container', 'heading', 'animation'],
 			],
 		],
 	],

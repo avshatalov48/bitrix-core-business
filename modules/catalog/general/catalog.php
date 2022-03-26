@@ -1499,7 +1499,7 @@ class CAllCatalog
 				{
 					$messages[] = Loc::getMessage('BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_CODE');
 				}
-				elseif (isset($fields['MULTIPLE']) || $fields['MULTIPLE'] !== 'Y')
+				elseif (isset($fields['MULTIPLE']) && $fields['MULTIPLE'] !== 'Y')
 				{
 					$messages[] = Loc::getMessage('BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_MULTIPLE');
 				}

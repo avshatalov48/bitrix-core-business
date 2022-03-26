@@ -137,7 +137,7 @@
 	        }
 	      }).then(function (_ref2) {
 	        var _ref2$data = _ref2.data,
-	            canDelete = _ref2$data.delete,
+	            canDelete = _ref2$data["delete"],
 	            canEdit = _ref2$data.edit;
 
 	        if (main_core.Type.isDomNode(buttonNode)) {
@@ -179,7 +179,7 @@
 
 	          _this4.menu.show();
 	        }
-	      }).catch(function (response) {
+	      })["catch"](function (response) {
 	        console.error(response);
 	      });
 	    }
@@ -212,7 +212,7 @@
 	        }
 	      }).then(function (response) {
 	        _this5.onSuccessfulDelete(response);
-	      }).catch(function (response) {
+	      })["catch"](function (response) {
 	        _this5.onFailedDelete(response);
 	      });
 	    }

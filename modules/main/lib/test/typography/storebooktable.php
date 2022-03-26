@@ -21,9 +21,9 @@ use Bitrix\Main\ORM\Query\Join;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_StoreBook_Query query()
- * @method static EO_StoreBook_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_StoreBook_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_StoreBook_Result getById($id)
- * @method static EO_StoreBook_Result getList(array $parameters = array())
+ * @method static EO_StoreBook_Result getList(array $parameters = [])
  * @method static EO_StoreBook_Entity getEntity()
  * @method static \Bitrix\Main\Test\Typography\EO_StoreBook createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\Test\Typography\EO_StoreBook_Collection createCollection()

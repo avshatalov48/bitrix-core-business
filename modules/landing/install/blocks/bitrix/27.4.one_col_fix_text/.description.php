@@ -25,7 +25,7 @@ return array(
 		'nodes' => array(
 			'.landing-block-node-text' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_27_4_ONE_COL_FIX_TEXT_NODES_LANDINGBLOCKNODE_TEXT'),
-				'type' => ['typo', 'container'],
+				'type' => ['typo', 'container', 'animation'],
 			),
 		),
 	),

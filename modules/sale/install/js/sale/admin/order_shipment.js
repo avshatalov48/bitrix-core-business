@@ -1234,11 +1234,12 @@ BX.Sale.Admin.OrderShipment.prototype.showCreateCheckWindow = function(shipmentI
 					{
 						ShowWaitWindow();
 						var form = BX('check_shipment');
-						
+
 						var subRequest = {
 							formData : BX.ajax.prepareForm(form),
 							action: 'saveCheck',
-							sessid: BX.bitrix_sessid()
+							sessid: BX.bitrix_sessid(),
+							lang: BX.message('LANGUAGE_ID')
 						};
 
 						BX.ajax(
@@ -1285,7 +1286,7 @@ BX.Sale.Admin.OrderShipment.prototype.showCreateCheckWindow = function(shipmentI
 BX.Sale.Admin.OrderShipment.prototype.onCheckEntityChoose = function (currentElement)
 {
 	var checked = currentElement.checked;
-	
+
 	var paymentType = BX(currentElement.id+"_type");
 	if (paymentType)
 		paymentType.disabled = !checked;
@@ -1303,7 +1304,7 @@ BX.Sale.Admin.OrderShipment.prototype.sendQueryCheckStatus = function(checkId)
 			{
 				BX.Sale.Admin.OrderEditPage.showDialog(result.ERROR);
 			}
-			
+
 			var shipmentId = result.SHIPMENT_ID;
 			BX('SHIPMENT_CHECK_LIST_ID_' + shipmentId).innerHTML = result.CHECK_LIST_HTML;
 			if (BX('SHIPMENT_CHECK_LIST_ID_SHORT_VIEW' + shipmentId) !== undefined && BX('SHIPMENT_CHECK_LIST_ID_SHORT_VIEW' + shipmentId) !== null)
@@ -1341,7 +1342,7 @@ BX.Sale.Admin.GeneralShipment =
 
 		window.location = url;
 	},
-	
+
 	findProductByBarcode : function(_this)
 	{
 		BX.hide(_this.parentNode);

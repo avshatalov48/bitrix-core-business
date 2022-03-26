@@ -43,10 +43,11 @@ class File
 	 * Add new record.
 	 * @param int $fileId File id.
 	 * @param int $entityId Entity id.
-	 * @param int $entityType Entity type.
+	 * @param string $entityType Entity type.
+	 * @param bool $temp This is temporary file.
 	 * @return void
 	 */
-	protected static function add($fileId, $entityId, $entityType)
+	protected static function add(int $fileId, int $entityId, string $entityType, bool $temp = false): void
 	{
 		$res = FileTable::getList(array(
 			'select' => array(
@@ -63,7 +64,8 @@ class File
 			$res = FileTable::add(array(
 				'FILE_ID' => $fileId,
 				'ENTITY_ID' => $entityId,
-				'ENTITY_TYPE' => $entityType
+				'ENTITY_TYPE' => $entityType,
+				'TEMP' => $temp ? 'Y' : 'N'
 			));
 			$res->isSuccess();
 		}
@@ -199,13 +201,14 @@ class File
 	 * Add new record for Site.
 	 * @param int $id Site id.
 	 * @param int $fileId File id.
+	 * @param bool $temp This is temporary file.
 	 * @return void
 	 */
-	public static function addToSite($id, $fileId)
+	public static function addToSite(int $id, int $fileId, bool $temp = false): void
 	{
 		if ($fileId > 0 && $id > 0)
 		{
-			self::add($fileId, $id, self::ENTITY_TYPE_SITE);
+			self::add($fileId, $id, self::ENTITY_TYPE_SITE, $temp);
 		}
 	}
 
@@ -275,9 +278,10 @@ class File
 	 * Add new record(s) for Block.
 	 * @param int $blockId Block id.
 	 * @param int|array $fileId File id (or file ids).
+	 * @param bool $temp This is temporary file.
 	 * @return void
 	 */
-	public static function addToBlock($blockId, $fileId)
+	public static function addToBlock(int $blockId, $fileId, bool $temp = false): void
 	{
 		if ($blockId > 0)
 		{
@@ -289,7 +293,7 @@ class File
 			{
 				if ($fid > 0)
 				{
-					self::add($fid, $blockId, self::ENTITY_TYPE_BLOCK);
+					self::add($fid, $blockId, self::ENTITY_TYPE_BLOCK, $temp);
 				}
 			}
 		}
@@ -570,9 +574,9 @@ class File
 	/**
 	 * Gets core file path.
 	 * @param int $fileId File id.
-	 * @return string
+	 * @return string|null
 	 */
-	public static function getFilePath($fileId)
+	public static function getFilePath($fileId): ?string
 	{
 		$file = self::getFileArray($fileId);
 		if (isset($file['SRC']))

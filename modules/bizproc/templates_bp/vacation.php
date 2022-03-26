@@ -131,7 +131,7 @@ class CBPTemplates_Vacation
 							array(
 								'Type' => 'SequenceActivity',
 								'Name' => 'A27555_16461_17196_39771',
-								'Properties' => array('Title' => GetMessage("BPT1_BT_SA1_TITLE")),
+								'Properties' => array('Title' => GetMessage("BPT1_BT_SA1_TITLE_1")),
 								'Children' => array(
 									array(
 										'Type' => 'ApproveActivity',
@@ -153,7 +153,7 @@ class CBPTemplates_Vacation
 											array(
 												'Type' => 'SequenceActivity',
 												'Name' => 'A85668_52803_44143_49694',
-												'Properties' => array('Title' => GetMessage("BPT1_BT_SA1_TITLE")),
+												'Properties' => array('Title' => GetMessage("BPT1_BT_SA1_TITLE_1")),
 												'Children' => array(
 													array(
 														'Type' => 'RequestInformationActivity',
@@ -230,7 +230,7 @@ class CBPTemplates_Vacation
 											array(
 												'Type' => 'SequenceActivity',
 												'Name' => 'A40542_41453_94895_70387',
-												'Properties' => array('Title' => GetMessage("BPT1_BT_SA1_TITLE")),
+												'Properties' => array('Title' => GetMessage("BPT1_BT_SA1_TITLE_1")),
 												'Children' => array(
 													array(
 														'Type' => 'SetFieldActivity',

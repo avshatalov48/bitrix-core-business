@@ -22,18 +22,18 @@
 	  props: {
 	    buttons: {
 	      type: Array,
-	      default: function _default() {
+	      "default": function _default() {
 	        return [];
 	      }
 	    },
 	    messageId: {
-	      default: 0
+	      "default": 0
 	    },
 	    userId: {
-	      default: 0
+	      "default": 0
 	    },
 	    dialogId: {
-	      default: 0
+	      "default": 0
 	    }
 	  },
 	  data: function data() {

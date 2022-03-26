@@ -115,6 +115,8 @@ $isProduct = $arParams['VARIATION_ID_LIST'] === null;
 			'gridEditData' => $arResult['GRID']['EDIT_DATA'],
 			'canHaveSku' => $arResult['CAN_HAVE_SKU'],
 			'copyItemsMap' => $arResult['COPY_ITEM_MAP'] ?? null,
+			'storeAmount' => $arResult['STORE_AMOUNT'],
+			'isShowedStoreReserve' => $arResult['IS_SHOWED_STORE_RESERVE'],
 		])?>);
 	});
 </script>

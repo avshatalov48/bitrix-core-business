@@ -6,6 +6,17 @@ class ImageInput
 	onUploaderIsInitedHandler = this.handleOnUploaderIsInited.bind(this);
 
 	values = new Map();
+	newValues = new Map();
+
+	static imageInputInstances = new Map();
+
+	static PROCESS_STATUS = 'PROCESS';
+	static WAIT_STATUS = 'WAIT';
+
+	static getById(id: string): ?ImageInput
+	{
+		return ImageInput.imageInputInstances.get(id) || null;
+	}
 
 	constructor(id, options = {})
 	{
@@ -16,10 +27,10 @@ class ImageInput
 		this.iblockId = options.iblockId;
 		this.saveable = options.saveable;
 		this.inputId = options.inputId;
+		this.ajaxStatus = ImageInput.WAIT_STATUS;
 		if (options.hideAddButton === true)
 		{
 			const addButton = this.wrapper.querySelector('[data-role="image-add-button"]');
-			console.log(addButton);
 			if (Type.isDomNode(addButton))
 			{
 				addButton.style.display = 'none';
@@ -43,6 +54,8 @@ class ImageInput
 		{
 			EventEmitter.subscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
 		}
+
+		ImageInput.imageInputInstances.set(this.id, this);
 	}
 
 	isSaveable()
@@ -58,6 +71,7 @@ class ImageInput
 			this.uploaderFieldMap = new Map();
 			EventEmitter.subscribe(uploader, 'onFileIsDeleted', this.onFileDelete.bind(this));
 			EventEmitter.subscribe(uploader, 'onFileIsUploaded', this.onFileUpload.bind(this));
+			EventEmitter.subscribe(uploader, 'onDone', this.onDone.bind(this));
 			EventEmitter.subscribe(uploader, 'onQueueIsChanged', this.onQueueIsChanged.bind(this));
 		}
 	}
@@ -124,6 +138,16 @@ class ImageInput
 		}
 	}
 
+	onDone()
+	{
+		if (this.newValues.size > 0 && this.isSaveable())
+		{
+			this.save();
+		}
+
+		this.newValues.clear();
+	}
+
 	onFileUpload(event: BaseEvent)
 	{
 		const [itemId, , params] = event.getCompatData();
@@ -152,11 +176,7 @@ class ImageInput
 		};
 		const fileFieldName = this.uploaderFieldMap.get(itemId) || itemId;
 		this.values.set(fileFieldName, photoItem);
-
-		if (this.isSaveable())
-		{
-			this.save();
-		}
+		this.newValues.set(fileFieldName, photoItem);
 	}
 
 	save()
@@ -166,14 +186,14 @@ class ImageInput
 			clearTimeout(this.submitFileTimeOut);
 		}
 
-		const values = {};
-		this.values.forEach((file, id) => {
-			values[id] = file;
-		});
-
 		const requestId = Text.getRandom(20);
 		this.refreshImageSelectorId = requestId;
 		this.submitFileTimeOut = setTimeout(() => {
+			const values = {};
+			this.values.forEach((file, id) => {
+				values[id] = file;
+			});
+
 			ajax.runAction(
 				'catalog.productSelector.saveMorePhoto',
 				{
@@ -188,6 +208,20 @@ class ImageInput
 				if (!this.refreshImageSelectorId === requestId)
 				{
 					return;
+				}
+
+				this.values.clear();
+				if (Type.isObject(response.data?.values))
+				{
+					for (const key in response.data.values)
+					{
+						if (!response.data.values.hasOwnProperty(key))
+						{
+							continue;
+						}
+
+						this.values.set(key, response.data.values[key]);
+					}
 				}
 
 				Runtime.html(this.wrapper, response.data.input);

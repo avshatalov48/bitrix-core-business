@@ -1161,27 +1161,30 @@ else
 							&& !in_array($arParams["TYPE"], array("DRAFT", "MODERATION"))
 						)
 						{
+							$caption = ($arResult['CanComment'] ? Loc::getMessage('BLOG_COMMENTS_ADD') : Loc::getMessage('BLOG_COMMENTS'));
+
 							?><span class="feed-inform-item feed-inform-comments"><?php
-								?><a href="javascript:void(0);" id="blog-post-addc-add-<?=$arResult["Post"]["ID"]?>"><?=GetMessage("BLOG_COMMENTS_ADD")?></a><?php
+								?><a href="javascript:void(0);" id="blog-post-addc-add-<?= $arResult["Post"]["ID"] ?>"><?= $caption ?></a><?php
 							?></span><?php
 
 							$allCommentCount = (int)$arResult["PostSrc"]["NUM_COMMENTS"];
 							$newCommentsCount = (int)$commentsResult['newCountWOMark'];
 
 							?><div class="feed-inform-item feed-inform-comments feed-inform-comments-pinned">
-								<?=Loc::getMessage('BLOG_PINNED_COMMENTS')?>
-								<span class="feed-inform-comments-pinned-all"><?=$allCommentCount?></span>
-								<span class="feed-inform-comments-pinned-old"><?=$allCommentCount-$newCommentsCount?></span><?php
-								$classList = [ 'feed-inform-comments-pinned-new' ];
+								<?= Loc::getMessage('BLOG_PINNED_COMMENTS') ?>
+								<span class="feed-inform-comments-pinned-all"><?= $allCommentCount ?></span>
+								<span class="feed-inform-comments-pinned-old"><?= $allCommentCount - $newCommentsCount ?></span><?php
+
+								$classNameList = [ 'feed-inform-comments-pinned-new' ];
 								if ($newCommentsCount > 0)
 								{
-									$classList[] = 'feed-inform-comments-pinned-new-active';
+									$classNameList[] = 'feed-inform-comments-pinned-new-active';
 								}
-								?><span class="<?=implode(' ', $classList)?>"><?php
+								?><span class="<?= implode(' ', $classNameList) ?>"><?php
 									?><svg width="6" height="6" viewBox="0 0 6 6" fill="none" xmlns="http://www.w3.org/2000/svg"><?php
 										?><path opacity="0.840937" d="M3.36051 5.73145V3.76115H5.33081V2.70174H3.36051V0.731445H2.30111V2.70174H0.330811V3.76115H2.30111V5.73145H3.36051Z" fill="white"></path><?php
 									?></svg><?php
-									?><span class="feed-inform-comments-pinned-new-value"><?=$newCommentsCount?></span><?php
+									?><span class="feed-inform-comments-pinned-new-value"><?= $newCommentsCount ?></span><?php
 								?></span><?php
 							?></div><?php
 						}
@@ -1193,33 +1196,33 @@ else
 							&& (int)$arParams["LOG_ID"] > 0
 						)
 						{
-							?><span class="feed-inform-item feed-inform-follow" data-follow="<?=($arParams["FOLLOW"] === "Y" ? "Y" : "N")?>" id="log_entry_follow_<?=(int)$arParams["LOG_ID"]?>" onclick="__blogPostSetFollow(<?=(int)$arParams["LOG_ID"]?>)"><a href="javascript:void(0);"><?=GetMessage("BLOG_POST_FOLLOW_".($arParams["FOLLOW"] === "Y" ? "Y" : "N"))?></a></span><?php
+							?><span class="feed-inform-item feed-inform-follow" data-follow="<?= ($arParams["FOLLOW"] === "Y" ? "Y" : "N") ?>" id="log_entry_follow_<?= (int)$arParams["LOG_ID"] ?>" onclick="__blogPostSetFollow(<?= (int)$arParams["LOG_ID"] ?>)"><a href="javascript:void(0);"><?= Loc::getMessage("BLOG_POST_FOLLOW_" . ($arParams["FOLLOW"] === "Y" ? "Y" : "N")) ?></a></span><?php
 						}
 
 						if (!$arResult["bPublicPage"])
 						{
 							?><a
-								 data-bx-post-id="<?=(int)$arResult['Post']['ID']?>"
-								 data-bx-path-to-post="<?=htmlspecialcharsbx($arParams['PATH_TO_POST'])?>"
-								 data-bx-path-to-edit="<?=($arResult['urlToEdit'] <> '' ? htmlspecialcharsbx($arResult['urlToEdit']) : '')?>"
-								 data-bx-path-to-hide="<?=($arResult['urlToHide'] <> '' ? htmlspecialcharsbx($arResult['urlToHide']) : '')?>"
-								 data-bx-path-to-delete="<?=(!$arResult['bFromList'] && $arResult['urlToDelete'] <> '' ? htmlspecialcharsbx($arResult['urlToDelete']) : '')?>"
-								 data-bx-path-to-pub="<?=($arResult['urlToPostPub'] <> '' ? htmlspecialcharsbx($arResult['urlToPostPub']) : '')?>"
-								 data-bx-public-page="<?=($arResult['bPublicPage'] ? 'Y' : 'N')?>"
-								 data-bx-tasks-available="<?=($arResult['bTasksAvailable'] ? 'Y' : 'N')?>"
-								 data-bx-vote-id="<?=(int)$voteId?>"
+								 data-bx-post-id="<?= (int)$arResult['Post']['ID'] ?>"
+								 data-bx-path-to-post="<?= htmlspecialcharsbx($arParams['PATH_TO_POST']) ?>"
+								 data-bx-path-to-edit="<?= ($arResult['urlToEdit'] <> '' ? htmlspecialcharsbx($arResult['urlToEdit']) : '') ?>"
+								 data-bx-path-to-hide="<?= ($arResult['urlToHide'] <> '' ? htmlspecialcharsbx($arResult['urlToHide']) : '') ?>"
+								 data-bx-path-to-delete="<?= (!$arResult['bFromList'] && $arResult['urlToDelete'] <> '' ? htmlspecialcharsbx($arResult['urlToDelete']) : '') ?>"
+								 data-bx-path-to-pub="<?= ($arResult['urlToPostPub'] <> '' ? htmlspecialcharsbx($arResult['urlToPostPub']) : '') ?>"
+								 data-bx-public-page="<?= ($arResult['bPublicPage'] ? 'Y' : 'N') ?>"
+								 data-bx-tasks-available="<?= ($arResult['bTasksAvailable'] ? 'Y' : 'N') ?>"
+								 data-bx-vote-id="<?= (int)$voteId ?>"
 								 data-bx-post-type="<?=htmlspecialcharsbx($arParams['TYPE'])?>"
 								 data-bx-group-read-only="<?=($arResult['ReadOnly'] ? 'Y' : 'N')?>"
-								 data-bx-server-name="<?=htmlspecialcharsbx((\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? 'https' : 'http').'://'.((defined('SITE_SERVER_NAME') && SITE_SERVER_NAME <> '') ? SITE_SERVER_NAME : \Bitrix\Main\Config\Option::get('main', 'server_name')))?>"
-								 data-bx-items="<?=Json::encode(!empty($arParams['ADIT_MENU']) ? $arParams['ADIT_MENU'] : [])?>"
+								 data-bx-server-name="<?= htmlspecialcharsbx((\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? 'https' : 'http').'://'.((defined('SITE_SERVER_NAME') && SITE_SERVER_NAME <> '') ? SITE_SERVER_NAME : \Bitrix\Main\Config\Option::get('main', 'server_name'))) ?>"
+								 data-bx-items="<?= Json::encode(!empty($arParams['ADIT_MENU']) ? $arParams['ADIT_MENU'] : []) ?>"
 								 id="feed-post-menuanchor-<?=$arResult['Post']['ID']?>"
 								 href="#"
 								 class="feed-inform-item feed-post-more-link"><?php
-								?><span class="feed-post-more-text" id="feed-post-more-<?=$arResult["Post"]["ID"]?>"><?=GetMessage("BLOG_POST_BUTTON_MORE")?></span><?php
+								?><span class="feed-post-more-text" id="feed-post-more-<?= $arResult["Post"]["ID"] ?>"><?= Loc::getMessage("BLOG_POST_BUTTON_MORE") ?></span><?php
 								?><span class="feed-post-more-arrow"></span><?php
 							?></a><?php
 							?><script>
-							BX.bind(BX('feed-post-menuanchor-<?=$arResult["Post"]["ID"]?>'), 'click', function(e) {
+							BX.bind(BX('feed-post-menuanchor-<?= $arResult["Post"]["ID"] ?>'), 'click', function(e) {
 								BX.SBPostMenu.showMenu({
 									event: e,
 									menuNode: BX('feed-post-menuanchor-<?=$arResult["Post"]["ID"]?>'),

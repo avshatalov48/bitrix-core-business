@@ -6,6 +6,7 @@ this.BX.Landing = this.BX.Landing || {};
 	var HsIcons = {
 	  id: 'hs_icons',
 	  name: 'HS Icons',
+	  active: true,
 	  categories: [{
 	    id: 'hs_icons_all',
 	    name: landing_loc.Loc.getMessage('LANDING_ICONS_SIMPLE_LINE_ICONS_ALL'),

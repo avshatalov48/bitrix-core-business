@@ -93,6 +93,15 @@ final class PropertyValue
 	}
 
 	/**
+	 * @param BaseSku $sku
+	 * @return array
+	 */
+	public static function getPropertyValuesBySku(BaseSku $sku): array
+	{
+		return self::getPropertyValues($sku->getIblockId(), [$sku->getId()])[$sku->getId()];
+	}
+
+	/**
 	 * @param array $properties
 	 * @return string
 	 */
@@ -118,7 +127,7 @@ final class PropertyValue
 	 * @param array $propertyValue
 	 * @return string
 	 */
-	private static function getPropertyDisplayValue(array $propertyValue): string
+	public static function getPropertyDisplayValue(array $propertyValue): string
 	{
 		if (!empty($propertyValue['USER_TYPE']))
 		{

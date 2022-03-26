@@ -131,6 +131,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 						'CACHE_GROUPS' => 'Y',
 						'CACHE_TIME' => '36000000',
 						'CACHE_TYPE' => 'A',
+						'ADD_SECTIONS_CHAIN' => 'N',
 					]
 				); ?>
 				<ul class="landing-block-node-menu-bottom navbar-nav g-py-10">

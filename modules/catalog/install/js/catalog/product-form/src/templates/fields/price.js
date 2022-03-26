@@ -1,4 +1,4 @@
-import {Runtime} from 'main.core';
+import {Runtime, Text} from 'main.core';
 import {Vue} from "ui.vue";
 import {config} from "../../config";
 import type {BaseEvent} from "main.core.events";
@@ -6,11 +6,13 @@ import type {BaseEvent} from "main.core.events";
 Vue.component(config.templateFieldPrice,
 {
 	/**
-	 * @emits 'changePrice' {price: number}
+	 * @emits 'onChangePrice' {price: number}
+	 * @emits 'saveCatalogField' {}
 	 */
 
 	props: {
-		basePrice: Number,
+		selectorId: String,
+		price: Number,
 		editable: Boolean,
 		hasError: Boolean,
 		options: Object,
@@ -33,18 +35,24 @@ Vue.component(config.templateFieldPrice,
 			{
 				event.target.value = 0;
 			}
-			let lastSymbol = event.target.value.substr(-1);
+			const lastSymbol = event.target.value.substr(-1);
 			if (lastSymbol === ',')
 			{
 				event.target.value = event.target.value.replace(',', ".");
 			}
-			let newPrice = parseFloat(event.target.value);
-			if (newPrice < 0|| lastSymbol === '.' || lastSymbol === ',')
+
+			let newPrice = Text.toNumber(event.target.value);
+			if (lastSymbol === '.' || lastSymbol === ',')
 			{
 				return;
 			}
 
-			this.$emit('changePrice', newPrice);
+			if (newPrice < 0)
+			{
+				newPrice *= -1;
+			}
+
+			this.$emit('onChangePrice', newPrice);
 		},
 	},
 	computed:
@@ -63,9 +71,10 @@ Vue.component(config.templateFieldPrice,
 		<div class="catalog-pf-product-input-wrapper" v-bind:class="{ 'ui-ctl-danger': hasError }">
 			<input 	type="text" class="catalog-pf-product-input catalog-pf-product-input--align-right"
 					v-bind:class="{ 'catalog-pf-product-input--disabled': !editable }"
-					:value="basePrice"
+					v-model.lazy="price"
 					@input="onInputPriceHandler"
-					:disabled="!editable">
+					:disabled="!editable"
+			>
 			<div class="catalog-pf-product-input-info" v-html="currencySymbol"></div>
 		</div>
 	`

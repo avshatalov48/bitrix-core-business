@@ -9,6 +9,7 @@ use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Config\Option;
 
+use Bitrix\MessageService\DTO;
 use Bitrix\MessageService\Sender;
 use Bitrix\MessageService\Sender\Result\MessageStatus;
 use Bitrix\MessageService\Sender\Result\SendMessage;
@@ -17,6 +18,8 @@ use Bitrix\MessageService;
 
 class ISmsCenter extends Sender\BaseConfigurable
 {
+	public const ID = 'ismscenter';
+
 	private const JSON_API_URL = 'http://isms.center/api/sms/';
 
 	public static function isSupported()
@@ -29,7 +32,7 @@ class ISmsCenter extends Sender\BaseConfigurable
 
 	public function getId()
 	{
-		return 'ismscenter';
+		return static::ID;
 	}
 
 	public function getName()
@@ -221,7 +224,7 @@ class ISmsCenter extends Sender\BaseConfigurable
 		return $this->sendHttpRequest($path, $login, $psw, $params);
 	}
 
-	private function sendHttpRequest($path, $login, $psw, array $params): Result
+	private function sendHttpRequest($path, $login, $psw, array $params): Sender\Result\HttpRequestResult
 	{
 		$httpClient = new HttpClient([
 			'socketTimeout' => 10,
@@ -233,7 +236,7 @@ class ISmsCenter extends Sender\BaseConfigurable
 		$httpClient->setHeader('Content-Type', 'application/json');
 		$httpClient->setAuthorization($login, $psw);
 
-		$result = new Result();
+		$result = new Sender\Result\HttpRequestResult();
 		$answer = [
 			'error_code' => 500,
 			'error_message' => 'Service error'
@@ -251,6 +254,13 @@ class ISmsCenter extends Sender\BaseConfigurable
 			$body = null;
 		}
 
+		$result->setHttpRequest(new DTO\Request([
+			'method' => $method,
+			'uri' => $url,
+			'headers' => method_exists($httpClient, 'getRequestHeaders') ? $httpClient->getRequestHeaders()->toArray() : [],
+			'body' => $params
+		]));
+
 		if ($httpClient->query($method, $url, $body))
 		{
 			try
@@ -265,6 +275,13 @@ class ISmsCenter extends Sender\BaseConfigurable
 		{
 			$result->addError(new Error($answer['error_message'], $answer['error_code']));
 		}
+
+		$result->setHttpResponse(new DTO\Response([
+			'statusCode' => $httpClient->getStatus(),
+			'headers' => $httpClient->getHeaders()->toArray(),
+			'body' => $httpClient->getResult(),
+			'error' => Sender\Util::getHttpClientErrorString($httpClient)
+		]));
 
 		$result->setData($answer);
 

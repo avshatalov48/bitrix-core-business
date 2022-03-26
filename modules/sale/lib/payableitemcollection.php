@@ -140,7 +140,10 @@ class PayableItemCollection extends Internals\EntityCollection
 		/** @var PayableBasketItem $item */
 		foreach ($this->getBasketItems() as $item)
 		{
-			if ($basketItem->getBasketCode() === $item->getEntityObject()->getBasketCode())
+			$payableBasketItem = $item->getEntityObject();
+			if (
+				$payableBasketItem
+				&& $basketItem->getBasketCode() === $payableBasketItem->getBasketCode())
 			{
 				return $item;
 			}
@@ -156,6 +159,28 @@ class PayableItemCollection extends Internals\EntityCollection
 		$this->addItem($payableItem);
 
 		return $payableItem;
+	}
+
+	public function onBeforeBasketItemDelete(BasketItem $basketItem)
+	{
+		$result = new Result();
+
+		/** @var PayableBasketItem $item */
+		foreach ($this->getBasketItems() as $item)
+		{
+			/** @var BasketItem $entity */
+			$entity = $item->getEntityObject();
+			if ($entity->getBasketCode() === $basketItem->getBasketCode())
+			{
+				$r = $item->delete();
+				if (!$r->isSuccess())
+				{
+					$result->addErrors($r->getErrors());
+				}
+			}
+		}
+
+		return $result;
 	}
 
 	/**

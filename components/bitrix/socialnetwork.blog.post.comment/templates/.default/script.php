@@ -16,7 +16,7 @@ if (!$arResult["CanUserComment"])
 	return;
 }
 
-$formID = 'blogCommentForm' . $arResult['FORM_ID'];
+$formID = $arResult['FORM_ID'];
 
 $formParams = [
 	"FORM_ID" => $formID,

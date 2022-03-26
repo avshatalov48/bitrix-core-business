@@ -420,9 +420,11 @@
 								smtpServerField.value = BX.util.htmlspecialchars(data.server || '');
 								smtpPortField.value = BX.util.htmlspecialchars(data.port || '');
 								smtpLoginField.value = BX.util.htmlspecialchars(data.login || '');
-								smtpLimitField.value = data.limit === null ?smtpLimitField.value : data.limit;
 
-								if (data.limit !== null)
+								var hasNoLimit = typeof data.limit === 'undefined' || data.limit === null;
+								smtpLimitField.value = hasNoLimit ? smtpLimitField.value : data.limit;
+
+								if (!hasNoLimit)
 								{
 									useLimitCheckbox.checked = true;
 									smtpLimitField.disabled = false;

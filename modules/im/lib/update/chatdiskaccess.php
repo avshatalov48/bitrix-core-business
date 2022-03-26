@@ -22,6 +22,9 @@ final class ChatDiskAccess extends \Bitrix\Main\Update\Stepper
 			return false;
 		}
 
+		global $pPERIOD;
+		$pPERIOD = 30; /** Increase agent delay. @see \CAgent::ExecuteAgents */
+
 		$startTime = time();
 		$isCronRun =
 			!\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24') &&
@@ -63,7 +66,7 @@ final class ChatDiskAccess extends \Bitrix\Main\Update\Stepper
 				'filter' => $filter,
 				'order' => ['ID' => 'DESC'],
 				'offset' => 0,
-				'limit' => 10000,
+				'limit' => 1000,
 			]);
 
 			$connection = \Bitrix\Main\Application::getConnection();

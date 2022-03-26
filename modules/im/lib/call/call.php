@@ -2,7 +2,7 @@
 
 namespace Bitrix\Im\Call;
 
-use Bitrix\Im\Call\Integration\EntityFabric;
+use Bitrix\Im\Call\Integration\EntityFactory;
 use Bitrix\Im\Call\Integration\EntityType;
 use Bitrix\Im\Dialog;
 use Bitrix\Im\Model\AliasTable;
@@ -210,7 +210,7 @@ class Call
 
 	public function setAssociatedEntity($entityType, $entityId)
 	{
-		$entity = EntityFabric::createEntity($this, $entityType, $entityId);
+		$entity = EntityFactory::createEntity($this, $entityType, $entityId);
 
 		if(!$entity)
 		{
@@ -251,6 +251,37 @@ class Call
 	{
 		return $this->parentId;
 	}
+
+	/**
+	 * Returns id of the chat, associated with the call.
+	 *
+	 * @return int
+	 */
+	public function getChatId()
+	{
+		return $this->chatId;
+	}
+
+	/**
+	 * Returns date of the call start.
+	 *
+	 * @return DateTime
+	 */
+	public function getStartDate(): DateTime
+	{
+		return $this->startDate;
+	}
+
+	/**
+	 * Returns date of the call end (if there is one).
+	 *
+	 * @return DateTime|null
+	 */
+	public function getEndDate(): ?DateTime
+	{
+		return $this->endDate;
+	}
+
 
 	/**
 	 * @param string $state
@@ -579,7 +610,7 @@ class Call
 		$instance->publicId = randString(10);
 		$instance->state = static::STATE_NEW;
 
-		$instance->associatedEntity = Integration\EntityFabric::createEntity($instance, $entityType, $entityId);
+		$instance->associatedEntity = Integration\EntityFactory::createEntity($instance, $entityType, $entityId);
 		$instance->chatId = $instance->associatedEntity->getChatId();
 
 		$instance->save();
@@ -684,8 +715,8 @@ class Call
 		$instance->provider = $fields['PROVIDER'];
 		$instance->entityType = $fields['ENTITY_TYPE'];
 		$instance->entityId = $fields['ENTITY_ID'];
-		$instance->startDate = $fields['START_DATE'];
-		$instance->endDate = $fields['END_DATE'];
+		$instance->startDate = isset ($fields['START_DATE']) && $fields['START_DATE'] instanceof DateTime ? $fields['START_DATE'] : null;
+		$instance->endDate = isset ($fields['END_DATE']) && $fields['END_DATE'] instanceof DateTime ? $fields['END_DATE'] : null;
 		$instance->parentId = (int)$fields['PARENT_ID'] ?: null;
 		$instance->state = $fields['STATE'];
 		$instance->logUrl = $fields['LOG_URL'];
@@ -693,7 +724,7 @@ class Call
 
 		if($instance->entityType && $instance->entityId)
 		{
-			$instance->associatedEntity = Integration\EntityFabric::createEntity($instance, $instance->entityType, $instance->entityId);
+			$instance->associatedEntity = Integration\EntityFactory::createEntity($instance, $instance->entityType, $instance->entityId);
 		}
 
 		return $instance;

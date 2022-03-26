@@ -1,7 +1,7 @@
 <?
 $MESS["BPATT_AUTO_EXECUTE"] = "Autorun";
-$MESS["BPATT_HELP1_TEXT"] = "A state-driven business process is a continuous business process with access permission distribution to handle element in different statuses.";
-$MESS["BPATT_HELP2_TEXT"] = "A sequential business process is a simple business process that performs a series of consecutive actions on a element.";
+$MESS["BPATT_HELP1_TEXT_1"] = "A status-driven business process is a continuous business process with access permission distribution to handle elements in different statuses.";
+$MESS["BPATT_HELP2_TEXT_1"] = "Sequential business process is a simple business process that performs a series of consecutive activities with an element.";
 $MESS["BPATT_NAME"] = "Name";
 $MESS["BPATT_MODIFIED"] = "Modified";
 $MESS["BPATT_USER"] = "Modified By";

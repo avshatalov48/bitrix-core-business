@@ -25,6 +25,7 @@ return [
 			'dimensions' => array('width' => 1920, 'height' => 1080),
 			'allowInlineEdit' => false,
 			'useInDesigner' => false,
+			'create2xByDefault' => false,
 		],
 		'.landing-block-node-card-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_01.BIG_WITH_TEXT_BLOCKS_2_NODES_LANDINGBLOCKNODECARDTITLE'),

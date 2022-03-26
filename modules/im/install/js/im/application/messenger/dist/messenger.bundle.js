@@ -3,6 +3,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 (function (exports,im_application_core,im_provider_rest,promise,ui_vue,im_lib_logger,im_lib_utils,ui_entitySelector,im_component_recent,im_component_dialog,im_component_textarea,pull_component_status,im_const,im_mixin,main_core_events,main_core) {
 	'use strict';
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var Search = /*#__PURE__*/function () {
 	  function Search() {
 	    var _this = this;
@@ -10,7 +13,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, Search);
 
-	    if (babelHelpers.typeof(params.store) === 'object' && params.store) {
+	    if (babelHelpers["typeof"](params.store) === 'object' && params.store) {
 	      this.store = params.store;
 	    }
 
@@ -82,7 +85,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            return;
 	          }
 
-	          users.push(babelHelpers.objectSpread({
+	          users.push(_objectSpread({
 	            dialogId: dialogId
 	          }, customData.get('imUser')));
 	        } else if (entityId === 'im-chat') {
@@ -92,7 +95,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            return;
 	          }
 
-	          dialogues.push(babelHelpers.objectSpread({
+	          dialogues.push(_objectSpread({
 	            dialogId: _dialogId
 	          }, customData.get('imChat')));
 	        }
@@ -134,10 +137,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	ui_vue.BitrixVue.component('bx-im-application-messenger', {
 	  props: {
 	    userId: {
-	      default: 0
+	      "default": 0
 	    },
 	    initialDialogId: {
-	      default: '0'
+	      "default": '0'
 	    }
 	  },
 	  mixins: [im_mixin.DialogCore, im_mixin.DialogReadMessages, im_mixin.DialogQuoteMessage, im_mixin.DialogClickOnCommand, im_mixin.DialogClickOnMention, im_mixin.DialogClickOnUserName, im_mixin.DialogClickOnMessageMenu, im_mixin.DialogClickOnMessageRetry, im_mixin.DialogClickOnUploadCancel, im_mixin.DialogClickOnReadList, im_mixin.DialogSetMessageReaction, im_mixin.DialogOpenMessageReactionList, im_mixin.DialogClickOnKeyboardButton, im_mixin.DialogClickOnChatTeaser, im_mixin.DialogClickOnDialog, im_mixin.TextareaCore, im_mixin.TextareaUploadFile],

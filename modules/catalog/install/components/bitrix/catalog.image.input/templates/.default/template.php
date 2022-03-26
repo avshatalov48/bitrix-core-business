@@ -16,8 +16,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 </div>
 
 <script>
-	new BX.Catalog.ImageInput(
-		'<?=htmlspecialcharsbx(\CUtil::JSEscape($arResult['BLOCK_ID']))?>',
-		<?=CUtil::PhpToJSObject($arResult['JS_PARAMS'])?>
-	);
+	if (!BX.Catalog.ImageInput.getById('<?=htmlspecialcharsbx(\CUtil::JSEscape($arResult['BLOCK_ID']))?>'))
+	{
+		new BX.Catalog.ImageInput(
+			'<?=htmlspecialcharsbx(\CUtil::JSEscape($arResult['BLOCK_ID']))?>',
+			<?=CUtil::PhpToJSObject($arResult['JS_PARAMS'])?>
+		);
+	}
 </script>

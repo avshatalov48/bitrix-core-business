@@ -566,6 +566,8 @@ class ServiceComment
 
 		$sourceEntityLink = (
 			$params['sourceEntityLink'] ?? self::getSourceEntityUrl([
+				'sourceEntityType' => $sourceEntityType,
+				'sourceEntityId' => $sourceEntityId,
 				'sourceData' => $sourceData,
 				'entityType' => $entityType,
 				'entityData' => $entityData,
@@ -621,7 +623,22 @@ class ServiceComment
 				});
 			}
 
-			$result['attendees'] = $attendees;
+			if (
+				!empty($entityData['MEETING_HOST'])
+				&& (int)$entityData['MEETING_HOST'] > 0
+			)
+			{
+				$attendees[] = (int)($entityData['MEETING_HOST']);
+			}
+			elseif (
+				!empty($entityData['CREATED_BY'])
+				&& (int)$entityData['CREATED_BY'] > 0
+			)
+			{
+				$attendees[] = (int)($entityData['CREATED_BY']);
+			}
+
+			$result['attendees'] = array_unique($attendees);
 		}
 
 		return $result;

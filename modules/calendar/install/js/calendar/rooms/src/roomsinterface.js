@@ -20,7 +20,7 @@ export class RoomsInterface extends SectionInterface
 		this.sliderOnClose = this.hide.bind(this);
 		this.deleteRoomHandlerBinded = this.deleteRoomHandler.bind(this);
 		this.refreshRoomListBinded = this.refreshRoomList.bind(this);
-		if(this.calendarContext !== null)
+		if (this.calendarContext !== null)
 		{
 			if (this.calendarContext.util.config.accessNames)
 			{
@@ -220,7 +220,7 @@ export class RoomsInterface extends SectionInterface
 			Dom.addClass(itemNode, 'active');
 		}
 
-		if(room.canDo('view_time') && !this.isConfigureList)
+		if (room.canDo('view_time') && !this.isConfigureList)
 		{
 			menuItems.push({
 				text: Loc.getMessage('EC_SEC_LEAVE_ONE_ROOM'),
@@ -320,7 +320,7 @@ export class RoomsInterface extends SectionInterface
 
 				let li;
 				let checkbox;
-				if(this.isConfigureList)
+				if (this.isConfigureList)
 				{
 					li = listWrap.appendChild(
 						Tag.render`

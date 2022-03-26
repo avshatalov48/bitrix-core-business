@@ -159,7 +159,7 @@ export class CompactEventForm extends EventEmitter
 		if (this.getMode() === CompactEventForm.EDIT_MODE
 			&& this.formDataChanged()
 			&& this.checkDataBeforeCloseMode
-			&& !confirm(BX.message('EC_SAVE_ENTRY_CONFIRM')))
+			&& !confirm(Loc.getMessage('EC_SAVE_ENTRY_CONFIRM')))
 		{
 			// Workaround to prevent form closing even if user don't want to and presses "cancel" in confirm
 			if (this.popup)
@@ -1000,6 +1000,19 @@ export class CompactEventForm extends EventEmitter
 					this.userPlannerSelector.setDateTime(value, true);
 					this.userPlannerSelector.refreshPlanner();
 				}
+				
+				if (this.locationSelector)
+				{
+					this.locationSelector.checkLocationAccessibility(
+						{
+							from: event.getData().value.from,
+							to: event.getData().value.to,
+							fullDay: event.getData().value.fullDay,
+							currentEventId: this.entry.id
+						},
+					)
+				}
+				
 				this.checkForChanges();
 			}
 		});
@@ -1303,7 +1316,19 @@ export class CompactEventForm extends EventEmitter
 				this.locationSelector.setValue(entry.getLocation());
 			}
 		}
+		if (this.locationSelector)
+		{
+			this.locationSelector.checkLocationAccessibility(
+				{
+					from: this.dateTimeControl.getValue().from,
+					to: this.dateTimeControl.getValue().to,
+					fullDay: this.dateTimeControl.getValue().fullDay,
+					currentEventId: this.entry.id
+				},
+			);
+		}
 
+		//User Planner Selector
 		if ((this.userPlannerSelector
 			&& (this.canDo('viewFull') || entry.getCurrentStatus() !== false)))
 		{
@@ -1464,6 +1489,10 @@ export class CompactEventForm extends EventEmitter
 			tz_from: entry.getTimezoneFrom(),
 			tz_to: entry.getTimezoneTo(),
 			meeting_notify: this.userPlannerSelector.getInformValue() ? 'Y' : 'N',
+			meeting_host: entry.data.MEETING_HOST || '0',
+			chat_id: entry.data.MEETING
+				? entry.data.MEETING.CHAT_ID
+				: 0,
 			exclude_users: this.excludeUsers || [],
 			attendeesEntityList: this.userPlannerSelector.getEntityList(),
 			sendInvitesAgain: options.sendInvitesAgain ? 'Y' : 'N',
@@ -1514,7 +1543,7 @@ export class CompactEventForm extends EventEmitter
 		}
 
 		this.state = this.STATE.REQUEST;
-
+		
 		this.freezePopup();
 		this.BX.ajax.runAction('calendar.api.calendarentryajax.editEntry', {
 				data: data,
@@ -1720,6 +1749,18 @@ export class CompactEventForm extends EventEmitter
 			// Date time
 			this.dateTimeControl.setValue(dateTimeValue);
 			this.userPlannerSelector.setDateTime(this.dateTimeControl.getValue());
+			
+			if (this.locationSelector)
+			{
+				this.locationSelector.checkLocationAccessibility(
+					{
+						from: event.getData().dateFrom,
+						to: event.getData().dateTo,
+						fullDay: event.getData().fullDay,
+						currentEventId: this.entry.id
+					},
+				)
+			}
 		}
 	}
 

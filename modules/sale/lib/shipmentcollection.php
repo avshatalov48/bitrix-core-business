@@ -41,18 +41,6 @@ class ShipmentCollection
 	 */
 	public function resetCollection()
 	{
-		/** @var Order $order */
-		if (!$order = $this->getOrder())
-		{
-			throw new Main\ObjectNotFoundException('Entity "Order" not found');
-		}
-
-		/** @var Basket $basket */
-		if (!$basket = $order->getBasket())
-		{
-			throw new Main\ObjectNotFoundException('Entity "Basket" not found');
-		}
-
 		$result = new Result();
 
 		$deliveryInfo = array();
@@ -77,18 +65,13 @@ class ShipmentCollection
 			}
 		}
 
-		/** @var Shipment $systemShipment */
-		if (!$systemShipment = $this->getSystemShipment())
-		{
-			throw new Main\ObjectNotFoundException('Entity "Shipment" not found');
-		}
+		$systemShipment = $this->getSystemShipment();
 
 		/** @var ShipmentItemCollection $systemShipmentItemCollection */
-		if (!$systemShipmentItemCollection = $systemShipment->getShipmentItemCollection())
-		{
-			throw new Main\ObjectNotFoundException('Entity "ShipmentItemCollection" not found');
-		}
+		$systemShipmentItemCollection = $systemShipment->getShipmentItemCollection();
 
+		/** @var Basket $basket */
+		$basket = $this->getOrder()->getBasket();
 		$systemShipmentItemCollection->resetCollection($basket);
 
 		if (!empty($deliveryInfo))
@@ -96,9 +79,11 @@ class ShipmentCollection
 			$systemShipment->setFieldsNoDemand($deliveryInfo);
 		}
 
-		if (Configuration::getProductReservationCondition() == Configuration::RESERVE_ON_CREATE)
+		if (
+			Configuration::isEnableAutomaticReservation()
+			&& Configuration::getProductReservationCondition() == Configuration::RESERVE_ON_CREATE
+		)
 		{
-			/** @var Result $r */
 			$r = $this->tryReserve();
 			if (!$r->isSuccess())
 			{
@@ -789,17 +774,10 @@ class ShipmentCollection
 	/**
 	 * Trying to reserve the contents of the shipment collection
 	 * @return Result
-	 * @throws Main\ObjectNotFoundException
 	 */
 	public function tryReserve()
 	{
 		$result = new Result();
-
-		/** @var Order $order */
-		if (!($order = $this->getOrder()))
-		{
-			throw new Main\ObjectNotFoundException('Entity "Order" not found');
-		}
 
 		/** @var Shipment $shipment */
 		foreach ($this->collection as $shipment)
@@ -819,7 +797,7 @@ class ShipmentCollection
 				$registry = Registry::getInstance(static::getRegistryType());
 				/** @var EntityMarker $entityMarker */
 				$entityMarker = $registry->getEntityMarkerClassName();
-				$entityMarker::addMarker($order, $shipment, $r);
+				$entityMarker::addMarker($this->getOrder(), $shipment, $r);
 				if (!$shipment->isSystem())
 				{
 					$shipment->setField('MARKED', 'Y');
@@ -1156,13 +1134,8 @@ class ShipmentCollection
 
 					$this->tryUnreserve();
 				}
-				else
+				else if (Configuration::isEnableAutomaticReservation())
 				{
-					if (!$order = $this->getOrder())
-					{
-						throw new Main\ObjectNotFoundException('Entity "Order" not found');
-					}
-					
 					/** @var Shipment $shipment */
 					foreach ($this->collection as $shipment)
 					{
@@ -1176,7 +1149,7 @@ class ShipmentCollection
 
 								/** @var EntityMarker $entityMarker */
 								$entityMarker = $registry->getEntityMarkerClassName();
-								$entityMarker::addMarker($order, $shipment, $r);
+								$entityMarker::addMarker($this->getOrder(), $shipment, $r);
 								if (!$shipment->isSystem())
 								{
 									$shipment->setField('MARKED', 'Y');

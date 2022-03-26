@@ -409,7 +409,7 @@ if ($arResult["FatalError"] == '')
 
 			$arMonths_r = array();
 			for ($i = 1; $i <= 12; $i++)
-				$arMonths_r[$i] = ToLower(GetMessage('MONTH_'.$i.'_S'));
+				$arMonths_r[$i] = mb_strtolower(GetMessage('MONTH_'.$i.'_S'));
 
 			$arTmpUser = array(
 				"ID" => $arResult["User"]["ID"],

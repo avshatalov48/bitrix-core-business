@@ -17,6 +17,10 @@
 	{
 		BX.Landing.UI.Button.BaseButton.apply(this, arguments);
 		this.layout.classList.add("landing-ui-button-action");
+		if (option.separate)
+		{
+			this.layout.classList.add("--separate");
+		}
 	};
 
 

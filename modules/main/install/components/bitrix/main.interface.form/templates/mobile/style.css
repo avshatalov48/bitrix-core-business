@@ -722,6 +722,9 @@ del {
 	font-size: 17px;
 	border-bottom:1px solid #dee0e3;
 }
+.mobile-grid-field-select-user-item a.mobile-grid-field-select-user-item-link {
+	color: #000;
+}
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2){
 	.mobile-grid-field-select-user-item {border-bottom-width: .5px}
 }

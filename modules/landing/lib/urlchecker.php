@@ -7,13 +7,19 @@ use Bitrix\Landing\Internals\UrlCheckerHostTable;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 
+/**
+ * Class for check urls at external virus tools
+ */
 class UrlChecker
 {
-	private const EXTERNAL_CHECKER_URL =
-		'https://webrisk.googleapis.com/v1/uris:search?'
-		. 'threatTypes=MALWARE&threatTypes=SOCIAL_ENGINEERING&threatTypes=UNWANTED_SOFTWARE'
-		. '&key=#key#'
-		. '&uri=#url#';
+	private const EXTERNAL_CHECKER_URL_LOAD_URL = 'https://www.virustotal.com/api/v3/urls';
+	private const EXTERNAL_CHECKER_URL_GET_ANALYSE = 'https://www.virustotal.com/api/v3/analyses/';
+
+	private const STATUS_KEY_GOOD = 'harmless';
+	private const STATUS_KEY_AVERAGE = 'suspicious';
+	private const STATUS_KEY_BAD = 'malicious';
+
+	private const AVERAGE_STATUS_PERCENT = 33;
 
 	private $apiKey;
 	private $hostUrl;
@@ -43,26 +49,46 @@ class UrlChecker
 	 */
 	protected function getUrlStatus(string $url): ?string
 	{
-		$status = [];
-		$checkerUrl = $this::EXTERNAL_CHECKER_URL;
-		$checkerUrl = str_replace(
-			['#key#', '#url#'],
-			[$this->apiKey, urlencode($url)],
-			$checkerUrl
-		);
 		try
 		{
 			$http = new HttpClient;
-			$res = Json::decode($http->get($checkerUrl));
-			if ($res['error']['status'] ?? null)
+			$http->setHeader('x-apikey', $this->apiKey);
+			$res = Json::decode($http->post(self::EXTERNAL_CHECKER_URL_LOAD_URL, [
+				'url' => $url,
+			]));
+			if (!isset($res['error']) && $res['data'] && $res['data']['id'])
 			{
-				return $res['error']['status'];
+				$resAnalysis = Json::decode($http->get(self::EXTERNAL_CHECKER_URL_GET_ANALYSE . $res['data']['id']));
+				if (isset($resAnalysis['error']))
+				{
+					// todo: set VT error
+					return $res['error']['status'];
+				}
+				$stats = [
+					self::STATUS_KEY_GOOD => $resAnalysis['data']['attributes']['stats'][self::STATUS_KEY_GOOD],
+					self::STATUS_KEY_AVERAGE => $resAnalysis['data']['attributes']['stats'][self::STATUS_KEY_AVERAGE],
+					self::STATUS_KEY_BAD => $resAnalysis['data']['attributes']['stats'][self::STATUS_KEY_BAD],
+				];
+
+				// check stats
+				$total = $stats[self::STATUS_KEY_GOOD] + $stats[self::STATUS_KEY_AVERAGE] + $stats[self::STATUS_KEY_BAD];
+				if (
+					$stats[self::STATUS_KEY_BAD] === 0
+					&& $stats[self::STATUS_KEY_AVERAGE] <= $total * self::AVERAGE_STATUS_PERCENT * 0.01
+				)
+				{
+					return null;
+				}
+
+				return
+					self::STATUS_KEY_GOOD . ':' . $stats[self::STATUS_KEY_GOOD]
+					. '_' . self::STATUS_KEY_AVERAGE . ':' . $stats[self::STATUS_KEY_AVERAGE]
+					. '_' . self::STATUS_KEY_BAD . ':' . $stats[self::STATUS_KEY_BAD];
 			}
-			$status = $res['threat']['threatTypes'] ?? [];
 		}
 		catch (\Exception $e){}
 
-		return $status ? implode(',', $status) : null;
+		return null;
 	}
 
 	/**

@@ -138,10 +138,11 @@
 			else
 			{
 				this.calendar.setView('list', {animation: false});
-				setTimeout(BX.delegate(function ()
-				{
-					this.calendar.getView().applyFilterMode();
-				}, this), 100);
+				this.calendar.getView().applyFilterMode();
+				// setTimeout(BX.delegate(function ()
+				// {
+				// 	this.calendar.getView().applyFilterMode();
+				// }, this), 100);
 
 				this.calendar.request({
 					data: {
@@ -153,11 +154,13 @@
 						{
 							if (!this.calendar.getView().filterMode)
 							{
-								setTimeout(BX.delegate(function ()
-								{
-									this.calendar.getView().applyFilterMode();
-									this.displaySearchResult(response);
-								}, this), 100);
+								this.calendar.getView().applyFilterMode();
+								this.displaySearchResult(response);
+								// setTimeout(BX.delegate(function ()
+								// {
+								// 	this.calendar.getView().applyFilterMode();
+								// 	this.displaySearchResult(response);
+								// }, this), 100);
 							}
 							else
 							{

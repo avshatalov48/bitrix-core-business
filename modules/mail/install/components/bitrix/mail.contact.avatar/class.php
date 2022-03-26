@@ -13,7 +13,7 @@ class CMailContactAvatarComponent extends \CBitrixComponent
 	{
 		$page = 'avatar_default';
 		$mailContact = $this->arParams['mailContact'];
-		$this->arResult['avatarSize'] = ($this->arParams['avatarSize'] && is_numeric($this->arParams['avatarSize'])) ? (int)$this->arParams['avatarSize'] : 29;
+		$this->arResult['avatarSize'] = ($this->arParams['avatarSize'] && is_numeric($this->arParams['avatarSize'])) ? (int)$this->arParams['avatarSize'] : 22;
 		if (!empty($mailContact) && is_array($mailContact))
 		{
 			$fileId = !empty($mailContact['FILE_ID']) ? $mailContact['FILE_ID'] : 0;

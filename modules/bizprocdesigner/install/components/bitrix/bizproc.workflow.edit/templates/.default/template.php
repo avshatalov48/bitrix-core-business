@@ -11,7 +11,7 @@ use Bitrix\Main\Page\Asset;
 
 \Bitrix\Main\Loader::includeModule('rest');
 CUtil::InitJSCore(['window', 'ajax', 'bp_selector', 'clipboard', 'marketplace', 'bp_field_type']);
-\Bitrix\Main\UI\Extension::load(['ui.hint']);
+\Bitrix\Main\UI\Extension::load(['ui.hint', 'bizproc.globals']);
 
 if ($isAdminSection)
 {
@@ -69,6 +69,17 @@ $aMenu[] = [
 	"ICON"  => "btn_settings",
 ];
 
+$aMenu[] = [
+	'TEXT' => \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_WFEDIT_MENU_GLOBAL_VARIABLES'),
+	'TITLE' => \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_WFEDIT_MENU_GLOBAL_VARIABLES_TITLE'),
+	'LINK' => 'javascript:BX.Bizproc.WorkflowEditComponent.Globals.showGlobalVariables();',
+];
+$aMenu[] = [
+	'TEXT' => \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_WFEDIT_MENU_GLOBAL_CONSTANTS'),
+	'TITLE' => \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_WFEDIT_MENU_GLOBAL_CONSTANTS_TITLE'),
+	'LINK' => 'javascript:BX.Bizproc.WorkflowEditComponent.Globals.showGlobalConstants();',
+];
+
 if (!$isAdminSection && $listMenuItem)
 {
 	$aMenu[] = $listMenuItem;
@@ -81,14 +92,14 @@ if (!array_key_exists("SKIP_BP_TYPE_SELECT", $arParams) || $arParams["SKIP_BP_TY
 	$arSubMenu = [];
 
 	$arSubMenu[] = [
-		"TEXT"    => GetMessage("BIZPROC_WFEDIT_MENU_ADD_STATE"),
-		"TITLE"   => GetMessage("BIZPROC_WFEDIT_MENU_ADD_STATE_TITLE"),
+		"TEXT"    => GetMessage("BIZPROC_WFEDIT_MENU_ADD_STATE_1"),
+		"TITLE"   => GetMessage("BIZPROC_WFEDIT_MENU_ADD_STATE_TITLE_1"),
 		"ONCLICK" => "if(confirm('".GetMessage("BIZPROC_WFEDIT_MENU_ADD_WARN")."'))window.location='".str_replace("#ID#", "0", $arResult["EDIT_PAGE_TEMPLATE"]).(mb_strpos($arResult["EDIT_PAGE_TEMPLATE"], "?")? "&" : "?")."init=statemachine';"
 	];
 
 	$arSubMenu[] = [
 		"TEXT"    => GetMessage("BIZPROC_WFEDIT_MENU_ADD_SEQ"),
-		"TITLE"   => GetMessage("BIZPROC_WFEDIT_MENU_ADD_SEQ_TITLE"),
+		"TITLE"   => GetMessage("BIZPROC_WFEDIT_MENU_ADD_SEQ_TITLE_1"),
 		"ONCLICK" => "if(confirm('".GetMessage("BIZPROC_WFEDIT_MENU_ADD_WARN")."'))window.location='".str_replace("#ID#", "0", $arResult["EDIT_PAGE_TEMPLATE"]).(mb_strpos($arResult["EDIT_PAGE_TEMPLATE"], "?")? "&" : "?")."';"
 	];
 
@@ -249,14 +260,19 @@ $aMenu[] = [
 			'resizable': false
 		})).Show();
 	}
+
+	BX.Bizproc.WorkflowEditComponent.Globals.init({
+		documentTypeSigned: '<?= CUtil::JSEscape($arResult['DOCUMENT_TYPE_SIGNED']) ?>'
+	});
+
 </script>
-<? if ($arParams['SHOW_ADMIN_TOOLBAR'] == 'Y')
+<?php if ($arParams['SHOW_ADMIN_TOOLBAR'] == 'Y')
 {
 	$context = new CAdminContextMenu($aMenu);
 	$context->Show();
 }
 ?>
-<div style="background-color: #FFFFFF;<?if($isAdminSection):?>padding: 10px<?endif;?>">
+<div style="background-color: #FFFFFF;<?php if($isAdminSection): ?>padding: 10px<?php endif;?>">
 	<? if ($arParams['SHOW_TOOLBAR'] == 'Y')
 	{
 		$APPLICATION->IncludeComponent(
@@ -315,8 +331,10 @@ $aMenu[] = [
 		var arWorkflowParameters = <?=CUtil::PhpToJSObject($arResult['PARAMETERS'])?>;
 		var arWorkflowVariables = <?=CUtil::PhpToJSObject($arResult['VARIABLES'])?>;
 		var arWorkflowConstants = <?=CUtil::PhpToJSObject($arResult['CONSTANTS'])?>;
-		var arWorkflowGlobalConstants = <?=CUtil::PhpToJSObject($arResult['GLOBAL_CONSTANTS'])?>;
+		var arWorkflowGlobalConstants = <?= CUtil::PhpToJSObject($arResult['GLOBAL_CONSTANTS']) ?>;
 		var arWorkflowGlobalVariables = <?= CUtil::PhpToJSObject($arResult['GLOBAL_VARIABLES']) ?>;
+		var wfGVarVisibilityNames = <?= CUtil::PhpToJSObject($arResult['GLOBAL_VARIABLES_VISIBILITY_NAMES']) ?>;
+		var wfGConstVisibilityNames = <?= CUtil::PhpToJSObject($arResult['GLOBAL_CONSTANTS_VISIBILITY_NAMES']) ?>;
 		var arWorkflowTemplate = <?=CUtil::PhpToJSObject($arResult['TEMPLATE'][0])?>;
 		var arDocumentFields = <?=CUtil::PhpToJSObject($arResult['DOCUMENT_FIELDS'])?>;
 
@@ -428,7 +446,7 @@ $aMenu[] = [
 	</script>
 
 	<? if (!$arResult['TEMPLATE_CHECK_STATUS']):
-		echo ShowError(GetMessage('BIZPROC_WFEDIT_CHECK_ERROR'));
+		echo ShowError(GetMessage('BIZPROC_WFEDIT_CHECK_ERROR_1'));
 	endif;
 	?>
 	<form>

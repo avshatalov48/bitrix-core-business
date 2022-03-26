@@ -21,6 +21,7 @@ return array(
 			'dimensions' => array('width' => 1080),
 			'disableLink' => true,
 			'allowInlineEdit' => false,
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-img-big' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_32.4.IMG_GRID_2_COLS_2_NO_GUTTERS_NODES_LANDINGBLOCKNODEIMG1'),
@@ -29,6 +30,7 @@ return array(
 			'dimensions' => array('width' => 1080),
 			'disableLink' => true,
 			'allowInlineEdit' => false,
+			'create2xByDefault' => false,
 		),
 	),
 	'style' => array(

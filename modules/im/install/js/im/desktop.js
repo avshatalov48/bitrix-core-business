@@ -569,28 +569,60 @@
 
 		var objEventParams = {};
 		for (var i = 0; i < arEventParams.length; i++)
+		{
 			objEventParams[i] = arEventParams[i];
+		}
 
 		if (windowTarget == 'all')
 		{
-			var mainWindow = opener? opener: top;
-			for (var i = 0; i < mainWindow.BXWindows.length; i++)
+			try
 			{
-				if (mainWindow.BXWindows[i] && mainWindow.BXWindows[i].name != '' && mainWindow.BXWindows[i].BXDesktopWindow && mainWindow.BXWindows[i].BXDesktopWindow.DispatchCustomEvent)
-					mainWindow.BXWindows[i].BXDesktopWindow.DispatchCustomEvent(eventName, objEventParams);
+				var mainWindow = opener? opener: top;
+				for (var i = 0; i < mainWindow.BXWindows.length; i++)
+				{
+					if (
+						mainWindow.BXWindows[i]
+						&& mainWindow.BXWindows[i].name != ''
+						&& mainWindow.BXWindows[i].BXDesktopWindow
+						&& mainWindow.BXWindows[i].BXDesktopWindow.DispatchCustomEvent
+					)
+					{
+						mainWindow.BXWindows[i].BXDesktopWindow.DispatchCustomEvent(eventName, objEventParams);
+					}
+				}
 			}
-			mainWindow.BXDesktopWindow.DispatchCustomEvent(eventName, objEventParams);
-		}
-		if(typeof(windowTarget) === "object" && windowTarget.hasOwnProperty("BXDesktopWindow"))
-		{
-			windowTarget.BXDesktopWindow.DispatchCustomEvent(eventName, objEventParams);
-		}
-		else
-		{
-			if (windowTarget = this.findWindow(windowTarget))
-				windowTarget.BXDesktopWindow.DispatchCustomEvent(eventName, objEventParams);
+			catch (e)
+			{
+				console.warn(e);
+			}
+
+			try
+			{
+				mainWindow.BXDesktopWindow.DispatchCustomEvent(eventName, objEventParams);
+			}
+			catch (e)
+			{
+				console.warn(e);
+			}
 		}
 
+		try
+		{
+			if(typeof(windowTarget) === "object" && windowTarget.hasOwnProperty("BXDesktopWindow"))
+			{
+				windowTarget.BXDesktopWindow.DispatchCustomEvent(eventName, objEventParams);
+			}
+			else
+			{
+				if (windowTarget = this.findWindow(windowTarget))
+					windowTarget.BXDesktopWindow.DispatchCustomEvent(eventName, objEventParams);
+			}
+		}
+		catch (e)
+		{
+			console.warn(e);
+		}
+		
 		return true;
 	}
 

@@ -8,8 +8,9 @@ export class DirectoryMenu
 {
 	#activeDir = '';
 	#menu = Tag.render`<ul class="ui-mail-left-directory-menu"></ul>`;
-	#dirsWithUnseenMailCounters = new Map();
+	#directoryCounters = new Map();
 	#items = new Map();
+	#systemDirs =[];
 
 	getActiveDir()
 	{
@@ -31,7 +32,7 @@ export class DirectoryMenu
 
 	rebuildMenu(dirsWithUnseenMailCounters)
 	{
-		this.#dirsWithUnseenMailCounters = dirsWithUnseenMailCounters;
+		this.#directoryCounters = dirsWithUnseenMailCounters;
 		this.cleanItems();
 		this.buildMenu();
 		this.setDirectory(this.getActiveDir());
@@ -59,17 +60,37 @@ export class DirectoryMenu
 		this.setFilterDir(path);
 	}
 
-	buildMenu()
+	checkDirectoryForExistence(checkPath)
 	{
-		for (let i = 0; i < this.#dirsWithUnseenMailCounters.length; i++)
+		for (let i = 0; i < this.#directoryCounters.length; i++)
 		{
-			const directory = this.#dirsWithUnseenMailCounters[i];
+			const directory = this.#directoryCounters[i];
+			const path = directory['path'];
+			if(checkPath === path)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	buildMenu(firstBuild = false)
+	{
+		for (let i = 0; i < this.#directoryCounters.length; i++)
+		{
+			const directory = this.#directoryCounters[i];
 			const path = directory['path'];
 			if(!Item.checkProperties(directory))
 			{
 				continue;
 			}
-			const itemElement = new Item(directory,this);
+
+			if(this.#systemDirs['inbox'] === path && firstBuild)
+			{
+				BX.Mail.Home.FilterToolbar.setCount(directory['count']);
+			}
+
+			new Item(directory,this,0,this.#systemDirs);
 		}
 	}
 
@@ -78,7 +99,7 @@ export class DirectoryMenu
 		const event = new BaseEvent({ data: { directory: name } });
 		EventEmitter.emit('BX.DirectoryMenu:onChangeFilter', event);
 
-		name = this.convertPathForFilter(name);
+		name = BX.Mail.Home.Counters.getShortcut(name);
 
 		const filter = this.filter;
 		if (!!filter && (filter instanceof BX.Main.Filter))
@@ -118,30 +139,8 @@ export class DirectoryMenu
 		}
 	}
 
-	convertPathForFilter(path)
-	{
-		if (path === 'INBOX' || path === undefined)
-		{
-			path = '';
-		}
-
-		return path;
-	}
-
-	convertPathForMenu(path)
-	{
-		if (path === '' || path === undefined)
-		{
-			path = 'INBOX';
-		}
-
-		return path;
-	}
-
 	setDirectory(path)
 	{
-		path = this.convertPathForMenu(path);
-
 		this.clearActiveMenuButtons();
 		if(path === undefined) return;
 		const item = this.#items.get(path);
@@ -155,20 +154,33 @@ export class DirectoryMenu
 	constructor(config = {
 		dirsWithUnseenMailCounters: {},
 		filterId: '',
+		systemDirs :
+		{
+			spam: 'Spam',
+			trash: 'Trash',
+			outcome: 'Outcome',
+			drafts: 'Drafts',
+			inbox: 'Inbox',
+		}
 	})
 	{
 		this.filter = BX.Main.filterManager.getById(config['filterId']);
+		this.#systemDirs = config['systemDirs'];
 
 		EventEmitter.subscribe('BX.Main.Filter:apply', (event) => {
-			let dir = this.filter.getFilterFieldsValues()['DIR'];
-			dir = this.convertPathForMenu(dir);
-			EventEmitter.emit('BX.DirectoryMenu:onChangeFilter', new BaseEvent({ data: { directory: dir } }));
-			this.setDirectory(dir)
+
+			let dir = BX.Mail.Home.Counters.getDirPath(this.filter.getFilterFieldsValues()['DIR']);
+
+			if(this.checkDirectoryForExistence(dir))
+			{
+				EventEmitter.emit('BX.DirectoryMenu:onChangeFilter', new BaseEvent({ data: { directory: dir } }));
+				this.setDirectory(dir)
+			}
 		});
 
-		this.#dirsWithUnseenMailCounters = config['dirsWithUnseenMailCounters'];
+		this.#directoryCounters = config['dirsWithUnseenMailCounters'];
 
-		this.buildMenu();
+		this.buildMenu(true);
 	}
 
 	getNode()

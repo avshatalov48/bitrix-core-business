@@ -174,7 +174,7 @@ class CAllSQLWhere
 				$andValues = array_map(
 					function($val)
 					{
-						return CSQLWhere::ForLIKE(ToUpper($val));
+						return CSQLWhere::ForLIKE(mb_strtoupper($val));
 					},
 					$andValues
 				);
@@ -196,7 +196,7 @@ class CAllSQLWhere
 		{
 			foreach($arFields as $key=>$arField)
 			{
-				$key = mb_strtoupper($key);
+				$key = strtoupper($key);
 				if(!isset($this->fields[$key]) && is_array($arField) && $arField["FIELD_NAME"] <> '')
 				{
 					$ar = array();
@@ -693,7 +693,7 @@ class CAllSQLWhere
 			if ($operation=="S" || $operation=="NS")
 			{
 				foreach ($value as $val)
-					$FIELD_VALUE[] = $this->ForLIKE(toupper($val));
+					$FIELD_VALUE[] = $this->ForLIKE(mb_strtoupper($val));
 			}
 			else
 			{
@@ -708,7 +708,7 @@ class CAllSQLWhere
 		else
 		{
 			if ($operation=="S" || $operation=="NS")
-				$FIELD_VALUE = $this->ForLIKE(toupper($value));
+				$FIELD_VALUE = $this->ForLIKE(mb_strtoupper($value));
 			else
 				$FIELD_VALUE = $DB->ForSQL($value);
 		}

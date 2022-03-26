@@ -14,11 +14,11 @@ this.BX = this.BX || {};
 	  props: {
 	    selected: {
 	      type: Boolean,
-	      default: false
+	      "default": false
 	    },
 	    item: {
 	      type: Object,
-	      default: {}
+	      "default": {}
 	    }
 	  },
 	  mounted: function mounted() {
@@ -155,13 +155,13 @@ this.BX = this.BX || {};
 	  props: {
 	    isDesktop: {
 	      type: Boolean,
-	      default: false
+	      "default": false
 	    },
 	    width: {
-	      default: 0
+	      "default": 0
 	    },
 	    height: {
-	      default: 450
+	      "default": 450
 	    }
 	  },
 	  data: function data() {
@@ -190,7 +190,7 @@ this.BX = this.BX || {};
 	    main_core.ajax.runAction("im.call.getBackground", {}).then(function (response) {
 	      _this.loading = false;
 	      _this.diskFolderId = response.data.diskFolderId;
-	      response.data.list.default.forEach(function (element) {
+	      response.data.list["default"].forEach(function (element) {
 	        element.video = element.id.includes(':video');
 	        element.custom = false;
 	        element.canRemove = false;
@@ -234,7 +234,7 @@ this.BX = this.BX || {};
 	      if (_this.isDesktop) {
 	        window.BX.desktop.hideLoader();
 	      }
-	    }).catch(function () {
+	    })["catch"](function () {
 	      _this.loading = false;
 	    });
 	    this.actions.push({

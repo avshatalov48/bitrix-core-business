@@ -16,5 +16,7 @@ $APPLICATION->IncludeComponent(
 		'PATH_TO' => $arResult['PATH_TO'],
 		'IBLOCK_ID' => $iblockId,
 		'PRODUCT_ID' => $productId,
+		'BUILDER_CONTEXT' => $arResult['BUILDER_CONTEXT'],
+		'SCOPE' => $arResult['SCOPE'],
 	]
 );

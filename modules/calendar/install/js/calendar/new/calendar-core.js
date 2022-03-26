@@ -7,6 +7,7 @@
 		this.showTasks = config.showTasks;
 		this.calDavConnections = config.connections;
 		this.util = new window.BXEventCalendar.Util(this, config, additionalParams);
+		this.needForReload = false;
 
 		if(this.util.isFilterEnabled())
 		{
@@ -129,10 +130,11 @@
 				this.mainCont.appendChild(this.viewsCont);
 				this.rightBlock = this.mainCont.appendChild(BX.create('DIV', {props: {className: 'calendar-right-container'}}));
 
-				BX.bind(document.body, "keyup", BX.proxy(this.keyUpHandler, this));
 				BX.addCustomEvent(this, 'doRefresh', BX.proxy(this.refresh, this));
-				BX.bind(window, "beforeunload", BX.Calendar.EntryManager.doDelayedActions);
+				BX.Event.bind(document.body, "keyup", BX.proxy(this.keyUpHandler, this));
+				BX.Event.bind(window, "beforeunload", BX.Calendar.EntryManager.doDelayedActions);
 				BX.addCustomEvent(this, 'changeViewRange', BX.Calendar.EntryManager.doDelayedActions);
+				BX.Event.bind(document, 'visibilitychange', this.handleVisibilityChange.bind(this));
 
 				this.topBlock.appendChild(BX.create('DIV', {style: {clear: 'both'}}));
 
@@ -1021,12 +1023,27 @@
 
 		reload: function (params)
 		{
-			if (params && params.syncGoogle)
+			if (BX.Calendar.Util.documentIsDisplayingNow())
 			{
-				this.reloadGoogle = true;
+				if (params && params.syncGoogle)
+				{
+					this.reloadGoogle = true;
+				}
+				this.entryController.clearLoadIndexCache();
+				this.refresh();
 			}
-			this.entryController.clearLoadIndexCache();
-			this.refresh();
+			else
+			{
+				this.needForReload = true;
+			}
+		},
+
+		handleVisibilityChange: function()
+		{
+			if (this.needForReload)
+			{
+				this.reload();
+			}
 		},
 
 		showStartUpEntry: function(startupEntry)
@@ -1090,21 +1107,16 @@
 		{
 			params = BX.Type.isObjectLike(params) ? params : {};
 			params.command = command;
+			params.sections = this.sectionManager.getSections();
+
 			switch(command)
 			{
 				case 'edit_event':
 				case 'delete_event':
-					if (BX.Calendar.Util.checkRequestId(params.requestUid))
-					{
-						this.entryManager.handlePullChanges(params);
-						this.reload();
-					}
-					break;
 				case 'set_meeting_status':
 					if (BX.Calendar.Util.checkRequestId(params.requestUid))
 					{
 						this.entryManager.handlePullChanges(params);
-						this.reload();
 					}
 					break;
 				case 'edit_section':

@@ -268,18 +268,19 @@
 .sonet-groups-error-text-block { padding: 20px; }
 
 .sonet-groups-sidebar-content {
-	padding: 0;
-	background: #fff;
 	color: #535c69;
 	font-size: 13px;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	padding-bottom: 10px;
 }
 
 .sonet-groups-sidebar-title {
-	margin-bottom: 10px;
 	background-color: #5cd1df;
 	color: #fff;
 	font-size: 14px;
+	border-radius: var(--sonet-groups-sidebar-title, var(--ui-theme-radius-md, 0));
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
 }
 
 .sonet-groups-sidebar-status-text {
@@ -295,6 +296,10 @@
 .sonet-groups-sidebar-items {
 	overflow: hidden;
 	padding: 0 15px 15px;
+	background: #fff;
+	border-radius: var(--sonet-groups-sidebar-items, var(--ui-theme-radius-md, 0));
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 
 .sonet-groups-sidebar-allgroups-link-container {

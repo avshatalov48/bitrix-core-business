@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,landing_ui_field_textfield,main_core,landing_ui_button_basebutton,main_popup) {
+(function (exports,landing_ui_field_textfield,main_core,landing_ui_button_basebutton,main_popup,landing_pageobject) {
 	'use strict';
 
 	function _templateObject2() {
@@ -51,14 +51,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	  babelHelpers.createClass(VariablesField, [{
 	    key: "onTopDocumentClick",
-	    value: function onTopDocumentClick() {
-	      this.getMenu().close();
-	      babelHelpers.get(babelHelpers.getPrototypeOf(VariablesField.prototype), "onDocumentClick", this).call(this);
+	    value: function onTopDocumentClick() {// const rootWindowDocument = PageObject.getRootWindow().document;
+	      // if (rootWindowDocument !== this.input.ownerDocument)
+	      // {
+	      // 	this.getMenu().close();
+	      // 	super.onDocumentClick();
+	      // }
 	    }
 	  }, {
 	    key: "onInputClick",
 	    value: function onInputClick(event) {
-	      event.preventDefault();
+	      // event.preventDefault();
 	      this.lastRange = this.input.ownerDocument.createRange(this.input.innerText.length, this.input.innerText.length);
 	      this.lastRange = this.input.ownerDocument.getSelection().getRangeAt(0);
 	    }
@@ -86,8 +89,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this4 = this;
 
 	      return this.cache.remember('menu', function () {
-	        var menu = new main_popup.Menu({
+	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        var menu = new rootWindow.BX.Main.Menu({
 	          bindElement: _this4.getButton(),
+	          targetContainer: _this4.getLayout(),
 	          autoHide: true,
 	          items: _this4.options.variables.map(function (variable) {
 	            return {
@@ -102,7 +107,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          events: {
 	            onPopupShow: function onPopupShow() {
 	              VariablesField[instances].forEach(function (item) {
-	                item.getMenu().close();
+	                if (item !== _this4) {
+	                  item.getMenu().close();
+	                }
 	              });
 	              setTimeout(function () {
 	                main_core.Dom.style(menu.getMenuContainer(), {
@@ -114,7 +121,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            }
 	          }
 	        });
-	        main_core.Dom.append(menu.getMenuContainer(), _this4.getLayout());
 	        return menu;
 	      });
 	    }
@@ -159,6 +165,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        this.getMenu().show();
 	      }
 	    }
+	  }, {
+	    key: "getValue",
+	    value: function getValue() {
+	      return this.input.innerText;
+	    }
 	  }]);
 	  return VariablesField;
 	}(landing_ui_field_textfield.TextField);
@@ -166,5 +177,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.VariablesField = VariablesField;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX.Landing.UI.Field,BX,BX.Landing.UI.Button,BX.Main));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX.Landing.UI.Field,BX,BX.Landing.UI.Button,BX.Main,BX.Landing));
 //# sourceMappingURL=variablesfield.bundle.js.map

@@ -1,0 +1,7 @@
+<?php
+$MESS['LANDING_EXT_EXPLORER_TITLE_COPY'] = 'Копировать "#title#"';
+$MESS['LANDING_EXT_EXPLORER_BUTTON_COPY'] = 'Копировать';
+$MESS['LANDING_EXT_EXPLORER_TITLE_MOVE'] = 'Переместить "#title#"';
+$MESS['LANDING_EXT_EXPLORER_BUTTON_MOVE'] = 'Переместить';
+$MESS['LANDING_EXT_EXPLORER_BUTTON_CANCEL'] = 'Отменить';
+$MESS['LANDING_EXT_EXPLORER_ALERT_TITLE'] = 'Ошибка';

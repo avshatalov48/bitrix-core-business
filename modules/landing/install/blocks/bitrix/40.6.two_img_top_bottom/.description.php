@@ -16,6 +16,7 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_6_IMG'),
 			'type' => 'img',
 			'dimensions' => ['width' => 1110],
+			'create2xByDefault' => false,
 		],
 		'.landing-block-card-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_6_TITLE'),
@@ -29,6 +30,7 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_6_IMG'),
 			'type' => 'img',
 			'dimensions' => ['width' => 1110],
+			'create2xByDefault' => false,
 		],
 		'.landing-block-card-title-2' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_6_TITLE'),

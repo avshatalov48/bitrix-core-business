@@ -51,6 +51,7 @@
 	padding-right: 10px;
 	margin-left: -10px;
 	margin-right: -10px;
+	max-width: 100%;
 	transition: opacity 200ms ease;
 }
 

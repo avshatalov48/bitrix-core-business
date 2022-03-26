@@ -161,7 +161,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    value: function validate(fields) {
 	      var result = {};
 
-	      if (babelHelpers.typeof(fields.common) === 'object' && fields.common) {
+	      if (babelHelpers["typeof"](fields.common) === 'object' && fields.common) {
 	        result.common = {};
 
 	        if (typeof fields.common.userId === 'number') {
@@ -173,7 +173,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 	      }
 
-	      if (babelHelpers.typeof(fields.dialog) === 'object' && fields.dialog) {
+	      if (babelHelpers["typeof"](fields.dialog) === 'object' && fields.dialog) {
 	        result.dialog = {};
 
 	        if (typeof fields.dialog.dialogId === 'number') {
@@ -216,7 +216,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 	      }
 
-	      if (babelHelpers.typeof(fields.disk) === 'object' && fields.disk) {
+	      if (babelHelpers["typeof"](fields.disk) === 'object' && fields.disk) {
 	        result.disk = {};
 
 	        if (typeof fields.disk.enabled === 'boolean') {
@@ -228,7 +228,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 	      }
 
-	      if (babelHelpers.typeof(fields.call) === 'object' && fields.call) {
+	      if (babelHelpers["typeof"](fields.call) === 'object' && fields.call) {
 	        result.call = {};
 
 	        if (typeof fields.call.serverEnabled === 'boolean') {
@@ -240,7 +240,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 	      }
 
-	      if (babelHelpers.typeof(fields.mobile) === 'object' && fields.mobile) {
+	      if (babelHelpers["typeof"](fields.mobile) === 'object' && fields.mobile) {
 	        result.mobile = {};
 
 	        if (typeof fields.mobile.keyboardShow === 'boolean') {
@@ -248,7 +248,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 	      }
 
-	      if (babelHelpers.typeof(fields.device) === 'object' && fields.device) {
+	      if (babelHelpers["typeof"](fields.device) === 'object' && fields.device) {
 	        result.device = {};
 
 	        if (typeof fields.device.type === 'string' && typeof im_const.DeviceType[fields.device.type] !== 'undefined') {
@@ -260,7 +260,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 	      }
 
-	      if (babelHelpers.typeof(fields.error) === 'object' && fields.error) {
+	      if (babelHelpers["typeof"](fields.error) === 'object' && fields.error) {
 	        if (typeof fields.error.active === 'boolean') {
 	          result.error = {
 	            active: fields.error.active,
@@ -591,7 +591,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  return ConferenceModel;
 	}(ui_vue_vuex.VuexBuilderModel);
 
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
@@ -746,7 +746,25 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          var result = _this2.validate(Object.assign({}, payload));
 
 	          result.params = Object.assign({}, _this2.getElementState().params, result.params);
-	          result.id = 'temporary' + new Date().getTime() + store.state.created;
+
+	          if (payload.id) {
+	            if (store.state.collection[payload.chatId]) {
+	              var countMessages = store.state.collection[payload.chatId].length - 1;
+
+	              for (var index = countMessages; index >= 0; index--) {
+	                var message = store.state.collection[payload.chatId][index];
+
+	                if (message.templateId === payload.id) {
+	                  return;
+	                }
+	              }
+	            }
+
+	            result.id = payload.id;
+	          } else {
+	            result.id = 'temporary' + new Date().getTime() + store.state.created;
+	          }
+
 	          result.templateId = result.id;
 	          result.unread = false;
 	          store.commit('add', Object.assign({}, _this2.getElementState(), result));
@@ -957,7 +975,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	          return true;
 	        },
-	        delete: function _delete(store, payload) {
+	        "delete": function _delete(store, payload) {
 	          if (!(payload.id instanceof Array)) {
 	            payload.id = [payload.id];
 	          }
@@ -1119,6 +1137,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          var chats = [];
 	          var chatsSave = [];
 	          var isPush = false;
+	          payload.data = MessagesModel.getPayloadWithTempMessages(state, payload);
 	          var initialType = payload.insertType;
 
 	          if (payload.insertType === im_const.MutationType.set) {
@@ -1206,12 +1225,15 @@ this.BX.Messenger = this.BX.Messenger || {};
 	                chatId: element.chatId
 	              });
 
-	              var index = state.collection[element.chatId].findIndex(function (el) {
-	                return el.id === element.id;
+	              var index = state.collection[element.chatId].findIndex(function (localMessage) {
+	                if (MessagesModel.isTemporaryMessage(localMessage)) {
+	                  return localMessage.templateId === element.templateId;
+	                }
+
+	                return localMessage.id === element.id;
 	              });
 
 	              if (index > -1) {
-	                delete element.templateId;
 	                state.collection[element.chatId][index] = Object.assign(state.collection[element.chatId][index], element);
 	              } else if (payload.insertType === im_const.MutationType.setBefore) {
 	                state.collection[element.chatId].unshift(element);
@@ -1285,7 +1307,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	          if (index >= 0) {
 	            var isSaveState = state.saveMessageList[payload.chatId].includes(state.collection[payload.chatId][index].id) || payload.fields.id && !payload.fields.id.toString().startsWith('temporary') && state.collection[payload.chatId][index].id.toString().startsWith('temporary');
-	            delete payload.fields.templateId;
 	            state.collection[payload.chatId][index] = Object.assign(state.collection[payload.chatId][index], payload.fields);
 
 	            if (isSaveState) {
@@ -1295,7 +1316,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            }
 	          }
 	        },
-	        delete: function _delete(state, payload) {
+	        "delete": function _delete(state, payload) {
 	          _this3.initCollection(state, {
 	            chatId: payload.chatId
 	          });
@@ -1435,7 +1456,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	      var result = this.validate(Object.assign({}, message), options);
 	      result.params = Object.assign({}, this.getElementState().params, result.params);
-	      result.templateId = result.id;
+
+	      if (!result.templateId) {
+	        result.templateId = result.id;
+	      }
+
 	      return Object.assign({}, this.getElementState(), result);
 	    }
 	  }, {
@@ -1623,17 +1648,19 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      if (typeof fields.id === "number") {
 	        result.id = fields.id;
 	      } else if (typeof fields.id === "string") {
-	        if (fields.id.startsWith('temporary') || fields.id.startsWith('placeholder')) {
+	        if (fields.id.startsWith('temporary') || fields.id.startsWith('placeholder') || im_lib_utils.Utils.types.isUuidV4(fields.id)) {
 	          result.id = fields.id;
 	        } else {
 	          result.id = parseInt(fields.id);
 	        }
 	      }
 
-	      if (typeof fields.templateId === "number") {
+	      if (typeof fields.uuid === "string") {
+	        result.templateId = fields.uuid;
+	      } else if (typeof fields.templateId === "number") {
 	        result.templateId = fields.templateId;
 	      } else if (typeof fields.templateId === "string") {
-	        if (fields.templateId.startsWith('temporary')) {
+	        if (fields.templateId.startsWith('temporary') || im_lib_utils.Utils.types.isUuidV4(fields.templateId)) {
 	          result.templateId = fields.templateId;
 	        } else {
 	          result.templateId = parseInt(fields.templateId);
@@ -1704,7 +1731,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 	      }
 
-	      if (babelHelpers.typeof(fields.params) === "object" && fields.params !== null) {
+	      if (babelHelpers["typeof"](fields.params) === "object" && fields.params !== null) {
 	        var params = this.validateParams(fields.params, options);
 
 	        if (params) {
@@ -1770,6 +1797,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          } else if (field === 'NAME') {
 	            if (params[field]) {
 	              result[field] = params[field];
+	            }
+	          } else if (field === 'LINK_ACTIVE') {
+	            if (params[field]) {
+	              result[field] = params[field].map(function (userId) {
+	                return parseInt(userId);
+	              });
 	            }
 	          } else if (field === 'ATTACH') {
 	            result[field] = this.decodeAttach(params[field]);
@@ -1901,7 +1934,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        item.forEach(function (arrayElement) {
 	          arrayElement = _this4.decodeAttach(arrayElement);
 	        });
-	      } else if (babelHelpers.typeof(item) === 'object' && item !== null) {
+	      } else if (babelHelpers["typeof"](item) === 'object' && item !== null) {
 	        for (var prop in item) {
 	          if (item.hasOwnProperty(prop)) {
 	            item[prop] = this.decodeAttach(item[prop]);
@@ -2151,11 +2184,74 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	      return true;
 	    }
+	  }, {
+	    key: "isTemporaryMessage",
+	    value: function isTemporaryMessage(element) {
+	      return element.id && (im_lib_utils.Utils.types.isUuidV4(element.id) || element.id.toString().startsWith('temporary'));
+	    }
+	  }, {
+	    key: "getPayloadWithTempMessages",
+	    value: function getPayloadWithTempMessages(state, payload) {
+	      var payloadData = babelHelpers.toConsumableArray(payload.data);
+
+	      if (!im_lib_utils.Utils.platform.isBitrixMobile()) {
+	        return payloadData;
+	      }
+
+	      if (!payload.data || payload.data.length <= 0) {
+	        return payloadData;
+	      } // consider that in the payload we have messages only for one chat, so we get the value from the first message.
+
+
+	      var payloadChatId = payload.data[0].chatId;
+
+	      if (!state.collection[payloadChatId]) {
+	        return payloadData;
+	      }
+
+	      state.collection[payloadChatId].forEach(function (message) {
+	        if (MessagesModel.isTemporaryMessage(message) && !MessagesModel.existsInPayload(payload, message.templateId) && MessagesModel.doesTaskExist(message)) {
+	          payloadData.push(message);
+	        }
+	      });
+	      return payloadData;
+	    }
+	  }, {
+	    key: "existsInPayload",
+	    value: function existsInPayload(payload, templateId) {
+	      return payload.data.find(function (payloadMessage) {
+	        return payloadMessage.templateId === templateId;
+	      });
+	    }
+	  }, {
+	    key: "doesTaskExist",
+	    value: function doesTaskExist(message) {
+	      if (Array.isArray(message.params.FILE_ID)) {
+	        var foundUploadTasks = false;
+	        message.params.FILE_ID.forEach(function (fileId) {
+	          if (!foundUploadTasks) {
+	            foundUploadTasks = window.imDialogUploadTasks.find(function (task) {
+	              return task.taskId.split('|')[1] === fileId;
+	            });
+	          }
+	        });
+	        return !!foundUploadTasks;
+	      }
+
+	      if (message.templateId) {
+	        var foundMessageTask = window.imDialogMessagesTasks.find(function (task) {
+	          return task.taskId.split('|')[1] === message.templateId;
+	        });
+	        return !!foundMessageTask;
+	      }
+
+	      return false;
+	    }
 	  }]);
 	  return MessagesModel;
 	}(ui_vue_vuex.VuexBuilderModel);
 
-	function _createForOfIteratorHelper$1(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$1(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper$1(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$1(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray$1(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$1(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$1(o, minLen); }
 
@@ -2234,9 +2330,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          extend: true,
 	          leave: true,
 	          leaveOwner: true,
-	          rename: true
+	          rename: true,
+	          send: true,
+	          userList: true,
+	          mute: true,
+	          call: true
 	        },
-	        public: {
+	        "public": {
 	          code: '',
 	          link: ''
 	        }
@@ -2359,7 +2459,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          });
 	          return true;
 	        },
-	        delete: function _delete(store, payload) {
+	        "delete": function _delete(store, payload) {
 	          store.commit('delete', payload.dialogId);
 	          return true;
 	        },
@@ -2610,7 +2710,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	          _this3.saveState(state);
 	        },
-	        delete: function _delete(state, payload) {
+	        "delete": function _delete(state, payload) {
 	          delete state.collection[payload.dialogId]; // TODO if payload.dialogId is IMOL, skip update cache
 
 	          _this3.saveState(state);
@@ -2823,7 +2923,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	              result.muteList.push(userId);
 	            }
 	          });
-	        } else if (babelHelpers.typeof(fields.muteList) === 'object') {
+	        } else if (babelHelpers["typeof"](fields.muteList) === 'object') {
 	          Object.entries(fields.muteList).forEach(function (entry) {
 	            if (entry[1] === true) {
 	              var userId = parseInt(entry[0]);
@@ -2936,39 +3036,55 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        result.dateLastOpen = im_lib_utils.Utils.date.cast(fields.dateLastOpen);
 	      }
 
-	      if (babelHelpers.typeof(fields.restrictions) === 'object' && fields.restrictions) {
+	      if (babelHelpers["typeof"](fields.restrictions) === 'object' && fields.restrictions) {
 	        result.restrictions = {};
 
-	        if (typeof fields.restrictions.AVATAR === 'boolean') {
-	          result.restrictions.avatar = fields.restrictions.AVATAR;
+	        if (typeof fields.restrictions.avatar === 'boolean') {
+	          result.restrictions.avatar = fields.restrictions.avatar;
 	        }
 
-	        if (typeof fields.restrictions.EXTEND === 'boolean') {
-	          result.restrictions.extend = fields.restrictions.EXTEND;
+	        if (typeof fields.restrictions.extend === 'boolean') {
+	          result.restrictions.extend = fields.restrictions.extend;
 	        }
 
-	        if (typeof fields.restrictions.LEAVE === 'boolean') {
-	          result.restrictions.leave = fields.restrictions.LEAVE;
+	        if (typeof fields.restrictions.leave === 'boolean') {
+	          result.restrictions.leave = fields.restrictions.leave;
 	        }
 
-	        if (typeof fields.restrictions.LEAVE_OWNER === 'boolean') {
-	          result.restrictions.leaveOwner = fields.restrictions.LEAVE_OWNER;
+	        if (typeof fields.restrictions.leave_owner === 'boolean') {
+	          result.restrictions.leaveOwner = fields.restrictions.leave_owner;
 	        }
 
-	        if (typeof fields.restrictions.RENAME === 'boolean') {
-	          result.restrictions.rename = fields.restrictions.RENAME;
+	        if (typeof fields.restrictions.rename === 'boolean') {
+	          result.restrictions.rename = fields.restrictions.rename;
+	        }
+
+	        if (typeof fields.restrictions.send === 'boolean') {
+	          result.restrictions.send = fields.restrictions.send;
+	        }
+
+	        if (typeof fields.restrictions.user_list === 'boolean') {
+	          result.restrictions.userList = fields.restrictions.user_list;
+	        }
+
+	        if (typeof fields.restrictions.mute === 'boolean') {
+	          result.restrictions.mute = fields.restrictions.mute;
+	        }
+
+	        if (typeof fields.restrictions.call === 'boolean') {
+	          result.restrictions.call = fields.restrictions.call;
 	        }
 	      }
 
-	      if (babelHelpers.typeof(fields.public) === 'object' && fields.public) {
-	        result.public = {};
+	      if (babelHelpers["typeof"](fields["public"]) === 'object' && fields["public"]) {
+	        result["public"] = {};
 
-	        if (typeof fields.public.code === 'string') {
-	          result.public.code = fields.public.code;
+	        if (typeof fields["public"].code === 'string') {
+	          result["public"].code = fields["public"].code;
 	        }
 
-	        if (typeof fields.public.link === 'string') {
-	          result.public.link = fields.public.link;
+	        if (typeof fields["public"].link === 'string') {
+	          result["public"].link = fields["public"].link;
 	        }
 	      }
 
@@ -2978,7 +3094,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  return DialoguesModel;
 	}(ui_vue_vuex.VuexBuilderModel);
 
-	function _createForOfIteratorHelper$2(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$2(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper$2(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$2(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray$2(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$2(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$2(o, minLen); }
 
@@ -3155,7 +3271,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          });
 	          return true;
 	        },
-	        delete: function _delete(store, payload) {
+	        "delete": function _delete(store, payload) {
 	          store.commit('delete', payload.id);
 	          return true;
 	        },
@@ -3275,7 +3391,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	          _this3.saveState(state);
 	        },
-	        delete: function _delete(state, payload) {
+	        "delete": function _delete(state, payload) {
 	          delete state.collection[payload.id];
 
 	          _this3.saveState(state);
@@ -3496,7 +3612,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 	      }
 
-	      if (babelHelpers.typeof(fields.phones) === 'object' && fields.phones) {
+	      if (babelHelpers["typeof"](fields.phones) === 'object' && fields.phones) {
 	        result.phones = {};
 
 	        if (typeof fields.phones.work_phone !== "undefined") {
@@ -3680,7 +3796,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  return UsersModel;
 	}(ui_vue_vuex.VuexBuilderModel);
 
-	function _createForOfIteratorHelper$3(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$3(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper$3(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$3(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray$3(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$3(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$3(o, minLen); }
 
@@ -3792,7 +3908,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            host: store.state.host
 	          });
 
-	          result.id = 'temporary' + new Date().getTime() + store.state.created;
+	          if (payload.id) {
+	            result.id = payload.id;
+	          } else {
+	            result.id = 'temporary' + new Date().getTime() + store.state.created;
+	          }
+
 	          result.templateId = result.id;
 	          result.init = true;
 	          store.commit('add', Object.assign({}, _this2.getElementState(), result));
@@ -3894,7 +4015,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	          return true;
 	        },
-	        delete: function _delete(store, payload) {
+	        "delete": function _delete(store, payload) {
 	          store.commit('delete', {
 	            id: payload.id,
 	            chatId: payload.chatId
@@ -3986,7 +4107,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            _this3.saveState(state);
 	          }
 	        },
-	        delete: function _delete(state, payload) {
+	        "delete": function _delete(state, payload) {
 	          _this3.initCollection(state, payload);
 
 	          state.collection[payload.chatId] = state.collection[payload.chatId].filter(function (element) {
@@ -4015,11 +4136,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }, {
 	    key: "getLoadedState",
 	    value: function getLoadedState(state) {
-	      if (!state || babelHelpers.typeof(state) !== 'object') {
+	      if (!state || babelHelpers["typeof"](state) !== 'object') {
 	        return state;
 	      }
 
-	      if (babelHelpers.typeof(state.collection) !== 'object') {
+	      if (babelHelpers["typeof"](state.collection) !== 'object') {
 	        return state;
 	      }
 
@@ -4182,7 +4303,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	      if (typeof fields.image === 'boolean') {
 	        result.image = false;
-	      } else if (babelHelpers.typeof(fields.image) === 'object' && fields.image) {
+	      } else if (babelHelpers["typeof"](fields.image) === 'object' && fields.image) {
 	        result.image = {
 	          width: 0,
 	          height: 0
@@ -4241,7 +4362,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 	      }
 
-	      if (babelHelpers.typeof(fields.viewerAttrs) === 'object') {
+	      if (babelHelpers["typeof"](fields.viewerAttrs) === 'object') {
 	        if (result.type === 'image' && !im_lib_utils.Utils.platform.isBitrixMobile()) {
 	          result.viewerAttrs = fields.viewerAttrs;
 	        }
@@ -4570,7 +4691,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        clearPlaceholders: function clearPlaceholders(store) {
 	          store.commit('clearPlaceholders');
 	        },
-	        delete: function _delete(store, payload) {
+	        "delete": function _delete(store, payload) {
 	          if (typeof payload.id === 'string' && !payload.id.startsWith('chat') && payload.id !== 'notify') {
 	            payload.id = parseInt(payload.id);
 	          }
@@ -4600,7 +4721,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        update: function update(state, payload) {
 	          state.collection.splice(payload.index, 1, Object.assign({}, state.collection[payload.index], payload.fields));
 	        },
-	        delete: function _delete(state, payload) {
+	        "delete": function _delete(state, payload) {
 	          state.collection.splice(payload.index, 1);
 	        },
 	        addPlaceholder: function addPlaceholder(state, payload) {
@@ -4774,7 +4895,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  return RecentModel;
 	}(ui_vue_vuex.VuexBuilderModel); //raw input object for validation
 
-	function _createForOfIteratorHelper$4(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$4(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper$4(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$4(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray$4(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$4(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$4(o, minLen); }
 
@@ -5018,7 +5139,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        readAll: function readAll(store, payload) {
 	          store.commit('readAll');
 	        },
-	        delete: function _delete(store, payload) {
+	        "delete": function _delete(store, payload) {
 	          var existingItem = _this2.findItemInArr(store.state.collection, payload.id);
 
 	          if (existingItem.element) {
@@ -5150,7 +5271,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          var collectionName = payload.searchCollection ? 'searchCollection' : 'collection';
 	          ui_vue.Vue.set(state[collectionName], payload.index, Object.assign({}, state[collectionName][payload.index], payload.fields));
 	        },
-	        delete: function _delete(state, payload) {
+	        "delete": function _delete(state, payload) {
 	          var collectionName = payload.searchCollection ? 'searchCollection' : 'collection';
 	          state[collectionName].splice(payload.index, 1);
 	        },

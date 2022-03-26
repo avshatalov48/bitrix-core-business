@@ -61,6 +61,7 @@ $MESS['SALE_DSE_TAB_DELIVERY_GENERAL'] = "General parameters for delivery servic
 $MESS['SALE_DSE_TAB_EXTRA_SERVICES'] = "Extra services";
 $MESS['SALE_DSE_TAB_EXTRA_SERVICES_DESCR'] = "Delivery service extra services";
 $MESS['SALE_DSE_TAB_GENERAL'] = "General parameters";
+$MESS['SALE_DSE_TAB_SETTINGS'] = "Parameters";
 $MESS['SALE_DSE_TAB_GROUP_GENERAL'] = "Common settings for delivery service group ";
 $MESS['SALE_DSE_TAB_PARAMS'] = "Parameters";
 $MESS['SALE_DSE_TAB_PARAMS_DESCR'] = "Delivery service handler parameters";

@@ -24,10 +24,19 @@ export class ImageCompressor
 
 	static compress(file, options: ImageCompressorOptions = {}): Promise<File>
 	{
-		return urlToBlob(file).then((blob) => {
-			const compressor = new ImageCompressor(blob, options);
-			return compressor.compress();
-		});
+		return urlToBlob(file)
+			.then((blob) => {
+				if (
+					Type.isStringFilled(blob.type)
+					&& blob.type.includes('gif')
+				)
+				{
+					return blob;
+				}
+
+				const compressor = new ImageCompressor(blob, options);
+				return compressor.compress();
+			});
 	}
 
 	compress(): Promise<File>

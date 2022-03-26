@@ -19,6 +19,7 @@ return array(
 			'type' => 'img',
 			'dimensions' => array('width' => 1920),
 			'useInDesigner' => false,
+			'create2xByDefault' => false,
 		),
 	),
 	'style' => array(

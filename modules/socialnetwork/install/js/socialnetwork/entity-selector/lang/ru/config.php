@@ -1,5 +1,7 @@
-<?
+<?php
 $MESS["SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE"] = "Пригласить сотрудника";
+$MESS["SOCNET_ENTITY_SELECTOR_INVITE_EXTRANET"] = "Пригласить внешнего пользователя";
+$MESS["SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE_OR_EXTRANET"] = "Пригласить сотрудника или внешнего пользователя";
 $MESS["SOCNET_ENTITY_SELECTOR_INVITE_GUEST"] = "Пригласить гостя";
 $MESS["SOCNET_ENTITY_SELECTOR_CREATE_PROJECT"] = "Создать группу";
 $MESS["SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE_OR_GUEST"] = "<employee>Пригласить сотрудника</employee><span>или</span><guest>пригласить гостя</guest>";

@@ -2,7 +2,7 @@
 
 	<div class="container">
 
-		<div class="row align-items-center">
+		<div class="landing-block-node-row row align-items-start">
 			<div class="landing-block-node-video-col js-animation slideInRight col-md-6">
 				<div class="landing-block-node-video-container embed-responsive embed-responsive-16by9 mx-auto w-100">
 					<div class="landing-block-node-video embed-responsive-item g-video-preview w-100"

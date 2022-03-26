@@ -503,3 +503,45 @@
 .main-ui-square-container {
 	margin-right: 25px;
 }
+
+.main-grid-cell-content-catalog-quantity-inventory-management {
+	color: #2067b0;
+	border-bottom: 1px dashed #2067b0;
+	cursor: pointer;
+}
+
+.main-grid-cell-content-catalog-quantity-inventory-management:hover {
+	text-decoration: none !important;
+}
+
+.store-amount-popup-container {
+	padding: 20px;
+	width: 490px;
+}
+
+.store-amount-popup-container table {
+	margin-bottom: 15px;
+}
+
+.store-amount-popup-not-found-message {
+	font-size: 20px;
+	text-align: center;
+	margin: 0;
+	color: #535c69;
+}
+
+.ui-link-open-store-amount-slider {
+	margin-left: 16px;
+}
+
+.main-grid-cell-head[data-name="SKU_GRID_BARCODE"] {
+	min-width: 300px !important;
+}
+
+div[data-role="barcode-selector"] {
+	min-width: 300px;
+}
+
+div[data-role="barcode-selector"] .ui-tag-selector-text-box{
+	min-width: 300px;
+}

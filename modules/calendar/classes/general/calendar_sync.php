@@ -475,7 +475,7 @@ class CCalendarSync
 			}
 			if (!empty($arFields['PROPERTY_LOCATION']))
 			{
-				$arNewFields["LOCATION"] = CCalendar::UnParseTextLocation($arFields['PROPERTY_LOCATION']);
+				$arNewFields["LOCATION"] = Bitrix\Calendar\Rooms\Util::unParseTextLocation($arFields['PROPERTY_LOCATION']);
 			}
 			if (!empty($arFields['DETAIL_TEXT']))
 			{
@@ -945,7 +945,7 @@ class CCalendarSync
 					{
 						foreach ($errors as $error)
 						{
-							if ($googleHelper->isDeletedResource($error))
+							if ($googleHelper->isDeletedResource($error['message']))
 							{
 								$isUpdatedResult = true;
 								CCalendarEvent::updateSyncStatus((int)$event['ID'], Google\Dictionary::SYNC_STATUS['success']);
@@ -1147,7 +1147,7 @@ class CCalendarSync
 	public static function GetGoogleCalendarConnection()
 	{
 		$userId = CCalendar::GetCurUserId();
-		$result = array();
+		$result = [];
 		if (\Bitrix\Main\Loader::includeModule('socialservices'))
 		{
 			$client = new CSocServGoogleOAuth($userId);
@@ -1166,9 +1166,11 @@ class CCalendarSync
 
 			if(!$id)
 			{
-				$curPath = \CCalendar::GetPath();
-				$curPath = \CHTTP::urlDeleteParams($curPath,
-					["action", "sessid", "bx_event_calendar_request", "EVENT_ID", "EVENT_DATE", "current_fieldset"]);
+				$curPath = \CCalendar::GetPath('user', $userId);
+				$curPath = \CHTTP::urlDeleteParams(
+					$curPath,
+					["action", "sessid", "bx_event_calendar_request", "EVENT_ID", "EVENT_DATE", "current_fieldset"]
+				);
 				$curPath = \CHTTP::urlAddParams($curPath, ['googleAuthSuccess' => 'y']);
 				$result['authLink'] = $client->getUrl('opener', null, ['BACKURL' => $curPath]);
 			}
@@ -1762,19 +1764,6 @@ class CCalendarSync
 		return $connectionList;
 	}
 
-	public static function getSign($url = '')
-	{
-		if (!$url || strlen(trim($url)) <= 0)
-			return false;
-
-		$userId = $GLOBALS["USER"]->GetID();
-		if (!($hash = CUser::GetHitAuthHash($url, $userId)))
-		{
-			$hash = CUser::AddHitAuthHash($url, $userId, SITE_ID);
-		}
-		return $hash;
-	}
-
 	public static function getTimestampWithUserOffset($userId): Closure
 	{
 		$offset = self::getUserOffset($userId);
@@ -2106,7 +2095,10 @@ class CCalendarSync
 				'https://www.googleapis.com/auth/calendar',
 				'https://www.googleapis.com/auth/calendar.readonly'
 			]);
-			$googleAuthLink = $client->getUrl('opener', null, ['BACKURL' => $curPath]);
+			/** @var Google\Helper $googleHelper */
+			$googleHelper = ServiceLocator::getInstance()->get('calendar.service.google.helper');
+
+			return $client->getUrl('opener', null, ['BACKURL' => $curPath, 'APIKEY' => $googleHelper->getApiKey()]);
 		}
 
 		return $googleAuthLink;

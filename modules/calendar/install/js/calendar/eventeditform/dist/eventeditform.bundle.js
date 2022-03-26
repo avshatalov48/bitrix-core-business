@@ -67,7 +67,7 @@ this.BX = this.BX || {};
 	  return SliderDateTimeControl;
 	}(calendar_controls.DateTimeControl);
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10;
 	var EventEditForm = /*#__PURE__*/function () {
 	  function EventEditForm() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -320,14 +320,22 @@ this.BX = this.BX || {};
 	        this.DOM.requestUid = this.DOM.form.appendChild(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<input name=\"requestUid\" type=\"hidden\">"]))));
 	      }
 
+	      if (!this.DOM.form.meeting_host) {
+	        this.DOM.meeting_host = this.DOM.form.appendChild(main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"meeting_host\" value=\"", "\">"])), this.entry.data.MEETING_HOST || '0'));
+	      }
+
+	      if (!this.DOM.form.chat_id) {
+	        this.DOM.chat_id = this.DOM.form.appendChild(main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"chat_id\" value=\"", "\">"])), this.entry.data.MEETING ? this.entry.data.MEETING.CHAT_ID : 0));
+	      }
+
 	      this.DOM.requestUid.value = calendar_util.Util.registerRequestId(); // Save attendees from userSelector
 
 	      var attendeesEntityList = this.getUserSelectorEntityList();
 	      main_core.Dom.clean(this.DOM.userSelectorValueWarp);
 	      attendeesEntityList.forEach(function (entity, index) {
-	        _this2.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input type=\"hidden\" name=\"attendeesEntityList[", "][entityId]\" value=\"", "\">\n\t\t\t"])), index, entity.entityId));
+	        _this2.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input type=\"hidden\" name=\"attendeesEntityList[", "][entityId]\" value=\"", "\">\n\t\t\t"])), index, entity.entityId));
 
-	        _this2.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input type=\"hidden\" name=\"attendeesEntityList[", "][id]\" value=\"", "\">\n\t\t\t"])), index, entity.id));
+	        _this2.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input type=\"hidden\" name=\"attendeesEntityList[", "][id]\" value=\"", "\">\n\t\t\t"])), index, entity.id));
 	      });
 	      var checkCurrentUsersAccessibility = !this.entry.id || this.checkCurrentUsersAccessibility();
 
@@ -338,7 +346,7 @@ this.BX = this.BX || {};
 	            return entity.entityId === item.entityId && parseInt(entity.id) === parseInt(item.id);
 	          })) {
 	            if (entity.entityId === 'user') {
-	              _this2.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<input type=\"hidden\" name=\"newAttendeesList[]\" value=\"", "\">\n\t\t\t\t\t\t"])), parseInt(entity.id)));
+	              _this2.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<input type=\"hidden\" name=\"newAttendeesList[]\" value=\"", "\">\n\t\t\t\t\t\t"])), parseInt(entity.id)));
 	            } else {
 	              checkCurrentUsersAccessibility = true;
 	            }
@@ -346,7 +354,7 @@ this.BX = this.BX || {};
 	        });
 	      }
 
-	      this.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input type=\"hidden\" name=\"checkCurrentUsersAccessibility\" value=\"", "\">\n\t\t"])), checkCurrentUsersAccessibility ? 'Y' : 'N'));
+	      this.DOM.userSelectorValueWarp.appendChild(main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input type=\"hidden\" name=\"checkCurrentUsersAccessibility\" value=\"", "\">\n\t\t"])), checkCurrentUsersAccessibility ? 'Y' : 'N'));
 	      this.BX.ajax.runAction('calendar.api.calendarentryajax.editEntry', {
 	        data: new FormData(this.DOM.form),
 	        analyticsLabel: {
@@ -697,6 +705,12 @@ this.BX = this.BX || {};
 
 	      if (this.locationSelector) {
 	        this.locationSelector.setValue(this.formDataValue.location || this.locationSelector["default"] || entry.getLocation());
+	        this.locationSelector.checkLocationAccessibility({
+	          from: this.formDataValue.from || entry.from,
+	          to: this.formDataValue.to || entry.to,
+	          fullDay: main_core.Type.isBoolean(this.formDataValue.fullDay) ? this.formDataValue.fullDay : entry.fullDay,
+	          currentEventId: this.entry.id
+	        });
 	      } // Private
 
 
@@ -846,6 +860,15 @@ this.BX = this.BX || {};
 	          if (_this8.planner) {
 	            _this8.planner.updateSelector(value.from, value.to, value.fullDay);
 	          }
+
+	          if (_this8.locationSelector) {
+	            _this8.locationSelector.checkLocationAccessibility({
+	              from: value.from,
+	              to: value.to,
+	              fullDay: value.fullDay,
+	              currentEventId: _this8.entry.id
+	            });
+	          }
 	        }
 	      });
 	    }
@@ -868,7 +891,7 @@ this.BX = this.BX || {};
 
 	      this.reminderValues = [];
 	      this.DOM.reminderWrap = this.DOM.content.querySelector("#".concat(uid, "_reminder"));
-	      this.DOM.reminderInputsWrap = this.DOM.reminderWrap.appendChild(main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<span></span>"]))));
+	      this.DOM.reminderInputsWrap = this.DOM.reminderWrap.appendChild(main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["<span></span>"]))));
 	      this.remindersControl = new calendar_controls.Reminder({
 	        wrap: this.DOM.reminderWrap,
 	        zIndex: this.zIndex
@@ -1029,7 +1052,7 @@ this.BX = this.BX || {};
 	    key: "initAttendeesControl",
 	    value: function initAttendeesControl() {
 	      this.DOM.userSelectorWrap = this.DOM.content.querySelector('.calendar-attendees-selector-wrap');
-	      this.DOM.userSelectorValueWarp = this.DOM.userSelectorWrap.appendChild(main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<div></div>"]))));
+	      this.DOM.userSelectorValueWarp = this.DOM.userSelectorWrap.appendChild(main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["<div></div>"]))));
 	      this.userTagSelector = new ui_entitySelector.TagSelector({
 	        dialogOptions: {
 	          context: 'CALENDAR',
@@ -1572,7 +1595,16 @@ this.BX = this.BX || {};
 	        this.dateTimeControl.setValue({
 	          from: data.dateFrom,
 	          to: data.dateTo
-	        }); //this.checkLocationAccessibility();
+	        });
+
+	        if (this.locationSelector) {
+	          this.locationSelector.checkLocationAccessibility({
+	            from: data.dateFrom,
+	            to: data.dateTo,
+	            fullDay: data.fullDay,
+	            currentEventId: this.entry.id
+	          });
+	        }
 	      }
 	    }
 	  }, {

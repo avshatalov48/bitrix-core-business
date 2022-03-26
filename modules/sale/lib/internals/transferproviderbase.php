@@ -163,7 +163,7 @@ abstract class TransferProviderBase
 		{
 			$shippedProductList = $resultData['SHIPPED_PRODUCTS_LIST'];
 
-			foreach ($shippedProductList as $productId => $isShipped)
+			foreach ($shippedProductList as $isShipped)
 			{
 				if ($isShipped === false)
 				{
@@ -183,34 +183,52 @@ abstract class TransferProviderBase
 				/** @var Sale\ShipmentItem $shipmentItem */
 				foreach ($itemData['SHIPMENT_ITEM_LIST'] as $shipmentItemIndex => $shipmentItem)
 				{
-					/** @var Sale\ShipmentItemCollection $shipmentItemCollection */
-					$shipmentItemCollection = $shipmentItem->getCollection();
-					if (!$shipmentItemCollection)
-					{
-						throw new Main\ObjectNotFoundException('Entity "ShipmentItemCollection" not found');
-					}
+					$basketItem = $shipmentItem->getBasketItem();
+					$shipment = $shipmentItem->getCollection()->getShipment();
 
-					$shipment = $shipmentItemCollection->getShipment();
-					if (!$shipment)
+					if (isset($itemData['NEED_RESERVE_BY_STORE_LIST'][$shipmentItemIndex]))
 					{
-						throw new Main\ObjectNotFoundException('Entity "Shipment" not found');
-					}
-
-					if ($shipment->needReservation())
-					{
-						$setReservedQuantity = 0;
-
-						if ($shipment->needShip() === Catalog\Provider::SALE_TRANSFER_PROVIDER_SHIPMENT_NEED_NOT_SHIP)
+						$needReverseByStore = $itemData['NEED_RESERVE_BY_STORE_LIST'][$shipmentItemIndex];
+						foreach ($needReverseByStore as $storeId => $isNeeded)
 						{
-							$setReservedQuantity = $shipmentItem->getQuantity();
+							if (
+								$isNeeded &&
+								$shipment->needShip() !== Catalog\Provider::SALE_TRANSFER_PROVIDER_SHIPMENT_NEED_NOT_SHIP)
+							{
+								/** @var Sale\ReserveQuantity $reserve */
+								foreach ($basketItem->getReserveQuantityCollection() as $reserve)
+								{
+									if ($reserve->getStoreId() !== $storeId)
+									{
+										continue;
+									}
+
+									if (isset($itemData['STORE_DATA_LIST'][$shipmentItemIndex][$storeId]))
+									{
+										$reserveQuantity = $itemData['STORE_DATA_LIST'][$shipmentItemIndex][$storeId]['RESERVED_QUANTITY'];
+									}
+									else
+									{
+										$reserveQuantity = $shipmentItem->getQuantity();
+									}
+
+									if ($reserve->getQuantity() > $reserveQuantity)
+									{
+										$reserve->setFieldNoDemand('QUANTITY', $reserve->getQuantity() - $reserveQuantity);
+									}
+									else
+									{
+										$reserve->deleteNoDemand();
+									}
+								}
+							}
 						}
 
-						if (!$needReverse)
+						if ($shipment->needShip() !== Catalog\Provider::SALE_TRANSFER_PROVIDER_SHIPMENT_NEED_NOT_SHIP)
 						{
-							$shipmentItem->setFieldNoDemand('RESERVED_QUANTITY', $setReservedQuantity);
+							$shipmentItem->getFields()->set('RESERVED_QUANTITY', 0);
 						}
 					}
-
 
 					$shipmentIndex = $shipment->getInternalIndex();
 					if (!array_key_exists($shipmentIndex, $shipmentList))
@@ -218,11 +236,13 @@ abstract class TransferProviderBase
 						$shipmentList[$shipmentIndex] = $shipment;
 					}
 
-					if (!isset($productIndex[$shipmentIndex][$shipmentItemIndex]) || !in_array($productId, $productIndex[$shipmentIndex][$shipmentItemIndex]))
+					if (
+						!isset($productIndex[$shipmentIndex][$shipmentItemIndex])
+						|| !in_array($productId, $productIndex[$shipmentIndex][$shipmentItemIndex])
+					)
 					{
 						$productIndex[$shipmentIndex][$shipmentItemIndex] = $productId;
 					}
-
 				}
 			}
 		}
@@ -230,13 +250,17 @@ abstract class TransferProviderBase
 		$reverseProducts = array();
 		if ($needReverse && !empty($productIndex))
 		{
-			foreach ($productIndex as $shipmentIndex => $productList)
+			foreach ($productIndex as $productList)
 			{
-				foreach ($productList as $shipmentItemIndex => $productId)
+				foreach ($productList as $productId)
 				{
 					$isExistsProduct = array_key_exists($productId, $shippedProductList);
 
-					if ($isExistsProduct && $shippedProductList[$productId] === true && empty($reverseProducts[$productId]))
+					if (
+						$isExistsProduct
+						&& $shippedProductList[$productId] === true
+						&& empty($reverseProducts[$productId])
+					)
 					{
 						$reverseProducts[$productId] = $products[$productId];
 						$reverseProducts[$productId]['QUANTITY'] *= -1;
@@ -255,21 +279,17 @@ abstract class TransferProviderBase
 
 	/**
 	 * @param array $products
-	 * @param Sale\Result $reserveResult
 	 *
 	 * @return Sale\Result
-	 * @throws Main\ObjectNotFoundException
 	 */
-	public function setItemsResultAfterReserve(array $products, Sale\Result $reserveResult)
-	{
-		return new Sale\Result();
-	}
+	abstract public function getAvailableQuantity(array $products);
+
 	/**
 	 * @param array $products
 	 *
 	 * @return Sale\Result
 	 */
-	abstract public function getAvailableQuantity(array $products);
+	abstract public function getAvailableQuantityByStore(array $products);
 
 	/**
 	 * @param array $products

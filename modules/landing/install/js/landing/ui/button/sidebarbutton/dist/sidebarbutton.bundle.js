@@ -4,15 +4,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,main_core,landing_ui_button_basebutton,landing_loc) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"landing-ui-button-sidebar-icon ", "\">", "</span>\n\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	/**
 	 * @memberOf BX.Landing.UI.Button
 	 */
@@ -47,7 +39,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  babelHelpers.createClass(SidebarButton, [{
 	    key: "createLabel",
 	    value: function createLabel(icon, text) {
-	      return main_core.Tag.render(_templateObject(), icon, text);
+	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"landing-ui-button-sidebar-icon ", "\">", "</span>\n\t\t"])), icon, text);
 	    }
 	  }]);
 	  return SidebarButton;

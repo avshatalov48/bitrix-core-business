@@ -1,7 +1,7 @@
 <?php
 namespace Bitrix\Landing\PublicAction;
 
-use Bitrix\Landing\Manager;
+use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Rest\Marketplace\Client;
 use \Bitrix\Rest\PlacementTable;
@@ -9,6 +9,7 @@ use \Bitrix\Landing\Placement;
 use \Bitrix\Landing\Block as BlockCore;
 use \Bitrix\Landing\Repo as RepoCore;
 use \Bitrix\Landing\PublicActionResult;
+use \Bitrix\Landing\Node\StyleImg;
 
 Loc::loadMessages(__FILE__);
 
@@ -36,21 +37,16 @@ class Repo
 	}
 
 	/**
-	 * Register new block.
-	 * @param string $code Unique code of block (for one app context).
+	 * Registers new block.
+	 * @param string $code Unique code of block (unique within app).
 	 * @param array $fields Block data.
 	 * @param array $manifest Manifest data.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @return PublicActionResult
 	 */
-	public static function register($code, array $fields, array $manifest = array())
+	public static function register(string $code, array $fields, array $manifest = []): PublicActionResult
 	{
 		$result = new PublicActionResult();
 		$error = new \Bitrix\Landing\Error;
-
-		if (!is_string($code))
-		{
-			return $result;
-		}
 
 		// unset not allowed keys
 		$notAllowed = array('callbacks');
@@ -69,6 +65,37 @@ class Repo
 
 		$check = false;
 		$fields['XML_ID'] = trim($code);
+
+		// check intersect item of nodes and styles for background type
+		if (is_array($manifest['nodes'] ?? null))
+		{
+			foreach ($manifest['nodes'] as $selector => $manifestItem)
+			{
+				$styleItem = null;
+
+				if (isset($manifest['style'][$selector]))
+				{
+					$styleItem = $manifest['style'][$selector];
+				}
+				if (isset($manifest['style']['nodes'][$selector]))
+				{
+					$styleItem = $manifest['style']['nodes'][$selector];
+				}
+
+				if ($styleItem['type'] ?? null)
+				{
+					if (!empty(array_intersect((array)$styleItem['type'], StyleImg::STYLES_WITH_IMAGE)))
+					{
+						$error->addError(
+							'MANIFEST_INTERSECT_IMG',
+							Loc::getMessage('LANDING_APP_MANIFEST_INTERSECT_IMG', ['#selector#' => $selector])
+						);
+						$result->setError($error);
+						return $result;
+					}
+				}
+			}
+		}
 
 		if (isset($fields['CONTENT']))
 		{
@@ -133,7 +160,7 @@ class Repo
 			}
 		}
 
-		$fields['MANIFEST'] = serialize((array)$manifest);
+		$fields['MANIFEST'] = serialize($manifest);
 
 		// set app code
 		if (($app = \Bitrix\Landing\PublicAction::restApplication()))

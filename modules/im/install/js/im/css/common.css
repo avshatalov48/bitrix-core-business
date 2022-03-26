@@ -239,6 +239,10 @@
 	border-radius: 12px;
 	background: transparent;
 }
+.bx-messenger-content-item-content-progress-error .bx-messenger-content-item-params {
+	white-space: inherit;
+}
+
 .bx-messenger-content-item-content-rich-link .bx-messenger-message { display: none; }
 .bx-messenger-content-item-content-large-font .bx-messenger-message {
 	font-size: 30px;
@@ -283,7 +287,7 @@
 .bx-messenger-content-reply-date { display: inline-block; font-size: 11px; color: #646c7a; }
 .bx-messenger-content-reply-clear {clear: both;}
 
-.bx-messenger-file-box { margin-bottom: -19px; min-width: 280px; min-height: 47px; }
+.bx-messenger-file-box { margin-bottom: -19px; min-width: 280px; }
 .bx-messenger-file-box-with-message { margin-bottom: 4px; }
 
 
@@ -388,6 +392,7 @@
     overflow: hidden;
     vertical-align: top;
 	text-overflow: ellipsis;
+	cursor: pointer;
 }
 .bx-messenger-history-items .bx-messenger-file-title-href {
 	width: calc(100% - 60px);
@@ -406,7 +411,13 @@
 	text-align: right;
 }
 .bx-messenger-file-preview+.bx-messenger-file-attrs { display:none; }
-.bx-messenger-file-download {margin-top: -2px;}
+.bx-messenger-file-download {
+	margin-top: -2px;
+	padding-right: 125px;
+}
+.bx-messenger-file-box-with-message .bx-messenger-file-download {
+	padding-right: 0;
+}
 .bx-messenger-file-download-link {font: 11px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;color: #63635c;cursor: pointer;margin-right: 10px;text-decoration: none;}
 .bx-messenger-file-download-link:hover { color: #63635c; }
 .bx-messenger-file-download-pc {}

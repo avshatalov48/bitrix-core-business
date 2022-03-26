@@ -73,7 +73,7 @@ if (!$arParams["USER_TIMEZONE_NAME"])
 	$arParams["USER_TIMEZONE_DEFAULT"] = CCalendar::GetGoodTimezoneForOffset($userTimezoneOffsetUTC);
 }
 
-$arParams["MEETING_ROOMS"] = CCalendar::GetMeetingRoomList();
+$arParams["MEETING_ROOMS"] = Bitrix\Calendar\Rooms\IBlockMeetingRoom::getMeetingRoomList();
 if (count($arParams["MEETING_ROOMS"]) == 0)
 	$arParams["MEETING_ROOMS"] = false;
 

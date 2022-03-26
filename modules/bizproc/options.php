@@ -29,8 +29,8 @@ if ($REQUEST_METHOD == "GET" && $RestoreDefaults <> '' && $bizprocPerms == "W" &
 $arAllOptions = array(
 	array("log_cleanup_days", GetMessage("BIZPROC_LOG_CLEANUP_DAYS"), "90", Array("text", 3)),
 	array("log_skip_types", GetMessage("BIZPROC_LOG_SKIP_TYPES"), "1,2", Array("checkboxlist", array(
-		1 => GetMessage("BIZPROC_LOG_SKIP_TYPES_1"),
-		2 => GetMessage("BIZPROC_LOG_SKIP_TYPES_2"),
+		1 => GetMessage("BIZPROC_LOG_SKIP_TYPES_1_1"),
+		2 => GetMessage("BIZPROC_LOG_SKIP_TYPES_2_1"),
 	))),
 	array("limit_simultaneous_processes", GetMessage("BIZPROC_LIMIT_SIMULTANEOUS_PROCESSES"), "", Array("text", 3)),
 	array("employee_compatible_mode", GetMessage("BIZPROC_EMPLOYEE_COMPATIBLE_MODE"), "N", Array("checkbox")),

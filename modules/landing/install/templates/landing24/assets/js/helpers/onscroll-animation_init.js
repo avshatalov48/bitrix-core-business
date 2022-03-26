@@ -1,13 +1,15 @@
 ;(function() {
 	"use strict";
 
+	BX.namespace("BX.Landing.OnscrollAnimationHelper");
+
 	if (BX.browser.IsMobile())
 	{
 		return;
 	}
 
-	var observer = new IntersectionObserver(onIntersection);
-	var animatedMap = new WeakMap();
+	BX.Landing.OnscrollAnimationHelper.observer = new IntersectionObserver(onIntersection);
+	BX.Landing.OnscrollAnimationHelper.animatedMap = new WeakMap();
 
 	var addClass = BX.Landing.Utils.addClass;
 	var removeClass = BX.Landing.Utils.removeClass;
@@ -23,20 +25,20 @@
 			return ;
 		}
 
-		var allObservableElements = slice(event.block.querySelectorAll('.js-animation'));
+		var allObservableElements = BX.Landing.OnscrollAnimationHelper.getBlockAnimatedElements(event.block);
 
 		allObservableElements.forEach(function(element) {
 			prepareAnimatedElement(element);
-			observer.observe(element);
+			BX.Landing.OnscrollAnimationHelper.observer.observe(element);
 		});
 	});
 
 	onCustomEvent("BX.Landing.UI.Panel.URLList:show", function(layout) {
-		var allObservableElements = slice(layout.querySelectorAll('.js-animation'));
+		var allObservableElements = BX.Landing.OnscrollAnimationHelper.getBlockAnimatedElements(layout);
 
 		allObservableElements.forEach(function(element) {
 			prepareAnimatedElement(element);
-			observer.observe(element);
+			BX.Landing.OnscrollAnimationHelper.observer.observe(element);
 		});
 	});
 
@@ -49,7 +51,7 @@
 
 			if (isAnimationChange)
 			{
-				var allObservableElements = slice(event.block.querySelectorAll('.js-animation'));
+				var allObservableElements = BX.Landing.OnscrollAnimationHelper.getBlockAnimatedElements(event.block);
 
 				allObservableElements.forEach(function(element) {
 					prepareAnimatedElement(element);
@@ -58,6 +60,12 @@
 			}
 		}
 	});
+
+	BX.Landing.OnscrollAnimationHelper.selector = '.js-animation';
+	BX.Landing.OnscrollAnimationHelper.getBlockAnimatedElements = function(block)
+	{
+		return slice(block.querySelectorAll(BX.Landing.OnscrollAnimationHelper.selector));
+	}
 
 	/**
 	 * Prepares animated element
@@ -79,28 +87,43 @@
 	function onIntersection(entries)
 	{
 		entries.forEach(function(entry) {
-			if (entry.isIntersecting && !animatedMap.has(entry.target))
+			if (entry.isIntersecting)
 			{
-				void runAnimation(entry.target)
-					.then(function() {
-						animatedMap.set(entry.target, true);
-
-						void style(entry.target, {
-							"animation-name": "none"
-						});
-
-						removeClass(entry.target, "animated");
-					});
+				BX.Landing.OnscrollAnimationHelper.animateElement(entry.target)
 			}
 		});
 	}
 
 	/**
-	 * Runs element animation
+	 * Animate element and do service actions
+	 * @param element
+	 */
+	BX.Landing.OnscrollAnimationHelper.animateElement = function(element)
+	{
+		if (!BX.Landing.OnscrollAnimationHelper.animatedMap.has(element))
+		{
+			return runElementAnimation(element)
+				.then(function ()
+				{
+					BX.Landing.OnscrollAnimationHelper.animatedMap.set(element, true);
+
+					void style(element, {
+						"animation-name": "none",
+					});
+
+					removeClass(element, "animated");
+				});
+		}
+
+		return Promise.resolve();
+	}
+
+	/**
+	 * Just animate lement
 	 * @param {HTMLElement} element
 	 * @return {Promise<AnimationEvent>}
 	 */
-	function runAnimation(element)
+	function runElementAnimation(element)
 	{
 		addClass(element, "animated");
 		void style(element, {

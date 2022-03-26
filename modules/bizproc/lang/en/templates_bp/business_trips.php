@@ -33,7 +33,7 @@ Purpose:
 {=Template:purpose}";
 $MESS["BPT_BT_AA1_STATUS_MESSAGE"] = "Awaiting Approval";
 $MESS["BPT_BT_AA1_TITLE"] = "Business Trip Approval";
-$MESS["BPT_BT_SA1_TITLE"] = "Sequence Of Actions";
+$MESS["BPT_BT_SA1_TITLE_1"] = "Sequence of Activities";
 $MESS["BPT_BT_SSTA2_STATE_TITLE"] = "Register a business trip";
 $MESS["BPT_BT_SSTA2_TITLE"] = "Set Status: Registering";
 $MESS["BPT_BT_SNMA1_TEXT"] = "Your business trip has been approved.";
@@ -110,7 +110,7 @@ $MESS["BPT_BT_RA4_TMB"] = "Registered";
 $MESS["BPT_BT_RA4_TITLE"] = "Registration in the Accounting Department";
 $MESS["BPT_BT_SSTA4_STATE_TITLE"] = "Completed";
 $MESS["BPT_BT_SSTA4_TITLE"] = "Set Status Text";
-$MESS["BPT_BT_SA3_TITLE"] = "Sequence of Actions";
+$MESS["BPT_BT_SA3_TITLE_1"] = "Sequence of Activities";
 $MESS["BPT_BT_SSTA5_STATE_TITLE"] = "Rejected by Management";
 $MESS["BPT_BT_SSTA5_TITLE"] = "Set Status: Rejected";
 $MESS["BPT_BT_SNMA2_TEXT"] = "Your business trip has not been confirmed by management.";

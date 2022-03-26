@@ -71,7 +71,7 @@ JS
 	 * Returns true, if current destination is mobile app dir.
 	 * @return bool
 	 */
-	public static function isMobileHit()
+	public static function isMobileHit(): bool
 	{
 		static $mobileHit = null;
 
@@ -82,7 +82,8 @@ JS
 
 		if ($mobileHit === null)
 		{
-			$mobileHit = mb_strpos(Manager::getCurDir(), SITE_DIR . 'mobile/') === 0;
+			$mobileHit = \Bitrix\Main\ModuleManager::isModuleInstalled('intranet')
+						&& mb_strpos(Manager::getCurDir(), SITE_DIR . 'mobile/') === 0;
 		}
 
 		return $mobileHit;

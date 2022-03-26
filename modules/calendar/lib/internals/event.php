@@ -131,7 +131,6 @@ class EventTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('SECTION_ENTITY_IMPORTANCE_FIELD'),
 			)),
 			new Entity\StringField('IS_MEETING', array(
-				'validation' => array(__CLASS__, 'validateIsMeeting'),
 				'title' => Loc::getMessage('SECTION_ENTITY_IS_MEETING_FIELD'),
 			)),
 			new Entity\StringField('MEETING_STATUS', array(
@@ -142,7 +141,6 @@ class EventTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('SECTION_ENTITY_MEETING_HOST_FIELD'),
 			)),
 			new Entity\StringField('MEETING', array(
-				'validation' => array(__CLASS__, 'validateMeeting'),
 				'title' => Loc::getMessage('SECTION_ENTITY_MEETING_FIELD'),
 			)),
 			new Entity\StringField('LOCATION', array(
@@ -197,7 +195,6 @@ class EventTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('SECTION_ENTITY_SECTION_ID_FIELD'),
 			)),
 			new Entity\StringField('G_EVENT_ID', array(
-				'validation' => array(__CLASS__, 'validateGEventId'),
 				'title' => Loc::getMessage('SECTION_ENTITY_G_EVENT_ID_FIELD'),
 			)),
 			new Entity\DatetimeField('ORIGINAL_DATE_FROM', array(

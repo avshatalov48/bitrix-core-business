@@ -3,6 +3,7 @@ import {Loc} from 'landing.loc';
 export const SimpleLine = {
 	id: 'simple_line',
 	name: 'Simple Line Icons',
+	active: true,
 	categories: [
 		{
 			id: 'all',

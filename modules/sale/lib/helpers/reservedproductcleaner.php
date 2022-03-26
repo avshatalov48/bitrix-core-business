@@ -2,6 +2,7 @@
 namespace Bitrix\Sale\Helpers;
 
 use Bitrix\Main\Config\Option;
+use Bitrix\Main;
 use Bitrix\Main\ORM;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Update\Stepper;
@@ -22,7 +23,7 @@ class ReservedProductCleaner extends Stepper
 		$orderClass = $registry->getOrderClassName();
 
 		$limit = 100;
-		$result["steps"] = isset($result["steps"]) ? $result["steps"] : 0;
+		$result["steps"] = $result["steps"] ?? 0;
 		$selectedRowsCount = 0;
 
 		$days_ago = (int) Option::get("sale", "product_reserve_clear_period");
@@ -32,87 +33,118 @@ class ReservedProductCleaner extends Stepper
 			global $USER;
 
 			if (!is_object($USER))
+			{
 				$USER = new \CUser;
+			}
 
 			$date = new DateTime();
 			$parameters = [
-				'select' => array(
-					"ORDER_ID" => "DELIVERY.ORDER.ID",
-				),
-				'filter' => [
-					"<=DELIVERY.ORDER.DATE_INSERT" => $date->add('-'.$days_ago.' day'),
-					'>RESERVED_QUANTITY' => 0,
-					"=DELIVERY.DEDUCTED" => "N",
-					"=DELIVERY.MARKED" => "N",
-					"=DELIVERY.ALLOW_DELIVERY" => "N",
-					"=DELIVERY.ORDER.PAYED" => "N",
-					"=DELIVERY.ORDER.CANCELED" => "N",
+				'select' => [
+					'ORDER_ID' => 'ORDER.ID',
+					'ID',
+					'BASKET_ID'
 				],
-				'group' => ['ORDER_ID'],
+				'filter' => [
+					'>QUANTITY' => 0,
+					'<=DATE_RESERVE_END' => $date,
+					'=ORDER.PAYED' => 'N',
+					'=ORDER.CANCELED' => 'N',
+				],
+				'runtime' => [
+					new Main\Entity\ReferenceField(
+						'BASKET',
+						Sale\Internals\BasketTable::class,
+						[
+							'=this.BASKET_ID' => 'ref.ID',
+						],
+						['join_type' => 'inner']
+					),
+					new Main\Entity\ReferenceField(
+						'ORDER',
+						Sale\Internals\OrderTable::class,
+						[
+							'=this.BASKET.ORDER_ID' => 'ref.ID',
+						],
+						['join_type' => 'inner']
+					),
+				],
 				'count_total' => true,
 				'limit' => $limit,
 				'offset' => $result["steps"]
 			];
 
-			$res = Sale\ShipmentItem::getList($parameters);
+			$orderList = [];
+			$res = Sale\ReserveQuantityCollection::getList($parameters);
 			$selectedRowsCount = $res->getCount();
-			while($data = $res->fetch())
+			while ($data = $res->fetch())
 			{
-				/** @var Sale\Order $order */
-				$order = $orderClass::load($data['ORDER_ID']);
+				if (!isset($orderList[$data['ORDER_ID']]))
+				{
+					$orderList[$data['ORDER_ID']] = [];
+				}
+
+				if (!isset($orderList[$data['ORDER_ID']][$data['BASKET_ID']]))
+				{
+					$orderList[$data['ORDER_ID']][$data['BASKET_ID']] = [];
+				}
+
+				$orderList[$data['ORDER_ID']][$data['BASKET_ID']][] = $data['ID'];
+			}
+
+			foreach ($orderList as $orderId => $basketItemIds)
+			{
 				$orderSaved = false;
-				$errors = array();
 
-				try
+				$order = $orderClass::load($orderId);
+				if (!$order)
 				{
-					/** @var Sale\ShipmentCollection $shipmentCollection */
-					if ($shipmentCollection = $order->getShipmentCollection())
-					{
-						/** @var Sale\Shipment $shipment */
-						foreach ($shipmentCollection as $shipment)
-						{
-							$r = $shipment->tryUnreserve();
-							if (!$r->isSuccess())
-							{
-								Sale\EntityMarker::addMarker($order, $shipment, $r);
-								if (!$shipment->isSystem())
-								{
-									$shipment->setField('MARKED', 'Y');
-								}
-							}
-						}
-					}
-
-					$r = $order->save();
-					if ($r->isSuccess())
-					{
-						$orderSaved = true;
-					}
-					else
-					{
-						$errors = $r->getErrorMessages();
-					}
-				}
-				catch(\Exception $e)
-				{
-					$errors[] = $e->getMessage();
+					continue;
 				}
 
-				if (!$orderSaved)
+				$basket = $order->getBasket();
+				foreach ($basketItemIds as $basketItemId => $reserveIds)
 				{
-					if (!empty($errors))
+					/** @var Sale\BasketItem $basketItem */
+					$basketItem = $basket->getItemById($basketItemId);
+					if (!$basketItem)
 					{
-						$oldErrorText = $order->getField('REASON_MARKED');
-						foreach($errors as $error)
+						continue;
+					}
+
+					foreach ($reserveIds as $reserveId)
+					{
+						$reserve = $basketItem->getReserveQuantityCollection()->getItemById($reserveId);
+						if (!$reserve)
 						{
-							$oldErrorText .= (strval($oldErrorText) != '' ? "\n" : ""). $error;
+							continue;
 						}
 
-						Sale\Internals\OrderTable::update($order->getId(), array(
-							"MARKED" => "Y",
-							"REASON_MARKED" => $oldErrorText
-						));
+						$reserve->delete();
 					}
+				}
+
+				$r = $order->save();
+				if ($r->isSuccess())
+				{
+					$orderSaved = true;
+				}
+				else
+				{
+					$errors = $r->getErrorMessages();
+				}
+
+				if (!$orderSaved && !empty($errors))
+				{
+					$oldErrorText = $order->getField('REASON_MARKED');
+					foreach($errors as $error)
+					{
+						$oldErrorText .= (strval($oldErrorText) != '' ? "\n" : ""). $error;
+					}
+
+					Sale\Internals\OrderTable::update($order->getId(), [
+						"MARKED" => "Y",
+						"REASON_MARKED" => $oldErrorText
+					]);
 				}
 			}
 

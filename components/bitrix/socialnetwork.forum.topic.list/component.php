@@ -1,4 +1,10 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -61,6 +67,10 @@ $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB-
 $arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : CSite::GetNameFormat());
 
 $arParams["WORD_LENGTH"] = intval($arParams["WORD_LENGTH"]);
+
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+$isSlider = $request->get('IFRAME') === 'Y';
+
 /***************** STANDART ****************************************/
 if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
@@ -130,16 +140,13 @@ if (
 	$arResult["TOPICS"] = array();
 	$arResult["FORUM"] = CForumNew::GetByID($arParams["FID"]);
 	$arParams["PERMISSION_ORIGINAL"] = ForumCurrUserPermissions($arParams["FID"]);
-	$arParams["PERMISSION"] = "A";
+	$arParams['PERMISSION'] = \Bitrix\Forum\Permission::ACCESS_DENIED;
 	$arResult["ERROR_MESSAGE"] = "";
 	$arResult["OK_MESSAGE"] = "";
 
 	$arError = array();
 	$arNote = array();
-	$user_id = $USER->GetID();
 //************** Permission ****************************************/
-
-$bCurrentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin();
 
 if (empty($arResult["FORUM"]))
 {
@@ -148,29 +155,14 @@ if (empty($arResult["FORUM"]))
 		"id" => "forum_is_lost", 
 		"text" => GetMessage("F_FID_IS_LOST"));
 }
-
-elseif ($arParams["MODE"] == "GROUP")
-{
-	if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "full", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "Y";
-	elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "newtopic", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "M";
-	elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "answer", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "I";
-	elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "view", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "E";
-}
 else
 {
-	if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "full", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "Y";
-	elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "newtopic", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "M";
-	elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "answer", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "I";
-	elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "view", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "E";
+	$arParams['PERMISSION'] = \Bitrix\Socialnetwork\Helper\Forum\ComponentHelper::getForumPermission([
+		'ENTITY_TYPE' => ($arParams['MODE'] === 'GROUP' ? SONET_ENTITY_GROUP : SONET_ENTITY_USER),
+		'ENTITY_ID' => ($arParams['MODE'] === 'GROUP' ? $arParams['SOCNET_GROUP_ID'] : $arParams['USER_ID']),
+	]);
 }
+
 if (empty($arError) && !CForumNew::CanUserViewForum($arParams["FID"], $USER->GetUserGroupArray(), $arParams["PERMISSION"])):
 	$arError[] = array(
 		"id" => "acces denied", 
@@ -305,8 +297,22 @@ if ($_REQUEST["topic_edit"] == "Y")
 	}
 	if (empty($arError))
 	{
-		$url = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_TOPIC_LIST"], 
-				array("FID" => $arParams["FID"], "UID" => $arParams["USER_ID"], "GID" => $arParams["SOCNET_GROUP_ID"]));
+		$url = CComponentEngine::MakePathFromTemplate(
+			$arParams['URL_TEMPLATES_TOPIC_LIST'],
+			[
+				'FID' => $arParams['FID'],
+				'UID' => $arParams['USER_ID'],
+				'GID' => $arParams['SOCNET_GROUP_ID'],
+			],
+		);
+
+		if ($isSlider)
+		{
+			$uri = new \Bitrix\Main\Web\Uri($url);
+			$uri->addParams([ 'IFRAME' => 'Y' ]);
+			$url = $uri->getUri();
+		}
+
 		LocalRedirect($url);
 	}
 	else
@@ -425,9 +431,24 @@ if($arParams["SOCNET_GROUP_ID"]>0 && $USER->IsAuthorized() && check_bitrix_sessi
 	elseif($ACTION=="FORUM_SUBSCRIBE")
 	{	
 		if (ForumSubscribeNewMessagesEx($arParams["FID"], 0, "N", $strErrorMessage, $strOkMessage, false, $arParams["SOCNET_GROUP_ID"])):
-			LocalRedirect(CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_TOPIC_LIST"], 
-				array("FID" => $arParams["FID"], "UID" => $arParams["USER_ID"], "GID" => $arParams["SOCNET_GROUP_ID"]))
+
+			$url = CComponentEngine::MakePathFromTemplate(
+				$arParams['URL_TEMPLATES_TOPIC_LIST'],
+				[
+					'FID' => $arParams['FID'],
+					'UID' => $arParams['USER_ID'],
+					'GID' => $arParams['SOCNET_GROUP_ID'],
+				],
 			);
+
+			if ($isSlider)
+			{
+				$uri = new \Bitrix\Main\Web\Uri($url);
+				$uri->addParams([ 'IFRAME' => 'Y' ]);
+				$url = $uri->getUri();
+			}
+
+			LocalRedirect($url);
 		else:
 			$arResult["ERROR_MESSAGE"] = $strErrorMessage;
 		endif;
@@ -444,9 +465,24 @@ if($arParams["SOCNET_GROUP_ID"]>0 && $USER->IsAuthorized() && check_bitrix_sessi
 
 		$db_res = CForumSubscribe::GetListEx(array(), $arFields);
 		if ($db_res && ($res = $db_res->Fetch()) && CForumSubscribe::Delete($res["ID"]))
-			LocalRedirect(CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_TOPIC_LIST"], 
-				array("FID" => $arParams["FID"], "UID" => $arParams["USER_ID"], "GID" => $arParams["SOCNET_GROUP_ID"]))
+		{
+			$url = CComponentEngine::MakePathFromTemplate(
+				$arParams['URL_TEMPLATES_TOPIC_LIST'],
+				[
+					'FID' => $arParams['FID'],
+					'UID' => $arParams['USER_ID'],
+					'GID' => $arParams['SOCNET_GROUP_ID'],
+				],
 			);
+			if ($isSlider)
+			{
+				$uri = new \Bitrix\Main\Web\Uri($url);
+				$uri->addParams([ 'IFRAME' => 'Y' ]);
+				$url = $uri->getUri();
+			}
+			LocalRedirect($url);
+		}
+
 	}
 }
 /********************************************************************
@@ -484,11 +520,29 @@ if ($arParams["PERMISSION"] > "E")
 else
 	$arResult["CanUserAddTopic"] = false;
 
-$arResult["URL"] = array(
-	"TOPIC_NEW" => CComponentEngine::MakePathFromTemplate(
-		$arParams["URL_TEMPLATES_TOPIC_EDIT"],
-		array("FID" => $arParams["FID"], "TID" => "new", "ACTION" => "new", "MESSAGE_TYPE" => "NEW",
-			"UID" => $arParams["USER_ID"], "GID" => $arParams["SOCNET_GROUP_ID"], "MID" => 0)));
+$urlTopicNew = CComponentEngine::MakePathFromTemplate(
+	$arParams['URL_TEMPLATES_TOPIC_EDIT'],
+	array(
+		'FID' => $arParams['FID'],
+		'TID' => 'new',
+		'ACTION' => 'new',
+		'MESSAGE_TYPE' => 'NEW',
+		'UID' => $arParams['USER_ID'],
+		'GID' => $arParams['SOCNET_GROUP_ID'],
+		'MID' => 0,
+	)
+);
+
+if ($isSlider)
+{
+	$uri = new \Bitrix\Main\Web\Uri($urlTopicNew);
+	$uri->addParams([ 'IFRAME' => 'Y' ]);
+	$urlTopicNew = $uri->getUri();
+}
+
+$arResult["URL"] = [
+	"TOPIC_NEW" => $urlTopicNew,
+];
 /********************************************************************
 				/Default params # 2
 ********************************************************************/
@@ -537,8 +591,22 @@ while ($res = $db_res->GetNext())
 	elseif ($res["STATE"] == "L")
 	{
 		$res["STATUS"] = "MOVED";
-		$res["URL"]["READ"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_TOPIC"], 
-			array("FID" => $res["FORUM_ID"], "TID" => $res["TOPIC_ID"],  "MID" => "s"));
+
+		$url = CComponentEngine::MakePathFromTemplate(
+			$arParams["URL_TEMPLATES_TOPIC"],
+			[
+				'FID' => $res['FORUM_ID'],
+				'TID' => $res['TOPIC_ID'],
+				'MID' => 's',
+			],
+		);
+		if ($isSlider)
+		{
+			$uri = new \Bitrix\Main\Web\Uri($url);
+			$uri->addParams([ 'IFRAME' => 'Y' ]);
+			$url = $uri->getUri();
+		}
+		$res["URL"]["READ"] = $url;
 	}
 	elseif (NewMessageTopic($res["FORUM_ID"], $res["ID"], 
 		($arParams["PERMISSION"] < "Q" ? $res["LAST_POST_DATE"] : $res["ABS_LAST_POST_DATE"]), $res["LAST_VISIT"]))
@@ -589,6 +657,12 @@ while ($res = $db_res->GetNext())
 		"LAST_POSTER" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PROFILE_VIEW"], 
 			array("UID" => $res["LAST_POSTER_ID"], "GID" => $arParams["SOCNET_GROUP_ID"])));
 	foreach ($res["URL"] as $key => $val):
+		if ($isSlider)
+		{
+			$uri = new \Bitrix\Main\Web\Uri($val);
+			$uri->addParams([ 'IFRAME' => 'Y' ]);
+			$val = $uri->getUri();
+		}
 		$res["URL"]["~".$key] = $val;
 		$res["URL"][$key] = htmlspecialcharsbx($val);
 	endforeach;
@@ -643,4 +717,3 @@ endif;
 /********************************************************************
 				/Standart Action
  ********************************************************************/
-?>

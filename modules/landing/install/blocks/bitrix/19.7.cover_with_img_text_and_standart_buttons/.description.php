@@ -31,6 +31,7 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_19_9_IMG'),
 			'type' => 'img',
 			'dimensions' => ['width' => 540],
+			'create2xByDefault' => false,
 		],
 		'.landing-block-node-card-button' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_19_9_BUTTON'),

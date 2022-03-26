@@ -3,6 +3,7 @@ import {Loc} from 'landing.loc';
 export const FontAwesome = {
 	id: 'fontawesome',
 	name: 'Fontawesome',
+	active: false,
 	categories: [
 		{
 			id: 'web-application',

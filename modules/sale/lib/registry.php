@@ -32,6 +32,8 @@ final class Registry
 	const ENTITY_BASKET_ITEM = 'BASKET_ITEM';
 	const ENTITY_BASKET_PROPERTIES_COLLECTION = 'BASKET_PROPERTIES_COLLECTION';
 	const ENTITY_BASKET_PROPERTY_ITEM = 'BASKET_PROPERTY_ITEM';
+	const ENTITY_BASKET_RESERVE_COLLECTION = 'BASKET_RESERVE_COLLECTION';
+	const ENTITY_BASKET_RESERVE_COLLECTION_ITEM = 'BASKET_RESERVE_COLLECTION_ITEM';
 	const ENTITY_SHIPMENT_ITEM = 'SHIPMENT_ITEM';
 	const ENTITY_SHIPMENT_ITEM_COLLECTION = 'SHIPMENT_ITEM_COLLECTION';
 	const ENTITY_SHIPMENT_ITEM_STORE = 'SHIPMENT_ITEM_STORE';
@@ -82,6 +84,8 @@ final class Registry
 			Registry::ENTITY_BASKET => '\Bitrix\Sale\Basket',
 			Registry::ENTITY_BASKET_ITEM => '\Bitrix\Sale\BasketItem',
 			Registry::ENTITY_BASKET_PROPERTIES_COLLECTION => '\Bitrix\Sale\BasketPropertiesCollection',
+			Registry::ENTITY_BASKET_RESERVE_COLLECTION => ReserveQuantityCollection::class,
+			Registry::ENTITY_BASKET_RESERVE_COLLECTION_ITEM => ReserveQuantity::class,
 			Registry::ENTITY_DISCOUNT => '\Bitrix\Sale\Discount',
 			Registry::ENTITY_DISCOUNT_COUPON => '\Bitrix\Sale\DiscountCouponsManager',
 			Registry::ENTITY_ORDER_DISCOUNT => '\Bitrix\Sale\OrderDiscount',
@@ -140,9 +144,9 @@ final class Registry
 	 */
 	private static function initRegistry()
 	{
-		static::$registryMap = self::$initData;
+		self::$registryMap = self::$initData;
 
-		$event = new Main\Event('sale', static::EVENT_ON_INIT_REGISTRY_LIST);
+		$event = new Main\Event('sale', self::EVENT_ON_INIT_REGISTRY_LIST);
 		$event->send();
 		$resultList = $event->getResults();
 
@@ -156,7 +160,7 @@ final class Registry
 					$params = $eventResult->getParameters();
 					if (!empty($params) && is_array($params))
 					{
-						static::$registryMap = array_merge(static::$registryMap, $params);
+						self::$registryMap = array_merge(self::$registryMap, $params);
 					}
 				}
 			}
@@ -178,18 +182,24 @@ final class Registry
 	 */
 	public static function getInstance($type)
 	{
-		if (!static::$registryMap)
-			static::initRegistry();
-
-		if (!isset(static::$registryObjects[$type]))
+		if (!self::$registryMap)
 		{
-			if (isset(static::$registryMap[$type]))
-				static::$registryObjects[$type] = new static($type);
-			else
-				throw new Main\ArgumentException();
+			self::initRegistry();
 		}
 
-		return static::$registryObjects[$type];
+		if (!isset(self::$registryObjects[$type]))
+		{
+			if (isset(self::$registryMap[$type]))
+			{
+				self::$registryObjects[$type] = new static($type);
+			}
+			else
+			{
+				throw new Main\ArgumentException();
+			}
+		}
+
+		return self::$registryObjects[$type];
 	}
 
 	/**
@@ -199,10 +209,12 @@ final class Registry
 	 */
 	public static function setRegistry($code, $registryItem)
 	{
-		if (!static::$registryMap)
-			static::initRegistry();
+		if (!self::$registryMap)
+		{
+			self::initRegistry();
+		}
 
-		static::$registryMap[$code] = $registryItem;
+		self::$registryMap[$code] = $registryItem;
 	}
 
 	/**
@@ -220,7 +232,7 @@ final class Registry
 	 */
 	public function set($code, $className)
 	{
-		static::$registryMap[$this->type][$code] = $className;
+		self::$registryMap[$this->type][$code] = $className;
 	}
 
 	/**
@@ -230,9 +242,9 @@ final class Registry
 	 */
 	public function get($code)
 	{
-		if (isset(static::$registryMap[$this->type][$code]))
+		if (isset(self::$registryMap[$this->type][$code]))
 		{
-			return static::$registryMap[$this->type][$code];
+			return self::$registryMap[$this->type][$code];
 		}
 
 		throw new Main\SystemException(
@@ -245,92 +257,92 @@ final class Registry
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getOrderClassName()
 	{
-		return $this->get(static::ENTITY_ORDER);
+		return $this->get(self::ENTITY_ORDER);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getPaymentClassName()
 	{
-		return $this->get(static::ENTITY_PAYMENT);
+		return $this->get(self::ENTITY_PAYMENT);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getShipmentClassName()
 	{
-		return $this->get(static::ENTITY_SHIPMENT);
+		return $this->get(self::ENTITY_SHIPMENT);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getShipmentItemCollectionClassName()
 	{
-		return $this->get(static::ENTITY_SHIPMENT_ITEM_COLLECTION);
+		return $this->get(self::ENTITY_SHIPMENT_ITEM_COLLECTION);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getShipmentItemClassName()
 	{
-		return $this->get(static::ENTITY_SHIPMENT_ITEM);
+		return $this->get(self::ENTITY_SHIPMENT_ITEM);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getShipmentItemStoreClassName()
 	{
-		return $this->get(static::ENTITY_SHIPMENT_ITEM_STORE);
+		return $this->get(self::ENTITY_SHIPMENT_ITEM_STORE);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getShipmentItemStoreCollectionClassName()
 	{
-		return $this->get(static::ENTITY_SHIPMENT_ITEM_STORE_COLLECTION);
+		return $this->get(self::ENTITY_SHIPMENT_ITEM_STORE_COLLECTION);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getBasketItemClassName()
 	{
-		return $this->get(static::ENTITY_BASKET_ITEM);
+		return $this->get(self::ENTITY_BASKET_ITEM);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getShipmentCollectionClassName()
 	{
-		return $this->get(static::ENTITY_SHIPMENT_COLLECTION);
+		return $this->get(self::ENTITY_SHIPMENT_COLLECTION);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getPaymentCollectionClassName()
 	{
-		return $this->get(static::ENTITY_PAYMENT_COLLECTION);
+		return $this->get(self::ENTITY_PAYMENT_COLLECTION);
 	}
 
 	/**
@@ -339,186 +351,204 @@ final class Registry
 	 */
 	public function getPayableItemCollectionClassName()
 	{
-		return $this->get(static::ENTITY_PAYABLE_ITEM_COLLECTION);
+		return $this->get(self::ENTITY_PAYABLE_ITEM_COLLECTION);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getPropertyValueCollectionClassName()
 	{
-		return $this->get(static::ENTITY_PROPERTY_VALUE_COLLECTION);
+		return $this->get(self::ENTITY_PROPERTY_VALUE_COLLECTION);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getShipmentPropertyValueCollectionClassName()
 	{
-		return $this->get(static::ENTITY_SHIPMENT_PROPERTY_VALUE_COLLECTION);
+		return $this->get(self::ENTITY_SHIPMENT_PROPERTY_VALUE_COLLECTION);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getPropertyValueClassName()
 	{
-		return $this->get(static::ENTITY_PROPERTY_VALUE);
+		return $this->get(self::ENTITY_PROPERTY_VALUE);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getShipmentPropertyValueClassName()
 	{
-		return $this->get(static::ENTITY_SHIPMENT_PROPERTY_VALUE);
+		return $this->get(self::ENTITY_SHIPMENT_PROPERTY_VALUE);
 	}
 
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getBasketClassName()
 	{
-		return $this->get(static::ENTITY_BASKET);
+		return $this->get(self::ENTITY_BASKET);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getBundleCollectionClassName()
 	{
-		return $this->get(static::ENTITY_BUNDLE_COLLECTION);
+		return $this->get(self::ENTITY_BUNDLE_COLLECTION);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getDiscountClassName()
 	{
-		return $this->get(static::ENTITY_DISCOUNT);
+		return $this->get(self::ENTITY_DISCOUNT);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getDiscountCouponClassName()
 	{
-		return $this->get(static::ENTITY_DISCOUNT_COUPON);
+		return $this->get(self::ENTITY_DISCOUNT_COUPON);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getOrderDiscountClassName()
 	{
-		return $this->get(static::ENTITY_ORDER_DISCOUNT);
+		return $this->get(self::ENTITY_ORDER_DISCOUNT);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getTaxClassName()
 	{
-		return $this->get(static::ENTITY_TAX);
+		return $this->get(self::ENTITY_TAX);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getBasketPropertiesCollectionClassName()
 	{
-		return $this->get(static::ENTITY_BASKET_PROPERTIES_COLLECTION);
+		return $this->get(self::ENTITY_BASKET_PROPERTIES_COLLECTION);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getBasketPropertyItemClassName()
 	{
-		return $this->get(static::ENTITY_BASKET_PROPERTY_ITEM);
+		return $this->get(self::ENTITY_BASKET_PROPERTY_ITEM);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
+	 */
+	public function getReserveCollectionClassName()
+	{
+		return $this->get(self::ENTITY_BASKET_RESERVE_COLLECTION);
+	}
+
+	/**
+	 * @return mixed
+	 * @throws Main\SystemException
+	 */
+	public function getReservedItemClassName()
+	{
+		return $this->get(self::ENTITY_BASKET_RESERVE_COLLECTION_ITEM);
+	}
+
+	/**
+	 * @return mixed
+	 * @throws Main\SystemException
 	 */
 	public function getPersonTypeClassName()
 	{
-		return $this->get(static::ENTITY_PERSON_TYPE);
+		return $this->get(self::ENTITY_PERSON_TYPE);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getOrderStatusClassName()
 	{
-		return $this->get(static::ENTITY_ORDER_STATUS);
+		return $this->get(self::ENTITY_ORDER_STATUS);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getDeliveryStatusClassName()
 	{
-		return $this->get(static::ENTITY_DELIVERY_STATUS);
+		return $this->get(self::ENTITY_DELIVERY_STATUS);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getEntityMarkerClassName()
 	{
-		return $this->get(static::ENTITY_ENTITY_MARKER);
+		return $this->get(self::ENTITY_ENTITY_MARKER);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getOrderHistoryClassName()
 	{
-		return $this->get(static::ENTITY_ORDER_HISTORY);
+		return $this->get(self::ENTITY_ORDER_HISTORY);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getNotifyClassName()
 	{
-		return $this->get(static::ENTITY_NOTIFY);
+		return $this->get(self::ENTITY_NOTIFY);
 	}
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getPropertyClassName()
 	{
-		return $this->get(static::ENTITY_PROPERTY);
+		return $this->get(self::ENTITY_PROPERTY);
 	}
 
 	/**
 	 * @return mixed
-	 * @throws Main\ArgumentException
+	 * @throws Main\SystemException
 	 */
 	public function getShipmentPropertyClassName()
 	{
-		return $this->get(static::ENTITY_SHIPMENT_PROPERTY);
+		return $this->get(self::ENTITY_SHIPMENT_PROPERTY);
 	}
 }

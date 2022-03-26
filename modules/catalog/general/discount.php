@@ -1226,11 +1226,42 @@ class CAllCatalogDiscount
 			return array();
 
 		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+		/** @var Sale\DiscountCouponsManager $couponManagerClass */
+		$couponManagerClass = $registry->getDiscountCouponClassName();
 
 		$freezeCoupons = (empty($coupons) && is_array($coupons));
+		$directCoupons = (!empty($coupons) && is_array($coupons));
+		$additionalCoupons = [];
 
 		if ($freezeCoupons)
-			Sale\DiscountCouponsManager::freezeCouponStorage();
+		{
+			$couponManagerClass::freezeCouponStorage();
+		}
+		else
+		{
+			if ($directCoupons)
+			{
+				$existsCoupons = $couponManagerClass::get(
+					false,
+					['COUPON' => $coupons]
+				);
+				if (is_array($existsCoupons))
+				{
+					$additionalCoupons = array_diff(
+						$coupons,
+						$existsCoupons
+					);
+				}
+
+				if (!empty($additionalCoupons))
+				{
+					foreach ($additionalCoupons as $oneCoupon)
+					{
+						$couponManagerClass::add($oneCoupon);
+					}
+				}
+			}
+		}
 
 		/** @var \Bitrix\Sale\Basket $basket */
 		static $basket = null,
@@ -1295,7 +1326,6 @@ class CAllCatalogDiscount
 			/** @var Sale\Order $orderClass */
 			$orderClass = $registry->getOrderClassName();
 
-			/** @var \Bitrix\Sale\Order $order */
 			$order = $orderClass::create($siteId);
 			$order->setField('RECURRING_ID', 1);
 			$order->setBasket($basket);
@@ -1314,7 +1344,22 @@ class CAllCatalogDiscount
 		$finalDiscountList = static::getDiscountsFromApplyResult($calcResults, $basketItem);
 
 		if ($freezeCoupons)
-			Sale\DiscountCouponsManager::unFreezeCouponStorage();
+		{
+			$couponManagerClass::unFreezeCouponStorage();
+		}
+		else
+		{
+			if ($directCoupons)
+			{
+				if (!empty($additionalCoupons))
+				{
+					foreach ($additionalCoupons as $oneCoupon)
+					{
+						$couponManagerClass::delete($oneCoupon);
+					}
+				}
+			}
+		}
 		$discount->setExecuteModuleFilter(array('all', 'sale', 'catalog'));
 
 		return static::getReformattedDiscounts($finalDiscountList, $calcResults, $siteId, $isRenewal);
@@ -1418,7 +1463,39 @@ class CAllCatalogDiscount
 
 		if (self::$useSaleDiscount && Loader::includeModule('sale'))
 		{
-			$cacheIndex = md5('S'.$siteID.'-U'.implode('_', $arUserGroups));
+			$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+			/** @var Sale\DiscountCouponsManager $couponManagerClass */
+			$couponManagerClass = $registry->getDiscountCouponClassName();
+
+			$cacheIndex = 'S'.$siteID.'-U'.implode('_', $arUserGroups);
+			$needCoupons = [];
+			if (!empty($arDiscountCoupons) && is_array($arDiscountCoupons))
+			{
+				$clearCoupons = array_filter($arDiscountCoupons);
+				if (!empty($clearCoupons))
+				{
+					foreach ($clearCoupons as $coupon)
+					{
+						$row = $couponManagerClass::getData($coupon, true);
+						if (!is_array($row))
+						{
+							continue;
+						}
+						if ($row['CHECK_CODE'] !== $couponManagerClass::COUPON_CHECK_OK)
+						{
+							continue;
+						}
+						$needCoupons[$coupon] = $row;
+					}
+					unset($row);
+				}
+				unset($clearCoupons);
+			}
+			if (!empty($needCoupons))
+			{
+				$cacheIndex .= '-C' . implode('_', array_keys($needCoupons));
+			}
+			$cacheIndex = md5($cacheIndex);
 			if (!isset(self::$needDiscountCache[$cacheIndex]))
 			{
 				self::$needDiscountCache[$cacheIndex] = false;
@@ -1431,7 +1508,7 @@ class CAllCatalogDiscount
 						$ids,
 						['all', 'catalog'],
 						$siteID,
-						[]
+						$needCoupons
 					);
 					if (!empty($discountList))
 					{

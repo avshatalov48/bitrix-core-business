@@ -342,7 +342,7 @@ class Form
 		if (!is_array($manifest['style']['block']) && !is_array($manifest['style']['nodes']))
 		{
 			$manifest['style'] = [
-				'block' => [],
+				'block' => Block::DEFAULT_WRAPPER_STYLE,
 				'nodes' => $manifest['style'],
 			];
 		}
@@ -671,14 +671,16 @@ class Form
 
 	/**
 	 * Create form with default params
-	 * @return array - array with once item, fields equal getForms()
+	 * @return array - array with once item, fields equal getForms(). Or empty array if not created
 	 */
-	protected static function createDefaultForm()
+	protected static function createDefaultForm(): array
 	{
 		if ($formId = self::createForm([]))
 		{
 			return self::getFormsByFilter(['ID' => $formId]);
 		}
+
+		return [];
 	}
 
 	/**

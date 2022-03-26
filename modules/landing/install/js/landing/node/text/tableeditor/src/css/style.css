@@ -1,0 +1,37 @@
+/*
+styles only for extension
+ */
+
+.landing-table-tr .landing-table-th-selected .landing-table-div-col-dnd,
+.landing-table-tr .landing-table-div-col-dnd:hover {
+	background: url("images/button_horizontal.svg") 50% no-repeat;
+	background-position-x: calc(50% + 3px);
+	background-position-y: calc(50% - 1px);
+}
+
+.landing-table-tr.landing-table-row-selected .landing-table-div-row-dnd,
+.landing-table-tr .landing-table-row-dnd:hover .landing-table-row-add:not(:hover)+.landing-table-div-row-dnd {
+	height: inherit;
+	background: url("images/button_vertical.svg") 50% no-repeat;
+	background-position-x: calc(50% + 1px);
+	pointer-events: none;
+}
+
+.th-tech-icon {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	left: 0;
+	top: 0;
+	background: url("images/select_all.svg") 50% no-repeat;
+	pointer-events: none;
+	background-size: contain !important;
+}
+
+.landing-table-th-select-all:hover .th-tech-icon {
+	background: url("images/selected_all.svg") 50% no-repeat;
+}
+
+.landing-table-th-select-all-selected .th-tech-icon {
+	background: url("images/selected_all.svg") 50% no-repeat;
+}

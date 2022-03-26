@@ -1,0 +1,24 @@
+<?php
+$MESS["STORE_LIST_ACTION_ACTIVATE_ERROR"] = "Cannot activate warehouse ##ID#";
+$MESS["STORE_LIST_ACTION_ACTIVATE_TEXT"] = "Activate";
+$MESS["STORE_LIST_ACTION_ACTIVATE_TITLE"] = "Activate";
+$MESS["STORE_LIST_ACTION_DEACTIVATE_ERROR"] = "Cannot deactivate warehouse ##ID#";
+$MESS["STORE_LIST_ACTION_DEACTIVATE_TEXT"] = "Deactivate";
+$MESS["STORE_LIST_ACTION_DEACTIVATE_TITLE"] = "Deactivate";
+$MESS["STORE_LIST_ACTION_DEFAULT_STORE_DEACTIVATE_ERROR"] = "Cannot deactivate default warehouse";
+$MESS["STORE_LIST_ACTION_DEFAULT_STORE_DELETE_ERROR"] = "Cannot delete default warehouse";
+$MESS["STORE_LIST_ACTION_DELETE_CONFIRM"] = "Are you sure you want to delete the warehouse?";
+$MESS["STORE_LIST_ACTION_DELETE_ERROR"] = "Cannot delete warehouse ##ID#";
+$MESS["STORE_LIST_ACTION_DELETE_TEXT"] = "Delete";
+$MESS["STORE_LIST_ACTION_DELETE_TITLE"] = "Delete";
+$MESS["STORE_LIST_ACTION_OPEN_TEXT"] = "Edit";
+$MESS["STORE_LIST_ACTION_OPEN_TITLE"] = "Edit";
+$MESS["STORE_LIST_ACTION_SET_AS_DEFAULT_ERROR"] = "Error making default warehouse: #ERROR#";
+$MESS["STORE_LIST_ACTION_SET_AS_DEFAULT_NON_ACTIVE_ERROR"] = "Inactive warehouse cannot be made a default warehouse";
+$MESS["STORE_LIST_ACTION_SET_AS_DEFAULT_SITE_ERROR"] = "Default warehouse cannot belong to any one site";
+$MESS["STORE_LIST_ACTION_SET_AS_DEFAULT_TEXT"] = "Make default warehouse";
+$MESS["STORE_LIST_ACTION_SET_AS_DEFAULT_TITLE"] = "Make default warehouse";
+$MESS["STORE_LIST_ADD_STORE_BUTTON"] = "Add";
+$MESS["STORE_LIST_NO_VIEW_RIGHTS_ERROR"] = "Insufficient permissions to view warehouse list.";
+$MESS["STORE_LIST_NO_WRITE_RIGHTS_ERROR"] = "Insufficient permissions to edit warehouses.";
+$MESS["STORE_LIST_SITE_NAME_TEMPLATE"] = "#SITE_NAME# (#SITE_ID#)";

@@ -17,7 +17,8 @@ const CheckDevices = {
 			mediaStream: null,
 			showMic: true,
 			userDisabledCamera: false,
-			gettingVideo: false
+			gettingVideo: false,
+			isFlippedVideo: BX.Call.Hardware.enableMirroring,
 		}
 	},
 	created()
@@ -63,7 +64,14 @@ const CheckDevices = {
 		localize()
 		{
 			return BitrixVue.getFilteredPhrases('BX_IM_COMPONENT_CALL_CHECK_DEVICES_');
-		}
+		},
+		cameraVideoClasses()
+		{
+			return {
+				'bx-im-component-call-check-devices-camera-video' : true,
+				'bx-im-component-call-check-devices-camera-video-flipped' : this.isFlippedVideo
+			};
+		},
 	},
 	methods:
 	{
@@ -228,7 +236,7 @@ const CheckDevices = {
 		getApplication()
 		{
 			return this.$Bitrix.Application.get();
-		}
+		},
 	},
 	components:
 		{ MicLevel },
@@ -243,7 +251,7 @@ const CheckDevices = {
 			</div>
 			<div v-show="!noVideo">
 				<div class="bx-im-component-call-check-devices-camera-video-container">
-					<video ref="video" class="bx-im-component-call-check-devices-camera-video" muted autoplay playsinline></video>
+					<video :class="cameraVideoClasses" ref="video" muted autoplay playsinline></video>
 				</div>
 			</div>
 			<template v-if="!isMobile()">

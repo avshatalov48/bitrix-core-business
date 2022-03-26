@@ -222,7 +222,7 @@ BX.Kanban.Column.prototype =
 			item.setColumnId(this.getId());
 
 			var index = BX.util.array_search(startBeforeItem, this.items);
-			
+
 			if (index >= 0)
 			{
 				this.items.splice(index, 0, item);
@@ -591,7 +591,8 @@ BX.Kanban.Column.prototype =
 			subTitle.appendChild(subTitleContent);
 		}
 
-		BX.cleanNode(this.layout.items);
+		this.cleanLayoutItems();
+
 		var isEmptyColumn = true;
 		var items = document.createDocumentFragment();
 		for (var i = 0; i < this.items.length; i++)
@@ -1137,6 +1138,11 @@ BX.Kanban.Column.prototype =
 	handleAddItemButtonClick: function(event)
 	{
 		this.addDraftItem(this.getFirstItem(false));
+	},
+
+	cleanLayoutItems: function()
+	{
+		BX.cleanNode(this.layout.items);
 	},
 
 	getDraftItem: function()

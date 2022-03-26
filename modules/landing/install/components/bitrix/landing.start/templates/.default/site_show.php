@@ -1,11 +1,10 @@
 <?php
-
-use Bitrix\Landing\Update\Stepper;
-
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 {
 	die();
 }
+
+use Bitrix\Landing\Update\Stepper;
 
 /** @var array $arParams */
 /** @var array $arResult */
@@ -48,6 +47,7 @@ Stepper::show();
 		'PAGE_URL_LANDING_EDIT' => $arParams['PAGE_URL_LANDING_EDIT'],
 		'PAGE_URL_LANDING_VIEW' => $arParams['PAGE_URL_LANDING_VIEW'],
 		'PAGE_URL_LANDING_DESIGN' => $arParams['PAGE_URL_LANDING_DESIGN'],
+		'PAGE_URL_FOLDER_EDIT' => $arParams['PAGE_URL_FOLDER_EDIT'],
 		'TILE_MODE' => $arParams['TILE_LANDING_MODE'],
 		'DRAFT_MODE' => $arParams['DRAFT_MODE'],
 		'SEF' => $sef,

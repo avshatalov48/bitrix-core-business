@@ -26,6 +26,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_28.PERSONAL_SLIDER_NODES_LANDINGBLOCKNODEPERSONPHOTO'),
 			'type' => 'img',
 			'dimensions' => array('width' => 370),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-person-post' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_28.PERSONAL_SLIDER_NODES_LANDINGBLOCKNODEPERSONPOST'),

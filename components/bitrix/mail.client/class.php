@@ -10,18 +10,27 @@ Loc::loadMessages(__FILE__);
 
 class CMailClientComponent extends CBitrixComponent
 {
-
 	public function executeComponent()
 	{
+		global $USER, $APPLICATION;
+
 		if (!Main\Loader::includeModule('mail'))
 		{
-			ShowError(Loc::getMessage('MAIL_MODULE_NOT_INSTALLED'));
+			$this->includeComponentTemplate('no_module');
 			die();
 		}
 
-		global $USER, $APPLICATION;
-
 		$userPage = \Bitrix\Main\Config\Option::get('socialnetwork', 'user_page', '/company/personal/', SITE_ID);
+
+		if (empty($this->arParams['PATH_TO_USER_CALENDAR_EVENT']))
+		{
+			$this->arParams['PATH_TO_USER_CALENDAR_EVENT'] = $userPage . 'user/#user_id#/calendar/?EVENT_ID=#event_id#';
+		}
+
+		if (empty($this->arParams['PATH_TO_USER_IM_CHAT']))
+		{
+			$this->arParams['PATH_TO_USER_IM_CHAT'] = '/online/?IM_DIALOG=chat#chat_id#';
+		}
 
 		if (empty($this->arParams['PATH_TO_USER_TASKS_TASK']))
 		{
@@ -105,6 +114,15 @@ class CMailClientComponent extends CBitrixComponent
 			$componentPage = 'home';
 
 		$this->arResult['VARIABLES'] = $variables;
+
+		$this->arResult['PATH_TO_USER_CALENDAR_EVENT'] = \CComponentEngine::makePathFromTemplate(
+			$this->arParams['PATH_TO_USER_CALENDAR_EVENT'],
+			array('user_id' => $USER->getId())
+		);
+
+		$this->arResult['PATH_TO_USER_IM_CHAT'] = \CComponentEngine::makePathFromTemplate(
+			$this->arParams['PATH_TO_USER_IM_CHAT']
+		);
 
 		$this->arResult['PATH_TO_USER_TASKS_TASK'] = \CComponentEngine::makePathFromTemplate(
 			$this->arParams['PATH_TO_USER_TASKS_TASK'],

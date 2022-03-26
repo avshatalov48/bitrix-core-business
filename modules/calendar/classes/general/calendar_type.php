@@ -163,10 +163,10 @@ class CCalendarType
 		return $result;
 	}
 
-	public static function Edit($Params)
+	public static function Edit($params)
 	{
 		global $DB;
-		$arFields = $Params['arFields'];
+		$arFields = $params['arFields'];
 		$XML_ID = preg_replace("/[^a-zA-Z0-9_]/i", "", $arFields['XML_ID']);
 		$arFields['XML_ID'] = $XML_ID;
 		if (!isset($arFields['XML_ID']) || $XML_ID == "")
@@ -179,7 +179,7 @@ class CCalendarType
 
 		if (count($arFields) > 1) // We have not only XML_ID
 		{
-			if ($Params['NEW']) // Add
+			if ($params['NEW']) // Add
 			{
 				$strSql = "SELECT * FROM b_calendar_type WHERE XML_ID='".$DB->ForSql($XML_ID)."'";
 				$res = $DB->Query($strSql, false, __LINE__);
@@ -205,7 +205,9 @@ class CCalendarType
 
 		//SaveAccess
 		if (self::CanDo('calendar_type_edit_access', $XML_ID) && is_array($access))
+		{
 			self::SavePermissions($XML_ID, $access);
+		}
 
 		CCalendar::ClearCache('type_list');
 		return $XML_ID;
@@ -230,19 +232,48 @@ class CCalendarType
 		return true;
 	}
 
-	public static function SavePermissions($type, $arTaskPerm)
+	public static function SavePermissions($type, $taskPerm)
 	{
 		global $DB;
 		$DB->Query("DELETE FROM b_calendar_access WHERE SECT_ID='".$DB->ForSql($type)."'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
-		foreach($arTaskPerm as $accessCode => $taskId)
+		if (is_array($taskPerm))
 		{
-			$arInsert = $DB->PrepareInsert("b_calendar_access", array("ACCESS_CODE" => $accessCode, "TASK_ID" => intval($taskId), "SECT_ID" => $type));
-			$strSql = "INSERT INTO b_calendar_access(".$arInsert[0].") VALUES(".$arInsert[1].")";
-			$DB->Query($strSql , false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			foreach ($taskPerm as $accessCode => $taskId)
+			{
+				if (preg_match('/^SG/', $accessCode))
+				{
+					$accessCode = self::prepareGroupCode($accessCode);
+				}
+				
+				$insert = $DB->PrepareInsert(
+					"b_calendar_access",
+					[
+						"ACCESS_CODE" => $accessCode,
+						"TASK_ID" => (int)$taskId,
+						"SECT_ID" => $type
+					]
+				);
+				
+				$strSql = "INSERT INTO b_calendar_access(" . $insert[0] . ") VALUES(" . $insert[1] . ")";
+				$DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+			}
 		}
 	}
-
+	
+	private static function prepareGroupCode($code)
+	{
+		$parsedCode = explode('_', $code);
+		
+		if (count($parsedCode) === 1)
+		{
+			$code .= '_K';
+		}
+		
+		return $code;
+	}
+	
+	
 	public static function GetArrayPermissions($arTypes = array())
 	{
 		global $DB;

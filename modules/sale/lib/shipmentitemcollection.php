@@ -774,7 +774,11 @@ class ShipmentItemCollection
 				$shipmentItem = $this->createItem($basketItem);
 			}
 
-			$shipmentItem->setField('QUANTITY', $value);
+			$r = $shipmentItem->setField('QUANTITY', $value);
+			if (!$r->isSuccess())
+			{
+				return $result->addErrors($r->getErrors());
+			}
 		}
 
 		return $result;

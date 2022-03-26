@@ -3,6 +3,7 @@
 use Bitrix\Catalog\Component\BaseForm;
 use Bitrix\Catalog\Component\GridVariationForm;
 use Bitrix\Catalog\Component\ProductForm;
+use Bitrix\Catalog\Component\StoreAmount;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\IoC\Dependency;
@@ -22,6 +23,8 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\UI\Toolbar\Facade\Toolbar;
+use Bitrix\Catalog\v2\Barcode\Barcode;
+use Bitrix\Catalog\StoreDocumentTable;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -38,6 +41,8 @@ class CatalogProductDetailsComponent
 	private $productId;
 	/** @var \Bitrix\Catalog\Component\ProductForm */
 	private $form;
+	/** @var \Bitrix\Catalog\Component\StoreAmount */
+	private $storeAmount;
 	/** @var \Bitrix\Catalog\v2\Product\BaseProduct */
 	private $product;
 	/** @var \Bitrix\Catalog\v2\Product\BaseProduct */
@@ -69,6 +74,8 @@ class CatalogProductDetailsComponent
 			'IBLOCK_ID',
 			'PATH_TO',
 			'COPY_PRODUCT_ID',
+			'BUILDER_CONTEXT',
+			'SCOPE',
 		];
 	}
 
@@ -128,7 +135,7 @@ class CatalogProductDetailsComponent
 
 	protected function checkPermissions(): bool
 	{
-		if (!\Bitrix\Catalog\Config\State::isProductCardSliderEnabled())
+		if (!$this->getForm()->isCardAllowed())
 		{
 			$this->errorCollection[] = new \Bitrix\Main\Error('New product card feature disabled.');
 
@@ -345,7 +352,52 @@ class CatalogProductDetailsComponent
 		$this->arResult['UI_CREATION_SKU_PROPERTY_URL'] = $this->getCreationSkuPropertyLink();
 
 		$this->arResult['VARIATION_GRID_ID'] = $this->getForm()->getVariationGridId();
+		$this->arResult['STORE_AMOUNT_GRID_ID'] = $this->getStoreAmount()->getStoreAmountGridId();
 		$this->arResult['CARD_SETTINGS'] = $this->getForm()->getCardSettings();
+
+		$this->arResult['CREATE_DOCUMENT_BUTTON_PARAMS'] = $this->getCreateDocumentButtonParams();
+		$this->arResult['CREATE_DOCUMENT_BUTTON_POPUP_ITEMS'] = $this->getCreateDocumentButtonPopupItems();
+	}
+
+	protected function getCreateDocumentButtonParams(): array
+	{
+		return [
+			'className' => 'ui-btn-primary',
+			'mainButton' => [
+				'text' => Loc::getMessage('CPD_CREATE_DOCUMENT_BUTTON'),
+				'link' => '/shop/documents/details/0/?DOCUMENT_TYPE=A&preselectedProductId=' . $this->getProductId() . '&inventoryManagementSource=product',
+			],
+		];
+	}
+
+	protected function getCreateDocumentButtonPopupItems(): array
+	{
+		$productId = $this->getProductId();
+		return [
+			[
+				'text' => Loc::getMessage('CPD_CREATE_DOCUMENT_BUTTON_POPUP_ADJUSTMENT'),
+				'link' => '/shop/documents/details/0/?DOCUMENT_TYPE=' . StoreDocumentTable::TYPE_ARRIVAL
+					. '&preselectedProductId=' . $productId
+					. '&inventoryManagementSource=product',
+			],
+			[
+				'text' => Loc::getMessage('CPD_CREATE_DOCUMENT_BUTTON_POPUP_SHIPMENT'),
+				'link' => '/shop/documents/details/sales_order/0/?DOCUMENT_TYPE=W&preselectedProductId='. $productId
+					. '&inventoryManagementSource=product',
+			],
+			[
+				'text' => Loc::getMessage('CPD_CREATE_DOCUMENT_BUTTON_POPUP_MOVING'),
+				'link' => '/shop/documents/details/0/?DOCUMENT_TYPE=' .StoreDocumentTable::TYPE_MOVING
+					. '&preselectedProductId=' . $productId
+					. '&inventoryManagementSource=product',
+			],
+			[
+				'text' => Loc::getMessage('CPD_CREATE_DOCUMENT_BUTTON_POPUP_DEDUCT'),
+				'link' => '/shop/documents/details/0/?DOCUMENT_TYPE=' . StoreDocumentTable::TYPE_DEDUCT
+					. '&preselectedProductId=' . $productId
+					. '&inventoryManagementSource=product',
+			],
+		];
 	}
 
 	protected function getProductDetailUrl(): string
@@ -447,6 +499,10 @@ class CatalogProductDetailsComponent
 					unset($skuFields[$id][$name]);
 					$originalName = mb_substr($name, $prefixLength);
 
+					if ($originalName === 'BARCODE_custom')
+					{
+						$originalName = 'BARCODE';
+					}
 					// It is necessary that the unchanged default name of variation does not remove new one,
 					// which will be setted in BaseProduct::setField
 					if ($originalName === 'NAME' && $oldProductName === $value)
@@ -678,8 +734,9 @@ class CatalogProductDetailsComponent
 	private function prepareProductCode(&$fields): void
 	{
 		$productName = $fields['NAME'] ?? '';
+		$productCode = $fields['CODE'] ?? '';
 
-		if ($productName !== '')
+		if ($productName !== '' && $productCode === '')
 		{
 			$fields['CODE'] = (new CIBlockElement())->generateMnemonicCode($productName, $this->getIblockId());
 		}
@@ -905,10 +962,7 @@ class CatalogProductDetailsComponent
 		$this->prepareDescriptionFields($fields);
 		$this->preparePictureFields($fields);
 
-		// if (
-		// 	// (!isset($fields['CODE']) || $fields['CODE'] === '')
-		// 	// && $product->isNew()
-		// )
+		if ((!isset($fields['CODE']) || $fields['CODE'] === '') && $product->isNew())
 		{
 			$this->prepareProductCode($fields);
 		}
@@ -1004,6 +1058,45 @@ class CatalogProductDetailsComponent
 			}
 
 			$sku->setFields($fields);
+
+			if (isset($fields['BARCODE']))
+			{
+				$barcodeCollection = $sku->getBarcodeCollection();
+				$barcodeCollection->remove(...$barcodeCollection);
+				if (is_array($fields['BARCODE']))
+				{
+					foreach ($fields['BARCODE'] as $barcode)
+					{
+						if ($barcode === '')
+						{
+							continue;
+						}
+
+						$exist = false;
+						/** @var Barcode $deleteItem */
+						foreach ($barcodeCollection->getRemovedItems() as $deleteItem)
+						{
+							if ($deleteItem->getBarcode() === $barcode)
+							{
+								$barcodeCollection->clearRemoved($deleteItem);
+								$exist = true;
+								break;
+							}
+						}
+
+						if (!$exist)
+						{
+							$barcodeItem = $barcodeCollection->create();
+							$barcodeItem->setBarcode($barcode);
+							$barcodeCollection->add($barcodeItem);
+						}
+					}
+				}
+				else
+				{
+					$barcodeCollection->setSimpleBarcodeValue($fields['BARCODE']);
+				}
+			}
 		}
 
 		if (!empty($skuPropertyFields))
@@ -1098,7 +1191,7 @@ class CatalogProductDetailsComponent
 
 		$response = [
 			'ENTITY_ID' => $product->getId(),
-			'ENTITY_DATA' => $this->getForm()->getValues(false),
+			'ENTITY_DATA' => $this->getEntityDataForResponse(),
 			'NOTIFY_ABOUT_NEW_VARIATION' => $redirect ? false : $notifyAboutNewVariation,
 			'IS_SIMPLE_PRODUCT' => $product->isSimple(),
 		];
@@ -1109,6 +1202,21 @@ class CatalogProductDetailsComponent
 		}
 
 		return $response;
+	}
+
+	private function getEntityDataForResponse()
+	{
+		$entityData = $this->getForm()->getValues(false);
+
+		foreach ($entityData as $key => $field)
+		{
+			if ($field instanceof \Bitrix\Main\Type\DateTime)
+			{
+				$entityData[$key] = $field->toString();
+			}
+		}
+
+		return $entityData;
 	}
 
 	public function refreshLinkedPropertiesAction(array $sectionIds = []): ?array
@@ -1735,6 +1843,10 @@ class CatalogProductDetailsComponent
 		{
 			$headers = ['VAT_INCLUDED', 'VAT_ID'];
 		}
+		elseif ($settingId === 'WAREHOUSE')
+		{
+			\Bitrix\Catalog\Component\UseStore::disable();
+		}
 
 		if (!empty($headers))
 		{
@@ -1802,5 +1914,14 @@ class CatalogProductDetailsComponent
 		}
 
 		return $this->form;
+	}
+
+	private function getStoreAmount(): StoreAmount
+	{
+		if ($this->storeAmount === null)
+		{
+			$this->storeAmount = new \Bitrix\Catalog\Component\StoreAmount($this->getProductId());
+		}
+		return $this->storeAmount;
 	}
 }

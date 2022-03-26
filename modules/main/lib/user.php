@@ -7,7 +7,6 @@
  */
 namespace Bitrix\Main;
 
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM;
@@ -33,9 +32,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_User_Query query()
- * @method static EO_User_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_User_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_User_Result getById($id)
- * @method static EO_User_Result getList(array $parameters = array())
+ * @method static EO_User_Result getList(array $parameters = [])
  * @method static EO_User_Entity getEntity()
  * @method static \Bitrix\Main\EO_User createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\EO_User_Collection createCollection()
@@ -176,12 +175,6 @@ class UserTable extends DataManager
 			(new Reference(
 				'INDEX',
 				UserIndexTable::class,
-				Join::on('this.ID', 'ref.USER_ID')
-			))->configureJoinType(Join::TYPE_INNER),
-
-			(new Reference(
-				'INDEX_SELECTOR',
-				UserIndexSelectorTable::class,
 				Join::on('this.ID', 'ref.USER_ID')
 			))->configureJoinType(Join::TYPE_INNER),
 
@@ -343,40 +336,6 @@ class UserTable extends DataManager
 		return $types;
 	}
 
-	private static function getUserSelectorContentFields()
-	{
-		static $cache = null;
-
-		if ($cache === null)
-		{
-			$result = Option::get('main', 'user_selector_search_fields', '');
-			if (empty($result))
-			{
-				$result = [];
-			}
-			else
-			{
-				$result = unserialize($result, ['allowed_classes' => false]);
-			}
-
-			if (!is_array($result))
-			{
-				$result = [];
-			}
-
-			$result = array_intersect(array_keys(self::getEntity()->getFields()), $result);
-			$result = array_merge($result, [ 'NAME', 'LAST_NAME'] );
-
-			$cache = $result;
-		}
-		else
-		{
-			$result = $cache;
-		}
-
-		return $result;
-	}
-
 	public static function indexRecord($id)
 	{
 		$id = intval($id);
@@ -420,10 +379,8 @@ class UserTable extends DataManager
 			$select[] = 'UF_DEPARTMENT';
 		}
 
-		$userSelectorContentFields = self::getUserSelectorContentFields();
-
 		$record = parent::getList(array(
-			'select' => array_unique(array_merge($select, $userSelectorContentFields)),
+			'select' => $select,
 			'filter' => array('=ID' => $id)
 		))->fetch();
 
@@ -457,59 +414,33 @@ class UserTable extends DataManager
 			'SEARCH_DEPARTMENT_CONTENT' => MapBuilder::create()->addText($searchDepartmentContent)->build()
 		));
 
-		self::indexRecordSelector($id, $record);
-
-		return true;
-	}
-
-	public static function indexRecordSelector($id, array $record = [])
-	{
-		$id = intval($id);
-		if($id == 0)
-		{
-			return false;
-		}
-
-		if (empty($record))
-		{
-			$select = array('ID', 'NAME', 'LAST_NAME');
-			$userSelectorContentFields = self::getUserSelectorContentFields();
-
-			$record = parent::getList(array(
-				'select' => array_unique(array_merge($select, $userSelectorContentFields)),
-				'filter' => array('=ID' => $id)
-			))->fetch();
-		}
-
-		if(!is_array($record))
-		{
-			return false;
-		}
-
-		UserIndexSelectorTable::merge(array(
-			'USER_ID' => $id,
-			'SEARCH_SELECTOR_CONTENT' => self::generateSearchSelectorContent($record),
-		));
-
 		return true;
 	}
 
 	public static function deleteIndexRecord($id)
 	{
 		UserIndexTable::delete($id);
-		UserIndexSelectorTable::delete($id);
 	}
 
 	private static function generateSearchUserContent(array $fields)
 	{
+		$text = implode(' ', [
+			$fields['NAME'],
+			$fields['SECOND_NAME'],
+			$fields['LAST_NAME'],
+			$fields['WORK_POSITION'],
+		]);
+
+		$charsToReplace = ['(', ')', '[', ']', '{', '}', '<', '>', '-', '#', '"', '\''];
+
+		$clearedText = str_replace($charsToReplace, ' ', $text);
+		$clearedText = preg_replace('/\s\s+/', ' ', $clearedText);
+
 		$result = MapBuilder::create()
 			->addInteger($fields['ID'])
-			->addText($fields['NAME'])
-			->addText($fields['SECOND_NAME'])
-			->addText($fields['LAST_NAME'])
-			->addText($fields['WORK_POSITION'])
-			->addText(implode(' ', $fields['UF_DEPARTMENT_NAMES']))
-			->build();
+			->addText($clearedText)
+			->build()
+		;
 
 		return $result;
 	}
@@ -574,73 +505,6 @@ class UserTable extends DataManager
 			->build();
 
 		return $result;
-	}
-
-	private static function generateSearchSelectorContent(array $userFields)
-	{
-		static $fieldsList = null;
-
-		$userSelectorContentFields = self::getUserSelectorContentFields();
-
-		if ($fieldsList === null)
-		{
-			$fieldsList = self::getEntity()->getFields();
-		}
-
-		$result = MapBuilder::create();
-		foreach($userSelectorContentFields as $fieldCode)
-		{
-			if (
-				isset($fieldsList[$fieldCode])
-				&& isset($userFields[$fieldCode])
-			)
-			{
-				if ($fieldsList[$fieldCode] instanceof \Bitrix\Main\ORM\Fields\IntegerField)
-				{
-					$result = $result->addInteger($userFields[$fieldCode]);
-				}
-				elseif($fieldsList[$fieldCode] instanceof \Bitrix\Main\ORM\Fields\StringField)
-				{
-					$value = $userFields[$fieldCode];
-					if (in_array($fieldCode, ['NAME', 'LAST_NAME']))
-					{
-						$value = str_replace(['(', ')'], '', $value);
-						$value = str_replace('-', ' ', $value);
-					}
-					$result = $result->addText($value);
-				}
-				elseif ($fieldsList[$fieldCode] instanceof \Bitrix\Main\ORM\Fields\UserTypeField)
-				{
-					if ($fieldsList[$fieldCode]->isMultiple())
-					{
-						foreach($fieldsList[$fieldCode] as $value)
-						{
-							if ($fieldsList[$fieldCode]->getValueType() == 'Bitrix\Main\ORM\Fields\IntegerField')
-							{
-								$result = $result->addInteger($value);
-							}
-							elseif ($fieldsList[$fieldCode]->getValueType() == 'Bitrix\Main\ORM\Fields\StringField')
-							{
-								$result = $result->addText($value);
-							}
-						}
-					}
-					else
-					{
-						if ($fieldsList[$fieldCode]->getValueType() == 'Bitrix\Main\ORM\Fields\IntegerField')
-						{
-							$result = $result->addInteger($userFields[$fieldCode]);
-						}
-						elseif ($fieldsList[$fieldCode]->getValueType() == 'Bitrix\Main\ORM\Fields\StringField')
-						{
-							$result = $result->addText($userFields[$fieldCode]);
-						}
-					}
-				}
-			}
-		}
-
-		return $result->build();
 	}
 
 	public static function add(array $data)

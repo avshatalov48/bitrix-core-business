@@ -152,6 +152,11 @@ else
 								<?php
 								$allColors = [];
 								foreach ($colors as $code => $color):
+									if ($themeCurr === $color['color'])
+									{
+										$code = $color['color'];
+										$color['base'] = true;
+									}
 									$allColors[] = $color['color'];
 									if (!isset($color['base']) || $color['base'] !== true)
 									{
@@ -293,7 +298,10 @@ else
 			LANDING_LOADER_WAIT: "<?= CUtil::jsEscape(Loc::getMessage('LANDING_LOADER_WAIT')) ?>"
 		},
 		disableStoreRedirect: <?= ($arParams['DISABLE_REDIRECT'] === 'Y') ? 'true' : 'false' ?>,
-		zipInstallPath: '<?=$template['ZIP_ID'] ? Url::getConfigurationImportZipUrl($template['ZIP_ID']) : '' ?>'
+		zipInstallPath: '<?=$template['ZIP_ID'] ? Url::getConfigurationImportZipUrl($template['ZIP_ID']) : '' ?>',
+		siteId: <?= ($arParams['SITE_ID'] > 0) ? $arParams['SITE_ID'] : 0 ?>,
+		langId: "<?=is_string($arParams['LANG_ID']) ? $arParams['LANG_ID'] : ''?>",
+		adminSection: <?=$arParams['ADMIN_SECTION'] === 'Y' ? 'true' : 'false'?>,
 	});
 	var previewBlock = document.querySelector(".landing-template-preview-info");
 

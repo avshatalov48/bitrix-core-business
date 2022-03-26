@@ -23,9 +23,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_GroupTask_Query query()
- * @method static EO_GroupTask_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_GroupTask_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_GroupTask_Result getById($id)
- * @method static EO_GroupTask_Result getList(array $parameters = array())
+ * @method static EO_GroupTask_Result getList(array $parameters = [])
  * @method static EO_GroupTask_Entity getEntity()
  * @method static \Bitrix\Main\EO_GroupTask createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\EO_GroupTask_Collection createCollection()

@@ -365,6 +365,10 @@ class EntitySelector
 	{
 		if (Type.isObject(this.items[id]))
 		{
+			if (Type.isObject(settings.filter))
+			{
+				this.items[id].filter = settings.filter;
+			}
 			return this.items[id];
 		}
 		const self = new EntitySelector(id, settings);

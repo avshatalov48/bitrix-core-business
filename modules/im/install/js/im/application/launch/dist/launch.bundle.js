@@ -17,7 +17,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  var application = '';
 	  var name = '';
 
-	  if (babelHelpers.typeof(app) === 'object') {
+	  if (babelHelpers["typeof"](app) === 'object') {
 	    name = app.name.toString();
 	    application = app.application.toString();
 	  } else {

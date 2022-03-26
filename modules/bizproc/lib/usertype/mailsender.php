@@ -37,25 +37,13 @@ class MailSender extends Bizproc\BaseType\Select
 
 		$isPublicControl = $renderMode & FieldType::RENDER_MODE_PUBLIC;
 
-		$selectorValue = null;
 		$typeValue = $value;
 		if (is_array($typeValue))
 		{
 			$typeValue = (string)current($value);
 		}
-		if (\CBPActivity::isExpression($typeValue))
-		{
-			$selectorValue = $typeValue;
-			$typeValue = '';
-		}
 
 		$valueHtml = htmlspecialcharsbx((string)$typeValue);
-
-		if ($selectorValue && $isPublicControl)
-		{
-			$valueHtml = htmlspecialcharsbx($selectorValue);
-		}
-
 		$nodeAttributes = '';
 
 		if ($allowSelection && $isPublicControl)

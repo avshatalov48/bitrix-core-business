@@ -155,7 +155,7 @@ class MessageEventManager
 				'select' => $selectingFields,
 				'filter' => array_merge($filter, [
 					'>=INTERNALDATE' => $dateLastMonth,
-					'=DELETE_TIME' => 'IS NULL',
+					'==DELETE_TIME' => 0,
 				]),
 			]
 		)->fetchAll();

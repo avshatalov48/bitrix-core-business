@@ -283,8 +283,6 @@ $MESS["expire_mess1"] = "<font class=\"tablebodytext\"><font color=\"#FF0000\">
 $MESS["expire_mess2"] = "Срок работы пробной версии продукта истек. Вы можете купить полнофункциональную версию продукта на сайте <a href=\"http://www.1c-bitrix.ru/?r1=bsm7trial&amp;r2=expired\">www.1c-bitrix.ru</a>. <a href=\"/bitrix/coupon_activation.php?lang=ru\">Регистрация</a>.";
 $MESS["main_tools_menu_left"] = "Меню раздела";
 $MESS["main_tools_menu_top"] = "Главное меню";
-$MESS["ABC_LOWER"] = "йцукенгшщзхъэждлорпавыфячсмитьбюё";
-$MESS["ABC_UPPER"] = "ЙЦУКЕНГШЩЗХЪЭЖДЛОРПАВЫФЯЧСМИТЬБЮЁ";
 $MESS["MONTH_1"] = "Январь";
 $MESS["MONTH_2"] = "Февраль";
 $MESS["MONTH_3"] = "Март";

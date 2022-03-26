@@ -2592,7 +2592,7 @@
 					this.isGift = false;
 				}
 
-				this.drawImages(this.offers[index].SLIDER);
+				this.drawImages(this.offers[index].RESIZED_SLIDER);
 				this.checkSliderControls(this.offers[index].SLIDER_COUNT);
 
 				for (i = 0; i < this.offers.length; i++)
@@ -2752,6 +2752,9 @@
 
 		drawImages: function(images)
 		{
+			var xImages = images.X;
+			var x2Images = images.X2;
+
 			if (!this.node.imageContainer)
 				return;
 
@@ -2764,11 +2767,12 @@
 				}
 			}
 
-			for (i = 0; i < images.length; i++)
+			for (i = 0; i < xImages.length; i++)
 			{
 				img = BX.create('IMG', {
 					props: {
-						src: images[i].SRC,
+						src: xImages[i].SRC,
+						srcset: xImages[i].SRC + " 1x, " + x2Images[i].SRC + " 2x",
 						alt: this.config.alt,
 						title: this.config.title
 					}
@@ -2779,28 +2783,33 @@
 					img.setAttribute('itemprop', 'image');
 				}
 
+				var overlay = BX.create(
+					'div',
+					{
+						props: {
+							className: 'product-detail-slider-image-overlay'
+						}
+					}
+				);
+
+				overlay.setAttribute('style',
+					'background-image: url("' + xImages[i].SRC + '");'
+					+ 'background-image: -webkit-image-set(url("' + xImages[i].SRC + '") 1x, url("' + x2Images[i].SRC + '") 2x);'
+					+ 'background-image: image-set(url("' + xImages[i].SRC + '") 1x, url("' + x2Images[i].SRC + '") 2x);'
+				);
+
 				this.node.imageContainer.appendChild(
 					BX.create('DIV', {
 						attrs: {
 							'data-entity': 'image',
-							'data-id': images[i].ID
+							'data-id': xImages[i].ID
 						},
 						props: {
 							className: 'product-detail-slider-image' + (i == 0 ? ' active' : '')
 						},
 						children: [
 							img,
-							BX.create(
-								'div',
-								{
-									props: {
-										className: 'product-detail-slider-image-overlay'
-									},
-									style: {
-										backgroundImage : "url("+images[i].SRC+")"
-									}
-								}
-							)
+							overlay
 						]
 					})
 				);
@@ -3485,7 +3494,6 @@
 
 		buyBasket: function()
 		{
-			console.log(this.obBuyBtn)
 			BX.addClass(this.obBuyBtn, "btn-wait");
 			this.basketMode = 'BUY';
 			this.basket();

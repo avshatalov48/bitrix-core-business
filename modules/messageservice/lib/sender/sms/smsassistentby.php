@@ -20,21 +20,16 @@ Loc::loadMessages(__FILE__);
 
 class SmsAssistentBy extends Sender\BaseConfigurable
 {
+	use Sender\Traits\RussianProvider;
+
+	public const ID = 'smsastby';
+
 	const JSON_API_URL = 'https://userarea.sms-assistent.by/api/v1/json';
 	const PLAIN_API_URL = 'https://userarea.sms-assistent.by/api/v1/%s/plain';
 
-	public static function isSupported()
-	{
-		if (Loader::includeModule('bitrix24'))
-		{
-			return in_array(\CBitrix24::getPortalZone(), ['ru', 'kz', 'by']);
-		}
-		return true;
-	}
-
 	public function getId()
 	{
-		return 'smsastby';
+		return static::ID;
 	}
 
 	public function getName()
@@ -163,6 +158,8 @@ class SmsAssistentBy extends Sender\BaseConfigurable
 
 		$result = new SendMessage();
 		$apiResult = $this->callPlainApi('send_sms', $message);
+		$result->setServiceRequest($apiResult->getHttpRequest());
+		$result->setServiceResponse($apiResult->getHttpResponse());
 		$resultData = $apiResult->getData();
 
 		if (!$apiResult->isSuccess())
@@ -332,7 +329,7 @@ class SmsAssistentBy extends Sender\BaseConfigurable
 		return $this;
 	}
 
-	private function callPlainApi($command, array $params = [])
+	private function callPlainApi($command, array $params = []): Sender\Result\HttpRequestResult
 	{
 		$url = sprintf(self::PLAIN_API_URL, $command);
 
@@ -361,7 +358,13 @@ class SmsAssistentBy extends Sender\BaseConfigurable
 			$params = \Bitrix\Main\Text\Encoding::convertEncoding($params, SITE_CHARSET, 'UTF-8');
 		}
 
-		$result = new Result();
+		$result = new Sender\Result\HttpRequestResult();
+		$result->setHttpRequest(new MessageService\DTO\Request([
+			'method' => HttpClient::HTTP_POST,
+			'uri' => $url,
+			'headers' => method_exists($httpClient, 'getRequestHeaders') ? $httpClient->getRequestHeaders()->toArray() : [],
+			'body' => $params,
+		]));
 		$answer = [];
 
 		if ($httpClient->query(HttpClient::HTTP_POST, $url, $params) && $httpClient->getStatus() == '200')
@@ -373,13 +376,19 @@ class SmsAssistentBy extends Sender\BaseConfigurable
 		{
 			$result->addError(new Error($this->getErrorMessage($answer)));
 		}
+		$result->setHttpResponse(new MessageService\DTO\Response([
+			'statusCode' => $httpClient->getStatus(),
+			'headers' => $httpClient->getHeaders()->toArray(),
+			'body' => $httpClient->getResult(),
+			'error' => Sender\Util::getHttpClientErrorString($httpClient)
+		]));
 
 		$result->setData(['response' => $answer]);
 
 		return $result;
 	}
 
-	private function callJsonApi($command, array $params = [])
+	private function callJsonApi($command, array $params = []): Sender\Result\HttpRequestResult
 	{
 		$httpClient = new HttpClient(array(
 			"socketTimeout" => 10,
@@ -404,7 +413,13 @@ class SmsAssistentBy extends Sender\BaseConfigurable
 
 		$params = Json::encode($params);
 
-		$result = new Result();
+		$result = new Sender\Result\HttpRequestResult();
+		$result->setHttpRequest(new MessageService\DTO\Request([
+			'method' => HttpClient::HTTP_POST,
+			'uri' => self::JSON_API_URL,
+			'headers' => method_exists($httpClient, 'getRequestHeaders') ? $httpClient->getRequestHeaders()->toArray() : [],
+			'body' => $params,
+		]));
 		$answer = [];
 
 		if ($httpClient->query(HttpClient::HTTP_POST, self::JSON_API_URL, $params) && $httpClient->getStatus() == '200')
@@ -430,6 +445,12 @@ class SmsAssistentBy extends Sender\BaseConfigurable
 			$result->addError(new Error($msg));
 		}
 
+		$result->setHttpResponse(new MessageService\DTO\Response([
+			'statusCode' => $httpClient->getStatus(),
+			'headers' => $httpClient->getHeaders()->toArray(),
+			'body' => $httpClient->getResult(),
+			'error' => Sender\Util::getHttpClientErrorString($httpClient)
+		]));
 		$result->setData($answer);
 
 		return $result;

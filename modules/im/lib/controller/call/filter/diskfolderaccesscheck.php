@@ -17,24 +17,15 @@ class DiskFolderAccessCheck extends Base
 {
 	public function onBeforeAction(Event $event)
 	{
-		$dialogId = $this->action->getController()->getRequest()->getHeader('Call-Chat-Id');
-		if (!$dialogId)
+		$chatId = $this->action->getController()->getRequest()->getHeader('Call-Chat-Id');
+		if (!$chatId)
 		{
 			$this->addError(new Error("Header Call-Chat-Id can't be empty"));
 
 			return new EventResult(EventResult::ERROR, null, null, $this);
 		}
 
-		$chatId = (int)\Bitrix\Im\Dialog::getChatId($dialogId);
-		if ($chatId <= 0)
-		{
-			$this->addError(new Error("Chat ID can't be empty"));
-
-			return new EventResult(EventResult::ERROR, null, null, $this);
-		}
-
-		$chatRelation = \CIMChat::GetRelationById($chatId);
-		if (!$chatRelation[\CIMDisk::GetUserId()])
+		if (!\Bitrix\Im\Chat::hasAccess($chatId))
 		{
 			$this->addError(new Error("You don't have access to this chat"));
 

@@ -40,6 +40,7 @@ return array(
 			'type' => 'img',
 			'useInDesigner' => false,
 			'dimensions' => array('width' => 540),
+			'create2xByDefault' => false,
 		),
 	),
 	'style' => array(

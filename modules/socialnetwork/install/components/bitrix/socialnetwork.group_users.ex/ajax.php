@@ -130,12 +130,12 @@ if (check_bitrix_sessid())
 			$arRelalationData[] = $arRelation;
 		}
 
-		if ($action == 'U2M' && !CSocNetUserToGroup::TransferMember2Moderator($USER->GetID(), $arGroup["ID"], $arRelationID, CSocNetUser::IsCurrentUserModuleAdmin()))
+		if ($action == 'U2M' && !CSocNetUserToGroup::TransferMember2Moderator($USER->GetID(), $arGroup["ID"], $arRelationID))
 		{
 			echo CUtil::PhpToJsObject(Array('ERROR' => 'USER_ACTION_FAILED: '.(($e = $APPLICATION->GetException()) ? $e->GetString() : "")));
 			die();
 		}
-		elseif ($action == 'M2U' && !CSocNetUserToGroup::TransferModerator2Member($USER->GetID(), $arGroup["ID"], $arRelationID, CSocNetUser::IsCurrentUserModuleAdmin()))
+		elseif ($action == 'M2U' && !CSocNetUserToGroup::TransferModerator2Member($USER->GetID(), $arGroup["ID"], $arRelationID))
 		{
 			echo CUtil::PhpToJsObject(Array('ERROR' => 'USER_ACTION_FAILED: '.(($e = $APPLICATION->GetException()) ? $e->GetString() : "")));
 			die();

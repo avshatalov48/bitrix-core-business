@@ -9,6 +9,7 @@ class CacheEngineRedis implements ICacheEngine, LocalStorage\Storage\CacheEngine
 {
 	public const SESSION_REDIS_CONNECTION = 'cache.redis';
 
+	/** @var \Redis $redis */
 	protected static $redis = null;
 	protected static $locks = [];
 	protected static $isConnected = false;

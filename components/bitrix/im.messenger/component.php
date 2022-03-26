@@ -26,8 +26,9 @@ if ($arParams['CONTEXT'] == 'DESKTOP' || $arParams['DESKTOP'] == 'Y')
 	$darkClass = \CIMSettings::GetSetting(CIMSettings::SETTINGS, 'isCurrentThemeDark')? 'bx-messenger-dark': '';
 	$GLOBALS["APPLICATION"]->SetPageProperty("BodyClass", "im-desktop $darkClass");
 
-	CIMMessenger::SetDesktopStatusOnline(null, false);
 	CIMMessenger::SetDesktopVersion(empty($_GET['BXD_API_VERSION'])? 0 : $_GET['BXD_API_VERSION']);
+	CIMMessenger::SetDesktopStatusOnline(null, false);
+
 	$arParams["DESIGN"] = "DESKTOP";
 	$arResult["CONTEXT"] = "DESKTOP";
 

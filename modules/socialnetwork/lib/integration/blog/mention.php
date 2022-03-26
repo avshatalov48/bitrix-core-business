@@ -106,6 +106,7 @@ class Mention
 				'SHOW_LOGIN' => 'Y',
 				'LIVE' => 'N',
 				'MENTION' => 'Y',
+				'CLEAR_COMMENTS_CACHE' => (isset($params['clearCache']) && $params['clearCache'] === false ? 'N' : 'Y')
 			]
 		);
 	}

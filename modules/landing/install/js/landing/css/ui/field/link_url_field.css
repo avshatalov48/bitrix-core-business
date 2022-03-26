@@ -26,7 +26,7 @@
 }
 
 .landing-ui-button-select-link {
-	font-family: 'OpenSans-Bold', Helvetca, Arial, sans-sarif;
+	font-family: 'OpenSans-Bold', Helvetca, Arial, sans-serif;
 	background: none;
 	font-size: 12px;
 	color: #525C69;
@@ -174,7 +174,7 @@
 }
 
 .landing-ui-field-link-new-label {
-	font-family: OpenSans-Bold, Helvetca, Arial, sans-sarif, serif;
+	font-family: OpenSans-Bold, Helvetca, Arial, sans-serif, serif;
 	font-size: 8px;
 	color: #ffffff;
 	background: #2FC6F6;

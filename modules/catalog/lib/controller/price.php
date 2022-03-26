@@ -329,7 +329,7 @@ final class Price extends Controller
 
 		if($name == 'modify')
 		{
-			$r = $this->checkModifyPermissionPrice($name, $arguments);
+			$r = $this->checkModifyPermissionEntity();
 		}
 		else
 		{
@@ -338,7 +338,7 @@ final class Price extends Controller
 		return $r;
 	}
 
-	protected function checkModifyPermissionPrice($name, $arguments)
+	protected function checkModifyPermissionEntity()
 	{
 		$r = $this->checkReadPermissionEntity();
 		if($r->isSuccess())

@@ -1,3 +1,26 @@
 <?php
 $MESS["BPSGCA_ACCESS_DENIED"] = "Only the Bitrix24 administrators can access activity properties.";
 $MESS["BPSGCA_EMPTY_VARIABLES"] = "No value assigned to global variables";
+$MESS["BPSGVA_ADD_PARAMETER"] = "+ add parameter";
+$MESS["BPSGVA_ADD_VARIABLE"] = "+ add variable";
+$MESS["BPSGVA_BOOL_NO"] = "No";
+$MESS["BPSGVA_BOOL_YES"] = "Yes";
+$MESS["BPSGVA_CLEAR"] = "Reset";
+$MESS["BPSGVA_CREATE_GCONSTANT"] = "Create constant";
+$MESS["BPSGVA_CREATE_GCONSTANT_QUESTION"] = "Do you want to create a new constant?";
+$MESS["BPSGVA_CREATE_GVARIABLE"] = "Create variable";
+$MESS["BPSGVA_CREATE_GVARIABLE_QUESTION"] = "Do you want to create a new variable?";
+$MESS["BPSGVA_DOCUMENT"] = "Field value";
+$MESS["BPSGVA_EMPTY"] = "Not selected";
+$MESS["BPSGVA_GCONSTANT_NOT_FOUND"] = "Constant was not found";
+$MESS["BPSGVA_GCONSTANT_NO_EXIST"] = "There are no constants";
+$MESS["BPSGVA_GLOBAL_CONST"] = "Global constants";
+$MESS["BPSGVA_GLOBAL_VAR"] = "Global variables";
+$MESS["BPSGVA_GVARIABLE_NOT_FOUND"] = "Variable was not found";
+$MESS["BPSGVA_GVARIABLE_NO_EXIST"] = "There are no variables";
+$MESS["BPSGVA_INPUT_TEXT"] = "Enter value";
+$MESS["BPSGVA_LIST_OF_VALUES"] = "Values";
+$MESS["BPSGVA_PARAMETER"] = "Select parameter";
+$MESS["BPSGVA_TEXT"] = "Custom value";
+$MESS["BPSGVA_TYPE_OF_PARAMETER"] = "Parameter type";
+$MESS["BPSGVA_VARIABLE"] = "Select variable";

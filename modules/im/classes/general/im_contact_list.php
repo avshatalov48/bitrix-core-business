@@ -923,22 +923,21 @@ class CAllIMContactList
 		$bVoximplantEnable = IsModuleInstalled('voximplant');
 		$bColorEnabled = IM\Color::isEnabled();
 
-		if($useCache)
+		if ($useCache)
 		{
-			global $USER;
-			$obCache = new CPHPCache;
-			$cache_ttl = intval($arParams['CACHE_TTL']);
+			$obCache = new \CPHPCache;
+			$cache_ttl = (int)$arParams['CACHE_TTL'];
 			if ($cache_ttl <= 0)
-				$cache_ttl = defined("BX_COMP_MANAGED_CACHE") ? 18144000 : 1800;
-
-			$uid = (is_object($USER)? (int)$USER->GetID(): 'AGENT');
-            $cache_id = 'user_data_v39_'.$uid.'_'.implode('|', $arFilter['=ID']).'_'.$nameTemplate.'_'.$nameTemplateSite.'_'.$extraFields.'_'.$getPhones.'_'.$getDepartment.'_'.$bIntranetEnable.'_'.$bVoximplantEnable.'_'.LANGUAGE_ID.'_'.$bColorEnabled;
-
-            $userHash = md5($uid);
-            $cache_dir = '/bx/imc/userdata/'.mb_substr($userHash, 0, 2).'/'.mb_substr($userHash, 2, 2);
-			if($obCache->InitCache($cache_ttl, $cache_id, $cache_dir))
 			{
-				$arCacheResult = $obCache->GetVars();
+				$cache_ttl = defined("BX_COMP_MANAGED_CACHE") ? 18144000 : 1800;
+			}
+
+			$uid = md5(implode('|', $arFilter['=ID']));
+			$cache_id = 'user_data_v39_'.$uid.'_'.$nameTemplate.'_'.$nameTemplateSite.'_'.$extraFields.'_'.$getPhones.'_'.$getDepartment.'_'.$bIntranetEnable.'_'.$bVoximplantEnable.'_'.LANGUAGE_ID.'_'.$bColorEnabled;
+			$cache_dir = '/bx/imc/userdata/'.mb_substr($uid, 0, 2).'/'.mb_substr($uid, 2, 2);
+			if ($obCache->initCache($cache_ttl, $cache_id, $cache_dir))
+			{
+				$arCacheResult = $obCache->getVars();
 				if ($showOnline)
 				{
 					$onlineUserId = array_keys(array_filter($arCacheResult['users'], function($user) {
@@ -1364,22 +1363,24 @@ class CAllIMContactList
 		if (is_array($entityId))
 		{
 			foreach ($entityId as $key => $value)
-				$entityId[$key] = intval($value);
+			{
+				$entityId[$key] = (int)$value;
+			}
 
 			$entityId = array_slice($entityId, 0, 1000);
 
 			$sqlEntityId = 'ITEM_ID IN ('.implode(',', $entityId).')';
 		}
-		else if (intval($entityId) > 0)
+		else if ((int)$entityId > 0)
 		{
-			$sqlEntityId = 'ITEM_ID = '.intval($entityId);
+			$sqlEntityId = 'ITEM_ID = '.(int)$entityId;
 		}
 		else
 		{
 			return false;
 		}
 
-		if (intval($userId) <= 0)
+		if ((int)$userId <= 0)
 		{
 			if ($GLOBALS['USER'] instanceof \CUser && $GLOBALS['USER']->getId() > 0)
 			{
@@ -1402,27 +1403,36 @@ class CAllIMContactList
 
 		$strSQL = "
 			UPDATE b_im_relation R
-			INNER JOIN b_im_recent RC ON RC.USER_ID = ".$userId." AND RC.".$itemType." AND RC.".$sqlEntityId."
-			SET R.STATUS = '".IM_STATUS_READ."', R.UNREAD_ID = 0, R.MESSAGE_STATUS = '".IM_MESSAGE_STATUS_RECEIVED."', R.COUNTER = 0, R.LAST_READ = NOW()
-			WHERE R.ID = RC.ITEM_RID;
+				INNER JOIN b_im_recent RC 
+				ON R.ID = RC.ITEM_RID
+			SET 
+				R.STATUS = '".IM_STATUS_READ."'
+				, R.UNREAD_ID = 0
+				, R.MESSAGE_STATUS = '".IM_MESSAGE_STATUS_RECEIVED."'
+				, R.COUNTER = 0
+				, R.LAST_READ = NOW()
+			WHERE 
+				RC.USER_ID = {$userId} 
+				AND RC.{$itemType} 
+				AND RC.{$sqlEntityId}
 		";
 		$DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
-		$strSQL = "DELETE FROM b_im_recent WHERE USER_ID = ".$userId." AND ".$itemType." AND ".$sqlEntityId;
+		$strSQL = "DELETE FROM b_im_recent WHERE USER_ID = {$userId} AND {$itemType} AND {$sqlEntityId}";
 		$DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
-		if ($isChat && CModule::IncludeModule('pull'))
+		if ($isChat && \Bitrix\Main\Loader::includeModule('pull'))
 		{
 			if (is_array($entityId))
 			{
 				foreach ($entityId as $value)
 				{
-					CPullWatch::Delete($userId, 'IM_PUBLIC_'.intval($value));
+					\CPullWatch::delete($userId, 'IM_PUBLIC_'.(int)$value);
 				}
 			}
 			else
 			{
-				CPullWatch::Delete($userId, 'IM_PUBLIC_'.intval($entityId));
+				\CPullWatch::delete($userId, 'IM_PUBLIC_'.(int)$entityId);
 			}
 		}
 
@@ -1453,13 +1463,13 @@ class CAllIMContactList
 
 		if (mb_substr($dialogId, 0, 4) == 'chat')
 		{
-			$chatId = mb_substr($dialogId, 4);
-			CIMContactList::DeleteRecent($chatId, true);
+			$chatId = (int)mb_substr($dialogId, 4);
+			self::deleteRecent($chatId, true, $userId);
 		}
 		else
 		{
-			$dialogId = intval($dialogId);
-			\CIMContactList::DeleteRecent($dialogId, false, $userId);
+			$dialogId = (int)$dialogId;
+			self::deleteRecent($dialogId, false, $userId);
 		}
 
 		if ($pullInclude)

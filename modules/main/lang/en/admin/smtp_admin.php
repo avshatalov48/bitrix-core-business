@@ -18,3 +18,4 @@ $MESS["smtp_configuration_admin_sites"] = "Sites";
 $MESS["smtp_configuration_admin_title"] = "SMTP connection parameters";
 $MESS["smtp_configuration_admin_username"] = "Name";
 $MESS["smtp_configuration_admin_yes"] = "Yes";
+$MESS["smtp_configuration_wrong_field_value"] = "The value of %FIELD_NAME% is incorrect";

@@ -398,14 +398,17 @@ class CAllSocNetFeatures
 
 		$arReturn = [];
 
-		$type = Trim($type);
-		if (($type == '') || !in_array($type, $arSocNetAllowedEntityTypes))
+		$type = trim($type);
+		if (
+			$type == ''
+			|| !in_array($type, $arSocNetAllowedEntityTypes)
+		)
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GF_ERROR_NO_ENTITY_TYPE"), "ERROR_EMPTY_TYPE");
 			return false;
 		}
 
-		$feature = mb_strtolower(Trim($feature));
+		$feature = mb_strtolower(trim($feature));
 		if ($feature == '')
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GF_EMPTY_FEATURE_ID"), "ERROR_EMPTY_FEATURE_ID");
@@ -414,16 +417,15 @@ class CAllSocNetFeatures
 
 		$arSocNetFeaturesSettings = CSocNetAllowed::GetAllowedFeatures();
 		if (
-			!array_key_exists($feature, $arSocNetFeaturesSettings)
-			|| !array_key_exists("allowed", $arSocNetFeaturesSettings[$feature])
-			|| !in_array($type, $arSocNetFeaturesSettings[$feature]["allowed"])
+			!isset($arSocNetFeaturesSettings[$feature]['allowed'])
+			|| !in_array($type, $arSocNetFeaturesSettings[$feature]['allowed'], true)
 		)
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GF_ERROR_NO_FEATURE_ID"), "ERROR_NO_FEATURE_ID");
 			return false;
 		}
 
-		$arFeatures = array();
+		$arFeatures = [];
 
 		if (is_array($id))
 		{
@@ -431,49 +433,75 @@ class CAllSocNetFeatures
 			foreach($id as $group_id)
 			{
 				if ($group_id <= 0)
+				{
 					$arReturn[$group_id] = false;
+				}
+				elseif (
+					isset($GLOBALS['SONET_FEATURES_CACHE'][$type][$group_id])
+					&& is_array($GLOBALS['SONET_FEATURES_CACHE'][$type][$group_id])
+				)
+				{
+					$arFeatures[$group_id] = $GLOBALS["SONET_FEATURES_CACHE"][$type][$group_id];
+
+					if (!array_key_exists($feature, $arFeatures[$group_id]))
+					{
+						$arReturn[$group_id] = true;
+						continue;
+					}
+
+					$arReturn[$group_id] = ($arFeatures[$group_id][$feature]['ACTIVE'] === "Y");
+				}
 				else
 				{
-					if (array_key_exists("SONET_FEATURES_CACHE", $GLOBALS)
-						&& isset($GLOBALS["SONET_FEATURES_CACHE"][$type])
-						&& isset($GLOBALS["SONET_FEATURES_CACHE"][$type][$group_id])
-						&& is_array($GLOBALS["SONET_FEATURES_CACHE"][$type][$group_id]))
-					{
-						$arFeatures[$group_id] = $GLOBALS["SONET_FEATURES_CACHE"][$type][$group_id];
-
-						if (!array_key_exists($feature, $arFeatures[$group_id]))
-						{
-							$arReturn[$group_id] = true;
-							continue;
-						}
-
-						$arReturn[$group_id] = ($arFeatures[$group_id][$feature]["ACTIVE"] === "Y");
-					}
-					else
-					{
-						$arGroupToGet[] = $group_id;
-					}
+					$arGroupToGet[] = $group_id;
 				}
 			}
 
-			if(!empty($arGroupToGet))
+			if (!empty($arGroupToGet))
 			{
-				$dbResult = CSocNetFeatures::GetList(Array(), Array("ENTITY_ID" => $arGroupToGet, "ENTITY_TYPE" => $type));
-				while ($arResult = $dbResult->GetNext())
-					$arFeatures[$arResult["ENTITY_ID"]][$arResult["FEATURE"]] = array("ACTIVE" => $arResult["ACTIVE"], "FEATURE_NAME" => $arResult["FEATURE_NAME"]);
-
-				foreach($arGroupToGet as $group_id)
+				$res = CSocNetFeatures::getList(
+					[],
+					[
+						'ENTITY_ID' => $arGroupToGet,
+						'ENTITY_TYPE' => $type,
+					],
+					false,
+					false,
+					[ 'ENTITY_ID', 'FEATURE', 'ACTIVE', 'FEATURE_NAME' ]
+				);
+				while ($featureFields = $res->getNext())
 				{
+					$arFeatures[$featureFields['ENTITY_ID']][$featureFields['FEATURE']] = [
+						'ACTIVE' => $featureFields['ACTIVE'],
+						'FEATURE_NAME' => $featureFields['FEATURE_NAME'],
+					];
+				}
 
-					if (!array_key_exists("SONET_FEATURES_CACHE", $GLOBALS) || !is_array($GLOBALS["SONET_FEATURES_CACHE"]))
-						$GLOBALS["SONET_FEATURES_CACHE"] = array();
-					if (!array_key_exists($type, $GLOBALS["SONET_FEATURES_CACHE"]) || !is_array($GLOBALS["SONET_FEATURES_CACHE"][$type]))
-						$GLOBALS["SONET_FEATURES_CACHE"][$type] = array();
+				foreach ($arGroupToGet as $group_id)
+				{
+					if (
+						!isset($GLOBALS['SONET_FEATURES_CACHE'])
+						|| !is_array($GLOBALS['SONET_FEATURES_CACHE'])
+					)
+					{
+						$GLOBALS['SONET_FEATURES_CACHE'] = [];
+					}
+
+					if (
+						!isset($GLOBALS['SONET_FEATURES_CACHE'][$type])
+						|| !is_array($GLOBALS['SONET_FEATURES_CACHE'][$type])
+					)
+					{
+						$GLOBALS['SONET_FEATURES_CACHE'][$type] = [];
+					}
 
 					$GLOBALS["SONET_FEATURES_CACHE"][$type][$group_id] = $arFeatures[$group_id];
 
-					if(!isset($arFeatures[$group_id]))
+					if (!isset($arFeatures[$group_id]))
+					{
 						$arFeatures[$group_id] = Array();
+					}
+
 					if (!array_key_exists($feature, $arFeatures[$group_id]))
 					{
 						$arReturn[$group_id] = true;
@@ -495,31 +523,58 @@ class CAllSocNetFeatures
 			return false;
 		}
 
-		if (array_key_exists("SONET_FEATURES_CACHE", $GLOBALS)
-			&& isset($GLOBALS["SONET_FEATURES_CACHE"][$type])
-			&& isset($GLOBALS["SONET_FEATURES_CACHE"][$type][$id])
-			&& is_array($GLOBALS["SONET_FEATURES_CACHE"][$type][$id]))
+		if (
+			isset($GLOBALS['SONET_FEATURES_CACHE'][$type][$id])
+			&& is_array($GLOBALS['SONET_FEATURES_CACHE'][$type][$id])
+		)
 		{
 			$arFeatures = $GLOBALS["SONET_FEATURES_CACHE"][$type][$id];
 		}
 		else
 		{
-			$dbResult = CSocNetFeatures::GetList(Array(), Array("ENTITY_ID" => $id, "ENTITY_TYPE" => $type));
-			while ($arResult = $dbResult->GetNext())
-				$arFeatures[$arResult["FEATURE"]] = array("ACTIVE" => $arResult["ACTIVE"], "FEATURE_NAME" => $arResult["FEATURE_NAME"]);
+			$res = CSocNetFeatures::getList(
+				[],
+				[
+					'ENTITY_ID' => $id,
+					'ENTITY_TYPE' => $type,
+				],
+				false,
+				false,
+				[ 'FEATURE', 'ACTIVE', 'FEATURE_NAME' ]
+			);
+			while ($featureFields = $res->getNext())
+			{
+				$arFeatures[$featureFields['FEATURE']] = [
+					'ACTIVE' => $featureFields['ACTIVE'],
+					'FEATURE_NAME' => $featureFields['FEATURE_NAME'],
+				];
+			}
 
-			if (!array_key_exists("SONET_FEATURES_CACHE", $GLOBALS) || !is_array($GLOBALS["SONET_FEATURES_CACHE"]))
-				$GLOBALS["SONET_FEATURES_CACHE"] = array();
-			if (!array_key_exists($type, $GLOBALS["SONET_FEATURES_CACHE"]) || !is_array($GLOBALS["SONET_FEATURES_CACHE"][$type]))
-				$GLOBALS["SONET_FEATURES_CACHE"][$type] = array();
+			if (
+				!isset($GLOBALS['SONET_FEATURES_CACHE'])
+				|| !is_array($GLOBALS['SONET_FEATURES_CACHE'])
+			)
+			{
+				$GLOBALS['SONET_FEATURES_CACHE'] = [];
+			}
 
-			$GLOBALS["SONET_FEATURES_CACHE"][$type][$id] = $arFeatures;
+			if (
+				!isset($GLOBALS['SONET_FEATURES_CACHE'][$type])
+				|| !is_array($GLOBALS['SONET_FEATURES_CACHE'][$type])
+			)
+			{
+				$GLOBALS["SONET_FEATURES_CACHE"][$type] = [];
+			}
+
+			$GLOBALS['SONET_FEATURES_CACHE'][$type][$id] = $arFeatures;
 		}
 
 		if (!array_key_exists($feature, $arFeatures))
+		{
 			return true;
+		}
 
-		return ($arFeatures[$feature]["ACTIVE"] === "Y");
+		return ($arFeatures[$feature]['ACTIVE'] === 'Y');
 	}
 
 	private static function getActiveFeaturesList($type, $id)

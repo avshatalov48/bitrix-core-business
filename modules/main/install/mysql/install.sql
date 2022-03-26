@@ -265,14 +265,6 @@ CREATE TABLE b_user_index
 	fulltext index IXF_B_USER_INDEX_3 (SEARCH_ADMIN_CONTENT)
 );
 
-CREATE TABLE b_user_index_selector
-(
-	USER_ID int(11) not null,
-	SEARCH_SELECTOR_CONTENT text null,
-	PRIMARY KEY (USER_ID),
-	fulltext index IXF_B_USER_INDEX_SELECTOR_1 (SEARCH_SELECTOR_CONTENT)
-);
-
 CREATE TABLE b_user_group
 (
 	USER_ID INT not null,
@@ -886,6 +878,7 @@ CREATE TABLE b_user_hit_auth
 	URL varchar(255) not null,
 	SITE_ID char(2),
 	TIMESTAMP_X timestamp,
+	VALID_UNTIL datetime,
 	PRIMARY KEY (ID),
 	INDEX IX_USER_HIT_AUTH_1(HASH),
 	INDEX IX_USER_HIT_AUTH_2(USER_ID),
@@ -968,7 +961,7 @@ CREATE TABLE b_user_access_check
 (
 	USER_ID int,
 	PROVIDER_ID varchar(50),
-	INDEX ix_uac_user_provider (USER_ID, PROVIDER_ID)
+	UNIQUE ux_uac_user_provider (USER_ID, PROVIDER_ID)
 );
 
 CREATE TABLE b_user_counter

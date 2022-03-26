@@ -677,7 +677,7 @@ class CCalendarWebService extends IWebService
 					'ACCESSIBILITY' => $arStatusValues[$arData['MetaInfo_BusyStatus']],
 					'IMPORTANCE' => $arPriorityValues[$arData['MetaInfo_Priority']],
 					'RRULE' => $arData['RRULE'],
-					'LOCATION' => CCalendar::UnParseTextLocation($arData['Location'])
+					'LOCATION' => Bitrix\Calendar\Rooms\Util::unParseTextLocation($arData['Location'])
 				];
 
 				if ($fromTs && $toTs)

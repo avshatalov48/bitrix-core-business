@@ -22,14 +22,6 @@ class CCatalogStore extends CAllCatalogStore
 				return false;
 		}
 
-		if(array_key_exists('DATE_CREATE', $arFields))
-			unset($arFields['DATE_CREATE']);
-		if(array_key_exists('DATE_MODIFY', $arFields))
-			unset($arFields['DATE_MODIFY']);
-
-		$arFields['~DATE_MODIFY'] = $DB->GetNowFunction();
-		$arFields['~DATE_CREATE'] = $DB->GetNowFunction();
-
 		if(!self::CheckFields('ADD',$arFields))
 			return false;
 
@@ -40,7 +32,7 @@ class CCatalogStore extends CAllCatalogStore
 		$res = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
 		if(!$res)
 			return false;
-		$lastId = intval($DB->LastID());
+		$lastId = (int)$DB->LastID();
 
 		Catalog\StoreTable::getEntity()->cleanCache();
 
@@ -75,7 +67,8 @@ class CCatalogStore extends CAllCatalogStore
 				"ISSUING_CENTER",
 				"SHIPPING_CENTER",
 				"SITE_ID",
-				"CODE"
+				"CODE",
+				"IS_DEFAULT",
 			);
 
 		$keyForDelete = array_search("PRODUCT_AMOUNT", $arSelectFields);
@@ -125,6 +118,7 @@ class CCatalogStore extends CAllCatalogStore
 			"SHIPPING_CENTER" => array("FIELD" => "CS.SHIPPING_CENTER", "TYPE" => "char"),
 			"SITE_ID" => array("FIELD" => "CS.SITE_ID", "TYPE" => "string"),
 			"CODE" => array("FIELD" => "CS.CODE", "TYPE" => "string"),
+			"IS_DEFAULT" => array("FIELD" => "CS.IS_DEFAULT", "TYPE" => "char"),
 			"PRODUCT_AMOUNT" => array("FIELD" => "CP.AMOUNT", "TYPE" => "double", "FROM" => "LEFT JOIN b_catalog_store_product CP ON (CS.ID = CP.STORE_ID AND CP.PRODUCT_ID IN ".$productID.")"),
 			"ELEMENT_ID" => array("FIELD" => "CP.PRODUCT_ID", "TYPE" => "int")
 		);

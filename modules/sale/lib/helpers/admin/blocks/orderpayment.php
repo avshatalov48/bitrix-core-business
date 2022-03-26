@@ -404,8 +404,6 @@ class OrderPayment
 			$title = Loc::getMessage('SALE_ORDER_PAYMENT_BLOCK_NEW_PAYMENT_TITLE');
 		}
 
-		$curFormat = \CCurrencyLang::GetFormatDescription($data['CURRENCY']);
-		$currencyLang = preg_replace("/(^|[^&])#/", '$1', $curFormat["FORMAT_STRING"]);
 		$disabled = ($data['PAID'] == 'Y') ? 'readonly' : '';
 
 		$companyList = $data['COMPANIES'];
@@ -538,12 +536,21 @@ class OrderPayment
 										<tbody>
 											<tr>
 												<td class="adm-detail-content-cell-l" width="40%">'.Loc::getMessage('SALE_ORDER_PAYMENT_PAYABLE_SUM').':</td>
-												<td class="adm-detail-content-cell-r tal"><input type="text" class="adm-bus-input-price" name="PAYMENT['.$index.'][SUM]" id="PAYMENT_SUM_'.$index.'" value="'.round($sum, 2).'" '.$disabled.'> '.htmlspecialcharsbx($currencyLang).'<br></td>
+												<td class="adm-detail-content-cell-r tal">'
+												. \CCurrencyLang::getPriceControl(
+													'<input type="text" class="adm-bus-input-price" name="PAYMENT['.$index.'][SUM]" id="PAYMENT_SUM_'.$index.'" value="'.round($sum, 2).'" '.$disabled.'>',
+													$data['CURRENCY']
+												)
+												. '<br></td>
 											</tr>
 											<tr '.($priceCod > 0 ?: 'style="display: none"').'>
 												<td class="adm-detail-content-cell-l" width="40%">'.Loc::getMessage('SALE_ORDER_PAYMENT_PAYABLE_PRICE_COD').':</td>
-												<td class="adm-detail-content-cell-r tal">
-													<input type="text" class="adm-bus-input-price" name="PAYMENT['.$index.'][PRICE_COD]" id="PAYMENT_PRICE_COD_'.$index.'" value="'.round($priceCod, 2).'" readonly> '.htmlspecialcharsbx($currencyLang).'<br></td>
+												<td class="adm-detail-content-cell-r tal">'
+												. \CCurrencyLang::getPriceControl(
+													'<input type="text" class="adm-bus-input-price" name="PAYMENT['.$index.'][PRICE_COD]" id="PAYMENT_PRICE_COD_'.$index.'" value="'.round($priceCod, 2).'" readonly>',
+													$data['CURRENCY']
+												)
+												. '<br></td>
 											</tr>
 										</tbody>
 									</table>

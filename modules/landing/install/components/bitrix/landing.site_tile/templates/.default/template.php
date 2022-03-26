@@ -183,6 +183,10 @@ $isAjax = $component->isAjax();
 							BX.UI.InfoHelper.show('limit_sites_number');
 							<?endif;?>
 						}
+						else if (errorCode === 'PUBLIC_SITE_REACHED_FREE')
+						{
+							BX.UI.InfoHelper.show('limit_sites_free');
+						}
 						else if (errorCode === 'FREE_DOMAIN_IS_NOT_ALLOWED')
 						{
 							BX.UI.InfoHelper.show('limit_free_domen');
@@ -237,7 +241,7 @@ $isAjax = $component->isAjax();
 				top.BX.onCustomEvent('BX.Landing.Filter:apply');
 			}).catch(function(err)
 			{
-				if (item.domainProvider.length > 0)
+				if (item.domainProvider && item.domainProvider.length > 0)
 				{
 					top.BX.SidePanel.Instance.open(
 						switchDomainPage.replace('#site_edit#', item.id),

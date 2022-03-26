@@ -1,18 +1,19 @@
 <?php
 $MESS["LANDING_TPL_ACTIONS"] = "Aktionen";
 $MESS["LANDING_TPL_ACTION_ADD"] = "Neue Seite";
+$MESS["LANDING_TPL_ACTION_ADD_PAGE"] = "Seite erstellen";
 $MESS["LANDING_TPL_ACTION_COPY"] = "Seite kopieren";
 $MESS["LANDING_TPL_ACTION_COPYLINK"] = "URL kopieren";
-$MESS["LANDING_TPL_ACTION_COPY_TITLE"] = "Seite in die Website kopieren";
 $MESS["LANDING_TPL_ACTION_DELETE"] = "Seite löschen";
 $MESS["LANDING_TPL_ACTION_DELETE_CONFIRM"] = "Möchten Sie die Seite löschen?";
 $MESS["LANDING_TPL_ACTION_DELETE_FOLDER"] = "Ordner löschen";
 $MESS["LANDING_TPL_ACTION_EDIT_2"] = "Seiteneinstellungen";
 $MESS["LANDING_TPL_ACTION_EDIT_DESIGN_2"] = "Seitendesign";
+$MESS["LANDING_TPL_ACTION_EDIT_FOLDER"] = "Seite konfigurieren";
 $MESS["LANDING_TPL_ACTION_FOLDER_UP"] = "Nach oben";
 $MESS["LANDING_TPL_ACTION_GOTO"] = "Seite öffnen";
 $MESS["LANDING_TPL_ACTION_MOVE"] = "Seite verschieben";
-$MESS["LANDING_TPL_ACTION_MOVE_TITLE"] = "Seite auf die Website verschieben";
+$MESS["LANDING_TPL_ACTION_MOVE_FOLDER"] = "Ordner verschieben";
 $MESS["LANDING_TPL_ACTION_PUBLIC"] = "Veröffentlichen";
 $MESS["LANDING_TPL_ACTION_PUBLIC_CHANGED"] = "Änderungen veröffentlichen";
 $MESS["LANDING_TPL_ACTION_REC_CONFIRM"] = "In den Papierkorb verschieben?";

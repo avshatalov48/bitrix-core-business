@@ -122,13 +122,19 @@ class ImageRepository implements ImageRepositoryContract
 		}
 
 		$morePhotoValueCollection = $property->getPropertyValueCollection();
+		$morePhotoIds = $morePhotoValueCollection->getValues();
+		if (empty($morePhotoIds))
+		{
+			return [];
+		}
 		$fields = $this->getList([
 			'filter' => [
-				'=ID' => $morePhotoValueCollection->getValues(),
+				'=ID' => $morePhotoIds,
 			],
 		]);
 
 		$fields = array_combine(array_column($fields, 'ID'), $fields);
+		/** @var \Bitrix\Catalog\v2\PropertyValue\PropertyValue $value */
 		foreach ($morePhotoValueCollection as $value)
 		{
 			$fileId = $value->getValue();

@@ -163,7 +163,7 @@ final class ImportProcess extends Location\Util\Process
 		{
 			if((string) $this->data['LOCAL_PATH'] == '')
 			{
-				list($this->data['LOCAL_PATH'], $created) = $this->getTemporalDirectory();
+				list($this->data['LOCAL_PATH'], $this->data['LOCAL_PATH_CREATED']) = $this->getTemporalDirectory();
 			}
 
 			$opts = $this->options['REQUEST']['OPTIONS'];
@@ -202,8 +202,32 @@ final class ImportProcess extends Location\Util\Process
 			$this->data['inited'] = true;
 		}
 
+		if ($this->data['inited'] && $this->data['LOCAL_PATH_CREATED'])
+		{
+			$this->touchImportTmpFiles((string)$this->data['LOCAL_PATH']);
+		}
+
 		if($timeLimit = intval($this->data['settings']['options']['TIME_LIMIT']))
 			$this->setTimeLimit($timeLimit);
+	}
+
+	/**
+	 * @param string $localPath
+	 */
+	private function touchImportTmpFiles(string $localPath): void
+	{
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator($localPath)
+		);
+		foreach ($iterator as $file) {
+
+			if ($file->isDir())
+			{
+				continue;
+			}
+
+			touch($file->getPathname());
+		}
 	}
 
 	/////////////////////////////////////
@@ -505,7 +529,14 @@ final class ImportProcess extends Location\Util\Process
 		$gid = $this->getCurrentGid();
 
 		// here must decide, which languages to import
-		$langs = array_flip($this->getRequiredLanguages());
+		$langs = array_flip(
+			array_map(
+				function ($value)
+				{
+					return mb_strtoupper($value);
+				},
+				array_keys(Location\Admin\NameHelper::getLanguageList()))
+		);
 
 		foreach($block as $i => $data)
 		{
@@ -1278,7 +1309,7 @@ final class ImportProcess extends Location\Util\Process
 	// download layout from server
 	public function getRemoteLayout($getFlat = false)
 	{
-		list($localPath, $tmpDirCreated) = $this->getTemporalDirectory();
+		[$localPath, $tmpDirCreated] = $this->getTemporalDirectory();
 
 		static::downloadFile(self::REMOTE_LAYOUT_FILE, self::LOCAL_LAYOUT_FILE, false, $localPath);
 
@@ -1317,7 +1348,7 @@ final class ImportProcess extends Location\Util\Process
 	{
 		if(!$this->useCache || !isset($this->data['settings']['remote']['types']))
 		{
-			list($localPath, $tmpDirCreated) = $this->getTemporalDirectory();
+			[$localPath, $tmpDirCreated] = $this->getTemporalDirectory();
 
 			static::downloadFile(self::REMOTE_TYPE_FILE, self::LOCAL_TYPE_FILE, false, $localPath);
 
@@ -1345,7 +1376,7 @@ final class ImportProcess extends Location\Util\Process
 	{
 		if(!$this->useCache || !isset($this->data['settings']['remote']['external_services']))
 		{
-			list($localPath, $tmpDirCreated) = $this->getTemporalDirectory();
+			[$localPath, $tmpDirCreated] = $this->getTemporalDirectory();
 
 			static::downloadFile(self::REMOTE_EXTERNAL_SERVICE_FILE, self::LOCAL_EXTERNAL_SERVICE_FILE, false, $localPath);
 
@@ -1372,7 +1403,7 @@ final class ImportProcess extends Location\Util\Process
 	{
 		if(!$this->useCache || !isset($this->data['settings']['remote']['typeGroups']))
 		{
-			list($localPath, $tmpDirCreated) = $this->getTemporalDirectory();
+			[$localPath, $tmpDirCreated] = $this->getTemporalDirectory();
 
 			static::downloadFile(self::REMOTE_TYPE_GROUP_FILE, self::LOCAL_TYPE_GROUP_FILE, false, $localPath);
 
@@ -1945,7 +1976,7 @@ final class ImportProcess extends Location\Util\Process
 
 			self::cleanWorkDirectory();
 
-			list($localPath, $tmpDirCreated) = $this->getTemporalDirectory();
+			[$localPath, $tmpDirCreated] = $this->getTemporalDirectory();
 			$fileName = $localPath.'/'.static::USER_FILE_TEMP_NAME;
 
 			if(!@copy($_FILES[$inputName]['tmp_name'], $fileName))

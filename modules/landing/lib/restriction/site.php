@@ -7,6 +7,7 @@ use \Bitrix\Main\Entity;
 use \Bitrix\Landing\Domain;
 use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\Site as SiteCore;
+use Bitrix\Main\Loader;
 use \Bitrix\Main\Type\DateTime;
 
 class Site
@@ -22,8 +23,19 @@ class Site
 	private const LIMIT_BY_TEMPLATES_MINIMAL = [
 		'store_v3' => 1,
 		'store-chats' => 1,
-		'%' => 1 // any template
 	];
+
+	/**
+	 * Templates, than no increase common limit
+	 */
+	private const OVER_LIMIT_TEMPLATES = [
+		'store-chats'
+	];
+
+	/**
+	 * names for special templates
+	 */
+	private const NEW_STORE_CODE = 'store_v3';
 
 	/**
 	 * Checks limits by template's limits.
@@ -33,11 +45,9 @@ class Site
 	 */
 	private static function checkLimitByTemplates(array $filter, int $limit): bool
 	{
-		$templates = [];
 		$sites = [];
 		$currentSiteId = null;
-		$templatesLimits = self::LIMIT_BY_TEMPLATES_MINIMAL;
-		$templatesLimits['%'] = max($limit, 1);
+		$currentSiteTemplate = null;
 
 		if (isset($filter['!ID']))
 		{
@@ -75,6 +85,11 @@ class Site
 		}
 
 		// calc templates
+		$templates = [];
+		$templatesCount = 0;
+		$templatesLimits = self::LIMIT_BY_TEMPLATES_MINIMAL;
+		// $templatesLimits['%'] = max($limit, 1);
+		$limit = max($limit, 1);
 		foreach ($sites as $row)
 		{
 			if (!$row['TPL_CODE'])
@@ -85,20 +100,18 @@ class Site
 				}
 			}
 
-			$exactMatch = false;
 			foreach ($templatesLimits as $code => $cnt)
 			{
 				if (strpos($row['TPL_CODE'], $code) === 0)
 				{
-					$exactMatch = true;
 					$row['TPL_CODE'] = $code;
 					break;
 				}
 			}
 
-			if (!$exactMatch)
+			if ($currentSiteId && $currentSiteId === $row['ID'])
 			{
-				$row['TPL_CODE'] = '%';
+				$currentSiteTemplate = $row['TPL_CODE'];
 			}
 
 			if (!($templates[$row['TPL_CODE']] ?? null))
@@ -106,29 +119,70 @@ class Site
 				$templates[$row['TPL_CODE']] = 0;
 			}
 			$templates[$row['TPL_CODE']]++;
+
+			if (!in_array($row['TPL_CODE'], self::OVER_LIMIT_TEMPLATES, true))
+			{
+				$templatesCount++;
+			}
+		}
+
+		// special limit for store v3
+		if (
+			$currentSiteTemplate
+			&& $currentSiteTemplate === self::NEW_STORE_CODE
+			&& self::isNew2021Tariff()
+		)
+		{
+			\CBitrixComponent::includeComponentClass('bitrix:landing.site_master');
+			$optionName = \LandingSiteMasterComponent::getShopInstallCountOptionName($currentSiteTemplate);
+			if ((int)Manager::getOption($optionName, 0) <= 1)
+			{
+				$limit++;
+			}
 		}
 
 		// calc limits
+		if (
+			$currentSiteTemplate
+			&& in_array($row['TPL_CODE'], self::OVER_LIMIT_TEMPLATES, true)
+		)
+		{
+			return true;
+		}
+
 		if ($templates)
 		{
-			foreach ($templates as $code => $cnt)
+			foreach ($templatesLimits as $code => $templateLimit)
 			{
-				if (isset($templatesLimits[$code]))
-				{
-					if ($templatesLimits[$code] < $cnt)
-					{
-						return false;
-					}
-				}
-
-				if ($templatesLimits['%'] < $cnt)
+				if (
+					$templates[$code]
+					&& $templates[$code] > $templateLimit
+				)
 				{
 					return false;
 				}
 			}
 		}
 
+		if ($limit < $templatesCount)
+		{
+			return false;
+		}
+
 		return true;
+	}
+
+	protected static function isNew2021Tariff(): bool
+	{
+		if (!Loader::includeModule('bitrix24'))
+		{
+			return false;
+		}
+
+		return in_array(
+			\CBitrix24::getLicenseType(),
+			['basic', 'std', 'pro']
+		);
 	}
 
 	/**
@@ -139,9 +193,31 @@ class Site
 	 */
 	public static function isCreatingAllowed(string $code, array $params): bool
 	{
-		if (!\Bitrix\Main\Loader::includeModule('bitrix24'))
+		if (!Loader::includeModule('bitrix24'))
 		{
 			return true;
+		}
+
+		if (
+			$params['action_type'] === 'publication'
+			&& Manager::licenseIsFreeSite($params['type'])
+		)
+		{
+			if (!isset($params['filter']['!ID']))
+			{
+				return false;
+			}
+
+			$siteId = $params['filter']['!ID'];
+			$site = SiteCore::getList([
+				'select' => ['ID' , 'DATE_CREATE'],
+				'filter' => ['ID' => $siteId],
+			])->fetch();
+			$dateWhenClosedFree = DateTime::createFromTimestamp('1646238000');  //02.03.2022 16:20:00
+			if ($site['DATE_CREATE']->getTimestamp() >= $dateWhenClosedFree->getTimestamp())
+			{
+				return false;
+			}
 		}
 
 		$optPrefix = 'landing_site_';
@@ -178,7 +254,7 @@ class Site
 				return self::checkLimitByTemplates($filter, $limit);
 			}
 
-			$check = \Bitrix\Landing\Site::getList([
+			$check = SiteCore::getList([
 				'select' => [
 					'CNT' => new Entity\ExpressionField('CNT', 'COUNT(*)')
 				],
@@ -203,7 +279,7 @@ class Site
 	public static function isFreeDomainAllowed(string $code, array $params): bool
 	{
 		// free domain is available in cloud version only
-		if (!\Bitrix\Main\Loader::includeModule('bitrix24'))
+		if (!Loader::includeModule('bitrix24'))
 		{
 			return false;
 		}
@@ -312,7 +388,7 @@ class Site
 	 */
 	public static function isExportAllowed(): bool
 	{
-		if (\Bitrix\Main\Loader::includeModule('bitrix24'))
+		if (Loader::includeModule('bitrix24'))
 		{
 			return Feature::isFeatureEnabled('landing_allow_export');
 		}

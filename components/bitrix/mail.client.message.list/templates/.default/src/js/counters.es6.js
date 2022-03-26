@@ -3,12 +3,64 @@ import { BaseEvent, EventEmitter } from "main.core.events";
 export class Counters
 {
 	counters = [];
-	hiddenCountersForTotalCounter =[];
+	hiddenCountersForTotalCounter = [];
+	shortcuts = [];
 	#name;
+	selectedDirectory;
 
-	constructor(name)
+	constructor(name,selectedDirectory)
 	{
 		this.#name = name;
+		this.setDirectory(selectedDirectory);
+	}
+
+	getDirPath(shortcut)
+	{
+		if(shortcut === undefined)
+		{
+			shortcut = '';
+		}
+
+		if(this.shortcuts[shortcut] !== undefined)
+		{
+			return this.shortcuts[shortcut];
+		}
+
+		return shortcut;
+	}
+
+	getShortcut(path)
+	{
+		//because they have a closure
+		return this.getDirPath(path);
+	}
+
+	setDirectory(name)
+	{
+		if(name === undefined)
+		{
+			name = '';
+		}
+
+		if(this.shortcuts[name])
+		{
+			this.selectedDirectory = this.shortcuts[name];
+		}
+		else
+		{
+			this.selectedDirectory = name;
+		}
+
+		let resultCounters = {};
+		resultCounters[this.selectedDirectory] = this.getCounter(this.selectedDirectory);
+		this.senCounterUpdateEvent(resultCounters);
+	}
+
+	setShortcut(shortcutName,name)
+	{
+		//backlink
+		this.shortcuts[shortcutName] = name;
+		this.shortcuts[name] = shortcutName;
 	}
 
 	getName()
@@ -22,6 +74,15 @@ export class Counters
 		{
 			this.hiddenCountersForTotalCounter[counter] = 'disabled';
 		}
+	}
+
+	isHidden(name):boolean
+	{
+		if(this.hiddenCountersForTotalCounter[name] === 'disabled')
+		{
+			return true;
+		}
+		return false;
 	}
 
 	getTotalCounter()
@@ -64,16 +125,19 @@ export class Counters
 			const counter = counters[i]
 			const path = counter['path'];
 			this.addCounter(path,counter['count']);
-			resultCounters[path] = counter['count'];
+
+			if(this.shortcuts[path])
+			{
+				resultCounters[this.shortcuts[path]] = counter['count'];
+			}
+			else
+			{
+				resultCounters[path] = counter['count'];
+			}
+
 		}
 
-		const event = new BaseEvent({
-			data: {
-				counters: resultCounters,
-				name: this.getName(),
-			}
-		});
-		EventEmitter.emit('BX.Mail.Home:updatingCounters', event);
+		this.senCounterUpdateEvent(resultCounters);
 	}
 
 	/*Set counters as when adding. Old counters with different names are retained*/
@@ -159,15 +223,31 @@ export class Counters
 				this.increaseCounter(name,counter['count'])
 			}
 
-			resultCounters[name] = this.getCounter(name);
+			if(this.shortcuts[name])
+			{
+				resultCounters[this.shortcuts[name]] = this.getCounter(name);
+			}
+			else
+			{
+				resultCounters[name] = this.getCounter(name);
+			}
 		}
 
+		this.senCounterUpdateEvent(resultCounters);
+	}
+
+	senCounterUpdateEvent(counters)
+	{
 		const event = new BaseEvent({
 			data: {
-				counters: resultCounters,
+				counters: counters,
+				hidden: this.hiddenCountersForTotalCounter,
+				selectedDirectory: this.selectedDirectory,
 				name: this.getName(),
 			}
 		});
+
 		EventEmitter.emit('BX.Mail.Home:updatingCounters', event);
 	}
+
 }

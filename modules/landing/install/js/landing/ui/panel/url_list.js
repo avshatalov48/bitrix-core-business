@@ -192,7 +192,7 @@
 						{
 							this.currentSiteButton = new SidebarButton(site.ID, {
 								text: site.TITLE,
-								onClick: this.onSiteClick.bind(this, site.ID, options.enableAreas),
+								onClick: !options.currentSiteOnly ? this.onSiteClick.bind(this, site.ID, options.enableAreas) : null,
 								child: true,
 								active: true
 							});
@@ -202,16 +202,19 @@
 					}, this);
 
 					BX.Landing.Backend.getInstance()
-						.getLandings({siteId: currentSiteId})
+						.getLandings({siteId: currentSiteId}, options.filterLanding)
 						.then(function(landings) {
 							var fakeEvent = {currentTarget: this.currentSiteButton.layout};
 							var siteClick = this.onSiteClick.bind(this, currentSiteId, options.enableAreas, fakeEvent);
-							this.appendCard(
-								new BX.Landing.UI.Card.AddPageCard({
-									siteId: currentSiteId,
-									onSave: this.addPageSave.bind(this, siteClick, currentSiteId)
-								})
-							);
+							if (!options.disableAddPage)
+							{
+								this.appendCard(
+									new BX.Landing.UI.Card.AddPageCard({
+										siteId: currentSiteId,
+										onSave: this.addPageSave.bind(this, siteClick, currentSiteId)
+									})
+								);
+							}
 							landings.forEach(function(landing) {
 								if (!landing.IS_AREA || (landing.IS_AREA && options.enableAreas))
 								{
@@ -274,6 +277,17 @@
 			void style(this.layout, {
 				width: "880px"
 			});
+
+			if (!BX.Type.isPlainObject(options.filter))
+			{
+				options.filter = {
+					SPECIAL: 'N',
+				};
+			}
+			else
+			{
+				options.filter.SPECIAL = 'N';
+			}
 
 			BX.Landing.Backend.getInstance()
 				.getSites(options)

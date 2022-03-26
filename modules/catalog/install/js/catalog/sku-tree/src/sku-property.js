@@ -30,7 +30,7 @@ export default class SkuProperty
 
 	getSelectedSkuId()
 	{
-		return this.parent.getSelectedSku().ID;
+		return this.parent.getSelectedSkuId();
 	}
 
 	hasSkuValues()
@@ -51,7 +51,7 @@ export default class SkuProperty
 		let iconNode = '';
 		if (propertyValue.PICT && propertyValue.PICT.SRC)
 		{
-			let style = "background-image: url('" + propertyValue.PICT.SRC + "');";
+			const style = "background-image: url('" + propertyValue.PICT.SRC + "');";
 			iconNode = Tag.render`<span class="ui-ctl-label-img" style="${style}"></span>`;
 		}
 		else if (nameNode)
@@ -174,7 +174,7 @@ export default class SkuProperty
 
 			if (
 				(this.hideUnselected && selectedSkuProperty !== id)
-				|| !activeSkuProperties.includes(id)
+				|| !activeSkuProperties.includes(item.propertyValueId)
 			)
 			{
 				Dom.style(item.node, {display: 'none'});
@@ -198,14 +198,20 @@ export default class SkuProperty
 
 		const propertyId = Text.toNumber(selectedSkuProperty.getAttribute('data-property-id'));
 		const propertyValue = Text.toNumber(selectedSkuProperty.getAttribute('data-property-value'));
+		const innerText = selectedSkuProperty.querySelector('.ui-ctl-inner');
+		Dom.addClass(innerText, ['ui-ctl-before','ui-ctl-icon-loader']);
 
 		this.parent.setSelectedProperty(propertyId, propertyValue);
-		this.parent.toggleSkuProperties();
 
-		EventEmitter.emit('SkuProperty::onChange', [this.parent.getSelectedSku(), this.property]);
-		if (this.parent)
-		{
-			this.parent.emit('SkuProperty::onChange', [this.parent.getSelectedSku(), this.property]);
-		}
+		this.parent.getSelectedSku().then((selectedSkuData) => {
+			Dom.removeClass(innerText, ['ui-ctl-before','ui-ctl-icon-loader']);
+			EventEmitter.emit('SkuProperty::onChange', [selectedSkuData, this.property]);
+			if (this.parent)
+			{
+				this.parent.emit('SkuProperty::onChange', [selectedSkuData, this.property]);
+			}
+		});
+
+		this.parent.toggleSkuProperties();
 	}
 }

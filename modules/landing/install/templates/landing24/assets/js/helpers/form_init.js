@@ -281,6 +281,13 @@
 					design.color[property] = design.color[property].replace('--primary', primaryColor);
 				}
 			}
+			if (design.color.background !== undefined)
+			{
+				design.color.popupBackground =
+					(design.color.background.length === 9)
+						? design.color.background.slice(0,7) + 'FF'
+						: design.color.background;
+			}
 
 			params.design = Object.assign(params.design, design);
 			return params;

@@ -236,7 +236,7 @@
 
 .bx-im-message-content-reaction {
 	position: relative;
-	z-index: 1;
+	z-index: 10;
 }
 
 .bx-im-message-content-reaction .ui-vue-reaction {

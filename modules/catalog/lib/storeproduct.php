@@ -1,9 +1,9 @@
 <?php
 namespace Bitrix\Catalog;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM;
 
 /**
  * Class StoreProductTable
@@ -14,6 +14,7 @@ Loc::loadMessages(__FILE__);
  * <li> PRODUCT_ID int mandatory
  * <li> AMOUNT double mandatory
  * <li> STORE_ID int mandatory
+ * <li> QUANTITY_RESERVED double optional default 0
  * <li> STORE reference to {@link \Bitrix\Catalog\StoreTable}
  * <li> PRODUCT reference to {@link \Bitrix\Catalog\ProductTable}
  * </ul>
@@ -34,7 +35,7 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Catalog\EO_StoreProduct_Collection wakeUpCollection($rows)
  */
 
-class StoreProductTable extends Main\Entity\DataManager
+class StoreProductTable extends ORM\Data\DataManager
 {
 	/**
 	 * Returns DB table name for entity.
@@ -53,36 +54,52 @@ class StoreProductTable extends Main\Entity\DataManager
 	 */
 	public static function getMap()
 	{
-		return array(
-			'ID' => new Main\Entity\IntegerField('ID', array(
-				'primary' => true,
-				'autocomplete' => true,
-				'title' => Loc::getMessage('STORE_PRODUCT_ENTITY_ID_FIELD')
-			)),
-			'STORE_ID' => new Main\Entity\IntegerField('STORE_ID', array(
-				'required' => true,
-				'title' => Loc::getMessage('STORE_PRODUCT_ENTITY_STORE_ID_FIELD')
-			)),
-			'PRODUCT_ID' => new Main\Entity\IntegerField('PRODUCT_ID', array(
-				'required' => true,
-				'title' => Loc::getMessage('STORE_PRODUCT_ENTITY_PRODUCT_ID_FIELD')
-			)),
-			'AMOUNT' => new Main\Entity\FloatField('AMOUNT', array(
-				'title' => Loc::getMessage('STORE_PRODUCT_ENTITY_AMOUNT_FIELD')
-			)),
-			'STORE' => new Main\Entity\ReferenceField(
-				'STORE',
-				'\Bitrix\Catalog\Store',
-				array('=this.STORE_ID' => 'ref.ID'),
-				array('join_type' => 'LEFT')
+		return [
+			'ID' => new ORM\Fields\IntegerField(
+				'ID',
+				[
+					'primary' => true,
+					'autocomplete' => true,
+					'title' => Loc::getMessage('STORE_PRODUCT_ENTITY_ID_FIELD'),
+				]
 			),
-			'PRODUCT' => new Main\Entity\ReferenceField(
+			'STORE_ID' => new ORM\Fields\IntegerField(
+				'STORE_ID',
+				[
+					'required' => true,
+					'title' => Loc::getMessage('STORE_PRODUCT_ENTITY_STORE_ID_FIELD'),
+				]
+			),
+			'PRODUCT_ID' => new ORM\Fields\IntegerField(
+				'PRODUCT_ID',
+				[
+					'required' => true,
+					'title' => Loc::getMessage('STORE_PRODUCT_ENTITY_PRODUCT_ID_FIELD'),
+				]
+			),
+			'AMOUNT' => new ORM\Fields\FloatField(
+				'AMOUNT',
+				[
+					'title' => Loc::getMessage('STORE_PRODUCT_ENTITY_AMOUNT_FIELD'),
+				]
+			),
+			'QUANTITY_RESERVED' => new ORM\Fields\FloatField(
+				'QUANTITY_RESERVED',
+				[
+					'title' => Loc::getMessage('STORE_PRODUCT_ENTITY_QUANTITY_RESERVED_FIELD'),
+				],
+			),
+			'STORE' => new ORM\Fields\Relations\Reference(
+				'STORE',
+				StoreTable::class,
+				ORM\Query\Join::on('this.STORE_ID', 'ref.ID')
+			),
+			'PRODUCT' => new ORM\Fields\Relations\Reference(
 				'PRODUCT',
-				'\Bitrix\Catalog\Product',
-				array('=this.PRODUCT_ID' => 'ref.ID'),
-				array('join_type' => 'LEFT')
-			)
-		);
+				ProductTable::class,
+				ORM\Query\Join::on('this.PRODUCT_ID', 'ref.ID')
+			),
+		];
 	}
 
 	/**
@@ -92,16 +109,18 @@ class StoreProductTable extends Main\Entity\DataManager
 	 * @param int $id       Product id.
 	 * @return void
 	 */
-	public static function deleteByProduct($id)
+	public static function deleteByProduct(int $id): void
 	{
-		$id = (int)$id;
 		if ($id <= 0)
+		{
 			return;
+		}
 
 		$conn = Main\Application::getConnection();
 		$helper = $conn->getSqlHelper();
 		$conn->queryExecute(
-			'delete from '.$helper->quote(self::getTableName()).' where '.$helper->quote('PRODUCT_ID').' = '.$id
+			'delete from ' . $helper->quote(self::getTableName())
+			. ' where ' . $helper->quote('PRODUCT_ID') . ' = ' . $id
 		);
 		unset($helper, $conn);
 	}

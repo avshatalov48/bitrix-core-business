@@ -170,35 +170,7 @@ this.BX = this.BX || {};
 	  return Widget;
 	}();
 
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-common-widget-item\" ", ">\n\t\t\t\t<div class=\"sonet-common-widget-item-container\">\n\t\t\t\t\t<div class=\"sonet-common-widget-icon ui-icon ui-icon-service-light-roles-rights\"><i></i></div>\n\t\t\t\t\t<div class=\"sonet-common-widget-item-content\">\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-title\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-common-widget-item\">\n\t\t\t\t<div class=\"sonet-common-widget-item-container\">\n\t\t\t\t\t<div class=\"sonet-common-widget-icon ui-icon ui-icon-common-light-company\"><i></i></div>\n\t\t\t\t\t<div class=\"sonet-common-widget-item-content\">\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-title\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-common-widget-item\">\n\t\t\t\t<div class=\"sonet-common-widget-item-container\">\n\t\t\t\t\t<div class=\"", "\">", "</div>\n\t\t\t\t\t<div class=\"sonet-common-widget-item-content\">\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-title\">", "</div>\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-description\">", "</div>\t\t\t\t\t\t\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3;
 	var WorkgroupWidget = /*#__PURE__*/function (_Widget) {
 	  babelHelpers.inherits(WorkgroupWidget, _Widget);
 
@@ -301,7 +273,7 @@ this.BX = this.BX || {};
 	        classList.push('ui-icon-common-user-group');
 	      }
 
-	      var node = main_core.Tag.render(_templateObject(), classList.join(' '), avatar, title, description);
+	      var node = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-common-widget-item\">\n\t\t\t\t<div class=\"sonet-common-widget-item-container\">\n\t\t\t\t\t<div class=\"", "\">", "</div>\n\t\t\t\t\t<div class=\"sonet-common-widget-item-content\">\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-title\">", "</div>\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-description\">", "</div>\t\t\t\t\t\t\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), classList.join(' '), avatar, title, description);
 	      main_core.Event.bind(node, 'click', function () {
 	        if (!main_core.Type.isStringFilled(_this2.urls.card)) {
 	          return;
@@ -321,7 +293,7 @@ this.BX = this.BX || {};
 	    value: function renderMembers() {
 	      var _this3 = this;
 
-	      var node = main_core.Tag.render(_templateObject2(), main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_MEMBERS_TITLE'));
+	      var node = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-common-widget-item\">\n\t\t\t\t<div class=\"sonet-common-widget-item-container\">\n\t\t\t\t\t<div class=\"sonet-common-widget-icon ui-icon ui-icon-common-light-company\"><i></i></div>\n\t\t\t\t\t<div class=\"sonet-common-widget-item-content\">\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-title\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_MEMBERS_TITLE'));
 	      main_core.Event.bind(node, 'click', function () {
 	        if (!main_core.Type.isStringFilled(_this3.urls.members)) {
 	          return;
@@ -343,7 +315,7 @@ this.BX = this.BX || {};
 
 	      var canOpen = main_core.Type.isBoolean(this.perms.canModify) && this.perms.canModify;
 	      var hint = !canOpen ? "data-hint=\"".concat(main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ROLES_TITLE_NO_PERMISSIONS'), "\" data-hint-no-icon") : '';
-	      var node = main_core.Tag.render(_templateObject3(), hint, main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ROLES_TITLE'));
+	      var node = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-common-widget-item\" ", ">\n\t\t\t\t<div class=\"sonet-common-widget-item-container\">\n\t\t\t\t\t<div class=\"sonet-common-widget-icon ui-icon ui-icon-service-light-roles-rights\"><i></i></div>\n\t\t\t\t\t<div class=\"sonet-common-widget-item-content\">\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-title\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), hint, main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ROLES_TITLE'));
 	      main_core.Event.bind(node, 'click', function () {
 	        if (!canOpen || !main_core.Type.isStringFilled(_this4.urls.features)) {
 	          return;
@@ -590,7 +562,7 @@ this.BX = this.BX || {};
 	          menu.push({
 	            text: itemTitle,
 	            title: itemTitle,
-	            href: params.urls.delete
+	            href: params.urls["delete"]
 	          });
 	        }
 
@@ -642,11 +614,13 @@ this.BX = this.BX || {};
 	            copyGroupItem.href = params.urls.copy;
 	          } else {
 	            copyGroupItem.onclick = function () {
-	              if (!!params.isProject) {
-	                BX.UI.InfoHelper.show('limit_task_copy_project');
-	              } else {
-	                BX.UI.InfoHelper.show('limit_task_copy_group');
-	              }
+	              BX.UI.InfoHelper.show(!!params.isProject ? 'limit_task_copy_project' : 'limit_task_copy_group', {
+	                isLimit: true,
+	                limitAnalyticsLabels: {
+	                  module: 'socialnetwork',
+	                  source: 'projectCardActions'
+	                }
+	              });
 	            };
 	          }
 
@@ -783,7 +757,7 @@ this.BX = this.BX || {};
 	        }
 	      }).then(function (response) {
 	        params.callback.success(response.data);
-	      }).catch(function (response) {
+	      })["catch"](function (response) {
 	        params.callback.failure({
 	          ERROR: response.errors[0].message
 	        });

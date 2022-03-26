@@ -1,10 +1,17 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
+/** @var CBitrixComponent $component */
 
 use Bitrix\Main\Localization\Loc;
 
@@ -30,7 +37,7 @@ if (!CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $userId, 'tasks'))
 		]
 	);
 }
-elseif (\CModule::IncludeModule('tasks'))
+elseif (CModule::IncludeModule('tasks'))
 {
 	$userReplace = ['user_id' => $userId];
 

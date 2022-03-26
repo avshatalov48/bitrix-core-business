@@ -39,7 +39,7 @@ class Department
 		$departmentTree = \CIntranetUtils::GetDeparmentsTree(0);
 		$topDepartmentId = self::getTopDepartmentId();
 
-		if (!$topDepartmentId || empty($departmentTree))
+		if (!$topDepartmentId || empty($departmentTree) || !$this->id)
 		{
 			return [];
 		}
@@ -47,7 +47,7 @@ class Department
 		$path[] = $this->id;
 		$departmentId = $this->id;
 
-		while ($departmentId != $topDepartmentId)
+		while ($departmentId && $departmentId != $topDepartmentId)
 		{
 			$departmentId = $this->getHeadDepartmentId($departmentId, $departmentTree) ?? $topDepartmentId;
 			$path[] = $departmentId;

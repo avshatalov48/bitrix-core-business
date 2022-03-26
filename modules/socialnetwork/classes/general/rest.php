@@ -1799,6 +1799,8 @@ class CSocNetLogRestService extends IRestService
 				: self::getCurrentUserId()
 		);
 
+		Workgroup::mutateScrumFormFields($fields);
+
 		$groupId = CSocNetGroup::createGroup($ownerId, $fields, false);
 
 		if ($groupId <= 0)

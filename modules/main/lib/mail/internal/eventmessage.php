@@ -19,9 +19,9 @@ use Bitrix\Main\Type as Type;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_EventMessage_Query query()
- * @method static EO_EventMessage_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EventMessage_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_EventMessage_Result getById($id)
- * @method static EO_EventMessage_Result getList(array $parameters = array())
+ * @method static EO_EventMessage_Result getList(array $parameters = [])
  * @method static EO_EventMessage_Entity getEntity()
  * @method static \Bitrix\Main\Mail\Internal\EO_EventMessage createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\Mail\Internal\EO_EventMessage_Collection createCollection()

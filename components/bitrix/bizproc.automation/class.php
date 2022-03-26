@@ -12,7 +12,7 @@ Main\UI\Extension::load('ui.alerts');
 
 Loc::loadMessages(__FILE__);
 
-class BizprocAutomationComponent extends \CBitrixComponent
+class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Base
 {
 	protected function getDocumentType()
 	{
@@ -26,7 +26,7 @@ class BizprocAutomationComponent extends \CBitrixComponent
 
 	private function getStatusesEditUrl()
 	{
-		return isset($this->arParams['STATUSES_EDIT_URL']) ? $this->arParams['STATUSES_EDIT_URL'] : null;
+		return isset($this->arParams['STATUSES_EDIT_URL']) ? $this->arParams['STATUSES_EDIT_URL'] : '';
 	}
 
 	private function getWorkflowEditUrl()
@@ -102,6 +102,11 @@ class BizprocAutomationComponent extends \CBitrixComponent
 		return array_values($relation);
 	}
 
+	protected function getIsTemplatesSchemeSupported(): bool
+	{
+		return $this->arParams['IS_TEMPLATES_SCHEME_SUPPORTED'] ?? false;
+	}
+
 	protected function prepareTemplateForView()
 	{
 		$template = $this->getTemplateInfo();
@@ -162,74 +167,6 @@ class BizprocAutomationComponent extends \CBitrixComponent
 		}
 
 		return $list;
-	}
-
-	public static function getTemplateViewData(array $template, $documentType)
-	{
-		foreach ($template['ROBOTS'] as $i => $robot)
-		{
-			$template['ROBOTS'][$i]['viewData'] = self::getRobotViewData($robot, $documentType);
-		}
-		return $template;
-	}
-
-	public static function getRobotViewData($robot, array $documentType)
-	{
-		$availableRobots = \Bitrix\Bizproc\Automation\Engine\Template::getAvailableRobots($documentType);
-		$result = array(
-			'responsibleLabel' => '',
-			'responsibleUrl' => '',
-			'responsibleId' => 0,
-		);
-
-		$type = mb_strtolower($robot['Type']);
-		if (isset($availableRobots[$type]) && isset($availableRobots[$type]['ROBOT_SETTINGS']))
-		{
-			$settings = $availableRobots[$type]['ROBOT_SETTINGS'];
-
-			if ($settings['RESPONSIBLE_TO_HEAD'] && $robot['Properties'][$settings['RESPONSIBLE_TO_HEAD']] == 'Y')
-			{
-				$result['responsibleLabel'] = Loc::getMessage('BIZPROC_AUTOMATION_TO_HEAD');
-			}
-
-			if (isset($settings['RESPONSIBLE_PROPERTY']))
-			{
-				$users = self::getUsersFromResponsibleProperty($robot, $settings['RESPONSIBLE_PROPERTY']);
-				$usersLabel = CBPHelper::UsersArrayToString($users, [], $documentType, false);
-
-				if ($result['responsibleLabel'] && $usersLabel)
-				{
-					$result['responsibleLabel'] .= ', ';
-				}
-				$result['responsibleLabel'] .= $usersLabel;
-
-				if ($users && count($users) == 1 && $users[0] && mb_strpos($users[0], 'user_') === 0)
-				{
-					$id = (int) \CBPHelper::StripUserPrefix($users[0]);
-					$result['responsibleUrl'] = CComponentEngine::MakePathFromTemplate(
-						'/company/personal/user/#user_id#/',
-						array('user_id' => $id)
-					);
-					$result['responsibleId'] = $id;
-				}
-			}
-		}
-		return $result;
-	}
-
-	private static function getUsersFromResponsibleProperty(array $robot, $propertyName)
-	{
-		$value = null;
-		$props = $robot['Properties'];
-		$path = explode('.', $propertyName);
-
-		foreach ($path as $chain)
-		{
-			$value = ($props && is_array($props) && isset($props[$chain])) ? $props[$chain] : null;
-			$props = $value;
-		}
-
-		return $value ? (array)$value : null;
 	}
 
 	public function executeComponent()
@@ -380,14 +317,18 @@ class BizprocAutomationComponent extends \CBitrixComponent
 			'DOCUMENT_ID' => $documentId,
 			'DOCUMENT_CATEGORY_ID' => $documentCategoryId,
 			'DOCUMENT_SIGNED' => static::signDocument($documentType, $documentCategoryId, $documentId),
+			'DOCUMENT_TYPE_SIGNED' => CBPDocument::signDocumentType($documentType),
 			'ENTITY_NAME' => $documentService->getEntityName($documentType[0], $documentType[1]),
-			'STATUSES' => $statusList,
+			'STATUSES' => $this->prepareStatusList($statusList),
 			'TEMPLATES' => $target ? $this->getTemplates(array_keys($statusList)) : [$this->prepareTemplateForView()],
+			'IS_TEMPLATES_SCHEME_SUPPORTED' => $this->getIsTemplatesSchemeSupported(),
 			'TRIGGERS' => $triggers,
 			'AVAILABLE_TRIGGERS' => $target ? $target->getAvailableTriggers() : [],
 			'AVAILABLE_ROBOTS' => array_values($availableRobots),
-			'GLOBAL_CONSTANTS' => \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll(),
-			'GLOBAL_VARIABLES' => \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll(),
+			'GLOBAL_CONSTANTS' => \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll($documentType),
+			'G_CONSTANTS_VISIBILITY' => \Bitrix\Bizproc\Workflow\Type\GlobalConst::getVisibilityFullNames($documentType),
+			'GLOBAL_VARIABLES' => \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll($documentType),
+			'G_VARIABLES_VISIBILITY' => \Bitrix\Bizproc\Workflow\Type\GlobalVar::getVisibilityFullNames($documentType),
 			'DOCUMENT_FIELDS' => $this->getDocumentFields(),
 			'LOG' => $log,
 			'WORKFLOW_EDIT_URL' => $this->getWorkflowEditUrl(),
@@ -413,10 +354,7 @@ class BizprocAutomationComponent extends \CBitrixComponent
 
 	public static function signDocument(array $documentType, $documentCategoryId, $documentId)
 	{
-		$signer = new Main\Security\Sign\Signer;
-		$jsonData = Main\Web\Json::encode([$documentType, $documentCategoryId, $documentId]);
-
-		return $signer->sign($jsonData, 'bizproc.automation.document');
+		return CBPDocument::signParameters([$documentType, $documentCategoryId, $documentId]);
 	}
 
 	/**
@@ -425,19 +363,7 @@ class BizprocAutomationComponent extends \CBitrixComponent
 	 */
 	public static function unSignDocument($unsignedData)
 	{
-		$signer = new Main\Security\Sign\Signer;
-
-		try
-		{
-			$unsigned = $signer->unsign($unsignedData, 'bizproc.automation.document');
-			$result = Main\Web\Json::decode($unsigned);
-		}
-		catch (\Exception $e)
-		{
-			$result = array();
-		}
-
-		return $result;
+		return CBPDocument::unSignParameters($unsignedData);
 	}
 
 	/**
@@ -526,5 +452,17 @@ HTML;
 				'#VAL#' => \CBPHelper::FormatTimePeriod($delayMinLimit)
 			]);
 		}
+	}
+
+	private function prepareStatusList(array $list): array
+	{
+		foreach ($list as $id => $info)
+		{
+			if (!isset($info['STATUS_ID']))
+			{
+				$list[$id]['STATUS_ID'] = $id;
+			}
+		}
+		return $list;
 	}
 }

@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Bizproc\FieldType;
 use Bitrix\Main;
 
@@ -1213,6 +1214,26 @@ EOS;
 		}
 
 		return null;
+	}
+
+	public function getDocumentTypeCaption($parameterDocumentType)
+	{
+		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
+
+		if ($moduleId)
+		{
+			CModule::IncludeModule($moduleId);
+		}
+
+		if (class_exists($entity))
+		{
+			if (method_exists($entity, 'getDocumentTypeCaption'))
+			{
+				return call_user_func_array([$entity, 'getDocumentTypeCaption'], [$documentType]);
+			}
+		}
+
+		return $this->getDocumentTypeName($parameterDocumentType);
 	}
 
 	public function getDocumentIcon($parameterDocumentId)

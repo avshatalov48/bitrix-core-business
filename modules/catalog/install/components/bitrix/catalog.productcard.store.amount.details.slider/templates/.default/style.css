@@ -1,0 +1,60 @@
+.store-amount-sku-image {
+	width: 32px;
+	height: 32px;
+	min-width: 28px;
+	border-radius: 50%;
+	object-position: center;
+	object-fit: contain;
+	overflow: hidden;
+	display: block;
+	margin-right: 5px;
+}
+
+.store-amount-sku-data-container {
+	display: flex;
+}
+
+.store-amount-sku-container {
+	padding: 20px;
+	background: #fff;
+}
+
+.store-amount-wrapper {
+	background: #eef2f4;
+}
+
+.store-amount-wrapper .store-amount-sku-container:not(:last-child) {
+	margin-bottom: 10px;
+}
+
+.store-amount-sku-price-and-properties-container {
+	font-size: 12px;
+}
+
+.store-amount-sku-properties {
+	color: #979797;
+}
+
+.store-amount-store-name {
+	margin-top: 0;
+	margin-bottom: 2px;
+	color: #979797;
+}
+
+.store-amount-store-data-container {
+	margin-top: 15px;
+}
+
+.store-amount-store-quantity {
+	font-size: 13px;
+}
+
+.store-amount-store-quantities-container .store-amount-store-quantity:not(:last-child)::after {
+	content: '|';
+	color: #979797;
+	padding-left: 10px;
+}
+
+.store-amount-store-quantities-container .store-amount-store-quantity:not(:first-child) {
+	padding-left: 10px;
+}

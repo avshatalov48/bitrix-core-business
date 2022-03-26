@@ -10,7 +10,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 		// Prevent loading page without header and footer
 		if (window === window.top)
 		{
-			window.location = "<?= \CUtil::JSEscape($APPLICATION->GetCurPageParam('', array('IFRAME')));?>";
+			window.location = "<?= \CUtil::JSEscape($APPLICATION->GetCurPageParam('', array('IFRAME', 'IFRAME_TYPE')));?>";
 		}
 	</script>
 	<?$APPLICATION->ShowHead();?>
@@ -23,6 +23,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 			</div>
 			<div class="landing-slider-pagetitle">
 				<span id="pagetitle" class="landing-slider-pagetitle-item"><?$APPLICATION->ShowTitle(false);?></span>
+				<div class="landing-slider-pagetitle-actions"><?$APPLICATION->ShowViewContent('title_actions');?></div>
 			</div>
 		</div>
 	</div>

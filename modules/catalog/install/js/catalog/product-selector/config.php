@@ -10,20 +10,36 @@ if (\Bitrix\Main\Loader::includeModule('catalog'))
 	$limitInfo = \Bitrix\Catalog\Config\State::getCrmExceedingProductLimit();
 }
 
+$isInstallMobileApp = (bool)\CUserOptions::GetOption('mobile', 'iOsLastActivityDate')
+	|| (bool)\CUserOptions::GetOption('mobile', 'AndroidLastActivityDate')
+;
+$isEnabledQrAuth = $isInstallMobileApp || (bool)\CUserOptions::GetOption('product-selector', 'barcodeQrAuth');
+$isShowedBarcodeSpotlightInfo = \CUserOptions::GetOption('spotlight', 'view_date_selector_barcode_scanner_info');
+
 return [
 	'css' => 'dist/product-selector.bundle.css',
 	'js' => 'dist/product-selector.bundle.js',
 	'rel' => [
-		'catalog.sku-tree',
-		'ui.entity-selector',
-		'ui.info-helper',
-		'main.core.events',
-		'catalog.product-selector',
-		'main.core',
 		'ui.forms',
+		'catalog.sku-tree',
+		'main.loader',
+		'ui.info-helper',
+		'ui.entity-selector',
+		'catalog.product-model',
+		'catalog.product-selector',
+		'catalog.barcode-scanner',
+		'ui.notification',
+		'main.core',
+		'main.core.events',
+		'ui.qrauthorization',
+		'spotlight',
+		'ui.tour',
 	],
 	'skip_core' => false,
 	'settings' => [
 		'limitInfo' => $limitInfo,
+		'isInstallMobileApp' => $isInstallMobileApp,
+		'isEnabledQrAuth' => $isEnabledQrAuth,
+		'isShowedBarcodeSpotlightInfo' => $isShowedBarcodeSpotlightInfo,
 	],
 ];

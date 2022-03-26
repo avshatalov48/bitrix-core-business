@@ -47,17 +47,39 @@ export class ProductField extends BaseField
 	getValue()
 	{
 		return this.getProducts().reduce((acc, item) => {
-			if (!Type.isNil(item.fields.productId))
+			if (!Type.isNil(item.offerId) || !Type.isNil(item.fields.productId))
 			{
+				const pics = [];
+				if (item.image && item.image.path)
+				{
+					pics.push(item.image.path);
+				}
+				else if (item.image && item.image.preview)
+				{
+					let ic = document.createElement('div');
+					ic.innerHTML = item.image.preview;
+					ic = ic.querySelector('img');
+					if (ic && ic.src)
+					{
+						pics.push(ic.src);
+					}
+				}
+
+				const value = item.offerId || item.fields.productId;
+				if (acc.some(item => item.value === value))
+				{
+					return acc;
+				}
+
 				acc.push({
 					label: item.fields.name,
 					changeablePrice: false,
 					discount: item.fields.discount,
-					pics: [],
+					pics,
 					price: item.fields.price,
 					quantity: [],
 					selected: false,
-					value: item.fields.productId,
+					value,
 				});
 			}
 

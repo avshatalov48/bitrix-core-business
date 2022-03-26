@@ -2,6 +2,7 @@
 namespace Bitrix\Landing\Copy\Integration;
 
 use Bitrix\Landing;
+use Bitrix\Landing\Folder;
 use Bitrix\Landing\Hook;
 use Bitrix\Main\ArgumentOutOfRangeException;
 use Bitrix\Main\Config\Option;
@@ -50,7 +51,26 @@ class Group implements Feature
 			return;
 		}
 		/** @var AddResult $addSiteResult */
-		$copiedSiteId = $addSiteResult->getId();
+		$copiedSiteId = (int) $addSiteResult->getId();
+
+		// copy folders
+		$folderMapIds = [];
+		Landing\Site::copyFolders($siteId, $copiedSiteId, $folderMapIds);
+
+		$folderIndexIds = [];
+		$res = Folder::getList([
+			'select' => [
+				'ID', 'INDEX_ID'
+			],
+			'filter' => [
+				'SITE_ID' => $siteId,
+				'!INDEX_ID' => null
+			]
+		]);
+		while ($row = $res->fetch())
+		{
+			$folderIndexIds[$row['ID']] = $row['INDEX_ID'];
+		}
 
 		$this->addToQueue($copiedGroupId);
 
@@ -62,6 +82,8 @@ class Group implements Feature
 			"copiedGroupId" => $copiedGroupId,
 			"siteId" => $siteId,
 			"copiedSiteId" => $copiedSiteId,
+			"folderMapIds" => $folderMapIds,
+			"folderIndexIds" => $folderIndexIds
 		];
 		Option::set(self::MODULE_ID, self::STEPPER_OPTION.$copiedGroupId, serialize($dataToCopy));
 

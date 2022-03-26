@@ -52,6 +52,12 @@ $tabs = [
 		'enabled' => true,
 		'active' => true,
 	],
+	[
+		'id' => 'balance',
+		'name' => Loc::getMessage('CPVD_TAB_BALANCE_TITLE'),
+		'enabled' => true,
+		'active' => false,
+	]
 	// [
 	// 	'id' => 'seo',
 	// 	'name' => 'SEO',
@@ -96,6 +102,7 @@ $tabContainerId = "{$guid}_tabs";
 				creationPropertyUrl: '<?=CUtil::JSEscape($arResult['UI_CREATION_PROPERTY_URL'])?>',
 				serviceUrl: '<?=CUtil::JSEscape($arResult['SERVICE_URL'])?>',
 				variationGridId: '<?=CUtil::JSEscape($arResult['VARIATION_GRID_ID'])?>',
+				productStoreGridId: '<?=CUtil::JSEscape($arResult['STORE_AMOUNT_GRID_ID'])?>',
 
 				creationVariationPropertyUrl: '<?=CUtil::JSEscape($arResult['UI_CREATION_SKU_PROPERTY_URL'])?>',
 			}

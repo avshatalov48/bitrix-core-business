@@ -774,9 +774,7 @@ class CBPTaskResult extends CDBResult
 		{
 			if ($res["DESCRIPTION"] <> '')
 			{
-				//$res["DESCRIPTION"] = CBPHelper::convertBBtoText($res["DESCRIPTION"]);
-				//fallback
-				$res["DESCRIPTION"] = $this->ConvertBBCode($res["DESCRIPTION"]);
+				$res["DESCRIPTION"] = CBPHelper::convertBBtoText($res["DESCRIPTION"]);
 			}
 		}
 

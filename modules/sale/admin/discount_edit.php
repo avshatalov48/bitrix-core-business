@@ -78,7 +78,7 @@ if ($adminSidePanelHelper->isPublicSidePanel()
 else
 {
 	$discountGroupsToShow = Main\GroupTable::getList(array(
-		'select' => array('ID', 'NAME'),
+		'select' => array('ID', 'NAME', 'C_SORT'),
 		'order' => array('C_SORT' => 'ASC', 'ID' => 'ASC')
 	))->fetchAll();
 }
@@ -102,9 +102,6 @@ if (
 				'name' => \Bitrix\Sale\Helpers\Admin\OrderEdit::getUserName($userId),
 			));
 			CMain::FinalActions();
-			die;
-
-			break;
 	}
 }
 
@@ -540,7 +537,7 @@ $siteIterator = Main\SiteTable::getList(array(
 ));
 while ($site = $siteIterator->fetch())
 {
-	$saleSite = (string)Main\Config\Option::get('sale', 'SHOP_SITE_'.$site['LID']);
+	$saleSite = Main\Config\Option::get('sale', 'SHOP_SITE_'.$site['LID']);
 	if ($site['LID'] == $saleSite || $site['LID'] == $arDiscount['LID'])
 		$arSiteList[$site['LID']] = '('.$site['LID'].') '.$site['NAME'];
 }

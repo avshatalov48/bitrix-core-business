@@ -15,6 +15,7 @@ use Bitrix\Iblock\ElementTable;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Iblock\Url\AdminPage\BuilderManager;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Fields\BooleanField;
@@ -47,6 +48,9 @@ abstract class BaseForm
 	protected const CONTROL_NAME_WITH_CODE = 'name-code';
 	protected const CONTROL_IBLOCK_SECTION = 'iblock_section';
 
+	public const SCOPE_SHOP = 'shop';
+	public const SCOPE_CRM = 'crm';
+
 	/** @var \Bitrix\Catalog\v2\BaseIblockElementEntity */
 	protected $entity;
 	/** @var array */
@@ -57,15 +61,101 @@ abstract class BaseForm
 	/** @var array|null */
 	protected $propertyDescriptions;
 
-	/** @var null|Url\ShopBuilder */
+	/** @var null|Url\ShopBuilder|Url\InventoryBuilder|Crm\Product\Url\ProductBuilder */
 	protected $urlBuilder;
+
+	protected $crmIncluded;
 
 	public function __construct(BaseIblockElementEntity $entity, array $params = [])
 	{
-		$this->entity = $entity;
-		$this->params = $params;
+		$this->crmIncluded = Loader::includeModule('crm');
 
-		$this->urlBuilder = BuilderManager::getInstance()->getBuilder(Url\ShopBuilder::TYPE_ID);
+		$this->entity = $entity;
+		$this->params = $this->getPreparedParams($params);
+
+		$this->initUrlBuilder();
+	}
+
+	protected function getPreparedParams(array $params): array
+	{
+		$allowedBuilderTypes = [
+			Url\ShopBuilder::TYPE_ID,
+			Url\InventoryBuilder::TYPE_ID,
+		];
+		$allowedScopeList = [
+			self::SCOPE_SHOP,
+		];
+		if ($this->crmIncluded)
+		{
+			$allowedBuilderTypes[] = Crm\Product\Url\ProductBuilder::TYPE_ID;
+			$allowedScopeList[] = self::SCOPE_CRM;
+		}
+
+		$params['BUILDER_CONTEXT'] = (string)($params['BUILDER_CONTEXT'] ?? '');
+		if (!in_array($params['BUILDER_CONTEXT'], $allowedBuilderTypes, true))
+		{
+			$params['BUILDER_CONTEXT'] = Url\ShopBuilder::TYPE_ID;
+		}
+
+		$params['SCOPE'] = (string)($params['SCOPE'] ?? '');
+		if ($params['SCOPE'] === '')
+		{
+			$params['SCOPE'] = $this->getScopeByUrl();
+		}
+
+		if (!in_array($params['SCOPE'], $allowedScopeList))
+		{
+			$params['SCOPE'] = self::SCOPE_SHOP;
+		}
+
+		return $params;
+	}
+
+	protected function getScopeByUrl(): string
+	{
+		$result = '';
+
+		$currentPath = Context::getCurrent()->getRequest()->getRequestUri();
+		if (strncmp($currentPath, '/shop/', 6) === 0)
+		{
+			$result = self::SCOPE_SHOP;
+		}
+		elseif ($this->crmIncluded)
+		{
+			if (strncmp($currentPath, '/crm/', 5) === 0)
+			{
+				$result = self::SCOPE_CRM;
+			}
+		}
+
+		return $result;
+	}
+
+	protected function initUrlBuilder(): void
+	{
+		$this->urlBuilder = BuilderManager::getInstance()->getBuilder($this->params['BUILDER_CONTEXT']);
+	}
+
+	public function isCardAllowed(): bool
+	{
+		switch ($this->params['SCOPE'])
+		{
+			case self::SCOPE_SHOP:
+				$result = \Bitrix\Catalog\Config\State::isProductCardSliderEnabled();
+				break;
+			case self::SCOPE_CRM:
+				$result = false;
+				if ($this->crmIncluded)
+				{
+					$result = Crm\Settings\LayoutSettings::getCurrent()->isFullCatalogEnabled();
+				}
+				break;
+			default:
+				$result = false;
+				break;
+		}
+
+		return $result;
 	}
 
 	protected function prepareFieldName(string $name): string
@@ -194,6 +284,31 @@ abstract class BaseForm
 				'desc' => Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_' . $setting . '_DESC'),
 				'action' => isset($gridColumnSettings[$setting]) ? 'grid' : 'card',
 				'columns' => $gridColumnSettings[$setting] ?? null,
+			];
+		}
+
+		$sliderPath = \CComponentEngine::makeComponentPath('bitrix:catalog.warehouse.master.clear');
+		$sliderPath = getLocalPath('components' . $sliderPath . '/slider.php');
+
+		if(UseStore::isUsed())
+		{
+			$items[] = [
+				'id' => 'WAREHOUSE',
+				'checked' => true,
+				'title' => Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_WAREHOUSE_TITLE'),
+				'desc' => '',
+				'action' => 'grid',
+			];
+		}
+		else
+		{
+			$items[] = [
+				'id' => 'SLIDER',
+				'checked' => false,
+				'title' => Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_WAREHOUSE_TITLE'),
+				'desc' => '',
+				'url' => $sliderPath,
+				'action' => 'slider',
 			];
 		}
 
@@ -344,6 +459,17 @@ abstract class BaseForm
 				}
 				else
 				{
+					if (
+						$propertySettings['USER_TYPE'] === 'FileMan'
+						|| $propertySettings['USER_TYPE'] === 'DiskFile'
+					)
+					{
+						$value = [
+							'VALUE' => null,
+							'DESCRIPTION' => '',
+						];
+					}
+
 					$params = [
 						'SETTINGS' => $propertySettings,
 						'VALUE' => $value,
@@ -1110,7 +1236,10 @@ abstract class BaseForm
 
 		foreach ($this->entity->getPropertyCollection() as $property)
 		{
-			$propertyDescriptions[] = $this->getPropertyDescription($property);
+			if ($property->isActive())
+			{
+				$propertyDescriptions[] = $this->getPropertyDescription($property);
+			}
 		}
 
 		return $propertyDescriptions;

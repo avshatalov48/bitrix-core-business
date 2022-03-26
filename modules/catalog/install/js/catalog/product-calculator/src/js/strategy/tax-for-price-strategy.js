@@ -15,7 +15,7 @@ export class TaxForPriceStrategy
 
 	getFieldStorage(): FieldStorage
 	{
-		return new FieldStorage(this.calculator.getFields());
+		return new FieldStorage(this.calculator.getFields(), this.calculator);
 	}
 
 	getPricePrecision()
@@ -33,16 +33,16 @@ export class TaxForPriceStrategy
 		return this.calculator.getQuantityPrecision();
 	}
 
-	calculatePrice(value: number): FieldScheme
+	calculateBasePrice(value: number): FieldScheme
 	{
 		if (value < 0)
 		{
 			throw new Error('Price must be equal or greater than zero.')
 		}
 
-		value = this.roundPrice(value);
-
 		const fieldStorage = this.getFieldStorage();
+
+		fieldStorage.setField('BASE_PRICE', value);
 
 		if (fieldStorage.isTaxIncluded())
 		{
@@ -60,14 +60,37 @@ export class TaxForPriceStrategy
 		return fieldStorage.getFields();
 	}
 
+	calculatePrice(value: number): FieldScheme
+	{
+		if (value < 0)
+		{
+			throw new Error('Price must be equal or greater than zero.')
+		}
+
+		const fieldStorage = this.getFieldStorage();
+		if (value >= fieldStorage.getBasePrice())
+		{
+			return this.calculateBasePrice(value);
+		}
+
+		this.clearResultPrices(fieldStorage);
+
+		if (fieldStorage.isTaxIncluded())
+		{
+			return this.calculateRowSum(value * fieldStorage.getQuantity());
+		}
+
+		const discount = fieldStorage.getBasePrice() - value;
+		fieldStorage.setField('DISCOUNT_TYPE_ID', DiscountType.MONETARY);
+		return this.calculateDiscount(discount, fieldStorage);
+	}
+
 	calculateQuantity(value: number): FieldScheme
 	{
 		if (value < 0)
 		{
 			throw new Error('Quantity must be equal or greater than zero.')
 		}
-
-		value = this.round(value, this.getQuantityPrecision());
 
 		const fieldStorage = this.getFieldStorage();
 		fieldStorage.setField('QUANTITY', value);
@@ -79,9 +102,12 @@ export class TaxForPriceStrategy
 		return fieldStorage.getFields();
 	}
 
-	calculateDiscount(value: number): FieldScheme
+	calculateDiscount(value: number, fieldStorage: FieldStorage = null): FieldScheme
 	{
-		const fieldStorage = this.getFieldStorage();
+		if (!fieldStorage)
+		{
+			fieldStorage = this.getFieldStorage();
+		}
 
 		if (value === 0.0)
 		{
@@ -95,7 +121,7 @@ export class TaxForPriceStrategy
 
 			fieldStorage.setField(
 				'DISCOUNT_SUM',
-				this.roundPrice(fieldStorage.getPriceNetto() - fieldStorage.getPriceExclusive())
+				fieldStorage.getPriceNetto() - fieldStorage.getPriceExclusive()
 			);
 		}
 		else if (fieldStorage.isDiscountMonetary())
@@ -106,12 +132,9 @@ export class TaxForPriceStrategy
 
 			fieldStorage.setField(
 				'DISCOUNT_RATE',
-				this.round(
-					this.calculateDiscountRate(
-						fieldStorage.getPriceNetto(),
-						fieldStorage.getPriceExclusive()
-					),
-					this.getCommonPrecision()
+				this.calculateDiscountRate(
+					fieldStorage.getPriceNetto(),
+					fieldStorage.getPriceExclusive()
 				)
 			);
 		}
@@ -163,7 +186,7 @@ export class TaxForPriceStrategy
 		{
 			fieldStorage.setField(
 				'DISCOUNT_SUM',
-				this.roundPrice(fieldStorage.getDiscountRow() / fieldStorage.getQuantity())
+				fieldStorage.getDiscountRow() / fieldStorage.getQuantity()
 			);
 		}
 
@@ -237,13 +260,13 @@ export class TaxForPriceStrategy
 			fieldStorage.setField('QUANTITY', 1);
 		}
 
-		const discountSum = this.roundPrice(
+		const discountSum =
 			fieldStorage.getPriceNetto()
 			- (
 				fieldStorage.getSum()
 				/ (fieldStorage.getQuantity() * (1 + fieldStorage.getTaxRate() / 100))
 			)
-		);
+		;
 
 		fieldStorage.setField('DISCOUNT_SUM', discountSum);
 		fieldStorage.setField('DISCOUNT_TYPE_ID', DiscountType.MONETARY);
@@ -318,18 +341,14 @@ export class TaxForPriceStrategy
 		{
 			fieldStorage.setField(
 				'PRICE_NETTO',
-				this.roundPrice(
-					this.calculatePriceWithoutTax(fieldStorage.getPriceBrutto(), fieldStorage.getTaxRate())
-				)
+				this.calculatePriceWithoutTax(fieldStorage.getPriceBrutto(), fieldStorage.getTaxRate())
 			);
 		}
 		else
 		{
 			fieldStorage.setField(
 				'PRICE_BRUTTO',
-				this.roundPrice(
-					this.calculatePriceWithTax(fieldStorage.getPriceNetto(), fieldStorage.getTaxRate())
-				)
+				this.calculatePriceWithTax(fieldStorage.getPriceNetto(), fieldStorage.getTaxRate())
 			);
 		}
 	}
@@ -360,10 +379,10 @@ export class TaxForPriceStrategy
 			exclusivePrice = fieldStorage.getPriceExclusive();
 		}
 
-		fieldStorage.setField('PRICE_EXCLUSIVE', this.roundPrice(exclusivePrice));
+		fieldStorage.setField('PRICE_EXCLUSIVE', exclusivePrice);
 		fieldStorage.setField(
 			'PRICE',
-			this.roundPrice(this.calculatePriceWithTax(exclusivePrice, fieldStorage.getTaxRate()))
+			this.calculatePriceWithTax(exclusivePrice, fieldStorage.getTaxRate())
 		);
 	}
 
@@ -382,19 +401,16 @@ export class TaxForPriceStrategy
 		{
 			fieldStorage.setField(
 				'DISCOUNT_SUM',
-				this.round(fieldStorage.getPriceNetto() - fieldStorage.getPriceExclusive())
+				fieldStorage.getPriceNetto() - fieldStorage.getPriceExclusive()
 			);
 		}
 		else if (fieldStorage.isDiscountMonetary())
 		{
 			fieldStorage.setField(
 				'DISCOUNT_RATE',
-				this.round(
-					this.calculateDiscountRate(
-						fieldStorage.getPriceNetto(),
-						fieldStorage.getPriceNetto() - fieldStorage.getDiscountSum()
-					),
-					this.getCommonPrecision()
+				this.calculateDiscountRate(
+					fieldStorage.getPriceNetto(),
+					fieldStorage.getPriceNetto() - fieldStorage.getDiscountSum()
 				)
 			);
 		}
@@ -404,7 +420,7 @@ export class TaxForPriceStrategy
 	{
 		fieldStorage.setField(
 			'DISCOUNT_ROW',
-			this.roundPrice(fieldStorage.getDiscountSum() * fieldStorage.getQuantity())
+			fieldStorage.getDiscountSum() * fieldStorage.getQuantity()
 		);
 	}
 
@@ -429,7 +445,7 @@ export class TaxForPriceStrategy
 			;
 		}
 
-		fieldStorage.setField('TAX_SUM', this.roundPrice(sum));
+		fieldStorage.setField('TAX_SUM', sum);
 	}
 
 	updateSum(fieldStorage: FieldStorage): void
@@ -448,7 +464,7 @@ export class TaxForPriceStrategy
 			);
 		}
 
-		fieldStorage.setField('SUM', this.roundPrice(sum));
+		fieldStorage.setField('SUM', sum);
 	}
 
 	calculateDiscountRate(originalPrice: number, price: number): number
@@ -476,17 +492,5 @@ export class TaxForPriceStrategy
 	{
 		// Tax is included in price
 		return price + price * taxRate / 100;
-	}
-
-	round(value: number, precision = ProductCalculator.DEFAULT_PRECISION): number
-	{
-		const factor = Math.pow(10, precision);
-
-		return Math.round(value * factor) / factor;
-	}
-
-	roundPrice(value: number): number
-	{
-		return this.round(value, this.getPricePrecision());
 	}
 }

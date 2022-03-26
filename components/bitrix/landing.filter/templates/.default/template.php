@@ -6,6 +6,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
+/** @var array $arParams */
+/** @var array $arResult */
+/** @var \CMain $APPLICATION */
+
 // init
 Loc::loadMessages(__FILE__);
 \CJSCore::init(array('sidepanel', 'action_dialog', 'loader'));
@@ -141,6 +145,12 @@ if ($isBitrix24Template)
 						<?= !$bFirst ? ',' : '';?>{
 							href: '<?= \CUtil::JSEscape($link['LINK']);?>',
 							text: '<?= \CUtil::JSEscape($link['TITLE']);?>'
+							<? if (isset($link['DATASET']) && is_array($link['DATASET'])): ?>
+								, dataset: <?= \CUtil::phpToJSObject($link['DATASET']) ?>
+							<? endif ?>
+							<? if (isset($link['DELIMITER']) && $link['DELIMITER'] === true): ?>
+								, delimiter: true
+							<? endif ?>
 						}
 						<?
 						$bFirst = false;
@@ -157,6 +167,7 @@ if ($isBitrix24Template)
 			?>data-type="<?= $arParams['TYPE'];?>" <?
 			?>data-action="<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_CREATE_FOLDER_ACTION'));?>" <?
 			?>data-siteId="<?= $arParams['FOLDER_SITE_ID'];?>" <?
+			?>data-folderId="<?= $arParams['FOLDER_ID'];?>" <?
 			?>href="javascript:void(0);" <?
 			?>title="<?= Loc::getMessage('LANDING_TPL_CREATE_FOLDER');?>"></a>
 		<?else:?>

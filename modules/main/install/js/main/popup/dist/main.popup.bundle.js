@@ -2411,6 +2411,10 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "showSubMenu",
 	    value: function showSubMenu() {
+	      if (!this.getMenuWindow().getPopupWindow().isShown()) {
+	        return;
+	      }
+
 	      this.addSubMenu(this._items);
 
 	      if (this.subMenuWindow) {

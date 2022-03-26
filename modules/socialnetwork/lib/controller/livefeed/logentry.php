@@ -225,7 +225,7 @@ class LogEntry extends Base
 			'filter' => [
 				'=ID' => $logId
 			],
-			'select' => [ 'ID', 'EVENT_ID', 'SOURCE_ID', 'RATING_TYPE_ID', 'RATING_ENTITY_ID' ]
+			'select' => [ 'ID', 'ENTITY_ID', 'EVENT_ID', 'SOURCE_ID', 'RATING_TYPE_ID', 'RATING_ENTITY_ID' ]
 		]);
 		if (!($logEntryFields = $res->fetch()))
 		{

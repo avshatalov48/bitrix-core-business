@@ -113,6 +113,12 @@
 			case 'BLOG_POST':
 				top.BX.SidePanel.Instance.open(self.options.createMenu['BLOG_POST'].href, {'cacheable': false, 'loader': 'socialnetwork:userblogposteditex'});
 				break;
+			case 'IM_CHAT':
+				BX.Mail.Secretary.getInstance(self.options.messageId).openChat();
+				break;
+			case 'CALENDAR_EVENT':
+				BX.Mail.Secretary.getInstance(self.options.messageId).openCalendarEvent();
+				break;
 			case 'CRM_ACTIVITY':
 				// @TODO: loader
 				item.disable();

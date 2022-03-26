@@ -366,11 +366,11 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 		}
 
 		$arAllActGroups = [
-			"document" => Loc::getMessage("BIZPROC_WFEDIT_CATEGORY_DOC"),
-			'task' => Loc::getMessage('BIZPROC_WFEDIT_CATEGORY_TASKS'),
-			"logic" => Loc::getMessage("BIZPROC_WFEDIT_CATEGORY_CONSTR"),
+			"document" => Loc::getMessage("BIZPROC_WFEDIT_CATEGORY_DOC_1"),
+			'task' => Loc::getMessage('BIZPROC_WFEDIT_CATEGORY_TASKS_1'),
+			"logic" => Loc::getMessage("BIZPROC_WFEDIT_CATEGORY_CONSTR_1"),
 			"interaction" => Loc::getMessage("BIZPROC_WFEDIT_CATEGORY_INTER"),
-			"rest" => Loc::getMessage("BIZPROC_WFEDIT_CATEGORY_REST"),
+			"rest" => Loc::getMessage("BIZPROC_WFEDIT_CATEGORY_REST_1"),
 		];
 
 		$runtime = CBPRuntime::GetRuntime();
@@ -401,8 +401,14 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 		$this->arResult['PARAMETERS'] = $arWorkflowParameters;
 		$this->arResult['VARIABLES'] = $arWorkflowVariables;
 		$this->arResult['CONSTANTS'] = $arWorkflowConstants;
-		$this->arResult['GLOBAL_CONSTANTS'] = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll();
-		$this->arResult['GLOBAL_VARIABLES'] = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll();
+		$this->arResult['GLOBAL_CONSTANTS'] = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll([MODULE_ID, ENTITY, $documentType]);
+		$this->arResult['GLOBAL_VARIABLES'] = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll([MODULE_ID, ENTITY, $documentType]);
+		$this->arResult['GLOBAL_CONSTANTS_VISIBILITY_NAMES'] =
+			\Bitrix\Bizproc\Workflow\Type\GlobalConst::getVisibilityFullNames([MODULE_ID, ENTITY, $documentType])
+		;
+		$this->arResult['GLOBAL_VARIABLES_VISIBILITY_NAMES'] =
+			\Bitrix\Bizproc\Workflow\Type\GlobalVar::getVisibilityFullNames([MODULE_ID, ENTITY, $documentType])
+		;
 
 		/** @var CBPDocumentService $documentService */
 		$documentService = $runtime->getDocumentService();

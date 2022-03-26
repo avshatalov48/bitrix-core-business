@@ -32,11 +32,11 @@ return [
 			],
 			'.landing-block-node-title' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_8_4-TITLE'),
-				'type' => ['typo', 'heading'],
+				'type' => ['typo', 'heading', 'animation'],
 			],
 			'.landing-block-node-text' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_8_4-TEXT'),
-				'type' => ['typo'],
+				'type' => ['typo', 'animation'],
 			],
 		],
 	],

@@ -1,0 +1,3 @@
+<?php
+$MESS['LNDBLCK_MENU_0_4-PRESET_CONTACT_TEXT'] = 'Текст';
+$MESS['LNDBLCK_MENU_0_4-PRESET_CONTACT_LINK'] = 'Со ссылкой';

@@ -39,6 +39,7 @@ $arComponentParams = array_merge($arParams, [
 	'TOP_RATING_DATA' => ($arResult['TOP_RATING_DATA'][$arEvent["ID"]] ?? false),
 	'FORM_ID' => $arParams['FORM_ID'],
 	'FORUM_ID' => $arParams['FORUM_ID'],
+	'TASK_RESULT_TASK_ID' => $arResult['RESULT_TASKS_DATA'][(int)$arEvent['ID']] ? (int)$arResult['RESULT_TASKS_DATA'][(int)$arEvent['ID']] : 0,
 ]);
 
 if (isset($arResult['UNREAD_COMMENTS_ID_LIST'][$arEvent['ID']]))

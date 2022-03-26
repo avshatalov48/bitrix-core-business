@@ -3,6 +3,7 @@ import {Loc} from 'landing.loc';
 export const HsIcons = {
 	id: 'hs_icons',
 	name: 'HS Icons',
+	active: true,
 	categories: [
 		{
 			id: 'hs_icons_all',

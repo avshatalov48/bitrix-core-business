@@ -31,6 +31,77 @@ final class Store extends Controller
 		);
 	}
 
+	public function addAction(array $fields)
+	{
+		$view = $this->getViewManager()
+			->getView($this);
+		$fields = $view->internalizeFieldsAdd($fields);
+
+		$res = $this->add($fields);
+		if ($res->isSuccess())
+		{
+			$result = $res->getId();
+		}
+		else
+		{
+			$result = [
+				'error' => 'ERROR_ADD',
+				'error_description' => implode(
+					'. ',
+					$res->getErrorMessages()
+				),
+			];
+		}
+
+		return $result;
+	}
+
+	public function updateAction(int $id, array $fields)
+	{
+		$view = $this->getViewManager()
+			->getView($this);
+		$fields = $view->internalizeFieldsUpdate($fields);
+
+		$res = $this->update($id, $fields);
+		if (!is_null($res) && $res->isSuccess())
+		{
+			$result = $res->getId();
+		}
+		else
+		{
+			$result = [
+				'error' => 'ERROR_UPDATE',
+				'error_description' => implode(
+					'. ',
+					$this->getErrors()
+				),
+			];
+		}
+
+		return $result;
+	}
+
+	public function deleteAction(int $id)
+	{
+		$res = $this->delete($id);
+		if (!is_null($res) && $res->isSuccess())
+		{
+			$result = 'Y';
+		}
+		else
+		{
+			$result = [
+				'error' => 'ERROR_DELETE',
+				'error_description' => implode(
+					'. ',
+					$this->getErrors()
+				),
+			];
+		}
+
+		return $result;
+	}
+
 	public function getAction($id)
 	{
 		$r = $this->exists($id);

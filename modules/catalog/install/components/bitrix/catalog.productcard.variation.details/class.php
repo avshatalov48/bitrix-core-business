@@ -3,6 +3,7 @@
 use Bitrix\Catalog\Component\BaseForm;
 use Bitrix\Catalog\Component\GridVariationForm;
 use Bitrix\Catalog\Component\VariationForm;
+use Bitrix\Catalog\Component\StoreAmount;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Catalog\v2\Sku\BaseSku;
@@ -31,6 +32,8 @@ class CatalogProductVariationDetailsComponent
 	private $variationId;
 	/** @var \Bitrix\Catalog\Component\VariationForm */
 	private $form;
+	/** @var \Bitrix\Catalog\Component\StoreAmount */
+	private $storeAmount;
 	/** @var \Bitrix\Catalog\v2\Sku\BaseSku */
 	private $variation;
 
@@ -60,6 +63,8 @@ class CatalogProductVariationDetailsComponent
 			'PRODUCT_ID',
 			'VARIATION_ID',
 			'PATH_TO',
+			'BUILDER_CONTEXT',
+			'SCOPE',
 		];
 	}
 
@@ -456,6 +461,14 @@ class CatalogProductVariationDetailsComponent
 					}
 
 					$variation->setFields($fields);
+
+					if (isset($fields['BARCODE']))
+					{
+						$variation
+							->getBarcodeCollection()
+							->setSimpleBarcodeValue($fields['BARCODE'])
+						;
+					}
 				}
 
 				if (!empty($propertyFields))
@@ -531,7 +544,7 @@ class CatalogProductVariationDetailsComponent
 
 	protected function checkPermissions(): bool
 	{
-		if (!\Bitrix\Catalog\Config\State::isProductCardSliderEnabled())
+		if (!$this->getForm()->isCardAllowed())
 		{
 			$this->errorCollection[] = new \Bitrix\Main\Error('New product card feature disabled.');
 
@@ -729,6 +742,7 @@ class CatalogProductVariationDetailsComponent
 		$this->arResult['UI_ENTITY_CONTROLLERS'] = $this->getForm()->getControllers();
 		$this->arResult['UI_CREATION_PROPERTY_URL'] = $this->getCreationPropertyUrl();
 		$this->arResult['VARIATION_GRID_ID'] = $this->getForm()->getVariationGridId();
+		$this->arResult['STORE_AMOUNT_GRID_ID'] = $this->getStoreAmount()->getStoreAmountGridId();
 		$this->arResult['CARD_SETTINGS'] = $this->getForm()->getCardSettings();
 	}
 
@@ -989,7 +1003,7 @@ class CatalogProductVariationDetailsComponent
 		);
 	}
 
-	private function getForm()
+	private function getForm(): VariationForm
 	{
 		if ($this->form === null)
 		{
@@ -997,6 +1011,15 @@ class CatalogProductVariationDetailsComponent
 		}
 
 		return $this->form;
+	}
+
+	private function getStoreAmount(): StoreAmount
+	{
+		if ($this->storeAmount === null)
+		{
+			$this->storeAmount = new \Bitrix\Catalog\Component\StoreAmount($this->getVariationId());
+		}
+		return $this->storeAmount;
 	}
 
 	public function updatePropertyAction(array $fields): array

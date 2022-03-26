@@ -225,7 +225,6 @@ class RestService extends \IRestService
 		}
 
 		$params = array_change_key_case($params, CASE_UPPER);
-
 		static::validateSenderCode($params['CODE']);
 		if (empty($params['MESSAGE_ID']))
 		{
@@ -233,44 +232,26 @@ class RestService extends \IRestService
 		}
 
 		$statusId = isset($params['STATUS']) ? Sender\Sms\Rest::resolveStatus($params['STATUS']) : null;
-
-		if ($statusId === null)
+		if ($statusId === null || $statusId == MessageStatus::UNKNOWN)
 		{
 			throw new RestException('Message status incorrect!', self::ERROR_MESSAGE_STATUS_INCORRECT);
 		}
 
-		$message = Internal\Entity\MessageTable::getList(array(
-			'select' => array('ID', 'AUTHOR_ID', 'STATUS_ID'),
-			'filter' => array(
-				'=SENDER_ID' => 'rest',
-				'=MESSAGE_FROM' => $server->getClientId().'|'.$params['CODE'],
-				'=EXTERNAL_ID' => $params['MESSAGE_ID']
-			)
-		))->fetch();
-
+		$message = Message::loadByExternalId(
+			'rest',
+			$params['MESSAGE_ID'],
+			$server->getClientId().'|'.$params['CODE']
+		);
 		if (!$message)
 		{
 			throw new RestException('Message not found!', self::ERROR_MESSAGE_NOT_FOUND);
 		}
 
-		$previousStatusId = (int)$message['STATUS_ID'];
-
-		if ($previousStatusId === $statusId)
-		{
-			return true;
-		}
-
-		$authorId = (int)$message['AUTHOR_ID'];
-
-		if ($authorId !== static::getUserId())
+		if ($message->getAuthorId() !== static::getUserId())
 		{
 			static::checkAdminPermissions();
 		}
-
-		Internal\Entity\MessageTable::update($message['ID'], array('STATUS_ID' => $statusId));
-		Integration\Pull::onMessagesUpdate(array(
-			array('ID' => $message['ID'], 'STATUS_ID' => $statusId)
-		));
+		$message->updateStatus($statusId);
 
 		return true;
 	}

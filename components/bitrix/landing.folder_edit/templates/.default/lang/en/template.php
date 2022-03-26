@@ -1,0 +1,12 @@
+<?php
+$MESS["LANDING_TPL_BUTTON_CANCEL"] = "Cancel";
+$MESS["LANDING_TPL_BUTTON_SAVE"] = "Save";
+$MESS["LANDING_TPL_FIELD_CODE"] = "Folder address";
+$MESS["LANDING_TPL_FIELD_INDEX_ID"] = "Index page";
+$MESS["LANDING_TPL_FIELD_METAOG_DESCRIPTION"] = "Description";
+$MESS["LANDING_TPL_FIELD_METAOG_TITLE"] = "Name";
+$MESS["LANDING_TPL_FIELD_PREVIEW"] = "Social media preview";
+$MESS["LANDING_TPL_FOLDER_ADD_PAGE"] = "create page";
+$MESS["LANDING_TPL_FOLDER_IS_EMPTY"] = "(Folder is empty)";
+$MESS["LANDING_TPL_FOLDER_SELECT_PAGE"] = "select page";
+$MESS["LANDING_TPL_TITLE"] = "Folder settings";

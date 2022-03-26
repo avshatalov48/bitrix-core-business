@@ -1,10 +1,22 @@
-import { Type, Tag, Loc, Runtime, Dom } from 'main.core';
+import { Type, Tag, Runtime } from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import { ResultManager } from 'tasks.result';
 
 export class CommentForm
 {
+	static resultFieldTaskIdList = [];
 	static taskResultCommentsData = {};
+
+	static appendResultFieldTaskIds(taskIdList)
+	{
+		if (!Type.isArray(taskIdList))
+		{
+			return;
+		}
+
+		taskIdList = taskIdList.map((value) => { return parseInt(value); })
+		this.resultFieldTaskIdList = [...this.resultFieldTaskIdList, ...taskIdList];
+	}
 
 	static appendTaskResultComments(data)
 	{
@@ -17,8 +29,9 @@ export class CommentForm
 
 		Object.entries(this.taskResultCommentsData).forEach(([taskId, commentsIdList]) => {
 			ResultManager.getInstance().initResult({
+				context: 'task',
 				taskId: parseInt(taskId),
-				commentIds: commentsIdList,
+				comments: commentsIdList,
 			});
 		});
 	}
@@ -55,13 +68,16 @@ export class CommentForm
 		this.onLightEditorShow(text, data);
 
 		const matches = obj.currentEntity.ENTITY_XML_ID.match(/^TASK_(\d+)$/i);
-		if (matches)
+		if (
+			matches
+			&& this.resultFieldTaskIdList.includes(parseInt(matches[1]))
+		)
 		{
-//console.log('show');
+			BX.Tasks.ResultManager.showField();
 		}
 		else
 		{
-//console.log('hide');
+			BX.Tasks.ResultManager.hideField();
 		}
 	}
 

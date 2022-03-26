@@ -54,7 +54,7 @@
 
 
 .landing-ui-button-sidebar:not(.landing-ui-button-sidebar-child) {
-	font-family: 'OpenSans-SemiBold', Helvetca, Arial, sans-sarif;
+	font-family: 'OpenSans-SemiBold', Helvetca, Arial, sans-serif;
 	font-size: 12px;
 	text-transform: uppercase;
 	color: #333333;
@@ -84,7 +84,7 @@
 
 
 .landing-ui-button-sidebar.landing-ui-button-sidebar-feedback {
-	font-family: OpenSans-Regular, Helvetca, Arial, sans-sarif;
+	font-family: OpenSans-Regular, Helvetca, Arial, sans-serif;
 	position: relative;
 	overflow: visible;
 	margin-top: 40px;
@@ -110,7 +110,7 @@
 }
 
 .landing-ui-button-sidebar-icon {
-	font-family: OpenSans-Regular, Helvetca, Arial, sans-sarif;
+	font-family: OpenSans-Regular, Helvetca, Arial, sans-serif;
 	font-size: 13px;
 	color: #00A6DB;
 	display: inline-block;
@@ -127,7 +127,7 @@
 }
 
 .landing-ui-button-sidebar-more {
-	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-sarif, serif;
+	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-serif, serif;
 	opacity: 0.4;
 	font-size: 10px;
 	color: #525C69;

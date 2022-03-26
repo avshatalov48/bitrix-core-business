@@ -1,0 +1,7 @@
+<?php
+
+$MESS['BIZPROC_MODULE_NOT_INSTALLED'] = 'Модуль Бизнес-процессы не установлен.';
+$MESS['BIZPROC_GLOBALFIELDS_EDIT_TITLE_VARIABLE_CREATE'] = 'Создать переменную';
+$MESS['BIZPROC_GLOBALFIELDS_EDIT_TITLE_CONSTANT_CREATE'] = 'Создать константу';
+$MESS['BIZPROC_GLOBALFIELDS_EDIT_TITLE_VARIABLE_EDIT'] = 'Изменить переменную';
+$MESS['BIZPROC_GLOBALFIELDS_EDIT_TITLE_CONSTANT_EDIT'] = 'Изменить константу';

@@ -2,9 +2,10 @@
 namespace Bitrix\Landing;
 
 use Bitrix\Main\Loader;
+use Bitrix\Landing\Subtype;
 use Bitrix\Landing\Internals\BlockTable;
 use Bitrix\Crm\WebForm;
-use Bitrix\Landing\Subtype;
+use Bitrix\Main\Type\DateTime;
 
 class Agent
 {
@@ -144,6 +145,30 @@ class Agent
 	}
 
 	/**
+	 * Returns all sub folders for the folder.
+	 * @param int $folderId Folder id.
+	 * @return array
+	 */
+	protected static function getSubFolders(int $folderId): array
+	{
+		$folders = [];
+		$res = Folder::getList([
+			'select' => [
+				'ID'
+			],
+			'filter' => [
+				'PARENT_ID' => $folderId
+			]
+		]);
+		while ($row = $res->fetch())
+		{
+			$folders[] = $row['ID'];
+			$folders = array_merge($folders, self::getSubFolders($row['ID']));
+		}
+		return $folders;
+	}
+
+	/**
 	 * Clear recycle bin.
 	 * @param int|null $days After this time items will be deleted.
 	 * @return string
@@ -158,6 +183,23 @@ class Agent
 
 		$date = new \Bitrix\Main\Type\DateTime;
 		$date->add('-' . $days . ' days');
+
+		// check folders to delete
+		$foldersToDelete = [-1];
+		$res = Folder::getList([
+			'select' => [
+				'ID'
+			],
+			'filter' => [
+				'=DELETED' => 'Y',
+				'<DATE_MODIFY' => $date
+			]
+		]);
+		while ($row = $res->fetch())
+		{
+			$foldersToDelete[] = $row['ID'];
+			$foldersToDelete = array_merge($foldersToDelete, self::getSubFolders($row['ID']));
+		}
 
 		// first delete landings
 		$res = Landing::getList([
@@ -174,6 +216,9 @@ class Agent
 					[
 						'=SITE.DELETED' => 'Y',
 						'<SITE.DATE_MODIFY' => $date
+					],
+					[
+						'FOLDER_ID' => $foldersToDelete
 					]
 				],
 				'=DELETED' => ['Y', 'N'],
@@ -186,30 +231,17 @@ class Agent
 		]);
 		while ($row = $res->fetch())
 		{
-			if ($row['FOLDER_ID'])
-			{
-				Landing::update($row['ID'], [
-					'FOLDER_ID' => 0
-				]);
-			}
-			// sub pages
-			$resSub = Landing::getList([
-				'select' => [
-					'ID'
-				],
-				'filter' => [
-					'FOLDER_ID' => $row['ID']
-				]
-			]);
-			while ($rowSub = $resSub->fetch())
-			{
-				Lock::lockDeleteLanding($rowSub['ID'], false);
-				$resDel = Landing::delete($rowSub['ID'], true);
-				$resDel->isSuccess();// for trigger
-			}
 			Lock::lockDeleteLanding($row['ID'], false);
-			$resDel = Landing::delete($row['ID'], true);
-			$resDel->isSuccess();// for trigger
+			Landing::delete($row['ID'], true)->isSuccess();
+		}
+
+		// delete folders
+		foreach (array_unique($foldersToDelete) as $folderId)
+		{
+			if ($folderId > 0)
+			{
+				Folder::delete($folderId)->isSuccess();
+			}
 		}
 
 		// then delete sites
@@ -229,8 +261,7 @@ class Agent
 		while ($row = $res->fetch())
 		{
 			Lock::lockDeleteSite($row['ID'], false);
-			$resDel = Site::delete($row['ID']);
-			$resDel->isSuccess();// for trigger
+			Site::delete($row['ID'])->isSuccess();
 		}
 
 		Rights::setGlobalOn();
@@ -279,6 +310,34 @@ class Agent
 				}
 			}
 			\Bitrix\Rest\UsageStatTable::finalize();
+		}
+
+		return __CLASS__ . '::' . __FUNCTION__ . '();';
+	}
+
+	/**
+	 * Marks all temporary files to delete.
+	 * @return string
+	 */
+	public static function clearTempFiles(): string
+	{
+		$dateTime = new DateTime();
+
+		$res = Internals\FileTable::getList([
+			'select' => [
+				'ID', 'FILE_ID'
+			],
+			'filter' => [
+				'>FILE_ID' => 0,
+				'=TEMP' => 'Y',
+				'<FILE.TIMESTAMP_X' => $dateTime->add('-60 minute')
+			]
+		]);
+		while ($row = $res->fetch())
+		{
+			Internals\FileTable::update($row['ID'], [
+				'FILE_ID' => -1 * $row['FILE_ID']
+			]);
 		}
 
 		return __CLASS__ . '::' . __FUNCTION__ . '();';

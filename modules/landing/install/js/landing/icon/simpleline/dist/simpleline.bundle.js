@@ -6,6 +6,7 @@ this.BX.Landing = this.BX.Landing || {};
 	var SimpleLine = {
 	  id: 'simple_line',
 	  name: 'Simple Line Icons',
+	  active: true,
 	  categories: [{
 	    id: 'all',
 	    name: landing_loc.Loc.getMessage('LANDING_ICONS_SIMPLE_LINE_ICONS_ALL'),

@@ -390,6 +390,7 @@ class Recent
 			'USER_IDLE' => 'STATUS.IDLE',
 			'USER_MOBILE_LAST_DATE' => 'STATUS.MOBILE_LAST_DATE',
 			'USER_DESKTOP_LAST_DATE' => 'STATUS.DESKTOP_LAST_DATE',
+			'MESSAGE_UUID_VALUE' => 'MESSAGE_UUID.UUID',
 		];
 		if (!$withoutCommonUsers)
 		{
@@ -509,6 +510,7 @@ class Recent
 				'ATTACH' => $row['MESSAGE_ATTACH'] > 0,
 				'DATE' => $row['MESSAGE_DATE'] > 0? $row['MESSAGE_DATE']: $row['DATE_UPDATE'],
 				'STATUS' => $row['CHAT_LAST_MESSAGE_STATUS'],
+				'UUID' => $row['MESSAGE_UUID_VALUE'],
 			];
 		}
 		else

@@ -66,6 +66,7 @@ export class ProductForm
 			currency: settingsCollection.get('currency'),
 			currencySymbol: settingsCollection.get('currencySymbol'),
 			taxIncluded: settingsCollection.get('taxIncluded'),
+			warehouseOption: settingsCollection.get('warehouseOption'),
 			showDiscountBlock: settingsCollection.get('showDiscountBlock'),
 			showTaxBlock: settingsCollection.get('showTaxBlock'),
 			allowedDiscountTypes: [DiscountType.PERCENTAGE, DiscountType.MONETARY],
@@ -80,6 +81,9 @@ export class ProductForm
 			buttonsPosition: FormElementPosition.TOP,
 			urlBuilderContext: 'SHOP',
 			hideUnselectedProperties: false,
+			isCatalogPriceEditEnabled: settingsCollection.get('isCatalogPriceEditEnabled'),
+			isCatalogPriceSaveEnabled: settingsCollection.get('isCatalogPriceSaveEnabled'),
+			fieldHints: settingsCollection.get('fieldHints'),
 			compilationFormType: FormCompilationType.REGULAR,
 			compilationFormOption: {},
 		};
@@ -188,6 +192,8 @@ export class ProductForm
 				newItem.fields.discountType = this.options.defaultDiscountType;
 				this.addProduct(newItem);
 			}
+
+			EventEmitter.emit(this, 'onAfterInit');
 		});
 	}
 
@@ -209,15 +215,24 @@ export class ProductForm
 		});
 	}
 
-	changeProduct(product): void
+	emitErrorsChange(): void
 	{
-		const fields = product.fields;
-		const result = this.#checkRequiredFields(fields);
-		fields.errors = result?.errors || [];
+		EventEmitter.emit(this, 'ProductForm:onErrorsChange');
+	}
+
+	changeProduct(item): void
+	{
+		const product = item.product;
+		product.errors = [];
+		if (item.skipFieldChecking !== true)
+		{
+			const result = this.#checkRequiredFields(product.fields);
+			product.errors = result?.errors || [];
+		}
 
 		this.store.dispatch('productList/changeItem', {
-			index: product.index,
-			fields
+			index: item.index,
+			product
 		}).then(() => {
 			this.#onBasketChange();
 		});
@@ -226,7 +241,7 @@ export class ProductForm
 	#checkRequiredFields(fields: BasketItemScheme): {}
 	{
 		const result = {};
-		if (this.options.requiredFields.length === 0)
+		if (!Type.isArray(this.options.requiredFields) || this.options.requiredFields.length === 0)
 		{
 			return result;
 		}
@@ -319,7 +334,7 @@ export class ProductForm
 		{
 			this.store.dispatch('productList/setCurrency', data.currency);
 		}
-		
+
 		if (Type.isObject(data.total))
 		{
 			this.store.commit('productList/setTotal', {
@@ -408,7 +423,8 @@ export class ProductForm
 
 		basket.forEach((item, index) => this.changeProduct({
 				index,
-				fields: item.fields
+				product: item	,
+				skipFieldChecking: (basket.length === 1 && index === 0 && item.offerId === null)
 			})
 		);
 	}
@@ -444,9 +460,7 @@ export class ProductForm
 				FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.BRAND,
 			];
 
-			this.options.visibleBlocks = [
-				FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE,
-			];
+			this.options.visibleBlocks = this.defaultOptions.visibleBlocks;
 
 			if (this.options.compilationFormType === FormCompilationType.FACEBOOK)
 			{
@@ -460,13 +474,7 @@ export class ProductForm
 			mode = FormMode.REGULAR;
 			this.options.visibleBlocks = this.defaultOptions.visibleBlocks;
 			this.options.showResults = this.defaultOptions.showResults;
-
-			const visibleBlocks = this.options.visibleBlocks.slice(0);
-			if (visibleBlocks.includes(FormInputCode.RESULT))
-			{
-				visibleBlocks.splice(visibleBlocks.indexOf(FormInputCode.RESULT), 1);
-			}
-			this.options.editableFields = visibleBlocks;
+			this.options.editableFields = this.defaultOptions.visibleBlocks;
 		}
 
 		if (this.templateEngine)

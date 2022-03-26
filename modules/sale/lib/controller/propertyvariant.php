@@ -6,20 +6,23 @@ namespace Bitrix\Sale\Controller;
 
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
+use Bitrix\Sale\Internals\OrderPropsTable;
 use Bitrix\Sale\Result;
 
-class PropertyVariant extends Controller
+class PropertyVariant extends ControllerBase
 {
 	//region Actions
 	public function getFieldsAction()
 	{
-		$entity = new \Bitrix\Sale\Rest\Entity\PropertyVariant();
-		return ['PROPERTY_VARIANT'=>$entity->prepareFieldInfos(
-			$entity->getFields()
+		$view = $this->getViewManager()
+			->getView($this);
+
+		return ['PROPERTY_VARIANT'=>$view->prepareFieldInfos(
+			$view->getFields()
 		)];
 	}
 
-	public function addAction(array $fields)
+	public function addAction(array $fields): ?array
 	{
 		$variant = new \CSaleOrderPropsVariant();
 		$variantId = 0;
@@ -30,7 +33,7 @@ class PropertyVariant extends Controller
 		{
 			if(!isset($fields['XML_ID']) && $fields['XML_ID'] == '')
 			{
-				$fields['XML_ID'] = \Bitrix\Sale\Internals\OrderPropsTable::generateXmlId();
+				$fields['XML_ID'] = OrderPropsTable::generateXmlId();
 			}
 
 			$variantId = $variant->Add($fields);
@@ -59,7 +62,7 @@ class PropertyVariant extends Controller
 			return ['PROPERTY_VARIANT'=>$this->get($variantId)];
 	}
 
-	public function updateAction($id, array $fields)
+	public function updateAction($id, array $fields): ?array
 	{
 		$variant = new \CSaleOrderPropsVariant();
 
@@ -150,14 +153,7 @@ class PropertyVariant extends Controller
 
 		return new Page('PROPERTY_VARIANTS', $result, function() use ($filter)
 		{
-			$orderPropsVariant = new \CSaleOrderPropsValue();
-
-			$list = [];
-			$r = $orderPropsVariant->GetList([], $filter);
-			while ($l = $r->fetch())
-				$list[] = $l;
-
-			return count($list);
+			return (int)\CSaleOrderPropsVariant::GetList([], $filter, []);
 		});
 	}
 	//end region
@@ -169,7 +165,7 @@ class PropertyVariant extends Controller
 		return $orderPropsGroup->GetByID($id);
 	}
 
-	protected function exists($id)
+	protected function exists($id): Result
 	{
 		$r = new Result();
 		if(isset($this->get($id)['ID']) == false)
@@ -182,7 +178,7 @@ class PropertyVariant extends Controller
 	{
 		$r = new Result();
 
-		$property = \Bitrix\Sale\Internals\OrderPropsTable::getRow([
+		$property = OrderPropsTable::getRow([
 			'filter' => [
 				'=ID' => $id
 			]
@@ -191,6 +187,30 @@ class PropertyVariant extends Controller
 		if(is_null($property))
 			$r->addError(new Error('property id is not exists', 201550000005));
 
+		return $r;
+	}
+
+	protected function checkModifyPermissionEntity(): Result
+	{
+		$r = new Result();
+
+		$saleModulePermissions = self::getApplication()->GetGroupRight("sale");
+		if ($saleModulePermissions  < "W")
+		{
+			$r->addError(new Error('Access Denied', 200040300020));
+		}
+		return $r;
+	}
+
+	protected function checkReadPermissionEntity(): Result
+	{
+		$r = new Result();
+
+		$saleModulePermissions = self::getApplication()->GetGroupRight("sale");
+		if ($saleModulePermissions  == "D")
+		{
+			$r->addError(new Error('Access Denied', 200040300010));
+		}
 		return $r;
 	}
 }

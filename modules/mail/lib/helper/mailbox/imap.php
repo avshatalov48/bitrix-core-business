@@ -51,7 +51,7 @@ class Imap extends Mail\Helper\Mailbox
 				'filter' => [
 					'=MAILBOX_ID'  => $this->mailbox['ID'],
 					'=DIR_MD5'     => $currentSyncDir->getDirMd5(),
-					'=DELETE_TIME' => 'IS NULL',
+					'==DELETE_TIME' => 0,
 				],
 			])->fetch();
 
@@ -99,7 +99,7 @@ class Imap extends Mail\Helper\Mailbox
 				'filter' => [
 					'=MAILBOX_ID'  => $this->mailbox['ID'],
 					'=DIR_MD5'     => $currentSyncDir->getDirMd5(),
-					'=DELETE_TIME' => 'IS NULL',
+					'==DELETE_TIME' => 0,
 				],
 			])->fetch();
 
@@ -113,6 +113,66 @@ class Imap extends Mail\Helper\Mailbox
 		}
 
 		return 1;
+	}
+
+	public function checkMessagesForExistence($dirPath ='INBOX',$UIDs = [])
+	{
+		if(!empty($UIDs))
+		{
+			/*
+				If a non-existing id gets among the existing ones,
+				some mailers may issue an error (instead of issuing existing messages),
+				then we will think that the letters disappeared on the mail service,
+				although in fact there were existing messages among them.
+				But the messages can be deleted legally,
+				it's just that the mail has not been resynchronized for a long time.
+				In this case, small samples are needed in order to catch existing messages in any of them.
+			*/
+			$chunks = array_chunk($UIDs, 5);
+
+			$existingMessage = NULL;
+
+			foreach ($chunks as $chunk)
+			{
+				$messages = $this->client->fetch(
+					true,
+					$dirPath,
+					join(',', $chunk),
+					'(UID FLAGS)',
+					$error,
+					'list'
+				);
+
+				if(!($messages === false || empty($messages)))
+				{
+					foreach ($messages as $item)
+					{
+						if(!isset($item['FLAGS']))
+						{
+							continue;
+						}
+
+						$messageDeleted = preg_grep('/^ \x5c Deleted $/ix', $item['FLAGS']) ? true : false;
+
+						if(!$messageDeleted)
+						{
+							$existingMessage = $item;
+							break;
+						}
+					}
+				}
+			}
+
+			if(!is_null($existingMessage))
+			{
+				if(isset($existingMessage['UID']))
+				{
+					return $existingMessage['UID'];
+				}
+			}
+		}
+
+		return false;
 	}
 
 	public function resyncIsOldStatus()
@@ -708,13 +768,24 @@ class Imap extends Mail\Helper\Mailbox
 
 		if (!$this->isTimeQuotaExceeded())
 		{
-			//mark emails from unsynchronized folders (unchecked) for deletion
+			/*	Mark emails from unsynchronized folders (unchecked) for deletion
+
+				It is impossible to check these filters for the legality of deleting messages,
+				since:
+				1) messages do not disappear from the original mailbox
+				2) messages that fall under filters are in different folders,
+				and the check goes through one folder.
+			*/
 			$result = $this->unregisterMessages([
 				'!@DIR_MD5' => array_map(
 					'md5',
 					$this->getDirsHelper()->getSyncDirsPath()
 				),
-			]);
+			],
+			[
+				'info' => 'disabled directory synchronization in Bitrix',
+			],
+			true);
 
 			$countDeleted = $result ? $result->getCount() : 0;
 
@@ -820,19 +891,8 @@ class Imap extends Mail\Helper\Mailbox
 		}
 	}
 
-	public function syncDirForSpecificDay($dirPath, $internalDate)
+	public function syncMessages($mailboxID, $dirPath, $UIDs)
 	{
-		if($internalDate === false)
-		{
-			return true;
-		}
-
-		$mailboxID = $this->mailbox['ID'];
-
-		$dirsHelper = new Mail\Helper\MailboxDirectoryHelper($mailboxID);
-
-		$dir = $dirsHelper->getDirByPath($dirPath);
-
 		$meta = $this->client->select($dirPath, $error);
 		$uidtoken = $meta['uidvalidity'];
 
@@ -842,9 +902,11 @@ class Imap extends Mail\Helper\Mailbox
 			return true;
 		}
 
-		$UIDsOnService  = \Bitrix\Mail\Helper::getImapUIDsForSpecificDay($mailboxID, $dirPath, $internalDate);
+		$dirsHelper = new Mail\Helper\MailboxDirectoryHelper($mailboxID);
 
-		$chunks = array_chunk($UIDsOnService, 10);
+		$dir = $dirsHelper->getDirByPath($dirPath);
+
+		$chunks = array_chunk($UIDs, 10);
 
 		$entity = Mail\MailMessageUidTable::getEntity();
 		$connection = $entity->getConnection();
@@ -865,18 +927,13 @@ class Imap extends Mail\Helper\Mailbox
 				)
 			));
 
-			// todo delete this hack when fetcher starts to return data always in the same format
-			if(count($chunk) === 1)
-			{
-				$chunk[] = $chunk[0];
-			}
-
 			$messages = $this->client->fetch(
 				true,
 				$dirPath,
 				join(',', $chunk),
 				'(UID FLAGS INTERNALDATE RFC822.SIZE BODYSTRUCTURE BODY.PEEK[HEADER])',
-				$error
+				$error,
+				'list'
 			);
 
 			if (empty($messages))
@@ -908,6 +965,20 @@ class Imap extends Mail\Helper\Mailbox
 
 		}
 		return true;
+	}
+
+	public function syncDirForSpecificDay($dirPath, $internalDate)
+	{
+		if($internalDate === false)
+		{
+			return true;
+		}
+
+		$mailboxID = $this->mailbox['ID'];
+
+		$UIDsOnService  = \Bitrix\Mail\Helper::getImapUIDsForSpecificDay($mailboxID, $dirPath, $internalDate);
+
+		return $this->syncMessages($mailboxID, $dirPath, $UIDsOnService);
 	}
 
 	protected function syncDirInternal($dir)
@@ -1070,7 +1141,9 @@ class Imap extends Mail\Helper\Mailbox
 						'=DIR_MD5'  => md5($dir->getPath()),
 						'<DIR_UIDV' => $uidtoken,
 					),
-					[]
+					[
+						'info' => 'the directory has been deleted',
+					]
 				);
 
 				$countDeleted = $result ? $result->getCount() : 0;
@@ -1086,7 +1159,9 @@ class Imap extends Mail\Helper\Mailbox
 					array(
 						'=DIR_MD5' => md5($dir->getPath()),
 					),
-					[]
+					[
+						'info' => 'all messages in the directory have been deleted ',
+					]
 				);
 
 				$countDeleted = $result ? $result->getCount() : 0;
@@ -1151,7 +1226,9 @@ class Imap extends Mail\Helper\Mailbox
 					'>MSG_UID' => $range[1],
 				),
 			),
-			[]
+			[
+				'info' => 'optimized deletion of non-existent messages',
+			]
 		);
 
 		$countDeleted = $result ? $result->getCount() : 0;
@@ -1557,10 +1634,13 @@ class Imap extends Mail\Helper\Mailbox
 		if (!empty($excerpt))
 		{
 			$result = $this->unregisterMessages(
-				array(
+				[
 					'@ID' => array_keys($excerpt),
-				),
-				$excerpt
+					'=DIR_MD5'  => md5($dirPath),
+				],
+				[
+					'info' => 'deletion of non-existent messages',
+				]
 			);
 
 			$countDeleted += $result ? $result->getCount() : 0;

@@ -10,7 +10,7 @@ Loc::loadLanguageFile(__FILE__);
 
 return array(
 	'name' => Loc::getMessage('LANDING_DEMO_EMPTY_TITLE'),
-	'type' => 'page',
+	'type' => ['knowledge', 'group', 'page'],
 	'description' => Loc::getMessage('LANDING_DEMO_EMPTY_DESCRIPTION'),
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(

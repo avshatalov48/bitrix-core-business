@@ -2,12 +2,14 @@ import {Event, Type, Dom, Cache, Tag, Text} from 'main.core';
 import {Env} from 'landing.env';
 import {Loc} from 'landing.loc';
 import {Content} from 'landing.ui.panel.content';
+import {SaveBlock} from 'landing.ui.panel.saveblock';
 import {SliderHacks} from 'landing.sliderhacks';
 import {PageObject} from 'landing.pageobject';
 import hasBlock from './internal/has-block';
 import hasCreateButton from './internal/has-create-button';
 import onAnimationEnd from './internal/on-animation-end';
 import isEmpty from './internal/is-empty';
+import {Backend} from 'landing.backend';
 
 const LANG_RU = 'ru';
 const LANG_BY = 'by';
@@ -63,6 +65,7 @@ export class Main extends Event.EventEmitter
 
 		this.id = id;
 		this.options = Object.freeze(options);
+		this.blocks = this.options.blocks;
 		this.currentBlock = null;
 		this.isDesignBlockModeFlag = this.options["design_block"] === true;
 		this.loadedDeps = {};
@@ -95,9 +98,24 @@ export class Main extends Event.EventEmitter
 		}
 	}
 
+	isCrmFormPage(): boolean
+	{
+		return Env.getInstance().getOptions().specialType === 'crm_forms';
+	}
+
 	isDesignBlockMode()
 	{
 		return this.isDesignBlockModeFlag;
+	}
+
+	getSaveBlockPanel(): Content
+	{
+		const panel = new SaveBlock('save_block_panel', {block: this.currentBlock});
+		panel.layout.hidden = true;
+		panel.content.hidden = false;
+		Dom.append(panel.layout, document.body);
+
+		return panel;
 	}
 
 	getBlocksPanel(): Content
@@ -377,19 +395,36 @@ export class Main extends Event.EventEmitter
 	 * @param {BX.Landing.Block} block
 	 * @param {HTMLElement} [area]
 	 * @param [button]
+	 * @param [insertBefore]
 	 */
-	showBlocksPanel(block, area, button)
+	showBlocksPanel(block, area, button, insertBefore)
 	{
 		this.currentBlock = block;
 		this.currentArea = area;
-		this.getBlocksPanel().show();
+		this.insertBefore = insertBefore;
 
+		BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
+
+		if (this.isCrmFormPage())
+		{
+			const rootWindow = PageObject.getRootWindow();
+			Dom.append(this.getBlocksPanel().layout, rootWindow.document.body);
+			Dom.append(this.getBlocksPanel().overlay, rootWindow.document.body);
+		}
+
+		this.getBlocksPanel().show();
 		this.disableAddBlockButtons();
 
 		if (!!area && !!button)
 		{
 			this.onCreateButtonMouseout(area, button);
 		}
+	}
+
+	showSaveBlock(block)
+	{
+		this.currentBlock = block;
+		this.getSaveBlockPanel().show();
 	}
 
 	disableAddBlockButtons()
@@ -472,6 +507,8 @@ export class Main extends Event.EventEmitter
 	 */
 	showSliderFeedbackForm(data = {})
 	{
+		const rootWindow = PageObject.getRootWindow();
+
 		if (!this.sliderFeedbackInited)
 		{
 			this.sliderFeedbackInited = true;
@@ -479,7 +516,10 @@ export class Main extends Event.EventEmitter
 				title: Loc.getMessage('LANDING_PANEL_FEEDBACK_TITLE'),
 				className: 'landing-ui-panel-feedback',
 			});
-			Dom.append(this.sliderFeedback.layout, document.body);
+
+			Dom.append(this.sliderFeedback.overlay, rootWindow.document.body);
+			Dom.style(this.sliderFeedback.overlay, 'z-index', 322);
+			Dom.append(this.sliderFeedback.layout, rootWindow.document.body);
 			this.sliderFormLoader = new BX.Loader({target: this.sliderFeedback.content});
 			this.sliderFormLoader.show();
 			this.initFeedbackForm();
@@ -501,7 +541,7 @@ export class Main extends Event.EventEmitter
 
 		const form = this.getFeedbackFormOptions();
 
-		window.b24formFeedBack({
+		rootWindow.b24formFeedBack({
 			id: form.id,
 			lang: form.lang,
 			sec: form.sec,
@@ -578,6 +618,7 @@ export class Main extends Event.EventEmitter
 	// eslint-disable-next-line class-methods-use-this
 	initFeedbackForm()
 	{
+		const rootWindow = PageObject.getRootWindow();
 		((w, d, u, b) => {
 			w.Bitrix24FormObject = b; w[b] = w[b] || function() {
 				// eslint-disable-next-line prefer-rest-params
@@ -589,7 +630,7 @@ export class Main extends Event.EventEmitter
 			const s = d.createElement('script');
 			const r = 1 * new Date(); s.async = 1; s.src = `${u}?${r}`;
 			const h = d.getElementsByTagName('script')[0]; h.parentNode.insertBefore(s, h);
-		})(window, document, 'https://landing.bitrix24.ru/bitrix/js/crm/form_loader.js', 'b24formFeedBack');
+		})(rootWindow, rootWindow.document, 'https://landing.bitrix24.ru/bitrix/js/crm/form_loader.js', 'b24formFeedBack');
 	}
 
 
@@ -609,6 +650,80 @@ export class Main extends Event.EventEmitter
 		});
 	}
 
+	/**
+	 * Adds dynamically new block to the category.
+	 * @param {string} category Category code.
+	 * @param {{code: string, name: string, preview: string, section: Array<string>}} block Block data.
+	 */
+	addNewBlockToCategory(category, block)
+	{
+		if (this.blocks[category])
+		{
+			const blockCode = block['codeOriginal'] || block['code'];
+			if (category === 'last')
+			{
+				if (!this.lastBlocks)
+				{
+					this.lastBlocks = Object.keys(this.blocks.last.items);
+				}
+				this.lastBlocks.unshift(blockCode);
+			}
+			else
+			{
+				this.blocks[category].items[blockCode] = block;
+			}
+			this.onBlocksListCategoryChange(category);
+		}
+	}
+
+	removeBlockFromList(blockCode: string)
+	{
+		let removed = false;
+		for (let category in this.blocks)
+		{
+			if (this.blocks[category].items[blockCode] !== undefined)
+			{
+				delete this.blocks[category].items[blockCode];
+				removed = true;
+			}
+		}
+		if (this.lastBlocks.indexOf(blockCode) !== -1)
+		{
+			this.lastBlocks.splice(this.lastBlocks.indexOf(blockCode), 1);
+			removed = true;
+		}
+
+		// refresh panel
+		if (removed)
+		{
+			const activeCategoryButton = this.getBlocksPanel().sidebarButtons.find((button) => {
+				return Dom.hasClass(button.layout, 'landing-ui-active');
+			});
+			if (activeCategoryButton)
+			{
+				this.onBlocksListCategoryChange(activeCategoryButton.id);
+			}
+		}
+	}
+
+	/**
+	 * Returns page's template code if exists.
+	 * @return {string|null}
+	 */
+	getTemplateCode()
+	{
+		let { tplCode } = Env.getInstance().getOptions();
+		if (tplCode.indexOf('@') > 0)
+		{
+			tplCode = tplCode.split('@')[1];
+		}
+		if (!tplCode || tplCode.length <= 0)
+		{
+			tplCode = null;
+		}
+		return tplCode;
+	}
+
 
 	/**
 	 * Handles event on blocks list category change
@@ -616,6 +731,7 @@ export class Main extends Event.EventEmitter
 	 */
 	onBlocksListCategoryChange(category)
 	{
+		const templateCode = this.getTemplateCode();
 		this.getBlocksPanel().content.hidden = false;
 
 		this.getBlocksPanel().sidebarButtons.forEach((button) => {
@@ -629,7 +745,7 @@ export class Main extends Event.EventEmitter
 		{
 			if (!this.lastBlocks)
 			{
-				this.lastBlocks = Object.keys(this.options.blocks.last.items);
+				this.lastBlocks = Object.keys(this.blocks.last.items);
 			}
 
 			this.lastBlocks = [...new Set(this.lastBlocks)];
@@ -642,9 +758,16 @@ export class Main extends Event.EventEmitter
 			return;
 		}
 
-		Object.keys(this.options.blocks[category].items).forEach((blockKey) => {
-			const block = this.options.blocks[category].items[blockKey];
-			this.getBlocksPanel().appendCard(this.createBlockCard(blockKey, block));
+		Object.keys(this.blocks[category].items).forEach((blockKey) => {
+			const block = this.blocks[category].items[blockKey];
+			const blockTplCode = (block['tpl_code'] && block['tpl_code'].length > 0) ? block['tpl_code'] : null;
+			if (
+				!templateCode || !blockTplCode ||
+				(blockTplCode && blockTplCode === templateCode)
+			)
+			{
+				this.getBlocksPanel().appendCard(this.createBlockCard(blockKey, block));
+			}
 		});
 
 		if (this.getBlocksPanel().content.scrollTop)
@@ -773,7 +896,7 @@ export class Main extends Event.EventEmitter
 	{
 		if (this.lastBlocks)
 		{
-			this.lastBlocks.unshift(res.manifest.code);
+			this.lastBlocks.unshift(res.manifest.codeOriginal || res.manifest.code);
 		}
 
 		const self = this;
@@ -837,6 +960,7 @@ export class Main extends Event.EventEmitter
 					designed: res.designed,
 					anchor: res.anchor,
 					dynamicParams: res.dynamicParams,
+					repoId: res.repoId,
 				});
 
 				return self.runBlockScripts(res)
@@ -873,7 +997,9 @@ export class Main extends Event.EventEmitter
 				});
 			})
 			.then((res) => {
-				const p = this.addBlock(res, preventHistory);
+				res.manifest.codeOriginal = blockCode;
+				const p = this.addBlock(res, preventHistory, false);
+				this.insertBefore = false;
 				this.adjustEmptyAreas();
 				void this.hideBlockLoader();
 				this.enableAddBlockButtons();
@@ -889,16 +1015,21 @@ export class Main extends Event.EventEmitter
 	 */
 	insertToBlocksFlow(element)
 	{
-		const insertAfterCurrentBlock = (
+		const isCurrentBlockAvailable = (
 			this.currentBlock
 			&& this.currentBlock.node
 			&& this.currentBlock.node.parentNode
 		);
 
-		if (insertAfterCurrentBlock)
+		if (isCurrentBlockAvailable && !this.insertBefore)
 		{
 			Dom.insertAfter(element, this.currentBlock.node);
 			return;
+		}
+
+		if (isCurrentBlockAvailable && this.insertBefore)
+		{
+			Dom.insertBefore(element, this.currentBlock.node);
 		}
 
 		Dom.prepend(element, this.currentArea);
@@ -1085,8 +1216,26 @@ export class Main extends Event.EventEmitter
 			if (!restoreId)
 			{
 				requestBody.fields = fields;
-				return BX.Landing.Backend.getInstance()
-					.action('Landing::addBlock', requestBody, {code: blockCode});
+				return Backend
+					.getInstance()
+					.action('Landing::addBlock', requestBody, {code: blockCode})
+					.then((result) => {
+						if (this.insertBefore)
+						{
+							return Backend
+								.getInstance()
+								.action('Landing::upBlock', {
+									lid,
+									siteId,
+									block: result.id,
+								})
+								.then(() => {
+									return result;
+								});
+						}
+
+						return result;
+					});
 			}
 
 			requestBody = {
@@ -1131,6 +1280,10 @@ export class Main extends Event.EventEmitter
 			title: block.name,
 			image: block.preview,
 			code: blockKey,
+			app_expired: block.app_expired,
+			favorite: !!block.favorite,
+			favoriteMy: !!block.favoriteMy,
+			repo_id: block.repo_id,
 			mode,
 			isNew: block.new === true,
 			onClick: this.onAddBlock.bind(this, blockKey),

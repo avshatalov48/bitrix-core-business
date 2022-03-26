@@ -5,40 +5,26 @@ namespace Bitrix\Sale\Controller;
 
 
 use Bitrix\Main\Engine\Response\DataType\Page;
+use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\PageNavigation;
-use Bitrix\Sale\Rest\Entity\BusinessValuePersonDomainType;
 use Bitrix\Sale\Result;
 
 Loc::loadMessages(__FILE__);
 
-class PersonType extends Controller
+class PersonType extends ControllerBase
 {
 	//region Actions
 	public function getFieldsAction()
 	{
-		$entity = new \Bitrix\Sale\Rest\Entity\PersonType();
-		return ['PERSON_TYPE'=>$entity->prepareFieldInfos(
-			$entity->getFields()
+		$view = $this->getViewManager()
+			->getView($this);
+
+		return ['PERSON_TYPE'=>$view->prepareFieldInfos(
+			$view->getFields()
 		)];
 	}
-/*
-	public function modifyAction(array $fields)
-	{
-		$fields = self::prepareFields($fields);
-
-		$personTypeId = 0;
-		if(isset($fields['ID']))
-			$personTypeId = $fields['ID'];
-
-		$r = (int)$personTypeId>0 ? $this->updateAction($personTypeId, $fields):$this->addAction($fields);
-
-		if(is_array($r))
-			$this->modifyBusinessValuePersonDomain(array_merge($r, ['BUSVAL_DOMAIN'=>$fields['BUSVAL_DOMAIN']['DOMAIN_TYPE']]));
-
-		return ['PERSON_TYPE'=>$r];
-	}*/
 
 	public function addAction(array $fields)
 	{
@@ -190,9 +176,13 @@ class PersonType extends Controller
 
 		return new Page('PERSON_TYPES', $items, function() use ($filter)
 		{
-			return count(
-				\Bitrix\Sale\PersonType::getList(['filter'=>$filter])->fetchAll()
-			);
+			return (int) \Bitrix\Sale\PersonType::getList([
+				'select' => ['CNT'],
+				'filter'=>$filter,
+				'runtime' => [
+					new ExpressionField('CNT', 'COUNT(ID)')
+				]
+			])->fetch()['CNT'];
 		});
 	}
 	//end region
@@ -222,25 +212,27 @@ class PersonType extends Controller
 		return $r;
 	}
 
-	protected function modifyBusinessValuePersonDomain(array $fields)
+	protected function checkModifyPermissionEntity()
 	{
-		\Bitrix\Sale\Internals\BusinessValuePersonDomainTable::deleteByPersonTypeId((int)$fields['ID']);
+		$r = new Result();
 
-		if ($fields['BUSVAL_DOMAIN'] !== '' && in_array($fields['BUSVAL_DOMAIN'],
-				array_keys(BusinessValuePersonDomainType::getAllDescriptions())
-			))
+		$saleModulePermissions = self::getApplication()->GetGroupRight("sale");
+		if ($saleModulePermissions  < "W")
 		{
-			\Bitrix\Sale\Internals\BusinessValuePersonDomainTable::add([
-				'PERSON_TYPE_ID' => $fields['ID'],
-				'DOMAIN' => $fields['BUSVAL_DOMAIN'],
-			]);
+			$r->addError(new Error('Access Denied', 200040300020));
 		}
+		return $r;
 	}
 
-	static public function prepareFields(array $fields)
+	protected function checkReadPermissionEntity()
 	{
-		$personType = isset($fields['PERSON_TYPE'])? $fields['PERSON_TYPE']:[];
-		$domain = isset($fields['BUSVAL_DOMAIN'])? $fields['BUSVAL_DOMAIN']:[];
-		return array_merge($personType, ['BUSVAL_DOMAIN'=>$domain]);
+		$r = new Result();
+
+		$saleModulePermissions = self::getApplication()->GetGroupRight("sale");
+		if ($saleModulePermissions  == "D")
+		{
+			$r->addError(new Error('Access Denied', 200040300010));
+		}
+		return $r;
 	}
 }

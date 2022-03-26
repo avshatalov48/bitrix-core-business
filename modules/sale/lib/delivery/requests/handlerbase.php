@@ -111,9 +111,10 @@ abstract class HandlerBase
 	 * Add shipments to delivery request
 	 * @param int $requestId
 	 * @param int[] $shipmentIds
+	 * @param array $additional
 	 * @return Result
 	 */
-	public function addShipments($requestId, $shipmentIds)
+	public function addShipments($requestId, $shipmentIds, array $additional = [])
 	{
 		$result = new Result();
 		$result->addError(new Main\Error(Loc::getMessage('SALE_DLVR_REQ_BASE_SHIPMENT_ADD_NOT_SUPPORT')));

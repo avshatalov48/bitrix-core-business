@@ -9,14 +9,16 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Result;
 
-class PropertyGroup extends Controller
+class PropertyGroup extends ControllerBase
 {
 	//region Actions
 	public function getFieldsAction()
 	{
-		$entity = new \Bitrix\Sale\Rest\Entity\PropertyGroup();
-		return ['PROPERTY_GROUP'=>$entity->prepareFieldInfos(
-			$entity->getFields()
+		$view = $this->getViewManager()
+			->getView($this);
+
+		return ['PROPERTY_GROUP'=>$view->prepareFieldInfos(
+			$view->getFields()
 		)];
 	}
 
@@ -58,8 +60,6 @@ class PropertyGroup extends Controller
 		}
 		else
 			return ['PROPERTY_GROUP'=>$this->get($propertyGroupId)];
-
-
 	}
 
 	public function updateAction($id, array $fields)
@@ -155,14 +155,7 @@ class PropertyGroup extends Controller
 
 		return new Page('PROPERTY_GROUPS', $result, function() use ($filter)
 		{
-			$orderPropsGroup = new \CSaleOrderPropsGroup();
-
-			$list = [];
-			$r = $orderPropsGroup->GetList([], $filter);
-			while ($l = $r->fetch())
-				$list[] = $l;
-
-			return count($list);
+			return (int) \CSaleOrderPropsGroup::GetList([], $filter, []);
 		});
 	}
 	//end region
@@ -180,6 +173,30 @@ class PropertyGroup extends Controller
 		if($this->get($id)['ID']<=0)
 			$r->addError(new Error('property group is not exists', 200940400001));
 
+		return $r;
+	}
+
+	protected function checkModifyPermissionEntity()
+	{
+		$r = new Result();
+
+		$saleModulePermissions = self::getApplication()->GetGroupRight("sale");
+		if ($saleModulePermissions  < "W")
+		{
+			$r->addError(new Error('Access Denied', 200040300020));
+		}
+		return $r;
+	}
+
+	protected function checkReadPermissionEntity()
+	{
+		$r = new Result();
+
+		$saleModulePermissions = self::getApplication()->GetGroupRight("sale");
+		if ($saleModulePermissions  == "D")
+		{
+			$r->addError(new Error('Access Denied', 200040300010));
+		}
 		return $r;
 	}
 }

@@ -714,7 +714,7 @@ class UrlPreview
 		}
 
 		$parsedUrl = new Uri($url);
-		$parsedUrl->setHost(ToLower($parsedUrl->getHost()));
+		$parsedUrl->setHost(mb_strtolower($parsedUrl->getHost()));
 
 		return $parsedUrl->getUri();
 	}

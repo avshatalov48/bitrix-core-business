@@ -25,6 +25,7 @@ return array(
 			'type' => 'img',
 			'allowInlineEdit' => false,
 			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-card-button' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_48.SLIDER_WITH_VIDEO_ON_BGIMG_NODES_LANDINGBLOCKNODECARDBUTTON'),

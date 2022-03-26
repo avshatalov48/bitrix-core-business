@@ -11,6 +11,19 @@ use Bitrix\Main\ORM\Fields;
 /**
  * Class SenderTable
  * @package Bitrix\Main\Mail\Internal
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Sender_Query query()
+ * @method static EO_Sender_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_Sender_Result getById($id)
+ * @method static EO_Sender_Result getList(array $parameters = [])
+ * @method static EO_Sender_Entity getEntity()
+ * @method static \Bitrix\Main\Mail\Internal\Sender createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Mail\Internal\EO_Sender_Collection createCollection()
+ * @method static \Bitrix\Main\Mail\Internal\Sender wakeUpObject($row)
+ * @method static \Bitrix\Main\Mail\Internal\EO_Sender_Collection wakeUpCollection($rows)
  */
 class SenderTable extends Entity\DataManager
 {

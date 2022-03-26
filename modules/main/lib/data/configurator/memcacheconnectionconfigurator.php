@@ -62,7 +62,7 @@ class MemcacheConnectionConfigurator
 	{
 		if (!$this->servers)
 		{
-			throw new NotSupportedException('Empty server list to redis connection.');
+			throw new NotSupportedException('Empty server list to memcache connection.');
 		}
 
 		$connectionTimeout = $this->getConfig()['connectionTimeout'] ?? 1;

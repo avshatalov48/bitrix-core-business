@@ -346,21 +346,53 @@ class Manager
 	{
 		$user = new \CBPWorkflowTemplateUser($userId);
 
-		return $user->isAdmin();
+		if ($user->isAdmin())
+		{
+			return true;
+		}
+
+		$script = static::getById($scriptId);
+		if (!$script)
+		{
+			return false;
+		}
+
+		$documentType = [$script['MODULE_ID'], $script['ENTITY'], $script['DOCUMENT_TYPE']];
+
+		return \CBPDocument::canUserOperateDocumentType(
+			\CBPCanUserOperateOperation::ViewWorkflow,
+			$userId,
+			$documentType
+		);
 	}
 
 	public static function canUserEditScript(int $scriptId, int $userId): bool
 	{
-		$user = new \CBPWorkflowTemplateUser($userId);
+		$script = static::getById($scriptId);
+		if (!$script)
+		{
+			return false;
+		}
 
-		return $user->isAdmin();
+		$documentType = [$script['MODULE_ID'], $script['ENTITY'], $script['DOCUMENT_TYPE']];
+
+		return static::canUserCreateScript($documentType, $userId);
 	}
 
 	public static function canUserCreateScript(array $documentType, int $userId): bool
 	{
 		$user = new \CBPWorkflowTemplateUser($userId);
 
-		return $user->isAdmin();
+		if ($user->isAdmin())
+		{
+			return true;
+		}
+
+		return \CBPDocument::canUserOperateDocumentType(
+			\CBPCanUserOperateOperation::CreateWorkflow,
+			$userId,
+			$documentType
+		);
 	}
 
 	public static function exportScript(int $scriptId): ?array

@@ -89,7 +89,7 @@ export default class Preset extends EventEmitter
 		return this.items.some(item => {
 			if (item instanceof ColorValue && value instanceof ColorValue)
 			{
-				return ColorValue.compare(item, value);
+				return ColorValue.compare(item, new ColorValue(value).setOpacity(1));
 			}
 			else if (item instanceof GradientValue && value instanceof GradientValue)
 			{
@@ -146,7 +146,11 @@ export default class Preset extends EventEmitter
 			}
 			else
 			{
-				this.setActiveItem(value.getName());
+				this.setActiveItem(
+					new ColorValue(value)
+						.setOpacity(1)
+						.getName()
+				);
 			}
 		}
 	}

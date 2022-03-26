@@ -2,6 +2,8 @@
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
+use Bitrix\Crm;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -18,10 +20,25 @@ class CatalogProductControllerComponent extends CBitrixComponent
 	private const URL_TEMPLATE_CREATE_PROPERTY = 'property_creator';
 	private const URL_TEMPLATE_MODIFY_PROPERTY = 'property_modify';
 	private const URL_TEMPLATE_FEEDBACK = 'feedback';
+	private const URL_TEMPLATE_PRODUCT_STORE_AMOUNT = 'product_store_amount_details';
+	private const URL_TEMPLATE_PRODUCT_STORE_AMOUNT_SLIDER = 'product_store_amount_details_slider';
+
+	public const SCOPE_SHOP = 'shop';
+	public const SCOPE_CRM = 'crm';
+
+	protected $crmIncluded;
+
+	public function __construct($component = null)
+	{
+		parent::__construct($component);
+
+		$this->crmIncluded = Loader::includeModule('crm');
+	}
 
 	public function onPrepareComponentParams($params): array
 	{
 		$params['IFRAME'] = (bool)($params['IFRAME'] ?? $this->request->get('IFRAME') === 'Y');
+		$params = $this->getPreparedParams($params);
 
 		return parent::onPrepareComponentParams($params);
 	}
@@ -35,6 +52,8 @@ class CatalogProductControllerComponent extends CBitrixComponent
 			self::URL_TEMPLATE_CREATE_PROPERTY => '#IBLOCK_ID#/create_property/#PROPERTY_TYPE#/',
 			self::URL_TEMPLATE_MODIFY_PROPERTY => '#IBLOCK_ID#/modify_property/#PROPERTY_ID#/',
 			self::URL_TEMPLATE_FEEDBACK => 'feedback/',
+			self::URL_TEMPLATE_PRODUCT_STORE_AMOUNT => '#IBLOCK_ID#/product/#PRODUCT_ID#/store_amount/?storeId=#STORE_ID#',
+			self::URL_TEMPLATE_PRODUCT_STORE_AMOUNT_SLIDER => '#IBLOCK_ID#/product/#PRODUCT_ID#/variation/#VARIATION_ID#/store_amount_slider/',
 		];
 	}
 
@@ -43,6 +62,61 @@ class CatalogProductControllerComponent extends CBitrixComponent
 		$templates = self::getTemplateUrls();
 
 		return isset($templates[$templateId]);
+	}
+
+	protected function getPreparedParams(array $params): array
+	{
+		$allowedBuilderTypes = [
+			Catalog\Url\ShopBuilder::TYPE_ID,
+			Catalog\Url\InventoryBuilder::TYPE_ID,
+		];
+		$allowedScopeList = [
+			self::SCOPE_SHOP,
+		];
+		if ($this->crmIncluded)
+		{
+			$allowedBuilderTypes[] = Crm\Product\Url\ProductBuilder::TYPE_ID;
+			$allowedScopeList[] = self::SCOPE_CRM;
+		}
+
+		$params['BUILDER_CONTEXT'] = (string)($params['BUILDER_CONTEXT'] ?? '');
+		if (!in_array($params['BUILDER_CONTEXT'], $allowedBuilderTypes, true))
+		{
+			$params['BUILDER_CONTEXT'] = Catalog\Url\ShopBuilder::TYPE_ID;
+		}
+
+		$params['SCOPE'] = (string)($params['SCOPE'] ?? '');
+		if ($params['SCOPE'] === '')
+		{
+			$params['SCOPE'] = $this->getScopeByUrl();
+		}
+
+		if (!in_array($params['SCOPE'], $allowedScopeList))
+		{
+			$params['SCOPE'] = self::SCOPE_SHOP;
+		}
+
+		return $params;
+	}
+
+	protected function getScopeByUrl(): string
+	{
+		$result = '';
+
+		$currentPath = $this->request->getRequestUri();
+		if (strncmp($currentPath, '/shop/', 6) === 0)
+		{
+			$result = self::SCOPE_SHOP;
+		}
+		elseif ($this->crmIncluded)
+		{
+			if (strncmp($currentPath, '/crm/', 5) === 0)
+			{
+				$result = self::SCOPE_CRM;
+			}
+		}
+
+		return $result;
 	}
 
 	protected function checkModules(): bool
@@ -59,7 +133,7 @@ class CatalogProductControllerComponent extends CBitrixComponent
 
 	protected function checkFeature(): bool
 	{
-		if (!\Bitrix\Catalog\Config\Feature::isCommonProductProcessingEnabled())
+		if (!$this->isCardAllowed())
 		{
 			ShowError(Loc::getMessage('CATALOG_FEATURE_IS_DISABLED'));
 
@@ -67,6 +141,28 @@ class CatalogProductControllerComponent extends CBitrixComponent
 		}
 
 		return true;
+	}
+
+	protected function isCardAllowed(): bool
+	{
+		switch ($this->arParams['SCOPE'])
+		{
+			case self::SCOPE_SHOP:
+				$result = Catalog\Config\State::isProductCardSliderEnabled();
+				break;
+			case self::SCOPE_CRM:
+				$result = false;
+				if ($this->crmIncluded)
+				{
+					$result = Crm\Settings\LayoutSettings::getCurrent()->isFullCatalogEnabled();
+				}
+				break;
+			default:
+				$result = false;
+				break;
+		}
+
+		return $result;
 	}
 
 	protected function processSefMode($templateUrls): array
@@ -145,6 +241,8 @@ class CatalogProductControllerComponent extends CBitrixComponent
 			],
 			$this->arResult
 		);
+		$this->arResult['BUILDER_CONTEXT'] = $this->arParams['BUILDER_CONTEXT'];
+		$this->arResult['SCOPE'] = $this->arParams['SCOPE'];
 
 		if (
 			\Bitrix\Main\Context::getCurrent()->getRequest()->get('IFRAME') === 'Y'
@@ -178,7 +276,10 @@ class CatalogProductControllerComponent extends CBitrixComponent
 				);
 			}
 			$uri = new \Bitrix\Main\Web\Uri($url);
-			$uri->addParams(['slider_path' => $sliderPath]);
+			$sliderOption = $urlBuilder->getSliderPathOption($sliderPath);
+			$uri->addParams(
+				$sliderOption ?? []
+			);
 			\LocalRedirect($uri->getLocator());
 		}
 	}

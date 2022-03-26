@@ -116,7 +116,7 @@ class CBPListenActivity
 		}
 
 		if (!$bCorrect)
-			$arErrors[] = array("code" => "WrongChildType", "message" => GetMessage("BPLA_INVALID_ACTIVITY"));
+			$arErrors[] = array("code" => "WrongChildType", "message" => GetMessage("BPLA_INVALID_ACTIVITY_1"));
 
 		return array_merge($arErrors, parent::ValidateChild($childActivity, $bFirstChild));
 	}

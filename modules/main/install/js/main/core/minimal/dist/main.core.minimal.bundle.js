@@ -14362,9 +14362,13 @@
 
 	var _Symbol$iterator;
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
-	var _searchIndexToInsert = new WeakSet();
+	var _searchIndexToInsert = /*#__PURE__*/new WeakSet();
 
 	_Symbol$iterator = Symbol.iterator;
 
@@ -14373,7 +14377,7 @@
 	    var comparator = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 	    babelHelpers.classCallCheck(this, OrderedArray);
 
-	    _searchIndexToInsert.add(this);
+	    _classPrivateMethodInitSpec(this, _searchIndexToInsert);
 
 	    babelHelpers.defineProperty(this, "comparator", null);
 	    babelHelpers.defineProperty(this, "items", []);
@@ -14511,7 +14515,7 @@
 	  return OrderedArray;
 	}();
 
-	var _searchIndexToInsert2 = function _searchIndexToInsert2(value) {
+	function _searchIndexToInsert2(value) {
 	  var low = 0;
 	  var high = this.items.length;
 
@@ -14526,7 +14530,7 @@
 	  }
 
 	  return low;
-	};
+	}
 
 	var ZIndexComponent = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(ZIndexComponent, _EventEmitter);
@@ -14800,7 +14804,9 @@
 	  return ZIndexStack;
 	}();
 
-	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } return method; }
+	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
+
+	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
 
 	/**
 	 * @memberof BX
@@ -14881,7 +14887,7 @@
 	  return ZIndexManager;
 	}();
 
-	var _getParentNode = function _getParentNode(element) {
+	function _getParentNode(element) {
 	  var suppressWarnings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
 	  if (!Type.isElementNode(element)) {
@@ -14899,7 +14905,7 @@
 	  }
 
 	  return element.parentNode;
-	};
+	}
 
 	babelHelpers.defineProperty(ZIndexManager, "stacks", new WeakMap());
 

@@ -46,6 +46,7 @@
 	position: relative;
 	background-position: center;
 	background-repeat: no-repeat;
+	background-size: 28px 28px;
 	align-self: center;
 	min-width: 58px;
 	height: 58px;
@@ -66,7 +67,7 @@
 }
 
 .landing-ui-panel-preset-text-title {
-	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-sarif, serif;
+	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-serif, serif;
 	font-size: 14px;
 	color: #333333;
 	line-height: 17px;
@@ -97,7 +98,7 @@
 }
 
 .landing-ui-panel-preset-soon-label {
-	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-sarif, serif;
+	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-serif, serif;
 	background: #3BC6F3;
 	border-radius: 11px;
 	font-size: 9px;

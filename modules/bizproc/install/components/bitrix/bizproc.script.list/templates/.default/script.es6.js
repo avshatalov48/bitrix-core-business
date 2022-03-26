@@ -98,12 +98,32 @@ class ScriptListComponent
 
 	activateScript(scriptId: number)
 	{
-		Script.Manager.Instance.activateScript(scriptId).then(() => this.reloadGrid());
+		Script.Manager.Instance.activateScript(scriptId).then(
+			(response) => {
+				if (response.data.error)
+				{
+					MessageBox.alert(response.data.error);
+				}
+				else
+				{
+					this.reloadGrid()
+				}
+			}
+		);
 	}
 
 	deactivateScript(scriptId: number)
 	{
-		Script.Manager.Instance.deactivateScript(scriptId).then(() => this.reloadGrid());
+		Script.Manager.Instance.deactivateScript(scriptId).then((response) => {
+			if (response.data.error)
+			{
+				MessageBox.alert(response.data.error);
+			}
+			else
+			{
+				this.reloadGrid()
+			}
+		});
 	}
 
 	editScript(scriptId: number)

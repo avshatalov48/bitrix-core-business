@@ -55,6 +55,14 @@ export default class Editor
 		this.formEntityType = null;
 		Editor.repo.set(this.getId(), this);
 
+		if (
+			!Type.isArray(editorParams.parsers)
+			&& Type.isPlainObject(editorParams.parsers)
+		)
+		{
+			editorParams.parsers = Object.values(editorParams.parsers);
+		}
+
 		this.setEditorParams(editorParams);
 
 		this.bindEvents(window['BXHtmlEditor'] ? window['BXHtmlEditor'].Get(this.getId()) : null);

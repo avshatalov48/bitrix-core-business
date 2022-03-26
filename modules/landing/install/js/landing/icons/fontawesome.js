@@ -1,7 +1,7 @@
 ;(function ()
 {
 	"use strict";
-
+// todo: can remove 'icons' folder?
 	BX.namespace("BX.Landing.Icon");
 
 	BX.Landing.Icon.FontAwesome = {

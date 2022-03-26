@@ -11,6 +11,7 @@ $pathTemplate24 = getLocalPath($pathTemplate24);
 $pathCSS = '/bitrix/js/landing/css';
 $pathLang = BX_ROOT . '/modules/landing/lang/' . LANGUAGE_ID;
 
+
 $jsConfig = array(
 	'landing_master' => array(
 		'rel' => array(
@@ -51,25 +52,6 @@ $jsConfig = array(
 		'lang' => $pathLang . '/js/video_alert.php',
 		'rel' => ['mediaplayer']
 	],
-	'map_provider' => array(
-		'js' => array(
-			$pathJS . '/provider/map/base-map-provider.js',
-			$pathJS . '/provider/map/google-map.js',
-			$pathJS . '/provider/map/google-map/theme/silver.theme.js',
-			$pathJS . '/provider/map/google-map/theme/retro.theme.js',
-			$pathJS . '/provider/map/google-map/theme/dark.theme.js',
-			$pathJS . '/provider/map/google-map/theme/night.theme.js',
-			$pathJS . '/provider/map/google-map/theme/aubergine.theme.js'
-		),
-		'css' => array(
-			$pathCSS . '/provider/map/google-map.css',
-		),
-		'rel' => [
-			'landing.collection.basecollection',
-			'landing.utils',
-			'landing.loc'
-		],
-	),
 
 	'polyfill' => array(
 		'js' => array(
@@ -177,11 +159,54 @@ $jsConfig = array(
 
 	'landing_icon_fonts' => array(
 		'css' => array(
-			$pathTemplate24 . '/assets/vendor/icon-awesome/css/font-awesome.css',
-			$pathTemplate24 . '/assets/vendor/icon-etlinefont/style.css',
-			$pathTemplate24 . '/assets/vendor/icon-hs/style.css',
-			$pathTemplate24 . '/assets/vendor/icon-line/css/simple-line-icons.css',
-			$pathTemplate24 . '/assets/vendor/icon-line-pro/style.css'
+			$pathTemplate24 . '/assets/vendor/icon/et-icon/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/et-icon/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/hs-icon/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/hs-icon/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-christmas/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-christmas/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-clothes/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-clothes/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-communication/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-communication/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-education/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-education/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-electronics/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-electronics/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-finance/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-finance/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-food/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-food/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-furniture/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-furniture/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-hotel-restaurant/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-hotel-restaurant/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-media/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-media/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-medical/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-medical/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-music/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-music/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-real-estate/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-real-estate/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-science/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-science/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-sport/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-sport/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-transport/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-transport/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-travel/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-travel/content.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-weather/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/icon-weather/content.css',
+
+			// one common styles for all FA types - for editor
+			$pathTemplate24 . '/assets/vendor/icon/fa6/all.css',
+			$pathTemplate24 . '/assets/vendor/icon/fa6/v4-shims.css',
+			$pathTemplate24 . '/assets/vendor/icon/fab/style.css',
+			$pathTemplate24 . '/assets/vendor/icon/fab/content.css',
 		),
 	),
 
@@ -262,11 +287,17 @@ $jsConfig = array(
 	),
 
 	'landing_google_maps_new' => array(
+		'rel' => array(
+			'landing_map'
+		)
+	),
+
+	'landing_map' => array(
 		'js' => array(
-			$pathTemplate24 . '/assets/js/helpers/google_maps_new.js'
+			$pathTemplate24 . '/assets/js/helpers/map_init.js'
 		),
 		'rel' => array(
-			'map_provider'
+			'landing.provider.map'
 		)
 	),
 

@@ -25,6 +25,14 @@
 	background-image: url("images/edit-icon.svg");
 }
 
+.landing-ui-button-icon-user1 {
+	background-image: url("images/user1.svg");
+}
+
+.landing-ui-button-icon-user1active {
+	background-image: url("images/user1-active.svg");
+}
+
 .landing-ui-button-icon-font {
 	/*background-image: url("images/edit-icon.svg");*/
 	width: 20px;

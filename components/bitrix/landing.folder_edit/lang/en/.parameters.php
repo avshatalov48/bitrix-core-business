@@ -1,0 +1,5 @@
+<?php
+$MESS["LANDING_CMP_PAR_FOLDER_ID"] = "Folder ID";
+$MESS["LANDING_CMP_PAR_LANDING_TYPE"] = "Site type";
+$MESS["LANDING_CMP_PAR_PAGE_URL_LANDING_EDIT"] = "New landing create page";
+$MESS["LANDING_CMP_PAR_PAGE_URL_LANDING_VIEW"] = "Landing edit page";

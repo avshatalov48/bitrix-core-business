@@ -585,45 +585,6 @@
 			this.externalEntryIndex = {};
 		},
 
-		// setMeetingStatus: function(entry, status, params)
-		// {
-		// 	if (typeof params == 'undefined')
-		// 		params = {};
-		//
-		// 	if (status === 'N' && !params.confirmed)
-		// 	{
-		// 		if (entry.isRecursive())
-		// 		{
-		// 			this.showConfirmDeclineDialog(entry);
-		// 			return false;
-		// 		}
-		// 	}
-		//
-		// 	this.calendar.request({
-		// 		type: 'post',
-		// 		data: {
-		// 			action: 'set_meeting_status',
-		// 			event_id: entry.id,
-		// 			parent_id: entry.parentId,
-		// 			status: status,
-		// 			reccurent_mode: params.recursionMode || false,
-		// 			current_date_from: this.calendar.util.formatDate(entry.from)
-		// 		},
-		// 		handler: BX.delegate(function(response)
-		// 		{
-		// 			this.calendar.reload();
-		// 		}, this)
-		// 	});
-		// 	return true;
-		// },
-
-		// showConfirmDeclineDialog: function(entry)
-		// {
-		// 	if (!this.confirmDeclineDialog)
-		// 		this.confirmDeclineDialog = new window.BXEventCalendar.ConfirmDeclineDialog(this.calendar);
-		// 	this.confirmDeclineDialog.show(entry);
-		// },
-
 		checkMeetingByCodes: function(codes)
 		{
 			var code, n = 0;

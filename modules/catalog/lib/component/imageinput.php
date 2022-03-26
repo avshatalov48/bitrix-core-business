@@ -105,7 +105,7 @@ class ImageInput
 	{
 		if (!$this->inputId)
 		{
-			$id = $this->getInputName().'_'.random_int(1, 1000000);
+			$id = uniqid($this->getInputName().'_', false);
 			$this->inputId = strtolower(preg_replace('/[^a-z0-9]/i', '_', $id));
 		}
 

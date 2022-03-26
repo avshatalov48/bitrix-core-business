@@ -3,7 +3,6 @@
 namespace Bitrix\Im\Configuration;
 
 use Bitrix\Im\Call\VideoStrategyType;
-use Bitrix\Im\Log;
 use Bitrix\Im\Model\OptionStateTable;
 use Bitrix\Im\Model\OptionUserTable;
 use Bitrix\Main\ArgumentException;
@@ -16,36 +15,58 @@ class General extends Base
 {
 	public const ENTITY = 'se';
 
-	const PRIVACY_RESULT_ALL = 'all';
-	const PRIVACY_RESULT_CONTACT = 'contact';
-	const PRIVACY_RESULT_NOBODY = 'nobody';
-	private $userId;
+	public const PRIVACY_RESULT_ALL = 'all';
+	public const PRIVACY_RESULT_CONTACT = 'contact';
+	public const PRIVACY_RESULT_NOBODY = 'nobody';
+	
+	/** @var int  */
+	protected $userId;
 
-	private static $userSettings = [];
+	/** @var array */
+	protected $userSettings;
+
+	/** @var General[] */
+	protected static $instanceList = [];
 
 	/**
-	 * @param int $userId
+	 * This class should not be instantiated directly. Use one of the named constructors.
 	 */
-	public function __construct(int $userId)
+	protected function __construct()
 	{
-		$this->userId = $userId;
+
+	}
+
+	public static function createWithUserId(int $userId): General
+	{
+		if (!isset(self::$instanceList[$userId]))
+		{
+			$instance = new static();
+			$instance->setUserId($userId);
+			$instance->fillUserSettings();
+
+			self::$instanceList[$userId] = $instance;
+		}
+
+		return self::$instanceList[$userId];
 	}
 
 	/**
 	 * @param $settingName
 	 *
 	 * @return mixed
-	 * @throws ArgumentException
-	 * @throws ObjectPropertyException
-	 * @throws SystemException
 	 */
 	public function getValue($settingName)
 	{
-		if (!empty(self::$userSettings))
-		{
-			return self::$userSettings[$settingName];
-		}
+		return $this->userSettings[$settingName];
+	}
 
+	protected function setUserId(int $userId): void
+	{
+		$this->userId = $userId;
+	}
+
+	protected function fillUserSettings(): void
+	{
 		$preset = Configuration::getUserPresetFromCache($this->userId);
 		if (!empty($preset))
 		{
@@ -53,14 +74,12 @@ class General extends Base
 				array_replace_recursive(self::getDefaultSettings(), $preset['general']['settings'])
 			;
 
-			self::$userSettings = $preset['general']['settings'];
-
-			return self::$userSettings[$settingName];
+			$this->userSettings =  $preset['general']['settings'];
 		}
-
-		self::$userSettings = self::getUserSettings($this->userId);
-
-		return self::$userSettings[$settingName];
+		else
+		{
+			$this->userSettings = self::getUserSettings($this->userId);
+		}
 	}
 
 	/**

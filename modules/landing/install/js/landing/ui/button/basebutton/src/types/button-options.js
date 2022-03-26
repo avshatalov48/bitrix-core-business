@@ -8,6 +8,7 @@ interface BaseButtonOptions
 	disabled?: boolean;
 	className?: string | Array<string>;
 	active?: boolean;
+	separate?: boolean;
 }
 
 export default BaseButtonOptions;

@@ -6,6 +6,7 @@ namespace Bitrix\Sale\Controller;
 
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\Response\DataType\Page;
+use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Error;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Sale\BasketItem;
@@ -95,11 +96,15 @@ class ShipmentItem extends Controller
 			]
 		)->fetchAll();
 
-		return new Page('SHIPMENT_ITEMS', $shipmentItems, function() use ($select, $filter)
+		return new Page('SHIPMENT_ITEMS', $shipmentItems, function() use ($filter)
 		{
-			return count(
-				\Bitrix\Sale\ShipmentItem::getList(['select'=>$select, 'filter'=>$filter])->fetchAll()
-			);
+			return (int) \Bitrix\Sale\ShipmentItem::getList([
+				'select' => ['CNT'],
+				'filter'=>$filter,
+				'runtime' => [
+					new ExpressionField('CNT', 'COUNT(ID)')
+				]
+			])->fetch()['CNT'];
 		});
 	}
 

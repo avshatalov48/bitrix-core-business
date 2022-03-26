@@ -9,7 +9,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $arResult */
 /** @var array $arParams */
 /** @var \CMain $APPLICATION */
-/** @var LandingSiteEditComponent $component */
+/** @var \LandingSiteEditComponent $component */
 
 use Bitrix\Landing\Domain;
 use Bitrix\Landing\Domain\Register;
@@ -21,6 +21,7 @@ use Bitrix\Main\Application;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Uri;
 use CBXPunycode;
 use CJSCore;
@@ -70,8 +71,10 @@ else
 
 // assets
 CJSCore::init([
-	'color_picker', 'landing_master', 'action_dialog',
-	'access', 'sidepanel', 'landing.metrika', 'ui.buttons'
+	'color_picker', 'landing_master', 'action_dialog', 'access'
+]);
+Extension::load([
+	'sidepanel', 'landing.metrika', 'ui.buttons', 'ui.dialogs.messagebox'
 ]);
 Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.css');
 Asset::getInstance()->addJS('/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.js');
@@ -363,7 +366,7 @@ if ($arParams['SUCCESS_SAVE'])
 								<?php if (isset($hooks['PIXELFB']) || isset($hooks['PIXELVK'])):?>
 									<span class="landing-additional-alt-promo-text" data-landing-additional-option="pixel"><?= Loc::getMessage('LANDING_TPL_HOOK_PIXEL') ?></span>
 								<?php endif;?>
-								<?php if (isset($hooks['GMAP'])):?>
+								<?php if (isset($hooks['GMAP']) || isset($hooks['YMAP'])):?>
 									<span class="landing-additional-alt-promo-text" data-landing-additional-option="map_required_key"><?= Loc::getMessage('LANDING_TPL_HOOK_GMAP') ?></span>
 								<?php endif;?>
 								<?php if (isset($hooks['VIEW'])):?>
@@ -479,7 +482,13 @@ if ($arParams['SUCCESS_SAVE'])
 				<tr class="landing-form-hidden-row" data-landing-additional-detail="map_required_key">
 					<td class="ui-form-label ui-form-label-align-top"><?= Loc::getMessage('LANDING_TPL_HOOK_GMAP') ?></td>
 					<td class="ui-form-right-cell ui-form-right-cell-map">
-						<?$template->showSimple('GMAP');?>
+						<?php $template->showSimple('GMAP'); ?>
+						<?php
+						if ($availableOnlyForZoneRu)
+						{
+							 $template->showSimple('YMAP');
+						}
+						?>
 					</td>
 				</tr>
 				<?php endif;?>
@@ -733,7 +742,6 @@ if ($arParams['SUCCESS_SAVE'])
 										</div>
 									</div>
 								<?php endif;?>
-
 								<?php if (isset($pageFields['SPEED_USE_LAZY'])):?>
 									<div class="ui-checkbox-hidden-input">
 										<?php
@@ -755,6 +763,15 @@ if ($arParams['SUCCESS_SAVE'])
 										</div>
 									</div>
 								<?php endif;?>
+								<script type="text/javascript">
+									BX.ready(function()
+									{
+										BX.Landing.NeedPublicationField([
+											'checkbox-speed-use_lazy',
+											'checkbox-speed-use_webpack',
+										]);
+									});
+								</script>
 							</div>
 							<div class="landing-form-help-link">
 								<?= $pageFields['SPEED_USE_WEBPACK']->getHelpValue() ?>

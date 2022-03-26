@@ -84,14 +84,13 @@ if (!function_exists('__GCE_GetGroup'))
 				'filter' => array(
 					'ROLE' => UserToGroupTable::ROLE_MODERATOR,
 					'GROUP_ID' => $group_id,
-					'=USER.ACTIVE' => 'Y'
 				),
 				'select' => array('USER_ID')
 
 			));
-			while($relation = $res->fetch())
+			while ($relation = $res->fetch())
 			{
-				$arGroupTmp["MODERATOR_IDS"][] = $relation['USER_ID'];
+				$arGroupTmp["MODERATOR_IDS"][] = (int)$relation['USER_ID'];
 			}
 		}
 		else

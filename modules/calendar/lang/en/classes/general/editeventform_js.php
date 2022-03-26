@@ -14,6 +14,7 @@ $MESS["EC_EVENT_TZ_HINT"] = "If the event is going to take place in a different 
 $MESS["EC_LOCATION_EMPTY"] = "Meeting room was not found";
 $MESS["EC_LOCATION_LABEL"] = "Location";
 $MESS["EC_LOCATION_OVERFLOW"] = "Number of attendees exceeds meeting room capacity";
+$MESS["EC_LOCATION_RESERVED"] = "Reserved";
 $MESS["EC_REMIND"] = "Remind";
 $MESS["EC_REMIND1_0"] = "When the event starts";
 $MESS["EC_REMIND1_5"] = "5 minutes before";

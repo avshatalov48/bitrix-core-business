@@ -346,35 +346,51 @@ class OrderCreate extends Base
 			if($shipmentParams['DELIVERY_SERVICE_CONFIG']['MAIN']['CATEGORY'] == 4)
 				$item['payment'] = $price;
 
-			if(!empty($shipmentParams['LOCATION_TO_TYPES']['REGION']))
-				$item['region-to'] = $shipmentParams['LOCATION_TO_TYPES']['REGION'];
+			if (!empty($shipmentParams['LOCATION_TO_TYPES']['REGION']))
+			{
+				$item['region-to'] = $this->convertLocationTypeToString($shipmentParams['LOCATION_TO_TYPES']['REGION']);
+			}
 
-			if(!empty($shipmentParams['LOCATION_TO_TYPES']['SUBREGION']))
-				$item['area-to'] = $shipmentParams['LOCATION_TO_TYPES']['SUBREGION'];
+			if (!empty($shipmentParams['LOCATION_TO_TYPES']['SUBREGION']))
+			{
+				$item['area-to'] = $this->convertLocationTypeToString($shipmentParams['LOCATION_TO_TYPES']['SUBREGION']);
+			}
 
-			if(!empty($shipmentParams['LOCATION_TO_TYPES']['STREET']))
-				$item['street-to'] = $shipmentParams['LOCATION_TO_TYPES']['STREET'];
+			if (!empty($shipmentParams['LOCATION_TO_TYPES']['STREET']))
+			{
+				$item['street-to'] = $this->convertLocationTypeToString($shipmentParams['LOCATION_TO_TYPES']['STREET']);
+			}
 
-			if(!empty($shipmentParams['LOCATION_TO_TYPES']['VILLAGE']))
-				$item['place-to'] = $shipmentParams['LOCATION_TO_TYPES']['VILLAGE'];
-			elseif(!empty($shipmentParams['LOCATION_TO_TYPES']['CITY']))
-				$item['place-to'] = $shipmentParams['LOCATION_TO_TYPES']['CITY'];
+			if (!empty($shipmentParams['LOCATION_TO_TYPES']['VILLAGE']))
+			{
+				$item['place-to'] = $this->convertLocationTypeToString($shipmentParams['LOCATION_TO_TYPES']['VILLAGE']);
+			}
+			elseif (!empty($shipmentParams['LOCATION_TO_TYPES']['CITY']))
+			{
+				$item['place-to'] = $this->convertLocationTypeToString($shipmentParams['LOCATION_TO_TYPES']['CITY']);
+			}
 
-			if(!empty($shipmentParams['ZIP_TO']))
+			if (!empty($shipmentParams['ZIP_TO']))
+			{
 				$item['index-to'] = $shipmentParams['ZIP_TO'];
+			}
 
 			$address = '';
-			$types = array('COUNTRY', 'REGION', 'SUBREGION', 'CITY', 'VILLAGE', 'STREET');
+			$types = ['COUNTRY', 'REGION', 'SUBREGION', 'CITY', 'VILLAGE', 'STREET'];
 
 			foreach($types as $type)
 			{
-				if(empty($shipmentParams['LOCATION_TO_TYPES'][$type]))
+				if (empty($shipmentParams['LOCATION_TO_TYPES'][$type]))
+				{
 					continue;
+				}
 
-				if($address <> '')
+				if ($address <> '')
+				{
 					$address .= ', ';
+				}
 
-				$address .= $shipmentParams['LOCATION_TO_TYPES'][$type];
+				$address .= $this->convertLocationTypeToString($shipmentParams['LOCATION_TO_TYPES'][$type]);
 			}
 
 			if(!empty($shipmentParams['ADDRESS']))
@@ -509,5 +525,14 @@ class OrderCreate extends Base
 			$result->addError(new Error(Loc::getMessage('SALE_DLVRS_ADD_DREQ_ROC_DATA_EMPTY')));
 
 		return $result;
+	}
+
+	/**
+	 * @param array $locationTypeComponent
+	 * @return string
+	 */
+	private function convertLocationTypeToString(array $locationTypeComponent): string
+	{
+		return implode(', ', $locationTypeComponent);
 	}
 }

@@ -1,3 +1,67 @@
+;(function () {
+	'use strict';
+
+	BX.namespace('BX.Bizproc.WorkflowEditComponent');
+
+	if (typeof BX.Bizproc.WorkflowEditComponent.Globals !== 'undefined')
+	{
+		return;
+	}
+
+	BX.Bizproc.WorkflowEditComponent.Globals = {};
+
+	BX.Bizproc.WorkflowEditComponent.Globals.init = function (params)
+	{
+		this.documentTypeSigned = String(params.documentTypeSigned);
+	};
+
+	BX.Bizproc.WorkflowEditComponent.Globals.onAfterSliderClose = function (slider, target)
+	{
+		var sliderInfo = slider.getData();
+		if (sliderInfo.get('upsert'))
+		{
+			var newGFields = sliderInfo.get('upsert');
+			for (var fieldId in newGFields)
+			{
+				target[fieldId] = newGFields[fieldId];
+			}
+		}
+		if (sliderInfo.get('delete'))
+		{
+			var deletedGFields = sliderInfo.get('delete');
+			for (var i in deletedGFields)
+			{
+				delete target[deletedGFields[i]];
+			}
+		}
+	};
+
+	BX.Bizproc.WorkflowEditComponent.Globals.showGlobalVariables = function ()
+	{
+		var me = this;
+
+		BX.Bizproc.Globals.Manager.Instance.showGlobals(
+			BX.Bizproc.Globals.Manager.Instance.mode.variable,
+			String(this.documentTypeSigned)
+		).then(function (slider) {
+			me.onAfterSliderClose(slider, arWorkflowGlobalVariables);
+		});
+	};
+
+	BX.Bizproc.WorkflowEditComponent.Globals.showGlobalConstants = function ()
+	{
+		var me = this;
+
+		BX.Bizproc.Globals.Manager.Instance.showGlobals(
+			BX.Bizproc.Globals.Manager.Instance.mode.constant,
+			String(this.documentTypeSigned)
+		).then(function (slider) {
+			me.onAfterSliderClose(slider, arWorkflowGlobalConstants);
+		});
+	};
+
+})();
+
 function BPImportToClipboard()
 {
 	var dataString = JSON.stringify({

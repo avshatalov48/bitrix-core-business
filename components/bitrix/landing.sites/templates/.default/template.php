@@ -12,6 +12,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Crm\Integration\NotificationsManager;
 use \Bitrix\Landing\Manager;
+use \Bitrix\Landing\Restriction;
 use \Bitrix\Main\Loader;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Main\Localization\Loc;
@@ -64,7 +65,6 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 	);
 }
 
-
 // feedback form
 if (
 	$lastPage && !$arResult['IS_DELETED'] &&
@@ -84,6 +84,11 @@ if (
 	<?
 }
 
+// slider's script
+if ($arResult['EXPORT_DISABLED'] === 'Y')
+{
+	echo '<script>function landingExportDisabled(){' . Restriction\Manager::getActionCode('limit_sites_transfer') . '}</script>';
+}
 ?>
 <?if ($request->get('IS_AJAX') != 'Y'):?>
 <script>
@@ -93,18 +98,30 @@ if (
 		{
 			if (!!event.data.elementList && event.data.elementList.length > 0)
 			{
-				var sitePath = '<?= CUtil::jsEscape($arParams['PAGE_URL_SITE']);?>';
 				var gotoSiteButton = null;
 				for (var i = 0; i < event.data.elementList.length; i++)
 				{
-					if(event.data.elementList[i].getAttribute('data-issite') === 'Y')
+					gotoSiteButton = event.data.elementList[i];
+					var replaces = [];
+					if (gotoSiteButton.dataset.isSite === 'Y')
 					{
-						gotoSiteButton = event.data.elementList[i];
+						var sitePath = '<?= CUtil::jsEscape($arParams['PAGE_URL_SITE']);?>';
+						replaces.push([/#site_show#/, gotoSiteButton.dataset.siteId]);
+
+						if (gotoSiteButton.dataset.isLanding === 'Y')
+						{
+							sitePath = '<?= CUtil::jsEscape($arParams['PAGE_URL_LANDING_VIEW']);?>';
+							replaces.push([/#landing_edit#/, gotoSiteButton.dataset.landingId]);
+						}
+
 						if (gotoSiteButton.getAttribute('href').substr(0, 1) === '#')
 						{
-							var gotoSiteId = gotoSiteButton.getAttribute('href').substr(1);
-							sitePath = sitePath.replace(/#site_show#/, gotoSiteId);
+							replaces.forEach(function(replace) {
+								sitePath = sitePath.replace(replace[0], replace[1]);
+							});
+
 							gotoSiteButton.setAttribute('href', sitePath);
+							window.location.href = sitePath;
 						}
 					}
 				}
@@ -121,7 +138,19 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 {
 	if ($arParams['TYPE'] === 'STORE')
 	{
-		$menuItems = [
+		$ordersLink = 'crm/deal/?redirect_to';
+		if (
+			Loader::includeModule('crm')
+			&& is_callable(['CCrmSaleHelper', 'isWithOrdersMode'])
+		)
+		{
+			$ordersLink = \CCrmSaleHelper::isWithOrdersMode()
+				? 'shop/orders/'
+				: 'crm/deal/?redirect_to';
+		}
+		$ordersLink = SITE_DIR . $ordersLink;
+
+			$menuItems = [
 			[
 				'text' => Loc::getMessage('LANDING_TPL_ACTION_EDIT_CATALOG'),
 				'href' => $arParams['~PAGE_URL_SITE_EDIT'] . '?tpl=catalog',
@@ -137,7 +166,12 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 			[
 				'delimiter' => true
 			],
-			[
+			$arResult['EXPORT_DISABLED'] === 'Y'
+			? [
+				  'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
+				  'onclick' => 'landingExportDisabled();'
+			]
+			: [
 				'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
 				'href' => $arParams['~PAGE_URL_SITE_EXPORT'],
 				'sidepanel' => true
@@ -148,7 +182,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 			],
 			[
 				'text' => Loc::getMessage('LANDING_TPL_ACTION_ORDERS'),
-				'href' => SITE_DIR . 'crm/deal/?redirect_to',
+				'href' => $ordersLink,
 				'bottom' => true,
 				'code' => 'orders'
 			],
@@ -216,7 +250,12 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 			[
 				'delimiter' => true
 			],
-			[
+			$arResult['EXPORT_DISABLED'] === 'Y'
+			? [
+				'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
+				'onclick' => 'landingExportDisabled();'
+			]
+			: [
 				'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
 				'href' => $arParams['~PAGE_URL_SITE_EXPORT'],
 				'sidepanel' => true
@@ -295,9 +334,10 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 			'PAGE_URL_DOMAIN' => $arParams['~PAGE_URL_SITE_DOMAIN'],
 			'PAGE_URL_CONTACTS' => $arParams['~PAGE_URL_SITE_CONTACTS'],
 			'PAGE_URL_SITE_DOMAIN_SWITCH' => $arParams['~PAGE_URL_SITE_DOMAIN_SWITCH'],
-			'PAGE_URL_CRM_ORDERS' => '/crm/deal/?redirect_to',
+			'PAGE_URL_CRM_ORDERS' => $ordersLink,
 			'MENU_ITEMS' => $menuItems,
-			'AGREEMENT' => $arResult['AGREEMENT']
+			'AGREEMENT' => $arResult['AGREEMENT'],
+			'DELETE_LOCKED' => $arResult['DELETE_LOCKED'],
 		],
 		$component
 	);
@@ -582,6 +622,8 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 							condition: condition,
 							stopParameters: [
 								'action',
+								'folderId',
+								'folderUp',
 								'fields%5Bdelete%5D',
 								'nav'
 							],
@@ -789,7 +831,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 						<?if ($arResult['EXPORT_DISABLED'] == 'Y'):?>
 						onclick: function(event)
 						{
-							<?= \Bitrix\Landing\Restriction\Manager::getActionCode('limit_sites_transfer');?>
+							landingExportDisabled();
 							BX.PreventDefault(event);
 						}
 						<?php else: ?>

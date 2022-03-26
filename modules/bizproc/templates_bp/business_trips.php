@@ -205,7 +205,7 @@ class CBPTemplates_BusinessTrips
 								'Type' => 'SequenceActivity',
 								'Name' => 'A7049_25485_20198_22566',
 								'Properties' => array(
-									'Title' => GetMessage("BPT_BT_SA1_TITLE")
+									'Title' => GetMessage("BPT_BT_SA1_TITLE_1")
 								),
 								'Children' => array(
 									array(
@@ -377,7 +377,7 @@ class CBPTemplates_BusinessTrips
 								'Type' => 'SequenceActivity',
 								'Name' => 'A47770_28716_89715_34547',
 								'Properties' => array(
-									'Title' => GetMessage("BPT_BT_SA3_TITLE")
+									'Title' => GetMessage("BPT_BT_SA3_TITLE_1")
 								),
 								'Children' => array(
 									array(

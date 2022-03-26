@@ -43,6 +43,14 @@ use Bitrix\Catalog\v2\Sku\Sku;
 use Bitrix\Catalog\v2\Sku\SkuCollection;
 use Bitrix\Catalog\v2\Sku\SkuFactory;
 use Bitrix\Catalog\v2\Sku\SkuRepository;
+use Bitrix\Catalog\v2\Barcode\Barcode;
+use Bitrix\Catalog\v2\Barcode\BarcodeCollection;
+use Bitrix\Catalog\v2\Barcode\BarcodeFactory;
+use Bitrix\Catalog\v2\Barcode\BarcodeRepository;
+use Bitrix\Catalog\v2\StoreProduct\StoreProduct;
+use Bitrix\Catalog\v2\StoreProduct\StoreProductCollection;
+use Bitrix\Catalog\v2\StoreProduct\StoreProductFactory;
+use Bitrix\Catalog\v2\StoreProduct\StoreProductRepository;
 
 return [
 	Dependency::CONTAINER => Container::class,
@@ -106,6 +114,18 @@ return [
 
 	MeasureRatioFactory::SIMPLE_MEASURE_RATIO => SimpleMeasureRatio::class,
 	MeasureRatioFactory::MEASURE_RATIO_COLLECTION => MeasureRatioCollection::class,
+
+	Dependency::BARCODE_FACTORY => BarcodeFactory::class,
+	Dependency::BARCODE_REPOSITORY => BarcodeRepository::class,
+
+	BarcodeFactory::BARCODE => Barcode::class,
+	BarcodeFactory::BARCODE_COLLECTION => BarcodeCollection::class,
+
+	Dependency::STORE_PRODUCT_FACTORY => StoreProductFactory::class,
+	Dependency::STORE_PRODUCT_REPOSITORY => StoreProductRepository::class,
+
+	StoreProductFactory::STORE_PRODUCT => StoreProduct::class,
+	StoreProductFactory::STORE_PRODUCT_COLLECTION => StoreProductCollection::class,
 
 	'sku.tree' => \Bitrix\Catalog\Component\SkuTree::class,
 ];

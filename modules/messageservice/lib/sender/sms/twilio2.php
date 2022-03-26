@@ -7,17 +7,14 @@ use Bitrix\Main\ModuleManager;
 
 class Twilio2 extends Twilio
 {
+	public const ID = 'twilio2';
+
 	public static function isSupported()
 	{
 		return (
 			ModuleManager::isModuleInstalled('b24network')
 			|| Option::get('messageservice', 'twilio2_enabled', 'N') === 'Y'
 		);
-	}
-
-	public function getId()
-	{
-		return 'twilio2';
 	}
 
 	public function getName()

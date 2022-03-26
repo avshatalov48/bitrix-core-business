@@ -18,9 +18,9 @@ use Bitrix\Main\UserTable;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_EntityUsage_Query query()
- * @method static EO_EntityUsage_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EntityUsage_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_EntityUsage_Result getById($id)
- * @method static EO_EntityUsage_Result getList(array $parameters = array())
+ * @method static EO_EntityUsage_Result getList(array $parameters = [])
  * @method static EO_EntityUsage_Entity getEntity()
  * @method static \Bitrix\Main\UI\EntitySelector\EO_EntityUsage createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection createCollection()

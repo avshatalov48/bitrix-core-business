@@ -32,6 +32,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_19.5.COVER_WITH_IMG_TEXT_AND_BUTTONS_NODES_LANDINGBLOCKNODEIMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 540),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-card-button-img' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_19.5.COVER_WITH_IMG_TEXT_AND_BUTTONS_NODES_LANDINGBLOCKNODE_BUTTON_IMG'),

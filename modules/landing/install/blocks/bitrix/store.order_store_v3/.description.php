@@ -23,4 +23,10 @@ return [
 			],
 		],
 	],
+	'style' => [
+		'block' => [
+			'type' => ['block-default-wo-background'],
+		],
+		'nodes' => [],
+	]
 ];

@@ -32,6 +32,12 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			return;
 		}
 
+		$result = \Bitrix\Main\SiteTable::getList();
+		while (($site = $result->fetch()) !== false)
+		{
+			\Bitrix\Mail\Internals\MailServiceInstaller::checkInstallComplete($site["LID"]);
+		}
+
 		switch ($this->arParams['VARIABLES']['act'])
 		{
 			case 'new':
@@ -656,6 +662,11 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			}
 
 			$mailboxData['SERVER'] = $matches[1];
+
+			if (!self::isValidMailHost($mailboxData['SERVER']))
+			{
+				return $this->error(Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_SERVER_BAD'));
+			}
 		}
 
 		if (!$service['PORT'])
@@ -836,6 +847,11 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 				}
 
 				$smtpConfig['server'] = $matches[1];
+
+				if (!self::isValidMailHost($smtpConfig['server']))
+				{
+					return $this->error(Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_SERVER_BAD'));
+				}
 			}
 
 			if (!$service['SMTP_PORT'])
@@ -1221,4 +1237,18 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		return $this->errorCollection->getErrorByCode($code);
 	}
 
+	private static function isValidMailHost(string $host): bool
+	{
+		if (\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			// Private addresses can't be used in the cloud
+			$ip = \Bitrix\Main\Web\IpAddress::createByName($host);
+			if ($ip->isPrivate())
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
 }

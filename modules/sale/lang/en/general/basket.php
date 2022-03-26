@@ -19,5 +19,4 @@ $MESS["BT_MOD_SALE_BASKET_ERR_FUSER_ID_ABSENT"] = "The shopping cart user ID is 
 $MESS["SU_ANONYMOUS_USER_NAME"] = "Anonymous user";
 $MESS["SU_ANONYMOUS_USER_CREATE"] = "Error creating an anonymous user: #ERROR#";
 $MESS["BT_STORE_WRONG_BARCODE"] = "Bad bar code \"#BARCODE#\" specified for \"#PRODUCT_NAME#\" at warehouse ##STORE_ID#.";
-$MESS["BT_SUBSCRIBE_DEDUCTION_ERROR"] = "Please disable warehouse stock control before selling subscriptions.";
 ?>

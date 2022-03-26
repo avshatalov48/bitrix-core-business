@@ -219,11 +219,19 @@ class MainMailConfirmAjax
 			else
 			{
 				if (
-					empty($code)
-					&& $item['EMAIL'] == $email
-					&& $item['USER_ID'] == $USER->getId()
+					($senderId === $item['ID'] && $item['EMAIL'] != $email) ||
+					(
+						empty($code)
+						&& $item['EMAIL'] == $email
+						&& $item['USER_ID'] == $USER->getId()
+					)
 				)
 				{
+					if ($senderId === $item['ID'])
+					{
+						$senderId = null;
+					}
+
 					$toDelete[] = $item['ID'];
 				}
 
@@ -270,12 +278,9 @@ class MainMailConfirmAjax
 			$fields['OPTIONS']['smtp'] = $smtp;
 		}
 
-		if ($senderId)
+		if ($senderId && $smtp && !empty($smtp['password']))
 		{
-			if (!empty($smtp['password']))
-			{
-				Main\Mail\Sender::checkEmail($fields, $checkError);
-			}
+			Main\Mail\Sender::checkEmail($fields, $checkError);
 
 			if ($checkError)
 			{
@@ -289,7 +294,7 @@ class MainMailConfirmAjax
 			}
 
 			Main\Mail\Internal\SenderTable::update($senderId, $fields);
-			return ['senderId' => $senderId, 'confirmed' => true];
+			return ['senderId' => $senderId, 'confirmed' => $fields['IS_CONFIRMED']];
 		}
 		elseif (empty($code))
 		{

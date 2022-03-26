@@ -31,6 +31,7 @@ return array(
 			'type' => 'img',
 			'useInDesigner' => false,
 			'dimensions' => array('width' => 1080, 'height' => 1080),
+			'create2xByDefault' => false,
 		),
 	),
 	'style' => array(

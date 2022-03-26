@@ -90,13 +90,6 @@ class CIMNotifySchema
 					),
 				),
 			);
-			$config["bizproc"] = array(
-				"NOTIFY" => Array(
-					"activity" => Array(
-						"NAME" => GetMessage('IM_NS_BIZPROC_ACTIVITY'),
-					),
-				),
-			);
 		}
 
 		return $config;

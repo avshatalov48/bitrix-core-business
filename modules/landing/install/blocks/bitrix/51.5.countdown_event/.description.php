@@ -19,6 +19,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--IMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--TITLE'),

@@ -95,3 +95,7 @@
 .landing-ui-card-message-without-angle::after {
 	display: none;
 }
+
+.landing-ui-card-message-context-warning {
+	background: #f8f4bc;
+}

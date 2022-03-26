@@ -673,7 +673,7 @@ export class Util
 			}
 			else if (entity.entityId === 'project')
 			{
-				return 'SG' + entity.id;
+				return 'SG' + entity.id + '_K'; // for all members of group
 			}
 			else if (entity.entityId === 'department')
 			{
@@ -740,5 +740,10 @@ export class Util
 			}
 			bx.UI.Hint.initNode(hintNode);
 		}
+	}
+
+	static documentIsDisplayingNow()
+	{
+		return !document.hidden;
 	}
 }

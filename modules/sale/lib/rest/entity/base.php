@@ -105,8 +105,9 @@ abstract class Base
 
 	public function convertKeysToSnakeCaseSelect($fields)
 	{
-		$converter = new Converter(Converter::VALUES | Converter::TO_SNAKE | Converter::TO_UPPER);
-		return $converter->process($fields);
+		$converter = new Converter(Converter::VALUES | Converter::TO_SNAKE | Converter::TO_UPPER| Converter::TO_SNAKE_DIGIT);
+		$items = $converter->process($fields);
+		return $this->converterValuesProcessOnAfter($items);
 	}
 
 	public function convertKeysToSnakeCaseFilter($fields)
@@ -119,14 +120,13 @@ abstract class Base
 		$result = [];
 
 		$converter = new Converter(Converter::VALUES | Converter::TO_UPPER);
-		$converterForKey = new Converter(Converter::KEYS | Converter::TO_SNAKE | Converter::TO_UPPER);
+		$converterForKey = new Converter(Converter::KEYS | Converter::TO_SNAKE | Converter::TO_UPPER | Converter::TO_SNAKE_DIGIT);
 
 		foreach ($converter->process($fields) as $key=>$value)
 		{
 			$result[$converterForKey->process($key)] = $value;
 		}
-
-		return $result;
+		return $this->converterKeysProcessOnAfter($result);
 	}
 
 	public function convertKeysToSnakeCaseArguments($name, $arguments)
@@ -134,10 +134,36 @@ abstract class Base
 		return $arguments;
 	}
 
-	protected function convertKeysToSnakeCase($data)
+	protected function convertKeysToSnakeCase($data): array
 	{
-		$converter = new Converter(Converter::KEYS | Converter::RECURSIVE | Converter::TO_SNAKE | Converter::TO_UPPER);
-		return $converter->process($data);
+		$converter = new Converter(Converter::KEYS | Converter::RECURSIVE | Converter::TO_SNAKE | Converter::TO_UPPER | Converter::TO_SNAKE_DIGIT);
+		$items = $converter->process($data);
+		return $this->converterKeysProcessOnAfter($items);
+	}
+
+	private function converterKeysProcessOnAfter($items): array
+	{
+		$result = [];
+		foreach ($items as $key=>$item)
+		{
+			$result[$this->resolveFieldName($key)] = $item;
+		}
+		return $result;
+	}
+
+	private function converterValuesProcessOnAfter($items): array
+	{
+		$result = [];
+		foreach ($items as $key=>$item)
+		{
+			$result[$key] = $this->resolveFieldName($item);
+		}
+		return $result;
+	}
+
+	private function resolveFieldName($name)
+	{
+		return ($name === 'ID_1_C') ? 'ID_1C':$name;
 	}
 	//endregion
 
@@ -320,7 +346,6 @@ abstract class Base
 				$result[$rawName]=$value;
 			}
 		}
-
 		return $result;
 	}
 

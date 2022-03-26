@@ -251,7 +251,7 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 			$this->arResult['LOG']['A'],
 			[$this->arResult['MESSAGE']]
 		));
-		$APPLICATION->setTitle($message['SUBJECT'] ?: Loc::getMessage('MAIL_MESSAGE_EMPTY_SUBJECT_PLACEHOLDER'));
+		$APPLICATION->setTitle(htmlspecialcharsbx($message['SUBJECT']) ?: Loc::getMessage('MAIL_MESSAGE_EMPTY_SUBJECT_PLACEHOLDER'));
 		$this->arResult['MESSAGE_UID_KEY'] = $message['UID'] . '-' . $message['MAILBOX_ID'];
 
 		$this->includeComponentTemplate();
@@ -633,6 +633,48 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 		}
 
 		$message['BIND_LINKS'] = array();
+
+		if (!empty($binds[MessageAccessTable::ENTITY_TYPE_CALENDAR_EVENT]) && Main\Loader::includeModule('calendar'))
+		{
+			$message['BIND_LINKS'][Loc::getMessage('MAIL_MESSAGE_EXT_BIND_CALENDAR_TITLE')] = array();
+
+			foreach ($binds[MessageAccessTable::ENTITY_TYPE_CALENDAR_EVENT] as $eventId)
+			{
+				$eventData = CCalendarEvent::getEventForViewInterface($eventId);
+				$defaultTitle = sprintf('%s #%u', Loc::getMessage('MAIL_MESSAGE_EXT_BIND_CALENDAR_EMPTY_TITLE'), $eventId);
+				$message['BIND_LINKS'][Loc::getMessage('MAIL_MESSAGE_EXT_BIND_CALENDAR_TITLE')][] = array(
+					'title' => $eventData['NAME'] ?? $defaultTitle,
+					'href' => \CComponentEngine::makePathFromTemplate(
+						$this->arParams['PATH_TO_USER_CALENDAR_EVENT'],
+						[
+							'event_id' => $eventData['ID'],
+						]
+					),
+				);
+			}
+		}
+
+		if (!empty($binds[MessageAccessTable::ENTITY_TYPE_IM_CHAT]) && Main\Loader::includeModule('im'))
+		{
+			$message['BIND_LINKS'][Loc::getMessage('MAIL_MESSAGE_EXT_BIND_CHAT_TITLE')] = array();
+
+			foreach ($binds[MessageAccessTable::ENTITY_TYPE_IM_CHAT] as $chatId)
+			{
+				$chatData = CIMChat::GetChatData(['ID' => $chatId]);
+				// $defaultTitle = sprintf('%s #%u', Loc::getMessage('MAIL_MESSAGE_EXT_BIND_CHAT_EMPTY_TITLE'), $chatId);
+				$defaultTitle = Loc::getMessage('MAIL_MESSAGE_CREATE_IM_BTN');
+				$message['BIND_LINKS'][Loc::getMessage('MAIL_MESSAGE_EXT_BIND_CHAT_TITLE')][] = array(
+					'title' => isset($chatData['chat'][$chatId]['name']) ? htmlspecialcharsback($chatData['chat'][$chatId]['name']) : $defaultTitle,
+					'href' => \CComponentEngine::makePathFromTemplate(
+						$this->arParams['PATH_TO_USER_IM_CHAT'],
+						[
+							'chat_id' => $chatId,
+						]
+					),
+					'onclick' => 'BX.Mail.Secretary.getInstance('.(int)$message['ID'].').openChat();',
+				);
+			}
+		}
 
 		if (!empty($binds[MessageAccessTable::ENTITY_TYPE_TASKS_TASK]) && Main\Loader::includeModule('tasks'))
 		{

@@ -65,8 +65,8 @@ SequentialWorkflowActivity = function()
 		if(!window.dlgSnippetsSettings)
 		{
 			window.dlgSnippetsSettings = new BX.CDialog({
-				'content': '<table width="100%"><tr><td align="right" width="40%">'+BPMESS['SEQWF_SNIP_NAME']+'</td><td width="60%"><input type="hidden" id="snippsid" value=""><input size="40" id="snippstitle" value=""></td></tr><tr><td align="right" width="40%"></td><td width="60%" style="height:100px"></td></tr><tr><td align="right" width="40%"></td><td width="60%"><input type="button" id="snippsdel" value="'+BPMESS['SEQWF_SNIP_DEL']+'"></td></tr></table>',
-				'title': BPMESS['SEQWF_SNIP_TITLE'],
+				'content': '<table width="100%"><tr><td align="right" width="40%">'+BPMESS['SEQWF_SNIP_NAME']+'</td><td width="60%"><input type="hidden" id="snippsid" value=""><input size="40" id="snippstitle" value=""></td></tr><tr><td align="right" width="40%"></td><td width="60%" style="height:100px"></td></tr><tr><td align="right" width="40%"></td><td width="60%"><input type="button" id="snippsdel" value="'+BPMESS['SEQWF_SNIP_DEL_1']+'"></td></tr></table>',
+				'title': BPMESS['SEQWF_SNIP_TITLE_1'],
 				'height': 200,
 				'width': 400,
 				'buttons': [{
@@ -90,7 +90,7 @@ SequentialWorkflowActivity = function()
 				{
 					BX('snippsdel').onclick = function ()
 					{
-						if(confirm(BPMESS['SEQWF_CONF']))
+						if(confirm(BPMESS['SEQWF_CONF_1']))
 						{
 							var r = window.__lastSnippet;
 							var ind = r._ind;
@@ -352,7 +352,7 @@ SequentialWorkflowActivity = function()
 			}
 		}
 
-		var drdrop = ob.DrawGroup(BPMESS['SEQWF_SNIP']);
+		var drdrop = ob.DrawGroup(BPMESS['SEQWF_SNIP_1']);
 		ob.divSnippets = drdrop;
 
 		var cntmp = drdrop.appendChild(document.createElement('DIV'));
@@ -363,7 +363,7 @@ SequentialWorkflowActivity = function()
 		dCont.style.textAlign = 'center';
 		dCont.style.color = '#AAAAAA';
 		dCont.style.border = '1px dashed #DDDDDD';
-		dCont.innerHTML = BPMESS['SEQWF_SNIP_DD'];
+		dCont.innerHTML = BPMESS['SEQWF_SNIP_DD_1'];
 		ob.drdrop = dCont;
 
 		arUserParams['SNIPPETS'] = arUserParams['SNIPPETS'] || [];

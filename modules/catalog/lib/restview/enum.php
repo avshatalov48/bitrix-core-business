@@ -14,12 +14,12 @@ final class Enum extends Base
 		return [];
 	}
 
-	public function externalizeResult($name, $fields)
+	public function externalizeResult($name, $fields): array
 	{
 		return $fields;
 	}
 
-	public function internalizeArguments($name, $arguments)
+	public function internalizeArguments($name, $arguments): array
 	{
 		return $arguments;
 	}

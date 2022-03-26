@@ -18,5 +18,7 @@ $APPLICATION->IncludeComponent(
 		'IBLOCK_ID' => $iblockId,
 		'PRODUCT_ID' => $productId,
 		'VARIATION_ID' => $variationId,
+		'BUILDER_CONTEXT' => $arResult['BUILDER_CONTEXT'],
+		'SCOPE' => $arResult['SCOPE'],
 	]
 );

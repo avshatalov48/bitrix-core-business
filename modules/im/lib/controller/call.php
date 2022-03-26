@@ -69,7 +69,7 @@ class Call extends Engine\Controller
 				Application::getConnection()->unlock($lockName);
 				return null;
 			}
-			if(!$call->getAssociatedEntity()->checkAccess($currentUserId))
+			if(!$call->getAssociatedEntity()->canStartCall($currentUserId))
 			{
 				$this->errorCollection[] = new Error("You can not create this call", 'access_denied');
 				Application::getConnection()->unlock($lockName);
@@ -602,6 +602,11 @@ class Call extends Engine\Controller
 	{
 		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
+		if (!$call)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
 
 		if(!$this->checkCallAccess($call, $currentUserId))
 		{

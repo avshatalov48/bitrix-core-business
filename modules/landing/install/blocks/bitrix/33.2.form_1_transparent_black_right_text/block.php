@@ -1,8 +1,8 @@
-<section class="landing-block landing-block-node-bgimg landing-semantic-color-overlay g-pt-120 g-pb-120 g-pos-rel g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_7--after"
+<section class="landing-block landing-block-node-bgimg landing-semantic-color-overlay g-pt-120 g-pb-120 g-pos-rel g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_7--after g-bg-attachment-fixed"
 		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1080/img4.jpg);">
 
 	<div class="container g-z-index-1 g-pos-rel">
-		<div class="row align-items-center">
+		<div class="landing-block-node-row row align-items-start">
 
 			<div class="col-md-8">
 				<div class="bitrix24forms landing-block-node-form js-animation fadeInUp g-brd-none g-brd-around--sm g-brd-white-opacity-0_6 g-px-0 g-px-20--sm g-px-45--lg g-py-0 g-py-30--sm g-py-60--lg u-form-alert-v1"
@@ -53,7 +53,7 @@
 								</span>
 							</div>
 							<div class="media-body">
-								<a href="tel:#PHONE1#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#PHONE1#</a>
+								<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmPhoneTitle1</a>
 							</div>
 						</div>
 					</div>
@@ -67,7 +67,7 @@
 								  <i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
 								</span>
 							</div>
-							<a href="tel:#PHONE2#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#PHONE2#</a>
+							<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmPhoneTitle1</a>
 						</div>
 					</div>
 					<!-- End Icon Block -->
@@ -80,7 +80,7 @@
 								  <i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
 								</span>
 							</div>
-							<a href="tel:#PHONE3#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#PHONE3#</a>
+							<a href="tel:#crmPhone1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmPhoneTitle1</a>
 						</div>
 					</div>
 					<!-- End Icon Block -->
@@ -93,7 +93,7 @@
 								  <i class="landing-block-card-contact-icon icon-communication-062 u-line-icon-pro"></i>
 								</span>
 							</div>
-							<a href="mailto:#EMAIL1#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#EMAIL1#</a>
+							<a href="mailto:#crmEmail1" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#crmEmailTitle1</a>
 						</div>
 					</div>
 					<!-- End Icon Block -->

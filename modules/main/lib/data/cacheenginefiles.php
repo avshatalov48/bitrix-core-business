@@ -89,22 +89,13 @@ class CacheEngineFiles
 			unset(self::$lockHandles[$fileName]);
 		}
 
-		//This checks for Zend Server CE in order to suppress warnings
-		if (function_exists('accelerator_reset'))
+		if (file_exists($fileName))
 		{
 			@chmod($fileName, BX_FILE_PERMISSIONS);
 			if (@unlink($fileName))
 				return true;
 		}
-		else
-		{
-			if (file_exists($fileName))
-			{
-				@chmod($fileName, BX_FILE_PERMISSIONS);
-				if (unlink($fileName))
-					return true;
-			}
-		}
+
 		return false;
 	}
 

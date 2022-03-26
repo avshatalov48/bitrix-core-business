@@ -30,6 +30,18 @@ class Promotion
 			"DEVICE_TYPE" => self::DEVICE_TYPE_WEB
 		];
 
+		$result[] = [
+			"ID" => 'im:call-document:16102021:web',
+			"USER_TYPE" => \Bitrix\Main\UI\Tour::USER_TYPE_ALL,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_WEB
+		];
+
+		$result[] = [
+			"ID" => 'imbot:support24:25112021:web',
+			"USER_TYPE" => \Bitrix\Main\UI\Tour::USER_TYPE_OLD,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_WEB
+		];
+
 		return $result;
 	}
 

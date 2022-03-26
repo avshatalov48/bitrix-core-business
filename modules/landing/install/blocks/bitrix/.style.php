@@ -2930,7 +2930,7 @@ return [
 	],
 	'group' => [
 		'block-default' => [
-			'background', 'display', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top',
+			'display', 'background', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top',
 		],
 		'block-default-background-overlay' => [
 			'display', 'background-attachment', 'background-size',

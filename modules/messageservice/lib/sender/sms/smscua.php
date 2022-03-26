@@ -17,6 +17,8 @@ use Bitrix\MessageService;
 
 class SmscUa extends Sender\BaseConfigurable
 {
+	public const ID = 'smscua';
+
 	private const JSON_API_URL = 'https://smsc.ua/sys/';
 
 	public static function isSupported()
@@ -29,7 +31,7 @@ class SmscUa extends Sender\BaseConfigurable
 
 	public function getId()
 	{
-		return 'smscua';
+		return static::ID;
 	}
 
 	public function getName()
@@ -116,6 +118,8 @@ class SmscUa extends Sender\BaseConfigurable
 
 		$result = new SendMessage();
 		$apiResult = $this->sendApiRequest('send', $message);
+		$result->setServiceRequest($apiResult->getHttpRequest());
+		$result->setServiceResponse($apiResult->getHttpResponse());
 
 		if (!$apiResult->isSuccess())
 		{
@@ -266,7 +270,7 @@ class SmscUa extends Sender\BaseConfigurable
 		return $this->sendHttpRequest($method, $path, $params);
 	}
 
-	private function sendHttpRequest($method, $path, array $params): Result
+	private function sendHttpRequest($method, $path, array $params): Sender\Result\HttpRequestResult
 	{
 		$httpClient = new HttpClient([
 			"socketTimeout" => 10,
@@ -277,7 +281,7 @@ class SmscUa extends Sender\BaseConfigurable
 		$httpClient->setHeader('User-Agent', 'Bitrix24');
 		$httpClient->setHeader('Content-Type', 'application/json');
 
-		$result = new Result();
+		$result = new Sender\Result\HttpRequestResult();
 		$answer = ['error' => 'Service error'];
 
 		$url = self::JSON_API_URL.$path.'.php';
@@ -290,6 +294,12 @@ class SmscUa extends Sender\BaseConfigurable
 			$params = null;
 		}
 
+		$result->setHttpRequest(new MessageService\DTO\Request([
+			'method' => $method,
+			'uri' => $url,
+			'headers' => method_exists($httpClient, 'getRequestHeaders') ? $httpClient->getRequestHeaders()->toArray() : [],
+			'body' => $params,
+		]));
 		if ($httpClient->query($method, $url, $params))
 		{
 			try
@@ -299,6 +309,12 @@ class SmscUa extends Sender\BaseConfigurable
 			{
 			}
 		}
+		$result->setHttpResponse(new MessageService\DTO\Response([
+			'statusCode' => $httpClient->getStatus(),
+			'headers' => $httpClient->getHeaders()->toArray(),
+			'body' => $httpClient->getResult(),
+			'error' => Sender\Util::getHttpClientErrorString($httpClient)
+		]));
 
 		if (isset($answer['error']))
 		{

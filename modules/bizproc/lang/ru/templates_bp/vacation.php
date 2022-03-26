@@ -13,7 +13,7 @@ $MESS ['BPT1_BT_SFA1_TITLE'] = "Сохранение параметров отп
 $MESS ['BPT1_BT_STA1_STATE_TITLE'] = "Согласование";
 $MESS ['BPT1_BT_STA1_TITLE'] = "Установить текст статуса";
 $MESS ['BPT1_BT_CYCLE'] = "Цикл согласования";
-$MESS ['BPT1_BT_SA1_TITLE'] = "Последовательность действий";
+$MESS ['BPT1_BT_SA1_TITLE_1'] = "Последовательность действий";
 $MESS ['BPT1_BT_AA11_NAME'] = "Согласовать отпуск {=Template:TargetUser_printable} с {=Template:date_start} по {=Template:date_end}";
 $MESS ['BPT1_BT_AA11_DESCR'] = "Сотрудник: {=Template:TargetUser_printable}
 Дата начала отпуска: {=Template:date_start}

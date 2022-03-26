@@ -127,8 +127,8 @@ else
 
 				if (
 					($errorMessage == '')
-					&& !CSocNetUserToGroup::TransferModerator2Member($GLOBALS["USER"]->GetID(), $arResult["Group"]["ID"], $arIDs, CSocNetUser::IsCurrentUserModuleAdmin())
-					&& ($e = $APPLICATION->GetException())					
+					&& !CSocNetUserToGroup::TransferModerator2Member($GLOBALS["USER"]->GetID(), $arResult["Group"]["ID"], $arIDs)
+					&& ($e = $APPLICATION->GetException())
 				)
 					$errorMessage .= $e->GetString();
 

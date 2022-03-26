@@ -18,33 +18,33 @@ if (check_bitrix_sessid() && CModule::IncludeModule("calendar"))
 		$to = CCalendar::Date(CCalendar::Timestamp($_REQUEST['to']));
 		$loc_new = \Bitrix\Calendar\Rooms\Util::parseLocation(trim($_REQUEST['location']));
 
-		$params = array(
+		$params = [
 			'dateFrom' => $from,
 			'dateTo' => $to,
 			'regularity' => 'NONE',
 			'members' => false,
-		);
+		];
 
 		$params['RMiblockId'] = $settings['rm_iblock_id'];
 		$params['mrid'] = $loc_new['mrid'];
 		$params['mrevid_old'] = 0;
 
-		$check = CCalendar::CheckMeetingRoom($params);
+		$check = \Bitrix\Calendar\Rooms\IBlockMeetingRoom::checkMeetingRoom($params);
 
 		?><script>top.BXCRES_Check = <?= CUtil::PhpToJSObject($check)?>;</script><?
 	}
 	elseif (isset($_REQUEST['bx_event_calendar_update_planner']) && $_REQUEST['bx_event_calendar_update_planner'] === 'Y')
 	{
 		$curUserId = CCalendar::GetCurUserId();
-		$result = array(
-			'entries' => array(),
-			'accessibility' => array()
-		);
-		$userIds = array();
+		$result = [
+			'entries' => [],
+			'accessibility' => []
+		];
+		$userIds = [];
 
 		if (isset($_REQUEST['codes']) && is_array($_REQUEST['codes']))
 		{
-			$codes = array();
+			$codes = [];
 			foreach($_REQUEST['codes'] as $permCode)
 			{
 				if($permCode)
@@ -59,7 +59,7 @@ if (check_bitrix_sessid() && CModule::IncludeModule("calendar"))
 			{
 				$userSettings = \Bitrix\Calendar\UserSettings::Get($user['USER_ID']);
 				$userIds[] = $user['USER_ID'];
-				$result['entries'][] = array(
+				$result['entries'][] = [
 					'type' => 'user',
 					'id' => $user['USER_ID'],
 					'name' => CCalendar::GetUserName($user),
@@ -67,7 +67,7 @@ if (check_bitrix_sessid() && CModule::IncludeModule("calendar"))
 					'url' => CCalendar::GetUserUrl($user['USER_ID']),
 					'avatar' => CCalendar::GetUserAvatarSrc($user),
 					'strictStatus' => $userSettings['denyBusyInvitation']
-				);
+				];
 			}
 		}
 		elseif(isset($_REQUEST['entries']) && is_array($_REQUEST['entries']))
@@ -81,19 +81,19 @@ if (check_bitrix_sessid() && CModule::IncludeModule("calendar"))
 		$from = CCalendar::Date(CCalendar::Timestamp($_REQUEST['from']), false);
 		$to = CCalendar::Date(CCalendar::Timestamp($_REQUEST['to']), false);
 
-		$accessibility = CCalendar::GetAccessibilityForUsers(array(
+		$accessibility = CCalendar::GetAccessibilityForUsers([
 			'users' => $userIds,
 			'from' => $from, // date or datetime in UTC
 			'to' => $to, // date or datetime in UTC
 			'getFromHR' => true
-		));
+		]);
 
-		$result['accessibility'] = array();
+		$result['accessibility'] = [];
 		$deltaOffset = isset($_REQUEST['timezone']) ? (CCalendar::GetTimezoneOffset($_REQUEST['timezone']) - CCalendar::GetCurrentOffsetUTC($curUserId)) : 0;
 
 		foreach($accessibility as $userId => $entries)
 		{
-			$result['accessibility'][$userId] = array();
+			$result['accessibility'][$userId] = [];
 
 			foreach($entries as $entry)
 			{
@@ -105,12 +105,12 @@ if (check_bitrix_sessid() && CModule::IncludeModule("calendar"))
 						$entry['DT_TO'] = CCalendar::Date(CCalendar::Timestamp($entry['DT_TO']) + $deltaOffset);
 					}
 
-					$result['accessibility'][$userId][] = array(
+					$result['accessibility'][$userId][] = [
 						'id' => $entry['ID'],
 						'dateFrom' => $entry['DT_FROM'],
 						'dateTo' => $entry['DT_TO'],
 						'type' => $entry['FROM_HR'] ? 'hr' : 'event'
-					);
+					];
 				}
 				else
 				{
@@ -123,12 +123,12 @@ if (check_bitrix_sessid() && CModule::IncludeModule("calendar"))
 						$fromTs += $deltaOffset;
 						$toTs += $deltaOffset;
 					}
-					$result['accessibility'][$userId][] = array(
+					$result['accessibility'][$userId][] = [
 						'id' => $entry['ID'],
 						'dateFrom' => CCalendar::Date($fromTs, $entry['DT_SKIP_TIME'] != 'Y'),
 						'dateTo' => CCalendar::Date($toTs, $entry['DT_SKIP_TIME'] != 'Y'),
 						'type' => $entry['FROM_HR'] ? 'hr' : 'event'
-					);
+					];
 				}
 			}
 		}
@@ -144,7 +144,7 @@ if (check_bitrix_sessid() && CModule::IncludeModule("calendar"))
 					'name' => 'meeting room'
 			);
 
-			$roomList = CCalendar::GetMeetingRoomList();
+			$roomList = \Bitrix\Calendar\Rooms\IBlockMeetingRoom::getMeetingRoomList();
 			foreach($roomList as $room)
 			{
 				if ($room['ID'] == $location['mrid'])
@@ -156,23 +156,23 @@ if (check_bitrix_sessid() && CModule::IncludeModule("calendar"))
 			}
 
 			$result['entries'][] = $entry;
-			$result['accessibility'][$mrid] = array();
+			$result['accessibility'][$mrid] = [];
 
-			$meetingRoomRes = CCalendar::GetAccessibilityForMeetingRoom(array(
+			$meetingRoomRes = \Bitrix\Calendar\Rooms\IBlockMeetingRoom::getAccessibilityForMeetingRoom([
 					'allowReserveMeeting' => true,
 					'id' => $location['mrid'],
 					'from' => $from,
 					'to' => $to,
 					'curEventId' => false
-			));
+			]);
 
 			foreach($meetingRoomRes as $entry)
 			{
-				$result['accessibility'][$mrid][] = array(
+				$result['accessibility'][$mrid][] = [
 						'id' => $entry['ID'],
 						'dateFrom' => $entry['DT_FROM'],
 						'dateTo' => $entry['DT_TO']
-				);
+				];
 			}
 		}
 

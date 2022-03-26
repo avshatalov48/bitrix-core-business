@@ -99,6 +99,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      main_core.Dom.append(_this.getLayout(), _this.options.renderTo);
 	    }
 
+	    if (main_core.Type.isPlainObject(_this.options.style)) {
+	      main_core.Dom.style(_this.getLayout(), _this.options.style);
+	    }
+
 	    return _this;
 	  }
 

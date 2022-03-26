@@ -1,8 +1,8 @@
 <?
-$MESS["BPATT_NO_ENTITY"] = "The document entity is missing.";
-$MESS["BPATT_NO_DOC_TYPE"] = "The document type is required.";
+$MESS["BPATT_NO_ENTITY_1"] = "The element entity is missing.";
+$MESS["BPATT_NO_DOC_TYPE_1"] = "The element type is required.";
 $MESS["BPATT_NO_EDIT_PAGE"] = "The template change page is missing.";
-$MESS["BPATT_NO_PERMS"] = "You do not have permission to access the templates of this type of document.";
+$MESS["BPATT_NO_PERMS_1"] = "You do not have permission to access the templates of this type of element.";
 $MESS["BPATT_ERROR"] = "Error";
 $MESS["BPATT_NAV"] = "Business Process Templates";
 $MESS["BPATT_NAME"] = "Name";
@@ -17,8 +17,8 @@ $MESS["BPATT_AE_DELETE"] = "Delete";
 $MESS["BPATT_DO_EDIT1"] = "Edit";
 $MESS["BPATT_DO_DELETE1"] = "Delete";
 $MESS["BPATT_DO_DELETE1_CONFIRM"] = "Are you sure you want to delete this template?";
-$MESS["BPATT_SUBMENU1_TEXT"] = "State-driven business process";
-$MESS["BPATT_SUBMENU1_TEXT_TITLE"] = "State-driven business process is a continuous business process with access permission distribution to handle documents in different status";
+$MESS["BPATT_SUBMENU1_TEXT_1"] = "Status-driven business process";
+$MESS["BPATT_SUBMENU1_TEXT_TITLE_1"] = "Status-driven business process is a continuous business process with access permission distribution to handle documents in different statuses";
 $MESS["BPATT_SUBMENU2_TEXT"] = "Sequential business process";
 $MESS["BPATT_SUBMENU2_TEXT_TITLE"] = "Sequential business process is a simple business process to perform a series of  consecutive actions on a document";
 $MESS["BPATT_DO_CREATE_TEMPLATE"] = "Create Template";

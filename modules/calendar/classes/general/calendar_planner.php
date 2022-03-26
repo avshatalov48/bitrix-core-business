@@ -219,7 +219,7 @@ class CCalendarPlanner
 					'name' => 'meeting room'
 				];
 
-				$roomList = CCalendar::GetMeetingRoomList();
+				$roomList = Rooms\IBlockMeetingRoom::getMeetingRoomList();
 				foreach ($roomList as $room)
 				{
 					if ($room['ID'] == $location['mrid'])
@@ -235,15 +235,13 @@ class CCalendarPlanner
 
 				if ($isPlannerFeatureEnabled)
 				{
-					$meetingRoomRes = CCalendar::GetAccessibilityForMeetingRoom(
-						[
-							'allowReserveMeeting' => true,
-							'id' => $location['mrid'],
-							'from' => $from,
-							'to' => $to,
-							'curEventId' => $roomEventId
-						]
-					);
+					$meetingRoomRes = Rooms\IBlockMeetingRoom::getAccessibilityForMeetingRoom([
+						'allowReserveMeeting' => true,
+						'id' => $location['mrid'],
+						'from' => $from,
+						'to' => $to,
+						'curEventId' => $roomEventId
+					]);
 
 					foreach ($meetingRoomRes as $entry)
 					{
@@ -282,7 +280,7 @@ class CCalendarPlanner
 
 				if ($isPlannerFeatureEnabled)
 				{
-					$meetingRoomRes = Rooms\Manager::getRoomAccessibility(
+					$meetingRoomRes = Rooms\AccessibilityManager::getRoomAccessibility(
 						$location['room_id'],
 						$from,
 						$to

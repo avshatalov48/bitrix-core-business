@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core,main_core_events,landing_ui_form_styleform,landing_loc,landing_ui_field_colorpickerfield,landing_backend,landing_env) {
+(function (exports,main_core,main_core_events,landing_ui_form_styleform,landing_loc,landing_ui_field_colorpickerfield,landing_backend,landing_env,landing_ui_field_color,landing_pageobject) {
 	'use strict';
 
 	var themesMap = new Map();
@@ -303,7 +303,8 @@ this.BX = this.BX || {};
 	      return this.cache.remember('themeField', function () {
 	        var theme = _this3.getFormOptions().data.design.theme;
 
-	        return new BX.Landing.UI.Field.Dropdown({
+	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        return new rootWindow.BX.Landing.UI.Field.Dropdown({
 	          selector: 'theme',
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_THEME_FIELD_TITLE'),
 	          content: main_core.Type.isString(theme) ? theme.split('-')[0] : '',
@@ -335,7 +336,8 @@ this.BX = this.BX || {};
 	      return this.cache.remember('darkField', function () {
 	        var theme = _this4.getFormOptions().data.design.theme;
 
-	        return new BX.Landing.UI.Field.Dropdown({
+	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        return new rootWindow.BX.Landing.UI.Field.Dropdown({
 	          selector: 'dark',
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_DARK_FIELD_TITLE'),
 	          content: main_core.Type.isString(theme) ? theme.split('-')[1] : '',
@@ -358,13 +360,27 @@ this.BX = this.BX || {};
 
 	      if (theme) {
 	        if (main_core.Type.isPlainObject(theme.color)) {
-	          this.getPrimaryColorField().setValue(theme.color.primary, true);
-	          this.getPrimaryTextColorField().setValue(theme.color.primaryText, true);
-	          this.getBackgroundColorField().setValue(theme.color.background);
-	          this.getTextColorField().setValue(theme.color.text, true);
-	          this.getFieldBackgroundColorField().setValue(theme.color.fieldBackground, true);
-	          this.getFieldFocusBackgroundColorField().setValue(theme.color.fieldFocusBackground, true);
-	          this.getFieldBorderColorField().setValue(theme.color.fieldBorder);
+	          this.getPrimaryColorField().setValue({
+	            '--color': FormStyleAdapter.prepareColorFieldValue(theme.color.primary)
+	          });
+	          this.getPrimaryTextColorField().setValue({
+	            '--color': FormStyleAdapter.prepareColorFieldValue(theme.color.primaryText)
+	          });
+	          this.getBackgroundColorField().setValue({
+	            '--color': FormStyleAdapter.prepareColorFieldValue(theme.color.background)
+	          });
+	          this.getTextColorField().setValue({
+	            '--color': FormStyleAdapter.prepareColorFieldValue(theme.color.text)
+	          });
+	          this.getFieldBackgroundColorField().setValue({
+	            '--color': FormStyleAdapter.prepareColorFieldValue(theme.color.fieldBackground)
+	          });
+	          this.getFieldFocusBackgroundColorField().setValue({
+	            '--color': FormStyleAdapter.prepareColorFieldValue(theme.color.fieldFocusBackground)
+	          });
+	          this.getFieldBorderColorField().setValue({
+	            '--color': FormStyleAdapter.prepareColorFieldValue(theme.color.fieldBorder)
+	          });
 	        }
 
 	        this.getStyleField().setValue(theme.style);
@@ -405,7 +421,8 @@ this.BX = this.BX || {};
 	      var _this5 = this;
 
 	      return this.cache.remember('shadow', function () {
-	        return new BX.Landing.UI.Field.Dropdown({
+	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        return new rootWindow.BX.Landing.UI.Field.Dropdown({
 	          selector: 'shadow',
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_SHADOW'),
 	          content: _this5.getFormOptions().data.design.shadow,
@@ -425,7 +442,8 @@ this.BX = this.BX || {};
 	      var _this6 = this;
 
 	      return this.cache.remember('styleField', function () {
-	        return new BX.Landing.UI.Field.Dropdown({
+	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        return new rootWindow.BX.Landing.UI.Field.Dropdown({
 	          selector: 'style',
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_STYLE_FIELD_TITLE'),
 	          content: _this6.getFormOptions().data.design.style,
@@ -445,11 +463,17 @@ this.BX = this.BX || {};
 	      var _this7 = this;
 
 	      return this.cache.remember('primaryColorField', function () {
-	        return new landing_ui_field_colorpickerfield.ColorPickerField({
+	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        var field = new rootWindow.BX.Landing.UI.Field.ColorField({
 	          selector: 'primary',
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_PRIMARY_COLOR'),
-	          value: _this7.getFormOptions().data.design.color.primary
+	          subtype: 'color'
 	        });
+	        main_core.Dom.hide(field.layout.querySelector('.landing-ui-field-color-primary'));
+	        field.setValue({
+	          '--color': FormStyleAdapter.prepareColorFieldValue(_this7.getFormOptions().data.design.color.primary)
+	        });
+	        return field;
 	      });
 	    }
 	  }, {
@@ -458,11 +482,17 @@ this.BX = this.BX || {};
 	      var _this8 = this;
 
 	      return this.cache.remember('primaryTextColorField', function () {
-	        return new landing_ui_field_colorpickerfield.ColorPickerField({
+	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        var field = new rootWindow.BX.Landing.UI.Field.ColorField({
 	          selector: 'primaryText',
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_PRIMARY_TEXT_COLOR'),
-	          value: _this8.getFormOptions().data.design.color.primaryText
+	          subtype: 'color'
 	        });
+	        main_core.Dom.hide(field.layout.querySelector('.landing-ui-field-color-primary'));
+	        field.setValue({
+	          '--color': FormStyleAdapter.prepareColorFieldValue(_this8.getFormOptions().data.design.color.primaryText)
+	        });
+	        return field;
 	      });
 	    }
 	  }, {
@@ -471,11 +501,17 @@ this.BX = this.BX || {};
 	      var _this9 = this;
 
 	      return this.cache.remember('backgroundColorField', function () {
-	        return new landing_ui_field_colorpickerfield.ColorPickerField({
+	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        var field = new rootWindow.BX.Landing.UI.Field.ColorField({
 	          selector: 'background',
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_BACKGROUND_COLOR'),
-	          value: _this9.getFormOptions().data.design.color.background
+	          subtype: 'color'
 	        });
+	        main_core.Dom.hide(field.layout.querySelector('.landing-ui-field-color-primary'));
+	        field.setValue({
+	          '--color': FormStyleAdapter.prepareColorFieldValue(_this9.getFormOptions().data.design.color.background)
+	        });
+	        return field;
 	      });
 	    }
 	  }, {
@@ -484,11 +520,17 @@ this.BX = this.BX || {};
 	      var _this10 = this;
 
 	      return this.cache.remember('textColorField', function () {
-	        return new landing_ui_field_colorpickerfield.ColorPickerField({
+	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        var field = new rootWindow.BX.Landing.UI.Field.ColorField({
 	          selector: 'text',
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_TEXT_COLOR'),
-	          value: _this10.getFormOptions().data.design.color.text
+	          subtype: 'color'
 	        });
+	        main_core.Dom.hide(field.layout.querySelector('.landing-ui-field-color-primary'));
+	        field.setValue({
+	          '--color': FormStyleAdapter.prepareColorFieldValue(_this10.getFormOptions().data.design.color.text)
+	        });
+	        return field;
 	      });
 	    }
 	  }, {
@@ -497,11 +539,17 @@ this.BX = this.BX || {};
 	      var _this11 = this;
 
 	      return this.cache.remember('fieldBackgroundColorField', function () {
-	        return new landing_ui_field_colorpickerfield.ColorPickerField({
+	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        var field = new rootWindow.BX.Landing.UI.Field.ColorField({
 	          selector: 'fieldBackground',
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FIELD_BACKGROUND_COLOR'),
-	          value: _this11.getFormOptions().data.design.color.fieldBackground
+	          subtype: 'color'
 	        });
+	        main_core.Dom.hide(field.layout.querySelector('.landing-ui-field-color-primary'));
+	        field.setValue({
+	          '--color': FormStyleAdapter.prepareColorFieldValue(_this11.getFormOptions().data.design.color.fieldBackground)
+	        });
+	        return field;
 	      });
 	    }
 	  }, {
@@ -510,11 +558,18 @@ this.BX = this.BX || {};
 	      var _this12 = this;
 
 	      return this.cache.remember('fieldFocusBackgroundColorField', function () {
-	        return new landing_ui_field_colorpickerfield.ColorPickerField({
+	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        var field = new rootWindow.BX.Landing.UI.Field.ColorField({
 	          selector: 'fieldFocusBackground',
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FIELD_FOCUS_BACKGROUND_COLOR'),
-	          value: _this12.getFormOptions().data.design.color.fieldFocusBackground
+	          value: _this12.getFormOptions().data.design.color.fieldFocusBackground,
+	          subtype: 'color'
 	        });
+	        main_core.Dom.hide(field.layout.querySelector('.landing-ui-field-color-primary'));
+	        field.setValue({
+	          '--color': FormStyleAdapter.prepareColorFieldValue(_this12.getFormOptions().data.design.color.fieldFocusBackground)
+	        });
+	        return field;
 	      });
 	    }
 	  }, {
@@ -523,11 +578,18 @@ this.BX = this.BX || {};
 	      var _this13 = this;
 
 	      return this.cache.remember('fieldBorderColorField', function () {
-	        return new landing_ui_field_colorpickerfield.ColorPickerField({
+	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        var field = new rootWindow.BX.Landing.UI.Field.ColorField({
 	          selector: 'fieldBorder',
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FIELD_BORDER_COLOR'),
-	          value: _this13.getFormOptions().data.design.color.fieldBorder
+	          value: _this13.getFormOptions().data.design.color.fieldBorder,
+	          subtype: 'color'
 	        });
+	        main_core.Dom.hide(field.layout.querySelector('.landing-ui-field-color-primary'));
+	        field.setValue({
+	          '--color': FormStyleAdapter.prepareColorFieldValue(_this13.getFormOptions().data.design.color.fieldBorder)
+	        });
+	        return field;
 	      });
 	    }
 	  }, {
@@ -605,13 +667,13 @@ this.BX = this.BX || {};
 	            value.dark = value.dark === 'dark';
 	            value.shadow = main_core.Text.toBoolean(value.shadow);
 	            value.color = {
-	              primary: value.primary,
-	              primaryText: value.primaryText,
-	              text: value.text,
-	              background: value.background,
-	              fieldBackground: value.fieldBackground,
-	              fieldFocusBackground: value.fieldFocusBackground,
-	              fieldBorder: value.fieldBorder
+	              primary: FormStyleAdapter.convertColorFieldValueToHexa(value.primary.getHex(), value.primary.getOpacity()),
+	              primaryText: FormStyleAdapter.convertColorFieldValueToHexa(value.primaryText.getHex(), value.primaryText.getOpacity()),
+	              text: FormStyleAdapter.convertColorFieldValueToHexa(value.text.getHex(), value.text.getOpacity()),
+	              background: FormStyleAdapter.convertColorFieldValueToHexa(value.background.getHex(), value.background.getOpacity()),
+	              fieldBackground: FormStyleAdapter.convertColorFieldValueToHexa(value.fieldBackground.getHex(), value.fieldBackground.getOpacity()),
+	              fieldFocusBackground: FormStyleAdapter.convertColorFieldValueToHexa(value.fieldFocusBackground.getHex(), value.fieldFocusBackground.getOpacity()),
+	              fieldBorder: FormStyleAdapter.convertColorFieldValueToHexa(value.fieldBorder.getHex(), value.fieldBorder.getOpacity())
 	            };
 	            value.border = {
 	              left: value.border.includes('left'),
@@ -751,11 +813,28 @@ this.BX = this.BX || {};
 	        this.saveBlockDesign();
 	      }
 	    }
+	  }], [{
+	    key: "prepareColorFieldValue",
+	    value: function prepareColorFieldValue(color) {
+	      return landing_ui_field_colorpickerfield.ColorPickerField.toRgba.apply(landing_ui_field_colorpickerfield.ColorPickerField, babelHelpers.toConsumableArray(landing_ui_field_colorpickerfield.ColorPickerField.parseHex(color)));
+	    }
+	  }, {
+	    key: "convertColorFieldValueToHexa",
+	    value: function convertColorFieldValueToHexa(value) {
+	      var opacity = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+	      var parsedPrimary = landing_ui_field_colorpickerfield.ColorPickerField.parseHex(value);
+
+	      if (!main_core.Type.isNil(opacity)) {
+	        parsedPrimary[3] = opacity;
+	      }
+
+	      return landing_ui_field_colorpickerfield.ColorPickerField.toHex.apply(landing_ui_field_colorpickerfield.ColorPickerField, babelHelpers.toConsumableArray(parsedPrimary));
+	    }
 	  }]);
 	  return FormStyleAdapter;
 	}(main_core_events.EventEmitter);
 
 	exports.FormStyleAdapter = FormStyleAdapter;
 
-}((this.BX.Landing = this.BX.Landing || {}),BX,BX.Event,BX.Landing.UI.Form,BX.Landing,BX.Landing.Ui.Field,BX.Landing,BX.Landing));
+}((this.BX.Landing = this.BX.Landing || {}),BX,BX.Event,BX.Landing.UI.Form,BX.Landing,BX.Landing.Ui.Field,BX.Landing,BX.Landing,BX.Landing.UI.Field,BX.Landing));
 //# sourceMappingURL=formstyleadapter.bundle.js.map

@@ -235,6 +235,7 @@ JCSmartFilter.prototype.postHandler = function (result, fromCache)
 	{
 		var set_filter = BX('set_filter');
 		set_filter.disabled = false;
+		set_filter.focus();
 	}
 
 	if (!fromCache && this.cacheKey !== '')

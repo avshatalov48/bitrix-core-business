@@ -5040,7 +5040,7 @@
 		}
 		else if (e.keyCode == 37 || e.keyCode == 39 || e.keyCode == 8 || e.keyCode == 107 || e.keyCode == 46 || e.keyCode == 35 || e.keyCode == 36) // left, right, backspace, num plus, home, end
 		{}
-		else if ((e.keyCode == 61 || e.keyCode == 187 || e.keyCode == 51 || e.keyCode == 56) && e.shiftKey) // +
+		else if (e.key === '+' || e.key === '#' || e.key === '*') // +
 		{}
 		else if ((e.keyCode == 67 || e.keyCode == 86 || e.keyCode == 65 || e.keyCode == 88) && (e.metaKey || e.ctrlKey)) // ctrl+v/c/a/x
 		{}
@@ -5282,6 +5282,7 @@
 					backgroundColor: 'white',
 					opacity: 0
 				},
+				maxHeight: 600,
 				events: {
 					onPopupClose : function()
 					{

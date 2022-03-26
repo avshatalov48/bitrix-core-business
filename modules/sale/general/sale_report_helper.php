@@ -936,26 +936,8 @@ abstract class CBaseSaleReportHelper extends CReportHelper
 					$report['settings']['select'][26]['alias'] = GetMessage('SALE_REPORT_DEFAULT_GOODS_INVENTORIES_BY_STORE__12_5_1_ALIAS_26');
 				}
 
-				// remove reports, which not work in MSSQL
-				global $DBType;
-				if (ToUpper($DBType) === 'MSSQL')
-				{
-					if (
-						($version === '12.0.0' && in_array($report['mark_default'], array(4, 5, 6, 7, 11, 12)))
-						||
-						($version === '12.5.0' && in_array($report['mark_default'], array(11, 12)))
-					)
-					{
-						unset($vreports[$num]);
-					}
-				}
-
 				// remove old reports
-				if (
-					(ToUpper($DBType) !== 'MSSQL' && $version === '12.0.0' && in_array($report['mark_default'], array(2, 3)))
-					||
-					(ToUpper($DBType) === 'MSSQL' && $version === '12.0.0' && in_array($report['mark_default'], array(3)))
-				)
+				if ($version === '12.0.0' && in_array($report['mark_default'], array(2, 3)))
 				{
 					unset($vreports[$num]);
 				}
@@ -3319,7 +3301,7 @@ class CSaleReportSaleProductHelper extends CBaseSaleReportHelper
 
 	public static function beforeViewDataQuery(&$select, &$filter, &$group, &$order, &$limit, &$options, &$runtime = null)
 	{
-		global $DB, $DBType;
+		global $DB;
 
 		if (function_exists('___dbCastIntToChar') !== true)
 		{
@@ -3347,7 +3329,7 @@ class CSaleReportSaleProductHelper extends CBaseSaleReportHelper
 					$runtime[$fieldName] = array(
 						'data_type' => 'string',
 						'expression' => array('
-				(SELECT '.$DB->Concat(___dbCastIntToChar($DBType,'b_catalog_price.PRICE'), '\' \'', 'b_catalog_price.CURRENCY').'
+				(SELECT '.$DB->Concat(___dbCastIntToChar('mysql','b_catalog_price.PRICE'), '\' \'', 'b_catalog_price.CURRENCY').'
 				FROM b_catalog_price
 					LEFT JOIN b_catalog_group ON b_catalog_group.ID = b_catalog_price.CATALOG_GROUP_ID
 				WHERE   b_catalog_price.PRODUCT_ID = %s

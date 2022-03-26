@@ -138,7 +138,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 		/** @var EntityMarker $entityMarker */
 		$entityMarker = $registry->getEntityMarkerClassName();
 
-		if ($action == EventActions::DELETE)
+		if ($action === EventActions::DELETE)
 		{
 			if ((int)$this->getField('DELIVERY_ID') === $shipment->getDeliveryId())
 			{
@@ -147,7 +147,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 				/** @var Shipment $entityShipment */
 				foreach ($this->getShipmentCollection()->getNotSystemItems() as $entityShipment)
 				{
-					if (intval($entityShipment->getField('DELIVERY_ID')) > 0)
+					if ((int)$entityShipment->getField('DELIVERY_ID') > 0)
 					{
 						$foundShipment = true;
 						$this->setFieldNoDemand('DELIVERY_ID', $entityShipment->getField('DELIVERY_ID'));
@@ -184,7 +184,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 			return $result;
 		}
 
-		if ($name == "ALLOW_DELIVERY")
+		if ($name === "ALLOW_DELIVERY")
 		{
 			if ($this->isCanceled())
 			{
@@ -209,11 +209,13 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 				$result->addErrors($r->getErrors());
 			}
 
-			if (Configuration::getProductReservationCondition() == Configuration::RESERVE_ON_ALLOW_DELIVERY)
+			if (
+				Configuration::isEnableAutomaticReservation()
+				&& Configuration::getProductReservationCondition() === Configuration::RESERVE_ON_ALLOW_DELIVERY
+			)
 			{
-				if ($value == "Y")
+				if ($value === "Y")
 				{
-					/** @var Result $r */
 					$r = $shipment->tryReserve();
 					if (!$r->isSuccess())
 					{
@@ -230,25 +232,21 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 						}
 					}
 				}
-				else
+				elseif (!$shipment->isShipped())
 				{
-					if (!$shipment->isShipped())
+					$r = $shipment->tryUnreserve();
+					if (!$r->isSuccess())
 					{
-						/** @var Result $r */
-						$r = $shipment->tryUnreserve();
-						if (!$r->isSuccess())
-						{
-							$result->addErrors($r->getErrors());
-						}
+						$result->addErrors($r->getErrors());
+					}
 
-						if ($r->hasWarnings())
+					if ($r->hasWarnings())
+					{
+						$result->addWarnings($r->getWarnings());
+						$entityMarker::addMarker($this, $shipment, $r);
+						if (!$shipment->isSystem())
 						{
-							$result->addWarnings($r->getWarnings());
-							$entityMarker::addMarker($this, $shipment, $r);
-							if (!$shipment->isSystem())
-							{
-								$shipment->setField('MARKED', 'Y');
-							}
+							$shipment->setField('MARKED', 'Y');
 						}
 					}
 				}
@@ -261,7 +259,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 
 			$orderStatus = null;
 
-			if ($oldValue == "N")
+			if ($oldValue === "N")
 			{
 				if ($this->getShipmentCollection()->isAllowDelivery())
 				{
@@ -275,7 +273,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 
 			if ($orderStatus !== null && $this->getField('STATUS_ID') != static::getFinalStatus())
 			{
-				if (strval($orderStatus) != '')
+				if ((string)$orderStatus != '')
 				{
 					$r = $this->setField('STATUS_ID', $orderStatus);
 					if (!$r->isSuccess())
@@ -292,7 +290,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 				}
 			}
 
-			if (Configuration::needShipOnAllowDelivery() && $value == "Y")
+			if (Configuration::needShipOnAllowDelivery() && $value === "Y")
 			{
 				if (!$shipment->isEmpty())
 				{
@@ -317,7 +315,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 			$isAllowDelivery = $this->getShipmentCollection()->isAllowDelivery();
 			if (
 				$isAllowDelivery
-				&& $this->getField('ALLOW_DELIVERY') == 'N'
+				&& $this->getField('ALLOW_DELIVERY') === 'N'
 			)
 			{
 				$this->setFieldNoDemand('DATE_ALLOW_DELIVERY', new Type\DateTime());
@@ -325,7 +323,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 
 			$this->setFieldNoDemand('ALLOW_DELIVERY', $isAllowDelivery ? "Y" : "N");
 		}
-		elseif ($name == "DEDUCTED")
+		elseif ($name === "DEDUCTED")
 		{
 			if ($this->isCanceled())
 			{
@@ -333,9 +331,12 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 				return $result;
 			}
 
-			if (Configuration::getProductReservationCondition() == Configuration::RESERVE_ON_SHIP)
+			if (
+				Configuration::isEnableAutomaticReservation()
+				&& Configuration::getProductReservationCondition() == Configuration::RESERVE_ON_SHIP
+			)
 			{
-				if ($value == "Y")
+				if ($value === "Y")
 				{
 					/** @var Result $r */
 					$r = $shipment->tryReserve();
@@ -374,7 +375,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 				}
 			}
 
-			if ($value == "Y")
+			if ($value === "Y")
 			{
 				/** @var Result $r */
 				$r = $shipment->tryShip();
@@ -394,9 +395,8 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 				}
 
 			}
-			elseif ($oldValue == 'Y')
+			elseif ($oldValue === 'Y')
 			{
-				/** @var Result $r */
 				$r = $shipment->tryUnship();
 				if (!$r->isSuccess())
 				{
@@ -412,7 +412,11 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 						$shipment->setField('MARKED', 'Y');
 					}
 				}
-				if ($shipment->needReservation())
+
+				if (
+					Configuration::isEnableAutomaticReservation()
+					&& $shipment->needReservation()
+				)
 				{
 					$r = $shipment->tryReserve();
 					if (!$r->isSuccess())
@@ -441,7 +445,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 
 			$allowSetStatus = false;
 
-			if ($oldValue == "N")
+			if ($oldValue === "N")
 			{
 				if ($this->getShipmentCollection()->isShipped())
 				{
@@ -464,21 +468,21 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 				}
 			}
 
-			if (strval($orderStatus) != '' && $allowSetStatus)
+			if (
+				(string)$orderStatus !== ''
+				&& $allowSetStatus
+			)
 			{
-				if (strval($orderStatus) != '')
+				$r = $this->setField('STATUS_ID', $orderStatus);
+				if (!$r->isSuccess())
 				{
-					$r = $this->setField('STATUS_ID', $orderStatus);
-					if (!$r->isSuccess())
-					{
-						$result->addErrors($r->getErrors());
-					}
-					elseif ($r->hasWarnings())
-					{
-						$result->addWarnings($r->getWarnings());
-						$entityMarker::addMarker($this, $this, $r);
-						$this->setField('MARKED', 'Y');
-					}
+					$result->addErrors($r->getErrors());
+				}
+				elseif ($r->hasWarnings())
+				{
+					$result->addWarnings($r->getWarnings());
+					$entityMarker::addMarker($this, $this, $r);
+					$this->setField('MARKED', 'Y');
 				}
 			}
 
@@ -1141,6 +1145,12 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 			return $result->addErrors($r->getErrors());
 		}
 
+		$r = $this->getPaymentCollection()->onBeforeBasketItemDelete($basketItem);
+		if (!$r->isSuccess())
+		{
+			return $result->addErrors($r->getErrors());
+		}
+
 
 		return $result;
 	}
@@ -1273,6 +1283,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 			if (
 				$shipment->isShipped()
 				|| !$shipment->needReservation()
+				|| !Configuration::isEnableAutomaticReservation()
 			)
 			{
 				continue;
@@ -1581,43 +1592,35 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 			}
 		}
 
-		if (Configuration::getProductReservationCondition() == Configuration::RESERVE_ON_PAY)
+		if (Configuration::isEnableAutomaticReservation())
 		{
-			if ($paymentCollection->hasPaidPayment())
+			$r = null;
+
+			if (Configuration::getProductReservationCondition() == Configuration::RESERVE_ON_PAY)
 			{
-				$r = $shipmentCollection->tryReserve();
+				if ($paymentCollection->hasPaidPayment())
+				{
+					$r = $shipmentCollection->tryReserve();
+				}
+				else
+				{
+					$r = $shipmentCollection->tryUnreserve();
+				}
 			}
-			else
+			elseif (Configuration::getProductReservationCondition() == Configuration::RESERVE_ON_FULL_PAY)
 			{
-				$r = $shipmentCollection->tryUnreserve();
+				if ($oldPaid == "N" && $this->isPaid())
+				{
+					$r = $shipmentCollection->tryReserve();
+				}
+				elseif ($oldPaid == "Y" && !$this->isPaid())
+				{
+					$r = $shipmentCollection->tryUnreserve();
+				}
 			}
 
-			if (!$r->isSuccess())
+			if ($r !== null)
 			{
-				$result->addErrors($r->getErrors());
-			}
-			elseif ($r->hasWarnings())
-			{
-				$result->addWarnings($r->getWarnings());
-			}
-		}
-		elseif (Configuration::getProductReservationCondition() == Configuration::RESERVE_ON_FULL_PAY)
-		{
-			if ($oldPaid == "N" && $this->isPaid())
-			{
-				$r = $shipmentCollection->tryReserve();
-				if (!$r->isSuccess())
-				{
-					$result->addErrors($r->getErrors());
-				}
-				elseif ($r->hasWarnings())
-				{
-					$result->addWarnings($r->getWarnings());
-				}
-			}
-			elseif ($oldPaid == "Y" && !$this->isPaid())
-			{
-				$r = $shipmentCollection->tryUnreserve();
 				if (!$r->isSuccess())
 				{
 					$result->addErrors($r->getErrors());
@@ -1659,18 +1662,15 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 			if ($allowDelivery)
 			{
 				$r = $shipmentCollection->allowDelivery();
-				if (!$r->isSuccess())
-				{
-					$result->addErrors($r->getErrors());
-				}
 			}
-			elseif (!$allowDelivery)
+			else
 			{
 				$r = $shipmentCollection->disallowDelivery();
-				if (!$r->isSuccess())
-				{
-					$result->addErrors($r->getErrors());
-				}
+			}
+
+			if (!$r->isSuccess())
+			{
+				$result->addErrors($r->getErrors());
 			}
 		}
 
@@ -1678,12 +1678,12 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 	}
 
 	/**
-	 * @param $select
 	 * @return Result
 	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\NotImplementedException
 	 * @throws Main\NotSupportedException
-	 * @throws Main\ObjectNotFoundException
 	 */
 	protected function refreshInternal()
 	{

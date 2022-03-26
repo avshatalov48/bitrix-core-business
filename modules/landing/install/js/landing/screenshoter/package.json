@@ -1,0 +1,15 @@
+{
+  "name": "screenshoter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bundle.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "html-to-image": "^1.7.0",
+    "html2canvas": "^1.2.1"
+  }
+}

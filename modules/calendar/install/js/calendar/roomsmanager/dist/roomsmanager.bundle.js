@@ -338,7 +338,7 @@ this.BX = this.BX || {};
 	    key: "handlePullRoomChanges",
 	    value: function handlePullRoomChanges(params) {
 	      if (params.command === 'delete_room') {
-	        var roomId = parseInt(params.fields.ID, 10);
+	        var roomId = parseInt(params.ID, 10);
 
 	        if (this.roomsIndex[roomId]) {
 	          this.deleteRoomHandler(roomId);

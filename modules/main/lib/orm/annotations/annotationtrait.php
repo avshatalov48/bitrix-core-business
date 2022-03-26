@@ -240,9 +240,9 @@ trait AnnotationTrait
 
 			$codeTable = [];
 			$codeTable[] = " * @method static {$queryClassName} query()";
-			$codeTable[] = " * @method static {$resultClassName} getByPrimary(\$primary, array \$parameters = array())";
+			$codeTable[] = " * @method static {$resultClassName} getByPrimary(\$primary, array \$parameters = [])";
 			$codeTable[] = " * @method static {$resultClassName} getById(\$id)";
-			$codeTable[] = " * @method static {$resultClassName} getList(array \$parameters = array())";
+			$codeTable[] = " * @method static {$resultClassName} getList(array \$parameters = [])";
 			$codeTable[] = " * @method static {$entityClassName} getEntity()";
 			$codeTable[] = " * @method static {$objectClass} createObject(\$setDefaultValues = true)";
 			$codeTable[] = " * @method static {$collectionClass} createCollection()";
@@ -324,13 +324,13 @@ trait AnnotationTrait
 
 		if (!$separateTable)
 		{
-			return join(PHP_EOL, $code);
+			return join("\n", $code);
 		}
 		else
 		{
 			return [
-				join(PHP_EOL, $codeTable),
-				join(PHP_EOL, $code)
+				join("\n", $codeTable),
+				join("\n", $code)
 			];
 		}
 	}

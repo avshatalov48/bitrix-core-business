@@ -2,40 +2,40 @@ this.BX = this.BX || {};
 (function (exports,main_core,ui_dialogs_messagebox,ui_notification,main_popup,ui_buttons) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div><p><b>", "</b></p><div>", "</div></div>"]);
+	var _templateObject;
 
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var instance = null;
 
-	var _startScriptInternal = new WeakSet();
+	var _startScriptInternal = /*#__PURE__*/new WeakSet();
 
-	var _keepAliveQueue = new WeakSet();
+	var _keepAliveQueue = /*#__PURE__*/new WeakSet();
 
-	var _findGridInstance = new WeakSet();
+	var _showFillParametersPopup = /*#__PURE__*/new WeakSet();
+
+	var _findGridInstance = /*#__PURE__*/new WeakSet();
 
 	var Manager = /*#__PURE__*/function () {
 	  function Manager() {
 	    babelHelpers.classCallCheck(this, Manager);
 
-	    _findGridInstance.add(this);
+	    _classPrivateMethodInitSpec(this, _findGridInstance);
 
-	    _keepAliveQueue.add(this);
+	    _classPrivateMethodInitSpec(this, _showFillParametersPopup);
 
-	    _startScriptInternal.add(this);
+	    _classPrivateMethodInitSpec(this, _keepAliveQueue);
+
+	    _classPrivateMethodInitSpec(this, _startScriptInternal);
 
 	    babelHelpers.defineProperty(this, "scriptEditUrl", '/bitrix/components/bitrix/bizproc.script.edit/');
 	    babelHelpers.defineProperty(this, "scriptListUrl", '/bitrix/components/bitrix/bizproc.script.list/');
@@ -68,59 +68,22 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }, {
-	    key: "showFillParametersPopup",
-	    value: function showFillParametersPopup(scriptId, documentIds, parameters, documentType) {
-	      var _this2 = this;
-
-	      var form = this.renderParametersPopupContent(parameters, documentType);
-	      var popup = new main_popup.Popup(null, null, {
-	        events: {
-	          onPopupClose: function onPopupClose() {
-	            popup.destroy();
-	          }
-	        },
-	        titleBar: main_core.Loc.getMessage('BIZPROC_SCRIPT_MANAGER_START_PARAMS_POPUP_TITLE'),
-	        content: form,
-	        minWidth: 500,
-	        buttons: [new ui_buttons.Button({
-	          text: main_core.Loc.getMessage('BIZPROC_SCRIPT_MANAGER_START_BUTTON_SEND_PARAMS'),
-	          color: ui_buttons.Button.Color.SUCCESS,
-	          onclick: function onclick() {
-	            var paramFields = {};
-
-	            var _iterator = _createForOfIteratorHelper(new FormData(form).entries()),
-	                _step;
-
-	            try {
-	              for (_iterator.s(); !(_step = _iterator.n()).done;) {
-	                var field = _step.value;
-	                paramFields[field[0]] = field[1];
-	              }
-	            } catch (err) {
-	              _iterator.e(err);
-	            } finally {
-	              _iterator.f();
-	            }
-
-	            _classPrivateMethodGet(_this2, _startScriptInternal, _startScriptInternal2).call(_this2, scriptId, documentIds, paramFields, popup);
-	          }
-	        }), new BX.UI.Button({
-	          text: main_core.Loc.getMessage('UI_MESSAGE_BOX_CANCEL_CAPTION'),
-	          color: BX.UI.Button.Color.LINK,
-	          onclick: function onclick() {
-	            popup.close();
-	          }
-	        })]
-	      });
-	      popup.show();
-	    }
-	  }, {
 	    key: "renderParametersPopupContent",
 	    value: function renderParametersPopupContent(parameters, documentType) {
-	      var form = main_core.Dom.create('form');
+	      var form = main_core.Dom.create('form', {
+	        attrs: {
+	          className: 'bp-script-start-form'
+	        }
+	      });
 	      parameters.forEach(function (param) {
 	        var field = BX.Bizproc.FieldType.renderControl(documentType, param, param.Id, param.Default || '');
-	        main_core.Dom.append(main_core.Tag.render(_templateObject(), main_core.Text.encode(param.Name), field), form);
+	        var description = param.Description ? main_core.Dom.create('span', {
+	          text: param.Description,
+	          attrs: {
+	            className: 'bp-script-start-form-row-desc'
+	          }
+	        }) : '';
+	        main_core.Dom.append(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"bp-script-start-form-row\">\n\t\t\t\t\t\t<span class=\"bp-script-start-form-row-title\">", "</span>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t<div class=\"bp-script-start-form-row-field\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Text.encode(param.Name), description, field), form);
 	      });
 	      return form;
 	    }
@@ -302,8 +265,8 @@ this.BX = this.BX || {};
 	  return Manager;
 	}();
 
-	var _startScriptInternal2 = function _startScriptInternal2(scriptId, documentIds) {
-	  var _this3 = this;
+	function _startScriptInternal2(scriptId, documentIds) {
+	  var _this2 = this;
 
 	  var parameters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 	  var popup = arguments.length > 3 ? arguments[3] : undefined;
@@ -320,7 +283,7 @@ this.BX = this.BX || {};
 	    }
 
 	    if (response.data.status === 'FILL_PARAMETERS') {
-	      _this3.showFillParametersPopup(scriptId, documentIds, response.data.parameters, response.data.documentType);
+	      _classPrivateMethodGet(_this2, _showFillParametersPopup, _showFillParametersPopup2).call(_this2, scriptId, documentIds, response.data);
 	    } else if (response.data.status === 'INVALID_PARAMETERS') ; else if (response.data.status === 'QUEUED') {
 	      if (popup) {
 	        popup.close();
@@ -330,13 +293,13 @@ this.BX = this.BX || {};
 	        content: main_core.Loc.getMessage('BIZPROC_SCRIPT_MANAGER_START_QUEUED')
 	      });
 
-	      _classPrivateMethodGet(_this3, _keepAliveQueue, _keepAliveQueue2).call(_this3, response.data.queueId);
+	      _classPrivateMethodGet(_this2, _keepAliveQueue, _keepAliveQueue2).call(_this2, response.data.queueId);
 	    }
 	  });
-	};
+	}
 
-	var _keepAliveQueue2 = function _keepAliveQueue2(queueId) {
-	  var _this4 = this;
+	function _keepAliveQueue2(queueId) {
+	  var _this3 = this;
 
 	  var delay = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 500;
 	  setTimeout(function () {
@@ -346,7 +309,7 @@ this.BX = this.BX || {};
 	      }
 	    }).then(function (response) {
 	      if (!response.data.finished) {
-	        _classPrivateMethodGet(_this4, _keepAliveQueue, _keepAliveQueue2).call(_this4, queueId, delay);
+	        _classPrivateMethodGet(_this3, _keepAliveQueue, _keepAliveQueue2).call(_this3, queueId, delay);
 	      } else {
 	        ui_notification.UI.Notification.Center.notify({
 	          content: main_core.Loc.getMessage('BIZPROC_SCRIPT_MANAGER_START_FINISHED')
@@ -354,9 +317,59 @@ this.BX = this.BX || {};
 	      }
 	    });
 	  }, delay);
-	};
+	}
 
-	var _findGridInstance2 = function _findGridInstance2(entity) {
+	function _showFillParametersPopup2(scriptId, documentIds, _ref) {
+	  var _this4 = this;
+
+	  var parameters = _ref.parameters,
+	      documentType = _ref.documentType,
+	      scriptName = _ref.scriptName;
+	  var form = this.renderParametersPopupContent(parameters, documentType);
+	  var popup = new main_popup.Popup(null, null, {
+	    events: {
+	      onPopupClose: function onPopupClose() {
+	        popup.destroy();
+	      }
+	    },
+	    titleBar: scriptName || main_core.Loc.getMessage('BIZPROC_SCRIPT_MANAGER_START_PARAMS_POPUP_TITLE'),
+	    content: form,
+	    width: 595,
+	    contentNoPaddings: true,
+	    buttons: [new ui_buttons.Button({
+	      text: main_core.Loc.getMessage('BIZPROC_SCRIPT_MANAGER_START_BUTTON_SEND_PARAMS'),
+	      color: ui_buttons.Button.Color.SUCCESS,
+	      onclick: function onclick() {
+	        var paramFields = {};
+
+	        var _iterator = _createForOfIteratorHelper(new FormData(form).entries()),
+	            _step;
+
+	        try {
+	          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	            var field = _step.value;
+	            paramFields[field[0]] = field[1];
+	          }
+	        } catch (err) {
+	          _iterator.e(err);
+	        } finally {
+	          _iterator.f();
+	        }
+
+	        _classPrivateMethodGet(_this4, _startScriptInternal, _startScriptInternal2).call(_this4, scriptId, documentIds, paramFields, popup);
+	      }
+	    }), new BX.UI.Button({
+	      text: main_core.Loc.getMessage('UI_MESSAGE_BOX_CANCEL_CAPTION'),
+	      color: BX.UI.Button.Color.LINK,
+	      onclick: function onclick() {
+	        popup.close();
+	      }
+	    })]
+	  });
+	  popup.show();
+	}
+
+	function _findGridInstance2(entity) {
 	  if (!BX.Main.gridManager) {
 	    return null;
 	  }
@@ -366,7 +379,7 @@ this.BX = this.BX || {};
 	    return current.id.indexOf(gridId) === 0;
 	  });
 	  return grid ? grid.instance : null;
-	};
+	}
 
 	var instance$1 = null;
 

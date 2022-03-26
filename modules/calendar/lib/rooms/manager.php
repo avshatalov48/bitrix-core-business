@@ -2,105 +2,189 @@
 
 namespace Bitrix\Calendar\Rooms;
 
+use Bitrix\Main\Error;
+use Bitrix\Calendar\Integration\Bitrix24Manager;
 use Bitrix\Calendar\Internals\AccessTable;
 use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Calendar\Internals\LocationTable;
 use Bitrix\Calendar\Internals\SectionTable;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Calendar\UserSettings;
 use Bitrix\Main\Entity\ReferenceField;
-use Bitrix\Main\ORM\Fields\ExpressionField;
-use CCalendar;
-use CCalendarEvent;
-use CCalendarSect;
+use Bitrix\Main\EventManager;
+
+Loc::loadMessages(__FILE__);
 
 class Manager
 {
 	const TYPE = 'location';
+	
+	/** @var Room $room */
+	private $room;
+	/** @var Error $error */
+	private $error;
+	
+	protected function __construct()
+	{
+	}
+	
+	public static function createInstanceWithRoom(Room $room): Manager
+	{
+		$instance = new self();
+		$instance->setRoom($room);
+		return $instance;
+	}
+	
+	public static function createInstance(): Manager
+	{
+		return new self;
+	}
+	
+	private function setRoom(Room $room)
+	{
+		$this->room = $room;
+	}
+	
+	public function setLocationList(array $locationList): Manager
+	{
+		$this->locationList = $locationList;
+		
+		return $this;
+	}
 
+	private function addError(Error $error)
+	{
+		$this->error = $error;
+	}
+	
+	public function getRoom(): Room
+	{
+		return $this->room;
+	}
+
+	public function getError(): ?Error
+	{
+		return $this->error;
+	}
+	
+	public function getLocationList(): ?array
+	{
+		return $this->locationList;
+	}
+	
 	/**
-	 * @param $params
-	 *
 	 * Creating Room in Location Calendar
-	 * Returns id of created room
 	 *
-	 * @return int|null
+	 * @return Manager
 	 */
-	public static function createRoom($params): ?int
+	public function createRoom(): Manager
 	{
-		return (new Room())->create($params);
+		if ($this->error)
+		{
+			return $this;
+		}
+		
+		$this->room->create();
+		
+		if ($this->room->getError())
+		{
+			$this->addError($this->room->getError());
+		}
+		
+		return $this;
 	}
-
+	
 	/**
-	 * @param $params
-	 *
 	 * Updating data of room in Location calendar
-	 * Returns id of updated room
 	 *
-	 * @return int|null
+	 * @return Manager
 	 */
-	public static function updateRoom($params): ?int
+	public function updateRoom(): Manager
 	{
-		return (new Room())->update($params);
-	}
+		if ($this->error)
+		{
+			return $this;
+		}
+		
+		$this->room->update();
 
+		if ($this->room->getError())
+		{
+			$this->addError($this->room->getError());
+		}
+
+		return $this;
+	}
+	
 	/**
-	 * @param $id
-	 *
 	 * Deleting room by id in Location calendar
-	 * Returns true if successful
 	 *
-	 * @return bool
+	 * @return Manager
 	 */
-	public static function deleteRoom($id): bool
+	public function deleteRoom(): Manager
 	{
-		return (new Room())->delete($id);
+		if ($this->getError())
+		{
+			return $this;
+		}
+		
+		if (!$this->room->getName())
+		{
+			$this->room->setName($this->getRoomName($this->room->getId()));
+		}
+		
+		$this->room->delete();
+
+		if ($this->room->getError())
+		{
+			$this->addError($this->room->getError());
+		}
+
+		return $this;
 	}
 
 	/**
 	 * @return array of rooms in Location calendar
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function getRoomsList(): ?array
 	{
-		$rooms = SectionTable::getList(
-			[
-				'select' => [
-					'ID',
-					'NAME',
-					'COLOR',
-					'OWNER_ID',
-					'CAL_TYPE',
-					'NECESSITY' => 'LOCATION.NECESSITY',
-					'CAPACITY' => 'LOCATION.CAPACITY',
-					'LOCATION_ID' => 'LOCATION.ID',
-					'ACCESS_CODE' => 'ACCESS_TABLE.ACCESS_CODE',
-					'TASK_ID' => 'ACCESS_TABLE.TASK_ID',
-				],
-				'runtime' => [
-					new ReferenceField(
-						'LOCATION',
-						LocationTable::class, ['=this.ID' => 'ref.SECTION_ID'],
-						['join_type' => 'INNER']
-					),
-					new ReferenceField(
-						'ACCESS_TABLE',
-						AccessTable::class, ['=this.ID' => 'ref.SECT_ID'],
-						['join_type' => 'INNER']
-					)
-				],
-				'order' => [
-					'ID'
-				],
-		    ])->fetchAll();
+		$rooms = SectionTable::getList([
+			'select' => [
+				'ID',
+				'NAME',
+				'COLOR',
+				'OWNER_ID',
+				'CAL_TYPE',
+				'NECESSITY' => 'LOCATION.NECESSITY',
+				'CAPACITY' => 'LOCATION.CAPACITY',
+				'LOCATION_ID' => 'LOCATION.ID',
+				'ACCESS_CODE' => 'ACCESS_TABLE.ACCESS_CODE',
+				'TASK_ID' => 'ACCESS_TABLE.TASK_ID',
+			],
+			'runtime' => [
+				new ReferenceField(
+					'LOCATION',
+					LocationTable::class, ['=this.ID' => 'ref.SECTION_ID'],
+					['join_type' => 'INNER']
+				),
+				new ReferenceField(
+					'ACCESS_TABLE',
+					AccessTable::class, ['=this.ID' => 'ref.SECT_ID'],
+					['join_type' => 'INNER']
+				)
+			],
+			'order' => [
+				'ID'
+			],
+	    ])->fetchAll();
 
-		if(empty($rooms))
+		if (empty($rooms))
 		{
-			CCalendarSect::CreateDefault([
-					'type' => self::TYPE,
-					'ownerId' => 0
-				]
-			);
+			\CCalendarSect::CreateDefault([
+				'type' => self::TYPE,
+				'ownerId' => 0
+			]);
+			
 			return null;
 		}
 		else
@@ -108,9 +192,10 @@ class Manager
 			$rooms = self::setAccess($rooms);
 			foreach ($rooms as $item)
 			{
-				CCalendarSect::HandlePermission($item);
+				\CCalendarSect::HandlePermission($item);
 			}
-			return CCalendarSect::GetSectionPermission($rooms);
+			
+			return \CCalendarSect::GetSectionPermission($rooms);
 		}
 	}
 
@@ -118,63 +203,60 @@ class Manager
 	 * @param $id
 	 *
 	 * @return array room by section id
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function getRoomById($id): array
 	{
-		$room = SectionTable::getList(
-			[
-				'filter' => [
-					'=ID' => $id,
-				],
-				'select' => [
-					'ID',
-					'NAME',
-					'COLOR',
-					'OWNER_ID',
-					'CAL_TYPE',
-					'NECESSITY' => 'LOCATION.NECESSITY',
-					'CAPACITY' => 'LOCATION.CAPACITY',
-					'LOCATION_ID' => 'LOCATION.ID',
-					'ACCESS_CODE' => 'ACCESS_TABLE.ACCESS_CODE',
-					'TASK_ID' => 'ACCESS_TABLE.TASK_ID',
-				],
-				'runtime' => [
-					new ReferenceField(
-						'LOCATION',
-						LocationTable::class, ['=this.ID' => 'ref.SECTION_ID'],
-						['join_type' => 'INNER']
-					),
-					new ReferenceField(
-						'ACCESS_TABLE',
-						AccessTable::class, ['=this.ID' => 'ref.SECT_ID'],
-						['join_type' => 'INNER']
-					)
-				],
-				'order' => [
-					'ID'
-				],
-		    ])->fetchAll();
+		$room = SectionTable::getList([
+			'filter' => [
+				'=ID' => $id,
+			],
+			'select' => [
+				'ID',
+				'NAME',
+				'COLOR',
+				'OWNER_ID',
+				'CAL_TYPE',
+				'NECESSITY' => 'LOCATION.NECESSITY',
+				'CAPACITY' => 'LOCATION.CAPACITY',
+				'LOCATION_ID' => 'LOCATION.ID',
+				'ACCESS_CODE' => 'ACCESS_TABLE.ACCESS_CODE',
+				'TASK_ID' => 'ACCESS_TABLE.TASK_ID',
+			],
+			'runtime' => [
+				new ReferenceField(
+					'LOCATION',
+					LocationTable::class, ['=this.ID' => 'ref.SECTION_ID'],
+					['join_type' => 'INNER']
+				),
+				new ReferenceField(
+					'ACCESS_TABLE',
+					AccessTable::class, ['=this.ID' => 'ref.SECT_ID'],
+					['join_type' => 'INNER']
+				)
+			],
+			'order' => [
+				'ID'
+			],
+		])->fetchAll();
 
 		$room = self::setAccess($room);
 		foreach ($room as $item)
 		{
-			CCalendarSect::HandlePermission($item);
+			\CCalendarSect::HandlePermission($item);
 		}
-		return CCalendarSect::GetSectionPermission($room);
+
+		return \CCalendarSect::GetSectionPermission($room);
 	}
 
 	/**
 	 * @param array $params
 	 *
-	 * @return bool|int|mixed id of new event
+	 * @return int|null id of new event
 	 */
 	public static function reserveRoom(array $params = []): ?int
 	{
-		$name = Manager::getRoomName($params['room_id']);
-		if (empty($name['NAME']))
+		$name = self::createInstance()->getRoomName($params['room_id']);
+		if (empty($name))
 		{
 			return null;
 		}
@@ -184,7 +266,7 @@ class Manager
 		$userId = $params['parentParams']['userId']
 			??  $params['parentParams']['arFields']['userId'];
 
-		return CCalendarEvent::Edit([
+		return \CCalendarEvent::Edit([
 			'arFields' => [
 				'ID' => $params['room_event_id'],
 				'CAL_TYPE' => self::TYPE,
@@ -194,162 +276,14 @@ class Manager
 				'TZ_FROM' => $params['parentParams']['arFields']['TZ_FROM'],
 				'TZ_TO' => $params['parentParams']['arFields']['TZ_TO'],
 				'SKIP_TIME' => $params['parentParams']['arFields']['SKIP_TIME'],
-				'NAME' => CCalendar::GetUserName($userId),
+				'NAME' => \CCalendar::GetUserName($userId),
 				'RRULE' => $params['parentParams']['arFields']['RRULE'],
 				'EXDATE' => $params['parentParams']['arFields']['EXDATE'],
 				'CREATED_BY' => $createdBy
 			],
 		]);
 	}
-
-	/**
-	 * @param string $location
-	 * @param array $params
-	 *
-	 * Checks if room is accessible for meeting
-	 *
-	 * @return bool
-	 */
-	public static function checkAccessibility(string $location = '', array $params = []): bool
-	{
-		$location = Util::parseLocation($location);
-
-		$res = true;
-		if ($location['room_id'] || $location['mrid'])
-		{
-			$fromTs = CCalendar::Timestamp($params['fields']["DATE_FROM"]);
-			$toTs = CCalendar::Timestamp($params['fields']["DATE_TO"]);
-			if ($params['fields']['SKIP_TIME'])
-			{
-				$toTs += CCalendar::GetDayLen();
-			}
-			
-			$eventLocation = Manager::getEventLocation($params['fields']['ID']);
-			$currentLocationEventId = '';
-			if ($eventLocation)
-			{
-				$eventLocation = Util::parseLocation($eventLocation['LOCATION']);
-				$currentLocationEventId = $eventLocation['room_event_id'];
-			}
-
-			$from = CCalendar::Date($fromTs, false);
-			$to = CCalendar::Date($fromTs, false);
-
-			$curUserId = CCalendar::GetCurUserId();
-			$deltaOffset = isset($params['timezone']) ? (CCalendar::GetTimezoneOffset($params['timezone'])
-				- CCalendar::GetCurrentOffsetUTC($curUserId)) : 0;
-
-			if ($location['mrid'])
-			{
-				$meetingRoomRes = CCalendar::GetAccessibilityForMeetingRoom([
-					'allowReserveMeeting' => true,
-					'id' => $location['mrid'],
-					'from' => CCalendar::Date(
-						$fromTs - CCalendar::DAY_LENGTH,
-						false
-					),
-					'to' => CCalendar::Date(
-						$toTs + CCalendar::DAY_LENGTH,
-						false
-					),
-					'curEventId' => $location['mrevid'],
-																			]);
-
-				foreach ($meetingRoomRes as $entry)
-				{
-					if ($entry['ID'] != $location['mrevid'])
-					{
-						$entryfromTs = CCalendar::Timestamp($entry['DT_FROM']);
-						$entrytoTs = CCalendar::Timestamp($entry['DT_TO']);
-
-						if ($entryfromTs < $toTs && $entrytoTs > $fromTs)
-						{
-							$res = false;
-							break;
-						}
-					}
-				}
-			}
-			elseif ($location['room_id'])
-			{
-				$entries = Manager::getRoomAccessibility($location['room_id'], $from, $to);
-				foreach ($entries as $entry)
-				{
-					if ((int)$entry['ID'] !== (int)$location['room_event_id']
-						&& (int)$entry['ID'] !== $currentLocationEventId)
-					{
-						$entryfromTs = CCalendar::Timestamp($entry['DATE_FROM']);
-						$entrytoTs = CCalendar::Timestamp($entry['DATE_TO']);
-						if ($entry['DT_SKIP_TIME'] !== 'Y')
-						{
-							$entryfromTs -= $entry['~USER_OFFSET_FROM'];
-							$entrytoTs -= $entry['~USER_OFFSET_TO'];
-							$entryfromTs += $deltaOffset;
-							$entrytoTs += $deltaOffset;
-						}
-						else
-						{
-							$entrytoTs += CCalendar::GetDayLen();
-						}
-
-						if ($entryfromTs < $toTs && $entrytoTs > $fromTs)
-						{
-							$res = false;
-							break;
-						}
-					}
-				}
-			}
-		}
-
-		return $res;
-	}
-
-	/**
-	 * @param $roomId
-	 * @param $from
-	 * @param $to
-	 *
-	 * @return array room accessibility for creating event
-	 */
-	public static function getRoomAccessibility($roomId, $from, $to): array
-	{
-		$accessibility = [];
-
-		$roomEntries = CCalendarEvent::GetList([
-		   'arFilter' => [
-			   "FROM_LIMIT" => $from,
-			   "TO_LIMIT" => $to,
-			   "CAL_TYPE" => self::TYPE,
-			   "ACTIVE_SECTION" => "Y",
-			   "SECTION" => $roomId,
-		   ],
-		   'parseRecursion' => true,
-		   'fetchSection' => true,
-		   'setDefaultLimit' => false,
-		]);
-
-		foreach ($roomEntries as $roomEntry)
-		{
-			$accessibility[] = [
-				"ID" => $roomEntry["ID"],
-				"NAME" => $roomEntry["NAME"],
-				"DATE_FROM" => $roomEntry["DATE_FROM"],
-				"DATE_TO" => $roomEntry["DATE_TO"],
-				"~USER_OFFSET_FROM" => $roomEntry["~USER_OFFSET_FROM"],
-				"~USER_OFFSET_TO" => $roomEntry["~USER_OFFSET_TO"],
-				"DT_SKIP_TIME" => $roomEntry["DT_SKIP_TIME"],
-				"TZ_FROM" => $roomEntry["TZ_FROM"],
-				"TZ_TO" => $roomEntry["TZ_TO"],
-				"ACCESSIBILITY" => $roomEntry["ACCESSIBILITY"],
-				"IMPORTANCE" => $roomEntry["IMPORTANCE"],
-				"EVENT_TYPE" => $roomEntry["EVENT_TYPE"],
-			];
-		}
-
-		return $accessibility;
-	}
-
+	
 	/**
 	 * @param array $params
 	 *
@@ -372,67 +306,44 @@ class Manager
 	/**
 	 * Clears cache for updating list of rooms on the page
 	 */
-	public static function clearCache()
+	public function clearCache(): Manager
 	{
-		\CCalendar::clearCache(['section_list', 'event_list']);
-	}
-
-	/**
-	 * @param $rooms
-	 *  Creates the correct display of access field in rooms
-	 *
-	 *  If first making temperance array and adding access field
-	 *  Else if next is not equal to past, pushing in result array and making new temperance
-	 *  Else (if next is equal to past) pushing to existent access field
-	 *  And at last checking if is last element and pushing to result
-	 *
-	 * @return array
-	 */
-	private static function setAccess($rooms): array
-	{
-		$length = count($rooms);
-		$result = [];
-		$tmp = [];
-
-		for ($i = 0; $i < $length; $i++)
+		if ($this->getError())
 		{
-			if ($i == 0)
-			{
-				$tmp = $rooms[$i];
-				$tmp['ACCESS'] = [$rooms[$i]['ACCESS_CODE'] => $rooms[$i]['TASK_ID']];
-			}
-			elseif ($rooms[$i - 1]['ID'] !== $rooms[$i]['ID'])
-			{
-				unset($tmp['ACCESS_CODE'], $tmp['TASK_ID']);
-				array_push($result, $tmp);
-				$tmp = $rooms[$i];
-				$tmp['ACCESS'] = [$rooms[$i]['ACCESS_CODE'] => $rooms[$i]['TASK_ID']];
-			}
-			else
-			{
-				$tmp['ACCESS'] += [$rooms[$i]['ACCESS_CODE'] => $rooms[$i]['TASK_ID']];
-			}
-
-			if ($i == $length - 1)
-			{
-				unset($tmp['ACCESS_CODE'], $tmp['TASK_ID']);
-				array_push($result, $tmp);
-			}
+			return $this;
 		}
-
-		return $result;
+		
+		\CCalendarSect::SetClearOperationCache(true);
+		\CCalendar::clearCache([
+			'section_list',
+			'event_list'
+		]);
+		
+		return $this;
+	}
+	
+	/**
+	 * @return Manager
+	 */
+	public function cleanAccessTable(): Manager
+	{
+		if ($this->getError())
+		{
+			return $this;
+		}
+		
+		\CCalendarSect::CleanAccessTable();
+		
+		return $this;
 	}
 
 	/**
-	 * @param $id
+	 * @param int $id
 	 *
 	 * Setting id of new event in user calendar
 	 * for event in location calendar
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function setEventIdForLocation($id)
+	public static function setEventIdForLocation(int $id)
 	{
 		$event = EventTable::getList([
 			'filter' => [
@@ -457,26 +368,169 @@ class Manager
 			}
 		}
 	}
+	
+	/**
+	 * Preparing data with rooms and sections for ajax-actions
+	 *
+	 * @return array
+	 */
+	public function prepareResponseData(): array
+	{
+		$result = [];
+		
+		$result['rooms'] = Manager::getRoomsList();
+		$sectionList = \CCalendar::GetSectionList([
+			'CAL_TYPE' => self::TYPE,
+			'OWNER_ID' => 0,
+			'checkPermissions' => true,
+			'getPermissions' => true,
+			'getImages' => true
+		]);
+		$sectionList = array_merge(
+			$sectionList,
+			\CCalendar::getSectionListAvailableForUser(\CCalendar::GetUserId())
+		);
+		$result['sections'] = $sectionList;
+		
+		return $result;
+	}
+	
+	/**
+	 * @return array|null
+	 */
+	public function prepareRoomManagerData(): ?array
+	{
+		$userId = \CCalendar::GetUserId();
+		$result = [];
+
+		$followedSectionList = UserSettings::getFollowedSectionIdList($userId);
+		$sectionList = \CCalendar::GetSectionList([
+			'CAL_TYPE' => self::TYPE,
+			'OWNER_ID' => 0,
+			'ADDITIONAL_IDS' => $followedSectionList,
+		]);
+		$sectionList = array_merge($sectionList, \CCalendar::getSectionListAvailableForUser($userId));
+		
+		$sectionAccessTasks = \CCalendar::GetAccessTasks('calendar_section', 'location');
+		$hiddenSections = UserSettings::getHiddenSections(
+			$userId,
+			[
+				'type' => self::TYPE,
+				'ownerId' => 0,
+			]
+		);
+		$defaultSectionAccess = \CCalendarSect::GetDefaultAccess(
+			self::TYPE,
+			$userId
+		);
+		
+		$result['rooms'] = Manager::getRoomsList();
+		$result['sections'] = $sectionList;
+		$result['config'] = [
+			'locationAccess' => \CCalendarType::CanDo('calendar_type_edit', 'location'),
+			'hiddenSections' => $hiddenSections,
+			'type' => self::TYPE,
+			'ownerId' => 0,
+			'userId' => $userId,
+			'defaultSectionAccess' => $defaultSectionAccess,
+			'sectionAccessTasks' => $sectionAccessTasks,
+			'showTasks' => false
+		];
+		
+		return $result;
+	}
+	
+	/**
+	 * @return Manager
+	 */
+	public function isEnableEdit(): Manager
+	{
+		$userId = \CCalendar::GetUserId();
+		$canDo = \CCalendarType::CanDo('calendar_type_edit', 'location', $userId);
+		$isEnable = Bitrix24Manager::isFeatureEnabled('calendar_location');
+		
+		if(!$canDo || !$isEnable)
+		{
+			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED')));
+		}
+		
+		return $this;
+	}
+	
+	/**
+	 * @return Manager
+	 */
+	public function isEnableView(): Manager
+	{
+		$userId = \CCalendar::GetUserId();
+		$canDo = \CCalendarType::CanDo('calendar_type_view', 'location', $userId);
+		$isEnable = Bitrix24Manager::isFeatureEnabled('calendar_location');
+		
+		if(!$canDo || !$isEnable)
+		{
+			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED')));
+		}
+		
+		return $this;
+	}
+	
+	/**
+	 * @param $handler
+	 *
+	 * @return Manager
+	 */
+	public function eventHandler($handler): Manager
+	{
+		if ($this->getError())
+		{
+			return $this;
+		}
+		
+		foreach(EventManager::getInstance()->findEventHandlers('calendar', $handler) as $event)
+		{
+			ExecuteModuleEventEx($event, [
+				$this->room->getId(),
+			]);
+		}
+	
+		return $this;
+	}
+	
+	public function addPullEvent($event): Manager
+	{
+		if ($this->getError())
+		{
+			return $this;
+		}
+		
+		\Bitrix\Calendar\Util::addPullEvent(
+			$event,
+			$this->room->getCreatedBy(),
+			[
+				'ID' => $this->room->getId()
+			]
+		);
+		
+		return $this;
+	}
 
 	/**
-	 * @param $id
+	 * @param $id int
 	 *
-	 * @return array|null
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
+	 * @return string|null
 	 */
-	public static function getRoomName($id) : ?array
+	private function getRoomName(int $id): ?string
 	{
-		return SectionTable::getRow(
-			[
-				'filter' => [
-					'=ID' => $id,
-				],
-				'select' => [
-					'NAME',
-				],
-			]);
+		$section =  SectionTable::getRow([
+			'filter' => [
+				'=ID' => $id,
+			],
+			'select' => [
+				'NAME',
+			],
+		]);
+		
+		return $section['NAME'];
 	}
 
 	/**
@@ -485,27 +539,35 @@ class Manager
 	 *
 	 * @return string|null
 	 */
-	public static function checkRoomName(string $name): ?string
+	public static function checkRoomName(?string $name): ?string
 	{
 		$name = trim($name);
-		if(empty($name))
+		
+		if (empty($name))
 		{
-			return null;
+			return '';
 		}
+		
 		return $name;
 	}
 
 	/**
+
 	 * Delete location value when deleting room
-	 * @param int $id
-	 * @param string $locationName
 	 */
-	public static function deleteLocationFromEvent(int $id, string $locationName)
+	public function deleteLocationFromEvents(): Manager
 	{
+		if ($this->getError())
+		{
+			return $this;
+		}
+		
 		global $DB;
 		$guestsId = [];
 		$idTemp = "(#ID#, ''),";
 		$updateString = '';
+		$id = $this->room->getId();
+		$locationName = $this->room->getName();
 		$locationId = 'calendar_' . $id;
 
 		$events = $DB->Query("
@@ -514,16 +576,16 @@ class Manager
 			WHERE LOCATION LIKE '" . $locationId . "%';
 		");
 
-		while($event = $events->Fetch())
+		while ($event = $events->Fetch())
 		{
-			if($event['ID'] === $event['PARENT_ID'])
+			if ($event['ID'] === $event['PARENT_ID'])
 			{
 				$guestsId[] = $event['OWNER_ID'];
 			}
 			$updateString .= str_replace('#ID#', $event['ID'], $idTemp);
 		}
 
-		if($updateString)
+		if ($updateString)
 		{
 			$updateString = substr($updateString, 0, -1);
 			$DB->Query("
@@ -532,31 +594,163 @@ class Manager
 				ON DUPLICATE KEY UPDATE LOCATION = VALUES(LOCATION)
 			");
 			$guestsId = array_unique($guestsId);
-			$userId = CCalendar::GetCurUserId();
+			$userId = \CCalendar::GetCurUserId();
 
 			foreach ($guestsId as $guestId)
 			{
 				\CCalendarNotify::Send([
 					'mode' => 'delete_location',
-					"location" => $locationName,
-					"locationId" => $id,
-					"guestId" => (int)$guestId,
-					"userId" => $userId,
+					'location' => $locationName,
+					'locationId' => $id,
+					'guestId' => (int)$guestId,
+					'userId' => $userId,
 				]);
 			}
 		}
+		
+		return $this;
+	}
+
+	/**
+	 * @return Manager
+	 */
+	public function pullDeleteEvents(): Manager
+	{
+		if ($this->getError())
+		{
+			return $this;
+		}
+		
+		$events = Manager::getLocationEventsId($this->room->getId());
+
+		foreach ($events as $event)
+		{
+			if ($this->room->getCreatedBy())
+			{
+				\Bitrix\Calendar\Util::addPullEvent(
+					'delete_event',
+					$this->room->getCreatedBy(),
+					['fields' => $event]
+				);
+			}
+		}
+		
+		return $this;
 	}
 	
-	public static function getEventLocation($id): ?array
+	/**
+	 * @return Manager
+	 */
+	public function deleteEmptyEvents()
 	{
-		return EventTable::getRow(
-			[
-				'filter' => [
-					'=ID' => $id,
-				],
-				'select' => [
-					'LOCATION',
-				],
-			]);
+		if ($this->getError())
+		{
+			return $this;
+		}
+		
+		\CCalendarEvent::DeleteEmpty();
+		return $this;
+	}
+
+	/**
+	 * @param int $roomId
+	 * @return array of location events id with a given id
+	 */
+	private static function getLocationEventsId(int $roomId): array
+	{
+		return EventTable::getList([
+			'select' => [
+				'ID',
+				'CREATED_BY',
+				'PARENT_ID'
+			],
+			'filter' => [
+				'=SECTION_ID' => $roomId,
+				'=DELETED' => 'N'
+			]
+		])->fetchAll();
+	}
+
+	/**
+	 * @param int $id
+	 * @param array $params
+	 *
+	 * Saving access into b_calendar_access
+	 */
+	public function saveAccess(): Manager
+	{
+		if ($this->getError())
+		{
+			return $this;
+		}
+		
+		$access = $this->room->getAccess();
+		$id = $this->room->getId();
+		
+		if (!empty($access))
+		{
+			\CCalendarSect::SavePermissions(
+				$id,
+				$access
+			);
+		}
+		else
+		{
+			\CCalendarSect::SavePermissions(
+				$id,
+				\CCalendarSect::GetDefaultAccess(
+					$this->room->getType(),
+					$this->room->getCreatedBy()
+				)
+			);
+		}
+		
+		return $this;
+	}
+	
+	/**
+	 * @param $rooms
+	 *  Creates the correct display of access field in rooms
+	 *
+	 *  If first making temperance array and adding access field
+	 *  Else if next is not equal to past, pushing in result array and making new temperance
+	 *  Else (if next is equal to past) pushing to existent access field
+	 *  And at last checking if is last element and pushing to result
+	 *
+	 * @return array
+	 */
+	private static function setAccess($rooms): array
+	{
+		$length = count($rooms);
+		$result = [];
+		$tmp = [];
+		
+		for ($i = 0; $i < $length; $i++)
+		{
+			if ($i === 0)
+			{
+				$tmp = $rooms[$i];
+				$tmp['ACCESS'] = [$rooms[$i]['ACCESS_CODE'] => $rooms[$i]['TASK_ID']];
+			}
+			elseif ($rooms[$i - 1]['ID'] !== $rooms[$i]['ID'])
+			{
+				unset($tmp['ACCESS_CODE'], $tmp['TASK_ID']);
+				$result[] = $tmp;
+				$tmp = $rooms[$i];
+				$tmp['ACCESS'] = [$rooms[$i]['ACCESS_CODE'] => $rooms[$i]['TASK_ID']];
+			}
+			else
+			{
+				$tmp['ACCESS'] += [$rooms[$i]['ACCESS_CODE'] => $rooms[$i]['TASK_ID']];
+			}
+			
+			if ($i === $length - 1)
+			{
+				unset($tmp['ACCESS_CODE'], $tmp['TASK_ID']);
+				$result[] = $tmp;
+			}
+		}
+		
+		return $result;
 	}
 }

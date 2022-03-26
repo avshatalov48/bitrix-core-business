@@ -23,6 +23,7 @@ return array(
 			'type' => 'img',
 			'useInDesigner' => false,
 			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-subtitle' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_TEAM002._NODES_LANDINGBLOCKNODESUBTITLE'),
@@ -41,6 +42,7 @@ return array(
 			'useInDesigner' => false,
 			'type' => 'img',
 			'dimensions' => array('width' => 540),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-employee-quote' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_TEAM002._NODES_LANDINGBLOCKNODEEMPLOYEEQUOTE'),

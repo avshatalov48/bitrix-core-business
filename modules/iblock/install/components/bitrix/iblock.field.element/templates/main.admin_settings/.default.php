@@ -21,11 +21,16 @@ if($component->isIblockIncluded())
 		<td><?= Loc::getMessage('USER_TYPE_IBEL_DISPLAY') ?>:</td>
 		<td>
 			<?=
-			GetIBlockDropDownList(
+			GetIBlockDropDownListEx(
 				$iblockId,
 				$name . '[IBLOCK_TYPE_ID]',
 				$name . '[IBLOCK_ID]',
-				false,
+				[
+					'CHECK_PERMISSIONS' => 'Y',
+					'MIN_PERMISSION' => 'E',
+				],
+				'',
+				'',
 				'class="adm-detail-iblock-types"',
 				'class="adm-detail-iblock-list" onchange="showUsertypeElementNote(this);"'
 			) ?>

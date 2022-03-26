@@ -227,6 +227,11 @@ class CashboxService extends RestService
 			$cashboxFields['OFD'] = self::getOfdHandlerClassByCode($cashboxFields['OFD']);
 		}
 
+		if ($cashboxFields['SETTINGS'])
+		{
+			$cashboxFields['SETTINGS'] = self::mergeCashboxSettings($params['ID'], $cashboxFields['SETTINGS']);
+		}
+
 		$result = Manager::update($params['ID'], $cashboxFields);
 		if ($result->isSuccess())
 		{
@@ -235,6 +240,28 @@ class CashboxService extends RestService
 
 		$errors = implode("\n", $result->getErrorMessages());
 		throw new RestException($errors, self::ERROR_CASHBOX_UPDATE);
+	}
+
+	/**
+	 * @param $cashboxId
+	 * @param $newSettings
+	 * @return array|null
+	 */
+	private static function mergeCashboxSettings($cashboxId, $newSettings)
+	{
+		$existingSettings = Manager::getList([
+			'select' => ['SETTINGS'],
+			'filter' => ['=ID' => $cashboxId],
+			'limit' => 1,
+		])->fetch()['SETTINGS'];
+
+		if (!$existingSettings)
+		{
+			return $newSettings;
+		}
+
+		$mergedSettings = array_replace_recursive($existingSettings, $newSettings);
+		return $mergedSettings;
 	}
 
 	/**

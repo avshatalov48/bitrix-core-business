@@ -2,6 +2,7 @@ import {TextField} from 'landing.ui.field.textfield';
 import {Dom, Tag, Event} from 'main.core';
 import {BaseButton} from 'landing.ui.button.basebutton';
 import {Menu} from 'main.popup';
+import {PageObject} from 'landing.pageobject';
 
 import './css/style.css';
 
@@ -30,13 +31,17 @@ export class VariablesField extends TextField
 
 	onTopDocumentClick()
 	{
-		this.getMenu().close();
-		super.onDocumentClick();
+		// const rootWindowDocument = PageObject.getRootWindow().document;
+		// if (rootWindowDocument !== this.input.ownerDocument)
+		// {
+		// 	this.getMenu().close();
+		// 	super.onDocumentClick();
+		// }
 	}
 
 	onInputClick(event)
 	{
-		event.preventDefault();
+		// event.preventDefault();
 
 		this.lastRange = this.input.ownerDocument.createRange(
 			this.input.innerText.length,
@@ -73,8 +78,10 @@ export class VariablesField extends TextField
 	getMenu(): Menu
 	{
 		return this.cache.remember('menu', () => {
-			const menu = new Menu({
+			const rootWindow = PageObject.getRootWindow();
+			const menu = new rootWindow.BX.Main.Menu({
 				bindElement: this.getButton(),
+				targetContainer: this.getLayout(),
 				autoHide: true,
 				items: this.options.variables.map((variable) => {
 					return {
@@ -88,7 +95,10 @@ export class VariablesField extends TextField
 				events: {
 					onPopupShow: () => {
 						VariablesField[instances].forEach((item) => {
-							item.getMenu().close();
+							if (item !== this)
+							{
+								item.getMenu().close();
+							}
 						});
 
 						setTimeout(() => {
@@ -101,8 +111,6 @@ export class VariablesField extends TextField
 					},
 				},
 			});
-
-			Dom.append(menu.getMenuContainer(), this.getLayout());
 
 			return menu;
 		});
@@ -151,5 +159,10 @@ export class VariablesField extends TextField
 		{
 			this.getMenu().show();
 		}
+	}
+
+	getValue(): string
+	{
+		return this.input.innerText;
 	}
 }

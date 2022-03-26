@@ -1,18 +1,19 @@
 <?php
 $MESS["LANDING_TPL_ACTIONS"] = "Дії";
 $MESS["LANDING_TPL_ACTION_ADD"] = "Нова сторінка";
+$MESS["LANDING_TPL_ACTION_ADD_PAGE"] = "Створити сторінку";
 $MESS["LANDING_TPL_ACTION_COPY"] = "Копіювати сторінку";
 $MESS["LANDING_TPL_ACTION_COPYLINK"] = "Копіювати посилання";
-$MESS["LANDING_TPL_ACTION_COPY_TITLE"] = "Копіювати сторінку на сайт";
 $MESS["LANDING_TPL_ACTION_DELETE"] = "Видалити сторінку";
 $MESS["LANDING_TPL_ACTION_DELETE_CONFIRM"] = "Видалити сторінку?";
 $MESS["LANDING_TPL_ACTION_DELETE_FOLDER"] = "Видалити папку";
 $MESS["LANDING_TPL_ACTION_EDIT_2"] = "Налаштувати сторінку";
 $MESS["LANDING_TPL_ACTION_EDIT_DESIGN_2"] = "Дизайн сторінки";
+$MESS["LANDING_TPL_ACTION_EDIT_FOLDER"] = "Налаштувати папку";
 $MESS["LANDING_TPL_ACTION_FOLDER_UP"] = "Наверх";
 $MESS["LANDING_TPL_ACTION_GOTO"] = "Перейти на сторінку";
 $MESS["LANDING_TPL_ACTION_MOVE"] = "Перемістити сторінку";
-$MESS["LANDING_TPL_ACTION_MOVE_TITLE"] = "Перемістити сторінку в сайт";
+$MESS["LANDING_TPL_ACTION_MOVE_FOLDER"] = "Перемістити папку";
 $MESS["LANDING_TPL_ACTION_PUBLIC"] = "Опублікувати";
 $MESS["LANDING_TPL_ACTION_PUBLIC_CHANGED"] = "Опублікувати зміни";
 $MESS["LANDING_TPL_ACTION_REC_CONFIRM"] = "Перемістити в кошик?";

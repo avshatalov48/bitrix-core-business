@@ -387,6 +387,7 @@ class LandingFilterComponent extends LandingBaseComponent
 			$this->checkParam('FILTER_TYPE', '');
 			$this->checkParam('SETTING_LINK', '');
 			$this->checkParam('DRAFT_MODE', 'N');
+			$this->checkParam('FOLDER_ID', 0);
 			$this->checkParam('FOLDER_SITE_ID', 0);
 
 			$this->arParams['TYPE'] = trim($this->arParams['TYPE']);

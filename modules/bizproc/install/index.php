@@ -29,15 +29,11 @@ Class bizproc extends CModule
 
 	function InstallDB($install_wizard = true)
 	{
-		global $DB, $DBType, $APPLICATION;
-
-		$arCurPhpVer = Explode(".", PhpVersion());
-		if (intval($arCurPhpVer[0]) < 5)
-			return true;
+		global $DB, $APPLICATION;
 
 		$errors = null;
 		if (!$DB->Query("SELECT 'x' FROM b_bp_workflow_instance", true))
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/install/db/".$DBType."/install.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/install/db/mysql/install.sql");
 
 		if (!empty($errors))
 		{
@@ -60,18 +56,19 @@ Class bizproc extends CModule
 		$eventManager->registerEventHandler('rest', 'OnRestApplicationConfigurationExport', 'bizproc', '\Bitrix\Bizproc\Integration\Rest\AppConfiguration', 'onEventExportController');
 		$eventManager->registerEventHandler('rest', 'OnRestApplicationConfigurationClear', 'bizproc', '\Bitrix\Bizproc\Integration\Rest\AppConfiguration', 'onEventClearController');
 		$eventManager->registerEventHandler('rest', 'OnRestApplicationConfigurationEntity', 'bizproc', '\Bitrix\Bizproc\Integration\Rest\AppConfiguration', 'getEntityList');
+		$eventManager->registerEventHandlerCompatible('im', 'OnGetNotifySchema', 'bizproc', Bitrix\Bizproc\Integration\NotifySchema::class, 'onGetNotifySchema');
 
 		return true;
 	}
 
 	function UnInstallDB($arParams = Array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 
 		$errors = null;
 		if(array_key_exists("savedata", $arParams) && $arParams["savedata"] != "Y")
 		{
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/install/db/".$DBType."/uninstall.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/install/db/mysql/uninstall.sql");
 
 			if (!empty($errors))
 			{
@@ -93,16 +90,13 @@ Class bizproc extends CModule
 		$eventManager->unRegisterEventHandler('rest', 'OnRestApplicationConfigurationExport', 'bizproc', '\Bitrix\Bizproc\Integration\Rest\AppConfiguration', 'onEventExportController');
 		$eventManager->unRegisterEventHandler('rest', 'OnRestApplicationConfigurationClear', 'bizproc', '\Bitrix\Bizproc\Integration\Rest\AppConfiguration', 'onEventClearController');
 		$eventManager->unRegisterEventHandler('rest', 'OnRestApplicationConfigurationEntity', 'bizproc', '\Bitrix\Bizproc\Integration\Rest\AppConfiguration', 'getEntityList');
+		$eventManager->unRegisterEventHandler('im', 'OnGetNotifySchema', 'bizproc', Bitrix\Bizproc\Integration\NotifySchema::class, 'onGetNotifySchema');
 
 		return true;
 	}
 
 	function InstallEvents()
 	{
-		$arCurPhpVer = Explode(".", PhpVersion());
-		if (intval($arCurPhpVer[0]) < 5)
-			return true;
-
 		global $DB;
 
 		$dbResult = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME = 'BIZPROC_MAIL_TEMPLATE' ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -138,9 +132,6 @@ Class bizproc extends CModule
 
 	function InstallPublic()
 	{
-		$arCurPhpVer = Explode(".", PhpVersion());
-		if (intval($arCurPhpVer[0]) < 5)
-			return true;
 	}
 
 	function UnInstallFiles()
@@ -163,19 +154,10 @@ Class bizproc extends CModule
 
 		$this->errors = null;
 
-		$curPhpVer = PhpVersion();
-		$arCurPhpVer = Explode(".", $curPhpVer);
-		if (intval($arCurPhpVer[0]) < 5)
-		{
-			$this->errors = array(Loc::getMessage("BIZPROC_PHP_L439", array("#VERS#" => $curPhpVer)));
-		}
-		else
-		{
-			$this->InstallFiles();
-			$this->InstallDB(false);
-			$this->InstallEvents();
-			$this->InstallPublic();
-		}
+		$this->InstallFiles();
+		$this->InstallDB(false);
+		$this->InstallEvents();
+		$this->InstallPublic();
 
 		$GLOBALS["errors"] = $this->errors;
 		$APPLICATION->IncludeAdminFile(Loc::getMessage("BIZPROC_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/install/step2.php");

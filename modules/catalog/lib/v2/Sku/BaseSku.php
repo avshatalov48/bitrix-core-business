@@ -2,6 +2,9 @@
 
 namespace Bitrix\Catalog\v2\Sku;
 
+use Bitrix\Catalog\v2\Barcode\BarcodeCollection;
+use Bitrix\Catalog\v2\Barcode\BarcodeRepositoryContract;
+use Bitrix\Catalog\v2\Barcode\HasBarcodeCollection;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\Iblock\IblockInfo;
 use Bitrix\Catalog\v2\Image\ImageCollection;
@@ -13,6 +16,10 @@ use Bitrix\Catalog\v2\Price\HasPriceCollection;
 use Bitrix\Catalog\v2\Price\PriceCollection;
 use Bitrix\Catalog\v2\Price\PriceRepositoryContract;
 use Bitrix\Catalog\v2\Property\PropertyRepositoryContract;
+use Bitrix\Catalog\v2\StoreProduct\StoreProductCollection;
+use Bitrix\Catalog\v2\StoreProduct\StoreProductRepositoryContract;
+use Bitrix\Catalog\v2\StoreProduct\HasStoreProductCollection;
+use Bitrix\Catalog\v2\StoreProduct\StoreProduct;
 
 /**
  * Class BaseSku
@@ -22,7 +29,8 @@ use Bitrix\Catalog\v2\Property\PropertyRepositoryContract;
  * !!! This API is in alpha stage and is not stable. This is subject to change at any time without notice.
  * @internal
  */
-abstract class BaseSku extends BaseIblockElementEntity implements HasPriceCollection, HasMeasureRatioCollection
+abstract class BaseSku extends BaseIblockElementEntity
+	implements HasPriceCollection, HasMeasureRatioCollection, HasBarcodeCollection, HasStoreProductCollection
 {
 	/** @var \Bitrix\Catalog\v2\Price\PriceCollection|\Bitrix\Catalog\v2\Price\BasePrice[] */
 	protected $priceCollection;
@@ -34,18 +42,32 @@ abstract class BaseSku extends BaseIblockElementEntity implements HasPriceCollec
 	/** @var \Bitrix\Catalog\v2\MeasureRatio\MeasureRatioCollection|\Bitrix\Catalog\v2\MeasureRatio\BaseMeasureRatio[] */
 	protected $measureRatioCollection;
 
+	/** @var \Bitrix\Catalog\v2\Barcode\BarcodeRepositoryContract */
+	protected $barcodeRepository;
+	/** @var \Bitrix\Catalog\v2\Barcode\BarcodeCollection|\Bitrix\Catalog\v2\Barcode\Barcode[] */
+	protected $barcodeCollection;
+
+	/** @var StoreProductRepositoryContract */
+	protected $storeProductRepository;
+	/** @var StoreProductCollection|StoreProduct[] */
+	protected $storeProductCollection;
+
 	public function __construct(
 		IblockInfo $iblockInfo,
 		SkuRepositoryContract $skuRepository,
 		PropertyRepositoryContract $propertyRepository,
 		ImageRepositoryContract $imageRepository,
 		PriceRepositoryContract $priceRepository,
-		MeasureRatioRepositoryContract $measureRatioRepository
+		MeasureRatioRepositoryContract $measureRatioRepository,
+		BarcodeRepositoryContract $barcodeRepository,
+		StoreProductRepositoryContract $storeProductRepository
 	)
 	{
 		parent::__construct($iblockInfo, $skuRepository, $propertyRepository, $imageRepository);
 		$this->priceRepository = $priceRepository;
 		$this->measureRatioRepository = $measureRatioRepository;
+		$this->barcodeRepository = $barcodeRepository;
+		$this->storeProductRepository = $storeProductRepository;
 	}
 
 	/**
@@ -135,6 +157,78 @@ abstract class BaseSku extends BaseIblockElementEntity implements HasPriceCollec
 		$measureRatioCollection->setParent($this);
 
 		$this->measureRatioCollection = $measureRatioCollection;
+
+		return $this;
+	}
+
+	/**
+	 * @return \Bitrix\Catalog\v2\Barcode\BarcodeCollection|\Bitrix\Catalog\v2\Barcode\Barcode[]
+	 */
+	public function getBarcodeCollection(): BarcodeCollection
+	{
+		if ($this->barcodeCollection === null)
+		{
+			$this->setBarcodeCollection($this->loadBarcodeCollection());
+		}
+
+		return $this->barcodeCollection;
+	}
+
+	/**
+	 * @return \Bitrix\Catalog\v2\Barcode\BarcodeCollection|\Bitrix\Catalog\v2\Barcode\BarcodeCollection[]
+	 */
+	protected function loadBarcodeCollection(): BarcodeCollection
+	{
+		return $this->barcodeRepository->getCollectionByParent($this);
+	}
+
+	/**
+	 * @param \Bitrix\Catalog\v2\Barcode\BarcodeCollection $barcodeCollection
+	 * @return BaseSku
+	 *
+	 * @internal
+	 */
+	public function setBarcodeCollection(BarcodeCollection $barcodeCollection): self
+	{
+		$barcodeCollection->setParent($this);
+
+		$this->barcodeCollection = $barcodeCollection;
+
+		return $this;
+	}
+
+	/**
+	 * @return StoreProductCollection|StoreProduct[]
+	 */
+	public function getStoreProductCollection(): StoreProductCollection
+	{
+		if ($this->storeProductCollection === null)
+		{
+			$this->setStoreProductCollection($this->loadStoreProductCollection());
+		}
+
+		return $this->storeProductCollection;
+	}
+
+	/**
+	 * @return StoreProductCollection|StoreProduct[]
+	 */
+	protected function loadStoreProductCollection(): StoreProductCollection
+	{
+		return $this->storeProductRepository->getCollectionByParent($this);
+	}
+
+	/**
+	 * @param StoreProductCollection $storeProductCollection
+	 * @return BaseSku
+	 *
+	 * @internal
+	 */
+	public function setStoreProductCollection(StoreProductCollection $storeProductCollection): self
+	{
+		$storeProductCollection->setParent($this);
+
+		$this->storeProductCollection = $storeProductCollection;
 
 		return $this;
 	}

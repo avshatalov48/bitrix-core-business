@@ -2,12 +2,11 @@
 namespace Bitrix\Calendar;
 
 use Bitrix\Calendar\Sync\Util\MsTimezoneConverter;
-use \Bitrix\Main\Loader;
 use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\LanguageTable;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Localization\LanguageTable;
 
 class Util
 {
@@ -17,6 +16,7 @@ class Util
 
 	private static $requestUid = '';
 	private static $userAccessCodes = [];
+	private static $pathCache = [];
 
 	/**
 	 * @param $managerId
@@ -590,5 +590,83 @@ class Util
 		}
 
 		return self::$userAccessCodes[$userId];
+	}
+
+
+	/**
+	 * @param int $ownerId
+	 * @param string $type
+	 * @return string
+	 */
+	public static function getPathToCalendar(?int $ownerId, ?string $type): string
+	{
+		$key = $type . $ownerId;
+		if (!isset(self::$pathCache[$key]) || !is_string(self::$pathCache[$key]))
+		{
+			if ($type === 'user')
+			{
+				$path = \COption::GetOptionString(
+					'calendar',
+					'path_to_user_calendar',
+					\COption::getOptionString('socialnetwork', 'user_page', "/company/personal/")
+					. "user/#user_id#/calendar/"
+				);
+			}
+			elseif ($type === 'group')
+			{
+				$path = \COption::GetOptionString(
+					'calendar',
+					'path_to_group_calendar',
+					\COption::getOptionString('socialnetwork', 'workgroups_page', "/workgroups/")
+					. "group/#group_id#/calendar/"
+				);
+			}
+			else
+			{
+				$settings = \CCalendar::GetSettings();
+				$path = $settings['path_to_type_' . $type];
+			}
+
+			if (!\COption::GetOptionString('calendar', 'pathes_for_sites', true))
+			{
+				$siteId = \CCalendar::GetSiteId();
+				$pathList = \CCalendar::GetPathes();
+				if (isset($pathList[$siteId]))
+				{
+					if ($type === 'user' && isset($pathList[$siteId]['path_to_user_calendar']))
+					{
+						$path = $pathList[$siteId]['path_to_user_calendar'];
+					}
+					elseif ($type === 'group' && isset($pathList[$siteId]['path_to_group_calendar']))
+					{
+						$path = $pathList[$siteId]['path_to_group_calendar'];
+					}
+					else
+					{
+						$path = $pathList[$siteId]['path_to_type_' . $type];
+					}
+				}
+			}
+
+			if (!is_string($path))
+			{
+				$path =  '';
+			}
+
+			if (!empty($path) && $ownerId > 0)
+			{
+				if ($type === 'user')
+				{
+					$path = str_replace(['#user_id#', '#USER_ID#'], $ownerId, $path);
+				}
+				elseif ($type === 'group')
+				{
+					$path = str_replace(['#group_id#', '#GROUP_ID#'], $ownerId, $path);
+				}
+			}
+			self::$pathCache[$key] = $path;
+		}
+
+		return self::$pathCache[$key];
 	}
 }

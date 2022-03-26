@@ -9,6 +9,22 @@ namespace Bitrix\Main\Mail\Internal;
 
 use Bitrix\Main\Entity;
 
+/**
+ * Class SenderSendCounterTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_SenderSendCounter_Query query()
+ * @method static EO_SenderSendCounter_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_SenderSendCounter_Result getById($id)
+ * @method static EO_SenderSendCounter_Result getList(array $parameters = [])
+ * @method static EO_SenderSendCounter_Entity getEntity()
+ * @method static \Bitrix\Main\Mail\Internal\EO_SenderSendCounter createObject($setDefaultValues = true)
+ * @method static \Bitrix\Main\Mail\Internal\EO_SenderSendCounter_Collection createCollection()
+ * @method static \Bitrix\Main\Mail\Internal\EO_SenderSendCounter wakeUpObject($row)
+ * @method static \Bitrix\Main\Mail\Internal\EO_SenderSendCounter_Collection wakeUpCollection($rows)
+ */
 class SenderSendCounterTable extends Entity\DataManager
 {
 	public static function getTableName()

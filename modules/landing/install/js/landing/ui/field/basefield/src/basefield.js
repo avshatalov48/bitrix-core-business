@@ -205,6 +205,7 @@ export class BaseField extends EventEmitter
 		});
 
 		this.emit('change', event);
+		this.emit('onChange', event);
 	}
 
 	enable()

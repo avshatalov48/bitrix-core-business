@@ -21,9 +21,9 @@ use Bitrix\Main\ORM\Fields\StringField;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Author_Query query()
- * @method static EO_Author_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Author_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Author_Result getById($id)
- * @method static EO_Author_Result getList(array $parameters = array())
+ * @method static EO_Author_Result getList(array $parameters = [])
  * @method static EO_Author_Entity getEntity()
  * @method static \Bitrix\Main\Test\Typography\EO_Author createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\Test\Typography\EO_Author_Collection createCollection()

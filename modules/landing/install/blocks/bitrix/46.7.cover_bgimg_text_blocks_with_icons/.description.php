@@ -23,6 +23,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_46.7.COVER_BGIMG_TEXT_BLOCKS_WITH_ICONS_NODES_LANDINGBLOCKNODEBGIMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 1920, 'height' => 1440),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_46.7.COVER_BGIMG_TEXT_BLOCKS_WITH_ICONS_NODES_LANDINGBLOCKNODETITLE'),

@@ -1,4 +1,4 @@
-<section class="landing-block g-bg-gray-light-v5 g-pt-30 g-pb-30">
+<section class="landing-block g-pt-30 g-pb-30">
 	<div class="container">
 		<div class="text-uppercase text-center g-mb-70">
 			<h6 class="landing-block-node-title d-inline-block g-letter-spacing-0_5 g-font-weight-700 u-heading-v2-8-2--bottom g-brd-primary g-pb-8 g-mb-20">
@@ -11,7 +11,7 @@
 		</div>
 
 		<div class="row landing-block-inner">
-			<div class="landing-block-node-card col-md-6 col-lg-4 g-mb-30 g-mb-0--md">
+			<div class="landing-block-node-card col-md-6 col-lg-4 g-mb-30">
 				<!-- Article -->
 				<article class="landing-block-node-card-container js-animation fadeInRight text-center text-uppercase g-theme-photography-bg-gray-dark-v2 g-color-white-opacity-0_5">
 					<!-- Article Image -->
@@ -58,7 +58,7 @@
 				<!-- End Article -->
 			</div>
 
-			<div class="landing-block-node-card col-md-6 col-lg-4 g-mb-30 g-mb-0--md">
+			<div class="landing-block-node-card col-md-6 col-lg-4 g-mb-30">
 				<!-- Article -->
 				<article class="landing-block-node-card-container js-animation fadeInRight text-center text-uppercase g-theme-photography-bg-gray-dark-v2 g-color-white-opacity-0_5">
 					<!-- Article Image -->
@@ -104,7 +104,7 @@
 				<!-- End Article -->
 			</div>
 
-			<div class="landing-block-node-card col-md-6 col-lg-4 g-mb-30 g-mb-0--md">
+			<div class="landing-block-node-card col-md-6 col-lg-4 g-mb-30">
 				<!-- Article -->
 				<article class="landing-block-node-card-container js-animation fadeInRight text-center text-uppercase g-theme-photography-bg-gray-dark-v2 g-color-white-opacity-0_5">
 					<!-- Article Image -->

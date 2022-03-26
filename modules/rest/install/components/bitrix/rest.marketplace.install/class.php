@@ -12,6 +12,7 @@ USE Bitrix\Rest\Marketplace\Client;
 use Bitrix\Rest\AppTable;
 use Bitrix\Rest\Engine\ScopeManager;
 use Bitrix\Rest\Marketplace;
+use Bitrix\Rest\Engine\Access;
 
 Loc::loadMessages(__FILE__);
 
@@ -70,6 +71,26 @@ class RestMarketplaceInstallComponent extends CBitrixComponent
 		{
 			$appData = $appExternal['ITEMS'];
 			$appData['SILENT_INSTALL'] = $appData['SILENT_INSTALL'] !== 'Y' ? 'N' : 'Y';
+
+			if ($appData['BY_SUBSCRIPTION'] === 'Y' && !Client::isSubscriptionAvailable())
+			{
+				$result['HELPER_DATA'] = [];
+				$code = Access::getHelperCode(
+					Access::ACTION_INSTALL,
+					Access::ENTITY_TYPE_APP,
+					$this->arParams['APP_CODE']
+				);
+				if ($code !== '' && Loader::includeModule('ui'))
+				{
+					$appData['SILENT_INSTALL'] = 'N';
+					$result['HELPER_DATA']['TEMPLATE_URL'] = \Bitrix\UI\InfoHelper::getUrl();
+					$result['HELPER_DATA']['URL'] = str_replace(
+						'/code/',
+						'/' . $code . '/',
+						$result['HELPER_DATA']['TEMPLATE_URL']
+					);
+				}
+			}
 
 			if ($app)
 			{
@@ -166,6 +187,12 @@ class RestMarketplaceInstallComponent extends CBitrixComponent
 			return;
 		}
 
-		$this->includeComponentTemplate();
+		$page = '';
+		if (!empty($this->arResult['HELPER_DATA']['URL']))
+		{
+			$page = 'helper';
+		}
+
+		$this->includeComponentTemplate($page);
 	}
 }

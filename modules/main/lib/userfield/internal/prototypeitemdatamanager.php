@@ -464,12 +464,19 @@ abstract class PrototypeItemDataManager extends ORM\Data\DataManager
 
 	public static function getUserFieldValues(int $id, array $userFields): ?array
 	{
-		return static::getList([
+		$data = static::getList([
 			'select' => array_keys($userFields),
 			'filter' => [
 				'=ID' => $id,
 			]
 		])->fetch();
+
+		if (is_array($data))
+		{
+			return $data;
+		}
+
+		return null;
 	}
 
 	public static function updateUserFieldValues(int $id, array $fields): Main\Result

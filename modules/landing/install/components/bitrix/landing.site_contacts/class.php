@@ -26,21 +26,10 @@ class LandingSiteContactsComponent extends LandingBaseFormComponent
 			return false;
 		}
 
-		$update = [];
-		if ($company = $this->request('COMPANY'))
-		{
-			$update['TITLE'] = $company;
-		}
-
 		Connector\Crm::setContacts($this->arParams['SITE_ID'], [
 			'COMPANY' => $this->request('COMPANY'),
 			'PHONE' => $this->request('PHONE')
 		]);
-
-		if ($update)
-		{
-			$this->updateMainTitles($this->arParams['SITE_ID'], $update);
-		}
 
 		return true;
 	}

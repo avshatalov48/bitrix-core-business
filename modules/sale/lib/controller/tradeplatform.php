@@ -5,16 +5,20 @@ namespace Bitrix\Sale\Controller;
 
 
 use Bitrix\Main\Engine\Response\DataType\Page;
+use Bitrix\Main\Error;
 use Bitrix\Main\UI\PageNavigation;
+use Bitrix\Sale\Result;
 use Bitrix\Sale\TradingPlatformTable;
 
-class TradePlatform extends Controller
+class TradePlatform extends ControllerBase
 {
-	public function getFieldsAction()
+	public function getFieldsAction(): array
 	{
-		$entity = new \Bitrix\Sale\Rest\Entity\TradePlatform();
-		return ['TRADE_PLATFORM'=>$entity->prepareFieldInfos(
-			$entity->getFields()
+		$view = $this->getViewManager()
+			->getView($this);
+
+		return ['TRADE_PLATFORM'=>$view->prepareFieldInfos(
+			$view->getFields()
 		)];
 	}
 
@@ -37,5 +41,17 @@ class TradePlatform extends Controller
 		{
 			return TradingPlatformTable::getCount($filter);
 		});
+	}
+
+	protected function checkReadPermissionEntity(): Result
+	{
+		$r = new Result();
+
+		$saleModulePermissions = self::getApplication()->GetGroupRight("sale");
+		if ($saleModulePermissions  == "D")
+		{
+			$r->addError(new Error('Access Denied', 200040300010));
+		}
+		return $r;
 	}
 }

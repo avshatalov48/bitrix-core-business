@@ -8,7 +8,14 @@ global $APPLICATION;
 	$APPLICATION->RestartBuffer();
 	while (@ob_end_clean());
 	?>
-	<script>(window.BX||top.BX)['file-async-loader']['<?=$arResult['FILE_UPLOAD_ID']?>'].<?=(empty($arResult['ERRORS']['FATAL']) ? 'uploadSuccess' : 'uploadFail')?>();</script>
+	<script>
+		var currentWindow = top.window;
+		if (top.BX.SidePanel && top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
+		{
+			currentWindow = top.BX.SidePanel.Instance.getTopSlider().getWindow();
+		}
+		currentWindow.BX['file-async-loader']['<?=$arResult['FILE_UPLOAD_ID']?>'].<?=(empty($arResult['ERRORS']['FATAL']) ? 'uploadSuccess' : 'uploadFail')?>();
+	</script>
 	<?die();?>
 <?endif?>
 
@@ -212,6 +219,15 @@ Loc::loadMessages(__FILE__);
 					</td>
 				</tr>
 			<?endif?>
+
+			<tr class="bx-ui-load-remote">
+				<td>
+					<label for="loc-i-additional-zip"><?=Loc::getMessage('SALE_SLI_EXTRA_EXTERNAL_ISO_3166_NUMERIC')?></label>
+				</td>
+				<td>
+					<input type="checkbox" value="BX_ISO_3166_NUMERIC" name="BX_ISO_3166_NUMERIC" id="loc-i-additional-bx-iso-3166-numeric" class="bx-ui-loc-i-additional" checked />
+				</td>
+			</tr>
 
 			<?/*
 			<tr class="bx-ui-load-remote">

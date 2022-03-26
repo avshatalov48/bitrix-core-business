@@ -1,5 +1,9 @@
 <?php
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main;
 
@@ -38,7 +42,7 @@ class BizprocScriptListComponent extends \CBitrixComponent
 		$this->arResult['GridRows'] = $this->getGridRows($pageNav);
 		$this->arResult['PageNavigation'] = $pageNav;
 		$this->arResult['PageSizes'] = $this->getPageSizes();
-
+		$this->arResult['canCreateScript'] = $this->canCreateScript();
 
 		return $this->includeComponentTemplate();
 	}
@@ -52,7 +56,7 @@ class BizprocScriptListComponent extends \CBitrixComponent
 			['id' => 'ACTIVE', 'name' => GetMessage('BIZPROC_SCRIPT_LIST_ACTIVE'), 'default' => false],
 		];
 
-		if ($this->isAdmin())
+		if ($this->canCreateScript())
 		{
 			$columns[] = ['id' => 'ACTIONS', 'name' => GetMessage('BIZPROC_SCRIPT_LIST_ACTIONS'), 'default' => true];
 		}
@@ -99,7 +103,7 @@ class BizprocScriptListComponent extends \CBitrixComponent
 		while($script = $dbResult->fetch())
 		{
 			$rowActions = [];
-			if ($this->isAdmin())
+			if ($this->canCreateScript())
 			{
 				$rowActions = [
 					[
@@ -129,6 +133,7 @@ class BizprocScriptListComponent extends \CBitrixComponent
 			}
 
 			$rows[] = [
+				'id' => $script['ID'],
 				'data' => [
 					"NAME" => $this->renderLinkTag($script['NAME'], sprintf($jsHandlerView, $script['ID']), 'view'),
 					'LAST_STARTED_DATE' => \Bitrix\Bizproc\Script\Entity\ScriptTable::getLastStartedDate($script['ID']),
@@ -141,6 +146,7 @@ class BizprocScriptListComponent extends \CBitrixComponent
 				'actions' => $rowActions
 			];
 		}
+
 		return $rows;
 	}
 
@@ -182,15 +188,19 @@ class BizprocScriptListComponent extends \CBitrixComponent
 		];
 	}
 
-	protected function isAdmin(): bool
+	protected function canCreateScript(): bool
 	{
-		static $isAdmin;
+		static $can;
 
-		if ($isAdmin === null)
+		if ($can === null)
 		{
 			$user = new \CBPWorkflowTemplateUser(\CBPWorkflowTemplateUser::CurrentUser);
-			$isAdmin = $user->isAdmin();
+			$can = \Bitrix\Bizproc\Script\Manager::canUserCreateScript(
+				$this->arParams['DOCUMENT_TYPE'],
+				$user->getId()
+			);
 		}
-		return $isAdmin;
+
+		return $can;
 	}
 }

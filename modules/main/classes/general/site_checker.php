@@ -470,7 +470,7 @@ class CSiteCheckerTest
 	function check_php_settings()
 	{
 		$strError = '';
-		$PHP_vercheck_min = '5.3.0';
+		$PHP_vercheck_min = '7.3.0';
 		if (version_compare($v = phpversion(), $PHP_vercheck_min, '<'))
 			$strError = GetMessage('SC_VER_ERR', array('#CUR#' => $v, '#REQ#' => $PHP_vercheck_min))."<br>";
 
@@ -1493,7 +1493,7 @@ class CSiteCheckerTest
 		if (!$res = $this->ConnectToHost('ssl://'.$host, 443))
 			return false;
 
-		$strRes = ToLower(GetHttpResponse($res, $strRequest, $strHeaders));
+		$strRes = mb_strtolower(GetHttpResponse($res, $strRequest, $strHeaders));
 		if (strpos($strRes, 'xml version=') !== false)
 			return true;
 

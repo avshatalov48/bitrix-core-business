@@ -100,6 +100,7 @@ class Script extends Base
 					'status' => static::START_STATUS_FILL_PARAMETERS,
 					'parameters' => self::convertTemplateParameters($templateParameters, $tpl->getDocumentComplexType()),
 					'documentType' => $tpl->getDocumentComplexType(),
+					'scriptName' => $script->getName(),
 				];
 			}
 

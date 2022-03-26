@@ -6,7 +6,7 @@ $MESS['LANDING_FIELDS_LIST_FIELD_PRODUCTS_SHOW_BIG_PICTURE'] = 'Показыва
 $MESS['LANDING_FIELDS_LIST_FIELD_PRODUCTS_ALLOW_CUSTOM_PRICE'] = 'Разрешить пользователю указывать свою цену для товара';
 $MESS['LANDING_FIELDS_LIST_FIELD_PRODUCTS_ALLOW_CUSTOM_PRICE_NOT_SELECTED'] = 'Не указано';
 
-$MESS['LANDING_FIELDS_SELECT_FIELD_BUTTON_TITLE'] = 'Выбрать поле';
+$MESS['LANDING_FIELDS_ADD_FIELD_BUTTON_TITLE'] = 'Добавить поле';
 $MESS['LANDING_FIELDS_SELECT_SEPARATOR_BUTTON_TITLE'] = 'Добавить разделитель';
 $MESS['LANDING_FIELDS_SELECT_PRODUCTS_BUTTON_TITLE'] = 'Добавить товары';
 
@@ -25,3 +25,11 @@ $MESS['LANDING_FIELDS_ITEM_FIELD_UNAVAILABLE'] = 'Ошибка! Поле нед�
 
 $MESS['LANDING_FIELDS_ITEM_FORM_VALUE_TYPE'] = 'Тип';
 $MESS['LANDING_FIELDS_ITEM_FORM_ALLOWED_FILE_TYPE'] = 'Разрешить типы файлов';
+
+$MESS['LANDING_FIELDS_ITEM_ENABLE_AUTOCOMPLETE'] = 'Включить автозаполнение';
+$MESS['LANDING_FIELDS_ITEM_AUTOCOMPLETE_ENABLED'] = 'Автозаполнение включено';
+$MESS['LANDING_FIELDS_ITEM_AUTOCOMPLETE_DISABLED'] = 'Автозаполнение отключено';
+$MESS['LANDING_FIELDS_ITEM_FORM_FIELD_HINT_TITLE'] = 'Подсказка для поля';
+$MESS['LANDING_FIELDS_ITEM_ENABLE_HINT_ON_FOCUS'] = 'Включить подсказку при фокусировке на поле';
+
+$MESS['LANDING_FIELDS_ITEM_FORM_ALLOWED_ANY_FILE_TYPE'] = 'Любые';

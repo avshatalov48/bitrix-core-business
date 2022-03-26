@@ -1,5 +1,5 @@
 .landing-ui-card-landing-preview {
-	font-family: 'OpenSans-Regular', Helvetca, Arial, sans-sarif;
+	font-family: 'OpenSans-Regular', Helvetca, Arial, sans-serif;
 	background-color: #ffffff;
 	padding: 0;
 	margin-left: 0;
@@ -16,7 +16,7 @@
 .landing-ui-card-landing-preview .landing-ui-card-header,
 .landing-ui-card-landing-preview .landing-ui-card-footer {
 	display: flex;
-	font-family: 'OpenSans-SemiBold', Helvetca, Arial, sans-sarif;
+	font-family: 'OpenSans-SemiBold', Helvetca, Arial, sans-serif;
 	font-size: 13px;
 	color: #333333;
 	align-items: center;

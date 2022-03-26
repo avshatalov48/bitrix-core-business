@@ -2,7 +2,8 @@
 $MESS["LANDING_TPL_ACTION_ADD"] = "New";
 $MESS["LANDING_TPL_ACTION_SELECT"] = "Select";
 $MESS["LANDING_TPL_ACTION_VIEW"] = "Edit";
-$MESS["LANDING_TPL_DESIGNED_BY"] = "Created by #DESIGNER#";
+$MESS["LANDING_TPL_CREATE_EMPTY"] = "Empty template";
+$MESS["LANDING_TPL_DESIGN_BY"] = "Design by #DESIGNER#";
 $MESS["LANDING_TPL_EMPTY_REPO_EXPIRED"] = "Your license has expired.";
 $MESS["LANDING_TPL_EMPTY_REPO_EXPIRED_LINK"] = "Please #LINK1#renew your license#LINK2#";
 $MESS["LANDING_TPL_EMPTY_REPO_SERVICE"] = "The demo template service is temporarily unavailable. Please try again later or contact the Helpdesk.";

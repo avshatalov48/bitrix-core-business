@@ -23,6 +23,7 @@ return array(
 			'type' => 'img',
 			'useInDesigner' => false,
 			'dimensions' => array('width' => 260),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-member-name' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_28_5_TEAM_4_COLS--MEMBER_NAME'),

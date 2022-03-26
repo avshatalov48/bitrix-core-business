@@ -1,4 +1,4 @@
-<?
+<?php
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
@@ -10,27 +10,31 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-use Bitrix\Main\Loader,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Iblock;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Iblock;
 
 /*************************************************************************
 	Processing of received parameters
 *************************************************************************/
-if(!isset($arParams["CACHE_TIME"]))
+if (!isset($arParams["CACHE_TIME"]))
+{
 	$arParams["CACHE_TIME"] = 36000000;
+}
 
-$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
-$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
-$arParams["SECTION_ID"] = intval($arParams["SECTION_ID"]);
-$arParams["SECTION_CODE"] = trim($arParams["SECTION_CODE"]);
+$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"] ?? '');
+$arParams["IBLOCK_ID"] = (int)($arParams["IBLOCK_ID"] ?? 0);
+$arParams["SECTION_ID"] = (int)($arParams["SECTION_ID"] ?? 0);
+$arParams["SECTION_CODE"] = trim($arParams["SECTION_CODE"] ?? '');
 
-$arParams["SECTION_URL"]=trim($arParams["SECTION_URL"]);
+$arParams["SECTION_URL"] = trim($arParams["SECTION_URL"] ?? '');
 
-$arParams["TOP_DEPTH"] = intval($arParams["TOP_DEPTH"]);
+$arParams["TOP_DEPTH"] = (int)($arParams["TOP_DEPTH"] ?? 0);
 if($arParams["TOP_DEPTH"] <= 0)
+{
 	$arParams["TOP_DEPTH"] = 2;
-$arParams["COUNT_ELEMENTS"] = $arParams["COUNT_ELEMENTS"]!="N";
+}
+$arParams["COUNT_ELEMENTS"] = !(isset($arParams["COUNT_ELEMENTS"]) && $arParams["COUNT_ELEMENTS"] === "N");
 if (!isset($arParams["COUNT_ELEMENTS_FILTER"]))
 {
 	$arParams["COUNT_ELEMENTS_FILTER"] = "CNT_ACTIVE";
@@ -43,9 +47,12 @@ if (
 {
 	$arParams["COUNT_ELEMENTS_FILTER"] = "CNT_ALL";
 }
-$arParams["ADD_SECTIONS_CHAIN"] = $arParams["ADD_SECTIONS_CHAIN"]!="N"; //Turn on by default
+$arParams["ADD_SECTIONS_CHAIN"] = !(isset($arParams["ADD_SECTIONS_CHAIN"]) && $arParams["ADD_SECTIONS_CHAIN"] === "N"); //Turn on by default
 
-if(empty($arParams["FILTER_NAME"]) || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
+if (
+	empty($arParams["FILTER_NAME"])
+	|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"])
+)
 {
 	$arrFilter = array();
 }
@@ -54,23 +61,30 @@ else
 	global ${$arParams["FILTER_NAME"]};
 	$arrFilter = ${$arParams["FILTER_NAME"]};
 	if(!is_array($arrFilter))
-		$arrFilter = array();
+	{
+		$arrFilter = [];
+	}
 }
 
 $arParams["CACHE_FILTER"] = isset($arParams["CACHE_FILTER"]) && $arParams["CACHE_FILTER"] == "Y";
 if(!$arParams["CACHE_FILTER"] && !empty($arrFilter))
+{
 	$arParams["CACHE_TIME"] = 0;
+}
 
 $arParams['SHOW_TITLE'] = ($arParams['SHOW_TITLE'] ?? 'N') === 'Y';
 
-$arResult["SECTIONS"]=array();
+$arResult["SECTIONS"] = array();
 
 /*************************************************************************
 			Work with cache
 *************************************************************************/
-if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==="N"? false: $USER->GetGroups()))))
+if ($this->startResultCache(
+	false,
+	array($arrFilter, ($arParams["CACHE_GROUPS"]==="N"? false: $USER->GetGroups()))
+))
 {
-	if(!Loader::includeModule("iblock"))
+	if (!Loader::includeModule("iblock"))
 	{
 		$this->abortResultCache();
 		ShowError(Loc::getMessage("IBLOCK_MODULE_NOT_INSTALLED"));
@@ -79,7 +93,11 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 
 	$existIblock = Iblock\IblockSiteTable::getList(array(
 		'select' => array('IBLOCK_ID'),
-		'filter' => array('=IBLOCK_ID' => $arParams['IBLOCK_ID'], '=SITE_ID' => SITE_ID, '=IBLOCK.ACTIVE' => 'Y')
+		'filter' => array(
+			'=IBLOCK_ID' => $arParams['IBLOCK_ID'],
+			'=SITE_ID' => SITE_ID,
+			'=IBLOCK.ACTIVE' => 'Y',
+		),
 	))->fetch();
 	if (empty($existIblock))
 	{
@@ -110,7 +128,9 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 		foreach($arParams["SECTION_FIELDS"] as &$field)
 		{
 			if (!empty($field) && is_string($field))
+			{
 				$arSelect[] = $field;
+			}
 		}
 		unset($field);
 	}
@@ -133,12 +153,14 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 	}
 	$boolPicture = empty($arSelect) || in_array('PICTURE', $arSelect);
 
-	if(!empty($arParams["SECTION_USER_FIELDS"]) && is_array($arParams["SECTION_USER_FIELDS"]))
+	if (!empty($arParams["SECTION_USER_FIELDS"]) && is_array($arParams["SECTION_USER_FIELDS"]))
 	{
 		foreach($arParams["SECTION_USER_FIELDS"] as &$field)
 		{
 			if(is_string($field) && preg_match("/^UF_/", $field))
+			{
 				$arSelect[] = $field;
+			}
 		}
 		unset($field);
 	}
@@ -153,7 +175,7 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 		$rsSections->SetUrlTemplates("", $arParams["SECTION_URL"]);
 		$arResult["SECTION"] = $rsSections->GetNext();
 	}
-	elseif('' != $arParams["SECTION_CODE"])
+	elseif ($arParams["SECTION_CODE"] !== '')
 	{
 		$arFilter["=CODE"] = $arParams["SECTION_CODE"];
 		$rsSections = CIBlockSection::GetList(array(), $arFilter, false, $arSelect);
@@ -161,15 +183,15 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 		$arResult["SECTION"] = $rsSections->GetNext();
 	}
 
-	if(is_array($arResult["SECTION"]))
+	if (is_array($arResult["SECTION"]))
 	{
 		$arResult["SECTION"]["~ELEMENT_CNT"] = null;
 		$arResult["SECTION"]["ELEMENT_CNT"] = null;
 		unset($arFilter["ID"]);
 		unset($arFilter["=CODE"]);
-		$arFilter["LEFT_MARGIN"]=$arResult["SECTION"]["LEFT_MARGIN"]+1;
-		$arFilter["RIGHT_MARGIN"]=$arResult["SECTION"]["RIGHT_MARGIN"];
-		$arFilter["<="."DEPTH_LEVEL"]=$arResult["SECTION"]["DEPTH_LEVEL"] + $arParams["TOP_DEPTH"];
+		$arFilter["LEFT_MARGIN"] = $arResult["SECTION"]["LEFT_MARGIN"] + 1;
+		$arFilter["RIGHT_MARGIN"] = $arResult["SECTION"]["RIGHT_MARGIN"];
+		$arFilter["<="."DEPTH_LEVEL"] = $arResult["SECTION"]["DEPTH_LEVEL"] + $arParams["TOP_DEPTH"];
 
 		$ipropValues = new \Bitrix\Iblock\InheritedProperty\SectionValues($arResult["SECTION"]["IBLOCK_ID"], $arResult["SECTION"]["ID"]);
 		$arResult["SECTION"]["IPROPERTY_VALUES"] = $ipropValues->getValues();
@@ -197,7 +219,10 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 	}
 	else
 	{
-		$arResult["SECTION"] = array("ID"=>0, "DEPTH_LEVEL"=>0);
+		$arResult["SECTION"] = array(
+			"ID" => 0,
+			"DEPTH_LEVEL" => 0,
+		);
 		$arFilter["<="."DEPTH_LEVEL"] = $arParams["TOP_DEPTH"];
 	}
 	$intSectionDepth = $arResult["SECTION"]['DEPTH_LEVEL'];
@@ -412,7 +437,7 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 	$this->includeComponentTemplate();
 }
 
-if($arResult["SECTIONS_COUNT"] > 0 || isset($arResult["SECTION"]))
+if ($arResult["SECTIONS_COUNT"] > 0 || isset($arResult["SECTION"]))
 {
 	if(
 		$USER->IsAuthorized()
@@ -421,7 +446,7 @@ if($arResult["SECTIONS_COUNT"] > 0 || isset($arResult["SECTION"]))
 	)
 	{
 		$UrlDeleteSectionButton = "";
-		if(isset($arResult["SECTION"]) && $arResult["SECTION"]['IBLOCK_SECTION_ID'] > 0)
+		if (isset($arResult["SECTION"]) && $arResult["SECTION"]['IBLOCK_SECTION_ID'] > 0)
 		{
 			$rsSection = CIBlockSection::GetList(
 				array(),
@@ -434,7 +459,7 @@ if($arResult["SECTIONS_COUNT"] > 0 || isset($arResult["SECTION"]))
 			$UrlDeleteSectionButton = $arSection["SECTION_PAGE_URL"];
 		}
 
-		if(empty($UrlDeleteSectionButton))
+		if (empty($UrlDeleteSectionButton))
 		{
 			$url_template = CIBlock::GetArrayByID($arParams["IBLOCK_ID"], "LIST_PAGE_URL");
 			$arIBlock = CIBlock::GetArrayByID($arParams["IBLOCK_ID"]);
@@ -469,10 +494,23 @@ if($arResult["SECTIONS_COUNT"] > 0 || isset($arResult["SECTION"]))
 	{
 		foreach($arResult["SECTION"]["PATH"] as $arPath)
 		{
-			if (isset($arPath["IPROPERTY_VALUES"]["SECTION_PAGE_TITLE"]) && $arPath["IPROPERTY_VALUES"]["SECTION_PAGE_TITLE"] != "")
-				$APPLICATION->AddChainItem($arPath["IPROPERTY_VALUES"]["SECTION_PAGE_TITLE"], $arPath["~SECTION_PAGE_URL"]);
+			if (
+				isset($arPath["IPROPERTY_VALUES"]["SECTION_PAGE_TITLE"])
+				&& $arPath["IPROPERTY_VALUES"]["SECTION_PAGE_TITLE"] !== ""
+			)
+			{
+				$APPLICATION->AddChainItem(
+					$arPath["IPROPERTY_VALUES"]["SECTION_PAGE_TITLE"],
+					$arPath["~SECTION_PAGE_URL"]
+				);
+			}
 			else
-				$APPLICATION->AddChainItem($arPath["NAME"], $arPath["~SECTION_PAGE_URL"]);
+			{
+				$APPLICATION->AddChainItem(
+					$arPath["NAME"],
+					$arPath["~SECTION_PAGE_URL"]
+				);
+			}
 		}
 	}
 }

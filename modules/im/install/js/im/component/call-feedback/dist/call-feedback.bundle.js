@@ -7,12 +7,12 @@ this.BX = this.BX || {};
         darkMode: {
           type: Boolean,
           required: false,
-          default: false
+          "default": false
         },
         callDetails: {
           type: Object,
           required: false,
-          default: function _default() {
+          "default": function _default() {
             return {
               id: 0,
               provider: '',

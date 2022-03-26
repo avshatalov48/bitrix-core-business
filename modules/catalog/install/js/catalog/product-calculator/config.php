@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/product.calculator.bundle.js',
 	'rel' => [
 		'main.core',
+		'catalog.product-calculator',
 	],
 	'skip_core' => false,
 ];

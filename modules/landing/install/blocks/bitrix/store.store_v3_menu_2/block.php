@@ -135,6 +135,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 						'IBLOCK_ID' => $classBlock->get('IBLOCK_ID'),
 						'SECTION_ID' => $classBlock->get('SECTION_ID'),
 						'SECTION_URL' => '#system_catalog#SECTION_CODE_PATH#/',
+						'ADD_SECTIONS_CHAIN' => 'N',
 						'COUNT_ELEMENTS' => 'Y',
 						'TOP_DEPTH' => '1',
 						'CACHE_GROUPS' => 'Y',

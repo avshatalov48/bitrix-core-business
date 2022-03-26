@@ -14,6 +14,8 @@ return [
 		'landing.pageobject',
 		'landing.ui.button.sidebarbutton',
 		'landing.loc',
+		'ui.textcrop',
+		'main.loader',
 		'main.core.events',
 		'main.core',
 		'landing.ui.card.headercard',

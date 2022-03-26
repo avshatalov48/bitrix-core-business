@@ -18,7 +18,7 @@ return array(
 	'fields' => array(
 		'RULE' => null,
 		'ADDITIONAL_FIELDS' => array(
-			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/store-mini-one-element/preview.jpg',
+			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/store-mini-one-element/preview@2x.jpg',
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => 'event',

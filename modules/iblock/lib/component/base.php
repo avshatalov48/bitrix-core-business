@@ -4776,7 +4776,7 @@ abstract class Base extends \CBitrixComponent
 	}
 
 	/**
-	 * @return bool
+	 * @return int|false
 	 */
 	public function executeComponent()
 	{

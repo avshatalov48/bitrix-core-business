@@ -9,8 +9,8 @@
 
 				<address class="g-mb-20">
 					<div class="landing-block-card-contact d-flex g-pos-rel g-mb-7" data-card-preset="text">
-						<div class="landing-block-node-card-contact-icon-container g-color-gray-light-v1 g-width-20">
-							<i class="landing-block-node-card-contact-icon fa fa-home"></i>
+						<div class="landing-block-node-card-contact-icon-container g-color-gray-light-v1">
+							<i class="landing-block-node-card-contact-icon fa fa-home g-pr-5"></i>
 						</div>
 						<div class="landing-block-node-card-contact-text landing-semantic-text-medium g-color-gray-light-v1">
 							Address: <span style="font-weight: bold;">In sed lectus tincidunt</span>
@@ -18,22 +18,22 @@
 					</div>
 
 					<div class="landing-block-card-contact d-flex g-pos-rel g-mb-7" data-card-preset="link">
-						<div class="landing-block-node-card-contact-icon-container g-color-gray-light-v1 g-width-20">
-							<i class="landing-block-node-card-contact-icon fa fa-phone"></i>
+						<div class="landing-block-node-card-contact-icon-container g-color-gray-light-v1">
+							<i class="landing-block-node-card-contact-icon fa fa-phone g-pr-5"></i>
 						</div>
 						<div>
 							<span class="landing-block-node-card-contact-text landing-semantic-text-medium g-color-gray-light-v1">Phone Number: </span>
-							<a class="landing-block-node-card-contact-link landing-semantic-link-medium g-color-gray-light-v1 g-font-weight-700" href="tel:#PHONE1#" target="_blank">#PHONE1#</a>
+							<a class="landing-block-node-card-contact-link landing-semantic-link-medium g-color-gray-light-v1 g-font-weight-700" href="tel:#crmPhone1" target="_blank">#crmPhoneTitle1</a>
 						</div>
 					</div>
 
 					<div class="landing-block-card-contact d-flex g-pos-rel g-mb-7" data-card-preset="link">
-						<div class="landing-block-node-card-contact-icon-container g-color-gray-light-v1 g-width-20">
-							<i class="landing-block-node-card-contact-icon fa fa-envelope"></i>
+						<div class="landing-block-node-card-contact-icon-container g-color-gray-light-v1">
+							<i class="landing-block-node-card-contact-icon fa fa-envelope g-pr-5"></i>
 						</div>
 						<div>
 							<span class="landing-block-node-card-contact-text landing-semantic-text-medium g-color-gray-light-v1">Email: </span>
-							<a class="landing-block-node-card-contact-link landing-semantic-link-medium g-color-gray-light-v1 g-font-weight-700" href="mailto:#EMAIL1#" target="_blank">#EMAIL1#</a>
+							<a class="landing-block-node-card-contact-link landing-semantic-link-medium g-color-gray-light-v1 g-font-weight-700" href="mailto:#crmEmail1" target="_blank">#crmEmailTitle1</a>
 						</div>
 					</div>
 				</address>

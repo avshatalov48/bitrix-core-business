@@ -22,10 +22,10 @@ class GlobalVarTable extends Main\ORM\Data\DataManager
 				'data_type' => 'string',
 			],
 			'DESCRIPTION' => [
-				'data_type' => 'string'
+				'data_type' => 'string',
 			],
 			'PROPERTY_TYPE' => [
-				'data_type' => 'string'
+				'data_type' => 'string',
 			],
 			'IS_REQUIRED' => [
 				'data_type' => 'boolean',
@@ -39,9 +39,28 @@ class GlobalVarTable extends Main\ORM\Data\DataManager
 				'data_type' => 'string',
 				'serialized' => true,
 			],
+			'PROPERTY_SETTINGS' => [
+				'data_type' => 'string',
+				'serialized' => true,
+			],
 			'PROPERTY_VALUE' => [
 				'data_type' => 'string',
 				'serialized' => true,
+			],
+			'CREATED_DATE' => [
+				'data_type' => 'datetime',
+			],
+			'CREATED_BY' => [
+				'data_type' => 'integer',
+			],
+			'VISIBILITY' => [
+				'data_type' => 'string',
+			],
+			'MODIFIED_DATE' => [
+				'data_type' => 'datetime',
+			],
+			'MODIFIED_BY' => [
+				'data_type' => 'integer',
 			],
 		];
 	}
@@ -51,10 +70,11 @@ class GlobalVarTable extends Main\ORM\Data\DataManager
 	 * @throws Main\SystemException
 	 * @throws \Exception
 	 */
-	public static function upsertByProperty(string $varId, array $property)
+	public static function upsertByProperty(string $varId, array $property, int $userId = null)
 	{
-		$property = \Bitrix\Bizproc\FieldType::normalizeProperty($property);
+		$property = static::normalizePropertyForUpsert($property, $userId);
 
+		// PROPERTY_SETTINGS ?
 		$fields = [
 			'NAME' => $property['Name'],
 			'DESCRIPTION' => $property['Description'],
@@ -63,7 +83,24 @@ class GlobalVarTable extends Main\ORM\Data\DataManager
 			'IS_MULTIPLE' => $property['Multiple'] ? 'Y' : 'N',
 			'PROPERTY_OPTIONS' => $property['Options'],
 			'PROPERTY_VALUE' => $property['Default'],
+			'VISIBILITY' => $property['Visibility'],
+			'CREATED_BY' => $property['CreatedBy'],
+			'CREATED_DATE' => $property['CreatedDate'],
+			'MODIFIED_DATE' => $property['ModifiedDate'],
+			'MODIFIED_BY' => $property['ModifiedBy'],
 		];
+
+		if ($fields['CREATED_BY'] === null)
+		{
+			unset($fields['CREATED_BY']);
+			unset($fields['CREATED_DATE']);
+		}
+
+		if ($fields['MODIFIED_BY'] === null)
+		{
+			unset($fields['MODIFIED_BY']);
+			unset($fields['MODIFIED_DATE']);
+		}
 
 		$count = static::getCount(['=ID' => $varId]);
 		if ($count > 0)
@@ -80,6 +117,7 @@ class GlobalVarTable extends Main\ORM\Data\DataManager
 
 	public static function convertToProperty(array $fields): array
 	{
+		// Settings ?
 		return [
 			'Name' => $fields['NAME'],
 			'Description' => $fields['DESCRIPTION'],
@@ -88,6 +126,35 @@ class GlobalVarTable extends Main\ORM\Data\DataManager
 			'Multiple' => \CBPHelper::getBool($fields['IS_MULTIPLE']),
 			'Options' => $fields['PROPERTY_OPTIONS'],
 			'Default' => $fields['PROPERTY_VALUE'],
+			'CreatedBy' => (int)$fields['CREATED_BY'],
+			'CreatedDate' => $fields['CREATED_DATE'],
+			'Visibility' => $fields['VISIBILITY'],
+			'ModifiedBy' => (int)$fields['MODIFIED_BY'],
+			'ModifiedDate' => $fields['MODIFIED_DATE'],
 		];
+	}
+
+	private static function normalizePropertyForUpsert($property, int $userId = null): array
+	{
+		$normalized = [];
+		$normalizedAsField = \Bitrix\Bizproc\FieldType::normalizeProperty($property);
+
+		$normalized['Visibility'] = $property['Visibility'] ? (string)$property['Visibility'] : 'GLOBAL';
+		$normalized['CreatedBy'] = ((int)$property['CreatedBy'] !== 0) ? (int)$property['CreatedBy'] : $userId;
+		try
+		{
+			$normalized['CreatedDate'] = $property['CreatedDate']
+				? new Main\Type\DateTime($property['CreatedDate'])
+				: new Main\Type\DateTime()
+			;
+		}
+		catch (\Bitrix\Main\ObjectException $e)
+		{
+		}
+
+		$normalized['ModifiedBy'] = $userId;
+		$normalized['ModifiedDate'] = new Main\Type\DateTime();
+
+		return array_merge($normalized, $normalizedAsField);
 	}
 }

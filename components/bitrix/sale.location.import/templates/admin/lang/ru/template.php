@@ -32,6 +32,7 @@ $MESS["SALE_SLI_DONT_LIMIT_LOCATION_DEPTH"] = "Не ограничивать";
 $MESS["SALE_SLI_EXTRA_DATA"] = "Выбор дополнительных данных";
 $MESS["SALE_SLI_EXTRA_EXTERNAL_ZIP"] = "Почтовые индексы (ZIP-коды)";
 $MESS["SALE_SLI_EXTRA_EXTERNAL_YAMARKET"] = "Коды Яндекс.Маркет";
+$MESS["SALE_SLI_EXTRA_EXTERNAL_ISO_3166_NUMERIC"] = "Числовые коды стран (ISO 3166-1)";
 $MESS["SALE_SLI_EXTRA_GEOCOORDS"] = "Гео-координаты";
 $MESS["SALE_SLI_ADDITIONAL_PARAMS"] = "Выбор параметров импорта местоположений";
 $MESS["SALE_SLI_AP_DROP_STRUCTURE"] = "Удалить все существующие местоположения";

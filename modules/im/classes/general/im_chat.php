@@ -127,7 +127,7 @@ class CIMChat
 
 		$limitById = '';
 		$limitFetchMessages = 30;
-		$relations = \CIMChat::GetRelationById($toChatId);
+		$relations = \CIMChat::GetRelationById($toChatId, false, $bTimeZone);
 		if (isset($relations[$fromUserId]))
 		{
 			if ($relations[$fromUserId]['START_ID'] > 0)
@@ -324,7 +324,7 @@ class CIMChat
 			$arMessages[$messageId]['params'] = $param;
 
 			if (
-				empty($arMessages[$messageId]['text'])
+				mb_strlen($arMessages[$messageId]['text']) <= 0
 				&& !isset($param['FILE_ID'])
 				&& !isset($param['KEYBOARD'])
 				&& !isset($param['ATTACH'])
@@ -663,13 +663,18 @@ class CIMChat
 		return $arMessages;
 	}
 
-	public static function GetRelationById($ID, $userId = false)
+	public static function GetRelationById($ID, $userId = false, $timezone = true)
 	{
 		global $DB;
 
 		$ID = intval($ID);
 		$userId = intval($userId);
 		$arResult = Array();
+
+		if (!$timezone)
+		{
+			CTimeZone::Disable();
+		}
 
 		$strSql = "
 			SELECT
@@ -679,6 +684,12 @@ class CIMChat
 			FROM b_im_relation R
 			LEFT JOIN b_user U ON U.ID = R.USER_ID
 			WHERE R.CHAT_ID = ".$ID." ".($userId>0? "AND R.USER_ID = ".$userId: "");
+
+		if (!$timezone)
+		{
+			CTimeZone::Enable();
+		}
+
 		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		while ($arRes = $dbRes->Fetch())
 			$arResult[$arRes['USER_ID']] = $arRes;
@@ -691,9 +702,16 @@ class CIMChat
 
 	public function GetPersonalChat()
 	{
-		$chatId = CUserOptions::GetOption('im', 'personalChat', 0);
+		$chatId = (int)CUserOptions::GetOption('im', 'personalChat', 0, $this->user_id);
 		if ($chatId > 0)
+		{
+			if (!self::GetRelationById($chatId, $this->user_id))
+			{
+				return null;
+			}
+
 			return $chatId;
+		}
 
 		$chatId = $this->Add(Array(
 			'TYPE' => IM_MESSAGE_PRIVATE,
@@ -857,16 +875,20 @@ class CIMChat
 		return $status;
 	}
 
-	public static function CanSendMessageToGeneralChat($userId)
+	public static function CanSendMessageToGeneralChat($userId = null)
 	{
 		global $USER;
 
-		$userId = intval($userId);
+		$userId = \Bitrix\Im\Common::getUserId($userId);
 		if ($userId <= 0)
+		{
 			return false;
+		}
 
 		if (COption::GetOptionString("im", "allow_send_to_general_chat_all", "Y") == "Y")
+		{
 			return true;
+		}
 
 		$chatRights = COption::GetOptionString("im", "allow_send_to_general_chat_rights");
 
@@ -2524,6 +2546,17 @@ class CIMChat
 
 		$publicLink = '';
 		$chatId = $result->getId();
+		if (!$result->isSuccess())
+		{
+			$errors = $result->getErrors();
+			if (!empty($errors))
+			{
+				$firstError = $errors[0];
+				$GLOBALS["APPLICATION"]->ThrowException($firstError->getMessage(), $firstError->getCode());
+			}
+			return false;
+		}
+
 		if ($chatId > 0)
 		{
 			$params = $result->getData();
@@ -2878,6 +2911,7 @@ class CIMChat
 					C.TITLE CHAT_TITLE,
 					C.AUTHOR_ID CHAT_AUTHOR_ID,
 					C.EXTRANET CHAT_EXTRANET,
+					C.DISK_FOLDER_ID,
 					C.TYPE CHAT_TYPE,
 					C.ENTITY_TYPE CHAT_ENTITY_TYPE,
 					C.ENTITY_DATA_1 CHAT_ENTITY_DATA_1,
@@ -2899,6 +2933,7 @@ class CIMChat
 						C.TITLE CHAT_TITLE,
 						C.AUTHOR_ID CHAT_AUTHOR_ID,
 						C.EXTRANET CHAT_EXTRANET,
+						C.DISK_FOLDER_ID,
 						C.TYPE CHAT_TYPE,
 						C.ENTITY_TYPE CHAT_ENTITY_TYPE,
 						C.ENTITY_ID CHAT_ENTITY_ID,
@@ -2927,6 +2962,7 @@ class CIMChat
 					C.TITLE CHAT_TITLE,
 					C.AUTHOR_ID CHAT_AUTHOR_ID,
 					C.EXTRANET CHAT_EXTRANET,
+					C.DISK_FOLDER_ID,
 					C.TYPE CHAT_TYPE,
 					C.ENTITY_TYPE CHAT_ENTITY_TYPE,
 					C.ENTITY_ID CHAT_ENTITY_ID,
@@ -3098,7 +3134,11 @@ class CIMChat
 			}
 		}
 
-		$fileMaxId = CIMDisk::GetMaxFileId($chatId);
+		$fileMaxId = 0;
+		if ((int)$arRes['DISK_FOLDER_ID'] > 0)
+		{
+			$fileMaxId = \CIMDisk::getMaxFileId($chatId);
+		}
 
 		$replicaUpdate = true;
 		$startId = 0;
@@ -3287,6 +3327,8 @@ class CIMChat
 			}
 		}
 
+		\Bitrix\Im\Dialog::clearAccessCache('chat'.$chatId);
+
 		return true;
 	}
 
@@ -3328,6 +3370,15 @@ class CIMChat
 		if ($chatId <= 0 || $userId <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_EMPTY_USER_OR_CHAT"), "EMPTY_USER_OR_CHAT");
+			return false;
+		}
+
+		if (
+			!\Bitrix\Im\Chat::isActionAllowed('chat' . $chatId, 'LEAVE_OWNER')
+			&& \Bitrix\Im\Chat::getOwnerById('chat' . $chatId) === $userId
+		)
+		{
+			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_LEAVE_OWNER_FORBIDDEN"), "LEAVE_OWNER_FORBIDDEN");
 			return false;
 		}
 
@@ -3585,6 +3636,8 @@ class CIMChat
 			}
 		}
 
+		\Bitrix\Im\Dialog::clearAccessCache('chat'.$chatId);
+
 		return true;
 
 	}
@@ -3688,9 +3741,8 @@ class CIMChat
 			return true;
 		}
 
-		self::GetChatOptions();
-
-		if (isset(self::$entityOption[$chat['ENTITY_TYPE']][$action]) && !self::$entityOption[$chat['ENTITY_TYPE']][$action])
+		$options = self::GetChatOptions();
+		if (isset($options[$chat['ENTITY_TYPE']][$action]) && !self::$entityOption[$chat['ENTITY_TYPE']][$action])
 		{
 			return true;
 		}
@@ -3701,43 +3753,122 @@ class CIMChat
 	public static function GetChatOptions()
 	{
 		if (!is_null(self::$entityOption))
+		{
 			return self::$entityOption;
+		}
 
 		global $USER;
 
-		self::$entityOption = Array(
-			'GENERAL' => Array('AVATAR' => false, 'RENAME' => false, 'EXTEND' => false, 'LEAVE' => false),
-			'SUPPORT24_NOTIFIER' => Array('AVATAR' => false, 'RENAME' => false, 'LEAVE_OWNER' => false),
-		);
+		self::$entityOption = [];
 
-		if (IsModuleInstalled('socialnetwork'))
+		$default = [
+			'AVATAR' => true,
+			'RENAME' => true,
+			'EXTEND' => true,
+			'CALL' => true,
+			'MUTE' => true,
+			'LEAVE' => true,
+			'LEAVE_OWNER' => true,
+			'SEND' => true,
+			'USER_LIST' => true,
+		];
+
+		self::$entityOption['GENERAL'] = [
+			'AVATAR' => false,
+			'RENAME' => false,
+			'EXTEND' => false,
+			'CALL' => true,
+			'LEAVE' => false,
+			'LEAVE_OWNER' => false,
+			'SEND' => CIMChat::CanSendMessageToGeneralChat($userId)
+		];
+
+		if (\Bitrix\Main\Loader::includeModule('imbot'))
+		{
+			self::$entityOption[\Bitrix\ImBot\Service\Notifier::CHAT_ENTITY_TYPE] = [
+				'AVATAR' => false,
+				'RENAME' => false,
+				'LEAVE_OWNER' => false,
+			];
+			self::$entityOption[\Bitrix\ImBot\Bot\Support24::CHAT_ENTITY_TYPE] = [
+				'AVATAR' => false,
+				'RENAME' => true,
+				'EXTEND' => false,
+				'CALL' => false,
+				'MUTE' => false,
+				'LEAVE' => false,
+				'LEAVE_OWNER' => false,
+				'USER_LIST' => false,
+			];
+		}
+
+		if (\Bitrix\Main\ModuleManager::isModuleInstalled('socialnetwork'))
 		{
 			$path = COption::GetOptionString("socialnetwork", "workgroups_page", "/workgroups/", SITE_ID);
 			$path = $path.'group/#ID#/';
 
-			self::$entityOption['SONET_GROUP'] = Array('AVATAR' => false, 'RENAME' => false, 'EXTEND' => false, 'LEAVE' => false, 'LEAVE_OWNER' => false, 'PATH' => $path, 'PATH_TITLE' => GetMessage('IM_PATH_TITLE_SONET'));
+			self::$entityOption['SONET_GROUP'] = [
+				'AVATAR' => false,
+				'RENAME' => false,
+				'EXTEND' => false,
+				'LEAVE' => false,
+				'LEAVE_OWNER' => false,
+				'PATH' => $path,
+				'PATH_TITLE' => GetMessage('IM_PATH_TITLE_SONET')
+			];
 		}
 
-		if (CModule::IncludeModule('tasks'))
+		if (\Bitrix\Main\Loader::includeModule('tasks'))
 		{
-			$path = CTasksTools::GetOptionPathTaskUserEntry(SITE_ID, "/company/personal/user/#user_id#/tasks/task/view/#task_id#/");
+			$path = \CTasksTools::GetOptionPathTaskUserEntry(SITE_ID, "/company/personal/user/#user_id#/tasks/task/view/#task_id#/");
 			$path = str_replace(Array('#user_id#', '#task_id#'), Array($USER->GetId(), '#ID#'), mb_strtolower($path));
 
-			self::$entityOption['TASKS'] = Array('AVATAR' => true, 'RENAME' => true, 'EXTEND' => true, 'LEAVE' => true, 'LEAVE_OWNER' => true, 'PATH' => $path, 'PATH_TITLE' => GetMessage('IM_PATH_TITLE_TASKS'));
+			self::$entityOption['TASKS'] = Array(
+				'AVATAR' => true,
+				'RENAME' => true,
+				'EXTEND' => true,
+				'LEAVE' => true,
+				'LEAVE_OWNER' => true,
+				'PATH' => $path,
+				'PATH_TITLE' => GetMessage('IM_PATH_TITLE_TASKS')
+			);
 		}
 
-		if (CModule::IncludeModule('calendar'))
+		if (\Bitrix\Main\Loader::includeModule('calendar'))
 		{
-			$path = CCalendar::GetPathForCalendarEx($USER->GetId());
+			$path = \CCalendar::GetPathForCalendarEx($USER->GetId());
 			$path = \CHTTP::urlAddParams($path, ['EVENT_ID' => '#ID#']);
 
-			self::$entityOption[CCalendar::CALENDAR_CHAT_ENTITY_TYPE] = Array('AVATAR' => true, 'RENAME' => true, 'EXTEND' => true, 'LEAVE' => true, 'LEAVE_OWNER' => true, 'PATH' => $path, 'PATH_TITLE' => GetMessage('IM_PATH_TITLE_CALENDAR_EVENT'));
+			self::$entityOption[\CCalendar::CALENDAR_CHAT_ENTITY_TYPE] = Array(
+				'AVATAR' => true,
+				'RENAME' => true,
+				'EXTEND' => true,
+				'LEAVE' => true,
+				'LEAVE_OWNER' => true,
+				'PATH' => $path,
+				'PATH_TITLE' => GetMessage('IM_PATH_TITLE_CALENDAR_EVENT')
+			);
 		}
 
-		if (CModule::IncludeModule('crm'))
+		if (\Bitrix\Main\Loader::includeModule('crm'))
 		{
-			self::$entityOption['CRM'] = Array('AVATAR' => false, 'RENAME' => false, 'EXTEND' => true, 'LEAVE' => true, 'LEAVE_OWNER' => false, 'PATH' => '', 'PATH_TITLE' => '');
+			self::$entityOption['CRM'] = Array(
+				'AVATAR' => false,
+				'RENAME' => false,
+				'EXTEND' => true,
+				'LEAVE' => true,
+				'LEAVE_OWNER' => false,
+				'PATH' => '',
+				'PATH_TITLE' => ''
+			);
 		}
+
+		foreach (self::$entityOption as $code => $value)
+		{
+			self::$entityOption[$code] = array_merge($default, $value);
+		}
+
+		self::$entityOption['DEFAULT'] = $default;
 
 		return self::$entityOption;
 	}

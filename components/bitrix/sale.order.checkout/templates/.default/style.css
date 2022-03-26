@@ -816,6 +816,7 @@ input.checkout-item-quantity-field {
 
 .checkout-basket-total-list td {
 	text-align: right;
+	border: none;
 	border-bottom: 1px solid rgba(18, 18, 18, 0.11);
 	padding-top: 8px;
 	padding-bottom: 8px;

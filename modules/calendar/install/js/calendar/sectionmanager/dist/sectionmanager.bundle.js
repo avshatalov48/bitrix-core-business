@@ -173,6 +173,10 @@ this.BX = this.BX || {};
 	        action = 'view_time';
 	      }
 
+	      if (!this.data.PERM[action]) {
+	        return false;
+	      }
+
 	      return this.data.PERM && this.data.PERM[action];
 	    }
 	  }, {
@@ -301,7 +305,7 @@ this.BX = this.BX || {};
 	    this.setConfig(config);
 	    this.addTaskSection();
 	    this.sortSections();
-	    main_core_events.EventEmitter.subscribeOnce('BX.Calendar.Section:delete', this.deleteSectionHandler.bind(this)); //BX.addCustomEvent("BXCalendar:onSectionDelete", BX.proxy(this.unsetSectionHandler, this));
+	    main_core_events.EventEmitter.subscribeOnce('BX.Calendar.Section:delete', this.deleteSectionHandler.bind(this));
 	  }
 
 	  babelHelpers.createClass(SectionManager, [{

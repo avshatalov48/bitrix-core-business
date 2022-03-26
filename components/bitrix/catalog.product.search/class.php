@@ -138,7 +138,6 @@ class ProductSearchComponent extends \CBitrixComponent
 		if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'change_iblock')
 		{
 			$params['SECTION_ID'] = 0;
-			unset($_REQUEST['mode']);
 		}
 
 		$params['LID'] = isset($_REQUEST['LID']) ? htmlspecialcharsbx($_REQUEST['LID']) : '';

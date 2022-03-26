@@ -211,3 +211,16 @@
 .rest-configuration-import-slider-modifier .rest-market-app-install-inner {
 	margin-bottom: 130px;
 }
+
+.app-install-helper-landing {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	z-index: 2;
+	background-color: white;
+}
+
+.app-install-helper-landing .app-install-helper-landing-iframe {
+	width: 100%;
+	height: 100%;
+}

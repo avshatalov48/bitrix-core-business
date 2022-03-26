@@ -9,7 +9,7 @@ use Bitrix\Sale\Rest\Entity\BusinessValuePersonDomainType;
 use Bitrix\Sale\Rest\Entity\RelationType;
 use Bitrix\Sale\Result;
 
-class Enum extends Controller
+class Enum extends ControllerBase
 {
 	public function getRelationTypesAction()
 	{
@@ -70,7 +70,7 @@ class Enum extends Controller
 		return ['ENUM'=>$r];
 	}
 
-	protected function checkPermissionEntity($name)
+	protected function checkPermissionEntity($name, $arguments=[])
 	{
 		return new Result();
 	}

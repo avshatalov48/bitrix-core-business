@@ -230,60 +230,126 @@ class CBPViewHelper
 		return nl2br($description);
 	}
 
-	private static function replaceFileLinks(string $description)
+	public static function prepareMobileTaskDescription($description)
 	{
-		return preg_replace_callback(
-			'|<a href="(/bitrix/tools/bizproc_show_file.php\?)([^"]+)"\starget=\'_blank\'>|',
-			function($matches)
-			{
-				parse_str($matches[2], $query);
-				if (isset($query['i']))
-				{
-					try
-					{
-						$attributes = \Bitrix\Main\UI\Viewer\ItemAttributes::tryBuildByFileId(
-							$query['i'],
-							$matches[1].$matches[2]
-						);
-						return "<a href=\"".$matches[1].$matches[2]."\" ".$attributes.">";
-					}
-					catch (ArgumentException $e) {}
-				}
+		$description = self::replaceFileLinks($description, true);
 
-				return $matches[0];
-			},
+		if (\Bitrix\Main\Loader::includeModule('disk'))
+		{
+			$description = self::replaceDiskLinks($description, true);
+		}
+
+		return nl2br($description);
+	}
+
+	private static function replaceFileLinks(string $description, $isMobile = false)
+	{
+		$callback = $isMobile ? self::getMobileFileLinksReplaceCallback() : self::getFileLinksReplaceCallback();
+
+		return preg_replace_callback(
+			'|<a href="(/bitrix/tools/bizproc_show_file.php\?)([^"]+)"[^>]*>|',
+			$callback,
 			$description
 		);
 	}
 
-	private static function replaceDiskLinks(string $description)
+	private static function getFileLinksReplaceCallback()
 	{
-		return preg_replace_callback(
-			'|<a href="(/bitrix/tools/disk/uf.php\?)([^"]+)"\starget=\'_blank\'>|',
-			function($matches)
+		return function($matches)
+		{
+			$matches[2] = htmlspecialcharsback($matches[2]);
+			parse_str($matches[2], $query);
+			if (isset($query['i']))
 			{
-				parse_str($matches[2], $query);
-				if (isset($query['attachedId']))
+				try
 				{
-
-					$attach = \Bitrix\Disk\AttachedObject::loadById($query['attachedId']);
-					if ($attach)
-					{
-						try
-						{
-							$attributes = \Bitrix\Main\UI\Viewer\ItemAttributes::tryBuildByFileId(
-								$attach->getFileId(),
-								$matches[1].$matches[2]
-							);
-							return "<a href=\"".$matches[1].$matches[2]."\" ".$attributes.">";
-						}
-						catch (ArgumentException $e) {}
-					}
+					$attributes = \Bitrix\Main\UI\Viewer\ItemAttributes::tryBuildByFileId(
+						$query['i'],
+						$matches[1].$matches[2]
+					);
+					return "<a href=\"".$matches[1].$matches[2]."\" ".$attributes.">";
 				}
+				catch (ArgumentException $e) {}
+			}
 
-				return $matches[0];
-			},
+			return $matches[0];
+		};
+	}
+
+	private static function getMobileFileLinksReplaceCallback()
+	{
+		return function ($matches)
+		{
+			$matches[2] = htmlspecialcharsback($matches[2]);
+			parse_str($matches[2], $query);
+			$filename = '';
+			if (isset($query['f']))
+			{
+				$query['hash'] = md5($query['f']);
+				$filename = $query['f'];
+				unset($query['f']);
+			}
+			$query['mobile_action'] = 'bp_show_file';
+			$query['filename'] = $filename;
+
+			return '<a href="#" data-url="' . SITE_DIR . 'mobile/ajax.php?' . http_build_query($query)
+				. '" data-name="' . htmlspecialcharsbx($filename)
+				. '" onclick="BXMobileApp.UI.Document.open({url: this.getAttribute(\'data-url\'), '
+				. 'filename: this.getAttribute(\'data-name\')}); return false;">'
+			;
+		};
+	}
+
+	private static function replaceDiskLinks(string $description, $isMobile = false)
+	{
+		$callback = $isMobile ? self::getMobileDiskLinksReplaceCallback() : self::getDiskLinksReplaceCallback();
+
+		return preg_replace_callback(
+			'|<a href="(/bitrix/tools/disk/uf.php\?)([^"]+)"[^>]*>([^<]+)|',
+			$callback,
 			$description
 		);
+	}
+
+	private static function getDiskLinksReplaceCallback()
+	{
+		return function($matches)
+		{
+			$matches[2] = htmlspecialcharsback($matches[2]);
+			parse_str($matches[2], $query);
+			if (isset($query['attachedId']))
+			{
+				$attach = \Bitrix\Disk\AttachedObject::loadById($query['attachedId']);
+				if ($attach)
+				{
+					try
+					{
+						$attributes = \Bitrix\Main\UI\Viewer\ItemAttributes::tryBuildByFileId(
+							$attach->getFileId(),
+							$matches[1].$matches[2]
+						);
+						return "<a href=\"".$matches[1].$matches[2]."\" ".$attributes.">".$matches[3];
+					}
+					catch (ArgumentException $e) {}
+				}
+			}
+
+			return $matches[0];
+		};
+	}
+
+	private static function getMobileDiskLinksReplaceCallback()
+	{
+		return function($matches)
+		{
+			$matches[2] = htmlspecialcharsback($matches[2]);
+			parse_str($matches[2], $query);
+			$filename = htmlspecialcharsback($matches[3]);
+			$query['mobile_action'] = 'disk_uf_view';
+			$query['filename'] = $filename;
+
+			return '<a href="#" data-url="'.SITE_DIR.'mobile/ajax.php?'.http_build_query($query)
+				.'" data-name="'.htmlspecialcharsbx($filename).'" onclick="BXMobileApp.UI.Document.open({url: this.getAttribute(\'data-url\'), filename: this.getAttribute(\'data-name\')}); return false;">'.$matches[3];
+		};
 	}
 }

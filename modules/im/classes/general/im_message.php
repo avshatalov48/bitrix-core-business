@@ -366,7 +366,7 @@ class CIMMessage
 		if ($toUserId == $fromUserId)
 		{
 			$chat = new CIMChat();
-			$chatId = $chat->GetPersonalChat();
+			$chatId = (int)$chat->GetPersonalChat();
 			$startId = 0;
 			$lastId = 0;
 			$lastReadId = 0;
@@ -485,7 +485,7 @@ class CIMMessage
 			$arMessages[$messageId]['params'] = $param;
 
 			if (
-				empty($arMessages[$messageId]['text'])
+				mb_strlen($arMessages[$messageId]['text']) <= 0
 				&& !isset($param['FILE_ID'])
 				&& !isset($param['KEYBOARD'])
 				&& !isset($param['ATTACH'])
@@ -728,7 +728,7 @@ class CIMMessage
 				INNER JOIN b_im_message M ON M.ID > RT.LAST_ID ".$sqlLastId." AND M.CHAT_ID = RT.CHAT_ID
 			WHERE RT.USER_ID = ".$this->user_id."
 				and RF.USER_ID = ".$fromUserId."
-				and RT.MESSAGE_TYPE = '".IM_MESSAGE_PRIVATE."' and RT.STATUS < ".IM_STATUS_READ."
+				and RT.MESSAGE_TYPE = '".IM_MESSAGE_PRIVATE."'
 			GROUP BY M.CHAT_ID, RT.LAST_ID";
 		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		if ($arRes = $dbRes->Fetch())
@@ -1206,6 +1206,10 @@ class CIMMessage
 		{
 			$chat = new CIMChat();
 			$chatId = $chat->GetPersonalChat();
+			if (!$chatId)
+			{
+				return 0;
+			}
 
 			return $chatId;
 		}
@@ -1232,6 +1236,11 @@ class CIMMessage
 		}
 		if ($chatId <= 0)
 		{
+			if (!\Bitrix\Im\Dialog::hasAccess($fromUserId, $toUserId))
+			{
+				return 0;
+			}
+
 			$result = \Bitrix\Im\Model\ChatTable::add(Array('TYPE' => IM_MESSAGE_PRIVATE, 'AUTHOR_ID' => $fromUserId));
 			$chatId = $result->getId();
 			if ($chatId > 0)

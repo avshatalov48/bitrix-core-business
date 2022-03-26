@@ -1,13 +1,13 @@
 <?
-$MESS ['BPABL_STATE_MODIFIED'] = "Дата текущего статуса";
-$MESS ['BPABL_STATE_NAME'] = "Текущий статус бизнес-процесса";
+$MESS ['BPABL_STATE_MODIFIED_1'] = "Дата текущего статуса";
+$MESS ['BPABL_STATE_NAME_1'] = "Текущий статус бизнес-процесса";
 $MESS ['BPABL_LOG'] = "История выполнения бизнес-процесса";
-$MESS ['BPABL_TYPE_1'] = "Запущено действие '#ACTIVITY#'#NOTE#";
-$MESS ['BPABL_TYPE_2'] = "Завершено действие '#ACTIVITY#' со статусом '#STATUS#' и результатом '#RESULT#'#NOTE#";
-$MESS ['BPABL_TYPE_3'] = "Отменено действие '#ACTIVITY#'#NOTE#";
-$MESS ['BPABL_TYPE_4'] = "Ошибка действия '#ACTIVITY#'#NOTE#";
-$MESS ['BPABL_TYPE_5'] = "Действие '#ACTIVITY#'#NOTE#";
-$MESS ['BPABL_TYPE_6'] = "Что-то сделали с действием '#ACTIVITY#'#NOTE#";
+$MESS ['BPABL_TYPE_1_1'] = "Запущено действие '#ACTIVITY#'#NOTE#";
+$MESS ['BPABL_TYPE_2_1'] = "Завершено действие '#ACTIVITY#' со статусом '#STATUS#' и результатом '#RESULT#'#NOTE#";
+$MESS ['BPABL_TYPE_3_1'] = "Отменено действие '#ACTIVITY#'#NOTE#";
+$MESS ['BPABL_TYPE_4_1'] = "Ошибка действия '#ACTIVITY#'#NOTE#";
+$MESS ['BPABL_TYPE_5_1'] = "Действие '#ACTIVITY#'#NOTE#";
+$MESS ['BPABL_TYPE_6_1'] = "Что-то сделали с действием '#ACTIVITY#'#NOTE#";
 $MESS ['BPABL_STATUS_1'] = "Инициализировано";
 $MESS ['BPABL_STATUS_2'] = "Выполняется";
 $MESS ['BPABL_STATUS_3'] = "Отменяется";

@@ -298,7 +298,7 @@ StateActivity = function()
 		spn.innerHTML = ' - '+(act.Type!='EventDrivenActivity' ? HTMLEncode(act.Properties['Title']) : HTMLEncode(act.childActivities[0].Properties['Title']) );
 		ob.__seq = ob.parentActivity.Table.parentNode.appendChild(document.createElement('DIV'));
 		ob.__footer = ob.parentActivity.Table.parentNode.appendChild(document.createElement('DIV'));
-		var b = ob.__footer.appendChild(jsUtils.CreateElement('INPUT', {'type':"button", 'value': BPMESS['STATEACT_BACK']}));
+		var b = ob.__footer.appendChild(jsUtils.CreateElement('INPUT', {'type':"button", 'value': BPMESS['STATEACT_BACK_1']}));
 		b.onclick = ob.SequentialHide;
 		b.style.margin = '15px';
 		if(document.getElementById("bizprocsavebuttons"))
@@ -403,9 +403,9 @@ StateActivity = function()
 		ob.menuItems.push({'ID': '2', 'TEXT':	BPMESS['STATEACT_MENU_COMMAND'], 'ONCLICK': "__StateActivityAdd('command', '"+ob.Name+"')"});
 		ob.menuItems.push({'ID': '3', 'TEXT':	BPMESS['STATEACT_MENU_DELAY'], 'ONCLICK': "__StateActivityAdd('delay', '"+ob.Name+"')"});
 		if(!bStart)
-			ob.menuItems.push({'ID': '1', 'TEXT':	BPMESS['STATEACT_MENU_INIT'], 'ONCLICK': "__StateActivityAdd('init', '"+ob.Name+"')"});
+			ob.menuItems.push({'ID': '1', 'TEXT':	BPMESS['STATEACT_MENU_INIT_1'], 'ONCLICK': "__StateActivityAdd('init', '"+ob.Name+"')"});
 		if(!bFinish)
-			ob.menuItems.push({'ID': '5', 'TEXT':	BPMESS['STATEACT_MENU_FIN'], 'ONCLICK': "__StateActivityAdd('finish', '"+ob.Name+"')"});
+			ob.menuItems.push({'ID': '5', 'TEXT':	BPMESS['STATEACT_MENU_FIN_1'], 'ONCLICK': "__StateActivityAdd('finish', '"+ob.Name+"')"});
 
 		ob.menu.SetItems(ob.menuItems);
 		ob.menu.BuildItems();

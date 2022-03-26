@@ -84,15 +84,26 @@ export default class Image extends BaseControl
 	onImageChange(event: BaseEvent)
 	{
 		const value = this.getValue() || new BgImageValue();
-		value.setUrl(event.getData().value.src);
-		value.setFileId(event.getData().value.id);
-		if (event.getData().value.src2x)
+		if (event.getData().value.src)
 		{
-			value.setUrl2x(event.getData().value.src2x);
-			value.setFileId2x(event.getData().value.id2x);
+			value.setUrl(event.getData().value.src);
+			value.setFileId(event.getData().value.id);
+			if (event.getData().value.src2x)
+			{
+				value.setUrl2x(event.getData().value.src2x);
+				value.setFileId2x(event.getData().value.id2x);
+			}
 		}
+		else
+		{
+			value.setUrl(null);
+			value.setFileId(null);
+			value.setUrl2x(null);
+			value.setFileId2x(null);
+		}
+
 		this.setValue(value);
-		this.onChange(new BaseEvent({data: {image: value}}));
+		this.onChange();
 
 		this.saveNode(value);
 	}
@@ -102,7 +113,7 @@ export default class Image extends BaseControl
 		const style = this.options.styleNode;
 		const block = this.options.block;
 
-		let selector = style.selector;
+		let selector;
 		if (
 			style.selector === block.selector
 			|| style.selector === block.makeAbsoluteSelector(block.selector)
@@ -124,14 +135,8 @@ export default class Image extends BaseControl
 		}
 
 		const data = {[selector]: {}};
-		if (value.getFileId())
-		{
-			data[selector].id = value.getFileId();
-		}
-		if (value.getFileId2x())
-		{
-			data[selector].id2x = value.getFileId2x();
-		}
+		data[selector].id = value.getFileId() || -1;
+		data[selector].id2x = value.getFileId2x() || -1;
 
 		Backend.getInstance()
 			.action(
@@ -150,7 +155,7 @@ export default class Image extends BaseControl
 			const value = this.getValue() || new BgImageValue();
 			value.setSize(size);
 			this.setValue(value);
-			this.onChange(new BaseEvent({data: {image: value}}));
+			this.onChange();
 		}
 	}
 
@@ -163,15 +168,14 @@ export default class Image extends BaseControl
 				BgImageValue.getAttachmentValueByBool(this.attachmentField.getValue()),
 			);
 			this.setValue(value);
-			this.onChange(new BaseEvent({data: {image: value}}));
+			this.onChange();
 		}
 	}
 
 	onChange(event: ?BaseEvent)
 	{
-		// todo: can call parent?
-		// if not image - null
-		this.emit('onChange', event);
+		this.cache.delete('value');
+		this.emit('onChange', {data: {image: this.getValue()}});
 	}
 
 	getValue(): ?BgImageValue
@@ -212,34 +216,37 @@ export default class Image extends BaseControl
 
 	setValue(value: ?BgImageValue)
 	{
-		// todo: can delete prev image
-		super.setValue(value);
-
-		if (value === null)
+		if (this.isNeedSetValue(value))
 		{
-			this.imgField.setValue({src: ''}, true);
-			// todo: what set size and attachement?
-		}
-		else
-		{
-			if (value.getUrl() !== null)
-			{
-				this.setActive();
-			}
+			// todo: can delete prev image
+			super.setValue(value);
 
-			const imgFieldValue = {
-				type: 'image',
-				src: value.getUrl(),
-				id: value.getFileId(),
-			};
-			if (value.getUrl2x())
+			if (value === null)
 			{
-				imgFieldValue.src2x = value.getUrl2x();
-				imgFieldValue.id2x = value.getFileId2x();
+				this.imgField.setValue({src: ''}, true);
+				// todo: what set size and attachement?
 			}
-			this.imgField.setValue(imgFieldValue, true);
-			this.sizeField.setValue(value.getSize(), true);
-			this.attachmentField.setValue([value.getAttachment(true)]);
+			else
+			{
+				if (value.getUrl() !== null)
+				{
+					this.setActive();
+				}
+
+				const imgFieldValue = {
+					type: 'image',
+					src: value.getUrl(),
+					id: value.getFileId(),
+				};
+				if (value.getUrl2x())
+				{
+					imgFieldValue.src2x = value.getUrl2x();
+					imgFieldValue.id2x = value.getFileId2x();
+				}
+				this.imgField.setValue(imgFieldValue, true);
+				this.sizeField.setValue(value.getSize(), true);
+				this.attachmentField.setValue([value.getAttachment(true)]);
+			}
 		}
 	}
 

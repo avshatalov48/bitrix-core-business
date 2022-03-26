@@ -1,0 +1,5 @@
+<?php
+$MESS["LANDING_DEMO_STORE_CHATS_DETAIL-BACK"] = "Zurück";
+$MESS["LANDING_DEMO_STORE_CHATS_DETAIL-NAME"] = "Detaillierte Produktseite";
+$MESS["LANDING_DEMO_STORE_CHATS_DETAIL-TEXT_1"] = "Kaufen Sie jetzt!";
+$MESS["LANDING_DEMO_STORE_CHATS_DETAIL-TEXT_2"] = "Schnell. Einfach. Persönlich";

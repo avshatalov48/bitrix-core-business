@@ -116,15 +116,12 @@ this.BX = this.BX || {};
 	      var _this2 = this;
 
 	      if (this.getGridWrapper() !== undefined) {
-	        babelHelpers.classPrivateFieldSet(this, _loadingMessagesStubInGridWrapper, this.getGridWrapper().appendChild(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"mail-msg-list-grid-loader mail-msg-list-grid-loader-animate\">\n\t\t\t\t\t<div class=\"mail-msg-list-grid-loader-inner\">\n\t\t\t\t\t<div class=\"mail-msg-list-grid-loader-img\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-loader-img-inner\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-progressbar-track\">\n\t\t\t\t\t\t<div class=\"ui-progressbar-bar mail-message-grid-bar\" data-role=\"mailGridFirstLoadingUIProgressbar\"></div></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>"])))));
-	        setTimeout(function () {
-	          babelHelpers.classPrivateFieldGet(_this2, _loadingMessagesStubInGridWrapper).querySelector('[data-role="mailGridFirstLoadingUIProgressbar"]').classList.add('mail-message-grid-filling-bar');
-	        }, 0);
+	        babelHelpers.classPrivateFieldSet(this, _loadingMessagesStubInGridWrapper, this.getGridWrapper().appendChild(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"mail-msg-list-grid-loader mail-msg-list-grid-loader-animate\">\n\t\t\t\t\t\t<div class=\"mail-msg-list-grid-loader-inner\">\n\t\t\t\t\t\t\t<img src=\"/bitrix/images/mail/mail-loader.svg\" alt=\"Load...\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>"])))));
 	        setTimeout(function () {
 	          if (babelHelpers.classPrivateFieldGet(_this2, _loadingMessagesStubInGridWrapper) !== undefined) {
 	            babelHelpers.classPrivateFieldGet(_this2, _loadingMessagesStubInGridWrapper).remove();
 	          }
-	        }, 10000);
+	        }, 15000);
 	      }
 	    }
 	  }, {
@@ -239,6 +236,19 @@ this.BX = this.BX || {};
 	        var rowNode = this.getRowNodeById(ids[i]);
 	        main_core.Dom.style(rowNode, 'display', 'none');
 	      }
+	    }
+	  }, {
+	    key: "resetGridSelection",
+	    value: function resetGridSelection() {
+	      main_core_events.EventEmitter.emit(window, 'Mail::resetGridSelection');
+	      this.getGrid().getRows().unselectAll();
+	      this.getGrid().adjustCheckAllCheckboxes();
+	      this.hidePanel();
+	    }
+	  }, {
+	    key: "openGridSettingsWindow",
+	    value: function openGridSettingsWindow() {
+	      this.getGrid().getSettingsWindow()._onSettingsButtonClick();
 	    }
 	  }]);
 	  return MessageGrid;

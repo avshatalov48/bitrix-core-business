@@ -5,8 +5,13 @@ use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Errorable;
 use Bitrix\Main\ErrorableImplementation;
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Sale\Internals\FacebookConversion;
 use Bitrix\Sale\Internals\FacebookConversionParamsTable;
 use Bitrix\Main\Loader;
+use Bitrix\Sale\ShopSitesController;
+use Bitrix\Seo\BusinessSuite\Service;
+use Bitrix\Seo\Conversion\Facebook;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -17,9 +22,18 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 {
 	use ErrorableImplementation;
 
+	private $eventName;
+
+	public function __construct($component = null)
+	{
+		parent::__construct($component);
+		$this->errorCollection = new ErrorCollection();
+	}
+
 	public function executeComponent()
 	{
-		if ($this->checkEventName() && $this->checkModules() && $this->checkPermissions())
+		$this->setEventName($this->arParams['eventName']);
+		if ($this->checkComponent())
 		{
 			global $APPLICATION;
 			$APPLICATION->SetTitle(GetMessage('FACEBOOK_CONVERSION_TITLE'));
@@ -28,6 +42,11 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 		}
 
 		$this->showErrors();
+	}
+
+	private function checkComponent(): bool
+	{
+		return $this->checkEventName() && $this->checkModules() && $this->checkPermissions();
 	}
 
 	private function showErrors(): void
@@ -40,9 +59,9 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 
 	private function checkEventName(): bool
 	{
-		if (!$this->getEventName())
+		if (!in_array($this->getEventName(), $this->getAllowedEventNames(), true))
 		{
-			$this->errorCollection[] = new \Bitrix\Main\Error('Event name not found.');
+			$this->errorCollection[] = new \Bitrix\Main\Error(GetMessage('FACEBOOK_CONVERSION_ERROR_EVENT_NAME'));
 
 			return false;
 		}
@@ -50,18 +69,29 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 		return true;
 	}
 
+	private function getAllowedEventNames(): array
+	{
+		return [
+			Facebook\Event::EVENT_ADD_TO_CART,
+			Facebook\Event::EVENT_INITIATE_CHECKOUT,
+			Facebook\Event::EVENT_ADD_PAYMENT,
+			Facebook\Event::EVENT_DONATE,
+			Facebook\Event::EVENT_CONTACT,
+		];
+	}
+
 	private function checkModules(): bool
 	{
 		if (!Loader::includeModule('sale'))
 		{
-			$this->errorCollection[] = new \Bitrix\Main\Error('Module "sale" is not installed.');
+			$this->errorCollection[] = new \Bitrix\Main\Error(GetMessage('FACEBOOK_CONVERSION_ERROR_MODULE_SALE'));
 
 			return false;
 		}
 
 		if (!Loader::includeModule('seo'))
 		{
-			$this->errorCollection[] = new \Bitrix\Main\Error('Module "seo" is not installed.');
+			$this->errorCollection[] = new \Bitrix\Main\Error(GetMessage('FACEBOOK_CONVERSION_ERROR_MODULE_SEO'));
 
 			return false;
 		}
@@ -73,7 +103,7 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 	{
 		if (!CurrentUser::get()->isAdmin())
 		{
-			$this->errorCollection[] = new \Bitrix\Main\Error('Access Denied.', 'permissions');
+			$this->errorCollection[] = new \Bitrix\Main\Error(GetMessage('FACEBOOK_CONVERSION_ERROR_ACCESS_DENIED'));
 
 			return false;
 		}
@@ -90,13 +120,19 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 		$this->arResult['title'] = $this->getTitle();
 	}
 
+	private function setEventName(string $eventName): void
+	{
+		$this->eventName = $eventName;
+	}
+
 	private function getEventName(): ?string
 	{
-		return $this->arParams['eventName'] ?? null;
+		return $this->eventName;
 	}
 
 	private function getFacebookBusinessParams(): array
 	{
+		/** @var Service $service */
 		if ($service = ServiceLocator::getInstance()->get('seo.business.service'))
 		{
 			$installed = $service::getAuthAdapter($service::FACEBOOK_TYPE)->hasAuth();
@@ -130,34 +166,25 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 	private function getShopsConversionData(): array
 	{
 		$conversionShops = [];
-		$shops = $this->getShops();
+
+		$shops = ShopSitesController::getShops();
+		$facebookConversionParamsData = $this->getFacebookConversionParamsDataForCurrentEvent();
 		foreach ($shops as $shop)
 		{
-			$facebookConversionParams = FacebookConversionParamsTable::getList([
-				'filter' => [
-					'EVENT_NAME' => $this->getEventName(),
-					'LID' => $shop['LID'],
-				],
-			])->fetch();
+			$currentParamsData = $facebookConversionParamsData[$shop['LID']] ?? null;
 
-			if ($facebookConversionParams)
+			if ($currentParamsData)
 			{
-				$params = unserialize($facebookConversionParams['PARAMS'], ['allowedClasses' => false]);
+				$params = unserialize($currentParamsData['PARAMS'], ['allowedClasses' => false]);
 			}
 			else
 			{
 				$params = $this->getDefaultConversionParams();
-				FacebookConversionParamsTable::add([
-					'EVENT_NAME' => $this->getEventName(),
-					'LID' => $shop['LID'],
-					'ENABLED' => 'N',
-					'PARAMS' => serialize($params),
-				]);
 			}
 
 			$conversionShops[$shop['LID']] = [
 				'name' => $shop['NAME'],
-				'enabled' => $facebookConversionParams['ENABLED'] ?? 'N',
+				'enabled' => $currentParamsData['ENABLED'] ?? 'N',
 				'params' => $params,
 			];
 		}
@@ -165,23 +192,26 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 		return $conversionShops;
 	}
 
-	private function getShops(): array
+	private function getFacebookConversionParamsDataForCurrentEvent(): array
 	{
-		$shops = [];
-		$siteIterator = \Bitrix\Main\SiteTable::getList([
-			'select' => ['LID', 'NAME', 'SORT'],
-			'order' => ['SORT' => 'ASC'],
+		$facebookConversionParamsData = [];
+
+		$iterator = FacebookConversionParamsTable::getList([
+			'select' => ['LID', 'ENABLED', 'PARAMS'],
+			'filter' => [
+				'EVENT_NAME' => $this->getEventName(),
+			],
 		]);
-		while ($site = $siteIterator->fetch())
+
+		while ($currentParams = $iterator->fetch())
 		{
-			$saleSite = \Bitrix\Main\Config\Option::get('sale', 'SHOP_SITE_'.$site['LID']);
-			if ($site['LID'] === $saleSite)
-			{
-				$shops[] = $site;
-			}
+			$facebookConversionParamsData[$currentParams['LID']] = [
+				'ENABLED' => $currentParams['ENABLED'],
+				'PARAMS' => $currentParams['PARAMS'],
+			];
 		}
 
-		return $shops;
+		return $facebookConversionParamsData;
 	}
 
 	private function getTitle(): string
@@ -189,15 +219,15 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 		$eventName = $this->getEventName();
 		switch ($eventName)
 		{
-			case 'AddToCart':
+			case Facebook\Event::EVENT_ADD_TO_CART:
 				return GetMessage('FACEBOOK_CONVERSION_EVENT_TITLE_ADD_TO_CART');
-			case 'InitiateCheckout':
+			case Facebook\Event::EVENT_INITIATE_CHECKOUT:
 				return GetMessage('FACEBOOK_CONVERSION_EVENT_TITLE_INITIATE_CHECKOUT');
-			case 'AddPaymentInfo':
+			case Facebook\Event::EVENT_ADD_PAYMENT:
 				return GetMessage('FACEBOOK_CONVERSION_EVENT_TITLE_ADD_PAYMENT_INFO');
-			case 'CustomizeProduct':
+			case Facebook\Event::EVENT_DONATE:
 				return GetMessage('FACEBOOK_CONVERSION_EVENT_TITLE_CUSTOMIZE_PRODUCT');
-			case 'Contact':
+			case Facebook\Event::EVENT_CONTACT:
 				return GetMessage('FACEBOOK_CONVERSION_EVENT_TITLE_CONTACT');
 			default:
 				return '';
@@ -209,7 +239,7 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 		$eventName = $this->getEventName();
 		switch ($eventName)
 		{
-			case 'AddToCart':
+			case Facebook\Event::EVENT_ADD_TO_CART:
 				return [
 					'id' => 'Y',
 					'name' => 'N',
@@ -217,25 +247,25 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 					'price' => 'N',
 					'quantity' => 'N',
 				];
-			case 'InitiateCheckout':
+			case Facebook\Event::EVENT_INITIATE_CHECKOUT:
 				return [
 					'ids' => 'Y',
 					'productsGroupAndQuantity' => 'N',
 					'price' => 'N',
 					'quantity' => 'N',
 				];
-			case 'AddPaymentInfo':
+			case Facebook\Event::EVENT_ADD_PAYMENT:
 				return [
 					'ids' => 'Y',
 					'productsGroupAndQuantity' => 'N',
 					'price' => 'N',
 				];
-			case 'CustomizeProduct':
+			case Facebook\Event::EVENT_DONATE:
 				return [
 					'id' => 'Y',
 					'nameAndProperties' => 'N',
 				];
-			case 'Contact':
+			case Facebook\Event::EVENT_CONTACT:
 				return [
 					'socialNetwork' => 'N',
 					'email' => 'N',
@@ -250,36 +280,36 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 		$eventName = $this->getEventName();
 		switch ($eventName)
 		{
-			case 'AddToCart':
+			case Facebook\Event::EVENT_ADD_TO_CART:
 				return [
-					'id' => GetMessage('FACEBOOK_CONVERSION_LABEL_SEND_ID'),
-					'name' => GetMessage('FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_NAME'),
-					'group' => GetMessage('FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_GROUP'),
-					'price' => GetMessage('FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_PRICE'),
-					'quantity' => GetMessage('FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_QUANTITY'),
+					FacebookConversion::ID => GetMessage('FACEBOOK_CONVERSION_LABEL_SEND_ID'),
+					FacebookConversion::NAME => GetMessage('FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_NAME'),
+					FacebookConversion::GROUP => GetMessage('FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_GROUP'),
+					FacebookConversion::PRICE => GetMessage('FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_PRICE'),
+					FacebookConversion::QUANTITY => GetMessage('FACEBOOK_CONVERSION_LABEL_ADD_TO_CART_SEND_QUANTITY'),
 				];
-			case 'InitiateCheckout':
+			case Facebook\Event::EVENT_INITIATE_CHECKOUT:
 				return [
-					'ids' => GetMessage('FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ID'),
-					'productsGroupAndQuantity' => GetMessage('FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_PRODUCTS_GROUP_AND_QUANTITY'),
-					'price' => GetMessage('FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ORDER_PRICE'),
-					'quantity' => GetMessage('FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ORDER_PRODUCTS_TOTAL_QUANTITY'),
+					FacebookConversion::IDS => GetMessage('FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ID'),
+					FacebookConversion::PRODUCTS_GROUP_AND_QUANTITY => GetMessage('FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_PRODUCTS_GROUP_AND_QUANTITY'),
+					FacebookConversion::PRICE => GetMessage('FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ORDER_PRICE'),
+					FacebookConversion::QUANTITY => GetMessage('FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ORDER_PRODUCTS_TOTAL_QUANTITY'),
 				];
-			case 'AddPaymentInfo':
+			case Facebook\Event::EVENT_ADD_PAYMENT:
 				return [
-					'ids' => GetMessage('FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ID'),
-					'productsGroupAndQuantity' => GetMessage('FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_PRODUCTS_GROUP_AND_QUANTITY'),
-					'price' => GetMessage('FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ORDER_PRICE'),
+					FacebookConversion::IDS => GetMessage('FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ID'),
+					FacebookConversion::PRODUCTS_GROUP_AND_QUANTITY => GetMessage('FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_PRODUCTS_GROUP_AND_QUANTITY'),
+					FacebookConversion::PRICE => GetMessage('FACEBOOK_CONVERSION_LABEL_INITIATE_CHECKOUT_SEND_ORDER_PRICE'),
 				];
-			case 'CustomizeProduct':
+			case Facebook\Event::EVENT_DONATE:
 				return [
-					'id' => GetMessage('FACEBOOK_CONVERSION_LABEL_SEND_ID'),
-					'nameAndProperties' => GetMessage('FACEBOOK_CONVERSION_LABEL_CUSTOMIZE_PRODUCT_SEND_NAME_AND_PROPERTIES'),
+					FacebookConversion::ID => GetMessage('FACEBOOK_CONVERSION_LABEL_SEND_ID'),
+					FacebookConversion::NAME_AND_PROPERTIES => GetMessage('FACEBOOK_CONVERSION_LABEL_CUSTOMIZE_PRODUCT_SEND_NAME_AND_PROPERTIES'),
 				];
-			case 'Contact':
+			case Facebook\Event::EVENT_CONTACT:
 				return [
-					'socialNetwork' => GetMessage('FACEBOOK_CONVERSION_LABEL_CONTACT_SEND_SOCIAL_NETWORK'),
-					'email' => GetMessage('FACEBOOK_CONVERSION_LABEL_CONTACT_SEND_EMAIL'),
+					FacebookConversion::SOCIAL_NETWORK => GetMessage('FACEBOOK_CONVERSION_LABEL_CONTACT_SEND_SOCIAL_NETWORK'),
+					FacebookConversion::EMAIL => GetMessage('FACEBOOK_CONVERSION_LABEL_CONTACT_SEND_EMAIL'),
 				];
 			default:
 				return [];
@@ -288,12 +318,14 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 
 	public function changeParamStateAction(string $eventName, string $shopId, string $paramName, string $state): void
 	{
-		if ($paramName === 'id' || $paramName === 'ids' || !$this->checkModules() || !$this->checkPermissions())
+		$this->setEventName($eventName);
+		if ($paramName === 'id' || $paramName === 'ids' || !$this->checkComponent())
 		{
 			return;
 		}
 
 		$facebookConversionParams = FacebookConversionParamsTable::getList([
+			'select' => ['ID', 'PARAMS'],
 			'filter' => [
 				'EVENT_NAME' => $eventName,
 				'LID' => $shopId,
@@ -316,12 +348,14 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 
 	public function changeShopEnabledStateAction(string $eventName, string $shopId, string $enabled): void
 	{
-		if (!$this->checkModules() || !$this->checkPermissions())
+		$this->setEventName($eventName);
+		if (!$this->checkComponent())
 		{
 			return;
 		}
 
 		$facebookConversionParams = FacebookConversionParamsTable::getList([
+			'select' => ['ID'],
 			'filter' => [
 				'EVENT_NAME' => $eventName,
 				'LID' => $shopId,
@@ -336,6 +370,15 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 					'ENABLED' => $enabled,
 				]
 			);
+		}
+		else
+		{
+			FacebookConversionParamsTable::add([
+				'EVENT_NAME' => $this->getEventName(),
+				'LID' => $shopId,
+				'ENABLED' => $enabled,
+				'PARAMS' => serialize($this->getDefaultConversionParams()),
+			]);
 		}
 
 		if ($this->isFacebookConversionEventEnabled($eventName))
@@ -362,16 +405,16 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 	{
 		switch ($eventName)
 		{
-			case 'AddToCart':
+			case Facebook\Event::EVENT_ADD_TO_CART:
 				$this->registerAddToCartEventHandler();
 				break;
-			case 'InitiateCheckout':
+			case Facebook\Event::EVENT_INITIATE_CHECKOUT:
 				$this->registerInitiateCheckoutEventHandler();
 				break;
-			case 'AddPaymentInfo':
+			case Facebook\Event::EVENT_ADD_PAYMENT:
 				$this->registerAddPaymentInfoEventHandler();
 				break;
-			case 'Contact':
+			case Facebook\Event::EVENT_CONTACT:
 				$this->registerContactEventHandler();
 				break;
 		}
@@ -381,16 +424,16 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 	{
 		switch ($eventName)
 		{
-			case 'AddToCart':
+			case Facebook\Event::EVENT_ADD_TO_CART:
 				$this->unregisterAddToCartEventHandler();
 				break;
-			case 'InitiateCheckout':
+			case Facebook\Event::EVENT_INITIATE_CHECKOUT:
 				$this->unregisterInitiateCheckoutEventHandler();
 				break;
-			case 'AddPaymentInfo':
+			case Facebook\Event::EVENT_ADD_PAYMENT:
 				$this->unregisterAddPaymentInfoEventHandler();
 				break;
-			case 'Contact':
+			case Facebook\Event::EVENT_CONTACT:
 				$this->unregisterContactEventHandler();
 				break;
 		}

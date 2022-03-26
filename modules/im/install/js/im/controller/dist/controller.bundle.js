@@ -305,7 +305,7 @@ this.BX = this.BX || {};
 	      this.timer.start('writesSend', dialogId, 5, function (id) {
 	        _this3.controller.restClient.callMethod(im_const.RestMethod.imDialogWriting, {
 	          'DIALOG_ID': dialogId
-	        }).catch(function () {
+	        })["catch"](function () {
 	          _this3.timer.stop('writes', dialogId);
 	        });
 	      });
@@ -342,7 +342,7 @@ this.BX = this.BX || {};
 	          _this4.tempJoinChat['wait'] = false;
 	          _this4.tempJoinChat[dialogId] = true;
 	          return resolve(dialogId);
-	        }).catch(function () {
+	        })["catch"](function () {
 	          _this4.tempJoinChat['wait'] = false;
 	          return reject();
 	        });
@@ -477,7 +477,7 @@ this.BX = this.BX || {};
 	                  dialogId: dialogId,
 	                  lastId: lastId
 	                });
-	              }).catch(function () {
+	              })["catch"](function () {
 	                return resolve({
 	                  dialogId: dialogId,
 	                  lastId: lastId
@@ -485,7 +485,7 @@ this.BX = this.BX || {};
 	              });
 	            });
 	          }
-	        }).catch(function () {
+	        })["catch"](function () {
 	          resolve();
 	        });
 	      });
@@ -540,7 +540,7 @@ this.BX = this.BX || {};
 	            'MESSAGE_ID': _this7.messageLastReadId[chatId]
 	          });
 	        }
-	      }).catch(function () {});
+	      })["catch"](function () {});
 	    }
 	  }, {
 	    key: "shareMessage",
@@ -582,14 +582,9 @@ this.BX = this.BX || {};
 	  return ApplicationController;
 	}();
 
-	/**
-	 * Bitrix im
-	 * Core controller class
-	 *
-	 * @package bitrix
-	 * @subpackage mobile
-	 * @copyright 2001-2020 Bitrix
-	 */
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var Controller = /*#__PURE__*/function () {
 	  /* region 01. Initialize and store data */
 	  function Controller() {
@@ -622,7 +617,7 @@ this.BX = this.BX || {};
 	      return _this.initEnvironment();
 	    }).then(function () {
 	      return _this.initComplete();
-	    }).catch(function (error) {
+	    })["catch"](function (error) {
 	      im_lib_logger.Logger.error('error initializing core controller', error);
 	    });
 	  }
@@ -641,7 +636,7 @@ this.BX = this.BX || {};
 	        this.localize = params.localize;
 	      } else {
 	        if (typeof BX !== 'undefined') {
-	          this.localize = babelHelpers.objectSpread({}, BX.message);
+	          this.localize = _objectSpread({}, BX.message);
 	        } else {
 	          this.localize = {};
 	        }
@@ -793,12 +788,12 @@ this.BX = this.BX || {};
 	        host: this.getHost()
 	      })).addModel(im_model.FilesModel.create().useDatabase(this.vuexBuilder.database).setVariables({
 	        host: this.getHost(),
-	        default: {
+	        "default": {
 	          name: 'File is deleted'
 	        }
 	      })).addModel(im_model.UsersModel.create().useDatabase(this.vuexBuilder.database).setVariables({
 	        host: this.getHost(),
-	        default: {
+	        "default": {
 	          name: 'Anonymous'
 	        }
 	      })).addModel(im_model.RecentModel.create().useDatabase(false).setVariables({
@@ -1168,7 +1163,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "addLocalize",
 	    value: function addLocalize(phrases) {
-	      if (babelHelpers.typeof(phrases) !== "object" || !phrases) {
+	      if (babelHelpers["typeof"](phrases) !== "object" || !phrases) {
 	        return false;
 	      }
 

@@ -210,14 +210,25 @@ class BlogPost extends Provider
 			}
 			else
 			{
-				$perms = \CBlogPost::getSocNetPostPerms([
-					'POST_ID' => $post['ID'],
-					'NEED_FULL' => true,
-					'USER_ID' => false,
-					'POST_AUTHOR_ID' => $post['AUTHOR_ID'],
-					'PUBLIC' => false,
-					'LOG_ID' => false,
-				]);
+				if (
+					!empty($post['BLOG_ID'])
+					&& ModuleManager::isModuleInstalled('idea')
+					&& (int)$post['BLOG_ID'] === $this->getIdeaBlogId()
+				)
+				{
+					$perms = \CBlogPost::getBlogUserPostPerms($post['ID'], (int)$USER->getId());
+				}
+				else
+				{
+					$perms = \CBlogPost::getSocNetPostPerms([
+						'POST_ID' => $post['ID'],
+						'NEED_FULL' => true,
+						'USER_ID' => false,
+						'POST_AUTHOR_ID' => $post['AUTHOR_ID'],
+						'PUBLIC' => false,
+						'LOG_ID' => false,
+					]);
+				}
 
 				if ($perms >= BLOG_PERMS_FULL)
 				{
@@ -231,6 +242,32 @@ class BlogPost extends Provider
 		}
 
 		return $result;
+	}
+
+	protected function getIdeaBlogId(array $params = []): ?int
+	{
+		static $resultCache = [];
+
+		if (!ModuleManager::isModuleInstalled('idea'))
+		{
+			return null;
+		}
+
+		$siteId = ($params['siteId'] ?: SITE_ID);
+
+		if (isset($resultCache[$siteId]))
+		{
+			return $resultCache[$siteId];
+		}
+
+		$resultCache[$siteId] = null;
+
+		if ($blogFields = \CBlog::getByUrl('idea_' . $siteId))
+		{
+			$resultCache[$siteId] = (int)$blogFields['ID'];
+		}
+
+		return $resultCache[$siteId];
 	}
 
 	public function getLiveFeedUrl(BlogPostService $service = null): string

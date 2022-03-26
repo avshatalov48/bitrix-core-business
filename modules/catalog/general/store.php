@@ -9,34 +9,114 @@ class CAllCatalogStore
 {
 	protected static function CheckFields($action, &$arFields)
 	{
+		global $DB;
+		global $USER;
+
+		if ($action !== 'ADD' && $action !== 'UPDATE')
+		{
+			return false;
+		}
+
+		$currentUserId = false;
+		if (isset($USER) && $USER instanceof CUser)
+		{
+			$currentUserId = (int)$USER->GetID();
+			if ($currentUserId <= 0)
+			{
+				$currentUserId = false;
+			}
+		}
+
+		if ($action === 'ADD')
+		{
+			$arFields += [
+				'ACTIVE' => 'Y',
+				'IMAGE_ID' => false,
+				'LOCATION_ID' => false,
+				'ISSUING_CENTER' => 'N',
+				'SHIPPING_CENTER' => 'N',
+				'SITE_ID' => false,
+				'CODE' => false,
+				'IS_DEFAULT' => 'N',
+			];
+
+			$allowList = [
+				'TITLE' => true,
+				'ACTIVE' => true,
+				'ADDRESS' => true,
+				'DESCRIPTION' => true,
+				'GPS_N' => true,
+				'GPS_S' => true,
+				'IMAGE_ID' => true,
+				'LOCATION_ID' => true,
+				'USER_ID' => true,
+				'MODIFIED_BY' => true,
+				'PHONE' => true,
+				'SCHEDULE' => true,
+				'XML_ID' => true,
+				'SORT' => true,
+				'EMAIL' => true,
+				'ISSUING_CENTER' => true,
+				'SHIPPING_CENTER' => true,
+				'SITE_ID' => true,
+				'CODE' => true,
+				'IS_DEFAULT' => true,
+			];
+		}
+		else
+		{
+			$allowList = [
+				'TITLE' => true,
+				'ACTIVE' => true,
+				'ADDRESS' => true,
+				'DESCRIPTION' => true,
+				'GPS_N' => true,
+				'GPS_S' => true,
+				'IMAGE_ID' => true,
+				'LOCATION_ID' => true,
+				'MODIFIED_BY' => true,
+				'PHONE' => true,
+				'SCHEDULE' => true,
+				'XML_ID' => true,
+				'SORT' => true,
+				'EMAIL' => true,
+				'ISSUING_CENTER' => true,
+				'SHIPPING_CENTER' => true,
+				'SITE_ID' => true,
+				'CODE' => true,
+				'IS_DEFAULT' => true,
+			];
+		}
+
+		$arFields = array_intersect_key($arFields, $allowList);
+		$arFields['~DATE_MODIFY'] = $DB->GetNowFunction();
+		$arFields['MODIFIED_BY'] = $arFields['MODIFIED_BY'] ?? $currentUserId;
+		if ($action === 'ADD')
+		{
+			$arFields['~DATE_CREATE'] = $DB->GetNowFunction();
+			$arFields['USER_ID'] = $arFields['USER_ID'] ?? $currentUserId;
+		}
+
 		if (array_key_exists("ADDRESS", $arFields) && (string)$arFields["ADDRESS"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("CS_EMPTY_ADDRESS"));
-			$arFields["ADDRESS"] = ' ';
+			return false;
 		}
 
 		if ($action == 'ADD')
 		{
-			if (array_key_exists('IMAGE_ID', $arFields))
+			$arFields['IMAGE_ID'] = (int)$arFields['IMAGE_ID'];
+			if ($arFields['IMAGE_ID'] <= 0)
 			{
-				$arFields['IMAGE_ID'] = (int)$arFields['IMAGE_ID'];
-				if ($arFields['IMAGE_ID'] <= 0)
-				{
-					$arFields['IMAGE_ID'] = false;
-				}
+				$arFields['IMAGE_ID'] = false;
 			}
-			if (array_key_exists('LOCATION_ID', $arFields))
+
+			$arFields['LOCATION_ID'] = (int)$arFields['LOCATION_ID'];
+			if ($arFields['LOCATION_ID'] <= 0)
 			{
-				$arFields['LOCATION_ID'] = (int)$arFields['LOCATION_ID'];
-				if ($arFields['LOCATION_ID'] <= 0)
-				{
-					$arFields['IMAGE_ID'] = false;
-				}
+				$arFields['LOCATION_ID'] = false;
 			}
 		}
-
-		if(($action == 'UPDATE') && is_set($arFields, "ID"))
-			unset($arFields["ID"]);
 
 		if ($action == 'UPDATE')
 		{
@@ -71,10 +151,16 @@ class CAllCatalogStore
 		}
 		if(isset($arFields["SITE_ID"]) && ($arFields["SITE_ID"]) === '0')
 		{
-			$arFields["SITE_ID"] = '';
+			$arFields["SITE_ID"] = false;
 		}
 		if (isset($arFields['CODE']) && $arFields['CODE'] === '')
+		{
 			$arFields['CODE'] = false;
+		}
+		if (isset($arFields['IS_DEFAULT']) && ($arFields['IS_DEFAULT']) !== 'Y')
+		{
+			$arFields['IS_DEFAULT'] = 'N';
+		}
 
 		return true;
 	}
@@ -91,17 +177,6 @@ class CAllCatalogStore
 			if (ExecuteModuleEventEx($arEvent, array($id, &$arFields))===false)
 				return false;
 		}
-
-		if(array_key_exists('DATE_CREATE',$arFields))
-			unset($arFields['DATE_CREATE']);
-		if(array_key_exists('DATE_MODIFY', $arFields))
-			unset($arFields['DATE_MODIFY']);
-		if(array_key_exists('DATE_STATUS', $arFields))
-			unset($arFields['DATE_STATUS']);
-		if(array_key_exists('CREATED_BY', $arFields))
-			unset($arFields['CREATED_BY']);
-
-		$arFields['~DATE_MODIFY'] = $DB->GetNowFunction();
 
 		if (!self::CheckFields('UPDATE', $arFields))
 			return false;
@@ -290,10 +365,10 @@ class CAllCatalogStore
 					{
 						$data = [
 							'fields' => [
-								'QUANTITY' => -$products[$rowId]['QUANTITY_RESERVED']
+								'QUANTITY' => ($rowData['QUANTITY_RESERVED'] != 0 ? -$rowData['QUANTITY_RESERVED'] : 0)
 							],
 							'external_fields' => [
-								'IBLOCK_ID' => $products[$rowId]['IBLOCK_ID']
+								'IBLOCK_ID' => $rowData['IBLOCK_ID']
 							]
 						];
 						$resultInternal = Catalog\Model\Product::update($rowId, $data);

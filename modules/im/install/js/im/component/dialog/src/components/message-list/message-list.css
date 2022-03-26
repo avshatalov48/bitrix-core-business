@@ -30,7 +30,7 @@
 	bottom: 0;
 	width: 55px;
 	height: 55px;
-	z-index: 1;
+	z-index: 100;
 	-webkit-tap-highlight-color: transparent;
 	outline: none;
 }

@@ -1,0 +1,25 @@
+<?php
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_1"] = "Включити складський облік";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_2"] = "Відключити складський облік";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_3"] = "Новий";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_4"] = "складський облік у Бітрікс24";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_5"] = "Усі основні документи";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_6"] = "Підтримка складського обліку в CRM";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_7"] = "Єдиний каталог товарів із CRM";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_8"] = "Необмежена кількість товарів";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_9"] = "Необмежена кількість складів";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_10"] = "Необмежена кількість співробітників складу";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_11"] = "Сканер штрихкодів у мобільному застосунку";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_12"] = "Скасувати";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_13"] = "Скинути залишки";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_14"] = "Обнулення залишків";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_15"] = "Знайдено товари з ненульовим залишком. Для включення складського обліку необхідно обнулити залишки.";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_16"] = "Ви зможете внести залишки товарів після включення складського обліку.";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_17"] = "Включити та перенести дані з інших систем";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_18"] = "Недостатньо прав для включення складського обліку";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_CLOSE"] = "Закрити";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_CONDUCTED_DOCUMENTS_EXIST"] = "Знайдено проведені складські документи. Не можна відключити складський облік за наявності проведених документів.";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE"] = "Відключити";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_CONFIRMATION_TEXT"] = "Ви точно хочете відключити складський облік? Проведення документів буде недоступним.";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_POPUP_TITLE"] = "Відключення складського обліку";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_ENABLED"] = "Складський облік включений";

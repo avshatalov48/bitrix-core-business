@@ -81,6 +81,11 @@ export class ProductCalculator
 		return this.#getSetting('quantityPrecision', ProductCalculator.DEFAULT_PRECISION);
 	}
 
+	calculateBasePrice(value: number): FieldScheme
+	{
+		return this.#strategy.calculateBasePrice(value);
+	}
+
 	calculatePrice(value: number): FieldScheme
 	{
 		return this.#strategy.calculatePrice(value);

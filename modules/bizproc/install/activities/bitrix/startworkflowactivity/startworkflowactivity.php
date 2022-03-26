@@ -157,7 +157,7 @@ class CBPStartWorkflowActivity
 		{
 			$this->WriteToTrackingService(
 				$realDocumentType
-					? GetMessage("BPSWFA_DOCTYPE_ERROR")
+					? GetMessage("BPSWFA_DOCTYPE_ERROR_1")
 					: GetMessage("BPSWFA_DOCTYPE_NOT_FOUND_ERROR")
 				,
 				0,
@@ -386,7 +386,7 @@ class CBPStartWorkflowActivity
 			$errors[] = [
 				"code" => "AccessDenied",
 				"parameter" => "Admin",
-				"message" => GetMessage("BPSWFA_ACCESS_DENIED"),
+				"message" => GetMessage("BPSWFA_ACCESS_DENIED_1"),
 			];
 
 			return array_merge($errors, parent::ValidateProperties($testProperties, $user));

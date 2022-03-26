@@ -12,3 +12,48 @@
 .landing-ui-access-error-message-text {
 	max-width: 500px;
 }
+
+.landing-ui-hide-action-panels-form .landing-ui-panel-content-action,
+.landing-ui-hide-action-panels-form .landing-ui-panel-block-action {
+	display: none!important;
+}
+
+.landing-ui-hide-action-panels-form .landing-ui-panel-create-action {
+	display: block!important;
+}
+
+.landing-ui-panel-base-preset .ui-btn-success:focus {
+	outline: none;
+}
+
+.landing-ui-panel-state-content-load::after,
+.landing-ui-panel-state-body-load::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 9000;
+}
+
+.landing-ui-panel-base-preset .landing-ui-field-preset-layout {
+	top: -2px;
+}
+
+.landing-ui-panel-base-preset > .landing-ui-expert-switcher {
+	position: absolute;
+	left: 20px;
+	bottom: 75px;
+	display: flex;
+	align-items: center;
+}
+
+.landing-ui-panel-mode-transparent .landing-ui-expert-switcher {
+	display: none;
+}
+
+.landing-ui-panel-base-preset > .landing-ui-expert-switcher .landing-ui-expert-switcher-label {
+	cursor: pointer;
+	padding-left: 10px;
+}

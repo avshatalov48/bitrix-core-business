@@ -1,4 +1,10 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 if (!CModule::IncludeModule("forum")):
 	ShowError(GetMessage("F_NO_MODULE"));
 	return false;
@@ -124,7 +130,7 @@ elseif ($arParams["MODE"] == "USER")
 	$arResult["TOPIC"] = array();
 	$arResult["FORUM"] = CForumNew::GetByID($arParams["FID"]);
 	$arParams["PERMISSION_ORIGINAL"] = ForumCurrUserPermissions($arParams["FID"]);
-	$arParams["PERMISSION"] = "A";
+	$arParams['PERMISSION'] = \Bitrix\Forum\Permission::ACCESS_DENIED;
 
 	$arError = array();
 	$arNote = array();
@@ -136,8 +142,6 @@ elseif ($arParams["MODE"] == "USER")
 				Main Data & Permissions
 ********************************************************************/
 
-	$bCurrentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin();
-
 	if (empty($arResult["FORUM"])):
 		ShowError(GetMessage("F_FID_IS_LOST"));
 		CHTTP::SetStatus("404 Not Found");
@@ -147,29 +151,10 @@ elseif ($arParams["MODE"] == "USER")
 		ShowError(GetMessage("FORUM_SONET_MODULE_NOT_AVAIBLE"));
 		return false;
 	else:
-		$user_id = $USER->GetID();
-		if ($arParams["MODE"] == "GROUP")
-		{
-			if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "full", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "Y";
-			elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "newtopic", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "M";
-			elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "answer", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "I";
-			elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "view", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "E";
-		}
-		else
-		{
-			if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "full", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "Y";
-			elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "newtopic", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "M";
-			elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "answer", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "I";
-			elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "view", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "E";
-		}
+		$arParams['PERMISSION'] = \Bitrix\Socialnetwork\Helper\Forum\ComponentHelper::getForumPermission([
+			'ENTITY_TYPE' => ($arParams['MODE'] === 'GROUP' ? SONET_ENTITY_GROUP : SONET_ENTITY_USER),
+			'ENTITY_ID' => ($arParams['MODE'] === 'GROUP' ? $arParams['SOCNET_GROUP_ID'] : $arParams['USER_ID']),
+		]);
 	endif;
 
 	if ($arParams["SHOW_VOTE"] == "Y")
@@ -683,10 +668,11 @@ endif;
 				Standart Action
 ********************************************************************/
 $this->IncludeComponentTemplate();
-return array(
+
+return [
 	"FORUM" => $arResult["FORUM"],
 	"TOPIC" => $arResult["TOPIC"],
 	"MESSAGE" => $arResult["MESSAGE_VIEW"],
 	"bVarsFromForm" => ($bVarsFromForm ? "Y" : "N"),
-	"PERMISSION" => $arParams["PERMISSION"]);
-?>
+	"PERMISSION" => $arParams["PERMISSION"]
+];

@@ -164,7 +164,7 @@ class Spotlight
 	private function getRegisterDate($userId)
 	{
 		$user = $this->getUser($userId);
-		return $user ? $user["DATE_REGISTER"]->getTimestamp() : false;
+		return $user && isset($user["DATE_REGISTER"]) ? $user["DATE_REGISTER"]->getTimestamp() : false;
 	}
 
 	private function getUserId($userId = false)

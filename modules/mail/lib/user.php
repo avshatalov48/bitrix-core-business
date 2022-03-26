@@ -241,25 +241,17 @@ class User
 		return array($forwardTo);
 	}
 
-	/**
-	 * Sends email related events
-	 *
-	 * @param string $to Recipient email.
-	 * @param array $message Message.
-	 * @param string &$error Error.
-	 * @return bool
-	 */
-	public static function onEmailReceived($to, $message, &$error)
+	public static function parseEmailRecipient($to)
 	{
 		if (!preg_match('/^(?<type>rpl|fwd)(?<token>[a-z0-9]+)@(?<domain>.+)/i', $to, $matches))
 		{
-			$error = sprintf('Invalid recipient (%s)', $to);
 			return false;
 		}
+		return $matches;
+	}
 
-		$type  = $matches['type'];
-		$token = $matches['token'];
-
+	public static function getUserRelation($token)
+	{
 		$userRelation = UserRelationsTable::getList(array(
 			'filter' => array(
 				'=TOKEN'      => $token,
@@ -269,9 +261,24 @@ class User
 
 		if (!$userRelation)
 		{
-			$error = sprintf('Unknown recipient (%s)', $to);
 			return false;
 		}
+
+		return $userRelation;
+	}
+
+	/**
+	 * Sends email related events
+	 *
+	 * @param string $to Recipient email.
+	 * @param array $message Message.
+	 * @param string &$error Error.
+	 * @return bool
+	 */
+	public static function onEmailReceived($to, $message, $recipient, $userRelation, &$error)
+	{
+		$type  = $recipient['type'];
+		$token = $recipient['token'];
 
 		$message['secret'] = $token;
 

@@ -1,4 +1,4 @@
-import {Dom, Event, Tag} from 'main.core';
+import {Dom, Event, Runtime, Tag} from 'main.core';
 import isHex from '../../internal/is-hex';
 import ColorValue from "../../color_value";
 
@@ -19,7 +19,7 @@ export default class Hex extends BaseControl
 		this.setEventNamespace('BX.Landing.UI.Field.Color.Hex');
 		this.previewMode = false;
 
-		this.onInput = this.onInput.bind(this);
+		this.onInput = Runtime.debounce(this.onInput.bind(this), 300);
 		this.onButtonClick = this.onButtonClick.bind(this);
 	}
 
@@ -37,6 +37,8 @@ export default class Hex extends BaseControl
 			Event.bind(this.getButton(), 'click', this.onButtonClick);
 		}
 
+		this.adjustColors(Hex.DEFAULT_COLOR, Hex.DEFAULT_BG);
+
 		return Tag.render`
 			<div class="landing-ui-field-color-hex">
 				${this.getInput()}
@@ -49,8 +51,8 @@ export default class Hex extends BaseControl
 	{
 		return this.cache.remember('input', () => {
 			return this.previewMode
-				? Tag.render`<div class="landing-ui-field-color-hex-preview"></div>`
-				: Tag.render`<input type="text" name="hexInput" value="" class="landing-ui-field-color-hex-input">`;
+				? Tag.render`<div class="landing-ui-field-color-hex-preview">${Hex.DEFAULT_TEXT}</div>`
+				: Tag.render`<input type="text" name="hexInput" value="${Hex.DEFAULT_TEXT}" class="landing-ui-field-color-hex-input">`;
 		});
 	}
 
@@ -97,6 +99,7 @@ export default class Hex extends BaseControl
 			: null;
 		this.setValue(color);
 
+		this.cache.delete('value');
 		this.emit('onChange', {color: color});
 	}
 
@@ -119,6 +122,14 @@ export default class Hex extends BaseControl
 		}
 	}
 
+	unFocus(): void
+	{
+		if (!this.previewMode)
+		{
+			this.getInput().blur();
+		}
+	}
+
 	getValue(): ?ColorValue
 	{
 		return this.cache.remember('value', () => {
@@ -130,26 +141,30 @@ export default class Hex extends BaseControl
 
 	setValue(value: ?ColorValue)
 	{
-		super.setValue(value);
+		// todo: set checking in always controls?
+		if (this.isNeedSetValue(value))
+		{
+			super.setValue(value);
 
-		if (value !== null)
-		{
-			this.adjustColors(value.getContrast().getHex(), value.getHex());
-			this.setActive();
-		}
-		else
-		{
-			this.adjustColors(Hex.DEFAULT_COLOR, Hex.DEFAULT_BG);
-			this.unsetActive();
-		}
+			if (value !== null)
+			{
+				this.adjustColors(value.getContrast().getHex(), value.getHex());
+				this.setActive();
+			}
+			else
+			{
+				this.adjustColors(Hex.DEFAULT_COLOR, Hex.DEFAULT_BG);
+				this.unsetActive();
+			}
 
-		if (this.previewMode)
-		{
-			this.getInput().innerText = (value !== null) ? value.getHex() : Hex.DEFAULT_TEXT;
-		}
-		else if (PageObject.getRootWindow().document.activeElement !== this.getInput())
-		{
-			this.getInput().value = (value !== null) ? value.getHex() : Hex.DEFAULT_TEXT;
+			if (this.previewMode)
+			{
+				this.getInput().innerText = (value !== null) ? value.getHex() : Hex.DEFAULT_TEXT;
+			}
+			else if (PageObject.getRootWindow().document.activeElement !== this.getInput())
+			{
+				this.getInput().value = (value !== null) ? value.getHex() : Hex.DEFAULT_TEXT;
+			}
 		}
 	}
 

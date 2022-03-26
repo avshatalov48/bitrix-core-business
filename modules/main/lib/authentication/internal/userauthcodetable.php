@@ -20,9 +20,9 @@ use Bitrix\Main\ORM\Fields;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_UserAuthCode_Query query()
- * @method static EO_UserAuthCode_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserAuthCode_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_UserAuthCode_Result getById($id)
- * @method static EO_UserAuthCode_Result getList(array $parameters = array())
+ * @method static EO_UserAuthCode_Result getList(array $parameters = [])
  * @method static EO_UserAuthCode_Entity getEntity()
  * @method static \Bitrix\Main\Authentication\Internal\EO_UserAuthCode createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\Authentication\Internal\EO_UserAuthCode_Collection createCollection()

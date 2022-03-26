@@ -20,8 +20,8 @@ class LandingBlocksPhoneButtonComponent extends \CBitrixComponent
 	 */
 	public function executeComponent(): void
 	{
-		$this->arParams['TITLE'] = $this->arParams['TITLE'] ?? 'Contact us';
-		$this->arParams['BUTTON_TITLE'] = $this->arParams['BUTTON_TITLE'] ?? 'Contact';
+		$this->arParams['TITLE'] = $this->arParams['~TITLE'] ?? 'Contact us';
+		$this->arParams['BUTTON_TITLE'] = $this->arParams['~BUTTON_TITLE'] ?? 'Contact';
 
 		$this->arResult['CONTACTS'] = CrmContacts::getContacts();
 

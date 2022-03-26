@@ -4,11 +4,11 @@ namespace Bitrix\Iblock\UserField\Types;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type;
+use Bitrix\Iblock;
 use CDBResult;
 use CUserTypeManager;
 use CIBlockSectionEnum;
-
-Loc::loadMessages(__FILE__);
 
 /**
  * Class SectionType
@@ -38,8 +38,12 @@ class SectionType extends ElementType
 	public static function onSearchIndex(array $userField): string
 	{
 		$res = '';
+		if (!isset($userField['VALUE']))
+		{
+			return $res;
+		}
 
-		if(is_array($userField['VALUE']))
+		if (is_array($userField['VALUE']))
 		{
 			$val = $userField['VALUE'];
 		}
@@ -48,31 +52,31 @@ class SectionType extends ElementType
 			$val = [$userField['VALUE']];
 		}
 
-		$val = array_filter($val, 'strlen');
+		Type\Collection::normalizeArrayValuesByInt($val);
 
-		if(count($val) && Loader::includeModule('iblock'))
+		if (!empty($val) && Loader::includeModule('iblock'))
 		{
-			$ob = new \CIBlockSection();
-			$rs = $ob->GetList(
-				['left_margin' => 'asc'],
-				['=ID' => $val],
-				false,
-				['NAME']
-			);
-
-			while($ar = $rs->Fetch())
+			$iterator = Iblock\SectionTable::getList([
+				'select' => [
+					'NAME',
+					'LEFT_MARGIN',
+				],
+				'filter' => [
+					'@ID' => $val,
+				],
+				'order' => [
+					'LEFT_MARGIN' => 'ASC',
+				],
+			]);
+			while ($row = $iterator->fetch())
 			{
-				$res .= $ar['NAME'] . '\r\n';
+				$res .= $row['NAME'] . "\r\n";
 			}
+			unset($row, $iterator);
 		}
+		unset($val);
 
 		return $res;
-	}
-
-	public static function renderField(array $userField, ?array $additionalParameters = []): string
-	{
-		static::getEnumList($userField);
-		return parent::renderField($userField, $additionalParameters);
 	}
 
 	/**
@@ -99,8 +103,9 @@ class SectionType extends ElementType
 	}
 
 	/**
-	 * @param array $userField
+	 * @param array &$userField
 	 * @param array $additionalParameters
+	 * @return void
 	 */
 	public static function getEnumList(array &$userField, array $additionalParameters = []): void
 	{
@@ -160,6 +165,11 @@ class SectionType extends ElementType
 		$userField['USER_TYPE']['FIELDS'] = $result;
 	}
 
+	/**
+	 * @param array $userField
+	 * @param array $additionalParameters
+	 * @return array|string
+	 */
 	public static function getDefaultValue(array $userField, array $additionalParameters = [])
 	{
 		$value = ($userField['SETTINGS']['DEFAULT_VALUE'] ?? '');

@@ -10,6 +10,9 @@ return [
 	'rel' => [
 		'landing.ui.panel.content',
 		'landing.ui.button.sidebarbutton',
+		'landing.ui.card.iconlistcard',
+		'landing.ui.button.basebutton',
+		'landing.ui.field.textfield',
 		'landing.loc',
 		'main.core',
 	],

@@ -46,6 +46,34 @@ export class ConfidentialitySelector
 				firstItemSelected = true;
 			}
 		});
+
+		this.bindEvents();
+	}
+
+	bindEvents()
+	{
+		WorkgroupForm.getInstance().subscribe('onSwitchExtranet', ConfidentialitySelector.onSwitchExtranet);
+	}
+
+	static onSwitchExtranet(event)
+	{
+		const data = event.getData();
+		if (!Type.isBoolean(data.isChecked))
+		{
+			return;
+		}
+
+		if (data.isChecked)
+		{
+			ConfidentialitySelector.unselectAll();
+			ConfidentialitySelector.select('secret')
+			ConfidentialitySelector.disableAll();
+			ConfidentialitySelector.enable('secret')
+		}
+		else
+		{
+			ConfidentialitySelector.enableAll();
+		}
 	}
 
 	selectItem(selector: Element)

@@ -1880,6 +1880,8 @@ class CAllMailMessage
 
 			if ($message_body_html)
 			{
+				CUtil::AdjustPcreBacktrackLimit($message_body_html);
+				
 				$msg = array(
 					'html'        => $message_body_html,
 					'attachments' => array(),
@@ -3011,6 +3013,36 @@ class CMailFilter
 		ini_set("track_errors", $prev);
 	}
 
+	public static function CheckConditionTypes($fields)
+	{
+		if(is_set($fields, 'CONDITIONS'))
+		{
+			$errors = [];
+
+			$whiteList = [
+				'TYPE',
+				'STRINGS',
+				'COMPARE_TYPE',
+				'ID',
+				'FILTER_ID',
+			];
+
+			foreach ($fields['CONDITIONS'] as $item)
+			{
+				foreach ($item as $key => $value)
+				{
+					if(!in_array($key, $whiteList))
+					{
+						$errors[] = array("id"=>"INVALID_CONDITION_TYPE", "text"=> GetMessage("MAIL_INVALID_CONDITION_TYPE"));
+						$GLOBALS["APPLICATION"]->ThrowException(new CAdminException($errors));
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+
 	public static function CheckFields($arFields, $ID=false)
 	{
 		$err_cnt = CMailError::ErrCount();
@@ -3062,6 +3094,11 @@ class CMailFilter
 
 	public static function Add($arFields)
 	{
+		if(!CMailFilter::CheckConditionTypes($arFields))
+		{
+			return false;
+		}
+
 		global $DB;
 
 		if(is_set($arFields, "ACTIVE") && $arFields["ACTIVE"]!="Y")
@@ -3095,6 +3132,11 @@ class CMailFilter
 
 	public static function Update($ID, $arFields)
 	{
+		if(!CMailFilter::CheckConditionTypes($arFields))
+		{
+			return false;
+		}
+
 		global $DB;
 		$ID = intval($ID);
 
@@ -3882,6 +3924,11 @@ class CMailFilterCondition
 
 	public static function Add($arFields)
 	{
+		if(!CMailFilter::CheckConditionTypes($arFields))
+		{
+			return false;
+		}
+
 		global $DB;
 
 		if(is_set($arFields, "COMPARE_TYPE") && $arFields["COMPARE_TYPE"]!="EQUAL" && $arFields["COMPARE_TYPE"]!="NOT_EQUAL" && $arFields["COMPARE_TYPE"]!="NOT_CONTAIN" && $arFields["COMPARE_TYPE"]!="REGEXP")
@@ -3894,6 +3941,11 @@ class CMailFilterCondition
 
 	public static function Update($ID, $arFields)
 	{
+		if(!CMailFilter::CheckConditionTypes($arFields))
+		{
+			return false;
+		}
+
 		global $DB;
 		$ID = intval($ID);
 

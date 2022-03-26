@@ -1,0 +1,116 @@
+.catalog-warehouse-master-clear.ui-page-slider-wrapper {
+	background: #eef2f4 url('images/catalog-warehouse-master-clear-bg.png') bottom right no-repeat !important;
+	background-size: contain !important;
+}
+
+.catalog-warehouse-master-clear .ui-side-panel-wrap-workarea,
+.catalog-warehouse-master-clear #workarea-content {
+	background-color: transparent;
+	overflow: visible;
+}
+
+.catalog-warehouse-master-clear-container {
+	padding: 50px 37px 0 37px;
+}
+
+.catalog-warehouse-master-clear-title {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 47px;
+}
+
+.catalog-warehouse-master-clear-title-text--new {
+	position: relative;
+	display: inline-block;
+	margin-right: 12px;
+	padding-right: 40px;
+	font: 38px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #fb3c1a;
+}
+
+.catalog-warehouse-master-clear-title-text--new:after {
+	content: '';
+	position: absolute;
+	top: 3px;
+	right: 0;
+	width: 30px;
+	height: 41px;
+	background-image: url("data:image/svg+xml,%3Csvg width='30' height='41' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cellipse cx='15.375' cy='32.352' rx='11.625' ry='8.148' fill='url(%23a)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M20.192 25.314c-.082 1.814-.323 2.876-1.467 3.858.326-1.587 1.707-6.134-5.807-10.894 1.67 9.63-13.879 12.325-1.057 22.071-2.953-6.79 2.288-5.951 2.451-11.92 2.614 2.342 3.306 3.893 2.326 6.689 1.061-.378 1.756-.738 2.41-2.023 1.144 2.72.332 5.2-.98 7.405 6.756-2.158 8.118-8.918 2.124-15.186Z' fill='url(%23b)'/%3E%3Cpath d='M23.378 12.931c-.142 3.204-.563 5.08-2.552 6.816.567-2.803 2.968-10.838-10.1-19.247 1.583 9.268-5.708 15.399-8.85 21.952-2.627 5.477-2.17 11.561 7.013 17.041-5.135-11.996 3.979-10.514 4.263-21.059 4.545 4.138 5.75 6.877 4.044 11.816 1.846-.667 3.055-1.302 4.191-3.572 1.99 4.805.578 9.187-1.703 13.081 11.75-3.812 14.117-15.756 3.694-26.828Z' fill='url(%23c)'/%3E%3Cdefs%3E%3ClinearGradient id='a' x1='36.942' y1='32.676' x2='22.909' y2='2.223' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23fff'/%3E%3Cstop offset='1' stop-color='%23F9E900'/%3E%3C/linearGradient%3E%3ClinearGradient id='b' x1='24' y1='18.278' x2='24' y2='40.5' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23F7CC00'/%3E%3Cstop offset='1' stop-color='%23F9E900'/%3E%3C/linearGradient%3E%3ClinearGradient id='c' x1='38.02' y1='36.756' x2='6.624' y2='45.245' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23F93000'/%3E%3Cstop offset='1' stop-color='%23FF5752'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E");
+}
+
+.catalog-warehouse-master-clear-title-text {
+	font: 38px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #202020;
+}
+
+.catalog-warehouse-master-clear-main {
+	padding: 65px 50px 43px 50px;
+	background: rgba(255,255,255,.88);
+	box-shadow: 0 12px 12px rgba(0, 0, 0, .05);
+	border-radius: 20px;
+	box-sizing: border-box;
+}
+
+.catalog-warehouse-master-clear-inner {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 69px;
+}
+
+.catalog-warehouse-master-clear-ul {
+	padding: 0;
+	margin: 0 21px 0 0;
+}
+
+.catalog-warehouse-master-clear-ul-item {
+	position: relative;
+	padding-left: 16px;
+	margin-bottom: 18px;
+	list-style: none;
+	font: 18px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.catalog-warehouse-master-clear-ul-item:last-child {
+	margin-bottom: 0;
+}
+
+.catalog-warehouse-master-clear-ul-item:before {
+	content: '';
+	position: absolute;
+	top: 10px;
+	left: 0;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: #2fc6f6;
+	opacity: .2;
+}
+
+.catalog-warehouse-master-clear-img {
+	height: 317px;
+	width: 505px;
+	background: url('images/catalog-warehouse-master-clear-img.png') top center no-repeat;
+	background-size: contain;
+}
+
+.catalog-warehouse-master-clear-btn-box {
+	padding-top: 33px;
+	border-top: 1px solid rgba(0,0,0,.1);
+	text-align: center;
+}
+
+.catalog-warehouse-master-clear-popup-content {
+	padding: 0 7px;
+	border-bottom: 1px solid #edeef0;
+}
+
+.catalog-warehouse-master-clear-popup-content h3 {
+	margin: 7px 0 12px;
+}
+
+.catalog-warehouse-master-clear-popup-text {
+	margin-bottom: 12px;
+	font: 13px/17px"Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #828b95;
+}

@@ -90,7 +90,7 @@ class CIMNotify
 				elseif ($DB->type == "ORACLE")
 					$sqlLimit = " AND M.DATE_CREATE > SYSDATE-30";
 
-				$strSql = $DB->TopSql($strSql, 20);
+				$strSql = $DB->TopSql($strSql, 100);
 				$dbRes = $DB->Query(str_replace("#LIMIT#", $sqlLimit, $strSql), false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			}
 			else

@@ -1,10 +1,24 @@
-.landing-ui-field-color-transparent {
-	position: relative;
+.landing-ui-field-color-zeroing {
 	cursor: pointer;
 	user-select: none;
+	display: flex;
+	border-bottom: 1px solid rgba(82,92,105,.1);
+	padding-bottom: 14px;
+	margin-bottom: 14px;
 }
 
-.landing-ui-field-color-transparent:before {
+.landing-ui-field-color-zeroing-preview {
+	display: block;
+	width: 16px;
+	height: 16px;
+	border-radius: 2px;
+	background: white;
+	margin-right: 7px;
+	position: relative;
+	border: 1px solid #C5C8CC;
+}
+
+.landing-ui-field-color-zeroing-preview:before {
 	content: '';
 	position: absolute;
 	top: 37%;
@@ -13,4 +27,16 @@
 	height: 13px;
 	background-color: #c85d63;
 	transform: rotate(-45deg) translate(-50%,-50%);
+}
+
+.landing-ui-field-color-zeroing.active .landing-ui-field-color-zeroing-state {
+	content: '';
+	position: absolute;
+	right: -4px;
+	bottom: -3px;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	background-image: url("data:image/svg+xml,%3Csvg width='15' height='15' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Crect fill='%23FFF' width='14.819' height='14.819' rx='7.409'/%3E%3Cpath fill='%232FC6F6' d='M6.593 8.333l4.19-4.141 1.39 1.44-5.559 5.56-.021-.023-.022.023-3.398-3.415 1.39-1.44z'/%3E%3C/g%3E%3C/svg%3E");
+	box-shadow: 0 2px 4px 0 rgba(0,0,0,.11);
 }

@@ -66,6 +66,13 @@ class CMailMessageActionsComponent extends CBitrixComponent
 			return;
 		}
 
+		$accessModel = Mail\MessageAccess::createByMessageId($message['ID'], (int)$USER->GetID());
+		if (!$accessModel->canModifyMessage())
+		{
+			$this->includeComponentTemplate('disabled');
+			return;
+		}
+
 		if (!Mail\Helper\Message::hasAccess($message))
 		{
 			$this->includeComponentTemplate('disabled');

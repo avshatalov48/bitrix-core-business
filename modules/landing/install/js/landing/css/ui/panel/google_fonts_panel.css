@@ -93,13 +93,18 @@
 	pointer-events: none;
 }
 
-
-.landing-ui-panel-google-fonts .landing-ui-panel-content-body-content {
+.landing-ui-panel-fonts-list {
 	display: flex;
 	flex-wrap: wrap;
 	padding: 0;
 	border: 0;
-	contain: strict;
+}
+
+.landing-ui-panel-fonts-pagination {
+	display: flex;
+	justify-content: center;
+	padding-top: 20px;
+	padding-bottom: 20px;
 }
 
 .landing-ui-font-preview.cell {
@@ -176,7 +181,7 @@
 }
 
 .landing-ui-font-full-preview-item-header {
-	font-family: 'OpenSans-Regular', Helvetca, Arial, sans-sarif;
+	font-family: 'OpenSans-Regular', Helvetca, Arial, sans-serif;
 	line-height: 40px;
 	border-bottom: 2px rgba(0, 0, 0, 1) solid;
 }
@@ -266,4 +271,11 @@ only screen and (min-resolution: 2dppx) {
 
 .main-ui-loader {
 	contain: layout paint;
+}
+
+.landing-ui-fonts-panel-empty-stub {
+	width: 100%;
+	padding-top: 60px;
+	padding-bottom: 60px;
+	text-align: center;
 }

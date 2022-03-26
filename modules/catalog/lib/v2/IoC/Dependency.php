@@ -22,6 +22,10 @@ use Bitrix\Catalog\v2\Section\SectionFactory;
 use Bitrix\Catalog\v2\Section\SectionRepositoryContract;
 use Bitrix\Catalog\v2\Sku\SkuFactory;
 use Bitrix\Catalog\v2\Sku\SkuRepositoryContract;
+use Bitrix\Catalog\v2\Barcode\BarcodeFactory;
+use Bitrix\Catalog\v2\Barcode\BarcodeRepositoryContract;
+use Bitrix\Catalog\v2\StoreProduct\StoreProductFactory;
+use Bitrix\Catalog\v2\StoreProduct\StoreProductRepositoryContract;
 use Bitrix\Main\NotSupportedException;
 
 /**
@@ -64,6 +68,12 @@ final class Dependency
 
 	public const MEASURE_RATIO_FACTORY = MeasureRatioFactory::class;
 	public const MEASURE_RATIO_REPOSITORY = MeasureRatioRepositoryContract::class;
+
+	public const BARCODE_FACTORY = BarcodeFactory::class;
+	public const BARCODE_REPOSITORY = BarcodeRepositoryContract::class;
+
+	public const STORE_PRODUCT_FACTORY = StoreProductFactory::class;
+	public const STORE_PRODUCT_REPOSITORY = StoreProductRepositoryContract::class;
 
 	private function __construct()
 	{

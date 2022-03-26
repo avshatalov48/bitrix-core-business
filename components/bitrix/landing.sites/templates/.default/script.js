@@ -152,7 +152,8 @@
 								(
 									data.result[0].error === 'PUBLIC_SITE_REACHED' ||
 									data.result[0].error === 'TOTAL_SITE_REACHED' ||
-									data.result[0].error === 'PUBLIC_PAGE_REACHED'
+									data.result[0].error === 'PUBLIC_PAGE_REACHED' ||
+									data.result[0].error === 'PUBLIC_SITE_REACHED_FREE'
 								)
 							)
 							{
@@ -160,11 +161,19 @@
 								{
 									top.BX.UI.InfoHelper.show('limit_sites_number_page');
 								}
+								else if (data.result[0].error === 'PUBLIC_SITE_REACHED_FREE')
+								{
+									top.BX.UI.InfoHelper.show('limit_sites_free');
+								}
 								else
 								{
 									if (this.siteType === 'STORE')
 									{
 										top.BX.UI.InfoHelper.show('limit_shop_number');
+									}
+									else if (this.siteType === 'KNOWLEDGE')
+									{
+										top.BX.UI.InfoHelper.show('limit_knowledge_base_number_page');
 									}
 									else
 									{

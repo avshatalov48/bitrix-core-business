@@ -957,16 +957,7 @@ abstract class ElementList extends Base
 		$filterFields = parent::getFilter();
 		$filterFields['ACTIVE'] = 'Y';
 
-		if (
-			(
-				$this->isIblockCatalog
-				|| (
-					$this->isMultiIblockMode()
-					|| (!$this->isMultiIblockMode() && $this->offerIblockExist($this->arParams['IBLOCK_ID']))
-				)
-			)
-			&& $this->arParams['HIDE_NOT_AVAILABLE'] === 'Y'
-		)
+		if ($this->arParams['HIDE_NOT_AVAILABLE'] === 'Y')
 		{
 			$filterFields['AVAILABLE'] = 'Y';
 		}
@@ -1937,7 +1928,7 @@ abstract class ElementList extends Base
 			'js' => array(
 				'cookiePrefix' => \COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM'),
 				'cookieDomain' => Main\Web\Cookie::getCookieDomain(),
-				'serverTime' => time()
+				'serverTime' => $count > 0 ? time() : 0,
 			),
 			'params' => $this->getBigDataServiceRequestParams(($this->arParams['RCM_TYPE'] ?? ''))
 		);

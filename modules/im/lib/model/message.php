@@ -170,6 +170,11 @@ class MessageTable extends Main\Entity\DataManager
 				'reference' => array('=this.ID' => 'ref.MESSAGE_ID'),
 				'join_type' => 'INNER',
 			),
+			'UUID' => array(
+				'data_type' => \Bitrix\Im\Model\MessageUuidTable::class,
+				'reference' => array('=this.ID' => 'ref.MESSAGE_ID'),
+				'join_type' => 'LEFT',
+			),
 		);
 	}
 	/**

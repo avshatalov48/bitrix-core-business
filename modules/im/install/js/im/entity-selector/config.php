@@ -73,6 +73,10 @@ return [
 							'supertitle' => Loc::getMessage('IM_ENTITY_SELECTOR_SUPPORT24_NOTIFIER_SUPERTITLE'),
 							'textColor' => '#0165af',
 						],
+						'SUPPORT24_QUESTION' => [
+							'supertitle' => Loc::getMessage('IM_ENTITY_SELECTOR_SUPPORT24_QUESTION_SUPERTITLE'),
+							'textColor' => '#0165af',
+						],
 						'LINES' => [
 							'supertitle' => Loc::getMessage('IM_ENTITY_SELECTOR_LINES_SUPERTITLE'),
 							'textColor' => '#0a962f'
@@ -89,6 +93,12 @@ return [
 				'options' => [
 					'dynamicLoad' => true,
 					'dynamicSearch' => true,
+				],
+			],
+			[
+				'id' => 'im-recent',
+				'options' => [
+					'dynamicLoad' => true,
 				],
 			],
 		],

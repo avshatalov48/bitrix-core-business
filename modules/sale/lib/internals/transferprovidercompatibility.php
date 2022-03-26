@@ -1031,4 +1031,60 @@ class TransferProviderCompatibility extends TransferProviderBase
 
 		return $result;
 	}
+
+	/**
+	 * @param array $products
+	 *
+	 * @return Sale\Result
+	 * @throws Main\ObjectNotFoundException
+	 */
+	public function getAvailableQuantityByStore(array $products)
+	{
+		$result = $this->getAvailableQuantity($products);
+
+		$resultData = $result->getData();
+		if (!array_key_exists('AVAILABLE_QUANTITY_LIST', $resultData))
+		{
+			return $result;
+		}
+
+		$quantityByStore = [];
+
+		foreach ($products as $productId => $item)
+		{
+			$quantityByStore[$productId] = $this->distributeQuantityByStore(
+				$item['QUANTITY_LIST_BY_STORE'],
+				$resultData['AVAILABLE_QUANTITY_LIST'][$productId]
+			);
+		}
+
+		return $result->setData(['AVAILABLE_QUANTITY_LIST_BY_STORE' => $quantityByStore]);
+	}
+
+	private function distributeQuantityByStore($needQuantityList, $availableQuantity) : array
+	{
+		$result = [];
+
+		foreach ($needQuantityList as $quantityByStore)
+		{
+			if (is_array($quantityByStore))
+			{
+				foreach ($quantityByStore as $storeId => $quantity)
+				{
+					if (abs($quantity) < abs($availableQuantity))
+					{
+						$result[$storeId] = $quantity;
+						$availableQuantity -= $quantity;
+					}
+					else
+					{
+						$result[$storeId] = $availableQuantity;
+						$availableQuantity = 0;
+					}
+				}
+			}
+		}
+
+		return $result;
+	}
 }

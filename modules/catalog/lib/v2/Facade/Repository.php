@@ -27,7 +27,14 @@ final class Repository
 			return null;
 		}
 
-		return $this->loadFromProductRepository($iblockId, $productId);
+		try
+		{
+			return $this->loadFromProductRepository($iblockId, $productId);
+		}
+		catch (\Bitrix\Main\SystemException $e)
+		{}
+
+		return null;
 	}
 
 	public function loadVariation(int $skuId): ?BaseSku
@@ -44,18 +51,23 @@ final class Repository
 			return null;
 		}
 
-		if ($iblockInfo->getProductIblockId() === $iblockId)
+		try
 		{
-			$product = $this->loadFromProductRepository($iblockId, $skuId);
-			if ($product)
+			if ($iblockInfo->getProductIblockId() === $iblockId)
 			{
-				return $product->getSkuCollection()->getFirst();
+				$product = $this->loadFromProductRepository($iblockId, $skuId);
+				if ($product)
+				{
+					return $product->getSkuCollection()->getFirst();
+				}
+			}
+			else
+			{
+				return $this->loadFromSkuRepository($iblockId, $skuId);
 			}
 		}
-		else
-		{
-			return $this->loadFromSkuRepository($iblockId, $skuId);
-		}
+		catch (\Bitrix\Main\SystemException $e)
+		{}
 
 		return null;
 	}

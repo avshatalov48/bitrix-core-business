@@ -55,7 +55,7 @@ class Json
 		self::checkException();
 
 		// PHP<5.3.3 returns no error for JSON_ERROR_UTF8 and some other ones
-		if($res === null && ToLower($data) != 'null')
+		if($res === null && strtolower($data) != 'null')
 		{
 			self::throwException(self::JSON_ERROR_UNKNOWN);
 		}

@@ -7,7 +7,6 @@ import Colorpicker from "../colorpicker/colorpicker";
 import Preset from '../../layout/preset/preset';
 import PresetCollection from '../../layout/preset/preset_collection';
 import Reset from '../../layout/reset/reset';
-import Zeroing from '../../layout/zeroing/zeroing';
 
 import Generator from '../../layout/preset/generator';
 import './css/color_set.css';
@@ -24,15 +23,6 @@ export default class ColorSet extends BaseControl
 			this.emit('onReset');
 		});
 
-		this.zeroing = new Zeroing();
-		this.zeroing.subscribe('onChange', (event) => {
-			this.unsetActive();
-			this.setValue(event.getData().color);
-			// todo: need reload computed props and reinit
-
-			this.onChange(event);
-		});
-
 		this.blackAndWhitePreset = new Preset(Generator.getBlackAndWhitePreset());
 		this.blackAndWhitePreset.subscribe('onChange', (event) => {
 			this.preset.unsetActive();
@@ -44,26 +34,36 @@ export default class ColorSet extends BaseControl
 			this.preset.unsetActive();
 			this.blackAndWhitePreset.unsetActive();
 
+			const color = event.getData().color;
+			if (this.preset.isPresetValue(color))
+			{
+				this.preset.setActiveValue(color);
+				this.colorpicker.unsetActive();
+			}
+			else if (this.blackAndWhitePreset.isPresetValue(color))
+			{
+				this.blackAndWhitePreset.setActiveValue(color);
+				this.colorpicker.unsetActive();
+			}
+
 			this.onChange(event);
 		});
 
 		this.presets = new PresetCollection(options);
 		this.presets.subscribe('onChange', (event) => {
-			this.setPreset(event.getData().preset);
+			this.setPreset(this.presets.getPresetById(event.getData().presetId));
 		});
 		this.presets.addDefaultPresets();
-		const preset = this.presets.getActivePreset() || this.presets.getDefaultPreset();
+		const preset = this.presets.getActivePreset();
 		if (preset)
 		{
 			this.setPreset(preset);
-			// todo: what if not preset?
 		}
 	}
 
 	buildLayout(): HTMLDivElement
 	{
 		Dom.append(this.reset.getLayout(), this.presets.getTitleContainer());
-		Dom.prepend(this.zeroing.getLayout(), this.blackAndWhitePreset.getLayout());
 
 		return Tag.render`
 			<div class="landing-ui-field-color-colorset">
@@ -123,6 +123,11 @@ export default class ColorSet extends BaseControl
 		return this.preset;
 	}
 
+	getPresetsCollection(): ?PresetCollection
+	{
+		return this.presets;
+	}
+
 	onPresetItemChange(event: BaseEvent)
 	{
 		this.colorpicker.setValue(event.getData().color);
@@ -145,22 +150,26 @@ export default class ColorSet extends BaseControl
 
 	setValue(value: ?ColorValue)
 	{
-		super.setValue(value);
-		this.colorpicker.setValue(value);
+		if (this.isNeedSetValue(value))
+		{
+			super.setValue(value);
+			this.colorpicker.setValue(value);
 
-		const activePreset =
-			this.presets.getActiveId()
-				? this.presets.getPresetById(this.presets.getActiveId())
-				: this.presets.getPresetByItemValue(value);
-		if (activePreset !== null)
-		{
-			this.setPreset(activePreset);
-			this.presets.setActiveItem(activePreset.getId());
-		}
-		if (value !== null && this.blackAndWhitePreset.isPresetValue(value))
-		{
-			this.unsetActive();
-			this.blackAndWhitePreset.setActiveValue(value);
+			const activePreset =
+				this.presets.getGlobalActiveId()
+					? this.presets.getPresetById(this.presets.getGlobalActiveId())
+					: this.presets.getPresetByItemValue(value);
+			if (activePreset !== null)
+			{
+				this.setPreset(activePreset);
+				this.presets.setActiveItem(activePreset.getId());
+			}
+
+			if (value !== null && this.blackAndWhitePreset.isPresetValue(value))
+			{
+				this.unsetActive();
+				this.blackAndWhitePreset.setActiveValue(value);
+			}
 		}
 	}
 

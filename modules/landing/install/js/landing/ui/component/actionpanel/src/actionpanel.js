@@ -40,6 +40,11 @@ export class ActionPanel extends EventEmitter
 		{
 			Dom.append(this.getLayout(), this.options.renderTo);
 		}
+
+		if (Type.isPlainObject(this.options.style))
+		{
+			Dom.style(this.getLayout(), this.options.style);
+		}
 	}
 
 	getLayout(): HTMLDivElement

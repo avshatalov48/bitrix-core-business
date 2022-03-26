@@ -126,7 +126,9 @@ CREATE TABLE IF NOT EXISTS b_rest_event_offline
 	ERROR INT(3) NULL DEFAULT 0,
 	PRIMARY KEY (ID),
 	UNIQUE INDEX ux_b_rest_event_offline1 (MESSAGE_ID(50), APP_ID, CONNECTOR_ID(100), PROCESS_ID(50)),
-	INDEX ix_b_rest_event_offline2 (TIMESTAMP_X)
+	INDEX ix_b_rest_event_offline2 (TIMESTAMP_X),
+	INDEX ix_b_rest_event_offline3 (APP_ID, CONNECTOR_ID),
+	INDEX ix_b_rest_event_offline4 (PROCESS_ID)
 );
 
 CREATE TABLE IF NOT EXISTS b_rest_stat_method

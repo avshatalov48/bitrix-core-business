@@ -342,8 +342,7 @@
 			scrSpy.watchNode(this.node.main);
 
 			this.initNavigationEvents();
-			if (this.params["SHOW_POST_FORM"] === "Y")
-				this.initPostFormActivity();
+			this.initPostFormActivity();
 
 			for (var ii = 0; ii < this.bindEvents.length; ii++)
 			{
@@ -387,8 +386,15 @@
 			}
 		},
 		initPostFormActivity : function() {
-			this.privateEvents["onReply"] = this.reply.bind(this);
+
 			this.privateEvents["onAct"] = this.act.bind(this);
+
+			if (this.params['SHOW_POST_FORM'] !== 'Y')
+			{
+				return
+			}
+
+			this.privateEvents["onReply"] = this.reply.bind(this);
 			this.privateEvents["onQuote"] = this.quote.bind(this);
 
 			this.hideWriter = this.hideWriter.bind(this);
@@ -1952,6 +1958,7 @@
 		var entityXmlId = el.getAttribute('bx-mpl-post-entity-xml-id');
 		if (
 			el.getAttribute('bx-mpl-edit-show') == 'Y'
+			&& BX.Tasks
 			&& BX.Tasks.ResultAction
 			&& entityXmlId.indexOf('TASK_') === 0
 			&& BX.Tasks.ResultAction.getInstance().canCreateResult(+/\d+/.exec(entityXmlId))
@@ -1963,8 +1970,8 @@
 			if (
 				result
 				&& result.context === 'task'
-				&& result.isResult(parseInt(ID, 10))
-				&& !result.isClosed
+				&& result.canUnsetAsResult
+				&& result.canUnsetAsResult(parseInt(ID, 10))
 			)
 			{
 				panels.push({
@@ -1979,7 +1986,8 @@
 			else if (
 				result
 				&& result.context === 'task'
-				&& !result.isResult(parseInt(ID, 10))
+				&& result.canSetAsResult
+				&& result.canSetAsResult(parseInt(ID, 10))
 			)
 			{
 				panels.push({

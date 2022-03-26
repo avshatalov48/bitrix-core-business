@@ -5,11 +5,10 @@
 
 .landing-ui-panel-base-preset {
 	position: absolute;
-	height: calc(100vh - 62px);
+	height: calc(100vh - 66px);
 	-webkit-transform: none;
 	    -ms-transform: none;
 	        transform: none;
-	contain: none;
 }
 
 .landing-ui-panel-base-preset .landing-ui-panel-content-header {
@@ -55,6 +54,9 @@
 	        flex-grow: 1;
 	margin-right: 60px;
 	margin-top: 17px;
+	-webkit-box-align: end;
+	    -ms-flex-align: end;
+	        align-items: end;
 }
 
 .landing-ui-panel-base-preset-header-controls-left {
@@ -81,10 +83,36 @@
 }
 
 .landing-ui-panel-mode-transparent .landing-ui-panel-content-body-content {
+	position: relative;
 	background-color: transparent;
 	padding-left: 0;
 	padding-right: 0;
 	overflow-y: visible;
+}
+
+.landing-ui-panel-base-preset .landing-ui-panel-content-body-content::after {
+	background-color: #ffffff;
+	content: '';
+	position: fixed;
+	top: 73px;
+	left: 288px;
+	right: 23px;
+	bottom: 63px;
+	z-index: 90;
+	-webkit-transition: 200ms opacity ease;
+	-o-transition: 200ms opacity ease;
+	transition: 200ms opacity ease;
+	pointer-events: none;
+	opacity: 0;
+}
+
+.landing-ui-panel-base-preset .landing-ui-panel-base-preset-fade.landing-ui-panel-content-body-content::after {
+	pointer-events: all;
+	opacity: .5;
+}
+
+.landing-ui-panel-base-preset .main-ui-loader {
+	z-index: 9000;
 }
 
 .landing-ui-panel-mode-transparent .landing-ui-panel-content-header::before {
@@ -95,6 +123,10 @@
 .landing-ui-panel-base-preset .landing-ui-panel-content-body-content,
 .landing-ui-panel-base-preset .landing-ui-panel-content-body-sidebar {
 	overflow-y: auto;
+}
+.landing-ui-panel-base-preset .landing-ui-field-preset-layout {
+	position: relative;
+	top: -3px;
 }
 .landing-ui-presets-category {
 	padding-bottom: 12px;
@@ -175,6 +207,7 @@
 	position: relative;
 	background-position: center;
 	background-repeat: no-repeat;
+	background-size: 28px 28px;
 	-ms-flex-item-align: center;
 	    align-self: center;
 	min-width: 58px;
@@ -196,7 +229,7 @@
 }
 
 .landing-ui-panel-preset-text-title {
-	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-sarif, serif;
+	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-serif, serif;
 	font-size: 14px;
 	color: #333333;
 	line-height: 17px;
@@ -227,7 +260,7 @@
 }
 
 .landing-ui-panel-preset-soon-label {
-	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-sarif, serif;
+	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-serif, serif;
 	background: #3BC6F3;
 	border-radius: 11px;
 	font-size: 9px;

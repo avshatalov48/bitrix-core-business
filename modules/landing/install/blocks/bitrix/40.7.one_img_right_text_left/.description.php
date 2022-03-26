@@ -32,6 +32,7 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_7_IMG'),
 			'type' => 'img',
 			'dimensions' => ['width' => 540],
+			'create2xByDefault' => false,
 		],
 		'.landing-block-link' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_7_LINK'),

@@ -1,6 +1,5 @@
-import {Reflection, Runtime, Tag, Text, Type} from 'main.core';
+import {Runtime, Tag, Text, Type} from 'main.core';
 import './component.css';
-import {BaseEvent, EventEmitter} from "main.core.events";
 import {ProductSelector} from 'catalog.product-selector';
 
 export class ProductImageInput
@@ -15,13 +14,8 @@ export class ProductImageInput
 		}
 
 		this.config = options.config || {};
-		this.setView(options.view);
 
-		if (Type.isStringFilled(options.inputHtml))
-		{
-			this.setInputHtml(options.inputHtml);
-		}
-		else
+		if (!Type.isStringFilled(this.selector.getModel()?.getImageCollection().getEditInput()))
 		{
 			this.restoreDefaultInputHtml();
 		}
@@ -41,25 +35,27 @@ export class ProductImageInput
 		this.id = id;
 	}
 
-	setView(html)
+	setView(html): void
 	{
-		this.view = Type.isStringFilled(html) ? html : '';
+		this.selector.getModel()?.getImageCollection().setPreview(html);
 	}
 
-	setInputHtml(html)
+	setInputHtml(html): void
 	{
-		this.inputHtml = Type.isStringFilled(html) ? html : '';
+		this.selector.getModel()?.getImageCollection().setEditInput(html);
 	}
 
-	restoreDefaultInputHtml()
+	restoreDefaultInputHtml(): void
 	{
-		this.inputHtml = `
+		const defaultInput = `
 			<div class='ui-image-input-container ui-image-input-img--disabled'>
 				<div class='adm-fileinput-wrapper '>
 					<div class='adm-fileinput-area mode-pict adm-fileinput-drag-area'></div>
 				</div>
 			</div>
 `		;
+
+		this.selector.getModel()?.getImageCollection().setEditInput(defaultInput);
 	}
 
 	isViewMode(): boolean
@@ -72,11 +68,16 @@ export class ProductImageInput
 		return this.enableSaving;
 	}
 
-	layout()
+	layout(): HTMLElement
 	{
 		const imageContainer = Tag.render`<div></div>`;
+		const html =
+			this.isViewMode()
+				? this.selector.getModel()?.getImageCollection()?.getPreview()
+				: this.selector.getModel()?.getImageCollection()?.getEditInput()
+		;
 
-		Runtime.html(imageContainer, this.isViewMode() ? this.view : this.inputHtml);
+		Runtime.html(imageContainer, html);
 
 		return imageContainer;
 	}

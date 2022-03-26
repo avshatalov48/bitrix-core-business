@@ -243,7 +243,7 @@ class CIMSettings
 			}
 			if ($type === self::SETTINGS)
 			{
-				return (new General($userId))->getValue($value);
+				return General::createWithUserId($userId)->getValue($value);
 			}
 		}
 
@@ -264,8 +264,7 @@ class CIMSettings
 		{
 			$clientId = $clientId === self::CLIENT_MAIL ? Notification::MAIL : $clientId;
 
-			$notification = new Notification($moduleId, $eventId);
-			return $notification->isAllowed($userId, $clientId);
+			return Manager::getNotifyAccess($userId, $moduleId, $eventId, $clientId);
 		}
 
 		$notifySettingName = $clientId.'|'.$moduleId.'|'.$eventId;
@@ -529,7 +528,7 @@ class CIMSettings
 
 		if (Manager::isSettingsMigrated() || Manager::isUserMigrated($userId))
 		{
-			return (new General($userId))->getValue($type);
+			return General::createWithUserId($userId)->getValue($type);
 		}
 
 		$ar = CIMSettings::Get($userId);

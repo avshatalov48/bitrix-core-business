@@ -97,7 +97,7 @@ return array(
 				),
 				'.landing-block-node-text' => array(
 					0 => array(
-						'text' => '<a href="tel:#PHONE1#">#PHONE1#</a>',
+						'text' => '<a href="tel:#crmPhone1">#crmPhoneTitle1</a>',
 					),
 				),
 			),

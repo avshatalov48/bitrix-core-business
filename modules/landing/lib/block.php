@@ -92,7 +92,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	/**
 	 * Default setting for block wrapper style, if not set manifest[styles][block] section
 	 */
-	protected const DEFAULT_WRAPPER_STYLE = ['block-default'];
+	public const DEFAULT_WRAPPER_STYLE = ['block-default'];
 
 	/**
 	 * Internal class.
@@ -216,10 +216,10 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	protected $public = false;
 
 	/**
-	 * Public or not current block.
-	 * @var boolean
+	 * This block allowed or not by tariff.
+	 * @var bool
 	 */
-	protected $block = false;
+	protected $allowedByTariff = true;
 
 	/**
 	 * Document root.
@@ -247,6 +247,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		'landing_form',
 		'landing_carousel',
 		'landing_google_maps_new',
+		'landing_map',
 		'landing_countdown',
 		'landing_gallery_cards',
 		'landing_chat'
@@ -315,7 +316,10 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		}
 
 		// fill meta data
-		$keys = ['CREATED_BY_ID', 'MODIFIED_BY_ID', 'DATE_CREATE', 'DATE_MODIFY', 'SITE_TYPE'];
+		$keys = [
+			'LID', 'FAVORITE_META', 'CREATED_BY_ID', 'DATE_CREATE',
+			'MODIFIED_BY_ID', 'DATE_MODIFY', 'SITE_TYPE'
+		];
 		foreach ($keys as $key)
 		{
 			if (isset($data[$key]))
@@ -403,7 +407,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					$row,
 					$blockParams
 				);
-				if (!$editMode && $block->getRepoId())
+				if ($block->getRepoId())
 				{
 					$repo[] = $block->getRepoId();
 				}
@@ -430,15 +434,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				}
 				if ($editMode)
 				{
-					if (!$allowedByTariff)
-					{
-						$block->saveContent(self::getMessageBlock([
-							'HEADER' => Loc::getMessage('LANDING_BLOCK_SUBSCRIBE_EXP_HEADER'),
-							'BUTTON' => Loc::getMessage('LANDING_BLOCK_SUBSCRIBE_EXP_BUTTON'),
-							'LINK' => Manager::BUY_LICENSE_PATH,
-							'MESSAGE' => Restriction\Manager::getSystemErrorMessage('block_subscribe_expired_2')
-			  			], 'locked'));
-					}
+					$block->setAllowedByTariff($allowedByTariff);
 					$landing->addBlockToCollection($block);
 				}
 				elseif ($allowedByTariff)
@@ -593,19 +589,65 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	}
 
 	/**
+	 * Returns normalized block data.
+	 * @param string $code Block code.
+	 * @return array|null
+	 */
+	protected static function getNormalizedBlock(string $code): ?array
+	{
+		static $cached = [];
+
+		if (isset($cached[$code]))
+		{
+			return $cached[$code];
+		}
+
+		$codeOriginal = $code;
+		[$code, $blockId] = explode('@', $code);
+		$filter = [
+			'LID' => 0,
+			'=DELETED' => 'N',
+			'=CODE' => $code
+		];
+		if ($blockId)
+		{
+			$filter['ID'] = $blockId;
+		}
+		$res = Internals\BlockTable::getList([
+			'select' => [
+				'ID', 'CODE', 'CONTENT', 'SOURCE_PARAMS', 'DESIGNED'
+			],
+			'filter' => $filter
+		]);
+		if ($row = $res->fetch())
+		{
+			$cached[$codeOriginal] = $row;
+			$cached[$codeOriginal]['FILES'] = File::getFilesFromBlockContent($row['ID'], $row['CONTENT']);
+		}
+
+		return $cached[$codeOriginal] ?? null;
+	}
+
+	/**
 	 * Get content from repository by code.
 	 * @param string $code Block code.
-	 * @param string $namespace Namespace (optional).
-	 * @return string
+	 * @param string|null $namespace Namespace (optional).
+	 * @return string|null
 	 */
-	public static function getContentFromRepository($code, $namespace = null)
+	public static function getContentFromRepository(string $code, string $namespace = null): ?string
 	{
-		$content = '';
-
 		if (!is_string($code))
 		{
-			return $content;
+			return null;
 		}
+
+		if (strpos($code, '@'))
+		{
+			$normalizedBlock = self::getNormalizedBlock($code);
+			return $normalizedBlock['CONTENT'] ?? null;
+		}
+
+		$content = null;
 
 		// local repo
 		if (preg_match(self::REPO_MASK, $code, $matches))
@@ -653,7 +695,20 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	public static function createFromRepository(Landing $landing, string $code, array $data = array())
 	{
 		// get content and manifest
+		$filesFromContent = [];
+		$sourceParams = [];
+		$codeOriginal = null;
+		$designed = 'N';
 		$content = $data['CONTENT'] ?? self::getContentFromRepository($code);
+		if (strpos($code, '@'))
+		{
+			$codeOriginal = $code;
+			$normalizedBlock = self::getNormalizedBlock($code);
+			$designed = $normalizedBlock['DESIGNED'] ?? 'N';
+			$filesFromContent = $normalizedBlock['FILES'] ?? [];
+			$sourceParams = $normalizedBlock['SOURCE_PARAMS'] ?? [];
+			[$code, ] = explode('@', $code);
+		}
 		$manifest = self::getManifestFile($code);
 		// version control
 		if (
@@ -688,13 +743,17 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		$fields = array(
 			'LID' => $landing->getId(),
 			'CODE' => $code,
+			'CODE_ORIGINAL' => $codeOriginal,
+			'SOURCE_PARAMS' => $sourceParams,
 			'CONTENT' => $content,
-			'ACTIVE' => 'Y'
+			'ACTIVE' => 'Y',
+			'DESIGNED' => $designed
 		);
 		$availableReplace = array(
 			'ACTIVE', 'PUBLIC', 'ACCESS', 'SORT',
 			'CONTENT', 'ANCHOR', 'SOURCE_PARAMS',
-			'INITIATOR_APP_CODE', 'XML_ID', 'DESIGNED'
+			'INITIATOR_APP_CODE', 'XML_ID',
+			'DESIGNED', 'FAVORITE_META'
 		);
 		foreach ($availableReplace as $replace)
 		{
@@ -742,6 +801,11 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			else// index search only
 			{
 				$block->save();
+			}
+			// copy references to files from content to new block
+			foreach ($filesFromContent as $fileId)
+			{
+				File::addToBlock($block->getId(), $fileId);
 			}
 			return $block;
 		}
@@ -970,6 +1034,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		$cacheStarted = false;
 		$cacheId =  $withManifest ? 'blocks_manifest' : 'blocks';
 		$cacheId .= LANGUAGE_ID;
+		$cacheId .= 'user:' . Manager::getUserId();
 		$cacheId .= 'disable:' . implode(',', $disableNamespace);
 		$cacheId .= 'enable:' . implode(',', $enableNamespace);
 		$cachePath = 'landing/blocks';
@@ -1138,6 +1203,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		}
 		if ($apps)
 		{
+			$apps = array_unique($apps);
 			$apps = Repo::getAppByCode($apps);
 			// mark repo blocks expired
 			foreach ($blocksRepo as &$block)
@@ -1155,6 +1221,52 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		}
 		$blocks += $blocksRepo;
 
+		$currentUser = Manager::getUserId();
+		// favorites block
+		$res = Internals\BlockTable::getList([
+			'select' => [
+				'ID', 'CODE', 'FAVORITE_META', 'CREATED_BY_ID'
+			],
+			'filter' => [
+				'LID' => 0,
+				'=DELETED' => 'N'
+			],
+			'order' => [
+				'ID' => 'desc'
+			]
+		]);
+		while ($row = $res->fetch())
+		{
+			if (isset($blocks[$row['CODE']]))
+			{
+				if (!is_array($row['FAVORITE_META']))
+				{
+					continue;
+				}
+				$meta = $row['FAVORITE_META'];
+				$meta['preview'] = $meta['preview'] ?? 0;
+				$meta['favorite'] = true;
+				$meta['favoriteMy'] = ((int)$row['CREATED_BY_ID'] === $currentUser);
+				if ($meta['preview'] > 0)
+				{
+					$meta['preview'] = File::getFilePath($meta['preview']);
+				}
+				else
+				{
+					unset($meta['preview']);
+				}
+				if (isset($meta['section']))
+				{
+					$meta['section'] = (array)$meta['section'];
+				}
+				$blocks = [$row['CODE'] . '@' . $row['ID'] => $blocks[$row['CODE']]] + $blocks;
+				$blocks[$row['CODE'] . '@' . $row['ID']] = array_merge(
+					$blocks[$row['CODE'] . '@' . $row['ID']],
+					$meta
+				);
+			}
+		}
+
 		// create new section in repo
 		$createNewSection = function($item)
 		{
@@ -1163,9 +1275,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 						? (string) $item['name']
 						: (string) $item,
 				'new' => false,
-				'type' => isset($item['type'])
-						? $item['type']
-						: null,
+				'type' => $item['type'] ?? null,
 				'separator' => false,
 				'app_code' => false,
 				'items' => array()
@@ -1173,16 +1283,14 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		};
 
 		// set by sections
-		$md5s = array();
+		$createdSects = [];
 		foreach ($sections as $code => $item)
 		{
-			$title = isset($item['name'])
-					? $item['name']
-					: $item;
+			$title = $item['name'] ?? $item;
 			$title = (string) $title;
 			$title = trim($title);
 			$blocksCats[$code] = $createNewSection($item);
-			$md5s[md5(mb_strtolower($title))] = $code;
+			$createdSects[$title] = $code;
 		}
 		foreach ($blocks as $key => $block)
 		{
@@ -1197,26 +1305,17 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				{
 					$section = 'other';
 				}
-				$sectionMd5 = md5(mb_strtolower($section));
 				// adding new sections (actual for repo blocks)
-				if (
-					!isset($blocksCats[$section]) &&
-					!isset($blocksCats[$sectionMd5])
-				)
+				if (!isset($blocksCats[$section]))
 				{
-					if (isset($md5s[$sectionMd5]))
+					if (isset($createdSects[$section]))
 					{
-						$section = $md5s[$sectionMd5];
+						$section = $createdSects[$section];
 					}
 					else
 					{
-						$blocksCats[$sectionMd5] = $createNewSection($section);
-						$section = $sectionMd5;
+						$blocksCats[$section] = $createNewSection($section);
 					}
-				}
-				else if (isset($blocksCats[$sectionMd5]))
-				{
-					$section = $sectionMd5;
 				}
 				$blocksCats[$section]['items'][$key] = $block;
 				if ($block['new'])
@@ -1227,7 +1326,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		}
 
 		// add apps sections
-		if (!empty($blocksRepo))
+		if (!empty($blocksRepo) && !empty($apps))
 		{
 			$blocksCats['separator_apps'] = array(
 				'name' => Loc::getMessage('LANDING_BLOCK_SEPARATOR_PARTNER_2'),
@@ -1326,8 +1425,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	}
 
 	/**
-	 * Store block by code as last used.
-	 * @param string $blockCode
+	 * Stores block by code as last used.
+	 * @param string $blockCode Block code.
 	 * @return void
 	 */
 	public static function markAsUsed(string $blockCode): void
@@ -1355,6 +1454,27 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				'USER_ID' => Manager::getUserId(),
 				'DATE_CREATE' => new \Bitrix\Main\Type\DateTime
 			]);
+		}
+	}
+
+	/**
+	 * Removes block by code from last used.
+	 * @param string $blockCode Block code.
+	 * @return void
+	 */
+	public static function removeAsUsed(string $blockCode): void
+	{
+		$res = Internals\BlockLastUsedTable::getList([
+			'select' => [
+				'ID'
+			],
+			'filter' => [
+				'=CODE' => $blockCode
+			]
+		]);
+		while ($row = $res->fetch())
+		{
+			Internals\BlockLastUsedTable::delete($row['ID']);
 		}
 	}
 
@@ -1501,6 +1621,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				'anchor' => $block->getLocalAnchor(),
 				'php' => mb_strpos($block->getContent(), '<?') !== false,
 				'designed' => $block->isDesigned(),
+				'repoId' => $block->repoId ? (int)$block->repoId : null,
 				'content' => $content,
 				'content_ext' => $extContent,
 				'css' => $block->getCSS(),
@@ -1598,6 +1719,11 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			return '';
 		}
 
+		if (strpos($code, '@'))
+		{
+			[$code, ] = explode('@', $code);
+		}
+
 		if (!$namespace)
 		{
 			$namespace = self::getBlockNamespace($code);
@@ -1673,6 +1799,16 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	public function getContent()
 	{
 		return $this->content;
+	}
+
+	/**
+	 * Marks block as allowed or not by tariff.
+	 * @param bool $mark Mark.
+	 * @return void
+	 */
+	public function setAllowedByTariff(bool $mark): void
+	{
+		$this->allowedByTariff = $mark;
 	}
 
 	/**
@@ -2105,6 +2241,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		{
 			$manifest = array();
 		}
+
+		$manifest['preview'] = $this->getPreview();
 
 		if (!$missCache)
 		{
@@ -2616,6 +2754,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			$classFromCode = preg_replace('/([^a-z0-9-])/i', '-', $classFromCode);
 			$classFromCode = ' ' . $classFromCode;
 			$content = '<div id="' . $anchor . '" ' .
+							(($edit && isset($manifest['block']['subtype'])) ? 'data-subtype="' . $manifest['block']['subtype'] . '" ' : '') .
 							'class="block-wrapper' .
 								(!$this->active ? ' landing-block-deactive' : '') .
 								($this->metaData['DESIGNER_MODE'] ? ' landing-designer-block-mode' : '') .
@@ -2660,9 +2799,12 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 										. 'id: ' . $this->id  . ', '
 										. 'lid: ' . $this->lid  . ', '
 										. 'code: "' . $this->code  . '", '
+										. 'repoId: ' . ($this->repoId ? (int)$this->repoId : "null") . ', '
 										. 'php: ' . (mb_strpos($content, '<?') !== false ? 'true' : 'false')  . ', '
 										. 'designed: ' . ($this->designed ? 'true' : 'false')  . ', '
 										. 'active: ' . ($this->active ? 'true' : 'false')  . ', '
+										. 'allowedByTariff: ' . ($this->allowedByTariff ? 'true' : 'false')  . ', '
+										. 'autoPublicationEnabled: ' . ((\CUserOptions::getOption('landing', 'auto_publication', 'Y') === 'Y') ? 'true' : 'false')  . ', '
 										. 'anchor: ' . '"' . \CUtil::jsEscape($anchor) . '"' . ', '
 										. 'access: ' . '"' . $this->access . '"' . ', '
 					 					. 'dynamicParams: ' . Json::encode($this->dynamicParams) . ','
@@ -2915,9 +3057,24 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		}
 		$res = parent::update($this->id, array(
 			'LID' => (int)$lid,
-			'PARENT_ID' => 0,
+			'PARENT_ID' => null,
 			'PUBLIC' => 'N'
 		));
+		$this->error->addFromResult($res);
+		return $res->isSuccess();
+	}
+
+	/**
+	 * Set meta information for favorite block.
+	 * @param array $meta Meta information.
+	 * @return bool
+	 */
+	public function changeFavoriteMeta(array $meta): bool
+	{
+		$res = parent::update($this->id, [
+			'TPL_CODE' => $meta['tpl_code'] ?? null,
+			'FAVORITE_META' => $meta
+		]);
 		$this->error->addFromResult($res);
 		return $res->isSuccess();
 	}
@@ -4008,6 +4165,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		$manifest = $this->getManifest();
 
 		// find available nodes by manifest from data
+		$manifest['nodes'] = $manifest['nodes'] ?? [];
 		foreach ($manifest['nodes'] as $selector => $node)
 		{
 			if (isset($data[$selector]))
@@ -4040,6 +4198,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		{
 			$additional['appendMenu'] = false;
 		}
+		$manifest['menu'] = $manifest['menu'] ?? [];
 		foreach ($manifest['menu'] as $selector => $node)
 		{
 			if (isset($data[$selector]) && is_array($data[$selector]))
@@ -5172,6 +5331,25 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		{
 			return parent::delete($id);
 		}
+	}
+
+	/**
+	 * Returns all favorites blocks.
+	 * @param string|null $tplCode Page template code.
+	 * @return array
+	 */
+	public static function getFavorites(?string $tplCode): array
+	{
+		return parent::getList([
+			'filter' => [
+				'LID' => 0,
+				'=DELETED' => 'N',
+				'=TPL_CODE' => $tplCode
+			],
+			'order' => [
+				'ID' => 'asc'
+			]
+		])->fetchAll();
 	}
 
 	/**

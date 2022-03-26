@@ -51,5 +51,3 @@ if (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/im_options.php"
 		$im_default_option = array_merge($im_default_option, $additionalOptions);
 	}
 }
-
-?>

@@ -4,14 +4,9 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 (function (exports,ui_vue_vuex,im_const,im_lib_logger,main_core_events,pull_client) {
 	'use strict';
 
-	/**
-	 * Bitrix Messenger
-	 * Im base pull commands (Pull Command Handler)
-	 *
-	 * @package bitrix
-	 * @subpackage im
-	 * @copyright 2001-2020 Bitrix
-	 */
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var ImBasePullHandler = /*#__PURE__*/function () {
 	  babelHelpers.createClass(ImBasePullHandler, null, [{
 	    key: "create",
@@ -25,17 +20,17 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, ImBasePullHandler);
 
-	    if (babelHelpers.typeof(params.controller) === 'object' && params.controller) {
+	    if (babelHelpers["typeof"](params.controller) === 'object' && params.controller) {
 	      this.controller = params.controller;
 	    }
 
-	    if (babelHelpers.typeof(params.store) === 'object' && params.store) {
+	    if (babelHelpers["typeof"](params.store) === 'object' && params.store) {
 	      this.store = params.store;
 	    }
 
-	    this.option = babelHelpers.typeof(params.store) === 'object' && params.store ? params.store : {};
+	    this.option = babelHelpers["typeof"](params.store) === 'object' && params.store ? params.store : {};
 
-	    if (!(babelHelpers.typeof(this.option.handlingDialog) === 'object' && this.option.handlingDialog && this.option.handlingDialog.chatId && this.option.handlingDialog.dialogId)) {
+	    if (!(babelHelpers["typeof"](this.option.handlingDialog) === 'object' && this.option.handlingDialog && this.option.handlingDialog.chatId && this.option.handlingDialog.dialogId)) {
 	      this.option.handlingDialog = false;
 	    }
 	  }
@@ -130,11 +125,11 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	          this.store.dispatch('dialogues/set', chatToAdd);
 	        } //otherwise - update it
 	        else {
-	            this.store.dispatch('dialogues/update', {
-	              dialogId: params.dialogId,
-	              fields: params.chat[params.chatId]
-	            });
-	          }
+	          this.store.dispatch('dialogues/update', {
+	            dialogId: params.dialogId,
+	            fields: params.chat[params.chatId]
+	          });
+	        }
 	      }
 
 	      var recentItem = this.store.getters['recent/get'](params.dialogId); //add recent item if there is no one
@@ -144,24 +139,24 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        this.store.dispatch('recent/set', [newRecentItem]);
 	      } //otherwise - update it
 	      else {
-	          this.store.dispatch('recent/update', {
-	            id: params.dialogId,
-	            fields: {
-	              lines: params.lines || {
-	                id: 0
-	              },
-	              message: {
-	                id: params.message.id,
-	                text: params.message.textOriginal,
-	                date: params.message.date,
-	                senderId: params.message.senderId,
-	                withFile: typeof params.message.params['FILE_ID'] !== 'undefined',
-	                withAttach: typeof params.message.params['ATTACH'] !== 'undefined'
-	              },
-	              counter: params.counter
-	            }
-	          });
-	        } //set users
+	        this.store.dispatch('recent/update', {
+	          id: params.dialogId,
+	          fields: {
+	            lines: params.lines || {
+	              id: 0
+	            },
+	            message: {
+	              id: params.message.id,
+	              text: params.message.textOriginal,
+	              date: params.message.date,
+	              senderId: params.message.senderId,
+	              withFile: typeof params.message.params['FILE_ID'] !== 'undefined',
+	              withAttach: typeof params.message.params['ATTACH'] !== 'undefined'
+	            },
+	            counter: params.counter
+	          }
+	        });
+	      } //set users
 
 
 	      if (params.users) {
@@ -195,7 +190,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        this.store.dispatch('messages/update', {
 	          id: message.id,
 	          chatId: message.chatId,
-	          fields: babelHelpers.objectSpread({}, params.message, {
+	          fields: _objectSpread(_objectSpread({}, params.message), {}, {
 	            sending: false,
 	            error: false
 	          })
@@ -210,18 +205,18 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	      } //if we dont have message and we have all pages - add new message and send newMessage event (handles scroll stuff)
 	      //we dont do anything if we dont have message and there are unloaded messages
 	      else if (this.controller.application.isUnreadMessagesLoaded()) {
-	          im_lib_logger.Logger.warn('New message pull handler: we dont have this message', params.message);
-	          this.store.dispatch('messages/setAfter', babelHelpers.objectSpread({}, params.message, {
-	            unread: true
-	          })).then(function () {
-	            if (!params.message.push) {
-	              main_core_events.EventEmitter.emit(im_const.EventType.dialog.newMessage, {
-	                chatId: params.message.chatId,
-	                messageId: params.message.id
-	              });
-	            }
-	          });
-	        } //stop writing event
+	        im_lib_logger.Logger.warn('New message pull handler: we dont have this message', params.message);
+	        this.store.dispatch('messages/setAfter', _objectSpread(_objectSpread({}, params.message), {}, {
+	          unread: true
+	        })).then(function () {
+	          if (!params.message.push) {
+	            main_core_events.EventEmitter.emit(im_const.EventType.dialog.newMessage, {
+	              chatId: params.message.chatId,
+	              messageId: params.message.id
+	            });
+	          }
+	        });
+	      } //stop writing event
 
 
 	      this.controller.application.stopOpponentWriting({
@@ -254,11 +249,11 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        }
 	      } //increase the counter if message is not ours
 	      else if (params.message.senderId !== this.controller.application.getUserId()) {
-	          this.store.dispatch('dialogues/increaseCounter', {
-	            dialogId: params.dialogId,
-	            count: 1
-	          });
-	        } //set new lastMessageId (used for pagination)
+	        this.store.dispatch('dialogues/increaseCounter', {
+	          dialogId: params.dialogId,
+	          count: 1
+	        });
+	      } //set new lastMessageId (used for pagination)
 
 
 	      this.store.dispatch('dialogues/update', {
@@ -533,7 +528,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	          id: params.dialogId,
 	          fields: {
 	            counter: params.counter,
-	            message: babelHelpers.objectSpread({}, message, {
+	            message: _objectSpread(_objectSpread({}, message), {}, {
 	              status: 'delivered'
 	            })
 	          }
@@ -683,14 +678,9 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	  return ImBasePullHandler;
 	}();
 
-	/**
-	 * Bitrix Messenger
-	 * Im call pull commands (Pull Command Handler)
-	 *
-	 * @package bitrix
-	 * @subpackage im
-	 * @copyright 2001-2020 Bitrix
-	 */
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var ImCallPullHandler = /*#__PURE__*/function () {
 	  babelHelpers.createClass(ImCallPullHandler, null, [{
 	    key: "create",
@@ -704,19 +694,19 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, ImCallPullHandler);
 
-	    if (babelHelpers.typeof(params.application) === 'object' && params.application) {
+	    if (babelHelpers["typeof"](params.application) === 'object' && params.application) {
 	      this.application = params.application;
 	    }
 
-	    if (babelHelpers.typeof(params.controller) === 'object' && params.controller) {
+	    if (babelHelpers["typeof"](params.controller) === 'object' && params.controller) {
 	      this.controller = params.controller;
 	    }
 
-	    if (babelHelpers.typeof(params.store) === 'object' && params.store) {
+	    if (babelHelpers["typeof"](params.store) === 'object' && params.store) {
 	      this.store = params.store;
 	    }
 
-	    this.option = babelHelpers.typeof(params.store) === 'object' && params.store ? params.store : {};
+	    this.option = babelHelpers["typeof"](params.store) === 'object' && params.store ? params.store : {};
 	  }
 
 	  babelHelpers.createClass(ImCallPullHandler, [{
@@ -732,8 +722,12 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	  }, {
 	    key: "handleChatUserAdd",
 	    value: function handleChatUserAdd(params) {
+	      if (params.dialogId !== this.store.state.application.dialog.dialogId) {
+	        return false;
+	      }
+
 	      var users = Object.values(params.users).map(function (user) {
-	        return babelHelpers.objectSpread({}, user, {
+	        return _objectSpread$1(_objectSpread$1({}, user), {}, {
 	          lastActivityDate: new Date()
 	        });
 	      });
@@ -750,7 +744,11 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	  }, {
 	    key: "handleChatUserLeave",
 	    value: function handleChatUserLeave(params) {
-	      if (params.userId === this.controller.getUserId() && params.dialogId === this.store.state.application.dialog.dialogId) {
+	      if (params.dialogId !== this.store.state.application.dialog.dialogId) {
+	        return false;
+	      }
+
+	      if (params.userId === this.controller.getUserId()) {
 	        this.application.kickFromCall();
 	      }
 
@@ -788,7 +786,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        this.store.dispatch('dialogues/update', {
 	          dialogId: params.dialogId,
 	          fields: {
-	            public: {
+	            "public": {
 	              code: params.newCode,
 	              link: params.newLink
 	            }
@@ -837,7 +835,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	  return ImCallPullHandler;
 	}();
 
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
@@ -855,19 +853,19 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, ImNotificationsPullHandler);
 
-	    if (babelHelpers.typeof(params.application) === 'object' && params.application) {
+	    if (babelHelpers["typeof"](params.application) === 'object' && params.application) {
 	      this.application = params.application;
 	    }
 
-	    if (babelHelpers.typeof(params.controller) === 'object' && params.controller) {
+	    if (babelHelpers["typeof"](params.controller) === 'object' && params.controller) {
 	      this.controller = params.controller;
 	    }
 
-	    if (babelHelpers.typeof(params.store) === 'object' && params.store) {
+	    if (babelHelpers["typeof"](params.store) === 'object' && params.store) {
 	      this.store = params.store;
 	    }
 
-	    this.option = babelHelpers.typeof(params.store) === 'object' && params.store ? params.store : {};
+	    this.option = babelHelpers["typeof"](params.store) === 'object' && params.store ? params.store : {};
 	  }
 
 	  babelHelpers.createClass(ImNotificationsPullHandler, [{

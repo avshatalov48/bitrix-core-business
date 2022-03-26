@@ -88,6 +88,13 @@ class CSaleLang
 
 		return true;
 	}
+
+	public static function OnLangDelete($langId)
+	{
+		Sale\Internals\SiteCurrencyTable::delete($langId);
+
+		return true;
+	}
 }
 
 class CAllSaleGroupAccessToSite

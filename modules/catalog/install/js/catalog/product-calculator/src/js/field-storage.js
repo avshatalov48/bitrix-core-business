@@ -2,6 +2,7 @@ import {Runtime, Type} from 'main.core';
 import type {FieldScheme} from './field-scheme';
 import type {DiscountTypes} from './discount-type';
 import {DiscountType} from './discount-type';
+import {ProductCalculator} from "catalog.product-calculator";
 
 const initialFields = {
 	QUANTITY: 1,
@@ -24,7 +25,7 @@ export class FieldStorage
 {
 	fields: FieldScheme;
 
-	constructor(fields: FieldScheme)
+	constructor(fields: FieldScheme, calculator: ProductCalculator)
 	{
 		this.fields = {...initialFields};
 
@@ -32,6 +33,23 @@ export class FieldStorage
 		{
 			this.fields = {...this.fields, ...fields};
 		}
+
+		this.calculator = calculator;
+	}
+
+	#getPricePrecision()
+	{
+		return this.calculator.getPricePrecision();
+	}
+
+	#getCommonPrecision()
+	{
+		return this.calculator.getCommonPrecision();
+	}
+
+	#getQuantityPrecision()
+	{
+		return this.calculator.getQuantityPrecision();
 	}
 
 	getFields()
@@ -46,7 +64,61 @@ export class FieldStorage
 
 	setField(name: string, value): void
 	{
+		value = this.#validateValue(name, value);
 		this.fields[name] = value;
+	}
+
+	#validateValue(name: string, value): any
+	{
+		const priceFields = [
+			'PRICE',
+			'PRICE_EXCLUSIVE',
+			'PRICE_NETTO',
+			'PRICE_BRUTTO',
+			'DISCOUNT_SUM',
+			'DISCOUNT_ROW',
+			'TAX_SUM',
+			'SUM'
+		];
+		if (name === 'DISCOUNT_TYPE_ID')
+		{
+			value =
+				(value === DiscountType.PERCENTAGE || value === DiscountType.MONETARY)
+					? value
+					: DiscountType.UNDEFINED
+			;
+
+		}
+		else if (name === 'QUANTITY')
+		{
+			value = FieldStorage.#round(value, this.#getQuantityPrecision());
+		}
+		else if (name === 'CUSTOMIZED' || name === 'TAX_INCLUDED' )
+		{
+			value = (value === 'Y') ? 'Y' : 'N';
+		}
+		else if (name === 'TAX_RATE' || name === 'DISCOUNT_RATE')
+		{
+			value = FieldStorage.#round(value, this.#getCommonPrecision());
+		}
+		else if (priceFields.includes(name))
+		{
+			value = FieldStorage.#round(value, this.#getPricePrecision());
+		}
+
+		return value;
+	}
+
+	static #round(value: number, precision = ProductCalculator.DEFAULT_PRECISION): number
+	{
+		const factor = Math.pow(10, precision);
+
+		return Math.round(value * factor) / factor;
+	}
+
+	getBasePrice(): number
+	{
+		return this.getField('BASE_PRICE', 0);
 	}
 
 	getPrice(): number

@@ -54,7 +54,7 @@ function GetStrings(&$item, $key, $p)
 		$searchstring = '';
 		if($item["text"])
 		{
-			if(preg_match_all($preg_template, ToUpper($item["text"]), $arMatches, PREG_OFFSET_CAPTURE))
+			if(preg_match_all($preg_template, mb_strtoupper($item["text"]), $arMatches, PREG_OFFSET_CAPTURE))
 			{
 				$c = count($arMatches[2]);
 				if(defined("BX_UTF"))
@@ -90,7 +90,7 @@ function GetStrings(&$item, $key, $p)
 		if($item["icon"]=='')
 			$item["icon"] = $icon;
 
-		if(preg_match_all($preg_template, ToUpper($searchstring), $arMatches, PREG_OFFSET_CAPTURE))
+		if(preg_match_all($preg_template, mb_strtoupper($searchstring), $arMatches, PREG_OFFSET_CAPTURE))
 		{
 			$ar = Array();
 			foreach($arMatches[0] as $m)

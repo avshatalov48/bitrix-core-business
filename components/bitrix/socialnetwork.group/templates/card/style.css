@@ -112,43 +112,6 @@
 	border-bottom: 1px solid #1069C3;
 }
 
-.socialnetwork-group-fav-switch,
-.socialnetwork-group-fav-switch:before,
-.socialnetwork-group-fav-switch:after {
-	background: url("images/sprite.png?1") no-repeat 37px -1027px;
-	cursor: pointer;
-	height: 65px;
-	position: absolute;
-	right: 0;
-	top: 0;
-	width: 65px;
-	z-index: 10;
-}
-
-.socialnetwork-group-fav-switch:before,
-.socialnetwork-group-fav-switch:after {
-	background-position: -26px -1025px;
-	content: '';
-	opacity: 0;
-
-	-webkit-transition: opacity 0.2s linear;
-	transition: opacity 0.2s linear;
-}
-
-.socialnetwork-group-fav-switch:hover:before {
-	opacity: 1;
-}
-
-.socialnetwork-group-fav-switch-active:after {
-	background-position: -91px -1025px;
-	opacity: 1;
-}
-
-.socialnetwork-group-fav-switch-active:hover:before {
-	opacity: 0;
-}
-
-
 .socialnetwork-group-wait-cont { height: 31px; }
 .socialnetwork-group-wait-icon { height: 31px; width: 31px; background: url('images/wait.gif') no-repeat 0 0; display: inline-block; position: relative; left: 1px; top: 1px; }
 .socialnetwork-group-wait-text { height: 31px; display: inline-block; position: relative; padding: 0 10px 0 5px; left: 1px; top: -11px; color: #7F7F7F; }

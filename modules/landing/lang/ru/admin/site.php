@@ -8,3 +8,4 @@ $MESS['LANDING_ADMIN_SITE_ACCESS_DENIED'] = 'Доступ запрещен';
 $MESS['LANDING_ADMIN_ACTION_SETTINGS'] = 'Настройки сайта';
 $MESS['LANDING_ADMIN_ACTION_DESIGN'] = 'Дизайн сайта';
 $MESS['LANDING_ADMIN_ACTION_CATALOG'] = 'Настройки каталога';
+$MESS['LANDING_TPL_FOLDER_EDIT'] = 'Настройки папки';

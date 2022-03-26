@@ -9,7 +9,7 @@
 							 class="landing-block-node-img-small img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/380x360/img1.jpg"/>
 						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
-							<div class="g-flex-centered flex-column h-100 g-brd-white-opacity-0_2 text-uppercase">
+							<div class="g-flex-centered flex-column h-100 g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title text-center g-color-white g-line-height-1_4 g-letter-spacing-5">
 									Sea
 								</h3>
@@ -24,7 +24,7 @@
 							 class="landing-block-node-img-small img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/380x360/img2.jpg"/>
 						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
-							<div class="g-flex-centered flex-column h-100 g-brd-white-opacity-0_2 text-uppercase">
+							<div class="g-flex-centered flex-column h-100 g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title text-center g-color-white g-line-height-1_4 g-letter-spacing-5">
 									Night
 								</h3>
@@ -41,7 +41,7 @@
 							 class="landing-block-node-img-small img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/380x360/img3.jpg"/>
 						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
-							<div class="g-flex-centered flex-column h-100 g-brd-white-opacity-0_2 text-uppercase">
+							<div class="g-flex-centered flex-column h-100 g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title text-center g-color-white g-line-height-1_4 g-letter-spacing-5">
 									Sunset
 								</h3>
@@ -56,7 +56,7 @@
 							 class="landing-block-node-img-small img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/380x360/img4.jpg"/>
 						<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
-							<div class="g-flex-centered flex-column h-100 g-brd-white-opacity-0_2 text-uppercase">
+							<div class="g-flex-centered flex-column h-100 g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 								<h3 class="landing-block-node-img-title text-center g-color-white g-line-height-1_4 g-letter-spacing-5">
 									Sunshine
 								</h3>
@@ -72,7 +72,7 @@
 						 class="landing-block-node-img-big img-fluid g-object-fit-cover h-100 w-100 u-block-hover__main--zoom-v1"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/760x720/img1.jpg"/>
 					<div class="landing-block-node-img-title-container w-100 g-pos-abs g-bottom-0 g-left-0 g-top-0 g-flex-middle g-bg-black-opacity-0_5 opacity-0 g-opacity-1--parent-hover g-pa-20 g-transition-0_2 g-transition--ease-in">
-						<div class="g-flex-centered flex-column h-100 g-brd-white-opacity-0_2 text-uppercase">
+						<div class="g-flex-centered flex-column h-100 g-brd-around g-brd-white-opacity-0_2 text-uppercase">
 							<h3 class="landing-block-node-img-title text-center g-color-white g-line-height-1_4 g-letter-spacing-5">
 								Amazing<br>views
 							</h3>

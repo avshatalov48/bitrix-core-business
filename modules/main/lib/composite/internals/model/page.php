@@ -31,9 +31,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Page_Query query()
- * @method static EO_Page_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Page_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Page_Result getById($id)
- * @method static EO_Page_Result getList(array $parameters = array())
+ * @method static EO_Page_Result getList(array $parameters = [])
  * @method static EO_Page_Entity getEntity()
  * @method static \Bitrix\Main\Composite\Internals\Model\EO_Page createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\Composite\Internals\Model\EO_Page_Collection createCollection()

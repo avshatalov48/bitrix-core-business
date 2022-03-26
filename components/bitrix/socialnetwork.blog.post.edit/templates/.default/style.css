@@ -311,7 +311,7 @@
 }
 
 .feed-add-post-form-variants {
-	/*border-bottom: 1px solid #f0f1f2;*/
+	border-bottom: 1px solid #f0f1f2;
 	min-height: 40px;
 	padding: 0 10px 0 23px;
 	position: relative;
@@ -321,7 +321,6 @@
 	background: #185ccd;
 	top: 40px;
 	left: 0;
-
 	position: absolute;
 	height: 1px;
 	width: 0;

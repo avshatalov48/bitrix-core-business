@@ -61,8 +61,10 @@ $arWorkflowTemplate = isset($_POST['arWorkflowTemplate']) && is_array($_POST['ar
 $arWorkflowParameters = isset($_POST['arWorkflowParameters']) && is_array($_POST['arWorkflowParameters'])? $_POST['arWorkflowParameters']: array();
 $arWorkflowVariables = isset($_POST['arWorkflowVariables']) && is_array($_POST['arWorkflowVariables'])? $_POST['arWorkflowVariables']: array();
 $arWorkflowConstants = isset($_POST['arWorkflowConstants']) && is_array($_POST['arWorkflowConstants'])? $_POST['arWorkflowConstants']: array();
-$arGlobalConstants = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll();
-$arGlobalVariables = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll();
+$arGlobalConstants = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll($documentType);
+$arGlobalVariables = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll($documentType);
+$gVarVisibility =  \Bitrix\Bizproc\Workflow\Type\GlobalVar::getVisibilityFullNames($documentType);
+$gConstVisibility =  \Bitrix\Bizproc\Workflow\Type\GlobalConst::getVisibilityFullNames($documentType);
 
 $selectorMode = isset($_POST['selectorMode']) ? $_POST['selectorMode']: null;
 
@@ -216,20 +218,23 @@ function BPSHideShow(id)
 	</tr>
 	<tr>
 		<td>
-			<a href="javascript:void(0)" onclick="BPSHideShow('BPSId61')"><b><?echo GetMessage("BP_SEL_GCONST")?></b></a>
+			<a href="javascript:void(0)" onclick="BPSHideShow('BPSId61')"><b><?= GetMessage("BP_SEL_GCONST")?></b></a>
 		</td>
 	</tr>
 	<tr id="BPSId61" style="display:none">
 		<td>
 			<select id="BPSId61S" size="13" style="width:100%" ondblclick="BPSVInsert(this.value)">
-				<?foreach($arGlobalConstants as $fieldId => $documentField):?>
-					<?if($arFilter===false || in_array($documentFieldTypes[$documentField["Type"]]["BaseType"], $arFilter)):
-						if ($_POST['fieldType']=='text')
+				<?php foreach($arGlobalConstants as $fieldId => $property): ?>
+					<?php if($arFilter === false || in_array($documentFieldTypes[$property['Type']]['BaseType'], $arFilter)):
+						$expr = sprintf('{{%s: %s}}', $gConstVisibility[$property['Visibility']], $property['Name']);
+						if ($_POST['fieldType'] === 'text'):
 							$fieldId .= ' > printable';
-						?>
-						<option value="{=GlobalConst:<?=htmlspecialcharsbx($fieldId)?>}<?if($_POST['fieldType']=='user')echo '; '?>"><?=htmlspecialcharsbx($documentField['Name'])?></option>
-					<?endif?>
-				<?endforeach?>
+						endif ?>
+						<option
+							value="<?= htmlspecialcharsbx($expr) ?><?= ($_POST['fieldType'] === 'user') ? '; ' : ''?>"
+						><?= htmlspecialcharsbx($property['Name']) ?></option>
+					<?php endif ?>
+				<?php endforeach ?>
 			</select>
 		</td>
 	</tr>
@@ -241,14 +246,17 @@ function BPSHideShow(id)
 	<tr id="BPSId31" style="display: none">
 		<td>
 			<select id="BPSId31S" size="13" style="width: 100%" ondblclick="BPSVInsert(this.value)">
-				<?php foreach ($arGlobalVariables as $fieldId => $documentField):
-					if ($arFilter === false || in_array($documentFieldTypes[$documentField["Type"]]["BaseType"], $arFilter)):
+				<?php foreach ($arGlobalVariables as $fieldId => $property):
+					if ($arFilter === false || in_array($documentFieldTypes[$property['Type']]['BaseType'], $arFilter)):
+						$expr = sprintf('{{%s: %s}}', $gVarVisibility[$property['Visibility']], $property['Name']);
 						if ($_POST['fieldType'] === 'text'):
 							$fieldId .= ' > printable';
 						endif ?>
-						<option value="{=GlobalVar:<?= htmlspecialcharsbx($fieldId) ?>}<?php if ($_POST['fieldType'] === 'user')echo ';'?>"><?= htmlspecialcharsbx($documentField['Name']) ?></option>
-					<?php endif;
-				endforeach ?>
+						<option
+							value="<?= htmlspecialcharsbx($expr) ?><?= ($_POST['fieldType'] === 'user') ? '; ' : ''?>"
+						><?= htmlspecialcharsbx($property['Name']) ?></option>
+					<?php endif?>
+				<?php endforeach ?>
 			</select>
 		</td>
 	</tr>

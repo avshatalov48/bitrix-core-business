@@ -139,7 +139,8 @@
 					{
 						autoHide: true,
 						overlay: 0.3,
-						width: 400,
+						minWidth: 400,
+						maxWidth: 800,
 						contentNoPaddings: true,
 						closeByEsc: true,
 						buttons: [

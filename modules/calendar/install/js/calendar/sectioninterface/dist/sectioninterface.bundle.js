@@ -1723,7 +1723,19 @@ this.BX = this.BX || {};
 	        });
 	      }
 
-	      if (section.canDo('edit_section') && section.belongsToView() && !section.isPseudo() && (!section.isGoogle() || section.data['EXTERNAL_TYPE'] === 'local')) {
+	      var provider = undefined;
+	      var connection = undefined;
+
+	      if (section.data.CAL_DAV_CON) {
+	        var _this$calendarContext4 = this.calendarContext.syncInterface.getProviderById(section.data.CAL_DAV_CON);
+
+	        var _this$calendarContext5 = babelHelpers.slicedToArray(_this$calendarContext4, 2);
+
+	        provider = _this$calendarContext5[0];
+	        connection = _this$calendarContext5[1];
+	      }
+
+	      if (section.canDo('edit_section') && section.belongsToView() && !section.isPseudo() && (!section.isGoogle() && !connection || section.data['EXTERNAL_TYPE'] === 'local' || !connection)) {
 	        menuItems.push({
 	          text: main_core.Loc.getMessage('EC_SEC_DELETE'),
 	          onclick: function onclick() {
@@ -1753,11 +1765,6 @@ this.BX = this.BX || {};
 	            text: main_core.Loc.getMessage('EC_ACTION_EXTERNAL_ADJUST'),
 	            onclick: function onclick() {
 	              _this4.sectionActionMenu.close();
-
-	              var _this4$calendarContex = _this4.calendarContext.syncInterface.getProviderById(section.data.CAL_DAV_CON),
-	                  _this4$calendarContex2 = babelHelpers.slicedToArray(_this4$calendarContex, 2),
-	                  provider = _this4$calendarContex2[0],
-	                  connection = _this4$calendarContex2[1];
 
 	              if (provider) {
 	                provider.openActiveConnectionSlider(connection);

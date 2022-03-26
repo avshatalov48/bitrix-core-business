@@ -16,9 +16,9 @@ use Bitrix\Main\Entity;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_SiteDomain_Query query()
- * @method static EO_SiteDomain_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_SiteDomain_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_SiteDomain_Result getById($id)
- * @method static EO_SiteDomain_Result getList(array $parameters = array())
+ * @method static EO_SiteDomain_Result getList(array $parameters = [])
  * @method static EO_SiteDomain_Entity getEntity()
  * @method static \Bitrix\Main\EO_SiteDomain createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\EO_SiteDomain_Collection createCollection()

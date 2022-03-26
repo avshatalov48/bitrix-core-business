@@ -63,13 +63,9 @@ class CBPGetUserActivity extends CBPActivity
 						continue;
 					}
 				}
-				if ($bSkipTimeman)
+				if ($bSkipTimeman && !$this->isUserWorking($arUsers[$key]))
 				{
-					$tmUser = new CTimeManUser($arUsers[$key]);
-					if($tmUser->State() === 'CLOSED')
-					{
-						unset($arUsers[$key]);
-					}
+					unset($arUsers[$key]);
 				}
 			}
 		}
@@ -127,7 +123,7 @@ class CBPGetUserActivity extends CBPActivity
 
 		if ($this->UserType === self::USER_TYPE_BOSS)
 		{
-			$user = $this->getBossUser($skipAbsent);
+			$user = $this->getBossUser($skipAbsent, $skipTimeman);
 		}
 		elseif ($this->UserType === self::USER_TYPE_RANDOM)
 		{
@@ -162,7 +158,7 @@ class CBPGetUserActivity extends CBPActivity
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	private function getBossUser(bool $skipAbsent)
+	private function getBossUser(bool $skipAbsent, bool $skipTimeman)
 	{
 		$arUsers = $this->getActiveUsers(
 			$this->GetUsersList($this->UserParameter, false)
@@ -194,6 +190,7 @@ class CBPGetUserActivity extends CBPActivity
 					!$departmentHead
 					|| ($departmentHead === $userId)
 					|| ($skipAbsent && CIntranetUtils::IsUserAbsent($departmentHead))
+					|| ($skipTimeman && !$this->isUserWorking($departmentHead))
 				)
 				{
 					$maxLevel++;
@@ -221,12 +218,7 @@ class CBPGetUserActivity extends CBPActivity
 			$ar = $ar[0];
 		}
 
-		if ($ar !== null)
-		{
-			return $ar;
-		}
-
-		return false;
+		return $ar ?: false;
 	}
 
 	private function getRandomUser(bool $skipAbsent, bool $skipTimeman)
@@ -309,6 +301,14 @@ class CBPGetUserActivity extends CBPActivity
 		}
 
 		return false;
+	}
+
+	private function isUserWorking(int $userId): bool
+	{
+		$tmUser = new CTimeManUser($userId);
+		$tmUser->getCurrentInfo(true); //clear cache
+
+		return ($tmUser->State() === 'OPENED' || $tmUser->State() === 'PAUSED');
 	}
 
 	public static function GetPropertiesDialog(

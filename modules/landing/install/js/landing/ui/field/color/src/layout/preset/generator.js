@@ -240,12 +240,13 @@ export default class Generator
 			const start = new ColorValue('#ffffff');
 
 			preset.items.push(new ColorValue(start));
-			preset.items.push(new ColorValue(start.darken(16.66)));
-			preset.items.push(new ColorValue(start.darken(16.66)));
-			preset.items.push(new ColorValue(start.darken(16.66)));
-			preset.items.push(new ColorValue(start.darken(16.66)));
-			preset.items.push(new ColorValue(start.darken(16.66)));
-			preset.items.push(new ColorValue(start.darken(16.7)));
+			preset.items.push(new ColorValue(start.darken(14.28)));
+			preset.items.push(new ColorValue(start.darken(14.28)));
+			preset.items.push(new ColorValue(start.darken(14.28)));
+			preset.items.push(new ColorValue(start.darken(14.28)));
+			preset.items.push(new ColorValue(start.darken(14.28)));
+			preset.items.push(new ColorValue(start.darken(14.28)));
+			preset.items.push(new ColorValue(start.darken(14.32)));
 
 			return preset;
 		});

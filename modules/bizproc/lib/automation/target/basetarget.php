@@ -3,6 +3,7 @@ namespace Bitrix\Bizproc\Automation\Target;
 
 use Bitrix\Bizproc\Automation\Engine\ConditionGroup;
 use Bitrix\Bizproc\Automation\Engine\Runtime;
+use Bitrix\Bizproc\Automation\Engine\TemplatesScheme;
 use Bitrix\Bizproc\Automation\Trigger\Entity\TriggerTable;
 
 abstract class BaseTarget
@@ -240,5 +241,10 @@ abstract class BaseTarget
 	{
 		$this->documentId = $documentId;
 		return $this;
+	}
+
+	public function getTemplatesScheme(): ?TemplatesScheme
+	{
+		return null;
 	}
 }

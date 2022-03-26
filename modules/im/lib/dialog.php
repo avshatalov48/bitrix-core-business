@@ -1,25 +1,48 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Im\Model\ChatTable;
+
 class Dialog
 {
-	public static function getRelation($userId1, $userId2, $params = array())
-	{
-		$userId1 = intval($userId1);
-		$userId2 = intval($userId2);
+	static $accessCache = [];
 
-		if ($userId1 <= 0 || $userId2 <= 0)
+	public static function getTitle($dialogId, $userId = null):? string
+	{
+		if (Common::isChatId($dialogId))
 		{
-			return false;
+			if (!Dialog::hasAccess($dialogId, $userId))
+			{
+				return null;
+			}
+
+			$chatId = Dialog::getChatId($dialogId);
+
+			$chatData = ChatTable::getRow([
+				'select' => ['TITLE'],
+				'filter' => ['=ID' => $chatId],
+			]);
+			if (!$chatData)
+			{
+				return null;
+			}
+
+			return $chatData['TITLE'];
 		}
 
-		$chatId = \CIMMessage::GetChatId($userId1, $userId2);
+		$userId = Common::getUserId($userId);
+		$chatId = \CIMMessage::GetChatId($dialogId, $userId);
 		if (!$chatId)
 		{
-			return false;
+			return null;
 		}
 
-		return Chat::getRelation($chatId, $params);
+		$userNames = [
+			User::getInstance($dialogId)->getFullName(false),
+			User::getInstance($userId)->getFullName(false),
+		];
+
+		return implode(" - ", $userNames);
 	}
 
 	public static function getChatId($dialogId, $userId = null)
@@ -64,12 +87,27 @@ class Dialog
 		return $chatId;
 	}
 
+	public static function getLink($dialogId, $userId = null):? string
+	{
+		if (!Dialog::hasAccess($dialogId, $userId))
+		{
+			return null;
+		}
+
+		return '/online/?IM_DIALOG='.$dialogId;
+	}
+
 	public static function hasAccess($dialogId, $userId = null)
 	{
 		$userId = \Bitrix\Im\Common::getUserId($userId);
 		if (!$userId)
 		{
 			return false;
+		}
+
+		if (isset(self::$accessCache[$dialogId][$userId]))
+		{
+			return self::$accessCache[$dialogId][$userId];
 		}
 
 		if (\Bitrix\Im\Common::isChatId($dialogId))
@@ -86,11 +124,13 @@ class Dialog
 			$chatData = \Bitrix\Main\Application::getInstance()->getConnection()->query($sql)->fetch();
 			if (!$chatData)
 			{
+				self::$accessCache[$dialogId][$userId] = false;
 				return false;
 			}
 
 			if ($chatData['RID'] > 0)
 			{
+				self::$accessCache[$dialogId][$userId] = true;
 				return true;
 			}
 			else if (
@@ -98,16 +138,19 @@ class Dialog
 				|| $chatData['CHAT_TYPE'] == Chat::TYPE_PRIVATE
 			)
 			{
+				self::$accessCache[$dialogId][$userId] = false;
 				return false;
 			}
 			else if ($chatData['CHAT_TYPE'] == Chat::TYPE_OPEN)
 			{
 				if (\Bitrix\Im\User::getInstance($userId)->isExtranet())
 				{
+					self::$accessCache[$dialogId][$userId] = false;
 					return false;
 				}
 				else
 				{
+					self::$accessCache[$dialogId][$userId] = true;
 					return true;
 				}
 			}
@@ -131,27 +174,47 @@ class Dialog
 						}
 					}
 
-					return \Bitrix\ImOpenLines\Config::canJoin($chatId, $crmEntityType, $crmEntityId);
+					$result = \Bitrix\ImOpenLines\Config::canJoin($chatId, $crmEntityType, $crmEntityId);
+					self::$accessCache[$dialogId][$userId] = $result;
+
+					return $result;
 				}
 				else
 				{
+					self::$accessCache[$dialogId][$userId] = false;
 					return false;
 				}
 			}
 			else
 			{
+				self::$accessCache[$dialogId][$userId] = false;
 				return false;
 			}
 		}
+		else if (!preg_match('/^\d{1,}$/i', $dialogId))
+		{
+			self::$accessCache[$dialogId][$userId] = false;
+			return false;
+		}
 		else if ($dialogId == $userId)
 		{
+			self::$accessCache[$dialogId][$userId] = true;
 			return true;
+		}
+		else if (
+			!\Bitrix\Im\User::getInstance($userId)->isExists()
+			|| !\Bitrix\Im\User::getInstance($dialogId)->isExists()
+		)
+		{
+			self::$accessCache[$dialogId][$userId] = false;
+			return false;
 		}
 		else if (
 			\Bitrix\Im\User::getInstance($userId)->isBot()
 			&& \Bitrix\Im\User::getInstance($dialogId)->isExtranet()
 		)
 		{
+			self::$accessCache[$dialogId][$userId] = true;
 			return true;
 		}
 		else
@@ -163,6 +226,7 @@ class Dialog
 					&& \Bitrix\Im\User::getInstance($dialogId)->isNetwork()
 				)
 				{
+					self::$accessCache[$dialogId][$userId] = true;
 					return true;
 				}
 				else if (
@@ -173,6 +237,7 @@ class Dialog
 					$inGroup = \Bitrix\Im\Integration\Socialnetwork\Extranet::isUserInGroup($dialogId, $userId);
 					if ($inGroup)
 					{
+						self::$accessCache[$dialogId][$userId] = true;
 						return true;
 					}
 
@@ -185,24 +250,29 @@ class Dialog
 					{
 						if ($USER->IsAdmin())
 						{
+							self::$accessCache[$dialogId][$userId] = true;
 							return true;
 						}
 						else if (\CModule::IncludeModule('bitrix24'))
 						{
 							if (\CBitrix24::IsPortalAdmin($userId))
 							{
+								self::$accessCache[$dialogId][$userId] = true;
 								return true;
 							}
 							else if (\Bitrix\Bitrix24\Integrator::isIntegrator($userId))
 							{
+								self::$accessCache[$dialogId][$userId] = true;
 								return true;
 							}
 						}
 					}
 
+					self::$accessCache[$dialogId][$userId] = false;
 					return false;
 				}
 
+				self::$accessCache[$dialogId][$userId] = true;
 				return true;
 			}
 			else
@@ -213,6 +283,7 @@ class Dialog
 					&& \CSocNetUser::IsFriendsAllowed()
 					&& !\CSocNetUserRelations::IsFriends($dialogId, $userId))
 				{
+					self::$accessCache[$dialogId][$userId] = false;
 					return false;
 				}
 				else if
@@ -223,14 +294,21 @@ class Dialog
 					&& !\CSocNetUserRelations::IsFriends($dialogId, $userId)
 				)
 				{
+					self::$accessCache[$dialogId][$userId] = false;
 					return false;
 				}
 				else
 				{
+					self::$accessCache[$dialogId][$userId] = true;
 					return true;
 				}
 			}
 		}
+	}
+
+	public static function clearAccessCache($dialogId)
+	{
+		unset(self::$accessCache[$dialogId]);
 	}
 
 	public static function read($dialogId, $messageId = null, $userId = null)
@@ -325,6 +403,25 @@ class Dialog
 		}
 
 		return false;
+	}
+
+	public static function getRelation($userId1, $userId2, $params = array())
+	{
+		$userId1 = intval($userId1);
+		$userId2 = intval($userId2);
+
+		if ($userId1 <= 0 || $userId2 <= 0)
+		{
+			return false;
+		}
+
+		$chatId = \CIMMessage::GetChatId($userId1, $userId2);
+		if (!$chatId)
+		{
+			return false;
+		}
+
+		return Chat::getRelation($chatId, $params);
 	}
 
 

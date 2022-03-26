@@ -9,9 +9,6 @@ if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)die();
  * @global CMain $APPLICATION
  * @global CUser $USER
  */
-
-$formId = 'feedback_form_' . $this->randString();
-
 ?>
 <div class="mfeedback">
 <?if(!empty($arResult["ERROR_MESSAGE"]))
@@ -25,7 +22,7 @@ if($arResult["OK_MESSAGE"] <> '')
 }
 ?>
 
-<form id="<?=$formId?>" action="<?=POST_FORM_ACTION_URI?>" method="POST">
+<form action="<?=POST_FORM_ACTION_URI?>" method="POST">
 <?=bitrix_sessid_post()?>
 	<div class="mf-name">
 		<div class="mf-text">
@@ -59,15 +56,4 @@ if($arResult["OK_MESSAGE"] <> '')
 	<input type="hidden" name="PARAMS_HASH" value="<?=$arResult["PARAMS_HASH"]?>">
 	<input type="submit" name="submit" value="<?=GetMessage("MFT_SUBMIT")?>">
 </form>
-<?php if ($arResult['FACEBOOK_CONVERSION_ENABLED']): ?>
-<script>
-	var form = document.getElementById('<?=$formId?>');
-	BX.Event.bind(form, 'submit', function() {
-		if (form.elements && form.elements['user_email'] && form.elements['user_email'].value)
-		{
-			BX.ajax.runAction('sale.facebookconversion.contact', {data: {contactBy: form.elements['user_email'].value}});
-		}
-	});
-</script>
-<?php endif; ?>
 </div>

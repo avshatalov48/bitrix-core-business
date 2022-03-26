@@ -26,6 +26,8 @@ return [
 		'landing.ui.field.productfield',
 		'calendar.resourcebookinguserfield',
 		'socnetlogdest',
+		'ui.hint',
+		'landing.ui.component.iconbutton',
 	],
 	'skip_core' => false,
 ];

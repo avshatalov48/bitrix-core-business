@@ -14,6 +14,10 @@ $arComponentParameters = Array(
 			'NAME' => getMessage('LANDING_CMP_PAR_SETTING_LINK'),
 			'TYPE' => 'STRING'
 		),
+		'FOLDER_ID' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_FOLDER_ID'),
+			'TYPE' => 'STRING'
+		),
 		'FOLDER_SITE_ID' => array(
 			'NAME' => getMessage('LANDING_CMP_PAR_FOLDER_SITE_ID'),
 			'TYPE' => 'STRING'

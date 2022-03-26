@@ -2,37 +2,219 @@
 
 namespace Bitrix\Calendar\Rooms;
 
-use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Calendar\Internals\LocationTable;
 use Bitrix\Calendar\Internals\SectionTable;
-use Bitrix\Main\EventManager;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Error;
 use Bitrix\Main\Type\DateTime;
-use CCalendar;
-use CCalendarEvent;
-use CCalendarSect;
+
+Loc::loadMessages(__FILE__);
 
 class Room
 {
-	/**
-	 * @param $params
-	 * Creating Room in Location Calendar
-	 *
-	 * @return int|null id of created room
-	 */
-	public function create($params): ?int
+	const TYPE = 'location';
+	
+	/** @var int $id*/
+	private $id;
+	/** @var int $locationId */
+	private $locationId;
+	/** @var int $capacity */
+	private $capacity;
+	/** @var string $necessity */
+	private $necessity;
+	/** @var string $name */
+	private $name;
+	/** @var string $type */
+	private $type = self::TYPE;
+	/** @var string $color */
+	private $color;
+	/** @var int $ownerId */
+	private $ownerId;
+	/** @var int $createdBy */
+	private $createdBy;
+	/** @var array $access */
+	private $access;
+	/** @var Error $error */
+	private $error;
+	
+	protected function __construct()
 	{
-		if(!isset($params['CREATED_BY']))
-		{
-			$params['CREATED_BY'] = CCalendar::GetCurUserId();
-		}
+	}
+	
+	public static function createInstanceFromRequest($request): Room
+	{
+		$room = new self();
+		$room->setId($request->getPost('id'))
+			->setLocationId($request->getPost('location_id'))
+			->setCapacity($request->getPost('capacity'))
+			->setNecessity($request->getPost('necessity'))
+			->setName($request->getPost('name'))
+			->setColor($request->getPost('color'))
+			->setOwnerId($request->getPost('ownerId'))
+			->setCreatedBy()
+			->setAccess($request->getPost('access'));
+		
+		return $room;
+	}
+
+	public static function createInstanceFromParams($params): Room
+	{
+		$room = new self();
+		$room->setId($params['ID'])
+			->setLocationId($params['LOCATION_ID'])
+			->setCapacity($params['CAPACITY'])
+			->setNecessity($params['NECESSITY'])
+			->setName($params['NAME'])
+			->setColor($params['COLOR'])
+			->setOwnerId($params['OWNER_ID'])
+			->setCreatedBy()
+			->setAccess($params['ACCESS']);
+
+		return $room;
+	}
+	
+	public function createInstance(): Room
+	{
+		return new self();
+	}
+	
+	private function setId($id): Room
+	{
+		$this->id = (int)$id;
+		
+		return $this;
+	}
+	
+	private function setLocationId($locationId): Room
+	{
+		$this->locationId = (int)$locationId;
+		
+		return $this;
+		
+	}
+	
+	private function setCapacity($capacity): Room
+	{
+		$this->capacity = (int)$capacity;
+		
+		return $this;
+	}
+	
+	private function setNecessity($necessity): Room
+	{
+		$this->necessity = ($necessity === 'Y') ? 'Y' : 'N';
+		
+		return $this;
+	}
+	
+	public function setName($name): Room
+	{
+		$this->name = Manager::checkRoomName($name);
+		
+		return $this;
+	}
+	
+	private function setColor($color): Room
+	{
+		$this->color = \CCalendar::Color($color);
+		
+		return $this;
+	}
+	
+	private function setOwnerId($ownerId): Room
+	{
+		$this->ownerId = (int)$ownerId;
+		
+		return $this;
+	}
+	
+	private function setCreatedBy(): Room
+	{
+		$this->createdBy = \CCalendar::GetCurUserId();
+		
+		return $this;
+	}
+	
+	private function setAccess($access): Room
+	{
+		$this->access = $access;
+		
+		return $this;
+	}
+	
+	private function addError($error)
+	{
+		$this->error = $error;
+	}
+	
+	public function getId(): int
+	{
+		return $this->id;
+	}
+	
+	public function getLocationId(): int
+	{
+		return $this->locationId;
+	}
+	
+	public function getCapacity(): int
+	{
+		return $this->capacity;
+	}
+	
+	public function getNecessity(): string
+	{
+		return $this->necessity;
+	}
+	
+	public function getName(): string
+	{
+		return $this->name;
+	}
+	
+	public function getType(): string
+	{
+		return $this->type;
+	}
+	
+	public function getColor(): string
+	{
+		return $this->color;
+	}
+	
+	public function getOwnerId(): int
+	{
+		return $this->ownerId;
+	}
+	
+	public function getCreatedBy(): int
+	{
+		return $this->createdBy;
+	}
+	
+	public function getAccess(): array
+	{
+		return $this->access;
+	}
+	
+	public function getError(): ?Error
+	{
+		return $this->error;
+	}
+	
+	/**
+	 * @return $this
+	 */
+	public function create(): Room
+	{
 		$section = SectionTable::add(
 			[
-				'CAL_TYPE' => $params['CAL_TYPE'],
-				'NAME' => $params['NAME'],
-				'COLOR' => $params['COLOR'],
-				'OWNER_ID' => $params['OWNER_ID'],
+				'CAL_TYPE' => $this->type,
+				'NAME' => $this->name,
+				'COLOR' => $this->color,
+				'OWNER_ID' => $this->ownerId,
 				'SORT' => 100,
-				'CREATED_BY' => $params['CREATED_BY'],
+				'CREATED_BY' => $this->createdBy,
 				'DATE_CREATE' => new DateTime(),
 				'TIMESTAMP_X' => new DateTime(),
 				'ACTIVE' => 'Y',
@@ -40,194 +222,88 @@ class Room
 		);
 		if (!$section->isSuccess())
 		{
-			return null;
+			$this->addError(Loc::getMessage('EC_ROOM_SAVE_ERROR'));
+			
+			return $this;
 		}
-		$sect_id = $section->getId();
+		$this->setId($section->getId());
 
 		$location = LocationTable::add(
 			[
-				'SECTION_ID' => $sect_id,
-				'NECESSITY' => $params['NECESSITY'],
-				'CAPACITY' => $params['CAPACITY'],
+				'SECTION_ID' => $this->id,
+				'NECESSITY' => $this->necessity,
+				'CAPACITY' => $this->capacity,
 			]
 		);
 		if (!$location->isSuccess())
 		{
-			SectionTable::delete($sect_id);
-
-			return null;
+			SectionTable::delete($this->id);
+			$this->addError(new Error(Loc::getMessage('EC_ROOM_SAVE_ERROR')));
+			
+			return $this;
 		}
-
-		$this->saveAccess($params, $sect_id);
-		\CCalendarSect::SetClearOperationCache(true);
-		Manager::clearCache();
-
-		foreach(EventManager::getInstance()->findEventHandlers("calendar", "OnAfterCalendarRoomCreate") as $event)
-		{
-			ExecuteModuleEventEx($event, array($sect_id, $params));
-		}
-		\Bitrix\Calendar\Util::addPullEvent(
-			'create_room',
-			$params['CREATED_BY'],
-			[
-				'fields' => $params
-			]
-		);
-
-		return $sect_id;
+		
+		return $this;
 	}
-
+	
 	/**
-	 * @param $params
-	 *
-	 * Updating data of room in Location calendar
-	 *
-	 * @return mixed|null id of updated room
+	 * @return $this
 	 */
-	public function update($params): ?int
+	public function update(): Room
 	{
-		$params['CREATED_BY'] = CCalendar::GetCurUserId();
 		$section = SectionTable::update(
-			$params['ID'],
+			$this->id,
 			[
-				'NAME' => $params['NAME'],
-				'COLOR' => $params['COLOR'],
+				'NAME' => $this->name,
+				'COLOR' => $this->color,
 				'TIMESTAMP_X' => new DateTime(),
 			]
 		);
 		if (!$section->isSuccess())
 		{
-			return null;
+			$this->addError(new Error(Loc::getMessage('EC_ROOM_SAVE_ERROR')));
+			
+			return $this;
 		}
+		$this->setId($section->getId());
 
 		$location = LocationTable::update(
-			$params['LOCATION_ID'],
+			$this->locationId,
 			[
-				'NECESSITY' => $params['NECESSITY'],
-				'CAPACITY' => $params['CAPACITY'],
+				'NECESSITY' => $this->necessity,
+				'CAPACITY' => $this->capacity,
 			]
 		);
 		if (!$location->isSuccess())
 		{
-			return null;
+			$this->addError(new Error(Loc::getMessage('EC_ROOM_SAVE_ERROR')));
+			
+			return $this;
 		}
 
-		$sect_id = $section->getId();
-		$this->saveAccess($params, $sect_id);
-		\CCalendarSect::SetClearOperationCache(true);
-		Manager::clearCache();
-
-		foreach(EventManager::getInstance()->findEventHandlers("calendar", "OnAfterCalendarRoomUpdate") as $event)
-		{
-			ExecuteModuleEventEx($event, array($sect_id, $params));
-		}
-		\Bitrix\Calendar\Util::addPullEvent(
-			'update_room',
-			$params['CREATED_BY'],
-			[
-				'fields' => $params
-			]
-		);
-
-		return $sect_id;
+		return $this;
 	}
-
+	
 	/**
-	 * @param $id
-	 *
-	 * Deleting room by id in Location calendar
-	 *
-	 * @return bool true if successful
+	 * @return $this
 	 */
-	public function delete($params): bool
+	public function delete(): Room
 	{
-		$locationName = Manager::getRoomName($params['ID']);
-		$section = SectionTable::delete($params['ID']);
-		$params['CREATED_BY'] = CCalendar::GetCurUserId();
+		$section = SectionTable::delete($this->id);
 		if (!$section->isSuccess())
 		{
-			return false;
+			$this->addError(new Error(Loc::getMessage('EC_ROOM_DELETE_ERROR')));
+			
+			return $this;
 		}
 
-		$location = LocationTable::delete($params['LOCATION_ID']);
+		$location = LocationTable::delete($this->locationId);
 		if (!$location->isSuccess())
 		{
-			return false;
+			$this->addError(new Error(Loc::getMessage('EC_ROOM_DELETE_ERROR')));
+			
+			return $this;
 		}
-
-		$eventsId = EventTable::getList([
-			'select' =>
-				[
-					'ID',
-					'CREATED_BY',
-					'PARENT_ID'
-				],
-			'filter' =>
-				[
-					'=SECTION_ID' => $params['ID'],
-					'=DELETED' => 'N'
-				]
-										])->fetchAll();
-
-		foreach($eventsId as $event)
-		{
-			if ($params['CREATED_BY'])
-			{
-				\Bitrix\Calendar\Util::addPullEvent(
-					'delete_event',
-					$params['CREATED_BY'],
-					[
-						'fields' => $event
-					]
-				);
-			}
-		}
-		CCalendarEvent::DeleteEmpty();
-		Manager::deleteLocationFromEvent($params['ID'], $locationName['NAME']);
-		CCalendarSect::SetClearOperationCache(true);
-		CCalendarSect::CleanAccessTable();
-		Manager::clearCache();
-
-		foreach(EventManager::getInstance()->findEventHandlers("calendar", "OnAfterCalendarRoomDelete") as $event)
-		{
-			ExecuteModuleEventEx($event, array($params['ID']));
-		}
-
-		\Bitrix\Calendar\Util::addPullEvent(
-			'delete_room',
-			$params['CREATED_BY'],
-			[
-				'fields' => $params
-			]
-		);
-
-		return true;
-	}
-
-	/**
-	 * @param $params
-	 * @param $id
-	 *
-	 * Saving access into b_calendar_access
-	 */
-	private function saveAccess($params, $id)
-	{
-		if ($id > 0 && !isset($params['ACCESS']))
-		{
-			\CCalendarSect::SavePermissions(
-				$id,
-				\CCalendarSect::GetDefaultAccess(
-					$params['CAL_TYPE'],
-					$params['CREATED_BY']
-				)
-			);
-		}
-		else if ($id > 0 && !empty($params['ACCESS']))
-		{
-			CCalendarSect::SavePermissions(
-				$id,
-				$params['ACCESS']
-			);
-		}
+		return $this;
 	}
 }

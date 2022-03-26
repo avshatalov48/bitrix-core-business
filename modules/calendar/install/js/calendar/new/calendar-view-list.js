@@ -78,8 +78,15 @@
 
 	ListView.prototype.show = function(params)
 	{
-		if (!params)
-			params = {};
+		params = params || {};
+
+		if (!this.loaderCircle)
+		{
+			this.loaderCircle = new BX.Loader({
+				target: this.viewCont
+			});
+			this.loaderCircle.show();
+		}
 
 		View.prototype.show.apply(this, arguments);
 		this.showNavigationCalendar();
@@ -125,6 +132,10 @@
 
 		if (this.entries === false)
 		{
+			if (this.loaderCircle)
+			{
+				this.loaderCircle.hide();
+			}
 			return;
 		}
 
@@ -171,6 +182,8 @@
 			}.bind(this),
 			params.focusDate
 		);
+		
+		this.loaderCircle.hide();
 	};
 
 	ListView.prototype.displayResult = function(entries)
@@ -204,6 +217,11 @@
 
 		if (entries === false || !entries || !entries.length)
 		{
+			if (this.loaderCircle)
+			{
+				this.loaderCircle.hide();
+			}
+			
 			return this.showEmptyBlock();
 		}
 		else if (this.noEntriesWrap)
@@ -214,6 +232,10 @@
 		this.streamContentWrap.style.display = '';
 		this.entryParts = [];
 		this.attachEntries(entries, 'next');
+		if (this.loaderCircle)
+		{
+			this.loaderCircle.hide();
+		}
 	};
 
 	ListView.prototype.attachEntries = function(entries, animation, focusCallback, focusDate)
@@ -382,6 +404,7 @@
 
 			if (
 				(parseInt(this.calendar.util.userId) !== parseInt(entry.data.MEETING_HOST))
+				&& (parseInt(this.calendar.util.userId) === parseInt(entry.data.CREATED_BY))
 				&& entry.data.MEETING_STATUS === 'Q'
 			)
 			{
@@ -491,11 +514,11 @@
 					{
 						wrapper.appendChild(BX.create("IMG", {
 							attrs: {
-								id: 'simple_view_popup_' + user.USER_ID,
-								src: user.AVATAR || ''
+								id: 'simple_view_popup_' + user.ID,
+								src: user.AVATAR || '',
+								'bx-tooltip-user-id': user.ID,
 							},
 							props: {
-								title: user.DISPLAY_NAME,
 								className: 'calendar-member'
 							}
 						}));
@@ -511,16 +534,6 @@
 							html: '<i></i>',
 						}));
 					}
-					BX.tooltip(user.USER_ID, "simple_view_popup_" + user.USER_ID);
-					// temporarily left if something went wrong
-
-					// (function (userId)
-					// {
-						// setTimeout(function ()
-						// {
-						// 	BX.tooltip(userId, "simple_view_popup_" + userId);
-						// }, 100)
-					// })(user.USER_ID);
 				}
 				if (attendeesCount >= userLength)
 				{
@@ -1205,7 +1218,11 @@
 		if (this.streamScrollWrap)
 		{
 			this.streamContentWrap.style.display = 'none';
-			this.filterLoaderWrap.style.display = '';
+			// this.filterLoaderWrap.style.display = '';
+		}
+		if (this.loaderCircle)
+		{
+			this.loaderCircle.show();
 		}
 	};
 
@@ -1228,10 +1245,14 @@
 		}
 
 		this.streamContentWrap.style.display = '';
-		if (this.filterLoaderWrap)
-		{
-			this.filterLoaderWrap.style.display = 'none';
-		}
+		// if (this.filterLoaderWrap)
+		// {
+		// 	this.filterLoaderWrap.style.display = 'none';
+		// }
+		// if (this.loaderCircle)
+		// {
+		// 	this.loaderCircle.hide();
+		// }
 
 		if (!params || params.resetSearchFilter !== false)
 		{

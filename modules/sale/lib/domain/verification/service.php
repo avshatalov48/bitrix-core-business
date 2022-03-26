@@ -63,6 +63,13 @@ final class Service
 						}
 
 						$domainVerification = BaseManager::searchByRequest($row['DOMAIN_NAME'], $requestURL);
+
+						if (!$domainVerification)
+						{
+							$pubPath = \Bitrix\Landing\Manager::getPublicationPath($landingInstance['SITE_ID']);
+							$domainVerification = BaseManager::searchByRequest($row['DOMAIN_NAME'], substr($requestURL, strlen($pubPath)-1));
+						}
+
 						if ($domainVerification)
 						{
 							$result->modifyFields([

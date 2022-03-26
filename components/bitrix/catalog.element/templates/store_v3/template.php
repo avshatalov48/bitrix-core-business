@@ -186,10 +186,53 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 					{
 						foreach ($actualItem['MORE_PHOTO'] as $key => $photo)
 						{
+							$xResizedImage = \CFile::ResizeImageGet(
+								$photo['ID'],
+								[
+									'width' => 400,
+									'height' => 400,
+								],
+								BX_RESIZE_IMAGE_PROPORTIONAL,
+								true
+							);
+
+							$x2ResizedImage = \CFile::ResizeImageGet(
+								$photo['ID'],
+								[
+									'width' => 800,
+									'height' => 800,
+								],
+								BX_RESIZE_IMAGE_PROPORTIONAL,
+								true
+							);
+
+							if (!$xResizedImage || !$x2ResizedImage)
+							{
+								$xResizedImage = [
+									'src' => $photo['SRC'],
+								];
+								$x2ResizedImage = $xResizedImage;
+							}
+
+							$xResizedImage = \Bitrix\Iblock\Component\Tools::getImageSrc([
+								'SRC' => $xResizedImage['src']
+							]);
+							$x2ResizedImage = \Bitrix\Iblock\Component\Tools::getImageSrc([
+								'SRC' => $x2ResizedImage['src']
+							]);
+
+							$style = "background-image: url('{$xResizedImage}');";
+							$style .= "background-image: -webkit-image-set(url('{$xResizedImage}') 1x, url('{$x2ResizedImage}') 2x);";
+							$style .= "background-image: image-set(url('{$xResizedImage}') 1x, url('{$x2ResizedImage}') 2x);";
 							?>
 							<div class="product-detail-slider-image<?=($key == 0 ? ' active' : '')?>" data-entity="image" data-id="<?=$photo['ID']?>">
-								<img src="<?=$photo['SRC']?>" alt="<?=$alt?>" title="<?=$title?>">
-								<div class="product-detail-slider-image-overlay" style="background-image: url("<?= $photo['SRC'] ?>");"></div>
+								<img
+									src="<?= $xResizedImage ?>"
+									srcset="<?= $xResizedImage ?> 1x, <?= $x2ResizedImage ?> 2x"
+									alt="<?= $alt ?>"
+									title="<?= $title ?>"
+								>
+								<div class="product-detail-slider-image-overlay" style="<?= $style ?>"></div>
 							</div>
 			<?php
 						}
@@ -569,7 +612,7 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 						{
 							?>
 							<div class="mb-3">
-								<a class="btn <?=$showButtonClassName?> product-item-detail-buy-button btn-md rounded-pill"
+								<a class="product-item-detail-buy-button btn btn-md rounded-pill <?=$buyButtonClassName?>"
 									id="<?=$itemIds['ADD_BASKET_LINK']?>"
 									href="javascript:void(0);">
 									<?=$arParams['MESS_BTN_ADD_TO_BASKET']?>
@@ -1506,11 +1549,68 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 				$jsOffer['DISPLAY_PROPERTIES_MAIN_BLOCK'] = $strMainProps;
 				$jsOffer['PRICE_RANGES_RATIO_HTML'] = $strPriceRangesRatio;
 				$jsOffer['PRICE_RANGES_HTML'] = $strPriceRanges;
+
+				$jsOffer['RESIZED_SLIDER'] = [
+					'X' => [],
+					'X2' => [],
+				];
+				foreach ($jsOffer['SLIDER'] as $morePhoto)
+				{
+					$xResizedImage = \CFile::ResizeImageGet(
+						$morePhoto['ID'],
+						[
+							'width' => 400,
+							'height' => 400,
+						],
+						BX_RESIZE_IMAGE_PROPORTIONAL,
+						true
+					);
+
+					$x2ResizedImage = \CFile::ResizeImageGet(
+						$morePhoto['ID'],
+						[
+							'width' => 800,
+							'height' => 800,
+						],
+						BX_RESIZE_IMAGE_PROPORTIONAL,
+						true
+					);
+
+					if (!$xResizedImage || !$x2ResizedImage)
+					{
+						$xResizedImage = [
+							'src' => $morePhoto['SRC'],
+							'width' => $morePhoto['WIDTH'],
+							'height' => $morePhoto['HEIGHT'],
+						];
+						$x2ResizedImage = $xResizedImage;
+					}
+
+					$xResizedImage['src'] = \Bitrix\Iblock\Component\Tools::getImageSrc([
+						'SRC' => $xResizedImage['src']
+					]);
+					$x2ResizedImage['src'] = \Bitrix\Iblock\Component\Tools::getImageSrc([
+						'SRC' => $x2ResizedImage['src']
+					]);
+
+					$jsOffer['RESIZED_SLIDER']['X'][] = [
+						'ID' => $morePhoto['ID'],
+						'SRC' => $xResizedImage['src'],
+						'WIDTH' => $xResizedImage['width'],
+						'HEIGHT' => $xResizedImage['height'],
+					];
+					$jsOffer['RESIZED_SLIDER']['X2'][] = [
+						'ID' => $morePhoto['ID'],
+						'SRC' => $x2ResizedImage['src'],
+						'WIDTH' => $x2ResizedImage['width'],
+						'HEIGHT' => $x2ResizedImage['height'],
+					];
+				}
 			}
 
 			$templateData['OFFER_IDS'] = $offerIds;
 			$templateData['OFFER_CODES'] = $offerCodes;
-			unset($jsOffer, $strAllProps, $strMainProps, $strPriceRanges, $strPriceRangesRatio, $useRatio);
+			unset($jsOffer, $strAllProps, $strMainProps, $strPriceRanges, $strPriceRangesRatio, $useRatio, $xResizedImage, $x2ResizedImage);
 
 			$jsParams = array(
 				'CONFIG' => array(
@@ -1652,6 +1752,57 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 				<?php
 			}
 
+			$resizedSlider = [
+				'X' => [],
+				'X2' => [],
+			];
+
+			foreach ($arResult['MORE_PHOTO'] as $morePhoto)
+			{
+				$xResizedImage = \CFile::ResizeImageGet(
+					$morePhoto['ID'],
+					[
+						'width' => 400,
+						'height' => 400,
+					],
+					BX_RESIZE_IMAGE_PROPORTIONAL,
+					true
+				);
+
+				$x2ResizedImage = \CFile::ResizeImageGet(
+					$morePhoto['ID'],
+					[
+						'width' => 800,
+						'height' => 800,
+					],
+					BX_RESIZE_IMAGE_PROPORTIONAL,
+					true
+				);
+
+				if (!$xResizedImage || !$x2ResizedImage)
+				{
+					$xResizedImage = [
+						'src' => $morePhoto['SRC'],
+						'width' => $morePhoto['WIDTH'],
+						'height' => $morePhoto['HEIGHT'],
+					];
+					$x2ResizedImage = $xResizedImage;
+				}
+
+				$resizedSlider['X'][] = [
+					'ID' => $morePhoto['ID'],
+					'SRC' => $xResizedImage['src'],
+					'WIDTH' => $xResizedImage['width'],
+					'HEIGHT' => $xResizedImage['height'],
+				];
+				$resizedSlider['X2'][] = [
+					'ID' => $morePhoto['ID'],
+					'SRC' => $x2ResizedImage['src'],
+					'WIDTH' => $x2ResizedImage['width'],
+					'HEIGHT' => $x2ResizedImage['height'],
+				];
+			}
+
 			$jsParams = array(
 				'CONFIG' => array(
 					'USE_CATALOG' => $arResult['CATALOG'],
@@ -1697,6 +1848,7 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 					'ITEM_MEASURE_RATIO_SELECTED' => $arResult['ITEM_MEASURE_RATIO_SELECTED'],
 					'SLIDER_COUNT' => $arResult['MORE_PHOTO_COUNT'],
 					'SLIDER' => $arResult['MORE_PHOTO'],
+					'RESIZED_SLIDER' => $resizedSlider,
 					'CAN_BUY' => $arResult['CAN_BUY'],
 					'CHECK_QUANTITY' => $arResult['CHECK_QUANTITY'],
 					'QUANTITY_FLOAT' => is_float($arResult['ITEM_MEASURE_RATIOS'][$arResult['ITEM_MEASURE_RATIO_SELECTED']]['RATIO']),
@@ -1714,7 +1866,7 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 					'BUY_URL_TEMPLATE' => $arResult['~BUY_URL_TEMPLATE']
 				)
 			);
-			unset($emptyProductProperties);
+			unset($emptyProductProperties, $resizedSlider, $xResizedImage, $x2ResizedImage);
 		}
 
 		$jsParams['IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED'] =

@@ -26,72 +26,22 @@ class ExtraServicesService extends BaseService
 	private const ERROR_EXTRA_SERVICE_NOT_FOUND = 'ERROR_EXTRA_SERVICE_NOT_FOUND';
 	private const ERROR_DELIVERY_NOT_FOUND = 'ERROR_DELIVERY_NOT_FOUND';
 
-	private static function getExtraServicesTypeMap(): array
-	{
-		$result = [];
-
-		$esClasses = Sale\Delivery\ExtraServices\Manager::getClassesList();
-		foreach ($esClasses as $className)
-		{
-			$classCode = (new \ReflectionClass($className))->getShortName();
-			$result[mb_strtolower($classCode)] = $className;
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @param array $data
-	 * @param \CRestServer $server
-	 * @return array
-	 */
-	private static function prepareExtraServicesParams(array $data, \CRestServer $server): array
-	{
-		$data = self::prepareIncomingParams($data);
-		$data['APP_ID'] = $server->getClientId();
-
-		return $data;
-	}
+	private const ENUM_TYPE = 'enum';
+	private const CHECKBOX_TYPE = 'checkbox';
+	private const QUANTITY_TYPE = 'quantity';
 
 	/**
 	 * @param $query
 	 * @param $n
 	 * @param \CRestServer $server
 	 * @return array|int
+	 * @throws RestException
 	 */
 	public static function addExtraServices($query, $n, \CRestServer $server)
 	{
 		self::checkDeliveryPermission();
 		$params = self::prepareExtraServicesParams($query, $server);
-		self::checkParamsBeforeAddExtraServices($params);
 
-		$extraServicesTypeMap = self::getExtraServicesTypeMap();
-		$fields = [
-			'CLASS_NAME' => $extraServicesTypeMap[$params['TYPE']],
-			'DELIVERY_ID' => $params['DELIVERY_ID'],
-			'NAME' => $params['NAME'],
-			'ACTIVE' => (!empty($params['ACTIVE']) && $params['ACTIVE'] === 'Y') ? 'Y' : 'N',
-			'CODE' => $params['CODE'] ?? '',
-			'DESCRIPTION' => $params['DESCRIPTION'] ?? '',
-			'PARAMS' => $params['PARAMS'],
-			'SORT' => $params['SORT'] ? (int)$params['SORT'] : 100,
-			'RIGHTS' => $params['RIGHTS'],
-		];
-
-		$fields = Sale\Delivery\ExtraServices\Manager::prepareParamsToSave($fields);
-
-		$result = Sale\Delivery\ExtraServices\Table::add($fields);
-		if ($result->isSuccess())
-		{
-			return $result->getId();
-		}
-
-		$error = implode("\n", $result->getErrorMessages());
-		throw new RestException($error, self::ERROR_EXTRA_SERVICE_ADD);
-	}
-
-	private static function checkParamsBeforeAddExtraServices($params)
-	{
 		if (empty($params['DELIVERY_ID']))
 		{
 			throw new RestException('Parameter DELIVERY_ID is not defined', self::ERROR_CHECK_FAILURE);
@@ -100,16 +50,6 @@ class ExtraServicesService extends BaseService
 		if (empty($params['NAME']))
 		{
 			throw new RestException('Parameter NAME is not defined', self::ERROR_CHECK_FAILURE);
-		}
-
-		if (empty($params['RIGHTS']))
-		{
-			throw new RestException('Parameter RIGHTS is not defined', self::ERROR_CHECK_FAILURE);
-		}
-
-		if (empty($params['PARAMS']) || !is_array($params['PARAMS']))
-		{
-			throw new RestException('Parameter PARAMS is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
 		$extraServiceType = $params['TYPE'] ?? null;
@@ -124,10 +64,18 @@ class ExtraServicesService extends BaseService
 			throw new RestException('Parameter TYPE is unknown', self::ERROR_CHECK_FAILURE);
 		}
 
-		$data = Sale\Delivery\Services\Manager::getById($params['DELIVERY_ID']);
-		if ($data)
+		if ($params['TYPE'] === self::ENUM_TYPE)
 		{
-			if (!self::hasAccessToDelivery($data, $params['APP_ID']))
+			if (!isset($params['ITEMS']) || !is_array($params['ITEMS']) || empty($params['ITEMS']))
+			{
+				throw new RestException('Parameter ITEMS must be defined for enum type', self::ERROR_CHECK_FAILURE);
+			}
+		}
+
+		$deliveryService = Sale\Delivery\Services\Manager::getById($params['DELIVERY_ID']);
+		if ($deliveryService)
+		{
+			if (!self::hasAccessToDelivery($deliveryService, $params['APP_ID']))
 			{
 				throw new AccessException();
 			}
@@ -155,61 +103,128 @@ class ExtraServicesService extends BaseService
 				);
 			}
 		}
+
+		$fields = Sale\Delivery\ExtraServices\Manager::prepareParamsToSave([
+			'CLASS_NAME' => $extraServicesTypeMap[$params['TYPE']],
+			'DELIVERY_ID' => $params['DELIVERY_ID'],
+			'NAME' => $params['NAME'],
+			'ACTIVE' => (!empty($params['ACTIVE']) && $params['ACTIVE'] === 'Y') ? 'Y' : 'N',
+			'CODE' => $params['CODE'] ?? '',
+			'DESCRIPTION' => $params['DESCRIPTION'] ?? '',
+			'PARAMS' => self::makeInternalParams($params['TYPE'], $params),
+			'SORT' => $params['SORT'] ? (int)$params['SORT'] : 100,
+			'RIGHTS' => [
+				Sale\Delivery\ExtraServices\Manager::RIGHTS_ADMIN_IDX => 'Y',
+				Sale\Delivery\ExtraServices\Manager::RIGHTS_MANAGER_IDX => 'Y',
+				Sale\Delivery\ExtraServices\Manager::RIGHTS_CLIENT_IDX => 'Y',
+			],
+		]);
+		$result = Sale\Delivery\ExtraServices\Table::add($fields);
+		if ($result->isSuccess())
+		{
+			return $result->getId();
+		}
+
+		$error = implode("\n", $result->getErrorMessages());
+		throw new RestException($error, self::ERROR_EXTRA_SERVICE_ADD);
 	}
 
 	/**
 	 * @param $query
 	 * @param $n
 	 * @param \CRestServer $server
-	 * @return array|int
+	 * @return bool
+	 * @throws RestException
 	 */
 	public static function updateExtraServices($query, $n, \CRestServer $server)
 	{
 		self::checkDeliveryPermission();
 		$params = self::prepareExtraServicesParams($query, $server);
-		self::checkParamsBeforeUpdateExtraServices($params);
+
+		if (empty($params['ID']))
+		{
+			throw new RestException('Parameter ID is not defined', self::ERROR_CHECK_FAILURE);
+		}
+
+		$extraService = Sale\Delivery\ExtraServices\Table::getList([
+			'select' => ['ID', 'CODE', 'DELIVERY_ID', 'CLASS_NAME'],
+			'filter' => [
+				'=ID' => $params['ID'],
+			],
+			'limit' => 1,
+		])->fetch();
+		if ($extraService)
+		{
+			$deliveryService = Sale\Delivery\Services\Manager::getById($extraService['DELIVERY_ID']);
+			if ($deliveryService && !self::hasAccessToDelivery($deliveryService, $params['APP_ID']))
+			{
+				throw new AccessException();
+			}
+
+			$newCode = $params['CODE'] ?? '';
+			if ($newCode)
+			{
+				$existingExtraService = Sale\Delivery\ExtraServices\Table::getList([
+					'select' => ['ID'],
+					'filter' => [
+						'=DELIVERY_ID' => $extraService['DELIVERY_ID'],
+						'=CODE' => $newCode,
+					],
+					'limit' => 1,
+				])->fetch();
+				if ($existingExtraService && (int)$existingExtraService['ID'] !== (int)$params['ID'])
+				{
+					throw new RestException(
+						'FIELDS[CODE] "' . $newCode . '" already exists for this delivery',
+						self::ERROR_CHECK_FAILURE
+					);
+				}
+			}
+		}
+		else
+		{
+			throw new RestException('Extra service not found', self::ERROR_EXTRA_SERVICE_NOT_FOUND);
+		}
+
+		$extraServicesTypeMap = array_flip(self::getExtraServicesTypeMap());
+
+		if (!isset($extraServicesTypeMap[$extraService['CLASS_NAME']]))
+		{
+			throw new RestException('Unknown type', self::ERROR_CHECK_FAILURE);
+		}
+		$type = $extraServicesTypeMap[$extraService['CLASS_NAME']];
 
 		$fields = [];
 
-		if (!empty($params['FIELDS']['TYPE']))
+		if (!empty($params['NAME']))
 		{
-			$extraServicesTypeMap = self::getExtraServicesTypeMap();
-			$fields['CLASS_NAME'] = $extraServicesTypeMap[$params['FIELDS']['TYPE']];
+			$fields['NAME'] = $params['NAME'];
 		}
 
-		if (!empty($params['FIELDS']['NAME']))
+		if (!empty($params['ACTIVE']))
 		{
-			$fields['NAME'] = $params['FIELDS']['NAME'];
+			$fields['ACTIVE'] = $params['ACTIVE'] === 'Y' ? 'Y' : 'N';
 		}
 
-		if (!empty($params['FIELDS']['ACTIVE']))
+		if (isset($params['DESCRIPTION']))
 		{
-			$fields['ACTIVE'] = $params['FIELDS']['ACTIVE'] === 'Y' ? 'Y' : 'N';
+			$fields['DESCRIPTION'] = $params['DESCRIPTION'];
 		}
 
-		if (isset($params['FIELDS']['DESCRIPTION']))
+		if (!empty($params['SORT']))
 		{
-			$fields['DESCRIPTION'] = $params['FIELDS']['DESCRIPTION'];
+			$fields['SORT'] = (int)$params['SORT'];
 		}
 
-		if (!empty($params['FIELDS']['SORT']))
+		if (isset($params['CODE']))
 		{
-			$fields['SORT'] = (int)$params['FIELDS']['SORT'];
+			$fields['CODE'] = $params['CODE'];
 		}
 
-		if (isset($params['FIELDS']['CODE']))
+		$internalParams = self::makeInternalParams($type, $params);
+		if (!is_null($internalParams))
 		{
-			$fields['CODE'] = $params['FIELDS']['CODE'];
-		}
-
-		if (!empty($params['FIELDS']['PARAMS']))
-		{
-			$fields['PARAMS'] = $params['FIELDS']['PARAMS'];
-		}
-
-		if (!empty($params['FIELDS']['RIGHTS']))
-		{
-			$fields['RIGHTS'] = $params['FIELDS']['RIGHTS'];
+			$fields['PARAMS'] = $internalParams;
 		}
 
 		$fields = Sale\Delivery\ExtraServices\Manager::prepareParamsToSave($fields);
@@ -224,74 +239,6 @@ class ExtraServicesService extends BaseService
 		throw new RestException($error, self::ERROR_EXTRA_SERVICE_UPDATE);
 	}
 
-	private static function checkParamsBeforeUpdateExtraServices($params)
-	{
-		if (empty($params['ID']))
-		{
-			throw new RestException('Parameter ID is not defined', self::ERROR_CHECK_FAILURE);
-		}
-
-		if (empty($params['FIELDS']) || !is_array($params['FIELDS']))
-		{
-			throw new RestException('Parameter FIELDS is not defined', self::ERROR_CHECK_FAILURE);
-		}
-
-		$extraServiceType = $params['FIELDS']['TYPE'] ?? null;
-		if ($extraServiceType)
-		{
-			$extraServicesTypeMap = self::getExtraServicesTypeMap();
-			if (empty($extraServicesTypeMap[$extraServiceType]))
-			{
-				throw new RestException('Parameter FIELDS[TYPE] is unknown', self::ERROR_CHECK_FAILURE);
-			}
-		}
-
-		if (!empty($params['FIELDS']['PARAMS']) && !is_array($params['FIELDS']['PARAMS']))
-		{
-			throw new RestException('Parameter FIELDS[PARAMS] is not defined', self::ERROR_CHECK_FAILURE);
-		}
-
-		$extraServiceData = Sale\Delivery\ExtraServices\Table::getList([
-			'select' => ['ID', 'CODE', 'DELIVERY_ID'],
-			'filter' => [
-				'=ID' => $params['ID'],
-			],
-			'limit' => 1,
-		])->fetch();
-		if ($extraServiceData)
-		{
-			$data = Sale\Delivery\Services\Manager::getById($extraServiceData['DELIVERY_ID']);
-			if ($data && !self::hasAccessToDelivery($data, $params['APP_ID']))
-			{
-				throw new AccessException();
-			}
-
-			$newCode = $params['FIELDS']['CODE'] ?? '';
-			if ($newCode)
-			{
-				$extraServiceData = Sale\Delivery\ExtraServices\Table::getList([
-					'select' => ['ID'],
-					'filter' => [
-						'=DELIVERY_ID' => $extraServiceData['DELIVERY_ID'],
-						'=CODE' => $newCode,
-					],
-					'limit' => 1,
-				])->fetch();
-				if ($extraServiceData && (int)$extraServiceData['ID'] !== (int)$params['ID'])
-				{
-					throw new RestException(
-						'FIELDS[CODE] "' . $newCode . '" already exists for this delivery',
-						self::ERROR_CHECK_FAILURE
-					);
-				}
-			}
-		}
-		else
-		{
-			throw new RestException('Extra service not found', self::ERROR_EXTRA_SERVICE_NOT_FOUND);
-		}
-	}
-
 	/**
 	 * @param $query
 	 * @param $n
@@ -302,20 +249,7 @@ class ExtraServicesService extends BaseService
 	{
 		self::checkDeliveryPermission();
 		$params = self::prepareExtraServicesParams($query, $server);
-		self::checkParamsBeforeDeleteExtraServices($params);
 
-		$result = Sale\Delivery\ExtraServices\Table::delete($params['ID']);
-		if ($result->isSuccess())
-		{
-			return true;
-		}
-
-		$error = implode("\n", $result->getErrorMessages());
-		throw new RestException($error, self::ERROR_EXTRA_SERVICE_DELETE);
-	}
-
-	private static function checkParamsBeforeDeleteExtraServices(array $params)
-	{
 		if (empty($params['ID']))
 		{
 			throw new RestException('Parameter ID is not defined', self::ERROR_CHECK_FAILURE);
@@ -334,6 +268,15 @@ class ExtraServicesService extends BaseService
 		{
 			throw new RestException('Extra service not found', self::ERROR_EXTRA_SERVICE_NOT_FOUND);
 		}
+
+		$result = Sale\Delivery\ExtraServices\Table::delete($params['ID']);
+		if ($result->isSuccess())
+		{
+			return true;
+		}
+
+		$error = implode("\n", $result->getErrorMessages());
+		throw new RestException($error, self::ERROR_EXTRA_SERVICE_DELETE);
 	}
 
 	/**
@@ -342,20 +285,30 @@ class ExtraServicesService extends BaseService
 	 * @param \CRestServer $server
 	 * @return array
 	 */
-	public static function getExtraServiceByDeliveryId($query, $n, \CRestServer $server): array
+	public static function get($query, $n, \CRestServer $server): array
 	{
 		self::checkDeliveryPermission();
 		$params = self::prepareIncomingParams($query);
-		self::checkParamsBeforeGetExtraServicesList($params);
+
+		if (empty($params['DELIVERY_ID']))
+		{
+			throw new RestException('Parameter DELIVERY_ID is not defined', self::ERROR_CHECK_FAILURE);
+		}
+
+		$data = Sale\Delivery\Services\Manager::getById($params['DELIVERY_ID']);
+		if (!$data)
+		{
+			throw new RestException('Delivery not found', self::ERROR_DELIVERY_NOT_FOUND);
+		}
 
 		$esClasses = Sale\Delivery\ExtraServices\Manager::getClassesList();
 
 		$extraServices = Sale\Delivery\ExtraServices\Table::getList([
 			'filter' => [
-				'=DELIVERY_ID' => $params['ID'],
+				'=DELIVERY_ID' => $params['DELIVERY_ID'],
 				'=CLASS_NAME' => $esClasses
 			],
-			'select' => ['ID', 'CODE', 'NAME', 'DESCRIPTION', 'CLASS_NAME', 'PARAMS', 'RIGHTS', 'ACTIVE', 'SORT'],
+			'select' => ['ID', 'CODE', 'NAME', 'DESCRIPTION', 'CLASS_NAME', 'ACTIVE', 'SORT', 'PARAMS'],
 			'order' => [
 				'SORT' => 'ASC',
 			],
@@ -365,37 +318,125 @@ class ExtraServicesService extends BaseService
 
 		foreach ($extraServices as $key => $extraService)
 		{
-			$extraServices[$key]['TYPE'] = $extraServicesTypeMap[$extraService['CLASS_NAME']];
+			$type = $extraServicesTypeMap[$extraService['CLASS_NAME']];
+			$extraServices[$key]['TYPE'] = $type;
 			unset($extraServices[$key]['CLASS_NAME']);
+
+			if ($type === self::ENUM_TYPE)
+			{
+				if (array_key_exists('PRICES', $extraServices[$key]['PARAMS']))
+				{
+					if (is_array($extraServices[$key]['PARAMS']['PRICES']))
+					{
+						$extraServices[$key]['ITEMS'] = [];
+						foreach ($extraServices[$key]['PARAMS']['PRICES'] as $price)
+						{
+							$extraServices[$key]['ITEMS'][] = [
+								'TITLE' => $price['TITLE'],
+								'CODE' => $price['CODE'],
+								'PRICE' => $price['PRICE'] ?? null,
+							];
+						}
+					}
+				}
+			}
+			elseif (in_array($type, [self::CHECKBOX_TYPE, self::QUANTITY_TYPE]))
+			{
+				if (array_key_exists('PRICE', $extraServices[$key]['PARAMS']))
+				{
+					$extraServices[$key]['PRICE'] = $extraServices[$key]['PARAMS']['PRICE'];
+				}
+			}
+			unset($extraServices[$key]['PARAMS']);
 		}
 
 		return $extraServices ?: [];
 	}
 
-	private static function checkParamsBeforeGetExtraServicesList(array $params)
+	/**
+	 * @param string $type
+	 * @param array $params
+	 * @return array|null
+	 * @throws RestException
+	 */
+	private static function makeInternalParams(string $type, array $params): ?array
 	{
-		if (empty($params['ID']))
+		$result = null;
+
+		if ($type === self::ENUM_TYPE)
 		{
-			throw new RestException('Parameter ID is not defined', self::ERROR_CHECK_FAILURE);
+			if (is_array($params['ITEMS']))
+			{
+				$result = [
+					'PRICES' => [],
+				];
+
+				foreach ($params['ITEMS'] as $item)
+				{
+					if (!isset($item['TITLE']) || empty($item['TITLE']))
+					{
+						throw new RestException('Item title must be defined for enum item', self::ERROR_CHECK_FAILURE);
+					}
+
+					if (!isset($item['CODE']) || empty($item['CODE']))
+					{
+						throw new RestException('Item code must be defined for enum item', self::ERROR_CHECK_FAILURE);
+					}
+
+					$result['PRICES'][$item['CODE']] = [
+						'TITLE' => $item['TITLE'],
+						'CODE' => $item['CODE'],
+						'PRICE' => isset($item['PRICE']) ? (float)$item['PRICE'] : null,
+					];
+				}
+			}
+		}
+		elseif (in_array($type, [self::CHECKBOX_TYPE, self::QUANTITY_TYPE]) && array_key_exists('PRICE', $params))
+		{
+			$result['PRICE'] = isset($params['PRICE']) ? (float)$params['PRICE'] : null;
 		}
 
-		$data = Sale\Delivery\Services\Manager::getById($params['ID']);
-		if (!$data)
-		{
-			throw new RestException('Delivery not found', self::ERROR_DELIVERY_NOT_FOUND);
-		}
+		return $result;
 	}
 
 	/**
-	 * @param $query
-	 * @param $n
+	 * @return array
+	 * @throws \ReflectionException
+	 */
+	private static function getExtraServicesTypeMap(): array
+	{
+		$result = [];
+
+		$allowedTypes = [
+			self::ENUM_TYPE,
+			self::CHECKBOX_TYPE,
+			self::QUANTITY_TYPE,
+		];
+		$esClasses = Sale\Delivery\ExtraServices\Manager::getClassesList();
+		foreach ($esClasses as $className)
+		{
+			$classCode = (new \ReflectionClass($className))->getShortName();
+			$type = mb_strtolower($classCode);
+			if (!in_array($type, $allowedTypes, true))
+			{
+				continue;
+			}
+			$result[$type] = $className;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param array $data
 	 * @param \CRestServer $server
 	 * @return array
 	 */
-	public static function getExtraServicesTypeList($query, $n, \CRestServer $server): array
+	private static function prepareExtraServicesParams(array $data, \CRestServer $server): array
 	{
-		self::checkDeliveryPermission();
+		$data = self::prepareIncomingParams($data);
+		$data['APP_ID'] = $server->getClientId();
 
-		return array_keys(self::getExtraServicesTypeMap());
+		return $data;
 	}
 }

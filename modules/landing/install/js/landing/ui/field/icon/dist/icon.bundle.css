@@ -1,0 +1,30 @@
+.landing-ui-field-image.landing-ui-field-image-icon .landing-ui-field-image-left {
+	-webkit-box-flex: 0;
+	    -ms-flex-positive: 0;
+	        flex-grow: 0;
+}
+
+.landing-ui-field-image.landing-ui-field-image-icon .landing-ui-field-image-preview {
+	height: 150px;
+	width: 150px;
+	margin-right: 7px;
+}
+
+.landing-ui-field-image.landing-ui-field-image-icon .landing-ui-field-image-preview-icon {
+	font-size: 70px;
+}
+
+.landing-ui-field-image.landing-ui-field-image-icon .landing-ui-card.landing-ui-card-icon-options
+{
+	margin-left: 10px;
+}
+
+.landing-ui-field-image.landing-ui-field-image-icon .landing-ui-field-image-right
+{
+	display: block;
+}
+
+.landing-ui-field-image.landing-ui-field-image-icon .landing-ui-field-header
+{
+	display: none;
+}

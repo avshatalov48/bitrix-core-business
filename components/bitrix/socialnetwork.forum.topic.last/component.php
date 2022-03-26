@@ -61,33 +61,13 @@ endif;
 //************** Permission ****************************************/
 if ($arParams["PERMISSION"] < "Y")
 {
-	$bCurrentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin();
-	
 	$sPermission = $arParams["PERMISSION"];
-	$arParams["PERMISSION"] = "A";
-	$user_id = $USER->GetID();
-	if ($arParams["MODE"] == "GROUP")
-	{
-		if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "full", $bCurrentUserIsAdmin))
-			$arParams["PERMISSION"] = "Y";
-		elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "newtopic", $bCurrentUserIsAdmin))
-			$arParams["PERMISSION"] = "M";
-		elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "answer", $bCurrentUserIsAdmin))
-			$arParams["PERMISSION"] = "I";
-		elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "view", $bCurrentUserIsAdmin))
-			$arParams["PERMISSION"] = "E";
-	}
-	else
-	{
-		if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "full", $bCurrentUserIsAdmin))
-			$arParams["PERMISSION"] = "Y";
-		elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "newtopic", $bCurrentUserIsAdmin))
-			$arParams["PERMISSION"] = "M";
-		elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "answer", $bCurrentUserIsAdmin))
-			$arParams["PERMISSION"] = "I";
-		elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "view", $bCurrentUserIsAdmin))
-			$arParams["PERMISSION"] = "E";
-	}
+
+	$arParams['PERMISSION'] = \Bitrix\Socialnetwork\Helper\Forum\ComponentHelper::getForumPermission([
+		'ENTITY_TYPE' => ($arParams['MODE'] === 'GROUP' ? SONET_ENTITY_GROUP : SONET_ENTITY_USER),
+		'ENTITY_ID' => ($arParams['MODE'] === 'GROUP' ? $arParams['SOCNET_GROUP_ID'] : $arParams['USER_ID']),
+	]);
+
 	if ("E" <= $sPermission && $arParams["PERMISSION"] < $sPermission)
 	{
 		$arParams["PERMISSION"] = $sPermission;

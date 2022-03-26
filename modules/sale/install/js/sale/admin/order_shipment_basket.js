@@ -1192,7 +1192,7 @@ BX.Sale.Admin.ShipmentBasketEdit.prototype.createBlockStore = function(basketCod
 
 		divWrapper.appendChild(selectStore);
 
-		if (Object.keys(product.STORES).length > 1)
+		if (Object.keys(product.STORES).length > 1 && !this.isShipped)
 		{
 			var delDiv = BX.create('div', {
 				props: {

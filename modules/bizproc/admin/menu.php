@@ -12,7 +12,7 @@ $aMenu = array(
 	"items_id" => "menu_bizproc",
 	"items" => array(
 		array(
-			"text" => GetMessage("BIZPROC_MENU_TASKS"),
+			"text" => GetMessage("BIZPROC_MENU_TASKS_1"),
 			"url" => "bizproc_task_list.php?lang=".LANGUAGE_ID,
 			"more_url" => array("bizproc_task.php"),
 			"title" => GetMessage("BIZPROC_MENU_TASKS_ALT")

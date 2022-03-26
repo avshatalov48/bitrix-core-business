@@ -17,9 +17,9 @@ use Bitrix\Main\Entity;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_EventMessageAttachment_Query query()
- * @method static EO_EventMessageAttachment_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EventMessageAttachment_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_EventMessageAttachment_Result getById($id)
- * @method static EO_EventMessageAttachment_Result getList(array $parameters = array())
+ * @method static EO_EventMessageAttachment_Result getList(array $parameters = [])
  * @method static EO_EventMessageAttachment_Entity getEntity()
  * @method static \Bitrix\Main\Mail\Internal\EO_EventMessageAttachment createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\Mail\Internal\EO_EventMessageAttachment_Collection createCollection()

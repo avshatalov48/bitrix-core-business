@@ -2100,7 +2100,7 @@
 
 				if (this.showPercent)
 				{
-					if (price && parseInt(price.DISCOUNT) > 0)
+					if (price && parseInt(price.PERCENT) > 0)
 					{
 						obData = {style: {display: ''}, html: -price.PERCENT + '%'};
 					}

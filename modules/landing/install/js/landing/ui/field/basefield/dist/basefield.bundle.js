@@ -173,11 +173,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 
 	      return window;
-	    }
-	  }, {
-	    key: "getContentRoot",
-	    value: function getContentRoot() {
-	      return this.contentRoot; // return this.contentRoot || this.getContext().document.body;
 	    } // eslint-disable-next-line class-methods-use-this
 
 	  }, {
@@ -240,6 +235,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        compatData: [this.getValue()]
 	      });
 	      this.emit('change', event);
+	      this.emit('onChange', event);
 	    }
 	  }, {
 	    key: "enable",

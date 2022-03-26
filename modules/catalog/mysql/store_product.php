@@ -1,31 +1,40 @@
-<?
+<?php
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/store_product.php");
 
-class CCatalogStoreProduct
-	extends CCatalogStoreProductAll
+class CCatalogStoreProduct extends CCatalogStoreProductAll
 {
 	public static function Add($arFields)
 	{
 		global $DB;
 
 		foreach(GetModuleEvents("catalog", "OnBeforeStoreProductAdd", true) as $arEvent)
-			if(ExecuteModuleEventEx($arEvent, array(&$arFields)) === false)
+		{
+			if (ExecuteModuleEventEx($arEvent, [&$arFields]) === false)
+			{
 				return false;
+			}
+		}
 
-		if (!self::CheckFields('ADD',$arFields))
+		if (!static::CheckFields('ADD',$arFields))
+		{
 			return false;
+		}
 
 		$arInsert = $DB->PrepareInsert("b_catalog_store_product", $arFields);
 		$strSql = "INSERT INTO b_catalog_store_product (".$arInsert[0].") VALUES(".$arInsert[1].")";
 
 		$res = $DB->Query($strSql, true, "File: ".__FILE__."<br>Line: ".__LINE__);
 		if(!$res)
+		{
 			return false;
+		}
 
-		$lastId = intval($DB->LastID());
+		$lastId = (int)$DB->LastID();
 
 		foreach(GetModuleEvents("catalog", "OnStoreProductAdd", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($lastId, $arFields));
+		{
+			ExecuteModuleEventEx($arEvent, [$lastId, $arFields]);
+		}
 
 		return $lastId;
 	}
@@ -46,6 +55,7 @@ class CCatalogStoreProduct
 			"PRODUCT_ID" => array("FIELD" => "CP.PRODUCT_ID", "TYPE" => "int"),
 			"STORE_ID" => array("FIELD" => "CP.STORE_ID", "TYPE" => "int"),
 			"AMOUNT" => array("FIELD" => "CP.AMOUNT", "TYPE" => "double"),
+			"QUANTITY_RESERVED" => ["FIELD" => "CP.QUANTITY_RESERVED", "TYPE" => "double"],
 			"STORE_NAME" => array("FIELD" => "CS.TITLE", "TYPE" => "string", "FROM" => "RIGHT JOIN b_catalog_store CS ON (CS.ID = CP.STORE_ID)"),
 			"STORE_ADDR" => array("FIELD" => "CS.ADDRESS", "TYPE" => "string", "FROM" => "RIGHT JOIN b_catalog_store CS ON (CS.ID = CP.STORE_ID)"),
 			"STORE_DESCR" => array("FIELD" => "CS.DESCRIPTION", "TYPE" => "string", "FROM" => "RIGHT JOIN b_catalog_store CS ON (CS.ID = CP.STORE_ID)"),

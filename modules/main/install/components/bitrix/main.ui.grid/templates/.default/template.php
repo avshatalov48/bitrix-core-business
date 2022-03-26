@@ -857,7 +857,8 @@ endif; ?>
 					pinnedMode: <?=\CUtil::phpToJsObject($arParams['TOP_ACTION_PANEL_PINNED_MODE']) ?>,
 					renderTo: document.querySelector('<?=\CUtil::jsEscape($arParams['TOP_ACTION_PANEL_RENDER_TO']) ?>'),
 					className: '<?=\CUtil::jsEscape($arParams['TOP_ACTION_PANEL_CLASS']) ?>',
-					groupActions: <?=\Bitrix\Main\Web\Json::encode($arParams['ACTION_PANEL']) ?>
+					groupActions: <?=\Bitrix\Main\Web\Json::encode($arParams['ACTION_PANEL']) ?>,
+					maxHeight: <?= (int)$arParams['ACTION_PANEL_OPTIONS']['MAX_HEIGHT']?>
 				});
 				actionPanel.draw();
 			<? endif; ?>

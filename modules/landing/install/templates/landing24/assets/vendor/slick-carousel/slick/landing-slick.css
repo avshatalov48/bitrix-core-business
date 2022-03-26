@@ -38,17 +38,14 @@
 ------------------------------------*/
 /* Primary Colors */
 .slick-active .g-brd-primary--before--active::before {
-  border-color: #2fc6f6 !important;
   border-color: var(--primary) !important;
 }
 
 .slick-active .g-brd-primary--active {
-  border-color: #2fc6f6 !important;
   border-color: var(--primary) !important;
 }
 
 .js-pagination .g-brd-primary--before--hover:hover::before {
-  border-color: #2fc6f6 !important;
   border-color: var(--primary) !important;
 }
 
@@ -154,7 +151,6 @@
 .u-carousel-indicators-v1 li.slick-active span,
 .u-carousel-indicators-v1--white-inverse li.slick-active span,
 .u-carousel-indicators-v1--white li.slick-active span {
-  background-color: #2fc6f6;
   background-color: var(--primary);
   opacity: 1;
 }

@@ -664,7 +664,7 @@ class Helper
 			),
 			'filter' => array(
 				'=HEADER_MD5'  => $hash,
-				'=DELETE_TIME' => 'IS NULL',
+				'==DELETE_TIME' => 0,
 			),
 		));
 

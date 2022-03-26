@@ -32,6 +32,22 @@ class Price extends Entity
 		return '\Bitrix\Catalog\PriceTable';
 	}
 
+	/**
+	 * Returns product price default fields list for caching.
+	 *
+	 * @return array
+	 */
+	protected static function getDefaultCachedFieldList(): array
+	{
+		return [
+			'ID',
+			'PRODUCT_ID',
+			'CATALOG_GROUP_ID',
+			'PRICE',
+			'CURRENCY'
+		];
+	}
+
 	public static function recountPricesFromBase($id): bool
 	{
 		$id = (int)$id;
@@ -548,22 +564,6 @@ class Price extends Entity
 			);
 		}
 		unset($product, $price);
-	}
-
-	/**
-	 * Returns product price default fields list for caching.
-	 *
-	 * @return array
-	 */
-	protected static function getDefaultCachedFieldList(): array
-	{
-		return [
-			'ID',
-			'PRODUCT_ID',
-			'CATALOG_GROUP_ID',
-			'PRICE',
-			'CURRENCY'
-		];
 	}
 
 	/**

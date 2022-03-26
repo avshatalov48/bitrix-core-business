@@ -95,6 +95,51 @@
 	position: absolute;
 }
 
+.landing-ui-button-editor-action[data-id="deleteCol"],
+.landing-ui-button-editor-action[data-id="deleteRow"],
+.landing-ui-button-editor-action[data-id="deleteTable"],
+.landing-ui-button-editor-action[data-id="deleteTable"],
+.landing-ui-button-editor-action[data-id="styleTable"] {
+	position: relative;
+}
+.landing-ui-button-editor-action[data-id="deleteCol"],
+.landing-ui-button-editor-action[data-id="deleteRow"] {
+	padding-left: 19px;
+	padding-right: 15px;
+}
+.landing-ui-button-editor-action[data-id="deleteTable"] {
+	padding: 0 20px;
+}
+.landing-ui-button-editor-action[data-id="styleTable"] {
+	padding-left: 29px;
+	padding-right: 20px;
+}
+
+.landing-ui-button-editor-action[data-id="deleteCol"]::after,
+.landing-ui-button-editor-action[data-id="deleteRow"]::after,
+.landing-ui-button-editor-action[data-id="deleteTable"]::after,
+.landing-ui-button-editor-action[data-id="deleteTable"]::after,
+.landing-ui-button-editor-action[data-id="styleTable"]::after {
+	content: '';
+	width: 1px;
+	height: 22px;
+	background: #A8ADB4;
+	opacity: .32;
+	top: 50%;
+	transform: translateY(-50%);
+	position: absolute;
+}
+.landing-ui-button-editor-action[data-id="deleteCol"]::after,
+.landing-ui-button-editor-action[data-id="deleteRow"]::after {
+	left: 4px;
+}
+.landing-ui-button-editor-action[data-id="deleteTable"]::after {
+	left: 0;
+}
+.landing-ui-button-editor-action[data-id="styleTable"]::after {
+	left: 9px;
+}
+
 .landing-ui-button-editor-action[data-id="glavred"].landing-ui-active {
 	color: #dA570f;
 }
@@ -324,4 +369,40 @@
 .landing-ui-button:hover .landing-ui-icon-editor-new-page,
 .landing-ui-button.landing-ui-active .landing-ui-icon-editor-new-page {
 	background-image: url(/bitrix/images/landing/newpage-active.svg);
+}
+
+.landing-ui-icon-editor-delete {
+	background-image: url(/bitrix/images/landing/editor/delete.svg);
+}
+
+.landing-ui-button:hover .landing-ui-icon-editor-delete,
+.landing-ui-button.landing-ui-active .landing-ui-icon-editor-delete {
+	background-image: url(/bitrix/images/landing/editor/delete-active.svg);
+}
+
+.landing-ui-icon-editor-copy {
+	background-image: url(/bitrix/images/landing/editor/paste-table.svg);
+}
+
+.landing-ui-button:hover .landing-ui-icon-editor-copy,
+.landing-ui-button.landing-ui-active .landing-ui-icon-editor-copy {
+	background-image: url(/bitrix/images/landing/editor/paste-table-active.svg);
+}
+
+.landing-ui-icon-editor-table {
+	background-image: url(/bitrix/images/landing/editor/table-active.svg);
+}
+
+.landing-ui-button:hover .landing-ui-icon-editor-table,
+.landing-ui-button.landing-ui-active .landing-ui-icon-editor-table {
+	background-image: url(/bitrix/images/landing/editor/table-active.svg);
+}
+
+.landing-ui-icon-editor-fill-color {
+	background-image: url(/bitrix/images/landing/editor/fill-color.svg);
+}
+
+.landing-ui-button:hover .landing-ui-icon-editor-fill-color,
+.landing-ui-button.landing-ui-active .landing-ui-icon-editor-fill-color {
+	background-image: url(/bitrix/images/landing/editor/fill-color-active.svg);
 }

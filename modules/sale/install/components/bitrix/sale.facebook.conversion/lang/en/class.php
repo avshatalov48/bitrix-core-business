@@ -1,4 +1,8 @@
 <?php
+$MESS["FACEBOOK_CONVERSION_ERROR_ACCESS_DENIED"] = "Access denied.";
+$MESS["FACEBOOK_CONVERSION_ERROR_EVENT_NAME"] = "Event was not found.";
+$MESS["FACEBOOK_CONVERSION_ERROR_MODULE_SALE"] = "The e-Store module is not installed.";
+$MESS["FACEBOOK_CONVERSION_ERROR_MODULE_SEO"] = "The SEO module is not installed.";
 $MESS["FACEBOOK_CONVERSION_EVENT_TITLE_ADD_PAYMENT_INFO"] = "Send \"Payment information added\" event";
 $MESS["FACEBOOK_CONVERSION_EVENT_TITLE_ADD_TO_CART"] = "Send \"Product added to cart\" event";
 $MESS["FACEBOOK_CONVERSION_EVENT_TITLE_CONTACT"] = "Send \"Customer contacted your company\" event";

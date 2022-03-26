@@ -48,7 +48,7 @@ else
 	if (!empty($arResult["arWorkflowState"]["STATE_MODIFIED"])):
 		?>
 		<div class="bizproc-item-date bizproc-workflow-state-modified">
-			<label><?= GetMessage("BPABL_STATE_MODIFIED")?>:</label>
+			<label><?= GetMessage("BPABL_STATE_MODIFIED_1")?>:</label>
 			<?=htmlspecialcharsbx($arResult["arWorkflowState"]["STATE_MODIFIED"])?>
 		</div>
 		<?
@@ -63,7 +63,7 @@ else
 	if ($arResult["arWorkflowState"]["STATE_NAME"] <> ''):
 	?>
 		<div class="bizproc-item-text bizproc-workflow-state-name">
-			<label><?=GetMessage("BPABL_STATE_NAME")?>:</label>
+			<label><?=GetMessage("BPABL_STATE_NAME_1")?>:</label>
 			<?
 			if ($arResult["arWorkflowState"]["STATE_TITLE"] <> '')
 			{
@@ -89,22 +89,22 @@ else
 					switch ($track["TYPE"])
 					{
 						case 1:
-							$strMessageTemplate = GetMessage("BPABL_TYPE_1");
+							$strMessageTemplate = GetMessage("BPABL_TYPE_1_1");
 							break;
 						case 2:
-							$strMessageTemplate = GetMessage("BPABL_TYPE_2");
+							$strMessageTemplate = GetMessage("BPABL_TYPE_2_1");
 							break;
 						case 3:
-							$strMessageTemplate = GetMessage("BPABL_TYPE_3");
+							$strMessageTemplate = GetMessage("BPABL_TYPE_3_1");
 							break;
 						case 4:
-							$strMessageTemplate = GetMessage("BPABL_TYPE_4");
+							$strMessageTemplate = GetMessage("BPABL_TYPE_4_1");
 							break;
 						case 5:
-							$strMessageTemplate = GetMessage("BPABL_TYPE_5");
+							$strMessageTemplate = GetMessage("BPABL_TYPE_5_1");
 							break;
 						default:
-							$strMessageTemplate = GetMessage("BPABL_TYPE_6");
+							$strMessageTemplate = GetMessage("BPABL_TYPE_6_1");
 					}
 
 					$name = ($track["ACTION_TITLE"] <> '' ? $track["ACTION_TITLE"]." (".$track["ACTION_NAME"].")" : $track["ACTION_NAME"]);

@@ -16,7 +16,7 @@ return array(
 		'.landing-block-card-img' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_1BIG_WITH_TEXT_CARDS_LANDINGBLOCKNODEIMG'),
 			'label' => array('.landing-block-card-img')
-			//					'allowInlineEdit' => false,
+			//'allowInlineEdit' => false,
 		),
 	),
 	'nodes' => array(
@@ -42,6 +42,7 @@ return array(
 			'dimensions' => array('width' => 1920, 'height' => 1080),
 			'allowInlineEdit' => false,
 			'useInDesigner' => false,
+			'create2xByDefault' => false,
 		),
 	),
 	'style' => array(

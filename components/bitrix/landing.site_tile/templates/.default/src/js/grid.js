@@ -16,6 +16,8 @@ export class SiteTile
 		this.scroller = null;
 		this.setData(this.items);
 		this.init();
+
+		setTimeout(this.refreshPreview, 3000);
 	}
 
 	getItems()
@@ -54,7 +56,6 @@ export class SiteTile
 				deleted: item.deleted || null,
 				domainStatus: item.domainStatus || null,
 				domainStatusMessage: item.domainStatusMessage || null,
-				domainBitrix24: item.domainBitrix24 || null,
 				menuItems: item.menuItems || null,
 				menuBottomItems: item.menuBottomItems || null,
 				access: item.access || {},
@@ -108,5 +109,23 @@ export class SiteTile
 	init()
 	{
 		this.draw();
+	}
+
+	refreshPreview()
+	{
+		const previews = document.querySelectorAll('.landing-sites__preview-image');
+
+		if (previews)
+		{
+			[...previews].map(node => {
+				let url = node.style.backgroundImage.match(/url\(["']?([^"']*)["']?\)/);
+				if (url)
+				{
+					url = url[1];
+					url += (url.indexOf('?') > 0) ? '&' : '?';
+					node.style.backgroundImage = 'url(' + url + 'refreshed)';
+				}
+			});
+		}
 	}
 }

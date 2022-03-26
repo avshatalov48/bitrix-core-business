@@ -4,35 +4,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,main_core,landing_ui_field_basefield,ui_buttons,landing_ui_component_internal,landing_loc) {
 	'use strict';
 
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-radio-button-item-soon-label\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div \n\t\t\t\tclass=\"landing-ui-field-radio-button-item", "\" \n\t\t\t\tdata-value=\"", "\"\n\t\t\t\tonclick=\"", "\"\n\t\t\t>\n\t\t\t\t<div class=\"landing-ui-field-radio-button-item-icon ", "\"></div>\n\t\t\t\t<div class=\"landing-ui-field-radio-button-item-text\">\n\t\t\t\t\t<span>", "</span>\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-radio-button-layout\" data-selector=\"", "\"></div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3;
 
 	/**
 	 * @memberOf BX.Landing.UI.Field
@@ -78,13 +50,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('remember', function () {
-	        return main_core.Tag.render(_templateObject(), _this2.selector);
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-radio-button-layout\" data-selector=\"", "\"></div>\n\t\t\t"])), _this2.selector);
 	      });
 	    }
 	  }, {
 	    key: "appendItem",
 	    value: function appendItem(options) {
-	      var element = main_core.Tag.render(_templateObject2(), options.disabled ? ' landing-ui-disabled' : '', options.id, this.onItemClick.bind(this, options), options.icon, options.title, options.soon ? this.createSoonLabel() : '');
+	      var element = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div \n\t\t\t\tclass=\"landing-ui-field-radio-button-item", "\" \n\t\t\t\tdata-value=\"", "\"\n\t\t\t\tonclick=\"", "\"\n\t\t\t>\n\t\t\t\t<div class=\"landing-ui-field-radio-button-item-icon ", "\"></div>\n\t\t\t\t<div class=\"landing-ui-field-radio-button-item-text\">\n\t\t\t\t\t<span>", "</span>\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), options.disabled ? ' landing-ui-disabled' : '', options.id, this.onItemClick.bind(this, options), options.icon, options.title, options.soon ? this.createSoonLabel() : '');
 
 	      if (main_core.Type.isPlainObject(options.button)) {
 	        var button = new ui_buttons.Button({
@@ -171,7 +143,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "createSoonLabel",
 	    value: function createSoonLabel() {
-	      return main_core.Tag.render(_templateObject3(), landing_loc.Loc.getMessage('LANDING_UI_BASE_PRESET_PANEL_SOON_LABEL'));
+	      return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-radio-button-item-soon-label\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), landing_loc.Loc.getMessage('LANDING_UI_BASE_PRESET_PANEL_SOON_LABEL'));
 	    }
 	  }]);
 	  return RadioButtonField;

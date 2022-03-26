@@ -6,6 +6,7 @@ this.BX.Landing = this.BX.Landing || {};
 	var FontAwesome = {
 	  id: 'fontawesome',
 	  name: 'Fontawesome',
+	  active: false,
 	  categories: [{
 	    id: 'web-application',
 	    name: landing_loc.Loc.getMessage('LANDING_ICONS_SECTION_WEB_APP'),

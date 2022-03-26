@@ -42,7 +42,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	        _this.chat = _this.getChat(_this.value);
 	        _this.requestFinished = true;
-	      }).catch(function (error) {
+	      })["catch"](function (error) {
 	        _this.hasError = true;
 	        console.error(error);
 	        _this.requestFinished = true;
@@ -122,7 +122,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	        _this.user = _this.getUser(_this.value);
 	        _this.requestFinished = true;
-	      }).catch(function (error) {
+	      })["catch"](function (error) {
 	        _this.hasError = true;
 	        console.error(error);
 	        _this.requestFinished = true;
@@ -268,7 +268,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	        _this2.users = _this2.getUsersForPopup();
 	        _this2.requestFinished = true;
-	      }).catch(function (error) {
+	      })["catch"](function (error) {
 	        _this2.hasError = true;
 	        console.error(error);
 	        _this2.requestFinished = true;

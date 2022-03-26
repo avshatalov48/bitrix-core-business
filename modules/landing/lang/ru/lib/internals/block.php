@@ -1,6 +1,8 @@
 <?php
 $MESS['LANDING_TABLE_FIELD_LID'] = 'Идентификатор лендинга';
 $MESS['LANDING_TABLE_FIELD_CODE'] = 'Код';
+$MESS['LANDING_TABLE_FIELD_CODE_ORIGINAL'] = 'Код оригинальный';
+$MESS['LANDING_TABLE_FIELD_TPL_CODE'] = 'Код шаблона';
 $MESS['LANDING_TABLE_FIELD_XML_ID'] = 'Внешний код';
 $MESS['LANDING_TABLE_FIELD_INITIATOR_APP_CODE'] = 'Код приложения-инициатора';
 $MESS['LANDING_TABLE_FIELD_ANCHOR'] = 'Якорь';
@@ -19,3 +21,4 @@ $MESS['LANDING_TABLE_FIELD_SEARCH_CONTENT'] = 'Содержимое блока �
 $MESS['LANDING_TABLE_FIELD_PARENT_ID'] = 'Родительский блок';
 $MESS['LANDING_TABLE_FIELD_SOURCE_PARAMS'] = 'Параметры динамического источника';
 $MESS['LANDING_TABLE_FIELD_ASSETS'] = 'Дополнительные ресурсы блока';
+$MESS['LANDING_TABLE_FIELD_FAVORITE_META'] = 'Переопределяемые поля для сохраненного блока';

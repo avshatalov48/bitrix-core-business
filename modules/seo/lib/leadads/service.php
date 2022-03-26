@@ -62,9 +62,13 @@ class Service implements IService, IInternalService
 	 */
 	public static function unRegisterGroup(string $type, string $groupId): bool
 	{
-		return Form::create($type)
+		$result = Form::create($type)
 			->setService(static::getInstance())
 			->unRegisterGroup($groupId);
+
+		static::getInstance()->getGroupAuth($type)->removeAuth();
+
+		return $result;
 	}
 
 	/**

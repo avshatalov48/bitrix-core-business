@@ -227,6 +227,7 @@ BitrixVue.component('bx-im-view-message-body',
 			}
 
 			let message = this.message.textConverted;
+			let messageParams = this.message.params;
 
 			let replacement = [];
 			message = message.replace(/<!--IM_COMMAND_START-->([\0-\uFFFF]+?)<!--IM_COMMAND_END-->/ig, function(whole, text) {
@@ -247,6 +248,15 @@ BitrixVue.component('bx-im-view-message-body',
 			replacement.forEach((value, index) => {
 				message = message.replace('####REPLACEMENT_'+index+'####', value);
 			});
+
+			if (
+				typeof messageParams.LINK_ACTIVE !== 'undefined'
+				&& messageParams.LINK_ACTIVE.length > 0
+				&& !messageParams.LINK_ACTIVE.includes(this.userId)
+			)
+			{
+				message = message.replace(/<a.*?href="([^"]*)".*?>(.*?)<\/a>/ig, '$2');
+			}
 
 			return message;
 		},

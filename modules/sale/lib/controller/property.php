@@ -6,6 +6,7 @@ namespace Bitrix\Sale\Controller;
 
 
 use Bitrix\Main\Engine\Response\DataType\Page;
+use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\PageNavigation;
@@ -160,11 +161,18 @@ class Property extends Controller
 			]
 		)->fetchAll();
 
-		return new Page('PROPERTIES', $items, function() use ($filter, $propertyClassName)
+		return new Page('PROPERTIES', $items, function() use ($filter)
 		{
-			return count(
-				$propertyClassName::getList(['filter'=>$filter])->fetchAll()
-			);
+			/** @var EntityProperty $propertyClassName */
+			$propertyClassName = $this->getPropertyClassName();
+
+			return (int) $propertyClassName::getList([
+				'select' => ['CNT'],
+				'filter'=>$filter,
+				'runtime' => [
+					new ExpressionField('CNT', 'COUNT(ID)')
+				]
+			])->fetch()['CNT'];
 		});
 	}
 
@@ -187,8 +195,11 @@ class Property extends Controller
 	public function addAction($fields)
 	{
 		$fields = self::prepareFields($fields);
-
-		$fields = array_merge($fields, $fields['SETTINGS']);
+		if (isset($fields['SETTINGS']) && is_array($fields['SETTINGS']))
+		{
+			$fields = array_merge($fields, $fields['SETTINGS']);
+			unset($fields['SETTINGS']);
+		}
 
 		$r = $this->checkFileds($fields);
 

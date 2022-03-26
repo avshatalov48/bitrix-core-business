@@ -1,0 +1,25 @@
+<?php
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_1"] = "Enable inventory management";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_2"] = "Disable inventory management";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_3"] = "New";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_4"] = "Bitrix24 inventory management";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_5"] = "All widely used documents";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_6"] = "Inventory management seamlessly integrated with CRM";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_7"] = "Unified product catalog";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_8"] = "Unlimited products";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_9"] = "Unlimited warehouses";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_10"] = "Unlimited warehouse employees";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_11"] = "Mobile barcode scanner";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_12"] = "Cancel";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_13"] = "Reset stock";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_14"] = "Reset stock";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_15"] = "There are products with non-zero current stock. You have to reset stock values before enabling inventory management.";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_16"] = "You can update stock values after you have enabled inventory management.";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_17"] = "Enable and migrate data from other systems";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_18"] = "Insufficient permisions to enable inventory management";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_CLOSE"] = "Close";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_CONDUCTED_DOCUMENTS_EXIST"] = "There are processed inventory objects. Inventory management cannot be disabled while those inventory objects exist.";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE"] = "Disable";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_CONFIRMATION_TEXT"] = "Are you sure you want to disable inventory management?";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_POPUP_TITLE"] = "Disable inventory management";
+$MESS["CAT_WAREHOUSE_MASTER_CLEAR_ENABLED"] = "Inventory management enabled";

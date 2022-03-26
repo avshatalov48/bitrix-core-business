@@ -1,4 +1,4 @@
-import {Loc, Type} from 'main.core';
+import {Loc, Type, Dom, Tag} from 'main.core';
 
 import {WorkgroupForm} from './index';
 
@@ -328,5 +328,59 @@ export class Util
 	{
 		node.classList.remove(this.cssClass.selectorDisabled);
 	}
+
+	static recalcInputValue(params): void
+	{
+		const selectedItems = params.selectedItems || [];
+		const multiple = Type.isBoolean(params.multiple) ? params.multiple : true;
+		const inputContainerNodeId = params.inputContainerNodeId || '';
+
+		let inputNodeName = params.inputNodeName || '';
+
+		if (
+			!Type.isArray(selectedItems)
+			|| !Type.isStringFilled(inputNodeName)
+			|| !Type.isStringFilled(inputContainerNodeId)
+		)
+		{
+			return;
+		}
+
+		const inputContainerNode = document.getElementById(inputContainerNodeId);
+		if (!inputContainerNode)
+		{
+			return;
+		}
+
+		if (multiple)
+		{
+			inputNodeName = `${inputNodeName}[]`;
+		}
+
+		inputContainerNode.querySelectorAll(`input[name="${inputNodeName}"]`).forEach((node) => {
+			Dom.remove(node);
+		});
+
+		selectedItems.forEach((item) => {
+
+			let prefix = null;
+
+			switch (item.entityId)
+			{
+				case 'department':
+					prefix = 'DR';
+					break;
+				case 'user':
+					prefix = 'U';
+					break;
+				default:
+			}
+
+			if (prefix)
+			{
+				inputContainerNode.appendChild(Tag.render`<input type="hidden" name="${inputNodeName}" value="${prefix}${item.id}" \>`);
+			}
+		});
+	};
 
 }

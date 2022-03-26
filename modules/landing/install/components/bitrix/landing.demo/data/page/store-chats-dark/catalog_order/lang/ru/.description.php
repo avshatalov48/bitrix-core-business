@@ -1,0 +1,3 @@
+<?php
+$MESS['LANDING_DEMO_STORE_CHATS-ORDER-NAME'] = 'Оформление заказа';
+$MESS['LANDING_DEMO_STORE_CHATS-ORDER-BACK'] = 'Назад';

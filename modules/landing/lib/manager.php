@@ -530,6 +530,16 @@ class Manager
 	}
 
 	/**
+	 * Returns randomize string.
+	 * @param int $length String length.
+	 * @return string
+	 */
+	public static function getRandomString(int $length): string
+	{
+		return mb_strtolower(\Bitrix\Main\Security\Random::getStringByCharsets($length, 'abcdefghijklmnopqrstuvwxyz'));
+	}
+
+	/**
 	 * Set new colored theme id.
 	 * @param string $themeTypoId Theme id.
 	 * @return void
@@ -569,6 +579,7 @@ class Manager
 		else if (!is_array($file))
 		{
 			$httpClient = new \Bitrix\Main\Web\HttpClient();
+			$httpClient->setPrivateIp(false);
 			$httpClient->setTimeout(5);
 			$httpClient->setStreamTimeout(5);
 			$urlComponents = parse_url($file);
@@ -1105,6 +1116,21 @@ class Manager
 	}
 
 	/**
+	 * Is license free and it not a knowledge and not a store
+	 * @param string $type Type of landing
+	 * @return bool
+	 */
+	public static function licenseIsFreeSite(string $type): bool
+	{
+		return
+			$type !== 'KNOWLEDGE'
+			&& $type !== 'STORE'
+			&& (!\CBitrix24::isLicensePaid() || \CBitrix24::getLicenseType() === 'alive')
+			&& !\CBitrix24::IsNfrLicense()
+		;
+	}
+
+	/**
 	 * Sanitize bad value.
 	 * @param string $value Bad value.
 	 * @param bool &$bad Return true, if value is bad.
@@ -1147,22 +1173,16 @@ class Manager
 				$bad = true;
 				$value = $sanitizer->getFilteredValue();
 				$value = str_replace(
-					' bxstyle="',
-					' style="',
+					[' bxstyle="', '<sv g ', '<?', '?>'],
+					[' style="', '<svg ', '< ?', '? >'],
 					$value
 				);
 			}
 			else
 			{
 				$value = str_replace(
-					[
-						' bxstyle="',
-						'<?', '?>'
-					],
-					[
-						' style="',
-						'< ?', '? >'
-					],
+					[' bxstyle="', '<sv g ', '<?', '?>'],
+					[' style="', '<svg ', '< ?', '? >'],
 					$value
 				);
 			}

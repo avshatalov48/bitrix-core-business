@@ -47,6 +47,22 @@
 			}
 		},
 
+		sendStat: function(statRecord)
+		{
+			if ((typeof statRecord) == 'object')
+			{
+				statRecord = JSON.stringify(statRecord)
+			}
+
+			if(this.isConnected)
+			{
+				this.socket.send(JSON.stringify({
+					action: 'stat',
+					message: statRecord
+				}));
+			}
+		},
+
 		connect: function()
 		{
 			if(this.socket)

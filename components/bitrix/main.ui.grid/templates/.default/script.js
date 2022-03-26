@@ -3028,7 +3028,8 @@
 	        this.popup = new BX.PopupWindow(this.getPopupId(), null, {
 	          autoHide: true,
 	          overlay: 0.3,
-	          width: 400,
+	          minWidth: 400,
+	          maxWidth: 800,
 	          contentNoPaddings: true,
 	          closeByEsc: true,
 	          buttons: [new BX.PopupWindowButton({
@@ -4002,7 +4003,10 @@
 	    },
 	    _onRightClick: function _onRightClick(event) {
 	      event.preventDefault();
-	      this.showActionsMenu(event);
+
+	      if (!this.isHeadChild()) {
+	        this.showActionsMenu(event);
+	      }
 	    },
 	    getDefaultAction: function getDefaultAction() {
 	      return BX.data(this.getNode(), 'default-action');

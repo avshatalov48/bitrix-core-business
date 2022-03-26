@@ -35,7 +35,7 @@ final class Product extends Base
 	 * @param array $attributs
 	 * @return array
 	 */
-	protected function prepareFieldAttributs($info, $attributs)
+	protected function prepareFieldAttributs($info, $attributs): array
 	{
 		$r = parent::prepareFieldAttributs($info, $attributs);
 
@@ -682,7 +682,7 @@ final class Product extends Base
 		];
 	}
 
-	public function internalizeFieldsList($arguments, $fieldsInfo = [])
+	public function internalizeFieldsList($arguments, $fieldsInfo = []): array
 	{
 		// param - IBLOCK_ID is reqired in filter
 		$iblockId = $arguments['filter']['IBLOCK_ID'];
@@ -696,7 +696,7 @@ final class Product extends Base
 		return parent::internalizeFieldsList($arguments, $fieldsInfo);
 	}
 
-	public function internalizeFieldsAdd($fields, $fieldsInfo = [])
+	public function internalizeFieldsAdd($fields, $fieldsInfo = []): array
 	{
 		// param - IBLOCK_ID is reqired in filter
 		$iblockId = $fields['IBLOCK_ID'];
@@ -710,7 +710,7 @@ final class Product extends Base
 		return parent::internalizeFieldsAdd($fields, $fieldsInfo);
 	}
 
-	public function internalizeFieldsUpdate($fields, $fieldsInfo = [])
+	public function internalizeFieldsUpdate($fields, $fieldsInfo = []): array
 	{
 		// param - IBLOCK_ID is reqired in filter
 		$iblockId = $fields['IBLOCK_ID'];
@@ -724,7 +724,7 @@ final class Product extends Base
 		return parent::internalizeFieldsUpdate($fields, $fieldsInfo);
 	}
 
-	protected function internalizeDateValue($value)
+	protected function internalizeDateValue($value): Result
 	{
 		//API does not accept DataTime objects, so the ISO format is transformed into a format for a filter.
 
@@ -749,7 +749,7 @@ final class Product extends Base
 		return $r;
 	}
 
-	protected function internalizeDateTimeValue($value)
+	protected function internalizeDateTimeValue($value): Result
 	{
 		//API does not accept DataTime objects, so the ISO format is transformed into a format for a filter.
 
@@ -822,7 +822,7 @@ final class Product extends Base
 		return $r;
 	}
 
-	protected function internalizeExtendedTypeValue($value, $info)
+	protected function internalizeExtendedTypeValue($value, $info): Result
 	{
 		$r = new Result();
 
@@ -896,7 +896,7 @@ final class Product extends Base
 		return $r;
 	}
 
-	public function internalizeArguments($name, $arguments)
+	public function internalizeArguments($name, $arguments): array
 	{
 		if($name == 'getfieldsbyfilter'
 			|| $name == 'download'
@@ -909,7 +909,7 @@ final class Product extends Base
 		return $arguments;
 	}
 
-	public function externalizeFieldsGet($fields, $fieldsInfo=[])
+	public function externalizeFieldsGet($fields, $fieldsInfo=[]): array
 	{
 		// param - IBLOCK_ID is reqired in filter
 		$iblockId = (int)$fields['IBLOCK_ID'];
@@ -941,7 +941,7 @@ final class Product extends Base
 		return parent::externalizeFieldsGet($fields, $fieldsInfo);
 	}
 
-	public function externalizeListFields($list, $fieldsInfo=[])
+	public function externalizeListFields($list, $fieldsInfo=[]): array
 	{
 		// param - IBLOCK_ID is reqired in filter
 		$iblockId = (int)$list[0]['IBLOCK_ID'];
@@ -955,7 +955,7 @@ final class Product extends Base
 		return parent::externalizeListFields($list, $fieldsInfo);
 	}
 
-	public function externalizeResult($name, $fields)
+	public function externalizeResult($name, $fields): array
 	{
 		if($name == 'getfieldsbyfilter'
 			|| $name == 'download'
@@ -1006,7 +1006,7 @@ final class Product extends Base
 		return $arguments;
 	}
 
-	public function checkFieldsList($arguments)
+	public function checkFieldsList($arguments): Result
 	{
 		$r = new Result();
 
@@ -1025,7 +1025,7 @@ final class Product extends Base
 		return $r;
 	}
 
-	public function checkArguments($name, $arguments)
+	public function checkArguments($name, $arguments): Result
 	{
 		if($name == 'download')
 		{
@@ -1066,7 +1066,7 @@ final class Product extends Base
 		return '/rest/catalog.product.download';
 	}
 
-	protected function externalizeFileValue($name, $value, $fields)
+	protected function externalizeFileValue($name, $value, $fields): array
 	{
 		$productId = $fields['ID'];
 
@@ -1090,7 +1090,7 @@ final class Product extends Base
 		];
 	}
 
-	protected function externalizeExtendedTypeValue($name, $value, $fields, $fieldsInfo)
+	protected function externalizeExtendedTypeValue($name, $value, $fields, $fieldsInfo): Result
 	{
 		$r = new Result();
 

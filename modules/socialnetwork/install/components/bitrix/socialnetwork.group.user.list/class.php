@@ -946,7 +946,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 
 			if (!empty($removeModeratorRelationIdList))
 			{
-				\CSocNetUserToGroup::TransferModerator2Member(Helper\Workgroup::getCurrentUserId(), $groupId, $removeModeratorRelationIdList, Helper\Workgroup::isCurrentUserModuleAdmin());
+				\CSocNetUserToGroup::TransferModerator2Member(Helper\Workgroup::getCurrentUserId(), $groupId, $removeModeratorRelationIdList);
 			}
 		}
 

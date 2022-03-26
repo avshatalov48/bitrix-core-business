@@ -82,7 +82,7 @@ class ImageCollection extends BaseCollection
 	}
 
 	/**
-	 * @return BaseImage[]
+	 * @return MorePhotoImage[]
 	 */
 	public function getMorePhotos(): array
 	{

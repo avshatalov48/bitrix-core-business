@@ -22,6 +22,7 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_5_IMG'),
 			'type' => 'img',
 			'dimensions' => ['width' => 1110],
+			'create2xByDefault' => false,
 		],
 		'.landing-block-card-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_5_TEXT'),

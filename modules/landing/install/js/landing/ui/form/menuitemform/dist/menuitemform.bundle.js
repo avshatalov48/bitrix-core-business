@@ -4,55 +4,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,main_core,landing_ui_form_baseform) {
 	'use strict';
 
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-form-header-right\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-form-header-remove-button\"></div>"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-form-header-left\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-form-header-title\">", "</div>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-form-header-drag-button landing-ui-drag\"></div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
 	var depthKey = Symbol('depth');
 	var onHeaderClick = Symbol('onHeaderClick');
 	var onTextChange = Symbol('onTextChange');
@@ -151,7 +103,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getDragButton",
 	    value: function getDragButton() {
 	      return this.cache.remember('dragButton', function () {
-	        return main_core.Tag.render(_templateObject());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-form-header-drag-button landing-ui-drag\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
@@ -160,7 +112,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('titleLayout', function () {
-	        return main_core.Tag.render(_templateObject2(), main_core.Text.encode(_this2.title));
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-form-header-title\">", "</div>\n\t\t\t"])), main_core.Text.encode(_this2.title));
 	      });
 	    }
 	  }, {
@@ -169,7 +121,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('headerLeftLayout', function () {
-	        return main_core.Tag.render(_templateObject3(), _this3.getDragButton(), _this3.getTitleLayout());
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-form-header-left\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this3.getDragButton(), _this3.getTitleLayout());
 	      });
 	    }
 	  }, {
@@ -178,7 +130,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this4 = this;
 
 	      return this.cache.remember('removeButton', function () {
-	        var button = main_core.Tag.render(_templateObject4());
+	        var button = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-form-header-remove-button\"></div>"])));
 	        main_core.Event.bind(button, 'click', _this4.onRemoveButtonClick);
 	        return button;
 	      });
@@ -189,7 +141,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this5 = this;
 
 	      return this.cache.remember('headerRightLayout', function () {
-	        return main_core.Tag.render(_templateObject5(), _this5.getRemoveButton());
+	        return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-form-header-right\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this5.getRemoveButton());
 	      });
 	    }
 	  }, {

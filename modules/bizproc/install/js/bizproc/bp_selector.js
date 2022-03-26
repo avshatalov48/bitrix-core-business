@@ -312,16 +312,39 @@
 	BX.Bizproc.Selector.extractMenuItem = function(text, items, type)
 	{
 		var result = [];
-		var key;
+		var key, value, visibility;
 		for (key in items)
 		{
 			if (!items.hasOwnProperty(key))
 				continue;
 
+			value = '{=' + type + ':' + key + '}';
+			if (type === 'Document')
+			{
+				value = '{{' + items[key].Name + '}}';
+			}
+			else if (
+				type === 'GlobalVar'
+				&& window.wfGVarVisibilityNames
+				&& BX.util.object_keys(window.wfGVarVisibilityNames).length > 0
+			)
+			{
+				visibility = items[key].Visibility;
+				value = '{{' + window.wfGVarVisibilityNames[visibility] + ': ' + items[key].Name + '}}';
+			}
+			else if (
+				type === 'GlobalConst'
+				&& window.wfGConstVisibilityNames
+				&& BX.util.object_keys(window.wfGConstVisibilityNames).length > 0
+			)
+			{
+				visibility = items[key].Visibility;
+				value = '{{' + window.wfGConstVisibilityNames[visibility] + ': ' + items[key].Name + '}}';
+			}
+
 			result.push({
 				text: items[key].Name,
-				//TODO: experimental simple expressions
-				value: type === 'Document' ? '{{'+items[key].Name+'}}' : '{='+type+':'+key+'}'
+				value: value
 			});
 		}
 		return this.filterItems(result, text);

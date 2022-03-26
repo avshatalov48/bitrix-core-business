@@ -112,11 +112,11 @@ Class socialnetwork extends CModule
 
 	function InstallDB($install_wizard = true)
 	{
-		global $DB, $DBType, $APPLICATION, $install_smiles;
+		global $DB, $APPLICATION, $install_smiles;
 
 		if (!$DB->Query("SELECT 'x' FROM b_sonet_group", true))
 		{
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/db/".$DBType."/install.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/db/mysql/install.sql");
 		}
 
 		if (!empty($errors))
@@ -217,14 +217,11 @@ Class socialnetwork extends CModule
 		static::__SetLogFilter();
 
 		CModule::IncludeModule("socialnetwork");
-		if($DB->type == 'MYSQL')
+		$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/db/mysql/install_ft.sql");
+		if ($errors === false)
 		{
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/db/".$DBType."/install_ft.sql");
-			if ($errors === false)
-			{
-				\Bitrix\Socialnetwork\WorkgroupTable::getEntity()->enableFullTextIndex("SEARCH_INDEX");
-				\Bitrix\Socialnetwork\LogIndexTable::getEntity()->enableFullTextIndex("CONTENT");
-			}
+			\Bitrix\Socialnetwork\WorkgroupTable::getEntity()->enableFullTextIndex("SEARCH_INDEX");
+			\Bitrix\Socialnetwork\LogIndexTable::getEntity()->enableFullTextIndex("CONTENT");
 		}
 
 		if (CModule::IncludeModule("search"))
@@ -347,12 +344,12 @@ Class socialnetwork extends CModule
 		if (CModule::IncludeModule("search"))
 			CSearch::DeleteIndex("socialnetwork");
 
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		if(array_key_exists("savedata", $arParams) && $arParams["savedata"] != "Y")
 		{
 			$this->UnInstallUserFields();
 
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/db/".$DBType."/uninstall.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/db/mysql/uninstall.sql");
 
 			if (!empty($errors))
 			{

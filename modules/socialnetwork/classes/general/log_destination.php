@@ -1328,6 +1328,7 @@ class CSocNetLogDestination
 						array(),
 						array(
 							'CHECK_PERMISSIONS' => 'Y',
+							'@CATEGORY_ID' => 0,
 							'FM' => array(
 								'EMAIL' => array(
 									'VALUE' => $search
@@ -1361,6 +1362,7 @@ class CSocNetLogDestination
 						array(),
 						array(
 							'CHECK_PERMISSIONS' => 'Y',
+							'@CATEGORY_ID' => 0,
 							'FM' => array(
 								'EMAIL' => array(
 									'VALUE' => $search
@@ -2119,8 +2121,8 @@ class CSocNetLogDestination
 			SONET_ROLES_OWNER,
 		];
 
-		// todo maybe remove 'M' and 'O' roles after new system the project roles.
-		$customScrumRoles = ['M', 'O'];
+		// todo maybe remove 'M' role after new system the project roles.
+		$customScrumRoles = ['M'];
 		$availableRoles = array_merge($availableRoles, $customScrumRoles);
 
 		$group = Bitrix\Socialnetwork\Item\Workgroup::getById($groupId);
@@ -2166,24 +2168,17 @@ class CSocNetLogDestination
 					if ($role === SONET_ROLES_MODERATOR)
 					{
 						$scrumMasterId = $group->getScrumMaster();
-						$scrumOwnerId = $group->getScrumOwner();
 
 						if ($isScrumCustomRole)
 						{
-							if (
-								$scrumCustomRole === 'M' && $user["USER_ID"] != $scrumMasterId
-								|| $scrumCustomRole === 'O' && $user["USER_ID"] != $scrumOwnerId
-							)
+							if ($scrumCustomRole === 'M' && $user["USER_ID"] != $scrumMasterId)
 							{
 								continue;
 							}
 						}
 						else
 						{
-							if (
-								$user["USER_ID"] == $scrumMasterId
-								|| $user["USER_ID"] == $scrumOwnerId
-							)
+							if ($user["USER_ID"] == $scrumMasterId)
 							{
 								continue;
 							}

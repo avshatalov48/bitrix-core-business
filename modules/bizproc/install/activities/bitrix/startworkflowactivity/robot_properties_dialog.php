@@ -35,9 +35,9 @@ $map = $dialog->getMap();
 </div>
 
 <div class="bizproc-automation-popup-settings">
-	<span class="bizproc-automation-popup-settings-title"><?=GetMessage("BPSWFA_RPD_DOCUMENT_TYPE")?>: </span>
+	<span class="bizproc-automation-popup-settings-title"><?=GetMessage("BPSWFA_RPD_DOCUMENT_TYPE_1")?>: </span>
 	<select class="bizproc-automation-popup-settings-dropdown" name="" id="bpswfa_types" <?if (empty($currentType)) echo 'disabled'?> onchange="BPSWFA_getTemplates(this.value)">
-		<option value=""><?=GetMessage("BPSWFA_RPD_DOCUMENT_TYPE")?>:</option>
+		<option value=""><?=GetMessage("BPSWFA_RPD_DOCUMENT_TYPE_1")?>:</option>
 		<? foreach ($types as $type):?>
 			<option value="<?= htmlspecialcharsbx($type['id']) ?>" <?if ($type['id'] == $currentType) echo 'selected'?>>
 				<?= htmlspecialcharsbx($type['name']) ?></option>
@@ -170,6 +170,6 @@ $map = $dialog->getMap();
 </script>
 <? else: ?>
 <div class="bizproc-automation-popup-settings-alert">
-	<?=GetMessage('BPSWFA_RPD_ACCESS_DENIED')?>
+	<?=GetMessage('BPSWFA_RPD_ACCESS_DENIED_1')?>
 </div>
 <? endif ?>

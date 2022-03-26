@@ -218,7 +218,14 @@ class Manager
 		$typeOptions = array();
 
 		foreach (static::$types as $k => $v)
+		{
+			if (in_array($k, ['PRODUCT_CATEGORIES', 'CONCRETE_PRODUCT']))
+			{
+				continue;
+			}
+
 			$typeOptions[$k] = $v['NAME']." [$k]";
+		}
 
 		$hasMultipleSupport = true;
 		if (isset(static::$types[$input['TYPE']]))

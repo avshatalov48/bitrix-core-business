@@ -25,6 +25,7 @@ return [
 			'allowInlineEdit' => false,
 			'dimensions' => ['maxWidth' => 1350, 'maxHeight' => 900],
 			'disableLink' => true,
+			'create2xByDefault' => false,
 		],
 	],
 	'style' => [

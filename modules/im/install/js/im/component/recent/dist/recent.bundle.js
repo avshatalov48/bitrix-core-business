@@ -384,14 +384,9 @@ this.BX = this.BX || {};
 	  template: "\n\t\t<div class=\"bx-im-recent-item\" :style=\"listItemStyle\" @click=\"onClick\" @click.right=\"onRightClick\">\n\t\t\t<template v-if=\"item.template !== ItemTypes.placeholder\">\n\t\t\t\t<div v-if=\"item.avatar\" class=\"bx-im-recent-item-image-wrap\">\n\t\t\t\t\t<img v-if=\"item.avatar.url\" :src=\"item.avatar.url\" :style=\"imageStyle\" :class=\"imageClass\" alt=\"\">\n\t\t\t\t\t<div v-else-if=\"!item.avatar.url\" :style=\"imageStyle\" class=\"bx-im-recent-item-image-text\">{{ avatarText }}</div>\t\n\t\t\t\t\t<div v-if=\"item.avatar.topLeftIcon\" :class=\"'bx-im-recent-icon-avatar-top-left bx-im-recent-avatar-top-left-' + item.avatar.topLeftIcon\"></div>\n\t\t\t\t\t<div v-if=\"item.avatar.bottomRightIcon\" :class=\"'bx-im-recent-icon-avatar-bottom-right bx-im-recent-avatar-bottom-right-' + item.avatar.bottomRightIcon\"></div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-recent-item-content\">\n\t\t\t\t\t<div class=\"bx-im-recent-item-content-header\">\n\t\t\t\t\t\t<div v-if=\"item.title\" class=\"bx-im-recent-item-header-title\">\n\t\t\t\t\t\t\t<div v-if=\"item.title.leftIcon\" :class=\"'bx-im-recent-icon-title-left bx-im-recent-icon-title-left-' + item.title.leftIcon\"></div>\n\t\t\t\t\t\t\t<span class=\"bx-im-recent-item-header-title-text\">{{ item.title.value }}</span>\n\t\t\t\t\t\t\t<div v-if=\"item.title.rightIcon\" :class=\"'bx-im-recent-icon-title-right bx-im-recent-icon-title-right-' + item.title.rightIcon\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div v-if=\"item.date\" class=\"bx-im-recent-item-header-date\">\n\t\t\t\t\t\t\t<div v-if=\"item.date.leftIcon\" :class=\"'bx-im-recent-icon-date-left bx-im-recent-icon-date-left-' + item.date.leftIcon\"></div>\n\t\t\t\t\t\t\t{{ item.date.value }}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"bx-im-recent-item-content-bottom\">\n\t\t\t\t\t\t<div v-if=\"item.subtitle\" class=\"bx-im-recent-item-bottom-subtitle\">\n\t\t\t\t\t\t\t<div v-if=\"item.subtitle.leftIcon\" :class=\"'bx-im-recent-icon-subtitle-left bx-im-recent-icon-subtitle-left-' + item.subtitle.leftIcon\"></div>\n\t\t\t\t\t\t\t<span class=\"bx-im-recent-item-bottom-subtitle-text\">{{ item.subtitle.value }}</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"bx-im-recent-item-bottom-counter\">\n\t\t\t\t\t\t\t<div v-if=\"item.counter.leftIcon\" :class=\"'bx-im-recent-icon-counter-left bx-im-recent-icon-counter-left-' + item.counter.leftIcon\"></div>\n\t\t\t\t\t\t\t<div v-if=\"item.counter.value > 0\" :class=\"counterClasses\">{{ formattedCounter }}</div>\n\t\t\t\t\t\t\t<div v-else-if=\"item.notification\" class=\"bx-im-recent-item-bottom-counter-notification\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"item.template === ItemTypes.placeholder\">\n\t\t\t\t<div class=\"bx-im-recent-item-image-wrap\">\n\t\t\t\t\t<div class=\"bx-im-recent-item-image bx-im-recent-item-placeholder-image\"></div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-recent-item-content\">\n\t\t\t\t\t<div class=\"bx-im-recent-item-content-header\">\n\t\t\t\t\t\t<div class=\"bx-im-recent-item-placeholder-title\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"bx-im-recent-item-content-bottom\">\n\t\t\t\t\t\t<div class=\"bx-im-recent-item-bottom-subtitle\">\n\t\t\t\t\t\t\t<div class=\"bx-im-recent-item-placeholder-subtitle\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</template>\n\t\t</div>\n\t"
 	});
 
-	/**
-	 * Bitrix im
-	 * Recentlist vue component
-	 *
-	 * @package bitrix
-	 * @subpackage mobile
-	 * @copyright 2001-2019 Bitrix
-	 */
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	/**
 	 * @notice Do not mutate or clone this component! It is under development.
 	 */
@@ -417,7 +412,7 @@ this.BX = this.BX || {};
 	    this.drawPlaceholders().then(this.getFirstPage);
 	    this.initObserver();
 	  },
-	  computed: babelHelpers.objectSpread({
+	  computed: _objectSpread({
 	    pinnedItems: function pinnedItems() {
 	      return this.collection.filter(function (item) {
 	        return item.pinned === true;
@@ -578,7 +573,7 @@ this.BX = this.BX || {};
 	          }));
 	        }
 
-	        result.recent.push(babelHelpers.objectSpread({}, item, {
+	        result.recent.push(_objectSpread(_objectSpread({}, item), {}, {
 	          avatar: item.avatar.url,
 	          color: item.avatar.color,
 	          userId: userId,

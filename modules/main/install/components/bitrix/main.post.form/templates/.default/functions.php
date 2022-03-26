@@ -4,36 +4,25 @@ function __main_post_form_replace_template($arResult = false, $arParams = false)
 	static $control_id = false;
 
 	if ($arResult === false && $arParams === false)
-		return $control_id;
+	{
+		$result = $control_id;
+		$control_id = false;
+		return $result;
+	}
 
 	if (array_key_exists("PARAMS", $arParams) && $arParams["PARAMS"]["arUserField"]["USER_TYPE_ID"] == "webdav_element")
 	{
 		if ($arParams['EDIT'] == 'Y')
 			$control_id = $arResult['UID'];
 	}
-	if (array_key_exists("PARAMS", $arParams) && $arParams["PARAMS"]["arUserField"]["USER_TYPE_ID"] == "disk_file")
+	else if (array_key_exists("PARAMS", $arParams) && $arParams["PARAMS"]["arUserField"]["USER_TYPE_ID"] == "disk_file")
 	{
 		if ($arParams['EDIT'] == 'Y')
 			$control_id = $arResult['UID'];
 	}
-	else if ($arParams["arUserField"]["USER_TYPE_ID"] == "file")
+	else if (isset($arResult['CONTROL_UID'])) // if it is a main.file.input
 	{
-		$control_id = $GLOBALS["APPLICATION"]->IncludeComponent(
-			'bitrix:main.file.input',
-			'drag_n_drop',
-			array(
-				'CONTROL_ID' => \Bitrix\Main\UI\FileInputUtility::instance()->getUserFieldCid($arParams['arUserField']),
-				'INPUT_NAME' => $arParams["arUserField"]["FIELD_NAME"],
-				'INPUT_NAME_UNSAVED' => 'FILE_NEW_TMP',
-				'INPUT_VALUE' => $arResult["VALUE"],
-				'MAX_FILE_SIZE' => intval($arParams['arUserField']['SETTINGS']['MAX_ALLOWED_SIZE']),
-				'MULTIPLE' => $arParams['arUserField']['MULTIPLE'],
-				'MODULE_ID' => 'uf',
-				'ALLOW_UPLOAD' => 'A'
-			),
-			null,
-			array("HIDE_ICONS" => true)
-		);
+		$control_id = $arResult['CONTROL_UID'];
 	}
 	return true;
 }

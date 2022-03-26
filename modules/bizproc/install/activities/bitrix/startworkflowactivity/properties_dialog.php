@@ -161,6 +161,6 @@ if ($isAdmin):
 </script>
 <?else:?>
 <tr>
-	<td align="right" width="40%" valign="top" colspan="2" style="color: red"><?=GetMessage('BPSWFA_PD_ACCESS_DENIED')?></td>
+	<td align="right" width="40%" valign="top" colspan="2" style="color: red"><?=GetMessage('BPSWFA_PD_ACCESS_DENIED_1')?></td>
 </tr>
 <?endif?>

@@ -26,6 +26,8 @@ abstract class BaseBuilder
 	public const ENTITY_SECTION = 'section';
 	public const ENTITY_ELEMENT = 'element';
 
+	protected const SLIDER_PATH_VARIABLE = 'slider_path';
+
 	/** @var Main\HttpRequest */
 	protected $request;
 	/** @var string */
@@ -124,6 +126,11 @@ abstract class BaseBuilder
 	{
 		$this->prefix = $prefix;
 		$this->setTemplateVariable('#PATH_PREFIX#', $this->prefix);
+	}
+
+	public function getPrefix(): string
+	{
+		return $this->prefix;
 	}
 
 	public function setUrlParams(array $list): void
@@ -276,6 +283,31 @@ abstract class BaseBuilder
 	public function isSliderMode(): bool
 	{
 		return $this->sliderMode;
+	}
+
+	public function getDetailPageSlider(): string
+	{
+		$path = $this->getSliderPath();
+		if (!$this->checkSliderPath($path))
+		{
+			return '';
+		}
+		$path = \CUtil::JSEscape($path);
+
+		return '<script>'
+			. 'window.history.replaceState({}, \'\', \'' . $path . '\');' . "\n"
+			. 'BX.ready(function () {' . "\n"
+			. '	BX.SidePanel.Instance.open(' . "\n"
+			. '		\'' . $path . '\'' . "\n"
+			. '	);' . "\n"
+			. '});' . "\n"
+			. '</script>'
+		;
+	}
+
+	public function showDetailPageSlider(): void
+	{
+		echo $this->getDetailPageSlider();
 	}
 
 	protected function checkCurrentPage(array $urlList): bool
@@ -514,5 +546,60 @@ abstract class BaseBuilder
 			'IFRAME' => 'Y',
 			'IFRAME_TYPE' => 'SIDE_SLIDER',
 		];
+	}
+
+	protected function getSliderPath(): ?string
+	{
+		return $this->request->get(self::SLIDER_PATH_VARIABLE);
+	}
+
+	public function getSliderPathOption(string $path): ?array
+	{
+		if ($path === '')
+		{
+			return null;
+		}
+
+		return [
+			self::SLIDER_PATH_VARIABLE => $path,
+		];
+	}
+
+	public function getSliderPathString(string $path): string
+	{
+		if ($path === '')
+		{
+			return '';
+		}
+
+		return self::SLIDER_PATH_VARIABLE . '=' . $path;
+	}
+
+	protected function checkSliderPath(?string $path): bool
+	{
+		if ($path === null)
+		{
+			$path = $this->getSliderPath();
+		}
+		if ($path === null || $path === '')
+		{
+			return false;
+		}
+
+		$prepared = [];
+		foreach ($this->getSliderPathTemplates() as $mask)
+		{
+			if (preg_match($mask, $path, $prepared))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	protected function getSliderPathTemplates(): array
+	{
+		return [];
 	}
 }

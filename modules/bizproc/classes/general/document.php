@@ -1268,7 +1268,7 @@ class CBPDocument
 	 * @param array $arParameters - Additional parameters.
 	 * @return bool
 	 */
-	public static function CanUserOperateDocument($operation, $userId, $parameterDocumentId, $arParameters = array())
+	public static function canUserOperateDocument($operation, $userId, $parameterDocumentId, $arParameters = array())
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
@@ -1290,7 +1290,7 @@ class CBPDocument
 	 * @param array $arParameters - Additional parameters.
 	 * @return bool
 	 */
-	public static function CanUserOperateDocumentType($operation, $userId, $parameterDocumentType, $arParameters = array())
+	public static function canUserOperateDocumentType($operation, $userId, $parameterDocumentType, $arParameters = array())
 	{
 		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
 

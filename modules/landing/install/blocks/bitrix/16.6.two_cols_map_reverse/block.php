@@ -19,15 +19,15 @@
 					<address class="landing-block-card-address-container g-mb-40">
 						<div class="landing-block-card-address g-mb-20" data-card-preset="contact-link">
 							<div class="landing-block-card-address-title landing-semantic-text-medium d-inline-block text-uppercase g-font-size-14 g-color-white-opacity-0_7 g-pr-5">Email:</div>
-							<a class="landing-block-card-address-link landing-semantic-link-medium d-inline-block g-color-white text-uppercase g-font-size-14 g-font-weight-700" href="mailto:#EMAIL1#">
-								#EMAIL1#
+							<a class="landing-block-card-address-link landing-semantic-link-medium d-inline-block g-color-white text-uppercase g-font-size-14 g-font-weight-700" href="mailto:#crmEmail1">
+								#crmEmailTitle1
 							</a>
 						</div>
 
 						<div class="landing-block-card-address g-mb-20" data-card-preset="contact-link">
 							<div class="landing-block-card-address-title landing-semantic-text-medium d-inline-block text-uppercase g-font-size-14 g-color-white-opacity-0_7 g-pr-5">Phone number:</div>
-							<a class="landing-block-card-address-link landing-semantic-link-medium d-inline-block g-color-white text-uppercase g-font-size-14 g-font-weight-700" href="tel:#PHONE1#">
-								#PHONE1#
+							<a class="landing-block-card-address-link landing-semantic-link-medium d-inline-block g-color-white text-uppercase g-font-size-14 g-font-weight-700" href="tel:#crmPhone1">
+								#crmPhoneTitle1
 							</a>
 						</div>
 

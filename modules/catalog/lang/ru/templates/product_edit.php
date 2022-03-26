@@ -123,4 +123,5 @@ $MESS["C2IT_NUMBER_ACTIVE_SUBSCRIPTIONS"] = "Количество активны
 $MESS["C2IT_LIST_SUBSCRIPTIONS"] = "Список подписок:";
 $MESS["C2IT_LIST_SUBSCRIPTIONS_TEXT"] = "посмотреть";
 $MESS["C2IT_UF_FIELDS"] = "Расширенные параметры";
+$MESS["C2IT_PROD_QUANTITY_RESERVED"] = "В резерве";
 ?>

@@ -18,6 +18,7 @@ use Bitrix\Landing\Site\Type;
 use Bitrix\Highloadblock;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Loader;
@@ -27,6 +28,7 @@ use Bitrix\Main;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
 use Bitrix\Crm\Integration\UserConsent;
+use Bitrix\Main\Web\Uri;
 use Bitrix\Rest\Marketplace\Client;
 
 \CBitrixComponent::includeComponentClass('bitrix:landing.base');
@@ -36,12 +38,12 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	/**
 	 * Count items per page.
 	 */
-	const COUNT_PER_PAGE = 48;
+	const COUNT_PER_PAGE = 29;
 
-	/**
-	 * Days count during which templates marked as 'new'.
-	 */
-	const LABEL_NEW_PERIOD_DAY = 12;
+	// /**
+	//  * Days count during which templates marked as 'new'.
+	//  */
+	// const LABEL_NEW_PERIOD_DAY = 120;
 
 	/**
 	 * Tag for managed cache.
@@ -57,6 +59,12 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	 * Path with demo templates data for page.
 	 */
 	const DEMO_DIR_PAGE = 'page';
+
+	const DEMO_TYPES_FILTER = [
+		'PAGE' => 'page',
+		'STORE' => 'shop',
+		'KNOWLEDGE' => 'knowledgeBase',
+	];
 
 	/**
 	 * Remote repository url.
@@ -99,35 +107,6 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	private $showcaseId;
 	/** @var array */
 	private $showcase;
-
-	protected const DEMO_TEMPLATE_FIRST = 'empty';
-	protected const DEMO_NFR_APP = 'bitrix.partnerlanding';
-	protected const DEMO_SORT_OFFSET = 100;
-	protected const DEMO_SORT_SCOPE_FIRST = 0;
-	protected const DEMO_SORT_SCOPE_NEW = 1;
-	protected const DEMO_SORT_SCOPE_HOLIDAYS = 2;
-	protected const DEMO_SORT_SCOPE_REST = 3;
-	protected const DEMO_SORT_SCOPE_LOCAL = 5;
-	protected const DEMO_SORT_SCOPE_LAST = 6;
-	protected const DEMO_HOLIDAYS = [
-		"holidays/holiday.blackfriday" => [11,01,11,30],
-		"holidays/holiday.easter1" => [2,21,4,4],
-		"holidays/holiday.easter2" => [3,21,5,2],
-		"holidays/holiday.halloween" => [10,10,10,31],
-		"holidays/holiday.new-year" => [12,8,12,31],
-		"holidays/holiday.thanksgiving" => [11,01,11,30],
-		"holidays/holiday.valentine1" => [1,24,2,14],
-		"holidays/holiday.valentine2" => [1,24,2,14],
-		"holidays/holiday.valentine3" => [1,24,2,14],
-		"holidays/holiday.xmas" => [12,1,12,25],
-		"holidays/holiday.8march1" => [2,15,3,8],
-		"holidays/holiday.8march2" => [2,15,3,8],
-		"holidays/holiday.8march3" => [2,15,3,8],
-		"holidays/holiday.23february.1" => [2,2,2,23],
-		"holidays/holiday.23february.2" => [2,2,2,23],
-		"holidays/holiday.23february.3" => [2,2,2,23],
-		"holidays/holiday.april-fool" => [3,11,4,1],
-	];
 
 	/**
 	 * On template creation we can add callbacks from white list
@@ -208,7 +187,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				array($siteId, $landingId),
 				$this->arParams['PAGE_URL_LANDING_VIEW']
 			);
-			$uriEdit = new \Bitrix\Main\Web\Uri($redirect);
+			$uriEdit = new Uri($redirect);
 			$uriEdit->addParams([
 				'IFRAME' => ($this->arParams['DONT_LEAVE_FRAME'] != 'Y') ? 'N' : 'Y'
 			]);
@@ -242,36 +221,15 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	{
 		$data = $this->prepareAdditionalFields($data, $request);
 
-		// for new page in EXISTING SITES - match value
-		if ($this->request('theme'))
+		// todo: theme_custom_color now is not using, can remove?
+		if ($this->request('theme') || $this->request('theme_custom_color'))
 		{
-			$color = $this->request('theme');
-			$color = $this->prepareColor($color);
-			if ($this->request('theme_use_site') && $this->request('theme_use_site') === 'Y')
-			{
-				unset($data['ADDITIONAL_FIELDS']['THEME_CODE'], $data['ADDITIONAL_FIELDS']['THEME_COLOR']);
-			}
-			else
-			{
-				$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
-			}
-			if($this->arParams['SITE_ID'] > 0)
-			{
-				$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'Y';
-			}
-			else
-			{
-				$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'N';
-			}
-		}
-
-		if ($this->request('theme_custom_color'))
-		{
-			$color = $this->request('theme_custom_color');
+			$color = $this->request('theme_custom_color') ?: $this->request('theme');
 			$color = $this->prepareColor($color);
 			unset($data['ADDITIONAL_FIELDS']['THEME_CODE']);
 			$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
-			if($this->arParams['SITE_ID'] > 0)
+
+			if ($this->arParams['SITE_ID'] > 0)
 			{
 				$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'Y';
 			}
@@ -285,6 +243,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		{
 			$color = $this->request('theme_use_site');
 			$color = $this->prepareColor($color);
+			unset($data['ADDITIONAL_FIELDS']['THEME_CODE']);
 			$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
 			$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'N';
 		}
@@ -303,17 +262,9 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		// It is may be original theme, or user change
 		$data = $this->prepareAdditionalFields($data, false);
 
-		if ($this->request('theme'))
+		if ($this->request('theme') || $this->request('theme_custom_color'))
 		{
-			$color = $this->request('theme');
-			$color = $this->prepareColor($color);
-			$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
-			// not overwrite typo - always use theme from template
-		}
-
-		if ($this->request('theme_custom_color'))
-		{
-			$color = $this->request('theme_custom_color');
+			$color = $this->request('theme_custom_color') ?: $this->request('theme');
 			$color = $this->prepareColor($color);
 			unset($data['ADDITIONAL_FIELDS']['THEME_CODE']);
 			$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
@@ -526,6 +477,26 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					$blocksIds = array();
 					$blocksCodes = array();
 					$blocksAccess = array();
+					if ($this->arParams['DONT_LEAVE_FRAME'] === 'Y' && $pageData['FOLDER_ID'])
+					{
+						$indexEmpty = \Bitrix\Landing\Folder::getList([
+							'select' => [
+								'ID'
+							],
+							'filter' => [
+								'ID' => $pageData['FOLDER_ID'],
+								'INDEX_ID' => false
+							]
+						])->fetch();
+						if ($indexEmpty)
+						{
+							Site::updateFolder(
+								$landing->getSiteId(),
+								$pageData['FOLDER_ID'],
+								['INDEX_ID' => $landing->getId()]
+							);
+						}
+					}
 					if ($demo[$code]['LOCK_DELETE'] ?? false)
 					{
 						\Bitrix\Landing\Lock::lockDeleteLanding($landingId);
@@ -906,13 +877,15 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			return '';
 		}
 
+		$url = '';
+		//template data
 		if (isset($template['PREVIEW_URL']))
 		{
-			return $template['PREVIEW_URL'];
+			$url = $template['PREVIEW_URL'];
 		}
 
 		// first detect from rest
-		if (($codePos = mb_strrpos($code, '@')) !== false)
+		elseif (($codePos = mb_strrpos($code, '@')) !== false)
 		{
 			$appCode = mb_substr($code, 0, $codePos);
 			$xmlId = mb_substr($code, $codePos + 1);
@@ -934,28 +907,36 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			));
 			if ($row = $res->fetch())
 			{
-				return $row['PREVIEW_URL'];
+				$url = $row['PREVIEW_URL'];
 			}
 		}
 
-		if (isset($template['DATA']['parent']))
-		{
-			$code = $template['DATA']['parent'];
-		}
-		$code = str_replace('/', '_', $code);
-		if (
-			$this->arParams['TYPE'] == Type::SCOPE_CODE_KNOWLEDGE ||
-			$this->arParams['TYPE'] == Type::SCOPE_CODE_GROUP
-		)
-		{
-			$previewSubDir = '/pub/kb/';
-		}
+		// default from preview.bitrix24.site
 		else
 		{
-			$previewSubDir = '/pub/site/';
+			if (isset($template['DATA']['parent']))
+			{
+				$code = $template['DATA']['parent'];
+			}
+			$code = str_replace('/', '_', $code);
+			if (
+				$this->arParams['TYPE'] == Type::SCOPE_CODE_KNOWLEDGE
+				|| $this->arParams['TYPE'] == Type::SCOPE_CODE_GROUP
+			)
+			{
+				$previewSubDir = '/pub/kb/';
+			}
+			else
+			{
+				$previewSubDir = '/pub/site/';
+			}
+			$url = 'https://preview.bitrix24.site' . $previewSubDir . $code;
 		}
 
-		return 'https://preview.bitrix24.site' . $previewSubDir . $code . '/?user_lang=' . LANGUAGE_ID;
+		$uri = new Uri($url);
+		$uri->addParams(['user_lang' => LANGUAGE_ID]);
+
+		return $uri->getUri();
 	}
 
 	/**
@@ -1161,6 +1142,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				/** @var Landing $landingInstance */
 				$landingInstance = null;
 				Landing::disableUpdate();
+				Landing::disableCheckUniqueAddress();
 				foreach ($data['items'] as $page)
 				{
 					$landingId = $this->createPage(
@@ -1181,6 +1163,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					$landings[$page] = $landingId;
 				}
 				Landing::enableUpdate();
+				Landing::enableCheckUniqueAddress();
 				// publication after create
 				if ($landingInstance !== null && $demo[$code]['PUBLICATION'])
 				{
@@ -1324,27 +1307,56 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					}
 				}
 				// set pages to folders
-				$alreadyFolders = array();
 				if (isset($data['folders']) && is_array($data['folders']))
 				{
-					foreach ($data['folders'] as $folder => $items)
+					foreach ($data['folders'] as $folderCode => $folderPages)
 					{
-						if (isset($landings[$folder]) && is_array($items))
+						if (!is_array($folderPages))
 						{
-							foreach ($items as $item)
+							continue;
+						}
+						if (!in_array($folderCode, $folderPages))
+						{
+							$folderPages[] = $folderCode;
+						}
+						// create folder
+						$folderId = null;
+						$folderIndexId = null;
+						if (isset($landings[$folderCode]))
+						{
+							$res = Landing::getList([
+								'select' => [
+									'TITLE', 'SITE_ID', 'ID'
+								],
+								'filter' => [
+									'ID' => $landings[$folderCode]
+								]
+							]);
+							if ($page = $res->fetch())
 							{
-								if (isset($landings[$item]))
+								$folderIndexId = $page['ID'];
+								$folderId = Site::addFolder($page['SITE_ID'], [
+									'TITLE' => $page['TITLE']
+								])->getId();
+							}
+						}
+						if (!$folderId)
+						{
+							continue;
+						}
+						// set pages to the folder
+						foreach ($folderPages as $pageCode)
+						{
+							if (isset($landings[$pageCode]))
+							{
+								Landing::update($landings[$pageCode], array(
+									'FOLDER_ID' => $folderId
+								));
+								if ($folderIndexId == $landings[$pageCode])
 								{
-									if (!in_array($landings[$folder], $alreadyFolders))
-									{
-										$alreadyFolders[] = $landings[$folder];
-										Landing::update($landings[$folder], array(
-											'FOLDER' => 'Y'
-										));
-									}
-									Landing::update($landings[$item], array(
-										'FOLDER_ID' => $landings[$folder]
-									));
+									\Bitrix\Landing\Folder::update($folderId, [
+										'INDEX_ID' => $folderIndexId
+									]);
 								}
 							}
 						}
@@ -1476,7 +1488,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	 */
 	private function stepperStoreFinalUrl($code, $additional = null): string
 	{
-		$uriSelect = new \Bitrix\Main\Web\Uri($this->currentRequest->getRequestUri());
+		$uriSelect = new Uri($this->currentRequest->getRequestUri());
 
 		$params = array(
 			'action' => 'select',
@@ -1568,7 +1580,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		{
 			if (!empty($data))
 			{
-				if ($subDir == self::DEMO_DIR_SITE)
+				// todo: need check singleton?
+				if ($subDir === self::DEMO_DIR_SITE)
 				{
 					// make some items disable, if they are singleton
 					$res = Site::getList([
@@ -1615,66 +1628,72 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					unset($res, $row);
 				}
 
-				$siteTemplateId = Manager::getTemplateId(
-					Manager::getMainSiteId()
-				);
-
 				if ($code)
 				{
-					$xmlId = mb_substr($code, mb_strrpos($code, '@') + 1);
-					$appCode = mb_substr($code, 0, mb_strrpos($code, '@'));
+					$data = [$code => $data[$code]];
 				}
-				else
-				{
-					$xmlId = $appCode = null;
-				}
+			}
 
-				// fill from rest
-				$res = Demos::getList(array(
-					'select' => array(
-						'ID', 'APP_CODE', 'XML_ID', 'TYPE',
-						'TITLE', 'ACTIVE', 'DESCRIPTION', 'LANG',
-						'PREVIEW', 'PREVIEW2X', 'PREVIEW3X',
-						'DATE_CREATE'
-					),
-					'filter' => array(
-						'=ACTIVE' => 'Y',
-						'=TYPE' => $this->arParams['TYPE'],
-						'=TPL_TYPE' =>
-							($subDir == $this::DEMO_DIR_SITE)
+			$siteTemplateId = Manager::getTemplateId(
+				Manager::getMainSiteId()
+			);
+
+			if ($code)
+			{
+				$xmlId = mb_substr($code, mb_strrpos($code, '@') + 1);
+				$appCode = mb_substr($code, 0, mb_strrpos($code, '@'));
+			}
+			else
+			{
+				$xmlId = $appCode = null;
+			}
+
+			// fill from REST
+			$res = Demos::getList([
+				'select' => [
+					'ID', 'APP_CODE', 'XML_ID', 'TYPE',
+					'TITLE', 'ACTIVE', 'DESCRIPTION', 'LANG',
+					'PREVIEW', 'PREVIEW2X', 'PREVIEW3X',
+					'DATE_CREATE'
+				],
+				'filter' => [
+					'=ACTIVE' => 'Y',
+					'=TYPE' => $this->arParams['TYPE'],
+					'=TPL_TYPE' =>
+						($subDir == $this::DEMO_DIR_SITE)
 							? Demos::TPL_TYPE_SITE
 							: Demos::TPL_TYPE_PAGE,
-						$code
-							? array(
-								'=XML_ID' => $xmlId,
-								'=APP_CODE' => $appCode
-							)
-							: array(
-								'=SHOW_IN_LIST' => 'Y'
-							),
-						Manager::isTemplateIdSystem($siteTemplateId)
-							? array(
-								'LOGIC' => 'OR',
-								['=SITE_TEMPLATE_ID' => $siteTemplateId],
-								['=SITE_TEMPLATE_ID' => false]
-							)
-							: array(
-								['=SITE_TEMPLATE_ID' => $siteTemplateId]
-							)
-					),
-					'order' => array(
-						'ID' => 'asc'
-					)
-				));
-				while ($row = $res->fetch())
+					$code
+						? [
+							'=XML_ID' => $xmlId,
+							'=APP_CODE' => $appCode
+						]
+						: [
+							'=SHOW_IN_LIST' => 'Y'
+						],
+					Manager::isTemplateIdSystem($siteTemplateId)
+						? [
+						'LOGIC' => 'OR',
+						['=SITE_TEMPLATE_ID' => $siteTemplateId],
+						['=SITE_TEMPLATE_ID' => false]
+					]
+						: [
+						['=SITE_TEMPLATE_ID' => $siteTemplateId]
+					]
+				],
+				'order' => [
+					'ID' => 'asc'
+				]
+			]);
+			while ($row = $res->fetch())
+			{
+				$lang = $row['LANG'] ? (array)unserialize($row['LANG'], ['allowed_classes' => false]) : [];
+				if (!$row['APP_CODE'])
 				{
-					$lang = $row['LANG'] ? (array)unserialize($row['LANG'], ['allowed_classes' => false]) : [];
-					if (!$row['APP_CODE'])
-					{
-						$row['APP_CODE'] = 'local';
-					}
-					$key = $row['APP_CODE'] . '@' . $row['XML_ID'];
-					$data = array(
+					$row['APP_CODE'] = 'local';
+				}
+				$key = $row['APP_CODE'] . '@' . $row['XML_ID'];
+				$data = array(
 						$key => $this->translate(array(
 							'ID' => $key,
 							'XML_ID' => $row['XML_ID'],
@@ -1684,7 +1703,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 							'AVAILABLE' => true,
 							'SECTION' => [],//@todo
 							'DESCRIPTION' => $row['DESCRIPTION'],
-							'SORT' => self::matchFullSort($key, self::DEMO_SORT_SCOPE_REST, $row['DATE_CREATE']->getTimeStamp()),
+							// 'SORT' => self::matchFullSort($key, self::DEMO_SORT_SCOPE_REST, $row['DATE_CREATE']->getTimeStamp()),
 							'PREVIEW' => $row['PREVIEW'],
 							'PREVIEW2X' => $row['PREVIEW2X'],
 							'PREVIEW3X' => $row['PREVIEW3X'],
@@ -1696,179 +1715,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 							'DATA' => []
 						), $lang)
 					) + $data;
-				}
-
-				// fill from remote repository
-				if ($this->getRemoteTemplates && !$this->isRepo())
-				{
-					$result = [];
-					$http = new HttpClient;
-
-					if ($code)
-					{
-						if (!array_key_exists($appCode, $applicationItems))
-						{
-							$applicationItems[$appCode] = [];
-							$res = $http->get(
-								$this::REMOTE_REPOSITORY_URL . 'landing_cloud.cloud.getAppItems?'
-								. 'user_lang=' . LANGUAGE_ID
-								. '&appCode=' . $appCode
-							);
-							if ($res)
-							{
-								$res = Json::decode($res);
-							}
-							if (isset($res['result']) && is_array($res['result']))
-							{
-								foreach ($res['result'] as $item)
-								{
-									$item['REST'] = $item['ID'];
-									unset($item['ID']);
-									$applicationItems[$appCode][$item['XML_ID']] = $item;
-								}
-							}
-						}
-						if (isset($applicationItems[$appCode][$xmlId]))
-						{
-							$result[$appCode . '@' . $xmlId] = $applicationItems[$appCode][$xmlId];
-						}
-					}
-					else
-					{
-						$command = ($subDir == $this::DEMO_DIR_SITE)
-									? 'getDemoSiteList'
-									: 'getDemoPageList';
-						$res = $http->get(
-							$this::REMOTE_REPOSITORY_URL . 'landing_cloud.cloud.' . $command . '?'
-							. 'user_lang=' . LANGUAGE_ID
-							. '&type=' . $this->arParams['TYPE']
-							. '&filter[used_in_public]=Y'
-							. '&filter[only_rest]=Y'
-						);
-						if ($res)
-						{
-							$res = Json::decode($res);
-						}
-						if (isset($res['result']) && is_array($res['result']))
-						{
-							$result = $res['result'];
-						}
-					}
-					foreach ($result as $key => $item)
-					{
-						if (
-							!isset($item['REST']) ||
-							!isset($item['TITLE'])
-						)
-						{
-							continue;
-						}
-						$timestamp = isset($item['TIMESTAMP'])
-							? $item['TIMESTAMP']
-							: 0;
-						$data[$key] = [
-							'ID' => $key,
-							'SORT' => self::matchFullSort($key, self::DEMO_SORT_SCOPE_LOCAL, $timestamp),
-							'XML_ID' => isset($item['XML_ID'])
-										? $item['XML_ID']
-										: '',
-							'TYPE' => $this->arParams['TYPE'],
-							'TITLE' => $item['TITLE'],
-							'ACTIVE' => true,
-							'AVAILABLE' => true,
-							'SECTION' => [],
-							'DESCRIPTION' => isset($item['DESCRIPTION'])
-										? $item['DESCRIPTION']
-										: '',
-							'PREVIEW' => isset($item['PREVIEW'])
-										? $item['PREVIEW']
-										: '',
-							'PREVIEW2X' => isset($item['PREVIEW2X'])
-										? $item['PREVIEW2X']
-										: '',
-							'PREVIEW3X' => isset($item['PREVIEW3X'])
-										? $item['PREVIEW3X']
-										: '',
-							'APP_CODE' => isset($item['APP_CODE'])
-										? $item['APP_CODE']
-										: '',
-							'DATA' => isset($item['MANIFEST'])
-										? $item['MANIFEST']
-										: [],
-							'TIMESTAMP' => $timestamp,
-							'DESIGNED_BY' => isset($item['DESIGNED_BY'])
-										? $item['DESIGNED_BY']
-										: [],
-							'REST' => -1 * $item['REST'],
-							'LANG' => LANGUAGE_ID
-						];
-					}
-				}
-
-				// fill from zip repository
-				$marketPrefix = 'market';
-				$marketIdDelimetr = '/';
-				if (
-					Loader::includeModule('rest')
-					&& is_callable(['\Bitrix\Rest\Marketplace\Client', 'getSiteList'])
-					&& ($subDir == $this::DEMO_DIR_SITE || mb_strpos($code, $marketPrefix . $marketIdDelimetr) === 0)
-					&& $this->arParams['TYPE'] == 'PAGE'
-				)
-				{
-					$siteList = Client::getSiteList();
-					if (is_array($siteList))
-					{
-						foreach ($siteList as $site)
-						{
-							$key = implode(
-								$marketIdDelimetr,
-								[
-									$marketPrefix,
-									$site['app_code'],
-									$site['id'],
-								]
-							);
-							$data[$key] = [
-								'ID' => $key,
-								'SORT' => (int) $site['sort'],
-								'XML_ID' => '',
-								'TYPE' => $this->arParams['TYPE'],
-								'TITLE' => $site['name'],
-								'ACTIVE' => true,
-								'AVAILABLE' => true,
-								'SECTION' => $site['section'] ?? [],
-								'DESCRIPTION' => $site['description'] ?? '',
-								'PREVIEW' => $site['preview'] ?? '',
-								'PREVIEW2X' => $site['preview2x'] ?? '',
-								'PREVIEW3X' => $site['preview3x'] ?? '',
-								'PREVIEW_URL' => $site['url'] ?? '',
-								'ZIP_ID' => $site['id'] ?? '',
-								'APP_CODE' => $site['app_code'] ?? '',
-								'DATA' => $site['data'],
-								'TIMESTAMP' => 0,
-								'DESIGNED_BY' => $site['designedBy'] ?? [],
-								'REST' => 0,
-								'LANG' => $site['lang'] ?? LANGUAGE_ID,
-							];
-						}
-					}
-				}
 			}
-
-			uasort($data, function($a, $b)
-			{
-				if ($a['SORT'] != $b['SORT'])
-				{
-					return $a['SORT'] > $b['SORT'] ? 1 : -1;
-				}
-
-				if ($a['TITLE'] === $b['TITLE'])
-				{
-					return 0;
-				}
-
-				return $a['TITLE'] > $b['TITLE'] ? 1 : -1;
-			});
 
 			// send events
 			$event = new \Bitrix\Main\Event('landing', 'onDemosGetRepository', array(
@@ -1900,13 +1747,18 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		{
 			// system cache begin
 			$cache = new \CPHPCache();
-			$cacheTime = 86400;
+			$cacheTime = 3600;
 			$cacheStarted = false;
 			$siteId = Manager::getMainSiteId();
 			$siteTemplateId = Manager::getTemplateId($siteId);
 			$cacheId = 'demo_manifest';
 			$cacheId .= $subDir . $cacheStarted . $this->arParams['TYPE'];
 			$cacheId .= $siteTemplateId . LANGUAGE_ID;
+			$cacheId .= $code ?? 'all';
+			$cacheId .= $this->arParams['SITE_ID'] > 0 ? 'onePage' : 'miltiPage';
+
+			$navigation = $this->getLastNavigation();
+			$cacheId .= $navigation ? $navigation->getCurrentPage() : 1;
 
 			$extParams = self::getExtDemoPerms();
 			foreach($extParams as $param)
@@ -1914,11 +1766,20 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				$cacheId .= $param;
 			}
 
+			// nfr - without cache
 			$cachePath = 'landing/demo';
-			if ($cache->initCache($cacheTime, $cacheId, $cachePath))
+			if (
+				$cache->initCache($cacheTime, $cacheId, $cachePath)
+				&& (int)Option::get('bitrix24', 'partner_id', 0) === 0
+			)
 			{
-				$data[$subDir] = $cache->getVars();
-				return $eventFunc($data[$subDir]);
+				$data = $cache->getVars();
+				$navigation->setRecordCount($data['navigation']['recordCount']);
+
+				if (!empty($data[$subDir]))
+				{
+					return $eventFunc($data[$subDir]);
+				}
 			}
 			if ($cache->startDataCache($cacheTime, $cacheId, $cachePath))
 			{
@@ -1930,54 +1791,57 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				}
 			}
 
-			$items = array();
-			$data[$subDir] = array();
-			$pathLocal = '/bitrix/components/bitrix/landing.demo/data/' . $subDir;//@todo make better
-			$path = Manager::getDocRoot() . $pathLocal;
+			$data[$subDir] = [];
+			$data['navigation'] = [];
 			$siteTypeDef = Site::getDefaultType();
 			$siteTypeCurr = $this->arParams['TYPE'];
-			$dir = array();
 
-			// read demo from dir
-			if (($handle = opendir($path)))
+			// region get LOCAL
+			$pathLocal = '/bitrix/components/bitrix/landing.demo/data/' . $subDir;//@todo make better
+			$path = Manager::getDocRoot() . $pathLocal;
+			$localDirectories = [];
+			$localTemplates = [
+				'empty',
+				'empty-multipage',
+				'wiki-dark',
+				'wiki-light',
+				'store_v3',
+				'store-chats-dark',
+				'clothes',
+				'store-instagram',
+				'store-mini-catalog',
+				'store-mini-one-element',
+				'search-result',
+				'search-result2',
+				'search-result3-dark',
+				'news-detail',
+			];
+			foreach($localTemplates as $template)
 			{
-				while ((($entry = readdir($handle)) !== false))
+				$descPath = $path . '/' . $template . '/.description.php';
+				if (file_exists($descPath))
 				{
-					if ($entry != '.' && $entry != '..')
+					$localDirectories[] = $template;
+				}
+				else if (($handleSubdir = opendir($path . '/' . $template)))
+				{
+					while ((($entrySubdir = readdir($handleSubdir)) !== false))
 					{
-						$descPath = $path . '/' . $entry . '/.description.php';
-						if (file_exists($descPath))
+						if ($entrySubdir != '.' && $entrySubdir != '..')
 						{
-							$dir[] = $entry;
-						}
-						else if (($handleSubdir = opendir($path . '/' . $entry)))
-						{
-							while ((($entrySubdir = readdir($handleSubdir)) !== false))
+							$descPath = $path . '/' . $template . '/' . $entrySubdir . '/.description.php';
+							if (file_exists($descPath))
 							{
-								if ($entrySubdir != '.' && $entrySubdir != '..')
-								{
-									$descPath = $path . '/' . $entry . '/' . $entrySubdir . '/.description.php';
-									if (file_exists($descPath))
-									{
-										$dir[] = $entry . '/' . $entrySubdir;
-									}
-								}
+								$localDirectories[] = $template . '/' . $entrySubdir;
 							}
 						}
 					}
 				}
 			}
 
-			if ($this->isRepo())
+			foreach($localDirectories as $dir)
 			{
-				\Bitrix\Main\Localization\Loc::setCurrentLang('bx');
-			}
-
-			// and work with this
-			foreach ($dir as $entry)
-			{
-
-				$itemData = include $path . '/' . $entry . '/.description.php';
+				$itemData = include $path . '/' . $dir . '/.description.php';
 				if (!isset($itemData['type']))
 				{
 					$itemData['type'] = $siteTypeDef;
@@ -2003,74 +1867,115 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					{
 						$itemData['fields']['TITLE'] = $itemData['name'];
 					}
-					if (
-						$entry != 'empty' &&
-						$siteTemplateId != 'landing24'
-					)
+					$data[$subDir][$dir] = array(
+						'ID' => $dir,
+						'XML_ID' => $dir,
+						'TYPE' => $itemData['type'],
+						'TITLE' => $itemData['name'],
+						'ACTIVE' => $itemData['active'] ?? true,
+						'PUBLICATION' => $itemData['publication'] ?? false,
+						'LOCK_DELETE' => $itemData['lock_delete'] ?? false,
+						'AVAILABLE' => $itemData['available'] ?? true,
+						'SINGLETON' => $itemData['singleton'] ?? false,
+						'SECTION' => isset($itemData['section']) ? (array)$itemData['section'] : [],
+						'DESCRIPTION' => $itemData['description'] ?? '',
+						'PREVIEW' => file_exists($path . '/' . $dir . '/preview.jpg')
+							? Manager::getUrlFromFile($pathLocal . '/' . $dir . '/preview.jpg')
+							: '',
+						'PREVIEW2X' => file_exists($path . '/' . $dir . '/preview@2x.jpg')
+							? Manager::getUrlFromFile($pathLocal . '/' . $dir . '/preview@2x.jpg')
+							: '',
+						'PREVIEW3X' => file_exists($path . '/' . $dir . '/preview@3x.jpg')
+							? Manager::getUrlFromFile($pathLocal . '/' . $dir . '/preview@3x.jpg')
+							: '',
+						'APP_CODE' => '',
+						'REST' => 0,
+						'DATA' => $itemData,
+					);
+				}
+			}
+			// endregion
+
+			// region get from zip repository
+			$marketPrefix = 'market';
+			$marketIdDelimiter = '/';
+			$isMarketCode = !$code || mb_strpos($code, $marketPrefix . $marketIdDelimiter) === 0;
+			if (
+				Loader::includeModule('rest')
+				&& is_callable(['\Bitrix\Rest\Marketplace\Client', 'getSiteList'])
+				&& $isMarketCode
+				&& $siteTypeCurr === 'PAGE'
+			)
+			{
+				$query = [
+					'pageSize' => $navigation ? $navigation->getPageSize() : self::COUNT_PER_PAGE,
+					'page' => $navigation ? $navigation->getCurrentPage() : 1,
+					'siteType' => self::DEMO_TYPES_FILTER[$siteTypeCurr] ?? 'page',
+				];
+				if ($this->arParams['SITE_ID'] > 0)
+				{
+					$query['onePage'] = 'Y';
+				}
+				if ($code)
+				{
+					$query['code'] = preg_replace(['/^\w+\//i', '/\/\w+$/i'], '', $code);
+					unset($query['onePage'], $query['pageSize'], $query['page']);
+				}
+				$siteList = Client::getSiteList($query);
+				if (is_array($siteList) && is_array($siteList['ITEMS']))
+				{
+					$fakeRecordCount = $siteList['PAGES'] * $navigation->getPageSize();
+					$navigation->setRecordCount($fakeRecordCount);
+					$data['navigation']['recordCount'] = $fakeRecordCount;
+
+					foreach ($siteList['ITEMS'] as $site)
 					{
-						if (
-							!isset($itemData['site_template_id']) ||
-							$itemData['site_template_id'] != $siteTemplateId
-						)
+						$key = implode(
+							$marketIdDelimiter,
+							[
+								$marketPrefix,
+								$site['APP_CODE'],
+								$site['ID'],
+							]
+						);
+						if ($code && ($code !== $key))
 						{
 							continue;
 						}
+						$data[$subDir][$key] = [
+							'ID' => $key,
+							'XML_ID' => '',
+							'TYPE' => $this->arParams['TYPE'],
+							'TITLE' => $site['NAME'],
+							'ACTIVE' => true,
+							'AVAILABLE' => true,
+							'SECTION' => $site['SECTION'] ?? [],
+							'DESCRIPTION' => $site['DESCRIPTION'] ?? $site['APP_SHORT_DESC'],
+							'THEME_COLOR' => $site['THEME_COLOR'] ?? null,
+							'PREVIEW' => $site['PREVIEW'] ?? '',
+							'PREVIEW2X' => $site['PREVIEW_2X'] ?? '',
+							'PREVIEW3X' => $site['PREVIEW_3X'] ?? '',
+							'PREVIEW_URL' => $site['URL'] ?? '',
+							'ZIP_ID' => $site['ID'] ?? '',
+							'APP_CODE' => $site['APP_CODE'] ?? '',
+							'DATA' => $site['DATA'],
+							'IS_NEW' => $site['IS_NEW'],
+							'REST' => 0,
+							'LANG' => $site['LANG'] ?? LANGUAGE_ID,
+							'LABELS' => $site['LABELS'] ?? null,
+						];
+						if (is_array($site['TAGS']) && in_array('krayt', $site['TAGS'], true))
+						{
+							$data[$subDir][$key]['DESIGNED_BY'] = 'KRAYT';
+						}
+						if (is_array($site['TAGS']) && in_array('delobot', $site['TAGS'], true))
+						{
+							$data[$subDir][$key]['DESIGNED_BY'] = 'DELOBOT';
+						}
 					}
-					$timestamp = isset($itemData['timestamp']) ? (int)$itemData['timestamp'] : 0;
-					$sort = self::matchFullSort(
-						$entry,
-						($entry === self::DEMO_TEMPLATE_FIRST) ? self::DEMO_SORT_SCOPE_FIRST : self::DEMO_SORT_SCOPE_LOCAL,
-						$timestamp,
-						$itemData['sort'] ?? 0
-					);
-					$items[$entry] = array(
-						'ID' => $entry,
-						'XML_ID' => $entry,
-						'TYPE' => $itemData['type'],
-						'TITLE' => $itemData['name'],
-						'ACTIVE' => isset($itemData['active']) ? $itemData['active'] : true,
-						'PUBLICATION' => isset($itemData['publication']) ? $itemData['publication'] : false,
-						'LOCK_DELETE' => isset($itemData['lock_delete']) ? $itemData['lock_delete'] : false,
-						'AVAILABLE' => isset($itemData['available']) ? $itemData['available'] : true,
-						'SINGLETON' =>  isset($itemData['singleton']) ? $itemData['singleton'] : false,
-						'SECTION' => isset($itemData['section']) ? (array)$itemData['section'] : [],
-						'DESCRIPTION' => isset($itemData['description'])
-										? $itemData['description']
-										: '',
-						'SORT' => $sort,
-						'PREVIEW' => file_exists($path . '/' . $entry . '/preview.jpg')
-										? Manager::getUrlFromFile($pathLocal . '/' . $entry . '/preview.jpg')
-										: '',
-						'PREVIEW2X' => file_exists($path . '/' . $entry . '/preview@2x.jpg')
-										? Manager::getUrlFromFile($pathLocal . '/' . $entry . '/preview@2x.jpg')
-										: '',
-						'PREVIEW3X' => file_exists($path . '/' . $entry . '/preview@3x.jpg')
-										? Manager::getUrlFromFile($pathLocal . '/' . $entry . '/preview@3x.jpg')
-										: '',
-						'APP_CODE' => '',
-						'REST' => 0,
-						'TIMESTAMP' => $timestamp,
-						'DESIGNED_BY' => isset($itemData['designed_by']) ? (array)$itemData['designed_by'] : [],
-						'DATA' => $itemData
-					);
 				}
 			}
-
-			if ($this->isRepo())
-			{
-				\Bitrix\Main\Localization\Loc::setCurrentLang(null);
-			}
-
-			// available - first
-			foreach ($items as $key => $item)
-			{
-				if ($item['AVAILABLE'])
-				{
-					$data[$subDir][$key] = $item;
-					unset($items[$key]);
-				}
-			}
-			$data[$subDir] += $items;
+			// endregion
 
 			// to change template list by additional params
 			$data[$subDir] = self::applyExtDemoPerms($data[$subDir]);
@@ -2078,7 +1983,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			// system cache end
 			if ($cacheStarted)
 			{
-				$cache->endDataCache($data[$subDir]);
+				$cache->endDataCache($data);
 				if (Cache::isCaching())
 				{
 					Manager::getCacheManager()->EndTagCache();
@@ -2161,74 +2066,6 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		}
 
 		return $data;
-	}
-
-
-	public static function isDemoNew(int $timestamp): bool
-	{
-		return time() - $timestamp < 86400 * self::LABEL_NEW_PERIOD_DAY;
-	}
-
-	protected static function matchFullSort(string $code, int $scope, int $timestamp = null, int $sort = 0): int
-	{
-		if ($timestamp && self::isDemoNew($timestamp))
-		{
-			return self::DEMO_SORT_OFFSET * self::DEMO_SORT_SCOPE_NEW;
-		}
-
-		if($scope === self::DEMO_SORT_SCOPE_REST)
-		{
-			if(strpos($code, self::DEMO_NFR_APP) !== false)
-			{
-				$scope++;
-			}
-
-			return self::DEMO_SORT_OFFSET * $scope;
-		}
-
-		if($scope === self::DEMO_SORT_SCOPE_LOCAL)
-		{
-			if(array_key_exists($code, self::DEMO_HOLIDAYS))
-			{
-				if(self::checkActivePeriod(self::DEMO_HOLIDAYS[$code]))
-				{
-					$scope = self::DEMO_SORT_SCOPE_HOLIDAYS;
-				}
-				else
-				{
-					$scope = self::DEMO_SORT_SCOPE_LAST;
-				}
-			}
-
-			return self::DEMO_SORT_OFFSET * $scope + $sort;
-		}
-
-		return self::DEMO_SORT_OFFSET * $scope;
-	}
-
-	/**
-	 * Return true if NOW in period
-	 *
-	 * @param $dateFrom
-	 * @param $dateTo
-	 * @return bool
-	 */
-	public static function checkActivePeriod(array $params): bool
-	{
-		[$monthFrom, $dayFrom, $monthTo, $dayTo] = $params;
-		$now = new \DateTime();
-		$now->setTime(0,0,0);
-
-		$year = $now->format('Y');
-		$dateFrom = new \DateTime($year.'-'.$monthFrom.'-'.$dayFrom);
-		$dateTo = new \DateTime($year.'-'.$monthTo.'-'.$dayTo);
-
-		if($now >= $dateFrom && $now <= $dateTo)
-		{
-			return true;
-		}
-
-		return false;
 	}
 
 	/**
@@ -2737,6 +2574,11 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		$parentXmlId = $showcase['XML_LIST'][0];
 		$offerXmlId = $showcase['XML_LIST'][1];
 
+		if ($this->bitrix24Included)
+		{
+			\CBitrix24::createIblockDemodataFileBucket();
+		}
+
 		$stepConfig = []; // TODO: add IBLOCK_LIST support
 		$this->initStepStorage($stepConfig);
 
@@ -2881,6 +2723,12 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			$this->checkParam('BINDING_TYPE', '');
 			$this->checkParam('BINDING_ID', '');
 
+			// init nav
+			$this->lastNavigation = new PageNavigation('nav');
+			$this->lastNavigation->allowAllRecords(false)
+				->setPageSize($this::COUNT_PER_PAGE)
+				->initFromUri();
+
 			if (
 				$this->arParams['SITE_ID'] > 0 &&
 				$this->arParams['SITE_WORK_MODE'] != 'Y'
@@ -2930,28 +2778,6 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				}
 			}
 
-
-			// init nav
-			$this->lastNavigation = new \Bitrix\Main\UI\PageNavigation('nav');
-			$this->lastNavigation->allowAllRecords(false)
-								->setPageSize($this::COUNT_PER_PAGE)
-								->initFromUri();
-			// emulate from db
-			$res = new \CDBResult;
-			$res->initFromArray($this->arResult['DEMO']);
-			$res->navStart(
-				$this::COUNT_PER_PAGE,
-				false,
-				$this->lastNavigation->getCurrentPage()
-			);
-			$this->lastNavigation->setRecordCount(
-				count($this->arResult['DEMO'])
-			);
-			$this->arResult['DEMO'] = [];
-			while ($row = $res->fetch())
-			{
-				$this->arResult['DEMO'][] = $row;
-			}
 			$this->arResult['NAVIGATION'] = $this->getLastNavigation();
 		}
 

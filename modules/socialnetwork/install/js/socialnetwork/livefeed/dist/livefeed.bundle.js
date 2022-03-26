@@ -1975,16 +1975,16 @@ this.BX = this.BX || {};
 
 	        this.showWrapAnimation();
 
-	        if (this.plus && reloadNode && reloadNode.style.display !== 'none' && counterTextNode) {
-	          reloadNode.style.display = 'none';
-	          counterTextNode.style.display = 'inline-block';
+	        if (this.plus && reloadNode && !reloadNode.classList.contains('--hidden') && counterTextNode) {
+	          reloadNode.classList.add('--hidden');
+	          counterTextNode.classList.remove('--hidden');
 	          this.plus.classList.remove("".concat(this.class.plusHidden));
 	        }
 	      } else if (this.wrap) {
 	        if (zeroCounterFromDb && this.wrap.classList.contains("".concat(this.class.informerAnimation))) {
 	          if (counterTextNode && reloadNode) {
-	            counterTextNode.style.display = 'none';
-	            reloadNode.style.display = 'inline-block';
+	            counterTextNode.classList.add('--hidden');
+	            reloadNode.classList.remove('--hidden');
 	            this.hideReloadAnimation();
 	          }
 	        } else {
@@ -2047,18 +2047,18 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      var top = this.wrap.parentNode.getBoundingClientRect().top;
-	      var counterRect = this.container.getBoundingClientRect();
+	      var top = this.wrap.parentNode.getBoundingClientRect().top; //		const counterRect = this.container.getBoundingClientRect();
 
 	      if (top <= 0) {
-	        if (!this.wrap.classList.contains("".concat(this.class.informerFixed))) {
-	          this.container.style.left = "".concat(counterRect.left + counterRect.width / 2, "px");
-	        }
-
+	        /*
+	        			if (!this.wrap.classList.contains(`${this.class.informerFixed}`))
+	        			{
+	        				this.container.style.left = `${(counterRect.left + (counterRect.width / 2))}px`;
+	        			}
+	        */
 	        this.fixWrap();
 	      } else {
-	        this.unfixWrap();
-	        this.container.style.left = 'auto';
+	        this.unfixWrap(); //			this.container.style.left = 'auto';
 	      }
 	    }
 	  }, {
@@ -2092,7 +2092,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      counterContainerNode.style.display = 'inline-block';
+	      counterContainerNode.classList.remove('--hidden');
 	      this.hideReloadNode();
 
 	      if (this.plus) {
@@ -2106,13 +2106,13 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      var reloadContainerNode = this.container.querySelector("span.".concat(this.class.reloadContainer));
+	      var reloadNode = this.container.querySelector("span.".concat(this.class.reloadContainer));
 
-	      if (!reloadContainerNode) {
+	      if (!reloadNode) {
 	        return;
 	      }
 
-	      reloadContainerNode.style.display = 'none';
+	      reloadNode.classList.add('--hidden');
 	    }
 	  }, {
 	    key: "decrementCounter",
@@ -2266,7 +2266,7 @@ this.BX = this.BX || {};
 
 	        _this.recalcPost({
 	          arPos: {
-	            height: bodyNode.offsetHeight
+	            height: bodyNode.offsetHeight + bodyNode.offsetTop
 	          },
 	          informerBlock: main_core.Type.isStringFilled(buttonData.informerBlockID) ? document.getElementById(buttonData.informerBlockID) : null
 	        });
@@ -2565,7 +2565,7 @@ this.BX = this.BX || {};
 	}();
 
 	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"feed-wrap\" style=\"display:", ";\">", "</div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"feed-wrap\" style=\"display:", ";\"></div>"]);
 
 	  _templateObject2$1 = function _templateObject2() {
 	    return data;
@@ -2575,7 +2575,7 @@ this.BX = this.BX || {};
 	}
 
 	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div id=\"content_block_", "\" class=\"feed-wrap\" style=\"display: block;\">", "</div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<div id=\"content_block_", "\" class=\"feed-wrap\" style=\"display: block;\"></div>"]);
 
 	  _templateObject$3 = function _templateObject() {
 	    return data;
@@ -2627,6 +2627,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
+	      this.setRequestModeNew();
 	      params = main_core.Type.isPlainObject(params) ? params : {};
 	      params.siteTemplateId = main_core.Loc.getMessage('SONET_EXT_LIVEFEED_SITE_TEMPLATE_ID');
 	      params.assetsCheckSum = main_core.Loc.getMessage('sonetLAssetsCheckSum');
@@ -2706,10 +2707,10 @@ this.BX = this.BX || {};
 	        }
 
 	        if (responseData.html.length > 0) {
-	          _this2.clearContainerExternal(false);
+	          _this2.clearContainerExternal();
 
 	          BX.LazyLoad.clearImages();
-	          var pageNode = main_core.Tag.render(_templateObject$3(), Math.floor(Math.random() * 1000), responseData.html);
+	          var pageNode = main_core.Tag.render(_templateObject$3(), Math.floor(Math.random() * 1000));
 	          feedContainer.appendChild(pageNode);
 	          main_core.Runtime.html(pageNode, responseData.html).then(function () {
 	            MoreButton$$1.recalcPostsList();
@@ -2767,6 +2768,7 @@ this.BX = this.BX || {};
 	        return false;
 	      }
 
+	      this.setRequestModeMore();
 	      this.loadStarted = true;
 	      InformerInstance.lockCounterAnimation = true;
 	      FeedInstance.clearMoreButtons();
@@ -2860,7 +2862,7 @@ this.BX = this.BX || {};
 	        if (responseData.html.length > 0 && lastEntryTimestamp > 0 && (parseInt(_this3.firstPageLastTS) <= 0 || lastEntryTimestamp < parseInt(_this3.firstPageLastTS) || lastEntryTimestamp == parseInt(_this3.firstPageLastTS) && !main_core.Type.isNull(lastEntryId) && lastEntryId < parseInt(_this3.firstPageLastId))) {
 	          MoreButton$$1.clearCommentsList();
 	          var contentBlockId = "content_block_".concat(Math.floor(Math.random() * 1000));
-	          var pageNode = main_core.Tag.render(_templateObject2$1(), contentBlockId, _this3.nextPageFirst ? 'none' : 'block', responseData.html);
+	          var pageNode = main_core.Tag.render(_templateObject2$1(), contentBlockId, _this3.nextPageFirst ? 'none' : 'block');
 	          var feedContainer = document.getElementById('log_internal_container');
 
 	          if (!feedContainer) {
@@ -2879,7 +2881,7 @@ this.BX = this.BX || {};
 	            }
 	          });
 
-	          _this3.clearContainerExternal(false);
+	          _this3.clearContainerExternal();
 
 	          if (pageNumber === 2) {
 	            document.getElementById('feed-new-message-inf-text-first').style.display = 'block';
@@ -2929,16 +2931,19 @@ this.BX = this.BX || {};
 
 	        InformerInstance.lockCounterAnimation = false;
 
-	        _this3.clearContainerExternal(false);
+	        _this3.clearContainerExternal();
 	      });
 	      return false;
 	    }
 	  }, {
 	    key: "clearContainerExternal",
-	    value: function clearContainerExternal(mode) {
-	      InformerInstance.hideWrapAnimation();
+	    value: function clearContainerExternal() {
+	      if (this.requestMode === 'new') {
+	        InformerInstance.hideWrapAnimation();
+	        InformerInstance.recover();
+	      }
+
 	      InformerInstance.hideReloadAnimation();
-	      InformerInstance.recover();
 	      var counterPreset = document.getElementById('sonet_log_counter_preset');
 
 	      if (counterPreset && this.requestMode === 'new') {
@@ -2946,20 +2951,20 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }, {
-	    key: "clearContainerExternalNew",
-	    value: function clearContainerExternalNew() {
+	    key: "setRequestModeNew",
+	    value: function setRequestModeNew() {
 	      this.requestMode = 'new';
 	    }
 	  }, {
-	    key: "clearContainerExternalMore",
-	    value: function clearContainerExternalMore() {
+	    key: "setRequestModeMore",
+	    value: function setRequestModeMore() {
 	      this.requestMode = 'more';
 	    }
 	  }, {
 	    key: "showRefreshError",
 	    value: function showRefreshError() {
 	      InformerInstance.lockCounterAnimation = false;
-	      this.clearContainerExternal(false);
+	      this.clearContainerExternal();
 	    }
 	  }, {
 	    key: "setSignedParameters",
@@ -3034,6 +3039,18 @@ this.BX = this.BX || {};
 	  }
 
 	  babelHelpers.createClass(CommentForm, null, [{
+	    key: "appendResultFieldTaskIds",
+	    value: function appendResultFieldTaskIds(taskIdList) {
+	      if (!main_core.Type.isArray(taskIdList)) {
+	        return;
+	      }
+
+	      taskIdList = taskIdList.map(function (value) {
+	        return parseInt(value);
+	      });
+	      this.resultFieldTaskIdList = [].concat(babelHelpers.toConsumableArray(this.resultFieldTaskIdList), babelHelpers.toConsumableArray(taskIdList));
+	    }
+	  }, {
 	    key: "appendTaskResultComments",
 	    value: function appendTaskResultComments(data) {
 	      if (main_core.Type.isUndefined(tasks_result.ResultManager)) {
@@ -3047,8 +3064,9 @@ this.BX = this.BX || {};
 	            commentsIdList = _ref2[1];
 
 	        tasks_result.ResultManager.getInstance().initResult({
+	          context: 'task',
 	          taskId: parseInt(taskId),
-	          commentIds: commentsIdList
+	          comments: commentsIdList
 	        });
 	      });
 	    }
@@ -3084,6 +3102,12 @@ this.BX = this.BX || {};
 	      });
 	      this.onLightEditorShow(text, data);
 	      var matches = obj.currentEntity.ENTITY_XML_ID.match(/^TASK_(\d+)$/i);
+
+	      if (matches && this.resultFieldTaskIdList.includes(parseInt(matches[1]))) {
+	        BX.Tasks.ResultManager.showField();
+	      } else {
+	        BX.Tasks.ResultManager.hideField();
+	      }
 	    }
 	  }, {
 	    key: "onLightEditorShow",
@@ -3139,6 +3163,7 @@ this.BX = this.BX || {};
 	  }]);
 	  return CommentForm;
 	}();
+	babelHelpers.defineProperty(CommentForm, "resultFieldTaskIdList", []);
 	babelHelpers.defineProperty(CommentForm, "taskResultCommentsData", {});
 
 	function _templateObject2$2() {

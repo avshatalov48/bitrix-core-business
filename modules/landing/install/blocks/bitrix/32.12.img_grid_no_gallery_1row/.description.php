@@ -25,6 +25,7 @@ return array(
 			'useInDesigner' => false,
 			'dimensions' => array('width' => 1110),
 			'allowInlineEdit' => false,
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-img-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_32_12-TITLE'),

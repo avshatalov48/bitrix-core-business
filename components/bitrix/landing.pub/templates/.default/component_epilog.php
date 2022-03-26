@@ -21,10 +21,11 @@ $landing = $arResult['LANDING'];
 $metaOG = Manager::getPageView('MetaOG');
 if (mb_strpos($metaOG, '"og:image"') === false)
 {
+	$preview = $landing->getPreview();
 	Manager::setPageView(
 		'MetaOG',
-		'<meta property="og:image" content="' . $landing->getPreview() . '" />' .
-		'<meta property="twitter:image" content="' . $landing->getPreview() . '" />'
+		'<meta property="og:image" content="' . $preview . '" />' .
+		'<meta property="twitter:image" content="' . $preview . '" />'
 	);
 }
 

@@ -142,14 +142,14 @@ else
 
 						if (
 							$feature == 'tasks'
-							&& $arResult["Features"][$feature]['limit']
+							&& $arFeature['limit']
 						)
 						{
 							$APPLICATION->IncludeComponent('bitrix:ui.info.helper', '', []);
 
 							$featureBlockClass .= ' sn-features-lock';
 							$featureSubTitleText = Loc::getMessage('SONET_C4_TASK_FEATURE_DISABLED', [
-								'#LINK_START#' => '<a href="#" onclick="BX.UI.InfoHelper.show(\'' . $arResult["Features"][$feature]['limit'] . '\');">',
+								'#LINK_START#' => '<a href="#" onclick="BX.UI.InfoHelper.show(\'' . $arFeature['limit'] . '\', {isLimit: true, limitAnalyticsLabels: {module: \'socialnetwork\', source: \'features\', feature: \'tasks\'}});">',
 								'#LINK_END#' => '</a>',
 							]);
 						}
@@ -208,7 +208,7 @@ else
 							}
 
 							$displayValue = ($arFeature["Active"] ? 'block' : 'none');
-							$onClick = (!empty($arFeature['limit']) ? "onclick=\"BX.UI.InfoHelper.show('" . CUtil::JSescape($arFeature['limit']) . "');\"" : '');
+							$onClick = (!empty($arFeature['limit']) ? "onclick=\"BX.UI.InfoHelper.show('" . CUtil::JSescape($arFeature['limit']) . "', {isLimit: true, limitAnalyticsLabels: {module: 'socialnetwork', source: 'features', feature: '{$feature}'}});\"" : '');
 
 							?><div id="<?=$feature?>_body" style="display: <?=$displayValue?>" <?= $onClick ?>><?php
 								if (isset($arFeature["note"]))

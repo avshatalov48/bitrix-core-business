@@ -82,7 +82,7 @@ class CatalogImageInput extends \CBitrixComponent implements Errorable
 
 		$uiKeys = ['FILE_VALUES', 'FILE_SETTINGS', 'LOADER_PREVIEW', 'DISABLED'];
 		$this->arResult['UI_PARAMS'] = array_intersect_key($this->arParams, array_flip($uiKeys));
-		$this->arResult['BLOCK_ID'] = 'catalog_image_editor_' . uniqid();
+		$this->arResult['BLOCK_ID'] = uniqid('catalog_image_editor_', false);
 
 		$this->includeComponentTemplate();
 	}

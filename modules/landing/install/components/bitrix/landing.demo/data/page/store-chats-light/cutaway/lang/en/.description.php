@@ -1,8 +1,0 @@
-<?
-$MESS["LANDING_DEMO_STORE_CHATS_LIGHT-CUTAWAY-DESC"] = "Select your preferred way of communication";
-$MESS["LANDING_DEMO_STORE_CHATS_LIGHT-CUTAWAY-NAME"] = "Business card";
-$MESS["LANDING_DEMO_STORE_CHATS_LIGHT-CUTAWAY-RICH_DESC"] = "Select your preferred way of communication";
-$MESS["LANDING_DEMO_STORE_CHATS_LIGHT-CUTAWAY-RICH_NAME"] = "Business card";
-$MESS["LANDING_DEMO_STORE_CHATS_LIGHT-CUTAWAY-TEXT1"] = "Send message right now";
-$MESS["LANDING_DEMO_STORE_CHATS_LIGHT-CUTAWAY-TEXT2"] = "Follow us";
-?>

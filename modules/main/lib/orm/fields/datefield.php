@@ -121,7 +121,9 @@ class DateField extends ScalarField
 	{
 		try
 		{
-			return $this->getConnection()->getSqlHelper()->convertToDbDate($value);
+			return $value === null && $this->is_nullable
+				? $value
+				: $this->getConnection()->getSqlHelper()->convertToDbDate($value);
 		}
 		catch (ArgumentTypeException $e)
 		{

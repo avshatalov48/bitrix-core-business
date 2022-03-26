@@ -149,12 +149,14 @@ abstract class OrderBuilder
 
 	protected function getSettableShipmentFields()
 	{
-		return array_merge(['PROPERTIES'], Shipment::getAvailableFields());
+		$shipmentClassName = $this->registry->getShipmentClassName();
+		return array_merge(['PROPERTIES'], $shipmentClassName::getAvailableFields());
 	}
 
 	protected function getSettablePaymentFields()
 	{
-		return Payment::getAvailableFields();
+		$paymentClassName = $this->registry->getPaymentClassName();
+		return $paymentClassName::getAvailableFields();
 	}
 
 	protected function getSettableOrderFields()
@@ -495,6 +497,11 @@ abstract class OrderBuilder
 				'COMMENTS' => $item['COMMENTS'],
 			);
 
+			if (!empty($item['IS_REALIZATION']))
+			{
+				$shipmentFields['IS_REALIZATION'] = $item['IS_REALIZATION'];
+			}
+
 			if(isset($item['ACCOUNT_NUMBER']) && $item['ACCOUNT_NUMBER']<>'')
 				$shipmentFields['ACCOUNT_NUMBER'] = $item['ACCOUNT_NUMBER'];
 
@@ -825,22 +832,45 @@ abstract class OrderBuilder
 							continue;
 						}
 
+						$barcodeQuantity = ($basketItem->isBarcodeMulti() || $basketItem->isSupportedMarkingCode()) ? 1 : $item['QUANTITY'];
+						$barcodeStoreId = $item['STORE_ID'];
+
 						$tmp['BARCODE'] = array(
 							'ORDER_DELIVERY_BASKET_ID' => $items['ORDER_DELIVERY_BASKET_ID'],
-							'STORE_ID' => $item['STORE_ID'],
-							'QUANTITY' => ($basketItem->isBarcodeMulti() || $basketItem->isSupportedMarkingCode()) ? 1 : $item['QUANTITY'],
+							'STORE_ID' => $barcodeStoreId,
+							'QUANTITY' => $barcodeQuantity,
 						);
+
+						$tmp['BARCODE_INFO'] = [
+							$item['STORE_ID'] => [
+								'STORE_ID' => (int)$barcodeStoreId,
+								'QUANTITY' => (float)$barcodeQuantity,
+							],
+						];
 
 						$barcodeCount = 0;
 						if ($item['BARCODE'])
 						{
 							foreach ($item['BARCODE'] as $barcode)
 							{
+								$barcode['ID'] = (int)$barcode['ID'];
+
+								$tmp['BARCODE_INFO'][$barcodeStoreId]['BARCODE'] = [$barcode];
+
+								if (isset($barcode['MARKING_CODE']))
+								{
+									$barcode['MARKING_CODE'] = (string)$barcode['MARKING_CODE'];
+								}
+								else
+								{
+									$barcode['MARKING_CODE'] = '';
+								}
+
 								$idsFromForm[$basketCode]['BARCODE_IDS'][$barcode['ID']] = true;
 
 								if ($barcode['ID'] > 0)
 								{
-									$tmp['BARCODE']['ID'] = (int)$barcode['ID'];
+									$tmp['BARCODE']['ID'] = $barcode['ID'];
 								}
 								else
 								{
@@ -848,7 +878,8 @@ abstract class OrderBuilder
 								}
 
 								$tmp['BARCODE']['BARCODE'] = (string)$barcode['VALUE'];
-								$tmp['BARCODE']['MARKING_CODE'] = (string)$barcode['MARKING_CODE'];
+								$tmp['BARCODE']['MARKING_CODE'] = $barcode['MARKING_CODE'];
+
 								$shippingItems[] = $tmp;
 								$barcodeCount++;
 							}
@@ -1397,6 +1428,11 @@ abstract class OrderBuilder
 
 			foreach($this->formData["TRADE_BINDINGS"] as $fields)
 			{
+				if ((int)$fields['TRADING_PLATFORM_ID'] === 0)
+				{
+					continue;
+				}
+
 				$r = $this->tradingPlatformExists($fields['TRADING_PLATFORM_ID']);
 
 				if($r->isSuccess())

@@ -29,7 +29,7 @@ class Shipment extends Controller
 
 				$r = $shipmentClass::getList([
 					'select'=>['ORDER_ID'],
-					'filter'=>['ID'=>$id]
+					'filter'=>['ID'=>$id],
 				]);
 
 				if($row = $r->fetch())
@@ -101,7 +101,7 @@ class Shipment extends Controller
 		$builder = $this->getBuilder(
 			new SettingsContainer([
 				'deleteShipmentIfNotExists' => false,
-				'deleteShipmentItemIfNotExists' => false
+				'deleteShipmentItemIfNotExists' => false,
 			])
 		);
 		$builder->buildEntityShipments($data);
@@ -156,7 +156,7 @@ class Shipment extends Controller
 		$builder = $this->getBuilder(
 			new SettingsContainer([
 				'deleteShipmentIfNotExists' => false,
-				'deleteShipmentItemIfNotExists' => false
+				'deleteShipmentItemIfNotExists' => false,
 			])
 		);
 		$builder->buildEntityShipments($data);
@@ -223,7 +223,7 @@ class Shipment extends Controller
 				'order'=>$order,
 				'offset' => $pageNavigation->getOffset(),
 				'limit' => $pageNavigation->getLimit(),
-				'runtime' => $runtime
+				'runtime' => $runtime,
 			]
 		)->fetchAll();
 

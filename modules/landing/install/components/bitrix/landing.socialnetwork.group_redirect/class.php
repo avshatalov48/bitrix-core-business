@@ -36,9 +36,7 @@ class LandingSocialnetworkGroupRedirectComponent extends LandingBaseComponent
 			\Bitrix\Landing\Site\Type::setScope(
 				\Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP
 			);
-			$realFileDir = dirname($this->getRealFile());
-			$sitePath = mb_substr($this->getUriPath(), mb_strlen($realFileDir));
-			$landingId = UrlPreview::getPreviewByCode($sitePath);
+			$landingId = UrlPreview::resolveLandingId($this->getUriPath());
 
 			if ($landingId)
 			{

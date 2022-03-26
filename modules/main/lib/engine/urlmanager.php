@@ -210,27 +210,30 @@ final class UrlManager
 	 * Returns host url with port and scheme.
 	 *
 	 * @return string
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
-	public function getHostUrl()
+	public function getHostUrl(): string
 	{
 		$request = Context::getCurrent()->getRequest();
 
-		$protocol = ($request->isHttps() ? 'https' : 'http');
-		$port = $request->getServerPort();
+		$protocol = $request->isHttps() ? 'https' : 'http';
+		$port = (int)$request->getServerPort();
 
-		if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME)
+		if (defined('SITE_SERVER_NAME') && SITE_SERVER_NAME)
 		{
 			$host = SITE_SERVER_NAME;
 		}
 		else
 		{
-			$host = (Option::get('main', 'server_name', $request->getHttpHost())? : $request->getHttpHost());
+			$host = Option::get('main', 'server_name', $request->getHttpHost()) ? : $request->getHttpHost();
 		}
 
-		$parsedUri = new Uri($protocol.'://'.$host.":".$port);
+		$portSuffix = '';
+		if ($port && !in_array($port, [443, 80], true))
+		{
+			$portSuffix = ':' . $port;
+		}
+		$parsedUri = new Uri($protocol . '://' . $host . $portSuffix);
 
-		return rtrim($parsedUri->getLocator(), "/");
+		return rtrim($parsedUri->getLocator(), '/');
 	}
 }

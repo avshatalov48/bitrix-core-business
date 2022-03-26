@@ -10,6 +10,7 @@ export type BasketItemScheme = {
 	price: number,
 	basePrice: number,
 	priceExclusive: number,
+	showedPrice: number,
 	quantity: number,
 	name: string,
 	discount: number,

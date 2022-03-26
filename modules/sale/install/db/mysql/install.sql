@@ -264,6 +264,7 @@ create table if not exists b_sale_order_props
 	ENTITY_TYPE varchar(255) not null,
 	primary key (ID),
 	index IXS_ORDER_PROPS_PERSON_TYPE_ID(PERSON_TYPE_ID),
+	index IXS_ORDER_PROPS_TYPE(TYPE),
 	index IXS_CODE_OPP(CODE)
 );
 
@@ -2094,6 +2095,18 @@ create table if not exists b_sale_delivery_yandex_taxi_claims(
     KEY IX_FURTHER_CHANGES_EXPECTED (FURTHER_CHANGES_EXPECTED),
     KEY `IX_REPORT_DATE` (`CREATED_AT`,`IS_SANDBOX_ORDER`),
     PRIMARY KEY (ID)
+);
+
+create table if not exists b_sale_basket_reservation(
+	ID int unsigned NOT NULL AUTO_INCREMENT,
+	QUANTITY double(18, 4) NOT NULL,
+	DATE_RESERVE DATETIME NOT NULL,
+	DATE_RESERVE_END DATETIME NOT NULL,
+	RESERVED_BY INT(18) unsigned NULL,
+	BASKET_ID INT unsigned NOT NULL,
+	STORE_ID INT unsigned NULL,
+	INDEX IX_SALE_BASKET_RESERVATION_BASKET_ID(BASKET_ID),
+	PRIMARY KEY (ID)
 );
 
 create table if not exists b_sale_facebook_conversion_params(

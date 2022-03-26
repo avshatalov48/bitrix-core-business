@@ -4,7 +4,6 @@
 	color: #777777;
 	-webkit-transform: translateZ(0);
 	        transform: translateZ(0);
-	contain: layout;
 }
 
 
@@ -92,9 +91,7 @@
 }
 
 .landing-ui-panel-block-action {
-	background-color: #ffffff;
 	overflow: hidden;
-	padding-right: 35px;
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
@@ -103,12 +100,13 @@
 	transition: width 200ms ease, right 200ms ease;
 }
 
-
-
 .landing-ui-collapse .landing-ui-panel-block-action {
-	width: 60px;
+	width: 36px;
 	min-width: auto;
-	right: -26px;
+	right: 0;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+	padding-left: 36px;
 }
 
 .landing-ui-collapse .landing-ui-panel-block-action .landing-ui-button:not([data-id="collapse"]) span,
@@ -118,7 +116,7 @@
 }
 
 .landing-ui-panel-block-action .landing-ui-button[data-id="collapse"] {
-	position: absolute;
+	position: relative;
 	right: 0!important;
 	z-index: 10;
 	width: 35px;
@@ -143,25 +141,24 @@
 }
 
 .landing-ui-collapse .landing-ui-panel-block-action .landing-ui-button[data-id="collapse"] .landing-ui-button-text {
-	-webkit-transform: translateX(-37px) rotate(180deg);
-	    -ms-transform: translateX(-37px) rotate(180deg);
-	        transform: translateX(-37px) rotate(180deg);
+	-webkit-transform: translateX(-15px) rotate(180deg);
+	    -ms-transform: translateX(-15px) rotate(180deg);
+	        transform: translateX(-15px) rotate(180deg);
 }
 
 .landing-ui-collapse .landing-ui-panel-block-action .landing-ui-button[data-id="collapse"] {
 	width: 100%;
-	border-left: 1px #757D87 solid;
-	border-top-left-radius: 20px;
-	border-bottom-left-radius: 20px;
+	margin-right: 0;
+	position: absolute;
+	border-right: none;
+	border-radius: 20px 0 0 20px;
 }
 
 .landing-ui-panel-content-action {
-	background-color: #ffffff;
 	overflow: hidden;
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
-	padding-left: 35px;
 	-webkit-box-pack: end;
 	    -ms-flex-pack: end;
 	        justify-content: flex-end;
@@ -171,9 +168,12 @@
 }
 
 .landing-ui-collapse .landing-ui-panel-content-action {
-	width: 60px;
+	width: 36px;
 	min-width: auto;
-	left: -26px;
+	left: 0;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	padding-right: 36px;
 }
 
 .landing-ui-collapse .landing-ui-panel-content-action .landing-ui-button:not([data-id="collapse"]) span,
@@ -183,17 +183,9 @@
 }
 
 .landing-ui-panel-content-action .landing-ui-button[data-id="collapse"] {
-	position: absolute;
+	position: relative;
 	left: 0!important;
 	z-index: 10;
-	width: 35px;
-	border-left: 1px #757D87 solid;
-	border-right: none;
-	border-radius: 20px 0 0 20px;
-}
-
-.landing-ui-panel-content-action .landing-ui-button[data-id="content"] {
-	border-left: none;
 }
 
 .landing-ui-panel-content-action .landing-ui-button[data-id="collapse"] .landing-ui-button-text {
@@ -221,10 +213,11 @@
 }
 
 .landing-ui-collapse .landing-ui-panel-content-action .landing-ui-button[data-id="collapse"] {
+	position: absolute;
 	width: 100%;
-	border-right: 1px #757D87 solid;
-	border-top-right-radius: 20px;
-	border-bottom-right-radius: 20px;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	border-left: none;
 }
 
 .landing-ui-collapse .landing-ui-panel-content-action .landing-ui-button[data-id="block_display_info"] {

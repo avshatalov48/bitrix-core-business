@@ -8,9 +8,14 @@ use Bitrix\Mail\MailboxTable;
 use Bitrix\Main;
 use Bitrix\Main\Security;
 use Bitrix\Mail\Internals;
+use Bitrix\Mail\Helper\MessageAccess as AccessHelper;
 
 class Message
 {
+
+	// entity types with special access rules (group tokens)
+	public const ENTITY_TYPE_IM_CHAT = MessageAccessTable::ENTITY_TYPE_IM_CHAT;
+	public const ENTITY_TYPE_CALENDAR_EVENT = MessageAccessTable::ENTITY_TYPE_CALENDAR_EVENT;
 
 	/**
 	 * Adapts a message(result of Mail\MailMessageTable::getList) for output in the public interface.
@@ -208,10 +213,12 @@ class Message
 			$userId = $USER->getId();
 		}
 
-		$access = (bool) MailboxTable::getUserMailbox($message['MAILBOX_ID'], $userId);
+		$messageAccess = \Bitrix\Mail\MessageAccess::createByMessageId($message['ID'], $userId);
+		$access = $messageAccess->isOwner();
 
 		$message['__access_level'] = $access ? 'full' : false;
 
+		// check access by tokens
 		if (!$access && isset($_REQUEST['mail_uf_message_token']))
 		{
 			$token = $signature = '';
@@ -223,7 +230,7 @@ class Message
 			if ($token <> '' && $signature <> '')
 			{
 				$excerpt = MessageAccessTable::getList(array(
-					'select' => array('SECRET', 'MESSAGE_ID'),
+					'select' => array('SECRET', 'MESSAGE_ID', 'ENTITY_TYPE', 'ENTITY_ID'),
 					'filter' => array(
 						'=TOKEN' => $token,
 						'=MAILBOX_ID' => $message['MAILBOX_ID'],
@@ -233,25 +240,36 @@ class Message
 
 				if (!empty($excerpt['SECRET']))
 				{
-					$signer = new Security\Sign\Signer(new Security\Sign\HmacAlgorithm('md5'));
-
-					if ($signer->validate($excerpt['SECRET'], $signature, sprintf('user%u', $userId)))
+					if (self::checkAccessForEntityToken($excerpt['ENTITY_TYPE'], (int)$excerpt['ENTITY_ID'], $userId))
 					{
-						$access = $message['ID'] == $excerpt['MESSAGE_ID'];
+						$salt = self::getSaltByEntityType($excerpt['ENTITY_TYPE'], (int)$excerpt['ENTITY_ID'], $userId);
 
-						if (!$access) // check parent access
+						$signer = new Security\Sign\Signer(new Security\Sign\HmacAlgorithm('md5'));
+
+						if ($signer->validate($excerpt['SECRET'], $signature, $salt))
 						{
-							$access = (bool) MessageClosureTable::getList(array(
-								'select' => array('PARENT_ID'),
-								'filter' => array(
-									'=MESSAGE_ID' => $message['ID'],
-									'=PARENT_ID' => $excerpt['MESSAGE_ID'],
-								),
-							))->fetch();
+							$access = $message['ID'] == $excerpt['MESSAGE_ID'];
+
+							if (!$access) // check parent access
+							{
+								$access = (bool) MessageClosureTable::getList(array(
+									'select' => array('PARENT_ID'),
+									'filter' => array(
+										'=MESSAGE_ID' => $message['ID'],
+										'=PARENT_ID' => $excerpt['MESSAGE_ID'],
+									),
+								))->fetch();
+							}
 						}
 					}
 				}
 			}
+		}
+
+		// check access by direct links
+		if (!$access)
+		{
+			$access = $messageAccess->canViewMessage();
 		}
 
 		if (false === $message['__access_level'])
@@ -441,4 +459,35 @@ class Message
 		return $result;
 	}
 
+	public static function getSaltByEntityType(string $entityType, int $entityId, ?int $userId = null): string
+	{
+		switch ($entityType)
+		{
+			case Message::ENTITY_TYPE_IM_CHAT:
+				return sprintf('chat%u', $entityId);
+			case Message::ENTITY_TYPE_CALENDAR_EVENT:
+				return sprintf('event'.'%u', $entityId);
+			default:
+				// per-user tokens for entity types like TASKS_TASK, CRM_ACTIVITY, ...
+				return sprintf('user'.'%u', $userId);
+		}
+	}
+
+	public static function isMailboxOwner(int $mailboxId, int $userId): bool
+	{
+		return (bool)MailboxTable::getUserMailbox($mailboxId, $userId);
+	}
+
+	private static function checkAccessForEntityToken(?string $entityType, int $entityId, int $userId): bool
+	{
+		switch ($entityType)
+		{
+			case Message::ENTITY_TYPE_IM_CHAT:
+				return AccessHelper::checkAccessForChat($entityId, $userId);
+			case Message::ENTITY_TYPE_CALENDAR_EVENT:
+				return AccessHelper::checkAccessForCalendarEvent($entityId, $userId);
+			default:
+				return true; // tasks, crm creates per-user tokens
+		}
+	}
 }

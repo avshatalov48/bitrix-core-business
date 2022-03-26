@@ -23,7 +23,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    value: function setAuthId(authId) {
 	      var customAuthId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
 
-	      if (babelHelpers.typeof(this.queryParams) !== 'object') {
+	      if (babelHelpers["typeof"](this.queryParams) !== 'object') {
 	        this.queryParams = {};
 	      }
 
@@ -43,7 +43,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }, {
 	    key: "setChatId",
 	    value: function setChatId(chatId) {
-	      if (babelHelpers.typeof(this.queryParams) !== 'object') {
+	      if (babelHelpers["typeof"](this.queryParams) !== 'object') {
 	        this.queryParams = {};
 	      }
 
@@ -52,7 +52,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }, {
 	    key: "setConfId",
 	    value: function setConfId(alias) {
-	      if (babelHelpers.typeof(this.queryParams) !== 'object') {
+	      if (babelHelpers["typeof"](this.queryParams) !== 'object') {
 	        this.queryParams = {};
 	      }
 
@@ -61,7 +61,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }, {
 	    key: "setPassword",
 	    value: function setPassword(password) {
-	      if (babelHelpers.typeof(this.queryParams) !== 'object') {
+	      if (babelHelpers["typeof"](this.queryParams) !== 'object') {
 	        this.queryParams = {};
 	      }
 
@@ -85,7 +85,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      this.restClient.callMethod(method, params, null, sendCallback, logTag).then(function (result) {
 	        _this.queryAuthRestore = false;
 	        promise$$1.fulfill(result);
-	      }).catch(function (result) {
+	      })["catch"](function (result) {
 	        var error = result.error();
 
 	        if (error.ex.error == 'LIVECHAT_AUTH_WIDGET_USER') {
@@ -105,7 +105,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            _this.restClient.callMethod(method, params, null, sendCallback, logTag).then(function (result) {
 	              _this.queryAuthRestore = false;
 	              promise$$1.fulfill(result);
-	            }).catch(function (result) {
+	            })["catch"](function (result) {
 	              _this.queryAuthRestore = false;
 	              promise$$1.reject(result);
 	            });
@@ -165,35 +165,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  return CallRestClient;
 	}();
 
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"bx-im-application-call-notify-new-message\">\n\t\t\t\t\t<div class=\"bx-im-application-call-notify-new-message-text\">", "</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<div class=\"bx-im-application-call-notify-new-message-avatar-wrap\">\n\t\t\t\t\t\t\t<img class=\"bx-im-application-call-notify-new-message-avatar\" src=\"", "\" alt=\"\"/>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"bx-im-application-call-notify-new-message-username\">", ":</div>\n\t\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3;
 
 	var ConferenceApplication = /*#__PURE__*/function () {
 	  /* region 01. Initialize */
@@ -279,7 +251,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      return _this.initHardware();
 	    }).then(function () {
 	      return _this.initUserComplete();
-	    }).catch(function (error) {
+	    })["catch"](function (error) {
 	      console.error('Init error', error);
 	    });
 	  }
@@ -316,7 +288,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            app: app
 	          }).then(function () {
 	            _this2.floatingScreenShareWindow.show();
-	          }).catch(function (error) {
+	          })["catch"](function (error) {
 	            im_lib_logger.Logger.error('setSharingData error', error);
 	          });
 	        });
@@ -488,7 +460,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }).then(function (vue) {
 	          _this5.template = vue;
 	          resolve();
-	        }).catch(function (error) {
+	        })["catch"](function (error) {
 	          return reject(error);
 	        });
 	      });
@@ -500,10 +472,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	      return new Promise(function (resolve, reject) {
 	        _this6.callContainer = document.getElementById('bx-im-component-call-container');
-	        var hiddenButtons = [];
+	        var hiddenButtons = ['document'];
 
 	        if (_this6.isViewerMode()) {
-	          hiddenButtons = ['camera', 'microphone', 'screen', 'record', 'floorRequest'];
+	          hiddenButtons = ['camera', 'microphone', 'screen', 'record', 'floorRequest', 'document'];
 	        }
 
 	        if (!_this6.params.isIntranetOrExtranet) {
@@ -556,7 +528,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        }
 
 	        resolve();
-	      }).catch(function (error) {
+	      })["catch"](function (error) {
 	        console.warn(error);
 	        reject(error);
 	      });
@@ -581,7 +553,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          return _this7.initComplete();
 	        }).then(function () {
 	          return resolve;
-	        }).catch(function (error) {
+	        })["catch"](function (error) {
 	          return reject(error);
 	        });
 	      });
@@ -855,7 +827,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	          _this12.hardwareInited = true;
 	          resolve();
-	        }).catch(function (error) {
+	        })["catch"](function (error) {
 	          if (error === 'NO_WEBRTC' && _this12.isHttps()) {
 	            _this12.setError(im_const.ConferenceErrorCode.unsupportedBrowser);
 	          } else if (error === 'NO_WEBRTC' && !_this12.isHttps()) {
@@ -887,7 +859,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	      if (this.localVideoStream) {
 	        if (videoEnabled) {
-	          this.callView.setLocalStream(this.localVideoStream, true);
+	          this.callView.setLocalStream(this.localVideoStream, BX.Call.Hardware.enableMirroring);
 	        } else {
 	          this.stopLocalVideoStream();
 	        }
@@ -954,7 +926,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            joinAsViewer: viewerMode
 	          });
 	        }
-	      }).catch(function (e) {
+	      })["catch"](function (e) {
 	        im_lib_logger.Logger.error('creating call error', e);
 	      });
 	    }
@@ -1026,7 +998,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          useVideo: !!video,
 	          joinAsViewer: joinAsViewer
 	        });
-	      }).catch(function (error) {
+	      })["catch"](function (error) {
 	        return console.error(error);
 	      });
 	    }
@@ -1448,7 +1420,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      this.setUserName(newName).then(function () {
 	        _this17.callView.localUser.userModel.wasRenamed = true;
 	        im_lib_logger.Logger.log('setting name to', newName);
-	      }).catch(function (error) {
+	      })["catch"](function (error) {
 	        im_lib_logger.Logger.error('error setting name', error);
 	      });
 	    }
@@ -1463,7 +1435,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        if (_this18.callView.renameSlider) {
 	          _this18.callView.renameSlider.close();
 	        }
-	      }).catch(function (error) {
+	      })["catch"](function (error) {
 	        im_lib_logger.Logger.error('error setting name', error);
 	      });
 	    }
@@ -1628,7 +1600,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        autoHideDelay: 4000,
 	        width: notifyWidth
 	      });
-	      im_lib_clipboard.Clipboard.copy(this.getDialogData().public.link);
+	      im_lib_clipboard.Clipboard.copy(this.getDialogData()["public"].link);
 	    }
 	  }, {
 	    key: "onCallViewFullScreenButtonClick",
@@ -1845,7 +1817,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    value: function onCallLocalMediaReceived(e) {
 	      //this.template.$emit('callLocalMediaReceived');
 	      this.stopLocalVideoStream();
-	      this.callView.setLocalStream(e.stream, e.tag == "main");
+	      var enableVideoMirroring = e.tag == "main" ? BX.Call.Hardware.enableMirroring : false;
+	      this.callView.setLocalStream(e.stream, enableVideoMirroring);
 	      this.callView.setButtonActive("screen", e.tag == "screen");
 
 	      if (e.tag == "screen") {
@@ -2198,14 +2171,14 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	      if (params.message.senderId > 0 && params.message.system !== 'Y') {
 	        var messageAuthor = this.controller.getStore().getters['users/get'](params.message.senderId, true);
-	        userName = main_core.Tag.render(_templateObject(), messageAuthor.name);
+	        userName = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"bx-im-application-call-notify-new-message-username\">", ":</div>\n\t\t\t\t"])), messageAuthor.name);
 
 	        if (messageAuthor.avatar) {
-	          avatar = main_core.Tag.render(_templateObject2(), messageAuthor.avatar);
+	          avatar = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<div class=\"bx-im-application-call-notify-new-message-avatar-wrap\">\n\t\t\t\t\t\t\t<img class=\"bx-im-application-call-notify-new-message-avatar\" src=\"", "\" alt=\"\"/>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t"])), messageAuthor.avatar);
 	        }
 	      }
 
-	      var content = main_core.Tag.render(_templateObject3(), text);
+	      var content = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"bx-im-application-call-notify-new-message\">\n\t\t\t\t\t<div class=\"bx-im-application-call-notify-new-message-text\">", "</div>\n\t\t\t\t</div>\n\t\t\t"])), text);
 
 	      if (avatar) {
 	        main_core.Dom.prepend(avatar, content);
@@ -2319,7 +2292,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          chat_id: _this22.getChatId()
 	        }).then(function () {
 	          resolve();
-	        }).catch(function (error) {
+	        })["catch"](function (error) {
 	          reject(error);
 	        });
 	      });
@@ -2347,7 +2320,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          } else {
 	            reject();
 	          }
-	        }).catch(function (result) {
+	        })["catch"](function (result) {
 	          console.error('Password check error', result);
 	        });
 	      });
@@ -2362,7 +2335,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          dialog_id: _this24.getDialogId()
 	        }).then(function () {
 	          resolve();
-	        }).catch(function (error) {
+	        })["catch"](function (error) {
 	          reject(error);
 	        });
 	      });

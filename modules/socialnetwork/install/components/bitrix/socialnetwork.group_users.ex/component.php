@@ -102,7 +102,9 @@ $arParams["NAME_TEMPLATE_WO_NOBR"] = str_replace(
 );
 
 $arResult["bIntranetInstalled"] = ModuleManager::isModuleInstalled('intranet');
+$arResult['isExtranetInstalled'] = ModuleManager::isModuleInstalled('extranet');
 $arResult["bIntranetIncluded"] = ($arResult["bIntranetInstalled"] && Loader::includeModule('intranet'));
+$arResult['isExtranetIncluded'] = ($arResult['isExtranetInstalled'] && Loader::includeModule('extranet'));
 
 $arGroup = CSocNetGroup::GetByID($arParams["GROUP_ID"]);
 
@@ -113,7 +115,10 @@ if ($arGroup["CLOSED"] === "Y" && COption::GetOptionString("socialnetwork", "wor
 
 $arParams["GROUP_USE_BAN"] =
 	$arParams["GROUP_USE_BAN"] !== "N"
-	&& (!CModule::IncludeModule('extranet') || (!CExtranet::IsExtranetSite() && !$arResult["HideArchiveLinks"]))
+	&& (
+		!$arResult['isExtranetIncluded']
+		|| (!CExtranet::IsExtranetSite() && !$arResult["HideArchiveLinks"])
+	)
 		? "Y"
 		: "N";
 
@@ -130,6 +135,13 @@ if (
 else
 {
 	CSocNetTools::InitGlobalExtranetArrays();
+
+	$arGroup['IS_EXTRANET_GROUP'] = (
+		$arResult['isExtranetIncluded']
+		&& CExtranet::isExtranetSocNetGroup($arGroup['ID'])
+			? 'Y'
+			: 'N'
+	);
 
 	$arGroupSites = array();
 	$rsGroupSite = CSocNetGroup::GetSite($arGroup["ID"]);

@@ -1,0 +1,30 @@
+.landing-ui-rule-entry-type-separator {
+	display: flex;
+	align-items: center;
+	margin-top: 10px;
+	margin-left: 35px;
+}
+
+.landing-ui-rule-entry-type-separator::after {
+	content: '';
+	flex-grow: 1;
+	border-bottom: 1px #C3C7CD solid;
+	margin-top: 2px;
+}
+
+.landing-ui-rule-value + .landing-ui-rule-entry-type-separator::after {
+	display: none;
+}
+
+.landing-ui-rule-field-action-panel + .landing-ui-rule-entry-type-separator {
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-left: 0;
+}
+
+.landing-ui-rule-entry-type-separator-inner {
+	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #80868e;
+	background: #F4F6F8;
+	padding-right: 10px;
+}

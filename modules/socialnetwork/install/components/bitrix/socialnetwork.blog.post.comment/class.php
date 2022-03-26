@@ -198,7 +198,7 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 		{
 			if ($formId === null)
 			{
-				$formId = \Bitrix\Main\Security\Random::getString(4);
+				$formId = 'blogCommentForm' . \Bitrix\Main\Security\Random::getString(4);
 			}
 			$arParams['FORM_ID'] = $formId;
 		}
@@ -382,13 +382,17 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 
 	protected function isAjaxRequest(): bool
 	{
-		return
-			$this->request['AJAX_MODE'] === 'Y'
-			|| isset($_SERVER["HTTP_BX_AJAX"])
-			|| (
-				isset($_SERVER['HTTP_X_REQUESTED_WITH'])
-				&& $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest'
-			);
+		return (
+			(
+				$this->request['AJAX_MODE'] === 'Y'
+				|| isset($_SERVER["HTTP_BX_AJAX"])
+				|| (
+					isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+					&& $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest'
+				)
+			)
+			&& $this->request['c'] === $this->getName()
+		);
 	}
 
 	protected function getCommentsPerm(array $params = [], array &$arResult = []): void

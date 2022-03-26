@@ -1,24 +1,28 @@
 (function (exports,main_core,ui_dialogs_messagebox,bizproc_script) {
 	'use strict';
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var namespace = main_core.Reflection.namespace('BX.Bizproc');
 
-	var _getGrid = new WeakSet();
+	var _getGrid = /*#__PURE__*/new WeakSet();
 
-	var _disableExport = new WeakSet();
+	var _disableExport = /*#__PURE__*/new WeakSet();
 
-	var _enableExport = new WeakSet();
+	var _enableExport = /*#__PURE__*/new WeakSet();
 
 	var ScriptListComponent = /*#__PURE__*/function () {
 	  function ScriptListComponent(options) {
 	    babelHelpers.classCallCheck(this, ScriptListComponent);
 
-	    _enableExport.add(this);
+	    _classPrivateMethodInitSpec(this, _enableExport);
 
-	    _disableExport.add(this);
+	    _classPrivateMethodInitSpec(this, _disableExport);
 
-	    _getGrid.add(this);
+	    _classPrivateMethodInitSpec(this, _getGrid);
 
 	    if (main_core.Type.isPlainObject(options)) {
 	      this.gridId = options.gridId;
@@ -99,8 +103,12 @@
 	    value: function activateScript(scriptId) {
 	      var _this3 = this;
 
-	      bizproc_script.Script.Manager.Instance.activateScript(scriptId).then(function () {
-	        return _this3.reloadGrid();
+	      bizproc_script.Script.Manager.Instance.activateScript(scriptId).then(function (response) {
+	        if (response.data.error) {
+	          ui_dialogs_messagebox.MessageBox.alert(response.data.error);
+	        } else {
+	          _this3.reloadGrid();
+	        }
 	      });
 	    }
 	  }, {
@@ -108,8 +116,12 @@
 	    value: function deactivateScript(scriptId) {
 	      var _this4 = this;
 
-	      bizproc_script.Script.Manager.Instance.deactivateScript(scriptId).then(function () {
-	        return _this4.reloadGrid();
+	      bizproc_script.Script.Manager.Instance.deactivateScript(scriptId).then(function (response) {
+	        if (response.data.error) {
+	          ui_dialogs_messagebox.MessageBox.alert(response.data.error);
+	        } else {
+	          _this4.reloadGrid();
+	        }
 	      });
 	    }
 	  }, {
@@ -145,25 +157,25 @@
 	  return ScriptListComponent;
 	}();
 
-	var _getGrid2 = function _getGrid2() {
+	function _getGrid2() {
 	  if (this.gridId) {
 	    return BX.Main.gridManager && BX.Main.gridManager.getInstanceById(this.gridId);
 	  }
 
 	  return null;
-	};
+	}
 
-	var _disableExport2 = function _disableExport2() {
+	function _disableExport2() {
 	  if (this.exportScriptButton) {
 	    main_core.Dom.addClass(this.exportScriptButton, 'ui-btn-disabled');
 	  }
-	};
+	}
 
-	var _enableExport2 = function _enableExport2() {
+	function _enableExport2() {
 	  if (this.exportScriptButton) {
 	    main_core.Dom.removeClass(this.exportScriptButton, 'ui-btn-disabled');
 	  }
-	};
+	}
 
 	namespace.ScriptListComponent = ScriptListComponent;
 

@@ -2387,6 +2387,7 @@ if ('Y' == $arMainCatalog['SUBSCRIPTION']):
 	{
 	$tabControl1->BeginNextTab();
 
+	$showStoreReserve = Catalog\Config\State::isShowedStoreReserve();
 	$stores = array();
 	$storeLink = array();
 	$storeCount = 0;
@@ -2400,6 +2401,7 @@ if ('Y' == $arMainCatalog['SUBSCRIPTION']):
 		$row['ID'] = (int)$row['ID'];
 		$row['ADDRESS'] = trim($row['ADDRESS']);
 		$row['PRODUCT_AMOUNT'] = '';
+		$row['QUANTITY_RESERVED'] = '';
 		$stores[$storeCount] = $row;
 		$storeLink[$row['ID']] = &$stores[$storeCount];
 		$storeCount++;
@@ -2407,28 +2409,52 @@ if ('Y' == $arMainCatalog['SUBSCRIPTION']):
 	unset($row, $iterator);
 	if ($storeCount > 0)
 	{
+		$select = [
+			'STORE_ID',
+			'AMOUNT'
+		];
+		if ($showStoreReserve)
+		{
+			$select[] = 'QUANTITY_RESERVED';
+		}
 		$storeIds = array_keys($storeLink);
 		if (!$bCopy)
 		{
 			$iterator = Catalog\StoreProductTable::getList(array(
-				'select' => array('STORE_ID', 'AMOUNT'),
-				'filter' => array('=PRODUCT_ID' => $PRODUCT_ID, '@STORE_ID' => $storeIds)
+				'select' => $select,
+				'filter' => [
+					'=PRODUCT_ID' => $PRODUCT_ID,
+					'@STORE_ID' => $storeIds,
+				],
 			));
 			while ($row = $iterator->fetch())
 			{
 				$storeId = (int)$row['STORE_ID'];
 				$storeLink[$storeId]['PRODUCT_AMOUNT'] = $row['AMOUNT'];
+				if ($showStoreReserve)
+				{
+					$row['QUANTITY_RESERVED'] = (string)$row['QUANTITY_RESERVED'];
+					if ($row['QUANTITY_RESERVED'] !== '0')
+					{
+						$storeLink[$storeId]['QUANTITY_RESERVED'] = $row['QUANTITY_RESERVED'];
+					}
+				}
 			}
 			unset($row, $iterator);
 		}
 		if ($bVarsFromForm)
 		{
-			foreach ($storeIds as $store)
+			if ($bStore && !$bUseStoreControl)
 			{
-				if (isset($_POST['AR_AMOUNT'][$store]) && is_string($_POST['AR_AMOUNT'][$store]))
-					$storeLink[$store]['PRODUCT_AMOUNT'] = $_POST['AR_AMOUNT'][$store];
+				foreach ($storeIds as $store)
+				{
+					if (isset($_POST['AR_AMOUNT'][$store]) && is_string($_POST['AR_AMOUNT'][$store]))
+					{
+						$storeLink[$store]['PRODUCT_AMOUNT'] = $_POST['AR_AMOUNT'][$store];
+					}
+				}
+				unset($store);
 			}
-			unset($store);
 		}
 		unset($storeIds);
 	}
@@ -2441,7 +2467,12 @@ if ('Y' == $arMainCatalog['SUBSCRIPTION']):
 			<td><? echo GetMessage('C2IT_STORE_ID'); ?></td>
 			<td><?echo GetMessage("C2IT_NAME"); ?></td>
 			<td><?echo GetMessage("C2IT_STORE_ADDR"); ?></td>
-			<td><?echo GetMessage("C2IT_PROD_AMOUNT"); ?></td>
+			<td><?echo GetMessage("C2IT_PROD_AMOUNT"); ?></td><?php
+			if ($showStoreReserve)
+			{
+				?><td><?php echo GetMessage("C2IT_PROD_QUANTITY_RESERVED"); ?></td><?php
+			}
+			?>
 		</tr>
 		<?
 		foreach ($stores as $storeIndex => $row)
@@ -2467,7 +2498,12 @@ if ('Y' == $arMainCatalog['SUBSCRIPTION']):
 			{
 				?><input type="hidden" name="AR_STORE_ID[<?=$row['ID']?>]" value="<?=$row['ID']?>"><?
 			}
-			?></td></tr><?
+			?></td><?php
+			if ($showStoreReserve)
+			{
+				?><td><input type="text" size="12" disable readonly value="<?=htmlspecialcharsbx($row['QUANTITY_RESERVED']); ?>"></td><?php
+			}
+			?></tr><?
 			unset($storeUrl, $address, $storeId);
 		}
 		unset($storeIndex, $row);

@@ -45,7 +45,7 @@ $arParams["LHE"]["lazyLoad"] = (
 	)
 );
 
-$arParams["PARSER"] = array_unique(is_array($arParams["PARSER"]) ? $arParams["PARSER"] : array());
+$arParams["PARSER"] = array_unique(is_array($arParams["PARSER"]) ? array_values($arParams["PARSER"]) : []);
 $arParams["BUTTONS"] = is_array($arParams["BUTTONS"]) ? $arParams["BUTTONS"] : array();
 $arParams["BUTTONS"] = (
 	in_array("MentionUser", $arParams["BUTTONS"])

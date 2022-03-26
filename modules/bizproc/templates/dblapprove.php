@@ -59,7 +59,7 @@ Array(
 'Name' => 'A17547_32223_79545_47398',
 'Properties' =>
 Array(
-'Title' => GetMessage("BP_DBLA_S")
+'Title' => GetMessage("BP_DBLA_S_1")
 ),
 'Children' => Array(
 Array(
@@ -115,7 +115,7 @@ Array(
 'Name' => 'A66252_54392_98992_85416',
 'Properties' =>
 Array(
-'Title' => GetMessage("BP_DBLA_S")
+'Title' => GetMessage("BP_DBLA_S_1")
 ),
 'Children' => Array(
 Array(
@@ -157,7 +157,7 @@ Array(
 'Name' => 'A12994_12953_66343_68057',
 'Properties' =>
 Array(
-'Title' => GetMessage("BP_DBLA_S")
+'Title' => GetMessage("BP_DBLA_S_1")
 ),
 'Children' => Array(
 Array(
@@ -193,7 +193,7 @@ Array(
 'Name' => 'A38247_89879_46019_89829',
 'Properties' =>
 Array(
-'Title' => GetMessage("BP_DBLA_S")
+'Title' => GetMessage("BP_DBLA_S_1")
 ),
 'Children' => Array(
 Array(

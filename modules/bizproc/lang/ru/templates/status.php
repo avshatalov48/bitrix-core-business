@@ -1,17 +1,17 @@
 <?
 $MESS ['BPT_ST_AUTHOR'] = "Автор;";
-$MESS ['BPT_ST_NAME'] = "Утверждение документа со статусами";
-$MESS ['BPT_ST_DESC'] = "Прохождение документом цепочки утверждения со статусами";
+$MESS ['BPT_ST_NAME_1'] = "Утверждение документа со статусами";
+$MESS ['BPT_ST_DESC_1'] = "Прохождение документом цепочки утверждения со статусами";
 $MESS ['BPT_ST_CREATORS'] = "Кто может изменять документ";
 $MESS ['BPT_ST_APPROVERS'] = "Кто утверждает документ";
-$MESS ['BPT_ST_BP_NAME'] = "Бизнес-процесс со статусами";
+$MESS ['BPT_ST_BP_NAME_1'] = "Бизнес-процесс со статусами";
 $MESS ['BPT_ST_ST_DRAFT'] = "Черновик";
 $MESS ['BPT_ST_F'] = "Оболочка события";
 $MESS ['BPT_ST_CMD_APPR'] = "Отправить на утверждение";
-$MESS ['BPT_ST_SETSTATE'] = "Установить статус";
+$MESS ['BPT_ST_SETSTATE_1'] = "Установить статус";
 $MESS ['BPT_ST_CMD_PUBLISH'] = "Опубликовать";
 $MESS ['BPT_ST_CMD_APP'] = "Утверждение";
-$MESS ['BPT_ST_INIT'] = "Вход в статус";
+$MESS ['BPT_ST_INIT_1'] = "Вход в статус";
 $MESS ['BPT_ST_SUBJECT'] = "Необходимо утвердить документ \"{=Document:NAME}\"";
 $MESS ['BPT_ST_TEXT'] = "Вы должны утвердить или отклонить документ \"{=Document:NAME}\".
  

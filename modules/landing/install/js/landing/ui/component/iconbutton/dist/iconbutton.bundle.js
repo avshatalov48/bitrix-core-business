@@ -44,6 +44,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.emit('onClick');
 	    }
 	  }, {
+	    key: "setType",
+	    value: function setType(type) {
+	      this.getLayout().className = "landing-ui-button-icon-".concat(type);
+	    }
+	  }, {
 	    key: "getLayout",
 	    value: function getLayout() {
 	      var _this2 = this;
@@ -70,7 +75,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  drag: 'drag',
 	  edit: 'edit',
 	  font: 'font',
-	  link: 'link'
+	  link: 'link',
+	  user1: 'user1',
+	  user1Active: 'user1active'
 	});
 
 	exports.IconButton = IconButton;

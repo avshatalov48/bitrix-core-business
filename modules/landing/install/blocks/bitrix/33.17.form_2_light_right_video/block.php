@@ -2,7 +2,7 @@
 
 	<div class="container">
 
-		<div class="row align-items-center">
+		<div class="landing-block-node-row row align-items-start">
 			<div class="col-md-6">
 				<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v4"
 					data-b24form-use-style="Y"

@@ -1,0 +1,20 @@
+<?php
+$MESS["BPMOA_CHOOSE_PARAMETER"] = "Select parameter";
+$MESS["BPMOA_CHOOSE_VARIABLE"] = "Select variable";
+$MESS["BPMOA_CREATE_GCONSTANT"] = "Create constant";
+$MESS["BPMOA_CREATE_GCONSTANT_QUESTION"] = "Do you want to create a new constant?";
+$MESS["BPMOA_CREATE_GVARIABLE"] = "Create variable";
+$MESS["BPMOA_CREATE_GVARIABLE_QUESTION"] = "Do you want to create a new variable?";
+$MESS["BPMOA_DOCUMENT"] = "Field value";
+$MESS["BPMOA_EMPTY"] = "Not selected";
+$MESS["BPMOA_EMPTY_OPERATION"] = "Operator is not specified";
+$MESS["BPMOA_EMPTY_VARIABLE"] = "None of the variables is assigned a value";
+$MESS["BPMOA_GCONSTANT_NOT_FOUND"] = "Constant was not found";
+$MESS["BPMOA_GCONSTANT_NO_EXIST"] = "There are no constants";
+$MESS["BPMOA_GVARIABLE_NOT_FOUND"] = "Variable was not found";
+$MESS["BPMOA_GVARIABLE_NO_EXIST"] = "There are no variables";
+$MESS["BPMOA_INPUT_NUMBER"] = "Enter a number";
+$MESS["BPMOA_INVALID_VALUE"] = "One of the expression values is not a number";
+$MESS["BPMOA_LIST_OF_VALUES"] = "Values";
+$MESS["BPMOA_NUMBER"] = "Custom value";
+$MESS["BPMOA_TYPE_OF_PARAMETER"] = "Parameter type";

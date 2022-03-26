@@ -83,25 +83,18 @@ export class MessageGrid
 			this.#loadingMessagesStubInGridWrapper = this.getGridWrapper().appendChild(
 				Tag.render`
 					<div class="mail-msg-list-grid-loader mail-msg-list-grid-loader-animate">
-					<div class="mail-msg-list-grid-loader-inner">
-					<div class="mail-msg-list-grid-loader-img">
-						<div class="mail-msg-list-grid-loader-img-inner"></div>
-					</div>
-					<div class="ui-progressbar-track">
-						<div class="ui-progressbar-bar mail-message-grid-bar" data-role="mailGridFirstLoadingUIProgressbar"></div></div>
-					</div>
-				</div>`
+						<div class="mail-msg-list-grid-loader-inner">
+							<img src="/bitrix/images/mail/mail-loader.svg" alt="Load...">
+						</div>
+					</div>`
 			);
 
-			setTimeout(()=>{
-				this.#loadingMessagesStubInGridWrapper.querySelector('[data-role="mailGridFirstLoadingUIProgressbar"]').classList.add('mail-message-grid-filling-bar');
-			}, 0);
 			setTimeout(()=>{
 				if(this.#loadingMessagesStubInGridWrapper !== undefined)
 				{
 					this.#loadingMessagesStubInGridWrapper.remove();
 				}
-			}, 10000);
+			}, 15000);
 		}
 	}
 
@@ -239,5 +232,18 @@ export class MessageGrid
 			const rowNode = this.getRowNodeById(ids[i]);
 			Dom.style(rowNode, 'display', 'none');
 		}
+	}
+
+	resetGridSelection()
+	{
+		EventEmitter.emit(window,'Mail::resetGridSelection');
+		this.getGrid().getRows().unselectAll();
+		this.getGrid().adjustCheckAllCheckboxes();
+		this.hidePanel();
+	}
+
+	openGridSettingsWindow()
+	{
+		this.getGrid().getSettingsWindow()._onSettingsButtonClick();
 	}
 }

@@ -3,6 +3,7 @@ namespace Sale\Handlers\Delivery\Additional;
 
 use \Bitrix\Main\Application;
 use Bitrix\Main\ArgumentOutOfRangeException;
+use Bitrix\Main\Config\Option;
 
 /**
  * Class Cache
@@ -187,6 +188,8 @@ class CacheManager
 	const LOC_CACHE = 1;
 	const LOC_SESSION = 2;
 
+	private const DISABLE_CACHE_OPTION = 'hndl_dlv_add_cache_disable';
+
 	//Possible cache types & some params
 	protected static $types = array(
 		self::TYPE_PROFILES_LIST => array('TTL' => 2419200, 'LOC' => self::LOC_CACHE), // month cache
@@ -211,8 +214,13 @@ class CacheManager
 		if(empty(self::$types[$type]))
 			return null;
 
-		if(defined('SALE_HNDL_DLV_ADD_CACHE_DISABLE'))
+		if (
+			defined('SALE_HNDL_DLV_ADD_CACHE_DISABLE')
+			|| (int)Option::get('sale', self::DISABLE_CACHE_OPTION, 0) == 1
+		)
+		{
 			return null;
+		}
 
 		if(empty(self::$items[$type]))
 		{

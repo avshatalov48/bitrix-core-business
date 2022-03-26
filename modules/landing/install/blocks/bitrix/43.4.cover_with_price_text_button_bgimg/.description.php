@@ -41,6 +41,7 @@ return array(
 			'allowInlineEdit' => false,
 			'useInDesigner' => false,
 			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'create2xByDefault' => false,
 		),
 	),
 	'style' => array(

@@ -61,8 +61,8 @@ window.BlogBFileDialog.prototype.ShowUploadedFile = function(agent) // event
 {
 	this.agent = agent;
 	var uploadResult = agent.uploadResult;
-
 	if (uploadResult && (uploadResult.element_id > 0)) {
+		var node = this.CreateFileRow(uploadResult);
 		if (!!agent.inputName && agent.inputName.length > 0) {
 			var hidden = BX.create('INPUT', {
 				props: {
@@ -72,13 +72,20 @@ window.BlogBFileDialog.prototype.ShowUploadedFile = function(agent) // event
 					'value': uploadResult.element_id
 				}
 			});
-			agent.controller.appendChild(hidden);
+			node.appendChild(hidden);
 		}
-		this.values.push(this.CreateFileRow(uploadResult));
+		this.values.push(node);
 		agent._clearPlace();
 
 		if (this.controller && this.controller.parentNode)
+		{
+			const securityNode = (this.controller.closest('form') || this.controller.parentNode).querySelector('#upload-cid');
+			if (securityNode)
+			{
+				securityNode.value = this.CID;
+			}
 			BX.onCustomEvent(this.controller.parentNode, 'OnFileUploadSuccess', [uploadResult, this]);
+		}
 
 	} else {
 		var text = (uploadResult && uploadResult["error"] ? uploadResult["error"] : this.msg.upload_error);

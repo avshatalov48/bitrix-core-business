@@ -210,7 +210,13 @@ CREATE TABLE b_bp_global_const (
 	PROPERTY_OPTIONS text NULL,
 	PROPERTY_SETTINGS text NULL,
 	PROPERTY_VALUE text NULL,
-	primary key (ID)
+	CREATED_DATE datetime,
+	CREATED_BY int NULL,
+	VISIBILITY varchar(30) DEFAULT 'GLOBAL',
+	MODIFIED_DATE datetime NULL,
+	MODIFIED_BY int NULL,
+	primary key (ID),
+	index ix_bp_gc_visibility(VISIBILITY)
 );
 
 CREATE TABLE b_bp_script (
@@ -278,6 +284,13 @@ CREATE TABLE b_bp_global_var (
 	IS_REQUIRED char(1) NOT NULL default 'N',
 	IS_MULTIPLE char(1) NOT NULL default 'N',
 	PROPERTY_OPTIONS text NULL,
+	PROPERTY_SETTINGS text NULL,
 	PROPERTY_VALUE text NULL,
-	primary key (ID)
+	CREATED_DATE datetime,
+	CREATED_BY int NULL,
+	VISIBILITY varchar(30) DEFAULT 'GLOBAL',
+	MODIFIED_DATE datetime NULL,
+	MODIFIED_BY int NULL,
+	primary key (ID),
+	index ix_bp_gv_visibility(VISIBILITY)
 );

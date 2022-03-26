@@ -97,7 +97,7 @@ this.BX = this.BX || {};
 	    }
 	  }
 
-	  if ((babelHelpers.typeof(module)) === 'object' && module.exports) {
+	  if ((babelHelpers["typeof"](module)) === 'object' && module.exports) {
 	    module.exports = dataURLtoBlob;
 	  } else {
 	    window.dataURLtoBlob = dataURLtoBlob;
@@ -468,6 +468,9 @@ this.BX = this.BX || {};
 	  return REGEXP_DECIMALS.test(value) ? Math.round(value * times) / times : value;
 	}
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 	var ArrayBuffer$1 = WINDOW.ArrayBuffer,
 	    FileReader = WINDOW.FileReader;
 	var URL = WINDOW.URL || WINDOW.webkitURL;
@@ -488,7 +491,7 @@ this.BX = this.BX || {};
 	    babelHelpers.classCallCheck(this, Compressor);
 	    this.file = file;
 	    this.image = new Image();
-	    this.options = babelHelpers.objectSpread({}, DEFAULTS, options);
+	    this.options = _objectSpread(_objectSpread({}, DEFAULTS), options);
 	    this.aborted = false;
 	    this.result = null;
 	    this.init();
@@ -587,7 +590,7 @@ this.BX = this.BX || {};
 	          image = this.image;
 
 	      image.onload = function () {
-	        _this2.draw(babelHelpers.objectSpread({}, data, {
+	        _this2.draw(_objectSpread(_objectSpread({}, data), {}, {
 	          naturalWidth: image.naturalWidth,
 	          naturalHeight: image.naturalHeight
 	        }));
@@ -866,6 +869,9 @@ this.BX = this.BX || {};
 	  });
 	}
 
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$1(Object(source), true).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 	var ImageCompressor = /*#__PURE__*/function () {
 	  function ImageCompressor(file) {
 	    var _this = this;
@@ -873,7 +879,7 @@ this.BX = this.BX || {};
 	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    babelHelpers.classCallCheck(this, ImageCompressor);
 	    this.file = file;
-	    this.options = babelHelpers.objectSpread({
+	    this.options = _objectSpread$1({
 	      quality: 0.8
 	    }, options);
 
@@ -892,7 +898,7 @@ this.BX = this.BX || {};
 	      var _this2 = this;
 
 	      return new Promise(function (resolve, reject) {
-	        void new Compressor(_this2.file, babelHelpers.objectSpread({}, _this2.options, {
+	        void new Compressor(_this2.file, _objectSpread$1(_objectSpread$1({}, _this2.options), {
 	          success: resolve,
 	          error: reject
 	        }));
@@ -903,6 +909,10 @@ this.BX = this.BX || {};
 	    value: function compress(file) {
 	      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	      return urlToBlob(file).then(function (blob) {
+	        if (main_core.Type.isStringFilled(blob.type) && blob.type.includes('gif')) {
+	          return blob;
+	        }
+
 	        var compressor = new ImageCompressor(blob, options);
 	        return compressor.compress();
 	      });

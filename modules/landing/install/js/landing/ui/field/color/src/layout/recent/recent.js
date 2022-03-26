@@ -18,6 +18,7 @@ export default class Recent extends EventEmitter
 	{
 		super();
 		this.cache = new Cache.MemoryCache();
+		this.setEventNamespace('BX.Landing.UI.Field.Color.Recent');
 	}
 
 	getLayout(): HTMLDivElement

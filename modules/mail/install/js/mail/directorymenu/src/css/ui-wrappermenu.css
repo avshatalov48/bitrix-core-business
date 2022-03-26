@@ -56,28 +56,38 @@
     transition: none;
 }
 
-.ui-sidepanel-menu-link:hover,
+
+.bitrix24-light-theme .ui-sidepanel-menu-link:hover,
 .ui-sidepanel-submenu-link:hover {
-    background-color: #E3E8EB;
+	background: rgba(255,255,255,.1);
     color: #505A68;
     text-decoration: none;
 }
 
-.ui-sidepanel-menu-link-text {
+
+.bitrix24-dark-theme .ui-sidepanel-menu-link:hover,
+.ui-sidepanel-submenu-link:hover {
+	background: rgba(0,0,0,.05);
+	text-decoration: none;
+}
+
+.ui-sidepanel-menu-link-text, .ui-sidepanel-submenu-link {
     display: inline-block;
     margin: 0 12px 0 0;
     max-width: 100%;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+
 }
 
-/*.ui-sidepanel-menu-link-text span {*/
-/*	font: 12px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;*/
-/*	color: #525C69;*/
-/*	letter-spacing: -0.28px;*/
-/*	opacity: .5;*/
-/*}*/
+.bitrix24-dark-theme .ui-sidepanel-menu-link-text, .ui-sidepanel-submenu-link {
+	color: #333;
+}
+
+.bitrix24-light-theme .ui-sidepanel-menu-link-text, .ui-sidepanel-submenu-link {
+	color: #fff;
+}
 
 .ui-sidepanel-toggle-btn {
     display: none;
@@ -113,9 +123,6 @@
     margin: 0 20px;
 }
 
-/*.ui-sidepanel-menu-active .ui-sidepanel-menu-link {*/
-    /*background: #E3E8EB;*/
-/*}*/
 
 .ui-sidepanel-submenu-active .ui-sidepanel-submenu-link {
     padding: 0;
@@ -126,9 +133,18 @@
 .ui-sidepanel-menu-active .ui-sidepanel-menu-link .ui-sidepanel-menu-link-text {
     padding: 0 11px 0 11px;
     border-radius: 18px;
-    background-color: rgba(94,102,117,.76);
     font: 15px/25px 'OpenSans-SemiBold', "Helvetica Neue", Arial, Helvetica, sans-serif;
     color: #fff;
+}
+
+.bitrix24-dark-theme .ui-sidepanel-submenu-active .ui-sidepanel-submenu-link .ui-sidepanel-menu-link-text,
+.bitrix24-dark-theme .ui-sidepanel-menu-active .ui-sidepanel-menu-link .ui-sidepanel-menu-link-text {
+	background-color: rgba(0, 0, 0, .35);
+}
+
+.bitrix24-light-theme .ui-sidepanel-submenu-active .ui-sidepanel-submenu-link .ui-sidepanel-menu-link-text,
+.bitrix24-light-theme .ui-sidepanel-menu-active .ui-sidepanel-menu-link .ui-sidepanel-menu-link-text {
+	background-color: rgba(255, 255, 255, .35);
 }
 
 .ui-sidepanel-menu-active .ui-sidepanel-menu-link .ui-sidepanel-menu-link-text {

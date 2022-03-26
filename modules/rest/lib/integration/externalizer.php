@@ -17,6 +17,16 @@ use Bitrix\Main\Type\Contract\Arrayable;
 final class Externalizer extends ModificationFieldsBase
 	implements Arrayable
 {
+	public function __construct(ViewManager $manager, $data = [])
+	{
+		$this->setFormat([
+			self::TO_WHITE_LIST,
+			self::TO_CAMEL,
+			self::SORTING_KEYS
+		]);
+		parent::__construct($manager, $data);
+	}
+
 	public function process()
 	{
 		$r = new Result();

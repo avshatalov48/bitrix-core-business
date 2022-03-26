@@ -9,6 +9,21 @@
 		this._openedBxLink = false;
 	};
 
+	BX.desktopUtils.prototype.canDownload = function()
+	{
+		return (
+			typeof BXDesktopSystem !== 'undefined'
+			&& typeof BXDesktopSystem.DownloadFile === 'function'
+		);
+	}
+
+	BX.desktopUtils.prototype.downloadFile = function(url, name)
+	{
+		url = new URL(url, document.baseURI).href;
+
+		return BXDesktopSystem.DownloadFile(url, name);
+	}
+
 	BX.desktopUtils.prototype.runningCheck = function(successCallback, failureCallback, successOnlyWithNewApp)
 	{
 		if (typeof(successCallback) == 'undefined')
@@ -145,6 +160,42 @@
 		}
 		return result;
 	};
+
+	BX.desktopUtils.prototype.encodeParamsJson = function(params)
+	{
+		if(!BX.type.isPlainObject(params))
+			return '{}';
+
+		var result;
+		try
+		{
+			result = encodeURIComponent(JSON.stringify(params));
+		}
+		catch (e)
+		{
+			console.error("Could not encode params.", e);
+			result = '{}';
+		}
+		return result;
+	}
+
+	BX.desktopUtils.prototype.decodeParamsJson = function(encodedParams)
+	{
+		var result = {};
+		if(!BX.type.isNotEmptyString(encodedParams))
+			return result;
+
+		try
+		{
+			result = JSON.parse(decodeURIComponent(encodedParams));
+		}
+		catch (e)
+		{
+			console.error("Could not decode encoded params.", e);
+		}
+
+		return result;
+	}
 
 	BX.desktopUtils = new BX.desktopUtils();
 })();

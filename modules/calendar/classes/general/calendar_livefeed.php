@@ -158,7 +158,7 @@ class CCalendarLiveFeed
 	// Sync comments from lifefeed to calendar event
 	public static function AddComment_Calendar($arFields)
 	{
-		if (!Loader::includeModule("forum"))
+		if (!Loader::includeModule('forum'))
 		{
 			return false;
 		}
@@ -169,15 +169,19 @@ class CCalendarLiveFeed
 
 		$dbResult = CSocNetLog::GetList(
 			[],
-			array("ID" => $arFields["LOG_ID"]),
+			['ID' => $arFields['LOG_ID']],
 			false,
 			false,
-			array("ID", "SOURCE_ID", "PARAMS")
+			[
+				'ID',
+				'SOURCE_ID',
+				'PARAMS',
+			]
 		);
 
 		if ($arLog = $dbResult->Fetch())
 		{
-			if ((string)$arLog['PARAMS'] !== "")
+			if ((string)$arLog['PARAMS'] !== '')
 			{
 				$arLog['PARAMS'] = unserialize($arLog['PARAMS'], ['allowed_classes' => false]);
 				if (!is_array($arLog['PARAMS']))
@@ -186,11 +190,23 @@ class CCalendarLiveFeed
 				}
 			}
 
-			$calendarEvent = CCalendarEvent::GetById($arLog["SOURCE_ID"]);
-			if ($calendarEvent)
+			$calendarEvent = CCalendarEvent::GetList([
+				'arFilter' => [
+					'ID' => $arLog['SOURCE_ID'],
+					'DELETED' => 'N'
+				],
+				'parseRecursion' => true,
+				'maxInstanceCount' => 1,
+				'fetchAttendees' => true,
+				'checkPermissions' => true,
+				'setDefaultLimit' => false
+			]);
+			
+			if ($calendarEvent && is_array($calendarEvent[0]))
 			{
+				$calendarEvent = $calendarEvent[0];
 				$calendarSettings = CCalendar::GetSettings();
-				$forumID = $calendarSettings["forum_id"];
+				$forumID = $calendarSettings['forum_id'];
 
 				if (isset($arLog['PARAMS']['COMMENT_XML_ID']) && $arLog['PARAMS']['COMMENT_XML_ID'])
 				{
@@ -200,21 +216,19 @@ class CCalendarLiveFeed
 				{
 					$commentXmlId = CCalendarEvent::GetEventCommentXmlId($calendarEvent);
 					$arLog['PARAMS']['COMMENT_XML_ID'] = $commentXmlId;
-					CSocNetLog::Update($arFields["LOG_ID"], array(
-						"PARAMS" => serialize($arLog['PARAMS'])
-					));
+					CSocNetLog::Update($arFields['LOG_ID'], ['PARAMS' => serialize($arLog['PARAMS'])]);
 				}
 
 				if ($forumID)
 				{
-					$dbTopic = CForumTopic::GetList(null, array(
-						"FORUM_ID" => $forumID,
-						"XML_ID" => $commentXmlId
-					));
+					$dbTopic = CForumTopic::GetList(null, [
+						'FORUM_ID' => $forumID,
+						'XML_ID' => $commentXmlId
+					]);
 
 					if ($dbTopic && ($arTopic = $dbTopic->Fetch()))
 					{
-						$topicID = $arTopic["ID"];
+						$topicID = $arTopic['ID'];
 					}
 					else
 					{
@@ -222,58 +236,61 @@ class CCalendarLiveFeed
 					}
 
 					$currentUserId = CCalendar::GetCurUserId();
-					$strPermission = ($currentUserId === (int)$calendarEvent["OWNER_ID"] ? "Y" : "M");
+					$strPermission = ($currentUserId === (int)$calendarEvent['OWNER_ID'] ? 'Y' : 'M');
 
-					$arFieldsMessage = array(
-						"POST_MESSAGE" => $arFields["TEXT_MESSAGE"],
-						"USE_SMILES" => "Y",
-						"PERMISSION_EXTERNAL" => "Q",
-						"PERMISSION" => $strPermission,
-						"APPROVED" => "Y"
-					);
+					$arFieldsMessage = [
+						'POST_MESSAGE' => $arFields['TEXT_MESSAGE'],
+						'USE_SMILES' => 'Y',
+						'PERMISSION_EXTERNAL' => 'Q',
+						'PERMISSION' => $strPermission,
+						'APPROVED' => 'Y'
+					];
 
 					if ($topicID === 0)
 					{
-						$arFieldsMessage["TITLE"] = "EVENT_".$arLog["SOURCE_ID"];
-						$arFieldsMessage["TOPIC_XML_ID"] = "EVENT_".$arLog["SOURCE_ID"];
+						$arFieldsMessage['TITLE'] = 'EVENT_'.$arLog['SOURCE_ID'];
+						$arFieldsMessage['TOPIC_XML_ID'] = 'EVENT_'.$arLog['SOURCE_ID'];
 					}
 
 					$arTmp = false;
-					$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("SONET_COMMENT", $arTmp);
+					$GLOBALS['USER_FIELD_MANAGER']->EditFormAddFields('SONET_COMMENT', $arTmp);
 					if (is_array($arTmp))
 					{
-						if (array_key_exists("UF_SONET_COM_DOC", $arTmp))
+						if (array_key_exists('UF_SONET_COM_DOC', $arTmp))
 						{
-							$GLOBALS["UF_FORUM_MESSAGE_DOC"] = $arTmp["UF_SONET_COM_DOC"];
+							$GLOBALS['UF_FORUM_MESSAGE_DOC'] = $arTmp['UF_SONET_COM_DOC'];
 						}
-						elseif (array_key_exists("UF_SONET_COM_FILE", $arTmp))
+						else if (array_key_exists('UF_SONET_COM_FILE', $arTmp))
 						{
-							$arFieldsMessage["FILES"] = [];
-							foreach ($arTmp["UF_SONET_COM_FILE"] as $file_id)
+							$arFieldsMessage['FILES'] = [];
+							foreach ($arTmp['UF_SONET_COM_FILE'] as $file_id)
 							{
-								$arFieldsMessage["FILES"][] = array("FILE_ID" => $file_id);
+								$arFieldsMessage['FILES'][] = ['FILE_ID' => $file_id];
 							}
 						}
 					}
 
-					$messageID = ForumAddMessage(($topicID > 0 ? "REPLY" : "NEW"), $forumID, $topicID, 0, $arFieldsMessage, $sError, $sNote);
+					$messageID = ForumAddMessage(($topicID > 0 ? 'REPLY' : 'NEW'), $forumID, $topicID, 0, $arFieldsMessage, $sError, $sNote);
 
 					// get UF DOC value and FILE_ID there
 					if ($messageID > 0)
 					{
-						$messageUrl = self::GetCommentUrl(array(
-							"ENTRY_ID" => $calendarEvent["ID"],
-							"ENTRY_USER_ID" => $calendarEvent["OWNER_ID"],
-							"COMMENT_ID" => $messageID
-						));
+						$messageUrl = self::GetCommentUrl([
+							'ENTRY_ID' => $calendarEvent['ID'],
+							'ENTRY_USER_ID' => $calendarEvent['OWNER_ID'],
+							'COMMENT_ID' => $messageID
+						]);
 
-						$dbAddedMessageFiles = CForumFiles::GetList(array("ID" => "ASC"), array("MESSAGE_ID" => $messageID));
+						$dbAddedMessageFiles = CForumFiles::GetList(
+							['ID' => 'ASC'],
+							['MESSAGE_ID' => $messageID]
+						);
 						while ($arAddedMessageFiles = $dbAddedMessageFiles->Fetch())
 						{
-							$ufFileID[] = $arAddedMessageFiles["FILE_ID"];
+							$ufFileID[] = $arAddedMessageFiles['FILE_ID'];
 						}
 
-						$ufDocID = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFieldValue("FORUM_MESSAGE", "UF_FORUM_MESSAGE_DOC", $messageID, LANGUAGE_ID);
+						$ufDocID = $GLOBALS['USER_FIELD_MANAGER']->GetUserFieldValue('FORUM_MESSAGE', 'UF_FORUM_MESSAGE_DOC', $messageID, LANGUAGE_ID);
 					}
 				}
 			}
@@ -281,22 +298,22 @@ class CCalendarLiveFeed
 
 		if (!$messageID)
 		{
-			$sError = GetMessage("EC_LF_ADD_COMMENT_SOURCE_ERROR");
+			$sError = GetMessage('EC_LF_ADD_COMMENT_SOURCE_ERROR');
 		}
 
-		return array(
-			"SOURCE_ID" => $messageID,
-			"MESSAGE" => ($arFieldsMessage ? $arFieldsMessage["POST_MESSAGE"] : false),
-			"RATING_TYPE_ID" => "FORUM_POST",
-			"RATING_ENTITY_ID" => $messageID,
-			"ERROR" => $sError,
-			"NOTES" => $sNote,
-			"UF" => array(
-				"FILE" => $ufFileID,
-				"DOC" => $ufDocID
-			),
-			"URL" => $messageUrl
-		);
+		return [
+			'SOURCE_ID' => $messageID,
+			'MESSAGE' => ($arFieldsMessage ? $arFieldsMessage['POST_MESSAGE'] : false),
+			'RATING_TYPE_ID' => 'FORUM_POST',
+			'RATING_ENTITY_ID' => $messageID,
+			'ERROR' => $sError,
+			'NOTES' => $sNote,
+			'UF' => [
+				'FILE' => $ufFileID,
+				'DOC' => $ufDocID
+			],
+			'URL' => $messageUrl
+		];
 	}
 
 	public static function GetCommentUrl($arFields = [])

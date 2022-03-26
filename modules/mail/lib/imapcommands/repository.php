@@ -304,7 +304,7 @@ class Repository
 			->whereIn('ID', $this->messagesIds)
 			->whereNot('MSG_UID', 0)
 			->where('MESSAGE_ID', '>', 0)
-			->addFilter('DELETE_TIME', 'IS NULL')
+			->addFilter('==DELETE_TIME', 0)
 			->exec()
 			->fetchAll();
 		if ($messagesSelected)

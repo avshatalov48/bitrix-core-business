@@ -78,11 +78,11 @@ else
 			<td width="50%" valign="top"><?= htmlspecialcharsbx($arWorkflowState["ID"]) ?></td>
 		</tr>
 		<tr>
-			<td width="40%"><?= GetMessage("BPABL_STATE_MODIFIED") ?>:</td>
+			<td width="40%"><?= GetMessage("BPABL_STATE_MODIFIED_1") ?>:</td>
 			<td width="60%"><?= htmlspecialcharsbx($arWorkflowState["STATE_MODIFIED"]) ?></td>
 		</tr>
 		<tr>
-			<td align="right" valign="top" width="50%"><?= GetMessage("BPABL_STATE_NAME") ?>:</td>
+			<td align="right" valign="top" width="50%"><?= GetMessage("BPABL_STATE_NAME_1") ?>:</td>
 			<td width="50%" valign="top"><?
 			if ($arWorkflowState["STATE_NAME"] <> '')
 			{
@@ -117,22 +117,22 @@ else
 						switch ($track["TYPE"])
 						{
 							case 1:
-								$strMessageTemplate = GetMessage("BPABL_TYPE_1");
+								$strMessageTemplate = GetMessage("BPABL_TYPE_1_1");
 								break;
 							case 2:
-								$strMessageTemplate = GetMessage("BPABL_TYPE_2");
+								$strMessageTemplate = GetMessage("BPABL_TYPE_2_1");
 								break;
 							case 3:
-								$strMessageTemplate = GetMessage("BPABL_TYPE_3");
+								$strMessageTemplate = GetMessage("BPABL_TYPE_3_1");
 								break;
 							case 4:
-								$strMessageTemplate = GetMessage("BPABL_TYPE_4");
+								$strMessageTemplate = GetMessage("BPABL_TYPE_4_1");
 								break;
 							case 5:
-								$strMessageTemplate = GetMessage("BPABL_TYPE_5");
+								$strMessageTemplate = GetMessage("BPABL_TYPE_5_1");
 								break;
 							default:
-								$strMessageTemplate = GetMessage("BPABL_TYPE_6");
+								$strMessageTemplate = GetMessage("BPABL_TYPE_6_1");
 						}
 
 						$name = ($track["ACTION_TITLE"] <> '' ? $track["ACTION_TITLE"]." (".$track["ACTION_NAME"].")" : $track["ACTION_NAME"]);

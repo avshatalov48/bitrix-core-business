@@ -169,16 +169,18 @@ class UsageEntityTable extends Main\Entity\DataManager
 	{
 		$entity = static::getEntityInfo($entityType, $entityId);
 
-		$getListParameters = array(
-			'filter' => array(
-				'ENTITY_TYPE' => $entityType,
-				'ENTITY_ID' => $entity['ENTITY_ID'],
-				'SUB_ENTITY_TYPE' => $subEntityType,
-				'SUB_ENTITY_NAME' => $subEntityName,
-			),
-			'select' => array('ID'),
+		$getListParameters = [
+			'filter' => [
+				'=ENTITY_TYPE' => $entityType,
+				'=ENTITY_ID' => $entity['ENTITY_ID'],
+				'=SUB_ENTITY_TYPE' => $subEntityType,
+				'=SUB_ENTITY_NAME' => $subEntityName,
+			],
+			'select' => [
+				'ID',
+			],
 			'limit' => 1,
-		);
+		];
 
 		$res = static::getList($getListParameters);
 		$element = $res->fetch();

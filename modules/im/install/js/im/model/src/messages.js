@@ -161,7 +161,27 @@ export class MessagesModel extends VuexBuilderModel
 			{
 				let result = this.validate(Object.assign({}, payload));
 				result.params = Object.assign({}, this.getElementState().params, result.params);
-				result.id = 'temporary' + (new Date).getTime() + store.state.created;
+				if (payload.id)
+				{
+					if (store.state.collection[payload.chatId])
+					{
+						const countMessages = store.state.collection[payload.chatId].length-1;
+						for (let index = countMessages; index >= 0; index--)
+						{
+							const message = store.state.collection[payload.chatId][index];
+							if (message.templateId === payload.id)
+							{
+								return;
+							}
+						}
+					}
+
+					result.id = payload.id;
+				}
+				else
+				{
+					result.id = 'temporary' + (new Date).getTime() + store.state.created;
+				}
 				result.templateId = result.id;
 				result.unread = false;
 
@@ -550,6 +570,8 @@ export class MessagesModel extends VuexBuilderModel
 				let chatsSave = [];
 				let isPush = false;
 
+				payload.data = MessagesModel.getPayloadWithTempMessages(state, payload);
+
 				const initialType = payload.insertType;
 
 				if (payload.insertType === MutationType.set)
@@ -618,11 +640,16 @@ export class MessagesModel extends VuexBuilderModel
 				{
 					this.initCollection(state, {chatId: element.chatId});
 
-					let index = state.collection[element.chatId].findIndex(el => el.id === element.id);
+					let index = state.collection[element.chatId].findIndex(localMessage => {
+						if (MessagesModel.isTemporaryMessage(localMessage))
+						{
+							return localMessage.templateId === element.templateId;
+						}
+
+						return localMessage.id === element.id;
+					});
 					if (index > -1)
 					{
-						delete element.templateId;
-
 						state.collection[element.chatId][index] = Object.assign(
 							state.collection[element.chatId][index],
 							element
@@ -692,8 +719,6 @@ export class MessagesModel extends VuexBuilderModel
 						state.saveMessageList[payload.chatId].includes(state.collection[payload.chatId][index].id)
 						|| payload.fields.id && !payload.fields.id.toString().startsWith('temporary') && state.collection[payload.chatId][index].id.toString().startsWith('temporary')
 					);
-
-					delete payload.fields.templateId;
 
 					state.collection[payload.chatId][index] = Object.assign(
 						state.collection[payload.chatId][index],
@@ -836,7 +861,10 @@ export class MessagesModel extends VuexBuilderModel
 		let result = this.validate(Object.assign({}, message), options);
 
 		result.params = Object.assign({}, this.getElementState().params, result.params);
-		result.templateId = result.id;
+		if (!result.templateId)
+		{
+			result.templateId = result.id;
+		}
 
 		return Object.assign({}, this.getElementState(), result);
 	}
@@ -1047,7 +1075,7 @@ export class MessagesModel extends VuexBuilderModel
 		}
 		else if (typeof fields.id === "string")
 		{
-			if (fields.id.startsWith('temporary') || fields.id.startsWith('placeholder'))
+			if (fields.id.startsWith('temporary') || fields.id.startsWith('placeholder') || Utils.types.isUuidV4(fields.id))
 			{
 				result.id = fields.id;
 			}
@@ -1057,13 +1085,17 @@ export class MessagesModel extends VuexBuilderModel
 			}
 		}
 
-		if (typeof fields.templateId === "number")
+		if (typeof fields.uuid === "string")
+		{
+			result.templateId = fields.uuid;
+		}
+		else if (typeof fields.templateId === "number")
 		{
 			result.templateId = fields.templateId;
 		}
 		else if (typeof fields.templateId === "string")
 		{
-			if (fields.templateId.startsWith('temporary'))
+			if (fields.templateId.startsWith('temporary') || Utils.types.isUuidV4(fields.templateId))
 			{
 				result.templateId = fields.templateId;
 			}
@@ -1236,6 +1268,15 @@ export class MessagesModel extends VuexBuilderModel
 					if (params[field])
 					{
 						result[field] = params[field];
+					}
+				}
+				else if (field === 'LINK_ACTIVE')
+				{
+					if (params[field])
+					{
+						result[field] = params[field].map(function(userId) {
+							return parseInt(userId)
+						});
 					}
 				}
 				else if (field === 'ATTACH')
@@ -1729,4 +1770,75 @@ export class MessagesModel extends VuexBuilderModel
 		}
 		return true;
 	};
+
+	static isTemporaryMessage(element)
+	{
+		return element.id
+			&& (Utils.types.isUuidV4(element.id) || element.id.toString().startsWith('temporary'));
+	}
+
+	static getPayloadWithTempMessages(state, payload)
+	{
+		const payloadData = [...payload.data];
+
+		if (!Utils.platform.isBitrixMobile())
+		{
+			return payloadData;
+		}
+
+		if (!payload.data || payload.data.length <= 0)
+		{
+			return payloadData;
+		}
+
+		// consider that in the payload we have messages only for one chat, so we get the value from the first message.
+		const payloadChatId = payload.data[0].chatId;
+		if (!state.collection[payloadChatId])
+		{
+			return payloadData;
+		}
+
+		state.collection[payloadChatId].forEach(message => {
+			if (
+				MessagesModel.isTemporaryMessage(message)
+				&& !MessagesModel.existsInPayload(payload, message.templateId)
+				&& MessagesModel.doesTaskExist(message)
+			)
+			{
+				payloadData.push(message);
+			}
+		});
+
+		return payloadData;
+	}
+
+	static existsInPayload(payload, templateId)
+	{
+		return payload.data.find(payloadMessage => payloadMessage.templateId === templateId);
+	}
+
+	static doesTaskExist(message)
+	{
+		if (Array.isArray(message.params.FILE_ID))
+		{
+			let foundUploadTasks = false;
+			message.params.FILE_ID.forEach(fileId => {
+				if (!foundUploadTasks)
+				{
+					foundUploadTasks = window.imDialogUploadTasks.find(task => task.taskId.split('|')[1] === fileId);
+				}
+			})
+
+			return !!foundUploadTasks;
+		}
+
+		if (message.templateId)
+		{
+			const foundMessageTask = window.imDialogMessagesTasks.find(task => task.taskId.split('|')[1] === message.templateId);
+
+			return !!foundMessageTask;
+		}
+
+		return false;
+	}
 }

@@ -54,7 +54,7 @@ class CBPStateActivity
 		}
 
 		if (count($s) > 0)
-			$this->WriteToTrackingService(str_replace("#VAL#", implode(";", $s), GetMessage("BPSA_TRACK1")));
+			$this->WriteToTrackingService(str_replace("#VAL#", implode(";", $s), GetMessage("BPSA_TRACK_1")));
 
 		$stateService = $this->workflow->GetService("StateService");
 
@@ -266,7 +266,7 @@ class CBPStateActivity
 		}
 
 		if (!$bCorrect)
-			$arErrors[] = array("code" => "WrongChildType", "message" => GetMessage("BPSA_INVALID_CHILD"));
+			$arErrors[] = array("code" => "WrongChildType", "message" => GetMessage("BPSA_INVALID_CHILD_1"));
 
 		return array_merge($arErrors, parent::ValidateChild($childActivity, $bFirstChild));
 	}
@@ -277,7 +277,7 @@ class CBPStateActivity
 
 //		if (!array_key_exists("Permission", $arTestProperties) || count($arTestProperties["Permission"]) <= 0)
 //		{
-//			$arErrors[] = array("code" => "NotExist", "parameter" => "Permission", "message" => GetMessage("BPSA_EMPTY_PERMS"));
+//			$arErrors[] = array("code" => "NotExist", "parameter" => "Permission", "message" => GetMessage("BPSA_EMPTY_PERMS_1"));
 //		}
 
 		return array_merge($arErrors, parent::ValidateProperties($arTestProperties, $user));

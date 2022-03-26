@@ -107,7 +107,14 @@ export class FilesModel extends VuexBuilderModel
 			add: (store, payload) =>
 			{
 				let result = this.validate(Object.assign({}, payload), {host: store.state.host});
-				result.id = 'temporary' + (new Date).getTime() + store.state.created;
+				if (payload.id)
+				{
+					result.id = payload.id;
+				}
+				else
+				{
+					result.id = 'temporary' + (new Date).getTime() + store.state.created;
+				}
 				result.templateId = result.id;
 				result.init = true;
 

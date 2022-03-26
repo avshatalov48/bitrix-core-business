@@ -189,6 +189,10 @@ this.BX = this.BX || {};
 	        formData.append('data[id]', uploadParams.id);
 	      }
 
+	      if ('temp' in uploadParams) {
+	        formData.append('data[temp]', true);
+	      }
+
 	      var uri = new main_core.Uri(this.getControllerUrl());
 	      uri.setQueryParams({
 	        action: formData.get('action'),
@@ -226,6 +230,7 @@ this.BX = this.BX || {};
 	      return this.cache.remember("sites+".concat(JSON.stringify(filter)), function () {
 	        return _this2.action('Site::getList', {
 	          params: {
+	            filter: filter,
 	            order: {
 	              ID: 'DESC'
 	            }
@@ -244,16 +249,33 @@ this.BX = this.BX || {};
 	          _ref2$siteId = _ref2.siteId,
 	          siteId = _ref2$siteId === void 0 ? [] : _ref2$siteId;
 
+	      var filter = arguments.length > 1 ? arguments[1] : undefined;
+	      var skipFilter = false;
+
+	      if (!BX.Type.isPlainObject(filter)) {
+	        filter = {};
+	        skipFilter = true;
+	      }
+
 	      var ids = main_core.Type.isArray(siteId) ? siteId : [siteId];
+	      filter.SITE_ID = ids;
 
 	      var getBathItem = function getBathItem(id) {
 	        return {
 	          action: 'Landing::getList',
 	          data: {
 	            params: {
-	              filter: {
-	                SITE_ID: id
-	              },
+	              filter: function () {
+	                if (skipFilter) {
+	                  return {
+	                    SITE_ID: id,
+	                    DELETED: 'N',
+	                    FOLDER: 'N'
+	                  };
+	                }
+
+	                return filter;
+	              }(),
 	              order: {
 	                ID: 'DESC'
 	              },

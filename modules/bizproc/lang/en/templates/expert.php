@@ -9,7 +9,7 @@ Please proceed by opening the link: #BASE_HREF##TASK_URL#";
 $MESS["BP_EXPR_M"] = "email Message";
 $MESS["BP_EXPR_APPR1"] = "The document \"{=Document:NAME}\" requires your comments on it.";
 $MESS["BP_EXPR_APPR1_DESC"] = "Your opinion is required to make decision on the document \"{=Document:NAME}\".";
-$MESS["BP_EXPR_ST"] = "Sequence Of Actions";
+$MESS["BP_EXPR_ST_1"] = "Sequence of Activities";
 $MESS["BP_EXPR_MAIL2_SUBJ"] = "Approve document: \"{=Document:NAME}\"";
 $MESS["BP_EXPR_MAIL2_TEXT"] = "All the appointed persons have examined the document and expressed their opinion.																										
 You now need to approve or reject the document.																										

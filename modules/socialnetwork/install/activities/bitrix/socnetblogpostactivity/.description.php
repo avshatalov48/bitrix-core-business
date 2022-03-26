@@ -2,7 +2,7 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 $arActivityDescription = array(
-	"NAME" => GetMessage("SNBPA_DESCR_NAME"),
+	"NAME" => GetMessage("SNBPA_DESCR_NAME_1"),
 	"DESCRIPTION" => GetMessage("SNBPA_DESCR_DESCR"),
 	"TYPE" => array("activity", "robot_activity"),
 	"CLASS" => "SocnetBlogPostActivity",

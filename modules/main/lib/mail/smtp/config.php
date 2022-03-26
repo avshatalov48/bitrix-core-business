@@ -104,6 +104,18 @@ class Config
 			return null;
 		}
 
+		if (Main\ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			// Private addresses can't be used in the cloud
+			$ip = Main\Web\IpAddress::createByName($this->host);
+			if ($ip->isPrivate())
+			{
+				$error = 'SMTP server address is invalid';
+				$errors = new Main\ErrorCollection([new Main\Error($error)]);
+				return false;
+			}
+		}
+
 		$client = new Mail\Smtp(
 			$this->host,
 			$this->port,

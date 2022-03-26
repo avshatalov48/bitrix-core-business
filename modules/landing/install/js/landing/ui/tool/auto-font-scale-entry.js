@@ -33,7 +33,7 @@
 		setFontSize: function(size)
 		{
 			size = Math.min(Math.max(size, this.minSize), this.maxSize);
-			this.element.style.cssText = "font-size: " + size + "px!important;";
+			this.element.style.setProperty('font-size', size + "px", "important");
 		},
 
 
@@ -44,7 +44,7 @@
 		setLetterSpacing: function(value)
 		{
 			value = Math.min(Math.max(value, this.minLetterSpacing), this.maxLetterSpacing);
-			this.element.style.letterSpacing = value + "px";
+			this.element.style.setProperty('letterSpacing', value + "px");
 		},
 
 
@@ -53,9 +53,9 @@
 		 */
 		resetSize: function()
 		{
-			this.element.style.fontSize = null;
-			this.element.style.letterSpacing = null;
-			this.element.style.display = null;
+			this.element.style.setProperty('fontSize', null);
+			this.element.style.setProperty('letterSpacing', null);
+			this.element.style.setProperty('display', null);
 		},
 
 

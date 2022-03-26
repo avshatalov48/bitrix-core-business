@@ -477,7 +477,7 @@ abstract class CAllMain
 			{
 				if (isset($arTraceRes['class']) && isset($arTraceRes['function']))
 				{
-					if (ToUpper($arTraceRes['class']) == 'CBITRIXCOMPONENT' && ToUpper($arTraceRes['function']) == 'INCLUDECOMPONENT' && is_object($arTraceRes['object']))
+					if (strtoupper($arTraceRes['class']) == 'CBITRIXCOMPONENT' && strtoupper($arTraceRes['function']) == 'INCLUDECOMPONENT' && is_object($arTraceRes['object']))
 					{
 						/** @var CBitrixComponent $comp */
 						$comp = $arTraceRes['object'];

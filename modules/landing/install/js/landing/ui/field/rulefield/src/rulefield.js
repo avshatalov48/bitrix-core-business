@@ -3,12 +3,12 @@ import {BaseField} from 'landing.ui.field.basefield';
 import {Loc} from 'landing.loc';
 import {IconButton} from 'landing.ui.component.iconbutton';
 import {ActionPanel} from 'landing.ui.component.actionpanel';
-import 'main.popup';
-import type {FormField, RuleFieldOptions} from './types/rule-field-options';
+import {fetchEventsFromOptions} from 'landing.ui.component.internal';
 import {FieldRules} from './internal/field-rules/field-rules';
+import type {FormField, RuleFieldOptions, RuleType} from './types/rule-field-options';
+import 'main.popup';
 
 import './css/style.css';
-import {fetchEventsFromOptions} from 'landing.ui.component.internal';
 
 /**
  * @memberOf BX.Landing.UI.Field
@@ -32,22 +32,44 @@ export class RuleField extends BaseField
 		Dom.append(this.getBodyLayout(), this.getLayout());
 		Dom.append(this.getFooterLayout(), this.getLayout());
 
+		this.setRuleType(this.options.type);
+
 		this.rows = [];
 
 		this.options.rules.forEach((rule) => {
 			this.addRule(rule);
 		});
 
-		const hideLabel = this.options.rules.some((rule) => {
+		if (this.hasExpression())
+		{
+			this.hideExpressionsLabel();
+		}
+	}
+
+	hideExpressionsLabel()
+	{
+		Dom.hide(
+			this.rows[0]
+				.getFieldContainer()
+				.querySelector('.landing-ui-field-rule-field-row-field-container-action-title'),
+		);
+	}
+
+	hasExpression(): boolean
+	{
+		return this.options.rules.some((rule) => {
 			return rule.expression.length > 0;
 		});
+	}
 
-		if (hideLabel)
-		{
-			const label = this.rows[0].getFieldContainer()
-				.querySelector('.landing-ui-field-rule-field-row-field-container-action-title');
-			Dom.hide(label);
-		}
+	setRuleType(type: RuleType)
+	{
+		this.cache.set('ruleType', type);
+	}
+
+	getRuleType(): RuleType
+	{
+		return this.cache.get('ruleType');
 	}
 
 	addRule(fieldRules: FieldRules)

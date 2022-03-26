@@ -1,0 +1,180 @@
+.landing-ui-form-actions-type1 {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='49' height='45' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M46 0a3 3 0 013 3v39a3 3 0 01-3 3H3a3 3 0 01-3-3V3a3 3 0 013-3h43zm0 8H3v33.6a.4.4 0 00.32.392L3.4 42h42.2a.4.4 0 00.392-.32L46 41.6V8zm-5.039 3a2 2 0 012 2v23.983a2 2 0 01-2 2H29a2 2 0 01-2-2V13a2 2 0 012-2h11.961zM13 26a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1v-1a1 1 0 011-1h5zm25.457-5.521l-4.615 4.235-1.845-1.61-1.533 1.31 3.378 3.065 6.198-5.704-1.583-1.296zM18 20a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1v-1a1 1 0 011-1h10zm0-6a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1v-1a1 1 0 011-1h10zM6.092 2.097a1.832 1.832 0 100 3.664 1.832 1.832 0 000-3.664zm4.87 0a1.832 1.832 0 100 3.664 1.832 1.832 0 000-3.664zm5 0a1.832 1.832 0 100 3.664 1.832 1.832 0 000-3.664z' fill='%23A3B2C5' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.landing-ui-form-actions-type2 {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='58' height='50' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M55 12a3 3 0 013 3v32a3 3 0 01-3 3H18a3 3 0 01-3-3V15a3 3 0 013-3h37zm0 8H18v26.6a.4.4 0 00.32.392l.08.008h36.2a.4.4 0 00.392-.32L55 46.6V20zM3.016 28a7.504 7.504 0 005.86 6.824V30l5.876 5.978-5.876 5.774v-3.828C4.206 37.29.509 32.787.048 28h2.968zM45 24a1 1 0 011 1v12a1 1 0 01-1 1H22a1 1 0 01-1-1V25a1 1 0 011-1h23zm-18 3a4 4 0 100 8 4 4 0 000-8zm11 5h-4a1 1 0 00-.117 1.993L34 34h4a1 1 0 000-2zm5-4h-9a1 1 0 00-.117 1.993L34 30h9a1 1 0 000-2zM10 18a1 1 0 011 1v1a1 1 0 01-.515.875h-2.97A1 1 0 017 20v-1a1 1 0 011-1h2zM40 0a3 3 0 013 3v5H3v12.873H0V3a3 3 0 013-3h37zM22 14a2 2 0 100 4 2 2 0 000-4zm5 0a2 2 0 100 4 2 2 0 000-4zm5 0a2 2 0 100 4 2 2 0 000-4zm-21-2a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1v-1a1 1 0 011-1h3zM7 2a2 2 0 100 4 2 2 0 000-4zm5 0a2 2 0 100 4 2 2 0 000-4zm5 0a2 2 0 100 4 2 2 0 000-4z' fill='%23A3B2C5' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.landing-ui-form-actions-type3 {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='58' height='50'%3E%3Cpath fill='%23A3B2C5' fill-rule='evenodd' d='M55 12a3 3 0 013 3v32a3 3 0 01-3 3H18a3 3 0 01-3-3v-.832a14.71 14.71 0 003-1.247V46.6a.4.4 0 00.32.392l.08.008h36.2a.4.4 0 00.392-.32L55 46.6V20H19.58c-1.367-1-2.912-1.77-4.58-2.256V15a3 3 0 013-3h37zM7.971 34.822L5.763 37.03a7.09 7.09 0 0011.506-2.067l3.107 1.164a10.403 10.403 0 01-9.57 6.322 10.368 10.368 0 01-7.383-3.076L1.33 41.463v-6.64h6.641zM45 24a1 1 0 011 1v12a1 1 0 01-1 1l-20.63.001a14.69 14.69 0 001.038-3.332 4 4 0 10-.422-7.126 14.686 14.686 0 00-1.648-3.542L45 24zm-7 8h-4a1 1 0 00-.117 1.993L34 34h4a1 1 0 000-2zM10.806 21.648c2.865 0 5.46 1.158 7.34 3.033l2.086-2.086v6.641h-6.64l2.213-2.213a7.09 7.09 0 00-11.87 3.28l-3.15-1.046c1.22-4.388 5.244-7.609 10.021-7.609zM43 28h-9a1 1 0 00-.117 1.993L34 30h9a1 1 0 000-2zM40 0a3 3 0 013 3v5H3v11.411c-.691.434-1.344.923-1.952 1.462H0V3a3 3 0 013-3h37zM22 14a2 2 0 100 4 2 2 0 000-4zm5 0a2 2 0 100 4 2 2 0 000-4zm5 0a2 2 0 100 4 2 2 0 000-4zm-21-2a1 1 0 011 1v1a1 1 0 01-1 1H8a1 1 0 01-1-1v-1a1 1 0 011-1h3zM7 2a2 2 0 100 4 2 2 0 000-4zm5 0a2 2 0 100 4 2 2 0 000-4zm5 0a2 2 0 100 4 2 2 0 000-4z'/%3E%3C/svg%3E");
+}
+
+.landing-ui-actions-content-wrapper .landing-ui-field-link-url .landing-ui-field-input {
+	max-width: none;
+}
+
+.landing-ui-actions-content-wrapper .landing-ui-field-preset-layout .landing-ui-field-preset-icon {
+	width: 49px;
+	height: 45px;
+	margin-bottom: 12px;
+}
+
+.landing-ui-actions-content-wrapper .landing-ui-field-preset-layout .landing-ui-field-preset-right {
+	margin-top: 6px;
+	margin-left: 2px;
+}
+
+.landing-ui-actions-content-wrapper .landing-ui-field-preset-layout .landing-ui-field-preset-left {
+	margin-left: 0;
+}
+
+.landing-ui-actions-content-wrapper .landing-ui-field-preset-layout .landing-ui-field-preset-link {
+	margin-top: 3px;
+}
+
+
+.landing-ui-field-action-pages {
+	border-top: 1px #EDEEF0 solid;
+	padding-top: 4px;
+}
+
+.landing-ui-field-action-pages .landing-ui-field-input {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: horizontal;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: row;
+	        flex-direction: row;
+	border: none;
+	padding: 0;
+}
+
+.landing-ui-field-action-pages-page {
+	-webkit-box-flex: 1;
+	    -ms-flex-positive: 1;
+	        flex-grow: 1;
+}
+
+.landing-ui-field-action-pages-page-inner {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+	border-radius: 5px;
+	min-height: 171px;
+	-webkit-box-flex: 1;
+	    -ms-flex-positive: 1;
+	        flex-grow: 1;
+}
+
+.landing-ui-field-action-pages-page {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+}
+
+.landing-ui-field-action-pages-page-success {
+	margin-right: 20px;
+	min-width: calc(50% - 10px);
+	max-width: calc(50% - 10px);
+}
+
+.landing-ui-field-action-pages-page-success .landing-ui-field-action-pages-page-inner {
+	background-color: rgba(157, 207, 0, .2);
+}
+
+.landing-ui-field-action-pages-page-failure .landing-ui-field-action-pages-page-inner {
+	background-color: rgba(255, 87, 82, .17);
+}
+
+.landing-ui-field-action-pages-page-icon {
+	background-repeat: no-repeat;
+	background-position: center;
+	height: 56px;
+	margin-top: 6px;
+}
+
+.landing-ui-field-action-pages-page-success .landing-ui-field-action-pages-page-icon {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='56' height='56' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M-102-27.998C-102-30.76-99.752-33-97.01-33h250.02c2.756 0 4.99 2.24 4.99 5.002v160.996c0 2.762-2.248 5.002-4.99 5.002H-97.01a4.997 4.997 0 01-4.99-5.002V-27.998z'/%3E%3Cg%3E%3Ccircle fill='%239DCF00' cx='28' cy='28' r='28'/%3E%3Cpath d='M24.403 38.833L14.417 29.1l3.495-3.406 6.49 6.326 14.686-14.312 3.495 3.406z' fill='%23FFF'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.landing-ui-field-action-pages-page-failure .landing-ui-field-action-pages-page-icon {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='56' height='56' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M-102-27.998C-102-30.76-99.752-33-97.01-33h250.02c2.756 0 4.99 2.24 4.99 5.002v160.996c0 2.762-2.248 5.002-4.99 5.002H-97.01a4.997 4.997 0 01-4.99-5.002V-27.998z'/%3E%3Cg%3E%3Ccircle fill='%23FF5752' cx='28' cy='28' r='28'/%3E%3Cpath d='M38.04 21.156l-6.845 6.843 6.845 6.845-3.196 3.196L28 31.195l-6.844 6.845-3.196-3.196L24.805 28l-6.845-6.843 3.196-3.196L28 24.804l6.844-6.844 3.196 3.196z' fill='%23FFF'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.landing-ui-field-action-pages-page-header,
+.landing-ui-field-action-pages-page-footer {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 11px;
+	color: #333333;
+	text-align: right;
+	padding-left: 8px;
+	padding-right: 8px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+
+.landing-ui-field-action-pages-page-header span,
+.landing-ui-field-action-pages-page-footer span {
+	opacity: .3;
+	cursor: pointer;
+	-webkit-transition: opacity 200ms ease;
+	-o-transition: opacity 200ms ease;
+	transition: opacity 200ms ease;
+}
+
+.landing-ui-field-action-pages-page-header span:hover,
+.landing-ui-field-action-pages-page-footer span:hover {
+	opacity: .6;
+}
+
+.landing-ui-field-action-pages-page-header span {
+	border-bottom: 1px #333333 dashed;
+}
+
+.landing-ui-field-action-pages-page-button,
+.landing-ui-field-action-pages-page-text {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 15px;
+	color: #333333;
+	line-height: 19px;
+	-webkit-box-flex: 1;
+	    -ms-flex-positive: 1;
+	        flex-grow: 1;
+	text-align: center;
+	margin-left: 30px;
+	margin-right: 30px;
+	margin-top: 13px;
+	margin-bottom: 1px;
+	border: 1px transparent solid;
+	border-radius: 2px;
+}
+
+.landing-ui-field-action-pages-page-button{
+	padding-top: 6px;
+	border-color: #000;
+	min-height: 35px;
+}
+
+.landing-ui-field-action-pages-page-button[contenteditable="true"],
+.landing-ui-field-action-pages-page-text[contenteditable="true"] {
+	background: #ffffff;
+	border-color: #C1C5C7;
+}
+
+.landing-ui-field-action-pages-page-title {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color: #525C69;
+	line-height: 33px;
+	opacity: 0.5;
+}

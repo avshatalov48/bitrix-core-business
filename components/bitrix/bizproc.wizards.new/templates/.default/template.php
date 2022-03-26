@@ -176,7 +176,7 @@ else
 							{
 								?>
 								<option value=""><?= GetMessage("BPWC_WNCT_NEW_TMPL") ?></option>
-								<option value="-"<?= ("-" == $arResult["Data"]["Template"]) ? " selected" : "" ?>><?= GetMessage("BPWC_WNCT_NEW_TMPL1") ?></option>
+								<option value="-"<?= ("-" == $arResult["Data"]["Template"]) ? " selected" : "" ?>><?= GetMessage("BPWC_WNCT_NEW_TMPL_1") ?></option>
 								<?
 							}
 

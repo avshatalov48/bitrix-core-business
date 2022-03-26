@@ -95,7 +95,8 @@ if (
 }
 
 $stub = '
-<svg style="margin-bottom: 12px;" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" width="100%" height="230">
+<div class="feed-stub">
+<svg style="display: block" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" width="100%" height="230">
 	<svg>
 		<rect width="100%" height="230" y="0" fill="#fff"/>
 	</svg>
@@ -126,6 +127,7 @@ $stub = '
 	</linearGradient>
 	<animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
 </svg>
+</div>
 ';
 $stub = '<div class="bx-placeholder-wrap">'.str_repeat($stub, 4).'</div>';
 
@@ -402,18 +404,24 @@ if (
 		BX.ready(function()
 		{
 			BX.Livefeed.FeedInstance.clearMoreButtons();
-			BX.bind(BX('sonet_log_counter_2_container'), 'click', BX.Livefeed.PageInstance.clearContainerExternalNew);
 
 			if (BX('sonet_log_comment_text'))
 			{
 				BX('sonet_log_comment_text').onkeydown = BX.eventCancelBubble;
 			}
 			<?php
-			if (!empty($arResult['RESULT_COMMENTS_ID_LIST']))
+			if (!empty($arResult['RESULT_FIELD_TASKS_ID']))
 			{
 				?>
-				BX.Livefeed.CommentForm.appendTaskResultComments(<?= CUtil::PhpToJSObject($arResult['RESULT_COMMENTS_ID_LIST']) ?>);
+				BX.Livefeed.CommentForm.appendResultFieldTaskIds(<?= CUtil::PhpToJSObject($arResult['RESULT_FIELD_TASKS_ID']) ?>);
 				<?php
+
+				if (!empty($arResult['RESULT_COMMENTS_DATA']))
+				{
+					?>
+					BX.Livefeed.CommentForm.appendTaskResultComments(<?= CUtil::PhpToJSObject($arResult['RESULT_COMMENTS_DATA']) ?>);
+					<?php
+				}
 			}
 			?>
 		});

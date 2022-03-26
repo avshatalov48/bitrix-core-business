@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Disk;
+use Bitrix\Disk\Document\OnlyOffice\Templates\CreateDocumentByCallTemplateScenario;
 use \Bitrix\Im as IM;
 use \Bitrix\Main\Localization\Loc;
 
@@ -237,7 +239,7 @@ class CIMDisk
 
 		if (!$fileTmpId || !$messageTmpId)
 		{
-			$error = "exemplarId is not defined";
+			$error = Loc::getMessage('IM_DISK_ERR_UPLOAD').' (E108)';
 			return false;
 		}
 		$uploadRealResult = self::UploadFileFromDisk(
@@ -253,7 +255,17 @@ class CIMDisk
 
 		if (!$uploadRealResult)
 		{
-			return true;
+			$error = '';
+			if ($e = $GLOBALS["APPLICATION"]->GetException())
+			{
+				$error = $e->GetString();
+			}
+			if ($error == '')
+			{
+				$error = Loc::getMessage('IM_DISK_ERR_UPLOAD').' (E109)';
+			}
+
+			return false;
 		}
 
 		$fileModel = $folderModel->getChild(['ID' => $fileModel->getId()]);
@@ -493,6 +505,8 @@ class CIMDisk
 		$makeSymlink = $options['SYMLINK'] === true;
 		$templateId = $options['TEMPLATE_ID'] <> ''? $options['TEMPLATE_ID']: '';
 		$fileTemplateId = $options['FILE_TEMPLATE_ID'] <> ''? $options['FILE_TEMPLATE_ID']: '';
+		$attach = isset($options['ATTACH'])? $options['ATTACH']: null;
+		$params = isset($options['PARAMS']) && is_array($options['PARAMS'])? $options['PARAMS']: null;
 
 		$chatRelation = \CIMChat::GetRelationById($chatId);
 
@@ -515,6 +529,7 @@ class CIMDisk
 		$result = [];
 		$result['FILES'] = [];
 		$result['DISK_ID'] = [];
+		$result['FILE_MODELS'] = [];
 		foreach ($files as $fileId)
 		{
 			if (mb_substr($fileId, 0, 6) == 'upload')
@@ -530,6 +545,7 @@ class CIMDisk
 			{
 				$result['FILES'][$fileId] = self::GetFileParams($chatId, $newFile);
 				$result['DISK_ID'][] = $newFile->getId();
+				$result['FILE_MODELS'][$fileId] = $newFile;
 
 				if ($robot)
 				{
@@ -594,9 +610,6 @@ class CIMDisk
 			"TO_CHAT_ID" => $chatId,
 			"FROM_USER_ID" => $userId,
 			"MESSAGE_TYPE" => $chat['TYPE'],
-			"PARAMS" => [
-				'FILE_ID' => $result['DISK_ID']
-			],
 			"SILENT_CONNECTOR" => $linesSilentMode?'Y':'N',
 			"SKIP_USER_CHECK" => ($skipUserCheck || !$userId || $chat['ENTITY_TYPE'] == 'LIVECHAT'),
 			"TEMPLATE_ID" => $templateId,
@@ -614,6 +627,18 @@ class CIMDisk
 			//$ar['SKIP_CONNECTOR'] = 'Y';
 		}
 
+		$ar['FILES'] = $result['DISK_ID'];
+
+		if ($params)
+		{
+			$ar['PARAMS'] = $params;
+		}
+
+		if ($attach)
+		{
+			$ar['ATTACH'] = $attach;
+		}
+
 		$text = trim($text);
 		if ($text)
 		{
@@ -621,10 +646,16 @@ class CIMDisk
 		}
 
 		$messageId = \CIMMessage::Add($ar);
-		if ($messageId)
+		if (!$messageId)
 		{
-			$result['MESSAGE_ID'] = $messageId;
+			foreach ($result['FILE_MODELS'] as $file)
+			{
+				$file->delete($userId);
+			}
+			return false;
 		}
+
+		$result['MESSAGE_ID'] = $messageId;
 
 		if (
 			!$robot
@@ -674,20 +705,6 @@ class CIMDisk
 					);*/
 				}
 			}
-			else if ($chat['ENTITY_TYPE'] == 'LINES')
-			{
-				[$connectorId, $lineId, $connectorChatId] = explode("|", $chat['ENTITY_ID']);
-				if ($connectorId == 'livechat')
-				{
-					$uploadResult = self::UploadFileFromDisk(
-						$connectorChatId,
-						$fileIds,
-						$text,
-						['USER_ID' => $userId],
-						true
-					);
-				}
-			}
 
 			if (
 				!empty($uploadResult) &&
@@ -705,6 +722,9 @@ class CIMDisk
 					"PARAM_NAME" => 'CONNECTOR_MID',
 					"PARAM_VALUE" => $result['MESSAGE_ID']
 				]);
+
+				\CIMMessageParam::SendPull($result['MESSAGE_ID'], ['CONNECTOR_MID']);
+				\CIMMessageParam::SendPull($uploadResult['MESSAGE_ID'], ['CONNECTOR_MID']);
 
 				$event = new \Bitrix\Main\Event("imopenlines", "OnLivechatUploadFile", ['FILES' => $uploadResult['DISK_ID']]);
 				$event->send();
@@ -1110,6 +1130,13 @@ class CIMDisk
 		}
 
 		$file["files"]["default"]["MODULE_ID"] = "im";
+
+		$checkResponse = \CFile::CheckImageFile($file["files"]["default"], (10*1024*1024), 5000, 5000);
+		if ($checkResponse !== null)
+		{
+			return false;
+		}
+
 		$fileId = \CFile::saveFile($file["files"]["default"], self::MODULE_ID);
 		if ($fileId > 0)
 		{
@@ -1568,9 +1595,10 @@ class CIMDisk
 
 		try
 		{
-			$viewerType = \Bitrix\Disk\Ui\FileAttributes::buildByFileId($fileModel->getFileId(), $fileData['urlDownload'])
+			$viewerType = Disk\Ui\FileAttributes::buildByFileId($fileModel->getFileId(), $fileData['urlDownload'])
 				->setObjectId($fileModel->getId())
 				->setGroupBy($chatId)
+				->setAttribute('data-im-chat-id', $chatId)
 				->setTitle($fileModel->getName())
 				->addAction([
 					'type' => 'download',
@@ -1584,8 +1612,22 @@ class CIMDisk
 					],
 					'extension' => 'disk.viewer.actions',
 					'buttonIconClass' => 'ui-btn-icon-cloud',
-				]);
+				])
 			;
+
+			if ($viewerType->getTypeClass() === Disk\Ui\FileAttributes::JS_TYPE_CLASS_ONLYOFFICE)
+			{
+				$viewerType->setTypeClass('BX.Messenger.Integration.Viewer.OnlyOfficeChatItem');
+				if (
+					$fileModel->getCode() === CreateDocumentByCallTemplateScenario::CODE_RESUME
+					|| $fileModel->getRealObject()->getCode() === CreateDocumentByCallTemplateScenario::CODE_RESUME
+				)
+				{
+					$viewerType->setTypeClass('BX.Messenger.Integration.Viewer.OnlyOfficeResumeItem');
+				}
+
+				$viewerType->setExtension('im.integration.viewer');
+			}
 			if ($viewerType->getViewerType() !== \Bitrix\Main\UI\Viewer\Renderer\Renderer::JS_TYPE_UNKNOWN)
 			{
 				$fileData['viewerAttrs'] = $viewerType->toDataSet();

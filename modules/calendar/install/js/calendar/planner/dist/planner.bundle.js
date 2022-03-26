@@ -2523,14 +2523,12 @@ this.BX = this.BX || {};
 	          } else {
 	            for (entryId in _this10.accessibility) {
 	              if (_this10.accessibility.hasOwnProperty(entryId)) {
-	                if (_this10.selectMode) {
-	                  entry = _this10.entries.find(function (el) {
-	                    return parseInt(el.id) === parseInt(entryId);
-	                  });
+	                entry = _this10.entries.find(function (el) {
+	                  return el.id === entryId.toString();
+	                });
 
-	                  if (entry && !entry.selected) {
-	                    continue;
-	                  }
+	                if (!entry || _this10.selectMode && !entry.selected) {
+	                  continue;
 	                }
 
 	                if (main_core.Type.isArray(_this10.accessibility[entryId])) {

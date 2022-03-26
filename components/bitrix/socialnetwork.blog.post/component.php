@@ -1258,17 +1258,38 @@ if(
 
 				$arResult["Post"]["urlToPost"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("post_id"=> CBlogPost::GetPostID($arPost["ID"], $arPost["CODE"], $arParams["ALLOW_POST_CODE"]), "user_id" => $arPost["AUTHOR_ID"]));
 
-				if($arPost["CATEGORY_ID"] <> '')
+				if ($arPost["CATEGORY_ID"] <> '')
 				{
 					$bHasTag = true;
 					$arCategory = explode(",", $arPost["CATEGORY_ID"]);
-					$dbCategory = CBlogCategory::GetList(Array(), Array("@ID" => $arCategory));
-					while($arCatTmp = $dbCategory->Fetch())
+
+					$blogCategoryList = [];
+					$res = CBlogCategory::GetList([], [ '@ID' => $arCategory ]);
+					while ($blogCategoryFields = $res->fetch())
 					{
-						$arCatTmp["~NAME"] = $arCatTmp["NAME"];
-						$arCatTmp["NAME"] = htmlspecialcharsEx($arCatTmp["NAME"]);
-						$arCatTmp["urlToCategory"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_LOG_TAG"], array("tag" => urlencode($arCatTmp["NAME"])));
-						$arResult["Category"][] = $arCatTmp;
+						$blogCategoryFields["~NAME"] = $blogCategoryFields["NAME"];
+						$blogCategoryFields["NAME"] = htmlspecialcharsEx($blogCategoryFields["NAME"]);
+						$blogCategoryFields["urlToCategory"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_LOG_TAG"], array("tag" => urlencode($blogCategoryFields["NAME"])));
+						$blogCategoryList[(int)$blogCategoryFields['ID']] = $blogCategoryFields;
+					}
+
+					$res = CBlogPostCategory::getList(
+						[ 'ID' => 'ASC' ],
+						[
+							'@CATEGORY_ID' => $arCategory,
+							'POST_ID' => $arPost['ID'],
+						],
+						false,
+						false,
+						[ 'CATEGORY_ID' ]);
+					while ($blogPostCategoryFields = $res->fetch())
+					{
+						if (!isset($blogCategoryList[(int)$blogPostCategoryFields['CATEGORY_ID']]))
+						{
+							continue;
+						}
+
+						$arResult['Category'][] = $blogCategoryList[(int)$blogPostCategoryFields['CATEGORY_ID']];
 					}
 				}
 

@@ -20,6 +20,7 @@ return [
 		'main.core.events',
 		'main.loader',
 		'landing.backend',
+		'landing.ui.panel.formsettingspanel',
 	],
 	'skip_core' => false,
 ];

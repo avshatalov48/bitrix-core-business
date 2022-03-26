@@ -70,7 +70,7 @@ export default class Manager
 
 			if (response.data.status === 'FILL_PARAMETERS')
 			{
-				this.showFillParametersPopup(scriptId, documentIds, response.data.parameters, response.data.documentType);
+				this.#showFillParametersPopup(scriptId, documentIds, response.data);
 			}
 			else if (response.data.status === 'INVALID_PARAMETERS')
 			{
@@ -114,7 +114,7 @@ export default class Manager
 		}, delay);
 	}
 
-	showFillParametersPopup(scriptId, documentIds, parameters, documentType)
+	#showFillParametersPopup(scriptId, documentIds, {parameters, documentType, scriptName})
 	{
 		const form = this.renderParametersPopupContent(parameters, documentType);
 		const popup = new Popup(null, null, {
@@ -123,9 +123,10 @@ export default class Manager
 					popup.destroy();
 				}
 			},
-			titleBar: Loc.getMessage('BIZPROC_SCRIPT_MANAGER_START_PARAMS_POPUP_TITLE'),
+			titleBar: scriptName || Loc.getMessage('BIZPROC_SCRIPT_MANAGER_START_PARAMS_POPUP_TITLE'),
 			content: form,
-			minWidth: 500,
+			width: 595,
+			contentNoPaddings: true,
 			buttons: [
 				new Button({
 					text : Loc.getMessage('BIZPROC_SCRIPT_MANAGER_START_BUTTON_SEND_PARAMS'),
@@ -154,13 +155,26 @@ export default class Manager
 
 	renderParametersPopupContent(parameters: [], documentType)
 	{
-		const form = Dom.create('form');
+		const form = Dom.create('form', {attrs: {className: 'bp-script-start-form'}});
 
 		parameters.forEach((param) => {
 			const field = BX.Bizproc.FieldType.renderControl(documentType, param, param.Id, param.Default || '');
+			const description = param.Description
+				? Dom.create('span', {
+					text: param.Description,
+					attrs: {className: 'bp-script-start-form-row-desc'}
+				})
+				: ''
+			;
 
 			Dom.append(
-				Tag.render`<div><p><b>${Text.encode(param.Name)}</b></p><div>${field}</div></div>`,
+				Tag.render`
+					<div class="bp-script-start-form-row">
+						<span class="bp-script-start-form-row-title">${Text.encode(param.Name)}</span>
+						${description}
+						<div class="bp-script-start-form-row-field">${field}</div>
+					</div>
+				`,
 				form
 			);
 		});

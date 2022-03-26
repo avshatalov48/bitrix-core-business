@@ -15,6 +15,7 @@ use \Bitrix\Main\Error;
 use \Bitrix\Main\Entity;
 use \Bitrix\Main\Page\Asset;
 use \Bitrix\Main\Service\GeoIp;
+use \Bitrix\Main\UI\PageNavigation;
 
 class LandingBaseComponent extends \CBitrixComponent
 {
@@ -124,10 +125,10 @@ class LandingBaseComponent extends \CBitrixComponent
 		{
 			$res = Site::getList([
 				'select' => [
-				'LANDING_ID_INDEX'
+					'LANDING_ID_INDEX'
 				],
 				'filter' => [
-				'ID' => $siteId
+					'ID' => $siteId
 				]
 			]);
 			$row = $res->fetch();
@@ -565,8 +566,15 @@ class LandingBaseComponent extends \CBitrixComponent
 	 * Gets last navigation object.
 	 * @return \Bitrix\Main\UI\PageNavigation
 	 */
-	public function getLastNavigation()
+	public function getLastNavigation(): PageNavigation
 	{
+		if (!$this->lastNavigation)
+		{
+			$this->lastNavigation = new PageNavigation('nav');
+			$this->lastNavigation
+				->allowAllRecords(false)
+				->initFromUri();
+		}
 		return $this->lastNavigation;
 	}
 
@@ -1222,6 +1230,75 @@ class LandingBaseComponent extends \CBitrixComponent
 		}
 
 		return $users;
+	}
+
+	/**
+	 * Until updater to new folders is running, this method helps to force update specific site.
+	 * @param int $siteId Site id.
+	 * @return void
+	 */
+	protected function forceUpdateNewFolders(int $siteId): void
+	{
+		// hotfix #147619 + #147868
+		/*if (Manager::getOption('landing_new') === 'Y')
+		{
+			return;
+		}*/
+		\Bitrix\Landing\Site\Type::setScope(
+			$this->arParams['TYPE']
+		);
+
+		$result = [];
+		$updater = new \Bitrix\Landing\Update\Landing\FolderNew();
+		$updater->execute($result, $siteId);
+	}
+
+	/**
+	 * Checks if form's block exists within landing.
+	 * @param Landing $landing Landing instance.
+	 * @return void
+	 */
+	protected function checkFormInLanding(Landing $landing): void
+	{
+		$formExists = false;
+
+		foreach ($landing->getBlocks() as $block)
+		{
+			$manifest = $block->getManifest();
+			if (($manifest['block']['subtype'] ?? null) === 'form')
+			{
+				$formExists = true;
+				break;
+			}
+		}
+
+		if (!$formExists && \Bitrix\Main\Loader::includeModule('crm'))
+		{
+			\Bitrix\Landing\Rights::setGlobalOff();
+			$res = \Bitrix\Crm\WebForm\Internals\LandingTable::getList([
+				'select' => [
+					'FORM_ID'
+				],
+				'filter' => [
+					'LANDING_ID' => $landing->getId()
+				]
+			]);
+			if ($row = $res->fetch())
+			{
+				$blockId = $landing->addBlock('66.90.form_new_default', [
+					'ACCESS' => 'W'
+				]);
+				if($blockId)
+				{
+					\Bitrix\Landing\Subtype\Form::setFormIdToBlock($blockId, $row['FORM_ID']);
+					if ($landing->isActive())
+					{
+						$landing->publication();
+					}
+				}
+			}
+			\Bitrix\Landing\Rights::setGlobalOn();
+		}
 	}
 
 	/**

@@ -17,6 +17,8 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_PARAMS' => [
 			'PROPERTY_ID' => $arResult['VARIABLES']['PROPERTY_ID'],
 			'IBLOCK_ID' => $iblockId,
+			'BUILDER_CONTEXT' => $arResult['BUILDER_CONTEXT'],
+			'SCOPE' => $arResult['SCOPE'],
 		]
 	]
 );

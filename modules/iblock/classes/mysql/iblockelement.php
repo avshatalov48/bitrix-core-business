@@ -685,13 +685,18 @@ class CIBlockElement extends CAllIBlockElement
 
 			if($nTopCount > 0)
 			{
+				$offset = (int)($arNavStartParams['nOffset'] ?? 0);
 				$strSql = "
 					SELECT ".$el->sSelect."
 					FROM ".$el->sFrom."
 					WHERE 1=1 ".$el->sWhere."
 					".$el->sGroupBy."
 					".$el->sOrderBy."
-					LIMIT ".$nTopCount."
+					LIMIT ".$nTopCount.
+					($offset > 0
+						? ' OFFSET ' . $offset
+						: ''
+					)."
 				";
 				$res = $DB->Query($strSql);
 			}

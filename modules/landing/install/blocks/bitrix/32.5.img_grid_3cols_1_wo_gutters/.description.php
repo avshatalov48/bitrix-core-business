@@ -21,6 +21,7 @@ return array(
 			'dimensions' => array('width' => 1080),
 			'disableLink' => true,
 			'allowInlineEdit' => false,
+			'create2xByDefault' => false,
 		),
 	),
 	'style' => array(

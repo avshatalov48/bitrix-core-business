@@ -3,6 +3,7 @@ namespace Bitrix\Landing\Transfer;
 
 use \Bitrix\Landing\File;
 use \Bitrix\Landing\Rights;
+use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Restriction;
 use \Bitrix\Landing\Site\Type;
@@ -116,6 +117,7 @@ class AppConfiguration
 				'IMPORT_TITLE_BLOCK' => Loc::getMessage('LANDING_TRANSFER_IMPORT_ACTION_TITLE_BLOCK_' . $langCode),
 				'IMPORT_DESCRIPTION_UPLOAD' => Loc::getMessage('LANDING_TRANSFER_IMPORT_DESCRIPTION_UPLOAD_' . $langCode),
 				'IMPORT_DESCRIPTION_START' => ' ',
+				'IMPORT_INSTALL_FINISH_TEXT' => '',
 				'REST_IMPORT_AVAILABLE' => 'Y',
 				'ACCESS' => [
 					'MODULE_ID' => 'landing',
@@ -221,10 +223,14 @@ class AppConfiguration
 
 		self::$processing = true;
 
+		Landing::disableCheckUniqueAddress();
+
 		if (isset(static::$entityList[$code]))
 		{
 			return Import\Site::nextStep($event);
 		}
+
+		Landing::enableCheckUniqueAddress();
 
 		return null;
 	}

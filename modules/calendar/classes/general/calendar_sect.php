@@ -3,6 +3,7 @@
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Loader;
 use Bitrix\Calendar\Util;
+use Bitrix\Calendar\Rooms;
 use Bitrix\Main\Localization\Loc;
 
 class CCalendarSect
@@ -330,7 +331,7 @@ class CCalendarSect
 
 				$hasFullAccess = CCalendarType::CanDo('calendar_type_edit_access', $section['CAL_TYPE']);
 
-				if ($hasFullAccess)
+				if ($hasFullAccess || $isOwner)
 				{
 					$section['PERM']['access'] = $isOwner || self::CanDo('calendar_edit_access', $sectId, $userId);
 				}
@@ -690,10 +691,16 @@ class CCalendarSect
 		{
 			foreach(EventManager::getInstance()->findEventHandlers("calendar", "OnAfterCalendarSectionAdd") as $event)
 			{
-				ExecuteModuleEventEx($event, array($id, $sectionFields));
+				ExecuteModuleEventEx($event, [$id, $sectionFields]);
 			}
 
-			if (empty($sectionFields['GAPI_CALENDAR_ID']) && $id > 0)
+			//trying to create a local section in google calendar
+			if (
+				empty($sectionFields['GAPI_CALENDAR_ID'])
+				&& $id > 0
+				&& empty($sectionFields['CAL_DAV_CAL'])
+				&& empty($sectionFields['DAV_EXCH_CAL'])
+			)
 			{
 				$sectionFields['ID'] = $id;
 				CCalendarSync::createOuterSection($sectionFields);
@@ -865,7 +872,17 @@ class CCalendarSect
 			{
 				$arFields['NECESSITY'] = 'N';
 				$arFields['CAPACITY'] = 0;
-				$arFields['ID'] = Bitrix\Calendar\Rooms\Manager::createRoom($arFields);
+
+				$room = Rooms\Room::createInstanceFromParams($arFields);
+
+				Rooms\Manager::createInstanceWithRoom($room)
+					->createRoom()
+					->saveAccess()
+					->clearCache()
+					->eventHandler('OnAfterCalendarRoomCreate')
+					->addPullEvent('create_room');
+
+				$arFields['ID'] = $room->getId();
 			}
 			else
 			{
@@ -876,25 +893,51 @@ class CCalendarSect
 			}
 
 			if ($arFields['ID'] > 0)
+			{
 				return $arFields;
+			}
 		}
 		return false;
 	}
 
-	public static function SavePermissions($sectId, $arTaskPerm)
+	public static function SavePermissions($sectId, $taskPerm)
 	{
 		global $DB;
-		$DB->Query("DELETE FROM b_calendar_access WHERE SECT_ID='".intval($sectId)."'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query("DELETE FROM b_calendar_access WHERE SECT_ID='".(int)$sectId."'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 
-		if (is_array($arTaskPerm))
+		if (is_array($taskPerm))
 		{
-			foreach($arTaskPerm as $accessCode => $taskId)
+			foreach($taskPerm as $accessCode => $taskId)
 			{
-				$arInsert = $DB->PrepareInsert("b_calendar_access", array("ACCESS_CODE" => $accessCode, "TASK_ID" => intval($taskId), "SECT_ID" => intval($sectId)));
-				$strSql = "INSERT INTO b_calendar_access(".$arInsert[0].") VALUES(".$arInsert[1].")";
+				if (preg_match('/^SG/', $accessCode))
+				{
+					$accessCode = self::prepareGroupCode($accessCode);
+				}
+				
+				$insert = $DB->PrepareInsert(
+					"b_calendar_access",
+					[
+						"ACCESS_CODE" => $accessCode,
+						"TASK_ID" => (int)$taskId,
+						"SECT_ID" => (int)$sectId
+					]
+				);
+				$strSql = "INSERT INTO b_calendar_access(".$insert[0].") VALUES(".$insert[1].")";
 				$DB->Query($strSql , false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			}
 		}
+	}
+	
+	private static function prepareGroupCode($code)
+	{
+		$parsedCode = explode('_', $code);
+		
+		if (count($parsedCode) === 1)
+		{
+			$code .= '_K';
+		}
+		
+		return $code;
 	}
 
 	public static function GetArrayPermissions($arSections = [])
@@ -1043,14 +1086,16 @@ class CCalendarSect
 
 	public static function GetExportLink($sectionId, $type = '', $ownerId = false)
 	{
-		$userId = CCalendar::GetCurUserId();
-		$params = '';
-		if ($type !== false)
-			$params .= '&type='.mb_strtolower($type);
-		if ($ownerId !== false)
-			$params .=  '&owner='.intval($ownerId);
-		return $params.'&ncc=1&user='.intval($userId).'&'.'sec_id='.intval($sectionId).'&sign='.self::GetSign($userId, $sectionId)
-			.'&bx_hit_hash='.self::GetAuthHash();
+		$userId = \CCalendar::getCurUserId();
+		$ownerId = (int)$ownerId;
+		$path = Util::getPathToCalendar($ownerId, $type);
+
+		return '&type='.mb_strtolower($type)
+				.'&owner='.$ownerId
+				.'&ncc=1&user='.$userId
+				.'&'.'sec_id='.(int)$sectionId
+				.'&sign='.self::getSign($userId, $sectionId)
+				.'&bx_hit_hash='.self::getAuthHash($userId, $path);
 	}
 
 	/**
@@ -1405,12 +1450,16 @@ class CCalendarSect
 		return $access;
 	}
 
-	public static function GetAuthHash()
+	public static function getAuthHash(int $userId, string $path)
 	{
-		global $USER, $APPLICATION;
+		global $USER;
 		if ((!isset(self::$authHashiCal) || empty(self::$authHashiCal)) && $USER && is_object($USER))
 		{
-			self::$authHashiCal = $USER->AddHitAuthHash($APPLICATION->GetCurPage());
+			self::$authHashiCal = $USER->GetHitAuthHash($path, $userId);
+			if (empty(self::$authHashiCal))
+			{
+				self::$authHashiCal = $USER->AddHitAuthHash($path, $userId);
+			}
 		}
 		return self::$authHashiCal;
 	}

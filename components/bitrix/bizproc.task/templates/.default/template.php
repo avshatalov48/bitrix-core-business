@@ -126,7 +126,8 @@ if (empty($arResult['DOCUMENT_ICON']))
 			ShowError($arResult["ERROR_MESSAGE"]);
 		endif;
 		?>
-		<span class="bp-task-block-title"><?=GetMessage("BPATL_TASK_TITLE")?>: </span>
+		<span class="bp-task-block-title"><?=GetMessage("BPATL_TASK_TITLE_1")?>: </span>
+		<div class="bp-task-block-description">
 		<?
 		if ($arResult["TASK"]["DESCRIPTION"] <> ''):
 			echo \CBPViewHelper::prepareTaskDescription($arResult["TASK"]["DESCRIPTION"]);
@@ -134,7 +135,7 @@ if (empty($arResult['DOCUMENT_ICON']))
 			echo $arResult["TASK"]["NAME"];
 		endif;
 		?>
-
+		</div>
 		<br /><br />
 		<p>
 			<?if (!empty($arResult["TASK"]["URL"]["VIEW"])):?>

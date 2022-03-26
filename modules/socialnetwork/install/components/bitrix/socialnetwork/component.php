@@ -584,6 +584,8 @@ if (IsModuleInstalled("search"))
 	}
 }
 
+ComponentHelper::setModuleUsed();
+
 $arCustomPagesPath = array();
 
 if ($arParams["SEF_MODE"] === "Y")

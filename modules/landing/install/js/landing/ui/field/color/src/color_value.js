@@ -76,15 +76,20 @@ export default class ColorValue implements IColorValue
 			}
 			else if (isCssVar(value))
 			{
-				// todo: what about opacity in primary?
 				const cssVar = parseCssVar(value);
+				const cssPrimaryVarName = '--primary';
 				if (cssVar !== null)
 				{
 					this.cssVar = cssVar.name;
-					this.setValue(Dom.style(document.documentElement, this.cssVar));
-					if (cssVar.opacity)
+					if ('opacity' in cssVar)
 					{
+						this.cssVar = cssPrimaryVarName;
+						this.setValue(Dom.style(document.documentElement, this.cssVar));
 						this.setOpacity(cssVar.opacity);
+					}
+					else
+					{
+						this.setValue(Dom.style(document.documentElement, this.cssVar));
 					}
 				}
 			}
@@ -93,7 +98,16 @@ export default class ColorValue implements IColorValue
 		this.value.h = Math.round(this.value.h);
 		this.value.s = Math.round(this.value.s);
 		this.value.l = Math.round(this.value.l);
-		this.value.a = +this.value.a.toFixed(1);
+		this.value.a = this.value.a.toFixed(2);
+		const offsetFromCorrectValue = Math.round((this.value.a * 100) % 5);
+		if (offsetFromCorrectValue < 3)
+		{
+			this.value.a = (this.value.a * 100 - offsetFromCorrectValue) / 100;
+		}
+		else
+		{
+			this.value.a = (this.value.a * 100 - offsetFromCorrectValue + 5) / 100;
+		}
 
 		return this;
 	}
@@ -223,7 +237,7 @@ export default class ColorValue implements IColorValue
 	{
 		const {h, s, l} = this.value;
 
-		return `linear-gradient(to right, hsla(${h}, ${s}%, ${l}%, 1) 0%, hsla(${h}, ${s}%, ${l}%, 0) 100%)`;
+		return `linear-gradient(to right, hsla(${h}, ${s}%, ${l}%, 0) 0%, hsla(${h}, ${s}%, ${l}%, 1) 100%)`;
 	}
 
 	static compare(color1: ColorValue, color2: ColorValue): boolean

@@ -24,6 +24,7 @@ return [
 			'type' => 'img',
 			'allowInlineEdit' => false,
 			'dimensions' => ['width' => 1920, 'height' => 1080],
+			'create2xByDefault' => false,
 		],
 		'.landing-block-node-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODETITLE'),
@@ -37,6 +38,7 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODECARDPHOTO'),
 			'type' => 'img',
 			'dimensions' => ['width' => 240, 'height' => 240],
+			'create2xByDefault' => false,
 		],
 		'.landing-block-node-card-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_43.3.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODECARDTEXT'),

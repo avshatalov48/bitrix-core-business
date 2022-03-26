@@ -1,4 +1,4 @@
-import {Tag, Loc} from 'main.core';
+import {Tag, Loc, Dom, Type} from 'main.core';
 import {BaseEvent} from 'main.core.events';
 
 import BaseProcessor from './base_processor';
@@ -9,6 +9,7 @@ import Primary from '../layout/primary/primary';
 
 import ColorValue from "../color_value";
 import {IColorValue} from '../types/i_color_value';
+import Zeroing from '../layout/zeroing/zeroing';
 
 export default class Color extends BaseProcessor
 {
@@ -29,6 +30,9 @@ export default class Color extends BaseProcessor
 		this.opacity = new Opacity();
 		this.opacity.subscribe('onChange', this.onOpacityChange.bind(this));
 
+		this.zeroing = new Zeroing();
+		this.zeroing.subscribe('onChange', this.onZeroingChange.bind(this));
+
 		this.primary = new Primary();
 		this.primary.subscribe('onChange', this.onPrimaryChange.bind(this));
 
@@ -37,12 +41,16 @@ export default class Color extends BaseProcessor
 
 	isNullValue(value: ?string): boolean
 	{
-		// todo: check different browsers
 		return (
 			value === null
 			|| value === 'none'
 			|| value === 'rgba(0, 0, 0, 0)'
 		);
+	}
+
+	getNullValue()
+	{
+		return new ColorValue('rgba(0, 0, 0, 0)');
 	}
 
 	buildLayout(): HTMLElement
@@ -51,6 +59,7 @@ export default class Color extends BaseProcessor
 			<div class="landing-ui-field-color-color">
 				${this.colorSet.getLayout()}
 				${this.primary.getLayout()}
+				${this.zeroing.getLayout()}
 				${this.tabs.getLayout()}
 			</div>
 		`;
@@ -59,13 +68,14 @@ export default class Color extends BaseProcessor
 	onColorSetChange(event: BaseEvent)
 	{
 		this.primary.unsetActive();
+		this.zeroing.unsetActive();
 
 		const color = event.getData().color;
 		if (color !== null)
 		{
 			color.setOpacity(this.opacity.getValue().getOpacity());
-			this.opacity.setValue(color);
 		}
+		this.opacity.setValue(color);
 
 		this.onChange();
 	}
@@ -81,7 +91,18 @@ export default class Color extends BaseProcessor
 		this.onColorSetChange(event);
 
 		this.colorSet.unsetActive();
+		this.zeroing.unsetActive();
 		this.primary.setActive();
+	}
+
+	onZeroingChange(event: BaseEvent)
+	{
+		this.colorSet.unsetActive();
+		this.primary.unsetActive();
+		this.zeroing.setActive();
+		this.setValue(event.getData().color);
+		// todo: need reload computed props and reinit
+		this.onChange(event);
 	}
 
 	unsetActive()
@@ -119,5 +140,74 @@ export default class Color extends BaseProcessor
 				? null
 				: value.setOpacity(this.opacity.getValue().getOpacity());
 		});
+	}
+
+	setDefaultValue(value: {string: string} | null)
+	{
+		this.zeroing.setActive();
+		if (!Type.isNull(value))
+		{
+			this.colorSet.colorpicker.hex.setActive();
+		}
+		super.setDefaultValue(value);
+	}
+
+	onReset()
+	{
+		this.zeroing.unsetActive();
+		super.onReset();
+	}
+
+	setActiveControl(controlName)
+	{
+		if (controlName === 'primary')
+		{
+			this.primary.setActive();
+		}
+		if (controlName === 'hex')
+		{
+			this.colorSet.colorpicker.hexPreview.setActive();
+		}
+	}
+
+	defineActiveControl(items, styleNode)
+	{
+		if (!Type.isUndefined(styleNode))
+		{
+			let oldClass;
+			let activeControl;
+			if (styleNode.hasOwnProperty('currentTarget'))
+			{
+				items.forEach((item) => {
+					if (Dom.hasClass(styleNode.currentTarget, item.value))
+					{
+						oldClass = item.value;
+					}
+				})
+				if (oldClass)
+				{
+					const reg = /g-[a-z]+-[a-z0-9-]+/i;
+					const found = oldClass.match(reg);
+					if (found)
+					{
+						const reg = /primary/i;
+						const found = oldClass.match(reg);
+						this.zeroing.unsetActive();
+						if (found)
+						{
+							activeControl = 'primary';
+						}
+						else
+						{
+							activeControl = 'hex';
+						}
+					}
+				}
+				if (activeControl)
+				{
+					this.setActiveControl(activeControl);
+				}
+			}
+		}
 	}
 }

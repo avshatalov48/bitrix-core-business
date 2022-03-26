@@ -233,6 +233,11 @@ export default class MenuItem extends EventEmitter
 
 	showSubMenu(): void
 	{
+		if (!this.getMenuWindow().getPopupWindow().isShown())
+		{
+			return;
+		}
+
 		this.addSubMenu(this._items);
 
 		if (this.subMenuWindow)

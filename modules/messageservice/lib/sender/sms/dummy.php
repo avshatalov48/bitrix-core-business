@@ -8,9 +8,11 @@ namespace Bitrix\MessageService\Sender\Sms;
  */
 class Dummy extends \Bitrix\MessageService\Sender\Base
 {
+	public const ID = 'dummy';
+
 	public function getId()
 	{
-		return 'dummy';
+		return static::ID;
 	}
 
 	public function getName()

@@ -1,0 +1,70 @@
+.landing-site-selector-list {
+	margin: 0;
+	padding: 0 10px 0 0;
+	list-style: none;
+	max-width: 100%;
+	height: 300px;
+	background-color: #eef2f4;
+	overflow-y: auto;
+}
+
+.landing-site-selector-item {
+	height: 30px;
+	width: 100%;
+	transition: background .2s ease;
+	overflow: hidden;
+	margin: 0;
+	padding: 0 0 0 10px;
+	box-sizing: border-box;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+}
+
+.landing-site-selector-item:hover {
+	border-radius: 2px;
+	background: #e6e9eb;
+}
+
+.landing-site-selector-item .ui-icon {
+	width: 16px;
+	height: 16px;
+}
+
+.landing-site-selector-item-value {
+	text-align: left;
+	color: #535b69;
+	padding-left: 10px;
+	max-width: 400px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.landing-site-selector-item-selected {
+	border-radius: 2px;
+	background: #d9dee1 !important;
+}
+
+.landing-explorer-loader {
+	min-width: 460px;
+	min-height: 390px;
+}
+
+.landing-explorer--copy-page .landing-explorer-loader {
+	min-width: 420px;
+	min-height: 340px;
+}
+
+.landing-explorer--copy-page {
+	min-width: 460px;
+}
+
+.landing-explorer--copy-page .popup-window-titlebar-text {
+	margin-left: 10px;
+	color: #80868E;
+}
+
+.landing-explorer--copy-page .landing-site-selector-list {
+	padding: 20px 18px;
+}

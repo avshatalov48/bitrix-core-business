@@ -13,6 +13,8 @@ Loc::loadMessages(__FILE__);
  */
 class Configuration
 {
+	protected static $enableAutomaticReservation = true;
+
 	const RESERVE_ON_CREATE = 'O';
 	const RESERVE_ON_PAY = 'R';
 	const RESERVE_ON_FULL_PAY = 'P';
@@ -63,6 +65,24 @@ class Configuration
 		$optionClassName = $registry->get(Registry::ENTITY_OPTIONS);
 
 		return $optionClassName::get('sale', 'product_reserve_condition');
+	}
+
+	/**
+	 * @return bool
+	 */
+	public static function isEnableAutomaticReservation() : bool
+	{
+		return self::$enableAutomaticReservation;
+	}
+
+	public static function enableAutomaticReservation()
+	{
+		self::$enableAutomaticReservation = true;
+	}
+
+	public static function disableAutomaticReservation()
+	{
+		self::$enableAutomaticReservation = false;
 	}
 
 	/**
@@ -181,6 +201,23 @@ class Configuration
 			return false;
 
 		return Catalog\Config\State::isUsedInventoryManagement();
+	}
+
+	/**
+	 * @return int|null
+	 * @throws \Bitrix\Main\LoaderException
+	 */
+	public static function getDefaultStoreId()
+	{
+		if (
+			!Loader::includeModule('catalog')
+			|| !self::useStoreControl()
+		)
+		{
+			return 0;
+		}
+
+		return (int)Catalog\StoreTable::getDefaultStoreId();
 	}
 
 	/**

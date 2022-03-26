@@ -1,9 +1,11 @@
-<?
+<?php
 
 use Bitrix\Im\Chat;
 
-if(!CModule::IncludeModule('rest'))
+if (!CModule::IncludeModule('rest'))
+{
 	return;
+}
 
 class CIMRestService extends IRestService
 {
@@ -20,7 +22,6 @@ class CIMRestService extends IRestService
 				'im.user.status.set' => array(__CLASS__, 'userStatusSet'),
 				'im.user.status.idle.start' => array(__CLASS__, 'userStatusIdleStart'),
 				'im.user.status.idle.end' => array(__CLASS__, 'userStatusIdleEnd'),
-				'im.user.status.idle.continue' => array(__CLASS__, 'userStatusIdleEnd'),
 
 				'im.recent.get' => array(__CLASS__, 'recentGet'),
 				'im.recent.list' => array(__CLASS__, 'recentList'),
@@ -45,16 +46,17 @@ class CIMRestService extends IRestService
 				'im.chat.user.add' => array(__CLASS__, 'chatUserAdd'),
 				'im.chat.user.delete' => array(__CLASS__, 'chatUserDelete'),
 				'im.chat.user.list' => array(__CLASS__, 'chatUserList'),
-				'im.chat.sendTyping' => array(__CLASS__, 'dialogWriting'),
+				'im.chat.sendTyping' => array('callback' => array(__CLASS__, 'dialogWriting'), 'options' => array('private' => true)),
 				'im.chat.mute' => array(__CLASS__, 'chatMute'),
-				'im.chat.parent.join' => array(__CLASS__, 'chatParentJoin'),
+				'im.chat.parent.join' => array('callback' => array(__CLASS__, 'chatParentJoin'), 'options' => array('private' => true)),
 
 				'im.dialog.get' => array(__CLASS__, 'dialogGet'),
 				'im.dialog.messages.get' => array(__CLASS__, 'dialogMessagesGet'),
-				'im.dialog.users.get' => array(__CLASS__, 'dialogUsersGet'),
+				'im.dialog.users.get' => array('callback' => array(__CLASS__, 'dialogUsersGet'), 'options' => array('private' => true)),
 				'im.dialog.users.list' => array(__CLASS__, 'dialogUsersList'),
 				'im.dialog.read' => array(__CLASS__, 'dialogRead'),
-				'im.dialog.readAll' => array(__CLASS__, 'dialogReadAll'),
+				'im.dialog.readAll' => array('callback' => array(__CLASS__, 'dialogReadAll'), 'options' => array('private' => true)),
+				'im.dialog.read.all' => array(__CLASS__, 'dialogReadAll'),
 				'im.dialog.unread' => array(__CLASS__, 'dialogUnread'),
 				'im.dialog.writing' => array(__CLASS__, 'dialogWriting'),
 
@@ -66,7 +68,7 @@ class CIMRestService extends IRestService
 				'im.message.share' =>  array('callback' => array(__CLASS__, 'messageShare')),
 				'im.message.user.get' =>  array('callback' => array(__CLASS__, 'messageUserGet'), 'options' => array('private' => true)),
 
-				'im.notify' => array(__CLASS__, 'notifyAdd'),
+				'im.notify' => array('callback' => array(__CLASS__, 'notifyAdd'), 'options' => array('private' => false)),
 				'im.notify.get' => array('callback' => array(__CLASS__, 'notifyGet'), 'options' => array('private' => true)),
 				'im.notify.personal.add' => array(__CLASS__, 'notifyAdd'),
 				'im.notify.system.add' => array(__CLASS__, 'notifyAdd'),
@@ -76,8 +78,8 @@ class CIMRestService extends IRestService
 				'im.notify.read.all' => array(__CLASS__, 'notifyReadAll'),
 				'im.notify.confirm' => array(__CLASS__, 'notifyConfirm'),
 				'im.notify.answer' => array(__CLASS__, 'notifyAnswer'),
-				'im.notify.history.search' => array(__CLASS__, 'notifyHistorySearch'),
-				'im.notify.schema.get' => array(__CLASS__, 'notifySchemaGet'),
+				'im.notify.history.search' => array('callback' => array(__CLASS__, 'notifyHistorySearch'), 'options' => array('private' => true)),
+				'im.notify.schema.get' => array('callback' => array(__CLASS__, 'notifySchemaGet'), 'options' => array('private' => true)),
 
 				'im.disk.folder.get' => array(__CLASS__, 'diskFolderGet'),
 				'im.disk.file.commit' => array(__CLASS__, 'diskFileCommit'),
@@ -103,13 +105,16 @@ class CIMRestService extends IRestService
 
 				'im.mobile.config.get' =>  array('callback' => array(__CLASS__, 'mobileConfigGet'), 'options' => array('private' => true)),
 
-				'im.call.user.register' => array('callback' => array(__CLASS__, 'callUserRegister'), 'options' => array()),
-				'im.call.user.update' => array('callback' => array(__CLASS__, 'callUserUpdate'), 'options' => array()),
-				'im.call.user.force.rename' => array('callback' => array(__CLASS__, 'callUserForceRename'), 'options' => array()),
-				'im.call.channel.public.list' => array('callback' => array(__CLASS__, 'callChannelPublicList'), 'options' => array()),
+				'im.call.user.register' => array('callback' => array(__CLASS__, 'callUserRegister'), 'options' => array('private' => true)),
+				'im.call.user.update' => array('callback' => array(__CLASS__, 'callUserUpdate'), 'options' => array('private' => true)),
+				'im.call.user.force.rename' => array('callback' => array(__CLASS__, 'callUserForceRename'), 'options' => array('private' => true)),
+				'im.call.channel.public.list' => array('callback' => array(__CLASS__, 'callChannelPublicList'), 'options' => array('private' => true)),
 
-				'im.videoconf.share.change' => array('callback' => array(__CLASS__, 'videoconfShareChange'), 'options' => array()),
-				'im.videoconf.password.check' => array('callback' => array(__CLASS__, 'videoconfPasswordCheck'), 'options' => array()),
+				'im.videoconf.share.change' => array('callback' => array(__CLASS__, 'videoconfShareChange'), 'options' => array('private' => true)),
+				'im.videoconf.password.check' => array('callback' => array(__CLASS__, 'videoconfPasswordCheck'), 'options' => array('private' => true)),
+
+				'im.desktop.status.get' => array('callback' => array(__CLASS__, 'desktopStatusGet'), 'options' => array('private' => true)),
+				'im.desktop.page.open' => array('callback' => array(__CLASS__, 'desktopPageOpen'), 'options' => array('private' => true)),
 			),
 			'imbot' => Array(
 				'imbot.register' => array(__CLASS__, 'botRegister'),
@@ -138,7 +143,7 @@ class CIMRestService extends IRestService
 				'imbot.message.update' => array(__CLASS__, 'botMessageUpdate'),
 				'imbot.message.like' => array(__CLASS__, 'botMessageLike'),
 
-				'imbot.sendTyping' => array(__CLASS__, 'botSendTyping'),
+				'imbot.sendTyping' => array('callback' => array(__CLASS__, 'botSendTyping'), 'options' => array('private' => true)),
 
 				'imbot.command.register' => array(__CLASS__, 'commandRegister'),
 				'imbot.command.unregister' => array(__CLASS__, 'commandUnRegister'),
@@ -1094,6 +1099,17 @@ class CIMRestService extends IRestService
 		if (isset($arParams['AVATAR']) && $arParams['AVATAR'])
 		{
 			$arParams['AVATAR'] = CRestUtil::saveFile($arParams['AVATAR']);
+			$imageCheck = (new \Bitrix\Main\File\Image($arParams['AVATAR']["tmp_name"]))->getInfo();
+			if(
+				!$imageCheck
+				|| !$imageCheck->getWidth()
+				|| $imageCheck->getWidth() > 5000
+				|| !$imageCheck->getHeight()
+				|| $imageCheck->getHeight() > 5000
+			)
+			{
+				$arParams['AVATAR'] = null;
+			}
 			if (!$arParams['AVATAR'] || mb_strpos($arParams['AVATAR']['type'], "image/") !== 0)
 			{
 				$arParams['AVATAR'] = 0;
@@ -1197,14 +1213,6 @@ class CIMRestService extends IRestService
 			}
 
 			$result['dialog_id'] = $arParams['DIALOG_ID'];
-
-			$chatLimits = \CIMChat::GetChatOptions();
-			$externalChatTypes = array_keys($chatLimits);
-			if ($result['entity_type'] && in_array($result['entity_type'], $externalChatTypes, true))
-			{
-				$result['restrictions'] = $chatLimits[$result['entity_type']];
-			}
-
 
 			return $result;
 		}
@@ -1425,6 +1433,11 @@ class CIMRestService extends IRestService
 			throw new Bitrix\Rest\RestException("Action unavailable", "ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
 		}
 
+		if (!Chat::isActionAllowed('chat' . $arParams['CHAT_ID'], 'RENAME'))
+		{
+			throw new Bitrix\Rest\RestException('This chat cannot be renamed', 'ACCESS_ERROR', CRestServer::STATUS_FORBIDDEN);
+		}
+
 		$chat = new CIMChat($userId);
 		$result = $chat->Rename($arParams['CHAT_ID'], $arParams['TITLE']);
 
@@ -1472,10 +1485,27 @@ class CIMRestService extends IRestService
 			throw new Bitrix\Rest\RestException("Action unavailable", "ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
 		}
 
+		if (!Chat::isActionAllowed('chat' . $arParams['CHAT_ID'], 'AVATAR'))
+		{
+			throw new Bitrix\Rest\RestException('The avatar of this chat cannot be changed', 'ACCESS_ERROR', CRestServer::STATUS_FORBIDDEN);
+		}
+
 		$arParams['AVATAR'] = CRestUtil::saveFile($arParams['AVATAR']);
 		if (!$arParams['AVATAR'] || mb_strpos($arParams['AVATAR']['type'], "image/") !== 0)
 		{
-			throw new Bitrix\Rest\RestException("Avatar incorrect", "AVATAR_ERROR", CRestServer::STATUS_WRONG_REQUEST);
+			throw new Bitrix\Rest\RestException("Avatar incorrect type", "AVATAR_ERROR", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$imageCheck = (new \Bitrix\Main\File\Image($arParams['AVATAR']["tmp_name"]))->getInfo();
+		if(
+			!$imageCheck
+			|| !$imageCheck->getWidth()
+			|| $imageCheck->getWidth() > 5000
+			|| !$imageCheck->getHeight()
+			|| $imageCheck->getHeight() > 5000
+		)
+		{
+			throw new Bitrix\Rest\RestException("Avatar incorrect size (max 5000x5000)", "AVATAR_ERROR", CRestServer::STATUS_WRONG_REQUEST);
 		}
 
 		$arParams['AVATAR'] = CFile::saveFile($arParams['AVATAR'], 'im');
@@ -1517,6 +1547,11 @@ class CIMRestService extends IRestService
 		if (CIMChat::GetGeneralChatId() == $arParams['CHAT_ID'])
 		{
 			throw new Bitrix\Rest\RestException("Action unavailable", "ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
+		}
+
+		if (!Chat::isActionAllowed('chat' . $arParams['CHAT_ID'], 'EXTEND'))
+		{
+			throw new Bitrix\Rest\RestException('It is forbidden to add users to this chat', 'ACCESS_ERROR', CRestServer::STATUS_FORBIDDEN);
 		}
 
 		$userId = $USER->GetID();
@@ -1579,6 +1614,11 @@ class CIMRestService extends IRestService
 			throw new Bitrix\Rest\RestException("Action unavailable", "ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
 		}
 
+		if (!Chat::isActionAllowed('chat' . $arParams['CHAT_ID'], 'LEAVE'))
+		{
+			throw new Bitrix\Rest\RestException('It is forbidden to delete users of this chat', 'ACCESS_ERROR', CRestServer::STATUS_FORBIDDEN);
+		}
+
 		$userId = $USER->GetID();
 		if (in_array($server->getMethod(), Array("imbot.chat.leave", "imbot.chat.user.delete")))
 		{
@@ -1594,6 +1634,12 @@ class CIMRestService extends IRestService
 		$result = $CIMChat->DeleteUser($arParams['CHAT_ID'], $arParams['USER_ID'] > 0? $arParams['USER_ID']: $userId);
 		if (!$result)
 		{
+			$error = $GLOBALS['APPLICATION']->GetException();
+			if ($error->GetID() === 'LEAVE_OWNER_FORBIDDEN')
+			{
+				throw new Bitrix\Rest\RestException($error->GetString(), "ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
+			}
+
 			throw new Bitrix\Rest\RestException("You don't have access or user isn't member in chat", "WRONG_REQUEST", CRestServer::STATUS_WRONG_REQUEST);
 		}
 
@@ -1665,6 +1711,11 @@ class CIMRestService extends IRestService
 		if ($arParams['CHAT_ID'] <= 0)
 		{
 			throw new Bitrix\Rest\RestException("Chat ID can't be empty", "CHAT_ID_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		if (!Chat::isActionAllowed('chat' . $arParams['CHAT_ID'], 'MUTE'))
+		{
+			throw new Bitrix\Rest\RestException('This chat cannot be muted', 'ACCESS_ERROR', CRestServer::STATUS_FORBIDDEN);
 		}
 
 		if (isset($arParams['ACTION']))
@@ -1797,9 +1848,17 @@ class CIMRestService extends IRestService
 				throw new Bitrix\Rest\RestException("Chat ID can't be empty", "CHAT_ID_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
 			}
 
-			if (CIMChat::GetGeneralChatId() == $arParams['CHAT_ID'] && !CIMChat::CanSendMessageToGeneralChat($arParams['FROM_USER_ID']))
+			if (
+				CIMChat::GetGeneralChatId() == $arParams['CHAT_ID']
+				&& !CIMChat::CanSendMessageToGeneralChat($arParams['FROM_USER_ID'])
+			)
 			{
 				throw new Bitrix\Rest\RestException("Action unavailable", "ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
+			}
+
+			if (!Chat::isActionAllowed('chat' . $arParams['CHAT_ID'], 'SEND'))
+			{
+				throw new Bitrix\Rest\RestException('It is forbidden to send messages to this chat', 'ACCESS_ERROR', CRestServer::STATUS_FORBIDDEN);
 			}
 
 			if (isset($arParams['SYSTEM']) && $arParams['SYSTEM'] == 'Y')
@@ -2593,9 +2652,14 @@ class CIMRestService extends IRestService
 			$arParams['NOTIFY_ID'] = (int)$arParams['NOTIFY_ID'];
 		}
 
+		if (isset($arParams['ID']))
+		{
+			$arParams['NOTIFY_ID'] = (int)$arParams['ID'];
+		}
+
 		if ($arParams['NOTIFY_ID'] <= 0)
 		{
-			throw new Bitrix\Rest\RestException("Notification ID can't be empty", "NOTIFY_ID_ERROR", CRestServer::STATUS_WRONG_REQUEST);
+			throw new Bitrix\Rest\RestException("Notification ID can't be empty", "ID_ERROR", CRestServer::STATUS_WRONG_REQUEST);
 		}
 
 		if (empty($arParams['NOTIFY_VALUE']))
@@ -2620,9 +2684,14 @@ class CIMRestService extends IRestService
 			$arParams['NOTIFY_ID'] = (int)$arParams['NOTIFY_ID'];
 		}
 
+		if (isset($arParams['ID']))
+		{
+			$arParams['NOTIFY_ID'] = (int)$arParams['ID'];
+		}
+
 		if ($arParams['NOTIFY_ID'] <= 0)
 		{
-			throw new Bitrix\Rest\RestException("Notification ID can't be empty", "NOTIFY_ID_ERROR", CRestServer::STATUS_WRONG_REQUEST);
+			throw new Bitrix\Rest\RestException("Notification ID can't be empty", "ID_ERROR", CRestServer::STATUS_WRONG_REQUEST);
 		}
 
 		if (empty($arParams['ANSWER_TEXT']))
@@ -2808,6 +2877,14 @@ class CIMRestService extends IRestService
 			throw new Bitrix\Rest\RestException("You don't have access to this chat", "ACCESS_ERROR", CRestServer::STATUS_WRONG_REQUEST);
 		}
 
+		if (
+			CIMChat::GetGeneralChatId() == $chatId
+			&& !CIMChat::CanSendMessageToGeneralChat()
+		)
+		{
+			throw new Bitrix\Rest\RestException("Action unavailable", "ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
+		}
+
 		$files = Array();
 		if (isset($arParams['FILE_ID']))
 		{
@@ -2863,12 +2940,18 @@ class CIMRestService extends IRestService
 			$arParams['FILE_TEMPLATE_ID'] = mb_substr((string)$arParams['FILE_TEMPLATE_ID'], 0, 255);
 		}
 
-		return CIMDisk::UploadFileFromDisk($chatId, array_values($files), $arParams['MESSAGE'], [
+		$result = CIMDisk::UploadFileFromDisk($chatId, array_values($files), $arParams['MESSAGE'], [
 			'LINES_SILENT_MODE' => $arParams['SILENT_MODE'],
 			'TEMPLATE_ID' => $arParams['TEMPLATE_ID']?:'',
 			'FILE_TEMPLATE_ID' => $arParams['FILE_TEMPLATE_ID']?:'',
 			'SYMLINK' => $arParams['SYMLINK']?:false,
 		]);
+		if (!$result)
+		{
+			throw new Bitrix\Rest\RestException("Error during saving file to chat", "SAVE_ERROR", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		return $result;
 	}
 
 	public static function diskRecordShare($arParams, $n, CRestServer $server)
@@ -3178,9 +3261,22 @@ class CIMRestService extends IRestService
 		}
 		if (isset($arParams['PROPERTIES']['PERSONAL_PHOTO']))
 		{
-			$avatar = CRestUtil::saveFile($arParams['PROPERTIES']['PERSONAL_PHOTO'], $arParams['CODE'].'.png');
+			$avatar = \CRestUtil::saveFile($arParams['PROPERTIES']['PERSONAL_PHOTO'], $arParams['CODE'].'.png');
+			$imageCheck = (new \Bitrix\Main\File\Image($avatar["tmp_name"]))->getInfo();
+			if(
+				!$imageCheck
+				|| !$imageCheck->getWidth()
+				|| $imageCheck->getWidth() > 5000
+				|| !$imageCheck->getHeight()
+				|| $imageCheck->getHeight() > 5000
+			)
+			{
+				$avatar = null;
+			}
+
 			if (isset($avatar) && mb_strpos($avatar['type'], "image/") === 0)
 			{
+				$avatar['MODULE_ID'] = 'imbot';
 				$properties['PERSONAL_PHOTO'] = $avatar;
 			}
 		}
@@ -3472,9 +3568,22 @@ class CIMRestService extends IRestService
 		}
 		if (isset($arParams['FIELDS']['PROPERTIES']['PERSONAL_PHOTO']))
 		{
-			$avatar = CRestUtil::saveFile($arParams['FIELDS']['PROPERTIES']['PERSONAL_PHOTO'], $bots[$arParams['BOT_ID']]['CODE'].'.png');
+			$avatar = \CRestUtil::saveFile($arParams['FIELDS']['PROPERTIES']['PERSONAL_PHOTO'], $bots[$arParams['BOT_ID']]['CODE'].'.png');
+			$imageCheck = (new \Bitrix\Main\File\Image($avatar["tmp_name"]))->getInfo();
+			if(
+				!$imageCheck
+				|| !$imageCheck->getWidth()
+				|| $imageCheck->getWidth() > 5000
+				|| !$imageCheck->getHeight()
+				|| $imageCheck->getHeight() > 5000
+			)
+			{
+				$avatar = null;
+			}
+
 			if ($avatar && mb_strpos($avatar['type'], "image/") === 0)
 			{
+				$avatar['MODULE_ID'] = 'imbot';
 				$properties['PERSONAL_PHOTO'] = $avatar;
 			}
 		}
@@ -5048,10 +5157,22 @@ class CIMRestService extends IRestService
 		$iconId = 0;
 		if (isset($arParams['ICON_FILE']) && $arParams['ICON_FILE'])
 		{
-			$iconFile = CRestUtil::saveFile($arParams['ICON_FILE']);
+			$iconFile = \CRestUtil::saveFile($arParams['ICON_FILE']);
+			$imageCheck = (new \Bitrix\Main\File\Image($iconFile["tmp_name"]))->getInfo();
+			if(
+				!$imageCheck
+				|| !$imageCheck->getWidth()
+				|| $imageCheck->getWidth() > 5000
+				|| !$imageCheck->getHeight()
+				|| $imageCheck->getHeight() > 5000
+			)
+			{
+				$iconFile = null;
+			}
 			if ($iconFile && mb_strpos($iconFile['type'], "image/") === 0)
 			{
-				$iconId = \CFile::SaveFile($iconFile, 'imbot');
+				$iconFile['MODULE_ID'] = 'imbot';
+				$iconId = \CFile::saveFile($iconFile, 'imbot');
 			}
 		}
 
@@ -5298,10 +5419,22 @@ class CIMRestService extends IRestService
 
 		if (isset($arParams['FIELDS']['ICON_FILE']))
 		{
-			$iconFile = CRestUtil::saveFile($arParams['FIELDS']['ICON_FILE']);
+			$iconFile = \CRestUtil::saveFile($arParams['FIELDS']['ICON_FILE']);
+			$imageCheck = (new \Bitrix\Main\File\Image($iconFile["tmp_name"]))->getInfo();
+			if(
+				!$imageCheck
+				|| !$imageCheck->getWidth()
+				|| $imageCheck->getWidth() > 5000
+				|| !$imageCheck->getHeight()
+				|| $imageCheck->getHeight() > 5000
+			)
+			{
+				$iconFile = null;
+			}
 			if ($iconFile && mb_strpos($iconFile['type'], "image/") === 0)
 			{
-				$updateFields['ICON_FILE_ID'] = \CFile::SaveFile($iconFile, 'imbot');
+				$iconFile['MODULE_ID'] = 'imbot';
+				$updateFields['ICON_FILE_ID'] = \CFile::saveFile($iconFile, 'imbot');
 			}
 		}
 
@@ -5663,25 +5796,13 @@ class CIMRestService extends IRestService
 			throw new \Bitrix\Rest\RestException("No chat id", "INVALID_FORMAT", \CRestServer::STATUS_WRONG_REQUEST);
 		}
 
-		$usersInChat = array_map(function($item){
-			return $item['id'];
-		}, \Bitrix\Im\Chat::getUsers($chatId));
-
-		foreach ($users as $key => $userToCheck)
-		{
-			if (!in_array($userToCheck, $usersInChat, true))
-			{
-				unset($users[$key]);
-			}
-		}
-
 		$configParams = Array();
 		$configParams['TYPE'] = $type;
 		$configParams['USERS'] = $users;
 		$configParams['JSON'] = true;
 
 		$config = \Bitrix\Pull\Channel::getPublicIds($configParams);
-		if (!$config)
+		if ($config === false)
 		{
 			throw new \Bitrix\Rest\RestException("Push & Pull server is not configured", "SERVER_ERROR", \CRestServer::STATUS_INTERNAL);
 		}
@@ -5794,7 +5915,6 @@ class CIMRestService extends IRestService
 			throw new Bitrix\Rest\RestException("Alias can't be empty", "ALIAS_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
 		}
 
-
 		$conference = \Bitrix\Im\Call\Conference::getByAlias($params['ALIAS']);
 		if ($conference && $conference->getPassword() === $params['PASSWORD'])
 		{
@@ -5803,11 +5923,11 @@ class CIMRestService extends IRestService
 			$storage->set('checked', true);
 
 			//add user to chat
+			$currentUserId = \Bitrix\Main\Engine\CurrentUser::get()->getId();
 			$isUserInChat = Chat::isUserInChat($conference->getChatId());
-			if (!$isUserInChat)
+			if ($currentUserId && !$isUserInChat)
 			{
 				$chat = new \CIMChat(0);
-				$currentUserId = \Bitrix\Main\Engine\CurrentUser::get()->getId();
 				$addingResult = $chat->AddUser($conference->getChatId(), $currentUserId);
 				if (!$addingResult)
 				{
@@ -5819,6 +5939,49 @@ class CIMRestService extends IRestService
 		}
 
 		return false;
+	}
+
+	public static function desktopStatusGet($params, $n, \CRestServer $server)
+	{
+		return [
+			'isOnline' => CIMMessenger::CheckDesktopStatusOnline(),
+			'version' => CIMMessenger::GetDesktopVersion()
+		];
+	}
+
+	public static function desktopPageOpen($params, $n, \CRestServer $server)
+	{
+		$params = array_change_key_case($params, CASE_UPPER);
+
+		if (CIMMessenger::GetDesktopVersion() === 0)
+		{
+			throw new Bitrix\Rest\RestException("Desktop was never installed", "NO_DESKTOP", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		if (!CIMMessenger::CheckDesktopStatusOnline())
+		{
+			throw new Bitrix\Rest\RestException("Desktop is not online", "DESKTOP_CLOSED", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		if (\CModule::IncludeModule("pull"))
+		{
+			$userId = \Bitrix\Main\Engine\CurrentUser::get()->getId();
+			if (!$userId)
+			{
+				return false;
+			}
+
+			\Bitrix\Pull\Event::add($userId, [
+				'module_id' => 'im',
+				'command' => 'desktopOpenPage',
+				'params' => [
+					'url' => $params['URL']
+				],
+				'extra' => \Bitrix\Im\Common::getPullExtra()
+			]);
+		}
+
+		return true;
 	}
 
 	private static function getBotId($arParams, \CRestServer $server)

@@ -25,6 +25,10 @@
 	color: #bdc3c7;
 }
 
+.bx-messenger-dark .bx-messenger-file-status-error {
+	color: #ff6e6e;
+}
+
 .bx-messenger-dark .bx-messenger-cl-user {
 	color: rgba(255, 255, 255, 0.7) !important;
 }
@@ -235,6 +239,11 @@
 	background-color: #3e3e3e;
 	border: 1px solid #505050;
 	color: #c3c3c3
+}
+
+.popup-window-dark .bx-messenger-content-item-content-progress-error .bx-messenger-message,
+.bx-messenger-dark .bx-messenger-content-item-content-progress-error .bx-messenger-message {
+	color: #333333;
 }
 
 .popup-window-dark .bx-messenger-content-group-title,
@@ -565,7 +574,9 @@
 .bx-messenger-dark .bx-messenger-cl-status-support24 .bx-messenger-cl-user-title,
 .bx-messenger-dark .bx-messenger-user-support24,
 .bx-messenger-dark .bx-messenger-cl-item-chat-support24Notifier .bx-messenger-cl-user-title,
-.bx-messenger-dark .bx-messenger-context-chat-support24Notifier .bx-messenger-panel-title {
+.bx-messenger-dark .bx-messenger-context-chat-support24Notifier .bx-messenger-panel-title,
+.bx-messenger-dark .bx-messenger-cl-item-chat-support24Question .bx-messenger-cl-user-title,
+.bx-messenger-dark .bx-messenger-context-chat-support24Question .bx-messenger-panel-title span {
 	color: #0490f7!important;
 }
 .bx-messenger-dark .bx-notifier-popup-avatar-status-support24 {
@@ -1181,11 +1192,6 @@
 	background-color: #313131 !important;
 }
 
-.bx-messenger-dark select {
-	background: #313131 !important;
-	color: #c3c3c3 !important;
-}
-
 .bx-messenger-dark .bx-messenger-settings-tab,
 .popup-window-dark .bx-messenger-settings-tab {
 	background : #313131 !important;
@@ -1341,6 +1347,10 @@
 
 .bx-messenger-dark .bx-messenger-content-item-notice .bx-messenger-content-item-date {
 	color: #c3c3c3;
+}
+
+.bx-messenger-dark .bx-messenger-content-item-content-progress-error .bx-messenger-content-item-date {
+	color: #fa6168;
 }
 
 .bx-messenger-dark .bx-messenger-content-item-content,

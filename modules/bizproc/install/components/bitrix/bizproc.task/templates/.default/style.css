@@ -154,6 +154,14 @@
 	margin-bottom: 15px;
 }
 
+.bp-task-page .bp-task-block-description {
+	width: 100%;
+}
+
+.bp-task-page .bp-task-block-description img {
+	max-width: 100%;
+}
+
 .bp-task-page .bp-task-block-delegate {
 	color: black;
 	margin-left: 7px;

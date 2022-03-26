@@ -7,6 +7,9 @@ use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * @method ShipmentItemCollection getCollection()
+ */
 class ShipmentItem
 	extends Internals\CollectableEntity
 	implements \IEntityMarker
@@ -49,7 +52,8 @@ class ShipmentItem
 	public static function create(ShipmentItemCollection $collection, BasketItem $basketItem = null)
 	{
 		$fields = [
-			'XML_ID' => static::generateXmlId()
+			'XML_ID' => static::generateXmlId(),
+			'RESERVED_QUANTITY' => 0
 		];
 
 		if ($basketItem !== null && $basketItem->getId() > 0)
@@ -57,8 +61,7 @@ class ShipmentItem
 			$fields["BASKET_ID"] = $basketItem->getId();
 		}
 
-		$shipmentItem = static::createShipmentItemObject();
-		$shipmentItem->setFieldsNoDemand($fields);
+		$shipmentItem = static::createShipmentItemObject($fields);
 		$shipmentItem->setCollection($collection);
 
 		if ($basketItem !== null)
@@ -211,35 +214,18 @@ class ShipmentItem
 	{
 		$result = new Result();
 
-		/** @var ShipmentItemCollection $shipmentItemCollection */
-		if (!$shipmentItemCollection = $this->getCollection())
-		{
-			throw new Main\ObjectNotFoundException('Entity "ShipmentItemCollection" not found');
-		}
+		$shipment = $this->getCollection()->getShipment();
 
-		/** @var Shipment $shipment */
-		if (!$shipment = $shipmentItemCollection->getShipment())
-		{
-			throw new Main\ObjectNotFoundException('Entity "Shipment" not found');
-		}
-
-		/** @var ShipmentCollection $shipmentCollection */
-		if (!$shipmentCollection = $shipment->getCollection())
-		{
-			throw new Main\ObjectNotFoundException('Entity "ShipmentCollection" not found');
-		}
-
-		/** @var Order $order */
-		if (!$order = $shipmentCollection->getOrder())
-		{
-			throw new Main\ObjectNotFoundException('Entity "Order" not found');
-		}
+		$order = $shipment->getCollection()->getOrder();
 
 		if ($shipment->isShipped())
 		{
-			$result = new Result();
-			$result->addError(new ResultError(Loc::getMessage('SALE_SHIPMENT_ITEM_SHIPMENT_ALREADY_SHIPPED_CANNOT_EDIT'), 'SALE_SHIPMENT_ITEM_SHIPMENT_ALREADY_SHIPPED_CANNOT_EDIT'));
-			return $result;
+			return $result->addError(
+				new ResultError(
+					Loc::getMessage('SALE_SHIPMENT_ITEM_SHIPMENT_ALREADY_SHIPPED_CANNOT_EDIT'),
+					'SALE_SHIPMENT_ITEM_SHIPMENT_ALREADY_SHIPPED_CANNOT_EDIT'
+				)
+			);
 		}
 
 		if ($name == "QUANTITY")
@@ -251,26 +237,14 @@ class ShipmentItem
 				{
 					throw new Main\ObjectNotFoundException('Entity "BasketItem" not found');
 				}
-
 			}
-
 
 			$deltaQuantity = $value - $oldValue;
 
 			if ($basketItem && $deltaQuantity > 0)
 			{
 
-				/** @var ShipmentCollection $shipmentCollection */
-				if (!$shipmentCollection = $shipment->getCollection())
-				{
-					throw new Main\ObjectNotFoundException('Entity "ShipmentCollection" not found');
-				}
-
-				/** @var Shipment $systemShipment */
-				if (!$systemShipment = $shipmentCollection->getSystemShipment())
-				{
-					throw new Main\ObjectNotFoundException('Entity "System Shipment" not found');
-				}
+				$systemShipment = $shipment->getCollection()->getSystemShipment();
 
 				$systemBasketItemQuantity = $systemShipment->getBasketItemQuantity($basketItem);
 				if ($systemBasketItemQuantity < abs($deltaQuantity))
@@ -448,24 +422,104 @@ class ShipmentItem
 	 * @param float $quantity
 	 * @return Result
 	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\NotSupportedException
 	 * @throws \Exception
 	 */
 	public function setQuantity($quantity)
 	{
-		if (!is_numeric($quantity))
-			throw new Main\ArgumentTypeException("quantity");
-
 		return $this->setField('QUANTITY', (float)$quantity);
+	}
+
+	public function setField($name, $value)
+	{
+		if ($name === 'RESERVED_QUANTITY')
+		{
+			$oldValue = $this->getReservedQuantity();
+
+			$result = parent::setField($name, $value);
+			if ($result->isSuccess())
+			{
+				$this->setReserveQuantity($value, $oldValue);
+			}
+
+			return $result;
+		}
+
+		return parent::setField($name, $value);
+	}
+
+	public function setFieldNoDemand($name, $value)
+	{
+		if ($name === 'RESERVED_QUANTITY')
+		{
+			$oldValue = $this->getReservedQuantity();
+
+			parent::setFieldNoDemand($name, $value);
+
+			$this->setReserveQuantity($value, $oldValue);
+
+			return;
+		}
+
+		parent::setFieldNoDemand($name, $value);
+	}
+
+	protected function setReserveQuantity($value, $oldValue)
+	{
+		$result = new Result();
+
+		$basketItem = $this->getBasketItem();
+		$reserveCollection = $basketItem->getReserveQuantityCollection();
+
+		if ($value - $oldValue > 0) // plus
+		{
+			$reserve = null;
+			foreach ($reserveCollection as $reserve)
+			{
+				break;
+			}
+
+			if ($reserve === null)
+			{
+				$reserve = $reserveCollection->create();
+			}
+
+			$settableReserveQuantity = $reserve->getQuantity() + $value - $oldValue;
+			$reserve->setFieldNoDemand('QUANTITY', $settableReserveQuantity);
+		}
+		else // minus
+		{
+			$delta = abs($value - $oldValue);
+
+			/** @var ReserveQuantity $reserve */
+			foreach ($reserveCollection as $reserve)
+			{
+				if ($delta === 0)
+				{
+					break;
+				}
+
+				if ($reserve->getQuantity() > $delta)
+				{
+					$settableReserveQuantity = $reserve->getQuantity() - $delta;
+					$reserve->setFieldNoDemand('QUANTITY', $settableReserveQuantity);
+
+					break;
+				}
+
+				$delta -= $reserve->getQuantity();
+				$reserve->deleteNoDemand();
+			}
+		}
+
+		return $result;
 	}
 
 	/**
 	 * @return float
 	 */
-	public function getReservedQuantity()
+	public function getReservedQuantity(): float
 	{
-		return floatval($this->getField('RESERVED_QUANTITY'));
+		return $this->getField('RESERVED_QUANTITY');
 	}
 
 	/**
@@ -473,7 +527,7 @@ class ShipmentItem
 	 */
 	public function getBasketId()
 	{
-		return $this->getField('BASKET_ID');
+		return (int)$this->getField('BASKET_ID');
 	}
 
 	/**
@@ -524,30 +578,10 @@ class ShipmentItem
 		$id = $this->getId();
 		$fields = $this->fields->getValues();
 
-		/** @var ShipmentItemCollection $shipmentItemCollection */
-		if (!$shipmentItemCollection = $this->getCollection())
-		{
-			throw new Main\ObjectNotFoundException('Entity "ShipmentItemCollection" not found');
-		}
-
-		/** @var Shipment $shipment */
-		if (!$shipment = $shipmentItemCollection->getShipment())
-		{
-			throw new Main\ObjectNotFoundException('Entity "Shipment" not found');
-		}
-
-		/** @var ShipmentCollection $shipmentCollection */
-		if (!$shipmentCollection = $shipment->getCollection())
-		{
-			throw new Main\ObjectNotFoundException('Entity "ShipmentCollection" not found');
-		}
+		$shipment = $this->getCollection()->getShipment();
 
 		/** @var Order $order */
-		if (!$order = $shipmentCollection->getOrder())
-		{
-			throw new Main\ObjectNotFoundException('Entity "Order" not found');
-		}
-
+		$order = $shipment->getCollection()->getOrder();
 
 		if ($this->isChanged())
 		{
@@ -559,29 +593,18 @@ class ShipmentItem
 			$event->send();
 		}
 
-
 		if ($id > 0)
 		{
 			$fields = $this->fields->getChangedValues();
 
 			if (!empty($fields) && is_array($fields))
 			{
-				/** @var ShipmentItemCollection $shipmentItemCollection */
-				if (!$shipmentItemCollection = $this->getCollection())
-				{
-					throw new Main\ObjectNotFoundException('Entity "ShipmentItemCollection" not found');
-				}
-
-				/** @var Shipment $shipment */
-				if (!$shipment = $shipmentItemCollection->getShipment())
-				{
-					throw new Main\ObjectNotFoundException('Entity "Shipment" not found');
-				}
-
 				if (!$shipment->isSystem())
 				{
 					if (isset($fields["QUANTITY"]) && (floatval($fields["QUANTITY"]) == 0))
+					{
 						return $result;
+					}
 				}
 
 				$r = $this->updateInternal($id, $fields);
@@ -659,12 +682,8 @@ class ShipmentItem
 			}
 
 			if (!isset($fields["QUANTITY"]) || (floatval($fields["QUANTITY"]) == 0))
-				return $result;
-
-			if (!isset($fields['RESERVED_QUANTITY']))
 			{
-				$fields['RESERVED_QUANTITY'] = $this->getReservedQuantity() === null ? 0 : $this->getReservedQuantity();
-				$this->setFieldNoDemand('RESERVED_QUANTITY', $fields['RESERVED_QUANTITY']);
+				return $result;
 			}
 
 			$r = $this->addInternal($fields);
@@ -1097,7 +1116,7 @@ class ShipmentItem
 			throw new Main\ObjectNotFoundException('Entity "Shipment" not found');
 		}
 
-		if (!$basketItem = $this->getBasketItem())
+		if (!$this->getBasketItem())
 		{
 			$result->addError(
 				new ResultError(
@@ -1317,23 +1336,10 @@ class ShipmentItem
 	 */
 	public function needReserve()
 	{
-		$changedFields = $this->fields->getChangedValues();
-
-		/** @var ShipmentItemCollection $shipmentItemCollection */
-		$shipmentItemCollection = $this->getCollection();
-		if (!$shipmentItemCollection)
-		{
-			throw new Main\ObjectNotFoundException('Entity "ShipmentItemCollection" not found');
-		}
-
-		/** @var Shipment $shipment */
-		$shipment = $shipmentItemCollection->getShipment();
-		if (!$shipment)
-		{
-			throw new Main\ObjectNotFoundException('Entity "Shipment" not found');
-		}
-
-		return array_key_exists('RESERVED_QUANTITY', $changedFields) || $shipment->getField('RESERVED') == 'Y';
+		return
+			$this->fields->isChanged('RESERVED_QUANTITY')
+			|| $this->getCollection()->getShipment()->getField('RESERVED') == 'Y'
+		;
 	}
 
 	/**

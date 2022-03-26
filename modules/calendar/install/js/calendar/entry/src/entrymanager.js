@@ -3,7 +3,6 @@ import {SectionManager} from "calendar.sectionmanager";
 import {Util} from 'calendar.util';
 import {Loc, Type, Event} from "main.core";
 import {EventEmitter} from 'main.core.events';
-import {ConfirmStatusDialog, ConfirmEditDialog, ReinviteUserDialog, ConfirmedEmailDialog, EmailLimitationDialog} from "calendar.controls";
 import {CompactEventForm} from "calendar.compacteventform";
 import "ui.notification";
 import { EventViewForm } from 'calendar.eventviewform';
@@ -302,7 +301,8 @@ export class EntryManager {
 	{
 		if (!this.confirmDeclineDialog)
 		{
-			this.confirmDeclineDialog = new ConfirmStatusDialog();
+			const bx = Util.getBX();
+			this.confirmDeclineDialog = new bx.Calendar.Controls.ConfirmStatusDialog();
 		}
 
 		this.confirmDeclineDialog.show();
@@ -329,7 +329,8 @@ export class EntryManager {
 	{
 		if (!this.confirmEditDialog)
 		{
-			this.confirmEditDialog = new ConfirmEditDialog();
+			const bx = Util.getBX();
+			this.confirmEditDialog = new bx.Calendar.Controls.ConfirmEditDialog();
 		}
 		this.confirmEditDialog.show();
 
@@ -350,7 +351,8 @@ export class EntryManager {
 	{
 		if (!this.reinviteUsersDialog)
 		{
-			this.reinviteUsersDialog = new ReinviteUserDialog();
+			const bx = Util.getBX();
+			this.reinviteUsersDialog = new bx.Calendar.Controls.ReinviteUserDialog();
 		}
 		this.reinviteUsersDialog.show();
 
@@ -371,7 +373,8 @@ export class EntryManager {
 	{
 		if (!this.confirmedEmailDialog)
 		{
-			this.confirmedEmailDialog = new ConfirmedEmailDialog();
+			const bx = Util.getBX();
+			this.confirmedEmailDialog = new bx.Calendar.Controls.ConfirmedEmailDialog();
 		}
 		this.confirmedEmailDialog.show();
 
@@ -390,14 +393,18 @@ export class EntryManager {
 
 	static showEmailLimitationDialog(options = {})
 	{
-		const confirmedEmailDialog = new EmailLimitationDialog();
-		confirmedEmailDialog.subscribe('onClose', ()=>{
+		if (!this.limitationEmailDialog)
+		{
+			const bx = Util.getBX();
+			this.limitationEmailDialog = new bx.Calendar.Controls.EmailLimitationDialog();
+		}
+		this.limitationEmailDialog.subscribe('onClose', ()=>{
 			if (Type.isFunction(options.callback))
 			{
 				options.callback();
 			}
 		});
-		confirmedEmailDialog.show();
+		this.limitationEmailDialog.show();
 	}
 
 	static getCompactViewForm(create = true)
@@ -519,6 +526,27 @@ export class EntryManager {
 			{
 				top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
 			}
+			
+			if (params?.fields?.CAL_TYPE === 'location' && top.BX.Calendar?.Controls?.Location)
+			{
+				top.BX.Calendar.Controls.Location.handlePull(params);
+			}
+		}
+
+		const calendarContext = Util.getCalendarContext();
+		const entrySectionId = parseInt(params?.fields?.SECTION_ID);
+		let sectionDisplayed = Type.isArray(params.sections)
+			&& params.sections.find(section => {
+				return section.id === entrySectionId && section.isShown();
+			});
+
+		let loadedEntry = EntryManager.getEntryInstance(
+			calendarContext.getView().getEntryById(EntryManager.getEntryUniqueId(params?.fields))
+		);
+
+		if ((sectionDisplayed || loadedEntry) && calendarContext)
+		{
+			calendarContext.reload();
 		}
 	}
 

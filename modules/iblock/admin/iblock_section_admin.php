@@ -75,6 +75,7 @@ switch ($urlBuilder->getId())
 {
 	case 'CRM':
 	case 'SHOP':
+	case 'INVENTORY':
 		$pageConfig['LIST_ID_PREFIX'] = 'tbl_catalog_section_';
 		$pageConfig['CHECK_NEW_CARD'] = true;
 		$pageConfig['SHOW_NAVCHAIN'] = false;

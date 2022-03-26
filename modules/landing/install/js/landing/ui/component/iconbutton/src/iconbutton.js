@@ -5,6 +5,7 @@ import {fetchEventsFromOptions} from 'landing.ui.component.internal';
 import './css/style.css';
 
 type IconButtonOptions = {
+	id?: string,
 	onClick?: () => void,
 	// eslint-disable-next-line no-use-before-define
 	type: $Values<typeof IconButton.Types>,
@@ -21,7 +22,9 @@ export class IconButton extends EventEmitter
 		drag: 'drag',
 		edit: 'edit',
 		font: 'font',
-		link: 'link'
+		link: 'link',
+		user1: 'user1',
+		user1Active: 'user1active',
 	};
 
 	constructor(options: IconButtonOptions)
@@ -44,6 +47,11 @@ export class IconButton extends EventEmitter
 	{
 		event.preventDefault();
 		this.emit('onClick');
+	}
+
+	setType(type: $Values<typeof IconButton.Types>)
+	{
+		this.getLayout().className = `landing-ui-button-icon-${type}`;
 	}
 
 	getLayout(): HTMLDivElement

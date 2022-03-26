@@ -46,6 +46,10 @@ class Chat
 			// convert to camelCase
 			$result = str_replace('_', '', lcfirst(ucwords(mb_strtolower($entityType), '_')));
 		}
+		else if ($chatData['ID'] && $chatData['ID'] == \CIMChat::GetGeneralChatId())
+		{
+			$result = 'general';
+		}
 		else
 		{
 			$result = $messageType == IM_MESSAGE_OPEN? 'open': 'chat';
@@ -520,6 +524,7 @@ class Chat
 				'USER_IDLE' => 'STATUS.IDLE',
 				'USER_MOBILE_LAST_DATE' => 'STATUS.MOBILE_LAST_DATE',
 				'USER_DESKTOP_LAST_DATE' => 'STATUS.DESKTOP_LAST_DATE',
+				'MESSAGE_UUID' => 'UUID.UUID',
 			],
 			'filter' => $filter,
 			'order' => $order,
@@ -559,7 +564,8 @@ class Chat
 				'AUTHOR_ID' => (int)$message['AUTHOR_ID'],
 				'DATE' => $message['DATE_CREATE'],
 				'TEXT' => (string)$message['MESSAGE'],
-				'UNREAD' => $chatData['RELATION_USER_ID'] > 0 && $chatData['RELATION_LAST_ID'] < $message['ID']
+				'UNREAD' => $chatData['RELATION_USER_ID'] > 0 && $chatData['RELATION_LAST_ID'] < $message['ID'],
+				'UUID' => $message['MESSAGE_UUID'],
 			);
 			if ($message['AUTHOR_ID'] && !isset($users[$message['AUTHOR_ID']]))
 			{
@@ -863,12 +869,12 @@ class Chat
 		$avatar = \CIMChat::GetAvatarImage($chat['AVATAR'], 200, false);
 		$color = $chat['COLOR'] <> ''? Color::getColor($chat['COLOR']): Color::getColorByNumber($chat['ID']);
 
-		$chatType = \Bitrix\Im\Chat::getType($chat);
-
 		if ($generalChatId == $chat['ID'])
 		{
 			$chat["ENTITY_TYPE"] = 'GENERAL';
 		}
+
+		$chatType = \Bitrix\Im\Chat::getType($chat);
 
 		$muteList = Array();
 		if ($chat['RELATION_NOTIFY_BLOCK'] == 'Y')
@@ -891,6 +897,14 @@ class Chat
 			];
 		}
 
+		$options = \CIMChat::GetChatOptions();
+		$restrictions = $options['DEFAULT'];
+
+		if ($chat["ENTITY_TYPE"] && in_array($chat["ENTITY_TYPE"], array_keys($options), true))
+		{
+			$restrictions = $options[$chat['ENTITY_TYPE']];
+		}
+
 		return Array(
 			'ID' => (int)$chat['ID'],
 			'NAME' => $chat['TITLE'],
@@ -903,6 +917,7 @@ class Chat
 			'USER_COUNTER' => $userCounter,
 			'MESSAGE_COUNT' => (int)$chat['MESSAGE_COUNT'] - $startCounter,
 			'UNREAD_ID' => $unreadId,
+			'RESTRICTIONS' => $restrictions,
 			'LAST_MESSAGE_ID' => $lastMessageId,
 			'DISK_FOLDER_ID' => (int)$chat['DISK_FOLDER_ID'],
 			'ENTITY_TYPE' => (string)$chat['ENTITY_TYPE'],
@@ -1101,5 +1116,104 @@ class Chat
 	public static function checkReplicaDeprecatedAgent(): string
 	{
 		return \Bitrix\Im\Replica\Status::checkAgent();
+	}
+
+	/**
+	 * Returns the value of the chat option by dialogId.
+	 *
+	 * @param int|string $dialogId
+	 *
+	 * @param string $action - chat option.
+	 * @see \CIMChat::GetChatOptions()
+	 *
+	 * @param string|null $entityType - if $entityType is known, you can avoid accessing the database.
+	 *
+	 * @return bool
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function isActionAllowed($dialogId, $action, $entityType = null): bool
+	{
+		if (!\Bitrix\Im\Common::isChatId($dialogId))
+		{
+			return true;
+		}
+
+		$chatOptions = \CIMChat::GetChatOptions();
+		$isAllowedByDefault = (bool)($chatOptions['DEFAULT'][$action] ?? true);
+
+		if ($entityType && $chatOptions[$entityType])
+		{
+			return (bool)($chatOptions[$entityType][$action] ?? $isAllowedByDefault);
+		}
+
+		if ($entityType)
+		{
+			return $isAllowedByDefault;
+		}
+
+		$chatId = \Bitrix\Im\Dialog::getChatId($dialogId);
+		if (!$chatId)
+		{
+			return $isAllowedByDefault;
+		}
+
+		$generalChatId = (int)\CIMChat::GetGeneralChatId();
+		if ($chatId === $generalChatId)
+		{
+			return (bool)($chatOptions['GENERAL'][$action] ?? $isAllowedByDefault);
+		}
+
+		$chat = \Bitrix\Im\Model\ChatTable::getList([
+			'select' => [
+				'ID',
+				'ENTITY_TYPE',
+			],
+			'filter' => [
+				'ID' => $chatId,
+			]
+		])->fetch();
+
+		$entityType = ($chat && $chat['ENTITY_TYPE']) ? $chat['ENTITY_TYPE'] : null;
+
+		if ($entityType && $chatOptions[$entityType])
+		{
+			return (bool)($chatOptions[$entityType][$action] ?? $isAllowedByDefault);
+		}
+
+		return $isAllowedByDefault;
+	}
+
+	/**
+	 * Get chat authorId by dialogId
+	 *
+	 * @param int|string $dialogId
+	 *
+	 * @return int|null AUTHOR_ID
+	 *
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function getOwnerById($dialogId): ?int
+	{
+		$chatId = \Bitrix\Im\Dialog::getChatId($dialogId);
+		if (!$chatId)
+		{
+			return null;
+		}
+
+		$chat = \Bitrix\Im\Model\ChatTable::getList([
+			'select' => [
+				'ID',
+				'AUTHOR_ID',
+			],
+			'filter' => [
+				'ID' => $chatId,
+			]
+		])->fetch();
+
+		return ($chat && is_numeric($chat['AUTHOR_ID'])) ? (int)$chat['AUTHOR_ID'] : null;
 	}
 }

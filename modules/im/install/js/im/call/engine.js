@@ -35,7 +35,6 @@
 	BX.Call.Provider = {
 		Plain: 'Plain',
 		Voximplant: 'Voximplant',
-		Janus: 'Janus'
 	};
 
 	BX.Call.StreamTag = {
@@ -73,6 +72,7 @@
 		onUserVoiceStopped: 'onUserVoiceStopped',
 		onUserFloorRequest: 'onUserFloorRequest', // request for a permission to speak
 		onUserEmotion: 'onUserEmotion',
+		onCustomMessage: 'onCustomMessage',
 		onLocalMediaReceived: 'onLocalMediaReceived',
 		onLocalMediaStopped: 'onLocalMediaStopped',
 		onMicrophoneLevel: 'onMicrophoneLevel',
@@ -663,10 +663,6 @@
 		{
 			return BX.Call.VoximplantCallFabric;
 		}
-		else if(providerType == BX.Call.Provider.Janus)
-		{
-			return BX.Call.JanusCallFabric;
-		}
 
 		throw new Error("Unknown call provider type " + providerType);
 	};
@@ -733,14 +729,6 @@
 		createCall: function(config)
 		{
 			return new BX.Call.VoximplantCall(config);
-		}
-	};
-
-	BX.Call.JanusCallFabric =
-	{
-		createCall: function(config)
-		{
-			return new BX.Call.JanusCall(config);
 		}
 	};
 

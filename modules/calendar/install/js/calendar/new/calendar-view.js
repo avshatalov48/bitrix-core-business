@@ -258,13 +258,13 @@
 		{
 			params.entry = params.entry || this.getEntryById(params.uid);
 
-			if (this.calendar.isExternalMode())
+			if (params.entry)
 			{
-				return this.calendar.triggerEvent('entryClick', params);
-			}
+				if (this.calendar.isExternalMode())
+				{
+					return this.calendar.triggerEvent('entryClick', params);
+				}
 
-			// if (params.entry.isSelected())
-			// {
 				if (params.entry.isTask())
 				{
 					BX.SidePanel.Instance.open(this.calendar.util.getViewTaskPath(params.entry.id), {loader: "task-new-loader"});
@@ -272,18 +272,8 @@
 				else
 				{
 					this.showCompactViewForm(params);
-
-					// this.showViewSlider({
-					// 	entry: params.entry
-					// });
 				}
-			//}
-
-			//this.selectEntry(params.entry);
-			// if (this.name === 'week' || this.name === 'month')
-			// {
-			// 	this.showCompactViewForm(params);
-			// }
+			}
 		},
 
 		showViewSlider: function(params)

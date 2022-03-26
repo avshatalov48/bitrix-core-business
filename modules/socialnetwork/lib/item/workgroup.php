@@ -123,14 +123,6 @@ class Workgroup
 		return ($this->fields['SCRUM_MASTER_ID'] ? : 0);
 	}
 
-	/**
-	 * @deprecated
-	 */
-	public function getScrumOwner(): int
-	{
-		return ($this->fields['SCRUM_OWNER_ID'] ? : 0);
-	}
-
 	public function getScrumTaskResponsible(): string
 	{
 		if ($this->fields['SCRUM_TASK_RESPONSIBLE'])
@@ -586,7 +578,7 @@ class Workgroup
 					$eventContent = $eventParams['content'];
 					if (Main\Loader::includeModule('search'))
 					{
-						$eventContent = \CSearch::killTags($content);
+						$eventContent = \CSearch::killTags($eventContent);
 					}
 					$eventContent = trim(str_replace(
 						array("\r", "\n", "\t"),
@@ -627,19 +619,29 @@ class Workgroup
 		return str_rot13($str);
 	}
 
-	public static function getInitiatePermOptionsList($params = array()): array
+	public static function getInitiatePermOptionsList(array $params = []): array
 	{
-		$project = (
-			is_array($params)
-			&& isset($params['project'])
+		$suffix = '';
+		if (
+			isset($params['scrum'])
+			&& $params['scrum']
+		)
+		{
+			$suffix = '_SCRUM';
+		}
+		elseif (
+			isset($params['project'])
 			&& $params['project']
-		);
+		)
+		{
+			$suffix = '_PROJECT';
+		}
 
-		return array(
-			UserToGroupTable::ROLE_OWNER => Loc::getMessage($project ? "SOCIALNETWORK_ITEM_WORKGROUP_IP_OWNER_PROJECT" : "SOCIALNETWORK_ITEM_WORKGROUP_IP_OWNER"),
-			UserToGroupTable::ROLE_MODERATOR => Loc::getMessage($project ? "SOCIALNETWORK_ITEM_WORKGROUP_IP_MOD_PROJECT" : "SOCIALNETWORK_ITEM_WORKGROUP_IP_MOD"),
-			UserToGroupTable::ROLE_USER => GetMessage($project ? "SOCIALNETWORK_ITEM_WORKGROUP_IP_USER_PROJECT" : "SOCIALNETWORK_ITEM_WORKGROUP_IP_USER"),
-		);
+		return [
+			UserToGroupTable::ROLE_OWNER => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_IP_OWNER' . $suffix),
+			UserToGroupTable::ROLE_MODERATOR => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_IP_MOD' . $suffix),
+			UserToGroupTable::ROLE_USER => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_IP_USER' . $suffix),
+		];
 	}
 
 	public static function getSpamPermOptionsList(): array

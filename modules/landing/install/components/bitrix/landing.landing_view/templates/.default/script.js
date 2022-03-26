@@ -1,6 +1,7 @@
 /**
  * @bxjs_lang_path template.php
  */
+top.window.autoPublicationEnabled = true;
 
 (function() {
 
@@ -64,13 +65,19 @@
 			this.draftMode = options.draftMode || false;
 			this.id = options.id || 0;
 			this.siteId = options.siteId || 0;
-			this.pagesCount = options.pagesCount || 0;
 			this.siteTitle = options.siteTitle || '';
 			this.storeEnabled = options.storeEnabled || false;
 			this.fullPublication = options.fullPublication || false;
 			this.urls = options.urls || {};
 			this.rights = options.rights || {};
+			this.helperFrameOpenUrl = options.helperFrameOpenUrl || null;
+			this.helpCodes = options.helpCodes || {};
 			this.sliderConditions = options.sliderConditions || [];
+			top.window.autoPublicationEnabled = !!options.autoPublicationEnabled;
+			if (!this.rights.public)
+			{
+				top.window.autoPublicationEnabled = false;
+			}
 			if (!this.popupMenuIds)
 			{
 				this.popupMenuIds = [];
@@ -78,6 +85,13 @@
 			if (!this.placements)
 			{
 				this.placements = options.placements || [];
+			}
+			if (this.helperFrameOpenUrl)
+			{
+				BX.Helper.init({
+					frameOpenUrl : this.helperFrameOpenUrl,
+					langId: BX.message('LANGUAGE_ID')
+				});
 			}
 			// clear menus
 			for (var i = 0, c = this.popupMenuIds.length; i < c; i++)
@@ -91,6 +105,7 @@
 				}
 			}
 			this.popupMenuIds = [];
+			this.popupMenuInstance = null;
 		},
 
 		/**
@@ -133,9 +148,10 @@
 					}
 				);
 			}
-			// on required links click
+
 			if (!this.topInit)
 			{
+				// on required links click
 				BX.addCustomEvent('BX.Landing.Block:init', function(event)
 				{
 					if (event.data.requiredUserActionIsShown)
@@ -156,6 +172,19 @@
 						viewInstance.onRequiredLinkClick(this);
 					});
 				});
+
+				// highliht expired blocks
+				var blocks = BX.Landing.PageObject.getBlocks();
+				for (var i = 0, c = blocks.length; i < c; i++)
+				{
+					if (!blocks[i].isAllowedByTariff())
+					{
+						var overlay = BX.create('div', {
+							props: {className: 'landing-block-expired-overlay'},
+						});
+						blocks[i].node.appendChild(overlay);
+					}
+				}
 			}
 			// force top and style panel initialization
 			if (this.topInit)
@@ -271,11 +300,6 @@
 
 							document.querySelector('.landing-ui-panel-top-history').classList.add('landing-ui-disabled');
 							document.querySelector('.landing-ui-panel-top-devices').classList.add('landing-ui-disabled');
-							document.querySelector('.landing-ui-panel-top-chain-link.landing-ui-panel-top-menu-link-settings').classList.add('landing-ui-disabled');
-							[].slice.call(document.querySelectorAll('.landing-ui-panel-top-menu-link:not(.landing-ui-panel-top-menu-link-help)'))
-								.forEach(function(item) {
-									item.classList.add('landing-ui-disabled');
-								});
 						}
 						else
 						{
@@ -372,26 +396,6 @@
 		},
 
 		/**
-		 * Show publication dialog.
-		 * @param {string} mode Option: site|landing.
-		 */
-		publicationDialog: function(mode)
-		{
-			return;
-			var instance = new BX.Landing.Dialog.Publication.getInstance({
-				landingId: this.id,
-				siteId: this.siteId,
-				url: this.url
-			});
-
-			instance.publication(
-				(mode !== 'landing') ? 'site' : 'landing'
-			);
-
-			BX.PreventDefault();
-		},
-
-		/**
 		 * Change top panel.
 		 * @param options Some additional options.
 		 */
@@ -409,90 +413,668 @@
 					link.setAttribute('href', this.urls[key]);
 				}
 			}
-			// settings menu
-			var settingButtons = [].slice.call(
-				document.querySelectorAll('.landing-ui-panel-top-menu-link-settings')
-			);
-			settingButtons.forEach(function(element, index) {
-				element.addEventListener(
-					'click',
-					function()
-					{
-						this.onSettingsClick(index, element);
-					}.bind(this)
-				);
-			}.bind(this));
-			// publication menu
-			if (BX('landing-publication'))
+
+			if (BX('landing-popup-publication-btn'))
 			{
-				BX('landing-publication').setAttribute(
-					'href',
-					this.fullPublication
-						? this.urls['publicationAll']
-						: this.urls['publication']
-				);
-				if (!this.rights.public)
-				{
-					BX.addClass(
-						BX('landing-publication').parentNode,
-						'ui-btn-disabled'
-					);
-				}
-				else
-				{
-					BX.removeClass(
-						BX('landing-publication').parentNode,
-						'ui-btn-disabled'
-					);
-				}
-				if (BX('landing-publication-submenu'))
-				{
-					BX('landing-publication-submenu').addEventListener(
-						'click',
-						function()
-						{
-							var element = BX('landing-publication-submenu');
-							if (!BX.hasClass(element.parentNode, 'ui-btn-disabled'))
-							{
-								this.onSubPublicationClick(element);
-							}
-						}.bind(this)
-					);
-				}
-				BX('landing-publication').addEventListener(
+				var oPopupPublication = null;
+				var oPopupError = null;
+				var landingBtnClass = (!this.rights.public) ?
+					"landing-popup-publication-content-autopub-btn ui-btn ui-btn-round ui-btn-no-caps ui-btn-shadow ui-btn-icon-lock ui-btn-light landing-popup-btn-disabled " :
+					"landing-popup-publication-content-autopub-btn ui-btn ui-btn-round ui-btn-no-caps ui-btn-shadow ui-btn-success";
+				BX('landing-popup-publication-btn').addEventListener(
 					'click',
 					function()
 					{
-						if (BX.hasClass(BX('landing-publication').parentNode, 'ui-btn-disabled'))
+						var landingId = this.id,
+							popupPublicationContent;
+
+						if (this.getErrorMessageBlock())
 						{
-							BX.PreventDefault();
+							popupPublicationContent = BX.create('div', {
+								props: { className: 'landing-popup-publication-content 1' },
+								children: [
+
+									this.getErrorMessageBlock(),
+
+									BX.create('form', {
+										props: { className: 'landing-popup-publication-content-block-gray landing-popup-publication-content-center landing-popup-publication-content-block-gray-disabled' },
+										attrs: {
+											target: '_blank',
+											method: 'post',
+											action: this.urls['publicationGlobal']
+										},
+										children: [
+											BX.create('input', {
+												attrs: {
+													type: 'hidden',
+													name: 'sessid',
+													value: BX.message('bitrix_sessid')
+												}
+											}),
+											BX.create('button', {
+												props: { className: "landing-popup-publication-content-autopub-btn ui-btn ui-btn-round ui-btn-no-caps ui-btn-shadow ui-btn-icon-lock ui-btn-light landing-popup-btn-disabled " },
+												attrs: {
+													type: 'submit',
+													disabled: true,
+												},
+												text: BX.message('LANDING_PUBLICATION_SUBMIT')
+											})
+										]
+									}),
+								]
+							});
 						}
 						else
 						{
-							this.publicationDialog('landing');
+							var popupPublicationContentHint = BX.create('div', {
+								props: { className: 'landing-popup-publication-content-hint' },
+							});
+
+							popupPublicationContent = BX.create('div', {
+								props: { className: 'landing-popup-publication-content 2' },
+								children: [
+									BX.create('div', {
+										props: { className: 'landing-popup-publication-content-block' },
+										children: [
+											BX.create('label', {
+												props: { className: 'landing-popup-publication-content-autopub' },
+												children: [
+													BX.create('span', {
+														props: { className: (top.window.autoPublicationEnabled) ? "landing-popup-publication-content-autopub-icon landing-ui-panel-top-pub-btn-auto" : "landing-popup-publication-content-autopub-icon" },
+														html: '<svg class="landing-ui-panel-top-pub-btn-icon" width="25" height="25" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+															'<path class="landing-ui-panel-top-pub-btn-icon-defs-cloud" fill="#C6CDD3" d="M18.5075 18.8896H10.4177C10.3485 18.8896 10.2799 18.887 10.2119 18.882C8.38363 18.8398 6.91434 17.3271 6.91434 15.4671C6.91487 14.5606 7.27128 13.6914 7.90517 13.0507C8.2301 12.7223 8.61429 12.4678 9.03227 12.2978C9.02528 12.2055 9.02172 12.1123 9.02172 12.0182C9.02229 11.0617 9.39838 10.1446 10.0672 9.46862C10.7361 8.79266 11.6429 8.41324 12.5883 8.41382C13.7992 8.41531 14.8683 9.02804 15.5108 9.96325C15.816 9.85386 16.1444 9.79441 16.4866 9.79459C17.9982 9.79643 19.2397 10.9624 19.3836 12.4534C20.832 12.7729 21.9159 14.0785 21.9146 15.6395C21.9131 17.4385 20.4711 18.8958 18.6932 18.895C18.6309 18.895 18.569 18.8932 18.5075 18.8896Z" fill-rule="evenodd" clip-rule="evenodd"/>\n' +
+															'<path class="landing-ui-panel-top-pub-btn-icon-defs-success" fill="#FFFFFF" d="M7.46967 13.782L9.1093 12.14L12.2726 15.2532L18.6078 8.91091L20.2474 10.5529L12.2881 18.5218L7.46967 13.782Z" fill-rule="evenodd" clip-rule="evenodd"/>\n' +
+															'<path class="landing-ui-panel-top-pub-btn-icon-defs-error" fill="#FF7975" d="M19.8991 9.8334L17.607 7.54126L7.00036 18.1479L9.2925 20.44L19.8991 9.8334Z"/>\n' +
+															'<path class="landing-ui-panel-top-pub-btn-icon-defs-error" fill="#FFFFFF" d="M19.9323 10.0725C20.2657 9.73913 20.2657 9.19867 19.9323 8.86532C19.599 8.53198 19.0585 8.53198 18.7252 8.86532L8.6579 18.9326C8.32455 19.266 8.32455 19.8064 8.6579 20.1398C8.99124 20.4731 9.5317 20.4731 9.86505 20.1398L19.9323 10.0725Z"/>' +
+															'</svg>'
+													}),
+													BX.create('span', {
+														props: { className: 'landing-popup-publication-content-autopub-text' },
+														html: BX.message('LANDING_PUBLICATION_AUTO')
+													}),
+													BX.create('input', {
+														props: { className: 'landing-popup-publication-content-autopub-input' },
+														attrs: {
+															type: 'checkbox',
+															checked: top.window.autoPublicationEnabled
+														},
+														events: {
+															click: function()
+															{
+																top.window.autoPublicationEnabled = this.checked;
+																BX.ajax({
+																	url: BX.util.add_url_param(
+																		window.location.href,
+																		{action: 'changeAutoPublication'}
+																	),
+																	method: 'POST',
+																	data: {
+																		param: this.checked ? 'Y' : 'N',
+																		sessid: BX.message('bitrix_sessid'),
+																		actionType: 'json'
+																	},
+																	dataType: 'json',
+																	onsuccess: function(data)
+																	{
+																		BX.removeClass(BX('landing-popup-publication-btn'), "landing-ui-panel-top-pub-btn-error");
+																		if (this.checked)
+																		{
+																			BX.addClass(BX('landing-popup-publication-btn'), "landing-ui-panel-top-pub-btn-auto");
+																			BX.addClass(document.body.querySelector(".landing-popup-publication-content-autopub-icon"), "landing-ui-panel-top-pub-btn-auto");
+																			BX.Landing.Backend.getInstance()
+																				.action('Landing::publication', {
+																					lid: landingId
+																				})
+																		}
+																		else
+																		{
+																			BX.removeClass(BX('landing-popup-publication-btn'), "landing-ui-panel-top-pub-btn-auto");
+																			BX.removeClass(document.body.querySelector(".landing-popup-publication-content-autopub-icon"), "landing-ui-panel-top-pub-btn-auto");
+																		}
+																	}.bind(this)
+																});
+															}
+														}
+													}),
+													BX.create('span', {
+														props: { className: 'landing-popup-publication-content-autopub-switcher' },
+														children: [
+															BX.create('span', {
+																props: { className: 'landing-popup-publication-content-autopub-switcher-on' },
+																text: BX.message('LANDING_PUBLICATION_AUTO_TOGGLE_ON')
+															}),
+															BX.create('span', {
+																props: { className: 'landing-popup-publication-content-autopub-switcher-off' },
+																text: BX.message('LANDING_PUBLICATION_AUTO_TOGGLE_OFF')
+															}),
+														]
+													}),
+												]
+											})
+										]
+									}),
+									BX.create('div', {
+										props: {
+											className: 'landing-popup-publication-content-block-gray landing-popup-publication-content-center landing-popup-publication-content-column',
+											style: {
+												'position':'relative'
+											}
+										},
+										children: [
+											popupPublicationContentHint,
+											BX.create('form', {
+												attrs: {
+													target: '_blank',
+													method: 'post',
+													action: this.urls['preview']
+												},
+												children: [
+													BX.create('input', {
+														attrs: {
+															type: 'hidden',
+															name: 'sessid',
+															value: BX.message('bitrix_sessid')
+														}
+													}),
+													BX.create('button', {
+														props: { className: "landing-popup-publication-content-autopub-btn ui-btn ui-btn-round ui-btn-no-caps ui-btn-shadow ui-btn-light" },
+														attrs: {
+															type: 'submit',
+														},
+														text: BX.message('LANDING_TPL_PREVIEW_URL')
+													})
+												]
+											}),
+											BX.create('form', {
+												attrs: {
+													target: '_blank',
+													method: 'post',
+													action: this.urls['publicationGlobal']
+												},
+												children: [
+													BX.create('input', {
+														attrs: {
+															type: 'hidden',
+															name: 'sessid',
+															value: BX.message('bitrix_sessid')
+														}
+													}),
+													BX.create('button', {
+														props: { className: "landing-popup-publication-content-autopub-btn ui-btn ui-btn-round ui-btn-no-caps ui-btn-shadow ui-btn-success" },
+														attrs: {
+															type: 'submit',
+														},
+														text: BX.message('LANDING_PUBLICATION_SUBMIT')
+													})
+												]
+											}),
+										]
+									}),
+								]
+							});
+
+							popupPublicationContentHint.appendChild(
+								BX.UI.Hint.createNode(BX.message('LANDING_TPL_PREVIEW_URL_HINT'))
+							);
 						}
+
+						if (!oPopupPublication)
+						{
+							oPopupPublication = BX.PopupWindowManager.create(
+								'landing-popup-publication',
+								BX('landing-popup-publication-btn'),
+								{
+									content: popupPublicationContent,
+									autoHide : true,
+									closeIcon : false,
+									titleBar : false,
+									closeByEsc : true,
+									animation: 'fading-slide',
+									noAllPaddings : true,
+									angle: {
+										offset: 37
+									},
+									minWidth: 410,
+									maxWidth: 460,
+									background: "#E9EAED",
+									contentBackground: "transparent",
+								}
+							);
+						}
+						else
+						{
+							oPopupPublication.setContent(popupPublicationContent)
+						}
+
+						var listener = window.addEventListener('blur', function() {
+							oPopupPublication.close();
+							window.removeEventListener('blur', listener);
+						});
+
+						oPopupPublication.toggle();
+
+						BX.PreventDefault();
 					}.bind(this)
 				);
 			}
-			if (BX('landing-urls-preview'))
+
+			if (BX('landing-popup-preview-btn'))
 			{
-				BX('landing-urls-preview').addEventListener(
+				var oPopupPreview = null;
+				BX('landing-popup-preview-btn').addEventListener(
 					'click',
 					function()
 					{
-						if (BX('landing-urls-preview').getAttribute('target') === '_self')
+						if (!oPopupPreview)
 						{
-							BX.SidePanel.Instance.open(
-								BX('landing-urls-preview').getAttribute('href') + '&IFRAME=Y',
+							if (top.window.autoPublicationEnabled)
+							{
+								if (this.storeEnabled)
 								{
-									allowChangeHistory: false
+									BX.Landing.Backend.getInstance()
+										.action('Site::publication', {
+											id: this.siteId
+										});
+								}
+								else
+								{
+									BX.Landing.Backend.getInstance()
+										.action('Landing::publication', {
+											lid: this.id
+										});
+								}
+							}
+
+							var previewButton = BX('landing-popup-preview-btn');
+							var fullUrl = this.url;
+							var qrContainer = BX.create('div');
+							new QRCode(qrContainer, {
+								text: fullUrl,
+								width: 156,
+								height: 156,
+								colorLight: "transparent"
+							});
+							oPopupPreview = BX.PopupWindowManager.create(
+								'landing-popup-preview',
+								previewButton,
+								{
+									content: BX.create('div', {
+										props: { className: 'landing-popup-preview-content' },
+										children: [
+											BX.create('div', {
+												props: { className: 'landing-popup-preview-title' },
+												text: BX.message('LANDING_PREVIEW_MOBILE_TITLE')
+											}),
+											BX.create('div', {
+												props: { className: 'landing-popup-preview-qr' },
+												children: [
+													qrContainer
+												],
+											}),
+											BX.create('div', {
+												props: { className: 'landing-popup-preview-text' },
+												text: BX.message('LANDING_PREVIEW_MOBILE_TEXT')
+											}),
+											BX.create('div', {
+												props: { className: 'landing-popup-preview-link-container' },
+												children: [
+													BX.create('a', {
+														props: { className: 'landing-popup-preview-link ui-btn ui-btn-light-border ui-btn-round' },
+														text: BX.message('LANDING_PREVIEW_MOBILE_NEW_TAB'),
+														attrs: {
+															target: '_blank',
+															href: fullUrl
+														}
+													}),
+												],
+											}),
+											BX.create('hr'),
+											BX.create('div', {
+												props: { className: 'landing-popup-preview-link-row-container' },
+												children: [
+													BX.create('div', {
+														props: {className: 'landing-popup-preview-link-target-container'},
+														children: [
+															BX.create('a', {
+																props: { className: 'landing-popup-preview-link-target' },
+																text: (function() {
+																	if (this.formEditor)
+																	{
+																		return fullUrl;
+																	}
+																	else
+																	{
+																		return BX.data(previewButton, 'domain');
+																	}
+																}.bind(this))(),
+																attrs: {
+																	target: '_blank',
+																	href: fullUrl
+																}
+															})
+														],
+													}),
+													BX.create('div', {
+														children: [
+															BX.create('a', {
+																props: { className: 'landing-popup-preview-link-target-copy' },
+																text: BX.message('LANDING_PREVIEW_MOBILE_COPY_LINK'),
+																attrs: {
+																	href: "#"
+																},
+																events: {
+																	click: function()
+																	{
+																		var range = document.createRange();
+																		range.selectNode(document.body.querySelector(".landing-popup-preview-link-target"));
+																		window.getSelection().addRange(range);
+																		try {
+																			document.execCommand('copy');
+																			BX.UI.Notification.Center.notify({
+																				content: BX.message('LANDING_SITE_TILE_POPUP_COPY_LINK_COMPLETE'),
+																				autoHideDelay: 2000,
+																			});
+																			window.getSelection().removeAllRanges();
+																		} catch(err) {
+																			BX.UI.Notification.Center.notify({
+																				content: 'Oops, unable to copy',
+																				autoHideDelay: 2000,
+																			});
+																		}
+																	}.bind(this)
+																}
+															}),
+														],
+													}),
+												],
+											}),
+										]
+									}),
+									//titleBar: {content: BX.create('span', {html: ''})},
+									closeIcon : true,
+									closeByEsc : true,
+									noAllPaddings : true,
+									animation: 'fading-slide',
+									angle: {
+										position: "top",
+										offset: 75
+									},
+									minWidth: 375,
+									maxWidth: 375,
+									contentBackground: "transparent",
 								}
 							);
-							BX.PreventDefault();
 						}
+
+						var listener = window.addEventListener('blur', function() {
+							oPopupPreview.close();
+							window.removeEventListener('blur', listener);
+						});
+
+						oPopupPreview.toggle();
+						BX.PreventDefault();
 					}.bind(this)
 				);
 			}
+
+			var settingsClick = BX.create('div', {
+				props: { className: 'landing-popup-features-content-block landing-popup-features-content-block-settings' },
+				html: '<div class="landing-popup-features-content-block-settings-icon ui-icon ui-icon-service-light-wheel"><i></i></div>',
+				events: {
+					click: function()
+					{
+						this.onSettingsClick(settingsClick);
+					}.bind(this)
+				}
+			})
+
+			if (BX('landing-popup-features-btn'))
+			{
+				var oPopupFeatures = null;
+				BX('landing-popup-features-btn').addEventListener(
+					'click',
+					function()
+					{
+						if (!oPopupFeatures)
+						{
+							var featuresButton = BX('landing-popup-features-btn');
+
+							oPopupFeatures = BX.PopupWindowManager.create(
+								'landing-popup-features',
+								featuresButton,
+								{
+									content: BX.create('div', {
+										props: { className: 'landing-popup-features-content' },
+										children: [
+											this.draftMode ? null : BX.create('div', {
+												props: { className: 'landing-popup-features-content-block landing-popup-features-content-dflex' },
+												children: [
+													BX.create('div', {
+														html: '<div class="ui-icon landing-popup-features-icon-1 ui-icon-md"><i></i></div>'
+													}),
+													BX.create('div', {
+														style: { flexGrow: 1 },
+														children: [
+															BX.create('div', {
+																props: { className: 'landing-popup-features-content-block-title' },
+																text: BX.message('LANDING_TPL_FEATURES_FORMS_TITLE')
+															}),
+															BX.create('a', {
+																props: { className: 'landing-popup-features-content-block-link' },
+																text: BX.message('LANDING_TPL_FEATURES_FORMS_PROMO_LINK'),
+																attrs: {
+																	href: '#'
+																},
+																events: {
+																	click: function()
+																	{
+																		if (this.helperFrameOpenUrl)
+																		{
+																			BX.Helper.show('redirect=detail&code=' + this.helpCodes['form_general'][0]);
+																		}
+																		BX.PreventDefault();
+																	}.bind(this)
+																}
+															}),
+														]
+													}),
+													BX.create('div', {
+														children: [
+															BX.create('input', {
+																props: { className: 'landing-popup-features-content-block-btn ui-btn ui-btn-xs ui-btn-round ui-btn-no-caps ui-btn-light-border' },
+																attrs: {
+																	type: 'button',
+																	value: BX.message('LANDING_TPL_FEATURES_SETTINGS')
+																},
+																events: {
+																	click: function()
+																	{
+																		var editorWindow = BX.Landing.PageObject.getEditorWindow();
+																		var formBlock = editorWindow.document.querySelector('div[data-subtype="form"]');
+																		var scrollToBlock = function(formBlock)
+																		{
+																			if (formBlock)
+																			{
+																				var blockId = formBlock.getAttribute('id').substr(5);
+																				if (blockId)
+																				{
+																					var block = BX.Landing.PageObject.getBlocks().get(blockId);
+																					block.onShowContentPanel();
+																				}
+																			}
+																		}
+																		if (!formBlock)
+																		{
+																			var blocksCollection = BX.Landing.PageObject.getBlocks();
+																			BX.Landing.Main.getInstance().currentBlock = (blocksCollection.length <= 2)
+																				? blocksCollection[1]
+																				: blocksCollection[blocksCollection.length - 2];
+
+																			var main = BX.Landing.Main.getInstance();
+																			var editor = BX.Landing.PageObject.getEditorWindow();
+																			main.currentArea = editor.document.body.querySelector('.landing-main');
+																			main
+																				.onAddBlock('33.13.form_2_light_no_text')
+																				.then(function(res) {
+																					res.setAttribute('data-subtype', 'form');
+																					scrollToBlock(res);
+																				});
+																		}
+																		else
+																		{
+																			scrollToBlock(formBlock);
+																		}
+
+																		oPopupFeatures.close();
+																	}.bind(this)
+																}
+															}),
+														]
+													}),
+												]
+											}),
+											this.draftMode ? null : BX.create('div', {
+												props: { className: 'landing-popup-features-content-block landing-popup-features-content-dflex' },
+												children: [
+													BX.create('div', {
+														html: '<div class="ui-icon ui-icon ui-icon-service-livechat landing-popup-features-icon-2 ui-icon-md"><i></i></div>'
+													}),
+													BX.create('div', {
+														style: { flexGrow: 1 },
+														children: [
+															BX.create('div', {
+																props: { className: 'landing-popup-features-content-block-title' },
+																text: BX.message('LANDING_TPL_FEATURES_OL_TITLE')
+															}),
+															BX.create('a', {
+																props: { className: 'landing-popup-features-content-block-link' },
+																text: BX.message('LANDING_TPL_FEATURES_OL_PROMO_LINK'),
+																attrs: {
+																	href: '#'
+																},
+																events: {
+																	click: function()
+																	{
+																		if (this.helperFrameOpenUrl)
+																		{
+																			BX.Helper.show('redirect=detail&code=' + this.helpCodes['widget_general'][0]);
+																		}
+																		BX.PreventDefault();
+																	}.bind(this)
+																}
+															}),
+														]
+													}),
+													BX.create('div', {
+														children: [
+															BX.create('input', {
+																props: { className: 'landing-popup-features-content-block-btn ui-btn ui-btn-xs ui-btn-round ui-btn-no-caps ui-btn-light-border' },
+																attrs: {
+																	type: 'button',
+																	value: BX.message('LANDING_TPL_FEATURES_SETTINGS')
+																},
+																events: {
+																	click: function()
+																	{
+																		var button24hook = BX.Landing.Main.getInstance().options.hooks['B24BUTTON'];
+																		if (button24hook && button24hook['ID'])
+																		{
+																			BX.SidePanel.Instance.open(
+																				'/crm/button/edit/' + button24hook['ID'] + '/',
+																				{ allowChangeHistory: false, cacheable: false }
+																			);
+																		}
+																		else
+																		{
+																			BX.SidePanel.Instance.open(
+																				BX.message['LANDING_PAR_PAGE_URL_SITE_EDIT'] + '#b24widget',
+																				{ allowChangeHistory: false, cacheable: false }
+																			);
+																		}
+																	}.bind(this)
+																}
+															}),
+														]
+													}),
+												]
+											}),
+											BX.create('div', {
+												props: { className: 'landing-popup-features-content-row' },
+												children: [
+													BX.create('div', {
+														style: {
+															marginRight: "12px",
+															flexGrow: 1,
+														},
+														props: { className: 'landing-popup-features-content-block landing-popup-features-content-dflex' },
+														children: [
+															BX.create('div', {
+																html: '<div class="ui-icon ui-icon-service-light-common landing-popup-features-icon-3"><i></i></div>'
+															}),
+															BX.create('div', {
+																children: [
+																	BX.create('div', {
+																		props: { className: 'landing-ui-panel-top-menu-link-help' },
+																		text: BX.message('LANDING_TPL_FEATURES_HELP_TITLE')
+																	}),
+																	BX.create('a', {
+																		props: { className: 'landing-popup-features-content-block-link' },
+																		text: BX.message('LANDING_TPL_FEATURES_HELP_PROMO_LINK'),
+																		attrs: {
+																			href: '#'
+																		}
+																	})
+																]
+															}),
+														],
+														events: {
+															click: function()
+															{
+																BX.fireEvent(BX(featuresButton.getAttribute('data-feedback')), 'click');
+															}
+														}
+													}),
+													settingsClick
+												],
+											}),
+										]
+									}),
+									closeIcon : false,
+									titleBar : false,
+									closeByEsc : true,
+									animation: 'fading-slide',
+									noAllPaddings : true,
+									angle: {
+										position: "top",
+										offset: 115
+									},
+									minWidth: 410,
+									background: "#E9EAED",
+									contentBackground: "transparent",
+								}
+							);
+						}
+
+						var listener = window.addEventListener('blur', function() {
+							oPopupFeatures.close();
+							window.removeEventListener('blur', listener);
+						});
+
+						oPopupFeatures.toggle();
+						BX.PreventDefault();
+					}.bind(this)
+				);
+			}
+			else
+			{
+				BX.removeClass(settingsClick, "landing-popup-features-content-block");
+				var settingsKbButton = BX('landing-panel-settings-kb');
+				if (BX.Type.isDomNode(settingsKbButton))
+				{
+					settingsKbButton.appendChild(settingsClick)
+				}
+			}
+
 			if (BX('landing-design-block-close'))
 			{
 				BX('landing-design-block-close').addEventListener(
@@ -503,85 +1085,182 @@
 					}
 				);
 			}
-			// nav chain
-			// BX('landing-navigation-site').text = this.siteTitle;
-			// BX('landing-navigation-site').setAttribute('title', this.siteTitle);
-			// BX('landing-navigation-page').text = this.title;
-			// BX('landing-navigation-page').setAttribute('title', this.title);
-			// set browser title and url
-			// if (options.changeState === true)
-			// {
-			// 	parent.window.history.pushState('', this.title, this.urls['landingView']);
-			// }
-			// document.title = this.title;
+
+			var crmFormShareButton = document.querySelector('.landing-form-editor-share-button');
+			if (BX.Type.isDomNode(crmFormShareButton))
+			{
+				BX.Event.bind(crmFormShareButton, 'click', this.onCrmFormShareButtonClick.bind(this));
+			}
+
+			var crmFormSettingsButton = document.querySelector('.landing-ui-panel-top-menu-link-settings');
+			if (BX.Type.isDomNode(crmFormSettingsButton))
+			{
+				BX.Event.bind(crmFormSettingsButton, 'click', this.onSettingsClick.bind(this,crmFormSettingsButton));
+			}
 		},
 
-		/**
-		 * Handles click on publication sub button.
-		 * @param element Node element (sub menu of publication).
-		 */
-		onSubPublicationClick: function(element)
+		onCrmFormShareButtonClick: function(event)
 		{
-			if (BX.PopupMenu.getMenuById('landing-menu-publication'))
+			event.preventDefault();
+
+			var editorOptions = BX.Landing.Env.getInstance().getOptions();
+			if (
+				BX.Type.isPlainObject(editorOptions.formEditorData)
+				&& BX.Type.isPlainObject(editorOptions.formEditorData.formOptions)
+			)
 			{
-				var menu = BX.PopupMenu.getMenuById('landing-menu-publication');
+				var formId = editorOptions.formEditorData.formOptions.id;
+				BX.Crm.Form.Embed.open(formId);
 			}
-			else
+		},
+
+		getErrorClickHandler: function(errorCode)
+		{
+			if (errorCode === 'LANDING_PAYMENT_FAILED_BLOCK')
 			{
-				this.popupMenuIds.push('landing-menu-publication');
-				var menu = BX.Main.MenuManager.create({
-					id: 'landing-menu-publication',
-					bindElement: element,
-					autoHide: true,
-					zIndex: 1200,
-					offsetLeft: 20,
-					angle: true,
-					closeByEsc: true,
-					items: [
+				return function() {
+					var blocks = BX.Landing.PageObject.getBlocks();
+					for (var i = 0, c = blocks.length; i < c; i++)
+					{
+						if (!blocks[i].isAllowedByTariff())
 						{
-							href: this.urls['publication'],
-							text: BX.message('LANDING_TPL_PUBLIC_URL_PAGE'),
-							target: '_blank',
-							dataset: {
-								sliderIgnoreAutobinding: true
-							},
-							onclick: function()
-							{
-								this.publicationDialog('landing');
-							}.bind(this)
-						},
-						{
-							href: this.urls['publicationAll'],
-							text: BX.message('LANDING_TPL_PUBLIC_URL_ALL'),
-							target: '_blank',
-							dataset: {
-								sliderIgnoreAutobinding: true
-							},
-							onclick: function()
-							{
-								this.publicationDialog('site');
-							}.bind(this)
+							blocks[i].getBlockNode().scrollIntoView();
 						}
+					}
+				};
+			}
+			else if (errorCode === 'FREE_DOMAIN_IS_NOT_ALLOWED')
+			{
+				return function() {
+					BX.UI.InfoHelper.show('limit_free_domen');
+				};
+			}
+			else if (errorCode === 'EMAIL_NOT_CONFIRMED')
+			{
+				return function() {
+					BX.UI.InfoHelper.show('limit_sites_confirm_email');
+				};
+			}
+			else if (
+				errorCode === 'PUBLIC_PAGE_REACHED' ||
+				errorCode === 'PUBLIC_SITE_REACHED' ||
+				errorCode === 'PUBLIC_SITE_REACHED_FREE' ||
+				errorCode === 'TOTAL_SITE_REACHED'
+			)
+			{
+				if (errorCode === 'PUBLIC_PAGE_REACHED')
+				{
+					return function () {
+						BX.UI.InfoHelper.show('limit_sites_number_page');
+					};
+				}
+				else if (errorCode === 'PUBLIC_SITE_REACHED_FREE')
+				{
+					return function() {
+						BX.UI.InfoHelper.show('limit_sites_free');
+					};
+				}
+				else
+				{
+					if (this.storeEnabled)
+					{
+						return function() {
+							BX.UI.InfoHelper.show('limit_shop_number');
+						};
+					}
+					else
+					{
+						return function() {
+							BX.UI.InfoHelper.show('limit_sites_number');
+						};
+					}
+				}
+			}
+
+			return null;
+		},
+
+		getErrorButtonTitle: function(errorCode)
+		{
+			if (errorCode === 'LANDING_PAYMENT_FAILED_BLOCK')
+			{
+				return BX.message('LANDING_PUBLICATION_GOTO_BLOCK');
+			}
+			else if (errorCode === 'EMAIL_NOT_CONFIRMED')
+			{
+				return BX.message('LANDING_PUBLICATION_CONFIRM_EMAIL');
+			}
+			else if (
+				errorCode === 'FREE_DOMAIN_IS_NOT_ALLOWED' ||
+				errorCode === 'PUBLIC_PAGE_REACHED' ||
+				errorCode === 'PUBLIC_SITE_REACHED' ||
+				errorCode === 'TOTAL_SITE_REACHED' ||
+				errorCode === 'PUBLIC_SITE_REACHED_FREE'
+			)
+			{
+				return BX.message('LANDING_PUBLICATION_BUY_RENEW');
+			}
+		},
+
+		getErrorMessageBlock: function ()
+		{
+			if (BX('landing-popup-publication-error-area').hasAttribute('data-error'))
+			{
+				var errorCode = BX('landing-popup-publication-error-area').getAttribute('data-error');
+				var errorArea = document.querySelector('#landing-popup-publication-error-area');
+				var buttonTitle = this.getErrorButtonTitle(errorCode);
+				var clickHandler = this.getErrorClickHandler(errorCode);
+				return BX.create('div', {
+					props: { className: 'landing-popup-publication-error-content-block landing-popup-features-content-dflex' },
+					children: [
+						BX.create('div', {
+							props: { className: 'landing-popup-publication-error-content-icon' },
+							html: '<svg width="36" height="37" viewBox="0 0 36 37" fill="none" xmlns="http://www.w3.org/2000/svg"><path opacity="0.189937" d="M18 36.5C27.9411 36.5 36 28.4411 36 18.5C36 8.55887 27.9411 0.5 18 0.5C8.05887 0.5 0 8.55887 0 18.5C0 28.4411 8.05887 36.5 18 36.5Z" fill="white"/><path fill-rule="evenodd" clip-rule="evenodd" d="M23.1036 24.1965H13.238C13.1535 24.1965 13.0699 24.1933 12.987 24.1871C10.7573 24.1352 8.96548 22.2714 8.96548 19.98C8.96613 18.8631 9.40079 17.7923 10.1738 17.003C10.5701 16.5984 11.0386 16.2848 11.5484 16.0754C11.5398 15.9617 11.5355 15.8468 11.5355 15.731C11.5362 14.5525 11.9948 13.4226 12.8105 12.5898C13.6262 11.7571 14.7321 11.2896 15.885 11.2903C17.3618 11.2922 18.6655 12.0471 19.4492 13.1992C19.8212 13.0645 20.2217 12.9912 20.639 12.9914C22.4825 12.9937 23.9966 14.4301 24.1721 16.2671C25.9384 16.6608 27.2602 18.2693 27.2587 20.1924C27.2569 22.4087 25.4983 24.2041 23.3301 24.2032C23.2541 24.2032 23.1786 24.2008 23.1036 24.1965Z" fill="white"/></svg>'
+						}),
+						BX.create('div', {
+							style: { flexGrow: 1 },
+							children: [
+								BX.create('div', {
+									props: { className: 'landing-popup-publication-error-content-block-title' },
+									html: errorArea.getAttribute('data-error-title') || BX.message('LANDING_PUBLICATION_AUTO_OFF')
+								}),
+								BX.create('span', {
+									props: { className: 'landing-popup-publication-error-content-block-text' },
+									text: errorArea.getAttribute('data-error-description')
+								}),
+							]
+						}),
+						clickHandler
+							? BX.create('div', {
+								children: [
+									BX.create('a', {
+										props: { className: 'landing-btn-buy-renew ui-btn ui-btn-xs ui-btn-no-caps ui-btn-round' },
+										text: buttonTitle,
+										events: {
+											click: clickHandler
+										}
+									})
+								]
+							})
+							: null
 					]
 				})
 			}
-			menu.show();
+			else
+			{
+				return false;
+			}
 		},
 
 		/**
 		 * Handles click on settings button.
-		 * @param index Number of node element.
 		 * @param element Node element (settings button).
 		 */
-		onSettingsClick: function(index, element)
+		onSettingsClick: function(element)
 		{
-			if (BX.PopupMenu.getMenuById('landing-menu-settings' + index))
+			if (!this.popupMenuInstance)
 			{
-				var menu = BX.PopupMenu.getMenuById('landing-menu-settings' + index);
-			}
-			else
-			{
-				this.popupMenuIds.push('landing-menu-settings' + index);
+				this.popupMenuIds.push('landing-menu-settings');
 				var menuItems = [
 					{
 						href: this.urls['landingEdit'],
@@ -595,6 +1274,16 @@
 						disabled: !this.rights.settings
 					}
 					: null,
+					this.storeEnabled
+						? {
+							href: this.urls['landingCatalogEdit'],
+							text: BX.message('LANDING_TPL_SETTINGS_CATALOG_URL'),
+							disabled: !this.rights.settings
+						}
+						: null,
+					!this.formEditor
+						? {delimiter: true}
+						: null,
 					{
 						href: this.urls['landingDesign'],
 						text: BX.message('LANDING_TPL_SETTINGS_PAGE_DIZ_URL'),
@@ -606,23 +1295,13 @@
 							text: BX.message('LANDING_TPL_SETTINGS_SITE_DIZ_URL'),
 							disabled: !this.rights.settings
 						}
-						: null,
-					this.storeEnabled
-					? {
-						href: this.urls['landingCatalogEdit'],
-						text: BX.message('LANDING_TPL_SETTINGS_CATALOG_URL'),
-						disabled: !this.rights.settings
-					}
-					: null,
-					!this.draftMode && !this.formEditor
-					? {
-						href: this.urls['unpublic'],
-						text: BX.message('LANDING_TPL_SETTINGS_UNPUBLIC'),
-						disabled: !this.rights.public || !this.active
-					}
-					: null
+						: null
 				];
 				var __this = this;
+				if (this.placements.length)
+				{
+					menuItems.push({delimiter: true});
+				}
 				for (var p = 0, cp = this.placements.length; p < cp; p++)
 				{
 					var placementItem = this.placements[p];
@@ -644,9 +1323,9 @@
 						}.bind(placementItem, __this)
 					});
 				}
-				var menu = BX.Main.MenuManager.create({
-						id: 'landing-menu-settings' + index,
-						bindElement: BX('landing-panel-settings'),
+				this.popupMenuInstance = BX.Main.MenuManager.create({
+						id: 'landing-menu-settings',
+						bindElement: element,
 						autoHide: true,
 						zIndex: 1200,
 						offsetLeft: 20,
@@ -656,7 +1335,7 @@
 					}
 				);
 			}
-			menu.show();
+			this.popupMenuInstance.show();
 		},
 
 		/**
@@ -672,6 +1351,231 @@
 					menu.close();
 				}
 			})
+		}
+	};
+
+	/**
+	 * Block's auto publication.
+	 * @param {Object} options
+	 * @constructor
+	 */
+	BX.Landing.Component.View.AutoPublication = function(options)
+	{
+		this.blockId = null;
+		this.landingId = null;
+		this.fullPublication = false;
+		this.pendingPublication = false;
+		this.editorEnabled = false;
+		this.pageIsUnActive = options.pageIsUnActive;
+		this.allowedCommands = {
+			'Landing::upBlock': true,
+			'Landing::downBlock': true,
+			'Landing::showBlock': true,
+			'Landing::hideBlock': true,
+			'Landing::markDeletedBlock': true,
+			'Landing::addBlock': true,
+			'Landing::copyBlock': true,
+			'Landing::moveBlock': true,
+			'Block::changeNodeName': true,
+			'Block::updateContent': true,
+			'Landing\\Block::addCard': true,
+			'Landing\\Block::cloneCard': true,
+			'Landing\\Block::removeCard': true,
+			'Landing\\Block::updateNodes': true,
+			'Landing\\Block::updateStyles': true
+		};
+		this.fullPublicationCommands = {
+			'Landing::upBlock': true,
+			'Landing::downBlock': true,
+			'Landing::addBlock': true,
+			'Landing::copyBlock': true,
+			'Landing::moveBlock': true,
+			'Landing::markDeletedBlock': true
+		};
+
+		BX.addCustomEvent('BX.Landing.Editor:enable', BX.delegate(this.enableEditor, this));
+		BX.addCustomEvent('BX.Landing.Editor:disable', BX.delegate(this.disableEditor, this));
+		BX.addCustomEvent('BX.Landing.Backend:action', BX.delegate(this.onAction, this));
+		BX.addCustomEvent('BX.Landing.Backend:batch', BX.delegate(this.onAction, this));
+	};
+
+	BX.Landing.Component.View.AutoPublication.prototype =
+	{
+		enableEditor: function()
+		{
+			this.editorEnabled = true;
+		},
+
+		disableEditor: function()
+		{
+			if (this.pendingPublication)
+			{
+				this.processing();
+			}
+			this.editorEnabled = false;
+			this.pendingPublication = false;
+		},
+
+		getStatusArea: function()
+		{
+			var rootWindow = BX.Landing.PageObject.getRootWindow();
+			return rootWindow.document.querySelector('#landing-popup-publication-btn');
+		},
+
+		getErrorArea: function()
+		{
+			var rootWindow = BX.Landing.PageObject.getRootWindow();
+			return rootWindow.document.querySelector('#landing-popup-publication-error-area');
+		},
+
+		resolveEntityId: function(data, entityCode)
+		{
+			if (typeof data[entityCode] !== 'undefined')
+			{
+				return parseInt(data[entityCode]);
+			}
+			var keys = Object.keys(data);
+			for (var i = 0, c = keys.length; i < c; i++)
+			{
+				if (
+					typeof data[keys[i]].data !== 'undefined' &&
+					typeof data[keys[i]].data[entityCode] !== 'undefined'
+				)
+				{
+					return parseInt(data[keys[i]].data[entityCode]);
+				}
+			}
+			return null;
+		},
+
+		isActionAllowed: function(action)
+		{
+			this.fullPublication = this.fullPublicationCommands[action] === true;
+			return this.allowedCommands[action] === true;
+		},
+
+		onAction: function(action, data)
+		{
+			if (this.isActionAllowed(action))
+			{
+				this.blockId = this.resolveEntityId(data, 'block');
+				this.landingId = this.resolveEntityId(data, 'lid');
+				this.revertStatusMessage();
+				if (this.editorEnabled)
+				{
+					this.pendingPublication = true;
+				}
+				else
+				{
+					this.processing();
+				}
+			}
+		},
+
+		actualizeStatusMessage: function()
+		{
+			if (!top.window.autoPublicationEnabled)
+			{
+				this.revertStatusMessage();
+			}
+			else
+			{
+				this.updateStatusMessage();
+			}
+		},
+
+		updateStatusMessage: function()
+		{
+			BX.message({
+				LANDING_PAGE_STATUS_UPDATED: BX.message('LANDING_PAGE_STATUS_PUBLIC'),
+				LANDING_PAGE_STATUS_UPDATED_NOW: BX.message('LANDING_PAGE_STATUS_PUBLIC_NOW')
+			});
+			BX.Landing.UI.Panel.StatusPanel.getInstance().update();
+		},
+
+		revertStatusMessage: function()
+		{
+			BX.message({
+				LANDING_PAGE_STATUS_UPDATED: BX.message('LANDING_PAGE_STATUS_UPDATED_ORIG'),
+				LANDING_PAGE_STATUS_UPDATED_NOW: BX.message('LANDING_PAGE_STATUS_UPDATED_NOW_ORIG')
+			});
+			BX.Landing.UI.Panel.StatusPanel.getInstance().update();
+		},
+
+		processing: function()
+		{
+			this.actualizeStatusMessage();
+			if (!top.window.autoPublicationEnabled)
+			{
+				this.blockId = null;
+				this.landingId = null;
+				return;
+			}
+			if (this.blockId || this.fullPublication)
+			{
+				setTimeout(function() {
+					var action = (this.fullPublication || this.pageIsUnActive) ? 'Landing::publication' : 'Block::publication';
+					BX.Landing.Backend.getInstance()
+						.action(action, {
+							block: this.blockId,
+							lid: this.landingId
+						})
+
+						.then(function(response) {
+							BX.addClass(this.getStatusArea(), "landing-ui-panel-top-pub-btn-loader")
+							this.pageIsUnActive = false ;
+							setTimeout(function(){
+								this.setSuccess();
+							}.bind(this), 1000);
+
+						}.bind(this))
+
+						.catch(function(response) {
+							if (
+								response.result &&
+								typeof response.result[0] !== 'undefined'
+							)
+							{
+								this.setError(response.result[0]);
+							}
+							else
+							{
+								this.setError({
+									error: 'system_error',
+									error_description: 'System error'
+								});
+							}
+						}.bind(this));
+
+					this.blockId = null;
+					this.landingId = null;
+				}.bind(this), 0);
+			}
+		},
+
+		setSuccess: function()
+		{
+			var errorArea = this.getErrorArea();
+			var statusArea = this.getStatusArea();
+			errorArea.removeAttribute('data-error');
+			errorArea.removeAttribute('data-error-description');
+			BX.addClass(statusArea, "landing-ui-panel-top-pub-btn-success")
+			BX.removeClass(statusArea, "landing-ui-panel-top-pub-btn-error");
+			BX.removeClass(statusArea, "landing-ui-panel-top-pub-btn-loader");
+			setTimeout(function() {
+				statusArea.style.backgroundColor = '';
+				BX.removeClass(statusArea, "landing-ui-panel-top-pub-btn-success")
+			}.bind(this), 1000);
+		},
+
+		setError: function(error)
+		{
+			var errorArea = this.getErrorArea();
+			var statusArea = this.getStatusArea();
+			BX.removeClass(statusArea, "landing-ui-panel-top-pub-btn-loader");
+			BX.addClass(statusArea, "landing-ui-panel-top-pub-btn-error");
+			errorArea.setAttribute('data-error-description', error.error_description);
+			errorArea.setAttribute('data-error', error.error);
 		}
 	};
 
@@ -717,7 +1621,7 @@
 
 var landingAlertMessage = function landingAlertMessage(errorText, payment, errorCode)
 {
-	if (payment === true && errorCode === 'PUBLIC_SITE_REACHED')
+	if (payment === true && (errorCode === 'PUBLIC_SITE_REACHED' || errorCode === 'PUBLIC_SITE_REACHED_FREE'))
 	{
 		(function()
 		{

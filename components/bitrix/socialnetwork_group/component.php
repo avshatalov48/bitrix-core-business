@@ -138,6 +138,9 @@ $arDefaultUrlTemplates404 = array(
 
 	"group_app" => "group/#group_id#/app/#placement_id#/",
 	"group_marketplace" => "group/#group_id#/marketplace/",
+
+	"scrum_team_speed" => "group/#group_id#/scrum/team_speed/",
+	"scrum_burn_down" => "group/#group_id#/scrum/burn_down/#sprint_id#/",
 );
 
 $diskEnabled = (
@@ -281,13 +284,36 @@ $arDefaultUrlTemplatesN404 = array(
 //	"group_log_rss_mask" => "page=group_log_rss&group_id=#group_id#",
 
 	"group_app" => "page=group_app&group_id=#group_id#&placement_id=#placement_id#",
-	"group_marketplace" => "page=group_marketplace&group_id=#group_id#"
+	"group_marketplace" => "page=group_marketplace&group_id=#group_id#",
+
+	"scrum_team_speed" => "page=scrum_team_speed&group_id=#group_id#",
+	"scrum_burn_down" => "page=scrum_burn_down&group_id=#group_id#&sprint_id=#sprint_id#",
 );
 
 $arDefaultVariableAliases404 = array();
 $arDefaultVariableAliases = array();
 $componentPage = "";
-$arComponentVariables = array("user_id", "group_id", "page", "message_id", "subject_id", "path", "section_id", "element_id", "action", "post_id", "category", "topic_id", "task_id", "view_id", "type", "report_id", "placement_id");
+
+$arComponentVariables = array(
+	"user_id",
+	"group_id",
+	"page",
+	"message_id",
+	"subject_id",
+	"path",
+	"section_id",
+	"element_id",
+	"action",
+	"post_id",
+	"category",
+	"topic_id",
+	"task_id",
+	"view_id",
+	"type",
+	"report_id",
+	"placement_id",
+	"sprint_id",
+);
 
 if (
 	$_REQUEST["auth"] === "Y"
@@ -408,6 +434,8 @@ if (IsModuleInstalled("search"))
 	if (!array_key_exists("SEARCH_FILTER_DATE_NAME", $arParams))
 		$arParams["SEARCH_FILTER_DATE_NAME"] = "sonet_search_filter_date";
 }
+
+ComponentHelper::setModuleUsed();
 
 $arCustomPagesPath = array();
 

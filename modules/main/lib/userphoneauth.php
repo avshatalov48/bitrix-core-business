@@ -21,9 +21,9 @@ use Bitrix\Main\Localization\Loc;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_UserPhoneAuth_Query query()
- * @method static EO_UserPhoneAuth_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserPhoneAuth_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_UserPhoneAuth_Result getById($id)
- * @method static EO_UserPhoneAuth_Result getList(array $parameters = array())
+ * @method static EO_UserPhoneAuth_Result getList(array $parameters = [])
  * @method static EO_UserPhoneAuth_Entity getEntity()
  * @method static \Bitrix\Main\EO_UserPhoneAuth createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\EO_UserPhoneAuth_Collection createCollection()

@@ -1,14 +1,19 @@
-import {ajax, Browser, Cache, Dom, Event, Extension, Loc, Tag, Text, Type} from 'main.core';
-import {Dialog} from 'ui.entity-selector';
+import {Browser, Cache, Dom, Event, Extension, Loc, Tag, Text, Type} from 'main.core';
+import {Dialog, Item} from 'ui.entity-selector';
 import './component.css';
 import {EventEmitter} from 'main.core.events';
-import {Base} from './models/base';
+import {ProductModel} from 'catalog.product-model';
 import {ProductSelector} from 'catalog.product-selector';
-import ProductCreationLimitedFooter from "./product-creation-limited-footer";
+import ProductSearchSelectorFooter from './product-search-selector-footer';
+import ProductCreationLimitedFooter from './product-creation-limited-footer';
+import {SelectorErrorCode} from './selector-error-code';
+import 'ui.notification';
 
 export class ProductSearchInput
 {
-	model: Base;
+	static SEARCH_TYPE_ID = 'product';
+
+	model: ProductModel;
 	selector: ProductSelector;
 	cache = new Cache.MemoryCache();
 
@@ -24,13 +29,28 @@ export class ProductSearchInput
 		this.model = options.model || {};
 		this.isEnabledSearch = options.isSearchEnabled;
 		this.isEnabledDetailLink = options.isEnabledDetailLink;
-		this.isEnabledEmptyProductError = options.isEnabledEmptyProductError;
-		this.inputName = options.inputName || '';
+		this.inputName = options.inputName || ProductSelector.INPUT_FIELD_NAME;
+		this.immutableFieldNames = [ProductSelector.INPUT_FIELD_BARCODE, ProductSelector.INPUT_FIELD_NAME];
+		if (!this.immutableFieldNames.includes(this.inputName))
+		{
+			this.immutableFieldNames.push(this.inputName);
+		}
+		this.ajaxInProcess = false;
+	}
+
+	destroy()
+	{
+
 	}
 
 	getId()
 	{
 		return this.id;
+	}
+
+	getSelectorType()
+	{
+		return ProductSelector.INPUT_FIELD_NAME;
 	}
 
 	getField(fieldName): string
@@ -41,6 +61,11 @@ export class ProductSearchInput
 	getValue()
 	{
 		return this.getField(this.inputName);
+	}
+
+	getFilledValue(): string
+	{
+		return this.getNameInput().value || '';
 	}
 
 	isSearchEnabled(): boolean
@@ -85,11 +110,13 @@ export class ProductSearchInput
 	{
 		return this.cache.remember('nameInput', () => {
 			return Tag.render`
-				<input type="text" 
-					class="ui-ctl-element ui-ctl-textbox" 
+				<input type="text"
+					class="ui-ctl-element ui-ctl-textbox"
 					autocomplete="off"
+					data-name="${Text.encode(this.inputName)}"
 					value="${Text.encode(this.getValue())}"
 					placeholder="${Text.encode(this.getPlaceholder())}"
+					title="${Text.encode(this.getValue())}"
 					onchange="${this.handleNameInputHiddenChange.bind(this)}"
 				>
 			`;
@@ -101,8 +128,8 @@ export class ProductSearchInput
 		return this.cache.remember('hiddenNameInput', () => {
 			return Tag.render`
 				<input
-				 	type="hidden" 
-					name="${Text.encode(this.inputName)}" 
+				 	type="hidden"
+					name="${Text.encode(this.inputName)}"
 					value="${Text.encode(this.getValue())}"
 				>
 			`;
@@ -119,7 +146,7 @@ export class ProductSearchInput
 		return this.cache.remember('closeIcon', () => {
 			return Tag.render`
 				<button
-					class="ui-ctl-after ui-ctl-icon-clear" 
+					class="ui-ctl-after ui-ctl-icon-clear"
 					onclick="${this.handleClearIconClick.bind(this)}"
 				></button>
 			`;
@@ -131,10 +158,10 @@ export class ProductSearchInput
 		return this.cache.remember('arrowIcon', () => {
 			return Tag.render`
 				<a
-					href="${this.model.getDetailPath()}"
+					href="${Text.encode(this.model.getDetailPath())}"
 					target="_blank"
 					class="ui-ctl-after ui-ctl-icon-forward"
-				></button>
+				>
 			`;
 		});
 	}
@@ -153,27 +180,19 @@ export class ProductSearchInput
 
 	layout(): HTMLElement
 	{
+		this.clearInputCache();
 		const block = Tag.render`<div class="ui-ctl ui-ctl-w100 ui-ctl-after-icon"></div>`;
 
-		if (!Type.isStringFilled(this.getValue()))
-		{
-			this.toggleIcon(this.getClearIcon(), 'none');
-		}
-
-		block.appendChild(this.getClearIcon());
-
-		if (this.showDetailLink() && Type.isStringFilled(this.getValue()))
-		{
-			this.toggleIcon(this.getClearIcon(), 'none');
-			this.toggleIcon(this.getArrowIcon(), 'block');
-			block.appendChild(this.getArrowIcon());
-		}
+		this.toggleIcon(this.getClearIcon(), 'none');
+		Dom.append(this.getClearIcon(), block);
 
 		if (this.isSearchEnabled())
 		{
-			const iconValue = Type.isStringFilled(this.getValue()) ? 'none' : 'block';
-			this.toggleIcon(this.getSearchIcon(), iconValue);
-			block.appendChild(this.getSearchIcon());
+			this.toggleIcon(
+				this.getSearchIcon(),
+				Type.isStringFilled(this.getFilledValue()) ? 'none' : 'block'
+			);
+			Dom.append(this.getSearchIcon(), block);
 
 			Event.bind(this.getNameInput(), 'click', this.handleShowSearchDialog.bind(this));
 			Event.bind(this.getNameInput(), 'input', this.handleShowSearchDialog.bind(this));
@@ -181,19 +200,23 @@ export class ProductSearchInput
 			Event.bind(this.getNameInput(), 'keydown', this.handleNameInputKeyDown.bind(this));
 		}
 
-		Event.bind(this.getNameInput(), 'click', this.handleIconsSwitchingOnNameInput.bind(this));
-		Event.bind(this.getNameInput(), 'input', this.handleIconsSwitchingOnNameInput.bind(this));
-
-		if (this.selector && this.selector.isSaveable())
+		if (this.showDetailLink() && Type.isStringFilled(this.getValue()))
 		{
-			Event.bind(this.getNameInput(), 'change', this.handleNameInputChange.bind(this));
+			this.toggleIcon(this.getClearIcon(), 'none');
+			this.toggleIcon(this.getSearchIcon(), 'none');
+			this.toggleIcon(this.getArrowIcon(), 'block');
+			Dom.append(this.getArrowIcon(), block);
 		}
 
-		block.appendChild(this.getNameBlock());
+		Event.bind(this.getNameInput(), 'click', this.handleIconsSwitchingOnNameInput.bind(this));
+		Event.bind(this.getNameInput(), 'input', this.handleIconsSwitchingOnNameInput.bind(this));
+		Event.bind(this.getNameInput(), 'change', this.handleNameInputChange.bind(this));
+
+		Dom.append(this.getNameBlock(), block);
 		return block;
 	}
 
-	showDetailLink(): string
+	showDetailLink(): boolean
 	{
 		return this.isEnabledDetailLink;
 	}
@@ -201,9 +224,27 @@ export class ProductSearchInput
 	getDialog(): ?Dialog
 	{
 		return this.cache.remember('dialog', () => {
+			const searchTypeId = ProductSearchInput.SEARCH_TYPE_ID ;
+			const entity = {
+				id: searchTypeId,
+				options: {
+					iblockId: this.model.getIblockId(),
+					basePriceId: this.model.getBasePriceId(),
+					currency: this.model.getCurrency(),
+				},
+				dynamicLoad: true,
+				dynamicSearch: true,
+			};
+			const restrictedProductTypes = this.selector.getConfig('RESTRICTED_PRODUCT_TYPES', null);
+			if (!Type.isNil(restrictedProductTypes))
+			{
+				entity.options.restrictedProductTypes = restrictedProductTypes;
+			}
+
 			const params = {
-				id: this.id,
+				id: this.id + '_' + searchTypeId,
 				height: 300,
+				width: Math.max(this.getNameInput()?.offsetWidth, 565),
 				context: 'catalog-products',
 				targetNode: this.getNameInput(),
 				enableSearch: false,
@@ -213,23 +254,20 @@ export class ProductSearchInput
 					stub: true,
 					stubOptions: {
 						title: Tag.message`${'CATALOG_SELECTOR_IS_EMPTY_TITLE'}`,
-						subtitle: Tag.message`${'CATALOG_SELECTOR_IS_EMPTY_SUBTITLE'}`,
+						subtitle:
+							this.isAllowedCreateProduct()
+								? Tag.message`${'CATALOG_SELECTOR_IS_EMPTY_SUBTITLE'}`
+								: ''
+						,
 						arrow: true
 					}
 				},
 				events: {
 					'Item:onSelect': this.onProductSelect.bind(this),
-					'Search:onItemCreateAsync': this.createProduct.bind(this)
+					'Search:onItemCreateAsync': this.createProduct.bind(this),
+					'ChangeItem:onClick': this.showChangeNotification.bind(this),
 				},
-				entities: [
-					{
-						id: 'product',
-						options: {
-							iblockId: this.selector.getIblockId(),
-							basePriceId: this.selector.getBasePriceId()
-						}
-					}
-				]
+				entities: [entity]
 			};
 
 			const settingsCollection = Extension.getSettings('catalog.product-selector');
@@ -237,13 +275,28 @@ export class ProductSearchInput
 			{
 				params.footer = ProductCreationLimitedFooter;
 			}
+			else if (this.model && this.model.isSaveable() && this.model.isCatalogExisted())
+			{
+				params.footer = ProductSearchSelectorFooter;
+				params.footerOptions = {
+					inputName: this.inputName,
+					allowCreateItem: this.isAllowedCreateProduct(),
+					creationLabel: Loc.getMessage('CATALOG_SELECTOR_SEARCH_POPUP_FOOTER_CREATE'),
+					currentValue: this.getValue(),
+				};
+			}
 			else
 			{
-				params.searchOptions = { allowCreateItem: true };
+				params.searchOptions = { allowCreateItem: this.isAllowedCreateProduct() };
 			}
 
 			return new Dialog(params);
 		});
+	}
+
+	isAllowedCreateProduct()
+	{
+		return this.selector.getConfig('IS_ALLOWED_CREATION_PRODUCT', true);
 	}
 
 	handleNameInputKeyDown(event: KeyboardEvent): void
@@ -252,6 +305,7 @@ export class ProductSearchInput
 		if (event.key === 'Enter' && dialog.getActiveTab() === dialog.getSearchTab())
 		{
 			// prevent a form submit
+			event.stopPropagation();
 			event.preventDefault();
 
 			if ((Browser.isMac() && event.metaKey) || event.ctrlKey)
@@ -273,13 +327,24 @@ export class ProductSearchInput
 		else
 		{
 			this.toggleIcon(this.getClearIcon(), 'none');
-			this.toggleIcon(this.getSearchIcon(), 'block');
+			if (this.isSearchEnabled())
+			{
+				this.toggleIcon(this.getSearchIcon(), 'block');
+			}
 		}
+	}
+
+	clearInputCache()
+	{
+		this.cache.delete('dialog');
+		this.cache.delete('nameBlock');
+		this.cache.delete('nameInput');
+		this.cache.delete('hiddenNameInput');
 	}
 
 	handleClearIconClick(event: UIEvent)
 	{
-		if (this.selector.isProductSearchEnabled() && !this.selector.isEmptyModel())
+		if (this.selector.isProductSearchEnabled() && !this.model.isEmpty())
 		{
 			this.selector.clearState();
 			this.selector.clearLayout();
@@ -288,8 +353,9 @@ export class ProductSearchInput
 		}
 		else
 		{
-			this.getNameInput().value = '';
+			const newValue = '';
 			this.toggleIcon(this.getClearIcon(), 'none');
+			this.onChangeValue(newValue);
 		}
 
 		this.selector.focusName();
@@ -306,12 +372,33 @@ export class ProductSearchInput
 	handleNameInputChange(event: UIEvent)
 	{
 		const value = event.target.value;
+		this.onChangeValue(value);
+	}
 
-		EventEmitter.emit('ProductList::onChangeFields', {
+	onChangeValue(value: string)
+	{
+		const fields = {};
+		this.getNameInput().title = value;
+		this.getNameInput().value = value;
+		fields[this.inputName] = value;
+		EventEmitter.emit('ProductSelector::onNameChange', {
 			rowId: this.selector.getRowId(),
-			fields: {
-				'NAME': value
-			}
+			fields
+		});
+
+		if (!this.selector.isEnabledAutosave())
+		{
+			return;
+		}
+
+		this.selector.getModel().setFields(fields);
+		this.selector.getModel().save().then(() => {
+			BX.UI.Notification.Center.notify({
+				id: 'saving_field_notify_name',
+				closeButton: false,
+				content: Tag.render`<div>${Loc.getMessage('CATALOG_SELECTOR_SAVING_NOTIFICATION_NAME')}</div>`,
+				autoHide: true,
+			});
 		});
 	}
 
@@ -328,8 +415,15 @@ export class ProductSearchInput
 		}
 
 		const dialog = this.getDialog();
+		dialog.removeItems()
+
 		if (dialog)
 		{
+			if (searchQuery === '')
+			{
+				dialog.loadState = 'UNSENT';
+				dialog.load();
+			}
 			dialog.show();
 			dialog.search(searchQuery);
 		}
@@ -337,10 +431,7 @@ export class ProductSearchInput
 
 	handleShowSearchDialog(event: UIEvent)
 	{
-		if (this.selector.isEmptyModel() || this.selector.isSimpleModel())
-		{
-			this.selector.searchInDialog(event.target.value);
-		}
+		this.searchInDialog(this.getNameInput().value);
 	}
 
 	handleNameInputBlur(event: UIEvent)
@@ -351,23 +442,38 @@ export class ProductSearchInput
 
 			if (this.showDetailLink() && Type.isStringFilled(this.getValue()))
 			{
-				this.toggleIcon(this.getSearchIcon(), 'none');
+				if (this.isSearchEnabled())
+				{
+					this.toggleIcon(this.getSearchIcon(), 'none');
+				}
 				this.toggleIcon(this.getArrowIcon(), 'block');
 			}
 			else
 			{
 				this.toggleIcon(this.getArrowIcon(), 'none');
-				this.toggleIcon(this.getSearchIcon(), 'block');
+				if (this.isSearchEnabled())
+				{
+					this.toggleIcon(
+						this.getSearchIcon(),
+						Type.isStringFilled(this.getFilledValue()) ? 'none' : 'block'
+					);
+				}
 			}
 		}, 200);
 
-		if (this.isSearchEnabled() && this.isEnabledEmptyProductError)
+		if (this.isSearchEnabled() && this.selector.isEnabledEmptyProductError())
 		{
 			setTimeout(() => {
-				if (this.selector.isEmptyModel())
+				if (
+					!this.selector.inProcess()
+					&& (
+						this.model.isEmpty()
+						|| !Type.isStringFilled(this.getNameInput().value)
+					)
+				)
 				{
-					this.model.setError(
-						'NOT_SELECTED_PRODUCT',
+					this.model.getErrorCollection().setError(
+						SelectorErrorCode.NOT_SELECTED_PRODUCT,
 						Loc.getMessage('CATALOG_SELECTOR_SELECTED_PRODUCT_TITLE')
 					);
 
@@ -379,88 +485,117 @@ export class ProductSearchInput
 
 	handleSearchIconClick(event: UIEvent)
 	{
-		this.selector.searchInDialog();
-		this.selector.focusName();
+		this.searchInDialog();
+		this.focusName();
 
 		event.stopPropagation();
 		event.preventDefault();
 	}
 
-	resetModel(title)
+	getImmutableFieldNames()
 	{
-		const fields = this.selector.getModel().getFields();
-		const newModel = this.selector.createModel({isSimpleModel: true});
-		this.selector.setModel(newModel);
-		fields['NAME'] = title;
-		this.selector.getModel().setFields(fields);
+		return this.immutableFieldNames;
+	}
+
+	setInputValueOnProductSelect(item: Item)
+	{
+		item.getDialog().getTargetNode().value = item.getTitle()
 	}
 
 	onProductSelect(event)
 	{
 		const item = event.getData().item;
-		item.getDialog().getTargetNode().value = item.getTitle();
+		this.setInputValueOnProductSelect(item);
+
 		this.toggleIcon(this.getSearchIcon(), 'none');
-
-		this.resetModel(item.getTitle());
-
-		this.selector.clearLayout();
-		this.selector.layout();
-
+		this.model.getErrorCollection().clearErrors();
 		if (this.selector)
 		{
-			this.selector.onProductSelect(item.getId(), {
-				saveProductFields: item.getCustomData().get('saveProductFields'),
-				isNew: item.getCustomData().get('isNew')
+			const isNew = item.getCustomData().get('isNew');
+			const immutableFields = [];
+			this.getImmutableFieldNames().forEach((key) => {
+				if (!Type.isNil(item.getCustomData().get(key)))
+				{
+					this.model.setField(key, item.getCustomData().get(key));
+					immutableFields.push(key);
+				}
 			});
+
+			this.selector.onProductSelect(
+				item.getId(),
+					{
+						isNew,
+						immutableFields,
+				}
+			);
+
+			this.selector.clearLayout();
+			this.selector.layout();
 		}
 
-		item.getDialog().hide();
+		this.cache.delete('dialog');
 	}
 
-	createProduct(event): Promise
+	createProductModelFromSearchQuery(searchQuery: string)
 	{
+		const fields = {...this.selector.getModel().getFields()};
+		fields[this.inputName] = searchQuery;
+
+		return new ProductModel({
+			isSimpleModel: true,
+			isNew: true,
+			currency: this.selector.options.currency,
+			iblockId: this.selector.getModel().getIblockId(),
+			basePriceId: this.selector.getModel().getBasePriceId(),
+			fields
+		})
+	}
+
+	createProduct(event): ?Promise
+	{
+		if (this.ajaxInProcess)
+		{
+			return;
+		}
+
+		this.ajaxInProcess = true;
+		const dialog: Dialog = event.getTarget();
 		const {searchQuery} = event.getData();
-		this.resetModel(searchQuery.getQuery());
+		const newProduct = this.createProductModelFromSearchQuery(searchQuery.getQuery());
+
+		EventEmitter.emit(this.selector, 'onBeforeCreate', {model: newProduct});
+
 		return new Promise(
 			(resolve, reject) => {
-				const dialog: Dialog = event.getTarget();
-				const fields = {
-					NAME: searchQuery.getQuery(),
-					IBLOCK_ID: this.selector.getIblockId()
-				};
-
-				const price = this.selector.getModel().getField('PRICE', null);
-				if (!Type.isNil(price))
+				if (!this.checkCreationModel(newProduct))
 				{
-					fields['PRICE'] = price;
-				}
-
-				const currency = this.selector.getModel().getField('CURRENCY', null);
-				if (Type.isStringFilled(currency))
-				{
-					fields['CURRENCY'] = currency;
+					this.ajaxInProcess = false;
+					dialog.hide();
+					reject();
+					return;
 				}
 
 				dialog.showLoader();
-				ajax.runAction(
-					'catalog.productSelector.createProduct',
-					{
-						json: {
-							fields
-						}
-					}
-				)
+				newProduct.save()
 					.then(response => {
 						dialog.hideLoader();
+						const id = Text.toInteger(response.data.id);
 						const item = dialog.addItem({
-							id: response.data.id,
-							entityId: 'product',
+							id,
+							entityId: ProductSearchInput.SEARCH_TYPE_ID,
 							title: searchQuery.getQuery(),
 							tabs: dialog.getRecentTab().getId(),
 							customData: {
-								saveProductFields: true,
-								isNew: true
+								isNew: true,
 							}
+						});
+
+						this.selector.getModel().setOption('isSimpleModel', false);
+						this.selector.getModel().setOption('isNew', true);
+
+						this.getImmutableFieldNames().forEach((name) => {
+							this.selector.getModel().setField(name, newProduct.getField(name));
+							this.selector.getModel().setOption(name, newProduct.getField(name));
 						});
 
 						if (item)
@@ -469,21 +604,85 @@ export class ProductSearchInput
 						}
 
 						dialog.hide();
+						this.cache.delete('dialog');
+						this.ajaxInProcess = false;
 						resolve();
 					})
-					.catch(() => {
-						dialog.hide();
+					.catch((errorResponse) => {
+						dialog.hideLoader();
+						errorResponse.errors.forEach((error) => {
+							BX.UI.Notification.Center.notify({
+								closeButton: true,
+								content: Tag.render`<div>${error.message}</div>`,
+								autoHide: true,
+							});
+						});
+
+						this.ajaxInProcess = false;
 						reject();
 					});
 			});
 	}
 
+	checkCreationModel(creationModel: ProductModel): boolean
+	{
+		return true;
+	}
+
+	showChangeNotification(event): void
+	{
+		const {query} = event.getData();
+		const options = {
+			title: Loc.getMessage('CATALOG_SELECTOR_SAVING_NOTIFICATION_' + this.selector.getType()),
+			events: {
+				onSave: () => {
+					if (this.selector)
+					{
+						this.selector.getModel().setField(this.inputName, query);
+						this.selector.getModel().save([this.inputName])
+							.catch((errorResponse) => {
+								errorResponse.errors.forEach((error) => {
+									BX.UI.Notification.Center.notify({
+										closeButton: true,
+										content: Tag.render`<div>${error.message}</div>`,
+										autoHide: true,
+									});
+								});
+							});
+					}
+				}
+			},
+		};
+
+		if (this.selector.getConfig('ROLLBACK_INPUT_AFTER_CANCEL', false))
+		{
+			options.declineCancelTitle = Loc.getMessage('CATALOG_SELECTOR_SAVING_NOTIFICATION_CANCEL_TITLE');
+			options.events.onCancel = () => {
+				this.selector.clearLayout();
+				this.selector.layout();
+			};
+		}
+
+		this.selector.getModel().showSaveNotifier(
+			'nameChanger_' + this.selector.getId(),
+			options
+		);
+	}
+
 	getPlaceholder(): string
 	{
 		return (
-			this.isSearchEnabled() && this.selector.isEmptyModel()
+			this.isSearchEnabled() && this.model.isEmpty()
 				? Loc.getMessage('CATALOG_SELECTOR_BEFORE_SEARCH_TITLE')
 				: Loc.getMessage('CATALOG_SELECTOR_VIEW_NAME_TITLE')
 		);
+	}
+
+	removeSpotlight()
+	{
+	}
+
+	removeQrAuth()
+	{
 	}
 }

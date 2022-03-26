@@ -68,6 +68,12 @@ class ShipmentItemStoreTable extends Main\Entity\DataManager
 				'required' => true,
 				'title' => Loc::getMessage('STORE_BARCODE_ENTITY_ORDER_DELIVERY_BASKET_ID_FIELD'),
 			),
+			'ORDER_DELIVERY_BASKET' => array(
+				'data_type' => 'Bitrix\Sale\Internals\ShipmentItem',
+				'reference' => array(
+					'=this.ORDER_DELIVERY_BASKET_ID' => 'ref.ID'
+				)
+			),
 			'BASKET_ID' => array(
 				'data_type' => 'integer',
 				'required' => true,

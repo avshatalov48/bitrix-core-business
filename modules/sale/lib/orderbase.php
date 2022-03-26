@@ -252,7 +252,7 @@ abstract class OrderBase extends Internals\Entity
 	 */
 	public static function load($id)
 	{
-		if (intval($id) <= 0)
+		if ((int)$id <= 0)
 		{
 			throw new Main\ArgumentNullException("id");
 		}
@@ -2023,9 +2023,8 @@ abstract class OrderBase extends Internals\Entity
 	 */
 	public function getTaxLocation()
 	{
-		if (strval(($this->getField('TAX_LOCATION')) == ""))
+		if ((string)$this->getField('TAX_LOCATION') === "")
 		{
-			/** @var PropertyValueCollectionBase $propertyCollection */
 			$propertyCollection = $this->getPropertyCollection();
 
 			if ($property = $propertyCollection->getTaxLocation())

@@ -2108,13 +2108,11 @@ export class Planner extends EventEmitter
 				{
 					if (this.accessibility.hasOwnProperty(entryId))
 					{
-						if (this.selectMode)
+						entry = this.entries.find(function(el){return el.id === entryId.toString();});
+
+						if (!entry || this.selectMode && !entry.selected)
 						{
-							entry = this.entries.find(function(el){return parseInt(el.id) === parseInt(entryId);});
-							if (entry && !entry.selected)
-							{
-								continue;
-							}
+							continue;
 						}
 
 						entriesAccessibleIndex[entryId] = true;

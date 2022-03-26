@@ -22,6 +22,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_9_TWO_COLS_FIX_IMG_AND_LINKS_NODES_LANDINGBLOCKNODEIMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 540),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-link' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_9_TWO_COLS_FIX_IMG_AND_LINKS_NODES_LANDINGBLOCKNODELINK'),

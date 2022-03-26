@@ -187,11 +187,11 @@ class Search
 			$nameTemplate = $params['nameTemplate'];
 
 			$res = \CCrmContact::getListEx(
-				$arOrder = array(),
-				$arFilter = array('%FULL_NAME' => $search),
-				$arGroupBy = false,
-				$arNavStartParams = array('nTopCount' => 20),
-				$arSelectFields = array('ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'COMPANY_TITLE', 'PHOTO')
+				[],
+				['%FULL_NAME' => $search, '@CATEGORY_ID' => 0,],
+				false,
+				['nTopCount' => 20],
+				['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'COMPANY_TITLE', 'PHOTO']
 			);
 
 			while ($res && ($contact = $res->fetch()))
@@ -236,11 +236,11 @@ class Search
 			$companyIndustryList = \CCrmStatus::getStatusListEx('INDUSTRY');
 
 			$res = \CCrmCompany::getListEx(
-				$arOrder = array(),
-				$arFilter = array('%TITLE' => $search),
-				$arGroupBy = false,
-				$arNavStartParams = array('nTopCount' => 20),
-				$arSelectFields = array('ID', 'TITLE', 'COMPANY_TYPE', 'INDUSTRY',  'LOGO')
+				[],
+				['%TITLE' => $search, '@CATEGORY_ID' => 0,],
+				false,
+				['nTopCount' => 20],
+				['ID', 'TITLE', 'COMPANY_TYPE', 'INDUSTRY',  'LOGO']
 			);
 
 			while ($res && ($company = $res->fetch()))

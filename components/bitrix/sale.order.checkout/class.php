@@ -398,7 +398,7 @@ class SaleOrderCheckout extends \CBitrixComponent
 			}
 		}
 
-		return $order;
+		return $order ?: null;
 	}
 
 	private function prepareJsonData(): void
@@ -713,9 +713,10 @@ class SaleOrderCheckout extends \CBitrixComponent
 		$personType = Sale\Internals\BusinessValuePersonDomainTable::getList([
 			'select' => ['PERSON_TYPE_ID'],
 			'filter' => [
-				'DOMAIN' => Sale\BusinessValue::INDIVIDUAL_DOMAIN,
-				'PERSON_TYPE_REFERENCE.ENTITY_REGISTRY_TYPE' => Sale\Registry::REGISTRY_TYPE_ORDER,
-				'PERSON_TYPE_REFERENCE.LID' => $siteId,
+				'=DOMAIN' => Sale\BusinessValue::INDIVIDUAL_DOMAIN,
+				'=PERSON_TYPE_REFERENCE.ENTITY_REGISTRY_TYPE' => Sale\Registry::REGISTRY_TYPE_ORDER,
+				'=PERSON_TYPE_REFERENCE.LID' => $siteId,
+				'=PERSON_TYPE_REFERENCE.ACTIVE' => 'Y',
 			],
 			'order' => [
 				'PERSON_TYPE_REFERENCE.SORT' => 'ASC'
@@ -723,7 +724,7 @@ class SaleOrderCheckout extends \CBitrixComponent
 			'limit' => 1,
 		])->fetch();
 
-		$personTypeId = !empty($personType['PERSON_TYPE_ID']) ? (int)$personType['PERSON_TYPE_ID'] : null;
+		$personTypeId = $personType ? (int)$personType['PERSON_TYPE_ID'] : null;
 
 		$result[$siteId] = $personTypeId;
 

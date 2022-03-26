@@ -63,6 +63,20 @@
 
 	.bx-basket-item-list { display: none; }
 
+	.block-wrapper .bx-basket-fixed {
+		padding-top: 0;
+	}
+
+	.block-wrapper .bx-basket-fixed .bx-hdr-profile {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.block-wrapper .bx-basket-fixed .bx-hdr-profile .bx-basket-block {
+		margin-right: 20px;
+		padding-bottom: 0;
+	}
+
 	/*.bx-basket-fixed */
 }
 

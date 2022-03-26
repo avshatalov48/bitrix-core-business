@@ -4,6 +4,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+/** @var array $arResult */
+/** @var array $arParams */
+/** @var \CMain $APPLICATION */
+/** @var \CBitrixComponent $component */
+
 $request = \bitrix\Main\HttpContext::getCurrent()->getRequest();
 
 $arParams['PAGE_URL_SITE_SHOW'] = str_replace(
@@ -51,6 +56,11 @@ if (
 		}
 	);
 }
+
+if ($request->get('frameMode') === 'Y')
+{
+	$arParams['EDIT_DONT_LEAVE_FRAME'] = 'Y';
+}
 ?>
 
 <?if ($arResult['VARS']['landing_edit'] > 0):?>
@@ -64,6 +74,7 @@ if (
 			'PAGE_URL_LANDINGS' => $arParams['PAGE_URL_SITE_SHOW'],
 			'PAGE_URL_LANDING_VIEW' => $arParams['PAGE_URL_LANDING_VIEW'],
 			'PAGE_URL_SITE_EDIT' => $arParams['PAGE_URL_SITE_EDIT'],
+			'PAGE_URL_FOLDER_EDIT' => $arParams['PAGE_URL_FOLDER_EDIT'],
 			'TYPE' => $arParams['TYPE']
 		),
 		$component

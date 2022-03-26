@@ -214,7 +214,12 @@ class RequestHandler extends HandlerBase
 		if ($availableCancelState === 'paid')
 		{
 			$result->addMessage(
-				new Message(Loc::getMessage('SALE_YANDEX_TAXI_DELIVERY_PAID_CANCELLATION'))
+				new Message(Loc::getMessage(
+					'SALE_YANDEX_TAXI_DELIVERY_PAID_CANCELLATION',
+					[
+						'#SERVICE_NAME#' => $this->deliveryService->getName()
+					]
+				))
 			);
 		}
 

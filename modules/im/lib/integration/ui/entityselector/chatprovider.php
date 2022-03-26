@@ -46,6 +46,12 @@ class ChatProvider extends BaseProvider
 
 			$this->options['searchableChatTypes'] = $options['searchableChatTypes'];
 		}
+
+		$this->options['fillDialog'] = true;
+		if (isset($options['fillDialog']) && is_bool($options['fillDialog']))
+		{
+			$this->options['fillDialog'] = $options['fillDialog'];
+		}
 	}
 
 	public function isAvailable(): bool
@@ -72,6 +78,11 @@ class ChatProvider extends BaseProvider
 
 	public function getItems(array $ids): array
 	{
+		if (!$this->shouldFillDialog())
+		{
+			return [];
+		}
+
 		return $this->getChatItems([
 			'chatIds' => $ids,
 		]);
@@ -250,8 +261,18 @@ class ChatProvider extends BaseProvider
 		return in_array($chatType, $options['searchableChatTypes'], true);
 	}
 
+	public function shouldFillDialog(): bool
+	{
+		return $this->getOption('fillDialog', true);
+	}
+
 	public function fillDialog(Dialog $dialog): void
 	{
+		if (!$this->shouldFillDialog())
+		{
+			return;
+		}
+
 		// Preload chats ('doSearch' method has to have the same filter).
 		$preloadedChats = $this->getPreloadedChatsCollection();
 		$recentChats = new EO_Chat_Collection();

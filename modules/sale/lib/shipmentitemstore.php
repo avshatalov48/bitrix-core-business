@@ -8,8 +8,7 @@ use Bitrix\Sale;
 Loc::loadMessages(__FILE__);
 
 /**
- * Class ShipmentItemStore
- * @package Bitrix\Sale
+ * @method ShipmentItemStoreCollection getCollection()
  */
 class ShipmentItemStore
 	extends Internals\CollectableEntity
@@ -20,7 +19,10 @@ class ShipmentItemStore
 	 */
 	public static function getAvailableFields()
 	{
-		return array("ORDER_DELIVERY_BASKET_ID", "STORE_ID", "QUANTITY", "BARCODE", 'BASKET_ID', 'MARKING_CODE');
+		return [
+			'ORDER_DELIVERY_BASKET_ID', 'STORE_ID', 'QUANTITY', 
+			'BARCODE', 'BASKET_ID', 'MARKING_CODE'
+		];
 	}
 
 	/**
@@ -28,7 +30,7 @@ class ShipmentItemStore
 	 */
 	protected static function getMeaningfulFields()
 	{
-		return array();
+		return [];
 	}
 
 	/**
@@ -106,7 +108,147 @@ class ShipmentItemStore
 
 		$this->setFieldNoDemand('DATE_MODIFY', new Main\Type\DateTime());
 
-		return parent::onFieldModify($name, $oldValue, $value);
+		$result = parent::onFieldModify($name, $oldValue, $value);
+		if (!$result->isSuccess())
+		{
+			return $result;
+		}
+
+		if (
+			$name === 'STORE_ID'
+			&& $this->needMoveReserve()
+		)
+		{
+			$shipmentItem = $this->getCollection()->getShipmentItem();
+			if ($shipmentItem->getReservedQuantity() > 0)
+			{
+				$storeIdFrom = (int)$oldValue ?: Configuration::getDefaultStoreId();
+				$storeIdTo = (int)$value;
+
+				if ($storeIdFrom === $storeIdTo)
+				{
+					return $result;
+				}
+
+				$basketItem = $shipmentItem->getBasketItem();
+				$reserveTo = $reserveFrom = null;
+
+				/** @var ReserveQuantity $reserve */
+				foreach ($basketItem->getReserveQuantityCollection() as $reserve)
+				{
+					if ($reserve->getStoreId() === $storeIdFrom)
+					{
+						$reserveFrom = $reserve;
+					}
+					elseif ($reserve->getStoreId() === $storeIdTo)
+					{
+						$reserveTo = $reserve;
+					}
+
+					if ($reserveTo && $reserveFrom)
+					{
+						break;
+					}
+				}
+
+				if ($reserveFrom)
+				{
+					$settableQuantity = $reserveFrom->getQuantity() - $this->getQuantity();
+					if ($settableQuantity > 0)
+					{
+						$reserveFrom->setField('QUANTITY', $settableQuantity);
+					}
+					else
+					{
+						$reserveFrom->delete();
+					}
+				}
+
+				if (!$reserveTo)
+				{
+					$reserveTo = $basketItem->getReserveQuantityCollection()->create();
+					$reserveTo->setStoreId($storeIdTo);
+				}
+
+				$reserveTo->setQuantity($reserveTo->getQuantity() + $this->getQuantity());
+			}
+		}
+		elseif (
+			$name === 'QUANTITY'
+			&& $this->needMoveReserve()
+		)
+		{
+			$shipmentItem = $this->getCollection()->getShipmentItem();
+			if ($shipmentItem->getReservedQuantity() > 0)
+			{
+				if ($value > $oldValue)
+				{
+					$storeIdFrom = Configuration::getDefaultStoreId();
+					$storeIdTo = $this->getStoreId();
+				}
+				else
+				{
+					$storeIdTo = Configuration::getDefaultStoreId();
+					$storeIdFrom = $this->getStoreId();
+				}
+
+				if ($storeIdFrom === $storeIdTo)
+				{
+					return $result;
+				}
+
+				$basketItem = $shipmentItem->getBasketItem();
+				$reserveTo = $reserveFrom = null;
+
+				/** @var ReserveQuantity $reserve */
+				foreach ($basketItem->getReserveQuantityCollection() as $reserve)
+				{
+					if ($reserve->getStoreId() === $storeIdFrom)
+					{
+						$reserveFrom = $reserve;
+					}
+					elseif ($reserve->getStoreId() === $storeIdTo)
+					{
+						$reserveTo = $reserve;
+					}
+
+					if ($reserveTo && $reserveFrom)
+					{
+						break;
+					}
+				}
+
+				$delta = abs($oldValue - $value);
+
+				if ($reserveFrom)
+				{
+					$settableQuantity = $reserveFrom->getQuantity() - $delta;
+					if ($settableQuantity > 0)
+					{
+						$reserveFrom->setField('QUANTITY', $settableQuantity);
+					}
+					else
+					{
+						$reserveFrom->delete();
+					}
+				}
+
+				if (!$reserveTo)
+				{
+					$reserveTo = $basketItem->getReserveQuantityCollection()->create();
+					$reserveTo->setStoreId($storeIdTo);
+				}
+
+				$reserveTo->setQuantity($reserveTo->getQuantity() + $delta);
+			}
+		}
+
+		return $result;
+	}
+
+	protected function needMoveReserve() : bool
+	{
+		return true;
 	}
 
 	/**
@@ -119,86 +261,103 @@ class ShipmentItemStore
 	{
 		$result = new Result();
 
-		/** @var array $oldEntityValues */
 		$oldEntityValues = $this->fields->getOriginalValues();
 
-		/** @var Main\Event $event */
 		$event = new Main\Event('sale', "OnBeforeSaleShipmentItemStoreEntityDeleted", [
 			'ENTITY' => $this,
 			'VALUES' => $oldEntityValues,
 		]);
 		$event->send();
 
-		if ($event->getResults())
+		foreach ($event->getResults() as $eventResult)
 		{
-			/** @var Main\EventResult $eventResult */
-			foreach ($event->getResults() as $eventResult)
+			if ($eventResult->getType() == Main\EventResult::ERROR)
 			{
-				if ($eventResult->getType() == Main\EventResult::ERROR)
+				$eventResultData = $eventResult->getParameters();
+				if ($eventResultData instanceof ResultError)
 				{
-					$errorMsg = new ResultError(
-						Loc::getMessage('SALE_EVENT_ON_BEFORE_SALESHIPMENTITEMSTORE_ENTITY_DELETED_ERROR'),
-						'SALE_EVENT_ON_BEFORE_SALESHIPMENTITEMSTORE_ENTITY_DELETED_ERROR'
-					);
-					if ($eventResultData = $eventResult->getParameters())
-					{
-						if (isset($eventResultData) && $eventResultData instanceof ResultError)
-						{
-							/** @var ResultError $errorMsg */
-							$errorMsg = $eventResultData;
-						}
-					}
-
-					$result->addError($errorMsg);
+					return $result->addError($eventResultData);
 				}
-			}
-
-			if (!$result->isSuccess())
-			{
-				return $result;
 			}
 		}
 
 		$r = parent::delete();
 		if (!$r->isSuccess())
 		{
-			$result->addErrors($r->getErrors());
+			return $result->addErrors($r->getErrors());
 		}
 
-		/** @var Main\Event $event */
+		$shipmentItem = $this->getCollection()->getShipmentItem();
+		if ($shipmentItem->getReservedQuantity() > 0)
+		{
+			$storeIdTo = Configuration::getDefaultStoreId();
+			$storeIdFrom = $this->getStoreId();
+
+			if ($storeIdFrom === $storeIdTo)
+			{
+				return $result;
+			}
+
+			$basketItem = $shipmentItem->getBasketItem();
+			$reserveTo = $reserveFrom = null;
+
+			/** @var ReserveQuantity $reserve */
+			foreach ($basketItem->getReserveQuantityCollection() as $reserve)
+			{
+				if ($reserve->getStoreId() === $storeIdFrom)
+				{
+					$reserveFrom = $reserve;
+				}
+				elseif ($reserve->getStoreId() === $storeIdTo)
+				{
+					$reserveTo = $reserve;
+				}
+
+				if ($reserveTo && $reserveFrom)
+				{
+					break;
+				}
+			}
+
+			$delta = $this->getQuantity();
+
+			if ($reserveFrom)
+			{
+				$settableQuantity = $reserveFrom->getQuantity() - $delta;
+				if ($settableQuantity > 0)
+				{
+					$reserveFrom->setField('QUANTITY', $settableQuantity);
+				}
+				else
+				{
+					$reserveFrom->delete();
+				}
+			}
+
+			if (!$reserveTo)
+			{
+				$reserveTo = $basketItem->getReserveQuantityCollection()->create();
+				$reserveTo->setStoreId($storeIdTo);
+			}
+
+			$reserveTo->setQuantity($reserveTo->getQuantity() + $delta);
+		}
+
 		$event = new Main\Event('sale', "OnSaleShipmentItemStoreEntityDeleted", array(
 			'ENTITY' => $this,
 			'VALUES' => $this->fields->getOriginalValues(),
 		));
 		$event->send();
 
-		if ($event->getResults())
+		foreach ($event->getResults() as $eventResult)
 		{
-			/** @var Main\EventResult $eventResult */
-			foreach ($event->getResults() as $eventResult)
+			if ($eventResult->getType() == Main\EventResult::ERROR)
 			{
-				if ($eventResult->getType() == Main\EventResult::ERROR)
+				$eventResultData = $eventResult->getParameters();
+				if ($eventResultData instanceof ResultError)
 				{
-					$errorMsg = new ResultError(
-						Loc::getMessage('SALE_EVENT_ON_SALESHIPMENTITEMSTORE_ENTITY_DELETED_ERROR'),
-						'SALE_EVENT_ON_SALESHIPMENTITEMSTORE_ENTITY_DELETED_ERROR'
-					);
-					if ($eventResultData = $eventResult->getParameters())
-					{
-						if (isset($eventResultData) && $eventResultData instanceof ResultError)
-						{
-							/** @var ResultError $errorMsg */
-							$errorMsg = $eventResultData;
-						}
-					}
-
-					$result->addError($errorMsg);
+					$result->addError($eventResultData);
 				}
-			}
-
-			if (!$result->isSuccess())
-			{
-				return $result;
 			}
 		}
 

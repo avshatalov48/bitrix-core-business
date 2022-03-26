@@ -11,7 +11,6 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Bitrix\Sale\Delivery\ExtraServices\Manager;
 use Bitrix\Sale\Delivery\Services\RecipientDataProvider;
-use Bitrix\Sale\Property;
 use Bitrix\Sale\Shipment;
 use Bitrix\Sale\ShipmentItem;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Address;
@@ -541,7 +540,7 @@ final class ClaimBuilder
 					Loc::getMessage(
 						'SALE_YANDEX_TAXI_FIELD_VALUE_NOT_SPECIFIED',
 						[
-							'#FIELD_NAME#' => $this->getPropertyName($shipment, $attribute)
+							'#FIELD_NAME#' => $property ? $property->getName() : ''
 						]
 					)
 				)
@@ -634,25 +633,6 @@ final class ClaimBuilder
 		}
 
 		return $propertyValueObject->getValue();
-	}
-
-	/**
-	 * @param Shipment $shipment
-	 * @param string $propertyCode
-	 * @return mixed|null
-	 */
-	private function getPropertyName(Shipment $shipment, string $propertyCode)
-	{
-		$propertyValue = $this->getPropertyValueObject($shipment, $propertyCode);
-		if (!$propertyValue)
-		{
-			return null;
-		}
-
-		/** @var Property $property */
-		$property = $propertyValue->getPropertyObject();
-
-		return $property->getName();
 	}
 
 	/**

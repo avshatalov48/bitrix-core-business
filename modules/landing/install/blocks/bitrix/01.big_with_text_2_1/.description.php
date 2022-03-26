@@ -21,6 +21,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_1_BIG_WITH_TEXT_2_1_NODES_LANDINGBLOCKIMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 1920, 'height' => 800),
+			'create2xByDefault' => false,
 		),
 	),
 	'style' => array(

@@ -353,7 +353,14 @@ if (isset($filter_order_use_discounts))
 	switch ($filter_order_use_discounts)
 	{
 		case 'Y':
-			$arFilter['>ORDER_DISCOUNT_RULES.ID'] = 0;
+			$runtimeFields["REQUIRED_DISCOUNT_RULES"] = [
+				'data_type' => 'boolean',
+				'expression' => [
+					'CASE WHEN EXISTS (SELECT ID FROM b_sale_order_rules WHERE ORDER_ID = %s) THEN 1 ELSE 0 END',
+					'ID'
+				]
+			];
+			$arFilter['=REQUIRED_DISCOUNT_RULES'] = 1;
 			break;
 		case 'N':
 			$arFilter['=ORDER_DISCOUNT_RULES.ID'] = null;
@@ -365,7 +372,14 @@ if (isset($filter_order_use_coupons))
 	switch ($filter_order_use_coupons)
 	{
 		case 'Y':
-			$arFilter['>ORDER_COUPONS.ID'] = 0;
+			$runtimeFields["REQUIRED_COUPONS"] = [
+				'data_type' => 'boolean',
+				'expression' => [
+					'CASE WHEN EXISTS (SELECT ID FROM b_sale_order_coupons WHERE ORDER_ID = %s) THEN 1 ELSE 0 END',
+					'ID'
+				]
+			];
+			$arFilter['=REQUIRED_COUPONS'] = 1;
 			break;
 		case 'N':
 			$arFilter['=ORDER_COUPONS.ID'] = null;
@@ -1493,14 +1507,11 @@ $arHeaders = array(
 	array("id"=>"AFFILIATE_ID","content"=>Loc::getMessage("SI_AFFILIATE"), "sort"=>"AFFILIATE_ID", "default"=>false),
 );
 
-if($DBType == "mysql")
-{
-	$arHeaders[] = array("id"=>"COMMENTS","content"=>Loc::getMessage("SI_COMMENTS"), "sort"=>"COMMENTS", "default"=>false);
-	$arHeaders[] = array("id"=>"PS_STATUS_DESCRIPTION","content"=>Loc::getMessage("SOA_PS_STATUS_DESCR"), "sort"=>"", "default"=>false);
-	$arHeaders[] = array("id"=>"USER_DESCRIPTION","content"=>Loc::getMessage("SI_USER_DESCRIPTION"), "sort"=>"", "default"=>false);
-	$arHeaders[] = array("id"=>"REASON_CANCELED","content"=>Loc::getMessage("SI_REASON_CANCELED"), "sort"=>"", "default"=>false);
-	$arHeaders[] = array("id"=>"REASON_MARKED","content"=>Loc::getMessage("SI_REASON_MARKED"), "sort"=>"", "default"=>false);
-}
+$arHeaders[] = array("id"=>"COMMENTS","content"=>Loc::getMessage("SI_COMMENTS"), "sort"=>"COMMENTS", "default"=>false);
+$arHeaders[] = array("id"=>"PS_STATUS_DESCRIPTION","content"=>Loc::getMessage("SOA_PS_STATUS_DESCR"), "sort"=>"", "default"=>false);
+$arHeaders[] = array("id"=>"USER_DESCRIPTION","content"=>Loc::getMessage("SI_USER_DESCRIPTION"), "sort"=>"", "default"=>false);
+$arHeaders[] = array("id"=>"REASON_CANCELED","content"=>Loc::getMessage("SI_REASON_CANCELED"), "sort"=>"", "default"=>false);
+$arHeaders[] = array("id"=>"REASON_MARKED","content"=>Loc::getMessage("SI_REASON_MARKED"), "sort"=>"", "default"=>false);
 
 foreach ($arOrderProps as $key => $value)
 {

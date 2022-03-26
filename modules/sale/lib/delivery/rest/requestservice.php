@@ -60,15 +60,18 @@ class RequestService extends BaseService
 
 		if (isset($params['FINALIZE']))
 		{
-			if ($params['FINALIZE'] !== 'Y')
+			if (!in_array($params['FINALIZE'], ['Y', 'N'], true))
 			{
 				throw new RestException(
-					'Unexpected parameter FINALIZE value: Y expected',
-					self::ERROR_CODE_UNEXPECTED_REQUEST_FINALIZE_INDICATOR_VALUE
+					'Unexpected parameter FINALIZE value: Y, N expected',
+					self::ERROR_CODE_UNEXPECTED_OVERWRITE_PROPERTIES_VALUE
 				);
 			}
 
-			$fields['STATUS'] = Requests\Manager::STATUS_PROCESSED;
+			if ($params['FINALIZE'] === 'Y')
+			{
+				$fields['STATUS'] = Requests\Manager::STATUS_PROCESSED;
+			}
 		}
 
 		$requestStatus = self::getRequestStatus($params, 'STATUS');

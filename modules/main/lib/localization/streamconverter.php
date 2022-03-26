@@ -69,17 +69,30 @@ class StreamConverter extends \php_user_filter
 	 * Loads php file with realtime encoding convention.
 	 *
 	 * @param string $langPath File path to include.
-	 * @param string $lang Target Encoding.
+	 * @param string $lang Source language.
+	 * @param string $targetEncoding Target encoding.
+	 * @param string $sourceEncoding Source encoding.
 	 *
 	 * @return mixed
 	 */
-	public static function include(string $langPath, string $lang)
+	public static function include(string $langPath, string $lang, string $targetEncoding = '', string $sourceEncoding = '')
 	{
 		self::register();
 
-		$langPath = Translation::convertLangPath($langPath, $lang);
+		if (empty($targetEncoding) || empty($sourceEncoding))
+		{
+			$checkPath = Translation::convertLangPath($langPath, $lang);
 
-		[, $targetEncoding, $sourceEncoding] = Translation::getEncodings($lang, $langPath);
+			[, $checkTargetEncoding, $checkSourceEncoding] = Translation::getEncodings($lang, $checkPath);
+			if (empty($targetEncoding))
+			{
+				$targetEncoding = $checkTargetEncoding;
+			}
+			if (empty($sourceEncoding))
+			{
+				$sourceEncoding = $checkSourceEncoding;
+			}
+		}
 
 		return include (
 			'php://filter/read='.self::FILTER_IDENTIFIER.

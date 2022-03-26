@@ -169,6 +169,7 @@ class MessageUserType
 		if (Main\Loader::includeModule('pull'))
 		{
 			$bindingEntityLink = '';
+
 			if ($userField['ENTITY_ID'] === MessageAccessTable::ENTITY_TYPE_CRM_ACTIVITY
 				&& Loader::includeModule('crm'))
 			{
@@ -184,6 +185,63 @@ class MessageUserType
 					$bindingEntityLink = \CCrmOwnerType::GetEntityShowPath($bindingEntity['OWNER_TYPE_ID'], $bindingEntity['OWNER_ID']);
 				}
 			}
+
+			if ($userField['ENTITY_ID'] === MessageAccessTable::ENTITY_TYPE_TASKS_TASK
+				&& Loader::includeModule('tasks'))
+			{
+				$bindingEntity = \Bitrix\Tasks\Internals\TaskTable::getList([
+					'select' => ['ID'],
+					'filter' => [
+						'=ID' => $userField['VALUE_ID'],
+					],
+					'limit' => 1,
+				])->fetch();
+
+				if ($bindingEntity)
+				{
+					global $USER;
+					$userPage = \Bitrix\Main\Config\Option::get('socialnetwork', 'user_page', '/company/personal/', SITE_ID);
+					$bindingEntityLink = \CComponentEngine::makePathFromTemplate(
+						\Bitrix\Main\Config\Option::get(
+							'tasks',
+							'paths_task_user_action',
+							$userPage . 'user/#user_id#/tasks/task/#action#/#task_id#/',
+							SITE_ID
+						),
+						[
+							'user_id' => $USER->getId(),
+							'action' => 'view',
+							'task_id' => $bindingEntity['ID'],
+						]
+					);
+				}
+			}
+
+			if ($userField['ENTITY_ID'] === MessageAccessTable::ENTITY_TYPE_BLOG_POST
+				&& Loader::includeModule('blog'))
+			{
+				$bindingEntity = \Bitrix\Blog\PostTable::getList([
+					'select' => ['ID'],
+					'filter' => [
+						'=ID' => $userField['VALUE_ID'],
+					],
+					'limit' => 1,
+				])->fetch();
+
+				if ($bindingEntity)
+				{
+					global $USER;
+					$userPage = \Bitrix\Main\Config\Option::get('socialnetwork', 'user_page', '/company/personal/', SITE_ID);
+					$bindingEntityLink = \CComponentEngine::makePathFromTemplate(
+						$userPage . 'user/#user_id#/blog/#post_id#/',
+						[
+							'user_id' => $USER->getId(),
+							'post_id' => $bindingEntity['ID'],
+						]
+					);
+				}
+			}
+
 			\CPullWatch::addToStack(
 				'mail_mailbox_' . $message['MAILBOX_ID'],
 				[

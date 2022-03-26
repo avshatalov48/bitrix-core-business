@@ -176,7 +176,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 					'=DIR_MD5' => md5($dir),
 					'>MESSAGE_ID' => 0,
 					'@IS_SEEN' => $seen ? array('N', 'U') : array('Y', 'S'),
-					'=DELETE_TIME' => 'IS NULL',
+					'==DELETE_TIME' => 0,
 				),
 			));
 			while ($item = $res->fetch())
@@ -549,7 +549,24 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			'sessid' => $sessionId,
 			'timestamp' => microtime(true),
 			'final' => true,
+			'is_fatal_error' => false,
 		);
+
+		if(!Loader::includeModule('mail'))
+		{
+			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('MAIL_MODULE_NOT_INSTALLED'));
+
+			//Stop attempts to resynchronize the mailbox
+			$response['is_fatal_error'] = true;
+			$response['complete'] = true;
+			return $response;
+		}
+
+		if (!Mail\Helper\LicenseManager::isSyncAvailable())
+		{
+			$response['complete'] = true;
+			return $response;
+		}
 
 		if ($mailbox = \Bitrix\Mail\MailboxTable::getUserMailbox($id))
 		{

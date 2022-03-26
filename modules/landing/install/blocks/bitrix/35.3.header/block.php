@@ -13,7 +13,7 @@
 				<div class="landing-block-node-card-container row g-ml-20--sm">
 					<div class="landing-block-node-card col-md g-mb-10 g-mb-0--md g-brd-right--md g-brd-gray-light-v4"
 						 data-card-preset="contact-link">
-						<a href="tel:#PHONE1#"
+						<a href="tel:#crmPhone1"
 						   class="landing-block-node-card-contactlink-link g-pa-10--md row align-items-center justify-content-center justify-content-sm-start justify-content-md-center justify-content-lg-start g-text-decoration-none--hover">
 							<span class="landing-block-node-card-icon-container text-left text-md-center text-lg-left g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-color-primary col-12 g-pa-0">
 								<i class="landing-block-node-card-contactlink-icon icon icon-screen-smartphone"></i>
@@ -23,7 +23,7 @@
 									Call Us
 								</span>
 								<span class="landing-block-node-card-contactlink-text landing-block-node-card-text-style landing-semantic-link-small d-block g-color-main g-font-weight-700 g-text-decoration-none g-text-underline--hover">
-									#PHONE1#
+									#crmPhoneTitle1
 								</span>
 							</span>
 						</a>
@@ -46,7 +46,7 @@
 					</div>
 					<div class="landing-block-node-card col-md g-mb-10 g-mb-0--md g-brd-right--md g-brd-gray-light-v4"
 						 data-card-preset="contact-link">
-						<a href="mailto:#EMAIL1#"
+						<a href="mailto:#crmEmail1"
 						   class="landing-block-node-card-contactlink-link g-pa-10--md row align-items-center justify-content-center justify-content-sm-start justify-content-md-center justify-content-lg-start g-text-decoration-none--hover">
 							<span class="landing-block-node-card-icon-container text-left text-md-center text-lg-left g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-color-primary col-12 g-pa-0">
 								<i class="landing-block-node-card-contactlink-icon icon icon-envelope"></i>
@@ -56,7 +56,7 @@
 									Email us
 								</span>
 								<span class="landing-block-node-card-contactlink-text landing-block-node-card-text-style landing-semantic-link-small d-block g-color-main g-font-weight-700 g-text-decoration-none g-text-underline--hover">
-									#EMAIL1#
+									#crmEmailTitle1
 								</span>
 							</span>
 						</a>

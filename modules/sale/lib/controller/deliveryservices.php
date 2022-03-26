@@ -6,7 +6,7 @@ use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Sale\Result;
 use Bitrix\Sale\Delivery;
 
-class DeliveryServices extends Controller
+class DeliveryServices extends ControllerBase
 {
 	//region Actions
 	public function getActiveListAction()
@@ -36,7 +36,7 @@ class DeliveryServices extends Controller
 	}
 	//endregion
 
-	protected function checkPermissionEntity($name)
+	protected function checkPermissionEntity($name, $arguments=[])
 	{
 		return new Result();
 	}

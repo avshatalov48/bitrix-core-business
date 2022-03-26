@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\MessageService\Sender;
 
+use Bitrix\MessageService\MessageStatus;
 use Bitrix\MessageService\MessageType;
 
 abstract class Base
@@ -122,11 +123,11 @@ abstract class Base
 	 * Converts service status to internal status
 	 * @see \Bitrix\MessageService\MessageStatus
 	 * @param mixed $serviceStatus
-	 * @return null|int
+	 * @return int
 	 */
 	public static function resolveStatus($serviceStatus)
 	{
-		return null;
+		return MessageStatus::UNKNOWN;
 	}
 
 	public function getManageUrl()

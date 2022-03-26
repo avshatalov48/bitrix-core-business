@@ -72,7 +72,15 @@ class StoreBarcodeTable extends Main\Entity\DataManager
 			)),
 			'BARCODE' => new Main\Entity\StringField('BARCODE', array(
 				'required' => true,
-				'validation' => array(__CLASS__, 'validateBarcode'),
+				'unique' => true,
+				'validation' => function() {
+					return [
+						new Main\Entity\Validator\Length(null, 100),
+						new Main\ORM\Fields\Validators\UniqueValidator(
+							Loc::getMessage("STORE_BARCODE_ENTITY_BARCODE_IS_NOT_UNIQUE")
+						),
+					];
+				},
 				'title' => Loc::getMessage('STORE_BARCODE_ENTITY_BARCODE_FIELD')
 			)),
 			'STORE_ID' => new Main\Entity\IntegerField('STORE_ID', array(
@@ -115,17 +123,6 @@ class StoreBarcodeTable extends Main\Entity\DataManager
 				'\Bitrix\Main\User',
 				array('=this.MODIFIED_BY' => 'ref.ID')
 			)
-		);
-	}
-	/**
-	 * Returns validators for BARCODE field.
-	 *
-	 * @return array
-	 */
-	public static function validateBarcode()
-	{
-		return array(
-			new Main\Entity\Validator\Length(null, 100),
 		);
 	}
 }

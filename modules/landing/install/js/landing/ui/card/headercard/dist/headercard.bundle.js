@@ -4,15 +4,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,landing_ui_card_basecard,main_core) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"landing-ui-card-headercard-description\"></span>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	/**
 	 * @memberOf BX.Landing.UI.Card
 	 */
@@ -46,7 +38,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getDescriptionLayout",
 	    value: function getDescriptionLayout() {
 	      return this.cache.remember('descriptionLayout', function () {
-	        return main_core.Tag.render(_templateObject());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"landing-ui-card-headercard-description\"></span>\n\t\t\t"])));
 	      });
 	    }
 	  }, {

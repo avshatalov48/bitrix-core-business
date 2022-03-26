@@ -99,12 +99,11 @@
 
 		getPopupMessage: function()
 		{
-			var title = BX.util.htmlspecialchars(BX.message("IM_CALL_MIC_MUTED_WHILE_TALKING"));
+			var title = this.options.title || BX.util.htmlspecialchars(BX.message("IM_CALL_MIC_MUTED_WHILE_TALKING"));
 			if (!BX.Call.Util.isDesktop())
 			{
 				return title;
 			}
-
 			var hotKeyMessage = BX.message("IM_CALL_MIC_MUTED_WHILE_TALKING_HOTKEY");
 			if (this.options.callFolded)
 			{
@@ -132,16 +131,13 @@
 			if (this.popup)
 			{
 				this.popup.close();
+				this.callbacks.onClose();
 			}
 		},
 
 		onAutoClose: function()
 		{
-			if (this.popup)
-			{
-				this.popup.close();
-				this.callbacks.onClose();
-			}
+			this.close();
 		},
 
 		destroy: function()

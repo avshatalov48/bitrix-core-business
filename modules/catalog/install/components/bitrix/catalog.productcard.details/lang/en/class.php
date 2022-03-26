@@ -1,4 +1,9 @@
 <?php
+$MESS["CPD_CREATE_DOCUMENT_BUTTON"] = "Create inventory object";
+$MESS["CPD_CREATE_DOCUMENT_BUTTON_POPUP_ADJUSTMENT"] = "Stock receipt";
+$MESS["CPD_CREATE_DOCUMENT_BUTTON_POPUP_DEDUCT"] = "Write-off";
+$MESS["CPD_CREATE_DOCUMENT_BUTTON_POPUP_MOVING"] = "Transfer";
+$MESS["CPD_CREATE_DOCUMENT_BUTTON_POPUP_SHIPMENT"] = "Sales order";
 $MESS["CPD_ERROR_ADD_HIGHLOAD_BLOCK"] = "Could not create a dictionary with this name";
 $MESS["CPD_ERROR_EMPTY_DIRECTORY_ITEMS"] = "Add items to dictionary list";
 $MESS["CPD_ERROR_EMPTY_LIST_ITEMS"] = "Add list items";

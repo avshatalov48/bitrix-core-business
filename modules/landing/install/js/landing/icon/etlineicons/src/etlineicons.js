@@ -3,6 +3,7 @@ import {Loc} from 'landing.loc';
 export const EtLineIcons = {
 	id: 'et_line_icon',
 	name: '100 Line Icons',
+	active: true,
 	categories: [
 		{
 			id: 'et_line_icon_all',

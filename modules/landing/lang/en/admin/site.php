@@ -8,3 +8,4 @@ $MESS["LANDING_ADMIN_ACTION_DESIGN"] = "Site design";
 $MESS["LANDING_ADMIN_ACTION_SETTINGS"] = "Site settings";
 $MESS["LANDING_ADMIN_SITE_ACCESS_DENIED"] = "Access denied";
 $MESS["LANDING_ADMIN_SITE_NOT_FOUND"] = "Site was not found.";
+$MESS["LANDING_TPL_FOLDER_EDIT"] = "Folder settings";

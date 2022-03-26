@@ -1,4 +1,7 @@
 <?php
+
+use Bitrix\Main\Loader;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -16,7 +19,8 @@ $basePriceId = null;
 $hasLandingStore = false;
 $isEnabledLanding = false;
 $isLimitedLanding = false;
-if (\Bitrix\Main\Loader::includeModule('catalog'))
+
+if (Loader::includeModule('catalog'))
 {
 	$baseGroup = \CCatalogGroup::GetBaseGroup();
 	$basePriceId = (is_array($baseGroup) && isset($baseGroup['ID'])) ? (int)$baseGroup['ID'] : null;
@@ -26,6 +30,18 @@ if (\Bitrix\Main\Loader::includeModule('catalog'))
 		$isEnabledLanding = true;
 		$hasLandingStore = Bitrix\Catalog\v2\Integration\Landing\StoreV3Master::hasStore();
 		$isLimitedLanding = !$hasLandingStore && !Bitrix\Catalog\v2\Integration\Landing\StoreV3Master::canCreate();
+	}
+}
+
+$isCatalogPriceEditEnabled = true;
+$fieldHints = [];
+if (Loader::includeModule('crm'))
+{
+	$isCatalogPriceEditEnabled = \Bitrix\Crm\Settings\LayoutSettings::getCurrent()->isCatalogPriceEditEnabled();
+	$isCatalogPriceSaveEnabled = \Bitrix\Crm\Settings\LayoutSettings::getCurrent()->isCatalogPriceSaveEnabled();
+	if (!$isCatalogPriceEditEnabled)
+	{
+		$fieldHints['price'] = \Bitrix\Crm\Config\State::getProductPriceChangingNotification();
 	}
 }
 
@@ -41,6 +57,7 @@ return [
 		'ui.alerts',
 		'catalog.product-selector',
 		'ui.entity-selector',
+		'catalog.product-model',
 		'ui.vue.vuex',
 		'ui.vue',
 		'main.popup',
@@ -54,11 +71,13 @@ return [
 		'main.qrcode',
 		'clipboard',
 		'helper',
+		'catalog.store-use',
 		'main.core.events',
 		'currency.currency-core',
 		'catalog.product-calculator',
 	],
 	'settings' => [
+		'warehouseOption' => \Bitrix\Catalog\Component\UseStore::isUsed(),
 		'showDiscountBlock' => \CUserOptions::GetOption('catalog.product-form', 'showDiscountBlock', 'Y'),
 		'showTaxBlock' => 'N',
 		'taxIncluded' => 'N',
@@ -68,6 +87,9 @@ return [
 		'hasLandingStore' => $hasLandingStore,
 		'isLimitedLandingStore' => $isLimitedLanding,
 		'basePriceId' => $basePriceId,
+		'isCatalogPriceEditEnabled' => $isCatalogPriceEditEnabled,
+		'isCatalogPriceSaveEnabled' => $isCatalogPriceSaveEnabled,
+		'fieldHints' => $fieldHints,
 		'hiddenCompilationInfoMessage' => \CUserOptions::GetOption('catalog.product-form', 'hiddenCompilationInfoMessage') === 'Y',
 	],
 	'skip_core' => false,

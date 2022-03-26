@@ -8,14 +8,14 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 $arActivityDescription = [
 	'NAME' => GetMessage('BPSGVA_DESCR_NAME'),
 	'DESCRIPTION' => GetMessage('BPSGVA_DESCR_DESCR'),
-	'TYPE' => ['activity'],
+	'TYPE' => ['activity', 'robot_activity'],
 	'CLASS' => 'SetGlobalVariableActivity',
 	'JSCLASS' => 'BizProcActivity',
 	'CATEGORY' => [
 		'ID' => 'other',
 	],
 	'ROBOT_SETTINGS' => [
-		'TITLE' => GetMessage('BPSGVA_DESCR_ROBOT_TITLE_1'),
+		'TITLE' => GetMessage('BPSGVA_DESCR_ROBOT_TITLE'),
 		'CATEGORY' => 'employee'
 	],
 ];

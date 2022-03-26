@@ -1,0 +1,27 @@
+.bp-script-start-form {
+	padding: 0 16px 23px;
+}
+
+.bp-script-start-form-row {
+	margin: 12px 0;
+}
+
+.bp-script-start-form-row-title {
+	display: block;
+	font-weight: bold;
+	font-size: 14px;
+	line-height: 18px;
+	color: #333333;
+}
+
+.bp-script-start-form-row-desc {
+	display: block;
+	font-size: 14px;
+	line-height: 20px;
+	margin-top: 7px;
+	color: #333333;
+}
+
+.bp-script-start-form-row-field {
+	margin-top: 13px;
+}

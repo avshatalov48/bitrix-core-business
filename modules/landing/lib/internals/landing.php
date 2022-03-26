@@ -298,6 +298,34 @@ class LandingTable extends Entity\DataManager
 			unset($res);
 		}
 
+		// check that folder within landing's site
+		if (($fields['FOLDER_ID'] ?? null) && ($fields['FOLDER_SKIP_CHECK'] ?? 'N') !== 'Y')
+		{
+			if (empty($existFields['SITE_ID']))
+			{
+				$existFields['SITE_ID'] = $fields['SITE_ID'];
+			}
+			$res = FolderTable::getList([
+				'select' => [
+					'ID'
+				],
+				'filter' => [
+					'SITE_ID' => $existFields['SITE_ID'],
+					'ID' => $fields['FOLDER_ID']
+				]
+			]);
+			if (!$res->fetch())
+			{
+				$result->setErrors(array(
+					new Entity\EntityError(
+						Loc::getMessage('LANDING_TABLE_ERROR_FOLDER_NOT_FOUND'),
+						'FOLDER_NOT_FOUND'
+					)
+				));
+				return $result;
+			}
+		}
+
 		// check CODE mask
 		if (
 			isset($fields['CODE']) &&
@@ -323,28 +351,6 @@ class LandingTable extends Entity\DataManager
 		if (isset($fields['INITIATOR_APP_CODE']))
 		{
 			$existFields['INITIATOR_APP_CODE'] = $fields['INITIATOR_APP_CODE'];
-		}
-		if (
-			$primary['ID'] &&
-			isset($existFields['INITIATOR_APP_CODE']) &&
-			$existFields['INITIATOR_APP_CODE']
-		)
-		{
-			$res = BlockTable::getList([
-				'select' => [
-					'ID'
-				],
-				'filter' => [
-					'LID' => $primary['ID'],
-					'=DELETED' => 'N',
-					'=INITIATOR_APP_CODE' => $existFields['INITIATOR_APP_CODE']
-				]
-			]);
-			if (!$res->fetch())
-			{
-				$modifyFields['INITIATOR_APP_CODE'] = null;
-			}
-			unset($res);
 		}
 
 		// if delete, set unpublic always
@@ -433,6 +439,10 @@ class LandingTable extends Entity\DataManager
 			$rights = Rights::getOperationsForSite(
 				$fields['SITE_ID']
 			);
+			if (!\Bitrix\Landing\Site\Type::isPublicScope())
+			{
+				$rights[] = Rights::ACCESS_TYPES['public'];
+			}
 			// can create new landing in site
 			if (!$primary)
 			{
@@ -542,7 +552,8 @@ class LandingTable extends Entity\DataManager
 		// CODE can't be empty
 		elseif (
 			array_key_exists('CODE', $fields) &&
-			$fields['CODE'] == ''
+			$fields['CODE'] == '' &&
+			!isset($fields['FOLDER'])
 		)
 		{
 			$result->setErrors(array(
@@ -572,90 +583,7 @@ class LandingTable extends Entity\DataManager
 			$modifyFields['CODE'] = $fields['CODE'];
 		}
 
-		// check CODE unique in site group
-		if (array_key_exists('CODE', $fields))
-		{
-			// get site id if no exists
-			if (!array_key_exists('SITE_ID', $fields) && $primary)
-			{
-				$site = self::getById($primary['ID'])->fetch();
-				$fields['SITE_ID'] = $site['SITE_ID'];
-			}
-
-			Landing::disableCheckDeleted();
-
-			$i = 0;
-			do
-			{
-				$newCode = $fields['CODE'] . ($i++ > 0 ? $i : '');
-				$res = self::getList(array(
-					'select' => array(
-						'ID'
-					),
-					'filter' => array(
-						'!ID' => $primary ? $primary['ID'] : 0,
-						'SITE_ID' => $fields['SITE_ID'],
-						'=CODE' => $newCode,
-						'CHECK_PERMISSIONS' => 'N'
-					)
-				));
-			} while ($res->fetch());
-
-			Landing::enableCheckDeleted();
-
-			$fields['CODE'] = $newCode;
-			$modifyFields['CODE'] = $fields['CODE'];
-		}
-
 		$result->modifyFields($modifyFields);
-
-		// all code blocks below promptly return result !
-
-		// check if folder_id is folder
-		if (
-			array_key_exists('FOLDER_ID', $fields) &&
-			$fields['FOLDER_ID'] > 0
-		)
-		{
-			$res = self::getList(array(
-				'select' => array(
-					'FOLDER'
-				),
-				'filter' => array(
-					'ID' => $fields['FOLDER_ID'],
-					'=FOLDER' => 'Y',
-					'CHECK_PERMISSIONS' => 'N'
-				)
-			));
-			if (!$res->fetch())
-			{
-				$result->setErrors(array(
-					new Entity\EntityError(
-						Loc::getMessage('LANDING_TABLE_ERROR_ISNOT_FOLDER'),
-						'ISNOT_FOLDER'
-					)
-				));
-				return $result;
-			}
-		}
-
-		// subfolder disabled
-		if (
-			array_key_exists('FOLDER', $fields) &&
-			$fields['FOLDER'] == 'Y'
-		)
-		{
-			if ($existFields['FOLDER_ID'] > 0)
-			{
-				$result->setErrors(array(
-					new Entity\EntityError(
-						Loc::getMessage('LANDING_TABLE_ERROR_SUBFOLDER_DISABLED'),
-						'SUBFOLDER_DISABLED'
-					)
-				));
-				return $result;
-			}
-		}
 
 		return $result;
 	}
@@ -787,28 +715,6 @@ class LandingTable extends Entity\DataManager
 				));
 				return $result;
 			}
-			// check if it is folder
-			$res = self::getList(array(
-				'select' => array(
-					'ID'
-				),
-				'filter' => array(
-					'FOLDER_ID' => $primary['ID'],
-					'CHECK_PERMISSIONS' => 'N',
-					'=SITE.DELETED' => ['Y', 'N'],
-					'=DELETED' => ['Y', 'N']
-				),
-				'limit' => 1
-			));
-			if ($res->fetch())
-			{
-				$result->setErrors(array(
-					new Entity\EntityError(
-						Loc::getMessage('LANDING_TABLE_ERROR_PAGE_FOLDER_NOT_EMPTY'),
-						'ERROR_PAGE_FOLDER_NOT_EMPTY'
-					)
-				));
-			}
 		}
 		return $result;
 	}
@@ -832,6 +738,60 @@ class LandingTable extends Entity\DataManager
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Reverts non unique code after add/update.
+	 * @param Entity\Event $event Event instance.
+	 * @return void
+	 */
+	protected static function revertCode(Entity\Event $event): void
+	{
+		$primary = $event->getParameter('primary');
+		$fields = $event->getParameter('fields');
+
+		if (!Landing::isCheckUniqueAddress())
+		{
+			return;
+		}
+
+		if (isset($primary['ID']) && array_key_exists('CODE', $fields))
+		{
+			$landingId = (int)$primary['ID'];
+			$resolvedId = null;
+
+			Landing::disableCheckDeleted();
+
+			$landing = Landing::createInstance($landingId);
+
+			if ($landing->getMeta()['RULE'])
+			{
+				Landing::enableCheckDeleted();
+				return;
+			}
+
+			if ($landing->exist())
+			{
+				$landingUrl = $landing->getPublicUrl(false, false);
+				$resolvedId = Landing::resolveIdByPublicUrl($landingUrl, $landing->getSiteId());
+			}
+
+			Landing::enableCheckDeleted();
+
+			if ($resolvedId && $landingId !== $resolvedId)
+			{
+				Landing::disableCheckUniqueAddress();
+				$reUpdate = [
+					'CODE' => $fields['CODE'] . '_' . Manager::getRandomString(4)
+				];
+				if (self::$additionalFields)
+				{
+					$reUpdate['ADDITIONAL_FIELDS'] = self::$additionalFields;
+				}
+				parent::update($landingId, $reUpdate);
+				Landing::enableCheckUniqueAddress();
+			}
+		}
 	}
 
 	/**
@@ -867,6 +827,8 @@ class LandingTable extends Entity\DataManager
 			}
 		}
 
+		self::revertCode($event);
+
 		return self::saveAdditionalFields($event);
 	}
 
@@ -896,6 +858,9 @@ class LandingTable extends Entity\DataManager
 				array()
 			);
 		}
+
+		self::revertCode($event);
+
 		return self::saveAdditionalFields($event);
 	}
 

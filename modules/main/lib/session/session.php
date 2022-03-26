@@ -119,6 +119,11 @@ class Session implements SessionInterface, \ArrayAccess
 		session_name($name);
 	}
 
+	public function getSessionHandler(): ?\SessionHandlerInterface
+	{
+		return $this->sessionHandler;
+	}
+
 	public function start(): bool
 	{
 		if ($this->isStarted())

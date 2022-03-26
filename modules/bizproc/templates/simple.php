@@ -81,7 +81,7 @@ $arFields = Array(
 							"Name"       => 'A66645_60922_64384_78185',
 							"Properties" => Array
 							(
-								"Title" => GetMessage("BPT_SM_ACT_NAME"),
+								"Title" => GetMessage("BPT_SM_ACT_NAME_1"),
 							),
 
 							"Children" => Array
@@ -151,7 +151,7 @@ $arFields = Array(
 							"Name"       => 'A54969_58395_8300_44921',
 							"Properties" => Array
 							(
-								"Title" => GetMessage("BPT_SM_ACT_NAME"),
+								"Title" => GetMessage("BPT_SM_ACT_NAME_1"),
 							),
 
 							"Children" => Array

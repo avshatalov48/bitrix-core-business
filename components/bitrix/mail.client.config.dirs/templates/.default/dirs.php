@@ -46,7 +46,7 @@ $getTree = function ($dirs, $currentLevel = 1) use (&$getTree, $maxLevel)
 				%5$s
 				%6$s
 			/>',
-			$dir->getPath(),
+			htmlspecialcharsbx($dir->getPath()),
 			$dir->getDirMd5(),
 			$hasChild,
 			$dir->getLevel(),
@@ -62,7 +62,7 @@ $getTree = function ($dirs, $currentLevel = 1) use (&$getTree, $maxLevel)
 				</span>
 			</label>',
 			$dir->getDirMd5(),
-			$dir->getName(),
+			htmlspecialcharsbx($dir->getName()),
 			$countSync > 0 ? ' show' : '',
 			$countSync,
 			$countChild

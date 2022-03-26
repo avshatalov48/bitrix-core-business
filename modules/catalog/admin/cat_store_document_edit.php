@@ -5,6 +5,7 @@
 use Bitrix\Main\Loader;
 use Bitrix\Main\SiteTable;
 use Bitrix\Main\Config\Option;
+use Bitrix\Catalog;
 use Bitrix\Currency\CurrencyTable;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
@@ -93,6 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Update"] <> '' && !$bRead
 			"DATE_DOCUMENT" => $_REQUEST["DOC_DATE"],
 			"CREATED_BY" => $userId,
 			"MODIFIED_BY" => $userId,
+			"RESPONSIBLE_ID" => $userId,
 			"COMMENTARY" => $_REQUEST["CAT_DOC_COMMENTARY"],
 		);
 		if ($contractorId > 0)
@@ -141,6 +143,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Update"] <> '' && !$bRead
 					"DOC_ID" => $docId,
 				);
 
+				if (!empty($val['BASE_PRICE']))
+				{
+					$arAdditional['BASE_PRICE'] = $val['BASE_PRICE'];
+				}
+
 				$docElementId = CCatalogStoreDocsElement::add($arAdditional);
 				if ($docElementId && isset($val["BARCODE"]))
 				{
@@ -161,8 +168,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Update"] <> '' && !$bRead
 
 		if ($_REQUEST["save_document"] && $docId)
 		{
-			$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $docId));
 			$saveDocumentUrl = $selfFolderUrl."cat_store_document_edit.php?lang=".LANGUAGE_ID."&ID=".$docId;
+			if ($adminSidePanelHelper->isPublicSidePanel())
+			{
+				$saveDocumentUrl = CHTTP::urlAddParams($saveDocumentUrl, ["IFRAME" => "Y", "IFRAME_TYPE" => "SIDE_SLIDER"]);
+			}
+			$adminSidePanelHelper->sendSuccessResponse("apply", ["ID" => $docId, 'reloadUrl' => $saveDocumentUrl]);
 			$saveDocumentUrl = $adminSidePanelHelper->editUrlToPublicPage($saveDocumentUrl);
 			$adminSidePanelHelper->localRedirect($listUrl);
 			LocalRedirect($saveDocumentUrl);
@@ -187,10 +198,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Update"] <> '' && !$bRead
 		if($ex = $APPLICATION->GetException())
 		{
 			$TAB_TITLE = GetMessage("CAT_DOC_".$docType);
-			if($bReadOnly)
-				$APPLICATION->SetTitle(str_replace("#ID#", $ID, GetMessage("CAT_DOC_TITLE_VIEW")).". ".$TAB_TITLE.".");
-			else
-				$APPLICATION->SetTitle(str_replace("#ID#", $ID, GetMessage("CAT_DOC_TITLE_EDIT")).". ".$TAB_TITLE.".");
+			$APPLICATION->SetTitle(str_replace("#ID#", $ID, GetMessage("CAT_DOC_TITLE_EDIT_EXT")).". ".$TAB_TITLE.".");
 			$strError = $ex->GetString();
 			if(!empty($result) && is_array($result))
 				$strError .= CCatalogStoreControlUtil::showErrorProduct($result);
@@ -201,7 +209,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Update"] <> '' && !$bRead
 		}
 		else
 		{
-			$adminSidePanelHelper->sendSuccessResponse("base");
+			$documentUrl = $selfFolderUrl . "cat_store_document_edit.php?lang=" . LANGUAGE_ID . "&ID=" . $docId . "&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER&publicSidePanel=Y";
+			$adminSidePanelHelper->sendSuccessResponse("base", ['documentUrl' => $documentUrl]);
 			$adminSidePanelHelper->localRedirect($listUrl);
 			LocalRedirect($listUrl);
 		}
@@ -233,7 +242,7 @@ if($ID > 0)
 	}
 }
 
-if (!isset(CCatalogDocs::$types[$docType]))
+if (!in_array($docType, Catalog\StoreDocumentTable::getTypeList()))
 {
 	$docType = '';
 	$adminSidePanelHelper->localRedirect($listUrl);
@@ -297,7 +306,7 @@ if($ID > 0 || isset($_REQUEST["AJAX_MODE"]))
 
 	if(!isset($_REQUEST["AJAX_MODE"]))
 	{
-		$dbDocumentElement = CCatalogStoreDocsElement::getList(array('ID' => 'ASC'), array("DOC_ID" => $ID), false, false, array("ID", "STORE_FROM", "STORE_TO", "ELEMENT_ID", "AMOUNT", "PURCHASING_PRICE", "IS_MULTIPLY_BARCODE", "RESERVED"));
+		$dbDocumentElement = CCatalogStoreDocsElement::getList(array('ID' => 'ASC'), array("DOC_ID" => $ID), false, false, array("ID", "STORE_FROM", "STORE_TO", "ELEMENT_ID", "AMOUNT", "BASE_PRICE", "PURCHASING_PRICE", "IS_MULTIPLY_BARCODE", "RESERVED"));
 		while($arDocumentElements = $dbDocumentElement->Fetch())
 		{
 			$arAllDocumentElement[] = $arDocumentElements;
@@ -415,6 +424,23 @@ if($ID > 0 || isset($_REQUEST["AJAX_MODE"]))
 			$arElement["BARCODE"] = $arElementBarcode;
 		if(!isset($arElement["SELECTED_BARCODE"]))
 			$arElement["SELECTED_BARCODE"] = $selectedBarcode;
+
+		if (!isset($arElement['BASE_PRICE']))
+		{
+			$priceResult = Catalog\Model\Price::getList([
+				'select' => ['PRICE'],
+				'filter' => [
+					'PRODUCT_ID' => $arElement['PRODUCT_ID'],
+				],
+				'limit' => 1,
+			]);
+			$priceData = $priceResult->fetch();
+			if ($priceData)
+			{
+				$arElement['BASE_PRICE'] = $priceData['PRICE'];
+			}
+		}
+
 		$arResult["ELEMENT"][] = $arElement;
 	}
 }
@@ -484,6 +510,15 @@ if(isset($requiredFields["RESERVED"]))
 		"default" => ($requiredFields["RESERVED"]["required"] == 'Y')
 	);
 	$visibleHeaderIds[] = "RESERVED";
+}
+if(isset($requiredFields["BASE_PRICE"]))
+{
+	$arHeaders[] = array(
+		"id" => "BASE_PRICE",
+		"content" => GetMessage("CAT_DOC_PRODUCT_BASE_PRICE"),
+		"default" => ($requiredFields["BASE_PRICE"]["required"] === 'Y')
+	);
+	$visibleHeaderIds[] = "BASE_PRICE";
 }
 if(isset($requiredFields["AMOUNT"]))
 {
@@ -564,8 +599,22 @@ if(is_array($arResult["ELEMENT"]))
 		$maxId = ($arRes['ID'] > $maxId) ? $arRes['ID'] : $maxId;
 		foreach($arStores as $key => $val)
 		{
-			$selectedTo = ($value['STORE_TO'] == $val['ID']) ? " selected " : " ";
-			$selectedFrom = ($value['STORE_FROM'] == $val['ID']) ? " selected " : " ";
+			if (isset($value['STORE_TO']))
+			{
+				$selectedTo = ($value['STORE_TO'] == $val['ID']) ? " selected " : " ";
+			}
+			else
+			{
+				$selectedTo = ($val['IS_DEFAULT'] === 'Y') ? " selected " : " ";
+			}
+			if (isset($value['STORE_FROM']))
+			{
+				$selectedFrom = ($value['STORE_FROM'] == $val['ID']) ? " selected " : " ";
+			}
+			else
+			{
+				$selectedFrom = ($val['IS_DEFAULT'] === 'Y') ? " selected " : " ";
+			}
 			$store = ($val["TITLE"] != '') ? $val["TITLE"]." (".$val["ADDRESS"].")" : $val["ADDRESS"];
 			$storesTo .= '<option'.$selectedTo.'value="'.$val['ID'].'">'.$store.'</option>';
 			$storesFrom .= '<option'.$selectedFrom.'value="'.$val['ID'].'">'.$store.'</option>';
@@ -604,6 +653,9 @@ if(is_array($arResult["ELEMENT"]))
 		{
 			$barcodeCount = $value['AMOUNT'];
 		}
+
+		if(isset($requiredFields["BASE_PRICE"]))
+			$row->AddViewField("BASE_PRICE", '<div> <input name="PRODUCT['.$arRes['ID'].'][BASE_PRICE]" onchange="recalculateSum('.$arRes['ID'].');" id="CAT_DOC_BASE_PRICE_'.$arRes['ID'].'" value="'.$value['BASE_PRICE'].'" type="text" size="10"'.$isDisable.'></div>');
 		if(isset($requiredFields["AMOUNT"]))
 			$row->AddViewField("AMOUNT", '<div><input type="hidden" id="CAT_DOC_AMOUNT_HIDDEN_'.$arRes['ID'].'" value="'.$barcodeCount.'" onchange="recalculateSum('.$arRes['ID'].');"> <input name="PRODUCT['.$arRes['ID'].'][AMOUNT]" onchange="recalculateSum('.$arRes['ID'].');" id="CAT_DOC_AMOUNT_'.$arRes['ID'].'" value="'.$value['AMOUNT'].'" type="text" size="10"'.$isDisable.'></div>');
 		if(isset($requiredFields["NET_PRICE"]))
@@ -684,13 +736,13 @@ $TAB_TITLE = GetMessage("CAT_DOC_".$docType);
 if($ID > 0)
 {
 	if($bReadOnly)
-		$APPLICATION->SetTitle(str_replace("#ID#", $ID, GetMessage("CAT_DOC_TITLE_VIEW")).". ".$TAB_TITLE.".");
+		$APPLICATION->SetTitle(str_replace("#ID#", $ID, GetMessage("CAT_DOC_TITLE_VIEW_EXT")).". ".$TAB_TITLE.".");
 	else
-		$APPLICATION->SetTitle(str_replace("#ID#", $ID, GetMessage("CAT_DOC_TITLE_EDIT")).". ".$TAB_TITLE.".");
+		$APPLICATION->SetTitle(str_replace("#ID#", $ID, GetMessage("CAT_DOC_TITLE_EDIT_EXT")).". ".$TAB_TITLE.".");
 }
 else
 {
-	$APPLICATION->SetTitle(GetMessage("CAT_DOC_NEW").". ".$TAB_TITLE);
+	$APPLICATION->SetTitle(GetMessage("CAT_DOC_NEW_EXT").". ".$TAB_TITLE);
 }
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -701,7 +753,7 @@ if ($bVarsFromForm)
 
 $aMenu = array(
 	array(
-		"TEXT" => GetMessage("CAT_DOC_LIST"),
+		"TEXT" => GetMessage("CAT_DOC_LIST_EXT"),
 		"ICON" => "btn_list",
 		"LINK" => $listUrl
 	)
@@ -738,6 +790,7 @@ $actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
 <form enctype="multipart/form-data" method="POST" action="<?=$actionUrl?>" id="form_b_catalog_store_docs" name="form_b_catalog_store_docs" onsubmit="return checkBarcodeSearch();">
 	<?echo GetFilterHiddens("filter_");?>
 	<input type="hidden" name="Update" value="Y">
+	<input type="hidden" name="apply" value="Y">
 	<input type="hidden" name="lang" value="<?echo LANGUAGE_ID; ?>">
 	<input type="hidden" name="ID" value="<?echo $ID ?>">
 	<input type="hidden" name="DOCUMENT_TYPE" id="DOCUMENT_TYPE" value="<? echo htmlspecialcharsbx($docType);?>">
@@ -754,7 +807,11 @@ $actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
 							<td width="40%" class="adm-detail-content-cell-l"><span class="cat-doc-status-left-<?=$str_STATUS?>"><?=GetMessage('CAT_DOC_STATUS')?>:</span></td>
 							<td width="60%" class="adm-detail-content-cell-r">
 								<span class="cat-doc-status-right-<?=$str_STATUS?>">
-									<?=GetMessage('CAT_DOC_EXECUTION_'.$str_STATUS)?>
+									<?php echo ($str_STATUS === 'Y'
+										? GetMessage('CAT_DOC_EXECUTION_Y_EXT')
+										: GetMessage('CAT_DOC_EXECUTION_N_EXT')
+									);
+									?>
 								</span>
 							</td>
 						</tr>
@@ -765,7 +822,18 @@ $actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
 							<?if($bReadOnly):?>
 								<?=$str_DATE_DOCUMENT?>
 							<?else:?>
-								<?= CalendarDate("DOC_DATE", (isset($str_DATE_DOCUMENT)) ? $str_DATE_DOCUMENT : date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL")), time()), "form_catalog_document_form", "15", "class=\"typeinput\""); ?>
+								<?
+									if ($_POST['DOC_DATE'])
+									{
+										$sourceDate = $_POST['DOC_DATE'];
+									}
+									else
+									{
+										$sourceDate = $str_DATE_DOCUMENT ?? date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL")));
+									}
+
+									echo CalendarDate("DOC_DATE", $sourceDate, "form_catalog_document_form", "15", "class=\"typeinput\"");
+								?>
 							<?endif;?>
 						</td>
 					</tr>
@@ -847,7 +915,7 @@ if ($adminSidePanelHelper->isSidePanelFrame())
 	{
 		?>
 		<span style="display:inline-block; width:20px; height: 22px;"></span>
-		<input type="button" class="adm-btn-save" name="save_and_conduct" value="<?echo GetMessage("CAT_DOC_ADD_CONDUCT") ?>">
+		<input type="button" class="adm-btn-save" name="save_and_conduct" value="<?echo GetMessage("CAT_DOC_ADD_CONDUCT_EXT") ?>">
 		<input type="button" class="adm-btn" name="save_document" value="<?echo GetMessage("CAT_DOC_SAVE") ?>">
 		<?
 	}
@@ -855,7 +923,7 @@ if ($adminSidePanelHelper->isSidePanelFrame())
 	{
 		?>
 		<span class="hor-spacer"></span>
-		<input type="button" class="adm-btn" name="cancellation" value="<?echo GetMessage("CAT_DOC_CANCELLATION") ?>">
+		<input type="button" class="adm-btn" name="cancellation" value="<?echo GetMessage("CAT_DOC_CANCELLATION_EXT") ?>">
 		<?
 	}
 	?>
@@ -868,7 +936,7 @@ else
 	{
 		?>
 		<span style="display:inline-block; width:20px; height: 22px;"></span>
-		<input type="submit" class="adm-btn-save" name="save_and_conduct" value="<?echo GetMessage("CAT_DOC_ADD_CONDUCT") ?>">
+		<input type="submit" class="adm-btn-save" name="save_and_conduct" value="<?echo GetMessage("CAT_DOC_ADD_CONDUCT_EXT") ?>">
 		<input type="submit" class="adm-btn" name="save_document" value="<?echo GetMessage("CAT_DOC_SAVE") ?>">
 		<?
 	}
@@ -877,7 +945,7 @@ else
 		?>
 		<span class="hor-spacer"></span>
 		<input type="hidden" name="cancellation" id="cancellation" value = "0">
-		<input type="button" class="adm-btn" onclick="if(confirm('<?=GetMessage("CAT_DOC_CANCELLATION_CONFIRM")?>')) {BX('cancellation').value = 1; BX('form_b_catalog_store_docs').submit();}" value="<?echo GetMessage("CAT_DOC_CANCELLATION") ?>">
+		<input type="button" class="adm-btn" onclick="if(confirm('<?=GetMessage("CAT_DOC_CANCELLATION_CONFIRM_EXT")?>')) {BX('cancellation').value = 1; BX('form_b_catalog_store_docs').submit();}" value="<?echo GetMessage("CAT_DOC_CANCELLATION_EXT") ?>">
 		<?
 	}
 	?>
@@ -1348,39 +1416,70 @@ if (typeof showTotalSum === 'undefined')
 	function recalculateSum(id)
 	{
 		<?if(isset($requiredFields["TOTAL"])):?>
+
+		var docType = '<?=$docType?>';
+
+		var sumFieldName = 'CAT_DOC_PURCHASING_PRICE_' + id;
+		if (docType === 'W')
+		{
+			sumFieldName = 'CAT_DOC_BASE_PRICE_' + id;
+		}
+
 		var amount = 0;
 		var price = 0;
-		if(BX('CAT_DOC_AMOUNT_'+id) && !isNaN(parseFloat(BX('CAT_DOC_AMOUNT_'+id).value)))
+		if (BX('CAT_DOC_AMOUNT_'+id) && !isNaN(parseFloat(BX('CAT_DOC_AMOUNT_'+id).value)))
+		{
 			amount = parseFloat(BX('CAT_DOC_AMOUNT_'+id).value);
-		if(BX('CAT_DOC_PURCHASING_PRICE_'+id) && !isNaN(parseFloat(BX('CAT_DOC_PURCHASING_PRICE_'+id).value)))
-			price = parseFloat(BX('CAT_DOC_PURCHASING_PRICE_'+id).value);
-		if(BX('CAT_DOC_SUMM_'+id))
+		}
+		if (BX(sumFieldName) && !isNaN(parseFloat(BX(sumFieldName).value)))
+		{
+			price = parseFloat(BX(sumFieldName).value);
+		}
+		if (BX('CAT_DOC_SUMM_'+id))
+		{
 			BX('CAT_DOC_SUMM_'+id).innerHTML = BX.Currency.currencyFormat(amount * price, BX('CAT_CURRENCY_STORE').value, false);
-		if(BX('PRODUCT['+id+'][SUMM]'))
+		}
+		if (BX('PRODUCT['+id+'][SUMM]'))
+		{
 			BX('PRODUCT['+id+'][SUMM]').value = (amount * price);
+		}
 		var maxId = BX('ROW_MAX_ID').value;
 		var totalSum = 0;
-		for(var i = 0; i <= maxId; i++)
+		for (var i = 0; i <= maxId; i++)
 		{
-			if(BX('PRODUCT['+i+'][SUMM]'))
+			if (BX('PRODUCT['+i+'][SUMM]'))
 			{
 				totalSum = totalSum + Number(BX('PRODUCT['+i+'][SUMM]').value);
 			}
 		}
-		if(isNaN(totalSum))
+		if (isNaN(totalSum))
+		{
 			totalSum = 0;
-		if(BX("CAT_DOCUMENT_SUMM_SPAN"))
-			BX("CAT_DOCUMENT_SUMM_SPAN").innerHTML = '<?=GetMessage('CAT_DOC_TOTAL')?>' + ': ' + BX.Currency.currencyFormat(totalSum, BX('CAT_CURRENCY_STORE').value, true);
-		else
-			showTotalSum();
-		if(BX("CAT_DOCUMENT_SUM"))
-			BX("CAT_DOCUMENT_SUM").value = totalSum;
-		<?endif;?>
-		if(BX("BARCODE_INPUT_BUTTON_" + id) && BX("CAT_DOC_AMOUNT_HIDDEN_" + id) && BX('CAT_DOC_AMOUNT_'+id).value > BX("CAT_DOC_AMOUNT_HIDDEN_" + id).value)
-			BX("BARCODE_INPUT_BUTTON_" + id).disabled = false;
-		else if(BX("BARCODE_INPUT_BUTTON_" + id))
-			BX("BARCODE_INPUT_BUTTON_" + id).disabled = true;
+		}
 
+		if (BX("CAT_DOCUMENT_SUMM_SPAN"))
+		{
+			BX("CAT_DOCUMENT_SUMM_SPAN").innerHTML = '<?=GetMessage('CAT_DOC_TOTAL')?>' + ': ' + BX.Currency.currencyFormat(totalSum, BX('CAT_CURRENCY_STORE').value, true);
+		}
+		else
+		{
+			showTotalSum();
+		}
+
+		if (BX("CAT_DOCUMENT_SUM"))
+		{
+			BX("CAT_DOCUMENT_SUM").value = totalSum;
+		}
+		<?endif;?>
+
+		if (BX("BARCODE_INPUT_BUTTON_" + id) && BX("CAT_DOC_AMOUNT_HIDDEN_" + id) && BX('CAT_DOC_AMOUNT_'+id).value > BX("CAT_DOC_AMOUNT_HIDDEN_" + id).value)
+		{
+			BX("BARCODE_INPUT_BUTTON_" + id).disabled = false;
+		}
+		else if (BX("BARCODE_INPUT_BUTTON_" + id))
+		{
+			BX("BARCODE_INPUT_BUTTON_" + id).disabled = true;
+		}
 	}
 
 	function checkBarcodeSearch()

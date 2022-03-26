@@ -89,7 +89,7 @@ final class Price extends Base
 		return $arguments;
 	}
 
-	public function internalizeArguments($name, $arguments)
+	public function internalizeArguments($name, $arguments): array
 	{
 		if($name == 'modify')
 		{
@@ -128,7 +128,7 @@ final class Price extends Base
 		return $result;
 	}
 
-	public function checkArguments($name, $arguments)
+	public function checkArguments($name, $arguments): Result
 	{
 		if($name == 'modify')
 		{
@@ -189,7 +189,7 @@ final class Price extends Base
 		return $r;
 	}
 
-	public function externalizeResult($name, $fields)
+	public function externalizeResult($name, $fields): array
 	{
 		if($name == 'modify'
 		)

@@ -85,3 +85,8 @@ td.statset {background: url(/bitrix/images/bizproc/stat_sett.gif) 50% center no-
 {
 	width: 75%;
 }
+
+.adm-detail-content-table  .bxhtmled-area-cnt,
+.adm-detail-content-cell-r .bxhtmled-area-cnt {
+	top: 34px !important;
+}

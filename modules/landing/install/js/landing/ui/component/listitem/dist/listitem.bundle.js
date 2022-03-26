@@ -1,26 +1,8 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core_events,landing_loc,landing_ui_form_baseform,landing_ui_component_iconbutton,main_core) {
+(function (exports,main_core,main_core_events,landing_loc,landing_ui_form_baseform,landing_ui_component_iconbutton,landing_ui_component_internal) {
 	'use strict';
-
-	function fetchEventsFromOptions(options) {
-	  if (main_core.Type.isPlainObject(options)) {
-	    return Object.entries(options).reduce(function (acc, _ref) {
-	      var _ref2 = babelHelpers.slicedToArray(_ref, 2),
-	          key = _ref2[0],
-	          value = _ref2[1];
-
-	      if (main_core.Type.isString(key) && key.startsWith('on') && main_core.Type.isFunction(value)) {
-	        acc[key] = value;
-	      }
-
-	      return acc;
-	    }, {});
-	  }
-
-	  return {};
-	}
 
 	function _templateObject5() {
 	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"landing-ui-component-list-item\" \n\t\t\t\t\tdata-id=\"", "\"\n\t\t\t\t\tdata-type=\"", "\"\n\t\t\t\t\tdata-style=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
@@ -43,7 +25,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	}
 
 	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-list-item-header\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-ui-component-list-item-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-ui-component-list-item-actions\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-list-item-header\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-ui-component-list-item-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-ui-component-list-item-actions\">\n\t\t\t\t\t\t<div class=\"landing-ui-component-list-item-actions-custom\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
 
 	  _templateObject3 = function _templateObject3() {
 	    return data;
@@ -82,7 +64,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    _this.setEventNamespace('BX.Landing.UI.Component.ListItem');
 
-	    _this.subscribeFromOptions(fetchEventsFromOptions(options));
+	    _this.subscribeFromOptions(landing_ui_component_internal.fetchEventsFromOptions(options));
 
 	    _this.onEditButtonClick = _this.onEditButtonClick.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.onRemoveButtonClick = _this.onRemoveButtonClick.bind(babelHelpers.assertThisInitialized(_this));
@@ -96,6 +78,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      _this.prependTo(_this.options.prependTo);
 	    }
 
+	    if (main_core.Type.isArrayFilled(_this.options.actions)) {
+	      _this.setActionsButtons(babelHelpers.toConsumableArray(_this.options.actions));
+	    }
+
 	    if (_this.options.error) {
 	      main_core.Dom.addClass(_this.getLayout(), 'landing-ui-error');
 	    }
@@ -104,6 +90,16 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }
 
 	  babelHelpers.createClass(ListItem, [{
+	    key: "setActionsButtons",
+	    value: function setActionsButtons(actionsButtons) {
+	      this.cache.set('actionsButtons', actionsButtons);
+	    }
+	  }, {
+	    key: "getActionsButtons",
+	    value: function getActionsButtons() {
+	      return this.cache.get('actionsButtons', []);
+	    }
+	  }, {
 	    key: "appendTo",
 	    value: function appendTo(target) {
 	      main_core.Dom.append(this.getLayout(), target);
@@ -223,7 +219,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this6 = this;
 
 	      return this.cache.remember('headerLayout', function () {
-	        return main_core.Tag.render(_templateObject3(), _this6.options.draggable ? _this6.getDragButtonLayout() : '', _this6.getTitleLayout(), _this6.getDescriptionLayout(), _this6.options.editable ? _this6.getEditButtonLayout() : '', _this6.options.removable ? _this6.getRemoveButtonLayout() : '');
+	        return main_core.Tag.render(_templateObject3(), _this6.options.draggable ? _this6.getDragButtonLayout() : '', _this6.getTitleLayout(), _this6.getDescriptionLayout(), _this6.getActionsButtons().map(function (button) {
+	          return button.getLayout();
+	        }), _this6.options.editable ? _this6.getEditButtonLayout() : '', _this6.options.removable ? _this6.getRemoveButtonLayout() : '');
 	      });
 	    }
 	  }, {
@@ -301,11 +299,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	      if (this.options.sourceOptions) {
 	        var sourceOptions = main_core.Runtime.clone(this.options.sourceOptions);
+	        Object.entries(sourceOptions).forEach(function (_ref) {
+	          var _ref2 = babelHelpers.slicedToArray(_ref, 2),
+	              key = _ref2[0],
+	              propValue = _ref2[1];
 
-	        if (main_core.Type.isArray(this.options.sourceOptions.items) && main_core.Type.isArray(value.items)) {
-	          delete sourceOptions.items;
-	        }
-
+	          if (main_core.Type.isArray(propValue) && main_core.Type.isArray(value[key])) {
+	            delete sourceOptions[key];
+	          }
+	        });
 	        return main_core.Runtime.merge(sourceOptions, value);
 	      }
 
@@ -317,5 +319,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.ListItem = ListItem;
 
-}((this.BX.Landing.UI.Component = this.BX.Landing.UI.Component || {}),BX.Event,BX.Landing,BX.Landing.UI.Form,BX.Landing.UI.Component,BX));
+}((this.BX.Landing.UI.Component = this.BX.Landing.UI.Component || {}),BX,BX.Event,BX.Landing,BX.Landing.UI.Form,BX.Landing.UI.Component,BX.Landing.UI.Component));
 //# sourceMappingURL=listitem.bundle.js.map

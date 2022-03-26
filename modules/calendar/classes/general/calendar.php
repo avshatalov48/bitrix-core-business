@@ -168,10 +168,9 @@ class CCalendar
 		$page = preg_replace(array("/^(.*?)\&$/i","/^(.*?)\?$/i"), "\$1", $page);
 		self::$actionUrl = $page;
 
-		if (self::$bOwner && !empty(self::$ownerId))
-			self::$path = self::GetPath(self::$type, self::$ownerId, true);
-		else
-			self::$path = CCalendar::GetServerPath().$page;
+		self::$path = empty(self::$ownerId)
+			? CCalendar::GetServerPath().$page
+			: self::GetPath(self::$type, self::$ownerId, true);
 
 		self::$outerUrl = $APPLICATION->GetCurPageParam('', array("action", "bx_event_calendar_request", "clear_cache", "bitrix_include_areas", "bitrix_show_mode", "back_url_admin", "SEF_APPLICATION_CUR_PAGE_URL", "EVENT_ID", "EVENT_DATE", "CHOOSE_MR"), false);
 
@@ -349,10 +348,10 @@ class CCalendar
 			'startupEvent' => $startupEvent,
 			'workTime' => array(self::$settings['work_time_start'], self::$settings['work_time_end']), // Decrecated !!
 			'userWorkTime' => array(self::$settings['work_time_start'], self::$settings['work_time_end']),
-			'meetingRooms' => self::GetMeetingRoomList(array(
+			'meetingRooms' => Rooms\IBlockMeetingRoom::getMeetingRoomList([
 				'RMiblockId' => self::$settings['rm_iblock_id'],
 				'pathToMR' => self::$pathesForSite['path_to_rm']
-			)),
+			]),
 			'allowResMeeting' => self::$allowReserveMeeting,
 			'bAMPM' => self::$bAMPM,
 			'WDControllerCID' => 'UFWD'.$id,
@@ -1458,125 +1457,22 @@ class CCalendar
 
 	public static function GetAccessibilityForMeetingRoom($params)
 	{
-		$allowReserveMeeting = isset($params['allowReserveMeeting']) ? $params['allowReserveMeeting'] : self::$allowReserveMeeting;
-		$RMiblockId = isset($params['RMiblockId']) ? $params['RMiblockId'] : self::$settings['rm_iblock_id'];
-		$curEventId = $params['curEventId'] > 0 ? $params['curEventId'] : false;
-		$arResult = [];
-		$offset = CCalendar::GetOffset();
-
-		if ($allowReserveMeeting)
-		{
-			$arSelect = array("ID", "NAME", "IBLOCK_SECTION_ID", "IBLOCK_ID", "ACTIVE_FROM", "ACTIVE_TO");
-			$arFilter = array(
-				"IBLOCK_ID" => $RMiblockId,
-				"SECTION_ID" => $params['id'],
-				"INCLUDE_SUBSECTIONS" => "Y",
-				"ACTIVE" => "Y",
-				"CHECK_PERMISSIONS" => 'N',
-				">=DATE_ACTIVE_TO" => $params['from'],
-				"<=DATE_ACTIVE_FROM" => $params['to']
-			);
-			if(intval($curEventId) > 0)
-			{
-				$arFilter["!ID"] = intval($curEventId);
-			}
-
-			$rsElement = CIBlockElement::GetList(Array('ACTIVE_FROM' => 'ASC'), $arFilter, false, false, $arSelect);
-			while($obElement = $rsElement->GetNextElement())
-			{
-				$arItem = $obElement->GetFields();
-				$arItem["DISPLAY_ACTIVE_FROM"] = CIBlockFormatProperties::DateFormat(self::DFormat(true), MakeTimeStamp($arItem["ACTIVE_FROM"]));
-				$arItem["DISPLAY_ACTIVE_TO"] = CIBlockFormatProperties::DateFormat(self::DFormat(true), MakeTimeStamp($arItem["ACTIVE_TO"]));
-
-				$arResult[] = array(
-					"ID" => intval($arItem['ID']),
-					"NAME" => $arItem['~NAME'],
-					"DT_FROM" => CCalendar::CutZeroTime($arItem['DISPLAY_ACTIVE_FROM']),
-					"DT_TO" => CCalendar::CutZeroTime($arItem['DISPLAY_ACTIVE_TO']),
-					"DT_FROM_TS" => (CCalendar::Timestamp($arItem['DISPLAY_ACTIVE_FROM']) - $offset) * 1000,
-					"DT_TO_TS" => (CCalendar::Timestamp($arItem['DISPLAY_ACTIVE_TO']) - $offset) * 1000
-				);
-			}
-		}
-
-		return $arResult;
+		return Rooms\IBlockMeetingRoom::getAccessibilityForMeetingRoom($params);
 	}
 
-	public static function GetMeetingRoomById($Params)
+	public static function GetMeetingRoomById($params)
 	{
-		if (intval($Params['RMiblockId']) > 0 && CIBlock::GetPermission($Params['RMiblockId']) >= "R")
-		{
-			$arFilter = array("IBLOCK_ID" => $Params['RMiblockId'], "ACTIVE" => "Y", "ID" => $Params['id']);
-			$arSelectFields = array("NAME");
-			$res = CIBlockSection::GetList([], $arFilter, false, array("NAME"));
-			if ($arMeeting = $res->GetNext())
-				return $arMeeting;
-		}
-
-		if(intval($Params['VMiblockId']) > 0 && CIBlock::GetPermission($Params['VMiblockId']) >= "R")
-		{
-			$arFilter = array("IBLOCK_ID" => $Params['VMiblockId'], "ACTIVE" => "Y");
-			$arSelectFields = array("ID", "NAME", "DESCRIPTION", "IBLOCK_ID");
-			$res = CIBlockSection::GetList([], $arFilter, false, $arSelectFields);
-			if($arMeeting = $res->GetNext())
-			{
-				return array(
-					'ID' => $Params['VMiblockId'],
-					'NAME' => $arMeeting["NAME"],
-					'DESCRIPTION' => $arMeeting['DESCRIPTION'],
-				);
-			}
-		}
-		return false;
+		return Rooms\IBlockMeetingRoom::getMeetingRoomById($params);
 	}
 
 	public static function ReleaseLocation($loc)
 	{
-		if ($loc['room_id'] && $loc['room_event_id'] !== false)
-		{
-			Rooms\Manager::releaseRoom(array(
-				'room_id' => $loc['room_id'],
-				'room_event_id' => $loc['room_event_id']
-			));
-		}
-
-		// Old reserve meeting based on iblock module
-		if($loc['mrevid'] && $loc['mrid'])
-		{
-			$set = CCalendar::GetSettings(array('request' => false));
-			if ($set['rm_iblock_id'])
-			{
-				CCalendar::ReleaseMeetingRoom(array(
-					'mrevid' => $loc['mrevid'],
-					'mrid' => $loc['mrid'],
-					'RMiblockId' => $set['rm_iblock_id']
-				));
-			}
-		}
+		Rooms\Util::releaseLocation($loc);
 	}
 
-	public static function ReleaseMeetingRoom($Params)
+	public static function ReleaseMeetingRoom($params)
 	{
-		$Params['RMiblockId'] = isset($Params['RMiblockId']) ? $Params['RMiblockId'] : self::$settings['rm_iblock_id'];
-		$arFilter = array(
-			"ID" => $Params['mrevid'],
-			"IBLOCK_ID" => $Params['RMiblockId'],
-			"IBLOCK_SECTION_ID" => $Params['mrid'],
-			"SECTION_ID" => array($Params['mrid'])
-		);
-
-		$res = CIBlockElement::GetList([], $arFilter, false, false, array("ID"));
-		if($arElement = $res->Fetch())
-		{
-			$obElement = new CIBlockElement;
-			$obElement->Delete($Params['mrevid']);
-		}
-
-		// Hack: reserve meeting calendar based on old calendar's cache
-		$cache = new CPHPCache;
-		$cache->CleanDir('event_calendar/');
-		$cache->CleanDir('event_calendar/events/');
-		$cache->CleanDir('event_calendar/events/'.$Params['RMiblockId']);
+		Rooms\IBlockMeetingRoom::releaseMeetingRoom($params);
 	}
 
 	public static function GetCalendarList($calendarId, $params = [])
@@ -1711,39 +1607,7 @@ class CCalendar
 
 	public static function GetTextLocation($loc = '')
 	{
-		$result = $loc;
-		if ($loc !== '')
-		{
-			$location = self::ParseLocation($loc);
-
-			if($location['mrid'] === false && $location['room_id'] === false)
-			{
-				$result = $location['str'];
-			}
-			elseif($location['room_id'] > 0)
-			{
-				$room = Rooms\Manager::getRoomById($location['room_id']);
-				$result = $room ? $room[0]['NAME'] : '';
-			}
-			else
-			{
-				$MRList = CCalendar::GetMeetingRoomList();
-				foreach($MRList as $MR)
-				{
-					if($MR['ID'] == $location['mrid'])
-					{
-						$result = $MR['NAME'];
-						break;
-					}
-				}
-			}
-		}
-		if ($result === $loc && ($location['mrid'] !== false || $location['room_id'] !== false))
-		{
-			$result = '';
-		}
-
-		return $result;
+		return Rooms\Util::getTextLocation($loc);
 	}
 
 	public static function ParseLocation($location = '')
@@ -1790,38 +1654,7 @@ class CCalendar
 
 	public static function UnParseTextLocation($loc = '')
 	{
-		$result = array('NEW' => $loc);
-		if ($loc != "")
-		{
-			$location = Rooms\Util::parseLocation($loc);
-			if ($location['mrid'] === false && $location['room_id'] === false)
-			{
-				$MRList = CCalendar::GetMeetingRoomList();
-				$loc_ = trim(mb_strtolower($loc));
-				foreach($MRList as $MR)
-				{
-					if (trim(mb_strtolower($MR['NAME'])) == $loc_)
-					{
-						$result['NEW'] = 'ECMR_'.$MR['ID'];
-						break;
-					}
-				}
-
-				if (Bitrix24Manager::isFeatureEnabled("calendar_location"))
-				{
-					$locationList = Rooms\Manager::getRoomsList();
-					foreach($locationList as $room)
-					{
-						if (trim(mb_strtolower($room['NAME'])) == $loc_)
-						{
-							$result['NEW'] = 'calendar_'.$room['ID'];
-						}
-					}
-				}
-
-			}
-		}
-		return $result;
+		return Rooms\Util::unParseTextLocation($loc);
 	}
 
 	public static function ClearExchangeHtml($html = "")
@@ -2015,8 +1848,6 @@ class CCalendar
 				$arFields['TZ_TO'] = $curEvent['TZ_TO'];
 			if (!isset($arFields['MEETING']) && $arFields['IS_MEETING'])
 				$arFields['MEETING'] = $curEvent['MEETING'];
-			if (!isset($arFields['MEETING']) && $arFields['IS_MEETING'])
-				$arFields['MEETING'] = $curEvent['MEETING'];
 			if (!isset($arFields['SYNC_STATUS']) && $arFields['SYNC_STATUS'])
 				$arFields['SYNC_STATUS'] = $curEvent['SYNC_STATUS'];
 
@@ -2034,7 +1865,7 @@ class CCalendar
 				$arFields['ATTENDEES_CODES'] = $curEvent['ATTENDEES_CODES'];
 			}
 
-			if (!isset($arFields['LOCATION']) && $curEvent['LOCATION'] != "")
+			if (!isset($arFields['LOCATION']) && $curEvent['LOCATION'] !== "")
 			{
 				$arFields['LOCATION'] = [
 					'OLD' => $curEvent['LOCATION'],
@@ -2279,15 +2110,7 @@ class CCalendar
 
 		$params['arFields'] = $arFields;
 		$params['userId'] = $userId;
-
-		if (self::$ownerId !== $arFields['OWNER_ID'] && self::$type !== $arFields['CAL_TYPE'])
-		{
-			$params['path'] = self::GetPath($arFields['CAL_TYPE'], $arFields['OWNER_ID'], 1);
-		}
-		else
-		{
-			$params['path'] = self::$path;
-		}
+		$params['path'] = self::GetPath($arFields['CAL_TYPE'], $arFields['OWNER_ID'], 1);
 
 		if (
 			$curEvent
@@ -3322,178 +3145,17 @@ class CCalendar
 
 	public static function SetLocation($old = '', $new = '', $params = [])
 	{
-		$tzEnabled = CTimeZone::Enabled();
-		if ($tzEnabled)
-		{
-			CTimeZone::Disable();
-		}
-
-		// *** ADD MEETING ROOM ***
-		$locOld = Rooms\Util::parseLocation($old);
-		$locNew = Rooms\Util::parseLocation($new);
-		CCalendar::GetSettings(array('request' => false));
-		$res = $locNew['mrid'] ? $locNew['str'] : $new;
-		$RMiblockId = isset($params['RMiblockId']) ? $params['RMiblockId'] : self::$settings['rm_iblock_id'];
-
-		// If not allowed
-		if ($RMiblockId && $locOld['mrid'] !== false && $locOld['mrevid'] !== false) // Release MR
-		{
-			CCalendar::ReleaseMeetingRoom(array(
-				'mrevid' => $locOld['mrevid'],
-				'mrid' => $locOld['mrid'],
-				'RMiblockId' => $RMiblockId
-			));
-		}
-		
-		if ($locNew['mrid'] !== false) // Reserve MR
-		{
-			$mrevid = false;
-			if ($params['bRecreateReserveMeetings'])
-			{
-				$mrevid = CCalendar::ReserveMeetingRoom([
-                    'RMiblockId' => $RMiblockId,
-                    'mrid' => $locNew['mrid'],
-                    'dateFrom' => $params['dateFrom'],
-                    'dateTo' => $params['dateTo'],
-                    'name' => $params['name'],
-                    'description' => Loc::getMessage('EC_RESERVE_FOR_EVENT').': '.$params['name'],
-                    'persons' => $params['persons'],
-                    'members' => $params['attendees']
-				]);
-			}
-			elseif(is_array($locNew) && $locNew['mrevid'] !== false)
-			{
-				$mrevid = $locNew['mrevid'];
-			}
-			
-			$locNew = ($mrevid && $mrevid != 'reserved' && $mrevid != 'expire' && $mrevid > 0) ? 'ECMR_'.$locNew['mrid'].'_'.$mrevid : '';
-		}
-		
-		// Release MR
-		if ($locOld['room_id'] !== false
-			&& $locOld['room_event_id'] !== false
-			&& $locNew['room_id'] === false
-		)
-		{
-			CCalendar::ReleaseLocation($locOld);
-			
-			if ($locNew['str'])
-			{
-				$locNew = $locNew['str'];
-			}
-		}
-		//Reserve MR if it hasn't reserved before
-		else if($locNew['room_id'] && $locOld['room_id'] === false)
-		{
-			$roomEventId = Rooms\Manager::reserveRoom([
-				'room_id' => $locNew['room_id'],
-				'room_event_id' => false,
-				'parentParams' => $params['parentParams']
-			]);
-
-			$locNew = $roomEventId ? 'calendar_'.$locNew['room_id'].'_'.$roomEventId : '';
-		}
-		//Update MR event if it has been reserved before
-		else if ($locNew['room_id']
-			&& $locOld['room_id']
-			&& $locOld['room_event_id']
-		)
-		{
-			$roomEventId = Rooms\Manager::reserveRoom([
-				'room_id' => $locNew['room_id'],
-				'room_event_id' => $locOld['room_event_id'],
-				'parentParams' => $params['parentParams']
-			]);
-			
-			$locNew = $roomEventId ? 'calendar_'.$locNew['room_id'].'_'.$roomEventId : '';
-		}
-		//String value for location field
-		else
-		{
-			$locNew = $locNew['str'];
-		}
-
-		if ($locNew)
-		{
-			$res = $locNew;
-		}
-
-		if ($tzEnabled)
-		{
-			CTimeZone::Enable();
-		}
-
-		return $res;
+		return Rooms\Util::setLocation($old, $new, $params);
 	}
 
 	public static function ReserveMeetingRoom($params)
 	{
-		$tst = MakeTimeStamp($params['dateTo']);
-		if (date("H:i", $tst) == '00:00')
-			$params['dateTo'] = CIBlockFormatProperties::DateFormat(self::DFormat(true), $tst + (23 * 60 + 59) * 60);
-
-		CCalendar::GetSettings(array('request' => false));
-		$params['RMiblockId'] = (isset($params['RMiblockId']) && $params['RMiblockId']) ? $params['RMiblockId'] : self::$settings['rm_iblock_id'];
-
-		$check = CCalendar::CheckMeetingRoom($params);
-		if ($check !== true)
-			return $check;
-
-		$arFields = array(
-			"IBLOCK_ID" => $params['RMiblockId'],
-			"IBLOCK_SECTION_ID" => $params['mrid'],
-			"NAME" => $params['name'],
-			"DATE_ACTIVE_FROM" => $params['dateFrom'],
-			"DATE_ACTIVE_TO" => $params['dateTo'],
-			"CREATED_BY" => CCalendar::GetCurUserId(),
-			"DETAIL_TEXT" => $params['description'],
-			"PROPERTY_VALUES" => array(
-				"UF_PERSONS" => $params['persons'],
-				"PERIOD_TYPE" => 'NONE'
-			),
-			"ACTIVE" => "Y"
-		);
-
-		$bs = new CIBlockElement;
-		$id = $bs->Add($arFields);
-
-		// Hack: reserve meeting calendar based on old calendar's cache
-		$cache = new CPHPCache;
-		$cache->CleanDir('event_calendar/');
-		$cache->CleanDir('event_calendar/events/');
-		$cache->CleanDir('event_calendar/events/'.$params['RMiblockId']);
-
-		return $id;
+		return Rooms\IBlockMeetingRoom::reserveMeetingRoom($params);
 	}
 
-	public static function CheckMeetingRoom($Params)
+	public static function CheckMeetingRoom($params)
 	{
-		$fromDateTime = MakeTimeStamp($Params['dateFrom']);
-		$toDateTime = MakeTimeStamp($Params['dateTo']);
-		$arFilter = array(
-			"ACTIVE" => "Y",
-			"IBLOCK_ID" => $Params['RMiblockId'],
-			"SECTION_ID" => $Params['mrid'],
-			"<DATE_ACTIVE_FROM" => $Params['dateTo'],
-			">DATE_ACTIVE_TO" => $Params['dateFrom'],
-			"PROPERTY_PERIOD_TYPE" => "NONE",
-		);
-
-		if ($Params['mrevid_old'] > 0)
-			$arFilter["!=ID"] = $Params['mrevid_old'];
-
-		$dbElements = CIBlockElement::GetList(array("DATE_ACTIVE_FROM" => "ASC"), $arFilter, false, false, array('ID'));
-		if ($arElements = $dbElements->GetNext())
-			return 'reserved';
-
-		include_once($_SERVER['DOCUMENT_ROOT']."/bitrix/components/bitrix/intranet.reserve_meeting/init.php");
-		$arPeriodicElements = __IRM_SearchPeriodic($fromDateTime, $toDateTime, $Params['RMiblockId'], $Params['mrid']);
-
-		for ($i = 0, $l = count($arPeriodicElements); $i < $l; $i++)
-			if (!$Params['mrevid_old'] || $arPeriodicElements[$i]['ID'] != $Params['mrevid_old'])
-				return 'reserved';
-
-		return true;
+		return Rooms\IBlockMeetingRoom::checkMeetingRoom($params);
 	}
 
 	public static function GetOuterUrl()
@@ -4399,13 +4061,14 @@ class CCalendar
 			|| $refresh
 		)
 		{
-			self::$curUserId = (is_object($USER) && $USER->IsAuthorized())
+			self::$curUserId =
+				(is_object($USER) && $USER->IsAuthorized())
 					? (int)$USER->GetId()
 					: 0
 			;
 		}
 
-		return (int)self::$curUserId;
+		return self::$curUserId;
 	}
 
 	public static function GetSettings($params = [])
@@ -4657,81 +4320,7 @@ class CCalendar
 
 	public static function GetPath($type = '', $ownerId = '', $hard = false)
 	{
-		if (self::$path == '' || $hard)
-		{
-			$path = '';
-			if (empty($type))
-			{
-				$type = self::$type;
-			}
-
-			if (!empty($type))
-			{
-				if ($type === 'user')
-				{
-					$path = COption::GetOptionString(
-						'calendar',
-						'path_to_user_calendar',
-						COption::getOptionString('socialnetwork', 'user_page', "/company/personal/")."user/#user_id#/calendar/"
-					);
-				}
-				elseif($type === 'group')
-				{
-					$path = COption::GetOptionString(
-						'calendar',
-						'path_to_group_calendar',
-						COption::getOptionString('socialnetwork', 'workgroups_page', "/workgroups/")."group/#group_id#/calendar/"
-					);
-				}
-				else
-				{
-					$settings = self::GetSettings();
-					$path = $settings['path_to_type_'.$type];
-				}
-
-				if (!COption::GetOptionString('calendar', 'pathes_for_sites', true))
-				{
-					$siteId = self::GetSiteId();
-					$pathes = self::GetPathes();
-					if (isset($pathes[$siteId]))
-					{
-						if ($type === 'user' && isset($pathes[$siteId]['path_to_user_calendar']))
-						{
-							$path = $pathes[$siteId]['path_to_user_calendar'];
-						}
-						elseif($type === 'group' && isset($pathes[$siteId]['path_to_group_calendar']))
-						{
-							$path = $pathes[$siteId]['path_to_group_calendar'];
-						}
-						else
-						{
-							$path = $pathes[$siteId]['path_to_type_'.$type];
-						}
-					}
-				}
-
-				if (empty($ownerId))
-				{
-					$ownerId = self::$ownerId;
-				}
-
-				if (!empty($path) && !empty($ownerId))
-				{
-					if ($type === 'user')
-						$path = str_replace(array('#user_id#', '#USER_ID#'), $ownerId, $path);
-					elseif($type === 'group')
-						$path = str_replace(array('#group_id#', '#GROUP_ID#'), $ownerId, $path);
-				}
-
-				$path = CCalendar::GetServerPath().$path;
-			}
-		}
-		else
-		{
-			$path = self::$path;
-		}
-
-		return $path;
+		return \CCalendar::GetServerPath().Util::getPathToCalendar((int)$ownerId, $type);
 	}
 
 	public static function GetSiteId()
@@ -4932,61 +4521,7 @@ class CCalendar
 
 	public static function GetMeetingRoomList($params = [])
 	{
-		if (COption::GetOptionString('calendar', 'eventWithLocationConverted', 'N') === 'Y')
-		{
-			$meetingRoomList = [];
-			self::$meetingRoomList = $meetingRoomList;
-			return $meetingRoomList;
-		}
-		if (isset(self::$meetingRoomList))
-		{
-			$meetingRoomList = self::$meetingRoomList;
-		}
-		else
-		{
-			$meetingRoomList = [];
-			if (!self::IsBitrix24())
-			{
-				if (!isset($params['RMiblockId']) && !isset($params['VMiblockId']))
-				{
-					$settings = self::GetSettings();
-					if (!self::$pathesForSite)
-					{
-						self::$pathesForSite = self::GetSettings(array('forseGetSitePathes' => true,'site' =>self::GetSiteId()));
-					}
-					$RMiblockId = $settings['rm_iblock_id'];
-					$pathToMR = self::$pathesForSite['path_to_rm'];
-				}
-				else
-				{
-					$RMiblockId = $params['RMiblockId'];
-					$pathToMR = $params['pathToMR'];
-				}
-
-				if (intval($RMiblockId) > 0 && CIBlock::GetPermission($RMiblockId) >= "R" && self::$allowReserveMeeting)
-				{
-					$arOrderBy = array("NAME" => "ASC", "ID" => "DESC");
-					$arFilter = array("IBLOCK_ID" => $RMiblockId, "ACTIVE" => "Y");
-					$arSelectFields = array("IBLOCK_ID","ID","NAME","DESCRIPTION","UF_FLOOR","UF_PLACE","UF_PHONE");
-					$res = CIBlockSection::GetList($arOrderBy, $arFilter, false, $arSelectFields );
-					while ($arMeeting = $res->GetNext())
-					{
-						$meetingRoomList[] = array(
-							'ID' => $arMeeting['ID'],
-							'NAME' => $arMeeting['~NAME'],
-							'DESCRIPTION' => $arMeeting['~DESCRIPTION'],
-							'UF_PLACE' => $arMeeting['UF_PLACE'],
-							'UF_PHONE' => $arMeeting['UF_PHONE'],
-							'URL' => str_replace(array("#id#", "#ID#"), $arMeeting['ID'], $pathToMR)
-						);
-					}
-				}
-			}
-
-			self::$meetingRoomList = $meetingRoomList;
-		}
-
-		return $meetingRoomList;
+		return Rooms\IBlockMeetingRoom::getMeetingRoomList($params);
 	}
 
 	public static function GetCurrentOffsetUTC($userId = false)
@@ -5242,16 +4777,6 @@ class CCalendar
 				if (!$transportErrors)
 				{
 					$googleApiStatus['googleCalendarPrimaryId'] = $googleApiConnection->getPrimaryId();
-
-					// $curPath = CCalendar::GetPath();
-					// if($curPath)
-					// 	$curPath = CHTTP::urlDeleteParams($curPath, array("action", "sessid", "bx_event_calendar_request", "EVENT_ID"));
-					// $client = new CSocServGoogleOAuth(self::$ownerId);
-					// $client->getEntityOAuth()->addScope(array(
-					// 	'https://www.googleapis.com/auth/calendar',
-					// 	'https://www.googleapis.com/auth/calendar.readonly'
-					// ));
-					// $JSConfig['googleAuthLink'] = $client->getUrl('opener', null, array('BACKURL' => $curPath));
 				}
 			}
 			else
@@ -5304,16 +4829,6 @@ class CCalendar
 					if (!$transportErrors)
 					{
 						$googleApiStatus['googleCalendarPrimaryId'] = $googleApiConnection->getPrimaryId();
-
-						// $curPath = CCalendar::GetPath();
-						// if($curPath)
-						// 	$curPath = CHTTP::urlDeleteParams($curPath, array("action", "sessid", "bx_event_calendar_request", "EVENT_ID"));
-						// $client = new CSocServGoogleOAuth(self::$ownerId);
-						// $client->getEntityOAuth()->addScope(array(
-						// 	'https://www.googleapis.com/auth/calendar',
-						// 	'https://www.googleapis.com/auth/calendar.readonly'
-						// ));
-						// $JSConfig['googleAuthLink'] = $client->getUrl('opener', null, array('BACKURL' => $curPath));
 					}
 				}
 

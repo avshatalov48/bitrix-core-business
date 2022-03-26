@@ -5,6 +5,7 @@ namespace Bitrix\Rest\Api;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Entity\ExpressionField;
+use Bitrix\Main\Loader;
 use Bitrix\Rest\AccessException;
 use Bitrix\Rest\AppTable;
 use Bitrix\Rest\AuthTypeException;
@@ -207,6 +208,25 @@ class Placement extends \IRestService
 			)
 			{
 				$placementBind['ICON'] = $file;
+			}
+			if (!empty($placementInfo['registerCallback']['callback']))
+			{
+				if (
+					$placementInfo['registerCallback']['moduleId']
+					&& Loader::includeModule($placementInfo['registerCallback']['moduleId'])
+					&& is_callable($placementInfo['registerCallback']['callback'])
+				)
+				{
+					$resultCallback = call_user_func(
+						$placementInfo['registerCallback']['callback'],
+						$placementBind,
+						$placementInfo
+					);
+					if (!empty($resultCallback['error']) && !empty($resultCallback['error_description']))
+					{
+						return $resultCallback;
+					}
+				}
 			}
 
 			$result = PlacementTable::add($placementBind);

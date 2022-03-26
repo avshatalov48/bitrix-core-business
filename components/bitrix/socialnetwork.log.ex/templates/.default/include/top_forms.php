@@ -1,4 +1,9 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -10,7 +15,7 @@
 $component = $this->getComponent();
 
 if (
-	$arParams["IS_CRM"] == "Y"
+	$arParams["IS_CRM"] === "Y"
 	&& (
 		!isset($arParams["CRM_ENABLE_ACTIVITY_EDITOR"])
 		|| $arParams["CRM_ENABLE_ACTIVITY_EDITOR"] === true
@@ -42,9 +47,9 @@ if (
 	);
 }
 
-if ($arParams['USE_TASKS'] == 'Y')
+if ($arParams['USE_TASKS'] === 'Y')
 {
-	?><?
+	?><?php
 	$APPLICATION->IncludeComponent(
 		"bitrix:tasks.iframe.popup",
 		".default",
@@ -56,12 +61,12 @@ if ($arParams['USE_TASKS'] == 'Y')
 		null,
 		[ 'HIDE_ICONS' => 'Y' ]
 	);
-	?><?
+	?><?php
 }
 
 if (
-	$arParams["HIDE_EDIT_FORM"] != "Y"
-	&& intval($arResult["MICROBLOG_USER_ID"]) > 0
+	$arParams["HIDE_EDIT_FORM"] !== "Y"
+	&& (int)$arResult["MICROBLOG_USER_ID"] > 0
 	&& $USER->IsAuthorized()
 )
 {
@@ -86,14 +91,11 @@ if (
 		"SELECTOR_VERSION" => 2
 	];
 
-	if ($arParams["ENTITY_TYPE"] == SONET_ENTITY_GROUP)
+	if ($arParams["ENTITY_TYPE"] === SONET_ENTITY_GROUP)
 	{
 		$arBlogComponentParams["SOCNET_GROUP_ID"] = $arParams["GROUP_ID"];
 	}
-	elseif (
-		$arParams["ENTITY_TYPE"] != SONET_ENTITY_GROUP
-		&& $arResult["currentUserId"] != $arParams["CURRENT_USER_ID"]
-	)
+	elseif ((int)$arResult["currentUserId"] !== (int)$arParams["CURRENT_USER_ID"])
 	{
 		$arBlogComponentParams["SOCNET_USER_ID"] = $arParams["CURRENT_USER_ID"];
 	}
@@ -112,7 +114,7 @@ if (
 		$arBlogComponentParams["POST_FORM_ACTION_URI"] = "/stream/";
 	}
 
-	if ($arParams['USE_TASKS'] == 'Y')
+	if ($arParams['USE_TASKS'] === 'Y')
 	{
 		$arBlogComponentParams["PATH_TO_USER_TASKS"] = $arParams['PATH_TO_USER_TASKS'];
 		$arBlogComponentParams["PATH_TO_USER_TASKS_TASK"] = $arParams['PATH_TO_USER_TASKS_TASK'];
@@ -120,7 +122,7 @@ if (
 		$arBlogComponentParams["PATH_TO_GROUP_TASKS_TASK"] = $arParams['PATH_TO_GROUP_TASKS_TASK'];
 		$arBlogComponentParams["PATH_TO_USER_TASKS_PROJECTS_OVERVIEW"] = $arParams['PATH_TO_USER_TASKS_PROJECTS_OVERVIEW'];
 		$arBlogComponentParams["PATH_TO_USER_TEMPLATES_TEMPLATE"] = $arParams['PATH_TO_USER_TEMPLATES_TEMPLATE'];
-		$arBlogComponentParams["LOG_EXPERT_MODE"] = (isset($arResult["EXPERT_MODE"]) ? $arResult["EXPERT_MODE"] : "N");
+		$arBlogComponentParams["LOG_EXPERT_MODE"] = ($arResult["EXPERT_MODE"] ?? "N");
 	}
 
 	$staticHtmlCache = \Bitrix\Main\Data\StaticHtmlCache::getInstance();
@@ -131,7 +133,7 @@ if (
 		$this->SetViewTarget($arResult["FORM_TARGET_ID"]);
 	}
 
-	?><div id="sonet_log_microblog_container"><?
+	?><div id="sonet_log_microblog_container"><?php
 		$APPLICATION->IncludeComponent(
 			"bitrix:socialnetwork.blog.post.edit",
 			"",
@@ -139,7 +141,7 @@ if (
 			$component,
 			[ 'HIDE_ICONS' => 'Y' ]
 		);
-	?></div><?
+	?></div><?php
 
 	if ($arResult["FORM_TARGET_ID"])
 	{
@@ -148,8 +150,8 @@ if (
 
 	$staticHtmlCache->enableVoting();
 }
-elseif ($arParams["SHOW_EVENT_ID_FILTER"] == "Y")
+elseif ($arParams["SHOW_EVENT_ID_FILTER"] === "Y")
 {
-	?><div class="feed-filter-fake-cont"></div><?
+	?><div class="feed-filter-fake-cont"></div><?php
 }
 

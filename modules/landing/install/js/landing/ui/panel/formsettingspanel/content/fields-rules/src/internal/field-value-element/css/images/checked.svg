@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="12px" height="9px" viewBox="0 0 12 9" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <defs>
+        <path d="M228,-2.18278728e-11 L228,299 L0,299 L0,-2.18278728e-11 L228,-2.18278728e-11 Z" id="path-1"></path>
+        <filter x="-15.1%" y="-9.5%" width="130.3%" height="123.1%" filterUnits="objectBoundingBox" id="filter-2">
+            <feOffset dx="0" dy="6" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="10.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0.325490196   0 0 0 0 0.360784314   0 0 0 0 0.411764706  0 0 0 0.15 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="02-Финал-(Правила-показа-полей)" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Popup-01" transform="translate(-22.000000, -153.000000)">
+            <g id="Popups-/--·-Menus-/-Menu-down">
+                <g id="Menu-down">
+                    <polygon id="Shape" fill="#2066B0" fill-rule="nonzero" points="23.3600826 156.446392 26.0132954 159.099605 32.3160574 153 33.6761401 154.360083 27.3765632 160.459687 26.0132954 161.81977 24.6532127 160.459687 22 157.806475"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

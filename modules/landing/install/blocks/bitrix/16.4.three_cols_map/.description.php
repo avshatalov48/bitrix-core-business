@@ -13,9 +13,6 @@ return [
 		'dynamic' => false,
 		'version' => '18.5.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
 		'subtype' => ['map', 'form'],
-		'subtype_params' =>[
-			'required' => 'google'
-		],
 		'type' => ['page', 'store'],
 	],
 	'cards' => [
@@ -130,6 +127,6 @@ return [
 		]
 	],
 	'assets' => [
-		'ext' => ['landing_google_maps_new', 'landing_form'],
+		'ext' => ['landing_map', 'landing_form'],
 	]
 ];

@@ -29,15 +29,15 @@ return [
 		'nodes' => [
 			'.landing-block-node-subtitle' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_3_ONE_COL_FIX_WITH_TITLE_STYLE_LANDINGBLOCKNODESUBTITLE'),
-				'type' => 'typo',
+				'type' => ['typo', 'animation'],
 			],
 			'.landing-block-node-title' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_3_ONE_COL_FIX_WITH_TITLE_STYLE_LANDINGBLOCKNODETITLE'),
-				'type' => 'typo',
+				'type' => ['typo', 'animation'],
 			],
 			'.landing-block-node-inner' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_3_ONE_COL_FIX_WITH_TITLE_STYLE_LANDINGBLOCKNODEINNER'),
-				'type' => ['text-align', 'heading', 'container'],
+				'type' => ['text-align', 'heading', 'container', 'animation'],
 			],
 		],
 	],

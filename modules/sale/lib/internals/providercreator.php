@@ -4,6 +4,7 @@ namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main;
 use Bitrix\Sale;
+use Bitrix\Catalog;
 
 /**
  * Class ProviderCreator
@@ -63,33 +64,12 @@ class ProviderCreator
 	}
 
 	/**
-	 * @param array $shipmentProductData
-	 */
-	public function addShipmentProductData(array $shipmentProductData)
-	{
-		$builder = $this->createBuilder($shipmentProductData['PROVIDER_NAME']);
-		$builder->addProductByShipmentProductData($shipmentProductData);
-	}
-
-	/**
 	 * @param array $productData
-	 *
-	 * @throws Main\ArgumentNullException
 	 */
 	public function addProductData(array $productData)
 	{
-		if (empty($productData['PRODUCT_ID']))
-		{
-			throw new Main\ArgumentNullException('PRODUCT_ID');
-		}
-
-		if (empty($productData['PROVIDER_NAME']))
-		{
-			throw new Main\ArgumentNullException('PROVIDER_NAME');
-		}
-
 		$builder = $this->createBuilder($productData['PROVIDER_NAME']);
-		$builder->addProductById($productData['PRODUCT_ID']);
+		$builder->addProductData($productData);
 	}
 
 	/**
@@ -117,21 +97,9 @@ class ProviderCreator
 	{
 		$basketItem = $shipmentItem->getBasketItem();
 
-		/** @var Sale\ShipmentItemCollection $shipmentItemCollection */
-		$shipmentItemCollection = $shipmentItem->getCollection();
+		$shipment = $shipmentItem->getCollection()->getShipment();
 
-		if (!$shipmentItemCollection)
-		{
-			throw new Main\ObjectNotFoundException('Entity "ShipmentItemCollection" not found');
-		}
-
-		$shipment = $shipmentItemCollection->getShipment();
-		if (!$shipment)
-		{
-			throw new Main\ObjectNotFoundException('Entity "Shipment" not found');
-		}
-
-		$quantity = floatval($shipmentItem->getQuantity());
+		$quantity = $shipmentItem->getQuantity();
 
 		if ($shipment->needShip() == Sale\Internals\Catalog\Provider::SALE_TRANSFER_PROVIDER_SHIPMENT_NEED_SHIP)
 		{
@@ -148,76 +116,158 @@ class ProviderCreator
 			$quantity = 0;
 		}
 
-		return array(
+		$item = [
 			'PROVIDER_NAME' => $basketItem->getProviderName(),
 			'SHIPMENT_ITEM' => $shipmentItem,
+			'BASKET_ITEM' => $basketItem,
 			'QUANTITY' =>  $quantity,
-			'RESERVED_QUANTITY' =>  $shipmentItem->getReservedQuantity(),
-			'NEED_RESERVE' => $shipmentItem->needReserve(),
-		);
+			'RESERVED_QUANTITY' => 0,
+			'RESERVED_QUANTITY_BY_STORE' => [
+				$shipmentItem->getInternalIndex() => []
+			],
+		];
+
+		$storeData = Sale\Internals\Catalog\Provider::createMapShipmentItemStoreData($shipmentItem);
+		if ($storeData)
+		{
+			$item['STORE_DATA'] = $storeData;
+
+			$needReserveByStore = [];
+			foreach ($storeData as $data)
+			{
+				$item['RESERVED_QUANTITY_BY_STORE'][$shipmentItem->getInternalIndex()][$data['STORE_ID']] = $data['RESERVED_QUANTITY'];
+
+				$needReserveByStore[$data['STORE_ID']] = $data['RESERVED_QUANTITY'] > 0;
+			}
+
+			$item['RESERVED_QUANTITY'] = array_sum($item['RESERVED_QUANTITY_BY_STORE'][$shipmentItem->getInternalIndex()]);
+			$item['NEED_RESERVE'] = $item['RESERVED_QUANTITY'] > 0;
+			$item['NEED_RESERVE_BY_STORE'] = [
+				$shipmentItem->getInternalIndex() => $needReserveByStore
+			];
+		}
+		else
+		{
+			$item['RESERVED_QUANTITY'] = $basketItem->getReservedQuantity();
+			$item['NEED_RESERVE'] = $item['RESERVED_QUANTITY'] > 0;
+		}
+
+		return $item;
 	}
 
 	/**
 	 * @param Sale\ShipmentItem $shipmentItem
-	 *
 	 * @return array
-	 * @throws Main\ObjectNotFoundException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\LoaderException
 	 */
-	public function createItemForReserve(Sale\ShipmentItem $shipmentItem)
-	{
-		return $this->createMapForReserve($shipmentItem);
-	}
-
-	/**
-	 * @param Sale\ShipmentItem $shipmentItem
-	 *
-	 * @return array
-	 * @throws Main\ObjectNotFoundException
-	 */
-	public function createItemForUnreserve(Sale\ShipmentItem $shipmentItem)
-	{
-		return $this->createMapForReserve($shipmentItem, false);
-	}
-
-	/**
-	 * @param Sale\ShipmentItem $shipmentItem
-	 * @param bool $reserve
-	 *
-	 * @return array
-	 * @throws Main\ObjectNotFoundException
-	 */
-	private function createMapForReserve(Sale\ShipmentItem $shipmentItem, $reserve = true)
+	public function createItemForReserveByShipmentItem(Sale\ShipmentItem $shipmentItem) : array
 	{
 		$basketItem = $shipmentItem->getBasketItem();
 
-		/** @var Sale\ShipmentItemCollection $shipmentItemCollection */
-		$shipmentItemCollection = $shipmentItem->getCollection();
-		if (!$shipmentItemCollection)
-		{
-			throw new Main\ObjectNotFoundException('Entity "ShipmentItemCollection" not found');
-		}
-
-		$shipment = $shipmentItemCollection->getShipment();
-		if (!$shipment)
-		{
-			throw new Main\ObjectNotFoundException('Entity "Shipment" not found');
-		}
-
-		$quantity = floatval($shipmentItem->getQuantity() - $shipmentItem->getReservedQuantity());
-
-		if (!$reserve)
-		{
-			$quantity = -1 * $shipmentItem->getReservedQuantity();
-		}
-
-		return array(
+		$result = [
 			'PROVIDER_NAME' => $basketItem->getProviderName(),
+			'BASKET_ITEM' => $basketItem,
 			'SHIPMENT_ITEM' => $shipmentItem,
-			'QUANTITY' => $quantity,
-			'RESERVED_QUANTITY' => $shipmentItem->getReservedQuantity(),
-		);
+			'QUANTITY' => 0,
+			'RESERVED_QUANTITY' => 0,
+		];
+
+		$shipmentItemQuantity = $shipmentItem->getQuantity();
+		if ($shipmentItemQuantity == 0)
+		{
+			$storeId = Sale\Configuration::getDefaultStoreId();
+
+			$result['QUANTITY_BY_STORE'][$storeId] = $shipmentItemQuantity - $shipmentItem->getReservedQuantity();
+			$result['QUANTITY'] += $result['QUANTITY_BY_STORE'][$storeId];
+
+			$result['RESERVED_QUANTITY_BY_STORE'][$storeId] = $shipmentItem->getReservedQuantity();
+			$result['RESERVED_QUANTITY'] += $result['RESERVED_QUANTITY_BY_STORE'][$storeId];
+		}
+		else
+		{
+			$quantityStoreList = [];
+			/** @var Sale\ShipmentItemStore $itemStore */
+			foreach ($shipmentItem->getShipmentItemStoreCollection() as $itemStore)
+			{
+				$storeId = $itemStore->getStoreId();
+				if (!isset($quantityStoreList[$storeId]))
+				{
+					$quantityStoreList[$storeId] = 0;
+				}
+
+				$quantityStoreList[$storeId] += $itemStore->getQuantity();
+				$shipmentItemQuantity -= $itemStore->getQuantity();
+			}
+
+			if ($shipmentItemQuantity > 0)
+			{
+				$storeId = Sale\Configuration::getDefaultStoreId();
+				if (!isset($quantityStoreList[$storeId]))
+				{
+					$quantityStoreList[$storeId] = 0;
+				}
+
+				$quantityStoreList[$storeId] += $shipmentItemQuantity;
+			}
+
+			$result['QUANTITY_BY_STORE'] = [];
+			$result['RESERVED_QUANTITY_BY_STORE'] = [];
+
+			$shipmentItemReservedQuantity = $shipmentItem->getReservedQuantity();
+			foreach ($quantityStoreList as $storeId => $quantity)
+			{
+				$reserveQuantity = 0;
+
+				if ($shipmentItemReservedQuantity > 0)
+				{
+					$reserveQuantity = $basketItem->getReserveQuantityCollection()->getQuantityByStoreId($storeId);
+					if ($reserveQuantity > $shipmentItemReservedQuantity)
+					{
+						$reserveQuantity = $shipmentItemReservedQuantity;
+					}
+
+					$shipmentItemReservedQuantity -= $reserveQuantity;
+				}
+
+				$result['QUANTITY_BY_STORE'][$storeId] = $quantity - $reserveQuantity;
+				$result['QUANTITY'] += $result['QUANTITY_BY_STORE'][$storeId];
+
+				$result['RESERVED_QUANTITY_BY_STORE'][$storeId] = $reserveQuantity;
+				$result['RESERVED_QUANTITY'] += $result['RESERVED_QUANTITY_BY_STORE'][$storeId];
+			}
+		}
+
+		return $result;
 	}
 
+	/**
+	 * @param Sale\ReserveQuantity $reserve
+	 * @return array
+	 * @throws Main\ArgumentNullException
+	 */
+	public function createItemForReserve(Sale\ReserveQuantity $reserve)
+	{
+		$basketItem = $reserve->getCollection()->getBasketItem();
+
+		$originalFields = $reserve->getFields()->getOriginalValues();
+		$reservedQuantity = $originalFields['QUANTITY'] ?? 0;
+		$quantity = $reserve->getField('QUANTITY') - $reservedQuantity;
+
+		return [
+			'PROVIDER_NAME' => $basketItem->getProviderName(),
+			'RESERVE_ITEM' => $reserve,
+			'BASKET_ITEM' => $basketItem,
+			'QUANTITY' => $quantity,
+			'QUANTITY_BY_STORE' => [
+				$reserve->getStoreId() => $quantity
+			],
+			'RESERVED_QUANTITY' => $reservedQuantity,
+			'RESERVED_QUANTITY_BY_STORE' => [
+				$reserve->getStoreId() => $reservedQuantity
+			]
+		];
+	}
 
 	/**
 	 * @return Sale\Result
@@ -233,6 +283,14 @@ class ProviderCreator
 	public function getAvailableQuantity()
 	{
 		return $this->callBuilderMethod('getAvailableQuantity', 'AVAILABLE_QUANTITY_LIST');
+	}
+
+	/**
+	 * @return Sale\Result
+	 */
+	public function getAvailableQuantityByStore()
+	{
+		return $this->callBuilderMethod('getAvailableQuantityByStore', 'AVAILABLE_QUANTITY_LIST_BY_STORE');
 	}
 
 	/**
@@ -271,16 +329,6 @@ class ProviderCreator
 		}
 
 		return $result;
-	}
-
-	/**
-	 * @param Sale\Result $resultAfterReserve
-	 *
-	 * @return Sale\Result
-	 */
-	public function setItemsResultAfterReserve(Sale\Result $resultAfterReserve)
-	{
-		return $this->callBuilderMethod('setItemsResultAfterReserve', 'RESULT_AFTER_RESERVE_LIST', $resultAfterReserve);
 	}
 
 	/**

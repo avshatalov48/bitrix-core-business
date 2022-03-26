@@ -55,14 +55,7 @@ final class Catalog extends Controller
 
 		return new Page('CATALOGS', $result, function() use ($filter)
 		{
-			$catalog = new \CCatalog();
-
-			$list = [];
-			$r = $catalog::GetList([], $filter);
-			while ($l = $r->fetch())
-				$list[] = $l;
-
-			return count($list);
+			return (int)\CCatalog::GetList([], $filter, []);
 		});
 	}
 

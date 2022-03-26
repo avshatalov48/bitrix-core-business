@@ -1528,6 +1528,8 @@ class ComponentHelper
 		$newRights = $fields["NEW_RIGHTS"];
 		$userId = (int)$fields["USER_ID"];
 
+		$clearCommentsCache = (!isset($params['CLEAR_COMMENTS_CACHE']) || $params['CLEAR_COMMENTS_CACHE'] !== 'N');
+
 		$commentId = false;
 		$logId = false;
 
@@ -1698,10 +1700,13 @@ class ComponentHelper
 
 			if($commentId = \CBlogComment::add($commentFields, false))
 			{
-				BXClearCache(true, self::getBlogPostCacheDir(array(
-					'TYPE' => 'post_comments',
-					'POST_ID' => $postId
-				)));
+				if ($clearCommentsCache)
+				{
+					BXClearCache(true, self::getBlogPostCacheDir(array(
+						'TYPE' => 'post_comments',
+						'POST_ID' => $postId
+					)));
+				}
 
 				if ((int)$post["AUTHOR_ID"] !== $userId)
 				{
@@ -2025,6 +2030,21 @@ class ComponentHelper
 		}
 
 		return $authIdList;
+	}
+
+	public static function setModuleUsed(): void
+	{
+		$optionValue = Option::get('socialnetwork', 'is_used', false);
+
+		if (!$optionValue)
+		{
+			Option::set('socialnetwork', 'is_used', true);
+		}
+	}
+
+	public static function getModuleUsed(): bool
+	{
+		return (bool)Option::get('socialnetwork', 'is_used', false);
 	}
 
 	public static function setComponentOption($list, $params = array()): bool
@@ -4361,9 +4381,9 @@ class ComponentHelper
 						while ($groupFields = $res->fetch())
 						{
 							$groupNameList[] = (
-							isset($params['MOBILE']) && $params['MOBILE'] === 'Y'
-								? $groupFields['NAME']
-								: '<a href="' . \CComponentEngine::makePathFromTemplate($groupUrl, [ 'group_id' => $groupFields['ID'] ]) . '">'.$groupFields['NAME'].'</a>'
+								isset($params['MOBILE']) && $params['MOBILE'] === 'Y'
+									? $groupFields['NAME']
+									: '<a href="' . \CComponentEngine::makePathFromTemplate($groupUrl, [ 'group_id' => $groupFields['ID'] ]) . '">' . htmlspecialcharsEx($groupFields['NAME']) . '</a>'
 							);
 						}
 

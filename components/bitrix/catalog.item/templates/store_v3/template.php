@@ -79,6 +79,54 @@ if (isset($arResult['ITEM']))
 		? $item['IPROPERTY_VALUES']['ELEMENT_PREVIEW_PICTURE_FILE_TITLE']
 		: $item['NAME'];
 
+	$resizedSlider = [
+		'X' => [],
+		'X2' => [],
+	];
+
+	foreach ($item['MORE_PHOTO'] as $morePhoto)
+	{
+		$xResizedImage = \CFile::ResizeImageGet(
+			$morePhoto['ID'],
+			[
+				'width' => 410,
+				'height' => 410,
+			],
+			BX_RESIZE_IMAGE_PROPORTIONAL,
+			true
+		);
+
+		$x2ResizedImage = \CFile::ResizeImageGet(
+			$morePhoto['ID'],
+			[
+				'width' => 820,
+				'height' => 820,
+			],
+			BX_RESIZE_IMAGE_PROPORTIONAL,
+			true
+		);
+
+		$xResizedImage['src'] = \Bitrix\Iblock\Component\Tools::getImageSrc([
+			'SRC' => $xResizedImage['src']
+		]);
+		$x2ResizedImage['src'] = \Bitrix\Iblock\Component\Tools::getImageSrc([
+			'SRC' => $x2ResizedImage['src']
+		]);
+
+		$resizedSlider['X'][] = [
+			'ID' => $morePhoto['ID'],
+			'SRC' => $xResizedImage['src'],
+			'WIDTH' => $xResizedImage['width'],
+			'HEIGHT' => $xResizedImage['height'],
+		];
+		$resizedSlider['X2'][] = [
+			'ID' => $morePhoto['ID'],
+			'SRC' => $x2ResizedImage['src'],
+			'WIDTH' => $x2ResizedImage['width'],
+			'HEIGHT' => $x2ResizedImage['height'],
+		];
+	}
+
 	$jsParams = [
 		'PRODUCT_TYPE' => $item['PRODUCT']['TYPE'],
 		'SHOW_QUANTITY' => $arParams['USE_PRODUCT_QUANTITY'],
@@ -134,6 +182,7 @@ if (isset($arResult['ITEM']))
 			'DETAIL_PAGE_URL' => $item['DETAIL_PAGE_URL'],
 			'MORE_PHOTO' => $item['MORE_PHOTO'],
 			'MORE_PHOTO_COUNT' => $item['MORE_PHOTO_COUNT'],
+			'RESIZED_SLIDER' => $resizedSlider,
 		],
 		'BASKET' => [
 			'ADD_PROPS' => $arParams['ADD_PROPERTIES_TO_BASKET'] === 'Y',
@@ -145,6 +194,7 @@ if (isset($arResult['ITEM']))
 		],
 	];
 
+	unset($xResizedImage, $x2ResizedImage, $resizedSlider);
 
 	if ($jsParams['SHOW_QUANTITY'])
 	{

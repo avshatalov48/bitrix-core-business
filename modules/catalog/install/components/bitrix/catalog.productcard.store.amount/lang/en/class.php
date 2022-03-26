@@ -1,0 +1,13 @@
+<?php
+$MESS["STORES_LIST_DROPDOWN_ACTIONS_LIST_DELETE"] = "Delete";
+$MESS["STORES_LIST_DROPDOWN_ACTIONS_LIST_NONE"] = "Select action";
+$MESS["STORE_LIST_GRID_HEADER_AMOUNT"] = "Amount";
+$MESS["STORE_LIST_GRID_HEADER_QUANTITY"] = "Available stock";
+$MESS["STORE_LIST_GRID_HEADER_QUANTITY_COMMON"] = "Stock balance";
+$MESS["STORE_LIST_GRID_HEADER_QUANTITY_RESERVED"] = "Reserved";
+$MESS["STORE_LIST_GRID_HEADER_TITLE"] = "Warehouse";
+$MESS["STORE_LIST_GRID_IM_STUB_TITLE"] = "Please enable Inventory management to manage product inventory.";
+$MESS["STORE_LIST_GRID_OPEN_DETAILS_TITLE"] = "Open";
+$MESS["STORE_LIST_GRID_STORE_TITLE_WITHOUT_NAME"] = "Untitled";
+$MESS["STORE_LIST_GRID_STUB_TITLE"] = "This product is out of stock at all warehouses.";
+$MESS["STORE_LIST_INVENTORY_MANAGEMENT"] = "Inventory management";

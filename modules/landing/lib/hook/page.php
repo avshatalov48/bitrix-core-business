@@ -36,6 +36,12 @@ abstract class Page
 	protected $customExec = null;
 
 	/**
+	 * Flag, if hook change required forced publication site or page
+	 * @var boolean
+	 */
+	protected $isNeedPublication = false;
+
+	/**
 	 * Class constructor.
 	 * @param boolean $editMode Edit mode if true.
 	 * @param boolean $isPage Instance of page.
@@ -123,6 +129,14 @@ abstract class Page
 	public function getLockedMessage()
 	{
 		return '';
+	}
+
+	/**
+	 * @return bool - true if hook change required forced page/site publication
+	 */
+	public function isNeedPublication(): bool
+	{
+		return $this->isNeedPublication;
 	}
 
 	/**

@@ -54,7 +54,14 @@ export default class TasksLimit
 	static onClickTasksLimitPopupSlider()
 	{
 		this.hidePopup();
-		BX.UI.InfoHelper.show('limit_tasks_observers_participants');
+		BX.UI.InfoHelper.show('limit_tasks_observers_participants', {
+			isLimit: true,
+			limitAnalyticsLabels: {
+				module: 'tasks',
+				source: 'postForm',
+				subject: 'auditor'
+			}
+		});
 	}
 
 	static hidePopup()

@@ -160,19 +160,12 @@ class MainNumeratorEditSequence extends CBitrixComponent implements \Bitrix\Main
 			$dbNextNumber = $compoundKey[2];
 			if ($dbNextNumber && is_numeric($dbNextNumber))
 			{
-				if ((int)$sourceFields['NEXT_NUMBER'] <= (int)$dbNextNumber)
+				$res = $numerator->setNextSequentialNumber($sourceFields['NEXT_NUMBER'], $dbNextNumber, $hash);
+				if (!$res->isSuccess())
 				{
-					$this->addError(Loc::getMessage('MAIN_NUMERATOR_EDIT_SEQUENCE_ERROR_NUMBER_LESS'));
-				}
-				else
-				{
-					$res = $numerator->setNextSequentialNumber($sourceFields['NEXT_NUMBER'], $dbNextNumber, $hash);
-					if (!$res->isSuccess())
-					{
-						$errors = $res->getErrors();
-						$error = $errors[0];
-						$this->addError($error->getMessage());
-					}
+					$errors = $res->getErrors();
+					$error = $errors[0];
+					$this->addError($error->getMessage());
 				}
 			}
 		}

@@ -26,8 +26,13 @@ $APPLICATION->SetAdditionalCSS("/bitrix/panel/sale/preset.css");
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
+$enableRestrictedGroupsMode = ($adminSidePanelHelper->isPublicSidePanel()
+	&& Main\Loader::includeModule('crm')
+	&& Main\Loader::includeModule('bitrix24')
+);
+
 $presetManager = \Bitrix\Sale\Discount\Preset\Manager::getInstance();
-$presetManager->enableRestrictedGroupsMode($adminSidePanelHelper->isPublicSidePanel());
+$presetManager->enableRestrictedGroupsMode($enableRestrictedGroupsMode);
 
 $productsPresets = $presetManager->getPresetsByCategory($presetManager::CATEGORY_PRODUCTS);
 $deliveryPresets = $presetManager->getPresetsByCategory($presetManager::CATEGORY_DELIVERY);

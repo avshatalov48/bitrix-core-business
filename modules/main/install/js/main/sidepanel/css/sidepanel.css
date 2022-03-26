@@ -237,6 +237,9 @@
 	top: 0;
 	bottom: 0;
 	z-index: 10;
+	background-color: #fff;
+	background-position: 50% 40%;
+	background-repeat: no-repeat;
 }
 
 .side-panel-loader.default-loader {

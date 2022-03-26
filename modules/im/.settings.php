@@ -44,6 +44,13 @@ return [
 						'className' => '\\Bitrix\\Im\\Integration\\UI\\EntitySelector\\ChatProvider',
 					],
 				],
+				[
+					'entityId' => 'im-recent',
+					'provider' => [
+						'moduleId' => 'im',
+						'className' => '\\Bitrix\\Im\\Integration\\UI\\EntitySelector\\RecentChatProvider',
+					],
+				],
 			],
 			'extensions' => ['im.entity-selector'],
 		],

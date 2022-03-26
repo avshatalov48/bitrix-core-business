@@ -9,7 +9,7 @@ export class BusyUsersDialog extends EventEmitter
 		super();
 		this.setEventNamespace('BX.Calendar.Controls.ConfirmStatusDialog');
 		this.zIndex = 3200;
-		this.id = 'confirm-status-dialog-' + Math.round(Math.random() * 10000);
+		this.id = 'busy-user-dialog-' + Math.round(Math.random() * 10000);
 	}
 
 	show(params = {})

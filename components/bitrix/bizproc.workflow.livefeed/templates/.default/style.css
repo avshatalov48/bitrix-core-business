@@ -35,7 +35,6 @@
 
 .bp-livefeed-wrapper
 {
-	max-height: 1500px;
 	transition: max-height 300ms ease-in-out;
 	overflow: hidden;
 }

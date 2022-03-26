@@ -99,36 +99,37 @@ main > [class~='block-wrapper']:last-of-type .landing-ui-panel-create-action {
 	bottom: -80px;
 }
 
-main > [class~='block-wrapper']:last-of-type .landing-ui-panel-create-action .landing-ui-button,
-main > .landing-ui-button[data-id="insert_first_block"],
-main .landing-main > .landing-ui-button[data-id="insert_first_block"],
-main .landing-header > .landing-ui-button[data-id="insert_first_block"],
-main .landing-sidebar > .landing-ui-button[data-id="insert_first_block"],
-main .landing-footer > .landing-ui-button[data-id="insert_first_block"] {
-	height: 40px;
-	padding-left: 55px;
-	padding-right: 40px;
-	border: 0;
-	background: #212121;
-}
+/*main > [class~='block-wrapper']:last-of-type .landing-ui-panel-create-action .landing-ui-button,*/
+/*main > .landing-ui-button[data-id="insert_first_block"],*/
+/*main .landing-main > .landing-ui-button[data-id="insert_first_block"],*/
+/*main .landing-header > .landing-ui-button[data-id="insert_first_block"],*/
+/*main .landing-sidebar > .landing-ui-button[data-id="insert_first_block"],*/
+/*main .landing-footer > .landing-ui-button[data-id="insert_first_block"] {*/
+/*	!*height: 40px;*!*/
+/*	!*padding-left: 55px;*!*/
+/*	!*padding-right: 40px;*!*/
+/*	!*border: ;*!*/
+/*	background: #d1f066;*/
+/*	color: #333333;*/
+/*}*/
 
-main [class~='block-wrapper']:last-of-type .landing-ui-panel-create-action .landing-ui-button:hover,
-main > .landing-ui-button[data-id="insert_first_block"]:hover,
-main .landing-main > .landing-ui-button[data-id="insert_first_block"]:hover,
-main .landing-header > .landing-ui-button[data-id="insert_first_block"]:hover,
-main .landing-sidebar > .landing-ui-button[data-id="insert_first_block"]:hover,
-main .landing-footer > .landing-ui-button[data-id="insert_first_block"]:hover {
-	background: #000;
-}
+/*!*main [class~='block-wrapper']:last-of-type .landing-ui-panel-create-action .landing-ui-button:hover,*!*/
+/*main > .landing-ui-button[data-id="insert_first_block"]:hover,*/
+/*main .landing-main > .landing-ui-button[data-id="insert_first_block"]:hover,*/
+/*main .landing-header > .landing-ui-button[data-id="insert_first_block"]:hover,*/
+/*main .landing-sidebar > .landing-ui-button[data-id="insert_first_block"]:hover,*/
+/*main .landing-footer > .landing-ui-button[data-id="insert_first_block"]:hover {*/
+/*	background: #b3e600;*/
+/*}*/
 
-main > [class~='block-wrapper']:last-of-type .landing-ui-panel-create-action .landing-ui-button:before,
-main > .landing-ui-button[data-id="insert_first_block"]::before,
-main .landing-main > .landing-ui-button[data-id="insert_first_block"]::before,
-main .landing-header > .landing-ui-button[data-id="insert_first_block"]::before,
-main .landing-sidebar > .landing-ui-button[data-id="insert_first_block"]::before,
-main .landing-footer > .landing-ui-button[data-id="insert_first_block"]::before {
-	left: 34px;
-}
+/*main > [class~='block-wrapper']:last-of-type .landing-ui-panel-create-action .landing-ui-button:before,*/
+/*main > .landing-ui-button[data-id="insert_first_block"]::before,*/
+/*main .landing-main > .landing-ui-button[data-id="insert_first_block"]::before,*/
+/*main .landing-header > .landing-ui-button[data-id="insert_first_block"]::before,*/
+/*main .landing-sidebar > .landing-ui-button[data-id="insert_first_block"]::before,*/
+/*main .landing-footer > .landing-ui-button[data-id="insert_first_block"]::before {*/
+/*	left: 34px;*/
+/*}*/
 
 main > .landing-ui-button[data-id="insert_first_block"],
 main .landing-main > .landing-ui-button[data-id="insert_first_block"],
@@ -225,11 +226,10 @@ main .landing-sidebar:not(.landing-empty) + .landing-main.landing-empty {
 .landing-ui-panel-content-action,
 .landing-ui-panel-block-action,
 .landing-ui-panel-sidebar-actions {
-	background-color: #ffffff;
-    top: 40px;
+    top: 33px;
     left: 16px;
     position: absolute;
-	border-radius: 20px;
+	padding-top: 7px;
 	z-index: 316;
 	-webkit-user-select: none;
 	-moz-user-select: none;
@@ -1052,4 +1052,55 @@ div[id^="popup-window-content-calendar-resourcebooking-settings-popup"] {
 	margin-bottom: 16px;
 	font: 17px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #535c69;
+}
+
+.landing-ui-panel-create-before-action {
+	position: absolute;
+	top: 30px;
+	left: 0;
+	right: 0;
+	display: none;
+	transition: 200ms opacity ease;
+	z-index: 99;
+}
+
+.landing-main > [class~='block-wrapper']:first-of-type .landing-ui-panel-create-before-action {
+	display: block;
+	opacity: 0;
+}
+
+.landing-ui-hide-action-panels-form [class~='block-wrapper']:first-of-type .landing-ui-panel-create-before-action {
+	display: block;
+	opacity: 1;
+}
+
+.landing-main > [class~='block-wrapper']:first-of-type:hover .landing-ui-panel-create-before-action {
+	display: block;
+	opacity: 1;
+}
+
+.landing-ui-hide-action-panels-form .landing-ui-panel-create-action {
+	opacity: 1;
+}
+
+.landing-ui-panel-form-design-action {
+	position: absolute;
+	left: 20px;
+	top: 20px;
+	width: auto;
+	display: none;
+}
+
+.landing-ui-panel-form-design-action .landing-ui-button {
+	background: #FFFFFF;
+	border: 1px solid rgba(82,92,105,0.80);
+	border-radius: 100px;
+}
+
+.landing-ui-hide-action-panels-form .landing-ui-panel-form-design-action {
+	display: block;
+}
+
+.ui-btn:focus {
+	outline: none!important;
 }

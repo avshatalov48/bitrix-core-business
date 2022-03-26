@@ -183,7 +183,7 @@ else
 					}
 
 					include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/neweditor.php");
-					
+
 					if($arResult["COMMENT_PROPERTIES"]["SHOW"] == "Y")
 					{
 						?><br /><?
@@ -195,12 +195,26 @@ else
 							{
 								?><a id="blog-upload-file" href="javascript:blogShowFile()"><?=GetMessage("BLOG_ADD_FILES")?></a><?
 							}
+
+							$additionalParameters = [
+								'arUserField' => $arPostField,
+							];
+							if ($arPostField['USER_TYPE_ID'] === 'file')
+							{
+								$additionalParameters['mode'] = 'main.drag_n_drop';
+							}
+
 							?>
 							<div id="blog-comment-user-fields-<?=$FIELD_NAME?>"><?=($FIELD_NAME=='UF_BLOG_COMMENT_DOC' ? "" : $arPostField["EDIT_FORM_LABEL"].":")?>
 								<?$APPLICATION->IncludeComponent(
-										"bitrix:system.field.edit",
-										$arPostField["USER_TYPE"]["USER_TYPE_ID"],
-										array("arUserField" => $arPostField), null, array("HIDE_ICONS"=>"Y"));?>
+									'bitrix:system.field.edit',
+									$arPostField['USER_TYPE']['USER_TYPE_ID'],
+									$additionalParameters,
+									null,
+									[
+										'HIDE_ICONS'=>'Y',
+									]
+								)?>
 							</div><?
 						}
 						if ($eventHandlerID !== false && ( intval($eventHandlerID) > 0 ))
@@ -231,7 +245,7 @@ else
 						<?
 					}
 					?>
-					
+
 					<?php
 //					only for not registered users
 					if($arResult['userID'] == null && $arParams['USER_CONSENT'] == 'Y')

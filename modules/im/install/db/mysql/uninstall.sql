@@ -30,3 +30,4 @@ DROP TABLE if exists b_im_option_group;
 DROP TABLE if exists b_im_option_access;
 DROP TABLE if exists b_im_option_user;
 DROP TABLE if exists b_im_option_state;
+DROP TABLE if exists b_im_message_uuid;

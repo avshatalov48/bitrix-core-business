@@ -172,51 +172,55 @@ $arParams['UF'] = $UF;
 							</div>
 							<div class="calendar-options-item-column-right">
 								<div class="calendar-options-item-column-one">
-									<span class="calendar-event-date">
-										<label class="calendar-event-date-label calendar-event-date-label-datetime" for="<?=$id?>_date_from"><?= Loc::getMessage('EC_EDIT_SLIDER_DATETIME_FROM')?></label>
-										<label class="calendar-event-date-label calendar-event-date-label-date" for="<?=$id?>_date_from"><?= Loc::getMessage('EC_EDIT_SLIDER_DATE_FROM')?></label>
-										<span class="calendar-field-container calendar-field-container-select-calendar">
-											<span class="calendar-field-block">
-												<input name="date_from" type="text" id="<?=$id?>_date_from" class="calendar-field calendar-field-datetime">
+									<div class="calendar-options-item-column-one-item">
+										<span class="calendar-event-date">
+											<label class="calendar-event-date-label calendar-event-date-label-datetime" for="<?=$id?>_date_from"><?= Loc::getMessage('EC_EDIT_SLIDER_DATETIME_FROM')?></label>
+											<label class="calendar-event-date-label calendar-event-date-label-date" for="<?=$id?>_date_from"><?= Loc::getMessage('EC_EDIT_SLIDER_DATE_FROM')?></label>
+											<span class="calendar-field-container calendar-field-container-select-calendar">
+												<span class="calendar-field-block">
+													<input name="date_from" type="text" id="<?=$id?>_date_from" class="calendar-field calendar-field-datetime">
+												</span>
 											</span>
 										</span>
-									</span>
-									<span class="calendar-event-time">
-										<span class="calendar-field-container calendar-field-container-select">
-											<span class="calendar-field-block">
-												<?CClock::Show(array(
-													'inputId' => $id.'_time_from',
-													'inputName' => 'time_from',
-													'inputClass' => 'calendar-field calendar-field-datetime-menu',
-													'showIcon' => false,
-													'zIndex' => 3100
-												));?>
+										<span class="calendar-event-time">
+											<span class="calendar-field-container calendar-field-container-select">
+												<span class="calendar-field-block">
+													<?CClock::Show(array(
+														'inputId' => $id.'_time_from',
+														'inputName' => 'time_from',
+														'inputClass' => 'calendar-field calendar-field-datetime-menu',
+														'showIcon' => false,
+														'zIndex' => 3100
+													));?>
+												</span>
 											</span>
 										</span>
-									</span>
+									</div>
 									<span class="calendar-event-mdash"></span>
-									<span class="calendar-event-date">
-										<label class="calendar-event-date-label calendar-event-date-label-datetime" for="<?=$id?>_date_to"><?= Loc::getMessage('EC_EDIT_SLIDER_DATETIME_TO')?></label>
-										<label class="calendar-event-date-label calendar-event-date-label-date" for="<?=$id?>_date_to"><?= Loc::getMessage('EC_EDIT_SLIDER_DATE_TO')?></label>
-										<span class="calendar-field-container calendar-field-container-select-calendar">
-											<span class="calendar-field-block">
-												<input name="date_to" type="text" id="<?=$id?>_date_to" class="calendar-field calendar-field-datetime">
+									<div class="calendar-options-item-column-one-item">
+										<span class="calendar-event-date">
+											<label class="calendar-event-date-label calendar-event-date-label-datetime" for="<?=$id?>_date_to"><?= Loc::getMessage('EC_EDIT_SLIDER_DATETIME_TO')?></label>
+											<label class="calendar-event-date-label calendar-event-date-label-date" for="<?=$id?>_date_to"><?= Loc::getMessage('EC_EDIT_SLIDER_DATE_TO')?></label>
+											<span class="calendar-field-container calendar-field-container-select-calendar">
+												<span class="calendar-field-block">
+													<input name="date_to" type="text" id="<?=$id?>_date_to" class="calendar-field calendar-field-datetime">
+												</span>
 											</span>
 										</span>
-									</span>
-									<span class="calendar-event-time">
-										<span class="calendar-field-container calendar-field-container-select">
-											<span class="calendar-field-block">
-												<?CClock::Show(array(
-													'inputId' => $id.'_time_to',
-													'inputName' => 'time_to',
-													'inputClass' => 'calendar-field calendar-field-datetime-menu',
-													'showIcon' => false,
-													'zIndex' => 3100
-												));?>
+										<span class="calendar-event-time">
+											<span class="calendar-field-container calendar-field-container-select">
+												<span class="calendar-field-block">
+													<?CClock::Show(array(
+														'inputId' => $id.'_time_to',
+														'inputName' => 'time_to',
+														'inputClass' => 'calendar-field calendar-field-datetime-menu',
+														'showIcon' => false,
+														'zIndex' => 3100
+													));?>
+												</span>
 											</span>
 										</span>
-									</span>
+									</div>
 									<span class="calendar-event-full-day">
 										<input name="skip_time" type="checkbox" id="<?=$id?>_date_full_day" value="Y">
 										<label style="display: inline-block;" for="<?=$id?>_date_full_day"><?= Loc::getMessage('EC_EDIT_SLIDER_FULL_DAY')?></label>

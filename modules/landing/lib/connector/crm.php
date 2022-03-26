@@ -75,17 +75,16 @@ class Crm
 				$data[self::PHONE_KEY]
 			);
 		}
-		else
+
+		foreach (self::DEFAULT_CONTACTS as $key => $value)
 		{
-			foreach (self::DEFAULT_CONTACTS as $key => $value)
+			if (!($data[$key] ?? ''))
 			{
-				if (($data[$key] ?? '') !== ($contacts[$key] ?? ''))
-				{
-					if ($data[$key] ?? '')
-					{
-						$shopStoredData[$siteId][$key] = $data[$key];
-					}
-				}
+				continue;
+			}
+			if ($data[$key] !== ($contacts[$key] ?? ''))
+			{
+				$shopStoredData[$siteId][$key] = $data[$key];
 			}
 		}
 

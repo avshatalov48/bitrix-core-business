@@ -1,5 +1,6 @@
-import {Loc, Dom, Tag, Event} from 'main.core'
-import './field.css'
+import {Loc, Dom, Tag, Event} from 'main.core';
+import 'translit';
+import './field.css';
 
 export default class NameCodeField extends BX.UI.EntityEditorMultiText
 {

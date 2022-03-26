@@ -1,5 +1,9 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 $runtime = CBPRuntime::GetRuntime();
 $runtime->IncludeActivityFile("SequenceActivity");
@@ -10,14 +14,20 @@ class CBPIfElseBranchActivity
 	public function __construct($name)
 	{
 		parent::__construct($name);
-		$this->arProperties = array("Title" => "", "Condition" => null);
+		$this->arProperties = [
+			"Title" => "",
+			"Condition" => null,
+		];
 	}
 
 	protected function GetACNames()
 	{
 		$ar = parent::GetACNames();
 		if ($this->arProperties["Condition"] != null)
+		{
 			$ar[] = mb_substr(get_class($this->arProperties["Condition"]), 3);
+		}
+
 		return $ar;
 	}
 
@@ -29,7 +39,9 @@ class CBPIfElseBranchActivity
 			{
 				$this->arProperties["Condition"] = $this->CreateCondition($key, $value);
 				if ($this->arProperties["Condition"] != null)
+				{
 					break;
+				}
 			}
 		}
 	}
@@ -38,14 +50,18 @@ class CBPIfElseBranchActivity
 	{
 		$runtime = CBPRuntime::GetRuntime();
 		if ($runtime->IncludeActivityFile($conditionCode))
+		{
 			return CBPActivityCondition::CreateInstance($conditionCode, $data);
+		}
 		else
+		{
 			return null;
+		}
 	}
 
 	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
 	{
-		$arErrors = array();
+		$arErrors = [];
 
 		$runtime = CBPRuntime::GetRuntime();
 		$arActivities = $runtime->SearchActivitiesByType("condition");
@@ -60,7 +76,7 @@ class CBPIfElseBranchActivity
 					CBPActivityCondition::CallStaticMethod(
 						$key,
 						"ValidateProperties",
-						array($value, $user)
+						[$value, $user]
 					),
 					$arErrors
 				);
@@ -76,9 +92,13 @@ class CBPIfElseBranchActivity
 	)
 	{
 		if (!is_array($arWorkflowParameters))
-			$arWorkflowParameters = array();
+		{
+			$arWorkflowParameters = [];
+		}
 		if (!is_array($arWorkflowVariables))
-			$arWorkflowVariables = array();
+		{
+			$arWorkflowVariables = [];
+		}
 
 		$runtime = CBPRuntime::GetRuntime();
 		$arActivities = $runtime->SearchActivitiesByType("condition", $documentType);
@@ -130,20 +150,24 @@ class CBPIfElseBranchActivity
 
 			$arActivities[$activityKey]["PROPERTIES_DIALOG"] = $v;
 			if ($firstConditionType == '')
+			{
 				$firstConditionType = $activityKey;
+			}
 		}
 
 		if (!is_array($arCurrentValues))
-			$arCurrentValues = array("condition_type" => $defaultCondition);
+		{
+			$arCurrentValues = ["condition_type" => $defaultCondition];
+		}
 
 		return $runtime->ExecuteResourceFile(
 			__FILE__,
 			"properties_dialog.php",
-			array(
+			[
 				"arActivities" => $arActivities,
 				"arCurrentValues" => $arCurrentValues,
 				"firstConditionType" => $firstConditionType
-			)
+			]
 		);
 	}
 
@@ -161,17 +185,22 @@ class CBPIfElseBranchActivity
 				"code" => "",
 				"message" => GetMessage("BPIEBA_EMPTY_TYPE"),
 			);
+
 			return false;
 		}
 
 		$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
 		if (!is_array($arCurrentActivity["Properties"]))
-			$arCurrentActivity["Properties"] = array();
+		{
+			$arCurrentActivity["Properties"] = [];
+		}
 
 		foreach ($arActivities as $key => $value)
 		{
 			if (array_key_exists($key, $arCurrentActivity["Properties"]))
+			{
 				unset($arCurrentActivity["Properties"][$key]);
+			}
 		}
 
 		$condition = CBPActivityCondition::CallStaticMethod(
@@ -186,9 +215,24 @@ class CBPIfElseBranchActivity
 		if ($condition != null)
 		{
 			$arCurrentActivity["Properties"][$arCurrentValues["condition_type"]] = $condition;
+
 			return true;
 		}
 
 		return false;
+	}
+
+	public function collectUsages()
+	{
+		$usages = parent::collectUsages();
+		foreach ($this->arProperties as $property)
+		{
+			if ($property instanceof CBPActivityCondition)
+			{
+				$usages = array_merge($usages, $property->collectUsages($this));
+			}
+		}
+
+		return $usages;
 	}
 }

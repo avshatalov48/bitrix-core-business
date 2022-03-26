@@ -23,26 +23,13 @@ if (
 	\Bitrix\Main\Application::getInstance()->terminate();
 }
 
-$messageId = $messageFields['message_id'];
-$messageStatus = \Bitrix\MessageService\Sender\Sms\ISmsCenter::resolveStatus($messageFields['status']);
+$messageId = (string)$messageFields['message_id'];
+$externalStatus = (string)$messageFields['status'];
 
-if ($messageStatus === null)
+$message = \Bitrix\MessageService\Message::loadByExternalId(\Bitrix\MessageService\Sender\Sms\ISmsCenter::ID, $messageId);
+if ($message && $externalStatus != '')
 {
-	\Bitrix\Main\Application::getInstance()->terminate();
+	$message->updateStatusByExternalStatus($externalStatus);
 }
 
-$message = \Bitrix\MessageService\Internal\Entity\MessageTable::getList([
-	'select' => ['ID'],
-	'filter' => [
-		'=SENDER_ID' => 'ismscenter',
-		'=EXTERNAL_ID' => $messageId
-	]
-])->fetch();
-
-if ($message)
-{
-	\Bitrix\MessageService\Internal\Entity\MessageTable::update($message['ID'], ['STATUS_ID' => $messageStatus]);
-	$message['STATUS_ID'] = $messageStatus;
-	\Bitrix\MessageService\Integration\Pull::onMessagesUpdate([$message]);
-}
 \Bitrix\Main\Application::getInstance()->terminate();

@@ -746,15 +746,13 @@
 		{
 			if (
 				typeof params == 'undefined'
-				|| !BX.type.isNotEmptyString(params.name)
+				|| !BX.type.isNotEmptyString(params.selectorId)
 			)
 			{
 				return;
 			}
 
-			var name = params.name;
-
-			var item = BX.BXGUEDestinationSelector.items[name];
+			var item = BX.BXGUEDestinationSelector.items[params.selectorId];
 			if(item)
 			{
 				item.onDialogOpen();
@@ -765,16 +763,14 @@
 		{
 			if (
 				typeof params == 'undefined'
-				|| !BX.type.isNotEmptyString(params.name)
+				|| !BX.type.isNotEmptyString(params.selectorId)
 			)
 			{
 				return;
 			}
 
-			var name = params.name;
-
-			var item = BX.BXGUEDestinationSelector.items[name];
-			if(item)
+			var item = BX.BXGUEDestinationSelector.items[params.selectorId];
+			if (item)
 			{
 				item.onDialogClose();
 			}

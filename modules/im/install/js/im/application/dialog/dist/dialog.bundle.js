@@ -14,10 +14,10 @@ this.BX.Messenger = this.BX.Messenger || {};
     ui_vue.BitrixVue.component('bx-im-application-dialog', {
       props: {
         userId: {
-          default: 0
+          "default": 0
         },
         initialDialogId: {
-          default: '0'
+          "default": '0'
         }
       },
       mixins: [im_mixin.DialogCore, im_mixin.DialogReadMessages, im_mixin.DialogQuoteMessage, im_mixin.DialogClickOnCommand, im_mixin.DialogClickOnMention, im_mixin.DialogClickOnUserName, im_mixin.DialogClickOnMessageMenu, im_mixin.DialogClickOnMessageRetry, im_mixin.DialogClickOnUploadCancel, im_mixin.DialogClickOnReadList, im_mixin.DialogSetMessageReaction, im_mixin.DialogOpenMessageReactionList, im_mixin.DialogClickOnKeyboardButton, im_mixin.DialogClickOnChatTeaser, im_mixin.DialogClickOnDialog, im_mixin.TextareaCore, im_mixin.TextareaUploadFile],

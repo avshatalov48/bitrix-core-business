@@ -10,21 +10,22 @@ use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Sale\Internals\OrderPropsRelationTable;
 use Bitrix\Sale\Result;
 
-class PropertyRelation extends Controller
+class PropertyRelation extends ControllerBase
 {
 	//region Actions
 	public function getFieldsAction()
 	{
-		$entity = new \Bitrix\Sale\Rest\Entity\PropertyRelation();
-		return ['PROPERTY_VARIANT'=>$entity->prepareFieldInfos(
-			$entity->getFields()
+		$view = $this->getViewManager()
+			->getView($this);
+
+		return ['PROPERTY_RELATION'=>$view->prepareFieldInfos(
+			$view->getFields()
 		)];
 	}
 
 	public function addAction(array $fields)
 	{
 		$r = new Result();
-		$relationTable = new OrderPropsRelationTable();
 
 		$res = $this->existsByFilter([
 			'PROPERTY_ID'=>$fields['PROPERTY_ID'],
@@ -37,15 +38,14 @@ class PropertyRelation extends Controller
 			$r = $this->existsProperty($fields['PROPERTY_ID']);
 			if($r->isSuccess())
 			{
-				$r = $relationTable->add($fields);
+				$r = $this->getEntityTable()
+					->add($fields);
 			}
 		}
 		else
 		{
 			$r->addError(new Error('Duplicate entry for key [propertyId, entityId, entityType]', 201650000001));
 		}
-
-
 
 		if(!$r->isSuccess())
 		{
@@ -56,7 +56,7 @@ class PropertyRelation extends Controller
 		{
 			return [
 				'PROPERTY_RELATION'=>
-					OrderPropsRelationTable::getList([
+					$this->getEntityTable()::getList([
 						'filter'=>[
 							'PROPERTY_ID'=>$fields['PROPERTY_ID'],
 							'ENTITY_ID'=>$fields['ENTITY_ID'],
@@ -76,11 +76,10 @@ class PropertyRelation extends Controller
 			$r = $this->existsByFilter($fields);
 			if($r->isSuccess())
 			{
-				$relationTable = new OrderPropsRelationTable();
-				$r = $relationTable->delete($fields);
+				$r = $this->getEntityTable()
+					->delete($fields);
 			}
 		}
-
 
 		if($r->isSuccess())
 		{
@@ -98,7 +97,7 @@ class PropertyRelation extends Controller
 		$select = empty($select)? ['*']:$select;
 		$order = empty($order)? ['PROPERTY_ID'=>'ASC']:$order;
 
-		$items = OrderPropsRelationTable::getList(
+		$items = $this->getEntityTable()::getList(
 			[
 				'select'=>$select,
 				'filter'=>$filter,
@@ -110,18 +109,21 @@ class PropertyRelation extends Controller
 
 		return new Page('PROPERTY_RELATIONS', $items, function() use ($filter)
 		{
-			return count(
-				OrderPropsRelationTable::getList(['filter'=>$filter])->fetchAll()
-			);
+			return $this->getEntityTable()::getCount([$filter]);
 		});
 	}
 	//endregion
+
+	protected function getEntityTable(): OrderPropsRelationTable
+	{
+		return new OrderPropsRelationTable();
+	}
 
 	protected function existsByFilter($filter)
 	{
 		$r = new Result();
 
-		$row = OrderPropsRelationTable::getList(['filter'=>['PROPERTY_ID'=>$filter['PROPERTY_ID'], 'ENTITY_ID'=>$filter['ENTITY_ID'], 'ENTITY_TYPE'=>$filter['ENTITY_TYPE']]])->fetchAll();
+		$row = $this->getEntityTable()::getList(['filter'=>['PROPERTY_ID'=>$filter['PROPERTY_ID'], 'ENTITY_ID'=>$filter['ENTITY_ID'], 'ENTITY_TYPE'=>$filter['ENTITY_TYPE']]])->fetchAll();
 		if(isset($row[0]['PROPERTY_ID']) == false)
 			$r->addError(new Error('property relation is not exists', 201640400004));
 
@@ -144,7 +146,7 @@ class PropertyRelation extends Controller
 		return $r;
 	}
 
-	protected function checkPermissionEntity($name)
+	protected function checkPermissionEntity($name, $arguments=[])
 	{
 		if($name == 'deletebyfilter')
 		{
@@ -170,6 +172,30 @@ class PropertyRelation extends Controller
 		if(is_null($property))
 			$r->addError(new Error('property id is not exists', 201650000002));
 
+		return $r;
+	}
+
+	protected function checkModifyPermissionEntity(): Result
+	{
+		$r = new Result();
+
+		$saleModulePermissions = self::getApplication()->GetGroupRight("sale");
+		if ($saleModulePermissions  < "W")
+		{
+			$r->addError(new Error('Access Denied', 200040300020));
+		}
+		return $r;
+	}
+
+	protected function checkReadPermissionEntity(): Result
+	{
+		$r = new Result();
+
+		$saleModulePermissions = self::getApplication()->GetGroupRight("sale");
+		if ($saleModulePermissions  == "D")
+		{
+			$r->addError(new Error('Access Denied', 200040300010));
+		}
 		return $r;
 	}
 }

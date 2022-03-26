@@ -42,10 +42,21 @@ class BizprocScriptEditComponent extends \CBitrixComponent
 			$APPLICATION->SetTitle(GetMessage($isNew? "BP_SCR_ED_CMP_TITLE_NEW" : "BP_SCR_ED_CMP_TITLE"));
 		}
 
-		if ($isNew && (empty($this->arParams['DOCUMENT_TYPE']) || empty($this->arParams['PLACEMENT'])))
+		if ($isNew && empty($this->arParams['DOCUMENT_TYPE']))
 		{
-			ShowError(GetMessage("BP_SCR_ED_CMP_SCRIPT_CREATE_ERROR"));
-			return;
+			return $this->showError(GetMessage("BP_SCR_ED_CMP_SCRIPT_CREATE_ERROR"));
+		}
+
+		$userId = Main\Engine\CurrentUser::get()->getId();
+
+		if ($isNew && !\Bitrix\Bizproc\Script\Manager::canUserCreateScript($this->arParams['DOCUMENT_TYPE'], $userId))
+		{
+			return $this->showError(GetMessage("BP_SCR_ED_CMP_SCRIPT_CAN_CREATE_ERROR"));
+		}
+
+		if (!$isNew && !\Bitrix\Bizproc\Script\Manager::canUserEditScript($scriptId, $userId))
+		{
+			return $this->showError(GetMessage("BP_SCR_ED_CMP_SCRIPT_CAN_EDIT_ERROR"));
 		}
 
 		if ($isNew)
@@ -61,8 +72,7 @@ class BizprocScriptEditComponent extends \CBitrixComponent
 
 		if (!$script)
 		{
-			ShowError(GetMessage("BP_SCR_ED_CMP_SCRIPT_NOT_FOUND"));
-			return;
+			return $this->showError(GetMessage("BP_SCR_ED_CMP_SCRIPT_NOT_FOUND"));
 		}
 
 		$documentType = [$script['MODULE_ID'], $script['ENTITY'], $script['DOCUMENT_TYPE']];
@@ -71,5 +81,13 @@ class BizprocScriptEditComponent extends \CBitrixComponent
 		$this->arResult['DOCUMENT_TYPE_SIGNED'] = CBPDocument::signDocumentType($documentType);
 
 		$this->includeComponentTemplate();
+	}
+
+	protected function showError($message): bool
+	{
+		$this->arResult['errorMessage'] = (string)$message;
+		$this->includeComponentTemplate('error');
+
+		return false;
 	}
 }

@@ -5,8 +5,6 @@ export class List
 {
 	constructor(options)
 	{
-		this.pageCounter = options.pageCounter;
-		this.pageCounterTitle = options.pageCounterTitle;
 		this.mailReadAllButton = options.mailReadAllButton;
 		this.gridId = options.gridId;
 		this.mailboxId = options.mailboxId;
@@ -52,8 +50,6 @@ export class List
 			},
 		);
 
-		BX.Mail.Home.LeftMenuNode.directoryMenu.setDirectory(this.getCurrentFolder());
-
 		EventEmitter.subscribe('Mail::directoryChanged', () =>
 		{
 			this.resetGridSelection();
@@ -66,11 +62,6 @@ export class List
 				BX.Mail.Home.LeftMenuNode.directoryMenu.setCounters(counters);
 				const currentFolderCount = counters[this.getCurrentFolder()];
 
-				if (currentFolderCount !== undefined)
-				{
-					this.changeCurrentFolderCount(currentFolderCount);
-				}
-
 				BX.Mail.Home.mailboxCounters.setCounters([
 					{
 						path: 'unseenCountInCurrentMailbox',
@@ -82,10 +73,6 @@ export class List
 			{
 				this.userInterfaceManager.updateLeftMenuCounter();
 			}
-		});
-
-		EventEmitter.subscribe('BX.DirectoryMenu:onChangeFilter', (event) => {
-			this.changeCurrentFolderCount(BX.Mail.Home.Counters.getCounter(event['data']['directory']));
 		});
 
 		EventEmitter.subscribe('BX.Main.Menu.Item:onmouseenter', function(event) {
@@ -157,20 +144,6 @@ export class List
 		}
 
 		BX.bindDelegate(document.body, 'click', { className: 'ical-event-control-button' }, this.onClickICalButton.bind(this));
-	}
-
-	changeCurrentFolderCount(count)
-	{
-		if(count > 0){
-			this.pageCounter.textContent = count;
-			this.pageCounterTitle.classList.remove("main-ui-hide");
-			this.mailReadAllButton.classList.remove("main-ui-hide");
-		}
-		else
-		{
-			this.pageCounterTitle.classList.add("main-ui-hide");
-			this.mailReadAllButton.classList.add("main-ui-hide");
-		}
 	}
 
 	loadLevelMenu(menuItem, hash)
@@ -275,6 +248,13 @@ export class List
 
 		if (addToCrm)
 		{
+			const crmBtnInRow = row.node.querySelector('.mail-binding-crm.mail-ui-not-active');
+
+			if(crmBtnInRow)
+			{
+				crmBtnInRow.startWait();
+			}
+
 			if (typeof this.isAddingToCrmInProgress !== "object")
 			{
 				this.isAddingToCrmInProgress = {};
@@ -304,6 +284,12 @@ export class List
 					this.notify(Loc.getMessage('MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM'));
 				}.bind(this, id),
 				function(json) {
+
+					if(crmBtnInRow)
+					{
+						crmBtnInRow.stopWait();
+					}
+
 					this.isAddingToCrmInProgress[id] = false;
 					if (json.errors && json.errors.length > 0)
 					{
@@ -322,6 +308,7 @@ export class List
 		}
 		else
 		{
+			this.userInterfaceManager.onCrmBindingDeleted(messageIdNode.dataset.messageId);
 			BX.ajax.runComponentAction(
 				'bitrix:mail.client',
 				'removeCrmActivity',
@@ -336,7 +323,6 @@ export class List
 					},
 				},
 			).then(function(messageIdNode) {
-				this.userInterfaceManager.onCrmBindingDeleted(messageIdNode.dataset.messageId);
 				this.notify(Loc.getMessage('MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM'));
 			}.bind(this, messageIdNode));
 		}
@@ -436,6 +422,15 @@ export class List
 	onMoveToFolderClick(event)
 	{
 		const folderOptions = event.currentTarget.dataset;
+		const toFolderByPath = folderOptions.path;
+		const toFolderByName = toFolderByPath;
+
+		if(toFolderByPath === this.getCurrentFolder())
+		{
+			this.notify(Loc.getMessage('MESSAGES_ALREADY_EXIST_IN_FOLDER'));
+			return;
+		}
+
 		let id = undefined;
 		const popupSubmenu = BX.findParent(event.currentTarget, { className: 'popup-window' });
 		if (popupSubmenu)
@@ -443,8 +438,6 @@ export class List
 			id = BX.data(popupSubmenu, 'grid-row-id');
 		}
 		const isDisabled = JSON.parse(folderOptions.isDisabled);
-		const toFolderByPath = folderOptions.path;
-		const toFolderByName = toFolderByPath;
 
 		if ((id === undefined && this.getGridInstance().getRows().getSelectedIds().length === 0) || isDisabled)
 		{
@@ -927,11 +920,6 @@ export class List
 
 	onDisabledGroupActionClick()
 	{
-	}
-
-	onUnreadCounterClick()
-	{
-		this.userInterfaceManager.onUnreadCounterClick();
 	}
 
 	getCurrentFolder()

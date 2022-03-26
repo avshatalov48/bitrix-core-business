@@ -40,6 +40,7 @@
 	display: block;
 	transform: translate(0, -50%);
 	cursor: pointer;
+	transition: .3s;
 }
 
 .landing-ui-field-color-hex-input.active,

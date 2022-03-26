@@ -1,0 +1,38 @@
+.landing-ui-rule-field-action-panel {
+	position: relative;
+	margin-left: 35px;
+}
+
+.landing-ui-rule-field-action-panel-decoration {
+	position: absolute;
+	top: 50%;
+	left: -25px;
+	right: 0;
+	transform: translateY(-50%);
+	pointer-events: none;
+}
+
+.landing-ui-rule-field-action-panel-decoration-v-line {
+	position: absolute;
+	left: -8px;
+	width: 1px;
+	height: 90px;
+	bottom: 0;
+	z-index: 0;
+	border-left: 1px #82ddfa dashed;
+}
+
+[class*="landing-ui-field-element"] + .landing-ui-rule-field-action-panel .landing-ui-rule-field-action-panel-decoration-v-line {
+	height: 50px;
+}
+
+.landing-ui-rule-field-action-panel-decoration-h-line {
+	position: absolute;
+	top: 50%;
+	left: -8px;
+	width: 30px;
+	height: 1px;
+	transform: translateY(-50%);
+	z-index: 0;
+	border-bottom: 1px #82ddfa dashed;
+}

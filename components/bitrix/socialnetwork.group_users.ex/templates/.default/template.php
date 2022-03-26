@@ -215,7 +215,13 @@ else
 								'allowAddSocNetGroup' => 'N',
 								'allowSearchEmailUsers' => 'N',
 								'allowSearchCrmEmailUsers' => 'N',
-								'allowSearchNetworkUsers' => 'N'
+								'allowSearchNetworkUsers' => 'N',
+								'userSearchArea' => (
+									$arResult['isExtranetIncluded']
+									&& $arResult['Group']['IS_EXTRANET_GROUP'] !== 'Y'
+										? 'I'
+										: ''
+								),
 							)
 						),
 						false,
@@ -347,7 +353,13 @@ else
 								'allowAddSocNetGroup' => 'N',
 								'allowSearchEmailUsers' => 'N',
 								'allowSearchCrmEmailUsers' => 'N',
-								'allowSearchNetworkUsers' => 'N'
+								'allowSearchNetworkUsers' => 'N',
+								'userSearchArea' => (
+									$arResult['isExtranetIncluded']
+									&& $arResult['Group']['IS_EXTRANET_GROUP'] !== 'Y'
+										? 'I'
+										: ''
+								),
 							)
 						),
 						false,
@@ -736,4 +748,3 @@ else
 
 	?></div><?php // socialnetwork-group-users-content
 }
-

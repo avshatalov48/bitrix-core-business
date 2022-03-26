@@ -256,6 +256,7 @@ this.BX = this.BX || {};
 	    this.blockCode = options.code;
 	    this.blockId = options.id;
 	    this.designed = options.designed;
+	    this.autoPublicationEnabled = options.autoPublicationEnabled;
 	    this.landingId = options.lid;
 	    this.nodes = options.manifest.nodes;
 	    this.highlight = new landing_ui_highlight.Highlight();
@@ -369,12 +370,27 @@ this.BX = this.BX || {};
 	        }
 
 	        _this3.saving = true;
-	        landing_backend.Backend.getInstance().action('Block::updateContent', {
-	          lid: _this3.landingId,
-	          block: _this3.blockId,
-	          content: _this3.clearHtml(_this3.originalNode.innerHTML).replaceAll(' style="', ' bxstyle="'),
-	          designed: 1
-	        }).then(function () {
+	        var batch = {};
+	        batch['Block::updateContent'] = {
+	          action: 'Block::updateContent',
+	          data: {
+	            lid: _this3.landingId,
+	            block: _this3.blockId,
+	            content: _this3.clearHtml(_this3.originalNode.innerHTML).replaceAll(' style="', ' bxstyle="'),
+	            designed: 1
+	          }
+	        };
+
+	        if (_this3.autoPublicationEnabled) {
+	          batch['Landing::publication'] = {
+	            action: 'Landing::publication',
+	            data: {
+	              lid: _this3.landingId
+	            }
+	          };
+	        }
+
+	        landing_backend.Backend.getInstance().batch('Block::updateContent', batch).then(function () {
 	          _this3.saving = false;
 	          finishCallback();
 	        });

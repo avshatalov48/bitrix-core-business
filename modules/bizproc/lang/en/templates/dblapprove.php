@@ -14,7 +14,7 @@ $MESS["BP_DBLA_APPROVE_TEXT"] = "You have to approve or reject the document \"{=
 		
 Author: {=Document:CREATED_BY_PRINTABLE}";
 $MESS["BP_DBLA_APPROVE_TITLR"] = "Document Approval: Stage 1";
-$MESS["BP_DBLA_S"] = "Sequence Of Actions";
+$MESS["BP_DBLA_S_1"] = "Sequence Of Activities";
 $MESS["BP_DBLA_MAIL_SUBJ"] = "The document has passed Stage 1";
 $MESS["BP_DBLA_MAIL_TEXT"] = "The document \"{=Document:NAME}\" has passed the first stage of approval.											
 

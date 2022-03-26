@@ -17,9 +17,9 @@ use Bitrix\Main\ORM\Data;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_EventType_Query query()
- * @method static EO_EventType_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EventType_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_EventType_Result getById($id)
- * @method static EO_EventType_Result getList(array $parameters = array())
+ * @method static EO_EventType_Result getList(array $parameters = [])
  * @method static EO_EventType_Entity getEntity()
  * @method static \Bitrix\Main\Mail\Internal\EO_EventType createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\Mail\Internal\EO_EventType_Collection createCollection()

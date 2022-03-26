@@ -1,0 +1,8 @@
+<?php
+$MESS["LANDING_SELECTOR_ADD_FOLDER"] = "створити папку";
+$MESS["LANDING_SELECTOR_ADD_OR"] = "або";
+$MESS["LANDING_SELECTOR_ADD_PAGE"] = "Створити сторінку";
+$MESS["LANDING_SELECTOR_HINT_SEARCH_PAGE"] = "Пошук та вибір сторінок";
+$MESS["LANDING_SELECTOR_PREVIEW_TEXT"] = "Переглянути";
+$MESS["LANDING_SELECTOR_TYPE_FOLDER"] = "Папка";
+$MESS["LANDING_SELECTOR_TYPE_PAGE"] = "Сторінка";

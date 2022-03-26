@@ -1,5 +1,5 @@
-<?
+<?php
 $MESS["LANDING_TABLE_FIELD_ENTITY_ID"] = "Entity ID";
 $MESS["LANDING_TABLE_FIELD_ENTITY_TYPE"] = "Entity type";
 $MESS["LANDING_TABLE_FIELD_FILE_ID"] = "File ID";
-?>
+$MESS["LANDING_TABLE_FIELD_FILE_TEMP"] = "Temporary file";

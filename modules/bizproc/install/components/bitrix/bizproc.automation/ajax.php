@@ -29,7 +29,13 @@ if (!$curUser || !$curUser->IsAuthorized() || !check_bitrix_sessid() || $_SERVER
 	die();
 }
 
-$jsonDataMap = ['robot_json' => 'robot', 'form_data_json' => 'form_data', 'triggers_json' => 'triggers', 'templates_json' => 'templates'];
+$jsonDataMap = [
+	'robot_json' => 'robot',
+	'form_data_json' => 'form_data',
+	'triggers_json' => 'triggers',
+	'templates_json' => 'templates',
+	'robot_names' => 'robot_names'
+];
 $jsonValues = [];
 
 foreach ($jsonDataMap as $k => $v)
@@ -326,6 +332,69 @@ switch ($action)
 		}
 
 		$sendResponse($target->getAvailableTriggers());
+		break;
+
+	case 'DELETE_ROBOTS':
+		$checkConfigWritePerms();
+
+		$result = new \Bitrix\Main\Result();
+		$selectedStatus = $_REQUEST['selected_status'] ?? null;
+		$selectedRobotNames = $jsonValues['robot_names'] ?? null;
+
+		if (is_string($selectedStatus) && $selectedStatus && is_array($selectedRobotNames) && $selectedRobotNames)
+		{
+			$template = new \Bitrix\Bizproc\Automation\Engine\Template($documentType, $selectedStatus);
+			$originalTemplate = BizprocAutomationComponent::getTemplateViewData($template->toArray(), $documentType);
+
+			if ($template->getId() > 0)
+			{
+				$robots = $template->getRobotsByNames($selectedRobotNames);
+				$deletingResult = $template->deleteRobots($robots, $curUser->getId());
+				if ($deletingResult->isSuccess())
+				{
+					$updatedTemplate = BizprocAutomationComponent::getTemplateViewData(
+						$template->toArray(),
+						$documentType
+					);
+					$result->setData([
+						'template' => $updatedTemplate,
+						'restoreData' => [$originalTemplate],
+					]);
+				}
+				else
+				{
+					$result->addErrors($deletingResult->getErrors());
+				}
+			}
+		}
+
+		$sendResponse($result);
+		break;
+
+	case 'UPDATE_TEMPLATES':
+		$checkConfigWritePerms();
+
+		$result = new \Bitrix\Main\Result();
+		$statuses = $_REQUEST['statuses'] ?? null;
+
+		if (is_array($statuses))
+		{
+			$templates = [];
+			foreach ($statuses as $status)
+			{
+				$template = new \Bitrix\Bizproc\Automation\Engine\Template($documentType, $status);
+				if ($template->getId() > 0)
+				{
+					$templates[$status] = BizprocAutomationComponent::getTemplateViewData(
+						$template->toArray(),
+						$documentType
+					);
+				}
+			}
+			$result->setData(['templates' => $templates]);
+		}
+
+		$sendResponse($result);
 		break;
 
 	default:

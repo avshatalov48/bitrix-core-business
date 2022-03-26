@@ -1,5 +1,9 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\UI\FileInputUtility;
 use Bitrix\Socialnetwork\LogCommentTable;
@@ -29,6 +33,9 @@ endif;
 	$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
 	$arParams["MODE"] = ($arParams["SOCNET_GROUP_ID"] > 0 ? "GROUP" : "USER");
 	$arParams["USER_ID"] = intval(intval($arParams["USER_ID"]) > 0 ? $arParams["USER_ID"] : $USER->GetID());
+
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+$isSlider = $request->get('IFRAME') === 'Y';
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 			"topic_list" => "PAGE_NAME=topic_list",
@@ -87,16 +94,13 @@ endif;
 	$arResult["TOPIC"] = array();
 	$arResult["MESSAGE"] = array();
 	$arParams["PERMISSION_ORIGINAL"] = ForumCurrUserPermissions($arParams["FID"]);
-	$arParams["PERMISSION"] = "A";
+	$arParams['PERMISSION'] = \Bitrix\Forum\Permission::ACCESS_DENIED;
 	$arResult["ERROR_MESSAGE"] = "";
 	$arResult["OK_MESSAGE"] = "";
 
 	$arError = array();
 	$arNote = array();
-	$user_id = $USER->GetID();
 //************** Permission ****************************************/
-
-$bCurrentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin();
 
 if (empty($arResult["FORUM"]))
 {
@@ -105,27 +109,12 @@ if (empty($arResult["FORUM"]))
 		"id" => "forum_is_lost", 
 		"text" => GetMessage("F_FID_IS_LOST"));
 }
-elseif ($arParams["MODE"] == "GROUP")
-{
-	if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "full", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "Y";
-	elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "newtopic", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "M";
-	elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "answer", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "I";
-	elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "view", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "E";
-}
 else
 {
-	if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "full", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "Y";
-	elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "newtopic", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "M";
-	elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "answer", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "I";
-	elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "view", $bCurrentUserIsAdmin))
-		$arParams["PERMISSION"] = "E";
+	$arParams['PERMISSION'] = \Bitrix\Socialnetwork\Helper\Forum\ComponentHelper::getForumPermission([
+		'ENTITY_TYPE' => ($arParams['MODE'] === 'GROUP' ? SONET_ENTITY_GROUP : SONET_ENTITY_USER),
+		'ENTITY_ID' => ($arParams['MODE'] === 'GROUP' ? $arParams['SOCNET_GROUP_ID'] : $arParams['USER_ID']),
+	]);
 }
 
 if ($arParams["SHOW_VOTE"] == "Y")
@@ -618,10 +607,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 					}
 				}
 
-				$url = ForumAddPageParams(CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
-					array("FID" => $arParams["FID"], "TID" => $arParams["TID"], "MID" => intval($arParams["MID"]),
-					"UID" => $arParams["USER_ID"], "GID" => $arParams["SOCNET_GROUP_ID"])),
-				array("result" => $arNote["code"]));
+				$url = ForumAddPageParams(
+					CComponentEngine::MakePathFromTemplate(
+						$arParams['~URL_TEMPLATES_MESSAGE'],
+						[
+							'FID' => $arParams['FID'],
+							'TID' => $arParams['TID'],
+							'MID' => (int)$arParams['MID'],
+							'UID' => $arParams['USER_ID'],
+							'GID' => $arParams['SOCNET_GROUP_ID'],
+						],
+					),
+					[
+						'result' => $arNote['code']
+					],
+				);
+
+				if ($isSlider)
+				{
+					$uri = new \Bitrix\Main\Web\Uri($url);
+					$uri->addParams([ 'IFRAME' => 'Y' ]);
+					$url = $uri->getUri();
+				}
+
 				LocalRedirect($url);
 			}
 			elseif (intval($arFieldsG["PARAM2"]) > 0 && $arFieldsG["PARAM1"] == "VT")
@@ -719,12 +727,13 @@ endif;
 /********************************************************************
 				Standart Action
 ********************************************************************/
-return array(
+
+return [
 	"PERMISSION" => $arParams["PERMISSION"], 
 	"MESSAGE_TYPE" => $arParams["MESSAGE_TYPE"],
 	"FORUM" => $arResult["FORUM"],
 	"TOPIC" => $arResult["TOPIC"],
 	"MESSAGE" => $arResult["MESSAGE_VIEW"],
 	"bVarsFromForm" => ($bVarsFromForm ? "Y" : "N"),
-	"OK_MESSAGE" => $strOKMessage);
-?>
+	"OK_MESSAGE" => $strOKMessage
+];

@@ -18,6 +18,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_32.2.IMG_ONE_BIG_NODES_LANDINGBLOCKNODEIMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 1110),
+			'create2xByDefault' => false,
 		),
 	),
 	'style' => array(

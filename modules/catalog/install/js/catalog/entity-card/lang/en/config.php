@@ -15,4 +15,6 @@ $MESS["CATALOG_ENTITY_CARD_SHOW_SYMBOLIC_CODE"] = "Show symbolic code";
 $MESS["CATALOG_ENTITY_CARD_SYMBOLIC_CODE"] = "Symbolic code";
 $MESS["CATALOG_ENTITY_CARD_SYMBOLIC_CODE_HINT"] = "Symbolic code will be used to create the product link";
 $MESS["CATALOG_ENTITY_CARD_UNSAVED_DATA_MESSAGE"] = "Unsaved data will be lost if you add a variant property.";
+$MESS["CATALOG_ENTITY_CARD_WAREHOUSE_DISABLED"] = "Inventory management disabled";
+$MESS["CATALOG_ENTITY_CARD_WAREHOUSE_ENABLED"] = "Inventory management enabled";
 $MESS["CATALOG_ENTITY_EDITOR_IS_PUBLIC_PROPERTY"] = "Show in online store";

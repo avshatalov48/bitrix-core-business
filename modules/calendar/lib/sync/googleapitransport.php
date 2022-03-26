@@ -1,9 +1,7 @@
 <?
 namespace Bitrix\Calendar\Sync;
 
-use Bitrix\Fileman\UserField\Types\AddressType;
 use Bitrix\Main\ArgumentException;
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Text\BinaryString;
@@ -35,17 +33,13 @@ final class GoogleApiTransport
 	 */
 	public function openCalendarListChannel($channelInfo): array
 	{
-		$url = self::API_BASE_URL. '/users/me/calendarList/watch';
-		$apikey = $this->getApiKey();
-		if ($apikey !== null)
-		{
-			$url .= "?key=" . $apikey;
-		}
-
 		$this->currentMethod = __METHOD__;
-		$requestBody = Web\Json::encode($channelInfo, JSON_UNESCAPED_SLASHES);
 
-		return $this->doRequest(Web\HttpClient::HTTP_POST, $url, $requestBody);
+		return $this->doRequest(
+			Web\HttpClient::HTTP_POST,
+			self::API_BASE_URL. '/users/me/calendarList/watch',
+			Web\Json::encode($channelInfo, JSON_UNESCAPED_SLASHES)
+		);
 	}
 
 	/**
@@ -59,17 +53,13 @@ final class GoogleApiTransport
 	 */
 	public function openEventsWatchChannel($calendarId, $channelInfo): array
 	{
-		$url = self::API_BASE_URL . '/calendars/' . urlencode($calendarId) . '/events/watch';
-		$apikey = $this->getApiKey();
-		if ($apikey !== null)
-		{
-			$url .= "?key=" . $apikey;
-		}
-
 		$this->currentMethod = __METHOD__;
-		$requestBody = Web\Json::encode($channelInfo, JSON_UNESCAPED_SLASHES);
 
-		return $this->doRequest(Web\HttpClient::HTTP_POST, $url, $requestBody);
+		return $this->doRequest(
+			Web\HttpClient::HTTP_POST,
+			self::API_BASE_URL . '/calendars/' . urlencode($calendarId) . '/events/watch',
+			Web\Json::encode($channelInfo, JSON_UNESCAPED_SLASHES)
+		);
 	}
 
 	/**
@@ -83,17 +73,13 @@ final class GoogleApiTransport
 	 */
 	public function stopChannel($channelId, $resourceId): array
 	{
-		$url = self::API_BASE_URL . '/channels/stop';
-		$apikey = $this->getApiKey();
-		if ($apikey !== null)
-		{
-			$url .= "?key=" . $apikey;
-		}
-
 		$this->currentMethod = __METHOD__;
-		$requestBody = Web\Json::encode(array('id' => $channelId, 'resourceId' => $resourceId), JSON_UNESCAPED_SLASHES);
 
-		return $this->doRequest(Web\HttpClient::HTTP_POST, $url, $requestBody);
+		return $this->doRequest(
+			Web\HttpClient::HTTP_POST,
+			self::API_BASE_URL . '/channels/stop',
+			Web\Json::encode(['id' => $channelId, 'resourceId' => $resourceId], JSON_UNESCAPED_SLASHES)
+		);
 	}
 
 	/**
@@ -550,28 +536,6 @@ final class GoogleApiTransport
 	{
 		$this->currentMethod = __METHOD__;
 		return $this->doRequest(Web\HttpClient::HTTP_DELETE, self::API_BASE_URL . '/calendars/' . $calendarId . '');
-	}
-
-	/**
-	 * @return string|null
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\LoaderException
-	 */
-	private function getApiKey(): ?string
-	{
-		if (Loader::includeModule('fileman'))
-		{
-			$apiKey = AddressType::getApiKey();
-			if (!empty($apiKey))
-			{
-				return $apiKey;
-			}
-		}
-
-		return Option::get('fileman', 'google_map_api_key', null)
-			?? Option::get('bitrix24', 'google_map_api_key', null)
-		;
 	}
 
 	/**

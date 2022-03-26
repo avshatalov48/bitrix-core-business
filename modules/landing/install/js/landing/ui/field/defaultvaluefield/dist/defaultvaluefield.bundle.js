@@ -41,7 +41,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      renderTo: _this.layout,
 	      left: [{
 	        id: 'selectField',
-	        text: landing_loc.Loc.getMessage('LANDING_FIELDS_SELECT_FIELD_BUTTON_TITLE'),
+	        text: landing_loc.Loc.getMessage('LANDING_DEFAULT_VALUE_ADD_FIELD'),
 	        onClick: _this.onSelectFieldButtonClick
 	      }]
 	    });
@@ -92,7 +92,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	              return item.VALUE;
 	            }
 
-	            return fieldItems[0].VALUE;
+	            if (main_core.Type.isArrayFilled(fieldItems)) {
+	              return fieldItems[0].VALUE;
+	            }
+
+	            return landing_loc.Loc.getMessage('LANDING_DEFAULT_VALUE_FIELD_DEFAULT_VALUE');
 	          }
 
 	          if (crmField.type === 'checkbox') {
@@ -279,6 +283,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        allowedCategories: this.getAllowedCategories(),
 	        allowedTypes: ['string', 'list', 'checkbox', 'radio', 'text', 'integer', 'double', 'date', 'datetime', 'typed_string']
 	      }).then(function (selectedFields) {
+	        _this6.options.crmFields = landing_ui_panel_fieldspanel.FieldsPanel.getInstance().getOriginalCrmFields();
+
 	        _this6.onFieldsSelect(selectedFields);
 	      });
 	    }
@@ -314,7 +320,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	              return item.value === value.value;
 	            });
 
-	            value.label = valueItem.name;
+	            if (valueItem) {
+	              value.label = valueItem.name;
+	            }
 	          } else {
 	            value.label = value.value;
 	          }

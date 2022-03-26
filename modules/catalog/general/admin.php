@@ -761,39 +761,69 @@ class CCatalogAdmin
 	{
 		if (self::$catalogRead || self::$catalogStore)
 		{
-			$arResult = array();
-			if (self::$catalogStore && Catalog\Config\State::isUsedInventoryManagement())
+			$result = [];
+			if (self::$catalogStore)
 			{
-				$arResult[] = array(
-					"text" => Loc::getMessage("CM_STORE_DOCS"),
-					"url" => "cat_store_document_list.php?lang=".LANGUAGE_ID,
-					"more_url" => array("cat_store_document_edit.php"),
-					"title" => Loc::getMessage("CM_STORE_DOCS"),
-					"readonly" => !self::$catalogStore,
-					"items_id" => "cat_store_document_list",
-					"sort" => 551,
-				);
+				$allowRows = false;
+				$rows = [
+					[
+						"text" => Loc::getMessage("CM_STORE_DOCS"),
+						"url" => "cat_store_document_list.php?lang=".LANGUAGE_ID,
+						"more_url" => ["cat_store_document_edit.php"],
+						"title" => Loc::getMessage("CM_STORE_DOCS"),
+						"readonly" => !self::$catalogStore,
+						"items_id" => "cat_store_document_list",
+						"sort" => 551,
+					],
+					[
+						"text" => Loc::getMessage("CM_CONTRACTORS"),
+						"url" => "cat_contractor_list.php?lang=".LANGUAGE_ID,
+						"more_url" => ["cat_contractor_edit.php"],
+						"title" => Loc::getMessage("CM_CONTRACTORS"),
+						"readonly" => !self::$catalogStore,
+						"items_id" => "cat_contractor_list",
+						"sort" => 552,
+					],
+				];
+				if (Catalog\Config\Feature::isInventoryManagementEnabled())
+				{
+					if (Catalog\Config\State::isUsedInventoryManagement())
+					{
+						$allowRows = true;
+					}
+				}
+				else
+				{
+					$helpLink = Catalog\Config\Feature::getInventoryManagementHelpLink();
+					if ($helpLink !== null)
+					{
+						$allowRows = true;
+						foreach ($rows as &$item)
+						{
+							unset($item['url'], $item['more_url']);
+							$item['is_locked'] = true;
+							$item['on_click'] = $helpLink['LINK'];
+						}
+						unset($item);
+					}
+				}
 
-				$arResult[] = array(
-					"text" => Loc::getMessage("CM_CONTRACTORS"),
-					"url" => "cat_contractor_list.php?lang=".LANGUAGE_ID,
-					"more_url" => array("cat_contractor_edit.php"),
-					"title" => Loc::getMessage("CM_CONTRACTORS"),
-					"readonly" => !self::$catalogStore,
-					"items_id" => "cat_contractor_list",
-					"sort" => 552,
-				);
+				if ($allowRows)
+				{
+					$result = $rows;
+				}
+				unset($rows, $allowRows);
 			}
-			$arResult[] = array(
+			$result[] = [
 				"text" => Loc::getMessage("CM_STORE"),
 				"url" => "cat_store_list.php?lang=".LANGUAGE_ID,
-				"more_url" => array("cat_store_edit.php"),
+				"more_url" => ["cat_store_edit.php"],
 				"title" => Loc::getMessage("CM_STORE"),
 				"readonly" => !self::$catalogStore,
 				"items_id" => "cat_store_list",
 				"sort" => 553,
-			);
-			$arItems = $arResult;
+			];
+			$arItems = $result;
 		}
 	}
 

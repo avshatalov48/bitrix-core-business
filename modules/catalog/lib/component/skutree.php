@@ -4,6 +4,7 @@ namespace Bitrix\Catalog\Component;
 
 use Bitrix\Catalog\Product\PropertyCatalogFeature;
 use Bitrix\Main\Type\Collection;
+use Bitrix\Main\Web\Json;
 
 class SkuTree
 {
@@ -74,7 +75,7 @@ class SkuTree
 	{
 		$productIds = array_keys($productToOfferMap);
 		$products = $this->prepareProductsOfferTree($productIds);
-		$treeProperties = $this->prepareTreeProperties();
+		$treeProperties = $this->getTreeProperties();
 
 		foreach ($productToOfferMap as $productId => $offerMap)
 		{
@@ -103,7 +104,7 @@ class SkuTree
 	public function load(array $productIds): array
 	{
 		$products = $this->prepareProductsOfferTree($productIds);
-		$treeProperties = $this->prepareTreeProperties();
+		$treeProperties = $this->getTreeProperties();
 
 		foreach ($products as &$product)
 		{
@@ -111,6 +112,36 @@ class SkuTree
 		}
 
 		return $products;
+	}
+
+	public function loadJsonOffers(array $productToOfferMap): array
+	{
+		$result = [];
+		$offersMap = $this->loadWithSelectedOffers($productToOfferMap);
+		foreach ($offersMap as $productId => $offers)
+		{
+			$result[$productId] = $result[$productId] ?? [];
+			foreach ((array)$offers as $offerId => $offerData)
+			{
+				$offers = [];
+				foreach ($offerData['OFFERS'] as $offer)
+				{
+					$offers[] = array_intersect_key(
+						$offer,
+						array_flip(['TREE', 'ID'])
+					);
+				}
+
+				$result[$productId][$offerId] = [
+					'SELECTED_VALUES' => $offerData['SELECTED_VALUES'],
+					'EXISTING_VALUES_JSON' => Json::encode($offerData['EXISTING_VALUES']),
+					'OFFERS_JSON' => Json::encode($offers),
+					'IBLOCK_ID' => $this->iblockInfo->getProductIblockId(),
+				];
+			}
+		}
+
+		return $result;
 	}
 
 	protected function editTemplateOfferProps(array &$product, array $skuPropList, int $selectedOfferId = null): void
@@ -175,6 +206,11 @@ class SkuTree
 					unset($matrix[$keyOffer][$propCode]);
 				}
 			}
+		}
+
+		foreach ($existingValues as &$propertyValue)
+		{
+			$propertyValue = array_unique($propertyValue);
 		}
 
 		$product['OFFERS_PROP'] = $usedFields;
@@ -263,7 +299,10 @@ class SkuTree
 		return $offers;
 	}
 
-	private function prepareTreeProperties(): array
+	/**
+	 * @return array
+	 */
+	public function getTreeProperties(): array
 	{
 		$treeProperties = \CIBlockPriceTools::getTreeProperties(
 			$this->iblockInfo->toArray(),

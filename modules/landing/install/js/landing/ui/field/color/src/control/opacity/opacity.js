@@ -1,5 +1,4 @@
-import {BaseEvent} from 'main.core.events';
-import {Dom, Event, Tag, Text} from 'main.core';
+import {Dom, Event, Tag, Text, Type} from 'main.core';
 
 import {IColorValue} from '../../types/i_color_value';
 import ColorValue from "../../color_value";
@@ -10,29 +9,58 @@ import {PageObject} from 'landing.pageobject';
 export default class Opacity extends BaseControl
 {
 	static +DEFAULT_COLOR: string = '#cccccc';
-	static +PICKER_WIDTH: string = '#cccccc';
+	static +DEFAULT_OPACITY: string = 1;
 
-	constructor()
+	constructor(options: {})
 	{
 		super();
 		this.setEventNamespace('BX.Landing.UI.Field.Color.Opacity');
+
+		this.defaultOpacity = (Type.isObject(options) && Reflect.has(options, 'defaultOpacity'))
+			? options.defaultOpacity
+			: Opacity.DEFAULT_OPACITY;
 
 		this.document = PageObject.getRootWindow().document;
 
 		this.onPickerDragStart = this.onPickerDragStart.bind(this);
 		this.onPickerDragMove = this.onPickerDragMove.bind(this);
 		this.onPickerDragEnd = this.onPickerDragEnd.bind(this);
-		Event.bind(this.getLayout(), 'mousedown', this.onPickerDragStart);
+		this.layout = this.getLayout();
+		this.pickerControl = this.layout .querySelector('.landing-ui-field-color-opacity');
+		this.rangeControl = this.layout .querySelector('.landing-ui-field-color-opacity-range-output');
+		this.arrowsUp = this.rangeControl.querySelector('.landing-ui-field-color-opacity-range-output-arrows-up');
+		this.arrowsDown = this.rangeControl.querySelector('.landing-ui-field-color-opacity-range-output-arrows-down');
+		this.rangeInput = this.rangeControl.querySelector('.landing-ui-field-color-opacity-range-output-input');
+		Event.bind(this.arrowsUp, 'click', this.onArrowClick.bind(this, 'up'));
+		Event.bind(this.arrowsDown, 'click', this.onArrowClick.bind(this, 'down'));
+		Event.bind(this.pickerControl, 'mousedown', this.onPickerDragStart);
 	}
 
 	buildLayout(): HTMLDivElement
 	{
-		return Tag.render`
-			<div class="landing-ui-field-color-opacity">
-				${this.getPicker()}
-				${this.getColorLayout()}
+		const defaultOpacityValue = this.defaultOpacity * 100;
+		const layout = Tag.render`
+			<div class="landing-ui-field-color-opacity-container">
+				<div class="landing-ui-field-color-opacity">
+					${this.getPicker()}
+					${this.getColorLayout()}
+				</div>
+				<div class="landing-ui-field-color-opacity-range-output">
+					<div 
+						class="landing-ui-field-color-opacity-range-output-input"
+						title="${defaultOpacityValue}">
+						${defaultOpacityValue}
+					</div>
+					<div class="landing-ui-field-color-opacity-range-output-arrows">
+						<div class="landing-ui-field-color-opacity-range-output-arrows-up"></div>
+						<div class="landing-ui-field-color-opacity-range-output-arrows-down"></div>
+					</div>
+				</div>
 			</div>
 		`;
+		this.setPickerPosByOpacity(this.defaultOpacity);
+
+		return layout;
 	}
 
 	onPickerDragStart(event: MouseEvent)
@@ -58,6 +86,7 @@ export default class Opacity extends BaseControl
 		}
 		this.setPickerPos(event.pageX);
 		this.onChange();
+		this.onRangeControlChange();
 	}
 
 	onPickerDragEnd()
@@ -80,10 +109,18 @@ export default class Opacity extends BaseControl
 		});
 	}
 
+	setPickerPosByOpacity(opacity: number)
+	{
+		opacity = Math.min(1, Math.max(0, opacity));
+		Dom.style(this.getPicker(), {
+			left: `${(opacity * 100)}%`,
+		});
+	}
+
 	getLayoutRect(): {}
 	{
 		return this.cache.remember('layoutSize', () => {
-			const layoutRect = this.getLayout().getBoundingClientRect();
+			const layoutRect = this.pickerControl.getBoundingClientRect();
 			return {
 				width: layoutRect.width,
 				left: layoutRect.left,
@@ -115,7 +152,7 @@ export default class Opacity extends BaseControl
 	getDefaultValue(): ColorValue
 	{
 		return this.cache.remember('default', () => {
-			return new ColorValue(Opacity.DEFAULT_COLOR);
+			return new ColorValue(Opacity.DEFAULT_COLOR).setOpacity(this.defaultOpacity);
 		});
 	}
 
@@ -123,26 +160,69 @@ export default class Opacity extends BaseControl
 	{
 		return this.cache.remember('value', () => {
 			const pickerLeft = Text.toNumber(Dom.style(this.getPicker(), 'left'));
-			const layoutWidth = Text.toNumber(this.getLayout().getBoundingClientRect().width);
-
-			return this.getDefaultValue().setOpacity((1 - pickerLeft / layoutWidth));
+			const layoutWidth = Text.toNumber(this.pickerControl.getBoundingClientRect().width);
+			return this.getDefaultValue().setOpacity(pickerLeft / layoutWidth);
 		});
 	}
 
 	setValue(value: ?IColorValue)
 	{
-		const valueToSet = (value !== null) ? value : this.getDefaultValue();
+		const valueToSet = (!Type.isNull(value)) ? value : this.getDefaultValue();
 		super.setValue(valueToSet);
 
-		Dom.style(this.getColorLayout(), {background: valueToSet.getStyleStringForOpacity()});
-		Dom.style(this.getPicker(), {
-			left: `${100 - (valueToSet.getOpacity() * 100)}%`,
-		});
+		if (!Type.isNull(value))
+		{
+			Dom.style(this.getColorLayout(), {background: valueToSet.getStyleStringForOpacity()});
+			this.setPickerPosByOpacity(valueToSet.getOpacity());
+			this.onRangeControlChange();
+		}
+		else
+		{
+			Dom.style(this.getColorLayout(), {background: 'none'});
+		}
 	}
 
-	onChange(event: ?BaseEvent)
+	onRangeControlChange()
 	{
-		this.cache.delete('value');
-		this.emit('onChange', {color: this.getValue()});
+		const opacity = parseInt((this.getValue().getOpacity()) * 100);
+		this.rangeInput.title = opacity;
+		this.rangeInput.innerHTML = opacity;
+	}
+
+	onArrowClick(arrowName)
+	{
+		let newOpacityInputValue;
+		const opacity = this.getValue().getOpacity();
+		const opacityInputValue = parseInt(opacity * 100);
+		if (arrowName === 'up')
+		{
+			if (opacityInputValue < 100)
+			{
+				newOpacityInputValue = (opacityInputValue + 5) / 100;
+			}
+			else
+			{
+				newOpacityInputValue = opacityInputValue / 100;
+			}
+		}
+		if (arrowName === 'down')
+		{
+			if (opacityInputValue > 0)
+			{
+				newOpacityInputValue = (opacityInputValue - 5) / 100;
+			}
+			else
+			{
+				newOpacityInputValue = opacityInputValue / 100;
+			}
+		}
+		this.rangeInput.title = parseInt(newOpacityInputValue * 100);
+		this.rangeInput.innerHTML = parseInt(newOpacityInputValue * 100);
+		const width = this.pickerControl.getBoundingClientRect().width;
+		const leftPos = width - (width * (1 - newOpacityInputValue));
+		Dom.style(this.getPicker(), {
+			left: `${leftPos}px`,
+		});
+		this.onChange();
 	}
 }

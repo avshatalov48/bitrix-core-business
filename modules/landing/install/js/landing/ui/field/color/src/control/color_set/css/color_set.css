@@ -46,7 +46,7 @@
 	margin: 0 1.5px 6px 1.5px;
 }
 
-.landing-ui-field-color-colorset-bottom .landing-ui-field-color-preset .landing-ui-field-color-transparent,
+.landing-ui-field-color-colorset-bottom .landing-ui-field-color-preset .landing-ui-field-color-zeroing,
 .landing-ui-field-color-colorset-bottom .landing-ui-field-color-preset .landing-ui-field-color-preset-item[data-name="#ffffff"] {
 	border: 1px solid rgba(168,173,180,.37);
 }

@@ -2,6 +2,7 @@ import type {DiscountTypes} from './discount-type';
 
 export type FieldScheme = {
 	QUANTITY: number,
+	BASE_PRICE: number,
 	PRICE: number,
 	PRICE_EXCLUSIVE: number,
 	PRICE_NETTO: number,

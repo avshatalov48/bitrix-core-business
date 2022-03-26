@@ -1,14 +1,20 @@
 <?php
 namespace Bitrix\SocialNetwork\Integration\UI\EntitySelector;
 
+use Bitrix\Main\Entity\Query;
+use Bitrix\Main\Entity\Query\Join;
+use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\SocialNetwork\EO_WorkgroupTag ;
 use Bitrix\SocialNetwork\EO_WorkgroupTag_Collection ;
+use Bitrix\Socialnetwork\UserToGroupTable;
+use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\WorkgroupTagTable;
 use Bitrix\UI\EntitySelector\BaseProvider;
 use Bitrix\UI\EntitySelector\Dialog;
 use Bitrix\UI\EntitySelector\Item;
 use Bitrix\UI\EntitySelector\RecentItem;
+use Bitrix\UI\EntitySelector\SearchQuery;
 use Bitrix\UI\EntitySelector\Tab;
 
 /**
@@ -65,6 +71,42 @@ class ProjectTagProvider extends BaseProvider
 			$query->where('GROUP_ID', $options['groupId']);
 		}
 
+		if (!empty($options['searchQuery']) && is_string($options['searchQuery']))
+		{
+			$query
+				->setDistinct(true)
+				->registerRuntimeField(
+					'G',
+					new ReferenceField(
+						'G',
+						WorkgroupTable::getEntity(),
+						Join::on('this.GROUP_ID', 'ref.ID'),
+						['join_type' => 'left']
+					)
+				)
+				->registerRuntimeField(
+					'UG',
+					new ReferenceField(
+						'UG',
+						UserToGroupTable::getEntity(),
+						Join::on('this.GROUP_ID', 'ref.GROUP_ID'),
+						['join_type' => 'left']
+					)
+				)
+				->where(
+					Query::filter()
+						->logic('or')
+						->where('G.VISIBLE', 'Y')
+						->where(
+							Query::filter()
+								->whereNotNull('UG.ID')
+								->whereIn('UG.ROLE', UserToGroupTable::getRolesMember())
+						)
+				)
+				->whereLike('NAME', "{$options['searchQuery']}%")
+			;
+		}
+
 		return $query->exec()->fetchCollection();
 	}
 
@@ -104,6 +146,13 @@ class ProjectTagProvider extends BaseProvider
 			'selected' => (isset($options['selected']) && $options['selected']),
 			'tabs' => ['all'],
 		]);
+	}
+
+	public function doSearch(SearchQuery $searchQuery, Dialog $dialog): void
+	{
+		$dialog->addItems(
+			$this->getTagItems(['searchQuery' => $searchQuery->getQuery()])
+		);
 	}
 
 	public function fillDialog(Dialog $dialog): void

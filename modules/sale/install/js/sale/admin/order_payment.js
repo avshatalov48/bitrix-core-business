@@ -1081,7 +1081,8 @@ BX.Sale.Admin.OrderPayment.prototype.showCreateCheckWindow = function(paymentId)
 						var subRequest = {
 							formData : BX.ajax.prepareForm(form),
 							action: 'saveCheck',
-							sessid: BX.bitrix_sessid()
+							sessid: BX.bitrix_sessid(),
+							lang: BX.message('LANGUAGE_ID')
 						};
 
 						BX.ajax(

@@ -50,7 +50,17 @@
 				libraries.forEach(function(library) {
 					library.categories.forEach(function(category) {
 						category.items.forEach(function(item) {
-							var classList = item.split(" ");
+							var className = '';
+							if (BX.Type.isObject(item))
+							{
+								className = item.options.join(' ');
+							}
+							else
+							{
+								className = item;
+							}
+
+							var classList = className.split(" ");
 							classList.forEach(function(className) {
 								if (className)
 								{

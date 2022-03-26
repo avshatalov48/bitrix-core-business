@@ -12,6 +12,7 @@ $MESS['CATALOG_C_F_VARIATION_SETTINGS_PURCHASING_PRICE_FIELD_DESC'] = 'Испо�
 $MESS['CATALOG_C_F_VARIATION_SETTINGS_MEASUREMENTS_TITLE'] = 'Вес и размеры';
 $MESS['CATALOG_C_F_VARIATION_SETTINGS_MEASUREMENTS_DESC'] = 'Использовать вес и размеры товаров для расчета стоимости доставки';
 $MESS['CATALOG_C_F_VARIATION_SETTINGS_MEASURE_RATIO_TITLE'] = 'Коэффициент единицы измерения';
+$MESS['CATALOG_C_F_VARIATION_SETTINGS_WAREHOUSE_TITLE'] = 'Включить складской учет';
 $MESS['CATALOG_C_F_VARIATION_SETTINGS_MEASURE_RATIO_DESC'] = 'Использовать коэффициенты единиц измерения в товарах';
 $MESS['CATALOG_C_F_VARIATION_SETTINGS_CATALOG_PARAMETERS_TITLE'] = 'Параметры учета';
 $MESS['CATALOG_C_F_VARIATION_SETTINGS_CATALOG_PARAMETERS_DESC'] = 'Использовать настройки параметров учета товара на складах';

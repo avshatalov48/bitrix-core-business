@@ -102,39 +102,47 @@ class ProviderBuilderCompatibility extends ProviderBuilderBase
 	}
 
 	/**
-	 * @param array $shipmentProductData
-	 *
-	 * @return bool
+	 * @param array $productData
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
-	public function addProductByShipmentProductData(array $shipmentProductData)
+	public function addProductData(array $productData)
 	{
-		if ($shipmentProductData['QUANTITY'] == 0)
+		if ($productData['QUANTITY'] == 0)
 		{
-			return false;
+			return;
 		}
 
 		/** @var Sale\ShipmentItem $shipmentItem */
-		$shipmentItem = $shipmentProductData['SHIPMENT_ITEM'];
+		$shipmentItem = $productData['SHIPMENT_ITEM'];
 
-		$basketItem = $shipmentItem->getBasketItem();
+		$basketItem = $productData['BASKET_ITEM'];
 
 		$productId = $basketItem->getProductId();
 		$providerName = $basketItem->getProviderName();
 
-		$fields = array(
+		$fields = [
 			'PRODUCT_ID' => $productId,
 			'BASKET_ITEM' => $basketItem,
 			'BASKET_CODE' => $basketItem->getBasketCode(),
-			'QUANTITY' => $shipmentProductData['QUANTITY'],
-
+			'QUANTITY' => $productData['QUANTITY'],
 			'MODULE' => $basketItem->getField('MODULE'),
-			'SHIPMENT_ITEM' => $shipmentItem,
-			'NEED_RESERVE' => array(
-				$shipmentItem->getInternalIndex() => $shipmentProductData["NEED_RESERVE"]
-			),
-		);
+		];
 
-		if (strval(trim($providerName)) == '')
+		if ($shipmentItem)
+		{
+			$fields['SHIPMENT_ITEM'] = $shipmentItem;
+			$fields['NEED_RESERVE'] = [
+				$shipmentItem->getInternalIndex() => $productData["NEED_RESERVE"]
+			];
+		}
+
+		if (isset($productData['QUANTITY_BY_STORE']))
+		{
+			$fields['QUANTITY_BY_STORE'] = $productData['QUANTITY_BY_STORE'];
+		}
+
+		if (trim($providerName) == '')
 		{
 			$callbackFunction = $basketItem->getCallbackFunction();
 			if (!empty($callbackFunction))

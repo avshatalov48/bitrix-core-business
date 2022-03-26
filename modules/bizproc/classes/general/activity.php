@@ -285,7 +285,9 @@ abstract class CBPActivity
 		$rootActivity = $this->GetRootActivity();
 
 		if (array_key_exists($name, $rootActivity->arVariables))
+		{
 			return $rootActivity->arVariables[$name];
+		}
 
 		return null;
 	}
@@ -329,10 +331,12 @@ abstract class CBPActivity
 	public function isVariableExists($name)
 	{
 		$rootActivity = $this->GetRootActivity();
+		$variables = $rootActivity->arVariables ?? [];
+		$variablesTypes = $rootActivity->arVariablesTypes ?? [];
+
 		return (
-			array_key_exists($name, $rootActivity->arVariables)
-			||
-			array_key_exists($name, $rootActivity->arVariablesTypes)
+			array_key_exists($name, $variables)
+			|| array_key_exists($name, $variablesTypes)
 		);
 	}
 
@@ -743,6 +747,69 @@ abstract class CBPActivity
 		return $return;
 	}
 
+	public function getRuntimeProperty($object, $field, CBPActivity $ownerActivity): array
+	{
+		$rootActivity = $ownerActivity->getRootActivity();
+		$documentType = $rootActivity->getDocumentType();
+		$documentId = $rootActivity->getDocumentId();
+		$documentService = CBPRuntime::GetRuntime(true)->getDocumentService();
+		$documentFields = $documentService->GetDocumentFields($documentType);
+
+		$result = null;
+		$property = null;
+
+		if (CBPHelper::isEmptyValue($object))
+		{
+			return [$property, $result];
+		}
+		elseif ($object === 'Template' || $object === Bizproc\Workflow\Template\SourceType::Parameter)
+		{
+			$result = $rootActivity->__get($field);
+			$property = $rootActivity->getTemplatePropertyType($field);
+		}
+		elseif ($object === Bizproc\Workflow\Template\SourceType::Variable)
+		{
+			$result = $rootActivity->getVariable($field);
+			$property = $rootActivity->getVariableType($field);
+		}
+		elseif ($object === Bizproc\Workflow\Template\SourceType::Constant)
+		{
+			$result = $rootActivity->getConstant($field);
+			$property = $rootActivity->getConstantType($field);
+		}
+		elseif ($object === Bizproc\Workflow\Template\SourceType::GlobalConstant)
+		{
+			$result = Bizproc\Workflow\Type\GlobalConst::getValue($field);
+			$property = Bizproc\Workflow\Type\GlobalConst::getVisibleById($field, $documentType);
+		}
+		elseif ($object === Bizproc\Workflow\Template\SourceType::GlobalVariable)
+		{
+			$result = Bizproc\Workflow\Type\GlobalVar::getValue($field);
+			$property = Bizproc\Workflow\Type\GlobalVar::getVisibleById($field, $documentType);
+		}
+		elseif ($object === Bizproc\Workflow\Template\SourceType::DocumentField)
+		{
+			$property = $documentFields[$field];
+			$result = $documentService->getFieldValue($documentId, $field, $documentType);
+		}
+		else
+		{
+			$activity = $rootActivity->workflow->GetActivityByName($object);
+			if ($activity)
+			{
+				$result = $activity->__get($field);
+				$property = $activity->getPropertyType($field);
+			}
+		}
+
+		if (!$property)
+		{
+			$property = ['Type' => 'string'];
+		}
+
+		return [$property, $result];
+	}
+
 	private function applyPropertyValueModifiers($fieldName, $property, $value, array $modifiers)
 	{
 		if (empty($property) || empty($modifiers) || !is_array($property))
@@ -933,45 +1000,7 @@ abstract class CBPActivity
 
 	protected function getObjectSourceType($objectName, $fieldName)
 	{
-		if (mb_substr($fieldName, -10) === '_printable')
-		{
-			$fieldName = mb_substr($fieldName, 0, -10);
-		}
-
-		if ($objectName === 'Document')
-		{
-			return [Bizproc\Workflow\Template\SourceType::DocumentField, $fieldName];
-		}
-		elseif ($objectName === 'Template')
-		{
-			return [Bizproc\Workflow\Template\SourceType::Parameter, $fieldName];
-		}
-		elseif ($objectName === 'Variable')
-		{
-			return [Bizproc\Workflow\Template\SourceType::Variable, $fieldName];
-		}
-		elseif ($objectName === 'Constant')
-		{
-			return [Bizproc\Workflow\Template\SourceType::Constant, $fieldName];
-		}
-		elseif ($objectName === 'GlobalConst')
-		{
-			return [Bizproc\Workflow\Template\SourceType::GlobalConstant, $fieldName];
-		}
-		elseif ($objectName === 'GlobalVar')
-		{
-			return [Bizproc\Workflow\Template\SourceType::GlobalVariable, $fieldName];
-		}
-		elseif (in_array($objectName, ['Workflow', 'User', 'System']))
-		{
-			return [Bizproc\Workflow\Template\SourceType::System, $objectName];
-		}
-		elseif ($objectName)
-		{
-			return [Bizproc\Workflow\Template\SourceType::Activity, $objectName];
-		}
-
-		return null;
+		return \Bitrix\Bizproc\Workflow\Template\SourceType::getObjectSourceType($objectName, $fieldName);
 	}
 
 	/************************  CONSTRUCTORS  *****************************************************/
@@ -1178,7 +1207,7 @@ abstract class CBPActivity
 	{
 		$runtime = CBPRuntime::GetRuntime();
 		if (!$runtime->IncludeActivityFile($code))
-			return array(array("code" => "ActivityNotFound", "parameter" => $code, "message" => GetMessage("BPGA_ACTIVITY_NOT_FOUND", array('#ACTIVITY#' => htmlspecialcharsbx($code)))));
+			return array(array("code" => "ActivityNotFound", "parameter" => $code, "message" => GetMessage("BPGA_ACTIVITY_NOT_FOUND_1", array('#ACTIVITY#' => htmlspecialcharsbx($code)))));
 
 		if (preg_match("#[^a-zA-Z0-9_]#", $code))
 			throw new Exception("Activity '".$code."' is not valid");

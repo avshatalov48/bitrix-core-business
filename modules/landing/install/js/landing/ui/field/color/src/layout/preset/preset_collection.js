@@ -1,5 +1,5 @@
 import {Tag, Text, Dom, Event, Type, Cache, Loc} from 'main.core';
-import {EventEmitter} from 'main.core.events';
+import {BaseEvent, EventEmitter} from 'main.core.events';
 import {Popup, PopupManager} from 'main.popup';
 
 import ColorValue from '../../color_value';
@@ -11,13 +11,14 @@ import Preset from "./preset";
 
 export default class PresetCollection extends EventEmitter
 {
-	static activeId: string = null;
+	static globalActiveId: number | string | null = null;
 
 	popupId: string;
 	popupTargetContainer: ?HTMLElement;
 	presets: {
 		[id: string]: PresetOptions
-	};
+	} = {};
+	activeId: number | string | null = null;
 
 	static ACTIVE_CLASS: string = 'active';
 
@@ -28,12 +29,13 @@ export default class PresetCollection extends EventEmitter
 		this.setEventNamespace('BX.Landing.UI.Field.Color.PresetCollection');
 		this.popupId = 'presets-popup_' + Text.getRandom();
 		this.popupTargetContainer = options.contentRoot;
-		this.presets = {};
 
 		this.onPresetClick = this.onPresetClick.bind(this);
 		Event.bind(this.getOpenButton(), 'click', () => {
 			this.getPopup().toggle();
 		});
+		this.onPresetChangeGlobal = this.onPresetChangeGlobal.bind(this);
+		EventEmitter.subscribe('BX.Landing.UI.Field.Color.PresetCollection:onChange', this.onPresetChangeGlobal);
 	}
 
 	addDefaultPresets()
@@ -53,9 +55,19 @@ export default class PresetCollection extends EventEmitter
 		}
 	}
 
-	getActivePreset(): ?Preset
+	getGlobalActiveId(): number | string | null
 	{
-		return this.getActiveId() ? this.getPresetById(this.getActiveId()) : null;
+		return PresetCollection.globalActiveId;
+	}
+
+	getActiveId(): number | string
+	{
+		return this.getGlobalActiveId() || this.getDefaultPreset().getId();
+	}
+
+	getActivePreset(): Preset
+	{
+		return this.getPresetById(this.getActiveId());
 	}
 
 	getDefaultPreset(): ?Preset
@@ -63,11 +75,6 @@ export default class PresetCollection extends EventEmitter
 		return Object.keys(this.presets).length
 			? this.getPresetById(Object.keys(this.presets)[0])
 			: null;
-	}
-
-	getActiveId(): number | string | null
-	{
-		return PresetCollection.activeId;
 	}
 
 	getPresetById(id: number | string): ?Preset
@@ -91,9 +98,20 @@ export default class PresetCollection extends EventEmitter
 
 		for (let id in this.presets)
 		{
-			if (this.getPresetById(id) && this.getPresetById(id).isPresetValue(value))
+			const preset = this.getPresetById(id);
+			if (preset && value instanceof ColorValue)
 			{
-				return this.getPresetById(id);
+				if (preset.isPresetValue(value))
+				{
+					return preset;
+				}
+			}
+			else if (preset && value instanceof GradientValue)
+			{
+				if (preset.getGradientPreset().isPresetValue(value))
+				{
+					return preset;
+				}
 			}
 		}
 		return null;
@@ -169,6 +187,7 @@ export default class PresetCollection extends EventEmitter
 				if (presetId === this.getActiveId())
 				{
 					Dom.addClass(layout, PresetCollection.ACTIVE_CLASS);
+					this.activeId = presetId;
 				}
 				Event.bind(layout, 'click', this.onPresetClick);
 				Dom.append(layout, innerLayouts);
@@ -200,18 +219,35 @@ export default class PresetCollection extends EventEmitter
 	{
 		this.getPopup().close();
 		this.setActiveItem(event.currentTarget.dataset.id);
-		this.emit('onChange', {preset: this.getActivePreset()});
+		this.emit('onChange', {presetId: this.getActiveId()});
+	}
+
+	onPresetChangeGlobal(event: BaseEvent)
+	{
+		if (event.getData().presetId !== this.activeId)
+		{
+			this.setActiveItem(event.getData().presetId);
+			this.emit('onChange', event);
+		}
 	}
 
 	setActiveItem(presetId: string)
+
 	{
-		PresetCollection.activeId = presetId;
-		for (const id in this.presets)
+		if (
+			presetId !== null
+			&& presetId !== this.activeId
+		)
 		{
-			Dom.removeClass(this.getPresetLayout(id), PresetCollection.ACTIVE_CLASS);
-			if (id === presetId)
+			PresetCollection.globalActiveId = presetId;
+			this.activeId = presetId;
+			for (const id in this.presets)
 			{
-				Dom.addClass(this.getPresetLayout(id), PresetCollection.ACTIVE_CLASS);
+				Dom.removeClass(this.getPresetLayout(id), PresetCollection.ACTIVE_CLASS);
+				if (id === presetId)
+				{
+					Dom.addClass(this.getPresetLayout(id), PresetCollection.ACTIVE_CLASS);
+				}
 			}
 		}
 	}

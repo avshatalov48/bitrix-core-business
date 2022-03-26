@@ -163,6 +163,8 @@ class RestService extends \IRestService
 			'HAVE_PAYMENT' => 'N',
 			'HAVE_RESULT_RECEIVE' => 'Y',
 			'ENTITY_REGISTRY_TYPE' => $params['ENTITY_REGISTRY_TYPE'],
+			'DESCRIPTION' => $params['DESCRIPTION'],
+			'XML_ID' => $params['XML_ID'],
 		];
 
 		if (isset($params['LOGOTIP']))
@@ -1114,7 +1116,7 @@ class RestService extends \IRestService
 	 */
 	private static function prepareHandlerParams(array $data, \CRestServer $server): array
 	{
-		$data = self::prepareIncomingParams($data);
+		$data = self::replaceIncomingKeys(array_change_key_case($data, CASE_UPPER));
 		$data['APP_ID'] = $server->getClientId();
 
 		return $data;

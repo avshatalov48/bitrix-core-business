@@ -48,6 +48,7 @@ return array(
 			'type' => 'img',
 			'useInDesigner' => false,
 			'dimensions' => array('width' => 1920, 'height' => 1440),
+			'create2xByDefault' => false,
 		),
 	),
 	'style' => array(

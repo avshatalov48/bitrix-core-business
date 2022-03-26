@@ -20,6 +20,7 @@ return array(
 			'useInDesigner' => false,
 			'dimensions' => array('maxWidth' => 500),
 			'allowInlineEdit' => false,
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-img-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_46.2.COVER_WITH_2_BIG_IMAGES_NODES_LANDINGBLOCKNODE_TITLE'),

@@ -187,10 +187,11 @@ class Handler extends Requests\HandlerBase
 
 	/**
 	 * @param int $requestId
-	 * @param \int[] $shipmentIds
+	 * @param int[] $shipmentIds
+	 * @param array $additional
 	 * @return Requests\Result
 	 */
-	public function addShipments($requestId, $shipmentIds)
+	public function addShipments($requestId, $shipmentIds, $additional = [])
 	{
 		$result = new Requests\Result();
 		$request = $this->getRequestObject('BATCH_ORDER_ADD');
@@ -209,11 +210,14 @@ class Handler extends Requests\HandlerBase
 
 		$result = $request->process(
 			$shipmentIds,
-			array(
-				'BATCH_NAME' => $requestFields['EXTERNAL_ID'],
-				'REQUEST_ID' => $requestFields['ID']
-		));
-
+			array_merge(
+				$additional,
+				array(
+					'BATCH_NAME' => $requestFields['EXTERNAL_ID'],
+					'REQUEST_ID' => $requestFields['ID']
+				)
+			)
+		);
 
 		return $result;
 	}
@@ -235,7 +239,7 @@ class Handler extends Requests\HandlerBase
 	 */
 	public function getFormFields($formFieldsType, array $entityIds, array $additional = array())
 	{
-		if($formFieldsType == Requests\Manager::FORM_FIELDS_TYPE_CREATE)
+		if ($formFieldsType == Requests\Manager::FORM_FIELDS_TYPE_CREATE)
 		{
 			$date = new Date();
 			$date->add('P1D');
@@ -250,34 +254,20 @@ class Handler extends Requests\HandlerBase
 				)
 			);
 
-			$opsList = array();
-			$ops = $this->getDeliveryServiceOps();
-
-			if(!empty($ops['VALUE']) && isset($ops['NAME']))
+			$opsData = $this->getOpsData();
+			if (!is_null($opsData))
 			{
-				$opsList[$ops['VALUE']] = $ops['NAME'];
+				$result["OPS"] = $opsData;
 			}
-			else
-			{
-				//todo: cache
-				$opsRes = $this->getRequestObject('OPS')->send();
+		}
+		elseif ($formFieldsType == Requests\Manager::FORM_FIELDS_TYPE_ADD)
+		{
+			$result = array();
 
-				if($opsRes->isSuccess())
-				{
-					foreach($opsRes->getData() as $ops)
-						if($ops['enabled'] == true)
-							$opsList[$ops['operator-postcode']] = '('.$ops['operator-postcode'].') '.$ops['ops-address'];
-				}
-			}
-
-			if(!empty($opsList))
+			$opsData = $this->getOpsData();
+			if (!is_null($opsData))
 			{
-				$result["OPS"] = array(
-					"TYPE" => "ENUM",
-					"TITLE" => Loc::getMessage('SALE_DLVRS_ADD_DREQ_OPS'),
-					"REQUIRED" => "Y",
-					"OPTIONS" => $opsList
-				);
+				$result["OPS"] = $opsData;
 			}
 		}
 		elseif($formFieldsType == Requests\Manager::FORM_FIELDS_TYPE_ACTION)
@@ -292,6 +282,43 @@ class Handler extends Requests\HandlerBase
 		return $result;
 	}
 
+	/**
+	 * @return array|null
+	 */
+	private function getOpsData(): ?array
+	{
+		$opsList = array();
+		$ops = $this->getDeliveryServiceOps();
+
+		if(!empty($ops['VALUE']) && isset($ops['NAME']))
+		{
+			$opsList[$ops['VALUE']] = $ops['NAME'];
+		}
+		else
+		{
+			//todo: cache
+			$opsRes = $this->getRequestObject('OPS')->send();
+
+			if($opsRes->isSuccess())
+			{
+				foreach($opsRes->getData() as $ops)
+					if($ops['enabled'] == true)
+						$opsList[$ops['operator-postcode']] = '('.$ops['operator-postcode'].') '.$ops['ops-address'];
+			}
+		}
+
+		if(!empty($opsList))
+		{
+			return array(
+				"TYPE" => "ENUM",
+				"TITLE" => Loc::getMessage('SALE_DLVRS_ADD_DREQ_OPS'),
+				"REQUIRED" => "Y",
+				"OPTIONS" => $opsList
+			);
+		}
+
+		return null;
+	}
 	protected function getDeliveryServiceOps()
 	{
 		return \Sale\Handlers\Delivery\Additional\RusPost\Helper::getSelectedShippingPoint($this->deliveryService);

@@ -15,6 +15,8 @@ class CIBlockRights
 
 	/** @var string Public reading */
 	public const PUBLIC_READ = 'R';
+	/** @var string Data modifying */
+	public const EDIT_ACCESS = 'W';
 	/** @var string Admin access */
 	public const FULL_ACCESS = 'X';
 

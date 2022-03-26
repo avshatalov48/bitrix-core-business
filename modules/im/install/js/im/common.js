@@ -784,7 +784,7 @@
 
 	MessengerCommon.prototype.isBlankAvatar = function(url)
 	{
-		return url == '' || url.toString().indexOf(this.BXIM.pathToBlankImage) >= 0;
+		return !url || url.toString().indexOf(this.BXIM.pathToBlankImage) >= 0;
 	};
 
 	MessengerCommon.prototype.getDefaultAvatar = function(type)
@@ -2215,7 +2215,7 @@
 
 		var entityType = this.BXIM.messenger.chat[chatId].entity_type;
 
-		if (entityType == 'CRM')
+		if (entityType == 'CRM' && this.BXIM.bitrixCrm)
 		{
 			var entityParams = this.BXIM.messenger.chat[chatId].entity_id.toString().split('|');
 			if (!this.BXIM.path.crm[entityParams[0]])
@@ -3741,6 +3741,22 @@
 	MessengerCommon.prototype.recentListCounterApply = function(counters)
 	{
 		this.BXIM.dialogDetailCounter = counters.dialog;
+
+		if (counters.dialogUnread)
+		{
+			counters.dialogUnread.forEach(function(dialogId)
+			{
+				this.BXIM.dialogDetailCounter[dialogId] = 1;
+			}.bind(this));
+		}
+
+		if (counters.chatUnread)
+		{
+			counters.chatUnread.forEach(function(chatId)
+			{
+				this.BXIM.dialogDetailCounter['chat'+chatId] = 1;
+			}.bind(this));
+		}
 
 		for (var chatId in counters.chat)
 		{
@@ -6183,7 +6199,7 @@
 				BX.create("span", { props : { className : "bx-messenger-content-reply-comment" }, children: [
 					BX.create("span", { props : { className : "bx-messenger-content-reply-answer" }, events: {click: BX.delegate(function(){
 						this.joinParentChat(BX.proxy_context.getAttribute('data-messageId'), BX.proxy_context.getAttribute('data-chatId'));
-					}, this)}, attrs: {'data-messageId': messageId, 'data-chatId': chatId}, html: messagesCount+' '+this.getMessagePlural('IM_R_COMMENT', messagesCount)}),
+					}, this)}, attrs: {'data-messageId': messageId, 'data-chatId': chatId}, html: messagesCount+' ' + BX.Loc.getMessagePlural('IM_R_COMMENT', messagesCount)}),
 					BX.create("span", { props : { className : "bx-messenger-content-reply-date" }, html: lastMessageDate? ', '+this.formatDate(lastMessageDate): ''}),
 				]}),
 				BX.create("div", { props : { className : "bx-messenger-content-reply-clear" }})
@@ -6974,6 +6990,7 @@
 			else if (command == 'desktopOnline')
 			{
 				this.BXIM.desktopStatus = true;
+				this.BXIM.desktopVersion = params.version;
 
 				var result = document.title.match(/^(\((\d+)\)\s)(.*)+/);
 				if (result && result[1])
@@ -8396,11 +8413,11 @@
 			{
 				if (params.lines)
 				{
-					this.BXIM.linesDetailCounter[params.dialogId] = params.muted? 0: params.counter;
+					this.BXIM.linesDetailCounter[params.dialogId] = params.muted? 0: (params.counter? params.counter: 1);
 				}
 				else
 				{
-					this.BXIM.dialogDetailCounter[params.dialogId] = params.muted? 0: params.counter;
+					this.BXIM.dialogDetailCounter[params.dialogId] = params.muted? 0: (params.counter? params.counter: 1);
 				}
 
 				this.recentListUpdateItem({
@@ -8758,6 +8775,8 @@
 					{
 						this.popupSmileMenu.destroy();
 					}
+
+					BX.MessengerSupport24.closePopup();
 
 					var element = BX.findChildByClassName(this.BXIM.messenger.popupMessengerTextareaIconBox, 'bx-messenger-textarea-icon-marketplace-'+params.iconId, true);
 					if (element)
@@ -10479,7 +10498,7 @@
 				if (typeof this.BXIM.messenger.showMessage[userId] !== 'undefined')
 				{
 					this.BXIM.messenger.showMessage[userId] = this.BXIM.messenger.showMessage[userId].filter(function(element) {
-						return element.toString().startsWith('birthday');
+						return element.toString().startsWith('birthday') || element.toString().startsWith('temp');
 					});
 				}
 
@@ -10928,8 +10947,55 @@
 		{
 			BXMobileApp.onCustomEvent('onImDialogOpen', {'id': dialogId}, true);
 		}
+		else
+		{
+			this.BXIM.messenger.linesShowPromo();
+			this.support24QuestionShowPromo();
+		}
+	};
 
-		this.BXIM.messenger.linesShowPromo();
+	MessengerCommon.prototype.support24QuestionShowPromo = function()
+	{
+		clearTimeout(this.support24QuestionSchedulePromoTimeout);
+		this.support24QuestionSchedulePromoTimeout = null;
+
+		clearTimeout(this.support24QuestionShowPromoTimeout);
+		this.support24QuestionShowPromoTimeout = null;
+
+		if (
+			!this.BXIM.messenger.currentTab
+			|| !this.BXIM.messenger.bot[this.BXIM.messenger.currentTab]
+			|| this.BXIM.messenger.bot[this.BXIM.messenger.currentTab].type !== 'support24'
+			|| !BX.MessengerPromo
+			|| typeof BX.MessengerPromo.show !== 'function'
+		)
+		{
+			return false;
+		}
+
+		if (this.BXIM.messenger.popupMessengerTextarea.disabled)
+		{
+			this.support24QuestionSchedulePromoTimeout = setTimeout(this.support24QuestionShowPromo.bind(this), 5000);
+
+			return true;
+		}
+
+		this.support24QuestionShowPromoTimeout = setTimeout(function () {
+			var applicationButton =
+				document.getElementsByClassName('bx-messenger-textarea-icon-marketplace-app-question')[0]
+			;
+
+			if (!applicationButton)
+			{
+				return;
+			}
+
+			BX.MessengerPromo.show(
+				'imbot:support24:25112021:web',
+				applicationButton,
+				{ offsetLeft: 15 }
+			);
+		}, 20000);
 	};
 
 	MessengerCommon.prototype.drawTab = function(userId, scroll, messageCount, changeTab)
@@ -11197,7 +11263,7 @@
 	}
 
 	/* Section: Send Message */
-	MessengerCommon.prototype.sendMessageAjax = function(messageTmpIndex, recipientId, messageText, sendMessageToChat)
+	MessengerCommon.prototype.sendMessageAjax = function(messageTmpIndex, recipientId, messageText, sendMessageToChat, olSilentMode)
 	{
 		if (this.BXIM.messenger.popupMessengerConnectionStatusState != 'online')
 			return false;
@@ -11215,10 +11281,17 @@
 		sendMessageToChat = sendMessageToChat == true;
 		this.BXIM.messenger.sendMessageFlag++;
 
-		var olSilentMode = 'N';
-		if (sendMessageToChat && this.BXIM.messenger.linesSilentMode && this.BXIM.messenger.linesSilentMode[recipientId.toString().substr(4)])
+		if (typeof olSilentMode === 'boolean')
 		{
-			olSilentMode = 'Y';
+			olSilentMode = olSilentMode? 'Y': 'N';
+		}
+		else
+		{
+			olSilentMode = 'N';
+			if (sendMessageToChat && this.BXIM.messenger.linesSilentMode && this.BXIM.messenger.linesSilentMode[recipientId.toString().substr(4)])
+			{
+				olSilentMode = 'Y';
+			}
 		}
 
 		this.recentListAddItem({
@@ -11522,6 +11595,7 @@
 						this.BXIM.messenger.sendMessageTmp[messageTmpIndex] = false;
 						var element = BX.findChild(this.BXIM.messenger.popupMessengerBodyWrap, {attribute: {'data-messageid': 'temp'+messageTmpIndex}}, true);
 						var lastMessageElementDate = BX.findChildByClassName(element, "bx-messenger-content-item-date");
+						console.warn(lastMessageElementDate);
 						if (lastMessageElementDate)
 						{
 							if (data.ERROR == 'SESSION_ERROR' || data.ERROR == 'AUTHORIZE_ERROR' || data.ERROR == 'UNKNOWN_ERROR' || data.ERROR == 'IM_MODULE_NOT_INSTALLED')
@@ -11531,6 +11605,7 @@
 						}
 						BX.onCustomEvent(window, 'onImError', ['SEND_ERROR', data.ERROR, data.TMP_ID, data.SEND_DATE, data.SEND_MESSAGE, data.RECIPIENT_ID]);
 
+						console.log('temp'+messageTmpIndex);
 						BX.MessengerCommon.drawProgessMessage('temp'+messageTmpIndex, {title: BX.message('IM_M_RETRY'), chat: sendMessageToChat? 'Y':'N'});
 
 						if (this.BXIM.messenger.message['temp'+messageTmpIndex])
@@ -11570,7 +11645,9 @@
 			if (!message || message.id.toString().indexOf('temp') != 0)
 				continue;
 
-			message.text = BX.MessengerCommon.prepareTextBack(message.text);
+			message.text = message.textOriginal;
+			if (!message.text)
+				continue;
 
 			messageStack.push(message);
 		}
@@ -11586,9 +11663,20 @@
 
 	MessengerCommon.prototype.sendMessageRetryTimeout = function(message, timeout)
 	{
+		var messageLinesHidden = undefined;
+		if (message.params && message.params.CLASS === "bx-messenger-content-item-system")
+		{
+			messageLinesHidden = true;
+		}
 		clearTimeout(this.BXIM.messenger.sendMessageTmpTimeout[message.id]);
 		this.BXIM.messenger.sendMessageTmpTimeout[message.id] = setTimeout(BX.delegate(function() {
-			BX.MessengerCommon.sendMessageAjax(message.id.substr(4), message.recipientId, message.text, message.recipientId.toString().substr(0,4) == 'chat');
+			BX.MessengerCommon.sendMessageAjax(
+				message.id.substr(4),
+				message.recipientId,
+				message.text,
+				message.recipientId.toString().substr(0,4) == 'chat',
+				messageLinesHidden
+			);
 		}, this), timeout);
 	};
 
@@ -12742,6 +12830,31 @@
 
 
 	/* Section: Disk Manager */
+	MessengerCommon.prototype.diskGetMessageId = function(chatId, fileId)
+	{
+		for (var messageId in this.BXIM.messenger.message)
+		{
+			if (!this.BXIM.messenger.message.hasOwnProperty(messageId))
+			{
+				continue;
+			}
+
+			var message = this.BXIM.messenger.message[messageId];
+			if (message.params['FILE_ID'] && message.params['FILE_ID'].length > 0)
+			{
+				var result = message.params['FILE_ID'].find(function(element) {
+					return element == fileId;
+				});
+				if (result)
+				{
+					return message.id;
+				}
+			}
+		}
+
+		return 0;
+	}
+
 	MessengerCommon.prototype.diskDrawFiles = function(chatId, fileId, params)
 	{
 		if (!this.BXIM.disk.enable || !chatId || !fileId)
@@ -12759,7 +12872,7 @@
 		params = params || {};
 
 		var enableLink = true;
-		var nodeCollection = [];
+		var nodeCollection = []
 
 		for (var i = 0; i < fileIds.length; i++)
 		{
@@ -12897,10 +13010,15 @@
 						{
 							preview = BX.create("div", {props : { className: "bx-messenger-file-preview"},  children: [
 								BX.create("span", {props : { className: "bx-messenger-file-image"},  children: [
-									BX.create("a", {dataset: file.viewerAttrs, attrs: {'href': this.formatUrl(file.urlShow), 'target': '_blank'}, props : { className: "bx-messenger-file-image-src"},  children: [
-										videoPlayNode,
-										imageNode
-									]})
+									BX.create("a", {
+										dataset: file.viewerAttrs,
+										attrs: {'href': this.formatUrl(file.urlShow), 'target': '_blank'},
+										props : { className: "bx-messenger-file-image-src"},
+										children: [
+											videoPlayNode,
+											imageNode
+										]
+									})
 								]}),
 							]});
 							datasetSetted = true;
@@ -12968,9 +13086,27 @@
 				if (enableLink && (file.urlShow || file.urlDownload))
 				{
 					if (this.isMobile())
-						title = BX.create("span", { props : { className: "bx-messenger-file-title-href"}, events: {click: function(){ BX.localStorage.set('impmh', true, 1);  app.openDocument({url: file.urlDownload, filename: file.name.toString().toLowerCase()}) }}, children: [title]});
+					{
+						title = BX.create("span", { props : { className: "bx-messenger-file-title-href"}, events: {click: function(){
+							BX.localStorage.set('impmh', true, 1);
+							app.openDocument({url: this.urlDownload, filename: this.name.toString().toLowerCase()})
+						}.bind(this)}, children: [title]});
+					}
+					else if (!file.viewerAttrs && BX.desktopUtils.canDownload())
+					{
+						title = BX.create("span", { props : { className: "bx-messenger-file-title-href"}, events: {click: function(){
+							BX.desktopUtils.downloadFile(this.urlDownload, this.name);
+						}.bind(file)}, children: [title]});
+					}
 					else
-						title = BX.create("a", {dataset: datasetSetted? null: file.viewerAttrs, props : { className: "bx-messenger-file-title-href"}, attrs: {'href': this.formatUrl(file.urlShow? file.urlShow: file.urlDownload), 'target': '_blank'}, children: [title]});
+					{
+						title = BX.create("a", {
+							dataset: datasetSetted? null: file.viewerAttrs,
+							props : { className: "bx-messenger-file-title-href"},
+							attrs: {'href': this.formatUrl(file.urlShow? file.urlShow: file.urlDownload), 'target': '_blank'},
+							children: [title]
+						});
+					}
 				}
 				title = BX.create("div", { props : { className: "bx-messenger-file-attrs"}, children: [
 					title,
@@ -12983,8 +13119,31 @@
 			{
 				if (!this.isMobile())
 				{
+					var link = null;
+					if (file.urlDownload && enableLink)
+					{
+						if (BX.desktopUtils.canDownload())
+						{
+							link = BX.create("span", {
+								events: {click: function(){
+									BX.desktopUtils.downloadFile(this.urlDownload, this.name);
+								}.bind(file)},
+								props : { className: "bx-messenger-file-download-link bx-messenger-file-download-pc"},
+								html: BX.message('IM_F_DOWNLOAD')
+							});
+						}
+						else
+						{
+							link = BX.create("a", {
+								attrs: {'href': this.formatUrl(file.urlDownload), 'target': '_blank'},
+								props : { className: "bx-messenger-file-download-link bx-messenger-file-download-pc"},
+								html: BX.message('IM_F_DOWNLOAD')
+							});
+						}
+					}
+
 					status = BX.create("div", { props : { className: "bx-messenger-file-download"}, children: [
-						!file.urlDownload || !enableLink? null: BX.create("a", {attrs: {'href': this.formatUrl(file.urlDownload), 'target': '_blank'}, props : { className: "bx-messenger-file-download-link bx-messenger-file-download-pc"}, html: BX.message('IM_F_DOWNLOAD')}),
+						link,
 						!file.urlDownload || !this.BXIM.disk.enable || this.BXIM.context == "LINES"? null: BX.create("span", { props : { className: "bx-messenger-file-download-link bx-messenger-file-download-disk"}, html: BX.message('IM_F_DOWNLOAD_DISK'), events: {click:BX.delegate(function(){
 							var chatId = BX.proxy_context.parentNode.parentNode.getAttribute('data-chatId');
 							var fileId = BX.proxy_context.parentNode.parentNode.getAttribute('data-fileId');
@@ -13060,6 +13219,18 @@
 			var result = this.diskDrawFiles(chatId, fileId, {'showInner': 'Y', 'boxId': boxId});
 			if (result)
 			{
+				if (
+					this.BXIM.disk.files[chatId]
+					&& this.BXIM.disk.files[chatId][fileId]
+					&& this.BXIM.disk.files[chatId][fileId].id != fileId
+				)
+				{
+					var newFileId = this.BXIM.disk.files[chatId][fileId].id;
+					this.BXIM.disk.files[chatId][newFileId] = this.BXIM.disk.files[chatId][fileId];
+
+					fileBox.setAttribute('data-fileid', newFileId);
+					fileBox.setAttribute('id', 'im-file-' + newFileId);
+				}
 				fileBox.innerHTML = '';
 				BX.adjust(fileBox, {children: result});
 			}
@@ -13194,7 +13365,9 @@
 		if (!this.BXIM.disk.files[formFields.CHAT_ID][fileId])
 			return false;
 
-		this.BXIM.disk.files[chatId][fileId].progress = parseInt(percent);
+		this.BXIM.disk.files[chatId][fileId].progress = Math.max(
+			parseInt(percent),
+			(this.BXIM.disk.files[chatId][fileId].progress || 0));
 		BX.MessengerCommon.diskRedrawFile(chatId, fileId);
 	}
 
@@ -14444,7 +14617,7 @@
 		var currentChat = this.BXIM.messenger.chat[chatId];
 
 		var crmData = currentChat.entity_data_1.toString().split('|');
-		if(crmData.length < 3 || crmData[0] !== 'Y' || !this.BXIM.path.crm[crmData[1]])
+		if(!this.BXIM.bitrixCrm || crmData.length < 3 || crmData[0] !== 'Y' || !this.BXIM.path.crm[crmData[1]])
 		{
 			return {crm: false};
 		}
@@ -14753,12 +14926,17 @@
 			{
 				return null;
 			}
-			if (!this.BXIM.messenger.users[this.BXIM.userId].connector && !(lineSource == 'livechat' || lineSource == 'network'))
+			if (
+				!this.BXIM.messenger.users[this.BXIM.userId].connector &&
+				!(lineSource == 'livechat' || lineSource == 'network' || lineSource == 'support24Question')
+			)
 			{
 				return null;
 			}
 
-			disableAction = !this.BXIM.messenger.users[this.BXIM.userId].connector;
+			disableAction =
+				!this.BXIM.messenger.users[this.BXIM.userId].connector
+				&& lineSource != 'support24Question';
 		}
 		else if (
 			!this.BXIM.messenger.bot[this.BXIM.messenger.currentTab]
@@ -14920,9 +15098,17 @@
 		}
 		if (dialogId.toString().substr(0, 4) == 'chat')
 		{
-			if (!this.BXIM.messenger.users[this.BXIM.userId].connector)
+			var lineSource = this.linesGetSource(this.BXIM.messenger.chat[this.BXIM.messenger.message[messageId].chatId]);
+			if (!lineSource)
 			{
-				return false;
+				return null;
+			}
+			if (
+				!this.BXIM.messenger.users[this.BXIM.userId].connector &&
+				!(lineSource == 'livechat' || lineSource == 'network' || lineSource == 'support24Question')
+			)
+			{
+				return null;
 			}
 		}
 		else if (
@@ -15184,8 +15370,10 @@
 
 	MessengerCommon.prototype.linesGetCrmPath = function(entityType, entityId)
 	{
-		if (!this.BXIM.path.crm[entityType])
+		if (!this.BXIM.path.crm[entityType] || !this.BXIM.bitrixCrm)
+		{
 			return '';
+		}
 
 		return this.BXIM.path.crm[entityType].replace("#ID#", entityId);
 	}
@@ -15207,9 +15395,9 @@
 		var sessionData = chatData.entity_data_1.toString().split('|');
 		var crmData = chatData.entity_data_2.toString().split('|');
 
-		session.crm = typeof(sessionData[0]) != 'undefined' && sessionData[0] == 'Y'? 'Y': 'N';
-		session.crmEntityType = typeof(sessionData[1]) != 'undefined'? sessionData[1]: 'NONE';
-		session.crmEntityId = typeof(sessionData[2]) != 'undefined'? sessionData[2]: 0;
+		session.crm = this.BXIM.bitrixCrm && typeof(sessionData[0]) != 'undefined' && sessionData[0] == 'Y'? 'Y': 'N';
+		session.crmEntityType = this.BXIM.bitrixCrm && typeof(sessionData[1]) != 'undefined'? sessionData[1]: 'NONE';
+		session.crmEntityId = this.BXIM.bitrixCrm && typeof(sessionData[2]) != 'undefined'? sessionData[2]: 0;
 		session.crmLink = '';
 		session.pin = typeof(sessionData[3]) != 'undefined' && sessionData[3] == 'Y'? 'Y': 'N';
 		session.wait = typeof(sessionData[4]) != 'undefined' && sessionData[4] == 'Y'? 'Y': 'N';
@@ -15228,7 +15416,7 @@
 		session.crmLinkDeal = '';
 		session.crmDeal = 0;
 
-		if(crmData)
+		if(this.BXIM.bitrixCrm && crmData)
 		{
 			var index;
 
@@ -15348,7 +15536,7 @@
 	MessengerCommon.prototype.linesGetSource = function(chatData) // after change this code, sync with IM and MOBILE
 	{
 		var sourceId = '';
-		if (!chatData || !(chatData.type == 'livechat' || chatData.type == 'lines'))
+		if (!chatData || !(chatData.type == 'livechat' || chatData.type == 'lines' || chatData.type == 'support24Question'))
 		{
 			return sourceId;
 		}
@@ -15356,6 +15544,10 @@
 		if (chatData.type == 'livechat')
 		{
 			sourceId = 'livechat';
+		}
+		else if (chatData.type == 'support24Question')
+		{
+			sourceId = 'support24Question';
 		}
 		else
 		{
@@ -15654,8 +15846,10 @@
 			return false;
 
 		var session = this.linesGetSession(this.BXIM.messenger.chat[chatId]);
-		if (session.crm == 'Y')
+		if (!this.BXIM.bitrixCrm || session.crm == 'Y')
+		{
 			return false;
+		}
 
 		this.BXIM.messenger.blockJoinChat[chatId] = true;
 
@@ -15699,7 +15893,7 @@
 			return false;
 
 		var session = this.linesGetSession(this.BXIM.messenger.chat[chatId]);
-		if (session.crm == 'N')
+		if (!this.BXIM.bitrixCrm || session.crm == 'N')
 			return false;
 
 		this.linesChangeCrmEntityMessageId = messageId;
@@ -15734,6 +15928,11 @@
 
 	MessengerCommon.prototype.linesChangeCrmEntityAjax = function(result)
 	{
+		if (!this.BXIM.bitrixCrm)
+		{
+			return false;
+		}
+
 		var found = false;
 		for(var i in result['company'])
 		{
@@ -15797,6 +15996,11 @@
 
 	MessengerCommon.prototype.linesCancelCrmExtend = function(messageId)
 	{
+		if (!this.BXIM.bitrixCrm)
+		{
+			return false;
+		}
+
 		if (!this.BXIM.messenger.message[messageId])
 			return false;
 
@@ -15838,43 +16042,45 @@
 		}
 	}
 
+	MessengerCommon.prototype.getMessageParam = function(messageId, name, defaultValue)
+	{
+		var params = this.getMessageParams(messageId);
+		if (!params)
+		{
+			return defaultValue;
+		}
+
+		if (typeof (params[name]) === 'undefined')
+		{
+			return defaultValue;
+		}
+
+		return params[name];
+	}
+
+	MessengerCommon.prototype.getMessageParams = function(messageId)
+	{
+		if (typeof(this.BXIM.messenger.message[messageId]) === 'undefined')
+		{
+			return null;
+		}
+
+		var message = this.BXIM.messenger.message[messageId];
+
+		if (typeof(message.params) === 'undefined')
+		{
+			return {};
+		}
+
+		return message.params;
+	}
+
+	/**
+	 * @deprecated
+	 */
 	MessengerCommon.prototype.getMessagePlural = function(messageId, number)
 	{
-		var pluralForm, langId;
-
-		langId = BX.message('LANGUAGE_ID') || 'en';
-		number = parseInt(number);
-
-		if (number < 0)
-		{
-			number = -1*number;
-		}
-
-		if (langId)
-		{
-			switch (langId)
-			{
-				case 'de':
-				case 'en':
-					pluralForm = ((number !== 1) ? 1 : 0);
-				break;
-
-				case 'ru':
-				case 'ua':
-					pluralForm = (((number%10 === 1) && (number%100 !== 11)) ? 0 : (((number%10 >= 2) && (number%10 <= 4) && ((number%100 < 10) || (number%100 >= 20))) ? 1 : 2));
-				break;
-
-				default:
-					pluralForm = 1;
-				break;
-			}
-		}
-		else
-		{
-			pluralForm = 1;
-		}
-
-		return BX.message(messageId + '_PLURAL_' + pluralForm);
+		return BX.Loc.getMessagePlural(messageId, parseInt(number));
 	}
 
 	MessengerCommon.prototype.openStore = function()

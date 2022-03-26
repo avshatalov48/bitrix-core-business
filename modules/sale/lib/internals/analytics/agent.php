@@ -1,9 +1,8 @@
 <?php
 namespace Bitrix\Sale\Internals\Analytics;
 
-use Bitrix\Main\Type\Date,
-	Bitrix\Main\Type\DateTime,
-	Bitrix\Main\Config\Option;
+use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\Config\Option;
 
 /**
  * Class Agent
@@ -21,12 +20,9 @@ abstract class Agent
 	abstract protected static function getProviderCode(): string;
 
 	/**
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\LoaderException
-	 * @throws \Bitrix\Main\ObjectException
-	 * @throws \Bitrix\Main\SystemException
+	 * Sends data
+	 *
+	 * @return void
 	 */
 	public static function send(): void
 	{
@@ -49,6 +45,7 @@ abstract class Agent
 
 	/**
 	 * @param DateTime $nextExecutionAgentDate
+	 * @return void
 	 */
 	protected static function createAgent(DateTime $nextExecutionAgentDate): void
 	{
@@ -64,7 +61,6 @@ abstract class Agent
 
 	/**
 	 * @return DateTime
-	 * @throws \Bitrix\Main\ObjectException
 	 */
 	protected static function getSuccessNextExecutionAgentDate(): DateTime
 	{
@@ -88,7 +84,6 @@ abstract class Agent
 
 	/**
 	 * @return DateTime
-	 * @throws \Bitrix\Main\ObjectException
 	 */
 	protected static function getFailureNextExecutionAgentDate(): DateTime
 	{
@@ -98,16 +93,13 @@ abstract class Agent
 
 	/**
 	 * @return DateTime
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ObjectException
 	 */
 	protected static function getDateFrom(): DateTime
 	{
 		$optionName = self::LAST_SEND_DATE.static::getProviderCode();
 
 		$date = Option::get('sale', $optionName, null);
-		if ($date && Date::isCorrect($date))
+		if ($date && DateTime::isCorrect($date))
 		{
 			return new DateTime($date);
 		}
@@ -121,27 +113,28 @@ abstract class Agent
 
 	/**
 	 * @return DateTime
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ObjectException
 	 */
 	protected static function getDateTo(): DateTime
 	{
 		$optionName = self::LAST_ATTEMPT_DATE.static::getProviderCode();
 
 		$date = Option::get('sale', $optionName, null);
-		if ($date && Date::isCorrect($date))
+		if ($date && DateTime::isCorrect($date))
 		{
 			return new DateTime($date);
 		}
 
 		$dateFrom = static::getDateFrom();
-		$fromMonth = $dateFrom->format('n');
+		$fromMonth = (int)$dateFrom->format('n');
 
 		$dateTo = new \DateTime();
-		$toMonth = $dateTo->format('n');
+		$toMonth = (int)$dateTo->format('n');
 
-		if ($toMonth > $fromMonth)
+		/**
+		 * If $toMonth not equals $fromMonth, $toMonth is a next month
+		 * Gets first day of $toMonth
+		 */
+		if ($toMonth !== $fromMonth)
 		{
 			$dateTo = (new \DateTime())->modify('first day of this month midnight');
 		}
@@ -153,9 +146,7 @@ abstract class Agent
 	}
 
 	/**
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ObjectException
+	 * @return void
 	 */
 	protected static function onSuccessfullySent(): void
 	{
@@ -167,7 +158,6 @@ abstract class Agent
 	/**
 	 * @param \DateTime $dateTime
 	 * @return DateTime
-	 * @throws \Bitrix\Main\ObjectException
 	 */
 	protected static function toBitrixDate(\DateTime $dateTime): DateTime
 	{

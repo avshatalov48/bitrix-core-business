@@ -527,7 +527,7 @@ class CIMMessageParam
 			{
 				$arValues[$key] = intval($value);
 			}
-			else if (in_array($key, Array('CHAT_ID', 'CHAT_MESSAGE', 'IMOL_VOTE_SID', 'IMOL_VOTE_USER', 'IMOL_VOTE_HEAD', 'SENDING_TS', 'IMOL_SID')))
+			else if (in_array($key, Array('CALL_ID', 'CHAT_ID', 'CHAT_MESSAGE', 'IMOL_VOTE_SID', 'IMOL_VOTE_USER', 'IMOL_VOTE_HEAD', 'SENDING_TS', 'IMOL_SID')))
 			{
 				$arValues[$key] = intval($value[0]);
 			}
@@ -734,6 +734,7 @@ class CIMMessageParam
 			'SENDING_TS' => 0,
 			'CAN_ANSWER' => 'N',
 			'CLASS' => '',
+			'CALL_ID' => 0,
 			'USER_ID' => '',
 			'NAME' => '',
 			'AVATAR' => '',
@@ -883,7 +884,7 @@ class CIMMessageParamAttach
 		}
 		if (isset($params['LINK']))
 		{
-			$result['LINK'] = htmlspecialcharsbx($params['LINK']);
+			$result['LINK'] = $params['LINK'];
 		}
 
 		if (isset($params['DESC']))

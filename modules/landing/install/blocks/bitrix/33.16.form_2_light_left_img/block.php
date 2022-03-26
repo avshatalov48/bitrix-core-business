@@ -3,7 +3,7 @@
 	<div class="container">
 
 		<div class="row">
-			<div class="landing-block-node-img col-md-6 g-min-height-300 g-bg-img-hero g-px-0"
+			<div class="landing-block-node-img col-md-6 g-min-height-300 g-bg-img-hero g-px-0 g-bg-size-contain-no-repeat g-bg-pos-top-center"
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/570x511/img1.png);"></div>
 			<div class="col-md-6">
 				<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v4"

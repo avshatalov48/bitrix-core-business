@@ -206,6 +206,11 @@ export class TextField extends BaseField
 
 	getValue()
 	{
+		if (this.textOnly)
+		{
+			return this.input.innerText;
+		}
+
 		return this.adjustTags(Runtime.clone(this.input)).innerHTML.replace(/&nbsp;/g, '');
 	}
 }

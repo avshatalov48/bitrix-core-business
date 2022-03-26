@@ -166,6 +166,23 @@ class PaymentCollection extends Internals\EntityCollection
 		return $result;
 	}
 
+	public function onBeforeBasketItemDelete(BasketItem $basketItem) : Result
+	{
+		$result = new Result();
+
+		/** @var Payment $payment */
+		foreach ($this->collection as $payment)
+		{
+			$r = $payment->onBeforeBasketItemDelete($basketItem);
+			if (!$r->isSuccess())
+			{
+				$result->addErrors($r->getErrors());
+			}
+		}
+
+		return $result;
+	}
+
 	protected function isAllowAutoEdit()
 	{
 		if (

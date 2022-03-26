@@ -1238,4 +1238,19 @@ function deleteAccessRow(link)
 			}
 		}
 	};
+
+	BX.Landing.NeedPublicationField = function(inputIds)
+	{
+		inputIds.forEach(function(id)
+		{
+			var input = BX(id);
+			if (input)
+			{
+				BX.bind(input, 'click', function ()
+				{
+					BX.UI.Dialogs.MessageBox.alert(BX.message('LANDING_EDIT_NEED_PUBLICATION'));
+				});
+			}
+		})
+	};
 })();

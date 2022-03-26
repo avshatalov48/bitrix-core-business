@@ -151,6 +151,11 @@ class Property extends BaseEntity implements HasPropertyValueCollection
 		return $this->getSetting('MULTIPLE') === 'Y';
 	}
 
+	public function isActive(): bool
+	{
+		return $this->getSetting('ACTIVE') === 'Y';
+	}
+
 	public function isPublic(): bool
 	{
 		$featureCollection = $this->getPropertyFeatureCollection();

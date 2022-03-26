@@ -186,7 +186,7 @@ class CAccess
 		$userId = intval($userId);
 
 		$DB->Query("
-			INSERT INTO b_user_access_check (USER_ID, PROVIDER_ID)
+			INSERT IGNORE INTO b_user_access_check (USER_ID, PROVIDER_ID)
 			SELECT ID, '{$DB->ForSQL($provider)}'
 			FROM b_user
 			WHERE ID = {$userId}"
@@ -202,7 +202,7 @@ class CAccess
 		global $DB, $CACHE_MANAGER;
 
 		$DB->Query("
-			INSERT INTO b_user_access_check (USER_ID, PROVIDER_ID)
+			INSERT IGNORE INTO b_user_access_check (USER_ID, PROVIDER_ID)
 			SELECT USER_ID, PROVIDER_ID
 			FROM b_user_access
 			WHERE PROVIDER_ID = '{$DB->ForSQL($provider)}'

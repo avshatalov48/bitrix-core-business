@@ -1,0 +1,35 @@
+.catalog-store-edit {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	flex-direction: row-reverse;
+	flex-wrap: wrap;
+}
+
+.catalog-store-view .catalog-store-field-inner {
+	display: block;
+}
+
+.catalog-store-view .catalog-store-field-input {
+	margin: 12px 0 0 140px;
+	width: calc(100% - 140px);
+}
+
+.catalog-store-field-inner {
+	display: flex;
+	width: 100%;
+	align-items: center;
+}
+
+.catalog-store-field .ui-ctl-tag {
+	right: 6px;
+}
+
+.catalog-store-field-input {
+	width: 100%;
+}
+
+.catalog-store-field-input button.ui-ctl-after:focus,
+.catalog-store-field-input button.ui-ctl-after:active {
+	background-color: #fff;
+}

@@ -19,9 +19,9 @@ use Bitrix\Main\Entity;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_UserProfileRecord_Query query()
- * @method static EO_UserProfileRecord_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserProfileRecord_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_UserProfileRecord_Result getById($id)
- * @method static EO_UserProfileRecord_Result getList(array $parameters = array())
+ * @method static EO_UserProfileRecord_Result getList(array $parameters = [])
  * @method static EO_UserProfileRecord_Entity getEntity()
  * @method static \Bitrix\Main\EO_UserProfileRecord createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\EO_UserProfileRecord_Collection createCollection()

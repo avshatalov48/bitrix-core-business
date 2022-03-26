@@ -35,7 +35,6 @@ $MESS["SONET_GUE_T_FIRED2_M"] = "dismissed";
 $MESS["SONET_GUE_T_GROUP_ID_NOT_DEFINED"] = "Workgroup was not found.";
 $MESS["SONET_GUE_T_MODS_SUBTITLE"] = "Moderators";
 $MESS["SONET_GUE_T_MODS_SUBTITLE_PROJECT"] = "Owner and moderators";
-$MESS["SONET_GUE_T_MODS_SUBTITLE_SCRUM_PROJECT"] = "Project owner and the team";
 $MESS["SONET_GUE_T_MODS_SUBTITLE_SCRUM_PROJECT2"] = "Scrum master and the team";
 $MESS["SONET_GUE_T_MODULE_NOT_INSTALLED"] = "The Social Network module is not installed.";
 $MESS["SONET_GUE_T_NOT_ATHORIZED"] = "You are not logged in.";

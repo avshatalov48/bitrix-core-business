@@ -216,19 +216,6 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 			$result['Subjects'][$subjectFields['ID']] = $subjectFields['NAME'];
 		}
 
-		$extranetUserIdList = [];
-		if (Loader::includeModule('extranet'))
-		{
-			$res = CUser::getList('ID', 'asc', [
-				'GROUPS_ID' => [ CExtranet::getExtranetUserGroupId() ],
-				'UF_DEPARTMENT' => false,
-			]);
-			while ($userFields = $res->fetch())
-			{
-				$extranetUserIdList[] = (int)$userFields['ID'];
-			}
-		}
-
 		if ($groupFields['NUMBER_OF_MODERATORS'] >= 1)
 		{
 			$groupFields['NUMBER_OF_MODERATORS']--;
@@ -331,9 +318,9 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 
 		if (!$this->arParams['SHORT_FORM'])
 		{
-			$this->setGroupOwner($result, $extranetUserIdList);
-			$this->setGroupModerators($result, $extranetUserIdList);
-			$this->setGroupMembers($result, $extranetUserIdList);
+			$this->setGroupOwner($result);
+			$this->setGroupModerators($result);
+			$this->setGroupMembers($result);
 			$this->setDepartments($result);
 			$this->setFeatures($result);
 		}
@@ -424,7 +411,7 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 		}
 	}
 
-	private function setGroupOwner(&$result, array $extranetUserIdList = []): void
+	private function setGroupOwner(&$result): void
 	{
 		$result['Owner'] = false;
 
@@ -445,11 +432,11 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 		}
 		while ($ownerFields = $res->getNext())
 		{
-			$result['Owner'] = $this->getUserFields($ownerFields, $extranetUserIdList);
+			$result['Owner'] = $this->getUserFields($ownerFields);
 		}
 	}
 
-	private function setGroupModerators(&$result, array $extranetUserIdList = []): void
+	private function setGroupModerators(&$result): void
 	{
 		$result['Moderators'] = false;
 
@@ -479,11 +466,11 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 				$result['Moderators']['List'] = [];
 			}
 
-			$result['Moderators']['List'][] = $this->getUserFields($moderatorFields, $extranetUserIdList);
+			$result['Moderators']['List'][] = $this->getUserFields($moderatorFields);
 		}
 	}
 
-	private function setGroupMembers(&$result, array $extranetUserIdList = []): void
+	private function setGroupMembers(&$result): void
 	{
 		$result['Members'] = false;
 
@@ -513,7 +500,7 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 				$result['Members']['List'] = [];
 			}
 
-			$result['Members']['List'][] = $this->getUserFields($memberFields, $extranetUserIdList);
+			$result['Members']['List'][] = $this->getUserFields($memberFields);
 		}
 	}
 
@@ -543,14 +530,16 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 		}
 	}
 
-	private function getUserFields($userFields, $extranetUserIdList): array
+	private function getUserFields($userFields): array
 	{
 		global $USER;
 
 		$profileUrl = CComponentEngine::makePathFromTemplate($this->arParams['PATH_TO_USER'], [ 'user_id' => $userFields['USER_ID'] ]);
 		$canViewProfile = CSocNetUserPerms::canPerformOperation($USER->getId(), $userFields['USER_ID'], 'viewprofile', CSocNetUser::isCurrentUserModuleAdmin());
-
 		$imageFields = $this->getUserAvatarFields($userFields, $profileUrl, $canViewProfile);
+		$extranetUserIdList = self::getExtranetUserIdList([
+			'groupId' => $this->arParams['GROUP_ID'],
+		]);
 
 		return [
 			'ID' => $userFields['ID'],
@@ -565,7 +554,12 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 			'USER_PERSONAL_PHOTO_IMG' => $imageFields['IMG'],
 			'USER_PROFILE_URL' => $profileUrl,
 			'SHOW_PROFILE_LINK' => $canViewProfile,
-			'USER_IS_EXTRANET' => (!empty($extranetUserIdList) && in_array((int)$userFields['USER_ID'], $extranetUserIdList, true) ? 'Y' : 'N')
+			'USER_IS_EXTRANET' => (
+				!empty($extranetUserIdList)
+				&& in_array((int)$userFields['USER_ID'], $extranetUserIdList, true)
+					? 'Y'
+					: 'N'
+			),
 		];
 	}
 
@@ -665,4 +659,59 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 			}
 		}
 	}
+
+	private static function getExtranetUserIdList(array $params = []): array
+	{
+		static $cache = [];
+
+		$groupId = (int)($params['groupId'] ?? 0);
+		if ($groupId <= 0)
+		{
+			return [];
+		}
+
+		if (!isset($cache[$groupId]))
+		{
+			$cache[$groupId] = [];
+
+			if (Loader::includeModule('extranet'))
+			{
+				$userIdList = [];
+				$res = UserToGroupTable::getList([
+					'filter' => [
+						'GROUP_ID' => $groupId,
+						'@ROLE' => UserToGroupTable::getRolesMember(),
+					],
+					'select' => [ 'USER_ID' ],
+				]);
+				while ($relationFields = $res->fetch())
+				{
+					$userIdList[] = (int)$relationFields['USER_ID'];
+				}
+
+				if (!empty($userIdList))
+				{
+					$res = CUser::getList(
+						'ID',
+						'asc',
+						[
+							'ID' => implode('|', $userIdList),
+							'GROUPS_ID' => [ CExtranet::getExtranetUserGroupId() ],
+							'UF_DEPARTMENT' => false,
+						],
+						[
+							'FIELDS' => [ 'ID' ],
+						]
+					);
+					while ($userFields = $res->fetch())
+					{
+						$cache[$groupId][] = (int)$userFields['ID'];
+					}
+				}
+			}
+		}
+
+		return $cache[$groupId];
+	}
+
 }

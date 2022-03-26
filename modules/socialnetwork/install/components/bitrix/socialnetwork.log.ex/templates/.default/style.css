@@ -15,6 +15,10 @@
 	z-index: 1;
 }
 
+.feed-stub {
+	margin-bottom: 10px;
+}
+
 .feed-wrap-empty-wrap {
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 26px;
@@ -968,11 +972,6 @@
 	line-height: 36px;
 }
 
-/*.feed-new-message-informer-fixed .feed-new-message-icon {*/
-	/*background-position: -29px -850px;*/
-	/*margin-top: 8px;*/
-/*}*/
-
 .feed-new-message-informer {
 	opacity: 0;
 	transition: opacity 0.4s ease 0s;
@@ -1091,6 +1090,10 @@
 	line-height: 33px;
 }
 
+.feed-new-message-inf-text.new-message-balloon.--hidden {
+	display: none;
+}
+
 .feed-new-message-inf-bottom .feed-new-message-inf-text {
 	line-height: 38px;
 }
@@ -1114,31 +1117,6 @@
 
 .feed-new-message-inf-bottom .feed-new-message-icon {
 	margin-top: 13px;
-}
-
-
-.feed-new-message-wait-icon {
-	background: url("images/log/waiter-blue.gif") no-repeat 0 0 transparent;
-	display: inline-block;
-	height: 29px;
-	margin: 5px 12px 0 0;
-	vertical-align: top;
-	width: 29px;
-}
-
-.feed-new-message-wait-icon-small {
-	background: url("images/log/waiter-lent.gif") no-repeat 0 0 transparent;
-	display: inline-block;
-	height: 27px;
-	margin: 2px 12px 0 0;
-	vertical-align: top;
-	width: 27px;
-}
-
-.bx-retina .feed-new-message-wait-icon-small {
-	background-image: url("images/log/waiter-lent-retina.gif");
-	background-position: center center;
-	background-size: 22px 22px;
 }
 
 .feed-post-block {

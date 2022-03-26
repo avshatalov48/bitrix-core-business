@@ -1,5 +1,8 @@
 <?php
 
+use Bitrix\Catalog\Integration\PullManager;
+use Bitrix\Main\Localization\Loc;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/store_docs.php");
 
 class CCatalogDocs extends CAllCatalogDocs
@@ -13,52 +16,137 @@ class CCatalogDocs extends CAllCatalogDocs
 	{
 		global $DB;
 
-		foreach(GetModuleEvents("catalog", "OnBeforeDocumentAdd", true) as $arEvent)
-			if(ExecuteModuleEventEx($arEvent, array(&$arFields)) === false)
+		foreach (GetModuleEvents("catalog", "OnBeforeDocumentAdd", true) as $arEvent)
+		{
+			if (ExecuteModuleEventEx($arEvent, [&$arFields]) === false)
+			{
 				return false;
+			}
+		}
 
-		if(array_key_exists('DATE_CREATE', $arFields))
+		if (array_key_exists('DATE_CREATE', $arFields))
+		{
 			unset($arFields['DATE_CREATE']);
-		if(array_key_exists('DATE_MODIFY', $arFields))
+		}
+		if (array_key_exists('DATE_MODIFY', $arFields))
+		{
 			unset($arFields['DATE_MODIFY']);
+		}
 
 		$arFields['~DATE_MODIFY'] = $DB->GetNowFunction();
 		$arFields['~DATE_CREATE'] = $DB->GetNowFunction();
 
-		if(!self::checkFields('ADD', $arFields))
+		if (!self::checkFields('ADD', $arFields))
+		{
 			return false;
+		}
 
 		$arInsert = $DB->PrepareInsert("b_catalog_store_docs", $arFields);
 
 		$strSql = "INSERT INTO b_catalog_store_docs (".$arInsert[0].") VALUES(".$arInsert[1].")";
 
 		$res = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
-		if(!$res)
-			return false;
-		$lastId = intval($DB->LastID());
-		if(isset($arFields["ELEMENT"]) && is_array($arFields["ELEMENT"]))
+		if (!$res)
 		{
-			foreach($arFields["ELEMENT"] as $arElement)
+			return false;
+		}
+		$lastId = intval($DB->LastID());
+
+		$item = [
+			'id' => $lastId,
+			'data' => [
+				'fields' => $arFields,
+			],
+		];
+
+		PullManager::getInstance()->sendDocumentAddedEvent(
+			[
+				$item
+			]
+		);
+
+		self::increaseDocumentNumber($arFields);
+
+		self::updateFieldsAfterSave($lastId, $arFields);
+
+		if (isset($arFields["ELEMENT"]) && is_array($arFields["ELEMENT"]))
+		{
+			self::saveElements($lastId, $arFields['ELEMENT']);
+		}
+
+		if (isset($arFields["DOCUMENT_FILES"]) && is_array($arFields["DOCUMENT_FILES"]))
+		{
+			self::saveFiles($lastId, $arFields['DOCUMENT_FILES']);
+		}
+
+		foreach (GetModuleEvents("catalog", "OnDocumentAdd", true) as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, [$lastId, $arFields]);
+		}
+
+		return $lastId;
+	}
+
+	private static function updateFieldsAfterSave($documentId, $savedFields)
+	{
+		$fieldsToUpdate = [];
+
+		if (empty($savedFields['TITLE']))
+		{
+			$documentNumbers = self::getDocumentNumbers();
+			$currentDocumentNumber = $documentNumbers[$savedFields['DOC_TYPE']] ?? $documentId;
+			$fieldsToUpdate['TITLE'] = Loc::getMessage(
+				'CATALOG_STORE_DOCUMENT_TITLE_DEFAULT_NAME_' . $savedFields['DOC_TYPE'],
+				['%DOCUMENT_NUMBER%' => $currentDocumentNumber]
+			);
+		}
+
+		self::update($documentId, $fieldsToUpdate);
+	}
+
+	private static function saveElements($documentID, $elements)
+	{
+		foreach($elements as $arElement)
+		{
+			$lastDocElementId = 0;
+			if(isset($arElement['ID']))
 			{
-				$lastDocElementId = 0;
-				if(isset($arElement["ID"]))
-					unset($arElement["ID"]);
-				$arElement["DOC_ID"] = $lastId;
-				if(is_array($arElement))
-					$lastDocElementId = CCatalogStoreDocsElement::add($arElement);
-				if(isset($arElement["BARCODE"]) && $lastDocElementId)
+				unset($arElement['ID']);
+			}
+			$arElement['DOC_ID'] = $documentID;
+			if (is_array($arElement))
+			{
+				$lastDocElementId = CCatalogStoreDocsElement::add($arElement);
+			}
+			if(isset($arElement['BARCODE']) && $lastDocElementId && is_array($arElement['BARCODE']))
+			{
+				foreach($arElement['BARCODE'] as $barcode)
 				{
-					if(is_array($arElement["BARCODE"]))
-						foreach($arElement["BARCODE"] as $barcode)
-							CCatalogStoreDocsBarcode::add(array("DOC_ELEMENT_ID" => $lastDocElementId, "BARCODE" => $barcode));
+					CCatalogStoreDocsBarcode::add(['DOC_ELEMENT_ID' => $lastDocElementId, 'BARCODE' => $barcode]);
 				}
 			}
 		}
+	}
 
-		foreach(GetModuleEvents("catalog", "OnDocumentAdd", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($lastId, $arFields));
+	public static function saveFiles($documentId, $files)
+	{
+		if (!empty($files))
+		{
+			$existingFiles = \Bitrix\Catalog\StoreDocumentFileTable::getList([
+				'select' => ['FILE_ID'],
+				'filter' => ['DOCUMENT_ID' => $documentId]
+			])->fetchAll();
+			$existingFiles = array_column($existingFiles, 'FILE_ID');
+			$filesToAdd = array_diff($files, $existingFiles);
 
-		return $lastId;
+			foreach ($filesToAdd as $fileId)
+			{
+				\Bitrix\Catalog\StoreDocumentFileTable::add([
+					'DOCUMENT_ID' => $documentId,
+					'FILE_ID' => $fileId,
+				]);
+			}
+		}
 	}
 
 	public static function getList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
@@ -79,6 +167,7 @@ class CCatalogDocs extends CAllCatalogDocs
 			"DATE_STATUS" => array("FIELD" => "CD.DATE_STATUS", "TYPE" => "datetime"),
 			"CREATED_BY" => array("FIELD" => "CD.CREATED_BY", "TYPE" => "int"),
 			"MODIFIED_BY" => array("FIELD" => "CD.MODIFIED_BY", "TYPE" => "int"),
+			"RESPONSIBLE_ID" => array("FIELD" => "CD.RESPONSIBLE_ID", "TYPE" => "int"),
 			"STATUS_BY" => array("FIELD" => "CD.STATUS_BY", "TYPE" => "int"),
 			"STATUS" => array("FIELD" => "CD.STATUS", "TYPE" => "string"),
 			"TOTAL" => array("FIELD" => "CD.TOTAL", "TYPE" => "double"),
@@ -179,5 +268,33 @@ class CCatalogDocs extends CAllCatalogDocs
 			true,
 			"File: ".__FILE__."<br>Line: ".__LINE__
 		);
+	}
+
+	public static function getDocumentNumbers()
+	{
+		$documentNumbers = \Bitrix\Main\Config\Option::get('catalog', 'store_document_numbers', '');
+		if ($documentNumbers === '')
+		{
+			return [];
+		}
+
+		return unserialize($documentNumbers, ['allowed_classes' => false]);
+	}
+
+	private static function increaseDocumentNumber($documentFields)
+	{
+		$documentNumbers = self::getDocumentNumbers();
+
+		if (isset($documentNumbers[$documentFields['DOC_TYPE']]))
+		{
+			$documentNumbers[$documentFields['DOC_TYPE']] = (int)$documentNumbers[$documentFields['DOC_TYPE']] + 1;
+		}
+		else
+		{
+			$documentNumbers[$documentFields['DOC_TYPE']] = 1;
+		}
+
+		$documentNumbers = serialize($documentNumbers);
+		\Bitrix\Main\Config\Option::set('catalog', 'store_document_numbers', $documentNumbers);
 	}
 }

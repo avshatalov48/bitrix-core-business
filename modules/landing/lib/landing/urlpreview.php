@@ -5,17 +5,17 @@ use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\File;
-use \Bitrix\Main\Entity;
+use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Loader;
 
 class UrlPreview
 {
 	/**
-	 * Gets preview for landing.
+	 * Returns preview for landing.
 	 * @param int $landingId Landing id.
 	 * @return array
 	 */
-	public static function getPreview($landingId)
+	public static function getPreview(int $landingId): array
 	{
 		static $cached = [];
 
@@ -25,13 +25,12 @@ class UrlPreview
 		}
 
 		$result = [];
-		$landingId = intval($landingId);
 
 		$res = Landing::getList([
 			'select' => [
 				'ID',
 				'TITLE',
-				'=SITE_TYPE' => 'SITE.TYPE'
+				'SITE_TYPE' => 'SITE.TYPE'
 			],
 			'filter' => [
 				'ID' => $landingId
@@ -80,202 +79,12 @@ class UrlPreview
 	}
 
 	/**
-	 * Returns landing id by site path.
-	 * @param string $code Site path.
-	 * @return int|null
-	 */
-	public static function getPreviewByCode($code)
-	{
-		return self::detectByCode($code);
-	}
-
-	/**
-	 * Gets landing id by url part.
-	 * @param string $code Url part.
-	 * @return int|null
-	 */
-	protected static function detectByCode($code)
-	{
-		$id = null;
-		$siteCode = $folderCode = $pageCode = null;
-
-		$code = trim(trim($code), '/');
-		$urlParts = explode('/', $code);
-
-		// parse url
-		if (isset($urlParts[0]))
-		{
-			$siteCode = '/' . $urlParts[0] . '/';
-		}
-		else
-		{
-			return $id;
-		}
-		if (isset($urlParts[1]) && isset($urlParts[2]))
-		{
-			$folderCode = $urlParts[1];
-			$pageCode = $urlParts[2];
-		}
-		else if (isset($urlParts[1]))
-		{
-			$pageCode = $urlParts[1];
-		}
-
-		// fill filter
-		$filter = [];
-		$runtime = [];
-		if ($pageCode)
-		{
-			$filter['=CODE'] = $pageCode;
-		}
-		else // try get index page of site
-		{
-			$res = Site::getList([
-				'select' => [
-					'LANDING_ID_INDEX'
-				],
-				'filter' => [
-					'=CODE' => $siteCode
-				]
-			]);
-			if ($row = $res->fetch())
-			{
-				$id = $row['LANDING_ID_INDEX'];
-			}
-			return $id;
-		}
-		if ($folderCode)
-		{
-			$filter['=FOLDER_PAGE.CODE'] = $folderCode;
-			$runtime = [
-				new Entity\ReferenceField(
-					'FOLDER_PAGE',
-					'\Bitrix\Landing\Internals\LandingTable',
-					[
-						'this.FOLDER_ID' => 'ref.ID'
-					]
-				)
-			];
-		}
-		else
-		{
-			$filter['FOLDER_ID'] = false;
-		}
-		if ($siteCode)
-		{
-			$filter['=SITE.CODE'] = $siteCode;
-		}
-
-		if (!$filter)
-		{
-			return $id;
-		}
-
-		$res = Landing::getList([
-			'select' => [
-				'ID'
-			],
-			'filter' => $filter,
-			'runtime' => $runtime
-		]);
-		if ($row = $res->fetch())
-		{
-			$id = $row['ID'];
-		}
-
-		return $id;
-	}
-
-	/**
-	 * Detect page by codes array.
-	 * @param array $params Params array.
-	 * @return int|null
-	 */
-	protected static function routeCodes($params)
-	{
-		static $detected = [];
-
-		$urlCodes = [];
-		$expectedCodes = ['siteCode', 'folderCode', 'pageCode'];
-
-		if (!isset($params['siteCode']))
-		{
-			return null;
-		}
-
-		foreach ($expectedCodes as $code)
-		{
-			if (isset($params[$code]) && is_string($params[$code]))
-			{
-				$urlCodes[] = $params[$code];
-			}
-		}
-
-		if ($urlCodes)
-		{
-			$url = implode('/', $urlCodes);
-			if (!array_key_exists($url, $detected))
-			{
-				$detected[$url] = self::detectByCode($url);
-			}
-			return $detected[$url];
-		}
-		else
-		{
-			return null;
-		}
-	}
-
-	/**
-	 * Prepares params for different scopes.
-	 * @param array &$params Params.
-	 * @return void
-	 */
-	protected static function prepareParams(array &$params)
-	{
-		if (
-			!isset($params['siteCode']) ||
-			$params['siteCode'] != 'group'
-		)
-		{
-			return;
-		}
-
-		$params['scope'] = $params['siteCode'];
-
-		if (
-			isset($params['additionalCode']) &&
-			isset($params['pageCode']) &&
-			isset($params['folderCode'])
-		)
-		{
-			$params['siteCode'] = $params['folderCode'];
-			$params['folderCode'] = $params['pageCode'];
-			$params['pageCode'] = $params['additionalCode'];
-		}
-		else if (isset($params['folderCode']))
-		{
-			$params['siteCode'] = $params['folderCode'];
-			unset($params['folderCode']);
-		}
-		else if (isset($params['pageCode']))
-		{
-			$params['siteCode'] = $params['pageCode'];
-			unset($params['pageCode']);
-		}
-	}
-
-	/**
 	 * Returns HTML code for page preview.
-	 * @param array $params Expected keys: siteCode[, folderCode, pageCode].
-	 * @return string
+	 * @param array $params Params data.
+	 * @return string|null
 	 */
-	public static function buildPreview(array $params)
+	public static function buildPreview(array $params): ?string
 	{
-		global $APPLICATION;
-
-		self::prepareParams($params);
-
 		if (isset($params['scope']))
 		{
 			\Bitrix\Landing\Site\Type::setScope(
@@ -283,12 +92,16 @@ class UrlPreview
 			);
 		}
 
-		$landingId = self::routeCodes($params);
+		if (!isset($params['URL']))
+		{
+			$params['URL'] = Manager::getPublicationPath() . $params['URL'];
+		}
 
+		$landingId = self::resolveLandingId($params['URL']);
 		if ($landingId)
 		{
 			ob_start();
-			$APPLICATION->includeComponent(
+			Manager::getApplication()->includeComponent(
 				'bitrix:landing.socialnetwork.preview',
 				'',
 				[
@@ -297,6 +110,7 @@ class UrlPreview
 			);
 			return ob_get_clean();
 		}
+
 		return null;
 	}
 
@@ -312,8 +126,6 @@ class UrlPreview
 			return false;
 		}
 
-		self::prepareParams($params);
-
 		if (isset($params['scope']))
 		{
 			\Bitrix\Landing\Site\Type::setScope(
@@ -321,7 +133,12 @@ class UrlPreview
 			);
 		}
 
-		$landingId = self::routeCodes($params);
+		if (!isset($params['URL']))
+		{
+			$params['URL'] = Manager::getPublicationPath() . ($params['knowledgeCode'] ?? '');
+		}
+
+		$landingId = self::resolveLandingId($params['URL']);
 
 		if ($landingId)
 		{
@@ -348,10 +165,8 @@ class UrlPreview
 	 * @param int $userId Current user's id.
 	 * @return bool
 	 */
-	public static function checkUserReadAccess(array $params, $userId)
+	public static function checkUserReadAccess(array $params, int $userId): bool
 	{
-		self::prepareParams($params);
-
 		if (isset($params['scope']))
 		{
 			\Bitrix\Landing\Site\Type::setScope(
@@ -359,7 +174,77 @@ class UrlPreview
 			);
 		}
 
-		$landingId = self::routeCodes($params);
-		return $landingId !== null;
+		if (!isset($params['URL']))
+		{
+			$params['URL'] = Manager::getPublicationPath() . ($params['knowledgeCode'] ?? '');
+		}
+
+		return self::resolveLandingId($params['URL']) !== null;
+	}
+
+	/**
+	 * Resolve site id by landing path.
+	 * @param string $landingPath Landing url.
+	 * @return int|null
+	 */
+	protected static function resolveSiteId(string $landingPath): ?int
+	{
+		$publicPath = Manager::getPublicationPath();
+
+		if ($landingPath[0] !== '/')
+		{
+			$urlParts = parse_url($landingPath);
+			$landingPath = $urlParts['path'] ?? '';
+		}
+
+		if (mb_strpos($landingPath, $publicPath) === 0)
+		{
+			$landingPath = mb_substr($landingPath, mb_strlen($publicPath));
+			$pathChunks = explode('/', $landingPath);
+			if (!empty($pathChunks[0]))
+			{
+				$res = Site::getList([
+					'select' => [
+						'ID'
+					],
+					'filter' => [
+						'=CODE' => '/' . $pathChunks[0] . '/'
+					]
+				]);
+				if ($row = $res->fetch())
+				{
+					return $row['ID'];
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Resolve landing id by landing path.
+	 * @param string $landingPath Landing url.
+	 * @return int|null
+	 */
+	public static function resolveLandingId(string $landingPath): ?int
+	{
+		$landingId = null;
+
+		if ($landingPath[0] !== '/')
+		{
+			$urlParts = parse_url($landingPath);
+			$landingPath = $urlParts['path'] ?? '';
+		}
+
+		if ($landingPath)
+		{
+			$siteId = self::resolveSiteId($landingPath);
+			if ($siteId)
+			{
+				$landingId = Landing::resolveIdByPublicUrl($landingPath, $siteId);
+			}
+		}
+
+		return $landingId;
 	}
 }

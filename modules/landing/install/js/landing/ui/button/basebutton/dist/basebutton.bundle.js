@@ -14,25 +14,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  className: null
 	};
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"landing-ui-button-text\"></span>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button \n\t\t\t\t\tclass=\"landing-ui-button\" \n\t\t\t\t\ttype=\"button\"\n\t\t\t\t\tdata-id=\"", "\"\n\t\t\t\t>", "</button>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2;
 	/**
 	 * @memberOf BX.Landing.UI.Button
 	 */
@@ -117,14 +99,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('layout', function () {
-	        return main_core.Tag.render(_templateObject(), _this2.id, _this2.getTextLayout());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button \n\t\t\t\t\tclass=\"landing-ui-button\" \n\t\t\t\t\ttype=\"button\"\n\t\t\t\t\tdata-id=\"", "\"\n\t\t\t\t>", "</button>\n\t\t\t"])), _this2.id, _this2.getTextLayout());
 	      });
 	    }
 	  }, {
 	    key: "getTextLayout",
 	    value: function getTextLayout() {
 	      return this.cache.remember('textLayout', function () {
-	        return main_core.Tag.render(_templateObject2());
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<span class=\"landing-ui-button-text\"></span>"])));
 	      });
 	    }
 	  }, {

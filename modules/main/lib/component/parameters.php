@@ -10,9 +10,9 @@ use Bitrix\Main\Entity\DataManager;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Parameters_Query query()
- * @method static EO_Parameters_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Parameters_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Parameters_Result getById($id)
- * @method static EO_Parameters_Result getList(array $parameters = array())
+ * @method static EO_Parameters_Result getList(array $parameters = [])
  * @method static EO_Parameters_Entity getEntity()
  * @method static \Bitrix\Main\Component\EO_Parameters createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\Component\EO_Parameters_Collection createCollection()

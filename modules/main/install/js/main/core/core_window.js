@@ -3124,6 +3124,11 @@ BX.CMenuOpener = function(arParams)
 	BX.addCustomEvent('onMenuOpenerMoved', BX.delegate(this.checkPosition, this));
 	BX.addCustomEvent('onMenuOpenerUnhide', BX.delegate(this.checkPosition, this));
 
+	BX.Event.EventEmitter.incrementMaxListeners('onDynamicModeChange');
+	BX.Event.EventEmitter.incrementMaxListeners('onTopPanelCollapse');
+	BX.Event.EventEmitter.incrementMaxListeners('onMenuOpenerMoved');
+	BX.Event.EventEmitter.incrementMaxListeners('onMenuOpenerUnhide');
+
 	if (this.OPENERS)
 	{
 		for (i=0,len=this.OPENERS.length; i<len; i++)
@@ -3137,6 +3142,12 @@ BX.extend(BX.CMenuOpener, BX.CWindowFloat);
 BX.CMenuOpener.prototype.setParent = function(new_parent)
 {
 	new_parent = BX(new_parent);
+
+	if (!new_parent)
+	{
+		return;
+	}
+
 	if(new_parent.OPENER && new_parent.OPENER != this)
 	{
 		new_parent.OPENER.Close();
@@ -3752,7 +3763,11 @@ BX.CPageOpener.prototype.correctPosition = function(opener)
 	if (this.__check_intersection(pos_self, pos_other))
 	{
 		this.DIV.style.display = 'none';
-		BX.addCustomEvent(opener, 'onMenuOpenerHide', BX.proxy(this.restorePosition, this));
+
+		var handler = BX.proxy(this.restorePosition, this);
+
+		BX.removeCustomEvent(opener, 'onMenuOpenerHide', handler);
+		BX.addCustomEvent(opener, 'onMenuOpenerHide', handler);
 
 		this.bPosCorrected = true;
 	}

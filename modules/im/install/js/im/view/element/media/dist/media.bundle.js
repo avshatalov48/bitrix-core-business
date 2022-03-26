@@ -1,14 +1,9 @@
 (function (exports,ui_progressbarjs_uploader,ui_vue_vuex,im_model,im_const,ui_vue_components_audioplayer,ui_vue_directives_lazyload,ui_icons,ui_vue_components_socialvideo,im_lib_utils,ui_vue) {
 	'use strict';
 
-	/**
-	 * Bitrix Messenger
-	 * File element Vue component
-	 *
-	 * @package bitrix
-	 * @subpackage im
-	 * @copyright 2001-2019 Bitrix
-	 */
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	ui_vue.BitrixVue.component('bx-im-view-element-file', {
 	  /*
 	   * @emits 'uploadCancel' {file: object, event: MouseEvent}
@@ -21,14 +16,14 @@
 	  },
 	  props: {
 	    userId: {
-	      default: 0
+	      "default": 0
 	    },
 	    messageType: {
-	      default: im_const.MessageType.self
+	      "default": im_const.MessageType.self
 	    },
 	    file: {
 	      type: Object,
-	      default: im_model.FilesModel.create().getElementState
+	      "default": im_model.FilesModel.create().getElementState
 	    }
 	  },
 	  methods: {
@@ -187,7 +182,7 @@
 	      return true;
 	    }
 	  },
-	  computed: babelHelpers.objectSpread({
+	  computed: _objectSpread({
 	    FileStatus: function FileStatus() {
 	      return im_const.FileStatus;
 	    },

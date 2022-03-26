@@ -35,7 +35,6 @@ $MESS["SONET_GUE_T_FIRED2_M"] = "звільнений";
 $MESS["SONET_GUE_T_GROUP_ID_NOT_DEFINED"] = "Група не знайдена.";
 $MESS["SONET_GUE_T_MODS_SUBTITLE"] = "Модератори";
 $MESS["SONET_GUE_T_MODS_SUBTITLE_PROJECT"] = "Керівник та помічники";
-$MESS["SONET_GUE_T_MODS_SUBTITLE_SCRUM_PROJECT"] = "Керівник і команда";
 $MESS["SONET_GUE_T_MODS_SUBTITLE_SCRUM_PROJECT2"] = "Скрам-майстер та команда";
 $MESS["SONET_GUE_T_MODULE_NOT_INSTALLED"] = "Модуль соціальної мережі не встановлений.";
 $MESS["SONET_GUE_T_NOT_ATHORIZED"] = "Ви не авторизовані.";

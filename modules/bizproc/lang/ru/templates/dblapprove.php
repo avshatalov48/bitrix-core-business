@@ -14,7 +14,7 @@ $MESS ['BP_DBLA_APPROVE_TEXT'] = "Вам необходимо проголосо
 
 Автор: {=Document:CREATED_BY_PRINTABLE}";
 $MESS ['BP_DBLA_APPROVE_TITLR'] = "Утверждение документа 1 этап";
-$MESS ['BP_DBLA_S'] = "Последовательность действий";
+$MESS ['BP_DBLA_S_1'] = "Последовательность действий";
 $MESS ['BP_DBLA_MAIL_SUBJ'] = "Документ принят на 1-ом этапе";
 $MESS ['BP_DBLA_MAIL_TEXT'] = "Первый этап утверждения документа \"{=Document:NAME}\" завершен.
 

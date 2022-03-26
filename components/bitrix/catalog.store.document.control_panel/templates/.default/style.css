@@ -1,0 +1,52 @@
+.catalog-store-documents-top {
+	height: 73px;
+	display: flex;
+	align-items: center;
+}
+
+.catalog-store-documents-title-box {
+	display: flex;
+	align-items: center;
+	margin-right: 20px;
+	overflow: hidden;
+}
+
+.catalog-store-documents-title {
+	margin: 1px 9px 0 0;
+	max-width: 100%;
+	font: 24px/27px "OpenSans-Light", Helvetica, Arial, sans-serif;
+	color: #333;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bitrix24-light-theme .catalog-store-documents-title {
+	color: #fff;
+}
+
+.catalog-tariff-lock {
+	padding-right: 20px;
+}
+
+.catalog-tariff-lock:before {
+	content: '';
+	right: 0;
+	top: 27px;
+	display: inline-block;
+	min-height: 12px;
+	width: 9px;
+	margin: 0 2px;
+	line-height: inherit;
+	vertical-align: inherit;
+	position: absolute;
+	background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5IiBoZWlnaHQ9IjEyIiB2aWV3Qm94PSIwIDAgOSAxMiI+ICA8cGF0aCBmaWxsPSIjMjhCQUU5IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik03Ljk1Miw1IEw5LDUgTDksMTIgTDAsMTIgTDAsNSBMMS4wNTIsNSBMMS4wNTIsMy40MTIgQzEuMTE1MzMxNjcsMS41NTIzMjI3NCAyLjY0MTI0NDY2LDAuMDc3NDkwNDI1MSA0LjUwMiwwLjA3NzQ5MDQyNTEgQzYuMzYyNzU1MzQsMC4wNzc0OTA0MjUxIDcuODg4NjY4MzMsMS41NTIzMjI3NCA3Ljk1MiwzLjQxMiBMNy45NTIsNSBaIE02Ljk5NjQyNzgzLDUgTDcuMDA4LDMuNDEyIEM2LjkwMzAwMjI5LDIuMDc3Mjc1NzMgNS44MzU3NDU5MywxLjAyMTA4MzQ0IDQuNSwwLjkzIEMzLjE2NDI1NDA3LDEuMDIxMDgzNDQgMi4wOTY5OTc3MSwyLjA3NzI3NTczIDEuOTkyLDMuNDEyIEwyLjAwNTA0MDUzLDUgTDYuOTk2NDI3ODMsNSBaIE01LjAxOSw4Ljg3OSBMNS4wMTksMTAuMTY2IEwzLjk4MSwxMC4xNjYgTDMuOTgxLDguODc5IEMzLjc4NzY5NDg0LDguNzI1MzU2MDEgMy42NzUwMzA3Nyw4LjQ5MTkyNzg1IDMuNjc1LDguMjQ1IEMzLjY3NSw3Ljc4OTM2NTA4IDQuMDQ0MzY1MDgsNy40MiA0LjUsNy40MiBDNC45NTU2MzQ5Miw3LjQyIDUuMzI1LDcuNzg5MzY1MDggNS4zMjUsOC4yNDUgQzUuMzI0OTY5MjMsOC40OTE5Mjc4NSA1LjIxMjMwNTE2LDguNzI1MzU2MDEgNS4wMTksOC44NzkgTDUuMDE5LDguODc5IFoiLz48L3N2Zz4=) no-repeat center;
+}
+
+.catalog-tariff-lock.menu-popup-item.main-buttons-submenu-item:before{
+	right: 25px;
+	top: 11px;
+}
+.main-buttons-edit .catalog-tariff-lock:before{
+	display: none;
+}

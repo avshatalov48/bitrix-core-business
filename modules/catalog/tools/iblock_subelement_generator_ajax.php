@@ -1,13 +1,12 @@
-<?
-define('STOP_STATISTICS', true);
-define('NO_AGENT_CHECK', true);
-define('DisableEventsCheck', true);
-define('BX_SECURITY_SHOW_MESSAGE', true);
-define("PUBLIC_AJAX_MODE", true);
-define("NOT_CHECK_PERMISSIONS", true);
+<?php
+const STOP_STATISTICS = true;
+const NO_AGENT_CHECK = true;
+const DisableEventsCheck = true;
+const BX_SECURITY_SHOW_MESSAGE = true;
+const PUBLIC_AJAX_MODE = true;
+const NOT_CHECK_PERMISSIONS = true;
 
-use Bitrix\Main,
-	Bitrix\Main\Loader;
+use Bitrix\Main\Loader;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 

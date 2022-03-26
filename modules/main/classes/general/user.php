@@ -1107,7 +1107,7 @@ class CAllUser extends CDBResult
 
 	public function LoginHitByHash($hash, $closeSession = true, $delete = false, $remember = false)
 	{
-		global $DB, $APPLICATION;
+		global $APPLICATION;
 
 		$hash = trim($hash);
 		if ($hash == '')
@@ -1117,58 +1117,87 @@ class CAllUser extends CDBResult
 
 		$APPLICATION->ResetException();
 
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		// todo: here should be concat(replace(UH.URL, '\\', '\\\\'), '%')
 		$strSql =
-			"SELECT UH.ID, UH.USER_ID ".
-			"FROM b_user_hit_auth UH ".
-			"INNER JOIN b_user U ON U.ID = UH.USER_ID AND U.ACTIVE = 'Y' AND U.BLOCKED <> 'Y' ".
-			"WHERE UH.HASH = '".$DB->ForSQL($hash, 32)."' ".
-			"	AND '".$DB->ForSqlLike($APPLICATION->GetCurPageParam("", array(), true), 255)."' LIKE ".$DB->Concat("UH.URL", "'%'");
+			"SELECT UH.ID, UH.USER_ID, UH.HASH, UH.VALID_UNTIL "
+			. "FROM b_user_hit_auth UH "
+			. "INNER JOIN b_user U ON U.ID = UH.USER_ID AND U.ACTIVE = 'Y' AND U.BLOCKED <> 'Y' "
+			. "WHERE UH.HASH = '" . $helper->forSql($hash, 32) . "' "
+			. "	AND '" . $helper->forSql($APPLICATION->GetCurPageParam("", [], true), 255) . "' LIKE " . $helper->getConcatFunction("UH.URL", "'%'");
 
 		if (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true)
 		{
-			$strSql .= " AND UH.SITE_ID = '".SITE_ID."'";
+			$strSql .= " AND UH.SITE_ID = '" . $helper->forSql(SITE_ID) . "'";
 		}
 
-		$result = $DB->Query($strSql);
-		if($hashData = $result->Fetch())
+		$result = $connection->query($strSql);
+		if($hashData = $result->fetch())
 		{
-			setSessionExpired($closeSession);
-
-			$this->Authorize($hashData["USER_ID"], $remember);
-
-			if ($delete)
+			// case sensitive
+			if ($hashData['HASH'] === $hash)
 			{
-				$DB->Query("DELETE FROM b_user_hit_auth WHERE ID = ".$hashData["ID"]);
-			}
-			else
-			{
-				$DB->Query("UPDATE b_user_hit_auth SET TIMESTAMP_X = ".$DB->GetNowFunction()." WHERE ID = ".$hashData["ID"]);
-			}
+				$doAuthorize = true;
 
-			return true;
+				if ($hashData['VALID_UNTIL'] instanceof Main\Type\DateTime)
+				{
+					if ((new Main\Type\DateTime())->getTimestamp() > $hashData['VALID_UNTIL']->getTimestamp())
+					{
+						$doAuthorize = false;
+					}
+				}
+
+				if ($doAuthorize)
+				{
+					setSessionExpired($closeSession);
+
+					$this->Authorize($hashData["USER_ID"], $remember);
+
+					if (!$delete)
+					{
+						$connection->query("UPDATE b_user_hit_auth SET TIMESTAMP_X = " . $helper->getCurrentDateTimeFunction() . " WHERE ID = ".$hashData["ID"]);
+					}
+				}
+
+				if ($delete || !$doAuthorize)
+				{
+					$connection->query("DELETE FROM b_user_hit_auth WHERE ID = ".$hashData["ID"]);
+				}
+
+				return $doAuthorize;
+			}
 		}
 
 		return false;
 	}
 
-	public static function AddHitAuthHash($url, $user_id = false, $site_id = false)
+	public static function AddHitAuthHash($url, $user_id = false, $site_id = false, $ttl = null)
 	{
 		global $USER, $DB;
 
 		if ($url == '')
+		{
 			return false;
+		}
 
 		if (!$user_id)
+		{
 			$user_id = $USER->GetID();
+		}
 
 		if (!$site_id && (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true))
+		{
 			$site_id = SITE_ID;
+		}
 
 		$hash = false;
 
 		if ($user_id)
 		{
-			$hash = Main\Security\Random::getString(32);
+			$hash = Main\Security\Random::getString(32, true);
+
 			$arFields = array(
 				'USER_ID' => $user_id,
 				'URL' => trim($url),
@@ -1176,6 +1205,12 @@ class CAllUser extends CDBResult
 				'SITE_ID' => trim($site_id),
 				'~TIMESTAMP_X' => $DB->CurrentTimeFunction(),
 			);
+
+			if ($ttl > 0)
+			{
+				$arFields['~VALID_UNTIL'] = Main\Application::getConnection()->getSqlHelper()->addSecondsToDateTime((int)$ttl);
+			}
+
 			$DB->Add("b_user_hit_auth", $arFields);
 		}
 
@@ -1184,35 +1219,52 @@ class CAllUser extends CDBResult
 
 	public static function GetHitAuthHash($url_mask, $userID = false, $siteId = null)
 	{
-		global $USER, $DB;
+		global $USER;
 
 		$url_mask = trim($url_mask);
 		if ($url_mask == '')
+		{
 			return false;
+		}
 
 		if (!$userID)
 		{
-			if (!$USER->IsAuthorized())
-				return false;
-			else
-				$userID = $USER->GetID();
+			$userID = $USER->GetID();
 		}
 
+		if ($userID <= 0)
+		{
+			return false;
+		}
+
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		$strSql = "
-			SELECT ID, HASH 
+			SELECT ID, HASH, VALID_UNTIL 
 			FROM b_user_hit_auth 
-			WHERE URL = '{$DB->ForSql($url_mask, 255)}' 
-				AND USER_ID = ".intval($userID);
+			WHERE URL = '{$helper->forSql($url_mask, 255)}' 
+				AND USER_ID = " . (int)$userID
+		;
 
 		if ($siteId !== null)
 		{
-			$strSql .= " AND SITE_ID = '{$DB->ForSql($siteId, 2)}'";
+			$strSql .= " AND SITE_ID = '{$helper->ForSql($siteId)}'";
 		}
 
-		$result = $DB->Query($strSql);
-		if($arTmp = $result->Fetch())
+		$result = $connection->query($strSql);
+		if($hashData = $result->fetch())
 		{
-			return $arTmp["HASH"];
+			if ($hashData['VALID_UNTIL'] instanceof Main\Type\DateTime)
+			{
+				if ((new Main\Type\DateTime())->getTimestamp() > $hashData['VALID_UNTIL']->getTimestamp())
+				{
+					$connection->query("DELETE FROM b_user_hit_auth WHERE ID = " . $hashData['ID']);
+					return false;
+				}
+			}
+
+			return $hashData["HASH"];
 		}
 
 		return false;

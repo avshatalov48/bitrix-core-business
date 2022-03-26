@@ -14,56 +14,8 @@ $MESS['LANDING_SIDEBAR_BUTTON_CRM_DEFAULT_VALUES'] = 'Значения поле�
 $MESS['LANDING_SIDEBAR_BUTTON_CRM_DEFAULT_ANALYTICS'] = 'Аналитика';
 $MESS['LANDING_SIDEBAR_BUTTON_CRM_EMBED'] = 'Размещение формы';
 $MESS['LANDING_SIDEBAR_BUTTON_CALLBACK'] = 'Обратный звонок';
+$MESS['LANDING_SIDEBAR_BUTTON_WHATSAPP'] = 'Обратный WhatsApp';
 $MESS['LANDING_SIDEBAR_BUTTON_OTHER'] = 'Другие настройки';
-
-
-$MESS['LANDING_FORM_SETTINGS_PRESET_CATEGORY_CRM'] = 'Работа с CRM';
-$MESS['LANDING_FORM_SETTINGS_PRESET_CATEGORY_SOCIAL'] = 'Синхронизация с социальными сетями';
-$MESS['LANDING_FORM_SETTINGS_PRESET_CATEGORY_CRM_AUTOMATION'] = 'Автозаполнение полей';
-
-$MESS['LANDING_FORM_SETTINGS_PRESET_CONTACTS'] = 'Контактные данные';
-$MESS['LANDING_FORM_SETTINGS_PRESET_CONTACTS_DESCRIPTION'] = 'Форма для сбора телефона и почты клиентов';
-$MESS['LANDING_FORM_SETTINGS_PRESET_CONTACTS_BUTTON'] = 'Отправить';
-$MESS['LANDING_FORM_SETTINGS_PRESET_CONTACTS_SUCCESS_TEXT'] = 'Спасибо, ваше сообщение отправлено.';
-$MESS['LANDING_FORM_SETTINGS_PRESET_CONTACTS_FAILURE_TEXT'] = 'Не удалось отправить сообщение. Повторите попытку позже.';
-
-$MESS['LANDING_FORM_SETTINGS_PRESET_FEEDBACK'] = 'Обратная связь';
-$MESS['LANDING_FORM_SETTINGS_PRESET_FEEDBACK_DESCRIPTION'] = 'Форма для сбора обратной связи клиентов';
-$MESS['LANDING_FORM_SETTINGS_PRESET_FEEDBACK_BUTTON'] = 'Отправить';
-$MESS['LANDING_FORM_SETTINGS_PRESET_FEEDBACK_SUCCESS_TEXT'] = 'Спасибо, ваше сообщение отправлено';
-$MESS['LANDING_FORM_SETTINGS_PRESET_FEEDBACK_FAILURE_TEXT'] = 'Не удалось отправить сообщение. Повторите попытку позже.';
-
-$MESS['LANDING_FORM_SETTINGS_PRESET_CALLBACK'] = 'Обратный звонок';
-$MESS['LANDING_FORM_SETTINGS_PRESET_CALLBACK_DESCRIPTION'] = 'Форма для запуска обратного звонка';
-$MESS['LANDING_FORM_SETTINGS_PRESET_CALLBACK_BUTTON'] = 'Жду звонка';
-$MESS['LANDING_FORM_SETTINGS_PRESET_CALLBACK_SUCCESS_TEXT'] = 'В ближайшие несколько секунд с вами свяжется менеджер.';
-$MESS['LANDING_FORM_SETTINGS_PRESET_CALLBACK_FAILURE_TEXT'] = 'Не удалось отправить сообщение. Повторите попытку позже.';
-
-$MESS['LANDING_FORM_SETTINGS_PRESET_EXPERT'] = 'Экспертный режим';
-$MESS['LANDING_FORM_SETTINGS_PRESET_EXPERT_DESCRIPTION'] = 'Все возможности для индивидуальной настройки';
-
-$MESS['LANDING_FORM_SETTINGS_PRESET_VK'] = 'VK Сбор заявок';
-$MESS['LANDING_FORM_SETTINGS_PRESET_VK_DESCRIPTION'] = 'Собирайте заявки из социальной сети VK';
-
-$MESS['LANDING_FORM_SETTINGS_PRESET_FB'] = 'Facebook Lead Ads';
-$MESS['LANDING_FORM_SETTINGS_PRESET_FB_DESCRIPTION'] = 'Собирайте заявки из социальной сети Facebook';
-
-$MESS['LANDING_FORM_SETTINGS_PRESET_PERSONALIZATION'] = 'Персонализированная';
-$MESS['LANDING_FORM_SETTINGS_PRESET_PERSONALIZATION_DESCRIPTION'] = 'Форма с заполненными контактами клиентов';
-
-$MESS['LANDING_FORM_SETTINGS_PRESET_CATEGORY_PRODUCTS_2'] = 'Продажа';
-
-$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_1'] = 'Товары без картинок';
-$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_1_DESCRIPTION'] = 'Товар, не требующий визуализации. Клиент выбирает по названию';
-
-$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_2'] = 'Товары с оплатой';
-$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_2_DESCRIPTION'] = 'Товар без визуализации. Клиент сразу оплачивает покупку';
-
-$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_3'] = 'Товары с картинками';
-$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_3_DESCRIPTION'] = 'Товар с картинкой. Название - главный критерий выбора';
-
-$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_4'] = 'Визуальные товары';
-$MESS['LANDING_FORM_SETTINGS_PRESET_PRODUCT_4_DESCRIPTION'] = 'Максимальная визуализация товара. Большие картинки';
 
 $MESS['LANDING_HEADER_AND_BUTTONS_TITLE'] = 'Заголовок и кнопка';
 $MESS['LANDING_HEADER_AND_BUTTONS_MESSAGE_HEADER'] = 'Сделайте форму персональной';
@@ -128,11 +80,14 @@ $MESS['LANDING_FORM_ACTIONS_TITLE'] = 'Действие после отправ�
 
 $MESS['LANDING_FORM_ACTIONS_TYPE_1'] = 'Сообщение';
 $MESS['LANDING_FORM_ACTIONS_TYPE_2'] = 'Редирект';
+$MESS['LANDING_FORM_ACTIONS_TYPE_3'] = 'Заполнить снова';
 
 $MESS['LANDING_FORM_ACTIONS_TYPE_DROPDOWN_TITLE'] = 'Выбрана возможность';
 
 $MESS['LANDING_FORM_ACTIONS_SUCCESS_FIELD_TITLE'] = 'При успешной отправке';
 $MESS['LANDING_FORM_ACTIONS_FAILURE_FIELD_TITLE'] = 'При неуспешной отправке';
+$MESS['LANDING_FORM_ACTIONS_REFILL_CAPTION_FIELD_TITLE'] = 'Текст на кнопке обратного заполнения';
+$MESS['LANDING_FORM_ACTIONS_REFILL_CAPTION'] = 'Заполнить еще раз';
 
 $MESS['LANDING_FORM_ACTIONS_CHECKBOX_TITLE'] = 'Показывать кнопку «Заполнить ещё раз»';
 
@@ -162,12 +117,8 @@ $MESS['LANDING_FORM_EMBED_TYPE_9'] = 'Использовать при обзво
 $MESS['LANDING_FORM_EMBED_TYPE_1_MESSAGE_TITLE'] = 'Разместите код в любой части вашего сайта.';
 $MESS['LANDING_FORM_EMBED_TYPE_1_MESSAGE_TEXT'] = 'Вставьте код на страницу, в том месте, где должна отображаться форма. Форма займет 100% ширины элемента, в который она вставлена.';
 
-$MESS['LANDING_FORM_EMBED_TYPE_3_MESSAGE_TITLE'] = 'Разместите код формы перед нужной кнопкой на&nbsp;вашем сайте.';
-$MESS['LANDING_FORM_EMBED_TYPE_3_MESSAGE_TEXT'] = 'Чтобы форма открывалась по&nbsp;клику на&nbsp;определенную кнопку, вставляйте код формы перед этой кнопкой. Если таких кнопок несколько, вставляйте код формы перед каждой такой кнопкой.';
-$MESS['LANDING_FORM_EMBED_TYPE_2_MESSAGE_TITLE'] = 'Разместите код формы перед нужной ссылкой на&nbsp;вашем сайте.';
-$MESS['LANDING_FORM_EMBED_TYPE_2_MESSAGE_TEXT'] = 'Чтобы форма открывалась по&nbsp;клику на&nbsp;определенную ссылку, вставляйте код формы перед этой ссылкой. Если таких ссылок несколько, вставляйте код формы перед каждой такой ссылкой.';
-
-
+$MESS['LANDING_FORM_EMBED_TYPE_3_MESSAGE_TITLE'] = 'Разместите код формы перед нужной кнопкой или ссылкой на вашем сайте.';
+$MESS['LANDING_FORM_EMBED_TYPE_3_MESSAGE_TEXT'] = 'Чтобы форма открывалась по клику на определенную кнопку, вставляйте код формы перед этой кнопкой. Если таких кнопок несколько, вставляйте код формы перед каждой такой кнопкой.';
 
 
 $MESS['LANDING_FORM_EMBED_COPY_BUTTON_LABEL'] = 'СКОПИРОВАТЬ КОД';
@@ -237,11 +188,11 @@ $MESS['LANDING_FORM_SETTINGS_DUPLICATES_MERGE'] = 'Объединять дубл
 $MESS['LANDING_FORM_SETTINGS_CATEGORIES_FIELD_TITLE'] = 'Направление сделки';
 $MESS['LANDING_FORM_SETTINGS_STAGES_FIELD_TITLE'] = 'Стадия сделки';
 
-$MESS['LANDING_FORM_SETTINGS_DEFAULT_VALUE_TITLE'] = 'Значения полей по умолчанию';
+$MESS['LANDING_FORM_SETTINGS_DEFAULT_VALUE_TITLE'] = 'Значения скрытых полей';
 $MESS['LANDING_FORM_SETTINGS_DEFAULT_VALUE_VALUE_FIELD_TITLE'] = 'Значение поля';
 $MESS['LANDING_FORM_SETTINGS_DEFAULT_VALUE_VALUE_FIELD_PLACEHOLDER'] = 'Не заполнено';
 $MESS['LANDING_FORM_SETTINGS_DEFAULT_VALUE_MESSAGE_TITLE'] = 'Заполняйте поля автоматически при отправке формы';
-$MESS['LANDING_FORM_SETTINGS_DEFAULT_VALUE_MESSAGE_DESCRIPTION'] = 'Выберите нужные вам поля CRM-сущностей и укажите их значение с помощью текста или тегов персонализации';
+$MESS['LANDING_FORM_SETTINGS_DEFAULT_VALUE_MESSAGE_DESCRIPTION'] = 'Вы можете создать невидимые для клиента поля в форме и автоматически заполнить их за клиента, если у вас есть эта информация.';
 
 $MESS['LANDING_FORM_SETTINGS_BLOCK_SETTINGS_BUTTON_TEXT'] = 'Настроить блок';
 $MESS['LANDING_SIDEBAR_BUTTON_FACEBOOK'] = 'Facebook Lead Ads';
@@ -255,13 +206,16 @@ $MESS['LANDING_FORM_SETTINGS_VK_BUTTON_ENABLED'] = 'Настроить';
 $MESS['LANDING_FORM_DEFAULT_VALUE_NOT_SELECTED'] = 'Не выбрано';
 
 $MESS['LANDING_FORM_SETTINGS_CALLBACK_TITLE'] = 'Обратный звонок';
+$MESS['LANDING_FORM_SETTINGS_WHATSAPP_TITLE'] = 'Обратный WhatsApp';
 $MESS['LANDING_FORM_SETTINGS_CALLBACK_USE_CHECKBOX_LABEL'] = 'Использовать как форму обратного звонка';
+$MESS['LANDING_FORM_SETTINGS_WHATSAPP_USE_CHECKBOX_LABEL'] = 'Ваш WhatsApp настроен и готов к использованию';
 $MESS['LANDING_FORM_SETTINGS_CALLBACK_PHONE_TITLE'] = 'Номер телефона';
 $MESS['LANDING_FORM_SETTINGS_CALLBACK_TEXT_TITLE'] = 'Текст, который будет произнесен ответственному перед началом звонка';
+$MESS['LANDING_FORM_SETTINGS_WHATSAPP_TEXT_TITLE'] = 'Текст, который будет отправлен';
 $MESS['LANDING_FORM_DEFAULT_PHONE_NOT_SELECTED'] = 'Не выбран';
 
 $MESS['LANDING_FORM_CALLBACK_WARNING_HEADER'] = 'Нет доступных номеров';
-$MESS['LANDING_FORM_CALLBACK_WARNING_TEXT'] = 'Для использования обратного звонка подключите номер в разделе <a href="/telephony/" class="landing-ui-component-link" target="_blank">Телефонии</a>.';
+$MESS['LANDING_FORM_CALLBACK_WARNING_TEXT'] = 'Для использования обратного звонка подключите номер в разделе <a href="/telephony/" target="_blank">Телефония</a>.';
 
 $MESS['LANDING_FORM_EMBED_SHOW_SETTINGS_DESCRIPTION'] = 'Обратите внимание! Настройки применятся только после сохранения';
 $MESS['LANDING_FORM_ACTIONS_DELAY_TITLE'] = 'Пауза перед редиректом';
@@ -278,9 +232,43 @@ $MESS['LANDING_SYNCHRONIZATION_POPUP_OK_BUTTON_LABEL'] = 'Продолжить';
 $MESS['LANDING_CRM_ACCESS_ERROR_MESSAGE'] = 'Недостаточно прав на редактирование CRM-формы. Отправьте запрос на доступ администратору портала.';
 $MESS['LANDING_CRM_FORM_USER'] = 'Ответственный';
 $MESS['LANDING_CRM_FORM_LANGUAGE'] = 'Язык';
+$MESS['LANDING_CRM_FORM_ID'] = 'Идентификатор формы';
 
 $MESS['LANDING_CRM_FORM_INTEGRATION_SEO_NOT_INSTALLED_HEADER'] = 'Модуль SEO не установлен';
 $MESS['LANDING_CRM_FORM_INTEGRATION_SEO_NOT_INSTALLED_FB_TEXT'] = 'Для корректной интеграции с «Facebook Lead Ads» необходимо установить модуль SEO';
 $MESS['LANDING_CRM_FORM_INTEGRATION_SEO_NOT_INSTALLED_VK_TEXT'] = 'Для корректной интеграции с «ВКонтакте» необходимо установить модуль SEO';
 
 $MESS['LANDING_CRM_FORM_MAIN_OPTION_WARNING'] = '<strong>Важно!</strong> Для корректной работы CRM-форм включите &laquo;Сохранять исходные имена загружаемых файлов&raquo; в&nbsp;настройках главного модуля.';
+
+$MESS['LANDING_RULE_GROUP_REMOVE_BUTTON_TITLE'] = 'Удалить правило';
+$MESS['LANDING_RULE_GROUP_ADD_FIELD_CONDITION'] = 'Добавить условие';
+$MESS['LANDING_RULE_ENTRY_HEADER'] = 'Если значение поля…';
+$MESS['LANDING_RULE_ENTRY_ADD_FIELD_LABEL'] = 'Выбрать поле';
+
+
+$MESS['LANDING_RULE_CONDITION_VALUE_EMPTY'] = 'Не указано';
+$MESS['LANDING_RULE_CONDITION_VALUE_YES'] = 'Да';
+$MESS['LANDING_RULE_CONDITION_VALUE_NO'] = 'Нет';
+
+$MESS['LANDING_RULE_TYPE_SEPARATOR_TYPE_1'] = '… или если';
+$MESS['LANDING_RULE_TYPE_SEPARATOR_TYPE_2'] = '… и если';
+
+$MESS['LANDING_RULE_EXPRESSION_FIELD_ACTION_LABEL'] = '…то';
+$MESS['LANDING_RULE_EXPRESSION_FIELD_ACTION_SHOW_LABEL'] = 'показать';
+$MESS['LANDING_RULE_EXPRESSION_FIELD_ACTION_HIDE_LABEL'] = 'скрыть';
+$MESS['LANDING_FORM_WHATSAPP_WARNING_HEADER'] = 'Требуется настройка';
+$MESS['LANDING_FORM_WHATSAPP_WARNING_TEXT'] = 'Для использования обратного WhatsApp необходимо подключить бизнес-аккаунт';
+$MESS['LANDING_FORM_SAVE_ERROR_ALERT_TITLE'] = 'Ошибка';
+$MESS['LANDING_FORM_SAVE_UNKNOWN_ERROR_ALERT_TEXT'] = 'При сохранении настроек произошла ошибка';
+$MESS['LANDING_FORM_EDITOR_SAVE_BUTTON_STATE_SAVED'] = 'Сохранено';
+$MESS['LANDING_FORM_SAVE_CAPTCHA_ALERT_TITLE'] = 'Внимание';
+$MESS['LANDING_FORM_SAVE_CAPTCHA_ALERT_TEXT_2'] = 'Защита от спама была отключена, т. к. не указаны ключи reCAPTCHA v2';
+$MESS['LANDING_FORM_SAVE_PERMISSION_DENIED'] = 'Недостаточно прав для сохранения настроек формы. Обратитесь к администратору портала.';
+$MESS['LANDING_ACTIONS_MESSAGE_HEADER_type1'] = 'Сообщение';
+$MESS['LANDING_ACTIONS_MESSAGE_DESCRIPTION_type1'] = 'Поблагодарите клиента за то, что он заполнил форму, или расскажите ему о правилах обработки заказа';
+$MESS['LANDING_ACTIONS_MESSAGE_HEADER_type2'] = 'Редирект';
+$MESS['LANDING_ACTIONS_MESSAGE_DESCRIPTION_type2'] = 'Укажите ссылку, чтобы после заполнения формы клиент перешел в ваш аккаунт в социальных сетях, промостраницу или на ваш основной сайт, если форма размещена на рекламном лендинге';
+$MESS['LANDING_ACTIONS_MESSAGE_HEADER_type3'] = 'Отправить снова';
+$MESS['LANDING_ACTIONS_MESSAGE_DESCRIPTION_type3'] = 'Менеджер, у которого нет доступа к CRM, может наполнять её с помощью кнопки «Заполнить снова». Форма автоматически очищает заполненные поля, поэтому старые данные не будут мешать вводу новых';
+
+$MESS['LANDING_FORM_EXPERT_MODE_SWITCHER_LABEL'] = 'Экспертный режим';

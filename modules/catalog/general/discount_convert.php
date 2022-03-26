@@ -56,7 +56,6 @@ class CCatalogDiscountConvert
 
 	public static function ConvertDiscount($intStep = 100, $intMaxExecutionTime = 15)
 	{
-		global $DBType;
 		global $DB;
 		global $APPLICATION;
 
@@ -72,20 +71,10 @@ class CCatalogDiscountConvert
 		$strQueryPriceTypes = '';
 		$strQueryUserGroups = '';
 		$strTableName = '';
-		switch (ToUpper($DBType))
-		{
-			case 'MYSQL':
-				$strQueryPriceTypes = 'select CATALOG_GROUP_ID from b_catalog_discount2cat where DISCOUNT_ID = #ID#';
-				$strQueryUserGroups = 'select GROUP_ID from b_catalog_discount2group where DISCOUNT_ID = #ID#';
-				$strTableName = 'b_catalog_discount';
-				break;
-			case 'MSSQL':
-			case 'ORACLE':
-				$strQueryPriceTypes = 'select CATALOG_GROUP_ID from B_CATALOG_DISCOUNT2CAT where DISCOUNT_ID = #ID#';
-				$strQueryUserGroups = 'select GROUP_ID from B_CATALOG_DISCOUNT2GROUP where DISCOUNT_ID = #ID#';
-				$strTableName = 'B_CATALOG_DISCOUNT';
-				break;
-		}
+
+		$strQueryPriceTypes = 'select CATALOG_GROUP_ID from b_catalog_discount2cat where DISCOUNT_ID = #ID#';
+		$strQueryUserGroups = 'select GROUP_ID from b_catalog_discount2group where DISCOUNT_ID = #ID#';
+		$strTableName = 'b_catalog_discount';
 
 		CTimeZone::Disable();
 
@@ -487,7 +476,6 @@ class CCatalogDiscountConvert
 
 	public static function ConvertFormatDiscount($intStep = 20, $intMaxExecutionTime = 15)
 	{
-		global $DBType;
 		global $DB;
 		global $APPLICATION;
 
@@ -500,17 +488,7 @@ class CCatalogDiscountConvert
 
 		$obDiscount = new CCatalogDiscount();
 
-		$strTableName = '';
-		switch (ToUpper($DBType))
-		{
-			case 'MYSQL':
-				$strTableName = 'b_catalog_discount';
-				break;
-			case 'MSSQL':
-			case 'ORACLE':
-				$strTableName = 'B_CATALOG_DISCOUNT';
-				break;
-		}
+		$strTableName = 'b_catalog_discount';
 
 		if (!CCatalogDiscountConvertTmp::CreateTable())
 		{
@@ -629,20 +607,10 @@ class CCatalogDiscountConvert
 
 	public static function GetCountOld()
 	{
-		global $DBType;
 		global $DB;
 
-		$strSql = '';
-		switch(ToUpper($DBType))
-		{
-			case 'MYSQL':
-				$strSql = "SELECT COUNT(*) CNT FROM b_catalog_discount WHERE TYPE=".CCatalogDiscount::ENTITY_ID." AND VERSION=".CCatalogDiscount::OLD_FORMAT;
-				break;
-			case 'MSSQL':
-			case 'ORACLE':
-				$strSql = "SELECT COUNT(*) CNT FROM B_CATALOG_DISCOUNT WHERE TYPE=".CCatalogDiscount::ENTITY_ID." AND VERSION=".CCatalogDiscount::OLD_FORMAT;
-				break;
-		}
+		$strSql = "SELECT COUNT(*) CNT FROM b_catalog_discount WHERE TYPE=".CCatalogDiscount::ENTITY_ID." AND VERSION=".CCatalogDiscount::OLD_FORMAT;
+
 		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		if (!$res)
 			return 0;

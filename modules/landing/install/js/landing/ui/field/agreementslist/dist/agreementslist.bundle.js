@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core,main_popup,landing_ui_field_basefield,ui_draganddrop_draggable,landing_ui_field_radiobuttonfield,landing_ui_form_formsettingsform,crm_form_client,landing_ui_component_listitem,landing_ui_component_actionpanel,main_core_events,main_loader,landing_backend) {
+(function (exports,main_core,main_popup,landing_ui_field_basefield,ui_draganddrop_draggable,landing_ui_field_radiobuttonfield,landing_ui_form_formsettingsform,crm_form_client,landing_ui_component_listitem,landing_ui_component_actionpanel,main_core_events,main_loader,landing_backend,landing_ui_panel_formsettingspanel) {
 	'use strict';
 
 	function _templateObject4() {
@@ -485,6 +485,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.loadAgreementsList().then(function (agreements) {
 	        _this9.setAgreementsList(agreements);
 
+	        landing_ui_panel_formsettingspanel.FormSettingsPanel.getInstance().setAgreements(agreements);
+
 	        var currentlyEdited = _this9.getCurrentlyEdited();
 
 	        if (currentlyEdited && currentlyEdited.id === 0) {
@@ -583,5 +585,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.AgreementsList = AgreementsList;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Main,BX.Landing.UI.Field,BX.UI.DragAndDrop,BX.Landing.UI.Field,BX.Landing.UI.Form,BX.Crm.Form,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Event,BX,BX.Landing));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Main,BX.Landing.UI.Field,BX.UI.DragAndDrop,BX.Landing.UI.Field,BX.Landing.UI.Form,BX.Crm.Form,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Event,BX,BX.Landing,BX.Landing.UI.Panel));
 //# sourceMappingURL=agreementslist.bundle.js.map

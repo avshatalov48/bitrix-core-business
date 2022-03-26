@@ -5,177 +5,64 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 /** @var \Bitrix\Bizproc\Activity\PropertiesDialog $dialog */
-/** @var $javascriptFunctions*/
-/** @var $arVariables */
-/** @var $arCurrentValues */
-/** @var $isAdmin */
+/** @var array $variables */
+/** @var array $constants */
+/** @var array $documentFields */
+/** @var array $currentValues */
+/** @var array $visibilityMessages */
 
-if ($isAdmin): ?>
+\Bitrix\Main\Page\Asset::getInstance()->addJs(getLocalPath('activities/bitrix/setglobalvariableactivity/script.js'));
+\Bitrix\Main\Page\Asset::getInstance()->addCss(getLocalPath('activities/bitrix/setglobalvariableactivity/setglobalvariableactivity.css'));
 
-	<div class="bizproc-automation-popup-settings bizproc-automation-popup-settings-text">
-		<a class="bizproc-automation-popup-settings-link" data-role="bp-sgva-variables-list">
-			<?= GetMessage('BIZPROC_AUTOMATION_SGVA_VARIABLE_LIST') ?>
-		</a>
-	</div>
-	<div id="bwfvc_addrow_table"></div>
-	<?= $javascriptFunctions ?>
-	<script>
-		BX.ready(function()
-		{
-			var documentType = <?= \Bitrix\Main\Web\Json::encode($dialog->getDocumentType()) ?>;
-			var globalVariables = <?= \Bitrix\Main\Web\Json::encode($arVariables) ?>;
-			var menuItems = [];
+//$formatName = \Bitrix\Main\Application::getInstance()->getContext()->getCulture()->getFormatName();
 
-			for (var fieldId in globalVariables)
-			{
-				menuItems.push({
-					text: BX.util.htmlspecialchars(globalVariables[fieldId]['Name']),
-					fieldId: fieldId,
-					onclick: function(e, item)
-					{
-						this.popupWindow.close();
-						BWFVCAddCondition(item.fieldId, '');
-					}
-				});
-			}
+foreach ($currentValues as $variable => $value)
+{
+	$parse = CBPActivity::parseExpression($variable);
+	if (!$parse)
+	{
+		continue;
+	}
+	$property = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getById($parse['field']);
+	if (!$property)
+	{
+		continue;
+	}
+	if ($property['Type'] === 'user')
+	{
+		$currentValues[$variable] = CBPHelper::UsersArrayToString(
+			$value,
+			null,
+			$dialog->getDocumentType()
+		);
+	}
+}
+?>
 
-			var onFieldsListSelectClick = function(e)
-			{
-				var menuId = 'bp-sgva-' + Math.random();
-				BX.Main.MenuManager.show(
-					menuId,
-					this,
-					menuItems,
-					{
-						autoHide: true,
-						offsetLeft: (BX.pos(this)['width'] / 2),
-						angle: { position: 'top', offset: 0 },
-						className: 'bizproc-automation-inline-selector-menu',
-						overlay: { backgroundColor: 'transparent' },
-						minHeight: 50,
-						minWidth: 100,
-						events:
-							{
-								onPopupClose: function()
-								{
-									this.destroy();
-								}
-							}
-					}
-				);
+<div id="bp_sgva_addrow_table"></div>
+<div class="bizproc-type-control-clone-btn setglobalvariableactivity-dashed-grey" id="bp_sgva_add_button"></div>
 
-				return BX.PreventDefault(e);
-			}
-			var variablesListSelect = document.querySelector('[data-role="bp-sgva-variables-list"]');
-			if (variablesListSelect)
-			{
-				BX.bind(variablesListSelect, 'click', onFieldsListSelectClick);
-			}
+<script>
+	BX.ready(function ()
+	{
+		BX.message(<?= \Bitrix\Main\Web\Json::encode(\Bitrix\Main\Localization\Loc::loadLanguageFile($dialog->getActivityFile())) ?>);
 
-			var bwfvc_counter = -1;
-			var addedFields = {};
+		var script = new BX.Bizproc.Activity.SetGlobalVariableActivity({
+			isRobot: true,
+			documentType: <?= CUtil::PhpToJSObject($dialog->getDocumentType()) ?>,
+			signedDocumentType: '<?= CUtil::JSEscape(CBPDocument::signDocumentType($dialog->getDocumentType())) ?>',
 
-			function BWFVCAddCondition(fieldId, val)
-			{
-				if (fieldId === '')
-				{
-					return;
-				}
+			variables: <?= CUtil::PhpToJSObject($variables) ?>,
+			constants: <?= CUtil::PhpToJSObject($constants) ?>,
+			documentFields: <?= CUtil::PhpToJSObject($documentFields) ?>,
 
-				var field = globalVariables[fieldId];
+			currentValues: <?= CUtil::PhpToJSObject($currentValues) ?>,
+			visibilityMessages:<?= CUtil::PhpToJSObject($visibilityMessages) ?>,
+			formName: '<?= CUtil::JSEscape($dialog->getFormName()) ?>',
 
-				if (addedFields[fieldId])
-				{
-					return;
-				}
-				addedFields[fieldId] = true;
-
-				var addrowTable = document.getElementById('bwfvc_addrow_table');
-
-				bwfvc_counter++;
-				var newRow = BX.create('div', {attrs: {className: 'bizproc-automation-popup-settings'}});
-				newRow.appendChild(BX.create('span', {
-					text: field.Name,
-					attrs: {
-						className: 'bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete'
-					}
-				}));
-
-				var inputHidden = BX.create('input', {props: {type: 'hidden'}});
-				inputHidden.name = 'global_variable_field_' + bwfvc_counter;
-				inputHidden.value = fieldId;
-				newRow.appendChild(inputHidden);
-
-				var controlWrapper = BX.create('div');
-				newRow.appendChild(controlWrapper);
-				BWFVCChangeFieldType(controlWrapper, fieldId, val);
-
-				var deleteButton = BX.create('a', {
-					attrs: {
-						className: 'bizproc-automation-popup-settings-delete bizproc-automation-popup-settings-link bizproc-automation-popup-settings-link-light'
-					},
-					props: {href: '#'},
-					events: {
-						click: BWFVCDeleteCondition.bind(newRow, fieldId)
-					},
-					text: '<?= GetMessageJS('BIZPROC_AUTOMATION_SGVA_DELETE') ?>'
-				});
-				newRow.appendChild(deleteButton);
-
-				addrowTable.appendChild(newRow);
-			}
-
-			function BWFVCChangeFieldType(controlWrapper, field, value)
-			{
-				var property = globalVariables[field];
-				if (!property)
-				{
-					return;
-				}
-
-				var node = BX.Bizproc.FieldType.renderControl(documentType, property, field, value);
-				if (node)
-				{
-					controlWrapper.appendChild(node);
-				}
-
-				return node;
-			}
-
-			function BWFVCDeleteCondition(fieldId, e)
-			{
-				BX.remove(this);
-				e.preventDefault();
-				delete addedFields[fieldId];
-			}
-
-			<?php
-			foreach ($arCurrentValues as $id => $value)
-			{
-				if (!array_key_exists($id, $arVariables))
-				{
-					continue;
-				}
-
-				if ($arVariables[$id]['Type'] === 'user')
-				{
-					$value = CBPHelper::UsersArrayToString($value, null, $dialog->getDocumentType());
-				}
-				?>
-				BWFVCAddCondition('<?= CUtil::JSEscape($id) ?>', <?= CUtil::PhpToJSObject($value) ?>);
-				<?php
-			}
-			if (count($arCurrentValues) <= 0)
-			{
-				$variableIds = array_keys($arVariables);
-				?>BWFVCAddCondition('<?= CUtil::JSEscape($variableIds[0]) ?>', '');
-			<?php
-			} ?>
+			addRowTable: document.getElementById('bp_sgva_addrow_table')
 		});
-	</script>
 
-<?php else: ?>
-	<div class="bizproc-automation-popup-settings-alert">
-		<?=GetMessage('BIZPROC_AUTOMATION_SGVA_ACCESS_DENIED')?>
-	</div>
-<?php endif ?>
+		script.init();
+	});
+</script>

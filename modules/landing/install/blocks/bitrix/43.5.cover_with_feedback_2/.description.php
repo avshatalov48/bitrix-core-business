@@ -24,11 +24,13 @@ return array(
 			'type' => 'img',
 			'allowInlineEdit' => false,
 			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-card-photo' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_43.5.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODECARDPHOTO'),
 			'type' => 'img',
 			'dimensions' => array('width' => 100, 'height' => 100),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-card-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_43.5.COVER_WITH_FEEDBACK_NODES_LANDINGBLOCKNODECARDTEXT'),

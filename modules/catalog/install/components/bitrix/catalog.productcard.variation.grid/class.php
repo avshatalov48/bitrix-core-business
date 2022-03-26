@@ -2,6 +2,9 @@
 
 use Bitrix\Catalog\Component\BaseForm;
 use Bitrix\Catalog\Component\GridVariationForm;
+use Bitrix\Catalog\Config\State;
+use Bitrix\Catalog\StoreProductTable;
+use Bitrix\Catalog\StoreTable;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Catalog\v2\Product\BaseProduct;
 use Bitrix\Main\Engine\Contract\Controllerable;
@@ -12,6 +15,7 @@ use Bitrix\Main\Grid\Panel\Snippet;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
+use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\UI\PageNavigation;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
@@ -26,11 +30,13 @@ class CatalogProductVariationGridComponent
 	use ErrorableImplementation;
 
 	public const HEADER_EMPTY_PROPERTY_COLUMN = 'EMPTY_PROPERTIES';
+	private const STORE_AMOUNT_POPUP_LIMIT = 4;
 
 	/** @var \Bitrix\Catalog\v2\Product\BaseProduct */
 	private $product;
 	/** @var \Bitrix\Catalog\Component\GridVariationForm */
 	private $defaultForm;
+	private $stores;
 
 	public function __construct($component = null)
 	{
@@ -186,13 +192,6 @@ class CatalogProductVariationGridComponent
 
 	protected function checkPermissions(): bool
 	{
-		if (!\Bitrix\Catalog\Config\State::isProductCardSliderEnabled())
-		{
-			$this->errorCollection[] = new \Bitrix\Main\Error('New product card feature disabled.');
-
-			return false;
-		}
-
 		return true;
 	}
 
@@ -347,6 +346,8 @@ class CatalogProductVariationGridComponent
 		$this->arResult['CAN_HAVE_SKU'] = $this->canHaveSku();
 		$this->arResult['PROPERTY_MODIFY_LINK'] = $this->getPropertyModifyLink();
 		$this->arResult['GRID'] = $this->getGridData();
+		$this->arResult['STORE_AMOUNT'] = $this->getStoreAmount();
+		$this->arResult['IS_SHOWED_STORE_RESERVE'] = \Bitrix\Catalog\Config\State::isShowedStoreReserve();
 	}
 
 	public function getGridId(): ?string
@@ -448,6 +449,13 @@ class CatalogProductVariationGridComponent
 			$item = $skuRowForm->getValues($sku->isNew());
 			$columns = $skuRowForm->getColumnValues($sku->isNew());
 
+			if (State::isUsedInventoryManagement())
+			{
+				$columns['SKU_GRID_QUANTITY'] = $this->getDomElementForPopupQuantity($columns['SKU_GRID_QUANTITY']);
+			}
+
+			$item['SKU_GRID_BARCODE_VALUES'] = $item['SKU_GRID_BARCODE'];
+			$item['SKU_GRID_BARCODE'] = '<div data-role="barcode-selector"></div>';
 			$actions = [];
 
 			if (!$sku->isSimple() && !$sku->isNew())
@@ -478,6 +486,11 @@ class CatalogProductVariationGridComponent
 		}
 
 		return $rows;
+	}
+
+	private function getDomElementForPopupQuantity($quantity): string
+	{
+		return '<a class="main-grid-cell-content-catalog-quantity-inventory-management">' . $quantity . '</a>';
 	}
 
 	protected function getGridEditData(array $rows): array
@@ -659,5 +672,79 @@ class CatalogProductVariationGridComponent
 				break;
 			}
 		}
+	}
+
+	private function getStoreAmount(): array
+	{
+		$storeAmount = [];
+		$skus = $this->getProduct()->getSkuCollection()->toArray();
+		foreach ($skus as $sku)
+		{
+			/** @var \Bitrix\Catalog\v2\Sku\BaseSku $sku */
+			$storeProducts = StoreProductTable::getList([
+				'select' => ['*', 'STORE.TITLE'],
+				'filter' => [
+					'=PRODUCT_ID' => $sku['ID'],
+					'=STORE.ACTIVE' => 'Y',
+					[
+						'LOGIC' => 'OR',
+						'!=AMOUNT' => '0',
+						'!=QUANTITY_RESERVED' => '0',
+					],
+				],
+				'order' => [
+					'STORE.SORT' => 'ASC'
+				],
+				'limit' => self::STORE_AMOUNT_POPUP_LIMIT,
+			])->fetchAll();
+
+			$storeAmount[$sku['ID']]['stores'] = [];
+			foreach ($storeProducts as $storeProduct)
+			{
+				$storeProduct['AMOUNT'] = (float)$storeProduct['AMOUNT'];
+				$storeProduct['QUANTITY_RESERVED'] = (float)$storeProduct['QUANTITY_RESERVED'];
+				$storeTitle = $storeProduct['CATALOG_STORE_PRODUCT_STORE_TITLE']
+					? HtmlFilter::encode($storeProduct['CATALOG_STORE_PRODUCT_STORE_TITLE'])
+					: Loc::getMessage('CATALOG_PRODUCT_CARD_GRID_STORE_AMOUNT_POPUP_STORE_TITLE_WITHOUT_NAME')
+				;
+				$storeAmount[$sku['ID']]['stores'][] = [
+					'title' => $storeTitle,
+					'quantityAvailable' => $storeProduct['AMOUNT'] - $storeProduct['QUANTITY_RESERVED'],
+					'quantityReserved' => $storeProduct['QUANTITY_RESERVED'],
+					'quantityCommon' => $storeProduct['AMOUNT'],
+				];
+			}
+
+			$storeAmount[$sku['ID']]['storesCount'] = $this->getStoresCount($sku['ID']);
+			$storeAmount[$sku['ID']]['linkToDetails'] =
+				$this->getStoresCount($sku['ID']) > self::STORE_AMOUNT_POPUP_LIMIT
+					? $this->getLinkToVariationStoreAmountDetails($sku['ID'])
+					: null
+			;
+		}
+
+		return $storeAmount;
+	}
+
+	private function getStoresCount($skuId): int
+	{
+		return StoreProductTable::getCount([
+			'=PRODUCT_ID' => $skuId,
+			'=STORE.ACTIVE' => 'Y',
+			[
+				'LOGIC' => 'OR',
+				'!=AMOUNT' => '0',
+				'!=QUANTITY_RESERVED' => '0',
+			],
+		]);
+	}
+
+	private function getLinkToVariationStoreAmountDetails(int $skuId): string
+	{
+		return str_replace(
+			['#IBLOCK_ID#', '#PRODUCT_ID#', '#VARIATION_ID#'],
+			[$this->getIblockId(), $this->getProductId(), $skuId],
+			$this->arParams['PATH_TO']['PRODUCT_STORE_AMOUNT_DETAILS_SLIDER'],
+		);
 	}
 }

@@ -4171,12 +4171,12 @@ REQ
 		self::$enableClearTagCache--;
 	}
 
-	public static function isEnabledClearTagCache()
+	public static function isEnabledClearTagCache(): bool
 	{
 		return (self::$enableClearTagCache >= 0);
 	}
 
-	public static function getDefaultJpegQuality()
+	public static function getDefaultJpegQuality(): int
 	{
 		$jpgQuality = (int)Main\Config\Option::get('main', 'image_resize_quality', '95');
 		if ($jpgQuality <= 0 || $jpgQuality > 100)
@@ -4184,7 +4184,7 @@ REQ
 		return $jpgQuality;
 	}
 
-	public static function checkActivityDatesAgent($iblockId, $previousTime)
+	public static function checkActivityDatesAgent($iblockId, $previousTime): string
 	{
 		$iblockId = (int)$iblockId;
 		if ($iblockId <= 0)
@@ -4246,6 +4246,36 @@ REQ
 		return array(
 			1 => \CIBlockRights::FULL_ACCESS,
 			2 => \CIBlockRights::PUBLIC_READ
+		);
+	}
+
+	public static function isUniqueElementCode(int $id): bool
+	{
+		if ($id <= 0)
+		{
+			return false;
+		}
+
+		$iblock = static::GetFields($id);
+
+		return (
+			isset($iblock['CODE']['DEFAULT_VALUE']['UNIQUE'])
+			&& $iblock['CODE']['DEFAULT_VALUE']['UNIQUE'] === 'Y'
+		);
+	}
+
+	public static function isUniqueSectionCode(int $id): bool
+	{
+		if ($id <= 0)
+		{
+			return false;
+		}
+
+		$iblock = static::GetFields($id);
+
+		return (
+			isset($iblock['SECTION_CODE']['DEFAULT_VALUE']['UNIQUE'])
+			&& $iblock['SECTION_CODE']['DEFAULT_VALUE']['UNIQUE'] === 'Y'
 		);
 	}
 }

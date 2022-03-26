@@ -1965,7 +1965,7 @@ class CUpdateClientPartner
 		CUpdateClientPartner::AddMessage2Log("Run updater '".$updaterName."'", "CSURUS1");
 
 		$updater = new CUpdater();
-		$updater->Init($updaterPath, $DBType, $updaterName, $updateDirFrom, $moduleID, US_CALL_TYPE);
+		$updater->Init($updaterPath, 'mysql', $updaterName, $updateDirFrom, $moduleID, US_CALL_TYPE);
 
 		$errorMessage = "";
 

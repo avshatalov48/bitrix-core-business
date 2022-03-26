@@ -12,6 +12,7 @@ $MESS["ACTION_BUTTON_ACTIONS_CUT"] = "Вырезать";
 $MESS["ACTION_BUTTON_ACTIONS_COPY"] = "Копировать";
 $MESS["ACTION_BUTTON_ACTIONS_PASTE"] = "Вставить";
 $MESS["ACTION_BUTTON_ACTIONS_REMOVE"] = "Удалить";
+$MESS["ACTION_BUTTON_EXPIRED"] = "Подписка истекла";
 $MESS["ACTION_BUTTON_STYLE"] = "Дизайн";
 $MESS["ACTION_BUTTON_CREATE"] = "добавить блок";
 $MESS["EDITOR_ACTION_REMOVE_FORMAT"] = "Очистить форматирование";
@@ -110,7 +111,9 @@ $MESS["LANDING_LINKS_CRM_PHONES_TITLE"] = "Телефоны";
 $MESS["LANDING_BLOCKS_LIST_FEEDBACK_BUTTON"] = "Обратная связь";
 $MESS["LANDING_BLOCKS_LIST_NEW_LABEL"] = "Новый";
 $MESS["LANDING_BLOCKS_ACTIONS_FEEDBACK_BUTTON"] = "Оставить замечание";
+$MESS["LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON"] = "Сохранить в список блоков";
 $MESS["LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK"] = "Суперблок";
+$MESS["LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK_NEW"] = "Новое";
 $MESS["LANDING_PANEL_FEEDBACK_TITLE"] = "Обратная связь";
 $MESS["LANDING_IMAGE_LIBRARY_PANEL_TITLE"] = "Вставить изображение";
 $MESS["LANDING_IMAGE_UNSPLASH_DESCRIPTION"] = "<a href=\"https://unsplash.com/\" rel=\"nofollow\" target=\"_blank\">Unsplash</a> - это сайт для поиска изображений. Перед использованием найденных фото или картинок для вашего сайта, рекомендуем ознакомиться с <a href=\"https://unsplash.com/terms\" rel=\"nofollow\" target=\"_blank\">лицензией и правилами</a> сервиса. ";
@@ -231,6 +234,12 @@ $MESS["LANDING_CONTENT_URL_MEDIA_HELP"] = "<p>Укажите ссылку на �
 //$MESS["LANDING_CONTENT_URL_MEDIA_HELP"] = "<p>Укажите ссылку на видео с Youtube, Vimeo, Vine или Instagram, и клик по этой ссылке откроет видео во всплывающем окне.</p><p>Укажите ссылку на карту с Google Maps, и клик по этой ссылке откроет карту во всплывающем окне.</p>";
 $MESS["LANDING_CONTENT_URL_MEDIA_HELP_TITLE"] = "Медиа-ссылки";
 $MESS["LANDING_BLOCKS_LIST_PREVIEW_NEW"] = "Новый";
+$MESS["LANDING_BLOCKS_LIST_PREVIEW_EXPIRED"] = "Подписка истекла";
+$MESS["LANDING_BLOCKS_LIST_PREVIEW_MARKET"] = "Маркет";
+$MESS["LANDING_BLOCKS_LIST_PREVIEW_MARKET_HINT"] = "Блок доступен по Подписке на Маркет";
+$MESS["LANDING_BLOCKS_LIST_PREVIEW_DELETE_MSG"] = "Вы уверены, что хотите удалить этот блок?";
+$MESS["LANDING_BLOCKS_LIST_PREVIEW_MY_NEW"] = "Мой";
+$MESS["LANDING_BLOCKS_LIST_PREVIEW_FAVORITE"] = "Сохранённый блок";
 
 $MESS["LANDING_ALERT_ACTION_CLOSE"] = "Закрыть";
 $MESS["LANDING_ALERT_ACTION_SUPPORT_LINK"] = "Написать в поддержку";
@@ -274,9 +283,12 @@ $MESS["LANDING_GOOGLE_FONT_PANEL_LANGUAGE_ARABIC"] = "Арабский";
 $MESS["LANDING_GOOGLE_FONT_PANEL_LANGUAGE_HEBREW"] = "Иврит";
 $MESS["LANDING_GOOGLE_FONT_PANEL_LANGUAGE_KOREAN"] = "Корейский";
 
+$MESS["LANDING_GOOGLE_FONT_SEARCH_TITLE"] = "Поиск";
+$MESS["LANDING_GOOGLE_FONT_SEARCH_PLACEHOLDER"] = "название шрифта";
+
 $MESS["LANDING_GOOGLE_FONT_PANEL_CATEGORY_FORM_TITLE"] = "Категория";
-$MESS["LANDING_GOOGLE_FONT_PANEL_CATEGORY_SANS_SERIF"] = "Гротеск";
-$MESS["LANDING_GOOGLE_FONT_PANEL_CATEGORY_SERIF"] = "Антиква";
+$MESS["LANDING_GOOGLE_FONT_PANEL_CATEGORY_SANS_SERIF_2"] = "Без засечек";
+$MESS["LANDING_GOOGLE_FONT_PANEL_CATEGORY_SERIF_2"] = "С засечками";
 $MESS["LANDING_GOOGLE_FONT_PANEL_CATEGORY_DISPLAY"] = "Декоративный";
 $MESS["LANDING_GOOGLE_FONT_PANEL_CATEGORY_HANDWRITING"] = "Рукописный";
 $MESS["LANDING_GOOGLE_FONT_PANEL_CATEGORY_MONOSPACE"] = "Моноширный";
@@ -379,6 +391,17 @@ $MESS['LANDING_CREATE_PAGE_PANEL_FIELD_PAGE_CODE'] = 'Код страницы';
 $MESS['LANDING_CREATE_PAGE_PANEL_SUCCESS_MESSAGE_TITLE'] = 'Страница создана';
 $MESS['LANDING_CREATE_PAGE_PANEL_FAIL_MESSAGE_TITLE'] = 'Не удалось создать страницу';
 
+$MESS['LANDING_SAVE_BLOCK_PANEL_TITLE'] = 'Сохранить в список блоков';
+$MESS['LANDING_SAVE_BLOCK_PANEL_FAIL_MESSAGE_TITLE'] = 'Не удалось сохранить блок';
+$MESS['LANDING_SAVE_BLOCK_PANEL_SUCCESS_MESSAGE_TITLE'] = 'Блок успешно сохранен';
+$MESS['LANDING_SAVE_BLOCK_PANEL_MESSAGE_TITLE'] = 'Сохранить как шаблон';
+$MESS['LANDING_SAVE_BLOCK_PANEL_MESSAGE_TEXT'] = 'Создавайте свои блоки и храните их в списке для быстрого использования на страницах своих сайтов.';
+$MESS['LANDING_SAVE_BLOCK_PANEL_FIELD_TITLE'] = 'Название блока';
+$MESS['LANDING_SAVE_BLOCK_PANEL_FIELD_SECTIONS'] = 'Разделы для блока';
+$MESS['LANDING_SAVE_BLOCK_PANEL_FIELD_TEMPLATE_REF'] = 'Привязать к текущему стилю';
+$MESS['LANDING_SAVE_BLOCK_PANEL_FIELD_PREVIEW'] = 'Превью блока';
+$MESS['LANDING_SAVE_BLOCK_PANEL_SUCCESS'] = 'Блок успешно сохранен.';
+
 
 $MESS['LANDING_BLOCK__DETAIL_PAGE_PANEL_TITLE'] = 'Детальная страница';
 $MESS['LANDING_BLOCK__DETAIL_PAGE_PANEL_TEMPLATES'] = 'Готовые решения';
@@ -400,3 +423,44 @@ $MESS['LANDING_DESIGN_BLOCK_REPO_BUTTON'] = 'Добавить элемент';
 $MESS['LANDING_DESIGN_BLOCK_REPO_TITLE'] = 'Добавить элемент';
 
 $MESS['LANDING_EDIT_BLOCK_DEFAULT_FONT'] = 'Вернуть шрифт по умолчанию';
+
+$MESS['LANDING_EDIT_NEED_PUBLICATION'] = 'Изменения в настройке вступят в силу сразу после публикации сайта';
+
+$MESS['LANDING_DROPDOWN_NOT_FILLED'] = 'Не выбрано';
+$MESS['LANDING_FORM_EDITOR_ADD_BLOCK_TOUR_STEP_1_TITLE'] = 'Добавление блоков';
+$MESS['LANDING_FORM_EDITOR_ADD_BLOCK_TOUR_STEP_1_TEXT'] = 'Сохраните изменения и закройте редактор, чтобы добавить блоки';
+$MESS['LANDING_FORM_EDITOR_FORM_DESIGN_TOUR_STEP_1_TITLE'] = 'Настройка дизайна';
+$MESS['LANDING_FORM_EDITOR_FORM_DESIGN_TOUR_STEP_1_TEXT'] = 'Сохраните изменения и закройте редактор, чтобы настроить дизайн';
+$MESS['LANDING_FORM_DESIGN_BUTTON'] = 'Настроить дизайн';
+
+// Table editor
+$MESS["LANDING_TITLE_OF_EDITOR_ACTION_CREATE_TABLE"] = "Создать таблицу";
+$MESS["LANDING_TITLE_OF_EDITOR_ACTION_PASTE_TABLE"] = "Вставить таблицу";
+$MESS["LANDING_TITLE_OF_EDITOR_ACTION_TABLE_CELL_BG"] = "Изменить цвет ячеек";
+$MESS["LANDING_TITLE_OF_EDITOR_ACTION_DELETE_ROW_TABLE"] = "Удалить строку";
+$MESS["LANDING_TITLE_OF_EDITOR_ACTION_DELETE_COL_TABLE"] = "Удалить столбец";
+$MESS["LANDING_TITLE_OF_EDITOR_ACTION_TABLE_STYLE"] = "Стиль таблицы";
+$MESS["LANDING_TITLE_OF_EDITOR_ACTION_TABLE_COPY"] = "Копировать таблицу";
+$MESS["LANDING_TITLE_OF_EDITOR_ACTION_TABLE_COPIED"] = "Таблица успешно скопирована.";
+$MESS["LANDING_TITLE_OF_EDITOR_ACTION_TABLE_NOT_COPIED"] = "Не удалось скопировать таблицу.";
+$MESS["LANDING_TITLE_OF_EDITOR_ACTION_TABLE_DELETE"] = "Удалить таблицу";
+$MESS["LANDING_TABLE_BUTTON_ADD_ROW"] = "Добавить строку";
+$MESS["LANDING_TABLE_BUTTON_ADD_COL"] = "Добавить столбец";
+$MESS["LANDING_TABLE_BUTTON_DELETE_TABLE"] = "Удалить таблицу";
+$MESS["LANDING_TABLE_STYLE_1"] = "Светлый";
+$MESS["LANDING_TABLE_STYLE_2"] = "Светлый с чередованием строк";
+$MESS["LANDING_TABLE_STYLE_3"] = "Светлый с чередованием столбцов";
+$MESS["LANDING_TABLE_STYLE_4"] = "Светлый с заглавной строкой";
+$MESS["LANDING_TABLE_STYLE_5"] = "Светлый с заглавной строкой и столбцом";
+$MESS["LANDING_TABLE_STYLE_6"] = "Темный";
+$MESS["LANDING_TABLE_STYLE_7"] = "Темный с чередованием строк";
+$MESS["LANDING_TABLE_STYLE_8"] = "Темный с чередованием столбцов";
+$MESS["LANDING_TABLE_STYLE_9"] = "Темный с заглавной строкой";
+$MESS["LANDING_TABLE_STYLE_10"] = "Темный с заглавной строкой и столбцом";
+$MESS["LANDING_TABLE_DND_ROWS"] = "Потяните для перемещения строки";
+$MESS["LANDING_TABLE_DND_COLS"] = "Потяните для перемещения столбца";
+$MESS["LANDING_TABLE_RESIZE_COLS"] = "Потяните для изменения ширины столбца";
+$MESS["LANDING_TABLE_SELECT_TABLE"] = "Выбрать всю таблицу";
+$MESS["LANDING_TABLE_BUTTON_CHANGE_TEXT"] = "Отредактировать текст";
+$MESS['LANDING_FONTS_PANEL_MORE_BUTTON_LABEL'] = 'Загрузить еще';
+$MESS['LANDING_FONTS_PANEL_EMPTY_STUB'] = 'Шрифты не найдены...';

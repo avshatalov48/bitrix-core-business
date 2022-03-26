@@ -30,6 +30,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_31_7_IMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 1254),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-read-more' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_31_7_READMORE'),

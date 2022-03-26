@@ -87,7 +87,7 @@ if ($detailUrl)
 					'SET_META_DESCRIPTION' => 'Y',
 					'META_DESCRIPTION' => '',
 					'BROWSER_TITLE' => '-',
-					'ADD_SECTIONS_CHAIN' => 'Y',
+					'ADD_SECTIONS_CHAIN' => 'N',
 					'SET_TITLE' => $classBlock->get('SET_TITLE'),
 					'ALLOW_SEO_DATA' => $classBlock->get('ALLOW_SEO_DATA'),
 					'SET_STATUS_404' => 'N',

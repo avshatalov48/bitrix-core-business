@@ -3,7 +3,6 @@
 use Bitrix\ImConnector\Library;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Web\Json;
-use Bitrix\MessageService\Internal\Entity\MessageTable;
 use Bitrix\MessageService\Sender\Sms\Ednaru;
 
 define("NOT_CHECK_PERMISSIONS", true);
@@ -31,30 +30,12 @@ if (
 if (isset($messageFields['dlvStatus']))
 {
 	$messageId = $messageFields['imOutMessageId'];
-	$messageStatus = Ednaru::resolveStatus($messageFields['dlvStatus']);
+	$externalStatus = (string)$messageFields['dlvStatus'];
 
-	if (is_null($messageStatus))
+	$message = \Bitrix\MessageService\Message::loadByExternalId(Ednaru::ID, $messageId);
+	if ($message && $externalStatus != '')
 	{
-		\Bitrix\Main\Application::getInstance()->terminate();
-	}
-
-	$message = MessageTable::getList([
-		'select' => ['ID'],
-		'filter' => [
-			'=SENDER_ID' => 'ednaru',
-			'=EXTERNAL_ID' => $messageId,
-		]
-	])->fetch();
-
-	if ($message)
-	{
-		MessageTable::update($message['ID'], ['STATUS_ID' => $messageStatus]);
-		$message['STATUS_ID'] = $messageStatus;
-
-		if (\Bitrix\MessageService\Integration\Pull::canUse())
-		{
-			\Bitrix\MessageService\Integration\Pull::onMessagesUpdate([$message]);
-		}
+		$message->updateStatusByExternalStatus($externalStatus);
 	}
 }
 else if (isset($messageFields['imSubject']))

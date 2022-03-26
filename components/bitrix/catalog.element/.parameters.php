@@ -1,4 +1,4 @@
-<?
+<?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var array $arCurrentValues */
 use Bitrix\Main\Config\Option,
@@ -716,7 +716,7 @@ if ($catalogIncluded)
 	$hiddenParam = 'N';
 	if (
 		(isset($arCurrentValues['COMPATIBLE_MODE']) && $arCurrentValues['COMPATIBLE_MODE'] === 'N')
-		|| ((string)Option::get('catalog', 'enable_viewed_products') === 'N')
+		|| (Option::get('catalog', 'enable_viewed_products') === 'N')
 	)
 	{
 		$hiddenParam = 'Y';

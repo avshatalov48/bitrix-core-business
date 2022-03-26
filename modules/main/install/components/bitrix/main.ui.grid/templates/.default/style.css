@@ -1870,7 +1870,7 @@ label.main-grid-checkbox {
 	display: block;
 	-webkit-box-sizing: border-box;
 	        box-sizing: border-box;
-	padding: 6px 20px 6px 28px;
+	padding: 6px 35px 6px 28px;
 	min-height: 33px;
 	width: auto;
 	height: auto;
@@ -2749,7 +2749,6 @@ label.main-grid-checkbox {
 }
 
 .main-grid-popup-window-buttons-wrapper {
-	position: -webkit-sticky;
 	position: sticky;
 	bottom: 0;
 	z-index: 9999;

@@ -1,5 +1,8 @@
 <?php
+
 namespace Bitrix\Bizproc\Automation\Engine;
+
+use Bitrix\Bizproc\Workflow\Template\SourceType;
 
 class Robot
 {
@@ -188,5 +191,60 @@ class Robot
 		.'_'.mt_rand(10000, 99999)
 		.'_'.mt_rand(10000, 99999)
 		.'_'.mt_rand(10000, 99999);
+	}
+
+	public function collectUsages(): array
+	{
+		\CBPActivity::IncludeActivityFile($this->getType());
+		try
+		{
+			$activity = \CBPActivity::createInstance($this->getType(), $this->getName());
+			if ($activity)
+			{
+				$activity->initializeFromArray($this->getProperties());
+
+				return $activity->collectUsages();
+			}
+		}
+		catch (\Exception $e)
+		{
+		}
+
+		return [];
+	}
+
+	public function hasBrokenLink(\Bitrix\Bizproc\Automation\Engine\Template $template): bool
+	{
+		$usages = $this->collectUsages();
+		if (!$usages)
+		{
+			return false;
+		}
+
+		$checkObjects = [
+			\Bitrix\Bizproc\Workflow\Template\SourceType::DocumentField,
+			\Bitrix\Bizproc\Workflow\Template\SourceType::GlobalConstant,
+			\Bitrix\Bizproc\Workflow\Template\SourceType::GlobalVariable,
+			\Bitrix\Bizproc\Workflow\Template\SourceType::Variable,
+			\Bitrix\Bizproc\Workflow\Template\SourceType::Constant,
+		];
+
+		foreach ($usages as $usage)
+		{
+			$object = $usage[0];
+			$field = $usage[1];
+
+			if (in_array($object, $checkObjects))
+			{
+				$property = $template->getProperty($object, $field);
+
+				if (!$property)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 }

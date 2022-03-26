@@ -1,12 +1,22 @@
 <?php
 
+$MESS["BIZPROC_AUTOMATION_CMP_SUBTITLE"] = "Роботы и триггеры";
 $MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_LIST"] = "Триггеры";
 $MESS["BIZPROC_AUTOMATION_CMP_ROBOT_LIST"] = "Роботы";
 $MESS["BIZPROC_AUTOMATION_CMP_PARAMETERS_LIST"] = "Параметры";
 $MESS["BIZPROC_AUTOMATION_CMP_CONSTANTS_LIST"] = "Константы";
+$MESS["BIZPROC_AUTOMATION_CMP_TEMPLATE_CONSTANTS_LIST"] = "Константы стадии";
 $MESS["BIZPROC_AUTOMATION_CMP_GLOB_CONSTANTS_LIST"] = "Глобальные константы";
 $MESS["BIZPROC_AUTOMATION_CMP_GLOB_VARIABLES_LIST"] = "Глобальные переменные";
+$MESS["BIZPROC_AUTOMATION_CMP_GLOB_VARIABLES_LIST_1"] = "Переменные";
 $MESS["BIZPROC_AUTOMATION_CMP_FILES_LINKS"] = "Ссылка на файл";
+$MESS["BIZPROC_AUTOMATION_CMP_ACTIONPANEL_CHOOSE_ALL"] = "выбрать всех в стадии";
+$MESS["BIZPROC_AUTOMATION_CMP_ACTIONPANEL_COPY"] = "копировать в";
+$MESS["BIZPROC_AUTOMATION_CMP_ACTIONPANEL_MOVE"] = "перенести в";
+$MESS["BIZPROC_AUTOMATION_CMP_ACTIONPANEL_DELETE"] = "удалить";
+$MESS["BIZPROC_AUTOMATION_CMP_ROBOTS_COPIED"] = "Роботы скопированы: #ACCEPTED_COUNT# из #TOTAL_COUNT#";
+$MESS["BIZPROC_AUTOMATION_CMP_ROBOTS_MOVED"] = "Роботы перемещены: #ACCEPTED_COUNT# из #TOTAL_COUNT#";
+$MESS["BIZPROC_AUTOMATION_CMP_ROBOTS_DELETED"] = "Роботы удалены: #ACCEPTED_COUNT# из #TOTAL_COUNT#";
 $MESS["BIZPROC_AUTOMATION_CMP_SAVE"] = "Сохранить";
 $MESS["BIZPROC_AUTOMATION_CMP_CANCEL"] = "Отмена";
 $MESS["BIZPROC_AUTOMATION_CMP_COPY"] = "копировать";
@@ -14,6 +24,7 @@ $MESS["BIZPROC_AUTOMATION_CMP_VIEW"] = "Просмотр";
 $MESS["BIZPROC_AUTOMATION_CMP_AUTOMATION_EDIT"] = "Настроить роботов";
 $MESS["BIZPROC_AUTOMATION_CMP_ADD"] = "добавить";
 $MESS["BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT"] = "Редактировать в дизайнере Бизнес-процессов";
+$MESS["BIZPROC_AUTOMATION_CMP_MANAGE_ROBOTS"] = "Копировать или перенести роботов";
 $MESS["BIZPROC_AUTOMATION_CMP_CONSTANTS_EDIT"] = "Настроить константы";
 $MESS["BIZPROC_AUTOMATION_CMP_PARAMETERS_EDIT"] = "Настроить параметры";
 $MESS["BIZPROC_AUTOMATION_CMP_TO_EXECUTE"] = "Выполнить";
@@ -63,7 +74,7 @@ $MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_ALLOW_REVERSE"] = "Разрешить пе
 $MESS["BIZPROC_AUTOMATION_CMP_ROBOT_NAME"] = "Название робота";
 $MESS["BIZPROC_AUTOMATION_CMP_USER_SELECTOR_TAB"] = "Документ";
 $MESS["BIZPROC_AUTOMATION_CMP_WEBHOOK_ID"] = "где {{ID}} - ID сущности";
-$MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_HELP_2"] = "Действие со стороны клиента, автоматизирующее движение по статусам. Как только сработает триггер, документ сразу перейдет на нужный статус, где сработают заданные роботы.";
+$MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_HELP_3"] = "Действие со стороны клиента, автоматизирующее движение по статусам. Как только сработает триггер, документ сразу перейдет на нужный статус, где сработают заданные роботы.";
 $MESS["BIZPROC_AUTOMATION_CMP_ROBOT_HELP"] = "Роботы позволят построить процесс работы с клиентом и в последующем помогать менеджерам идти по заданной цепочке, а также будут выполнять действия автоматически: отправлять письма, делать звонки и т.д. 
 
 Робот привязан к статусу. Документ переходит в конкретный статус - срабатывает робот. Для каждого робота можно указать время, в которое он сработает, а также указать действие: задача, уведомление, письмо, звонок и т.д.";
@@ -127,9 +138,23 @@ $MESS["BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_LOCKED"] = "Редактирован
 $MESS["BIZPROC_AUTOMATION_NOT_SELECTED"] = "[не установлено]";
 $MESS["BIZPROC_AUTOMATION_NO_FIELDS"] = "Нет подходящих полей";
 $MESS["BIZPROC_AUTOMATION_ROBOTS_LIMIT_ALERT_TITLE"] = "Внимание!";
-$MESS["BIZPROC_AUTOMATION_ROBOTS_LIMIT_MAIN_ALERT"] = "На Вашем тарифе установлено ограничение по количеству настраиваемых роботов и триггеров. Доступно <strong>#LIMIT#</strong> (суммарно)";
+$MESS["BIZPROC_AUTOMATION_ROBOTS_LIMIT_MAIN_ALERT"] = "На вашем тарифе установлено ограничение по количеству настраиваемых роботов и триггеров. Доступно <strong>#LIMIT#</strong> (суммарно)";
 $MESS["BIZPROC_AUTOMATION_ROBOTS_LIMIT_SAVE_ALERT"] = "На вашем тарифном плане доступно только <b>#LIMIT#</b> роботов и триггеров.<br><br> Сейчас у вас настроено: <b>#SUM#</b><br><br>Удалите часть роботов и попробуйте сохранить изменения снова.";
 $MESS["BIZPROC_AUTOMATION_CLOSE_CAPTION"] = "Закрыть";
 $MESS["BIZPROC_AUTOMATION_ASK_CONSTANT"] = "Настроить администратором перед запуском";
 $MESS["BIZPROC_AUTOMATION_ASK_PARAMETER"] = "Спрашивать при запуске";
 $MESS["BIZPROC_AUTOMATION_ASK_MANUAL"] = "Выбрать сейчас";
+$MESS["BIZPROC_AUTOMATION_CMP_GLOB_VAR_MENU"] = "Переменные";
+$MESS["BIZPROC_AUTOMATION_CMP_GLOB_CONST_MENU"] = "Константы";
+$MESS["BIZPROC_AUTOMATION_CMP_DEBUGGER"] = "Отладчик роботов";
+$MESS["BIZPROC_AUTOMATION_CMP_DEBUGGER_SOON"] = "Отладчик роботов находится в разработке и скоро будет доступен на вашем портале";
+$MESS["BIZPROC_AUTOMATION_CMP_CREATE"] = "Создать";
+$MESS["BIZPROC_AUTOMATION_CMP_CREATE_ROBOT"] = "Создать робота";
+$MESS["BIZPROC_AUTOMATION_CMP_CHANGE_ROBOT"] = "Сменить робота";
+$MESS["BIZPROC_AUTOMATION_CMP_CREATE_TRIGGER"] = "Создать триггер";
+$MESS["BIZPROC_AUTOMATION_CMP_CHANGE_TRIGGER"] = "Сменить триггер";
+$MESS["BIZPROC_AUTOMATION_CMP_SEARCH_PLACEHOLDER"] = "поиск";
+$MESS['BIZPROC_AUTOMATION_RIGHTS_ERROR'] = 'У вас недостаточно прав для редактирования роботов. Обратитесь к администратору вашего Битрикс24 или к сотруднику, который отвечает за CRM.';
+$MESS['BIZPOC_AUTOMATION_NO_ROBOT_SELECTED'] = 'Не выбрано ни одного робота';
+
+$MESS['BIZPROC_AUTOMATION_BROKEN_LINK_MESSAGE_ERROR'] = 'В роботе используются отсутствующие или недоступные поля/переменные/константы.';

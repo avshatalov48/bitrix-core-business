@@ -22,6 +22,7 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_19.2.FEATURES_WITH_IMG_RIGHT_NODES_LANDINGBLOCKNODEIMG'),
 			'type' => 'img',
 			'dimensions' => ['width' => 445],
+			'create2xByDefault' => false,
 		],
 		'.landing-block-node-subtitle' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_19.2.FEATURES_WITH_IMG_RIGHT_NODES_LANDINGBLOCKNODESUBTITLE'),

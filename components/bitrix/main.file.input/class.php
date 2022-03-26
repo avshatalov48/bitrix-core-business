@@ -2,6 +2,7 @@
 // ALLOW_UPLOAD = 'A'll files | 'I'mages | 'F'iles with selected extensions | 'N'one
 // ALLOW_UPLOAD_EXT = comma-separated list of allowed file extensions (ALLOW_UPLOAD='F')
 
+use Bitrix\Main\Event;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Application;
 use \Bitrix\Main\Web\Json;
@@ -73,6 +74,9 @@ class MFIComponent extends \CBitrixComponent
 					$this->arResult['FILES'][$file['ID']] = $file;
 				}
 			}
+
+			$event = new Event('main', 'main.file.input', [$this->arResult, $this->arParams]);
+			$event->send();
 
 			$this->includeComponentTemplate();
 			return $this->arParams['CONTROL_ID'];

@@ -192,6 +192,8 @@
 
 		sendRequest: function(data)
 		{
+			var loader = new BX.Loader({ target: this.container, mode: 'custom' });
+
 			var defaultData = {
 				siteId: this.siteId,
 				template: this.template,
@@ -203,6 +205,8 @@
 				defaultData.AJAX_ID = this.ajaxId;
 			}
 
+			loader.show();
+
 			BX.ajax({
 				url: this.componentPath + '/ajax.php' + (document.location.href.indexOf('clear_cache=Y') !== -1 ? '?clear_cache=Y' : ''),
 				method: 'POST',
@@ -210,6 +214,9 @@
 				timeout: 60,
 				data: BX.merge(defaultData, data),
 				onsuccess: BX.delegate(function(result){
+
+					loader.hide();
+
 					if (!result || !result.JS)
 						return;
 

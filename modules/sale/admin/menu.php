@@ -10,6 +10,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\EventManager;
+use Bitrix\Sale\ShopSitesController;
 
 IncludeModuleLangFile(__FILE__);
 $aMenu = array();
@@ -169,21 +170,7 @@ if ($APPLICATION->GetGroupRight("sale")!="D")
 		"items_id" => "update_system_market",
 	);
 
-	$hasShops = false;
-	$shops = [];
-	$siteIterator = \Bitrix\Main\SiteTable::getList([
-		'select' => ['LID', 'NAME', 'SORT'],
-		'order' => ['SORT' => 'ASC'],
-	]);
-	while ($site = $siteIterator->fetch())
-	{
-		$saleSite = \Bitrix\Main\Config\Option::get('sale', 'SHOP_SITE_'.$site['LID']);
-		if ($site['LID'] === $saleSite)
-		{
-			$hasShops = true;
-			break;
-		}
-	}
+	$hasShops = !empty(ShopSitesController::getShops());
 
 	if ($hasShops)
 	{
@@ -282,7 +269,10 @@ if ($APPLICATION->GetGroupRight("sale")!="D")
 				"sort" => 302,
 			];
 
-			if (\Bitrix\Sale\Cashbox\CheckManager::isAvailableCorrection())
+			if (
+				IsModuleInstalled('crm')
+				&& \Bitrix\Sale\Cashbox\CheckManager::isAvailableCorrection()
+			)
 			{
 				$arMenu["items"][] = [
 					"text" => GetMessage("SALE_CASHBOX_CHECK_CORRECTION"),

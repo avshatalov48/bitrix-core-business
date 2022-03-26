@@ -25,11 +25,11 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, BaseRestHandler);
 
-	    if (babelHelpers.typeof(params.controller) === 'object' && params.controller) {
+	    if (babelHelpers["typeof"](params.controller) === 'object' && params.controller) {
 	      this.controller = params.controller;
 	    }
 
-	    if (babelHelpers.typeof(params.store) === 'object' && params.store) {
+	    if (babelHelpers["typeof"](params.store) === 'object' && params.store) {
 	      this.store = params.store;
 	    }
 	  }
@@ -58,14 +58,9 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	  return BaseRestHandler;
 	}();
 
-	/**
-	 * Bitrix Messenger
-	 * Im rest answers (Rest Answer Handler)
-	 *
-	 * @package bitrix
-	 * @subpackage im
-	 * @copyright 2001-2019 Bitrix
-	 */
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 	var CoreRestHandler = /*#__PURE__*/function (_BaseRestHandler) {
 	  babelHelpers.inherits(CoreRestHandler, _BaseRestHandler);
@@ -220,7 +215,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	          }));
 	        }
 
-	        recent.push(babelHelpers.objectSpread({}, item, {
+	        recent.push(_objectSpread(_objectSpread({}, item), {}, {
 	          avatar: item.avatar.url,
 	          color: item.avatar.color,
 	          userId: userId,

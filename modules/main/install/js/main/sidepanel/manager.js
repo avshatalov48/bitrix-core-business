@@ -1431,6 +1431,11 @@ BX.SidePanel.Manager.prototype =
 			return;
 		}
 
+		if (BX.data(event.target, "slider-ignore-autobinding"))
+		{
+			return;
+		}
+
 		var rule = this.getUrlRule(link.url, link);
 
 		if (!this.isValidLink(rule, link))

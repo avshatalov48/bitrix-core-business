@@ -84,6 +84,7 @@ this.BX = this.BX || {};
 	    var _this = this;
 
 	    var nestingLevel = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+	    var systemDirs = arguments.length > 3 ? arguments[3] : undefined;
 	    babelHelpers.classCallCheck(this, Item);
 
 	    _count.set(this, {
@@ -132,10 +133,24 @@ this.BX = this.BX || {};
 	    });
 
 	    babelHelpers.classPrivateFieldSet(this, _path, directory['path']);
+	    var iconClass = 'default';
+
+	    if (systemDirs['inbox'] === babelHelpers.classPrivateFieldGet(this, _path)) {
+	      iconClass = 'inbox';
+	    } else if (systemDirs['spam'] === babelHelpers.classPrivateFieldGet(this, _path)) {
+	      iconClass = 'spam';
+	    } else if (systemDirs['outcome'] === babelHelpers.classPrivateFieldGet(this, _path)) {
+	      iconClass = 'outcome';
+	    } else if (systemDirs['trash'] === babelHelpers.classPrivateFieldGet(this, _path)) {
+	      iconClass = 'trash';
+	    } else if (systemDirs['drafts'] === babelHelpers.classPrivateFieldGet(this, _path)) {
+	      iconClass = 'drafts';
+	    }
+
 	    babelHelpers.classPrivateFieldSet(this, _nameOriginal, directory['name']);
 	    babelHelpers.classPrivateFieldSet(this, _name, babelHelpers.classPrivateFieldGet(this, _nameOriginal).charAt(0).toUpperCase() + babelHelpers.classPrivateFieldGet(this, _nameOriginal).slice(1));
-	    var itemContainer = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"mail-menu-directory-item-container\"></div>"])));
-	    var itemElement = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<li class=\"ui-sidepanel-menu-item ui-sidepanel-menu-counter-white\">\n\t\t\t\t<a style=\"padding-left: ", "px\" class=\"ui-sidepanel-menu-link\">\n\t\t\t\t\t<div class=\"ui-sidepanel-menu-link-text\">\n\t\t\t\t\t\t<span class=\"ui-sidepanel-menu-link-text-item\">", "</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t<span class=\"ui-sidepanel-menu-link-text-counter\">", "</span>\n\t\t\t\t</a>\n\t\t\t</li>"])), babelHelpers.classPrivateFieldGet(this, _zeroLevelShiftWidth) + babelHelpers.classPrivateFieldGet(this, _shiftWidthInPixels) * nestingLevel, babelHelpers.classPrivateFieldGet(this, _name), directory['count']);
+	    var itemContainer = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div title=\"", "\" class=\"mail-menu-directory-item-container\"></div>"])), babelHelpers.classPrivateFieldGet(this, _name));
+	    var itemElement = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<li class=\"ui-sidepanel-menu-item ui-sidepanel-menu-counter-white mail-menu-directory-item-", "\">\n\t\t\t\t<a style=\"padding-left: ", "px\" class=\"ui-sidepanel-menu-link\">\n\t\t\t\t\t<div class=\"ui-sidepanel-menu-link-text\">\n\t\t\t\t\t\t<span class=\"ui-sidepanel-menu-link-text-item\">", "</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t<span class=\"ui-sidepanel-menu-link-text-counter\">", "</span>\n\t\t\t\t</a>\n\t\t\t</li>"])), iconClass, babelHelpers.classPrivateFieldGet(this, _zeroLevelShiftWidth) + babelHelpers.classPrivateFieldGet(this, _shiftWidthInPixels) * nestingLevel, babelHelpers.classPrivateFieldGet(this, _name), directory['count']);
 	    itemContainer.append(itemElement);
 
 	    itemElement.onclick = function () {
@@ -169,6 +184,10 @@ this.BX = this.BX || {};
 	      return _this.isActive();
 	    };
 
+	    itemContainer.setIconClass = function (name) {
+	      return _this.setIconClass(name);
+	    };
+
 	    this.setCount(directory['count']);
 
 	    for (var i = 0; i < directory['items'].length; i++) {
@@ -176,7 +195,7 @@ this.BX = this.BX || {};
 	        continue;
 	      }
 
-	      var subdirectory = new Item(directory['items'][i], menu, nestingLevel + 1);
+	      var subdirectory = new Item(directory['items'][i], menu, nestingLevel + 1, systemDirs);
 	      itemContainer.append(subdirectory);
 	    }
 
@@ -199,9 +218,11 @@ this.BX = this.BX || {};
 
 	var _menu = /*#__PURE__*/new WeakMap();
 
-	var _dirsWithUnseenMailCounters = /*#__PURE__*/new WeakMap();
+	var _directoryCounters = /*#__PURE__*/new WeakMap();
 
 	var _items = /*#__PURE__*/new WeakMap();
+
+	var _systemDirs = /*#__PURE__*/new WeakMap();
 
 	var DirectoryMenu = /*#__PURE__*/function () {
 	  babelHelpers.createClass(DirectoryMenu, [{
@@ -234,7 +255,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "rebuildMenu",
 	    value: function rebuildMenu(dirsWithUnseenMailCounters) {
-	      babelHelpers.classPrivateFieldSet(this, _dirsWithUnseenMailCounters, dirsWithUnseenMailCounters);
+	      babelHelpers.classPrivateFieldSet(this, _directoryCounters, dirsWithUnseenMailCounters);
 	      this.cleanItems();
 	      this.buildMenu();
 	      this.setDirectory(this.getActiveDir());
@@ -272,17 +293,37 @@ this.BX = this.BX || {};
 	      this.setFilterDir(path);
 	    }
 	  }, {
+	    key: "checkDirectoryForExistence",
+	    value: function checkDirectoryForExistence(checkPath) {
+	      for (var i = 0; i < babelHelpers.classPrivateFieldGet(this, _directoryCounters).length; i++) {
+	        var directory = babelHelpers.classPrivateFieldGet(this, _directoryCounters)[i];
+	        var path = directory['path'];
+
+	        if (checkPath === path) {
+	          return true;
+	        }
+	      }
+
+	      return false;
+	    }
+	  }, {
 	    key: "buildMenu",
 	    value: function buildMenu() {
-	      for (var i = 0; i < babelHelpers.classPrivateFieldGet(this, _dirsWithUnseenMailCounters).length; i++) {
-	        var directory = babelHelpers.classPrivateFieldGet(this, _dirsWithUnseenMailCounters)[i];
+	      var firstBuild = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+	      for (var i = 0; i < babelHelpers.classPrivateFieldGet(this, _directoryCounters).length; i++) {
+	        var directory = babelHelpers.classPrivateFieldGet(this, _directoryCounters)[i];
 	        var path = directory['path'];
 
 	        if (!Item.checkProperties(directory)) {
 	          continue;
 	        }
 
-	        var itemElement = new Item(directory, this);
+	        if (babelHelpers.classPrivateFieldGet(this, _systemDirs)['inbox'] === path && firstBuild) {
+	          BX.Mail.Home.FilterToolbar.setCount(directory['count']);
+	        }
+
+	        new Item(directory, this, 0, babelHelpers.classPrivateFieldGet(this, _systemDirs));
 	      }
 	    }
 	  }, {
@@ -294,7 +335,7 @@ this.BX = this.BX || {};
 	        }
 	      });
 	      main_core_events.EventEmitter.emit('BX.DirectoryMenu:onChangeFilter', event);
-	      name = this.convertPathForFilter(name);
+	      name = BX.Mail.Home.Counters.getShortcut(name);
 	      var filter = this.filter;
 
 	      if (!!filter && filter instanceof BX.Main.Filter) {
@@ -327,27 +368,8 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }, {
-	    key: "convertPathForFilter",
-	    value: function convertPathForFilter(path) {
-	      if (path === 'INBOX' || path === undefined) {
-	        path = '';
-	      }
-
-	      return path;
-	    }
-	  }, {
-	    key: "convertPathForMenu",
-	    value: function convertPathForMenu(path) {
-	      if (path === '' || path === undefined) {
-	        path = 'INBOX';
-	      }
-
-	      return path;
-	    }
-	  }, {
 	    key: "setDirectory",
 	    value: function setDirectory(path) {
-	      path = this.convertPathForMenu(path);
 	      this.clearActiveMenuButtons();
 	      if (path === undefined) return;
 	      var item = babelHelpers.classPrivateFieldGet(this, _items).get(path);
@@ -364,7 +386,14 @@ this.BX = this.BX || {};
 
 	    var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
 	      dirsWithUnseenMailCounters: {},
-	      filterId: ''
+	      filterId: '',
+	      systemDirs: {
+	        spam: 'Spam',
+	        trash: 'Trash',
+	        outcome: 'Outcome',
+	        drafts: 'Drafts',
+	        inbox: 'Inbox'
+	      }
 	    };
 	    babelHelpers.classCallCheck(this, DirectoryMenu);
 
@@ -378,7 +407,7 @@ this.BX = this.BX || {};
 	      value: main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<ul class=\"ui-mail-left-directory-menu\"></ul>"])))
 	    });
 
-	    _dirsWithUnseenMailCounters.set(this, {
+	    _directoryCounters.set(this, {
 	      writable: true,
 	      value: new Map()
 	    });
@@ -388,21 +417,28 @@ this.BX = this.BX || {};
 	      value: new Map()
 	    });
 
-	    this.filter = BX.Main.filterManager.getById(config['filterId']);
-	    main_core_events.EventEmitter.subscribe('BX.Main.Filter:apply', function (event) {
-	      var dir = _this.filter.getFilterFieldsValues()['DIR'];
-
-	      dir = _this.convertPathForMenu(dir);
-	      main_core_events.EventEmitter.emit('BX.DirectoryMenu:onChangeFilter', new main_core_events.BaseEvent({
-	        data: {
-	          directory: dir
-	        }
-	      }));
-
-	      _this.setDirectory(dir);
+	    _systemDirs.set(this, {
+	      writable: true,
+	      value: []
 	    });
-	    babelHelpers.classPrivateFieldSet(this, _dirsWithUnseenMailCounters, config['dirsWithUnseenMailCounters']);
-	    this.buildMenu();
+
+	    this.filter = BX.Main.filterManager.getById(config['filterId']);
+	    babelHelpers.classPrivateFieldSet(this, _systemDirs, config['systemDirs']);
+	    main_core_events.EventEmitter.subscribe('BX.Main.Filter:apply', function (event) {
+	      var dir = BX.Mail.Home.Counters.getDirPath(_this.filter.getFilterFieldsValues()['DIR']);
+
+	      if (_this.checkDirectoryForExistence(dir)) {
+	        main_core_events.EventEmitter.emit('BX.DirectoryMenu:onChangeFilter', new main_core_events.BaseEvent({
+	          data: {
+	            directory: dir
+	          }
+	        }));
+
+	        _this.setDirectory(dir);
+	      }
+	    });
+	    babelHelpers.classPrivateFieldSet(this, _directoryCounters, config['dirsWithUnseenMailCounters']);
+	    this.buildMenu(true);
 	  }
 
 	  babelHelpers.createClass(DirectoryMenu, [{

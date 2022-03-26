@@ -58,7 +58,7 @@ final class Feature
 		self::MULTI_PRICE_TYPES => 'limit_shop_variable_prices',
 		self::EXTENDED_PRICES => 'limit_shop_variable_prices',
 		self::MULTI_WARENHOUSES => 'limit_shop_stocks',
-		self::INVENTORY_MANAGEMENT => 'limit_shop_inventory_management',
+		self::INVENTORY_MANAGEMENT => 'limit_store_inventory_management',
 		self::PRODUCT_LIMIT => 'limit_shop_products'
 	];
 
@@ -134,7 +134,7 @@ final class Feature
 	{
 		if (!self::isBitrix24())
 		{
-			return Option::get('catalog', 'catalog_common_product_processing', 'N') === 'Y';
+			return Option::get('catalog', 'catalog_common_product_processing') === 'Y';
 		}
 
 		return self::isFeatureEnabled(self::COMMON_PRODUCT_PROCESSING);

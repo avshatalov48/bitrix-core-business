@@ -29,8 +29,6 @@ return [
 			'METAMAIN_TITLE' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_SEDEBAR_TITLE"),
 			'METAMAIN_DESCRIPTION' => '',
 			'METAOG_TITLE' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_SEDEBAR_TITLE"),
-			'METAOG_DESCRIPTION' => '',
-			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/wiki-light/sidebar/preview.jpg',
 			'PIXELFB_USE' => 'N',
 			'GACOUNTER_USE' => 'N',
 			'GACOUNTER_SEND_CLICK' => 'N',

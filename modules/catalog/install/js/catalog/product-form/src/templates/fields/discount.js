@@ -32,7 +32,7 @@ Vue.component(config.templateFieldDiscount,
 				return;
 			}
 
-			let type = (Text.toNumber(params?.options?.type) === DiscountType.MONETARY) ?  DiscountType.MONETARY : DiscountType.PERCENTAGE;
+			const type = (Text.toNumber(params?.options?.type) === DiscountType.MONETARY) ?  DiscountType.MONETARY : DiscountType.PERCENTAGE;
 			this.$emit('changeDiscountType', type);
 
 			if (this.popupMenu)
@@ -42,7 +42,7 @@ Vue.component(config.templateFieldDiscount,
 		},
 		onChangeDiscount(event)
 		{
-			let discountValue = Text.toNumber(event.target.value) || 0;
+			const discountValue = Text.toNumber(event.target.value) || 0;
 			if (discountValue === Text.toNumber(this.discount) || !this.editable)
 			{
 				return;
@@ -94,7 +94,6 @@ Vue.component(config.templateFieldDiscount,
 			{
 				return Text.toNumber(this.discountRate);
 			}
-
 			return Text.toNumber(this.discount);
 		},
 		getDiscountSymbol()
@@ -109,6 +108,7 @@ Vue.component(config.templateFieldDiscount,
 					v-bind:class="{ 'catalog-pf-product-input--disabled': !editable }"
 					ref="discountInput" 
 					:value="getDiscountInputValue"
+					:v-model="discountRate"
 					@input="onInputDiscount"
 					placeholder="0"
 					:disabled="!editable">

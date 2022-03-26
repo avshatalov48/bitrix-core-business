@@ -35,7 +35,19 @@ class Tpl extends Entity\EO_WorkflowTemplate
 	public function collectUsages()
 	{
 		/** @var \CBPActivity $rootActivity */
-		$rootActivity = CBPWorkflowTemplateLoader::GetLoader()->LoadWorkflow($this->getId())[0];
+		if ($this->getId())
+		{
+			$rootActivity = CBPWorkflowTemplateLoader::GetLoader()->LoadWorkflow($this->getId())[0];
+		}
+		else
+		{
+			$rootActivity = CBPWorkflowTemplateLoader::GetLoader()->loadWorkflowFromArray([
+				'ID' => '0',
+				'TEMPLATE' => $this->getTemplate(),
+				'VARIABLES' => $this->getVariables(),
+				'PARAMETERS' => $this->getParameters(),
+			])[0];
+		}
 
 		$rootActivity->SetProperties($this->getParameters());
 		$rootActivity->SetVariablesTypes($this->getVariables());

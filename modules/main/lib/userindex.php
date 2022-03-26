@@ -22,9 +22,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_UserIndex_Query query()
- * @method static EO_UserIndex_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserIndex_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_UserIndex_Result getById($id)
- * @method static EO_UserIndex_Result getList(array $parameters = array())
+ * @method static EO_UserIndex_Result getList(array $parameters = [])
  * @method static EO_UserIndex_Entity getEntity()
  * @method static \Bitrix\Main\EO_UserIndex createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\EO_UserIndex_Collection createCollection()

@@ -33,7 +33,8 @@ class CrmContacts
 	protected static $status;
 
 	/**
-	 * Processing fonts in the block content.
+	 * @deprecated see \Bitrix\Landing\Connector\Crm::getContacts
+	 * Old processing of crm contacts.
 	 * @param Block $block Block instance.
 	 * @return void
 	 */

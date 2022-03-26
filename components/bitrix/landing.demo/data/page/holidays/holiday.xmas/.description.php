@@ -87,7 +87,7 @@ return [
 					0 => 'landing-block-node-card-img g-min-height-100vh g-flex-centered g-bg-cover g-bg-pos-center g-bg-img-hero g-bg-black-opacity-0_3--after',
 				],
 				'.landing-block-node-card-button' => [
-					0 => 'landing-block-node-card-button button-new-year btn btn-lg g-font-weight-700 g-font-size-12 text-uppercase g-rounded-50 g-px-45 g-py-15 g-height-45 g-color-white js-animation fadeInUp g-bg-blue',
+					0 => 'landing-block-node-card-button button-new-year btn btn-lg g-font-weight-700 g-font-size-12 text-uppercase g-rounded-50 g-px-45 g-py-15 g-height-45 g-color-white js-animation fadeInUp g-bg-primary',
 				],
 				'.landing-block-node-card-button-container' => [
 					0 => 'landing-block-node-card-button-container g-max-width-800 mx-auto',

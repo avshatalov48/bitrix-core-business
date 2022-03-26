@@ -344,11 +344,17 @@
 						}
 					}
 				},
-				buildNodes : function(items) {
+				buildNodes : function(items, type) {
+
+					if (!BX.Type.isStringFilled(type))
+					{
+						type = 'users';
+					}
+
 					var options = '',
 						html = '',
 						ii, c = 0,
-						user, existedUsers = [];
+						item, existedUsers = [];
 					for (ii = 0; ii < this.select.options.length; ii++)
 					{
 						existedUsers.push(this.select.options[ii].value.toString());
@@ -356,16 +362,21 @@
 					}
 					for (ii = 0; ii < Math.min((this.multiple ? items.length : 1), items.length); ii++)
 					{
-						user = items[ii];
-						if (BX.util.in_array(user["ID"], existedUsers))
+						item = items[ii];
+
+						if (BX.util.in_array(item["ID"], existedUsers))
 							continue;
-						options += '<option value="' + user["ID"] + '" selected>' + user["NAME"] + '</option>';
+						options += '<option value="' + item["ID"] + '" selected>' + item["NAME"] + '</option>';
 						html += ([
 							'<div class="mobile-grid-field-select-user-item-outer">',
 								'<div class="mobile-grid-field-select-user-item">',
-									(this.showDrop ? '<del id="' + this.select.id + '_del_' + user["ID"] + '"></del>' : ''),
-									'<div class="avatar"', (user["IMAGE"] ? ' style="background-image:url(\'' + user["IMAGE"] + '\')"' : ''), '></div>',
-									'<span onclick="BXMobileApp.PageManager.loadPageBlank({url: \'' +  this.urls.profile.replace("#ID#", user["ID"]) + '\',bx24ModernStyle : true});">' + user["NAME"] + '</span>',
+									(this.showDrop ? '<del id="' + this.select.id + '_del_' + item["ID"] + '"></del>' : ''),
+									'<div class="avatar"', (item["IMAGE"] ? ' style="background-image:url(\'' + item["IMAGE"] + '\')"' : ''), '></div>',
+									(
+										type === 'group'
+											? '<a class="mobile-grid-field-select-user-item-link" href="' +  this.urls.profile.replace("#ID#", item["ID"]) + '">' + item["NAME"] + '</a>'
+											: '<span onclick="BXMobileApp.PageManager.loadPageBlank({url: \'' +  this.urls.profile.replace("#ID#", item["ID"]) + '\',bx24ModernStyle : true});">' + item["NAME"] + '</span>'
+									),
 								'</div>',
 							'</div>'
 						].join('').replace(' style="background-image:url(\'\')"', ''));
@@ -398,7 +409,7 @@
 				},
 				callback : function(data) {
 					if (data && data.a_users)
-						this.buildNodes(data.a_users);
+						this.buildNodes(data.a_users, 'user');
 				}
 			};
 			return nodeSelectUser;
@@ -414,7 +425,7 @@
 			BX.extend(nodeSelectGroup, nodeSelectUser);
 			nodeSelectGroup.prototype.callback = function(data) {
 				if (data && data.b_groups)
-					this.buildNodes(data.b_groups);
+					this.buildNodes(data.b_groups, 'group');
 			};
 			return nodeSelectGroup;
 		})(),

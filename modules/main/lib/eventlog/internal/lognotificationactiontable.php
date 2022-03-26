@@ -20,9 +20,9 @@ use Bitrix\Main\Localization\Loc;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_LogNotificationAction_Query query()
- * @method static EO_LogNotificationAction_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_LogNotificationAction_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_LogNotificationAction_Result getById($id)
- * @method static EO_LogNotificationAction_Result getList(array $parameters = array())
+ * @method static EO_LogNotificationAction_Result getList(array $parameters = [])
  * @method static EO_LogNotificationAction_Entity getEntity()
  * @method static \Bitrix\Main\EventLog\Internal\EO_LogNotificationAction createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\EventLog\Internal\EO_LogNotificationAction_Collection createCollection()

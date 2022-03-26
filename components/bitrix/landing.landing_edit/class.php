@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Landing\Hook;
 use Bitrix\Landing\Hook\Page\Theme;
 use \Bitrix\Landing\Landing;
+use \Bitrix\Landing\Folder;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\TemplateRef;
@@ -258,6 +259,7 @@ class LandingEditComponent extends LandingBaseFormComponent
 			$this->checkParam('PAGE_URL_LANDINGS', '');
 			$this->checkParam('PAGE_URL_LANDING_VIEW', '');
 			$this->checkParam('PAGE_URL_SITE_EDIT', '');
+			$this->checkParam('PAGE_URL_FOLDER_EDIT', '');
 
 			\Bitrix\Landing\Site\Type::setScope(
 				$this->arParams['TYPE']
@@ -304,22 +306,16 @@ class LandingEditComponent extends LandingBaseFormComponent
 			}
 
 			// if current page in folder
-			$this->arResult['FOLDER'] = array();
-			if ($this->arResult['LANDING']['FOLDER_ID']['CURRENT'])
+			$this->arResult['FOLDER'] = [];// backward compatibility
+			$this->arResult['LAST_FOLDER'] = [];
+			$this->arResult['FOLDER_PATH'] = '';
+			if ($landing['FOLDER_ID']['CURRENT'])
 			{
-				$folderId = $this->arResult['LANDING']['FOLDER_ID']['CURRENT'];
-				$res = Landing::getList(array(
-					'select' => array(
-						'*'
-					),
-					'filter' => array(
-						'ID' => $folderId
-					)
-				));
-				if ($row = $res->fetch())
-				{
-					$this->arResult['FOLDER'] = $row;
-				}
+				$this->arResult['FOLDER_PATH'] = Folder::getFullPath(
+					$landing['FOLDER_ID']['CURRENT'],
+					$landing['SITE_ID']['CURRENT'],
+					$this->arResult['LAST_FOLDER']
+				);
 			}
 
 			$this->arResult['SITES'] = $sites = $this->getSites();
@@ -370,7 +366,7 @@ class LandingEditComponent extends LandingBaseFormComponent
 			$this->arResult['CURRENT_THEME'] = self::getCurrentTheme($this->arResult['HOOKS'], $this->arResult['COLORS']);
 			$this->arResult['SLIDER_CODE'] = Restriction\Hook::getRestrictionCodeByHookCode('THEME');
 			$this->arResult['ALLOWED_HOOK'] = Restriction\Manager::isAllowed($this->arResult['SLIDER_CODE']);
-			if (!$this->arResult['ALLOWED_HOOK'] && !(in_array(substr($this->arResult['CURRENT_THEME'], 1), $this->arResult['PREPARE_COLORS']['allColors'], true)))
+			if (!$this->arResult['ALLOWED_HOOK'] && !(in_array($this->arResult['CURRENT_THEME'], $this->arResult['PREPARE_COLORS']['allColors'], true)))
 			{
 				$this->arResult['LAST_CUSTOM_COLOR'] = $this->arResult['CURRENT_THEME'];
 				$this->arResult['CURRENT_THEME'] = self::DEFAULT_SITE_COLOR;

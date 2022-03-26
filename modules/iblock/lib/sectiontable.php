@@ -299,6 +299,11 @@ class SectionTable extends ORM\Data\DataManager
 	public static function onAfterDelete(Event $event)
 	{
 		// recount tree
-		\CIBlockSection::recountTreeOnDelete(['ID' => $event->getParameter('id')]);
+		$primary = $event->getParameter('id');
+		if (!is_array($primary))
+		{
+			$primary = ['ID' => $primary];
+		}
+		\CIBlockSection::recountTreeOnDelete($primary);
 	}
 }

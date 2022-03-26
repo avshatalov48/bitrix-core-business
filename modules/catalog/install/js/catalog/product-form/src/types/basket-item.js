@@ -15,5 +15,6 @@ export type BasketItem = {
 	discountSum: number,
 	detailUrl: string,
 	encodedFields?: string,
+	hasEditRights: boolean,
 	errors: Array<BasketItemError>,
 }

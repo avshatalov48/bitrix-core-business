@@ -4,85 +4,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,main_core,landing_ui_card_basecard,landing_loc) {
 	'use strict';
 
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-link ui-link-secondary ui-link-dashed landing-ui-card-read-more-link\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"ui-link ui-link-secondary ui-link-dashed landing-ui-card-read-more-link\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-link ui-link-secondary ui-link-dashed landing-ui-card-message-close-link\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card-message-actions\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"landing-ui-card-message-close-button\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t></div>\n\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card-message-description\">", "</div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card-message-title\">", "</div>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card-message-icon\" style=\"background-image: url(", ")\"></div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
+	var CONTEXT_WARNING = 'warning';
 	var MessageCard = /*#__PURE__*/function (_BaseCard) {
 	  babelHelpers.inherits(MessageCard, _BaseCard);
 
@@ -96,6 +19,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    main_core.Dom.addClass(_this.getLayout(), 'landing-ui-card-message');
 	    _this.onCloseClick = _this.onCloseClick.bind(babelHelpers.assertThisInitialized(_this));
+
+	    if (main_core.Type.isStringFilled(_this.options.context)) {
+	      switch (_this.options.context) {
+	        case CONTEXT_WARNING:
+	          main_core.Dom.addClass(_this.getLayout(), 'landing-ui-card-message-context-warning');
+	          break;
+	      }
+	    }
 
 	    if (_this.options.angle === false) {
 	      main_core.Dom.addClass(_this.getLayout(), 'landing-ui-card-message-without-angle');
@@ -142,7 +73,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('icon', function () {
-	        return main_core.Tag.render(_templateObject(), _this2.options.icon);
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card-message-icon\" style=\"background-image: url(", ")\"></div>\n\t\t\t"])), _this2.options.icon);
 	      });
 	    }
 	  }, {
@@ -151,7 +82,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('title', function () {
-	        return main_core.Tag.render(_templateObject2(), _this3.options.header);
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card-message-title\">", "</div>\n\t\t\t"])), _this3.options.header);
 	      });
 	    }
 	  }, {
@@ -160,7 +91,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this4 = this;
 
 	      return this.cache.remember('description', function () {
-	        return main_core.Tag.render(_templateObject3(), _this4.options.description);
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card-message-description\">", "</div>\n\t\t\t"])), _this4.options.description);
 	      });
 	    }
 	  }, {
@@ -169,7 +100,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this5 = this;
 
 	      return this.cache.remember('closeButton', function () {
-	        return main_core.Tag.render(_templateObject4(), _this5.onCloseClick, landing_loc.Loc.getMessage('LANDING_MESSAGE_CARD_HIDE'));
+	        return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"landing-ui-card-message-close-button\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t></div>\n\t\t\t"])), _this5.onCloseClick, landing_loc.Loc.getMessage('LANDING_MESSAGE_CARD_HIDE'));
 	      });
 	    }
 	  }, {
@@ -188,7 +119,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this6 = this;
 
 	      return this.cache.remember('actionsContainer', function () {
-	        return main_core.Tag.render(_templateObject5(), _this6.options.closeable !== false ? _this6.getCloseLink() : '', _this6.options.more ? _this6.getReedMoreLink() : '');
+	        return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-card-message-actions\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this6.options.closeable !== false ? _this6.getCloseLink() : '', _this6.options.more ? _this6.getReedMoreLink() : '');
 	      });
 	    }
 	  }, {
@@ -197,7 +128,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this7 = this;
 
 	      return this.cache.remember('closeLink', function () {
-	        return main_core.Tag.render(_templateObject6(), _this7.onCloseClick, landing_loc.Loc.getMessage('LANDING_MESSAGE_CARD_HIDE'));
+	        return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-link ui-link-secondary ui-link-dashed landing-ui-card-message-close-link\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), _this7.onCloseClick, landing_loc.Loc.getMessage('LANDING_MESSAGE_CARD_HIDE'));
 	      });
 	    }
 	  }, {
@@ -207,10 +138,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	      return this.cache.remember('readMoreButton', function () {
 	        if (main_core.Type.isStringFilled(_this8.options.more)) {
-	          return main_core.Tag.render(_templateObject7(), main_core.Text.encode(_this8.options.more), landing_loc.Loc.getMessage('LANDING_MESSAGE_CARD_READ_MORE'));
+	          return main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<a href=\"", "\" target=\"_blank\" class=\"ui-link ui-link-secondary ui-link-dashed landing-ui-card-read-more-link\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</a>\n\t\t\t\t"])), main_core.Text.encode(_this8.options.more), landing_loc.Loc.getMessage('LANDING_MESSAGE_CARD_READ_MORE'));
 	        }
 
-	        return main_core.Tag.render(_templateObject8(), _this8.options.more, landing_loc.Loc.getMessage('LANDING_MESSAGE_CARD_READ_MORE'));
+	        return main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-link ui-link-secondary ui-link-dashed landing-ui-card-read-more-link\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), _this8.options.more, landing_loc.Loc.getMessage('LANDING_MESSAGE_CARD_READ_MORE'));
 	      });
 	    }
 	  }, {

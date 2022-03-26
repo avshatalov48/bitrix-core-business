@@ -68,11 +68,7 @@ class Base extends Controller
 			$internalizer = new Internalizer(
 				$this->getViewManager()
 			);
-			$internalizer->setFormat([
-				ModificationFieldsBase::TO_WHITE_LIST,
-				ModificationFieldsBase::TO_SNAKE ,
-				ModificationFieldsBase::CHECK_REQUIRED
-			]);
+
 			$r = $internalizer->process();
 
 			if($r->isSuccess())
@@ -111,12 +107,6 @@ class Base extends Controller
 
 			if($externalizer instanceof ModificationFieldsBase)
 			{
-				$externalizer->setFormat([
-					ModificationFieldsBase::TO_WHITE_LIST,
-					ModificationFieldsBase::TO_CAMEL,
-					ModificationFieldsBase::SORTING_KEYS
-				]);
-
 				if($this->getScope() == Engine\Controller::SCOPE_REST)
 				{
 					return $result instanceof Engine\Response\DataType\Page ?

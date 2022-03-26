@@ -6,6 +6,8 @@ namespace Bitrix\Sale\Rest\Entity;
 
 use Bitrix\Main\Error;
 use Bitrix\Sale\Rest\Attributes;
+use Bitrix\Sale\Rest\View\PropertyValue;
+use Bitrix\Sale\Rest\View\TradeBinding;
 use Bitrix\Sale\Result;
 
 class Order extends Base
@@ -386,8 +388,8 @@ class Order extends Base
 		$payment = new \Bitrix\Sale\Rest\Entity\Payment();
 		$shipment = new \Bitrix\Sale\Rest\Entity\Shipment();
 		$shipmentItem = new \Bitrix\Sale\Rest\Entity\ShipmentItem();
-		$tradeBinding = new \Bitrix\Sale\Rest\Entity\TradeBinding();
-		$propertyValue = new \Bitrix\Sale\Rest\Entity\PropertyValue();
+		$tradeBinding = new TradeBinding();
+		$propertyValue = new PropertyValue();
 		$basketProperties = new \Bitrix\Sale\Rest\Entity\BasketProperties();
 
 		$result = parent::externalizeFields($fields);

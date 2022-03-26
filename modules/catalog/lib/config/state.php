@@ -48,6 +48,32 @@ final class State
 	}
 
 	/**
+	 * Returns true if used store quantity reserve.
+	 *
+	 * @return bool
+	 */
+	public static function isShowedStoreReserve(): bool
+	{
+		if (!self::isUsedInventoryManagement())
+		{
+			return false;
+		}
+		if (
+			Main\Config\Option::get('catalog', 'enable_reservation') === 'Y'
+			&& Main\Config\Option::get('catalog', 'show_store_reserve') === 'Y'
+		)
+		{
+			return true;
+		}
+		if (self::isCrmIncluded())
+		{
+			return (Main\Config\Option::get('crm', 'enable_order_deal_create') === 'Y');
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns true if the limit on the number of price types is exceeded.
 	 *
 	 * @return bool
@@ -627,11 +653,7 @@ final class State
 	private static function getCrmCatalogId(): ?int
 	{
 		$result = null;
-		if (self::$crmIncluded === null)
-		{
-			self::$crmIncluded = Loader::includeModule('crm');
-		}
-		if (self::$crmIncluded)
+		if (self::isCrmIncluded())
 		{
 			$result = Crm\Product\Catalog::getDefaultId();
 		}
@@ -645,16 +667,27 @@ final class State
 	 */
 	private static function getCrmCatalogLimit(int $iblockId): ?array
 	{
-		if (self::$crmIncluded === null)
-		{
-			self::$crmIncluded = Loader::includeModule('crm');
-		}
-		if (!self::$crmIncluded)
+		if (!self::isCrmIncluded())
 		{
 			return null;
 		}
 
 		return Crm\Config\State::getExceedingProductLimit($iblockId);
+	}
+
+	/**
+	 * Returns true if crm exists.
+	 *
+	 * @return bool
+	 */
+	private static function isCrmIncluded(): bool
+	{
+		if (self::$crmIncluded === null)
+		{
+			self::$crmIncluded = Loader::includeModule('crm');
+		}
+
+		return self::$crmIncluded;
 	}
 
 	/**

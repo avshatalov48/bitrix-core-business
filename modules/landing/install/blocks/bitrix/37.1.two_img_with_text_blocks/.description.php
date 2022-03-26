@@ -25,6 +25,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_37.1.TWO_IMG_WITH_TEXT_BLOCKS_NODES_LANDINGBLOCKNODE_IMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 540),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-button' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_37.1.TWO_IMG_WITH_TEXT_BLOCKS_NODES_LANDINGBLOCKNODEBUTTON'),

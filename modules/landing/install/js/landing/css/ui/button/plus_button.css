@@ -1,17 +1,17 @@
 .landing-ui-button-plus {
-	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font-family: 'OpenSans-Semibold', Helvetica, Arial, sans-serif;
 	font-size: 12px;
 	text-transform: uppercase;
-	background: rgba(51, 51, 51, .60);
-	border: 1px solid rgba(255, 255, 255, .67);
+	background: #d1f066;
+	border: 1px #85af00 solid;
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	height: 33px;
-	border-radius: 33px;
-	line-height: 31px;
+	height: 36px;
+	border-radius: 36px;
+	line-height: 34px;
 	padding: 0 22px 0 38px;
-	color: #ffffff;
+	color: #333333;
 	-webkit-font-smoothing: antialiased;
 	-webkit-transform: translate3d(-50%, -50%, 0);
 	-moz-transform: translate3d(-50%, -50%, 0);
@@ -23,11 +23,11 @@
 }
 
 .landing-ui-button-plus:hover {
-	background: #000000;
+	background: #b3e600;
 }
 
 .landing-ui-button-plus::before {
-	background: url(data:image/svg+xml,%0A%3Csvg%20width%3D%2213px%22%20height%3D%2213px%22%20viewBox%3D%220%200%2013%2013%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20xmlns%3Axlink%3D%22http%3A//www.w3.org/1999/xlink%22%3E%0A%20%20%20%20%3C%21--%20Generator%3A%20Sketch%2047%20%2845396%29%20-%20http%3A//www.bohemiancoding.com/sketch%20--%3E%0A%20%20%20%20%3Cdesc%3ECreated%20with%20Sketch.%3C/desc%3E%0A%20%20%20%20%3Cdefs%3E%3C/defs%3E%0A%20%20%20%20%3Cg%20id%3D%22Page-1%22%20stroke%3D%22none%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%0A%20%20%20%20%20%20%20%20%3Cg%20id%3D%22%u0420%u0435%u0434%u0430%u043A%u0442%u0438%u0440%u043E%u0432%u0430%u043D%u0438%u0435-Copy%22%20transform%3D%22translate%28-739.000000%2C%20-784.000000%29%22%20fill%3D%22%23FFFFFF%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22Group-14%22%20transform%3D%22translate%280.000000%2C%20774.000000%29%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M747%2C15%20L747%2C10%20L744%2C10%20L744%2C15%20L739%2C15%20L739%2C18%20L744%2C18%20L744%2C23%20L747%2C23%20L747%2C18%20L752%2C18%20L752%2C15%20L747%2C15%20Z%22%20id%3D%22Combined-Shape%22%3E%3C/path%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%3C/g%3E%0A%3C/svg%3E);
+	background: url(data:image/svg+xml,%0A%3Csvg%20width%3D%2213px%22%20height%3D%2213px%22%20viewBox%3D%220%200%2013%2013%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20xmlns%3Axlink%3D%22http%3A//www.w3.org/1999/xlink%22%3E%0A%20%20%20%20%3C%21--%20Generator%3A%20Sketch%2047%20%2845396%29%20-%20http%3A//www.bohemiancoding.com/sketch%20--%3E%0A%20%20%20%20%3Cdesc%3ECreated%20with%20Sketch.%3C/desc%3E%0A%20%20%20%20%3Cdefs%3E%3C/defs%3E%0A%20%20%20%20%3Cg%20id%3D%22Page-1%22%20stroke%3D%22none%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%0A%20%20%20%20%20%20%20%20%3Cg%20id%3D%22%u0420%u0435%u0434%u0430%u043A%u0442%u0438%u0440%u043E%u0432%u0430%u043D%u0438%u0435-Copy%22%20transform%3D%22translate%28-739.000000%2C%20-784.000000%29%22%20fill%3D%22%23333333%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22Group-14%22%20transform%3D%22translate%280.000000%2C%20774.000000%29%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M747%2C15%20L747%2C10%20L744%2C10%20L744%2C15%20L739%2C15%20L739%2C18%20L744%2C18%20L744%2C23%20L747%2C23%20L747%2C18%20L752%2C18%20L752%2C15%20L747%2C15%20Z%22%20id%3D%22Combined-Shape%22%3E%3C/path%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%3C/g%3E%0A%3C/svg%3E);
 	background-size: 100%;
 	position: absolute;
 	content: '';

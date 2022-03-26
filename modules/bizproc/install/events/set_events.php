@@ -9,14 +9,14 @@ while ($arLang = $dbLangs->Fetch())
 	$et->Add(array(
 		"LID" => $lid,
 		"EVENT_NAME" => "BIZPROC_MAIL_TEMPLATE",
-		"NAME" => GetMessage("BIZPROC_MAIL_TEMPLATE_NAME"),
+		"NAME" => GetMessage("BIZPROC_MAIL_TEMPLATE_NAME_1"),
 		"DESCRIPTION" => GetMessage("BIZPROC_MAIL_TEMPLATE_DESC"),
 	));
 
 	$et->Add(array(
 		"LID" => $lid,
 		"EVENT_NAME" => "BIZPROC_HTML_MAIL_TEMPLATE",
-		"NAME" => GetMessage("BIZPROC_HTML_MAIL_TEMPLATE_NAME"),
+		"NAME" => GetMessage("BIZPROC_HTML_MAIL_TEMPLATE_NAME_1"),
 		"DESCRIPTION" => GetMessage("BIZPROC_MAIL_TEMPLATE_DESC"),
 	));
 

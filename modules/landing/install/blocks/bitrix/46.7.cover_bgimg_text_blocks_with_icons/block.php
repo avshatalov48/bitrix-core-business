@@ -1,5 +1,5 @@
 <section class="landing-block">
-	<div class="landing-block-node-bgimg g-height-100vh u-bg-overlay g-flex-centered g-bg-img-hero g-bg-black-opacity-0_2--after g-mb-minus-140"
+	<div class="landing-block-node-bgimg g-min-height-100vh u-bg-overlay g-flex-centered g-bg-img-hero g-bg-black-opacity-0_2--after"
 		 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1080/img6.jpg);">
 		<div class="u-bg-overlay__inner w-100">
 			<div class="container g-pos-rel g-z-index-1 g-mt-50--md">
@@ -75,7 +75,7 @@
 			</div>
 		</div>
 	</div>
-	<svg class="g-pos-rel" version="1.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
+	<svg class="g-pos-rel g-mt-minus-110" version="1.1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
 		 xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="140px" viewBox="20 -20 300 100">
 		<path d="M30.913,43.944c0,0,42.911-34.464,87.51-14.191c77.31,35.14,113.304-1.952,146.638-4.729
       c48.654-4.056,69.94,16.218,69.94,16.218v54.396H30.913V43.944z" opacity="0.4" fill="#f0f1f3"></path>

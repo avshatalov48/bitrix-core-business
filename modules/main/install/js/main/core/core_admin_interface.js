@@ -2576,7 +2576,8 @@ BX.adminUiList.prototype.onReloadGrid = function()
 	{
 		gridObject = top.BX.Main.gridManager.getById(this.gridId);
 	}
-	else if (BX.Reflection.getClass('BX.Main.gridManager.getById'))
+
+	if (gridObject === null && BX.Reflection.getClass('BX.Main.gridManager.getById'))
 	{
 		gridObject = BX.Main.gridManager.getById(this.gridId);
 	}

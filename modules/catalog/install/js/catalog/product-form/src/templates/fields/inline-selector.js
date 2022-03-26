@@ -1,4 +1,4 @@
-import {Text, Type} from 'main.core';
+import {Type} from 'main.core';
 import {Vue} from "ui.vue";
 import {config} from "../../config";
 import {FormInputCode} from "../../types/form-input-code";
@@ -14,8 +14,10 @@ Vue.component(config.templateFieldInlineSelector,
 
 	props: {
 		editable: Boolean,
+		basketLength: Number,
 		options: Object,
 		basketItem: Object,
+		model: Object,
 	},
 	data()
 	{
@@ -40,15 +42,25 @@ Vue.component(config.templateFieldInlineSelector,
 	{
 		prepareSelectorParams(): Object
 		{
+			const fields = {
+				NAME: this.getField('name') || '',
+			};
+
+			if (!Type.isNil(this.getField('basePrice')))
+			{
+				fields.PRICE = this.getField('basePrice');
+				fields.CURRENCY = this.options.currency;
+			}
+
 			const selectorOptions = {
 				iblockId: this.options.iblockId,
 				basePriceId: this.options.basePriceId,
-				productId: this.getField('productId'),
-				skuId: this.getField('skuId'),
+				currency: this.options.currency,
 				skuTree: this.getDefaultSkuTree(),
 				fileInputId: '',
 				morePhotoValues: [],
 				fileInput: '',
+				model: this.model,
 				config: {
 					DETAIL_PATH: this.basketItem.detailUrl || '',
 					ENABLE_SEARCH: true,
@@ -62,16 +74,7 @@ Vue.component(config.templateFieldInlineSelector,
 					URL_BUILDER_CONTEXT: this.options.urlBuilderContext
 				},
 				mode: this.editable ? ProductSelector.MODE_EDIT : ProductSelector.MODE_VIEW,
-				isSimpleModel:
-					this.getField('name', '') !== ''
-					&& this.getField('productId') <= 0
-					&& this.getField('skuId') <= 0
-				,
-				fields: {
-					NAME: this.getField('name') || '',
-					PRICE: this.getField('basePrice') || 0,
-					CURRENCY: this.options.currency,
-				},
+				fields,
 			};
 
 			const formImage = this.basketItem.image;
@@ -84,6 +87,10 @@ Vue.component(config.templateFieldInlineSelector,
 			}
 
 			return selectorOptions;
+		},
+		isEnabledSaving(): boolean
+		{
+			return this.options.enableCatalogSaving && this.basketItem.hasEditRights;
 		},
 		isRequiredField(code: string): boolean
 		{
@@ -99,18 +106,18 @@ Vue.component(config.templateFieldInlineSelector,
 
 			return skuTree;
 		},
-		getField(name, defaultValue = null)
+		getField(name, defaultValue = null): any
 		{
 			return this.basketItem.fields[name] || defaultValue;
 		},
-		onProductChange(event: BaseEvent)
+		onProductChange(event: BaseEvent): void
 		{
 			const data = event.getData();
 			if (Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId())
 			{
-				const basePrice = Text.toNumber(data.fields.PRICE);
+				const basePrice = data.fields.BASE_PRICE
 
-				let fields = {
+				const fields = {
 					BASE_PRICE: basePrice,
 					MODULE: 'catalog',
 					NAME: data.fields.NAME,
@@ -119,9 +126,10 @@ Vue.component(config.templateFieldInlineSelector,
 					SKU_ID: data.fields.SKU_ID,
 					PROPERTIES: data.fields.PROPERTIES,
 					URL_BUILDER_CONTEXT: this.options.urlBuilderContext,
-					CUSTOMIZED: Type.isNil(data.fields.PRICE) ? 'Y' : 'N',
+					CUSTOMIZED: (Type.isNil(data.fields.PRICE) || data.fields.CUSTOMIZED === 'Y') ? 'Y' : 'N',
 					MEASURE_CODE: data.fields.MEASURE_CODE,
 					MEASURE_NAME: data.fields.MEASURE_NAME,
+					IS_NEW: data.isNew,
 				};
 
 				this.$emit('onProductChange', fields);

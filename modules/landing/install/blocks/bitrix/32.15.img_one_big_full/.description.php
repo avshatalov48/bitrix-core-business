@@ -17,6 +17,7 @@ return [
 			'type' => 'img',
 			'useInDesigner' => false,
 			'dimensions' => ['width' => 1110],
+			'create2xByDefault' => false,
 		],
 		'.landing-block-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_32_15_TITLE'),
@@ -34,7 +35,7 @@ return [
 		'nodes' => [
 			'.landing-block-container' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_32_15_BLOCK'),
-				'type' => ['container']
+				'type' => ['container', 'animation']
 			],
 			'.landing-block-img' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_32_15_IMG'),

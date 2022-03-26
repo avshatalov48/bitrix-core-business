@@ -9,37 +9,14 @@ class WorkgroupCardFavorites
 	{
 		this.value = !!params.value;
 		this.containerNode = params.containerNode;
-		this.styles = params.styles;
 		this.groupId = parseInt(params.groupId);
 
 		if (this.containerNode)
 		{
-			if (
-				Type.isPlainObject(this.styles)
-				&& Type.isStringFilled(this.styles.switch)
-			)
-			{
-				this.containerNode.querySelectorAll(`.${this.styles.switch}`).forEach((node) => {
-					node.addEventListener('click', (e) => {
-						this.set(e);
-					}, true);
-				});
-			}
-
 			EventEmitter.subscribe('BX.Socialnetwork.WorkgroupMenu:onSetFavorites', (event: BaseEvent) => {
 				const [ params ] = event.getCompatData();
 
 				this.setValue(params.value);
-
-				if (parseInt(params.groupId) === this.groupId)
-				{
-
-					const targetNode = this.containerNode.querySelector(`.${this.styles.switch}`);
-					if (targetNode)
-					{
-						this.switch(targetNode, params.value)
-					}
-				}
 			});
 		}
 	}
@@ -64,22 +41,6 @@ class WorkgroupCardFavorites
 
 		sonetGroupMenu.favoritesValue = newValue;
 		sonetGroupMenu.setItemTitle(newValue);
-
-		let targetNode = (
-			event.target.classList.contains(this.styles.switch)
-				? event.target
-				: null
-		);
-
-		if (!targetNode)
-		{
-			targetNode = this.containerNode.querySelector(`.${this.styles.switch}`);
-		}
-
-		if (targetNode)
-		{
-			this.switch(targetNode, newValue);
-		}
 
 		BX.SocialnetworkUICommon.setFavoritesAjax({
 			groupId: this.groupId,
@@ -121,34 +82,11 @@ class WorkgroupCardFavorites
 					{
 						WorkgroupCardUtil.processAJAXError(data.ERROR);
 					}
-
-					this.switch(targetNode, currentValue);
 				}
 			}
 		});
 
 		event.preventDefault();
-	}
-
-	switch(node, active)
-	{
-		if (
-			!Type.isDomNode(node)
-			|| !Type.isPlainObject(this.styles)
-			|| !Type.isStringFilled(this.styles.activeSwitch)
-		)
-		{
-			return;
-		}
-
-		if (active)
-		{
-			node.classList.add(this.styles.activeSwitch);
-		}
-		else
-		{
-			node.classList.remove(this.styles.activeSwitch);
-		}
 	}
 }
 

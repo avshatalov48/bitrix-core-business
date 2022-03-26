@@ -1,5 +1,5 @@
 import {Menu, MenuItem} from 'main.popup';
-import {Runtime, Type} from 'main.core';
+import {Runtime, Type, Text} from 'main.core';
 import {Vue} from "ui.vue";
 import {config} from "../../config";
 import type {BaseEvent} from "main.core.events";
@@ -7,8 +7,8 @@ import type {BaseEvent} from "main.core.events";
 Vue.component(config.templateFieldQuantity,
 {
 	/**
-	 * @emits 'changeQuantity' {quantity: number}
-	 * @emits 'changeMeasure' {quantity: number, }
+	 * @emits 'onChangeQuantity' {quantity: number}
+	 * @emits 'onSelectMeasure' {quantity: number, }
 	 */
 
 	props: {
@@ -17,6 +17,7 @@ Vue.component(config.templateFieldQuantity,
 		measureName: String,
 		quantity: Number,
 		editable: Boolean,
+		saveableMeasure: Boolean,
 		hasError: Boolean,
 		options: Object,
 	},
@@ -34,8 +35,8 @@ Vue.component(config.templateFieldQuantity,
 			}
 
 			event.target.value = event.target.value.replace(/[^.\d]/g,'.');
-			let newQuantity = parseFloat(event.target.value);
-			let lastSymbol = event.target.value.substr(-1);
+			const newQuantity = Text.toNumber(event.target.value);
+			const lastSymbol = event.target.value.substr(-1);
 
 			if (lastSymbol === '.')
 			{
@@ -66,7 +67,7 @@ Vue.component(config.templateFieldQuantity,
 				return;
 			}
 
-			let correctionFactor = this.calculateCorrectionFactor(this.quantity, this.measureRatio);
+			const correctionFactor = this.calculateCorrectionFactor(this.quantity, this.measureRatio);
 			const quantity = (this.quantity * correctionFactor + this.measureRatio * correctionFactor) / correctionFactor;
 			this.changeQuantity(quantity);
 		},
@@ -74,14 +75,14 @@ Vue.component(config.templateFieldQuantity,
 		{
 			if (this.quantity > this.measureRatio && this.editable)
 			{
-				let correctionFactor = this.calculateCorrectionFactor(this.quantity, this.measureRatio);
+				const correctionFactor = this.calculateCorrectionFactor(this.quantity, this.measureRatio);
 				const quantity = (this.quantity * correctionFactor - this.measureRatio * correctionFactor) / correctionFactor;
 				this.changeQuantity(quantity);
 			}
 		},
 		changeQuantity(value: number)
 		{
-			this.$emit('changeQuantity', value);
+			this.$emit('onChangeQuantity', value);
 		},
 		showPopupMenu(target: HTMLElement)
 		{
@@ -95,7 +96,7 @@ Vue.component(config.templateFieldQuantity,
 				menuItems.push({
 					text: item.SYMBOL,
 					item: item,
-					onclick: this.changeMeasure,
+					onclick: this.selectMeasure,
 				})
 			});
 
@@ -110,11 +111,11 @@ Vue.component(config.templateFieldQuantity,
 				this.popupMenu.show();
 			}
 		},
-		changeMeasure(event: BaseEvent, params: MenuItem)
+		selectMeasure(event: BaseEvent, params: MenuItem)
 		{
-			this.$emit('changeMeasure', {
-				code: param.options.item.CODE,
-				name: param.options.item.SYMBOL,
+			this.$emit('onSelectMeasure', {
+				code: params.options?.item.CODE,
+				name: params.options?.item.SYMBOL,
 			});
 
 			if (this.popupMenu)
@@ -130,7 +131,7 @@ Vue.component(config.templateFieldQuantity,
 				type="text" class="catalog-pf-product-input"
 				v-bind:class="{ 'catalog-pf-product-input--disabled': !editable }"
 				:value="quantity"
-				@input="onInputQuantity"
+				@input="onInputQuantityHandler"
 				:disabled="!editable"
 			>
 			<div 

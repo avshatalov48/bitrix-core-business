@@ -45,9 +45,9 @@ export class ProductList extends VuexBuilderModel
 				code: null,
 				module: null,
 				sort: 0,
-				price: 0,
-				basePrice: 0,
-				priceExclusive: 0,
+				price: null,
+				basePrice: null,
+				priceExclusive: null,
 				quantity: 1,
 				name: '',
 				discount: 0,
@@ -66,11 +66,13 @@ export class ProductList extends VuexBuilderModel
 				brands: [],
 			},
 			calculatedFields: [],
+			catalogFields: {},
 			showDiscount: 'N',
 			showTax: 'N',
 			skuTree: [],
 			image: null,
 			sum: 0,
+			catalogPrice: null,
 			discountSum: 0,
 			detailUrl: '',
 			encodedFields: null,
@@ -187,14 +189,14 @@ export class ProductList extends VuexBuilderModel
 			},
 			updateItem: (state, payload) =>
 			{
-				if (typeof state.basket[payload.index] === 'undefined')
+				if (Type.isNil(state.basket[payload.index]))
 				{
 					Vue.set(state.basket, payload.index, ProductList.getBaseProduct());
 				}
 
 				state.basket[payload.index] = Object.assign(
 					state.basket[payload.index],
-					payload.fields
+					payload.product
 				);
 			},
 			clearBasket: (state) =>

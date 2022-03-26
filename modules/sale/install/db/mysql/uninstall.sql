@@ -140,4 +140,5 @@ drop table if exists b_sale_delivery_rest_handler;
 drop table if exists b_sale_cashbox_rest_handler;
 drop table if exists b_sale_cashbox_check_correction;
 drop table if exists b_sale_order_payment_basket;
+drop table if exists b_sale_basket_reservation;
 drop table if exists b_sale_facebook_conversion_params;

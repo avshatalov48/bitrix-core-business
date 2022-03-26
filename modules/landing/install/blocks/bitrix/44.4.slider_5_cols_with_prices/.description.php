@@ -22,6 +22,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.4.SLIDER_5_COLS_WITH_PRICES_NODES_LANDINGBLOCKNODECARDIMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 360),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.4.SLIDER_5_COLS_WITH_PRICES_NODES_LANDINGBLOCKNODECARDTITLE'),

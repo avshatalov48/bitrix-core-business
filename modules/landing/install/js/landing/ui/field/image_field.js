@@ -762,6 +762,7 @@
 				if (!value || !value.src)
 				{
 					this.input.innerText = "";
+					this.input2x.innerText = "";
 					this.preview.removeAttribute("style");
 					this.input.dataset.ext = "";
 					this.showDropzone();

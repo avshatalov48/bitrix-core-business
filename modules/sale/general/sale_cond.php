@@ -2262,8 +2262,11 @@ class CSaleCondCtrlOrderFields extends CSaleCondCtrlComplex
 		}
 		unset($arPersonType, $rsPersonTypes);
 
+		;
 		$salePaySystemList = [];
-		$filter = [];
+		$filter = [
+			'!=ID' => Sale\PaySystem\Manager::getInnerPaySystemId(),
+		];
 		$iterator = Sale\PaySystem\Manager::getList([
 			'select' => ['ID', 'NAME', 'SORT'],
 			'filter' => $filter,

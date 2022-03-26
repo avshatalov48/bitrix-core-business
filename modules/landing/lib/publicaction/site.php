@@ -78,6 +78,17 @@ class Site
 		return $result;
 	}
 
+	/**
+	 * Returns site's preview (index page's preview).
+	 * @param int $id Site id.
+	 * @return PublicActionResult
+	 */
+	public static function getPreview(int $id): PublicActionResult
+	{
+		$result = new PublicActionResult();
+		$result->setResult(SiteCore::getPreview($id));
+		return $result;
+	}
 
 	/**
 	 * Get available sites.
@@ -214,7 +225,7 @@ class Site
 		}
 
 		// gets public url for sites
-		if ($getPublicUrl)
+		if ($getPublicUrl || $getPreviewPicture)
 		{
 			$urls = SiteCore::getPublicUrl(array_keys($data), true, !$mobileHit);
 			foreach ($urls as $siteId => $url)
@@ -229,7 +240,11 @@ class Site
 			$landing = Landing::createInstance(0);
 			foreach ($landingIndexes as $siteId => $landingId)
 			{
-				$data[$siteId]['PREVIEW_PICTURE'] = $landing->getPreview($landingId);
+				$data[$siteId]['PREVIEW_PICTURE'] = $landing->getPreview(
+					$landingId,
+					false,
+					$data[$siteId]['PUBLIC_URL']
+				);
 			}
 		}
 
@@ -323,8 +338,8 @@ class Site
 	}
 
 	/**
-	 * Mark entity as deleted.
-	 * @param int $id Entity id.
+	 * Mark site as deleted.
+	 * @param int $id Site id.
 	 * @param boolean $mark Mark.
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
@@ -356,8 +371,8 @@ class Site
 	}
 
 	/**
-	 * Mark entity as undeleted.
-	 * @param int $id Entity id.
+	 * Mark site as undeleted.
+	 * @param int $id Site id.
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
 	public static function markUnDelete($id)
@@ -366,75 +381,240 @@ class Site
 	}
 
 	/**
-	 * Make site public.
-	 * @param int $id Entity id.
-	 * @param boolean $mark Mark.
+	 * Creates folder into the site.
+	 * @param int $siteId Site id.
+	 * @param array $fields Folder's fields.
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function publication($id, $mark = true)
+	public static function addFolder(int $siteId, array $fields): PublicActionResult
 	{
 		$result = new PublicActionResult();
 		$error = new \Bitrix\Landing\Error;
-		$wasError = false;
-		$id = (int)$id;
-
-		// work with pages
-		$res = Landing::getList(array(
-			'select' => array(
-				'ID'
-			),
-			'filter' => array(
-				'SITE_ID' => $id
-			)
-		));
-		while ($row = $res->fetch())
+		if (!($fields['PARENT_ID'] ?? null))
 		{
-			$landing = Landing::createInstance($row['ID'], [
-				'skip_blocks' => true
-			]);
-
-			if ($mark)
-			{
-				$landing->publication();
-			}
-			else
-			{
-				$landing->unpublic();
-			}
-
-			if (!$landing->getError()->isEmpty())
-			{
-				$result->setError($landing->getError());
-				$wasError = true;
-				break;
-			}
+			$fields['PARENT_ID'] = null;
 		}
+		$addResult = SiteCore::addFolder($siteId, $fields);
 
-		if (!$wasError)
+		if ($addResult->isSuccess())
 		{
-			$res = SiteCore::update($id, array(
-				'ACTIVE' => $mark ? 'Y' : 'N'
-			));
-			if (!$res->isSuccess())
-			{
-				$error->addFromResult($res);
-				$result->setError($error);
-			}
-			else
-			{
-				$result->setResult($res->getId());
-			}
+			$result->setResult($addResult->getId());
+		}
+		else
+		{
+			$error->addFromResult($addResult);
+			$result->setError($error);
 		}
 
 		return $result;
 	}
 
 	/**
-	 * Mark site unpublic.
-	 * @param int $id Entity id.
+	 * Updates folder into the site.
+	 * @param int $siteId Site id.
+	 * @param int $folderId Folder id.
+	 * @param array $fields Folder's fields.
+	 * @return PublicActionResult
+	 */
+	public static function updateFolder(int $siteId, int $folderId, array $fields): PublicActionResult
+	{
+		$result = new PublicActionResult();
+		$error = new \Bitrix\Landing\Error;
+
+		if (!($fields['PARENT_ID'] ?? null))
+		{
+			$fields['PARENT_ID'] = null;
+		}
+		$addResult = SiteCore::updateFolder($siteId, $folderId, $fields);
+
+		if ($addResult->isSuccess())
+		{
+			$result->setResult(true);
+		}
+		else
+		{
+			$error->addFromResult($addResult);
+			$result->setError($error);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Move folder.
+	 * @param int $folderId Current folder id.
+	 * @param int|null $toFolderId Destination folder id (or null for root folder of current folder's site).
+	 * @return PublicActionResult
+	 */
+	public static function moveFolder(int $folderId, ?int $toFolderId): PublicActionResult
+	{
+		$result = new PublicActionResult();
+		$error = new \Bitrix\Landing\Error;
+		$moveResult = SiteCore::moveFolder($folderId, $toFolderId ?: null);
+
+		if ($moveResult->isSuccess())
+		{
+			$result->setResult($moveResult->getId());
+		}
+		else
+		{
+			$error->addFromResult($moveResult);
+			$result->setError($error);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Public all folder's breadcrumb.
+	 * @param int $folderId Folder id.
+	 * @param bool $mark Publication / depublication.
+	 * @return PublicActionResult
+	 */
+	public static function publicationFolder(int $folderId, bool $mark = true): PublicActionResult
+	{
+		$result = new PublicActionResult();
+		$error = new \Bitrix\Landing\Error;
+
+		$publicationResult = SiteCore::publicationFolder($folderId, $mark);
+
+		if ($publicationResult->isSuccess())
+		{
+			$result->setResult($publicationResult->isSuccess());
+		}
+		else
+		{
+			$error->addFromResult($publicationResult);
+			$result->setError($error);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Unpublic all folder's breadcrumb.
+	 * @param int $folderId Folder id.
+	 * @return PublicActionResult
+	 */
+	public static function unPublicFolder(int $folderId): PublicActionResult
+	{
+		return self::publicationFolder($folderId, false);
+	}
+
+	/**
+	 * Returns folder's list of site.
+	 * @param int $siteId Site id.
+	 * @param array $filter Folder's filter.
+	 * @return PublicActionResult
+	 */
+	public static function getFolders(int $siteId, array $filter = []): PublicActionResult
+	{
+		$result = new PublicActionResult();
+		if (array_key_exists('PARENT_ID', $filter) && !($filter['PARENT_ID'] ?? null))
+		{
+			$filter['PARENT_ID'] = null;
+		}
+
+		$rows = array_values(SiteCore::getFolders($siteId, $filter));
+		foreach ($rows as &$row)
+		{
+			if (isset($row['DATE_CREATE']))
+			{
+				$row['DATE_CREATE'] = (string) $row['DATE_CREATE'];
+			}
+			if (isset($row['DATE_MODIFY']))
+			{
+				$row['DATE_MODIFY'] = (string) $row['DATE_MODIFY'];
+			}
+		}
+		unset($row);
+
+		$result->setResult($rows);
+
+		return $result;
+	}
+
+	/**
+	 * Mark folder as deleted.
+	 * @param int $id Folder id.
+	 * @param boolean $mark Mark.
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function unpublic($id)
+	public static function markFolderDelete(int $id, bool $mark = true): PublicActionResult
+	{
+		$result = new PublicActionResult();
+		$error = new \Bitrix\Landing\Error;
+
+		if ($mark)
+		{
+			$res = SiteCore::markFolderDelete($id);
+		}
+		else
+		{
+			$res = SiteCore::markFolderUnDelete($id);
+		}
+		if ($res->isSuccess())
+		{
+			$result->setResult(true);
+		}
+		else
+		{
+			$error->addFromResult($res);
+			$result->setError($error);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Mark folder as undeleted.
+	 * @param int $id Folder id.
+	 * @return \Bitrix\Landing\PublicActionResult
+	 */
+	public static function markFolderUnDelete(int $id): PublicActionResult
+	{
+		return self::markFolderDelete($id, false);
+	}
+
+	/**
+	 * Makes site public.
+	 * @param int $id Site id.
+	 * @param bool $mark Mark.
+	 * @return PublicActionResult
+	 */
+	public static function publication(int $id, bool $mark = true): PublicActionResult
+	{
+		$result = new PublicActionResult();
+		$error = new \Bitrix\Landing\Error;
+
+		if ($mark)
+		{
+			$res = SiteCore::publication($id);
+		}
+		else
+		{
+			$res = SiteCore::unpublic($id);
+		}
+
+		if ($res->isSuccess())
+		{
+			$result->setResult($res->getId());
+		}
+		else
+		{
+			$error->addFromResult($res);
+			$result->setError($error);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Marks site unpublic.
+	 * @param int $id Site id.
+	 * @return PublicActionResult
+	 */
+	public static function unpublic(int $id): PublicActionResult
 	{
 		return self::publication($id, false);
 	}
@@ -551,9 +731,10 @@ class Site
 	 * @param string $picture File url / file array.
 	 * @param string $ext File extension.
 	 * @param array $params Some file params.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @param bool $temp This is temporary file.
+	 * @return PublicActionResult
 	 */
-	public static function uploadFile($id, $picture, $ext = false, array $params = array())
+	public static function uploadFile($id, $picture, $ext = false, array $params = [], $temp = false): PublicActionResult
 	{
 		static $internal = true;
 		static $mixedParams = ['picture'];
@@ -574,7 +755,7 @@ class Site
 			$file = Manager::savePicture($picture, $ext, $params);
 			if ($file)
 			{
-				File::addToSite($id, $file['ID']);
+				File::addToSite($id, $file['ID'], Utils::isTrue($temp));
 				$result->setResult(array(
 					'id' => $file['ID'],
 					'src' => $file['SRC']

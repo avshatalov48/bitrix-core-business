@@ -65,7 +65,7 @@ class CAllBPWorkflowTemplateLoader
 		return true;
 	}
 
-	private function ValidateTemplate($arActivity, $user)
+	public function ValidateTemplate($arActivity, $user)
 	{
 		$errors = CBPActivity::CallStaticMethod(
 			$arActivity["Type"],
@@ -110,7 +110,7 @@ class CAllBPWorkflowTemplateLoader
 		return $errors;
 	}
 
-	protected function ParseFields(&$arFields, $id = 0, $systemImport = false)
+	protected function ParseFields(&$arFields, $id = 0, $systemImport = false, $validationRequired = true)
 	{
 		$id = intval($id);
 		$updateMode = ($id > 0 ? true : false);
@@ -169,8 +169,13 @@ class CAllBPWorkflowTemplateLoader
 					}
 
 					$errors = array();
-					foreach ($arFields["TEMPLATE"] as $v)
-						$errors = array_merge($errors, $this->ValidateTemplate($v, $userTmp));
+					if ($validationRequired)
+					{
+						foreach ($arFields["TEMPLATE"] as $rawTemplate)
+						{
+							$errors = array_merge($errors, $this->ValidateTemplate($rawTemplate, $userTmp));
+						}
+					}
 
 					if (count($errors) > 0)
 					{
@@ -227,12 +232,12 @@ class CAllBPWorkflowTemplateLoader
 		return $loader->AddTemplate($arFields, $systemImport);
 	}
 
-	public static function Update($id, $arFields, $systemImport = false)
+	public static function Update($id, $arFields, $systemImport = false, $validationRequired = true)
 	{
 		$loader = CBPWorkflowTemplateLoader::GetLoader();
 		if (isset($arFields['TEMPLATE']) && !$systemImport)
 			$arFields['IS_MODIFIED'] = 'Y';
-		$returnId = $loader->UpdateTemplate($id, $arFields, $systemImport);
+		$returnId = $loader->UpdateTemplate($id, $arFields, $systemImport, $validationRequired);
 		self::cleanTemplateCache($returnId);
 		return $returnId;
 	}
@@ -1097,7 +1102,7 @@ class CAllBPWorkflowTemplateLoader
 		return intval($DB->LastID());
 	}
 
-	public function UpdateTemplate($id, $arFields, $systemImport = false)
+	public function UpdateTemplate($id, $arFields, $systemImport = false, $validationRequired = true)
 	{
 		global $DB;
 
@@ -1105,7 +1110,7 @@ class CAllBPWorkflowTemplateLoader
 		if ($id <= 0)
 			throw new CBPArgumentNullException("id");
 
-		self::ParseFields($arFields, $id, $systemImport);
+		self::ParseFields($arFields, $id, $systemImport, $validationRequired);
 
 		$strUpdate = $DB->PrepareUpdate("b_bp_workflow_template", $arFields);
 

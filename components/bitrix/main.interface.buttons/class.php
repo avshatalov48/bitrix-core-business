@@ -2,7 +2,7 @@
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text;
 use Bitrix\Main;
-
+use Bitrix\Main\Web\Uri;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
@@ -78,6 +78,12 @@ class CMainInterfaceButtons
 				$arParams["DISABLE_SETTINGS"]
 			);
 			$arParams["DISABLE_SETTINGS"] = $this->prepareDisableSettings($arParams["EDIT_MODE"]);
+
+			$arParams["THEME"] =
+				isset($arParams["THEME"]) && is_string($arParams["THEME"]) ? $arParams["THEME"] : "default"
+			;
+
+			$arParams["THEME_ID"] = " --" . $arParams["THEME"];
 		}
 
 		return $arParams;
@@ -317,16 +323,9 @@ class CMainInterfaceButtons
 	 * @param  boolean $isLocked
 	 * @return boolean json_encode'd
 	 */
-	protected function prepareItemIsLocked($isLocked)
+	protected function prepareItemIsLocked($item)
 	{
-		$result = "false";
-
-		if (!empty($isLocked) && is_bool($isLocked))
-		{
-			$result = json_encode($isLocked);
-		}
-
-		return $result;
+		return isset($item['IS_LOCKED']) && $item['IS_LOCKED'] === true;
 	}
 
 
@@ -385,6 +384,32 @@ class CMainInterfaceButtons
 		return $result;
 	}
 
+	/**
+	 * Prepares item super title array
+	 * @param  array $item
+	 * @return array|boolean return false if super title not set
+	 */
+	protected function prepareItemSuperTitle($item)
+	{
+		if (isset($item['SUPER_TITLE']) && is_array($item['SUPER_TITLE']) && isset($item['SUPER_TITLE']['TEXT']))
+		{
+			return [
+				'TEXT' => $this->safeString($item['SUPER_TITLE']['TEXT']),
+				'CLASS' => isset($item['SUPER_TITLE']['CLASS']) ? $this->safeString($item['SUPER_TITLE']['CLASS']) : '',
+				'COLOR' => isset($item['SUPER_TITLE']['COLOR']) ? $this->safeString($item['SUPER_TITLE']['COLOR']) : '',
+			];
+		}
+		else if (isset($item['IS_NEW']) && $item['IS_NEW'] === true)
+		{
+			return [
+				'TEXT' => Loc::getMessage('MIB_NEW_ITEM_LABEL'),
+				'CLASS' => '',
+				'COLOR' => '',
+			];
+		}
+
+		return false;
+	}
 
 	/**
 	 * Prepares item sort index value
@@ -414,7 +439,7 @@ class CMainInterfaceButtons
 	 * @param array $item
 	 * @return boolean
 	 */
-	protected function prepareItemIsActive($item)
+	protected function prepareItemIsActive(&$item)
 	{
 		$result = false;
 
@@ -438,9 +463,45 @@ class CMainInterfaceButtons
 			$result = $item["IS_ACTIVE"];
 		}
 
+		if (!empty($item['ITEMS']) && is_array($item['ITEMS']))
+		{
+			$hasActiveSubItem = $this->prepareSubItemsIsActive($item['ITEMS']);
+			if ($hasActiveSubItem)
+			{
+				$result = true;
+			}
+		}
+
 		return $result;
 	}
 
+	protected function prepareSubItemsIsActive(array &$items): bool
+	{
+		$hasActiveSubItem = false;
+		for ($i = 0; $i < count($items); $i++)
+		{
+			if (!empty($items[$i]['ITEMS']) && is_array($items[$i]['ITEMS']))
+			{
+				$result = $this->prepareSubItemsIsActive($items[$i]['ITEMS']);
+				if ($result)
+				{
+					$items[$i]['IS_ACTIVE'] = true;
+				}
+			}
+
+			if (isset($items[$i]['IS_ACTIVE']) && $items[$i]['IS_ACTIVE'] === true)
+			{
+				$hasActiveSubItem = true;
+			}
+		}
+
+		return $hasActiveSubItem;
+	}
+
+	protected function prepareItemIsPassive($item)
+	{
+		return isset($item['IS_PASSIVE']) && $item['IS_PASSIVE'] === true;
+	}
 
 	/**
 	 * Prepares item
@@ -493,11 +554,20 @@ class CMainInterfaceButtons
 			}
 		}
 
-		$item["IS_LOCKED"] = $this->prepareItemIsLocked($item["IS_LOCKED"]);
+		$item["IS_LOCKED"] = $this->prepareItemIsLocked($item);
 		$item["IS_DISABLED"] = $this->prepareItemIsDisabled($item["IS_DISABLED"], $item["ID"]);
 		$item["SUB_LINK"] = $this->prepareItemSublink($item["SUB_LINK"]);
+		$item["SUPER_TITLE"] = $this->prepareItemSuperTitle($item);
 		$item["SORT"] = $this->prepareItemSort($item["ID"], $key);
 		$item["IS_ACTIVE"] = $this->prepareItemIsActive($item);
+		$item["IS_PASSIVE"] = $this->prepareItemIsPassive($item);
+
+		$item["HAS_MENU"] = isset($item['ITEMS']) && is_array($item['ITEMS']) && count($item['ITEMS']) > 0;
+		if ($item["HAS_MENU"])
+		{
+			$item["URL"] = '';
+			$item["ON_CLICK"] = '';
+		}
 
 		return $item;
 	}
@@ -605,11 +675,16 @@ class CMainInterfaceButtons
 		return $array;
 	}
 
-
 	protected function safeString($string)
 	{
-		$string = trim($string);
+		if (!is_string($string) && !is_numeric($string) && !($string instanceof Uri))
+		{
+			return '';
+		}
+
+		$string = trim((string)$string);
 		$string = Text\Converter::getHtmlConverter()->encode($string);
+
 		return (String)$string;
 	}
 
@@ -659,6 +734,7 @@ class CMainInterfaceButtons
 			'ID',
 			'EDIT_MODE',
 			'DISABLE_SETTINGS',
+			'THEME',
 		];
 	}
 

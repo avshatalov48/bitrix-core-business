@@ -32,25 +32,30 @@ return [
 		],
 	],
 	'style' => [
-		'.landing-block-node-title' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_47.1.TITLE_WITH_ICON_NODES_LANDINGBLOCKNODETITLE'),
-			'type' => ['typo', 'animation', 'heading'],
+		'block' => [
+			'type' => ['block-default', 'animation'],
 		],
-		'.landing-block-node-text' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_47.1.TITLE_WITH_ICON_NODES_LANDINGBLOCKNODETEXT'),
-			'type' => ['typo', 'animation'],
-		],
-		'.landing-block-node-icon-element' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_47.1.TITLE_WITH_ICON_NODES_LANDINGBLOCKNODEICON'),
-			'type' => ['font-size','color'],
-		],
-		'.landing-block-node-header' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_47.1.TITLE_WITH_ICON_NODES_LANDINGBLOCKNODETITLE'),
-			'type' => ['margin-bottom'],
-		],
-		'.landing-block-node-container' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_47.1.TITLE_WITH_ICON_NODES_LANDINGBLOCKNODEELEMENT'),
-			'type' => ['text-align', 'container'],
+		'nodes' => [
+			'.landing-block-node-title' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_47.1.TITLE_WITH_ICON_NODES_LANDINGBLOCKNODETITLE'),
+				'type' => ['typo', 'animation', 'heading'],
+			],
+			'.landing-block-node-text' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_47.1.TITLE_WITH_ICON_NODES_LANDINGBLOCKNODETEXT'),
+				'type' => ['typo', 'animation'],
+			],
+			'.landing-block-node-icon-element' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_47.1.TITLE_WITH_ICON_NODES_LANDINGBLOCKNODEICON'),
+				'type' => ['font-size','color'],
+			],
+			'.landing-block-node-header' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_47.1.TITLE_WITH_ICON_NODES_LANDINGBLOCKNODETITLE'),
+				'type' => ['margin-bottom'],
+			],
+			'.landing-block-node-container' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_47.1.TITLE_WITH_ICON_NODES_LANDINGBLOCKNODEELEMENT'),
+				'type' => ['text-align', 'container', 'animation'],
+			],
 		],
 	],
 ];

@@ -14,6 +14,7 @@ CREATE TABLE b_messageservice_message (
 	EXEC_ERROR varchar(255) null,
 	STATUS_ID int(18) not null default 0,
 	EXTERNAL_ID varchar(128) null,
+	EXTERNAL_STATUS varchar(128) null,
 	PRIMARY KEY (ID),
 	INDEX B_MESSAGESERVICE_MESSAGE_1(DATE_EXEC),
 	INDEX B_MESSAGESERVICE_MESSAGE_2(SUCCESS_EXEC),

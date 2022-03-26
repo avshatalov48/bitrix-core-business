@@ -103,7 +103,8 @@ $defaultUrlTemplates404 = array(
 	'domain_edit' => 'domain/edit/#domain_edit#/',
 	'roles' => 'roles/',
 	'notes' => 'notes/',
-	'role_edit' => 'role/edit/#role_edit#/'
+	'role_edit' => 'role/edit/#role_edit#/',
+	'folder_edit' => 'folder/edit/#folder_edit#/'
 );
 $urlTpls = array(
 	'sites' => array(),
@@ -122,7 +123,8 @@ $urlTpls = array(
 	'domain_edit' => array('domain_edit'),
 	'roles' => array(),
 	'notes' => array(),
-	'role_edit' => array('role_edit')
+	'role_edit' => array('role_edit'),
+	'folder_edit' => array('folder_edit')
 );
 
 // init vars
@@ -523,6 +525,18 @@ if (
 )
 {
 	LocalRedirect(SITE_DIR, true);
+}
+
+if (!empty($arParams['PAGE_URL_SITE_SHOW']))
+{
+	$url = Manager::getOption('tmp_last_show_url', '');
+	if ($url !== $arParams['PAGE_URL_SITE_SHOW'])
+	{
+		Manager::setOption(
+			'tmp_last_show_url',
+			$arParams['PAGE_URL_SITE_SHOW']
+		);
+	}
 }
 
 $this->IncludeComponentTemplate($componentPage);

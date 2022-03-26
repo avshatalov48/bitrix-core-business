@@ -23,6 +23,7 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_6_TWO_COLS_BIG_IMG_TEXT_AND_TEXT_BLOCKS_NODES_LANDINGBLOCKNODEIMG'),
 			'type' => 'img',
 			'dimensions' => ['height' => 1080],
+			'create2xByDefault' => false,
 		],
 		'.landing-block-node-subtitle' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_6_TWO_COLS_BIG_IMG_TEXT_AND_TEXT_BLOCKS_NODES_LANDINGBLOCKNODESUBTITLE'),

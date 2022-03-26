@@ -27,7 +27,7 @@ export default class Reset extends EventEmitter
 			return Tag.render`
 				<div class="landing-ui-field-color-reset-container">
 					<div class="landing-ui-field-color-reset"
-						data-hint="${Loc.getMessage('LANDING_FIELD_COLOR-RESET_HINT')}"
+						data-hint="${Loc.getMessage('LANDING_FIELD_COLOR-RESET_HINT_2')}"
 						data-hint-no-icon
 					>
 					</div>

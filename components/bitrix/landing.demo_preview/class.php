@@ -39,6 +39,8 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 		if ($init)
 		{
 			$this->checkParam('SITE_ID', 0);
+			$this->checkParam('LANG_ID', '');
+			$this->checkParam('ADMIN_SECTION', 'N');
 			$this->checkParam('CODE', '');
 			$this->checkParam('TYPE', '');
 			$this->checkParam('SITE_WORK_MODE', 'N');
@@ -90,8 +92,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 				$this->arResult['TEMPLATE'] = $demo[$code];
 				$this->arResult['TEMPLATE']['URL_PREVIEW'] = $this->getUrlPreview($code, $demo[$code]);
 				// first color by default
-				$array = array_keys($this->arResult['COLORS']);
-				$this->arResult['THEME_CURRENT'] = array_shift($array);
+				$this->arResult['THEME_CURRENT'] = $demo[$code]['THEME_COLOR'] ?? null;
 
 				// check external import (additional step after submit create)
 				$event = new Event('landing', 'onBuildTemplateCreateUrl', array(
@@ -131,7 +132,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 					}
 					else
 					{
-						$this->arResult['THEME_SITE'] = $this->arResult['THEME_CURRENT'];
+						$this->arResult['THEME_SITE'] = array_shift(array_keys($this->arResult['COLORS']));
 					}
 
 					$this->arResult['THEME_COLOR'] = '#34bcf2';
@@ -140,14 +141,14 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 						$this->arResult['THEME_COLOR'] = $hooks['THEME']->getPageFields()['THEME_COLOR']->getValue();
 					}
 
-					$this->checkColorExists($this->arResult['THEME_SITE']);
-					$this->addColorToPallete($this->arResult['THEME_SITE']);
+					if ($this->isNeedAddColorToPalette($this->arResult['THEME_SITE']))
+					{
+						$this->addColorToPallete($this->arResult['THEME_SITE']);
+					}
 
 					// use color from template or use_site_theme
 					$this->arResult['THEME_CURRENT'] =
-						(isset($this->arResult['TEMPLATE']['DATA']['fields']['ADDITIONAL_FIELDS']['THEME_CODE']))
-							? $this->arResult['TEMPLATE']['DATA']['fields']['ADDITIONAL_FIELDS']['THEME_CODE']
-							: 'USE_SITE';
+						$this->arResult['TEMPLATE']['DATA']['fields']['ADDITIONAL_FIELDS']['THEME_CODE'] ?? 'USE_SITE';
 				}
 				// NEW SITE - get theme from template (or default)
 				else
@@ -162,8 +163,10 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 					}
 				}
 
-				$this->checkColorExists($this->arResult['THEME_CURRENT']);
-				$this->addColorToPallete($this->arResult['THEME_CURRENT']);
+				if ($this->isNeedAddColorToPalette($this->arResult['THEME_CURRENT']))
+				{
+					$this->addColorToPallete($this->arResult['THEME_CURRENT']);
+				}
 
 				// disable import
 				if (isset($demo[$code]['DATA']['disable_import']) &&
@@ -248,24 +251,60 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 	/**
 	 * Mark some color for default set.
 	 *
-	 * @param string $color Color code.
+	 * @param string|null $color Color code.
 	 *
 	 * @return void
 	 */
-	private function addColorToPallete(string $color): void
+	private function addColorToPallete($color): void
 	{
+		if (!$color)
+		{
+			return;
+		}
 		if (isset($this->arResult['COLORS'][$color]))
 		{
 			$this->arResult['COLORS'][$color]['base'] = true;
 		}
+		else
+		{
+			$this->arResult['COLORS'][$color] = [
+				'color' => $color,
+				'base' => true,
+			];
+		}
+	}
+
+	/**
+	 * Check, is need add color to palette
+	 *
+	 * @param string|null $color Color code.
+	 *
+	 * @return bool
+	 */
+	private function isNeedAddColorToPalette($color): bool
+	{
+		foreach ($this->arResult['COLORS'] as $key => $value)
+		{
+			if ($value['color'] === $color)
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
 	 * If try to using unknown color - set default from pallete
 	 * @param $color - attention: color is the theme code!
 	 */
-	private function checkColorExists(&$color): void
+	private function validateColorCode($color)
 	{
+		// todo: no need, because now color can be null?
+		if (!is_string($color))
+		{
+			return $color;
+		}
+
 		$isExist = false;
 		foreach ($this->arResult['COLORS'] as $code => $codeInfo)
 		{
@@ -273,6 +312,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 			{
 				$color = $code;
 				$isExist = true;
+				break;
 			}
 		}
 
@@ -281,5 +321,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 			$array = array_keys($this->arResult['COLORS']);
 			$color = array_shift($array);
 		}
+
+		return $color;
 	}
 }

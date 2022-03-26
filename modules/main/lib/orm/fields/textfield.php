@@ -34,6 +34,8 @@ class TextField extends StringField
 	 */
 	public function convertValueToDb($value)
 	{
-		return $this->getConnection()->getSqlHelper()->convertToDbText($value);
+		return $value === null && $this->is_nullable
+			? $value
+			: $this->getConnection()->getSqlHelper()->convertToDbText($value);
 	}
 }

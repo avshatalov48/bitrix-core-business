@@ -29,12 +29,6 @@ Class bizprocdesigner extends CModule
 
 	function InstallDB($install_wizard = true)
 	{
-		global $DB, $DBType, $APPLICATION;
-
-		$arCurPhpVer = Explode(".", PhpVersion());
-		if (intval($arCurPhpVer[0]) < 5)
-			return true;
-
 		RegisterModule("bizprocdesigner");
 
 		return true;
@@ -42,8 +36,6 @@ Class bizprocdesigner extends CModule
 
 	function UnInstallDB($arParams = Array())
 	{
-		global $DB, $DBType, $APPLICATION;
-
 		UnRegisterModule("bizprocdesigner");
 
 		return true;
@@ -51,11 +43,6 @@ Class bizprocdesigner extends CModule
 
 	function InstallEvents()
 	{
-		$arCurPhpVer = Explode(".", PhpVersion());
-		if (intval($arCurPhpVer[0]) < 5)
-			return true;
-
-		return true;
 	}
 
 	function UnInstallEvents()
@@ -76,9 +63,6 @@ Class bizprocdesigner extends CModule
 
 	function InstallPublic()
 	{
-		$arCurPhpVer = Explode(".", PhpVersion());
-		if (intval($arCurPhpVer[0]) < 5)
-			return true;
 	}
 
 	function UnInstallFiles()
@@ -97,13 +81,7 @@ Class bizprocdesigner extends CModule
 	{
 		global $APPLICATION, $step;
 
-		$curPhpVer = PhpVersion();
-		$arCurPhpVer = Explode(".", $curPhpVer);
-		if (intval($arCurPhpVer[0]) < 5)
-		{
-			$this->errors = array(Loc::getMessage("BIZPROC_PHP_L439", array("#VERS#" => $curPhpVer)));
-		}
-		elseif (!IsModuleInstalled("bizproc"))
+		if (!IsModuleInstalled("bizproc"))
 		{
 			$this->errors = array(Loc::getMessage("BIZPROC_ERROR_BPM"));
 		}

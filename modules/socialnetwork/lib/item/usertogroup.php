@@ -709,10 +709,10 @@ class UserToGroup
 
 		if (!empty($memberRelationIdList))
 		{
-			\CSocNetUserToGroup::transferMember2Moderator($currentUserId, $groupId, $memberRelationIdList, \CSocNetUser::isCurrentUserModuleAdmin());
+			\CSocNetUserToGroup::transferMember2Moderator($currentUserId, $groupId, $memberRelationIdList);
 		}
 
-		foreach($userIdList as $userId)
+		foreach ($userIdList as $userId)
 		{
 			if (
 				!array_key_exists($userId, $memberRelationIdList)

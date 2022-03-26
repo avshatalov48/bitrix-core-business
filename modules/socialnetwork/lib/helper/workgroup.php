@@ -20,6 +20,7 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\EO_UserToGroup;
 use Bitrix\Socialnetwork\FeatureTable;
 use Bitrix\Socialnetwork\FeaturePermTable;
+use Bitrix\Socialnetwork\Item\UserToGroup;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\UserToGroupTable;
 
@@ -417,6 +418,7 @@ class Workgroup
 			'filter' => [
 				'@ID' => $idList,
 				'=OPENED' => 'Y',
+				'=VISIBLE' => 'Y',
 			],
 			'select' => [ 'ID' ],
 			'limit' => 1,
@@ -569,8 +571,7 @@ class Workgroup
 		if (!\CSocNetUserToGroup::transferMember2Moderator(
 			$currentUserId,
 			$groupId,
-			[ $relation->getId() ],
-			static::isCurrentUserModuleAdmin()
+			[ $relation->getId() ]
 		))
 		{
 			if ($ex = $APPLICATION->getException())
@@ -631,8 +632,7 @@ class Workgroup
 		if (!\CSocNetUserToGroup::TransferModerator2Member(
 			$currentUserId,
 			$groupId,
-			[ $relation->getId() ],
-			static::isCurrentUserModuleAdmin()
+			[ $relation->getId() ]
 		))
 		{
 			if ($ex = $APPLICATION->getException())
@@ -650,6 +650,171 @@ class Workgroup
 		}
 
 		return true;
+	}
+
+	public static function setModerators(array $fields = []): bool
+	{
+		$groupId = (int)($fields['groupId'] ?? 0);
+		$userIds = array_map('intval', array_filter($fields['userIds'] ?? []));
+
+		if ($groupId <= 0)
+		{
+			throw new ArgumentException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_WRONG_GROUP_ID'));
+		}
+
+		$currentUserId = static::getCurrentUserId();
+		$isCurrentUserModuleAdmin = static::isCurrentUserModuleAdmin();
+
+		$groupPerms = static::getPermissions(['groupId' => $groupId]);
+		if (!$groupPerms || (!$groupPerms['UserCanModifyGroup'] && !$isCurrentUserModuleAdmin))
+		{
+			throw new AccessDeniedException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_NO_PERMS'));
+		}
+
+		$currentModeratorRelations = static::getCurrentModeratorRelations($groupId);
+		$moderatorsToAdd = array_diff($userIds, array_keys($currentModeratorRelations));
+		$moderatorsToRemove = array_diff_key($currentModeratorRelations, array_fill_keys($userIds, true));
+
+		if (!empty($moderatorsToRemove))
+		{
+			\CSocNetUserToGroup::TransferModerator2Member(
+				$currentUserId,
+				$groupId,
+				$moderatorsToRemove
+			);
+		}
+
+		if (!empty($moderatorsToAdd))
+		{
+			[$ownerRelations, $memberRelations, $otherRelations] = static::getUserRelations($groupId, $moderatorsToAdd);
+
+			if (!empty($memberRelations))
+			{
+				\CSocNetUserToGroup::transferMember2Moderator(
+					$currentUserId,
+					$groupId,
+					$memberRelations
+				);
+			}
+
+			$moderatorsToAdd = array_diff($moderatorsToAdd, array_keys($memberRelations), array_keys($ownerRelations));
+			foreach ($moderatorsToAdd as $userId)
+			{
+				if (array_key_exists($userId, $otherRelations))
+				{
+					$relationId = static::transferToModerators($otherRelations[$userId]);
+				}
+				else
+				{
+					$relationId = static::addToModerators($userId, $groupId);
+				}
+
+				if ($relationId)
+				{
+					static::sendNotifications($userId, $groupId, $relationId);
+				}
+			}
+		}
+
+		return true;
+	}
+
+	private static function getCurrentModeratorRelations(int $groupId): array
+	{
+		$currentModeratorRelations = [];
+
+		$relationResult = UserToGroupTable::getList([
+			'select' => ['ID', 'USER_ID'],
+			'filter' => [
+				'GROUP_ID' => $groupId,
+				'ROLE' => UserToGroupTable::ROLE_MODERATOR,
+			],
+		]);
+		while ($relation = $relationResult->fetch())
+		{
+			$currentModeratorRelations[$relation['USER_ID']] = $relation['ID'];
+		}
+
+		return $currentModeratorRelations;
+	}
+
+	private static function getUserRelations(int $groupId, array $userIds): array
+	{
+		$ownerRelations = [];
+		$memberRelations = [];
+		$otherRelations = [];
+
+		$relationResult = UserToGroupTable::getList([
+			'select' => ['ID', 'USER_ID', 'ROLE'],
+			'filter' => [
+				'GROUP_ID' => $groupId,
+				'@USER_ID' => $userIds,
+			],
+		]);
+		while ($relation = $relationResult->fetch())
+		{
+			$id = $relation['ID'];
+			$userId = $relation['USER_ID'];
+
+			switch ($relation['ROLE'])
+			{
+				case UserToGroupTable::ROLE_OWNER:
+					$ownerRelations[$userId] = $id;
+					break;
+
+				case UserToGroupTable::ROLE_USER:
+					$memberRelations[$userId] = $id;
+					break;
+
+				default:
+					$otherRelations[$userId] = $id;
+					break;
+			}
+		}
+
+		return [$ownerRelations, $memberRelations, $otherRelations];
+	}
+
+	private static function transferToModerators(int $relationId)
+	{
+		return \CSocNetUserToGroup::update(
+			$relationId,
+			[
+				'ROLE' => UserToGroupTable::ROLE_MODERATOR,
+				'=DATE_UPDATE' => \CDatabase::CurrentTimeFunction(),
+			]
+		);
+	}
+
+	private static function addToModerators(int $userId, int $groupId)
+	{
+		return \CSocNetUserToGroup::add([
+			'USER_ID' => $userId,
+			'GROUP_ID' => $groupId,
+			'ROLE' => UserToGroupTable::ROLE_MODERATOR,
+			'=DATE_CREATE' => \CDatabase::CurrentTimeFunction(),
+			'=DATE_UPDATE' => \CDatabase::CurrentTimeFunction(),
+			'MESSAGE' => '',
+			'INITIATED_BY_TYPE' => UserToGroupTable::INITIATED_BY_GROUP,
+			'INITIATED_BY_USER_ID' => static::getCurrentUserId(),
+			'SEND_MAIL' => 'N',
+		]);
+	}
+
+	private static function sendNotifications(int $userId, int $groupId, int $relationId): void
+	{
+		\CSocNetUserToGroup::notifyModeratorAdded([
+			'userId' => static::getCurrentUserId(),
+			'groupId' => $groupId,
+			'relationId' => $relationId,
+		]);
+		UserToGroup::addInfoToChat([
+			'group_id' => $groupId,
+			'user_id' => $userId,
+			'action' => UserToGroup::CHAT_ACTION_IN,
+			'sendMessage' => false,
+			'role' => UserToGroupTable::ROLE_MODERATOR,
+		]);
 	}
 
 	public static function deleteOutgoingRequest(array $fields = []): bool
@@ -1853,4 +2018,35 @@ class Workgroup
 		return $result;
 	}
 
+	public static function mutateScrumFormFields(array &$fields = []): void
+	{
+		if (empty($fields['SCRUM_MASTER_ID']))
+		{
+			return;
+		}
+
+		$fields['PROJECT'] = 'Y';
+
+		if (empty($fields['SUBJECT_ID']))
+		{
+			$siteId = (!empty($fields['SITE_ID']) ? $fields['SITE_ID'] : SITE_ID);
+
+			$subjectQueryObject = \CSocNetGroupSubject::getList(
+				[
+					'SORT' => 'ASC',
+					'NAME' => 'ASC'
+				],
+				[
+					'SITE_ID' => $siteId,
+				],
+				false,
+				false,
+				[ 'ID' ]
+			);
+			if ($subject = $subjectQueryObject->fetch())
+			{
+				$fields['SUBJECT_ID'] = (int)$subject['ID'];
+			}
+		}
+	}
 }

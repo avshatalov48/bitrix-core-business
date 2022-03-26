@@ -25,6 +25,7 @@ return array(
 			'dimensions' => array('width' => 1920, 'height' => 1080),
 			'allowInlineEdit' => false,
 			'useInDesigner' => false,
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-card-subtitle' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_46.9_NODES_LANDINGBLOCKNODECARDSUBTITLE'),

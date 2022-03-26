@@ -833,7 +833,7 @@ class CBPRuntime
 		return $result;
 	}
 
-	private function checkActivityFilter($filter, $documentType)
+	public function checkActivityFilter($filter, $documentType)
 	{
 		$distrName = CBPHelper::getDistrName();
 		foreach ($filter as $type => $rules)

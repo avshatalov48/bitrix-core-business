@@ -5,7 +5,6 @@
 	{
 		this.gridId = options.gridId;
 		this.mailboxId = options.mailboxId;
-		this.userHasCrmActivityPermission = options.userHasCrmActivityPermission;
 		this.spamDir = options.spamDir;
 		this.outcomeDir = options.outcomeDir;
 		this.inboxDir = options.inboxDir;
@@ -16,6 +15,8 @@
 		this.ENTITY_TYPE_CRM_ACTIVITY = options.ENTITY_TYPE_CRM_ACTIVITY;
 		this.ENTITY_TYPE_TASKS_TASK = options.ENTITY_TYPE_TASKS_TASK;
 		this.ENTITY_TYPE_BLOG_POST = options.ENTITY_TYPE_BLOG_POST;
+		this.ENTITY_TYPE_IM_CHAT = options.ENTITY_TYPE_IM_CHAT;
+		this.ENTITY_TYPE_CALENDAR_EVENT = options.ENTITY_TYPE_CALENDAR_EVENT;
 		this.settingsMenu = options.settingsMenu;
 		this.readActionBtnRole = 'read-action';
 		this.notReadActionBtnRole = 'not-read-action';
@@ -113,10 +114,6 @@
 					}
 				}.bind(this)
 			);
-			BX.addCustomEvent(
-				'onPullEvent-mail',
-				this.onBindingCreated.bind(this)
-			);
 
 			this.trackActionPanelStyleChange();
 			BX.addCustomEvent(window, 'onPopupShow', function (popupWindow)
@@ -134,157 +131,13 @@
 		},
 		onCrmBindingDeleted: function (messageId)
 		{
-			var bindingWrapper = document.querySelector('.js-bind-' + messageId);
+			var bindingWrapper = document.querySelector('.js-bind-' + messageId+'.mail-binding-crm.mail-ui-active');
 			if (!bindingWrapper)
 			{
 				return;
 			}
-			var crmBindType = this.ENTITY_TYPE_CRM_ACTIVITY;
-			var crmBind = bindingWrapper.querySelector('[data-type="' + crmBindType + '"]');
-			if (!crmBind)
-			{
-				return;
-			}
-			crmBind.parentNode.removeChild(crmBind);
-			var firstChild = bindingWrapper.firstChild;
-			var lastChild = bindingWrapper.lastChild;
-			if (firstChild && firstChild.dataset
-				&& firstChild.dataset.role === 'comma-separator')
-			{
-				firstChild.parentNode.removeChild(firstChild);
-			}
-			if (lastChild && lastChild.dataset
-				&& lastChild.dataset.role === 'comma-separator')
-			{
-				lastChild.parentNode.removeChild(lastChild);
-			}
-			if (bindingWrapper.childElementCount === 0)
-			{
-				this.updateGridByUnbindFilter();
-			}
-		},
-		onBindingCreated: function (command, params)
-		{
-			if ('messageBindingCreated' === command
-				&& this.mailboxId == params.mailboxId)
-			{
-				var bindingWrapper = document.querySelector('.js-bind-' + params.messageId);
-				if (bindingWrapper)
-				{
-					var bindEntityExists = false;
-					var bindingsNodes = bindingWrapper.querySelectorAll('[data-type]');
-					if (bindingsNodes && bindingsNodes.length > 0)
-					{
-						for (var i = 0; i < bindingsNodes.length; i++)
-						{
-							if (bindingsNodes[i].dataset.type === params.entityType)
-							{
-								bindEntityExists = true;
-								break;
-							}
-						}
-					}
-					if (!bindEntityExists)
-					{
-						var bindNode;
-						switch (params.entityType)
-						{
-							case this.ENTITY_TYPE_TASKS_TASK:
-								bindNode = BX.create('span', {
-									attrs: {
-										class: 'mail-badge mail-badge-dark',
-									},
-									dataset: {
-										type: params.entityType
-									},
-									children: [
-										BX.create('a', {
-											attrs: {
-												href: this.PATH_TO_USER_TASKS_TASK.replace('#action#', 'view').replace('#task_id#', params.entityId),
-												class: 'mail-badge-item',
-											},
-											text: BX.message('MAIL_MESSAGE_LIST_COLUMN_BIND_TASKS_TASK')
-										})
-									]
-								});
-								break;
-							case this.ENTITY_TYPE_BLOG_POST:
-								bindNode = BX.create('span', {
-									attrs: {
-										class: 'mail-badge mail-badge-dark',
-									},
-									'dataset': {
-										'type': params.entityType
-									},
-									children: [
-										BX.create('a', {
-											attrs: {
-												class: 'mail-badge-item',
-												'href': this.PATH_TO_USER_BLOG_POST.replace('#post_id#', params.entityId),
-												'onclick': 'top.BX.SidePanel.Instance.open(this.href, {loader: \'socialnetwork:userblogpost\'}); return false; '
-											},
-											'text': BX.message('MAIL_MESSAGE_LIST_COLUMN_BIND_BLOG_POST')
-										})
-									]
-								});
-								break;
-							case this.ENTITY_TYPE_CRM_ACTIVITY:
-								if (this.userHasCrmActivityPermission)
-								{
-									bindNode = BX.create('span', {
-										attrs: {
-											class: 'mail-badge mail-badge-dark',
-										},
-										dataset: {
-											role: 'crm-binding-link',
-											entityId: params.entityId,
-											type: params.entityType
-										},
-										children: [
-											BX.create('a', {
-												attrs: {
-													class: 'mail-badge-item',
-													href: params.bindingEntityLink ? params.bindingEntityLink : '#'
-												},
-												text: BX.message('MAIL_MESSAGE_LIST_COLUMN_BIND_CRM_ACTIVITY')
-											})
-										]
-									});
-									break;
-								}
-								bindNode = BX.create('span', {
-									dataset: {type: params.entityType},
-									text: BX.message('MAIL_MESSAGE_LIST_COLUMN_BIND_CRM_ACTIVITY')
-								});
-								break;
-							default:
-								break;
-						}
-						if (bindNode)
-						{
-							bindingWrapper.appendChild(bindNode);
-							this.arrangeBindings(bindingWrapper);
-							this.updateGridByUnbindFilter();
-						}
-					}
-				}
-			}
-		},
-		arrangeBindings: function(bindingWrapper)
-		{
-			var crmBind = bindingWrapper.querySelector('[data-type="' + this.ENTITY_TYPE_CRM_ACTIVITY + '"]');
-			var taskBind = bindingWrapper.querySelector('[data-type="' + this.ENTITY_TYPE_TASKS_TASK + '"]');
-			var postBind = bindingWrapper.querySelector('[data-type="' + this.ENTITY_TYPE_BLOG_POST + '"]');
-
-			if(crmBind !== null && bindingWrapper.firstElementChild !== null)
-			{
-				bindingWrapper.insertBefore(crmBind, bindingWrapper.firstElementChild);
-			}
-
-			if(postBind !== null && taskBind !== null)
-			{
-				bindingWrapper.insertBefore(taskBind, postBind);
-			}
+			bindingWrapper.deactivation();
+			this.updateGridByUnbindFilter();
 		},
 		trackActionPanelStyleChange: function ()
 		{
@@ -363,7 +216,12 @@
 
 			gridInstance.bindOnCheckAll();
 
+			targetNode.firstChild.onclick = function() {
+				BX.Mail.Home.Grid.resetGridSelection();
+			}
+
 			targetNode.insertBefore(container, targetNode.firstChild);
+
 		},
 		getGridHeaderCheckbox: function ()
 		{
@@ -440,14 +298,11 @@
 		{
 			if (container)
 			{
-				var bindingWrapper = container.querySelector('[class^="js-bind"]');
+				var bindingWrapper = container.querySelector('.mail-binding-crm.mail-ui-active');
+
 				if (bindingWrapper)
 				{
-					var crmBindings = bindingWrapper.querySelectorAll('[data-role="crm-binding-link"]');
-					if (crmBindings && crmBindings.length > 0)
-					{
-						return false;
-					}
+					return false;
 				}
 			}
 			return true;
@@ -462,11 +317,11 @@
 				{
 					gridRow.getActionsMenu();
 				}
+
 				var notReadBtn = BX.findParent(popupWindow.getPopupContainer().querySelector('[data-role^="not-read"]'), {className: 'menu-popup-item'});
 				var readBtn = BX.findParent(popupWindow.getPopupContainer().querySelector('[data-role^="read"]'), {className: 'menu-popup-item'});
 
 				var actionName = this.isSelectedRowsHaveClass('mail-msg-list-cell-unseen', tableRow.dataset.id) ? 'markAsSeen' : 'markAsUnseen';
-
 				if (actionName === 'markAsSeen')
 				{
 					this.showElement(readBtn, true);
@@ -616,7 +471,7 @@
 				for (var i = 0; i < selectedIds.length; i++)
 				{
 					var row = this.getGridInstance().getRows().getById(selectedIds[i]);
-					
+
 					if (row && row.node)
 					{
 						var oldMessage = row.node.getElementsByClassName('mail-msg-list-cell-old');
@@ -680,24 +535,40 @@
 				return;
 			}
 			var showAddToCrm = this.isAddToCrmActionAvailable(row.node);
+
+			var crmBtn = BX.Mail.Home.Grid.getPanel().getItemById('addToCrm');
+			var notCrmBtn = BX.Mail.Home.Grid.getPanel().getItemById('excludeFromCrm');
+
+			if (!crmBtn || !notCrmBtn)
+			{
+				return;
+			}
+
 			if (showAddToCrm)
 			{
-				this.activateBtn(this.crmActionBtnRole);
+				notCrmBtn.hide();
+				crmBtn.showAsInlineBlock();
 			}
 			else
 			{
-				this.disActivateBtn(this.crmActionBtnRole);
+				notCrmBtn.showAsInlineBlock();
+				crmBtn.hide();
 			}
 		},
 		updateSpamBtn: function ()
 		{
+			var notSpamBtn = BX.Mail.Home.Grid.getPanel().getItemById('notSpam');
+			var spamBtn = BX.Mail.Home.Grid.getPanel().getItemById('spam');
+
 			if (this.isCurrentFolderSpam)
 			{
-				this.disActivateBtn(this.spamActionBtnRole);
+				notSpamBtn.showAsInlineBlock();
+				spamBtn.hide();
 			}
 			else
 			{
-				this.activateBtn(this.spamActionBtnRole);
+				spamBtn.showAsInlineBlock();
+				notSpamBtn.hide();
 			}
 		},
 		updateSeenBtn: function ()
@@ -706,21 +577,31 @@
 			var selectedIds = this.getGridInstance().getRows().getSelectedIds();
 			var oldMessagesNumber = this.isSelectedRowsHaveClass('mail-msg-list-cell-old');
 
+			var notReadBtn = BX.Mail.Home.Grid.getPanel().getItemById('notRead');
+			var readBtn = BX.Mail.Home.Grid.getPanel().getItemById('read');
+
+			if (!notReadBtn || !readBtn)
+			{
+				return;
+			}
+
 			if(selectedIds.length === oldMessagesNumber)
 			{
-				this.disActivateBtn(this.readActionBtnRole);
-				this.disActivateBtn(this.notReadActionBtnRole);
+				readBtn.hide();
+				notReadBtn.hide();
 			}
 			else
 			{
-				this.activateBtn(this.notReadActionBtnRole);
+
 				if (actionName === 'markAsSeen')
 				{
-					this.activateBtn(this.readActionBtnRole);
+					notReadBtn.hide();
+					readBtn.showAsInlineBlock();
 				}
 				else
 				{
-					this.disActivateBtn(this.readActionBtnRole);
+					notReadBtn.showAsInlineBlock();
+					readBtn.hide();
 				}
 			}
 
@@ -754,10 +635,42 @@
 			var popup = BX.Main.MenuManager.getMenuById('ui-action-panel-item-popup-menu');
 			popup && popup.close();
 
-			this.toggleButton(this.readActionBtnRole, true);
-			this.toggleButton('not-' + this.readActionBtnRole, false);
-			this.activateBtn(this.crmActionBtnRole);
-			this.updateSpamBtn();
+			var notReadBtn = BX.Mail.Home.Grid.getPanel().getItemById('notRead');
+			var readBtn = BX.Mail.Home.Grid.getPanel().getItemById('read');
+			var notSpamBtn = BX.Mail.Home.Grid.getPanel().getItemById('notSpam');
+			var spamBtn = BX.Mail.Home.Grid.getPanel().getItemById('spam');
+			var crmBtn = BX.Mail.Home.Grid.getPanel().getItemById('addToCrm');
+			var notCrmBtn = BX.Mail.Home.Grid.getPanel().getItemById('excludeFromCrm');
+
+			if (typeof notReadBtn !== 'undefined')
+			{
+				notReadBtn.hide();
+			}
+			if (typeof notSpamBtn !== 'undefined')
+			{
+				notSpamBtn.hide();
+			}
+			if (typeof readBtn !== 'undefined')
+			{
+				readBtn.showAsInlineBlock();
+			}
+
+			if (typeof spamBtn !== 'undefined')
+			{
+				spamBtn.showAsInlineBlock();
+			}
+
+			if (typeof crmBtn !== 'undefined')
+			{
+				crmBtn.showAsInlineBlock();
+			}
+
+			if (typeof notCrmBtn !== 'undefined')
+			{
+				notCrmBtn.hide();
+			}
+
+			BX.style(readBtn.layout.container,'display','inline-block');
 
 			var event = document.createEvent("Event");
 			event.initEvent("resize", true, true);
@@ -773,16 +686,6 @@
 				return row.getActionsMenu();
 			}
 			return null;
-		},
-		onUnreadCounterClick: function ()
-		{
-			var filter = this.getFilterInstance();
-			var filterApi = filter.getApi();
-			filterApi.setFields({
-				'DIR': filter.getFilterFieldsValues()['DIR'],
-				'IS_SEEN': 'N'
-			});
-			filterApi.apply();
 		},
 		getFilterInstance: function ()
 		{

@@ -10,11 +10,11 @@ use Bitrix\Rest\RestException;
 
 class ModificationFieldsBase
 {
-	const TO_WHITE_LIST 	= 0x00010;
-	const TO_CAMEL 			= 0x00020;
-	const TO_SNAKE 			= 0x00030;
-	const SORTING_KEYS		= 0x00040;
-	const CHECK_REQUIRED	= 0x00050;
+	const TO_WHITE_LIST 	= 'TO_WHITE_LIST';
+	const TO_CAMEL 			= 'TO_CAMEL';
+	const TO_SNAKE 			= 'TO_SNAKE';
+	const SORTING_KEYS		= 'SORTING_KEYS';
+	const CHECK_REQUIRED	= 'CHECK_REQUIRED';
 
 	protected $format;
 	protected $data;
@@ -48,6 +48,14 @@ class ModificationFieldsBase
 	public function setArguments($arguments)
 	{
 		$this->arguments = $arguments;
+	}
+
+	/**
+	 * @param mixed $format
+	 */
+	public function setFormat($format): void
+	{
+		$this->format = $format;
 	}
 
 	public function getController()
@@ -89,21 +97,9 @@ class ModificationFieldsBase
 		{
 			$entity = new \Bitrix\Sale\Rest\Entity\Payment();
 		}
-		elseif ($controller instanceof \Bitrix\Sale\Controller\PersonType)
-		{
-			$entity = new \Bitrix\Sale\Rest\Entity\PersonType();
-		}
 		elseif ($controller instanceof \Bitrix\Sale\Controller\Property)
 		{
 			$entity = new \Bitrix\Sale\Rest\Entity\Property();
-		}
-		elseif ($controller instanceof \Bitrix\Sale\Controller\PropertyGroup)
-		{
-			$entity = new \Bitrix\Sale\Rest\Entity\PropertyGroup();
-		}
-		elseif ($controller instanceof \Bitrix\Sale\Controller\PropertyValue)
-		{
-			$entity = new \Bitrix\Sale\Rest\Entity\PropertyValue();
 		}
 		elseif ($controller instanceof \Bitrix\Sale\Controller\Shipment)
 		{
@@ -112,42 +108,6 @@ class ModificationFieldsBase
 		elseif ($controller instanceof \Bitrix\Sale\Controller\ShipmentItem)
 		{
 			$entity = new \Bitrix\Sale\Rest\Entity\ShipmentItem();
-		}
-		elseif ($controller instanceof \Bitrix\Sale\Controller\Status)
-		{
-			$entity = new \Bitrix\Sale\Rest\Entity\Status();
-		}
-		elseif ($controller instanceof \Bitrix\Sale\Controller\StatusLang)
-		{
-			$entity = new \Bitrix\Sale\Rest\Entity\StatusLang();
-		}
-		elseif ($controller instanceof \Bitrix\Sale\Controller\DeliveryServices)
-		{
-			$entity = new \Bitrix\Sale\Rest\Entity\DeliveryServices();
-		}
-		elseif ($controller instanceof \Bitrix\Sale\Controller\TradeBinding)
-		{
-			$entity = new \Bitrix\Sale\Rest\Entity\TradeBinding();
-		}
-		elseif ($controller instanceof \Bitrix\Sale\Controller\TradePlatform)
-		{
-			$entity = new \Bitrix\Sale\Rest\Entity\TradePlatform();
-		}
-		elseif ($controller instanceof \Bitrix\Sale\Controller\Enum)
-		{
-			$entity = new \Bitrix\Sale\Rest\Entity\Enum();
-		}
-		elseif ($controller instanceof \Bitrix\Sale\Controller\BusinessValuePersonDomain)
-		{
-			$entity = new \Bitrix\Sale\Rest\Entity\BusinessValuePersonDomain();
-		}
-		elseif ($controller instanceof \Bitrix\Sale\Controller\PropertyVariant)
-		{
-			$entity = new \Bitrix\Sale\Rest\Entity\PropertyVariant();
-		}
-		elseif ($controller instanceof \Bitrix\Sale\Controller\PropertyRelation)
-		{
-			$entity = new \Bitrix\Sale\Rest\Entity\PropertyRelation();
 		}
 		else
 		{

@@ -61,6 +61,12 @@ class BlockTable extends Entity\DataManager
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CODE'),
 				'required' => true
 			)),
+			'CODE_ORIGINAL' => new Entity\StringField('CODE_ORIGINAL', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CODE_ORIGINAL'),
+			)),
+			'TPL_CODE' => new Entity\StringField('TPL_CODE', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_TPL_CODE'),
+			)),
 			'XML_ID' => new Entity\StringField('XML_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_XML_ID')
 			)),
@@ -113,6 +119,9 @@ class BlockTable extends Entity\DataManager
 			)),
 			'ASSETS' => (new \Bitrix\Main\ORM\Fields\ArrayField('ASSETS', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SOURCE_PARAMS')
+			)))->configureSerializationPhp(),
+			'FAVORITE_META' => (new \Bitrix\Main\ORM\Fields\ArrayField('FAVORITE_META', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_FAVORITE_META')
 			)))->configureSerializationPhp(),
 			'CREATED_BY_ID' => new Entity\IntegerField('CREATED_BY_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CREATED_BY_ID'),

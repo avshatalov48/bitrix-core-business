@@ -1,0 +1,2218 @@
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Catalog\Component\ImageInput;
+use Bitrix\Catalog\StoreBarcodeTable;
+use Bitrix\Catalog\StoreDocumentBarcodeTable;
+use Bitrix\Catalog\StoreDocumentElementTable;
+use Bitrix\Catalog\StoreDocumentTable;
+use Bitrix\Catalog\StoreProductTable;
+use Bitrix\Catalog\StoreTable;
+use Bitrix\Catalog\Url\InventoryBuilder;
+use Bitrix\Catalog\v2\Sku\BaseSku;
+use Bitrix\Iblock\Url\AdminPage\BuilderManager;
+use Bitrix\Main;
+use Bitrix\Main\Grid\Editor\Types;
+use Bitrix\Main\Grid\Panel\Snippet;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Currency\CurrencyManager;
+use Bitrix\Catalog\v2\IoC\ServiceContainer;
+use Bitrix\Main\Text\HtmlFilter;
+
+if (!Loader::includeModule('catalog'))
+{
+	return;
+}
+
+final class CatalogStoreDocumentProductListComponent
+	extends \CBitrixComponent
+	implements Main\Engine\Contract\Controllerable, Main\Errorable
+{
+	use Main\ErrorableImplementation;
+
+	private const NEW_ROW_ID_PREFIX = 'n';
+	private const PRODUCT_ID_MASK = '#PRODUCT_ID_MASK#';
+
+	/** @var Main\Grid\Options $gridConfig */
+	protected $gridConfig;
+	protected $storage = [];
+	protected $defaultSettings = [];
+	protected $rows = [];
+
+	/** @var Main\UI\PageNavigation $navigation */
+	protected $navigation;
+
+	protected $currency = [
+		'ID' => '',
+		'TEMPLATE' => '',
+		'TEXT' => '',
+		'FORMAT' => [],
+	];
+	protected $measures = [];
+	protected $stores = [];
+	protected $newRowCounter = 0;
+
+	protected $externalDocument = [];
+
+	/**
+	 * Base constructor.
+	 *
+	 * @param \CBitrixComponent|null $component Component object if exists.
+	 */
+	public function __construct($component = null)
+	{
+		parent::__construct($component);
+		$this->errorCollection = new Main\ErrorCollection();
+	}
+
+	/**
+	 * @return array
+	 */
+	public function configureActions()
+	{
+		return [];
+	}
+
+	/**
+	 * @param $params
+	 * @return array
+	 */
+	public function onPrepareComponentParams($params): array
+	{
+		/**
+		 * GRID_ID - string - custom grid id
+		 * NAVIGATION_ID - string - custom navigation id (may be create from GRID_ID)
+		 * FORM_ID - string - custom form identifier (may be create from GRID_ID), default empty
+		 * TAB_ID - string - custom product tab identifier, default empty
+		 *
+		 * AJAX_ID - string - ajax component identifier
+		 * AJAX_MODE - string - is ajax enabled (Y/N), default Y
+		 * AJAX_OPTION_JUMP - string - ajax option (Y/N), default N
+		 * AJAX_OPTION_HISTORY - string - ajax option (Y/N), default N
+		 * AJAX_LOADER - mixed|null - not used in titleflex template, default null
+		 *
+		 * SHOW_PAGINATION - bool or Y/N - show pagination block, default false
+		 * SHOW_TOTAL_COUNTER - bool or Y/N - show count of rows, default false
+		 * SHOW_PAGESIZE - bool or Y/N - show page size select, default false
+		 * PAGINATION - array - pagination info (pages size, offset, etc), default - empty array
+		 *
+		 * PRODUCTS - array|null - product list
+		 * TOTAL_PRODUCTS_COUNT - int - full product rows quantity
+		 *
+		 * CUSTOM_SITE_ID - string - entity site identifier, default SITE_ID
+		 * CUSTOM_LANGUAGE_ID - string - current lang identifier, default LANGUAGE_ID
+		 * SET_ITEMS - bool - set rows (Y/N), default N
+		 * ALLOW_EDIT - bool - allow modify data (Y/N), default N
+		 * ALLOW_ADD_PRODUCT - bool - add product to entity button (Y/N), default N
+		 * ALLOW_CREATE_NEW_PRODUCT - bool - create fake products button (Y/N), default N
+		 * if ALLOW_EDIT off - ALLOW_ADD_PRODUCT and ALLOW_CREATE_NEW_PRODUCT already off
+		 *
+		 * DOCUMENT_ID - string|int - parent entity id
+		 *
+		 * EXTERNAL_DOCUMENT - array|null - custom external documents
+		 */
+
+		$this->prepareEntityIds($params);
+		$this->prepareAjaxOptions($params);
+		$this->preparePaginationOptions($params);
+		$this->prepareProducts($params);
+		$this->prepareSettings($params);
+		$this->prepareEntitySettings($params);
+
+		return $params;
+	}
+
+	/**
+	 * @return void
+	 */
+	public function executeComponent(): void
+	{
+		$this->fillSettings();
+		if ($this->isExistErrors())
+		{
+			$this->showErrors();
+
+			return;
+		}
+
+		$this->loadData();
+
+		$this->prepareResult();
+
+		$this->includeComponentTemplate();
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function listKeysSignedParameters()
+	{
+		return [
+			// prepareEntityIds
+			'GRID_ID',
+			'NAVIGATION_ID',
+			'FORM_ID',
+			'TAB_ID',
+			'AJAX_ID',
+			'CATALOG_ID',
+			// prepareAjaxOptions
+			'AJAX_MODE',
+			'AJAX_OPTION_JUMP',
+			'AJAX_OPTION_HISTORY',
+			'AJAX_LOADER',
+			// preparePaginationOptions
+			'SHOW_PAGINATION',
+			'SHOW_TOTAL_COUNTER',
+			'SHOW_PAGESIZE',
+			// prepareSettings
+			'CUSTOM_SITE_ID',
+			'CUSTOM_LANGUAGE_ID',
+			'CURRENCY',
+			'SET_ITEMS',
+			'ALLOW_EDIT',
+			'ALLOW_ADD_PRODUCT',
+			'ALLOW_CREATE_NEW_PRODUCT',
+			'PREFIX',
+			'ID',
+			'PRODUCT_DATA_FIELD_NAME',
+			// prepareEntitySettings
+			'DOCUMENT_TYPE',
+			'DOCUMENT_ID',
+			'EXTERNAL_DOCUMENT',
+		];
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isExistErrors(): bool
+	{
+		return !$this->errorCollection->isEmpty();
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function showErrors(): void
+	{
+		foreach ($this->getErrors() as $error)
+		{
+			\ShowError($error);
+		}
+	}
+
+	/**
+	 * @param string $message
+	 * @return void
+	 */
+	protected function addErrorMessage(string $message): void
+	{
+		$this->errorCollection->setError(new Main\Error($message));
+	}
+
+	/**
+	 * @param array &$params
+	 * @return void
+	 */
+	protected function prepareEntityIds(array &$params): void
+	{
+		static::validateListParameters(
+			$params,
+			[
+				'GRID_ID',
+				'NAVIGATION_ID',
+				'FORM_ID',
+				'TAB_ID',
+				'AJAX_ID',
+			]
+		);
+
+		if (!empty($params['GRID_ID']))
+		{
+			if (empty($params['NAVIGATION_ID']))
+			{
+				$params['NAVIGATION_ID'] = static::createNavigationId($params['GRID_ID']);
+			}
+			if (!isset($params['FORM_ID']))
+			{
+				$params['FORM_ID'] = static::createFormId($params['GRID_ID']);
+			}
+		}
+	}
+
+	private function isAcceptableDocumentType($type): bool
+	{
+		$acceptableDocumentTypes = [
+			StoreDocumentTable::TYPE_ARRIVAL,
+			StoreDocumentTable::TYPE_STORE_ADJUSTMENT,
+			StoreDocumentTable::TYPE_DEDUCT,
+			StoreDocumentTable::TYPE_MOVING,
+		];
+
+		if (!empty($this->externalDocument['TYPE']))
+		{
+			$acceptableDocumentTypes[] = $this->externalDocument['TYPE'];
+		}
+
+		return in_array($type, $acceptableDocumentTypes, true);
+	}
+
+	/**
+	 * @param array &$params
+	 * @return void
+	 */
+	protected function prepareAjaxOptions(array &$params): void
+	{
+		$params['AJAX_MODE'] = isset($params['AJAX_MODE']) && $params['AJAX_MODE'] === 'N' ? 'N' : 'Y';
+		$params['AJAX_OPTION_JUMP'] = isset($params['AJAX_OPTION_JUMP']) && $params['AJAX_OPTION_JUMP'] === 'Y' ? 'Y' : 'N';
+		$params['AJAX_OPTION_HISTORY'] = isset($params['AJAX_OPTION_HISTORY']) && $params['AJAX_OPTION_HISTORY'] === 'Y' ? 'Y' : 'N';
+		$params['AJAX_LOADER'] = $params['AJAX_LOADER'] ?? null;
+	}
+
+	/**
+	 * @param array &$params
+	 * @return void
+	 */
+	protected function preparePaginationOptions(array &$params): void
+	{
+		static::validateBoolList(
+			$params,
+			[
+				'SHOW_PAGINATION',
+				'SHOW_TOTAL_COUNTER',
+				'SHOW_PAGESIZE',
+			]
+		);
+
+		if (empty($params['PAGINATION']) || !is_array($params['PAGINATION']))
+		{
+			$params['PAGINATION'] = [];
+		}
+	}
+
+	/**
+	 * @param array &$params
+	 * @return void
+	 */
+	protected function prepareProducts(array &$params): void
+	{
+		if (isset($params['PRODUCTS']) && !is_array($params['PRODUCTS']))
+		{
+			$params['PRODUCTS'] = null;
+		}
+	}
+
+	/**
+	 * @param array &$params
+	 * @return void
+	 */
+	protected function prepareSettings(array &$params): void
+	{
+		$params['CURRENCY'] = isset($params['CURRENCY']) && is_string($params['CURRENCY'])
+			? $params['CURRENCY']
+			: ''
+		;
+
+		$params['ALLOW_EDIT'] = isset($params['ALLOW_EDIT']) && $params['ALLOW_EDIT'] === 'Y';
+		$params['ALLOW_ADD_PRODUCT'] = isset($params['ALLOW_ADD_PRODUCT']) && $params['ALLOW_ADD_PRODUCT'] === 'Y';
+		$params['ALLOW_CREATE_NEW_PRODUCT'] = isset($params['ALLOW_CREATE_NEW_PRODUCT']) && $params['ALLOW_CREATE_NEW_PRODUCT'] === 'Y';
+
+		if (!$params['ALLOW_EDIT'])
+		{
+			$params['ALLOW_ADD_PRODUCT'] = false;
+			$params['ALLOW_CREATE_NEW_PRODUCT'] = false;
+		}
+
+		$params['BUILDER_CONTEXT'] =
+			isset($params['BUILDER_CONTEXT']) && is_string($params['BUILDER_CONTEXT'])
+				? trim($params['BUILDER_CONTEXT'])
+				: InventoryBuilder::TYPE_ID
+		;
+		$params['PREFIX'] = (isset($params['PREFIX']) && is_string($params['PREFIX']) ? trim($params['PREFIX']) : '');
+		$params['ID'] = (isset($params['ID']) && is_string($params['ID']) ? trim($params['ID']) : '');
+		$params['PRODUCT_DATA_FIELD_NAME'] = isset($params['PRODUCT_DATA_FIELD_NAME']) ? $params['PRODUCT_DATA_FIELD_NAME'] : 'PRODUCT_ROW_DATA';
+
+		$params['EXTERNAL_DOCUMENT'] = $params['EXTERNAL_DOCUMENT'] ?? [];
+		$this->externalDocument = $params['EXTERNAL_DOCUMENT'];
+	}
+
+	/**
+	 * @param array &$params
+	 * @return void
+	 */
+	protected function prepareEntitySettings(array &$params): void
+	{
+		if (empty($params['DOCUMENT_TYPE']) || !$this->isAcceptableDocumentType($params['DOCUMENT_TYPE']))
+		{
+			$this->addErrorMessage(Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_WRONG_DOCUMENT_TYPE'));
+			return;
+		}
+
+		$params['DOCUMENT_ID'] = (isset($params['DOCUMENT_ID']) ? (int)$params['DOCUMENT_ID'] : 0);
+		if ($params['DOCUMENT_ID'] < 0)
+		{
+			$this->addErrorMessage(Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_WRONG_DOCUMENT_ID'));
+		}
+
+		$params['CATALOG_ID'] = (isset($params['CATALOG_ID']) ? (int)$params['CATALOG_ID'] : 0);
+		if ($params['CATALOG_ID'] <= 0)
+		{
+			$this->addErrorMessage(Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_WRONG_CATALOG_ID'));
+		}
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function fillSettings(): void
+	{
+		$this->checkModules();
+		$this->initDefaultSettings();
+		$this->loadReferences();
+		$this->initSettings();
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function initDefaultSettings(): void
+	{
+		$this->defaultSettings = [
+			'GRID_ID' => $this->getDefaultGridId(),
+		];
+		$this->defaultSettings['NAVIGATION_ID'] = static::createNavigationId($this->defaultSettings['GRID_ID']);
+		$this->defaultSettings['FORM_ID'] = static::createFormId($this->defaultSettings['GRID_ID']);
+		$this->defaultSettings['TAB_ID'] = '';
+		$this->defaultSettings['AJAX_ID'] = '';
+		$this->defaultSettings['PAGE_SIZES'] = [5, 10, 20, 50, 100];
+		$this->defaultSettings['PRICE_PRECISION'] = 2;
+		$this->defaultSettings['AMOUNT_PRECISION'] = 4;
+		$this->defaultSettings['COMMON_PRECISION'] = 2;
+		$this->defaultSettings['CREATE_PRODUCT_PATH'] = $this->getElementDetailUrl($this->arParams['CATALOG_ID']);
+		$this->defaultSettings['NEW_ROW_POSITION'] = CUserOptions::GetOption(
+			'catalog.store.document.product.list',
+			'new.row.position',
+			'top'
+		);
+
+		$baseGroup = \CCatalogGroup::GetBaseGroup();
+		$this->defaultSettings['BASE_PRICE_ID'] = (is_array($baseGroup) && isset($baseGroup['ID'])) ? (int)$baseGroup['ID'] : null;
+	}
+
+	protected function getDefaultSetting($name)
+	{
+		return $this->defaultSettings[$name] ?? null;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDefaultGridId(): string
+	{
+		return self::clearStringValue(self::class) . '_' . $this->getDocumentType() . '_' . $this->getDocumentId();
+	}
+
+	protected function getDocumentId(): int
+	{
+		return (int)$this->arParams['DOCUMENT_ID'];
+	}
+
+	protected function getDocumentType(): ?string
+	{
+		return $this->arParams['DOCUMENT_TYPE'];
+	}
+
+	/**
+	 * @param string $gridId
+	 * @return string
+	 */
+	protected static function createNavigationId(string $gridId): string
+	{
+		return $gridId . '_NAVIGATION';
+	}
+
+	/**
+	 * @param string $gridId
+	 * @return string
+	 */
+	protected static function createFormId(string $gridId): string
+	{
+		return 'form_' . $gridId;
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function initSettings(): void
+	{
+		$paramsList = [
+			'GRID_ID',
+			'NAVIGATION_ID',
+			'PAGE_SIZES',
+			'FORM_ID',
+			'TAB_ID',
+			'AJAX_ID',
+			'NEW_ROW_POSITION',
+			'PRICE_PRECISION',
+			'AMOUNT_PRECISION',
+			'COMMON_PRECISION',
+			'CREATE_PRODUCT_PATH',
+		];
+		foreach ($paramsList as $param)
+		{
+			$value = !empty($this->arParams[$param]) ? $this->arParams[$param] : $this->defaultSettings[$param];
+			$this->setStorageItem($param, $value);
+		}
+
+		$this->initGrid();
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function loadReferences(): void
+	{
+		$this->loadCurrency();
+		$this->loadMeasures();
+		$this->loadStores();
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function loadCurrency(): void
+	{
+		$this->currency['ID'] =
+			!empty($this->arParams['CURRENCY'])
+				? $this->arParams['CURRENCY']
+				: CurrencyManager::getBaseCurrency()
+		;
+
+		$format = \CCurrencyLang::GetFormatDescription($this->currency['ID']);
+		$this->currency['TEMPLATE'] = $format['FORMAT_STRING'] ?? '';
+		$this->currency['TEXT'] =
+			isset($this->currency['TEMPLATE'])
+				? trim(\CCurrencyLang::applyTemplate('', $this->currency['TEMPLATE']))
+				: ''
+		;
+
+		$this->currency['FORMAT'] = $format;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getCurrency(): array
+	{
+		return $this->currency;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getCurrencyId(): string
+	{
+		return $this->currency['ID'];
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getDefaultMeasure(): array
+	{
+		foreach ($this->measures as $measure)
+		{
+			if ($measure['IS_DEFAULT'] === 'Y')
+			{
+				return $measure;
+			}
+		}
+
+		return [];
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getDefaultTotalCalculationField(): string
+	{
+		if (!empty($this->externalDocument['TOTAL_CALCULATION_FIELD']))
+		{
+			return (string)$this->externalDocument['TOTAL_CALCULATION_FIELD'];
+		}
+
+		return 'PURCHASING_PRICE';
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getCurrencyTemplate(): string
+	{
+		return $this->currency['TEMPLATE'];
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getCurrencyText(): string
+	{
+		return $this->currency['TEXT'];
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getCurrencyFormat(): array
+	{
+		return $this->currency['FORMAT'];
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function loadMeasures(): void
+	{
+		$measureResult = \CCatalogMeasure::getList(
+			array('CODE' => 'ASC'),
+			array(),
+			false,
+			array(),
+			array('CODE', 'SYMBOL_RUS', 'SYMBOL_INTL', 'IS_DEFAULT', 'ID')
+		);
+
+		$this->measures = [];
+		while ($measureFields = $measureResult->Fetch())
+		{
+			$measureItem = [
+				'CODE' => $measureFields['CODE'],
+				'IS_DEFAULT' => $measureFields['IS_DEFAULT'],
+				'SYMBOL' => $measureFields['SYMBOL_RUS'] ?? $measureFields['SYMBOL_INTL'],
+			];
+
+			$this->measures[$measureFields['ID']] = $measureItem;
+		}
+	}
+
+	protected function loadStores(): void
+	{
+		$this->stores = [];
+		$productStoreRaw = StoreTable::getList([
+			'select' => ['ID', 'TITLE', 'IS_DEFAULT']
+		]);
+
+		while ($store = $productStoreRaw->fetch())
+		{
+			if ($store['TITLE'] === '')
+			{
+				$store['TITLE'] = Loc::getMessage('CATALOG_DOCUMENT_EMPTY_STORE_TITLE');
+			}
+
+			$this->stores[$store['ID']] = $store;
+		}
+	}
+
+	protected function checkModules(): bool
+	{
+		if (!Loader::includeModule('catalog'))
+		{
+			$this->addErrorMessage('Module "catalog" is not installed.');
+
+			return false;
+		}
+
+		if (!Loader::includeModule('iblock'))
+		{
+			$this->addErrorMessage('Module "iblock" is not installed.');
+
+			return false;
+		}
+
+		if (!Loader::includeModule('currency'))
+		{
+			$this->addErrorMessage('Module "currency" is not installed.');
+
+			return false;
+		}
+
+		if (!Loader::includeModule('sale'))
+		{
+			$this->addErrorMessage('Module "sale" is not installed.');
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function initUiScope(): void
+	{
+		global $APPLICATION;
+
+		Main\UI\Extension::load($this->getUiExtensions());
+
+		foreach ($this->getUiStyles() as $styleList)
+		{
+			$APPLICATION->SetAdditionalCSS($styleList);
+		}
+
+		$scripts = $this->getUiScripts();
+		if (!empty($scripts))
+		{
+			$asset = Main\Page\Asset::getInstance();
+			foreach ($scripts as $row)
+			{
+				$asset->addJs($row);
+			}
+			unset($row, $asset);
+		}
+		unset($scripts);
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function loadData(): void
+	{
+		$this->rows = [];
+		if ($this->arParams['REQUEST'] && is_array($this->arParams['~PRODUCTS']))
+		{
+			$this->rows = $this->getProductRowsFromRequest();
+
+			return;
+		}
+
+		if (!empty($this->arParams['PRODUCTS']))
+		{
+			$documentProducts = $this->arParams['PRODUCTS'];
+		}
+		elseif (!$this->externalDocument && $this->getDocumentId() > 0)
+		{
+			$documentProducts = $this->getDocumentProducts();
+		}
+		elseif ($this->arParams['PRESELECTED_PRODUCT_ID'])
+		{
+			$documentProducts = $this->getPreselectDocumentProducts();
+		}
+		elseif (!empty($this->arParams['REQUEST']) && !empty($this->externalDocument['INITIAL_PRODUCTS']))
+		{
+			$documentProducts = $this->externalDocument['INITIAL_PRODUCTS'];
+		}
+
+		if (empty($documentProducts))
+		{
+			return;
+		}
+
+		$productIds = array_column($documentProducts, 'ELEMENT_ID');
+		$productIds = array_unique($productIds);
+
+		if (empty($productIds))
+		{
+			return;
+		}
+
+		$productInfo = $this->loadCatalog($productIds);
+		$productStoreInfo = $this->getProductStoreInfo($productIds);
+		$barcodes = $this->getBarcodes($productIds);
+
+		foreach ($documentProducts as $id => $document)
+		{
+			$productId = $document['ELEMENT_ID'];
+			if (isset($productInfo[$productId]))
+			{
+				$product = $productInfo[$productId]['FIELDS'];
+				if ($productInfo[$productId]['SKU'] instanceof \Bitrix\Catalog\v2\Sku\BaseSku)
+				{
+					$skuImageField = new ImageInput($productInfo[$productId]['SKU']);
+					$product['IMAGE_INFO'] = $skuImageField->getFormattedField();
+				}
+			}
+
+			$productName = $product['NAME'] ?? '';
+			if (
+				isset($product)
+				&& $productName === ''
+				&& is_numeric($product['ID'])
+				&& $product['ID'] !== self::PRODUCT_ID_MASK
+			)
+			{
+				$productName = ((int)$product['ID'] > 0 && isset($product['NAME'])
+					? $product['NAME']
+					: "[{$product['ID']}]"
+				);
+			}
+
+
+			if (!empty($document['BARCODE']))
+			{
+				$barcode = $document['BARCODE'];
+			}
+			else
+			{
+				$barcode = $barcodes[$productId] ?? '';
+			}
+
+			$additionalData = [
+				'ROW_ID' => $this->getRowIdPrefix($document['ID']),
+				'PRODUCT_INFO' => $product ?? [],
+				'BARCODE' => $barcode,
+				'DOC_BARCODE' => $barcode,
+				'STORE_TO_TITLE' => $this->stores[$document['STORE_TO']]['TITLE'] ?? '',
+				'STORE_TO_AMOUNT' => $productStoreInfo[$productId][$document['STORE_TO']]['AMOUNT'] ?? '',
+				'STORE_FROM_TITLE' => $this->stores[$document['STORE_FROM']]['TITLE'] ?? '',
+				'STORE_FROM_AMOUNT' => $productStoreInfo[$productId][$document['STORE_FROM']]['AMOUNT'] ?? '',
+				'STORE_AMOUNT_MAP' => $productStoreInfo[$productId] ?? null,
+				'IBLOCK_ID' => $product['IBLOCK_ID'] ?? $this->arParams['IBLOCK_ID'],
+				'BASE_PRICE_ID' => $product['BASE_PRICE_ID'] ?? $this->getStorageItem('BASE_PRICE_ID'),
+				'PARENT_PRODUCT_ID' => $product['PARENT_PRODUCT_ID'],
+				'OFFERS_IBLOCK_ID' => $product['OFFERS_IBLOCK_ID'],
+				'SKU_ID' => $product['SKU_ID'],
+				'PRODUCT_ID' => $product['PRODUCT_ID'],
+				'SKU_TREE' => $product['SKU_TREE'],
+				'DETAIL_URL' => $product['DETAIL_URL'],
+				'IMAGE_INFO' => $product['IMAGE_INFO'],
+				'MEASURE_NAME' => $product['MEASURE_NAME'],
+				'MEASURE_CODE' => $product['MEASURE_CODE'],
+				'NAME' => $productName,
+				'BASE_PRICE' => $document['BASE_PRICE'] ?? null,
+				'PURCHASING_PRICE' => $document['PURCHASING_PRICE'] ?? 0,
+				'BASKET_ID' => $document['BASKET_ID'] ?? 0,
+			];
+
+			$documentProducts[$id] = array_merge($document, $additionalData);
+		}
+
+		$this->rows = $documentProducts;
+	}
+
+	protected function getProductRowsFromRequest(): array
+	{
+		$rows = $this->arParams['~PRODUCTS'];
+
+		if (
+			$this->arParams['REQUEST']['action_button_' . $this->getGridId()] === 'delete'
+			&& $this->arParams['REQUEST']['action_all_rows_' . $this->getGridId()] === 'Y'
+		)
+		{
+			return [];
+		}
+
+		foreach ($rows as $index => $row)
+		{
+			if (
+				$this->arParams['REQUEST']['action_button_' . $this->getGridId()] === 'delete'
+				&& is_array($this->arParams['REQUEST']['ID'])
+				&& in_array($row['ID'], $this->arParams['REQUEST']['ID'], true)
+			)
+			{
+				unset($rows[$index]);
+				continue;
+			}
+
+			if (!isset($row['ID']))
+			{
+				$rows[$index]['ID'] = $this->getNewRowId();
+			}
+
+			$intFields = [
+				'IBLOCK_ID',
+				'DOCUMENT_ID',
+				'PARENT_PRODUCT_ID',
+				'PRODUCT_ID',
+				'OFFERS_IBLOCK_ID',
+				'SKU_ID',
+				'DISCOUNT_TYPE_ID',
+				'SORT',
+			];
+			foreach ($intFields as $name)
+			{
+				if (isset($rows[$index][$name]))
+				{
+					$rows[$index][$name] = (int)$rows[$index][$name];
+				}
+			}
+
+			$floatFields = [
+				'AMOUNT',
+				'PURCHASING_PRICE',
+			];
+
+			if ($rows[$index]['BASE_PRICE'] === '' || $rows[$index]['BASE_PRICE'] === null)
+			{
+				$rows[$index]['BASE_PRICE'] = null;
+			}
+			else
+			{
+				$floatFields[] = 'BASE_PRICE';
+			}
+
+			foreach ($floatFields as $name)
+			{
+				if (isset($rows[$index][$name]))
+				{
+					$rows[$index][$name] = (float)$rows[$index][$name];
+				}
+			}
+
+			if ($row["SKU_ID"] > 0)
+			{
+				$sku = $this->getSkuByProductId($row["SKU_ID"]);
+				if ($sku)
+				{
+					$skuImageField = new ImageInput($sku);
+					$rows[$index]['IMAGE_INFO'] = $skuImageField->getFormattedField();
+				}
+			}
+
+		}
+
+		return $rows;
+	}
+
+	protected function getDocumentProducts(): array
+	{
+		$products = [];
+
+		$documentProductRaw = StoreDocumentElementTable::getList([
+			'filter' => [
+				'=DOC_ID' => $this->getDocumentId(),
+			],
+		]);
+
+		while($documentProduct = $documentProductRaw->fetch())
+		{
+			$documentProduct['BARCODE'] = '';
+			$products[$documentProduct['ID']] = $documentProduct;
+		}
+
+		$rowIds = array_keys($products);
+		$rowBarcodesRaw = StoreDocumentBarcodeTable::getList([
+			'select' => ['DOC_ELEMENT_ID', 'BARCODE'],
+			'filter' => ['=DOC_ELEMENT_ID' => $rowIds]
+		]);
+		while ($barcode = $rowBarcodesRaw->fetch())
+		{
+			$rowId = $barcode['DOC_ELEMENT_ID'];
+			$products[$rowId]['BARCODE'] = $barcode['BARCODE'];
+		}
+
+		return $products;
+	}
+
+	protected function getProductStoreInfo(array $productIds): array
+	{
+		$productStoreInfo = [];
+		$productStoreRaw = StoreProductTable::getList([
+			'filter' => ['=PRODUCT_ID' => $productIds],
+			'select' => [
+				'STORE_ID',
+				'PRODUCT_ID',
+				'AMOUNT',
+				'QUANTITY_RESERVED',
+				'STORE_TITLE' => 'STORE.TITLE'
+			]
+		]);
+
+		while ($productStore = $productStoreRaw->Fetch())
+		{
+			$productStoreInfo[$productStore['PRODUCT_ID']] = $productStoreInfo[$productStore['PRODUCT_ID']] ?? [];
+			$productStoreInfo[$productStore['PRODUCT_ID']][$productStore['STORE_ID']] = $productStore;
+		}
+
+		return $productStoreInfo;
+	}
+
+	protected function getBarcodes(array $productIds): array
+	{
+		$barcodes = [];
+		$barcodeRaw = StoreBarcodeTable::getList([
+			'filter' => [
+				'PRODUCT_ID' => $productIds,
+			]
+		]);
+
+		while ($barcode = $barcodeRaw->fetch())
+		{
+			$barcodes[$barcode['PRODUCT_ID']] = $barcode['BARCODE'];
+		}
+
+		return $barcodes;
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function prepareResult(): void
+	{
+		$this->initUiScope();
+
+		$this->arResult['ID'] = $this->getGridId();
+		$gridRows = $this->getGridRows();
+		$this->arResult['GRID'] = $this->getGridParams($gridRows);
+		$this->arResult['GRID_EDITOR_CONFIG'] = $this->getGridEditorConfig($gridRows);
+		$this->arResult['SETTINGS'] = $this->getSettings();
+	}
+
+	protected function getGridParams(array $gridRows): array
+	{
+		return [
+			'GRID_ID' => $this->getGridId(),
+			'HEADERS' => array_values($this->getColumns()),
+			'SORT' => $this->getStorageItem('GRID_ORDER'),
+			'SORT_VARS' => $this->getStorageItem('GRID_ORDER_VARS'),
+			'ROWS' => $gridRows,
+
+			'SHOW_ROW_ACTIONS_MENU' => true,
+			'ALLOW_SORT' => false,
+			'ALLOW_ROWS_SORT' => false,
+			'ALLOW_ROWS_SORT_IN_EDIT_MODE' => false,
+			'ALLOW_ROWS_SORT_INSTANT_SAVE' => false,
+			'ENABLE_ROW_COUNT_LOADER' => false,
+			'HIDE_FILTER' => true,
+			'ENABLE_COLLAPSIBLE_ROWS' => false,
+			'ADVANCED_EDIT_MODE' => true,
+			'ALLOW_EDIT_SELECTION' => true,
+			'NAME_TEMPLATE' => (string)($arParams['~NAME_TEMPLATE'] ?? ''),
+			'SHOW_ACTION_PANEL' => true,
+			// 'SETTINGS_WINDOW_TITLE' => $arResult['ENTITY']['TITLE'],
+
+			'SHOW_NAVIGATION_PANEL' => false,
+			'SHOW_PAGINATION' => false,
+			'SHOW_TOTAL_COUNTER' => false,
+			'SHOW_PAGESIZE' => false,
+			'PAGINATION' => [],
+			'NAV_OBJECT' => $this->navigation,
+			'~NAV_PARAMS' => ['SHOW_ALWAYS' => false],
+			'SHOW_ROW_CHECKBOXES' => true,
+
+			'SHOW_SELECTED_COUNTER' => true,
+			'ACTION_PANEL' => $this->getGridActionPanel(),
+
+			// checked
+			'VISIBLE_COLUMNS' => array_values($this->getVisibleColumns()),
+			'AJAX_ID' => $this->getStorageItem( 'AJAX_ID'),
+			'AJAX_MODE' => $this->arParams['~AJAX_MODE'],
+			'AJAX_OPTION_JUMP' => $this->arParams['~AJAX_OPTION_JUMP'],
+			'AJAX_OPTION_HISTORY' => $this->arParams['~AJAX_OPTION_HISTORY'],
+			'AJAX_LOADER' => $this->arParams['~AJAX_LOADER'],
+			'FORM_ID' => $this->getStorageItem('FORM_ID'),
+			'TAB_ID' => $this->getStorageItem('TAB_ID'),
+
+			'TOTAL_ROWS_COUNT' => $this->arParams['~TOTAL_PRODUCTS_COUNT'],
+		];
+	}
+
+	protected function getGridActionPanel(): array
+	{
+		if ($this->isReadOnly())
+		{
+			return [];
+		}
+
+		$snippet = new Snippet();
+
+		return [
+			'GROUPS' => [
+				[
+					'ITEMS' => [
+						$snippet->getRemoveButton(),
+						$snippet->getForAllCheckbox(),
+					],
+				],
+			],
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getUiExtensions(): array
+	{
+		return [
+			'core',
+			'ajax',
+			'tooltip',
+			'ui.fonts.ruble',
+			'ui.notification',
+			'catalog.product-calculator',
+			'catalog.product-selector',
+			'catalog.store-selector',
+			'currency',
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getUiStyles(): array
+	{
+		return [];
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getUiScripts(): array
+	{
+		return [];
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getSettings(): array
+	{
+		return [
+			'SITE_ID' => $this->getSiteId(),
+			'LANGUAGE_ID' => $this->getLanguageId(),
+			'SET_ITEMS' => $this->arParams['SET_ITEMS'],
+			'ALLOW_EDIT' => $this->arParams['ALLOW_EDIT'],
+			'IS_READ_ONLY' => $this->isReadOnly(),
+			'CURRENCY' => $this->getCurrency(),
+			'NEW_ROW_ID_PREFIX' => self::NEW_ROW_ID_PREFIX,
+			'NEW_ROW_ID_COUNTER' => $this->getNewRowCounter(),
+			'NEW_ROW_POSITION' => $this->getStorageItem( 'NEW_ROW_POSITION'),
+			'CREATE_PRODUCT_PATH' => $this->getStorageItem( 'CREATE_PRODUCT_PATH'),
+			'TOTAL_SUM_CONTAINER_ID' => $this->getPrefix() . '_product_sum_total_container',
+		];
+	}
+
+	/* Storage tools */
+
+	/**
+	 * @param string $node
+	 * @param array $nodeValues
+	 * @return void
+	 */
+	protected function fillStorageNode(array $nodeValues): void
+	{
+		if (empty($nodeValues))
+		{
+			return;
+		}
+
+		$this->storage = array_merge($this->storage, $nodeValues);
+	}
+
+	/**
+	 * @param string $node
+	 * @param string $item
+	 * @param mixed $value
+	 * @return void
+	 */
+	protected function setStorageItem(string $item, $value): void
+	{
+		$this->storage[$item] = $value;
+	}
+
+	/**
+	 * @param string $node
+	 * @param string $item
+	 * @return mixed|null
+	 */
+	protected function getStorageItem(string $item)
+	{
+		return $this->storage[$item] ?? null;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getGridId(): ?string
+	{
+		return $this->getStorageItem('GRID_ID');
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getFormId(): ?string
+	{
+		return $this->getStorageItem('FORM_ID');
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getNavigationId(): string
+	{
+		return $this->getStorageItem('NAVIGATION_ID');
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getPageSizes(): array
+	{
+		return $this->getStorageItem('PAGE_SIZES');
+	}
+
+	/* Storage tools finish */
+
+	/**
+	 * @return void
+	 */
+	protected function initGrid(): void
+	{
+		$this->initGridConfig();
+		$this->initGridColumns();
+		$this->initGridPageNavigation();
+		$this->initGridOrder();
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function initGridConfig(): void
+	{
+		$this->gridConfig = new Main\Grid\Options($this->getGridId());
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function initGridColumns(): void
+	{
+		$visibleColumns = [];
+		$visibleColumnsMap = [];
+
+		$defaultList = true;
+		$userColumnsOrder = [];
+		$userColumns = $this->getUserGridColumnIds();
+		if (!empty($userColumns))
+		{
+			$defaultList = false;
+			$userColumnsOrder = array_fill_keys($userColumns, true);
+		}
+
+		$defaultColumnsOrder = $this->getDefaultColumns();
+
+		$columnDescriptions = $this->getGridColumnsDescription();
+		if ($defaultList)
+		{
+			$userColumnsOrder = array_filter(
+				$defaultColumnsOrder,
+				static function($columnName) use ($columnDescriptions) {
+					return $columnDescriptions[$columnName]['default'] === true;
+				}
+			);
+		}
+
+		foreach ($userColumnsOrder as $index)
+		{
+			$visibleColumnsMap[$index] = true;
+			$visibleColumns[$index] = $columnDescriptions[$index];
+		}
+
+		$columns = [];
+		foreach ($defaultColumnsOrder as $columnCode)
+		{
+			if (isset($columnDescriptions[$columnCode]))
+			{
+				$columns[] = $columnDescriptions[$columnCode];
+			}
+		}
+
+		$this->fillStorageNode( [
+			'COLUMNS' => $columns,
+			'VISIBLE_COLUMNS' => $visibleColumns,
+			'VISIBLE_COLUMNS_MAP' => $visibleColumnsMap,
+		]);
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function initGridPageNavigation(): void
+	{
+		$naviParams = $this->getGridNavigationParams();
+		$this->navigation = new Main\UI\PageNavigation($this->getNavigationId());
+		$this->navigation->setPageSizes($this->getPageSizes());
+		$this->navigation->allowAllRecords(false);
+		$this->navigation->setPageSize($naviParams['nPageSize']);
+
+//		if (!$this->isUsedImplicitPageNavigation())
+//		{
+			$this->navigation->initFromUri();
+//		}
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getGridNavigationParams(): array
+	{
+		return $this->gridConfig->getNavParams(['nPageSize' => 20]);
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function initGridOrder(): void
+	{
+		$result = ['ID' => 'DESC'];
+
+		$sorting = $this->gridConfig->getSorting(['sort' => $result]);
+
+		$order = strtolower(reset($sorting['sort']));
+		if ($order !== 'asc')
+		{
+			$order = 'desc';
+		}
+
+		$field = key($sorting['sort']);
+		$found = false;
+
+		foreach ($this->getVisibleColumns() as $column)
+		{
+			if (!isset($column['sort']))
+				continue;
+			if ($column['sort'] == $field)
+			{
+				$found = true;
+				break;
+			}
+		}
+		unset($column);
+
+		if ($found)
+			$result = [$field => $order];
+
+		$this->fillStorageNode(
+			[
+				'GRID_ORDER' => $this->modifyGridOrder($result),
+				'GRID_ORDER_VARS' => $sorting['vars'],
+			]
+		);
+
+		unset($found, $field, $order, $sorting, $result);
+	}
+
+	/**
+	 * @param array $order
+	 * @return array
+	 */
+	protected function modifyGridOrder(array $order): array
+	{
+		return $order;
+	}
+
+	protected function getCurrencyListForMoneyField(): array
+	{
+		return [
+			$this->getCurrencyId() => $this->getCurrencyText(),
+		];
+	}
+
+	protected function getDefaultColumns(): array
+	{
+		if (!empty($this->externalDocument['DEFAULT_COLUMNS']))
+		{
+			return $this->externalDocument['DEFAULT_COLUMNS'];
+		}
+
+		switch ($this->getDocumentType())
+		{
+			case StoreDocumentTable::TYPE_STORE_ADJUSTMENT:
+			case StoreDocumentTable::TYPE_ARRIVAL:
+				return [
+					'MAIN_INFO', 'BARCODE_INFO', 'PURCHASING_PRICE', 'BASE_PRICE',
+					'AMOUNT', 'STORE_TO_INFO', 'STORE_TO_AMOUNT',
+				];
+			case StoreDocumentTable::TYPE_DEDUCT:
+				return [
+					'MAIN_INFO', 'BARCODE_INFO',
+					'STORE_FROM_INFO', 'STORE_FROM_AMOUNT', 'AMOUNT',
+					'PURCHASING_PRICE', 'BASE_PRICE',
+				];
+			case StoreDocumentTable::TYPE_MOVING:
+				return [
+					'MAIN_INFO', 'BARCODE_INFO',
+					'STORE_FROM_INFO', 'STORE_FROM_AMOUNT',
+					'STORE_TO_INFO', 'STORE_TO_AMOUNT', 'AMOUNT',
+					'PURCHASING_PRICE', 'BASE_PRICE',
+				];
+		}
+
+		return [];
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getGridColumnsDescription(): array
+	{
+		$result = [];
+		$columnDefaultWidth = 150;
+
+		$result['MAIN_INFO'] = [
+			'id' => 'MAIN_INFO',
+			'name' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_MAIN_INFO'),
+			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_MAIN_INFO'),
+			'sort' => 'NAME',
+			'default' => true,
+		];
+
+		$result['BARCODE_INFO'] = [
+			'id' => 'BARCODE_INFO',
+			'name' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_BARCODE'),
+			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_BARCODE'),
+			'default' => true,
+			'width' => 300,
+		];
+
+		$priceEditable = [
+			'TYPE' => Types::MONEY,
+			'CURRENCY_LIST' => $this->getCurrencyListForMoneyField(),
+			'PLACEHOLDER' => '0',
+			'HTML_ENTITY' => true,
+		];
+
+		$purchasingPriceName = Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_PURCHASING_PRICE');
+		$purchasingPriceName = $this->externalDocument['CUSTOM_COLUMN_NAMES']['PURCHASING_PRICE'] ?: $purchasingPriceName;
+
+		$result['PURCHASING_PRICE'] = [
+			'id' => 'PURCHASING_PRICE',
+			'name' => $purchasingPriceName,
+			'title' => $purchasingPriceName,
+			'sort' => 'PURCHASING_PRICE',
+			'default' => true,
+			'editable' =>
+				$this->getDocumentType() === StoreDocumentTable::TYPE_MOVING
+				|| $this->getDocumentType() === StoreDocumentTable::TYPE_DEDUCT
+					? false
+					: $priceEditable
+			,
+			'width' => $columnDefaultWidth,
+		];
+
+		$result['BASE_PRICE'] = [
+			'id' => 'BASE_PRICE',
+			'name' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_PRICE'),
+			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_PRICE'),
+			'sort' => 'BASE_PRICE',
+			'default' => true,
+			'editable' =>
+				$this->getDocumentType() === StoreDocumentTable::TYPE_MOVING
+				|| $this->getDocumentType() === StoreDocumentTable::TYPE_DEDUCT
+					? false
+					: $priceEditable
+			,
+			'width' => $columnDefaultWidth,
+		];
+
+		$storeFromName = Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_FROM_INFO');
+		$storeFromAmountName = Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_FROM_AMOUNT');
+		if ($this->getDocumentType() === StoreDocumentTable::TYPE_MOVING)
+		{
+			$storeFromName = Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_FROM_INFO_MOVING');
+			$storeFromAmountName = Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_FROM_AMOUNT_MOVING');
+		}
+		elseif ($this->getDocumentType() === StoreDocumentTable::TYPE_DEDUCT)
+		{
+			$storeFromName = Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_INFO');
+			$storeFromAmountName = Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_AMOUNT');
+		}
+
+		$storeFromName = $this->externalDocument['CUSTOM_COLUMN_NAMES']['STORE_FROM_INFO'] ?: $storeFromName;
+		$result['STORE_FROM_INFO'] = [
+			'id' => 'STORE_FROM_INFO',
+			'name' => $storeFromName,
+			'title' => $storeFromName,
+			'sort' => 'STORE_FROM',
+			'default' => true,
+		];
+
+		$storeFromAmountName = $this->externalDocument['CUSTOM_COLUMN_NAMES']['STORE_FROM_AMOUNT'] ?: $storeFromAmountName;
+		$result['STORE_FROM_AMOUNT'] = [
+			'id' => 'STORE_FROM_AMOUNT',
+			'name' => $storeFromAmountName,
+			'title' => $storeFromAmountName,
+			'sort' => 'STORE_FROM_AMOUNT',
+			'default' => true,
+			'editable' => false,
+			'width' => $columnDefaultWidth,
+		];
+
+		$result['STORE_FROM_RESERVED'] = [
+			'id' => 'STORE_FROM_RESERVED',
+			'name' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_FROM_RESERVED'),
+			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_FROM_RESERVED'),
+			'sort' => 'STORE_FROM_RESERVED',
+			'default' => true,
+			'editable' => false,
+			'width' => $columnDefaultWidth,
+		];
+
+		$storeToInfoName = $this->getDocumentType() === StoreDocumentTable::TYPE_MOVING
+			? Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_TO_INFO')
+			: Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_INFO')
+		;
+
+		$result['STORE_TO_INFO'] = [
+			'id' => 'STORE_TO_INFO',
+			'name' =>$storeToInfoName,
+			'title' =>$storeToInfoName,
+			'sort' => 'STORE_TO',
+			'default' => true,
+		];
+
+		$result['STORE_TO_AMOUNT'] = [
+			'id' => 'STORE_TO_AMOUNT',
+			'name' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_TO_AMOUNT'),
+			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_TO_AMOUNT'),
+			'sort' => 'STORE_TO_AMOUNT',
+			'default' => true,
+			'editable' => false,
+			'width' => $columnDefaultWidth,
+		];
+
+		$result['STORE_TO_RESERVED'] = [
+			'id' => 'STORE_TO_RESERVED',
+			'name' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_TO_RESERVED'),
+			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_TO_RESERVED'),
+			'sort' => 'STORE_TO_RESERVED',
+			'default' => true,
+			'editable' => false,
+			'width' => $columnDefaultWidth,
+		];
+
+		$amountColumnName = Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_AMOUNT');
+		if (
+			$this->getDocumentType() === StoreDocumentTable::TYPE_ARRIVAL
+			|| $this->getDocumentType() === StoreDocumentTable::TYPE_STORE_ADJUSTMENT
+		)
+		{
+			$amountColumnName = Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_AMOUNT_ARRIVAL');
+		}
+
+		$result['AMOUNT'] = [
+			'id' => 'AMOUNT',
+			'name' => $amountColumnName,
+			'title' => $amountColumnName,
+			'sort' => 'AMOUNT',
+			'default' => true,
+			'editable' => [
+				'TYPE' => Types::MONEY,
+				'CURRENCY_LIST' => $this->getMeasureListForMoneyField(),
+				'PLACEHOLDER' => '0',
+			],
+			'width' => $columnDefaultWidth,
+		];
+
+		foreach ($result as &$item)
+		{
+			if (empty($item['editable']))
+			{
+				$item['editable'] = [
+					'TYPE' => Types::CUSTOM,
+				];
+			}
+		}
+
+		unset($item);
+
+		return $result;
+	}
+
+	protected function getMeasureListForMoneyField(): array
+	{
+		return array_column($this->measures, 'SYMBOL', 'CODE');
+	}
+
+	protected function getUserGridColumnIds(): array
+	{
+		$result = $this->gridConfig->GetVisibleColumns();
+
+		if (!empty($result) && !in_array('ID', $result, true))
+		{
+			array_unshift($result, 'ID');
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getColumns()
+	{
+		return $this->getStorageItem('COLUMNS');
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getVisibleColumns()
+	{
+		return $this->getStorageItem('VISIBLE_COLUMNS');
+	}
+
+	protected function getGridEditorConfig(array $gridRows): array
+	{
+		$componentId = $this->randString();
+		$defaultRow = $this->getDefaultRow();
+		$editData = [
+			'template_0' => $this->prepareEditorRow($defaultRow),
+		];
+
+		foreach ($gridRows as $row)
+		{
+			$editData[$row['id']] = $row['data'];
+		}
+
+		return [
+			'componentName' => $this->getName(),
+			'signedParameters' => $this->getSignedParameters(),
+			'reloadUrl' => $this->getPath() . '/list.ajax.php',
+
+			'containerId' => $this->getPrefix() . '_catalog_document_product_list_container',
+			'totalBlockContainerId' => $this->getPrefix() . '_product_sum_total_container',
+			'gridId' => $this->getGridId(),
+			'formId' => $this->getFormId(),
+
+			'allowEdit' => !$this->isReadOnly(),
+			'dataFieldName' => $this->arParams['PRODUCT_DATA_FIELD_NAME'],
+
+			'rowIdPrefix' => $this->getRowIdPrefix(),
+
+			'pricePrecision' => $this->getStorageItem('PRICE_PRECISION'),
+			'quantityPrecision' => $this->getStorageItem('AMOUNT_PRECISION'),
+			'commonPrecision' => $this->getStorageItem('COMMON_PRECISION'),
+
+			'newRowPosition' => $this->getStorageItem('NEW_ROW_POSITION'),
+			'createProductPath' => $this->getStorageItem('CREATE_PRODUCT_PATH'),
+
+			'measures' => array_values($this->measures),
+			'defaultMeasure' => $this->getDefaultMeasure(),
+
+			'currencyId' => $this->getCurrencyId(),
+			'totalCalculationSumField' => $this->getDefaultTotalCalculationField(),
+
+			'popupSettings' => $this->getPopupSettings(),
+			'languageId' => $this->getLanguageId(),
+			'siteId' => $this->getSiteId(),
+			'catalogId' => $componentId,
+			'componentId' => $this->randString(),
+			'jsEventsManagerId' => "PageEventsManager_{$componentId}",
+
+			'readOnly' => $this->isReadOnly(),
+			'items' => $this->getEditorItems(),
+			'rowSettings' => $this->getEditorRowSettings(),
+			'templateItemFields' => $defaultRow,
+			'templateIdMask' => self::PRODUCT_ID_MASK,
+			'paintedColumns' => ['AMOUNT'],
+			'templateGridEditData' => $editData,
+		];
+	}
+
+	private function getEditorItems(): array
+	{
+		$items = [];
+		foreach ($this->rows as $row)
+		{
+			$items[] = [
+				'rowId' => $row['ROW_ID'],
+				'fields' => $row,
+			];
+		}
+
+		return $items;
+	}
+
+	private function getEditorRowSettings(): array
+	{
+		$columns = $this->getDefaultColumns();
+		$storeHeaders = [];
+		foreach ($columns as $column)
+		{
+			if ($column === 'STORE_TO_INFO')
+			{
+				$storeHeaders[$column] = 'STORE_TO';
+			}
+			elseif ($column === 'STORE_FROM_INFO')
+			{
+				$storeHeaders[$column] = 'STORE_FROM';
+			}
+		}
+
+		return [
+			'storeHeaderMap' => $storeHeaders,
+			'isAllowedCreationProduct' => true,
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getGridRows(): array
+	{
+		global $APPLICATION;
+		$rows = [];
+		foreach ($this->rows as $row)
+		{
+			$item = $this->prepareEditorRow($row);
+
+			ob_start();
+			$APPLICATION->IncludeComponent(
+				'bitrix:catalog.grid.product.field',
+				'',
+				[
+					'BUILDER_CONTEXT' => $this->arParams['BUILDER_CONTEXT'],
+					'GRID_ID' => $this->getGridId(),
+					'ROW_ID' => $row['ID'],
+					'GUID' => 'catalog_document_grid_'.$row['ID'],
+					'PRODUCT_FIELDS' => [
+						'ID' => $row['PRODUCT_ID'],
+						'NAME' => $row['NAME'],
+						'IBLOCK_ID' => $row['IBLOCK_ID'],
+						'SKU_IBLOCK_ID' => $row['OFFERS_IBLOCK_ID'],
+						'SKU_ID' => $row['OFFER_ID'],
+						'BASE_PRICE_ID' => $row['BASE_PRICE_ID'],
+					],
+					'SKU_TREE' => $row['SKU_TREE'],
+					'MODE' => 'view',
+					'ENABLE_SEARCH' => false,
+					'ENABLE_IMAGE_CHANGE_SAVING' => false,
+					'ENABLE_INPUT_DETAIL_LINK' => true,
+					'ENABLE_EMPTY_PRODUCT_ERROR' => false,
+					'ENABLE_SKU_SELECTION' => false,
+					'HIDE_UNSELECTED_ITEMS' => true,
+					'IS_NEW' => $row['IS_NEW'],
+				]
+			);
+
+			$mainInfo = '<div class="main-grid-row-number"></div>' . ob_get_clean();
+
+			$rows[] = [
+				'id' => ($row['ID'] === self::PRODUCT_ID_MASK) ? 'template_0' : $row['ID'],
+				'raw_data' => $row,
+				'data' => $item,
+				'columns' => [
+					'MAIN_INFO' => $mainInfo,
+					'STORE_FROM_INFO' => HtmlFilter::encode($item['STORE_FROM_TITLE']),
+					'STORE_TO_INFO' => HtmlFilter::encode($item['STORE_TO_TITLE']),
+					'BARCODE_INFO' => HtmlFilter::encode($item['BARCODE']),
+					'BASE_PRICE' =>
+						$item['BASE_PRICE'] !== null
+							? \CCurrencyLang::formatValue($item['BASE_PRICE_FORMATTED'], $this->currency['FORMAT'])
+							: null
+					,
+					'PURCHASING_PRICE' => \CCurrencyLang::formatValue($item['PURCHASING_PRICE_FORMATTED'], $this->currency['FORMAT']),
+					'AMOUNT' => (float)$row['AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
+					'STORE_FROM_AMOUNT' => (float)$row['STORE_FROM_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
+					'STORE_TO_AMOUNT' => (float)$row['STORE_TO_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
+				],
+				'editable' => !$this->isReadOnly(),
+				'parent_id' =>
+					\Bitrix\Main\Grid\Context::isInternalRequest() && !empty($row['PRODUCT_INFO']['PARENT_ID'])
+						? $row['PRODUCT_INFO']['PARENT_ID']
+						: 0
+				,
+			];
+		}
+
+		return $rows;
+	}
+
+	private function formatPrices($price)
+	{
+		return number_format(
+			$price,
+			$this->getStorageItem('PRICE_PRECISION'),
+			'.',
+			''
+		);
+	}
+
+	private function prepareEditorRow(array $row): array
+	{
+		$rowId = $row['ROW_ID'];
+
+		$priceFormatted = null;
+		if ($row['BASE_PRICE'] !== null)
+		{
+			$priceFormatted = $this->formatPrices($row['BASE_PRICE']);
+		}
+
+		$purchasingPriceFormatted = null;
+		if ($row['PURCHASING_PRICE'] !== null)
+		{
+			$purchasingPriceFormatted = $this->formatPrices($row['PURCHASING_PRICE']);
+		}
+		$editorFields = [
+			'AMOUNT' => [
+				'PRICE' => [
+					'NAME' => $rowId .'_AMOUNT',
+					'VALUE' => $row['AMOUNT'],
+				],
+				'CURRENCY' => [
+					'NAME' => $rowId .'_MEASURE_CODE',
+					'VALUE' => $row['MEASURE_CODE'],
+				],
+			],
+			'STORE_AMOUNT_MAP' => $row['STORE_AMOUNT_MAP'],
+			'SKU_TREE' => $row['SKU_TREE'],
+			'BASE_PRICE_EXTRA' => $row['BASE_PRICE_EXTRA'],
+			'BASE_PRICE_EXTRA_RATE' => $row['BASE_PRICE_EXTRA_RATE'],
+			'BASE_PRICE_FORMATTED' => $priceFormatted,
+			'PURCHASING_PRICE_FORMATTED' => $purchasingPriceFormatted,
+		];
+		foreach($this->getColumns() as $column)
+		{
+			$columnId = $column['id'];
+			switch ($columnId)
+			{
+				case 'BASE_PRICE':
+				case 'PURCHASING_PRICE':
+					if ($column['editable']['TYPE'] === Types::MONEY)
+					{
+						$editorFields[$columnId] = [
+							'PRICE' => [
+								'NAME' => $rowId . '_' . $columnId,
+								'VALUE' =>
+									$columnId === 'BASE_PRICE'
+										? $priceFormatted
+										: $purchasingPriceFormatted
+								,
+							],
+							'CURRENCY' => [
+								'NAME' => $rowId . '_' . $columnId . '_CURRENCY',
+								'VALUE' => $this->getCurrencyId(),
+							],
+						];
+					}
+					elseif ($row[$columnId] !== null)
+					{
+						$editorFields[$columnId] = \CCurrencyLang::CurrencyFormat($row[$columnId], $this->getCurrencyId());
+					}
+					break;
+
+				case 'STORE_TO_INFO':
+					$editorFields['STORE_TO'] = $row['STORE_TO'];
+					$editorFields['STORE_TO_AMOUNT'] = (float)$row['STORE_TO_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
+					$editorFields['STORE_TO_RESERVED'] = (float)$row['STORE_TO_RESERVED'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
+					break;
+
+				case 'STORE_FROM_INFO':
+					$editorFields['STORE_FROM'] = $row['STORE_FROM'];
+					$editorFields['STORE_FROM_AMOUNT'] = (float)$row['STORE_FROM_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
+					$editorFields['STORE_FROM_RESERVED'] = (float)$row['STORE_FROM_RESERVED'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
+					break;
+			}
+		}
+
+		return array_merge($row, $editorFields);
+	}
+
+	private function getDefaultRow(): array
+	{
+		foreach ($this->stores as $store)
+		{
+			if ($store['IS_DEFAULT'] === 'Y')
+			{
+				$defaultStoreId = $store['ID'];
+				$defaultStoreTitle = $store['TITLE'];
+				break;
+			}
+		}
+
+		$defaultMeasure = $this->getDefaultMeasure();
+		return [
+			'ROW_ID' => $this->getRowIdPrefix(self::PRODUCT_ID_MASK),
+			'ID' => self::PRODUCT_ID_MASK,
+			'IBLOCK_ID' => $this->arParams['CATALOG_ID'],
+			'OFFERS_IBLOCK_ID' => 0,
+			'SKU_ID' => null,
+			'BASE_PRICE_ID' => $this->getDefaultSetting('BASE_PRICE_ID'),
+			'PRODUCT_ID' => null,
+			'NAME' => '',
+			'BARCODE' => '',
+			'DOC_BARCODE' => '',
+			'BASE_PRICE' => null,
+			'PURCHASING_PRICE' => null,
+			'CURRENCY' => $this->getCurrency(),
+			'MEASURE_NAME' => $defaultMeasure['SYMBOL'] ?? '',
+			'MEASURE_CODE' => $defaultMeasure['CODE'] ?? '',
+			'AMOUNT' => 0,
+			'STORE_TO' => $defaultStoreId ?? null,
+			'STORE_TO_TITLE' => $defaultStoreTitle ?? null,
+			'STORE_TO_AMOUNT' => 0,
+			'STORE_TO_RESERVED' => 0,
+			'STORE_FROM' => $defaultStoreId ?? null,
+			'STORE_FROM_TITLE' => $defaultStoreTitle ?? null,
+			'STORE_FROM_AMOUNT' => 0,
+			'STORE_AMOUNT_MAP' => null,
+			'STORE_FROM_RESERVED' => 0,
+			'IS_NEW' => 'N',
+			'BASE_PRICE_EXTRA' => '',
+			'BASE_PRICE_EXTRA_RATE' => StoreDocumentElementTable::EXTRA_RATE_PERCENTAGE,
+		];
+	}
+
+	protected function isReadOnly(): bool
+	{
+		return !$this->arParams['ALLOW_EDIT'];
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getNewRowId(): string
+	{
+		$result = self::NEW_ROW_ID_PREFIX . $this->getNewRowCounter();
+		$this->newRowCounter++;
+
+		return $result;
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getNewRowCounter(): int
+	{
+		return $this->newRowCounter;
+	}
+
+	/* Access rights tools */
+
+
+	private function loadCatalog(array $skuIds): array
+	{
+		Main\Type\Collection::normalizeArrayValuesByInt($skuIds, true);
+
+		$repositoryFacade = ServiceContainer::getRepositoryFacade();
+		if (!$repositoryFacade)
+		{
+			return [];
+		}
+
+		$productInfo = [];
+		$productSkuIblockMap = [];
+		foreach ($skuIds as $skuId)
+		{
+			$sku = $repositoryFacade->loadVariation($skuId);
+			if (!$sku)
+			{
+				continue;
+			}
+
+			/** @var \Bitrix\Catalog\v2\Product\BaseProduct $product */
+			$product = $sku->getParent();
+
+			$fields = $sku->getFields();
+			$fields['PRODUCT_ID'] = $product->getId();
+			$fields['SKU_ID'] = $skuId;
+			$fields['OFFERS_IBLOCK_ID'] = 0;
+			$fields['SKU_TREE'] = [];
+			$fields['DETAIL_URL'] = $this->getElementDetailUrl($product->getIblockId(), $product->getId());
+
+			$measure = $this->measures[$sku->getField('MEASURE')];
+			if (!$measure)
+			{
+				$measure = $this->getDefaultMeasure();
+			}
+
+			$fields['MEASURE_CODE'] = $measure['CODE'];
+			$fields['MEASURE_NAME'] = $measure['SYMBOL'];
+
+			if (!$product->isSimple())
+			{
+				$fields['OFFERS_IBLOCK_ID'] = $fields['IBLOCK_ID'];
+				$fields['IBLOCK_ID'] = $product->getIblockId();
+				$productSkuIblockMap[$product->getIblockId()] = $productSkuIblockMap[$product->getIblockId()] ?? [];
+				$productSkuIblockMap[$product->getIblockId()][$product->getId()][] = $sku->getId();
+			}
+
+			$productInfo[$skuId] = [
+				'SKU' => $sku,
+				'FIELDS' => $fields,
+			];
+		}
+
+		if ($productSkuIblockMap)
+		{
+			foreach ($productSkuIblockMap as $iblockId => $productMap)
+			{
+				$skuTree = ServiceContainer::make('sku.tree', ['iblockId' => $iblockId]);
+				if ($skuTree)
+				{
+					$skuTreeItems = $skuTree->loadJsonOffers($productMap);
+					foreach ($skuTreeItems as $offers)
+					{
+						foreach ($offers as $skuId => $skuTreeItem)
+						{
+							if (isset($productInfo[$skuId]['FIELDS']))
+							{
+								$productInfo[$skuId]['FIELDS']['SKU_TREE'] = $skuTreeItem;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return $productInfo;
+	}
+
+	private function getElementDetailUrl(int $iblockId, int $skuId = 0): string
+	{
+		$urlBuilder = BuilderManager::getInstance()->getBuilder($this->arParams['BUILDER_CONTEXT']);
+		if (!$urlBuilder)
+		{
+			return '';
+		}
+
+		$urlBuilder->setIblockId($iblockId);
+		return $urlBuilder->getElementDetailUrl($skuId);
+	}
+
+	protected function getPrefix(): string
+	{
+		return $this->arParams['PREFIX'] !== '' ? $this->arParams['PREFIX'] : $this->getDefaultPrefix();
+	}
+
+	protected function getRowIdPrefix(string $code = null): string
+	{
+		return $this->getPrefix() . '_product_row_' . $code;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getDefaultPrefix(): string
+	{
+		$suffix =
+			$this->getDocumentId() > 0
+				? strtolower($this->getDocumentType()) . '_' . $this->getDocumentId()
+				: 'new_' . strtolower($this->getDocumentType())
+		;
+
+		return "document_{$suffix}_product_editor";
+	}
+
+	/**
+	 * @param string $value
+	 * @return string
+	 */
+	private static function clearStringValue(string $value): string
+	{
+		return preg_replace('/[^a-zA-Z0-9_:\\[\\]]/', '', $value);
+	}
+
+	/**
+	 * @param array &$params
+	 * @param string $field
+	 * @return void
+	 */
+	private static function validateSingleParameter(array &$params, string $field): void
+	{
+		$value = '';
+
+		if (isset($params[$field]) && is_string($params[$field]))
+		{
+			$value = static::clearStringValue($params[$field]);
+		}
+
+		$params[$field] = $value;
+	}
+
+	/**
+	 * @param array &$params
+	 * @param array $list
+	 * @return void
+	 */
+	private static function validateListParameters(array &$params, array $list): void
+	{
+		foreach ($list as $field)
+		{
+			static::validateSingleParameter($params, $field);
+		}
+	}
+
+	/**
+	 * @param array $params
+	 * @param string $field
+	 * @return void
+	 */
+	private static function validateBoolParameter(array &$params, string $field): void
+	{
+		if (!isset($params[$field]))
+		{
+			$params[$field] = false;
+		}
+		if (is_string($params[$field]))
+		{
+			$params[$field] = ($params[$field] === 'Y');
+		}
+		$params[$field] = (is_bool($params[$field]) && $params[$field]);
+	}
+
+	/**
+	 * @param array $params
+	 * @param array $list
+	 * @return void
+	 */
+	private static function validateBoolList(array &$params, array $list): void
+	{
+		foreach ($list as $field)
+		{
+			static::validateBoolParameter($params, $field);
+		}
+		unset($field);
+	}
+
+	private function getPreselectDocumentProducts(): array
+	{
+		$preselectedSku = $this->getSkuByProductId((int)$this->arParams['PRESELECTED_PRODUCT_ID']);
+		if ($preselectedSku)
+		{
+			$basePriceEntity = $preselectedSku->getPriceCollection()->findBasePrice();
+			$defaultStore = $this->getDefaultStore();
+			$defaultStoreId = $defaultStore['ID'] ?? null;
+
+			$convertedPurchasingPrice = \CCurrencyRates::ConvertCurrency(
+				(float)$preselectedSku->getField('PURCHASING_PRICE'),
+				(string)$preselectedSku->getField('PURCHASING_CURRENCY'),
+				$this->getCurrencyId()
+			);
+
+			$basePrice = $basePriceEntity ? $basePriceEntity->getPrice() : null;
+			$basePriceCurrency = $basePriceEntity ? $basePriceEntity->getCurrency() : null;
+			$convertedBasePrice = \CCurrencyRates::ConvertCurrency(
+				(float)$basePrice,
+				(string)$basePriceCurrency,
+				$this->getCurrencyId()
+			);
+
+			return [
+				[
+					'ID' => Main\Security\Random::getString(8, false),
+					'DOC_ID' => null,
+					'STORE_FROM' => $defaultStoreId,
+					'STORE_TO' => $defaultStoreId,
+					'ELEMENT_ID' => $preselectedSku->getId(),
+					'AMOUNT' => null,
+					'PURCHASING_PRICE' => $convertedPurchasingPrice,
+					'BASE_PRICE' => $convertedBasePrice,
+					'BASE_PRICE_EXTRA' => null,
+					'BASE_PRICE_EXTRA_RATE' => StoreDocumentElementTable::EXTRA_RATE_PERCENTAGE,
+				],
+			];
+		}
+
+		return [];
+	}
+
+	private function getSkuByProductId(int $productId): ?BaseSku
+	{
+		$repositoryFacade = ServiceContainer::getRepositoryFacade();
+
+		return $repositoryFacade->loadVariation($productId);
+	}
+
+	private function getDefaultStore(): ?array
+	{
+		$stores = $this->stores;
+		if (!is_array($stores))
+		{
+			return null;
+		}
+
+		$filteredStores = array_filter($stores, static function($store) {
+			return $store['IS_DEFAULT'] === 'Y';
+		});
+
+		return reset($filteredStores) ?: null;
+	}
+
+	public function getPopupSettings(): array
+	{
+		return [
+			[
+				'id' => 'ADD_NEW_ROW_TOP',
+				'checked' => ($this->defaultSettings['NEW_ROW_POSITION'] !== 'bottom'),
+				'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_SETTING_NEW_ROW_POSITION_TITLE'),
+				'desc' => '',
+				'action' => 'grid',
+			]
+		];
+	}
+
+	public function setGridSettingAction(string $settingId, $selected): Bitrix\Main\Engine\Response\AjaxJson
+	{
+		if (!$this->checkModules())
+		{
+			return Bitrix\Main\Engine\Response\AjaxJson::createError($this->errorCollection);
+		}
+
+		if ($settingId === 'ADD_NEW_ROW_TOP')
+		{
+			$direction = ($selected === 'true') ? 'top' : 'bottom';
+			\CUserOptions::SetOption('catalog.store.document.product.list', 'new.row.position', $direction);
+		}
+
+		return Bitrix\Main\Engine\Response\AjaxJson::createSuccess();
+	}
+
+	/** @noinspection PhpUnused
+	 *
+	 * @param array $products
+	 * @param string currencyId
+	 * @return null|array
+	 */
+	public function calculateProductPricesAction(array $products, string $currencyId, string $oldCurrencyId): ?array
+	{
+		$this->fillSettings();
+		if ($this->isExistErrors())
+		{
+			return null;
+		}
+
+		$response = [];
+
+		foreach ($products as $product)
+		{
+			$fields = $product['fields'] ?? [];
+
+			\CCurrencyRates::ConvertCurrency(
+				(float)$fields['BASE_PRICE'],
+				$oldCurrencyId,
+				$currencyId
+			);
+
+			$basePrice = null;
+			if ($fields['BASE_PRICE'] !== null)
+			{
+				$basePrice = $this->formatPrices(
+					\CCurrencyRates::ConvertCurrency(
+						(float)$fields['BASE_PRICE'],
+						$oldCurrencyId,
+						$currencyId
+					)
+				);
+			}
+
+			$response[$product['id']] = [
+				'BASE_PRICE' => $basePrice,
+				'PURCHASING_PRICE' => $this->formatPrices(
+					\CCurrencyRates::ConvertCurrency(
+						(float)$fields['PURCHASING_PRICE'],
+						$oldCurrencyId,
+						$currencyId
+					)
+				),
+			];
+		}
+
+		return $response;
+	}
+}

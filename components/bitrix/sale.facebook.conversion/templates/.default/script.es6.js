@@ -1,6 +1,5 @@
-import {Event, Loc, Reflection, Tag, Type} from 'main.core';
+import {Event, Loc, Reflection, Tag} from 'main.core';
 import {LoginFactory} from 'seo.ads.login';
-import { Layout } from "ui.sidepanel.layout";
 
 class SaleFacebookConversion
 {

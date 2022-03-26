@@ -1,14 +1,9 @@
 (function (exports,ui_vue,im_lib_localstorage,im_lib_utils,main_core,ui_vue_vuex,main_core_events,im_const) {
 	'use strict';
 
-	/**
-	 * Bitrix Messenger
-	 * Textarea Vue component
-	 *
-	 * @package bitrix
-	 * @subpackage im
-	 * @copyright 2001-2019 Bitrix
-	 */
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	ui_vue.BitrixVue.component('bx-im-component-textarea', {
 	  /**
 	   * @emits 'send' {text: string}
@@ -23,41 +18,41 @@
 	   */
 	  props: {
 	    siteId: {
-	      default: 'default'
+	      "default": 'default'
 	    },
 	    userId: {
-	      default: 0
+	      "default": 0
 	    },
 	    dialogId: {
-	      default: 0
+	      "default": 0
 	    },
 	    enableCommand: {
-	      default: true
+	      "default": true
 	    },
 	    enableMention: {
-	      default: true
+	      "default": true
 	    },
 	    desktopMode: {
-	      default: false
+	      "default": false
 	    },
 	    enableEdit: {
-	      default: false
+	      "default": false
 	    },
 	    enableFile: {
-	      default: false
+	      "default": false
 	    },
 	    sendByEnter: {
-	      default: true
+	      "default": true
 	    },
 	    autoFocus: {
-	      default: null
+	      "default": null
 	    },
 	    writesEventLetter: {
-	      default: 0
+	      "default": 0
 	    },
 	    styles: {
 	      type: Object,
-	      default: function _default() {
+	      "default": function _default() {
 	        return {};
 	      }
 	    }
@@ -94,7 +89,7 @@
 	    this.localStorage.set(this.siteId, this.userId, 'textarea-history', this.textareaHistory);
 	    this.localStorage = null;
 	  },
-	  computed: babelHelpers.objectSpread({
+	  computed: _objectSpread({
 	    textareaClassName: function textareaClassName() {
 	      return ['bx-im-textarea', {
 	        'bx-im-textarea-dark-background': this.isDarkBackground,

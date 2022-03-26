@@ -1,12 +1,9 @@
-<?
+<?php
 namespace Bitrix\Calendar\Controller;
 
 use Bitrix\Main\Text\Encoding;
-use Bitrix\Main\Error;
-use \Bitrix\Main\Engine\Response;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
-use Bitrix\Intranet;
 
 Loc::loadMessages(__FILE__);
 

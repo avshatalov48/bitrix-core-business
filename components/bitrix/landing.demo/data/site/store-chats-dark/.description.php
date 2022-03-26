@@ -9,7 +9,7 @@ use \Bitrix\Main\Localization\Loc;
 Loc::loadLanguageFile(__FILE__);
 
 
-return array(
+return [
 	'code' => 'store-chats-dark',
 	'name' => Loc::getMessage("LANDING_DEMO_STORE_CHATS_DARK--NAME"),
 	'description' => Loc::getMessage("LANDING_DEMO_STORE_CHATS_DARK--DESC"),
@@ -23,8 +23,8 @@ return array(
 	'type' => 'store',
 	'sort' => 10,
 	'lock_delete' => true,
-	'fields' => array(
-		'ADDITIONAL_FIELDS' => array(
+	'fields' => [
+		'ADDITIONAL_FIELDS' => [
 			'VIEW_USE' => 'Y',
 			'VIEW_TYPE' => 'mobile',
 			'UP_SHOW' => 'Y',
@@ -35,21 +35,29 @@ return array(
 			'THEMEFONTS_USE' => 'Y',
 			'BACKGROUND_USE' => 'Y',
 			'BACKGROUND_COLOR' => '#000000',
-		),
+		],
 		'TITLE' => Loc::getMessage("LANDING_DEMO_STORE_CHATS_DARK--NAME"),
-	),
-	'layout' => array(
+	],
+	'layout' => [
 		'code' => 'header_footer',
-		'ref' => array(
+		'ref' => [
 			1 => 'store-chats-dark/header',
 			2 => 'store-chats-dark/footer',
-		),
-	),
-	'syspages' => array(
+		],
+	],
+	'syspages' => [
 		'order' => 'store-chats-dark/order',
 		'feedback' => 'store-chats-dark/order',
-	),
-	'items' => array(
+		// 'catalog' => 'store-chats-dark/catalog',
+	],
+	// todo: do not delete all this comments, please! This is for podborki
+	// 'folders' => [
+	// 	'store-chats-dark/catalog' => [
+	// 		0 => 'store-chats-dark/catalog',
+	// 		1 => 'store-chats-dark/catalog_order',
+	// 	],
+	// ],
+	'items' => [
 		0 => 'store-chats-dark/mainpage',
 		1 => 'store-chats-dark/header',
 		2 => 'store-chats-dark/footer',
@@ -59,7 +67,7 @@ return array(
 		6 => 'store-chats-dark/about',
 		7 => 'store-chats-dark/payinfo',
 		8 => 'store-chats-dark/cutaway',
-	),
-	'site_group_item' => 'Y',
-	'site_group_parent' => 'store-chats',
-);
+		// 9 => 'store-chats-dark/catalog',
+		// 10 => 'store-chats-dark/catalog_order',
+	],
+];

@@ -675,7 +675,11 @@
 				innerNode.style.maxWidth = 'calc(200% / ' + daysCount + ' - 3px)';
 
 				// first part
-				if (params.part.partIndex == 0)
+				if (
+					parseInt(params.part.partIndex) === 0
+					&& (entry.to.getDay() !== params.part.from.date.getDay())
+					&& (entry.from.getDay() === params.part.from.date.getDay())
+				)
 				{
 					if (this.util.getDayCode(entry.from) !== this.util.getDayCode(from.date))
 					{
@@ -697,17 +701,26 @@
 				}
 
 				// Last part
-				if (params.part.partIndex == entry.parts.length - 1)
+				if (
+					parseInt(params.part.partIndex) === entry.parts.length - 1
+					&& (entry.from.getDay() !== params.part.to.date.getDay())
+					&& (entry.to.getDay() === params.part.to.date.getDay())
+				)
 				{
-					if (daysCount > 1 && entry.parts.length > 1)
+					var partsLength = entry.parts.length;
+					if (entry.from.getDay() !== params.part.from.date.getDay())
+					{
+						partsLength++;
+					}
+					if (daysCount > 1 && partsLength > 1)
 					{
 						innerNode.style.width = 'calc(' + (daysCount - 1) + '00% / ' + daysCount + ' - 3px)';
 					}
 
-					if (!params.popupMode && daysCount > 1)
+					if (!params.popupMode && daysCount)
 					{
 						endTimeNode = innerNode.appendChild(BX.create('SPAN', {
-							props: {className: (entry.parts.length > 1 && daysCount == 1)
+							props: {className: (partsLength > 1 && daysCount === 1)
 									? 'calendar-event-line-time'
 									: 'calendar-event-line-expired-time'},
 							text: this.calendar.util.formatTime(entry.to.getHours(), entry.to.getMinutes())

@@ -149,7 +149,7 @@ if (count($arParams["SHOW_FIELDS"]) > 0)
 						$month = intval($arDateTmp["MM"]);
 						$year = intval($arDateTmp["YYYY"]);
 
-						$val = $day.' '.ToLower(GetMessage('MONTH_'.$month.'_S'));
+						$val = $day.' '.mb_strtolower(GetMessage('MONTH_'.$month.'_S'));
 						if (($arParams['SHOW_YEAR'] == 'Y') || ($arParams['SHOW_YEAR'] == 'M' && $arResult["User"]['PERSONAL_GENDER'] == 'M'))
 							$val .= ' '.$year;
 

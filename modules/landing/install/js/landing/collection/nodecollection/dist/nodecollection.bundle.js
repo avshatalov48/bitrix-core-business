@@ -40,7 +40,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "matches",
 	    value: function matches(selector) {
 	      return this.filter(function (item) {
-	        return item.node && item.node.matches(selector);
+	        return item.node && selector.indexOf(':') === -1 && item.node.matches(selector);
 	      });
 	    }
 	  }, {

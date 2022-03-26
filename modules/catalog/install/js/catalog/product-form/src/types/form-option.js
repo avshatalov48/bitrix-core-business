@@ -6,6 +6,7 @@ import type {DiscountTypes} from "catalog.product-calculator";
 import {FormInputCode} from "./form-input-code";
 import type {FormCompilationOption} from "./form-compilation-option";
 import {FormCompilationType} from "./form-compilation-type";
+import {FormErrorCode} from "./form-error-code";
 
 export type FormOption = {
 	basket: Array<BasketItem>,
@@ -19,6 +20,7 @@ export type FormOption = {
 	showCompilationModeSwitcher: boolean,
 	disabledCompilationModeSwitcher: boolean,
 	enableEmptyProductError: boolean,
+	enableCatalogSaving: boolean,
 	currency?: string,
 	pricePrecision: number,
 	allowedDiscountTypes: Array<DiscountTypes>,
@@ -28,10 +30,14 @@ export type FormOption = {
 	newItemPosition: FormElementPosition,
 	buttonsPosition: FormElementPosition,
 	visibleBlocks: Array<FormInputCode>,
-	requiredFields: Array<FormInputCode>,
+	validationCodes: Array<FormErrorCode>,
 	editableFields: Array<FormInputCode>,
 	urlBuilderContext: string,
 	hideUnselectedProperties: boolean,
 	compilationFormType: FormCompilationType,
-	compilationFormOption: FormCompilationOption
+	compilationFormOption: FormCompilationOption,
+	isBlockedExistedPrice: boolean,
+	isCatalogPriceEditEnabled: boolean,
+	isCatalogPriceSaveEnabled: boolean,
+	fieldHints: {},
 }

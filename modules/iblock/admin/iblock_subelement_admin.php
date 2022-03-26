@@ -1,6 +1,6 @@
 <?
-/** @global CUser $USER
-	@global int $IBLOCK_ID */
+/** @global CUser $USER */
+/** @global int $IBLOCK_ID */
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 CModule::IncludeModule("iblock");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
@@ -104,7 +104,10 @@ if (0 >= $intSubPropValue)
 	}
 }
 $additionalParams = (defined("SELF_FOLDER_URL") ? "&public=y" : "");
-$strSubElementAjaxPath = $selfFolderUrl.'iblock_subelement_admin.php?WF=Y&IBLOCK_ID='.$intSubIBlockID.'&type='.urlencode($strSubIBlockType).'&lang='.LANGUAGE_ID.'&find_section_section=0&find_el_property_'.$arSubCatalog['SKU_PROPERTY_ID'].'='.$intSubPropValue.'&TMP_ID='.urlencode($strSubTMP_ID).$additionalParams;
+$strSubElementAjaxPath = '/bitrix/tools/iblock/iblock_subelement_admin.php?WF=Y&IBLOCK_ID=' . $intSubIBlockID
+	. '&type=' . urlencode($strSubIBlockType) .'&lang=' . LANGUAGE_ID
+	. '&find_section_section=0&find_el_property_' . $arSubCatalog['SKU_PROPERTY_ID'] . '=' . $intSubPropValue
+	. '&TMP_ID=' . urlencode($strSubTMP_ID) .$additionalParams
+;
 require($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/iblock/admin/templates/iblock_subelement_list.php');
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_popup_admin.php");
-?>

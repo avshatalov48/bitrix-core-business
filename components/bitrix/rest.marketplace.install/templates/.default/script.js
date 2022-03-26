@@ -143,5 +143,50 @@ BX.Rest.Marketplace.Install =
 			}.bind(this)
 		);
 
-	}
+	},
+
+	initHelper: function (params)
+	{
+		if (!window.BX.UI.InfoHelper.isInited())
+		{
+			window.BX.UI.InfoHelper.init(
+				{
+					frameUrlTemplate: params.frameUrlTemplate,
+				}
+			);
+			window.BX.UI.InfoHelper.frameNode = BX(params.iframeId);
+		}
+
+		BX.bind(
+			window,
+			'message',
+			BX.proxy(
+				function (event)
+				{
+					if (!!event.origin && event.origin.indexOf('bitrix') === -1)
+					{
+						return;
+					}
+
+					if (!event.data || typeof(event.data) !== 'object')
+					{
+						return;
+					}
+
+					if (event.data.action === 'reloadParent')
+					{
+						var slider = BX.SidePanel.Instance.getTopSlider();
+						if (!!slider)
+						{
+							slider.reload();
+						}
+						else
+						{
+							window.location.reload();
+						}
+					}
+				}
+			)
+		);
+	},
 };

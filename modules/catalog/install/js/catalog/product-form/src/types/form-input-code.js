@@ -8,4 +8,5 @@ export class FormInputCode
 	static DISCOUNT = 'discount';
 	static TAX = 'tax';
 	static BRAND = 'brand';
+	static MEASURE = 'measure';
 }

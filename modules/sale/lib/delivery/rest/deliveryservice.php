@@ -27,8 +27,14 @@ class DeliveryService extends BaseService
 	private const ERROR_DELIVERY_NOT_FOUND = 'ERROR_DELIVERY_NOT_FOUND';
 
 	private const ALLOWED_DELIVERY_FIELDS = [
-		'ID', 'CODE', 'PARENT_ID', 'NAME', 'ACTIVE', 'DESCRIPTION', 'SORT', 'LOGOTIP',
-		'CURRENCY', 'ALLOW_EDIT_SHIPMENT', 'VAT_ID', 'XML_ID'
+		'ID',
+		'PARENT_ID',
+		'NAME',
+		'ACTIVE',
+		'DESCRIPTION',
+		'SORT',
+		'LOGOTIP',
+		'CURRENCY',
 	];
 
 	/**
@@ -131,11 +137,6 @@ class DeliveryService extends BaseService
 			throw new RestException('Parameter ID is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
-		if (empty($params['FIELDS']))
-		{
-			throw new RestException('Parameter FIELDS is not defined', self::ERROR_CHECK_FAILURE);
-		}
-
 		$data = Delivery\Services\Manager::getById($params['ID']);
 		if (!$data)
 		{
@@ -202,9 +203,9 @@ class DeliveryService extends BaseService
 			throw new RestException('Parameter ID is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
-		if (empty($params['FIELDS']) || !is_array($params['FIELDS']))
+		if (empty($params['CONFIG']) || !is_array($params['CONFIG']))
 		{
-			throw new RestException('Parameter FIELDS is not defined', self::ERROR_CHECK_FAILURE);
+			throw new RestException('Parameter CONFIG is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
 		$data = Delivery\Services\Manager::getById($params['ID']);
@@ -260,7 +261,25 @@ class DeliveryService extends BaseService
 		$result = Delivery\Services\Manager::add($fields);
 		if ($result->isSuccess())
 		{
-			return $result->getId();
+			$parentDelivery = Delivery\Services\Manager::getList([
+				'select' => self::ALLOWED_DELIVERY_FIELDS,
+				'filter' => ['=ID' => (int)$result->getId()],
+			])->fetch();
+
+			$profiles = [];
+			$profilesDeliveryList = Delivery\Services\Manager::getList([
+				'select' => self::ALLOWED_DELIVERY_FIELDS,
+				'filter' => ['=PARENT_ID' => (int)$result->getId()],
+			]);
+			while ($profileDelivery = $profilesDeliveryList->fetch())
+			{
+				$profiles[] = self::prepareOutcomingFields($profileDelivery);
+			}
+
+			return [
+				'parent' => $parentDelivery ? self::prepareOutcomingFields($parentDelivery) : null,
+				'profiles' => $profiles,
+			];
 		}
 
 		$error = implode("\n", $result->getErrorMessages());
@@ -281,34 +300,34 @@ class DeliveryService extends BaseService
 		self::checkParamsBeforeDeliveryUpdate($params);
 
 		$fields = [];
-		if (isset($params['FIELDS']['NAME']))
+		if (isset($params['NAME']))
 		{
-			$fields['NAME'] = $params['FIELDS']['NAME'];
+			$fields['NAME'] = $params['NAME'];
 		}
 
-		if (isset($params['FIELDS']['ACTIVE']))
+		if (isset($params['ACTIVE']))
 		{
-			$fields['ACTIVE'] = $params['FIELDS']['ACTIVE'];
+			$fields['ACTIVE'] = $params['ACTIVE'];
 		}
 
-		if (isset($params['FIELDS']['DESCRIPTION']))
+		if (isset($params['DESCRIPTION']))
 		{
-			$fields['DESCRIPTION'] = $params['FIELDS']['DESCRIPTION'];
+			$fields['DESCRIPTION'] = $params['DESCRIPTION'];
 		}
 
-		if (isset($params['FIELDS']['SORT']))
+		if (isset($params['SORT']))
 		{
-			$fields['SORT'] = $params['FIELDS']['SORT'];
+			$fields['SORT'] = $params['SORT'];
 		}
 
-		if (isset($params['FIELDS']['CURRENCY']))
+		if (isset($params['CURRENCY']))
 		{
-			$fields['CURRENCY'] = $params['FIELDS']['CURRENCY'];
+			$fields['CURRENCY'] = $params['CURRENCY'];
 		}
 
-		if (isset($params['FIELDS']['LOGOTIP']))
+		if (isset($params['LOGOTIP']))
 		{
-			$fields['LOGOTIP'] = self::saveFile($params['FIELDS']['LOGOTIP']);
+			$fields['LOGOTIP'] = self::saveFile($params['LOGOTIP']);
 		}
 
 		$result = Delivery\Services\Manager::update($params['ID'], $fields);
@@ -495,9 +514,12 @@ class DeliveryService extends BaseService
 		$handlerCode = self::getRestCodeFromConfig($data['CONFIG']);
 		$params['REST_CODE'] = $handlerCode;
 
-		$params['FIELDS'] = self::prepareIncomingConfig($params['FIELDS'], $params);
-
-		$result = Delivery\Services\Manager::update($params['ID'], ['CONFIG' => $params['FIELDS']]);
+		$result = Delivery\Services\Manager::update(
+			$params['ID'],
+			[
+				'CONFIG' => self::prepareIncomingConfig($params['CONFIG'], $params)
+			]
+		);
 		if ($result->isSuccess())
 		{
 			return true;
@@ -509,21 +531,42 @@ class DeliveryService extends BaseService
 
 	private static function prepareIncomingConfig(array $config, array $params): array
 	{
-		foreach (array_keys($config) as $configName)
+		$result = [
+			'MAIN' => [
+				'REST_CODE' => $params['REST_CODE']
+			],
+		];
+
+		foreach ($config as $configItem)
 		{
-			$config[$configName]['REST_CODE'] = $params['REST_CODE'];
+			$result['MAIN'][$configItem['CODE']] = $configItem['VALUE'];
 		}
 
-		return $config;
+		return $result;
 	}
 
+	/**
+	 * @param array $config
+	 * @return array
+	 */
 	private static function prepareOutcomingConfig(array $config): array
 	{
-		foreach (array_keys($config) as $configName)
+		if (isset($config['MAIN']['REST_CODE']))
 		{
-			unset($config[$configName]['REST_CODE']);
+			unset($config['MAIN']['REST_CODE']);
 		}
 
-		return $config;
+		$configItems = isset($config['MAIN']) && is_array($config['MAIN']) ? $config['MAIN'] : [];
+
+		$result = [];
+		foreach ($configItems as $configItemCode => $configItemValue)
+		{
+			$result[] = [
+				'CODE' => $configItemCode,
+				'VALUE' => $configItemValue,
+			];
+		}
+
+		return $result;
 	}
 }

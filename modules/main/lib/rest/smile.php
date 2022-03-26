@@ -9,7 +9,7 @@ class Smile extends \IRestService
 
 		return self::objectEncode([
 			'SETS' => $smiles['SMILE_SET'],
-			'SMILES' => array_values($smiles['SMILE']),
+			'SMILES' => $smiles['SMILE'],
 		], [
 			'IMAGE_FIELD' => ['IMAGE']
 		]);

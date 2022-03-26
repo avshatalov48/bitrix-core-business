@@ -127,7 +127,7 @@ else
 	$context = new CAdminContextMenu($aMenu);
 	$context->Show();
 
-	$APPLICATION->SetTitle(str_replace("#ID#", $taskId, GetMessage("BPAT_TITLE")));
+	$APPLICATION->SetTitle(str_replace("#ID#", $taskId, GetMessage("BPAT_TITLE_1")));
 
 	if ($errorMessage <> '')
 		CAdminMessage::ShowMessage($errorMessage);
@@ -198,7 +198,7 @@ else
 			echo '<input type="hidden" name="uid" value="'.intval($arTask["USER_ID"]).'">';
 
 		$aTabs = array(
-			array("DIV" => "edit1", "TAB" => GetMessage("BPAT_TAB"), "ICON" => "bizproc", "TITLE" => GetMessage("BPAT_TAB_TITLE"))
+			array("DIV" => "edit1", "TAB" => GetMessage("BPAT_TAB_1"), "ICON" => "bizproc", "TITLE" => GetMessage("BPAT_TAB_TITLE_1"))
 		);
 
 		$tabControl = new CAdminTabControl("tabControl", $aTabs);

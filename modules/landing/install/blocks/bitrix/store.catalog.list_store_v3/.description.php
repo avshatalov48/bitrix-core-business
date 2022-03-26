@@ -91,6 +91,12 @@ $return = [
 			],
 		],
 	],
+	'style' => [
+		'block' => [
+			'type' => ['block-default-wo-background'],
+		],
+		'nodes' => [],
+	]
 ];
 
 $params =& $return['nodes']['bitrix:catalog.section']['extra']['editable'];

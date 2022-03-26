@@ -64,4 +64,5 @@ $MESS["EC_SEC_SLIDER_TITLE_LOCATION_CAL"] = "Местоположения";
 $MESS["EC_SEC_SLIDER_TITLE_RESOURCE_CAL"] = "Ресурсы";
 $MESS["EC_LOCATION_EMPTY"] = "Переговорная не найдена";
 $MESS["EC_LOCATION_OVERFLOW"] = "Количество участников превышает количество мест переговорной";
+$MESS["EC_LOCATION_RESERVED"] = "Занято";
 ?>

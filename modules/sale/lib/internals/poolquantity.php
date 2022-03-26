@@ -47,6 +47,18 @@ class PoolQuantity
 	}
 
 	/**
+	 * @param $type
+	 * @param $code
+	 *
+	 * @return float|null
+	 */
+	public function getByStore($type, $code, $storeId)
+	{
+		$pool = $this->getByType($type);
+		return $pool->getByStore($code, $storeId);
+	}
+
+	/**
 	 * @internal
 	 * @param $type
 	 *
@@ -76,6 +88,17 @@ class PoolQuantity
 
 	/**
 	 * @param $type
+	 *
+	 * @return array
+	 */
+	public function getQuantitiesWithStore($type)
+	{
+		$pool = $this->getByType($type);
+		return $pool->getQuantitiesWithStore();
+	}
+
+	/**
+	 * @param $type
 	 * @param $code
 	 * @param $value
 	 */
@@ -91,12 +114,34 @@ class PoolQuantity
 	 * @param $code
 	 * @param $value
 	 */
+	public function addByStore($type, $code, $storeId, $value)
+	{
+		$pool = $this->getByType($type);
+		$currentValue = floatval($pool->getByStore($code, $storeId));
+		$pool->setByStore($code, $storeId, $currentValue + $value);
+	}
+
+	/**
+	 * @param $type
+	 * @param $code
+	 * @param $value
+	 */
 	public function set($type, $code, $value)
 	{
 		$pool = $this->getByType($type);
 		$pool->set($code, $value);
 	}
 
+	/**
+	 * @param $type
+	 * @param $code
+	 * @param $value
+	 */
+	public function setByStore($type, $code, $storeId, $value)
+	{
+		$pool = $this->getByType($type);
+		$pool->setByStore($code, $storeId, $value);
+	}
 
 	/**
 	 * @param $type
@@ -116,12 +161,9 @@ class PoolQuantity
 		$pool = $this->getByType($type);
 		$list = $pool->getQuantities();
 
-		if (!empty($list))
+		foreach($list as $itemKey => $itemValue)
 		{
-			foreach($list as $itemKey => $itemValue)
-			{
-				$pool->delete($itemKey);
-			}
+			$pool->delete($itemKey);
 		}
 	}
 

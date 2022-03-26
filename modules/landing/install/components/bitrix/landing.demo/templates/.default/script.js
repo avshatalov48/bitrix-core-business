@@ -80,11 +80,8 @@
 			this.innerBlock = tile.querySelector('.landing-item-desc-inner');
 
 			var descHeightBlock = tile.querySelector('.landing-item-desc-height');
-			var offset = this.innerBlock.offsetTop;
 
 			tile.classList.add('landing-tile-title-show');
-			this.innerBlock.style.paddingTop = offset + 'px';
-			this.innerBlock.style.marginBottom = offset + 'px';
 			this.startHeight = BX.style(this.innerBlock, 'height');
 			this.innerBlock.style.height = descHeightBlock.offsetHeight + 'px';
 
@@ -150,7 +147,7 @@ BX.ready(function()
 						{
 							var openerSliderPath = sliderHref.split('?')[0];
 							var currentSliderPath = eventClosed.slider.iframeSrc.split('?')[0];
-							if (openerSliderPath !== currentSliderPath)
+							if (openerSliderPath !== currentSliderPath && sliderHref.indexOf('frameMode=Y') < 0)
 							{
 								top.location.reload();
 							}

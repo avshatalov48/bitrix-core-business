@@ -19,6 +19,8 @@ use \Bitrix\Main\Localization\Loc;
  * @var string $imgTitle
  * @var string $productTitle
  * @var string $buttonSizeClass
+ * @var string $discountPositionClass
+ * @var string $labelPositionClass
  * @var CatalogSectionComponent $component
  */
 ?>

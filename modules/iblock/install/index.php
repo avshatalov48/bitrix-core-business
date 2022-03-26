@@ -35,12 +35,12 @@ class iblock extends CModule
 
 	function InstallDB()
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 
 		if(!$DB->Query("SELECT 'x' FROM b_iblock_type", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/iblock/install/db/".$DBType."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/iblock/install/db/mysql/install.sql");
 		}
 
 		if($this->errors !== false)
@@ -89,7 +89,7 @@ class iblock extends CModule
 
 	function UnInstallDB($arParams = array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 		$arSQLErrors = array();
 
@@ -108,8 +108,6 @@ class iblock extends CModule
 				{
 					$arSql[] = "DROP TABLE b_iblock_element_prop_s".$arIBlock["ID"];
 					$arSql[] = "DROP TABLE b_iblock_element_prop_m".$arIBlock["ID"];
-					if($DBType=="oracle")
-						$arSql[] = "DROP SEQUENCE sq_b_iblock_element_prop_m".$arIBlock["ID"];
 				}
 				$GLOBALS["USER_FIELD_MANAGER"]->OnEntityDelete("IBLOCK_".$arIBlock["ID"]."._SECTION");
 			}
@@ -124,7 +122,7 @@ class iblock extends CModule
 			while($arRes = $db_res->Fetch())
 				CFile::Delete($arRes["ID"]);
 
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/iblock/install/db/".$DBType."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/iblock/install/db/mysql/uninstall.sql");
 
 			$this->UnInstallTasks();
 		}

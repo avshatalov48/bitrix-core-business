@@ -6,6 +6,7 @@ this.BX.Landing = this.BX.Landing || {};
 	var SimpleLinePro1 = {
 	  id: 'simple_line_icons_pro_1',
 	  name: 'Simple Line Icon Pro 1',
+	  active: true,
 	  categories: [{
 	    id: 'simple_line_0',
 	    name: landing_loc.Loc.getMessage('LANDING_ICONS_SECTION_HOTEL_AND_RESTAURANT'),

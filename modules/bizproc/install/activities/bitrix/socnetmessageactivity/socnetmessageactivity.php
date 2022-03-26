@@ -32,12 +32,14 @@ class CBPSocNetMessageActivity
 
 		$arMessageUserFrom = CBPHelper::ExtractUsers($this->MessageUserFrom, $documentId, true);
 		$arMessageUserTo = CBPHelper::ExtractUsers($this->MessageUserTo, $documentId, false);
+		$messageText = $this->getMessageText();
 
 		$arMessageFields = array(
 			"=DATE_CREATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
 			"MESSAGE_TYPE" => SONET_MESSAGE_SYSTEM,
 			"FROM_USER_ID" => $arMessageUserFrom,
-			"MESSAGE" => $this->getMessageText(),
+			"MESSAGE" => $messageText,
+			'PUSH_MESSAGE' => $messageText,
 		);
 		$ar = array();
 		foreach ($arMessageUserTo as $userTo)
@@ -108,7 +110,8 @@ class CBPSocNetMessageActivity
 			"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
 			"MESSAGE_OUT" => CBPHelper::convertBBtoText($messageText),
 			"ATTACH" => $attach,
-			'NOTIFY_TAG' => 'ROBOT|'.implode('|', array_map('mb_strtoupper', $documentId))	.'|'.$tagSalt
+			'NOTIFY_TAG' => 'ROBOT|'.implode('|', array_map('mb_strtoupper', $documentId))	.'|'.$tagSalt,
+			'PUSH_MESSAGE' => $messageText,
 		);
 
 		if ($arMessageUserFrom)

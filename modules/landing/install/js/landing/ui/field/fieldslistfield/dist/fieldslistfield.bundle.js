@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,landing_ui_field_basefield,landing_loc,main_core,ui_draganddrop_draggable,landing_ui_panel_fieldspanel,landing_ui_component_listitem,landing_ui_component_actionpanel,landing_ui_field_textfield,main_core_events,landing_ui_form_formsettingsform,crm_form_client,landing_ui_field_listsettingsfield,landing_ui_panel_separatorpanel,landing_pageobject,main_loader,landing_ui_field_productfield) {
+(function (exports,landing_ui_field_basefield,landing_loc,main_core,ui_draganddrop_draggable,landing_ui_panel_fieldspanel,landing_ui_component_listitem,landing_ui_component_actionpanel,landing_ui_field_textfield,main_core_events,landing_ui_form_formsettingsform,crm_form_client,landing_ui_field_listsettingsfield,landing_ui_panel_separatorpanel,landing_pageobject,main_loader,landing_ui_field_productfield,calendar_resourcebookinguserfield,socnetlogdest,ui_hint,landing_ui_component_iconbutton) {
 	'use strict';
 
 	function _templateObject2() {
@@ -53,7 +53,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      renderTo: _this.layout,
 	      left: [{
 	        id: 'selectField',
-	        text: landing_loc.Loc.getMessage('LANDING_FIELDS_SELECT_FIELD_BUTTON_TITLE'),
+	        text: landing_loc.Loc.getMessage('LANDING_FIELDS_ADD_FIELD_BUTTON_TITLE'),
 	        onClick: _this.onSelectFieldButtonClick
 	      }],
 	      right: [{
@@ -203,6 +203,38 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          listItemOptions.isSeparator = false;
 	          listItemOptions.fieldController = this.createResourceBookingFieldController(options);
 
+	          if (options.editing.supportAutocomplete) {
+	            var autocompleteButton = new landing_ui_component_iconbutton.IconButton({
+	              id: 'autocomplete',
+	              type: function () {
+	                if (options.autocomplete) {
+	                  return landing_ui_component_iconbutton.IconButton.Types.user1Active;
+	                }
+
+	                return landing_ui_component_iconbutton.IconButton.Types.user1;
+	              }(),
+	              style: {
+	                opacity: 1,
+	                cursor: 'default'
+	              },
+	              title: function () {
+	                if (options.autocomplete) {
+	                  return landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_AUTOCOMPLETE_ENABLED');
+	                }
+
+	                return landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_AUTOCOMPLETE_DISABLED');
+	              }()
+	            });
+	            listItemOptions.form.subscribe('onChange', function (event) {
+	              if (event.getTarget().serialize().autocomplete) {
+	                autocompleteButton.setType(landing_ui_component_iconbutton.IconButton.Types.user1Active);
+	              } else {
+	                autocompleteButton.setType(landing_ui_component_iconbutton.IconButton.Types.user1);
+	              }
+	            });
+	            listItemOptions.actions = [autocompleteButton];
+	          }
+
 	          var _listItem2 = new landing_ui_component_listitem.ListItem(listItemOptions);
 
 	          if (listItemOptions.fieldController) {
@@ -276,6 +308,51 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          return acc;
 	        }, null)
 	      });
+	    }
+	  }, {
+	    key: "createProductDefaultValueDropdown",
+	    value: function createProductDefaultValueDropdown(field) {
+	      var defaultValueField = new BX.Landing.UI.Field.Dropdown({
+	        id: 'productDefaultValue',
+	        selector: 'value',
+	        title: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_LIST_DEFAULT_VALUE_TITLE'),
+	        content: field.value,
+	        items: [{
+	          label: landing_loc.Loc.getMessage('LANDING_FORM_DEFAULT_VALUE_NOT_SELECTED'),
+	          value: null
+	        }].concat(babelHelpers.toConsumableArray(field.items)).map(function (item) {
+	          return {
+	            name: item.label,
+	            value: item.value
+	          };
+	        })
+	      });
+
+	      if (field.items.length > 0) {
+	        defaultValueField.enable();
+	      } else {
+	        defaultValueField.disable();
+	      }
+
+	      return defaultValueField;
+	    }
+	  }, {
+	    key: "createDefaultValueField",
+	    value: function createDefaultValueField(field) {
+	      return new BX.Landing.UI.Field.Dropdown({
+	        selector: 'value',
+	        title: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_LIST_DEFAULT_VALUE_TITLE'),
+	        content: field.value,
+	        items: [{
+	          label: landing_loc.Loc.getMessage('LANDING_FORM_DEFAULT_VALUE_NOT_SELECTED'),
+	          value: null
+	        }].concat(babelHelpers.toConsumableArray(field.items)).map(function (item) {
+	          return {
+	            name: item.label,
+	            value: item.value
+	          };
+	        })
+	      });
 	    } // eslint-disable-next-line class-methods-use-this
 
 	  }, {
@@ -318,6 +395,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	              modifiedValue.editing = {};
 	            }
 
+	            if (Reflect.has(value, 'value') && main_core.Type.isArrayFilled(modifiedValue.items)) {
+	              modifiedValue.items.forEach(function (item) {
+	                item.selected = String(value.value) === String(item.value);
+	              });
+	            }
+
 	            modifiedValue.editing.catalog = main_core.Runtime.clone(value.products);
 	          }
 
@@ -339,6 +422,16 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            });
 	            delete modifiedValue.customPrice;
 	            delete modifiedValue.useCustomPrice;
+	          }
+
+	          if (main_core.Type.isArray(value.autocomplete)) {
+	            modifiedValue.autocomplete = value.autocomplete.length > 0;
+	          }
+
+	          if (main_core.Type.isArrayFilled(value.contentTypes)) {
+	            if (value.contentTypes.includes('any')) {
+	              modifiedValue.contentTypes = [];
+	            }
 	          }
 
 	          return modifiedValue;
@@ -371,6 +464,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	            newCustomPrice.setValue(oldCustomPrice.getValue());
 	            form.replaceField(oldCustomPrice, newCustomPrice);
+	            var oldDefaultValue = form.fields.get('productDefaultValue');
+
+	            var newDefaultValue = _this5.createProductDefaultValueDropdown(babelHelpers.objectSpread({}, field, {
+	              items: form.serialize().items
+	            }));
+
+	            form.replaceField(oldDefaultValue, newDefaultValue);
 	          }
 	        }));
 	      }
@@ -460,24 +560,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          }
 	        }));
 	        fields.push(customPriceField);
+	        fields.push(this.createProductDefaultValueDropdown(field));
 	      }
 
-	      if ((field.type === 'list' || field.type === 'radio') && field.editing.items.length > 0) {
-	        var defaultValueField = new BX.Landing.UI.Field.Dropdown({
-	          selector: 'value',
-	          title: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_LIST_DEFAULT_VALUE_TITLE'),
-	          content: field.value,
-	          items: [{
-	            value: landing_loc.Loc.getMessage('LANDING_FORM_DEFAULT_VALUE_NOT_SELECTED'),
-	            id: null
-	          }].concat(babelHelpers.toConsumableArray(field.editing.items)).map(function (item) {
-	            return {
-	              name: item.value,
-	              value: item.id
-	            };
-	          })
-	        });
-	        fields.push(new landing_ui_field_listsettingsfield.ListSettingsField({
+	      if (['list', 'radio'].includes(field.type) && field.editing.items.length > 0) {
+	        var defaultValueField = this.createDefaultValueField(field);
+	        var listSettingsField = new landing_ui_field_listsettingsfield.ListSettingsField({
 	          selector: 'items',
 	          title: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_LIST_SETTINGS_TITLE'),
 	          items: function () {
@@ -493,7 +581,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	              };
 	            });
 	          }()
-	        }));
+	        });
+	        listSettingsField.subscribe('onChange', function () {
+	          var currentDefaultValueField = form.fields.find(function (item) {
+	            return item.selector === 'value';
+	          });
+	          form.replaceField(currentDefaultValueField, _this5.createDefaultValueField(babelHelpers.objectSpread({}, field, {
+	            items: form.serialize().items,
+	            value: currentDefaultValueField.getValue()
+	          })));
+	        });
+	        fields.push(listSettingsField);
 	        fields.push(defaultValueField);
 	      }
 
@@ -512,16 +610,83 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 
 	      if (field.type === 'file' && main_core.Type.isArrayFilled(this.options.dictionary.contentTypes)) {
-	        fields.push(new BX.Landing.UI.Field.Checkbox({
+
+	        var selectedContentTypes = main_core.Type.isArrayFilled(field.contentTypes) ? field.contentTypes : ['any'];
+	        var lastValue = selectedContentTypes;
+	        var contentTypesField = new BX.Landing.UI.Field.Checkbox({
 	          selector: 'contentTypes',
 	          title: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_FILE_TYPE'),
-	          value: field.contentTypes,
-	          items: this.options.dictionary.contentTypes.map(function (item) {
+	          value: selectedContentTypes,
+	          items: [function () {
+	            if (landing_loc.Loc.hasMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_ANY_FILE_TYPE')) {
+	              return {
+	                name: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_ALLOWED_ANY_FILE_TYPE'),
+	                value: 'any'
+	              };
+	            }
+
+	            return undefined;
+	          }()].concat(babelHelpers.toConsumableArray(this.options.dictionary.contentTypes.map(function (item) {
+	            var hint = item.hint ? "<span class=\"ui-hint\" data-hint=\"".concat(main_core.Text.encode(item.hint), "\"></span>") : '';
 	            return {
-	              name: item.name,
+	              html: "<span style=\"display: flex; align-items: center;\">".concat(main_core.Text.encode(item.name), " ").concat(hint, "</span>"),
+	              name: '',
 	              value: item.id
 	            };
-	          })
+	          }))),
+	          onValueChange: function onValueChange() {
+	            var value = contentTypesField.getValue();
+
+	            if (value.includes('any')) {
+	              if (lastValue.includes('any')) {
+	                contentTypesField.setValue(value.filter(function (item) {
+	                  return item !== 'any';
+	                }));
+	              } else {
+	                contentTypesField.setValue(['any']);
+	              }
+	            }
+
+	            lastValue = contentTypesField.getValue();
+	          }
+	        });
+	        BX.UI.Hint.init(contentTypesField.getLayout());
+	        fields.push(contentTypesField);
+	      }
+
+	      if (main_core.Text.toBoolean(field.editing.supportAutocomplete) === true) {
+	        fields.push(new BX.Landing.UI.Field.Checkbox({
+	          selector: 'autocomplete',
+	          compact: true,
+	          multiple: false,
+	          items: [{
+	            name: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_ENABLE_AUTOCOMPLETE'),
+	            html: main_core.Text.encode(landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_ENABLE_AUTOCOMPLETE')) + "<span \n\t\t\t\t\t\t\t\t\tclass=\"landing-ui-form-help\" \n\t\t\t\t\t\t\t\t\tstyle=\"margin: 0 0 0 5px;\"\n\t\t\t\t\t\t\t\t\tonclick=\"top.BX.Helper.show('redirect=detail&code=14611764'); return false;\"\n\t\t\t\t\t\t\t\t><a href=\"javascript: void();\"></a></span>",
+	            value: 'autocomplete'
+	          }],
+	          value: field.autocomplete ? ['autocomplete'] : false
+	        }));
+	      }
+
+	      if (main_core.Text.toBoolean(field.editing.hasHint) === true) {
+	        fields.push(new landing_ui_field_textfield.TextField({
+	          selector: 'hint',
+	          title: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FORM_FIELD_HINT_TITLE'),
+	          content: field.hint,
+	          textOnly: true
+	        }));
+	      }
+
+	      if (main_core.Text.toBoolean(field.editing.supportHintOnFocus) === true) {
+	        fields.push(new BX.Landing.UI.Field.Checkbox({
+	          selector: 'hintOnFocus',
+	          compact: true,
+	          multiple: false,
+	          items: [{
+	            name: landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_ENABLE_HINT_ON_FOCUS'),
+	            value: 'hintOnFocus'
+	          }],
+	          value: field.hintOnFocus ? ['hintOnFocus'] : false
 	        }));
 	      }
 
@@ -551,6 +716,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        })
 	      }).then(function (selectedFields) {
 	        if (main_core.Type.isArrayFilled(selectedFields)) {
+	          _this6.options.crmFields = landing_ui_panel_fieldspanel.FieldsPanel.getInstance().getOriginalCrmFields();
+
 	          _this6.onFieldsSelect(selectedFields);
 	        }
 	      });
@@ -803,5 +970,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.FieldsListField = FieldsListField;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX.Landing.UI.Field,BX.Landing,BX,BX.UI.DragAndDrop,BX.Landing.UI.Panel,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Landing.UI.Field,BX.Event,BX.Landing.UI.Form,BX.Crm.Form,BX.Landing.UI.Field,BX.Landing.UI.Panel,BX.Landing,BX,BX.Landing.Ui.Field));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX.Landing.UI.Field,BX.Landing,BX,BX.UI.DragAndDrop,BX.Landing.UI.Panel,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Landing.UI.Field,BX.Event,BX.Landing.UI.Form,BX.Crm.Form,BX.Landing.UI.Field,BX.Landing.UI.Panel,BX.Landing,BX,BX.Landing.Ui.Field,BX.Calendar,BX,BX,BX.Landing.UI.Component));
 //# sourceMappingURL=fieldslistfield.bundle.js.map

@@ -12,9 +12,6 @@ return array(
 		'section' => array('contacts'),
 		'version' => '18.5.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
 		'subtype' => 'map',
-		'subtype_params' =>[
-			'required' => 'google'
-		],
 	),
 	'cards' => array(),
 	'nodes' => array(
@@ -50,6 +47,6 @@ return array(
 		),
 	),
 	'assets' => array(
-		'ext' => array('landing_google_maps_new'),
+		'ext' => array('landing_map'),
 	),
 );

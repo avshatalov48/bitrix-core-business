@@ -241,7 +241,9 @@ class Processor
 
 	public function getResultTaskCommentsIdList(&$result): void
 	{
-		$result['RESULT_COMMENTS_ID_LIST'] = [];
+		$result['RESULT_TASKS_DATA'] = [];
+		$result['RESULT_FIELD_TASKS_ID'] = [];
+		$result['RESULT_COMMENTS_DATA'] = [];
 
 		$tasks2LogList = $this->getComponent()->getTask2LogListValue();
 		if (
@@ -253,17 +255,52 @@ class Processor
 			return;
 		}
 
-		$resultCommentIdList = \Bitrix\Tasks\Internals\Task\Result\ResultManager::findResultComments(array_keys($tasks2LogList));
+		foreach ($tasks2LogList as $taskId => $logId)
+		{
+			$result['RESULT_TASKS_DATA'][(int)$logId] = (int)$taskId;
+		}
+
+		$taskIdList = [];
+
+		$res = \Bitrix\Tasks\Internals\TaskTable::getList([
+			'filter' => [
+				'@ID' => array_keys($tasks2LogList),
+				'!=STATUS' => \CTasks::STATE_COMPLETED,
+			],
+			'select' => [ 'ID' ],
+		]);
+		while ($taskFields = $res->fetch())
+		{
+			$taskIdList[] = (int)$taskFields['ID'];
+		}
+
+		if (empty($taskIdList))
+		{
+			return;
+		}
+
+		$result['RESULT_FIELD_TASKS_ID'] = $taskIdList;
+
+		$resultCommentIdList = \Bitrix\Tasks\Internals\Task\Result\ResultManager::findResultComments($taskIdList);
 		foreach ($tasks2LogList as $taskId => $logId)
 		{
 			if (isset($resultCommentIdList[$taskId]))
 			{
-				$result['RESULT_COMMENTS_ID_LIST'][$logId] = $resultCommentIdList[$taskId];
+				$res = [];
+				foreach ($resultCommentIdList[$taskId] as $value)
+				{
+					$res[$value] = [
+						'taskId' => $taskId,
+						'logId' => $logId,
+						'commentId' => $value,
+					];
+				}
+				$result['RESULT_COMMENTS_DATA'][$taskId] = $res;
 			}
 		}
 	}
 
-	public function getMicroblogUserId(&$result)
+	public function getMicroblogUserId(&$result): void
 	{
 		$params = $this->getComponent()->arParams;
 

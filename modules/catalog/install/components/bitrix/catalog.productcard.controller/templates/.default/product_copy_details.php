@@ -17,5 +17,7 @@ $APPLICATION->IncludeComponent(
 		'IBLOCK_ID' => $iblockId,
 		'PRODUCT_ID' => 0,
 		'COPY_PRODUCT_ID' => $copyProductId,
+		'BUILDER_CONTEXT' => $arResult['BUILDER_CONTEXT'],
+		'SCOPE' => $arResult['SCOPE'],
 	]
 );

@@ -1,8 +1,6 @@
 <?php
 namespace Bitrix\Landing\Update;
 
-use \Bitrix\Main\Config\Option;
-
 class Stepper
 {
 	/**
@@ -20,87 +18,21 @@ class Stepper
 			'Bitrix\Landing\Update\Block',
 			'Bitrix\Landing\Update\Landing\InitApp',
 			'Bitrix\Landing\Update\Landing\SearchContent',
+			'Bitrix\Landing\Update\Landing\FolderNew',
 			'Bitrix\Landing\Update\Domain\Check',
 			'Bitrix\Landing\Update\Assets\WebpackClear',
 			'Bitrix\Landing\Update\Assets\FontFix',
-			'Bitrix\Landing\Update\Assets\FontWeightFix',
+			'Bitrix\Landing\Update\Assets\FixFontWeight',
 		);
 	}
 
 
 	/**
-	 * Show some stepper if need.
+	 * Show some stepper if needed.
+	 * @deprecated since 21.800.0
 	 * @return void
 	 */
-	public static function show()
+	public static function show(): void
 	{
-		$moduleId = 'landing';
-		$updatersToShow = array();
-
-		// find active updaters
-		foreach (self::getUpdaterClasses() as $className)
-		{
-			if (Option::get('main.stepper.' . $moduleId, $className, '') !== '')
-			{
-				if (self::checkAgentActivity($className))
-				{
-					$updatersToShow[] = $className;
-				}
-				// if not exist agent - something went wrong, need rollback
-				else
-				{
-					Option::delete(
-						'main.stepper.' . $moduleId,
-						['name' => $className]
-					);
-
-					// journal
-					$eventLog = new \CEventLog;
-					$eventLog->Add(array(
-						'SEVERITY' => $eventLog::SEVERITY_WARNING,
-						'AUDIT_TYPE_ID' => 'LANDING_STEPPER',
-						'MODULE_ID' => 'landing',
-						'ITEM_ID' => $className,
-						'DESCRIPTION' => 'Stepper is running, but agent not exist. Stepper was deleted.',
-					));
-				}
-			}
-		}
-
-		// show active updaters
-		if (!empty($updatersToShow))
-		{
-			echo '<div style="padding-bottom: 20px;">';
-			echo \Bitrix\Main\Update\Stepper::getHtml(array(
-				$moduleId => $updatersToShow
-		  	));
-			echo '</div>';
-		}
-	}
-
-	/**
-	 * Exist or not the agent?
-	 * @param string $className Class name.
-	 * @return bool
-	 */
-	public static function checkAgentActivity($className)
-	{
-		global $DB;
-
-		$className = trim($className, '\\');
-		$name = $DB->ForSql($className . '::execAgent();');
-
-		$res = $DB->Query("
-			SELECT ID
-			FROM b_agent
-			WHERE NAME = '" . $name . "' OR NAME = '\\" . $name . "'
-			AND USER_ID IS NULL"
-		);
-		if (!($agent = $res->Fetch()))
-		{
-			return false;
-		}
-
-		return true;
 	}
 }

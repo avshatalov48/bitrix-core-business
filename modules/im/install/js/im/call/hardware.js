@@ -5,12 +5,14 @@
 		defaultCamera: 'bx-im-settings-default-camera',
 		defaultSpeaker: 'bx-im-settings-default-speaker',
 		enableMicAutoParameters: 'bx-im-settings-enable-mic-auto-parameters',
-		preferHd: 'bx-im-settings-camera-prefer-hd'
+		preferHd: 'bx-im-settings-camera-prefer-hd',
+		enableMirroring: 'bx-im-settings-camera-enable-mirroring'
 	};
 
 	var Events = {
 		initialized: "initialized",
 		deviceChanged: "deviceChange",
+		onChangeMirroringVideo: "onChangeMirroringVideo",
 	};
 
 	var HardwareManager = function()
@@ -79,6 +81,26 @@
 				if (localStorage)
 				{
 					localStorage.setItem(lsKey.preferHd, preferHdQuality ? 'Y' : 'N')
+				}
+			}
+		});
+		Object.defineProperty(this, "enableMirroring", {
+			get: function() {
+				return localStorage ? (localStorage.getItem(lsKey.enableMirroring) !== 'N') : true;
+			},
+			set: function(enableMirroring) {
+				if (this.enableMirroring !== enableMirroring)
+				{
+					this.eventEmitter.emit(Events.onChangeMirroringVideo, { enableMirroring: enableMirroring });
+
+					if (BX.desktop)
+					{
+						BX.desktop.onCustomEvent(Events.onChangeMirroringVideo, [enableMirroring]);
+					}
+					if (localStorage)
+					{
+						localStorage.setItem(lsKey.enableMirroring, enableMirroring ? 'Y' : 'N');
+					}
 				}
 			}
 		});

@@ -1613,7 +1613,6 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        autoHide: false,
 	        closeByEsc: true,
 	        draggable: true,
-	        // titleBar: Loc.getMessage('EC_JS_EXPORT_TILE'),
 	        closeIcon: {
 	          right: "12px",
 	          top: "10px"

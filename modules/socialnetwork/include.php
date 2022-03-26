@@ -4,8 +4,6 @@ use Bitrix\Socialnetwork\Integration;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 
-global $DBType;
-
 IncludeModuleLangFile(__FILE__);
 
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/socialnetwork/tools.php");
@@ -37,35 +35,35 @@ define("SONET_MESSAGE_PRIVATE", "P");
 define("DisableSonetLogVisibleSubscr", true);
 
 $arClasses = array(
-	"CSocNetGroup" => "classes/".$DBType."/group.php",
-	"CSocNetGroupSubject" => "classes/".$DBType."/group_subject.php",
-	"CSocNetUserToGroup" => "classes/".$DBType."/user_group.php",
-	"CSocNetFeatures" => "classes/".$DBType."/group_features.php",
-	"CSocNetFeaturesPerms" => "classes/".$DBType."/group_features_perms.php",
-	"CSocNetUserRelations" => "classes/".$DBType."/user_relations.php",
-	"CSocNetSmile" => "classes/".$DBType."/smile.php",
-	"CSocNetUser" => "classes/".$DBType."/user.php",
-	"CSocNetUserPerms" => "classes/".$DBType."/user_perms.php",
-	"CSocNetUserEvents" => "classes/".$DBType."/user_events.php",
-	"CSocNetMessages" => "classes/".$DBType."/messages.php",
-	"CSocNetEventUserView" => "classes/".$DBType."/event_user_view.php",
-	"CSocNetLog" => "classes/".$DBType."/log.php",
+	"CSocNetGroup" => "classes/mysql/group.php",
+	"CSocNetGroupSubject" => "classes/mysql/group_subject.php",
+	"CSocNetUserToGroup" => "classes/mysql/user_group.php",
+	"CSocNetFeatures" => "classes/mysql/group_features.php",
+	"CSocNetFeaturesPerms" => "classes/mysql/group_features_perms.php",
+	"CSocNetUserRelations" => "classes/mysql/user_relations.php",
+	"CSocNetSmile" => "classes/mysql/smile.php",
+	"CSocNetUser" => "classes/mysql/user.php",
+	"CSocNetUserPerms" => "classes/mysql/user_perms.php",
+	"CSocNetUserEvents" => "classes/mysql/user_events.php",
+	"CSocNetMessages" => "classes/mysql/messages.php",
+	"CSocNetEventUserView" => "classes/mysql/event_user_view.php",
+	"CSocNetLog" => "classes/mysql/log.php",
 	"CSocNetLogTools" => "classes/general/log_tools.php",
 	"CSocNetLogToolsPhoto" => "classes/general/log_tools_photo.php",
 	"CSocNetForumComments" => "classes/general/log_forum_comments.php",
 	"CSocNetLogRights" => "classes/general/log_rights.php",
 	"CSocNetLogPages" => "classes/general/log_pages.php",
 	"CSocNetLogFollow" => "classes/general/log_follow.php",
-	"CSocNetLogSmartFilter" => "classes/".$DBType."/log_smartfilter.php",
+	"CSocNetLogSmartFilter" => "classes/mysql/log_smartfilter.php",
 	"CSocNetLogRestService" => "classes/general/rest.php",
 	"logTextParser" => "classes/general/log_tools.php",
 	"CSocNetPhotoCommentEvent" => "classes/general/log_tools_photo.php",
-	"CSocNetLogComments" => "classes/".$DBType."/log_comments.php",
-	"CSocNetLogEvents" => "classes/".$DBType."/log_events.php",
-	"CSocNetLogCounter" => "classes/".$DBType."/log_counter.php",
-	"CSocNetLogFavorites" => "classes/".$DBType."/log_favorites.php",
+	"CSocNetLogComments" => "classes/mysql/log_comments.php",
+	"CSocNetLogEvents" => "classes/mysql/log_events.php",
+	"CSocNetLogCounter" => "classes/mysql/log_counter.php",
+	"CSocNetLogFavorites" => "classes/mysql/log_favorites.php",
 	"CSocNetLogComponent" => "classes/general/log_tools.php",
-	"CSocNetSubscription" => "classes/".$DBType."/subscription.php",
+	"CSocNetSubscription" => "classes/mysql/subscription.php",
 	"CSocNetSearch" => "classes/general/search.php",
 	"CSocNetSearchReindex" => "classes/general/search_reindex.php",
 	"CSocNetTextParser" => "classes/general/functions.php",

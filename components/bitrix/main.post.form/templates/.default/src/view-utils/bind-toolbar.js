@@ -1,4 +1,3 @@
-import {Dom} from 'main.core';
 import {EventEmitter, BaseEvent} from 'main.core.events';
 import {Editor} from '../editor';
 
@@ -103,40 +102,3 @@ export default function bindToolbar(editor: Editor, htmlEditor)
 			});
 	}
 }
-<script>
-	BX.ready(function() {
-	var target = document.querySelector('[data-role="more-info"]');
-
-	if (target)
-{
-	var styleAtt = getComputedStyle(target);
-	var initialHeight = styleAtt.height;
-
-	if (parseInt(styleAtt.height) > 260)
-{
-	var arrowNode = document.createElement('div');
-	arrowNode.className = 'imconnector-field-more-info-block';
-	arrowNode.innerHTML = '<div class="imconnector-field-more-button"></div>';
-
-	target.style.cssText = `
-						height: 259px;
-					    overflow: hidden;
-					    transition: .4s;
-					    position: relative;
-				  	`;
-
-	target.addEventListener('click', function()
-{
-	target.style.height = initialHeight;
-	arrowNode.style.cssText = `
-							opacity: 0;
-							pointer-events: none;
-				  		`;
-}, false);
-
-	target.appendChild(arrowNode);
-}
-
-}
-});
-</script>

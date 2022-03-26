@@ -942,11 +942,11 @@ final class Manager
 
 	/**
 	 * @param int $requestId
-	 * @param int [] $shipmentIds
+	 * @param int[] $shipmentIds
+	 * @param array $additional
 	 * @return Result
-	 * @throws \Exception
 	 */
-	public static function addShipmentsToDeliveryRequest($requestId, array $shipmentIds)
+	public static function addShipmentsToDeliveryRequest($requestId, array $shipmentIds, array $additional = [])
 	{
 		$result = new Result();
 
@@ -995,7 +995,7 @@ final class Manager
 			return $result;
 		}
 
-		$res = $deliveryRequestHandler->addShipments($requestId, $shipmentIds);
+		$res = $deliveryRequestHandler->addShipments($requestId, $shipmentIds, $additional);
 
 		if ($res->isSuccess())
 		{

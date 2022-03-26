@@ -20,6 +20,7 @@ class Registry
 			[
 				AdminPage\CatalogBuilder::class,
 				ShopBuilder::class,
+				InventoryBuilder::class,
 			],
 			'catalog'
 		);

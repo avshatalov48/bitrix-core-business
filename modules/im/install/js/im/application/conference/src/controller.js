@@ -345,10 +345,10 @@ class ConferenceApplication
 			{
 				this.callContainer = document.getElementById('bx-im-component-call-container');
 
-				let hiddenButtons = [];
+				let hiddenButtons = ['document'];
 				if (this.isViewerMode())
 				{
-					hiddenButtons = ['camera', 'microphone', 'screen', 'record', 'floorRequest'];
+					hiddenButtons = ['camera', 'microphone', 'screen', 'record', 'floorRequest', 'document'];
 				}
 				if (!this.params.isIntranetOrExtranet)
 				{
@@ -736,7 +736,7 @@ class ConferenceApplication
 		{
 			if (videoEnabled)
 			{
-				this.callView.setLocalStream(this.localVideoStream, true);
+				this.callView.setLocalStream(this.localVideoStream, BX.Call.Hardware.enableMirroring);
 			}
 			else
 			{
@@ -1754,7 +1754,8 @@ class ConferenceApplication
 		//this.template.$emit('callLocalMediaReceived');
 
 		this.stopLocalVideoStream();
-		this.callView.setLocalStream(e.stream, e.tag == "main");
+		const enableVideoMirroring = e.tag == "main" ? BX.Call.Hardware.enableMirroring : false;
+		this.callView.setLocalStream(e.stream, enableVideoMirroring);
 		this.callView.setButtonActive("screen", e.tag == "screen");
 		if(e.tag == "screen")
 		{

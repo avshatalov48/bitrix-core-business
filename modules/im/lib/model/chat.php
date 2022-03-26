@@ -198,9 +198,13 @@ class ChatTable extends Entity\DataManager
 
 	public static function onAfterUpdate(\Bitrix\Main\ORM\Event $event)
 	{
-		$primary = $event->getParameter("id");
-		$id = $primary["ID"];
-		static::indexRecord($id);
+		$fields = $event->getParameter("fields");
+		if (isset($fields['TITLE']))
+		{
+			$primary = $event->getParameter("id");
+			static::indexRecord($primary["ID"]);
+		}
+
 		return new Entity\EventResult();
 	}
 

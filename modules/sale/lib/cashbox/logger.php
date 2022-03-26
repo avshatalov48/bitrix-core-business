@@ -19,55 +19,44 @@ class Logger
 	protected const TRACE_LEVEL_DEBUG = 3;
 
 	/**
-	 * @param string $message
+	 * @param ?string $message
 	 * @param null $cashboxId
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ObjectException
 	 */
-	public static function addError(string $message, $cashboxId = null): void
+	public static function addError(?string $message, $cashboxId = null): void
 	{
 		self::addToLog($message, $cashboxId, static::TRACE_LEVEL_ERROR);
 	}
 
 	/**
-	 * @param string $message
+	 * @param ?string $message
 	 * @param null $cashboxId
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ObjectException
 	 */
-	public static function addWarning(string $message, $cashboxId = null): void
+	public static function addWarning(?string $message, $cashboxId = null): void
 	{
 		self::addToLog($message, $cashboxId, static::TRACE_LEVEL_WARNING);
 	}
 
 	/**
-	 * @param string $message
+	 * @param ?string $message
 	 * @param null $cashboxId
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ObjectException
 	 */
-	public static function addDebugInfo(string $message, $cashboxId = null): void
+	public static function addDebugInfo(?string $message, $cashboxId = null): void
 	{
 		self::addToLog($message, $cashboxId, static::TRACE_LEVEL_DEBUG);
 	}
 
 	/**
-	 * @param string $message
+	 * @param ?string $message
 	 * @return bool
 	 */
-	private static function validateMessage(string $message): bool
+	private static function validateMessage(?string $message): bool
 	{
-		return $message !== '';
+		return !empty($message);
 	}
 
 	/**
 	 * @param int $messageLevel
 	 * @return bool
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
 	private static function checkMessageLevel(int $messageLevel): bool
 	{
@@ -75,14 +64,11 @@ class Logger
 	}
 
 	/**
-	 * @param string $message
+	 * @param ?string $message
 	 * @param $cashboxId
 	 * @param $messageLevel
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ObjectException
 	 */
-	private static function addToLog(string $message, $cashboxId, $messageLevel): void
+	private static function addToLog(?string $message, $cashboxId, $messageLevel): void
 	{
 		if (self::checkMessageLevel($messageLevel) && self::validateMessage($message))
 		{

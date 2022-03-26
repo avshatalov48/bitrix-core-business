@@ -509,9 +509,13 @@ foreach($serviceConfig as $sectionKey => $serviceSection)
 {
 	$aTabs[] = array(
 		"DIV" => "edit_".$sectionKey,
-		"TAB" => $serviceSection["TITLE"],
+		"TAB" => (isset($serviceSection["TITLE"]) && !empty($serviceSection["TITLE"]))
+			? $serviceSection["TITLE"]
+			: Loc::getMessage('SALE_DSE_TAB_SETTINGS'),
 		"ICON" => "sale",
-		"TITLE" => $serviceSection["DESCRIPTION"]
+		"TITLE" => (isset($serviceSection["DESCRIPTION"]) && !empty($serviceSection["DESCRIPTION"]))
+			? $serviceSection["DESCRIPTION"]
+			: Loc::getMessage('SALE_DSE_TAB_SETTINGS'),
 	);
 }
 

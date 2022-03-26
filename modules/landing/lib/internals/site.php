@@ -146,6 +146,9 @@ class SiteTable extends Entity\DataManager
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SPECIAL'),
 				'default_value' => 'N'
 			)),
+			'VERSION' => new Entity\IntegerField('VERSION', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SITE_VERSION')
+			)),
 			'CREATED_BY_ID' => new Entity\IntegerField('CREATED_BY_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CREATED_BY_ID'),
 				'required' => true
@@ -697,11 +700,13 @@ class SiteTable extends Entity\DataManager
 			}
 			if (!$canPublicSite)
 			{
+				$errCode = Manager::licenseIsFreeSite($fields['TYPE']) ? 'PUBLIC_SITE_REACHED_FREE' : 'PUBLIC_SITE_REACHED';
+				$msgCode = Manager::licenseIsFreeSite($fields['TYPE']) ? 'limit_sites_number_free' : 'limit_sites_number';
 				$result->unsetFields($unsetFields);
 				$result->setErrors(array(
 					new Entity\EntityError(
-						Restriction\Manager::getSystemErrorMessage('limit_sites_number'),
-						'PUBLIC_SITE_REACHED'
+						Restriction\Manager::getSystemErrorMessage($msgCode),
+						$errCode
 					)
 				));
 				return $result;
@@ -1576,6 +1581,7 @@ class SiteTable extends Entity\DataManager
 			\Bitrix\Landing\TemplateRef::setForSite($primary['ID'], []);
 			\Bitrix\Landing\UrlRewrite::removeForSite($primary['ID']);
 			\Bitrix\Landing\Rights::setOperationsForSite($primary['ID'], []);
+			\Bitrix\Landing\Folder::deleteForSite($primary['ID']);
 			\Bitrix\Landing\Site\Cookies::removeAgreementsForSite($primary['ID']);
 			BindingTable::siteClear($primary['ID']);
 

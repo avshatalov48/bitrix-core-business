@@ -141,7 +141,7 @@ else
 					if ($_POST["save"] <> '' && $arResult["CurrentUserPerms"]["UserCanModifyGroup"])
 					{
 						if (
-							!CSocNetUserToGroup::TransferMember2Moderator($GLOBALS["USER"]->GetID(), $arResult["Group"]["ID"], $arIDs, CSocNetUser::IsCurrentUserModuleAdmin())
+							!CSocNetUserToGroup::TransferMember2Moderator($GLOBALS["USER"]->GetID(), $arResult["Group"]["ID"], $arIDs)
 							&& ($e = $APPLICATION->GetException())
 						)
 							$errorMessage .= $e->GetString();

@@ -258,7 +258,7 @@ StateMachineWorkflowActivity = function()
 		ob.Table.rows[i].cells[1].width = "150px";
 		ob.Table.rows[i].cells[2].align = 'left';
 		//ob.Table.rows[i].cells[2].width = "45%";
-		var but = jsUtils.CreateElement('INPUT', {type: 'button', value: BPMESS['STM_ADD_STATUS']});
+		var but = jsUtils.CreateElement('INPUT', {type: 'button', value: BPMESS['STM_ADD_STATUS_1']});
 		but.style.marginBottom = '20px';
 		ob.Table.rows[i].cells[i%2*2].appendChild(but);
 		ob.Table.rows[i].cells[(i+1)%2*2].innerHTML = '&nbsp';

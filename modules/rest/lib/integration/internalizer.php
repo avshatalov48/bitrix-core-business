@@ -9,6 +9,17 @@ use Bitrix\Sale\Controller\Controller;
 
 final class Internalizer extends ModificationFieldsBase
 {
+	public function __construct(ViewManager $manager, $data = [])
+	{
+		$this->setFormat([
+			self::TO_WHITE_LIST,
+			self::TO_SNAKE ,
+			self::CHECK_REQUIRED
+		]);
+
+		parent::__construct($manager, $data);
+	}
+
 	/**
 	 * @return Result
 	 */

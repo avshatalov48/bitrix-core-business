@@ -11,15 +11,22 @@ use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Sale\Internals\StatusLangTable;
 use Bitrix\Sale\Result;
 
-class StatusLang extends Controller
+class StatusLang extends ControllerBase
 {
 	//region Actions
 	public function getFieldsAction()
 	{
-		$entity = new \Bitrix\Sale\Rest\Entity\StatusLang();
-		return ['STATUS'=>$entity->prepareFieldInfos(
-			$entity->getFields()
+		$view = $this->getViewManager()
+			->getView($this);
+
+		return ['STATUS_LANG'=>$view->prepareFieldInfos(
+			$view->getFields()
 		)];
+	}
+
+	protected function getEntityTable(): StatusLangTable
+	{
+		return new StatusLangTable();
 	}
 
 	public function addAction(array $fields)
@@ -36,7 +43,7 @@ class StatusLang extends Controller
 			$r = $this->validate($fields);
 			if($r->isSuccess())
 			{
-				$r = StatusLangTable::add($fields);
+				$r = $this->getEntityTable()::add($fields);
 			}
 		}
 		else
@@ -53,7 +60,7 @@ class StatusLang extends Controller
 		{
 			return [
 				'STATUS_LANG'=>
-					StatusLangTable::getList([
+					$this->getEntityTable()::getList([
 						'filter'=>[
 							'STATUS_ID'=>$fields['STATUS_ID'],
 							'LID'=>$fields['LID']
@@ -78,7 +85,7 @@ class StatusLang extends Controller
 				]);
 				if($r->isSuccess())
 				{
-					$r = StatusLangTable::delete(['STATUS_ID'=>$fields['STATUS_ID'], 'LID'=>$fields['LID']]);
+					$r = $this->getEntityTable()::delete(['STATUS_ID'=>$fields['STATUS_ID'], 'LID'=>$fields['LID']]);
 				}
 			}
 		}
@@ -111,9 +118,7 @@ class StatusLang extends Controller
 
 		return new Page('STATUS_LANGS', $items, function() use ($filter)
 		{
-			return count(
-				StatusLangTable::getList(['filter'=>$filter])->fetchAll()
-			);
+			return $this->getEntityTable()::getCount([$filter]);
 		});
 	}
 
@@ -163,7 +168,7 @@ class StatusLang extends Controller
 	{
 		$r = new Result();
 
-		$row = StatusLangTable::getList(['filter'=>['STATUS_ID'=>$filter['STATUS_ID'], 'LID'=>$filter['LID']]])->fetchAll();
+		$row = $this->getEntityTable()::getList(['filter'=>['STATUS_ID'=>$filter['STATUS_ID'], 'LID'=>$filter['LID']]])->fetchAll();
 		if(isset($row[0]['STATUS_ID']) == false)
 			$r->addError(new Error('status lang is not exists', 201740400001));
 
@@ -193,6 +198,30 @@ class StatusLang extends Controller
 		else
 		{
 			$r = parent::checkPermissionEntity($name);
+		}
+		return $r;
+	}
+
+	protected function checkModifyPermissionEntity(): Result
+	{
+		$r = new Result();
+
+		$saleModulePermissions = self::getApplication()->GetGroupRight("sale");
+		if ($saleModulePermissions  < "W")
+		{
+			$r->addError(new Error('Access Denied', 200040300020));
+		}
+		return $r;
+	}
+
+	protected function checkReadPermissionEntity(): Result
+	{
+		$r = new Result();
+
+		$saleModulePermissions = self::getApplication()->GetGroupRight("sale");
+		if ($saleModulePermissions  == "D")
+		{
+			$r->addError(new Error('Access Denied', 200040300010));
 		}
 		return $r;
 	}

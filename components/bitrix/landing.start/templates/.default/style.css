@@ -91,8 +91,14 @@
 	font: 26px/26px "OpenSans-Light", Helvetica, Arial, sans-serif;
 	margin: 0;
 	padding: 21px 0 21px 5px;
-	display: block;
+	display: flex;
 	word-wrap: break-word;
+	justify-content: space-between;
+}
+
+.landing-slider-pagetitle-actions
+{
+	padding-right: 30px;
 }
 
 .landing-slider-no-background .ui-side-panel-wrap-workarea {

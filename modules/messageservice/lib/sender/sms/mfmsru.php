@@ -16,6 +16,8 @@ use Bitrix\MessageService;
 
 class MfmsRu extends Sender\BaseConfigurable
 {
+	public const ID = 'mfmsru';
+
 	public static function isSupported()
 	{
 		return (
@@ -26,7 +28,7 @@ class MfmsRu extends Sender\BaseConfigurable
 
 	public function getId()
 	{
-		return 'mfmsru';
+		return static::ID;
 	}
 
 	public function getName()
@@ -167,14 +169,16 @@ class MfmsRu extends Sender\BaseConfigurable
 			'text' => $messageFields['MESSAGE_BODY'],
 		];
 
-		[$error, $answer] = $this->touchHpg($this->getOption('hpg_send_url'), $params);
-
-		if ($error)
+		$remoteCallResult = $this->touchHpg($this->getOption('hpg_send_url'), $params);
+		$result->setServiceRequest($remoteCallResult->getHttpRequest());
+		$result->setServiceResponse($remoteCallResult->getHttpResponse());
+		if (!$remoteCallResult->isSuccess())
 		{
-			$result->addError(new Error($error));
+			$result->addErrors($remoteCallResult->getErrors());
 		}
 		else
 		{
+			$answer = $remoteCallResult->getData();
 			[$code, $index, $msgId] = $answer;
 
 			if ($msgId)
@@ -199,14 +203,15 @@ class MfmsRu extends Sender\BaseConfigurable
 			'providerId' => [$messageFields['EXTERNAL_ID']],
 		];
 
-		[$error, $answer] = $this->touchHpg($this->getOption('hpg_status_url'), $params);
+		$remoteCallResult= $this->touchHpg($this->getOption('hpg_status_url'), $params);
 
-		if ($error)
+		if (!$remoteCallResult->isSuccess())
 		{
-			$result->addError(new Error($error));
+			$result->addErrors($remoteCallResult->getErrors());
 		}
 		else
 		{
+			$answer = $remoteCallResult->getData();
 			[$code, $msgId, $status, $date, $reason] = $answer;
 
 			if ($msgId)
@@ -219,8 +224,9 @@ class MfmsRu extends Sender\BaseConfigurable
 		return $result;
 	}
 
-	private function touchHpg($url, array $params)
+	private function touchHpg($url, array $params): Sender\Result\HttpRequestResult
 	{
+		$result = new Sender\Result\HttpRequestResult();
 		if (!Application::getInstance()->isUtfMode())
 		{
 			$params = \Bitrix\Main\Text\Encoding::convertEncoding($params, SITE_CHARSET, 'UTF-8');
@@ -243,21 +249,20 @@ class MfmsRu extends Sender\BaseConfigurable
 			$answer = $httpClient->getResult();
 		}
 
-		$error = '';
-
 		if ($httpClient->getStatus() != '200')
 		{
-			$error = $answer;
+			$result->addError(new Error($answer));
 		}
 		else
 		{
 			$status = explode(';', $answer)[0];
 			if ($status !== 'ok')
 			{
-				$error = $status;
+				$result->addError(new Error($status));
 			}
 		}
 
-		return [$error, explode(';', $answer)];
+		$result->setData(explode(';', $answer));
+		return $result;
 	}
 }

@@ -333,10 +333,9 @@ else
 				CUtil::JSPostUnescape();
 			}
 
-			$moderatorIdList = array();
+			$moderatorIdList = [];
 			$ownerId = (
-				isset($arResult["POST"])
-				&& isset($arResult["POST"]["OWNER_ID"])
+				isset($arResult["POST"]["OWNER_ID"])
 				&& (int)$arResult['POST']['OWNER_ID'] > 0
 					? (int)$arResult['POST']['OWNER_ID']
 					: $arResult["currentUserId"]
@@ -515,13 +514,13 @@ else
 				{
 					if(
 						preg_match('/^U(\d+)$/', $destinationCode, $match)
-						&& $match[1] != $ownerId
+						&& (int)$match[1] !== $ownerId
 					)
 					{
 						$moderatorCodeList[] = $destinationCode;
-						if (!in_array($match[1], $moderatorIdList))
+						if (!in_array($match[1], $moderatorIdList, true))
 						{
-							$moderatorIdList[] = $match[1];
+							$moderatorIdList[] = (int)$match[1];
 						}
 					}
 				}
@@ -834,20 +833,9 @@ else
 						in_array($scrumTaskResponsible, $availableResponsibleTypes) ? $scrumTaskResponsible : 'A'
 					);
 					$arFields['SCRUM_TASK_RESPONSIBLE'] = $scrumTaskResponsible;
-
-					//todo
-					$subjectQueryObject = CSocNetGroupSubject::getList(
-						["SORT"=>"ASC", "NAME" => "ASC"],
-						["SITE_ID" => $this->getSiteId()],
-						false,
-						false,
-						["ID"]
-					);
-					if ($subject = $subjectQueryObject->getNext())
-					{
-						$arFields['SUBJECT_ID'] = (int) $subject["ID"];
-					}
 				}
+
+				\Bitrix\Socialnetwork\Helper\Workgroup::mutateScrumFormFields($arFields);
 
 				if ($arParams["GROUP_ID"] <= 0)
 				{
@@ -946,15 +934,16 @@ else
 							? array_diff($moderatorIdList, $arResult["POST"]["MODERATOR_IDS"])
 							: $moderatorIdList
 					);
+
 					$minusList = (
 						$arParams["GROUP_ID"] > 0
 							? array_diff($arResult["POST"]["MODERATOR_IDS"], $moderatorIdList)
-							: array()
+							: []
 					);
 
 					if (!empty($arFields['SCRUM_MASTER_ID']))
 					{
-						$plusList[] = $arFields['SCRUM_MASTER_ID'];
+						$plusList[] = (int)$arFields['SCRUM_MASTER_ID'];
 					}
 
 					if (!empty($minusList))
@@ -975,13 +964,13 @@ else
 
 						if (!empty($relationIdList))
 						{
-							CSocNetUserToGroup::TransferModerator2Member($arResult["currentUserId"], $arResult["GROUP_ID"], $relationIdList, $arResult['isCurrentUserAdmin']);
+							CSocNetUserToGroup::TransferModerator2Member($arResult["currentUserId"], $arResult["GROUP_ID"], $relationIdList);
 						}
 					}
 
 					UserToGroup::addModerators([
 						'group_id' => $arResult["GROUP_ID"],
-						'user_id' => $plusList,
+						'user_id' => array_unique($plusList),
 						'current_user_id' => $arResult["currentUserId"]
 					]);
 
@@ -1837,7 +1826,7 @@ else
 			{
 				$arResult["POST"]["MODERATOR_IDS"] = array_diff(
 					$arResult["POST"]["MODERATOR_IDS"],
-					[$group->getScrumMaster(), $group->getScrumOwner()]
+					[$group->getScrumMaster()]
 				);
 			}
 		}

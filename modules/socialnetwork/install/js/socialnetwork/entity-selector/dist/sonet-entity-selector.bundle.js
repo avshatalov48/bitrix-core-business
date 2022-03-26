@@ -83,6 +83,8 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 
 	        var inviteGuestLink = _this2.getOption('inviteGuestLink');
 
+	        var inviteEmployeeScope = _this2.getOption('inviteEmployeeScope');
+
 	        var createProjectLink = _this2.getOption('createProjectLink');
 
 	        var complexPhrases = {
@@ -136,7 +138,25 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	          });
 	          return fragment;
 	        } else if (inviteEmployeeLink) {
-	          return _this2.createInviteEmployeeLink(main_core.Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE'), true);
+	          var _phrase = '';
+
+	          switch (inviteEmployeeScope) {
+	            case 'I':
+	              _phrase = main_core.Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE');
+	              break;
+
+	            case 'E':
+	              _phrase = main_core.Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_EXTRANET');
+	              break;
+
+	            case 'IE':
+	              _phrase = main_core.Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE_OR_EXTRANET');
+	              break;
+
+	            default:
+	          }
+
+	          return _this2.createInviteEmployeeLink(_phrase, true);
 	        } else if (inviteGuestLink) {
 	          var _guestLink = _this2.createInviteGuestLink(main_core.Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_GUEST'), true);
 

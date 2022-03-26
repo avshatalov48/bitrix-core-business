@@ -1,4 +1,4 @@
-import { Tag } from 'main.core';
+import { Loc } from 'main.core';
 export class SelectInput
 {
 	constructor(params)
@@ -84,13 +84,32 @@ export class SelectInput
 				}
 
 				let htmlTemp;
-				if(this.values[i].capacity)
+				if (this.values[i].reserved)
 				{
-					 htmlTemp = `<span class="calendar-menu-item-title-with-capacity">${BX.util.htmlspecialchars(this.values[i].label)}</span><span class="calendar-menu-item-capacity">${BX.util.htmlspecialchars(this.values[i].labelCapacity)}</span>`
+					htmlTemp = `
+						<span class="calendar-menu-item-title-with-status">
+							${BX.util.htmlspecialchars(this.values[i].label)}
+						</span>
+						<span class="calendar-menu-item-status --red">
+							${Loc.getMessage('EC_LOCATION_RESERVED')}
+						</span>`
+				}
+				else if (this.values[i].capacity)
+				{
+					 htmlTemp = `
+						<span class="calendar-menu-item-title-with-status">
+					    	${BX.util.htmlspecialchars(this.values[i].label)}
+				     	</span>
+				     	<span class="calendar-menu-item-capacity">
+					    	${BX.util.htmlspecialchars(this.values[i].labelCapacity)}
+				    	</span>`
 				}
 				else
 				{
-					htmlTemp = `<span class="calendar-menu-item-title">${BX.util.htmlspecialchars(this.values[i].label)}</span>`
+					htmlTemp = `
+						<span class="calendar-menu-item-title">
+							${BX.util.htmlspecialchars(this.values[i].label)}
+						</span>`
 				}
 
 				if(this.values[i].color)

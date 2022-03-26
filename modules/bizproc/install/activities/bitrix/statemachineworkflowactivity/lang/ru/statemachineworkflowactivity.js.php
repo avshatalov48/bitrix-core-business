@@ -1,3 +1,3 @@
 <?
-$MESS ['STM_ADD_STATUS'] = "Добавить статус";
+$MESS ['STM_ADD_STATUS_1'] = "Добавить статус";
 ?>

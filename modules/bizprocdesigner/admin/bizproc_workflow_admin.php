@@ -23,9 +23,9 @@ $documentType = trim($_REQUEST["document_type"]);
 $backUrl = "/".ltrim(trim($_REQUEST["back_url_list"]), "\\/");
 
 if ($entity == '')
-	$fatalErrorMessage .= GetMessage("BPATT_NO_ENTITY").". ";
+	$fatalErrorMessage .= GetMessage("BPATT_NO_ENTITY_1").". ";
 if ($documentType == '')
-	$fatalErrorMessage .= GetMessage("BPATT_NO_DOC_TYPE").". ";
+	$fatalErrorMessage .= GetMessage("BPATT_NO_DOC_TYPE_1").". ";
 if ($editPage == '')
 	$fatalErrorMessage .= GetMessage("BPATT_NO_EDIT_PAGE").". ";
 
@@ -40,7 +40,7 @@ if ($fatalErrorMessage == '')
 		array("UserGroups" => $GLOBALS["USER"]->GetUserGroupArray())
 	);
 	if (!$bCanUserWrite)
-		$fatalErrorMessage .= GetMessage("BPATT_NO_PERMS").". ";
+		$fatalErrorMessage .= GetMessage("BPATT_NO_PERMS_1").". ";
 }
 
 if ($fatalErrorMessage <> '')
@@ -244,8 +244,8 @@ if ($backUrl <> '')
 $arSubMenu = Array();
 
 $arSubMenu[] = array(
-	"TEXT"	=> GetMessage("BPATT_SUBMENU1_TEXT"),
-	"TITLE"	=> GetMessage("BPATT_SUBMENU1_TEXT_TITLE"),
+	"TEXT"	=> GetMessage("BPATT_SUBMENU1_TEXT_1"),
+	"TITLE"	=> GetMessage("BPATT_SUBMENU1_TEXT_TITLE_1"),
 	"ACTION"	=> "window.location='/bitrix/admin/".MODULE_ID."_bizproc_workflow_edit.php?lang=".LANGUAGE_ID."&init=statemachine&entity=".urlencode(ENTITY)."&document_type=".urlencode($documentType[2]).'&back_url_list='.urlencode($backUrl)."';"
 );
 

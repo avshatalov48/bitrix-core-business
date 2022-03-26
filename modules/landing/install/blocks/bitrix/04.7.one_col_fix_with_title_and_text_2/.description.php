@@ -37,19 +37,19 @@ return [
 			],
 			'.landing-block-node-title' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_4_ONE_COL_FIX_WITH_TITLE_AND_TEXT_2_NODES_LANDINGBLOCKNODETITLE'),
-				'type' => 'typo',
+				'type' => ['typo', 'animation'],
 			],
 			'.landing-block-node-subtitle' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_4_ONE_COL_FIX_WITH_TITLE_AND_TEXT_2_STYLE_LANDINGBLOCKNODESUBTITLE'),
-				'type' => 'typo',
+				'type' => ['typo', 'animation'],
 			],
 			'.landing-block-node-text' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_4_ONE_COL_FIX_WITH_TITLE_AND_TEXT_2_STYLE_LANDINGBLOCKNODETITLE'),
-				'type' => 'typo',
+				'type' => ['typo', 'animation'],
 			],
 			'.landing-block-node-inner' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_4_ONE_COL_FIX_WITH_TITLE_AND_TEXT_2_STYLE_LANDINGBLOCKNODEINNER'),
-				'type' => ['text-align', 'heading', 'margin-bottom'],
+				'type' => ['text-align', 'heading', 'margin-bottom', 'animation'],
 			],
 		],
 	],

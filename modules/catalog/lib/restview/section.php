@@ -61,7 +61,7 @@ final class Section extends Base
 		];
 	}
 
-	public function checkFieldsList($arguments)
+	public function checkFieldsList($arguments): Result
 	{
 		$r = new Result();
 

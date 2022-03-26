@@ -1,5 +1,6 @@
 import {Text, Type} from 'main.core';
 import Tab from './tab';
+import {EventEmitter} from "main.core.events";
 
 export default class Manager
 {
@@ -26,6 +27,15 @@ export default class Manager
 				);
 			});
 		}
+
+		EventEmitter.subscribe('BX.Catalog.EntityCard.TabManager:onOpenTab', (event) => {
+			let tabId = event.data.tabId;
+			let item = this.findItemById(tabId);
+			if (item)
+			{
+				this.selectItem(item);
+			}
+		});
 	}
 
 	findItemById(id)
@@ -35,6 +45,7 @@ export default class Manager
 
 	selectItem(item)
 	{
+		EventEmitter.emit('BX.Catalog.EntityCard.TabManager:onSelectItem', {tabId: item.id});
 		this.items.forEach(current => current.setActive(current === item));
 	}
 }

@@ -61,13 +61,13 @@ final class RecipientDataProvider
 		$buyerName = $order->getPropertyCollection()->getAttribute('IS_PAYER');
 		if ($buyerName)
 		{
-			$contact->setName($buyerName);
+			$contact->setName((string)$buyerName->getValue());
 		}
 
 		$buyerPhone = $order->getPropertyCollection()->getAttribute('IS_PHONE');
 		if ($buyerPhone)
 		{
-			$contact->addPhone(new Phone('OTHER', $buyerPhone));
+			$contact->addPhone(new Phone('OTHER', (string)$buyerPhone->getValue()));
 		}
 
 		return $contact;

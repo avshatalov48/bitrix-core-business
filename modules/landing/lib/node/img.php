@@ -40,6 +40,15 @@ class Img extends \Bitrix\Landing\Node
 			$id2x = isset($value['id2x']) ? intval($value['id2x']) : 0;
 			$isLazy = isset($value['isLazy']) && $value['isLazy'] === 'Y';
 
+			if ($src)
+			{
+				$src = str_replace('http://', 'https://', $src);
+			}
+			if ($src2x)
+			{
+				$src2x = str_replace('http://', 'https://', $src2x);
+			}
+
 			if (isset($value['url']))
 			{
 				$url = is_array($value['url'])
@@ -124,7 +133,7 @@ class Img extends \Bitrix\Landing\Node
 					$resultList[$pos]->setAttribute('style', $style);
 
 					// for lazyload
-					if($isLazy)
+					if ($isLazy)
 					{
 						$resultList[$pos]->setAttribute('data-lazy-bg', 'Y');
 						if($lazyOrigSrc = $value['lazyOrigSrc'])

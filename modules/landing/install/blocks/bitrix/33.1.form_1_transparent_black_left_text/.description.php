@@ -8,7 +8,7 @@ use \Bitrix\Main\Localization\Loc;
 
 return array(
 	'block' => array(
-		'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.1'),
+		'name' => Loc::getMessage('LANDING_BLOCK_FORM_33_1'),
 		'section' => array('forms'),
 		'dynamic' => false,
 		'subtype' => 'form',
@@ -32,6 +32,7 @@ return array(
 			'type' => 'img',
 			'dimensions' => array('width' => 1920, 'height' => 1080),
 			'allowInlineEdit' => false,
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-main-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.1_NODE_TITLE'),
@@ -98,6 +99,10 @@ return array(
 			'.landing-block-node-bgimg' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33.1_NODE_BGIMG'),
 				'type' => 'background-attachment',
+			),
+			'.landing-block-node-row' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_FORM_33_1_NODE_BLOCK'),
+				'type' => 'align-items',
 			),
 		),
 	),

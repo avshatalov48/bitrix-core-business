@@ -73,6 +73,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["submit"] <> '' && (!isset($_P
 				CEvent::Send($arParams["EVENT_NAME"], SITE_ID, $arFields);
 			$_SESSION["MF_NAME"] = htmlspecialcharsbx($_POST["user_name"]);
 			$_SESSION["MF_EMAIL"] = htmlspecialcharsbx($_POST["user_email"]);
+			$event = new \Bitrix\Main\Event('main', 'onFeedbackFormSubmit', $arFields);
+			$event->send();
 			LocalRedirect($APPLICATION->GetCurPageParam("success=".$arResult["PARAMS_HASH"], Array("success")));
 		}
 
@@ -106,12 +108,5 @@ if(empty($arResult["ERROR_MESSAGE"]))
 
 if($arParams["USE_CAPTCHA"] == "Y")
 	$arResult["capCode"] =  htmlspecialcharsbx($APPLICATION->CaptchaGetCode());
-
-$arResult['FACEBOOK_CONVERSION_ENABLED'] =
-	\Bitrix\Main\Loader::includeModule('sale')
-	&& \Bitrix\Sale\Internals\FacebookConversion::isEventEnabled('Contact')
-		? 'Y'
-		: 'N'
-;
 
 $this->IncludeComponentTemplate();

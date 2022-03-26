@@ -91,8 +91,7 @@ final class CheckManager
 							'PRINTED' => 'N',
 							'ERROR_TEXT' => Loc::getMessage('SALE_CASHBOX_ERROR_CHECK_NOT_CREATED'),
 						],
-						'BINDINGS' => Bitrix\Crm\Order\BindingsMaker\TimelineBindingsMaker::makeByOrder($order),
-
+						'BINDINGS' => \Bitrix\Crm\Order\BindingsMaker\TimelineBindingsMaker::makeByOrder($order),
 					]
 				);
 			}
@@ -454,10 +453,7 @@ final class CheckManager
 			{
 				self::addStatisticOnSuccessCheckPrint($checkId);
 
-				if (Main\Loader::includeModule('crm'))
-				{
-					self::addTimelineCheckEntryOnCreateToOrder($order, $checkId, ['PRINTED' => 'Y']);
-				}
+				self::addTimelineCheckEntryOnCreateToOrder($order, $checkId, ['PRINTED' => 'Y']);
 
 				$isSend = false;
 				$event = new Main\Event(
@@ -1001,16 +997,6 @@ final class CheckManager
 				if ($paymentCollection->isExistsInnerPayment())
 				{
 					$relatedEntities[Check::PAYMENT_TYPE_ADVANCE][] = $paymentCollection->getInnerPayment();
-				}
-
-				$shipmentCollection = $order->getShipmentCollection();
-				/** @var Sale\Shipment $shipment */
-				foreach ($shipmentCollection as $shipment)
-				{
-					if (!$shipment->isSystem())
-					{
-						$relatedEntities[Check::SHIPMENT_TYPE_NONE][] = $shipment;
-					}
 				}
 
 				$map[] = array("TYPE" => CreditPaymentCheck::getType(), "ENTITIES" => $entities, "RELATED_ENTITIES" => $relatedEntities);

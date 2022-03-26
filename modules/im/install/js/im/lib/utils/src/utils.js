@@ -283,6 +283,18 @@ let Utils =
 
 			return typeof(key) === "undefined" || hasProp.call(item, key);
 		},
+
+		isUuidV4(uuid)
+		{
+			if (!this.isString(uuid))
+			{
+				return false;
+			}
+
+			const uuidV4pattern = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
+
+			return uuid.search(uuidV4pattern) === 0;
+		},
 	},
 
 	dialog:

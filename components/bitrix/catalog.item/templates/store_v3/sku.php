@@ -105,14 +105,57 @@ if (isset($item))
 					{
 						foreach ($morePhoto as $key => $photo)
 						{
+							$xResizedImage = \CFile::ResizeImageGet(
+								$photo['ID'],
+								[
+									'width' => 410,
+									'height' => 410,
+								],
+								BX_RESIZE_IMAGE_PROPORTIONAL,
+								true
+							);
+
+							$x2ResizedImage = \CFile::ResizeImageGet(
+								$photo['ID'],
+								[
+									'width' => 820,
+									'height' => 820,
+								],
+								BX_RESIZE_IMAGE_PROPORTIONAL,
+								true
+							);
+
+							if (!$xResizedImage || !$x2ResizedImage)
+							{
+								$xResizedImage = [
+									'src' => $photo['SRC'],
+								];
+								$x2ResizedImage = $xResizedImage;
+							}
+
+							$xResizedImage = \Bitrix\Iblock\Component\Tools::getImageSrc([
+								'SRC' => $xResizedImage['src']
+							]);
+							$x2ResizedImage = \Bitrix\Iblock\Component\Tools::getImageSrc([
+								'SRC' => $x2ResizedImage['src']
+							]);
+
+							$style = "background-image: url('{$xResizedImage}');";
+							$style .= "background-image: -webkit-image-set(url('{$xResizedImage}') 1x, url('{$x2ResizedImage}') 2x);";
+							$style .= "background-image: image-set(url('{$xResizedImage}') 1x, url('{$x2ResizedImage}') 2x);";
 						?>
 							<a href="<?=$item["DETAIL_PAGE_URL"]; ?>"
 								class="catalog-section-item-slider-image<?= ($key == $activePhoto ? ' active' : '') ?>"
 								data-entity="image"
 								data-id="<?= $photo['ID'] ?>">
-								<img src="<?= $photo['SRC'] ?>" alt="<?= $alt ?>" title="<?= $title ?>">
+								<img
+									src="<?= $xResizedImage ?>"
+									srcset="<?= $xResizedImage ?> 1x, <?= $x2ResizedImage ?> 2x"
+									alt="<?= $alt ?>"
+									title="<?= $title ?>"
+								>
 							</a>
-							<div class="d-none d-sm-block catalog-section-item-slider-image-overlay" style="background-image: url("<?= $photo['SRC'] ?>");"></div>
+							<div class="d-none d-sm-block catalog-section-item-slider-image-overlay" style="<?= $style ?>"></div>
 			<?php
 						}
 					}
@@ -636,6 +679,62 @@ if (isset($item))
 	if ($arParams['PRODUCT_DISPLAY_MODE'] === 'Y' && !empty($item['OFFERS_PROP']))
 	{
 		$jsParams['SHOW_SKU_PROPS'] = $item['OFFERS_PROPS_DISPLAY'];
+
+		foreach ($item['JS_OFFERS'] as $index => $jsOffer)
+		{
+			foreach ($jsOffer['MORE_PHOTO'] as $morePhoto)
+			{
+				$xResizedImage = \CFile::ResizeImageGet(
+					$morePhoto['ID'],
+					[
+						'width' => 410,
+						'height' => 410,
+					],
+					BX_RESIZE_IMAGE_PROPORTIONAL,
+					true
+				);
+
+				$x2ResizedImage = \CFile::ResizeImageGet(
+					$morePhoto['ID'],
+					[
+						'width' => 820,
+						'height' => 820,
+					],
+					BX_RESIZE_IMAGE_PROPORTIONAL,
+					true
+				);
+
+				if (!$xResizedImage || !$x2ResizedImage)
+				{
+					$xResizedImage = [
+						'src' => $morePhoto['SRC'],
+						'width' => $morePhoto['WIDTH'],
+						'height' => $morePhoto['HEIGHT'],
+					];
+					$x2ResizedImage = $xResizedImage;
+				}
+
+				$xResizedImage['src'] = \Bitrix\Iblock\Component\Tools::getImageSrc([
+					'SRC' => $xResizedImage['src']
+				]);
+				$x2ResizedImage['src'] = \Bitrix\Iblock\Component\Tools::getImageSrc([
+					'SRC' => $x2ResizedImage['src']
+				]);
+
+				$item['JS_OFFERS'][$index]['RESIZED_SLIDER']['X'][] = [
+					'ID' => $morePhoto['ID'],
+					'SRC' => $xResizedImage['src'],
+					'WIDTH' => $xResizedImage['width'],
+					'HEIGHT' => $xResizedImage['height'],
+				];
+				$item['JS_OFFERS'][$index]['RESIZED_SLIDER']['X2'][] = [
+					'ID' => $morePhoto['ID'],
+					'SRC' => $x2ResizedImage['src'],
+					'WIDTH' => $x2ResizedImage['width'],
+					'HEIGHT' => $x2ResizedImage['height'],
+				];
+			}
+		}
 
 		$jsParams['OFFERS'] = $item['JS_OFFERS'];
 		$jsParams['OFFER_SELECTED'] = $item['OFFERS_SELECTED'];

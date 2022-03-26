@@ -104,8 +104,54 @@ class MessageTable extends Entity\DataManager
 			'EXTERNAL_ID' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateVarchar128'),
+			),
+			'EXTERNAL_STATUS' => array(
+				'data_type' => 'string',
+				'validation' => array(__CLASS__, 'validateVarchar128'),
 			)
 		);
+	}
+
+	public static function getByExternalId(string $senderId, string $externalId, ?string $from = null)
+	{
+		$filter = [
+			'=SENDER_ID' => $senderId,
+			'=EXTERNAL_ID' => $externalId,
+		];
+
+
+		return MessageTable::getList([
+			'filter' => $filter,
+			'limit' => 1
+		]);
+	}
+
+	/**
+	 * Updates message to the new status and returns result of update.
+	 *
+	 * @param int $id Id of the message.
+	 * @param int $newStatusId New status id.
+	 * @return bool True if updated successfully and false otherwise (for example, if the message already was in this status).
+	 */
+	public static function updateStatusId(int $id, int $newStatusId): bool
+	{
+		$connection = Application::getConnection();
+		$tableName = static::getTableName();
+
+		$update = "STATUS_ID = {$newStatusId}";
+
+		$query = "
+			UPDATE
+				$tableName
+			SET
+				$update
+			WHERE
+				ID = $id
+				AND STATE != {$newStatusId}
+		";
+
+		$connection->query($query);
+		return $connection->getAffectedRowsCount() === 1;
 	}
 
 	public static function getDailyCount($senderId, $fromId)

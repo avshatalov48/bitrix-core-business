@@ -745,6 +745,29 @@ class Block
 	}
 
 	/**
+	 * Publication one block from landing.
+	 * @param int $block Block id.
+	 * @return PublicActionResult
+	 */
+	public static function publication(int $block): PublicActionResult
+	{
+		$result = new PublicActionResult();
+
+		$lid = BlockCore::getLandingIdByBlockId($block);
+		if ($lid)
+		{
+			$landing = Landing::createInstance($lid);
+			if ($landing->exist())
+			{
+				$result->setResult($landing->publication($block));
+			}
+			$result->setError($landing->getError());
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Get available blocks of landing.
 	 * @param int $lid Landing id.
 	 * @param array $params Some params.
@@ -974,9 +997,10 @@ class Block
 	 * @param mixed $picture File url / file array.
 	 * @param string $ext File extension.
 	 * @param array $params Some file params.
-	 * @return \Bitrix\Landing\PublicActionResult
+	 * @param bool $temp This is temporary file.
+	 * @return PublicActionResult
 	 */
-	public static function uploadFile($block, $picture, $ext = false, array $params = array())
+	public static function uploadFile($block, $picture, $ext = false, array $params = [], $temp = false): PublicActionResult
 	{
 		static $mixedParams = ['picture'];
 
@@ -994,7 +1018,7 @@ class Block
 			$file = Manager::savePicture($picture, $ext, $params);
 			if ($file)
 			{
-				File::addToBlock($block, $file['ID']);
+				File::addToBlock($block, $file['ID'], Utils::isTrue($temp));
 				$result->setResult(array(
 					'id' => $file['ID'],
 					'src' => $file['SRC']

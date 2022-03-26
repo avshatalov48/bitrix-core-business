@@ -226,7 +226,7 @@ export class RoomsManager extends SectionManager
 
 	checkCapacity(capacity)
 	{
-		if(RoomsManager.isEmpty(capacity) || capacity <= 0 || capacity >= 10000)
+		if (RoomsManager.isEmpty(capacity) || capacity <= 0 || capacity >= 10000)
 		{
 			return 0;
 		}
@@ -241,7 +241,7 @@ export class RoomsManager extends SectionManager
 		const hidden = [];
 
 		this.rooms.forEach((room) => {
-			if(room.isShown() && this.calendarType === 'location' && room.type === 'location')
+			if (room.isShown() && this.calendarType === 'location' && room.type === 'location')
 			{
 				if (room.isSuperposed())
 				{
@@ -264,7 +264,7 @@ export class RoomsManager extends SectionManager
 
 	getRoomName(id)
 	{
-		if(RoomsManager.isEmpty(id))
+		if (RoomsManager.isEmpty(id))
 		{
 			return null;
 		}
@@ -274,10 +274,10 @@ export class RoomsManager extends SectionManager
 
 	unsetHiddenRoom(id)
 	{
-		if(id)
+		if (id)
 		{
 			this.room = this.getRoom(id)
-			if(!this.room.isShown())
+			if (!this.room.isShown())
 			{
 				this.room.show();
 			}
@@ -287,10 +287,10 @@ export class RoomsManager extends SectionManager
 
 	handlePullRoomChanges(params)
 	{
-		if(params.command === 'delete_room')
+		if (params.command === 'delete_room')
 		{
-			const roomId = parseInt(params.fields.ID, 10);
-			if(this.roomsIndex[roomId])
+			const roomId = parseInt(params.ID, 10);
+			if (this.roomsIndex[roomId])
 			{
 				this.deleteRoomHandler(roomId);
 				Util.getBX().Event.EventEmitter.emit(
@@ -307,7 +307,7 @@ export class RoomsManager extends SectionManager
 				this.reloadRoomData();
 			}
 		}
-		else if(params.command === 'create_room')
+		else if (params.command === 'create_room')
 		{
 			this.reloadRoomData().then(this.reloadData().then(() => {
 				Util.getBX().Event.EventEmitter.emit(
@@ -317,7 +317,7 @@ export class RoomsManager extends SectionManager
 		)
 			Util.getBX().Event.EventEmitter.emit('BX.Calendar:doRefresh');
 		}
-		else if(params.command === 'update_room')
+		else if (params.command === 'update_room')
 		{
 			this.reloadRoomData().then(this.reloadData().then(() => {
 				Util.getBX().Event.EventEmitter.emit(
@@ -343,7 +343,7 @@ export class RoomsManager extends SectionManager
 				this.roomsIndex[this.rooms[i].id] = i;
 			}
 		}
-		if(this.sectionIndex[id] !== undefined)
+		if (this.sectionIndex[id] !== undefined)
 		{
 			this.sections.splice(this.sectionIndex[id], 1);
 			for (let i = 0; i < this.sections.length; i++)
@@ -379,7 +379,7 @@ export class RoomsManager extends SectionManager
 	setLocationSelector(roomList)
 	{
 		BX.Calendar.Controls.Location.setLocationList(roomList);
-		if(this.locationContext !== null)
+		if (this.locationContext !== null)
 		{
 			this.locationContext.setValues();
 		}
@@ -387,7 +387,7 @@ export class RoomsManager extends SectionManager
 
 	static isEmpty(param)
 	{
-		if(Type.isArray(param))
+		if (Type.isArray(param))
 		{
 			return !param.length;
 		}

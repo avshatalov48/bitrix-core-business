@@ -12,7 +12,6 @@ use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Query\Filter;
 use Bitrix\Main\Search\Content;
-use Bitrix\Main\UserIndexSelectorTable;
 use Bitrix\Main\UserTable;
 use Bitrix\UI\EntitySelector\BaseProvider;
 use Bitrix\UI\EntitySelector\Dialog;
@@ -28,6 +27,12 @@ class BotProvider extends BaseProvider
 		if (isset($options['searchableBotTypes']) && is_array($options['searchableBotTypes']))
 		{
 			$this->options['searchableBotTypes'] = $options['searchableBotTypes'];
+		}
+
+		$this->options['fillDialog'] = true;
+		if (isset($options['fillDialog']) && is_bool($options['fillDialog']))
+		{
+			$this->options['fillDialog'] = $options['fillDialog'];
 		}
 	}
 
@@ -54,8 +59,18 @@ class BotProvider extends BaseProvider
 		$dialog->addItems($items);
 	}
 
+	public function shouldFillDialog(): bool
+	{
+		return $this->getOption('fillDialog', true);
+	}
+
 	public function getItems(array $ids): array
 	{
+		if (!$this->shouldFillDialog())
+		{
+			return [];
+		}
+
 		return $this->getBotItems([
 			'userId' => $ids,
 		]);
@@ -111,15 +126,15 @@ class BotProvider extends BaseProvider
 		{
 			$query->registerRuntimeField(
 				new Reference(
-					'INDEX_SELECTOR',
-					UserIndexSelectorTable::class,
+					'USER_INDEX',
+					\Bitrix\Main\UserIndexTable::class,
 					Join::on('this.ID', 'ref.USER_ID'),
 					['join_type' => 'INNER']
 				)
 			);
 
 			$query->whereMatch(
-				'INDEX_SELECTOR.SEARCH_SELECTOR_CONTENT',
+				'USER_INDEX.SEARCH_USER_CONTENT',
 				Filter\Helper::matchAgainstWildcard(
 					Content::prepareStringToken($options['searchQuery']), '*', 1
 				)
@@ -286,6 +301,11 @@ class BotProvider extends BaseProvider
 
 	public function fillDialog(Dialog $dialog): void
 	{
+		if (!$this->shouldFillDialog())
+		{
+			return;
+		}
+
 		$maxBotsInRecentTab = 50;
 
 		// Preload first 50 users ('doSearch' method has to have the same filter).

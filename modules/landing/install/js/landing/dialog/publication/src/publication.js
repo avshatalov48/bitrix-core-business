@@ -11,6 +11,18 @@ type AjaxResult = {
 	result: any
 };
 
+/**
+example:
+var instance = new BX.Landing.Dialog.Publication.getInstance({
+	landingId: this.id,
+	siteId: this.siteId,
+	url: this.url
+});
+instance.publication(
+	(mode !== 'landing') ? 'site' : 'landing'
+);
+*/
+
 export class Publication
 {
 	static instance: ?Publication = null;

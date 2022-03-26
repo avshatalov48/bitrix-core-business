@@ -366,6 +366,11 @@ export class Backend
 			formData.append('data[id]', uploadParams.id);
 		}
 
+		if ('temp' in uploadParams)
+		{
+			formData.append('data[temp]', true);
+		}
+
 		const uri = new Uri(this.getControllerUrl());
 		uri.setQueryParams({
 			action: formData.get('action'),
@@ -398,6 +403,7 @@ export class Backend
 			return this
 				.action('Site::getList', {
 					params: {
+						filter,
 						order: {ID: 'DESC'}
 					},
 				})
@@ -405,20 +411,41 @@ export class Backend
 		});
 	}
 
-	getLandings({siteId = []}: {siteId?: number | Array<number>} = {}): Promise<Array<Landing>>
+	getLandings({siteId = []}: {siteId?: number | Array<number>} = {}, filter: {}): Promise<Array<Landing>>
 	{
+		let skipFilter = false;
+		if (!BX.Type.isPlainObject(filter))
+		{
+			filter = {};
+			skipFilter = true;
+		}
+
 		const ids = Type.isArray(siteId) ? siteId : [siteId];
+		filter.SITE_ID = ids;
+
 		const getBathItem = (id) => ({
 			action: 'Landing::getList',
 			data: {
 				params: {
-					filter: {SITE_ID: id},
+					filter: (() => {
+						if (skipFilter)
+						{
+							return {
+								SITE_ID: id,
+								DELETED: 'N',
+								FOLDER: 'N',
+							};
+						}
+
+						return filter;
+					})(),
 					order: {ID: 'DESC'},
 					get_preview: true,
 					check_area: 1,
 				},
 			},
 		});
+
 		const prepareResponse = (response) => {
 			return response.reduce((acc, item) => {
 				return [...acc, ...item.result];

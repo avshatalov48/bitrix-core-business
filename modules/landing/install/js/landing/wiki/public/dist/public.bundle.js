@@ -8,7 +8,9 @@ this.BX.Landing = this.BX.Landing || {};
 	    var link = event.target.closest('a:not(.ui-btn):not([data-fancybox])');
 
 	    if (main_core.Type.isDomNode(link)) {
-	      if (main_core.Type.isStringFilled(link.href) && link.target !== '_blank') {
+	      var isCurrentPageLink = main_core.Type.isStringFilled(link.href) && link.hash !== '' && link.pathname === document.location.pathname && link.hostname === document.location.hostname;
+
+	      if (main_core.Type.isStringFilled(link.href) && link.target !== '_blank' && !isCurrentPageLink) {
 	        event.preventDefault();
 	        BX.Landing.Pub.TopPanel.pushHistory(link.href);
 	        void landing_sliderhacks.SliderHacks.reloadSlider(link.href);

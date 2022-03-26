@@ -71,7 +71,7 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 				else
 					unset($arPointFields["COMMENTS"]["CUSTOMER"]);
 
-				if (ToUpper(SITE_CHARSET) != "UTF-8" && $arPointFields["COMMENTS"])
+				if (strtoupper(SITE_CHARSET) != "UTF-8" && $arPointFields["COMMENTS"])
 				{
 					if ($arPointFields["COMMENTS"]["PERFOMER"])
 						$arPointFields["COMMENTS"]["PERFOMER"] = \Bitrix\Main\Text\Encoding::convertEncoding($arPointFields["COMMENTS"]["PERFOMER"],"UTF-8",SITE_CHARSET);

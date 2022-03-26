@@ -192,12 +192,6 @@ export default class Spectrum extends BaseControl
 		}
 	}
 
-	onChange(event: ?BaseEvent)
-	{
-		this.cache.delete('value');
-		this.emit('onChange', {color: this.getValue()});
-	}
-
 	hidePicker()
 	{
 		Dom.addClass(this.getPicker(), Spectrum.HIDE_CLASS);

@@ -9,4 +9,4 @@ $MESS["SONET_C6_TASKS_T"] = "Задачи";
 $MESS["SONET_C6_NAME_TEMPLATE_DEFAULT"] = "#NOBR##LAST_NAME# #NAME##/NOBR#";
 $MESS["SONET_C5_PAGE_TITLE"] = "О группе";
 $MESS["SONET_C5_PAGE_TITLE_PROJECT"] = "О проекте";
-$MESS["SONET_C5_PAGE_TITLE_SCRUM"] = "О скрам-команде";
+$MESS["SONET_C5_PAGE_TITLE_SCRUM"] = "О Скрам-команде";

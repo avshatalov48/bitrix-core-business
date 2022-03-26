@@ -6,6 +6,7 @@ use Bitrix\Main\UI;
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 UI\Extension::load('ui.buttons');
+UI\Extension::load('mail.secretary');
 
 $message = $arResult['MESSAGE'];
 
@@ -38,7 +39,7 @@ $createMenu = array(
 		'title' => Loc::getMessage('MAIL_MESSAGE_ACTIONS_CRM_EXCLUDE_BTN'),
 	),
 	'BLOG_POST' => array(
-		'title' => Loc::getMessage('MAIL_MESSAGE_ACTIONS_LF_BTN'),
+		'title' => Loc::getMessage('MAIL_MESSAGE_ACTIONS_FEED_POST_BTN'),
 		'href' => \CHTTP::urlAddParams(
 			\CComponentEngine::makePathFromTemplate(
 				$arParams['PATH_TO_USER_BLOG_POST_EDIT'],
@@ -59,11 +60,9 @@ $createMenu = array(
 	),
 	'IM_CHAT' => array(
 		'title' => Loc::getMessage('MAIL_MESSAGE_ACTIONS_IM_BTN'),
-		'disabled' => true,
 	),
 	'CALENDAR_EVENT' => array(
 		'title' => Loc::getMessage('MAIL_MESSAGE_ACTIONS_EVENT_BTN'),
-		'disabled' => true,
 	),
 );
 

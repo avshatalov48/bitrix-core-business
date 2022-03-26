@@ -622,7 +622,7 @@ class ConditionTree
 	{
 		foreach ($this->conditions as $k => $_condition)
 		{
-			if ($condition === $_condition)
+			if ($condition == $_condition)
 			{
 				unset($this->conditions[$k]);
 				return true;

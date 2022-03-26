@@ -3,7 +3,7 @@ import {BaseEvent, EventEmitter} from 'main.core.events';
 import {Loc} from 'landing.loc';
 import {BaseForm} from 'landing.ui.form.baseform';
 import {IconButton} from 'landing.ui.component.iconbutton';
-import fetchEventsFromOptions from './internal/fetch-events-from-options';
+import {fetchEventsFromOptions} from 'landing.ui.component.internal';
 
 import './css/style.css';
 
@@ -15,6 +15,7 @@ export type ListItemOptions = {
 	draggable?: boolean,
 	editable?: boolean,
 	removable?: boolean,
+	actions?: Array<IconButton>,
 	onEdit?: (BaseEvent) => {},
 	onRemove?: (BaseEvent) => {},
 	onFormChange?: (BaseEvent) => {},
@@ -50,10 +51,25 @@ export class ListItem extends EventEmitter
 			this.prependTo(this.options.prependTo);
 		}
 
+		if (Type.isArrayFilled(this.options.actions))
+		{
+			this.setActionsButtons([...this.options.actions]);
+		}
+
 		if (this.options.error)
 		{
 			Dom.addClass(this.getLayout(), 'landing-ui-error');
 		}
+	}
+
+	setActionsButtons(actionsButtons: Array<IconButton>)
+	{
+		this.cache.set('actionsButtons', actionsButtons);
+	}
+
+	getActionsButtons(): Array<IconButton>
+	{
+		return this.cache.get('actionsButtons', []);
 	}
 
 	appendTo(target: HTMLElement)
@@ -186,6 +202,9 @@ export class ListItem extends EventEmitter
 						${this.getDescriptionLayout()}
 					</div>
 					<div class="landing-ui-component-list-item-actions">
+						<div class="landing-ui-component-list-item-actions-custom">
+							${this.getActionsButtons().map((button) => button.getLayout())}
+						</div>
 						${this.options.editable ? this.getEditButtonLayout() : ''}
 						${this.options.removable ? this.getRemoveButtonLayout() : ''}
 					</div>
@@ -284,13 +303,13 @@ export class ListItem extends EventEmitter
 		if (this.options.sourceOptions)
 		{
 			const sourceOptions = Runtime.clone(this.options.sourceOptions);
-			if (
-				Type.isArray(this.options.sourceOptions.items)
-				&& Type.isArray(value.items)
-			)
-			{
-				delete sourceOptions.items;
-			}
+
+			Object.entries(sourceOptions).forEach(([key, propValue]) => {
+				if (Type.isArray(propValue) && Type.isArray(value[key]))
+				{
+					delete sourceOptions[key];
+				}
+			});
 
 			return Runtime.merge(sourceOptions, value);
 		}

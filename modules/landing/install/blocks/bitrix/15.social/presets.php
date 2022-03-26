@@ -49,6 +49,203 @@ $result = [
 			],
 		],
 	],
+
+	'whatsapp' => [
+		'name' => '<span class="fa fa-whatsapp"></span> WhatsApp',
+		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+			data-card-preset="whatsapp">
+			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-whatsapp--hover g-bg-whatsapp g-color-white text-center" href="https://whatsapp.com/" target="_blank">
+				<i class="landing-block-node-list-item-icon fa fa-whatsapp"></i>
+			</a>
+		</li>',
+		'disallow' => ['.landing-block-node-list-item-icon'],
+		'values' => [
+			'.landing-block-node-list-item-link' => [
+				'href' => 'https://whatsapp.com/',
+				'target' => '_blank',
+			],
+			'.landing-block-node-list-item-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa', 'fa-whatsapp'],
+			],
+		],
+	],
+
+	'viber' => [
+		'name' => '<span class="fab fa-viber g-pr-5"></span> Viber',
+		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+			data-card-preset="viber">
+			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-viber--hover g-bg-viber g-color-white text-center" href="https://viber.com/" target="_blank">
+				<i class="landing-block-node-list-item-icon fab fa-viber"></i>
+			</a>
+		</li>',
+		'disallow' => ['.landing-block-node-list-item-icon'],
+		'values' => [
+			'.landing-block-node-list-item-link' => [
+				'href' => 'https://viber.com/',
+				'target' => '_blank',
+			],
+			'.landing-block-node-list-item-icon' => [
+				'type' => 'icon',
+				'classList' => ['fab', 'fa-viber'],
+			],
+		],
+	],
+
+	'telegram' => [
+		'name' => '<span class="fa fa-telegram"></span> Telegram',
+		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+			data-card-preset="telegram">
+			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-telegram--hover g-bg-telegram g-color-white text-center" href="https://telegram.org/" target="_blank">
+				<i class="landing-block-node-list-item-icon fa fa-telegram"></i>
+			</a>
+		</li>',
+		'disallow' => ['.landing-block-node-list-item-icon'],
+		'values' => [
+			'.landing-block-node-list-item-link' => [
+				'href' => 'https://telegram.org/',
+				'target' => '_blank',
+			],
+			'.landing-block-node-list-item-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa', 'fa-telegram'],
+			],
+		],
+	],
+
+	'facebook-messenger' => [
+		'name' => '<span class="fab fa-facebook-messenger g-pr-5"></span> Facebook Messenger',
+		'html' => '<li 
+					class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+					data-card-preset="facebook-messenger">
+			<a
+				class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-color-white text-center g-bg-facebook-messenger g-bg-facebook-messenger--hover"
+				href="https://www.messenger.com/"
+				target="_blank">
+				<i class="landing-block-node-list-item-icon fab fa-facebook-messenger"></i>
+			</a>
+		</li>',
+		'disallow' => ['.landing-block-node-list-item-icon'],
+		'values' => [
+			'.landing-block-node-list-item-link' => [
+				'href' => 'https://www.messenger.com/',
+				'target' => '_blank',
+			],
+			'.landing-block-node-list-item-icon' => [
+				'type' => 'icon',
+				'classList' => ['fab', 'fa-facebook-messenger'],
+			],
+		],
+	],
+
+	'tiktok' => [
+		'name' => '<span class="fab fa-tiktok g-pr-5"></span>  TikTok',
+		'html' => '<li 
+					class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+					data-card-preset="tiktok">
+			<a
+				class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-color-white text-center g-bg-black g-bg-black--hover"
+				href="https://www.tiktok.com/"
+				target="_blank">
+				<i class="landing-block-node-list-item-icon fab fa-tiktok"></i>
+			</a>
+		</li>',
+		'disallow' => ['.landing-block-node-list-item-icon'],
+		'values' => [
+			'.landing-block-node-list-item-link' => [
+				'href' => 'https://www.tiktok.com/',
+				'target' => '_blank',
+			],
+			'.landing-block-node-list-item-icon' => [
+				'type' => 'icon',
+				'classList' => ['fab', 'fa-tiktok'],
+			],
+		],
+	],
+
+	'youtube' => [
+		'name' => '<span class="fa fa-youtube"></span> YouTube',
+		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+			data-card-preset="youtube">
+			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-youtube--hover g-bg-youtube g-color-white text-center" href="https://www.youtube.com/" target="_blank">
+				<i class="landing-block-node-list-item-icon fa fa-youtube"></i>
+			</a>
+		</li>',
+		'disallow' => ['.landing-block-node-list-item-icon'],
+		'values' => [
+			'.landing-block-node-list-item-link' => [
+				'href' => 'https://www.youtube.com/',
+				'target' => '_blank',
+			],
+			'.landing-block-node-list-item-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa', 'fa-youtube'],
+			],
+		],
+	],
+
+	'vk' => [
+		'name' => '<span class="fa fa-vk"></span> '.Loc::getMessage('LANDING_BLOCK__SOCIAL_VK'),
+		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+			data-card-preset="vk">
+			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-vk--hover g-bg-vk g-color-white text-center" href="https://vk.com/" target="_blank">
+				<i class="landing-block-node-list-item-icon fa fa-vk"></i>
+			</a>
+		</li>',
+		'disallow' => ['.landing-block-node-list-item-icon'],
+		'values' => [
+			'.landing-block-node-list-item-link' => [
+				'href' => 'https://vk.com/',
+				'target' => '_blank',
+			],
+			'.landing-block-node-list-item-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa', 'fa-vk'],
+			],
+		],
+	],
+
+	'odnoklassniki' => [
+		'name' => '<span class="fa fa-odnoklassniki"></span> '.Loc::getMessage('LANDING_BLOCK__SOCIAL_OK'),
+		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+			data-card-preset="odnoklassniki">
+			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-odnoklassniki--hover g-bg-odnoklassniki g-color-white text-center" href="https://ok.ru/" target="_blank">
+				<i class="landing-block-node-list-item-icon fa fa-odnoklassniki"></i>
+			</a>
+		</li>',
+		'disallow' => ['.landing-block-node-list-item-icon'],
+		'values' => [
+			'.landing-block-node-list-item-link' => [
+				'href' => 'https://ok.ru/',
+				'target' => '_blank',
+			],
+			'.landing-block-node-list-item-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa', 'fa-odnoklassniki'],
+			],
+		],
+	],
+
+	'skype' => [
+		'name' => '<span class="fa fa-skype"></span> Skype',
+		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+			data-card-preset="skype">
+			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-skype--hover g-bg-skype g-color-white text-center" href="https://skype.com/" target="_blank">
+				<i class="landing-block-node-list-item-icon fa fa-skype"></i>
+			</a>
+		</li>',
+		'disallow' => ['.landing-block-node-list-item-icon'],
+		'values' => [
+			'.landing-block-node-list-item-link' => [
+				'href' => 'https://skype.com/',
+				'target' => '_blank',
+			],
+			'.landing-block-node-list-item-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa', 'fa-skype'],
+			],
+		],
+	],
 	
 	'twitter' => [
 		'name' => '<span class="fa fa-twitter"></span> Twitter',
@@ -70,87 +267,53 @@ $result = [
 			],
 		],
 	],
-	
-	'youtube' => [
-		'name' => '<span class="fa fa-youtube"></span> YouTube',
-		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
-			data-card-preset="youtube">
-			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-youtube--hover g-bg-youtube g-color-white text-center" href="https://www.youtube.com/" target="_blank">
-				<i class="landing-block-node-list-item-icon fa fa-youtube"></i>
+
+	'tumblr' => [
+		'name' => '<span class="fab fa-tumblr g-pr-5"></span>  Tumblr',
+		'html' => '<li 
+					class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+					data-card-preset="tumblr">
+			<a
+				class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-color-white text-center g-bg-tumblr g-bg-tumblr--hover"
+				href="https://www.tumblr.com/"
+				target="_blank">
+				<i class="landing-block-node-list-item-icon fab fa-tumblr"></i>
 			</a>
 		</li>',
 		'disallow' => ['.landing-block-node-list-item-icon'],
 		'values' => [
 			'.landing-block-node-list-item-link' => [
-				'href' => 'https://www.youtube.com/',
+				'href' => 'https://www.tumblr.com/',
 				'target' => '_blank',
 			],
 			'.landing-block-node-list-item-icon' => [
 				'type' => 'icon',
-				'classList' => ['fa', 'fa-youtube'],
+				'classList' => ['fab', 'fa-tumblr'],
 			],
 		],
 	],
-	
-	'telegram' => [
-		'name' => '<span class="fa fa-telegram"></span> Telegram',
-		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
-			data-card-preset="telegram">
-			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-telegram--hover g-bg-telegram g-color-white text-center" href="https://telegram.org/" target="_blank">
-				<i class="landing-block-node-list-item-icon fa fa-telegram"></i>
+
+	'wechat' => [
+		'name' => '<span class="fab fa-weixin g-pr-5"></span>  Wechat',
+		'html' => '<li 
+					class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+					data-card-preset="wechat">
+			<a
+				class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-color-white text-center g-bg-wechat g-bg-wechat--hover"
+				href="https://www.wechat.com/"
+				target="_blank">
+				<i class="landing-block-node-list-item-icon fab fa-weixin"></i>
 			</a>
 		</li>',
 		'disallow' => ['.landing-block-node-list-item-icon'],
 		'values' => [
 			'.landing-block-node-list-item-link' => [
-				'href' => 'https://telegram.org/',
+				'href' => 'https://www.wechat.com/',
 				'target' => '_blank',
 			],
 			'.landing-block-node-list-item-icon' => [
 				'type' => 'icon',
-				'classList' => ['fa', 'fa-telegram'],
-			],
-		],
-	],
-	
-//	'viber' => [
-//		'name' => '<span class="fa fa-viber"></span> Viber',
-//		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
-//			data-card-preset="viber">
-//			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-viber--hover g-bg-viber g-color-white text-center" href="https://viber.com/" target="_blank">
-//				<i class="landing-block-node-list-item-icon fa fa-viber"></i>
-//			</a>
-//		</li>',
-//		'disallow' => ['.landing-block-node-list-item-icon'],
-//		'values' => [
-//			'.landing-block-node-list-item-link' => [
-//				'href' => 'https://viber.com/',
-//				'target' => '_blank',
-//			],
-//			'.landing-block-node-list-item-icon' => [
-//				'type' => 'icon',
-//				'classList' => ['fa', 'fa-viber'],
-//			],
-//		],
-//	],
-	
-	'whatsapp' => [
-		'name' => '<span class="fa fa-whatsapp"></span> WhatsApp',
-		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
-			data-card-preset="whatsapp">
-			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-whatsapp--hover g-bg-whatsapp g-color-white text-center" href="https://whatsapp.com/" target="_blank">
-				<i class="landing-block-node-list-item-icon fa fa-whatsapp"></i>
-			</a>
-		</li>',
-		'disallow' => ['.landing-block-node-list-item-icon'],
-		'values' => [
-			'.landing-block-node-list-item-link' => [
-				'href' => 'https://whatsapp.com/',
-				'target' => '_blank',
-			],
-			'.landing-block-node-list-item-icon' => [
-				'type' => 'icon',
-				'classList' => ['fa', 'fa-whatsapp'],
+				'classList' => ['fab', 'fa-weixin'],
 			],
 		],
 	],
@@ -175,24 +338,124 @@ $result = [
 			],
 		],
 	],
-	
-	'skype' => [
-		'name' => '<span class="fa fa-skype"></span> Skype',
-		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
-			data-card-preset="skype">
-			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-skype--hover g-bg-skype g-color-white text-center" href="https://skype.com/" target="_blank">
-				<i class="landing-block-node-list-item-icon fa fa-skype"></i>
+
+	'twitch' => [
+		'name' => '<span class="fab fa-twitch g-pr-5"></span>  Twitch',
+		'html' => '<li 
+					class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+					data-card-preset="twitch">
+			<a
+				class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-color-white text-center g-bg-twitch g-bg-twitch--hover"
+				href="https://www.twitch.tv/"
+				target="_blank">
+				<i class="landing-block-node-list-item-icon fab fa-twitch"></i>
 			</a>
 		</li>',
 		'disallow' => ['.landing-block-node-list-item-icon'],
 		'values' => [
 			'.landing-block-node-list-item-link' => [
-				'href' => 'https://skype.com/',
+				'href' => 'https://www.twitch.tv/',
 				'target' => '_blank',
 			],
 			'.landing-block-node-list-item-icon' => [
 				'type' => 'icon',
-				'classList' => ['fa', 'fa-skype'],
+				'classList' => ['fab', 'fa-twitch'],
+			],
+		],
+	],
+
+	'linkedin' => [
+		'name' => '<span class="fa fa-linkedin"></span> LinkedIn',
+		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+			data-card-preset="linkedin">
+			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-linkedin--hover g-bg-linkedin g-color-white text-center" href="https://www.linkedin.com/" target="_blank">
+				<i class="landing-block-node-list-item-icon fa fa-linkedin"></i>
+			</a>
+		</li>',
+		'disallow' => ['.landing-block-node-list-item-icon'],
+		'values' => [
+			'.landing-block-node-list-item-link' => [
+				'href' => 'https://www.linkedin.com/',
+				'target' => '_blank',
+			],
+			'.landing-block-node-list-item-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa', 'fa-linkedin'],
+			],
+		],
+	],
+
+	'snapchat' => [
+		'name' => '<span class="fab fa-snapchat g-pr-5"></span>  Snapchat',
+		'html' => '<li 
+					class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+					data-card-preset="snapchat">
+			<a
+				class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-color-white text-center g-bg-snapchat g-bg-snapchat--hover"
+				href="https://www.snapchat.com/"
+				target="_blank">
+				<i class="landing-block-node-list-item-icon fab fa-snapchat"></i>
+			</a>
+		</li>',
+		'disallow' => ['.landing-block-node-list-item-icon'],
+		'values' => [
+			'.landing-block-node-list-item-link' => [
+				'href' => 'https://www.snapchat.com/',
+				'target' => '_blank',
+			],
+			'.landing-block-node-list-item-icon' => [
+				'type' => 'icon',
+				'classList' => ['fab', 'fa-snapchat'],
+			],
+		],
+	],
+
+	'flickr' => [
+		'name' => '<span class="fab fa-flickr g-pr-5"></span>  Flickr',
+		'html' => '<li 
+					class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+					data-card-preset="flickr">
+			<a
+				class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-color-white text-center g-bg-flickr g-bg-flickr--hove"
+				href="https://www.flickr.com/"
+				target="_blank">
+				<i class="landing-block-node-list-item-icon fab fa-flickr"></i>
+			</a>
+		</li>',
+		'disallow' => ['.landing-block-node-list-item-icon'],
+		'values' => [
+			'.landing-block-node-list-item-link' => [
+				'href' => 'https://www.flickr.com/',
+				'target' => '_blank',
+			],
+			'.landing-block-node-list-item-icon' => [
+				'type' => 'icon',
+				'classList' => ['fab', 'fa-flickr'],
+			],
+		],
+	],
+
+	'soundcloud' => [
+		'name' => '<span class="fab fa-soundcloud g-pr-5"></span>  Soundcloud',
+		'html' => '<li 
+					class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+					data-card-preset="soundcloud">
+			<a
+				class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-color-white text-center g-bg-soundcloud g-bg-soundcloud--hover"
+				href="https://soundcloud.com/"
+				target="_blank">
+				<i class="landing-block-node-list-item-icon fab fa-soundcloud"></i>
+			</a>
+		</li>',
+		'disallow' => ['.landing-block-node-list-item-icon'],
+		'values' => [
+			'.landing-block-node-list-item-link' => [
+				'href' => 'https://soundcloud.com/',
+				'target' => '_blank',
+			],
+			'.landing-block-node-list-item-icon' => [
+				'type' => 'icon',
+				'classList' => ['fab', 'fa-soundcloud'],
 			],
 		],
 	],
@@ -217,66 +480,55 @@ $result = [
 			],
 		],
 	],
-	
-	'linkedin' => [
-		'name' => '<span class="fa fa-linkedin"></span> LinkedIn',
-		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
-			data-card-preset="linkedin">
-			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-linkedin--hover g-bg-linkedin g-color-white text-center" href="https://www.linkedin.com/" target="_blank">
-				<i class="landing-block-node-list-item-icon fa fa-linkedin"></i>
+
+	'rocketchat' => [
+		'name' => '<span class="fab fa-rocketchat g-pr-5"></span>  Rocket.chat',
+		'html' => '<li 
+					class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+					data-card-preset="rocketchat">
+			<a
+				class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-color-white text-center g-bg-rocket-chat g-bg-rocket-chat--hover"
+				href="https://rocket.chat/"
+				target="_blank">
+				<i class="landing-block-node-list-item-icon fab fa-rocketchat"></i>
 			</a>
 		</li>',
 		'disallow' => ['.landing-block-node-list-item-icon'],
 		'values' => [
 			'.landing-block-node-list-item-link' => [
-				'href' => 'https://www.linkedin.com/',
+				'href' => 'https://rocket.chat/',
 				'target' => '_blank',
 			],
 			'.landing-block-node-list-item-icon' => [
 				'type' => 'icon',
-				'classList' => ['fa', 'fa-linkedin'],
+				'classList' => ['fab', 'fa-rocketchat'],
 			],
 		],
 	],
-	
-	'vk' => [
-		'name' => '<span class="fa fa-vk"></span> '.Loc::getMessage('LANDING_BLOCK__SOCIAL_VK'),
-		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
-			data-card-preset="vk">
-			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-vk--hover g-bg-vk g-color-white text-center" href="https://vk.com/" target="_blank">
-				<i class="landing-block-node-list-item-icon fa fa-vk"></i>
+];
+
+$resultCnZone = [
+	'renren' => [
+		'name' => '<span class="fab fa-renren g-pr-5"></span>  Renren',
+		'html' => '<li 
+					class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+					data-card-preset="renren">
+			<a
+				class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-color-white text-center g-bg-renren g-bg-renren--hover"
+				href="https://www.renren.com/"
+				target="_blank">
+				<i class="landing-block-node-list-item-icon fab fa-renren"></i>
 			</a>
 		</li>',
 		'disallow' => ['.landing-block-node-list-item-icon'],
 		'values' => [
 			'.landing-block-node-list-item-link' => [
-				'href' => 'https://vk.com/',
+				'href' => 'https://www.renren.com/',
 				'target' => '_blank',
 			],
 			'.landing-block-node-list-item-icon' => [
 				'type' => 'icon',
-				'classList' => ['fa', 'fa-vk'],
-			],
-		],
-	],
-	
-	'odnoklassniki' => [
-		'name' => '<span class="fa fa-odnoklassniki"></span> '.Loc::getMessage('LANDING_BLOCK__SOCIAL_OK'),
-		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
-			data-card-preset="odnoklassniki">
-			<a class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-bg-odnoklassniki--hover g-bg-odnoklassniki g-color-white text-center" href="https://ok.ru/" target="_blank">
-				<i class="landing-block-node-list-item-icon fa fa-odnoklassniki"></i>
-			</a>
-		</li>',
-		'disallow' => ['.landing-block-node-list-item-icon'],
-		'values' => [
-			'.landing-block-node-list-item-link' => [
-				'href' => 'https://ok.ru/',
-				'target' => '_blank',
-			],
-			'.landing-block-node-list-item-icon' => [
-				'type' => 'icon',
-				'classList' => ['fa', 'fa-odnoklassniki'],
+				'classList' => ['fab', 'fa-renren'],
 			],
 		],
 	],
@@ -285,6 +537,11 @@ $result = [
 if (!in_array(Manager::getZone(), ['ru', 'kz', 'by']))
 {
 	unset($result['vk'], $result['odnoklassniki']);
+}
+
+if (Manager::getZone() === 'cn')
+{
+	$result = array_merge($result, $resultCnZone);
 }
 
 return $result;

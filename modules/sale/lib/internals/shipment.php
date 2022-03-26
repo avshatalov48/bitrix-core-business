@@ -150,6 +150,9 @@ class ShipmentTable extends Main\Entity\DataManager
 			'DATE_INSERT' => array(
 				'data_type' => 'datetime'
 			),
+			'DATE_UPDATE' => array(
+				'data_type' => 'datetime'
+			),
 
 			new Main\Entity\ExpressionField(
 				'DATE_INSERT_SHORT',

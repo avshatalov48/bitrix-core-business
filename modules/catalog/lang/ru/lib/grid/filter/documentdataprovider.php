@@ -1,0 +1,23 @@
+<?php
+$MESS['DOCUMENT_ID_NAME'] = 'ID';
+$MESS['DOCUMENT_TITLE_NAME'] = 'Название';
+$MESS['DOCUMENT_DOC_NUMBER_NAME'] = 'Номер документа основания';
+$MESS['DOCUMENT_TYPE_NAME'] = 'Тип';
+$MESS['DOCUMENT_STATUS_NAME'] = 'Статус';
+$MESS['DOCUMENT_DATE_DOCUMENT_NAME'] = 'Дата документа основания';
+$MESS['DOCUMENT_DATE_CREATE_NAME'] = 'Дата создания';
+$MESS['DOCUMENT_DATE_MODIFY_NAME'] = 'Дата изменения';
+$MESS['DOCUMENT_DATE_STATUS_NAME'] = 'Дата изменения статуса';
+$MESS['DOCUMENT_STATUS_BY_NAME'] = 'Кем изменён статус';
+$MESS['DOCUMENT_CONTRACTOR_ID_NAME'] = 'Поставщик';
+$MESS['DOCUMENT_DOC_TYPE_NAME'] = 'Тип документа';
+$MESS['DOCUMENT_TOTAL_NAME'] = 'Сумма';
+$MESS['DOCUMENT_STORES_NAME'] = 'Склады';
+$MESS['DOCUMENT_RESPONSIBLE_ID_NAME'] = 'Ответственный';
+$MESS['DOCUMENT_CREATED_BY_NAME'] = 'Кем создан';
+$MESS['DOCUMENT_MODIFIED_BY_NAME'] = 'Кем изменён';
+$MESS['DOCUMENT_STATUS_CONDUCTED'] = 'Проведён';
+$MESS['DOCUMENT_STATUS_NOT_CONDUCTED'] = 'Черновик';
+$MESS['DOCUMENT_STATUS_CANCELLED'] = 'Отменён';
+$MESS['DOCUMENT_TYPE_A'] = 'Приход';
+$MESS['DOCUMENT_TYPE_S'] = 'Оприходование';

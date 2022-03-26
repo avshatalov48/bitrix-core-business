@@ -5,7 +5,7 @@
 //**********************************************************************/
 if (!defined("UPDATE_SYSTEM_VERSION"))
 {
-	define("UPDATE_SYSTEM_VERSION", "21.1200.0");
+	define("UPDATE_SYSTEM_VERSION", "21.1200.800");
 }
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -272,10 +272,10 @@ elseif (($DB->type === "MSSQL") || ($DB->type === "ORACLE"))
 
 $curPhpVer = PhpVersion();
 
-$minPhpErrorVersion = "7.2.0";
-$minPhpWarningVersion = "7.4.0";
-$minPhpWarningVersionBest = "7.4.0";
-$minPhpWarningVersionDate = "2022-02-01";
+$minPhpErrorVersion = "7.4.0";
+$minPhpWarningVersion = "";
+$minPhpWarningVersionBest = "";
+$minPhpWarningVersionDate = "";
 
 // if (date("Y-m-d") < "2019-03-01")
 // {

@@ -104,7 +104,7 @@ foreach($arLangs as $adminLang)
 	if ($adminLang['SELECTED'])
 	{
 		$arLangButton = array(
-			"TEXT"=>ToUpper($adminLang["LID"]),
+			"TEXT"=>strtoupper($adminLang["LID"]),
 			"TITLE"=>GetMessage("top_panel_lang")." ".$adminLang["NAME"],
 			"LINK"=>htmlspecialcharsback($adminLang["PATH"]),
 			"SECTION" => 1,

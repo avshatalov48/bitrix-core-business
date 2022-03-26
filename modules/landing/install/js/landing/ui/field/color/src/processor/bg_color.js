@@ -39,15 +39,6 @@ export default class BgColor extends Color
 		this.tabs.subscribe('onToggle', this.onTabsToggle.bind(this));
 	}
 
-	isNullValue(value: ?string): boolean
-	{
-		return (
-			value === null
-			|| value === 'none'
-			|| value === 'rgba(0, 0, 0, 0)'
-		);
-	}
-
 	setGradientPreset(preset: Preset)
 	{
 		const gradientPreset = preset.getGradientPreset();
@@ -60,12 +51,11 @@ export default class BgColor extends Color
 		const value = this.getValue();
 		if (value !== null && value instanceof GradientValue)
 		{
-			console.log("bg grad value", value);
 			if (this.gradient.getPreset().isPresetValue(value))
 			{
 				this.colorSet.getPreset().unsetActive();
-				// todo: unset active color preset
 				this.gradient.getPreset().setActiveValue(value);
+				this.gradient.unsetColorpickerActive();
 			}
 		}
 	}
@@ -113,7 +103,7 @@ export default class BgColor extends Color
 
 	setValue(value: ?string): void
 	{
-		this.colorSet.setValue(null);	// todo: need? what set default?
+		this.colorSet.setValue(null);
 		this.gradient.setValue(null);
 		this.unsetActive();
 
@@ -136,18 +126,27 @@ export default class BgColor extends Color
 		}
 		else if (isGradientString(value))
 		{
+			this.activeControl = this.gradient;
+
 			const gradientValue = new GradientValue(value);
 			this.gradient.setValue(gradientValue);
 			this.opacity.setValue(gradientValue);
+
+			const presets = this.colorSet.getPresetsCollection();
+			const activePreset = presets.getGlobalActiveId()
+				? presets.getPresetById(presets.getGlobalActiveId())
+				: presets.getPresetByItemValue(gradientValue);
+			if (activePreset !== null && activePreset !== this.colorSet.getPreset())
+			{
+				this.colorSet.setPreset(activePreset);
+				this.setGradientPreset(activePreset);
+			}
 
 			this.tabs.showTab('Gradient');
 			if (gradientValue.getOpacity() < 1)
 			{
 				this.tabs.showTab('Opacity');
 			}
-
-			this.activeControl = this.gradient;
-			// todo: set default value for colorset (from preset?) and unset active for them
 		}
 	}
 

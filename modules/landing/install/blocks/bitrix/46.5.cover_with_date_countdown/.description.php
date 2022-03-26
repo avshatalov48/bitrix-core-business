@@ -19,6 +19,7 @@ return [
 			'type' => 'img',
 			'allowInlineEdit' => false,
 			'dimensions' => ['width' => 1920, 'height' => 1080],
+			'create2xByDefault' => false,
 		],
 		'.landing-block-node-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_46.5.COVER_WITH_DATE_COUNTDOWN_NODES_LANDINGBLOCKNODETITLE'),

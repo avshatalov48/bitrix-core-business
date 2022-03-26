@@ -12,6 +12,7 @@ if (empty($arResult['AGREEMENT']))
 use \Bitrix\Main\Localization\Loc;
 
 $id = 'landing-agreement-popup';
+$pageName = $this->getPageName();
 ?>
 
 <div id="<?= $id;?>" style="display: none;">
@@ -32,8 +33,8 @@ $id = 'landing-agreement-popup';
 		var oPopup = BX.PopupWindowManager.create('<?= $id;?>', null, {
 			content: BX('<?= $id;?>'),
 			titleBar: {content: BX.create('span', {html: ''})},
-			closeIcon : true,
-			closeByEsc : true,
+			closeIcon : <?= $pageName === 'landing_view' ? 'false' : 'true'?>,
+			closeByEsc : <?= $pageName === 'landing_view' ? 'false' : 'true'?>,
 			draggable: true,
 			lightShadow: true,
 			overlay: true,
@@ -61,4 +62,7 @@ $id = 'landing-agreement-popup';
 		oPopup.setTitleBar('<?= \CUtil::jsEscape($arResult['AGREEMENT']['NAME']);?>');
 		oPopup.show();
 	};
+	<?if ($pageName === 'landing_view' && !$arResult['AGREEMENT_ACCEPTED'] && \Bitrix\Landing\Site\Type::isPublicScope()):?>
+	landingAgreementPopup();
+	<?endif;?>
 </script>

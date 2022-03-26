@@ -284,6 +284,21 @@ export class EventEditForm
 				Tag.render`<input name="requestUid" type="hidden">`
 			);
 		}
+		
+		if (!this.DOM.form.meeting_host)
+		{
+			this.DOM.meeting_host = this.DOM.form.appendChild(
+				Tag.render`<input type="hidden" name="meeting_host" value="${this.entry.data.MEETING_HOST || '0'}">`
+			);
+		}
+		
+		if (!this.DOM.form.chat_id)
+		{
+			this.DOM.chat_id = this.DOM.form.appendChild(
+				Tag.render`<input type="hidden" name="chat_id" value="${this.entry.data.MEETING ? this.entry.data.MEETING.CHAT_ID : 0}">`
+			)
+		}
+		
 		this.DOM.requestUid.value = Util.registerRequestId();
 
 		// Save attendees from userSelector
@@ -726,6 +741,15 @@ export class EventEditForm
 		{
 			this.locationSelector.setValue(this.formDataValue.location
 				|| this.locationSelector.default || entry.getLocation());
+			
+			this.locationSelector.checkLocationAccessibility({
+				from: this.formDataValue.from || entry.from,
+				to: this.formDataValue.to || entry.to,
+				fullDay: Type.isBoolean(this.formDataValue.fullDay)
+					? this.formDataValue.fullDay
+					: entry.fullDay,
+				currentEventId: this.entry.id,
+			})
 		}
 		// Private
 		if (this.DOM.privateEventCheckbox)
@@ -911,6 +935,19 @@ export class EventEditForm
 				if (this.planner)
 				{
 					this.planner.updateSelector(value.from, value.to, value.fullDay);
+				}
+				
+				if (this.locationSelector)
+				{
+					this.locationSelector.checkLocationAccessibility(
+						{
+							from: value.from,
+							to: value.to,
+							fullDay: value.fullDay,
+							currentEventId: this.entry.id,
+							
+						}
+					);
 				}
 			}
 		});
@@ -1693,7 +1730,17 @@ export class EventEditForm
 				from: data.dateFrom,
 				to: data.dateTo
 			});
-			//this.checkLocationAccessibility();
+			if (this.locationSelector)
+			{
+				this.locationSelector.checkLocationAccessibility(
+					{
+						from: data.dateFrom,
+						to: data.dateTo,
+						fullDay: data.fullDay,
+						currentEventId: this.entry.id,
+					},
+				)
+			}
 		}
 	}
 

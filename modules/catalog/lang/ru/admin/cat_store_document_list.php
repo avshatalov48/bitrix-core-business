@@ -1,9 +1,5 @@
-<?
+<?php
 $MESS["CAT_DOC_TYPE"] = "Тип документа";
-$MESS["CAT_DOC_A"] = "Приход товара на склад";
-$MESS["CAT_DOC_M"] = "Перемещение товара между складами";
-$MESS["CAT_DOC_R"] = "Возврат товара";
-$MESS["CAT_DOC_D"] = "Списание товара";
 $MESS["CAT_DOC_NUMBER"] = "Номер";
 $MESS["CAT_DOC_DATE"] = "Дата";
 $MESS["CAT_DOC_SITE_ID"] = "Сайт";
@@ -42,10 +38,8 @@ $MESS["CAT_DOC_DELETE_CONFIRM"] = "Вы уверены, что хотите уд
 $MESS["CAT_DOC_TOTAL"] = "Сумма";
 $MESS["CAT_DOC_CONDUCT"] = "Провести";
 $MESS["CAT_DOC_CANCELLATION"] = "Отменить проведение";
-$MESS["CAT_DOC_U"] = "Отмена резервирования";
 $MESS["CAT_DOC_COPY"] = "Копировать";
 $MESS["CAT_DOC_COMMENT"] = "Комментарий";
 $MESS["CAT_DOC_GROUP_ERR_DELETE"] = "Документ #ID# не может быть удален";
 $MESS["CAT_DOC_GROUP_ERR_CONDUCT"] = "Документ #ID# уже проведен";
 $MESS["CAT_DOC_GROUP_ERR_CANCEL"] = "Документ #ID# не проводился";
-?>

@@ -4,165 +4,41 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,landing_ui_field_basefield,main_popup,main_core_events,landing_backend,landing_pageobject,main_core) {
 	'use strict';
 
-	var _templateObject;
-
-	var BaseProcessor = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(BaseProcessor, _EventEmitter);
-
-	  function BaseProcessor(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, BaseProcessor);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BaseProcessor).call(this));
-	    _this.cache = new main_core.Cache.MemoryCache();
-	    _this.property = 'color';
-	    _this.options = options;
-	    _this.pseudoClass = null;
-	    return _this;
-	  }
-
-	  babelHelpers.createClass(BaseProcessor, [{
-	    key: "getProperty",
-	    value: function getProperty() {
-	      return main_core.Type.isArray(this.property) ? this.property : [this.property];
-	    }
-	  }, {
-	    key: "getVariableName",
-	    value: function getVariableName() {
-	      return main_core.Type.isArray(this.variableName) ? this.variableName : [this.variableName];
-	    }
-	  }, {
-	    key: "isNullValue",
-	    value: function isNullValue(value) {
-	      return value === null;
-	    }
-	  }, {
-	    key: "getPseudoClass",
-	    value: function getPseudoClass() {
-	      return this.pseudoClass;
-	    }
-	  }, {
-	    key: "getLayout",
-	    value: function getLayout() {
-	      var _this2 = this;
-
-	      return this.cache.remember('layout', function () {
-	        return _this2.buildLayout();
-	      });
-	    }
-	  }, {
-	    key: "buildLayout",
-	    value: function buildLayout() {
-	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div>Base processor</div>"])));
-	    }
-	  }, {
-	    key: "getClassName",
-	    value: function getClassName() {
-	      return [this.className];
-	    }
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {}
-	  }, {
-	    key: "getStyle",
-	    value: function getStyle() {
-	      if (this.getValue() === null) {
-	        return babelHelpers.defineProperty({}, this.getVariableName(), null);
-	      }
-
-	      return babelHelpers.defineProperty({}, this.getVariableName(), this.getValue().getStyleString());
-	    }
-	    /**
-	     * Set value by new format
-	     * @param value {string: string}
-	     */
-
-	  }, {
-	    key: "setProcessorValue",
-	    value: function setProcessorValue(value) {
-	      // Just get last css variable
-	      var processorProperty = this.getVariableName()[this.getVariableName().length - 1];
-	      this.setValue(value[processorProperty]);
-	    }
-	    /**
-	     * Set old-type value by computedStyle
-	     * @param value {string: string} | null
-	     */
-
-	  }, {
-	    key: "setDefaultValue",
-	    value: function setDefaultValue(value) {
-	      if (value !== null) {
-	        var inlineProperty = this.getProperty()[this.getProperty().length - 1];
-
-	        if (inlineProperty in value) {
-	          this.setValue(value[inlineProperty]);
-	          this.unsetActive();
-	          return;
-	        }
-	      }
-
-	      this.setValue(null);
-	    }
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {}
-	  }, {
-	    key: "onReset",
-	    value: function onReset() {
-	      this.emit('onReset');
-	    }
-	  }, {
-	    key: "unsetActive",
-	    value: function unsetActive() {}
-	  }, {
-	    key: "onChange",
-	    value: function onChange() {
-	      this.cache.delete('value');
-	      this.emit('onChange');
-	    }
-	  }]);
-	  return BaseProcessor;
-	}(main_core_events.EventEmitter);
-
-	var matcher = /^rgba? ?\((\d{1,3})[, ]+(\d{1,3})[, ]+(\d{1,3})([, ]+([\d\.]{1,5}))?\)$/i;
+	const matcher = /^rgba? ?\((\d{1,3})[, ]+(\d{1,3})[, ]+(\d{1,3})([, ]+([\d\.]{1,5}))?\)$/i;
 	function isRgbString(rgbString) {
 	  return !!rgbString.match(matcher);
 	}
 
-	var matcherHex = /^#([\da-f]{3}){1,2}$/i;
+	const matcherHex = /^#([\da-f]{3}){1,2}$/i;
 	function isHex(hex) {
 	  return !!hex.trim().match(matcherHex);
 	}
 
-	var matcherHsl = /^hsla?\((\d{1,3}), ?(\d{1,3})%, ?(\d{1,3})%(, ?([\d .]+))?\)/i;
+	const matcherHsl = /^hsla?\((\d{1,3}), ?(\d{1,3})%, ?(\d{1,3})%(, ?([\d .]+))?\)/i;
 	function isHslString(hsla) {
 	  return !!hsla.trim().match(matcherHsl);
 	}
 
 	function hexToRgb(hex) {
 	  if (hex.length === 4) {
-	    var r = parseInt("0x".concat(hex[1]).concat(hex[1]), 16);
-	    var g = parseInt("0x".concat(hex[2]).concat(hex[2]), 16);
-	    var b = parseInt("0x".concat(hex[3]).concat(hex[3]), 16);
+	    const r = parseInt(`0x${hex[1]}${hex[1]}`, 16);
+	    const g = parseInt(`0x${hex[2]}${hex[2]}`, 16);
+	    const b = parseInt(`0x${hex[3]}${hex[3]}`, 16);
 	    return {
-	      r: r,
-	      g: g,
-	      b: b
+	      r,
+	      g,
+	      b
 	    };
 	  }
 
 	  if (hex.length === 7) {
-	    var _r = parseInt("0x".concat(hex[1]).concat(hex[2]), 16);
-
-	    var _g = parseInt("0x".concat(hex[3]).concat(hex[4]), 16);
-
-	    var _b = parseInt("0x".concat(hex[5]).concat(hex[6]), 16);
-
+	    const r = parseInt(`0x${hex[1]}${hex[2]}`, 16);
+	    const g = parseInt(`0x${hex[3]}${hex[4]}`, 16);
+	    const b = parseInt(`0x${hex[5]}${hex[6]}`, 16);
 	    return {
-	      r: _r,
-	      g: _g,
-	      b: _b
+	      r,
+	      g,
+	      b
 	    };
 	  }
 
@@ -174,12 +50,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	}
 
 	function rgbToHsla(rgb) {
-	  var r = rgb.r / 255;
-	  var g = rgb.g / 255;
-	  var b = rgb.b / 255;
-	  var max = Math.max(r, g, b);
-	  var min = Math.min(r, g, b);
-	  var h,
+	  const r = rgb.r / 255;
+	  const g = rgb.g / 255;
+	  const b = rgb.b / 255;
+	  const max = Math.max(r, g, b);
+	  const min = Math.min(r, g, b);
+	  let h,
 	      s,
 	      l = (max + min) / 2; // let l = h;
 	  // let s;
@@ -187,7 +63,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  if (max === min) {
 	    h = s = 0;
 	  } else {
-	    var d = max - min;
+	    const d = max - min;
 	    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
 
 	    switch (max) {
@@ -263,14 +139,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	// }
 
 	function hexToHsl(hex) {
-	  var rgb = hexToRgb(hex.trim());
+	  const rgb = hexToRgb(hex.trim());
 	  return rgbToHsla(rgb);
 	}
 
 	function rgbToHex(rgb) {
-	  var r = rgb.r.toString(16);
-	  var g = rgb.g.toString(16);
-	  var b = rgb.b.toString(16);
+	  let r = rgb.r.toString(16);
+	  let g = rgb.g.toString(16);
+	  let b = rgb.b.toString(16);
 
 	  if (r.length === 1) {
 	    r = "0" + r;
@@ -292,15 +168,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  // todo: f.e. hsl(73.53.50) it 166,195,60 and #a5c33c,
 	  // todo: but in reverse #a5c33c => 165,195,60
 	  // todo: because we save ColorValue in hsl can be some differences
-	  var h = hsl.h;
-	  var s = hsl.s / 100;
-	  var l = hsl.l / 100;
-	  var c = (1 - Math.abs(2 * l - 1)) * s;
-	  var x = c * (1 - Math.abs(h / 60 % 2 - 1));
-	  var m = l - c / 2;
-	  var r = 0;
-	  var g = 0;
-	  var b = 0;
+	  const h = hsl.h;
+	  const s = hsl.s / 100;
+	  const l = hsl.l / 100;
+	  let c = (1 - Math.abs(2 * l - 1)) * s;
+	  let x = c * (1 - Math.abs(h / 60 % 2 - 1));
+	  let m = l - c / 2;
+	  let r = 0;
+	  let g = 0;
+	  let b = 0;
 
 	  if (0 <= h && h < 60) {
 	    r = c;
@@ -339,12 +215,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	}
 
 	function hslToHex(hsl) {
-	  var rgb = hslToRgb(hsl);
+	  const rgb = hslToRgb(hsl);
 	  return rgbToHex(rgb);
 	}
 
 	function rgbStringToHsla(rgbString) {
-	  var matches = rgbString.trim().match(matcher);
+	  let matches = rgbString.trim().match(matcher);
 
 	  if (matches.length > 0) {
 	    return rgbToHsla({
@@ -357,7 +233,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	}
 
 	function hslStringToHsl(hslString) {
-	  var matches = hslString.trim().match(matcherHsl);
+	  let matches = hslString.trim().match(matcherHsl);
 
 	  if (matches && matches.length > 0) {
 	    return {
@@ -369,18 +245,41 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }
 	}
 
-	var matcher$1 = /^(var\()?((--[\w\d-]*?)(-opacity_([\d_]+)?)?)\)?$/i;
+	const matcher$1 = /^(var\()?((--[\w\d-]*?)(-opacity_([\d_]+)?)?)\)?$/i;
 	function isCssVar(css) {
 	  return !!css.trim().match(matcher$1);
 	}
 	function parseCssVar(css) {
-	  var matches = css.trim().match(matcher$1);
+	  const matches = css.trim().match(matcher$1);
 
 	  if (!!matches) {
-	    var cssVar = {
+	    const cssVar = {
 	      full: matches[2],
 	      name: matches[3]
 	    };
+
+	    if (matches[3]) {
+	      const cssVarWithOpacity = '--primary-opacity-0_';
+	      const cssVarWithOpacity0 = '--primary-opacity-0';
+
+	      if (matches[3].startsWith(cssVarWithOpacity0) && !matches[3].startsWith(cssVarWithOpacity)) {
+	        cssVar.opacity = 0;
+	      }
+
+	      if (matches[3].startsWith(cssVarWithOpacity)) {
+	        let newOpacity = matches[3].substr(cssVarWithOpacity.length);
+
+	        if (newOpacity.length === 1 && newOpacity !== 0) {
+	          newOpacity = newOpacity / 10;
+	        }
+
+	        if (newOpacity.length === 2) {
+	          newOpacity = newOpacity / 100;
+	        }
+
+	        cssVar.opacity = newOpacity;
+	      }
+	    }
 
 	    if (matches[5]) {
 	      cssVar.opacity = +parseFloat(matches[5].replace('_', '.')).toFixed(1);
@@ -392,23 +291,23 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return null;
 	}
 
-	var defaultColorValueOptions = {
+	const defaultColorValueOptions = {
 	  h: 205,
 	  s: 1,
 	  l: 50,
 	  a: 1
 	};
-	var defaultBgImageSize = 'cover';
-	var defaultBgImageAttachment = 'scroll';
-	var defaultOverlay = null;
-	var defaultBgImageValueOptions = {
+	const defaultBgImageSize = 'cover';
+	const defaultBgImageAttachment = 'scroll';
+	const defaultOverlay = null;
+	const defaultBgImageValueOptions = {
 	  url: null,
 	  size: defaultBgImageSize,
 	  attachment: defaultBgImageAttachment,
 	  overlay: defaultOverlay
 	};
 
-	var ColorValue = /*#__PURE__*/function () {
+	class ColorValue {
 	  /**
 	   * For preserve differences between hsl->rgb and rgb->hsl conversions we can save hex
 	   * @type {?string}
@@ -418,442 +317,543 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	   * if set css variable value - save them in '--var-name' format
 	   * @type {?string}
 	   */
-	  function ColorValue(value) {
-	    babelHelpers.classCallCheck(this, ColorValue);
+	  constructor(value) {
 	    this.value = defaultColorValueOptions;
 	    this.hex = null;
 	    this.cssVar = null;
 	    this.setValue(value);
 	  }
 
-	  babelHelpers.createClass(ColorValue, [{
-	    key: "getName",
-	    value: function getName() {
-	      if (this.hex) {
-	        return this.getHex() + '_' + this.getOpacity();
-	      }
-
-	      var _this$getHsl = this.getHsl(),
-	          h = _this$getHsl.h,
-	          s = _this$getHsl.s,
-	          l = _this$getHsl.l;
-
-	      return "".concat(h, "-").concat(s, "-").concat(l, "-").concat(this.getOpacity());
+	  getName() {
+	    if (this.hex) {
+	      return this.getHex() + '_' + this.getOpacity();
 	    }
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {
-	      if (main_core.Type.isObject(value)) {
-	        if (value instanceof ColorValue) {
-	          this.value = value.getHsla();
-	          this.cssVar = value.getCssVar();
-	          this.hex = value.getHexOriginal();
-	        } else {
-	          this.value = babelHelpers.objectSpread({}, this.value, value);
-	        }
+
+	    const {
+	      h,
+	      s,
+	      l
+	    } = this.getHsl();
+	    return `${h}-${s}-${l}-${this.getOpacity()}`;
+	  }
+
+	  setValue(value) {
+	    if (main_core.Type.isObject(value)) {
+	      if (value instanceof ColorValue) {
+	        this.value = value.getHsla();
+	        this.cssVar = value.getCssVar();
+	        this.hex = value.getHexOriginal();
+	      } else {
+	        this.value = { ...this.value,
+	          ...value
+	        };
 	      }
+	    }
 
-	      if (main_core.Type.isString(value)) {
-	        if (isHslString(value)) {
-	          this.value = hslStringToHsl(value);
-	        } else if (isHex(value)) {
-	          this.value = babelHelpers.objectSpread({}, hexToHsl(value), {
-	            a: defaultColorValueOptions.a
-	          });
-	          this.hex = value;
-	        } else if (isRgbString(value)) {
-	          this.value = rgbStringToHsla(value);
-	        } else if (isCssVar(value)) {
-	          // todo: what about opacity in primary?
-	          var cssVar = parseCssVar(value);
+	    if (main_core.Type.isString(value)) {
+	      if (isHslString(value)) {
+	        this.value = hslStringToHsl(value);
+	      } else if (isHex(value)) {
+	        this.value = { ...hexToHsl(value),
+	          a: defaultColorValueOptions.a
+	        };
+	        this.hex = value;
+	      } else if (isRgbString(value)) {
+	        this.value = rgbStringToHsla(value);
+	      } else if (isCssVar(value)) {
+	        const cssVar = parseCssVar(value);
+	        const cssPrimaryVarName = '--primary';
 
-	          if (cssVar !== null) {
-	            this.cssVar = cssVar.name;
+	        if (cssVar !== null) {
+	          this.cssVar = cssVar.name;
+
+	          if ('opacity' in cssVar) {
+	            this.cssVar = cssPrimaryVarName;
 	            this.setValue(main_core.Dom.style(document.documentElement, this.cssVar));
-
-	            if (cssVar.opacity) {
-	              this.setOpacity(cssVar.opacity);
-	            }
+	            this.setOpacity(cssVar.opacity);
+	          } else {
+	            this.setValue(main_core.Dom.style(document.documentElement, this.cssVar));
 	          }
 	        }
 	      }
+	    }
 
-	      this.value.h = Math.round(this.value.h);
-	      this.value.s = Math.round(this.value.s);
-	      this.value.l = Math.round(this.value.l);
-	      this.value.a = +this.value.a.toFixed(1);
-	      return this;
-	    }
-	  }, {
-	    key: "setOpacity",
-	    value: function setOpacity(opacity) {
-	      this.setValue({
-	        a: opacity
-	      });
-	      return this;
-	    }
-	  }, {
-	    key: "lighten",
-	    value: function lighten(percent) {
-	      this.value.l = Math.min(this.value.l + percent, 100);
-	      this.hex = null;
-	      return this;
-	    }
-	  }, {
-	    key: "darken",
-	    value: function darken(percent) {
-	      this.value.l = Math.max(this.value.l - percent, 0);
-	      this.hex = null;
-	      return this;
-	    }
-	  }, {
-	    key: "saturate",
-	    value: function saturate(percent) {
-	      this.value.s = Math.min(this.value.s + percent, 100);
-	      this.hex = null;
-	      return this;
-	    }
-	  }, {
-	    key: "desaturate",
-	    value: function desaturate(percent) {
-	      this.value.s = Math.max(this.value.s - percent, 0);
-	      this.hex = null;
-	      return this;
-	    }
-	  }, {
-	    key: "adjustHue",
-	    value: function adjustHue(degree) {
-	      this.value.h = (this.value.h + degree) % 360;
-	      return this;
-	    }
-	  }, {
-	    key: "getHsl",
-	    value: function getHsl() {
-	      return {
-	        h: this.value.h,
-	        s: this.value.s,
-	        l: this.value.l
-	      };
-	    }
-	  }, {
-	    key: "getHsla",
-	    value: function getHsla() {
-	      return {
-	        h: this.value.h,
-	        s: this.value.s,
-	        l: this.value.l,
-	        a: this.value.a
-	      };
-	    }
-	    /**
-	     * Return original hex-string or convert value to hex (w.o. alpha)
-	     * @returns {string}
-	     */
+	    this.value.h = Math.round(this.value.h);
+	    this.value.s = Math.round(this.value.s);
+	    this.value.l = Math.round(this.value.l);
+	    this.value.a = this.value.a.toFixed(2);
+	    const offsetFromCorrectValue = Math.round(this.value.a * 100 % 5);
 
-	  }, {
-	    key: "getHex",
-	    value: function getHex() {
-	      return this.hex || hslToHex(this.value);
+	    if (offsetFromCorrectValue < 3) {
+	      this.value.a = (this.value.a * 100 - offsetFromCorrectValue) / 100;
+	    } else {
+	      this.value.a = (this.value.a * 100 - offsetFromCorrectValue + 5) / 100;
 	    }
-	    /**
-	     * Return hex only if value created from hex-string
-	     */
 
-	  }, {
-	    key: "getHexOriginal",
-	    value: function getHexOriginal() {
-	      return this.hex;
-	    }
-	  }, {
-	    key: "getOpacity",
-	    value: function getOpacity() {
-	      var _this$value$a;
-
-	      return (_this$value$a = this.value.a) !== null && _this$value$a !== void 0 ? _this$value$a : defaultColorValueOptions.a;
-	    }
-	  }, {
-	    key: "getCssVar",
-	    value: function getCssVar() {
-	      return this.cssVar;
-	    }
-	    /**
-	     * Get style string for set inline css var.
-	     * Set hsla value or primary css var with opacity in format --var-name-opacity_12_3
-	     * @returns {string}
-	     */
-
-	  }, {
-	    key: "getStyleString",
-	    value: function getStyleString() {
-	      if (this.cssVar === null) {
-	        if (this.hex && this.getOpacity() === defaultColorValueOptions.a) {
-	          return this.hex;
-	        }
-
-	        var _this$value = this.value,
-	            h = _this$value.h,
-	            s = _this$value.s,
-	            l = _this$value.l,
-	            a = _this$value.a;
-	        return "hsla(".concat(h, ", ").concat(s, "%, ").concat(l, "%, ").concat(a, ")");
-	      } else {
-	        var fullCssVar = this.cssVar;
-
-	        if (this.value.a !== defaultColorValueOptions.a) {
-	          fullCssVar = fullCssVar + '-opacity-' + String(this.value.a).replace('.', '_');
-	        }
-
-	        return "var(".concat(fullCssVar, ")");
-	      }
-	    }
-	  }, {
-	    key: "getStyleStringForOpacity",
-	    value: function getStyleStringForOpacity() {
-	      var _this$value2 = this.value,
-	          h = _this$value2.h,
-	          s = _this$value2.s,
-	          l = _this$value2.l;
-	      return "linear-gradient(to right, hsla(".concat(h, ", ").concat(s, "%, ").concat(l, "%, 1) 0%, hsla(").concat(h, ", ").concat(s, "%, ").concat(l, "%, 0) 100%)");
-	    }
-	  }, {
-	    key: "getContrast",
-
-	    /**
-	     * Special formula for contrast. Not only color invert!
-	     * @returns {string}
-	     */
-	    value: function getContrast() {
-	      var k = 60; // math h range to 0-2pi radian and add modifier by sinus
-
-	      var rad = this.getHsl().h * Math.PI / 180;
-	      k += Math.sin(rad) * 10 + 5; // 10 & 5 is approximate coefficients
-	      // lighten by started light
-
-	      var deltaL = k - 45 * this.getHsl().l / 100;
-	      return new ColorValue(this.value).setValue({
-	        l: (this.getHsl().l + deltaL) % 100
-	      });
-	    }
-	    /**
-	     * Special formula for lighten, good for dark and light colors
-	     */
-
-	  }, {
-	    key: "getLighten",
-	    value: function getLighten() {
-	      var _this$getHsl2 = this.getHsl(),
-	          h = _this$getHsl2.h,
-	          s = _this$getHsl2.s,
-	          l = _this$getHsl2.l;
-
-	      if (s > 0) {
-	        s += (l - 50) / 100 * 60;
-	        s = Math.min(100, Math.max(0, l));
-	      }
-
-	      l += 10 + 20 * l / 100;
-	      l = Math.min(100, l);
-	      return new ColorValue({
-	        h: h,
-	        s: s,
-	        l: l
-	      });
-	    }
-	  }], [{
-	    key: "compare",
-	    value: function compare(color1, color2) {
-	      return color1.getHsla().h === color2.getHsla().h && color1.getHsla().s === color2.getHsla().s && color1.getHsla().l === color2.getHsla().l && color1.getHsla().a === color2.getHsla().a && color1.cssVar === color2.cssVar;
-	    }
-	  }, {
-	    key: "getMedian",
-	    value: function getMedian(color1, color2) {
-	      return new ColorValue({
-	        h: (color1.getHsla().h + color2.getHsla().h) / 2,
-	        s: (color1.getHsla().s + color2.getHsla().s) / 2,
-	        l: (color1.getHsla().l + color2.getHsla().l) / 2,
-	        a: (color1.getHsla().a + color2.getHsla().a) / 2
-	      });
-	    }
-	  }]);
-	  return ColorValue;
-	}();
-
-	var _templateObject$1;
-
-	var BaseControl = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(BaseControl, _EventEmitter);
-
-	  function BaseControl(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, BaseControl);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BaseControl).call(this));
-	    _this.cache = new main_core.Cache.MemoryCache();
-	    return _this;
+	    return this;
 	  }
 
-	  babelHelpers.createClass(BaseControl, [{
-	    key: "getLayout",
-	    value: function getLayout() {
-	      var _this2 = this;
-
-	      return this.cache.remember('layout', function () {
-	        return _this2.buildLayout();
-	      });
-	    }
-	  }, {
-	    key: "buildLayout",
-	    value: function buildLayout() {
-	      return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-base-control\">\n\t\t\t\tBase control\n\t\t\t</div>\n\t\t"])));
-	    }
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {
-	      return this.cache.remember('value', function () {
-	        return new ColorValue();
-	      });
-	    }
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {
-	      this.cache.set('value', value);
-	    }
-	  }, {
-	    key: "onChange",
-	    value: function onChange(event) {
-	      this.cache.delete('value');
-	      this.emit('onChange', event);
-	    }
-	  }, {
-	    key: "setActive",
-	    value: function setActive() {
-	      main_core.Dom.addClass(this.getLayout(), BaseControl.ACTIVE_CLASS);
-	    }
-	  }, {
-	    key: "unsetActive",
-	    value: function unsetActive() {
-	      main_core.Dom.removeClass(this.getLayout(), BaseControl.ACTIVE_CLASS);
-	    }
-	  }, {
-	    key: "isActive",
-	    value: function isActive() {
-	      return main_core.Dom.hasClass(this.getLayout(), BaseControl.ACTIVE_CLASS);
-	    }
-	  }]);
-	  return BaseControl;
-	}(main_core_events.EventEmitter);
-
-	babelHelpers.defineProperty(BaseControl, "ACTIVE_CLASS", 'active');
-
-	var _templateObject$2, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
-
-	var Hex = /*#__PURE__*/function (_BaseControl) {
-	  babelHelpers.inherits(Hex, _BaseControl);
-
-	  function Hex() {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, Hex);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Hex).call(this));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Color.Hex');
-
-	    _this.previewMode = false;
-	    _this.onInput = _this.onInput.bind(babelHelpers.assertThisInitialized(_this));
-	    _this.onButtonClick = _this.onButtonClick.bind(babelHelpers.assertThisInitialized(_this));
-	    return _this;
+	  setOpacity(opacity) {
+	    this.setValue({
+	      a: opacity
+	    });
+	    return this;
 	  }
 
-	  babelHelpers.createClass(Hex, [{
-	    key: "setPreviewMode",
-	    value: function setPreviewMode(preview) {
-	      this.previewMode = !!preview;
-	    }
-	  }, {
-	    key: "buildLayout",
-	    value: function buildLayout() {
-	      if (!this.previewMode) {
-	        // todo: add Enter click handler
-	        main_core.Event.bind(this.getInput(), 'input', this.onInput);
-	        main_core.Event.bind(this.getButton(), 'click', this.onButtonClick);
+	  lighten(percent) {
+	    this.value.l = Math.min(this.value.l + percent, 100);
+	    this.hex = null;
+	    return this;
+	  }
+
+	  darken(percent) {
+	    this.value.l = Math.max(this.value.l - percent, 0);
+	    this.hex = null;
+	    return this;
+	  }
+
+	  saturate(percent) {
+	    this.value.s = Math.min(this.value.s + percent, 100);
+	    this.hex = null;
+	    return this;
+	  }
+
+	  desaturate(percent) {
+	    this.value.s = Math.max(this.value.s - percent, 0);
+	    this.hex = null;
+	    return this;
+	  }
+
+	  adjustHue(degree) {
+	    this.value.h = (this.value.h + degree) % 360;
+	    return this;
+	  }
+
+	  getHsl() {
+	    return {
+	      h: this.value.h,
+	      s: this.value.s,
+	      l: this.value.l
+	    };
+	  }
+
+	  getHsla() {
+	    return {
+	      h: this.value.h,
+	      s: this.value.s,
+	      l: this.value.l,
+	      a: this.value.a
+	    };
+	  }
+	  /**
+	   * Return original hex-string or convert value to hex (w.o. alpha)
+	   * @returns {string}
+	   */
+
+
+	  getHex() {
+	    return this.hex || hslToHex(this.value);
+	  }
+	  /**
+	   * Return hex only if value created from hex-string
+	   */
+
+
+	  getHexOriginal() {
+	    return this.hex;
+	  }
+
+	  getOpacity() {
+	    var _this$value$a;
+
+	    return (_this$value$a = this.value.a) != null ? _this$value$a : defaultColorValueOptions.a;
+	  }
+
+	  getCssVar() {
+	    return this.cssVar;
+	  }
+	  /**
+	   * Get style string for set inline css var.
+	   * Set hsla value or primary css var with opacity in format --var-name-opacity_12_3
+	   * @returns {string}
+	   */
+
+
+	  getStyleString() {
+	    if (this.cssVar === null) {
+	      if (this.hex && this.getOpacity() === defaultColorValueOptions.a) {
+	        return this.hex;
 	      }
 
-	      return main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-color-hex\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getInput(), this.getButton());
-	    }
-	  }, {
-	    key: "getInput",
-	    value: function getInput() {
-	      var _this2 = this;
+	      const {
+	        h,
+	        s,
+	        l,
+	        a
+	      } = this.value;
+	      return `hsla(${h}, ${s}%, ${l}%, ${a})`;
+	    } else {
+	      let fullCssVar = this.cssVar;
 
-	      return this.cache.remember('input', function () {
-	        return _this2.previewMode ? main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-color-hex-preview\"></div>"]))) : main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<input type=\"text\" name=\"hexInput\" value=\"\" class=\"landing-ui-field-color-hex-input\">"])));
-	      });
-	    }
-	  }, {
-	    key: "getButton",
-	    value: function getButton() {
-	      var _this3 = this;
+	      if (this.value.a !== defaultColorValueOptions.a) {
+	        fullCssVar = fullCssVar + '-opacity-' + String(this.value.a).replace('.', '_');
+	      }
 
-	      return this.cache.remember('editButton', function () {
-	        return _this3.previewMode ? main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<svg class=\"landing-ui-field-color-hex-preview-btn\" width=\"9\" height=\"9\" xmlns=\"http://www.w3.org/2000/svg\">\n\t\t\t\t\t\t<path\n\t\t\t\t\t\t\td=\"M7.108 0l1.588 1.604L2.486 7.8.896 6.194 7.108 0zM.006 8.49a.166.166 0 00.041.158.161.161 0 00.16.042l1.774-.478L.484 6.715.006 8.49z\"\n\t\t\t\t\t\t\tfill=\"#525C69\"\n\t\t\t\t\t\t\tfill-rule=\"evenodd\"/>\n\t\t\t\t\t</svg>"]))) : main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<svg class=\"landing-ui-field-color-hex-preview-btn\" width=\"12\" height=\"9\" xmlns=\"http://www.w3.org/2000/svg\">\n\t\t\t\t\t\t<path\n\t\t\t\t\t\t\td=\"M4.27 8.551L.763 5.304 2.2 3.902l2.07 1.846L9.836.533l1.439 1.402z\"\n\t\t\t\t\t\t\tfill=\"#525C69\"\n\t\t\t\t\t\t\tfill-rule=\"evenodd\"/>\n\t\t\t\t\t</svg>"])));
-	      });
+	      return `var(${fullCssVar})`;
 	    }
-	  }, {
-	    key: "onInput",
-	    value: function onInput() {
-	      var value = this.getInput().value.replace(/[^\da-f]/gi, '');
-	      value = value.substring(0, 6);
-	      this.getInput().value = '#' + value.toLowerCase();
-	      this.onChange();
-	    }
-	  }, {
-	    key: "onButtonClick",
-	    value: function onButtonClick() {
-	      this.onChange();
-	      this.emit('onButtonClick', {
-	        color: this.getValue()
-	      });
-	    }
-	  }, {
-	    key: "onChange",
-	    value: function onChange(event) {
-	      var color = this.getInput().value.length === 7 && isHex(this.getInput().value) ? new ColorValue(this.getInput().value) : null;
-	      this.setValue(color);
-	      this.emit('onChange', {
-	        color: color
-	      });
-	    }
-	  }, {
-	    key: "adjustColors",
-	    value: function adjustColors(textColor, bgColor) {
-	      main_core.Dom.style(this.getInput(), 'background-color', bgColor);
-	      main_core.Dom.style(this.getInput(), 'color', textColor);
-	      main_core.Dom.style(this.getButton().querySelector('path'), 'fill', textColor);
-	    }
-	  }, {
-	    key: "focus",
-	    value: function focus() {
-	      if (!this.previewMode) {
-	        if (this.getValue() === null) {
-	          this.getInput().value = '#';
-	        }
+	  }
 
-	        this.getInput().focus();
+	  getStyleStringForOpacity() {
+	    const {
+	      h,
+	      s,
+	      l
+	    } = this.value;
+	    return `linear-gradient(to right, hsla(${h}, ${s}%, ${l}%, 0) 0%, hsla(${h}, ${s}%, ${l}%, 1) 100%)`;
+	  }
+
+	  static compare(color1, color2) {
+	    return color1.getHsla().h === color2.getHsla().h && color1.getHsla().s === color2.getHsla().s && color1.getHsla().l === color2.getHsla().l && color1.getHsla().a === color2.getHsla().a && color1.cssVar === color2.cssVar;
+	  }
+
+	  static getMedian(color1, color2) {
+	    return new ColorValue({
+	      h: (color1.getHsla().h + color2.getHsla().h) / 2,
+	      s: (color1.getHsla().s + color2.getHsla().s) / 2,
+	      l: (color1.getHsla().l + color2.getHsla().l) / 2,
+	      a: (color1.getHsla().a + color2.getHsla().a) / 2
+	    });
+	  }
+	  /**
+	   * Special formula for contrast. Not only color invert!
+	   * @returns {string}
+	   */
+
+
+	  getContrast() {
+	    let k = 60; // math h range to 0-2pi radian and add modifier by sinus
+
+	    let rad = this.getHsl().h * Math.PI / 180;
+	    k += Math.sin(rad) * 10 + 5; // 10 & 5 is approximate coefficients
+	    // lighten by started light
+
+	    let deltaL = k - 45 * this.getHsl().l / 100;
+	    return new ColorValue(this.value).setValue({
+	      l: (this.getHsl().l + deltaL) % 100
+	    });
+	  }
+	  /**
+	   * Special formula for lighten, good for dark and light colors
+	   */
+
+
+	  getLighten() {
+	    let {
+	      h,
+	      s,
+	      l
+	    } = this.getHsl();
+
+	    if (s > 0) {
+	      s += (l - 50) / 100 * 60;
+	      s = Math.min(100, Math.max(0, l));
+	    }
+
+	    l += 10 + 20 * l / 100;
+	    l = Math.min(100, l);
+	    return new ColorValue({
+	      h,
+	      s,
+	      l
+	    });
+	  }
+
+	}
+
+	let _ = t => t,
+	    _t;
+	class BaseProcessor extends main_core_events.EventEmitter {
+	  constructor(options) {
+	    super();
+	    this.cache = new main_core.Cache.MemoryCache();
+	    this.property = 'color';
+	    this.options = options;
+	    this.pseudoClass = null;
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.BaseProcessor');
+	  }
+
+	  getProperty() {
+	    return main_core.Type.isArray(this.property) ? this.property : [this.property];
+	  }
+
+	  getVariableName() {
+	    return main_core.Type.isArray(this.variableName) ? this.variableName : [this.variableName];
+	  }
+
+	  isNullValue(value) {
+	    return main_core.Type.isNull(value);
+	  }
+
+	  getNullValue() {
+	    return new ColorValue();
+	  }
+
+	  getPseudoClass() {
+	    return this.pseudoClass;
+	  }
+
+	  getLayout() {
+	    return this.cache.remember('layout', () => {
+	      return this.buildLayout();
+	    });
+	  }
+
+	  buildLayout() {
+	    return main_core.Tag.render(_t || (_t = _`<div>Base processor</div>`));
+	  }
+
+	  getClassName() {
+	    return [this.className];
+	  }
+
+	  getValue() {}
+
+	  getStyle() {
+	    if (main_core.Type.isNull(this.getValue())) {
+	      return {
+	        [this.getVariableName()]: null
+	      };
+	    }
+
+	    return {
+	      [this.getVariableName()]: this.getValue().getStyleString()
+	    };
+	  }
+	  /**
+	   * Set value by new format
+	   * @param value {string: string}
+	   */
+
+
+	  setProcessorValue(value) {
+	    // Just get last css variable
+	    const processorProperty = this.getVariableName()[this.getVariableName().length - 1];
+	    this.cache.delete('value');
+	    this.setValue(value[processorProperty]);
+	  }
+	  /**
+	   * Set old-type value by computedStyle
+	   * @param value {string: string} | null
+	   */
+
+
+	  setDefaultValue(value) {
+	    if (!main_core.Type.isNull(value)) {
+	      const inlineProperty = this.getProperty()[this.getProperty().length - 1];
+
+	      if (inlineProperty in value) {
+	        this.setValue(value[inlineProperty]);
+	        this.cache.delete('value');
+	        this.unsetActive();
+	        return;
 	      }
 	    }
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {
-	      var _this4 = this;
 
-	      return this.cache.remember('value', function () {
-	        return _this4.getInput().value === Hex.DEFAULT_TEXT ? null : new ColorValue(_this4.getInput().value);
-	      });
+	    this.setValue(null);
+	    this.cache.set('value', null);
+	  }
+
+	  setValue(value) {}
+
+	  onReset() {
+	    this.emit('onReset');
+	  }
+
+	  unsetActive() {}
+
+	  onChange() {
+	    this.cache.delete('value');
+	    this.emit('onChange');
+	  }
+
+	  defineActiveControl(items, currentNode) {}
+
+	  setActiveControl(controlName) {}
+
+	}
+
+	let _$1 = t => t,
+	    _t$1;
+	class BaseControl extends main_core_events.EventEmitter {
+	  constructor(options) {
+	    super();
+	    this.cache = new main_core.Cache.MemoryCache();
+	  }
+
+	  getLayout() {
+	    return this.cache.remember('layout', () => {
+	      return this.buildLayout();
+	    });
+	  }
+
+	  buildLayout() {
+	    return main_core.Tag.render(_t$1 || (_t$1 = _$1`
+			<div class="landing-ui-field-base-control">
+				Base control
+			</div>
+		`));
+	  }
+
+	  getValue() {
+	    return this.cache.remember('value', () => {
+	      return new ColorValue();
+	    });
+	  }
+
+	  isNeedSetValue(value) {
+	    return value !== this.getValue();
+	  }
+
+	  setValue(value) {
+	    this.cache.set('value', value);
+	  }
+
+	  onChange(event) {
+	    this.cache.delete('value');
+	    this.emit('onChange', {
+	      color: this.getValue()
+	    });
+	  }
+
+	  setActive() {
+	    main_core.Dom.addClass(this.getLayout(), BaseControl.ACTIVE_CLASS);
+	  }
+
+	  unsetActive() {
+	    main_core.Dom.removeClass(this.getLayout(), BaseControl.ACTIVE_CLASS);
+	  }
+
+	  isActive() {
+	    return main_core.Dom.hasClass(this.getLayout(), BaseControl.ACTIVE_CLASS);
+	  }
+
+	}
+	BaseControl.ACTIVE_CLASS = 'active';
+
+	let _$2 = t => t,
+	    _t$2,
+	    _t2,
+	    _t3,
+	    _t4,
+	    _t5;
+	class Hex extends BaseControl {
+	  constructor() {
+	    super();
+	    this.setEventNamespace('BX.Landing.UI.Field.Color.Hex');
+	    this.previewMode = false;
+	    this.onInput = main_core.Runtime.debounce(this.onInput.bind(this), 300);
+	    this.onButtonClick = this.onButtonClick.bind(this);
+	  }
+
+	  setPreviewMode(preview) {
+	    this.previewMode = !!preview;
+	  }
+
+	  buildLayout() {
+	    if (!this.previewMode) {
+	      // todo: add Enter click handler
+	      main_core.Event.bind(this.getInput(), 'input', this.onInput);
+	      main_core.Event.bind(this.getButton(), 'click', this.onButtonClick);
 	    }
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {
-	      babelHelpers.get(babelHelpers.getPrototypeOf(Hex.prototype), "setValue", this).call(this, value);
+
+	    this.adjustColors(Hex.DEFAULT_COLOR, Hex.DEFAULT_BG);
+	    return main_core.Tag.render(_t$2 || (_t$2 = _$2`
+			<div class="landing-ui-field-color-hex">
+				${0}
+				${0}
+			</div>
+		`), this.getInput(), this.getButton());
+	  }
+
+	  getInput() {
+	    return this.cache.remember('input', () => {
+	      return this.previewMode ? main_core.Tag.render(_t2 || (_t2 = _$2`<div class="landing-ui-field-color-hex-preview">${0}</div>`), Hex.DEFAULT_TEXT) : main_core.Tag.render(_t3 || (_t3 = _$2`<input type="text" name="hexInput" value="${0}" class="landing-ui-field-color-hex-input">`), Hex.DEFAULT_TEXT);
+	    });
+	  }
+
+	  getButton() {
+	    return this.cache.remember('editButton', () => {
+	      return this.previewMode ? main_core.Tag.render(_t4 || (_t4 = _$2`
+					<svg class="landing-ui-field-color-hex-preview-btn" width="9" height="9" xmlns="http://www.w3.org/2000/svg">
+						<path
+							d="M7.108 0l1.588 1.604L2.486 7.8.896 6.194 7.108 0zM.006 8.49a.166.166 0 00.041.158.161.161 0 00.16.042l1.774-.478L.484 6.715.006 8.49z"
+							fill="#525C69"
+							fill-rule="evenodd"/>
+					</svg>`)) : main_core.Tag.render(_t5 || (_t5 = _$2`
+					<svg class="landing-ui-field-color-hex-preview-btn" width="12" height="9" xmlns="http://www.w3.org/2000/svg">
+						<path
+							d="M4.27 8.551L.763 5.304 2.2 3.902l2.07 1.846L9.836.533l1.439 1.402z"
+							fill="#525C69"
+							fill-rule="evenodd"/>
+					</svg>`));
+	    });
+	  }
+
+	  onInput() {
+	    let value = this.getInput().value.replace(/[^\da-f]/gi, '');
+	    value = value.substring(0, 6);
+	    this.getInput().value = '#' + value.toLowerCase();
+	    this.onChange();
+	  }
+
+	  onButtonClick() {
+	    this.onChange();
+	    this.emit('onButtonClick', {
+	      color: this.getValue()
+	    });
+	  }
+
+	  onChange(event) {
+	    const color = this.getInput().value.length === 7 && isHex(this.getInput().value) ? new ColorValue(this.getInput().value) : null;
+	    this.setValue(color);
+	    this.cache.delete('value');
+	    this.emit('onChange', {
+	      color: color
+	    });
+	  }
+
+	  adjustColors(textColor, bgColor) {
+	    main_core.Dom.style(this.getInput(), 'background-color', bgColor);
+	    main_core.Dom.style(this.getInput(), 'color', textColor);
+	    main_core.Dom.style(this.getButton().querySelector('path'), 'fill', textColor);
+	  }
+
+	  focus() {
+	    if (!this.previewMode) {
+	      if (this.getValue() === null) {
+	        this.getInput().value = '#';
+	      }
+
+	      this.getInput().focus();
+	    }
+	  }
+
+	  unFocus() {
+	    if (!this.previewMode) {
+	      this.getInput().blur();
+	    }
+	  }
+
+	  getValue() {
+	    return this.cache.remember('value', () => {
+	      return this.getInput().value === Hex.DEFAULT_TEXT ? null : new ColorValue(this.getInput().value);
+	    });
+	  }
+
+	  setValue(value) {
+	    // todo: set checking in always controls?
+	    if (this.isNeedSetValue(value)) {
+	      super.setValue(value);
 
 	      if (value !== null) {
 	        this.adjustColors(value.getContrast().getHex(), value.getHex());
@@ -869,630 +869,549 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        this.getInput().value = value !== null ? value.getHex() : Hex.DEFAULT_TEXT;
 	      }
 	    }
-	  }, {
-	    key: "setActive",
-	    value: function setActive() {
-	      main_core.Dom.addClass(this.getInput(), Hex.ACTIVE_CLASS);
-	    }
-	  }, {
-	    key: "unsetActive",
-	    value: function unsetActive() {
-	      main_core.Dom.removeClass(this.getInput(), Hex.ACTIVE_CLASS);
-	    }
-	  }, {
-	    key: "isActive",
-	    value: function isActive() {
-	      return main_core.Dom.hasClass(this.getInput(), Hex.ACTIVE_CLASS);
-	    }
-	  }]);
-	  return Hex;
-	}(BaseControl);
-
-	babelHelpers.defineProperty(Hex, "DEFAULT_TEXT", '#HEX');
-	babelHelpers.defineProperty(Hex, "DEFAULT_COLOR", '#000000');
-	babelHelpers.defineProperty(Hex, "DEFAULT_BG", '#eeeeee');
-
-	var _templateObject$3, _templateObject2$1;
-
-	var Spectrum = /*#__PURE__*/function (_BaseControl) {
-	  babelHelpers.inherits(Spectrum, _BaseControl);
-	  babelHelpers.createClass(Spectrum, null, [{
-	    key: "getDefaultSaturation",
-	    // todo: debug, del method, change calls, change css
-	    value: function getDefaultSaturation() {
-	      var global = window.top.document.location.saturation;
-	      var urlParam = new URL(window.top.document.location).searchParams.get('saturation');
-	      var saturation = global || urlParam || Spectrum.DEFAULT_SATURATION;
-	      window.top.document.body.style.setProperty('--saturation', saturation + '%');
-	      return parseInt(saturation);
-	    }
-	  }]);
-
-	  function Spectrum(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, Spectrum);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Spectrum).call(this));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Color.Spectrum');
-
-	    _this.onPickerDragStart = _this.onPickerDragStart.bind(babelHelpers.assertThisInitialized(_this));
-	    _this.onPickerDragMove = _this.onPickerDragMove.bind(babelHelpers.assertThisInitialized(_this));
-	    _this.onPickerDragEnd = _this.onPickerDragEnd.bind(babelHelpers.assertThisInitialized(_this));
-	    _this.onScroll = _this.onScroll.bind(babelHelpers.assertThisInitialized(_this));
-	    _this.document = landing_pageobject.PageObject.getRootWindow().document;
-	    _this.scrollContext = options.contentRoot;
-	    main_core.Event.bind(_this.getLayout(), 'mousedown', _this.onPickerDragStart);
-	    return _this;
 	  }
 
-	  babelHelpers.createClass(Spectrum, [{
-	    key: "buildLayout",
-	    value: function buildLayout() {
-	      return main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-color-spectrum\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getPicker());
+	  setActive() {
+	    main_core.Dom.addClass(this.getInput(), Hex.ACTIVE_CLASS);
+	  }
+
+	  unsetActive() {
+	    main_core.Dom.removeClass(this.getInput(), Hex.ACTIVE_CLASS);
+	  }
+
+	  isActive() {
+	    return main_core.Dom.hasClass(this.getInput(), Hex.ACTIVE_CLASS);
+	  }
+
+	}
+	Hex.DEFAULT_TEXT = '#HEX';
+	Hex.DEFAULT_COLOR = '#000000';
+	Hex.DEFAULT_BG = '#eeeeee';
+
+	let _$3 = t => t,
+	    _t$3,
+	    _t2$1;
+	class Spectrum extends BaseControl {
+	  // todo: debug, del method, change calls, change css
+	  static getDefaultSaturation() {
+	    const global = window.top.document.location.saturation;
+	    const urlParam = new URL(window.top.document.location).searchParams.get('saturation');
+	    const saturation = global || urlParam || Spectrum.DEFAULT_SATURATION;
+	    window.top.document.body.style.setProperty('--saturation', saturation + '%');
+	    return parseInt(saturation);
+	  }
+
+	  constructor(options) {
+	    super();
+	    this.setEventNamespace('BX.Landing.UI.Field.Color.Spectrum');
+	    this.onPickerDragStart = this.onPickerDragStart.bind(this);
+	    this.onPickerDragMove = this.onPickerDragMove.bind(this);
+	    this.onPickerDragEnd = this.onPickerDragEnd.bind(this);
+	    this.onScroll = this.onScroll.bind(this);
+	    this.document = landing_pageobject.PageObject.getRootWindow().document;
+	    this.scrollContext = options.contentRoot;
+	    main_core.Event.bind(this.getLayout(), 'mousedown', this.onPickerDragStart);
+	  }
+
+	  buildLayout() {
+	    return main_core.Tag.render(_t$3 || (_t$3 = _$3`
+			<div class="landing-ui-field-color-spectrum">
+				${0}
+			</div>
+		`), this.getPicker());
+	  }
+
+	  getPicker() {
+	    return this.cache.remember('picker', () => {
+	      return main_core.Tag.render(_t2$1 || (_t2$1 = _$3`<div class="landing-ui-field-color-spectrum-picker"></div>`));
+	    });
+	  }
+
+	  getPickerPos() {
+	    return {
+	      x: main_core.Text.toNumber(main_core.Dom.style(this.getPicker(), 'left')),
+	      y: main_core.Text.toNumber(main_core.Dom.style(this.getPicker(), 'top'))
+	    };
+	  }
+
+	  onPickerDragStart(event) {
+	    if (event.ctrlKey || event.metaKey || event.button) {
+	      return;
 	    }
-	  }, {
-	    key: "getPicker",
-	    value: function getPicker() {
-	      return this.cache.remember('picker', function () {
-	        return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-color-spectrum-picker\"></div>"])));
-	      });
+
+	    main_core.Event.bind(this.scrollContext, 'scroll', this.onScroll);
+	    main_core.Event.bind(this.document, 'mousemove', this.onPickerDragMove);
+	    main_core.Event.bind(this.document, 'mouseup', this.onPickerDragEnd);
+	    main_core.Dom.addClass(this.document.body, 'landing-ui-field-color-draggable');
+	    this.onScroll();
+	    this.showPicker();
+	    this.onPickerDragMove(event);
+	  }
+
+	  onPickerDragMove(event) {
+	    if (event.target === this.getPicker()) {
+	      return;
 	    }
-	  }, {
-	    key: "getPickerPos",
-	    value: function getPickerPos() {
+
+	    this.setPickerPos(event.pageX, event.pageY);
+	    this.onChange();
+	  }
+
+	  onPickerDragEnd() {
+	    main_core.Event.unbind(this.scrollContext, 'scroll', this.onScroll);
+	    main_core.Event.unbind(this.document, 'mousemove', this.onPickerDragMove);
+	    main_core.Event.unbind(this.document, 'mouseup', this.onPickerDragEnd);
+	    main_core.Dom.removeClass(this.document.body, 'landing-ui-field-color-draggable');
+	  }
+
+	  onScroll() {
+	    this.cache.delete('layoutSize');
+	  }
+
+	  getLayoutRect() {
+	    return this.cache.remember('layoutSize', () => {
+	      const layoutRect = this.getLayout().getBoundingClientRect();
 	      return {
-	        x: main_core.Text.toNumber(main_core.Dom.style(this.getPicker(), 'left')),
-	        y: main_core.Text.toNumber(main_core.Dom.style(this.getPicker(), 'top'))
+	        width: layoutRect.width,
+	        height: layoutRect.height,
+	        top: layoutRect.top,
+	        left: layoutRect.left
 	      };
-	    }
-	  }, {
-	    key: "onPickerDragStart",
-	    value: function onPickerDragStart(event) {
-	      if (event.ctrlKey || event.metaKey || event.button) {
-	        return;
+	    });
+	  }
+	  /**
+	   * Set picker by absolut page coords
+	   * @param x
+	   * @param y
+	   */
+
+
+	  setPickerPos(x, y) {
+	    const {
+	      width,
+	      height,
+	      top,
+	      left
+	    } = this.getLayoutRect();
+	    let leftToSet = Math.min(Math.max(x - left, 0), width);
+	    leftToSet = leftToSet > width / Spectrum.HUE_RANGE * Spectrum.HUE_RANGE_GRAY_THRESHOLD ? width / Spectrum.HUE_RANGE * Spectrum.HUE_RANGE_GRAY_MIDDLE : leftToSet;
+	    main_core.Dom.style(this.getPicker(), {
+	      left: `${leftToSet}px`,
+	      top: `${Math.min(Math.max(y - top, 0), height)}px`
+	    });
+	  }
+
+	  getValue() {
+	    return this.cache.remember('value', () => {
+	      if (main_core.Dom.hasClass(this.getPicker(), Spectrum.HIDE_CLASS)) {
+	        return null;
 	      }
 
-	      main_core.Event.bind(this.scrollContext, 'scroll', this.onScroll);
-	      main_core.Event.bind(this.document, 'mousemove', this.onPickerDragMove);
-	      main_core.Event.bind(this.document, 'mouseup', this.onPickerDragEnd);
-	      main_core.Dom.addClass(this.document.body, 'landing-ui-field-color-draggable');
-	      this.onScroll();
+	      const layoutWidth = this.getLayout().getBoundingClientRect().width;
+	      const h = this.getPickerPos().x / layoutWidth * Spectrum.HUE_RANGE;
+	      const layoutHeight = this.getLayout().getBoundingClientRect().height;
+	      const l = (1 - this.getPickerPos().y / layoutHeight) * 100;
+
+	      if (isNaN(h) || isNaN(l)) {
+	        return null;
+	      }
+
+	      return new ColorValue({
+	        h: Math.min(h, Spectrum.HUE_RANGE_GRAY_THRESHOLD),
+	        s: h >= Spectrum.HUE_RANGE_GRAY_THRESHOLD ? 0 : Spectrum.getDefaultSaturation(),
+	        l: l
+	      });
+	    });
+	  }
+
+	  setValue(value) {
+	    super.setValue(value);
+
+	    if (value !== null && Spectrum.isSpectrumValue(value)) {
+	      // in first set value we can't match bounding client rect (layout not render). Then, use percents
+	      const {
+	        h,
+	        s,
+	        l
+	      } = value.getHsl();
+	      const left = s === 0 ? Spectrum.HUE_RANGE_GRAY_MIDDLE / Spectrum.HUE_RANGE * 100 : h / Spectrum.HUE_RANGE * 100;
+	      main_core.Dom.style(this.getPicker(), 'left', `${left}%`);
+	      const top = 100 - l;
+	      main_core.Dom.style(this.getPicker(), 'top', `${top}%`);
 	      this.showPicker();
-	      this.onPickerDragMove(event);
+	    } else {
+	      this.hidePicker();
 	    }
-	  }, {
-	    key: "onPickerDragMove",
-	    value: function onPickerDragMove(event) {
-	      if (event.target === this.getPicker()) {
-	        return;
-	      }
-
-	      this.setPickerPos(event.pageX, event.pageY);
-	      this.onChange();
-	    }
-	  }, {
-	    key: "onPickerDragEnd",
-	    value: function onPickerDragEnd() {
-	      main_core.Event.unbind(this.scrollContext, 'scroll', this.onScroll);
-	      main_core.Event.unbind(this.document, 'mousemove', this.onPickerDragMove);
-	      main_core.Event.unbind(this.document, 'mouseup', this.onPickerDragEnd);
-	      main_core.Dom.removeClass(this.document.body, 'landing-ui-field-color-draggable');
-	    }
-	  }, {
-	    key: "onScroll",
-	    value: function onScroll() {
-	      this.cache.delete('layoutSize');
-	    }
-	  }, {
-	    key: "getLayoutRect",
-	    value: function getLayoutRect() {
-	      var _this2 = this;
-
-	      return this.cache.remember('layoutSize', function () {
-	        var layoutRect = _this2.getLayout().getBoundingClientRect();
-
-	        return {
-	          width: layoutRect.width,
-	          height: layoutRect.height,
-	          top: layoutRect.top,
-	          left: layoutRect.left
-	        };
-	      });
-	    }
-	    /**
-	     * Set picker by absolut page coords
-	     * @param x
-	     * @param y
-	     */
-
-	  }, {
-	    key: "setPickerPos",
-	    value: function setPickerPos(x, y) {
-	      var _this$getLayoutRect = this.getLayoutRect(),
-	          width = _this$getLayoutRect.width,
-	          height = _this$getLayoutRect.height,
-	          top = _this$getLayoutRect.top,
-	          left = _this$getLayoutRect.left;
-
-	      var leftToSet = Math.min(Math.max(x - left, 0), width);
-	      leftToSet = leftToSet > width / Spectrum.HUE_RANGE * Spectrum.HUE_RANGE_GRAY_THRESHOLD ? width / Spectrum.HUE_RANGE * Spectrum.HUE_RANGE_GRAY_MIDDLE : leftToSet;
-	      main_core.Dom.style(this.getPicker(), {
-	        left: "".concat(leftToSet, "px"),
-	        top: "".concat(Math.min(Math.max(y - top, 0), height), "px")
-	      });
-	    }
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {
-	      var _this3 = this;
-
-	      return this.cache.remember('value', function () {
-	        if (main_core.Dom.hasClass(_this3.getPicker(), Spectrum.HIDE_CLASS)) {
-	          return null;
-	        }
-
-	        var layoutWidth = _this3.getLayout().getBoundingClientRect().width;
-
-	        var h = _this3.getPickerPos().x / layoutWidth * Spectrum.HUE_RANGE;
-
-	        var layoutHeight = _this3.getLayout().getBoundingClientRect().height;
-
-	        var l = (1 - _this3.getPickerPos().y / layoutHeight) * 100;
-
-	        if (isNaN(h) || isNaN(l)) {
-	          return null;
-	        }
-
-	        return new ColorValue({
-	          h: Math.min(h, Spectrum.HUE_RANGE_GRAY_THRESHOLD),
-	          s: h >= Spectrum.HUE_RANGE_GRAY_THRESHOLD ? 0 : Spectrum.getDefaultSaturation(),
-	          l: l
-	        });
-	      });
-	    }
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {
-	      babelHelpers.get(babelHelpers.getPrototypeOf(Spectrum.prototype), "setValue", this).call(this, value);
-
-	      if (value !== null && Spectrum.isSpectrumValue(value)) {
-	        // in first set value we can't match bounding client rect (layout not render). Then, use percents
-	        var _value$getHsl = value.getHsl(),
-	            h = _value$getHsl.h,
-	            s = _value$getHsl.s,
-	            l = _value$getHsl.l;
-
-	        var left = s === 0 ? Spectrum.HUE_RANGE_GRAY_MIDDLE / Spectrum.HUE_RANGE * 100 : h / Spectrum.HUE_RANGE * 100;
-	        main_core.Dom.style(this.getPicker(), 'left', "".concat(left, "%"));
-	        var top = 100 - l;
-	        main_core.Dom.style(this.getPicker(), 'top', "".concat(top, "%"));
-	        this.showPicker();
-	      } else {
-	        this.hidePicker();
-	      }
-	    }
-	  }, {
-	    key: "onChange",
-	    value: function onChange(event) {
-	      this.cache.delete('value');
-	      this.emit('onChange', {
-	        color: this.getValue()
-	      });
-	    }
-	  }, {
-	    key: "hidePicker",
-	    value: function hidePicker() {
-	      main_core.Dom.addClass(this.getPicker(), Spectrum.HIDE_CLASS);
-	    }
-	  }, {
-	    key: "showPicker",
-	    value: function showPicker() {
-	      main_core.Dom.removeClass(this.getPicker(), Spectrum.HIDE_CLASS);
-	    }
-	  }, {
-	    key: "isActive",
-	    value: function isActive() {
-	      return this.getValue() !== null && Spectrum.isSpectrumValue(this.getValue());
-	    }
-	  }], [{
-	    key: "isSpectrumValue",
-	    value: function isSpectrumValue(value) {
-	      return value !== null && (value.getHsl().s === Spectrum.getDefaultSaturation() || value.getHsl().s === 0);
-	    }
-	  }]);
-	  return Spectrum;
-	}(BaseControl);
-
-	babelHelpers.defineProperty(Spectrum, "DEFAULT_SATURATION", 100);
-	babelHelpers.defineProperty(Spectrum, "HUE_RANGE", 375);
-	babelHelpers.defineProperty(Spectrum, "HUE_RANGE_GRAY_THRESHOLD", 360);
-	babelHelpers.defineProperty(Spectrum, "HUE_RANGE_GRAY_MIDDLE", 367);
-	babelHelpers.defineProperty(Spectrum, "HIDE_CLASS", 'hidden');
-
-	var _templateObject$4, _templateObject2$2;
-
-	var Recent = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(Recent, _EventEmitter);
-
-	  function Recent() {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, Recent);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Recent).call(this));
-	    _this.cache = new main_core.Cache.MemoryCache();
-	    return _this;
 	  }
 
-	  babelHelpers.createClass(Recent, [{
-	    key: "getLayout",
-	    value: function getLayout() {
-	      this.initItems();
-	      return this.getLayoutContainer();
-	    }
-	  }, {
-	    key: "getLayoutContainer",
-	    value: function getLayoutContainer() {
-	      return this.cache.remember('layout', function () {
-	        return main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-color-recent\"></div>"])));
-	      });
-	    }
-	  }, {
-	    key: "initItems",
-	    value: function initItems() {
-	      var _this2 = this;
+	  hidePicker() {
+	    main_core.Dom.addClass(this.getPicker(), Spectrum.HIDE_CLASS);
+	  }
 
-	      if (Recent.itemsLoaded) {
-	        this.buildItemsLayout();
-	      } else {
-	        landing_backend.Backend.getInstance().action("Utils::getUserOption", {
-	          name: Recent.USER_OPTION_NAME
-	        }).then(function (result) {
-	          if (result && main_core.Type.isString(result.items)) {
-	            Recent.items = [];
-	            result.items.split(',').forEach(function (item) {
-	              if (isHex(item) && Recent.items.length < Recent.MAX_ITEMS) {
-	                Recent.items.push(item);
-	              }
-	            });
-	            Recent.itemsLoaded = true;
+	  showPicker() {
+	    main_core.Dom.removeClass(this.getPicker(), Spectrum.HIDE_CLASS);
+	  }
 
-	            _this2.buildItemsLayout();
-	          }
-	        }); // todo: what if ajax error?
-	      }
-	    }
-	  }, {
-	    key: "buildItemsLayout",
-	    value: function buildItemsLayout() {
-	      var _this3 = this;
+	  isActive() {
+	    return this.getValue() !== null && Spectrum.isSpectrumValue(this.getValue());
+	  }
 
-	      main_core.Dom.clean(this.getLayoutContainer());
-	      Recent.items.forEach(function (item) {
-	        if (isHex(item)) {
-	          var itemLayout = main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["<div \n\t\t\t\t\tclass=\"landing-ui-field-color-recent-item\" \n\t\t\t\t\tstyle=\"background:", "\"\n\t\t\t\t\tdata-value=\"", "\"\n\t\t\t\t></div>"])), item, item);
-	          main_core.Event.bind(itemLayout, 'click', function () {
-	            return _this3.onItemClick(event);
+	  static isSpectrumValue(value) {
+	    return value !== null && (value.getHsl().s === Spectrum.getDefaultSaturation() || value.getHsl().s === 0);
+	  }
+
+	}
+	Spectrum.DEFAULT_SATURATION = 100;
+	Spectrum.HUE_RANGE = 375;
+	Spectrum.HUE_RANGE_GRAY_THRESHOLD = 360;
+	Spectrum.HUE_RANGE_GRAY_MIDDLE = 367;
+	Spectrum.HIDE_CLASS = 'hidden';
+
+	let _$4 = t => t,
+	    _t$4,
+	    _t2$2;
+	class Recent extends main_core_events.EventEmitter {
+	  constructor() {
+	    super();
+	    this.cache = new main_core.Cache.MemoryCache();
+	    this.setEventNamespace('BX.Landing.UI.Field.Color.Recent');
+	  }
+
+	  getLayout() {
+	    this.initItems();
+	    return this.getLayoutContainer();
+	  }
+
+	  getLayoutContainer() {
+	    return this.cache.remember('layout', () => {
+	      return main_core.Tag.render(_t$4 || (_t$4 = _$4`<div class="landing-ui-field-color-recent"></div>`));
+	    });
+	  }
+
+	  initItems() {
+	    if (Recent.itemsLoaded) {
+	      this.buildItemsLayout();
+	    } else {
+	      landing_backend.Backend.getInstance().action("Utils::getUserOption", {
+	        name: Recent.USER_OPTION_NAME
+	      }).then(result => {
+	        if (result && main_core.Type.isString(result.items)) {
+	          Recent.items = [];
+	          result.items.split(',').forEach(item => {
+	            if (isHex(item) && Recent.items.length < Recent.MAX_ITEMS) {
+	              Recent.items.push(item);
+	            }
 	          });
-	          main_core.Dom.append(itemLayout, _this3.getLayoutContainer());
+	          Recent.itemsLoaded = true;
+	          this.buildItemsLayout();
 	        }
-	      });
-	      return this;
+	      }); // todo: what if ajax error?
 	    }
-	  }, {
-	    key: "onItemClick",
-	    value: function onItemClick(event) {
-	      this.emit('onChange', {
-	        hex: event.currentTarget.dataset.value
-	      });
-	    }
-	  }, {
-	    key: "addItem",
-	    value: function addItem(hex) {
-	      if (isHex(hex)) {
-	        var pos = Recent.items.indexOf(hex);
-
-	        if (pos !== -1) {
-	          Recent.items.splice(pos, 1);
-	        }
-
-	        Recent.items.unshift(hex);
-
-	        if (Recent.items.length > Recent.MAX_ITEMS) {
-	          Recent.items.splice(Recent.MAX_ITEMS);
-	        }
-
-	        this.buildItemsLayout();
-	        this.saveItems();
-	      }
-
-	      return this;
-	    }
-	  }, {
-	    key: "saveItems",
-	    value: function saveItems() {
-	      if (Recent.items.length > 0) {
-	        BX.userOptions.save('landing', Recent.USER_OPTION_NAME, 'items', Recent.items);
-	      }
-
-	      return this;
-	    }
-	  }]);
-	  return Recent;
-	}(main_core_events.EventEmitter);
-
-	babelHelpers.defineProperty(Recent, "USER_OPTION_NAME", 'color_field_recent_colors');
-	babelHelpers.defineProperty(Recent, "MAX_ITEMS", 6);
-	babelHelpers.defineProperty(Recent, "items", []);
-	babelHelpers.defineProperty(Recent, "itemsLoaded", false);
-
-	var _templateObject$5, _templateObject2$3, _templateObject3$1, _templateObject4$1;
-
-	var Colorpicker = /*#__PURE__*/function (_BaseControl) {
-	  babelHelpers.inherits(Colorpicker, _BaseControl);
-
-	  function Colorpicker(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, Colorpicker);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Colorpicker).call(this));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Color.Colorpicker');
-
-	    _this.popupId = 'colorpicker_popup_' + main_core.Text.getRandom();
-	    _this.popupTargetContainer = options.contentRoot;
-	    _this.hexPreview = new Hex();
-
-	    _this.hexPreview.setPreviewMode(true);
-
-	    main_core.Event.bind(_this.hexPreview.getLayout(), 'click', function () {
-	      _this.recent.buildItemsLayout();
-
-	      _this.previously = _this.getValue();
-
-	      _this.getPopup().show();
-
-	      if (_this.getPopup().isShown()) {
-	        _this.hex.focus();
-	      }
-	    }); // popup
-
-	    _this.hex = new Hex();
-
-	    _this.hex.subscribe('onChange', _this.onHexChange.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    _this.hex.subscribe('onButtonClick', _this.onSelectClick.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    _this.spectrum = new Spectrum(options);
-
-	    _this.spectrum.subscribe('onChange', _this.onSpectrumChange.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    _this.recent = new Recent();
-
-	    _this.recent.subscribe('onChange', _this.onRecentChange.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    main_core.Event.bind(_this.getCancelButton(), 'click', _this.onCancelClick.bind(babelHelpers.assertThisInitialized(_this)));
-	    main_core.Event.bind(_this.getSelectButton(), 'click', _this.onSelectClick.bind(babelHelpers.assertThisInitialized(_this))); // end popup
-
-	    _this.previously = _this.getValue();
-	    return _this;
 	  }
 
-	  babelHelpers.createClass(Colorpicker, [{
-	    key: "onHexChange",
-	    value: function onHexChange(event) {
-	      this.setValue(event.getData().color);
-	      this.onChange(event);
-	    }
-	  }, {
-	    key: "onSpectrumChange",
-	    value: function onSpectrumChange(event) {
-	      this.setValue(event.getData().color);
-	      this.onChange(event);
-	    }
-	  }, {
-	    key: "onRecentChange",
-	    value: function onRecentChange(event) {
-	      var recentColor = new ColorValue(event.getData().hex);
-	      this.setValue(recentColor);
-	      this.onChange(new main_core_events.BaseEvent({
-	        data: {
-	          color: recentColor
-	        }
-	      }));
-	    }
-	  }, {
-	    key: "onCancelClick",
-	    value: function onCancelClick() {
-	      this.setValue(this.previously);
-	      this.getPopup().close();
-	      this.onChange(new main_core_events.BaseEvent({
-	        data: {
-	          color: this.getValue()
-	        }
-	      }));
-	    }
-	  }, {
-	    key: "onSelectClick",
-	    value: function onSelectClick(event) {
-	      var value = event instanceof main_core_events.BaseEvent ? event.getData().color : this.getValue();
+	  buildItemsLayout() {
+	    main_core.Dom.clean(this.getLayoutContainer());
+	    Recent.items.forEach(item => {
+	      if (isHex(item)) {
+	        let itemLayout = main_core.Tag.render(_t2$2 || (_t2$2 = _$4`<div 
+					class="landing-ui-field-color-recent-item" 
+					style="background:${0}"
+					data-value="${0}"
+				></div>`), item, item);
+	        main_core.Event.bind(itemLayout, 'click', () => this.onItemClick(event));
+	        main_core.Dom.append(itemLayout, this.getLayoutContainer());
+	      }
+	    });
+	    return this;
+	  }
 
-	      if (value !== null) {
-	        this.recent.addItem(this.getValue().getHex());
+	  onItemClick(event) {
+	    this.emit('onChange', {
+	      hex: event.currentTarget.dataset.value
+	    });
+	  }
+
+	  addItem(hex) {
+	    if (isHex(hex)) {
+	      let pos = Recent.items.indexOf(hex);
+
+	      if (pos !== -1) {
+	        Recent.items.splice(pos, 1);
 	      }
 
-	      this.getPopup().close();
-	    }
-	  }, {
-	    key: "buildLayout",
-	    value: function buildLayout() {
-	      return main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-color-colorpicker\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.hexPreview.getLayout());
-	    }
-	  }, {
-	    key: "getPopupContent",
-	    value: function getPopupContent() {
-	      return main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-color-popup-container\">\n\t\t\t\t<div class=\"landing-ui-field-color-popup-head\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t\t<div class=\"landing-ui-field-color-popup-footer\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.recent.getLayout(), this.hex.getLayout(), this.spectrum.getLayout(), this.getSelectButton(), this.getCancelButton());
-	    }
-	  }, {
-	    key: "getSelectButton",
-	    value: function getSelectButton() {
-	      return this.cache.remember('selectButton', function () {
-	        return main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button class=\"ui-btn ui-btn-xs ui-btn-primary\">\n\t\t\t\t\t", "\n\t\t\t\t</button>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_FIELD_COLOR-BUTTON_SELECT'));
-	      });
-	    }
-	  }, {
-	    key: "getCancelButton",
-	    value: function getCancelButton() {
-	      return this.cache.remember('cancelButton', function () {
-	        return main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button class=\"ui-btn ui-btn-xs ui-btn-light-border\">\n\t\t\t\t\t", "\n\t\t\t\t</button>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_FIELD_COLOR-BUTTON_CANCEL'));
-	      });
-	    }
-	  }, {
-	    key: "getHexPreviewObject",
-	    value: function getHexPreviewObject() {
-	      return this.hexPreview;
-	    }
-	  }, {
-	    key: "getPopup",
-	    value: function getPopup() {
-	      var _this2 = this;
+	      Recent.items.unshift(hex);
 
-	      return this.cache.remember('popup', function () {
-	        return main_popup.PopupManager.create({
-	          id: _this2.popupId,
-	          className: 'landing-ui-field-color-spectrum-popup',
-	          autoHide: true,
-	          bindElement: _this2.hexPreview.getLayout(),
-	          bindOptions: {
-	            forceTop: true,
-	            forceLeft: true
-	          },
-	          padding: 0,
-	          contentPadding: 14,
-	          width: 260,
-	          offsetTop: -37,
-	          offsetLeft: -180,
-	          content: _this2.getPopupContent(),
-	          closeByEsc: true,
-	          targetContainer: _this2.popupTargetContainer
-	        });
-	      });
-	    }
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {
-	      var _this3 = this;
+	      if (Recent.items.length > Recent.MAX_ITEMS) {
+	        Recent.items.splice(Recent.MAX_ITEMS);
+	      }
 
-	      return this.cache.remember('value', function () {
-	        return _this3.spectrum.getValue();
-	      });
+	      this.buildItemsLayout();
+	      this.saveItems();
 	    }
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {
-	      babelHelpers.get(babelHelpers.getPrototypeOf(Colorpicker.prototype), "setValue", this).call(this, value);
+
+	    return this;
+	  }
+
+	  saveItems() {
+	    if (Recent.items.length > 0) {
+	      BX.userOptions.save('landing', Recent.USER_OPTION_NAME, 'items', Recent.items);
+	    }
+
+	    return this;
+	  }
+
+	}
+	Recent.USER_OPTION_NAME = 'color_field_recent_colors';
+	Recent.MAX_ITEMS = 6;
+	Recent.items = [];
+	Recent.itemsLoaded = false;
+
+	let _$5 = t => t,
+	    _t$5,
+	    _t2$3,
+	    _t3$1,
+	    _t4$1;
+	class Colorpicker extends BaseControl {
+	  constructor(options) {
+	    super();
+	    this.setEventNamespace('BX.Landing.UI.Field.Color.Colorpicker');
+	    this.popupId = 'colorpicker_popup_' + main_core.Text.getRandom();
+	    this.popupTargetContainer = options.contentRoot;
+	    this.hexPreview = new Hex();
+	    this.hexPreview.setPreviewMode(true);
+	    main_core.Event.bind(this.hexPreview.getLayout(), 'click', this.onPopupOpenClick.bind(this)); // popup
+
+	    this.hex = new Hex();
+	    this.hex.subscribe('onChange', this.onHexChange.bind(this));
+	    this.hex.subscribe('onButtonClick', this.onSelectClick.bind(this));
+	    this.spectrum = new Spectrum(options);
+	    this.spectrum.subscribe('onChange', this.onSpectrumChange.bind(this));
+	    this.recent = new Recent();
+	    this.recent.subscribe('onChange', this.onRecentChange.bind(this));
+	    main_core.Event.bind(this.getCancelButton(), 'click', this.onCancelClick.bind(this));
+	    main_core.Event.bind(this.getSelectButton(), 'click', this.onSelectClick.bind(this)); // end popup
+
+	    this.previously = this.getValue();
+	  }
+
+	  onSelectClick(event) {
+	    const value = event instanceof main_core_events.BaseEvent ? event.getData().color : this.getValue();
+
+	    if (value !== null) {
+	      this.recent.addItem(this.getValue().getHex());
+	    }
+
+	    this.getPopup().close();
+	  }
+
+	  buildLayout() {
+	    return main_core.Tag.render(_t$5 || (_t$5 = _$5`
+			<div class="landing-ui-field-color-colorpicker">
+				${0}
+			</div>
+		`), this.hexPreview.getLayout());
+	  }
+
+	  getPopupContent() {
+	    return main_core.Tag.render(_t2$3 || (_t2$3 = _$5`
+			<div class="landing-ui-field-color-popup-container">
+				<div class="landing-ui-field-color-popup-head">
+					${0}
+					${0}
+				</div>
+				${0}
+				<div class="landing-ui-field-color-popup-footer">
+					${0}
+					${0}
+				</div>
+			</div>
+		`), this.recent.getLayout(), this.hex.getLayout(), this.spectrum.getLayout(), this.getSelectButton(), this.getCancelButton());
+	  }
+
+	  getSelectButton() {
+	    return this.cache.remember('selectButton', () => {
+	      return main_core.Tag.render(_t3$1 || (_t3$1 = _$5`
+				<button class="ui-btn ui-btn-xs ui-btn-primary">
+					${0}
+				</button>
+			`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-BUTTON_SELECT'));
+	    });
+	  }
+
+	  getCancelButton() {
+	    return this.cache.remember('cancelButton', () => {
+	      return main_core.Tag.render(_t4$1 || (_t4$1 = _$5`
+				<button class="ui-btn ui-btn-xs ui-btn-light-border">
+					${0}
+				</button>
+			`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-BUTTON_CANCEL'));
+	    });
+	  }
+
+	  getHexPreviewObject() {
+	    return this.hexPreview;
+	  }
+
+	  getPopup() {
+	    return this.cache.remember('popup', () => {
+	      return main_popup.PopupManager.create({
+	        id: this.popupId,
+	        className: 'landing-ui-field-color-spectrum-popup',
+	        autoHide: true,
+	        bindElement: this.hexPreview.getLayout(),
+	        bindOptions: {
+	          forceTop: true,
+	          forceLeft: true
+	        },
+	        padding: 0,
+	        contentPadding: 14,
+	        width: 260,
+	        offsetTop: -37,
+	        offsetLeft: -180,
+	        content: this.getPopupContent(),
+	        closeByEsc: true,
+	        targetContainer: this.popupTargetContainer
+	      });
+	    });
+	  }
+
+	  getValue() {
+	    return this.cache.remember('value', () => {
+	      return this.spectrum.getValue();
+	    });
+	  }
+
+	  onHexChange(event) {
+	    this.setValue(event.getData().color);
+	    this.onChange(event);
+	  }
+
+	  onSpectrumChange(event) {
+	    this.hex.unFocus();
+	    this.setValue(event.getData().color);
+	    this.onChange(event);
+	  }
+
+	  onRecentChange(event) {
+	    const recentColor = new ColorValue(event.getData().hex);
+	    this.setValue(recentColor);
+	    this.onChange(new main_core_events.BaseEvent({
+	      data: {
+	        color: recentColor
+	      }
+	    }));
+	  }
+
+	  onCancelClick() {
+	    this.setValue(this.previously);
+	    this.getPopup().close();
+	    this.onChange(new main_core_events.BaseEvent({
+	      data: {
+	        color: this.getValue()
+	      }
+	    }));
+	  }
+
+	  onPopupOpenClick() {
+	    this.recent.buildItemsLayout();
+	    this.previously = this.getValue();
+	    this.getPopup().show();
+
+	    if (this.getPopup().isShown()) {
+	      this.hex.focus();
+	    }
+	  }
+
+	  setValue(value) {
+	    if (this.isNeedSetValue(value)) {
+	      super.setValue(value);
 	      this.spectrum.setValue(value);
 	      this.hex.setValue(value);
 	      this.hexPreview.setValue(value);
-	      this.setActivity(value);
 	    }
-	  }, {
-	    key: "setActivity",
-	    value: function setActivity(value) {
-	      if (value !== null) {
-	        if (this.spectrum.isActive()) {
-	          this.hex.unsetActive();
-	        } else {
-	          this.hex.setActive();
-	        }
 
-	        this.hexPreview.setActive();
-	      }
-	    }
-	  }, {
-	    key: "unsetActive",
-	    value: function unsetActive() {
-	      this.hex.unsetActive();
-	      this.hexPreview.unsetActive();
-	    }
-	  }, {
-	    key: "isActive",
-	    value: function isActive() {
-	      return this.hex.isActive() || this.hexPreview.isActive();
-	    }
-	  }]);
-	  return Colorpicker;
-	}(BaseControl);
-
-	var _templateObject$6;
-
-	var Primary = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(Primary, _EventEmitter);
-
-	  // todo: layout or control?
-	  function Primary() {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, Primary);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Primary).call(this));
-	    _this.cache = new main_core.Cache.MemoryCache();
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Color.Primary');
-
-	    main_core.Event.bind(_this.getLayout(), 'click', function () {
-	      return _this.onClick();
-	    });
-	    return _this;
+	    this.setActivity(value);
 	  }
 
-	  babelHelpers.createClass(Primary, [{
-	    key: "getLayout",
-	    value: function getLayout() {
-	      return this.cache.remember('layout', function () {
-	        return main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-color-primary\">\n\t\t\t\t\t<i class=\"landing-ui-field-color-primary-preview\"></i>\n\t\t\t\t\t<span class=\"landing-ui-field-color-primary-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_FIELD_COLOR-PRIMARY_TITLE'));
-	      });
-	    }
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {
-	      return this.cache.remember('value', function () {
-	        return new ColorValue(Primary.CSS_VAR);
-	      });
-	    }
-	  }, {
-	    key: "onClick",
-	    value: function onClick() {
-	      this.setActive();
-	      this.emit('onChange', {
-	        color: this.getValue()
-	      });
-	    }
-	  }, {
-	    key: "setActive",
-	    value: function setActive() {
-	      main_core.Dom.addClass(this.getLayout(), Primary.ACTIVE_CLASS);
-	    }
-	  }, {
-	    key: "unsetActive",
-	    value: function unsetActive() {
-	      main_core.Dom.removeClass(this.getLayout(), Primary.ACTIVE_CLASS);
-	    }
-	  }, {
-	    key: "isActive",
-	    value: function isActive() {
-	      return main_core.Dom.hasClass(this.getLayout(), Primary.ACTIVE_CLASS);
-	    }
-	  }, {
-	    key: "isPrimaryValue",
-	    value: function isPrimaryValue(value) {
-	      return value !== null && this.getValue().getCssVar() === value.getCssVar();
-	    }
-	  }]);
-	  return Primary;
-	}(main_core_events.EventEmitter);
+	  setActivity(value) {
+	    if (value !== null) {
+	      if (this.spectrum.isActive()) {
+	        this.hex.unsetActive();
+	      } else {
+	        this.hex.setActive();
+	      }
 
-	babelHelpers.defineProperty(Primary, "ACTIVE_CLASS", 'active');
-	babelHelpers.defineProperty(Primary, "CSS_VAR", '--primary');
+	      this.hexPreview.setActive();
+	    }
+	  }
+
+	  unsetActive() {
+	    this.hex.unsetActive();
+	    this.hexPreview.unsetActive();
+	  }
+
+	  isActive() {
+	    return this.hex.isActive() || this.hexPreview.isActive();
+	  }
+
+	}
+
+	let _$6 = t => t,
+	    _t$6;
+	class Primary extends main_core_events.EventEmitter {
+	  // todo: layout or control?
+	  constructor() {
+	    super();
+	    this.cache = new main_core.Cache.MemoryCache();
+	    this.setEventNamespace('BX.Landing.UI.Field.Color.Primary');
+	    main_core.Event.bind(this.getLayout(), 'click', () => this.onClick());
+	  }
+
+	  getLayout() {
+	    return this.cache.remember('layout', () => {
+	      return main_core.Tag.render(_t$6 || (_t$6 = _$6`
+				<div class="landing-ui-field-color-primary">
+					<i class="landing-ui-field-color-primary-preview"></i>
+					<span class="landing-ui-field-color-primary-text">
+						${0}
+					</span>
+				</div>
+			`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-PRIMARY_TITLE'));
+	    });
+	  }
+
+	  getValue() {
+	    return this.cache.remember('value', () => {
+	      return new ColorValue(Primary.CSS_VAR);
+	    });
+	  }
+
+	  onClick() {
+	    this.setActive();
+	    this.emit('onChange', {
+	      color: this.getValue()
+	    });
+	  }
+
+	  setActive() {
+	    main_core.Dom.addClass(this.getLayout(), Primary.ACTIVE_CLASS);
+	  }
+
+	  unsetActive() {
+	    main_core.Dom.removeClass(this.getLayout(), Primary.ACTIVE_CLASS);
+	  }
+
+	  isActive() {
+	    return main_core.Dom.hasClass(this.getLayout(), Primary.ACTIVE_CLASS);
+	  }
+
+	  isPrimaryValue(value) {
+	    return value !== null && this.getValue().getCssVar() === value.getCssVar();
+	  }
+
+	}
+	Primary.ACTIVE_CLASS = 'active';
+	Primary.CSS_VAR = '--primary';
 
 	function regexpWoStartEnd(regexp) {
 	  return new RegExp(regexpToString(regexp));
@@ -1501,10 +1420,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return regexp.source.replace(/(^\^)|(\$$)/g, '');
 	}
 
-	var matcherGradient = /^(linear|radial)-gradient\(.*\)$/i;
-	var matcherGradientAngle = /^(linear|radial)-gradient\(.*?((\d)+deg).*?\)$/ig;
-	var hexMatcher = regexpToString(matcherHex);
-	var matcherGradientColors = new RegExp('((rgba|hsla)?\\([\\d% .,]+\\)|transparent|' + hexMatcher + ')+', 'ig'); // todo: whooooouuuu, is so not-good
+	const matcherGradient = /^(linear|radial)-gradient\(.*\)$/i;
+	const matcherGradientAngle = /^(linear|radial)-gradient\(.*?((\d)+deg).*?\)$/ig;
+	const hexMatcher = regexpToString(matcherHex);
+	const matcherGradientColors = new RegExp('((rgba|hsla)?\\([\\d% .,]+\\)|transparent|' + hexMatcher + ')+', 'ig'); // todo: whooooouuuu, is so not-good
 	// todo: add hex greaident match
 	// todo: for tests
 	// "linear-gradient(45deg, rgb(71, 155, 255) 0%, rgb(0, 207, 78) 100%)"
@@ -1516,9 +1435,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return !!rgbString.trim().match(matcherGradient);
 	}
 
-	var GradientValue = /*#__PURE__*/function () {
-	  function GradientValue(value) {
-	    babelHelpers.classCallCheck(this, GradientValue);
+	class GradientValue {
+	  constructor(value) {
 	    this.value = {
 	      from: new ColorValue('#ffffff'),
 	      to: new ColorValue(Primary.CSS_VAR),
@@ -1528,285 +1446,255 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.setValue(value);
 	  }
 
-	  babelHelpers.createClass(GradientValue, [{
-	    key: "getName",
-	    value: function getName() {
-	      return this.value.from.getName() + '_' + this.value.to.getName() + '_' + this.getAngle() + '_' + this.getType();
-	    } // todo: parse grad string?
+	  getName() {
+	    return this.value.from.getName() + '_' + this.value.to.getName() + '_' + this.getAngle() + '_' + this.getType();
+	  } // todo: parse grad string?
 
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {
-	      if (main_core.Type.isObject(value)) {
-	        if (value instanceof GradientValue) {
-	          this.value.from = new ColorValue(value.getFrom());
-	          this.value.to = new ColorValue(value.getTo());
-	          this.value.angle = value.getAngle();
-	          this.value.type = value.getType();
-	        } else {
-	          if ('from' in value) {
-	            this.value.from = new ColorValue(value.from);
-	          }
 
-	          if ('to' in value) {
-	            this.value.to = new ColorValue(value.to);
-	          }
-
-	          if ('angle' in value) {
-	            this.value.angle = main_core.Text.toNumber(value.angle);
-	          }
-
-	          if ('type' in value) {
-	            this.value.type = value.type;
-	          }
+	  setValue(value) {
+	    if (main_core.Type.isObject(value)) {
+	      if (value instanceof GradientValue) {
+	        this.value.from = new ColorValue(value.getFrom());
+	        this.value.to = new ColorValue(value.getTo());
+	        this.value.angle = value.getAngle();
+	        this.value.type = value.getType();
+	      } else {
+	        if ('from' in value) {
+	          this.value.from = new ColorValue(value.from);
 	        }
-	      } else if (main_core.Type.isString(value) && isGradientString(value)) {
-	        this.parseGradientString(value);
+
+	        if ('to' in value) {
+	          this.value.to = new ColorValue(value.to);
+	        }
+
+	        if ('angle' in value) {
+	          this.value.angle = main_core.Text.toNumber(value.angle);
+	        }
+
+	        if ('type' in value) {
+	          this.value.type = value.type;
+	        }
 	      }
+	    } else if (main_core.Type.isString(value) && isGradientString(value)) {
+	      this.parseGradientString(value);
+	    }
 
-	      return this;
-	    }
-	  }, {
-	    key: "setOpacity",
-	    value: function setOpacity(opacity) {
-	      this.value.from.setOpacity(opacity);
-	      this.value.to.setOpacity(opacity);
-	      return this;
-	    }
-	  }, {
-	    key: "parseGradientString",
-	    value: function parseGradientString(value) {
-	      var typeMatches = value.trim().match(matcherGradient);
-
-	      if (!!typeMatches) {
-	        this.setValue({
-	          type: typeMatches[1]
-	        });
-	      }
-
-	      var angleMatches = value.trim().match(matcherGradientAngle);
-
-	      if (!!angleMatches) {
-	        this.setValue({
-	          angle: angleMatches[2]
-	        });
-	      }
-
-	      var colorMatches = value.trim().match(matcherGradientColors);
-
-	      if (colorMatches && colorMatches.length > 0) {
-	        this.setValue({
-	          from: new ColorValue(colorMatches[0])
-	        });
-	        this.setValue({
-	          to: new ColorValue(colorMatches[colorMatches.length - 1])
-	        });
-	      }
-	    }
-	  }, {
-	    key: "getFrom",
-	    value: function getFrom() {
-	      return this.value.from;
-	    }
-	  }, {
-	    key: "getTo",
-	    value: function getTo() {
-	      return this.value.to;
-	    }
-	  }, {
-	    key: "getAngle",
-	    value: function getAngle() {
-	      return this.value.angle;
-	    }
-	  }, {
-	    key: "setAngle",
-	    value: function setAngle(angle) {
-	      if (main_core.Type.isNumber(angle)) {
-	        this.value.angle = Math.min(Math.max(angle, 0), 360);
-	      }
-
-	      return this;
-	    }
-	  }, {
-	    key: "getType",
-	    value: function getType() {
-	      return this.value.type;
-	    }
-	  }, {
-	    key: "setType",
-	    value: function setType(type) {
-	      if (type === GradientValue.TYPE_RADIAL || type === GradientValue.TYPE_LINEAR) {
-	        this.value.type = type;
-	      }
-
-	      return this;
-	    }
-	  }, {
-	    key: "getOpacity",
-	    value: function getOpacity() {
-	      var _ref;
-
-	      return (_ref = (this.value.from.getOpacity() + this.value.to.getOpacity()) / 2) !== null && _ref !== void 0 ? _ref : defaultColorValueOptions.a;
-	    }
-	  }, {
-	    key: "getStyleString",
-	    value: function getStyleString() {
-	      var angle = this.value.angle;
-	      var type = this.value.type;
-	      var fromString = this.value.from.getStyleString();
-	      var toString = this.value.to.getStyleString();
-	      return type === 'linear' ? "linear-gradient(".concat(angle, "deg, ").concat(fromString, " 0%, ").concat(toString, " 100%)") : "radial-gradient(circle farthest-side at 50% 50%, ".concat(fromString, " 0%, ").concat(toString, " 100%)");
-	    }
-	  }, {
-	    key: "getStyleStringForOpacity",
-	    value: function getStyleStringForOpacity() {
-	      return "radial-gradient(at top left, ".concat(this.value.from.getHex(), ", transparent)") + ", radial-gradient(at bottom left, ".concat(this.value.to.getHex(), ", transparent)");
-	    }
-	  }], [{
-	    key: "compare",
-	    value: function compare(value1, value2) {
-	      var full = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-	      var base = ColorValue.compare(value1.getFrom(), value2.getFrom()) && ColorValue.compare(value1.getTo(), value2.getTo()) || ColorValue.compare(value1.getTo(), value2.getFrom()) && ColorValue.compare(value1.getFrom(), value2.getTo());
-	      var ext = full ? value1.getAngle() === value2.getAngle() && value1.getType() === value2.getType() : true;
-	      return base && ext;
-	    }
-	  }]);
-	  return GradientValue;
-	}();
-
-	babelHelpers.defineProperty(GradientValue, "TYPE_RADIAL", 'radial');
-	babelHelpers.defineProperty(GradientValue, "TYPE_LINEAR", 'linear');
-	babelHelpers.defineProperty(GradientValue, "DEFAULT_ANGLE", 180);
-	babelHelpers.defineProperty(GradientValue, "DEFAULT_TYPE", 'linear');
-
-	var defaultType = 'color';
-	var gradientType = 'gradient';
-
-	var Generator = /*#__PURE__*/function () {
-	  function Generator() {
-	    babelHelpers.classCallCheck(this, Generator);
+	    return this;
 	  }
 
-	  babelHelpers.createClass(Generator, null, [{
-	    key: "getDefaultPresets",
-	    value: function getDefaultPresets() {
-	      return Generator.cache.remember('default', function () {
-	        var presets = [];
-	        Generator.defaultPresets.forEach(function (preset) {
-	          presets.push({
-	            id: preset.id,
-	            type: 'color',
-	            items: preset.items.map(function (item) {
-	              return new ColorValue(hexToHsl(item));
-	            })
-	          });
-	        });
-	        return presets;
+	  setOpacity(opacity) {
+	    this.value.from.setOpacity(opacity);
+	    this.value.to.setOpacity(opacity);
+	    return this;
+	  }
+
+	  parseGradientString(value) {
+	    const typeMatches = value.trim().match(matcherGradient);
+
+	    if (!!typeMatches) {
+	      this.setValue({
+	        type: typeMatches[1]
 	      });
 	    }
-	  }, {
-	    key: "getPrimaryColorPreset",
-	    value: function getPrimaryColorPreset() {
-	      return this.cache.remember('primary', function () {
-	        var preset = {
-	          id: 'defaultPrimary',
-	          items: []
-	        };
-	        var primary = new ColorValue(main_core.Dom.style(document.documentElement, '--primary').trim());
-	        preset.items.push(new ColorValue(primary));
 
-	        if (primary.getHsl().s <= 10) {
-	          var lBeforeCount = primary.getHsl().l > 50 ? Math.ceil(primary.getHsl().l / 100 * 5) : Math.floor(primary.getHsl().l / 100 * 5);
-	          var lAfterCount = 5 - lBeforeCount;
-	          var deltaLBefore = primary.getHsl().l / (lBeforeCount + 1);
-	          var deltaLAfter = (100 - primary.getHsl().l) / (lAfterCount + 1);
+	    const angleMatches = value.trim().match(matcherGradientAngle);
 
-	          for (var i = 1; i <= lBeforeCount; i++) {
-	            preset.items.push(new ColorValue(primary).darken(deltaLBefore * i));
-	          }
+	    if (!!angleMatches) {
+	      this.setValue({
+	        angle: angleMatches[2]
+	      });
+	    }
 
-	          for (var ii = 1; ii <= lAfterCount; ii++) {
-	            preset.items.push(new ColorValue(primary).lighten(deltaLAfter * ii));
-	          }
+	    const colorMatches = value.trim().match(matcherGradientColors);
 
-	          var deltaBitrixL = 15;
-	          var deltaBitrixS = 15;
-	          var bitrixColor = new ColorValue(Generator.BITRIX_COLOR);
-	          preset.items[6] = new ColorValue(bitrixColor);
-	          preset.items[7] = new ColorValue(bitrixColor.darken(deltaBitrixL).saturate(deltaBitrixS));
-	          preset.items[8] = new ColorValue(bitrixColor.darken(deltaBitrixL).saturate(deltaBitrixS));
-	          bitrixColor.lighten(deltaBitrixL * 2).desaturate(deltaBitrixS * 2);
-	          preset.items[9] = new ColorValue(bitrixColor.lighten(deltaBitrixL).desaturate(deltaBitrixS));
-	          preset.items[10] = new ColorValue(bitrixColor.lighten(deltaBitrixL).desaturate(deltaBitrixS));
-	          bitrixColor.darken(deltaBitrixL * 2).saturate(deltaBitrixS * 2);
-	          preset.items[11] = new ColorValue(bitrixColor).adjustHue(180);
-	        } else {
-	          var deltaL = (90 - primary.getHsl().l) / 3;
-	          var deltaL2 = (primary.getHsl().l - 10) / 3;
-	          var deltaS = (90 - primary.getHsl().s) / 3;
-	          var deltaS2 = (primary.getHsl().s - 10) / 3;
-	          preset.items[1] = new ColorValue(primary.darken(deltaL2).saturate(deltaS));
-	          preset.items[2] = new ColorValue(primary.darken(deltaL2).saturate(deltaS));
-	          preset.items[3] = new ColorValue(primary.darken(deltaL2).saturate(deltaS));
-	          primary.lighten(deltaL2 * 3).desaturate(deltaS * 3);
-	          preset.items[4] = new ColorValue(primary.desaturate(deltaS2).lighten(deltaL));
-	          preset.items[5] = new ColorValue(primary.desaturate(deltaS2).lighten(deltaL));
-	          preset.items[11] = new ColorValue(primary.desaturate(deltaS2).lighten(deltaL));
-	          primary.saturate(deltaS2 * 3).darken(deltaL * 3);
-	          preset.items[7] = new ColorValue(primary.adjustHue(40));
-	          preset.items[8] = new ColorValue(primary.adjustHue(-80));
-	          preset.items[9] = new ColorValue(primary.adjustHue(180));
-	          preset.items[6] = new ColorValue(primary.adjustHue(40));
-	          preset.items[10] = new ColorValue(primary.adjustHue(40));
+	    if (colorMatches && colorMatches.length > 0) {
+	      this.setValue({
+	        from: new ColorValue(colorMatches[0])
+	      });
+	      this.setValue({
+	        to: new ColorValue(colorMatches[colorMatches.length - 1])
+	      });
+	    }
+	  }
+
+	  getFrom() {
+	    return this.value.from;
+	  }
+
+	  getTo() {
+	    return this.value.to;
+	  }
+
+	  getAngle() {
+	    return this.value.angle;
+	  }
+
+	  setAngle(angle) {
+	    if (main_core.Type.isNumber(angle)) {
+	      this.value.angle = Math.min(Math.max(angle, 0), 360);
+	    }
+
+	    return this;
+	  }
+
+	  getType() {
+	    return this.value.type;
+	  }
+
+	  setType(type) {
+	    if (type === GradientValue.TYPE_RADIAL || type === GradientValue.TYPE_LINEAR) {
+	      this.value.type = type;
+	    }
+
+	    return this;
+	  }
+
+	  getOpacity() {
+	    var _ref;
+
+	    return (_ref = (this.value.from.getOpacity() + this.value.to.getOpacity()) / 2) != null ? _ref : defaultColorValueOptions.a;
+	  }
+
+	  getStyleString() {
+	    const angle = this.value.angle;
+	    const type = this.value.type;
+	    const fromString = this.value.from.getStyleString();
+	    const toString = this.value.to.getStyleString();
+	    return type === 'linear' ? `linear-gradient(${angle}deg, ${fromString} 0%, ${toString} 100%)` : `radial-gradient(circle farthest-side at 50% 50%, ${fromString} 0%, ${toString} 100%)`;
+	  }
+
+	  getStyleStringForOpacity() {
+	    return `radial-gradient(at top left, ${this.value.from.getHex()}, transparent)` + `, radial-gradient(at bottom left, ${this.value.to.getHex()}, transparent)`;
+	  }
+
+	  static compare(value1, value2, full = true) {
+	    const base = ColorValue.compare(value1.getFrom(), value2.getFrom()) && ColorValue.compare(value1.getTo(), value2.getTo()) || ColorValue.compare(value1.getTo(), value2.getFrom()) && ColorValue.compare(value1.getFrom(), value2.getTo());
+	    const ext = full ? value1.getAngle() === value2.getAngle() && value1.getType() === value2.getType() : true;
+	    return base && ext;
+	  }
+
+	}
+	GradientValue.TYPE_RADIAL = 'radial';
+	GradientValue.TYPE_LINEAR = 'linear';
+	GradientValue.DEFAULT_ANGLE = 180;
+	GradientValue.DEFAULT_TYPE = 'linear';
+
+	const defaultType = 'color';
+	const gradientType = 'gradient';
+
+	class Generator {
+	  static getDefaultPresets() {
+	    return Generator.cache.remember('default', () => {
+	      const presets = [];
+	      Generator.defaultPresets.forEach(preset => {
+	        presets.push({
+	          id: preset.id,
+	          type: 'color',
+	          items: preset.items.map(item => new ColorValue(hexToHsl(item)))
+	        });
+	      });
+	      return presets;
+	    });
+	  }
+
+	  static getPrimaryColorPreset() {
+	    return this.cache.remember('primary', () => {
+	      const preset = {
+	        id: 'defaultPrimary',
+	        items: []
+	      };
+	      const primary = new ColorValue(main_core.Dom.style(document.documentElement, '--primary').trim());
+	      preset.items.push(new ColorValue(primary));
+
+	      if (primary.getHsl().s <= 10) {
+	        const lBeforeCount = primary.getHsl().l > 50 ? Math.ceil(primary.getHsl().l / 100 * 5) : Math.floor(primary.getHsl().l / 100 * 5);
+	        const lAfterCount = 5 - lBeforeCount;
+	        const deltaLBefore = primary.getHsl().l / (lBeforeCount + 1);
+	        const deltaLAfter = (100 - primary.getHsl().l) / (lAfterCount + 1);
+
+	        for (let i = 1; i <= lBeforeCount; i++) {
+	          preset.items.push(new ColorValue(primary).darken(deltaLBefore * i));
 	        }
 
-	        return preset;
-	      });
-	    }
-	  }, {
-	    key: "getBlackAndWhitePreset",
-	    value: function getBlackAndWhitePreset() {
-	      return this.cache.remember('blackAndWhite', function () {
-	        var preset = {
-	          id: 'blackAndWhite',
-	          items: []
-	        };
-	        var start = new ColorValue('#ffffff');
-	        preset.items.push(new ColorValue(start));
-	        preset.items.push(new ColorValue(start.darken(16.66)));
-	        preset.items.push(new ColorValue(start.darken(16.66)));
-	        preset.items.push(new ColorValue(start.darken(16.66)));
-	        preset.items.push(new ColorValue(start.darken(16.66)));
-	        preset.items.push(new ColorValue(start.darken(16.66)));
-	        preset.items.push(new ColorValue(start.darken(16.7)));
-	        return preset;
-	      });
-	    }
-	  }, {
-	    key: "getGradientByColorOptions",
-	    value: function getGradientByColorOptions(options) {
-	      var items = [];
-	      var pairs = [[1, 2], [1, 4], [5, 12], [1, 8], [8, 9], [1, 9], [10, 7], [7, 11]];
-	      pairs.forEach(function (pair) {
-	        items.push(new GradientValue({
-	          from: new ColorValue(options.items[pair[0] - 1]),
-	          to: new ColorValue(options.items[pair[1] - 1]),
-	          angle: GradientValue.DEFAULT_ANGLE,
-	          type: GradientValue.DEFAULT_TYPE
-	        }));
-	      });
-	      return {
-	        type: gradientType,
-	        items: items
-	      };
-	    }
-	  }]);
-	  return Generator;
-	}();
+	        for (let ii = 1; ii <= lAfterCount; ii++) {
+	          preset.items.push(new ColorValue(primary).lighten(deltaLAfter * ii));
+	        }
 
-	babelHelpers.defineProperty(Generator, "BITRIX_COLOR", '#2fc6f6');
-	babelHelpers.defineProperty(Generator, "cache", new main_core.Cache.MemoryCache());
-	babelHelpers.defineProperty(Generator, "defaultPresets", [{
+	        const deltaBitrixL = 15;
+	        const deltaBitrixS = 15;
+	        const bitrixColor = new ColorValue(Generator.BITRIX_COLOR);
+	        preset.items[6] = new ColorValue(bitrixColor);
+	        preset.items[7] = new ColorValue(bitrixColor.darken(deltaBitrixL).saturate(deltaBitrixS));
+	        preset.items[8] = new ColorValue(bitrixColor.darken(deltaBitrixL).saturate(deltaBitrixS));
+	        bitrixColor.lighten(deltaBitrixL * 2).desaturate(deltaBitrixS * 2);
+	        preset.items[9] = new ColorValue(bitrixColor.lighten(deltaBitrixL).desaturate(deltaBitrixS));
+	        preset.items[10] = new ColorValue(bitrixColor.lighten(deltaBitrixL).desaturate(deltaBitrixS));
+	        bitrixColor.darken(deltaBitrixL * 2).saturate(deltaBitrixS * 2);
+	        preset.items[11] = new ColorValue(bitrixColor).adjustHue(180);
+	      } else {
+	        const deltaL = (90 - primary.getHsl().l) / 3;
+	        const deltaL2 = (primary.getHsl().l - 10) / 3;
+	        const deltaS = (90 - primary.getHsl().s) / 3;
+	        const deltaS2 = (primary.getHsl().s - 10) / 3;
+	        preset.items[1] = new ColorValue(primary.darken(deltaL2).saturate(deltaS));
+	        preset.items[2] = new ColorValue(primary.darken(deltaL2).saturate(deltaS));
+	        preset.items[3] = new ColorValue(primary.darken(deltaL2).saturate(deltaS));
+	        primary.lighten(deltaL2 * 3).desaturate(deltaS * 3);
+	        preset.items[4] = new ColorValue(primary.desaturate(deltaS2).lighten(deltaL));
+	        preset.items[5] = new ColorValue(primary.desaturate(deltaS2).lighten(deltaL));
+	        preset.items[11] = new ColorValue(primary.desaturate(deltaS2).lighten(deltaL));
+	        primary.saturate(deltaS2 * 3).darken(deltaL * 3);
+	        preset.items[7] = new ColorValue(primary.adjustHue(40));
+	        preset.items[8] = new ColorValue(primary.adjustHue(-80));
+	        preset.items[9] = new ColorValue(primary.adjustHue(180));
+	        preset.items[6] = new ColorValue(primary.adjustHue(40));
+	        preset.items[10] = new ColorValue(primary.adjustHue(40));
+	      }
+
+	      return preset;
+	    });
+	  }
+
+	  static getBlackAndWhitePreset() {
+	    return this.cache.remember('blackAndWhite', () => {
+	      const preset = {
+	        id: 'blackAndWhite',
+	        items: []
+	      };
+	      const start = new ColorValue('#ffffff');
+	      preset.items.push(new ColorValue(start));
+	      preset.items.push(new ColorValue(start.darken(14.28)));
+	      preset.items.push(new ColorValue(start.darken(14.28)));
+	      preset.items.push(new ColorValue(start.darken(14.28)));
+	      preset.items.push(new ColorValue(start.darken(14.28)));
+	      preset.items.push(new ColorValue(start.darken(14.28)));
+	      preset.items.push(new ColorValue(start.darken(14.28)));
+	      preset.items.push(new ColorValue(start.darken(14.32)));
+	      return preset;
+	    });
+	  }
+
+	  static getGradientByColorOptions(options) {
+	    const items = [];
+	    const pairs = [[1, 2], [1, 4], [5, 12], [1, 8], [8, 9], [1, 9], [10, 7], [7, 11]];
+	    pairs.forEach(pair => {
+	      items.push(new GradientValue({
+	        from: new ColorValue(options.items[pair[0] - 1]),
+	        to: new ColorValue(options.items[pair[1] - 1]),
+	        angle: GradientValue.DEFAULT_ANGLE,
+	        type: GradientValue.DEFAULT_TYPE
+	      }));
+	    });
+	    return {
+	      type: gradientType,
+	      items: items
+	    };
+	  }
+
+	}
+	Generator.BITRIX_COLOR = '#2fc6f6';
+	Generator.cache = new main_core.Cache.MemoryCache();
+	Generator.defaultPresets = [{
 	  id: 'agency',
 	  items: ['#ff6366', '#40191a', '#803233', '#bf4b4d', '#e65a5c', '#ffc1c2', '#363643', '#57dca3', '#ee76ba', '#ffa864', '#eaeaec', '#fadbdc']
 	}, {
@@ -1863,594 +1751,512 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	}, {
 	  id: 'wedding',
 	  items: ['#d65779', '#572431', '#963e55', '#bd4d6b', '#e35d81', '#f7dfe5', '#af58a7', '#6bc34b', '#ec8c60', '#50a098', '#57b9d6', '#fdf4f6']
-	}]);
+	}];
 
-	var _templateObject$7, _templateObject2$4;
-
-	var Preset = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(Preset, _EventEmitter);
-
-	  function Preset(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, Preset);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Preset).call(this));
-	    _this.cache = new main_core.Cache.MemoryCache();
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Color.Preset');
-
-	    _this.id = options.id;
-	    _this.type = options.type || defaultType;
-	    _this.items = options.items;
-	    _this.activeItem = null;
-	    return _this;
+	let _$7 = t => t,
+	    _t$7,
+	    _t2$4;
+	class Preset extends main_core_events.EventEmitter {
+	  constructor(options) {
+	    super();
+	    this.cache = new main_core.Cache.MemoryCache();
+	    this.setEventNamespace('BX.Landing.UI.Field.Color.Preset');
+	    this.id = options.id;
+	    this.type = options.type || defaultType;
+	    this.items = options.items;
+	    this.activeItem = null;
 	  }
 
-	  babelHelpers.createClass(Preset, [{
-	    key: "getId",
-	    value: function getId() {
-	      return this.id;
-	    }
-	  }, {
-	    key: "getGradientPreset",
-	    value: function getGradientPreset() {
-	      var options = this.type === gradientType ? {
-	        type: gradientType,
-	        items: this.items
-	      } : Generator.getGradientByColorOptions({
-	        items: this.items
-	      });
-	      return new Preset(options);
-	    }
-	  }, {
-	    key: "getLayout",
-	    value: function getLayout() {
-	      var _this2 = this;
+	  getId() {
+	    return this.id;
+	  }
 
-	      return this.cache.remember('layout', function () {
-	        return main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-color-preset\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this2.items.map(function (item) {
-	          return _this2.getItemLayout(item.getName());
-	        }));
-	      });
-	    }
-	  }, {
-	    key: "getItemLayout",
-	    value: function getItemLayout(name) {
-	      var _this3 = this;
-
-	      return this.cache.remember(name, function () {
-	        var color = _this3.getItemByName(name);
-
-	        var style = main_core.Type.isString(color) ? color : color.getStyleString();
-	        var item = main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div\n\t\t\t\t\tclass=\"landing-ui-field-color-preset-item\"\n\t\t\t\t\tstyle=\"background: ", "\"\n\t\t\t\t\tdata-name=\"", "\"\n\t\t\t\t></div>\n\t\t\t"])), style, name);
-	        main_core.Event.bind(item, 'click', _this3.onItemClick.bind(_this3));
-	        return item;
-	      });
-	    }
-	  }, {
-	    key: "getItemByName",
-	    value: function getItemByName(name) {
-	      return this.items.find(function (item) {
-	        return name === item.getName();
-	      }) || null;
-	    }
-	  }, {
-	    key: "isPresetValue",
-	    value: function isPresetValue(value) {
-	      if (value === null) {
-	        return false;
-	      }
-
-	      return this.items.some(function (item) {
-	        if (item instanceof ColorValue && value instanceof ColorValue) {
-	          return ColorValue.compare(item, value);
-	        } else if (item instanceof GradientValue && value instanceof GradientValue) {
-	          return GradientValue.compare(item, value, false);
-	        }
-
-	        return false;
-	      });
-	    }
-	  }, {
-	    key: "onItemClick",
-	    value: function onItemClick(event) {
-	      this.setActiveItem(event.currentTarget.dataset.name);
-	      var value = null;
-
-	      if (this.activeItem !== null) {
-	        value = this.activeItem instanceof GradientValue ? new GradientValue(this.activeItem) : new ColorValue(this.activeItem);
-	      }
-
-	      this.emit('onChange', {
-	        color: value
-	      });
-	    }
-	  }, {
-	    key: "setActiveItem",
-	    value: function setActiveItem(name) {
-	      var _this4 = this;
-
-	      this.activeItem = this.getItemByName(name);
-	      this.items.forEach(function (item) {
-	        var itemName = item.getName();
-
-	        if (name === itemName) {
-	          main_core.Dom.addClass(_this4.getItemLayout(itemName), Preset.ACTIVE_CLASS);
-	        } else {
-	          main_core.Dom.removeClass(_this4.getItemLayout(itemName), Preset.ACTIVE_CLASS);
-	        }
-	      });
-	    }
-	  }, {
-	    key: "setActiveValue",
-	    value: function setActiveValue(value) {
-	      if (value !== null) {
-	        if (value instanceof GradientValue) {
-	          this.setActiveItem(new GradientValue(value).setAngle(GradientValue.DEFAULT_ANGLE).setType(GradientValue.DEFAULT_TYPE).getName());
-	        } else {
-	          this.setActiveItem(value.getName());
-	        }
-	      }
-	    }
-	  }, {
-	    key: "unsetActive",
-	    value: function unsetActive() {
-	      var _this5 = this;
-
-	      this.items.forEach(function (item) {
-	        main_core.Dom.removeClass(_this5.getItemLayout(item.getName()), Preset.ACTIVE_CLASS);
-	      });
-	    }
-	  }, {
-	    key: "isActive",
-	    value: function isActive() {
-	      var _this6 = this;
-
-	      return this.items.some(function (item) {
-	        return main_core.Dom.hasClass(_this6.getItemLayout(item.getName()), Preset.ACTIVE_CLASS);
-	      });
-	    }
-	  }]);
-	  return Preset;
-	}(main_core_events.EventEmitter);
-
-	babelHelpers.defineProperty(Preset, "ACTIVE_CLASS", 'active');
-
-	var _templateObject$8, _templateObject2$5, _templateObject3$2, _templateObject4$2, _templateObject5$1;
-
-	var PresetCollection = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(PresetCollection, _EventEmitter);
-
-	  function PresetCollection(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, PresetCollection);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(PresetCollection).call(this));
-	    _this.cache = new main_core.Cache.MemoryCache();
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Color.PresetCollection');
-
-	    _this.popupId = 'presets-popup_' + main_core.Text.getRandom();
-	    _this.popupTargetContainer = options.contentRoot;
-	    _this.presets = {};
-	    _this.onPresetClick = _this.onPresetClick.bind(babelHelpers.assertThisInitialized(_this));
-	    main_core.Event.bind(_this.getOpenButton(), 'click', function () {
-	      _this.getPopup().toggle();
+	  getGradientPreset() {
+	    const options = this.type === gradientType ? {
+	      type: gradientType,
+	      items: this.items
+	    } : Generator.getGradientByColorOptions({
+	      items: this.items
 	    });
-	    return _this;
+	    return new Preset(options);
 	  }
 
-	  babelHelpers.createClass(PresetCollection, [{
-	    key: "addDefaultPresets",
-	    value: function addDefaultPresets() {
-	      var _this2 = this;
+	  getLayout() {
+	    return this.cache.remember('layout', () => {
+	      return main_core.Tag.render(_t$7 || (_t$7 = _$7`
+				<div class="landing-ui-field-color-preset">
+					${0}
+				</div>
+			`), this.items.map(item => {
+	        return this.getItemLayout(item.getName());
+	      }));
+	    });
+	  }
 
-	      this.addPreset(Generator.getPrimaryColorPreset());
-	      Generator.getDefaultPresets().map(function (item) {
-	        _this2.addPreset(item);
-	      });
+	  getItemLayout(name) {
+	    return this.cache.remember(name, () => {
+	      const color = this.getItemByName(name);
+	      const style = main_core.Type.isString(color) ? color : color.getStyleString();
+	      const item = main_core.Tag.render(_t2$4 || (_t2$4 = _$7`
+				<div
+					class="landing-ui-field-color-preset-item"
+					style="background: ${0}"
+					data-name="${0}"
+				></div>
+			`), style, name);
+	      main_core.Event.bind(item, 'click', this.onItemClick.bind(this));
+	      return item;
+	    });
+	  }
+
+	  getItemByName(name) {
+	    return this.items.find(item => name === item.getName()) || null;
+	  }
+
+	  isPresetValue(value) {
+	    if (value === null) {
+	      return false;
 	    }
-	  }, {
-	    key: "addPreset",
-	    value: function addPreset(options) {
-	      this.cache.delete('popupLayout');
 
-	      if (!Object.keys(this.presets).length || !(options.id in this.presets)) {
-	        this.presets[options.id] = options;
+	    return this.items.some(item => {
+	      if (item instanceof ColorValue && value instanceof ColorValue) {
+	        return ColorValue.compare(item, new ColorValue(value).setOpacity(1));
+	      } else if (item instanceof GradientValue && value instanceof GradientValue) {
+	        return GradientValue.compare(item, value, false);
 	      }
-	    }
-	  }, {
-	    key: "getActivePreset",
-	    value: function getActivePreset() {
-	      return this.getActiveId() ? this.getPresetById(this.getActiveId()) : null;
-	    }
-	  }, {
-	    key: "getDefaultPreset",
-	    value: function getDefaultPreset() {
-	      return Object.keys(this.presets).length ? this.getPresetById(Object.keys(this.presets)[0]) : null;
-	    }
-	  }, {
-	    key: "getActiveId",
-	    value: function getActiveId() {
-	      return PresetCollection.activeId;
-	    }
-	  }, {
-	    key: "getPresetById",
-	    value: function getPresetById(id) {
-	      var _this3 = this;
 
-	      if (id in this.presets) {
-	        return this.cache.remember(id, function () {
-	          return new Preset(_this3.presets[id]);
-	        });
+	      return false;
+	    });
+	  }
+
+	  onItemClick(event) {
+	    this.setActiveItem(event.currentTarget.dataset.name);
+	    let value = null;
+
+	    if (this.activeItem !== null) {
+	      value = this.activeItem instanceof GradientValue ? new GradientValue(this.activeItem) : new ColorValue(this.activeItem);
+	    }
+
+	    this.emit('onChange', {
+	      color: value
+	    });
+	  }
+
+	  setActiveItem(name) {
+	    this.activeItem = this.getItemByName(name);
+	    this.items.forEach(item => {
+	      const itemName = item.getName();
+
+	      if (name === itemName) {
+	        main_core.Dom.addClass(this.getItemLayout(itemName), Preset.ACTIVE_CLASS);
 	      } else {
-	        return null;
+	        main_core.Dom.removeClass(this.getItemLayout(itemName), Preset.ACTIVE_CLASS);
+	      }
+	    });
+	  }
+
+	  setActiveValue(value) {
+	    if (value !== null) {
+	      if (value instanceof GradientValue) {
+	        this.setActiveItem(new GradientValue(value).setAngle(GradientValue.DEFAULT_ANGLE).setType(GradientValue.DEFAULT_TYPE).getName());
+	      } else {
+	        this.setActiveItem(new ColorValue(value).setOpacity(1).getName());
 	      }
 	    }
-	  }, {
-	    key: "getPresetByItemValue",
-	    value: function getPresetByItemValue(value) {
-	      if (value === null) {
-	        return null;
-	      }
+	  }
 
-	      for (var _id in this.presets) {
-	        if (this.getPresetById(_id) && this.getPresetById(_id).isPresetValue(value)) {
-	          return this.getPresetById(_id);
-	        }
-	      }
+	  unsetActive() {
+	    this.items.forEach(item => {
+	      main_core.Dom.removeClass(this.getItemLayout(item.getName()), Preset.ACTIVE_CLASS);
+	    });
+	  }
 
+	  isActive() {
+	    return this.items.some(item => {
+	      return main_core.Dom.hasClass(this.getItemLayout(item.getName()), Preset.ACTIVE_CLASS);
+	    });
+	  }
+
+	}
+	Preset.ACTIVE_CLASS = 'active';
+
+	let _$8 = t => t,
+	    _t$8,
+	    _t2$5,
+	    _t3$2,
+	    _t4$2,
+	    _t5$1;
+	class PresetCollection extends main_core_events.EventEmitter {
+	  constructor(options) {
+	    super();
+	    this.presets = {};
+	    this.activeId = null;
+	    this.cache = new main_core.Cache.MemoryCache();
+	    this.setEventNamespace('BX.Landing.UI.Field.Color.PresetCollection');
+	    this.popupId = 'presets-popup_' + main_core.Text.getRandom();
+	    this.popupTargetContainer = options.contentRoot;
+	    this.onPresetClick = this.onPresetClick.bind(this);
+	    main_core.Event.bind(this.getOpenButton(), 'click', () => {
+	      this.getPopup().toggle();
+	    });
+	    this.onPresetChangeGlobal = this.onPresetChangeGlobal.bind(this);
+	    main_core_events.EventEmitter.subscribe('BX.Landing.UI.Field.Color.PresetCollection:onChange', this.onPresetChangeGlobal);
+	  }
+
+	  addDefaultPresets() {
+	    this.addPreset(Generator.getPrimaryColorPreset());
+	    Generator.getDefaultPresets().map(item => {
+	      this.addPreset(item);
+	    });
+	  }
+
+	  addPreset(options) {
+	    this.cache.delete('popupLayout');
+
+	    if (!Object.keys(this.presets).length || !(options.id in this.presets)) {
+	      this.presets[options.id] = options;
+	    }
+	  }
+
+	  getGlobalActiveId() {
+	    return PresetCollection.globalActiveId;
+	  }
+
+	  getActiveId() {
+	    return this.getGlobalActiveId() || this.getDefaultPreset().getId();
+	  }
+
+	  getActivePreset() {
+	    return this.getPresetById(this.getActiveId());
+	  }
+
+	  getDefaultPreset() {
+	    return Object.keys(this.presets).length ? this.getPresetById(Object.keys(this.presets)[0]) : null;
+	  }
+
+	  getPresetById(id) {
+	    if (id in this.presets) {
+	      return this.cache.remember(id, () => new Preset(this.presets[id]));
+	    } else {
 	      return null;
 	    }
-	  }, {
-	    key: "getLayout",
-	    value: function getLayout() {
-	      var _this4 = this;
+	  }
 
-	      return this.cache.remember('value', function () {
-	        return main_core.Tag.render(_templateObject$8 || (_templateObject$8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-color-presets\">\n\t\t\t\t\t<div class=\"landing-ui-field-color-presets-left\">\n\t\t\t\t\t\t<span class=\"landing-ui-field-color-presets-title\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-ui-field-color-presets-right\">", "</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_FIELD_COLOR-PRESETS_TITLE'), _this4.getOpenButton());
-	      });
+	  getPresetByItemValue(value) {
+	    if (value === null) {
+	      return null;
 	    }
-	  }, {
-	    key: "getOpenButton",
-	    value: function getOpenButton() {
-	      return this.cache.remember('openButton', function () {
-	        return main_core.Tag.render(_templateObject2$5 || (_templateObject2$5 = babelHelpers.taggedTemplateLiteral(["<span class=\"landing-ui-field-color-presets-open\">\n\t\t\t\t", "\n\t\t\t</span>"])), main_core.Loc.getMessage('LANDING_FIELD_COLOR-PRESETS_MORE'));
-	      });
-	    }
-	  }, {
-	    key: "getTitleContainer",
-	    value: function getTitleContainer() {
-	      var _this5 = this;
 
-	      return this.cache.remember('titleContainer', function () {
-	        return _this5.getLayout().querySelector('.landing-ui-field-color-presets-left');
-	      });
-	    }
-	  }, {
-	    key: "getPopup",
-	    value: function getPopup() {
-	      var _this6 = this;
+	    for (let id in this.presets) {
+	      const preset = this.getPresetById(id);
 
-	      // todo: bind to event target? or need button
-	      return this.cache.remember('popup', function () {
-	        return main_popup.PopupManager.create({
-	          id: _this6.popupId,
-	          className: 'presets-popup',
-	          autoHide: true,
-	          bindElement: _this6.getOpenButton(),
-	          bindOptions: {
-	            forceTop: true,
-	            forceLeft: true
-	          },
-	          width: 280,
-	          offsetLeft: -200,
-	          content: _this6.getPopupLayout(),
-	          closeByEsc: true,
-	          targetContainer: _this6.popupTargetContainer
-	        });
-	      });
-	    }
-	  }, {
-	    key: "getPopupLayout",
-	    value: function getPopupLayout() {
-	      var _this7 = this;
-
-	      return this.cache.remember('popupLayout', function () {
-	        var layouts = main_core.Tag.render(_templateObject3$2 || (_templateObject3$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-color-presets-popup\">\n\t\t\t\t<div class=\"landing-ui-field-color-presets-popup-title\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"landing-ui-field-color-presets-popup-inner\"></div>\n\t\t\t</div>"])), main_core.Loc.getMessage('LANDING_FIELD_COLOR-PRESETS_MORE_COLORS'));
-	        var innerLayouts = layouts.querySelector('.landing-ui-field-color-presets-popup-inner');
-
-	        for (var presetId in _this7.presets) {
-	          var layout = _this7.getPresetLayout(presetId);
-
-	          if (presetId === _this7.getActiveId()) {
-	            main_core.Dom.addClass(layout, PresetCollection.ACTIVE_CLASS);
-	          }
-
-	          main_core.Event.bind(layout, 'click', _this7.onPresetClick);
-	          main_core.Dom.append(layout, innerLayouts);
+	      if (preset && value instanceof ColorValue) {
+	        if (preset.isPresetValue(value)) {
+	          return preset;
 	        }
-
-	        return layouts;
-	      });
-	    }
-	  }, {
-	    key: "getPresetLayout",
-	    value: function getPresetLayout(presetId) {
-	      var _this8 = this;
-
-	      return this.cache.remember(presetId + 'layout', function () {
-	        return main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-color-presets-preset\" data-id=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), presetId, _this8.presets[presetId].items.map(function (item) {
-	          return main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["<div\n\t\t\t\t\t\t\t\tclass=\"landing-ui-field-color-presets-preset-item\"\n\t\t\t\t\t\t\t\tstyle=\"background: ", "\"\n\t\t\t\t\t\t\t></div>"])), main_core.Type.isString(item) ? item : item.getStyleString());
-	        }));
-	      });
-	    }
-	  }, {
-	    key: "onPresetClick",
-	    value: function onPresetClick(event) {
-	      this.getPopup().close();
-	      this.setActiveItem(event.currentTarget.dataset.id);
-	      this.emit('onChange', {
-	        preset: this.getActivePreset()
-	      });
-	    }
-	  }, {
-	    key: "setActiveItem",
-	    value: function setActiveItem(presetId) {
-	      PresetCollection.activeId = presetId;
-
-	      for (var _id2 in this.presets) {
-	        main_core.Dom.removeClass(this.getPresetLayout(_id2), PresetCollection.ACTIVE_CLASS);
-
-	        if (_id2 === presetId) {
-	          main_core.Dom.addClass(this.getPresetLayout(_id2), PresetCollection.ACTIVE_CLASS);
+	      } else if (preset && value instanceof GradientValue) {
+	        if (preset.getGradientPreset().isPresetValue(value)) {
+	          return preset;
 	        }
 	      }
 	    }
-	  }, {
-	    key: "unsetActive",
-	    value: function unsetActive() {
-	      for (var presetId in this.presets) {
-	        main_core.Dom.removeClass(this.getPresetLayout(presetId), PresetCollection.ACTIVE_CLASS);
-	      }
-	    }
-	  }]);
-	  return PresetCollection;
-	}(main_core_events.EventEmitter);
 
-	babelHelpers.defineProperty(PresetCollection, "activeId", null);
-	babelHelpers.defineProperty(PresetCollection, "ACTIVE_CLASS", 'active');
+	    return null;
+	  }
 
-	var _templateObject$9;
-
-	var Reset = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(Reset, _EventEmitter);
-
-	  function Reset(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, Reset);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Reset).call(this));
-	    _this.cache = new main_core.Cache.MemoryCache();
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Color.Reset');
-
-	    main_core.Event.bind(_this.getLayout(), 'click', function () {
-	      return _this.onClick();
+	  getLayout() {
+	    return this.cache.remember('value', () => {
+	      return main_core.Tag.render(_t$8 || (_t$8 = _$8`
+				<div class="landing-ui-field-color-presets">
+					<div class="landing-ui-field-color-presets-left">
+						<span class="landing-ui-field-color-presets-title">
+							${0}
+						</span>
+					</div>
+					<div class="landing-ui-field-color-presets-right">${0}</div>
+				</div>
+			`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-PRESETS_TITLE'), this.getOpenButton());
 	    });
-	    var hint = BX.UI.Hint.createInstance({
+	  }
+
+	  getOpenButton() {
+	    return this.cache.remember('openButton', () => {
+	      return main_core.Tag.render(_t2$5 || (_t2$5 = _$8`<span class="landing-ui-field-color-presets-open">
+				${0}
+			</span>`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-PRESETS_MORE'));
+	    });
+	  }
+
+	  getTitleContainer() {
+	    return this.cache.remember('titleContainer', () => {
+	      return this.getLayout().querySelector('.landing-ui-field-color-presets-left');
+	    });
+	  }
+
+	  getPopup() {
+	    // todo: bind to event target? or need button
+	    return this.cache.remember('popup', () => {
+	      return main_popup.PopupManager.create({
+	        id: this.popupId,
+	        className: 'presets-popup',
+	        autoHide: true,
+	        bindElement: this.getOpenButton(),
+	        bindOptions: {
+	          forceTop: true,
+	          forceLeft: true
+	        },
+	        width: 280,
+	        offsetLeft: -200,
+	        content: this.getPopupLayout(),
+	        closeByEsc: true,
+	        targetContainer: this.popupTargetContainer
+	      });
+	    });
+	  }
+
+	  getPopupLayout() {
+	    return this.cache.remember('popupLayout', () => {
+	      const layouts = main_core.Tag.render(_t3$2 || (_t3$2 = _$8`<div class="landing-ui-field-color-presets-popup">
+				<div class="landing-ui-field-color-presets-popup-title">
+					${0}
+				</div>
+				<div class="landing-ui-field-color-presets-popup-inner"></div>
+			</div>`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-PRESETS_MORE_COLORS'));
+	      const innerLayouts = layouts.querySelector('.landing-ui-field-color-presets-popup-inner');
+
+	      for (const presetId in this.presets) {
+	        const layout = this.getPresetLayout(presetId);
+
+	        if (presetId === this.getActiveId()) {
+	          main_core.Dom.addClass(layout, PresetCollection.ACTIVE_CLASS);
+	          this.activeId = presetId;
+	        }
+
+	        main_core.Event.bind(layout, 'click', this.onPresetClick);
+	        main_core.Dom.append(layout, innerLayouts);
+	      }
+
+	      return layouts;
+	    });
+	  }
+
+	  getPresetLayout(presetId) {
+	    return this.cache.remember(presetId + 'layout', () => {
+	      return main_core.Tag.render(_t4$2 || (_t4$2 = _$8`
+				<div class="landing-ui-field-color-presets-preset" data-id="${0}">
+					${0}
+				</div>
+			`), presetId, this.presets[presetId].items.map(item => {
+	        return main_core.Tag.render(_t5$1 || (_t5$1 = _$8`<div
+								class="landing-ui-field-color-presets-preset-item"
+								style="background: ${0}"
+							></div>`), main_core.Type.isString(item) ? item : item.getStyleString());
+	      }));
+	    });
+	  }
+
+	  onPresetClick(event) {
+	    this.getPopup().close();
+	    this.setActiveItem(event.currentTarget.dataset.id);
+	    this.emit('onChange', {
+	      presetId: this.getActiveId()
+	    });
+	  }
+
+	  onPresetChangeGlobal(event) {
+	    if (event.getData().presetId !== this.activeId) {
+	      this.setActiveItem(event.getData().presetId);
+	      this.emit('onChange', event);
+	    }
+	  }
+
+	  setActiveItem(presetId) {
+	    if (presetId !== null && presetId !== this.activeId) {
+	      PresetCollection.globalActiveId = presetId;
+	      this.activeId = presetId;
+
+	      for (const id in this.presets) {
+	        main_core.Dom.removeClass(this.getPresetLayout(id), PresetCollection.ACTIVE_CLASS);
+
+	        if (id === presetId) {
+	          main_core.Dom.addClass(this.getPresetLayout(id), PresetCollection.ACTIVE_CLASS);
+	        }
+	      }
+	    }
+	  }
+
+	  unsetActive() {
+	    for (const presetId in this.presets) {
+	      main_core.Dom.removeClass(this.getPresetLayout(presetId), PresetCollection.ACTIVE_CLASS);
+	    }
+	  }
+
+	}
+	PresetCollection.globalActiveId = null;
+	PresetCollection.ACTIVE_CLASS = 'active';
+
+	let _$9 = t => t,
+	    _t$9;
+	class Reset extends main_core_events.EventEmitter {
+	  constructor(options) {
+	    super();
+	    this.cache = new main_core.Cache.MemoryCache();
+	    this.setEventNamespace('BX.Landing.UI.Field.Color.Reset');
+	    main_core.Event.bind(this.getLayout(), 'click', () => this.onClick());
+	    const hint = BX.UI.Hint.createInstance({
 	      popupParameters: {
 	        targetContainer: options.contentRoot,
 	        padding: 0
 	      }
 	    });
-	    hint.init(_this.getLayout());
-	    return _this;
+	    hint.init(this.getLayout());
 	  }
 
-	  babelHelpers.createClass(Reset, [{
-	    key: "getLayout",
-	    value: function getLayout() {
-	      return this.cache.remember('layout', function () {
-	        return main_core.Tag.render(_templateObject$9 || (_templateObject$9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-color-reset-container\">\n\t\t\t\t\t<div class=\"landing-ui-field-color-reset\"\n\t\t\t\t\t\tdata-hint=\"", "\"\n\t\t\t\t\t\tdata-hint-no-icon\n\t\t\t\t\t>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_FIELD_COLOR-RESET_HINT'));
-	      });
-	    }
-	  }, {
-	    key: "onClick",
-	    value: function onClick() {
+	  getLayout() {
+	    return this.cache.remember('layout', () => {
+	      return main_core.Tag.render(_t$9 || (_t$9 = _$9`
+				<div class="landing-ui-field-color-reset-container">
+					<div class="landing-ui-field-color-reset"
+						data-hint="${0}"
+						data-hint-no-icon
+					>
+					</div>
+				</div>
+			`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-RESET_HINT_2'));
+	    });
+	  }
+
+	  onClick() {
+	    this.emit('onReset');
+	  }
+
+	}
+
+	let _$a = t => t,
+	    _t$a,
+	    _t2$6;
+	class ColorSet extends BaseControl {
+	  constructor(options) {
+	    super();
+	    this.setEventNamespace('BX.Landing.UI.Field.Color.ColorSet');
+	    this.reset = new Reset(options);
+	    this.reset.subscribe('onReset', () => {
 	      this.emit('onReset');
-	    }
-	  }]);
-	  return Reset;
-	}(main_core_events.EventEmitter);
-
-	var _templateObject$a;
-
-	var Zeroing = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(Zeroing, _EventEmitter);
-
-	  function Zeroing() {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, Zeroing);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Zeroing).call(this));
-	    _this.cache = new main_core.Cache.MemoryCache();
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Color.Transparent');
-
-	    main_core.Event.bind(_this.getLayout(), 'click', function () {
-	      return _this.onClick();
 	    });
-	    return _this;
-	  }
-
-	  babelHelpers.createClass(Zeroing, [{
-	    key: "getLayout",
-	    value: function getLayout() {
-	      return this.cache.remember('layout', function () {
-	        return main_core.Tag.render(_templateObject$a || (_templateObject$a = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-color-preset-item landing-ui-field-color-transparent\"></div>"])));
-	      });
-	    }
-	  }, {
-	    key: "onClick",
-	    value: function onClick() {
-	      this.emit('onChange', {
-	        color: null
-	      });
-	    }
-	  }]);
-	  return Zeroing;
-	}(main_core_events.EventEmitter);
-
-	var _templateObject$b, _templateObject2$6;
-
-	var ColorSet = /*#__PURE__*/function (_BaseControl) {
-	  babelHelpers.inherits(ColorSet, _BaseControl);
-
-	  function ColorSet(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, ColorSet);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ColorSet).call(this));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Color.ColorSet');
-
-	    _this.reset = new Reset(options);
-
-	    _this.reset.subscribe('onReset', function () {
-	      _this.emit('onReset');
-	    });
-
-	    _this.zeroing = new Zeroing();
-
-	    _this.zeroing.subscribe('onChange', function (event) {
-	      _this.unsetActive();
-
-	      _this.setValue(event.getData().color); // todo: need reload computed props and reinit
-
-
-	      _this.onChange(event);
-	    });
-
-	    _this.blackAndWhitePreset = new Preset(Generator.getBlackAndWhitePreset());
-
-	    _this.blackAndWhitePreset.subscribe('onChange', function (event) {
-	      _this.preset.unsetActive();
-
-	      _this.onPresetItemChange(event);
-	    });
-
-	    _this.colorpicker = new Colorpicker(options);
-
-	    _this.colorpicker.subscribe('onChange', function (event) {
-	      _this.preset.unsetActive();
-
-	      _this.blackAndWhitePreset.unsetActive();
-
-	      _this.onChange(event);
-	    });
-
-	    _this.presets = new PresetCollection(options);
-
-	    _this.presets.subscribe('onChange', function (event) {
-	      _this.setPreset(event.getData().preset);
-	    });
-
-	    _this.presets.addDefaultPresets();
-
-	    var preset = _this.presets.getActivePreset() || _this.presets.getDefaultPreset();
-
-	    if (preset) {
-	      _this.setPreset(preset); // todo: what if not preset?
-
-	    }
-
-	    return _this;
-	  }
-
-	  babelHelpers.createClass(ColorSet, [{
-	    key: "buildLayout",
-	    value: function buildLayout() {
-	      main_core.Dom.append(this.reset.getLayout(), this.presets.getTitleContainer());
-	      main_core.Dom.prepend(this.zeroing.getLayout(), this.blackAndWhitePreset.getLayout());
-	      return main_core.Tag.render(_templateObject$b || (_templateObject$b = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-color-colorset\">\n\t\t\t\t<div class=\"landing-ui-field-color-colorset-top\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t", "\n\t\t\t\t<div class=\"landing-ui-field-color-colorset-bottom\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.presets.getLayout(), this.getPresetContainer(), this.blackAndWhitePreset.getLayout(), this.colorpicker.getLayout());
-	    }
-	  }, {
-	    key: "getTitleLayout",
-	    value: function getTitleLayout() {
-	      var _this2 = this;
-
-	      return this.cache.remember('titleLayout', function () {
-	        return _this2.getLayout().querySelector('.landing-ui-field-color-colorset-title');
-	      });
-	    }
-	  }, {
-	    key: "getPresetContainer",
-	    value: function getPresetContainer() {
-	      return this.cache.remember('presetContainer', function () {
-	        return main_core.Tag.render(_templateObject2$6 || (_templateObject2$6 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-color-colorset-preset-container\"></div>"])));
-	      });
-	    }
-	  }, {
-	    key: "setPreset",
-	    value: function setPreset(preset) {
-	      var _this3 = this;
-
-	      this.preset = preset;
+	    this.blackAndWhitePreset = new Preset(Generator.getBlackAndWhitePreset());
+	    this.blackAndWhitePreset.subscribe('onChange', event => {
 	      this.preset.unsetActive();
+	      this.onPresetItemChange(event);
+	    });
+	    this.colorpicker = new Colorpicker(options);
+	    this.colorpicker.subscribe('onChange', event => {
+	      this.preset.unsetActive();
+	      this.blackAndWhitePreset.unsetActive();
+	      const color = event.getData().color;
 
-	      if (this.getValue() !== null && this.preset.isPresetValue(this.getValue())) {
-	        this.unsetActive();
-	        this.preset.setActiveValue(this.getValue());
-	      } else {
-	        this.unsetActive();
-	        this.colorpicker.setValue(this.getValue());
+	      if (this.preset.isPresetValue(color)) {
+	        this.preset.setActiveValue(color);
+	        this.colorpicker.unsetActive();
+	      } else if (this.blackAndWhitePreset.isPresetValue(color)) {
+	        this.blackAndWhitePreset.setActiveValue(color);
+	        this.colorpicker.unsetActive();
 	      }
 
-	      this.preset.subscribe('onChange', function (event) {
-	        _this3.blackAndWhitePreset.unsetActive();
-
-	        _this3.onPresetItemChange(event);
-	      });
-	      main_core.Dom.clean(this.getPresetContainer());
-	      main_core.Dom.append(preset.getLayout(), this.getPresetContainer());
-	      this.emit('onPresetChange', {
-	        preset: preset
-	      });
-	    }
-	  }, {
-	    key: "getPreset",
-	    value: function getPreset() {
-	      return this.preset;
-	    }
-	  }, {
-	    key: "onPresetItemChange",
-	    value: function onPresetItemChange(event) {
-	      this.colorpicker.setValue(event.getData().color);
-	      this.colorpicker.unsetActive();
 	      this.onChange(event);
-	    }
-	  }, {
-	    key: "onChange",
-	    value: function onChange(event) {
-	      this.cache.set('value', event.getData().color);
-	      this.emit('onChange', event);
-	    }
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {
-	      var _this4 = this;
+	    });
+	    this.presets = new PresetCollection(options);
+	    this.presets.subscribe('onChange', event => {
+	      this.setPreset(this.presets.getPresetById(event.getData().presetId));
+	    });
+	    this.presets.addDefaultPresets();
+	    const preset = this.presets.getActivePreset();
 
-	      return this.cache.remember('value', function () {
-	        return _this4.colorpicker.getValue();
-	      });
+	    if (preset) {
+	      this.setPreset(preset);
 	    }
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {
-	      babelHelpers.get(babelHelpers.getPrototypeOf(ColorSet.prototype), "setValue", this).call(this, value);
+	  }
+
+	  buildLayout() {
+	    main_core.Dom.append(this.reset.getLayout(), this.presets.getTitleContainer());
+	    return main_core.Tag.render(_t$a || (_t$a = _$a`
+			<div class="landing-ui-field-color-colorset">
+				<div class="landing-ui-field-color-colorset-top">
+					${0}
+				</div>
+				${0}
+				<div class="landing-ui-field-color-colorset-bottom">
+					${0}
+					${0}
+				</div>
+			</div>
+		`), this.presets.getLayout(), this.getPresetContainer(), this.blackAndWhitePreset.getLayout(), this.colorpicker.getLayout());
+	  }
+
+	  getTitleLayout() {
+	    return this.cache.remember('titleLayout', () => {
+	      return this.getLayout().querySelector('.landing-ui-field-color-colorset-title');
+	    });
+	  }
+
+	  getPresetContainer() {
+	    return this.cache.remember('presetContainer', () => {
+	      return main_core.Tag.render(_t2$6 || (_t2$6 = _$a`<div class="landing-ui-field-color-colorset-preset-container"></div>`));
+	    });
+	  }
+
+	  setPreset(preset) {
+	    this.preset = preset;
+	    this.preset.unsetActive();
+
+	    if (this.getValue() !== null && this.preset.isPresetValue(this.getValue())) {
+	      this.unsetActive();
+	      this.preset.setActiveValue(this.getValue());
+	    } else {
+	      this.unsetActive();
+	      this.colorpicker.setValue(this.getValue());
+	    }
+
+	    this.preset.subscribe('onChange', event => {
+	      this.blackAndWhitePreset.unsetActive();
+	      this.onPresetItemChange(event);
+	    });
+	    main_core.Dom.clean(this.getPresetContainer());
+	    main_core.Dom.append(preset.getLayout(), this.getPresetContainer());
+	    this.emit('onPresetChange', {
+	      preset: preset
+	    });
+	  }
+
+	  getPreset() {
+	    return this.preset;
+	  }
+
+	  getPresetsCollection() {
+	    return this.presets;
+	  }
+
+	  onPresetItemChange(event) {
+	    this.colorpicker.setValue(event.getData().color);
+	    this.colorpicker.unsetActive();
+	    this.onChange(event);
+	  }
+
+	  onChange(event) {
+	    this.cache.set('value', event.getData().color);
+	    this.emit('onChange', event);
+	  }
+
+	  getValue() {
+	    return this.cache.remember('value', () => {
+	      return this.colorpicker.getValue();
+	    });
+	  }
+
+	  setValue(value) {
+	    if (this.isNeedSetValue(value)) {
+	      super.setValue(value);
 	      this.colorpicker.setValue(value);
-	      var activePreset = this.presets.getActiveId() ? this.presets.getPresetById(this.presets.getActiveId()) : this.presets.getPresetByItemValue(value);
+	      const activePreset = this.presets.getGlobalActiveId() ? this.presets.getPresetById(this.presets.getGlobalActiveId()) : this.presets.getPresetByItemValue(value);
 
 	      if (activePreset !== null) {
 	        this.setPreset(activePreset);
@@ -2462,1036 +2268,1108 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        this.blackAndWhitePreset.setActiveValue(value);
 	      }
 	    }
-	  }, {
-	    key: "unsetActive",
-	    value: function unsetActive() {
-	      this.preset.unsetActive();
-	      this.blackAndWhitePreset.unsetActive();
-	      this.colorpicker.unsetActive();
-	    }
-	  }, {
-	    key: "isActive",
-	    value: function isActive() {
-	      return this.preset.isActive() || this.blackAndWhitePreset.isActive() || this.colorpicker.isActive();
-	    }
-	  }]);
-	  return ColorSet;
-	}(BaseControl);
-
-	var _templateObject$c, _templateObject2$7, _templateObject3$3;
-
-	var Opacity = /*#__PURE__*/function (_BaseControl) {
-	  babelHelpers.inherits(Opacity, _BaseControl);
-
-	  function Opacity() {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, Opacity);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Opacity).call(this));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Color.Opacity');
-
-	    _this.document = landing_pageobject.PageObject.getRootWindow().document;
-	    _this.onPickerDragStart = _this.onPickerDragStart.bind(babelHelpers.assertThisInitialized(_this));
-	    _this.onPickerDragMove = _this.onPickerDragMove.bind(babelHelpers.assertThisInitialized(_this));
-	    _this.onPickerDragEnd = _this.onPickerDragEnd.bind(babelHelpers.assertThisInitialized(_this));
-	    main_core.Event.bind(_this.getLayout(), 'mousedown', _this.onPickerDragStart);
-	    return _this;
 	  }
 
-	  babelHelpers.createClass(Opacity, [{
-	    key: "buildLayout",
-	    value: function buildLayout() {
-	      return main_core.Tag.render(_templateObject$c || (_templateObject$c = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-color-opacity\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getPicker(), this.getColorLayout());
-	    }
-	  }, {
-	    key: "onPickerDragStart",
-	    value: function onPickerDragStart(event) {
-	      if (event.ctrlKey || event.metaKey || event.button) {
-	        return;
-	      }
+	  unsetActive() {
+	    this.preset.unsetActive();
+	    this.blackAndWhitePreset.unsetActive();
+	    this.colorpicker.unsetActive();
+	  }
 
-	      main_core.Event.bind(this.document, 'mousemove', this.onPickerDragMove);
-	      main_core.Event.bind(this.document, 'mouseup', this.onPickerDragEnd);
-	      main_core.Dom.addClass(this.document.body, 'landing-ui-field-color-draggable');
-	      this.onPickerDragMove(event);
-	    }
-	  }, {
-	    key: "onPickerDragMove",
-	    value: function onPickerDragMove(event) {
-	      if (event.target === this.getPicker()) {
-	        return;
-	      }
+	  isActive() {
+	    return this.preset.isActive() || this.blackAndWhitePreset.isActive() || this.colorpicker.isActive();
+	  }
 
-	      this.setPickerPos(event.pageX);
-	      this.onChange();
-	    }
-	  }, {
-	    key: "onPickerDragEnd",
-	    value: function onPickerDragEnd() {
-	      main_core.Event.unbind(this.document, 'mousemove', this.onPickerDragMove);
-	      main_core.Event.unbind(this.document, 'mouseup', this.onPickerDragEnd);
-	      main_core.Dom.removeClass(this.document.body, 'landing-ui-field-color-draggable');
-	    }
-	    /**
-	     * Set picker by absolute page coords
-	     * @param x
-	     */
+	}
 
-	  }, {
-	    key: "setPickerPos",
-	    value: function setPickerPos(x) {
-	      var leftPos = Math.max(Math.min(x - this.getLayoutRect().left, this.getLayoutRect().width), 0);
-	      main_core.Dom.style(this.getPicker(), {
-	        left: "".concat(leftPos, "px")
-	      });
-	    }
-	  }, {
-	    key: "getLayoutRect",
-	    value: function getLayoutRect() {
-	      var _this2 = this;
+	let _$b = t => t,
+	    _t$b,
+	    _t2$7,
+	    _t3$3;
+	class Opacity extends BaseControl {
+	  constructor(options) {
+	    super();
+	    this.setEventNamespace('BX.Landing.UI.Field.Color.Opacity');
+	    this.defaultOpacity = main_core.Type.isObject(options) && Reflect.has(options, 'defaultOpacity') ? options.defaultOpacity : Opacity.DEFAULT_OPACITY;
+	    this.document = landing_pageobject.PageObject.getRootWindow().document;
+	    this.onPickerDragStart = this.onPickerDragStart.bind(this);
+	    this.onPickerDragMove = this.onPickerDragMove.bind(this);
+	    this.onPickerDragEnd = this.onPickerDragEnd.bind(this);
+	    this.layout = this.getLayout();
+	    this.pickerControl = this.layout.querySelector('.landing-ui-field-color-opacity');
+	    this.rangeControl = this.layout.querySelector('.landing-ui-field-color-opacity-range-output');
+	    this.arrowsUp = this.rangeControl.querySelector('.landing-ui-field-color-opacity-range-output-arrows-up');
+	    this.arrowsDown = this.rangeControl.querySelector('.landing-ui-field-color-opacity-range-output-arrows-down');
+	    this.rangeInput = this.rangeControl.querySelector('.landing-ui-field-color-opacity-range-output-input');
+	    main_core.Event.bind(this.arrowsUp, 'click', this.onArrowClick.bind(this, 'up'));
+	    main_core.Event.bind(this.arrowsDown, 'click', this.onArrowClick.bind(this, 'down'));
+	    main_core.Event.bind(this.pickerControl, 'mousedown', this.onPickerDragStart);
+	  }
 
-	      return this.cache.remember('layoutSize', function () {
-	        var layoutRect = _this2.getLayout().getBoundingClientRect();
+	  buildLayout() {
+	    const defaultOpacityValue = this.defaultOpacity * 100;
+	    const layout = main_core.Tag.render(_t$b || (_t$b = _$b`
+			<div class="landing-ui-field-color-opacity-container">
+				<div class="landing-ui-field-color-opacity">
+					${0}
+					${0}
+				</div>
+				<div class="landing-ui-field-color-opacity-range-output">
+					<div 
+						class="landing-ui-field-color-opacity-range-output-input"
+						title="${0}">
+						${0}
+					</div>
+					<div class="landing-ui-field-color-opacity-range-output-arrows">
+						<div class="landing-ui-field-color-opacity-range-output-arrows-up"></div>
+						<div class="landing-ui-field-color-opacity-range-output-arrows-down"></div>
+					</div>
+				</div>
+			</div>
+		`), this.getPicker(), this.getColorLayout(), defaultOpacityValue, defaultOpacityValue);
+	    this.setPickerPosByOpacity(this.defaultOpacity);
+	    return layout;
+	  }
 
-	        return {
-	          width: layoutRect.width,
-	          left: layoutRect.left
-	        };
-	      });
+	  onPickerDragStart(event) {
+	    if (event.ctrlKey || event.metaKey || event.button) {
+	      return;
 	    }
-	  }, {
-	    key: "getColorLayout",
-	    value: function getColorLayout() {
-	      return this.cache.remember('colorLayout', function () {
-	        return main_core.Tag.render(_templateObject2$7 || (_templateObject2$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-color-opacity-color\"></div>\n\t\t\t"])));
-	      });
-	    }
-	  }, {
-	    key: "getPicker",
-	    value: function getPicker() {
-	      return this.cache.remember('picker', function () {
-	        return main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-color-opacity-picker\">\n\t\t\t\t\t<div class=\"landing-ui-field-color-opacity-picker-item\">\n\t\t\t\t\t\t<div class=\"landing-ui-field-color-opacity-picker-item-circle\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>"])));
-	      });
-	    }
-	  }, {
-	    key: "getDefaultValue",
-	    value: function getDefaultValue() {
-	      return this.cache.remember('default', function () {
-	        return new ColorValue(Opacity.DEFAULT_COLOR);
-	      });
-	    }
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {
-	      var _this3 = this;
 
-	      return this.cache.remember('value', function () {
-	        var pickerLeft = main_core.Text.toNumber(main_core.Dom.style(_this3.getPicker(), 'left'));
-	        var layoutWidth = main_core.Text.toNumber(_this3.getLayout().getBoundingClientRect().width);
-	        return _this3.getDefaultValue().setOpacity(1 - pickerLeft / layoutWidth);
-	      });
+	    main_core.Event.bind(this.document, 'mousemove', this.onPickerDragMove);
+	    main_core.Event.bind(this.document, 'mouseup', this.onPickerDragEnd);
+	    main_core.Dom.addClass(this.document.body, 'landing-ui-field-color-draggable');
+	    this.onPickerDragMove(event);
+	  }
+
+	  onPickerDragMove(event) {
+	    if (event.target === this.getPicker()) {
+	      return;
 	    }
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {
-	      var valueToSet = value !== null ? value : this.getDefaultValue();
-	      babelHelpers.get(babelHelpers.getPrototypeOf(Opacity.prototype), "setValue", this).call(this, valueToSet);
+
+	    this.setPickerPos(event.pageX);
+	    this.onChange();
+	    this.onRangeControlChange();
+	  }
+
+	  onPickerDragEnd() {
+	    main_core.Event.unbind(this.document, 'mousemove', this.onPickerDragMove);
+	    main_core.Event.unbind(this.document, 'mouseup', this.onPickerDragEnd);
+	    main_core.Dom.removeClass(this.document.body, 'landing-ui-field-color-draggable');
+	  }
+	  /**
+	   * Set picker by absolute page coords
+	   * @param x
+	   */
+
+
+	  setPickerPos(x) {
+	    const leftPos = Math.max(Math.min(x - this.getLayoutRect().left, this.getLayoutRect().width), 0);
+	    main_core.Dom.style(this.getPicker(), {
+	      left: `${leftPos}px`
+	    });
+	  }
+
+	  setPickerPosByOpacity(opacity) {
+	    opacity = Math.min(1, Math.max(0, opacity));
+	    main_core.Dom.style(this.getPicker(), {
+	      left: `${opacity * 100}%`
+	    });
+	  }
+
+	  getLayoutRect() {
+	    return this.cache.remember('layoutSize', () => {
+	      const layoutRect = this.pickerControl.getBoundingClientRect();
+	      return {
+	        width: layoutRect.width,
+	        left: layoutRect.left
+	      };
+	    });
+	  }
+
+	  getColorLayout() {
+	    return this.cache.remember('colorLayout', () => {
+	      return main_core.Tag.render(_t2$7 || (_t2$7 = _$b`
+				<div class="landing-ui-field-color-opacity-color"></div>
+			`));
+	    });
+	  }
+
+	  getPicker() {
+	    return this.cache.remember('picker', () => {
+	      return main_core.Tag.render(_t3$3 || (_t3$3 = _$b`
+				<div class="landing-ui-field-color-opacity-picker">
+					<div class="landing-ui-field-color-opacity-picker-item">
+						<div class="landing-ui-field-color-opacity-picker-item-circle"></div>
+					</div>
+				</div>`));
+	    });
+	  }
+
+	  getDefaultValue() {
+	    return this.cache.remember('default', () => {
+	      return new ColorValue(Opacity.DEFAULT_COLOR).setOpacity(this.defaultOpacity);
+	    });
+	  }
+
+	  getValue() {
+	    return this.cache.remember('value', () => {
+	      const pickerLeft = main_core.Text.toNumber(main_core.Dom.style(this.getPicker(), 'left'));
+	      const layoutWidth = main_core.Text.toNumber(this.pickerControl.getBoundingClientRect().width);
+	      return this.getDefaultValue().setOpacity(pickerLeft / layoutWidth);
+	    });
+	  }
+
+	  setValue(value) {
+	    const valueToSet = !main_core.Type.isNull(value) ? value : this.getDefaultValue();
+	    super.setValue(valueToSet);
+
+	    if (!main_core.Type.isNull(value)) {
 	      main_core.Dom.style(this.getColorLayout(), {
 	        background: valueToSet.getStyleStringForOpacity()
 	      });
-	      main_core.Dom.style(this.getPicker(), {
-	        left: "".concat(100 - valueToSet.getOpacity() * 100, "%")
+	      this.setPickerPosByOpacity(valueToSet.getOpacity());
+	      this.onRangeControlChange();
+	    } else {
+	      main_core.Dom.style(this.getColorLayout(), {
+	        background: 'none'
 	      });
 	    }
-	  }, {
-	    key: "onChange",
-	    value: function onChange(event) {
-	      this.cache.delete('value');
-	      this.emit('onChange', {
-	        color: this.getValue()
-	      });
-	    }
-	  }]);
-	  return Opacity;
-	}(BaseControl);
-
-	babelHelpers.defineProperty(Opacity, "DEFAULT_COLOR", '#cccccc');
-	babelHelpers.defineProperty(Opacity, "PICKER_WIDTH", '#cccccc');
-
-	var _templateObject$d, _templateObject2$8, _templateObject3$4, _templateObject4$3, _templateObject5$2, _templateObject6;
-
-	var Tabs = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(Tabs, _EventEmitter);
-
-	  function Tabs() {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, Tabs);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Tabs).call(this));
-	    _this.tabs = [];
-	    _this.cache = new main_core.Cache.MemoryCache();
-	    _this.multiple = true;
-	    _this.isBig = false;
-	    _this.onToggle = _this.onToggle.bind(babelHelpers.assertThisInitialized(_this));
-	    return _this;
 	  }
 
-	  babelHelpers.createClass(Tabs, [{
-	    key: "setMultiple",
-	    value: function setMultiple(multiple) {
-	      this.multiple = multiple;
-	      return this;
+	  onRangeControlChange() {
+	    const opacity = parseInt(this.getValue().getOpacity() * 100);
+	    this.rangeInput.title = opacity;
+	    this.rangeInput.innerHTML = opacity;
+	  }
+
+	  onArrowClick(arrowName) {
+	    let newOpacityInputValue;
+	    const opacity = this.getValue().getOpacity();
+	    const opacityInputValue = parseInt(opacity * 100);
+
+	    if (arrowName === 'up') {
+	      if (opacityInputValue < 100) {
+	        newOpacityInputValue = (opacityInputValue + 5) / 100;
+	      } else {
+	        newOpacityInputValue = opacityInputValue / 100;
+	      }
 	    }
-	  }, {
-	    key: "setBig",
-	    value: function setBig(big) {
-	      this.isBig = big;
-	      this.multiple = false;
-	      return this;
+
+	    if (arrowName === 'down') {
+	      if (opacityInputValue > 0) {
+	        newOpacityInputValue = (opacityInputValue - 5) / 100;
+	      } else {
+	        newOpacityInputValue = opacityInputValue / 100;
+	      }
 	    }
-	  }, {
-	    key: "appendTab",
-	    value: function appendTab(id, title, items) {
-	      var tab = new Tab({
-	        id: id,
-	        title: title,
-	        items: main_core.Type.isArray(items) ? items : [items]
+
+	    this.rangeInput.title = parseInt(newOpacityInputValue * 100);
+	    this.rangeInput.innerHTML = parseInt(newOpacityInputValue * 100);
+	    const width = this.pickerControl.getBoundingClientRect().width;
+	    const leftPos = width - width * (1 - newOpacityInputValue);
+	    main_core.Dom.style(this.getPicker(), {
+	      left: `${leftPos}px`
+	    });
+	    this.onChange();
+	  }
+
+	}
+	Opacity.DEFAULT_COLOR = '#cccccc';
+	Opacity.DEFAULT_OPACITY = 1;
+
+	let _$c = t => t,
+	    _t$c,
+	    _t2$8,
+	    _t3$4,
+	    _t4$3,
+	    _t5$2,
+	    _t6;
+	class Tabs extends main_core_events.EventEmitter {
+	  constructor() {
+	    super();
+	    this.setEventNamespace('BX.Landing.UI.Field.Color.Tabs');
+	    this.tabs = [];
+	    this.cache = new main_core.Cache.MemoryCache();
+	    this.multiple = true;
+	    this.isBig = false;
+	    this.onToggle = this.onToggle.bind(this);
+	  }
+
+	  setMultiple(multiple) {
+	    this.multiple = multiple;
+	    return this;
+	  }
+
+	  setBig(big) {
+	    this.isBig = big;
+	    this.multiple = false;
+	    return this;
+	  }
+
+	  appendTab(id, title, items) {
+	    const tab = new Tab({
+	      id: id,
+	      title: title,
+	      items: main_core.Type.isArray(items) ? items : [items]
+	    });
+	    this.tabs.push(tab);
+	    this.bindEvents(tab);
+	    this.cache.delete('layout');
+	    return this;
+	  }
+
+	  prependTab(id, title, items) {
+	    const tab = new Tab({
+	      id: id,
+	      title: title,
+	      items: main_core.Type.isArray(items) || [items]
+	    });
+	    this.tabs.unshift(tab);
+	    this.bindEvents(tab);
+	    this.cache.delete('layout');
+	    return this;
+	  }
+
+	  bindEvents(tab) {
+	    tab.subscribe('onToggle', this.onToggle);
+	    tab.subscribe('onShow', this.onToggle);
+	    tab.subscribe('onHide', this.onToggle);
+	  }
+
+	  onToggle(event) {
+	    this.emit('onToggle', event);
+	  }
+
+	  showTab(id) {
+	    if (!this.multiple) {
+	      this.tabs.forEach(tab => {
+	        tab.hide();
 	      });
-	      this.tabs.push(tab);
-	      this.bindEvents(tab);
-	      this.cache.delete('layout');
-	      return this;
 	    }
-	  }, {
-	    key: "prependTab",
-	    value: function prependTab(id, title, items) {
-	      var tab = new Tab({
-	        id: id,
-	        title: title,
-	        items: main_core.Type.isArray(items) || [items]
-	      });
-	      this.tabs.unshift(tab);
-	      this.bindEvents(tab);
-	      this.cache.delete('layout');
-	      return this;
+
+	    const tab = this.getTabById(id);
+
+	    if (tab) {
+	      tab.show();
 	    }
-	  }, {
-	    key: "bindEvents",
-	    value: function bindEvents(tab) {
-	      tab.subscribe('onToggle', this.onToggle);
-	      tab.subscribe('onShow', this.onToggle);
-	      tab.subscribe('onHide', this.onToggle);
-	    }
-	  }, {
-	    key: "onToggle",
-	    value: function onToggle(event) {
-	      this.emit('onToggle', event);
-	    }
-	  }, {
-	    key: "showTab",
-	    value: function showTab(id) {
-	      if (!this.multiple) {
-	        this.tabs.forEach(function (tab) {
-	          tab.hide();
+
+	    return this;
+	  }
+
+	  getTabById(id) {
+	    return this.tabs.find(tab => {
+	      return tab.id === id;
+	    });
+	  }
+
+	  getLayout() {
+	    return this.cache.remember('layout', () => {
+	      const additional = this.isBig ? ' landing-ui-field-color-tabs--big' : '';
+	      const layout = main_core.Tag.render(_t$c || (_t$c = _$c`<div class="landing-ui-field-color-tabs${0}"></div>`), additional);
+
+	      if (this.isBig) {
+	        const head = main_core.Tag.render(_t2$8 || (_t2$8 = _$c`
+					<div class="landing-ui-field-color-tabs-head landing-ui-field-color-tabs-head--big"></div>
+				`));
+	        const content = main_core.Tag.render(_t3$4 || (_t3$4 = _$c`
+					<div class="landing-ui-field-color-tabs-content landing-ui-field-color-tabs-content--big"></div>
+				`));
+	        this.tabs.forEach(tab => {
+	          main_core.Dom.append(tab.getTitle(), head);
+	          main_core.Dom.append(tab.getLayout(), content);
 	        });
-	      }
-
-	      var tab = this.getTabById(id);
-
-	      if (tab) {
-	        tab.show();
-	      }
-
-	      return this;
-	    }
-	  }, {
-	    key: "getTabById",
-	    value: function getTabById(id) {
-	      return this.tabs.find(function (tab) {
-	        return tab.id === id;
-	      });
-	    }
-	  }, {
-	    key: "getLayout",
-	    value: function getLayout() {
-	      var _this2 = this;
-
-	      return this.cache.remember('layout', function () {
-	        var additional = _this2.isBig ? ' landing-ui-field-color-tabs--big' : '';
-	        var layout = main_core.Tag.render(_templateObject$d || (_templateObject$d = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-color-tabs", "\"></div>"])), additional);
-
-	        if (_this2.isBig) {
-	          var head = main_core.Tag.render(_templateObject2$8 || (_templateObject2$8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"landing-ui-field-color-tabs-head landing-ui-field-color-tabs-head--big\"></div>\n\t\t\t\t"])));
-	          var content = main_core.Tag.render(_templateObject3$4 || (_templateObject3$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"landing-ui-field-color-tabs-content landing-ui-field-color-tabs-content--big\"></div>\n\t\t\t\t"])));
-
-	          _this2.tabs.forEach(function (tab) {
-	            main_core.Dom.append(tab.getTitle(), head);
-	            main_core.Dom.append(tab.getLayout(), content);
-	          });
-
-	          main_core.Dom.append(head, layout);
-	          main_core.Dom.append(content, layout);
-	        } else {
-	          _this2.tabs.forEach(function (tab) {
-	            var tabLayout = main_core.Tag.render(_templateObject4$3 || (_templateObject4$3 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-color-tabs-tab\">\n\t\t\t\t\t\t", "", "\n\t\t\t\t\t</div>"])), tab.getTitle(), tab.getLayout());
-	            main_core.Dom.append(tabLayout, layout);
-	          });
-	        } // events
-
-
-	        _this2.tabs.forEach(function (tab) {
-	          main_core.Event.bind(tab.getTitle(), 'click', function () {
-	            if (!_this2.multiple) {
-	              _this2.tabs.forEach(function (tab) {
-	                tab.hide();
-	              });
-	            }
-
-	            tab.toggle();
-	          });
+	        main_core.Dom.append(head, layout);
+	        main_core.Dom.append(content, layout);
+	      } else {
+	        this.tabs.forEach(tab => {
+	          const tabLayout = main_core.Tag.render(_t4$3 || (_t4$3 = _$c`<div class="landing-ui-field-color-tabs-tab">
+						${0}${0}
+					</div>`), tab.getTitle(), tab.getLayout());
+	          main_core.Dom.append(tabLayout, layout);
 	        });
+	      } // events
 
-	        return layout;
+
+	      this.tabs.forEach(tab => {
+	        main_core.Event.bind(tab.getTitle(), 'click', () => {
+	          if (!this.multiple) {
+	            this.tabs.forEach(tab => {
+	              tab.hide();
+	            });
+	          }
+
+	          tab.toggle();
+	        });
 	      });
-	    }
-	  }]);
-	  return Tabs;
-	}(main_core_events.EventEmitter);
-	var Tab = /*#__PURE__*/function (_EventEmitter2) {
-	  babelHelpers.inherits(Tab, _EventEmitter2);
-
-	  function Tab(options) {
-	    var _this3;
-
-	    babelHelpers.classCallCheck(this, Tab);
-	    _this3 = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Tab).call(this));
-	    _this3.id = options.id;
-	    _this3.title = options.title;
-	    _this3.items = options.items;
-	    _this3.cache = new main_core.Cache.MemoryCache();
-	    return _this3;
+	      return layout;
+	    });
 	  }
 
-	  babelHelpers.createClass(Tab, [{
-	    key: "getId",
-	    value: function getId() {
-	      return this.id;
-	    }
-	  }, {
-	    key: "getTitle",
-	    value: function getTitle() {
-	      var _this4 = this;
-
-	      return this.cache.remember('title', function () {
-	        return main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"landing-ui-field-color-tabs-tab-toggler\">\n\t\t\t\t\t<span class=\"landing-ui-field-color-tabs-tab-toggler-icon\"></span>\n\t\t\t\t\t<span class=\"landing-ui-field-color-tabs-tab-toggler-name\">", "</span>\n\t\t\t\t</span>\n\t\t\t"])), _this4.title);
-	      });
-	    }
-	  }, {
-	    key: "getLayout",
-	    value: function getLayout() {
-	      var _this5 = this;
-
-	      return this.cache.remember('layout', function () {
-	        return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-color-tabs-tab-content\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this5.items.map(function (item) {
-	          return item.getLayout();
-	        }));
-	      });
-	    }
-	  }, {
-	    key: "toggle",
-	    value: function toggle() {
-	      main_core.Dom.toggleClass(this.getLayout(), Tab.SHOW_CLASS);
-	      main_core.Dom.toggleClass(this.getTitle(), Tab.SHOW_CLASS);
-	      this.emit('onToggle', {
-	        tab: this.title
-	      });
-	      return this;
-	    }
-	  }, {
-	    key: "show",
-	    value: function show() {
-	      main_core.Dom.addClass(this.getLayout(), Tab.SHOW_CLASS);
-	      main_core.Dom.addClass(this.getTitle(), Tab.SHOW_CLASS);
-	      this.emit('onShow', {
-	        tab: this.title
-	      });
-	      return this;
-	    }
-	  }, {
-	    key: "hide",
-	    value: function hide() {
-	      main_core.Dom.removeClass(this.getLayout(), Tab.SHOW_CLASS);
-	      main_core.Dom.removeClass(this.getTitle(), Tab.SHOW_CLASS);
-	      this.emit('onHide', {
-	        tab: this.title
-	      });
-	      return this;
-	    }
-	  }]);
-	  return Tab;
-	}(main_core_events.EventEmitter);
-	babelHelpers.defineProperty(Tab, "SHOW_CLASS", 'show');
-
-	var _templateObject$e;
-
-	var Color = /*#__PURE__*/function (_BaseProcessor) {
-	  babelHelpers.inherits(Color, _BaseProcessor);
-
-	  function Color(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, Color);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Color).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.Color');
-
-	    _this.property = 'color';
-	    _this.variableName = '--color';
-	    _this.className = 'g-color';
-	    _this.colorSet = new ColorSet(options);
-
-	    _this.colorSet.subscribe('onChange', _this.onColorSetChange.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    _this.colorSet.subscribe('onReset', _this.onReset.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    _this.opacity = new Opacity();
-
-	    _this.opacity.subscribe('onChange', _this.onOpacityChange.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    _this.primary = new Primary();
-
-	    _this.primary.subscribe('onChange', _this.onPrimaryChange.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    _this.tabs = new Tabs().appendTab('Opacity', main_core.Loc.getMessage('LANDING_FIELD_COLOR-TAB_OPACITY'), _this.opacity);
-	    return _this;
+	}
+	class Tab extends main_core_events.EventEmitter {
+	  constructor(options) {
+	    super();
+	    this.id = options.id;
+	    this.title = options.title;
+	    this.items = options.items;
+	    this.cache = new main_core.Cache.MemoryCache();
 	  }
 
-	  babelHelpers.createClass(Color, [{
-	    key: "isNullValue",
-	    value: function isNullValue(value) {
-	      // todo: check different browsers
-	      return value === null || value === 'none' || value === 'rgba(0, 0, 0, 0)';
-	    }
-	  }, {
-	    key: "buildLayout",
-	    value: function buildLayout() {
-	      return main_core.Tag.render(_templateObject$e || (_templateObject$e = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-color-color\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.colorSet.getLayout(), this.primary.getLayout(), this.tabs.getLayout());
-	    }
-	  }, {
-	    key: "onColorSetChange",
-	    value: function onColorSetChange(event) {
-	      this.primary.unsetActive();
-	      var color = event.getData().color;
+	  getId() {
+	    return this.id;
+	  }
 
-	      if (color !== null) {
-	        color.setOpacity(this.opacity.getValue().getOpacity());
-	        this.opacity.setValue(color);
-	      }
+	  getTitle() {
+	    return this.cache.remember('title', () => {
+	      return main_core.Tag.render(_t5$2 || (_t5$2 = _$c`
+				<span class="landing-ui-field-color-tabs-tab-toggler">
+					<span class="landing-ui-field-color-tabs-tab-toggler-icon"></span>
+					<span class="landing-ui-field-color-tabs-tab-toggler-name">${0}</span>
+				</span>
+			`), this.title);
+	    });
+	  }
 
-	      this.onChange();
+	  getLayout() {
+	    return this.cache.remember('layout', () => {
+	      return main_core.Tag.render(_t6 || (_t6 = _$c`
+				<div class="landing-ui-field-color-tabs-tab-content">
+					${0}
+				</div>
+			`), this.items.map(item => item.getLayout()));
+	    });
+	  }
+
+	  toggle() {
+	    main_core.Dom.toggleClass(this.getLayout(), Tab.SHOW_CLASS);
+	    main_core.Dom.toggleClass(this.getTitle(), Tab.SHOW_CLASS);
+	    this.emit('onToggle', {
+	      tab: this.title
+	    });
+	    return this;
+	  }
+
+	  show() {
+	    main_core.Dom.addClass(this.getLayout(), Tab.SHOW_CLASS);
+	    main_core.Dom.addClass(this.getTitle(), Tab.SHOW_CLASS);
+	    this.emit('onShow', {
+	      tab: this.title
+	    });
+	    return this;
+	  }
+
+	  hide() {
+	    main_core.Dom.removeClass(this.getLayout(), Tab.SHOW_CLASS);
+	    main_core.Dom.removeClass(this.getTitle(), Tab.SHOW_CLASS);
+	    this.emit('onHide', {
+	      tab: this.title
+	    });
+	    return this;
+	  }
+
+	}
+	Tab.SHOW_CLASS = 'show';
+
+	let _$d = t => t,
+	    _t$d;
+	class Zeroing extends main_core_events.EventEmitter {
+	  constructor() {
+	    super();
+	    this.cache = new main_core.Cache.MemoryCache();
+	    this.setEventNamespace('BX.Landing.UI.Field.Color.Zeroing');
+	    main_core.Event.bind(this.getLayout(), 'click', () => this.onClick());
+	  }
+
+	  getLayout() {
+	    return this.cache.remember('layout', () => {
+	      return main_core.Tag.render(_t$d || (_t$d = _$d`<div class="landing-ui-field-color-zeroing">
+				<div class="landing-ui-field-color-zeroing-preview">
+					<div class="landing-ui-field-color-zeroing-state"></div>
+				</div>
+				<span class="landing-ui-field-color-primary-text">
+					${0}
+				</span>
+			</div>`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-ZEROING_TITLE_2'));
+	    });
+	  }
+
+	  onClick() {
+	    this.emit('onChange', {
+	      color: null
+	    });
+	  }
+
+	  setActive() {
+	    main_core.Dom.addClass(this.getLayout(), Zeroing.ACTIVE_CLASS);
+	  }
+
+	  unsetActive() {
+	    main_core.Dom.removeClass(this.getLayout(), Zeroing.ACTIVE_CLASS);
+	  }
+
+	}
+	Zeroing.ACTIVE_CLASS = 'active';
+
+	let _$e = t => t,
+	    _t$e;
+	class Color extends BaseProcessor {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.Color');
+	    this.property = 'color';
+	    this.variableName = '--color';
+	    this.className = 'g-color';
+	    this.colorSet = new ColorSet(options);
+	    this.colorSet.subscribe('onChange', this.onColorSetChange.bind(this));
+	    this.colorSet.subscribe('onReset', this.onReset.bind(this));
+	    this.opacity = new Opacity();
+	    this.opacity.subscribe('onChange', this.onOpacityChange.bind(this));
+	    this.zeroing = new Zeroing();
+	    this.zeroing.subscribe('onChange', this.onZeroingChange.bind(this));
+	    this.primary = new Primary();
+	    this.primary.subscribe('onChange', this.onPrimaryChange.bind(this));
+	    this.tabs = new Tabs().appendTab('Opacity', main_core.Loc.getMessage('LANDING_FIELD_COLOR-TAB_OPACITY'), this.opacity);
+	  }
+
+	  isNullValue(value) {
+	    return value === null || value === 'none' || value === 'rgba(0, 0, 0, 0)';
+	  }
+
+	  getNullValue() {
+	    return new ColorValue('rgba(0, 0, 0, 0)');
+	  }
+
+	  buildLayout() {
+	    return main_core.Tag.render(_t$e || (_t$e = _$e`
+			<div class="landing-ui-field-color-color">
+				${0}
+				${0}
+				${0}
+				${0}
+			</div>
+		`), this.colorSet.getLayout(), this.primary.getLayout(), this.zeroing.getLayout(), this.tabs.getLayout());
+	  }
+
+	  onColorSetChange(event) {
+	    this.primary.unsetActive();
+	    this.zeroing.unsetActive();
+	    const color = event.getData().color;
+
+	    if (color !== null) {
+	      color.setOpacity(this.opacity.getValue().getOpacity());
 	    }
-	  }, {
-	    key: "onOpacityChange",
-	    value: function onOpacityChange() {
-	      this.onChange();
-	    }
-	  }, {
-	    key: "onPrimaryChange",
-	    value: function onPrimaryChange(event) {
-	      this.colorSet.setValue(event.getData().color);
-	      this.onColorSetChange(event);
+
+	    this.opacity.setValue(color);
+	    this.onChange();
+	  }
+
+	  onOpacityChange() {
+	    this.onChange();
+	  }
+
+	  onPrimaryChange(event) {
+	    this.colorSet.setValue(event.getData().color);
+	    this.onColorSetChange(event);
+	    this.colorSet.unsetActive();
+	    this.zeroing.unsetActive();
+	    this.primary.setActive();
+	  }
+
+	  onZeroingChange(event) {
+	    this.colorSet.unsetActive();
+	    this.primary.unsetActive();
+	    this.zeroing.setActive();
+	    this.setValue(event.getData().color); // todo: need reload computed props and reinit
+
+	    this.onChange(event);
+	  }
+
+	  unsetActive() {
+	    this.colorSet.unsetActive();
+	    this.primary.unsetActive();
+	  }
+
+	  setValue(value) {
+	    const valueObj = value !== null ? new ColorValue(value) : null;
+	    this.colorSet.setValue(valueObj);
+	    this.opacity.setValue(valueObj); // todo: what about opacity in primary?
+
+	    if (this.primary.isPrimaryValue(valueObj)) {
+	      this.primary.setActive();
 	      this.colorSet.unsetActive();
+	    }
+
+	    if (value !== null && valueObj.getOpacity() < 1) {
+	      this.tabs.showTab('Opacity');
+	    }
+	  }
+
+	  getValue() {
+	    return this.cache.remember('value', () => {
+	      const value = this.primary.isActive() ? this.primary.getValue() : this.colorSet.getValue();
+	      return value === null ? null : value.setOpacity(this.opacity.getValue().getOpacity());
+	    });
+	  }
+
+	  setDefaultValue(value) {
+	    this.zeroing.setActive();
+
+	    if (!main_core.Type.isNull(value)) {
+	      this.colorSet.colorpicker.hex.setActive();
+	    }
+
+	    super.setDefaultValue(value);
+	  }
+
+	  onReset() {
+	    this.zeroing.unsetActive();
+	    super.onReset();
+	  }
+
+	  setActiveControl(controlName) {
+	    if (controlName === 'primary') {
 	      this.primary.setActive();
 	    }
-	  }, {
-	    key: "unsetActive",
-	    value: function unsetActive() {
-	      this.colorSet.unsetActive();
-	      this.primary.unsetActive();
-	    }
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {
-	      var valueObj = value !== null ? new ColorValue(value) : null;
-	      this.colorSet.setValue(valueObj);
-	      this.opacity.setValue(valueObj); // todo: what about opacity in primary?
 
-	      if (this.primary.isPrimaryValue(valueObj)) {
-	        this.primary.setActive();
-	        this.colorSet.unsetActive();
+	    if (controlName === 'hex') {
+	      this.colorSet.colorpicker.hexPreview.setActive();
+	    }
+	  }
+
+	  defineActiveControl(items, styleNode) {
+	    if (!main_core.Type.isUndefined(styleNode)) {
+	      let oldClass;
+	      let activeControl;
+
+	      if (styleNode.hasOwnProperty('currentTarget')) {
+	        items.forEach(item => {
+	          if (main_core.Dom.hasClass(styleNode.currentTarget, item.value)) {
+	            oldClass = item.value;
+	          }
+	        });
+
+	        if (oldClass) {
+	          const reg = /g-[a-z]+-[a-z0-9-]+/i;
+	          const found = oldClass.match(reg);
+
+	          if (found) {
+	            const reg = /primary/i;
+	            const found = oldClass.match(reg);
+	            this.zeroing.unsetActive();
+
+	            if (found) {
+	              activeControl = 'primary';
+	            } else {
+	              activeControl = 'hex';
+	            }
+	          }
+	        }
+
+	        if (activeControl) {
+	          this.setActiveControl(activeControl);
+	        }
+	      }
+	    }
+	  }
+
+	}
+	Color.PRIMARY_VAR = 'var(--primary)';
+
+	class ColorHover extends Color {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.ColorHover');
+	    this.property = 'color';
+	    this.variableName = '--color-hover';
+	    this.className = 'g-color--hover';
+	    this.pseudoClass = ':hover';
+	  }
+
+	}
+
+	let _$f = t => t,
+	    _t$f,
+	    _t2$9,
+	    _t3$5,
+	    _t4$4,
+	    _t5$3,
+	    _t6$1,
+	    _t7;
+	class Gradient extends BaseControl {
+	  constructor(options) {
+	    super();
+	    this.ROTATE_STEP = 45;
+	    this.setEventNamespace('BX.Landing.UI.Field.Color.Gradient');
+	    this.popupId = 'gradient_popup_' + main_core.Text.getRandom();
+	    this.popupTargetContainer = options.contentRoot;
+	    this.colorpickerFrom = new Colorpicker(options);
+	    this.colorpickerFrom.subscribe('onChange', event => {
+	      this.onColorChange(event.getData().color, null);
+	    });
+	    this.colorpickerTo = new Colorpicker(options);
+	    this.colorpickerTo.subscribe('onChange', event => {
+	      this.onColorChange(null, event.getData().color);
+	    });
+	    main_core.Event.bind(this.getPopupButton(), 'click', this.onPopupOpen.bind(this));
+	    main_core.Event.bind(this.getRotateButton(), 'click', this.onRotate.bind(this));
+	    main_core.Event.bind(this.getSwitchTypeButton(), 'click', this.onSwitchType.bind(this));
+	    main_core.Event.bind(this.getSwapButton(), 'click', this.onSwap.bind(this));
+	    this.preset = null;
+	  }
+
+	  onColorChange(fromValue, toValue) {
+	    if (fromValue === null && toValue === null) {
+	      return;
+	    }
+
+	    const valueToSet = this.getValue() || new GradientValue();
+	    const fromValueToSet = fromValue || valueToSet.getFrom() || new GradientValue().getFrom();
+	    const toValueToSet = toValue || valueToSet.getTo() || new GradientValue().getTo();
+	    valueToSet.setValue({
+	      from: fromValueToSet,
+	      to: toValueToSet
+	    });
+	    this.setValue(valueToSet);
+	    this.preset.unsetActive();
+	    this.onChange();
+	  }
+
+	  onPopupOpen() {
+	    this.getPopup().toggle();
+	  }
+
+	  onRotate(event) {
+	    // todo: not set colorpicker active
+	    if (!Gradient.isButtonEnable(event.target)) {
+	      return;
+	    }
+
+	    const value = this.getValue();
+
+	    if (value !== null) {
+	      value.setValue({
+	        angle: (value.getAngle() + this.ROTATE_STEP) % 360
+	      });
+	      this.setValue(value);
+	      this.onChange();
+	    }
+
+	    this.getPopup().close();
+	  }
+
+	  onSwitchType(event) {
+	    // todo: not set colorpicker active
+	    if (!Gradient.isButtonEnable(event.target)) {
+	      return;
+	    }
+
+	    const value = this.getValue();
+
+	    if (value !== null) {
+	      if (value.getType() === GradientValue.TYPE_LINEAR) {
+	        value.setValue({
+	          type: GradientValue.TYPE_RADIAL
+	        });
+	        Gradient.disableButton(this.getRotateButton());
+	      } else {
+	        value.setValue({
+	          type: GradientValue.TYPE_LINEAR
+	        });
+	        Gradient.enableButton(this.getRotateButton());
 	      }
 
-	      if (value !== null && valueObj.getOpacity() < 1) {
+	      this.setValue(value);
+	      this.onChange();
+	    }
+
+	    this.getPopup().close();
+	  }
+
+	  onSwap(event) {
+	    // todo: not set colorpicker active
+	    if (!Gradient.isButtonEnable(event.target)) {
+	      return;
+	    }
+
+	    const value = this.getValue();
+
+	    if (value !== null) {
+	      value.setValue({
+	        to: value.getFrom(),
+	        from: value.getTo()
+	      });
+	      this.setValue(value);
+	      this.onChange();
+	    }
+
+	    this.getPopup().close();
+	  }
+
+	  static disableButton(button) {
+	    main_core.Dom.addClass(button, Gradient.DISABLE_CLASS);
+	  }
+
+	  static enableButton(button) {
+	    main_core.Dom.removeClass(button, Gradient.DISABLE_CLASS);
+	  }
+
+	  static isButtonEnable(button) {
+	    return !main_core.Dom.hasClass(button, Gradient.DISABLE_CLASS);
+	  }
+
+	  correctColorpickerColors() {
+	    const value = this.getValue();
+
+	    if (value !== null) {
+	      const angle = value.getAngle();
+	      const hexFrom = this.colorpickerFrom.getHexPreviewObject();
+	      const hexTo = this.colorpickerTo.getHexPreviewObject();
+	      const colorFrom = value.getFrom();
+	      const colorTo = value.getTo();
+
+	      if (value.getType() === GradientValue.TYPE_LINEAR) {
+	        if (angle === 270 || angle === 90) {
+	          const median = ColorValue.getMedian(colorFrom, colorTo).getContrast().getHex();
+	          hexFrom.adjustColors(median, 'transparent');
+	          hexTo.adjustColors(median, 'transparent');
+	        } else if (angle >= 135 && angle <= 225) {
+	          hexFrom.adjustColors(colorFrom.getContrast().getHex(), 'transparent');
+	          hexTo.adjustColors(colorTo.getContrast().getHex(), 'transparent');
+	        } else {
+	          hexFrom.adjustColors(colorTo.getContrast().getHex(), 'transparent');
+	          hexTo.adjustColors(colorFrom.getContrast().getHex(), 'transparent');
+	        }
+	      } else if (value.getType() === GradientValue.TYPE_RADIAL) {
+	        hexFrom.adjustColors(colorTo.getContrast().getHex(), 'transparent');
+	        hexTo.adjustColors(colorTo.getContrast().getHex(), 'transparent');
+	      }
+	    }
+	  }
+
+	  getPopup() {
+	    return this.cache.remember('popup', () => {
+	      return main_popup.PopupManager.create({
+	        id: this.popupId,
+	        className: 'landing-ui-field-color-gradient-preset-popup',
+	        autoHide: true,
+	        bindElement: this.getPopupButton(),
+	        bindOptions: {
+	          forceTop: true,
+	          forceLeft: true
+	        },
+	        offsetLeft: 15,
+	        angle: {
+	          offset: -5
+	        },
+	        padding: 0,
+	        contentPadding: 7,
+	        content: this.getPopupContent(),
+	        closeByEsc: true,
+	        targetContainer: this.popupTargetContainer
+	      });
+	    });
+	  }
+
+	  getPopupContent() {
+	    return this.cache.remember('popupContainer', () => {
+	      return main_core.Tag.render(_t$f || (_t$f = _$f`
+				<div class="landing-ui-field-color-gradient-preset-popup-container">
+					${0}
+					${0}
+				</div>
+			`), this.getRotateButton(), this.getSwapButton());
+	    });
+	  }
+
+	  buildLayout() {
+	    if (this.preset) {
+	      main_core.Dom.clean(this.getPresetContainer());
+	      main_core.Dom.append(this.preset.getLayout(), this.getPresetContainer());
+	    }
+
+	    return main_core.Tag.render(_t2$9 || (_t2$9 = _$f`
+			<div class="landing-ui-field-color-gradient">
+				${0}
+				<div class="landing-ui-field-color-gradient-container">
+					<div class="landing-ui-field-color-gradient-from">${0}</div>
+					${0}
+					<div class="landing-ui-field-color-gradient-to">${0}</div>
+				</div>
+				<div class="landing-ui-field-color-gradient-switch-type-container">
+					${0}
+				</div>
+			</div>
+		`), this.getPresetContainer(), this.colorpickerFrom.getLayout(), this.getPopupButton(), this.colorpickerTo.getLayout(), this.getSwitchTypeButton());
+	  }
+
+	  getContainerLayout() {
+	    // todo: do better after change vyorstka
+	    return this.getLayout().querySelector('.landing-ui-field-color-gradient-container');
+	  }
+
+	  getPresetContainer() {
+	    return this.cache.remember('presetContainer', () => {
+	      return main_core.Tag.render(_t3$5 || (_t3$5 = _$f`<div class="landing-ui-field-color-gradient-preset-container"></div>`));
+	    });
+	  }
+
+	  getPopupButton() {
+	    return this.cache.remember('popupButton', () => {
+	      return main_core.Tag.render(_t4$4 || (_t4$4 = _$f`<span class="landing-ui-field-color-gradient-open-popup"></span>`));
+	    });
+	  }
+
+	  getSwitchTypeButton() {
+	    return this.cache.remember('switchTypeButton', () => {
+	      return main_core.Tag.render(_t5$3 || (_t5$3 = _$f`
+				<span
+					class="landing-ui-field-color-gradient-switch-type"
+					title="${0}"
+				></span>`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-GRADIENT_SWITCH_TYPE'));
+	    });
+	  }
+
+	  getRotateButton() {
+	    return this.cache.remember('rotateButton', () => {
+	      return main_core.Tag.render(_t6$1 || (_t6$1 = _$f`
+				<span
+					class="landing-ui-field-color-gradient-rotate"
+					title="${0}"
+				></span>`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-GRADIENT_ROTATE'));
+	    });
+	  }
+
+	  getSwapButton() {
+	    return this.cache.remember('swapButton', () => {
+	      return main_core.Tag.render(_t7 || (_t7 = _$f`
+				<span
+					class="landing-ui-field-color-gradient-swap"
+					title="${0}"
+				></span>`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-GRADIENT_SWAP'));
+	    });
+	  }
+
+	  setPreset(preset) {
+	    this.preset = preset;
+	    this.preset.unsetActive();
+	    this.preset.subscribe('onChange', event => {
+	      this.setValue(event.getData().color);
+	      this.unsetColorpickerActive();
+	      this.onChange(event);
+	    });
+	    main_core.Dom.clean(this.getPresetContainer());
+	    main_core.Dom.append(preset.getLayout(), this.getPresetContainer());
+	  }
+
+	  getPreset() {
+	    return this.preset;
+	  }
+
+	  getValue() {
+	    return this.cache.remember('value', () => {
+	      if (this.colorpickerFrom.getValue() === null || this.colorpickerTo.getValue() === null) {
+	        return null;
+	      }
+
+	      let rotate = this.getRotateButton().dataset.rotate;
+	      rotate = rotate ? main_core.Text.toNumber(rotate) : 0;
+	      const type = this.getSwitchTypeButton().dataset.type || GradientValue.TYPE_LINEAR;
+	      return new GradientValue({
+	        from: this.colorpickerFrom.getValue(),
+	        to: this.colorpickerTo.getValue(),
+	        angle: rotate,
+	        type: type
+	      });
+	    });
+	  }
+
+	  setValue(value) {
+	    super.setValue(value);
+
+	    if (value === null) {
+	      this.colorpickerFrom.setValue(null);
+	      this.colorpickerTo.setValue(null);
+	      this.unsetActive();
+	      main_core.Dom.style(this.getContainerLayout(), 'background', new GradientValue().getStyleString());
+	      Gradient.disableButton(this.getRotateButton());
+	      Gradient.disableButton(this.getSwitchTypeButton());
+	      Gradient.disableButton(this.getSwapButton());
+	    } else {
+	      // todo: how set default type and rotation?
+	      this.colorpickerFrom.setValue(value.getFrom());
+	      this.colorpickerTo.setValue(value.getTo());
+	      this.correctColorpickerColors();
+	      this.getRotateButton().dataset.rotate = value.getAngle();
+	      this.getSwitchTypeButton().dataset.type = value.getType();
+	      main_core.Dom.style(this.getRotateButton(), 'transform', `rotate(${value.getAngle()}deg)`);
+	      main_core.Dom.style(this.getContainerLayout(), 'background', this.getValue().getStyleString());
+	      Gradient.enableButton(this.getSwitchTypeButton());
+	      Gradient.enableButton(this.getSwapButton());
+
+	      if (value.getType() === GradientValue.TYPE_RADIAL) {
+	        Gradient.disableButton(this.getRotateButton());
+	        this.getSwitchTypeButton().innerText = main_core.Loc.getMessage('LANDING_FIELD_COLOR-GRADIENT_DO_LINEAR');
+	      } else {
+	        Gradient.enableButton(this.getRotateButton());
+	        this.getSwitchTypeButton().innerText = main_core.Loc.getMessage('LANDING_FIELD_COLOR-GRADIENT_DO_RADIAL');
+	      }
+
+	      this.setActive();
+	    }
+	  }
+
+	  onChange(event) {
+	    this.cache.delete('value');
+	    this.emit('onChange', {
+	      gradient: this.getValue()
+	    });
+	  }
+
+	  setActive() {
+	    const value = this.getValue();
+
+	    if (this.preset.isPresetValue(value)) {
+	      this.preset.setActiveValue(value);
+	      this.unsetColorpickerActive();
+	    } else {
+	      this.preset.unsetActive();
+	      this.setColorpickerActive();
+	    }
+	  }
+
+	  unsetActive() {
+	    this.preset.unsetActive();
+	    this.unsetColorpickerActive();
+	  }
+
+	  setColorpickerActive() {
+	    main_core.Dom.addClass(this.getContainerLayout(), Gradient.ACTIVE_CLASS);
+	  }
+
+	  unsetColorpickerActive() {
+	    this.colorpickerFrom.unsetActive();
+	    this.colorpickerTo.unsetActive();
+	    main_core.Dom.removeClass(this.getContainerLayout(), Gradient.ACTIVE_CLASS);
+	  }
+
+	}
+	Gradient.DISABLE_CLASS = 'disable';
+
+	class BgColor extends Color {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.BgColor');
+	    this.property = ['background-image', 'background-color'];
+	    this.variableName = '--bg';
+	    this.className = 'g-bg';
+	    this.activeControl = null;
+	    this.gradient = new Gradient(options);
+	    this.gradient.subscribe('onChange', this.onGradientChange.bind(this));
+	    this.tabs.prependTab('Gradient', main_core.Loc.getMessage('LANDING_FIELD_COLOR-TAB_GRADIENT'), this.gradient);
+	    this.setGradientPreset(this.colorSet.getPreset());
+	    this.colorSet.subscribe('onPresetChange', event => {
+	      this.setGradientPreset(event.getData().preset);
+	    });
+	    this.tabs.subscribe('onToggle', this.onTabsToggle.bind(this));
+	  }
+
+	  setGradientPreset(preset) {
+	    const gradientPreset = preset.getGradientPreset();
+	    this.gradient.setPreset(gradientPreset);
+	    gradientPreset.subscribe('onChange', () => {
+	      this.activeControl = this.gradient;
+	      this.onChange();
+	    });
+	    const value = this.getValue();
+
+	    if (value !== null && value instanceof GradientValue) {
+	      if (this.gradient.getPreset().isPresetValue(value)) {
+	        this.colorSet.getPreset().unsetActive();
+	        this.gradient.getPreset().setActiveValue(value);
+	        this.gradient.unsetColorpickerActive();
+	      }
+	    }
+	  }
+
+	  onColorSetChange(event) {
+	    this.activeControl = this.colorSet;
+	    this.gradient.unsetActive();
+	    super.onColorSetChange(event);
+	  }
+
+	  onGradientChange(event) {
+	    this.activeControl = this.gradient;
+	    this.colorSet.unsetActive();
+	    const gradValue = event.getData().gradient;
+
+	    if (gradValue !== null) {
+	      this.opacity.setValue(gradValue.setOpacity(this.opacity.getValue().getOpacity()));
+	    }
+
+	    this.onChange();
+	  }
+
+	  onOverlayOpacityChange() {
+	    this.onChange();
+	  }
+
+	  onTabsToggle() {
+	    this.gradient.getPopup().close();
+	  }
+
+	  unsetActive() {
+	    this.colorSet.unsetActive();
+	    this.gradient.unsetActive();
+	    this.primary.unsetActive();
+	  }
+
+	  setValue(value) {
+	    this.colorSet.setValue(null);
+	    this.gradient.setValue(null);
+	    this.unsetActive();
+	    this.activeControl = null;
+
+	    if (main_core.Type.isNull(value)) ; else if (isRgbString(value) || isHex(value) || isHslString(value) || isCssVar(value)) {
+	      super.setValue(value);
+	      this.activeControl = this.colorSet;
+	    } else if (isGradientString(value)) {
+	      this.activeControl = this.gradient;
+	      const gradientValue = new GradientValue(value);
+	      this.gradient.setValue(gradientValue);
+	      this.opacity.setValue(gradientValue);
+	      const presets = this.colorSet.getPresetsCollection();
+	      const activePreset = presets.getGlobalActiveId() ? presets.getPresetById(presets.getGlobalActiveId()) : presets.getPresetByItemValue(gradientValue);
+
+	      if (activePreset !== null && activePreset !== this.colorSet.getPreset()) {
+	        this.colorSet.setPreset(activePreset);
+	        this.setGradientPreset(activePreset);
+	      }
+
+	      this.tabs.showTab('Gradient');
+
+	      if (gradientValue.getOpacity() < 1) {
 	        this.tabs.showTab('Opacity');
 	      }
 	    }
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {
-	      var _this2 = this;
-
-	      return this.cache.remember('value', function () {
-	        var value = _this2.primary.isActive() ? _this2.primary.getValue() : _this2.colorSet.getValue();
-	        return value === null ? null : value.setOpacity(_this2.opacity.getValue().getOpacity());
-	      });
-	    }
-	  }]);
-	  return Color;
-	}(BaseProcessor);
-
-	babelHelpers.defineProperty(Color, "PRIMARY_VAR", 'var(--primary)');
-
-	var ColorHover = /*#__PURE__*/function (_Color) {
-	  babelHelpers.inherits(ColorHover, _Color);
-
-	  function ColorHover(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, ColorHover);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ColorHover).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.ColorHover');
-
-	    _this.property = 'color';
-	    _this.variableName = '--color-hover';
-	    _this.className = 'g-color--hover';
-	    _this.pseudoClass = ':hover';
-	    return _this;
 	  }
 
-	  return ColorHover;
-	}(Color);
-
-	var _templateObject$f, _templateObject2$9, _templateObject3$5, _templateObject4$4, _templateObject5$3, _templateObject6$1, _templateObject7;
-
-	var Gradient = /*#__PURE__*/function (_BaseControl) {
-	  babelHelpers.inherits(Gradient, _BaseControl);
-
-	  function Gradient(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, Gradient);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Gradient).call(this));
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "ROTATE_STEP", 45);
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Color.Gradient');
-
-	    _this.popupId = 'gradient_popup_' + main_core.Text.getRandom();
-	    _this.popupTargetContainer = options.contentRoot;
-	    _this.colorpickerFrom = new Colorpicker(options);
-
-	    _this.colorpickerFrom.subscribe('onChange', function (event) {
-	      _this.onColorChange(event.getData().color, null);
-	    });
-
-	    _this.colorpickerTo = new Colorpicker(options);
-
-	    _this.colorpickerTo.subscribe('onChange', function (event) {
-	      _this.onColorChange(null, event.getData().color);
-	    });
-
-	    main_core.Event.bind(_this.getPopupButton(), 'click', _this.onPopupOpen.bind(babelHelpers.assertThisInitialized(_this)));
-	    main_core.Event.bind(_this.getRotateButton(), 'click', _this.onRotate.bind(babelHelpers.assertThisInitialized(_this)));
-	    main_core.Event.bind(_this.getSwitchTypeButton(), 'click', _this.onSwitchType.bind(babelHelpers.assertThisInitialized(_this)));
-	    main_core.Event.bind(_this.getSwapButton(), 'click', _this.onSwap.bind(babelHelpers.assertThisInitialized(_this)));
-	    _this.preset = null;
-	    return _this;
-	  }
-
-	  babelHelpers.createClass(Gradient, [{
-	    key: "onColorChange",
-	    value: function onColorChange(fromValue, toValue) {
-	      if (fromValue === null && toValue === null) {
-	        return;
-	      }
-
-	      var valueToSet = this.getValue() || new GradientValue();
-	      var fromValueToSet = fromValue || valueToSet.getFrom() || new GradientValue().getFrom();
-	      var toValueToSet = toValue || valueToSet.getTo() || new GradientValue().getTo();
-	      valueToSet.setValue({
-	        from: fromValueToSet,
-	        to: toValueToSet
-	      });
-	      this.setValue(valueToSet);
-	      this.preset.unsetActive();
-	      this.onChange();
-	    }
-	  }, {
-	    key: "onPopupOpen",
-	    value: function onPopupOpen() {
-	      this.getPopup().toggle();
-	    }
-	  }, {
-	    key: "onRotate",
-	    value: function onRotate(event) {
-	      // todo: not set colorpicker active
-	      if (!Gradient.isButtonEnable(event.target)) {
-	        return;
-	      }
-
-	      var value = this.getValue();
-
-	      if (value !== null) {
-	        value.setValue({
-	          angle: (value.getAngle() + this.ROTATE_STEP) % 360
-	        });
-	        this.setValue(value);
-	        this.onChange();
-	      }
-
-	      this.getPopup().close();
-	    }
-	  }, {
-	    key: "onSwitchType",
-	    value: function onSwitchType(event) {
-	      // todo: not set colorpicker active
-	      if (!Gradient.isButtonEnable(event.target)) {
-	        return;
-	      }
-
-	      var value = this.getValue();
-
-	      if (value !== null) {
-	        if (value.getType() === GradientValue.TYPE_LINEAR) {
-	          value.setValue({
-	            type: GradientValue.TYPE_RADIAL
-	          });
-	          Gradient.disableButton(this.getRotateButton());
-	        } else {
-	          value.setValue({
-	            type: GradientValue.TYPE_LINEAR
-	          });
-	          Gradient.enableButton(this.getRotateButton());
-	        }
-
-	        this.setValue(value);
-	        this.onChange();
-	      }
-
-	      this.getPopup().close();
-	    }
-	  }, {
-	    key: "onSwap",
-	    value: function onSwap(event) {
-	      // todo: not set colorpicker active
-	      if (!Gradient.isButtonEnable(event.target)) {
-	        return;
-	      }
-
-	      var value = this.getValue();
-
-	      if (value !== null) {
-	        value.setValue({
-	          to: value.getFrom(),
-	          from: value.getTo()
-	        });
-	        this.setValue(value);
-	        this.onChange();
-	      }
-
-	      this.getPopup().close();
-	    }
-	  }, {
-	    key: "correctColorpickerColors",
-	    value: function correctColorpickerColors() {
-	      var value = this.getValue();
-
-	      if (value !== null) {
-	        var angle = value.getAngle();
-	        var hexFrom = this.colorpickerFrom.getHexPreviewObject();
-	        var hexTo = this.colorpickerTo.getHexPreviewObject();
-	        var colorFrom = value.getFrom();
-	        var colorTo = value.getTo();
-
-	        if (value.getType() === GradientValue.TYPE_LINEAR) {
-	          if (angle === 270 || angle === 90) {
-	            var median = ColorValue.getMedian(colorFrom, colorTo).getContrast().getHex();
-	            hexFrom.adjustColors(median, 'transparent');
-	            hexTo.adjustColors(median, 'transparent');
-	          } else if (angle >= 135 && angle <= 225) {
-	            hexFrom.adjustColors(colorFrom.getContrast().getHex(), 'transparent');
-	            hexTo.adjustColors(colorTo.getContrast().getHex(), 'transparent');
-	          } else {
-	            hexFrom.adjustColors(colorTo.getContrast().getHex(), 'transparent');
-	            hexTo.adjustColors(colorFrom.getContrast().getHex(), 'transparent');
-	          }
-	        } else if (value.getType() === GradientValue.TYPE_RADIAL) {
-	          hexFrom.adjustColors(colorTo.getContrast().getHex(), 'transparent');
-	          hexTo.adjustColors(colorTo.getContrast().getHex(), 'transparent');
-	        }
-	      }
-	    }
-	  }, {
-	    key: "getPopup",
-	    value: function getPopup() {
-	      var _this2 = this;
-
-	      return this.cache.remember('popup', function () {
-	        return main_popup.PopupManager.create({
-	          id: _this2.popupId,
-	          className: 'landing-ui-field-color-gradient-preset-popup',
-	          autoHide: true,
-	          bindElement: _this2.getPopupButton(),
-	          bindOptions: {
-	            forceTop: true,
-	            forceLeft: true
-	          },
-	          offsetLeft: 15,
-	          angle: {
-	            offset: -5
-	          },
-	          padding: 0,
-	          contentPadding: 7,
-	          content: _this2.getPopupContent(),
-	          closeByEsc: true,
-	          targetContainer: _this2.popupTargetContainer
-	        });
-	      });
-	    }
-	  }, {
-	    key: "getPopupContent",
-	    value: function getPopupContent() {
-	      var _this3 = this;
-
-	      return this.cache.remember('popupContainer', function () {
-	        return main_core.Tag.render(_templateObject$f || (_templateObject$f = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-color-gradient-preset-popup-container\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this3.getRotateButton(), _this3.getSwapButton());
-	      });
-	    }
-	  }, {
-	    key: "buildLayout",
-	    value: function buildLayout() {
-	      if (this.preset) {
-	        main_core.Dom.clean(this.getPresetContainer());
-	        main_core.Dom.append(this.preset.getLayout(), this.getPresetContainer());
-	      }
-
-	      return main_core.Tag.render(_templateObject2$9 || (_templateObject2$9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-color-gradient\">\n\t\t\t\t", "\n\t\t\t\t<div class=\"landing-ui-field-color-gradient-container\">\n\t\t\t\t\t<div class=\"landing-ui-field-color-gradient-from\">", "</div>\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-ui-field-color-gradient-to\">", "</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"landing-ui-field-color-gradient-switch-type-container\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.getPresetContainer(), this.colorpickerFrom.getLayout(), this.getPopupButton(), this.colorpickerTo.getLayout(), this.getSwitchTypeButton());
-	    }
-	  }, {
-	    key: "getContainerLayout",
-	    value: function getContainerLayout() {
-	      // todo: do better after change vyorstka
-	      return this.getLayout().querySelector('.landing-ui-field-color-gradient-container');
-	    }
-	  }, {
-	    key: "getPresetContainer",
-	    value: function getPresetContainer() {
-	      return this.cache.remember('presetContainer', function () {
-	        return main_core.Tag.render(_templateObject3$5 || (_templateObject3$5 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-color-gradient-preset-container\"></div>"])));
-	      });
-	    }
-	  }, {
-	    key: "getPopupButton",
-	    value: function getPopupButton() {
-	      return this.cache.remember('popupButton', function () {
-	        return main_core.Tag.render(_templateObject4$4 || (_templateObject4$4 = babelHelpers.taggedTemplateLiteral(["<span class=\"landing-ui-field-color-gradient-open-popup\"></span>"])));
-	      });
-	    }
-	  }, {
-	    key: "getSwitchTypeButton",
-	    value: function getSwitchTypeButton() {
-	      return this.cache.remember('switchTypeButton', function () {
-	        return main_core.Tag.render(_templateObject5$3 || (_templateObject5$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span\n\t\t\t\t\tclass=\"landing-ui-field-color-gradient-switch-type\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t></span>"])), main_core.Loc.getMessage('LANDING_FIELD_COLOR-GRADIENT_SWITCH_TYPE'));
-	      });
-	    }
-	  }, {
-	    key: "getRotateButton",
-	    value: function getRotateButton() {
-	      return this.cache.remember('rotateButton', function () {
-	        return main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span\n\t\t\t\t\tclass=\"landing-ui-field-color-gradient-rotate\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t></span>"])), main_core.Loc.getMessage('LANDING_FIELD_COLOR-GRADIENT_ROTATE'));
-	      });
-	    }
-	  }, {
-	    key: "getSwapButton",
-	    value: function getSwapButton() {
-	      return this.cache.remember('swapButton', function () {
-	        return main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span\n\t\t\t\t\tclass=\"landing-ui-field-color-gradient-swap\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t></span>"])), main_core.Loc.getMessage('LANDING_FIELD_COLOR-GRADIENT_SWAP'));
-	      });
-	    }
-	  }, {
-	    key: "setPreset",
-	    value: function setPreset(preset) {
-	      var _this4 = this;
-
-	      this.preset = preset;
-	      this.preset.subscribe('onChange', function (event) {
-	        _this4.setValue(event.getData().color);
-
-	        _this4.unsetColorpickerActive();
-
-	        _this4.onChange(event);
-	      });
-	      main_core.Dom.clean(this.getPresetContainer());
-	      main_core.Dom.append(preset.getLayout(), this.getPresetContainer());
-	    }
-	  }, {
-	    key: "getPreset",
-	    value: function getPreset() {
-	      return this.preset;
-	    }
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {
-	      var _this5 = this;
-
-	      return this.cache.remember('value', function () {
-	        if (_this5.colorpickerFrom.getValue() === null || _this5.colorpickerTo.getValue() === null) {
-	          return null;
-	        }
-
-	        var rotate = _this5.getRotateButton().dataset.rotate;
-
-	        rotate = rotate ? main_core.Text.toNumber(rotate) : 0;
-	        var type = _this5.getSwitchTypeButton().dataset.type || GradientValue.TYPE_LINEAR;
-	        return new GradientValue({
-	          from: _this5.colorpickerFrom.getValue(),
-	          to: _this5.colorpickerTo.getValue(),
-	          angle: rotate,
-	          type: type
-	        });
-	      });
-	    }
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {
-	      babelHelpers.get(babelHelpers.getPrototypeOf(Gradient.prototype), "setValue", this).call(this, value);
-
-	      if (value === null) {
-	        this.colorpickerFrom.setValue(null);
-	        this.colorpickerTo.setValue(null);
-	        this.unsetActive();
-	        main_core.Dom.style(this.getContainerLayout(), 'background', new GradientValue().getStyleString());
-	        Gradient.disableButton(this.getRotateButton());
-	        Gradient.disableButton(this.getSwitchTypeButton());
-	        Gradient.disableButton(this.getSwapButton());
+	  getValue() {
+	    return this.cache.remember('value', () => {
+	      if (this.activeControl === null) {
+	        return null;
+	      } else if (this.activeControl === this.gradient) {
+	        const gradValue = this.gradient.getValue();
+	        return gradValue === null ? gradValue : gradValue.setOpacity(this.opacity.getValue().getOpacity());
 	      } else {
-	        // todo: how set default type and rotation?
-	        this.colorpickerFrom.setValue(value.getFrom());
-	        this.colorpickerTo.setValue(value.getTo());
-	        this.correctColorpickerColors();
-	        this.getRotateButton().dataset.rotate = value.getAngle();
-	        this.getSwitchTypeButton().dataset.type = value.getType();
-	        main_core.Dom.style(this.getRotateButton(), 'transform', "rotate(".concat(value.getAngle(), "deg)"));
-	        main_core.Dom.style(this.getContainerLayout(), 'background', this.getValue().getStyleString());
-	        Gradient.enableButton(this.getSwitchTypeButton());
-	        Gradient.enableButton(this.getSwapButton());
-
-	        if (value.getType() === GradientValue.TYPE_RADIAL) {
-	          Gradient.disableButton(this.getRotateButton());
-	          this.getSwitchTypeButton().innerText = main_core.Loc.getMessage('LANDING_FIELD_COLOR-GRADIENT_DO_LINEAR');
-	        } else {
-	          Gradient.enableButton(this.getRotateButton());
-	          this.getSwitchTypeButton().innerText = main_core.Loc.getMessage('LANDING_FIELD_COLOR-GRADIENT_DO_RADIAL');
-	        }
-
-	        this.setActive();
+	        return super.getValue();
 	      }
-	    }
-	  }, {
-	    key: "onChange",
-	    value: function onChange(event) {
-	      this.emit('onChange', {
-	        gradient: this.getValue()
-	      });
-	    }
-	  }, {
-	    key: "setActive",
-	    value: function setActive() {
-	      var value = this.getValue();
-
-	      if (this.preset.isPresetValue(value)) {
-	        this.preset.setActiveValue(value);
-	        this.unsetColorpickerActive();
-	      } else {
-	        this.preset.unsetActive();
-	        this.setColorpickerActive();
-	      }
-	    }
-	  }, {
-	    key: "unsetActive",
-	    value: function unsetActive() {
-	      this.preset.unsetActive();
-	      this.unsetColorpickerActive();
-	    }
-	  }, {
-	    key: "setColorpickerActive",
-	    value: function setColorpickerActive() {
-	      main_core.Dom.addClass(this.getContainerLayout(), Gradient.ACTIVE_CLASS);
-	    }
-	  }, {
-	    key: "unsetColorpickerActive",
-	    value: function unsetColorpickerActive() {
-	      this.colorpickerFrom.unsetActive();
-	      this.colorpickerTo.unsetActive();
-	      main_core.Dom.removeClass(this.getContainerLayout(), Gradient.ACTIVE_CLASS);
-	    }
-	  }], [{
-	    key: "disableButton",
-	    value: function disableButton(button) {
-	      main_core.Dom.addClass(button, Gradient.DISABLE_CLASS);
-	    }
-	  }, {
-	    key: "enableButton",
-	    value: function enableButton(button) {
-	      main_core.Dom.removeClass(button, Gradient.DISABLE_CLASS);
-	    }
-	  }, {
-	    key: "isButtonEnable",
-	    value: function isButtonEnable(button) {
-	      return !main_core.Dom.hasClass(button, Gradient.DISABLE_CLASS);
-	    }
-	  }]);
-	  return Gradient;
-	}(BaseControl);
-
-	babelHelpers.defineProperty(Gradient, "DISABLE_CLASS", 'disable');
-
-	var BgColor = /*#__PURE__*/function (_Color) {
-	  babelHelpers.inherits(BgColor, _Color);
-
-	  function BgColor(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, BgColor);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BgColor).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.BgColor');
-
-	    _this.property = ['background-image', 'background-color'];
-	    _this.variableName = '--bg';
-	    _this.className = 'g-bg';
-	    _this.activeControl = null;
-	    _this.gradient = new Gradient(options);
-
-	    _this.gradient.subscribe('onChange', _this.onGradientChange.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    _this.tabs.prependTab('Gradient', main_core.Loc.getMessage('LANDING_FIELD_COLOR-TAB_GRADIENT'), _this.gradient);
-
-	    _this.setGradientPreset(_this.colorSet.getPreset());
-
-	    _this.colorSet.subscribe('onPresetChange', function (event) {
-	      _this.setGradientPreset(event.getData().preset);
 	    });
-
-	    _this.tabs.subscribe('onToggle', _this.onTabsToggle.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    return _this;
 	  }
 
-	  babelHelpers.createClass(BgColor, [{
-	    key: "isNullValue",
-	    value: function isNullValue(value) {
-	      return value === null || value === 'none' || value === 'rgba(0, 0, 0, 0)';
-	    }
-	  }, {
-	    key: "setGradientPreset",
-	    value: function setGradientPreset(preset) {
-	      var _this2 = this;
+	}
 
-	      var gradientPreset = preset.getGradientPreset();
-	      this.gradient.setPreset(gradientPreset);
-	      gradientPreset.subscribe('onChange', function () {
-	        _this2.activeControl = _this2.gradient;
-
-	        _this2.onChange();
-	      });
-	      var value = this.getValue();
-
-	      if (value !== null && value instanceof GradientValue) {
-	        console.log("bg grad value", value);
-
-	        if (this.gradient.getPreset().isPresetValue(value)) {
-	          this.colorSet.getPreset().unsetActive(); // todo: unset active color preset
-
-	          this.gradient.getPreset().setActiveValue(value);
-	        }
-	      }
-	    }
-	  }, {
-	    key: "onColorSetChange",
-	    value: function onColorSetChange(event) {
-	      this.activeControl = this.colorSet;
-	      this.gradient.unsetActive();
-	      babelHelpers.get(babelHelpers.getPrototypeOf(BgColor.prototype), "onColorSetChange", this).call(this, event);
-	    }
-	  }, {
-	    key: "onGradientChange",
-	    value: function onGradientChange(event) {
-	      this.activeControl = this.gradient;
-	      this.colorSet.unsetActive();
-	      var gradValue = event.getData().gradient;
-
-	      if (gradValue !== null) {
-	        this.opacity.setValue(gradValue.setOpacity(this.opacity.getValue().getOpacity()));
-	      }
-
-	      this.onChange();
-	    }
-	  }, {
-	    key: "onOverlayOpacityChange",
-	    value: function onOverlayOpacityChange() {
-	      this.onChange();
-	    }
-	  }, {
-	    key: "onTabsToggle",
-	    value: function onTabsToggle() {
-	      this.gradient.getPopup().close();
-	    }
-	  }, {
-	    key: "unsetActive",
-	    value: function unsetActive() {
-	      this.colorSet.unsetActive();
-	      this.gradient.unsetActive();
-	      this.primary.unsetActive();
-	    }
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {
-	      this.colorSet.setValue(null); // todo: need? what set default?
-
-	      this.gradient.setValue(null);
-	      this.unsetActive();
-	      this.activeControl = null;
-
-	      if (main_core.Type.isNull(value)) ; else if (isRgbString(value) || isHex(value) || isHslString(value) || isCssVar(value)) {
-	        babelHelpers.get(babelHelpers.getPrototypeOf(BgColor.prototype), "setValue", this).call(this, value);
-	        this.activeControl = this.colorSet;
-	      } else if (isGradientString(value)) {
-	        var gradientValue = new GradientValue(value);
-	        this.gradient.setValue(gradientValue);
-	        this.opacity.setValue(gradientValue);
-	        this.tabs.showTab('Gradient');
-
-	        if (gradientValue.getOpacity() < 1) {
-	          this.tabs.showTab('Opacity');
-	        }
-
-	        this.activeControl = this.gradient; // todo: set default value for colorset (from preset?) and unset active for them
-	      }
-	    }
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {
-	      var _this3 = this;
-
-	      return this.cache.remember('value', function () {
-	        if (_this3.activeControl === null) {
-	          return null;
-	        } else if (_this3.activeControl === _this3.gradient) {
-	          var gradValue = _this3.gradient.getValue();
-
-	          return gradValue === null ? gradValue : gradValue.setOpacity(_this3.opacity.getValue().getOpacity());
-	        } else {
-	          return babelHelpers.get(babelHelpers.getPrototypeOf(BgColor.prototype), "getValue", _this3).call(_this3);
-	        }
-	      });
-	    }
-	  }]);
-	  return BgColor;
-	}(Color);
-
-	var matcherBgImage = /url\(['"]?([^ '"]*)['"]?\)([\w \/]*)/i;
+	const matcherBgImage = /url\(['"]?([^ '"]*)['"]?\)([\w \/]*)/i;
 	function isBgImageString(bgImage) {
 	  if (!!bgImage.trim().match(matcherBgImage)) {
 	    return true;
@@ -3501,244 +3379,216 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	}
 
 	function getMatcherWithOverlay() {
-	  var matcherBgString = regexpToString(matcherBgImage);
-	  var matcherGradientString = regexpToString(matcherGradient);
-	  return new RegExp("^".concat(matcherGradientString, ",").concat(matcherBgString));
+	  const matcherBgString = regexpToString(matcherBgImage);
+	  const matcherGradientString = regexpToString(matcherGradient);
+	  return new RegExp(`^${matcherGradientString},${matcherBgString}`);
 	}
 
-	var BgImageValue = /*#__PURE__*/function () {
-	  function BgImageValue(value) {
-	    babelHelpers.classCallCheck(this, BgImageValue);
+	class BgImageValue {
+	  constructor(value) {
 	    // todo: add 2x, file ids
 	    this.value = defaultBgImageValueOptions;
 	    this.setValue(value);
 	  }
 
-	  babelHelpers.createClass(BgImageValue, [{
-	    key: "getName",
-	    value: function getName() {
-	      return "\n\t\t\t".concat(this.value.url.replace(/[^\w\d]/g, ''), "_").concat(this.value.size, "_").concat(this.value.attachment, "\n\t\t");
+	  getName() {
+	    return `
+			${this.value.url.replace(/[^\w\d]/g, '')}_${this.value.size}_${this.value.attachment}
+		`;
+	  }
+
+	  setValue(value) {
+	    if (main_core.Type.isObject(value)) {
+	      if (value instanceof BgImageValue) {
+	        // todo: add 2x and file IDs
+	        this.value.url = value.getUrl();
+	        this.value.url2x = value.getUrl2x();
+	        this.value.fileId = value.getFileId();
+	        this.value.fileId2x = value.getFileId2x();
+	        this.value.size = value.getSize();
+	        this.value.attachment = value.getAttachment();
+	      } else {
+	        this.value = { ...this.value,
+	          ...value
+	        };
+	      }
 	    }
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {
-	      if (main_core.Type.isObject(value)) {
-	        if (value instanceof BgImageValue) {
-	          // todo: add 2x and file IDs
-	          this.value.url = value.getUrl();
-	          this.value.url2x = value.getUrl2x();
-	          this.value.fileId = value.getFileId();
-	          this.value.fileId2x = value.getFileId2x();
-	          this.value.size = value.getSize();
-	          this.value.attachment = value.getAttachment();
-	        } else {
-	          this.value = babelHelpers.objectSpread({}, this.value, value);
-	        }
+
+	    if (main_core.Type.isString(value) && isBgImageString(value)) {
+	      this.parseBgString(value);
+	    }
+
+	    return this;
+	  }
+
+	  parseBgString(string) {
+	    // todo: check matcher for 2x
+	    const options = defaultBgImageValueOptions;
+	    const matchesBg = string.trim().match(regexpWoStartEnd(matcherBgImage));
+
+	    if (!!matchesBg) {
+	      options.url = matchesBg[1];
+	      options.size = matchesBg[2].indexOf('auto') === -1 ? defaultBgImageSize : 'auto';
+	      options.attachment = matchesBg[2].indexOf('fixed') === -1 ? defaultBgImageAttachment : 'fixed';
+	    }
+
+	    const matchesOverlay = string.trim().match(regexpWoStartEnd(matcherGradientColors));
+
+	    if (!!string.trim().match(regexpWoStartEnd(matcherGradient)) && !!matchesOverlay) {
+	      options.overlay = new ColorValue(matchesOverlay[0]);
+	    }
+
+	    this.setValue(options);
+	  }
+
+	  setOpacity(opacity) {
+	    // todo: what for image?
+	    return this;
+	  }
+
+	  setUrl(value) {
+	    this.setValue({
+	      url: value
+	    });
+	    return this;
+	  }
+
+	  setUrl2x(value) {
+	    this.setValue({
+	      url2x: value
+	    });
+	    return this;
+	  }
+
+	  setFileId(value) {
+	    this.setValue({
+	      fileId: value
+	    });
+	    return this;
+	  }
+
+	  setFileId2x(value) {
+	    this.setValue({
+	      fileId2x: value
+	    });
+	    return this;
+	  }
+
+	  setSize(value) {
+	    this.setValue({
+	      size: value
+	    });
+	    return this;
+	  }
+
+	  setAttachment(value) {
+	    this.setValue({
+	      attachment: value
+	    });
+	    return this;
+	  }
+
+	  setOverlay(value) {
+	    this.setValue({
+	      overlay: value
+	    });
+	    return this;
+	  }
+
+	  getUrl() {
+	    return this.value.url;
+	  }
+
+	  getUrl2x() {
+	    return this.value.url2x;
+	  }
+
+	  getFileId() {
+	    return this.value.fileId;
+	  }
+
+	  getFileId2x() {
+	    return this.value.fileId2x;
+	  }
+
+	  getSize() {
+	    return this.value.size;
+	  }
+
+	  getAttachment(needBool = false) {
+	    return needBool ? this.value.attachment === 'fixed' : this.value.attachment;
+	  }
+
+	  getOverlay() {
+	    return this.value.overlay;
+	  }
+
+	  getOpacity() {
+	    // todo: how image can have opacity?
+	    return 1;
+	  }
+
+	  getStyleString() {
+	    let style = '';
+
+	    if (this.value.overlay !== null) {
+	      style = `linear-gradient(${this.value.overlay.getStyleString()},${this.value.overlay.getStyleString()})`;
+	    } // todo: what if url is null
+
+
+	    const {
+	      url,
+	      url2x,
+	      size,
+	      attachment
+	    } = this.value;
+	    const endString = `center / ${size} ${attachment}`;
+
+	    if (url !== null) {
+	      style = style.length ? style + ',' : '';
+
+	      if (url2x !== null) {
+	        style += `-webkit-image-set(url('${url}') 1x, url('${url2x}') 2x) ${endString},`;
+	        style += `image-set(url('${url}') 1x, url('${url2x}') 2x) ${endString},`;
 	      }
 
-	      if (main_core.Type.isString(value) && isBgImageString(value)) {
-	        this.parseBgString(value);
-	      }
+	      style += `url('${url}') ${endString}`;
+	    }
 
-	      return this;
-	    }
-	  }, {
-	    key: "parseBgString",
-	    value: function parseBgString(string) {
-	      // todo: check matcher for 2x
-	      var options = defaultBgImageValueOptions;
-	      var matchesBg = string.trim().match(regexpWoStartEnd(matcherBgImage));
+	    return style;
+	  }
 
-	      if (!!matchesBg) {
-	        options.url = matchesBg[1];
-	        options.size = matchesBg[2].indexOf('auto') === -1 ? defaultBgImageSize : 'auto';
-	        options.attachment = matchesBg[2].indexOf('fixed') === -1 ? defaultBgImageAttachment : 'fixed';
-	      }
+	  getStyleStringForOpacity() {
+	    // todo: how image can have opacity?
+	    return '';
+	  }
 
-	      var matchesOverlay = string.trim().match(regexpWoStartEnd(matcherGradientColors));
+	  static getSizeItemsForButtons() {
+	    return [{
+	      name: main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_COVER'),
+	      value: 'cover'
+	    }, {
+	      name: main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_MOSAIC'),
+	      value: 'auto'
+	    }];
+	  }
 
-	      if (!!string.trim().match(regexpWoStartEnd(matcherGradient)) && !!matchesOverlay) {
-	        options.overlay = new ColorValue(matchesOverlay[0]);
-	      }
+	  static getAttachmentValueByBool(value) {
+	    return value ? 'fixed' : 'scroll';
+	  }
 
-	      this.setValue(options);
-	    }
-	  }, {
-	    key: "setOpacity",
-	    value: function setOpacity(opacity) {
-	      // todo: what for image?
-	      return this;
-	    }
-	  }, {
-	    key: "setUrl",
-	    value: function setUrl(value) {
-	      this.setValue({
-	        url: value
-	      });
-	      return this;
-	    }
-	  }, {
-	    key: "setUrl2x",
-	    value: function setUrl2x(value) {
-	      this.setValue({
-	        url2x: value
-	      });
-	      return this;
-	    }
-	  }, {
-	    key: "setFileId",
-	    value: function setFileId(value) {
-	      this.setValue({
-	        fileId: value
-	      });
-	      return this;
-	    }
-	  }, {
-	    key: "setFileId2x",
-	    value: function setFileId2x(value) {
-	      this.setValue({
-	        fileId2x: value
-	      });
-	      return this;
-	    }
-	  }, {
-	    key: "setSize",
-	    value: function setSize(value) {
-	      this.setValue({
-	        size: value
-	      });
-	      return this;
-	    }
-	  }, {
-	    key: "setAttachment",
-	    value: function setAttachment(value) {
-	      this.setValue({
-	        attachment: value
-	      });
-	      return this;
-	    }
-	  }, {
-	    key: "setOverlay",
-	    value: function setOverlay(value) {
-	      this.setValue({
-	        overlay: value
-	      });
-	    }
-	  }, {
-	    key: "getUrl",
-	    value: function getUrl() {
-	      return this.value.url;
-	    }
-	  }, {
-	    key: "getUrl2x",
-	    value: function getUrl2x() {
-	      return this.value.url2x;
-	    }
-	  }, {
-	    key: "getFileId",
-	    value: function getFileId() {
-	      return this.value.fileId;
-	    }
-	  }, {
-	    key: "getFileId2x",
-	    value: function getFileId2x() {
-	      return this.value.fileId2x;
-	    }
-	  }, {
-	    key: "getSize",
-	    value: function getSize() {
-	      return this.value.size;
-	    }
-	  }, {
-	    key: "getAttachment",
-	    value: function getAttachment() {
-	      var needBool = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-	      return needBool ? this.value.attachment === 'fixed' : this.value.attachment;
-	    }
-	  }, {
-	    key: "getOverlay",
-	    value: function getOverlay() {
-	      return this.value.overlay;
-	    }
-	  }, {
-	    key: "getOpacity",
-	    value: function getOpacity() {
-	      // todo: how image can have opacity?
-	      return 1;
-	    }
-	  }, {
-	    key: "getStyleString",
-	    value: function getStyleString() {
-	      var style = '';
+	}
 
-	      if (this.value.overlay !== null) {
-	        style = "linear-gradient(".concat(this.value.overlay.getStyleString(), ",").concat(this.value.overlay.getStyleString(), ")");
-	      } // todo: what if url is null
+	let _$g = t => t,
+	    _t$g;
+	class Image extends BaseControl {
+	  constructor(options) {
+	    super();
+	    this.setEventNamespace('BX.Landing.UI.Field.Color.Image');
+	    this.options = options; // todo: set dimensions from block
 
-
-	      var _this$value = this.value,
-	          url = _this$value.url,
-	          url2x = _this$value.url2x,
-	          size = _this$value.size,
-	          attachment = _this$value.attachment;
-	      var endString = "center / ".concat(size, " ").concat(attachment);
-
-	      if (url !== null) {
-	        style = style.length ? style + ',' : '';
-
-	        if (url2x !== null) {
-	          style += "-webkit-image-set(url('".concat(url, "') 1x, url('").concat(url2x, "') 2x) ").concat(endString, ",");
-	          style += "image-set(url('".concat(url, "') 1x, url('").concat(url2x, "') 2x) ").concat(endString, ",");
-	        }
-
-	        style += "url('".concat(url, "') ").concat(endString);
-	      }
-
-	      return style;
-	    }
-	  }, {
-	    key: "getStyleStringForOpacity",
-	    value: function getStyleStringForOpacity() {
-	      // todo: how image can have opacity?
-	      return '';
-	    }
-	  }], [{
-	    key: "getSizeItemsForButtons",
-	    value: function getSizeItemsForButtons() {
-	      return [{
-	        name: main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_COVER'),
-	        value: 'cover'
-	      }, {
-	        name: main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_MOSAIC'),
-	        value: 'auto'
-	      }];
-	    }
-	  }, {
-	    key: "getAttachmentValueByBool",
-	    value: function getAttachmentValueByBool(value) {
-	      return value ? 'fixed' : 'scroll';
-	    }
-	  }]);
-	  return BgImageValue;
-	}();
-
-	var _templateObject$g;
-
-	var Image = /*#__PURE__*/function (_BaseControl) {
-	  babelHelpers.inherits(Image, _BaseControl);
-
-	  function Image(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, Image);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Image).call(this));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Color.Image');
-
-	    _this.options = options; // todo: set dimensions from block
-
-	    var rootWindow = landing_pageobject.PageObject.getRootWindow();
-	    _this.imgField = new rootWindow.BX.Landing.UI.Field.Image({
+	    const rootWindow = landing_pageobject.PageObject.getRootWindow();
+	    this.imgField = new rootWindow.BX.Landing.UI.Field.Image({
 	      id: 'landing_ui_color_image_' + main_core.Text.getRandom().toLowerCase(),
 	      className: 'landing-ui-field-color-image-image',
 	      compactMode: true,
@@ -3751,14 +3601,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      },
 	      uploadParams: {
 	        action: "Block::uploadFile",
-	        block: _this.options.block.id
+	        block: this.options.block.id
 	      },
-	      contentRoot: _this.options.contentRoot
+	      contentRoot: this.options.contentRoot
 	    });
-
-	    _this.imgField.subscribe('change', _this.onImageChange.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    _this.sizeField = new BX.Landing.UI.Field.Dropdown({
+	    this.imgField.subscribe('change', this.onImageChange.bind(this));
+	    this.sizeField = new BX.Landing.UI.Field.Dropdown({
 	      // todo: need commented fields?
 	      id: 'landing_ui_color_image_size_' + main_core.Text.getRandom().toLowerCase(),
 	      // title: 'size field title',
@@ -3767,10 +3615,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      className: 'landing-ui-field-color-image-size',
 	      // selector: this.options.selector,
 	      items: BgImageValue.getSizeItemsForButtons(),
-	      onChange: _this.onSizeChange.bind(babelHelpers.assertThisInitialized(_this)),
-	      contentRoot: _this.options.contentRoot
+	      onChange: this.onSizeChange.bind(this),
+	      contentRoot: this.options.contentRoot
 	    });
-	    _this.attachmentField = new BX.Landing.UI.Field.Checkbox({
+	    this.attachmentField = new BX.Landing.UI.Field.Checkbox({
 	      // todo: need commented fields?
 	      id: 'landing_ui_color_image_attach_' + main_core.Text.getRandom().toLowerCase(),
 	      className: 'landing-ui-field-color-image-attachment',
@@ -3783,20 +3631,24 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        name: main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_FIXED'),
 	        value: true
 	      }],
-	      onChange: _this.onAttachmentChange.bind(babelHelpers.assertThisInitialized(_this))
+	      onChange: this.onAttachmentChange.bind(this)
 	    });
-	    return _this;
 	  }
 
-	  babelHelpers.createClass(Image, [{
-	    key: "buildLayout",
-	    value: function buildLayout() {
-	      return main_core.Tag.render(_templateObject$g || (_templateObject$g = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-color-image\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.imgField.getLayout(), this.sizeField.getLayout(), this.attachmentField.getLayout());
-	    }
-	  }, {
-	    key: "onImageChange",
-	    value: function onImageChange(event) {
-	      var value = this.getValue() || new BgImageValue();
+	  buildLayout() {
+	    return main_core.Tag.render(_t$g || (_t$g = _$g`
+			<div class="landing-ui-field-color-image">
+				${0}
+				${0}
+				${0}
+			</div>
+		`), this.imgField.getLayout(), this.sizeField.getLayout(), this.attachmentField.getLayout());
+	  }
+
+	  onImageChange(event) {
+	    const value = this.getValue() || new BgImageValue();
+
+	    if (event.getData().value.src) {
 	      value.setUrl(event.getData().value.src);
 	      value.setFileId(event.getData().value.id);
 
@@ -3804,121 +3656,105 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        value.setUrl2x(event.getData().value.src2x);
 	        value.setFileId2x(event.getData().value.id2x);
 	      }
+	    } else {
+	      value.setUrl(null);
+	      value.setFileId(null);
+	      value.setUrl2x(null);
+	      value.setFileId2x(null);
+	    }
 
+	    this.setValue(value);
+	    this.onChange();
+	    this.saveNode(value);
+	  }
+
+	  saveNode(value) {
+	    const style = this.options.styleNode;
+	    const block = this.options.block;
+	    let selector;
+
+	    if (style.selector === block.selector || style.selector === block.makeAbsoluteSelector(block.selector)) {
+	      selector = '#wrapper';
+	    } else if (!style.isSelectGroup()) {
+	      selector = BX.Landing.Utils.join(style.selector.split("@")[0], "@", style.getElementIndex(style.getNode()[0]));
+	    } else {
+	      selector = style.selector.split("@")[0];
+	    }
+
+	    const data = {
+	      [selector]: {}
+	    };
+	    data[selector].id = value.getFileId() || -1;
+	    data[selector].id2x = value.getFileId2x() || -1;
+	    landing_backend.Backend.getInstance().action("Landing\\Block::updateNodes", {
+	      block: this.options.block.id,
+	      data: data
+	    });
+	  }
+
+	  onSizeChange(size) {
+	    if (main_core.Type.isString(size)) {
+	      const value = this.getValue() || new BgImageValue();
+	      value.setSize(size);
 	      this.setValue(value);
-	      this.onChange(new main_core_events.BaseEvent({
-	        data: {
-	          image: value
-	        }
-	      }));
-	      this.saveNode(value);
+	      this.onChange();
 	    }
-	  }, {
-	    key: "saveNode",
-	    value: function saveNode(value) {
-	      var style = this.options.styleNode;
-	      var block = this.options.block;
-	      var selector = style.selector;
+	  }
 
-	      if (style.selector === block.selector || style.selector === block.makeAbsoluteSelector(block.selector)) {
-	        selector = '#wrapper';
-	      } else if (!style.isSelectGroup()) {
-	        selector = BX.Landing.Utils.join(style.selector.split("@")[0], "@", style.getElementIndex(style.getNode()[0]));
+	  onAttachmentChange(event) {
+	    if (event instanceof main_core_events.BaseEvent) {
+	      const value = this.getValue() || new BgImageValue();
+	      value.setAttachment(BgImageValue.getAttachmentValueByBool(this.attachmentField.getValue()));
+	      this.setValue(value);
+	      this.onChange();
+	    }
+	  }
+
+	  onChange(event) {
+	    this.cache.delete('value');
+	    this.emit('onChange', {
+	      data: {
+	        image: this.getValue()
+	      }
+	    });
+	  }
+
+	  getValue() {
+	    // todo: get size and attachement from controls
+	    return this.cache.remember('value', () => {
+	      const imgValue = this.imgField.getValue();
+	      const url = imgValue.src;
+
+	      if (url === null) {
+	        return null;
 	      } else {
-	        selector = style.selector.split("@")[0];
-	      }
+	        const value = new BgImageValue({
+	          url: url,
+	          fileId: imgValue.id
+	        });
 
-	      var data = babelHelpers.defineProperty({}, selector, {});
-
-	      if (value.getFileId()) {
-	        data[selector].id = value.getFileId();
-	      }
-
-	      if (value.getFileId2x()) {
-	        data[selector].id2x = value.getFileId2x();
-	      }
-
-	      landing_backend.Backend.getInstance().action("Landing\\Block::updateNodes", {
-	        block: this.options.block.id,
-	        data: data
-	      });
-	    }
-	  }, {
-	    key: "onSizeChange",
-	    value: function onSizeChange(size) {
-	      if (main_core.Type.isString(size)) {
-	        var value = this.getValue() || new BgImageValue();
-	        value.setSize(size);
-	        this.setValue(value);
-	        this.onChange(new main_core_events.BaseEvent({
-	          data: {
-	            image: value
-	          }
-	        }));
-	      }
-	    }
-	  }, {
-	    key: "onAttachmentChange",
-	    value: function onAttachmentChange(event) {
-	      if (event instanceof main_core_events.BaseEvent) {
-	        var value = this.getValue() || new BgImageValue();
-	        value.setAttachment(BgImageValue.getAttachmentValueByBool(this.attachmentField.getValue()));
-	        this.setValue(value);
-	        this.onChange(new main_core_events.BaseEvent({
-	          data: {
-	            image: value
-	          }
-	        }));
-	      }
-	    }
-	  }, {
-	    key: "onChange",
-	    value: function onChange(event) {
-	      // todo: can call parent?
-	      // if not image - null
-	      this.emit('onChange', event);
-	    }
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {
-	      var _this2 = this;
-
-	      // todo: get size and attachement from controls
-	      return this.cache.remember('value', function () {
-	        var imgValue = _this2.imgField.getValue();
-
-	        var url = imgValue.src;
-
-	        if (url === null) {
-	          return null;
-	        } else {
-	          var value = new BgImageValue({
-	            url: url,
-	            fileId: imgValue.id
-	          });
-
-	          if (imgValue.src2x) {
-	            value.setUrl2x(imgValue.src2x);
-	            value.setFileId2x(imgValue.fileId2x);
-	          }
-
-	          var size = _this2.sizeField.getValue();
-
-	          if (size !== null) {
-	            value.setSize(size);
-	          }
-
-	          value.setAttachment(BgImageValue.getAttachmentValueByBool(_this2.attachmentField.getValue())); // todo: set overlay
-
-	          return value;
+	        if (imgValue.src2x) {
+	          value.setUrl2x(imgValue.src2x);
+	          value.setFileId2x(imgValue.fileId2x);
 	        }
-	      });
-	    }
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {
+
+	        const size = this.sizeField.getValue();
+
+	        if (size !== null) {
+	          value.setSize(size);
+	        }
+
+	        value.setAttachment(BgImageValue.getAttachmentValueByBool(this.attachmentField.getValue())); // todo: set overlay
+
+	        return value;
+	      }
+	    });
+	  }
+
+	  setValue(value) {
+	    if (this.isNeedSetValue(value)) {
 	      // todo: can delete prev image
-	      babelHelpers.get(babelHelpers.getPrototypeOf(Image.prototype), "setValue", this).call(this, value);
+	      super.setValue(value);
 
 	      if (value === null) {
 	        this.imgField.setValue({
@@ -3929,7 +3765,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          this.setActive();
 	        }
 
-	        var imgFieldValue = {
+	        const imgFieldValue = {
 	          type: 'image',
 	          src: value.getUrl(),
 	          id: value.getFileId()
@@ -3945,806 +3781,632 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        this.attachmentField.setValue([value.getAttachment(true)]);
 	      }
 	    }
-	  }, {
-	    key: "setActive",
-	    value: function setActive() {
-	      main_core.Dom.addClass(this.imgField.getLayout(), Image.ACTIVE_CLASS);
-	    }
-	  }, {
-	    key: "unsetActive",
-	    value: function unsetActive() {
-	      main_core.Dom.removeClass(this.imgField.getLayout(), Image.ACTIVE_CLASS);
-	    }
-	  }]);
-	  return Image;
-	}(BaseControl);
-
-	var _templateObject$h;
-
-	var Bg = /*#__PURE__*/function (_BgColor) {
-	  babelHelpers.inherits(Bg, _BgColor);
-
-	  function Bg(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, Bg);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Bg).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.Bg');
-
-	    _this.parentVariableName = _this.variableName;
-	    _this.variableName = [_this.parentVariableName, Bg.BG_URL_VAR, Bg.BG_URL_2X_VAR, Bg.BG_OVERLAY_VAR, Bg.BG_SIZE_VAR, Bg.BG_ATTACHMENT_VAR];
-	    _this.parentClassName = _this.className;
-	    _this.className = 'g-bg-image';
-	    _this.image = new Image(options);
-
-	    _this.image.subscribe('onChange', _this.onImageChange.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    _this.overlay = new ColorSet(options);
-
-	    _this.overlay.subscribe('onChange', _this.onOverlayChange.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    _this.overlayOpacity = new Opacity();
-
-	    _this.overlayOpacity.setValue(new ColorValue().setOpacity(0.5));
-
-	    _this.overlayOpacity.subscribe('onChange', _this.onOverlayOpacityChange.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    _this.imageTabs = new Tabs().appendTab('Overlay', main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_OVERLAY'), [_this.overlay, _this.overlayOpacity]);
-	    _this.bigTabs = new Tabs().setBig(true).appendTab('Color', main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_COLOR'), [_this.colorSet, _this.primary, _this.tabs]).appendTab('Image', main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_IMAGE'), [_this.image, _this.imageTabs]);
-	    return _this;
 	  }
 
-	  babelHelpers.createClass(Bg, [{
-	    key: "buildLayout",
-	    value: function buildLayout() {
-	      return main_core.Tag.render(_templateObject$h || (_templateObject$h = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-color-color\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.bigTabs.getLayout());
+	  setActive() {
+	    main_core.Dom.addClass(this.imgField.getLayout(), Image.ACTIVE_CLASS);
+	  }
+
+	  unsetActive() {
+	    main_core.Dom.removeClass(this.imgField.getLayout(), Image.ACTIVE_CLASS);
+	  }
+
+	}
+
+	let _$h = t => t,
+	    _t$h;
+	class Bg extends BgColor {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.Bg');
+	    this.parentVariableName = this.variableName;
+	    this.variableName = [this.parentVariableName, Bg.BG_URL_VAR, Bg.BG_URL_2X_VAR, Bg.BG_OVERLAY_VAR, Bg.BG_SIZE_VAR, Bg.BG_ATTACHMENT_VAR];
+	    this.parentClassName = this.className;
+	    this.className = 'g-bg-image';
+	    this.image = new Image(options);
+	    this.image.subscribe('onChange', this.onImageChange.bind(this));
+	    this.overlay = new ColorSet(options);
+	    this.overlay.subscribe('onChange', this.onOverlayChange.bind(this));
+	    this.overlayOpacity = new Opacity({
+	      defaultOpacity: 0.5
+	    });
+	    this.overlayOpacity.subscribe('onChange', this.onOverlayOpacityChange.bind(this));
+	    this.imageTabs = new Tabs().appendTab('Overlay', main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_OVERLAY'), [this.overlay, this.overlayOpacity]);
+	    this.bigTabs = new Tabs().setBig(true).appendTab('Color', main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_COLOR'), [this.colorSet, this.primary, this.zeroing, this.tabs]).appendTab('Image', main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_IMAGE'), [this.image, this.imageTabs]);
+	  }
+
+	  buildLayout() {
+	    return main_core.Tag.render(_t$h || (_t$h = _$h`
+			<div class="landing-ui-field-color-color">
+				${0}
+			</div>
+		`), this.bigTabs.getLayout());
+	  }
+
+	  onColorSetChange(event) {
+	    this.image.unsetActive();
+	    this.overlay.unsetActive();
+	    super.onColorSetChange(event);
+	  }
+
+	  onGradientChange(event) {
+	    this.image.unsetActive();
+	    this.overlay.unsetActive();
+	    super.onGradientChange(event);
+	  }
+
+	  onImageChange() {
+	    // todo: can drop image from b_landing_file after change
+	    this.unsetActive();
+	    this.activeControl = this.image;
+	    this.image.setActive();
+	    this.onChange();
+	  }
+
+	  onOverlayChange(event) {
+	    const overlayValue = event.getData().color;
+
+	    if (overlayValue !== null) {
+	      overlayValue.setOpacity(this.overlayOpacity.getValue().getOpacity());
 	    }
-	  }, {
-	    key: "onColorSetChange",
-	    value: function onColorSetChange(event) {
-	      this.image.unsetActive();
-	      babelHelpers.get(babelHelpers.getPrototypeOf(Bg.prototype), "onColorSetChange", this).call(this, event);
-	    }
-	  }, {
-	    key: "onGradientChange",
-	    value: function onGradientChange(event) {
-	      this.image.unsetActive();
-	      babelHelpers.get(babelHelpers.getPrototypeOf(Bg.prototype), "onGradientChange", this).call(this, event);
-	    }
-	  }, {
-	    key: "onImageChange",
-	    value: function onImageChange() {
-	      // todo: can drop image from b_landing_file after change
-	      this.unsetActive();
+
+	    this.overlayOpacity.setValue(overlayValue);
+	    const imageValue = this.image.getValue();
+
+	    if (imageValue !== null) {
+	      this.image.setValue(imageValue.setOverlay(overlayValue));
 	      this.activeControl = this.image;
 	      this.image.setActive();
-	      this.onChange();
+	      this.colorSet.unsetActive();
+	      this.gradient.unsetActive();
 	    }
-	  }, {
-	    key: "onOverlayChange",
-	    value: function onOverlayChange(event) {
-	      var color = event.getData().color;
-	      color.setOpacity(this.overlayOpacity.getValue().getOpacity());
-	      this.overlayOpacity.setValue(color);
-	      this.onChange();
-	    }
-	  }, {
-	    key: "onOverlayOpacityChange",
-	    value: function onOverlayOpacityChange() {
-	      this.onChange();
-	    }
-	  }, {
-	    key: "unsetActive",
-	    value: function unsetActive() {
-	      babelHelpers.get(babelHelpers.getPrototypeOf(Bg.prototype), "unsetActive", this).call(this);
-	      this.image.unsetActive(); // todo: unset overlay?
-	    }
-	    /**
-	     * Set value by new format
-	     * @param value {string: string}
-	     */
 
-	  }, {
-	    key: "setProcessorValue",
-	    value: function setProcessorValue(value) {
-	      // Just get last css variable
-	      this.setValue(value);
-	    }
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {
-	      this.image.setValue(null);
-	      this.bigTabs.showTab('Color');
+	    this.onChange();
+	  }
 
-	      if (main_core.Type.isNull(value)) {
-	        babelHelpers.get(babelHelpers.getPrototypeOf(Bg.prototype), "setValue", this).call(this, value);
-	      } else if (main_core.Type.isString(value)) {
-	        babelHelpers.get(babelHelpers.getPrototypeOf(Bg.prototype), "setValue", this).call(this, value);
-	      } else if (this.parentVariableName in value && main_core.Type.isString(value[this.parentVariableName])) {
-	        babelHelpers.get(babelHelpers.getPrototypeOf(Bg.prototype), "setValue", this).call(this, value[this.parentVariableName]);
-	      } else if (main_core.Type.isObject(value)) {
-	        // todo: super.setValue null?
-	        var bgValue = new BgImageValue();
+	  onOverlayOpacityChange() {
+	    this.onChange();
+	  }
 
-	        if (Bg.BG_URL_VAR in value) {
-	          bgValue.setUrl(value[Bg.BG_URL_VAR].replace(/url\(["']/i, '').replace(/['"]\)/i, ''));
-	        }
+	  unsetActive() {
+	    super.unsetActive();
+	    this.image.unsetActive();
+	  }
+	  /**
+	   * Set value by new format
+	   */
 
-	        if (Bg.BG_URL_2X_VAR in value) {
-	          bgValue.setUrl2x(value[Bg.BG_URL_2X_VAR].replace(/url\(["']/i, '').replace(/['"]\)/i, ''));
-	        }
 
-	        if (Bg.BG_SIZE_VAR in value) {
-	          bgValue.setSize(value[Bg.BG_SIZE_VAR]);
-	        }
+	  setProcessorValue(value) {
+	    this.cache.delete('value');
+	    this.setValue(value);
+	  }
 
-	        if (Bg.BG_ATTACHMENT_VAR in value) {
-	          bgValue.setAttachment(value[Bg.BG_ATTACHMENT_VAR]);
-	        }
+	  setValue(value) {
+	    this.image.setValue(null);
+	    this.bigTabs.showTab('Color');
 
-	        this.image.setValue(bgValue);
-	        this.bigTabs.showTab('Image');
-	        this.activeControl = this.image;
+	    if (main_core.Type.isNull(value)) {
+	      super.setValue(value);
+	    } else if (main_core.Type.isString(value)) {
+	      super.setValue(value);
+	    } else if (this.parentVariableName in value && main_core.Type.isString(value[this.parentVariableName])) {
+	      super.setValue(value[this.parentVariableName]);
+	    } else if (main_core.Type.isObject(value)) {
+	      // todo: super.setValue null?
+	      const bgValue = new BgImageValue();
 
-	        if (Bg.BG_OVERLAY_VAR in value) {
-	          var overlayValue = new ColorValue(value[Bg.BG_OVERLAY_VAR]);
-	          this.overlay.setValue(overlayValue);
-	          this.overlayOpacity.setValue(overlayValue);
-	          this.imageTabs.showTab('Overlay');
-	        }
-	      }
-	    } // todo: create base value instead interface. In this case can return ALL types, color, grad, bg
-
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {
-	      var _this2 = this;
-
-	      return this.cache.remember('value', function () {
-	        if (_this2.activeControl === _this2.image) {
-	          var imageValue = _this2.image.getValue();
-
-	          var overlayValue = _this2.overlay.getValue();
-
-	          if (imageValue !== null && _this2.overlay.isActive() && overlayValue !== null) {
-	            overlayValue.setOpacity(_this2.overlayOpacity.getValue().getOpacity());
-	            imageValue.setOverlay(overlayValue);
-	          }
-
-	          return imageValue;
-	        } else {
-	          return babelHelpers.get(babelHelpers.getPrototypeOf(Bg.prototype), "getValue", _this2).call(_this2);
-	        }
-	      });
-	    }
-	  }, {
-	    key: "getClassName",
-	    value: function getClassName() {
-	      var value = this.getValue();
-
-	      if (value === null || value instanceof ColorValue || value instanceof GradientValue) {
-	        return [this.parentClassName];
+	      if (Bg.BG_URL_VAR in value) {
+	        bgValue.setUrl(value[Bg.BG_URL_VAR].replace(/url\(["']/i, '').replace(/['"]\)/i, ''));
 	      }
 
-	      return [this.className];
-	    } // todo: what about fileid?
-
-	  }, {
-	    key: "getStyle",
-	    value: function getStyle() {
-	      var _ref2;
-
-	      if (this.getValue() === null) {
-	        var _ref;
-
-	        // todo: not null, but what?
-	        return _ref = {}, babelHelpers.defineProperty(_ref, this.parentVariableName, null), babelHelpers.defineProperty(_ref, Bg.BG_URL_VAR, null), babelHelpers.defineProperty(_ref, Bg.BG_URL_2X_VAR, null), babelHelpers.defineProperty(_ref, Bg.BG_OVERLAY_VAR, null), babelHelpers.defineProperty(_ref, Bg.BG_SIZE_VAR, null), babelHelpers.defineProperty(_ref, Bg.BG_ATTACHMENT_VAR, null), _ref;
+	      if (Bg.BG_URL_2X_VAR in value) {
+	        bgValue.setUrl2x(value[Bg.BG_URL_2X_VAR].replace(/url\(["']/i, '').replace(/['"]\)/i, ''));
 	      }
 
-	      var value = this.getValue();
-	      var color = null;
-	      var image = null;
-	      var image2x = null;
-	      var overlay = null; // let size = 'cover';
+	      if (Bg.BG_SIZE_VAR in value) {
+	        bgValue.setSize(value[Bg.BG_SIZE_VAR]);
+	      }
 
-	      var size = null; // let attachment = 'scroll';
+	      if (Bg.BG_ATTACHMENT_VAR in value) {
+	        bgValue.setAttachment(value[Bg.BG_ATTACHMENT_VAR]);
+	      }
 
-	      var attachment = null;
+	      if (Bg.BG_OVERLAY_VAR in value) {
+	        bgValue.setOverlay(new ColorValue(value[Bg.BG_OVERLAY_VAR]));
+	      }
 
-	      if (value instanceof ColorValue || value instanceof GradientValue) {
-	        // todo: need change class if not a image?
-	        color = value.getStyleString();
+	      this.image.setValue(bgValue);
+	      this.bigTabs.showTab('Image');
+	      this.activeControl = this.image;
+
+	      if (Bg.BG_OVERLAY_VAR in value) {
+	        const overlayValue = new ColorValue(value[Bg.BG_OVERLAY_VAR]);
+	        this.overlay.setValue(overlayValue);
+	        this.overlayOpacity.setValue(overlayValue);
+	        this.imageTabs.showTab('Overlay');
+	      }
+	    }
+	  } // todo: create base value instead interface. In this case can return ALL types, color, grad, bg
+
+
+	  getValue() {
+	    return this.cache.remember('value', () => {
+	      if (this.activeControl === this.image) {
+	        const imageValue = this.image.getValue();
+	        const overlayValue = this.overlay.getValue();
+
+	        if (imageValue !== null && this.overlay.isActive() && overlayValue !== null) {
+	          overlayValue.setOpacity(this.overlayOpacity.getValue().getOpacity());
+	          imageValue.setOverlay(overlayValue);
+	        }
+
+	        return imageValue;
 	      } else {
-	        image = "url('".concat(value.getUrl(), "')");
-	        image2x = "url('".concat(value.getUrl2x(), "')");
-	        overlay = value.getOverlay() ? value.getOverlay().getStyleString() : 'transparent';
-	        size = value.getSize();
-	        attachment = value.getAttachment();
+	        return super.getValue();
 	      }
+	    });
+	  }
 
-	      return _ref2 = {}, babelHelpers.defineProperty(_ref2, this.parentVariableName, color), babelHelpers.defineProperty(_ref2, Bg.BG_URL_VAR, image), babelHelpers.defineProperty(_ref2, Bg.BG_URL_2X_VAR, image2x), babelHelpers.defineProperty(_ref2, Bg.BG_OVERLAY_VAR, overlay), babelHelpers.defineProperty(_ref2, Bg.BG_SIZE_VAR, size), babelHelpers.defineProperty(_ref2, Bg.BG_ATTACHMENT_VAR, attachment), _ref2;
+	  getClassName() {
+	    const value = this.getValue();
+
+	    if (value === null || value instanceof ColorValue || value instanceof GradientValue) {
+	      return [this.parentClassName];
 	    }
-	  }]);
-	  return Bg;
-	}(BgColor);
 
-	babelHelpers.defineProperty(Bg, "BG_URL_VAR", '--bg-url');
-	babelHelpers.defineProperty(Bg, "BG_URL_2X_VAR", '--bg-url-2x');
-	babelHelpers.defineProperty(Bg, "BG_OVERLAY_VAR", '--bg-overlay');
-	babelHelpers.defineProperty(Bg, "BG_SIZE_VAR", '--bg-size');
-	babelHelpers.defineProperty(Bg, "BG_ATTACHMENT_VAR", '--bg-attachment');
-
-	var BorderColor = /*#__PURE__*/function (_Color) {
-	  babelHelpers.inherits(BorderColor, _Color);
-
-	  function BorderColor(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, BorderColor);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BorderColor).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.BorderColor');
-
-	    _this.property = 'border-color';
-	    _this.variableName = '--border-color';
-	    _this.className = 'g-border-color';
-	    return _this;
-	  }
-
-	  return BorderColor;
-	}(Color);
-
-	var BorderColorHover = /*#__PURE__*/function (_Color) {
-	  babelHelpers.inherits(BorderColorHover, _Color);
-
-	  function BorderColorHover(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, BorderColorHover);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BorderColorHover).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.BorderColorHover');
-
-	    _this.property = 'border-color';
-	    _this.variableName = '--border-color--hover';
-	    _this.className = 'g-border-color--hover';
-	    _this.pseudoClass = ':hover';
-	    return _this;
-	  }
-
-	  return BorderColorHover;
-	}(Color);
-
-	var BgColorHover = /*#__PURE__*/function (_BgColor) {
-	  babelHelpers.inherits(BgColorHover, _BgColor);
-
-	  function BgColorHover(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, BgColorHover);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BgColorHover).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.BgColorHover');
-
-	    _this.property = ['background-image', 'background-color'];
-	    _this.variableName = '--bg-hover';
-	    _this.className = 'g-bg--hover';
-	    _this.pseudoClass = ':hover';
-	    return _this;
-	  }
-
-	  return BgColorHover;
-	}(BgColor);
-
-	var BgColorAfter = /*#__PURE__*/function (_BgColor) {
-	  babelHelpers.inherits(BgColorAfter, _BgColor);
-
-	  function BgColorAfter(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, BgColorAfter);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BgColorAfter).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.BgColorAfter');
-
-	    _this.property = ['background-image', 'background-color'];
-	    _this.variableName = '--bg--after';
-	    _this.className = 'g-bg--after';
-	    _this.pseudoClass = ':after';
-	    var opacityValue = _this.getValue() || new ColorValue();
-
-	    _this.opacity.setValue(opacityValue.setOpacity(0.5));
-
-	    _this.tabs.showTab('Opacity');
-
-	    return _this;
-	  }
-
-	  return BgColorAfter;
-	}(BgColor);
-
-	var BgColorBefore = /*#__PURE__*/function (_BgColor) {
-	  babelHelpers.inherits(BgColorBefore, _BgColor);
-
-	  function BgColorBefore(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, BgColorBefore);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BgColorBefore).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.BgColorBefore');
-
-	    _this.property = ['background-image', 'background-color'];
-	    _this.variableName = '--bg--before';
-	    _this.className = 'g-bg--before';
-	    _this.pseudoClass = ':before';
-	    var opacityValue = _this.getValue() || new ColorValue();
-
-	    _this.opacity.setValue(opacityValue.setOpacity(0.5));
-
-	    _this.tabs.showTab('Opacity');
-
-	    return _this;
-	  }
-
-	  return BgColorBefore;
-	}(BgColor);
-
-	var NavbarColor = /*#__PURE__*/function (_Color) {
-	  babelHelpers.inherits(NavbarColor, _Color);
-
-	  function NavbarColor(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, NavbarColor);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(NavbarColor).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.NavbarColor');
-
-	    _this.property = 'color';
-	    _this.variableName = '--navbar-color';
-	    _this.className = 'u-navbar-color';
-	    return _this;
-	  }
-
-	  return NavbarColor;
-	}(Color);
-
-	var NavbarColorHover = /*#__PURE__*/function (_Color) {
-	  babelHelpers.inherits(NavbarColorHover, _Color);
-
-	  function NavbarColorHover(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, NavbarColorHover);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(NavbarColorHover).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.NavbarColorHover');
-
-	    _this.property = 'color';
-	    _this.variableName = '--navbar-color--hover';
-	    _this.className = 'u-navbar-color--hover';
-	    _this.pseudoClass = ':hover';
-	    return _this;
-	  }
-
-	  return NavbarColorHover;
-	}(Color);
-
-	var NavbarColorFixMoment = /*#__PURE__*/function (_Color) {
-	  babelHelpers.inherits(NavbarColorFixMoment, _Color);
-
-	  function NavbarColorFixMoment(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, NavbarColorFixMoment);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(NavbarColorFixMoment).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.NavbarColorFixMoment');
-
-	    _this.property = 'color';
-	    _this.variableName = '--navbar-color--fix-moment';
-	    _this.className = 'u-navbar-color--fix-moment';
-	    return _this;
-	  }
-
-	  return NavbarColorFixMoment;
-	}(Color);
-
-	var NavbarColorFixMomentHover = /*#__PURE__*/function (_Color) {
-	  babelHelpers.inherits(NavbarColorFixMomentHover, _Color);
-
-	  function NavbarColorFixMomentHover(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, NavbarColorFixMomentHover);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(NavbarColorFixMomentHover).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.NavbarColorFixMomentHover');
-
-	    _this.property = 'color';
-	    _this.variableName = '--navbar-color--fix-moment--hover';
-	    _this.className = 'u-navbar-color--fix-moment--hover';
-	    _this.pseudoClass = ':hover';
-	    return _this;
-	  }
-
-	  return NavbarColorFixMomentHover;
-	}(Color);
-
-	var NavbarBgColor = /*#__PURE__*/function (_Color) {
-	  babelHelpers.inherits(NavbarBgColor, _Color);
-
-	  function NavbarBgColor(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, NavbarBgColor);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(NavbarBgColor).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.NavbarBgColor');
-
-	    _this.property = 'background-color';
-	    _this.variableName = '--navbar-bg-color';
-	    _this.className = 'u-navbar-bg';
-	    return _this;
-	  }
-
-	  return NavbarBgColor;
-	}(Color);
-
-	var NavbarBgColorHover = /*#__PURE__*/function (_Color) {
-	  babelHelpers.inherits(NavbarBgColorHover, _Color);
-
-	  function NavbarBgColorHover(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, NavbarBgColorHover);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(NavbarBgColorHover).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.NavbarBgColorHover');
-
-	    _this.property = 'background-color';
-	    _this.variableName = '--navbar-bg-color--hover';
-	    _this.className = 'u-navbar-bg--hover';
-	    _this.pseudoClass = ':hover';
-	    return _this;
-	  }
-
-	  return NavbarBgColorHover;
-	}(Color);
-
-	var BorderColorTop = /*#__PURE__*/function (_Color) {
-	  babelHelpers.inherits(BorderColorTop, _Color);
-
-	  function BorderColorTop(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, BorderColorTop);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BorderColorTop).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.BorderColorTop');
-
-	    _this.property = 'border-top-color';
-	    _this.variableName = '--border-color-top';
-	    _this.className = 'g-border-color-top';
-	    return _this;
-	  }
-
-	  return BorderColorTop;
-	}(Color);
-
-	var FillColor = /*#__PURE__*/function (_Color) {
-	  babelHelpers.inherits(FillColor, _Color);
-
-	  function FillColor(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, FillColor);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FillColor).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.FillColor');
-
-	    _this.property = 'fill';
-	    _this.variableName = '--fill-first';
-	    _this.className = 'g-fill-first';
-	    return _this;
-	  }
-
-	  return FillColor;
-	}(Color);
-
-	var FillColorSecond = /*#__PURE__*/function (_Color) {
-	  babelHelpers.inherits(FillColorSecond, _Color);
-
-	  function FillColorSecond(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, FillColorSecond);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FillColorSecond).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.FillColorSecond');
-
-	    _this.property = 'fill';
-	    _this.variableName = '--fill-second';
-	    _this.className = 'g-fill-second';
-	    return _this;
-	  }
-
-	  return FillColorSecond;
-	}(Color);
-
-	var ButtonColor = /*#__PURE__*/function (_Color) {
-	  babelHelpers.inherits(ButtonColor, _Color);
-
-	  function ButtonColor(options) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, ButtonColor);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ButtonColor).call(this, options));
-
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.ButtonColor');
-
-	    _this.property = 'background-color'; // order is important! Base variable must be last. Hack :-/
-
-	    _this.variableName = [ButtonColor.COLOR_CONTRAST_VAR, ButtonColor.COLOR_HOVER_VAR, ButtonColor.COLOR_LIGHT_VAR, ButtonColor.COLOR_VAR];
-	    _this.className = 'g-button-color'; //todo: ?
-
-	    return _this;
-	  }
-
-	  babelHelpers.createClass(ButtonColor, [{
-	    key: "getStyle",
-	    value: function getStyle() {
-	      var _ref2;
-
-	      if (this.getValue() === null) {
-	        var _ref;
-
-	        return _ref = {}, babelHelpers.defineProperty(_ref, ButtonColor.COLOR_CONTRAST_VAR, null), babelHelpers.defineProperty(_ref, ButtonColor.COLOR_HOVER_VAR, null), babelHelpers.defineProperty(_ref, ButtonColor.COLOR_LIGHT_VAR, null), babelHelpers.defineProperty(_ref, ButtonColor.COLOR_VAR, null), _ref;
-	      }
-
-	      var value = this.getValue();
-	      var valueContrast = value.getContrast().lighten(10);
-	      var valueHover = new ColorValue(value).lighten(10);
-	      var valueLight = value.getLighten();
-	      return _ref2 = {}, babelHelpers.defineProperty(_ref2, ButtonColor.COLOR_CONTRAST_VAR, valueContrast.getStyleString()), babelHelpers.defineProperty(_ref2, ButtonColor.COLOR_HOVER_VAR, valueHover.getStyleString()), babelHelpers.defineProperty(_ref2, ButtonColor.COLOR_LIGHT_VAR, valueLight.getStyleString()), babelHelpers.defineProperty(_ref2, ButtonColor.COLOR_VAR, value.getStyleString()), _ref2;
+	    return [this.className];
+	  } // todo: what about fileid?
+
+
+	  getStyle() {
+	    if (this.getValue() === null) {
+	      // todo: not null, but what?
+	      return {
+	        [this.parentVariableName]: null,
+	        [Bg.BG_URL_VAR]: null,
+	        [Bg.BG_URL_2X_VAR]: null,
+	        [Bg.BG_OVERLAY_VAR]: null,
+	        [Bg.BG_SIZE_VAR]: null,
+	        [Bg.BG_ATTACHMENT_VAR]: null
+	      };
 	    }
-	  }]);
-	  return ButtonColor;
-	}(Color);
 
-	babelHelpers.defineProperty(ButtonColor, "COLOR_CONTRAST_VAR", '--button-color-contrast');
-	babelHelpers.defineProperty(ButtonColor, "COLOR_HOVER_VAR", '--button-color-hover');
-	babelHelpers.defineProperty(ButtonColor, "COLOR_LIGHT_VAR", '--button-color-light');
-	babelHelpers.defineProperty(ButtonColor, "COLOR_VAR", '--button-color');
+	    const value = this.getValue();
+	    let color = null;
+	    let image = null;
+	    let image2x = null;
+	    let overlay = null; // let size = 'cover';
 
-	var NavbarCollapseBgColor = /*#__PURE__*/function (_Color) {
-	  babelHelpers.inherits(NavbarCollapseBgColor, _Color);
+	    let size = null; // let attachment = 'scroll';
 
-	  function NavbarCollapseBgColor(options) {
-	    var _this;
+	    let attachment = null;
 
-	    babelHelpers.classCallCheck(this, NavbarCollapseBgColor);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(NavbarCollapseBgColor).call(this, options));
+	    if (value instanceof ColorValue || value instanceof GradientValue) {
+	      // todo: need change class if not a image?
+	      color = value.getStyleString();
+	    } else {
+	      image = value.getUrl() ? `url('${value.getUrl()}')` : '';
+	      image2x = value.getUrl2x() ? `url('${value.getUrl2x()}')` : '';
+	      overlay = value.getOverlay() ? value.getOverlay().getStyleString() : 'rgba(0, 0, 0, 0)';
+	      size = value.getSize();
+	      attachment = value.getAttachment();
+	    }
 
-	    _this.setEventNamespace('BX.Landing.UI.Field.Processor.NavbarCollapseBgColor');
-
-	    _this.property = 'background-color';
-	    _this.variableName = '--navbar-collapse-bg-color';
-	    _this.className = 'u-navbar-collapse-bg';
-	    return _this;
+	    return {
+	      [this.parentVariableName]: color,
+	      [Bg.BG_URL_VAR]: image,
+	      [Bg.BG_URL_2X_VAR]: image2x,
+	      [Bg.BG_OVERLAY_VAR]: overlay,
+	      [Bg.BG_SIZE_VAR]: size,
+	      [Bg.BG_ATTACHMENT_VAR]: attachment
+	    };
 	  }
 
-	  return NavbarCollapseBgColor;
-	}(Color);
+	}
+	Bg.BG_URL_VAR = '--bg-url';
+	Bg.BG_URL_2X_VAR = '--bg-url-2x';
+	Bg.BG_OVERLAY_VAR = '--bg-overlay';
+	Bg.BG_SIZE_VAR = '--bg-size';
+	Bg.BG_ATTACHMENT_VAR = '--bg-attachment';
 
-	var ColorField = /*#__PURE__*/function (_BaseField) {
-	  babelHelpers.inherits(ColorField, _BaseField);
+	class BorderColor extends Color {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.BorderColor');
+	    this.property = 'border-color';
+	    this.variableName = '--border-color';
+	    this.className = 'g-border-color';
+	  }
 
-	  function ColorField(options) {
-	    var _this;
+	}
 
-	    babelHelpers.classCallCheck(this, ColorField);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ColorField).call(this, options));
-	    _this.items = 'items' in options && options.items ? options.items : [];
-	    _this.postfix = typeof options.postfix === 'string' ? options.postfix : '';
-	    _this.frame = babelHelpers.typeof(options.frame) === 'object' ? options.frame : null;
-	    var processorOptions = {
+	class BorderColorHover extends Color {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.BorderColorHover');
+	    this.property = 'border-color';
+	    this.variableName = '--border-color--hover';
+	    this.className = 'g-border-color--hover';
+	    this.pseudoClass = ':hover';
+	  }
+
+	}
+
+	class BgColorHover extends BgColor {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.BgColorHover');
+	    this.property = ['background-image', 'background-color'];
+	    this.variableName = '--bg-hover';
+	    this.className = 'g-bg--hover';
+	    this.pseudoClass = ':hover';
+	  }
+
+	}
+
+	class BgColorAfter extends BgColor {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.BgColorAfter');
+	    this.property = ['background-image', 'background-color'];
+	    this.variableName = '--bg--after';
+	    this.className = 'g-bg--after';
+	    this.pseudoClass = ':after';
+	    const opacityValue = this.getValue() || new ColorValue();
+	    this.opacity.setValue(opacityValue.setOpacity(0.5));
+	    this.tabs.showTab('Opacity');
+	  }
+
+	}
+
+	class BgColorBefore extends BgColor {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.BgColorBefore');
+	    this.property = ['background-image', 'background-color'];
+	    this.variableName = '--bg--before';
+	    this.className = 'g-bg--before';
+	    this.pseudoClass = ':before';
+	    const opacityValue = this.getValue() || new ColorValue();
+	    this.opacity.setValue(opacityValue.setOpacity(0.5));
+	    this.tabs.showTab('Opacity');
+	  }
+
+	}
+
+	class NavbarColor extends Color {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.NavbarColor');
+	    this.property = 'color';
+	    this.variableName = '--navbar-color';
+	    this.className = 'u-navbar-color';
+	  }
+
+	}
+
+	class NavbarColorHover extends Color {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.NavbarColorHover');
+	    this.property = 'color';
+	    this.variableName = '--navbar-color--hover';
+	    this.className = 'u-navbar-color--hover';
+	    this.pseudoClass = ':hover';
+	  }
+
+	}
+
+	class NavbarColorFixMoment extends Color {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.NavbarColorFixMoment');
+	    this.property = 'color';
+	    this.variableName = '--navbar-color--fix-moment';
+	    this.className = 'u-navbar-color--fix-moment';
+	  }
+
+	}
+
+	class NavbarColorFixMomentHover extends Color {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.NavbarColorFixMomentHover');
+	    this.property = 'color';
+	    this.variableName = '--navbar-color--fix-moment--hover';
+	    this.className = 'u-navbar-color--fix-moment--hover';
+	    this.pseudoClass = ':hover';
+	  }
+
+	}
+
+	class NavbarBgColor extends Color {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.NavbarBgColor');
+	    this.property = 'background-color';
+	    this.variableName = '--navbar-bg-color';
+	    this.className = 'u-navbar-bg';
+	  }
+
+	}
+
+	class NavbarBgColorHover extends Color {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.NavbarBgColorHover');
+	    this.property = 'background-color';
+	    this.variableName = '--navbar-bg-color--hover';
+	    this.className = 'u-navbar-bg--hover';
+	    this.pseudoClass = ':hover';
+	  }
+
+	}
+
+	class BorderColorTop extends Color {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.BorderColorTop');
+	    this.property = 'border-top-color';
+	    this.variableName = '--border-color-top';
+	    this.className = 'g-border-color-top';
+	  }
+
+	}
+
+	class FillColor extends Color {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.FillColor');
+	    this.property = 'fill';
+	    this.pseudoClass = ':before';
+	    this.variableName = '--fill-first';
+	    this.className = 'g-fill-first';
+	  }
+
+	}
+
+	class FillColorSecond extends Color {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.FillColorSecond');
+	    this.property = 'fill';
+	    this.pseudoClass = ':after';
+	    this.variableName = '--fill-second';
+	    this.className = 'g-fill-second';
+	  }
+
+	}
+
+	class ButtonColor extends Color {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.ButtonColor');
+	    this.property = 'background-color'; // order is important! Base variable must be last. Hack :-/
+
+	    this.variableName = [ButtonColor.COLOR_CONTRAST_VAR, ButtonColor.COLOR_HOVER_VAR, ButtonColor.COLOR_LIGHT_VAR, ButtonColor.COLOR_VAR];
+	    this.className = 'g-button-color'; //todo: ?
+	  }
+
+	  getStyle() {
+	    if (this.getValue() === null) {
+	      return {
+	        [ButtonColor.COLOR_CONTRAST_VAR]: null,
+	        [ButtonColor.COLOR_HOVER_VAR]: null,
+	        [ButtonColor.COLOR_LIGHT_VAR]: null,
+	        [ButtonColor.COLOR_VAR]: null
+	      };
+	    }
+
+	    const value = this.getValue();
+	    const valueContrast = value.getContrast().lighten(10);
+	    const valueHover = new ColorValue(value).lighten(10);
+	    const valueLight = value.getLighten();
+	    return {
+	      [ButtonColor.COLOR_CONTRAST_VAR]: valueContrast.getStyleString(),
+	      [ButtonColor.COLOR_HOVER_VAR]: valueHover.getStyleString(),
+	      [ButtonColor.COLOR_LIGHT_VAR]: valueLight.getStyleString(),
+	      [ButtonColor.COLOR_VAR]: value.getStyleString()
+	    };
+	  }
+
+	}
+	ButtonColor.COLOR_CONTRAST_VAR = '--button-color-contrast';
+	ButtonColor.COLOR_HOVER_VAR = '--button-color-hover';
+	ButtonColor.COLOR_LIGHT_VAR = '--button-color-light';
+	ButtonColor.COLOR_VAR = '--button-color';
+
+	class NavbarCollapseBgColor extends Color {
+	  constructor(options) {
+	    super(options);
+	    this.setEventNamespace('BX.Landing.UI.Field.Processor.NavbarCollapseBgColor');
+	    this.property = 'background-color';
+	    this.variableName = '--navbar-collapse-bg-color';
+	    this.className = 'u-navbar-collapse-bg';
+	  }
+
+	}
+
+	class ColorField extends landing_ui_field_basefield.BaseField {
+	  constructor(options) {
+	    super(options);
+	    this.items = 'items' in options && options.items ? options.items : [];
+	    this.postfix = typeof options.postfix === 'string' ? options.postfix : '';
+	    this.frame = typeof options.frame === 'object' ? options.frame : null;
+	    const processorOptions = {
 	      block: options.block,
 	      styleNode: options.styleNode,
 	      selector: options.selector,
-	      contentRoot: _this.contentRoot
+	      contentRoot: this.contentRoot
 	    };
-	    _this.changeHandler = typeof options.onChange === "function" ? options.onChange : function () {};
-	    _this.resetHandler = typeof options.onReset === "function" ? options.onReset : function () {}; // todo: rename "subtype"
+	    this.changeHandler = typeof options.onChange === "function" ? options.onChange : () => {};
+	    this.resetHandler = typeof options.onReset === "function" ? options.onReset : function () {}; // todo: rename "subtype"
 
 	    switch (options.subtype) {
 	      case 'color':
-	        _this.processor = new Color(processorOptions);
+	        this.processor = new Color(processorOptions);
 	        break;
 
 	      case 'color-hover':
-	        _this.processor = new ColorHover(processorOptions);
+	        this.processor = new ColorHover(processorOptions);
 	        break;
 
 	      case 'bg':
-	        _this.processor = new Bg(processorOptions);
+	        this.processor = new Bg(processorOptions);
 	        break;
 
 	      case 'bg-color':
-	        _this.processor = new BgColor(processorOptions);
+	        this.processor = new BgColor(processorOptions);
 	        break;
 
 	      case 'bg-color-hover':
-	        _this.processor = new BgColorHover(processorOptions);
+	        this.processor = new BgColorHover(processorOptions);
 	        break;
 
 	      case 'bg-color-after':
-	        _this.processor = new BgColorAfter(processorOptions);
+	        this.processor = new BgColorAfter(processorOptions);
 	        break;
 
 	      case 'bg-color-before':
-	        _this.processor = new BgColorBefore(processorOptions);
+	        this.processor = new BgColorBefore(processorOptions);
 	        break;
 
 	      case 'border-color':
-	        _this.processor = new BorderColor(processorOptions);
+	        this.processor = new BorderColor(processorOptions);
 	        break;
 
 	      case 'border-color-hover':
-	        _this.processor = new BorderColorHover(processorOptions);
+	        this.processor = new BorderColorHover(processorOptions);
 	        break;
 
 	      case 'border-color-top':
-	        _this.processor = new BorderColorTop(processorOptions);
+	        this.processor = new BorderColorTop(processorOptions);
 	        break;
 
 	      case 'navbar-color':
-	        _this.processor = new NavbarColor(processorOptions);
+	        this.processor = new NavbarColor(processorOptions);
 	        break;
 
 	      case 'navbar-color-hover':
-	        _this.processor = new NavbarColorHover(processorOptions);
+	        this.processor = new NavbarColorHover(processorOptions);
 	        break;
 
 	      case 'navbar-color-fix-moment':
-	        _this.processor = new NavbarColorFixMoment(processorOptions);
+	        this.processor = new NavbarColorFixMoment(processorOptions);
 	        break;
 
 	      case 'navbar-color-fix-moment-hover':
-	        _this.processor = new NavbarColorFixMomentHover(processorOptions);
+	        this.processor = new NavbarColorFixMomentHover(processorOptions);
 	        break;
 
 	      case 'navbar-bg-color':
-	        _this.processor = new NavbarBgColor(processorOptions);
+	        this.processor = new NavbarBgColor(processorOptions);
 	        break;
 
 	      case 'navbar-bg-color-hover':
-	        _this.processor = new NavbarBgColorHover(processorOptions);
+	        this.processor = new NavbarBgColorHover(processorOptions);
 	        break;
 
 	      case 'navbar-collapse-bg-color':
-	        _this.processor = new NavbarCollapseBgColor(processorOptions);
+	        this.processor = new NavbarCollapseBgColor(processorOptions);
 	        break;
 
 	      case 'fill-color':
-	        _this.processor = new FillColor(processorOptions);
+	        this.processor = new FillColor(processorOptions);
 	        break;
 
 	      case 'fill-color-second':
-	        _this.processor = new FillColorSecond(processorOptions);
+	        this.processor = new FillColorSecond(processorOptions);
 	        break;
 
 	      case 'button-color':
-	        _this.processor = new ButtonColor(processorOptions);
+	        this.processor = new ButtonColor(processorOptions);
 	        break;
 
 	      default:
 	        break;
 	    }
 
-	    _this.property = _this.processor.getProperty()[_this.processor.getProperty().length - 1];
+	    this.property = this.processor.getProperty()[this.processor.getProperty().length - 1];
+	    this.processor.getClassName().forEach(item => this.items.push({
+	      name: item,
+	      value: item
+	    })); // todo: what a input?
 
-	    _this.processor.getClassName().forEach(function (item) {
-	      return _this.items.push({
-	        name: item,
-	        value: item
-	      });
-	    }); // todo: what a input?
-
-
-	    main_core.Dom.remove(_this.input);
-
-	    _this.layout.classList.add("landing-ui-field-color");
-
-	    main_core.Dom.append(_this.processor.getLayout(), _this.layout);
-
-	    _this.processor.subscribe('onChange', _this.onChange.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    _this.processor.subscribe('onReset', _this.onReset.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    return _this;
+	    main_core.Dom.remove(this.input);
+	    this.layout.classList.add("landing-ui-field-color");
+	    main_core.Dom.append(this.processor.getLayout(), this.layout);
+	    this.processor.subscribe('onChange', this.onChange.bind(this));
+	    this.processor.subscribe('onReset', this.onReset.bind(this));
 	  }
 
-	  babelHelpers.createClass(ColorField, [{
-	    key: "getInlineProperties",
-	    value: function getInlineProperties() {
-	      return this.processor.getVariableName();
-	    }
-	  }, {
-	    key: "getComputedProperties",
-	    value: function getComputedProperties() {
-	      return this.processor.getProperty();
-	    }
-	  }, {
-	    key: "getPseudoElement",
-	    value: function getPseudoElement() {
-	      return this.processor.getPseudoClass();
-	    }
-	  }, {
-	    key: "onChange",
-	    value: function onChange() {
-	      this.changeHandler({
-	        className: this.processor.getClassName(),
-	        style: this.processor.getStyle()
-	      }, this.items, this.postfix, this.property);
-	    }
-	  }, {
-	    key: "onReset",
-	    value: function onReset() {
-	      this.resetHandler(this.items, this.postfix, this.property);
-	    } // todo: what a value must return? hsla? string?
+	  getInlineProperties() {
+	    return this.processor.getVariableName();
+	  }
 
-	  }, {
-	    key: "getValue",
-	    value: function getValue() {
-	      // todo: need convert processor value to obj? add toObj method to values
-	      return this.processor.getValue();
-	    }
-	  }, {
-	    key: "setValue",
-	    value: function setValue(value) {
-	      var _this2 = this;
+	  getComputedProperties() {
+	    return this.processor.getProperty();
+	  }
 
-	      var processorValue = null; // now for multiple properties get just last value. Maybe, need object-like values
+	  getPseudoElement() {
+	    return this.processor.getPseudoClass();
+	  }
 
-	      this.getInlineProperties().forEach(function (prop) {
-	        if (prop in value && !_this2.processor.isNullValue(value[prop])) {
-	          if (!main_core.Type.isObject(processorValue)) {
-	            processorValue = {};
-	          }
+	  onChange() {
+	    this.changeHandler({
+	      className: this.processor.getClassName(),
+	      style: this.processor.getStyle()
+	    }, this.items, this.postfix, this.property);
+	    this.emit('onChange');
+	  }
 
-	          processorValue[prop] = value[prop];
+	  onReset() {
+	    this.resetHandler(this.items, this.postfix, this.property);
+	  }
+
+	  getValue() {
+	    return this.processor.getValue() || this.processor.getNullValue();
+	  }
+
+	  setValue(value) {
+	    let processorValue = null; // now for multiple properties get just last value. Maybe, need object-like values
+
+	    this.getInlineProperties().forEach(prop => {
+	      if (prop in value && !this.processor.isNullValue(value[prop])) {
+	        if (!main_core.Type.isObject(processorValue)) {
+	          processorValue = {};
 	        }
-	      });
-	      var defaultValue = null;
-	      this.getComputedProperties().forEach(function (prop) {
-	        if (prop in value && !_this2.processor.isNullValue(value[prop])) {
-	          if (!main_core.Type.isObject(defaultValue)) {
-	            defaultValue = {};
-	          }
 
-	          defaultValue[prop] = value[prop];
-	        }
-	      });
-
-	      if (processorValue !== null) {
-	        this.processor.setProcessorValue(processorValue);
-	      } else {
-	        this.processor.setDefaultValue(defaultValue);
+	        processorValue[prop] = value[prop];
 	      }
+	    });
+	    let defaultValue = null;
+	    this.getComputedProperties().forEach(prop => {
+	      if (prop in value && !this.processor.isNullValue(value[prop])) {
+	        if (!main_core.Type.isObject(defaultValue)) {
+	          defaultValue = {};
+	        }
+
+	        defaultValue[prop] = value[prop];
+	      }
+	    });
+
+	    if (processorValue !== null) {
+	      this.processor.setProcessorValue(processorValue);
+	    } else {
+	      this.processor.setDefaultValue(defaultValue);
+	      this.processor.defineActiveControl(this.items, this.data.styleNode);
 	    }
-	  }, {
-	    key: "onFrameLoad",
-	    value: function onFrameLoad() {
-	      // todo: now not work with "group select", can use just any node from elements. If group - need forEach
-	      var value = this.data.styleNode.getValue(true);
-	      this.setValue(value.style);
-	    }
-	  }]);
-	  return ColorField;
-	}(landing_ui_field_basefield.BaseField);
+	  }
+
+	  onFrameLoad() {
+	    // todo: now not work with "group select", can use just any node from elements. If group - need forEach
+	    const value = this.data.styleNode.getValue(true);
+	    this.setValue(value.style);
+	  }
+
+	}
 
 	exports.ColorField = ColorField;
 

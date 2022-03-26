@@ -310,9 +310,9 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 			$this->setFilterKey('ENTITY_TYPE', $params['ENTITY_TYPE']);
 		}
 
-		if ($params['TAG'] <> '')
+		if ($params['~TAG'] <> '')
 		{
-			$this->setFilterKey('=TAG', $params['TAG']);
+			$this->setFilterKey('=TAG', $params['~TAG']);
 			$turnFollowModeOff = true;
 		}
 		elseif ($params['FIND'] <> '')
@@ -663,10 +663,13 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 				$this->setFilterKey('>FAVORITES_USER_ID',  0);
 			}
 
-			if (!empty(trim($filterData['TAG'])))
+			if (
+				is_numeric($filterData['TAG'])
+				|| !empty(trim($filterData['TAG']))
+			)
 			{
 				$filtered = true;
-				$this->setFilterKey('=TAG',  trim($filterData['TAG']));
+				$this->setFilterKey('=TAG', trim($filterData['TAG']));
 			}
 
 			$this->setFilterContent(trim($filterData['FIND']));

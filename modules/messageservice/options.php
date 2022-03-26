@@ -99,7 +99,12 @@ $tabControl->Begin();
 				{
 					continue;
 				}
+
 				/** @var \Bitrix\MessageService\Sender\BaseConfigurable $sender */
+				if (!$sender::isSupported() && !$sender->isRegistered())
+				{
+					continue;
+				}
 			?>
 			<li><a href="<?=htmlspecialcharsbx($sender->getManageUrl())?>"><?=htmlspecialcharsbx($sender->getName())?></a></li>
 			<?endforeach;?>

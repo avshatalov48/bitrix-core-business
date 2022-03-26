@@ -13,9 +13,9 @@ export class FieldsManager
 		],
 		4: [
 			{
-				id: 'SCRUM_MASTER_CODE',
-				type: 'string',
-				bindNodeId: 'SCRUM_MASTER_CODE',
+				id: 'SCRUM_MASTER_CODE_container',
+				type: 'input_hidden_container',
+				bindNodeId: 'SCRUM_MASTER_selector',
 				condition: () => {
 					return !!WorkgroupForm.getInstance().scrumManager.isScrumProject;
 				}
@@ -53,20 +53,17 @@ export class FieldsManager
 
 				if (fieldNode.tagName.toLowerCase() !== 'input')
 				{
-					if (fieldData.type !== 'string')
+					if (fieldData.type === 'string')
 					{
-						return;
-					}
-
-					fieldNode = fieldNode.querySelector('input[type="text"]');
-					if (!Type.isDomNode(fieldNode))
-					{
-						return;
+						fieldNode = fieldNode.querySelector('input[type="text"]');
+						if (!Type.isDomNode(fieldNode))
+						{
+							return;
+						}
 					}
 				}
 
 				fieldData.fieldNode = fieldNode;
-
 				const errorText = this.checkField(fieldData);
 				if (Type.isStringFilled(errorText))
 				{
@@ -118,6 +115,21 @@ export class FieldsManager
 		{
 			case 'string':
 				errorText = (fieldNode.value.trim() === '' ? Loc.getMessage('SONET_GCE_T_STRING_FIELD_ERROR') : '');
+				break
+			case 'input_hidden_container':
+				let empty = true;
+				fieldNode.querySelectorAll('input[type="hidden"]').forEach((hiddenNode) => {
+					if (!empty)
+					{
+						return;
+					}
+
+					if (Type.isStringFilled(hiddenNode.value))
+					{
+						empty = false;
+					}
+				});
+				errorText = (empty ? Loc.getMessage('SONET_GCE_T_STRING_FIELD_ERROR') : '');
 				break
 			default:
 				errorText = '';

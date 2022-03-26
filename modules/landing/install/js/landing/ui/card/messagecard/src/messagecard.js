@@ -4,6 +4,8 @@ import {Loc} from 'landing.loc';
 
 import './css/style.css';
 
+const CONTEXT_WARNING = 'warning';
+
 export class MessageCard extends BaseCard
 {
 	static cache = new Cache.MemoryCache();
@@ -13,6 +15,7 @@ export class MessageCard extends BaseCard
 			id?: string,
 			header?: string,
 			description?: string,
+			context?: string,
 			icon?: string,
 			angle?: boolean,
 			closeable?: boolean,
@@ -27,6 +30,16 @@ export class MessageCard extends BaseCard
 		Dom.addClass(this.getLayout(), 'landing-ui-card-message');
 
 		this.onCloseClick = this.onCloseClick.bind(this);
+
+		if (Type.isStringFilled(this.options.context))
+		{
+			switch (this.options.context)
+			{
+				case CONTEXT_WARNING:
+					Dom.addClass(this.getLayout(), 'landing-ui-card-message-context-warning');
+					break;
+			}
+		}
 
 		if (this.options.angle === false)
 		{

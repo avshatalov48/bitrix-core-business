@@ -48,7 +48,7 @@ this.BX = this.BX || {};
 	        _this2.successSentQuickAnswer = true;
 	        _this2.quickAnswerText = '';
 	        _this2.isSendingQuickAnswer = false;
-	      }).catch(function (error) {
+	      })["catch"](function (error) {
 	        console.error(error);
 	        _this2.quickAnswerResultMessage = result.data().result_message[0];
 	        _this2.isSendingQuickAnswer = false;
@@ -389,6 +389,9 @@ this.BX = this.BX || {};
 	  }
 	};
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var NotificationSearchResult = {
 	  components: {
 	    NotificationItem: NotificationItem,
@@ -412,7 +415,7 @@ this.BX = this.BX || {};
 	      searchPagesRequested: 0
 	    };
 	  },
-	  computed: babelHelpers.objectSpread({
+	  computed: _objectSpread({
 	    remainingPages: function remainingPages() {
 	      return Math.ceil((this.searchResultsTotal - this.searchResults.length) / this.pageLimit);
 	    }
@@ -513,7 +516,7 @@ this.BX = this.BX || {};
 	        _this2.initialDataReceived = true;
 	        _this2.isLoadingNewPage = false;
 	        _this2.searchPageLoaded++;
-	      }).catch(function (result) {
+	      })["catch"](function (result) {
 	        im_lib_logger.Logger.warn('History request error', result);
 	      });
 	    },
@@ -561,7 +564,7 @@ this.BX = this.BX || {};
 	      }).then(function () {
 	        _this3.searchPageLoaded++;
 	        return _this3.onAfterLoadNextPageRequest();
-	      }).catch(function (result) {
+	      })["catch"](function (result) {
 	        _this3.$store.dispatch('notifications/clearPlaceholders');
 
 	        im_lib_logger.Logger.warn('History request error', result);
@@ -652,7 +655,7 @@ this.BX = this.BX || {};
 	            unreadTotal: _this5.unreadCounter - 1
 	          });
 	        }
-	      }).catch(function () {
+	      })["catch"](function () {
 	        _this5.$store.dispatch('notifications/update', {
 	          id: itemId,
 	          fields: {
@@ -694,7 +697,7 @@ this.BX = this.BX || {};
 	            unreadTotal: _this6.unreadCounter - 1
 	          });
 	        }
-	      }).catch(function (error) {
+	      })["catch"](function (error) {
 	        console.error(error);
 
 	        _this6.$store.dispatch('notifications/update', {
@@ -718,11 +721,15 @@ this.BX = this.BX || {};
 	  template: "\n\t\t<div class=\"bx-messenger-notifications-search-results-wrap\" @scroll.passive=\"onScroll\">\n\t\t\t<notification-item\n\t\t\t\tv-for=\"listItem in searchResults\"\n\t\t\t\tv-if=\"listItem.display\"\n\t\t\t\t:key=\"listItem.id\"\n\t\t\t\t:data-id=\"listItem.id\"\n\t\t\t\t:rawListItem=\"listItem\"\n\t\t\t\tsearchMode=\"true\"\n\t\t\t\t@buttonsClick=\"onButtonsClick\"\n\t\t\t\t@contentClick=\"onContentClick\"\n\t\t\t\t@deleteClick=\"onDeleteClick\"\n\t\t\t/>\n\t\t\t<mounting-portal :mount-to=\"popupIdSelector\" append v-if=\"popupInstance\">\n\t\t\t\t<popup :type=\"contentPopupType\" :value=\"contentPopupValue\" :popupInstance=\"popupInstance\"/>\n\t\t\t</mounting-portal>\n\t\t\t<div \n\t\t\t\tv-if=\"searchResults.length <= 0\" \n\t\t\t\tstyle=\"padding-top: 210px; margin-bottom: 20px;\"\n\t\t\t\tclass=\"bx-messenger-box-empty bx-notifier-content-empty\" \n\t\t\t>\n\t\t\t\t{{ $Bitrix.Loc.getMessage('IM_NOTIFICATIONS_SEARCH_RESULTS_NOT_FOUND') }}\n\t\t\t</div>\n\t\t</div>\n\t"
 	};
 
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var ObserverType = Object.freeze({
 	  read: 'read',
 	  none: 'none'
@@ -770,7 +777,7 @@ this.BX = this.BX || {};
 	  mixins: [NotificationCore],
 	  props: {
 	    darkTheme: {
-	      default: undefined
+	      "default": undefined
 	    }
 	  },
 	  data: function data() {
@@ -801,7 +808,7 @@ this.BX = this.BX || {};
 	      callViewState: false
 	    };
 	  },
-	  computed: babelHelpers.objectSpread({
+	  computed: _objectSpread$1({
 	    NotificationTypesCodes: function NotificationTypesCodes() {
 	      return im_const.NotificationTypesCodes;
 	    },
@@ -1158,7 +1165,7 @@ this.BX = this.BX || {};
 	        _this5.pagesLoaded++;
 	        im_lib_logger.Logger.warn('Page loaded. Total loaded - ', _this5.pagesLoaded);
 	        return _this5.onAfterLoadNextPageRequest();
-	      }).catch(function (result) {
+	      })["catch"](function (result) {
 	        im_lib_logger.Logger.warn('Request history error', result);
 	      });
 	    },
@@ -1198,7 +1205,7 @@ this.BX = this.BX || {};
 	          only_current: 'Y'
 	        }).then(function () {
 	          im_lib_logger.Logger.warn("Notification ".concat(item.id, " unread status set to ").concat(!item.unread));
-	        }).catch(function (error) {
+	        })["catch"](function (error) {
 	          console.error(error);
 
 	          _this6.$store.dispatch('notifications/read', {
@@ -1215,7 +1222,7 @@ this.BX = this.BX || {};
 	        });
 	      }, 1500);
 	    },
-	    delete: function _delete(item) {
+	    "delete": function _delete(item) {
 	      var _this7 = this;
 
 	      var itemId = +item.id;
@@ -1247,7 +1254,7 @@ this.BX = this.BX || {};
 	              id: id
 	            });
 	          });
-	        }).catch(function (error) {
+	        })["catch"](function (error) {
 	          console.error(error);
 	          idsToDelete.forEach(function (id) {
 	            _this7.$store.dispatch('notifications/update', {
@@ -1307,7 +1314,7 @@ this.BX = this.BX || {};
 
 	            _this8.readNotificationsNodes[entryNotificationId] = entry.target;
 	          } else {
-	            _this8.readNotificationsQueue.delete(entryNotificationId);
+	            _this8.readNotificationsQueue["delete"](entryNotificationId);
 
 	            delete _this8.readNotificationsNodes[entryNotificationId];
 	          }
@@ -1382,7 +1389,7 @@ this.BX = this.BX || {};
 	        _this10.$store.dispatch('notifications/delete', {
 	          id: itemId
 	        });
-	      }).catch(function () {
+	      })["catch"](function () {
 	        _this10.$store.dispatch('notifications/update', {
 	          id: itemId,
 	          fields: {
@@ -1401,7 +1408,7 @@ this.BX = this.BX || {};
 	    onDeleteClick: function onDeleteClick(event) {
 	      var _this11 = this;
 
-	      this.delete(event.item); //we need to load more, if we are on the first page and we have more elements.
+	      this["delete"](event.item); //we need to load more, if we are on the first page and we have more elements.
 
 	      if (!this.isLoadingNewPage && this.remainingPages > 0 && this.notification.length === this.perPage - 1) {
 	        this.isLoadingNewPage = true;
@@ -1465,7 +1472,7 @@ this.BX = this.BX || {};
 	      }, {
 	        text: this.localize['IM_NOTIFICATIONS_CONTEXT_POPUP_DELETE_NOTIFICATION'],
 	        onclick: function onclick(event, item) {
-	          _this14.delete(notification);
+	          _this14["delete"](notification);
 
 	          _this14.closeContextMenuPopup();
 	        }
@@ -1545,7 +1552,7 @@ this.BX = this.BX || {};
 
 	        _this15.getRestClient().callMethod(restMethod, requestParams).then(function () {
 	          im_lib_logger.Logger.warn('I have read the notifications', requestParams);
-	        }).catch(function () {
+	        })["catch"](function () {
 	          _this15.$store.dispatch('notifications/read', {
 	            ids: idsToRead,
 	            action: false
@@ -1639,7 +1646,7 @@ this.BX = this.BX || {};
 	      this.getRestClient().callMethod('im.notify.read', {
 	        id: 0,
 	        action: 'Y'
-	      }).catch(function (result) {
+	      })["catch"](function (result) {
 	        _this16.getInitialData();
 
 	        console.error(result);

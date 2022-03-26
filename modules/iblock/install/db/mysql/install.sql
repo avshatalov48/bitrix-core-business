@@ -165,9 +165,9 @@ create table if not exists b_iblock_section
 	PRIMARY KEY (ID),
 	INDEX ix_iblock_section_1 (IBLOCK_ID, IBLOCK_SECTION_ID),
 	INDEX ix_iblock_section_depth_level (IBLOCK_ID, DEPTH_LEVEL),
-	INDEX ix_iblock_section_left_margin (IBLOCK_ID, LEFT_MARGIN, RIGHT_MARGIN),
-	INDEX ix_iblock_section_right_margin (IBLOCK_ID, RIGHT_MARGIN, LEFT_MARGIN),
-	INDEX ix_iblock_section_code (IBLOCK_ID, CODE)
+	INDEX ix_iblock_section_code (IBLOCK_ID, CODE),
+	INDEX ix_iblock_section_left_margin2 (IBLOCK_ID, LEFT_MARGIN),
+	INDEX ix_iblock_section_right_margin2 (IBLOCK_ID, RIGHT_MARGIN)
 );
 
 create table if not exists b_iblock_section_property

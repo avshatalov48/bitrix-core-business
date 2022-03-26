@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BX_CATALOG_HELPER_PRODUCTEDIT_ERR_CATALOG_ABSENT"] = "The information block is not a commercial catalog and does not have SKU's";
 $MESS["BX_CATALOG_HELPER_PRODUCTEDIT_ERR_ELEMENT_EMPTY"] = "Information block element ID is not specified";
 $MESS["BX_CATALOG_HELPER_PRODUCTEDIT_ERR_IBLOCK_EMPTY"] = "Information block ID is not specified";
@@ -37,7 +37,7 @@ If stock control is enabled for at least one product in a bundle, and this produ
 $MESS["BX_CATALOG_HELPER_PRODUCTEDIT_MESS_STATUS_DEFAULT"] = "default (#STATUS#)";
 $MESS["BX_CATALOG_HELPER_PRODUCTEDIT_MESS_STATUS_NO"] = "no";
 $MESS["BX_CATALOG_HELPER_PRODUCTEDIT_MESS_STATUS_YES"] = "yes";
-$MESS["BX_CATALOG_HELPER_PRODUCTEDIT_MESS_STORES_AMOUNT_INFO"] = "Warehouse control is disabled. Warehouse stock numbers are for information purpose only; it is not used when calculating product stock.";
+$MESS["BX_CATALOG_HELPER_PRODUCTEDIT_MESS_STORES_AMOUNT_INFO"] = "Inventory management is disabled. Warehouse stock numbers are for information purpose only; it is not used when calculating product stock.";
 $MESS["BX_CATALOG_HELPER_PRODUCTEDIT_PRICE_COLUMN_EXTRA"] = "Surcharge";
 $MESS["BX_CATALOG_HELPER_PRODUCTEDIT_PRICE_COLUMN_QUANTITY_FROM"] = "From";
 $MESS["BX_CATALOG_HELPER_PRODUCTEDIT_PRICE_COLUMN_QUANTITY_TO"] = "To";
@@ -69,4 +69,3 @@ $MESS["BX_CATALOG_HELPER_PRODUCTEDIT_STORES_FIELD_ADDRESS"] = "Address";
 $MESS["BX_CATALOG_HELPER_PRODUCTEDIT_STORES_FIELD_AMOUNT"] = "Quantity in warehouse";
 $MESS["BX_CATALOG_HELPER_PRODUCTEDIT_STORES_FIELD_ID"] = "Warehouse ID";
 $MESS["BX_CATALOG_HELPER_PRODUCTEDIT_STORES_FIELD_NAME"] = "Name";
-?>

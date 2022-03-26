@@ -612,6 +612,10 @@
 	margin-right: 0;
 }
 
+.catalog-pf-product-label .ui-hint-icon {
+	display: inline-block;
+}
+
 .catalog-pf-product-input-wrapper {
 	display: flex;
 }

@@ -2,7 +2,7 @@
 	background: #EEF2F4;
 	width: 320px;
 	position: absolute;
-	height: calc(100vh - 63px);
+	height: calc(100vh - 66px);
 	-webkit-transform: translateX(0) translateZ(0);
 	transform: translateX(0) translateZ(0);
 	opacity: 0;
@@ -71,7 +71,7 @@
 
 .landing-ui-view-container {
 	width: 100%;
-	height: calc(100vh - 62px);
+	height: calc(100vh - 66px);
 }
 
 .landing-ui-view-wrapper {

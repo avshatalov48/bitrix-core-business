@@ -65,7 +65,6 @@ class QrCodeAuth extends Main\Engine\Controller
 	 * @param string $redirectUrl
 	 * @param null $currentUrl
 	 * @return bool|null
-	 * @throws Main\LoaderException
 	 */
 	public function pushToken($siteId, $uniqueId, $channelTag, $redirectUrl = '', $currentUrl = null)
 	{
@@ -86,10 +85,10 @@ class QrCodeAuth extends Main\Engine\Controller
 			]
 		);
 		$event->send();
-		/** @var \Bitrix\Main\EventResult $eventResult */
+
 		foreach ($event->getResults() as $eventResult)
 		{
-			if ($eventResult->getType() === \Bitrix\Main\EventResult::ERROR)
+			if ($eventResult->getType() === Main\EventResult::ERROR)
 			{
 				$error = $eventResult->getParameters()['error'] ?? null;
 				if ($error instanceof Main\Error)
@@ -125,7 +124,7 @@ class QrCodeAuth extends Main\Engine\Controller
 		$token = \CUser::GetHitAuthHash($url, false, $siteId);
 		if ($token === false)
 		{
-			$token = \CUser::AddHitAuthHash($url, false, $siteId);
+			$token = \CUser::AddHitAuthHash($url, false, $siteId, 60);
 		}
 
 		Pull\Event::add(

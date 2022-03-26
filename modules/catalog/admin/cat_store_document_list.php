@@ -1,4 +1,6 @@
 <?
+use Bitrix\Catalog;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 global $APPLICATION;
@@ -42,7 +44,6 @@ $errorMessage = "";
 $bVarsFromForm = false;
 
 $ID = (isset($_REQUEST["ID"]) ? (int)$_REQUEST["ID"] : 0);
-$TAB_TITLE = (isset($TAB_TITLE)) ? GetMessage("CAT_DOC_$TAB_TITLE") : GetMessage("CAT_DOC_NEW");
 
 $str_ACTIVE = "Y";
 $userId = $USER->GetID();
@@ -75,41 +76,51 @@ function getContractorTitle($contractorId)
 }
 
 /** For a given site ID, issues generated site title.
- * @param $siteId
+ * @param string|null $siteId
  * @return string
  */
-function getSiteTitle($siteId)
+
+function getSiteTitle(?string $siteId): string
 {
-	static $rsSites = '';
-	static $arSitesShop = array();
+	static $arSitesShop = null;
+
+	$siteId = (string)$siteId;
 	$siteTitle = $siteId;
 
-	if($rsSites === '')
+	if ($arSitesShop === null)
 	{
-		$rsSites = CSite::GetList("id", "asc", Array("ACTIVE" => "Y"));
+		$arSitesShop = [];
+		$rsSites = CSite::GetList("id", "asc", ["ACTIVE" => "Y"]);
 		while($arSite = $rsSites->GetNext())
-			$arSitesShop[] = array("ID" => $arSite["ID"], "NAME" => $arSite["NAME"]);
+		{
+			$arSitesShop[] = [
+				"ID" => $arSite["ID"],
+				"NAME" => $arSite["NAME"],
+			];
+		}
+		unset($rsSites);
 	}
 
 	foreach($arSitesShop as $arSite)
 	{
-		if($arSite["ID"] == $siteId)
+		if($arSite["ID"] === $siteId)
 		{
 			$siteTitle = $arSite["NAME"]." (".$arSite["ID"].")";
 		}
 	}
+
 	return $siteTitle;
 }
 
 if($bVarsFromForm)
 	$DB->InitTableVarsForEdit("b_catalog_store_docs", "", "str_");
 
-$documentTypes = CCatalogDocs::$types;
+//$documentTypes = CCatalogDocs::$types;
 $arSiteMenu = array();
-$listDocType = array();
-foreach($documentTypes as $type => $class)
+
+$listDocType = Catalog\StoreDocumentTable::getTypeList(true);
+foreach ($listDocType as $type => $title)
 {
-	$listDocType[$type] = GetMessage("CAT_DOC_".$type);
 	$addUrl = $selfFolderUrl."cat_store_document_edit.php?lang=".LANGUAGE_ID."&DOCUMENT_TYPE=".$type."";
 	$addUrl = $adminSidePanelHelper->editUrlToPublicPage($addUrl);
 	if ($publicMode)
@@ -121,7 +132,7 @@ foreach($documentTypes as $type => $class)
 		$action = "window.location = '".$addUrl."';";
 	}
 	$arSiteMenu[] = array(
-		"TEXT" => GetMessage("CAT_DOC_".$type),
+		"TEXT" => $title,
 		"ACTION" => $action
 	);
 }
@@ -313,7 +324,7 @@ if (!$bReadOnly && ($arID = $lAdmin->GroupAction()))
 				case "copy":
 					$arResult = array();
 					$DB->StartTransaction();
-					$dbDocument = CCatalogDocs::getList(array(), array("ID" => $ID), false, false, array("DOC_TYPE", "SITE_ID", "CONTRACTOR_ID", "CURRENCY", "TOTAL"));
+					$dbDocument = CCatalogDocs::getList(array(), array("ID" => $ID), false, false, array("DOC_TYPE", "SITE_ID", "CONTRACTOR_ID", "CURRENCY", "TOTAL", "RESPONSIBLE_ID"));
 					if($arDocument = $dbDocument->Fetch())
 					{
 						foreach($arDocument as $key => $value)
@@ -322,6 +333,10 @@ if (!$bReadOnly && ($arID = $lAdmin->GroupAction()))
 						}
 						$arResult["DATE_DOCUMENT"] = 'now';
 						$arResult["CREATED_BY"] = $arResult["MODIFIED_BY"] = $USER->GetID();
+						if (empty($arResult["RESPONSIBLE_ID"]))
+						{
+							$arResult["RESPONSIBLE_ID"] = $USER->GetID();
+						}
 						$dbDocumentElement = CCatalogStoreDocsElement::getList(
 							array('ID' => 'ASC'),
 							array("DOC_ID" => $ID),
@@ -488,7 +503,7 @@ while($arRes = $dbResultList->Fetch())
 	$arRows[$arRes['ID']] = $row = &$lAdmin->AddRow($arRes['ID'], $arRes, "cat_store_document_edit.php?ID=".$arRes['ID']."&lang=".LANGUAGE_ID);
 	$row->AddField("ID", $arRes['ID']);
 	if($arSelectFieldsMap['DOC_TYPE'])
-		$row->AddViewField('DOC_TYPE', GetMessage("CAT_DOC_".$arRes['DOC_TYPE']));
+		$row->AddViewField('DOC_TYPE', $listDocType[$arRes['DOC_TYPE']]);
 	if($arSelectFieldsMap['STATUS'])
 		$row->AddViewField("STATUS", GetMessage("CAT_DOC_EXECUTION_".$arRes['STATUS']));
 	if($arSelectFieldsMap['DATE_DOCUMENT'])

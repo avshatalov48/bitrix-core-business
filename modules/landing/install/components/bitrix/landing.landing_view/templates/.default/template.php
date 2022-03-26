@@ -25,16 +25,19 @@ Extension::load([
 	'ui.buttons',
 	'ui.buttons.icons',
 	'ui.alerts',
+	'ui.icons',
 	'ui.fonts.opensans',
 	'ui.info-helper',
+	'ui.notification',
 	'sidepanel',
 	'popup_menu',
 	'marketplace',
 	'applayout',
 	'landing_master',
-	'landing.dialog.publication',
 	'helper',
-	'landing.metrika'
+	'landing.metrika',
+	'main.qrcode',
+	'ui.hint'
 ]);
 $assets = Assets\Manager::getInstance();
 $assets->addAsset(
@@ -99,42 +102,49 @@ if ($arResult['ERRORS'])
 	}
 	else
 	{
-		// send to user all other errors
+		// send to user all others errors
 		foreach ($errors as $errorCode => $errorMessage)
 		{
 			$errorMessage .= $component->getSettingLinkByError(
 				$errorCode
 			);
-			?>
-			<script type="text/javascript">
-				BX.ready(function()
-				{
-					if (
-						top.window.opener &&
-						typeof top.window.opener.landingAlertMessage !== 'undefined'
-					)
+			if ($arResult['FATAL'])
+			{
+				?>
+				<div class="landing-error-page">
+					<div class="landing-error-page-inner">
+						<div class="landing-error-page-title"><?= $errorMessage;?></div>
+						<div class="landing-error-page-img">
+							<div class="landing-error-page-img-inner"></div>
+						</div>
+					</div>
+				</div>
+				<?
+			}
+			else
+			{
+				?>
+				<script type="text/javascript">
+					BX.ready(function()
 					{
-						top.window.opener.landingAlertMessage(
-							'<?= \CUtil::jsEscape($errorMessage);?>',
-							<?= $component->isTariffError($errorCode) ? 'true' : 'false';?>,
-							'<?= $errorCode;?>'
-						);
-						top.window.close();
-					}
-					else if (typeof landingAlertMessage !== 'undefined')
-					{
-						landingAlertMessage(
-							'<?= \CUtil::jsEscape($errorMessage);?>',
-							<?= $component->isTariffError($errorCode) ? 'true' : 'false';?>,
-							'<?= $errorCode;?>'
-						);
-					}
-				});
-			</script>
-			<?
+						if (
+							top.window.opener &&
+							typeof top.window.opener.landingAlertMessage !== 'undefined'
+						)
+						{
+							top.window.opener.landingAlertMessage(
+								'<?= \CUtil::jsEscape($errorMessage);?>',
+								<?= $component->isTariffError($errorCode) ? 'true' : 'false';?>,
+								'<?= $errorCode;?>'
+							);
+							top.window.close();
+						}
+					});
+				</script>
+				<?
+			}
 			break;
 		}
-		unset($errorCode, $errorMessage);
 	}
 }
 
@@ -145,6 +155,8 @@ if ($arResult['FATAL'])
 
 
 $site = $arResult['SITE'];
+$siteId = $arResult['LANDING']->getSiteId();
+$folderId = $arResult['LANDING']->getFolderId();
 $context = \Bitrix\Main\Application::getInstance()->getContext();
 $request = $context->getRequest();
 $successSave = $arResult['SUCCESS_SAVE'];
@@ -152,21 +164,19 @@ $curUrl = $arResult['CUR_URI'];
 $urls = $arResult['TOP_PANEL_CONFIG']['urls'];
 $this->getComponent()->initAPIKeys();
 $formEditor = $arResult['SPECIAL_TYPE'] == Site\Type::PSEUDO_SCOPE_CODE_FORMS;
-$helperFrameOpenUrl = \CHTTP::urlAddParams(\Bitrix\UI\Util::getHelpdeskUrl(true) . '/widget2/', [
-	'url' => urlencode(
-		(Manager::isHttps() ? 'https://' : 'http://') .
-		Manager::getHttpHost() .
-		Manager::getApplication()->getCurPageParam()
-	),
-	'user_id' => Manager::getUserId(),
-	'is_cloud' => ModuleManager::isModuleInstalled('bitrix24') ? '1' : '0',
-	'action' => 'open',
-]);
+
+$urlLandingAdd = str_replace(['#site_show#', '#landing_edit#'], [$siteId, 0], $arParams['~PARAMS']['sef_url']['landing_edit'] ?? '');
+$urlFolderAdd = str_replace(['#site_show#', '#landing_edit#'], [$siteId, 0], $arParams['~PARAMS']['sef_url']['site_show'] ?? '');
+$urlLandingAdd = $component->getPageParam($urlLandingAdd, ['folderId' => $folderId]);
+$urlFolderAdd = $component->getPageParam($urlFolderAdd, ['folderId' => $folderId, 'folderNew' => 'Y']);
 
 if ($formEditor)
 {
 	$arParams['PAGE_URL_URL_SITES'] = '/crm/webform/';
-	Extension::load('landing.ui.panel.formsettingspanel');
+	Extension::load([
+		'landing.ui.panel.formsettingspanel',
+		'crm.form.embed',
+	]);
 }
 
 if ($request->get('close') == 'Y')
@@ -191,120 +201,176 @@ if ($request->get('close') == 'Y')
 
 // top panel
 if (!$request->offsetExists('landing_mode')):
-	// b24 title
-	$b24Title = \Bitrix\Main\Config\Option::get('bitrix24', 'site_title', '');
-	$b24Logo = \Bitrix\Main\Config\Option::get('bitrix24', 'logo24show', 'Y');
-	if (!$b24Title)
-	{
-		$b24Title = Loc::getMessage(
-			'LANDING_TPL_START_PAGE_LOGO' . (!Manager::isB24() ? '_SMN' : '')
-		);
-	}
 	// tpl vars
-	$helpUrl = \Bitrix\Landing\Help::getHelpUrl($formEditor ? 'FORM_EDIT' : 'LANDING_EDIT');
 	$startChain = $component->getMessageType('LANDING_TPL_START_PAGE');
 	$lightMode = $arParams['PANEL_LIGHT_MODE'] == 'Y';
 	$panelModifier = $lightMode ? ' landing-ui-panel-top-light' : '';
 	$panelModifier .= $formEditor ? ' landing-ui-panel-top-form' : '';
-	// informer
-	if (ModuleManager::isModuleInstalled('bitrix24'))
+	// feedback form
+	$formCode = '';
+	if (!isset($arResult['LICENSE']) || $arResult['LICENSE'] != 'nfr')
 	{
-		$APPLICATION->includeComponent('bitrix:ui.info.helper', '', []);
+		$formCode = ($arParams['TYPE'] === 'KNOWLEDGE' || $arParams['TYPE'] === 'GROUP') ? 'knowledge' : 'developer';
+		?>
+		<div style="display: none">
+			<?$APPLICATION->includeComponent(
+				'bitrix:ui.feedback.form',
+				'',
+				$component->getFeedbackParameters($formCode)
+			);?>
+		</div>
+		<?
 	}
 	?>
 	<div class="landing-ui-panel landing-ui-panel-top<?= $panelModifier;?>">
+		<!-- region Logotype -->
 		<div class="landing-ui-panel-top-logo">
-			<a href="<?= SITE_DIR;?>" data-slider-ignore-autobinding="true"><?
-				?><span class="landing-ui-panel-top-logo-text"><?= \htmlspecialcharsbx($b24Title);?></span><?
-				if ($b24Logo != 'N'):
-					?><span class="landing-ui-panel-top-logo-color"><?= Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24');?></span><?
-				endif;?>
+			<a href="<?= $arParams['PAGE_URL_URL_SITES']?>" class="landing-ui-panel-top-logo-link" data-slider-ignore-autobinding="true">
+				<span class="landing-ui-panel-top-logo-home-btn">
+					<svg class='landing-ui-panel-top-logo-home-btn-icon' width="27" height="27" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path fill-rule="evenodd" clip-rule="evenodd" d="M11.902 19.6877V15.8046C11.902 15.5837 12.0811 15.4046 12.302 15.4046H14.5087C14.7296 15.4046 14.9087 15.5837 14.9087 15.8046V19.6877C14.9089 19.9086 15.0879 20.0876 15.3087 20.0878L18.8299 20.0891C19.0508 20.0893 19.2299 19.9103 19.23 19.6894C19.23 19.6893 19.23 19.6893 19.2299 19.6892V13.4563C19.2299 13.4365 19.2275 13.4142 19.2275 13.3943H20.4332C20.6633 13.3943 20.8604 13.2883 20.9909 13.0932C21.1189 12.9005 21.1425 12.6747 21.0581 12.4561C20.9519 12.1816 14.2383 5.92948 14.2047 5.90379C13.7957 5.59077 13.3216 5.58796 12.9131 5.89536C12.8759 5.92337 6.15525 12.1815 6.04901 12.4561C5.96462 12.6729 5.99059 12.9011 6.11629 13.0932C6.24671 13.2859 6.44145 13.3943 6.67162 13.3943H7.87965C7.87729 13.4142 7.87729 13.4365 7.87729 13.4563V19.6846C7.8776 19.9054 8.0565 20.0844 8.27729 20.0849L11.502 20.0874C11.7229 20.0879 11.9021 19.9089 11.9023 19.688C11.9023 19.6879 11.9023 19.6878 11.902 19.6877Z" fill="#525C69"/>
+					</svg>
+				</span>
+				<?
+				if (Manager::isB24() && $formEditor)
+				{
+					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_LOGO").'</span>'
+						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>'
+						.'<span class="landing-ui-panel-top-logo-text">.'.Loc::getMessage('LANDING_TPL_START_PAGE_FORM_LOGO_SMN').'</span>';
+				}
+				else if (!Manager::isB24() && $formEditor)
+				{
+					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_FORM_LOGO_SMN").'</span>'
+						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>';
+				}
+				else if(Manager::isB24() && $arParams['PANEL_LIGHT_MODE'] == 'Y')
+				{
+					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_LOGO").'</span>'
+						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>'
+						.'<span class="landing-ui-panel-top-logo-text">.'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_KB').'</span>';
+				}
+				else if (Manager::isB24())
+				{
+					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_LOGO").'</span>'
+					.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>'
+					.'<span class="landing-ui-panel-top-logo-text">.'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_SMN').'</span>';
+				}
+				else if (!Manager::isB24() && $arParams['PANEL_LIGHT_MODE'] == 'Y')
+				{
+					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_LOGO_KB").'</span>'
+						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>';
+				}
+				else if (!Manager::isB24())
+				{
+					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_LOGO_SMN").'</span>'
+						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>';
+				}
+				?>
 			</a>
 		</div>
-		<div class="landing-ui-panel-top-chain">
-			<?if ($formEditor):?>
-				<a href="<?= $arParams['PAGE_URL_URL_SITES'];?>" class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-ui-panel-top-chain-link landing-ui-panel-top-chain-link-sites" title="<?= $wfChain = Loc::getMessage('LANDING_TPL_START_PAGE_FORM');?>">
-					<?= $wfChain;?>
-				</a>
-				<strong class="landing-ui-panel-top-chain-link-separator"><span></span></strong>
-				<span <?
-			        ?>class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-ui-panel-top-chain-link landing-ui-no-icon" <?
-					?>title="<?= \htmlspecialcharsbx($arResult['LANDING']->getTitle());?>"<?
-				?>>
-					<span class="ui-btn-text"><?= \htmlspecialcharsbx($arResult['LANDING']->getTitle());?></span>
-				</span>
-			<?else:?>
-				<?if ($arParams['PAGE_URL_URL_SITES']):?>
-					<a href="<?= $arParams['PAGE_URL_URL_SITES'];?>" data-slider-ignore-autobinding="true" class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-ui-panel-top-chain-link landing-ui-panel-top-chain-link-sites" title="<?= $startChain;?>">
-						<?= $startChain;?>
-					</a><strong class="landing-ui-panel-top-chain-link-separator"><span></span></strong>
-				<?endif;?>
-				<a href="<?= ($arResult['SITES_COUNT'] <= 1) ? $arParams['PAGE_URL_LANDINGS'] : '#';?>" <?
-					?>id="landing-navigation-site" <?
-					echo ($arResult['SITES_COUNT'] > 1) ? ' data-slider-ignore-autobinding="true"' : ''
-					?><?
-					?>class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-ui-panel-top-chain-link landing-ui-panel-top-chain-link-site<?= (($arResult['SITES_COUNT'] <= 1) ? ' landing-ui-no-icon' : '');?>" <?
-					?>title="<?= \htmlspecialcharsbx($site['TITLE']);?>">
-					<span class="ui-btn-text"><?= \htmlspecialcharsbx($site['TITLE']);?></span>
-				</a>
-				<strong class="landing-ui-panel-top-chain-link-separator"><span></span></strong>
-				<a href="<?= ($arResult['PAGES_COUNT'] <= 1) ? $arParams['PAGE_URL_LANDINGS'] : '#';?>" <?
-					?>id="landing-navigation-page" <?
-					echo ($arResult['PAGES_COUNT'] > 1) ? ' data-slider-ignore-autobinding="true"' : ''
-					?>class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-ui-panel-top-chain-link landing-ui-panel-top-chain-link-page<?= (($arResult['PAGES_COUNT'] <= 1) ? ' landing-ui-no-icon' : '');?>" <?
-					?>title="<?= \htmlspecialcharsbx($arResult['LANDING']->getTitle());?>">
-					<span class="ui-btn-text"><?= \htmlspecialcharsbx($arResult['LANDING']->getTitle());?></span>
-				</a>
-			<?endif;?>
-		</div>
-		<div class="landing-ui-panel-top-devices">
-			<div class="landing-ui-panel-top-devices-inner">
-				<button class="landing-ui-button landing-ui-button-desktop active" data-id="desktop_button"></button>
-				<button class="landing-ui-button landing-ui-button-tablet" data-id="tablet_button"></button>
-				<button class="landing-ui-button landing-ui-button-mobile" data-id="mobile_button"></button>
+		<!-- endregion -->
+
+		<!-- region landing.selector -->
+		<?if (!$formEditor):?>
+			<div class="landing-ui-panel-top-selector">
+				<?$APPLICATION->includeComponent('bitrix:landing.selector', '', [
+					'TYPE' => $arParams['TYPE'],
+					'SITE_ID' => $siteId,
+					'FOLDER_ID' => $folderId,
+					'LANDING_ID' => $arResult['LANDING']->getId(),
+					'INPUT_VALUE' => $arResult['LANDING']->getTitle(),
+					'PAGE_URL_LANDING_VIEW' => $arParams['~PARAMS']['sef_url']['landing_view'] ?? '',
+					'PAGE_URL_LANDING_ADD' => $urlLandingAdd,
+					'PAGE_URL_FOLDER_ADD' => $urlFolderAdd
+				]);?>
 			</div>
-		</div>
+		<?else:?>
+			<div class="landing-ui-panel-top-form-name">
+				<span
+					class="landing-ui-panel-top-form-name-inner"
+					title="<?=htmlspecialcharsbx($arResult['FORM_NAME'])?>"><?php
+						echo htmlspecialcharsbx($arResult['FORM_NAME']);
+				?></span>
+			</div>
+		<?endif;?>
+		<!--  endregion -->
+
+		<?
+		// region Autopub
+		$panelBtnAutoPubClass = 'landing-ui-panel-top-pub-btn';
+		$panelBtnAutoPubClass .= (!$arResult['FAKE_PUBLICATION']) ? ' landing-ui-panel-top-pub-btn-error' : '';
+		$panelBtnAutoPubClass .= ($arResult['TOP_PANEL_CONFIG']['autoPublicationEnabled'] == 1) ? ' landing-ui-panel-top-pub-btn-auto' : '';
+
+		if ($arParams['DRAFT_MODE'] != 'Y'):
+			?>
+			<button class="<?=$panelBtnAutoPubClass?>" id="landing-popup-publication-btn" data-hint="<?=Loc::getMessage('LANDING_SITE_HINT_AUTOPUBLISHING_OPTIONS')?>" data-hint-no-icon>
+				<svg class="landing-ui-panel-top-pub-btn-icon" width="25" height="25" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path fill="#C6CDD3" class="landing-ui-panel-top-pub-btn-icon-defs-cloud"  d="M18.5075 18.8896H10.4177C10.3485 18.8896 10.2799 18.887 10.2119 18.882C8.38363 18.8398 6.91434 17.3271 6.91434 15.4671C6.91487 14.5606 7.27128 13.6914 7.90517 13.0507C8.2301 12.7223 8.61429 12.4678 9.03227 12.2978C9.02528 12.2055 9.02172 12.1123 9.02172 12.0182C9.02229 11.0617 9.39838 10.1446 10.0672 9.46862C10.7361 8.79266 11.6429 8.41324 12.5883 8.41382C13.7992 8.41531 14.8683 9.02804 15.5108 9.96325C15.816 9.85386 16.1444 9.79441 16.4866 9.79459C17.9982 9.79643 19.2397 10.9624 19.3836 12.4534C20.832 12.7729 21.9159 14.0785 21.9146 15.6395C21.9131 17.4385 20.4711 18.8958 18.6932 18.895C18.6309 18.895 18.569 18.8932 18.5075 18.8896Z" fill-rule="evenodd" clip-rule="evenodd"/>
+					<path fill="#FFFFFF" class="landing-ui-panel-top-pub-btn-icon-defs-success" d="M7.46967 13.782L9.1093 12.14L12.2726 15.2532L18.6078 8.91091L20.2474 10.5529L12.2881 18.5218L7.46967 13.782Z" fill-rule="evenodd" clip-rule="evenodd"/>
+					<path fill="#FF7975" class="landing-ui-panel-top-pub-btn-icon-defs-error"  d="M19.8991 9.8334L17.607 7.54126L7.00036 18.1479L9.2925 20.44L19.8991 9.8334Z"/>
+					<path fill="#FFFFFF" class="landing-ui-panel-top-pub-btn-icon-defs-error"  d="M19.9323 10.0725C20.2657 9.73913 20.2657 9.19867 19.9323 8.86532C19.599 8.53198 19.0585 8.53198 18.7252 8.86532L8.6579 18.9326C8.32455 19.266 8.32455 19.8064 8.6579 20.1398C8.99124 20.4731 9.5317 20.4731 9.86505 20.1398L19.9323 10.0725Z"/>
+					<path fill="#2FC6F6" class="landing-ui-panel-top-pub-btn-icon-defs-loader" d="M14 7C14.0668 7 14.1335 7.00094 14.1998 7.0028L14.1998 8.85103C14.1335 8.8485 14.0669 8.84723 14 8.84723C11.1542 8.84723 8.84723 11.1542 8.84723 14C8.84723 16.8458 11.1542 19.1528 14 19.1528C16.8458 19.1528 19.1528 16.8458 19.1528 14L19.1478 13.7993H20.9968L21 14C21 17.7871 17.9926 20.8718 14.2358 20.9961L14 21C10.134 21 7 17.866 7 14C7 10.134 10.134 7 14 7Z" />
+				</svg>
+			</button>
+			<?
+			if ($arResult['FAKE_PUBLICATION']):
+				?><div id="landing-popup-publication-error-area" style="display: none;"></div><?
+			else:
+				$errorCode = array_key_first($arResult['ERRORS']);
+				$errDesc = $arResult['ERRORS'][$errorCode];
+				if ($errorCode === 'PUBLIC_SITE_REACHED_FREE')
+				{
+					$errTitle = $arResult['ERRORS'][$errorCode];
+					$errDesc = null;
+				}
+				?>
+				<div id="landing-popup-publication-error-area"
+					style="display: none;"
+					data-error="<?=$errorCode?>"
+					<?=($errTitle ? " data-error-title=\"{$errTitle}\"" : '')?>
+					<?=($errDesc ? " data-error-description=\"{$errDesc}\"" : '')?>
+				>
+				</div><?
+			endif;
+		endif;
+		// endregion
+
+		?><div style="flex:1"></div>
+
+		<!-- region History-->
 		<div class="landing-ui-panel-top-history">
 			<span class="landing-ui-panel-top-history-button landing-ui-panel-top-history-undo landing-ui-disabled"></span>
 			<span class="landing-ui-panel-top-history-button landing-ui-panel-top-history-redo landing-ui-disabled"></span>
 		</div>
+		<!-- endregion -->
+
 		<div class="landing-ui-panel-top-menu" id="landing-panel-settings">
-
-			<span class="ui-btn ui-btn-light-border ui-btn-icon-setting landing-ui-panel-top-menu-link landing-ui-panel-top-menu-link-settings" title="<?= Loc::getMessage('LANDING_TPL_SETTINGS_URL');?>"></span>
-			<span class="ui-btn ui-btn-xs ui-btn-light ui-btn-round landing-ui-panel-top-chain-link landing-ui-panel-top-menu-link-settings">
-				<?= Loc::getMessage('LANDING_TPL_SETTINGS_URL');?>
-			</span>
-
 			<?if ($arParams['DRAFT_MODE'] != 'Y'):?>
-			<a href="<?= $urls['preview']->getUri();?>" id="landing-urls-preview" <?
-				?>data-slider-ignore-autobinding="true" <?
-				?>class="ui-btn ui-btn-light-border landing-ui-panel-top-menu-link landing-btn-menu" <?
-				?>target="<?= ($arParams['DONT_LEAVE_AFTER_PUBLICATION'] == 'Y') ? '_self' : '_blank';?>">
-				<?= Loc::getMessage('LANDING_TPL_PREVIEW_URL');?>
-			</a>
+			<?if ($formEditor):?>
+				<span class="ui-btn ui-btn-light-border landing-ui-panel-top-menu-link landing-btn-menu landing-ui-panel-top-menu-link-settings"><?=
+					Loc::getMessage('LANDING_FORM_EDITOR_TOP_PANEL_SETTINGS');
+				?></span>
 			<?endif;?>
+			<a href="<?= $urls['preview']->getUri();?>" <?
+				?>id="landing-popup-preview-btn" <?
+				?>data-domain="<?= $site['DOMAIN_NAME']?>" <?
+				?>class="ui-btn ui-btn-light-border landing-ui-panel-top-menu-link landing-btn-menu">
+				<?= Loc::getMessage('LANDING_TPL_PREVIEW_URL_OPEN');?>
+			</a>
 
-			<?if (!$lightMode && $arParams['DRAFT_MODE'] != 'Y'):?>
-				<div class="ui-btn-split ui-btn-primary landing-btn-menu<?= !$arResult['CAN_PUBLIC_SITE'] ? ' ui-btn-disabled' : '';?>">
-					<a href="<?= ($arParams['FULL_PUBLICATION'] == 'Y') ? $urls['publicationAll']->getUri() : $urls['publication']->getUri();?>" <?
-					?>id="landing-publication" data-slider-ignore-autobinding="true" <?
-					?>class="ui-btn-main" rel="opener" <?
-					?>target="<?= ($arParams['DONT_LEAVE_AFTER_PUBLICATION'] == 'Y') ? '_self' : '_blank';?>">
-						<?= Loc::getMessage('LANDING_TPL_PUBLIC_URL');?>
-					</a>
-					<span id="landing-publication-submenu" class="ui-btn-extra"></span>
-				</div>
-			<?elseif ($arParams['DRAFT_MODE'] != 'Y'):?>
-				<a href="<?= ($arParams['FULL_PUBLICATION'] == 'Y') ? $urls['publicationAll']->getUri() : $urls['publication']->getUri();?>" id="landing-publication"
-					class="ui-btn ui-btn-primary landing-btn-menu<?= !$arResult['CAN_PUBLIC_SITE'] ? ' ui-btn-disabled' : '';?>" <?
-					?>target="<?= ($arParams['DONT_LEAVE_AFTER_PUBLICATION'] == 'Y') ? '_self' : '_blank';?>">
-					<?= Loc::getMessage('LANDING_TPL_PUBLIC_URL');?>
-				</a>
-			<?endif;?>
-			<?if ($helpUrl):?>
-			<a href="<?= $helpUrl;?>" class="ui-btn ui-btn-light ui-btn-round landing-ui-panel-top-menu-link landing-ui-panel-top-menu-link-help" target="_blank">
-				<span class="landing-ui-panel-top-menu-link-help-icon">?</span>
-			</a>
+				<?if (!$formEditor):?>
+					<input type="button" id="landing-popup-features-btn"<?
+						?>class="ui-btn ui-btn-light-border ui-btn-round landing-ui-panel-top-menu-link-features" <?
+						?><?if ($formCode){?> data-feedback="landing-feedback-<?= $formCode?>-button"<?}?><?
+						?> value="<?= $component->getMessageType('LANDING_TPL_FEATURES')?>"<?
+						?> />
+				<?else:?>
+					<span class="ui-btn ui-btn-light-border ui-btn-round ui-btn-icon-share landing-form-editor-share-button"><?
+						echo Loc::getMessage('LANDING_FORM_EDITOR_SHARE_BUTTON')
+					?></span>
+				<?endif;?>
+			<?else:?>
+				<div id="landing-panel-settings-kb"></div>
 			<?endif;?>
 		</div>
 	</div>
@@ -316,25 +382,44 @@ if (!$request->offsetExists('landing_mode')):
 	var landingSiteType = '<?= $arParams['TYPE'];?>';
 	BX.ready(function()
 	{
+		BX.UI.Hint.init(document.querySelector('.landing-ui-panel'));
+
 		BX.message({
 			LANDING_SITE_TYPE: '<?= $arParams['TYPE'];?>',
 			LANDING_PUBLIC_PAGE_REACHED: '<?= \CUtil::jsEscape(\Bitrix\Landing\Restriction\Manager::getSystemErrorMessage('limit_sites_number_page'));?>',
 			LANDING_TPL_SETTINGS_SITE_URL: '<?= \CUtil::jsEscape($component->getMessageType('LANDING_TPL_SETTINGS_SITE_URL'));?>',
 			LANDING_TPL_SETTINGS_SITE_DIZ_URL: '<?= \CUtil::jsEscape($component->getMessageType('LANDING_TPL_SETTINGS_SITE_DIZ_URL'));?>',
 			LANDING_TPL_SETTINGS_CATALOG_URL: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_SETTINGS_CATALOG_URL'));?>',
-			LANDING_TPL_SETTINGS_UNPUBLIC: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_SETTINGS_UNPUBLIC'));?>',
-			LANDING_TPL_PUBLIC_URL_PAGE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_PUBLIC_URL_PAGE'));?>',
-			LANDING_TPL_PUBLIC_URL_ALL: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_PUBLIC_URL_ALL'));?>',
 			LANDING_TPL_SETTINGS_PAGE_URL: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_SETTINGS_PAGE_URL'));?>',
-			LANDING_TPL_SETTINGS_PAGE_DIZ_URL: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_SETTINGS_PAGE_DIZ_URL'));?>'
+			LANDING_TPL_SETTINGS_PAGE_DIZ_URL: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_SETTINGS_PAGE_DIZ_URL'));?>',
+			LANDING_PREVIEW_MOBILE_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MOBILE_TITLE'));?>',
+			LANDING_PREVIEW_MOBILE_TEXT: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MOBILE_TEXT'));?>',
+			LANDING_PREVIEW_MOBILE_NEW_TAB: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MOBILE_NEW_TAB'));?>',
+			LANDING_PREVIEW_MOBILE_COPY_LINK: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MOBILE_COPY_LINK'));?>',
+			LANDING_PUBLICATION_SUBMIT: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_SUBMIT'));?>',
+			LANDING_PUBLICATION_AUTO: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_AUTO'));?>',
+			LANDING_PUBLICATION_AUTO_OFF: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_AUTO_OFF'));?>',
+			LANDING_PUBLICATION_AUTO_TOGGLE_ON: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_AUTO_TOGGLE_ON'));?>',
+			LANDING_PUBLICATION_AUTO_TOGGLE_OFF: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_AUTO_TOGGLE_OFF'));?>',
+			LANDING_TPL_FEATURES_FORMS_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_FEATURES_FORMS_TITLE'));?>',
+			LANDING_TPL_FEATURES_FORMS_PROMO_LINK: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_FEATURES_FORMS_PROMO_LINK'));?>',
+			LANDING_TPL_FEATURES_SETTINGS: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_FEATURES_SETTINGS'));?>',
+			LANDING_TPL_FEATURES_OL_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_FEATURES_OL_TITLE'));?>',
+			LANDING_TPL_FEATURES_OL_PROMO_LINK: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_FEATURES_OL_PROMO_LINK'));?>',
+			LANDING_TPL_FEATURES_HELP_TITLE: '<?= \CUtil::jsEscape($component->getMessageType('LANDING_TPL_FEATURES_HELP_TITLE'));?>',
+			LANDING_TPL_FEATURES_HELP_PROMO_LINK: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_FEATURES_HELP_PROMO_LINK'));?>',
+			LANDING_PAGE_STATUS_PUBLIC: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PAGE_STATUS_PUBLIC'));?>',
+			LANDING_PAGE_STATUS_PUBLIC_NOW: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PAGE_STATUS_PUBLIC_NOW'));?>',
+			LANDING_PAGE_STATUS_UPDATED_ORIG: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PAGE_STATUS_UPDATED_ORIG'));?>',
+			LANDING_PAGE_STATUS_UPDATED_NOW_ORIG: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PAGE_STATUS_UPDATED_NOW_ORIG'));?>',
+			LANDING_PUBLICATION_BUY_RENEW: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_BUY_RENEW'));?>',
+			LANDING_PUBLICATION_CONFIRM_EMAIL: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_CONFIRM_EMAIL'));?>',
+			LANDING_PUBLICATION_GOTO_BLOCK: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLICATION_GOTO_BLOCK'));?>',
+			LANDING_SITE_TILE_POPUP_COPY_LINK_COMPLETE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_SITE_TILE_POPUP_COPY_LINK_COMPLETE'));?>',
+			LANDING_TPL_PREVIEW_URL: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_PREVIEW_URL'));?>',
+			LANDING_TPL_PREVIEW_URL_HINT: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_PREVIEW_URL_HINT'));?>',
+			LANDING_PAR_PAGE_URL_SITE_EDIT: '<?= \CUtil::jsEscape($arParams['PAGE_URL_SITE_EDIT']);?>',
 		});
-	});
-</script>
-
-<script type="text/javascript">
-	BX.Helper.init({
-		frameOpenUrl : '<?=CUtil::JSEscape($helperFrameOpenUrl);?>',
-		langId: '<?= LANGUAGE_ID;?>'
 	});
 </script>
 
@@ -357,7 +442,7 @@ if ($request->offsetExists('landing_mode'))
 	}
 	$arResult['LANDING']->view();
 	?>
-	<style type="text/css">
+	<style>
 		.bx-session-message {
 			display: none;
 		}
@@ -365,12 +450,17 @@ if ($request->offsetExists('landing_mode'))
 	<script type="text/javascript">
 		BX.ready(function()
 		{
+			<?if ($arParams['DRAFT_MODE'] != 'Y'):?>
+			new BX.Landing.Component.View.AutoPublication({
+				pageIsUnActive: <?= $arResult['LANDING']->isActive() ? 'false' : 'true';?>
+			});
+			<?endif;?>
 			BX.Landing.Component.View.create(
 				<?= \CUtil::phpToJSObject($arResult['TOP_PANEL_CONFIG']);?>
 			);
 		});
 	</script>
-	<?if ($request->get('forceLoad') == 'true'):?>
+	<?php if ($request->get('forceLoad') == 'true'):?>
 		<script type="text/javascript">
 			BX.namespace('BX.Landing');
 			BX.Landing.Block = function(element) {
@@ -387,7 +477,48 @@ if ($request->offsetExists('landing_mode'))
 			BX.Landing.Main = function() {};
 			BX.Landing.Main.createInstance = function() {};
 		</script>
-	<?endif;
+	<?php endif;?>
+
+	<?php if ($request->get('IS_AJAX') != 'Y'):?>
+	<script>
+		top.BX.addCustomEvent(
+			'BX.Rest.Configuration.Install:onFinish',
+			function(event)
+			{
+				if (!!event.data.elementList && event.data.elementList.length > 0)
+				{
+					var gotoSiteButton = null;
+					for (var i = 0; i < event.data.elementList.length; i++)
+					{
+						gotoSiteButton = event.data.elementList[i];
+						var replaces = [];
+						var landingPath = '<?= CUtil::jsEscape($arParams['SEF']['landing_view']);?>';
+
+						if (gotoSiteButton.dataset.siteId)
+						{
+							replaces.push([/#site_show#/, gotoSiteButton.dataset.siteId]);
+						}
+						if (gotoSiteButton.dataset.isLanding === 'Y' && gotoSiteButton.dataset.landingId)
+						{
+							replaces.push([/#landing_edit#/, gotoSiteButton.dataset.landingId]);
+						}
+
+						if (gotoSiteButton.getAttribute('href').substr(0, 1) === '#')
+						{
+							replaces.forEach(function(replace) {
+								landingPath = landingPath.replace(replace[0], replace[1]);
+							});
+							gotoSiteButton.setAttribute('href', landingPath);
+							top.window.location.href = landingPath;
+						}
+					}
+				}
+			}
+		);
+	</script>
+	<?php endif?>
+
+	<?php
 }
 // top panel
 else
@@ -426,7 +557,7 @@ else
 		<?
 	}
 	?>
-	<style type="text/css">
+	<style>
 		html, body {
 			height: 100%;
 			overflow: hidden;

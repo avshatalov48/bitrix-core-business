@@ -11,14 +11,14 @@
 }
 
 .landing-ui-card-headercard-description {
-	font-family: OpenSans-Light, Helvetca, Arial, sans-sarif;
+	font-family: "OpenSans-Light", Helvetica Neue, Helvetica, Arial, sans-serif;
 	font-size: 11px;
 	padding-top: 7px;
 	display: inline-block;
 }
 
 .landing-ui-card-headercard .landing-ui-card-header {
-	font-family: OpenSans-Light, Helvetca, Arial, sans-sarif;
+	font-family: "OpenSans-Light", Helvetica Neue, Helvetica, Arial, sans-serif;
 	font-size: 22px;
 	color: #333333;
 	line-height: 28px;
@@ -27,7 +27,7 @@
 }
 
 .landing-ui-card-headercard-without-bottom-margin {
-	margin-bottom: 0!important;
+	margin-bottom: 0 !important;
 }
 
 .landing-ui-card-headercard-2 .landing-ui-card-header {

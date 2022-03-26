@@ -957,7 +957,7 @@ class CCaptcha
 			return false;
 
 		if ($bUpperCode)
-			$userCode = ToUpper($userCode);
+			$userCode = mb_strtoupper($userCode);
 
 		$res = $DB->Query("SELECT CODE FROM b_captcha WHERE ID = '".$DB->ForSQL($sid,32)."' ");
 		if (!$ar = $res->Fetch())
@@ -983,7 +983,7 @@ class CCaptcha
 			return False;
 
 		if ($bUpperCode)
-			$userCode = ToUpper($userCode);
+			$userCode = mb_strtoupper($userCode);
 
 		if (\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"][$sid] != $userCode)
 			return False;
@@ -1005,7 +1005,7 @@ class CCaptcha
 			return False;
 
 		if ($bUpperCode)
-			$userCode = ToUpper($userCode);
+			$userCode = mb_strtoupper($userCode);
 
 		$code = $this->CryptData($codeCrypt, "D", \Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_PASSWORD"]);
 
@@ -1017,7 +1017,7 @@ class CCaptcha
 
 	function CryptData($data, $type, $pwdString)
 	{
-		$type = mb_strtoupper($type);
+		$type = strtoupper($type);
 		if ($type != "D")
 			$type = "E";
 

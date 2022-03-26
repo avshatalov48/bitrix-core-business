@@ -58,6 +58,7 @@ export default class PostFormTabs extends EventEmitter
 		super();
 		this.setEventNamespace('BX.Socialnetwork.Livefeed.Post.Form.Tabs');
 		this.init();
+		this.emit('onInitialized', { tabsInstance: this });
 
 		PostFormTabs.setInstance(this);
 		window.SBPETabs = this;
@@ -441,7 +442,7 @@ export default class PostFormTabs extends EventEmitter
 				}));
 			}
 
-			if(type === this.config.id.listItem)
+			if (type === this.config.id.listItem)
 			{
 				EventEmitter.emit('onDisplayClaimLiveFeed', new BaseEvent({
 					compatData: [ iblock ]

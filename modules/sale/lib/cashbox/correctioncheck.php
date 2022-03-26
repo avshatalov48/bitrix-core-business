@@ -42,15 +42,20 @@ abstract class CorrectionCheck extends AbstractCheck
 
 		if ($isNew)
 		{
-			Internals\CashboxCheckCorrectionTable::add([
+			$r = Internals\CashboxCheckCorrectionTable::add([
 				'CHECK_ID' => $this->fields['ID'],
-				'CORRECTION_TYPE' => $this->correction['TYPE'],
+				'CORRECTION_TYPE' => $this->correction['CORRECTION_TYPE'],
 				'DOCUMENT_NUMBER' => $this->correction['DOCUMENT_NUMBER'],
 				'DOCUMENT_DATE' => $this->correction['DOCUMENT_DATE'],
 				'DESCRIPTION' => $this->correction['DESCRIPTION'],
 				'CORRECTION_PAYMENT' => $this->correction['CORRECTION_PAYMENT'],
 				'CORRECTION_VAT' => $this->correction['CORRECTION_VAT'],
 			]);
+
+			if (!$r->isSuccess())
+			{
+				$result->addErrors($r->getErrors());
+			}
 		}
 
 		return $result;
@@ -165,6 +170,11 @@ abstract class CorrectionCheck extends AbstractCheck
 		if (!$this->isCorrectionFieldAvailable($name))
 		{
 			throw new Main\ArgumentException('Incorrect field '.$name);
+		}
+
+		if ($name === 'DOCUMENT_DATE')
+		{
+			$value = new Main\Type\Date($value);
 		}
 
 		$this->correction[$name] = $value;

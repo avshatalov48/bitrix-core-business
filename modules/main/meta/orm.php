@@ -1,6 +1,6 @@
 <?php
 
-/* ORMENTITYANNOTATION:Bitrix\Main\Analytics\CounterDataTable:main/lib/analytics/counterdata.php:b6a568d74fc83df2ac818bad2440697f */
+/* ORMENTITYANNOTATION:Bitrix\Main\Analytics\CounterDataTable:main/lib/analytics/counterdata.php:ac8e724171aab1c67f4e214d5c3b3916 */
 namespace Bitrix\Main\Analytics {
 	/**
 	 * EO_CounterData
@@ -140,7 +140,7 @@ namespace Bitrix\Main\Analytics {
 	 */
 	class EO_CounterData_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\ApplicationPasswordTable:main/lib/authentication/applicationpassword.php:0fc45a9d7845437cee16ca5965a87054 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\ApplicationPasswordTable:main/lib/authentication/applicationpassword.php:e31290ac9c4c6827393d43241a0db94c */
 namespace Bitrix\Main\Authentication {
 	/**
 	 * EO_ApplicationPassword
@@ -389,7 +389,7 @@ namespace Bitrix\Main\Authentication {
 	 */
 	class EO_ApplicationPassword_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserAuthCodeTable:main/lib/authentication/internal/userauthcodetable.php:59fb86e0e609314043dd826ff0b8feff */
+/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserAuthCodeTable:main/lib/authentication/internal/userauthcodetable.php:73dc14c555ee2ec0c15d51b949efdd52 */
 namespace Bitrix\Main\Authentication\Internal {
 	/**
 	 * EO_UserAuthCode
@@ -572,7 +572,395 @@ namespace Bitrix\Main\Authentication\Internal {
 	 */
 	class EO_UserAuthCode_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserPasswordTable:main/lib/authentication/internal/userpasswordtable.php:474690d46c830bcdc6258a3f35915b3c */
+/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserDeviceLoginTable:main/lib/authentication/internal/userdevicelogindtable.php:3c2321e65bfc8c6eb50a82630f6fdb8d */
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_UserDeviceLogin
+	 * @see \Bitrix\Main\Authentication\Internal\UserDeviceLoginTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getDeviceId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setDeviceId(\int|\Bitrix\Main\DB\SqlExpression $deviceId)
+	 * @method bool hasDeviceId()
+	 * @method bool isDeviceIdFilled()
+	 * @method bool isDeviceIdChanged()
+	 * @method \int remindActualDeviceId()
+	 * @method \int requireDeviceId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetDeviceId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetDeviceId()
+	 * @method \int fillDeviceId()
+	 * @method \Bitrix\Main\Type\DateTime getLoginDate()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setLoginDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $loginDate)
+	 * @method bool hasLoginDate()
+	 * @method bool isLoginDateFilled()
+	 * @method bool isLoginDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualLoginDate()
+	 * @method \Bitrix\Main\Type\DateTime requireLoginDate()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetLoginDate()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetLoginDate()
+	 * @method \Bitrix\Main\Type\DateTime fillLoginDate()
+	 * @method \string getIp()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setIp(\string|\Bitrix\Main\DB\SqlExpression $ip)
+	 * @method bool hasIp()
+	 * @method bool isIpFilled()
+	 * @method bool isIpChanged()
+	 * @method \string remindActualIp()
+	 * @method \string requireIp()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetIp()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetIp()
+	 * @method \string fillIp()
+	 * @method \string getCity()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setCity(\string|\Bitrix\Main\DB\SqlExpression $city)
+	 * @method bool hasCity()
+	 * @method bool isCityFilled()
+	 * @method bool isCityChanged()
+	 * @method \string remindActualCity()
+	 * @method \string requireCity()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetCity()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetCity()
+	 * @method \string fillCity()
+	 * @method \string getCountry()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setCountry(\string|\Bitrix\Main\DB\SqlExpression $country)
+	 * @method bool hasCountry()
+	 * @method bool isCountryFilled()
+	 * @method bool isCountryChanged()
+	 * @method \string remindActualCountry()
+	 * @method \string requireCountry()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetCountry()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetCountry()
+	 * @method \string fillCountry()
+	 * @method \int getAppPasswordId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setAppPasswordId(\int|\Bitrix\Main\DB\SqlExpression $appPasswordId)
+	 * @method bool hasAppPasswordId()
+	 * @method bool isAppPasswordIdFilled()
+	 * @method bool isAppPasswordIdChanged()
+	 * @method \int remindActualAppPasswordId()
+	 * @method \int requireAppPasswordId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetAppPasswordId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetAppPasswordId()
+	 * @method \int fillAppPasswordId()
+	 * @method \int getStoredAuthId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setStoredAuthId(\int|\Bitrix\Main\DB\SqlExpression $storedAuthId)
+	 * @method bool hasStoredAuthId()
+	 * @method bool isStoredAuthIdFilled()
+	 * @method bool isStoredAuthIdChanged()
+	 * @method \int remindActualStoredAuthId()
+	 * @method \int requireStoredAuthId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetStoredAuthId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetStoredAuthId()
+	 * @method \int fillStoredAuthId()
+	 * @method \int getHitAuthId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setHitAuthId(\int|\Bitrix\Main\DB\SqlExpression $hitAuthId)
+	 * @method bool hasHitAuthId()
+	 * @method bool isHitAuthIdFilled()
+	 * @method bool isHitAuthIdChanged()
+	 * @method \int remindActualHitAuthId()
+	 * @method \int requireHitAuthId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetHitAuthId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetHitAuthId()
+	 * @method \int fillHitAuthId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin set($fieldName, $value)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin reset($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin wakeUp($data)
+	 */
+	class EO_UserDeviceLogin {
+		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceLoginTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserDeviceLoginTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_UserDeviceLogin_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getDeviceIdList()
+	 * @method \int[] fillDeviceId()
+	 * @method \Bitrix\Main\Type\DateTime[] getLoginDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillLoginDate()
+	 * @method \string[] getIpList()
+	 * @method \string[] fillIp()
+	 * @method \string[] getCityList()
+	 * @method \string[] fillCity()
+	 * @method \string[] getCountryList()
+	 * @method \string[] fillCountry()
+	 * @method \int[] getAppPasswordIdList()
+	 * @method \int[] fillAppPasswordId()
+	 * @method \int[] getStoredAuthIdList()
+	 * @method \int[] fillStoredAuthId()
+	 * @method \int[] getHitAuthIdList()
+	 * @method \int[] fillHitAuthId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin $object)
+	 * @method bool has(\Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin getByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin[] getAll()
+	 * @method bool remove(\Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_UserDeviceLogin_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceLoginTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserDeviceLoginTable';
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_UserDeviceLogin_Result exec()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_UserDeviceLogin_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection fetchCollection()
+	 */
+	class EO_UserDeviceLogin_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection createCollection()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin wakeUpObject($row)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection wakeUpCollection($rows)
+	 */
+	class EO_UserDeviceLogin_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserDeviceTable:main/lib/authentication/internal/userdevicetable.php:37a7e579bd9f9e6df7edf9047ac85c07 */
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_UserDevice
+	 * @see \Bitrix\Main\Authentication\Internal\UserDeviceTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetUserId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \int getDeviceType()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setDeviceType(\int|\Bitrix\Main\DB\SqlExpression $deviceType)
+	 * @method bool hasDeviceType()
+	 * @method bool isDeviceTypeFilled()
+	 * @method bool isDeviceTypeChanged()
+	 * @method \int remindActualDeviceType()
+	 * @method \int requireDeviceType()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetDeviceType()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetDeviceType()
+	 * @method \int fillDeviceType()
+	 * @method \string getBrowser()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setBrowser(\string|\Bitrix\Main\DB\SqlExpression $browser)
+	 * @method bool hasBrowser()
+	 * @method bool isBrowserFilled()
+	 * @method bool isBrowserChanged()
+	 * @method \string remindActualBrowser()
+	 * @method \string requireBrowser()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetBrowser()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetBrowser()
+	 * @method \string fillBrowser()
+	 * @method \string getPlatform()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setPlatform(\string|\Bitrix\Main\DB\SqlExpression $platform)
+	 * @method bool hasPlatform()
+	 * @method bool isPlatformFilled()
+	 * @method bool isPlatformChanged()
+	 * @method \string remindActualPlatform()
+	 * @method \string requirePlatform()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetPlatform()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetPlatform()
+	 * @method \string fillPlatform()
+	 * @method \string getUserAgent()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setUserAgent(\string|\Bitrix\Main\DB\SqlExpression $userAgent)
+	 * @method bool hasUserAgent()
+	 * @method bool isUserAgentFilled()
+	 * @method bool isUserAgentChanged()
+	 * @method \string remindActualUserAgent()
+	 * @method \string requireUserAgent()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetUserAgent()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetUserAgent()
+	 * @method \string fillUserAgent()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice set($fieldName, $value)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice reset($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserDevice wakeUp($data)
+	 */
+	class EO_UserDevice {
+		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserDeviceTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_UserDevice_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \int[] getDeviceTypeList()
+	 * @method \int[] fillDeviceType()
+	 * @method \string[] getBrowserList()
+	 * @method \string[] fillBrowser()
+	 * @method \string[] getPlatformList()
+	 * @method \string[] fillPlatform()
+	 * @method \string[] getUserAgentList()
+	 * @method \string[] fillUserAgent()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Main\Authentication\Internal\EO_UserDevice $object)
+	 * @method bool has(\Bitrix\Main\Authentication\Internal\EO_UserDevice $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice getByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice[] getAll()
+	 * @method bool remove(\Bitrix\Main\Authentication\Internal\EO_UserDevice $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_UserDevice_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserDeviceTable';
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_UserDevice_Result exec()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_UserDevice_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection fetchCollection()
+	 */
+	class EO_UserDevice_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection createCollection()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice wakeUpObject($row)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection wakeUpCollection($rows)
+	 */
+	class EO_UserDevice_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserPasswordTable:main/lib/authentication/internal/userpasswordtable.php:9602b0f3142c816a8d1ac2dc66740f61 */
 namespace Bitrix\Main\Authentication\Internal {
 	/**
 	 * EO_UserPassword
@@ -737,7 +1125,7 @@ namespace Bitrix\Main\Authentication\Internal {
 	 */
 	class EO_UserPassword_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Component\ParametersTable:main/lib/component/parameters.php:42aab8de9b3ce3490d82142180cf9a81 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Component\ParametersTable:main/lib/component/parameters.php:b17b80b8de56d31bb346e2caf1935f1a */
 namespace Bitrix\Main\Component {
 	/**
 	 * EO_Parameters
@@ -961,7 +1349,7 @@ namespace Bitrix\Main\Component {
 	 */
 	class EO_Parameters_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Composite\Debug\Model\LogTable:main/lib/composite/debug/model/log.php:3057614b4496e7a849f86ecf8ee15aad */
+/* ORMENTITYANNOTATION:Bitrix\Main\Composite\Debug\Model\LogTable:main/lib/composite/debug/model/log.php:46d77d5490a51c3525b209c26e2dd602 */
 namespace Bitrix\Main\Composite\Debug\Model {
 	/**
 	 * EO_Log
@@ -1207,7 +1595,7 @@ namespace Bitrix\Main\Composite\Debug\Model {
 	 */
 	class EO_Log_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Composite\Internals\Model\PageTable:main/lib/composite/internals/model/page.php:e7623cc2d2becd0906531ae8e8c3e330 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Composite\Internals\Model\PageTable:main/lib/composite/internals/model/page.php:0c12142e024e6d0c6494016b2463de24 */
 namespace Bitrix\Main\Composite\Internals\Model {
 	/**
 	 * EO_Page
@@ -1443,7 +1831,7 @@ namespace Bitrix\Main\Composite\Internals\Model {
 	 */
 	class EO_Page_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Localization\CultureTable:main/lib/localization/culture.php:280fc047920bf1c0aa7b30511ad1eead */
+/* ORMENTITYANNOTATION:Bitrix\Main\Localization\CultureTable:main/lib/localization/culture.php:e70ad01fc12fa4b571a5d69db19d5cf6 */
 namespace Bitrix\Main\Localization {
 	/**
 	 * Culture
@@ -1847,7 +2235,7 @@ namespace Bitrix\Main\Localization {
 	 */
 	class EO_Culture_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\EventLog\Internal\EventLogTable:main/lib/eventlog/internal/eventlogtable.php:4503ebecd2bf845bb59438cf2983bcfb */
+/* ORMENTITYANNOTATION:Bitrix\Main\EventLog\Internal\EventLogTable:main/lib/eventlog/internal/eventlogtable.php:a15e1f94f7c0b2c73419344f62de030a */
 namespace Bitrix\Main\EventLog\Internal {
 	/**
 	 * EO_EventLog
@@ -2107,7 +2495,7 @@ namespace Bitrix\Main\EventLog\Internal {
 	 */
 	class EO_EventLog_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\EventLog\Internal\LogNotificationActionTable:main/lib/eventlog/internal/lognotificationactiontable.php:fc29f2cffa45844c4d4e68ad841fba23 */
+/* ORMENTITYANNOTATION:Bitrix\Main\EventLog\Internal\LogNotificationActionTable:main/lib/eventlog/internal/lognotificationactiontable.php:e3dcadf73e58b2a43a77464f4f6afb78 */
 namespace Bitrix\Main\EventLog\Internal {
 	/**
 	 * EO_LogNotificationAction
@@ -2284,7 +2672,7 @@ namespace Bitrix\Main\EventLog\Internal {
 	 */
 	class EO_LogNotificationAction_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\EventLog\Internal\LogNotificationTable:main/lib/eventlog/internal/lognotificationtable.php:3ccff298d81e20daa27fa02769323e34 */
+/* ORMENTITYANNOTATION:Bitrix\Main\EventLog\Internal\LogNotificationTable:main/lib/eventlog/internal/lognotificationtable.php:1512bc2cb6bd98fde3c0a2fb3366e8c7 */
 namespace Bitrix\Main\EventLog\Internal {
 	/**
 	 * EO_LogNotification
@@ -2546,7 +2934,7 @@ namespace Bitrix\Main\EventLog\Internal {
 	 */
 	class EO_LogNotification_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\File\Internal\FileDuplicateTable:main/lib/file/internal/fileduplicatetable.php:95e015fa9b21bca47954e67b0c1ee6d0 */
+/* ORMENTITYANNOTATION:Bitrix\Main\File\Internal\FileDuplicateTable:main/lib/file/internal/fileduplicatetable.php:2b6fc71dafdfe6382bf463382812faca */
 namespace Bitrix\Main\File\Internal {
 	/**
 	 * EO_FileDuplicate
@@ -2692,7 +3080,7 @@ namespace Bitrix\Main\File\Internal {
 	 */
 	class EO_FileDuplicate_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\File\Internal\FileHashTable:main/lib/file/internal/filehashtable.php:8bae47a08ce5fdcdc22b0bded6ac916a */
+/* ORMENTITYANNOTATION:Bitrix\Main\File\Internal\FileHashTable:main/lib/file/internal/filehashtable.php:f242065b5d47a773ed5b233db99e594c */
 namespace Bitrix\Main\File\Internal {
 	/**
 	 * EO_FileHash
@@ -2845,7 +3233,7 @@ namespace Bitrix\Main\File\Internal {
 	 */
 	class EO_FileHash_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\FileTable:main/lib/file.php:737d3bfad2c56620c8e432637a04bf13 */
+/* ORMENTITYANNOTATION:Bitrix\Main\FileTable:main/lib/file.php:770d3b71d366d993048b21756645dd7c */
 namespace Bitrix\Main {
 	/**
 	 * EO_File
@@ -3118,243 +3506,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_File_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UI\EntitySelector\EntityUsageTable:main/lib/ui/entityselector/entityusagetable.php:92c2e20b5cb357fc08352489b150ce0a */
-namespace Bitrix\Main\UI\EntitySelector {
-	/**
-	 * EO_EntityUsage
-	 * @see \Bitrix\Main\UI\EntitySelector\EntityUsageTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getUserId()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
-	 * @method bool hasUserId()
-	 * @method bool isUserIdFilled()
-	 * @method bool isUserIdChanged()
-	 * @method \Bitrix\Main\EO_User getUser()
-	 * @method \Bitrix\Main\EO_User remindActualUser()
-	 * @method \Bitrix\Main\EO_User requireUser()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setUser(\Bitrix\Main\EO_User $object)
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage resetUser()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetUser()
-	 * @method bool hasUser()
-	 * @method bool isUserFilled()
-	 * @method bool isUserChanged()
-	 * @method \Bitrix\Main\EO_User fillUser()
-	 * @method \string getItemId()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setItemId(\string|\Bitrix\Main\DB\SqlExpression $itemId)
-	 * @method bool hasItemId()
-	 * @method bool isItemIdFilled()
-	 * @method bool isItemIdChanged()
-	 * @method \string getEntityId()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setEntityId(\string|\Bitrix\Main\DB\SqlExpression $entityId)
-	 * @method bool hasEntityId()
-	 * @method bool isEntityIdFilled()
-	 * @method bool isEntityIdChanged()
-	 * @method \string getContext()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setContext(\string|\Bitrix\Main\DB\SqlExpression $context)
-	 * @method bool hasContext()
-	 * @method bool isContextFilled()
-	 * @method bool isContextChanged()
-	 * @method \int getItemIdInt()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setItemIdInt(\int|\Bitrix\Main\DB\SqlExpression $itemIdInt)
-	 * @method bool hasItemIdInt()
-	 * @method bool isItemIdIntFilled()
-	 * @method bool isItemIdIntChanged()
-	 * @method \int remindActualItemIdInt()
-	 * @method \int requireItemIdInt()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage resetItemIdInt()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetItemIdInt()
-	 * @method \int fillItemIdInt()
-	 * @method \string getPrefix()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setPrefix(\string|\Bitrix\Main\DB\SqlExpression $prefix)
-	 * @method bool hasPrefix()
-	 * @method bool isPrefixFilled()
-	 * @method bool isPrefixChanged()
-	 * @method \string remindActualPrefix()
-	 * @method \string requirePrefix()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage resetPrefix()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetPrefix()
-	 * @method \string fillPrefix()
-	 * @method \Bitrix\Main\Type\DateTime getLastUseDate()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setLastUseDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $lastUseDate)
-	 * @method bool hasLastUseDate()
-	 * @method bool isLastUseDateFilled()
-	 * @method bool isLastUseDateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualLastUseDate()
-	 * @method \Bitrix\Main\Type\DateTime requireLastUseDate()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage resetLastUseDate()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetLastUseDate()
-	 * @method \Bitrix\Main\Type\DateTime fillLastUseDate()
-	 * @method \string getCode()
-	 * @method \string remindActualCode()
-	 * @method \string requireCode()
-	 * @method bool hasCode()
-	 * @method bool isCodeFilled()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetCode()
-	 * @method \string fillCode()
-	 * @method \string getCodeType()
-	 * @method \string remindActualCodeType()
-	 * @method \string requireCodeType()
-	 * @method bool hasCodeType()
-	 * @method bool isCodeTypeFilled()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetCodeType()
-	 * @method \string fillCodeType()
-	 * @method \string getCodeUserId()
-	 * @method \string remindActualCodeUserId()
-	 * @method \string requireCodeUserId()
-	 * @method bool hasCodeUserId()
-	 * @method bool isCodeUserIdFilled()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetCodeUserId()
-	 * @method \string fillCodeUserId()
-	 * @method \Bitrix\Main\EO_User getCodeUser()
-	 * @method \Bitrix\Main\EO_User remindActualCodeUser()
-	 * @method \Bitrix\Main\EO_User requireCodeUser()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setCodeUser(\Bitrix\Main\EO_User $object)
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage resetCodeUser()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetCodeUser()
-	 * @method bool hasCodeUser()
-	 * @method bool isCodeUserFilled()
-	 * @method bool isCodeUserChanged()
-	 * @method \Bitrix\Main\EO_User fillCodeUser()
-	 * @method \Bitrix\Main\EO_User getCodeUserCurrent()
-	 * @method \Bitrix\Main\EO_User remindActualCodeUserCurrent()
-	 * @method \Bitrix\Main\EO_User requireCodeUserCurrent()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setCodeUserCurrent(\Bitrix\Main\EO_User $object)
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage resetCodeUserCurrent()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetCodeUserCurrent()
-	 * @method bool hasCodeUserCurrent()
-	 * @method bool isCodeUserCurrentFilled()
-	 * @method bool isCodeUserCurrentChanged()
-	 * @method \Bitrix\Main\EO_User fillCodeUserCurrent()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage set($fieldName, $value)
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage reset($fieldName)
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Main\UI\EntitySelector\EO_EntityUsage wakeUp($data)
-	 */
-	class EO_EntityUsage {
-		/* @var \Bitrix\Main\UI\EntitySelector\EntityUsageTable */
-		static public $dataClass = '\Bitrix\Main\UI\EntitySelector\EntityUsageTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Main\UI\EntitySelector {
-	/**
-	 * EO_EntityUsage_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getUserIdList()
-	 * @method \Bitrix\Main\EO_User[] getUserList()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection getUserCollection()
-	 * @method \Bitrix\Main\EO_User_Collection fillUser()
-	 * @method \string[] getItemIdList()
-	 * @method \string[] getEntityIdList()
-	 * @method \string[] getContextList()
-	 * @method \int[] getItemIdIntList()
-	 * @method \int[] fillItemIdInt()
-	 * @method \string[] getPrefixList()
-	 * @method \string[] fillPrefix()
-	 * @method \Bitrix\Main\Type\DateTime[] getLastUseDateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillLastUseDate()
-	 * @method \string[] getCodeList()
-	 * @method \string[] fillCode()
-	 * @method \string[] getCodeTypeList()
-	 * @method \string[] fillCodeType()
-	 * @method \string[] getCodeUserIdList()
-	 * @method \string[] fillCodeUserId()
-	 * @method \Bitrix\Main\EO_User[] getCodeUserList()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection getCodeUserCollection()
-	 * @method \Bitrix\Main\EO_User_Collection fillCodeUser()
-	 * @method \Bitrix\Main\EO_User[] getCodeUserCurrentList()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection getCodeUserCurrentCollection()
-	 * @method \Bitrix\Main\EO_User_Collection fillCodeUserCurrent()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Main\UI\EntitySelector\EO_EntityUsage $object)
-	 * @method bool has(\Bitrix\Main\UI\EntitySelector\EO_EntityUsage $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage getByPrimary($primary)
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage[] getAll()
-	 * @method bool remove(\Bitrix\Main\UI\EntitySelector\EO_EntityUsage $object)
-	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 */
-	class EO_EntityUsage_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Main\UI\EntitySelector\EntityUsageTable */
-		static public $dataClass = '\Bitrix\Main\UI\EntitySelector\EntityUsageTable';
-	}
-}
-namespace Bitrix\Main\UI\EntitySelector {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_EntityUsage_Result exec()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage fetchObject()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 */
-	class EO_EntityUsage_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage fetchObject()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection fetchCollection()
-	 */
-	class EO_EntityUsage_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage createObject($setDefaultValues = true)
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection createCollection()
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage wakeUpObject($row)
-	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection wakeUpCollection($rows)
-	 */
-	class EO_EntityUsage_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Main\FinderDestTable:main/lib/finderdest.php:81e76b6f06a78fa2e349e00a0b4ee944 */
+/* ORMENTITYANNOTATION:Bitrix\Main\FinderDestTable:main/lib/finderdest.php:95ea5550be4bd9ff47ddc8654cc8ed4d */
 namespace Bitrix\Main {
 	/**
 	 * EO_FinderDest
@@ -3590,7 +3742,243 @@ namespace Bitrix\Main {
 	 */
 	class EO_FinderDest_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\GroupTable:main/lib/group.php:5bf7e71f7e33516d6542442ea29917d4 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UI\EntitySelector\EntityUsageTable:main/lib/ui/entityselector/entityusagetable.php:d50c1dc2d887343008175fd70bfff13c */
+namespace Bitrix\Main\UI\EntitySelector {
+	/**
+	 * EO_EntityUsage
+	 * @see \Bitrix\Main\UI\EntitySelector\EntityUsageTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getUserId()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \Bitrix\Main\EO_User getUser()
+	 * @method \Bitrix\Main\EO_User remindActualUser()
+	 * @method \Bitrix\Main\EO_User requireUser()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage resetUser()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetUser()
+	 * @method bool hasUser()
+	 * @method bool isUserFilled()
+	 * @method bool isUserChanged()
+	 * @method \Bitrix\Main\EO_User fillUser()
+	 * @method \string getItemId()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setItemId(\string|\Bitrix\Main\DB\SqlExpression $itemId)
+	 * @method bool hasItemId()
+	 * @method bool isItemIdFilled()
+	 * @method bool isItemIdChanged()
+	 * @method \string getEntityId()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setEntityId(\string|\Bitrix\Main\DB\SqlExpression $entityId)
+	 * @method bool hasEntityId()
+	 * @method bool isEntityIdFilled()
+	 * @method bool isEntityIdChanged()
+	 * @method \string getContext()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setContext(\string|\Bitrix\Main\DB\SqlExpression $context)
+	 * @method bool hasContext()
+	 * @method bool isContextFilled()
+	 * @method bool isContextChanged()
+	 * @method \int getItemIdInt()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setItemIdInt(\int|\Bitrix\Main\DB\SqlExpression $itemIdInt)
+	 * @method bool hasItemIdInt()
+	 * @method bool isItemIdIntFilled()
+	 * @method bool isItemIdIntChanged()
+	 * @method \int remindActualItemIdInt()
+	 * @method \int requireItemIdInt()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage resetItemIdInt()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetItemIdInt()
+	 * @method \int fillItemIdInt()
+	 * @method \string getPrefix()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setPrefix(\string|\Bitrix\Main\DB\SqlExpression $prefix)
+	 * @method bool hasPrefix()
+	 * @method bool isPrefixFilled()
+	 * @method bool isPrefixChanged()
+	 * @method \string remindActualPrefix()
+	 * @method \string requirePrefix()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage resetPrefix()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetPrefix()
+	 * @method \string fillPrefix()
+	 * @method \Bitrix\Main\Type\DateTime getLastUseDate()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setLastUseDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $lastUseDate)
+	 * @method bool hasLastUseDate()
+	 * @method bool isLastUseDateFilled()
+	 * @method bool isLastUseDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualLastUseDate()
+	 * @method \Bitrix\Main\Type\DateTime requireLastUseDate()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage resetLastUseDate()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetLastUseDate()
+	 * @method \Bitrix\Main\Type\DateTime fillLastUseDate()
+	 * @method \string getCode()
+	 * @method \string remindActualCode()
+	 * @method \string requireCode()
+	 * @method bool hasCode()
+	 * @method bool isCodeFilled()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetCode()
+	 * @method \string fillCode()
+	 * @method \string getCodeType()
+	 * @method \string remindActualCodeType()
+	 * @method \string requireCodeType()
+	 * @method bool hasCodeType()
+	 * @method bool isCodeTypeFilled()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetCodeType()
+	 * @method \string fillCodeType()
+	 * @method \string getCodeUserId()
+	 * @method \string remindActualCodeUserId()
+	 * @method \string requireCodeUserId()
+	 * @method bool hasCodeUserId()
+	 * @method bool isCodeUserIdFilled()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetCodeUserId()
+	 * @method \string fillCodeUserId()
+	 * @method \Bitrix\Main\EO_User getCodeUser()
+	 * @method \Bitrix\Main\EO_User remindActualCodeUser()
+	 * @method \Bitrix\Main\EO_User requireCodeUser()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setCodeUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage resetCodeUser()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetCodeUser()
+	 * @method bool hasCodeUser()
+	 * @method bool isCodeUserFilled()
+	 * @method bool isCodeUserChanged()
+	 * @method \Bitrix\Main\EO_User fillCodeUser()
+	 * @method \Bitrix\Main\EO_User getCodeUserCurrent()
+	 * @method \Bitrix\Main\EO_User remindActualCodeUserCurrent()
+	 * @method \Bitrix\Main\EO_User requireCodeUserCurrent()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage setCodeUserCurrent(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage resetCodeUserCurrent()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unsetCodeUserCurrent()
+	 * @method bool hasCodeUserCurrent()
+	 * @method bool isCodeUserCurrentFilled()
+	 * @method bool isCodeUserCurrentChanged()
+	 * @method \Bitrix\Main\EO_User fillCodeUserCurrent()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage set($fieldName, $value)
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage reset($fieldName)
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Main\UI\EntitySelector\EO_EntityUsage wakeUp($data)
+	 */
+	class EO_EntityUsage {
+		/* @var \Bitrix\Main\UI\EntitySelector\EntityUsageTable */
+		static public $dataClass = '\Bitrix\Main\UI\EntitySelector\EntityUsageTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Main\UI\EntitySelector {
+	/**
+	 * EO_EntityUsage_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getUserIdList()
+	 * @method \Bitrix\Main\EO_User[] getUserList()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection getUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillUser()
+	 * @method \string[] getItemIdList()
+	 * @method \string[] getEntityIdList()
+	 * @method \string[] getContextList()
+	 * @method \int[] getItemIdIntList()
+	 * @method \int[] fillItemIdInt()
+	 * @method \string[] getPrefixList()
+	 * @method \string[] fillPrefix()
+	 * @method \Bitrix\Main\Type\DateTime[] getLastUseDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillLastUseDate()
+	 * @method \string[] getCodeList()
+	 * @method \string[] fillCode()
+	 * @method \string[] getCodeTypeList()
+	 * @method \string[] fillCodeType()
+	 * @method \string[] getCodeUserIdList()
+	 * @method \string[] fillCodeUserId()
+	 * @method \Bitrix\Main\EO_User[] getCodeUserList()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection getCodeUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillCodeUser()
+	 * @method \Bitrix\Main\EO_User[] getCodeUserCurrentList()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection getCodeUserCurrentCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillCodeUserCurrent()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Main\UI\EntitySelector\EO_EntityUsage $object)
+	 * @method bool has(\Bitrix\Main\UI\EntitySelector\EO_EntityUsage $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage getByPrimary($primary)
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage[] getAll()
+	 * @method bool remove(\Bitrix\Main\UI\EntitySelector\EO_EntityUsage $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_EntityUsage_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Main\UI\EntitySelector\EntityUsageTable */
+		static public $dataClass = '\Bitrix\Main\UI\EntitySelector\EntityUsageTable';
+	}
+}
+namespace Bitrix\Main\UI\EntitySelector {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_EntityUsage_Result exec()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage fetchObject()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_EntityUsage_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage fetchObject()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection fetchCollection()
+	 */
+	class EO_EntityUsage_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection createCollection()
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage wakeUpObject($row)
+	 * @method \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection wakeUpCollection($rows)
+	 */
+	class EO_EntityUsage_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Main\GroupTable:main/lib/group.php:8ccf9681f5ddf36bb16ea1459066a2ac */
 namespace Bitrix\Main {
 	/**
 	 * EO_Group
@@ -3802,7 +4190,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_Group_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\GroupTaskTable:main/lib/grouptask.php:d2401c6d56f0b422852f17cf18daa1be */
+/* ORMENTITYANNOTATION:Bitrix\Main\GroupTaskTable:main/lib/grouptask.php:56971e3d896d87ff46b198633cd2238d */
 namespace Bitrix\Main {
 	/**
 	 * EO_GroupTask
@@ -3962,7 +4350,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_GroupTask_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Localization\LanguageTable:main/lib/localization/language.php:8dd9f711a64d80947a0774d74ad68787 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Localization\LanguageTable:main/lib/localization/language.php:2df48c16c3f399e975b72811473681b6 */
 namespace Bitrix\Main\Localization {
 	/**
 	 * EO_Language
@@ -4169,7 +4557,7 @@ namespace Bitrix\Main\Localization {
 	 */
 	class EO_Language_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\BlacklistTable:main/lib/mail/internal/blacklist.php:7b754b36f82187f7bd6caa83052a5a3c */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\BlacklistTable:main/lib/mail/internal/blacklist.php:8d60c515a7ac29d34cd5a7c5906667eb */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * EO_Blacklist
@@ -4321,7 +4709,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_Blacklist_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventTable:main/lib/mail/internal/event.php:ebafe288ffadad8415fd1b407dc2c490 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventTable:main/lib/mail/internal/event.php:d37379435ed22945770b90dadf668dd7 */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * EO_Event
@@ -4545,7 +4933,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_Event_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventAttachmentTable:main/lib/mail/internal/eventattachment.php:3d4b04474faa8cd4f7fbc5d970c45d5c */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventAttachmentTable:main/lib/mail/internal/eventattachment.php:b8acb520801845f391cbc2725d2c09bc */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * EO_EventAttachment
@@ -4698,7 +5086,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_EventAttachment_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventMessageTable:main/lib/mail/internal/eventmessage.php:099cf948595eb776c4f1ef398d2aa00b */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventMessageTable:main/lib/mail/internal/eventmessage.php:dd1d583e95d0b878b8fa332107db7b81 */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * EO_EventMessage
@@ -5091,7 +5479,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_EventMessage_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventMessageAttachmentTable:main/lib/mail/internal/eventmessageattachment.php:2348cf8cdf46ae278c87abac704d8ff7 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventMessageAttachmentTable:main/lib/mail/internal/eventmessageattachment.php:0425b7d0a2a7a04c133fffc563d1aa80 */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * EO_EventMessageAttachment
@@ -5213,7 +5601,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_EventMessageAttachment_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventMessageSiteTable:main/lib/mail/internal/eventmessagesite.php:a8c98f2ca0f935118fcf835f3b2ce9e9 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventMessageSiteTable:main/lib/mail/internal/eventmessagesite.php:e7f10819ada0c3653fb383c464fb3e98 */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * EO_EventMessageSite
@@ -5341,7 +5729,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_EventMessageSite_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventTypeTable:main/lib/mail/internal/eventtype.php:b474cca354df90e7a479b9b00351169c */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventTypeTable:main/lib/mail/internal/eventtype.php:fc7e6b2b90d1cfbd3bba1a2635ef5aac */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * EO_EventType
@@ -5529,80 +5917,80 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_EventType_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\SenderTable:main/lib/mail/internal/sender.php:34776046b9f1895f6673ffc6315f51e3 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\SenderTable:main/lib/mail/internal/sendertable.php:24ced5d9fbc65df08da57d0049bd7a3a */
 namespace Bitrix\Main\Mail\Internal {
 	/**
-	 * EO_Sender
+	 * Sender
 	 * @see \Bitrix\Main\Mail\Internal\SenderTable
 	 *
 	 * Custom methods:
 	 * ---------------
 	 *
 	 * @method \int getId()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method \Bitrix\Main\Mail\Internal\Sender setId(\int|\Bitrix\Main\DB\SqlExpression $id)
 	 * @method bool hasId()
 	 * @method bool isIdFilled()
 	 * @method bool isIdChanged()
-	 * @method \string getName()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender setName(\string|\Bitrix\Main\DB\SqlExpression $name)
-	 * @method bool hasName()
-	 * @method bool isNameFilled()
-	 * @method bool isNameChanged()
-	 * @method \string remindActualName()
-	 * @method \string requireName()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender resetName()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender unsetName()
-	 * @method \string fillName()
 	 * @method \string getEmail()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender setEmail(\string|\Bitrix\Main\DB\SqlExpression $email)
+	 * @method \Bitrix\Main\Mail\Internal\Sender setEmail(\string|\Bitrix\Main\DB\SqlExpression $email)
 	 * @method bool hasEmail()
 	 * @method bool isEmailFilled()
 	 * @method bool isEmailChanged()
 	 * @method \string remindActualEmail()
 	 * @method \string requireEmail()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender resetEmail()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender unsetEmail()
+	 * @method \Bitrix\Main\Mail\Internal\Sender resetEmail()
+	 * @method \Bitrix\Main\Mail\Internal\Sender unsetEmail()
 	 * @method \string fillEmail()
+	 * @method \string getName()
+	 * @method \Bitrix\Main\Mail\Internal\Sender setName(\string|\Bitrix\Main\DB\SqlExpression $name)
+	 * @method bool hasName()
+	 * @method bool isNameFilled()
+	 * @method bool isNameChanged()
+	 * @method \string remindActualName()
+	 * @method \string requireName()
+	 * @method \Bitrix\Main\Mail\Internal\Sender resetName()
+	 * @method \Bitrix\Main\Mail\Internal\Sender unsetName()
+	 * @method \string fillName()
 	 * @method \int getUserId()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method \Bitrix\Main\Mail\Internal\Sender setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
 	 * @method bool hasUserId()
 	 * @method bool isUserIdFilled()
 	 * @method bool isUserIdChanged()
 	 * @method \int remindActualUserId()
 	 * @method \int requireUserId()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender resetUserId()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender unsetUserId()
+	 * @method \Bitrix\Main\Mail\Internal\Sender resetUserId()
+	 * @method \Bitrix\Main\Mail\Internal\Sender unsetUserId()
 	 * @method \int fillUserId()
 	 * @method \boolean getIsConfirmed()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender setIsConfirmed(\boolean|\Bitrix\Main\DB\SqlExpression $isConfirmed)
+	 * @method \Bitrix\Main\Mail\Internal\Sender setIsConfirmed(\boolean|\Bitrix\Main\DB\SqlExpression $isConfirmed)
 	 * @method bool hasIsConfirmed()
 	 * @method bool isIsConfirmedFilled()
 	 * @method bool isIsConfirmedChanged()
 	 * @method \boolean remindActualIsConfirmed()
 	 * @method \boolean requireIsConfirmed()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender resetIsConfirmed()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender unsetIsConfirmed()
+	 * @method \Bitrix\Main\Mail\Internal\Sender resetIsConfirmed()
+	 * @method \Bitrix\Main\Mail\Internal\Sender unsetIsConfirmed()
 	 * @method \boolean fillIsConfirmed()
 	 * @method \boolean getIsPublic()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender setIsPublic(\boolean|\Bitrix\Main\DB\SqlExpression $isPublic)
+	 * @method \Bitrix\Main\Mail\Internal\Sender setIsPublic(\boolean|\Bitrix\Main\DB\SqlExpression $isPublic)
 	 * @method bool hasIsPublic()
 	 * @method bool isIsPublicFilled()
 	 * @method bool isIsPublicChanged()
 	 * @method \boolean remindActualIsPublic()
 	 * @method \boolean requireIsPublic()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender resetIsPublic()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender unsetIsPublic()
+	 * @method \Bitrix\Main\Mail\Internal\Sender resetIsPublic()
+	 * @method \Bitrix\Main\Mail\Internal\Sender unsetIsPublic()
 	 * @method \boolean fillIsPublic()
-	 * @method \string getOptions()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender setOptions(\string|\Bitrix\Main\DB\SqlExpression $options)
+	 * @method array getOptions()
+	 * @method \Bitrix\Main\Mail\Internal\Sender setOptions(array|\Bitrix\Main\DB\SqlExpression $options)
 	 * @method bool hasOptions()
 	 * @method bool isOptionsFilled()
 	 * @method bool isOptionsChanged()
-	 * @method \string remindActualOptions()
-	 * @method \string requireOptions()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender resetOptions()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender unsetOptions()
-	 * @method \string fillOptions()
+	 * @method array remindActualOptions()
+	 * @method array requireOptions()
+	 * @method \Bitrix\Main\Mail\Internal\Sender resetOptions()
+	 * @method \Bitrix\Main\Mail\Internal\Sender unsetOptions()
+	 * @method array fillOptions()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -5618,9 +6006,9 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method bool has($fieldName)
 	 * @method bool isFilled($fieldName)
 	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender set($fieldName, $value)
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender reset($fieldName)
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender unset($fieldName)
+	 * @method \Bitrix\Main\Mail\Internal\Sender set($fieldName, $value)
+	 * @method \Bitrix\Main\Mail\Internal\Sender reset($fieldName)
+	 * @method \Bitrix\Main\Mail\Internal\Sender unset($fieldName)
 	 * @method void addTo($fieldName, $value)
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
@@ -5628,7 +6016,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Main\Mail\Internal\EO_Sender wakeUp($data)
+	 * @method static \Bitrix\Main\Mail\Internal\Sender wakeUp($data)
 	 */
 	class EO_Sender {
 		/* @var \Bitrix\Main\Mail\Internal\SenderTable */
@@ -5647,29 +6035,29 @@ namespace Bitrix\Main\Mail\Internal {
 	 * ---------------
 	 *
 	 * @method \int[] getIdList()
-	 * @method \string[] getNameList()
-	 * @method \string[] fillName()
 	 * @method \string[] getEmailList()
 	 * @method \string[] fillEmail()
+	 * @method \string[] getNameList()
+	 * @method \string[] fillName()
 	 * @method \int[] getUserIdList()
 	 * @method \int[] fillUserId()
 	 * @method \boolean[] getIsConfirmedList()
 	 * @method \boolean[] fillIsConfirmed()
 	 * @method \boolean[] getIsPublicList()
 	 * @method \boolean[] fillIsPublic()
-	 * @method \string[] getOptionsList()
-	 * @method \string[] fillOptions()
+	 * @method array[] getOptionsList()
+	 * @method array[] fillOptions()
 	 *
 	 * Common methods:
 	 * ---------------
 	 *
 	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Main\Mail\Internal\EO_Sender $object)
-	 * @method bool has(\Bitrix\Main\Mail\Internal\EO_Sender $object)
+	 * @method void add(\Bitrix\Main\Mail\Internal\Sender $object)
+	 * @method bool has(\Bitrix\Main\Mail\Internal\Sender $object)
 	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender getByPrimary($primary)
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender[] getAll()
-	 * @method bool remove(\Bitrix\Main\Mail\Internal\EO_Sender $object)
+	 * @method \Bitrix\Main\Mail\Internal\Sender getByPrimary($primary)
+	 * @method \Bitrix\Main\Mail\Internal\Sender[] getAll()
+	 * @method bool remove(\Bitrix\Main\Mail\Internal\Sender $object)
 	 * @method void removeByPrimary($primary)
 	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Main\Mail\Internal\EO_Sender_Collection wakeUp($data)
@@ -5679,7 +6067,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 * @method void offsetUnset() ArrayAccess
 	 * @method void offsetGet() ArrayAccess
 	 * @method void rewind() Iterator
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender current() Iterator
+	 * @method \Bitrix\Main\Mail\Internal\Sender current() Iterator
 	 * @method mixed key() Iterator
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
@@ -5696,7 +6084,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 * ---------------
 	 *
 	 * @method EO_Sender_Result exec()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender fetchObject()
+	 * @method \Bitrix\Main\Mail\Internal\Sender fetchObject()
 	 * @method \Bitrix\Main\Mail\Internal\EO_Sender_Collection fetchCollection()
 	 *
 	 * Custom methods:
@@ -5705,19 +6093,153 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_Sender_Query extends \Bitrix\Main\ORM\Query\Query {}
 	/**
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender fetchObject()
+	 * @method \Bitrix\Main\Mail\Internal\Sender fetchObject()
 	 * @method \Bitrix\Main\Mail\Internal\EO_Sender_Collection fetchCollection()
 	 */
 	class EO_Sender_Result extends \Bitrix\Main\ORM\Query\Result {}
 	/**
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\Mail\Internal\Sender createObject($setDefaultValues = true)
 	 * @method \Bitrix\Main\Mail\Internal\EO_Sender_Collection createCollection()
-	 * @method \Bitrix\Main\Mail\Internal\EO_Sender wakeUpObject($row)
+	 * @method \Bitrix\Main\Mail\Internal\Sender wakeUpObject($row)
 	 * @method \Bitrix\Main\Mail\Internal\EO_Sender_Collection wakeUpCollection($rows)
 	 */
 	class EO_Sender_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Numerator\Model\NumeratorTable:main/lib/numerator/model/numerator.php:c090b135a82a7fcb644a461963677e4e */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\SenderSendCounterTable:main/lib/mail/internal/sendersendcounter.php:95ee48ad95b896f60e2d6998dacd9b5b */
+namespace Bitrix\Main\Mail\Internal {
+	/**
+	 * EO_SenderSendCounter
+	 * @see \Bitrix\Main\Mail\Internal\SenderSendCounterTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \Bitrix\Main\Type\Date getDateStat()
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter setDateStat(\Bitrix\Main\Type\Date|\Bitrix\Main\DB\SqlExpression $dateStat)
+	 * @method bool hasDateStat()
+	 * @method bool isDateStatFilled()
+	 * @method bool isDateStatChanged()
+	 * @method \string getEmail()
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter setEmail(\string|\Bitrix\Main\DB\SqlExpression $email)
+	 * @method bool hasEmail()
+	 * @method bool isEmailFilled()
+	 * @method bool isEmailChanged()
+	 * @method \int getCnt()
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter setCnt(\int|\Bitrix\Main\DB\SqlExpression $cnt)
+	 * @method bool hasCnt()
+	 * @method bool isCntFilled()
+	 * @method bool isCntChanged()
+	 * @method \int remindActualCnt()
+	 * @method \int requireCnt()
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter resetCnt()
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter unsetCnt()
+	 * @method \int fillCnt()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter set($fieldName, $value)
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter reset($fieldName)
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Main\Mail\Internal\EO_SenderSendCounter wakeUp($data)
+	 */
+	class EO_SenderSendCounter {
+		/* @var \Bitrix\Main\Mail\Internal\SenderSendCounterTable */
+		static public $dataClass = '\Bitrix\Main\Mail\Internal\SenderSendCounterTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Main\Mail\Internal {
+	/**
+	 * EO_SenderSendCounter_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \Bitrix\Main\Type\Date[] getDateStatList()
+	 * @method \string[] getEmailList()
+	 * @method \int[] getCntList()
+	 * @method \int[] fillCnt()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Main\Mail\Internal\EO_SenderSendCounter $object)
+	 * @method bool has(\Bitrix\Main\Mail\Internal\EO_SenderSendCounter $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter getByPrimary($primary)
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter[] getAll()
+	 * @method bool remove(\Bitrix\Main\Mail\Internal\EO_SenderSendCounter $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Main\Mail\Internal\EO_SenderSendCounter_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_SenderSendCounter_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Main\Mail\Internal\SenderSendCounterTable */
+		static public $dataClass = '\Bitrix\Main\Mail\Internal\SenderSendCounterTable';
+	}
+}
+namespace Bitrix\Main\Mail\Internal {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_SenderSendCounter_Result exec()
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter fetchObject()
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_SenderSendCounter_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter fetchObject()
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter_Collection fetchCollection()
+	 */
+	class EO_SenderSendCounter_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter_Collection createCollection()
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter wakeUpObject($row)
+	 * @method \Bitrix\Main\Mail\Internal\EO_SenderSendCounter_Collection wakeUpCollection($rows)
+	 */
+	class EO_SenderSendCounter_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Main\Numerator\Model\NumeratorTable:main/lib/numerator/model/numerator.php:689a4372e08c1deb046b7631cfb57ba1 */
 namespace Bitrix\Main\Numerator\Model {
 	/**
 	 * EO_Numerator
@@ -5929,7 +6451,7 @@ namespace Bitrix\Main\Numerator\Model {
 	 */
 	class EO_Numerator_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Numerator\Model\NumeratorSequenceTable:main/lib/numerator/model/numeratorsequence.php:f43e210d22e326f516746191b3d4a617 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Numerator\Model\NumeratorSequenceTable:main/lib/numerator/model/numeratorsequence.php:33cdefe6b2ca085d306ea1e921787413 */
 namespace Bitrix\Main\Numerator\Model {
 	/**
 	 * EO_NumeratorSequence
@@ -6087,7 +6609,7 @@ namespace Bitrix\Main\Numerator\Model {
 	 */
 	class EO_NumeratorSequence_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\OperationTable:main/lib/operation.php:73aa8ae94ce6f16a7611ca352e800389 */
+/* ORMENTITYANNOTATION:Bitrix\Main\OperationTable:main/lib/operation.php:9f75acc987370b890329aa29c02702b8 */
 namespace Bitrix\Main {
 	/**
 	 * EO_Operation
@@ -6251,7 +6773,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_Operation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Rating\RatingTable:main/lib/rating/rating.php:54f748af57c3e157a577b92794c86c0a */
+/* ORMENTITYANNOTATION:Bitrix\Main\Rating\RatingTable:main/lib/rating/rating.php:3dcbc20684b620af973ba65656f0a058 */
 namespace Bitrix\Main\Rating {
 	/**
 	 * EO_Rating
@@ -6499,7 +7021,7 @@ namespace Bitrix\Main\Rating {
 	 */
 	class EO_Rating_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Rating\ResultsTable:main/lib/rating/results.php:655568cd4be52462cea9cb1501af3be2 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Rating\ResultsTable:main/lib/rating/results.php:ae4b4f21cb8c057b4cea81135116bccf */
 namespace Bitrix\Main\Rating {
 	/**
 	 * EO_Results
@@ -6712,7 +7234,7 @@ namespace Bitrix\Main\Rating {
 	 */
 	class EO_Results_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Service\GeoIp\HandlerTable:main/lib/service/geoip/handler.php:fa678a64705306f5671991b6198c7cd5 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Service\GeoIp\HandlerTable:main/lib/service/geoip/handler.php:190b58c6f1cc5433dd198a672c209d86 */
 namespace Bitrix\Main\Service\GeoIp {
 	/**
 	 * EO_Handler
@@ -6876,7 +7398,7 @@ namespace Bitrix\Main\Service\GeoIp {
 	 */
 	class EO_Handler_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Session\Handlers\Table\UserSessionTable:main/lib/session/handlers/table/usersessiontable.php:525dae2af333d70c7df7f872137a9123 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Session\Handlers\Table\UserSessionTable:main/lib/session/handlers/table/usersessiontable.php:12f82ed0a23f28f4cac1cba726ffb525 */
 namespace Bitrix\Main\Session\Handlers\Table {
 	/**
 	 * EO_UserSession
@@ -7016,7 +7538,7 @@ namespace Bitrix\Main\Session\Handlers\Table {
 	 */
 	class EO_UserSession_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\SiteTable:main/lib/site.php:555a8b0a4c143496b3d26e2048a45fc4 */
+/* ORMENTITYANNOTATION:Bitrix\Main\SiteTable:main/lib/site.php:6026fcc29d662ffb844c77e70e256aa7 */
 namespace Bitrix\Main {
 	/**
 	 * EO_Site
@@ -7289,7 +7811,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_Site_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\SiteDomainTable:main/lib/sitedomain.php:2a3c80d95737b77672d5d79ac1e40e2b */
+/* ORMENTITYANNOTATION:Bitrix\Main\SiteDomainTable:main/lib/sitedomain.php:7b4def1df81b9fb8386d3c464cd3caa1 */
 namespace Bitrix\Main {
 	/**
 	 * EO_SiteDomain
@@ -7424,7 +7946,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_SiteDomain_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\SiteTemplateTable:main/lib/sitetemplate.php:e0e9d1b96ee1181f284e7f445060c8ab */
+/* ORMENTITYANNOTATION:Bitrix\Main\SiteTemplateTable:main/lib/sitetemplate.php:025588b6ada8a8ad9be9bfead150cf51 */
 namespace Bitrix\Main {
 	/**
 	 * EO_SiteTemplate
@@ -7601,7 +8123,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_SiteTemplate_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Sms\TemplateTable:main/lib/sms/templatetable.php:bd50de270f77f0009855057447e8b681 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Sms\TemplateTable:main/lib/sms/templatetable.php:68ab16a05405842127971fb3d41aedef */
 namespace Bitrix\Main\Sms {
 	/**
 	 * Template
@@ -7803,7 +8325,7 @@ namespace Bitrix\Main\Sms {
 	 */
 	class EO_Template_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\TaskTable:main/lib/task.php:357677eebd453a2ebaaf457c4ff16bc6 */
+/* ORMENTITYANNOTATION:Bitrix\Main\TaskTable:main/lib/task.php:f2061a795390b03f0c1362703d9c47db */
 namespace Bitrix\Main {
 	/**
 	 * EO_Task
@@ -7991,7 +8513,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_Task_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\TaskOperationTable:main/lib/taskoperation.php:9f10bb020e104e697dd04c47950748e1 */
+/* ORMENTITYANNOTATION:Bitrix\Main\TaskOperationTable:main/lib/taskoperation.php:bfdba34971b5e2dfc87dfde68b826a78 */
 namespace Bitrix\Main {
 	/**
 	 * EO_TaskOperation
@@ -8139,7 +8661,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_TaskOperation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\AuthorTable:main/lib/test/typography/authortable.php:53d164f0a6149a3ddac5aef447602ae1 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\AuthorTable:main/lib/test/typography/authortable.php:b7e0e0f1156cab6ce68e37394f7cdd5b */
 namespace Bitrix\Main\Test\Typography {
 	/**
 	 * EO_Author
@@ -8293,7 +8815,7 @@ namespace Bitrix\Main\Test\Typography {
 	 */
 	class EO_Author_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\BookTable:main/lib/test/typography/booktable.php:9578a82bf572adbaf50f7492dab6d505 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\BookTable:main/lib/test/typography/booktable.php:ccab43668933220120b57a0fa5dab406 */
 namespace Bitrix\Main\Test\Typography {
 	/**
 	 * Book
@@ -8510,7 +9032,7 @@ namespace Bitrix\Main\Test\Typography {
 	 */
 	class EO_Book_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\PublisherTable:main/lib/test/typography/publishertable.php:401d77fff4be8a35c99a3d8d7c3e7f0b */
+/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\PublisherTable:main/lib/test/typography/publishertable.php:239cdd0e519c86436e6391933dfa0cab */
 namespace Bitrix\Main\Test\Typography {
 	/**
 	 * EO_Publisher
@@ -8664,7 +9186,7 @@ namespace Bitrix\Main\Test\Typography {
 	 */
 	class EO_Publisher_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\StoreBookTable:main/lib/test/typography/storebooktable.php:6caffbdbd47db3b05a65689235ef679a */
+/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\StoreBookTable:main/lib/test/typography/storebooktable.php:c1310785f66ea290de8f740fb3faf48d */
 namespace Bitrix\Main\Test\Typography {
 	/**
 	 * EO_StoreBook
@@ -8824,7 +9346,7 @@ namespace Bitrix\Main\Test\Typography {
 	 */
 	class EO_StoreBook_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\StoreTable:main/lib/test/typography/storetable.php:e57f445b2610595a949653568d8793cb */
+/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\StoreTable:main/lib/test/typography/storetable.php:29b3c0e56bc5aef552aa623044005c09 */
 namespace Bitrix\Main\Test\Typography {
 	/**
 	 * EO_Store
@@ -8966,7 +9488,7 @@ namespace Bitrix\Main\Test\Typography {
 	 */
 	class EO_Store_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UI\Viewer\FilePreviewTable:main/lib/ui/viewer/filepreviewtable.php:dab2527df83af1eda0765947ed260ef1 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UI\Viewer\FilePreviewTable:main/lib/ui/viewer/filepreviewtable.php:12a9da490ac4d988a54b86f38a7ab638 */
 namespace Bitrix\Main\UI\Viewer {
 	/**
 	 * EO_FilePreview
@@ -9181,7 +9703,7 @@ namespace Bitrix\Main\UI\Viewer {
 	 */
 	class EO_FilePreview_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Update\VersionHistoryTable:main/lib/update/versionhistory.php:8542cce1423471cc1b879626caaf4597 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Update\VersionHistoryTable:main/lib/update/versionhistory.php:5ee920db7534bf7ddd9812e196be38ff */
 namespace Bitrix\Main\Update {
 	/**
 	 * EO_VersionHistory
@@ -9321,7 +9843,7 @@ namespace Bitrix\Main\Update {
 	 */
 	class EO_VersionHistory_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UrlPreview\RouteTable:main/lib/urlpreview/route.php:945a8a11df0a226942b87ce8158d22e9 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UrlPreview\RouteTable:main/lib/urlpreview/route.php:7f1590cb339a4368825437a981726fa4 */
 namespace Bitrix\Main\UrlPreview {
 	/**
 	 * EO_Route
@@ -9485,7 +10007,7 @@ namespace Bitrix\Main\UrlPreview {
 	 */
 	class EO_Route_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UrlPreview\UrlMetadataTable:main/lib/urlpreview/urlmetadata.php:0e039ce6700299a4cca0575f82101402 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UrlPreview\UrlMetadataTable:main/lib/urlpreview/urlmetadata.php:b5b0d263244b489fbce9409677ec7022 */
 namespace Bitrix\Main\UrlPreview {
 	/**
 	 * EO_UrlMetadata
@@ -9721,7 +10243,7 @@ namespace Bitrix\Main\UrlPreview {
 	 */
 	class EO_UrlMetadata_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserTable:main/lib/user.php:ae3bae9d71de87f4b604af0de0c8abe4 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserTable:main/lib/user.php:387e6b292eb60e8e63855529d3f299bb */
 namespace Bitrix\Main {
 	/**
 	 * EO_User
@@ -10330,16 +10852,6 @@ namespace Bitrix\Main {
 	 * @method bool isIndexFilled()
 	 * @method bool isIndexChanged()
 	 * @method \Bitrix\Main\EO_UserIndex fillIndex()
-	 * @method \Bitrix\Main\EO_UserIndexSelector getIndexSelector()
-	 * @method \Bitrix\Main\EO_UserIndexSelector remindActualIndexSelector()
-	 * @method \Bitrix\Main\EO_UserIndexSelector requireIndexSelector()
-	 * @method \Bitrix\Main\EO_User setIndexSelector(\Bitrix\Main\EO_UserIndexSelector $object)
-	 * @method \Bitrix\Main\EO_User resetIndexSelector()
-	 * @method \Bitrix\Main\EO_User unsetIndexSelector()
-	 * @method bool hasIndexSelector()
-	 * @method bool isIndexSelectorFilled()
-	 * @method bool isIndexSelectorChanged()
-	 * @method \Bitrix\Main\EO_UserIndexSelector fillIndexSelector()
 	 * @method \Bitrix\Main\EO_UserCounter getCounter()
 	 * @method \Bitrix\Main\EO_UserCounter remindActualCounter()
 	 * @method \Bitrix\Main\EO_UserCounter requireCounter()
@@ -10538,9 +11050,6 @@ namespace Bitrix\Main {
 	 * @method \Bitrix\Main\EO_UserIndex[] getIndexList()
 	 * @method \Bitrix\Main\EO_User_Collection getIndexCollection()
 	 * @method \Bitrix\Main\EO_UserIndex_Collection fillIndex()
-	 * @method \Bitrix\Main\EO_UserIndexSelector[] getIndexSelectorList()
-	 * @method \Bitrix\Main\EO_User_Collection getIndexSelectorCollection()
-	 * @method \Bitrix\Main\EO_UserIndexSelector_Collection fillIndexSelector()
 	 * @method \Bitrix\Main\EO_UserCounter[] getCounterList()
 	 * @method \Bitrix\Main\EO_User_Collection getCounterCollection()
 	 * @method \Bitrix\Main\EO_UserCounter_Collection fillCounter()
@@ -10608,7 +11117,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_User_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserAccessTable:main/lib/useraccess.php:594b3bc3769a0cd459abc724996ac82f */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserAccessTable:main/lib/useraccess.php:971841be0799da25d408627a6b5aaadb */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserAccess
@@ -10736,7 +11245,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserAccess_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserAuthActionTable:main/lib/userauthaction.php:d8465a01060c4d35c853b5d9d5ca2589 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserAuthActionTable:main/lib/userauthaction.php:eb3dc9a8850a3849e40828913a372612 */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserAuthAction
@@ -10912,7 +11421,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserAuthAction_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\AgreementTable:main/lib/userconsent/internals/agreement.php:e35f9581e0cb58d9b13032505f790690 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\AgreementTable:main/lib/userconsent/internals/agreement.php:011aa5e47643a911fd9298c6a3eb622d */
 namespace Bitrix\Main\UserConsent\Internals {
 	/**
 	 * EO_Agreement
@@ -11184,7 +11693,7 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 */
 	class EO_Agreement_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\ConsentTable:main/lib/userconsent/internals/consent.php:53c5628c32172567c509bb576e012b29 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\ConsentTable:main/lib/userconsent/internals/consent.php:43eb966184e8a41cdc672409c13d8c83 */
 namespace Bitrix\Main\UserConsent\Internals {
 	/**
 	 * EO_Consent
@@ -11411,7 +11920,7 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 */
 	class EO_Consent_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\FieldTable:main/lib/userconsent/internals/field.php:a462395213266b64b07570b63e10faa0 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\FieldTable:main/lib/userconsent/internals/field.php:6bc7877b17af5a12e294b0d032300ed1 */
 namespace Bitrix\Main\UserConsent\Internals {
 	/**
 	 * EO_Field
@@ -11563,7 +12072,7 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 */
 	class EO_Field_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\UserConsentItemTable:main/lib/userconsent/internals/userconsentitem.php:1da45469c8acca73d9a3d7419d22b33b */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\UserConsentItemTable:main/lib/userconsent/internals/userconsentitem.php:2b3779c441ac6194d44b31f526809c07 */
 namespace Bitrix\Main\UserConsent\Internals {
 	/**
 	 * EO_UserConsentItem
@@ -11716,7 +12225,7 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 */
 	class EO_UserConsentItem_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserCounterTable:main/lib/usercounter.php:6f44c096f4793575379ce2f3ba68aff9 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserCounterTable:main/lib/usercounter.php:f86142da281fb905a578296f14bafed4 */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserCounter
@@ -11929,7 +12438,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserCounter_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserField\Access\Permission\UserFieldPermissionTable:main/lib/userfield/access/permission/userfieldpermissiontable.php:302977ca1596417b2465b610fc40442d */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserField\Access\Permission\UserFieldPermissionTable:main/lib/userfield/access/permission/userfieldpermissiontable.php:e715fef07ccb76053afedf0e1e60beb8 */
 namespace Bitrix\Main\UserField\Access\Permission {
 	/**
 	 * UserFieldPermission
@@ -12131,7 +12640,7 @@ namespace Bitrix\Main\UserField\Access\Permission {
 	 */
 	class EO_UserFieldPermission_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserFieldTable:main/lib/userfield.php:a7c0ab18276ccb9c3cd15fc674f76177 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserFieldTable:main/lib/userfield.php:5d0c1f581fc8df3f3a2709e86d6d194f */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserField
@@ -12391,7 +12900,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserField_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserFieldConfirmTable:main/lib/userfieldconfirm.php:98d6ccb641e01fad8f2a1a3a1cea7573 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserFieldConfirmTable:main/lib/userfieldconfirm.php:ea37825a40b1f64e819131adc34f799c */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserFieldConfirm
@@ -12579,7 +13088,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserFieldConfirm_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserFieldLangTable:main/lib/userfieldlangtable.php:1ec5a266924fe44605b9af0746de75e3 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserFieldLangTable:main/lib/userfieldlangtable.php:e4e5ef80e55ef74664315b8cd302e0c7 */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserFieldLang
@@ -12774,7 +13283,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserFieldLang_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserGroupTable:main/lib/usergroup.php:f4e6f8318e11141379fca8ea487b8d32 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserGroupTable:main/lib/usergroup.php:9ad8ba7f88c05d5eddfa3d6d1840acbc */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserGroup
@@ -12946,7 +13455,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserGroup_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserIndexTable:main/lib/userindex.php:c0c34f3e3ea3908a9f258b6aa3160ef3 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserIndexTable:main/lib/userindex.php:65d0a8c555c6d8c25b0238110bceac0b */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserIndex
@@ -13158,135 +13667,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserIndex_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserIndexSelectorTable:main/lib/userindexselector.php:8910ca81ea51c18b0c108aa9bd71e6b2 */
-namespace Bitrix\Main {
-	/**
-	 * EO_UserIndexSelector
-	 * @see \Bitrix\Main\UserIndexSelectorTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getUserId()
-	 * @method \Bitrix\Main\EO_UserIndexSelector setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
-	 * @method bool hasUserId()
-	 * @method bool isUserIdFilled()
-	 * @method bool isUserIdChanged()
-	 * @method \string getSearchSelectorContent()
-	 * @method \Bitrix\Main\EO_UserIndexSelector setSearchSelectorContent(\string|\Bitrix\Main\DB\SqlExpression $searchSelectorContent)
-	 * @method bool hasSearchSelectorContent()
-	 * @method bool isSearchSelectorContentFilled()
-	 * @method bool isSearchSelectorContentChanged()
-	 * @method \string remindActualSearchSelectorContent()
-	 * @method \string requireSearchSelectorContent()
-	 * @method \Bitrix\Main\EO_UserIndexSelector resetSearchSelectorContent()
-	 * @method \Bitrix\Main\EO_UserIndexSelector unsetSearchSelectorContent()
-	 * @method \string fillSearchSelectorContent()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Main\EO_UserIndexSelector set($fieldName, $value)
-	 * @method \Bitrix\Main\EO_UserIndexSelector reset($fieldName)
-	 * @method \Bitrix\Main\EO_UserIndexSelector unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Main\EO_UserIndexSelector wakeUp($data)
-	 */
-	class EO_UserIndexSelector {
-		/* @var \Bitrix\Main\UserIndexSelectorTable */
-		static public $dataClass = '\Bitrix\Main\UserIndexSelectorTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Main {
-	/**
-	 * EO_UserIndexSelector_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getUserIdList()
-	 * @method \string[] getSearchSelectorContentList()
-	 * @method \string[] fillSearchSelectorContent()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Main\EO_UserIndexSelector $object)
-	 * @method bool has(\Bitrix\Main\EO_UserIndexSelector $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Main\EO_UserIndexSelector getByPrimary($primary)
-	 * @method \Bitrix\Main\EO_UserIndexSelector[] getAll()
-	 * @method bool remove(\Bitrix\Main\EO_UserIndexSelector $object)
-	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Main\EO_UserIndexSelector_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Main\EO_UserIndexSelector current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 */
-	class EO_UserIndexSelector_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Main\UserIndexSelectorTable */
-		static public $dataClass = '\Bitrix\Main\UserIndexSelectorTable';
-	}
-}
-namespace Bitrix\Main {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_UserIndexSelector_Result exec()
-	 * @method \Bitrix\Main\EO_UserIndexSelector fetchObject()
-	 * @method \Bitrix\Main\EO_UserIndexSelector_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 */
-	class EO_UserIndexSelector_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Main\EO_UserIndexSelector fetchObject()
-	 * @method \Bitrix\Main\EO_UserIndexSelector_Collection fetchCollection()
-	 */
-	class EO_UserIndexSelector_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Main\EO_UserIndexSelector createObject($setDefaultValues = true)
-	 * @method \Bitrix\Main\EO_UserIndexSelector_Collection createCollection()
-	 * @method \Bitrix\Main\EO_UserIndexSelector wakeUpObject($row)
-	 * @method \Bitrix\Main\EO_UserIndexSelector_Collection wakeUpCollection($rows)
-	 */
-	class EO_UserIndexSelector_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Main\UserPhoneAuthTable:main/lib/userphoneauth.php:549b581aaa24fdf4d9357b0844487dde */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserPhoneAuthTable:main/lib/userphoneauth.php:0d93017b8bf6073c75f7c8bbf0e247f2 */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserPhoneAuth
@@ -13475,7 +13856,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserPhoneAuth_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserProfileHistoryTable:main/lib/userprofilehistory.php:a8bd7f52ce0eb125503ae1708a71823c */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserProfileHistoryTable:main/lib/userprofilehistory.php:04d2e1e7d9a62826982a926c947b8b94 */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserProfileHistory
@@ -13675,7 +14056,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserProfileHistory_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserProfileRecordTable:main/lib/userprofilerecord.php:c35a1afbb111bcd530c25470d82ed1d2 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserProfileRecordTable:main/lib/userprofilerecord.php:b9aceb56193951fd6b97ebad8a38de29 */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserProfileRecord

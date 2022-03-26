@@ -30,6 +30,7 @@
 	var hebrewPangram = "&#1492;&#1496;&#1489;&#1506; &#1492;&#1488;&#1495;&#1491; &#1513;&#1500;&#1497; &#1493;&#1492;&#1496;&#1489;&#1506; &#1492;&#1488;&#1495;&#1512; &#1495;&#1500;&#1511;&#1493; &#1494;&#1497;&#1499;&#1512;&#1493;&#1503; &#1502;&#1513;&#1493;&#1514;&#1507;.";
 	var koreanPangram = "&#45208;&#45716; &#54253;&#54413;&#51012; &#51648;&#53020;&#48372;&#50520;&#45796;. &#45320;&#47924;&#45208; &#50500;&#47492;&#45796;&#50864;&#47732;&#49436;&#46020; &#50628;&#52397;&#45212; &#54253;&#54413;&#51012;.";
 
+	var initedItems = new WeakSet();
 
 	/**
 	 * Implements interface for works with Google Fonts
@@ -57,10 +58,16 @@
 		append(this.layout, container);
 		append(this.overlay, container);
 
+		this.searchForm = this.createSearchForm();
 		this.categoryForm = this.createCategoryForm();
 		this.languageForm = this.createLanguageForm();
+		append(this.searchForm.layout, this.sidebar);
 		append(this.categoryForm.layout, this.sidebar);
 		append(this.languageForm.layout, this.sidebar);
+		append(this.createListLayout(), this.content);
+		append(this.createPaginationLayout(), this.content);
+
+		BX.Event.bind(this.getMoreButton(), 'click', this.onMoreButtonClick.bind(this));
 	};
 
 
@@ -82,6 +89,47 @@
 		__proto__: BX.Landing.UI.Panel.Content.prototype,
 		superclass: BX.Landing.UI.Panel.Content.prototype,
 
+		createListLayout: function()
+		{
+			return BX.Dom.create({
+				tag: 'div',
+				props: {classList: 'landing-ui-panel-fonts-list'},
+			});
+		},
+
+		/**
+		 * @return {HTMLElement}
+		 */
+		getListLayout: function()
+		{
+			return this.content.querySelector('.landing-ui-panel-fonts-list');
+		},
+
+		createPaginationLayout: function()
+		{
+			return BX.Dom.create({
+				tag: 'div',
+				props: {classList: 'landing-ui-panel-fonts-pagination'},
+				children: [
+					BX.Dom.create({
+						tag: 'span',
+						props: {className: 'ui-btn ui-btn-lg ui-btn-light-border'},
+						text: BX.Landing.Loc.getMessage('LANDING_FONTS_PANEL_MORE_BUTTON_LABEL'),
+					}),
+				],
+			});
+		},
+
+		getMoreButton: function()
+		{
+			return this.getPaginationLayout().querySelector('.ui-btn');
+		},
+
+		getPaginationLayout: function()
+		{
+			return this.content.querySelector('.landing-ui-panel-fonts-pagination');
+		},
+
 		/**
 		 * Shows panel
 		 * @return {Promise}
@@ -89,6 +137,11 @@
 		show: function(params)
 		{
 			var showPromise = this.superclass.show.call(this);
+
+			showPromise.then(function() {
+				this.searchForm.fields[0].enableEdit();
+				this.searchForm.fields[0].input.focus();
+			}.bind(this));
 
 			if (this.isFontsLoaded())
 			{
@@ -108,13 +161,72 @@
 				}
 			}
 
+			this.page = 0;
+
+			BX.Dom.hide(this.getMoreButton());
+
 			return showPromise
-				.then(proxy(this.showLoader, this))
-				.then(proxy(this.getFonts, this))
-				.then(proxy(this.loadFonts, this))
-				.then(proxy(this.renderList, this))
-				.then(proxy(this.hideLoader, this))
-				.then(proxy(this.saveResolver, this));
+				.then(function() {
+					return this.showLoader();
+				}.bind(this))
+				.then(function() {
+					return this.getFonts();
+				}.bind(this))
+				.then(function(response) {
+					return this.applyFilter(response);
+				}.bind(this))
+				.then(function(filteredResponse) {
+					var paginatedList = this.paginateList(filteredResponse);
+					return this.loadFonts(paginatedList[this.page] || []);
+				}.bind(this))
+				.then(function(paginatedList) {
+					return this.renderList(paginatedList);
+				}.bind(this))
+				.then(function() {
+					BX.Dom.show(this.getMoreButton());
+					return this.hideLoader();
+				}.bind(this))
+				.then(function() {
+					return this.saveResolver();
+				}.bind(this));
+		},
+
+		onMoreButtonClick: function(event)
+		{
+			event.preventDefault();
+
+			this.page += 1;
+
+			void this.showLoader();
+
+			var moreButton = this.getMoreButton();
+
+			BX.Dom.addClass(moreButton, 'ui-btn-wait');
+			BX.Dom.style(moreButton, 'pointer-events', 'none');
+
+			var lastPage = false;
+
+			this.getFonts()
+				.then(function (response) {
+					return this.applyFilter(response);
+				}.bind(this))
+				.then(function (filteredResponse) {
+					var paginatedList = this.paginateList(filteredResponse);
+					lastPage = (paginatedList.length - 1) <= this.page;
+					return this.loadFonts(paginatedList[this.page] || []);
+				}.bind(this))
+				.then(function (paginatedList) {
+					return this.renderList(paginatedList);
+				}.bind(this))
+				.then(function () {
+					BX.Dom.removeClass(this.getMoreButton(), 'ui-btn-wait');
+					BX.Dom.style(moreButton, 'pointer-events', null);
+					if (lastPage)
+					{
+						BX.Dom.hide(moreButton);
+					}
+					return this.hideLoader();
+				}.bind(this));
 		},
 
 
@@ -144,6 +256,17 @@
 
 			return this.client.getList()
 				.then(proxy(this.saveResponse, this))
+		},
+
+		paginateList: function(list)
+		{
+			var result = [];
+			while (list.length)
+			{
+				result.push(list.splice(0, 21));
+			}
+
+			return result;
 		},
 
 
@@ -176,8 +299,20 @@
 		{
 			if (!this.loader)
 			{
-				this.loader = new BX.Loader({target: this.content});
+				this.loader = new BX.Loader({
+					target: this.body,
+					offset: {
+						left: '134px',
+						top: '-30px'
+					}
+				});
 			}
+
+			BX.Dom.style(this.sidebar, {
+				transition: '200ms all ease',
+				opacity: .8,
+				'pointer-events': 'none'
+			});
 
 			this.loader.show();
 
@@ -194,6 +329,12 @@
 			{
 				this.loader.hide();
 			}
+
+			BX.Dom.style(this.sidebar, {
+				transition: null,
+				opacity: null,
+				'pointer-events': null
+			});
 
 			return Promise.resolve();
 		},
@@ -217,30 +358,37 @@
 			}
 
 			return new Promise(function(resolve) {
-				WebFont.load({
-					google: {
-						families: response.map(function(font) {
-							return font.family.replace(/ /g, "+")
-						})
-					},
-					context: context,
-					classes: false,
-					active: function()
-					{
-						var rootWindow = BX.Landing.PageObject.getRootWindow();
-						if (rootWindow.document.fonts)
+				if (!BX.Type.isArrayFilled(response))
+				{
+					resolve(response);
+				}
+				else
+				{
+					WebFont.load({
+						google: {
+							families: response.map(function(font) {
+								return font.family.replace(/ /g, "+")
+							})
+						},
+						context: context,
+						classes: false,
+						active: function()
 						{
-							rootWindow.document.fonts.ready
-								.then(function() {
-									resolve(response);
-								});
+							var rootWindow = BX.Landing.PageObject.getRootWindow();
+							if (rootWindow.document.fonts)
+							{
+								rootWindow.document.fonts.ready
+									.then(function() {
+										resolve(response);
+									});
+							}
+							else
+							{
+								setTimeout(resolve, 3000, response);
+							}
 						}
-						else
-						{
-							setTimeout(resolve, 3000, response);
-						}
-					}
-				});
+					});
+				}
 			});
 		},
 
@@ -251,17 +399,29 @@
 		 */
 		applyFilter: function(response)
 		{
+			var searchQuery = this.searchForm.fields[0].getValue();
 			var subsets = this.languageForm.fields[0].getValue();
 			var categories = this.categoryForm.fields[0].getValue();
+
+			if (!BX.Type.isArrayFilled(categories))
+			{
+				categories = this.categoryForm.fields[0].items.map(function(item) {
+					return item.value;
+				});
+			}
 
 			return response.filter(function(options) {
 				return (
 					subsets.every(function(lang) {
 						return options.subsets.indexOf(lang) !== -1;
-					}) &&
-					categories.some(function(category) {
+					})
+					&& categories.some(function(category) {
 						return category === options.category;
 					})
+					&& (
+						!BX.Type.isStringFilled(searchQuery)
+						|| String(options.family).toLowerCase().includes(String(searchQuery).toLowerCase())
+					)
 				)
 			});
 		},
@@ -277,6 +437,7 @@
 			var subsets = this.languageForm.fields[0].getValue();
 			var pangram = "";
 			var direction = "ltr";
+			var align = "left";
 
 			this.pangramIndex += 1;
 			this.pangramIndex = this.pangramIndex > 4 ? 0 : this.pangramIndex;
@@ -294,12 +455,14 @@
 			if (subsets.includes("arabic"))
 			{
 				direction = "rtl";
+				align = 'right';
 				pangram = arabicPangram;
 			}
 
 			if (subsets.includes("hebrew"))
 			{
 				direction = "rtl";
+				align = 'right';
 				pangram = hebrewPangram;
 			}
 
@@ -314,7 +477,7 @@
 					"<div class=\"landing-ui-font-preview-font-button\">" +
 						"<span class=\"ui-btn ui-btn-xs ui-btn-light-border ui-btn-round\">"+BX.Landing.Loc.getMessage("LANDING_GOOGLE_FONT_SELECT_BUTTON")+"</span>" +
 					"</div>" +
-					"<div style=\"font-family: "+options.family+"; direction: "+direction+";\" class=\"landing-ui-font-preview-pangram\" contenteditable=\"true\" onpaste=\"return false;\">" +
+					"<div style=\"font-family: "+options.family+"; direction: "+direction+"; text-align: "+align+";\" class=\"landing-ui-font-preview-pangram\" contenteditable=\"true\" onpaste=\"return false;\">" +
 						pangram +
 					"</div>" +
 				"</div>"
@@ -327,7 +490,34 @@
 		 */
 		onFilterChange: function()
 		{
-			this.renderList();
+			void this.showLoader();
+
+			this.page = 0;
+
+			var lastPage = false;
+
+			this.getFonts()
+				.then(function(fonts) {
+					return this.applyFilter(fonts)
+				}.bind(this))
+				.then(function(filteredFonts) {
+					var paginatedList = this.paginateList(filteredFonts);
+					lastPage = paginatedList.length <= 1;
+					return this.loadFonts(paginatedList[this.page] || []);
+				}.bind(this))
+				.then(function(paginatedList) {
+					this.content.scrollTop = 0;
+					void this.hideLoader();
+					if (lastPage)
+					{
+						BX.Dom.hide(this.getMoreButton());
+					}
+					else
+					{
+						BX.Dom.show(this.getMoreButton());
+					}
+					return this.renderList(paginatedList, true);
+				}.bind(this))
 		},
 
 
@@ -335,24 +525,53 @@
 		 * Renders list
 		 * @return {Promise<T>}
 		 */
-		renderList: function()
+		renderList: function(list, replace)
 		{
-			return this.getFonts()
-				.then(proxy(this.applyFilter, this))
-				.then(proxy(this.renderItems, this));
+			return this.renderItems(list, replace);
 		},
 
 
 		/**
 		 * Renders items
 		 * @param {object[]} response
+		 * @param {boolean} [replace]
 		 */
-		renderItems: function(response)
+		renderItems: function(response, replace)
 		{
-			this.content.innerHTML = response.map(this.createListItem, this).join("");
-			slice(this.content.children).forEach(this.initItem(response), this);
+			if (!replace)
+			{
+				this.getListLayout().insertAdjacentHTML(
+					'beforeend',
+					response.map(this.createListItem, this).join("")
+				);
+			}
+			else
+			{
+				if (
+					!BX.Type.isArrayFilled(response)
+					&& BX.Type.isStringFilled(this.searchForm.fields[0].getValue())
+				)
+				{
+					this.getListLayout().innerHTML = '';
+					BX.Dom.append(this.getEmptyStub(), this.getListLayout());
+				}
+				else
+				{
+					this.getListLayout().innerHTML = response.map(this.createListItem, this).join("");
+				}
+			}
+
+			slice(this.getListLayout().children).forEach(this.initItem(response), this);
 		},
 
+		getEmptyStub: function()
+		{
+			return BX.Dom.create({
+				tag: 'div',
+				props: {className: 'landing-ui-fonts-panel-empty-stub'},
+				text: BX.Landing.Loc.getMessage('LANDING_FONTS_PANEL_EMPTY_STUB')
+			});
+		},
 
 		/**
 		 * Initializes list item
@@ -362,8 +581,24 @@
 		initItem: function(response)
 		{
 			return function(item, index) {
-				var button = item.querySelector(".landing-ui-font-preview-font-button");
-				bind(button, "click", this.onFontSelect.bind(this, response[index]));
+				if (!initedItems.has(item))
+				{
+					var button = item.querySelector(".landing-ui-font-preview-font-button");
+					bind(button, "click", this.onFontSelect.bind(this, response[index - (this.page * 21)]));
+					initedItems.add(item);
+
+					var input = item.querySelector('.landing-ui-font-preview-pangram');
+					if (input)
+					{
+						var sourceText = input.innerText;
+						BX.Event.bind(input, 'blur', function() {
+							if (!BX.Type.isStringFilled(input.innerText))
+							{
+								input.innerText = sourceText;
+							}
+						});
+					}
+				}
 			};
 		},
 
@@ -377,6 +612,25 @@
 			return slice(this.content.querySelectorAll(".landing-ui-font-preview.cell"));
 		},
 
+		createSearchForm: function()
+		{
+			var debouncedRuntime = BX.Runtime.debounce(this.onFilterChange, 500, this);
+			var rootWindow = BX.Landing.PageObject.getRootWindow();
+			return new BX.Landing.UI.Form.StyleForm({
+				title: BX.Landing.Loc.getMessage("LANDING_GOOGLE_FONT_SEARCH_TITLE"),
+				fields: [
+					new rootWindow.BX.Landing.UI.Field.Text({
+						selector: 'searchQuery',
+						textOnly: true,
+						onValueChange: function() {
+							void this.showLoader();
+							debouncedRuntime();
+						}.bind(this),
+						placeholder: BX.Loc.getMessage('LANDING_GOOGLE_FONT_SEARCH_PLACEHOLDER'),
+					})
+				]
+			});
+		},
 
 		/**
 		 * Creates language filter form
@@ -425,11 +679,11 @@
 			form.addField(fieldFactory.create({
 				type: "checkbox",
 				items: [
-					{name: BX.Landing.Loc.getMessage("LANDING_GOOGLE_FONT_PANEL_CATEGORY_SANS_SERIF"), value: "sans-serif", checked: true},
-					{name: BX.Landing.Loc.getMessage("LANDING_GOOGLE_FONT_PANEL_CATEGORY_SERIF"), value: "serif", checked: true},
-					{name: BX.Landing.Loc.getMessage("LANDING_GOOGLE_FONT_PANEL_CATEGORY_DISPLAY"), value: "display", checked: true},
-					{name: BX.Landing.Loc.getMessage("LANDING_GOOGLE_FONT_PANEL_CATEGORY_HANDWRITING"), value: "handwriting", checked: true},
-					{name: BX.Landing.Loc.getMessage("LANDING_GOOGLE_FONT_PANEL_CATEGORY_MONOSPACE"), value: "monospace", checked: true}
+					{name: BX.Landing.Loc.getMessage("LANDING_GOOGLE_FONT_PANEL_CATEGORY_SANS_SERIF_2"), value: "sans-serif"},
+					{name: BX.Landing.Loc.getMessage("LANDING_GOOGLE_FONT_PANEL_CATEGORY_SERIF_2"), value: "serif"},
+					{name: BX.Landing.Loc.getMessage("LANDING_GOOGLE_FONT_PANEL_CATEGORY_DISPLAY"), value: "display"},
+					{name: BX.Landing.Loc.getMessage("LANDING_GOOGLE_FONT_PANEL_CATEGORY_HANDWRITING"), value: "handwriting"},
+					{name: BX.Landing.Loc.getMessage("LANDING_GOOGLE_FONT_PANEL_CATEGORY_MONOSPACE"), value: "monospace"}
 				]
 			}));
 

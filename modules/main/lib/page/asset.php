@@ -290,7 +290,7 @@ class Asset
 	 */
 	public function startTarget($id = '', $mode = AssetMode::ALL)
 	{
-		$id = ToUpper(trim($id));
+		$id = strtoupper(trim($id));
 		if ($id == '')
 		{
 			return false;
@@ -342,7 +342,7 @@ class Asset
 	 */
 	public function stopTarget($id = '')
 	{
-		$id = ToUpper(trim($id));
+		$id = strtoupper(trim($id));
 		if ($id == 'TEMPLATE')
 		{
 			if($this->target['NAME'] == 'TEMPLATE')
@@ -384,7 +384,7 @@ class Asset
 	 */
 	public function getAssetInfo($id, $mode)
 	{
-		$id = ToUpper(trim($id));
+		$id = strtoupper(trim($id));
 		$emptyData = ['JS' => [], 'BUNDLE_JS' => [], 'CSS' => [], 'BUNDLE_CSS' => [], 'STRINGS' => []];
 
 		if (!isset($this->targetList[$id]))
@@ -499,7 +499,7 @@ class Asset
 	 */
 	public function compositeTarget($id = '')
 	{
-		$id = ToUpper(trim($id));
+		$id = strtoupper(trim($id));
 		if ($id == '' || !isset($this->targetList[$id]))
 		{
 			return false;
@@ -2243,7 +2243,7 @@ class Asset
 		$optimFileExist = $tmpInfo['FILE_EXIST'];
 
 		$writeResult = ($action == 'NEW' ? false : true);
-		$currentFileList = &$this->fileList[ToUpper($type)][$setName];
+		$currentFileList = &$this->fileList[strtoupper($type)][$setName];
 
 		if ($action != 'NO')
 		{

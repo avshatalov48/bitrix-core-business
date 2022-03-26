@@ -1,7 +1,8 @@
 import {Dom, Event, Loc, Reflection, Runtime, Tag, Text, Type} from 'main.core';
 import {typeof BaseEvent, EventEmitter} from 'main.core.events';
-import {MenuManager, PopupManager} from 'main.popup';
+import {MenuManager, Popup, PopupManager} from 'main.popup';
 import {MessageBox, MessageBoxButtons} from 'ui.dialogs.messagebox';
+import {TagSelector} from "ui.entity-selector";
 
 const GRID_TEMPLATE_ROW = 'template_0';
 
@@ -21,6 +22,8 @@ class VariationGrid
 		this.modifyPropertyLink = settings.modifyPropertyLink;
 		this.gridEditData = settings.gridEditData;
 		this.canHaveSku = settings.canHaveSku || false;
+		this.storeAmount = settings.storeAmount;
+		this.isShowedStoreReserve = settings.isShowedStoreReserve;
 		if (settings.copyItemsMap)
 		{
 			this.getGrid().arParams.COPY_ITEMS_MAP = settings.copyItemsMap;
@@ -51,6 +54,7 @@ class VariationGrid
 		else
 		{
 			this.bindInlineEdit();
+			this.bindPopupInitToQuantityNodes();
 		}
 
 		Event.bind(this.getGrid().getScrollContainer(), 'scroll', Runtime.throttle(this.onScrollHandler.bind(this), 50));
@@ -81,6 +85,12 @@ class VariationGrid
 
 		this.onCreatePopupHandler = this.onCreatePopup.bind(this);
 		EventEmitter.subscribe('UiSelect::onCreatePopup', this.onCreatePopupHandler);
+	}
+
+	destroy()
+	{
+		this.unsubscribeCustomEvents();
+		this.destroyStoreAmountPopups();
 	}
 
 	unsubscribeCustomEvents()
@@ -287,6 +297,174 @@ class VariationGrid
 		return this.grid;
 	}
 
+	bindPopupInitToQuantityNodes()
+	{
+		const rows = this.getGrid().getRows().getRows();
+		rows.forEach((row) => {
+			if (row.isBodyChild() && !row.isTemplate())
+			{
+				const quantityNode = row.getNode().querySelector(
+					'.main-grid-cell-content-catalog-quantity-inventory-management'
+				);
+				if (Type.isDomNode(quantityNode))
+				{
+					Event.bind(
+						quantityNode,
+						'click',
+						this.openStoreAmountPopup.bind(this, row.getId(), quantityNode)
+					);
+				}
+			}
+		});
+	}
+
+	openStoreAmountPopup(rowId, quantityNode)
+	{
+		const popupId = rowId + '-store-amount';
+		let popup = PopupManager.getPopupById(popupId);
+
+		if (!popup)
+		{
+			popup = new Popup(
+				popupId,
+				quantityNode,
+				{
+					autoHide: true,
+					draggable: false,
+					offsetLeft: -218,
+					offsetTop: 0,
+					angle: {position: 'top', offset: 250},
+					noAllPaddings: true,
+					bindOptions: {forceBindPosition: true},
+					closeByEsc: true,
+					content: this.getStoreAmountPopupContent(rowId)
+				}
+			);
+		}
+
+		popup.show();
+	}
+
+	getStoreAmountPopupContent(rowId)
+	{
+		const skuStoreAmountData = this.storeAmount[rowId];
+		const currentSkusCount = skuStoreAmountData.storesCount;
+		if (!Type.isObject(skuStoreAmountData) || currentSkusCount <= 0)
+		{
+			return Tag.render`
+				<div class="store-amount-popup-container">
+					<p class="store-amount-popup-not-found-message">${Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_EMPTY')}</p>
+				</div>
+			`;
+		}
+
+		const stores = skuStoreAmountData.stores;
+		const linkToDetails = skuStoreAmountData.linkToDetails;
+
+		return Tag.render`
+			<div class="store-amount-popup-container">
+				${this.getStoreAmountTable(stores)}
+				${linkToDetails ? this.getOpenStoreAmountDetailsSliderLabel(linkToDetails, currentSkusCount) : ''}
+			</div>
+		`;
+	}
+
+	getStoreAmountTable(stores)
+	{
+		const table = Tag.render`<table class="main-grid-table"></table>`;
+		const tableHead = table.createTHead();
+		tableHead.className = 'main-grid-header';
+		const tableHeadRow = tableHead.insertRow();
+		tableHeadRow.className = 'main-grid-row-head';
+
+		this.addCellToTable(tableHeadRow,
+			Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_STORE'),
+			true,
+			'left',
+		);
+		if (this.isShowedStoreReserve)
+		{
+			this.addCellToTable(tableHeadRow, Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_AMOUNT'), true);
+			this.addCellToTable(tableHeadRow, Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_QUANTITY_RESERVED'), true);
+		}
+		this.addCellToTable(tableHeadRow, Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_QUANTITY_COMMON'), true);
+
+		const tableBody = table.createTBody();
+		stores.forEach((store) => {
+			const tableRow = tableBody.insertRow();
+			tableRow.className = 'main-grid-row main-grid-row-body';
+			this.addCellToTable(tableRow, store.title, false, 'left');
+			if (this.isShowedStoreReserve)
+			{
+				this.addCellToTable(tableRow, store.quantityAvailable, false);
+				this.addCellToTable(tableRow, store.quantityReserved, false);
+			}
+			this.addCellToTable(tableRow, store.quantityCommon, false);
+		});
+
+		return table;
+	}
+
+	addCellToTable(row, textContent, isHead, horizontalPosition = 'right')
+	{
+		const cellClassName =
+			isHead
+				? 'main-grid-cell-head main-grid-col-no-sortable main-grid-cell-'
+				: 'main-grid-cell main-grid-cell-'
+		;
+		const innerClassName =
+			isHead
+				? 'main-grid-cell-head-container'
+				: 'main-grid-cell-content'
+		;
+		const cell = row.insertCell();
+		cell.className = cellClassName + horizontalPosition;
+		cell.appendChild(Tag.render`
+			<div class="main-grid-cell-inner">
+				<span class="${innerClassName}">
+					${textContent}
+				</span>
+			</div>
+		`);
+	}
+
+	getOpenStoreAmountDetailsSliderLabel(linkToDetails, currentSkusCount)
+	{
+		const openSliderLabel = Tag.render`
+			<span class="ui-link ui-link-secondary ui-link-dashed ui-link-open-store-amount-slider">
+				${Loc.getMessage(
+			'C_PVG_STORE_AMOUNT_POPUP_OPEN_SLIDER_BUTTON',
+			{'#STORE_COUNT#': currentSkusCount}
+		)}
+			</span>
+		`;
+		Event.bind(openSliderLabel, 'click', this.openStoreAmountSlider.bind(this, linkToDetails));
+
+		return openSliderLabel;
+	}
+
+	openStoreAmountSlider(linkToDetails)
+	{
+		BX.SidePanel.Instance.open(linkToDetails, {
+			width: 700,
+			allowChangeHistory: false,
+			cacheable: false
+		});
+	}
+
+	destroyStoreAmountPopups()
+	{
+		const rows = this.getGrid().getRows().getRows();
+		rows.forEach((row) => {
+			if (row.isBodyChild() && !row.isTemplate())
+			{
+				const popupId = row.getId() + '-store-amount';
+				const popup = PopupManager.getPopupById(popupId);
+				popup?.destroy?.();
+			}
+		});
+	}
+
 	emitEditedRowsEvent()
 	{
 		if (this.getGrid().getRows().isSelected())
@@ -321,6 +499,11 @@ class VariationGrid
 	{
 		this.getGrid().getRows().selectAll();
 		this.getGrid().getRows().editSelected();
+		this.getGrid()
+			.getRows()
+			.getRows()
+			.forEach(item => this.enableBarcodeEditor(item))
+		;
 	}
 
 	prepareNewNodes()
@@ -458,6 +641,7 @@ class VariationGrid
 	{
 		item.select();
 		item.edit();
+		this.enableBarcodeEditor(item);
 
 		this.addSkuListCreationItem(item.getNode());
 	}
@@ -472,6 +656,114 @@ class VariationGrid
 		setTimeout(() => {
 			this.getGrid().clickPrevent = false;
 		}, 100);
+	}
+
+	enableBarcodeEditor(item: BX.Grid.Row)
+	{
+		const barcodeNode =
+			item.getCellById('SKU_GRID_BARCODE')
+				?.querySelector('[data-role="barcode-selector"]')
+		;
+
+		if (barcodeNode)
+		{
+			const inputWrapper = Tag.render`<div style="display: none"></div>`;
+			barcodeNode.appendChild(inputWrapper);
+			const barcodes = item.editData?.SKU_GRID_BARCODE_VALUES;
+
+			const items = [];
+			if (Type.isArray(barcodes))
+			{
+				barcodes.forEach((barcode) => {
+					const id = Text.toNumber(barcode.ID);
+					const title = barcode.BARCODE;
+
+					items.push({
+						entityId: 'productBarcode',
+						id,
+						title,
+					});
+
+					const input = Tag.render`<input type="hidden">`;
+					input.name = id;
+					input.value = title;
+					inputWrapper.appendChild(input);
+				});
+			}
+
+			const createBarcode = (event: BaseEvent) => {
+				if (blurThrottle)
+				{
+					clearTimeout(blurThrottle);
+				}
+
+				const selector = event.getTarget();
+				const value = selector.getTextBoxValue();
+
+				value.split(' ').forEach((title) => {
+					if (!Type.isStringFilled(title))
+					{
+						return;
+					}
+
+					const id = Text.getRandom();
+					selector.addTag({
+						id,
+						title,
+						entityId: 'productBarcode',
+					});
+
+					const input = Tag.render`<input type="hidden">`;
+					input.name = id;
+					input.value = title;
+					inputWrapper.appendChild(input);
+				});
+
+				hideBarcodeInput();
+			};
+
+			let blurThrottle = null;
+			const hideBarcodeInput = () => {
+				tagSelector.hideCreateButton();
+				tagSelector.clearTextBox();
+				tagSelector.showAddButton();
+				tagSelector.hideTextBox();
+			};
+
+			const tagSelector = new TagSelector({
+				placeholder: Loc.getMessage('C_PVG_STORE_CREATE_BARCODE_PLACEHOLDER'),
+				addButtonCaption: Loc.getMessage('C_PVG_STORE_ADD_NEW_BARCODE'),
+				addButtonCaptionMore: Loc.getMessage('C_PVG_STORE_ADD_ONE_MORE_BARCODE'),
+				items,
+				events: {
+					onAddButtonClick: (event: BaseEvent) => {
+						const selector = event.getTarget();
+						selector.showCreateButton();
+					},
+					onBeforeTagRemove: (event: BaseEvent) => {
+						const data = event.getData();
+						const barcodeId = data.tag?.id;
+						if (!Type.isNil(barcodeId))
+						{
+							const name = 'input[name="' + barcodeId + '"]';
+							const input = inputWrapper.querySelector(name);
+							if (input)
+							{
+								input.parentNode.removeChild(input);
+							}
+						}
+					},
+					onCreateButtonClick: createBarcode,
+					onEnter: createBarcode,
+					onMetaEnter: createBarcode,
+					onBlur: () => {
+						blurThrottle = setTimeout(hideBarcodeInput, 300);
+					},
+				},
+			});
+
+			tagSelector.renderTo(barcodeNode);
+		}
 	}
 
 	modifyCustomSkuProperties(node)
@@ -501,7 +793,7 @@ class VariationGrid
 						<label class="catalog-productcard-popup-select-label">
 							<span class="catalog-productcard-popup-select-add"></span>
 							<span class="catalog-productcard-popup-select-text">
-								${BX.message('C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON')}
+								${Loc.getMessage('C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON')}
 							</span>
 						</label>
 					</li>`;

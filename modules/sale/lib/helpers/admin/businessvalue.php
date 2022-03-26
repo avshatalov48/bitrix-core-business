@@ -884,7 +884,7 @@ final class BusinessValueControl
 						keyElement.disabled = deleteElement.checked;
 
 						var parentElement = valueElement.parentNode;
-						var tagList = ['input', 'select'];
+						var tagList = ['input', 'select', 'textarea'];
 						for (var tagIndex in tagList)
 						{
 							if (tagList.hasOwnProperty(tagIndex))

@@ -99,7 +99,7 @@
 						}),
 						create("label", {
 							props: {className: "landing-ui-field-checkbox-item-label"},
-							attrs: {"for": itemId},
+							attrs: {"for": itemId, title: BX.Text.encode(itemOptions.name)},
 							html: itemOptions.html ? itemOptions.html : escapeHtml(itemOptions.name)
 						})
 					]

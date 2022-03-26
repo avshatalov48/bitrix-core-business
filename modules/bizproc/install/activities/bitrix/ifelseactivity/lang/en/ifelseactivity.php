@@ -1,3 +1,3 @@
 <?
-$MESS ['BPIEA_INVALID_CHILD'] = "An 'IfElseActivity' activity can contain only 'IfElseBranchActivity' actions.";
+$MESS ['BPIEA_INVALID_CHILD_1'] = "An 'IfElseActivity' activity can contain only 'IfElseBranchActivity' activities.";
 ?>

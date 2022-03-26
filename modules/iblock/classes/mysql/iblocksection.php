@@ -1,4 +1,4 @@
-<?
+<?php
 use Bitrix\Iblock;
 
 class CIBlockSection extends CAllIBlockSection
@@ -407,7 +407,7 @@ class CIBlockSection extends CAllIBlockSection
 
 		if(is_array($arNavStartParams))
 		{
-			$nTopCount = (isset($arNavStartParams['nTopCount']) ? (int)$arNavStartParams['nTopCount'] : 0);
+			$nTopCount = (int)($arNavStartParams['nTopCount'] ?? 0);
 			if($nTopCount > 0)
 			{
 				$res = $DB->Query($DB->TopSql(

@@ -16,11 +16,29 @@
 		Folded: 'Folded'
 	};
 
+	var DocumentType = {
+		Resume: 'resume',
+		Blank: 'blank'
+	};
+
+	var DOC_EDITOR_WIDTH = 961;
+	var DOC_TEMPLATE_WIDTH = 328;
+	var DOCUMENT_PROMO_CODE = 'im:call-document:16102021:web';
+	var DOCUMENT_PROMO_DELAY = 60000 * 5; // 5 minutes
+	var DOC_CREATED_EVENT = 'CallController::documentCreated';
+	var FILE_TYPE_DOCX = 'docx';
+	var FILE_TYPE_XLSX = 'xlsx';
+	var FILE_TYPE_PPTX = 'pptx';
+
 	BX.Call.Controller = function (config)
 	{
 		this.messenger = config.messenger;
 
 		this.container = null;
+		this.docEditor = null;
+		this.docEditorIframe = null;
+		this.maxEditorWidth = DOC_TEMPLATE_WIDTH;
+		this.docCreatedForCurrentCall = false;
 
 		this.folded = false;
 
@@ -48,11 +66,11 @@
 
 		this._callViewState = ViewState.Closed;
 		Object.defineProperty(this, 'callViewState', {
-			get: function()
+			get: function ()
 			{
 				return this._callViewState
 			},
-			set: function(callViewState)
+			set: function (callViewState)
 			{
 				if (this.callViewState == callViewState)
 				{
@@ -74,6 +92,8 @@
 		this._onCallUserVideoPausedHandler = this._onCallUserVideoPaused.bind(this);
 		this._onCallLocalMediaReceivedHandler = this._onCallLocalMediaReceived.bind(this);
 		this._onCallLocalMediaStoppedHandler = this._onCallLocalMediaStopped.bind(this);
+		this._onCallLocalCameraFlipHandler = this._onCallLocalCameraFlip.bind(this);
+		this._onCallLocalCameraFlipInDesktopHandler = this._onCallLocalCameraFlipInDesktop.bind(this);
 		this._onCallRemoteMediaReceivedHandler = this._onCallRemoteMediaReceived.bind(this);
 		this._onCallRemoteMediaStoppedHandler = this._onCallRemoteMediaStopped.bind(this);
 		this._onCallUserVoiceStartedHandler = this._onCallUserVoiceStarted.bind(this);
@@ -86,6 +106,7 @@
 		this._onMicrophoneLevelHandler = this._onMicrophoneLevel.bind(this);
 		this._onReconnectingHandler = this._onReconnecting.bind(this);
 		this._onReconnectedHandler = this._onReconnected.bind(this);
+		this._onCustomMessageHandler = this._onCustomMessage.bind(this);
 		this._onCallLeaveHandler = this._onCallLeave.bind(this);
 		this._onCallJoinHandler = this._onCallJoin.bind(this);
 
@@ -129,6 +150,7 @@
 		this.feedbackPopup = null;
 
 		this.eventEmitter = new BX.Event.EventEmitter(this, 'BX.Call.Controller');
+		this.resizeObserver = new BX.ResizeObserver(this._onResize.bind(this));
 
 		this.init();
 	};
@@ -138,7 +160,7 @@
 		{
 			BX.addCustomEvent(window, "CallEvents::incomingCall", this.onIncomingCall.bind(this));
 			BX.Call.Hardware.subscribe(BX.Call.Hardware.Events.deviceChanged, this._onDeviceChange.bind(this));
-
+			BX.Call.Hardware.subscribe(BX.Call.Hardware.Events.onChangeMirroringVideo, this._onCallLocalCameraFlipHandler);
 			if (BX.desktop && this.floatingWindow)
 			{
 				window.addEventListener("blur", this._onWindowBlurHandler);
@@ -195,6 +217,11 @@
 				}.bind(this));
 			}
 
+			if (BX.desktop)
+			{
+				BX.desktop.addCustomEvent(BX.Call.Hardware.Events.onChangeMirroringVideo, this._onCallLocalCameraFlipInDesktopHandler);
+			}
+
 			if (window['VoxImplant'])
 			{
 				VoxImplant.getInstance().addEventListener(VoxImplant.Events.MicAccessResult, this.voxMicAccessResult.bind(this));
@@ -208,12 +235,12 @@
 			BX.garbage(this.destroy, this);
 		},
 
-		subscribe: function(eventName, listener)
+		subscribe: function (eventName, listener)
 		{
 			return this.eventEmitter.subscribe(eventName, listener);
 		},
 
-		unsubscribe: function(eventName, listener)
+		unsubscribe: function (eventName, listener)
 		{
 			return this.eventEmitter.unsubscribe(eventName, listener);
 		},
@@ -410,6 +437,7 @@
 			this.currentCall.addEventListener(BX.Call.Event.onMicrophoneLevel, this._onMicrophoneLevelHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onReconnecting, this._onReconnectingHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onReconnected, this._onReconnectedHandler);
+			this.currentCall.addEventListener(BX.Call.Event.onCustomMessage, this._onCustomMessageHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onJoin, this._onCallJoinHandler);
 			this.currentCall.addEventListener(BX.Call.Event.onLeave, this._onCallLeaveHandler);
 		},
@@ -436,6 +464,7 @@
 			this.currentCall.removeEventListener(BX.Call.Event.onMicrophoneLevel, this._onMicrophoneLevelHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onReconnecting, this._onReconnectingHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onReconnected, this._onReconnectedHandler);
+			this.currentCall.removeEventListener(BX.Call.Event.onCustomMessage, this._onCustomMessageHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onJoin, this._onCallJoinHandler);
 			this.currentCall.removeEventListener(BX.Call.Event.onLeave, this._onCallLeaveHandler);
 		},
@@ -522,9 +551,14 @@
 			this.messenger.popupMessengerContent.classList.add("bx-messenger-call");
 		},
 
-		resize: function ()
+		removeContainer: function ()
 		{
-
+			if (this.container)
+			{
+				BX.remove(this.container);
+				this.container = null;
+				this.messenger.popupMessengerContent.classList.remove("bx-messenger-call");
+			}
 		},
 
 		answerChildCall: function ()
@@ -713,7 +747,7 @@
 			});
 		},
 
-		showNetworkProblemNotification: function(notificationText)
+		showNetworkProblemNotification: function (notificationText)
 		{
 			BX.UI.Notification.Center.notify({
 				content: BX.util.htmlspecialchars(notificationText),
@@ -723,7 +757,8 @@
 				actions: [{
 					title: BX.message("IM_M_CALL_HELP"),
 					events: {
-						click: function(event, balloon, action) {
+						click: function (event, balloon, action)
+						{
 							top.BX.Helper.show('redirect=detail&code=12723718');
 							balloon.close();
 						}
@@ -844,6 +879,10 @@
 				{
 					hiddenButtons.push('floorRequest');
 				}
+				if (!BX.Call.Util.shouldShowDocumentButton())
+				{
+					hiddenButtons.push('document');
+				}
 
 				this.callView = new BX.Call.View({
 					container: this.container,
@@ -908,6 +947,7 @@
 					this.callView.updateUserData(userData)
 				}.bind(this));
 				this.callView.show();
+				this.showDocumentPromo();
 
 				if (e.isNew)
 				{
@@ -969,7 +1009,7 @@
 			{
 				this.currentCall = result.call;
 				isGroupCall = this.currentCall.associatedEntity.id.toString().startsWith("chat");
-				return this.messenger.openMessenger();
+				return this._openMessenger();
 			}.bind(this)).then(function ()
 			{
 				return BX.Call.Hardware.init();
@@ -981,6 +1021,10 @@
 				if (this.currentCall instanceof BX.Call.PlainCall)
 				{
 					hiddenButtons.push('floorRequest');
+				}
+				if (!BX.Call.Util.shouldShowDocumentButton())
+				{
+					hiddenButtons.push('document');
 				}
 
 				this.callView = new BX.Call.View({
@@ -1002,6 +1046,7 @@
 					this.callView.updateUserData(userData)
 				}.bind(this));
 				this.callView.show();
+				this.showDocumentPromo();
 
 				this.currentCall.useHdVideo(BX.Call.Hardware.preferHdQuality);
 				if (BX.Call.Hardware.defaultMicrophone)
@@ -1020,6 +1065,13 @@
 				{
 					this.showNotification(BX.message('IM_CALL_ERROR_NO_CAMERA'));
 					video = false;
+				}
+
+				if (this.getCallUsers(true).length > this.getMaxActiveMicrophonesCount())
+				{
+					this.currentCall.setMuted(true);
+					this.callView.setMuted(true);
+					this.showAutoMicMuteNotification();
 				}
 
 				this.currentCall.answer({
@@ -1151,23 +1203,487 @@
 			}
 			else
 			{
-				this.fold();
+				this.fold(BX.util.htmlspecialcharsback(this.currentCall.associatedEntity.name));
 			}
 		},
 
-		fold: function ()
+		fold: function (foldedCallTitle)
 		{
 			if (this.folded || (BX.desktop && this.floatingWindow))
 			{
 				return;
 			}
+			if (!foldedCallTitle && this.currentCall)
+			{
+				foldedCallTitle = BX.util.htmlspecialcharsback(this.currentCall.associatedEntity.name)
+			}
 
 			this.folded = true;
+			this.resizeObserver.unobserve(this.container);
 			this.container.classList.add('bx-messenger-call-overlay-folded');
-			this.callView.setTitle(BX.util.htmlspecialcharsback(this.currentCall.associatedEntity.name));
+			this.callView.setTitle(foldedCallTitle);
 			this.callView.setSize(BX.Call.View.Size.Folded);
 			this.callViewState = ViewState.Folded;
+			if (this.sidebar)
+			{
+				this.sidebar.toggleHidden(true);
+			}
+			if (this.documentPromoPopup)
+			{
+				this.documentPromoPopup.close();
+			}
+
 			BX.onCustomEvent(this, "CallController::onFold", {});
+		},
+
+		setCallEditorMaxWidth: function (maxWidth)
+		{
+			if (maxWidth != this.maxEditorWidth)
+			{
+				this.maxEditorWidth = maxWidth;
+				this._onResize();
+			}
+		},
+
+		findCallEditorWidth: function ()
+		{
+			var containerWidth = this.container.clientWidth;
+			var editorWidth = containerWidth < (this.maxEditorWidth + BX.Call.View.MIN_WIDTH) ? containerWidth - BX.Call.View.MIN_WIDTH : this.maxEditorWidth;
+			var callWidth = containerWidth - editorWidth;
+
+			return {callWidth: callWidth, editorWidth: editorWidth};
+		},
+
+		showDocumentsMenu: function ()
+		{
+			var targetNodeWidth = this.callView.buttons.document.elements.root.offsetWidth;
+			var resumesArticleCode = BX.Call.Util.getResumesArticleCode();
+			var documentsArticleCode = BX.Call.Util.getDocumentsArticleCode();
+
+			var menuItems = [
+				{
+					text: BX.message('IM_M_CALL_MENU_CREATE_RESUME'),
+					onclick: function (event, item)
+					{
+						this.documentsMenu.close();
+						this.maybeShowDocumentEditor({
+							type: DocumentType.Resume,
+						}, resumesArticleCode);
+					}.bind(this)
+				},
+				{
+					text: BX.message('IM_M_CALL_MENU_CREATE_FILE'),
+					items: [
+						{
+							text: BX.message('IM_M_CALL_MENU_CREATE_FILE_DOC'),
+							onclick: function (event, item)
+							{
+								this.documentsMenu.close();
+								this.maybeShowDocumentEditor({
+									type: DocumentType.Blank,
+									typeFile: FILE_TYPE_DOCX,
+								}, documentsArticleCode);
+							}.bind(this)
+						},
+						{
+							text: BX.message('IM_M_CALL_MENU_CREATE_FILE_XLS'),
+							onclick: function (event, item)
+							{
+								this.documentsMenu.close();
+								this.maybeShowDocumentEditor({
+									type: DocumentType.Blank,
+									typeFile: FILE_TYPE_XLSX,
+								}, documentsArticleCode);
+							}.bind(this)
+						},
+						{
+							text: BX.message('IM_M_CALL_MENU_CREATE_FILE_PPT'),
+							onclick: function (event, item)
+							{
+								this.documentsMenu.close();
+								this.maybeShowDocumentEditor({
+									type: DocumentType.Blank,
+									typeFile: FILE_TYPE_PPTX,
+								}, documentsArticleCode);
+							}.bind(this)
+						},
+					],
+				},
+			];
+
+			if (!resumesArticleCode)
+			{
+				menuItems.push({
+					text: BX.message('IM_M_CALL_MENU_OPEN_LAST_RESUME'),
+					cacheable: true,
+					items: [
+						{
+							id: "loading",
+							text: BX.message('IM_M_CALL_MENU_LOADING_RESUME_LIST'),
+						}
+					],
+					events: {
+						onSubMenuShow: function(e)
+						{
+							this.buildPreviousResumesSubmenu(e.target)
+						}.bind(this)
+					}
+				});
+			}
+
+			this.documentsMenu = new BX.PopupMenuWindow({
+				angle: false,
+				bindElement: this.callView.buttons.document.elements.root,
+				targetContainer: this.container,
+				offsetTop: -15,
+				bindOptions: {position: "top"},
+				cacheable: false,
+				subMenuOptions: {
+					maxWidth: 450
+				},
+				events: {
+					onShow: function (event)
+					{
+						var popup = event.getTarget();
+						popup.getPopupContainer().style.display = 'block'; // bad hack
+
+						var offsetLeft = (targetNodeWidth / 2) - popup.getPopupContainer().offsetWidth / 2;
+						popup.setOffset({offsetLeft: offsetLeft + 40});
+						popup.setAngle({offset: popup.getPopupContainer().offsetWidth / 2 - 17});
+					},
+					onDestroy: function()
+					{
+						this.documentsMenu = null
+					}.bind(this)
+				},
+				items: menuItems,
+			});
+
+			this.documentsMenu.show();
+		},
+
+		buildPreviousResumesSubmenu: function(menuItem)
+		{
+			BX.ajax.runAction('disk.api.integration.messengerCall.listResumesInChatByCall', {
+				data: {
+					callId: this.currentCall.id
+				}
+			}).then(function (response)
+			{
+				var resumeList =  response.data.resumes;
+
+				if (resumeList.length > 0)
+				{
+					resumeList.forEach(function (resume)
+					{
+						menuItem.getSubMenu().addMenuItem({
+							id: resume.id,
+							text: resume.object.createDate + ': ' + resume.object.name,
+							onclick: function (event, item)
+							{
+								this.documentsMenu.close();
+								this.viewDocumentByLink(resume.links.view);
+							}.bind(this)
+						});
+					}.bind(this))
+				}
+				else
+				{
+					menuItem.getSubMenu().addMenuItem({
+						id: 'nothing',
+						text: BX.message('IM_M_CALL_MENU_NO_RESUME'),
+						disabled: true
+					});
+				}
+
+				menuItem.getSubMenu().removeMenuItem('loading');
+				menuItem.adjustSubMenu();
+			}.bind(this))
+		},
+
+		maybeShowDocumentEditor: function(options, articleCode)
+		{
+			if (articleCode)
+			{
+				if (articleCode)
+				{
+					BX.UI.InfoHelper.show(articleCode);
+					return;
+				}
+			}
+			this.showDocumentEditor(options);
+		},
+
+		showDocumentEditor: function (options)
+		{
+			options = options || {};
+			var openAnimation = true;
+			if (this.sidebar)
+			{
+				if (options.force)
+				{
+					this.sidebar.close(false);
+					this.sidebar.destroy();
+					this.sidebar = null;
+					openAnimation = false;
+				}
+				else
+				{
+					return;
+				}
+			}
+
+			if (this.callView)
+			{
+				this.callView.setButtonActive('document', true);
+			}
+			clearTimeout(this.showPromoPopupTimeout);
+
+			this._createAndOpenSidebarWithIframe("about:blank", openAnimation);
+
+			BX.loadExt('disk.onlyoffice-im-integration').then(function ()
+			{
+				var docEditor = new BX.Disk.OnlyOfficeImIntegration.CreateDocument({
+					dialog: {
+						id: this.currentCall.associatedEntity.id,
+					},
+					call: {
+						id: this.currentCall.id,
+					},
+					delegate: {
+						setMaxWidth: this.setCallEditorMaxWidth.bind(this),
+						onDocumentCreated: this._onDocumentCreated.bind(this),
+					}
+				});
+
+				var promiseGetUrl;
+				if (options.type === DocumentType.Resume)
+				{
+					promiseGetUrl = docEditor.getIframeUrlForTemplates();
+				}
+				else if (options.type === DocumentType.Blank)
+				{
+					promiseGetUrl = docEditor.getIframeUrlForCreate({
+						typeFile: options.typeFile
+					});
+				}
+				else
+				{
+					promiseGetUrl = docEditor.getIframeUrl({
+						viewerItem: options.viewerItem
+					});
+				}
+
+				promiseGetUrl.then(function (url)
+				{
+					this.docEditorIframe.src = url;
+				}.bind(this)).catch(function (e)
+				{
+					console.error(e)
+					this.closeDocumentEditor()
+					alert(BX.message("IM_F_ERROR"));
+				}.bind(this));
+				this.docEditor = docEditor;
+			}.bind(this)).catch(function (error)
+			{
+				console.error(error);
+				this.closeDocumentEditor()
+				alert(BX.message("IM_F_ERROR"));
+			}.bind(this));
+
+			this.resizeObserver.observe(this.container);
+		},
+
+		closeDocumentEditor: function ()
+		{
+			return new Promise(function (resolve)
+			{
+				if (this.docEditor && this.docEditorIframe)
+				{
+					this.docEditor.onCloseIframe(this.docEditorIframe);
+				}
+				if (this.container)
+				{
+					this.resizeObserver.unobserve(this.container);
+				}
+				if (this.callView)
+				{
+					this.callView.setButtonActive('document', false);
+					this.callView.removeMaxWidth();
+				}
+				if (!this.sidebar)
+				{
+					return resolve();
+				}
+				var oldSidebar = this.sidebar;
+				this.sidebar = null;
+				oldSidebar.close().then(function ()
+				{
+					this.docEditor = null;
+					this.docEditorIframe = null;
+					oldSidebar.destroy();
+					this.maxEditorWidth = this.docCreatedForCurrentCall ? DOC_EDITOR_WIDTH : DOC_TEMPLATE_WIDTH;
+					if (!this.callView)
+					{
+						this.removeContainer();
+						resolve();
+					}
+				}.bind(this));
+			}.bind(this));
+		},
+
+		viewDocumentByLink: function(url)
+		{
+			if (this.sidebar)
+			{
+				return;
+			}
+			if (this.callView)
+			{
+				this.callView.setButtonActive('document', true);
+			}
+
+			this.maxEditorWidth = DOC_EDITOR_WIDTH;
+			this._createAndOpenSidebarWithIframe(url);
+		},
+
+		_createAndOpenSidebarWithIframe: function (url, animation)
+		{
+			animation = animation != false;
+			var result = this.findCallEditorWidth();
+			var callWidth = result.callWidth;
+			var editorWidth = result.editorWidth;
+
+			this.callView.setMaxWidth(callWidth);
+			this.sidebar = new BX.Call.Sidebar({
+				container: this.container,
+				width: editorWidth,
+				events: {
+					onCloseClicked: this.onSideBarCloseClicked.bind(this)
+				}
+			});
+			this.sidebar.open(animation);
+
+			var loader = new BX.Loader({
+				target: this.sidebar.elements.contentContainer
+			});
+			loader.show();
+
+			var docEditorIframe = BX.create("iframe", {
+				attrs: {
+					src: url,
+					frameborder: "0"
+				},
+				style: {
+					display: "none",
+					border: "0",
+					margin: "0",
+					width: "100%",
+					height: "100%",
+				}
+			});
+
+			docEditorIframe.addEventListener('load', function ()
+			{
+				loader.destroy();
+				docEditorIframe.style.display = 'block';
+			}, {
+				once: true
+			});
+			docEditorIframe.addEventListener('error', function (error)
+			{
+				console.error(error);
+				this.closeDocumentEditor()
+				alert(BX.message("IM_F_ERROR"));
+			}.bind(this))
+			this.sidebar.elements.contentContainer.appendChild(docEditorIframe);
+			this.docEditorIframe = docEditorIframe;
+		},
+
+		_onDocumentCreated: function ()
+		{
+			this.docCreatedForCurrentCall = true;
+			if (this.currentCall)
+			{
+				this.currentCall.sendCustomMessage(DOC_CREATED_EVENT, true)
+			}
+		},
+
+		onSideBarCloseClicked: function ()
+		{
+			this.closeDocumentEditor();
+		},
+
+		_ensureDocumentEditorClosed: function ()
+		{
+			return new Promise(function (resolve, reject)
+			{
+				if (!this.sidebar)
+				{
+					return resolve();
+				}
+
+				var self = this;
+
+				window.BXIM.openConfirm(
+					BX.message("IM_CALL_CLOSE_DOCUMENT_EDITOR_TO_ANSWER"),
+					[
+						new BX.PopupWindowButton({
+							text: BX.message("IM_CALL_CLOSE_DOCUMENT_EDITOR_YES"),
+							className: "popup-window-button-accept",
+							events: {
+								click: function ()
+								{
+									// we can't bind this function to have access to this.popupWindow
+									this.popupWindow.close();
+									self.closeDocumentEditor().then(function ()
+									{
+										resolve();
+									})
+								}
+							}
+						}),
+						new BX.PopupWindowButton({
+							text: BX.message('IM_CALL_CLOSE_DOCUMENT_EDITOR_NO'),
+							className: "popup-window-button-decline",
+							events: {
+								click: function ()
+								{
+									this.popupWindow.close();
+									reject();
+								}
+							}
+						}),
+					],
+					true,
+					{maxWidth: 600}
+				);
+
+			}.bind(this))
+		},
+
+		onDocumentPromoActionClicked: function ()
+		{
+			if (this.documentPromoPopup)
+			{
+				this.documentPromoPopup.close();
+			}
+
+			var articleCode = BX.Call.Util.getResumesArticleCode();
+			if (articleCode)
+			{
+				BX.UI.InfoHelper.show(articleCode); //@see \Bitrix\Disk\Integration\MessengerCall::getInfoHelperCodeForDocuments()
+				return;
+			}
+
+			this.showDocumentEditor({
+				type: DocumentType.Resume,
+			});
+		},
+
+		onDocumentPromoClosed: function()
+		{
+			this.documentPromoPopup = null;
 		},
 
 		unfold: function ()
@@ -1188,6 +1704,11 @@
 				this.container.classList.remove('bx-messenger-call-overlay-folded');
 				this.callView.setSize(BX.Call.View.Size.Full);
 				this.callViewState = ViewState.Opened;
+				if (this.sidebar)
+				{
+					this.sidebar.toggleHidden(false);
+					this.resizeObserver.observe(this.container);
+				}
 			}
 			BX.onCustomEvent(this, "CallController::onUnfold", {});
 		},
@@ -1263,6 +1784,42 @@
 			}
 		},
 
+		showDocumentPromo: function()
+		{
+			if (!this.callView || !this.currentCall || !BX.Call.Util.shouldShowDocumentButton())
+			{
+				return false;
+			}
+
+			if (!BX.MessengerPromo || !BX.MessengerPromo.needToShow(DOCUMENT_PROMO_CODE))
+			{
+				return false;
+			}
+
+			var documentButton = this.callView.buttons.document.elements.root;
+			var bindElement = documentButton.querySelector('.bx-messenger-videocall-panel-icon');
+			if (!bindElement)
+			{
+				return false;
+			}
+			this.documentPromoPopup = new BX.Call.PromoPopup({
+				bindElement: bindElement,
+				promoCode: DOCUMENT_PROMO_CODE,
+				events: {
+					onActionClick: this.onDocumentPromoActionClicked.bind(this),
+					onClose: this.onDocumentPromoClosed.bind(this)
+				}
+			});
+			this.showPromoPopupTimeout = setTimeout(function ()
+			{
+				if (this.folded)
+				{
+					return false;
+				}
+				this.documentPromoPopup.show();
+			}.bind(this), DOCUMENT_PROMO_DELAY);
+		},
+
 		// converter from BX.Promise to normal Promise
 		_openMessenger: function (dialogId)
 		{
@@ -1315,82 +1872,7 @@
 			switch (e.button)
 			{
 				case "answer":
-					if (BX.desktop)
-					{
-						BX.desktop.windowCommand("show");
-					}
-
-					if (!this.isUserAgentSupported())
-					{
-						this.log("Error: unsupported user agent");
-						this.removeVideoStrategy();
-						this.removeCallEvents();
-						this.currentCall.decline();
-						this.currentCall = null;
-
-						this.showUnsupportedNotification();
-						return;
-					}
-
-					if (this.callView)
-					{
-						this.callView.destroy();
-					}
-
-					var dialogId = this.currentCall.associatedEntity && this.currentCall.associatedEntity.id ? this.currentCall.associatedEntity.id : false;
-					var isGroupCall = dialogId.toString().startsWith("chat");
-					this.messenger.openMessenger(dialogId).then(function ()
-					{
-						this.createContainer();
-						var hiddenButtons = [];
-						if (this.currentCall instanceof BX.Call.PlainCall)
-						{
-							hiddenButtons.push('floorRequest');
-						}
-						this.callView = new BX.Call.View({
-							container: this.container,
-							users: this.currentCall.users,
-							userStates: this.currentCall.getUsers(),
-							showChatButtons: true,
-							showRecordButton: this.featureRecord !== BX.Call.Controller.FeatureState.Disabled,
-							userLimit: BX.Call.Util.getUserLimit(),
-							layout: isGroupCall ? BX.Call.View.Layout.Grid : BX.Call.View.Layout.Centered,
-							microphoneId: BX.Call.Hardware.defaultMicrophone,
-							blockedButtons: ['record'],
-							hiddenButtons: hiddenButtons,
-						});
-						this.autoCloseCallView = true;
-						if(this.callWithLegacyMobile)
-						{
-							this.callView.blockAddUser();
-						}
-
-						this.bindCallViewEvents();
-						BX.Call.Util.getUsers(this.currentCall.id, this.getCallUsers(true)).then(function (userData)
-						{
-							this.callView.updateUserData(userData)
-						}.bind(this));
-						this.callView.show();
-
-						this.currentCall.useHdVideo(BX.Call.Hardware.preferHdQuality);
-						if (BX.Call.Hardware.defaultMicrophone)
-						{
-							this.currentCall.setMicrophoneId(BX.Call.Hardware.defaultMicrophone);
-						}
-						if (BX.Call.Hardware.defaultCamera)
-						{
-							this.currentCall.setCameraId(BX.Call.Hardware.defaultCamera);
-						}
-
-						this.currentCall.answer({
-							useVideo: e.video,
-							enableMicAutoParameters: BX.Call.Hardware.enableMicAutoParameters
-						});
-
-						this.createVideoStrategy();
-
-					}.bind(this));
-
+					this._onAnswerButtonClick(e.video);
 					break;
 				case "decline":
 					if (this.currentCall)
@@ -1402,6 +1884,100 @@
 					}
 					break;
 			}
+		},
+
+		_onAnswerButtonClick: function (withVideo)
+		{
+			if (BX.desktop)
+			{
+				BX.desktop.windowCommand("show");
+			}
+
+			if (!this.isUserAgentSupported())
+			{
+				this.log("Error: unsupported user agent");
+				this.removeVideoStrategy();
+				this.removeCallEvents();
+				this.currentCall.decline();
+				this.currentCall = null;
+
+				this.showUnsupportedNotification();
+				return;
+			}
+
+			if (this.callView)
+			{
+				this.callView.destroy();
+			}
+
+			var dialogId = this.currentCall.associatedEntity && this.currentCall.associatedEntity.id ? this.currentCall.associatedEntity.id : false;
+			var isGroupCall = dialogId.toString().startsWith("chat");
+			this._ensureDocumentEditorClosed().then(function ()
+			{
+				return this._openMessenger(dialogId);
+			}.bind(this)).then(function ()
+			{
+				this.createContainer();
+				var hiddenButtons = [];
+				if (this.currentCall instanceof BX.Call.PlainCall)
+				{
+					hiddenButtons.push('floorRequest');
+				}
+				if (!BX.Call.Util.shouldShowDocumentButton())
+				{
+					hiddenButtons.push('document');
+				}
+				this.callView = new BX.Call.View({
+					container: this.container,
+					users: this.currentCall.users,
+					userStates: this.currentCall.getUsers(),
+					showChatButtons: true,
+					showRecordButton: this.featureRecord !== BX.Call.Controller.FeatureState.Disabled,
+					userLimit: BX.Call.Util.getUserLimit(),
+					layout: isGroupCall ? BX.Call.View.Layout.Grid : BX.Call.View.Layout.Centered,
+					microphoneId: BX.Call.Hardware.defaultMicrophone,
+					blockedButtons: ['record'],
+					hiddenButtons: hiddenButtons,
+				});
+				this.autoCloseCallView = true;
+				if (this.callWithLegacyMobile)
+				{
+					this.callView.blockAddUser();
+				}
+
+				this.bindCallViewEvents();
+				BX.Call.Util.getUsers(this.currentCall.id, this.getCallUsers(true)).then(function (userData)
+				{
+					this.callView.updateUserData(userData)
+				}.bind(this));
+				this.callView.show();
+				this.showDocumentPromo();
+
+				this.currentCall.useHdVideo(BX.Call.Hardware.preferHdQuality);
+				if (BX.Call.Hardware.defaultMicrophone)
+				{
+					this.currentCall.setMicrophoneId(BX.Call.Hardware.defaultMicrophone);
+				}
+				if (BX.Call.Hardware.defaultCamera)
+				{
+					this.currentCall.setCameraId(BX.Call.Hardware.defaultCamera);
+				}
+
+				if (this.getCallUsers(true).length > this.getMaxActiveMicrophonesCount())
+				{
+					this.currentCall.setMuted(true);
+					this.callView.setMuted(true);
+					this.showAutoMicMuteNotification();
+				}
+
+				this.currentCall.answer({
+					useVideo: withVideo,
+					enableMicAutoParameters: BX.Call.Hardware.enableMicAutoParameters
+				});
+
+				this.createVideoStrategy();
+
+			}.bind(this));
 		},
 
 		_onCallConferenceNotificationButtonClick: function (e)
@@ -1454,22 +2030,37 @@
 			{
 				this.floatingScreenShareWindow.close();
 			}
+			if (this.documentPromoPopup)
+			{
+				this.documentPromoPopup.close();
+			}
+			if (this.documentsMenu)
+			{
+				this.documentsMenu.close();
+			}
+			clearTimeout(this.showPromoPopupTimeout);
 			this._closeReconnectionBaloon();
 		},
 
 		_onCallViewDestroy: function (e)
 		{
-			if (this.messenger.popupMessengerContent)
-			{
-				BX.remove(this.container);
-			}
-
-			this.messenger.popupMessengerContent.classList.remove("bx-messenger-call");
-
-			this.container = null;
 			this.callView = null;
 			this.folded = false;
 			this.autoCloseCallView = true;
+			if (this.sidebar)
+			{
+				BX.adjust(this.container, {
+					style: {
+						backgroundColor: "rgba(0, 0, 0, 0.5)",
+						backdropFilter: "blur(5px)"
+					}
+				})
+			}
+			else
+			{
+				this.removeContainer();
+				this.maxEditorWidth = DOC_TEMPLATE_WIDTH;
+			}
 		},
 
 		_onCallViewBodyClick: function (e)
@@ -1496,6 +2087,7 @@
 				floorRequest: this._onCallViewFloorRequestButtonClick.bind(this),
 				showHistory: this._onCallViewShowHistoryButtonClick.bind(this),
 				fullscreen: this._onCallViewFullScreenButtonClick.bind(this),
+				document: this._onCallViewDocumentButtonClick.bind(this),
 			};
 
 			if (BX.type.isFunction(handlers[buttonName]))
@@ -1569,7 +2161,7 @@
 			return result;
 		},
 
-		_closeReconnectionBaloon: function()
+		_closeReconnectionBaloon: function ()
 		{
 			if (this.reconnectionBaloon)
 			{
@@ -1660,28 +2252,32 @@
 								items: [
 									{
 										text: BX.message('IM_M_CALL_MENU_RECORD_VIDEO'),
-										onclick: function(event, item) {
+										onclick: function (event, item)
+										{
 											this._startRecordCall(BX.Call.View.RecordType.Video);
 											item.getMenuWindow().close();
 										}.bind(this)
 									},
 									{
 										text: BX.message('IM_M_CALL_MENU_RECORD_AUDIO'),
-										onclick: function(event, item) {
+										onclick: function (event, item)
+										{
 											this._startRecordCall(BX.Call.View.RecordType.Audio);
 											item.getMenuWindow().close();
 										}.bind(this)
 									}
 								],
-								autoHide : true,
+								autoHide: true,
 								angle: {position: "top", offset: 80},
 								offsetTop: 0,
 								offsetLeft: -25,
-								events : {
-									onPopupClose : function () {
+								events: {
+									onPopupClose: function ()
+									{
 										this.callRecordMenu.destroy();
 									}.bind(this),
-									onPopupDestroy : function () {
+									onPopupDestroy: function ()
+									{
 										this.callRecordMenu = null;
 									}.bind(this),
 								}
@@ -1754,6 +2350,10 @@
 				{
 					this.webScreenSharePopup.close();
 				}
+				if (this.documentPromoPopup)
+				{
+					this.documentPromoPopup.close();
+				}
 				this.currentCall.stopScreenSharing();
 
 				if (this.isRecording())
@@ -1797,6 +2397,11 @@
 				this.unfold();
 			}
 			this.toggleFullScreen();
+		},
+
+		_onCallViewDocumentButtonClick: function (e)
+		{
+			this.sidebar ? this.closeDocumentEditor() : this.showDocumentsMenu();
 		},
 
 		_onCallViewReplaceCamera: function (e)
@@ -1922,7 +2527,12 @@
 			{
 				this.mutePopup.close();
 			}
+			if (this.documentPromoPopup)
+			{
+				this.documentPromoPopup.close();
+			}
 			this.allowMutePopup = true;
+			this.docCreatedForCurrentCall = false;
 			this._closeReconnectionBaloon();
 
 			window.BXIM.messenger.dialogStatusRedraw();
@@ -1936,7 +2546,7 @@
 			if (this.callView)
 			{
 				this.callView.setUserState(e.userId, e.state);
-				if(e.isLegacyMobile)
+				if (e.isLegacyMobile)
 				{
 					this.callView.blockAddUser();
 					this.callView.blockSwitchCamera();
@@ -2052,7 +2662,11 @@
 			this.log("Received local media stream " + e.tag);
 			if (this.callView)
 			{
-				this.callView.setLocalStream(e.stream, e.tag == "main");
+				var flipVideo = e.tag == "main" ? BX.Call.Hardware.enableMirroring : false;
+
+				this.callView.setLocalStream(e.stream);
+				this.callView.flipLocalVideo(flipVideo);
+
 				this.callView.setButtonActive("screen", e.tag == "screen");
 				if (e.tag == "screen")
 				{
@@ -2078,7 +2692,7 @@
 						BXDesktopSystem.CallRecordStopSharing();
 					}
 
-					if(!this.currentCall.callFromMobile)
+					if (!this.currentCall.callFromMobile)
 					{
 						this.callView.unblockSwitchCamera();
 						this.callView.updateButtons();
@@ -2090,6 +2704,18 @@
 			{
 				this.showNotification(BX.message("IM_CALL_CAMERA_ERROR_FALLBACK_TO_MIC"));
 				this.currentCall.setVideoEnabled(false);
+			}
+		},
+		_onCallLocalCameraFlip: function (e)
+		{
+			this._onCallLocalCameraFlipInDesktop(e.data.enableMirroring);
+		},
+
+		_onCallLocalCameraFlipInDesktop: function(e)
+		{
+			if(this.callView)
+			{
+				this.callView.flipLocalVideo(e);
 			}
 		},
 
@@ -2217,7 +2843,7 @@
 						BXDesktopSystem.CallRecordStopSharing();
 					}
 
-					if(!this.currentCall.callFromMobile)
+					if (!this.currentCall.callFromMobile)
 					{
 						this.callView.unblockSwitchCamera();
 						this.callView.updateButtons();
@@ -2333,7 +2959,7 @@
 			{
 				errorMessage = BX.message("IM_CALL_ERROR_UNKNOWN");
 			}
-			else  if (errorCode == "NotAllowedError")
+			else if (errorCode == "NotAllowedError")
 			{
 				errorMessage = BX.message("IM_CALL_ERROR_HARDWARE_ACCESS_DENIED");
 			}
@@ -2362,12 +2988,12 @@
 			}
 		},
 
-		_onNetworkProblem: function(e)
+		_onNetworkProblem: function (e)
 		{
 			this.showNetworkProblemNotification(BX.message("IM_M_CALL_TURN_UNAVAILABLE"));
 		},
 
-		_onMicrophoneLevel: function(e)
+		_onMicrophoneLevel: function (e)
 		{
 			if (this.callView)
 			{
@@ -2375,7 +3001,7 @@
 			}
 		},
 
-		_onReconnecting: function()
+		_onReconnecting: function ()
 		{
 			// todo: restore after fixing balloon resurrection issue
 			return false;
@@ -2393,12 +3019,22 @@
 			})
 		},
 
-		_onReconnected: function()
+		_onReconnected: function ()
 		{
 			// todo: restore after fixing balloon resurrection issue
 			return false;
 
 			this._closeReconnectionBaloon();
+		},
+
+		_onCustomMessage: function (event)
+		{
+			// there will be no more template selector in this call
+			if (event.message === DOC_CREATED_EVENT)
+			{
+				this.docCreatedForCurrentCall = true;
+				this.maxEditorWidth = DOC_EDITOR_WIDTH;
+			}
 		},
 
 		_onCallJoin: function (e)
@@ -2458,6 +3094,7 @@
 			}
 			this.callRecordState = BX.Call.View.RecordState.Stopped;
 			this.callRecordType = BX.Call.View.RecordType.None;
+			this.docCreatedForCurrentCall = false;
 			var showFeedback = false;
 			var callDetails;
 
@@ -2514,6 +3151,11 @@
 				this.mutePopup.close();
 			}
 			this.allowMutePopup = true;
+
+			if (this.documentPromoPopup)
+			{
+				this.documentPromoPopup.close();
+			}
 
 			this._closeReconnectionBaloon();
 
@@ -2670,7 +3312,7 @@
 		{
 			if (currentTab === "notify" && this.currentCall && this.callView)
 			{
-				this.fold();
+				this.fold(BX.util.htmlspecialcharsback(this.currentCall.associatedEntity.name));
 			}
 		},
 
@@ -2717,7 +3359,7 @@
 						}
 					]
 				});
-				setTimeout(function()
+				setTimeout(function ()
 				{
 					this.useDevicesInCurrentCall(added);
 				}.bind(this), 500);
@@ -2745,7 +3387,7 @@
 						}
 					}]
 				});
-				setTimeout(function()
+				setTimeout(function ()
 				{
 					this.removeDevicesFromCurrentCall(removed);
 				}.bind(this), 500)
@@ -2828,6 +3470,19 @@
 			}
 		},
 
+		_onResize: function ()
+		{
+			if (this.sidebar && this.callView)
+			{
+				var result = this.findCallEditorWidth();
+				var callWidth = result.callWidth;
+				var editorWidth = result.editorWidth;
+
+				this.callView.setMaxWidth(callWidth);
+				this.sidebar.setWidth(editorWidth);
+			}
+		},
+
 		destroy: function ()
 		{
 			if (this.floatingWindow)
@@ -2840,6 +3495,12 @@
 				this.floatingScreenShareWindow.destroy();
 				this.floatingScreenShareWindow = null;
 			}
+			if (this.resizeObserver)
+			{
+				this.resizeObserver.disconnect();
+				this.resizeObserver = null;
+			}
+			BX.Call.Hardware.unsubscribe(BX.Call.Hardware.Events.onChangeMirroringVideo, this._onCallLocalCameraFlipHandler);
 		},
 
 		log: function ()
@@ -2862,21 +3523,27 @@
 			var stream2;
 			users = typeof (users) == "undefined" ? [473, 464] : users;
 			videoOptions = typeof (videoOptions) == "undefined" ? {width: 320, height: 180} : videoOptions;
-			audioOptions = typeof (audioOptions) == "undefined" ? true : audioOptions;
+			audioOptions = typeof (audioOptions) == "undefined" ? false : audioOptions;
 
 			this._openMessenger().then(function ()
 			{
-				return BX.Call.Hardware.init();
+				return (videoOptions || audioOptions) ? BX.Call.Hardware.init() : null;
 			}.bind(this)).then(function ()
 			{
 				this.createContainer();
+				var hiddenButtons = ['floorRequest'];
+				if (!BX.Call.Util.shouldShowDocumentButton())
+				{
+					hiddenButtons.push('document');
+				}
+
 				this.callView = new BX.Call.View({
 					container: this.container,
 					showChatButtons: true,
 					userLimit: 48,
 					language: window.BXIM.language,
 					layout: BX.Call.View.Layout.Grid,
-					hiddenButtons: ['floorRequest']
+					hiddenButtons: hiddenButtons
 				});
 
 				var lastUserId = 1;
@@ -2916,11 +3583,8 @@
 							break;
 
 						case "showChat":
-							this.container.classList.add('bx-messenger-call-overlay-folded');
-							this.callView.setTitle("asd \"asd\"");
-							this.callView.setSize(BX.Call.View.Size.Folded);
-							this.folded = true;
-							this.callViewState = ViewState.Folded;
+							this.fold("asd \"asd\"");
+
 							break;
 
 						case "toggleScreenSharing":
@@ -2930,14 +3594,18 @@
 							{
 								this.callView.setUserScreenState(464, true);
 							}.bind(this), 0);*/
+							break;
 
 						case "returnToCall":
+							break;
 
-
+						case "document":
+							this._onCallViewDocumentButtonClick();
+							break;
 					}
 				}.bind(this));
 				//this.callView.blockAddUser();
-				this.callView.setCallback(BX.Call.View.Event.onUserClick, function(e)
+				this.callView.setCallback(BX.Call.View.Event.onUserClick, function (e)
 				{
 					if (!e.stream)
 					{
@@ -2963,10 +3631,18 @@
 				});
 				this.callView.show();
 
-				return navigator.mediaDevices.getUserMedia({
-					audio: audioOptions,
-					video: videoOptions,
-				})
+				if (audioOptions || videoOptions)
+				{
+					return navigator.mediaDevices.getUserMedia({
+						audio: audioOptions,
+						video: videoOptions,
+					})
+				}
+				else
+				{
+					return new MediaStream();
+				}
+
 			}.bind(this)).then(function (s)
 			{
 				stream = s;
@@ -2981,19 +3657,27 @@
 					this.vad = new BX.SimpleVAD({
 						mediaStream: stream
 					});
-					setInterval(function()
+					setInterval(function ()
 					{
 						this.callView.setMicrophoneLevel(this.vad.currentVolume)
 					}.bind(this), 100)
 				}
 
-				return navigator.mediaDevices.getUserMedia({
-					audio: false,
-					video: {
-						width: 320,
-						height: 180
-					},
-				})
+				if (videoOptions)
+				{
+					return navigator.mediaDevices.getUserMedia({
+						audio: false,
+						video: {
+							width: 320,
+							height: 180
+						},
+					})
+				}
+				else
+				{
+					return new MediaStream();
+				}
+
 			}.bind(this)).then(function (s2)
 			{
 				stream2 = s2;
@@ -3011,7 +3695,6 @@
 				{
 					this.callView.updateUserData(response.data())
 				}.bind(this));
-
 
 			}.bind(this));
 		},
@@ -3034,6 +3717,11 @@
 			});
 
 			this.callNotification.show();
+		},
+
+		getMaxActiveMicrophonesCount: function()
+		{
+			return 4;
 		},
 
 		showMicMutedNotification: function ()
@@ -3065,7 +3753,36 @@
 			this.mutePopup.show();
 		},
 
-		showWebScreenSharePopup: function()
+		showAutoMicMuteNotification: function ()
+		{
+			if (this.mutePopup || !this.callView)
+			{
+				return;
+			}
+
+			this.mutePopup = new BX.Call.MicMutedPopup({
+				callFolded: this.folded,
+				bindElement: this.folded ? null : this.callView.buttons.microphone.elements.icon,
+				targetContainer: this.folded ? this.messenger.popupMessengerContent : this.callView.container,
+				title: BX.util.htmlspecialchars(BX.message("IM_CALL_MIC_AUTO_MUTED")),
+				onClose: function ()
+				{
+					this.mutePopup.destroy();
+					this.mutePopup = null;
+				}.bind(this),
+				onUnmuteClick: function ()
+				{
+					this._onCallViewToggleMuteButtonClick({
+						muted: false
+					});
+					this.mutePopup.destroy();
+					this.mutePopup = null;
+				}.bind(this)
+			});
+			this.mutePopup.show();
+		},
+
+		showWebScreenSharePopup: function ()
 		{
 			if (this.webScreenSharePopup)
 			{
@@ -3092,7 +3809,7 @@
 			this.webScreenSharePopup.show();
 		},
 
-		showFeedbackPopup: function(callDetails)
+		showFeedbackPopup: function (callDetails)
 		{
 			if (this.feedbackPopup)
 			{
@@ -3104,7 +3821,7 @@
 				callDetails = {};
 			}
 
-			BX.loadExt('im.component.call-feedback').then(function()
+			BX.loadExt('im.component.call-feedback').then(function ()
 			{
 				var vueInstance;
 				this.feedbackPopup = new BX.PopupWindow({
@@ -3114,16 +3831,16 @@
 					closeIcon: true,
 					noAllPaddings: true,
 					cacheable: false,
-					background: darkMode ? '#3A414B' : null ,
+					background: darkMode ? '#3A414B' : null,
 					darkMode: darkMode,
 					closeByEsc: true,
 					autoHide: true,
 					events: {
-						onPopupClose: function()
+						onPopupClose: function ()
 						{
 							this.destroy();
 						},
-						onPopupDestroy: function()
+						onPopupDestroy: function ()
 						{
 							if (vueInstance)
 							{
@@ -3141,7 +3858,8 @@
 
 				vueInstance = BX.Vue.createApp({
 					template: template,
-					data: function(){
+					data: function ()
+					{
 						return {
 							darkMode: darkMode,
 							callDetails: callDetails
@@ -3179,4 +3897,5 @@
 
 	BX.Call.Controller.Events = Events;
 	BX.Call.Controller.ViewState = ViewState;
+	BX.Call.Controller.DocumentType = DocumentType;
 })();

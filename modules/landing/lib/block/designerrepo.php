@@ -90,7 +90,7 @@ class DesignerRepo extends \Bitrix\Landing\Internals\BaseTable
 			'SORT' => 400,
 			'HTML' => '
 <div class="landing-block-node-containerimg g-pointer-events-all text-center">
-	<img class="landing-block-node-img img-fluid" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img12.jpg" alt="">
+	<img class="landing-block-node-img img-fluid d-inline" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img12.jpg" alt="">
 </div>',
 			'MANIFEST' => [
 				'nodes' => [

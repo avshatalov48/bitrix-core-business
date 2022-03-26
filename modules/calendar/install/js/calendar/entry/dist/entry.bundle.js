@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,calendar_entry,calendar_sectionmanager,calendar_util,main_core_events,calendar_controls,calendar_compacteventform,ui_notification,calendar_eventviewform,calendar_roomsmanager,main_core) {
+(function (exports,calendar_controls,calendar_entry,calendar_sectionmanager,calendar_util,main_core_events,calendar_compacteventform,ui_notification,calendar_eventviewform,calendar_roomsmanager,main_core) {
 	'use strict';
 
 	var EntryManager = /*#__PURE__*/function () {
@@ -10,6 +10,8 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(EntryManager, [{
 	    key: "handlePullChanges",
 	    value: function handlePullChanges(params) {
+	      var _params$fields6;
+
 	      var compactForm = EntryManager.getCompactViewForm();
 
 	      if (compactForm && compactForm.isShown()) {
@@ -35,11 +37,26 @@ this.BX = this.BX || {};
 	      if (params.command === 'set_meeting_status') {
 	        top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
 	      } else if (params.command === 'delete_event' || params.command === 'edit_event') {
-	        var _params$fields3, _params$fields4;
+	        var _params$fields3, _params$fields4, _params$fields5, _top$BX$Calendar, _top$BX$Calendar$Cont;
 
-	        if (!params.fields || params !== null && params !== void 0 && (_params$fields3 = params.fields) !== null && _params$fields3 !== void 0 && _params$fields3.IS_MEETING && (params === null || params === void 0 ? void 0 : (_params$fields4 = params.fields) === null || _params$fields4 === void 0 ? void 0 : _params$fields4.MEETING_STATUS) === 'Q') {
+	        if (!params.fields || (params === null || params === void 0 ? void 0 : (_params$fields3 = params.fields) === null || _params$fields3 === void 0 ? void 0 : _params$fields3.IS_MEETING) && (params === null || params === void 0 ? void 0 : (_params$fields4 = params.fields) === null || _params$fields4 === void 0 ? void 0 : _params$fields4.MEETING_STATUS) === 'Q') {
 	          top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
 	        }
+
+	        if ((params === null || params === void 0 ? void 0 : (_params$fields5 = params.fields) === null || _params$fields5 === void 0 ? void 0 : _params$fields5.CAL_TYPE) === 'location' && ((_top$BX$Calendar = top.BX.Calendar) === null || _top$BX$Calendar === void 0 ? void 0 : (_top$BX$Calendar$Cont = _top$BX$Calendar.Controls) === null || _top$BX$Calendar$Cont === void 0 ? void 0 : _top$BX$Calendar$Cont.Location)) {
+	          top.BX.Calendar.Controls.Location.handlePull(params);
+	        }
+	      }
+
+	      var calendarContext = calendar_util.Util.getCalendarContext();
+	      var entrySectionId = parseInt(params === null || params === void 0 ? void 0 : (_params$fields6 = params.fields) === null || _params$fields6 === void 0 ? void 0 : _params$fields6.SECTION_ID);
+	      var sectionDisplayed = main_core.Type.isArray(params.sections) && params.sections.find(function (section) {
+	        return section.id === entrySectionId && section.isShown();
+	      });
+	      var loadedEntry = EntryManager.getEntryInstance(calendarContext.getView().getEntryById(EntryManager.getEntryUniqueId(params === null || params === void 0 ? void 0 : params.fields)));
+
+	      if ((sectionDisplayed || loadedEntry) && calendarContext) {
+	        calendarContext.reload();
 	      }
 	    }
 	  }], [{
@@ -256,7 +273,7 @@ this.BX = this.BX || {};
 	        };
 
 	        main_core_events.EventEmitter.subscribe('BX.Calendar.Entry:delete', deleteHandler);
-	        entry["delete"]();
+	        entry.delete();
 	      }
 	    }
 	  }, {
@@ -318,7 +335,8 @@ this.BX = this.BX || {};
 	      var resolvePromiseCallback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
 	      if (!this.confirmDeclineDialog) {
-	        this.confirmDeclineDialog = new calendar_controls.ConfirmStatusDialog();
+	        var bx = calendar_util.Util.getBX();
+	        this.confirmDeclineDialog = new bx.Calendar.Controls.ConfirmStatusDialog();
 	      }
 
 	      this.confirmDeclineDialog.show();
@@ -340,7 +358,8 @@ this.BX = this.BX || {};
 	    key: "showConfirmEditDialog",
 	    value: function showConfirmEditDialog(options) {
 	      if (!this.confirmEditDialog) {
-	        this.confirmEditDialog = new calendar_controls.ConfirmEditDialog();
+	        var bx = calendar_util.Util.getBX();
+	        this.confirmEditDialog = new bx.Calendar.Controls.ConfirmEditDialog();
 	      }
 
 	      this.confirmEditDialog.show();
@@ -358,7 +377,8 @@ this.BX = this.BX || {};
 	    key: "showReInviteUsersDialog",
 	    value: function showReInviteUsersDialog(options) {
 	      if (!this.reinviteUsersDialog) {
-	        this.reinviteUsersDialog = new calendar_controls.ReinviteUserDialog();
+	        var bx = calendar_util.Util.getBX();
+	        this.reinviteUsersDialog = new bx.Calendar.Controls.ReinviteUserDialog();
 	      }
 
 	      this.reinviteUsersDialog.show();
@@ -378,7 +398,8 @@ this.BX = this.BX || {};
 	      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
 	      if (!this.confirmedEmailDialog) {
-	        this.confirmedEmailDialog = new calendar_controls.ConfirmedEmailDialog();
+	        var bx = calendar_util.Util.getBX();
+	        this.confirmedEmailDialog = new bx.Calendar.Controls.ConfirmedEmailDialog();
 	      }
 
 	      this.confirmedEmailDialog.show();
@@ -396,13 +417,18 @@ this.BX = this.BX || {};
 	    key: "showEmailLimitationDialog",
 	    value: function showEmailLimitationDialog() {
 	      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	      var confirmedEmailDialog = new calendar_controls.EmailLimitationDialog();
-	      confirmedEmailDialog.subscribe('onClose', function () {
+
+	      if (!this.limitationEmailDialog) {
+	        var bx = calendar_util.Util.getBX();
+	        this.limitationEmailDialog = new bx.Calendar.Controls.EmailLimitationDialog();
+	      }
+
+	      this.limitationEmailDialog.subscribe('onClose', function () {
 	        if (main_core.Type.isFunction(options.callback)) {
 	          options.callback();
 	        }
 	      });
-	      confirmedEmailDialog.show();
+	      this.limitationEmailDialog.show();
 	    }
 	  }, {
 	    key: "getCompactViewForm",
@@ -646,7 +672,7 @@ this.BX = this.BX || {};
 	      this.fullDay = this.data.DT_SKIP_TIME === 'Y';
 	      this.accessibility = this.data.ACCESSIBILITY || 'busy';
 	      this.important = this.data.IMPORTANCE === 'high';
-	      this["private"] = !!this.data.PRIVATE_EVENT;
+	      this.private = !!this.data.PRIVATE_EVENT;
 	      this.setSectionId(this.data.SECT_ID);
 	      this.name = this.data.NAME;
 	      this.userTimezoneOffsetFrom = parseInt(this.data['~USER_OFFSET_FROM']) || 0;
@@ -1198,7 +1224,7 @@ this.BX = this.BX || {};
 	          data: data
 	        });
 	      } else if (this.hasRecurrenceId()) {
-	        this["delete"]({
+	        this.delete({
 	          confirmed: true,
 	          recursionMode: 'this'
 	        });
@@ -1246,7 +1272,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "deleteAll",
 	    value: function deleteAll() {
-	      return this["delete"]({
+	      return this.delete({
 	        confirmed: true,
 	        recursionMode: 'all'
 	      });
@@ -1259,7 +1285,7 @@ this.BX = this.BX || {};
 
 	        if (deleteTimeoutData) {
 	          EntryManager.unregisterDeleteTimeout(deleteTimeoutData);
-	          this.delayTimeoutMap["delete"](this.delayTimeoutMap);
+	          this.delayTimeoutMap.delete(this.delayTimeoutMap);
 	        }
 
 	        clearTimeout(this.deleteTimeout);
@@ -1351,5 +1377,5 @@ this.BX = this.BX || {};
 	exports.EntryManager = EntryManager;
 	exports.Entry = Entry;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX.Calendar,BX.Event,BX.Calendar.Controls,BX.Calendar,BX,BX.Calendar,BX.Calendar,BX));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar.Controls,BX.Calendar,BX.Calendar,BX.Calendar,BX.Event,BX.Calendar,BX,BX.Calendar,BX.Calendar,BX));
 //# sourceMappingURL=entry.bundle.js.map

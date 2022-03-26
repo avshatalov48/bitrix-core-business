@@ -90,6 +90,12 @@ $return = [
 			'type' => 'text',
 		],
 	],
+	'style' => [
+		'block' => [
+			'type' => ['block-default-wo-background'],
+		],
+		'nodes' => [],
+	]
 ];
 
 $params =& $return['nodes']['bitrix:catalog.element']['extra']['editable'];

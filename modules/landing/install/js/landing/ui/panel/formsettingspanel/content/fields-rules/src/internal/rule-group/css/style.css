@@ -1,0 +1,67 @@
+.landing-ui-rule-group {
+	background-color: #F4F6F8;
+	display: flex;
+	flex-direction: column;
+	border-radius: 2px;
+	padding-left: 16px;
+	padding-right: 16px;
+	padding-top: 16px;
+	margin-left: -16px;
+	margin-right: -16px;
+}
+
+.landing-ui-rule-group-header {
+	display: flex;
+	align-items: center;
+	border-bottom: 1px #EEEFF0 solid;
+	padding-bottom: 16px;
+}
+
+.landing-ui-rule-group-header-title {
+	font-family: 'OpenSans-Regular', Helvetca, Arial, sans-serif, serif;
+	font-size: 16px;
+	color: #333;
+	max-width: 420px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.landing-ui-rule-group-header-change-logic-link {
+	margin-left: auto;
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	color: #80868E;
+	line-height: 16px;
+	border-bottom: 1px rgba(130, 139, 149, 1) dashed;
+	transition: all 200ms ease;
+	cursor: pointer;
+}
+
+.landing-ui-rule-group-header-change-logic-link:hover {
+	opacity: .7;
+}
+
+.landing-ui-rule-group-header-remove-button {
+	background-image: url("images/remove.svg");
+	background-repeat: no-repeat;
+	background-position: center;
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+	margin-left: 15px;
+	opacity: .2;
+	transition: opacity 200ms ease;
+}
+
+.landing-ui-rule-group-header-remove-button:hover {
+	opacity: .5;
+}
+
+.landing-ui-rule-group-body {
+	padding-top: 20px;
+}
+
+.landing-ui-rule-group-footer {
+	padding-bottom: 20px;
+}

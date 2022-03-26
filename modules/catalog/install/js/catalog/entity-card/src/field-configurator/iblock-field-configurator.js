@@ -1,5 +1,4 @@
-import {Dom, Event, Reflection, Tag} from "main.core";
-import {translit} from 'translit';
+import {Dom, Event, Reflection, Tag, Text, Type} from "main.core";
 import IblockDirectoryFieldItem from "./iblock-directory-field-item";
 
 export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConfigurator
@@ -258,6 +257,12 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 				}
 
 				hashes.push(hash);
+
+				if (Type.isNil(enumData['ID']))
+				{
+					enumData['ID'] = Text.getRandom();
+				}
+
 				enumData['SORT'] = (params['enumeration'].length + 1) * 100;
 				params['enumeration'].push(enumData);
 			});

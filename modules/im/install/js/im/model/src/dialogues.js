@@ -80,7 +80,11 @@ export class DialoguesModel extends VuexBuilderModel
 				extend: true,
 				leave: true,
 				leaveOwner: true,
-				rename: true
+				rename: true,
+				send: true,
+				userList: true,
+				mute: true,
+				call: true,
 			},
 			public: {
 				code: '',
@@ -889,29 +893,49 @@ export class DialoguesModel extends VuexBuilderModel
 		{
 			result.restrictions = {};
 
-			if (typeof fields.restrictions.AVATAR === 'boolean')
+			if (typeof fields.restrictions.avatar === 'boolean')
 			{
-				result.restrictions.avatar = fields.restrictions.AVATAR;
+				result.restrictions.avatar = fields.restrictions.avatar;
 			}
 
-			if (typeof fields.restrictions.EXTEND === 'boolean')
+			if (typeof fields.restrictions.extend === 'boolean')
 			{
-				result.restrictions.extend = fields.restrictions.EXTEND;
+				result.restrictions.extend = fields.restrictions.extend;
 			}
 
-			if (typeof fields.restrictions.LEAVE === 'boolean')
+			if (typeof fields.restrictions.leave === 'boolean')
 			{
-				result.restrictions.leave = fields.restrictions.LEAVE;
+				result.restrictions.leave = fields.restrictions.leave;
 			}
 
-			if (typeof fields.restrictions.LEAVE_OWNER === 'boolean')
+			if (typeof fields.restrictions.leave_owner === 'boolean')
 			{
-				result.restrictions.leaveOwner = fields.restrictions.LEAVE_OWNER;
+				result.restrictions.leaveOwner = fields.restrictions.leave_owner;
 			}
 
-			if (typeof fields.restrictions.RENAME === 'boolean')
+			if (typeof fields.restrictions.rename === 'boolean')
 			{
-				result.restrictions.rename = fields.restrictions.RENAME;
+				result.restrictions.rename = fields.restrictions.rename;
+			}
+
+			if (typeof fields.restrictions.send === 'boolean')
+			{
+				result.restrictions.send = fields.restrictions.send;
+			}
+
+			if (typeof fields.restrictions.user_list === 'boolean')
+			{
+				result.restrictions.userList = fields.restrictions.user_list;
+			}
+
+			if (typeof fields.restrictions.mute === 'boolean')
+			{
+				result.restrictions.mute = fields.restrictions.mute;
+			}
+
+			if (typeof fields.restrictions.call === 'boolean')
+			{
+				result.restrictions.call = fields.restrictions.call;
 			}
 		}
 

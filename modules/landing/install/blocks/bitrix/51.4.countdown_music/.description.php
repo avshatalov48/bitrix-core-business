@@ -37,6 +37,7 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--IMG'),
 			'type' => 'img',
 			'dimensions' => ['width' => 1920, 'height' => 1080],
+			'create2xByDefault' => false,
 		],
 		'.landing-block-node-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--TITLE'),

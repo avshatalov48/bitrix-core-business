@@ -152,6 +152,20 @@
 					});
 				});
 
+				// style image
+				// bg
+				var observableStyles = [].slice.call(entry.target.querySelectorAll('[data-lazy-styleimg]'));
+				observableStyles.forEach(function (styleNode)
+				{
+					var origStyle = BX.data(styleNode, 'style');
+					BX.adjust(styleNode, {
+						attrs: {
+							'style': origStyle,
+							'data-style': '',
+						}
+					});
+				});
+
 				observer.unobserve(entry.target);
 			}
 

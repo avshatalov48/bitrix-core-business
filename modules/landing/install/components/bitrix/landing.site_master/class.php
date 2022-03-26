@@ -4,18 +4,20 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use \Bitrix\Main;
-use \Bitrix\Main\Engine\ActionFilter;
-use \Bitrix\Main\Engine\Contract\Controllerable;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Iblock\Url\AdminPage;
-use \Bitrix\Crm\Product;
-use \Bitrix\Landing\Site;
-use \Bitrix\Landing\Landing;
-use \Bitrix\Landing\Domain;
-use \Bitrix\Landing\Connector;
-use \Bitrix\Sale;
-use \Bitrix\Crm;
+use Bitrix\Landing\Manager;
+use Bitrix\Main;
+use Bitrix\Main\Engine\ActionFilter;
+use Bitrix\Main\Engine\Contract\Controllerable;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Iblock\Url\AdminPage;
+use Bitrix\Crm\Product;
+use Bitrix\Landing\Site;
+use Bitrix\Landing\Landing;
+use Bitrix\Landing\Domain;
+use Bitrix\Landing\Connector;
+use Bitrix\Sale;
+use Bitrix\Crm;
+use Bitrix\Catalog;
 
 Loc::loadMessages(__FILE__);
 
@@ -23,6 +25,8 @@ Loc::loadMessages(__FILE__);
 
 class LandingSiteMasterComponent extends LandingBaseFormComponent implements Controllerable
 {
+	public const OPTION_SHOP_INSTALL_COUNT = '~shop_install_count_';
+
 	/**
 	 * Configures filter for ajax request.
 	 * @return array
@@ -118,6 +122,10 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 		$result = \Bitrix\Landing\Site::addByTemplate($shopCode, 'STORE', ['section' => 'fashion']);
 		if ($result->getId())
 		{
+			$optionName = self::getShopInstallCountOptionName($shopCode);
+			$installCount = Manager::getOption($optionName, 0);
+			Manager::setOption($optionName, ++$installCount);
+
 			\Bitrix\Landing\PublicAction\Site::publication($result->getId());
 
 			if (Main\Loader::includeModule('sale'))
@@ -136,6 +144,11 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 		}
 
 		return false;
+	}
+
+	public static function getShopInstallCountOptionName(string $shopCode): string
+	{
+		return self::OPTION_SHOP_INSTALL_COUNT . strtolower(str_replace('-', '_', $shopCode));
 	}
 
 	/**
@@ -206,8 +219,9 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 	public function getProductUrl(int $siteId): string
 	{
 		if (
-			\Bitrix\Main\Loader::includeModule('iblock') &&
-			\Bitrix\Main\Loader::includeModule('crm')
+			Main\Loader::includeModule('iblock')
+			&& Main\Loader::includeModule('iblock')
+			&& Main\Loader::includeModule('crm')
 		)
 		{
 			$settings = Site::getAdditionalFields($siteId);
@@ -225,7 +239,7 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 				else
 				{
 					$urlBuilder = AdminPage\BuilderManager::getInstance()->getBuilder(
-						Product\Url\ShopBuilder::TYPE_ID
+						Catalog\Url\ShopBuilder::TYPE_ID
 					);
 				}
 				if ($urlBuilder)
@@ -505,9 +519,10 @@ class LandingSiteMasterComponent extends LandingBaseFormComponent implements Con
 		$personType = Sale\Internals\BusinessValuePersonDomainTable::getList([
 			'select' => ['PERSON_TYPE_ID'],
 			'filter' => [
-				'DOMAIN' => Sale\BusinessValue::INDIVIDUAL_DOMAIN,
-				'PERSON_TYPE_REFERENCE.ENTITY_REGISTRY_TYPE' => Sale\Registry::REGISTRY_TYPE_ORDER,
-				'PERSON_TYPE_REFERENCE.LID' => $this->getSiteId(),
+				'=DOMAIN' => Sale\BusinessValue::INDIVIDUAL_DOMAIN,
+				'=PERSON_TYPE_REFERENCE.ENTITY_REGISTRY_TYPE' => Sale\Registry::REGISTRY_TYPE_ORDER,
+				'=PERSON_TYPE_REFERENCE.LID' => $this->getSiteId(),
+				'=PERSON_TYPE_REFERENCE.ACTIVE' => 'Y',
 			],
 			'order' => [
 				'PERSON_TYPE_REFERENCE.SORT' => 'ASC'

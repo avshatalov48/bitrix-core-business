@@ -35,7 +35,6 @@ $MESS["SONET_GUE_T_FIRED2_M"] = "entlassen";
 $MESS["SONET_GUE_T_GROUP_ID_NOT_DEFINED"] = "Gruppe wurde nicht gefunden.";
 $MESS["SONET_GUE_T_MODS_SUBTITLE"] = "Moderatoren";
 $MESS["SONET_GUE_T_MODS_SUBTITLE_PROJECT"] = "Projektleiter und Moderatoren";
-$MESS["SONET_GUE_T_MODS_SUBTITLE_SCRUM_PROJECT"] = "Projektleiter und Team";
 $MESS["SONET_GUE_T_MODS_SUBTITLE_SCRUM_PROJECT2"] = "Scrum-Master und das Team";
 $MESS["SONET_GUE_T_MODULE_NOT_INSTALLED"] = "Das Modul Soziales Netzwerk ist nicht installiert.";
 $MESS["SONET_GUE_T_NOT_ATHORIZED"] = "Sie sind nicht angemeldet.";

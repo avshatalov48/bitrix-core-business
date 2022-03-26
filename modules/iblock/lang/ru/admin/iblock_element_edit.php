@@ -106,4 +106,5 @@ $MESS["IBLOCK_FIELD_HINT_XML_ID"] = "Для уже существующих эл
 $MESS["IBLOCK_IMPORT_FROM"] = "Импортирован из";
 $MESS["IBLOCK_LINK_TO_MEDIA"] = "ссылка на публикацию";
 $MESS["IBLOCK_ELEMENT_OFFERS_IS_ABSENT"] = "Не созданы торговые предложения";
+$MESS["IBLOCK_ELEMENT_ERR_BUILDER_ADSENT"] = "Не найден генератор ссылок.";
 ?>

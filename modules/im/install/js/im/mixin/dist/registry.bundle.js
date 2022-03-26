@@ -3,6 +3,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 (function (exports,ui_vue_vuex,ui_vue,im_lib_timer,im_lib_clipboard,im_lib_utils,main_core_events,im_const,im_lib_uploader,im_lib_logger) {
 	'use strict';
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	/**
 	 * @notice you need to provide this.userId and this.dialogId
 	 */
@@ -65,7 +68,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    openDialog: function openDialog() {//TODO
 	    }
 	  },
-	  computed: babelHelpers.objectSpread({
+	  computed: _objectSpread(_objectSpread({
 	    dialog: function dialog() {
 	      var dialog = this.$store.getters['dialogues/get'](this.application.dialog.dialogId);
 	      return dialog ? dialog : this.$store.getters['dialogues/getBlank']();
@@ -109,14 +112,14 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    application: function application(state) {
 	      return state.application;
 	    }
-	  }), {
+	  })), {}, {
 	    localize: function localize() {
 	      return ui_vue.BitrixVue.getFilteredPhrases(['IM_DIALOG_', 'IM_UTILS_', 'IM_MESSENGER_DIALOG_', 'IM_QUOTE_'], this);
 	    }
 	  })
 	};
 
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
@@ -139,7 +142,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      var event = _ref.data;
 	      this.readMessage(event.id).then(function () {
 	        return im_lib_logger.Logger.log('Read message complete');
-	      }).catch(function () {
+	      })["catch"](function () {
 	        return im_lib_logger.Logger.error('Read message failed');
 	      });
 	    },
@@ -165,7 +168,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        _this.timer.start('readMessage', _this.chatId, .1, function () {
 	          _this.readMessageRequest(skipAjax).then(function (result) {
 	            return resolve(result);
-	          }).catch(reject);
+	          })["catch"](reject);
 	        });
 	      });
 	    },
@@ -229,9 +232,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	              return resolve({
 	                lastId: lastId
 	              });
-	            }).catch(reject);
+	            })["catch"](reject);
 	          });
-	        }).catch(reject);
+	        })["catch"](reject);
 	      });
 	    }
 	  }
@@ -539,7 +542,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      var event = _ref.data;
 	      this.joinParentChat(event.message.id, 'chat' + event.message.params.CHAT_ID).then(function (dialogId) {
 	        _this.openDialog(dialogId);
-	      }).catch(function () {});
+	      })["catch"](function () {});
 	      return true;
 	    },
 	    joinParentChat: function joinParentChat(messageId, dialogId) {
@@ -565,7 +568,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          _this2.tempJoinChat['wait'] = false;
 	          _this2.tempJoinChat[dialogId] = true;
 	          return resolve(dialogId);
-	        }).catch(function () {
+	        })["catch"](function () {
 	          _this2.tempJoinChat['wait'] = false;
 	          return reject();
 	        });
@@ -736,7 +739,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      if (!this.diskFolderId) {
 	        this.requestDiskFolderId().then(function () {
 	          _this2.processMessagesToSendQueue();
-	        }).catch(function (error) {
+	        })["catch"](function (error) {
 	          im_lib_logger.Logger.warn('processMessagesToSendQueue error', error);
 	          return false;
 	        });
@@ -797,7 +800,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            chatId: element.chatId
 	          });
 	        });
-	      }).catch(function (error) {
+	      })["catch"](function (error) {
 	        im_lib_logger.Logger.warn('Error during adding message');
 	      });
 	      return true;
@@ -821,7 +824,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      this.timer.start('writesSend', dialogId, 5, function () {
 	        _this4.getRestClient().callMethod(im_const.RestMethod.imDialogWriting, {
 	          'DIALOG_ID': dialogId
-	        }).catch(function () {
+	        })["catch"](function () {
 	          _this4.timer.stop('writes', dialogId);
 	        });
 	      });
@@ -853,7 +856,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          _this5.executeRestAnswer(im_const.RestMethodHandler.imDiskFolderGet, response);
 
 	          resolve();
-	        }).catch(function (error) {
+	        })["catch"](function (error) {
 	          _this5.flagRequestDiskFolderIdSended = false;
 
 	          _this5.executeRestAnswer(im_const.RestMethodHandler.imDiskFolderGet, error);
@@ -1075,7 +1078,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        file_template_id: params.fileId
 	      }, null, null).then(function (response) {
 	        _this2.executeRestAnswer(im_const.RestMethodHandler.imDiskFileCommit, response, message);
-	      }).catch(function (error) {
+	      })["catch"](function (error) {
 	        _this2.executeRestAnswer(im_const.RestMethodHandler.imDiskFileCommit, error, message);
 	      });
 	      return true;

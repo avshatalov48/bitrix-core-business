@@ -80,59 +80,54 @@ class MailMessageUidTable extends Entity\DataManager
 
 	/**
 	 * @param array $filter
-	 * @param array $eventData
-	 * @return \Bitrix\Main\DB\Result|null
+	 * @param array $messages
+	 * @param int|false $limit
+	 * @return bool
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\Db\SqlQueryException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function deleteList(array $filter, array $eventData = [])
+	public static function deleteList(array $filter, array $messages = [], $limit = false): bool
 	{
 		$eventName = MessageEventManager::EVENT_DELETE_MESSAGES;
 
-		$eventData = static::selectMailsToBeDeleted(
+		$messages = static::selectMessagesToBeDeleted(
 			MessageEventManager::getRequiredFieldNamesForEvent($eventName),
 			$filter,
-			$eventData
+			$messages,
+			$limit
 		);
 
-		if (empty($eventData))
+		if (empty($messages))
 		{
-			return null;
+			return false;
 		}
 
 		$entity = static::getEntity();
 		$connection = $entity->getConnection();
 
-		$query = sprintf(
-			' FROM %s WHERE (%s) AND NOT EXISTS (SELECT 1 FROM %s WHERE %s)',
-			$connection->getSqlHelper()->quote($entity->getDbTableName()),
-			Entity\Query::buildFilterSql(
-				$entity,
-				$filter
-			),
-			$connection->getSqlHelper()->quote(Internals\MessageUploadQueueTable::getTableName()),
-			Entity\Query::buildFilterSql(
-				$entity,
-				array(
-					'=ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'ID'),
-					'=MAILBOX_ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'MAILBOX_ID'),
-				)
-			)
-		);
+		$portionLimit = 200;
 
-		$connection->query(sprintf(
-			'INSERT IGNORE INTO %s (ID, MAILBOX_ID, MESSAGE_ID) (SELECT ID, MAILBOX_ID, MESSAGE_ID %s)',
-			$connection->getSqlHelper()->quote(Internals\MessageDeleteQueueTable::getTableName()),
-			$query
-		));
+		for ($i = 0; $i < count($messages); $i=$i+$portionLimit)
+		{
+			$portion = array_slice($messages, $i, $portionLimit);
 
-		$result = $connection->query(sprintf('DELETE %s', $query));
-		$count = $connection->getAffectedRowsCount();
-		$result->setCount($count > 0 ? $count : 0);
+			$query = sprintf(
+				' FROM %s WHERE ID IN (\'' . join("','", array_column($portion, 'ID')) . '\')',
+				$connection->getSqlHelper()->quote($entity->getDbTableName()),
+			);
 
-		if ($messagesIds = array_column($eventData, 'MESSAGE_ID'))
+			$connection->query(sprintf(
+				'INSERT IGNORE INTO %s (ID, MAILBOX_ID, MESSAGE_ID) (SELECT ID, MAILBOX_ID, MESSAGE_ID %s)',
+				$connection->getSqlHelper()->quote(Internals\MessageDeleteQueueTable::getTableName()),
+				$query
+			));
+
+			$connection->query(sprintf('DELETE %s', $query));
+		}
+
+		if ($messagesIds = array_column($messages, 'MESSAGE_ID'))
 		{
 			$remains = array_column(
 				static::getList(array(
@@ -144,9 +139,10 @@ class MailMessageUidTable extends Entity\DataManager
 				'MESSAGE_ID'
 			);
 
-			$eventData = array_filter(
-				$eventData,
-				function ($item) use (&$remains)
+			//checking that the values were actually deleted:
+			$messages = array_filter(
+				$messages,
+				function ($item) use ($remains)
 				{
 					return !in_array($item['MESSAGE_ID'], $remains);
 				}
@@ -160,13 +156,20 @@ class MailMessageUidTable extends Entity\DataManager
 			array(MessageEventManager::class, 'onMailMessageDeleted')
 		);
 		$event = new \Bitrix\Main\Event('mail', 'onMailMessageDeleted', array(
-			'MAIL_FIELDS_DATA' => $eventData,
+			'MAIL_FIELDS_DATA' => $messages,
 			'DELETED_BY_FILTER' => $filter,
 		));
 		$event->send();
 		EventManager::getInstance()->removeEventHandler('mail', 'onMailMessageDeleted', $eventKey);
 
-		return $result;
+		return true;
+	}
+
+	public static function getPresetRemoveFilters()
+	{
+		return [
+			'==DELETE_TIME' => 0,
+		];
 	}
 
 	/**
@@ -180,65 +183,7 @@ class MailMessageUidTable extends Entity\DataManager
 	{
 		$entity = static::getEntity();
 		$connection = $entity->getConnection();
-		$filter = array_merge($filter , [
-			'=DELETE_TIME' => 'IS NULL',
-		]);
-		// @TODO: make a log optional
-		/*$queryToLog = sprintf(
-			'SELECT
-				b_mail_message_uid.ID,
-				b_mail_message_uid.MESSAGE_ID,
-				b_mail_message_uid.MAILBOX_ID,
-				b_mail_message_uid.DIR_MD5,
-				b_mail_message_uid.DIR_UIDV,
-				b_mail_message_uid.MSG_UID,
-				b_mail_message_uid.INTERNALDATE,
-				b_mail_message_uid.HEADER_MD5,
-				b_mail_message_uid.SESSION_ID,
-				b_mail_message_uid.TIMESTAMP_X,
-				b_mail_message_uid.DATE_INSERT,
-				b_mail_message.DATE_INSERT,
-				b_mail_message.FIELD_DATE,
-				b_mail_message.FIELD_FROM,
-				b_mail_message.SUBJECT,
-				b_mail_message.MSG_ID
-			FROM b_mail_message_uid JOIN b_mail_message ON b_mail_message_uid.MESSAGE_ID = b_mail_message.id  WHERE %s AND ( b_mail_message_uid.DELETE_TIME IS NULL OR b_mail_message_uid.DELETE_TIME = 0) AND NOT EXISTS (SELECT 1 FROM %s WHERE %s)',
-			Entity\Query::buildFilterSql(
-				$entity,
-				$filter
-			),
-			$connection->getSqlHelper()->quote(Internals\MessageUploadQueueTable::getTableName()),
-			Entity\Query::buildFilterSql(
-				$entity,
-				[
-					'=ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'ID'),
-					'=MAILBOX_ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'MAILBOX_ID'),
-				]
-			)
-		);
-
-		$messagesForRemove = $connection->query($queryToLog)->fetchAll();
-
-		for($i=0; $i < count($messagesForRemove); $i++)
-		{
-			foreach ($messagesForRemove[$i] as $key => $value)
-			{
-				if ($messagesForRemove[$i][$key] instanceof \Bitrix\Main\Type\DateTime)
-				{
-					$messagesForRemove[$i][$key] = $messagesForRemove[$i][$key]->toString();
-				}
-			}
-		}
-
-		if(count($messagesForRemove)>0)
-		{
-			$toLog = [
-				'cause' => 'deleteListSoft',
-				'filter'=>$filter,
-				'removedMessages'=>$messagesForRemove,
-			];
-			AddMessage2Log($toLog);
-		}*/
+		$filter = array_merge($filter , static::getPresetRemoveFilters());
 
 		//mark selected messages for deletion if there are no messages in the download queue
 		$query = sprintf(
@@ -268,7 +213,17 @@ class MailMessageUidTable extends Entity\DataManager
 		return $result;
 	}
 
-	private static function selectMailsToBeDeleted($fields, $filter, array $eventData)
+	/**@
+	 * @param $fields
+	 * @param $filter
+	 * @param array $eventData
+	 * @param int|false $limit
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	private static function selectMessagesToBeDeleted($fields, $filter, array $eventData, $limit = false): array
 	{
 		$result = array();
 
@@ -317,6 +272,12 @@ class MailMessageUidTable extends Entity\DataManager
 				['ID', 'MAILBOX_ID']
 			))
 			->setFilter($mailsFilter);
+
+		if($limit !== false)
+		{
+			$emailsForDeleteQuery->setLimit($limit);
+		}
+
 		foreach ($select as $index => $selectingField)
 		{
 			if (strncmp('MAILBOX_', $selectingField, 8) === 0 && !MailMessageUidTable::getEntity()->hasField($selectingField))

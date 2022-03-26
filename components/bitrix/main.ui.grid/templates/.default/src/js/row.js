@@ -101,7 +101,10 @@ import {Type} from "main.core";
 		_onRightClick: function(event)
 		{
 			event.preventDefault();
-			this.showActionsMenu(event);
+			if (!this.isHeadChild())
+			{
+				this.showActionsMenu(event);
+			}
 		},
 
 		getDefaultAction: function()

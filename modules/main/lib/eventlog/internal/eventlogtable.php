@@ -18,9 +18,9 @@ use Bitrix\Main\ORM\Fields;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_EventLog_Query query()
- * @method static EO_EventLog_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EventLog_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_EventLog_Result getById($id)
- * @method static EO_EventLog_Result getList(array $parameters = array())
+ * @method static EO_EventLog_Result getList(array $parameters = [])
  * @method static EO_EventLog_Entity getEntity()
  * @method static \Bitrix\Main\EventLog\Internal\EO_EventLog createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\EventLog\Internal\EO_EventLog_Collection createCollection()

@@ -31,6 +31,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_38.1.TEXT_WITH_BGIMG_IMG_AND_TEXT_BLOCKS_NODES_LANDINGBLOCKNODEBGIMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_38.1.TEXT_WITH_BGIMG_IMG_AND_TEXT_BLOCKS_NODES_LANDINGBLOCKNODETEXT'),
@@ -52,6 +53,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_38.1.TEXT_WITH_BGIMG_IMG_AND_TEXT_BLOCKS_NODES_LANDINGBLOCKNODELEFTBLOCKIMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 1200, 'height' => 811),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-leftblock-subtitle' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_38.1.TEXT_WITH_BGIMG_IMG_AND_TEXT_BLOCKS_NODES_LANDINGBLOCKNODELEFTBLOCKSUBTITLE'),

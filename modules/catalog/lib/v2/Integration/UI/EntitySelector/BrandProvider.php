@@ -49,6 +49,16 @@ class BrandProvider extends BaseProvider
 
 	public function fillDialog(Dialog $dialog): void
 	{
+		$dialog->loadPreselectedItems();
+
+		if ($dialog->getItemCollection()->count() > 0)
+		{
+			foreach ($dialog->getItemCollection() as $item)
+			{
+				$dialog->addRecentItem($item);
+			}
+		}
+
 		$recentItemsCount = count($dialog->getRecentItems()->getEntityItems(self::BRAND_ENTITY_ID));
 
 		if ($recentItemsCount < self::BRAND_LIMIT)

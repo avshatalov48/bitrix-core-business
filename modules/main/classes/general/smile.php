@@ -843,7 +843,7 @@ class CSmileGallery
 			$DB->Query("DELETE FROM b_smile_lang WHERE TYPE = '".$smileGallery['TYPE']."' AND SID = ".$smileGallery['ID'], true);
 		}
 
-		$CACHE_MANAGER->CleanDir("b_smile_set");
+		$CACHE_MANAGER->CleanDir("b_smile");
 
 	}
 
@@ -871,7 +871,7 @@ class CSmileGallery
 		global $CACHE_MANAGER;
 		$cache_id = "b_smile_gallery_".$lang;
 
-		if (CACHED_b_smile !== false && $CACHE_MANAGER->Read(CACHED_b_smile, $cache_id, "b_smile_set"))
+		if (CACHED_b_smile !== false && $CACHE_MANAGER->Read(CACHED_b_smile, $cache_id, "b_smile"))
 		{
 			$arResult = $CACHE_MANAGER->Get($cache_id);
 		}
@@ -943,7 +943,7 @@ class CSmileGallery
 			if (isset($result['SMILE'][$typing[0]]))
 				continue;
 
-			$result['SMILE'][$smile['ID']] = Array(
+			$result['SMILE'][] = Array(
 				'ID' => (int)$smile['ID'],
 				'SET_ID' => (int)$smile['SET_ID'],
 				'NAME' => $smile['NAME'],
@@ -1212,7 +1212,7 @@ class CSmileSet
 			}
 		}
 
-		$CACHE_MANAGER->CleanDir("b_smile_set");
+		$CACHE_MANAGER->CleanDir("b_smile");
 
 		return $setId;
 	}
@@ -1258,7 +1258,7 @@ class CSmileSet
 			}
 		}
 
-		$CACHE_MANAGER->CleanDir("b_smile_set");
+		$CACHE_MANAGER->CleanDir("b_smile");
 
 		return true;
 	}
@@ -1278,7 +1278,7 @@ class CSmileSet
 			CSmile::deleteBySet($smileSet['ID']);
 		}
 
-		$CACHE_MANAGER->CleanDir("b_smile_set");
+		$CACHE_MANAGER->CleanDir("b_smile");
 
 		return true;
 	}
@@ -1535,7 +1535,7 @@ class CSmileSet
 		global $CACHE_MANAGER;
 		$cache_id = "b_smile_set_2_".$lang;
 
-		if (CACHED_b_smile !== false && $CACHE_MANAGER->Read(CACHED_b_smile, $cache_id, "b_smile_set"))
+		if (CACHED_b_smile !== false && $CACHE_MANAGER->Read(CACHED_b_smile, $cache_id, "b_smile"))
 		{
 			$arResult = $CACHE_MANAGER->Get($cache_id);
 		}

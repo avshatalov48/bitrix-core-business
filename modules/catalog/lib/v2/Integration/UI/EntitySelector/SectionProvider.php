@@ -54,6 +54,16 @@ class SectionProvider extends BaseProvider
 
 	public function fillDialog(Dialog $dialog): void
 	{
+		$dialog->loadPreselectedItems();
+
+		if ($dialog->getItemCollection()->count() > 0)
+		{
+			foreach ($dialog->getItemCollection() as $item)
+			{
+				$dialog->addRecentItem($item);
+			}
+		}
+
 		$recentItemsCount = count($dialog->getRecentItems()->getEntityItems(self::SECTION_ENTITY_ID));
 
 		if ($recentItemsCount < self::SECTION_LIMIT)

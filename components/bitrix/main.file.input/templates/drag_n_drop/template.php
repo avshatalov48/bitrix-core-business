@@ -116,7 +116,7 @@ if ($arParams["ALLOW_UPLOAD"] != "N")
 			'upload_error':"<?=(GetMessageJS('BFDND_UPLOAD_ERROR'))?>",
 			'access_denied':"<p style='margin-top:0;'><?=(GetMessageJS('BFDND_ACCESS_DENIED'))?></p>"
 		});
-		BX.addCustomEvent(<?=$controller?>.parentNode, "BFileDLoadFormController", function(status) {
+		var handler = function(status) {
 			MFIDD({
 					uid : '<?=$uid?>',
 					controller : <?=$controller?>,
@@ -128,6 +128,10 @@ if ($arParams["ALLOW_UPLOAD"] != "N")
 					inputName : "<?=CUtil::JSEscape($controlName)?>",
 					status : status
 			});
+		};
+		BX.addCustomEvent(<?=$controller?>.parentNode, "BFileDLoadFormController", handler);
+		BX.addCustomEvent(<?=$controller?>.parentNode, "onShowControllers", function(event) {
+			handler(event && event['data'] === 'show' ? 'show' : 'hide');
 		});
 		BX.onCustomEvent(<?=$controller?>, "BFileDLoadFormControllerWasBound", [{id : "<?=$arParams['CONTROL_ID']?>"}]);
 		<?

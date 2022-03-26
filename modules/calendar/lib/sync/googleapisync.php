@@ -6,6 +6,7 @@ use Bitrix\Main\Type;
 use Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Web;
 use Bitrix\Calendar\Util;
+use Bitrix\Calendar\Rooms;
 use CDavConnection;
 
 /**
@@ -33,16 +34,16 @@ final class GoogleApiSync
 	private $nextSyncToken = '',
 			$defaultTimezone = self::DEFAULT_TIMEZONE,
 			$userId = 0,
-			$calendarList = [],
-			$defaultReminderData = [],
+			$calendarList = array(),
+			$defaultReminderData = array(),
 			$calendarColors = false,
 			$eventColors = false,
-			$eventMapping = [
+			$eventMapping = array(
 				'DAV_XML_ID'	=>	'iCalUID',
 				'NAME'			=>	'summary',
 //				'DESCRIPTION'	=>	'description',
 				'CAL_DAV_LABEL'	=>	'etag'
-	];
+			);
 	/**
 	 * @var int
 	 */
@@ -712,7 +713,7 @@ final class GoogleApiSync
 		}
 		if (!empty($event['location']))
 		{
-			$returnData['LOCATION'] = \CCalendar::UnParseTextLocation($event['location']);
+			$returnData['LOCATION'] = Rooms\Util::unParseTextLocation($event['location']);
 		}
 
 		return $returnData;

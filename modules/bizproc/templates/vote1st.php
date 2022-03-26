@@ -58,7 +58,7 @@ Array(
 'Name' => 'A25099_16832_64072_25637',
 'Properties' =>
 Array(
-'Title' => GetMessage("BP_V1ST_S2")
+'Title' => GetMessage("BP_V1ST_S2_1")
 ),
 'Children' => Array(
 Array(
@@ -100,7 +100,7 @@ Array(
 'Name' => 'A28091_6558_3951_66191',
 'Properties' =>
 Array(
-'Title' => GetMessage("BP_V1ST_S2")
+'Title' => GetMessage("BP_V1ST_S2_1")
 ),
 'Children' => Array(
 Array(

@@ -1,11 +1,8 @@
 <?php
-use Bitrix\Main,
-	Bitrix\Main\EventManager,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Main\ModuleManager,
-	Bitrix\Main\Localization\LanguageTable;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\EventManager;
+use Bitrix\Main\Localization\Loc;
+use	Bitrix\Main\ModuleManager;
 
 class catalog extends CModule
 {
@@ -17,7 +14,7 @@ class catalog extends CModule
 	var $MODULE_CSS;
 	var $MODULE_GROUP_RIGHTS = "Y";
 
-	private $bitrix24mode = null;
+	private $bitrix24mode;
 
 	function __construct()
 	{
@@ -91,7 +88,7 @@ class catalog extends CModule
 		global $errors;
 
 		if(!$DB->Query("SELECT 'x' FROM b_catalog_group", true))
-			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/catalog/install/db/".mb_strtolower($DB->type)."/install.sql");
+			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/catalog/install/db/mysql/install.sql");
 
 		if (!empty($errors))
 		{
@@ -107,6 +104,13 @@ class catalog extends CModule
 		$eventManager->registerEventHandler('sale', 'onExtendOrderData', 'catalog', '\Bitrix\Catalog\Discount\DiscountManager', 'extendOrderData');
 		$eventManager->registerEventHandler('currency', 'onAfterUpdateCurrencyBaseRate', 'catalog', '\Bitrix\Catalog\Product\Price', 'handlerAfterUpdateCurrencyBaseRate');
 		$eventManager->registerEventHandler('iblock', 'Bitrix\Iblock\Model\PropertyFeature::OnPropertyFeatureBuildList', 'catalog', '\Bitrix\Catalog\Product\PropertyCatalogFeature', 'handlerPropertyFeatureBuildList');
+		$eventManager->registerEventHandler(
+			'pull',
+			'onGetDependentModule',
+			$this->MODULE_ID,
+			'\Bitrix\Catalog\Integration\PullManager',
+			'onGetDependentModule'
+		);
 
 		$eventManager->registerEventHandlerCompatible('main', 'onUserDelete', 'catalog', '\Bitrix\Catalog\SubscribeTable', 'onUserDelete');
 		$eventManager->registerEventHandlerCompatible('catalog', 'onAddContactType', 'catalog', '\Bitrix\Catalog\SubscribeTable', 'onAddContactType');
@@ -335,7 +339,7 @@ class catalog extends CModule
 		$enableDeprecatedEvents = Main\Config\Option::get('catalog', 'enable_processing_deprecated_events') === 'Y';
 		if (!isset($arParams["savedata"]) || $arParams["savedata"] != "Y")
 		{
-			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/catalog/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
+			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/catalog/install/db/mysql/uninstall.sql");
 			if (!empty($errors))
 			{
 				$APPLICATION->ThrowException(implode("", $errors));
@@ -440,6 +444,14 @@ class catalog extends CModule
 			'catalog',
 			'\Bitrix\Catalog\Url\Registry',
 			'getBuilderList'
+		);
+
+		$eventManager->unRegisterEventHandler(
+			'pull',
+			'onGetDependentModule',
+			$this->MODULE_ID,
+			'\Bitrix\Catalog\Integration\PullManager',
+			'onGetDependentModule'
 		);
 
 		if ($this->bitrix24mode)
@@ -550,103 +562,162 @@ class catalog extends CModule
 
 	public static function getTableSchema()
 	{
-		return array(
-			'iblock' => array(
-				'b_iblock' => array(
-					'ID' => array(
+		return [
+			'iblock' => [
+				'b_iblock' => [
+					'ID' => [
 						'b_catalog_iblock' => 'IBLOCK_ID',
-						'b_catalog_iblock^' => 'PRODUCT_IBLOCK_ID'
-					)
-				),
-				'b_iblock_property' => array(
-					'ID' => array(
-						'b_catalog_iblock' => 'SKU_PROPERTY_ID'
-					)
-				),
-				'b_iblock_element' => array(
-					'ID' => array(
-						'b_catalog_product' => 'ID'
-					)
-				)
-			),
-			'catalog' => array(
-				'b_catalog_product' => array(
-					'ID' => array(
-						'b_catalog_price' => 'PRODUCT_ID',
-						'b_catalog_store_product' => 'PRODUCT_ID',
-						'b_catalog_product' => 'TRIAL_PRICE_ID',
-						'b_catalog_store_barcode' => 'PRODUCT_ID',
-						'b_catalog_product2group' => 'PRODUCT_ID'
-					)
-				),
-				'b_catalog_vat' => array(
-					'ID' => array(
-						'b_catalog_product' => 'VAT_ID',
-						'b_catalog_iblock' => 'VAT_ID'
-					)
-				),
-				'b_catalog_extra' => array(
-					'ID' => array(
-						'b_catalog_price' => 'EXTRA_ID'
-					)
-				),
-				'b_catalog_group' => array(
-					'ID' => array(
-						'b_catalog_price' => 'CATALOG_GROUP_ID',
+						'b_catalog_iblock^' => 'PRODUCT_IBLOCK_ID',
+					],
+				],
+				'b_iblock_element' => [
+					'ID' => [
+						'b_catalog_product' => 'ID',
+					],
+				],
+				'b_iblock_property' => [
+					'ID' => [
+						'b_catalog_iblock' => 'SKU_PROPERTY_ID',
+					],
+				],
+			],
+			'catalog' => [
+				'b_catalog_contractor' => [
+					'ID' => [
+						'b_catalog_store_docs' => 'CONTRACTOR_ID',
+					],
+				],
+				'b_catalog_discount' => [
+					'ID' => [
+						'b_catalog_discount_cond' => 'DISCOUNT_ID',
+						'b_catalog_discount_coupon' => 'DISCOUNT_ID',
+						'b_catalog_discount_entity' => 'DISCOUNT_ID',
+						'b_catalog_discount_module' => 'DISCOUNT_ID',
+						'b_catalog_disc_save_group' => 'DISCOUNT_ID',
+						'b_catalog_disc_save_range' => 'DISCOUNT_ID',
+						'b_catalog_disc_save_user' => 'DISCOUNT_ID',
+					],
+				],
+				'b_catalog_docs_element' => [
+					'ID' => [
+						'b_catalog_docs_barcode' => 'DOC_ELEMENT_ID',
+					],
+				],
+				'b_catalog_extra' => [
+					'ID' => [
+						'b_catalog_price' => 'EXTRA_ID',
+					],
+				],
+				'b_catalog_group' => [
+					'ID' => [
+						'b_catalog_discount_cond' => 'PRICE_TYPE_ID',
+						'b_catalog_group2group' => 'CATALOG_GROUP_ID',
 						'b_catalog_group_lang' => 'CATALOG_GROUP_ID',
-						'b_catalog_group2group' => 'CATALOG_GROUP_ID'
-					)
-				),
-				'b_catalog_measure' => array(
-					'ID' => array(
-						'b_catalog_product' => 'MEASURE'
-					)
-				),
-				'b_catalog_store' => array(
-					'ID' => array(
+						'b_catalog_price' => 'CATALOG_GROUP_ID',
+						'b_catalog_rounding' => 'CATALOG_GROUP_ID',
+					],
+				],
+				'b_catalog_measure' => [
+					'ID' => [
+						'b_catalog_product' => 'MEASURE',
+					],
+				],
+				'b_catalog_product' => [
+					'ID' => [
+						'b_catalog_docs_element' => 'ELEMENT_ID',
+						'b_catalog_measure_ratio' => 'PRODUCT_ID',
+						'b_catalog_price' => 'PRODUCT_ID',
+						'b_catalog_product' => 'TRIAL_PRICE_ID',
+						'b_catalog_product_sets' => 'ITEM_ID',
+						'b_catalog_product2group' => 'PRODUCT_ID',
+						'b_catalog_store_barcode' => 'PRODUCT_ID',
+						'b_catalog_store_product' => 'PRODUCT_ID',
+					],
+				],
+				'b_catalog_store' => [
+					'ID' => [
+						'b_catalog_docs_element' => 'STORE_FROM',
+						'b_catalog_docs_element^' => 'STORE_TO',
+						'b_catalog_store_barcode' => 'STORE_ID',
 						'b_catalog_store_product' => 'STORE_ID',
-						'b_catalog_store_barcode' => 'STORE_ID'
-					)
-				)
-			)
-		);
-	}
-
-	private function __getLangMessages($path, $messID, $langList)
-	{
-		$result = array();
-		if (empty($messID))
-			return $result;
-		if (!is_array($messID))
-			$messID = array($messID);
-		if (!is_array($langList))
-			$langList = array($langList);
-		if (empty($langList))
-		{
-			$languageIterator = LanguageTable::getList(array(
-				'select' => array('ID'),
-				'filter' => array('=ACTIVE' => 'Y')
-			));
-			while ($oneLanguage = $languageIterator->fetch())
-				$langList[] = $oneLanguage['ID'];
-			unset($oneLanguage, $languageIterator);
-		}
-
-		foreach ($langList as &$oneLanguage)
-		{
-			$mess = Loc::loadLanguageFile($path, $oneLanguage);
-			foreach ($messID as &$oneMess)
-			{
-				if (empty($oneMess) || !isset($mess[$oneMess]) || empty($mess[$oneMess]))
-					continue;
-				if (!isset($result[$oneMess]))
-					$result[$oneMess] = array();
-				$result[$oneMess][$oneLanguage] = $mess[$oneMess];
-			}
-			unset($oneMess, $mess);
-		}
-		unset($oneLanguage);
-
-		return $result;
+					],
+				],
+				'b_catalog_store_docs' => [
+					'ID' => [
+						'b_catalog_docs_element' => 'DOC_ID',
+						'b_catalog_store_document_file' => 'DOCUMENT_ID',
+					],
+				],
+				'b_catalog_vat' => [
+					'ID' => [
+						'b_catalog_iblock' => 'VAT_ID',
+						'b_catalog_product' => 'VAT_ID',
+					],
+				],
+			],
+			'currency' => [
+				'b_catalog_currency' => [
+					'CURRENCY' => [
+						'b_catalog_discount' => 'CURRENCY',
+						'b_catalog_product' => 'PURCHASING_CURRENCY',
+						'b_catalog_price' => 'CURRENCY',
+						'b_catalog_store_docs' => 'CURRENCY',
+					],
+				],
+			],
+			'main' => [
+				'b_file' => [
+					'ID' => [
+						'b_catalog_store' => 'IMAGE_ID',
+						'b_catalog_store_document_file' => 'FILE_ID',
+					],
+				],
+				'b_group' => [
+					'ID' => [
+						'b_catalog_discount_cond' => 'USER_GROUP_ID',
+						'b_catalog_disc_save_group' => 'GROUP_ID',
+						'b_catalog_group2group' => 'GROUP_ID',
+					],
+				],
+				'b_lang' => [
+					'LID' => [
+						'b_catalog_discount' => 'SITE_ID',
+						'b_catalog_store' => 'SITE_ID',
+						'b_catalog_store_docs' => 'SITE_ID',
+					],
+				],
+				'b_module' => [
+					'ID' => [
+						'b_catalog_discount_module' => 'MODULE_ID',
+						'b_catalog_discount_entity' => 'MODULE_ID',
+					],
+				],
+				'b_user' => [
+					'ID' => [
+						'b_catalog_contractor' => 'CREATED_BY',
+						'b_catalog_contractor^' => 'MODIFIED_BY',
+						'b_catalog_discount' => 'CREATED_BY',
+						'b_catalog_discount^' => 'MODIFIED_BY',
+						'b_catalog_discount_coupon' => 'CREATED_BY',
+						'b_catalog_discount_coupon^' => 'MODIFIED_BY',
+						'b_catalog_disc_save_user' => 'USER_ID',
+						'b_catalog_export' => 'CREATED_BY',
+						'b_catalog_export^' => 'MODIFIED_BY',
+						'b_catalog_group' => 'CREATED_BY',
+						'b_catalog_group^' => 'MODIFIED_BY',
+						'b_catalog_product_sets' => 'CREATED_BY',
+						'b_catalog_product_sets^' => 'MODIFIED_BY',
+						'b_catalog_rounding' => 'CREATED_BY',
+						'b_catalog_rounding^' => 'MODIFIED_BY',
+						'b_catalog_store' => 'MODIFIED_BY',
+						'b_catalog_store^' => 'USER_ID',
+						'b_catalog_store_barcode' => 'CREATED_BY',
+						'b_catalog_store_barcode^' => 'MODIFIED_BY',
+						'b_catalog_store_docs' => 'CREATED_BY',
+						'b_catalog_store_docs^' => 'MODIFIED_BY',
+					],
+				],
+			],
+		];
 	}
 }

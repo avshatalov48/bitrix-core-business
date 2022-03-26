@@ -113,7 +113,7 @@ if ($_POST['IM_AVATAR_UPDATE'] == 'Y')
 {
 	$userId = $USER->GetId();
 	$chatId = intval($_POST['CHAT_ID']);
-	if (CIMChat::CheckRestriction($chatId, 'AVATAR'))
+	if (!\Bitrix\Im\Chat::isActionAllowed('chat' . $chatId, 'AVATAR'))
 	{
 		echo \Bitrix\Im\Common::objectEncode(Array(
 			'ERROR' => 'UPLOAD_ERROR'
@@ -253,7 +253,8 @@ else if ($_POST['IM_HISTORY_FILES_LOAD'] == 'Y')
 
 	echo \Bitrix\Im\Common::objectEncode(Array(
 		'CHAT_ID' => $chatId,
-		'FILES' => $arFiles,
+		'FILES' => $arFiles, // TODO remove this in next year 2022
+		'FILE_LIST' => array_values($arFiles),
 		'ERROR' => ''
 	));
 }
@@ -418,7 +419,10 @@ else if ($_POST['IM_NOTIFY_HISTORY_LOAD_MORE'] == 'Y')
 }
 else if ($_POST['IM_SEND_MESSAGE'] == 'Y')
 {
-	if (CIMMessenger::IsBitrix24UserRestricted())
+	if (
+		CIMMessenger::IsBitrix24UserRestricted()
+		|| !\Bitrix\Im\Chat::isActionAllowed($_POST['RECIPIENT_ID'], 'SEND')
+	)
 	{
 		echo \Bitrix\Im\Common::objectEncode(Array(
 			'ERROR' => GetMessage('IM_ACCESS_ERROR')
@@ -1396,7 +1400,7 @@ else if ($_POST['IM_CHAT_EXTEND'] == 'Y')
 	$errorMessage = "";
 	$userId = $USER->GetId();
 	$chatId = intval($_POST['CHAT_ID']);
-	if (CIMChat::CheckRestriction($chatId, 'EXTEND'))
+	if (!\Bitrix\Im\Chat::isActionAllowed('chat' . $chatId, 'EXTEND'))
 	{
 		$errorMessage = GetMessage('IM_ACCESS_ERROR');
 	}
@@ -1428,7 +1432,7 @@ else if ($_POST['IM_CHAT_LEAVE'] == 'Y')
 {
 	$userId = $USER->GetId();
 	$chatId = intval($_POST['CHAT_ID']);
-	if (CIMChat::CheckRestriction($chatId, 'LEAVE'))
+	if (!\Bitrix\Im\Chat::isActionAllowed('chat' . $chatId, 'LEAVE'))
 	{
 		$result = false;
 	}
@@ -1446,8 +1450,14 @@ else if ($_POST['IM_CHAT_LEAVE'] == 'Y')
 }
 else if ($_POST['IM_CHAT_MUTE'] == 'Y')
 {
-	$CIMChat = new CIMChat();
-	$result = $CIMChat->MuteNotify($_POST['CHAT_ID'], $_POST['MUTE'] == 'Y');
+	$result = false;
+
+	if (\Bitrix\Im\Chat::isActionAllowed('chat' . $_POST['CHAT_ID'], 'MUTE'))
+	{
+		$CIMChat = new CIMChat();
+		$result = $CIMChat->MuteNotify($_POST['CHAT_ID'], $_POST['MUTE'] == 'Y');
+	}
+
 	echo \Bitrix\Im\Common::objectEncode(Array(
 		'CHAT_ID' => intval($_POST['CHAT_ID']),
 		'ERROR' => $result? '': 'ACCESS_ERROR'
@@ -1458,7 +1468,7 @@ else if ($_POST['IM_CHAT_RENAME'] == 'Y')
 	$userId = $USER->GetId();
 	$chatId = intval($_POST['CHAT_ID']);
 	$error = '';
-	if (CIMChat::CheckRestriction($chatId, 'RENAME'))
+	if (!\Bitrix\Im\Chat::isActionAllowed('chat' . $chatId, 'RENAME'))
 	{
 		$error = 'ACTION_DISABLED';
 	}
@@ -1680,20 +1690,7 @@ else if ($_POST['IM_CALL'] == 'Y')
 	$chatId = intval($_POST['CHAT_ID']) ?: CIMMessage::GetChatId($userId, intval($_POST['USER_ID']));
 
 	$errorMessage = "";
-	if ($_POST['COMMAND'] == 'inviteExperimental')
-	{
-		if ($_POST['CHAT'] != 'Y')
-			$chatId = CIMMessage::GetChatId($userId, intval($_POST['CHAT_ID']));
-
-		$arCallData = CIMCall::InviteExperimental(Array(
-			'CHAT_ID' => $chatId,
-			'USER_ID' => $userId,
-			'RECIPIENT_ID' => $_POST['CHAT'] != 'Y'? intval($_POST['CHAT_ID']): 0,
-			'VIDEO' => $_POST['VIDEO'],
-			'MOBILE' => $_POST['MOBILE'],
-		));
-	}
-	else if ($_POST['COMMAND'] == 'invite')
+	if ($_POST['COMMAND'] == 'invite')
 	{
 		if ($_POST['CHAT'] != 'Y')
 			$chatId = CIMMessage::GetChatId($userId, intval($_POST['CHAT_ID']));
@@ -1992,8 +1989,8 @@ else if ($_POST['IM_SETTINGS_SAVE'] == 'Y')
 
 	$arSettings = CUtil::JsObjectToPhp($_POST['SETTINGS']);
 
-	$arOldSettings = CUserOptions::GetOption('im', CIMSettings::SETTINGS, Array());
-	if ($arOldSettings['notifyScheme'] == 'expert' && $arSettings['notifyScheme'] == 'simple')
+	$oldSettings = CIMSettings::Get()[CIMSettings::SETTINGS];
+	if ($oldSettings['notifyScheme'] == 'expert' && $arSettings['notifyScheme'] == 'simple')
 	{
 		$arNotifyValues = CIMSettings::GetSimpleNotifyBlocked();
 		$arSettings['notify'] = Array();

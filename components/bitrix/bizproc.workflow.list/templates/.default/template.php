@@ -51,8 +51,8 @@ if (IsModuleInstalled("bizprocdesigner")):
 ?>
 <br />
 <div class="wd-help-list selected">
-	<?=GetMessage("BPATT_HELP1_TEXT")?><br />
-	<?=GetMessage("BPATT_HELP2_TEXT")?>
+	<?=GetMessage("BPATT_HELP1_TEXT_1")?><br />
+	<?=GetMessage("BPATT_HELP2_TEXT_1")?>
 </div>
 <?
 endif;

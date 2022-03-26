@@ -120,6 +120,11 @@ class RecentTable extends Main\Entity\DataManager
 				'reference' => array('=this.ITEM_MID' => 'ref.ID'),
 				'join_type' => 'LEFT',
 			),
+			'MESSAGE_UUID' => array(
+				'data_type' => 'Bitrix\Im\Model\MessageUuidTable',
+				'reference' => array('=this.ITEM_MID' => 'ref.MESSAGE_ID'),
+				'join_type' => 'LEFT',
+			),
 		);
 	}
 

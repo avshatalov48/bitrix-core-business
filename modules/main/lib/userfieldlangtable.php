@@ -12,9 +12,9 @@ use Bitrix\Main\ORM;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_UserFieldLang_Query query()
- * @method static EO_UserFieldLang_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserFieldLang_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_UserFieldLang_Result getById($id)
- * @method static EO_UserFieldLang_Result getList(array $parameters = array())
+ * @method static EO_UserFieldLang_Result getList(array $parameters = [])
  * @method static EO_UserFieldLang_Entity getEntity()
  * @method static \Bitrix\Main\EO_UserFieldLang createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\EO_UserFieldLang_Collection createCollection()

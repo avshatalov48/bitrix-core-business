@@ -11,6 +11,7 @@ import {IColorValue} from '../types/i_color_value';
 import Opacity from '../control/opacity/opacity';
 import Tabs from '../layout/tabs/tabs';
 import GradientValue from '../gradient_value';
+import Preset from '../layout/preset/preset';
 
 export default class Bg extends BgColor
 {
@@ -41,8 +42,7 @@ export default class Bg extends BgColor
 
 		this.overlay = new ColorSet(options);
 		this.overlay.subscribe('onChange', this.onOverlayChange.bind(this));
-		this.overlayOpacity = new Opacity();
-		this.overlayOpacity.setValue(new ColorValue().setOpacity(0.5));
+		this.overlayOpacity = new Opacity({defaultOpacity: 0.5});
 		this.overlayOpacity.subscribe('onChange', this.onOverlayOpacityChange.bind(this));
 
 		this.imageTabs = new Tabs().appendTab(
@@ -56,7 +56,7 @@ export default class Bg extends BgColor
 			.appendTab(
 				'Color',
 				Loc.getMessage('LANDING_FIELD_COLOR-BG_COLOR'),
-				[this.colorSet, this.primary, this.tabs],
+				[this.colorSet, this.primary, this.zeroing, this.tabs],
 			)
 			.appendTab(
 				'Image',
@@ -77,6 +77,7 @@ export default class Bg extends BgColor
 	onColorSetChange(event: BaseEvent)
 	{
 		this.image.unsetActive();
+		this.overlay.unsetActive();
 
 		super.onColorSetChange(event);
 	}
@@ -84,6 +85,8 @@ export default class Bg extends BgColor
 	onGradientChange(event: BaseEvent)
 	{
 		this.image.unsetActive();
+		this.overlay.unsetActive();
+
 		super.onGradientChange(event);
 	}
 
@@ -100,9 +103,22 @@ export default class Bg extends BgColor
 
 	onOverlayChange(event: BaseEvent)
 	{
-		const color = event.getData().color;
-		color.setOpacity(this.overlayOpacity.getValue().getOpacity());
-		this.overlayOpacity.setValue(color);
+		const overlayValue = event.getData().color;
+		if (overlayValue !== null)
+		{
+			overlayValue.setOpacity(this.overlayOpacity.getValue().getOpacity());
+		}
+		this.overlayOpacity.setValue(overlayValue);
+
+		const imageValue = this.image.getValue();
+		if (imageValue !== null)
+		{
+			this.image.setValue(imageValue.setOverlay(overlayValue));
+			this.activeControl = this.image;
+			this.image.setActive();
+			this.colorSet.unsetActive();
+			this.gradient.unsetActive();
+		}
 
 		this.onChange();
 	}
@@ -116,7 +132,6 @@ export default class Bg extends BgColor
 	{
 		super.unsetActive();
 		this.image.unsetActive();
-		// todo: unset overlay?
 	}
 
 	/**
@@ -124,7 +139,7 @@ export default class Bg extends BgColor
 	 */
 	setProcessorValue(value: {string: string}): void
 	{
-		// Just get last css variable
+		this.cache.delete('value');
 		this.setValue(value);
 	}
 
@@ -164,6 +179,10 @@ export default class Bg extends BgColor
 			if (Bg.BG_ATTACHMENT_VAR in value)
 			{
 				bgValue.setAttachment(value[Bg.BG_ATTACHMENT_VAR]);
+			}
+			if (Bg.BG_OVERLAY_VAR in value)
+			{
+				bgValue.setOverlay(new ColorValue(value[Bg.BG_OVERLAY_VAR]));
 			}
 
 			this.image.setValue(bgValue);
@@ -246,9 +265,9 @@ export default class Bg extends BgColor
 		}
 		else
 		{
-			image = `url('${value.getUrl()}')`;
-			image2x = `url('${value.getUrl2x()}')`;
-			overlay = value.getOverlay() ? value.getOverlay().getStyleString() : 'transparent';
+			image = value.getUrl() ? `url('${value.getUrl()}')` : '';
+			image2x = value.getUrl2x() ? `url('${value.getUrl2x()}')` : '';
+			overlay = value.getOverlay() ? value.getOverlay().getStyleString() : 'rgba(0, 0, 0, 0)';
 			size = value.getSize();
 			attachment = value.getAttachment();
 		}

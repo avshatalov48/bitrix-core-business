@@ -194,6 +194,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "getValue",
 	    value: function getValue() {
+	      if (this.textOnly) {
+	        return this.input.innerText;
+	      }
+
 	      return this.adjustTags(main_core.Runtime.clone(this.input)).innerHTML.replace(/&nbsp;/g, '');
 	    }
 	  }]);

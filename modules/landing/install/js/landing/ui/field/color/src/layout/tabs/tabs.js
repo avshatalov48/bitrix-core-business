@@ -13,6 +13,7 @@ export default class Tabs extends EventEmitter
 	constructor()
 	{
 		super();
+		this.setEventNamespace('BX.Landing.UI.Field.Color.Tabs');
 
 		this.tabs = [];
 		this.cache = new Cache.MemoryCache();

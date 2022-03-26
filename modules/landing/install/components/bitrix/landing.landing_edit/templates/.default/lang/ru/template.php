@@ -23,6 +23,7 @@ $MESS['LANDING_TPL_LAYOUT_USE'] = 'Изменить для этой страни
 $MESS['LANDING_TPL_LAYOUT_AREA'] = 'Область';
 $MESS['LANDING_TPL_CODE_SETTINGS'] = 'Для главной страницы изменение адреса осуществляется в #LINK1#Настройках сайта#LINK2#.';
 $MESS['LANDING_TPL_CODE_SETTINGS_KNOWLEDGE'] = 'Для главной страницы изменение адреса осуществляется в #LINK1#Настройках базы знаний#LINK2#.';
+$MESS['LANDING_TPL_CODE_FOLDER_SETTINGS'] = 'Для главной страницы папки изменение адреса осуществляется в #LINK1#Настройках папки#LINK2#.';
 $MESS['LANDING_TPL_HTML_DISABLED_TITLE'] = 'Ограничение тарифа';
 $MESS['LANDING_FIELD_TITLE_METAOG_NAME'] = 'Вид страницы в соцсетях';
 $MESS['LANDING_FIELD_TITLE_METAOG_NAME_KNOWLEDGE'] = 'Вид богатой ссылки';

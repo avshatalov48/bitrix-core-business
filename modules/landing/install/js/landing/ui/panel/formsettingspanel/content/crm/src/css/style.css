@@ -1,0 +1,27 @@
+.landing-ui-crm-entity-type1 {
+	background-image: url("images/type1.svg");
+}
+
+.landing-ui-crm-entity-type2 {
+	background-image: url("images/type2.svg");
+}
+
+.landing-ui-crm-entity-type3 {
+	background-image: url("images/type3.svg");
+}
+
+.landing-ui-crm-entity-type4 {
+	background-image: url("images/type4.svg");
+}
+
+.landing-ui-crm-entity-type5 {
+	background-image: url("images/type5.svg");
+}
+
+.landing-ui-field[data-selector="duplicatesEnabled"] {
+	margin-top: -25px!important;
+}
+
+.landing-ui-field-radio-button-layout[data-selector="scheme"] {
+	display: flex;
+}

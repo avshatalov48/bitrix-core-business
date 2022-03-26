@@ -202,10 +202,10 @@ class Helper
 
 	public static function convertExpressions($source, array $documentType, $useTilda = true)
 	{
-		$source = (string)$source;
-		[$ids, $names] = static::getFieldsMap($documentType);
+		$pattern = \CBPActivity::ValueInlinePattern;
+		[$mapIds, $mapNames, $mapObjectNames] = static::getExpressionsMaps($documentType);
 
-		$converter = function ($matches) use ($ids, $names, $useTilda)
+		$converter = function ($matches) use ($mapIds, $mapNames, $mapObjectNames, $useTilda)
 		{
 			$mods = [];
 			if ($matches['mod1'])
@@ -216,47 +216,73 @@ class Helper
 			{
 				$mods[] = $matches['mod2'];
 			}
+			$modifiers = ($mods ? ' > ' . implode(',', $mods) : '');
 
-			if ($matches['object'] === 'Document')
+			$objectName = $matches['object'];
+			$fieldId = $matches['field'];
+
+			if (in_array($objectName, $mapObjectNames))
 			{
-				$key = array_search($matches['field'], $ids);
+				$key = array_search($fieldId, $mapIds[$objectName]);
 				if ($key !== false)
 				{
-					$fieldName = $names[$key];
-					return '{{'.$fieldName. ($mods? ' > '.implode(',', $mods) : '').'}}';
+					$fieldName = $mapNames[$objectName][$key];
+
+					return '{{' . $fieldName . $modifiers . '}}';
 				}
 			}
-			elseif ($useTilda && $matches['object'] === 'Template')
+			elseif ($useTilda && $objectName === 'Template')
 			{
-				return '{{~*:'.$matches['field']. ($mods? ' > '.implode(',', $mods) : '').'}}';
+				return '{{~*:' . $fieldId . $modifiers . '}}';
 			}
-			elseif ($useTilda && $matches['object'] === 'Constant')
+			elseif ($useTilda && $objectName === 'Constant')
 			{
-				return '{{~&:'.$matches['field']. ($mods? ' > '.implode(',', $mods) : '').'}}';
+				return '{{~&:' . $fieldId . $modifiers . '}}';
 			}
-			elseif ($useTilda && preg_match('/^A[_0-9]+$/', $matches['object']))
+			elseif ($useTilda && preg_match('/^A[_0-9]+$/', $objectName))
 			{
-				return '{{~'.$matches['object'].':'.$matches['field']. ($mods? ' > '.implode(',', $mods) : '').'}}';
+				return '{{~' . $objectName . ':' . $fieldId . $modifiers . '}}';
 			}
 
 			return $matches[0];
 		};
 
-		$source = preg_replace_callback(
-			\CBPActivity::ValueInlinePattern,
-			$converter,
-			$source
-		);
+		return preg_replace_callback($pattern, $converter, $source);
+	}
 
-		return $source;
+	protected static function getExpressionsMaps($documentType): array
+	{
+		$mapIds = [];
+		$mapNames = [];
+		$mapObjectNames = [];
+
+		$objectName = \Bitrix\Bizproc\Workflow\Template\SourceType::DocumentField;
+		[$ids, $names] = static::getFieldsMap($documentType);
+		$mapIds[$objectName] = $ids;
+		$mapNames[$objectName] = $names;
+		$mapObjectNames[] = $objectName;
+
+		$objectName = \Bitrix\Bizproc\Workflow\Template\SourceType::GlobalVariable;
+		[$ids, $names] = static::getGlobalsMap($objectName, $documentType);
+		$mapIds[$objectName] = $ids;
+		$mapNames[$objectName] = $names;
+		$mapObjectNames[] = $objectName;
+
+		$objectName = \Bitrix\Bizproc\Workflow\Template\SourceType::GlobalConstant;
+		[$ids, $names] = static::getGlobalsMap($objectName, $documentType);
+		$mapIds[$objectName] = $ids;
+		$mapNames[$objectName] = $names;
+		$mapObjectNames[] = $objectName;
+
+		return [$mapIds, $mapNames, $mapObjectNames];
 	}
 
 	public static function unConvertExpressions($source, array $documentType)
 	{
-		$source = (string)$source;
-		[$ids, $names] = static::getFieldsMap($documentType);
+		$pattern = '/\{\{(?<mixed>[^=].*?)\}\}/is';
+		[$mapIds, $mapNames, $mapObjectNames] = static::getExpressionsMaps($documentType);
 
-		$converter = function ($matches) use ($ids, $names)
+		$converter = function ($matches) use ($mapIds, $mapNames, $mapObjectNames)
 		{
 			$matches['mixed'] = htmlspecialcharsback($matches['mixed']);
 
@@ -271,40 +297,52 @@ class Helper
 				if (mb_strpos($expression, '*:') === 0)
 				{
 					$expression = ltrim($expression,'*');
-					$expression = 'Template'.$expression;
+					$expression = 'Template' . $expression;
 				}
 
 				if (mb_strpos($expression, '&:') === 0)
 				{
 					$expression = ltrim($expression,'&');
-					$expression = 'Constant'.$expression;
+					$expression = 'Constant' . $expression;
 				}
 
-				return '{='.trim($expression).'}';
+				return '{=' . trim($expression) . '}';
 			}
 
 			$pairs = explode('>', $matches['mixed']);
-			$fieldName = $fieldId = '';
+			$fieldName = '';
+			$fieldId = '';
+			$objectName = '';
 
 			while (($pair = array_shift($pairs)) !== null)
 			{
-				$fieldName .= $fieldName? '>'.$pair : $pair;
+				$fieldName .= $fieldName ? '>' . $pair : $pair;
 
-				$key = array_search(trim($fieldName), $names);
-				if ($key !== false)
+				foreach ($mapObjectNames as $object)
 				{
-					$fieldId = $ids[$key];
+					$key = array_search(trim($fieldName), $mapNames[$object]);
+					if ($key !== false)
+					{
+						$objectName = $object;
+						$fieldId = $mapIds[$object][$key];
+						break;
+					}
+				}
+
+				if ($fieldId !== '')
+				{
 					break;
 				}
 			}
 
 			if (!$fieldId && mb_substr($fieldName, -10) === '_printable')
 			{
-				$fieldName = mb_substr($fieldName, 0,-10);
-				$key = array_search(trim($fieldName), $names);
+				$fieldName = mb_substr($fieldName, 0, -10);
+				$key = array_search(trim($fieldName), $mapNames['Document']);
 				if ($key !== false)
 				{
-					$fieldId = $ids[$key];
+					$objectName = 'Document';
+					$fieldId = $mapIds['Document'][$key];
 					$pairs[] = 'printable';
 				}
 			}
@@ -312,19 +350,15 @@ class Helper
 			if ($fieldId)
 			{
 				$mods = isset($pairs[0]) ? trim($pairs[0]) : '';
-				return '{=Document:'.$fieldId.($mods? ' > '.$mods : '').'}';
+				$modifiers = $mods ? ' > ' . $mods : '';
+
+				return '{=' . $objectName . ':' . $fieldId . $modifiers . '}';
 			}
 
 			return $matches[0];
 		};
 
-		$source = preg_replace_callback(
-			'/\{\{(?<mixed>[^=].*?)\}\}/is',
-			$converter,
-			$source
-		);
-
-		return $source;
+		return preg_replace_callback($pattern, $converter, $source);
 	}
 
 	public static function convertProperties(array $properties, array $documentType, $useTilda = true)
@@ -458,6 +492,48 @@ class Helper
 
 			static::$maps[$key] = [$id, $name];
 		}
+
+		return static::$maps[$key];
+	}
+
+	protected static function getGlobalsMap(string $type, array $documentType)
+	{
+		switch ($type)
+		{
+			case \Bitrix\Bizproc\Workflow\Template\SourceType::GlobalConstant:
+				$key = 'globals@const@' . implode('@', $documentType);
+				if (isset(static::$maps[$key]))
+				{
+					return static::$maps[$key];
+				}
+				$globals = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll($documentType);
+				$visibilityNames = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getVisibilityFullNames($documentType);
+				break;
+			case \Bitrix\Bizproc\Workflow\Template\SourceType::GlobalVariable:
+				$key = 'globals@var@' . implode('@', $documentType);
+				if (isset(static::$maps[$key]))
+				{
+					return static::$maps[$key];
+				}
+				$globals = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll($documentType);
+				$visibilityNames = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getVisibilityFullNames($documentType);
+				break;
+			default:
+				return [];
+		}
+
+		$ids = [];
+		$names = [];
+
+		foreach ($globals as $id => $property)
+		{
+			$ids[] = $id;
+			$visibility = $property['Visibility'];
+			$names[] = $visibilityNames[$visibility] . ': ' . $property['Name'];
+		}
+
+		static::$maps[$key] = [$ids, $names];
+
 		return static::$maps[$key];
 	}
 

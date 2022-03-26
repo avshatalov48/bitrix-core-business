@@ -29,9 +29,12 @@ export interface FieldRulesOptions extends RuleEntryOptions
 	fields: Array<FormField>,
 }
 
+export type RuleType = 'type1' | 'type2' | 'type3';
+
 export interface RuleFieldOptions
 {
 	fields: Array<FormField>,
 	rules: Array<FieldRules>,
 	dictionary: Dictionary,
+	type: RuleType,
 }

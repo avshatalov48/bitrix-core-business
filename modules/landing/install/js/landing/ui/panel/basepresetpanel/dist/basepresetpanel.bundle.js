@@ -1,33 +1,19 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,landing_ui_panel_content,landing_ui_button_basebutton,landing_ui_field_presetfield,landing_pageobject,landing_ui_button_sidebarbutton,landing_loc,main_core_events,main_core,landing_ui_card_headercard,landing_ui_card_messagecard,landing_ui_form_formsettingsform,landing_collection_basecollection,landing_ui_form_baseform) {
+(function (exports,landing_ui_panel_content,landing_ui_button_basebutton,landing_ui_field_presetfield,landing_pageobject,landing_ui_button_sidebarbutton,landing_loc,ui_textcrop,main_loader,main_core_events,main_core,landing_ui_card_headercard,landing_ui_card_messagecard,landing_ui_form_formsettingsform,landing_collection_basecollection,landing_ui_form_baseform) {
 	'use strict';
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-presets-category\">\n\t\t\t\t\t<div class=\"landing-ui-presets-category-title\">", "</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
+	var _templateObject, _templateObject2;
 
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-presets-category-list\"></div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 	var PresetCategory = /*#__PURE__*/function () {
 	  function PresetCategory(options) {
 	    babelHelpers.classCallCheck(this, PresetCategory);
-	    this.options = babelHelpers.objectSpread({}, options);
+	    this.options = _objectSpread({}, options);
 	    this.cache = new main_core.Cache.MemoryCache();
 	  }
 
@@ -45,7 +31,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getListContainer",
 	    value: function getListContainer() {
 	      return this.cache.remember('listContainer', function () {
-	        return main_core.Tag.render(_templateObject());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-presets-category-list\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
@@ -54,62 +40,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this = this;
 
 	      return this.cache.remember('layout', function () {
-	        return main_core.Tag.render(_templateObject2(), _this.options.title, _this.getListContainer());
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-presets-category\">\n\t\t\t\t\t<div class=\"landing-ui-presets-category-title\">", "</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this.options.title, _this.getListContainer());
 	      });
 	    }
 	  }]);
 	  return PresetCategory;
 	}();
 
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-preset", "", "\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-ui-panel-preset-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
+	var _templateObject$1, _templateObject2$1, _templateObject3, _templateObject4, _templateObject5;
 
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-preset-soon-label\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"landing-ui-panel-preset-text-description\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t>", "</div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"landing-ui-panel-preset-text-title\" \n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t>", "</div>\n\t\t\t"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"landing-ui-panel-preset-icon\" \n\t\t\t\t\tstyle=\"background-image: url(", ")\"\n\t\t\t\t></div>\n\t\t\t"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var defaultOptions = {
 	  disabled: false,
 	  soon: false
@@ -129,43 +71,48 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    _this.setEventNamespace('BX.Landing.UI.Panel.BasePresetPanel.Preset');
 
-	    _this.options = babelHelpers.objectSpread({}, defaultOptions, options);
-
-	    if (landing_loc.Loc.getMessage('LANGUAGE_ID') !== 'ru') {
-	      _this.options.items = _this.options.items.filter(function (item) {
-	        return item !== 'vk';
-	      });
-	    }
-
+	    _this.options = _objectSpread$1(_objectSpread$1({}, defaultOptions), options);
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    return _this;
 	  }
 
 	  babelHelpers.createClass(Preset, [{
-	    key: "getIconNode",
-	    value: function getIconNode() {
+	    key: "getTextCrop",
+	    value: function getTextCrop() {
 	      var _this2 = this;
 
+	      return this.cache.remember('textCrop', function () {
+	        return new ui_textcrop.TextCrop({
+	          rows: 2,
+	          target: _this2.getDescriptionNode()
+	        });
+	      });
+	    }
+	  }, {
+	    key: "getIconNode",
+	    value: function getIconNode() {
+	      var _this3 = this;
+
 	      return this.cache.remember('iconNode', function () {
-	        return main_core.Tag.render(_templateObject$1(), _this2.options.icon);
+	        return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div\n\t\t\t\t\tclass=\"landing-ui-panel-preset-icon\"\n\t\t\t\t\tstyle=\"background-image: url(", "?v2)\"\n\t\t\t\t></div>\n\t\t\t"])), _this3.options.icon);
 	      });
 	    }
 	  }, {
 	    key: "getTitleNode",
 	    value: function getTitleNode() {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      return this.cache.remember('titleNode', function () {
-	        return main_core.Tag.render(_templateObject2$1(), main_core.Text.encode(_this3.options.title), _this3.options.title);
+	        return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div\n\t\t\t\t\tclass=\"landing-ui-panel-preset-text-title\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t>", "</div>\n\t\t\t"])), main_core.Text.encode(_this4.options.title), _this4.options.title);
 	      });
 	    }
 	  }, {
 	    key: "getDescriptionNode",
 	    value: function getDescriptionNode() {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      return this.cache.remember('descriptionNode', function () {
-	        return main_core.Tag.render(_templateObject3(), main_core.Text.encode(_this4.options.description), _this4.options.description);
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div\n\t\t\t\t\tclass=\"landing-ui-panel-preset-text-description\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t>", "</div>\n\t\t\t"])), main_core.Text.encode(_this5.options.description), _this5.options.description);
 	      });
 	    }
 	  }, {
@@ -179,44 +126,47 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      main_core.Dom.removeClass(this.getLayout(), 'landing-ui-panel-preset-active');
 	    }
 	  }, {
+	    key: "isActive",
+	    value: function isActive() {
+	      return main_core.Dom.hasClass(this.getLayout(), 'landing-ui-panel-preset-active');
+	    }
+	  }, {
 	    key: "getSoonLabel",
 	    value: function getSoonLabel() {
 	      return this.cache.remember('soonLabel', function () {
-	        return main_core.Tag.render(_templateObject4(), landing_loc.Loc.getMessage('LANDING_UI_BASE_PRESET_PANEL_SOON_LABEL'));
+	        return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-preset-soon-label\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), landing_loc.Loc.getMessage('LANDING_UI_BASE_PRESET_PANEL_SOON_LABEL'));
 	      });
 	    }
 	  }, {
 	    key: "getLayout",
 	    value: function getLayout() {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      return this.cache.remember('layout', function () {
 	        var onLayoutClick = function onLayoutClick(event) {
 	          event.preventDefault();
 
-	          _this5.activate();
+	          if (_this6.options.openable) {
+	            _this6.activate();
+	          }
 
-	          _this5.emit('onClick');
+	          _this6.emit('onClick');
 	        };
 
-	        var additionalClass = _this5.options.active ? ' landing-ui-panel-preset-active' : '';
-	        var disabledClass = _this5.options.disabled ? ' landing-ui-disabled' : '';
-	        return main_core.Tag.render(_templateObject5(), additionalClass, disabledClass, onLayoutClick, main_core.Type.isStringFilled(_this5.options.icon) && _this5.getIconNode(), main_core.Type.isStringFilled(_this5.options.title) ? _this5.getTitleNode() : '', main_core.Type.isStringFilled(_this5.options.description) ? _this5.getDescriptionNode() : '', _this5.options.soon ? _this5.getSoonLabel() : '');
+	        var additionalClass = _this6.options.active ? ' landing-ui-panel-preset-active' : '';
+	        var disabledClass = _this6.options.disabled ? ' landing-ui-disabled' : '';
+	        return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-preset", "", "\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-ui-panel-preset-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), additionalClass, disabledClass, onLayoutClick, main_core.Type.isStringFilled(_this6.options.icon) ? _this6.getIconNode() : '', main_core.Type.isStringFilled(_this6.options.title) ? _this6.getTitleNode() : '', main_core.Type.isStringFilled(_this6.options.description) ? _this6.getDescriptionNode() : '', _this6.options.soon ? _this6.getSoonLabel() : '');
 	      });
 	    }
 	  }]);
 	  return Preset;
 	}(main_core_events.EventEmitter);
 
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-panel-form-settings-content-wrapper\"></div>"]);
+	var _templateObject$2;
 
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
+	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
+	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 	var ContentWrapper = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(ContentWrapper, _EventEmitter);
@@ -229,7 +179,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    _this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel.ContentWrapper');
 
-	    _this.options = babelHelpers.objectSpread({}, options);
+	    _this.options = _objectSpread$2({}, options);
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    _this.items = new landing_collection_basecollection.BaseCollection();
 	    _this.onChange = _this.onChange.bind(babelHelpers.assertThisInitialized(_this));
@@ -260,7 +210,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getLayout",
 	    value: function getLayout() {
 	      return this.cache.remember('wrapper', function () {
-	        return main_core.Tag.render(_templateObject$2());
+	        return main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-panel-form-settings-content-wrapper\"></div>"])));
 	      });
 	    }
 	  }, {
@@ -268,7 +218,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    value: function getValue() {
 	      var value = this.items.reduce(function (acc, item) {
 	        if (item instanceof landing_ui_form_baseform.BaseForm && item.getLayout().parentElement) {
-	          return babelHelpers.objectSpread({}, acc, item.serialize());
+	          return _objectSpread$2(_objectSpread$2({}, acc), item.serialize());
 	        }
 
 	        return acc;
@@ -295,35 +245,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return ContentWrapper;
 	}(main_core_events.EventEmitter);
 
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-base-preset-header-controls-left\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-panel-base-preset-header-controls-right\"></div>"]);
-
-	  _templateObject2$2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-base-preset-header-controls\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject$3 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$3, _templateObject2$2, _templateObject3$1;
 	/**
 	 * @memberOf BX.Landing.UI.Panel
 	 */
@@ -441,15 +363,37 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "onSidebarButtonClick",
 	    value: function onSidebarButtonClick(event) {
-	      this.sidebarButtons.getActive().deactivate();
-	      event.getTarget().activate();
-	      this.clearContent();
-	      var content = this.getContent(event.getTarget().id);
+	      var _this5 = this;
 
-	      if (content) {
-	        content.subscribe('onChange', this.onChange);
-	        main_core.Dom.append(content.getLayout(), this.content);
+	      var activeButton = this.sidebarButtons.getActive();
+
+	      if (activeButton) {
+	        activeButton.deactivate();
 	      }
+
+	      event.getTarget().activate();
+	      main_core.Dom.addClass(this.content, 'landing-ui-panel-base-preset-fade');
+	      this.showContentLoader();
+	      void this.getContent(event.getTarget().id).then(function (content) {
+	        if (content) {
+	          setTimeout(function () {
+	            main_core.Dom.removeClass(_this5.content, 'landing-ui-panel-base-preset-fade');
+
+	            _this5.clearContent();
+
+	            _this5.hideContentLoader();
+
+	            content.subscribe('onChange', _this5.onChange);
+	            main_core.Dom.append(content.getLayout(), _this5.content);
+	          }, 300);
+	        } else {
+	          main_core.Dom.removeClass(_this5.content, 'landing-ui-panel-base-preset-fade');
+
+	          _this5.clearContent();
+
+	          _this5.hideContentLoader();
+	        }
+	      });
 	    }
 	  }, {
 	    key: "onChange",
@@ -463,37 +407,37 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "getHeaderControlsContainer",
 	    value: function getHeaderControlsContainer() {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      return this.cache.remember('headerControlsContainer', function () {
-	        return main_core.Tag.render(_templateObject$3(), _this5.getLeftHeaderControls(), _this5.getRightHeaderControls());
+	        return main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-base-preset-header-controls\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this6.getLeftHeaderControls(), _this6.getRightHeaderControls());
 	      });
 	    }
 	  }, {
 	    key: "getRightHeaderControls",
 	    value: function getRightHeaderControls() {
 	      return this.cache.remember('rightHeaderControls', function () {
-	        return main_core.Tag.render(_templateObject2$2());
+	        return main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-panel-base-preset-header-controls-right\"></div>"])));
 	      });
 	    }
 	  }, {
 	    key: "getLeftHeaderControls",
 	    value: function getLeftHeaderControls() {
-	      var _this6 = this;
+	      var _this7 = this;
 
 	      return this.cache.remember('leftHeaderControls', function () {
-	        return main_core.Tag.render(_templateObject3$1(), _this6.getPresetField().getNode());
+	        return main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-base-preset-header-controls-left\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this7.getPresetField().getNode());
 	      });
 	    }
 	  }, {
 	    key: "getPresetField",
 	    value: function getPresetField() {
-	      var _this7 = this;
+	      var _this8 = this;
 
 	      return this.cache.remember('presetField', function () {
 	        return new landing_ui_field_presetfield.PresetField({
 	          events: {
-	            onClick: _this7.onPresetFieldClick
+	            onClick: _this8.onPresetFieldClick
 	          }
 	        });
 	      });
@@ -520,7 +464,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "hide",
 	    value: function hide() {
-	      var _this8 = this;
+	      var _this9 = this;
 
 	      var viewWrapper = this.getViewWrapper();
 
@@ -529,7 +473,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 
 	      return babelHelpers.get(babelHelpers.getPrototypeOf(BasePresetPanel.prototype), "hide", this).call(this).then(function () {
-	        if (_this8.isToggleModeEnabled()) {
+	        if (_this9.isToggleModeEnabled()) {
 	          main_core.Dom.style(viewWrapper, 'transition', null);
 	        }
 	      });
@@ -548,7 +492,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "setCategories",
 	    value: function setCategories(categories) {
 	      this.cache.set('categories', categories);
-	      this.cache.delete('renderedPresets');
+	      this.cache["delete"]('renderedPresets');
 	    }
 	  }, {
 	    key: "getCategories",
@@ -558,14 +502,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "setPresets",
 	    value: function setPresets(presets) {
-	      var _this9 = this;
+	      var _this10 = this;
 
 	      presets.forEach(function (preset) {
-	        preset.unsubscribe('onClick', _this9.onPresetClick);
-	        preset.subscribe('onClick', _this9.onPresetClick);
+	        preset.unsubscribe('onClick', _this10.onPresetClick);
+	        preset.subscribe('onClick', _this10.onPresetClick);
 	      });
 	      this.cache.set('presets', presets);
-	      this.cache.delete('renderedPresets');
+	      this.cache["delete"]('renderedPresets');
 	    }
 	  }, {
 	    key: "getPresets",
@@ -575,10 +519,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "setSidebarButtons",
 	    value: function setSidebarButtons(buttons) {
-	      var _this10 = this;
+	      var _this11 = this;
 
 	      buttons.forEach(function (button) {
-	        button.subscribe('onClick', _this10.onSidebarButtonClick);
+	        button.subscribe('onClick', _this11.onSidebarButtonClick);
 	      });
 	      this.cache.set('sidebarButtons', buttons);
 	    }
@@ -590,17 +534,21 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "onPresetFieldClick",
 	    value: function onPresetFieldClick() {
-	      var _this11 = this;
+	      var _this12 = this;
 
 	      this.clear();
 	      this.enableTransparentMode();
 	      this.getCategories().forEach(function (category) {
-	        var presets = _this11.getPresets().filter(function (preset) {
+	        var presets = _this12.getPresets().filter(function (preset) {
 	          return preset.options.category === category.options.id;
 	        });
 
 	        category.setPresets(presets);
-	        main_core.Dom.append(category.getLayout(), _this11.content);
+	        main_core.Dom.append(category.getLayout(), _this12.content);
+
+	        _this12.getPresets().forEach(function (preset) {
+	          preset.getTextCrop().init();
+	        });
 	      });
 	    }
 	  }, {
@@ -624,7 +572,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "applyPreset",
 	    value: function applyPreset(preset) {
-	      var _this12 = this;
+	      var _this13 = this;
 	      this.clear();
 	      var presetField = this.getPresetField();
 	      presetField.setLinkText(preset.options.title);
@@ -635,7 +583,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      buttons.forEach(function (button) {
 	        button.deactivate();
 
-	        _this12.appendSidebarButton(button);
+	        _this13.appendSidebarButton(button);
 	      });
 
 	      if (main_core.Type.isStringFilled(preset.options.defaultSection)) {
@@ -655,6 +603,30 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        firstButton.layout.click();
 	      }
 	    }
+	  }, {
+	    key: "getContentLoader",
+	    value: function getContentLoader() {
+	      var _this14 = this;
+
+	      return this.cache.remember('contentLoader', function () {
+	        return new main_loader.Loader({
+	          target: _this14.body,
+	          offset: {
+	            left: '130px'
+	          }
+	        });
+	      });
+	    }
+	  }, {
+	    key: "showContentLoader",
+	    value: function showContentLoader() {
+	      void this.getContentLoader().show();
+	    }
+	  }, {
+	    key: "hideContentLoader",
+	    value: function hideContentLoader() {
+	      void this.getContentLoader().hide();
+	    }
 	  }]);
 	  return BasePresetPanel;
 	}(landing_ui_panel_content.Content);
@@ -664,5 +636,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	exports.Preset = Preset;
 	exports.ContentWrapper = ContentWrapper;
 
-}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX.Landing.UI.Panel,BX.Landing.UI.Button,BX.Landing.UI.Field,BX.Landing,BX.Landing.UI.Button,BX.Landing,BX.Event,BX,BX.Landing.UI.Card,BX.Landing.UI.Card,BX.Landing.UI.Form,BX.Landing.Collection,BX.Landing.UI.Form));
+}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX.Landing.UI.Panel,BX.Landing.UI.Button,BX.Landing.UI.Field,BX.Landing,BX.Landing.UI.Button,BX.Landing,BX.UI,BX,BX.Event,BX,BX.Landing.UI.Card,BX.Landing.UI.Card,BX.Landing.UI.Form,BX.Landing.Collection,BX.Landing.UI.Form));
 //# sourceMappingURL=basepresetpanel.bundle.js.map

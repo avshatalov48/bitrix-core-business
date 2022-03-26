@@ -36,7 +36,7 @@ export class ConfirmStatusDialog extends EventEmitter
 				})
 			],
 			content: content,
-			events: {}
+			cacheable: false
 		});
 
 		content.appendChild(new BX.PopupWindowButton({

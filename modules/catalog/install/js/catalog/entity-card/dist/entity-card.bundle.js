@@ -1,7 +1,11 @@
 this.BX = this.BX || {};
 this.BX.Catalog = this.BX.Catalog || {};
-(function (exports,ui_entityEditor,ui_notification,main_core_events,translit,main_core,main_popup) {
+(function (exports,ui_entityEditor,ui_notification,translit,main_core_events,main_popup,main_core,catalog_storeUse) {
 	'use strict';
+
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 	var LazyLoader = /*#__PURE__*/function () {
 	  function LazyLoader(id, settings) {
@@ -40,7 +44,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "load",
 	    value: function load() {
 	      if (!this.isLoaded()) {
-	        this.startRequest(babelHelpers.objectSpread({}, this.params, {
+	        this.startRequest(_objectSpread(_objectSpread({}, this.params), {
 	          'TABID': this.tabId
 	        }));
 	      }
@@ -83,6 +87,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return LazyLoader;
 	}();
 
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	var Tab = /*#__PURE__*/function () {
 	  function Tab(id, settings) {
 	    babelHelpers.classCallCheck(this, Tab);
@@ -98,7 +106,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    this.loader = null;
 
 	    if (main_core.Type.isObjectLike(this.data.loader)) {
-	      this.loader = new LazyLoader(this.id, babelHelpers.objectSpread({}, this.data.loader, {
+	      this.loader = new LazyLoader(this.id, _objectSpread$1(_objectSpread$1({}, this.data.loader), {
 	        tabId: this.id,
 	        container: this.container
 	      }));
@@ -232,6 +240,16 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        }));
 	      });
 	    }
+
+	    main_core_events.EventEmitter.subscribe('BX.Catalog.EntityCard.TabManager:onOpenTab', function (event) {
+	      var tabId = event.data.tabId;
+
+	      var item = _this.findItemById(tabId);
+
+	      if (item) {
+	        _this.selectItem(item);
+	      }
+	    });
 	  }
 
 	  babelHelpers.createClass(Manager, [{
@@ -244,6 +262,9 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "selectItem",
 	    value: function selectItem(item) {
+	      main_core_events.EventEmitter.emit('BX.Catalog.EntityCard.TabManager:onSelectItem', {
+	        tabId: item.id
+	      });
 	      this.items.forEach(function (current) {
 	        return current.setActive(current === item);
 	      });
@@ -252,65 +273,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return Manager;
 	}();
 
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t\t<span class=\"ui-tile-selector-selector-wrap readonly\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t</div>"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tile-selector-item ui-tile-selector-item-readonly-yes\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t<span data-role=\"tile-item-name\">", "</span>\n\t\t\t\t\t</span>\n\t\t\t\t"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-tile-selector-item-picture\" style=\"background-image: url('", "');\"></span>"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block\"></div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"", "[]\" value=\"0\">"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6;
 
 	var IblockSectionField = /*#__PURE__*/function (_BX$UI$EntityEditorFi) {
 	  babelHelpers.inherits(IblockSectionField, _BX$UI$EntityEditorFi);
@@ -366,11 +329,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "drawEditMode",
 	    value: function drawEditMode() {
-	      this.defaultInput = main_core.Tag.render(_templateObject(), this.getName());
+	      this.defaultInput = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"", "[]\" value=\"0\">"])), this.getName());
 
 	      this._wrapper.appendChild(this.defaultInput);
 
-	      this.innerWrapper = main_core.Tag.render(_templateObject2());
+	      this.innerWrapper = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block\"></div>"])));
 
 	      this._wrapper.appendChild(this.innerWrapper);
 
@@ -381,7 +344,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          productId: this.getProductId(),
 	          selectedSectionIds: this.getValue()
 	        }
-	      }).then(this.renderFromResponse.bind(this)).catch(function (response) {
+	      }).then(this.renderFromResponse.bind(this))["catch"](function (response) {
 	        throw new Error(response.errors.join("\n"));
 	      });
 	    }
@@ -421,7 +384,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "drawViewMode",
 	    value: function drawViewMode() {
 	      if (this.hasNoSections()) {
-	        this.innerWrapper = main_core.Tag.render(_templateObject3(), main_core.Loc.getMessage("CATALOG_ENTITY_CARD_EMPTY_SECTION"));
+	        this.innerWrapper = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage("CATALOG_ENTITY_CARD_EMPTY_SECTION"));
 	        main_core.Dom.addClass(this._wrapper, 'ui-entity-editor-content-block-click-empty');
 	      } else {
 	        var content = [];
@@ -430,12 +393,12 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          var picture = '';
 
 	          if (main_core.Type.isStringFilled(section.PICTURE)) {
-	            picture = main_core.Tag.render(_templateObject4(), main_core.Text.encode(section.PICTURE));
+	            picture = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<span class=\"ui-tile-selector-item-picture\" style=\"background-image: url('", "');\"></span>"])), main_core.Text.encode(section.PICTURE));
 	          }
 
-	          content.push(main_core.Tag.render(_templateObject5(), picture, main_core.Text.encode(section.NAME)));
+	          content.push(main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"ui-tile-selector-item ui-tile-selector-item-readonly-yes\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t<span data-role=\"tile-item-name\">", "</span>\n\t\t\t\t\t</span>\n\t\t\t\t"])), picture, main_core.Text.encode(section.NAME)));
 	        });
-	        this.innerWrapper = main_core.Tag.render(_templateObject6(), content);
+	        this.innerWrapper = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t\t<span class=\"ui-tile-selector-selector-wrap readonly\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t</div>"])), content);
 	      }
 
 	      this._wrapper.appendChild(this.innerWrapper);
@@ -491,195 +454,21 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return IblockSectionField;
 	}(BX.UI.EntityEditorField);
 
-	function _templateObject18() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span>\n\t\t\t\t\t", "\n\t\t\t\t\t<span style=\"color: rgb(255, 0, 0);\">*</span>\n\t\t\t\t</span>\n\t\t\t"]);
+	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5$1, _templateObject6$1, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16, _templateObject17, _templateObject18;
 
-	  _templateObject18 = function _templateObject18() {
-	    return data;
-	  };
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
 
-	  return data;
-	}
-
-	function _templateObject17() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span>", "</span>"]);
-
-	  _templateObject17 = function _templateObject17() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject16() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<label class=\"ui-entity-editor-block-title\"></label>"]);
-
-	  _templateObject16 = function _templateObject16() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject15() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-symbol-code-box\">\n\t\t\t\t<div class=\"ui-entity-editor-symbol-code-label\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-entity-editor-symbol-code-value ", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject15 = function _templateObject15() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject14() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<p>", "</p>"]);
-
-	  _templateObject14 = function _templateObject14() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject13() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-symbol-code-label\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject13 = function _templateObject13() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject12() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<p>", "</p>"]);
-
-	  _templateObject12 = function _templateObject12() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject11() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block-text\"></div>\n\t\t"]);
-
-	  _templateObject11 = function _templateObject11() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject10() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button name=\"", "\" class=\"ui-ctl-before ui-ctl-icon-", "\" id=\"code_state_button\"></button>\n\t\t\t"]);
-
-	  _templateObject10 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input\n\t\t\t\t\tclass=\"ui-ctl-element\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tid=\"", "\"\n\t\t\t\t\ttype=\"text\"\n\t\t\t\t\tvalue=\"", "\"/>\n\t\t\t"]);
-
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<textarea\n\t\t\t\t\tclass=\"ui-ctl-element ui-entity-editor-field-textarea\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tid=\"", "\"\n\t\t\t\t\trows=\"", "\">", "</textarea>\n\t\t\t"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-ctl ui-ctl-w100 ui-ctl-textbox\"></div>\n\t\t"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "_container\"></div>\n\t\t"]);
-
-	  _templateObject6$1 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-field-error-text\"></div>"]);
-
-	  _templateObject5$1 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">", "</div>\n\t\t\t"]);
-
-	  _templateObject4$1 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block\">", "</div>"]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div></div>"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span id=\"name_code_marker\" style=\"color: rgb(255, 0, 0); display: ", ";\">*</span>"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
-	var _creatLabelForEditMode = new WeakSet();
+	var _creatLabelForEditMode = /*#__PURE__*/new WeakSet();
 
-	var _onInputHandler = new WeakSet();
+	var _onInputHandler = /*#__PURE__*/new WeakSet();
 
-	var _getHintNode = new WeakSet();
+	var _getHintNode = /*#__PURE__*/new WeakSet();
 
-	var _onCodeStateButtonClick = new WeakSet();
+	var _onCodeStateButtonClick = /*#__PURE__*/new WeakSet();
 
 	var NameCodeField = /*#__PURE__*/function (_BX$UI$EntityEditorMu) {
 	  babelHelpers.inherits(NameCodeField, _BX$UI$EntityEditorMu);
@@ -690,13 +479,13 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    babelHelpers.classCallCheck(this, NameCodeField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(NameCodeField).call(this));
 
-	    _onCodeStateButtonClick.add(babelHelpers.assertThisInitialized(_this));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _onCodeStateButtonClick);
 
-	    _getHintNode.add(babelHelpers.assertThisInitialized(_this));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getHintNode);
 
-	    _onInputHandler.add(babelHelpers.assertThisInitialized(_this));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _onInputHandler);
 
-	    _creatLabelForEditMode.add(babelHelpers.assertThisInitialized(_this));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _creatLabelForEditMode);
 
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "getValue", function () {
 	      return BX.UI.EntityEditorBoolean.superclass.getValue.apply(this);
@@ -797,7 +586,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      var display = this.isShownSymbolicCode ? 'none' : 'inline';
 
 	      if (this._mode === BX.UI.EntityEditorMode.edit) {
-	        return main_core.Tag.render(_templateObject$1(), display);
+	        return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<span id=\"name_code_marker\" style=\"color: rgb(255, 0, 0); display: ", ";\">*</span>"])), display);
 	      }
 	    }
 	  }, {
@@ -830,13 +619,13 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      main_core.Dom.append(this.createTitleNode(title), this._wrapper);
 
 	      if (this._mode === BX.UI.EntityEditorMode.edit) {
-	        this._inputContainer = main_core.Tag.render(_templateObject2$1());
+	        this._inputContainer = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div></div>"])));
 
 	        for (var valueKey in values) {
 	          main_core.Dom.append(this.createSingleInput(values[valueKey], valueKey), this._inputContainer);
 	        }
 
-	        this._innerWrapper = main_core.Tag.render(_templateObject3$1(), this._inputContainer);
+	        this._innerWrapper = main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block\">", "</div>"])), this._inputContainer);
 
 	        if (this.isShownSymbolicCode) {
 	          main_core.Dom.addClass(this._innerWrapper, 'ui-entity-editor-content-block--code');
@@ -844,7 +633,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          main_core.Dom.addClass(this._innerWrapper, 'ui-entity-editor-content-block--no-code');
 	        }
 	      } else {
-	        this._innerWrapper = main_core.Tag.render(_templateObject4$1(), this.getViewInnerLayout());
+	        this._innerWrapper = main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">", "</div>\n\t\t\t"])), this.getViewInnerLayout());
 	      }
 
 	      main_core.Dom.append(this._innerWrapper, this._wrapper);
@@ -905,7 +694,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "showError",
 	    value: function showError(error, anchor) {
 	      if (!this._errorContainer) {
-	        this._errorContainer = main_core.Tag.render(_templateObject5$1());
+	        this._errorContainer = main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-field-error-text\"></div>"])));
 	      }
 
 	      this._errorContainer.innerHTML = BX.util.htmlspecialchars(error);
@@ -919,14 +708,14 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "createSingleInput",
 	    value: function createSingleInput(value, name) {
-	      var inputWrapper = main_core.Tag.render(_templateObject6$1(), name.toLowerCase());
-	      var inputContainer = main_core.Tag.render(_templateObject7());
+	      var inputWrapper = main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "_container\"></div>\n\t\t"])), name.toLowerCase());
+	      var inputContainer = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-ctl ui-ctl-w100 ui-ctl-textbox\"></div>\n\t\t"])));
 	      var input;
 
 	      if (this.getLineCount() > 1) {
-	        input = main_core.Tag.render(_templateObject8(), name, name.toLowerCase() + '_text', this.getLineCount(), BX.util.htmlspecialchars(value) || '');
+	        input = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<textarea\n\t\t\t\t\tclass=\"ui-ctl-element ui-entity-editor-field-textarea\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tid=\"", "\"\n\t\t\t\t\trows=\"", "\">", "</textarea>\n\t\t\t"])), name, name.toLowerCase() + '_text', this.getLineCount(), BX.util.htmlspecialchars(value) || '');
 	      } else {
-	        input = main_core.Tag.render(_templateObject9(), name, name.toLowerCase() + '_text', BX.util.htmlspecialchars(value) || '');
+	        input = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input\n\t\t\t\t\tclass=\"ui-ctl-element\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tid=\"", "\"\n\t\t\t\t\ttype=\"text\"\n\t\t\t\t\tvalue=\"", "\"/>\n\t\t\t"])), name, name.toLowerCase() + '_text', BX.util.htmlspecialchars(value) || '');
 	      }
 
 	      main_core.Event.bind(input, 'input', _classPrivateMethodGet(this, _onInputHandler, _onInputHandler2).bind(this, name));
@@ -944,7 +733,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        main_core.Dom.addClass(inputContainer, 'ui-ctl-ext-before-icon');
 	        main_core.Dom.addClass(inputWrapper, 'name-code-container');
 	        var chainState = this.allowToGenerateCode ? 'chain' : 'unchain';
-	        var button = main_core.Tag.render(_templateObject10(), name, chainState);
+	        var button = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button name=\"", "\" class=\"ui-ctl-before ui-ctl-icon-", "\" id=\"code_state_button\"></button>\n\t\t\t"])), name, chainState);
 	        main_core.Event.bind(button, 'click', _classPrivateMethodGet(this, _onCodeStateButtonClick, _onCodeStateButtonClick2).bind(this));
 	        main_core.Dom.append(button, inputContainer);
 	      }
@@ -959,43 +748,43 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getViewInnerLayout",
 	    value: function getViewInnerLayout() {
-	      var textValue = main_core.Tag.render(_templateObject11());
+	      var textValue = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block-text\"></div>\n\t\t"])));
 	      var values = this.getValue();
 
 	      if (!this.isShownSymbolicCode) {
-	        main_core.Dom.append(main_core.Tag.render(_templateObject12(), BX.util.htmlspecialchars(values.NAME)), textValue);
+	        main_core.Dom.append(main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["<p>", "</p>"])), BX.util.htmlspecialchars(values.NAME)), textValue);
 	        return textValue;
 	      }
 
-	      main_core.Dom.append(main_core.Tag.render(_templateObject13(), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_NAME')), textValue);
-	      main_core.Dom.append(main_core.Tag.render(_templateObject14(), BX.util.htmlspecialchars(values.NAME)), textValue);
+	      main_core.Dom.append(main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-symbol-code-label\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_NAME')), textValue);
+	      main_core.Dom.append(main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["<p>", "</p>"])), BX.util.htmlspecialchars(values.NAME)), textValue);
 	      main_core.Dom.addClass(textValue, 'ui-entity-editor-symbol-code');
 	      var codeValue = values.CODE === '' ? main_core.Loc.getMessage('UI_ENTITY_EDITOR_FIELD_EMPTY') : values.CODE;
 	      var chainClass = this.allowToGenerateCode ? 'ui-entity-editor-symbol-code-value-chain' : 'ui-entity-editor-symbol-code-value-unchain';
-	      main_core.Dom.append(main_core.Tag.render(_templateObject15(), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SYMBOLIC_CODE'), chainClass, BX.util.htmlspecialchars(codeValue)), textValue);
+	      main_core.Dom.append(main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-symbol-code-box\">\n\t\t\t\t<div class=\"ui-entity-editor-symbol-code-label\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-entity-editor-symbol-code-value ", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SYMBOLIC_CODE'), chainClass, BX.util.htmlspecialchars(codeValue)), textValue);
 	      return textValue;
 	    }
 	  }]);
 	  return NameCodeField;
 	}(BX.UI.EntityEditorMultiText);
 
-	var _creatLabelForEditMode2 = function _creatLabelForEditMode2(name) {
-	  var label = main_core.Tag.render(_templateObject16());
+	function _creatLabelForEditMode2(name) {
+	  var label = main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["<label class=\"ui-entity-editor-block-title\"></label>"])));
 	  var labelText;
 
 	  if (name === 'CODE') {
-	    labelText = main_core.Tag.render(_templateObject17(), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SYMBOLIC_CODE'));
+	    labelText = main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["<span>", "</span>"])), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SYMBOLIC_CODE'));
 	    main_core.Dom.append(labelText, label);
 	    main_core.Dom.append(_classPrivateMethodGet(this, _getHintNode, _getHintNode2).call(this), label);
 	  } else {
-	    labelText = main_core.Tag.render(_templateObject18(), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_NAME'));
+	    labelText = main_core.Tag.render(_templateObject18 || (_templateObject18 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span>\n\t\t\t\t\t", "\n\t\t\t\t\t<span style=\"color: rgb(255, 0, 0);\">*</span>\n\t\t\t\t</span>\n\t\t\t"])), main_core.Loc.getMessage('CATALOG_ENTITY_CARD_NAME'));
 	    main_core.Dom.append(labelText, label);
 	  }
 
 	  return label;
-	};
+	}
 
-	var _onInputHandler2 = function _onInputHandler2(name) {
+	function _onInputHandler2(name) {
 	  this._changeHandler();
 
 	  if (this.allowToGenerateCode && name === 'NAME') {
@@ -1003,13 +792,13 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    var nameTextElement = document.getElementById('name_text');
 	    codeTextElement.value = BX.translit(nameTextElement.value, null);
 	  }
-	};
+	}
 
-	var _getHintNode2 = function _getHintNode2() {
+	function _getHintNode2() {
 	  return BX.UI.Hint.createNode(main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SYMBOLIC_CODE_HINT'));
-	};
+	}
 
-	var _onCodeStateButtonClick2 = function _onCodeStateButtonClick2() {
+	function _onCodeStateButtonClick2() {
 	  var codeTextElement = document.getElementById('code_text');
 	  var nameTextElement = document.getElementById('name_text');
 	  var codeStateButtonElement = document.getElementById('code_state_button');
@@ -1034,7 +823,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	    codeTextElement.value = newValue;
 	  }
-	};
+	}
 
 	var FieldsFactory = /*#__PURE__*/function () {
 	  function FieldsFactory() {
@@ -1065,6 +854,9 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return FieldsFactory;
 	}();
 
+	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var PROPERTY_PREFIX = 'PROPERTY_';
 	var PROPERTY_BLOCK_NAME = 'properties';
 
@@ -1159,7 +951,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        _this3._editor.commitSchemeChanges();
 
 	        _this3.isRequesting = false;
-	      }).catch(function (response) {
+	      })["catch"](function (response) {
 	        _this3.isRequesting = false;
 	      });
 	    }
@@ -1199,7 +991,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	      var mode = options.mode || control._mode;
 	      control._mode = mode;
-	      control.getParent().addChild(control, babelHelpers.objectSpread({}, options, {
+	      control.getParent().addChild(control, _objectSpread$2(_objectSpread$2({}, options), {}, {
 	        enableSaving: false
 	      }));
 
@@ -1241,7 +1033,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	      var propertyBlockControl = this._editor.getControlById(PROPERTY_BLOCK_NAME);
 
-	      propertyBlockControl.addChild(control, babelHelpers.objectSpread({}, options, {
+	      propertyBlockControl.addChild(control, _objectSpread$2(_objectSpread$2({}, options), {}, {
 	        enableSaving: false
 	      }));
 	      return control;
@@ -1308,6 +1100,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return IblockSectionController;
 	}(BX.UI.EntityEditorController);
 
+	function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$3(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$3(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	var VariationGridController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
 	  babelHelpers.inherits(VariationGridController, _BX$UI$EntityEditorCo);
 
@@ -1370,12 +1166,16 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      babelHelpers.get(babelHelpers.getPrototypeOf(VariationGridController.prototype), "rollback", this).call(this);
 	      this.checkEditorToolbar();
 	      this.unsubscribeGridEvents();
+	      BX.Main.gridManager.destroy(this.getGridId());
 	    }
 	  }, {
 	    key: "onAfterSave",
 	    value: function onAfterSave() {
 	      if (this.isChanged() || this._editor.isChanged()) {
 	        this.setGridControlCache(null);
+	        main_core_events.EventEmitter.emit('onAfterVariationGridSave', {
+	          gridId: this.getGridId()
+	        });
 	      }
 
 	      this.subscribeToFormSubmit();
@@ -1407,15 +1207,22 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "unsubscribeGridEvents",
 	    value: function unsubscribeGridEvents() {
+	      var _this$getGrid, _this$getGrid$getSett, _this$getGrid2;
+
 	      var gridComponent = this.getVariationGridComponent();
 
 	      if (gridComponent) {
-	        gridComponent.unsubscribeCustomEvents();
+	        gridComponent.destroy();
 	      }
 
-	      main_core_events.EventEmitter.emit(this.getGrid().getSettingsWindow().getPopup(), 'onDestroy');
+	      var popup = (_this$getGrid = this.getGrid()) === null || _this$getGrid === void 0 ? void 0 : (_this$getGrid$getSett = _this$getGrid.getSettingsWindow()) === null || _this$getGrid$getSett === void 0 ? void 0 : _this$getGrid$getSett.getPopup();
+
+	      if (popup) {
+	        main_core_events.EventEmitter.emit(this.getGrid().getSettingsWindow().getPopup(), 'onDestroy');
+	      }
+
 	      main_core_events.EventEmitter.unsubscribeAll('BX.Main.grid:paramsUpdated');
-	      this.getGrid().destroy();
+	      (_this$getGrid2 = this.getGrid()) === null || _this$getGrid2 === void 0 ? void 0 : _this$getGrid2.destroy();
 	    }
 	  }, {
 	    key: "ajaxSuccessHandler",
@@ -1466,12 +1273,17 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    value: function onBeforeGridRequest(event) {
 	      var _event$getCompatData3 = event.getCompatData(),
 	          _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 2),
+	          grid = _event$getCompatData4[0],
 	          eventArgs = _event$getCompatData4[1];
+
+	      if (!grid || !grid.parent || grid.parent.getId() !== this.getGridId()) {
+	        return;
+	      }
 
 	      eventArgs.sessid = BX.bitrix_sessid();
 	      eventArgs.method = 'POST';
 	      eventArgs.url = this.getReloadUrl();
-	      eventArgs.data = babelHelpers.objectSpread({}, eventArgs.data, {
+	      eventArgs.data = _objectSpread$3(_objectSpread$3({}, eventArgs.data), {}, {
 	        signedParameters: this.getSignedParameters()
 	      });
 	      this.unsubscribeGridEvents();
@@ -1590,6 +1402,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	      eventArgs.options.data[skuGridName] = skuGridData;
 	      this.areaHeight = this.getGridControl().getWrapper().offsetHeight;
+	      BX.Main.gridManager.destroy(this.getGridId());
 	    }
 	  }]);
 	  return VariationGridController;
@@ -1686,6 +1499,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return BindingToCrmElementController;
 	}(BX.UI.EntityEditorController);
 
+	function ownKeys$4(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$4(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$4(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	var FieldConfiguratorController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
 	  babelHelpers.inherits(FieldConfiguratorController, _BX$UI$EntityEditorCo);
 
@@ -1759,7 +1576,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        _this2._editor.saveSchemeChanges();
 
 	        _this2.isRequesting = false;
-	      }).catch(function (response) {
+	      })["catch"](function (response) {
 	        _this2.isRequesting = false;
 	      });
 	    }
@@ -1858,7 +1675,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        }
 
 	        _this3.isRequesting = false;
-	      }).catch(function (response) {
+	      })["catch"](function (response) {
 	        _this3.isRequesting = false;
 	      });
 	    }
@@ -1973,7 +1790,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	      var sectionControl = this._editor.getControlById(sectionName);
 
-	      sectionControl.addChild(control, babelHelpers.objectSpread({}, options, {
+	      sectionControl.addChild(control, _objectSpread$4(_objectSpread$4({}, options), {}, {
 	        enableSaving: false
 	      }));
 	      return control;
@@ -2029,55 +1846,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return ControllersFactory;
 	}();
 
-	function _templateObject5$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-remove-block\"></div>\n\t\t\t"]);
-
-	  _templateObject5$2 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input \n\t\t\t\t\tclass=\"ui-ctl-element\" \n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\tplaceholder=\"", "\"\n\t\t\t\t>\n\t\t\t"]);
-
-	  _templateObject4$2 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label class=\"catalog-dictionary-item ", "\">\n\t\t\t\t<img src=\"", "\" alt=\"\">\n\t\t\t\t", "\n\t\t\t</label>\n\t\t\t"]);
-
-	  _templateObject3$2 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input class=\"input-image-hidden\" value=\"", "\" type=\"file\" accept=\"image/*\">\n\t\t\t"]);
-
-	  _templateObject2$2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-w100 ui-ctl-row\"></div>\n\t\t\t"]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$2, _templateObject2$2, _templateObject3$2, _templateObject4$2, _templateObject5$2;
 
 	var IblockDirectoryFieldItem = /*#__PURE__*/function (_BX$UI$EntityEditorUs) {
 	  babelHelpers.inherits(IblockDirectoryFieldItem, _BX$UI$EntityEditorUs);
@@ -2105,19 +1874,19 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        return;
 	      }
 
-	      this._wrapper = main_core.Tag.render(_templateObject$2());
-	      this._fileInput = main_core.Tag.render(_templateObject2$2(), BX.prop.getString(this._data, 'FILE_ID', ''));
+	      this._wrapper = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-w100 ui-ctl-row\"></div>\n\t\t\t"])));
+	      this._fileInput = main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input class=\"input-image-hidden\" value=\"", "\" type=\"file\" accept=\"image/*\">\n\t\t\t"])), BX.prop.getString(this._data, 'FILE_ID', ''));
 	      main_core.Event.bind(this._fileInput, 'change', this.onFileLoaderChange.bind(this));
 	      var link = BX.prop.getString(this._data, 'IMAGE_SRC', '');
 
-	      this._wrapper.appendChild(main_core.Tag.render(_templateObject3$2(), link === '' ? 'catalog-dictionary-item-empty' : '', link, this._fileInput));
+	      this._wrapper.appendChild(main_core.Tag.render(_templateObject3$2 || (_templateObject3$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label class=\"catalog-dictionary-item ", "\">\n\t\t\t\t<img src=\"", "\" alt=\"\">\n\t\t\t\t", "\n\t\t\t</label>\n\t\t\t"])), link === '' ? 'catalog-dictionary-item-empty' : '', link, this._fileInput));
 
 	      var labelText = main_core.Text.encode(BX.prop.getString(this._data, 'TEXT', ''));
-	      this._labelInput = main_core.Tag.render(_templateObject4$2(), labelText, BX.message('CATALOG_ENTITY_CARD_NEW_FIELD_ITEM_PLACEHOLDER'));
+	      this._labelInput = main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input \n\t\t\t\t\tclass=\"ui-ctl-element\" \n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\tplaceholder=\"", "\"\n\t\t\t\t>\n\t\t\t"])), labelText, BX.message('CATALOG_ENTITY_CARD_NEW_FIELD_ITEM_PLACEHOLDER'));
 
 	      this._wrapper.appendChild(this._labelInput);
 
-	      var deleteButton = main_core.Tag.render(_templateObject5$2());
+	      var deleteButton = main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-remove-block\"></div>\n\t\t\t"])));
 	      main_core.Event.bind(deleteButton, 'click', this.onDeleteButtonClick.bind(this));
 
 	      this._wrapper.appendChild(deleteButton);
@@ -2187,85 +1956,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return IblockDirectoryFieldItem;
 	}(BX.UI.EntityEditorUserFieldListItem);
 
-	function _templateObject8$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block-add-field\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject8$1 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-card-content-add-field\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject7$1 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t\t"]);
-
-	  _templateObject6$2 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t<div class=\"ui-entity-editor-block-title\">\n\t\t\t\t\t<span class=\"ui-entity-editor-block-title-text\">", "</span>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject5$3 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t"]);
-
-	  _templateObject4$3 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t"]);
-
-	  _templateObject3$3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<hr class=\"ui-entity-editor-line\">"]);
-
-	  _templateObject2$3 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<hr class=\"ui-entity-editor-line\">"]);
-
-	  _templateObject$3 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$3, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$3, _templateObject6$2, _templateObject7$1, _templateObject8$1;
 
 	var IblockFieldConfigurator = /*#__PURE__*/function (_BX$UI$EntityEditorFi) {
 	  babelHelpers.inherits(IblockFieldConfigurator, _BX$UI$EntityEditorFi);
@@ -2293,7 +1984,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      this._wrapper.appendChild(this.getInputContainer());
 
 	      if (this._typeId === "list" || this._typeId === "multilist" || this._typeId === "directory") {
-	        this._wrapper.appendChild(main_core.Tag.render(_templateObject$3()));
+	        this._wrapper.appendChild(main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["<hr class=\"ui-entity-editor-line\">"]))));
 
 	        this._wrapper.appendChild(this.getEnumerationContainer());
 	      }
@@ -2302,7 +1993,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	      this._wrapper.appendChild(this.getErrorContainer());
 
-	      main_core.Dom.append(main_core.Tag.render(_templateObject2$3()), this._wrapper);
+	      main_core.Dom.append(main_core.Tag.render(_templateObject2$3 || (_templateObject2$3 = babelHelpers.taggedTemplateLiteral(["<hr class=\"ui-entity-editor-line\">"]))), this._wrapper);
 
 	      this._wrapper.appendChild(this.getButtonContainer());
 	    }
@@ -2310,7 +2001,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "getOptionContainer",
 	    value: function getOptionContainer() {
 	      var isNew = this._field === null;
-	      this._optionWrapper = main_core.Tag.render(_templateObject3$3());
+	      this._optionWrapper = main_core.Tag.render(_templateObject3$3 || (_templateObject3$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t"])));
 
 	      if (this._typeId === "datetime" || this._typeId === "multidatetime") {
 	        this._isTimeEnabledCheckBox = this.getIsTimeEnabledCheckBox();
@@ -2364,7 +2055,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getErrorContainer",
 	    value: function getErrorContainer() {
-	      this._errorContainer = main_core.Tag.render(_templateObject4$3());
+	      this._errorContainer = main_core.Tag.render(_templateObject4$3 || (_templateObject4$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t"])));
 	      return this._errorContainer;
 	    }
 	  }, {
@@ -2372,12 +2063,12 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    value: function getEnumerationContainer() {
 	      var _this2 = this;
 
-	      var enumWrapper = main_core.Tag.render(_templateObject5$3(), BX.message("UI_ENTITY_EDITOR_UF_ENUM_ITEMS"));
-	      this._enumItemContainer = main_core.Tag.render(_templateObject6$2());
+	      var enumWrapper = main_core.Tag.render(_templateObject5$3 || (_templateObject5$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t<div class=\"ui-entity-editor-block-title\">\n\t\t\t\t\t<span class=\"ui-entity-editor-block-title-text\">", "</span>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), BX.message("UI_ENTITY_EDITOR_UF_ENUM_ITEMS"));
+	      this._enumItemContainer = main_core.Tag.render(_templateObject6$2 || (_templateObject6$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t\t"])));
 	      main_core.Dom.append(this._enumItemContainer, enumWrapper);
-	      var addButton = main_core.Tag.render(_templateObject7$1(), BX.message("UI_ENTITY_EDITOR_ADD"));
+	      var addButton = main_core.Tag.render(_templateObject7$1 || (_templateObject7$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-card-content-add-field\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), BX.message("UI_ENTITY_EDITOR_ADD"));
 	      main_core.Event.bind(addButton, "click", this.onEnumerationItemAddButtonClick.bind(this));
-	      main_core.Dom.append(main_core.Tag.render(_templateObject8$1(), addButton), enumWrapper);
+	      main_core.Dom.append(main_core.Tag.render(_templateObject8$1 || (_templateObject8$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block-add-field\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), addButton), enumWrapper);
 
 	      if (this._field) {
 	        this._field.getItems().forEach(function (enumFields) {
@@ -2499,6 +2190,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          }
 
 	          hashes.push(hash);
+
+	          if (main_core.Type.isNil(enumData['ID'])) {
+	            enumData['ID'] = main_core.Text.getRandom();
+	          }
+
 	          enumData['SORT'] = (params['enumeration'].length + 1) * 100;
 	          params['enumeration'].push(enumData);
 	        });
@@ -2823,55 +2519,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return IblockFieldConfigurationManager;
 	}(BX.UI.EntityConfigurationManager);
 
-	function _templateObject5$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-entity-editor-content-block-add-field\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject5$4 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-entity-card-content-add-field\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject4$4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t\t\t"]);
-
-	  _templateObject3$4 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t\t<div class=\"ui-entity-editor-block-title\">\n\t\t\t\t\t\t<span class=\"ui-entity-editor-block-title-text\">", "</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject2$4 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<hr class=\"ui-entity-editor-line\">"]);
-
-	  _templateObject$4 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$4, _templateObject2$4, _templateObject3$4, _templateObject4$4, _templateObject5$4;
 
 	var GridFieldConfigurator = /*#__PURE__*/function (_BX$UI$EntityEditorFi) {
 	  babelHelpers.inherits(GridFieldConfigurator, _BX$UI$EntityEditorFi);
@@ -2888,14 +2536,14 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      var _this = this;
 
 	      if (this._typeId === "list" || this._typeId === "multilist") {
-	        main_core.Dom.append(main_core.Tag.render(_templateObject$4()), this._wrapper);
-	        var enumWrapper = main_core.Tag.render(_templateObject2$4(), BX.message("UI_ENTITY_EDITOR_UF_ENUM_ITEMS"));
+	        main_core.Dom.append(main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["<hr class=\"ui-entity-editor-line\">"]))), this._wrapper);
+	        var enumWrapper = main_core.Tag.render(_templateObject2$4 || (_templateObject2$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-entity-editor-content-block\">\n\t\t\t\t\t<div class=\"ui-entity-editor-block-title\">\n\t\t\t\t\t\t<span class=\"ui-entity-editor-block-title-text\">", "</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), BX.message("UI_ENTITY_EDITOR_UF_ENUM_ITEMS"));
 	        main_core.Dom.append(enumWrapper, this._wrapper);
-	        this._enumItemContainer = main_core.Tag.render(_templateObject3$4());
+	        this._enumItemContainer = main_core.Tag.render(_templateObject3$4 || (_templateObject3$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-entity-editor-content-block\"></div>\n\t\t\t\t"])));
 	        main_core.Dom.append(this._enumItemContainer, enumWrapper);
-	        var addButton = main_core.Tag.render(_templateObject4$4(), BX.message("UI_ENTITY_EDITOR_ADD"));
+	        var addButton = main_core.Tag.render(_templateObject4$4 || (_templateObject4$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-entity-card-content-add-field\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), BX.message("UI_ENTITY_EDITOR_ADD"));
 	        main_core.Event.bind(addButton, "click", this.onEnumerationItemAddButtonClick.bind(this));
-	        main_core.Dom.append(main_core.Tag.render(_templateObject5$4(), addButton), enumWrapper);
+	        main_core.Dom.append(main_core.Tag.render(_templateObject5$4 || (_templateObject5$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"ui-entity-editor-content-block-add-field\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), addButton), enumWrapper);
 
 	        if (this._field) {
 	          this._field.getItems().forEach(function (enumFields) {
@@ -3232,71 +2880,82 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return GridFieldConfigurationManager;
 	}(BX.UI.EntityConfigurationManager);
 
-	function _templateObject4$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label class=\"ui-ctl-block ui-entity-editor-popup-create-field-item ui-ctl-w100\">\n\t\t\t\t\t<div class=\"ui-ctl-w10\" style=\"text-align: center\">", "</div>\n\t\t\t\t\t<div class=\"ui-ctl-w75\">\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-title\">", "</span>\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-desc\">", "</span>\t\n\t\t\t\t\t</div>\n\t\t\t\t</label>\n\t\t\t"]);
-
-	  _templateObject4$5 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input type=\"checkbox\">\n\t\t"]);
-
-	  _templateObject3$5 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class='ui-entity-editor-popup-create-field-list'></div>\n\t\t"]);
-
-	  _templateObject2$5 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-entity-overlay\"></div>"]);
-
-	  _templateObject$5 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-	var EntityCard = /*#__PURE__*/function () {
-	  function EntityCard(id) {
+	var _templateObject$5;
+	var BaseCard = /*#__PURE__*/function () {
+	  function BaseCard(id) {
 	    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-	    babelHelpers.classCallCheck(this, EntityCard);
-	    babelHelpers.defineProperty(this, "stackWithOffset", null);
+	    babelHelpers.classCallCheck(this, BaseCard);
 	    this.id = main_core.Type.isStringFilled(id) ? id : main_core.Text.getRandom();
-	    this.settings = settings;
-	    this.cardSettings = settings.cardSettings || [];
-	    this.feedbackUrl = settings.feedbackUrl || '';
-	    this.settingsButtonId = settings.settingsButtonId;
 	    this.entityId = main_core.Text.toInteger(settings.entityId) || 0;
+	    this.settings = settings;
 	    this.container = document.getElementById(settings.containerId);
-	    this.variationGridId = settings.variationGridId;
-	    this.settingsButtonId = settings.settingsButtonId;
-	    this.componentName = settings.componentName || null;
-	    this.componentSignedParams = settings.componentSignedParams || null;
-	    this.isSimpleProduct = settings.isSimpleProduct || false;
 	    this.initializeTabManager();
 	    this.checkFadeOverlay();
-	    this.registerFieldsFactory();
-	    this.registerControllersFactory();
-	    this.registerEvents();
-	    this.bindCardSettingsButton();
-	    main_core_events.EventEmitter.subscribe('SidePanel.Slider:onMessage', this.onSliderMessage.bind(this));
-	    main_core_events.EventEmitter.subscribe('BX.UI.EntityEditorSection:onLayout', this.onSectionLayout.bind(this));
-	    main_core_events.EventEmitter.subscribe('Grid::updated', this.onGridUpdatedHandler.bind(this));
+	  }
+
+	  babelHelpers.createClass(BaseCard, [{
+	    key: "initializeTabManager",
+	    value: function initializeTabManager() {
+	      return new Manager(this.id, {
+	        container: document.getElementById(this.settings.tabContainerId),
+	        menuContainer: document.getElementById(this.settings.tabMenuContainerId),
+	        data: this.settings.tabs || []
+	      });
+	    }
+	  }, {
+	    key: "checkFadeOverlay",
+	    value: function checkFadeOverlay() {
+	      if (this.entityId <= 0) {
+	        this.overlay = main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-entity-overlay\"></div>"])));
+	        main_core.Dom.append(this.overlay, this.container);
+
+	        if (window === window.top) {
+	          this.overlay.style.position = 'absolute';
+	          this.overlay.style.top = this.overlay.style.left = this.overlay.style.right = '-15px';
+	        }
+	      }
+	    }
+	  }]);
+	  return BaseCard;
+	}();
+
+	var _templateObject$6, _templateObject2$5, _templateObject3$5, _templateObject4$5, _templateObject5$5, _templateObject6$3;
+
+	var EntityCard = /*#__PURE__*/function (_BaseCard) {
+	  babelHelpers.inherits(EntityCard, _BaseCard);
+
+	  function EntityCard(id) {
+	    var _this;
+
+	    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+	    babelHelpers.classCallCheck(this, EntityCard);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(EntityCard).call(this, id, settings));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "stackWithOffset", null);
+	    _this.cardSettings = settings.cardSettings || [];
+	    _this.feedbackUrl = settings.feedbackUrl || '';
+	    _this.variationGridId = settings.variationGridId;
+	    _this.productStoreGridId = settings.productStoreGridId || null;
+	    _this.settingsButtonId = settings.settingsButtonId;
+	    _this.createDocumentButtonId = settings.createDocumentButtonId;
+	    _this.createDocumentButtonMenuPopupItems = settings.createDocumentButtonMenuPopupItems;
+	    _this.componentName = settings.componentName || null;
+	    _this.componentSignedParams = settings.componentSignedParams || null;
+	    _this.isSimpleProduct = settings.isSimpleProduct || false;
+
+	    _this.registerFieldsFactory();
+
+	    _this.registerControllersFactory();
+
+	    _this.registerEvents();
+
+	    _this.bindCardSettingsButton();
+
+	    _this.bindCreateDocumentButtonMenu();
+
+	    main_core_events.EventEmitter.subscribe('SidePanel.Slider:onMessage', _this.onSliderMessage.bind(babelHelpers.assertThisInitialized(_this)));
+	    main_core_events.EventEmitter.subscribe('BX.UI.EntityEditorSection:onLayout', _this.onSectionLayout.bind(babelHelpers.assertThisInitialized(_this)));
+	    main_core_events.EventEmitter.subscribe('Grid::updated', _this.onGridUpdatedHandler.bind(babelHelpers.assertThisInitialized(_this)));
+	    return _this;
 	  }
 
 	  babelHelpers.createClass(EntityCard, [{
@@ -3332,28 +2991,6 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      return BX.UI.ButtonManager.getByUniqid(this.settingsButtonId);
 	    }
 	  }, {
-	    key: "initializeTabManager",
-	    value: function initializeTabManager() {
-	      return new Manager(this.id, {
-	        container: document.getElementById(this.settings.tabContainerId),
-	        menuContainer: document.getElementById(this.settings.tabMenuContainerId),
-	        data: this.settings.tabs || []
-	      });
-	    }
-	  }, {
-	    key: "checkFadeOverlay",
-	    value: function checkFadeOverlay() {
-	      if (this.entityId <= 0) {
-	        this.overlay = main_core.Tag.render(_templateObject$5());
-	        main_core.Dom.append(this.overlay, this.container);
-
-	        if (window === window.top) {
-	          this.overlay.style.position = 'absolute';
-	          this.overlay.style.top = this.overlay.style.left = this.overlay.style.right = '-15px';
-	        }
-	      }
-	    }
-	  }, {
 	    key: "registerFieldsFactory",
 	    value: function registerFieldsFactory() {
 	      return new FieldsFactory();
@@ -3372,6 +3009,27 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "onSectionLayout",
 	    value: function onSectionLayout() {}
+	  }, {
+	    key: "getProductStoreGridId",
+	    value: function getProductStoreGridId() {
+	      return this.productStoreGridId;
+	    }
+	  }, {
+	    key: "getProductStoreGridComponent",
+	    value: function getProductStoreGridComponent() {
+	      return main_core.Reflection.getClass('BX.Catalog.ProductStoreGridManager.Instance');
+	    }
+	  }, {
+	    key: "reloadProductStoreGrid",
+	    value: function reloadProductStoreGrid() {
+	      var gridComponent = this.getProductStoreGridComponent();
+
+	      if (gridComponent) {
+	        if (this.getProductStoreGridId() && this.getProductStoreGridId() === gridComponent.getGridId()) {
+	          gridComponent.reloadGrid();
+	        }
+	      }
+	    }
 	    /**
 	     * @returns {BX.Catalog.VariationGrid|null}
 	     */
@@ -3420,6 +3078,16 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      main_core_events.EventEmitter.subscribe('onEntityUpdate', this.onEntityUpdateHandler.bind(this));
 	      main_core_events.EventEmitter.subscribe('onAttachFiles', this.onAttachFilesHandler.bind(this));
 	      main_core_events.EventEmitter.subscribe('BX.Main.Popup:onClose', this.onFileEditorCloseHandler.bind(this));
+	      main_core_events.EventEmitter.subscribe('onAfterVariationGridSave', this.onAfterVariationGridSave.bind(this));
+	    }
+	  }, {
+	    key: "onAfterVariationGridSave",
+	    value: function onAfterVariationGridSave(event) {
+	      var data = event.getData();
+
+	      if (data.gridId === this.getVariationGridId()) {
+	        this.reloadProductStoreGrid();
+	      }
 	    }
 	  }, {
 	    key: "onAttachFilesHandler",
@@ -3637,6 +3305,66 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      });
 	    }
 	  }, {
+	    key: "bindCreateDocumentButtonMenu",
+	    value: function bindCreateDocumentButtonMenu() {
+	      var createDocumentButtonMenu = this.getCreateDocumentButtonMenu();
+
+	      if (createDocumentButtonMenu) {
+	        main_core.Event.bind(createDocumentButtonMenu.getContainer(), 'click', this.showCreateDocumentPopup.bind(this));
+	      }
+	    }
+	  }, {
+	    key: "getCreateDocumentButtonMenu",
+	    value: function getCreateDocumentButtonMenu() {
+	      var createDocumentButton = BX.UI.ButtonManager.getByUniqid(this.createDocumentButtonId);
+
+	      if (createDocumentButton) {
+	        return BX.UI.ButtonManager.getByUniqid(this.createDocumentButtonId).getMenuButton();
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "getCreateDocumentPopup",
+	    value: function getCreateDocumentPopup() {
+	      if (!this.createDocumentPopup) {
+	        this.createDocumentPopup = new main_popup.Popup(this.id + '-create-document', this.getCreateDocumentButtonMenu().getContainer(), {
+	          autoHide: true,
+	          draggable: false,
+	          offsetLeft: 0,
+	          offsetTop: 0,
+	          angle: {
+	            position: 'top',
+	            offset: 43
+	          },
+	          noAllPaddings: true,
+	          bindOptions: {
+	            forceBindPosition: true
+	          },
+	          closeByEsc: true,
+	          content: this.getCreateDocumentMenuContent()
+	        });
+	      }
+
+	      return this.createDocumentPopup;
+	    }
+	  }, {
+	    key: "showCreateDocumentPopup",
+	    value: function showCreateDocumentPopup() {
+	      this.getCreateDocumentPopup().show();
+	    }
+	  }, {
+	    key: "getCreateDocumentMenuContent",
+	    value: function getCreateDocumentMenuContent() {
+	      var popupWrapper = main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["<div class=\"menu-popup\"></div>"])));
+	      var popupItemsContainer = main_core.Tag.render(_templateObject2$5 || (_templateObject2$5 = babelHelpers.taggedTemplateLiteral(["<div class=\"menu-popup-items\"></div>"])));
+	      popupWrapper.appendChild(popupItemsContainer);
+	      this.createDocumentButtonMenuPopupItems.forEach(function (item) {
+	        popupItemsContainer.appendChild(main_core.Tag.render(_templateObject3$5 || (_templateObject3$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a class=\"menu-popup-item menu-popup-item-no-icon\" href=\"", "\">\n\t\t\t\t\t<span class=\"menu-popup-item-text\">", "</span>\n\t\t\t\t</a>\n\t\t\t"])), item.link, item.text));
+	      });
+	      return popupWrapper;
+	    }
+	  }, {
 	    key: "getCardSettingsPopup",
 	    value: function getCardSettingsPopup() {
 	      if (!this.settingsPopup) {
@@ -3663,10 +3391,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "showCardSettingsPopup",
 	    value: function showCardSettingsPopup() {
-	      var _this = this;
+	      var _this2 = this;
 
 	      var okCallback = function okCallback() {
-	        return _this.getCardSettingsPopup().show();
+	        return _this2.getCardSettingsPopup().show();
 	      };
 
 	      var variationGridInstance = main_core.Reflection.getClass('BX.Catalog.VariationGrid.Instance');
@@ -3680,22 +3408,46 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "prepareCardSettingsContent",
 	    value: function prepareCardSettingsContent() {
-	      var _this2 = this;
+	      var _this3 = this;
 
-	      var content = main_core.Tag.render(_templateObject2$5());
+	      var content = main_core.Tag.render(_templateObject4$5 || (_templateObject4$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class='ui-entity-editor-popup-create-field-list'></div>\n\t\t"])));
 	      this.cardSettings.map(function (item) {
-	        content.append(_this2.getSettingItem(item));
+	        content.append(_this3.getSettingItem(item));
 	      });
 	      return content;
 	    }
 	  }, {
 	    key: "getSettingItem",
 	    value: function getSettingItem(item) {
-	      var input = main_core.Tag.render(_templateObject3$5());
+	      var _this4 = this;
+
+	      var input = main_core.Tag.render(_templateObject5$5 || (_templateObject5$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input type=\"checkbox\">\n\t\t"])));
 	      input.checked = item.checked;
 	      input.dataset.settingId = item.id;
-	      var setting = main_core.Tag.render(_templateObject4$5(), input, item.title, item.desc);
-	      main_core.Event.bind(setting, 'change', this.setProductCardSetting.bind(this));
+	      var setting = main_core.Tag.render(_templateObject6$3 || (_templateObject6$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label class=\"ui-ctl-block ui-entity-editor-popup-create-field-item ui-ctl-w100\">\n\t\t\t\t\t<div class=\"ui-ctl-w10\" style=\"text-align: center\">", "</div>\n\t\t\t\t\t<div class=\"ui-ctl-w75\">\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-title\">", "</span>\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-desc\">", "</span>\t\n\t\t\t\t\t</div>\n\t\t\t\t</label>\n\t\t\t"])), input, item.title, item.desc);
+
+	      if (item.id === 'WAREHOUSE') {
+	        main_core.Event.bind(setting, 'change', function (event) {
+	          new catalog_storeUse.DialogDisable().popup();
+	          main_core_events.EventEmitter.subscribe(catalog_storeUse.EventType.popup.disable, function () {
+	            return _this4.setProductCardSetting(event);
+	          });
+	          main_core_events.EventEmitter.subscribe(catalog_storeUse.EventType.popup.disableCancel, function () {
+	            return event.target.checked = true;
+	          });
+	        });
+	      } else if (item.id === 'SLIDER') {
+	        main_core.Event.bind(setting, 'change', function (event) {
+	          new catalog_storeUse.Slider().open(item.url, {}).then(function () {
+	            _this4.reloadGrid();
+
+	            _this4.getCardSettingsPopup().close();
+	          });
+	        });
+	      } else {
+	        main_core.Event.bind(setting, 'change', this.setProductCardSetting.bind(this));
+	      }
+
 	      return setting;
 	    }
 	  }, {
@@ -3727,9 +3479,14 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      }
 	    }
 	  }, {
+	    key: "reloadGrid",
+	    value: function reloadGrid() {
+	      document.location.reload();
+	    }
+	  }, {
 	    key: "requestGridSettings",
 	    value: function requestGridSettings(setting, enabled) {
-	      var _this3 = this;
+	      var _this5 = this;
 
 	      if (!this.getVariationGrid()) ;
 
@@ -3749,17 +3506,25 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          currentHeaders: headers
 	        }
 	      }).then(function () {
+	        var message = null;
 	        setting.checked = enabled;
 
-	        _this3.reloadVariationGrid();
+	        _this5.reloadVariationGrid();
 
-	        _this3.postSliderMessage('onUpdate', {});
+	        _this5.postSliderMessage('onUpdate', {});
 
-	        _this3.getCardSettingsPopup().close();
+	        _this5.getCardSettingsPopup().close();
 
-	        var message = enabled ? main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SETTING_ENABLED') : main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SETTING_DISABLED');
+	        if (setting.id === 'WAREHOUSE') {
+	          _this5.reloadGrid();
 
-	        _this3.showNotification(message.replace('#NAME#', setting.title), {
+	          message = enabled ? main_core.Loc.getMessage('CATALOG_ENTITY_CARD_WAREHOUSE_ENABLED') : main_core.Loc.getMessage('CATALOG_ENTITY_CARD_WAREHOUSE_DISABLED');
+	        } else {
+	          message = enabled ? main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SETTING_ENABLED') : main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SETTING_DISABLED');
+	          message = message.replace('#NAME#', setting.title);
+	        }
+
+	        _this5.showNotification(message, {
 	          category: 'popup-settings'
 	        });
 	      });
@@ -3767,7 +3532,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "requestCardSettings",
 	    value: function requestCardSettings(setting, enabled) {
-	      var _this4 = this;
+	      var _this6 = this;
 
 	      BX.ajax.runComponentAction(this.componentName, 'setCardSetting', {
 	        mode: 'class',
@@ -3780,18 +3545,18 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        setting.checked = enabled;
 
 	        if (setting.id === 'CATALOG_PARAMETERS') {
-	          var section = _this4.getEditorInstance().getControlByIdRecursive('catalog_parameters');
+	          var section = _this6.getEditorInstance().getControlByIdRecursive('catalog_parameters');
 
 	          if (section) {
 	            section.refreshLayout();
 	          }
 	        }
 
-	        _this4.getCardSettingsPopup().close();
+	        _this6.getCardSettingsPopup().close();
 
 	        var message = enabled ? main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SETTING_ENABLED') : main_core.Loc.getMessage('CATALOG_ENTITY_CARD_SETTING_DISABLED');
 
-	        _this4.showNotification(message.replace('#NAME#', setting.title), {
+	        _this6.showNotification(message.replace('#NAME#', setting.title), {
 	          category: 'popup-settings'
 	        });
 	      });
@@ -3799,7 +3564,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "updateSettingsCheckboxState",
 	    value: function updateSettingsCheckboxState() {
-	      var _this5 = this;
+	      var _this7 = this;
 
 	      var popupContainer = this.getCardSettingsPopup().getContentContainer();
 	      this.cardSettings.filter(function (item) {
@@ -3807,7 +3572,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      }).forEach(function (item) {
 	        var allColumnsExist = true;
 	        item.columns.forEach(function (columnName) {
-	          if (!_this5.getVariationGrid().getColumnHeaderCellByName(columnName)) {
+	          if (!_this7.getVariationGrid().getColumnHeaderCellByName(columnName)) {
 	            allColumnsExist = false;
 	          }
 	        });
@@ -3820,9 +3585,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    }
 	  }]);
 	  return EntityCard;
-	}();
+	}(BaseCard);
 
 	exports.EntityCard = EntityCard;
+	exports.BaseCard = BaseCard;
 
-}((this.BX.Catalog.EntityCard = this.BX.Catalog.EntityCard || {}),BX,BX,BX.Event,BX,BX,BX.Main));
+}((this.BX.Catalog.EntityCard = this.BX.Catalog.EntityCard || {}),BX,BX,BX,BX.Event,BX.Main,BX,BX.Catalog.StoreUse));
 //# sourceMappingURL=entity-card.bundle.js.map

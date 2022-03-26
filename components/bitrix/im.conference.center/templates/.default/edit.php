@@ -5,8 +5,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @var array $arResult*/
 /** @var array $arParams*/
 
-include __DIR__ . '/common/menu.php';
-
 global $APPLICATION;
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',

@@ -1,4 +1,4 @@
-<?
+<?php
 define("NOT_CHECK_PERMISSIONS", true);
 define("EXTRANET_NO_REDIRECT", true);
 define("STOP_STATISTICS", true);
@@ -9,47 +9,21 @@ define('BX_SECURITY_SESSION_READONLY', true);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
-if(!CModule::IncludeModule("messageservice"))
+if(!\Bitrix\Main\Loader::includeModule("messageservice"))
 {
-	die();
+	\Bitrix\Main\Application::getInstance()->terminate();
 }
 
-$smsStatuses = array();
-foreach ($_POST as $smsId => $status)
+foreach ($_POST as $smsId => $externalStatus)
 {
-	$statusCode = \Bitrix\MessageService\Sender\Sms\SmsAssistentBy::resolveStatus($status);
-
-	if ($statusCode !== null)
+	$message = \Bitrix\MessageService\Message::loadByExternalId(
+		\Bitrix\MessageService\Sender\Sms\SmsAssistentBy::ID,
+		$smsId
+	);
+	if ($message)
 	{
-		$smsStatuses[$smsId] = $statusCode;
+		$message->updateStatusByExternalStatus($externalStatus);
 	}
 }
 
-if ($smsStatuses)
-{
-	$connection = \Bitrix\Main\Application::getConnection();
-	$sqlHelper = $connection->getSqlHelper();
-
-	$tableName = \Bitrix\MessageService\Internal\Entity\MessageTable::getTableName();
-
-	foreach ($smsStatuses as $smsId => $status)
-	{
-		$connection->queryExecute(
-			'UPDATE '.$tableName.' SET STATUS_ID = '.(int)$status
-			.' WHERE SENDER_ID = \'smsastby\' AND EXTERNAL_ID = \''.$sqlHelper->forSql($smsId).'\''
-		);
-	}
-
-	//send pull message
-	if(\Bitrix\MessageService\Integration\Pull::canUse())
-	{
-		$query = new \Bitrix\Main\Entity\Query(\Bitrix\MessageService\Internal\Entity\MessageTable::getEntity());
-		$query->setSelect(array('ID', 'STATUS_ID'));
-		$query->addFilter('=SENDER_ID', 'smsastby');
-		$query->addFilter('@EXTERNAL_ID', array_keys($smsStatuses));
-
-		\Bitrix\MessageService\Integration\Pull::onMessagesUpdate($query->exec()->fetchAll());
-	}
-}
-CMain::FinalActions();
-die();
+\Bitrix\Main\Application::getInstance()->terminate();

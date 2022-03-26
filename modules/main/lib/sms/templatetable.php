@@ -19,9 +19,9 @@ use Bitrix\Main\Localization\Loc;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Template_Query query()
- * @method static EO_Template_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Template_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Template_Result getById($id)
- * @method static EO_Template_Result getList(array $parameters = array())
+ * @method static EO_Template_Result getList(array $parameters = [])
  * @method static EO_Template_Entity getEntity()
  * @method static \Bitrix\Main\Sms\Template createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\Sms\EO_Template_Collection createCollection()

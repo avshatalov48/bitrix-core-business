@@ -1,5 +1,6 @@
 <?
 use Bitrix\Im\Integration\Imopenlines;
+use Bitrix\Im\Message;
 IncludeModuleLangFile(__FILE__);
 
 class CIMMessenger
@@ -79,7 +80,7 @@ class CIMMessenger
 	 * 	(string) PUSH_MESSAGE - Notification push message.
 	 * 	(array) PUSH_PARAMS - Notification push params.
 	 * 	(string) PUSH_IMPORTANT - Send push immediately.
-	 * 	(string) TEMPLATE_ID
+	 * 	(string) TEMPLATE_ID - UUID of the message, which generates on the frontend.
 	 * 	(string) FILE_TEMPLATE_ID
 	 * 	(array) EXTRA_PARAMS
 	 *
@@ -106,6 +107,33 @@ class CIMMessenger
 	public static function Add($arFields)
 	{
 		global $DB;
+
+		$templateId = $arFields['TEMPLATE_ID'] ?? '';
+		if (
+			$arFields['MESSAGE_TYPE'] !== IM_MESSAGE_SYSTEM
+			&& Message\Uuid::validate($templateId)
+		)
+		{
+			$messageUuid = new Message\Uuid($templateId);
+			$uuidAddResult = $messageUuid->add();
+			// if it is false, then UUID already exists
+			if (!$uuidAddResult)
+			{
+				$messageIdByUuid = $messageUuid->getMessageId();
+				// if we got message_id, then message already exists, and we don't need to add it, so return with ID.
+				if (!is_null($messageIdByUuid))
+				{
+					return $messageIdByUuid;
+				}
+
+				// if there is no message_id and entry date is expired,
+				// then update date_create and return false to delay next sending on the client.
+				if (!$messageUuid->updateIfExpired())
+				{
+					return false;
+				}
+			}
+		}
 
 		if (isset($arFields['DIALOG_ID']) && !empty($arFields['DIALOG_ID']))
 		{
@@ -385,7 +413,7 @@ class CIMMessenger
 
 			if (!\Bitrix\Im\Dialog::hasAccess($arFields['TO_USER_ID'], $arFields['FROM_USER_ID']))
 			{
-				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_MESSAGE_PRIVACY"), "ERROR_FROM_PRIVACY");
+				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_MESSAGE_CANCELED"), "ERROR_NO_ACCESS");
 				return false;
 			}
 
@@ -415,6 +443,11 @@ class CIMMessenger
 
 				$arFields['CHAT_ID'] = $chatId;
 				$arFields = self::UploadFileFromText($arFields);
+				if (!$arFields)
+				{
+					$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_LINES_SHARE_FILE"), "LINES_SHARE");
+					return false;
+				}
 
 				$arParams = Array();
 				$arParams['CHAT_ID'] = $chatId;
@@ -453,6 +486,11 @@ class CIMMessenger
 				$messageID = intval($result->getId());
 				if ($messageID <= 0)
 					return false;
+
+				if (isset($messageUuid))
+				{
+					$messageUuid->updateMessageId($messageID);
+				}
 
 				\Bitrix\Im\Model\ChatTable::update($chatId, Array(
 					'MESSAGE_COUNT' => new \Bitrix\Main\DB\SqlExpression('?# + 1', 'MESSAGE_COUNT'),
@@ -848,6 +886,11 @@ class CIMMessenger
 				$messageID = intval($result->getId());
 				if ($messageID <= 0)
 					return false;
+
+				if (isset($messageUuid))
+				{
+					$messageUuid->updateMessageId($messageID);
+				}
 
 				\Bitrix\Im\Model\ChatTable::update($chatId, Array(
 					'MESSAGE_COUNT' => new \Bitrix\Main\DB\SqlExpression('?# + 1', 'MESSAGE_COUNT'),
@@ -1381,7 +1424,6 @@ class CIMMessenger
 
 				if (CModule::IncludeModule('pull'))
 				{
-					//
 					$pullNotificationParams = CIMNotify::GetFormatNotify(
 						[
 							'ID' => $messageID,
@@ -2046,60 +2088,68 @@ class CIMMessenger
 	public static function LinesSessionVote($dialogId, $messageId, $action, $userId = null)
 	{
 		global $USER;
-		$userId = is_null($userId)? $USER->GetId(): intval($userId);
-		if ($userId <= 0)
-			return false;
+		$userId = is_null($userId) ? $USER->getId(): (int)$userId;
+		$messageId = (int)$messageId;
 
-		if ($dialogId == '')
+		if ($userId <= 0 || $messageId <= 0 || $dialogId == '')
+		{
 			return false;
+		}
 
-		if (!\Bitrix\Im\User::getInstance($userId)->isConnector() && !\Bitrix\Im\User::getInstance($dialogId)->isBot())
+		$message = self::getById($messageId);
+		if (!$message)
+		{
 			return false;
+		}
 
-		$messageId = intval($messageId);
-		$action = $action == 'dislike'? 'dislike': 'like';
-
-		$message = self::GetById($messageId);
-		if (!$message || intval($message['PARAMS']['IMOL_VOTE']) <= 0)
+		// only messages from network bots
+		if (!\Bitrix\Im\User::getInstance($message['AUTHOR_ID'])->isBot() || !\Bitrix\Im\User::getInstance($message['AUTHOR_ID'])->isNetwork())
+		{
 			return false;
-		if ($message['DATE_CREATE']+86400 < time())
-			return false;
-		$relations = CIMMessenger::GetRelationById($messageId);
+		}
 
-		$result = \Bitrix\Im\Model\ChatTable::getList(Array(
-			'filter'=>Array(
-				'=ID' => $message['CHAT_ID']
-			)
-		));
-		$chat = $result->fetch();
+		$sessionId = (int)$message['PARAMS']['IMOL_VOTE'];
+		if ($sessionId <= 0)
+		{
+			return false;
+		}
+
+		$timeToVote = (int)$message['PARAMS']['IMOL_TIME_LIMIT_VOTE'];
+		if ($timeToVote > 0 && ($message['DATE_CREATE'] + $timeToVote < time()))
+		{
+			// expired
+			return false;
+		}
+
+		$relations = self::getRelationById($messageId);
 		if (!isset($relations[$userId]))
+		{
 			return false;
+		}
 
-		CIMMessageParam::Set($messageId, Array('IMOL_VOTE' => $action));
-		CIMMessageParam::SendPull($messageId, Array('IMOL_VOTE'));
+		$action = $action == 'dislike' ? 'dislike': 'like';
 
+		\CIMMessageParam::set($messageId, Array('IMOL_VOTE' => $action));
+		\CIMMessageParam::sendPull($messageId, Array('IMOL_VOTE'));
+
+		$chat = \Bitrix\Im\Model\ChatTable::getByPrimary($message['CHAT_ID'])->fetch();
 		if ($chat['ENTITY_TYPE'] == 'LIVECHAT')
 		{
-			CIMMessageParam::Set($message['PARAMS']['CONNECTOR_MID'][0], Array('IMOL_VOTE' => $action));
-			CIMMessageParam::SendPull($message['PARAMS']['CONNECTOR_MID'][0], Array('IMOL_VOTE'));
+			\CIMMessageParam::set($message['PARAMS']['CONNECTOR_MID'][0], Array('IMOL_VOTE' => $action));
+			\CIMMessageParam::sendPull($message['PARAMS']['CONNECTOR_MID'][0], Array('IMOL_VOTE'));
 
-			if (CModule::IncludeModule('imopenlines'))
+			if (\Bitrix\Main\Loader::includeModule('imopenlines'))
 			{
-				\Bitrix\ImOpenlines\Session::voteAsUser(intval($message['PARAMS']['IMOL_VOTE']), $action);
+				\Bitrix\ImOpenlines\Session::voteAsUser($sessionId, $action);
 			}
 		}
-		else
-		{
-			$chat = Array();
-			$relations = Array();
-		}
 
-		foreach(GetModuleEvents("im", "OnSessionVote", true) as $arEvent)
+		foreach(\GetModuleEvents('im', 'OnSessionVote', true) as $arEvent)
 		{
-			ExecuteModuleEventEx($arEvent, array(array(
+			\ExecuteModuleEventEx($arEvent, array(array(
 				'DIALOG_ID' => $dialogId,
 				'MESSAGE_ID' => $messageId,
-				'SESSION_ID' => $message['PARAMS']['IMOL_VOTE'],
+				'SESSION_ID' => $sessionId,
 				'MESSAGE' => $message,
 				'ACTION' => $action,
 				'CHAT' => $chat,
@@ -2127,7 +2177,7 @@ class CIMMessenger
 		if (!$message)
 			return false;
 
-		$relations = CIMMessenger::GetRelationById($id);
+		$relations = self::GetRelationById($id);
 
 		$result = \Bitrix\Im\Model\ChatTable::getList(Array(
 			'filter'=>Array(
@@ -2876,7 +2926,9 @@ class CIMMessenger
 				'module_id' => 'im',
 				'expiry' => 3600,
 				'command' => 'desktopOnline',
-				'params' => Array(),
+				'params' => Array(
+					'version' => CIMMessenger::GetDesktopVersion()
+				),
 				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
 		}
@@ -3242,6 +3294,7 @@ class CIMMessenger
 					'bitrixXmpp': ".(IsModuleInstalled('xmpp')? 'true': 'false').",
 					'bitrixMobile': ".(IsModuleInstalled('mobile')? 'true': 'false').",
 					'bitrixOpenLines': ".(IsModuleInstalled('imopenlines')? 'true': 'false').",
+					'bitrixCrm': ".(IsModuleInstalled('crm')? 'true': 'false').",
 					'desktop': ".$arTemplate["DESKTOP"].",
 					'desktopStatus': ".(CIMMessenger::CheckDesktopStatusOnline()? 'true': 'false').",
 					'desktopVersion': ".CIMMessenger::GetDesktopVersion().",
@@ -3391,6 +3444,7 @@ class CIMMessenger
 			'bitrixXmpp' => (bool)IsModuleInstalled('xmpp'),
 			'bitrixMobile' => (bool)IsModuleInstalled('mobile'),
 			'bitrixOpenLines' => (bool)IsModuleInstalled('imopenlines'),
+			'bitrixCrm' => (bool)IsModuleInstalled('crm'),
 			'desktopStatus' => (bool)CIMMessenger::CheckDesktopStatusOnline(),
 			'desktopVersion' => (int)CIMMessenger::GetDesktopVersion(),
 			'language' => LANGUAGE_ID,
@@ -4101,7 +4155,7 @@ class CIMMessenger
 
 		if (!$pushFiles && !$hasAttach && isset($message['message']['params']['ATTACH']))
 		{
-			$message['message']['text'] .= " [".GetMessage('IM_MESSAGE_ATTACH')."]";
+			$message['message']['text'] .= "\n [".GetMessage('IM_MESSAGE_ATTACH')."]";
 		}
 
 		return $message['message']['text'];
@@ -4257,10 +4311,9 @@ class CIMMessenger
 					'size' => (int)$value['size'],
 					'type' => (string)$value['type'],
 					'image' => $value['image'],
-					'size' => $value['size'],
-					'urlDownload' => (new \Bitrix\Main\Web\Uri($value['urlDownload']))->deleteParams(['fileName'])->getUri(),
+					'urlDownload' => '',
 					'urlPreview' => (new \Bitrix\Main\Web\Uri($value['urlPreview']))->deleteParams(['fileName'])->getUri(),
-					'urlShow' => (new \Bitrix\Main\Web\Uri($value['urlShow']))->deleteParams(['fileName'])->getUri(),
+					'urlShow' => '',
 				];
 				if ($value['image'])
 				{
@@ -4290,6 +4343,11 @@ class CIMMessenger
 				'prevId' => (int)$eventMessage['prevId'],
 				'senderId' => (int)$eventMessage['senderId'],
 			];
+
+			if (isset($message['params']['ATTACH']))
+			{
+				unset($message['params']['ATTACH']);
+			}
 
 			if ($eventMessage['system'] === 'Y')
 			{

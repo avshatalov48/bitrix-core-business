@@ -798,20 +798,9 @@ class CSqlUtil
 		return $result;
 	}
 
-	public static function PrepareSelectTop(&$sql, $top, $dbType)
+	public static function PrepareSelectTop(&$sql, $top)
 	{
-		$dbType = strval($dbType);
-		if(!isset($dbType[0]))
-		{
-			$dbType = 'MYSQL';
-		}
-
-		$dbType = mb_strtoupper($dbType);
-
-		if($dbType === 'MYSQL')
-		{
-			$sql .= ' LIMIT '.$top;
-		}
+		$sql .= ' LIMIT '.$top;
 	}
 
 	private static function ForLike($str)

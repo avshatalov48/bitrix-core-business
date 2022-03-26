@@ -60,7 +60,7 @@ export class DefaultValueField extends BaseField
 			left: [
 				{
 					id: 'selectField',
-					text: Loc.getMessage('LANDING_FIELDS_SELECT_FIELD_BUTTON_TITLE'),
+					text: Loc.getMessage('LANDING_DEFAULT_VALUE_ADD_FIELD'),
 					onClick: this.onSelectFieldButtonClick,
 				},
 			],
@@ -109,8 +109,13 @@ export class DefaultValueField extends BaseField
 					{
 						return item.VALUE;
 					}
+					
+					if (Type.isArrayFilled(fieldItems))
+					{
+						return fieldItems[0].VALUE;
+					}
 
-					return fieldItems[0].VALUE;
+					return Loc.getMessage('LANDING_DEFAULT_VALUE_FIELD_DEFAULT_VALUE');
 				}
 
 				if (crmField.type === 'checkbox')
@@ -294,7 +299,9 @@ export class DefaultValueField extends BaseField
 				allowedTypes: [
 					'string',
 					'list',
+					'enumeration',
 					'checkbox',
+					'boolean',
 					'radio',
 					'text',
 					'integer',
@@ -305,6 +312,7 @@ export class DefaultValueField extends BaseField
 				],
 			})
 			.then((selectedFields) => {
+				this.options.crmFields = FieldsPanel.getInstance().getOriginalCrmFields();
 				this.onFieldsSelect(selectedFields);
 			});
 	}
@@ -349,7 +357,10 @@ export class DefaultValueField extends BaseField
 						return item.value === value.value;
 					});
 
-					value.label = valueItem.name;
+					if (valueItem)
+					{
+						value.label = valueItem.name;
+					}
 				}
 				else
 				{

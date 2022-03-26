@@ -1,14 +1,13 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
 use Bitrix\Bizproc;
 
-class CBPMixedCondition
-	extends CBPActivityCondition
+class CBPMixedCondition extends CBPActivityCondition
 {
 	const CONDITION_JOINER_AND = 0;
 	const CONDITION_JOINER_OR = 1;
@@ -40,7 +39,7 @@ class CBPMixedCondition
 		{
 			$joiner = empty($cond['joiner'])? static::CONDITION_JOINER_AND : static::CONDITION_JOINER_OR;
 
-			[$property, $value] = self::getRuntimeProperty($cond['object'], $cond['field'], $rootActivity);
+			[$property, $value] = $ownerActivity->getRuntimeProperty($cond['object'], $cond['field'], $rootActivity);
 
 			if ($property)
 			{
@@ -71,87 +70,25 @@ class CBPMixedCondition
 		return sizeof($result) > 0 ? true : false;
 	}
 
-	//TODO: move to general Activity API
-	private function getRuntimeProperty($object, $field, CBPActivity $ownerActivity): array
-	{
-		$rootActivity = $ownerActivity->GetRootActivity();
-		$documentType = $rootActivity->GetDocumentType();
-		$documentId = $rootActivity->GetDocumentId();
-		$documentService = CBPRuntime::GetRuntime(true)->getDocumentService();
-		$documentFields = $documentService->GetDocumentFields($documentType);
-
-		$result = null;
-		$property = null;
-
-		switch ($object)
-		{
-			case 'Template':
-				$result = $rootActivity->__get($field);
-				$property = $rootActivity->getTemplatePropertyType($field);
-				break;
-			case 'Variable':
-				$result = $rootActivity->GetVariable($field);
-				$property = $rootActivity->getVariableType($field);
-				break;
-			case 'Constant':
-				$result = $rootActivity->GetConstant($field);
-				$property = $rootActivity->GetConstantType($field);
-				break;
-			case 'GlobalConst':
-				$result = Bizproc\Workflow\Type\GlobalConst::getValue($field);
-				$property = Bizproc\Workflow\Type\GlobalConst::getById($field);
-				break;
-			case 'GlobalVar':
-				$result = Bizproc\Workflow\Type\GlobalVar::getValue($field);
-				$property = Bizproc\Workflow\Type\GlobalVar::getById($field);
-				break;
-			case 'Document':
-				$property = $documentFields[$field];
-				$result = $documentService->getFieldValue($documentId, $field, $documentType);
-				break;
-			default:
-				$activity = $rootActivity->workflow->GetActivityByName($object);
-				if ($activity)
-				{
-					$result = $activity->__get($field);
-					$property = $activity->getPropertyType($field);
-				}
-		}
-
-		if (!$property)
-		{
-			$property = ['Type' => 'string'];
-		}
-
-		return [$property, $result];
-	}
-
 	public function collectUsages(CBPActivity $ownerActivity)
 	{
 		$usages = [];
 		foreach ($this->condition as $cond)
 		{
-			switch ($cond['object'])
+			$usages[] = Bizproc\Workflow\Template\SourceType::getObjectSourceType($cond['object'], $cond['field']);
+			if (is_string($cond['value']))
 			{
-				case 'Template':
-					$usages[] = [\Bitrix\Bizproc\Workflow\Template\SourceType::Parameter, $cond['field']];
-					break;
-				case 'Variable':
-					$usages[] = [\Bitrix\Bizproc\Workflow\Template\SourceType::Variable, $cond['field']];
-					break;
-				case 'Constant':
-					$usages[] = [\Bitrix\Bizproc\Workflow\Template\SourceType::Constant, $cond['field']];
-					break;
-				case 'GlobalConst':
-					$usages[] = [\Bitrix\Bizproc\Workflow\Template\SourceType::GlobalConstant, $cond['field']];
-					break;
-				case 'Document':
-					$usages[] = [\Bitrix\Bizproc\Workflow\Template\SourceType::DocumentField, $cond['field']];
-					break;
-				default:
-					$usages[] = [\Bitrix\Bizproc\Workflow\Template\SourceType::Activity, $cond['object']];
+				$parsed = $ownerActivity::parseExpression($cond['value']);
+				if ($parsed)
+				{
+					$usages[] = \Bitrix\Bizproc\Workflow\Template\SourceType::getObjectSourceType(
+						$parsed['object'],
+						$parsed['field']
+					);
+				}
 			}
 		}
+
 		return $usages;
 	}
 
@@ -194,7 +131,15 @@ class CBPMixedCondition
 
 		if (is_array($arCurrentValues))
 		{
-			$defaultValue = static::GetPropertiesDialogValues($documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues, $errors, $arWorkflowConstants);
+			$defaultValue = static::GetPropertiesDialogValues(
+				$documentType,
+				$arWorkflowTemplate,
+				$arWorkflowParameters,
+				$arWorkflowVariables,
+				$arCurrentValues,
+				$errors,
+				$arWorkflowConstants
+			);
 		}
 
 		$arCurrentValues = ['conditions' => []];
@@ -218,12 +163,17 @@ class CBPMixedCondition
 			$arCurrentValues['conditions'][] = ['operator' => '!empty'];
 		}
 
-		$javascriptFunctions = $documentService->GetJSFunctionsForFields($documentType, "objFieldsPVC", $arWorkflowParameters + $arWorkflowVariables, $arFieldTypes);
+		$javascriptFunctions = $documentService->GetJSFunctionsForFields(
+			$documentType,
+			"objFieldsPVC",
+			$arWorkflowParameters + $arWorkflowVariables,
+			$arFieldTypes
+		);
 
 		return $runtime->ExecuteResourceFile(
 			__FILE__,
 			"properties_dialog.php",
-			array(
+			[
 				"arCurrentValues" => $arCurrentValues,
 				"documentService" => $documentService,
 				"documentType" => $documentType,
@@ -232,7 +182,7 @@ class CBPMixedCondition
 				"formName" => $formName,
 				"arFieldTypes" => $arFieldTypes,
 				"javascriptFunctions" => $javascriptFunctions,
-			)
+			]
 		);
 	}
 
@@ -240,12 +190,16 @@ class CBPMixedCondition
 	{
 		$errors = [];
 
-		if (!array_key_exists("mixed_condition", $arCurrentValues) || !is_array($arCurrentValues["mixed_condition"]))
+		if (
+			!array_key_exists("mixed_condition", $arCurrentValues)
+			|| !is_array($arCurrentValues["mixed_condition"])
+		)
 		{
-			$errors[] = array(
+			$errors[] = [
 				"code" => "",
 				"message" => GetMessage("BPMC_EMPTY_CONDITION"),
-			);
+			];
+
 			return null;
 		}
 
@@ -291,10 +245,11 @@ class CBPMixedCondition
 
 		if (count($result) <= 0)
 		{
-			$errors[] = array(
+			$errors[] = [
 				"code" => "",
 				"message" => GetMessage("BPMC_EMPTY_CONDITION"),
-			);
+			];
+
 			return null;
 		}
 
@@ -306,11 +261,10 @@ class CBPMixedCondition
 		switch ($object)
 		{
 			case 'Template':
+			case 'Parameter':
 				return $parameters[$field] ?? null;
-				break;
 			case 'Variable':
 				return $variables[$field]?? null;
-				break;
 			case 'Constant':
 				if (is_array($constants))
 				{
@@ -319,7 +273,6 @@ class CBPMixedCondition
 				break;
 			case 'GlobalConst':
 				return Bizproc\Workflow\Type\GlobalConst::getById($field);
-				break;
 			case 'GlobalVar':
 				return Bizproc\Workflow\Type\GlobalVar::getById($field);
 			case 'Document':
@@ -331,11 +284,10 @@ class CBPMixedCondition
 				}
 
 				return $fields[$field] ?? null;
-				break;
 			default:
 				return self::findActivityProperty($object, $field, $template);
-				break;
 		}
+
 		return null;
 	}
 
@@ -348,6 +300,7 @@ class CBPMixedCondition
 		}
 
 		$props = \CBPRuntime::GetRuntime(true)->getActivityReturnProperties($activity);
+
 		return $props[$field] ?? null;
 	}
 
@@ -368,6 +321,7 @@ class CBPMixedCondition
 				}
 			}
 		}
+
 		return null;
 	}
 }

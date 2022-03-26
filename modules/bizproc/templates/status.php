@@ -4,8 +4,8 @@ IncludeModuleLangFile(__FILE__);
 $arFields = Array(
 	"AUTO_EXECUTE" => 0,
 	"ACTIVE"       => "Y",
-	"NAME"         => GetMessage("BPT_ST_NAME"),
-	"DESCRIPTION"  => GetMessage("BPT_ST_DESC"),
+	"NAME"         => GetMessage("BPT_ST_NAME_1"),
+	"DESCRIPTION"  => GetMessage("BPT_ST_DESC_1"),
 	"PARAMETERS"   => Array
 	(
 		'Creators' => Array
@@ -39,7 +39,7 @@ $arFields = Array(
 			'Name'       => 'Template',
 			'Properties' => Array
 			(
-				'Title'            => GetMessage("BPT_ST_BP_NAME"),
+				'Title'            => GetMessage("BPT_ST_BP_NAME_1"),
 				'InitialStateName' => 'A24311_90344_46263_93603'
 			),
 
@@ -99,7 +99,7 @@ $arFields = Array(
 									'Properties' => Array
 									(
 										'TargetStateName' => 'A21096_75379_71462_5314',
-										'Title'           => GetMessage("BPT_ST_SETSTATE")
+										'Title'           => GetMessage("BPT_ST_SETSTATE_1")
 									)
 
 								)
@@ -142,7 +142,7 @@ $arFields = Array(
 									'Properties' => Array
 									(
 										'TargetStateName' => 'A63574_17349_63919_63247',
-										'Title'           => GetMessage("BPT_ST_SETSTATE")
+										'Title'           => GetMessage("BPT_ST_SETSTATE_1")
 									)
 
 								)
@@ -205,7 +205,7 @@ $arFields = Array(
 							'Name'       => 'A21398_19376_97560_43971',
 							'Properties' => Array
 							(
-								'Title' => GetMessage("BPT_ST_INIT"),
+								'Title' => GetMessage("BPT_ST_INIT_1"),
 							),
 
 							'Children' => Array

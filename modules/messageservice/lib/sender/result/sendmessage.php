@@ -2,6 +2,7 @@
 namespace Bitrix\MessageService\Sender\Result;
 
 use Bitrix\Main\Result;
+use Bitrix\MessageService\DTO;
 use Bitrix\MessageService\MessageStatus;
 
 class SendMessage extends Result
@@ -9,6 +10,8 @@ class SendMessage extends Result
 	protected $id;
 	protected $externalId;
 	protected $status;
+	protected $serviceRequest;
+	protected $serviceResponse;
 
 	/**
 	 * @param string $id
@@ -74,6 +77,40 @@ class SendMessage extends Result
 	public function setAccepted()
 	{
 		$this->setStatus(MessageStatus::ACCEPTED);
+		return $this;
+	}
+
+	/**
+	 * @return ?DTO\Request
+	 */
+	public function getServiceRequest(): ?DTO\Request
+	{
+		return $this->serviceRequest;
+	}
+
+	/**
+	 * @param DTO\Request $serviceRequest
+	 */
+	public function setServiceRequest(DTO\Request $serviceRequest): SendMessage
+	{
+		$this->serviceRequest = $serviceRequest;
+		return $this;
+	}
+
+	/**
+	 * @return ?DTO\Response
+	 */
+	public function getServiceResponse(): ?DTO\Response
+	{
+		return $this->serviceResponse;
+	}
+
+	/**
+	 * @param DTO\Response $serviceResponse
+	 */
+	public function setServiceResponse(DTO\Response $serviceResponse): SendMessage
+	{
+		$this->serviceResponse = $serviceResponse;
 		return $this;
 	}
 }

@@ -192,6 +192,11 @@ export class CalendarSection
 		{
 			action = 'view_time';
 		}
+		
+		if (!this.data.PERM[action])
+		{
+			return false;
+		}
 
 		return this.data.PERM && this.data.PERM[action];
 	}

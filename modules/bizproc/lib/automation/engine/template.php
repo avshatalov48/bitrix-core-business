@@ -6,6 +6,7 @@ use Bitrix\Bizproc\Workflow\Template\Tpl;
 use Bitrix\Bizproc\WorkflowTemplateTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Error;
+use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Result;
 use Bitrix\Bizproc\Automation;
 use Bitrix\Main\Localization\Loc;
@@ -52,6 +53,7 @@ class Template
 			'TEMPLATE' => [],
 			'PARAMETERS' => [],
 			'CONSTANTS' => [],
+			'VARIABLES' => [],
 		);
 
 		if ($documentStatus)
@@ -63,7 +65,7 @@ class Template
 					'=DOCUMENT_TYPE' => $documentType[2],
 					'=DOCUMENT_STATUS' => $documentStatus,
 					//'=AUTO_EXECUTE' => $this->autoExecuteType
-				]
+				],
 			])->fetch();
 			if ($row)
 			{
@@ -80,6 +82,17 @@ class Template
 		$instance->autoExecuteType = (int) $instance->template['AUTO_EXECUTE'];
 
 		return $instance;
+	}
+
+	public function deleteRobots(array $robots, int $userId): Result
+	{
+		$isSameRobot = function ($lhsRobot, $rhsRobot) {
+			return strcmp($lhsRobot->getName(), $rhsRobot->getName());
+		};
+
+		$remainingRobots = array_udiff($this->getRobots(), $robots, $isSameRobot);
+
+		return $this->save($remainingRobots, $userId);
 	}
 
 	public function getDocumentStatus()
@@ -175,7 +188,7 @@ class Template
 				&$v,
 				&$p,
 				$request,
-				&$robotErrors
+				&$robotErrors,
 			]
 		);
 
@@ -206,8 +219,6 @@ class Template
 		$result = new Result();
 		$templateId = !empty($this->template['ID']) ? $this->template['ID'] : 0;
 
-		$this->setRobots($robots);
-
 		if (isset($additional['PARAMETERS']) && is_array($additional['PARAMETERS']))
 		{
 			$this->template['PARAMETERS'] = $additional['PARAMETERS'];
@@ -217,8 +228,15 @@ class Template
 			$this->template['CONSTANTS'] = $additional['CONSTANTS'];
 		}
 
-		$templateResult = $templateId ?
-			$this->updateBizprocTemplate($templateId, $userId) : $this->addBizprocTemplate($userId);
+		if ($templateId)
+		{
+			$templateResult = $this->updateTemplateRobots($robots, $userId);
+		}
+		else
+		{
+			$this->setRobots($robots);
+			$templateResult = $this->addBizprocTemplate($userId);
+		}
 
 		if ($templateResult->isSuccess())
 		{
@@ -270,6 +288,7 @@ class Template
 			'DOCUMENT_STATUS' => $this->template['DOCUMENT_STATUS'],
 			'PARAMETERS' => $this->template['PARAMETERS'],
 			'CONSTANTS' => $this->template['CONSTANTS'],
+			'VARIABLES' => $this->template['VARIABLES'] ,
 		];
 
 		$result['IS_EXTERNAL_MODIFIED'] = $this->isExternalModified();
@@ -343,9 +362,9 @@ class Template
 
 	protected function makeTemplateName()
 	{
-		$msg = Loc::getMessage('BIZPROC_AUTOMATION_TEMPLATE_NAME', array(
+		$msg = Loc::getMessage('BIZPROC_AUTOMATION_TEMPLATE_NAME', [
 			'#STATUS#' => $this->template['DOCUMENT_STATUS']
-		));
+		]);
 
 		if ($this->autoExecuteType === \CBPDocumentEventType::Script)
 		{
@@ -353,6 +372,117 @@ class Template
 		}
 
 		return $msg;
+	}
+
+	private function updateTemplateRobots(array $robots, int $userId): Result
+	{
+		$templateId = $this->template['ID'];
+		$result = new Result();
+
+		$errors = $this->validateUpdatedRobots($robots, new \CBPWorkflowTemplateUser($userId));
+		if (!$errors->isEmpty())
+		{
+			$result->addErrors($errors->getValues());
+		}
+
+		$this->setRobots($robots);
+		$updateFields = [
+			'TEMPLATE' => $this->template['TEMPLATE'],
+			'PARAMETERS' => $this->template['PARAMETERS'],
+			'VARIABLES' => [],
+			'CONSTANTS' => $this->template['CONSTANTS'],
+			'USER_ID' => $userId,
+			'MODIFIER_USER' => new \CBPWorkflowTemplateUser($userId),
+		];
+
+		if (isset($this->template['NAME']))
+		{
+			$updateFields['NAME'] = $this->template['NAME'];
+		}
+
+		try
+		{
+			\CBPWorkflowTemplateLoader::update($templateId, $updateFields, false, false);
+		}
+		catch (\Exception $e)
+		{
+			$result->addError(new Error($e->getMessage()));
+		}
+
+		return $result;
+	}
+
+	private function validateUpdatedRobots(array $robots, \CBPWorkflowTemplateUser $user): ErrorCollection
+	{
+		$errors = new ErrorCollection();
+		$loader = \CBPWorkflowTemplateLoader::GetLoader();
+		$originalRobots = $this->getRobots();
+
+		$isSameRobot = function ($lhsRobot, $rhsRobot) {
+			return $lhsRobot->getName() === $rhsRobot->getName();
+		};
+
+		/**@var Robot $robot */
+		foreach ($robots as $robot)
+		{
+			if (is_array($robot))
+			{
+				$robot = new Robot($robot);
+			}
+			if (!($robot instanceof Robot))
+			{
+				$errors->setError(new Error('Robots array is incorrect'));
+			}
+			if (!$errors->isEmpty())
+			{
+				break;
+			}
+
+			$indexOfFoundRobot = -1;
+			foreach ($originalRobots as $index => $originalRobot)
+			{
+				if ($isSameRobot($robot, $originalRobot))
+				{
+					$indexOfFoundRobot = $index;
+					break;
+				}
+			}
+
+			if ($indexOfFoundRobot < 0 || !$this->areRobotsEqual($robot, $originalRobots[$indexOfFoundRobot]))
+			{
+				$sequence = $this->convertRobotToSequenceActivity($robot);
+				foreach ($loader->ValidateTemplate($sequence, $user) as $rawError)
+				{
+					$errors->setError(new Error(trim($rawError['message'])));
+				}
+				unset($originalRobots[$indexOfFoundRobot]);
+			}
+		}
+
+		return $errors;
+	}
+
+	private function areRobotsEqual(Robot $lhsRobot, Robot $rhsRobot): bool
+	{
+		$lhsCondition = $lhsRobot->getCondition() ?? new ConditionGroup();
+		$rhsCondition = $rhsRobot->getCondition() ?? new ConditionGroup();
+
+		$lhsDelay = $lhsRobot->getDelayInterval();
+		$rhsDelay = $rhsRobot->getDelayInterval();
+		if (!isset($lhsDelay) || $lhsDelay->isNow())
+		{
+			$lhsDelay = new DelayInterval();
+		}
+		if (!isset($rhsDelay) || $rhsDelay->isNow())
+		{
+			$rhsDelay = new DelayInterval();
+		}
+
+		return
+			$lhsCondition->toArray()['items'] === $rhsCondition->toArray()['items']
+			&& $lhsDelay->toArray() === $rhsDelay->toArray()
+			&& $lhsRobot->getBizprocActivity() === $rhsRobot->getBizprocActivity()
+		;
 	}
 
 	protected function updateBizprocTemplate($id, $userId)
@@ -492,11 +622,11 @@ class Template
 				'Type' => 'SequentialWorkflowActivity',
 				'Name' => 'Template',
 				'Properties' => ['Title' => 'Bizproc Automation template'],
-				'Children' => []
+				'Children' => [],
 			]],
 			'PARAMETERS' => $this->template['PARAMETERS'],
 			'CONSTANTS' => $this->template['CONSTANTS'],
-			'SYSTEM_CODE'  => 'bitrix_bizproc_automation'
+			'SYSTEM_CODE'  => 'bitrix_bizproc_automation',
 		];
 
 		if ($this->robots)
@@ -509,34 +639,15 @@ class Template
 				if ($i !== 0 && !$robot->isExecuteAfterPrevious())
 				{
 					$parallelActivity['Children'][] = $sequence;
-					$sequence = $this->createSequenceActivity();
+					$sequence = $this->convertRobotToSequenceActivity($robot);
 				}
-
-				$delayInterval = $robot->getDelayInterval();
-				if ($delayInterval && !$delayInterval->isNow())
+				else
 				{
-					$delayName = $robot->getDelayName();
-					if (!$delayName)
-					{
-						$delayName = Robot::generateName();
-						$robot->setDelayName($delayName);
-					}
-
-					$sequence['Children'][] = $this->createDelayActivity(
-						$delayInterval->toActivityProperties($documentType),
-						$delayName
+					$sequence['Children'] = array_merge(
+						$sequence['Children'],
+						$this->convertRobotToSequenceActivity($robot)['Children']
 					);
 				}
-
-				$activity = $robot->getBizprocActivity();
-				$condition = $robot->getCondition();
-
-				if ($condition && count($condition->getItems()) > 0)
-				{
-					$activity = $condition->createBizprocActivity($activity, $documentType, $this);
-				}
-
-				$sequence['Children'][] = $activity;
 			}
 
 			$parallelActivity['Children'][] = $sequence;
@@ -550,6 +661,39 @@ class Template
 		}
 		$this->robots = null;
 		$this->isConverted = false;
+	}
+
+	private function convertRobotToSequenceActivity(Robot $robot): array
+	{
+		$sequence = $this->createSequenceActivity();
+
+		$delayInterval = $robot->getDelayInterval();
+		if ($delayInterval && !$delayInterval->isNow())
+		{
+			$delayName = $robot->getDelayName();
+			if (!$delayName)
+			{
+				$delayName = Robot::generateName();
+				$robot->setDelayName($delayName);
+			}
+
+			$sequence['Children'][] = $this->createDelayActivity(
+				$delayInterval->toActivityProperties($this->getDocumentType()),
+				$delayName
+			);
+		}
+
+		$activity = $robot->getBizprocActivity();
+		$condition = $robot->getCondition();
+
+		if ($condition && $condition->getItems())
+		{
+			$activity = $condition->createBizprocActivity($activity, $this->getDocumentType(), $this);
+		}
+
+		$sequence['Children'][] = $activity;
+
+		return $sequence;
 	}
 
 	protected function isRobot(array $activity)
@@ -590,6 +734,16 @@ class Template
 		return  null;
 	}
 
+	public function getRobotsByNames(array $names): array
+	{
+		return array_uintersect($this->getRobots(), $names, function ($lhs, $rhs) {
+			$lhsName = is_string($lhs) ? $lhs : $lhs->getName();
+			$rhsName = is_string($rhs) ? $rhs : $rhs->getName();
+
+			return strcmp($lhsName, $rhsName);
+		});
+	}
+
 	/**
 	 * @return array Template activities.
 	 */
@@ -621,18 +775,14 @@ class Template
 		{
 			case 'Template':
 				return $this->template['PARAMETERS'][$field] ?? null;
-				break;
 			case 'Variable':
 				return $this->template['VARIABLES'][$field] ?? null;
-				break;
 			case 'Constant':
 				return $this->template['CONSTANTS'][$field] ?? null;
-				break;
 			case 'GlobalConst':
-				return Bizproc\Workflow\Type\GlobalConst::getById($field);
-				break;
+				return Bizproc\Workflow\Type\GlobalConst::getVisibleById($field, $this->getDocumentType());
 			case 'GlobalVar':
-				return Bizproc\Workflow\Type\GlobalVar::getById($field);
+				return Bizproc\Workflow\Type\GlobalVar::getVisibleById($field, $this->getDocumentType());
 			case 'Document':
 				static $fields;
 				if (!$fields)
@@ -642,7 +792,6 @@ class Template
 				}
 
 				return $fields[$field] ?? null;
-				break;
 			default:
 				if ($this->isConverted)
 				{
@@ -652,7 +801,6 @@ class Template
 				{
 					return $this->findActivityProperty($object, $field);
 				}
-				break;
 		}
 	}
 
@@ -699,10 +847,10 @@ class Template
 		return array(
 			'Type' => static::$sequenceActivityType,
 			'Name' => Robot::generateName(),
-			'Properties' => array(
-				'Title' => 'Automation sequence'
-			),
-			'Children' => array()
+			'Properties' => [
+				'Title' => 'Automation sequence',
+			],
+			'Children' => [],
 		);
 	}
 
@@ -714,7 +862,7 @@ class Template
 			'Properties' => array(
 				'Title' => Loc::getMessage('BIZPROC_AUTOMATION_PARALLEL_ACTIVITY'),
 			),
-			'Children' => array()
+			'Children' => [],
 		);
 	}
 
@@ -727,7 +875,7 @@ class Template
 			'Type' => static::$delayActivityType,
 			'Name' => $delayName,
 			'Properties' => $delayProperties,
-			'Children' => array()
+			'Children' => [],
 		);
 	}
 }

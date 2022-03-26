@@ -1459,6 +1459,10 @@ this.BX = this.BX || {};
 	    key: "create",
 	    value: function create(id, settings) {
 	      if (main_core.Type.isObject(this.items[id])) {
+	        if (main_core.Type.isObject(settings.filter)) {
+	          this.items[id].filter = settings.filter;
+	        }
+
 	        return this.items[id];
 	      }
 
@@ -2944,85 +2948,7 @@ this.BX = this.BX || {};
 	  };
 	})();
 
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<h3 class=\"main-ui-filter-popup-title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</h3>\n\t\t\t\t"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"main-ui-filter-popup-section-wrapper\" data-ui-popup-filter-section=\"", "\"></div>\n\t\t\t\t"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"main-ui-filter-popup-search-sections-wrapper\"></div>"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-form-row\">\n\t\t\t\t\t<div class=\"ui-form-content main-ui-filter-popup-search-input-wrapper\">\n\t\t\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-before-icon ui-ctl-after-icon\">\n\t\t\t\t\t\t\t<div class=\"ui-ctl-before ui-ctl-icon-search\"></div>\n\t\t\t\t\t\t\t<button class=\"ui-ctl-after ui-ctl-icon-clear\"></button>\n\t\t\t\t\t\t\t<input type=\"text\" class=\"ui-ctl-element ", "\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"main-ui-filter-popup-search-section-item\" data-ui-popup-filter-section-button=\"", "\">\n\t\t\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-form-row\">\n\t\t\t\t\t<div class=\"ui-form-content main-ui-filter-popup-search-section-wrapper\"></div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"main-ui-filter-popup-search-header-wrapper\">\n\t\t\t\t\t<div class=\"ui-form-row-inline\"></div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div></div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
 
 	(function () {
 
@@ -4059,7 +3985,7 @@ this.BX = this.BX || {};
 	      return p;
 	    },
 	    getPopupContent: function getPopupContent(block, mix, content) {
-	      var wrapper = BX.Tag.render(_templateObject());
+	      var wrapper = BX.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div></div>"])));
 
 	      if (!this.enableHeadersSections) {
 	        var fieldsContent = BX.decl({
@@ -4093,7 +4019,7 @@ this.BX = this.BX || {};
 	      return wrapper;
 	    },
 	    preparePopupContentHeader: function preparePopupContentHeader(wrapper) {
-	      var headerWrapper = BX.Tag.render(_templateObject2());
+	      var headerWrapper = BX.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"main-ui-filter-popup-search-header-wrapper\">\n\t\t\t\t\t<div class=\"ui-form-row-inline\"></div>\n\t\t\t\t</div>\n\t\t\t"])));
 	      wrapper.prepend(headerWrapper);
 	      this.preparePopupContentHeaderSections(headerWrapper);
 	      this.preparePopupContentHeaderSearch(headerWrapper);
@@ -4103,13 +4029,13 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      var headerSectionsWrapper = BX.Tag.render(_templateObject3());
+	      var headerSectionsWrapper = BX.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-form-row\">\n\t\t\t\t\t<div class=\"ui-form-content main-ui-filter-popup-search-section-wrapper\"></div>\n\t\t\t\t</div>\n\t\t\t"])));
 	      headerWrapper.firstElementChild.appendChild(headerSectionsWrapper);
 	      var headersSections = this.getHeadersSections();
 
 	      for (var key in headersSections) {
 	        var itemClass = this.settings.classPopupSearchSectionItemIcon + (headersSections[key].selected ? " ".concat(this.settings.classPopupSearchSectionItemIconActive) : '');
-	        var headerSectionItem = BX.Tag.render(_templateObject4(), key, itemClass, BX.Text.encode(headersSections[key].name));
+	        var headerSectionItem = BX.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"main-ui-filter-popup-search-section-item\" data-ui-popup-filter-section-button=\"", "\">\n\t\t\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), key, itemClass, BX.Text.encode(headersSections[key].name));
 	        BX.bind(headerSectionItem, 'click', this.onFilterSectionClick.bind(this, headerSectionItem));
 	        headerSectionsWrapper.firstElementChild.appendChild(headerSectionItem);
 	      }
@@ -4132,7 +4058,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      var searchForm = BX.Tag.render(_templateObject5(), this.settings.classPopupSearchSectionItem);
+	      var searchForm = BX.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-form-row\">\n\t\t\t\t\t<div class=\"ui-form-content main-ui-filter-popup-search-input-wrapper\">\n\t\t\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-before-icon ui-ctl-after-icon\">\n\t\t\t\t\t\t\t<div class=\"ui-ctl-before ui-ctl-icon-search\"></div>\n\t\t\t\t\t\t\t<button class=\"ui-ctl-after ui-ctl-icon-clear\"></button>\n\t\t\t\t\t\t\t<input type=\"text\" class=\"ui-ctl-element ", "\">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.settings.classPopupSearchSectionItem);
 	      headerWrapper.firstElementChild.appendChild(searchForm);
 	      var inputs = searchForm.getElementsByClassName(this.settings.classPopupSearchSectionItem);
 
@@ -4147,18 +4073,18 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      var sectionsWrapper = BX.Tag.render(_templateObject6());
+	      var sectionsWrapper = BX.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<div class=\"main-ui-filter-popup-search-sections-wrapper\"></div>"])));
 	      wrapper.appendChild(sectionsWrapper);
 
 	      for (var key in sections) {
-	        var sectionWrapper = BX.Tag.render(_templateObject7(), key);
+	        var sectionWrapper = BX.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"main-ui-filter-popup-section-wrapper\" data-ui-popup-filter-section=\"", "\"></div>\n\t\t\t\t"])), key);
 	        this.setPopupElementWidthFromSettings(sectionWrapper);
 
 	        if (!this.getHeadersSectionParam(key, 'selected')) {
 	          sectionWrapper.setAttribute('hidden', '');
 	        }
 
-	        var sectionTitle = BX.Tag.render(_templateObject8(), BX.Text.encode(this.getHeadersSectionParam(key, 'name')));
+	        var sectionTitle = BX.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<h3 class=\"main-ui-filter-popup-title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</h3>\n\t\t\t\t"])), BX.Text.encode(this.getHeadersSectionParam(key, 'name')));
 	        var fieldsBlock = BX.decl({
 	          block: block,
 	          mix: mix,
@@ -6275,15 +6201,7 @@ this.BX = this.BX || {};
 	  };
 	})();
 
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"main-ui-filter-additional-fields-container\"></div>\n\t\t\t"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1;
 	var onValueChange = Symbol('onValueChange');
 	var Field = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Field, _Event$EventEmitter);
@@ -6348,7 +6266,7 @@ this.BX = this.BX || {};
 	    key: "getAdditionalFieldContainer",
 	    value: function getAdditionalFieldContainer() {
 	      return this.cache.remember('additionalFieldsContainer', function () {
-	        return main_core.Tag.render(_templateObject$1());
+	        return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"main-ui-filter-additional-fields-container\"></div>\n\t\t\t"])));
 	      });
 	    }
 	    /**
@@ -6772,25 +6690,7 @@ this.BX = this.BX || {};
 	  };
 	}
 
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"main-ui-control main-ui-filter-additional-filter-placeholder\" data-type=\"", "\">\n\t\t\t\t\t<div class=\"main-ui-square\">\n\t\t\t\t\t\t<div class=\"main-ui-square-item\">", "</div>\n\t\t\t\t\t\t<div class=\"main-ui-item-icon main-ui-square-delete\" onclick=\"", "\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"ui-icon ui-icon-service-light-other main-ui-filter-additional-filters-button", "\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\tdata-allowed-types=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t<i></i>\n\t\t\t\t</span>\n\t\t\t"]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$2, _templateObject2$1;
 	/**
 	 * @memberOf BX.Filter
 	 */
@@ -6953,7 +6853,7 @@ this.BX = this.BX || {};
 	          return '';
 	        }();
 
-	        return main_core.Tag.render(_templateObject$2(), disabled ? ' main-ui-disable' : '', _this3.onAdditionalFilterButtonClick.bind(_this3, fieldId), allowedTypes);
+	        return main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"ui-icon ui-icon-service-light-other main-ui-filter-additional-filters-button", "\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\tdata-allowed-types=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t<i></i>\n\t\t\t\t</span>\n\t\t\t"])), disabled ? ' main-ui-disable' : '', _this3.onAdditionalFilterButtonClick.bind(_this3, fieldId), allowedTypes);
 	      });
 	    }
 	  }, {
@@ -7006,7 +6906,7 @@ this.BX = this.BX || {};
 	          _this4.restoreField(event.currentTarget.closest('.main-ui-filter-field-with-additional-filter'));
 	        };
 
-	        return main_core.Tag.render(_templateObject2$1(), typeId, message, onRemoveClick);
+	        return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"main-ui-control main-ui-filter-additional-filter-placeholder\" data-type=\"", "\">\n\t\t\t\t\t<div class=\"main-ui-square\">\n\t\t\t\t\t\t<div class=\"main-ui-square-item\">", "</div>\n\t\t\t\t\t\t<div class=\"main-ui-item-icon main-ui-square-delete\" onclick=\"", "\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), typeId, message, onRemoveClick);
 	      });
 	    }
 	  }, {
@@ -7033,15 +6933,7 @@ this.BX = this.BX || {};
 	});
 	babelHelpers.defineProperty(AdditionalFilter, "cache", new main_core.Cache.MemoryCache());
 
-	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div \n\t\t\t\tclass=\"main-ui-filter-error-message\" \n\t\t\t\ttitle=\"", "\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject$3 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$3;
 	var errorMessages = new WeakMap();
 	var errorMessagesTypes = new WeakMap();
 	var values = new WeakMap();
@@ -8357,7 +8249,7 @@ this.BX = this.BX || {};
 	          MAIN_UI_FILTER__DATE_ERROR_TITLE = _this$parent$params.MAIN_UI_FILTER__DATE_ERROR_TITLE,
 	          MAIN_UI_FILTER__DATE_ERROR_LABEL = _this$parent$params.MAIN_UI_FILTER__DATE_ERROR_LABEL;
 	      var errorText = text || "".concat(MAIN_UI_FILTER__DATE_ERROR_LABEL, " ").concat(main_core.Loc.getMessage('FORMAT_DATE'));
-	      var dateErrorMessage = main_core.Tag.render(_templateObject$3(), MAIN_UI_FILTER__DATE_ERROR_TITLE, errorText);
+	      var dateErrorMessage = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div \n\t\t\t\tclass=\"main-ui-filter-error-message\" \n\t\t\t\ttitle=\"", "\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), MAIN_UI_FILTER__DATE_ERROR_TITLE, errorText);
 	      errorMessages.set(target, dateErrorMessage);
 	      errorMessagesTypes.set(target, id);
 	      main_core.Dom.insertAfter(dateErrorMessage, target);

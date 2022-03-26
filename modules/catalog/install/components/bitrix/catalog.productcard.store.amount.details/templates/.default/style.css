@@ -1,0 +1,46 @@
+.product-stores-amount-details-total-wrapper
+{
+	padding: 20px;
+	background-color: #fff;
+	-webkit-box-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	position: relative;
+}
+
+.product-stores-amount-details-total-container
+{
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: end;
+	-ms-flex-pack: end;
+	justify-content: flex-end;
+}
+
+.product-stores-amount-details-total-table
+{
+	width: 50%;
+	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525c69;
+}
+
+.product-stores-amount-details-total-table td
+{
+	padding-bottom: 8px;
+}
+
+.product-stores-amount-details-total-table-row
+{
+	text-align: right;
+}
+
+.total-info
+{
+	color: rgba(82,92,105,.5);
+}
+
+.total-info-value
+{
+	color: black;
+}

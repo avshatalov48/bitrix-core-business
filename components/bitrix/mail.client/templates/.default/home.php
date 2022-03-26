@@ -35,6 +35,8 @@ $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
 	'',
 	[
+		'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
+		'DEFAULT_THEME_ID' => 'light:mail',
 		'POPUP_COMPONENT_NAME' => $componentName,
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => $arResult,

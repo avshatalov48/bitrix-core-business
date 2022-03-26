@@ -44,6 +44,7 @@ class StyleImg extends Node
 			$id = isset($value['id']) ? (int)$value['id'] : 0;
 			$id2x = isset($value['id2x']) ? (int)$value['id2x'] : 0;
 
+			// check permissions to this file ids
 			if ($id || $id2x)
 			{
 				if ($files === null)
@@ -60,12 +61,8 @@ class StyleImg extends Node
 				}
 			}
 
-			// todo: lazy?
-			// $isLazy = isset($value['isLazy']) && $value['isLazy'] === 'Y';
 			if (isset($resultList[$pos]))
 			{
-				// check permissions to this file ids
-
 				// update in content
 				if ($resultList[$pos]->getTagName() !== 'IMG')
 				{
@@ -75,18 +72,29 @@ class StyleImg extends Node
 						if ($id)
 						{
 							$resultList[$pos]->setAttribute('data-fileid', $id);
+							if ($id2x)
+							{
+								$resultList[$pos]->setAttribute('data-fileid2x', $id2x);
+								// todo: save src in data too
+							}
 						}
-						// else
-						// {
-						// 	$resultList[$pos]->removeA('data-fileid', $id)
-						// }
-
-						if ($id2x)
+						else
 						{
-							$resultList[$pos]->setAttribute('data-fileid2x', $id2x);
+							foreach (['fileid', 'fileid2x'] as $dataCode)
+							{
+								$attribute = 'data-' . $dataCode;
+								$oldId = $resultList[$pos]->getAttribute($attribute);
+								if ($oldId > 0)
+								{
+									File::deleteFromBlock(
+										$block->getId(),
+										$oldId
+									);
+								}
+
+								// $resultList[$pos]->removeAttribute($attribute);
+							}
 						}
-						// todo: if empty values - del attrs
-						// todo: del old files
 					}
 				}
 			}
@@ -118,70 +126,13 @@ class StyleImg extends Node
 						// todo: check if file exists by ID
 						// todo: check $files = File::getFilesFromBlock($block->getId());
 						$data[$pos]['id'] = $fileId;
+						if ($fileId2x = $res->getAttribute('data-fileid2x'))
+						{
+							// todo: check if file exists by ID
+							// todo: check $files = File::getFilesFromBlock($block->getId());
+							$data[$pos]['id2x'] = $fileId2x;
+						}
 					}
-					if ($fileId2x = $res->getAttribute('data-fileid2x'))
-					{
-						// todo: check if file exists by ID
-						// todo: check $files = File::getFilesFromBlock($block->getId());
-						$data[$pos]['id2x'] = $fileId2x;
-					}
-
-					// todo: lazyload?
-
-					// // try gets retina srcset
-					// if (
-					// 	preg_match_all(
-					// 		'/url\(\'*([^\']+)\'*\)\s*([\d]*x*)/is',
-					// 		$styles['background-image'],
-					// 		$matches
-					// 	)
-					// )
-					// {
-					// 	for ($i = 0, $c = count($matches[1]); $i < $c; $i++)
-					// 	{
-					// 		if ($matches[2][$i] == 2)
-					// 		{
-					// 			$src2x = $matches[1][$i];
-					// 		}
-					// 		else
-					// 		{
-					// 			$src = $matches[1][$i];
-					// 		}
-					// 	}
-					// }
-					// if ($src || $src2x)
-					// {
-					// 	$data[$pos] = [];
-					// 	if ($src)
-					// 	{
-					// 		$data[$pos]['src'] = Manager::getUrlFromFile($src);
-					// 	}
-					// 	if ($src2x)
-					// 	{
-					// 		$data[$pos]['src2x'] = Manager::getUrlFromFile($src2x);
-					// 	}
-					// }
-					//
-					// // for lazyload
-					// if(
-					// 	($isLazy = $res->getAttribute('data-lazy-bg'))
-					// 	&& $isLazy === 'Y'
-					// )
-					// {
-					// 	$data[$pos]['isLazy'] = 'Y';
-					// 	if($lazyOrigSrc = $res->getAttribute('data-src'))
-					// 	{
-					// 		$data[$pos]['lazyOrigSrc'] = $lazyOrigSrc;
-					// 	}
-					// 	if($lazyOrigSrc2x = $res->getAttribute('data-src2x'))
-					// 	{
-					// 		$data[$pos]['lazyOrigSrc2x'] = $lazyOrigSrc2x;
-					// 	}
-					// 	if($lazyOrigStyle = $res->getAttribute('data-style'))
-					// 	{
-					// 		$data[$pos]['lazyOrigStyle'] = $lazyOrigStyle;
-					// 	}
-					// }
 				}
 			}
 

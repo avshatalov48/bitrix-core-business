@@ -5,6 +5,15 @@
 
 .catalog-section.container-fluid { padding: 0 calc(var(--bs-gutter-x) / 2); }
 
+.catalog-section .main-ui-loader-custom {
+	position: absolute;
+	top: unset;
+	left: 50%;
+	bottom: 5px;
+	transform: translate3d(-50%, 0, 0);
+	z-index: 100;
+}
+
 @media (min-width: 576px) {
 	.catalog-section.container-fluid,
 	.catalog-section.container-fluid .row {
@@ -29,5 +38,13 @@
 		min-width: 273px;
 		flex-grow: 1 !important;
 		max-width: 100% !important;
+	}
+	.catalog-section .main-ui-loader-custom {
+		position: absolute;
+		top: unset;
+		left: 50%;
+		bottom: 5px;
+		transform: translate3d(-50%, 0, 0);
+		z-index: 100;
 	}
 }

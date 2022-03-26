@@ -1,5 +1,5 @@
 <?php
-$MESS['LANDING_BLOCK_16_4_THREE_COLS_MAP--NAME'] = '3 колонки: карта Google, контактные данные и форма';
+$MESS['LANDING_BLOCK_16_4_THREE_COLS_MAP--NAME'] = '3 колонки: карта, контактные данные и форма';
 $MESS['LANDING_BLOCK_16_4_THREE_COLS_MAP--COL'] = 'Колонка';
 $MESS['LANDING_BLOCK_16_4_THREE_COLS_MAP--SUBTITLE'] = 'Подзаголовок';
 $MESS['LANDING_BLOCK_16_4_THREE_COLS_MAP--TITLE'] = 'Заголовок';

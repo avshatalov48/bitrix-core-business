@@ -17,6 +17,10 @@ return [
 		'landing.loc',
 		'landing.ui.form.formsettingsform',
 		'landing.ui.button.basebutton',
+		'landing.ui.field.textfield',
+		'landing.ui.panel.formsettingspanel',
+		'crm.form.client',
+		'ui.userfieldfactory',
 	],
 	'skip_core' => false,
 ];

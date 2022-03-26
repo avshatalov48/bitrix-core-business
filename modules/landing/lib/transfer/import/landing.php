@@ -2,15 +2,21 @@
 namespace Bitrix\Landing\Transfer\Import;
 
 use \Bitrix\Landing\Landing as LandingCore;
+use \Bitrix\Landing\Site as SiteCore;
 use \Bitrix\Landing\Transfer\AppConfiguration;
 use \Bitrix\Landing\File;
+use \Bitrix\Landing\Folder;
 use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\Repo;
 use \Bitrix\Landing\Block;
 use \Bitrix\Landing\Node;
 use \Bitrix\Main\Event;
+use \Bitrix\Rest\AppTable;
 use \Bitrix\Rest\Configuration;
 
+/**
+ * Import landing from rest
+ */
 class Landing
 {
 	/**
@@ -227,6 +233,7 @@ class Landing
 	protected static function importBlock(LandingCore $landing, array $block, Configuration\Structure $structure, bool &$pending = false): int
 	{
 		static $sort = 0;
+		static $appChecked = [];
 
 		$blockId = 0;
 
@@ -256,20 +263,29 @@ class Landing
 				self::$forceAppendRestBlocks
 			)
 			{
-				$repoInfo = $block['repo_info'];
-				$res = Repo::add([
-					'APP_CODE' => $block['repo_block']['app_code'],
-					'XML_ID' => $block['repo_block']['xml_id'],
-					'NAME' => $repoInfo['NAME'] ?? null,
-					'DESCRIPTION' => $repoInfo['DESCRIPTION'] ?? null,
-					'SECTIONS' => $repoInfo['SECTIONS'] ?? null,
-					'PREVIEW' => $repoInfo['PREVIEW'] ?? null,
-					'MANIFEST' => serialize(unserialize($repoInfo['MANIFEST'] ?? '', ['allowed_classes' => false])),
-					'CONTENT' => $repoInfo['CONTENT'] ?? null
-				]);
-				if ($res->isSuccess())
+				$appCode = $block['repo_block']['app_code'];
+				if (!array_key_exists($appCode, $appChecked))
 				{
-					$block['code'] = 'repo_' . $res->getId();
+					$appChecked[$appCode] = \Bitrix\Landing\Repo::getAppByCode($appCode);
+				}
+
+				if ($appChecked[$appCode])
+				{
+					$repoInfo = $block['repo_info'];
+					$res = Repo::add([
+						'APP_CODE' => $block['repo_block']['app_code'],
+						'XML_ID' => $block['repo_block']['xml_id'],
+						'NAME' => $repoInfo['NAME'] ?? null,
+						'DESCRIPTION' => $repoInfo['DESCRIPTION'] ?? null,
+						'SECTIONS' => $repoInfo['SECTIONS'] ?? null,
+						'PREVIEW' => $repoInfo['PREVIEW'] ?? null,
+						'MANIFEST' => serialize(unserialize($repoInfo['MANIFEST'] ?? '', ['allowed_classes' => false])),
+						'CONTENT' => $repoInfo['CONTENT'] ?? null
+					]);
+					if ($res->isSuccess())
+					{
+						$block['code'] = 'repo_' . $res->getId();
+					}
 				}
 			}
 
@@ -281,29 +297,33 @@ class Landing
 					[
 						'PUBLIC' => 'N',
 						'SORT' => $sort,
-						'ANCHOR' => $block['anchor'] ?? ''
+						'ANCHOR' => $block['anchor'] ?? '',
+						'INITIATOR_APP_CODE' => $block['repo_block']['app_code'] ?? null
 					]
 				);
 				if ($blockId)
 				{
 					$sort += 500;
 					$blockInstance = $landing->getBlockById($blockId);
-					if (isset($block['nodes']) && is_array($block['nodes']))
+					if ($blockInstance)
 					{
-						$block['nodes'] = self::addFilesToBlock(
-							$blockInstance,
-							$block['nodes'],
-							$structure,
-							true
-						);
+						if (isset($block['nodes']) && is_array($block['nodes']))
+						{
+							$block['nodes'] = self::addFilesToBlock(
+								$blockInstance,
+								$block['nodes'],
+								$structure,
+								true
+							);
+						}
+						$blockInstance->updateNodes([
+							AppConfiguration::SYSTEM_COMPONENT_REST_PENDING => [
+								'BLOCK_ID' => $blockId,
+								'DATA' => base64_encode(serialize($block)),
+							],
+						]);
+						$blockInstance->save();
 					}
-					$blockInstance->updateNodes([
-						AppConfiguration::SYSTEM_COMPONENT_REST_PENDING => [
-							'BLOCK_ID' => $blockId,
-							'DATA' => base64_encode(serialize($block))
-						]
-					]);
-					$blockInstance->save();
 				}
 				return $blockId;
 			}
@@ -318,7 +338,8 @@ class Landing
 		$blockFields = [
 			'PUBLIC' => 'N',
 			'SORT' => $sort,
-			'ANCHOR' => $block['anchor'] ?? ''
+			'ANCHOR' => $block['anchor'] ?? '',
+			'INITIATOR_APP_CODE' => $block['repo_block']['app_code'] ?? null
 		];
 		if ($block['full_content'] ?? null)
 		{
@@ -348,8 +369,36 @@ class Landing
 					$structure
 				);
 			}
+			if ($block['meta']['FAVORITE_META'] ?? [])
+			{
+				$favoriteMeta = $block['meta']['FAVORITE_META'];
+				if ($block['repo_block']['app_code'] ?? null)
+				{
+					$favoriteMeta['tpl_code'] = $block['repo_block']['app_code'];
+				}
+				if (intval($favoriteMeta['preview'] ?? 0) > 0)
+				{
+					$unpackFile = $structure->getUnpackFile($favoriteMeta['preview']);
+					if ($unpackFile)
+					{
+						$favoriteMeta['preview'] = AppConfiguration::saveFile($unpackFile);
+						File::addToBlock($blockInstance->getId(), $favoriteMeta['preview']);
+					}
+					if (!$favoriteMeta['preview'])
+					{
+						unset($favoriteMeta['preview']);
+					}
+				}
+				$blockInstance->changeFavoriteMeta($favoriteMeta);
+				\Bitrix\Landing\Block::clearRepositoryCache();
+			}
 			self::saveDataToBlock($blockInstance, $block);
 			$blockInstance->save();
+			// if block is favorite
+			if (intval($block['meta']['LID'] ?? -1) === 0)
+			{
+				$blockInstance->changeLanding(0);
+			}
 		}
 
 		return $blockId;
@@ -366,6 +415,8 @@ class Landing
 		$content = $event->getParameter('CONTENT');
 		$ratio = $event->getParameter('RATIO');
 		$contextUser = $event->getParameter('CONTEXT_USER');
+		$additional = $event->getParameter('ADDITIONAL_OPTION');
+		$appId = $event->getParameter('APP_ID');
 		$structure = new Configuration\Structure($contextUser);
 		$return = [
 			'RATIO' => $ratio[$code] ?? [],
@@ -386,6 +437,21 @@ class Landing
 
 		$data = $content['~DATA'];
 		$oldId = $data['ID'] ?? null;
+
+		if (isset($ratio[$code]['SITE_ID']) && (int)$ratio[$code]['SITE_ID'] > 0)
+		{
+			$data['SITE_ID'] = (int)$ratio[$code]['SITE_ID'];
+		}
+		elseif ($additional && (int)$additional['siteId'] > 0)
+		{
+			$data['SITE_ID'] = (int)$additional['siteId'];
+			$return['RATIO']['SITE_ID'] = (int)$additional['siteId'];
+		}
+
+		if (($additional['siteId'] ?? 0) > 0)
+		{
+			LandingCore::enableCheckUniqueAddress();
+		}
 
 		// clear old keys
 		$notAllowedKeys = [
@@ -423,12 +489,104 @@ class Landing
 			}
 		}
 
+		// folders' old format
+		$convertFolderOldFormat = false;
+		$return['RATIO']['FOLDERS_REF'] = $return['RATIO']['FOLDERS_REF'] ?? [];
+		if ($data['FOLDER'] === 'Y')
+		{
+			$convertFolderOldFormat = true;
+			$data['FOLDER'] = 'N';
+			$res = SiteCore::addFolder($ratio[$code]['SITE_ID'], [
+				'TITLE' => $data['TITLE'],
+				'CODE' => $data['CODE']
+			]);
+			if ($res->isSuccess())
+			{
+				$data['FOLDER_ID'] = $res->getId();
+				$return['RATIO']['FOLDERS_REF'][$oldId] = $data['FOLDER_ID'];
+			}
+		}
+
+		// set external partners info
+		$appCode = null;
+		if ($appId)
+		{
+			$app = AppTable::getById($appId)->fetch();
+			$appCode = $app['CODE'] ?? null;
+			if ($appCode)
+			{
+				$data['XML_ID'] = $data['TITLE'] . '|' . $appCode;
+				$previousTplCode = $data['TPL_CODE'];
+				$data['TPL_CODE'] = $appCode;
+			}
+		}
+
 		// base adding
-		$data['SITE_ID'] = $return['RATIO']['SITE_ID'];
 		$data['ACTIVE'] = 'N';
-		$res = LandingCore::add(array_merge($data, ['FOLDER_ID' => 0, 'PUBLIC' => 'N']));
+		$data['PUBLIC'] = 'N';
+		$data['FOLDER_SKIP_CHECK'] = 'Y';
+		$data['INITIATOR_APP_CODE'] = $appCode;
+		unset($data['CODE']);
+		if ($additional)
+		{
+			$data = self::prepareAdditionalFields($data, $additional, $ratio);
+		}
+		$res = LandingCore::add($data);
 		if ($res->isSuccess())
 		{
+			if ($convertFolderOldFormat && ($data['FOLDER_ID'] ?? 0))
+			{
+				Folder::update($data['FOLDER_ID'], ['INDEX_ID' => $res->getId()]);
+			}
+
+			if (isset($data['BLOCKS']) && is_array($data['BLOCKS']))
+			{
+				// @fix wrapper classes from original
+				$newTplCode = $previousTplCode ?? $data['TPL_CODE'];
+				$delobotAppCode = 'local.5eea949386cd05.00160385';
+				$kraytAppCode = 'local.5f11a19f813b13.97126836';
+				if (strpos($newTplCode, $delobotAppCode) !== false || strpos($newTplCode, $kraytAppCode) !== false )
+				{
+					$wrapperClasses = [];
+					$http = new \Bitrix\Main\Web\HttpClient;
+					$resPreview = $http->get('https://preview.bitrix24.site/tools/blocks.php?tplCode=' . $newTplCode);
+					if ($resPreview)
+					{
+						try
+						{
+							$wrapperClasses = \Bitrix\Main\Web\Json::decode($resPreview);
+						}
+						catch (\Exception $e){}
+					}
+
+					if ($wrapperClasses)
+					{
+						$i = 0;
+						foreach ($data['BLOCKS'] as &$blockData)
+						{
+							if (isset($wrapperClasses[$i]) && $wrapperClasses[$i]['code'] === $blockData['code'])
+							{
+								$blockData['style']['#wrapper'] = ['classList' => [$wrapperClasses[$i]['classList']]];
+							}
+							$i++;
+						}
+						unset($blockData);
+					}
+				}
+				unset($delobotAppCode, $kraytAppCode);
+				//fix, delete copyright block
+				$kraytCode = 'bitrix.krayt';
+				$delobotCode = 'bitrix.delobot';
+				if (strpos($appCode, $kraytCode) !== false || strpos($appCode, $delobotCode) !== false)
+				{
+					if (array_slice($data['BLOCKS'], -1)[0]['code'] === '17.copyright')
+					{
+						array_pop($data['BLOCKS']);
+					}
+				}
+				unset($kraytCode, $delobotCode);
+			}
+
 			// save files to landing
 			foreach ($files as $fileId)
 			{
@@ -449,10 +607,6 @@ class Landing
 									? (array) $data['TEMPLATE_REF']
 									: []
 				];
-			}
-			if (isset($data['FOLDER_ID']) && $data['FOLDER_ID'])
-			{
-				$return['RATIO']['FOLDERS'][$oldId] = $data['FOLDER_ID'];
 			}
 			if (isset($data['BLOCKS']) && is_array($data['BLOCKS']))
 			{
@@ -482,5 +636,50 @@ class Landing
 		}
 
 		return $return;
+	}
+
+	/**
+	 * Prepare hooks and settings by additional fields
+	 * @param array $data - base params
+	 * @param array $additional - additional data
+	 * @param array|null $ratio - previously import data. If empty - it is single page in existing site
+	 * @return array
+	 */
+	protected static function prepareAdditionalFields(array $data, array $additional, array $ratio = null): array
+	{
+		$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'N';
+		if ($additional['theme'] || $additional['theme_use_site'])
+		{
+			$color = $additional['theme_use_site'] ?: $additional['theme'];
+			if ($color[0] !== '#')
+			{
+				$color = '#'.$color;
+			}
+			$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
+			unset($data['ADDITIONAL_FIELDS']['THEME_CODE']);
+
+			// for variant if import only page in existing site
+			$isSinglePage = !is_array($ratio) || empty($ratio);
+			if ($isSinglePage && !$additional['theme_use_site'])
+			{
+				$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'Y';
+			}
+		}
+
+		// todo: how detecd mainpage?
+		$isMainpage = false;
+		if ($additional['title'] && $isMainpage)
+		{
+			$data['ADDITIONAL_FIELDS']['METAOG_TITLE'] = $additional['title'];
+			$data['ADDITIONAL_FIELDS']['METAMAIN_TITLE'] = $additional['title'];
+		}
+
+		if ($additional['description'] && $isMainpage)
+		{
+			$data['ADDITIONAL_FIELDS']['METAOG_DESCRIPTION'] = $additional['description'];
+			$data['ADDITIONAL_FIELDS']['METAMAIN_DESCRIPTION'] = $additional['description'];
+		}
+
+		return $data;
 	}
 }

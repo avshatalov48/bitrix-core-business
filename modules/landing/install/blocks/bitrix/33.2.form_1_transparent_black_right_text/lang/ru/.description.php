@@ -1,5 +1,5 @@
 <?php
-$MESS['LANDING_BLOCK_FORM_33.2'] = 'Форма на тёмном фоне с текстом справа';
+$MESS['LANDING_BLOCK_FORM_33_2'] = 'Форма с затемненной фоновой картинкой и текстом справа';
 $MESS['LANDING_BLOCK_FORM_33.2_NODE_CARD_CONTACT'] = 'Контакт';
 $MESS['LANDING_BLOCK_FORM_33.2_NODE_BGIMG'] = 'Фоновая картинка';
 $MESS['LANDING_BLOCK_FORM_33.2_NODE_TEXT'] = 'Текст';
@@ -9,3 +9,4 @@ $MESS['LANDING_BLOCK_FORM_33.1_NODE_CONTACT_ICON'] = 'Иконка';
 $MESS['LANDING_BLOCK_FORM_33.2_NODE_CONTACT_TEXT'] = 'Текст';
 $MESS['LANDING_BLOCK_FORM_33.2_NODE_CONTACT_LINK'] = 'Ссылка';
 $MESS['LANDING_BLOCK_FORM_33.2_NODE_FORM'] = 'Форма';
+$MESS['LANDING_BLOCK_FORM_33_2_NODE_BLOCK'] = 'Блок';

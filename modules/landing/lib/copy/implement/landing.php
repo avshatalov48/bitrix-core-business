@@ -20,13 +20,10 @@ class Landing extends CopyImplementer
 {
 
 	private $targetSiteId = 0;
-	private $folderMapIds = [];
 
-	public function __construct($folderMapIds = [])
+	public function __construct()
 	{
 		parent::__construct();
-
-		$this->folderMapIds = $folderMapIds;
 	}
 
 	/**
@@ -47,7 +44,10 @@ class Landing extends CopyImplementer
 	 */
 	public function add(Container $container, array $fields)
 	{
+		\Bitrix\Landing\Landing::disableCheckUniqueAddress();
 		$addResult = \Bitrix\Landing\Landing::add($fields);
+		\Bitrix\Landing\Landing::enableCheckUniqueAddress();
+
 		if ($addResult->isSuccess())
 		{
 			return $addResult->getId();
@@ -85,13 +85,11 @@ class Landing extends CopyImplementer
 	public function prepareFieldsToCopy(Container $container, array $fields)
 	{
 		$siteId = $this->getSiteId($fields);
-		$folderId = $this->getFolderId($siteId, $fields);
 
 		$fields['ACTIVE'] = 'N';
 		$fields['PUBLIC'] = 'N';
+		$fields['FOLDER'] = 'N';
 		$fields['SITE_ID'] = $siteId;
-		$fields['FOLDER'] = ($folderId ? 'N' : $fields['FOLDER']);
-		$fields['FOLDER_ID'] = $folderId;
 		$fields['RULE'] = '';
 
 		unset($fields['ID']);
@@ -142,20 +140,6 @@ class Landing extends CopyImplementer
 	private function getSiteId(array $fields): int
 	{
 		return (int) ($this->targetSiteId ? $this->targetSiteId : $fields['SITE_ID']);
-	}
-
-	private function getFolderId(int $siteId, array $fields)
-	{
-		$folderId = null;
-		if (array_key_exists($fields['FOLDER_ID'], $this->folderMapIds))
-		{
-			$folderId = (int)$this->folderMapIds[$fields['FOLDER_ID']];
-		}
-		else if ($siteId == $fields['SITE_ID'])
-		{
-			$folderId = (int)$fields['FOLDER_ID'];
-		}
-		return $folderId;
 	}
 
 	private function copyBlocks(int $landingId, int $copiedLandingId): Result

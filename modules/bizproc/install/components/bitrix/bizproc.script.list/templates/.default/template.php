@@ -14,24 +14,31 @@ if ($useMarket)
 	);
 }
 
+$canCreateScript = $arResult['canCreateScript'];
+
 global $APPLICATION;
 ?>
 
 <?php $this->SetViewTarget('pagetitle') ?>
 <div class="ui-btn-container">
-	<div class="ui-btn-split">
-		<?if ($useMarket):?>
-		<a class="ui-btn ui-btn-light-border" href="<?= htmlspecialcharsbx($marketImportUrl) ?>">
-			<?= GetMessage('BIZPROC_SCRIPT_LIST_TITLE_MARKETPLACE_IMPORT') ?>
-		</a>
-		<button class="ui-btn ui-btn-light-border" data-url="<?= htmlspecialcharsbx($marketExportUrl) ?>" id="bp_export_scenario">
-			<?= GetMessage('BIZPROC_SCRIPT_LIST_TITLE_MARKETPLACE_EXPORT') ?>
-		</button>
-		<?endif;?>
+	<?if ($useMarket):?>
+	<a class="ui-btn ui-btn-light-border" href="<?= htmlspecialcharsbx($marketImportUrl) ?>">
+		<?= GetMessage('BIZPROC_SCRIPT_LIST_TITLE_MARKETPLACE_IMPORT') ?>
+	</a>
+	<button class="ui-btn ui-btn-light-border" data-url="<?= htmlspecialcharsbx($marketExportUrl) ?>" id="bp_export_scenario">
+		<?= GetMessage('BIZPROC_SCRIPT_LIST_TITLE_MARKETPLACE_EXPORT') ?>
+	</button>
+	<?endif;?>
+
+	<?php if ($canCreateScript): ?>
 		<button class="ui-btn ui-btn-icon-add ui-btn-primary" id="bp_add_scenario">
 			<?= GetMessage('BIZPROC_SCRIPT_LIST_TITLE_BUTTON_ADD_SCENARIO') ?>
 		</button>
-	</div>
+	<?php else:?>
+		<button class="ui-btn ui-btn-icon-add ui-btn-primary" disabled>
+			<?= GetMessage('BIZPROC_SCRIPT_LIST_TITLE_BUTTON_ADD_SCENARIO') ?>
+		</button>
+	<?php endif ?>
 </div>
 <?php $this->EndViewTarget() ?>
 

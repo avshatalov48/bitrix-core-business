@@ -8,9 +8,7 @@ $arActivityDescription = array(
 	"CLASS" => "RequestInformationOptionalActivity",
 	"JSCLASS" => "RequestInformationOptionalActivity",
 	"CATEGORY" => array(
-		"ID" => "document",
-		'OWN_ID' => 'task',
-		'OWN_NAME' => GetMessage('BPRIOA_DESCR_TASKS')
+		"ID" => "task",
 	),
 	"RETURN" => array(
 		'TaskId' => [

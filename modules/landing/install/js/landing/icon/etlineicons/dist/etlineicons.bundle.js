@@ -6,6 +6,7 @@ this.BX.Landing = this.BX.Landing || {};
 	var EtLineIcons = {
 	  id: 'et_line_icon',
 	  name: '100 Line Icons',
+	  active: true,
 	  categories: [{
 	    id: 'et_line_icon_all',
 	    name: landing_loc.Loc.getMessage('LANDING_ICONS_SIMPLE_LINE_ICONS_ALL'),

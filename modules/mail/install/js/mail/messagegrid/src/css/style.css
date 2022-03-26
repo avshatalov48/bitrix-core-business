@@ -42,20 +42,6 @@
 	margin-bottom: 10px;
 }
 
-.mail-message-grid-filling-bar
-{
-	width: 100% !important;
-	transition-property: width;
-	transition: 10s !important;
-}
-
-.mail-message-grid-bar
-{
-	background-color: #9dcf00 !important;
-	width: 0;
-	transition-property: width;
-	transition: 10s !important;
-}
 
 .mail-msg-list-grid-empty-text {
 	font: 16px/22px "Helvetica Neue", Helvetica, Arial, sans-serif;

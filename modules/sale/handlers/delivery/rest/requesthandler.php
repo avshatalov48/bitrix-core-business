@@ -110,19 +110,12 @@ class RequestHandler extends HandlerBase
 			$this->createRequestUrl,
 			[
 				'SHIPMENTS' => array_map(
-					function ($shipment)
-					{
-						$result = DataProviders\Shipment::getData($shipment);
-
-						$result['CONTACTS'] = [
-							'RESPONSIBLE' => DataProviders\ResponsibleContact::getData($shipment),
-							'RECIPIENT' => DataProviders\RecipientContact::getData($shipment),
-						];
-
-						return $result;
-					},
+					function ($shipment) { return DataProviders\Shipment::getData($shipment); },
 					$shipments
 				),
+			],
+			[
+				'JSON_REQUEST' => true,
 			]
 		);
 		if (!$responseResult->isSuccess())
@@ -206,6 +199,9 @@ class RequestHandler extends HandlerBase
 			[
 				'DELIVERY_ID' => $request['DELIVERY_ID'],
 				'REQUEST_ID' => $request['EXTERNAL_ID'],
+			],
+			[
+				'JSON_REQUEST' => true,
 			]
 		);
 		if (!$responseResult->isSuccess())
@@ -243,6 +239,9 @@ class RequestHandler extends HandlerBase
 			[
 				'DELIVERY_ID' => $request['DELIVERY_ID'],
 				'REQUEST_ID' => $request['EXTERNAL_ID'],
+			],
+			[
+				'JSON_REQUEST' => true,
 			]
 		);
 		if (!$responseResult->isSuccess())

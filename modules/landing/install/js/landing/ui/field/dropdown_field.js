@@ -39,8 +39,16 @@
 			}, this);
 		}
 
-		setTextContent(this.input, this.items[0].name);
-		data(this.input, "value", this.items[0].value);
+		if (BX.Type.isArrayFilled(this.items))
+		{
+			setTextContent(this.input, this.items[0].name);
+			data(this.input, "value", this.items[0].value);
+		}
+		else
+		{
+			setTextContent(this.input, BX.Landing.Loc.getMessage("LANDING_DROPDOWN_NOT_FILLED"));
+			data(this.input, "value", "");
+		}
 
 		if (this.content !== "")
 		{
@@ -140,7 +148,10 @@
 				return value;
 			}
 
-			return this.items[0].value;
+			if (BX.Type.isArrayFilled(this.items))
+			{
+				return this.items[0].value;
+			}
 		},
 
 		setValue: function(value)

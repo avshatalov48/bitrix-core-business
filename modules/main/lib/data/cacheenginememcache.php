@@ -9,6 +9,7 @@ class CacheEngineMemcache implements ICacheEngine, ICacheEngineStat, LocalStorag
 {
 	public const SESSION_MEMCACHE_CONNECTION = 'cache.memcache';
 
+	/** @var \Memcache $memcache */
 	protected static $memcache = null;
 	private static $isConnected = false;
 

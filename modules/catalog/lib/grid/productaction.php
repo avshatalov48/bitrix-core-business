@@ -1,21 +1,21 @@
 <?php
+
 namespace Bitrix\Catalog\Grid;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Iblock,
-	Bitrix\Catalog;
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Iblock;
+use Bitrix\Catalog;
 
 class ProductAction
 {
-	const SET_FIELD = 'product_field';
-	const CHANGE_PRICE = 'change_price';
+	public const SET_FIELD = 'product_field';
+	public const CHANGE_PRICE = 'change_price';
 
-	public static function updateSectionList(int $iblockId, array $sections, array $fields)
+	public static function updateSectionList(int $iblockId, array $sections, array $fields): Main\Result
 	{
 		$result = new Main\Result();
 
-		$iblockId = (int)$iblockId;
 		if ($iblockId <= 0)
 		{
 			$result->addError(new Main\Error(
@@ -25,7 +25,7 @@ class ProductAction
 		}
 
 		$catalog = \CCatalogSku::GetInfoByIBlock($iblockId);
-		if (empty($catalog) || $catalog['CATALOG_TYPE'] == \CCatalogSku::TYPE_PRODUCT)
+		if (empty($catalog) || $catalog['CATALOG_TYPE'] === \CCatalogSku::TYPE_PRODUCT)
 		{
 			$result->addError(new Main\Error(
 				Loc::getMessage('BX_CATALOG_PRODUCT_ACTION_ERR_BAD_CATALOG')
@@ -58,9 +58,15 @@ class ProductAction
 		$sectionIdList = array_keys($sectionElements);
 		$sectionNames = [];
 		$iterator = Iblock\SectionTable::getList([
-			'select' => ['ID', 'NAME'],
-			'filter' => ['@ID' => $sectionIdList, '=IBLOCK_ID' => $iblockId],
-			'order' => ['ID' => 'ASC']
+			'select' => [
+				'ID',
+				'NAME',
+			],
+			'filter' => [
+				'@ID' => $sectionIdList,
+				'=IBLOCK_ID' => $iblockId,
+			],
+			'order' => ['ID' => 'ASC'],
 		]);
 		while ($row = $iterator->fetch())
 		{
@@ -93,11 +99,10 @@ class ProductAction
 		return $result;
 	}
 
-	public static function updateElementList(int $iblockId, array $elementIds, array $fields)
+	public static function updateElementList(int $iblockId, array $elementIds, array $fields): Main\Result
 	{
 		$result = new Main\Result();
 
-		$iblockId = (int)$iblockId;
 		if ($iblockId <= 0)
 		{
 			$result->addError(new Main\Error(
@@ -121,7 +126,7 @@ class ProductAction
 			return $result;
 		}
 		$catalog = \CCatalogSku::GetInfoByIBlock($iblockId);
-		if (empty($catalog) || $catalog['CATALOG_TYPE'] == \CCatalogSku::TYPE_PRODUCT)
+		if (empty($catalog) || $catalog['CATALOG_TYPE'] === \CCatalogSku::TYPE_PRODUCT)
 		{
 			$result->addError(new Main\Error(
 				Loc::getMessage('BX_CATALOG_PRODUCT_ACTION_ERR_BAD_CATALOG')
@@ -138,8 +143,11 @@ class ProductAction
 		foreach (array_chunk($elementIds, 500) as $pageIds)
 		{
 			$iterator = Catalog\Model\Product::getList([
-				'select' => ['ID', 'TYPE'],
-				'filter' => ['@ID' => $pageIds]
+				'select' => [
+					'ID',
+					'TYPE',
+				],
+				'filter' => ['@ID' => $pageIds],
 			]);
 			while ($row = $iterator->fetch())
 			{
@@ -220,26 +228,28 @@ class ProductAction
 
 	}
 
-	protected static function getSectionProducts(int $iblockId, array $sections, array $filter)
+	protected static function getSectionProducts(int $iblockId, array $sections, array $filter): ?array
 	{
 		global $USER;
 
-		$result = null;
+		if (!(isset($USER) && $USER instanceof \CUser))
+		{
+			return null;
+		}
 
 		if (!$USER->CanDoOperation('catalog_price'))
 		{
-			return false;
+			return null;
 		}
 
-		$iblockId = (int)$iblockId;
 		if ($iblockId <= 0)
 		{
-			return $result;
+			return null;
 		}
 		Main\Type\Collection::normalizeArrayValuesByInt($sections, false);
 		if (empty($sections))
 		{
-			return $result;
+			return null;
 		}
 
 		$filter['IBLOCK_ID'] = $iblockId;
@@ -304,10 +314,10 @@ class ProductAction
 		unset($sectionId);
 		unset($dublicates);
 
-		return $result;
+		return (!empty($result) ? $result : null);
 	}
 
-	protected static function getBlockedProductTypes(array $catalog, array $fields)
+	protected static function getBlockedProductTypes(array $catalog, array $fields): array
 	{
 		$result = [];
 
@@ -316,7 +326,7 @@ class ProductAction
 			'QUANTITY' => true,
 			'QUANTITY_TRACE' => true,
 			'CAN_BUY_ZERO' => true,
-			'MEASURE' => true
+			'MEASURE' => true,
 		];
 		$blackList = array_intersect_key($fields, $setFields);
 		if (!empty($blackList))
@@ -326,8 +336,8 @@ class ProductAction
 		unset($blackList, $setFields);
 
 		if (
-			$catalog['CATALOG_TYPE'] == \CCatalogSku::TYPE_FULL
-			&& (string)Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') !== 'Y'
+			$catalog['CATALOG_TYPE'] === \CCatalogSku::TYPE_FULL
+			&& Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') !== 'Y'
 		)
 		{
 			$result[] = Catalog\ProductTable::TYPE_SKU;

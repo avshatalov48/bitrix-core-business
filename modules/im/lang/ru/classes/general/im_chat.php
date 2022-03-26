@@ -7,6 +7,7 @@ $MESS["IM_ERROR_ACCESS_JOIN"] = "Вы не можете вступить в эт
 $MESS["IM_ERROR_EMPTY_CHAT_ID"] = "Не задан идентификатор чата";
 $MESS["IM_ERROR_EMPTY_USER_ID"] = "Не задан идентификатор пользователя";
 $MESS["IM_ERROR_EMPTY_USER_OR_CHAT"] = "Не указан идентификатор чата или пользователя";
+$MESS["IM_ERROR_LEAVE_OWNER_FORBIDDEN"] = "Невозможно исключить владельца этого чата";
 $MESS["IM_ERROR_USER_NOT_FOUND"] = "Указанный пользователь не состоит в чате";
 $MESS["IM_ERROR_KICK"] = "Исключать участников имеет право только владелец чата";
 $MESS["IM_ERROR_AUTHORIZE_ERROR"] = "Приглашать участников могут только пользователи состоящие в чате";

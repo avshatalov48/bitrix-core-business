@@ -1500,7 +1500,7 @@ window.hideRenderedSharingNodes = function(newNodes)
 			&& BX.type.isNotEmptyString(this.tagLinkPattern)
 		)
 		{
-			top.location.href = this.tagLinkPattern.replace('#tag#', tagValue);
+			top.location.href = this.tagLinkPattern.replace('#tag#', BX.util.urlencode(tagValue));
 			result = true;
 		}
 

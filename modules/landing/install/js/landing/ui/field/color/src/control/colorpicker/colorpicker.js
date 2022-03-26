@@ -24,15 +24,7 @@ export default class Colorpicker extends BaseControl
 
 		this.hexPreview = new Hex();
 		this.hexPreview.setPreviewMode(true);
-		Event.bind(this.hexPreview.getLayout(), 'click', () => {
-			this.recent.buildItemsLayout();
-			this.previously = this.getValue();
-			this.getPopup().show();
-			if (this.getPopup().isShown())
-			{
-				this.hex.focus();
-			}
-		});
+		Event.bind(this.hexPreview.getLayout(), 'click', this.onPopupOpenClick.bind(this));
 
 		// popup
 		this.hex = new Hex();
@@ -50,32 +42,6 @@ export default class Colorpicker extends BaseControl
 		// end popup
 
 		this.previously = this.getValue();
-	}
-
-	onHexChange(event: BaseEvent)
-	{
-		this.setValue(event.getData().color);
-		this.onChange(event);
-	}
-
-	onSpectrumChange(event: BaseEvent)
-	{
-		this.setValue(event.getData().color);
-		this.onChange(event);
-	}
-
-	onRecentChange(event: BaseEvent)
-	{
-		const recentColor = new ColorValue(event.getData().hex);
-		this.setValue(recentColor);
-		this.onChange(new BaseEvent({data: {color: recentColor}}));
-	}
-
-	onCancelClick()
-	{
-		this.setValue(this.previously);
-		this.getPopup().close();
-		this.onChange(new BaseEvent({data: {color: this.getValue()}}));
 	}
 
 	onSelectClick(event: ?BaseEvent)
@@ -172,14 +138,54 @@ export default class Colorpicker extends BaseControl
 		});
 	}
 
+	onHexChange(event: BaseEvent)
+	{
+		this.setValue(event.getData().color);
+		this.onChange(event);
+	}
+
+	onSpectrumChange(event: BaseEvent)
+	{
+		this.hex.unFocus();
+		this.setValue(event.getData().color);
+		this.onChange(event);
+	}
+
+	onRecentChange(event: BaseEvent)
+	{
+		const recentColor = new ColorValue(event.getData().hex);
+		this.setValue(recentColor);
+		this.onChange(new BaseEvent({data: {color: recentColor}}));
+	}
+
+	onCancelClick()
+	{
+		this.setValue(this.previously);
+		this.getPopup().close();
+		this.onChange(new BaseEvent({data: {color: this.getValue()}}));
+	}
+
+	onPopupOpenClick()
+	{
+		this.recent.buildItemsLayout();
+		this.previously = this.getValue();
+		this.getPopup().show();
+		if (this.getPopup().isShown())
+		{
+			this.hex.focus();
+		}
+	}
+
 	setValue(value: ?ColorValue)
 	{
-		super.setValue(value);
+		if (this.isNeedSetValue(value))
+		{
+			super.setValue(value);
 
-		this.spectrum.setValue(value);
-		this.hex.setValue(value);
-		this.hexPreview.setValue(value);
-
+			this.spectrum.setValue(value);
+			this.hex.setValue(value);
+			this.hexPreview.setValue(value);
+		}
 		this.setActivity(value);
 	}
 

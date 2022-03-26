@@ -157,6 +157,34 @@ class Manager
 		return $userId < $lastConvertedId;
 	}
 
+	public static function getNotifyAccess($userId, $moduleId, $eventId, $type)
+	{
+		$generalSettings = General::createWithUserId($userId);
+		$notifyScheme = $generalSettings->getValue('notifyScheme');
+
+		if ($notifyScheme !== 'expert')
+		{
+			if ($type === Notification::SITE)
+			{
+				return $generalSettings->getValue('notifySchemeSendSite');
+			}
+			if ($type === Notification::MAIL)
+			{
+				return $generalSettings->getValue('notifySchemeSendEmail');
+			}
+			if ($type === Notification::PUSH)
+			{
+				return $generalSettings->getValue('notifySchemeSendPush');
+			}
+			if ($type === Notification::XMPP)
+			{
+				return $generalSettings->getValue('notifySchemeSendXmpp');
+			}
+		}
+
+		return (new Notification($moduleId, $eventId))->isAllowed($userId, $type);
+	}
+
 	private static function sendSettingsChangeEvent(int $userId, array $generalSettings): void
 	{
 		// TODO: refactoring required for the new interface

@@ -5,7 +5,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	'js' => '/bitrix/js/bizproc/script/dist/script.bundle.js',
+	'css' => 'style.css',
+	'js' => 'dist/script.bundle.js',
 	'rel' => [
 		'main.core',
 		'ui.dialogs.messagebox',

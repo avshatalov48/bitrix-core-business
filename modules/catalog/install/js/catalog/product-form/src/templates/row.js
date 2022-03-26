@@ -1,12 +1,13 @@
 import {config} from "../config";
 import {Vue} from "ui.vue";
-import {Text, Type, Runtime} from "main.core";
+import {Text, Type, Tag, Loc, Event} from "main.core";
+import {EventEmitter} from "main.core.events";
 
 import "catalog.product-selector";
 import "ui.common";
 import "ui.alerts";
-import {EventEmitter} from 'main.core.events';
-import {ProductCalculator, DiscountType, TaxForPriceStrategy} from "catalog.product-calculator";
+import "ui.notification";
+import {ProductCalculator, DiscountType} from "catalog.product-calculator";
 import {FormInputCode} from "../types/form-input-code";
 import {FormErrorCode} from "../types/form-error-code";
 import {FormMode} from "../types/form-mode";
@@ -16,14 +17,17 @@ import "./fields/discount";
 import "./fields/tax";
 import "./fields/inline-selector";
 import "./fields/brand";
-import type {BasketItemScheme} from "../types/basket-item-scheme";
-import {FormOption} from "../types/form-option";
+import "./fields/result-sum";
+import {ProductModel} from "catalog.product-model";
+import type {FieldScheme} from "catalog.product-calculator";
+
 
 Vue.component(config.templateRowName,
 	{
 		/**
 		 * @emits 'changeProduct' {index: number, fields: object}
 		 * @emits 'changeRowData' {index: number, fields: object}
+		 * @emits 'emitErrorsChange' {index: number, errors: object}
 		 * @emits 'refreshBasket'
 		 * @emits 'removeItem' {index: number}
 		 */
@@ -31,17 +35,24 @@ Vue.component(config.templateRowName,
 		props: {
 			basketItem: Object,
 			basketItemIndex: Number,
+			basketLength: Number,
 			countItems: Number,
 			options: Object,
 			mode: String,
 		},
+
 		data()
 		{
 			return {
+				model: null,
 				currencySymbol: null,
 				productSelector: null,
 				imageControlId: null,
 				selectorId: this.basketItem.selectorId,
+				defaultMeasure: {
+					name: '',
+					id: null,
+				},
 				blocks: {
 					productSelector: FormInputCode.PRODUCT_SELECTOR,
 					quantity: FormInputCode.QUANTITY,
@@ -50,6 +61,7 @@ Vue.component(config.templateRowName,
 					discount: FormInputCode.DISCOUNT,
 					tax: FormInputCode.TAX,
 					brand: FormInputCode.BRAND,
+					measure: FormInputCode.MEASURE,
 				},
 				errorCodes: {
 					emptyProductSelector: FormErrorCode.EMPTY_PRODUCT_SELECTOR,
@@ -62,39 +74,9 @@ Vue.component(config.templateRowName,
 		},
 		created()
 		{
-			const defaultFields = this.basketItem.fields;
-			const defaultPrice = Text.toNumber(defaultFields.price);
-			const basePrice = defaultFields.basePrice || defaultPrice;
-			const calculatorFields = {
-				'QUANTITY': Text.toNumber(defaultFields.quantity),
-				'BASE_PRICE': basePrice,
-				'PRICE': defaultPrice,
-				'PRICE_NETTO': basePrice,
-				'PRICE_BRUTTO': defaultPrice,
-				'PRICE_EXCLUSIVE': this.basketItem.fields.priceExclusive || defaultPrice,
-				'DISCOUNT_TYPE_ID': Text.toNumber(defaultFields.discountType) || DiscountType.PERCENTAGE,
-				'DISCOUNT_RATE': Text.toNumber(defaultFields.discountRate),
-				'DISCOUNT_SUM': Text.toNumber(defaultFields.discount),
-				'TAX_INCLUDED': defaultFields.taxIncluded || this.options.taxIncluded,
-				'TAX_RATE': defaultFields.tax || 0,
-				'CUSTOMIZED': defaultFields.isCustomPrice || 'N',
-			};
-
-			const pricePrecision = this.options.pricePrecision || 2;
-			this.calculator = new ProductCalculator(calculatorFields, {
-				currencyId: this.options.currency,
-				pricePrecision: pricePrecision,
-				commonPrecision: pricePrecision,
-			});
-
-			this.calculator.setCalculationStrategy(new TaxForPriceStrategy(this.calculator));
-
 			this.currencySymbol = this.options.currencySymbol;
-			this.defaultMeasure = {
-				name: '',
-				id: null,
-			};
 
+			this.model = this.initModel();
 			if (Type.isArray(this.options.measures))
 			{
 				this.options.measures.map((measure) => {
@@ -103,9 +85,9 @@ Vue.component(config.templateRowName,
 						this.defaultMeasure.name = measure.SYMBOL;
 						this.defaultMeasure.code = measure.CODE;
 
-						if (!defaultFields.measureName && !defaultFields.measureCode)
+						if (!this.basketItem.fields.measureName && !this.basketItem.fields.measureCode)
 						{
-							this.changeProduct({
+							this.changeProductFields({
 								measureCode: this.defaultMeasure.code,
 								measureName: this.defaultMeasure.name
 							});
@@ -113,153 +95,148 @@ Vue.component(config.templateRowName,
 					}
 				});
 			}
-
-			this.onInputDiscount = Runtime.debounce(this.changeDiscount, 500, this);
-		},
-		updated()
-		{
-			if (Type.isObject(this.basketItem.calculatedFields))
-			{
-				const changedFields = this.basketItem.calculatedFields;
-				changedFields['PRICES'] = {};
-				changedFields['PRICES'][this.options.basePriceId] = {
-					PRICE: changedFields.BASE_PRICE || changedFields.PRICE,
-					CURRENCY: this.options.currency,
-				};
-
-				changedFields['MEASURE_CODE'] = this.basketItem.fields.measureCode;
-				EventEmitter.emit(this, 'ProductList::onChangeFields', {
-					rowId: this.selectorId,
-					fields: changedFields
-				});
-			}
 		},
 		methods:
 			{
-				getField(name, defaultValue = null)
+				prepareModelFields(): {}
 				{
-					return this.basketItem.fields[name] || defaultValue;
+					const defaultFields = this.basketItem.fields;
+					const defaultPrice = Text.toNumber(defaultFields.price);
+					let basePrice = defaultFields.basePrice ? defaultFields.basePrice : defaultFields.price;
+					if (!Type.isNil(basePrice))
+					{
+						basePrice = Text.toNumber(basePrice);
+					}
+					return {
+						NAME: this.basketItem.fields?.name || '',
+						MODULE: this.basketItem.fields?.module || '',
+						PROPERTIES: this.basketItem.fields?.properties || {},
+						BRAND: this.basketItem.fields?.brand || {},
+						PRODUCT_ID: this.basketItem.fields?.productId,
+						ID: this.basketItem.fields?.skuId || this.basketItem.fields?.productId,
+						SKU_ID: this.basketItem.fields?.skuId,
+						QUANTITY: Text.toNumber(defaultFields.quantity),
+						BASE_PRICE: basePrice,
+						PRICE: defaultPrice,
+						PRICE_NETTO: basePrice,
+						PRICE_BRUTTO: defaultPrice,
+						PRICE_EXCLUSIVE: this.basketItem.fields.priceExclusive || defaultPrice,
+						DISCOUNT_TYPE_ID: Text.toNumber(defaultFields.discountType) || DiscountType.PERCENTAGE,
+						DISCOUNT_RATE: Text.toNumber(defaultFields.discountRate),
+						DISCOUNT_SUM: Text.toNumber(defaultFields.discount),
+						TAX_INCLUDED: defaultFields.taxIncluded || this.options.taxIncluded,
+						TAX_RATE: defaultFields.tax || 0,
+						CUSTOMIZED: defaultFields.isCustomPrice || 'N',
+						MEASURE_CODE: defaultFields.measureCode || this.defaultMeasure.code,
+						MEASURE_NAME: defaultFields.measureName || this.defaultMeasure.name,
+					}
 				},
-				getCalculator(): ProductCalculator
+				initModel(): ProductModel
 				{
-					return this.calculator;
+					const productId = Text.toNumber(this.basketItem.fields?.productId);
+					const skuId = Text.toNumber(this.basketItem.fields?.skuId);
+					const model = new ProductModel(
+						{
+							iblockId: Text.toNumber(this.options.iblockId),
+							basePriceId: Text.toNumber(this.options.basePriceId),
+							currency: this.options.currency,
+							isSimpleModel: (
+								Type.isStringFilled(this.basketItem.fields?.name)
+								&& productId <= 0
+								&& skuId <= 0
+							),
+							fields: this.prepareModelFields(),
+						}
+					);
+
+					EventEmitter.subscribe(model, 'onErrorsChange', this.onErrorsChange);
+
+					return model;
+				},
+				onErrorsChange()
+				{
+					const errors = Object.values(this.model.getErrorCollection().getErrors());
+					this.changeRowData({errors});
+					this.$emit('emitErrorsChange', {
+						index: this.basketItemIndex,
+						errors,
+					});
 				},
 				setCalculatedFields(fields: {}): void
 				{
-					const map = {
-						calculatedFields: fields,
-					};
-					const productFields = this.basketItem.fields;
-
-					if (!Type.isNil(fields.ID))
-					{
-						map.offerId = Text.toNumber(fields.ID);
-						productFields.productId = Text.toNumber(fields.PRODUCT_ID);
-						productFields.skuId = Text.toNumber(fields.SKU_ID);
-					}
-					if (!Type.isNil(fields.NAME))
-					{
-						productFields.name = fields.NAME;
-					}
-					if (!Type.isNil(fields.MODULE))
-					{
-						productFields.module = fields.MODULE;
-					}
-					if (Text.toNumber(fields.BASE_PRICE) >= 0)
-					{
-						productFields.basePrice = Text.toNumber(fields.BASE_PRICE);
-					}
-					if (Text.toNumber(fields.PRICE) >= 0)
-					{
-						productFields.price = Text.toNumber(fields.PRICE);
-						productFields.priceExclusive = Text.toNumber(fields.PRICE_EXCLUSIVE);
-					}
-					if (Text.toNumber(fields.PRICE_EXCLUSIVE) >= 0 && fields.TAX_INCLUDED === 'Y')
-					{
-						productFields.priceExclusive = Text.toNumber(fields.PRICE);
-					}
-					if (Text.toNumber(fields.QUANTITY) >= 0)
-					{
-						productFields.quantity = Text.toNumber(fields.QUANTITY);
-					}
-					if (!Type.isNil(fields.DISCOUNT_RATE))
-					{
-						productFields.discountRate = Text.toNumber(fields.DISCOUNT_RATE);
-					}
-					if (!Type.isNil(fields.DISCOUNT_SUM))
-					{
-						productFields.discount = Text.toNumber(fields.DISCOUNT_SUM);
-					}
-					if (!Type.isNil(fields.DISCOUNT_TYPE_ID))
-					{
-						productFields.discountType = fields.DISCOUNT_TYPE_ID;
-					}
+					this.model.getCalculator().setFields(fields);
+					const map = {calculatedFields: fields};
 					if (Text.toNumber(fields.SUM) >= 0)
 					{
 						map.sum = Text.toNumber(fields.SUM);
 					}
 
-					if (!Type.isNil(fields.CUSTOMIZED))
+					if (!Type.isNil(fields.ID))
 					{
-						productFields.isCustomPrice = fields.CUSTOMIZED;
-					}
-
-					if (!Type.isNil(fields.MEASURE_CODE))
-					{
-						productFields.measureCode = fields.MEASURE_CODE;
-					}
-
-					if (!Type.isNil(fields.MEASURE_NAME))
-					{
-						productFields.measureName = fields.MEASURE_NAME;
-					}
-
-					if (!Type.isNil(fields.PROPERTIES))
-					{
-						productFields.properties = fields.PROPERTIES;
-					}
-
-					if (!Type.isNil(fields.BRANDS))
-					{
-						productFields.brands = fields.BRANDS;
-					}
-
-					if (!Type.isNil(fields.TAX_ID))
-					{
-						productFields.taxId = fields.TAX_ID;
+						map.offerId = Text.toNumber(fields.ID);
 					}
 
 					this.changeRowData(map);
-					this.changeProduct(productFields);
 				},
-				changeRowData(fields: {}): void
+				getProductFieldsFromModel()
+				{
+					const modelFields = this.model.getFields();
+					return {
+						productId: modelFields.PRODUCT_ID,
+						skuId: modelFields.SKU_ID,
+						name: modelFields.NAME,
+						module: modelFields.MODULE,
+						basePrice: modelFields.BASE_PRICE,
+						price: modelFields.PRICE,
+						priceExclusive: modelFields.PRICE_EXCLUSIVE,
+						quantity: modelFields.QUANTITY,
+						discountRate: modelFields.DISCOUNT_RATE,
+						discount: modelFields.DISCOUNT_SUM,
+						discountType: modelFields.DISCOUNT_TYPE_ID,
+						isCustomPrice: modelFields.CUSTOMIZED || 'N',
+						measureCode: modelFields.MEASURE_CODE || '',
+						measureName: modelFields.MEASURE_NAME || '',
+						properties: modelFields.PROPERTIES || {},
+						brands: modelFields.BRANDS || {},
+						taxId: modelFields.TAX_ID,
+					};
+				},
+				changeRowData(product: {}): void
 				{
 					this.$emit('changeRowData', {
 						index: this.basketItemIndex,
-						fields
+						product
 					});
 				},
-				changeProduct(fields: {}): void
+				changeProductFields(fields: {}): void
 				{
 					fields = Object.assign(this.basketItem.fields, fields);
 					this.$emit('changeProduct', {
 						index: this.basketItemIndex,
-						fields
+						product: {fields},
+						skipFieldChecking: this.model.isSimple() && this.basketLength === 1,
 					});
+				},
+				saveCatalogField(changedFields: []): ?Promise
+				{
+					return this.model.save(changedFields);
 				},
 				onProductChange(fields: {})
 				{
 					fields = Object.assign(
-						this.getCalculator().calculatePrice(fields.BASE_PRICE),
+						this.model.getCalculator().calculateBasePrice(fields.BASE_PRICE),
 						fields
 					);
 
-					this.getCalculator().setFields(fields);
+					this.changeRowData(
+						{catalogPrice: fields.BASE_PRICE}
+					);
+					this.processFields(fields);
 					this.setCalculatedFields(fields);
 				},
 				onProductClear()
 				{
-					const fields = this.getCalculator().calculatePrice(0);
+					const fields = this.model.getCalculator().calculatePrice(0);
 
 					fields.BASE_PRICE = 0;
 					fields.NAME = '';
@@ -268,8 +245,61 @@ Vue.component(config.templateRowName,
 					fields.SKU_ID = 0;
 					fields.MODULE = '';
 
-					this.getCalculator().setFields(fields);
 					this.setCalculatedFields(fields);
+				},
+				onChangeSum(sum: number)
+				{
+					const price = (sum / Text.toNumber(this.basketItem.fields.quantity)) + Text.toNumber(this.basketItem.fields.discount);
+					this.onChangePrice(price);
+				},
+				onChangePrice(newPrice)
+				{
+					if (!this.options.isCatalogPriceSaveEnabled)
+					{
+						this.changeBasePrice(newPrice);
+
+						return;
+					}
+
+					this.model.showSaveNotifier(
+						'priceChanger_' + this.selectorId,
+						{
+							title: Loc.getMessage('CATALOG_PRODUCT_MODEL_SAVING_NOTIFICATION_PRICE_CHANGED_QUERY'),
+							events: {
+								onCancel: () => {
+									const calculatorFields = this.changePrice(newPrice);
+									if (calculatorFields.DISCOUNT_SUM > 0)
+									{
+										this.toggleDiscount('Y');
+										this.$root.$app.changeFormOption('showDiscountBlock', 'Y');
+									}
+								},
+								onSave: () => {
+									this.changeBasePrice(newPrice);
+									this.saveCatalogField(['BASE_PRICE']).then(()=>{
+										this.changeRowData(
+											{catalogPrice: newPrice}
+										);
+									});
+								}
+							},
+						}
+					);
+				},
+				onSelectMeasure(measure: {})
+				{
+					this.changeMeasure(measure);
+					this.model.showSaveNotifier(
+						'measureChanger_' + this.selectorId,
+						{
+							title: Loc.getMessage('CATALOG_PRODUCT_MODEL_SAVING_NOTIFICATION_MEASURE_CHANGED_QUERY'),
+							events: {
+								onSave: () => {
+									this.saveCatalogField(['MEASURE_CODE', 'MEASURE_NAME']);
+								}
+							},
+						}
+					);
 				},
 				toggleDiscount(value: string): void
 				{
@@ -295,21 +325,27 @@ Vue.component(config.templateRowName,
 						{showTax: value}
 					);
 				},
-				changeBrand(values): void
-				{
-					const fields = this.getCalculator().getFields();
-					fields.BRANDS = Type.isArray(values) ? values : [];
-					this.setCalculatedFields(fields);
-				},
 				processFields(fields: {}): void
 				{
-					this.setCalculatedFields(fields);
-					this.getCalculator().setFields(fields);
+					this.model.getCalculator().setFields(fields);
+					this.model.setFields(fields);
+					this.changeProductFields({...this.basketItem.fields, ...this.getProductFieldsFromModel()});
+
+					if (!Type.isNil(fields.SUM))
+					{
+						this.changeRowData({sum: fields.SUM});
+					}
 				},
-				changeQuantity(quantity: number): void
+				changeBrand(values): void
 				{
+					const brands = Type.isArray(values) ? values : [];
+					this.processFields({ BRANDS: brands });
+				},
+				onChangeQuantity(quantity: number): void
+				{
+					this.model.getCalculator().setFields();
 					this.processFields(
-						this.getCalculator().calculateQuantity(quantity)
+						this.model.getCalculator().calculateQuantity(quantity)
 					);
 				},
 				changeMeasure(measure: {}): void
@@ -317,32 +353,46 @@ Vue.component(config.templateRowName,
 					const productFields = this.basketItem.fields;
 					productFields['measureCode'] = measure.code;
 					productFields['measureName'] = measure.name;
-					this.changeProduct(productFields);
+					this.processFields({
+						MEASURE_CODE: measure.code,
+						MEASURE_NAME: measure.name,
+					});
 				},
-				changePrice(price: number): void
+				changeBasePrice(price: number): void
 				{
-					const calculatedFields = this.getCalculator().calculatePrice(price);
-					calculatedFields.BASE_PRICE = price;
-					this.processFields(calculatedFields);
+					this.model.setField('BASE_PRICE', price);
+					this.processFields(
+						this.model.getCalculator().calculateBasePrice(price)
+					);
 				},
-				changeDiscountType(discountType: string)
+				changePrice(price: number): FieldScheme
+				{
+					this.model.getCalculator().setFields(
+						this.model.getCalculator().calculateBasePrice(this.basketItem.catalogPrice)
+					);
+					const calculatedFields = this.model.getCalculator().calculatePrice(price);
+					this.processFields(calculatedFields);
+					return calculatedFields;
+				},
+				changeDiscountType(discountType: string): FieldScheme
 				{
 					const type = (Text.toNumber(discountType) === DiscountType.MONETARY) ?  DiscountType.MONETARY : DiscountType.PERCENTAGE;
-					this.processFields(
-						this.getCalculator().calculateDiscountType(type)
-					);
+					const calculatedFields = this.model.getCalculator().calculateDiscountType(type);
+					this.processFields(calculatedFields);
+					return calculatedFields;
 				},
-				changeDiscount(discount: number)
+				changeDiscount(discount: number): FieldScheme
 				{
-					this.processFields(
-						this.getCalculator().calculateDiscount(discount)
-					);
+					const calculatedFields = this.model.getCalculator().calculateDiscount(discount);
+					this.processFields(calculatedFields);
+					return  calculatedFields;
 				},
 				changeTax(fields)
 				{
-					const calculatedFields = this.getCalculator().calculateTax(fields.taxValue);
+					const calculatedFields = this.model.getCalculator().calculateTax(fields.taxValue);
 					calculatedFields.TAX_ID = fields.taxId;
 					this.processFields(calculatedFields)
+					return  calculatedFields;
 				},
 				changeTaxIncluded(taxIncluded)
 				{
@@ -351,9 +401,9 @@ Vue.component(config.templateRowName,
 						return;
 					}
 
-					const calculatedFields = this.getCalculator().calculateTaxIncluded(taxIncluded);
-					this.getCalculator().setFields(calculatedFields);
-					this.setCalculatedFields(calculatedFields);
+					const calculatedFields = this.model.getCalculator().calculateTaxIncluded(taxIncluded);
+					this.processFields(calculatedFields)
+					return  calculatedFields;
 				},
 				removeItem()
 				{
@@ -369,9 +419,9 @@ Vue.component(config.templateRowName,
 				{
 					return Type.isArray(this.options.visibleBlocks) && this.options.visibleBlocks.includes(code)
 				},
-				hasError(code)
+				hasError(code): boolean
 				{
-					if (this.basketItem.errors.length === 0)
+					if (this.basketItem.errors.length === 0 || (this.model.isEmpty() && !this.model.isChanged()))
 					{
 						return false;
 					}
@@ -382,10 +432,46 @@ Vue.component(config.templateRowName,
 
 					return filteredErrors.length > 0;
 				},
-				isEditableField(code)
+				isEditablePrice(): boolean
 				{
+					return this.options?.editableFields.includes(FormInputCode.PRICE)
+						&& (
+							this.model.isNew()
+							|| !this.model.isCatalogExisted()
+							|| this.options?.isCatalogPriceEditEnabled
+						)
+					;
+				},
+				isEditableField(code): boolean
+				{
+					if (code === FormInputCode.PRICE && !this.options?.isCatalogPriceEditEnabled)
+					{
+						return this.isEditablePrice();
+					}
+
 					return this.options?.editableFields.includes(code);
 				},
+				getHint(code): ?{}
+				{
+					return this.options?.fieldHints[code];
+				},
+				hasHint(code): boolean
+				{
+					if (code === FormInputCode.PRICE && !this.options?.isCatalogPriceEditEnabled)
+					{
+						return !this.isEditablePrice();
+					}
+
+					return false;
+				},
+				showPriceNotify()
+				{
+					const hint = this.getHint(this.blocks.price);
+					if (Text.toNumber(hint?.ARTICLE_CODE) > 0)
+					{
+						top.BX.Helper.show("redirect=detail&code=" + Text.toNumber(hint?.ARTICLE_CODE));
+					}
+				}
 			},
 		watch:
 			{
@@ -441,7 +527,7 @@ Vue.component(config.templateRowName,
 						return true;
 					}
 
-					return this.basketItem.offerId !== null;
+					return !Type.isNil(this.basketItem.offerId);
 				},
 				showTaxSelector(): boolean
 				{
@@ -490,32 +576,37 @@ Vue.component(config.templateRowName,
 					<div class="catalog-pf-product-item-section">
 						<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_NAME}}</div>
 					</div>
-					<${config.templateFieldInlineSelector} 
-						:basketItem="basketItem" 
+					<${config.templateFieldInlineSelector}
+						:basketItem="basketItem"
+						:basketLength="basketLength"
 						:options="options"
+						:model="model"
 						:editable="isEditableField(blocks.productSelector)"
-						@onProductChange="onProductChange" 
+						@onProductChange="onProductChange"
+						@saveCatalogField="saveCatalogField"
 					/>
 				</div>
 				<div v-if="isVisibleBlock(blocks.brand)" class="catalog-pf-product-input-brand-wrapper">
 					<div class="catalog-pf-product-item-section">
 						<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_BRAND_TITLE}}</div>
 					</div>
-					<${config.templateFieldBrand} 
+					<${config.templateFieldBrand}
 						:brands="basketItem.fields.brands"
 						:selectorId="getBrandsSelectorId"
 						:hasError="hasError(errorCodes.emptyBrand)"
 						:options="options"
 						:editable="isEditableField(blocks.brand)"
-						@changeBrand="changeBrand" 
+						@changeBrand="changeBrand"
+						@saveCatalogField="saveCatalogField"
 					/>
 				</div>
-				
+
 			</div>
 			<div class="catalog-pf-product-item--right">
 				<div class="catalog-pf-product-item-section">
 					<div v-if="isVisibleBlock(blocks.price)" class="catalog-pf-product-label" style="width: 94px">
 						{{localize.CATALOG_FORM_PRICE}}
+						<span v-if="hasHint(blocks.price)" class="ui-hint-icon" @click="showPriceNotify"></span>
 					</div>
 					<div v-if="isVisibleBlock(blocks.quantity)" class="catalog-pf-product-label" style="width: 72px">
 						{{localize.CATALOG_FORM_QUANTITY}}
@@ -525,19 +616,21 @@ Vue.component(config.templateRowName,
 					</div>
 				</div>
 				<div class="catalog-pf-product-item-section">
-				
+
 					<div v-if="isVisibleBlock(blocks.price)" class="catalog-pf-product-control" style="width: 94px">
-						<${config.templateFieldPrice} 
-							:basePrice="basketItem.fields.basePrice"
+						<${config.templateFieldPrice}
+							:selectorId="basketItem.selectorId"
+							:price="basketItem.fields.basePrice"
 							:options="options"
 							:editable="isEditableField(blocks.price)"
 							:hasError="hasError(errorCodes.emptyPrice)"
-							@changePrice="changePrice"
+							@onChangePrice="onChangePrice"
+							@saveCatalogField="saveCatalogField"
 						/>
 					</div>
-					
+
 					<div v-if="isVisibleBlock(blocks.quantity)" class="catalog-pf-product-control" style="width: 72px">
-						<${config.templateFieldQuantity} 
+						<${config.templateFieldQuantity}
 							:quantity="basketItem.fields.quantity"
 							:measureCode="getMeasureCode"
 							:measureRatio="basketItem.fields.measureRatio"
@@ -545,16 +638,18 @@ Vue.component(config.templateRowName,
 							:hasError="hasError(errorCodes.emptyQuantity)"
 							:options="options"
 							:editable="isEditableField(blocks.quantity)"
-							@changeQuantity="changeQuantity" 
-							@changeMeasure="changeMeasure" 
+							@onChangeQuantity="onChangeQuantity"
+							@onSelectMeasure="onSelectMeasure"
 						/>
 					</div>
-					
+
 					<div v-if="isVisibleBlock(blocks.result)" class="catalog-pf-product-control" style="width: 94px">
-						<div class="catalog-pf-product-input-wrapper">
-							<input disabled type="text" class="catalog-pf-product-input catalog-pf-product-input--disabled catalog-pf-product-input--gray catalog-pf-product-input--align-right" :value="basketItem.sum">
-							<div class="catalog-pf-product-input-info catalog-pf-product-input--disabled catalog-pf-product-input--gray" v-html="currencySymbol"></div>
-						</div>
+						<${config.templateFieldResultSum}
+								:sum="basketItem.sum"
+								:options="options"
+								:editable="isEditableField(blocks.result)"
+								@onChangeSum="onChangeSum"
+						/>
 					</div>
 				</div>
 				<div v-if="hasError(errorCodes.emptyQuantity)" class="catalog-pf-product-item-section">
@@ -567,32 +662,32 @@ Vue.component(config.templateRowName,
 					<div v-if="showDiscount" class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide" @click="toggleDiscount('N')">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>
 					<div v-else class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show" @click="toggleDiscount('Y')">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>
 				</div>
-				
+
 				<div v-if="showDiscount" class="catalog-pf-product-item-section">
-					<${config.templateFieldDiscount} 
+					<${config.templateFieldDiscount}
 						:discount="basketItem.fields.discount"
 						:discountType="basketItem.fields.discountType"
 						:discountRate="basketItem.fields.discountRate"
 						:options="options"
 						:editable="isEditableField(blocks.discount)"
 						ref="discountWrapper"
-						@changeDiscount="changeDiscount" 
-						@changeDiscountType="changeDiscountType" 
+						@changeDiscount="changeDiscount"
+						@changeDiscountType="changeDiscountType"
 					/>
 				</div>
-				
+
 				<div v-if="showTaxBlock" class="catalog-pf-product-item-section catalog-pf-product-item-section--dashed">
 					<div v-if="showTaxSelector" class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide" @click="toggleTax('N')">{{localize.CATALOG_FORM_TAX_TITLE}}</div>
 					<div v-else class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show" @click="toggleTax('Y')">{{localize.CATALOG_FORM_TAX_TITLE}}</div>
 				</div>
 				<div v-if="showTaxSelector && showTaxBlock" class="catalog-pf-product-item-section">
-					<${config.templateFieldTax} 
+					<${config.templateFieldTax}
 						:taxId="basketItem.fields.taxId"
 						:options="options"
 						:editable="isEditableField(blocks.tax)"
-						@changeProduct="changeProduct" 
+						@changeProduct="changeProduct"
 					/>
-				</div>				
+				</div>
 				<div class="catalog-pf-product-item-section catalog-pf-product-item-section--dashed"></div>
 			</div>
 		</div>

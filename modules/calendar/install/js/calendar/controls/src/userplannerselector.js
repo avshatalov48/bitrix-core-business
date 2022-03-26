@@ -228,10 +228,6 @@ export class UserPlannerSelector extends EventEmitter
 		{
 			selectorEntityList.push({entityId: 'user', id: this.ownerId});
 		}
-		else
-		{
-			selectorEntityList.push({entityId: 'user', id: this.userId});
-		}
 
 		this.selectorEntityList = selectorEntityList;
 	}

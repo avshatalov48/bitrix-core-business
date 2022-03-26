@@ -114,19 +114,19 @@ if (!empty($arResult["FATAL_MESSAGE"]))
 	<div id="feed-add-post-block<?=$arParams["FORM_ID"]?>" class="feed-add-post-block blog-post-edit"><?php
 if (!empty($arResult["OK_MESSAGE"]) || !empty($arResult["ERROR_MESSAGE"]))
 {
-	?><div id="feed-add-post-form-notice-block<?=$arParams["FORM_ID"]?>" class="feed-notice-block" style="display:none;"><?php
-	if (!empty($arResult["OK_MESSAGE"]))
-	{
-		?><div class="feed-add-successfully">
-			<span class="feed-add-info-icon"></span><span class="feed-add-info-text"><?=$arResult["OK_MESSAGE"]?></span>
-		</div><?php
-	}
-	if (!empty($arResult["ERROR_MESSAGE"]))
-	{
-		?><div class="feed-add-error">
-			<span class="feed-add-info-icon"></span><span class="feed-add-info-text"><?=$arResult["ERROR_MESSAGE"]?></span>
-		</div><?php
-	}
+	?><div id="feed-add-post-form-notice-block<?= $arParams["FORM_ID"] ?>" class="feed-notice-block" style="display:none;"><?php
+		if (!empty($arResult["OK_MESSAGE"]))
+		{
+			?><div class="feed-add-successfully">
+				<span class="feed-add-info-icon"></span><span class="feed-add-info-text"><?= $arResult["OK_MESSAGE"] ?></span>
+			</div><?php
+		}
+		if (!empty($arResult["ERROR_MESSAGE"]))
+		{
+			?><div class="feed-add-error">
+				<span class="feed-add-info-icon"></span><span class="feed-add-info-text"><?= $arResult["ERROR_MESSAGE"] ?></span>
+			</div><?php
+		}
 	?></div><?php
 }
 if (!empty($arResult["UTIL_MESSAGE"]))
@@ -277,7 +277,7 @@ else
 	for ($i = 0; $i < $maxTabs; $i++)
 	{
 		$arTab = $arTabs[$i];
-		$moreClass = ($arResult['tabActive'] == $arTab["ID"] ? " feed-add-post-form-link-active" : "");
+		$moreClass = ($arResult['tabActive'] === $arTab["ID"] ? " feed-add-post-form-link-active" : "");
 		if ($arTab["ID"] === "lists")
 		{
 			?><span class="feed-add-post-form-link<?=$moreClass?>" id="feed-add-post-form-tab-<?=$arTab["ID"]?>"><?php
@@ -301,6 +301,13 @@ else
 			?></span><?php
 			?><script>
 				BX.bind(BX('feed-add-post-form-tab-<?=$arTab["ID"]?>'), 'click', function() {
+
+					var noticeNode = document.getElementById('feed-add-post-form-notice-blockblogPostForm');
+					if (noticeNode)
+					{
+						BX.Dom.clean(noticeNode);
+					}
+
 					<?php
 					if (isset($arTab["ONCLICK_SLIDER"]))
 					{
@@ -331,7 +338,7 @@ else
 
 	if ($tabsCnt > $maxTabs)
 	{
-		$moreCaption = GetMessage("SBPE_MORE");
+		$moreCaption = Loc::getMessage('SBPE_MORE');
 		$moreClass = "";
 		$pseudoTabs = "";
 
@@ -340,7 +347,7 @@ else
 			$arTab = $arTabs[$i];
 			$pseudoTabs .= '<span class="feed-add-post-form-link" data-onclick="'.($arTab["ONCLICK"] ?? '').'" data-name="'.$arTab["NAME"].'" data-limited="'.$arTab["LIMITED"].'" id="feed-add-post-form-tab-'.$arTab["ID"].'" style="display:none;"></span>';
 			if (
-				$arResult['tabActive'] == $arTab["ID"]
+				$arResult['tabActive'] === $arTab["ID"]
 				&& $maxTabs > 0
 			)
 			{
@@ -430,8 +437,7 @@ HTML;
 		}
 	}
 
-	?><div class="feed-add-post-micro" id="micro<?=$jsObjName?>" <?php
-		?>onclick="
+	?><div class="feed-add-post-micro" id="micro<?=$jsObjName?>" onclick="
 
 		BX.Socialnetwork.Livefeed.PostForm.getInstance().get({
 			callback: function() {
@@ -444,8 +450,8 @@ HTML;
 		});
 
 		"><div id="micro<?=$jsObjName?>_inner"><?php
-			?><span class="feed-add-post-micro-title"><?=GetMessage("BLOG_LINK_SHOW_NEW")?></span><?php
-			?><span class="feed-add-post-micro-dnd"><?=GetMessage("MPF_DRAG_ATTACHMENTS2")?></span><?php
+			?><span class="feed-add-post-micro-title"><?= Loc::getMessage('BLOG_LINK_SHOW_NEW') ?></span><?php
+			?><span class="feed-add-post-micro-dnd"><?= Loc::getMessage('MPF_DRAG_ATTACHMENTS2') ?></span><?php
 		?></div><?php
 	?></div><?php
 
@@ -544,8 +550,8 @@ HTML;
 				?><div id="feed-add-post-content-message">
 					<div class="feed-add-post-title" id="blog-title" style="display: none;">
 						<input id="POST_TITLE" name="POST_TITLE" class="feed-add-post-inp feed-add-post-inp-active" <?php
-						?>type="text" value="<?=$arResult["PostToShow"]["TITLE"]?>" placeholder="<?=GetMessage("BLOG_TITLE")?>" />
-						<div class="feed-add-close-icon" onclick="BX.Socialnetwork.Livefeed.PostFormEditor.getInstance('<?=$arParams["FORM_ID"]?>').showPanelTitle(false);"></div>
+						?>type="text" value="<?=$arResult["PostToShow"]["TITLE"]?>" placeholder="<?= Loc::getMessage('BLOG_TITLE') ?>" />
+						<div class="feed-add-close-icon" onclick="BX.Socialnetwork.Livefeed.PostFormEditor.getInstance('<?= $arParams["FORM_ID"] ?>').showPanelTitle(false);"></div>
 					</div>
 					<?php
 					$APPLICATION->IncludeComponent(
@@ -582,10 +588,10 @@ HTML;
 								"VideoMessage",
 							],
 							"BUTTONS_HTML" => [
-								"VideoMessage" => '<span class="feed-add-post-form-but-cnt feed-add-videomessage" onclick="BX.VideoRecorder.start(\''.$arParams["FORM_ID"].'\', \'post\');">'.Loc::getMessage('BLOG_VIDEO_RECORD_BUTTON').'</span>'
+								"VideoMessage" => '<span class="feed-add-post-form-but-cnt feed-add-videomessage" onclick="BX.VideoRecorder.start(\''.$arParams["FORM_ID"].'\', \'post\');">' . Loc::getMessage('BLOG_VIDEO_RECORD_BUTTON') . '</span>'
 							],
 							"ADDITIONAL" => [
-								"<span title=\"".Loc::getMessage("BLOG_TITLE")."\" ".
+								"<span title=\"" . Loc::getMessage('BLOG_TITLE') . "\" ".
 								"onclick=\"BX.Socialnetwork.Livefeed.PostFormEditor.getInstance('".$arParams["FORM_ID"]."').showPanelTitle(this);\" ".
 								"class=\"feed-add-post-form-title-btn".($bShowTitle ? " feed-add-post-form-btn-active" : "")."\" ".
 								"id=\"lhe_button_title_".$arParams["FORM_ID"]."\" ".
@@ -758,7 +764,7 @@ HTML;
 												<span class="main-ui-hide js-post-showing-duration-option"
 													  data-value="<?= htmlspecialcharsbx($periodAttributes['VALUE']) ?>"
 													  data-class="<?= htmlspecialcharsbx($periodAttributes['CLASS']) ?>"
-													  data-text="<?= htmlspecialcharsbx(GetMessage($periodAttributes['TEXT_KEY'])) ?>"></span><?php
+													  data-text="<?= htmlspecialcharsbx(Loc::getMessage($periodAttributes['TEXT_KEY'])) ?>"></span><?php
 											}
 											?>
 										</div>
@@ -804,7 +810,7 @@ HTML;
 
 						?><div id="feed-add-post-grat-type-selected" class="feed-add-grat-medal"<?=($title_default ? ' title="'.$title_default.'"' : '')?>>
 							<span class="feed-add-grat-box<?=($class_default ? " ".$class_default : "")?>"></span>
-							<div id="feed-add-post-grat-others" class="feed-add-grat-medal-other"><?=GetMessage("BLOG_TITLE_GRAT_OTHER")?></div>
+							<div id="feed-add-post-grat-others" class="feed-add-grat-medal-other"><?= Loc::getMessage('BLOG_TITLE_GRAT_OTHER') ?></div>
 							<div class="feed-add-grat-medal-arrow"></div>
 						</div>
 						<input type="hidden" name="GRAT_TYPE" value="<?=htmlspecialcharsbx($grat_type)?>" id="feed-add-post-grat-type-input">
@@ -848,7 +854,7 @@ HTML;
 
 						</script>
 						<div class="feed-add-grat-right">
-							<div class="feed-add-grat-label"><?=Loc::getMessage("BLOG_TITLE_GRAT")?></div>
+							<div class="feed-add-grat-label"><?= Loc::getMessage("BLOG_TITLE_GRAT") ?></div>
 							<div class="feed-add-grat-form">
 								<input type="hidden" id="entity-selector-data-<?= htmlspecialcharsbx($selectorId) ?>" name="GRAT_DEST_DATA" value="<?= htmlspecialcharsbx(Json::encode($arResult['selectedGratitudeEntities'])) ?>" />
 								<div id="entity-selector-<?=htmlspecialcharsbx($selectorId)?>"></div>
@@ -999,14 +1005,14 @@ HTML;
 				?></div>
 				<script>
 					BX.message({
-						'BLOG_TITLE' : '<?=GetMessageJS("BLOG_TITLE")?>',
-						'BLOG_TAB_GRAT': '<?=GetMessageJS("BLOG_TAB_GRAT")?>',
-						'BLOG_TAB_VOTE': '<?=GetMessageJS("BLOG_TAB_VOTE")?>',
-						'SBPE_IMPORTANT_MESSAGE': '<?=GetMessageJS("SBPE_IMPORTANT_MESSAGE")?>',
-						'BLOG_POST_AUTOSAVE':'<?=GetMessageJS("BLOG_POST_AUTOSAVE")?>',
-						'BLOG_POST_AUTOSAVE2' : '<?=GetMessageJS("BLOG_POST_AUTOSAVE2")?>',
-						'SBPE_CALENDAR_EVENT': '<?=GetMessageJS("SBPE_CALENDAR_EVENT")?>',
-						'LISTS_CATALOG_PROCESSES_ACCESS_DENIED' : '<?=GetMessageJS("LISTS_CATALOG_PROCESSES_ACCESS_DENIED")?>'
+						'BLOG_TITLE' : '<?= GetMessageJS("BLOG_TITLE") ?>',
+						'BLOG_TAB_GRAT': '<?= GetMessageJS("BLOG_TAB_GRAT") ?>',
+						'BLOG_TAB_VOTE': '<?= GetMessageJS("BLOG_TAB_VOTE") ?>',
+						'SBPE_IMPORTANT_MESSAGE': '<?= GetMessageJS("SBPE_IMPORTANT_MESSAGE") ?>',
+						'BLOG_POST_AUTOSAVE':'<?= GetMessageJS("BLOG_POST_AUTOSAVE") ?>',
+						'BLOG_POST_AUTOSAVE2' : '<?= GetMessageJS("BLOG_POST_AUTOSAVE2") ?>',
+						'SBPE_CALENDAR_EVENT': '<?= GetMessageJS("SBPE_CALENDAR_EVENT") ?>',
+						'LISTS_CATALOG_PROCESSES_ACCESS_DENIED' : '<?= GetMessageJS("LISTS_CATALOG_PROCESSES_ACCESS_DENIED") ?>',
 					});
 					<?php
 					if (in_array('tasks', $arResult['tabs'], true))
@@ -1064,15 +1070,15 @@ HTML;
 				{
 					$arButtons[] = [
 						"NAME" => "draft",
-						"TEXT" => GetMessage("BLOG_BUTTON_DRAFT")
+						"TEXT" => Loc::getMessage('BLOG_BUTTON_DRAFT')
 					];
 				}
 				else
 				{
 					$arButtons[] = [
 						"NAME" => "cancel",
-						"TEXT" => GetMessage("BLOG_BUTTON_CANCEL"),
-						"CLICK" => "BX.Socialnetwork.Livefeed.PostFormTabs.getInstance().collapse({ userId: ".(int)$arParams['USER_ID']."})",
+						"TEXT" => Loc::getMessage('BLOG_BUTTON_CANCEL'),
+						"CLICK" => "BX.Socialnetwork.Livefeed.PostFormTabs.getInstance().collapse({ userId: " . (int)$arParams['USER_ID'] . "})",
 						"CLEAR_CANCEL" => "Y",
 					];
 				}
@@ -1086,16 +1092,16 @@ HTML;
 						$onclick = $val["CLICK"];
 						if ((string)$onclick === '')
 						{
-							$onclick = "submitBlogPostForm('".$val["NAME"]."'); ";
+							$onclick = "submitBlogPostForm('" . $val["NAME"] . "'); ";
 						}
 						$scriptFunc[$val["NAME"]] = $onclick;
 						if ($val["CLEAR_CANCEL"] === "Y")
 						{
-							?><button class="ui-btn ui-btn-lg ui-btn-link" id="blog-submit-button-<?=$val["NAME"]?>"><?=$val["TEXT"]?></button><?php
+							?><button class="ui-btn ui-btn-lg ui-btn-link" id="blog-submit-button-<?= $val["NAME"] ?>"><?= $val["TEXT"] ?></button><?php
 						}
 						else
 						{
-							?><button class="ui-btn ui-btn-lg ui-btn-primary" id="blog-submit-button-<?=$val["NAME"]?>"><?=$val["TEXT"]?></button><?php
+							?><button class="ui-btn ui-btn-lg ui-btn-primary" id="blog-submit-button-<?= $val["NAME"] ?>"><?= $val["TEXT"] ?></button><?php
 						}
 					}
 					if (!empty($scriptFunc))

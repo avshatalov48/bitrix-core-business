@@ -141,25 +141,6 @@ $showPersonalTitle = $showGeneralSettings && $isPersonal;
 					</div>
 				</div>
 
-				<div class="calendar-settings-control">
-					<div class="calendar-settings-control-name"><?=Loc::getMessage('EC_SYNC_PERIOD')?></div>
-					<div class="calendar-field-container calendar-field-container-select">
-						<div class="calendar-field-block">
-							<select data-role="sync_period_past" class="calendar-field calendar-field-select" style="width: 150px;">
-								<option value="3"><?=Loc::getMessage('EC_SYNC_PERIOD_PAST_3')?></option>
-								<option value="6"><?=Loc::getMessage('EC_SYNC_PERIOD_PAST_6')?></option>
-								<option value="12"><?=Loc::getMessage('EC_SYNC_PERIOD_PAST_12')?></option>
-							</select>
-							<span>&nbsp;&mdash;&nbsp;</span>
-							<select data-role="sync_period_future" class="calendar-field calendar-field-select" style="width: 150px;">
-								<option value="12"><?=Loc::getMessage('EC_SYNC_PERIOD_FUTURE_12')?></option>
-								<option value="24"><?=Loc::getMessage('EC_SYNC_PERIOD_FUTURE_24')?></option>
-								<option value="36"><?=Loc::getMessage('EC_SYNC_PERIOD_FUTURE_36')?></option>
-							</select>
-						</div>
-					</div>
-				</div>
-
 				<?endif; //if($isPersonal)?>
 
 				<?if ($showGeneralSettings):?>

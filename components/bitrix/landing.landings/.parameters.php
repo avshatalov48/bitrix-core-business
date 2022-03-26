@@ -36,6 +36,10 @@ $arComponentParameters = Array(
 			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_LANDING_DESIGN'),
 			'TYPE' => 'STRING'
 		),
+		'PAGE_URL_FOLDER_EDIT' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_FOLDER_EDIT'),
+			'TYPE' => 'STRING'
+		),
 		'PAGE_URL_LANDING_VIEW' => array(
 			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_LANDING_VIEW'),
 			'TYPE' => 'STRING'

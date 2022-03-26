@@ -446,7 +446,16 @@ class Imap
 		return $this->authenticate($error);
 	}
 
-	public function fetch($uid, $mailbox, $range, $select, &$error)
+	/**
+	 * @param $uid
+	 * @param $mailbox
+	 * @param $range
+	 * @param $select
+	 * @param $error
+	 * @param string $outputFormat 'smart' or 'list'
+	 * @return array|false|mixed
+	 */
+	public function fetch($uid, $mailbox, $range, $select, &$error, $outputFormat = 'smart')
 	{
 		$error = null;
 
@@ -657,7 +666,7 @@ class Imap
 		ksort($list);
 
 		// todo remove the different format of the data output
-		if (!preg_match('/[:,]/', $range))
+		if ($outputFormat === 'smart' && !preg_match('/[:,]/', $range))
 		{
 			$list = reset($list);
 		}

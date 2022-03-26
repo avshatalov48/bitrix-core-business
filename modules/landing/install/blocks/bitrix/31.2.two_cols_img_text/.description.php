@@ -17,6 +17,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_31.1.TWO_COLS_TEXT_IMG_NODES_LANDINGBLOCKNODEIMG'),
 			'type' => 'img',
 			'dimensions' => array('height' => 1080),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_31.1.TWO_COLS_TEXT_IMG_NODES_LANDINGBLOCKNODETITLE'),

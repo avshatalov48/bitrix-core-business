@@ -16,6 +16,7 @@ $MESS["LANDING_TPL_ADDITIONAL_VIEW"] = "View";
 $MESS["LANDING_TPL_BUTTON_ADD"] = "Add";
 $MESS["LANDING_TPL_BUTTON_CANCEL"] = "Cancel";
 $MESS["LANDING_TPL_BUTTON_SAVE"] = "Save";
+$MESS["LANDING_TPL_CODE_FOLDER_SETTINGS"] = "Use the #LINK1#Folder settings#LINK2# to change the folder index page address.";
 $MESS["LANDING_TPL_CODE_SETTINGS"] = "Use the #LINK1#Site settings#LINK2# to edit the home page address.";
 $MESS["LANDING_TPL_CODE_SETTINGS_KNOWLEDGE"] = "You can change the main page address in the #LINK1#knowledge base settings#LINK2#.";
 $MESS["LANDING_TPL_FIELD_CODE"] = "Page address";

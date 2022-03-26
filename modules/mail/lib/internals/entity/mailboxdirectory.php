@@ -33,6 +33,21 @@ class MailboxDirectory extends \Bitrix\Mail\Internals\EO_MailboxDirectory implem
 		return false;
 	}
 
+	public function isHiddenSystemFolder()
+	{
+		if($this->isDisabled())
+		{
+			if(in_array($this->getPath(),[
+				'[Gmail]',
+			]))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public function isSpam()
 	{
 		if ((int)$this->getIsSpam() === (int)MailboxDirectoryTable::ACTIVE)

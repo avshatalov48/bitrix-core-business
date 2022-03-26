@@ -3,6 +3,8 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 use Bitrix\Main\Loader;
+use Bitrix\Catalog;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 
@@ -23,10 +25,7 @@ IncludeModuleLangFile(__FILE__);
 
 $bExport = (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel');
 
-$typeList = array(
-	CONTRACTOR_INDIVIDUAL => GetMessage('CONTRACTOR_INDIVIDUAL'),
-	CONTRACTOR_JURIDICAL => GetMessage('CONTRACTOR_JURIDICAL')
-);
+$typeList = Catalog\ContractorTable::getTypeList(true);
 
 if ($ex = $APPLICATION->GetException())
 {
@@ -43,7 +42,7 @@ $lAdmin = new CAdminUiList($sTableID, $oSort);
 $filterFields = array(
 	array(
 		"id" => "PERSON_TYPE",
-		"name" => "ID",
+		"name" => GetMessage('CONTRACTOR_TYPE'),
 		"type" => "list",
 		"items" => $typeList,
 		"filterable" => "",

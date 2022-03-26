@@ -83,7 +83,7 @@ if ($arParams['PAGE_ELEMENT_COUNT'] > 0 && $navParams['NavPageCount'] > 1)
 	$showLazyLoad = $arParams['LAZY_LOAD'] === 'Y' && $navParams['NavPageNomer'] != $navParams['NavPageCount'];
 }
 
-$templateLibrary = ['popup', 'ajax', 'fx'];
+$templateLibrary = ['popup', 'ajax', 'fx', 'main.loader'];
 $currencyList = '';
 
 if (!empty($arResult['CURRENCIES']))

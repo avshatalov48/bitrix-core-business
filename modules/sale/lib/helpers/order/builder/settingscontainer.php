@@ -40,6 +40,8 @@ class SettingsContainer
 			'createDefaultPaymentIfNeed' => true,
 			//Do we need to create a new shipment by default, if shipments empty?
 			'createDefaultShipmentIfNeed' => true,
+			//Do we have to clear reserves for a basket item that doesn't explicitly have any reserve data set in it's product data?
+			'clearReservesIfEmpty' => false,
 
 			//Do we need update the price of just added products.
 			//Now it is used only after the buyerId was changed.

@@ -385,6 +385,14 @@
 					if (item)
 					{
 						this.addPlaceholder(item);
+
+						var checkbox = this.fields.find(function(field) {
+							return field.id === itemValue;
+						}.bind(this));
+						if (checkbox)
+						{
+							checkbox.setValue([itemValue]);
+						}
 					}
 				}, this);
 			}

@@ -1,4 +1,8 @@
 <?php
+$MESS["FACEBOOK_CONVERSION_ERROR_ACCESS_DENIED"] = "Zugriff verweigert.";
+$MESS["FACEBOOK_CONVERSION_ERROR_EVENT_NAME"] = "Termin wurde nicht gefunden.";
+$MESS["FACEBOOK_CONVERSION_ERROR_MODULE_SALE"] = "Das Modul Onlineshop ist nicht installiert.";
+$MESS["FACEBOOK_CONVERSION_ERROR_MODULE_SEO"] = "Das Modul SEO ist nicht installiert.";
 $MESS["FACEBOOK_CONVERSION_EVENT_TITLE_ADD_PAYMENT_INFO"] = "Ereignis \"Zahlungsinformationen hinzugefügt\" senden";
 $MESS["FACEBOOK_CONVERSION_EVENT_TITLE_ADD_TO_CART"] = "Ereignis \"In den Warenkorb hinzugefügte Produkte\" senden";
 $MESS["FACEBOOK_CONVERSION_EVENT_TITLE_CONTACT"] = "Ereignis \"Kunde hat Ihr Unternehmen kontaktiert\" gesendet";

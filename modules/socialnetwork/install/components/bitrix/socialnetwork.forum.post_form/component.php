@@ -78,8 +78,6 @@ endif;
 				Main Data & Permissions
 ********************************************************************/
 
-	$bCurrentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin();
-	
 	if (empty($arResult["FORUM"])):
 		ShowError(GetMessage("F_FID_IS_LOST"));
 		return false;
@@ -88,30 +86,12 @@ endif;
 		ShowError(GetMessage("FORUM_SONET_MODULE_NOT_AVAIBLE"));
 		return false;
 	elseif ($arParams["PERMISSION_ORIGINAL"] < "Y"):
-		$arParams["PERMISSION"] = "A";
-		$user_id = $USER->GetID();
-		if ($arParams["MODE"] == "GROUP")
-		{
-			if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "full", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "Y";
-			elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "newtopic", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "M";
-			elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "answer", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "I";
-			elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "forum", "view", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "E";
-		}
-		else
-		{
-			if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "full", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "Y";
-			elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "newtopic", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "M";
-			elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "answer", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "I";
-			elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "forum", "view", $bCurrentUserIsAdmin))
-				$arParams["PERMISSION"] = "E";
-		}
+
+		$arParams['PERMISSION'] = \Bitrix\Socialnetwork\Helper\Forum\ComponentHelper::getForumPermission([
+			'ENTITY_TYPE' => ($arParams['MODE'] === 'GROUP' ? SONET_ENTITY_GROUP : SONET_ENTITY_USER),
+			'ENTITY_ID' => ($arParams['MODE'] === 'GROUP' ? $arParams['SOCNET_GROUP_ID'] : $arParams['USER_ID']),
+		]);
+
 		if ("E" <= $arParams["PERMISSION_ORIGINAL"] && $arParams["PERMISSION"] < $arParams["PERMISSION_ORIGINAL"])
 		{
 			$arParams["PERMISSION"] = $arParams["PERMISSION_ORIGINAL"];

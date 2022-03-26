@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CONTRACTOR_TITLE_UPDATE"] = "Редактирование поставщика #ID#";
 $MESS["CONTRACTOR_TITLE_ADD"] = "Новый поставщик";
 $MESS["CONTRACTOR_LIST"] = "Список поставщиков";
@@ -17,11 +17,8 @@ $MESS["CONTRACTOR_PHONE"] = "Телефон";
 $MESS["CONTRACTOR_EMAIL"] = "E-Mail";
 $MESS["CONTRACTOR_TYPE"] = "Тип поставщика";
 $MESS["CONTRACTOR_KPP"] = "КПП";
-$MESS["CONTRACTOR_INDIVIDUAL"] = "Физическое лицо";
-$MESS["CONTRACTOR_JURIDICAL"] = "Юридическое лицо";
 $MESS["CONTRACTOR_NAME"] = "Имя";
 $MESS["CONTRACTOR_LAST_NAME"] = "Фамилия";
 $MESS["CONTRACTOR_SECOND_NAME"] = "Отчество";
 $MESS["CONTRACTOR_TITLE_JURIDICAL"] = "Контактное лицо";
 $MESS["CONTRACTOR_ADDRESS_JURIDICAL"] = "Юридический адрес";
-?>

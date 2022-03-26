@@ -17,7 +17,6 @@ export class SectionManager
 		this.addTaskSection();
 		this.sortSections();
 		EventEmitter.subscribeOnce('BX.Calendar.Section:delete', this.deleteSectionHandler.bind(this));
-		//BX.addCustomEvent("BXCalendar:onSectionDelete", BX.proxy(this.unsetSectionHandler, this));
 	}
 
 	setSections(rawSections = [])

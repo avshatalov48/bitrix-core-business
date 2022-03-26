@@ -26,6 +26,8 @@ class MessageAccessTable extends Entity\DataManager
 	const ENTITY_TYPE_TASKS_TASK = 'TASKS_TASK';
 	const ENTITY_TYPE_CRM_ACTIVITY = 'CRM_ACTIVITY';
 	const ENTITY_TYPE_BLOG_POST = 'BLOG_POST';
+	const ENTITY_TYPE_IM_CHAT = 'IM_CHAT';
+	const ENTITY_TYPE_CALENDAR_EVENT = 'CALENDAR_EVENT';
 
 	public static function getFilePath()
 	{

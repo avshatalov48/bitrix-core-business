@@ -250,27 +250,27 @@ this.BX = this.BX || {};
 	      },
 	      selectedUsers: {
 	        type: Array,
-	        default: []
+	        "default": []
 	      },
 	      chatHost: {
 	        type: Object,
-	        default: []
+	        "default": []
 	      },
 	      selectedDate: {
 	        type: String,
-	        default: ''
+	        "default": ''
 	      },
 	      selectedTime: {
 	        type: String,
-	        default: ''
+	        "default": ''
 	      },
 	      selectedDuration: {
 	        type: String,
-	        default: '30'
+	        "default": '30'
 	      },
 	      selectedDurationType: {
 	        type: String,
-	        default: 'm'
+	        "default": 'm'
 	      }
 	    },
 	    data: function data() {
@@ -490,7 +490,7 @@ this.BX = this.BX || {};
 	            _this7.planner.update(response.data.entries, response.data.accessibility);
 
 	            _this7.planner.updateSelector(_this7.startDateTime, _this7.endDateTime, false);
-	          }).catch(function (error) {});
+	          })["catch"](function (error) {});
 	        }
 	      },
 	      onPlannerSelectorChange: function onPlannerSelectorChange(event) {
@@ -672,51 +672,51 @@ this.BX = this.BX || {};
 	  props: {
 	    conferenceId: {
 	      type: Number,
-	      default: 0
+	      "default": 0
 	    },
 	    fieldsData: {
 	      type: Object,
-	      default: {}
+	      "default": {}
 	    },
 	    mode: {
 	      type: String,
-	      default: im_const.ConferenceFieldState.create
+	      "default": im_const.ConferenceFieldState.create
 	    },
 	    chatHost: {
 	      type: Object,
-	      default: {}
+	      "default": {}
 	    },
 	    chatUsers: {
 	      type: Array,
-	      default: []
+	      "default": []
 	    },
 	    presenters: {
 	      type: Array,
-	      default: []
+	      "default": []
 	    },
 	    publicLink: {
 	      type: String,
-	      default: ''
+	      "default": ''
 	    },
 	    chatId: {
 	      type: Number,
-	      default: 0
+	      "default": 0
 	    },
 	    invitationText: {
 	      type: String,
-	      default: ''
+	      "default": ''
 	    },
 	    gridId: {
 	      type: String,
-	      default: ''
+	      "default": ''
 	    },
 	    pathToList: {
 	      type: String,
-	      default: ''
+	      "default": ''
 	    },
 	    broadcastingEnabled: {
 	      type: Boolean,
-	      default: false
+	      "default": false
 	    }
 	  },
 	  data: function data() {
@@ -1057,7 +1057,7 @@ this.BX = this.BX || {};
 	          }
 	        }).then(function (response) {
 	          _this.onSuccessfulSubmit();
-	        }).catch(function (response) {
+	        })["catch"](function (response) {
 	          _this.onFailedSubmit(response);
 	        });
 	      }
@@ -1116,7 +1116,7 @@ this.BX = this.BX || {};
 	        _this2.aliasData['LINK'] = main_core.Text.encode(_this2.aliasData['LINK']);
 	        _this2.title.defaultValue = response.data['DEFAULT_TITLE'];
 	        _this2.linkGenerated = true;
-	      }).catch(function (response) {
+	      })["catch"](function (response) {
 	        im_lib_logger.Logger.warn('error', response["errors"][0].message);
 	      });
 	    },

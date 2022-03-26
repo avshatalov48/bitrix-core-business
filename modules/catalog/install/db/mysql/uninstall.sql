@@ -29,6 +29,7 @@ drop table if exists b_catalog_contractor;
 drop table if exists b_catalog_store_docs;
 drop table if exists b_catalog_docs_element;
 drop table if exists b_catalog_docs_barcode;
+drop table if exists b_catalog_store_document_file;
 drop table if exists b_catalog_measure;
 drop table if exists b_catalog_measure_ratio;
 drop table if exists b_catalog_product_sets;

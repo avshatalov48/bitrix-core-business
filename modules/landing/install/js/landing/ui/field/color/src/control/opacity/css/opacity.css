@@ -80,3 +80,99 @@
 .landing-ui-field-color-draggable .landing-ui-field-color-opacity-picker {
 	pointer-events: none;
 }
+
+.landing-ui-field-color-opacity-container {
+	display: flex;
+}
+
+.landing-ui-field-color-opacity-container .landing-ui-field-range-output {
+	align-items: center;
+}
+
+.landing-ui-field-color-opacity-range-output {
+	display: flex;
+	width: 89px;
+	padding-left: 10px;
+}
+
+.landing-ui-field-color-opacity-range-output-input {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 15px;
+	text-align: center;
+	color: #000000;
+	width: 49px;
+	height: 39px;
+	line-height: 37px;
+	margin-right: 13px;
+	box-sizing: border-box;
+	border-bottom: 1px rgba(198, 205, 211, .4) solid;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.landing-ui-field-color-opacity-range-output-arrows {
+	display: flex;
+	flex-direction: column;
+	width: 27px;
+	height: 39px;
+	border-radius: 2px;
+	border: 1px #C6CDD3 solid;
+}
+
+.landing-ui-field-color-opacity-range-output-arrows-up,
+.landing-ui-field-color-opacity-range-output-arrows-down {
+	position: relative;
+	height: 49%;
+	box-sizing: border-box;
+	cursor: pointer;
+	transition: all 200ms ease;
+}
+
+.landing-ui-field-color-opacity-range-output-arrows-up:hover {
+	box-shadow: 0 -1px 5px 0 rgba(0,0,0,0.35);
+}
+
+.landing-ui-field-color-opacity-range-output-arrows-up:active {
+	box-shadow: 0 -1px 1px 0 rgba(0,0,0,0.35);
+}
+
+.landing-ui-field-color-opacity-range-output-arrows-down:hover {
+	box-shadow: 0 2px 5px 0 rgba(0,0,0,0.35);
+}
+
+.landing-ui-field-color-opacity-range-output-arrows-down:active {
+	box-shadow: 0 2px 1px 0 rgba(0,0,0,0.35);
+}
+
+.landing-ui-field-color-opacity-range-output-arrows-up::before,
+.landing-ui-field-color-opacity-range-output-arrows-down::before {
+	position: absolute;
+	content: '';
+	width: 8px;
+	height: 8px;
+	left: 50%;
+	top: 56%;
+	transform: translate3d(-50%, -50%, 0) rotate(-45deg);
+	transform-origin: center center;
+	border-top: 2px #535C69 solid;
+	border-right: 2px #535C69 solid;
+	opacity: .8;
+	transition: opacity 200ms ease;
+	pointer-events: none;
+}
+
+.landing-ui-field-color-opacity-range-output-arrows-down {
+	border-top: 1px #C6CDD3 solid;
+	height: 50%;
+}
+
+.landing-ui-field-color-opacity-range-output-arrows-down::before {
+	transform: translate3d(-50%, -50%, 0) rotate(135deg);
+	top: 47%;
+}
+
+.landing-ui-field-color-opacity-range-output-arrows-up:hover::before,
+.landing-ui-field-color-opacity-range-output-arrows-down:hover::before {
+	opacity: 1;
+}

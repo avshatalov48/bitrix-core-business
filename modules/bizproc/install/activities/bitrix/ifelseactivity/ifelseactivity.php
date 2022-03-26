@@ -79,7 +79,7 @@ class CBPIfElseActivity
 		}
 
 		if (!$bCorrect)
-			$arErrors[] = array("code" => "WrongChildType", "message" => GetMessage("BPIEA_INVALID_CHILD"));
+			$arErrors[] = array("code" => "WrongChildType", "message" => GetMessage("BPIEA_INVALID_CHILD_1"));
 
 		return array_merge($arErrors, parent::ValidateChild($childActivity, $bFirstChild));
 	}

@@ -22,9 +22,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Consent_Query query()
- * @method static EO_Consent_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Consent_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Consent_Result getById($id)
- * @method static EO_Consent_Result getList(array $parameters = array())
+ * @method static EO_Consent_Result getList(array $parameters = [])
  * @method static EO_Consent_Entity getEntity()
  * @method static \Bitrix\Main\UserConsent\Internals\EO_Consent createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\UserConsent\Internals\EO_Consent_Collection createCollection()

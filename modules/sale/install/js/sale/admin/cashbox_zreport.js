@@ -4,7 +4,7 @@
 
 	if (BX.Sale.CashboxReport)
 		return;
-	
+
 	BX.Sale.CashboxReport =
 	{
 		ajaxUrl: "/bitrix/admin/sale_order_ajax.php",
@@ -27,6 +27,7 @@
 			{
 				var data = {
 					sessid : BX.bitrix_sessid(),
+					lang: BX.message('LANGUAGE_ID'),
 					cashboxId: cashboxFilter.value,
 					action: 'loadCashboxCheckInfo'
 				};
@@ -142,6 +143,7 @@
 				{
 					var sendData = {
 						sessid : BX.bitrix_sessid(),
+						lang: BX.message('LANGUAGE_ID'),
 						cashboxId: BX('cashboxListAddReport').value,
 						action: 'addZReport'
 					};

@@ -1378,6 +1378,8 @@ final class CProductQueryBuilder
 					$result = self::ENTITY_FLAT_PRICE;
 				elseif (isset(self::$entityFields[self::ENTITY_FLAT_WAREHNOUSE][$field]))
 					$result = self::ENTITY_FLAT_WAREHNOUSE;
+				elseif (isset(self::$entityFields[self::ENTITY_FLAT_BARCODE][$field]))
+					$result = self::ENTITY_FLAT_BARCODE;
 				break;
 			case self::ENTITY_TYPE_SEPARATE:
 				if (isset(self::$entityFields[self::ENTITY_WARENHOUSE][$field]))
@@ -1640,6 +1642,7 @@ final class CProductQueryBuilder
 				$field['ENTITY'] != self::ENTITY_PRODUCT
 				&& $field['ENTITY'] != self::ENTITY_FLAT_PRICE
 				&& $field['ENTITY'] != self::ENTITY_FLAT_WAREHNOUSE
+				&& $field['ENTITY'] != self::ENTITY_FLAT_BARCODE
 				&& $field['ENTITY'] != self::ENTITY_OLD_PRODUCT
 			)
 				return false;
@@ -1760,6 +1763,7 @@ final class CProductQueryBuilder
 			{
 				$filter = \CIBlock::MkOperationFilter($key);
 				$prepareField = self::parseField($filter['FIELD']);
+
 				if (!self::checkPreparedField($prepareField))
 					continue;
 				if (!self::checkAllowedAction($prepareField['ALLOWED'], self::FIELD_ALLOWED_FILTER))
@@ -2339,8 +2343,9 @@ final class CProductQueryBuilder
 	{
 		$activeItem = $filter[$filterKey];
 
-		if ($activeItem['FIELD'] !== 'CURRENCY_FOR_SCALE')
+		if ($activeItem['FIELD'] !== 'CURRENCY_FOR_SCALE' && $activeItem['FIELD'] !== 'CURRENCY_SCALE')
 			return;
+
 		if ($activeItem['OPERATION'] !== 'E' && $activeItem['OPERATION'] !== 'I')
 			return;
 
@@ -2383,7 +2388,10 @@ final class CProductQueryBuilder
 			{
 				$filter[$index]['VALUES'] = (float)$filter[$index]['VALUES']*$currency['CURRENT_BASE_RATE'];
 			}
-			$filter[$index]['FIELD'] = 'SCALED_PRICE';
+			$filter[$index]['FIELD'] = $activeItem['FIELD'] === 'CURRENCY_FOR_SCALE'
+				? 'SCALED_PRICE'
+				: 'PRICE_SCALE'
+			;
 		}
 		unset($index);
 	}

@@ -99,14 +99,14 @@ Class sale extends CModule
 
 	function InstallDB()
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 
 		$clearInstall = false;
 		if(!$DB->Query("SELECT 'x' FROM b_sale_basket", true))
 		{
 			$clearInstall = true;
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/install/db/".$DBType."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/install/db/mysql/install.sql");
 		}
 
 		if($this->errors !== false)
@@ -240,6 +240,7 @@ Class sale extends CModule
 		$eventManager->registerEventHandler('rest', 'onRestAppDelete', 'sale', '\Bitrix\Sale\Cashbox\Rest\RestService', 'onRestAppDelete');
 
 		$eventManager->registerEventHandler('main', 'OnSiteDelete','sale', '\Bitrix\Sale\Internals\FacebookConversion', 'OnSiteDeleteHandler');
+		$eventManager->registerEventHandler("main", "OnLangDelete", "sale", "CSaleLang", "OnLangDelete");
 
 		COption::SetOptionString("sale", "viewed_capability", "N");
 		COption::SetOptionString("sale", "viewed_count", 10);
@@ -388,11 +389,11 @@ Class sale extends CModule
 
 	function UnInstallDB($arParams = array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 		if(array_key_exists("savedata", $arParams) && $arParams["savedata"] != "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/install/db/".$DBType."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/install/db/mysql/uninstall.sql");
 
 			if($this->errors !== false)
 			{

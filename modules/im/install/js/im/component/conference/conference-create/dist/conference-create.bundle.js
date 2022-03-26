@@ -100,7 +100,7 @@ this.BX = this.BX || {};
 	        _this2.aliasData = response.data['ALIAS_DATA'];
 	        _this2.defaultTitle = response.data['DEFAULT_TITLE'];
 	        _this2.linkGenerated = true;
-	      }).catch(function (response) {
+	      })["catch"](function (response) {
 	        im_lib_logger.Logger.warn('error', response["errors"][0].message);
 	      });
 	    },
@@ -143,7 +143,7 @@ this.BX = this.BX || {};
 	        _this3.conferenceCreated = true;
 
 	        _this3.copyLink();
-	      }).catch(function (response) {
+	      })["catch"](function (response) {
 	        _this3.isCreatingConference = false;
 
 	        _this3.onFailedSubmit(response);

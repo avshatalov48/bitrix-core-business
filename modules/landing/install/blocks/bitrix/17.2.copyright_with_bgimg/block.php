@@ -14,8 +14,8 @@
 						Support 24/7
 					</div>
 					<a class="landing-block-node-phone-link landing-semantic-link-image-medium g-font-size-22 g-mt-5 g-font-weight-700 g-color-white js-animation fadeInLeft"
-						href="tel:#PHONE1#">
-						#PHONE1#
+						href="tel:#crmPhone1">
+						#crmPhoneTitle1
 					</a>
 				</div>
 

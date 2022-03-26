@@ -65,7 +65,7 @@ if(isset($_REQUEST["reorder"]) && intval($_REQUEST["reorder"]) > 0)
 	$addOrderUrl = $selfFolderUrl."sale_order_create.php?USER_ID=".CUtil::JSEscape($ID)."&SITE_ID=".CUtil::JSEscape($lid)."&lang=".LANGUAGE_ID.CUtil::JSEscape($urlProduct);
 	if ($adminSidePanelHelper->isPublicSidePanel())
 	{
-		$addOrderUrl = "/shop/orders/details/0/?USER_ID=".CUtil::JSEscape($ID)."&SITE_ID=".CUtil::JSEscape($lid)."&lang=".LANGUAGE_ID.CUtil::JSEscape($urlProduct);
+		$addOrderUrl = "/shop/orders/details/" . $ORDER_ID . "/?IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER&init_mode=edit&copy=1";
 	}
 
 	LocalRedirect($addOrderUrl);
@@ -126,7 +126,7 @@ if(!empty($arUser))
 			{
 				$strUserGroup .= htmlspecialcharsbx($userGroup['NAME']).'<br>';
 			}
-		}		
+		}
 	}
 
 	if (empty($strUserGroup))
@@ -994,11 +994,22 @@ if(!empty($arUser))
 		);
 		$reorderUrl = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$ID."&lang=".LANGUAGE_ID."&reorder=".$arOrder["ID"]."&lid=".$arOrder["LID"];
 		$reorderUrl = $adminSidePanelHelper->setDefaultQueryParams($reorderUrl);
-		$arActions[] = array(
-			"ICON" => "edit",
-			"TEXT" => GetMessage("BUYER_PD_REORDER"),
-			"LINK" => $reorderUrl
-		);
+		if ($adminSidePanelHelper->isPublicSidePanel())
+		{
+			$arActions[] = array(
+				"ICON" => "edit",
+				"TEXT" => GetMessage("BUYER_PD_REORDER"),
+				"ONCLICK" => "top.BX.SidePanel.Instance.open('$reorderUrl')"
+			);
+		}
+		else
+		{
+			$arActions[] = array(
+				"ICON" => "edit",
+				"TEXT" => GetMessage("BUYER_PD_REORDER"),
+				"LINK" => $reorderUrl,
+			);
+		}
 
 		$row->AddActions($arActions);
 	}
@@ -2937,7 +2948,7 @@ if(!empty($arUser))
 		<?$tabControl->BeginNextTab();?>
 		<tr>
 			<td colspan="2">
-				<form method="GET" name="find_subscribe_form" id="find_subscribe_form" 
+				<form method="GET" name="find_subscribe_form" id="find_subscribe_form"
 				      action="<?=$APPLICATION->getCurPage()?>">
 					<?
 						$findFields = array(

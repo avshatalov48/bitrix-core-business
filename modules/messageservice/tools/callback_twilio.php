@@ -1,4 +1,8 @@
-<?
+<?php
+
+use Bitrix\Main;
+use Bitrix\MessageService\Sender;
+
 define("NOT_CHECK_PERMISSIONS", true);
 define("EXTRANET_NO_REDIRECT", true);
 define("STOP_STATISTICS", true);
@@ -13,31 +17,19 @@ if(
 	!isset($_POST['SmsSid'])
 	|| !isset($_POST['SmsStatus'])
 	|| !preg_match('|[A-Z0-9]{34}|i', $_POST['SmsSid'])
-	||!CModule::IncludeModule("messageservice")
+	|| !Main\Loader::includeModule("messageservice")
 )
 {
-	die();
+	Main\Application::getInstance()->terminate();
 }
 
-$messageId = $_POST['SmsSid'];
-$messageStatus = \Bitrix\MessageService\Sender\Sms\Twilio::resolveStatus($_POST['SmsStatus']);
+$messageId = (string)$_POST['SmsSid'];
+$externalStatus = (string)$_POST['SmsStatus'];
 
-if ($messageStatus === null)
-	die();
-
-$message = \Bitrix\MessageService\Internal\Entity\MessageTable::getList(array(
-	'select' => array('ID'),
-	'filter' => array(
-		'=SENDER_ID' => 'twilio',
-		'=EXTERNAL_ID' => $messageId
-	)
-))->fetch();
-
-if ($message)
+$message = \Bitrix\MessageService\Message::loadByExternalId(Sender\Sms\Twilio::ID, $messageId);
+if ($message && $externalStatus != '')
 {
-	\Bitrix\MessageService\Internal\Entity\MessageTable::update($message['ID'], array('STATUS_ID' => $messageStatus));
-	$message['STATUS_ID'] = $messageStatus;
-	\Bitrix\MessageService\Integration\Pull::onMessagesUpdate(array($message));
+	$message->updateStatusByExternalStatus($externalStatus);
 }
-CMain::FinalActions();
-die();
+
+Main\Application::getInstance()->terminate();

@@ -3,6 +3,7 @@ namespace Bitrix\MessageService\Sender;
 
 use Bitrix\Main;
 use Bitrix\Main\Event;
+use Bitrix\Main\EventResult;
 use Bitrix\MessageService\Internal\Entity\MessageTable;
 use Bitrix\MessageService\Message;
 use Bitrix\MessageService\MessageType;
@@ -22,14 +23,6 @@ class SmsManager
 		{
 			self::$senders = [];
 
-			if (Sms\SmsRu::isSupported())
-			{
-				self::$senders[] = new Sms\SmsRu();
-			}
-			if (Sms\SmsAssistentBy::isSupported())
-			{
-				self::$senders[] = new Sms\SmsAssistentBy();
-			}
 			if (Sms\Twilio::isSupported())
 			{
 				self::$senders[] = new Sms\Twilio();
@@ -58,13 +51,29 @@ class SmsManager
 			{
 				self::$senders[] = new Sms\ISmsCenter();
 			}
-			if (Sms\SmsEdnaru::isSupported())
+
+			$sender = new Sms\SmsRu();
+			if (Sms\SmsRu::isSupported() || $sender->isRegistered())
 			{
-				self::$senders[] = new Sms\SmsEdnaru();
+				self::$senders[] = $sender;
 			}
-			if (Sms\Ednaru::isSupported())
+
+			$sender = new Sms\SmsAssistentBy();
+			if (Sms\SmsAssistentBy::isSupported() || $sender->isRegistered())
 			{
-				self::$senders[] = new Sms\Ednaru();
+				self::$senders[] = $sender;
+			}
+
+			$sender = new Sms\SmsEdnaru();
+			if (Sms\SmsEdnaru::isSupported() || $sender->isRegistered())
+			{
+				self::$senders[] = $sender;
+			}
+
+			$sender = new Sms\Ednaru();
+			if (Sms\Ednaru::isSupported() || $sender->isRegistered())
+			{
+				self::$senders[] = $sender;
 			}
 
 			self::fireSendersEvent();
@@ -74,20 +83,21 @@ class SmsManager
 
 	private static function fireSendersEvent()
 	{
-		foreach (Main\EventManager::getInstance()->findEventHandlers(
-			'messageservice', 'onGetSmsSenders'
-		) as $event
-		)
+		$event = new Event('messageservice', 'onGetSmsSenders');
+		$event->send();
+		foreach ($event->getResults() as $result)
 		{
-			$result = (array) ExecuteModuleEventEx($event);
-			foreach ($result as $sender)
+			if ($result->getType() === EventResult::ERROR)
+			{
+				continue;
+			}
+			$resultData = $result->getParameters();
+			foreach ($resultData as $sender)
 			{
 				if (
 					$sender instanceof Base
-					&&
-					$sender->getType() === MessageType::SMS
-					&&
-					$sender::isSupported()
+					&& $sender->getType() === MessageType::SMS
+					&& $sender::isSupported()
 				)
 				{
 					self::$senders[] = $sender;
@@ -224,6 +234,42 @@ class SmsManager
 	}
 
 	/**
+	 * @param string $eventName
+	 * @param array $fields
+	 * @return array<int, Message>
+	 */
+	public static function createMessageListByTemplate(string $eventName, array $fields = []): array
+	{
+		$messageList = [];
+		$event = new Main\Sms\Event($eventName, $fields);
+		$templateMessageListResult = $event->createMessageList();
+		if (!$templateMessageListResult->isSuccess())
+		{
+			return $messageList;
+		}
+
+		$templateMessages = $templateMessageListResult->getData();
+		$sender = isset($fields['SENDER_ID']) ? static::getSenderById($fields['SENDER_ID']) : static::getUsableSender();
+
+		/** @var \Bitrix\Main\SMS\Message $templateMessage */
+		foreach($templateMessages as $templateMessage)
+		{
+			$message = Message::createFromFields(
+				[
+					'MESSAGE_FROM' => $fields['DEFAULT_FROM'] ?? $sender->getDefaultFrom(),
+					'MESSAGE_TO' => $templateMessage->getReceiver(),
+					'MESSAGE_BODY' => $templateMessage->getText(),
+				],
+				$sender
+			);
+			$message->setType(MessageType::SMS);
+			$messageList[] = $message;
+		}
+
+		return $messageList;
+	}
+
+	/**
 	 * @param array $messageFields
 	 * @param Base|null $sender
 	 * @return Main\Entity\AddResult
@@ -253,7 +299,7 @@ class SmsManager
 	/**
 	 * @param array $messageFields
 	 * @param Base|null $sender
-	 * @return Main\Entity\AddResult
+	 * @return Result\SendMessage
 	 * @throws Main\ArgumentTypeException
 	 */
 	public static function sendMessageDirectly(array $messageFields, Base $sender = null)

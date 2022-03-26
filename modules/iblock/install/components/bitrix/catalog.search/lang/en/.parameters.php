@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CHECK_DATES_TIP"] = "Specifies to search only the active (unexpired) documents.";
 $MESS["CP_BCSE_ELEMENT_SORT_FIELD"] = "Field to sort elements";
 $MESS["CP_BCSE_ELEMENT_SORT_FIELD2"] = "Second sort field";
@@ -49,6 +49,7 @@ $MESS["IBLOCK_SECTION_URL"] = "URL of the page with the section contents";
 $MESS["IBLOCK_SHOW_PRICE_COUNT"] = "Show price for quantity";
 $MESS["IBLOCK_USE_PRICE_COUNT"] = "Show quantity range prices";
 $MESS["IBLOCK_VAT_INCLUDE"] = "Include tax rate in price";
+$MESS["LINE_ELEMENT_COUNT_TIP"] = "Stock templates can show two to four items per table row";
 $MESS["RESTART_TIP"] = "If checked, the first search pass will use morphology. If morphology search produce no results, simple search will be performed.";
 $MESS["SEARCH_CHECK_DATES"] = "Search only in documents active on date of search";
 $MESS["SEARCH_RESTART"] = "Try to search without morphology support (if no search results found)";
@@ -58,4 +59,3 @@ $MESS["T_IBLOCK_DESC_DISPLAY_COMPARE"] = "Show Compare button";
 $MESS["T_IBLOCK_DESC_PAGER_CATALOG"] = "Products";
 $MESS["USE_SEARCH_RESULT_ORDER_TIP"] = "Search results will be ordered by relevance, most relevant at the top";
 $MESS["USE_TITLE_RANK_TIP"] = "With this option turned on, objects with relevant headings will be shown at the top of the results list.  ";
-?>

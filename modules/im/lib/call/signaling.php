@@ -70,13 +70,14 @@ class Signaling
 		}
 
 		$pushText = Loc::getMessage('IM_CALL_INVITE', ['#USER_NAME#' => $name]);
-
+		$pushTag = 'IM_CALL_'.$this->call->getId();
 		$push = [
 			'message' => $pushText,
 			'expiry' => 0,
 			'params' => [
 				'ACTION' => 'IMINV_'.$this->call->getId()."_".time()."_".($video ? 'Y' : 'N'),
 				'PARAMS' => [
+					'type' => 'internal',
 					'callerName' => htmlspecialcharsback($name),
 					'callerAvatar' => $avatar ?? '',
 					'call' => $this->call->toArray($toUserId),
@@ -91,8 +92,8 @@ class Signaling
 				]
 			],
 			'advanced_params' => [
-				'id' => 'IM_CALL_'.$this->call->getId(),
-				'notificationsToCancel' => ['IM_CALL_'.$this->call->getId()],
+				'id' => $pushTag,
+				'notificationsToCancel' => [$pushTag],
 				'androidHighPriority' => true,
 				'useVibration' => true,
 				'isVoip' => true,

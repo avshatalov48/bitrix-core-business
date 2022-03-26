@@ -94,6 +94,10 @@ $arComponentParameters = Array(
 			'role_edit' => Array(
 				'NAME' => getMessage('LANDING_CMP_PAR_VAR_ROLE_EDIT'),
 				'DEFAULT' => 'role_edit'
+			),
+			'folder_edit' => Array(
+				'NAME' => getMessage('LANDING_CMP_PAR_VAR_FOLDER_EDIT'),
+				'DEFAULT' => 'folder_edit'
 			)
 		),
 		'SEF_MODE' => Array(
@@ -176,6 +180,11 @@ $arComponentParameters = Array(
 				'NAME' => getMessage('LANDING_CMP_PAR_SM_ROLE_EDIT'),
 				'DEFAULT' => 'role/edit/#role_edit#/',
 				'VARIABLES' => array('role_edit')
+			),
+			'folder_edit' => array(
+				'NAME' => getMessage('LANDING_CMP_PAR_SM_FOLDER_EDIT'),
+				'DEFAULT' => 'folder/edit/#folder_edit#/',
+				'VARIABLES' => array('folder_edit')
 			)
 		)
 	)

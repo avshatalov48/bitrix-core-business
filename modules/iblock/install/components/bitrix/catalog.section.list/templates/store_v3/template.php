@@ -61,15 +61,40 @@ if ($arResult['SECTIONS_COUNT'] > 0)
 
 				if (!empty($section['PICTURE']))
 				{
-					$resizedImage = CFile::ResizeImageGet(
+					$xResizedImage = \CFile::ResizeImageGet(
 						$section['PICTURE'],
 						[
-							'width' => 460,
-							'height' => 460,
-						],
-						BX_RESIZE_IMAGE_PROPORTIONAL
+							'width' => 200,
+							'height' => 200,
+						]
 					);
-					$section['PICTURE']['SRC'] = $resizedImage['src'];
+
+					$x2ResizedImage = \CFile::ResizeImageGet(
+						$section['PICTURE'],
+						[
+							'width' => 400,
+							'height' => 400,
+						]
+					);
+
+					if (!$xResizedImage || !$x2ResizedImage)
+					{
+						$xResizedImage = [
+							'src' => $section['PICTURE']['SRC'],
+						];
+						$x2ResizedImage = $xResizedImage;
+					}
+
+					$xResizedImage = \Bitrix\Iblock\Component\Tools::getImageSrc([
+						'SRC' => $xResizedImage['src']
+					]);
+					$x2ResizedImage = \Bitrix\Iblock\Component\Tools::getImageSrc([
+						'SRC' => $x2ResizedImage['src']
+					]);
+
+					$style = "background-image: url('{$xResizedImage}');";
+					$style .= "background-image: -webkit-image-set(url('{$xResizedImage}') 1x, url('{$x2ResizedImage}') 2x);";
+					$style .= "background-image: image-set(url('{$xResizedImage}') 1x, url('{$x2ResizedImage}') 2x);";
 				}
 				else
 				{
@@ -82,15 +107,18 @@ if ($arResult['SECTIONS_COUNT'] > 0)
 							? $section['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_TITLE']
 							: $section['NAME'],
 					];
+
+					$style = "background-image: url('{$section['PICTURE']['SRC']}');";
 				}
 				?>
 				<li id="<?=$this->getEditAreaId($section['ID'])?>" class="catalog-section-list-item" data-item-number="<?=$sectionNumber; ?>">
 					<div class="catalog-section-list-tile-img-container">
 						<a
-								href="<?=$section['SECTION_PAGE_URL']?>"
-								class="catalog-section-list-item-img"
-								style="background-image:url('<?=$section['PICTURE']['SRC']?>');"
-								title="<?=$section['PICTURE']['TITLE']?>">
+							href="<?= $section['SECTION_PAGE_URL'] ?>"
+							class="catalog-section-list-item-img"
+							style="<?= $style ?>"
+							title="<?= $section['PICTURE']['TITLE'] ?>"
+						>
 							<span class="catalog-section-list-item-inner">
 								<h3 class="catalog-section-list-item-title"><?=$section['NAME']?></h3>
 								<?php

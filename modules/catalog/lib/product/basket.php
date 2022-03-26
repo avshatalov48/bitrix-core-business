@@ -656,25 +656,30 @@ class Basket
 		{
 			$properties[$iblockId] = [];
 			$iterator = Iblock\PropertyTable::getList([
-				'select' => ['ID'],
+				'select' => [
+					'ID',
+					'CODE',
+				],
 				'filter' => [
 					'=IBLOCK_ID' => $iblockId,
 					'=ACTIVE' => 'Y',
-					'=PROPERTY_TYPE' => [
+					'@PROPERTY_TYPE' => [
 						Iblock\PropertyTable::TYPE_ELEMENT,
 						Iblock\PropertyTable::TYPE_LIST,
-						Iblock\PropertyTable::TYPE_STRING
+						Iblock\PropertyTable::TYPE_STRING,
 					],
-					'=MULTIPLE' => 'N'
+					'=MULTIPLE' => 'N',
 				],
-				'order' => ['ID' => 'ASC']
+				'order' => [
+					'ID' => 'ASC',
+				]
 			]);
 			while ($row = $iterator->fetch())
 			{
 				$row['ID'] = (int)$row['ID'];
 				if ($row['ID'] == $skuPropertyId)
 					continue;
-				$properties[$iblockId][] = $row['ID'];
+				$properties[$iblockId][] = $row['CODE'] ?? $row['ID'];
 			}
 			unset($row, $iterator);
 		}

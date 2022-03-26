@@ -167,7 +167,8 @@ if($this->StartResultCache(false, array('v10', $preFilter, ($arParams["CACHE_GRO
 				while($arElement = $rsElements->Fetch())
 					$arElements[$arElement["IBLOCK_ELEMENT_ID"]] = $arElement;
 			}
-			else
+
+			if (empty($arElements))
 			{
 				$rsElements = CIBlockElement::GetList(array('ID' => 'ASC'), $arElementFilter, false, false, array('ID', 'IBLOCK_ID'));
 				while($arElement = $rsElements->Fetch())
@@ -876,6 +877,10 @@ if(isset($_REQUEST["ajax"]) && $_REQUEST["ajax"] === "y")
 	$arFilter = $this->makeFilter($FILTER_NAME);
 	if (!empty($preFilter))
 		$arFilter = array_merge($preFilter, $arFilter);
+	if (Loader::includeModule('catalog'))
+	{
+		$arFilter = CProductQueryBuilder::convertOldFilter($arFilter);
+	}
 	$arResult["ELEMENT_COUNT"] = CIBlockElement::GetList(array(), $arFilter, array(), false);
 
 	if (isset($_GET["bxajaxid"]))

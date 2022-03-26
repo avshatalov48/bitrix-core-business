@@ -15,27 +15,22 @@ use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
+use Bitrix\MessageService\DTO;
 use Bitrix\MessageService\MessageStatus;
 use Bitrix\MessageService\Sender;
 use Bitrix\MessageService\Internal\Entity\MessageTable;
 
 class Ednaru extends Sender\BaseConfigurable
 {
+	use Sender\Traits\RussianProvider;
+
+	public const ID = 'ednaru';
+
 	private const API_ENDPOINT = 'https://im.edna.ru/api/';
 	private const SENDER_ID_OPTION = 'sender_id';
 	private const API_KEY_OPTION = 'api_key';
 	private const EMOJI_DECODE = 'decode';
 	private const EMOJI_ENCODE = 'encode';
-
-	public static function isSupported(): bool
-	{
-		if (Loader::includeModule('bitrix24'))
-		{
-			return in_array(\CBitrix24::getPortalZone(), ['ru', 'kz', 'by']);
-		}
-
-		return true;
-	}
 
 	public function isAvailable(): bool
 	{
@@ -44,7 +39,7 @@ class Ednaru extends Sender\BaseConfigurable
 
 	public function getId(): string
 	{
-		return 'ednaru';
+		return static::ID;
 	}
 
 	public function getName(): string
@@ -182,7 +177,7 @@ class Ednaru extends Sender\BaseConfigurable
 		return $this->callExternalMethod('im-subject/by-apikey', $requestParams);
 	}
 
-	protected function callExternalMethod(string $method, ?array $requestParams = null): Result
+	protected function callExternalMethod(string $method, ?array $requestParams = null): Sender\Result\HttpRequestResult
 	{
 		$url = static::API_ENDPOINT . $method;
 		$queryMethod = HttpClient::HTTP_GET;
@@ -203,16 +198,31 @@ class Ednaru extends Sender\BaseConfigurable
 			$requestParams = Json::encode($this->convertRequestParams($requestParams));
 		}
 
-		$result = new Result();
+		$result = new Sender\Result\HttpRequestResult();
+		$result->setHttpRequest(new DTO\Request([
+			'method' => $queryMethod,
+			'uri' => $url,
+			'headers' => method_exists($httpClient, 'getRequestHeaders') ? $httpClient->getRequestHeaders()->toArray() : [],
+			'body' => $requestParams
+		]));
 		if ($httpClient->query($queryMethod, $url, $requestParams))
 		{
 			$response = $this->parseExternalResponse($httpClient->getResult());
 		}
 		else
 		{
+			$result->setHttpResponse(new DTO\Response([
+				'error' => Sender\Util::getHttpClientErrorString($httpClient)
+			]));
 			$error = $httpClient->getError();
 			$response = ['code' => current($error)];
 		}
+
+		$result->setHttpResponse(new DTO\Response([
+			'statusCode' => $httpClient->getStatus(),
+			'headers' => $httpClient->getHeaders()->toArray(),
+			'body' => $httpClient->getResult(),
+		]));
 
 		if (!$this->checkResponse($response))
 		{
@@ -272,7 +282,7 @@ class Ednaru extends Sender\BaseConfigurable
 			case 'no-match-template':
 				return MessageStatus::FAILED;
 			default:
-				return mb_strpos($serviceStatus, 'error') === 0 ? MessageStatus::ERROR : null;
+				return mb_strpos($serviceStatus, 'error') === 0 ? MessageStatus::ERROR : MessageStatus::UNKNOWN;
 		}
 	}
 

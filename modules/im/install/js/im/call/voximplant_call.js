@@ -46,6 +46,7 @@
 		recordState: 'Call::recordState',
 		floorRequest: 'Call::floorRequest',
 		emotion: 'Call::emotion',
+		customMessage: 'Call::customMessage',
 		showUsers: 'Call::showUsers',
 		showAll: 'Call::showAll',
 		hideAll: 'Call::hideAll',
@@ -524,6 +525,11 @@
 	BX.Call.VoximplantCall.prototype.sendEmotion = function(toUserId, emotion)
 	{
 		this.signaling.sendEmotion(toUserId, emotion);
+	};
+
+	BX.Call.VoximplantCall.prototype.sendCustomMessage = function(message, repeatOnConnect)
+	{
+		this.signaling.sendCustomMessage(message, repeatOnConnect);
 	};
 
 	/**
@@ -1545,7 +1551,7 @@
 
 		this.ready = false;
 		this.muted = false;
-		self.localUserState = BX.Call.UserState.Failed;
+		this.localUserState = BX.Call.UserState.Failed;
 		this.reinitPeers();
 
 		this._hideLocalVideo().then(function()
@@ -1625,7 +1631,10 @@
 
 	BX.Call.VoximplantCall.prototype.__onCallStatsReceived = function(e)
 	{
-		this.log(transformVoxStats(e.stats));
+		if(this.logger)
+		{
+			this.logger.sendStat(transformVoxStats(e.stats));
+		}
 	}
 
 	BX.Call.VoximplantCall.prototype.__onCallMessageReceived = function(e)
@@ -1706,6 +1715,12 @@
 				userId: message.senderId,
 				toUserId: message.toUserId,
 				emotion: message.emotion
+			})
+		}
+		else if (eventName === clientEvents.customMessage)
+		{
+			this.runCallback(BX.Call.Event.onCustomMessage, {
+				message: message.message
 			})
 		}
 		else if (eventName === "scenarioLogUrl")
@@ -1877,6 +1892,14 @@
 		return this.__sendMessage(clientEvents.emotion, {
 			toUserId: toUserId,
 			emotion: emotion
+		});
+	};
+
+	BX.Call.VoximplantCall.Signaling.prototype.sendCustomMessage = function(message, repeatOnConnect)
+	{
+		return this.__sendMessage(clientEvents.customMessage, {
+			message: message,
+			repeatOnConnect: !!repeatOnConnect
 		});
 	};
 
@@ -2370,6 +2393,11 @@
 			outboundVideo: [],
 			inboundAudio: [],
 			inboundVideo: [],
+		}
+
+		if (!result.connection.timestamp)
+		{
+			result.connection.timestamp = Date.now();
 		}
 		var stat
 		for (trackId in s.outbound)

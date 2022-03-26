@@ -75,7 +75,7 @@ export class MoreButton
 			}
 
 			this.recalcPost({
-				arPos: { height: bodyNode.offsetHeight},
+				arPos: { height: (bodyNode.offsetHeight + bodyNode.offsetTop)},
 				informerBlock: (Type.isStringFilled(buttonData.informerBlockID) ? document.getElementById(buttonData.informerBlockID) : null)
 			});
 			object.splice(index, 1);

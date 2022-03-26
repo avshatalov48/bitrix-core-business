@@ -4,15 +4,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,main_core,landing_ui_form_baseform,landing_ui_field_smallswitch,main_core_events,landing_ui_component_link,landing_ui_component_internal) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-form-help\">\n\t\t\t\t\t<a href=\"", "\" target=\"_blank\">", "</a>\n\t\t\t\t</div>\n\t\t\t"]);
+	var _templateObject;
 
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	/**
 	 * @memberOf BX.Landing.UI.Form
 	 */
@@ -24,7 +20,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    var _this;
 
 	    babelHelpers.classCallCheck(this, FormSettingsForm);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FormSettingsForm).call(this, babelHelpers.objectSpread({
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FormSettingsForm).call(this, _objectSpread({
 	      opened: true
 	    }, options)));
 
@@ -63,7 +59,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getHelp",
 	    value: function getHelp(options) {
 	      return this.cache.remember('help', function () {
-	        return main_core.Tag.render(_templateObject(), options.href, options.text);
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-form-help\">\n\t\t\t\t\t<a href=\"", "\" target=\"_blank\">", "</a>\n\t\t\t\t</div>\n\t\t\t"])), options.href, options.text);
 	      });
 	    }
 	  }, {

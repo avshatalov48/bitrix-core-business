@@ -775,6 +775,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	var Location = /*#__PURE__*/function () {
 	  function Location(params) {
 	    babelHelpers.classCallCheck(this, Location);
+	    babelHelpers.defineProperty(this, "datesRange", []);
 	    babelHelpers.defineProperty(this, "viewMode", false);
 	    this.params = params;
 	    this.id = params.id || 'location-' + Math.round(Math.random() * 1000000);
@@ -840,7 +841,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          className: 'calendar-field calendar-field-select'
 	        },
 	        style: {
-	          paddingRight: 25 + "px"
+	          paddingRight: 25 + 'px'
 	        }
 	      }));
 	    }
@@ -887,6 +888,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	              label: room.NAME,
 	              capacity: parseInt(room.CAPACITY) || 0,
 	              color: room.COLOR,
+	              reserved: room.reserved || false,
 	              labelRaw: room.NAME,
 	              labelCapacity: this.getCapacityMessage(room.CAPACITY),
 	              value: room.ID,
@@ -923,7 +925,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        this.DOM.input.value = this.value.str || '';
 
 	        if (this.value.type && (this.value.str === this.getTextLocation(this.value) || this.getTextLocation(this.value) === main_core.Loc.getMessage('EC_LOCATION_EMPTY'))) {
-	          this.DOM.input.value = main_core.Loc.getMessage('EC_LOCATION_CHOOSE');
+	          this.DOM.input.value = '';
+	          this.value = '';
 	        }
 
 	        var _iterator = _createForOfIteratorHelper(Location.locationList),
@@ -1028,29 +1031,149 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        suffix = capacity % 10;
 	      }
 
-	      return main_core.Loc.getMessage("EC_LOCATION_CAPACITY_" + suffix, {
+	      return main_core.Loc.getMessage('EC_LOCATION_CAPACITY_' + suffix, {
 	        '#NUM#': capacity
 	      });
 	    }
 	  }, {
-	    key: "editMeetingRooms",
-	    value: function editMeetingRooms() {
-	      var params = {};
+	    key: "checkLocationAccessibility",
+	    value: function checkLocationAccessibility(params) {
+	      var _this2 = this;
 
-	      if (this.params.getControlContentCallback) {
-	        params.wrap = this.params.getControlContentCallback();
-	      }
+	      this.getLocationAccessibility(params.from, params.to).then(function () {
+	        var eventTsFrom;
+	        var eventTsTo;
+	        var fromTs = params.from.getTime();
+	        var toTs = params.to.getTime();
 
-	      if (!params.wrap) {
-	        params.wrap = this.showEditMeetingRooms();
-	      }
+	        if (params.fullDay) {
+	          toTs += Location.DAY_LENGTH;
+	        }
 
-	      this.buildLocationEditControl(params);
+	        for (var index in Location.locationList) {
+	          Location.locationList[index].reserved = false;
+	          var roomId = Location.locationList[index].ID;
+
+	          var _iterator2 = _createForOfIteratorHelper(_this2.datesRange),
+	              _step2;
+
+	          try {
+	            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+	              var date = _step2.value;
+
+	              if (main_core.Type.isUndefined(Location.accessibility[date][roomId])) {
+	                continue;
+	              }
+
+	              var _iterator3 = _createForOfIteratorHelper(Location.accessibility[date][roomId]),
+	                  _step3;
+
+	              try {
+	                for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+	                  var event = _step3.value;
+
+	                  if (parseInt(event.PARENT_ID) === parseInt(params.currentEventId)) {
+	                    continue;
+	                  }
+
+	                  eventTsFrom = calendar_util.Util.parseDate(event.DATE_FROM).getTime();
+	                  eventTsTo = calendar_util.Util.parseDate(event.DATE_TO).getTime();
+
+	                  if (event.DT_SKIP_TIME !== 'Y') {
+	                    eventTsFrom -= event['~USER_OFFSET_FROM'] * 1000;
+	                    eventTsTo -= event['~USER_OFFSET_TO'] * 1000;
+	                  } else {
+	                    eventTsTo += Location.DAY_LENGTH;
+	                  }
+
+	                  if (eventTsFrom < toTs && eventTsTo > fromTs) {
+	                    Location.locationList[index].reserved = true;
+	                    break;
+	                  }
+	                }
+	              } catch (err) {
+	                _iterator3.e(err);
+	              } finally {
+	                _iterator3.f();
+	              }
+
+	              if (Location.locationList[index].reserved) {
+	                break;
+	              }
+	            }
+	          } catch (err) {
+	            _iterator2.e(err);
+	          } finally {
+	            _iterator2.f();
+	          }
+	        }
+
+	        _this2.setValues();
+	      });
+	    }
+	  }, {
+	    key: "getLocationAccessibility",
+	    value: function getLocationAccessibility(from, to) {
+	      var _this3 = this;
+
+	      return new Promise(function (resolve) {
+	        _this3.datesRange = Location.getDatesRange(from, to);
+	        var isCheckedAccessibility = true;
+
+	        var _iterator4 = _createForOfIteratorHelper(_this3.datesRange),
+	            _step4;
+
+	        try {
+	          for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+	            var date = _step4.value;
+
+	            if (main_core.Type.isUndefined(Location.accessibility[date])) {
+	              isCheckedAccessibility = false;
+	              break;
+	            }
+	          }
+	        } catch (err) {
+	          _iterator4.e(err);
+	        } finally {
+	          _iterator4.f();
+	        }
+
+	        if (!isCheckedAccessibility) {
+	          BX.ajax.runAction('calendar.api.locationajax.getLocationAccessibility', {
+	            data: {
+	              datesRange: _this3.datesRange,
+	              locationList: Location.locationList
+	            }
+	          }).then(function (response) {
+	            var _iterator5 = _createForOfIteratorHelper(_this3.datesRange),
+	                _step5;
+
+	            try {
+	              for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+	                var date = _step5.value;
+	                Location.accessibility[date] = response.data[date];
+	              }
+	            } catch (err) {
+	              _iterator5.e(err);
+	            } finally {
+	              _iterator5.f();
+	            }
+
+	            resolve(Location.accessibility, _this3.datesRange);
+	          }, function (response) {
+	            resolve(response.errors);
+	          });
+	        } else {
+	          resolve(Location.accessibility, _this3.datesRange);
+	        }
+	      });
 	    }
 	  }, {
 	    key: "loadRoomSlider",
 	    value: function loadRoomSlider() {
-	      this.getRoomsManager().then(this.getRoomsManagerData());
+	      if (!this.roomsManagerFromDB) {
+	        this.getRoomsManager().then(this.getRoomsManagerData());
+	      }
 	    }
 	  }, {
 	    key: "openRoomsSlider",
@@ -1067,244 +1190,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	        this.roomsInterface.show();
 	      }.bind(this));
-	    }
-	  }, {
-	    key: "showEditMeetingRooms",
-	    value: function showEditMeetingRooms() {
-	      if (this.editDialog) {
-	        this.editDialog.destroy();
-	      }
-
-	      this.editDialogContent = main_core.Dom.create('DIV', {
-	        props: {
-	          className: 'bxec-location-wrap'
-	        }
-	      });
-	      this.editDialog = new BX.PopupWindow(this.id + '_popup', null, {
-	        overlay: {
-	          opacity: 10
-	        },
-	        autoHide: true,
-	        closeByEsc: true,
-	        zIndex: this.zIndex,
-	        offsetLeft: 0,
-	        offsetTop: 0,
-	        draggable: true,
-	        bindOnResize: false,
-	        titleBar: main_core.Loc.getMessage('EC_MEETING_ROOM_LIST_TITLE'),
-	        closeIcon: {
-	          right: "12px",
-	          top: "10px"
-	        },
-	        className: 'bxc-popup-window',
-	        buttons: [new BX.PopupWindowButton({
-	          text: main_core.Loc.getMessage('EC_SEC_SLIDER_SAVE'),
-	          events: {
-	            click: BX.delegate(function () {
-	              this.saveValues();
-
-	              if (this.editDialog) {
-	                this.editDialog.close();
-	              }
-	            }, this)
-	          }
-	        }), new BX.PopupWindowButtonLink({
-	          text: main_core.Loc.getMessage('EC_SEC_SLIDER_CANCEL'),
-	          className: "popup-window-button-link-cancel",
-	          events: {
-	            click: BX.delegate(function () {
-	              if (this.editDialog) {
-	                this.editDialog.close();
-	              }
-	            }, this)
-	          }
-	        })],
-	        content: this.editDialogContent,
-	        events: {}
-	      });
-	      this.editDialog.show();
-	      return this.editDialogContent;
-	    }
-	  }, {
-	    key: "buildLocationEditControl",
-	    value: function buildLocationEditControl(params) {
-	      var i;
-	      this.locationEditControlShown = true;
-	      this.editDialogWrap = params.wrap; // Display meeting room list
-
-	      this.locationRoomList = [];
-	      this.addNewButtonField = false;
-
-	      if (main_core.Type.isArray(Location.locationList)) {
-	        Location.locationList.forEach(function (room) {
-	          if (room.NAME !== '' && room.ID) {
-	            this.locationRoomList.push({
-	              id: parseInt(room.ID),
-	              name: room.NAME,
-	              color: room.COLOR,
-	              location_id: parseInt(room.LOCATION_ID)
-	            });
-	          }
-	        }, this);
-	      }
-
-	      if (!this.locationRoomList.length) {
-	        this.locationRoomList.push({
-	          id: 0,
-	          name: ''
-	        });
-	      }
-
-	      for (i = 0; i < this.locationRoomList.length; i++) {
-	        this.addRoomField(this.locationRoomList[i], params.wrap);
-	      } // Display add button
-
-
-	      this.addNewButtonField = {
-	        outerWrap: params.wrap.appendChild(main_core.Dom.create('DIV', {
-	          props: {
-	            className: 'calendar-field-container calendar-field-container-container-text'
-	          }
-	        }))
-	      };
-	      this.addNewButtonField.innerWrap = this.addNewButtonField.outerWrap.appendChild(main_core.Dom.create('DIV', {
-	        props: {
-	          className: 'calendar-field-block'
-	        }
-	      }));
-	      this.addNewButtonField.innerCont = this.addNewButtonField.innerWrap.appendChild(main_core.Dom.create('DIV', {
-	        props: {
-	          className: 'calendar-text'
-	        },
-	        html: '<span class="calendar-text-link">' + main_core.Loc.getMessage('EC_MEETING_ROOM_ADD') + '</span>',
-	        events: {
-	          click: BX.delegate(function () {
-	            var lastItem = this.locationRoomList[this.locationRoomList.length - 1];
-
-	            if (lastItem.id || lastItem.deleted || BX.util.trim(lastItem.field.input.value)) {
-	              this.locationRoomList.push(this.addRoomField({
-	                id: 0
-	              }, params.wrap));
-	            }
-	          }, this)
-	        }
-	      }));
-	      params.wrap.appendChild(this.addNewButtonField.outerWrap);
-	    }
-	  }, {
-	    key: "addRoomField",
-	    value: function addRoomField(room) {
-	      room.field = {
-	        outerWrap: this.editDialogWrap.appendChild(main_core.Dom.create('DIV', {
-	          props: {
-	            className: 'calendar-field-container calendar-field-container-string'
-	          }
-	        }))
-	      };
-	      room.field.innerWrap = room.field.outerWrap.appendChild(main_core.Dom.create('DIV', {
-	        props: {
-	          className: 'calendar-field-block'
-	        }
-	      }));
-	      room.field.innerWrap.style.paddingRight = '40px';
-	      room.field.input = room.field.innerWrap.appendChild(main_core.Dom.create('INPUT', {
-	        props: {
-	          className: 'calendar-field calendar-field-string'
-	        },
-	        attrs: {
-	          value: room.name || '',
-	          placeholder: main_core.Loc.getMessage('EC_MEETING_ROOM_PLACEHOLDER'),
-	          type: 'text'
-	        },
-	        events: {
-	          keyup: BX.delegate(function (e) {
-	            if (parseInt(e.keyCode) === 13) {
-	              this.editRoom(room);
-	            }
-	          }, this)
-	        }
-	      }));
-	      room.field.delRoomEntry = room.field.innerWrap.appendChild(main_core.Dom.create('SPAN', {
-	        props: {
-	          className: 'calendar-remove-filed'
-	        },
-	        events: {
-	          click: BX.delegate(function () {
-	            Location.deleteField(room);
-	          }, this)
-	        }
-	      }));
-
-	      if (this.addNewButtonField) {
-	        this.editDialogWrap.appendChild(this.addNewButtonField.outerWrap);
-	      }
-
-	      if (!room.id) {
-	        room.field.input.focus();
-	      }
-
-	      return room;
-	    }
-	  }, {
-	    key: "editRoom",
-	    value: function editRoom(room) {
-	      if (!this.locationEditControlShown) return;
-	      room.field.input.value = BX.util.trim(room.field.input.value);
-
-	      if (!room.id) {
-	        if (room.field.input.value && BX.util.trim(room.field.input.value) !== BX.util.trim(room.name)) {
-	          room.name = room.field.input.value;
-	          this.locationRoomList.push(this.addRoomField({
-	            id: 0
-	          }));
-	        }
-	      } else {
-	        if (BX.util.trim(room.field.input.value) !== room.name) {
-	          room.name = room.field.input.value;
-	          room.changed = true;
-	        }
-	      }
-	    }
-	  }, {
-	    key: "saveValues",
-	    value: function saveValues() {
-	      var _this2 = this;
-
-	      var i,
-	          locationList = [];
-
-	      for (i = 0; i < this.locationRoomList.length; i++) {
-	        if (this.locationRoomList[i].field && this.locationRoomList[i].field.input) {
-	          if (this.locationRoomList[i].name !== this.locationRoomList[i].field.input.value && this.locationRoomList[i].id) {
-	            this.locationRoomList[i].changed = true;
-	          }
-
-	          this.locationRoomList[i].name = this.locationRoomList[i].field.input.value;
-	        }
-
-	        if (!this.locationRoomList[i].deleted && this.locationRoomList[i].name || this.locationRoomList[i].id) {
-	          locationList.push({
-	            id: this.locationRoomList[i].id || 0,
-	            name: this.locationRoomList[i].name || '',
-	            changed: this.locationRoomList[i].changed || !this.locationRoomList[i].id ? 'Y' : 'N',
-	            deleted: this.locationRoomList[i].deleted || !this.locationRoomList[i].name ? 'Y' : 'N'
-	          });
-	        }
-	      }
-
-	      BX.ajax.runAction('calendar.api.calendarajax.saveLocationList', {
-	        data: {
-	          locationList: locationList
-	        }
-	      }).then( // Success
-	      function (response) {
-	        Location.setLocationList(response.data.locationList);
-
-	        _this2.setValues();
-	      }, // Failure
-	      function (response) {//this.calendar.displayError(response.errors);
-	      });
-	      this.locationEditControlShown = false;
 	    }
 	  }, {
 	    key: "getTextValue",
@@ -1393,12 +1278,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        if (!calendar_roomsmanager.RoomsManager.isEmpty(this.activeRooms)) {
 	          var activeRoomId = this.activeRooms[0];
 
-	          var _iterator2 = _createForOfIteratorHelper(locationList),
-	              _step2;
+	          var _iterator6 = _createForOfIteratorHelper(locationList),
+	              _step6;
 
 	          try {
-	            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-	              var locationListElement = _step2.value;
+	            for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+	              var locationListElement = _step6.value;
 
 	              if (parseInt(locationListElement.ID) === activeRoomId) {
 	                Location.setCurrentCapacity(parseInt(locationListElement.CAPACITY));
@@ -1406,9 +1291,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	              }
 	            }
 	          } catch (err) {
-	            _iterator2.e(err);
+	            _iterator6.e(err);
 	          } finally {
-	            _iterator2.f();
+	            _iterator6.f();
 	          }
 	        } else {
 	          Location.setCurrentCapacity(parseInt(locationList[0].CAPACITY));
@@ -1453,11 +1338,11 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }, {
 	    key: "getRoomsManagerData",
 	    value: function getRoomsManagerData() {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      return new Promise(function (resolve) {
 	        BX.ajax.runAction('calendar.api.locationajax.getRoomsManagerData').then(function (response) {
-	          _this3.roomsManagerFromDB = new calendar_roomsmanager.RoomsManager({
+	          _this4.roomsManagerFromDB = new calendar_roomsmanager.RoomsManager({
 	            sections: response.data.sections,
 	            rooms: response.data.rooms
 	          }, {
@@ -1469,7 +1354,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            new_section_access: response.data.config.defaultSectionAccess,
 	            sectionAccessTasks: response.data.config.sectionAccessTasks,
 	            showTasks: response.data.config.showTasks,
-	            locationContext: _this3 //for updating list of locations in event creation menu
+	            locationContext: _this4 //for updating list of locations in event creation menu
 
 	          });
 	          resolve(response.data);
@@ -1481,11 +1366,32 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	    }
 	  }], [{
-	    key: "deleteField",
-	    value: function deleteField(room) {
-	      BX.remove(room.field.outerWrap, true);
-	      room.deleted = true;
-	      room.changed = true;
+	    key: "handlePull",
+	    value: function handlePull(params) {
+	      if (!params.fields.DATE_FROM || !params.fields.DATE_TO) {
+	        return;
+	      }
+
+	      var dateFrom = calendar_util.Util.parseDate(params.fields.DATE_FROM);
+	      var dateTo = calendar_util.Util.parseDate(params.fields.DATE_TO);
+	      var datesRange = Location.getDatesRange(dateFrom, dateTo);
+
+	      var _iterator7 = _createForOfIteratorHelper(datesRange),
+	          _step7;
+
+	      try {
+	        for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+	          var date = _step7.value;
+
+	          if (Location.accessibility[date]) {
+	            delete Location.accessibility[date];
+	          }
+	        }
+	      } catch (err) {
+	        _iterator7.e(err);
+	      } finally {
+	        _iterator7.f();
+	      }
 	    }
 	  }, {
 	    key: "parseStringValue",
@@ -1567,9 +1473,19 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      }
 	    }
 	  }, {
-	    key: "getCurrentCapacity",
-	    value: function getCurrentCapacity() {
-	      return Location.currentRoomCapacity || 0;
+	    key: "getMeetingRoomList",
+	    value: function getMeetingRoomList() {
+	      return Location.meetingRoomList;
+	    }
+	  }, {
+	    key: "setLocationAccessibility",
+	    value: function setLocationAccessibility(accessibility) {
+	      Location.accessibility = accessibility;
+	    }
+	  }, {
+	    key: "getLocationAccessibility",
+	    value: function getLocationAccessibility() {
+	      return Location.accessibility;
 	    }
 	  }, {
 	    key: "setCurrentCapacity",
@@ -1577,9 +1493,30 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      Location.currentRoomCapacity = capacity;
 	    }
 	  }, {
-	    key: "getMeetingRoomList",
-	    value: function getMeetingRoomList() {
-	      return Location.meetingRoomList;
+	    key: "getCurrentCapacity",
+	    value: function getCurrentCapacity() {
+	      return Location.currentRoomCapacity || 0;
+	    }
+	  }, {
+	    key: "getDateInFormat",
+	    value: function getDateInFormat(date) {
+	      return ('0' + date.getDate()).slice(-2) + '.' + ('0' + (date.getMonth() + 1)).slice(-2) + '.' + date.getFullYear();
+	    }
+	  }, {
+	    key: "getDatesRange",
+	    value: function getDatesRange(from, to) {
+	      var fromDate = new Date(from);
+	      var toDate = new Date(to);
+	      var startDate = fromDate.setHours(0, 0, 0, 0);
+	      var finishDate = toDate.setHours(0, 0, 0, 0);
+	      var result = [];
+
+	      while (startDate <= finishDate) {
+	        result.push(Location.getDateInFormat(new Date(startDate)));
+	        startDate += Location.DAY_LENGTH;
+	      }
+
+	      return result;
 	    }
 	  }]);
 	  return Location;
@@ -1587,6 +1524,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	babelHelpers.defineProperty(Location, "locationList", []);
 	babelHelpers.defineProperty(Location, "meetingRoomList", []);
 	babelHelpers.defineProperty(Location, "currentRoomCapacity", 0);
+	babelHelpers.defineProperty(Location, "accessibility", []);
+	babelHelpers.defineProperty(Location, "DAY_LENGTH", 86400000);
 
 	var UserSelector = /*#__PURE__*/function () {
 	  function UserSelector() {
@@ -2676,10 +2615,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	          var htmlTemp = void 0;
 
-	          if (this.values[i].capacity) {
-	            htmlTemp = "<span class=\"calendar-menu-item-title-with-capacity\">".concat(BX.util.htmlspecialchars(this.values[i].label), "</span><span class=\"calendar-menu-item-capacity\">").concat(BX.util.htmlspecialchars(this.values[i].labelCapacity), "</span>");
+	          if (this.values[i].reserved) {
+	            htmlTemp = "\n\t\t\t\t\t\t<span class=\"calendar-menu-item-title-with-status\">\n\t\t\t\t\t\t\t".concat(BX.util.htmlspecialchars(this.values[i].label), "\n\t\t\t\t\t\t</span>\n\t\t\t\t\t\t<span class=\"calendar-menu-item-status --red\">\n\t\t\t\t\t\t\t").concat(main_core.Loc.getMessage('EC_LOCATION_RESERVED'), "\n\t\t\t\t\t\t</span>");
+	          } else if (this.values[i].capacity) {
+	            htmlTemp = "\n\t\t\t\t\t\t<span class=\"calendar-menu-item-title-with-status\">\n\t\t\t\t\t    \t".concat(BX.util.htmlspecialchars(this.values[i].label), "\n\t\t\t\t     \t</span>\n\t\t\t\t     \t<span class=\"calendar-menu-item-capacity\">\n\t\t\t\t\t    \t").concat(BX.util.htmlspecialchars(this.values[i].labelCapacity), "\n\t\t\t\t    \t</span>");
 	          } else {
-	            htmlTemp = "<span class=\"calendar-menu-item-title\">".concat(BX.util.htmlspecialchars(this.values[i].label), "</span>");
+	            htmlTemp = "\n\t\t\t\t\t\t<span class=\"calendar-menu-item-title\">\n\t\t\t\t\t\t\t".concat(BX.util.htmlspecialchars(this.values[i].label), "\n\t\t\t\t\t\t</span>");
 	          }
 
 	          if (this.values[i].color) {
@@ -3537,7 +3478,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          }
 	        })],
 	        content: content,
-	        events: {}
+	        cacheable: false
 	      });
 	      content.appendChild(new BX.PopupWindowButton({
 	        text: main_core.Loc.getMessage('EC_DECLINE_ONLY_THIS'),
@@ -3617,7 +3558,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    _this.setEventNamespace('BX.Calendar.Controls.ConfirmEditDialog');
 
 	    _this.zIndex = 3200;
-	    _this.id = 'confirm-status-dialog-' + Math.round(Math.random() * 10000);
+	    _this.id = 'confirm-edit-dialog-' + Math.round(Math.random() * 10000);
 	    return _this;
 	  }
 
@@ -4209,7 +4150,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    _this.setEventNamespace('BX.Calendar.Controls.ConfirmStatusDialog');
 
 	    _this.zIndex = 3200;
-	    _this.id = 'confirm-status-dialog-' + Math.round(Math.random() * 10000);
+	    _this.id = 'busy-user-dialog-' + Math.round(Math.random() * 10000);
 	    return _this;
 	  }
 
@@ -4521,11 +4462,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        selectorEntityList.push({
 	          entityId: 'user',
 	          id: this.ownerId
-	        });
-	      } else {
-	        selectorEntityList.push({
-	          entityId: 'user',
-	          id: this.userId
 	        });
 	      }
 

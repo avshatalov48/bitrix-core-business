@@ -2,7 +2,7 @@
 $MESS["SONET_C5_NO_PERMS"] = "You do not have permission to view the profile of this group.";
 $MESS["SONET_C5_PAGE_TITLE"] = "About workgroup";
 $MESS["SONET_C5_PAGE_TITLE_PROJECT"] = "About project";
-$MESS["SONET_C5_PAGE_TITLE_SCRUM"] = "About Scrum team";
+$MESS["SONET_C5_PAGE_TITLE_SCRUM"] = "About scrum team";
 $MESS["SONET_C5_TITLE"] = "Profile";
 $MESS["SONET_C6_BLOG_T"] = "Reports";
 $MESS["SONET_C6_FORUM_T"] = "Discussions";

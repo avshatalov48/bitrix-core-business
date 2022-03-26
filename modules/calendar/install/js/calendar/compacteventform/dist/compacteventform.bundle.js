@@ -144,7 +144,7 @@ this.BX = this.BX || {};
 	    value: function close() {
 	      var _this3 = this;
 
-	      if (this.getMode() === CompactEventForm.EDIT_MODE && this.formDataChanged() && this.checkDataBeforeCloseMode && !confirm(BX.message('EC_SAVE_ENTRY_CONFIRM'))) {
+	      if (this.getMode() === CompactEventForm.EDIT_MODE && this.formDataChanged() && this.checkDataBeforeCloseMode && !confirm(main_core.Loc.getMessage('EC_SAVE_ENTRY_CONFIRM'))) {
 	        // Workaround to prevent form closing even if user don't want to and presses "cancel" in confirm
 	        if (this.popup) {
 	          this.popup.destroyed = true;
@@ -825,6 +825,15 @@ this.BX = this.BX || {};
 	            _this10.userPlannerSelector.refreshPlanner();
 	          }
 
+	          if (_this10.locationSelector) {
+	            _this10.locationSelector.checkLocationAccessibility({
+	              from: event.getData().value.from,
+	              to: event.getData().value.to,
+	              fullDay: event.getData().value.fullDay,
+	              currentEventId: _this10.entry.id
+	            });
+	          }
+
 	          _this10.checkForChanges();
 	        }
 	      });
@@ -1053,6 +1062,16 @@ this.BX = this.BX || {};
 	        }
 	      }
 
+	      if (this.locationSelector) {
+	        this.locationSelector.checkLocationAccessibility({
+	          from: this.dateTimeControl.getValue().from,
+	          to: this.dateTimeControl.getValue().to,
+	          fullDay: this.dateTimeControl.getValue().fullDay,
+	          currentEventId: this.entry.id
+	        });
+	      } //User Planner Selector
+
+
 	      if (this.userPlannerSelector && (this.canDo('viewFull') || entry.getCurrentStatus() !== false)) {
 	        this.userPlannerSelector.setValue({
 	          attendeesEntityList: entry.getAttendeesEntityList(),
@@ -1189,6 +1208,8 @@ this.BX = this.BX || {};
 	        tz_from: entry.getTimezoneFrom(),
 	        tz_to: entry.getTimezoneTo(),
 	        meeting_notify: this.userPlannerSelector.getInformValue() ? 'Y' : 'N',
+	        meeting_host: entry.data.MEETING_HOST || '0',
+	        chat_id: entry.data.MEETING ? entry.data.MEETING.CHAT_ID : 0,
 	        exclude_users: this.excludeUsers || [],
 	        attendeesEntityList: this.userPlannerSelector.getEntityList(),
 	        sendInvitesAgain: options.sendInvitesAgain ? 'Y' : 'N',
@@ -1402,6 +1423,15 @@ this.BX = this.BX || {};
 
 	        this.dateTimeControl.setValue(dateTimeValue);
 	        this.userPlannerSelector.setDateTime(this.dateTimeControl.getValue());
+
+	        if (this.locationSelector) {
+	          this.locationSelector.checkLocationAccessibility({
+	            from: event.getData().dateFrom,
+	            to: event.getData().dateTo,
+	            fullDay: event.getData().fullDay,
+	            currentEventId: this.entry.id
+	          });
+	        }
 	      }
 	    }
 	  }, {

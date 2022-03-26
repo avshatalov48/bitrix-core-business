@@ -1,0 +1,8 @@
+<?php
+$MESS["LANDING_SELECTOR_ADD_FOLDER"] = "Einen Ordner erstellen";
+$MESS["LANDING_SELECTOR_ADD_OR"] = "oder";
+$MESS["LANDING_SELECTOR_ADD_PAGE"] = "Eine Seite erstellen";
+$MESS["LANDING_SELECTOR_HINT_SEARCH_PAGE"] = "Seite suchen und auswählen";
+$MESS["LANDING_SELECTOR_PREVIEW_TEXT"] = "Anzeigen";
+$MESS["LANDING_SELECTOR_TYPE_FOLDER"] = "Ordner";
+$MESS["LANDING_SELECTOR_TYPE_PAGE"] = "Seite";

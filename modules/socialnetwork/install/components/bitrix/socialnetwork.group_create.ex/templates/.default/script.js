@@ -1,7 +1,16 @@
 this.BX = this.BX || {};
-(function (exports,ui_entitySelector,ui_buttons,ui_alerts,main_core_events,main_popup,main_core) {
+(function (exports,main_popup,ui_buttons,ui_alerts,main_core_events,ui_entitySelector,main_core) {
 	'use strict';
 
+	function _templateObject() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"", "\" value=\"", "", "\" >"], ["<input type=\"hidden\" name=\"", "\" value=\"", "", "\" \\>"]);
+
+	  _templateObject = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 	var Util = /*#__PURE__*/function () {
 	  function Util() {
 	    babelHelpers.classCallCheck(this, Util);
@@ -290,6 +299,51 @@ this.BX = this.BX || {};
 	    value: function enableSelectorItem(node) {
 	      node.classList.remove(this.cssClass.selectorDisabled);
 	    }
+	  }, {
+	    key: "recalcInputValue",
+	    value: function recalcInputValue(params) {
+	      var selectedItems = params.selectedItems || [];
+	      var multiple = main_core.Type.isBoolean(params.multiple) ? params.multiple : true;
+	      var inputContainerNodeId = params.inputContainerNodeId || '';
+	      var inputNodeName = params.inputNodeName || '';
+
+	      if (!main_core.Type.isArray(selectedItems) || !main_core.Type.isStringFilled(inputNodeName) || !main_core.Type.isStringFilled(inputContainerNodeId)) {
+	        return;
+	      }
+
+	      var inputContainerNode = document.getElementById(inputContainerNodeId);
+
+	      if (!inputContainerNode) {
+	        return;
+	      }
+
+	      if (multiple) {
+	        inputNodeName = "".concat(inputNodeName, "[]");
+	      }
+
+	      inputContainerNode.querySelectorAll("input[name=\"".concat(inputNodeName, "\"]")).forEach(function (node) {
+	        main_core.Dom.remove(node);
+	      });
+	      selectedItems.forEach(function (item) {
+	        var prefix = null;
+
+	        switch (item.entityId) {
+	          case 'department':
+	            prefix = 'DR';
+	            break;
+
+	          case 'user':
+	            prefix = 'U';
+	            break;
+
+	          default:
+	        }
+
+	        if (prefix) {
+	          inputContainerNode.appendChild(main_core.Tag.render(_templateObject(), inputNodeName, prefix, item.id));
+	        }
+	      });
+	    }
 	  }]);
 	  return Util;
 	}();
@@ -330,9 +384,15 @@ this.BX = this.BX || {};
 	        firstItemSelected = true;
 	      }
 	    });
+	    this.bindEvents();
 	  }
 
 	  babelHelpers.createClass(ConfidentialitySelector, [{
+	    key: "bindEvents",
+	    value: function bindEvents() {
+	      WorkgroupForm.getInstance().subscribe('onSwitchExtranet', ConfidentialitySelector.onSwitchExtranet);
+	    }
+	  }, {
 	    key: "selectItem",
 	    value: function selectItem(selector) {
 	      Util.selectSelectorItem(selector);
@@ -341,6 +401,24 @@ this.BX = this.BX || {};
 	      });
 	    }
 	  }], [{
+	    key: "onSwitchExtranet",
+	    value: function onSwitchExtranet(event) {
+	      var data = event.getData();
+
+	      if (!main_core.Type.isBoolean(data.isChecked)) {
+	        return;
+	      }
+
+	      if (data.isChecked) {
+	        ConfidentialitySelector.unselectAll();
+	        ConfidentialitySelector.select('secret');
+	        ConfidentialitySelector.disableAll();
+	        ConfidentialitySelector.enable('secret');
+	      } else {
+	        ConfidentialitySelector.enableAll();
+	      }
+	    }
+	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
 	      return document.querySelector(".".concat(this.cssClass.container));
@@ -554,7 +632,7 @@ this.BX = this.BX || {};
 
 	    this.componentName = params.componentName;
 	    this.signedParameters = params.signedParameters;
-	    this.groupId = main_core.Type.isUndefined(params.groupId) ? parseInt(params.groupId) : 0;
+	    this.groupId = !main_core.Type.isUndefined(params.groupId) ? parseInt(params.groupId) : 0;
 	    var container = document.querySelector('[data-role="group-avatar-cont"]');
 
 	    if (!container) {
@@ -1099,14 +1177,12 @@ this.BX = this.BX || {};
 	          }
 
 	          if (fieldNode.tagName.toLowerCase() !== 'input') {
-	            if (fieldData.type !== 'string') {
-	              return;
-	            }
+	            if (fieldData.type === 'string') {
+	              fieldNode = fieldNode.querySelector('input[type="text"]');
 
-	            fieldNode = fieldNode.querySelector('input[type="text"]');
-
-	            if (!main_core.Type.isDomNode(fieldNode)) {
-	              return;
+	              if (!main_core.Type.isDomNode(fieldNode)) {
+	                return;
+	              }
 	            }
 	          }
 
@@ -1160,6 +1236,20 @@ this.BX = this.BX || {};
 	          errorText = fieldNode.value.trim() === '' ? main_core.Loc.getMessage('SONET_GCE_T_STRING_FIELD_ERROR') : '';
 	          break;
 
+	        case 'input_hidden_container':
+	          var empty = true;
+	          fieldNode.querySelectorAll('input[type="hidden"]').forEach(function (hiddenNode) {
+	            if (!empty) {
+	              return;
+	            }
+
+	            if (main_core.Type.isStringFilled(hiddenNode.value)) {
+	              empty = false;
+	            }
+	          });
+	          errorText = empty ? main_core.Loc.getMessage('SONET_GCE_T_STRING_FIELD_ERROR') : '';
+	          break;
+
 	        default:
 	          errorText = '';
 	      }
@@ -1185,9 +1275,9 @@ this.BX = this.BX || {};
 	    bindNodeId: 'GROUP_NAME_input'
 	  }],
 	  4: [{
-	    id: 'SCRUM_MASTER_CODE',
-	    type: 'string',
-	    bindNodeId: 'SCRUM_MASTER_CODE',
+	    id: 'SCRUM_MASTER_CODE_container',
+	    type: 'input_hidden_container',
+	    bindNodeId: 'SCRUM_MASTER_selector',
 	    condition: function condition() {
 	      return !!WorkgroupForm.getInstance().scrumManager.isScrumProject;
 	    }
@@ -1203,37 +1293,8 @@ this.BX = this.BX || {};
 	      return;
 	    }
 
-	    this.submitButton.addEventListener('click', function (e) {
-	      var button = ui_buttons.ButtonManager.createFromNode(e.currentTarget);
-
-	      if (button && button.isDisabled()) {
-	        return;
-	      }
-
-	      WorkgroupForm.getInstance().alertManager.hideAllAlerts();
-	      var errorDataList = FieldsManager.check().filter(function (errorData) {
-	        return main_core.Type.isPlainObject(errorData) && main_core.Type.isStringFilled(errorData.message) && main_core.Type.isDomNode(errorData.bindNode);
-	      });
-
-	      if (errorDataList.length > 0) {
-	        errorDataList.forEach(function (errorData) {
-	          FieldsManager.showError(errorData);
-	        });
-	      } else if (WorkgroupForm.getInstance().wizardManager.currentStep < WorkgroupForm.getInstance().wizardManager.stepsCount) {
-	        WorkgroupForm.getInstance().wizardManager.currentStep++;
-
-	        if (WorkgroupForm.getInstance().wizardManager.currentStep === 3 && Object.entries(WorkgroupForm.getInstance().confidentialityTypes) <= 1) // skip confidentiality step
-	          {
-	            WorkgroupForm.getInstance().wizardManager.currentStep++;
-	          }
-
-	        WorkgroupForm.getInstance().wizardManager.showCurrentStep();
-	      } else {
-	        WorkgroupForm.getInstance().submitForm(e);
-	      }
-
-	      return e.preventDefault();
-	    });
+	    this.submitButtonClickHandler = this.submitButtonClickHandler.bind(this);
+	    this.submitButton.addEventListener('click', this.submitButtonClickHandler);
 	    this.backButton = document.getElementById('sonet_group_create_popup_form_button_step_2_back');
 
 	    if (this.backButton) {
@@ -1297,7 +1358,44 @@ this.BX = this.BX || {};
 	    }
 	  }
 
-	  babelHelpers.createClass(Buttons, null, [{
+	  babelHelpers.createClass(Buttons, [{
+	    key: "submitButtonClickHandler",
+	    value: function submitButtonClickHandler(e) {
+	      var button = ui_buttons.ButtonManager.createFromNode(e.currentTarget);
+
+	      if (button && button.isDisabled()) {
+	        return;
+	      }
+
+	      WorkgroupForm.getInstance().alertManager.hideAllAlerts();
+	      var errorDataList = FieldsManager.check().filter(function (errorData) {
+	        return main_core.Type.isPlainObject(errorData) && main_core.Type.isStringFilled(errorData.message) && main_core.Type.isDomNode(errorData.bindNode);
+	      });
+
+	      if (errorDataList.length > 0) {
+	        errorDataList.forEach(function (errorData) {
+	          FieldsManager.showError(errorData);
+	        });
+	      } else if (WorkgroupForm.getInstance().wizardManager.currentStep < WorkgroupForm.getInstance().wizardManager.stepsCount) {
+	        WorkgroupForm.getInstance().wizardManager.currentStep++;
+
+	        if (WorkgroupForm.getInstance().wizardManager.currentStep === 3 && Object.entries(WorkgroupForm.getInstance().confidentialityTypes) <= 1) // skip confidentiality step
+	          {
+	            WorkgroupForm.getInstance().wizardManager.currentStep++;
+	          }
+
+	        WorkgroupForm.getInstance().wizardManager.showCurrentStep();
+	      } else {
+	        var submitFunction = function (event) {
+	          WorkgroupForm.getInstance().submitForm(event);
+	        }.bind(WorkgroupForm.getInstance());
+
+	        submitFunction(e);
+	      }
+
+	      return e.preventDefault();
+	    }
+	  }], [{
 	    key: "showWaitSubmitButton",
 	    value: function showWaitSubmitButton(disable) {
 	      disable = !!disable;
@@ -1314,13 +1412,13 @@ this.BX = this.BX || {};
 	          button.setWaiting(true);
 	        }
 
-	        buttonNode.removeEventListener('click', WorkgroupForm.getInstance().submitForm);
+	        buttonNode.removeEventListener('click', WorkgroupForm.getInstance().submitButtonClickHandler);
 	      } else {
 	        if (button) {
 	          button.setWaiting(false);
 	        }
 
-	        buttonNode.addEventListener('click', WorkgroupForm.getInstance().submitForm);
+	        buttonNode.addEventListener('click', WorkgroupForm.getInstance().submitButtonClickHandler);
 	      }
 	    }
 	  }, {
@@ -1520,161 +1618,431 @@ this.BX = this.BX || {};
 	  return AlertManager;
 	}();
 
-	var InviteSelector = /*#__PURE__*/function () {
-	  function InviteSelector(params) {
-	    babelHelpers.classCallCheck(this, InviteSelector);
-	    this.selectorId = params.selectorId;
-	    main_core_events.EventEmitter.subscribe('BX.Main.User.SelectorController:select', this.selectHandler.bind(this));
-	    main_core_events.EventEmitter.subscribe('BX.Main.User.SelectorController:unSelect', this.selectHandler.bind(this));
+	var TeamManager$$1 = /*#__PURE__*/function () {
+	  babelHelpers.createClass(TeamManager$$1, null, [{
+	    key: "getInstance",
+	    value: function getInstance() {
+	      return WorkgroupForm.instance;
+	    }
+	  }]);
+
+	  function TeamManager$$1(params) {
+	    babelHelpers.classCallCheck(this, TeamManager$$1);
+	    this.ownerSelector = null;
+	    this.scrumMasterSelector = null;
+	    this.moderatorsSelector = null;
+	    this.usersSelector = null;
+	    this.ownerOptions = params.ownerOptions || {};
+	    this.scrumMasterOptions = params.scrumMasterOptions || {};
+	    this.moderatorsOptions = params.moderatorsOptions || {};
+	    this.usersOptions = params.usersOptions || {};
+	    this.ownerContainerNode = document.getElementById('GROUP_OWNER_selector');
+	    this.scrumMasterContainerNode = document.getElementById('SCRUM_MASTER_selector');
+	    this.moderatorsContainerNode = document.getElementById('GROUP_MODERATORS_selector');
+	    this.usersContainerNode = document.getElementById('GROUP_USERS_selector');
+	    this.isCurrentUserAdmin = main_core.Type.isBoolean(params.isCurrentUserAdmin) ? params.isCurrentUserAdmin : false;
+	    this.extranetInstalled = main_core.Type.isBoolean(params.extranetInstalled) ? params.extranetInstalled : false;
+	    this.allowExtranet = main_core.Type.isBoolean(params.allowExtranet) ? params.allowExtranet : false;
+	    this.buildOwnerSelector();
+	    this.buildScrumMasterSelector();
+	    this.buildModeratorsSelector();
+	    this.buildUsersSelector();
+	    this.bindEvents();
 	  }
 
-	  babelHelpers.createClass(InviteSelector, [{
-	    key: "selectHandler",
-	    value: function selectHandler(event) {
-	      var _event$getCompatData = event.getCompatData(),
-	          _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
-	          eventParams = _event$getCompatData2[0];
+	  babelHelpers.createClass(TeamManager$$1, [{
+	    key: "buildOwnerSelector",
+	    value: function buildOwnerSelector() {
+	      if (!main_core.Type.isDomNode(this.ownerContainerNode)) {
+	        return;
+	      }
 
-	      if (eventParams.selectorId === this.selectorId) {
-	        this.showDepartmentHint({
-	          selectorId: eventParams.selectorId
+	      main_core.Dom.clean(this.ownerContainerNode);
+	      var selectorOptions = this.ownerOptions;
+	      this.ownerSelector = new ui_entitySelector.TagSelector({
+	        id: selectorOptions.selectorId || 'group_create_owner',
+	        dialogOptions: {
+	          id: selectorOptions.selectorId || 'group_create_owner',
+	          context: TeamManager$$1.contextList.owner,
+	          preselectedItems: selectorOptions.value,
+	          events: {
+	            onLoad: this.onLoad.bind(this),
+	            'Item:onSelect': TeamManager$$1.onOwnerSelect,
+	            'Item:onDeselect': TeamManager$$1.onOwnerSelect
+	          },
+	          entities: [{
+	            id: 'user',
+	            options: {
+	              intranetUsersOnly: !this.allowExtranet,
+	              inviteEmployeeLink: true,
+	              inviteExtranetLink: true,
+	              checkWorkgroupWhenInvite: false
+	            }
+	          }, {
+	            id: 'department',
+	            options: {
+	              selectMode: 'usersOnly'
+	            }
+	          }]
+	        },
+	        multiple: false,
+	        addButtonCaption: main_core.Loc.getMessage('SONET_GCE_T_ADD_OWNER')
+	      });
+	      this.ownerSelector.renderTo(this.ownerContainerNode);
+	    }
+	  }, {
+	    key: "buildScrumMasterSelector",
+	    value: function buildScrumMasterSelector() {
+	      if (!main_core.Type.isDomNode(this.scrumMasterContainerNode)) {
+	        return;
+	      }
+
+	      main_core.Dom.clean(this.scrumMasterContainerNode);
+	      var selectorOptions = this.scrumMasterOptions;
+	      this.scrumMasterSelector = new ui_entitySelector.TagSelector({
+	        id: selectorOptions.selectorId || 'group_create_scrum_master',
+	        dialogOptions: {
+	          id: selectorOptions.selectorId || 'group_create_scrum_master',
+	          context: TeamManager$$1.contextList.scrumMaster,
+	          preselectedItems: selectorOptions.value,
+	          events: {
+	            onLoad: this.onLoad.bind(this),
+	            'Item:onSelect': TeamManager$$1.onScrumMasterSelect,
+	            'Item:onDeselect': TeamManager$$1.onScrumMasterSelect
+	          },
+	          entities: [{
+	            id: 'user',
+	            options: {
+	              intranetUsersOnly: !this.allowExtranet,
+	              inviteEmployeeLink: true
+	            }
+	          }, {
+	            id: 'department',
+	            options: {
+	              selectMode: 'usersOnly'
+	            }
+	          }]
+	        },
+	        multiple: false,
+	        addButtonCaption: main_core.Loc.getMessage('SONET_GCE_T_CHANGE_SCRUM_MASTER'),
+	        addButtonCaptionMore: main_core.Loc.getMessage('SONET_GCE_T_CHANGE_SCRUM_MASTER_MORE')
+	      });
+	      this.scrumMasterSelector.renderTo(this.scrumMasterContainerNode);
+	    }
+	  }, {
+	    key: "buildModeratorsSelector",
+	    value: function buildModeratorsSelector() {
+	      if (!main_core.Type.isDomNode(this.moderatorsContainerNode)) {
+	        return;
+	      }
+
+	      main_core.Dom.clean(this.moderatorsContainerNode);
+	      var selectorOptions = this.moderatorsOptions;
+	      this.moderatorsSelector = new ui_entitySelector.TagSelector({
+	        id: selectorOptions.selectorId || 'group_create_moderators',
+	        dialogOptions: {
+	          id: selectorOptions.selectorId || 'group_create_moderators',
+	          context: TeamManager$$1.contextList.moderators,
+	          preselectedItems: selectorOptions.value,
+	          events: {
+	            onLoad: this.onLoad.bind(this),
+	            'Item:onSelect': TeamManager$$1.onModeratorsSelect,
+	            'Item:onDeselect': TeamManager$$1.onModeratorsSelect
+	          },
+	          entities: [{
+	            id: 'user',
+	            options: {
+	              intranetUsersOnly: !this.allowExtranet,
+	              inviteEmployeeLink: true,
+	              checkWorkgroupWhenInvite: false
+	            }
+	          }, {
+	            id: 'department',
+	            options: {
+	              selectMode: 'usersOnly'
+	            }
+	          }]
+	        },
+	        multiple: true,
+	        addButtonCaption: main_core.Loc.getMessage('SONET_GCE_T_ADD_USER'),
+	        addButtonCaptionMore: main_core.Loc.getMessage('SONET_GCE_T_ADD_USER_MORE')
+	      });
+	      this.moderatorsSelector.renderTo(this.moderatorsContainerNode);
+	    }
+	  }, {
+	    key: "buildUsersSelector",
+	    value: function buildUsersSelector() {
+	      if (!main_core.Type.isDomNode(this.usersContainerNode)) {
+	        return;
+	      }
+
+	      main_core.Dom.clean(this.usersContainerNode);
+	      var selectorOptions = this.usersOptions;
+	      this.usersSelector = new ui_entitySelector.TagSelector({
+	        id: selectorOptions.selectorId || 'group_create_users',
+	        dialogOptions: {
+	          id: selectorOptions.selectorId || 'group_create_users',
+	          context: TeamManager$$1.contextList.users,
+	          preselectedItems: selectorOptions.value,
+	          events: {
+	            onLoad: this.onLoad.bind(this),
+	            'Item:onSelect': TeamManager$$1.onUsersSelect,
+	            'Item:onDeselect': TeamManager$$1.onUsersSelect
+	          },
+	          entities: [{
+	            id: 'user',
+	            options: {
+	              inviteEmployeeLink: true,
+	              '!userId': this.isCurrentUserAdmin ? [parseInt(main_core.Loc.getMessage('USER_ID'))] : [],
+	              intranetUsersOnly: !this.allowExtranet,
+	              checkWorkgroupWhenInvite: false
+	            }
+	          }, {
+	            id: 'department',
+	            options: {
+	              selectMode: selectorOptions.enableSelectDepartment ? 'usersAndDepartments' : 'usersOnly'
+	            }
+	          }]
+	        },
+	        multiple: true,
+	        addButtonCaption: main_core.Loc.getMessage('SONET_GCE_T_ADD_USER'),
+	        addButtonCaptionMore: main_core.Loc.getMessage('SONET_GCE_T_ADD_USER_MORE')
+	      });
+	      this.usersSelector.renderTo(this.usersContainerNode);
+	    }
+	  }, {
+	    key: "bindEvents",
+	    value: function bindEvents() {
+	      WorkgroupForm.getInstance().subscribe('onSwitchExtranet', this.onSwitchExtranet.bind(this));
+	      main_core_events.EventEmitter.emit('BX.Socialnetwork.WorkgroupFormTeamManager::onEventsBinded');
+	    }
+	  }, {
+	    key: "onSwitchExtranet",
+	    value: function onSwitchExtranet(event) {
+	      var data = event.getData();
+
+	      if (!main_core.Type.isBoolean(data.isChecked)) {
+	        return;
+	      }
+
+	      this.allowExtranet = this.extranetInstalled && data.isChecked;
+
+	      if (this.ownerSelector && ['DONE', 'UNSENT'].includes(this.ownerSelector.getDialog().loadState)) {
+	        this.recalcSelectorByExtranetSwitched({
+	          selector: this.ownerSelector,
+	          isChecked: data.isChecked,
+	          options: this.ownerOptions
+	        });
+	        this.buildOwnerSelector();
+	      }
+
+	      if (this.scrumMasterSelector && ['DONE', 'UNSENT'].includes(this.scrumMasterSelector.getDialog().loadState)) {
+	        this.recalcSelectorByExtranetSwitched({
+	          selector: this.scrumMasterSelector,
+	          isChecked: data.isChecked,
+	          options: this.scrumMasterOptions
+	        });
+	        this.buildScrumMasterSelector();
+	      }
+
+	      if (this.moderatorsSelector && ['DONE', 'UNSENT'].includes(this.moderatorsSelector.getDialog().loadState)) {
+	        this.recalcSelectorByExtranetSwitched({
+	          selector: this.moderatorsSelector,
+	          isChecked: data.isChecked,
+	          options: this.moderatorsOptions
+	        });
+	        this.buildModeratorsSelector();
+	      }
+
+	      if (this.usersSelector && ['DONE', 'UNSENT'].includes(this.usersSelector.getDialog().loadState)) {
+	        this.recalcSelectorByExtranetSwitched({
+	          selector: this.usersSelector,
+	          isChecked: data.isChecked,
+	          options: this.usersOptions
+	        });
+	        this.buildUsersSelector();
+	      }
+	    }
+	  }, {
+	    key: "recalcSelectorByExtranetSwitched",
+	    value: function recalcSelectorByExtranetSwitched(params) {
+	      var selector = params.selector;
+	      var isChecked = params.isChecked;
+	      var context = selector.getDialog().getContext();
+	      var selectedItems = selector.getDialog().getSelectedItems();
+
+	      if (this.extranetInstalled && !isChecked && main_core.Type.isArray(selectedItems)) {
+	        selectedItems = selectedItems.filter(function (item) {
+	          return !(item.getEntityId() === 'user' && item.getEntityType() === 'extranet');
+	        });
+
+	        switch (context) {
+	          case TeamManager$$1.contextList.owner:
+	            Util.recalcInputValue({
+	              selectedItems: selectedItems,
+	              inputNodeName: 'OWNER_CODE',
+	              inputContainerNodeId: 'OWNER_CODE_container',
+	              multiple: false
+	            });
+	            break;
+
+	          case TeamManager$$1.contextList.scrumMaster:
+	            Util.recalcInputValue({
+	              selectedItems: selectedItems,
+	              inputNodeName: 'SCRUM_MASTER_CODE',
+	              inputContainerNodeId: 'SCRUM_MASTER_CODE_container',
+	              multiple: false
+	            });
+	            break;
+
+	          case TeamManager$$1.contextList.moderators:
+	            Util.recalcInputValue({
+	              selectedItems: selectedItems,
+	              inputNodeName: 'MODERATOR_CODES',
+	              inputContainerNodeId: 'MODERATOR_CODES_container',
+	              multiple: true
+	            });
+	            break;
+
+	          case TeamManager$$1.contextList.users:
+	            Util.recalcInputValue({
+	              selectedItems: selectedItems,
+	              inputNodeName: 'USER_CODES',
+	              inputContainerNodeId: 'USER_CODES_container',
+	              multiple: true
+	            });
+	            break;
+
+	          default:
+	        }
+	      }
+
+	      params.options.value = selectedItems.map(function (item) {
+	        return [item.getEntityId(), item.getId()];
+	      });
+	    }
+	  }, {
+	    key: "onLoad",
+	    value: function onLoad(event) {
+	      switch (event.getTarget().context) {
+	        case TeamManager$$1.contextList.owner:
+	          this.recalcSelectorByExtranetSwitched({
+	            selector: this.ownerSelector,
+	            isChecked: this.allowExtranet,
+	            options: this.ownerOptions
+	          });
+	          break;
+
+	        case TeamManager$$1.contextList.scrumMaster:
+	          this.recalcSelectorByExtranetSwitched({
+	            selector: this.scrumMasterSelector,
+	            isChecked: this.allowExtranet,
+	            options: this.scrumMasterOptions
+	          });
+	          break;
+
+	        case TeamManager$$1.contextList.moderators:
+	          this.recalcSelectorByExtranetSwitched({
+	            selector: this.moderatorsSelector,
+	            isChecked: this.allowExtranet,
+	            options: this.moderatorsOptions
+	          });
+	          break;
+
+	        case TeamManager$$1.contextList.users:
+	          this.recalcSelectorByExtranetSwitched({
+	            selector: this.usersSelector,
+	            isChecked: this.allowExtranet,
+	            options: this.usersOptions
+	          });
+	          break;
+
+	        default:
+	      }
+	    }
+	  }], [{
+	    key: "onOwnerSelect",
+	    value: function onOwnerSelect(event) {
+	      Util.recalcInputValue({
+	        selectedItems: event.getTarget().getSelectedItems(),
+	        inputNodeName: 'OWNER_CODE',
+	        inputContainerNodeId: 'OWNER_CODE_container',
+	        multiple: false
+	      });
+	    }
+	  }, {
+	    key: "onScrumMasterSelect",
+	    value: function onScrumMasterSelect(event) {
+	      Util.recalcInputValue({
+	        selectedItems: event.getTarget().getSelectedItems(),
+	        inputNodeName: 'SCRUM_MASTER_CODE',
+	        inputContainerNodeId: 'SCRUM_MASTER_CODE_container',
+	        multiple: false
+	      });
+	    }
+	  }, {
+	    key: "onModeratorsSelect",
+	    value: function onModeratorsSelect(event) {
+	      Util.recalcInputValue({
+	        selectedItems: event.getTarget().getSelectedItems(),
+	        inputNodeName: 'MODERATOR_CODES',
+	        inputContainerNodeId: 'MODERATOR_CODES_container',
+	        multiple: true
+	      });
+	    }
+	  }, {
+	    key: "onUsersSelect",
+	    value: function onUsersSelect(event) {
+	      Util.recalcInputValue({
+	        selectedItems: event.getTarget().getSelectedItems(),
+	        inputNodeName: 'USER_CODES',
+	        inputContainerNodeId: 'USER_CODES_container',
+	        multiple: true
+	      });
+	      var hintNode = document.getElementById('GROUP_ADD_DEPT_HINT_block');
+
+	      if (hintNode) {
+	        TeamManager$$1.showDepartmentHint({
+	          selectedItems: event.getTarget().getSelectedItems(),
+	          hintNode: hintNode
 	        });
 	      }
 	    }
 	  }, {
 	    key: "showDepartmentHint",
 	    value: function showDepartmentHint(params) {
-	      if (!main_core.Type.isStringFilled(params.selectorId)) {
+	      var selectedItems = params.selectedItems || {};
+	      var hintNode = params.hintNode || null;
+
+	      if (!main_core.Type.isDomNode(hintNode)) {
 	        return;
 	      }
 
-	      var hintNode = document.getElementById('GROUP_ADD_DEPT_HINT_block');
-
-	      if (!hintNode) {
-	        return;
-	      }
-
-	      var selectorInstance = BX.UI.SelectorManager.instances[params.selectorId];
-
-	      if (main_core.Type.isUndefined(selectorInstance)) {
-	        return;
-	      }
-
-	      if (!main_core.Type.isPlainObject(selectorInstance.itemsSelected)) {
+	      if (!main_core.Type.isArray(selectedItems)) {
 	        hintNode.classList.remove('visible');
-	        return false;
+	        return;
 	      }
 
-	      var departmentFound = false;
-	      Object.entries(selectorInstance.itemsSelected).forEach(function (_ref) {
-	        var _ref2 = babelHelpers.slicedToArray(_ref, 1),
-	            itemId = _ref2[0];
-
-	        if (departmentFound) {
-	          return;
-	        }
-
-	        if (itemId.match(/DR\d+/)) {
-	          departmentFound = true;
-	        }
-	      });
+	      var departmentFound = !main_core.Type.isUndefined(selectedItems.find(function (item) {
+	        return item.entityId === 'department';
+	      }));
 
 	      if (departmentFound) {
 	        hintNode.classList.add('visible');
 	      } else {
 	        hintNode.classList.remove('visible');
 	      }
-
-	      return departmentFound;
 	    }
 	  }]);
-	  return InviteSelector;
+	  return TeamManager$$1;
 	}();
-
-	var TeamExtranetManager = /*#__PURE__*/function () {
-	  function TeamExtranetManager() {
-	    var _this = this;
-
-	    babelHelpers.classCallCheck(this, TeamExtranetManager);
-	    this.menuId = 'sonet_group_create_popup_action_popup';
-	    var emailsTextareaNode = document.getElementById('EMAILS');
-
-	    if (emailsTextareaNode) {
-	      emailsTextareaNode.addEventListener('blur', function (e) {
-	        if (_this.value === '') {
-	          e.currentTarget.classList.remove('invite-dialog-inv-form-textarea-active');
-	          e.currentTarget.value = e.currentTarget.value.replace(new RegExp(/^$/), main_core.Loc.getMessage('SONET_GCE_T_EMAILS_DESCR'));
-	        }
-	      });
-	      emailsTextareaNode.addEventListener('focus', function (e) {
-	        e.currentTarget.classList.add('invite-dialog-inv-form-textarea-active');
-	        e.currentTarget.value = e.currentTarget.value.replace(main_core.Loc.getMessage('SONET_GCE_T_EMAILS_DESCR'), '');
-	      });
-	    }
-
-	    this.actionLinkAdd = document.getElementById('sonet_group_create_popup_action_title_add');
-	    this.actionLinkInvite = document.getElementById('sonet_group_create_popup_action_title_invite');
-
-	    if (this.actionLinkAdd) {
-	      this.actionLinkAdd.addEventListener('click', function () {
-	        _this.onActionSelect('add');
-	      });
-	    }
-
-	    if (this.actionLinkInvite) {
-	      this.actionLinkInvite.addEventListener('click', function () {
-	        _this.onActionSelect('invite');
-	      });
-	    }
-
-	    this.inviteBlock1 = document.getElementById('sonet_group_create_popup_action_block_invite');
-	    this.inviteBlock2 = document.getElementById('sonet_group_create_popup_action_block_invite_2');
-	    this.addBlock = document.getElementById('sonet_group_create_popup_action_block_add');
-	  }
-
-	  babelHelpers.createClass(TeamExtranetManager, [{
-	    key: "onActionSelect",
-	    value: function onActionSelect(action) {
-	      if (action !== 'add') {
-	        action = 'invite';
-	      }
-
-	      this.lastAction = action;
-
-	      if (action === 'invite') {
-	        this.inviteBlock1.style.display = 'block';
-	        this.inviteBlock2.style.display = 'block';
-	        this.addBlock.style.display = 'none';
-	        this.actionLinkInvite.classList.add('--active');
-	        this.actionLinkAdd.classList.remove('--active');
-	      } else {
-	        this.inviteBlock1.style.display = 'none';
-	        this.inviteBlock2.style.display = 'none';
-	        this.addBlock.style.display = 'block';
-	        this.actionLinkInvite.classList.remove('--active');
-	        this.actionLinkAdd.classList.add('--active');
-	      }
-
-	      main_popup.MenuManager.destroy(this.menuId);
-	    }
-	  }]);
-	  return TeamExtranetManager;
-	}();
-
-	var TeamManager = function TeamManager() {
-	  babelHelpers.classCallCheck(this, TeamManager);
-	  document.querySelectorAll('[data-employees-selector-id]').forEach(function (employeeSeectorNode) {
-	    var selectorId = employeeSeectorNode.getAttribute('data-employees-selector-id');
-
-	    if (main_core.Type.isStringFilled(selectorId)) {
-	      WorkgroupForm.getInstance().arUserSelector.push(selectorId);
-	      new InviteSelector({
-	        selectorId: selectorId
-	      });
-	    }
-	  });
-	  new TeamExtranetManager();
-	};
+	babelHelpers.defineProperty(TeamManager$$1, "instance", null);
+	babelHelpers.defineProperty(TeamManager$$1, "contextList", {
+	  owner: 'GROUP_INVITE_OWNER',
+	  scrumMaster: 'GROUP_INVITE_SCRUM_MASTER',
+	  moderators: 'GROUP_INVITE_MODERATORS',
+	  users: 'GROUP_INVITE'
+	});
 
 	var FeaturesManager = function FeaturesManager() {
 	  babelHelpers.classCallCheck(this, FeaturesManager);
@@ -1735,7 +2103,8 @@ this.BX = this.BX || {};
 	  }
 	};
 
-	var WorkgroupForm = /*#__PURE__*/function () {
+	var WorkgroupForm = /*#__PURE__*/function (_EventEmitter) {
+	  babelHelpers.inherits(WorkgroupForm, _EventEmitter);
 	  babelHelpers.createClass(WorkgroupForm, null, [{
 	    key: "getInstance",
 	    value: function getInstance() {
@@ -1744,44 +2113,51 @@ this.BX = this.BX || {};
 	  }]);
 
 	  function WorkgroupForm(params) {
+	    var _this;
+
 	    babelHelpers.classCallCheck(this, WorkgroupForm);
-	    this.componentName = params.componentName;
-	    this.signedParameters = params.signedParameters;
-	    this.userSelector = '';
-	    this.lastAction = 'invite';
-	    this.arUserSelector = [];
-	    this.animationList = {};
-	    this.selectedTypeCode = false;
-	    this.groupId = parseInt(params.groupId);
-	    this.isScrumProject = params.isScrumProject;
-	    this.config = params.config;
-	    this.avatarUploaderId = params.avatarUploaderId;
-	    this.themePickerData = params.themePickerData;
-	    this.projectOptions = params.projectOptions;
-	    this.projectTypes = params.projectTypes;
-	    this.confidentialityTypes = params.confidentialityTypes;
-	    this.selectedProjectType = params.selectedProjectType;
-	    this.selectedConfidentialityType = params.selectedConfidentialityType;
-	    this.scrumManager = new Scrum({
-	      isScrumProject: this.isScrumProject
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(WorkgroupForm).call(this));
+
+	    _this.setEventNamespace('BX.Socialnetwork.WorkgroupForm');
+
+	    _this.componentName = params.componentName;
+	    _this.signedParameters = params.signedParameters;
+	    _this.userSelector = '';
+	    _this.lastAction = 'invite';
+	    _this.arUserSelector = [];
+	    _this.animationList = {};
+	    _this.selectedTypeCode = false;
+	    _this.groupId = parseInt(params.groupId);
+	    _this.isScrumProject = params.isScrumProject;
+	    _this.config = params.config;
+	    _this.avatarUploaderId = params.avatarUploaderId;
+	    _this.themePickerData = params.themePickerData;
+	    _this.projectOptions = params.projectOptions;
+	    _this.projectTypes = params.projectTypes;
+	    _this.confidentialityTypes = params.confidentialityTypes;
+	    _this.selectedProjectType = params.selectedProjectType;
+	    _this.selectedConfidentialityType = params.selectedConfidentialityType;
+	    _this.scrumManager = new Scrum({
+	      isScrumProject: _this.isScrumProject
 	    });
-	    this.wizardManager = new Wizard({
-	      currentStep: Object.entries(this.projectTypes).length > 1 ? 1 : 2,
+	    _this.wizardManager = new Wizard({
+	      currentStep: Object.entries(_this.projectTypes).length > 1 ? 1 : 2,
 	      stepsCount: params.stepsCount > 1 ? params.stepsCount : 1
 	    });
-	    this.alertManager = new AlertManager({
+	    _this.alertManager = new AlertManager({
 	      errorContainerId: 'sonet_group_create_error_block'
 	    });
-	    WorkgroupForm.instance = this;
-	    this.init(params);
-	    this.buttonsInstance = new Buttons();
+	    WorkgroupForm.instance = babelHelpers.assertThisInitialized(_this);
+
+	    _this.init(params);
+
+	    _this.buttonsInstance = new Buttons();
+	    return _this;
 	  }
 
 	  babelHelpers.createClass(WorkgroupForm, [{
 	    key: "init",
 	    value: function init(params) {
-	      var _this = this;
-
 	      this.scrumManager.makeAdditionalCustomizationForm();
 
 	      if (this.groupId <= 0) {
@@ -1811,13 +2187,29 @@ this.BX = this.BX || {};
 
 	      new TypePresetSelector();
 	      new ConfidentialitySelector();
-	      new TeamManager();
 	      new FeaturesManager();
 	      var groupNameNode = document.getElementById('GROUP_NAME_input');
 
 	      if (groupNameNode) {
 	        groupNameNode.focus();
 	      }
+
+	      this.bindEvents();
+	      Util.initExpandSwitches();
+	      Util.initDropdowns();
+
+	      if (main_core.Type.isStringFilled(params.expandableSettingsNodeId)) {
+	        BX.UI.Hint.init(document.getElementById(params.expandableSettingsNodeId));
+	      }
+
+	      if (this.groupId <= 0 && this.selectedProjectType === 'scrum') {
+	        this.saveScrumAnalyticData();
+	      }
+	    }
+	  }, {
+	    key: "bindEvents",
+	    value: function bindEvents() {
+	      var _this2 = this;
 
 	      if (BX.SidePanel.Instance.getTopSlider()) {
 	        main_core_events.EventEmitter.subscribe(BX.SidePanel.Instance.getTopSlider().getWindow(), 'SidePanel.Slider:onClose', function (event) {
@@ -1837,7 +2229,7 @@ this.BX = this.BX || {};
 
 	      if (extranetCheckboxNode && extranetCheckboxNode.type === 'checkbox') {
 	        extranetCheckboxNode.addEventListener('click', function () {
-	          _this.switchExtranet(extranetCheckboxNode.checked, true);
+	          _this2.switchExtranet(extranetCheckboxNode.checked);
 	        });
 	      }
 
@@ -1845,7 +2237,7 @@ this.BX = this.BX || {};
 
 	      if (visibleCheckboxNode && visibleCheckboxNode.type === 'checkbox') {
 	        visibleCheckboxNode.addEventListener('click', function () {
-	          _this.switchNotVisible(visibleCheckboxNode.checked);
+	          _this2.switchNotVisible(visibleCheckboxNode.checked);
 	        });
 	      }
 
@@ -1857,16 +2249,7 @@ this.BX = this.BX || {};
 	        });
 	      }
 
-	      Util.initExpandSwitches();
-	      Util.initDropdowns();
-
-	      if (main_core.Type.isStringFilled(params.expandableSettingsNodeId)) {
-	        BX.UI.Hint.init(document.getElementById(params.expandableSettingsNodeId));
-	      }
-
-	      if (this.groupId <= 0 && this.selectedProjectType === 'scrum') {
-	        this.saveScrumAnalyticData();
-	      }
+	      main_core_events.EventEmitter.subscribe('BX.Socialnetwork.WorkgroupFormTeamManager::onEventsBinded', this.recalcFormDependencies.bind(this));
 	    }
 	  }, {
 	    key: "recalcForm",
@@ -1910,7 +2293,7 @@ this.BX = this.BX || {};
 	      var extranetCheckboxNode = document.getElementById('IS_EXTRANET_GROUP');
 
 	      if (extranetCheckboxNode) {
-	        this.switchExtranet(Util.getCheckedValue(extranetCheckboxNode, false));
+	        this.switchExtranet(Util.getCheckedValue(extranetCheckboxNode));
 	      }
 
 	      var visibleCheckboxNode = document.getElementById('GROUP_VISIBLE');
@@ -1922,33 +2305,12 @@ this.BX = this.BX || {};
 	    }
 	  }, {
 	    key: "switchExtranet",
-	    value: function switchExtranet(isChecked, useAnimation) {
-	      var extranetBlockNode = document.getElementById('INVITE_EXTRANET_block');
-	      var extranetBlockContainerNode = document.getElementById('INVITE_EXTRANET_block_container');
-
-	      if (extranetBlockNode && extranetBlockContainerNode) {
-	        if (isChecked) {
-	          extranetBlockContainerNode.style.display = 'block';
+	    value: function switchExtranet(isChecked) {
+	      this.emit('onSwitchExtranet', new main_core_events.BaseEvent({
+	        data: {
+	          isChecked: isChecked
 	        }
-
-	        this.showHideBlock({
-	          container: extranetBlockContainerNode,
-	          block: extranetBlockNode,
-	          show: isChecked,
-	          duration: useAnimation ? 1000 : 0,
-	          callback: {
-	            complete: function complete() {
-	              if (isChecked) {
-	                extranetBlockContainerNode.classList.remove('--hidden');
-	              } else {
-	                extranetBlockContainerNode.style.display = 'none';
-	                extranetBlockContainerNode.classList.add('--hidden');
-	              }
-	            }
-	          }
-	        });
-	      }
-
+	      }));
 	      var openedBlock = document.getElementById('GROUP_OPENED');
 
 	      if (openedBlock) {
@@ -1982,15 +2344,6 @@ this.BX = this.BX || {};
 	          }
 	        }
 	      }
-
-	      if (isChecked) {
-	        ConfidentialitySelector.unselectAll();
-	        ConfidentialitySelector.select('secret');
-	        ConfidentialitySelector.disableAll();
-	        ConfidentialitySelector.enable('secret');
-	      } else {
-	        ConfidentialitySelector.enableAll();
-	      }
 	    }
 	  }, {
 	    key: "switchNotVisible",
@@ -2009,13 +2362,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "submitForm",
 	    value: function submitForm(e) {
-	      var _this2 = this;
-
-	      var inviteActionNode = document.getElementById('EXTRANET_INVITE_ACTION');
-
-	      if (inviteActionNode) {
-	        inviteActionNode.value = this.lastAction;
-	      }
+	      var _this3 = this;
 
 	      var actionUrl = document.getElementById('sonet_group_create_popup_form').action;
 
@@ -2074,10 +2421,10 @@ this.BX = this.BX || {};
 	            if (main_core.Type.isStringFilled(response.ERROR)) {
 	              var warningText = main_core.Type.isStringFilled(response.WARNING) ? "".concat(response.WARNING, "<br>") : '';
 
-	              _this2.alertManager.showAlert("".concat(warningText).concat(response.ERROR));
+	              _this3.alertManager.showAlert("".concat(warningText).concat(response.ERROR));
 
 	              if (main_core.Type.isStringFilled(response.WIZARD_STEP_PROCESSED)) {
-	                _this2.wizardManager.recalcAfterSubmit({
+	                _this3.wizardManager.recalcAfterSubmit({
 	                  processedStep: response.WIZARD_STEP_PROCESSED.toLowerCase(),
 	                  createdGroupId: parseInt(!main_core.Type.isUndefined(response.CREATED_GROUP_ID) ? response.CREATED_GROUP_ID : 0)
 	                });
@@ -2089,7 +2436,7 @@ this.BX = this.BX || {};
 	                  selectedUsers["U".concat(currentValue)] = 'users';
 	                });
 
-	                _this2.arUserSelector.forEach(function (selectorId) {
+	                _this3.arUserSelector.forEach(function (selectorId) {
 	                  var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
 
 	                  if (main_core.Type.isUndefined(selectorInstance)) {
@@ -2139,7 +2486,7 @@ this.BX = this.BX || {};
 	                    code: response.ACTION == 'create' ? 'afterCreate' : 'afterEdit',
 	                    data: {
 	                      group: response.GROUP,
-	                      projectOptions: _this2.projectOptions
+	                      projectOptions: _this3.projectOptions
 	                    }
 	                  };
 	                } else if (response.ACTION === 'invite') {
@@ -2168,7 +2515,7 @@ this.BX = this.BX || {};
 	                    });
 	                  }
 
-	                  if (response.ACTION == 'create' && main_core.Type.isStringFilled(response.URL) && (!main_core.Type.isStringFilled(_this2.config.refresh) || _this2.config.refresh === 'Y')) {
+	                  if (response.ACTION == 'create' && main_core.Type.isStringFilled(response.URL) && (!main_core.Type.isStringFilled(_this3.config.refresh) || _this3.config.refresh === 'Y')) {
 	                    var bindingFound = false;
 	                    BX.SidePanel.Instance.anchorRules.find(function (rule) {
 	                      if (bindingFound || !main_core.Type.isArray(rule.condition)) {
@@ -2199,7 +2546,7 @@ this.BX = this.BX || {};
 	          onfailure: function onfailure(errorData) {
 	            Buttons.showWaitSubmitButton(false);
 
-	            _this2.alertManager.showAlert(main_core.Loc.getMessage('SONET_GCE_T_AJAX_ERROR'));
+	            _this3.alertManager.showAlert(main_core.Loc.getMessage('SONET_GCE_T_AJAX_ERROR'));
 	          }
 	        });
 	      }
@@ -2227,7 +2574,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "showHideBlock",
 	    value: function showHideBlock(params) {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      if (!main_core.Type.isPlainObject(params)) {
 	        return false;
@@ -2275,7 +2622,7 @@ this.BX = this.BX || {};
 	          },
 	          complete: function complete() {
 	            if (main_core.Type.isStringFilled(blockNode.id)) {
-	              _this3.animationList[blockNode.id] = null;
+	              _this4.animationList[blockNode.id] = null;
 	            }
 
 	            if (!main_core.Type.isUndefined(params.callback) && main_core.Type.isFunction(params.callback.complete)) {
@@ -2293,12 +2640,13 @@ this.BX = this.BX || {};
 	    }
 	  }]);
 	  return WorkgroupForm;
-	}();
+	}(main_core_events.EventEmitter);
 
 	babelHelpers.defineProperty(WorkgroupForm, "instance", null);
 
 	exports.WorkgroupForm = WorkgroupForm;
+	exports.WorkgroupFormTeamManager = TeamManager$$1;
 	exports.WorkgroupFormUFManager = UFManager;
 
-}((this.BX.Socialnetwork = this.BX.Socialnetwork || {}),BX.UI.EntitySelector,BX.UI,BX.UI,BX.Event,BX.Main,BX));
+}((this.BX.Socialnetwork = this.BX.Socialnetwork || {}),BX.Main,BX.UI,BX.UI,BX.Event,BX.UI.EntitySelector,BX));
 //# sourceMappingURL=script.js.map

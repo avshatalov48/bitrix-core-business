@@ -274,16 +274,18 @@ BX.addCustomEvent(window, 'BX.MPF.MentionSelector:open', function(params) {
 		dialog.search('');
 		dialog.show();
 
+		var popupBindOptions = {};
 		if (BX.type.isDomNode(bindNode))
 		{
 			dialog.focusSearch();
 			dialog.popup.setBindElement(bindNode);
+			popupBindOptions.position = 'top';
 		}
 		else if (BX.type.isNotEmptyObject(bindPosition))
 		{
 			dialog.popup.setBindElement(bindPosition);
 		}
-		dialog.popup.adjustPosition();
+		dialog.popup.adjustPosition(popupBindOptions);
 	}
 });
 
@@ -952,7 +954,6 @@ window.MPFcreateSelectorDialog = function(dialogParams)
 		id: dialogParams.selectorId,
 		context: 'MENTION',
 		multiple: false,
-		preload: true,
 		enableSearch: dialogParams.enableSearch,
 		clearSearchOnSelect: true,
 		hideOnSelect: true,

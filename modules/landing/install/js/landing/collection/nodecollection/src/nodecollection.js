@@ -26,7 +26,7 @@ export class NodeCollection extends BaseCollection
 	matches(selector: string): NodeCollection
 	{
 		return this.filter((item) => {
-			return item.node && item.node.matches(selector);
+			return item.node && selector.indexOf(':') === -1 && item.node.matches(selector);
 		});
 	}
 

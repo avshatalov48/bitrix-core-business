@@ -64,7 +64,7 @@
 
 	// Buttons
 	var BaseButton = BX.Landing.UI.Button.BaseButton;
-	var ActionButton = BX.Landing.UI.Button.Action;
+	var ActionButton = BX.Landing.UI.Button.ActionButton;
 	var PlusButton = BX.Landing.UI.Button.Plus;
 	var CardActionButton = BX.Landing.UI.Button.CardAction;
 
@@ -210,7 +210,9 @@
 		this.lid = data(element.parentElement, "data-landing");
 		this.id = isNumber(parseInt(options.id)) ? parseInt(options.id) : 0;
 		this.selector = join("#block", (isNumber(options.id) ? options.id : 0), " > :first-child");
+		this.repoId = isNumber(options.repoId) ? options.repoId : null;
 		this.active = isBoolean(options.active) ? options.active : true;
+		this.allowedByTariff = isBoolean(options.allowedByTariff) ? options.allowedByTariff : true;
 		this.manifest = isPlainObject(options.manifest) ? options.manifest : {};
 		this.manifest.nodes = isPlainObject(options.manifest.nodes) ? options.manifest.nodes : {};
 		this.manifest.cards = isPlainObject(options.manifest.cards) ? options.manifest.cards : {};
@@ -238,7 +240,6 @@
 		if (isPlainObject(this.requiredUserActionOptions) && !isEmpty(this.requiredUserActionOptions))
 		{
 			this.showRequiredUserAction(this.requiredUserActionOptions);
-			this.requiredUserActionIsShown = true;
 		}
 
 		this.onEditorEnabled = this.onEditorEnabled.bind(this);
@@ -265,7 +266,7 @@
 
 		var envOptions = BX.Landing.Env.getInstance().getOptions();
 		var specialType = envOptions.specialType;
-		if (specialType === 'crm_forms')
+		if (this.isDefaultCrmFormBlock())
 		{
 			var showOptions = {
 				formId: envOptions.formEditorData.formOptions.id,
@@ -329,10 +330,21 @@
 			}
 		},
 
+		getBlockNode: function()
+		{
+			return this.node;
+		},
+
+		isAllowedByTariff: function()
+		{
+			return this.allowedByTariff;
+		},
+
 		showRequiredUserAction: function(data)
 		{
-			var nodeMap = this.node.querySelector('[data-map]');
-			nodeMap.innerHTML = (
+			//selector [data-map] for blocks with Google Maps without key
+			var node = this.node.querySelector('[data-map]') ?? this.node;
+			node.innerHTML = (
 				"<div class=\"landing-block-user-action\">" +
 					"<div class=\"landing-block-user-action-inner\">" +
 						(data.header ? (
@@ -423,7 +435,9 @@
 
 						if (styleNode)
 						{
+							styleNode.setIsSelectGroup(true);
 							styleNode.setValue("col-lg-12", columnsSettings.items);
+							styleNode.unsetIsSelectGroupFlag();
 						}
 					}, this);
 
@@ -577,10 +591,7 @@
 		initPanels: function()
 		{
 			// Make "add block after this block" button
-			if (
-				!this.panels.get("create_action")
-				&& !this.isCrmFormPage()
-			)
+			if (!this.panels.get("create_action"))
 			{
 				var createPanel = new BaseButtonPanel(
 					"create_action",
@@ -596,6 +607,24 @@
 
 				createPanel.show();
 				this.addPanel(createPanel);
+
+				if (this.isCrmFormPage())
+				{
+					var createBeforePanel = new BaseButtonPanel(
+						"create_before_action",
+						"landing-ui-panel-create-before-action"
+					);
+
+					createBeforePanel.addButton(
+						new PlusButton("insert_before", {
+							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_CREATE"),
+							onClick: throttle(this.addBlockBeforeThis, 600, this)
+						})
+					);
+
+					createBeforePanel.show();
+					this.addPanel(createBeforePanel);
+				}
 
 				createPanel.buttons[0].on("mouseover", this.onCreateButtonMouseover.bind(this));
 				createPanel.buttons[0].on("mouseout", this.onCreateButtonMouseout.bind(this));
@@ -736,7 +765,10 @@
 					},
 					items: [
 						(function() {
-							if (isPlainObject(this.manifest.nodes) || isPlainObject(this.manifest.attrs))
+							if (
+								(isPlainObject(this.manifest.nodes) || isPlainObject(this.manifest.attrs))
+								&& this.isAllowedByTariff()
+							)
 							{
 								return new BX.Main.MenuItem({
 									id: "content",
@@ -749,7 +781,7 @@
 							}
 						}.bind(this))(),
 						(function() {
-							if (isPlainObject(this.manifest.style))
+							if (isPlainObject(this.manifest.style) && this.isAllowedByTariff())
 							{
 								return new BX.Main.MenuItem({
 									id: "style",
@@ -763,12 +795,12 @@
 							}
 						}.bind(this))(),
 						(function() {
-							if (isPlainObject(this.manifest.style))
+							if (isPlainObject(this.manifest.style) && this.isAllowedByTariff())
 							{
 								return new BX.Main.MenuItem({
 									id: "designblock",
 									text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK"),
-									className: (this.access < ACCESS_W || this.php || this.isCrmFormPage()) ? "landing-ui-disabled" : "",
+									className: (this.access < ACCESS_W || this.php || this.isCrmFormBlock()) ? "landing-ui-disabled" : "",
 									onclick: function() {
 										this.onDesignerBlockClick();
 										this.sidebarActionsMenu.close();
@@ -776,9 +808,14 @@
 								});
 							}
 						}.bind(this))(),
-						new BX.Main.MenuItem({
-							delimiter: true,
-						}),
+						(function() {
+							if (this.isAllowedByTariff())
+							{
+								return new BX.Main.MenuItem({
+									delimiter: true,
+								});
+							}
+						}.bind(this))(),
 						(function() {
 							var allPlacements = BX.Landing.Main.getInstance().options.placements.blocks;
 
@@ -841,8 +878,6 @@
 										className: this.access < ACCESS_V ? "landing-ui-disabled" : ""
 									});
 								}
-
-								addClass(contentPanel.buttons.get("style").layout, "landing-ui-no-rounded");
 							}
 						}.bind(this))(),
 
@@ -919,6 +954,13 @@
 							}.bind(this)
 						}),
 						new BX.Main.MenuItem({
+							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON"),
+							onclick: function() {
+								this.saveBlock();
+								this.sidebarActionsMenu.close();
+							}.bind(this)
+						}),
+						new BX.Main.MenuItem({
 							delimiter: true,
 						}),
 						new BX.Main.MenuItem({
@@ -970,39 +1012,55 @@
 
 				contentPanel.addButton(
 					new ActionButton("collapse", {
-						html: "<span class='fa fa-caret-right'></span>",
+						html: "<span class='fas fa-caret-right'></span>",
 						onClick: this.onCollapseActionPanel.bind(this),
-						attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_ACTION_COLLAPSE")}
+						attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_ACTION_COLLAPSE")},
+						separate: true,
 					})
 				);
 
-				if (isPlainObject(this.manifest.nodes) || isPlainObject(this.manifest.attrs))
+				if (this.isAllowedByTariff())
 				{
-					contentPanel.addButton(
-						new ActionButton("content", {
-							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_CONTENT"),
-							onClick: this.onShowContentPanel.bind(this),
-							attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_EDIT")}
-						})
-					);
-				}
+					if (isPlainObject(this.manifest.style))
+					{
+						contentPanel.addButton(
+							new ActionButton("designblock", {
+								text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK"),
+								onClick: this.onDesignerBlockClick.bind(this),
+								disabled: this.access < ACCESS_W || this.php || (this.isCrmFormPage() && this.isCrmFormBlock()),
+								attrs: { title: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK") },
+								separate: true,
+							})
+						);
 
-				if (isPlainObject(this.manifest.style))
-				{
+						contentPanel.addButton(
+							new ActionButton("style", {
+								text: BX.Landing.Loc.getMessage("ACTION_BUTTON_STYLE"),
+								onClick: this.onStyleShow.bind(this),
+								disabled: this.access < ACCESS_V || isEmpty(this.manifest.style),
+								attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_DESIGN")},
+								separate: true,
+							})
+						);
+					}
+
+					if (isPlainObject(this.manifest.nodes) || isPlainObject(this.manifest.attrs) )
+					{
+						contentPanel.addButton(
+							new ActionButton("content", {
+								text: BX.Landing.Loc.getMessage("ACTION_BUTTON_CONTENT"),
+								onClick: this.onShowContentPanel.bind(this),
+								attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_EDIT")},
+								separate: true,
+							})
+						);
+					}
+				}
+				else {
 					contentPanel.addButton(
-						new ActionButton("style", {
-							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_STYLE"),
-							onClick: this.onStyleShow.bind(this),
-							disabled: this.access < ACCESS_V || isEmpty(this.manifest.style),
-							attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_DESIGN")}
-						})
-					);
-					contentPanel.addButton(
-						new ActionButton("designblock", {
-							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK"),
-							onClick: this.onDesignerBlockClick.bind(this),
-							disabled: this.access < ACCESS_W || this.php || this.isCrmFormPage(),
-							attrs: { title: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK") }
+						new ActionButton("expired", {
+							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_EXPIRED"),
+							separate: true,
 						})
 					);
 				}
@@ -1030,7 +1088,8 @@
 						contentPanel.addButton(
 							new ActionButton("actions", {
 								html: BX.Landing.Loc.getMessage("ACTION_BUTTON_CONTENT_MORE"),
-								onClick: this.onPlacementButtonClick.bind(this, placementsList)
+								onClick: this.onPlacementButtonClick.bind(this, placementsList),
+								separate: true,
 							})
 						);
 
@@ -1060,14 +1119,13 @@
 							}
 						}
 					}
-
-					addClass(contentPanel.buttons.get("designblock").layout, "landing-ui-no-rounded");
 				}
 
 				if (isPlainObject(this.manifest.style))
 				{
 					var blockDisplay = new ActionButton("block_display_info", {
-						html: "&nbsp;"
+						html: "&nbsp;",
+						separate: true,
 					});
 
 					bind(blockDisplay.layout, "mouseenter", this.onBlockDisplayMouseenter.bind(this));
@@ -1096,9 +1154,10 @@
 				if (block && block.restricted)
 				{
 					var restrictedButton = new ActionButton("restricted", {
-						html: "&nbsp;",
+						html: "!",
 						className: "landing-ui-block-restricted-button",
-						onClick: this.onRestrictedButtonClick.bind(this)
+						onClick: this.onRestrictedButtonClick.bind(this),
+						separate: true
 					});
 
 					bind(restrictedButton.layout, "mouseenter", this.onRestrictedButtonMouseenter.bind(this));
@@ -1134,7 +1193,7 @@
 				blockPanel.addButton(
 					new ActionButton("remove", {
 						html: BX.Landing.Loc.getMessage("ACTION_BUTTON_REMOVE"),
-						disabled: this.access < ACCESS_X || this.isCrmFormPage(),
+						disabled: this.access < ACCESS_X || (this.isCrmFormBlock() && this.isDefaultCrmFormBlock()),
 						onClick: this.deleteBlock.bind(this),
 						attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_ACTION_REMOVE")}
 					})
@@ -1142,9 +1201,10 @@
 
 				blockPanel.addButton(
 					new ActionButton("collapse", {
-						html: "<span class='fa fa-caret-right'></span>",
+						html: "<span class='fas fa-caret-right'></span>",
 						onClick: this.onCollapseActionPanel.bind(this),
-						attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_ACTION_COLLAPSE")}
+						attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_ACTION_COLLAPSE")},
+						separate: true
 					})
 				);
 
@@ -1317,6 +1377,11 @@
 			{
 				this.blockPlacementsActionsMenu.close();
 			}
+		},
+
+		saveBlock: function()
+		{
+			BX.Landing.Main.getInstance().showSaveBlock(this);
 		},
 
 		onRestrictedButtonMouseenter: function(event)
@@ -1497,13 +1562,16 @@
 						onPopupClose: function() {
 							this.panels.get("block_action").buttons.get("actions").deactivate();
 							removeClass(this.node, "landing-ui-hover");
+						}.bind(this),
+						onPopupShow: function() {
+							BX.Event.EventEmitter.emit('BX.Landing.PopupMenuWindow:onShow');
 						}.bind(this)
 					},
 					items: [
 						new BX.Main.MenuItem({
 							id: "show_hide",
 							text: BX.Landing.Loc.getMessage(this.isEnabled() ? "ACTION_BUTTON_HIDE" : "ACTION_BUTTON_SHOW"),
-							className: (this.access < ACCESS_W) || this.isCrmFormPage() ? "landing-ui-disabled" : "",
+							className: (this.access < ACCESS_W) || this.isDefaultCrmFormBlock() ? "landing-ui-disabled" : "",
 							onclick: function() {
 								this.onStateChange();
 								this.blockActionsMenu.close();
@@ -1511,7 +1579,7 @@
 						}),
 						new BX.Main.MenuItem({
 							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_ACTIONS_CUT"),
-							className: (this.access < ACCESS_X) || this.isCrmFormPage() ? "landing-ui-disabled" : "",
+							className: (this.access < ACCESS_X) || this.isDefaultCrmFormBlock() ? "landing-ui-disabled" : "",
 							onclick: function() {
 								landing.onCutBlock.bind(landing, this)();
 								this.blockActionsMenu.close();
@@ -1519,7 +1587,7 @@
 						}),
 						new BX.Main.MenuItem({
 							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_ACTIONS_COPY"),
-							className: this.isCrmFormPage() ? "landing-ui-disabled" : "",
+							className: this.isDefaultCrmFormBlock() ? "landing-ui-disabled" : "",
 							onclick: function() {
 								landing.onCopyBlock.bind(landing, this)();
 								this.blockActionsMenu.close();
@@ -1529,7 +1597,7 @@
 							id: "block_paste",
 							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_ACTIONS_PASTE"),
 							title: window.localStorage.landingBlockName,
-							className: window.localStorage.landingBlockId && !this.isCrmFormPage() ? "": "landing-ui-disabled",
+							className: window.localStorage.landingBlockId && !this.isDefaultCrmFormBlock() ? "": "landing-ui-disabled",
 							onclick: function() {
 								landing.onPasteBlock.bind(landing, this)();
 								this.blockActionsMenu.close();
@@ -1547,7 +1615,17 @@
 								});
 								this.blockActionsMenu.close();
 							}.bind(this)
-						})
+						}),
+						new BX.Main.MenuItem({
+							delimiter: true,
+						}),
+						new BX.Main.MenuItem({
+							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON"),
+							onclick: function() {
+								this.saveBlock();
+								this.blockActionsMenu.close();
+							}.bind(this)
+						}),
 					]
 				});
 			}
@@ -1772,6 +1850,16 @@
 		isCrmFormPage: function()
 		{
 			return BX.Landing.Env.getInstance().getOptions().specialType === 'crm_forms';
+		},
+
+		isCrmFormBlock: function()
+		{
+			return this.isCrmFormPage() && BX.Dom.attr(this.node, 'data-subtype') === 'form';
+		},
+
+		isDefaultCrmFormBlock: function()
+		{
+			return BX.Dom.hasClass(this.node, 'block-66-90-form-new-default');
 		},
 
 		/**
@@ -2564,7 +2652,8 @@
 					var button = new BX.UI.Button({
 						text: BX.Landing.Loc.getMessage('LANDING_SHOW_FORM_EDITOR'),
 						color: BX.UI.Button.Color.LIGHT_BORDER,
-						size: BX.UI.Button.Size.SMALL,
+						round: true,
+						className: 'landing-ui-panel-top-button',
 						onclick: function() {
 							contentPanel.hide()
 								.then(function() {
@@ -2746,8 +2835,32 @@
 		 */
 		onStyleShow: function()
 		{
-			this.showStylePanel(this.selector);
 			BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
+
+			if (this.isCrmFormPage() && this.isCrmFormBlock())
+			{
+				var formSelector = Object.entries(this.manifest.style.nodes).reduce(function(acc, item) {
+					if (item[1].type === 'crm-form')
+					{
+						return item[0];
+					}
+
+					return acc;
+				}, null);
+
+				if (formSelector)
+				{
+					this.showStylePanel(formSelector);
+				}
+				else
+				{
+					this.showStylePanel(this.selector);
+				}
+			}
+			else
+			{
+				this.showStylePanel(this.selector);
+			}
 		},
 
 
@@ -3647,13 +3760,127 @@
 				});
 		},
 
+		getFormEditorAddBlockTour: function()
+		{
+			var rootWindow = BX.Landing.PageObject.getRootWindow();
+			return new rootWindow.BX.UI.Tour.Guide({
+				steps: [
+					{
+						target: '[data-id="save_settings"]',
+						title: BX.Landing.Loc.getMessage('LANDING_FORM_EDITOR_ADD_BLOCK_TOUR_STEP_1_TITLE'),
+						text: BX.Landing.Loc.getMessage('LANDING_FORM_EDITOR_ADD_BLOCK_TOUR_STEP_1_TEXT'),
+					},
+				],
+			});
+		},
 
 		/**
 		 * Shows blocks list panel
 		 */
 		addBlockAfterThis: function()
 		{
-			BX.Landing.Main.getInstance().showBlocksPanel(this);
+			var formSettingsPanel =
+				(BX.Landing.UI && BX.Landing.UI.Panel && BX.Landing.UI.Panel.FormSettingsPanel)
+					? BX.Landing.UI.Panel.FormSettingsPanel.getInstance()
+					: null;
+			if (
+				this.isCrmFormPage()
+				&& formSettingsPanel
+				&& formSettingsPanel.isShown()
+			)
+			{
+				if (!formSettingsPanel.isChanged())
+				{
+					formSettingsPanel
+						.hide()
+						.then(function() {
+							BX.Landing.Main.getInstance().showBlocksPanel(this, null, null, true);
+						}.bind(this));
+				}
+				else
+				{
+					this.getFormEditorAddBlockTour().start();
+				}
+			}
+			else
+			{
+				BX.Landing.Main.getInstance().showBlocksPanel(this);
+			}
+		},
+
+		addBlockBeforeThis: function()
+		{
+			var formSettingsPanel = BX.Landing.UI.Panel.FormSettingsPanel.getInstance();
+			if (
+				this.isCrmFormPage()
+				&& formSettingsPanel.isShown()
+			)
+			{
+				if (!formSettingsPanel.isChanged())
+				{
+					formSettingsPanel
+						.hide()
+						.then(function() {
+							BX.Landing.Main.getInstance().showBlocksPanel(this, null, null, true);
+						}.bind(this));
+				}
+				else
+				{
+					this.getFormEditorAddBlockTour().start();
+				}
+			}
+			else
+			{
+				BX.Landing.Main.getInstance().showBlocksPanel(this, null, null, true);
+			}
+		},
+
+		getFormEditorDesignTour: function()
+		{
+			var rootWindow = BX.Landing.PageObject.getRootWindow();
+			return new rootWindow.BX.UI.Tour.Guide({
+				steps: [
+					{
+						target: '[data-id="save_settings"]',
+						title: BX.Landing.Loc.getMessage('LANDING_FORM_EDITOR_FORM_DESIGN_TOUR_STEP_1_TITLE'),
+						text: BX.Landing.Loc.getMessage('LANDING_FORM_EDITOR_FORM_DESIGN_TOUR_STEP_1_TEXT'),
+					},
+				],
+			});
+		},
+
+		onFormDesignClick: function()
+		{
+			var formSettingsPanel = BX.Landing.UI.Panel.FormSettingsPanel.getInstance();
+			if (!formSettingsPanel.isChanged())
+			{
+				formSettingsPanel
+					.hide()
+					.then(function() {
+						var formSelector = Object.entries(this.manifest.style.nodes).reduce(function(acc, item) {
+							if (item[1].type === 'crm-form')
+							{
+								return item[0];
+							}
+
+							return acc;
+						}, null);
+
+						if (formSelector)
+						{
+							this.showStylePanel(formSelector);
+						}
+						else
+						{
+							this.showStylePanel(this.selector);
+						}
+					}.bind(this));
+
+			}
+			else
+			{
+				this.getFormEditorDesignTour().start();
+			}
 		},
 
 
@@ -3739,6 +3966,39 @@
 			}, this);
 		},
 
+		/**
+		 * Check if data contains attributes, that require block reload
+		 * @param {object} data
+		 * @return {boolean}
+		 */
+		containsReloadRequireAttributes: function(data)
+		{
+			if (
+				isPlainObject(data)
+				&& isPlainObject(this.manifest)
+				&& isPlainObject(this.manifest.attrs)
+			)
+			{
+				return Object.keys(this.manifest.attrs).some(function (selector)
+				{
+					return this.manifest.attrs[selector].some(function (attr)
+					{
+						if (
+							attr.requireReload
+							&& isPlainObject(data[selector])
+							&& isPlainObject(data[selector].attrs)
+							&& data[selector].attrs[attr.attribute]
+						)
+						{
+							return true;
+						}
+						return false;
+					}, this);
+				}, this);
+			}
+
+			return false;
+		},
 
 		/**
 		 * Applies content changes
@@ -4346,8 +4606,12 @@
 		 */
 		reload: function(data)
 		{
-			if (BX.type.isPlainObject(data) &&
-				!this.containsPseudoSelector(data))
+			if (!BX.type.isPlainObject(data))
+			{
+				return Promise.resolve({});
+			}
+			var isNeedReload = this.containsPseudoSelector(data) || this.containsReloadRequireAttributes(data);
+			if (!isNeedReload)
 			{
 				return Promise.resolve(data);
 			}
@@ -4388,6 +4652,8 @@
 					});
 				});
 		},
+
+
 
 
 		/**

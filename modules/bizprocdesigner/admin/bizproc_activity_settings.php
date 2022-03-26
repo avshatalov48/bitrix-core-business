@@ -4,11 +4,14 @@ define("NOT_CHECK_FILE_PERMISSIONS", true);
 define("NO_KEEP_STATISTIC", true);
 define("BX_STATISTIC_BUFFER_USED", false);
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_before.php");
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_js.php");
 
 \Bitrix\Main\Loader::includeModule('bizproc');
 IncludeModuleLangFile(__FILE__);
+
+\Bitrix\Main\Loader::includeModule('ui');
+\Bitrix\Main\UI\Extension::load('ui.alerts');
 
 if (empty($_POST['document_type']))
 {
@@ -25,9 +28,9 @@ if (!defined('MODULE_ID') && !defined('ENTITY') && isset($_REQUEST['dts']))
 	}
 }
 
-$popupWindow = new CJSPopup(GetMessage("BIZPROC_AS_TITLE"));
+$popupWindow = new CJSPopup(GetMessage("BIZPROC_AS_TITLE_1"));
 
-$popupWindow->ShowTitlebar(GetMessage("BIZPROC_AS_TITLE"));
+$popupWindow->ShowTitlebar(GetMessage("BIZPROC_AS_TITLE_1"));
 
 CBPHelper::decodeTemplatePostData($_POST);
 
@@ -52,18 +55,23 @@ if(!$canWrite)
 	die();
 }
 
-
 $runtime = CBPRuntime::GetRuntime();
 $runtime->StartRuntime();
 
 $arActivityDescription = $runtime->GetActivityDescription($activityType);
 if ($arActivityDescription == null)
-	die ("Bad activity type!".htmlspecialcharsbx($activityType));
+{
+	die ("Bad activity type!" . htmlspecialcharsbx($activityType));
+}
 
 if($arActivityDescription["DESCRIPTION"])
+{
 	echo htmlspecialcharsbx($arActivityDescription["DESCRIPTION"]);
+}
 else
-	echo GetMessage("BIZPROC_AS_DESC");
+{
+	echo GetMessage("BIZPROC_AS_DESC_1");
+}
 
 $runtime->IncludeActivityFile($activityType);
 
@@ -75,9 +83,13 @@ $arWorkflowParameters = $_POST['arWorkflowParameters'];
 $arWorkflowVariables = $_POST['arWorkflowVariables'];
 $arWorkflowConstants = $_POST['arWorkflowConstants'];
 
-$arErrors = array();
+$wfGlobalConstants = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll($documentType);
+$wfGlobalVariables = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll($documentType);
+$documentFields = \Bitrix\Bizproc\Automation\Helper::getDocumentFields($documentType);
 
-if ($_POST["save"] == "Y" && check_bitrix_sessid())
+$arErrors = [];
+
+if ($_POST["save"] === "Y" && check_bitrix_sessid())
 {
 	//TODO: Experimental
 	$currentRequest = $_POST;
@@ -108,36 +120,50 @@ if ($_POST["save"] == "Y" && check_bitrix_sessid())
 	);
 
 	$bShowId = false;
-	if($_POST["activity_id"]!=$activityName)
+	if($_POST["activity_id"] != $activityName)
 	{
 		$bShowId = true;
-		if($_POST["activity_id"]=='')
-			$arErrors[] = Array('message'=>GetMessage("BP_ACT_SET_ID_EMPTY"));
+		if($_POST["activity_id"] == '')
+		{
+			$arErrors[] = ['message' => GetMessage("BP_ACT_SET_ID_EMPTY_1")];
+		}
 		elseif(is_array(CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $currentRequest["activity_id"])))
-				$arErrors[] = Array('message'=>str_replace('#ID#', htmlspecialcharsbx($currentRequest["activity_id"]), GetMessage("BP_ACT_SET_ID_DUP")));
+		{
+			$arErrors[] = [
+				'message' => str_replace(
+					'#ID#',
+					htmlspecialcharsbx($currentRequest["activity_id"]),
+					GetMessage("BP_ACT_SET_ID_DUP_1")
+				),
+			];
+		}
 		else
+		{
 			$bShowId = false;
+		}
 	}
 
 	if($res && count($arErrors)<=0)
 	{
 		$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
 		if (!is_array($arCurrentActivity["Properties"]))
-			$arCurrentActivity["Properties"] = array();
+		{
+			$arCurrentActivity["Properties"] = [];
+		}
 
 		$arCurrentActivity["Properties"]["Title"] = $currentRequest["title"];
 		$arCurrentActivity["Properties"]["EditorComment"] = $currentRequest["activity_editor_comment"];
 		$arCurrentActivity["Name"] = $currentRequest["activity_id"];
 		?>
 		<script>
-		arWorkflowParameters = <?=CUtil::PhpToJSObject($arWorkflowParameters)?>;
-		arWorkflowVariables = <?=CUtil::PhpToJSObject($arWorkflowVariables)?>;
-		arWorkflowTemplate = <?=CUtil::PhpToJSObject($arWorkflowTemplate[0])?>;
+		arWorkflowParameters = <?= CUtil::PhpToJSObject($arWorkflowParameters) ?>;
+		arWorkflowVariables = <?= CUtil::PhpToJSObject($arWorkflowVariables) ?>;
+		arWorkflowTemplate = <?= CUtil::PhpToJSObject($arWorkflowTemplate[0]) ?>;
 		BPTemplateIsModified = true;
 		ReDraw();
-		<?=$popupWindow->jsPopup?>.CloseDialog();
+		<?= $popupWindow->jsPopup?>.CloseDialog();
 		</script>
-		<?
+		<?php
 		die();
 	}
 }
@@ -145,7 +171,7 @@ if ($_POST["save"] == "Y" && check_bitrix_sessid())
 function PHPToHiddens($ob, $name)
 {
 	$ob = \Bitrix\Main\Web\Json::encode($ob);
-	return '<input type="hidden" name="'.htmlspecialcharsbx($name).'" value="'.htmlspecialcharsbx($ob).'">';
+	return '<input type="hidden" name="' . htmlspecialcharsbx($name) . '" value="' . htmlspecialcharsbx($ob) . '">';
 }
 
 echo PHPToHiddens($arWorkflowTemplate, 'arWorkflowTemplate');
@@ -155,25 +181,26 @@ echo PHPToHiddens($arWorkflowConstants, 'arWorkflowConstants');
 
 CBPDocument::AddShowParameterInit(MODULE_ID, "all", $_POST['document_type'], ENTITY);
 ?>
-<?=bitrix_sessid_post()?>
-<input type="hidden" name="activity" value="<?=htmlspecialcharsbx($activityType)?>">
-<input type="hidden" name="document_type" value="<?=htmlspecialcharsbx($document_type)?>">
-<input type="hidden" name="id" value="<?=htmlspecialcharsbx($activityName)?>">
-<input type="hidden" name="current_site_id" value="<?=htmlspecialcharsbx($currentSiteId)?>">
+<?= bitrix_sessid_post() ?>
+<input type="hidden" name="activity" value="<?= htmlspecialcharsbx($activityType) ?>">
+<input type="hidden" name="document_type" value="<?= htmlspecialcharsbx($document_type) ?>">
+<input type="hidden" name="id" value="<?= htmlspecialcharsbx($activityName) ?>">
+<input type="hidden" name="current_site_id" value="<?= htmlspecialcharsbx($currentSiteId) ?>">
 
-<? $tableID = "tbl-activity-".randString(5);?>
-<table class="adm-detail-content-table edit-table" id="<?=$tableID?>">
-<?
+<?php $tableID = "tbl-activity-".randString(5); ?>
+<table class="adm-detail-content-table edit-table" id="<?= $tableID ?>">
+<?php
 if(count($arErrors)>0)
 {
 	echo '<tr><td colspan="2">';
 	foreach($arErrors as $e)
-		echo '<font color="red">'.htmlspecialcharsbx($e["message"]).'</font><br>';
+		echo '<font color="red">'.htmlspecialcharsbx($e["message"]) . '</font><br>';
 	echo '</td></tr>';
 }
 
 $arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-if ($_POST["postback"] == "Y")
+$hasBrokenLink = false;
+if ($_POST["postback"] === "Y")
 {
 	$activityTitle = $_POST["title"];
 	$editorComment = $_POST["activity_editor_comment"];
@@ -184,6 +211,71 @@ else
 	$activityTitle = $arCurrentActivity["Properties"]["Title"];
 	$editorComment = $arCurrentActivity["Properties"]["EditorComment"];
 	$activity_id = $activityName;
+
+	$usages = [];
+	try
+	{
+		// todo: think about how to take it to another place
+		CBPActivity::IncludeActivityFile('SequentialWorkflowActivity');
+		$rootActivity = CBPActivity::createInstance('SequentialWorkflowActivity', 'Template');
+
+		$activityInstance = CBPActivity::createInstance($arCurrentActivity['Type'], $arCurrentActivity['Name']);
+		if ($activityInstance)
+		{
+			$activityInstance->initializeFromArray($arCurrentActivity['Properties']);
+
+			$rootActivity->FixUpParentChildRelationship($activityInstance);
+			$rootActivity->SetProperties($arWorkflowParameters);
+			$rootActivity->SetVariablesTypes($arWorkflowVariables);
+
+			$children = $rootActivity->CollectNestedActivities();
+			if (is_array($children))
+			{
+				$usages = $children[0]->collectUsages();
+			}
+		}
+	}
+	catch (Exception $e)
+	{
+		// relevant only for whileactivity
+		$usages = [];
+	}
+
+	$checkMap = [
+		\Bitrix\Bizproc\Workflow\Template\SourceType::DocumentField => $documentFields,
+		\Bitrix\Bizproc\Workflow\Template\SourceType::GlobalConstant => $wfGlobalConstants,
+		\Bitrix\Bizproc\Workflow\Template\SourceType::GlobalVariable => $wfGlobalVariables,
+		\Bitrix\Bizproc\Workflow\Template\SourceType::Variable => $arWorkflowVariables,
+		\Bitrix\Bizproc\Workflow\Template\SourceType::Constant => $arWorkflowConstants,
+		\Bitrix\Bizproc\Workflow\Template\SourceType::Parameter => $arWorkflowParameters
+	];
+	// {=Template:TargetUser}
+	$checkMap[\Bitrix\Bizproc\Workflow\Template\SourceType::Parameter]['TargetUser'] = [];
+
+	foreach ($usages as $usage)
+	{
+		$object = $usage[0];
+		$field = $usage[1];
+		$returnField = $usage[2];
+
+		if (array_key_exists($object, $checkMap))
+		{
+			if (!array_key_exists($field, $checkMap[$object]))
+			{
+				$hasBrokenLink = true;
+				break;
+			}
+		}
+		elseif ($object === \Bitrix\Bizproc\Workflow\Template\SourceType::Activity)
+		{
+			$activityUsage = CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $field);
+			if (!array_key_exists($returnField, $runtime->getActivityReturnProperties($activityUsage)))
+			{
+				$hasBrokenLink = true;
+				break;
+			}
+		}
+	}
 }
 ?>
 <script>
@@ -196,8 +288,18 @@ function HideShowId(id)
 		act_id.style.display = 'none';
 }
 </script>
+	<?php if ($hasBrokenLink):?>
+		<div class="ui-alert ui-alert-warning ui-alert-icon-info ui-alert-xs" id="bp_act_set_broken_link" style="width: auto;">
+			<span class="ui-alert-message">
+				<?= htmlspecialcharsbx(\Bitrix\Main\Localization\Loc::getMessage(
+					'BP_ACT_SET_BROKEN_LINK_MESSAGE_ERROR'
+				)) ?>
+			</span>
+			<span class="ui-alert-close-btn" onclick="HideShowId('bp_act_set_broken_link')"></span>
+		</div>
+	<?php endif ?>
 <tr>
-	<td align="right" width="25%"><?echo GetMessage("BIZPROC_AS_ACT_TITLE")?></td>
+	<td align="right" width="25%"><?= GetMessage("BIZPROC_AS_ACT_TITLE") ?></td>
 	<td width="75%">
 		<table width="100%">
 			<tr>
@@ -205,22 +307,22 @@ function HideShowId(id)
 					<?= CBPDocument::ShowParameterField("string", "title", $activityTitle, array("size" => 50, "id"=>"bpastitle")) ?>
 				</td>
 				<td width="5%">
-					[<a href="javascript:void(0)" onclick="HideShowId()" title="<?echo GetMessage("BP_ACT_SET_ID_SHOWHIDE")?>"><?echo GetMessage("BP_ACT_SET_ID")?></a>]
+					[<a href="javascript:void(0)" onclick="HideShowId()" title="<?= GetMessage("BP_ACT_SET_ID_SHOWHIDE_1") ?>"><?= GetMessage("BP_ACT_SET_ID") ?></a>]
 				</td>
 				<td width="5%">
-					[<a href="javascript:void(0)" onclick="HideShowId('id_activity_comment')" title="<?echo GetMessage("BP_ACT_SET_COMMENT_SHOWHIDE")?>"><?echo GetMessage("BP_ACT_SET_COMMENT")?></a>]
+					[<a href="javascript:void(0)" onclick="HideShowId('id_activity_comment')" title="<?= GetMessage("BP_ACT_SET_COMMENT_SHOWHIDE_1") ?>"><?= GetMessage("BP_ACT_SET_COMMENT") ?></a>]
 				</td>
 			</tr>
 		</table>
 	</td>
 </tr>
-<tr <?if(!$bShowId):?> style="display:none"<?endif?> id="id_activity_name">
-	<td align="right" width="25%"><?echo GetMessage("BP_ACT_SET_ID_ROW")?></td>
-	<td width="75%"><input type="text" name="activity_id" value="<?=htmlspecialcharsbx($activity_id)?>" size="50"></td>
+<tr <?php if(!$bShowId):?> style="display:none"<?php endif ?> id="id_activity_name">
+	<td align="right" width="25%"><?= GetMessage("BP_ACT_SET_ID_ROW_1") ?></td>
+	<td width="75%"><input type="text" name="activity_id" value="<?= htmlspecialcharsbx($activity_id) ?>" size="50"></td>
 </tr>
-<tr <?if(empty($editorComment)):?>style="display:none"<?endif?> id="id_activity_comment">
-	<td align="right" width="25%"><?echo GetMessage("BP_ACT_SET_COMMENT_ROW")?></td>
-	<td width="75%"><textarea cols="70" rows="3" name="activity_editor_comment"><?=htmlspecialcharsbx($editorComment)?></textarea></td>
+<tr <?php if(empty($editorComment)): ?>style="display:none"<?php endif ?> id="id_activity_comment">
+	<td align="right" width="25%"><?= GetMessage("BP_ACT_SET_COMMENT_ROW") ?></td>
+	<td width="75%"><textarea cols="70" rows="3" name="activity_editor_comment"><?= htmlspecialcharsbx($editorComment) ?></textarea></td>
 </tr>
 
 <?php
@@ -259,7 +361,7 @@ echo $z;
 setTimeout("document.getElementById('bpastitle').focus();", 100);
 
 (function() {
-	var table = BX("<?=$tableID?>");
+	var table = BX("<?= $tableID ?>");
 	if (!table)
 		return;
 
@@ -313,4 +415,4 @@ $popupWindow->StartButtons();
 $popupWindow->ShowStandardButtons();
 $popupWindow->EndButtons();
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/epilog_admin_js.php");

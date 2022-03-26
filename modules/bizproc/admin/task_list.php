@@ -247,7 +247,7 @@ $lAdmin->CheckListMode();
 /****************************************************************************/
 /***********  MAIN PAGE  ****************************************************/
 /****************************************************************************/
-$APPLICATION->SetTitle(GetMessage("BPATL_TITLE"));
+$APPLICATION->SetTitle(GetMessage("BPATL_TITLE_1"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 ?>
 <form name="find_form" method="GET" action="<?echo $APPLICATION->GetCurPage()?>?">

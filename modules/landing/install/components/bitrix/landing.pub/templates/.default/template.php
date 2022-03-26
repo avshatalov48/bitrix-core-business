@@ -193,6 +193,10 @@ if (!$check)
 		BX.ready(function()
 		{
 			document.body.style.opacity = 0.1;
+			document.addEventListener('click', function handler(e) {
+				e.stopPropagation();
+				e.preventDefault();
+			}, true);
 			top.BX.UI.InfoHelper.show('limit_knowledge_base_number_page_view');
 		});
 	</script>

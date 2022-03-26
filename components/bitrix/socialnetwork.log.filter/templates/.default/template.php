@@ -435,9 +435,8 @@ $isCompositeMode === false ?: ($dynamicArea = $this->createFrame()->begin(""));
 					name: 'startVideoTransformPopup',
 					type: 'VIDEO_TRANSFORM',
 					reload: false,
-					title: '<?=GetMessageJS("SONET_C30_F_VIDEO_TRANSFORM_POPUP_TITLE")?>',
-					description1: '<?=GetMessageJS("SONET_C30_F_VIDEO_TRANSFORM_POPUP_TEXT1")?>',
-					description2: '<?=GetMessageJS("SONET_C30_F_VIDEO_TRANSFORM_POPUP_TEXT2", array(
+					title: '<?=GetMessageJS("SONET_C30_F_VIDEO_TRANSFORMATION_POPUP_TITLE")?>',
+					description2: '<?=GetMessageJS("SONET_C30_F_VIDEO_TRANSFORMATION_POPUP_TEXT", array(
 						"#A_START#" => '<a href="'.htmlspecialcharsbx($arResult["VIDEO_TRANSFORM_POST_URL"]).'">',
 						"#A_END#" => '</a>'
 					))?>',

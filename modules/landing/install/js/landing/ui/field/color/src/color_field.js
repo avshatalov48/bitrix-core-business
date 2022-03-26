@@ -171,6 +171,8 @@ export class ColorField extends BaseField
 			this.postfix,
 			this.property,
 		);
+
+		this.emit('onChange');
 	}
 
 	onReset()
@@ -178,11 +180,9 @@ export class ColorField extends BaseField
 		this.resetHandler(this.items, this.postfix, this.property);
 	}
 
-	// todo: what a value must return? hsla? string?
-	getValue(): ?IColorValue
+	getValue(): IColorValue
 	{
-		// todo: need convert processor value to obj? add toObj method to values
-		return this.processor.getValue();
+		return this.processor.getValue() || this.processor.getNullValue();
 	}
 
 	setValue(value: {string: ?string})
@@ -219,6 +219,7 @@ export class ColorField extends BaseField
 		else
 		{
 			this.processor.setDefaultValue(defaultValue);
+			this.processor.defineActiveControl(this.items, this.data.styleNode);
 		}
 	}
 

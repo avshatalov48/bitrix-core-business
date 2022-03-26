@@ -26,7 +26,7 @@ class Form
 			$result[] = [
 				'id' => (int)$agreementData['ID'],
 				'name' => (string)$agreementData['NAME'],
-				'labelText' => (string)$agreementData['LABEL_TEXT'],
+				'labelText' => (string)$agreement->getLabelText(),
 			];
 		}
 
@@ -44,6 +44,14 @@ class Form
 		)
 		{
 			$fields = EntityFieldProvider::getFieldsTree();
+			foreach ($fields as $key => $item)
+			{
+				if (strpos($key, 'DYNAMIC_') === 0)
+				{
+					$dynamicId = str_replace('DYNAMIC_', '', $key);
+					$fields[$key]["DYNAMIC_ID"] = \CCrmOwnerType::ResolveUserFieldEntityID($dynamicId);
+				}
+			}
 		}
 		else
 		{
@@ -176,13 +184,14 @@ class Form
 
 		if (static::checkFormPermission())
 		{
+			$formController = new \Bitrix\Crm\Controller\Form();
 			$publicActionResult->setResult([
 				'crmFields' => static::getCrmFields()->getResult(),
 				'crmCompanies' => static::getCrmCompanies()->getResult(),
 				'crmCategories' => static::getCrmCategories()->getResult(),
 				'agreements' => static::getAgreements()->getResult(),
 				'formOptions' => Options::create($formId)->getArray(),
-				'dictionary' => Options\Dictionary::instance()->toArray(),
+				'dictionary' => $formController->getDictAction(),
 			]);
 		}
 

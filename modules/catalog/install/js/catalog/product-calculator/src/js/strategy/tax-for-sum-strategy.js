@@ -34,19 +34,17 @@ export class TaxForSumStrategy extends TaxForPriceStrategy
 			exclusivePrice = fieldStorage.getPriceExclusive();
 		}
 
-		fieldStorage.setField('PRICE_EXCLUSIVE', this.roundPrice(exclusivePrice));
+		fieldStorage.setField('PRICE_EXCLUSIVE', exclusivePrice);
 		
 		if (fieldStorage.isTaxIncluded())
 		{
-			fieldStorage.setField('PRICE', this.roundPrice(exclusivePrice));
+			fieldStorage.setField('PRICE', exclusivePrice);
 		}
 		else
 		{
 			fieldStorage.setField(
 				'PRICE',
-				this.roundPrice(
-					this.calculatePriceWithTax(exclusivePrice, fieldStorage.getTaxRate())
-				)
+				this.calculatePriceWithTax(exclusivePrice, fieldStorage.getTaxRate())
 			);
 		}
 	}

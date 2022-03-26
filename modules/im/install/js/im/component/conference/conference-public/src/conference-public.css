@@ -753,10 +753,13 @@
 	background: rgba(0,0,0,0.2);
 }
 
+.bx-im-component-call-check-devices-camera-video-flipped {
+	transform: scaleX(-1);
+}
+
 .bx-im-component-call-check-devices-camera-video {
 	width: 406px;
 	height: 229px;
-	transform: scaleX(-1);
 	margin: 0 auto 0;
 	border-radius: 5px;
 	object-fit: cover;

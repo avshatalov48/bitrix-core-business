@@ -52,28 +52,6 @@
 	margin-bottom: 10px;
 }
 
-.mail-message-grid-filling-bar
-{
-	width: 100% !important;
-	-webkit-transition-property: width;
-	-o-transition-property: width;
-	transition-property: width;
-	-webkit-transition: 10s !important;
-	-o-transition: 10s !important;
-	transition: 10s !important;
-}
-
-.mail-message-grid-bar
-{
-	background-color: #9dcf00 !important;
-	width: 0;
-	-webkit-transition-property: width;
-	-o-transition-property: width;
-	transition-property: width;
-	-webkit-transition: 10s !important;
-	-o-transition: 10s !important;
-	transition: 10s !important;
-}
 
 .mail-msg-list-grid-empty-text {
 	font: 16px/22px "Helvetica Neue", Helvetica, Arial, sans-serif;

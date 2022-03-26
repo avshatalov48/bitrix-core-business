@@ -19,7 +19,7 @@ if(!is_array($arParams["~AUTH_RESULT"]) && $arParams["~AUTH_RESULT"] <> '')
 $arResult["SHOW_FORM"] = !(is_array($arParams["~AUTH_RESULT"]) && $arParams["~AUTH_RESULT"]["TYPE"] == "OK");
 
 $arResult["USE_PASSWORD"] = false;
-if($arParams["~AUTH_RESULT"]["TYPE"] == "ERROR" && $arParams["~AUTH_RESULT"]["ERROR_TYPE"] == "CHANGE_PASSWORD")
+if(is_array($arParams["~AUTH_RESULT"]) && $arParams["~AUTH_RESULT"]["TYPE"] == "ERROR" && $arParams["~AUTH_RESULT"]["ERROR_TYPE"] == "CHANGE_PASSWORD")
 {
 	//it's required to change the password after N days, use password instead of checkword
 	$arResult["USE_PASSWORD"] = true;

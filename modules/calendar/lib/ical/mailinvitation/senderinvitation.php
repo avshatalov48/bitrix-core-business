@@ -297,6 +297,14 @@ abstract class SenderInvitation implements Serializable
 	protected function prepareEventFields(): void
 	{
 		$this->event['DESCRIPTION'] = Helper::getEventDescriptionById((int) $this->event['ID']);
+		if (is_array($this->event['TEXT_LOCATION']) && isset($this->event['TEXT_LOCATION']['NEW']))
+		{
+			$this->event['TEXT_LOCATION'] = $this->event['TEXT_LOCATION']['NEW'];
+		}
+		else
+		{
+			$this->event['TEXT_LOCATION'] = null;
+		}
 	}
 
 	/**

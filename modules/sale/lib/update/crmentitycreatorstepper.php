@@ -1,15 +1,15 @@
 <?php
 namespace Bitrix\Sale\Update;
 
-use Bitrix\Main,
-	Bitrix\Sale,
-	Bitrix\Crm\Order,
-	Bitrix\Crm\Settings,
-	Bitrix\Crm\Timeline,
-	Bitrix\Crm\Order\Matcher,
-	Bitrix\Main\Config\Option,
-	Bitrix\Main\Update\Stepper,
-	Bitrix\Main\Localization\Loc;
+use Bitrix\Main;
+use Bitrix\Sale;
+use Bitrix\Crm\Order;
+use Bitrix\Crm\Settings;
+use Bitrix\Crm\Timeline;
+use Bitrix\Crm\Order\Matcher;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Update\Stepper;
+use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
@@ -36,18 +36,13 @@ final class CrmEntityCreator
 
 	/**
 	 * @return Sale\Result
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\NotImplementedException
-	 * @throws \Exception
 	 */
-	public function create()
+	public function create(): Sale\Result
 	{
 		$result = new Sale\Result();
 
 		$contactCompanyCollection = $this->order->getContactCompanyCollection();
-		if ($contactCompanyCollection->isEmpty())
+		if ($contactCompanyCollection && $contactCompanyCollection->isEmpty())
 		{
 			$this->addContactCompany();
 		}
@@ -75,17 +70,12 @@ final class CrmEntityCreator
 	/**
 	 * @return bool
 	 */
-	private function isSetResponsible()
+	private function isSetResponsible(): bool
 	{
-		return $this->order->getField("RESPONSIBLE_ID") ? true : false;
+		return (bool)$this->order->getField("RESPONSIBLE_ID");
 	}
 
-	/**
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\NotImplementedException
-	 */
-	private function setResponsible()
+	private function setResponsible(): void
 	{
 		$this->order->setFieldNoDemand(
 			"RESPONSIBLE_ID",
@@ -95,13 +85,8 @@ final class CrmEntityCreator
 
 	/**
 	 * @return void
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\NotImplementedException
-	 * @throws Main\SystemException
 	 */
-	private function addContactCompany()
+	private function addContactCompany(): void
 	{
 		$matches = Matcher\EntityMatchManager::getInstance()->match($this->order);
 		if ($matches)
@@ -132,14 +117,14 @@ final class CrmEntityCreator
 
 	/**
 	 * @return void
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\NotImplementedException
-	 * @throws Main\SystemException
 	 */
-	private function setContactCompanyRequisites()
+	private function setContactCompanyRequisites(): void
 	{
 		$collection = $this->order->getContactCompanyCollection();
+		if (!$collection)
+		{
+			return;
+		}
 
 		$entity = $collection->getPrimaryCompany();
 		if ($entity === null)
@@ -172,12 +157,7 @@ final class CrmEntityCreator
 		$this->order->setRequisiteLink($result);
 	}
 
-	/**
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 */
-	private function addTimeLines()
+	private function addTimeLines(): void
 	{
 		// add
 		$this->addTimelineEntryOnCreate();
@@ -197,13 +177,12 @@ final class CrmEntityCreator
 	}
 
 	/**
-	 * @throws Main\ArgumentException
 	 * @return void;
 	 */
-	private function addTimelineEntryOnCreate()
+	private function addTimelineEntryOnCreate(): void
 	{
 		Timeline\OrderController::getInstance()->onCreate(
-			(int)$this->order->getId(),
+			$this->order->getId(),
 			[
 				"ORDER_FIELDS" => [
 					"ID" => (int)$this->order->getId(),
@@ -224,10 +203,9 @@ final class CrmEntityCreator
 	}
 
 	/**
-	 * @throws Main\ArgumentException
 	 * @return void;
 	 */
-	private function addTimelineEntryOnCancel()
+	private function addTimelineEntryOnCancel(): void
 	{
 		if ($this->order->getField("CANCELED") !== "Y")
 		{
@@ -260,9 +238,8 @@ final class CrmEntityCreator
 	 * @param $prevStatus
 	 * @param $currentStatus
 	 * @return void;
-	 * @throws Main\ArgumentException
 	 */
-	private function addTimelineEntryOnStatusModify($prevStatus, $currentStatus)
+	private function addTimelineEntryOnStatusModify($prevStatus, $currentStatus): void
 	{
 		$modifyParams = [
 			"PREVIOUS_FIELDS" => ["STATUS_ID" => $prevStatus],
@@ -283,11 +260,8 @@ final class CrmEntityCreator
 
 	/**
 	 * @return array
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
-	private function getHistoryChanges()
+	private function getHistoryChanges(): array
 	{
 		$arHistoryData = [];
 
@@ -310,7 +284,7 @@ final class CrmEntityCreator
 
 		Main\Type\Collection::sortByColumn($arHistoryData, ['ID' => SORT_ASC]);
 
-		$dbRes = new \CDBResult;
+		$dbRes = new \CDBResult();
 		$dbRes->InitFromArray($arHistoryData);
 
 		$result = [];
@@ -344,37 +318,37 @@ final class CrmEntityCreator
  */
 final class CrmEntityCreatorStepper extends Stepper
 {
-	const CONTINUE_EXECUTING = true;
-	const STOP_EXECUTING = false;
+	public const CONTINUE_EXECUTING = true;
+	public const STOP_EXECUTING = false;
 
 	/** @var string */
-	const IS_SALE_CRM_SITE_MASTER_STUB = "~IS_SALE_CRM_SITE_MASTER_STUB";
+	public const IS_SALE_CRM_SITE_MASTER_STUB = "~IS_SALE_CRM_SITE_MASTER_STUB";
 
 	/** @var string */
-	const ORDER_CONVERT_IS_FINISH = "~ORDER_CONVERT_IS_FINISH";
+	public const ORDER_CONVERT_IS_FINISH = "~ORDER_CONVERT_IS_FINISH";
 
 	/** @var string */
-	const IS_SALE_CRM_SITE_MASTER_FINISH = "~IS_SALE_CRM_SITE_MASTER_FINISH";
+	public const IS_SALE_CRM_SITE_MASTER_FINISH = "~IS_SALE_CRM_SITE_MASTER_FINISH";
 
-	const PREFIX_OPTION_ADMIN_PANEL_IS_ENABLED = "~ADMIN_PANEL_IS_ENABLED_FOR_";
+	public const PREFIX_OPTION_ADMIN_PANEL_IS_ENABLED = "~ADMIN_PANEL_IS_ENABLED_FOR_";
 
-	const IS_CRM_SITE_MASTER_OPENED = "~IS_CRM_SITE_MASTER_OPENED";
-
-	/** @var string */
-	const WIZARD_SITE_ID = "~CRM_WIZARD_SITE_ID";
+	public const IS_CRM_SITE_MASTER_OPENED = "~IS_CRM_SITE_MASTER_OPENED";
 
 	/** @var string */
-	const STEPPER_PARAMS = "~CRM_ENTITY_CREATOR_STEPPER_PARAMS";
+	public const WIZARD_SITE_ID = "~CRM_WIZARD_SITE_ID";
 
-	const UPDATE_ORDER_CONVERTER_CRM_ERROR_TABLE = "~UPDATE_ORDER_CONVERTER_CRM_ERROR_TABLE";
+	/** @var string */
+	public const STEPPER_PARAMS = "~CRM_ENTITY_CREATOR_STEPPER_PARAMS";
 
-	const ORDER_CONVERTER_CRM_ERROR_COUNT = "~ORDER_CONVERTER_CRM_ERROR_COUNT";
+	public const UPDATE_ORDER_CONVERTER_CRM_ERROR_TABLE = "~UPDATE_ORDER_CONVERTER_CRM_ERROR_TABLE";
+
+	public const ORDER_CONVERTER_CRM_ERROR_COUNT = "~ORDER_CONVERTER_CRM_ERROR_COUNT";
 
 	/** @var int max executing time in sec */
-	const MAX_EXECUTION_TIME = 5;
+	public const MAX_EXECUTION_TIME = 5;
 
 	/** @var int max orders of iteration */
-	const MAX_ORDERS = 100;
+	public const MAX_ORDERS = 100;
 
 	protected static $moduleId = "sale";
 
@@ -385,12 +359,6 @@ final class CrmEntityCreatorStepper extends Stepper
 	/**
 	 * @param array &$result
 	 * @return bool
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\LoaderException
-	 * @throws Main\NotImplementedException
-	 * @throws Main\SystemException
 	 */
 	public function execute(array &$result)
 	{
@@ -409,7 +377,7 @@ final class CrmEntityCreatorStepper extends Stepper
 
 			self::setFinishStatus();
 
-			if ((boolean)self::getErrors()->fetch())
+			if (self::getErrors()->fetch())
 			{
 				$this->addAdminErrorNotify(Loc::getMessage("CRM_ENTITY_CREATOR_STEPPER_ERROR_NOTIFY"));
 			}
@@ -435,13 +403,7 @@ final class CrmEntityCreatorStepper extends Stepper
 		return self::CONTINUE_EXECUTING;
 	}
 
-	/**
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 */
-	private function createCrmEntity()
+	private function createCrmEntity(): void
 	{
 		$timeStart = Main\Diag\Helper::getCurrentMicrotime();
 		foreach ($this->orderList as $order)
@@ -478,11 +440,7 @@ final class CrmEntityCreatorStepper extends Stepper
 		}
 	}
 
-	/**
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 */
-	private function initParams()
+	private function initParams(): void
 	{
 		$params = Option::get(self::$moduleId, self::STEPPER_PARAMS, "");
 		if ($params !== "" && \CheckSerializedData($params))
@@ -502,9 +460,8 @@ final class CrmEntityCreatorStepper extends Stepper
 
 	/**
 	 * @param $orderId
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
-	private function updateParams($orderId)
+	private function updateParams($orderId): void
 	{
 		$this->params["last_order_id"] = $orderId;
 		$this->params["updated_order_count"]++;
@@ -514,10 +471,8 @@ final class CrmEntityCreatorStepper extends Stepper
 
 	/**
 	 * @return array|null
-	 * @throws Main\ArgumentException
-	 * @throws Main\NotImplementedException
 	 */
-	private function getOrders()
+	private function getOrders(): ?array
 	{
 		$parameters = [
 			"order" => ["ID" => "ASC"],
@@ -531,12 +486,6 @@ final class CrmEntityCreatorStepper extends Stepper
 		return Order\Order::loadByFilter($parameters);
 	}
 
-	/**
-	 * @return mixed
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 */
 	private function getErrorOrders()
 	{
 		$parameters = [
@@ -571,7 +520,7 @@ final class CrmEntityCreatorStepper extends Stepper
 			$diffOrderListId = array_diff($errorOrderIdList, $ordersIdList);
 			foreach ($diffOrderListId as $diffOrderId)
 			{
-				self::deleteError($diffOrderId);
+				$this->deleteError($diffOrderId);
 			}
 
 			return $orders;
@@ -580,11 +529,6 @@ final class CrmEntityCreatorStepper extends Stepper
 		return [];
 	}
 
-	/**
-	 * @return mixed
-	 * @throws Main\ArgumentException
-	 * @throws Main\SystemException
-	 */
 	private function getOrderCount()
 	{
 		return Order\Order::getList([
@@ -595,12 +539,6 @@ final class CrmEntityCreatorStepper extends Stepper
 		])->fetch()["CNT"];
 	}
 
-	/**
-	 * @return mixed
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 */
 	private function getErrorOrderCount()
 	{
 		$optionValue = Option::get(self::$moduleId, self::ORDER_CONVERTER_CRM_ERROR_COUNT, false);
@@ -619,40 +557,31 @@ final class CrmEntityCreatorStepper extends Stepper
 		return $optionValue;
 	}
 
-	/**
-	 * @throws Main\ArgumentOutOfRangeException
-	 */
-	public static function setFinishStatus()
+	public static function setFinishStatus(): void
 	{
 		Option::set(self::$moduleId, self::ORDER_CONVERT_IS_FINISH, "Y");
 	}
 
 	/**
 	 * @return bool
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
-	public static function isFinished()
+	public static function isFinished(): bool
 	{
 		return (Option::get(self::$moduleId, self::ORDER_CONVERT_IS_FINISH, "N") === "Y");
 	}
 
 	/**
 	 * @return bool
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
-	private static function isUpdateOrder()
+	private static function isUpdateOrder(): bool
 	{
 		return (Option::get(self::$moduleId, self::UPDATE_ORDER_CONVERTER_CRM_ERROR_TABLE, "N") === "Y");
 	}
 
 	/**
 	 * @return bool
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
-	public static function isNeedStub()
+	public static function isNeedStub(): bool
 	{
 		$isShow = false;
 		if (Option::get("sale", self::IS_CRM_SITE_MASTER_OPENED, "N") === "Y")
@@ -660,8 +589,7 @@ final class CrmEntityCreatorStepper extends Stepper
 			if
 			(
 				Option::get("sale", self::IS_SALE_CRM_SITE_MASTER_STUB, "N") === "Y"
-				&&
-				Option::get("sale", self::IS_SALE_CRM_SITE_MASTER_FINISH, "N") === "Y"
+				&& Option::get("sale", self::IS_SALE_CRM_SITE_MASTER_FINISH, "N") === "Y"
 			)
 			{
 				$isShow = true;
@@ -687,9 +615,8 @@ final class CrmEntityCreatorStepper extends Stepper
 	/**
 	 * @return bool
 	 */
-	public static function isAgent()
+	public static function isAgent(): bool
 	{
-		/** @noinspection PhpUndefinedClassInspection */
 		return (bool)\CAgent::GetList(
 			[],
 			[
@@ -700,9 +627,6 @@ final class CrmEntityCreatorStepper extends Stepper
 
 	/**
 	 * Show progress bar in crm and shop section
-	 *
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	public static function showProgressBar(): void
 	{
@@ -718,7 +642,6 @@ final class CrmEntityCreatorStepper extends Stepper
 			return;
 		}
 
-		/** @noinspection PhpVariableNamingConventionInspection */
 		global $APPLICATION;
 
 		$currentPage = $APPLICATION->getCurPage();
@@ -743,17 +666,10 @@ final class CrmEntityCreatorStepper extends Stepper
 		return Loc::getMessage("CRM_ENTITY_CREATOR_STEPPER_TITLE");
 	}
 
-	/**
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\LoaderException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 */
 	public static function bindAgent(): void
 	{
-		if (defined("ADMIN_SECTION")
+		if (
+			defined("ADMIN_SECTION")
 			|| (defined("SITE_TEMPLATE_ID") && SITE_TEMPLATE_ID !== "bitrix24")
 			|| (!Main\Loader::includeModule("crm"))
 		)
@@ -771,7 +687,8 @@ final class CrmEntityCreatorStepper extends Stepper
 			return;
 		}
 
-		if (!self::isAgent()
+		if (
+			!self::isAgent()
 			&& !self::isFinished()
 		)
 		{
@@ -793,28 +710,22 @@ final class CrmEntityCreatorStepper extends Stepper
 	/**
 	 * Register event handler for show progressbar
 	 */
-	public static function registerEventHandler()
+	public static function registerEventHandler(): void
 	{
 		RegisterModuleDependences("main", "OnEpilog", self::$moduleId, __CLASS__, "showProgressBar", 500);
-
 		RegisterModuleDependences("main", "OnEpilog", self::$moduleId, __CLASS__, "bindAgent", 500);
 	}
 
 	/**
 	 * Unregister event handler for show progressbar
 	 */
-	public static function unregisterEventHandler()
+	public static function unregisterEventHandler(): void
 	{
 		UnRegisterModuleDependences("main", "OnEpilog", self::$moduleId, __CLASS__, "showProgressBar");
-
 		UnRegisterModuleDependences("main", "OnEpilog", self::$moduleId, __CLASS__, "bindAgent");
 	}
 
-	/**
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 */
-	public static function bindAgentOrderUpdate()
+	public static function bindAgentOrderUpdate(): void
 	{
 		if (!self::isAgent())
 		{
@@ -830,36 +741,28 @@ final class CrmEntityCreatorStepper extends Stepper
 
 	/**
 	 * Register event handler for show progressbar
-	 *
-	 * @throws Main\ArgumentNullException
 	 */
-	public static function registerOrderUpdateEventHandler()
+	public static function registerOrderUpdateEventHandler(): void
 	{
 		Option::delete(self::$moduleId, ["name" => self::ORDER_CONVERT_IS_FINISH]);
 		Option::delete(self::$moduleId, ["name" => self::ORDER_CONVERTER_CRM_ERROR_COUNT]);
 
 		RegisterModuleDependences("main", "OnEpilog", self::$moduleId, __CLASS__, "showProgressBar", 500);
-
 		RegisterModuleDependences("main", "OnEpilog", self::$moduleId, __CLASS__, "bindAgentOrderUpdate", 500);
 	}
 
 	/**
 	 * Unregister event handler for show progressbar
 	 */
-	public static function unregisterOrderUpdateEventHandler()
+	public static function unregisterOrderUpdateEventHandler(): void
 	{
 		UnRegisterModuleDependences("main", "OnEpilog", self::$moduleId, __CLASS__, "showProgressBar");
-
 		UnRegisterModuleDependences("main", "OnEpilog", self::$moduleId, __CLASS__, "bindAgentOrderUpdate");
 	}
 
 	/**
 	 * @param $orderId
 	 * @param $errorMessage
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 * @throws \Exception
 	 */
 	private function setError($orderId, $errorMessage): void
 	{
@@ -878,9 +781,8 @@ final class CrmEntityCreatorStepper extends Stepper
 	/**
 	 * @param $orderId
 	 * @param $errorMessage
-	 * @throws \Exception
 	 */
-	private function addError($orderId, $errorMessage)
+	private function addError($orderId, $errorMessage): void
 	{
 		Sale\Internals\OrderConverterCrmErrorTable::add([
 			"ORDER_ID" => $orderId,
@@ -891,9 +793,8 @@ final class CrmEntityCreatorStepper extends Stepper
 	/**
 	 * @param $orderId
 	 * @param $errorMessage
-	 * @throws \Exception
 	 */
-	private function updateError($orderId, $errorMessage)
+	private function updateError($orderId, $errorMessage): void
 	{
 		Sale\Internals\OrderConverterCrmErrorTable::update($orderId, [
 			"ERROR" => $errorMessage
@@ -902,9 +803,8 @@ final class CrmEntityCreatorStepper extends Stepper
 
 	/**
 	 * @param $orderId
-	 * @throws \Exception
 	 */
-	private function deleteError($orderId)
+	private function deleteError($orderId): void
 	{
 		$orderRow = Sale\Internals\OrderConverterCrmErrorTable::getList([
 			"select" => ["ID"],
@@ -918,10 +818,6 @@ final class CrmEntityCreatorStepper extends Stepper
 
 	/**
 	 * @param array $parameters
-	 * @return mixed
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	public static function getErrors(array $parameters = [])
 	{
@@ -931,7 +827,7 @@ final class CrmEntityCreatorStepper extends Stepper
 	/**
 	 * @param $message
 	 */
-	private function addAdminNormalNotify($message)
+	private function addAdminNormalNotify($message): void
 	{
 		$this->addAdminNotify($message, \CAdminNotify::TYPE_NORMAL);
 	}
@@ -939,7 +835,7 @@ final class CrmEntityCreatorStepper extends Stepper
 	/**
 	 * @param $message
 	 */
-	private function addAdminErrorNotify($message)
+	private function addAdminErrorNotify($message): void
 	{
 		$this->addAdminNotify($message, \CAdminNotify::TYPE_ERROR);
 	}
@@ -949,7 +845,7 @@ final class CrmEntityCreatorStepper extends Stepper
 	 * @param $message
 	 * @param $notifyType
 	 */
-	private function addAdminNotify($message, $notifyType)
+	private function addAdminNotify($message, $notifyType): void
 	{
 		\CAdminNotify::Add([
 			"MODULE_ID" => "sale",
@@ -962,21 +858,16 @@ final class CrmEntityCreatorStepper extends Stepper
 
 	/**
 	 * @return string
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
-	private static function getCrmSiteId()
+	private static function getCrmSiteId(): string
 	{
 		return Option::get(self::$moduleId, self::WIZARD_SITE_ID);
 	}
 
 	/**
 	 * @return string
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
-	public function getPathToOrderList()
+	public function getPathToOrderList(): string
 	{
 		$site = Main\SiteTable::getList([
 			"select" => ["SERVER_NAME"],
@@ -991,10 +882,8 @@ final class CrmEntityCreatorStepper extends Stepper
 
 	/**
 	 * @param $params
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
-	public static function OnAfterUserLogin($params)
+	public static function OnAfterUserLogin($params): void
 	{
 		$value = Option::get('sale', self::PREFIX_OPTION_ADMIN_PANEL_IS_ENABLED.$params['USER_ID'], '');
 		if ($value !== '' && $value !== 'N')

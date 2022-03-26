@@ -1,77 +1,85 @@
 <?php
+
 namespace Bitrix\Bizproc\Workflow\Type;
 
-use Bitrix\Bizproc\FieldType;
-use Bitrix\Main;
-
-class GlobalConst
+class GlobalConst extends GlobalsManager
 {
 	const CONF_NAME = 'global_const';
-	private static $allCache;
 
-	public static function getAll()
+	protected static function getTableEntity(): string
 	{
-		if (self::$allCache !== null)
+		return \Bitrix\Bizproc\Workflow\Type\Entity\GlobalConstTable::class;
+	}
+
+	protected static function getCacheId(): string
+	{
+		return 'constant';
+	}
+
+	public static function getObjectNameForExpressions(): string
+	{
+		return 'GlobalConst';
+	}
+
+	public static function getVisibilityFullNames(array $parameterDocumentType): array
+	{
+		$runtime = \CBPRuntime::GetRuntime();
+		$runtime->StartRuntime();
+		$documentService = $runtime->GetService("DocumentService");
+
+		[$moduleId, $entity, $documentType] = \CBPHelper::ParseDocumentId($parameterDocumentType);
+		$documentCaption = $documentService->getDocumentTypeCaption($parameterDocumentType);
+
+		$names = [];
+		$names['GLOBAL'] = \Bitrix\Main\Localization\Loc::getMessage(
+			'BIZPROC_LIB_WF_TYPE_GLOBAL_CONST_VISIBILITY_FULL_GLOBAL'
+		);
+
+		switch (mb_strtoupper($moduleId))
 		{
-			return self::$allCache;
+			case 'CRM':
+				$moduleVisibility = \Bitrix\Main\Localization\Loc::getMessage(
+					'BIZPROC_LIB_WF_TYPE_GLOBAL_CONST_VISIBILITY_FULL_MODULE',
+					['#MODULE#' => mb_strtoupper($moduleId)]
+				);
+				$documentVisibility = \Bitrix\Main\Localization\Loc::getMessage(
+					'BIZPROC_LIB_WF_TYPE_GLOBAL_CONST_VISIBILITY_FULL_DOCUMENT_SECTION',
+					['#SECTION#' => $documentCaption]
+				);
+				break;
+			case 'RPA':
+				$moduleVisibility = \Bitrix\Main\Localization\Loc::getMessage(
+					'BIZPROC_LIB_WF_TYPE_GLOBAL_CONST_VISIBILITY_FULL_MODULE',
+					['#MODULE#' => mb_strtoupper($moduleId)]
+				);
+				$documentVisibility = \Bitrix\Main\Localization\Loc::getMessage(
+					'BIZPROC_LIB_WF_TYPE_GLOBAL_CONST_VISIBILITY_FULL_DOCUMENT_PROCESS',
+					['#PROCESS#' => $documentCaption]
+				);
+				break;
+			default:
+				$moduleVisibility = '';
+				$documentVisibility = '';
 		}
 
-		$all = [];
-		$res = Entity\GlobalConstTable::getList(['order' => ['ID' => 'ASC']]);
-		while ($row = $res->fetch())
+		if (!$moduleVisibility)
 		{
-			$all[$row['ID']] = Entity\GlobalConstTable::convertToProperty($row);
+			return $names;
 		}
 
-		return (self::$allCache = $all);
+		$names[mb_strtoupper($moduleId)] = $moduleVisibility;
+		$names[mb_strtoupper($moduleId) . '_' . mb_strtoupper($documentType)] = $documentVisibility;
+
+		return $names;
 	}
 
-	public static function getById($id)
-	{
-		$all = static::getAll();
-		return isset($all[$id]) ? $all[$id] : null;
-	}
-
-	/**
-	 * Gets value of constant.
-	 * @param array|string $constId Constant Id or constant property.
-	 * @return mixed|null Constant value.
-	 */
-	public static function getValue($constId)
-	{
-		$property = is_array($constId) ? $constId : static::getById($constId);
-		return $property ? $property['Default'] : null;
-	}
-
-	public static function upsert($constId, $property)
-	{
-		$all = static::getAll();
-		$prevProperty = static::getById($constId);
-
-		if ($prevProperty)
-		{
-			$property += $prevProperty;
-		}
-
-		$all[$constId] = $property + $prevProperty;
-		return static::saveAll($all);
-	}
-
-	public static function delete($constId)
-	{
-		$all = static::getAll();
-		unset($all[$constId]);
-		return static::saveAll($all);
-	}
-
-	public static function saveAll(array $all)
+	public static function saveAll(array $all, int $userId = null)
 	{
 		$diff = array_diff(array_keys(static::getAll()), array_keys($all));
 
 		foreach ($all as $id => $property)
 		{
-			$all[$id] = FieldType::normalizeProperty($property);
-			Entity\GlobalConstTable::upsertByProperty($id, $property);
+			Entity\GlobalConstTable::upsertByProperty($id, $property, $userId);
 		}
 
 		if ($diff)
@@ -83,7 +91,7 @@ class GlobalConst
 		}
 
 		//clear cache
-		self::$allCache = null;
+		static::clearStaticCache(self::getCacheId());
 
 		return true;
 	}

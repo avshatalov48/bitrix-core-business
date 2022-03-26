@@ -17,9 +17,9 @@ use Bitrix\Main\Entity;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_EventMessageSite_Query query()
- * @method static EO_EventMessageSite_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EventMessageSite_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_EventMessageSite_Result getById($id)
- * @method static EO_EventMessageSite_Result getList(array $parameters = array())
+ * @method static EO_EventMessageSite_Result getList(array $parameters = [])
  * @method static EO_EventMessageSite_Entity getEntity()
  * @method static \Bitrix\Main\Mail\Internal\EO_EventMessageSite createObject($setDefaultValues = true)
  * @method static \Bitrix\Main\Mail\Internal\EO_EventMessageSite_Collection createCollection()

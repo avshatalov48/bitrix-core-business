@@ -189,17 +189,6 @@ final class RestHandler extends Base
 	/**
 	 * @return bool
 	 */
-	public function isCalculatePriceImmediately(): bool
-	{
-		$handlerSettings = $this->getHandlerSettings();
-		return isset($handlerSettings['SETTINGS']['IS_CALCULATE_PRICE_IMMEDIATELY'])
-			? $handlerSettings['SETTINGS']['IS_CALCULATE_PRICE_IMMEDIATELY'] === 'Y'
-			: true;
-	}
-
-	/**
-	 * @return bool
-	 */
 	public static function whetherAdminExtraServicesShow(): bool
 	{
 		return self::$whetherAdminExtraServicesShow;

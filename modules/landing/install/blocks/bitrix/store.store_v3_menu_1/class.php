@@ -35,25 +35,26 @@ class StoreV3Menu1 extends \Bitrix\Landing\LandingBlock
 		$this->params['EDIT_MODE'] = Landing\Landing::getEditMode();
 
 		$this->params['SHOW_CART'] = false;
+		$this->params['IS_ORDER_PAGE'] = false;
 		if (ModuleManager::isModuleInstalled('sale'))
 		{
 			$syspages = Landing\Syspage::get($params['site_id']);
 			if (isset($syspages['order']) || isset($syspages['cart']))
 			{
 				$this->params['SHOW_CART'] = true;
-			}
-		}
-
-		$this->params['IS_ORDER_PAGE'] = false;
-		if (!$this->params['EDIT_MODE'])
-		{
-			$mainLid = (int)\LandingPubComponent::getMainInstance()['LANDING_ID'];
-			if (
-				$mainLid === (int)$syspages['order']['LANDING_ID']
-				|| $mainLid === (int)$syspages['cart']['LANDING_ID']
-			)
-			{
-				$this->params['IS_ORDER_PAGE'] = true;
+				if (!$this->params['EDIT_MODE'])
+				{
+					$mainLid = (int)\LandingPubComponent::getMainInstance()['LANDING_ID'];
+					$orderLandingId = (int)($syspages['order']['LANDING_ID'] ?? 0);
+					$cartLandingId = (int)($syspages['cart']['LANDING_ID'] ?? 0);
+					if (
+						$mainLid === $orderLandingId
+						|| $mainLid === $cartLandingId
+					)
+					{
+						$this->params['IS_ORDER_PAGE'] = true;
+					}
+				}
 			}
 		}
 	}

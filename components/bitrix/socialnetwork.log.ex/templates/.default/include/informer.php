@@ -42,7 +42,7 @@ if (!in_array($arParams['MODE'], ['PUB', 'LANDING']))
 					?><span class="new-message-balloon-text"><?= Loc::getMessage('SONET_C30_COUNTER_TEXT_1') ?></span><?php
 					?><span class="feed-new-message-informer-counter" id="sonet_log_counter_2">0</span><span class="feed-new-message-informer-counter feed-new-message-informer-counter-plus-hidden" id="sonet_log_counter_2_plus">+</span><?php
 				?></span><?php
-				?><span class="feed-new-message-inf-text feed-new-message-inf-text-reload new-message-balloon" style="display: none;"><?php
+				?><span class="feed-new-message-inf-text feed-new-message-inf-text-reload new-message-balloon --hidden"><?php
 					?><?= (\Bitrix\Main\ModuleManager::isModuleInstalled('intranet') ? Loc::getMessage('SONET_C30_T_RELOAD_NEEDED2') : Loc::getMessage('SONET_C30_T_RELOAD_NEEDED')) ?><?php
 				?></span><?php
 			?></div><?php

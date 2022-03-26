@@ -14,6 +14,8 @@ abstract class Mailbox
 
 	const SYNC_TIMEOUT = 300;
 	const SYNC_TIME_QUOTA = 280;
+	const MESSAGE_RESYNCHRONIZATION_TIME = 360;
+	const MESSAGE_DELETION_LIMIT_AT_A_TIME = 1000;
 
 	protected $mailbox;
 	protected $dirsHelper;
@@ -202,10 +204,36 @@ abstract class Mailbox
 		$this->updateGlobalCounter($this->mailbox['USER_ID']);
 	}
 
+	private function syncIncompleteMessages(int $count)
+	{
+		$resyncTime = new Main\Type\DateTime();
+		$resyncTime->add('- '.static::MESSAGE_RESYNCHRONIZATION_TIME.' seconds');
+
+		$messages = Mail\MailMessageUidTable::getList([
+			'select' => array(
+				'MSG_UID',
+				'DIR_MD5',
+			),
+			'filter' => array(
+				'=MAILBOX_ID' => $this->mailbox['ID'],
+				'=MESSAGE_ID' => '0',
+				'=IS_OLD' => 'D',
+				'<=DATE_INSERT' => $resyncTime,
+			),
+			'limit' => $count,
+		]);
+
+		while ($item = $messages->fetch())
+		{
+			$dirPath = $this->getDirsHelper()->getDirPathByHash($item['DIR_MD5']);
+			$this->syncMessages($this->mailbox['ID'], $dirPath, [$item['MSG_UID']]);
+		}
+	}
+
 	public function sync()
 	{
 		global $DB;
-
+		
 		if (!LicenseManager::isSyncAvailable())
 		{
 			$this->mailbox['OPTIONS']['next_sync'] = time() + 3600 * 24;
@@ -304,6 +332,8 @@ abstract class Mailbox
 		{
 			$mailboxSyncManager->setSyncStatus($this->mailbox['ID'], $success, time());
 		}
+
+		$this->syncIncompleteMessages(1);
 
 		//resynchronize messages for the start page and delete missing letters
 		$this->resyncDir('INBOX',25);
@@ -514,73 +544,15 @@ abstract class Mailbox
 
 		$minSyncTime = Mail\MailboxDirectory::getMinSyncTime($this->mailbox['ID']);
 
-		// @TODO: make a log optional
-		/*$messagesForRemove = Mail\MailMessageUidTable::getList([
-		   'runtime' => [
-			   new Main\ORM\Fields\Relations\Reference(
-				   'B_MAIL_MESSAGE', Mail\MailMessageTable::class, [
-				   '=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
-				   '=this.MESSAGE_ID' => 'ref.ID',
-			   ], [
-					   'join_type' => 'INNER',
-				   ]
-			   ),
-		   ],
-		   'select' => [
-			   'MESSAGE_ID',
-			   'MAILBOX_ID',
-			   'DIR_MD5',
-			   'DIR_UIDV',
-			   'MSG_UID',
-			   'INTERNALDATE',
-			   'HEADER_MD5',
-			   'SESSION_ID',
-			   'TIMESTAMP_X',
-			   'DATE_INSERT',
-			   'B_MAIL_MESSAGE.DATE_INSERT',
-			   'B_MAIL_MESSAGE.FIELD_DATE',
-			   'B_MAIL_MESSAGE.FIELD_FROM',
-			   'B_MAIL_MESSAGE.SUBJECT',
-			   'B_MAIL_MESSAGE.MSG_ID',
-		   ],
-		   'filter' => [
-			   '=MAILBOX_ID'  => $this->mailbox['ID'],
-			   '>DELETE_TIME' => 0,
-			   '<DELETE_TIME' => $minSyncTime,
-		   ],
-	   ])->fetchAll();
-
-		for($i=0; $i < count($messagesForRemove); $i++)
-		{
-			foreach ($messagesForRemove[$i] as $key => $value)
-			{
-				if ($messagesForRemove[$i][$key] instanceof \Bitrix\Main\Type\DateTime)
-				{
-					$messagesForRemove[$i][$key] = $messagesForRemove[$i][$key]->toString();
-				}
-			}
-		}
-
-		if(count($messagesForRemove)>0)
-		{
-			$toLog = [
-				'filter'=>[
-					'dismissDeletedUidMessages'=>'dismissDeletedUidMessages',
-					'=MAILBOX_ID'  => $this->mailbox['ID'],
-					'>DELETE_TIME' => 0,
-					'<DELETE_TIME' => $minSyncTime,
-				],
-				'removedMessages'=>$messagesForRemove,
-			];
-			AddMessage2Log($toLog);
-		}*/
-
 		Mail\MailMessageUidTable::deleteList(
 			[
 				'=MAILBOX_ID'  => $this->mailbox['ID'],
 				'>DELETE_TIME' => 0,
+				/*The values in the tables are still used to delete related items (example: attachments):*/
 				'<DELETE_TIME' => $minSyncTime,
-			]
+			],
+			[],
+			static::MESSAGE_DELETION_LIMIT_AT_A_TIME
 		);
 
 		$unlockSql = sprintf(
@@ -682,7 +654,7 @@ abstract class Mailbox
 				'filter' => array(
 					$replaces,
 					'=MAILBOX_ID' => $this->mailbox['ID'],
-					'=DELETE_TIME' => 'IS NULL',
+					'==DELETE_TIME' => 0,
 				),
 			))->fetch();
 		}
@@ -695,7 +667,7 @@ abstract class Mailbox
 				array(
 					'=ID' => $exists['ID'],
 					'=MAILBOX_ID' => $this->mailbox['ID'],
-					'=DELETE_TIME' => 'IS NULL',
+					'==DELETE_TIME' => 0,
 				),
 				array_merge(
 					$fields,
@@ -760,16 +732,114 @@ abstract class Mailbox
 		);
 	}
 
-	protected function unregisterMessages($filter, $eventData = [])
+	protected function unregisterMessages($filter, $eventData = [], $ignoreDeletionCheck = false)
 	{
-		return Mail\MailMessageUidTable::deleteListSoft(
-			array_merge(
+		$messageExistInTheOriginalMailbox = false;
+		$messagesForRemove = [];
+		$filterForCheck = [];
+
+		if(!$ignoreDeletionCheck)
+		{
+			$filterForCheck = array_merge(
 				$filter,
-				array(
+				Mail\MailMessageUidTable::getPresetRemoveFilters(),
+				[
 					'=MAILBOX_ID' => $this->mailbox['ID'],
+					/*
+						We check illegally deleted messages,
+						the disappearance of which the user may notice.
+						According to such data, it is easier to find a message
+						in the original mailbox for diagnostics.
+					*/
+					'!=MESSAGE_ID'  => 0,
+				]
+			);
+
+			$messagesForRemove = Mail\MailMessageUidTable::getList([
+				'select' => [
+					'ID',
+					'MAILBOX_ID',
+					'DIR_MD5',
+					'DIR_UIDV',
+					'MSG_UID',
+					'INTERNALDATE',
+					'IS_SEEN',
+					'DATE_INSERT',
+					'MESSAGE_ID',
+					'IS_OLD',
+				],
+				'filter' => $filterForCheck,
+				'limit' => 100,
+			])->fetchAll();
+
+
+			if (!empty($messagesForRemove))
+			{
+				if (isset($messagesForRemove[0]['DIR_MD5']))
+				{
+					$dirMD5 = $messagesForRemove[0]['DIR_MD5'];
+					$dirPath = $this->getDirsHelper()->getDirPathByHash($dirMD5);
+					$UIDs = array_map(
+						function ($item) {
+							return $item['MSG_UID'];
+						},
+						$messagesForRemove
+					);
+
+					$messageExistInTheOriginalMailbox = $this->checkMessagesForExistence($dirPath, $UIDs);
+				}
+			}
+		}
+
+		if($messageExistInTheOriginalMailbox === false)
+		{
+			return Mail\MailMessageUidTable::deleteListSoft(
+				array_merge(
+					$filter,
+					[
+						'=MAILBOX_ID' => $this->mailbox['ID'],
+					]
 				)
-			)
-		);
+			);
+		}
+		else
+		{
+			$messageForLog = isset($messagesForRemove[0]) ? $messagesForRemove[0] : [];
+
+			/*
+				For the log, we take a message from the entire sample,
+				which was definitely deleted by mistake.
+			*/
+			foreach($messagesForRemove as $message)
+			{
+				if(isset($message['MSG_UID']) && (int)$message['MSG_UID'] === (int)$messageExistInTheOriginalMailbox)
+				{
+					$messageForLog = $message;
+					break;
+				}
+			}
+
+			if(isset($messageForLog['INTERNALDATE']) && $messageForLog['INTERNALDATE'] instanceof Main\Type\DateTime)
+			{
+				$messageForLog['INTERNALDATE'] = $messageForLog['INTERNALDATE']->getTimestamp();
+			}
+			if(isset($messageForLog['DATE_INSERT']) && $messageForLog['DATE_INSERT'] instanceof Main\Type\DateTime)
+			{
+				$messageForLog['DATE_INSERT'] = $messageForLog['DATE_INSERT']->getTimestamp();
+			}
+
+			if(isset($filterForCheck['@ID']))
+			{
+				$filterForCheck['@ID'] = '[hidden for the log]';
+			}
+
+			AddMessage2Log(array_merge($eventData,[
+				'filter' => $filterForCheck,
+				'message-data' => $messageForLog,
+			]));
+
+			return false;
+		}
 	}
 
 	protected function linkMessage($uid, $id)
@@ -1175,7 +1245,7 @@ abstract class Mailbox
 		$body = $this->downloadMessage($excerpt);
 		if (!empty($body))
 		{
-			list(,,, $attachments) = \CMailMessage::parseMessage($body, $this->mailbox['LANG_CHARSET']);
+			[,,, $attachments] = \CMailMessage::parseMessage($body, $this->mailbox['LANG_CHARSET']);
 
 			return $attachments;
 		}
@@ -1257,7 +1327,7 @@ abstract class Mailbox
 
 				while ($level)
 				{
-					list($id, $msgId, $skip) = array_shift($level);
+					[$id, $msgId, $skip] = array_shift($level);
 
 					if (!$skip)
 					{
@@ -1427,12 +1497,14 @@ abstract class Mailbox
 		$this->resortTree($message);
 	}
 
+	abstract public function checkMessagesForExistence($dirPath ='INBOX',$UIDs = []);
 	abstract public function resyncIsOldStatus();
 	abstract public function syncFirstDay();
 	abstract protected function syncInternal();
 	abstract public function listDirs($pattern, $useDb = false);
 	abstract public function uploadMessage(Main\Mail\Mail $message, array &$excerpt);
 	abstract public function downloadMessage(array &$excerpt);
+	abstract public function syncMessages($mailboxID, $dirPath, $UIDs);
 
 	public function getErrors()
 	{

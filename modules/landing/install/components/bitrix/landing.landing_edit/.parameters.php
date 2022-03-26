@@ -39,6 +39,10 @@ $arComponentParameters = Array(
 		'PAGE_URL_SITE_EDIT' => array(
 			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_SITE_EDIT'),
 			'TYPE' => 'STRING'
+		),
+		'PAGE_URL_FOLDER_EDIT' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_FOLDER_EDIT'),
+			'TYPE' => 'STRING'
 		)
 	)
 );

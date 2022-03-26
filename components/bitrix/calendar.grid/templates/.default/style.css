@@ -2545,7 +2545,9 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 /*endregion*/
 
 /*region Field Select calendar*/
-.calendar-field-container-select-calendar { }
+.calendar-field-container-select-calendar {
+	display: block;
+}
 
 .calendar-field-select-calendar {
 	display: block;
@@ -4816,11 +4818,17 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 
 /*region Time*/
 .calendar-options-item-datetime .calendar-options-item-column-one {
-	position: relative;
-	display: -ms-flexbox;
 	display: flex;
-	padding-top: 30px;
-	align-items: center;
+	position: relative;
+	align-items: flex-end;
+	flex-wrap: wrap;
+	margin-bottom: -10px;
+}
+
+.calendar-options-item-column-one-item {
+	display: flex;
+	align-items: flex-end;
+	margin-bottom: 10px;
 }
 
 .calendar-event-date,
@@ -4834,11 +4842,13 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 }
 
 .calendar-event-mdash {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	position: relative;
 	padding: 0;
 	max-width: 20px;
-	text-align: center;
-	flex: .5;
+	height: 38px;
 }
 
 .calendar-event-mdash:after {
@@ -4868,11 +4878,21 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 }
 
 .calendar-options-item-datetime .calendar-event-date-label {
-	position: absolute;
-	top: -20px;
-	left: 0;
-	margin: 0;
+	max-width: 40px;
+	overflow: inherit;
+	margin: 0 0 3px 0;
 	white-space: nowrap;
+}
+
+.calendar-options-item-datetime .calendar-event-full-day {
+	height: 39px;
+	display: flex;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.calendar-options-item-datetime .calendar-event-mdash {
+	margin-bottom: 10px;
 }
 
 .calendar-event-date-label-date,
@@ -7581,25 +7601,39 @@ input.calendar-field.calendar-field-select.calendar-field-location-select-border
 }
 
 .menu-popup-item-text .calendar-menu-item-title,
-.menu-popup-item-text .calendar-menu-item-title-with-capacity {
+.menu-popup-item-text .calendar-menu-item-title-with-status {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	display: inline-block;
 }
 
-.menu-popup-item-text .calendar-menu-item-title-with-capacity {
+.menu-popup-item-text .calendar-menu-item-title-with-status {
 	max-width: 160px;
 }
 
-.menu-popup-item-text .calendar-menu-item-title{
+.menu-popup-item-text .calendar-menu-item-title {
 	max-width: 231px;
 }
 
-.menu-popup-item-text .calendar-menu-item-capacity{
+.menu-popup-item-text .calendar-menu-item-capacity {
 	color: #525C69;
 	opacity: 0.5;
 	text-align: end;
 	float: right;
+}
+
+.calendar-menu-item-status {
+	display: inline-block;
+	padding: 0 6px;
+	height: 14px;
+	border-radius: 7px;
+	font: 700 8px/14px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	text-transform: uppercase;
+}
+
+.calendar-menu-item-status.--red {
+	background-color: #f9e7e7;
+	color: #ff5752;
 }
 
 .calendar-view-locker {

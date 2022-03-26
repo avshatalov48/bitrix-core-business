@@ -36,6 +36,7 @@ return array(
 			'type' => 'img',
 			'dimensions' => array('width' => 1920, 'height' => 1080),
 			'allowInlineEdit' => false,
+			'create2xByDefault' => false,
 		),
 	),
 	'style' => array(
@@ -61,7 +62,11 @@ return array(
 			),
 			'.landing-block-node-bgimg' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_33.32.FORM_LIGHT_BGIMG_RIGHT_TEXT_NODES_LANDINGBLOCKNODE_BGIMG'),
-				'type' => array('background-overlay', 'background-attachment'),
+				'type' => array('background-attachment', 'background-overlay'),
+			),
+			'.landing-block-node-row' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_33_32_FORM_LIGHT_BGIMG_RIGHT_TEXT_NODES_BLOCK'),
+				'type' => array('align-items'),
 			),
 		),
 	),

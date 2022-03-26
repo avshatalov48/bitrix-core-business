@@ -61,11 +61,14 @@ class UserTypeUtsMultipleField extends TextField
 	 */
 	public function proxyFetchDataModification($values, $query, $data, $alias)
 	{
-		foreach ($values as $k => $value)
+		if ($values !== null)
 		{
-			foreach ($this->utmField->getFetchDataModifiers() as $modifier)
+			foreach ($values as $k => $value)
 			{
-				$values[$k] = call_user_func_array($modifier, array($values[$k], $query, $data, $alias));
+				foreach ($this->utmField->getFetchDataModifiers() as $modifier)
+				{
+					$values[$k] = call_user_func_array($modifier, array($values[$k], $query, $data, $alias));
+				}
 			}
 		}
 

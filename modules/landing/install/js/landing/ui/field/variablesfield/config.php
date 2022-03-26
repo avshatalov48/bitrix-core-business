@@ -12,6 +12,7 @@ return [
 		'main.core',
 		'landing.ui.button.basebutton',
 		'main.popup',
+		'landing.pageobject',
 	],
 	'skip_core' => false,
 ];

@@ -1870,28 +1870,17 @@ function utf8win1251($s)
 	return Main\Text\Encoding::convertEncoding($s, "UTF-8", "Windows-1251");
 }
 
+/**
+ * @deprecated
+ * @param $str
+ * @param false $lang
+ * @return string
+ */
 function ToUpper($str, $lang = false)
 {
-	static $lower = array();
-	static $upper = array();
 	if(!defined("BX_CUSTOM_TO_UPPER_FUNC"))
 	{
-		if(defined("BX_UTF"))
-		{
-			return mb_strtoupper($str);
-		}
-		else
-		{
-			if($lang === false)
-				$lang = LANGUAGE_ID;
-			if(!isset($lower[$lang]))
-			{
-				$arMsg = IncludeModuleLangFile(__FILE__, $lang, true);
-				$lower[$lang] = $arMsg["ABC_LOWER"];
-				$upper[$lang] = $arMsg["ABC_UPPER"];
-			}
-			return mb_strtoupper(strtr($str, $lower[$lang], $upper[$lang]));
-		}
+		return mb_strtoupper($str);
 	}
 	else
 	{
@@ -1900,28 +1889,17 @@ function ToUpper($str, $lang = false)
 	}
 }
 
+/**
+ * @deprecated
+ * @param $str
+ * @param false $lang
+ * @return string
+ */
 function ToLower($str, $lang = false)
 {
-	static $lower = array();
-	static $upper = array();
 	if(!defined("BX_CUSTOM_TO_LOWER_FUNC"))
 	{
-		if(defined("BX_UTF"))
-		{
-			return mb_strtolower($str);
-		}
-		else
-		{
-			if($lang === false)
-				$lang = LANGUAGE_ID;
-			if(!isset($lower[$lang]))
-			{
-				$arMsg = IncludeModuleLangFile(__FILE__, $lang, true);
-				$lower[$lang] = $arMsg["ABC_LOWER"];
-				$upper[$lang] = $arMsg["ABC_UPPER"];
-			}
-			return mb_strtolower(strtr($str, $upper[$lang], $lower[$lang]));
-		}
+		return mb_strtolower($str);
 	}
 	else
 	{
@@ -3313,7 +3291,9 @@ function IncludeModuleLangFile($filepath, $lang=false, $bReturnArray=false)
 	}
 
 	if($lang === false)
-		$lang = LANGUAGE_ID;
+	{
+		$lang = (defined('LANGUAGE_ID') ? LANGUAGE_ID : 'en');
+	}
 
 	$lang_subst = LangSubst($lang);
 
@@ -4963,11 +4943,11 @@ class CUtil
 			{
 				if($params["change_case"] == "L" || $params["change_case"] == "l")
 				{
-					$chr_new = ToLower($chr_new);
+					$chr_new = mb_strtolower($chr_new);
 				}
 				elseif($params["change_case"] == "U" || $params["change_case"] == "u")
 				{
-					$chr_new = ToUpper($chr_new);
+					$chr_new = mb_strtoupper($chr_new);
 				}
 
 				$str_new .= $chr_new;

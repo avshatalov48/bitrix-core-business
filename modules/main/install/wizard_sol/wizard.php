@@ -766,8 +766,9 @@ class CDataInstallWizardStep extends CWizardStep
 			__IncludeLang($fname, false, true);
 
 		@set_time_limit(3600);
-		/** @noinspection PhpUnusedLocalVariableInspection */
+
 		global $DB, $DBType, $APPLICATION, $USER, $CACHE_MANAGER;
+
 		include(WIZARD_SERVICE_ABSOLUTE_PATH."/".$serviceStage);
 
 		return true;

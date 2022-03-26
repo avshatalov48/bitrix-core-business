@@ -74,4 +74,6 @@ $catalog_default_option = [
 	'enable_processing_deprecated_events' => 'N',
 	'landing_product_limit' => 0,
 	'product_card_slider_enabled' => 'N',
+	'show_store_reserve' => 'N', // system option, can't set from options page
+	'catalog_common_product_processing' => 'N', // system option, can't set from options page
 ];

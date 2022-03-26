@@ -13,6 +13,7 @@ $MESS['LANDING_TABLE_FIELD_SMN_SITE_ID'] = 'Сайт главного модул
 $MESS['LANDING_TABLE_FIELD_LANDING_ID_INDEX'] = 'Главная страница';
 $MESS['LANDING_TABLE_FIELD_LANDING_ID_404'] = 'Страница 404';
 $MESS['LANDING_TABLE_FIELD_LANDING_ID_503'] = 'Страница 503';
+$MESS['LANDING_TABLE_FIELD_SITE_VERSION'] = 'Версия сайта';
 $MESS['LANDING_TABLE_FIELD_LANG'] = 'Язык сайта';
 $MESS['LANDING_TABLE_FIELD_SPECIAL'] = 'Технический сайт';
 $MESS['LANDING_TABLE_FIELD_CREATED_BY_ID'] = 'Идентификатор создавшего пользователя';

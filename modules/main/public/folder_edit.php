@@ -322,7 +322,7 @@ foreach ($arGlobalProperties as $propertyCode => $propertyValue):?>
 <?foreach ($arDirProperties as $propertyCode => $propertyValue):?>
 
 		<tr id="bx_user_property_<?=$propertyIndex?>">
-			<td class="bx-popup-label bx-width30"><?=htmlspecialcharsEx(ToUpper($propertyCode))?><input type="hidden" name="PROPERTY[<?=$propertyIndex?>][CODE]" value="<?=htmlspecialcharsEx(ToUpper($propertyCode))?>" />:</td>
+			<td class="bx-popup-label bx-width30"><?=htmlspecialcharsEx(mb_strtoupper($propertyCode))?><input type="hidden" name="PROPERTY[<?=$propertyIndex?>][CODE]" value="<?=htmlspecialcharsEx(mb_strtoupper($propertyCode))?>" />:</td>
 			<td><input type="text" name="PROPERTY[<?=$propertyIndex?>][VALUE]" value="<?=htmlspecialcharsEx($propertyValue)?>" style="width:90%;"></td>
 		</tr>
 

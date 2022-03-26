@@ -30,7 +30,7 @@ export class Avatar
 
 		this.componentName = params.componentName;
 		this.signedParameters = params.signedParameters;
-		this.groupId = (Type.isUndefined(params.groupId) ? parseInt(params.groupId) : 0);
+		this.groupId = (!Type.isUndefined(params.groupId) ? parseInt(params.groupId) : 0);
 
 		const container = document.querySelector('[data-role="group-avatar-cont"]');
 		if (!container)

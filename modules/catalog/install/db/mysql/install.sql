@@ -204,11 +204,11 @@ create table if not exists b_catalog_discount_cond
 
 create table if not exists b_catalog_discount_module
 (
-  ID int not null auto_increment,
-  DISCOUNT_ID int not null,
-  MODULE_ID varchar(50) not null,
-  primary key (ID),
-  index IX_CAT_DSC_MOD(DISCOUNT_ID)
+	ID int not null auto_increment,
+	DISCOUNT_ID int not null,
+	MODULE_ID varchar(50) not null,
+	primary key (ID),
+	index IX_CAT_DSC_MOD(DISCOUNT_ID)
 );
 
 create table if not exists b_catalog_discount_entity
@@ -362,6 +362,7 @@ create table if not exists b_catalog_store
 	SHIPPING_CENTER CHAR(1) NOT NULL DEFAULT 'Y',
 	SITE_ID CHAR(2) NULL,
 	CODE VARCHAR(255) NULL,
+	IS_DEFAULT char(1) not null default 'N',
 	PRIMARY KEY (ID)
 );
 
@@ -371,6 +372,7 @@ create table if not exists b_catalog_store_product
 	PRODUCT_ID INT NOT NULL,
 	AMOUNT DOUBLE NOT NULL DEFAULT 0,
 	STORE_ID INT NOT NULL,
+	QUANTITY_RESERVED DOUBLE NOT NULL DEFAULT 0,
 	PRIMARY KEY (ID),
 	INDEX IX_CATALOG_STORE_PRODUCT1 (STORE_ID ASC),
 	UNIQUE INDEX IX_CATALOG_STORE_PRODUCT2 (PRODUCT_ID ASC, STORE_ID ASC)
@@ -431,7 +433,22 @@ create table if not exists b_catalog_store_docs
 	STATUS_BY INT NULL,
 	TOTAL DOUBLE NULL,
 	COMMENTARY varchar(1000) NULL,
+	TITLE VARCHAR (255) DEFAULT NULL,
+	RESPONSIBLE_ID INT NULL,
+	ITEMS_ORDER_DATE DATETIME NULL,
+	ITEMS_RECEIVED_DATE DATETIME NULL,
+	DOC_NUMBER VARCHAR(64) NULL,
+	WAS_CANCELLED CHAR(1) DEFAULT 'N',
 	PRIMARY KEY (ID)
+);
+
+create table if not exists b_catalog_store_document_file
+(
+	ID INT NOT NULL AUTO_INCREMENT,
+	DOCUMENT_ID INT NOT NULL,
+	FILE_ID INT NOT NULL,
+	PRIMARY KEY (ID),
+	INDEX IX_B_CATALOG_STORE_DOCUMENT_FILE_DOC_ID(DOCUMENT_ID)
 );
 
 create table if not exists b_catalog_docs_element
@@ -443,6 +460,9 @@ create table if not exists b_catalog_docs_element
 	ELEMENT_ID INT NULL,
 	AMOUNT DOUBLE NULL,
 	PURCHASING_PRICE DOUBLE NULL,
+    BASE_PRICE DECIMAL(18,2) NULL,
+	BASE_PRICE_EXTRA DECIMAL(18,2) NULL,
+	BASE_PRICE_EXTRA_RATE INT NULL,
 	PRIMARY KEY (ID),
 	INDEX IX_B_CATALOG_DOCS_ELEMENT1 (DOC_ID ASC)
 );

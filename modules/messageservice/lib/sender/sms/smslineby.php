@@ -18,6 +18,8 @@ Loc::loadMessages(__FILE__);
 
 class SmsLineBy extends Sender\BaseConfigurable
 {
+	public const ID = 'smslineby';
+
 	const JSON_API_URL = 'https://api.smsline.by/v3/';
 
 	public static function isSupported()
@@ -27,7 +29,7 @@ class SmsLineBy extends Sender\BaseConfigurable
 
 	public function getId()
 	{
-		return 'smslineby';
+		return static::ID;
 	}
 
 	public function getName()
@@ -105,6 +107,8 @@ class SmsLineBy extends Sender\BaseConfigurable
 
 		$result = new SendMessage();
 		$apiResult = $this->sendPostRequest('messages/single/sms', $message);
+		$result->setServiceRequest($apiResult->getHttpRequest());
+		$result->setServiceResponse($apiResult->getHttpResponse());
 
 		if (!$apiResult->isSuccess())
 		{
@@ -271,7 +275,7 @@ class SmsLineBy extends Sender\BaseConfigurable
 	}
 
 
-	private function sendHttpRequest($method, $login, $signature, $path, $body = null)
+	private function sendHttpRequest($method, $login, $signature, $path, $body = null): Sender\Result\HttpRequestResult
 	{
 		$httpClient = new HttpClient(array(
 			"socketTimeout" => 10,
@@ -284,11 +288,17 @@ class SmsLineBy extends Sender\BaseConfigurable
 		$httpClient->setHeader('Authorization-User', $login);
 		$httpClient->setHeader('Authorization', "Bearer $signature");
 
-		$result = new Result();
+		$result = new Sender\Result\HttpRequestResult();
 		$answer = ['error' => -1000];
 
 		$url = self::JSON_API_URL.$path;
 
+		$result->setHttpRequest(new MessageService\DTO\Request([
+			'method' => $method,
+			'uri' => $url,
+			'headers' => method_exists($httpClient, 'getRequestHeaders') ? $httpClient->getRequestHeaders()->toArray() : [],
+			'body' => $body,
+		]));
 		if ($httpClient->query($method, $url, $body))
 		{
 			try
@@ -304,6 +314,13 @@ class SmsLineBy extends Sender\BaseConfigurable
 		{
 			$result->addError(new Error($this->getErrorMessage($answer['error']['code'], $answer['error']['message'])));
 		}
+
+		$result->setHttpResponse(new MessageService\DTO\Response([
+			'statusCode' => $httpClient->getStatus(),
+			'headers' => $httpClient->getHeaders()->toArray(),
+			'body' => $httpClient->getResult(),
+			'error' => Sender\Util::getHttpClientErrorString($httpClient)
+		]));
 
 		$result->setData($answer);
 

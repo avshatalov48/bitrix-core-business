@@ -16,6 +16,7 @@ $formatDocumentCell = function($row)
 $formatStatusCell = function ($row)
 {
 	$label = \Bitrix\Bizproc\Script\Queue\Status::getLabel($row['STATUS']);
+	$message = $row['STATUS_MESSAGE'];
 	$color = 'ui-label-warning';
 	if ($row['STATUS'] == \Bitrix\Bizproc\Script\Queue\Status::COMPLETED)
 	{
@@ -32,8 +33,9 @@ $formatStatusCell = function ($row)
 	}
 
 	return sprintf(
-		'<div class="ui-label ui-label-fill %s"><span class="ui-label-inner">%s</span></div>',
+		'<div class="ui-label ui-label-fill %s" title="%s"><span class="ui-label-inner">%s</span></div>',
 		$color,
+		htmlspecialcharsbx($message),
 		htmlspecialcharsbx($label)
 	);
 };

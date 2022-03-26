@@ -35,6 +35,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_40.2.TWO_COLS_CAROUSEL_NODES_LANDINGBLOCKNODECARDIMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 910),
+			'create2xByDefault' => false,
 		),
 	),
 	'style' => array(

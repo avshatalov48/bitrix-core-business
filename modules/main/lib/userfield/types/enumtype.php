@@ -286,8 +286,7 @@ class EnumType extends BaseType
 			$userField['USER_TYPE']['~FIELDS'] = $enum;
 		}
 
-		$userFieldEnum = new CUserFieldEnum;
-		$enumList = $userFieldEnum->GetList([], ['USER_FIELD_ID' => $userField['ID']]);
+		$enumList = static::getList($userField);
 
 		while($item = $enumList->Fetch())
 		{

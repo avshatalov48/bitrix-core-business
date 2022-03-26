@@ -4,6 +4,7 @@ import { EventEmitter } from "main.core.events";
 import { EventType } from "im.const";
 
 const NOT_ALLOWED_ERROR_CODE = 'NotAllowedError';
+const NOT_FOUND_ERROR_CODE = 'NotFoundError';
 
 const RequestPermissions = {
 	props: {
@@ -39,17 +40,35 @@ const RequestPermissions = {
 			this.getApplication().initHardware().then(() => {
 				return navigator.mediaDevices.getUserMedia({audio: true, video: true});
 			}).then(() => {
-				this.$nextTick(() => this.$store.dispatch('conference/setPermissionsRequested', {status: true}));
+				this.setPermissionsRequestedFlag();
 			}).catch((error) => {
-				if (error.name && error.name === NOT_ALLOWED_ERROR_CODE)
+				if (error.name === NOT_ALLOWED_ERROR_CODE)
 				{
 					this.showMessageBox(this.localize['BX_IM_COMPONENT_CALL_NOT_ALLOWED_ERROR']);
 
 					return false;
 				}
+				else if (error.name === NOT_FOUND_ERROR_CODE)
+				{
+					// means there is no camera, request only microphone
+					return navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(() => {
+						this.setPermissionsRequestedFlag();
+					}).catch((error) => {
+						if (error.name === NOT_ALLOWED_ERROR_CODE)
+						{
+							this.showMessageBox(this.localize['BX_IM_COMPONENT_CALL_NOT_ALLOWED_ERROR']);
+
+							return false;
+						}
+					});
+				}
 
 				this.showMessageBox(this.localize['BX_IM_COMPONENT_CALL_HARDWARE_ERROR']);
 			});
+		},
+		setPermissionsRequestedFlag()
+		{
+			this.$nextTick(() => this.$store.dispatch('conference/setPermissionsRequested', {status: true}));
 		},
 		showMessageBox(text)
 		{

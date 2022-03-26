@@ -5,6 +5,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 	/**
 	 * @param {object} params parameters
 	 * @property {string} containerId @required
+	 * @property {string} theme
 	 * @property {object} classes
 	 * @property {string} classes.item Class for list item
 	 * @property {string} classes.itemSublink Class for sublink (ex. Add link)
@@ -16,6 +17,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 	 * @property {string} classes.itemActive Class for active item
 	 * @property {string} classes.itemDisabled Class for disabled elements
 	 * @property {string} classes.itemLocked Class for locked item. Added for list and submenu item
+	 * @property {string} classes.menuShown Class for open menu
 	 * @property {string} classes.onDrag Class added for container on dragstart event and removed on drag end event
 	 * @property {string} classes.dropzone Class for dropzone in submenu
 	 * @property {string} classes.separator Class for submenu separator before disabled items
@@ -52,15 +54,16 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		this.classItemMore = 'main-buttons-item-more';
 		this.classOnDrag = 'main-buttons-drag';
 		this.classDropzone = 'main-buttons-submenu-dropzone';
-		this.classSeporator = 'main-buttons-submenu-separator';
+		this.classSeporator = 'main-buttons-submenu-delimiter';
 		this.classHiddenLabel = 'main-buttons-hidden-label';
 		this.classSubmenuItem = 'main-buttons-submenu-item';
 		this.classItemDisabled = 'main-buttons-disabled';
-		this.classItemOver = 'over';
+		this.classItemOver = '--over';
+		this.classMenuShown = '--menu-shown';
 		this.classItemActive = 'main-buttons-item-active';
 		this.classSubmenu = 'main-buttons-submenu';
 		this.classSecret = 'secret';
-		this.classItemLocked = 'locked';
+		this.classItemLocked = '--locked';
 		this.submenuIdPrefix = 'main_buttons_popup_';
 		this.childMenuIdPrefix = 'main_buttons_popup_child_';
 		this.submenuWindowIdPrefix = 'menu-popup-';
@@ -76,6 +79,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		this.classContainer = 'main-buttons';
 		this.classSubmenuNoHiddenItem = 'main-buttons-submenu-item-no-hidden';
 		this.classDefaultSubmenuItem = 'menu-popup-item';
+		this.classDefaultSubmenuDelimimeter = 'popup-window-delimiter-section';
 		this.classInner = 'main-buttons-inner-container';
 		this.listContainer = null;
 		this.pinContainer = null;
@@ -85,11 +89,18 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		this.messages = null;
 		this.licenseParams = null;
 		this.ajaxSettings = null;
+		this.enableItemMouseEnter = true;
+		this.menuShowTimeout = null;
 		this.isSubmenuShown = false;
 		this.isSubmenuShownOnDragStart = false;
 		this.isSettingsEnabled = true;
 		this.containerId = params.containerId;
+		this.isEditEnabledState = false;
+		this.theme = BX.Type.isStringFilled(params.theme) ? params.theme : 'default';
 		this.tmp = {};
+
+		this._handleMoreMenuItemMouseEnter = this._handleMoreMenuItemMouseEnter.bind(this);
+		this._handleMoreMenuItemClick = this._handleMoreMenuItemClick.bind(this);
 
 		this.init(container, params);
 
@@ -128,6 +139,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				itemOver: this.classItemOver,
 				itemActive: this.classItemActive,
 				itemLocked: this.classItemLocked,
+				menuShown: this.classMenuShown,
 				submenu: this.classSubmenu,
 				submenuItem: this.classSubmenuItem,
 				containerOnDrag: this.classOnDrag,
@@ -188,15 +200,12 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 			this.listChildItems = {};
 
-			if (this.isSettingsEnabled)
-			{
-				this.dragAndDropInit();
-			}
+			this.initItems();
 
 			this.adjustMoreButtonPosition();
-			this.bindOnClickOnMoreButton();
+			this.bindEventsOnMoreButton();
 			this.bindOnScrollWindow();
-			this.setContainerHeight();
+			this.bindOnResizeFrame();
 
 			BX.bind(this.getContainer(), 'click', BX.delegate(this._onDocumentClick, this));
 			BX.addCustomEvent("onPullEvent-main", BX.delegate(this._onPush, this));
@@ -212,23 +221,36 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			var firstVisibleItem = BX.type.isArray(visibleItems) && visibleItems.length > 0 ? visibleItems[0] : null;
 			var firstItemNode = BX.Buttons.Utils.getByTag(firstVisibleItem, 'a');
 
-			if (!BX.type.isDomNode(firstItemNode))
+			var firstPageLink = null;
+			if (BX.type.isDomNode(firstItemNode))
 			{
-				return;
+				firstPageLink = firstItemNode.getAttribute("href");
+				if (firstPageLink.charAt(0) === "?")
+				{
+					firstPageLink = firstItemNode.pathname + firstItemNode.search;
+				}
 			}
-
-			var firstPageLink = firstItemNode.getAttribute("href");
-			if (firstPageLink.charAt(0) === "?")
+			else
 			{
-				firstPageLink = firstItemNode.pathname + firstItemNode.search;
+				var items = this.getChildMenuItems(firstVisibleItem);
+				if (BX.Type.isArrayFilled(items))
+				{
+					for (var i = 0; i < items.length; i++)
+					{
+						var item = items[i];
+						if (BX.Type.isStringFilled(item.href) && !BX.Type.isStringFilled(item.onclick))
+						{
+							firstPageLink = item.href;
+							break;
+						}
+					}
+				}
 			}
 
 			if (!this.lastHomeLink)
 			{
 				this.lastHomeLink = firstPageLink;
 			}
-
-			this.bindOnResizeFrame();
 
 			var showChildButtons = Array.from(this.container.querySelectorAll('.main-buttons-item-child-button'));
 			showChildButtons.forEach(function(button) {
@@ -276,6 +298,11 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 			var childListContainer = this.realChildButton
 				.querySelector('.main-buttons-item-child-list');
+
+			this.enableItemMouseEnter = false;
+			setTimeout(function() {
+				this.enableItemMouseEnter = true;
+			}.bind(this), 200);
 
 			var childIds = BX.Dom.attr(this.realChildButton, 'data-child-items');
 			var isOpened = BX.Dom.attr(this.realChildButton, 'data-is-opened');
@@ -394,12 +421,12 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 					return false;
 				}
 
-				if (this.isLocked(item))
+				/*if (this.isLocked(item))
 				{
 					event.preventDefault();
 					this.showLicenseWindow();
 					return false;
-				}
+				}*/
 
 				if (this.isEditButton(event.target))
 				{
@@ -451,7 +478,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 						this.disableItem(currentAlias);
 					}
 
-					if (visibleItemsLength === 2)
+					if (visibleItemsLength === 1)
 					{
 						BX.onCustomEvent(window, 'BX.Main.InterfaceButtons:onHideLastVisibleItem', [currentItem, this]);
 					}
@@ -500,14 +527,14 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 					return false;
 				}
 
-				if (!this.isSublink(event.target))
+				if (!this.isSublink(event.target) && !this.isDragButton(event.target))
 				{
 					dataOnClick = this.dataValue(item, 'onclick');
 
 					if (BX.type.isNotEmptyString(dataOnClick))
 					{
 						event.preventDefault();
-						this.execScript(dataOnClick);
+						this.execScript(dataOnClick, event);
 					}
 				}
 			}
@@ -724,7 +751,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		{
 			if (!BX.type.isDomNode(this.container))
 			{
-				this.container = BX(this.containerId).parentNode;
+				this.container = BX(this.containerId).parentNode.parentNode;
 			}
 
 			return this.container;
@@ -827,17 +854,41 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		{
 			var visibleItems = this.getVisibleItems();
 			var firstVisibleItem = BX.type.isArray(visibleItems) && visibleItems.length > 0 ? visibleItems[0] : null;
-			var firstItemNode = BX.Buttons.Utils.getByTag(firstVisibleItem, 'a');
-
-			if (!BX.type.isDomNode(firstItemNode))
+			if (!firstVisibleItem)
 			{
 				return;
 			}
 
-			var firstPageLink = firstItemNode.getAttribute('href');
-			if (firstPageLink.charAt(0) === '?')
+			var firstPageLink = null;
+			var firstItemNode = BX.Buttons.Utils.getByTag(firstVisibleItem, 'a');
+			if (BX.type.isDomNode(firstItemNode))
 			{
-				firstPageLink = firstItemNode.pathname + firstItemNode.search;
+				firstPageLink = firstItemNode.getAttribute('href');
+				if (firstPageLink.charAt(0) === '?')
+				{
+					firstPageLink = firstItemNode.pathname + firstItemNode.search;
+				}
+			}
+			else
+			{
+				var items = this.getChildMenuItems(firstVisibleItem);
+				if (BX.Type.isArrayFilled(items))
+				{
+					for (var i = 0; i < items.length; i++)
+					{
+						var item = items[i];
+						if (BX.Type.isStringFilled(item.href) && !BX.Type.isStringFilled(item.onclick))
+						{
+							firstPageLink = item.href;
+							break;
+						}
+					}
+				}
+			}
+
+			if (!firstPageLink)
+			{
+				return;
 			}
 
 			if (!this.lastHomeLink)
@@ -903,18 +954,6 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			return Math.max.apply(Math, heights);
 		},
 
-
-		/**
-		 * Sets container height
-		 */
-		setContainerHeight: function()
-		{
-			var containerHeight = this.getContainerHeight();
-			var itemMarginBottom = 8;
-			BX.height(this.listContainer, containerHeight-itemMarginBottom);
-		},
-
-
 		/**
 		 * Sets license window params in this.licenseParams
 		 * @param {object} params Params object
@@ -967,6 +1006,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			this.classItemIcon = (classes.itemIcon || this.classItemIcon);
 			this.classItemMore = (classes.itemMore || this.classItemMore);
 			this.classItemOver = (classes.itemOver || this.classItemOver);
+			this.classMenuShown = (classes.menuShown || this.classMenuShown);
 			this.classItemActive = (classes.itemActive || this.classItemActive);
 			this.classItemDisabled = (classes.itemDisabled || this.classItemDisabled);
 			this.classOnDrag = (classes.onDrag || this.classOnDrag);
@@ -1226,15 +1266,12 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		 * @private
 		 * @return {undefined}
 		 */
-		bindOnClickOnMoreButton: function()
+		bindEventsOnMoreButton: function()
 		{
-			BX.bind(
-				this.moreButton,
-				'click',
-				BX.delegate(this._onClickMoreButton, this)
-			);
+			BX.Event.bind(this.moreButton, 'click', this._handleMoreButtonClick.bind(this));
+			BX.Event.bind(this.moreButton, 'mouseenter', this._handleMoreButtonMouseEnter.bind(this));
+			BX.Event.bind(this.moreButton, 'mouseleave', this._handleMoreButtonMouseLeave.bind(this));
 		},
-
 
 		/**
 		 * Binds on tmp frame resize
@@ -1335,13 +1372,9 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		 */
 		getMoreButton: function()
 		{
-			var moreButton = null;
+			var elements = this.getContainer().getElementsByClassName(this.classItemMore);
 
-			this.getAllItems().forEach(function(current) {
-				!moreButton && BX.hasClass(current, this.classItemMore) && (moreButton = current);
-			}, this);
-
-			return moreButton;
+			return elements[0] || null;
 		},
 
 
@@ -1378,14 +1411,6 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		 */
 		adjustMoreButtonPosition: function()
 		{
-			var lastItem = this.getLastVisibleItem();
-			var lastItemIsMoreButton = this.isMoreButton(lastItem);
-
-			if (!lastItemIsMoreButton && lastItem.parentNode === this.listContainer)
-			{
-				this.listContainer.insertBefore(this.moreButton, lastItem);
-			}
-
 			this.updateMoreButtonCounter();
 		},
 
@@ -1529,7 +1554,10 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 						result.push({
 							html: this.getSubmenuItemText(current),
 							href: this.dataValue(current, 'url'),
-							onclick: this.dataValue(current, 'onclick'),
+							onclick: this._handleMoreMenuItemClick,
+							dataset: {
+								onclick: this.dataValue(current, 'onclick')
+							},
 							title: current.getAttribute('title'),
 							className: [
 								this.classSubmenuItem,
@@ -1537,7 +1565,11 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 								this.classSecret,
 								this.getAliasLink(current),
 								this.getLockedClass(current)
-							].join(' ')
+							].join(' '),
+							items: this.getChildMenuItems(current),
+							events: {
+								onMouseEnter: this._handleMoreMenuItemMouseEnter
+							}
 						});
 					}
 				}, this);
@@ -1568,10 +1600,16 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 					result.push({
 						html: this.getSubmenuItemText(current),
 						href: this.dataValue(current, 'url'),
-						onclick: this.dataValue(current, 'onclick'),
+						onclick: this._handleMoreMenuItemClick,
+						dataset: {
+							onclick: this.dataValue(current, 'onclick')
+						},
 						title: current.getAttribute('title'),
 						className: className.join(' '),
-						items: this.getChildMenuItems(current)
+						items: this.getChildMenuItems(current),
+						events: {
+							onMouseEnter: this._handleMoreMenuItemMouseEnter
+						}
 					});
 				}, this);
 			}
@@ -1579,6 +1617,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			if (this.isSettingsEnabled)
 			{
 				result.push({
+					delimiter: true,
 					html: '<span>'+this.message('MIB_HIDDEN')+'</span>',
 					className: [
 						this.classSeporator,
@@ -1624,16 +1663,23 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 						result.push({
 							html: this.getSubmenuItemText(current),
 							href: this.dataValue(current, 'url'),
-							onclick: this.dataValue(current, 'onclick'),
+							onclick: this._handleMoreMenuItemClick,
+							dataset: {
+								onclick: this.dataValue(current, 'onclick')
+							},
 							title: current.getAttribute('title'),
 							className: className.join(' '),
-							items: this.getChildMenuItems(current)
+							items: this.getChildMenuItems(current),
+							events: {
+								onMouseEnter: this._handleMoreMenuItemMouseEnter
+							}
 						});
 
 					}, this);
 				}
 
 				result.push({
+					delimiter: true,
 					html: '<span>'+this.message('MIB_MANAGE')+'</span>',
 					className: [
 						this.classSeporator,
@@ -1687,94 +1733,73 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 			if (!BX.type.isArray(this.listChildItems[item.id]))
 			{
-				var listAllItems = {};
-				this.setListAllItems(listAllItems, data);
-
-				var items = this.getListItems(listAllItems, "");
+				var items = this.createMenuItems(data['ITEMS']);
 				if (items.length)
 				{
-					this.listChildItems[item.id] = (BX.type.isArray(items[0].items) ? items[0].items : []);
+					this.listChildItems[item.id] = items;
 				}
 			}
 
 			return this.listChildItems[item.id];
 		},
 
-		setListAllItems: function(listAllItems, data)
+		createMenuItems: function(items)
 		{
-			var items = [];
-			if (BX.type.isPlainObject(data))
+			if (!BX.Type.isArrayFilled(items))
 			{
-				items.push(data);
-			}
-			else
-			{
-				items = data;
+				return [];
 			}
 
-			items.forEach(function(item) {
-				listAllItems[item["ID"].replace(this.containerId + "_", "")] = item;
-				if (BX.type.isArray(item["ITEMS"]))
-				{
-					this.setListAllItems(listAllItems, item["ITEMS"]);
-				}
-			}, this);
-		},
-
-		getListItems: function(listAllItems, parentId)
-		{
-			var listItems = [];
-
-			for (var itemId in listAllItems)
+			var result = [];
+			for (var i = 0; i < items.length; i++)
 			{
-				if (!listAllItems.hasOwnProperty(itemId))
+				var item = items[i];
+				var className = ['menu-popup-no-icon', 'main-buttons-menu-item'];
+				var active = BX.Text.toBoolean(item["IS_ACTIVE"]);
+				if (active)
 				{
-					continue;
+					className.push('main-buttons-menu-item-active');
 				}
-				var item = listAllItems[itemId];
-				if (item["PARENT_ID"] === parentId)
+
+				var locked = BX.Text.toBoolean(item["IS_LOCKED"]);
+				if (locked)
 				{
-					var events = {}, items = [], ajaxMode = item.hasOwnProperty("AJAX_OPTIONS");
+					className.push(this.classItemLocked);
+				}
 
-					if (ajaxMode)
-					{
-						events = this._getEvents(item["AJAX_OPTIONS"]);
-						items = [
-							{
-								id: "loading",
-								text: this.message("MIB_MAIN_BUTTONS_LOADING")
-							}
-						];
-					}
+				var itemData = {
+					text: item['TEXT'],
+					href: item['URL'],
+					onclick: item['ON_CLICK'],
+					title: item['TITLE'],
+					className: className.join(' '),
+				};
 
-					var listChildItems, itemData = {
-						text: item["TEXT"],
-						href: item["URL"],
-						onclick: item["ON_CLICK"],
-						title: item["TITLE"],
-						events: events,
-						items: items
-					};
-
-					if (ajaxMode)
-					{
-						itemData.cacheable = true;
-					}
-					else
-					{
-						listChildItems = this.getListItems(listAllItems, itemId);
-						if (listChildItems.length)
+				var ajaxMode = item.hasOwnProperty("AJAX_OPTIONS");
+				if (ajaxMode)
+				{
+					itemData.cacheable = true;
+					itemData.events = this._getEvents(item["AJAX_OPTIONS"]);
+					itemData.items = [
 						{
-							itemData.items = listChildItems;
+							id: "loading",
+							text: this.message("MIB_MAIN_BUTTONS_LOADING")
 						}
-					}
-
-					listItems.push(itemData);
-					delete listAllItems[itemId];
+					];
 				}
+				else if (BX.Type.isArrayFilled(item['ITEMS']))
+				{
+					var subItems = this.createMenuItems(item['ITEMS']);
+					if (subItems.length)
+					{
+						itemData.items = subItems;
+					}
+				}
+
+				result.push(itemData);
 			}
 
-			return listItems;
+			return result;
 		},
 
 		_setAjaxMode: function(items)
@@ -1873,25 +1898,90 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		getSubmenuArgs: function()
 		{
 			var menuId = this.getSubmenuId();
-			var anchor = this.moreButton;
-			var anchorPosition = BX.pos(anchor);
+			var moreButton = this.moreButton;
 			var menuItems = this.getSubmenuItems();
-			var params = {
-				'autoHide': true,
-				'offsetLeft': (anchorPosition.width / 2) - 80,
-				'angle':
-				{
-					'position': 'top',
-					'offset': 100
-				},
-				zIndex: 0,
-				'events':
-				{
-					'onPopupClose': BX.delegate(this._onSubmenuClose, this)
-				}
-			};
 
-			return [menuId, anchor, menuItems, params];
+			var params;
+			var maxHeight = 800;
+			if (this.theme === 'default')
+			{
+				var maxWidth = 350;
+				var activeItemMargin = 25;
+				params = {
+					autoHide: false,
+					compatibleMode: false,
+					offsetLeft: -activeItemMargin,
+					offsetTop: 4,
+					cacheable: false,
+					className: 'main-buttons-menu-popup main-buttons-more-menu-popup',
+					minWidth: Math.min(moreButton.offsetWidth + activeItemMargin * 2 + 30, maxWidth),
+					maxWidth: maxWidth,
+					maxHeight: maxHeight,
+					subMenuOptions: {
+						className: 'main-buttons-menu-popup main-buttons-more-menu-popup --sub-menu',
+						minWidth: 150,
+						maxWidth: maxWidth,
+						events: {
+							onFirstShow: this._onSubmenuFirstShow.bind(this),
+						}
+					},
+					bindOptions: {
+						position: 'bottom',
+						forceTop: true
+					},
+					events: {
+						onClose: this._onSubmenuClose.bind(this),
+						onDestroy: this._onSubmenuClose.bind(this),
+						onFirstShow: this._onSubmenuFirstShow.bind(this),
+						onShow: this._onSubmenuShow.bind(this),
+						onBeforeAdjustPosition: this.handleAdjustPosition.bind(this, moreButton)
+					}
+				};
+			}
+			else
+			{
+				var moreButtonTitle = this.moreButton.querySelector('.main-buttons-item-text-title');
+				var targetNodeWidth = moreButtonTitle.offsetWidth;
+				var popupWidth = 250;
+				var offsetLeft = (targetNodeWidth / 2) - (popupWidth / 2) + BX.Main.Popup.getOption('angleLeftOffset');
+				var angleShift = BX.Main.Popup.getOption('angleLeftOffset') - BX.Main.Popup.getOption('angleMinTop');
+				var angleOffset = popupWidth / 2 - angleShift;
+
+				params = {
+					autoHide: false,
+					compatibleMode: false,
+					offsetTop: 4,
+					offsetLeft: offsetLeft,
+					minWidth: popupWidth,
+					maxWidth: popupWidth,
+					maxHeight: maxHeight,
+					angle: {
+						position: 'top',
+						offset: angleOffset
+					},
+					className: 'main-buttons-default-menu-popup main-buttons-more-menu-popup',
+					subMenuOptions: {
+						className: 'main-buttons-default-menu-popup main-buttons-more-menu-popup --sub-menu',
+						minWidth: null,
+						events: {
+							onFirstShow: this._onSubmenuFirstShow.bind(this),
+						}
+					},
+					cacheable: false,
+					bindOptions: {
+						position: 'bottom',
+						forceTop: true
+					},
+					events: {
+						onClose: this._onSubmenuClose.bind(this),
+						onDestroy: this._onSubmenuClose.bind(this),
+						onFirstShow: this._onSubmenuFirstShow.bind(this),
+						onShow: this._onSubmenuShow.bind(this)
+					}
+				};
+			}
+
+			return [menuId, moreButton, menuItems, params];
 		},
 
 		getChildMenuArgs: function(item)
@@ -1904,15 +1994,90 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				return [];
 			}
 
-			var params = {
-				autoHide: true,
-				angle: true,
-				offsetLeft: item.getBoundingClientRect().width/2
-			};
+			var params;
+			var maxHeight = 800;
+			if (this.theme === 'default')
+			{
+				var activeItemMargin = 25;
+				var maxWidth = 350;
+
+				params = {
+					autoHide: false,
+					compatibleMode: false,
+					offsetLeft: -activeItemMargin,
+					offsetTop: 4,
+					cacheable: false,
+					className: 'main-buttons-menu-popup',
+					maxWidth: maxWidth,
+					minWidth: item.offsetWidth + activeItemMargin * 2 + 30,
+					maxHeight: maxHeight,
+					subMenuOptions: {
+						className: 'main-buttons-menu-popup --sub-menu',
+						minWidth: null,
+						events: {
+							onFirstShow: this._onChildMenuFirstShow.bind(this)
+						}
+					},
+					bindOptions: {
+						position: 'bottom',
+						forceTop: true
+					},
+					events: {
+						onFirstShow: this._onChildMenuFirstShow.bind(this),
+						onShow: this._onChildMenuShow.bind(this, item),
+						onClose: this._onChildMenuClose.bind(this, item),
+						onDestroy: this._onChildMenuClose.bind(this, item),
+						onBeforeAdjustPosition: this.handleAdjustPosition.bind(this, item)
+					}
+				};
+			}
+			else
+			{
+				var maxWidth = 250;
+				params = {
+					autoHide: false,
+					compatibleMode: false,
+					offsetTop: 4,
+					cacheable: false,
+					className: 'main-buttons-default-menu-popup',
+					minWidth: Math.min(item.offsetWidth + 25 * 2 + 30, maxWidth),
+					maxWidth: maxWidth,
+					maxHeight: maxHeight,
+					bindOptions: {
+						position: 'bottom',
+						forceTop: true
+					},
+					subMenuOptions: {
+						className: '--sub-menu',
+						minWidth: null,
+						events: {
+							onFirstShow: this._onChildMenuFirstShow.bind(this)
+						}
+					},
+					events: {
+						onFirstShow: this._onChildMenuFirstShow.bind(this),
+						onShow: this._onChildMenuShow.bind(this, item),
+						onClose: this._onChildMenuClose.bind(this, item),
+						onDestroy: this._onChildMenuClose.bind(this, item)
+					}
+				};
+			}
 
 			return [menuId, item, menuItems, params];
 		},
 
+		_centerPopupArrow(popup, item)
+		{
+			var targetNodeWidth = item.offsetWidth;
+			var popupWidth = popup.getPopupContainer().offsetWidth;
+			var offsetLeft = (targetNodeWidth / 2) - (popupWidth / 2);
+			var angleShift =
+				BX.Main.Popup.getOption('angleLeftOffset') - BX.Main.Popup.getOption('angleMinTop')
+			;
+
+			popup.setAngle({ offset: popupWidth / 2 - angleShift });
+			popup.setOffset({ offsetLeft: offsetLeft + BX.Main.Popup.getOption('angleLeftOffset') });
+		},
 
 		/**
 		 * Controls the visibility of more button
@@ -1920,8 +2085,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		visibleControlMoreButton: function()
 		{
 			var hiddenItems = this.getHiddenItems();
-
-			if (!hiddenItems.length || (hiddenItems.length === 1 && this.isMoreButton(hiddenItems[0])))
+			if (!hiddenItems.length)
 			{
 				this.getMoreButton().style.display = 'none';
 			}
@@ -1966,8 +2130,9 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		 */
 		showSubmenu: function()
 		{
-			var submenu = this.getSubmenu();
+			this.closeChildMenu();
 
+			var submenu = this.getSubmenu();
 			if (submenu !== null)
 			{
 				submenu.popupWindow.show();
@@ -1991,6 +2156,8 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 		showChildMenu: function(item)
 		{
+			this.closeSubmenu();
+
 			var currentMenu = BX.PopupMenu.getMenuById(this.getChildMenuId()), childMenu = null;
 			if (currentMenu && currentMenu.bindElement)
 			{
@@ -2037,18 +2204,17 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			this.setSubmenuShown(false);
 		},
 
-		closeChildMenu: function(item)
+		closeChildMenu: function()
 		{
-			var childMenu = this.getChildMenu(item);
+			var childMenu = this.getChildMenu();
 
 			if (childMenu === null)
 			{
 				return;
 			}
 
-			childMenu.popupWindow.close();
+			childMenu.close();
 		},
-
 
 		/**
 		 * Gets current submenu
@@ -2124,8 +2290,16 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			{
 				this.isSubmenuShown = value;
 			}
-		},
 
+			if (this.isSubmenuShown)
+			{
+				BX.Dom.addClass(this.moreButton, this.classMenuShown);
+			}
+			else
+			{
+				BX.Dom.removeClass(this.moreButton, this.classMenuShown);
+			}
+		},
 
 		/**
 		 * Adds class active for item
@@ -2220,7 +2394,8 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			this.optionsToSave = [];
 			window.removeEventListener("beforeunload", this.sendOptions);
 			BX.removeCustomEvent("SidePanel.Slider:onClose", this.sendOptions);
-			BX.ajax.runComponentAction(
+
+			return BX.ajax.runComponentAction(
 				this.ajaxSettings.componentName,
 				'save',
 				{
@@ -2322,7 +2497,14 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 										{
 											this.saveOptions('settings', JSON.stringify({}));
 											this.saveOptions('firstPageLink', '');
-											window.location.reload();
+											this.sendOptions()
+												.then(function() {
+													window.location.reload();
+												})
+												.catch(function() {
+													window.location.reload();
+												})
+											;
 										}
 									}.bind(this));
 								}.bind(this)
@@ -2403,6 +2585,11 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 					this.listContainer.insertBefore(aliasDragItem, aliasItem);
 				}
 			}
+
+			if (this.getSubmenu())
+			{
+				this.getSubmenu().getPopupWindow().adjustPosition();
+			}
 		},
 
 
@@ -2411,9 +2598,10 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		 * @private
 		 * @method moveButton
 		 * @param  {HTMLElement} item
+		 * @param insertAfter
 		 * @return {*}
 		 */
-		moveButton: function(item)
+		moveButton: function(item, insertAfter)
 		{
 			var submenuContainer;
 
@@ -2431,7 +2619,14 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 				if (BX.type.isDomNode(item))
 				{
-					this.listContainer.insertBefore(this.dragItem, item);
+					if (insertAfter)
+					{
+						BX.Dom.insertAfter(this.dragItem, item);
+					}
+					else
+					{
+						this.listContainer.insertBefore(this.dragItem, item);
+					}
 				}
 				else
 				{
@@ -2443,7 +2638,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			{
 				if (this.isDisabled(this.dragItem) && !this.isDisabled(item))
 				{
-					this.enableItem(this.dragItem);
+					// this.enableItem(this.dragItem);
 				}
 				submenuContainer = this.getSubmenuContainer();
 				submenuContainer.insertBefore(this.dragItem, item);
@@ -2499,34 +2694,6 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 		},
 
-
-		/**
-		 * Finds parent node for item by className
-		 * @private
-		 * @method findParentByClassName
-		 * @param  {object} item
-		 * @param  {string} className
-		 * @return {object}
-		 */
-		findParentByClassName: function(item, className)
-		{
-			for (; item && item !== document; item = item.parentNode)
-			{
-				if (className)
-				{
-					if (BX.hasClass(item, className))
-					{
-						return item;
-					}
-				}
-				else
-				{
-					return null;
-				}
-			}
-		},
-
-
 		/**
 		 * Finds children item by className
 		 * @private
@@ -2553,19 +2720,22 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		 * @method dragAndDropInit
 		 * @return {undefined}
 		 */
-		dragAndDropInit: function()
+		initItems: function()
 		{
 			this.getAllItems().forEach(function(current, index) {
-				if (!this.isSeparator(current) &&
-					!this.isSettings(current) &&
-					!this.isApplySettingsButton(current) &&
-					!this.isResetSettingsButton(current))
+				if (
+					this.isSettingsEnabled
+					&& !this.isSeparator(current)
+					&& !this.isSettings(current)
+					&& !this.isApplySettingsButton(current)
+					&& !this.isResetSettingsButton(current)
+				)
 				{
 					current.setAttribute('draggable', 'true');
 					current.setAttribute('tabindex', '-1');
 
-					current.dataset.link = 'item' + index;
 					BX.bind(current, 'dragstart', BX.delegate(this._onDragStart, this));
+					BX.bind(current, 'click', this._handleItemClick.bind(this));
 					BX.bind(current, 'dragend', BX.delegate(this._onDragEnd, this));
 					BX.bind(current, 'dragenter', BX.delegate(this._onDragEnter, this));
 					BX.bind(current, 'dragover', BX.delegate(this._onDragOver, this));
@@ -2573,8 +2743,9 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 					BX.bind(current, 'drop', BX.delegate(this._onDrop, this));
 				}
 
-				BX.bind(current, 'mouseover', BX.delegate(this._onMouse, this));
-				BX.bind(current, 'mouseout', BX.delegate(this._onMouse, this));
+				current.dataset.link = 'item' + index;
+				BX.bind(current, 'mouseenter', this._handleItemMouseEnter.bind(this));
+				BX.bind(current, 'mouseleave', this._handleItemMouseLeave.bind(this));
 			}, this);
 		},
 
@@ -2591,13 +2762,21 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			var submenuItems = submenu.menuItems;
 
 			submenuItems.forEach(function(current) {
-				if ((!this.isSeparator(current.layout.item) &&
-					!this.isSettings(current.layout.item) &&
-					!this.isApplySettingsButton(current.layout.item) &&
-					!this.isResetSettingsButton(current.layout.item)))
+				if (
+					this.isSeparator(current.layout.item)
+					|| this.isSettings(current.layout.item)
+					|| this.isApplySettingsButton(current.layout.item)
+					|| this.isResetSettingsButton(current.layout.item)
+				)
+				{
+					current.layout.item.draggable = false;
+
+				}
+				else
 				{
 					current.layout.item.draggable = true;
 					current.layout.item.dataset.sortable = true;
+
 					BX.bind(current.layout.item, 'dragstart', BX.delegate(this._onDragStart, this));
 					BX.bind(current.layout.item, 'dragenter', BX.delegate(this._onDragEnter, this));
 					BX.bind(current.layout.item, 'dragover', BX.delegate(this._onDragOver, this));
@@ -2635,11 +2814,12 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				eventOrItem = {target: eventOrItem};
 			}
 
-			var item = this.findParentByClassName(eventOrItem.target, this.classItem);
-
+			var item = eventOrItem.target.closest('.' + this.classItem);
 			if (!BX.type.isDomNode(item))
 			{
-				item = this.findParentByClassName(eventOrItem.target, this.classDefaultSubmenuItem);
+				item = eventOrItem.target.closest(
+					'.' + this.classDefaultSubmenuItem + ', .' + this.classDefaultSubmenuDelimimeter
+				);
 			}
 
 			return item;
@@ -2659,7 +2839,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				return;
 			}
 
-			BX.style(item, 'opacity', '.1');
+			BX.style(item, 'opacity', 0.5);
 		},
 
 
@@ -2707,7 +2887,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 			this.getAllItems().forEach(function(current) {
 				this.unsetOpacity(current);
-				BX.removeClass(current, 'over');
+				BX.removeClass(current, this.classItemOver);
 			}, this);
 
 			if (submenu && ('menuItems' in submenu) &&
@@ -2717,7 +2897,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 				submenu.menuItems.forEach(function(current) {
 					this.unsetOpacity(current);
-					BX.removeClass(current.layout.item, 'over');
+					BX.removeClass(current.layout.item, this.classItemOver);
 				}, this);
 			}
 
@@ -2794,7 +2974,6 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				{
 					alias.dataset.disabled = 'false';
 				}
-
 			}
 		},
 
@@ -3061,11 +3240,13 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		 * @param  {string} script
 		 */
 		/*jshint -W061 */
-		execScript: function(script)
+		execScript: function(script, event)
 		{
 			if (BX.type.isNotEmptyString(script))
 			{
-				eval(script);
+				var fn = new Function('event', script);
+				fn(event);
+				//eval('(function(event) {' + script + '})();');
 			}
 		},
 
@@ -3106,6 +3287,21 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 		},
 
+		/**
+		 * mouse click event handler
+		 * @private
+		 * @method handleItemClick
+		 * @param  {object} event ondragstart event object
+		 * @return {undefined}
+		 */
+		_handleItemClick: function(event)
+		{
+			if (!this.isEditEnabled())
+			{
+				var item = this.getItem(event);
+				this.showChildMenu(item);
+			}
+		},
 
 		/**
 		 * dragstart event handler
@@ -3125,7 +3321,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				return;
 			}
 
-			if (visibleItemsLength === 2 && this.isListItem(this.dragItem))
+			if (visibleItemsLength === 1 && this.isListItem(this.dragItem))
 			{
 				event.preventDefault();
 				BX.onCustomEvent(window, 'BX.Main.InterfaceButtons:onHideLastVisibleItem', [this.dragItem, this]);
@@ -3303,12 +3499,6 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 					this.classItem
 				);
 
-				if (this.isMoreButton(nextSiblingItem) && !this.tmp.moved)
-				{
-					nextSiblingItem = nextSiblingItem.previousElementSibling;
-					this.tmp.moved = true;
-				}
-
 				if (!BX.type.isDomNode(nextSiblingItem))
 				{
 					nextSiblingItem = this.findNextSiblingByClass(
@@ -3317,9 +3507,16 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 					);
 				}
 
+				var insertAfter = false;
+				if (!BX.type.isDomNode(nextSiblingItem) && this.getLastVisibleItem() === this.overItem)
+				{
+					nextSiblingItem = this.overItem;
+					insertAfter = true;
+				}
+
 				if (BX.type.isDomNode(nextSiblingItem))
 				{
-					this.moveButton(nextSiblingItem);
+					this.moveButton(nextSiblingItem, insertAfter);
 					this.moveButtonAlias(nextSiblingItem);
 					this.adjustMoreButtonPosition();
 					this.updateSubmenuItems();
@@ -3377,6 +3574,12 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 				this.adjustMoreButtonPosition();
 			}
 
+			var aliasDragItem = this.getItemAlias(this.dragItem);
+			if (this.isListItem(aliasDragItem))
+			{
+				aliasDragItem.dataset.disabled = 'false';
+			}
+
 			this.unsetDragStyles();
 
 			event.preventDefault();
@@ -3393,7 +3596,46 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			return [].indexOf.call((collection || []), item);
 		},
 
+		_onSubmenuFirstShow: function(event)
+		{
+			var popup = event.getTarget();
 
+			BX.Event.bind(popup.getPopupContainer(), 'mouseenter', this._onSubmenuMouseEnter.bind(this));
+			BX.Event.bind(popup.getPopupContainer(), 'mouseleave', this._onSubmenuMouseLeave.bind(this));
+		},
+
+		_onSubmenuMouseEnter: function()
+		{
+			clearTimeout(this.submenuLeaveTimeout);
+		},
+
+		_onSubmenuMouseLeave: function()
+		{
+			this._tryCloseSubMenuOnTimeout();
+		},
+
+		_tryCloseSubMenuOnTimeout: function()
+		{
+			clearTimeout(this.submenuLeaveTimeout);
+
+			if (!this.isEditEnabled())
+			{
+				this.submenuLeaveTimeout = setTimeout(function() {
+					this.closeSubmenu();
+				}.bind(this), 500);
+			}
+		},
+
+		_onSubmenuShow: function(event)
+		{
+			BX.Event.EventEmitter.emit('BX.Main.InterfaceButtons:onMenuShow');
+			setTimeout(function() {
+				if (!this.isEditEnabled())
+				{
+					event.getTarget().setAutoHide(true);
+				}
+			}.bind(this), 500);
+		},
 		/**
 		 * submenuClose custom BX.PopupMenu event handler
 		 * @private
@@ -3417,6 +3659,71 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			}
 		},
 
+		_onChildMenuFirstShow: function(event)
+		{
+			var popup = event.getTarget();
+
+			BX.Event.bind(popup.getPopupContainer(), 'mouseenter', this._onChildMenuMouseEnter.bind(this));
+			BX.Event.bind(popup.getPopupContainer(), 'mouseleave', this._onChildMenuMouseLeave.bind(this));
+		},
+
+		_onChildMenuMouseEnter: function()
+		{
+			clearTimeout(this.childMenuLeaveTimeout);
+		},
+
+		_onChildMenuMouseLeave: function()
+		{
+			this._tryCloseChildMenuOnTimeout();
+		},
+
+		_tryCloseChildMenuOnTimeout: function()
+		{
+			clearTimeout(this.childMenuLeaveTimeout);
+
+			if (!this.isEditEnabled())
+			{
+				this.childMenuLeaveTimeout = setTimeout(function() {
+					this.closeChildMenu();
+				}.bind(this), 500);
+			}
+		},
+
+		_onChildMenuShow: function(item, event)
+		{
+			BX.Dom.addClass(item, this.classMenuShown);
+			BX.Event.EventEmitter.emit('BX.Main.InterfaceButtons:onMenuShow');
+
+			setTimeout(function() {
+				event.getTarget().setAutoHide(true);
+			}.bind(this), 500);
+		},
+
+		_onChildMenuClose: function(item)
+		{
+			BX.Dom.removeClass(item, this.classMenuShown);
+		},
+
+		handleAdjustPosition: function(item, event)
+		{
+			var activeItemMargin = 25;
+			var position = BX.Dom.getPosition(item);
+			var popup = event.getTarget();
+			if (event.left < (position.left - activeItemMargin))
+			{
+				var popupWidth = popup.getPopupContainer().offsetWidth;
+				var left = position.right - popupWidth + activeItemMargin;
+				if (left > 0)
+				{
+					event.left = left;
+					BX.Dom.addClass(popup.getPopupContainer(), '--left-handed');
+				}
+			}
+			else
+			{
+				BX.Dom.removeClass(popup.getPopupContainer(), '--left-handed');
+			}
+		},
 
 		/**
 		 * resize window event handler
@@ -3428,6 +3735,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		{
 			this.adjustMoreButtonPosition();
 			this.updateSubmenuItems();
+			this.closeChildMenu();
 
 			if (!this.isSettingsEnabled)
 			{
@@ -3443,39 +3751,80 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		 * @param  {object} event click event object
 		 * @return {undefined}
 		 */
-		_onClickMoreButton: function(event)
+		_handleMoreButtonClick: function(event)
 		{
 			event.preventDefault();
 			this.showSubmenu();
 		},
 
-
-		/**
-		 * mouseover and mouseout events handler
-		 * @private
-		 * @method _onMouse
-		 * @param  {object} event mouseover and mouseout event object
-		 * @return {undefined}
-		 */
-		_onMouse: function(event)
+		_handleMoreButtonMouseEnter: function(event)
 		{
-			var item = this.getItem(event);
-
-			if (event.type === 'mouseover' && !BX.hasClass(item, this.classItemOver))
+			if (this.enableItemMouseEnter)
 			{
-				if (!BX.hasClass(item, this.classItemMore))
-				{
-					this.showChildMenu(item);
-				}
-				BX.addClass(item, this.classItemOver);
+				clearTimeout(this.menuShowTimeout);
+				this.menuShowTimeout = setTimeout(function() {
+					this.showSubmenu();
+				}.bind(this), 100);
 			}
 
-			if (event.type === 'mouseout' && BX.hasClass(item, this.classItemOver))
+			clearTimeout(this.submenuLeaveTimeout);
+		},
+
+		_handleMoreButtonMouseLeave: function()
+		{
+			clearTimeout(this.menuShowTimeout);
+			this._tryCloseSubMenuOnTimeout();
+		},
+
+		_handleItemMouseEnter: function(event)
+		{
+			if (this.isEditEnabled() || !this.enableItemMouseEnter)
 			{
-				BX.removeClass(item, this.classItemOver);
+				return;
+			}
+
+			var item = this.getItem(event);
+
+			clearTimeout(this.childMenuLeaveTimeout);
+			clearTimeout(this.menuShowTimeout);
+
+			this.menuShowTimeout = setTimeout(function() {
+				this.showChildMenu(item);
+			}.bind(this), 100);
+
+			BX.addClass(item, this.classItemOver);
+		},
+
+		_handleItemMouseLeave: function(event)
+		{
+			clearTimeout(this.menuShowTimeout);
+
+			if (this.isEditEnabled() || !this.enableItemMouseEnter)
+			{
+				return;
+			}
+
+			var item = this.getItem(event);
+			BX.removeClass(item, this.classItemOver);
+
+			this._tryCloseChildMenuOnTimeout();
+		},
+
+		_handleMoreMenuItemMouseEnter: function(event)
+		{
+			if (this.isEditEnabled())
+			{
+				event.preventDefault();
 			}
 		},
 
+		_handleMoreMenuItemClick: function(event, menuItem)
+		{
+			if (this.isEditButton(event.target) || this.isDragButton(event.target))
+			{
+				return;
+			}
+		},
 
 		/**
 		 * @return {?HTMLElement}

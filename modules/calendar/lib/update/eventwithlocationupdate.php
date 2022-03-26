@@ -28,9 +28,10 @@ final class EventWithLocationUpdate extends Stepper
 		$connection = Application::getConnection();
 		$sqlHelper = $connection->getSqlHelper();
 		if (Loader::includeModule("calendar")
-			&& (Option::get('calendar', 'eventWithLocationConverted', 'N') === 'Y'))
+			&& (Option::get('calendar', 'eventWithLocationConverted', 'N') === 'Y')
+		)
 		{
-			Rooms\Manager::clearCache();
+			Rooms\Manager::createInstance()->clearCache();
 			return self::FINISH_EXECUTION;
 		}
 		$status = $this->loadCurrentStatus();
@@ -43,7 +44,7 @@ final class EventWithLocationUpdate extends Stepper
 		];
 
 		// Update calendar room events
-		if(!$status['newFinished'])
+		if (!$status['newFinished'])
 		{
 			$res = $this->getLocationEvent($newStatus['lastEventId']);
 			while ($event = $res->Fetch())
@@ -52,7 +53,7 @@ final class EventWithLocationUpdate extends Stepper
 				$newStatus['lastEventId'] = $eventId;
 
 				$parentRes = $this->getLocationParentEvent($eventId);
-				if($parentEvent = $parentRes->Fetch())
+				if ($parentEvent = $parentRes->Fetch())
 				{
 					$ownerName = $sqlHelper->forSql(CCalendar::GetUserName($parentEvent['CREATED_BY']));
 					$parentId = (int)$parentEvent['ID'];
@@ -66,7 +67,7 @@ final class EventWithLocationUpdate extends Stepper
 				$newStatus['steps']++;
 			}
 
-			if(isset($newStatus['lastEventId']) && $res->SelectedRowsCount() !== 0)
+			if (isset($newStatus['lastEventId']) && $res->SelectedRowsCount() !== 0)
 			{
 				Option::set('calendar', 'eventWithLocationConvertedStatus', serialize($newStatus));
 				$result = [
@@ -87,7 +88,7 @@ final class EventWithLocationUpdate extends Stepper
 		//update IBlock room events
 		$meetingRoomArray = $this->getMeetingRoomArray();
 
-		if($meetingRoomArray !== null)
+		if ($meetingRoomArray !== null)
 		{
 			$res = $this->getIBlockEvent($newStatus['lastEventId']);
 			while ($event = $res->Fetch())
@@ -96,10 +97,10 @@ final class EventWithLocationUpdate extends Stepper
 				$newStatus['lastEventId'] = $eventId;
 				$phrases = $this->prepareLocationEvent($event, $meetingRoomArray);
 
-				if($phrases !== null && isset($phrases['child']) && isset($phrases['parent']))
+				if ($phrases !== null && isset($phrases['child']) && isset($phrases['parent']))
 				{
 					$this->updateLocationValue($phrases['parent'], $eventId);
-					if($event['IS_MEETING'])
+					if ($event['IS_MEETING'])
 					{
 						$this->updateLocationValueForChildEvents($phrases['child'], $eventId);
 					}
@@ -109,7 +110,7 @@ final class EventWithLocationUpdate extends Stepper
 				$newStatus['steps']++;
 			}
 
-			if(isset($newStatus['lastEventId']) && $res->SelectedRowsCount() !== 0)
+			if (isset($newStatus['lastEventId']) && $res->SelectedRowsCount() !== 0)
 			{
 				Option::set('calendar', 'eventWithLocationConvertedStatus', serialize($newStatus));
 				$result = [
@@ -126,7 +127,7 @@ final class EventWithLocationUpdate extends Stepper
 
 		Option::set('calendar', 'eventWithLocationConverted', 'Y');
 		Option::delete('calendar', ['name' => 'eventWithLocationConvertedStatus']);
-		Rooms\Manager::clearCache();
+		Rooms\Manager::createInstance()->clearCache();
 
 		return self::FINISH_EXECUTION;
 	}
@@ -311,11 +312,11 @@ final class EventWithLocationUpdate extends Stepper
 		$dateFrom = CCalendar::Date($dateFromRaw);
 
 		$RRule = CCalendarEvent::ParseRRULE($event['RRULE']);
-		if(isset($RRule['~UNTIL']))
+		if (isset($RRule['~UNTIL']))
 		{
 			unset($RRule['~UNTIL']);
 		}
-		if($RRule['FREQ'] === 'WEEKLY' && !isset($RRule['BYDAY']))
+		if ($RRule['FREQ'] === 'WEEKLY' && !isset($RRule['BYDAY']))
 		{
 			return null;
 		}
@@ -355,7 +356,7 @@ final class EventWithLocationUpdate extends Stepper
 				'room_id' => (int)$roomId
 			]);
 
-			if($locationEventId && $roomId)
+			if ($locationEventId && $roomId)
 			{
 				$result['parent'] = str_replace(
 					['#ROOMID#', '#EVENTID#'],

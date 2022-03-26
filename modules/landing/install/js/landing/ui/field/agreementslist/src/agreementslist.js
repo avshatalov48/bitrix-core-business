@@ -10,6 +10,7 @@ import {ActionPanel} from 'landing.ui.component.actionpanel';
 import {BaseEvent} from 'main.core.events';
 import {Loader} from 'main.loader';
 import {Backend} from 'landing.backend';
+import {FormSettingsPanel} from 'landing.ui.panel.formsettingspanel';
 
 import './css/style.css';
 
@@ -517,6 +518,7 @@ export class AgreementsList extends BaseField
 		this.loadAgreementsList()
 			.then((agreements) => {
 				this.setAgreementsList(agreements);
+				FormSettingsPanel.getInstance().setAgreements(agreements);
 
 				const currentlyEdited = this.getCurrentlyEdited();
 				if (currentlyEdited && currentlyEdited.id === 0)

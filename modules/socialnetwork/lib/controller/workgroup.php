@@ -20,6 +20,21 @@ use Bitrix\Main\UI\PageNavigation;
 
 class Workgroup extends Base
 {
+	private static function getAllowedSelectFields(): array
+	{
+		return [
+			'ID', 'ACTIVE', 'SUBJECT_ID', 'NAME', 'DESCRIPTION', 'KEYWORDS',
+			'CLOSED', 'VISIBLE', 'OPENED', 'PROJECT', 'LANDING',
+			'DATE_CREATE', 'DATE_UPDATE', 'DATE_ACTIVITY',
+			'IMAGE_ID', 'AVATAR_TYPE',
+			'OWNER_ID',
+			'NUMBER_OF_MEMBERS', 'NUMBER_OF_MODERATORS',
+			'INITIATE_PERMS',
+			'PROJECT_DATE_START', 'PROJECT_DATE_FINISH',
+			'SCRUM_OWNER_ID', 'SCRUM_MASTER_ID', 'SCRUM_SPRINT_DURATION', 'SCRUM_TASK_RESPONSIBLE',
+		];
+	}
+
 	public function getAction(array $params = []): ?array
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
@@ -90,7 +105,7 @@ class Workgroup extends Base
 
 			if ($groupFields['NUMBER_OF_MEMBERS'])
 			{
-				$groupFields['NUMBER_OF_MEMBERS_PLURAL'] = $this->getPluralForm($groupFields['NUMBER_OF_MEMBERS']);
+				$groupFields['NUMBER_OF_MEMBERS_PLURAL'] = Loc::getPluralForm($groupFields['NUMBER_OF_MEMBERS']);
 			}
 			if ($groupFields['PROJECT_DATE_START'] || $groupFields['PROJECT_DATE_FINISH'])
 			{
@@ -116,6 +131,21 @@ class Workgroup extends Base
 						MakeTimeStamp(DateTime::createFromTimestamp($dateFinish->getTimestamp()))
 					);
 				}
+			}
+
+			if (
+				isset($params['mode'])
+				&& $params['mode'] === 'mobile'
+			)
+			{
+				$additionalData = Helper\Workgroup::getAdditionalData([
+					'ids' => [ $groupId ],
+					'features' => ($params['features'] ?? []),
+					'mandatoryFeatures' => ($params['mandatoryFeatures'] ?? []),
+					'currentUserId' => (int)$this->getCurrentUser()->getId(),
+				]);
+
+				$groupFields['ADDITIONAL_DATA'] = ($additionalData[$groupId] ?? []) ;
 			}
 
 			return $groupFields;
@@ -202,6 +232,8 @@ class Workgroup extends Base
 
 		if (!empty($queryIdFilter))
 		{
+			$select = $this->prepareSelect($select);
+
 			$query = WorkgroupTable::query();
 			$query
 				->setSelect($select)
@@ -273,6 +305,13 @@ class Workgroup extends Base
 		$workgroups = $this->convertKeysToCamelCase($workgroups);
 
 		return new Engine\Response\DataType\Page('workgroups', array_values($workgroups), $count);
+	}
+
+	private function prepareSelect(array $select = []): array
+	{
+		return array_filter($select, static function ($key) {
+			return in_array(mb_strtoupper($key), static::getAllowedSelectFields(), true);
+		});
 	}
 
 	private function getOwnerData(int $ownerId): array
@@ -392,21 +431,6 @@ class Workgroup extends Base
 			'ROLE' => $permissions['UserRole'],
 			'INITIATED_BY_TYPE' => $permissions['InitiatedByType'],
 		];
-	}
-
-	private function getPluralForm($count): int
-	{
-		if (($count % 10 === 1) && ($count % 100 !== 11))
-		{
-			return 0;
-		}
-
-		if (($count % 10 >= 2) && ($count % 10 <= 4) && (($count % 100 < 10) || ($count % 100 >= 20)))
-		{
-			return 1;
-		}
-
-		return 2;
 	}
 
 	private function getDepartments($ufDepartments): array

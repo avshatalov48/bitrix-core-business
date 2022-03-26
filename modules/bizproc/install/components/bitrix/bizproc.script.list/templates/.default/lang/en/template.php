@@ -1,6 +1,6 @@
 <?php
 $MESS["BIZPROC_SCRIPT_LIST_BTN_DELETE"] = "Delete";
-$MESS["BIZPROC_SCRIPT_LIST_CONFIRM_DELETE"] = "Are sure you want to delete the script?";
+$MESS["BIZPROC_SCRIPT_LIST_CONFIRM_DELETE"] = "Are you sure you want to delete the script?";
 $MESS["BIZPROC_SCRIPT_LIST_TITLE_BUTTON_ADD_SCENARIO"] = "new script";
 $MESS["BIZPROC_SCRIPT_LIST_TITLE_MARKETPLACE"] = "Bitrix24.Market";
 $MESS["BIZPROC_SCRIPT_LIST_TITLE_MARKETPLACE_EXPORT"] = "Export";

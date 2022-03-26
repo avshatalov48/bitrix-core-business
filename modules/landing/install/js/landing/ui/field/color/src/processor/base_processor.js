@@ -1,5 +1,6 @@
 import {Tag, Cache, Type} from 'main.core';
 import {EventEmitter} from 'main.core.events';
+import ColorValue from '../color_value';
 import {IColorValue} from '../types/i_color_value';
 
 export default class BaseProcessor extends EventEmitter
@@ -17,6 +18,7 @@ export default class BaseProcessor extends EventEmitter
 		this.property = 'color';
 		this.options = options;
 		this.pseudoClass = null;
+		this.setEventNamespace('BX.Landing.UI.Field.Processor.BaseProcessor');
 	}
 
 	getProperty(): [string]
@@ -35,7 +37,12 @@ export default class BaseProcessor extends EventEmitter
 
 	isNullValue(value: ?string): boolean
 	{
-		return value === null;
+		return Type.isNull(value);
+	}
+
+	getNullValue(): IColorValue
+	{
+		return new ColorValue;
 	}
 
 	getPseudoClass(): ?string
@@ -66,7 +73,7 @@ export default class BaseProcessor extends EventEmitter
 
 	getStyle(): {string: ?string}
 	{
-		if (this.getValue() === null)
+		if (Type.isNull(this.getValue()))
 		{
 			return {[this.getVariableName()]: null};
 		}
@@ -78,10 +85,11 @@ export default class BaseProcessor extends EventEmitter
 	 * Set value by new format
 	 * @param value {string: string}
 	 */
-	setProcessorValue(value: {string: string}): void
+	setProcessorValue(value: {string: string})
 	{
 		// Just get last css variable
 		const processorProperty = this.getVariableName()[this.getVariableName().length - 1];
+		this.cache.delete('value');
 		this.setValue(value[processorProperty]);
 	}
 
@@ -89,23 +97,25 @@ export default class BaseProcessor extends EventEmitter
 	 * Set old-type value by computedStyle
 	 * @param value {string: string} | null
 	 */
-	setDefaultValue(value: {string: string} | null): void
+	setDefaultValue(value: {string: string} | null)
 	{
-		if (value !== null)
+		if (!Type.isNull(value))
 		{
 			const inlineProperty = this.getProperty()[this.getProperty().length - 1];
 			if (inlineProperty in value)
 			{
 				this.setValue(value[inlineProperty]);
+				this.cache.delete('value');
 				this.unsetActive();
 
 				return;
 			}
 		}
 		this.setValue(null);
+		this.cache.set('value', null);
 	}
 
-	setValue(value: string | {string: string} | null): void
+	setValue(value: string | {string: string} | null)
 	{
 	}
 
@@ -122,5 +132,13 @@ export default class BaseProcessor extends EventEmitter
 	{
 		this.cache.delete('value');
 		this.emit('onChange');
+	}
+
+	defineActiveControl(items, currentNode)
+	{
+	}
+
+	setActiveControl(controlName)
+	{
 	}
 }

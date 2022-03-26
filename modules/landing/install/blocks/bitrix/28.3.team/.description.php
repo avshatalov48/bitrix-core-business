@@ -23,6 +23,7 @@ return array(
 			'useInDesigner' => false,
 			'type' => 'img',
 			'dimensions' => array('width' => 540),
+			'create2xByDefault' => false,
 		),
 		'.landing-block-node-employee-quote' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_TEAM002._NODES_LANDINGBLOCKNODEEMPLOYEEQUOTE'),

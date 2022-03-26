@@ -1543,7 +1543,7 @@ class CAllSocNetUserToGroup
 		return true;
 	}
 
-	public static function TransferModerator2Member($userID, $groupID, $relationIdList, $currentUserIsAdmin): bool
+	public static function TransferModerator2Member($userID, $groupID, $relationIdList): bool
 	{
 		global $APPLICATION, $USER;
 
@@ -1570,14 +1570,6 @@ class CAllSocNetUserToGroup
 		if (!$arGroup || !is_array($arGroup))
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_UG_ERROR_NO_GROUP_ID"), "ERROR_NO_GROUP");
-			return false;
-		}
-
-		$arUserPerms = CSocNetUserToGroup::InitUserPerms($userID, $arGroup, $currentUserIsAdmin);
-
-		if (!$arUserPerms["UserCanModifyGroup"])
-		{
-			$APPLICATION->ThrowException(GetMessage("SONET_UG_ERROR_NO_PERMS"), "ERROR_NO_PERMS");
 			return false;
 		}
 
@@ -1738,7 +1730,7 @@ class CAllSocNetUserToGroup
 		return $bSuccess;
 	}
 
-	public static function TransferMember2Moderator($userID, $groupID, $relationIdList, $currentUserIsAdmin): bool
+	public static function TransferMember2Moderator($userID, $groupID, $relationIdList): bool
 	{
 		global $APPLICATION, $USER;
 
@@ -1765,14 +1757,6 @@ class CAllSocNetUserToGroup
 		if (!$arGroup || !is_array($arGroup))
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_UG_ERROR_NO_GROUP_ID"), "ERROR_NO_GROUP");
-			return false;
-		}
-
-		$arUserPerms = CSocNetUserToGroup::InitUserPerms($userID, $arGroup, $currentUserIsAdmin);
-
-		if (!$arUserPerms["UserCanModifyGroup"])
-		{
-			$APPLICATION->ThrowException(GetMessage("SONET_UG_ERROR_NO_PERMS"), "ERROR_NO_PERMS");
 			return false;
 		}
 
@@ -2159,7 +2143,16 @@ class CAllSocNetUserToGroup
 		CSocNetUserToGroup::__SpeedFileDelete($arGroup["OWNER_ID"]);
 
 		// setting relations for the new owner
-		$dbRelation = CSocNetUserToGroup::GetList(array(), array("USER_ID" => $userID, "GROUP_ID" => $groupID), false, false, array("ID"));
+		$dbRelation = CSocNetUserToGroup::GetList(
+			[],
+			[
+				'USER_ID' => $userID,
+				'GROUP_ID' => $groupID,
+			],
+			false,
+			false,
+			[ 'ID', 'ROLE' ]
+		);
 		if ($arRelation = $dbRelation->Fetch())
 		{
 			$arFields = array(
@@ -2184,6 +2177,21 @@ class CAllSocNetUserToGroup
 				$APPLICATION->ThrowException($errorMessage, "ERROR_UPDATE_USER2GROUP");
 				$DB->Rollback();
 				return false;
+			}
+
+			if (!in_array($arRelation["ID"], UserToGroupTable::getRolesMember(), true))
+			{
+				UserToGroup::addInfoToChat([
+					'group_id' => $groupID,
+					'user_id' => $userID,
+					'action' => UserToGroup::CHAT_ACTION_IN,
+					'role' => $arFields['ROLE'],
+				]);
+			}
+
+			if (Loader::includeModule('im'))
+			{
+				CIMNotify::deleteByTag('SOCNET|INVITE_GROUP|' . (int)$userID  . '|' . (int)$arRelation['ID']);
 			}
 		}
 		else

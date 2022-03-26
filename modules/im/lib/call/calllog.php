@@ -2,7 +2,7 @@
 
 namespace Bitrix\Im\Call;
 
-use Bitrix\Im\Call\Integration\EntityFabric;
+use Bitrix\Im\Call\Integration\EntityFactory;
 use Bitrix\Im\Chat;
 use Bitrix\Im\Common;
 use Bitrix\Im\Model\CallTable;
@@ -134,6 +134,27 @@ class CallLog
 			if (defined('IM_CALL_LOG_PATH'))
 			{
 				$connection['LOG_URL'] = IM_CALL_LOG_PATH."{$row['CALL_ID']}-{$row['USER_ID']}.txt";
+			}
+			if ($list[$row['CALL_ID']]['PROVIDER'] === Call::PROVIDER_VOXIMPLANT && defined('IM_CALL_STAT_URL'))
+			{
+				$connection['STAT_URL'] = str_replace(
+					[
+						'#callId#',
+						'#userId#',
+						'#tsFrom#',
+						'#tsTo#',
+					],
+					[
+						$row['CALL_ID'],
+						$row['USER_ID'],
+						$list[$row['CALL_ID']]['START_DATE']->getTimestamp() * 1000,
+						$list[$row['CALL_ID']]['END_DATE']
+							? $list[$row['CALL_ID']]['END_DATE']->getTimestamp() * 1000
+							: ($list[$row['CALL_ID']]['START_DATE']->getTimestamp() + 7200) * 1000
+						,
+					],
+					IM_CALL_STAT_URL
+				);
 			}
 
 			unset($connection['CALL_ID']);

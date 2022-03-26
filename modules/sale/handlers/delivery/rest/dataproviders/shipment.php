@@ -20,13 +20,16 @@ final class Shipment
 	public static function getData(Sale\Shipment $shipment): array
 	{
 		return [
+			'ID' => $shipment->getId() ?: null,
 			'DELIVERY_SERVICE' => self::getDeliveryService($shipment->getDeliveryId()),
 			'PRICE' =>  $shipment->getShipmentItemCollection()->getPrice(),
 			'CURRENCY' => $shipment->getCurrency(),
 			'WEIGHT' => $shipment->getWeight(),
-			'PROPERTIES' => self::getProperties($shipment),
+			'PROPERTY_VALUES' => self::getPropertyValues($shipment),
 			'ITEMS' => self::getItems($shipment),
-			'EXTRA_SERVICES' => self::getExtraServices($shipment),
+			'EXTRA_SERVICES_VALUES' => self::getExtraServices($shipment),
+			'RESPONSIBLE_CONTACT' => ResponsibleContact::getData($shipment),
+			'RECIPIENT_CONTACT' => RecipientContact::getData($shipment),
 		];
 	}
 
@@ -43,14 +46,43 @@ final class Shipment
 		}
 
 		$result = [
-			'CONFIG' => $delivery->getConfigValues(),
+			'ID' => (int)$delivery->getId(),
+			'CONFIG' => self::getConfigValues($delivery->getConfigValues()),
 		];
 		$parentDelivery = $delivery->getParentService();
 		if ($parentDelivery)
 		{
 			$result['PARENT'] = [
-				'CONFIG' => $parentDelivery->getConfigValues(),
+				'ID' => (int)$parentDelivery->getId(),
+				'CONFIG' => self::getConfigValues($parentDelivery->getConfigValues()),
 			];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param array $rawConfig
+	 * @return array
+	 */
+	private static function getConfigValues(array $rawConfig): array
+	{
+		$result = [];
+
+		if (isset($rawConfig['MAIN']) && is_array($rawConfig['MAIN']))
+		{
+			foreach ($rawConfig['MAIN'] as $name => $value)
+			{
+				if ($name === 'REST_CODE')
+				{
+					continue;
+				}
+
+				$result[] = [
+					'CODE' => $name,
+					'VALUE' => $value
+				];
+			}
 		}
 
 		return $result;
@@ -103,12 +135,9 @@ final class Shipment
 		foreach ($extraServiceManager->getItems() as $extraService)
 		{
 			$result[] = [
-				'ID' => $extraService->getId(),
+				'ID' => (int)$extraService->getId(),
 				'CODE' => $extraService->getCode(),
-				'NAME' => $extraService->getName(),
 				'VALUE' => $extraService->getValue(),
-				'INIT_VALUE' => $extraService->getInitial(),
-				'PRICE' => $extraService->getPriceShipment(),
 			];
 		}
 
@@ -119,7 +148,7 @@ final class Shipment
 	 * @param Sale\Shipment $shipment
 	 * @return array
 	 */
-	private static function getProperties(Sale\Shipment $shipment): array
+	private static function getPropertyValues(Sale\Shipment $shipment): array
 	{
 		$result = [];
 
@@ -127,12 +156,16 @@ final class Shipment
 		/** @var Sale\PropertyValue $property */
 		foreach ($propertyCollection as $property)
 		{
+			if (!in_array($property->getType(), ['STRING', 'ADDRESS']))
+			{
+				continue;
+			}
+			
 			$propertyId = $property->getPropertyId();
 
-			$result[$propertyId] = [
-				'PROPERTY' => [
-					'ID' => $propertyId,
-				],
+			$result[] = [
+				'ID' => (int)$propertyId,
+				'TYPE' => $property->getType(),
 				'VALUE' => self::getPropertyValue($property),
 			];
 		}

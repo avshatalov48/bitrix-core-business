@@ -1,0 +1,97 @@
+.catalog-document-product-list-payment-side-table {
+	width: 50%;
+	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525c69;
+}
+
+.catalog-document-product-list-payment-side-table-row {
+    text-align: right;
+}
+
+.catalog-document-product-list-payment-side-table td.catalog-document-product-list-payment-side-table-td-border {
+	padding-bottom: 18px;
+	position: relative;
+}
+
+.catalog-document-product-list-payment-side-table td {
+	padding-bottom: 8px;
+}
+
+.catalog-document-product-list-payment-side-table-td-border:last-child:after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	width: 200%;
+	height: 1px;
+	background: #f0f3f5;
+}
+
+.catalog-document-product-list-result-grid-item-currency-symbol {
+	color: rgba(82,92,105,.5);
+}
+
+.catalog-document-product-list-result-grid-total-big .catalog-document-product-list-result-grid-item-currency-symbol {
+	color: rgba(82,92,105,.5);
+	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+}
+
+.catalog-document-product-list-page-content {
+	-webkit-box-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	position: relative;
+}
+
+.catalog-document-product-list-result-container {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.catalog-document-product-list-result-grid-row {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	justify-content: flex-end;
+	font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525c69;
+	margin-bottom: 5px;
+}
+
+.catalog-document-product-list-result-grid-item--flex-100 {
+	flex: 1;
+	text-align: right;
+	max-width: calc(100% - 160px);
+}
+
+.catalog-document-product-list-result-grid-benefit {
+	color: #6e881a;
+}
+
+.catalog-document-product-list-result-grid-benefit .catalog-document-product-list-result-grid-item {
+	padding-bottom: 14px;
+	margin-bottom: 7px;
+	border-bottom: 1px solid #f0f3f5;
+}
+
+.catalog-document-product-list-result-grid-total {
+	color: #525c69;
+}
+
+.catalog-document-product-list-result-grid-total-big {
+	font-family: "OpenSans-SemiBold", Helvetica, Arial, sans-serif;
+	font-size: 21px;
+	color: #525c69;
+	padding-top: 10px;
+}
+
+.catalog-document-product-list-result-grid-total-big .catalog-document-product-list-result-grid-item-currency {
+	flex-basis: 95px;
+	text-align: right;
+	white-space: nowrap;
+	padding-left: 5px
+}
+

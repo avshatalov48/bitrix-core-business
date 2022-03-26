@@ -88,7 +88,7 @@ foreach(GeoIp\Manager::getHandlers() as $className => $handler)
 	);
 }
 
-sortByColumn($handlers, array($by => (ToUpper($order) == 'ASC' ? SORT_ASC : SORT_DESC)));
+sortByColumn($handlers, array($by => (strtoupper($order) == 'ASC' ? SORT_ASC : SORT_DESC)));
 
 foreach($handlers as $fields)
 {

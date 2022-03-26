@@ -25,6 +25,7 @@ export default class Footer extends DefaultFooter
 
 			const inviteEmployeeLink = this.getOption('inviteEmployeeLink');
 			const inviteGuestLink = this.getOption('inviteGuestLink');
+			const inviteEmployeeScope = this.getOption('inviteEmployeeScope');
 			const createProjectLink = this.getOption('createProjectLink');
 
 			const complexPhrases = {
@@ -98,7 +99,22 @@ export default class Footer extends DefaultFooter
 			}
 			else if (inviteEmployeeLink)
 			{
-				return this.createInviteEmployeeLink(Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE'), true);
+				let phrase = '';
+				switch (inviteEmployeeScope)
+				{
+					case 'I':
+						phrase = Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE');
+						break;
+					case 'E':
+						phrase = Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_EXTRANET');
+						break;
+					case 'IE':
+						phrase = Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE_OR_EXTRANET');
+						break;
+					default:
+				}
+
+				return this.createInviteEmployeeLink(phrase, true);
 			}
 			else if (inviteGuestLink)
 			{

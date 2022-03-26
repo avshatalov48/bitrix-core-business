@@ -84,6 +84,9 @@ this.BX = this.BX || {};
 	  template: "\n\t\t<div :class=\"itemClasses\" :key=\"element.templateId\">\n\t\t\t<div v-if=\"mode === 'opponent'\" class=\"im-skeleton-logo\"></div>\n\t\t\t<div class=\"im-skeleton-content\">\n\t\t\t\t<div class=\"im-skeleton-line-row\">\n\t\t\t\t\t<div style=\"max-width: 35%\" class=\"im-skeleton-line\"></div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"im-skeleton-line-row\">\n\t\t\t\t\t<div style=\"max-width: 100%\" class=\"im-skeleton-line\"></div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"im-skeleton-line-row\">\n\t\t\t\t\t<div style=\"max-width: 55%\" class=\"im-skeleton-line\"></div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"im-skeleton-line-row\">\n\t\t\t\t\t<div style=\"max-width: 26px; margin-left: auto;\" class=\"im-skeleton-line\"></div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"im-skeleton-like\"></div>\n\t\t\t</div>\n\t\t</div>\n\t"
 	};
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var MessageList = {
 	  /**
 	   * @emits EventType.dialog.readMessage
@@ -104,55 +107,55 @@ this.BX = this.BX || {};
 	  props: {
 	    userId: {
 	      type: Number,
-	      default: 0
+	      "default": 0
 	    },
 	    dialogId: {
 	      type: String,
-	      default: "0"
+	      "default": "0"
 	    },
 	    messageLimit: {
 	      type: Number,
-	      default: 50
+	      "default": 50
 	    },
 	    enableReadMessages: {
 	      type: Boolean,
-	      default: true
+	      "default": true
 	    },
 	    enableReactions: {
 	      type: Boolean,
-	      default: true
+	      "default": true
 	    },
 	    enableDateActions: {
 	      type: Boolean,
-	      default: true
+	      "default": true
 	    },
 	    enableCreateContent: {
 	      type: Boolean,
-	      default: true
+	      "default": true
 	    },
 	    enableGestureQuote: {
 	      type: Boolean,
-	      default: true
+	      "default": true
 	    },
 	    enableGestureQuoteFromRight: {
 	      type: Boolean,
-	      default: true
+	      "default": true
 	    },
 	    enableGestureMenu: {
 	      type: Boolean,
-	      default: false
+	      "default": false
 	    },
 	    showMessageUserName: {
 	      type: Boolean,
-	      default: true
+	      "default": true
 	    },
 	    showMessageAvatar: {
 	      type: Boolean,
-	      default: true
+	      "default": true
 	    },
 	    showMessageMenu: {
 	      type: Boolean,
-	      default: true
+	      "default": true
 	    }
 	  },
 	  components: {
@@ -206,7 +209,7 @@ this.BX = this.BX || {};
 	      });
 	    }
 	  },
-	  computed: babelHelpers.objectSpread({
+	  computed: _objectSpread({
 	    TemplateType: function TemplateType() {
 	      return im_const.DialogTemplateType;
 	    },
@@ -302,7 +305,7 @@ this.BX = this.BX || {};
 
 	      var text = '';
 
-	      if (this.dialog.type === im_const.DialogType.private) {
+	      if (this.dialog.type === im_const.DialogType["private"]) {
 	        var record = this.dialog.readedList[0];
 
 	        if (record.messageId === this.lastMessageId && record.userId !== this.lastMessageAuthorId) {
@@ -976,14 +979,14 @@ this.BX = this.BX || {};
 	        this.forceScrollToPosition(body.scrollHeight - body.clientHeight);
 	      } //with animation
 	      else {
-	          var scrollParams = {};
+	        var scrollParams = {};
 
-	          if (duration) {
-	            scrollParams.duration = duration;
-	          }
-
-	          this.animatedScrollToPosition(babelHelpers.objectSpread({}, scrollParams));
+	        if (duration) {
+	          scrollParams.duration = duration;
 	        }
+
+	        this.animatedScrollToPosition(_objectSpread({}, scrollParams));
+	      }
 	    },
 	    scrollToFirstUnreadMessage: function scrollToFirstUnreadMessage() {
 	      var unreadId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
@@ -1023,8 +1026,8 @@ this.BX = this.BX || {};
 	          end = 10;
 	        } //if no element and stickToTop = false - scroll to bottom
 	        else {
-	            end = body.scrollHeight - body.clientHeight;
-	          }
+	          end = body.scrollHeight - body.clientHeight;
+	        }
 	      } else if (stickToTop) {
 	        //message will be at the top of screen (+little offset)
 	        end = element.offsetTop - this.messageScrollOffset / 2;
@@ -1226,7 +1229,7 @@ this.BX = this.BX || {};
 	        _this12.pagesLoaded += 1;
 	        im_lib_logger.Logger.warn('History page loaded. Total loaded - ', _this12.pagesLoaded);
 	        return _this12.onAfterHistoryRequest();
-	      }).catch(function (result) {
+	      })["catch"](function (result) {
 	        im_lib_logger.Logger.warn('Request history error', result);
 	      });
 	    },
@@ -1339,7 +1342,7 @@ this.BX = this.BX || {};
 	        _this15.pagesLoaded += 1;
 	        im_lib_logger.Logger.warn('Unread page loaded. Total loaded - ', _this15.pagesLoaded);
 	        return _this15.onAfterUnreadRequest();
-	      }).catch(function (result) {
+	      })["catch"](function (result) {
 	        im_lib_logger.Logger.warn('Unread history error', result);
 	      });
 	    },
@@ -1467,7 +1470,7 @@ this.BX = this.BX || {};
 
 	        _this18.stopHistoryLoading = false;
 	        _this18.isScrolling = false;
-	      }).catch(function (result) {
+	      })["catch"](function (result) {
 	        im_lib_logger.Logger.warn('Unread history error', result);
 	      });
 	    },
@@ -1707,8 +1710,11 @@ this.BX = this.BX || {};
 	  template: "\n\t<div class=\"bx-im-dialog\" @click=\"onDialogClick\" @touchmove=\"onDialogMove\" ref=\"container\">\n\t\t<div :class=\"bodyClasses\" @scroll.passive=\"onScroll\" ref=\"body\">\n\t\t\t<!-- Main elements loop -->\n\t\t\t<template v-for=\"(element, index) in formattedCollection\">\n\t\t\t\t<!-- Message -->\n\t\t\t\t<template v-if=\"element.templateType === TemplateType.message\">\n\t\t\t\t\t<div\n\t\t\t\t\t\t:class=\"getElementClass(element.id)\"\n\t\t\t\t\t\t:data-message-id=\"element.id\"\n\t\t\t\t\t\t:data-template-id=\"element.templateId\"\n\t\t\t\t\t\t:data-type=\"element.templateType\" \n\t\t\t\t\t\t:key=\"element.templateId\"\n\t\t\t\t\t\tv-bx-im-directive-dialog-observer=\"element.unread? ObserverType.read: ObserverType.none\"\n\t\t\t\t\t>\t\t\t\t\n<!--\t\t\t\t\t  <div style=\"width: 200px; height: 50px; margin-top: 5px; background: #000; color: #fff;\">{{ element.textConverted }}</div>-->\n\t\t\t\t\t\t<component :is=\"element.params.COMPONENT_ID\"\n\t\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t\t:chatId=\"chatId\"\n\t\t\t\t\t\t\t:message=\"element\"\n\t\t\t\t\t\t\t:enableReactions=\"enableReactions\"\n\t\t\t\t\t\t\t:enableDateActions=\"enableDateActions\"\n\t\t\t\t\t\t\t:enableCreateContent=\"showMessageMenu\"\n\t\t\t\t\t\t\t:enableGestureQuote=\"enableGestureQuote\"\n\t\t\t\t\t\t\t:enableGestureQuoteFromRight=\"enableGestureQuoteFromRight\"\n\t\t\t\t\t\t\t:enableGestureMenu=\"enableGestureMenu\"\n\t\t\t\t\t\t\t:showName=\"showMessageUserName\"\n\t\t\t\t\t\t\t:showAvatar=\"showMessageAvatar\"\n\t\t\t\t\t\t\t:showMenu=\"showMessageMenu\"\n\t\t\t\t\t\t\t:capturedMoveEvent=\"capturedMoveEvent\"\n\t\t\t\t\t\t\t:referenceContentClassName=\"DialogReferenceClassName.listItem\"\n\t\t\t\t\t\t\t:referenceContentBodyClassName=\"DialogReferenceClassName.listItemBody\"\n\t\t\t\t\t\t\t:referenceContentNameClassName=\"DialogReferenceClassName.listItemName\"\n\t\t\t\t\t\t\t@clickByUserName=\"onClickOnUserName\"\n\t\t\t\t\t\t\t@clickByUploadCancel=\"onClickOnUploadCancel\"\n\t\t\t\t\t\t\t@clickByKeyboardButton=\"onClickOnKeyboardButton\"\n\t\t\t\t\t\t\t@clickByChatTeaser=\"onClickOnChatTeaser\"\n\t\t\t\t\t\t\t@clickByMessageMenu=\"onClickOnMessageMenu\"\n\t\t\t\t\t\t\t@clickByMessageRetry=\"onClickOnMessageRetry\"\n\t\t\t\t\t\t\t@setMessageReaction=\"onMessageReactionSet\"\n\t\t\t\t\t\t\t@openMessageReactionList=\"onMessageReactionListOpen\"\n\t\t\t\t\t\t\t@dragMessage=\"onDragMessage\"\n\t\t\t\t\t\t\t@quoteMessage=\"onQuoteMessage\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<!-- Date groups -->\n\t\t\t\t<template v-else-if=\"element.templateType === TemplateType.group\">\n\t\t\t\t\t<div class=\"bx-im-dialog-group\" :data-template-id=\"element.templateId\" :data-type=\"element.templateType\" :key=\"element.templateId\">\n\t\t\t\t\t\t<div class=\"bx-im-dialog-group-date\">{{ element.text }}</div>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<!-- Delimiters -->\n\t\t\t\t<template v-else-if=\"element.templateType === TemplateType.delimiter\">\n\t\t\t\t\t<div class=\"bx-im-dialog-delimiter\" :data-template-id=\"element.templateId\" :data-type=\"element.templateType\" :key=\"element.templateId\"></div>\n\t\t\t\t</template>\n\t\t\t\t<!-- Placeholders -->\n\t\t\t\t<template v-else-if=\"element.templateType === TemplateType.placeholder\">\n\t\t\t\t\t<component :is=\"'Placeholder'+element.placeholderType\" :element=\"element\"/>\n\t\t\t\t</template>\n\t\t\t</template>\n\t\t\t<!-- Writing and readed statuses -->\n\t\t\t<transition name=\"bx-im-dialog-status\">\n\t\t\t\t<template v-if=\"writingStatusText\">\n\t\t\t\t\t<div class=\"bx-im-dialog-status\">\n\t\t\t\t\t\t<span class=\"bx-im-dialog-status-writing\"></span>\n\t\t\t\t\t\t{{ writingStatusText }}\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<template v-else-if=\"statusReaded\">\n\t\t\t\t\t<div class=\"bx-im-dialog-status\" @click=\"onClickOnReadList\">\n\t\t\t\t\t\t{{ statusReaded }}\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t</transition>\n\t\t\t<div v-if=\"showStatusPlaceholder\" class=\"bx-im-dialog-status-placeholder\"></div>\n\t\t</div>\n\t\t<!-- Scroll button -->\n\t\t<transition name=\"bx-im-dialog-scroll-button\">\n\t\t\t<div v-show=\"showScrollButton || (unreadCounter > 0 && !isLastIdInCollection)\" class=\"bx-im-dialog-scroll-button-box\" @click=\"onScrollButtonClick\">\n\t\t\t\t<div class=\"bx-im-dialog-scroll-button\">\n\t\t\t\t\t<div v-show=\"unreadCounter\" class=\"bx-im-dialog-scroll-button-counter\">\n\t\t\t\t\t\t<div class=\"bx-im-dialog-scroll-button-counter-digit\">{{ formattedUnreadCounter }}</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"bx-im-dialog-scroll-button-arrow\"></div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</transition>\n\t</div>\n"
 	};
 
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var ErrorState = {
-	  computed: babelHelpers.objectSpread({}, ui_vue_vuex.Vuex.mapState({
+	  computed: _objectSpread$1({}, ui_vue_vuex.Vuex.mapState({
 	    application: function application(state) {
 	      return state.application;
 	    }
@@ -1773,7 +1779,7 @@ this.BX = this.BX || {};
 	  props: {
 	    quotePanelData: {
 	      type: Object,
-	      default: function _default() {
+	      "default": function _default() {
 	        return {
 	          id: 0,
 	          title: '',
@@ -1783,7 +1789,7 @@ this.BX = this.BX || {};
 	      }
 	    },
 	    canClose: {
-	      default: true
+	      "default": true
 	    }
 	  },
 	  methods: {
@@ -1821,34 +1827,34 @@ this.BX = this.BX || {};
 	  },
 	  props: {
 	    userId: {
-	      default: 0
+	      "default": 0
 	    },
 	    dialogId: {
-	      default: 0
+	      "default": 0
 	    },
 	    skipDataRequest: {
-	      default: false
+	      "default": false
 	    },
 	    showLoadingState: {
-	      default: true
+	      "default": true
 	    },
 	    showEmptyState: {
-	      default: true
+	      "default": true
 	    },
 	    enableGestureQuote: {
-	      default: true
+	      "default": true
 	    },
 	    enableGestureQuoteFromRight: {
-	      default: true
+	      "default": true
 	    },
 	    enableGestureMenu: {
-	      default: false
+	      "default": false
 	    },
 	    showMessageUserName: {
-	      default: true
+	      "default": true
 	    },
 	    showMessageAvatar: {
-	      default: true
+	      "default": true
 	    }
 	  },
 	  data: function data() {

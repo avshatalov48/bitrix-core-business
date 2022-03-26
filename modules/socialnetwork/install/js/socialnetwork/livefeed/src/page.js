@@ -50,6 +50,8 @@ class Page
 			return;
 		}
 
+		this.setRequestModeNew();
+
 		params = (
 			Type.isPlainObject(params)
 				? params
@@ -168,10 +170,10 @@ class Page
 
 			if (responseData.html.length > 0)
 			{
-				this.clearContainerExternal(false);
+				this.clearContainerExternal();
 				BX.LazyLoad.clearImages();
 
-				const pageNode = Tag.render`<div id="content_block_${(Math.floor(Math.random() * 1000))}" class="feed-wrap" style="display: block;">${responseData.html}</div>`;
+				const pageNode = Tag.render`<div id="content_block_${(Math.floor(Math.random() * 1000))}" class="feed-wrap" style="display: block;"></div>`;
 
 				feedContainer.appendChild(pageNode);
 
@@ -235,6 +237,8 @@ class Page
 		{
 			return false;
 		}
+
+		this.setRequestModeMore();
 
 		this.loadStarted = true;
 
@@ -376,7 +380,7 @@ class Page
 
 				const contentBlockId = `content_block_${(Math.floor(Math.random() * 1000))}`;
 
-				const pageNode = Tag.render`<div id="${contentBlockId}" class="feed-wrap" style="display:${(this.nextPageFirst ? 'none' : 'block')};">${responseData.html}</div>`;
+				const pageNode = Tag.render`<div id="${contentBlockId}" class="feed-wrap" style="display:${(this.nextPageFirst ? 'none' : 'block')};"></div>`;
 
 				const feedContainer = document.getElementById('log_internal_container');
 				if (!feedContainer)
@@ -398,7 +402,7 @@ class Page
 					}
 				});
 
-				this.clearContainerExternal(false);
+				this.clearContainerExternal();
 
 				if (pageNumber === 2)
 				{
@@ -459,17 +463,21 @@ class Page
 			}
 
 			InformerInstance.lockCounterAnimation = false;
-			this.clearContainerExternal(false);
+			this.clearContainerExternal();
 		});
 
 		return false;
 	}
 
-	clearContainerExternal(mode)
+	clearContainerExternal()
 	{
-		InformerInstance.hideWrapAnimation();
+ 		if (this.requestMode === 'new')
+		{
+			InformerInstance.hideWrapAnimation();
+			InformerInstance.recover();
+		}
+
 		InformerInstance.hideReloadAnimation();
-		InformerInstance.recover();
 
 		const counterPreset = document.getElementById('sonet_log_counter_preset');
 		if (
@@ -481,12 +489,12 @@ class Page
 		}
 	}
 
-	clearContainerExternalNew()
+	setRequestModeNew()
 	{
 		this.requestMode = 'new';
 	}
 
-	clearContainerExternalMore()
+	setRequestModeMore()
 	{
 		this.requestMode = 'more';
 	}
@@ -494,7 +502,7 @@ class Page
 	showRefreshError()
 	{
 		InformerInstance.lockCounterAnimation = false;
-		this.clearContainerExternal(false);
+		this.clearContainerExternal();
 	}
 	setSignedParameters(value)
 	{

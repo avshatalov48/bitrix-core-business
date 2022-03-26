@@ -58,7 +58,7 @@ $teaserParams = [
 		</div>
 		<div class="landing-sm-teaser-control">
 			<div class="landing-sm-teaser-button">
-				<form class="landing-sm-teaser-inline" data-role="landing-sm-form"  action="<?= $component->getUri(['action' => 'create']);?>" method="post">
+				<form class="landing-sm-teaser-inline" data-role="landing-sm-form" action="<?= \htmlspecialcharsbx($component->getUri(['action' => 'create']))?>" method="post">
 					<input type="hidden" name="param" value="store_v3" />
 					<?= bitrix_sessid_post();?>
 					<?if (\Bitrix\Landing\Domain::canRegisterInBitrix24()):?>

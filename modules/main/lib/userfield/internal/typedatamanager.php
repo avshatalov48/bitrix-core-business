@@ -350,7 +350,7 @@ abstract class TypeDataManager extends DataManager
 
 		$userFields = $userFieldManager->getUserFields($factory->getUserFieldEntityId($type['ID']));
 
-		$entityName = $factory->getUserFieldEntityPrefix().$type['NAME'];
+		$entityName = $type['code'] . '_items_' . $type['ID'];
 		$entityClassName = $entityName.'Table';
 		$entityTableName = $type['TABLE_NAME'];
 		if(class_exists($entityClassName))

@@ -5,7 +5,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 }
 
-final class SocialnetworkBlogPostEdit extends CBitrixComponent
+final class SocialnetworkBlogPostEdit extends \Bitrix\Socialnetwork\Component\BlogPostEdit
 {
 	public function convertRequestData(): void
 	{

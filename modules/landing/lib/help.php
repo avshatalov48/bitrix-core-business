@@ -158,6 +158,26 @@ class Help
 			'es' => '12674434',
 			'pl' => '12768522'
 		),
+		'FORM_GENERAL' => array(
+			'ru' => '6875449',
+			'ua' => '5887811',
+			'en' => '9368711',
+			'de' => '8710329',
+			'es' => '8653779',
+			'br' => '9254221',
+			'pl' => '10186974',
+			'fr' => '9848565'
+		),
+		'WIDGET_GENERAL' => array(
+			'ru' => '6986667',
+			'ua' => '6904255',
+			'en' => '4112659',
+			'de' => '4116021',
+			'es' => '5471995',
+			'br' => '6345873',
+			'pl' => '10186996',
+			'fr' => '8459729'
+		),
 		'FREE_MESSAGES' => array(
 			'ru' => '13655934'
 		)
@@ -173,14 +193,20 @@ class Help
 	}
 
 	/**
-	 * Gets url to help article by code.
+	 * Gets help id and help zone by code.
 	 * @param string $code Help code.
-	 * @return string
+	 * @param string|null $zone Help code zone (force mode).
+	 * @return array
 	 */
-	public static function getHelpUrl($code)
+	public static function getHelpData(string $code, ?string $zone = null): array
 	{
 		static $myZone = null;
 		static $defaultZone = self::DEFAULT_ZONE_ID;
+
+		if ($zone && isset(self::$helpUrl[$code][$zone]))
+		{
+			return [self::$helpUrl[$code][$zone], $zone];
+		}
 
 		if ($myZone === null)
 		{
@@ -208,6 +234,18 @@ class Help
 				$helpZone = $defaultZone;
 			}
 		}
+
+		return [$helpId, $helpZone];
+	}
+
+	/**
+	 * Gets url to help article by code.
+	 * @param string $code Help code.
+	 * @return string
+	 */
+	public static function getHelpUrl(string $code): string
+	{
+		[$helpId, $helpZone] = self::getHelpData($code);
 
 		if ($helpId && $helpZone)
 		{

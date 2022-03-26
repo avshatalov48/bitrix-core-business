@@ -15,13 +15,13 @@
 	   */
 	  props: {
 	    messageCounter: {
-	      default: 0
+	      "default": 0
 	    },
 	    messageLastDate: {
-	      default: 0
+	      "default": 0
 	    },
 	    languageId: {
-	      default: 'en'
+	      "default": 'en'
 	    }
 	  },
 	  computed: {

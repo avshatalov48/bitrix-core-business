@@ -59,8 +59,7 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 
 	public function __construct()
 	{
-		global $DBType;
-		$this->Init($curPath = "", $DBType, $updaterName = "", $curDir = "", self::MODULE_ID, "DB");
+		$this->Init($curPath = "", 'mysql', $updaterName = "", $curDir = "", self::MODULE_ID, "DB");
 	}
 
 	public function serialize()
@@ -70,8 +69,7 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 
 	public function unserialize($data)
 	{
-		global $DBType;
-		$this->Init($curPath = "", $DBType, $updaterName = "", $curDir = "", self::MODULE_ID, "DB");
+		$this->Init($curPath = "", 'mysql', $updaterName = "", $curDir = "", self::MODULE_ID, "DB");
 		$this->data = unserialize($data, ['allowed_classes' => false]);
 	}
 
@@ -110,10 +108,10 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 	// only for module_updater
 	public static function updateDBSchemaRenameIndexes()
 	{
-		global $DB, $DBType;
+		global $DB;
 
 		$updater = new \CUpdater();
-		$updater->Init($curPath = "", $DBType, $updaterName = "", $curDir = "", "sale", "DB");
+		$updater->Init($curPath = "", 'mysql', $updaterName = "", $curDir = "", "sale", "DB");
 
 		$locationTableExists = 	$updater->TableExists("b_sale_location");
 
@@ -234,10 +232,10 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 	// function stands for the corresponding block in module_updater.php
 	public static function updateDBSchema()
 	{
-		global $DB, $DBType;
+		global $DB;
 
 		$updater = new \CUpdater();
-		$updater->Init($curPath = "", $DBType, $updaterName = "", $curDir = "", "sale", "DB");
+		$updater->Init($curPath = "", 'mysql', $updaterName = "", $curDir = "", "sale", "DB");
 
 		// table existence check
 		$locationTableExists = 					$updater->TableExists("b_sale_location");
@@ -386,74 +384,7 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 
 			// dropping not-nulls
 
-			if($DBType == 'mysql')
-				$DB->query("ALTER TABLE b_sale_location MODIFY COUNTRY_ID int NULL");
-
-			if($DBType == 'mssql')
-				$DB->query("ALTER TABLE B_SALE_LOCATION ALTER COLUMN COUNTRY_ID int NULL");
-
-			if($DBType == 'oracle')
-			{
-				// dropping not-nulls
-
-				if($DB->query("SELECT * FROM ALL_TAB_COLUMNS WHERE TABLE_NAME = 'B_SALE_LOCATION' and COLUMN_NAME = 'COUNTRY_ID' and NULLABLE = 'N'")->fetch())
-				{
-					//if ($DB->IndexExists('b_sale_location', array('COUNTRY_ID')))
-					//	$DB->query('drop index IXS_LOCATION_COUNTRY_ID');
-
-					$DB->query("ALTER TABLE B_SALE_LOCATION MODIFY ( COUNTRY_ID NUMBER(18) NULL)");
-				}
-				//if (!$DB->IndexExists('b_sale_location', array('COUNTRY_ID')))
-				//	$DB->query('CREATE INDEX IXS_LOCATION_COUNTRY_ID ON B_SALE_LOCATION(COUNTRY_ID)');
-
-				// altering sequences for oracle
-
-				// new sequence for b_sale_location
-				if (($DB->query("select * from USER_OBJECTS where OBJECT_TYPE = 'SEQUENCE' and OBJECT_NAME = 'SQ_SALE_LOCATION'", true)->fetch())) // OK
-				{
-					$DB->query("RENAME SQ_SALE_LOCATION TO SQ_B_SALE_LOCATION"); // OK
-					$DB->query("CREATE OR REPLACE TRIGGER B_SALE_LOCATION_INSERT
-						BEFORE INSERT
-						ON B_SALE_LOCATION
-						FOR EACH ROW
-						BEGIN
-							IF :NEW.ID IS NULL THEN
-								SELECT SQ_B_SALE_LOCATION.NEXTVAL INTO :NEW.ID FROM dual;
-							END IF;
-						END;"); // OK
-
-				}
-
-				// new sequence for b_sale_location_group
-				if ($locationGroupTableExists && !($DB->query("select * from USER_OBJECTS where OBJECT_TYPE = 'SEQUENCE' and OBJECT_NAME = 'SQ_B_SALE_LOCATION_GROUP'", true)->fetch())) // OK
-				{
-					$DB->query("RENAME SQ_SALE_LOCATION_GROUP TO SQ_B_SALE_LOCATION_GROUP"); // OK
-					$DB->query("CREATE OR REPLACE TRIGGER B_SALE_LOCATION_GROUP_INSERT
-						BEFORE INSERT
-						ON B_SALE_LOCATION_GROUP
-						FOR EACH ROW
-						BEGIN
-							IF :NEW.ID IS NULL THEN
-								SELECT SQ_B_SALE_LOCATION_GROUP.NEXTVAL INTO :NEW.ID FROM dual;
-							END IF;
-						END;"); // OK
-				}
-
-				// new sequence for b_sale_location_group_lang
-				if ($locationGroupNameTableExists && !($DB->query("select * from USER_OBJECTS where OBJECT_TYPE = 'SEQUENCE' and OBJECT_NAME = 'SQ_B_SALE_LOCATION_GROUP_LANG'", true)->fetch())) // OK
-				{
-					$DB->query("RENAME SQ_SALE_LOCATION_GROUP_LANG TO SQ_B_SALE_LOCATION_GROUP_LANG"); // OK
-					$DB->query("CREATE OR REPLACE TRIGGER B_SALE_LOCGR_LANG_INSERT
-						BEFORE INSERT
-						ON B_SALE_LOCATION_GROUP_LANG
-						FOR EACH ROW
-						BEGIN
-							IF :NEW.ID IS NULL THEN
-								SELECT SQ_B_SALE_LOCATION_GROUP_LANG.NEXTVAL INTO :NEW.ID FROM dual;
-							END IF;
-						END;"); // OK
-				}
-			}
+			$DB->query("ALTER TABLE b_sale_location MODIFY COUNTRY_ID int NULL");
 
 			// adding columns to B_SALE_LOCATION_GROUP
 
@@ -520,21 +451,6 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 				$locationNameTableExists = true;
 			}
 
-			if($DBType == 'oracle' && $locationNameTableExists && !($DB->query("select * from USER_OBJECTS where OBJECT_TYPE = 'SEQUENCE' and OBJECT_NAME = 'SQ_B_SALE_LOC_NAME'", true)->fetch()))
-			{
-				$DB->query("CREATE SEQUENCE SQ_B_SALE_LOC_NAME INCREMENT BY 1 NOMAXVALUE NOCYCLE NOCACHE NOORDER"); // OK
-				$DB->query("CREATE OR REPLACE TRIGGER B_SALE_LOC_NAME_INSERT
-		BEFORE INSERT
-		ON B_SALE_LOC_NAME
-		FOR EACH ROW
-		BEGIN
-			IF :NEW.ID IS NULL THEN
-				SELECT SQ_B_SALE_LOC_NAME.NEXTVAL INTO :NEW.ID FROM dual;
-			END IF;
-		END;"); // OK
-
-			}
-
 			if ($locationNameTableExists)
 			{
 				if (!$DB->IndexExists('b_sale_loc_name', array('NAME_UPPER')))
@@ -576,21 +492,6 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 				$locationExternalServiceTableExists = true;
 			}
 
-			if($DBType == 'oracle' && $locationExternalServiceTableExists && !($DB->query("select * from USER_OBJECTS where OBJECT_TYPE = 'SEQUENCE' and OBJECT_NAME = 'SQ_B_SALE_LOC_EXT_SRV'", true)->fetch()))
-			{
-				$DB->query("CREATE SEQUENCE SQ_B_SALE_LOC_EXT_SRV INCREMENT BY 1 NOMAXVALUE NOCYCLE NOCACHE NOORDER"); // OK
-				$DB->query("CREATE OR REPLACE TRIGGER B_SALE_LOC_EXT_SRV_INSERT
-		BEFORE INSERT
-		ON B_SALE_LOC_EXT_SRV
-		FOR EACH ROW
-		BEGIN
-			IF :NEW.ID IS NULL THEN
-				SELECT SQ_B_SALE_LOC_EXT_SRV.NEXTVAL INTO :NEW.ID FROM dual;
-			END IF;
-		END;"); // OK
-
-			}
-
 			if (!$locationExternalTableExists)
 			{
 				$updater->query(array(
@@ -623,20 +524,6 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 				));
 
 				$locationExternalTableExists = true;
-			}
-
-			if($DBType == 'oracle' && $locationExternalTableExists && !($DB->query("select * from USER_OBJECTS where OBJECT_TYPE = 'SEQUENCE' and OBJECT_NAME = 'SQ_B_SALE_LOC_EXT'", true)->fetch()))
-			{
-				$DB->query("CREATE SEQUENCE SQ_B_SALE_LOC_EXT INCREMENT BY 1 NOMAXVALUE NOCYCLE NOCACHE NOORDER"); // OK
-				$DB->query("CREATE OR REPLACE TRIGGER B_SALE_LOC_EXT_INSERT
-		BEFORE INSERT
-		ON B_SALE_LOC_EXT
-		FOR EACH ROW
-		BEGIN
-			IF :NEW.ID IS NULL THEN
-				SELECT SQ_B_SALE_LOC_EXT.NEXTVAL INTO :NEW.ID FROM dual;
-			END IF;
-		END;");// OK
 			}
 
 			if ($locationExternalTableExists && !$DB->IndexExists('b_sale_loc_ext', array('LOCATION_ID', 'SERVICE_ID')))
@@ -679,20 +566,6 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 				$locationTypeTableExists = true;
 			}
 
-			if($DBType == 'oracle' && $locationTypeTableExists && !($DB->query("select * from USER_OBJECTS where OBJECT_TYPE = 'SEQUENCE' and OBJECT_NAME = 'SQ_B_SALE_LOC_TYPE'", true)->fetch()))
-			{
-				$DB->query("CREATE SEQUENCE SQ_B_SALE_LOC_TYPE INCREMENT BY 1 NOMAXVALUE NOCYCLE NOCACHE NOORDER"); // OK
-				$DB->query("CREATE OR REPLACE TRIGGER B_SALE_LOC_TYPE_INSERT
-		BEFORE INSERT
-		ON B_SALE_LOC_TYPE
-		FOR EACH ROW
-		BEGIN
-			IF :NEW.ID IS NULL THEN
-				SELECT SQ_B_SALE_LOC_TYPE.NEXTVAL INTO :NEW.ID FROM dual;
-			END IF;
-		END;"); // OK
-			}
-
 			if(!$locationTypeNameTableExists)
 			{
 				$updater->query(array(
@@ -725,20 +598,6 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 				));
 
 				$locationTypeNameTableExists = true;
-			}
-
-			if($DBType == 'oracle' && $locationTypeNameTableExists && !($DB->query("select * from USER_OBJECTS where OBJECT_TYPE = 'SEQUENCE' and OBJECT_NAME = 'SQ_B_SALE_LOC_TYPE_NAME'", true)->fetch()))
-			{
-				$DB->query("CREATE SEQUENCE SQ_B_SALE_LOC_TYPE_NAME INCREMENT BY 1 NOMAXVALUE NOCYCLE NOCACHE NOORDER"); // OK
-				$DB->query("CREATE OR REPLACE TRIGGER B_SALE_LOC_TYPE_NAME_INSERT
-		BEFORE INSERT
-		ON B_SALE_LOC_TYPE_NAME
-		FOR EACH ROW
-		BEGIN
-			IF :NEW.ID IS NULL THEN
-				SELECT SQ_B_SALE_LOC_TYPE_NAME.NEXTVAL INTO :NEW.ID FROM dual;
-			END IF;
-		END;"); // OK
 			}
 
 			if ($locationTypeNameTableExists)
@@ -830,10 +689,7 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 
 				$DB->query('update b_sale_tax2location set LOCATION_CODE = LOCATION_ID'); // OK: oracle, mssql
 
-				if($DBType == 'mssql')
-					$DB->query('ALTER TABLE b_sale_tax2location DROP CONSTRAINT PK_B_SALE_TAX2LOCATION'); // OK
-				else
-					$DB->query('ALTER TABLE b_sale_tax2location DROP PRIMARY KEY'); // OK: oracle
+				$DB->query('ALTER TABLE b_sale_tax2location DROP PRIMARY KEY'); // OK: oracle
 
 				$DB->query('ALTER TABLE b_sale_tax2location DROP COLUMN LOCATION_ID'); // OK: oracle, mssql
 
@@ -855,10 +711,7 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 
 				$DB->query('update b_sale_delivery2location set LOCATION_CODE = LOCATION_ID'); // OK: oracle, mssql
 
-				if($DBType == 'mssql')
-					$DB->query('ALTER TABLE b_sale_delivery2location DROP CONSTRAINT PK_B_SALE_DELIVERY2LOCATION'); // OK
-				else
-					$DB->query('ALTER TABLE b_sale_delivery2location DROP PRIMARY KEY'); // OK: oracle
+				$DB->query('ALTER TABLE b_sale_delivery2location DROP PRIMARY KEY'); // OK: oracle
 
 				$DB->query('ALTER TABLE b_sale_delivery2location DROP COLUMN LOCATION_ID'); // OK: oracle, mssql
 

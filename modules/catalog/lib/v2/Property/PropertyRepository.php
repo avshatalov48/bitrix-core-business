@@ -191,7 +191,7 @@ class PropertyRepository implements PropertyRepositoryContract
 						foreach ($value as $key => $item)
 						{
 							$fields = [
-								'VALUE' => $item ?: '',
+								'VALUE' => $item ?? '',
 								'DESCRIPTION' => $description[$key] ?: null,
 							];
 
@@ -206,7 +206,7 @@ class PropertyRepository implements PropertyRepositoryContract
 					else
 					{
 						$fields = [
-							'VALUE' => $value ?: '',
+							'VALUE' => $value ?? '',
 							'DESCRIPTION' => $descriptions[$id] ?: null,
 						];
 

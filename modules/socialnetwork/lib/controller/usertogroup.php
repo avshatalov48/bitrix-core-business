@@ -483,6 +483,14 @@ class UserToGroup extends Base
 		]);
 	}
 
+	public function setModeratorsAction(array $userIds, int $groupId): bool
+	{
+		return Workgroup::setModerators([
+			'userIds' => $userIds,
+			'groupId' => $groupId,
+		]);
+	}
+
 	public function excludeAction(int $userId, int $groupId): bool
 	{
 		return Workgroup::exclude([
@@ -491,10 +499,10 @@ class UserToGroup extends Base
 		]);
 	}
 
-	public function repeatInviteAction(int $userId, int $groupId): bool
+	public static function repeatInviteAction(int $userId, int $groupId): bool
 	{
 		return \CSocNetUserToGroup::SendRequestToJoinGroup(
-			$this->getCurrentUser()->getId(),
+			1,
 			$userId,
 			$groupId,
 			''

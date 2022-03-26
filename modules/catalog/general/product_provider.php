@@ -883,23 +883,6 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 			);
 			$arRes["RESULT"] = $internalResult->isSuccess();
 			unset($internalResult);
-
-			if (self::isNeedClearPublicCache(
-				$arProduct['QUANTITY'],
-				$arFields['QUANTITY'],
-				$arProduct['QUANTITY_TRACE'],
-				$arProduct['CAN_BUY_ZERO']
-			))
-			{
-				$productInfo = array(
-					'CAN_BUY_ZERO' => $arProduct['CAN_BUY_ZERO'],
-					'QUANTITY_TRACE' => $arProduct['QUANTITY_TRACE'],
-					'OLD_QUANTITY' => $arProduct['QUANTITY'],
-					'QUANTITY' => $arFields['QUANTITY'],
-					'DELTA' => $arFields['QUANTITY'] - $arProduct['QUANTITY']
-				);
-				self::clearPublicCache($arProduct['ID'], $productInfo);
-			}
 		}
 		else
 		{
@@ -954,22 +937,6 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 
 							$APPLICATION->ThrowException(Loc::getMessage("RSRV_QUANTITY_NOT_ENOUGH_ERROR", self::GetProductCatalogInfo($arParams["PRODUCT_ID"])), "ERROR_NOT_ENOUGH_QUANTITY");
 						}
-						if (self::isNeedClearPublicCache(
-							$arProduct['QUANTITY'],
-							$arFields['QUANTITY'],
-							$arProduct['QUANTITY_TRACE'],
-							$arProduct['CAN_BUY_ZERO']
-						))
-						{
-							$productInfo = array(
-								'CAN_BUY_ZERO' => $arProduct['CAN_BUY_ZERO'],
-								'QUANTITY_TRACE' => $arProduct['QUANTITY_TRACE'],
-								'OLD_QUANTITY' => $arProduct['QUANTITY'],
-								'QUANTITY' => $arFields['QUANTITY'],
-								'DELTA' => $arFields['QUANTITY'] - $arProduct['QUANTITY']
-							);
-							self::clearPublicCache($arProduct['ID'], $productInfo);
-						}
 						$internalResult = Catalog\Model\Product::update(
 							$arParams["PRODUCT_ID"],
 							$arFields
@@ -1009,22 +976,6 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 					);
 					$arRes["RESULT"] = $internalResult->isSuccess();
 					unset($internalResult);
-					if (self::isNeedClearPublicCache(
-						$arProduct['QUANTITY'],
-						$arFields['QUANTITY'],
-						$arProduct['QUANTITY_TRACE'],
-						$arProduct['CAN_BUY_ZERO']
-					))
-					{
-						$productInfo = array(
-							'CAN_BUY_ZERO' => $arProduct['CAN_BUY_ZERO'],
-							'QUANTITY_TRACE' => $arProduct['QUANTITY_TRACE'],
-							'OLD_QUANTITY' => $arProduct['QUANTITY'],
-							'QUANTITY' => $arFields['QUANTITY'],
-							'DELTA' => $arFields['QUANTITY'] - $arProduct['QUANTITY']
-						);
-						self::clearPublicCache($arProduct['ID'], $productInfo);
-					}
 				}
 			} //quantity trace
 		}
@@ -1217,10 +1168,16 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 									{
 										$APPLICATION->ThrowException(
 											Loc::getMessage(
-												"DDCT_DEDUCTION_QUANTITY_STORE_ERROR",
-												array_merge(self::GetProductCatalogInfo($arParams["PRODUCT_ID"]), array("#STORE_ID#" => $arRecord["STORE_ID"]))
+												'DDCT_DEDUCTION_QUANTITY_STORE_ERROR_2',
+												array_merge(
+													self::GetProductCatalogInfo($arParams['PRODUCT_ID']),
+													[
+														'#STORE_NAME#' => \CCatalogStoreControlUtil::getStoreName($arRecord['STORE_ID']),
+														'#STORE_ID#' => $arRecord['STORE_ID'],
+													]
+												)
 											),
-											"DDCT_DEDUCTION_QUANTITY_STORE_ERROR"
+											'DDCT_DEDUCTION_QUANTITY_STORE_ERROR'
 										);
 										$arRes["RESULT"] = false;
 										return $arRes;
@@ -1346,22 +1303,6 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 							}
 
 							CCatalogProduct::Update($arParams["PRODUCT_ID"], $arFields);
-							if (isset($arFields['QUANTITY']) && self::isNeedClearPublicCache(
-								$arProduct['QUANTITY'],
-								$arFields['QUANTITY'],
-								$arProduct['QUANTITY_TRACE'],
-								$arProduct['CAN_BUY_ZERO']
-							))
-							{
-								$productInfo = array(
-									'CAN_BUY_ZERO' => $arProduct['CAN_BUY_ZERO'],
-									'QUANTITY_TRACE' => $arProduct['QUANTITY_TRACE'],
-									'OLD_QUANTITY' => $arProduct['QUANTITY'],
-									'QUANTITY' => $arFields['QUANTITY'],
-									'DELTA' => $arFields['QUANTITY'] - $arProduct['QUANTITY']
-								);
-								self::clearPublicCache($arProduct['ID'], $productInfo);
-							}
 
 							$arRes["RESULT"] = true;
 						}
@@ -1420,22 +1361,6 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 								}
 
 								$arRes["RESULT"] = CCatalogProduct::Update($arParams["PRODUCT_ID"], $arFields);
-								if (isset($arFields['QUANTITY']) && self::isNeedClearPublicCache(
-										$arProduct['QUANTITY'],
-										$arFields['QUANTITY'],
-										$arProduct['QUANTITY_TRACE'],
-										$arProduct['CAN_BUY_ZERO']
-									))
-								{
-									$productInfo = array(
-										'CAN_BUY_ZERO' => $arProduct['CAN_BUY_ZERO'],
-										'QUANTITY_TRACE' => $arProduct['QUANTITY_TRACE'],
-										'OLD_QUANTITY' => $arProduct['QUANTITY'],
-										'QUANTITY' => $arFields['QUANTITY'],
-										'DELTA' => $arFields['QUANTITY'] - $arProduct['QUANTITY']
-									);
-									self::clearPublicCache($arProduct['ID'], $productInfo);
-								}
 							}
 							else //not enough products - don't deduct anything
 							{
@@ -1564,22 +1489,6 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 							}
 
 							CCatalogProduct::Update($arParams["PRODUCT_ID"], $arUpdateFields);
-							if (isset($arUpdateFields['QUANTITY']) && self::isNeedClearPublicCache(
-									$arProduct['QUANTITY'],
-									$arUpdateFields['QUANTITY'],
-									$arProduct['QUANTITY_TRACE'],
-									$arProduct['CAN_BUY_ZERO']
-								))
-							{
-								$productInfo = array(
-									'CAN_BUY_ZERO' => $arProduct['CAN_BUY_ZERO'],
-									'QUANTITY_TRACE' => $arProduct['QUANTITY_TRACE'],
-									'OLD_QUANTITY' => $arProduct['QUANTITY'],
-									'QUANTITY' => $arUpdateFields['QUANTITY'],
-									'DELTA' => $arUpdateFields['QUANTITY'] - $arProduct['QUANTITY']
-								);
-								self::clearPublicCache($arProduct['ID'], $productInfo);
-							}
 
 							$arRes["RESULT"] = true;
 						}
@@ -1604,22 +1513,6 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 						}
 
 						$arRes["RESULT"] = CCatalogProduct::Update($arParams["PRODUCT_ID"], $arFields);
-						if (isset($arFields['QUANTITY']) && self::isNeedClearPublicCache(
-								$arProduct['QUANTITY'],
-								$arFields['QUANTITY'],
-								$arProduct['QUANTITY_TRACE'],
-								$arProduct['CAN_BUY_ZERO']
-							))
-						{
-							$productInfo = array(
-								'CAN_BUY_ZERO' => $arProduct['CAN_BUY_ZERO'],
-								'QUANTITY_TRACE' => $arProduct['QUANTITY_TRACE'],
-								'OLD_QUANTITY' => $arProduct['QUANTITY'],
-								'QUANTITY' => $arFields['QUANTITY'],
-								'DELTA' => $arFields['QUANTITY'] - $arProduct['QUANTITY']
-							);
-							self::clearPublicCache($arProduct['ID'], $productInfo);
-						}
 					}
 				} //emulate or quantity trace
 			}
@@ -1722,10 +1615,16 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 							{
 								$result->addError( new \Bitrix\Sale\ResultError(
 									Loc::getMessage(
-										"DDCT_DEDUCTION_QUANTITY_STORE_ERROR",
-										array_merge(self::GetProductCatalogInfo($productId), array("#STORE_ID#" => $storeId))
+										'DDCT_DEDUCTION_QUANTITY_STORE_ERROR_2',
+										array_merge(
+											self::GetProductCatalogInfo($productId),
+											[
+												'#STORE_NAME#' => \CCatalogStoreControlUtil::getStoreName($storeId),
+												'#STORE_ID#' => $storeId,
+											]
+										)
 									),
-									"DDCT_DEDUCTION_QUANTITY_STORE_ERROR"
+									'DDCT_DEDUCTION_QUANTITY_STORE_ERROR'
 								));
 								return $result;
 							}
@@ -1819,7 +1718,7 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 					if ($totalAmount > $arProduct["QUANTITY_RESERVED"] + $arProduct["QUANTITY"])
 					{
 						$result->addError( new \Bitrix\Sale\ResultError(
-							Loc::getMessage("SALE_PROVIDER_SHIPMENT_QUANTITY_NOT_ENOUGH", self::GetProductCatalogInfo($productId)),
+							Loc::getMessage("DDCT_DEDUCTION_SHIPMENT_QUANTITY_NOT_ENOUGH", self::GetProductCatalogInfo($productId)),
 							"SALE_PROVIDER_SHIPMENT_QUANTITY_NOT_ENOUGH"
 						));
 						return $result;
@@ -2181,39 +2080,12 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 		return $arSets;
 	}
 
-	protected static function isNeedClearPublicCache($currentQuantity, $newQuantity, $quantityTrace, $canBuyZero, $ratio = 1)
+	protected static function isNeedClearPublicCache($currentQuantity, $newQuantity, $quantityTrace, $canBuyZero, $ratio = 1): bool
 	{
-		if (!defined('BX_COMP_MANAGED_CACHE'))
-			return false;
-		if ($canBuyZero == 'Y' || $quantityTrace == 'N')
-			return false;
-		if ($currentQuantity * $newQuantity > 0)
-			return false;
-		return true;
+		return false;
 	}
 
-	protected static function clearPublicCache($productID, $productInfo = array())
-	{
-		$productID = (int)$productID;
-		if ($productID <= 0)
-			return;
-		$iblockID = (int)(isset($productInfo['IBLOCK_ID']) ? $productInfo['IBLOCK_ID'] : CIBlockElement::GetIBlockByID($productID));
-		if ($iblockID <= 0)
-			return;
-		if (!isset(self::$clearAutoCache[$iblockID]))
-		{
-			CIBlock::clearIblockTagCache($iblockID);
-			self::$clearAutoCache[$iblockID] = true;
-		}
-
-		$productInfo['ID'] = $productID;
-		$productInfo['ELEMENT_IBLOCK_ID'] = $iblockID;
-		$productInfo['IBLOCK_ID'] = $iblockID;
-		if (isset($productInfo['CAN_BUY_ZERO']))
-			$productInfo['NEGATIVE_AMOUNT_TRACE'] = $productInfo['CAN_BUY_ZERO'];
-		foreach (GetModuleEvents('catalog', 'OnProductQuantityTrace', true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($productID, $productInfo));
-	}
+	protected static function clearPublicCache($productID, $productInfo = array()) {}
 
 	/**
 	 * @param $productId

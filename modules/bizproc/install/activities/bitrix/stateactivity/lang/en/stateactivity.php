@@ -1,5 +1,5 @@
 <?
-$MESS["BPSA_INVALID_CHILD"] = "A 'StateActivity' activity can contain 'StateInitializationActivity', 'StateFinalizationActivity' or  'EventDrivenActivity' actions only.";
-$MESS["BPSA_TRACK1"] = "Permission for element in this state #VAL#";
-$MESS["BPSA_EMPTY_PERMS"] = "Permission for element in this state is not specified.";
+$MESS["BPSA_INVALID_CHILD_1"] = "A 'StateActivity' activity can contain 'StateInitializationActivity', 'StateFinalizationActivity' or 'EventDrivenActivity' activities only.";
+$MESS["BPSA_TRACK_1"] = "Permission for element in this Status #VAL#";
+$MESS["BPSA_EMPTY_PERMS_1"] = "Permission for element in this Status is not specified.";
 ?>

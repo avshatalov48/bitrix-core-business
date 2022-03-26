@@ -277,10 +277,6 @@ class main extends CModule
 			if ($rsGroup->Fetch())
 				continue;
 
-			//mssql does not allow insert identity by default
-			if($DB->type == "MSSQL")
-				unset($arGroup["~ID"]);
-
 			$success = (bool)$group->Add($arGroup);
 			if (!$success)
 			{

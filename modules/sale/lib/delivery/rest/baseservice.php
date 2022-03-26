@@ -90,20 +90,9 @@ class BaseService extends \IRestService
 	 */
 	protected static function prepareIncomingParams(array $data): array
 	{
-		return self::replaceIncomingKeys(self::arrayChangeKeyCaseRecursive($data));
+		return self::replaceIncomingKeys($data);
 	}
-
-	private static function arrayChangeKeyCaseRecursive(array $data, $case = CASE_UPPER)
-	{
-		return array_map(static function($item) use ($case) {
-			if (is_array($item))
-			{
-				$item = self::arrayChangeKeyCaseRecursive($item, $case);
-			}
-			return $item;
-		}, array_change_key_case($data, $case));
-	}
-
+	
 	/**
 	 * @param array $data
 	 * @return array

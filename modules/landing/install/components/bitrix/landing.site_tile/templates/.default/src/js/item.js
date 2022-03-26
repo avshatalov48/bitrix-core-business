@@ -28,7 +28,6 @@ export default class Item {
 		this.deleted = options.deleted;
 		this.domainStatus = options.domainStatus;
 		this.domainStatusMessage = options.domainStatusMessage;
-		this.domainBitrix24 = options.domainStatus;
 		this.menuItems = options.menuItems || [];
 		this.menuBottomItems = options.menuBottomItems || [];
 		this.access = options.access || {};
@@ -434,7 +433,7 @@ export default class Item {
 				<div class="landing-sites__container --white-bg">
 					<div class="landing-sites__container-left">
 						<div class="landing-sites__title">
-							<div class="landing-sites__title-text">${Text.encode(this.title)}</div>
+							<div class="landing-sites__title-text" title="${Text.encode(this.title)}">${Text.encode(this.title)}</div>
 						</div>
 						${this.phone ? this.getEditableTitle().getContainer() : ''}
 					</div>

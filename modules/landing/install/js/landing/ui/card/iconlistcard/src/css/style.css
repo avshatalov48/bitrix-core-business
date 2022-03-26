@@ -1,0 +1,111 @@
+/*region layout*/
+.landing-ui-card.landing-ui-card-icons .landing-ui-card-header {
+	font-family: 'OpenSans-Light', Helvetca, Arial, sans-serif;
+	font-size: 18px;
+	color: #333333;
+	line-height: 28px;
+	padding-bottom: 16px;
+	margin-bottom: 20px;
+	border-bottom: 1px solid rgba(82, 92, 105, 0.08);
+}
+
+.landing-ui-card.landing-ui-card-icons > .landing-ui-card-body-wrapper
+{
+	overflow-y: auto;
+}
+
+.landing-ui-card.landing-ui-card-icons > .landing-ui-card-body-wrapper .landing-ui-card-icons-container {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+	grid-auto-rows: minmax(70px, 1fr);
+	gap: 12px;
+	padding-right: 12px;
+	padding-top: 5px;
+}
+/*endregion*/
+
+/*region preview*/
+.landing-ui-card.landing-ui-card-icons .landing-ui-card-preview
+{
+	display: flex;
+	border-bottom: 1px solid rgba(82, 92, 105, 0.08);
+	margin-bottom: 20px;
+	padding-bottom: 10px;
+}
+
+.landing-ui-card.landing-ui-card-icons .landing-ui-card-preview.--hide
+{
+	display: none;
+}
+
+.landing-ui-card.landing-ui-card-icons .landing-ui-card-preview .landing-ui-card-preview-icon
+{
+	width: 88px;
+	height: 88px;
+	text-align: center;
+	color: #525C69;
+}
+
+.landing-ui-card.landing-ui-card-icons .landing-ui-card-preview .landing-ui-card-preview-icon span
+{
+	font-size: 55px;
+	line-height: 88px;
+}
+
+.landing-ui-card.landing-ui-card-icons .landing-ui-card-preview-options
+{
+	margin-left: 32px;
+}
+
+.landing-ui-card.landing-ui-card-icons .landing-ui-card-preview-options.--hide
+{
+	display: none;
+}
+/*endregion*/
+
+/*region icon list*/
+.landing-ui-card.landing-ui-card-icons {
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.landing-ui-card.landing-ui-card-icons .landing-ui-card-icon {
+	color: #525C69;
+	padding: 10px;
+	height: 75px;
+	width: 75px;
+	margin: 0;
+	font-size: 32px;
+	text-align: center;
+	cursor: pointer;
+	border: 1px #D5D7DB solid;
+	border-radius: 5px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+}
+
+.landing-ui-card.landing-ui-card-icons .landing-ui-card-icon.--active {
+	border-color: #2FC6F6;
+}
+.landing-ui-card.landing-ui-card-icons .landing-ui-card-icon.--active::after
+{
+	display: block;
+	content: '';
+	background-color: #00B0E8;
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEwIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNNC4yMDQzMSA0LjkwODQ2TDguNDI5NDcgMC43MzczMDVMOS43MDgwOSAyLjAyMzAyTDQuMjI0MjkgNy40NTk4TDQuMjA0MzEgNy40Mzk3MUw0LjE4NDMzIDcuNDU5OEwwLjgyOTY4MSA0LjIxMjkxTDIuMTA4MyAyLjkyNzJMNC4yMDQzMSA0LjkwODQ2WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cg==);
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: 13px 10px;
+	width: 24px;
+	height: 24px;
+	border-radius: 12px;
+	position: absolute;
+	top: -5px;
+	right: -5px;
+}
+/*endregion*/

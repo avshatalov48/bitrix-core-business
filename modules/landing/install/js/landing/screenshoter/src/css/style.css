@@ -1,0 +1,11 @@
+.landing-hide-ui-controls .landing-ui-panel {
+	display: none!important;
+}
+
+.landing-hide-ui-controls.block-wrapper {
+	border-bottom: 0;
+}
+.landing-hide-ui-controls.block-wrapper::before,
+.landing-hide-ui-controls.block-wrapper::after {
+	display: none!important;
+}

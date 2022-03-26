@@ -139,8 +139,6 @@ this.BX = this.BX || {};
 	        this.DOM.syncTasks = this.DOM.content.querySelector('[data-role="sync_tasks"]');
 	        this.DOM.showCompletedTasks = this.DOM.content.querySelector('[data-role="show_completed_tasks"]');
 	        this.DOM.timezoneSelect = this.DOM.content.querySelector('[data-role="set_tz_sel"]');
-	        this.DOM.syncPeriodPast = this.DOM.content.querySelector('[data-role="sync_period_past"]');
-	        this.DOM.syncPeriodFuture = this.DOM.content.querySelector('[data-role="sync_period_future"]');
 	        this.DOM.sendFromEmailSelect = this.DOM.content.querySelector('[data-role="send_from_email"]');
 
 	        if (this.BX.Type.isElementNode(this.DOM.sendFromEmailSelect)) {
@@ -319,14 +317,6 @@ this.BX = this.BX || {};
 	        this.DOM.timezoneSelect.value = this.calendarContext.util.getUserOption('timezoneName') || '';
 	      }
 
-	      if (this.DOM.syncPeriodPast) {
-	        this.DOM.syncPeriodPast.value = this.calendarContext.util.getUserOption('syncPeriodPast') || 3;
-	      }
-
-	      if (this.DOM.syncPeriodFuture) {
-	        this.DOM.syncPeriodFuture.value = this.calendarContext.util.getUserOption('syncPeriodFuture') || 12;
-	      }
-
 	      if (this.showGeneralSettings) {
 	        // Set access for calendar type
 	        this.DOM.workTimeStart.value = this.settings.work_time_start;
@@ -392,15 +382,16 @@ this.BX = this.BX || {};
 
 	      if (this.DOM.timezoneSelect) {
 	        userSettings.userTimezoneName = this.DOM.timezoneSelect.value;
-	      }
+	      } // if(this.DOM.syncPeriodPast)
+	      // {
+	      // 	userSettings.syncPeriodPast = this.DOM.syncPeriodPast.value;
+	      // }
+	      //
+	      // if(this.DOM.syncPeriodFuture)
+	      // {
+	      // 	userSettings.syncPeriodFuture = this.DOM.syncPeriodFuture.value;
+	      // }
 
-	      if (this.DOM.syncPeriodPast) {
-	        userSettings.syncPeriodPast = this.DOM.syncPeriodPast.value;
-	      }
-
-	      if (this.DOM.syncPeriodFuture) {
-	        userSettings.syncPeriodFuture = this.DOM.syncPeriodFuture.value;
-	      }
 
 	      if (this.emailSelectorControl) {
 	        userSettings.sendFromEmail = this.emailSelectorControl.getValue();

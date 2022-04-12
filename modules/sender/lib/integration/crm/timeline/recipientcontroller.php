@@ -3,6 +3,7 @@ namespace Bitrix\Sender\Integration\Crm\Timeline;
 
 use Bitrix\Crm\Timeline;
 
+use Bitrix\Main\ArgumentException;
 use Bitrix\Sender\Entity;
 use Bitrix\Sender\PostingRecipientTable;
 
@@ -84,34 +85,42 @@ class RecipientController extends Timeline\EntityController
 		$settings = (object) ((isset($data['SETTINGS']) && is_array($data['SETTINGS'])) ? $data['SETTINGS'] : array());
 		$data = parent::prepareHistoryDataModel($data, $options);
 
-		if ($settings->isAds)
+		try
 		{
-			$entity = new Entity\Ad($settings->letterId);
-			$settings->path = '/marketing/ads/edit/' . $settings->letterId . '/';
-			$settings->messageName = $entity->getMessage()->getName();
+
+			if ($settings->isAds)
+			{
+				$entity = new Entity\Ad($settings->letterId);
+				$settings->path = '/marketing/ads/edit/' . $settings->letterId . '/';
+				$settings->messageName = $entity->getMessage()->getName();
+			}
+			else
+			{
+				$entity = new Entity\Letter($settings->letterId);
+				$settings->path = '/marketing/letter/edit/' . $settings->letterId . '/';
+				$settings->messageName = $entity->getMessage()->getName();
+			}
+			$settings->letterTitle = $entity->get('TITLE');
+
+			if ($settings->recipient)
+			{
+				$row = PostingRecipientTable::getRow([
+					'select' => ['IS_READ', 'IS_CLICK', 'IS_UNSUB', 'STATUS'],
+					'filter' => ['=ID' => $settings->recipient['id']]
+				]);
+				$settings->isRead = $row ? $row['IS_READ'] == 'Y' : false;
+				$settings->isClick = $row ? $row['IS_CLICK'] == 'Y' : false;
+				$settings->isUnsub = $row ? $row['IS_UNSUB'] == 'Y' : false;
+				$settings->isError = $row ? $row['STATUS'] === PostingRecipientTable::SEND_RESULT_ERROR : false;
+			}
+
+
+			$data['SETTINGS'] = (array) $settings;
 		}
-		else
+		catch (ArgumentException $e)
 		{
-			$entity = new Entity\Letter($settings->letterId);
-			$settings->path = '/marketing/letter/edit/' . $settings->letterId . '/';
-			$settings->messageName = $entity->getMessage()->getName();
+			return $data;
 		}
-		$settings->letterTitle = $entity->get('TITLE');
-
-		if ($settings->recipient)
-		{
-			$row = PostingRecipientTable::getRow([
-				'select' => ['IS_READ', 'IS_CLICK', 'IS_UNSUB', 'STATUS'],
-				'filter' => ['=ID' => $settings->recipient['id']]
-			]);
-			$settings->isRead = $row ? $row['IS_READ'] == 'Y' : false;
-			$settings->isClick = $row ? $row['IS_CLICK'] == 'Y' : false;
-			$settings->isUnsub = $row ? $row['IS_UNSUB'] == 'Y' : false;
-			$settings->isError = $row ? $row['STATUS'] === PostingRecipientTable::SEND_RESULT_ERROR : false;
-		}
-
-
-		$data['SETTINGS'] = (array) $settings;
 
 		return $data;
 	}

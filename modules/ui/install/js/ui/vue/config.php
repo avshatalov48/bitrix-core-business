@@ -15,6 +15,9 @@ if (
 		'main.core.events',
 		'ui.vue.devtools'
 	];
+	$settings = [
+		'localizationDebug' => defined('VUEJS_LOCALIZATION_DEBUG') && VUEJS_LOCALIZATION_DEBUG,
+	];
 }
 else
 {
@@ -23,10 +26,12 @@ else
 		'main.core',
 		'main.core.events',
 	];
+	$settings = [];
 }
 
 return [
 	'js' => $js,
 	'rel' => $rel,
+	'settings' => $settings,
 	'skip_core' => false,
 ];

@@ -10,6 +10,7 @@
  * Modify list for integration with Bitrix Framework:
  * - removed reassignment in "install" function;
  * - add auto-bind Vuex by Vue.use(...);
+ * - replace utf8 symbols in function "endMessage"
  */
 
 import {VueVendor as Vue} from 'ui.vue';
@@ -17,6 +18,7 @@ import {VuexBuilder} from "./builder/builder.js";
 import {VuexBuilderModel} from "./builder/model.js";
 export {VuexBuilder, VuexBuilderModel}
 
+// origin-start
 function applyMixin (Vue) {
   const version = Number(Vue.version.split('.')[0]);
 
@@ -1170,7 +1172,7 @@ function endMessage (logger) {
   try {
     logger.groupEnd();
   } catch (e) {
-    logger.log('—— log end ——');
+    logger.log('-- log end --');
   }
 }
 
@@ -1187,20 +1189,21 @@ function pad (num, maxLength) {
   return repeat('0', maxLength - num.toString().length) + num
 }
 
-var Vuex =
-{
-  store: (params) => new Store(params),
-  createStore: (params) => new Store(params),
-  Store,
-  install,
-  version: '3.6.2',
-  mapState,
-  mapMutations,
-  mapGetters,
-  mapActions,
-  createNamespacedHelpers,
-  createLogger
+var index = {
+	Store,
+	install,
+	version: '3.6.2',
+	mapState,
+	mapMutations,
+	mapGetters,
+	mapActions,
+	createNamespacedHelpers,
+	createLogger
 };
-Vue.use(Vuex);
+// origin-end
 
-export { Vuex, Vuex as VuexVendorV3, Vuex as VuexVendor };
+index.store = (params) => new Store(params);
+index.createStore = (params) => new Store(params);
+Vue.use(index);
+
+export { index as Vuex, index as VuexVendorV3, index as VuexVendor};

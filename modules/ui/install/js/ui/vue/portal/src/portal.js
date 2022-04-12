@@ -1,22 +1,21 @@
 /*!
  * portal-vue (C) Thorsten Lunborg, 2019
- *
  * Version: 2.1.7
- *
  * LICENCE: MIT
- *
  * https://github.com/linusborg/portal-vue
  *
- * @source: portal-vue.esm.js
+ * @source: https://unpkg.com/portal-vue@2.1.7/dist/portal-vue.esm.js
 */
 
 /**
  * Modify list for integration with Bitrix Framework:
+ * - remove import Vue
  * - remove default export and change install function to plugin variable for work in Bitrix CoreJS extensions;
  */
 
 import {VueVendor as Vue} from "ui.vue";
 
+// origin-start
 function _typeof(obj) {
 	if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
 		_typeof = function (obj) {
@@ -603,7 +602,10 @@ function install(Vue$$1) {
 	Vue$$1.component(options.MountingPortalName || 'MountingPortal', MountingPortal);
 }
 
-var version = '2.1.7';
-var PortalVue = {install, version};
+var index = {
+	install: install
+};
+// origin-end
 
-export { PortalVue, Portal, PortalTarget, MountingPortal, wormhole as Wormhole };
+index.version = '2.1.7';
+export { index as PortalVue, Portal, PortalTarget, MountingPortal, wormhole as Wormhole };

@@ -1,0 +1,164 @@
+.bx-ui-smiles-box {
+	display: flex;
+	flex-direction: column;
+    flex-wrap: nowrap;
+    height: 100%;
+}
+
+.bx-ui-smiles-elements-wrap, .bx-ui-smiles-emoji-wrap {
+	display: flex;
+	flex: 1 1 auto;
+	overflow: hidden;
+	overflow-y: auto;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.bx-ui-smiles-elements {
+	display: inline-block;
+}
+
+.bx-ui-smiles-category {
+	text-align: center;
+	flex: 0 0 100%;
+	font: 16px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	margin: 7px 0;
+}
+
+.bx-ui-smiles-emoji-wrap:first-child .bx-ui-smiles-category {
+	margin-top: 14px;
+}
+
+.bx-ui-smiles-smile {
+	display: flex;
+	min-height: 40px;
+	min-width: 40px;
+	max-height: 95px;
+	max-width: 96px;
+	padding: 7px;
+	cursor: pointer;
+	align-items: center;
+    justify-content: center;
+}
+
+.bx-ui-smiles-smile-icon {
+	display: inline-block;
+	object-fit: contain;
+	max-height: 95px;
+	max-width: 95px;
+}
+
+.bx-ui-smiles-set-emoji {
+	font-size: 26px;
+	line-height: 28px;
+	opacity: .8;
+}
+
+.bx-ui-smiles-set-emoji-mac {
+	font-size: 33px;
+	line-height: 30px;
+	opacity: .8;
+}
+
+.bx-ui-smiles-set-emoji-win {
+	font-size: 26px;
+	line-height: 28px;
+	opacity: .8;
+}
+
+.bx-ui-smiles-set-emoji-linux {
+	font-size: 26px;
+	line-height: 28px;
+	opacity: .8;
+}
+
+.bx-ui-smiles-sets {
+	display: flex;
+	flex: 0 0 45px;
+	flex-wrap: wrap;
+	justify-content: center;
+	height: 45px;
+	background-color: #f7f7f7;
+    border-top: 1px solid #f1eded;
+}
+
+.bx-ui-smiles-set {
+	display: flex;
+	height: 42px;
+	width: 42px;
+	object-fit: contain;
+	flex: 0 0 42px;
+	border-bottom: 2px solid  #f7f7f7;
+	box-sizing: border-box;
+	padding: 5px;
+	cursor: pointer;
+	transition: all .2s;
+}
+
+.bx-ui-smiles-set-icon {
+	display: inline-block;
+	width: 100%;
+}
+
+.bx-ui-smiles-set-icon-error,
+.bx-ui-smiles-smile-icon-error
+{
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2275%22%20height%3D%2298%22%3E%0A%20%20%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%0A%20%20%20%20%3Cpath%20fill%3D%22%23E5E8EB%22%20d%3D%22M0%200h54l21%2022.227V98H0z%22/%3E%0A%20%20%20%20%3Cg%20fill%3D%22%23B9BEC4%22%3E%0A%20%20%20%20%20%20%3Cpath%20fill-rule%3D%22nonzero%22%20d%3D%22M7%2034.897l7.515%2053.474%2023.219-3.263-.676-34.282-6.84-19.191%202.611-.367L7%2034.897zM36.367%2083.28l-21.14%202.97L8.27%2036.739l21.139-2.97%206.227%2017.258.732%2032.255z%22/%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M37.529%2079.675l-.147-15.915-9.094-6.782-10.23%2013.435%201.654%2011.766z%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%20%20%3Cpath%20fill%3D%22%23535C69%22%20d%3D%22M54%200l21%2022.227H54z%22%20opacity%3D%22.3%22/%3E%0A%20%20%20%20%3Cg%20fill%3D%22%23B9BEC4%22%20transform%3D%22rotate%285%20-359.005%20511.676%29%22%3E%0A%20%20%20%20%20%20%3Cpath%20fill-rule%3D%22nonzero%22%20d%3D%22M.316.001l3.638%2019.956L1%2054h24V.001H.316zM24%2052H2.353l1.601-16.033%201.621-16.01L2%202h22v50z%22/%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M20.008%2049.591v-2.97l-12-11.881L1.96%2049.591z%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%2211.712%22%20cy%3D%2214.785%22%20rx%3D%225.231%22%20ry%3D%225.172%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E%0A');
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+}
+
+.bx-ui-smiles-set-selected
+{
+	border-bottom-color: #17A3EA;
+}
+
+.bx-ui-smiles-loading-circular {
+	height: 80px;
+	width: 80px;
+	animation: bx-ui-smiles-loading-rotate 2s linear infinite;
+	transform-origin: center center;
+}
+
+.bx-ui-smiles-loading-path {
+	stroke: rgba(215,220,223,.74);
+	stroke-width: 1.5;
+	stroke-dasharray: 20, 200;
+	stroke-dashoffset: 0;
+	animation: bx-ui-smiles-loading-dash 1.5s ease-in-out infinite;
+	stroke-linecap: round;
+}
+
+.bx-ui-smiles-loading-inner-path {
+	stroke: rgba(215,220,223,.17);
+	stroke-width: 1.5;
+	stroke-dasharray: 200, 200;
+	stroke-dashoffset: 0;
+	stroke-linecap: round;
+}
+
+.bx-ui-smiles-loading-msg {
+	margin: 0;
+}
+
+@keyframes bx-ui-smiles-loading-rotate {
+	100% {
+		transform: rotate(360deg);
+	}
+}
+@keyframes bx-ui-smiles-loading-dash {
+	0% {
+		stroke-dasharray: 1, 200;
+		stroke-dashoffset: 0;
+	}
+	50% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -35px;
+	}
+	100% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -124px;
+	}
+}

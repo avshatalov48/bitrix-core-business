@@ -11,7 +11,10 @@ return array(
 	'code' => 'store-instagram/footer',
 	'name' => Loc::getMessage('LANDING_DEMO_STORE_INSTAGRAM--FOOTER--NAME'),
 	'description' => Loc::getMessage('LANDING_DEMO_STORE_INSTAGRAM--FOOTER--NAME'),
-	'active' => true,
+	'active' => \LandingSiteDemoComponent::checkActive([
+		'ONLY_IN' => [],
+		'EXCEPT' => ['ru'],
+	]),
 	'preview' => '',
 	'preview2x' => '',
 	'preview3x' => '',

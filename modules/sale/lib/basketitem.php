@@ -943,6 +943,20 @@ class BasketItem extends BasketItemBase
 			}
 		}
 
+		/** @var ReserveQuantityCollection $reservedCollection */
+		if ($reservedCollection = $this->getReserveQuantityCollection())
+		{
+			if (!$cloneEntity->contains($reservedCollection))
+			{
+				$cloneEntity[$reservedCollection] = $reservedCollection->createClone($cloneEntity);
+			}
+
+			if ($cloneEntity->contains($reservedCollection))
+			{
+				$basketItemClone->reserveQuantityCollection = $cloneEntity[$reservedCollection];
+			}
+		}
+
 		if ($this->isBundleParent())
 		{
 			/** @var BundleCollection $bundleCollection */

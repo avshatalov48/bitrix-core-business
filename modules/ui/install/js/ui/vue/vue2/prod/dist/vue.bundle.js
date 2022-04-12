@@ -15,13 +15,9 @@
 (function (exports,main_core_events,main_core,rest_client,pull_client) {
 	'use strict';
 
-	/**
-	 * Bitrix Vue wrapper
-	 *
-	 * @package bitrix
-	 * @subpackage ui
-	 * @copyright 2001-2021 Bitrix
-	 */
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var BitrixVue = /*#__PURE__*/function () {
 	  function BitrixVue(VueVendor) {
 	    babelHelpers.classCallCheck(this, BitrixVue);
@@ -38,6 +34,8 @@
 	      restClientChange: 'RestClient::change',
 	      pullClientChange: 'PullClient::change'
 	    };
+	    var settings = main_core.Extension.getSettings('ui.vue');
+	    this.localizationMode = settings.get('localizationDebug', false) ? 'development' : 'production';
 	  }
 	  /**
 	   * Create new Vue instance
@@ -59,7 +57,7 @@
 	     *
 	     * @param {Object} params - definition
 	     *
-	     * @see https://vuejs.org/v2/guide/
+	     * @see https://v2.vuejs.org/v2/guide/
 	     */
 
 	  }, {
@@ -73,6 +71,21 @@
 	        messages: {},
 	        getMessage: function getMessage(messageId) {
 	          var replacements = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+	          if (bitrixVue.localizationMode === 'development') {
+	            var debugMessageId = [messageId];
+
+	            if (main_core.Type.isPlainObject(replacements)) {
+	              var replaceKeys = Object.keys(replacements);
+
+	              if (replaceKeys.length > 0) {
+	                debugMessageId = [messageId, ' (replacements: ', replaceKeys.join(', '), ')'];
+	              }
+	            }
+
+	            return debugMessageId.join('');
+	          }
+
 	          var message = '';
 
 	          if (!main_core.Type.isUndefined(this.messages[messageId])) {
@@ -98,10 +111,10 @@
 	        },
 	        getMessages: function getMessages() {
 	          if (typeof BX.message !== 'undefined') {
-	            return babelHelpers.objectSpread({}, BX.message, this.messages);
+	            return _objectSpread(_objectSpread({}, BX.message), this.messages);
 	          }
 
-	          return babelHelpers.objectSpread({}, this.messages);
+	          return _objectSpread({}, this.messages);
 	        },
 	        setMessage: function setMessage(id, value) {
 	          if (main_core.Type.isString(id)) {
@@ -209,7 +222,7 @@
 	     * @param {Object} params
 	     * @param {Object} [options]
 	     *
-	     * @see https://vuejs.org/v2/guide/components.html
+	     * @see https://v2.vuejs.org/v2/guide/components.html
 	     */
 
 	  }, {
@@ -241,7 +254,7 @@
 	    }
 	    /**
 	     * Register Vue component (local)
-	     * @see https://vuejs.org/v2/guide/components.html
+	     * @see https://v2.vuejs.org/v2/guide/components.html
 	     *
 	     * @param {string} name
 	     * @param {Object} definition
@@ -254,15 +267,13 @@
 	    key: "localComponent",
 	    value: function localComponent(name, definition) {
 	      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-	      return this.component(name, definition, babelHelpers.objectSpread({
-	        immutable: false
-	      }, options, {
+	      return this.component(name, definition, _objectSpread(_objectSpread({}, options), {}, {
 	        local: true
 	      }));
 	    }
 	    /**
 	     * Get local Vue component
-	     * @see https://vuejs.org/v2/guide/components.html
+	     * @see https://v2.vuejs.org/v2/guide/components.html
 	     *
 	     * @param {string} name
 	     *
@@ -361,6 +372,27 @@
 	      return true;
 	    }
 	    /**
+	     * Clone Vue component (object)
+	     *
+	     * @param {object} source
+	     * @param {object} mutations
+	     * @returns {object}
+	     */
+
+	  }, {
+	    key: "cloneLocalComponent",
+	    value: function cloneLocalComponent(source, mutations) {
+	      if (babelHelpers["typeof"](source) !== 'object') {
+	        source = this.getLocalComponent(source);
+
+	        if (!source) {
+	          return null;
+	        }
+	      }
+
+	      return this._applyMutation(this._cloneObjectWithoutDuplicateFunction(source, mutations), mutations);
+	    }
+	    /**
 	     * Check exists Vue component
 	     *
 	     * @param {string} id
@@ -410,7 +442,7 @@
 	     * @param options
 	     * @returns {*}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-extend
+	     * @see https://v2.vuejs.org/v2/api/#Vue-extend
 	     */
 
 	  }, {
@@ -425,7 +457,7 @@
 	     * @param {Object} context
 	     * @returns {Promise|void}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-nextTick
+	     * @see https://v2.vuejs.org/v2/api/#Vue-nextTick
 	     */
 
 	  }, {
@@ -441,7 +473,7 @@
 	     * @param {*} value
 	     * @returns {*}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-set
+	     * @see https://v2.vuejs.org/v2/api/#Vue-set
 	     */
 
 	  }, {
@@ -460,7 +492,7 @@
 	  }, {
 	    key: "delete",
 	    value: function _delete(target, key) {
-	      return this._instance.delete(target, key);
+	      return this._instance["delete"](target, key);
 	    }
 	    /**
 	     * Register or retrieve a global directive.
@@ -469,7 +501,7 @@
 	     * @param {Object|Function} definition
 	     * @returns {*}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-directive
+	     * @see https://v2.vuejs.org/v2/api/#Vue-directive
 	     */
 
 	  }, {
@@ -484,7 +516,7 @@
 	     * @param definition
 	     * @returns {*}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-filter
+	     * @see https://v2.vuejs.org/v2/api/#Vue-filter
 	     */
 
 	  }, {
@@ -498,7 +530,7 @@
 	     * @param {Object|Function} plugin
 	     * @returns {*}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-use
+	     * @see https://v2.vuejs.org/v2/api/#Vue-use
 	     */
 
 	  }, {
@@ -512,7 +544,7 @@
 	     * @param {Object} mixin
 	     * @returns {*|Function|Object}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-mixin
+	     * @see https://v2.vuejs.org/v2/api/#Vue-mixin
 	     */
 
 	  }, {
@@ -526,7 +558,7 @@
 	     * @param object
 	     * @returns {*}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-observable
+	     * @see https://v2.vuejs.org/v2/api/#Vue-observable
 	     */
 
 	  }, {
@@ -540,7 +572,7 @@
 	     * @param template
 	     * @returns {*}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-compile
+	     * @see https://v2.vuejs.org/v2/api/#Vue-compile
 	     */
 
 	  }, {
@@ -553,7 +585,7 @@
 	     *
 	     * @returns {String}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-version
+	     * @see https://v2.vuejs.org/v2/api/#Vue-version
 	     */
 
 	  }, {
@@ -572,7 +604,7 @@
 	  }, {
 	    key: "testNode",
 	    value: function testNode(obj, params) {
-	      if (!params || babelHelpers.typeof(params) !== 'object') {
+	      if (!params || babelHelpers["typeof"](params) !== 'object') {
 	        return true;
 	      }
 
@@ -696,6 +728,8 @@
 	  }, {
 	    key: "getFilteredPhrases",
 	    value: function getFilteredPhrases(phrasePrefix) {
+	      var _this2 = this;
+
 	      var phrases = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      var result = {};
 
@@ -717,7 +751,11 @@
 	            return "continue";
 	          }
 
-	          result[message] = phrases[message];
+	          if (_this2.localizationMode === 'development') {
+	            result[message] = message;
+	          } else {
+	            result[message] = phrases[message];
+	          }
 	        };
 
 	        for (var message in phrases) {
@@ -735,7 +773,11 @@
 	            continue;
 	          }
 
-	          result[_message] = phrases[_message];
+	          if (this.localizationMode === 'development') {
+	            result[_message] = _message;
+	          } else {
+	            result[_message] = phrases[_message];
+	          }
 	        }
 	      }
 
@@ -754,7 +796,7 @@
 	  }, {
 	    key: "_getComponentParamsWithMutation",
 	    value: function _getComponentParamsWithMutation(componentId, mutations) {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      if (typeof this._components[componentId] === 'undefined') {
 	        return null;
@@ -767,7 +809,7 @@
 	      }
 
 	      mutations.forEach(function (mutation) {
-	        componentParams = _this2._applyMutation(_this2._cloneObjectWithoutDuplicateFunction(componentParams, mutation), mutation);
+	        componentParams = _this3._applyMutation(_this3._cloneObjectWithoutDuplicateFunction(componentParams, mutation), mutation);
 	      });
 	      return componentParams;
 	    }
@@ -789,7 +831,7 @@
 	  }, {
 	    key: "_registerCloneComponent",
 	    value: function _registerCloneComponent(sourceId) {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      var components = [];
@@ -811,19 +853,19 @@
 	      components.forEach(function (element) {
 	        var mutations = [];
 
-	        if (typeof _this3._mutations[element.sourceId] !== 'undefined') {
-	          mutations = mutations.concat(_this3._mutations[element.sourceId]);
+	        if (typeof _this4._mutations[element.sourceId] !== 'undefined') {
+	          mutations = mutations.concat(_this4._mutations[element.sourceId]);
 	        }
 
 	        mutations.push(element.mutations);
 
-	        var componentParams = _this3._getComponentParamsWithMutation(element.sourceId, mutations);
+	        var componentParams = _this4._getComponentParamsWithMutation(element.sourceId, mutations);
 
 	        if (!componentParams) {
 	          return false;
 	        }
 
-	        _this3.component(element.id, componentParams);
+	        _this4.component(element.id, componentParams);
 	      });
 	    }
 	    /**
@@ -832,6 +874,7 @@
 	     * @param objectParams
 	     * @param mutation
 	     * @param level
+	     * @param previousParamName
 	     * @private
 	     */
 
@@ -841,6 +884,7 @@
 	      var objectParams = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	      var mutation = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	      var level = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+	      var previousParamName = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
 	      var object = {};
 
 	      for (var param in objectParams) {
@@ -848,37 +892,43 @@
 	          continue;
 	        }
 
-	        if (typeof objectParams[param] === 'string') {
+	        if (main_core.Type.isString(objectParams[param])) {
 	          object[param] = objectParams[param];
-	        } else if (Object.prototype.toString.call(objectParams[param]) === '[object Array]') {
+	        } else if (main_core.Type.isArray(objectParams[param])) {
 	          object[param] = [].concat(objectParams[param]);
-	        } else if (babelHelpers.typeof(objectParams[param]) === 'object') {
-	          if (objectParams[param] === null) {
+	        } else if (main_core.Type.isObjectLike(objectParams[param])) {
+	          if (previousParamName === 'watch' || previousParamName === 'props' || previousParamName === 'directives') {
+	            object[param] = objectParams[param];
+	          } else if (main_core.Type.isNull(objectParams[param])) {
 	            object[param] = null;
-	          } else if (babelHelpers.typeof(mutation[param]) === 'object') {
-	            object[param] = this._cloneObjectWithoutDuplicateFunction(objectParams[param], mutation[param], level + 1);
+	          } else if (main_core.Type.isObjectLike(mutation[param])) {
+	            object[param] = this._cloneObjectWithoutDuplicateFunction(objectParams[param], mutation[param], level + 1, param);
 	          } else {
 	            object[param] = Object.assign({}, objectParams[param]);
 	          }
-	        } else if (typeof objectParams[param] === 'function') {
-	          if (typeof mutation[param] !== 'function') {
+	        } else if (main_core.Type.isFunction(objectParams[param])) {
+	          if (!main_core.Type.isFunction(mutation[param])) {
 	            object[param] = objectParams[param];
 	          } else if (level > 1) {
-	            object['parent' + param[0].toUpperCase() + param.substr(1)] = objectParams[param];
+	            if (previousParamName === 'watch') {
+	              object[param] = objectParams[param];
+	            } else {
+	              object['parent' + param[0].toUpperCase() + param.substr(1)] = objectParams[param];
+	            }
 	          } else {
-	            if (typeof object['methods'] === 'undefined') {
+	            if (main_core.Type.isUndefined(object['methods'])) {
 	              object['methods'] = {};
 	            }
 
 	            object['methods']['parent' + param[0].toUpperCase() + param.substr(1)] = objectParams[param];
 
-	            if (typeof objectParams['methods'] === 'undefined') {
+	            if (main_core.Type.isUndefined(objectParams['methods'])) {
 	              objectParams['methods'] = {};
 	            }
 
 	            objectParams['methods']['parent' + param[0].toUpperCase() + param.substr(1)] = objectParams[param];
 	          }
-	        } else if (typeof objectParams[param] !== 'undefined') {
+	        } else if (!main_core.Type.isUndefined(objectParams[param])) {
 	          object[param] = objectParams[param];
 	        }
 	      }
@@ -890,38 +940,134 @@
 	     *
 	     * @param clonedObject
 	     * @param mutation
+	     * @param level
 	     * @private
 	     */
 
 	  }, {
 	    key: "_applyMutation",
 	    value: function _applyMutation() {
+	      var _this5 = this;
+
 	      var clonedObject = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	      var mutation = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+	      var level = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
 	      var object = Object.assign({}, clonedObject);
 
-	      for (var param in mutation) {
+	      var _loop2 = function _loop2(param) {
 	        if (!mutation.hasOwnProperty(param)) {
-	          continue;
+	          return "continue";
 	        }
 
-	        if (typeof mutation[param] === 'string') {
-	          if (typeof object[param] === 'string') {
+	        if (level === 1 && (param === 'compilerOptions' || param === 'setup')) {
+	          object[param] = mutation[param];
+	        } else if (level === 1 && param === 'extends') {
+	          object[param] = mutation[param];
+	        } else if (main_core.Type.isString(mutation[param])) {
+	          if (main_core.Type.isString(object[param])) {
 	            object[param] = mutation[param].replace("#PARENT_".concat(param.toUpperCase(), "#"), object[param]);
 	          } else {
 	            object[param] = mutation[param].replace("#PARENT_".concat(param.toUpperCase(), "#"), '');
 	          }
-	        } else if (Object.prototype.toString.call(mutation[param]) === '[object Array]') {
-	          object[param] = [].concat(mutation[param]);
-	        } else if (babelHelpers.typeof(mutation[param]) === 'object') {
-	          if (babelHelpers.typeof(object[param]) === 'object') {
-	            object[param] = this._applyMutation(object[param], mutation[param]);
+	        } else if (main_core.Type.isArray(mutation[param])) {
+	          if (level === 1 && param === 'replaceMixins') {
+	            object['mixins'] = [].concat(mutation[param]);
+	          } else if (level === 1 && param === 'replaceInject') {
+	            object['inject'] = [].concat(mutation[param]);
+	          } else if (level === 1 && param === 'replaceEmits') {
+	            object['emits'] = [].concat(mutation[param]);
+	          } else if (level === 1 && param === 'replaceExpose') {
+	            object['expose'] = [].concat(mutation[param]);
+	          } else if (main_core.Type.isPlainObject(object[param])) {
+	            mutation[param].forEach(function (element) {
+	              return object[param][element] = null;
+	            });
+	          } else {
+	            object[param] = object[param].concat(mutation[param]);
+	          }
+	        } else if (main_core.Type.isObjectLike(mutation[param])) {
+	          if (level === 1 && param === 'props' && main_core.Type.isArray(object[param]) || level === 1 && param === 'emits' && main_core.Type.isArray(object[param])) {
+	            var newObject = {};
+	            object[param].forEach(function (element) {
+	              newObject[element] = null;
+	            });
+	            object[param] = newObject;
+	          }
+
+	          if (level === 1 && param === 'watch') {
+	            for (var paramName in object[param]) {
+	              if (!object[param].hasOwnProperty(paramName)) {
+	                continue;
+	              }
+
+	              if (paramName.includes('.')) {
+	                continue;
+	              }
+
+	              if (main_core.Type.isFunction(object[param][paramName]) || main_core.Type.isObject(object[param][paramName]) && main_core.Type.isFunction(object[param][paramName]['handler'])) {
+	                if (main_core.Type.isUndefined(object['methods'])) {
+	                  object['methods'] = {};
+	                }
+
+	                var originNewFunctionName = 'parentWatch' + paramName[0].toUpperCase() + paramName.substr(1);
+
+	                if (main_core.Type.isFunction(object[param][paramName])) {
+	                  object['methods'][originNewFunctionName] = object[param][paramName];
+	                } else {
+	                  object['methods'][originNewFunctionName] = object[param][paramName]['handler'];
+	                }
+	              }
+	            }
+	          }
+
+	          if (level === 1 && param === 'replaceEmits') {
+	            object['emits'] = Object.assign({}, mutation[param]);
+	          } else if (level === 1 && (param === 'components' || param === 'directives')) {
+	            if (main_core.Type.isUndefined(object[param])) {
+	              object[param] = {};
+	            }
+
+	            for (var objectName in mutation[param]) {
+	              if (!mutation[param].hasOwnProperty(objectName)) {
+	                continue;
+	              }
+
+	              var parentObjectName = objectName[0].toUpperCase() + objectName.substr(1);
+	              parentObjectName = param === 'components' ? 'Parent' + parentObjectName : 'parent' + parentObjectName;
+	              object[param][parentObjectName] = Object.assign({}, object[param][objectName]);
+
+	              if (param === 'components') {
+	                if (main_core.Type.isUndefined(mutation[param][objectName].components)) {
+	                  mutation[param][objectName].components = {};
+	                }
+
+	                mutation[param][objectName].components = Object.assign(babelHelpers.defineProperty({}, parentObjectName, object[param][objectName]), mutation[param][objectName].components);
+	              }
+
+	              object[param][objectName] = mutation[param][objectName];
+	            }
+	          } else if (main_core.Type.isArray(object[param])) {
+	            for (var mutationName in mutation[param]) {
+	              if (!mutation[param].hasOwnProperty(mutationName)) {
+	                continue;
+	              }
+
+	              object[param].push(mutationName);
+	            }
+	          } else if (main_core.Type.isObjectLike(object[param])) {
+	            object[param] = _this5._applyMutation(object[param], mutation[param], level + 1);
 	          } else {
 	            object[param] = mutation[param];
 	          }
 	        } else {
 	          object[param] = mutation[param];
 	        }
+	      };
+
+	      for (var param in mutation) {
+	        var _ret2 = _loop2(param);
+
+	        if (_ret2 === "continue") continue;
 	      }
 
 	      return object;
@@ -996,6 +1142,7 @@
 	 * Modify list for integration with Bitrix Framework:
 	 * - change default export to local for work in Bitrix CoreJS extensions;
 	 */
+	// origin-start
 	var t = Object.freeze({});
 
 	function e(t) {
@@ -1011,11 +1158,11 @@
 	}
 
 	function r(t) {
-	  return "string" == typeof t || "number" == typeof t || "symbol" == babelHelpers.typeof(t) || "boolean" == typeof t;
+	  return "string" == typeof t || "number" == typeof t || "symbol" == babelHelpers["typeof"](t) || "boolean" == typeof t;
 	}
 
 	function s(t) {
-	  return null !== t && "object" == babelHelpers.typeof(t);
+	  return null !== t && "object" == babelHelpers["typeof"](t);
 	}
 
 	var i = Object.prototype.toString;
@@ -1030,7 +1177,7 @@
 	}
 
 	function l(t) {
-	  return n(t) && "function" == typeof t.then && "function" == typeof t.catch;
+	  return n(t) && "function" == typeof t.then && "function" == typeof t["catch"];
 	}
 
 	function u(t) {
@@ -1584,7 +1731,7 @@
 	        update: _n14
 	      });
 	    }
-	  }(e), !e._base && (e.extends && (t = jt(t, e.extends, n)), e.mixins)) for (var _o7 = 0, _r5 = e.mixins.length; _o7 < _r5; _o7++) {
+	  }(e), !e._base && (e["extends"] && (t = jt(t, e["extends"], n)), e.mixins)) for (var _o7 = 0, _r5 = e.mixins.length; _o7 < _r5; _o7++) {
 	    t = jt(t, e.mixins[_o7], n);
 	  }
 	  var o = {};
@@ -1632,7 +1779,7 @@
 	  if (void 0 === i) {
 	    i = function (t, e, n) {
 	      if (!g(e, "default")) return;
-	      var o = e.default;
+	      var o = e["default"];
 	      if (t && t.$options.propsData && void 0 === t.$options.propsData[n] && void 0 !== t._props[n]) return t._props[n];
 	      return "function" == typeof o && "Function" !== Mt(e.type) ? o.call(t) : o;
 	    }(o, r, t);
@@ -1694,7 +1841,7 @@
 	  var s;
 
 	  try {
-	    (s = n ? t.apply(e, n) : t.call(e)) && !s._isVue && l(s) && !s._handled && (s.catch(function (t) {
+	    (s = n ? t.apply(e, n) : t.call(e)) && !s._isVue && l(s) && !s._handled && (s["catch"](function (t) {
 	      return Rt(t, o, r + " (Promise/async)");
 	    }), s._handled = !0);
 	  } catch (t) {
@@ -1890,7 +2037,7 @@
 	      }
 
 	      if (!_a && "default" in t[_s3]) {
-	        var _o11 = t[_s3].default;
+	        var _o11 = t[_s3]["default"];
 	        _n18[_s3] = "function" == typeof _o11 ? _o11.call(e) : _o11;
 	      }
 	    }
@@ -1906,7 +2053,7 @@
 	  for (var _o12 = 0, _r8 = t.length; _o12 < _r8; _o12++) {
 	    var _r9 = t[_o12],
 	        _s4 = _r9.data;
-	    if (_s4 && _s4.attrs && _s4.attrs.slot && delete _s4.attrs.slot, _r9.context !== e && _r9.fnContext !== e || !_s4 || null == _s4.slot) (n.default || (n.default = [])).push(_r9);else {
+	    if (_s4 && _s4.attrs && _s4.attrs.slot && delete _s4.attrs.slot, _r9.context !== e && _r9.fnContext !== e || !_s4 || null == _s4.slot) (n["default"] || (n["default"] = [])).push(_r9);else {
 	      var _t14 = _s4.slot,
 	          _e8 = n[_t14] || (n[_t14] = []);
 
@@ -1955,7 +2102,7 @@
 	function le(t, e, n) {
 	  var o = function o() {
 	    var t = arguments.length ? n.apply(null, arguments) : n({}),
-	        e = (t = t && "object" == babelHelpers.typeof(t) && !Array.isArray(t) ? [t] : ne(t)) && t[0];
+	        e = (t = t && "object" == babelHelpers["typeof"](t) && !Array.isArray(t) ? [t] : ne(t)) && t[0];
 	    return t && (!e || 1 === t.length && e.isComment && !ae(e)) ? void 0 : t;
 	  };
 
@@ -2318,7 +2465,7 @@
 	  }(r, p, i, a, c);
 	  var h = i.on;
 
-	  if (i.on = i.nativeOn, o(r.options.abstract)) {
+	  if (i.on = i.nativeOn, o(r.options["abstract"])) {
 	    var _t23 = i.slot;
 	    i = {}, _t23 && (i.slot = _t23);
 	  }
@@ -2360,7 +2507,7 @@
 	    n(i) && n(i.is) && (r = i.is);
 	    if (!r) return pt();
 	    Array.isArray(a) && "function" == typeof a[0] && ((i = i || {}).scopedSlots = {
-	      default: a[0]
+	      "default": a[0]
 	    }, a.length = 0);
 	    c === Le ? a = ne(a) : c === De && (a = function (t) {
 	      for (var _e14 = 0; _e14 < t.length; _e14++) {
@@ -2386,7 +2533,7 @@
 	      }
 	    }(l, u), n(i) && function (t) {
 	      s(t.style) && Gt(t.style);
-	      s(t.class) && Gt(t.class);
+	      s(t["class"]) && Gt(t["class"]);
 	    }(i), l) : pt();
 	  }(t, i, a, c, l);
 	}
@@ -2395,7 +2542,7 @@
 	    Fe = null;
 
 	function Pe(t, e) {
-	  return (t.__esModule || rt && "Module" === t[Symbol.toStringTag]) && (t = t.default), s(t) ? e.extend(t) : t;
+	  return (t.__esModule || rt && "Module" === t[Symbol.toStringTag]) && (t = t["default"]), s(t) ? e.extend(t) : t;
 	}
 
 	function Re(t) {
@@ -2749,8 +2896,8 @@
 	function yn(t) {
 	  var e = t.options;
 
-	  if (t.super) {
-	    var _n33 = yn(t.super);
+	  if (t["super"]) {
+	    var _n33 = yn(t["super"]);
 
 	    if (_n33 !== t.superOptions) {
 	      t.superOptions = _n33;
@@ -2794,7 +2941,7 @@
 	      this._init(t);
 	    };
 
-	    return (i.prototype = Object.create(n.prototype)).constructor = i, i.cid = e++, i.options = jt(n.options, t), i.super = n, i.options.props && function (t) {
+	    return (i.prototype = Object.create(n.prototype)).constructor = i, i.cid = e++, i.options = jt(n.options, t), i["super"] = n, i.options.props && function (t) {
 	      var e = t.options.props;
 
 	      for (var _n34 in e) {
@@ -2854,8 +3001,8 @@
 	      var e = t.$options;
 	      var n = e.parent;
 
-	      if (n && !e.abstract) {
-	        for (; n.$options.abstract && n.$parent;) {
+	      if (n && !e["abstract"]) {
+	        for (; n.$options["abstract"] && n.$parent;) {
 	          n = n.$parent;
 	        }
 
@@ -2990,7 +3137,7 @@
 	    if (t._isBeingDestroyed) return;
 	    We(t, "beforeDestroy"), t._isBeingDestroyed = !0;
 	    var e = t.$parent;
-	    !e || e._isBeingDestroyed || t.$options.abstract || m(e.$children, t), t._watcher && t._watcher.teardown();
+	    !e || e._isBeingDestroyed || t.$options["abstract"] || m(e.$children, t), t._watcher && t._watcher.teardown();
 	    var n = t._watchers.length;
 
 	    for (; n--;) {
@@ -3025,7 +3172,7 @@
 	var xn = {
 	  KeepAlive: {
 	    name: "keep-alive",
-	    abstract: !0,
+	    "abstract": !0,
 	    props: {
 	      include: Cn,
 	      exclude: Cn,
@@ -3075,7 +3222,7 @@
 	      this.cacheVNode();
 	    },
 	    render: function render() {
-	      var t = this.$slots.default,
+	      var t = this.$slots["default"],
 	          e = Re(t),
 	          n = e && e.componentOptions;
 
@@ -3108,7 +3255,7 @@
 	    extend: A,
 	    mergeOptions: jt,
 	    defineReactive: Ct
-	  }, t.set = xt, t.delete = kt, t.nextTick = Wt, t.observable = function (t) {
+	  }, t.set = xt, t["delete"] = kt, t.nextTick = Wt, t.observable = function (t) {
 	    return wt(t), t;
 	  }, t.options = Object.create(null), I.forEach(function (e) {
 	    t.options[e + "s"] = Object.create(null);
@@ -3181,13 +3328,13 @@
 	  return function (t, e) {
 	    if (n(t) || n(e)) return Pn(t, Rn(e));
 	    return "";
-	  }(e.staticClass, e.class);
+	  }(e.staticClass, e["class"]);
 	}
 
 	function Fn(t, e) {
 	  return {
 	    staticClass: Pn(t.staticClass, e.staticClass),
-	    class: n(t.class) ? [t.class, e.class] : e.class
+	    "class": n(t["class"]) ? [t["class"], e["class"]] : e["class"]
 	  };
 	}
 
@@ -3444,7 +3591,7 @@
 	  var r = o.elm,
 	      s = o.data,
 	      i = t.data;
-	  if (e(s.staticClass) && e(s.class) && (e(i) || e(i.staticClass) && e(i.class))) return;
+	  if (e(s.staticClass) && e(s["class"]) && (e(i) || e(i.staticClass) && e(i["class"]))) return;
 	  var a = Mn(o);
 	  var c = r._transitionClasses;
 	  n(c) && (a = Pn(a, Rn(c))), a !== r._prevClass && (r.setAttribute("class", a), r._prevClass = a);
@@ -3595,7 +3742,7 @@
 
 	function ko(e, n, o, r, s, i, a, c) {
 	  var l;
-	  (r = r || t).right ? c ? n = "(".concat(n, ")==='click'?'contextmenu':(").concat(n, ")") : "click" === n && (n = "contextmenu", delete r.right) : r.middle && (c ? n = "(".concat(n, ")==='click'?'mouseup':(").concat(n, ")") : "click" === n && (n = "mouseup")), r.capture && (delete r.capture, n = xo("!", n, c)), r.once && (delete r.once, n = xo("~", n, c)), r.passive && (delete r.passive, n = xo("&", n, c)), r.native ? (delete r.native, l = e.nativeEvents || (e.nativeEvents = {})) : l = e.events || (e.events = {});
+	  (r = r || t).right ? c ? n = "(".concat(n, ")==='click'?'contextmenu':(").concat(n, ")") : "click" === n && (n = "contextmenu", delete r.right) : r.middle && (c ? n = "(".concat(n, ")==='click'?'mouseup':(").concat(n, ")") : "click" === n && (n = "mouseup")), r.capture && (delete r.capture, n = xo("!", n, c)), r.once && (delete r.once, n = xo("~", n, c)), r.passive && (delete r.passive, n = xo("&", n, c)), r["native"] ? (delete r["native"], l = e.nativeEvents || (e.nativeEvents = {})) : l = e.events || (e.events = {});
 	  var u = To({
 	    value: o.trim(),
 	    dynamic: c
@@ -3961,7 +4108,7 @@
 
 	function yr(t) {
 	  if (t) {
-	    if ("object" == babelHelpers.typeof(t)) {
+	    if ("object" == babelHelpers["typeof"](t)) {
 	      var _e32 = {};
 	      return !1 !== t.css && A(_e32, gr(t.name || "v")), A(_e32, t), _e32;
 	    }
@@ -4398,7 +4545,7 @@
 	          }
 	        }
 
-	        !_t42 && c.class && Gt(c.class);
+	        !_t42 && c["class"] && Gt(c["class"]);
 	      }
 	    } else t.data !== e.text && (t.data = e.text);
 
@@ -4583,7 +4730,7 @@
 
 	function Xr(t) {
 	  var e = t && t.componentOptions;
-	  return e && e.Ctor.options.abstract ? Xr(Re(e.children)) : t;
+	  return e && e.Ctor.options["abstract"] ? Xr(Re(e.children)) : t;
 	}
 
 	function Yr(t) {
@@ -4619,11 +4766,11 @@
 	var ns = {
 	  name: "transition",
 	  props: Gr,
-	  abstract: !0,
+	  "abstract": !0,
 	  render: function render(t) {
 	    var _this3 = this;
 
-	    var e = this.$slots.default;
+	    var e = this.$slots["default"];
 	    if (!e) return;
 	    if (!(e = e.filter(ts)).length) return;
 	    var n = this.mode,
@@ -4714,7 +4861,7 @@
 	      var e = this.tag || this.$vnode.data.tag || "span",
 	          n = Object.create(null),
 	          o = this.prevChildren = this.children,
-	          r = this.$slots.default || [],
+	          r = this.$slots["default"] || [],
 	          s = this.children = [],
 	          i = Yr(this);
 
@@ -4905,10 +5052,10 @@
 	      c = !1;
 
 	  function l(t) {
-	    if (u(t), a || t.processed || (t = ii(t, e)), n.length || t === s || s.if && (t.elseif || t.else) && ci(s, {
+	    if (u(t), a || t.processed || (t = ii(t, e)), n.length || t === s || s["if"] && (t.elseif || t["else"]) && ci(s, {
 	      exp: t.elseif,
 	      block: t
-	    }), i && !t.forbidden) if (t.elseif || t.else) !function (t, e) {
+	    }), i && !t.forbidden) if (t.elseif || t["else"]) !function (t, e) {
 	      var n = function (t) {
 	        var e = t.length;
 
@@ -4918,7 +5065,7 @@
 	        }
 	      }(e.children);
 
-	      n && n.if && ci(n, {
+	      n && n["if"] && ci(n, {
 	        exp: t.elseif,
 	        block: t
 	      });
@@ -5149,11 +5296,11 @@
 	        } else t.pre || (t.plain = !0);
 	      }(p) : p.processed || (ai(p), function (t) {
 	        var e = Oo(t, "v-if");
-	        if (e) t.if = e, ci(t, {
+	        if (e) t["if"] = e, ci(t, {
 	          exp: e,
 	          block: t
 	        });else {
-	          null != Oo(t, "v-else") && (t.else = !0);
+	          null != Oo(t, "v-else") && (t["else"] = !0);
 
 	          var _e48 = Oo(t, "v-else-if");
 
@@ -5235,7 +5382,7 @@
 	      var e = t;
 
 	      for (; e;) {
-	        if (void 0 !== e.for) return !0;
+	        if (void 0 !== e["for"]) return !0;
 	        e = e.parent;
 	      }
 
@@ -5310,7 +5457,7 @@
 	      var e = t.match(Ps);
 	      if (!e) return;
 	      var n = {};
-	      n.for = e[2].trim();
+	      n["for"] = e[2].trim();
 	      var o = e[1].trim().replace(Hs, ""),
 	          r = o.match(Rs);
 	      r ? (n.alias = o.replace(Rs, "").trim(), n.iterator1 = r[1].trim(), r[2] && (n.iterator2 = r[2].trim())) : n.alias = o;
@@ -5379,8 +5526,8 @@
 	            _i12 = Oo(t, "v-else-if", !0),
 	            _a5 = hi(t);
 
-	        ai(_a5), wo(_a5, "type", "checkbox"), ii(_a5, e), _a5.processed = !0, _a5.if = "(".concat(_o53, ")==='checkbox'") + _r33, ci(_a5, {
-	          exp: _a5.if,
+	        ai(_a5), wo(_a5, "type", "checkbox"), ii(_a5, e), _a5.processed = !0, _a5["if"] = "(".concat(_o53, ")==='checkbox'") + _r33, ci(_a5, {
+	          exp: _a5["if"],
 	          block: _a5
 	        });
 
@@ -5396,7 +5543,7 @@
 	        return Oo(_l, "v-for", !0), wo(_l, ":type", _o53), ii(_l, e), ci(_a5, {
 	          exp: _n65,
 	          block: _l
-	        }), _s19 ? _a5.else = !0 : _i12 && (_a5.elseif = _i12), _a5;
+	        }), _s19 ? _a5["else"] = !0 : _i12 && (_a5.elseif = _i12), _a5;
 	      }
 	    }
 	  }
@@ -5468,13 +5615,13 @@
 
 	function _i(t, e) {
 	  t && (gi = $i(e.staticKeys || ""), vi = e.isReservedTag || T, function t(e) {
-	    e.static = function (t) {
+	    e["static"] = function (t) {
 	      if (2 === t.type) return !1;
 	      if (3 === t.type) return !0;
-	      return !(!t.pre && (t.hasBindings || t.if || t.for || p(t.tag) || !vi(t.tag) || function (t) {
+	      return !(!t.pre && (t.hasBindings || t["if"] || t["for"] || p(t.tag) || !vi(t.tag) || function (t) {
 	        for (; t.parent;) {
 	          if ("template" !== (t = t.parent).tag) return !1;
-	          if (t.for) return !0;
+	          if (t["for"]) return !0;
 	        }
 
 	        return !1;
@@ -5486,19 +5633,19 @@
 
 	      for (var _n66 = 0, _o54 = e.children.length; _n66 < _o54; _n66++) {
 	        var _o55 = e.children[_n66];
-	        t(_o55), _o55.static || (e.static = !1);
+	        t(_o55), _o55["static"] || (e["static"] = !1);
 	      }
 
 	      if (e.ifConditions) for (var _n67 = 1, _o56 = e.ifConditions.length; _n67 < _o56; _n67++) {
 	        var _o57 = e.ifConditions[_n67].block;
-	        t(_o57), _o57.static || (e.static = !1);
+	        t(_o57), _o57["static"] || (e["static"] = !1);
 	      }
 	    }
 	  }(t), function t(e, n) {
 	    if (1 === e.type) {
-	      if ((e.static || e.once) && (e.staticInFor = n), e.static && e.children.length && (1 !== e.children.length || 3 !== e.children[0].type)) return void (e.staticRoot = !0);
+	      if ((e["static"] || e.once) && (e.staticInFor = n), e["static"] && e.children.length && (1 !== e.children.length || 3 !== e.children[0].type)) return void (e.staticRoot = !0);
 	      if (e.staticRoot = !1, e.children) for (var _o58 = 0, _r34 = e.children.length; _o58 < _r34; _o58++) {
-	        t(e.children[_o58], n || !!e.for);
+	        t(e.children[_o58], n || !!e["for"]);
 	      }
 	      if (e.ifConditions) for (var _o59 = 1, _r35 = e.ifConditions.length; _o59 < _r35; _o59++) {
 	        t(e.ifConditions[_o59].block, n);
@@ -5519,7 +5666,7 @@
 	  left: 37,
 	  right: 39,
 	  down: 40,
-	  delete: [8, 46]
+	  "delete": [8, 46]
 	},
 	    ki = {
 	  esc: ["Esc", "Escape"],
@@ -5530,7 +5677,7 @@
 	  left: ["Left", "ArrowLeft"],
 	  right: ["Right", "ArrowRight"],
 	  down: ["Down", "ArrowDown"],
-	  delete: ["Backspace", "Delete", "Del"]
+	  "delete": ["Backspace", "Delete", "Del"]
 	},
 	    Ai = function Ai(t) {
 	  return "if(".concat(t, ")return null;");
@@ -5639,8 +5786,8 @@
 	function Li(t, e) {
 	  if (t.parent && (t.pre = t.pre || t.parent.pre), t.staticRoot && !t.staticProcessed) return Ii(t, e);
 	  if (t.once && !t.onceProcessed) return Mi(t, e);
-	  if (t.for && !t.forProcessed) return Pi(t, e);
-	  if (t.if && !t.ifProcessed) return Fi(t, e);
+	  if (t["for"] && !t.forProcessed) return Pi(t, e);
+	  if (t["if"] && !t.ifProcessed) return Fi(t, e);
 
 	  if ("template" !== t.tag || t.slotTarget || e.pre) {
 	    if ("slot" === t.tag) return function (t, e) {
@@ -5694,14 +5841,14 @@
 	}
 
 	function Mi(t, e) {
-	  if (t.onceProcessed = !0, t.if && !t.ifProcessed) return Fi(t, e);
+	  if (t.onceProcessed = !0, t["if"] && !t.ifProcessed) return Fi(t, e);
 
 	  if (t.staticInFor) {
 	    var _n70 = "",
 	        _o62 = t.parent;
 
 	    for (; _o62;) {
-	      if (_o62.for) {
+	      if (_o62["for"]) {
 	        _n70 = _o62.key;
 	        break;
 	      }
@@ -5728,7 +5875,7 @@
 	}
 
 	function Pi(t, e, n, o) {
-	  var r = t.for,
+	  var r = t["for"],
 	      s = t.alias,
 	      i = t.iterator1 ? ",".concat(t.iterator1) : "",
 	      a = t.iterator2 ? ",".concat(t.iterator2) : "";
@@ -5764,22 +5911,22 @@
 	  }
 
 	  if (t.attrs && (n += "attrs:".concat(Ki(t.attrs), ",")), t.props && (n += "domProps:".concat(Ki(t.props), ",")), t.events && (n += "".concat(Si(t.events, !1), ",")), t.nativeEvents && (n += "".concat(Si(t.nativeEvents, !0), ",")), t.slotTarget && !t.slotScope && (n += "slot:".concat(t.slotTarget, ",")), t.scopedSlots && (n += "".concat(function (t, e, n) {
-	    var o = t.for || Object.keys(e).some(function (t) {
+	    var o = t["for"] || Object.keys(e).some(function (t) {
 	      var n = e[t];
-	      return n.slotTargetDynamic || n.if || n.for || Hi(n);
+	      return n.slotTargetDynamic || n["if"] || n["for"] || Hi(n);
 	    }),
-	        r = !!t.if;
+	        r = !!t["if"];
 
 	    if (!o) {
 	      var _e56 = t.parent;
 
 	      for (; _e56;) {
-	        if (_e56.slotScope && _e56.slotScope !== Zs || _e56.for) {
+	        if (_e56.slotScope && _e56.slotScope !== Zs || _e56["for"]) {
 	          o = !0;
 	          break;
 	        }
 
-	        _e56.if && (r = !0), _e56 = _e56.parent;
+	        _e56["if"] && (r = !0), _e56 = _e56.parent;
 	      }
 	    }
 
@@ -5821,10 +5968,10 @@
 
 	function Bi(t, e) {
 	  var n = t.attrsMap["slot-scope"];
-	  if (t.if && !t.ifProcessed && !n) return Fi(t, e, Bi, "null");
-	  if (t.for && !t.forProcessed) return Pi(t, e, Bi);
+	  if (t["if"] && !t.ifProcessed && !n) return Fi(t, e, Bi, "null");
+	  if (t["for"] && !t.forProcessed) return Pi(t, e, Bi);
 	  var o = t.slotScope === Zs ? "" : String(t.slotScope),
-	      r = "function(".concat(o, "){") + "return ".concat("template" === t.tag ? t.if && n ? "(".concat(t.if, ")?").concat(Ui(t, e) || "undefined", ":undefined") : Ui(t, e) || "undefined" : Li(t, e), "}"),
+	      r = "function(".concat(o, "){") + "return ".concat("template" === t.tag ? t["if"] && n ? "(".concat(t["if"], ")?").concat(Ui(t, e) || "undefined", ":undefined") : Ui(t, e) || "undefined" : Li(t, e), "}"),
 	      s = o ? "" : ",proxy:true";
 	  return "{key:".concat(t.slotTarget || '"default"', ",fn:").concat(r).concat(s, "}");
 	}
@@ -5835,7 +5982,7 @@
 	  if (s.length) {
 	    var _t55 = s[0];
 
-	    if (1 === s.length && _t55.for && "template" !== _t55.tag && "slot" !== _t55.tag) {
+	    if (1 === s.length && _t55["for"] && "template" !== _t55.tag && "slot" !== _t55.tag) {
 	      var _r39 = n ? e.maybeComponent(_t55) ? ",1" : ",0" : "";
 
 	      return "".concat((o || Li)(_t55, e)).concat(_r39);
@@ -5872,7 +6019,7 @@
 	}
 
 	function Vi(t) {
-	  return void 0 !== t.for || "template" === t.tag || "slot" === t.tag;
+	  return void 0 !== t["for"] || "template" === t.tag || "slot" === t.tag;
 	}
 
 	function zi(t, e) {
@@ -6016,7 +6163,7 @@
 	  }
 
 	  return ra.call(this, t, e);
-	}, gn.compile = Yi;
+	}, gn.compile = Yi; // origin-end
 	var BitrixVueInstance = new BitrixVue(gn);
 
 	exports.BitrixVue = BitrixVueInstance;

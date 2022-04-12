@@ -15,13 +15,9 @@
 (function (exports,main_core_events,main_core,rest_client,pull_client) {
 	'use strict';
 
-	/**
-	 * Bitrix Vue wrapper
-	 *
-	 * @package bitrix
-	 * @subpackage ui
-	 * @copyright 2001-2021 Bitrix
-	 */
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var BitrixVue = /*#__PURE__*/function () {
 	  function BitrixVue(VueVendor) {
 	    babelHelpers.classCallCheck(this, BitrixVue);
@@ -38,6 +34,8 @@
 	      restClientChange: 'RestClient::change',
 	      pullClientChange: 'PullClient::change'
 	    };
+	    var settings = main_core.Extension.getSettings('ui.vue');
+	    this.localizationMode = settings.get('localizationDebug', false) ? 'development' : 'production';
 	  }
 	  /**
 	   * Create new Vue instance
@@ -59,7 +57,7 @@
 	     *
 	     * @param {Object} params - definition
 	     *
-	     * @see https://vuejs.org/v2/guide/
+	     * @see https://v2.vuejs.org/v2/guide/
 	     */
 
 	  }, {
@@ -73,6 +71,21 @@
 	        messages: {},
 	        getMessage: function getMessage(messageId) {
 	          var replacements = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+	          if (bitrixVue.localizationMode === 'development') {
+	            var debugMessageId = [messageId];
+
+	            if (main_core.Type.isPlainObject(replacements)) {
+	              var replaceKeys = Object.keys(replacements);
+
+	              if (replaceKeys.length > 0) {
+	                debugMessageId = [messageId, ' (replacements: ', replaceKeys.join(', '), ')'];
+	              }
+	            }
+
+	            return debugMessageId.join('');
+	          }
+
 	          var message = '';
 
 	          if (!main_core.Type.isUndefined(this.messages[messageId])) {
@@ -98,10 +111,10 @@
 	        },
 	        getMessages: function getMessages() {
 	          if (typeof BX.message !== 'undefined') {
-	            return babelHelpers.objectSpread({}, BX.message, this.messages);
+	            return _objectSpread(_objectSpread({}, BX.message), this.messages);
 	          }
 
-	          return babelHelpers.objectSpread({}, this.messages);
+	          return _objectSpread({}, this.messages);
 	        },
 	        setMessage: function setMessage(id, value) {
 	          if (main_core.Type.isString(id)) {
@@ -209,7 +222,7 @@
 	     * @param {Object} params
 	     * @param {Object} [options]
 	     *
-	     * @see https://vuejs.org/v2/guide/components.html
+	     * @see https://v2.vuejs.org/v2/guide/components.html
 	     */
 
 	  }, {
@@ -241,7 +254,7 @@
 	    }
 	    /**
 	     * Register Vue component (local)
-	     * @see https://vuejs.org/v2/guide/components.html
+	     * @see https://v2.vuejs.org/v2/guide/components.html
 	     *
 	     * @param {string} name
 	     * @param {Object} definition
@@ -254,15 +267,13 @@
 	    key: "localComponent",
 	    value: function localComponent(name, definition) {
 	      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-	      return this.component(name, definition, babelHelpers.objectSpread({
-	        immutable: false
-	      }, options, {
+	      return this.component(name, definition, _objectSpread(_objectSpread({}, options), {}, {
 	        local: true
 	      }));
 	    }
 	    /**
 	     * Get local Vue component
-	     * @see https://vuejs.org/v2/guide/components.html
+	     * @see https://v2.vuejs.org/v2/guide/components.html
 	     *
 	     * @param {string} name
 	     *
@@ -361,6 +372,27 @@
 	      return true;
 	    }
 	    /**
+	     * Clone Vue component (object)
+	     *
+	     * @param {object} source
+	     * @param {object} mutations
+	     * @returns {object}
+	     */
+
+	  }, {
+	    key: "cloneLocalComponent",
+	    value: function cloneLocalComponent(source, mutations) {
+	      if (babelHelpers["typeof"](source) !== 'object') {
+	        source = this.getLocalComponent(source);
+
+	        if (!source) {
+	          return null;
+	        }
+	      }
+
+	      return this._applyMutation(this._cloneObjectWithoutDuplicateFunction(source, mutations), mutations);
+	    }
+	    /**
 	     * Check exists Vue component
 	     *
 	     * @param {string} id
@@ -410,7 +442,7 @@
 	     * @param options
 	     * @returns {*}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-extend
+	     * @see https://v2.vuejs.org/v2/api/#Vue-extend
 	     */
 
 	  }, {
@@ -425,7 +457,7 @@
 	     * @param {Object} context
 	     * @returns {Promise|void}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-nextTick
+	     * @see https://v2.vuejs.org/v2/api/#Vue-nextTick
 	     */
 
 	  }, {
@@ -441,7 +473,7 @@
 	     * @param {*} value
 	     * @returns {*}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-set
+	     * @see https://v2.vuejs.org/v2/api/#Vue-set
 	     */
 
 	  }, {
@@ -460,7 +492,7 @@
 	  }, {
 	    key: "delete",
 	    value: function _delete(target, key) {
-	      return this._instance.delete(target, key);
+	      return this._instance["delete"](target, key);
 	    }
 	    /**
 	     * Register or retrieve a global directive.
@@ -469,7 +501,7 @@
 	     * @param {Object|Function} definition
 	     * @returns {*}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-directive
+	     * @see https://v2.vuejs.org/v2/api/#Vue-directive
 	     */
 
 	  }, {
@@ -484,7 +516,7 @@
 	     * @param definition
 	     * @returns {*}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-filter
+	     * @see https://v2.vuejs.org/v2/api/#Vue-filter
 	     */
 
 	  }, {
@@ -498,7 +530,7 @@
 	     * @param {Object|Function} plugin
 	     * @returns {*}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-use
+	     * @see https://v2.vuejs.org/v2/api/#Vue-use
 	     */
 
 	  }, {
@@ -512,7 +544,7 @@
 	     * @param {Object} mixin
 	     * @returns {*|Function|Object}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-mixin
+	     * @see https://v2.vuejs.org/v2/api/#Vue-mixin
 	     */
 
 	  }, {
@@ -526,7 +558,7 @@
 	     * @param object
 	     * @returns {*}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-observable
+	     * @see https://v2.vuejs.org/v2/api/#Vue-observable
 	     */
 
 	  }, {
@@ -540,7 +572,7 @@
 	     * @param template
 	     * @returns {*}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-compile
+	     * @see https://v2.vuejs.org/v2/api/#Vue-compile
 	     */
 
 	  }, {
@@ -553,7 +585,7 @@
 	     *
 	     * @returns {String}
 	     *
-	     * @see https://vuejs.org/v2/api/#Vue-version
+	     * @see https://v2.vuejs.org/v2/api/#Vue-version
 	     */
 
 	  }, {
@@ -572,7 +604,7 @@
 	  }, {
 	    key: "testNode",
 	    value: function testNode(obj, params) {
-	      if (!params || babelHelpers.typeof(params) !== 'object') {
+	      if (!params || babelHelpers["typeof"](params) !== 'object') {
 	        return true;
 	      }
 
@@ -696,6 +728,8 @@
 	  }, {
 	    key: "getFilteredPhrases",
 	    value: function getFilteredPhrases(phrasePrefix) {
+	      var _this2 = this;
+
 	      var phrases = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      var result = {};
 
@@ -717,7 +751,11 @@
 	            return "continue";
 	          }
 
-	          result[message] = phrases[message];
+	          if (_this2.localizationMode === 'development') {
+	            result[message] = message;
+	          } else {
+	            result[message] = phrases[message];
+	          }
 	        };
 
 	        for (var message in phrases) {
@@ -735,7 +773,11 @@
 	            continue;
 	          }
 
-	          result[_message] = phrases[_message];
+	          if (this.localizationMode === 'development') {
+	            result[_message] = _message;
+	          } else {
+	            result[_message] = phrases[_message];
+	          }
 	        }
 	      }
 
@@ -754,7 +796,7 @@
 	  }, {
 	    key: "_getComponentParamsWithMutation",
 	    value: function _getComponentParamsWithMutation(componentId, mutations) {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      if (typeof this._components[componentId] === 'undefined') {
 	        return null;
@@ -767,7 +809,7 @@
 	      }
 
 	      mutations.forEach(function (mutation) {
-	        componentParams = _this2._applyMutation(_this2._cloneObjectWithoutDuplicateFunction(componentParams, mutation), mutation);
+	        componentParams = _this3._applyMutation(_this3._cloneObjectWithoutDuplicateFunction(componentParams, mutation), mutation);
 	      });
 	      return componentParams;
 	    }
@@ -789,7 +831,7 @@
 	  }, {
 	    key: "_registerCloneComponent",
 	    value: function _registerCloneComponent(sourceId) {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      var components = [];
@@ -811,19 +853,19 @@
 	      components.forEach(function (element) {
 	        var mutations = [];
 
-	        if (typeof _this3._mutations[element.sourceId] !== 'undefined') {
-	          mutations = mutations.concat(_this3._mutations[element.sourceId]);
+	        if (typeof _this4._mutations[element.sourceId] !== 'undefined') {
+	          mutations = mutations.concat(_this4._mutations[element.sourceId]);
 	        }
 
 	        mutations.push(element.mutations);
 
-	        var componentParams = _this3._getComponentParamsWithMutation(element.sourceId, mutations);
+	        var componentParams = _this4._getComponentParamsWithMutation(element.sourceId, mutations);
 
 	        if (!componentParams) {
 	          return false;
 	        }
 
-	        _this3.component(element.id, componentParams);
+	        _this4.component(element.id, componentParams);
 	      });
 	    }
 	    /**
@@ -832,6 +874,7 @@
 	     * @param objectParams
 	     * @param mutation
 	     * @param level
+	     * @param previousParamName
 	     * @private
 	     */
 
@@ -841,6 +884,7 @@
 	      var objectParams = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	      var mutation = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	      var level = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+	      var previousParamName = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
 	      var object = {};
 
 	      for (var param in objectParams) {
@@ -848,37 +892,43 @@
 	          continue;
 	        }
 
-	        if (typeof objectParams[param] === 'string') {
+	        if (main_core.Type.isString(objectParams[param])) {
 	          object[param] = objectParams[param];
-	        } else if (Object.prototype.toString.call(objectParams[param]) === '[object Array]') {
+	        } else if (main_core.Type.isArray(objectParams[param])) {
 	          object[param] = [].concat(objectParams[param]);
-	        } else if (babelHelpers.typeof(objectParams[param]) === 'object') {
-	          if (objectParams[param] === null) {
+	        } else if (main_core.Type.isObjectLike(objectParams[param])) {
+	          if (previousParamName === 'watch' || previousParamName === 'props' || previousParamName === 'directives') {
+	            object[param] = objectParams[param];
+	          } else if (main_core.Type.isNull(objectParams[param])) {
 	            object[param] = null;
-	          } else if (babelHelpers.typeof(mutation[param]) === 'object') {
-	            object[param] = this._cloneObjectWithoutDuplicateFunction(objectParams[param], mutation[param], level + 1);
+	          } else if (main_core.Type.isObjectLike(mutation[param])) {
+	            object[param] = this._cloneObjectWithoutDuplicateFunction(objectParams[param], mutation[param], level + 1, param);
 	          } else {
 	            object[param] = Object.assign({}, objectParams[param]);
 	          }
-	        } else if (typeof objectParams[param] === 'function') {
-	          if (typeof mutation[param] !== 'function') {
+	        } else if (main_core.Type.isFunction(objectParams[param])) {
+	          if (!main_core.Type.isFunction(mutation[param])) {
 	            object[param] = objectParams[param];
 	          } else if (level > 1) {
-	            object['parent' + param[0].toUpperCase() + param.substr(1)] = objectParams[param];
+	            if (previousParamName === 'watch') {
+	              object[param] = objectParams[param];
+	            } else {
+	              object['parent' + param[0].toUpperCase() + param.substr(1)] = objectParams[param];
+	            }
 	          } else {
-	            if (typeof object['methods'] === 'undefined') {
+	            if (main_core.Type.isUndefined(object['methods'])) {
 	              object['methods'] = {};
 	            }
 
 	            object['methods']['parent' + param[0].toUpperCase() + param.substr(1)] = objectParams[param];
 
-	            if (typeof objectParams['methods'] === 'undefined') {
+	            if (main_core.Type.isUndefined(objectParams['methods'])) {
 	              objectParams['methods'] = {};
 	            }
 
 	            objectParams['methods']['parent' + param[0].toUpperCase() + param.substr(1)] = objectParams[param];
 	          }
-	        } else if (typeof objectParams[param] !== 'undefined') {
+	        } else if (!main_core.Type.isUndefined(objectParams[param])) {
 	          object[param] = objectParams[param];
 	        }
 	      }
@@ -890,38 +940,134 @@
 	     *
 	     * @param clonedObject
 	     * @param mutation
+	     * @param level
 	     * @private
 	     */
 
 	  }, {
 	    key: "_applyMutation",
 	    value: function _applyMutation() {
+	      var _this5 = this;
+
 	      var clonedObject = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	      var mutation = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+	      var level = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
 	      var object = Object.assign({}, clonedObject);
 
-	      for (var param in mutation) {
+	      var _loop2 = function _loop2(param) {
 	        if (!mutation.hasOwnProperty(param)) {
-	          continue;
+	          return "continue";
 	        }
 
-	        if (typeof mutation[param] === 'string') {
-	          if (typeof object[param] === 'string') {
+	        if (level === 1 && (param === 'compilerOptions' || param === 'setup')) {
+	          object[param] = mutation[param];
+	        } else if (level === 1 && param === 'extends') {
+	          object[param] = mutation[param];
+	        } else if (main_core.Type.isString(mutation[param])) {
+	          if (main_core.Type.isString(object[param])) {
 	            object[param] = mutation[param].replace("#PARENT_".concat(param.toUpperCase(), "#"), object[param]);
 	          } else {
 	            object[param] = mutation[param].replace("#PARENT_".concat(param.toUpperCase(), "#"), '');
 	          }
-	        } else if (Object.prototype.toString.call(mutation[param]) === '[object Array]') {
-	          object[param] = [].concat(mutation[param]);
-	        } else if (babelHelpers.typeof(mutation[param]) === 'object') {
-	          if (babelHelpers.typeof(object[param]) === 'object') {
-	            object[param] = this._applyMutation(object[param], mutation[param]);
+	        } else if (main_core.Type.isArray(mutation[param])) {
+	          if (level === 1 && param === 'replaceMixins') {
+	            object['mixins'] = [].concat(mutation[param]);
+	          } else if (level === 1 && param === 'replaceInject') {
+	            object['inject'] = [].concat(mutation[param]);
+	          } else if (level === 1 && param === 'replaceEmits') {
+	            object['emits'] = [].concat(mutation[param]);
+	          } else if (level === 1 && param === 'replaceExpose') {
+	            object['expose'] = [].concat(mutation[param]);
+	          } else if (main_core.Type.isPlainObject(object[param])) {
+	            mutation[param].forEach(function (element) {
+	              return object[param][element] = null;
+	            });
+	          } else {
+	            object[param] = object[param].concat(mutation[param]);
+	          }
+	        } else if (main_core.Type.isObjectLike(mutation[param])) {
+	          if (level === 1 && param === 'props' && main_core.Type.isArray(object[param]) || level === 1 && param === 'emits' && main_core.Type.isArray(object[param])) {
+	            var newObject = {};
+	            object[param].forEach(function (element) {
+	              newObject[element] = null;
+	            });
+	            object[param] = newObject;
+	          }
+
+	          if (level === 1 && param === 'watch') {
+	            for (var paramName in object[param]) {
+	              if (!object[param].hasOwnProperty(paramName)) {
+	                continue;
+	              }
+
+	              if (paramName.includes('.')) {
+	                continue;
+	              }
+
+	              if (main_core.Type.isFunction(object[param][paramName]) || main_core.Type.isObject(object[param][paramName]) && main_core.Type.isFunction(object[param][paramName]['handler'])) {
+	                if (main_core.Type.isUndefined(object['methods'])) {
+	                  object['methods'] = {};
+	                }
+
+	                var originNewFunctionName = 'parentWatch' + paramName[0].toUpperCase() + paramName.substr(1);
+
+	                if (main_core.Type.isFunction(object[param][paramName])) {
+	                  object['methods'][originNewFunctionName] = object[param][paramName];
+	                } else {
+	                  object['methods'][originNewFunctionName] = object[param][paramName]['handler'];
+	                }
+	              }
+	            }
+	          }
+
+	          if (level === 1 && param === 'replaceEmits') {
+	            object['emits'] = Object.assign({}, mutation[param]);
+	          } else if (level === 1 && (param === 'components' || param === 'directives')) {
+	            if (main_core.Type.isUndefined(object[param])) {
+	              object[param] = {};
+	            }
+
+	            for (var objectName in mutation[param]) {
+	              if (!mutation[param].hasOwnProperty(objectName)) {
+	                continue;
+	              }
+
+	              var parentObjectName = objectName[0].toUpperCase() + objectName.substr(1);
+	              parentObjectName = param === 'components' ? 'Parent' + parentObjectName : 'parent' + parentObjectName;
+	              object[param][parentObjectName] = Object.assign({}, object[param][objectName]);
+
+	              if (param === 'components') {
+	                if (main_core.Type.isUndefined(mutation[param][objectName].components)) {
+	                  mutation[param][objectName].components = {};
+	                }
+
+	                mutation[param][objectName].components = Object.assign(babelHelpers.defineProperty({}, parentObjectName, object[param][objectName]), mutation[param][objectName].components);
+	              }
+
+	              object[param][objectName] = mutation[param][objectName];
+	            }
+	          } else if (main_core.Type.isArray(object[param])) {
+	            for (var mutationName in mutation[param]) {
+	              if (!mutation[param].hasOwnProperty(mutationName)) {
+	                continue;
+	              }
+
+	              object[param].push(mutationName);
+	            }
+	          } else if (main_core.Type.isObjectLike(object[param])) {
+	            object[param] = _this5._applyMutation(object[param], mutation[param], level + 1);
 	          } else {
 	            object[param] = mutation[param];
 	          }
 	        } else {
 	          object[param] = mutation[param];
 	        }
+	      };
+
+	      for (var param in mutation) {
+	        var _ret2 = _loop2(param);
+
+	        if (_ret2 === "continue") continue;
 	      }
 
 	      return object;
@@ -996,6 +1142,7 @@
 	 * Modify list for integration with Bitrix Framework:
 	 * - change default export to local for work in Bitrix CoreJS extensions;
 	 */
+	// origin-start
 	var emptyObject = Object.freeze({}); // These helpers produce better VM code in JS engines due to their
 	// explicitness and function inlining.
 
@@ -1021,7 +1168,7 @@
 
 	function isPrimitive(value) {
 	  return typeof value === 'string' || typeof value === 'number' || // $flow-disable-line
-	  babelHelpers.typeof(value) === 'symbol' || typeof value === 'boolean';
+	  babelHelpers["typeof"](value) === 'symbol' || typeof value === 'boolean';
 	}
 	/**
 	 * Quick object check - this is primarily used to tell
@@ -1031,7 +1178,7 @@
 
 
 	function isObject(obj) {
-	  return obj !== null && babelHelpers.typeof(obj) === 'object';
+	  return obj !== null && babelHelpers["typeof"](obj) === 'object';
 	}
 	/**
 	 * Get the raw type string of a value, e.g., [object Object].
@@ -1067,7 +1214,7 @@
 	}
 
 	function isPromise(val) {
-	  return isDef(val) && typeof val.then === 'function' && typeof val.catch === 'function';
+	  return isDef(val) && typeof val.then === 'function' && typeof val["catch"] === 'function';
 	}
 	/**
 	 * Convert a value to a string that is actually rendered.
@@ -2530,8 +2677,8 @@
 	  // Only merged options has the _base property.
 
 	  if (!child._base) {
-	    if (child.extends) {
-	      parent = mergeOptions(parent, child.extends, vm);
+	    if (child["extends"]) {
+	      parent = mergeOptions(parent, child["extends"], vm);
 	    }
 
 	    if (child.mixins) {
@@ -2641,7 +2788,7 @@
 	    return undefined;
 	  }
 
-	  var def = prop.default; // warn against non-factory defaults for Object & Array
+	  var def = prop["default"]; // warn against non-factory defaults for Object & Array
 
 	  if (isObject(def)) {
 	    warn('Invalid default value for prop "' + key + '": ' + 'Props with type Object/Array must use a factory function ' + 'to return the default value.', vm);
@@ -2713,7 +2860,7 @@
 	  var expectedType = getType(type);
 
 	  if (simpleCheckRE.test(expectedType)) {
-	    var t = babelHelpers.typeof(value);
+	    var t = babelHelpers["typeof"](value);
 	    valid = t === expectedType.toLowerCase(); // for primitive wrapper objects
 
 	    if (!valid && t === 'object') {
@@ -2773,7 +2920,7 @@
 	  var expectedType = expectedTypes[0];
 	  var receivedType = toRawType(value); // check if we need to specify expected value
 
-	  if (expectedTypes.length === 1 && isExplicable(expectedType) && isExplicable(babelHelpers.typeof(value)) && !isBoolean(expectedType, receivedType)) {
+	  if (expectedTypes.length === 1 && isExplicable(expectedType) && isExplicable(babelHelpers["typeof"](value)) && !isBoolean(expectedType, receivedType)) {
 	    message += " with value ".concat(styleValue(value, expectedType));
 	  }
 
@@ -2854,7 +3001,7 @@
 	    res = args ? handler.apply(context, args) : handler.call(context);
 
 	    if (res && !res._isVue && isPromise(res) && !res._handled) {
-	      res.catch(function (e) {
+	      res["catch"](function (e) {
 	        return handleError(e, vm, info + " (Promise/async)");
 	      }); // issue #9511
 	      // avoid catch triggering multiple times when nested calls
@@ -3441,7 +3588,7 @@
 
 	      if (!source) {
 	        if ('default' in inject[key]) {
-	          var provideDefault = inject[key].default;
+	          var provideDefault = inject[key]["default"];
 	          result[key] = typeof provideDefault === 'function' ? provideDefault.call(vm) : provideDefault;
 	        } else {
 	          warn("Injection \"".concat(key, "\" not found"), vm);
@@ -3486,7 +3633,7 @@
 	        slot.push(child);
 	      }
 	    } else {
-	      (slots.default || (slots.default = [])).push(child);
+	      (slots["default"] || (slots["default"] = [])).push(child);
 	    }
 	  } // ignore slots that contains only whitespace
 
@@ -3559,7 +3706,7 @@
 	function normalizeScopedSlot(normalSlots, key, fn) {
 	  var normalized = function normalized() {
 	    var res = arguments.length ? fn.apply(null, arguments) : fn({});
-	    res = res && babelHelpers.typeof(res) === 'object' && !Array.isArray(res) ? [res] // single vnode
+	    res = res && babelHelpers["typeof"](res) === 'object' && !Array.isArray(res) ? [res] // single vnode
 	    : normalizeChildren(res);
 	    var vnode = res && res[0];
 	    return res && (!vnode || res.length === 1 && vnode.isComment && !isAsyncPlaceholder(vnode) // #9658, #10391
@@ -4169,7 +4316,7 @@
 
 	  data.on = data.nativeOn;
 
-	  if (isTrue(Ctor.options.abstract)) {
+	  if (isTrue(Ctor.options["abstract"])) {
 	    // abstract components do not keep anything
 	    // other than props & listeners & slot
 	    // work around flow
@@ -4305,7 +4452,7 @@
 	  if (Array.isArray(children) && typeof children[0] === 'function') {
 	    data = data || {};
 	    data.scopedSlots = {
-	      default: children[0]
+	      "default": children[0]
 	    };
 	    children.length = 0;
 	  }
@@ -4382,8 +4529,8 @@
 	    traverse(data.style);
 	  }
 
-	  if (isObject(data.class)) {
-	    traverse(data.class);
+	  if (isObject(data["class"])) {
+	    traverse(data["class"]);
 	  }
 	}
 	/*  */
@@ -4505,7 +4652,7 @@
 
 	function ensureCtor(comp, base) {
 	  if (comp.__esModule || hasSymbol && comp[Symbol.toStringTag] === 'Module') {
-	    comp = comp.default;
+	    comp = comp["default"];
 	  }
 
 	  return isObject(comp) ? base.extend(comp) : comp;
@@ -4820,8 +4967,8 @@
 
 	  var parent = options.parent;
 
-	  if (parent && !options.abstract) {
-	    while (parent.$options.abstract && parent.$parent) {
+	  if (parent && !options["abstract"]) {
+	    while (parent.$options["abstract"] && parent.$parent) {
 	      parent = parent.$parent;
 	    }
 
@@ -4897,7 +5044,7 @@
 
 	    var parent = vm.$parent;
 
-	    if (parent && !parent._isBeingDestroyed && !vm.$options.abstract) {
+	    if (parent && !parent._isBeingDestroyed && !vm.$options["abstract"]) {
 	      remove(parent.$children, vm);
 	    } // teardown watchers
 
@@ -5780,7 +5927,7 @@
 	  for (var key in methods) {
 	    {
 	      if (typeof methods[key] !== 'function') {
-	        warn("Method \"".concat(key, "\" has type \"").concat(babelHelpers.typeof(methods[key]), "\" in the component definition. ") + "Did you reference the function correctly?", vm);
+	        warn("Method \"".concat(key, "\" has type \"").concat(babelHelpers["typeof"](methods[key]), "\" in the component definition. ") + "Did you reference the function correctly?", vm);
 	      }
 
 	      if (props && hasOwn(props, key)) {
@@ -5958,8 +6105,8 @@
 	function resolveConstructorOptions(Ctor) {
 	  var options = Ctor.options;
 
-	  if (Ctor.super) {
-	    var superOptions = resolveConstructorOptions(Ctor.super);
+	  if (Ctor["super"]) {
+	    var superOptions = resolveConstructorOptions(Ctor["super"]);
 	    var cachedSuperOptions = Ctor.superOptions;
 
 	    if (superOptions !== cachedSuperOptions) {
@@ -6225,7 +6372,7 @@
 	var patternTypes = [String, RegExp, Array];
 	var KeepAlive = {
 	  name: 'keep-alive',
-	  abstract: true,
+	  "abstract": true,
 	  props: {
 	    include: patternTypes,
 	    exclude: patternTypes,
@@ -6285,7 +6432,7 @@
 	    this.cacheVNode();
 	  },
 	  render: function render() {
-	    var slot = this.$slots.default;
+	    var slot = this.$slots["default"];
 	    var vnode = getFirstComponentChild(slot);
 	    var componentOptions = vnode && vnode.componentOptions;
 
@@ -6296,7 +6443,8 @@
 	          exclude = this.exclude;
 
 	      if ( // not included
-	      include && (!name || !matches(include, name)) || exclude && name && matches(exclude, name)) {
+	      include && (!name || !matches(include, name)) || // excluded
+	      exclude && name && matches(exclude, name)) {
 	        return vnode;
 	      }
 
@@ -6352,7 +6500,7 @@
 	    defineReactive: defineReactive$$1
 	  };
 	  Vue.set = set;
-	  Vue.delete = del;
+	  Vue["delete"] = del;
 	  Vue.nextTick = nextTick; // 2.6 explicit observable API
 
 	  Vue.observable = function (obj) {
@@ -6445,13 +6593,13 @@
 	    }
 	  }
 
-	  return renderClass(data.staticClass, data.class);
+	  return renderClass(data.staticClass, data["class"]);
 	}
 
 	function mergeClassData(child, parent) {
 	  return {
 	    staticClass: concat(child.staticClass, parent.staticClass),
-	    class: isDef(child.class) ? [child.class, parent.class] : parent.class
+	    "class": isDef(child["class"]) ? [child["class"], parent["class"]] : parent["class"]
 	  };
 	}
 
@@ -7721,7 +7869,7 @@
 	  var data = vnode.data;
 	  var oldData = oldVnode.data;
 
-	  if (isUndef(data.staticClass) && isUndef(data.class) && (isUndef(oldData) || isUndef(oldData.staticClass) && isUndef(oldData.class))) {
+	  if (isUndef(data.staticClass) && isUndef(data["class"]) && (isUndef(oldData) || isUndef(oldData.staticClass) && isUndef(oldData["class"]))) {
 	    return;
 	  }
 
@@ -7989,8 +8137,8 @@
 
 	  var events;
 
-	  if (modifiers.native) {
-	    delete modifiers.native;
+	  if (modifiers["native"]) {
+	    delete modifiers["native"];
 	    events = el.nativeEvents || (el.nativeEvents = {});
 	  } else {
 	    events = el.events || (el.events = {});
@@ -8815,7 +8963,7 @@
 	  /* istanbul ignore else */
 
 
-	  if (babelHelpers.typeof(def$$1) === 'object') {
+	  if (babelHelpers["typeof"](def$$1) === 'object') {
 	    var res = {};
 
 	    if (def$$1.css !== false) {
@@ -9530,7 +9678,7 @@
 	function getRealChild(vnode) {
 	  var compOptions = vnode && vnode.componentOptions;
 
-	  if (compOptions && compOptions.Ctor.options.abstract) {
+	  if (compOptions && compOptions.Ctor.options["abstract"]) {
 	    return getRealChild(getFirstComponentChild(compOptions.children));
 	  } else {
 	    return vnode;
@@ -9587,11 +9735,11 @@
 	var Transition = {
 	  name: 'transition',
 	  props: transitionProps,
-	  abstract: true,
+	  "abstract": true,
 	  render: function render(h) {
 	    var _this3 = this;
 
-	    var children = this.$slots.default;
+	    var children = this.$slots["default"];
 
 	    if (!children) {
 	      return;
@@ -9717,7 +9865,7 @@
 	    var tag = this.tag || this.$vnode.data.tag || 'span';
 	    var map = Object.create(null);
 	    var prevChildren = this.prevChildren = this.children;
-	    var rawChildren = this.$slots.default || [];
+	    var rawChildren = this.$slots["default"] || [];
 	    var children = this.children = [];
 	    var transitionData = extractTransitionData(this);
 
@@ -10476,7 +10624,7 @@
 
 	    if (!stack.length && element !== root) {
 	      // allow root elements with v-if, v-else-if and v-else
-	      if (root.if && (element.elseif || element.else)) {
+	      if (root["if"] && (element.elseif || element["else"])) {
 	        {
 	          checkRootConstraints(element);
 	        }
@@ -10492,7 +10640,7 @@
 	    }
 
 	    if (currentParent && !element.forbidden) {
-	      if (element.elseif || element.else) {
+	      if (element.elseif || element["else"]) {
 	        processIfConditions(element, currentParent);
 	      } else {
 	        if (element.slotScope) {
@@ -10812,7 +10960,7 @@
 	        warn$2("<template> cannot be keyed. Place the key on real elements instead.", getRawBindingAttr(el, 'key'));
 	      }
 
-	      if (el.for) {
+	      if (el["for"]) {
 	        var iterator = el.iterator2 || el.iterator1;
 	        var parent = el.parent;
 
@@ -10854,7 +11002,7 @@
 	  var inMatch = exp.match(forAliasRE);
 	  if (!inMatch) return;
 	  var res = {};
-	  res.for = inMatch[2].trim();
+	  res["for"] = inMatch[2].trim();
 	  var alias = inMatch[1].trim().replace(stripParensRE, '');
 	  var iteratorMatch = alias.match(forIteratorRE);
 
@@ -10876,14 +11024,14 @@
 	  var exp = getAndRemoveAttr(el, 'v-if');
 
 	  if (exp) {
-	    el.if = exp;
+	    el["if"] = exp;
 	    addIfCondition(el, {
 	      exp: exp,
 	      block: el
 	    });
 	  } else {
 	    if (getAndRemoveAttr(el, 'v-else') != null) {
-	      el.else = true;
+	      el["else"] = true;
 	    }
 
 	    var elseif = getAndRemoveAttr(el, 'v-else-if');
@@ -10897,7 +11045,7 @@
 	function processIfConditions(el, parent) {
 	  var prev = findPrevElement(parent.children);
 
-	  if (prev && prev.if) {
+	  if (prev && prev["if"]) {
 	    addIfCondition(prev, {
 	      exp: el.elseif,
 	      block: el
@@ -11209,7 +11357,7 @@
 	  var parent = el;
 
 	  while (parent) {
-	    if (parent.for !== undefined) {
+	    if (parent["for"] !== undefined) {
 	      return true;
 	    }
 
@@ -11277,7 +11425,7 @@
 	  var _el = el;
 
 	  while (_el) {
-	    if (_el.for && _el.alias === value) {
+	    if (_el["for"] && _el.alias === value) {
 	      warn$2("<".concat(el.tag, " v-model=\"").concat(value, "\">: ") + "You are binding v-model directly to a v-for iteration alias. " + "This will not be able to modify the v-for source array because " + "writing to the alias is like modifying a function local variable. " + "Consider using an array of objects and use v-model on an object property instead.", el.rawAttrsMap['v-model']);
 	    }
 
@@ -11318,9 +11466,9 @@
 	      processElement(branch0, options);
 	      branch0.processed = true; // prevent it from double-processed
 
-	      branch0.if = "(".concat(typeBinding, ")==='checkbox'") + ifConditionExtra;
+	      branch0["if"] = "(".concat(typeBinding, ")==='checkbox'") + ifConditionExtra;
 	      addIfCondition(branch0, {
-	        exp: branch0.if,
+	        exp: branch0["if"],
 	        block: branch0
 	      }); // 2. add radio else-if condition
 
@@ -11343,7 +11491,7 @@
 	      });
 
 	      if (hasElse) {
-	        branch0.else = true;
+	        branch0["else"] = true;
 	      } else if (elseIfCondition) {
 	        branch0.elseif = elseIfCondition;
 	      }
@@ -11428,7 +11576,7 @@
 	}
 
 	function markStatic$1(node) {
-	  node.static = isStatic(node);
+	  node["static"] = isStatic(node);
 
 	  if (node.type === 1) {
 	    // do not make component slot content static. this avoids
@@ -11442,8 +11590,8 @@
 	      var child = node.children[i];
 	      markStatic$1(child);
 
-	      if (!child.static) {
-	        node.static = false;
+	      if (!child["static"]) {
+	        node["static"] = false;
 	      }
 	    }
 
@@ -11452,8 +11600,8 @@
 	        var block = node.ifConditions[_i13].block;
 	        markStatic$1(block);
 
-	        if (!block.static) {
-	          node.static = false;
+	        if (!block["static"]) {
+	          node["static"] = false;
 	        }
 	      }
 	    }
@@ -11462,14 +11610,14 @@
 
 	function markStaticRoots(node, isInFor) {
 	  if (node.type === 1) {
-	    if (node.static || node.once) {
+	    if (node["static"] || node.once) {
 	      node.staticInFor = isInFor;
 	    } // For a node to qualify as a static root, it should have children that
 	    // are not just static text. Otherwise the cost of hoisting out will
 	    // outweigh the benefits and it's better off to just always render it fresh.
 
 
-	    if (node.static && node.children.length && !(node.children.length === 1 && node.children[0].type === 3)) {
+	    if (node["static"] && node.children.length && !(node.children.length === 1 && node.children[0].type === 3)) {
 	      node.staticRoot = true;
 	      return;
 	    } else {
@@ -11478,7 +11626,7 @@
 
 	    if (node.children) {
 	      for (var i = 0, l = node.children.length; i < l; i++) {
-	        markStaticRoots(node.children[i], isInFor || !!node.for);
+	        markStaticRoots(node.children[i], isInFor || !!node["for"]);
 	      }
 	    }
 
@@ -11502,7 +11650,7 @@
 	  }
 
 	  return !!(node.pre || !node.hasBindings && // no dynamic bindings
-	  !node.if && !node.for && // not v-if or v-for or v-else
+	  !node["if"] && !node["for"] && // not v-if or v-for or v-else
 	  !isBuiltInTag(node.tag) && // not a built-in
 	  isPlatformReservedTag(node.tag) && // not a component
 	  !isDirectChildOfTemplateFor(node) && Object.keys(node).every(isStaticKey));
@@ -11516,7 +11664,7 @@
 	      return false;
 	    }
 
-	    if (node.for) {
+	    if (node["for"]) {
 	      return true;
 	    }
 	  }
@@ -11748,9 +11896,9 @@
 	    return genStatic(el, state);
 	  } else if (el.once && !el.onceProcessed) {
 	    return genOnce(el, state);
-	  } else if (el.for && !el.forProcessed) {
+	  } else if (el["for"] && !el.forProcessed) {
 	    return genFor(el, state);
-	  } else if (el.if && !el.ifProcessed) {
+	  } else if (el["if"] && !el.ifProcessed) {
 	    return genIf(el, state);
 	  } else if (el.tag === 'template' && !el.slotTarget && !state.pre) {
 	    return genChildren(el, state) || 'void 0';
@@ -11805,14 +11953,14 @@
 	function genOnce(el, state) {
 	  el.onceProcessed = true;
 
-	  if (el.if && !el.ifProcessed) {
+	  if (el["if"] && !el.ifProcessed) {
 	    return genIf(el, state);
 	  } else if (el.staticInFor) {
 	    var key = '';
 	    var parent = el.parent;
 
 	    while (parent) {
-	      if (parent.for) {
+	      if (parent["for"]) {
 	        key = parent.key;
 	        break;
 	      }
@@ -11857,7 +12005,7 @@
 	}
 
 	function genFor(el, state, altGen, altHelper) {
-	  var exp = el.for;
+	  var exp = el["for"];
 	  var alias = el.alias;
 	  var iterator1 = el.iterator1 ? ",".concat(el.iterator1) : '';
 	  var iterator2 = el.iterator2 ? ",".concat(el.iterator2) : '';
@@ -12024,16 +12172,16 @@
 	  // components with only scoped slots to skip forced updates from parent.
 	  // but in some cases we have to bail-out of this optimization
 	  // for example if the slot contains dynamic names, has v-if or v-for on them...
-	  var needsForceUpdate = el.for || Object.keys(slots).some(function (key) {
+	  var needsForceUpdate = el["for"] || Object.keys(slots).some(function (key) {
 	    var slot = slots[key];
-	    return slot.slotTargetDynamic || slot.if || slot.for || containsSlotChild(slot) // is passing down slot from parent which may be dynamic
+	    return slot.slotTargetDynamic || slot["if"] || slot["for"] || containsSlotChild(slot) // is passing down slot from parent which may be dynamic
 	    ;
 	  }); // #9534: if a component with scoped slots is inside a conditional branch,
 	  // it's possible for the same component to be reused but with different
 	  // compiled slot content. To avoid that, we generate a unique key based on
 	  // the generated code of all the slot contents.
 
-	  var needsKey = !!el.if; // OR when it is inside another scoped slot or v-for (the reactivity may be
+	  var needsKey = !!el["if"]; // OR when it is inside another scoped slot or v-for (the reactivity may be
 	  // disconnected due to the intermediate scope variable)
 	  // #9438, #9506
 	  // TODO: this can be further optimized by properly analyzing in-scope bindings
@@ -12043,12 +12191,12 @@
 	    var parent = el.parent;
 
 	    while (parent) {
-	      if (parent.slotScope && parent.slotScope !== emptySlotScopeToken || parent.for) {
+	      if (parent.slotScope && parent.slotScope !== emptySlotScopeToken || parent["for"]) {
 	        needsForceUpdate = true;
 	        break;
 	      }
 
-	      if (parent.if) {
+	      if (parent["if"]) {
 	        needsKey = true;
 	      }
 
@@ -12088,16 +12236,16 @@
 	function genScopedSlot(el, state) {
 	  var isLegacySyntax = el.attrsMap['slot-scope'];
 
-	  if (el.if && !el.ifProcessed && !isLegacySyntax) {
+	  if (el["if"] && !el.ifProcessed && !isLegacySyntax) {
 	    return genIf(el, state, genScopedSlot, "null");
 	  }
 
-	  if (el.for && !el.forProcessed) {
+	  if (el["for"] && !el.forProcessed) {
 	    return genFor(el, state, genScopedSlot);
 	  }
 
 	  var slotScope = el.slotScope === emptySlotScopeToken ? "" : String(el.slotScope);
-	  var fn = "function(".concat(slotScope, "){") + "return ".concat(el.tag === 'template' ? el.if && isLegacySyntax ? "(".concat(el.if, ")?").concat(genChildren(el, state) || 'undefined', ":undefined") : genChildren(el, state) || 'undefined' : genElement(el, state), "}"); // reverse proxy v-slot without scope on this.$slots
+	  var fn = "function(".concat(slotScope, "){") + "return ".concat(el.tag === 'template' ? el["if"] && isLegacySyntax ? "(".concat(el["if"], ")?").concat(genChildren(el, state) || 'undefined', ":undefined") : genChildren(el, state) || 'undefined' : genElement(el, state), "}"); // reverse proxy v-slot without scope on this.$slots
 
 	  var reverseProxy = slotScope ? "" : ",proxy:true";
 	  return "{key:".concat(el.slotTarget || "\"default\"", ",fn:").concat(fn).concat(reverseProxy, "}");
@@ -12109,7 +12257,7 @@
 	  if (children.length) {
 	    var _el2 = children[0]; // optimize single v-for
 
-	    if (children.length === 1 && _el2.for && _el2.tag !== 'template' && _el2.tag !== 'slot') {
+	    if (children.length === 1 && _el2["for"] && _el2.tag !== 'template' && _el2.tag !== 'slot') {
 	      var _normalizationType = checkSkip ? state.maybeComponent(_el2) ? ",1" : ",0" : "";
 
 	      return "".concat((altGenElement || genElement)(_el2, state)).concat(_normalizationType);
@@ -12155,7 +12303,7 @@
 	}
 
 	function needsNormalization(el) {
-	  return el.for !== undefined || el.tag === 'template' || el.tag === 'slot';
+	  return el["for"] !== undefined || el.tag === 'template' || el.tag === 'slot';
 	}
 
 	function genNode(node, state) {
@@ -12301,7 +12449,7 @@
 	}
 
 	function checkFor(node, text, warn, range) {
-	  checkExpression(node.for || '', text, warn, range);
+	  checkExpression(node["for"] || '', text, warn, range);
 	  checkIdentifier(node.alias, 'v-for alias', text, warn, range);
 	  checkIdentifier(node.iterator1, 'v-for iterator', text, warn, range);
 	  checkIdentifier(node.iterator2, 'v-for iterator', text, warn, range);
@@ -12690,7 +12838,7 @@
 	  }
 	}
 
-	Vue.compile = compileToFunctions;
+	Vue.compile = compileToFunctions; // origin-end
 	BitrixVue.developerMode = true;
 	var BitrixVueInstance = new BitrixVue(Vue);
 	BitrixVueInstance.developerMode = true;

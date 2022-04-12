@@ -625,25 +625,50 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 			// crm/install/js/crm/site/form/src/vue
 			(new static("Vue.js v2.6.14"))
 				->setCopyright("Copyright 2014-2021, Evan You")
-				->setProductUrl("https://vuejs.org")
+				->setProductUrl("https://v2.vuejs.org")
 				->setLicence(static::LICENCE_MIT),
 
-			// ui/install/js/ui/vue
-			(new static("Vue-router v3.5.1"))
-				->setCopyright("Copyright 2021, Evan You")
-				->setProductUrl("https://router.vuejs.org/")
-				->setLicence(static::LICENCE_MIT),
-
-			// ui/install/js/ui/vue
+			// ui/install/js/ui/vue/vuex
 			(new static("Vuex v3.6.2"))
 				->setCopyright("Copyright 2021, Evan You")
-				->setProductUrl("https://vuex.vuejs.org/")
+				->setProductUrl("https://v3.vuex.vuejs.org/")
 				->setLicence(static::LICENCE_MIT),
 
-			// ui/install/js/ui/vue
+			// ui/install/js/ui/vue/router
+			(new static("Vue-router v3.5.3"))
+				->setCopyright("Copyright 2021, Evan You")
+				->setProductUrl("https://v3.router.vuejs.org/")
+				->setLicence(static::LICENCE_MIT),
+
+			// ui/install/js/ui/vue/portal
 			(new static("Portal Vue v2.1.7"))
 				->setCopyright("Copyright 2019, Thorsten Lunborg")
 				->setProductUrl("https://portal-vue.linusb.org/")
+				->setLicence(static::LICENCE_MIT),
+
+			// ui/install/js/ui/vue3/vue
+			(new static("Vue v3.2.31"))
+				->setCopyright("Copyright 2014-2022 Evan You")
+				->setProductUrl("https://vuejs.org/")
+				->setLicence(static::LICENCE_MIT),
+
+			// ui/install/js/ui/vue3/vuex
+			(new static("Vuex v4.0.2"))
+				->setCopyright("Copyright 2021 Evan You")
+				->setProductUrl("https://vuex.vuejs.org/")
+				->setLicence(static::LICENCE_MIT),
+
+
+			// ui/install/js/ui/vue3/router
+			(new static("Vue-router v4.0.12"))
+				->setCopyright("Copyright 2021 Eduardo San Martin Morote")
+				->setProductUrl("https://router.vuejs.org/")
+				->setLicence(static::LICENCE_MIT),
+
+			// ui/install/js/ui/vue3/pinia
+			(new static("Pinia v2.0.11"))
+				->setCopyright("Copyright 2022 Eduardo San Martin Morote")
+				->setProductUrl("https://pinia.vuejs.org/")
 				->setLicence(static::LICENCE_MIT),
 
 			// advertising/install/components/bitrix/advertising.banner/templates/jssor

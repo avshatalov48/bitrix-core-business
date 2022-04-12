@@ -79,6 +79,9 @@ abstract class Application
 	 */
 	protected $backgroundJobs;
 
+	/** @var License */
+	protected $license;
+
 	/**
 	 * Creates new application instance.
 	 */
@@ -482,6 +485,16 @@ abstract class Application
 	public function setContext(Context $context)
 	{
 		$this->context = $context;
+	}
+
+	public function getLicense(): License
+	{
+		if (!$this->license)
+		{
+			$this->license = new License();
+		}
+
+		return $this->license;
 	}
 
 	/**

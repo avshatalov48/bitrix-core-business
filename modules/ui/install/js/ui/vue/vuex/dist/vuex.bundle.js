@@ -890,7 +890,7 @@
 	  babelHelpers.createClass(VuexBuilderModel$$1, [{
 	    key: "setStore",
 	    value: function setStore(store) {
-	      if (!(store instanceof Vuex.Store)) {
+	      if (!(store instanceof index.Store)) {
 	        this.logger('error', 'VuexBuilderModel.setStore: passed store is not a Vuex.Store', store);
 	        return this;
 	      }
@@ -1106,7 +1106,7 @@
 	    key: "init",
 	    value: function init(store) {
 	      if (store) {
-	        if (!(store instanceof Vuex.Store)) {
+	        if (!(store instanceof index.Store)) {
 	          console.warn('VuexBuilder.init: passed store is not a Vuex.Store', store);
 	          return new this();
 	        }
@@ -1345,7 +1345,7 @@
 	      var promises = [];
 
 	      if (!this.store) {
-	        this.store = Vuex.createStore();
+	        this.store = index.createStore();
 	      }
 
 	      this.models.forEach(function (model) {
@@ -1402,7 +1402,7 @@
 	      }
 
 	      if (!this.store) {
-	        this.store = Vuex.createStore();
+	        this.store = index.createStore();
 	      }
 
 	      if (this.databaseConfig.active) {
@@ -2746,7 +2746,7 @@
 	  try {
 	    logger.groupEnd();
 	  } catch (e) {
-	    logger.log('—— log end ——');
+	    logger.log('-- log end --');
 	  }
 	}
 
@@ -2763,13 +2763,7 @@
 	  return repeat('0', maxLength - num.toString().length) + num;
 	}
 
-	var Vuex = {
-	  store: function store(params) {
-	    return new Store(params);
-	  },
-	  createStore: function createStore(params) {
-	    return new Store(params);
-	  },
+	var index = {
 	  Store: Store,
 	  install: install,
 	  version: '3.6.2',
@@ -2779,14 +2773,23 @@
 	  mapActions: mapActions,
 	  createNamespacedHelpers: createNamespacedHelpers,
 	  createLogger: createLogger
+	}; // origin-end
+
+	index.store = function (params) {
+	  return new Store(params);
 	};
-	ui_vue.VueVendor.use(Vuex);
+
+	index.createStore = function (params) {
+	  return new Store(params);
+	};
+
+	ui_vue.VueVendor.use(index);
 
 	exports.VuexBuilder = VuexBuilder$$1;
 	exports.VuexBuilderModel = VuexBuilderModel$$1;
-	exports.Vuex = Vuex;
-	exports.VuexVendorV3 = Vuex;
-	exports.VuexVendor = Vuex;
+	exports.Vuex = index;
+	exports.VuexVendorV3 = index;
+	exports.VuexVendor = index;
 
 }((this.BX = this.BX || {}),BX,BX,BX));
 

@@ -258,13 +258,6 @@ class RolePermissionService implements RolePermissionServiceInterface
 		return $res;
 	}
 
-	private function availablePermissionsMap()
-	{
-		return [
-
-		];
-	}
-
 	private function getRoleAccessRights(int $roleId): array
 	{
 		$settings = $this->getSettings();

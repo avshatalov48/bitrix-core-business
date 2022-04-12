@@ -16,6 +16,7 @@ use Bitrix\Landing\Manager;
 use Bitrix\Landing\Restriction;
 use Bitrix\Landing\Site;
 use Bitrix\Main\Application;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
@@ -658,8 +659,21 @@ if ($arParams['SUCCESS_SAVE'])
 					<tr class="landing-form-hidden-row" data-landing-additional-detail="pixel">
 						<td class="ui-form-label ui-form-label-align-top"><?= Loc::getMessage('LANDING_TPL_HOOK_PIXEL') ?></td>
 						<td class="ui-form-right-cell ui-form-right-cell-pixel">
-							<?php $template->showSimple('PIXELFB');?>
 							<?php
+							$zone = '';
+							if (Loader::includeModule('bitrix24'))
+							{
+								$zone = \CBitrix24::getPortalZone();
+							}
+							elseif (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lang/ru")
+								&& !file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lang/ua"))
+							{
+								$zone = 'ru';
+							}
+							if ($zone !== 'ru')
+							{
+								$template->showSimple('PIXELFB');
+							}
 							if (Manager::availableOnlyForZone('ru'))
 							{
 								$template->showSimple('PIXELVK');

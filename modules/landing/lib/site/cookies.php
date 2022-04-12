@@ -6,6 +6,7 @@ use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Internals\BlockTable;
 use \Bitrix\Landing\Internals\HookDataTable;
+use \Bitrix\Main\Loader;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\ORM\Data\AddResult;
 use \Bitrix\Main\ORM\Data\UpdateResult;
@@ -130,10 +131,26 @@ class Cookies
 			return $agreements;
 		}
 
+		//get zone
+		$zone = '';
+		if (Loader::includeModule('bitrix24'))
+		{
+			$zone = \CBitrix24::getPortalZone();
+		}
+		elseif (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lang/ru")
+			&& !file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lang/ua"))
+		{
+			$zone = 'ru';
+		}
+
 		// first get system messages
 		foreach (self::SYSTEM_COOKIES as $code => $cookieItem)
 		{
 			if (in_array($code, ['ym', 'vkp']) && !Manager::availableOnlyForZone('ru'))
+			{
+				continue;
+			}
+			if ($code === 'fbp' && $zone === 'ru')
 			{
 				continue;
 			}

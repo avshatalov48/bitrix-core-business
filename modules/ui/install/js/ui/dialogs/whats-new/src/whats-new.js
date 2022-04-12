@@ -60,8 +60,8 @@ export default class WhatsNew extends EventEmitter
 			cacheable: false,
 			animation: 'scale',
 			content: this.getContentContainer(),
-			width: 808,
-			height: 503,
+			width: 720,
+			height: 530,
 			autoHide: true
 		}, this.#popupOptions));
 

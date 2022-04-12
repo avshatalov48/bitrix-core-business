@@ -22,14 +22,11 @@ this.BX = this.BX || {};
 
 	/*!
 	 * portal-vue (C) Thorsten Lunborg, 2019
-	 *
 	 * Version: 2.1.7
-	 *
 	 * LICENCE: MIT
-	 *
 	 * https://github.com/linusborg/portal-vue
 	 *
-	 * @source: portal-vue.esm.js
+	 * @source: https://unpkg.com/portal-vue@2.1.7/dist/portal-vue.esm.js
 	*/
 
 	function _typeof(obj) {
@@ -621,13 +618,13 @@ this.BX = this.BX || {};
 	  Vue$$1.component(options.MountingPortalName || 'MountingPortal', MountingPortal);
 	}
 
-	var version = '2.1.7';
-	var PortalVue = {
-	  install: install,
-	  version: version
-	};
+	var index = {
+	  install: install
+	}; // origin-end
 
-	exports.PortalVue = PortalVue;
+	index.version = '2.1.7';
+
+	exports.PortalVue = index;
 	exports.Portal = Portal;
 	exports.PortalTarget = PortalTarget;
 	exports.MountingPortal = MountingPortal;

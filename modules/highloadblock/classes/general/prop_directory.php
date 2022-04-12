@@ -666,14 +666,35 @@ HIBSELECT;
 		/** @noinspection PhpUnusedParameterInspection */$strHTMLControlName
 	): string
 	{
+		if (!isset($value['VALUE']))
+			return '';
+
+		if (is_array($value['VALUE']) && empty($value['VALUE'])) // order not change!
+			return '';
+
 		$dataValue = self::GetExtendedValue($arProperty, $value);
-		if ($dataValue)
+		if (!empty($dataValue) && is_array($dataValue))
 		{
-			if (isset($dataValue['UF_NAME']))
-				return $dataValue['UF_NAME'];
+			$result = [];
+			if (is_array($value['VALUE']))
+			{
+				foreach ($value['VALUE'] as $item)
+				{
+					if (empty($dataValue[$item]) && !is_array($dataValue[$item]))
+					{
+						continue;
+					}
+					$result[] = $dataValue[$item]['UF_NAME'] ?? $dataValue[$item]['UF_XML_ID'];
+				}
+			}
 			else
-				return $dataValue['UF_XML_ID'];
+			{
+				$result[] = $dataValue['UF_NAME'] ?? $dataValue['UF_XML_ID'];
+			}
+
+			return implode(' / ', $result);
 		}
+
 		return '';
 	}
 

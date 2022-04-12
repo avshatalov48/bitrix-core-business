@@ -29,6 +29,11 @@ class FacebookConversion
 
 	public static function onAddToCartHandler(int $id, array $productData): void
 	{
+		if (!self::isAllowedRegion())
+		{
+			return;
+		}
+
 		$request = \Bitrix\Main\Context::getCurrent()->getRequest();
 		$action = $request->get('action');
 		if ($action !== 'ADD2BASKET' && $action !== 'BUY')
@@ -88,6 +93,11 @@ class FacebookConversion
 
 	public static function onOrderCreatedHandler(Order $order): void
 	{
+		if (!self::isAllowedRegion())
+		{
+			return;
+		}
+
 		$application = \Bitrix\Main\Application::getInstance();
 		$session = $application ? $application->getSession() : null;
 		$isInitiateCheckoutSent =
@@ -147,6 +157,11 @@ class FacebookConversion
 
 	public static function onOrderSavedHandler(\Bitrix\Main\Event $event): void
 	{
+		if (!self::isAllowedRegion())
+		{
+			return;
+		}
+
 		if (\Bitrix\Main\Context::getCurrent()->getRequest()->get('action') !== 'saveOrderAjax')
 		{
 			return;
@@ -222,6 +237,11 @@ class FacebookConversion
 
 	public static function onFeedbackFormContactHandler(\Bitrix\Main\Event $event): void
 	{
+		if (!self::isAllowedRegion())
+		{
+			return;
+		}
+
 		$email = $event->getParameter('AUTHOR_EMAIL') ?? '';
 
 		self::fireContactEvent(self::EMAIL, (string)$email);
@@ -229,6 +249,11 @@ class FacebookConversion
 
 	public static function onContactHandler($contactBy): void
 	{
+		if (!self::isAllowedRegion())
+		{
+			return;
+		}
+
 		$type = null;
 		$value = null;
 		if (is_array($contactBy))
@@ -270,6 +295,11 @@ class FacebookConversion
 
 	public static function onCustomizeProductHandler(int $offerId): void
 	{
+		if (!self::isAllowedRegion())
+		{
+			return;
+		}
+
 		if (!self::checkClass())
 		{
 			return;
@@ -516,8 +546,20 @@ class FacebookConversion
 		return $params;
 	}
 
+	private static function isAllowedRegion(): bool
+	{
+		$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion();
+
+		return $region !== null && $region !== 'ru';
+	}
+
 	public static function isEventEnabled(string $eventName): bool
 	{
+		if (!self::isAllowedRegion())
+		{
+			return false;
+		}
+
 		static $isEventEnabled;
 		if (isset($isEventEnabled[$eventName]))
 		{

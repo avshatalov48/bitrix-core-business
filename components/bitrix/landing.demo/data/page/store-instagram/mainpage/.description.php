@@ -11,7 +11,6 @@ return array(
 	'code' => 'store-instagram/mainpage',
 	'name' => Loc::getMessage('LANDING_DEMO_STORE_INSTAGRAM--MAINPAGE--NAME'),
 	'description' => Loc::getMessage('LANDING_DEMO_STORE_INSTAGRAM--MAINPAGE--DESC'),
-	'active' => true,
 	'preview' => '',
 	'preview2x' => '',
 	'preview3x' => '',
@@ -152,4 +151,8 @@ return array(
 			),
 		),
 	),
+	'active' => \LandingSiteDemoComponent::checkActive([
+		'ONLY_IN' => [],
+		'EXCEPT' => ['ru'],
+	]),
 );

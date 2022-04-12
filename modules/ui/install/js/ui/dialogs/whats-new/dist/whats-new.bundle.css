@@ -119,6 +119,7 @@
 
 .ui-whats-new-slide-item {
 	display: inline-block;
+	position: relative;
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
@@ -130,6 +131,12 @@
 }
 
 .ui-whats-new-slide-item iframe {
+	width: 100%;
+	height: 100%;
+}
+
+.ui-whats-new-slide-item video {
+	position: absolute;
 	width: 100%;
 	height: 100%;
 }

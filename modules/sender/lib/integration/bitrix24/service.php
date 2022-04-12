@@ -12,6 +12,7 @@ use Bitrix\Bitrix24\Feature;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\IO\File;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Context;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\SiteTable;
 use Bitrix\Sender\Dispatch\Semantics;
@@ -120,13 +121,29 @@ class Service
 	}
 
 	/**
-	 * Return true if region of cloud portal is Russian.
+	 * Return true if region of portal is Russian.
 	 *
+	 * @param bool $onlyRu Check only ru region.
 	 * @return bool
 	 */
-	public static function isCloudRegionRussian()
+	public static function isRegionRussian(bool $onlyRu = false): bool
 	{
-		return self::isCloud() && in_array(\CBitrix24::getPortalZone(), array('ru', 'kz', 'by'));
+		$regions = $onlyRu ? ['ru'] : ['ru', 'kz', 'by'];
+
+		$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion() ?: 'ru';
+		return in_array($region, $regions);
+	}
+
+	/**
+	 * Return true if region of cloud portal is Russian.
+	 *
+	 * @param bool $onlyRu Check only ru region.
+	 * @return bool
+	 */
+	public static function isCloudRegionRussian(bool $onlyRu = false): bool
+	{
+		$regions = $onlyRu ? ['ru'] : ['ru', 'kz', 'by'];
+		return self::isCloud() && in_array(\CBitrix24::getPortalZone(), $regions);
 	}
 
 	/**
@@ -155,18 +172,38 @@ class Service
 	 */
 	public static function isAdVisibleInRegion($code)
 	{
-		if (!in_array($code, array(Seo\Ads\MessageBase::CODE_ADS_VK, Seo\Ads\MessageBase::CODE_ADS_YA, Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_VK)))
+		if (in_array(
+			$code,
+			[
+				Seo\Ads\MessageBase::CODE_ADS_VK,
+				Seo\Ads\MessageBase::CODE_ADS_YA,
+				Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_VK
+			]
+		))
 		{
+			if (self::isCloud())
+			{
+				return self::isCloudRegionRussian();
+			}
+			elseif (Loader::includeModule('intranet'))
+			{
+				return in_array(\CIntranetUtils::getPortalZone(), ['ru', 'kz', 'by']);
+			}
+
 			return true;
 		}
 
-		if (self::isCloud())
+		if (in_array(
+			$code,
+			[
+				Seo\Ads\MessageBase::CODE_ADS_FB,
+				Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_FB,
+				Message\iMarketing::CODE_FACEBOOK,
+				Message\iMarketing::CODE_INSTAGRAM,
+			]
+		))
 		{
-			return self::isCloudRegionRussian();
-		}
-		elseif (Loader::includeModule('intranet'))
-		{
-			return in_array(\CIntranetUtils::getPortalZone(), ['ru', 'kz', 'by']);
+			return !self::isRegionRussian(true);
 		}
 
 		return true;

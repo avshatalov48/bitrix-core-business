@@ -2,11 +2,11 @@
   'use strict';
 
   /*!
-    * vue-router v3.5.1
+    * vue-router v3.5.3
     * (c) 2021 Evan You
     * @license MIT
     *
-    * @source: vue-router.esm-browser.js
+    * @source: https://unpkg.com/vue-router@3.5.3/dist/vue-router.esm.browser.js
     */
 
   function assert(condition, message) {
@@ -512,7 +512,7 @@
   }
 
   function cleanPath(path) {
-    return path.replace(/\/\//g, '/');
+    return path.replace(/\/+/g, '/');
   }
 
   var isarray = Array.isArray || function (arr) {
@@ -541,7 +541,7 @@
   //
   // "/:test(\\d+)?" => ["/", "test", "\d+", undefined, "?", undefined]
   // "/route(\\d+)"  => [undefined, undefined, undefined, "\d+", undefined, undefined]
-  // "/*"            => ["/", undefined, undefined, undefined, undefined, "*"]
+  // "/*"      => ["/", undefined, undefined, undefined, undefined, "*"]
   '([\\/.])?(?:(?:\\:(\\w+)(?:\\(((?:\\\\.|[^\\\\()])+)\\))?|\\(((?:\\\\.|[^\\\\()])+)\\))([+*?])?|(\\*))'].join('|'), 'g');
   /**
    * Parse a string for the raw tokens.
@@ -616,8 +616,8 @@
   /**
    * Compile a string to a template function for the path.
    *
-   * @param  {string}             str
-   * @param  {Object=}            options
+   * @param  {string}       str
+   * @param  {Object=}      options
    * @return {!function(Object=, Object=)}
    */
 
@@ -846,9 +846,9 @@
   /**
    * Expose a function for taking tokens and returning a RegExp.
    *
-   * @param  {!Array}          tokens
+   * @param  {!Array}      tokens
    * @param  {(Array|Object)=} keys
-   * @param  {Object=}         options
+   * @param  {Object=}     options
    * @return {!RegExp}
    */
 
@@ -922,8 +922,8 @@
    * contain `[{ name: 'id', delimiter: '/', optional: false, repeat: false }]`.
    *
    * @param  {(string|RegExp|Array)} path
-   * @param  {(Array|Object)=}       keys
-   * @param  {Object=}               options
+   * @param  {(Array|Object)=}     keys
+   * @param  {Object=}         options
    * @return {!RegExp}
    */
 
@@ -1482,7 +1482,7 @@
 
       createRouteMap([route || parentOrRoute], pathList, pathMap, nameMap, parent); // add aliases of parent
 
-      if (parent) {
+      if (parent && parent.alias.length) {
         createRouteMap( // $flow-disable-line route is defined if parent is
         parent.alias.map(function (alias) {
           return {
@@ -2179,7 +2179,9 @@
                 cb(err);
               });
             } else {
-              warn(false, 'uncaught error during route navigation:');
+              {
+                warn(false, 'uncaught error during route navigation:');
+              }
               console.error(err);
             }
           }
@@ -2193,6 +2195,11 @@
         if (isSameRoute(route, current) && // in the case the route map has been dynamically appended to
         lastRouteIndex === lastCurrentIndex && route.matched[lastRouteIndex] === current.matched[lastCurrentIndex]) {
           this.ensureURL();
+
+          if (route.hash) {
+            handleScroll(this.router, current, route, false);
+          }
+
           return abort(createNavigationDuplicatedError(current, route));
         }
 
@@ -2494,8 +2501,12 @@
 
   function getLocation(base) {
     var path = window.location.pathname;
+    var pathLowerCase = path.toLowerCase();
+    var baseLowerCase = base.toLowerCase(); // base="/a" shouldn't turn path="/app" into "/a/pp"
+    // https://github.com/vuejs/vue-router/issues/3555
+    // so we ensure the trailing slash in the base
 
-    if (base && path.toLowerCase().indexOf(base.toLowerCase()) === 0) {
+    if (base && (pathLowerCase === baseLowerCase || pathLowerCase.indexOf(cleanPath(baseLowerCase + '/')) === 0)) {
       path = path.slice(base.length);
     }
 
@@ -2748,6 +2759,9 @@
     function VueRouter() {
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       babelHelpers.classCallCheck(this, VueRouter);
+      {
+        warn(this instanceof VueRouter, "Router must be called with the new operator.");
+      }
       this.app = null;
       this.apps = [];
       this.options = options;
@@ -2997,15 +3011,16 @@
     return base ? cleanPath(base + '/' + path) : path;
   }
 
+  VueRouter.install = install;
+  VueRouter.version = '3.5.3';
+  VueRouter.isNavigationFailure = isNavigationFailure;
+  VueRouter.NavigationFailureType = NavigationFailureType;
+  VueRouter.START_LOCATION = START; // origin-end
+
   VueRouter.create = function (params) {
     return new VueRouter(params);
   };
 
-  VueRouter.install = install;
-  VueRouter.version = '3.5.1';
-  VueRouter.isNavigationFailure = isNavigationFailure;
-  VueRouter.NavigationFailureType = NavigationFailureType;
-  VueRouter.START_LOCATION = START;
   ui_vue.VueVendor.use(VueRouter);
 
   exports.VueRouter = VueRouter;

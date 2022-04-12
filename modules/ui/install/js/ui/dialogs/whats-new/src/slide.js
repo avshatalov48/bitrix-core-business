@@ -1,5 +1,6 @@
-import { Type, Cache, Tag } from 'main.core';
+import { Type, Cache, Tag, Dom } from 'main.core';
 import type { SlideOptions } from './types/slide-options';
+import type { VideoOptions, VideoSourceOptions } from './types/video-options';
 
 export default class Slide
 {
@@ -8,10 +9,13 @@ export default class Slide
 	#description: string = '';
 	#className: string = '';
 	#image: ?string = null;
-	#video: ?string = null;
+	#videoUrl: ?string = null;
+	#videoIframe: ?HTMLIFrameElement = null;
+	#videoHtmlElement: ?HTMLVideoElement = null;
+	#videoOptions: ?VideoOptions = null;
+	#videoPlayPromise: Promise = null;
 	#autoplay: boolean = false;
 	#html: string | HTMLElement | null = null;
-	#iframe: ?HTMLIFrameElement = null;
 	#cache = new Cache.MemoryCache();
 
 	constructor(options: SlideOptions)
@@ -55,43 +59,72 @@ export default class Slide
 		});
 	}
 
-	#setVideo(video: string)
+	#setVideo(options: string | VideoOptions)
 	{
-		if (!Type.isStringFilled(video))
+		if (Type.isStringFilled(options))
 		{
-			return;
+			const url = new URL(options);
+			if (url.host.includes('youtube'))
+			{
+				url.searchParams.append('enablejsapi', '1');
+			}
+
+			this.#videoUrl = url.toString();
 		}
-
-		const url = new URL(video);
-		url.searchParams.append('enablejsapi', '1');
-
-		this.#video = url.toString();
+		else if (Type.isPlainObject(options) && Type.isArrayFilled(options.sources))
+		{
+			this.#videoOptions = options;
+		}
 	}
 
-	getIframe(): ?HTMLIFrameElement
+	getVideoIframe(): ?HTMLIFrameElement
 	{
-		return this.#iframe;
+		return this.#videoIframe;
+	}
+
+	getVideoHtmlElement(): ?HTMLVideoElement
+	{
+		return this.#videoHtmlElement;
 	}
 
 	pauseVideo(): void
 	{
-		if (this.getIframe())
+		if (this.getVideoIframe())
 		{
-			this.getIframe().contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'stopVideo' }), '*');
+			this.getVideoIframe().contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'stopVideo' }), '*');
+		}
+		else if (this.getVideoHtmlElement())
+		{
+			if (this.#videoPlayPromise)
+			{
+				this.#videoPlayPromise
+					.then(() => {
+						this.getVideoHtmlElement().pause();
+						this.#videoPlayPromise = null;
+					})
+					.catch(() => {
+
+					})
+				;
+			}
 		}
 	}
 
 	playVideo(): void
 	{
-		if (this.getIframe())
+		if (this.getVideoIframe())
 		{
-			this.getIframe().contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
+			this.getVideoIframe().contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
+		}
+		else if (this.getVideoHtmlElement())
+		{
+			this.#videoPlayPromise = this.getVideoHtmlElement().play();
 		}
 	}
 
 	isVideo(): boolean
 	{
-		return this.#video !== null;
+		return this.#videoUrl !== null || this.#videoOptions !== null;
 	}
 
 	isAutoplay(): boolean
@@ -102,19 +135,40 @@ export default class Slide
 	getContainer(): HTMLElement
 	{
 		return this.#cache.remember('container', () => {
-			if (this.#video)
+			if (this.#videoUrl)
 			{
-				this.#iframe = Tag.render`<iframe 
-						src="${this.#video}" 
+				this.#videoIframe = Tag.render`<iframe 
+						src="${this.#videoUrl}" 
 						id="${this.#id}" 
 						class="ui-whats-new-slide-item ${this.#className}" 
-						title="YouTube video player"
 						frameborder="0"
 						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
 						allowfullscreen></iframe>
 				`;
 
-				return this.#iframe;
+				return this.#videoIframe;
+			}
+			else if (this.#videoOptions)
+			{
+				const sources = [];
+
+				this.#videoOptions.sources.forEach((source: VideoSourceOptions) => {
+					sources.push(`<source src="${source.src}" type="${source.type}" />`);
+				});
+
+				this.#videoHtmlElement = Tag.render`<video>${sources.join('')}</video>`;
+				if (Type.isPlainObject(this.#videoOptions.attrs))
+				{
+					Dom.attr(this.#videoHtmlElement, this.#videoOptions.attrs);
+				}
+
+				return (
+					Tag.render`
+						<div 
+							id="${this.#id}" 
+							class="ui-whats-new-slide-item ${this.#className}"
+						>${this.#videoHtmlElement}</div>`
+				);
 			}
 			else
 			{

@@ -2656,10 +2656,15 @@ if (!empty($orderList) && is_array($orderList))
 				}
 				else
 					$fieldWeight .= "<br />";
-				if($arItem["NOTES"] <> '')
-					$fieldNotes .= $arItem["NOTES"];
-				else
-					$fieldNotes .= "<br />";
+
+				if (!CSaleBasketHelper::isSetItem($arItem))
+				{
+					$priceTypeName = \CSaleBasketHelper::getPriceTypeName($arItem);
+					$fieldNotes .= $priceTypeName !== ''
+						? $priceTypeName
+						: '<br />';
+				}
+
 				if($arItem["DISCOUNT_PRICE"] <> '')
 					$fieldDiscountPrice .= "<nobr>".SaleFormatCurrency($arItem["DISCOUNT_PRICE"], $arItem["CURRENCY"])."</nobr>";
 				else

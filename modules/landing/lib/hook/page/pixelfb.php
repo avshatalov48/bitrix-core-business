@@ -2,6 +2,7 @@
 namespace Bitrix\Landing\Hook\Page;
 
 use \Bitrix\Seo\BusinessSuite\ExtensionFacade;
+use \Bitrix\Main\Loader;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Config\Option;
 use \Bitrix\Landing\Field;
@@ -116,6 +117,21 @@ class PixelFb extends \Bitrix\Landing\Hook\Page
 	public function exec()
 	{
 		if ($this->execCustom())
+		{
+			return;
+		}
+
+		$zone = '';
+		if (Loader::includeModule('bitrix24'))
+		{
+			$zone = \CBitrix24::getPortalZone();
+		}
+		elseif (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lang/ru")
+			&& !file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lang/ua"))
+		{
+			$zone = 'ru';
+		}
+		if ($zone === 'ru')
 		{
 			return;
 		}

@@ -2119,6 +2119,14 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			)
 			{
 				$result = false;
+				if (
+					$currentZone === 'ru'
+					&& !Loader::includeModule('bitrix24')
+					&& (file_exists($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/lang/ua"))
+				)
+				{
+					$result = true;
+				}
 			}
 		}
 		return $result;

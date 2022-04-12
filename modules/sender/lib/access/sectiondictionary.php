@@ -5,6 +5,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Access\Permission\PermissionDictionary;
 use Bitrix\Sender\Integration\Seo\Ads\MessageBase;
 use Bitrix\Sender\Security\Role\Permission;
+use Bitrix\Sender\Message;
 
 Loc::loadMessages(__FILE__);
 class SectionDictionary
@@ -75,14 +76,27 @@ class SectionDictionary
 		];
 	}
 
+	/**
+	 * Returning the Codes which need to be validated before showing
+	 * @return array
+	 */
 	public static function getAdsAccessMap()
 	{
 		return [
 			PermissionDictionary::ADS_YANDEX_EDIT => MessageBase::CODE_ADS_YA,
 			PermissionDictionary::ADS_VK_EDIT => MessageBase::CODE_ADS_VK,
 			PermissionDictionary::ADS_LOOK_ALIKE_VK_EDIT => MessageBase::CODE_ADS_LOOKALIKE_VK,
+			PermissionDictionary::ADS_FB_INSTAGRAM_EDIT => Message\iMarketing::CODE_FACEBOOK,
+			PermissionDictionary::ADS_LOOK_ALIKE_FB_EDIT => MessageBase::CODE_ADS_LOOKALIKE_FB,
+			PermissionDictionary::ADS_MARKETING_FB_EDIT => MessageBase::CODE_ADS_FB,
+			PermissionDictionary::ADS_MARKETING_INSTAGRAM_EDIT => Message\iMarketing::CODE_FACEBOOK,
 		];
 	}
+
+	/**
+	 * Returning the map of the legacy permission configuration
+	 * @return array
+	 */
 	public static function getLegacyMap()
 	{
 		return [
@@ -101,12 +115,21 @@ class SectionDictionary
 		return __CLASS__;
 	}
 
+	/**
+	 * Getting a list of the permission settings
+	 * @return array
+	 */
 	public static function getList(): array
 	{
 		$class = new \ReflectionClass(__CLASS__);
 		return array_flip($class->getConstants());
 	}
 
+	/**
+	 * This method returning Localized title of the sections in Permission settings
+	 * @param int $value
+	 * @return string
+	 */
 	public static function getTitle(int $value)
 	{
 		$sectionsList = self::getList();

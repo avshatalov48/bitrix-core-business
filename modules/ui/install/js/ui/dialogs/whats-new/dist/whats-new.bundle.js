@@ -6,7 +6,9 @@ this.BX.UI = this.BX.UI || {};
 	let _ = t => t,
 	    _t,
 	    _t2,
-	    _t3;
+	    _t3,
+	    _t4,
+	    _t5;
 
 	var _id = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("id");
 
@@ -18,20 +20,26 @@ this.BX.UI = this.BX.UI || {};
 
 	var _image = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("image");
 
-	var _video = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("video");
+	var _videoUrl = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("videoUrl");
+
+	var _videoIframe = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("videoIframe");
+
+	var _videoHtmlElement = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("videoHtmlElement");
+
+	var _videoOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("videoOptions");
+
+	var _videoPlayPromise = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("videoPlayPromise");
 
 	var _autoplay = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("autoplay");
 
 	var _html = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("html");
-
-	var _iframe = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("iframe");
 
 	var _cache = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("cache");
 
 	var _setVideo = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setVideo");
 
 	class Slide {
-	  constructor(options) {
+	  constructor(_options) {
 	    Object.defineProperty(this, _setVideo, {
 	      value: _setVideo2
 	    });
@@ -55,7 +63,23 @@ this.BX.UI = this.BX.UI || {};
 	      writable: true,
 	      value: null
 	    });
-	    Object.defineProperty(this, _video, {
+	    Object.defineProperty(this, _videoUrl, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _videoIframe, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _videoHtmlElement, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _videoOptions, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _videoPlayPromise, {
 	      writable: true,
 	      value: null
 	    });
@@ -67,27 +91,23 @@ this.BX.UI = this.BX.UI || {};
 	      writable: true,
 	      value: null
 	    });
-	    Object.defineProperty(this, _iframe, {
-	      writable: true,
-	      value: null
-	    });
 	    Object.defineProperty(this, _cache, {
 	      writable: true,
 	      value: new main_core.Cache.MemoryCache()
 	    });
-	    options = main_core.Type.isPlainObject(options) ? options : {};
-	    babelHelpers.classPrivateFieldLooseBase(this, _id)[_id] = main_core.Type.isStringFilled(options.id) ? options.id : babelHelpers.classPrivateFieldLooseBase(this, _id)[_id];
-	    babelHelpers.classPrivateFieldLooseBase(this, _className)[_className] = main_core.Type.isStringFilled(options.className) ? options.className : babelHelpers.classPrivateFieldLooseBase(this, _className)[_className];
-	    babelHelpers.classPrivateFieldLooseBase(this, _image)[_image] = main_core.Type.isStringFilled(options.image) ? options.image : babelHelpers.classPrivateFieldLooseBase(this, _image)[_image];
-	    babelHelpers.classPrivateFieldLooseBase(this, _title)[_title] = main_core.Type.isStringFilled(options.title) ? options.title : babelHelpers.classPrivateFieldLooseBase(this, _title)[_title];
-	    babelHelpers.classPrivateFieldLooseBase(this, _description)[_description] = main_core.Type.isStringFilled(options.description) ? options.description : babelHelpers.classPrivateFieldLooseBase(this, _description)[_description];
+	    _options = main_core.Type.isPlainObject(_options) ? _options : {};
+	    babelHelpers.classPrivateFieldLooseBase(this, _id)[_id] = main_core.Type.isStringFilled(_options.id) ? _options.id : babelHelpers.classPrivateFieldLooseBase(this, _id)[_id];
+	    babelHelpers.classPrivateFieldLooseBase(this, _className)[_className] = main_core.Type.isStringFilled(_options.className) ? _options.className : babelHelpers.classPrivateFieldLooseBase(this, _className)[_className];
+	    babelHelpers.classPrivateFieldLooseBase(this, _image)[_image] = main_core.Type.isStringFilled(_options.image) ? _options.image : babelHelpers.classPrivateFieldLooseBase(this, _image)[_image];
+	    babelHelpers.classPrivateFieldLooseBase(this, _title)[_title] = main_core.Type.isStringFilled(_options.title) ? _options.title : babelHelpers.classPrivateFieldLooseBase(this, _title)[_title];
+	    babelHelpers.classPrivateFieldLooseBase(this, _description)[_description] = main_core.Type.isStringFilled(_options.description) ? _options.description : babelHelpers.classPrivateFieldLooseBase(this, _description)[_description];
 
-	    babelHelpers.classPrivateFieldLooseBase(this, _setVideo)[_setVideo](options.video);
+	    babelHelpers.classPrivateFieldLooseBase(this, _setVideo)[_setVideo](_options.video);
 
-	    babelHelpers.classPrivateFieldLooseBase(this, _autoplay)[_autoplay] = main_core.Type.isBoolean(options.autoplay) ? options.autoplay : babelHelpers.classPrivateFieldLooseBase(this, _autoplay)[_autoplay];
+	    babelHelpers.classPrivateFieldLooseBase(this, _autoplay)[_autoplay] = main_core.Type.isBoolean(_options.autoplay) ? _options.autoplay : babelHelpers.classPrivateFieldLooseBase(this, _autoplay)[_autoplay];
 
-	    if (main_core.Type.isElementNode(options.html) || main_core.Type.isStringFilled(options.html)) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _html)[_html] = options.html;
+	    if (main_core.Type.isElementNode(_options.html) || main_core.Type.isStringFilled(_options.html)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _html)[_html] = _options.html;
 	    }
 	  }
 
@@ -109,30 +129,43 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	  }
 
-	  getIframe() {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _iframe)[_iframe];
+	  getVideoIframe() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _videoIframe)[_videoIframe];
+	  }
+
+	  getVideoHtmlElement() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _videoHtmlElement)[_videoHtmlElement];
 	  }
 
 	  pauseVideo() {
-	    if (this.getIframe()) {
-	      this.getIframe().contentWindow.postMessage(JSON.stringify({
+	    if (this.getVideoIframe()) {
+	      this.getVideoIframe().contentWindow.postMessage(JSON.stringify({
 	        event: 'command',
 	        func: 'stopVideo'
 	      }), '*');
+	    } else if (this.getVideoHtmlElement()) {
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _videoPlayPromise)[_videoPlayPromise]) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _videoPlayPromise)[_videoPlayPromise].then(() => {
+	          this.getVideoHtmlElement().pause();
+	          babelHelpers.classPrivateFieldLooseBase(this, _videoPlayPromise)[_videoPlayPromise] = null;
+	        }).catch(() => {});
+	      }
 	    }
 	  }
 
 	  playVideo() {
-	    if (this.getIframe()) {
-	      this.getIframe().contentWindow.postMessage(JSON.stringify({
+	    if (this.getVideoIframe()) {
+	      this.getVideoIframe().contentWindow.postMessage(JSON.stringify({
 	        event: 'command',
 	        func: 'playVideo'
 	      }), '*');
+	    } else if (this.getVideoHtmlElement()) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _videoPlayPromise)[_videoPlayPromise] = this.getVideoHtmlElement().play();
 	    }
 	  }
 
 	  isVideo() {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _video)[_video] !== null;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _videoUrl)[_videoUrl] !== null || babelHelpers.classPrivateFieldLooseBase(this, _videoOptions)[_videoOptions] !== null;
 	  }
 
 	  isAutoplay() {
@@ -141,21 +174,38 @@ this.BX.UI = this.BX.UI || {};
 
 	  getContainer() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _cache)[_cache].remember('container', () => {
-	      if (babelHelpers.classPrivateFieldLooseBase(this, _video)[_video]) {
-	        babelHelpers.classPrivateFieldLooseBase(this, _iframe)[_iframe] = main_core.Tag.render(_t2 || (_t2 = _`<iframe 
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _videoUrl)[_videoUrl]) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _videoIframe)[_videoIframe] = main_core.Tag.render(_t2 || (_t2 = _`<iframe 
 						src="${0}" 
 						id="${0}" 
 						class="ui-whats-new-slide-item ${0}" 
-						title="YouTube video player"
 						frameborder="0"
 						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
 						allowfullscreen></iframe>
-				`), babelHelpers.classPrivateFieldLooseBase(this, _video)[_video], babelHelpers.classPrivateFieldLooseBase(this, _id)[_id], babelHelpers.classPrivateFieldLooseBase(this, _className)[_className]);
-	        return babelHelpers.classPrivateFieldLooseBase(this, _iframe)[_iframe];
+				`), babelHelpers.classPrivateFieldLooseBase(this, _videoUrl)[_videoUrl], babelHelpers.classPrivateFieldLooseBase(this, _id)[_id], babelHelpers.classPrivateFieldLooseBase(this, _className)[_className]);
+	        return babelHelpers.classPrivateFieldLooseBase(this, _videoIframe)[_videoIframe];
+	      } else if (babelHelpers.classPrivateFieldLooseBase(this, _videoOptions)[_videoOptions]) {
+	        const sources = [];
+
+	        babelHelpers.classPrivateFieldLooseBase(this, _videoOptions)[_videoOptions].sources.forEach(source => {
+	          sources.push(`<source src="${source.src}" type="${source.type}" />`);
+	        });
+
+	        babelHelpers.classPrivateFieldLooseBase(this, _videoHtmlElement)[_videoHtmlElement] = main_core.Tag.render(_t3 || (_t3 = _`<video>${0}</video>`), sources.join(''));
+
+	        if (main_core.Type.isPlainObject(babelHelpers.classPrivateFieldLooseBase(this, _videoOptions)[_videoOptions].attrs)) {
+	          main_core.Dom.attr(babelHelpers.classPrivateFieldLooseBase(this, _videoHtmlElement)[_videoHtmlElement], babelHelpers.classPrivateFieldLooseBase(this, _videoOptions)[_videoOptions].attrs);
+	        }
+
+	        return main_core.Tag.render(_t4 || (_t4 = _`
+						<div 
+							id="${0}" 
+							class="ui-whats-new-slide-item ${0}"
+						>${0}</div>`), babelHelpers.classPrivateFieldLooseBase(this, _id)[_id], babelHelpers.classPrivateFieldLooseBase(this, _className)[_className], babelHelpers.classPrivateFieldLooseBase(this, _videoHtmlElement)[_videoHtmlElement]);
 	      } else {
 	        var _babelHelpers$classPr;
 
-	        return main_core.Tag.render(_t3 || (_t3 = _`<div 
+	        return main_core.Tag.render(_t5 || (_t5 = _`<div 
 						id="${0}" 
 						class="ui-whats-new-slide-item ${0}" 
 						${0}>${0}</div>`), babelHelpers.classPrivateFieldLooseBase(this, _id)[_id], babelHelpers.classPrivateFieldLooseBase(this, _className)[_className], babelHelpers.classPrivateFieldLooseBase(this, _image)[_image] ? 'style="background-image: url(' + babelHelpers.classPrivateFieldLooseBase(this, _image)[_image] + ')"' : '', (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _html)[_html]) != null ? _babelHelpers$classPr : '');
@@ -165,22 +215,26 @@ this.BX.UI = this.BX.UI || {};
 
 	}
 
-	function _setVideo2(video) {
-	  if (!main_core.Type.isStringFilled(video)) {
-	    return;
-	  }
+	function _setVideo2(options) {
+	  if (main_core.Type.isStringFilled(options)) {
+	    const url = new URL(options);
 
-	  const url = new URL(video);
-	  url.searchParams.append('enablejsapi', '1');
-	  babelHelpers.classPrivateFieldLooseBase(this, _video)[_video] = url.toString();
+	    if (url.host.includes('youtube')) {
+	      url.searchParams.append('enablejsapi', '1');
+	    }
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _videoUrl)[_videoUrl] = url.toString();
+	  } else if (main_core.Type.isPlainObject(options) && main_core.Type.isArrayFilled(options.sources)) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _videoOptions)[_videoOptions] = options;
+	  }
 	}
 
 	let _$1 = t => t,
 	    _t$1,
 	    _t2$1,
 	    _t3$1,
-	    _t4,
-	    _t5,
+	    _t4$1,
+	    _t5$1,
 	    _t6,
 	    _t7;
 
@@ -301,8 +355,8 @@ this.BX.UI = this.BX.UI || {};
 	      cacheable: false,
 	      animation: 'scale',
 	      content: this.getContentContainer(),
-	      width: 808,
-	      height: 503,
+	      width: 720,
+	      height: 530,
 	      autoHide: true
 	    }, babelHelpers.classPrivateFieldLooseBase(this, _popupOptions)[_popupOptions]));
 
@@ -386,13 +440,13 @@ this.BX.UI = this.BX.UI || {};
 
 	  getDescContainer() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _cache$1)[_cache$1].remember('description', () => {
-	      return main_core.Tag.render(_t4 || (_t4 = _$1`<div class="ui-whats-new-desc"></div>`));
+	      return main_core.Tag.render(_t4$1 || (_t4$1 = _$1`<div class="ui-whats-new-desc"></div>`));
 	    });
 	  }
 
 	  getSliderBox() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _cache$1)[_cache$1].remember('sliderBox', () => {
-	      return main_core.Tag.render(_t5 || (_t5 = _$1`<div class="ui-whats-new-slide-box">${0}</div>`), babelHelpers.classPrivateFieldLooseBase(this, _slides)[_slides].map(slide => slide.getContainer()));
+	      return main_core.Tag.render(_t5$1 || (_t5$1 = _$1`<div class="ui-whats-new-slide-box">${0}</div>`), babelHelpers.classPrivateFieldLooseBase(this, _slides)[_slides].map(slide => slide.getContainer()));
 	    });
 	  }
 

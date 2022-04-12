@@ -4,9 +4,12 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 }
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
+use Bitrix\Sender\Integration\VoxImplant\MessageAudioCall;
+use Bitrix\Sender\Integration\VoxImplant\MessageCall;
 use Bitrix\Sender\Internals\PrettyDate;
 
 Loc::loadMessages(__FILE__);
@@ -182,6 +185,17 @@ if($arParams['IFRAME'] === 'Y')
 				</div>
 			<?endif;?>
 
+			<?php if (
+				Loader::includeModule('voximplant')
+					&& class_exists("\Bitrix\Voximplant\Tts\Disclaimer")
+					&& in_array($arResult['MESSAGE_CODE'], [
+						MessageCall::CODE,
+					])
+			):?>
+				<div class="ui-alert ui-alert-warning bx-sender-letter-field">
+					<span class="ui-alert-message"><?php echo \Bitrix\Voximplant\Tts\Disclaimer::getHtml(); ?></span>
+				</div>
+			<?php endif; ?>
 			<?
 			$APPLICATION->IncludeComponent(
 				"bitrix:sender.message.editor",

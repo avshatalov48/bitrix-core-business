@@ -28,6 +28,8 @@
 		this.id = BX.prop.getString(options, "id", BX.Text.getRandom());
 		this.searchAction = BX.prop.getString(options, "searchAction", "");
 		this.searchOptions = BX.prop.getObject(options, "searchOptions", {});
+		this.previousSearchQuery = null;
+		this.isLastSearchComplete = null;
 
 		this.messages = BX.prop.getObject(options, "messages", {});
 
@@ -217,7 +219,6 @@
 					else
 					{
 						this.handleTypeInField();
-						//this.targetElement.addEventListener("input", BX.debounce(this.handleTypeInField.bind(this), 500), true);
 					}
 
 					if(this.targetElement.value !== '' && !this.popupWindow)
@@ -340,21 +341,30 @@
 					this.isChanged = true;
 				}
 
+				var searchQuery = this.targetElement.value.trim();
+				var isRequestsFlowAllowed = this.autocompleteDelay === 0
+					? true
+					: this.isLastSearchComplete !== false;
 				var loader = this.getItemsListContainer();
 
-				if (!this.targetElement.value)
+				if(!searchQuery)
 				{
 					this.setItems(this.getDefaultItems());
 					loader.classList.remove('ui-dropdown-loader-active');
 					BX.cleanNode(this.popupAlertContainer);
 					this.newAlertContainer = null;
+					this.previousSearchQuery = '';
 
 					BX.onCustomEvent(this, "BX.UI.Dropdown:onReset", [this]);
 				}
-				else if(this.targetElement.value.length >= this.minSearchStringLength)
-				{
-					BX.onCustomEvent(this, "BX.UI.Dropdown:onBeforeSearchStart", [this, this.targetElement.value]);
-					//this.setItems(this.searchItemsByStr(this.targetElement.value));
+				else if(
+					searchQuery.length >= this.minSearchStringLength
+					&& searchQuery != this.previousSearchQuery
+					&& isRequestsFlowAllowed
+				) {
+					this.isLastSearchComplete = false;
+
+					BX.onCustomEvent(this, "BX.UI.Dropdown:onBeforeSearchStart", [this, searchQuery]);
 					clearTimeout(this.ajaxRequestTimer);
 					this.ajaxRequestTimer = setTimeout(this.searchItemsByStrDelayed.bind(this), this.autocompleteDelay);
 
@@ -364,8 +374,9 @@
 			searchItemsByStrDelayed: function()
 			{
 				var loader = this.getItemsListContainer();
+				var searchQuery = this.targetElement.value.trim();
 				var eventData = {
-					searchQuery: this.targetElement.value
+					searchQuery: searchQuery
 				};
 				BX.onCustomEvent(this, "BX.UI.Dropdown:onSearchStart", [this, eventData]);
 
@@ -374,6 +385,7 @@
 						function (items)
 						{
 							BX.onCustomEvent(this, "BX.UI.Dropdown:onSearchComplete", [this, items]);
+
 							return items;
 						}.bind(this))
 					.then(
@@ -393,6 +405,10 @@
 							loader.classList.remove('ui-dropdown-loader-active');
 
 							this.showPopupWindow();
+
+							this.previousSearchQuery = searchQuery;
+							this.isLastSearchComplete = true;
+							this.handleTypeInField();
 						}.bind(this)
 				);
 			},

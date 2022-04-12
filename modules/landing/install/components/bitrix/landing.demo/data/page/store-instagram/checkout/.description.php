@@ -10,7 +10,10 @@ return array(
 	'code' => 'store-instagram/checkout',
 	'name' => Loc::getMessage("LANDING_DEMO_STORE_INSTAGRAM--CHECKOUT--NAME"),
 	'description' => Loc::getMessage("LANDING_DEMO_STORE_INSTAGRAM--CHECKOUT--NAME"),
-	'active' => true,
+	'active' => \LandingSiteDemoComponent::checkActive([
+		'ONLY_IN' => [],
+		'EXCEPT' => ['ru'],
+	]),
 	'preview' => '',
 	'preview2x' => '',
 	'preview3x' => '',

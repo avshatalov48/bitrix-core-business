@@ -454,10 +454,10 @@ class Message
 			$this->setTo($fields['MESSAGE_TO']);
 		if (isset($fields['MESSAGE_TEMPLATE']) && $sender->isConfigurable() && $sender->isTemplatesBased())
 		{
-			$fields['MESSAGE_HEADERS'] = $fields['MESSAGE_HEADERS'] ?? [];
+			$fields['MESSAGE_HEADERS'] = is_array($fields['MESSAGE_HEADERS']) ? $fields['MESSAGE_HEADERS'] : [];
 			$fields['MESSAGE_HEADERS']['template'] = $sender->prepareTemplate($fields['MESSAGE_TEMPLATE']);
 		}
-		if (isset($fields['MESSAGE_HEADERS']))
+		if (isset($fields['MESSAGE_HEADERS']) && is_array($fields['MESSAGE_HEADERS']))
 			$this->setHeaders($fields['MESSAGE_HEADERS']);
 		if (isset($fields['MESSAGE_BODY']))
 		{

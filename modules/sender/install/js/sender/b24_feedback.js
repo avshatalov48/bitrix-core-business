@@ -29,7 +29,6 @@
 						{zones: ['ru', 'kz', 'by'], id: 20, lang: 'ru', sec: 'whjggl'},
 					],
 					id:'sender-configuration-help',
-					portalUri: 'https://landing.bitrix24.ru'
 				}
 			)
 		},

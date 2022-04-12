@@ -47,6 +47,7 @@ declare module 'ui.vue'
 		function getLocalComponent(name: string): object;
 		function mutateComponent(name: string, mutations: object): BitrixVueRevertHandle;
 		function cloneComponent(name: string, source: string, mutations: object): boolean;
+		function cloneLocalComponent(source: object|string, mutations: object): object;
 		function isComponent(name: string): boolean;
 		function isLocal(name: string): boolean;
 		function isMutable(name: string): boolean;

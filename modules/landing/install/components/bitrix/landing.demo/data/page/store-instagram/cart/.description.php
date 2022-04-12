@@ -44,4 +44,8 @@ return array(
 			'attrs' => array(),
 		),
 	),
+	'active' => \LandingSiteDemoComponent::checkActive([
+		'ONLY_IN' => [],
+		'EXCEPT' => ['ru'],
+	]),
 );

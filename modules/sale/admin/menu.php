@@ -170,9 +170,12 @@ if ($APPLICATION->GetGroupRight("sale")!="D")
 		"items_id" => "update_system_market",
 	);
 
+	$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion();
+	$isAllowedRegion = $region !== null && $region !== 'ru';
+
 	$hasShops = !empty(ShopSitesController::getShops());
 
-	if ($hasShops)
+	if ($isAllowedRegion && $hasShops)
 	{
 		$aMenu[] = array(
 			"parent_menu" => "global_menu_marketing",

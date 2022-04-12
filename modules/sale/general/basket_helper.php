@@ -1,4 +1,6 @@
 <?
+use Bitrix\Main\Loader;
+
 class CSaleBasketHelper
 {
 	/*
@@ -209,6 +211,36 @@ class CSaleBasketHelper
 		}
 
 		return $vat;
+	}
+
+	public static function getPriceTypeName(array $basketItemData): string
+	{
+		static $priceTypeList = null;
+
+		if ($priceTypeList === null)
+		{
+			$priceTypeList = [];
+			if (Loader::includeModule('catalog'))
+			{
+				$priceTypeList = \CCatalogGroup::GetListArray();
+			}
+		}
+
+		$result = '';
+		if (isset($basketItemData['NOTES']) && $basketItemData['NOTES'] !== '')
+		{
+			$result = $basketItemData['NOTES'];
+		}
+		elseif (isset($basketItemData['PRICE_TYPE_ID']))
+		{
+			$typeid = (int)$basketItemData['PRICE_TYPE_ID'];
+			if (isset($priceTypeList[$typeid]))
+			{
+				$result = $priceTypeList[$typeid]['NAME_LANG'] ?: $priceTypeList[$typeid]['NAME'];
+			}
+		}
+
+		return $result;
 	}
 
 	/**

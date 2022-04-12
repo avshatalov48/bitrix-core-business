@@ -1,18 +1,20 @@
 /*!
-  * vue-router v3.5.1
+  * vue-router v3.5.3
   * (c) 2021 Evan You
   * @license MIT
   *
-  * @source: vue-router.esm-browser.js
+  * @source: https://unpkg.com/vue-router@3.5.3/dist/vue-router.esm.browser.js
   */
 
 /**
  * Modify list for integration with Bitrix Framework:
  * - replaced usages window.Vue to local value of Vue;
+ * - add method VueRouter.create
  */
 
 import {VueVendor as Vue} from "ui.vue";
 
+// origin-start
 function assert (condition, message) {
   if (!condition) {
     throw new Error(`[vue-router] ${message}`)
@@ -20,7 +22,7 @@ function assert (condition, message) {
 }
 
 function warn (condition, message) {
-  if ( !condition) {
+  if (!condition) {
     typeof console !== 'undefined' && console.warn(`[vue-router] ${message}`);
   }
 }
@@ -67,7 +69,7 @@ function resolveQuery (
   try {
     parsedQuery = parse(query || '');
   } catch (e) {
-     warn(false, e.message);
+    warn(false, e.message);
     parsedQuery = {};
   }
   for (const key in extraQuery) {
@@ -226,9 +228,9 @@ function isSameRoute (a, b, onlyPath) {
     return (
       a.name === b.name &&
       (onlyPath || (
-        a.hash === b.hash &&
-      isObjectEqual(a.query, b.query) &&
-      isObjectEqual(a.params, b.params))
+          a.hash === b.hash &&
+          isObjectEqual(a.query, b.query) &&
+          isObjectEqual(a.params, b.params))
       )
     )
   } else {
@@ -435,13 +437,13 @@ function resolveProps (route, config) {
     case 'boolean':
       return config ? route.params : undefined
     default:
-      {
-        warn(
-          false,
-          `props in "${route.path}" is a ${typeof config}, ` +
-          `expecting an object, function or boolean.`
-        );
-      }
+    {
+      warn(
+        false,
+        `props in "${route.path}" is a ${typeof config}, ` +
+        `expecting an object, function or boolean.`
+      );
+    }
   }
 }
 
@@ -513,7 +515,7 @@ function parsePath (path) {
 }
 
 function cleanPath (path) {
-  return path.replace(/\/\//g, '/')
+  return path.replace(/\/+/g, '/')
 }
 
 var isarray = Array.isArray || function (arr) {
@@ -543,7 +545,7 @@ var PATH_REGEXP = new RegExp([
   //
   // "/:test(\\d+)?" => ["/", "test", "\d+", undefined, "?", undefined]
   // "/route(\\d+)"  => [undefined, undefined, undefined, "\d+", undefined, undefined]
-  // "/*"            => ["/", undefined, undefined, undefined, undefined, "*"]
+  // "/*"      => ["/", undefined, undefined, undefined, undefined, "*"]
   '([\\/.])?(?:(?:\\:(\\w+)(?:\\(((?:\\\\.|[^\\\\()])+)\\))?|\\(((?:\\\\.|[^\\\\()])+)\\))([+*?])?|(\\*))'
 ].join('|'), 'g');
 
@@ -623,8 +625,8 @@ function parse (str, options) {
 /**
  * Compile a string to a template function for the path.
  *
- * @param  {string}             str
- * @param  {Object=}            options
+ * @param  {string}       str
+ * @param  {Object=}      options
  * @return {!function(Object=, Object=)}
  */
 function compile (str, options) {
@@ -845,9 +847,9 @@ function stringToRegexp (path, keys, options) {
 /**
  * Expose a function for taking tokens and returning a RegExp.
  *
- * @param  {!Array}          tokens
+ * @param  {!Array}      tokens
  * @param  {(Array|Object)=} keys
- * @param  {Object=}         options
+ * @param  {Object=}     options
  * @return {!RegExp}
  */
 function tokensToRegExp (tokens, keys, options) {
@@ -922,8 +924,8 @@ function tokensToRegExp (tokens, keys, options) {
  * contain `[{ name: 'id', delimiter: '/', optional: false, repeat: false }]`.
  *
  * @param  {(string|RegExp|Array)} path
- * @param  {(Array|Object)=}       keys
- * @param  {Object=}               options
+ * @param  {(Array|Object)=}     keys
+ * @param  {Object=}         options
  * @return {!RegExp}
  */
 function pathToRegexp (path, keys, options) {
@@ -1154,7 +1156,7 @@ var Link = {
       });
 
     if (scopedSlot) {
-      if ( !this.custom) {
+      if (!this.custom) {
         !warnedCustomSlot && warn(false, 'In Vue Router 4, the v-slot API will by default wrap its content with an <a> element. Use the custom prop to remove this warning:\n<router-link v-slot="{ navigate, href }" custom></router-link>\n');
         warnedCustomSlot = true;
       }
@@ -1351,7 +1353,7 @@ function createRouteMap (
   {
     // warn if routes do not include leading slashes
     const found = pathList
-    // check for missing leading slash
+      // check for missing leading slash
       .filter(path => path && path.charAt(0) !== '*' && path.charAt(0) !== '/');
 
     if (found.length > 0) {
@@ -1389,8 +1391,8 @@ function addRouteRecord (
       // eslint-disable-next-line no-control-regex
       !/[^\u0000-\u007F]+/.test(path),
       `Route with path "${path}" contains unencoded characters, make sure ` +
-        `your path is correctly encoded before passing it to the router. Use ` +
-        `encodeURI to encode static segments of your path.`
+      `your path is correctly encoded before passing it to the router. Use ` +
+      `encodeURI to encode static segments of your path.`
     );
   }
 
@@ -1440,12 +1442,12 @@ function addRouteRecord (
         warn(
           false,
           `Named Route '${route.name}' has a default child route. ` +
-            `When navigating to this named route (:to="{name: '${
-              route.name
-            }'"), ` +
-            `the default child route will not be rendered. Remove the name from ` +
-            `this route and use the name of the default child route for named ` +
-            `links instead.`
+          `When navigating to this named route (:to="{name: '${
+            route.name
+          }'"), ` +
+          `the default child route will not be rendered. Remove the name from ` +
+          `this route and use the name of the default child route for named ` +
+          `links instead.`
         );
       }
     }
@@ -1466,7 +1468,7 @@ function addRouteRecord (
     const aliases = Array.isArray(route.alias) ? route.alias : [route.alias];
     for (let i = 0; i < aliases.length; ++i) {
       const alias = aliases[i];
-      if ( alias === path) {
+      if (alias === path) {
         warn(
           false,
           `Found an alias with the same value as the path: "${path}". You have to remove that alias. It will be ignored in development.`
@@ -1493,11 +1495,11 @@ function addRouteRecord (
   if (name) {
     if (!nameMap[name]) {
       nameMap[name] = record;
-    } else if ( !matchAs) {
+    } else if (!matchAs) {
       warn(
         false,
         `Duplicate named routes definition: ` +
-          `{ name: "${name}", path: "${record.path}" }`
+        `{ name: "${name}", path: "${record.path}" }`
       );
     }
   }
@@ -1552,7 +1554,7 @@ function createMatcher (
     createRouteMap([route || parentOrRoute], pathList, pathMap, nameMap, parent);
 
     // add aliases of parent
-    if (parent) {
+    if (parent && parent.alias.length) {
       createRouteMap(
         // $flow-disable-line route is defined if parent is
         parent.alias.map(alias => ({ path: alias, children: [route] })),
@@ -2121,7 +2123,7 @@ function resolveAsyncComponents (matched) {
 
         const reject = once(reason => {
           const msg = `Failed to resolve async component ${key}: ${reason}`;
-           warn(false, msg);
+          warn(false, msg);
           if (!error) {
             error = isError(reason)
               ? reason
@@ -2315,7 +2317,9 @@ class History {
             cb(err);
           });
         } else {
-          warn(false, 'uncaught error during route navigation:');
+          {
+            warn(false, 'uncaught error during route navigation:');
+          }
           console.error(err);
         }
       }
@@ -2330,6 +2334,9 @@ class History {
       route.matched[lastRouteIndex] === current.matched[lastCurrentIndex]
     ) {
       this.ensureURL();
+      if (route.hash) {
+        handleScroll(this.router, current, route, false);
+      }
       return abort(createNavigationDuplicatedError(current, route))
     }
 
@@ -2624,7 +2631,13 @@ class HTML5History extends History {
 
 function getLocation (base) {
   let path = window.location.pathname;
-  if (base && path.toLowerCase().indexOf(base.toLowerCase()) === 0) {
+  const pathLowerCase = path.toLowerCase();
+  const baseLowerCase = base.toLowerCase();
+  // base="/a" shouldn't turn path="/app" into "/a/pp"
+  // https://github.com/vuejs/vue-router/issues/3555
+  // so we ensure the trailing slash in the base
+  if (base && ((pathLowerCase === baseLowerCase) ||
+    (pathLowerCase.indexOf(cleanPath(baseLowerCase + '/')) === 0))) {
     path = path.slice(base.length);
   }
   return (path || '/') + window.location.search + window.location.hash
@@ -2868,6 +2881,9 @@ class VueRouter {
 
 
   constructor (options = {}) {
+    {
+      warn(this instanceof VueRouter, `Router must be called with the new operator.`);
+    }
     this.app = null;
     this.apps = [];
     this.options = options;
@@ -2898,9 +2914,9 @@ class VueRouter {
         this.history = new AbstractHistory(this, options.base);
         break
       default:
-        {
-          assert(false, `invalid mode: ${mode}`);
-        }
+      {
+        assert(false, `invalid mode: ${mode}`);
+      }
     }
   }
 
@@ -2913,12 +2929,11 @@ class VueRouter {
   }
 
   init (app /* Vue component instance */) {
-
-      assert(
-        install.installed,
-        `not installed. Make sure to call \`Vue.use(VueRouter)\` ` +
-          `before creating root instance.`
-      );
+    assert(
+      install.installed,
+      `not installed. Make sure to call \`Vue.use(VueRouter)\` ` +
+      `before creating root instance.`
+    );
 
     this.apps.push(app);
 
@@ -3102,13 +3117,14 @@ function createHref (base, fullPath, mode) {
   return base ? cleanPath(base + '/' + path) : path
 }
 
-VueRouter.create = (params) => new VueRouter(params);
 VueRouter.install = install;
-VueRouter.version = '3.5.1';
+VueRouter.version = '3.5.3';
 VueRouter.isNavigationFailure = isNavigationFailure;
 VueRouter.NavigationFailureType = NavigationFailureType;
 VueRouter.START_LOCATION = START;
+// origin-end
 
+VueRouter.create = (params) => new VueRouter(params);
 Vue.use(VueRouter);
 
 export {VueRouter};

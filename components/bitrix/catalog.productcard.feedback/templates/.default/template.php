@@ -26,7 +26,7 @@ $APPLICATION->SetTitle(\Bitrix\Main\Localization\Loc::getMessage('CATALOG_PRODUC
 		s.src = u + '?' + (1 * new Date());
 		var h = d.getElementsByTagName('script')[0];
 		h.parentNode.insertBefore(s, h);
-	})(window, document, 'https://landing.bitrix24.ru/bitrix/js/crm/form_loader.js', 'b24form');
+	})(window, document, 'https://product-feedback.bitrix24.com/bitrix/js/crm/form_loader.js', 'b24form');
 </script>
 <div class="catalog-productcard-limit-container">
 	<div class="catalog-productcard-limit-inner" id="catalog-productcard-feedback-form">

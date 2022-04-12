@@ -5048,6 +5048,38 @@ if (Main\Loader::includeModule('sale'))
 				}
 			}
 
+			if (!empty($priceDataList))
+			{
+				foreach ($priceDataList as $productId => $priceBasketDataList)
+				{
+					foreach ($priceBasketDataList as $basketCode => $priceData)
+					{
+						if ($priceData === false)
+						{
+							continue;
+						}
+
+						if (empty($priceData['DISCOUNT_LIST']) && !empty($priceData['DISCOUNT']) && is_array($priceData['DISCOUNT']))
+						{
+							$priceDataList[$productId][$basketCode]['DISCOUNT_LIST'] = [$priceData['DISCOUNT']];
+						}
+
+						if (empty($priceData['PRICE']['CATALOG_GROUP_NAME']))
+						{
+							if (!empty($priceData['PRICE']['CATALOG_GROUP_ID']))
+							{
+								$priceName = self::getPriceTitle($priceData['PRICE']['CATALOG_GROUP_ID']);
+								if ($priceName !== '')
+								{
+									$priceDataList[$productId][$basketCode]['PRICE']['CATALOG_GROUP_NAME'] = $priceName;
+								}
+								unset($priceName);
+							}
+						}
+					}
+				}
+			}
+
 			return $priceDataList;
 		}
 

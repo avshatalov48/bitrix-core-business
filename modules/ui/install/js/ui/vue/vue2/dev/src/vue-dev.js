@@ -11,6 +11,7 @@
  * - change default export to local for work in Bitrix CoreJS extensions;
  */
 
+// origin-start
 const emptyObject = Object.freeze({});
 
 // These helpers produce better VM code in JS engines due to their
@@ -12061,9 +12062,11 @@ function getOuterHTML (el) {
 }
 
 Vue.compile = compileToFunctions;
+// origin-end
 
 import {BitrixVue} from "./bitrixvue";
 BitrixVue.developerMode = true;
-let BitrixVueInstance = new BitrixVue(Vue);
+const BitrixVueInstance = new BitrixVue(Vue);
+
 BitrixVueInstance.developerMode = true;
 export {BitrixVueInstance as BitrixVue, BitrixVueInstance as Vue, Vue as VueVendor, Vue as VueVendorV2};

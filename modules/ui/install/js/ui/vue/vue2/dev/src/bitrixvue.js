@@ -3,11 +3,11 @@
  *
  * @package bitrix
  * @subpackage ui
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
 
 import {EventEmitter} from 'main.core.events';
-import {Loc, Type} from "main.core";
+import { Extension, Loc, Type } from 'main.core';
 import {RestClient, rest} from "rest.client";
 import {PullClient, PULL as pull} from "pull.client";
 
@@ -31,6 +31,9 @@ export class BitrixVue
 			restClientChange: 'RestClient::change',
 			pullClientChange: 'PullClient::change',
 		}
+
+		const settings = Extension.getSettings('ui.vue');
+		this.localizationMode = settings.get('localizationDebug', false)? 'development': 'production';
 	}
 
 	/**
@@ -55,7 +58,7 @@ export class BitrixVue
 	 *
 	 * @param {Object} params - definition
 	 *
-	 * @see https://vuejs.org/v2/guide/
+	 * @see https://v2.vuejs.org/v2/guide/
 	 */
 	createApp(params)
 	{
@@ -71,6 +74,21 @@ export class BitrixVue
 
 			getMessage: function(messageId: string, replacements:? {[key: string]: string} = null): string
 			{
+				if (bitrixVue.localizationMode === 'development')
+				{
+					let debugMessageId = [messageId];
+					if (Type.isPlainObject(replacements))
+					{
+						const replaceKeys = Object.keys(replacements);
+						if (replaceKeys.length > 0)
+						{
+							debugMessageId = [messageId, ' (replacements: ', replaceKeys.join(', '), ')']
+						}
+					}
+
+					return debugMessageId.join('');
+				}
+
 				let message = '';
 				if (!Type.isUndefined(this.messages[messageId]))
 				{
@@ -245,7 +263,7 @@ export class BitrixVue
 	 * @param {Object} params
 	 * @param {Object} [options]
 	 *
-	 * @see https://vuejs.org/v2/guide/components.html
+	 * @see https://v2.vuejs.org/v2/guide/components.html
 	 */
 	component(id, params, options = {})
 	{
@@ -276,7 +294,7 @@ export class BitrixVue
 
 	/**
 	 * Register Vue component (local)
-	 * @see https://vuejs.org/v2/guide/components.html
+	 * @see https://v2.vuejs.org/v2/guide/components.html
 	 *
 	 * @param {string} name
 	 * @param {Object} definition
@@ -286,12 +304,12 @@ export class BitrixVue
 	 */
 	localComponent(name, definition, options = {})
 	{
-		return this.component(name, definition, {immutable: false, ...options, local: true});
+		return this.component(name, definition, {...options, local: true});
 	}
 
 	/**
 	 * Get local Vue component
-	 * @see https://vuejs.org/v2/guide/components.html
+	 * @see https://v2.vuejs.org/v2/guide/components.html
 	 *
 	 * @param {string} name
 	 *
@@ -388,6 +406,30 @@ export class BitrixVue
 	}
 
 	/**
+	 * Clone Vue component (object)
+	 *
+	 * @param {object} source
+	 * @param {object} mutations
+	 * @returns {object}
+	 */
+	cloneLocalComponent(source, mutations)
+	{
+		if (typeof source !== 'object')
+		{
+			source = this.getLocalComponent(source);
+			if (!source)
+			{
+				return null;
+			}
+		}
+
+		return this._applyMutation(
+			this._cloneObjectWithoutDuplicateFunction(source, mutations),
+			mutations
+		);
+	}
+
+	/**
 	 * Check exists Vue component
 	 *
 	 * @param {string} id
@@ -436,7 +478,7 @@ export class BitrixVue
 	 * @param options
 	 * @returns {*}
 	 *
-	 * @see https://vuejs.org/v2/api/#Vue-extend
+	 * @see https://v2.vuejs.org/v2/api/#Vue-extend
 	 */
 	extend(options)
 	{
@@ -450,7 +492,7 @@ export class BitrixVue
 	 * @param {Object} context
 	 * @returns {Promise|void}
 	 *
-	 * @see https://vuejs.org/v2/api/#Vue-nextTick
+	 * @see https://v2.vuejs.org/v2/api/#Vue-nextTick
 	 */
 	nextTick(callback, context)
 	{
@@ -465,7 +507,7 @@ export class BitrixVue
 	 * @param {*} value
 	 * @returns {*}
 	 *
-	 * @see https://vuejs.org/v2/api/#Vue-set
+	 * @see https://v2.vuejs.org/v2/api/#Vue-set
 	 */
 	set(target, key, value)
 	{
@@ -491,7 +533,7 @@ export class BitrixVue
 	 * @param {Object|Function} definition
 	 * @returns {*}
 	 *
-	 * @see https://vuejs.org/v2/api/#Vue-directive
+	 * @see https://v2.vuejs.org/v2/api/#Vue-directive
 	 */
 	directive(id, definition)
 	{
@@ -505,7 +547,7 @@ export class BitrixVue
 	 * @param definition
 	 * @returns {*}
 	 *
-	 * @see https://vuejs.org/v2/api/#Vue-filter
+	 * @see https://v2.vuejs.org/v2/api/#Vue-filter
 	 */
 	filter(id, definition)
 	{
@@ -518,7 +560,7 @@ export class BitrixVue
 	 * @param {Object|Function} plugin
 	 * @returns {*}
 	 *
-	 * @see https://vuejs.org/v2/api/#Vue-use
+	 * @see https://v2.vuejs.org/v2/api/#Vue-use
 	 */
 	use(plugin)
 	{
@@ -531,7 +573,7 @@ export class BitrixVue
 	 * @param {Object} mixin
 	 * @returns {*|Function|Object}
 	 *
-	 * @see https://vuejs.org/v2/api/#Vue-mixin
+	 * @see https://v2.vuejs.org/v2/api/#Vue-mixin
 	 */
 	mixin(mixin)
 	{
@@ -544,7 +586,7 @@ export class BitrixVue
 	 * @param object
 	 * @returns {*}
 	 *
-	 * @see https://vuejs.org/v2/api/#Vue-observable
+	 * @see https://v2.vuejs.org/v2/api/#Vue-observable
 	 */
 	observable(object)
 	{
@@ -557,7 +599,7 @@ export class BitrixVue
 	 * @param template
 	 * @returns {*}
 	 *
-	 * @see https://vuejs.org/v2/api/#Vue-compile
+	 * @see https://v2.vuejs.org/v2/api/#Vue-compile
 	 */
 	compile(template)
 	{
@@ -569,7 +611,7 @@ export class BitrixVue
 	 *
 	 * @returns {String}
 	 *
-	 * @see https://vuejs.org/v2/api/#Vue-version
+	 * @see https://v2.vuejs.org/v2/api/#Vue-version
 	 */
 	version()
 	{
@@ -776,7 +818,15 @@ export class BitrixVue
 				{
 					continue;
 				}
-				result[message] = phrases[message];
+
+				if (this.localizationMode === 'development')
+				{
+					result[message] = message;
+				}
+				else
+				{
+					result[message] = phrases[message];
+				}
 			}
 		}
 		else
@@ -791,7 +841,15 @@ export class BitrixVue
 				{
 					continue;
 				}
-				result[message] = phrases[message];
+
+				if (this.localizationMode === 'development')
+				{
+					result[message] = message;
+				}
+				else
+				{
+					result[message] = phrases[message];
+				}
 			}
 		}
 
@@ -894,67 +952,84 @@ export class BitrixVue
 	 * @param objectParams
 	 * @param mutation
 	 * @param level
+	 * @param previousParamName
 	 * @private
 	 */
-	_cloneObjectWithoutDuplicateFunction(objectParams = {}, mutation = {}, level = 1)
+	_cloneObjectWithoutDuplicateFunction(objectParams = {}, mutation = {}, level = 1, previousParamName = '')
 	{
-		let object = {};
+		const object = {};
 
-		for (let param in objectParams)
+		for (const param in objectParams)
 		{
 			if (!objectParams.hasOwnProperty(param))
 			{
 				continue;
 			}
-			if (typeof objectParams[param] === 'string')
+
+			if (Type.isString(objectParams[param]))
 			{
 				object[param] = objectParams[param];
 			}
-			else if (Object.prototype.toString.call(objectParams[param]) === '[object Array]')
+			else if (Type.isArray(objectParams[param]))
 			{
 				object[param] = [].concat(objectParams[param]);
 			}
-			else if (typeof objectParams[param] === 'object')
+			else if (Type.isObjectLike(objectParams[param]))
 			{
-				if (objectParams[param] === null)
+				if (
+					previousParamName === 'watch'
+					|| previousParamName === 'props'
+					|| previousParamName === 'directives'
+				)
+				{
+					object[param] = objectParams[param];
+				}
+				else if (Type.isNull(objectParams[param]))
 				{
 					object[param] = null;
 				}
-				else if (typeof mutation[param] === 'object')
+				else if (Type.isObjectLike(mutation[param]))
 				{
-					object[param] = this._cloneObjectWithoutDuplicateFunction(objectParams[param], mutation[param], (level+1))
+					object[param] = this._cloneObjectWithoutDuplicateFunction(objectParams[param], mutation[param], (level+1), param)
 				}
 				else
 				{
 					object[param] = Object.assign({}, objectParams[param])
 				}
 			}
-			else if (typeof objectParams[param] === 'function')
+			else if (Type.isFunction(objectParams[param]))
 			{
-				if (typeof mutation[param] !== 'function')
+				if (!Type.isFunction(mutation[param]))
 				{
 					object[param] = objectParams[param];
 				}
 				else if (level > 1)
 				{
-					object['parent'+param[0].toUpperCase()+param.substr(1)] = objectParams[param];
+					if (previousParamName === 'watch')
+					{
+						object[param] = objectParams[param];
+					}
+					else
+					{
+						object['parent'+param[0].toUpperCase()+param.substr(1)] = objectParams[param];
+					}
 				}
 				else
 				{
-					if (typeof object['methods'] === 'undefined')
+					if (Type.isUndefined(object['methods']))
 					{
 						object['methods'] = {};
 					}
 					object['methods']['parent'+param[0].toUpperCase()+param.substr(1)] = objectParams[param];
 
-					if (typeof objectParams['methods'] === 'undefined')
+					if (Type.isUndefined(objectParams['methods']))
 					{
 						objectParams['methods'] = {};
 					}
 					objectParams['methods']['parent'+param[0].toUpperCase()+param.substr(1)] = objectParams[param];
 				}
 			}
-			else if (typeof objectParams[param] !== 'undefined')
+			else if (!Type.isUndefined(objectParams[param]))
 			{
 				object[param] = objectParams[param];
 			}
@@ -968,22 +1043,33 @@ export class BitrixVue
 	 *
 	 * @param clonedObject
 	 * @param mutation
+	 * @param level
 	 * @private
 	 */
-	_applyMutation(clonedObject = {}, mutation = {})
+	_applyMutation(clonedObject = {}, mutation = {}, level = 1): object
 	{
-		let object = Object.assign({}, clonedObject);
-
-		for (let param in mutation)
+		const object = Object.assign({}, clonedObject);
+		for (const param in mutation)
 		{
 			if (!mutation.hasOwnProperty(param))
 			{
 				continue;
 			}
 
-			if (typeof mutation[param] === 'string')
+			if (
+				level === 1
+				&& (param === 'compilerOptions' || param === 'setup')
+			)
 			{
-				if (typeof object[param] === 'string')
+				object[param] = mutation[param];
+			}
+			else if (level === 1 && param === 'extends')
+			{
+				object[param] = mutation[param];
+			}
+			else if (Type.isString(mutation[param]))
+			{
+				if (Type.isString(object[param]))
 				{
 					object[param] = mutation[param].replace(`#PARENT_${param.toUpperCase()}#`, object[param]);
 				}
@@ -992,15 +1078,139 @@ export class BitrixVue
 					object[param] = mutation[param].replace(`#PARENT_${param.toUpperCase()}#`, '');
 				}
 			}
-			else if (Object.prototype.toString.call(mutation[param]) === '[object Array]')
+			else if (Type.isArray(mutation[param]))
 			{
-				object[param] = [].concat(mutation[param]);
-			}
-			else if (typeof mutation[param] === 'object')
-			{
-				if (typeof object[param] === 'object')
+				if (level === 1 && param === 'replaceMixins')
 				{
-					object[param] = this._applyMutation(object[param], mutation[param])
+					object['mixins'] = [].concat(mutation[param]);
+				}
+				else if (level === 1 && param === 'replaceInject')
+				{
+					object['inject'] = [].concat(mutation[param]);
+				}
+				else if (level === 1 && param === 'replaceEmits')
+				{
+					object['emits'] = [].concat(mutation[param]);
+				}
+				else if (level === 1 && param === 'replaceExpose')
+				{
+					object['expose'] = [].concat(mutation[param]);
+				}
+				else if (Type.isPlainObject(object[param]))
+				{
+					mutation[param].forEach(element => object[param][element] = null);
+				}
+				else
+				{
+					object[param] = object[param].concat(mutation[param]);
+				}
+			}
+			else if (Type.isObjectLike(mutation[param]))
+			{
+				if (
+					level === 1 && param === 'props' && Type.isArray(object[param])
+					|| level === 1 && param === 'emits' && Type.isArray(object[param])
+				)
+				{
+					const newObject = {};
+					object[param].forEach(element => {
+						newObject[element] = null;
+					});
+					object[param] = newObject;
+				}
+
+				if (level === 1 && param === 'watch')
+				{
+					for (const paramName in object[param])
+					{
+						if (!object[param].hasOwnProperty(paramName))
+						{
+							continue;
+						}
+						if (paramName.includes('.'))
+						{
+							continue;
+						}
+						if (
+							Type.isFunction(object[param][paramName])
+							|| (
+								Type.isObject(object[param][paramName])
+								&& Type.isFunction(object[param][paramName]['handler'])
+							)
+						)
+						{
+							if (Type.isUndefined(object['methods']))
+							{
+								object['methods'] = {};
+							}
+							const originNewFunctionName = 'parentWatch'+paramName[0].toUpperCase()+paramName.substr(1);
+
+							if (Type.isFunction(object[param][paramName]))
+							{
+								object['methods'][originNewFunctionName] = object[param][paramName];
+							}
+							else
+							{
+								object['methods'][originNewFunctionName] = object[param][paramName]['handler'];
+							}
+						}
+					}
+				}
+
+				if (level === 1 && param === 'replaceEmits')
+				{
+					object['emits'] = Object.assign({}, mutation[param]);
+				}
+				else if (
+					level === 1
+					&& (
+						param === 'components'
+						|| param === 'directives'
+					)
+				)
+				{
+					if (Type.isUndefined(object[param]))
+					{
+						object[param] = {};
+					}
+
+					for (const objectName in mutation[param])
+					{
+						if (!mutation[param].hasOwnProperty(objectName))
+						{
+							continue;
+						}
+						let parentObjectName = objectName[0].toUpperCase()+objectName.substr(1);
+						parentObjectName = param === 'components'? 'Parent'+parentObjectName: 'parent'+parentObjectName
+						object[param][parentObjectName] = Object.assign({}, object[param][objectName]);
+
+						if (param === 'components')
+						{
+							if (Type.isUndefined(mutation[param][objectName].components))
+							{
+								mutation[param][objectName].components = {};
+							}
+
+							mutation[param][objectName].components = Object.assign({[parentObjectName]: object[param][objectName]}, mutation[param][objectName].components);
+						}
+
+						object[param][objectName] = mutation[param][objectName];
+					}
+				}
+				else if (Type.isArray(object[param]))
+				{
+					for (const mutationName in mutation[param])
+					{
+						if (!mutation[param].hasOwnProperty(mutationName))
+						{
+							continue;
+						}
+						object[param].push(mutationName);
+					}
+				}
+				else if (Type.isObjectLike(object[param]))
+				{
+					object[param] = this._applyMutation(object[param], mutation[param], (level+1));
 				}
 				else
 				{

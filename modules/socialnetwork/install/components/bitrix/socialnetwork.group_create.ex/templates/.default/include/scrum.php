@@ -51,7 +51,7 @@ Loc::loadMessages(__FILE__);
 
 		?>
 		<div class="socialnetwork-group-create-ex__text --s ui-ctl-label-text"><?= Loc::getMessage('SONET_GCE_T_SCRUM_TASK_RESPONSIBLE') ?></div>
-		<div class="ui-ctl ui-ctl-after-icon ui-ctl-w100 ui-ctl-dropdown" data-role="soc-net-dropdown" data-items="<?= htmlspecialcharsbx(Json::encode($arResult['ScrumTaskResponsible'])) ?>" data-value="<?= htmlspecialcharsbx($arResult['POST']['SCRUM_SPRINT_DURATION']) ?>">
+		<div class="ui-ctl ui-ctl-after-icon ui-ctl-w100 ui-ctl-dropdown" data-role="soc-net-dropdown" data-items="<?= htmlspecialcharsbx(Json::encode($arResult['ScrumTaskResponsible'])) ?>" data-value="<?= htmlspecialcharsbx($arResult['POST']['SCRUM_TASK_RESPONSIBLE']) ?>">
 			<div class="ui-ctl-after ui-ctl-icon-angle"></div>
 			<div class="ui-ctl-element"><?= htmlspecialcharsEx($defaultValue) ?></div>
 			<input type="hidden" name="SCRUM_TASK_RESPONSIBLE" value="<?= htmlspecialcharsbx($defaultKey) ?>">

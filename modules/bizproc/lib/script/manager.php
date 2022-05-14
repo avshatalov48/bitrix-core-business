@@ -481,6 +481,11 @@ class Manager
 			if ($saveResult->isSuccess())
 			{
 				$result->setData(['ID' => $saveResult->getId()]);
+
+				\CBPWorkflowTemplateLoader::importDocumentFields(
+					$tpl->getDocumentComplexType(),
+					$result->getDocumentFields()
+				);
 			}
 			else
 			{

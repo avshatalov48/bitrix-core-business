@@ -10,4 +10,5 @@ export default class CounterColor
 	static LIGHT = "ui-counter-light";
 	static WHITE = "ui-counter-white";
 	static DARK = "ui-counter-dark";
+	static THEME = "ui-counter-theme";
 }

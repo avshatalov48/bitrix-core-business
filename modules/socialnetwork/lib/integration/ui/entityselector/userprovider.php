@@ -443,7 +443,7 @@ class UserProvider extends BaseProvider
 			'extranet' => []
 		];
 
-		if (!ModuleManager::isModuleInstalled('intranet') || !isset($roles[$role]))
+		if (!isset($roles[$role]) || !ModuleManager::isModuleInstalled('intranet'))
 		{
 			return false;
 		}
@@ -455,6 +455,14 @@ class UserProvider extends BaseProvider
 			{
 				return false;
 			}
+		}
+
+		if (
+			$userId === self::getCurrentUserId()
+			&& \CSocNetUser::isCurrentUserModuleAdmin()
+		)
+		{
+			return true;
 		}
 
 		if (isset($roles[$role][$userId]))
@@ -715,7 +723,7 @@ class UserProvider extends BaseProvider
 				'IS_INTRANET_USER',
 				'IF(
 					(%s IS NOT NULL AND %s != \'' . $emptyValue . '\' AND %s != \'' . $emptyValue2 . '\') AND
-					(%s IS NULL OR %s NOT IN (\''.join('\', \'', UserTable::getExternalUserTypes()).'\')), \'Y\', \'N\'
+					(%s IS NULL OR %s NOT IN (\'' . implode('\', \'', UserTable::getExternalUserTypes()) . '\')), \'Y\', \'N\'
 				)',
 				['UF_DEPARTMENT', 'UF_DEPARTMENT', 'UF_DEPARTMENT', 'EXTERNAL_AUTH_ID', 'EXTERNAL_AUTH_ID'])
 			);
@@ -724,7 +732,7 @@ class UserProvider extends BaseProvider
 				'IS_EXTRANET_USER',
 				'IF(
 					(%s IS NULL OR %s = \'' . $emptyValue . '\' OR %s = \'' . $emptyValue2 . '\') AND
-					(%s IS NULL OR %s NOT IN (\''.join('\', \'', UserTable::getExternalUserTypes()).'\')), \'Y\', \'N\'
+					(%s IS NULL OR %s NOT IN (\'' . implode('\', \'', UserTable::getExternalUserTypes()) . '\')), \'Y\', \'N\'
 				)',
 				['UF_DEPARTMENT', 'UF_DEPARTMENT', 'UF_DEPARTMENT', 'EXTERNAL_AUTH_ID', 'EXTERNAL_AUTH_ID'])
 			);
@@ -750,11 +758,11 @@ class UserProvider extends BaseProvider
 			;
 
 			$myEmailUsers =
-				isset($options['myEmailUsers']) && is_bool($options['myEmailUsers']) ? $options['myEmailUsers'] : false;
+				isset($options['myEmailUsers']) && is_bool($options['myEmailUsers']) && $options['myEmailUsers']
 			;
 
 			$networkUsers =
-				isset($options['networkUsers']) && is_bool($options['networkUsers']) ? $options['networkUsers'] : true
+				!(isset($options['networkUsers']) && is_bool($options['networkUsers'])) || $options['networkUsers']
 			;
 
 			if ($isIntranetUser)
@@ -879,11 +887,7 @@ class UserProvider extends BaseProvider
 			{
 				foreach ($options[$userFilter] as $id)
 				{
-					$id = intval($id);
-					if ($id > 0)
-					{
-						$userIds[] = $id;
-					}
+					$userIds[] = (int)$id;
 				}
 
 				$userIds = array_unique($userIds);
@@ -900,25 +904,29 @@ class UserProvider extends BaseProvider
 					}
 				}
 			}
-			else if (!is_array($options[$userFilter]) && intval($options[$userFilter]) > 0)
+			else if (!is_array($options[$userFilter]) && (int)$options[$userFilter] > 0)
 			{
 				if ($userFilter === 'userId')
 				{
-					$query->where('ID', intval($options[$userFilter]));
+					$query->where('ID', (int)$options[$userFilter]);
 				}
 				else
 				{
-					$query->whereNot('ID', intval($options[$userFilter]));
+					$query->whereNot('ID', (int)$options[$userFilter]);
 				}
 			}
 		}
 
-		if ($userFilter === 'userId' && count($userIds) > 1 && empty($options['order']))
+		if (
+			$userFilter === 'userId'
+			&& empty($options['order'])
+			&& count($userIds) > 1
+		)
 		{
 			$query->registerRuntimeField(
 				new ExpressionField(
 					'ID_SEQUENCE',
-					'FIELD(%s, '.join(',', $userIds).')',
+					'FIELD(%s, ' . implode(',', $userIds) . ')',
 					'ID'
 				)
 			);
@@ -1197,7 +1205,7 @@ class UserProvider extends BaseProvider
 			$userPage = '/extranet/contacts/personal/';
 		}
 
-		return $userPage.'user/'.($userId !== null ? $userId : '#id#').'/';
+		return $userPage.'user/' . ($userId !== null ? $userId : '#id#') . '/';
 	}
 
 	public static function getIntranetUserUrl(?int $userId = null): string
@@ -1208,6 +1216,6 @@ class UserProvider extends BaseProvider
 			$userPage = SITE_DIR.'company/personal/';
 		}
 
-		return $userPage.'user/'.($userId !== null ? $userId : '#id#').'/';
+		return $userPage.'user/' . ($userId !== null ? $userId : '#id#') . '/';
 	}
 }

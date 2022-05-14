@@ -67,7 +67,7 @@ class Router
 	 */
 	public function match($request)
 	{
-		$path = $this->getUriPath($request);
+		$path = urldecode($this->getUriPath($request));
 
 		foreach ($this->routes as $route)
 		{

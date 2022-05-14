@@ -2,7 +2,7 @@
 $MESS["SONET_GCE_T_IS_EXTRANET_GROUP2_HINT"] = "External users can be invited to the workgroup";
 $MESS["SONET_GCE_T_IS_EXTRANET_GROUP2_HINT_PROJECT"] = "External users can be invited to the project";
 $MESS["SONET_GCE_T_IS_EXTRANET_GROUP3"] = "Allow access for external users";
-$MESS["SONET_GCE_T_IS_EXTRANET_TITLE"] = "External Users:";
+$MESS["SONET_GCE_T_IS_EXTRANET_TITLE"] = "External Users";
 $MESS["SONET_GCE_T_PARAMS_CLOSED2"] = "Archived";
 $MESS["SONET_GCE_T_PARAMS_CLOSED2_HINT"] = "Workgroup is archived";
 $MESS["SONET_GCE_T_PARAMS_CLOSED2_HINT_PROJECT"] = "Project is archived";

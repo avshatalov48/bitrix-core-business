@@ -705,7 +705,7 @@ this.BX = this.BX || {};
 	  return Selector;
 	}(main_core_events.EventEmitter);
 
-	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4, _templateObject5, _templateObject6, _templateObject7;
+	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16, _templateObject17, _templateObject18, _templateObject19, _templateObject20, _templateObject21, _templateObject22, _templateObject23, _templateObject24, _templateObject25, _templateObject26, _templateObject27, _templateObject28, _templateObject29, _templateObject30, _templateObject31, _templateObject32, _templateObject33, _templateObject34, _templateObject35, _templateObject36, _templateObject37, _templateObject38, _templateObject39, _templateObject40, _templateObject41, _templateObject42, _templateObject43, _templateObject44, _templateObject45, _templateObject46, _templateObject47, _templateObject48;
 	var Planner = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Planner, _EventEmitter);
 
@@ -762,6 +762,7 @@ this.BX = this.BX || {};
 
 	    _this.config = params;
 	    _this.id = params.id;
+	    _this.dayOfWeekMonthFormat = params.dayOfWeekMonthFormat || 'd F, l';
 	    _this.userId = parseInt(params.userId || main_core.Loc.getMessage('USER_ID'));
 	    _this.DOM.wrap = params.wrap;
 	    _this.SCALE_TIME_FORMAT = BX.isAmPmMode() ? 'g a' : 'G';
@@ -825,11 +826,25 @@ this.BX = this.BX || {};
 	    value: function setConfig(params) {
 	      this.setScaleType(params.scaleType); // showTimelineDayTitle
 
-	      if (params.showTimelineDayTitle !== undefined) this.showTimelineDayTitle = !!params.showTimelineDayTitle;else if (this.showTimelineDayTitle === undefined) this.showTimelineDayTitle = true; // compactMode
+	      if (params.showTimelineDayTitle !== undefined) {
+	        this.showTimelineDayTitle = !!params.showTimelineDayTitle;
+	      } else if (this.showTimelineDayTitle === undefined) {
+	        this.showTimelineDayTitle = true;
+	      } // compactMode
 
-	      if (params.compactMode !== undefined) this.compactMode = !!params.compactMode;else if (this.compactMode === undefined) this.compactMode = false; // readonly
 
-	      if (params.readonly !== undefined) this.readonly = !!params.readonly;else if (this.readonly === undefined) this.readonly = false;
+	      if (params.compactMode !== undefined) {
+	        this.compactMode = !!params.compactMode;
+	      } else if (this.compactMode === undefined) {
+	        this.compactMode = false;
+	      } // readonly
+
+
+	      if (params.readonly !== undefined) {
+	        this.readonly = !!params.readonly;
+	      } else if (this.readonly === undefined) {
+	        this.readonly = false;
+	      }
 
 	      if (this.compactMode) {
 	        var compactHeight = 50;
@@ -838,7 +853,11 @@ this.BX = this.BX || {};
 	      } // Select mode
 
 
-	      if (params.selectEntriesMode !== undefined) this.selectMode = !!params.selectEntriesMode;else if (this.selectMode === undefined) this.selectMode = false;
+	      if (params.selectEntriesMode !== undefined) {
+	        this.selectMode = !!params.selectEntriesMode;
+	      } else if (this.selectMode === undefined) {
+	        this.selectMode = false;
+	      }
 
 	      if (main_core.Type.isInteger(params.SCALE_OFFSET_BEFORE)) {
 	        this.SCALE_OFFSET_BEFORE = parseInt(params.SCALE_OFFSET_BEFORE);
@@ -952,8 +971,13 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "SetLoadedDataLimits",
 	    value: function SetLoadedDataLimits(from, to) {
-	      if (from) this.loadedDataFrom = from.getTime ? from : calendar_util.Util.parseDate(from);
-	      if (to) this.loadedDataTo = to.getTime ? to : calendar_util.Util.parseDate(to);
+	      if (from) {
+	        this.loadedDataFrom = from.getTime ? from : calendar_util.Util.parseDate(from);
+	      }
+
+	      if (to) {
+	        this.loadedDataTo = to.getTime ? to : calendar_util.Util.parseDate(to);
+	      }
 	    }
 	  }, {
 	    key: "extendScaleTime",
@@ -994,11 +1018,11 @@ this.BX = this.BX || {};
 	        throw new TypeError("Wrap is not DOM node");
 	      }
 
-	      this.DOM.wrap.style.width = this.width + 'px'; // Left part - list of users and other resourses
+	      this.DOM.wrap.style.width = this.width + 'px'; // Left part - list of users and other resources
 
 	      var entriesListWidth = this.compactMode ? 0 : this.entriesListWidth; // Timeline with accessibility information
 
-	      this.DOM.mainWrap = this.DOM.wrap.appendChild(BX.create("DIV", {
+	      this.DOM.mainWrap = this.DOM.wrap.appendChild(BX.create('DIV', {
 	        props: {
 	          className: 'calendar-planner-main-container calendar-planner-main-container-resource'
 	        },
@@ -1017,15 +1041,7 @@ this.BX = this.BX || {};
 	        main_core.Dom.addClass(this.DOM.mainWrap, 'calendar-planner-readonly');
 	      }
 
-	      this.DOM.entriesOuterWrap = this.DOM.mainWrap.appendChild(BX.create("DIV", {
-	        props: {
-	          className: 'calendar-planner-user-container'
-	        },
-	        style: {
-	          width: entriesListWidth + 'px',
-	          height: this.height + 'px'
-	        }
-	      }));
+	      this.DOM.entriesOuterWrap = this.DOM.mainWrap.appendChild(main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-planner-user-container\" style=\"width: ", "px; height: ", "px;\"></div>\n\t\t"])), entriesListWidth, this.height));
 	      calendar_util.Util.preventSelection(this.DOM.entriesOuterWrap);
 
 	      if (this.compactMode) {
@@ -1040,68 +1056,27 @@ this.BX = this.BX || {};
 	      }
 
 	      if (this.showEntiesHeader !== false) {
-	        this.DOM.entrieListHeader = this.DOM.entriesOuterWrap.appendChild(BX.create("DIV", {
-	          props: {
-	            className: 'calendar-planner-header'
-	          }
-	        })).appendChild(BX.create("DIV", {
-	          props: {
-	            className: 'calendar-planner-general-info'
-	          }
-	        })).appendChild(BX.create("DIV", {
-	          props: {
-	            className: 'calendar-planner-users-header'
-	          }
-	        }));
-	        this.entriesListTitleCounter = this.DOM.entrieListHeader.appendChild(BX.create("span", {
-	          props: {
-	            className: 'calendar-planner-users-item'
-	          },
-	          text: main_core.Loc.getMessage('EC_PL_ATTENDEES_TITLE') + ' '
-	        })).appendChild(BX.create("span"));
+	        this.DOM.entrieListHeader = this.DOM.entriesOuterWrap.appendChild(main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-header\"></div>\n\t\t\t"])))).appendChild(main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-general-info\"></div>\n\t\t\t"])))).appendChild(main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-users-header\"></div>\n\t\t\t"]))));
+	        this.entriesListTitleCounter = this.DOM.entrieListHeader.appendChild(main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"calendar-planner-users-item\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), main_core.Loc.getMessage('EC_PL_ATTENDEES_TITLE') + ' ')).appendChild(main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<span></span>"]))));
 	      }
 
-	      this.DOM.entrieListWrap = this.DOM.entriesOuterWrap.appendChild(BX.create("DIV", {
-	        props: {
-	          className: 'calendar-planner-user-container-inner'
-	        }
-	      })); // Fixed cont with specific width and height
+	      this.DOM.entrieListWrap = this.DOM.entriesOuterWrap.appendChild(main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-planner-user-container-inner\"></div>\n\t\t"])))); // Fixed cont with specific width and height
 
-	      this.DOM.timelineFixedWrap = this.DOM.mainWrap.appendChild(main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-timeline-wrapper\" style=\"height: ", "px\"></div>\n\t\t"])), this.height));
+	      this.DOM.timelineFixedWrap = this.DOM.mainWrap.appendChild(main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-planner-timeline-wrapper\" style=\"height: ", "px\"></div>\n\t\t"])), this.height));
 
 	      if (this.isLocked()) {
 	        this.lock();
 	      } // Movable cont - used to move scale and data containers easy and at the same time
 
 
-	      this.DOM.timelineInnerWrap = this.DOM.timelineFixedWrap.appendChild(BX.create("DIV", {
-	        props: {
-	          className: 'calendar-planner-timeline-inner-wrapper'
-	        }
-	      }));
-	      this.DOM.timelineInnerWrap.setAttribute('data-bx-planner-meta', 'timeline'); // Scale container
+	      this.DOM.timelineInnerWrap = this.DOM.timelineFixedWrap.appendChild(main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-planner-timeline-inner-wrapper\" data-bx-planner-meta=\"timeline\"></div>\n\t\t"])))); // Scale container
 
-	      this.DOM.timelineScaleWrap = this.DOM.timelineInnerWrap.appendChild(BX.create("DIV", {
-	        props: {
-	          className: 'calendar-planner-time'
-	        }
-	      }));
+	      this.DOM.timelineScaleWrap = this.DOM.timelineInnerWrap.appendChild(main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-planner-time\"></div>\n\t\t"]))));
 	      calendar_util.Util.preventSelection(this.DOM.timelineScaleWrap); // Accessibility container
 
-	      this.DOM.timelineDataWrap = this.DOM.timelineInnerWrap.appendChild(BX.create("DIV", {
-	        props: {
-	          className: 'calendar-planner-timeline-container'
-	        },
-	        style: {
-	          height: this.height + 'px'
-	        }
-	      })); // Container with accessibility entries elements
+	      this.DOM.timelineDataWrap = this.DOM.timelineInnerWrap.appendChild(main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-planner-timeline-container\" style=\"height: ", "px\"></div>\n\t\t"])), this.height)); // Container with accessibility entries elements
 
-	      this.DOM.accessibilityWrap = this.DOM.timelineDataWrap.appendChild(BX.create("DIV", {
-	        props: {
-	          className: 'calendar-planner-acc-wrap'
-	        }
-	      })); // Selector
+	      this.DOM.accessibilityWrap = this.DOM.timelineDataWrap.appendChild(main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-planner-acc-wrap\"></div>\n\t\t"])))); // Selector
 
 	      this.selector = new Selector({
 	        selectMode: this.selectMode,
@@ -1130,26 +1105,16 @@ this.BX = this.BX || {};
 	      this.selector.subscribe('doCheckStatus', this.doCheckSelectorStatus.bind(this));
 
 	      if (this.selectMode) {
-	        this.selectedEntriesWrap = this.DOM.mainWrap.appendChild(BX.create("DIV", {
-	          props: {
-	            className: 'calendar-planner-timeline-select-entries-wrap'
-	          }
-	        }));
-	        this.hoverRow = this.DOM.mainWrap.appendChild(BX.create("DIV", {
-	          props: {
-	            className: 'calendar-planner-timeline-hover-row'
-	          },
-	          style: {
-	            top: 0,
-	            width: parseInt(this.DOM.mainWrap.offsetWidth) + 'px'
-	          }
-	        }));
+	        this.selectedEntriesWrap = this.DOM.mainWrap.appendChild(main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-timeline-select-entries-wrap\"></div>\n\t\t\t"]))));
+	        this.hoverRow = this.DOM.mainWrap.appendChild(main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-timeline-hover-row\" style=\"top: 0; width: ", "px\"></div>\n\t\t\t"])), parseInt(this.DOM.mainWrap.offsetWidth)));
 	        main_core.Event.bind(document, 'mousemove', this.mouseMoveHandler.bind(this));
 	      }
 
 	      if (!this.compactMode) {
-	        this.DOM.settingsButton = this.DOM.mainWrap.appendChild(main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-planner-settings-icon-container\" title=\"", "\"><span class=\"calendar-planner-settings-title\">", "</span><span class=\"calendar-planner-settings-icon\"></span></div>"])), main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE'), main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE')));
-	        main_core.Event.bind(this.DOM.settingsButton, 'click', this.showSettingsPopup.bind(this));
+	        this.DOM.settingsButton = this.DOM.mainWrap.appendChild(main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-planner-settings-icon-container\" title=\"", "\"><span class=\"calendar-planner-settings-title\">", "</span><span class=\"calendar-planner-settings-icon\"></span></div>"])), main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE'), main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE')));
+	        main_core.Event.bind(this.DOM.settingsButton, 'click', function () {
+	          return _this3.showSettingsPopup();
+	        });
 	      }
 
 	      this.built = true;
@@ -1172,22 +1137,10 @@ this.BX = this.BX || {};
 	            if (this.scaleDayTitles[this.scaleData[i].daystamp]) {
 	              cont = this.scaleDayTitles[this.scaleData[i].daystamp];
 	            } else {
-	              outerDayCont = this.DOM.timelineScaleWrap.appendChild(BX.create("DIV", {
-	                props: {
-	                  className: 'calendar-planner-time-day-outer'
-	                }
-	              }));
-	              dayTitle = outerDayCont.appendChild(BX.create("DIV", {
-	                props: {
-	                  className: 'calendar-planner-time-day-title'
-	                },
-	                html: '<span>' + BX.date.format('d F, l', this.scaleData[i].timestamp / 1000) + '</span>' + '<div class="calendar-planner-time-day-border"></div>'
-	              }));
-	              cont = outerDayCont.appendChild(BX.create("DIV", {
-	                props: {
-	                  className: 'calendar-planner-time-day'
-	                }
-	              }));
+	              outerDayCont = this.DOM.timelineScaleWrap.appendChild(main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<div class=\"calendar-planner-time-day-outer\"></div>\n\t\t\t\t\t\t"])))); //F d, l
+
+	              dayTitle = outerDayCont.appendChild(main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<div class=\"calendar-planner-time-day-title\">\n\t\t\t\t\t\t\t\t<span>", "</span>\n\t\t\t\t\t\t\t\t<div class=\"calendar-planner-time-day-border\"></div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t"])), BX.date.format(this.dayOfWeekMonthFormat, this.scaleData[i].timestamp / 1000)));
+	              cont = outerDayCont.appendChild(main_core.Tag.render(_templateObject18 || (_templateObject18 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<div class=\"calendar-planner-time-day\"></div>\n\t\t\t\t\t\t"]))));
 	              this.scaleDayTitles[this.scaleData[i].daystamp] = cont;
 	            }
 	          }
@@ -1198,7 +1151,7 @@ this.BX = this.BX || {};
 	            className += ' calendar-planner-time-hour-bold';
 	          }
 
-	          this.scaleData[i].cell = cont.appendChild(BX.create("DIV", {
+	          this.scaleData[i].cell = cont.appendChild(BX.create('DIV', {
 	            props: {
 	              className: className
 	            },
@@ -1210,11 +1163,7 @@ this.BX = this.BX || {};
 	          }));
 
 	          if (!this.isOneDayScale() && this.scaleData[i + 1] && this.scaleData[i + 1].dayStart) {
-	            cont.appendChild(BX.create("DIV", {
-	              props: {
-	                className: 'calendar-planner-timeline-border'
-	              }
-	            }));
+	            cont.appendChild(main_core.Tag.render(_templateObject19 || (_templateObject19 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<div class=\"calendar-planner-timeline-border\"></div>\n\t\t\t\t\t"]))));
 	          }
 	        }
 
@@ -1387,7 +1336,7 @@ this.BX = this.BX || {};
 	      if (!hidden) {
 	        var fromPos = this.getPosByDate(from),
 	            toPos = this.getPosByDate(to);
-	        entry.node = wrap.appendChild(BX.create("DIV", {
+	        entry.node = wrap.appendChild(BX.create('DIV', {
 	          props: {
 	            className: 'calendar-planner-acc-entry' + (entry.type && entry.type === 'hr' ? ' calendar-planner-acc-entry-hr' : '')
 	          },
@@ -1411,61 +1360,27 @@ this.BX = this.BX || {};
 	      var rowWrap;
 
 	      if (entry.type === 'moreLink') {
-	        rowWrap = this.DOM.entrieListWrap.appendChild(BX.create('DIV', {
-	          props: {
-	            className: 'calendar-planner-user'
-	          }
-	        }));
+	        rowWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_templateObject20 || (_templateObject20 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-user\"></div>\n\t\t\t"]))));
 
 	        if (this.showEntryName) {
-	          this.DOM.showMoreUsersLink = rowWrap.appendChild(BX.create("DIV", {
-	            props: {
-	              className: 'calendar-planner-all-users',
-	              title: entry.title || ''
-	            },
-	            text: entry.name,
-	            events: {
-	              'click': this.showMoreUsers.bind(this)
-	            }
-	          }));
+	          this.DOM.showMoreUsersLink = rowWrap.appendChild(main_core.Tag.render(_templateObject21 || (_templateObject21 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-planner-all-users\" title=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), entry.title || '', entry.name));
 	        } else {
-	          this.DOM.showMoreUsersLink = rowWrap.appendChild(BX.create("DIV", {
-	            props: {
-	              className: 'calendar-planner-users-more',
-	              title: entry.name
-	            },
-	            html: '<span class="calendar-planner-users-more-btn"></span>',
-	            events: {
-	              'click': this.showMoreUsers.bind(this)
-	            }
-	          }));
+	          this.DOM.showMoreUsersLink = rowWrap.appendChild(main_core.Tag.render(_templateObject22 || (_templateObject22 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-planner-users-more\" title=\"", "\">\n\t\t\t\t\t\t<span class=\"calendar-planner-users-more-btn\"></span>\n\t\t\t\t\t</div>\n\t\t\t\t"])), entry.name || ''));
 	        }
+
+	        main_core.Event.bind(this.DOM.showMoreUsersLink, 'click', function () {
+	          return _this5.showMoreUsers();
+	        });
 	      } else if (entry.type === 'lastUsers') {
-	        rowWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {
-	          props: {
-	            className: 'calendar-planner-user'
-	          }
-	        }));
+	        rowWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_templateObject23 || (_templateObject23 = babelHelpers.taggedTemplateLiteral(["\t\n\t\t\t\t<div class=\"calendar-planner-user\"></div>\n\t\t\t"]))));
 
 	        if (this.showEntryName) {
-	          this.DOM.showMoreUsersLink = rowWrap.appendChild(BX.create("DIV", {
-	            props: {
-	              className: 'calendar-planner-all-users calendar-planner-last-users',
-	              title: entry.title || ''
-	            },
-	            text: entry.name
-	          }));
+	          this.DOM.showMoreUsersLink = rowWrap.appendChild(main_core.Tag.render(_templateObject24 || (_templateObject24 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-planner-all-users calendar-planner-last-users\" title=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), entry.title || '', entry.name));
 	        } else {
-	          this.DOM.showMoreUsersLink = rowWrap.appendChild(BX.create("DIV", {
-	            props: {
-	              className: 'calendar-planner-users-more',
-	              title: entry.title || entry.name
-	            },
-	            html: '<span class="calendar-planner-users-last-btn"></span>'
-	          }));
+	          this.DOM.showMoreUsersLink = rowWrap.appendChild(main_core.Tag.render(_templateObject25 || (_templateObject25 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-planner-users-more\" title=\"", "\">\n\t\t\t\t\t\t<span class=\"calendar-planner-users-last-btn\"></span>\n\t\t\t\t\t</div>\n\t\t\t\t"])), entry.title || entry.name));
 	        }
 	      } else if (entry.id && entry.type === 'user') {
-	        rowWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {
+	        rowWrap = this.DOM.entrieListWrap.appendChild(BX.create('DIV', {
 	          attrs: {
 	            'data-bx-planner-entry': entry.uid,
 	            className: 'calendar-planner-user' + (entry.emailUser ? ' calendar-planner-email-user' : '')
@@ -1473,7 +1388,7 @@ this.BX = this.BX || {};
 	        }));
 
 	        if (entry.status && this.entryStatusMap[entry.status]) {
-	          rowWrap.appendChild(BX.create("span", {
+	          rowWrap.appendChild(BX.create('SPAN', {
 	            props: {
 	              className: 'calendar-planner-user-status-icon ' + this.entryStatusMap[entry.status],
 	              title: main_core.Loc.getMessage('EC_PL_STATUS_' + entry.status.toUpperCase())
@@ -1484,11 +1399,7 @@ this.BX = this.BX || {};
 	        rowWrap.appendChild(Planner.getEntryAvatarNode(entry));
 
 	        if (this.showEntryName) {
-	          rowWrap.appendChild(BX.create("span", {
-	            props: {
-	              className: 'calendar-planner-user-name'
-	            }
-	          })).appendChild(BX.create("span", {
+	          rowWrap.appendChild(main_core.Tag.render(_templateObject26 || (_templateObject26 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"calendar-planner-user-name\"></span>\n\t\t\t\t"])))).appendChild(BX.create('SPAN', {
 	            props: {
 	              className: 'calendar-planner-entry-name'
 	            },
@@ -1503,100 +1414,35 @@ this.BX = this.BX || {};
 	          }));
 	        }
 	      } else if (entry.id && entry.type === 'room') {
-	        rowWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {
-	          props: {
-	            className: 'calendar-planner-user'
-	          }
-	        }));
+	        rowWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_templateObject27 || (_templateObject27 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-user\"></div>\n\t\t\t"]))));
 
 	        if (this.showEntryName) {
-	          rowWrap.appendChild(BX.create("span", {
-	            props: {
-	              className: 'calendar-planner-user-name'
-	            }
-	          })).appendChild(BX.create("span", {
-	            props: {
-	              className: 'calendar-planner-entry-name'
-	            },
-	            style: {
-	              width: this.entriesListWidth - 20 + 'px'
-	            },
-	            text: entry.name
-	          }));
+	          rowWrap.appendChild(main_core.Tag.render(_templateObject28 || (_templateObject28 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"calendar-planner-user-name\"></span>\n\t\t\t\t"])))).appendChild(main_core.Tag.render(_templateObject29 || (_templateObject29 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"calendar-planner-entry-name\" style=\"width: ", "px;\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t"])), this.entriesListWidth - 20, entry.name));
 	        } else {
-	          rowWrap.appendChild(BX.create("DIV", {
-	            props: {
-	              className: 'calendar-planner-location-image-icon',
-	              title: entry.name
-	            }
-	          }));
+	          rowWrap.appendChild(main_core.Tag.render(_templateObject30 || (_templateObject30 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-planner-location-image-icon\" title=\"", "\"></div>\n\t\t\t\t"])), entry.name));
 	        }
 	      } else if (entry.type === 'resource') {
 	        if (!this.entriesResourceListWrap || !BX.isNodeInDom(this.entriesResourceListWrap)) {
-	          this.entriesResourceListWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {
-	            props: {
-	              className: 'calendar-planner-container-resource'
-	            },
-	            html: '<div class="calendar-planner-resource-header"><span class="calendar-planner-users-item">' + main_core.Loc.getMessage('EC_PL_RESOURCE_TITLE') + '</span></div>'
-	          }));
+	          this.entriesResourceListWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_templateObject31 || (_templateObject31 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-planner-container-resource\">\n\t\t\t\t\t\t<div class=\"calendar-planner-resource-header\">\n\t\t\t\t\t\t\t<span class=\"calendar-planner-users-item\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('EC_PL_RESOURCE_TITLE')));
 	        }
 
-	        rowWrap = this.entriesResourceListWrap.appendChild(BX.create("DIV", {
-	          attrs: {
-	            'data-bx-planner-entry': entry.uid,
-	            className: 'calendar-planner-user'
-	          }
-	        }));
+	        rowWrap = this.entriesResourceListWrap.appendChild(main_core.Tag.render(_templateObject32 || (_templateObject32 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-user\" data-bx-planner-entry=\"", "\"></div>\n\t\t\t"])), entry.uid));
 
 	        if (this.showEntryName) {
-	          rowWrap.appendChild(BX.create("span", {
-	            props: {
-	              className: 'calendar-planner-user-name'
-	            }
-	          })).appendChild(BX.create("span", {
-	            props: {
-	              className: 'calendar-planner-entry-name'
-	            },
-	            style: {
-	              width: this.entriesListWidth - 20 + 'px'
-	            },
-	            text: entry.name
-	          }));
+	          rowWrap.appendChild(main_core.Tag.render(_templateObject33 || (_templateObject33 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"calendar-planner-user-name\"></span>\n\t\t\t\t"])))).appendChild(main_core.Tag.render(_templateObject34 || (_templateObject34 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"calendar-planner-entry-name\" style=\"width: ", "px;\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t<span>\n\t\t\t\t"])), this.entriesListWidth - 20, entry.name));
 	        } else {
-	          rowWrap.appendChild(BX.create("DIV", {
-	            props: {
-	              className: 'calendar-planner-location-image-icon',
-	              title: entry.name
-	            }
-	          }));
+	          rowWrap.appendChild(main_core.Tag.render(_templateObject35 || (_templateObject35 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-planner-location-image-icon\" title=\"", "\"></div>\n\t\t\t\t"])), entry.name));
 	        }
 	      } else {
-	        rowWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {
-	          props: {
-	            className: 'calendar-planner-user'
-	          }
-	        }));
-	        rowWrap.appendChild(BX.create("DIV", {
-	          props: {
-	            className: 'calendar-planner-all-users'
-	          },
-	          text: entry.name
-	        }));
+	        rowWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_templateObject36 || (_templateObject36 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-user\"></div>\n\t\t\t"]))));
+	        rowWrap.appendChild(main_core.Tag.render(_templateObject37 || (_templateObject37 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-all-users\">", "</div>\n\t\t\t"])), entry.name));
 	      }
 
 	      var top = rowWrap.offsetTop + 13;
-	      var dataRowWrap = this.DOM.accessibilityWrap.appendChild(main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-planner-timeline-space\" style=\"top:", "px\" data-bx-planner-entry=\"", "\"></div>"])), top, entry.uid || 0));
+	      var dataRowWrap = this.DOM.accessibilityWrap.appendChild(main_core.Tag.render(_templateObject38 || (_templateObject38 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-planner-timeline-space\" style=\"top:", "px\" data-bx-planner-entry=\"", "\"></div>\n\t\t"])), top, entry.uid || 0));
 
 	      if (this.selectMode) {
-	        entry.selectorControlWrap = this.selector.controlWrap.appendChild(BX.create("DIV", {
-	          attrs: {
-	            'data-bx-planner-entry': entry.uid,
-	            className: 'calendar-planner-selector-control-row'
-	          },
-	          style: {
-	            top: top - 4 + 'px'
-	          }
-	        }));
+	        entry.selectorControlWrap = this.selector.controlWrap.appendChild(main_core.Tag.render(_templateObject39 || (_templateObject39 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-selector-control-row\" data-bx-planner-entry=\"", "\" style=\"top: ", "px;\"></div>\n\t\t\t"])), entry.uid, top - 4));
 
 	        if (entry.selected) {
 	          this.selectEntryRow(entry);
@@ -1620,11 +1466,7 @@ this.BX = this.BX || {};
 	        var top = parseInt(entry.dataRowWrap.offsetTop);
 
 	        if (!entry.selectWrap || !BX.isParentForNode(this.selectedEntriesWrap, entry.selectWrap)) {
-	          entry.selectWrap = this.selectedEntriesWrap.appendChild(BX.create("DIV", {
-	            props: {
-	              className: 'calendar-planner-timeline-selected'
-	            }
-	          }));
+	          entry.selectWrap = this.selectedEntriesWrap.appendChild(main_core.Tag.render(_templateObject40 || (_templateObject40 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-planner-timeline-selected\"></div>\n\t\t\t\t"]))));
 	        }
 
 	        entry.selectWrap.style.display = '';
@@ -2178,82 +2020,85 @@ this.BX = this.BX || {};
 
 	      this.entries = entries;
 	      this.accessibility = accessibility;
-	      var userId = parseInt(this.userId); // Compact mode
+	      var userId = parseInt(this.userId); // sort entries list by amount of accessibility data
+	      // Entries without accessibility data should be in the end of the array
+	      // But first in the list will be meeting room
+	      // And second (or first) will be owner-host of the event
 
-	      if (this.compactMode) ; else {
-	        // sort entries list by amount of accessibilities data
-	        // Enties without accessibilitity data should be in the end of the array
-	        // But first in the list will be meeting room
-	        // And second (or first) will be owner-host of the event
-	        entries.sort(function (a, b) {
-	          if (b.status === 'h' || parseInt(b.id) === userId && a.status !== 'h') return 1;
-	          if (a.status === 'h' || parseInt(a.id) === userId && b.status !== 'h') return -1;
-	          return 0;
-	        });
-
-	        if (this.selectedEntriesWrap) {
-	          main_core.Dom.clean(this.selectedEntriesWrap);
-
-	          if (this.selector && this.selector.controlWrap) {
-	            main_core.Dom.clean(this.selector.controlWrap);
-	          }
+	      entries.sort(function (a, b) {
+	        if (b.status === 'h' || parseInt(b.id) === userId && a.status !== 'h') {
+	          return 1;
 	        }
 
-	        var cutData = [],
-	            usersCount = 0,
-	            cutAmount = 0,
-	            dispDataCount = 0,
-	            cutDataTitle = [];
-	        entries.forEach(function (entry, ind) {
-	          entry.uid = Planner.getEntryUniqueId(entry);
-	          var accData = main_core.Type.isArray(accessibility[entry.uid]) ? accessibility[entry.uid] : [];
-
-	          _this8.entriesIndex.set(entry.uid, entry);
-
-	          if (entry.type === 'user') {
-	            usersCount++;
-	          }
-
-	          if (ind < _this8.MIN_ENTRY_ROWS || entries.length === _this8.MIN_ENTRY_ROWS + 1) {
-	            dispDataCount++;
-
-	            _this8.displayEntryRow(entry, accData);
-	          } else {
-	            cutAmount++;
-	            cutDataTitle.push(entry.name);
-	            accData.forEach(function (item) {
-	              item = Planner.prepareAccessibilityItem(item);
-
-	              if (item) {
-	                cutData.push(item);
-	              }
-	            });
-	          }
-	        }); // Update entries title count
-
-	        if (this.entriesListTitleCounter) {
-	          this.entriesListTitleCounter.innerHTML = usersCount > this.MAX_ENTRY_ROWS ? '(' + usersCount + ')' : '';
+	        if (a.status === 'h' || parseInt(a.id) === userId && b.status !== 'h') {
+	          return -1;
 	        }
 
-	        this.emit('onDisplayAttendees', new main_core_events.BaseEvent({
-	          data: {
-	            usersCount: usersCount
-	          }
-	        }));
+	        return 0;
+	      });
 
-	        if (cutAmount > 0) {
-	          if (dispDataCount === this.MAX_ENTRY_ROWS) {
-	            this.displayEntryRow({
-	              name: main_core.Loc.getMessage('EC_PL_ATTENDEES_LAST') + ' (' + cutAmount + ')',
-	              type: 'lastUsers',
-	              title: cutDataTitle.join(', ')
-	            }, cutData);
-	          } else {
-	            this.displayEntryRow({
-	              name: main_core.Loc.getMessage('EC_PL_ATTENDEES_SHOW_MORE') + ' (' + cutAmount + ')',
-	              type: 'moreLink'
-	            }, cutData);
-	          }
+	      if (this.selectedEntriesWrap) {
+	        main_core.Dom.clean(this.selectedEntriesWrap);
+
+	        if (this.selector && this.selector.controlWrap) {
+	          main_core.Dom.clean(this.selector.controlWrap);
+	        }
+	      }
+
+	      var cutData = [];
+	      var cutDataTitle = [];
+	      var usersCount = 0;
+	      var cutAmount = 0;
+	      var dispDataCount = 0;
+	      entries.forEach(function (entry, ind) {
+	        entry.uid = Planner.getEntryUniqueId(entry);
+	        var accData = main_core.Type.isArray(accessibility[entry.uid]) ? accessibility[entry.uid] : [];
+
+	        _this8.entriesIndex.set(entry.uid, entry);
+
+	        if (entry.type === 'user') {
+	          usersCount++;
+	        }
+
+	        if (ind < _this8.MIN_ENTRY_ROWS || entries.length === _this8.MIN_ENTRY_ROWS + 1) {
+	          dispDataCount++;
+
+	          _this8.displayEntryRow(entry, accData);
+	        } else {
+	          cutAmount++;
+	          cutDataTitle.push(entry.name);
+	          accData.forEach(function (item) {
+	            item = Planner.prepareAccessibilityItem(item);
+
+	            if (item) {
+	              cutData.push(item);
+	            }
+	          });
+	        }
+	      }); // Update entries title count
+
+	      if (this.entriesListTitleCounter) {
+	        this.entriesListTitleCounter.innerHTML = usersCount > this.MAX_ENTRY_ROWS ? '(' + usersCount + ')' : '';
+	      }
+
+	      this.emit('onDisplayAttendees', new main_core_events.BaseEvent({
+	        data: {
+	          usersCount: usersCount
+	        }
+	      }));
+
+	      if (cutAmount > 0) {
+	        if (dispDataCount === this.MAX_ENTRY_ROWS) {
+	          this.displayEntryRow({
+	            name: main_core.Loc.getMessage('EC_PL_ATTENDEES_LAST') + ' (' + cutAmount + ')',
+	            type: 'lastUsers',
+	            title: cutDataTitle.join(', ')
+	          }, cutData);
+	        } else {
+	          this.displayEntryRow({
+	            name: main_core.Loc.getMessage('EC_PL_ATTENDEES_SHOW_MORE') + ' (' + cutAmount + ')',
+	            type: 'moreLink'
+	          }, cutData);
 	        }
 	      }
 
@@ -2583,22 +2428,9 @@ this.BX = this.BX || {};
 	    value: function showSettingsPopup() {
 	      var _this11 = this;
 
-	      var settingsDialogCont = BX.create('DIV', {
-	        props: {
-	          className: 'calendar-planner-settings-popup'
-	        }
-	      }),
-	          scaleRow = settingsDialogCont.appendChild(BX.create('DIV', {
-	        props: {
-	          className: 'calendar-planner-settings-row'
-	        },
-	        html: '<i>' + main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE') + ':</i>'
-	      })),
-	          scaleWrap = scaleRow.appendChild(BX.create('span', {
-	        props: {
-	          className: 'calendar-planner-option-container'
-	        }
-	      }));
+	      var settingsDialogCont = main_core.Tag.render(_templateObject41 || (_templateObject41 = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-planner-settings-popup\"></div>"])));
+	      var scaleRow = settingsDialogCont.appendChild(main_core.Tag.render(_templateObject42 || (_templateObject42 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-planner-settings-row\">\n\t\t\t\t<i>", ":</i>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE')));
+	      var scaleWrap = scaleRow.appendChild(main_core.Tag.render(_templateObject43 || (_templateObject43 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"calendar-planner-option-container\"></span>\n\t\t"]))));
 
 	      if (this.fullDayMode) {
 	        scaleRow.title = main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE_READONLY_TITLE');
@@ -2606,7 +2438,7 @@ this.BX = this.BX || {};
 	      }
 
 	      this.scaleTypes.forEach(function (scale) {
-	        scaleWrap.appendChild(main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-planner-option-tab ", "\" data-bx-planner-scale=\"", "\">", "</span>"])), scale === _this11.scaleType ? ' calendar-planner-option-tab-active' : '', scale, main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE_' + scale.toUpperCase())));
+	        scaleWrap.appendChild(main_core.Tag.render(_templateObject44 || (_templateObject44 = babelHelpers.taggedTemplateLiteral(["<span class=\"calendar-planner-option-tab ", "\" data-bx-planner-scale=\"", "\">", "</span>"])), scale === _this11.scaleType ? ' calendar-planner-option-tab-active' : '', scale, main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE_' + scale.toUpperCase())));
 	      }); // Create and show settings popup
 
 	      var popup = main_popup.PopupWindowManager.create(this.id + "-settings-popup", this.DOM.settingsButton, {
@@ -2664,12 +2496,7 @@ this.BX = this.BX || {};
 	    key: "showProposeControl",
 	    value: function showProposeControl() {
 	      if (!this.DOM.proposeTimeButton) {
-	        this.DOM.proposeTimeButton = this.DOM.mainWrap.appendChild(BX.create("DIV", {
-	          props: {
-	            className: 'calendar-planner-time-arrow-right'
-	          },
-	          html: '<span class="calendar-planner-time-arrow-right-text">' + main_core.Loc.getMessage('EC_PL_PROPOSE') + '</span><span class="calendar-planner-time-arrow-right-item"></span>'
-	        }));
+	        this.DOM.proposeTimeButton = this.DOM.mainWrap.appendChild(main_core.Tag.render(_templateObject45 || (_templateObject45 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-time-arrow-right\">\n\t\t\t\t\t<span class=\"calendar-planner-time-arrow-right-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class=\"calendar-planner-time-arrow-right-item\"></span>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('EC_PL_PROPOSE')));
 	        main_core.Event.bind(this.DOM.proposeTimeButton, 'click', this.proposeTime.bind(this));
 	      }
 
@@ -2785,7 +2612,7 @@ this.BX = this.BX || {};
 	    key: "lock",
 	    value: function lock() {
 	      if (!this.DOM.lockScreen) {
-	        this.DOM.lockScreen = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-timeline-locker\">\n\t\t\t\t\t<div class=\"calendar-planner-timeline-locker-container\">\n\t\t\t\t\t\t<div class=\"calendar-planner-timeline-locker-top\">\n\t\t\t\t\t\t\t<div class=\"calendar-planner-timeline-locker-icon\"></div>\n\t\t\t\t\t\t\t<div class=\"calendar-planner-timeline-text\">", "</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"calendar-planner-timeline-locker-button\">\n\t\t\t\t\t\t\t<a href=\"javascript:void(0)\" onclick=\"top.BX.UI.InfoHelper.show('limit_crm_calender_planner');\" class=\"ui-btn ui-btn-sm ui-btn-light-border ui-btn-round\">", "</a>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('EC_PL_LOCKED_TITLE'), main_core.Loc.getMessage('EC_PL_UNLOCK_FEATURE'));
+	        this.DOM.lockScreen = main_core.Tag.render(_templateObject46 || (_templateObject46 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-timeline-locker\">\n\t\t\t\t\t<div class=\"calendar-planner-timeline-locker-container\">\n\t\t\t\t\t\t<div class=\"calendar-planner-timeline-locker-top\">\n\t\t\t\t\t\t\t<div class=\"calendar-planner-timeline-locker-icon\"></div>\n\t\t\t\t\t\t\t<div class=\"calendar-planner-timeline-text\">", "</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"calendar-planner-timeline-locker-button\">\n\t\t\t\t\t\t\t<a href=\"javascript:void(0)\" onclick=\"top.BX.UI.InfoHelper.show('limit_crm_calender_planner');\" class=\"ui-btn ui-btn-sm ui-btn-light-border ui-btn-round\">", "</a>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('EC_PL_LOCKED_TITLE'), main_core.Loc.getMessage('EC_PL_UNLOCK_FEATURE'));
 	      }
 
 	      main_core.Dom.addClass(this.DOM.timelineFixedWrap, '--lock');
@@ -2832,9 +2659,9 @@ this.BX = this.BX || {};
 	      var img = entry.avatar;
 
 	      if (!img || img === "/bitrix/images/1.gif") {
-	        imageNode = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<div bx-tooltip-user-id=\"", "\" bx-tooltip-classname=\"calendar-planner-user-tooltip\" title=\"", "\" class=\"ui-icon calendar-planner-user-image-icon ", "\"><i></i></div>"])), entry.id, main_core.Text.encode(entry.name), entry.emailUser ? 'ui-icon-common-user-mail' : 'ui-icon-common-user');
+	        imageNode = main_core.Tag.render(_templateObject47 || (_templateObject47 = babelHelpers.taggedTemplateLiteral(["<div bx-tooltip-user-id=\"", "\" bx-tooltip-classname=\"calendar-planner-user-tooltip\" title=\"", "\" class=\"ui-icon calendar-planner-user-image-icon ", "\"><i></i></div>"])), entry.id, main_core.Text.encode(entry.name), entry.emailUser ? 'ui-icon-common-user-mail' : 'ui-icon-common-user');
 	      } else {
-	        imageNode = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div bx-tooltip-user-id=\"", "\" bx-tooltip-classname=\"calendar-planner-user-tooltip\" title=\"", "\" class=\"ui-icon calendar-planner-user-image-icon\"><i style=\"background-image: url('", "')\"></i></div>"])), entry.id, main_core.Text.encode(entry.name), entry.avatar);
+	        imageNode = main_core.Tag.render(_templateObject48 || (_templateObject48 = babelHelpers.taggedTemplateLiteral(["<div bx-tooltip-user-id=\"", "\" bx-tooltip-classname=\"calendar-planner-user-tooltip\" title=\"", "\" class=\"ui-icon calendar-planner-user-image-icon\"><i style=\"background-image: url('", "')\"></i></div>"])), entry.id, main_core.Text.encode(entry.name), entry.avatar);
 	      }
 
 	      return imageNode;

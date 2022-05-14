@@ -11,6 +11,8 @@ use \Bitrix\Landing\Site\Type;
 use \Bitrix\Landing\Syspage;
 use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\Rights;
+use Bitrix\Landing\Update\Block\DuplicateImages;
+use Bitrix\Main\Event;
 use \Bitrix\Main\EventManager;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Landing\Source\Selector;
@@ -606,6 +608,26 @@ class LandingViewComponent extends LandingBaseComponent
 	}
 
 	/**
+	 * Handler on view block
+	 * @return void
+	 */
+	protected function onBlockEditView(): void
+	{
+		$eventManager = EventManager::getInstance();
+		$eventManager->addEventHandler('landing', 'onBlockEditView',
+			function(Event $event)
+			{
+				$blockUpdater = new DuplicateImages(null, [
+					'block' => $event->getParameter('block'),
+					'content' => $event->getParameter('outputContent'),
+				]);
+
+				return $blockUpdater->update(false);
+			}
+		);
+	}
+
+	/**
 	 * Handler on view landing.
 	 * @return void
 	 */
@@ -618,7 +640,7 @@ class LandingViewComponent extends LandingBaseComponent
 		$arResult = $this->arResult;
 		$eventManager = EventManager::getInstance();
 		$eventManager->addEventHandler('landing', 'onLandingView',
-			function(\Bitrix\Main\Event $event) use ($type, $params, $arResult, $landing, $site)
+			function(Event $event) use ($type, $params, $arResult, $landing, $site)
 			{
 				/** @var \Bitrix\Landing\Landing $landing */
 				$result = new \Bitrix\Main\Entity\EventResult;
@@ -1313,6 +1335,7 @@ class LandingViewComponent extends LandingBaseComponent
 					}
 				}
 
+				$this->onBlockEditView();
 				$this->onLandingView();
 				$this->onEpilog();
 			}

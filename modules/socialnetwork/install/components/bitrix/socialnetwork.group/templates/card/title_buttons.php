@@ -10,6 +10,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI;
 use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\UserToGroupTable;
 
 UI\Extension::load("ui.buttons");
 UI\Extension::load("ui.buttons.icons");
@@ -50,6 +51,10 @@ if (Loader::includeModule('bitrix24'))
 	});
 </script>
 <div class="socialnetwork-group-title-buttons">
-	<button class="ui-btn ui-btn-light-border ui-btn-dropdown ui-btn-themes" id="group_card_menu_button"><?=Loc::getMessage("SONET_SGCS_T_ACTIONS_BUTTON");?></button>
-	<button id="group_card_subscribe_button" class="ui-btn ui-btn-light-border ui-btn-themes<?=($arResult['bSubscribed'] ? ' ui-btn-active ui-btn-icon-unfollow' : ' ui-btn-icon-follow ')?>"><?=Loc::getMessage("SONET_SGCS_T_SUBSCRIBE_BUTTON_".($arResult['bSubscribed'] ? "Y" : "N"));?></button>
+	<button class="ui-btn ui-btn-light-border ui-btn-dropdown ui-btn-themes" id="group_card_menu_button"><?= Loc::getMessage('SONET_SGCS_T_ACTIONS_BUTTON') ?></button><?php
+	if (in_array($arResult['CurrentUserPerms']['UserRole'], UserToGroupTable::getRolesMember(), true))
+	{
+		?><button id="group_card_subscribe_button" class="ui-btn ui-btn-light-border ui-btn-themes<?= ($arResult['bSubscribed'] ? ' ui-btn-active ui-btn-icon-unfollow' : ' ui-btn-icon-follow ') ?>"><?= Loc::getMessage("SONET_SGCS_T_SUBSCRIBE_BUTTON_" . ($arResult['bSubscribed'] ? 'Y' : 'N')) ?></button><?php
+	}
+	?>
 </div>

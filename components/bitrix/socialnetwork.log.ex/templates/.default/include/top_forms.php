@@ -88,7 +88,7 @@ if (
 		"CHECK_PERMISSIONS_DEST" => $arParams["CHECK_PERMISSIONS_DEST"],
 		"TOP_TABS_VISIBLE" => (array_key_exists("TOP_TABS_VISIBLE", $arParams) ? $arParams["TOP_TABS_VISIBLE"] : "Y"),
 		"SHOW_BLOG_FORM_TARGET" => $arResult["FORM_TARGET_ID"] === false,
-		"SELECTOR_VERSION" => 2
+		"SELECTOR_VERSION" => 3,
 	];
 
 	if ($arParams["ENTITY_TYPE"] === SONET_ENTITY_GROUP)

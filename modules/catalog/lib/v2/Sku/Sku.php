@@ -70,7 +70,10 @@ class Sku extends BaseSku
 		// ToDo check for correct parent iblock for iblockelemententities!
 		parent::setParentCollection($collection);
 
-		$this->checkProductLink();
+		if ($this->isNew())
+		{
+			$this->checkProductLink();
+		}
 
 		return $this;
 	}
@@ -155,9 +158,10 @@ class Sku extends BaseSku
 
 	public function saveInternalEntity(): Result
 	{
+		$isNeedCheckProductLinkAfterSaving = $this->isNew();
 		$result = parent::saveInternalEntity();
 
-		if ($result->isSuccess())
+		if ($isNeedCheckProductLinkAfterSaving && $result->isSuccess())
 		{
 			$this->checkProductLink();
 		}

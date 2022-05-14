@@ -7491,12 +7491,7 @@ window._main_polyfill_core = true;
 
 	      aliases = Type.isPlainObject(aliases) ? EventEmitter.normalizeAliases(aliases) : {};
 	      Object.keys(options).forEach(function (eventName) {
-	        var listener = options[eventName];
-
-	        if (!Type.isFunction(listener)) {
-	          throw new TypeError("The \"listener\" argument must be of type Function. Received type ".concat(babelHelpers["typeof"](listener), "."));
-	        }
-
+	        var listener = EventEmitter.normalizeListener(options[eventName]);
 	        eventName = EventEmitter.normalizeEventName(eventName);
 
 	        if (aliases[eventName]) {
@@ -7827,10 +7822,7 @@ window._main_polyfill_core = true;
 	        throw new TypeError("The \"eventName\" argument must be a string.");
 	      }
 
-	      if (!Type.isFunction(listener)) {
-	        throw new TypeError("The \"listener\" argument must be of type Function. Received type ".concat(babelHelpers["typeof"](listener), "."));
-	      }
-
+	      listener = this.normalizeListener(listener);
 	      options = Type.isPlainObject(options) ? options : {};
 	      var fullEventName = this.resolveEventName(eventName, target, options.useGlobalNaming === true);
 
@@ -7888,10 +7880,7 @@ window._main_polyfill_core = true;
 	        throw new TypeError("The \"eventName\" argument must be a string.");
 	      }
 
-	      if (!Type.isFunction(listener)) {
-	        throw new TypeError("The \"listener\" argument must be of type Function. Received type ".concat(babelHelpers["typeof"](listener), "."));
-	      }
-
+	      listener = this.normalizeListener(listener);
 	      var fullEventName = this.resolveEventName(eventName, target);
 
 	      var _eventStore$getOrAdd2 = eventStore.getOrAdd(target),
@@ -7936,10 +7925,7 @@ window._main_polyfill_core = true;
 	        throw new TypeError("The \"eventName\" argument must be a string.");
 	      }
 
-	      if (!Type.isFunction(listener)) {
-	        throw new TypeError("The \"listener\" argument must be of type Function. Received type ".concat(typeof event === "undefined" ? "undefined" : babelHelpers["typeof"](event), "."));
-	      }
-
+	      listener = this.normalizeListener(listener);
 	      options = Type.isPlainObject(options) ? options : {};
 	      var fullEventName = this.resolveEventName(eventName, target, options.useGlobalNaming === true);
 	      var targetInfo = eventStore.get(target);
@@ -8433,6 +8419,23 @@ window._main_polyfill_core = true;
 	      }
 
 	      return eventName.toLowerCase();
+	    }
+	    /**
+	     * @private
+	     */
+
+	  }, {
+	    key: "normalizeListener",
+	    value: function normalizeListener(listener) {
+	      if (Type.isString(listener)) {
+	        listener = Reflection.getClass(listener);
+	      }
+
+	      if (!Type.isFunction(listener)) {
+	        throw new TypeError("The \"listener\" argument must be of type Function. Received type ".concat(babelHelpers["typeof"](listener), "."));
+	      }
+
+	      return listener;
 	    }
 	    /**
 	     * @private

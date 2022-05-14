@@ -199,6 +199,13 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 
 		$this->rememberCurrentMailboxId($this->mailbox['ID']);
 
+		$this->arResult['CONFIG_SYNC_DIRS'] = $this->mailboxHelper->getDirsHelper()->getSyncDirs();
+
+		if(empty($this->arResult['CONFIG_SYNC_DIRS']))
+		{
+			Mail\Helper::setMailboxUnseenCounter($this->mailbox['ID'],0);
+		}
+
 		$this->arResult['userHasCrmActivityPermission'] = Main\Loader::includeModule('crm') && \CCrmPerms::isAccessEnabled();
 
 		$mailboxesUnseen = \Bitrix\Mail\Helper\Message::getTotalUnseenForMailboxes(
@@ -553,7 +560,6 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 		];
 
 		$this->arResult['MAX_ALLOWED_CONNECTED_MAILBOXES'] = Mail\Helper\LicenseManager::getUserMailboxesLimit();
-		$this->arResult['CONFIG_SYNC_DIRS'] = $this->mailboxHelper->getDirsHelper()->getSyncDirs();
 
 		$this->includeComponentTemplate();
 	}
@@ -620,35 +626,29 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 				('<span class="mail-msg-from-title">'.FormatDate($dateDisplayFormat, $fieldDateInTimeStamp, (time() + \CTimeZone::getOffset())).'</span>')
 			);
 
-			$columns['FROM'] = sprintf('<a href="%s"
-			onclick="
-					BX.onCustomEvent(`mail:openMessageForView`,[{
-					id: `'.htmlspecialcharsbx($item['MID']).'`
-				}]);
-			"
-			class="mail-msg-from-title">'.htmlspecialcharsbx($item['FIELD_FROM']).'</span>',
-				htmlspecialcharsbx(
-					\CComponentEngine::makePathFromTemplate(
-					$this->arParams['PATH_TO_MAIL_MSG_VIEW'],
-					['id' => $item['MID']]
-					)
-				)
-			);
 			$columns['SUBJECT'] = htmlspecialcharsbx(
 				$item['SUBJECT'] ? : Loc::getMessage('MAIL_MESSAGE_EMPTY_SUBJECT_PLACEHOLDER')
 			);
 
-			$from = new \Bitrix\Main\Mail\Address(current(explode(',', $item['FIELD_FROM'])));
+			$from = new \Bitrix\Main\Mail\Address($item['FIELD_FROM']);
 			if ($from->validate())
 			{
-				// @TODO: outcome folders
+				//Outcome message
 				if ($from->getEmail() == $this->mailbox['EMAIL'] && !empty($item['FIELD_TO']))
 				{
-					$columns['FROM'] = '<span class="mail-msg-from-title">'.
-						htmlspecialcharsbx($item['FIELD_TO']).
-					'</span>';
+					$columns['FROM'] = htmlspecialcharsbx($item['FIELD_TO']);
 
-					$from = new \Bitrix\Main\Mail\Address(current(explode(',', $item['FIELD_TO'])));
+					//'email@email' => 'email@domain'
+					//'Name <email@domain>, Name2 <email2@domain2>' => 'Name <email@domain'
+					$fromString = current(preg_split("/>,?/", $item['FIELD_TO']));
+
+					//'email@email' => 'email@domain'
+					//'Name <email@domain' => 'Name <email@domain>'
+					if(preg_match("/</", $fromString))
+					{
+						$fromString.='>';
+					}
+					$from = new \Bitrix\Main\Mail\Address($fromString);
 				}
 			}
 

@@ -1,0 +1,109 @@
+.ui-carousel__container {
+	position: relative;
+	width: 100%;
+}
+
+.ui-carousel__container.--vertical {
+	max-height: 100%;
+	height: 100%;
+}
+
+.ui-carousel__wrapper {
+	max-width: 100%;
+	max-height: 100%;
+	position: relative;
+	overflow: hidden;
+}
+
+.ui-carousel__track {
+	display: flex;
+	align-items: center;
+	transition: .4s;
+	position: relative;
+}
+
+.ui-carousel__dots {
+	display: flex;
+}
+
+.ui-carousel__dots--item {
+	margin: 0 10px;
+	cursor: pointer;
+}
+
+.ui-carousel__arrow.--default {
+	display: block;
+	width: 25px;
+	height: 25px;
+	border-radius: 50%;
+	background-position: center;
+	background-repeat: no-repeat;
+	box-shadow: 0 4px 8px rgba(0,0,0,.2);
+	opacity: 0.75;
+	cursor: pointer;
+	transition: .2s;
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 1;
+}
+
+.ui-carousel__arrow.--default.--prev {
+	background-image: url("data:image/svg+xml,%3Csvg width='26' height='25' viewBox='0 0 26 25' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0.00195312 12.5C0.00195313 19.4036 5.59839 25 12.502 25C19.4055 25 25.002 19.4036 25.002 12.5C25.002 5.59644 19.4055 0 12.502 0C5.59839 0 0.00195312 5.59644 0.00195312 12.5ZM11.4749 13.3839L16.002 17.911L14.4045 19.5083L7.15033 12.2542L14.4045 5L16.002 6.59747L11.4749 11.1245L10.352 12.2434L11.4749 13.3839Z' fill='white'/%3E%3C/svg%3E%0A");
+	left: 0;
+}
+
+.ui-carousel__arrow.--default.--next {
+	background-image: url("data:image/svg+xml,%3Csvg width='25' height='25' viewBox='0 0 25 25' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M25 12.5C25 5.59644 19.4036 2.31385e-07 12.5 1.49061e-07C5.59644 6.67369e-08 2.31385e-07 5.59644 1.49061e-07 12.5C6.67369e-08 19.4036 5.59644 25 12.5 25C19.4036 25 25 19.4036 25 12.5ZM13.5271 11.6161L9 7.08902L10.5975 5.49168L17.8516 12.7458L10.5975 20L9 18.4025L13.5271 13.8755L14.6499 12.7566L13.5271 11.6161Z' fill='white'/%3E%3C/svg%3E%0A");
+	right: 0;
+}
+
+.ui-carousel__arrow.--default:hover {
+	opacity: 1;
+}
+
+.ui-carousel__arrow.--default.--vertical {
+	top: 0;
+	left: 50%;
+	transform: translate(-50%, 0%)rotate(90deg);
+}
+
+.ui-carousel__arrow.--default.--vertical.--next {
+	bottom: 0;
+	top: auto;
+}
+
+.ui-carousel__arrow.--default.--disabled {
+	opacity: 0;
+	pointer-events: none;
+}
+
+.ui-carousel__track.--vertical {
+	flex-direction: column;
+}
+
+.ui-carousel__dots.--default {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	bottom: -35px;
+	left: 50%;
+	transform: translate(-50%, 0);
+}
+
+.ui-carousel__dots--item.--default {
+	display: block;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: #333333;
+	transition: .2s;
+	opacity: 0.75;
+	cursor: pointer;
+}
+
+.ui-carousel__dots--item.--default.--active,
+.ui-carousel__dots--item.--default:hover {
+	opacity: 1;
+}

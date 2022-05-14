@@ -116,7 +116,7 @@ final class Statistic extends Base
 		return $fields;
 	}
 
-	public function checkArguments($name, $arguments)
+	public function checkArguments($name, $arguments): \Bitrix\Main\Result
 	{
 		$r = new Result();
 
@@ -173,7 +173,7 @@ final class Statistic extends Base
 		return $r;
 	}
 
-	public function internalizeArguments($name, $arguments)
+	public function internalizeArguments($name, $arguments): array
 	{
 		if($name == 'upsert')
 		{
@@ -210,7 +210,7 @@ final class Statistic extends Base
 		return $result;
 	}
 
-	public function externalizeResult($name, $fields)
+	public function externalizeResult($name, $fields): array
 	{
 		if($name == 'upsert')
 		{

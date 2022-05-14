@@ -666,6 +666,7 @@ this.BX = this.BX || {};
 	    babelHelpers.classCallCheck(this, TrackingUsersForm);
 	    babelHelpers.defineProperty(this, "DOM", {});
 	    babelHelpers.defineProperty(this, "isCreated", false);
+	    this.interfaceType = 'users';
 	    this.DOM.outerWrap = options.wrap;
 	    this.trackingUsers = options.trackingUsers || [];
 	    this.trackingUserIdList = this.trackingUsers.map(function (item) {
@@ -773,7 +774,7 @@ this.BX = this.BX || {};
 	        data: {
 	          userIdList: this.trackingUserIdList,
 	          sections: this.prepareTrackingSections(),
-	          type: 'users'
+	          type: this.interfaceType
 	        }
 	      }).then(function (response) {
 	        location.reload();
@@ -962,6 +963,7 @@ this.BX = this.BX || {};
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, TrackingGroupsForm);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(TrackingGroupsForm).call(this, options));
+	    _this.interfaceType = 'groups';
 	    _this.trackingGroupIdList = options.trackingGroups || [];
 	    return _this;
 	  }
@@ -1760,7 +1762,7 @@ this.BX = this.BX || {};
 	          }
 	        });
 
-	        if ((section.isGoogle() || section.isCalDav()) && section.canDo('edit_section')) {
+	        if ((section.isGoogle() || section.isCalDav()) && section.canDo('edit_section') && connection) {
 	          menuItems.push({
 	            text: main_core.Loc.getMessage('EC_ACTION_EXTERNAL_ADJUST'),
 	            onclick: function onclick() {
@@ -1773,7 +1775,7 @@ this.BX = this.BX || {};
 	          });
 	        }
 
-	        if (section.data['EXTERNAL_TYPE'] !== 'local') {
+	        if (section.data['EXTERNAL_TYPE'] !== 'local' && connection) {
 	          menuItems.push({
 	            text: main_core.Loc.getMessage('EC_ACTION_HIDE'),
 	            onclick: function onclick() {

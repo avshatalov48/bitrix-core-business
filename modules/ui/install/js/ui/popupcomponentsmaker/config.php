@@ -15,4 +15,5 @@ return [
 		'main.popup',
 	],
 	'skip_core' => false,
+	' ' => false,
 ];

@@ -137,9 +137,11 @@ class CBPStateMachineWorkflowActivity
 
 	public function Execute()
 	{
-		$initialStateActivity = $this->GetStateActivityByName($this->arProperties["InitialStateName"]);
+		$initialStateActivity = $this->GetStateActivityByName($this->getRawProperty('InitialStateName'));
 		if ($initialStateActivity == null)
+		{
 			throw new Exception("initialStateActivity");
+		}
 
 		$initialStateActivity->AddStatusChangeHandler(self::ClosedEvent, $this);
 		$this->workflow->ExecuteActivity($initialStateActivity);

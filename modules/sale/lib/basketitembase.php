@@ -656,7 +656,7 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	{
 		$result = new Result();
 
-		if ($name == "QUANTITY")
+		if ($name === "QUANTITY")
 		{
 			if ($value == 0)
 			{
@@ -715,22 +715,29 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 				$availableQuantity = $value;
 			}
 
-			if (!empty($providerData['PRICE_DATA']))
+			if (isset($providerData['PRICE_DATA']['CUSTOM_PRICE']))
 			{
-				if (isset($providerData['PRICE_DATA']['CUSTOM_PRICE']))
-				{
-					$this->markFieldCustom('PRICE');
-				}
+				$this->markFieldCustom('PRICE');
 			}
 
+			$notPurchasedQuantity = $this->getNotPurchasedQuantity();
+
 			if ($value != 0
-				&& (($deltaQuantity > 0) && (roundEx($availableQuantity, SALE_VALUE_PRECISION) < roundEx($value, SALE_VALUE_PRECISION))   // plus
-				|| ($deltaQuantity < 0) && (roundEx($availableQuantity, SALE_VALUE_PRECISION) > roundEx($value, SALE_VALUE_PRECISION)))
-			)   // minus
+				&& (
+					(
+						$deltaQuantity > 0
+						&& roundEx($availableQuantity, SALE_VALUE_PRECISION) < roundEx($notPurchasedQuantity, SALE_VALUE_PRECISION)
+					) // plus
+					|| (
+						$deltaQuantity < 0
+						&& roundEx($availableQuantity, SALE_VALUE_PRECISION) > roundEx($notPurchasedQuantity, SALE_VALUE_PRECISION)
+					) // minus
+				)
+			)
 			{
 				if ($deltaQuantity > 0)
 				{
-					$canAddCount = $availableQuantity - $oldValue;
+					$canAddCount = $availableQuantity - $this->getReservedQuantity();
 					if ($canAddCount > 0)
 					{
 						$mess = Localization\Loc::getMessage(
@@ -971,8 +978,7 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	}
 
 	/**
-	 * @return float|null|string
-	 * @throws Main\ArgumentNullException
+	 * @return int
 	 */
 	public function getProductId()
 	{
@@ -1029,7 +1035,15 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	 * @return float
 	 * @throws Main\ArgumentNullException
 	 */
-	public function getQuantity()
+	public function getQuantity() : float
+	{
+		return (float)$this->getField('QUANTITY');
+	}
+
+	/**
+	 * @return float
+	 */
+	public function getNotPurchasedQuantity() : float
 	{
 		return (float)$this->getField('QUANTITY');
 	}

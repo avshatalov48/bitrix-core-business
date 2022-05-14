@@ -178,17 +178,22 @@ class main extends CModule
 		$eventManager->registerEventHandler('main', 'OnAfterUserTypeDelete', 'main', '\Bitrix\Main\ORM\Entity', 'onUserTypeChange');
 
 		if (LANGUAGE_ID == "ru")
+		{
+			COption::SetOptionString("main", "~new_license18_0_sign", "Y");
 			COption::SetOptionString("main", "vendor", "1c_bitrix");
+			COption::SetOptionString("main", "update_site", "www.1c-bitrix.ru");
+		}
 		else
+		{
+			COption::SetOptionString("main", "~new_license17_5_sign", "Y");
 			COption::SetOptionString("main", "vendor", "bitrix");
+			COption::SetOptionString("main", "update_site", "www.bitrixsoft.com");
+		}
 
 		COption::SetOptionString("main", "PARAM_MAX_SITES", "2");
 		COption::SetOptionString("main", "PARAM_MAX_USERS", "0");
-		COption::SetOptionString("main", "distributive6", "Y");
-		COption::SetOptionString("main", "~new_license11_sign", "Y");
 		COption::SetOptionString("main", "GROUP_DEFAULT_TASK", "1");
 		COption::SetOptionString("main", "admin_lid", LANGUAGE_ID);
-		COption::SetOptionString("main", "update_site", "www.bitrixsoft.com");
 		COption::SetOptionString("main", "update_site_ns", "Y");
 		COption::SetOptionString("main", "optimize_css_files", "Y");
 		COption::SetOptionString("main", "optimize_js_files", "Y");

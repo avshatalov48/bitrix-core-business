@@ -36,29 +36,29 @@ class Config
 		this.tabs = new Map();
 		this.inputs = new Map();
 		const saveButtonNode = document.getElementById('ui-button-panel-save');
-		if(saveButtonNode)
+		if (saveButtonNode)
 		{
 			this.saveButton = ButtonManager.createFromNode(saveButtonNode);
 		}
 		const cancelButtonNode = document.getElementById('ui-button-panel-cancel');
-		if(cancelButtonNode)
+		if (cancelButtonNode)
 		{
 			this.cancelButton = ButtonManager.createFromNode(cancelButtonNode);
 		}
 		const deleteButtonNode = document.getElementById('ui-button-panel-remove');
-		if(deleteButtonNode)
+		if (deleteButtonNode)
 		{
 			this.deleteButton = ButtonManager.createFromNode(deleteButtonNode);
 		}
 
-		if(Type.isPlainObject(params))
+		if (Type.isPlainObject(params))
 		{
 			this.id = Text.toInteger(params.id);
-			if(Type.isDomNode(params.container))
+			if (Type.isDomNode(params.container))
 			{
 				this.container = params.container;
 			}
-			if(Type.isDomNode(params.errorsContainer))
+			if (Type.isDomNode(params.errorsContainer))
 			{
 				this.errorsContainer = params.errorsContainer;
 			}
@@ -87,7 +87,7 @@ class Config
 
 	getSettingsContainer(): ?Element
 	{
-		if(this.container && !this.settingsContainer)
+		if (this.container && !this.settingsContainer)
 		{
 			this.settingsContainer = this.container.querySelector('[data-role="main-user-field-settings-container"]');
 		}
@@ -97,10 +97,10 @@ class Config
 
 	getSettingsTable(): ?Element
 	{
-		if(!this.settingsTable)
+		if (!this.settingsTable)
 		{
 			const settingsContainer = this.getSettingsContainer();
-			if(settingsContainer)
+			if (settingsContainer)
 			{
 				this.settingsTable = settingsContainer.querySelector('[data-role="main-user-field-settings-table"]');
 			}
@@ -114,11 +114,11 @@ class Config
 		const tabNames = [
 			'common', 'labels', 'additional', 'list'
 		];
-		if(this.container)
+		if (this.container)
 		{
 			tabNames.forEach((name: string) => {
 				const tab = this.container.querySelector('[data-tab="' + name + '"]');
-				if(tab)
+				if (tab)
 				{
 					this.tabs.set(name, tab);
 				}
@@ -129,9 +129,14 @@ class Config
 	showTab(name: string)
 	{
 		Array.from(this.tabs.keys()).forEach((tabName: string) => {
-			if(tabName === name)
+			if (tabName === name)
 			{
 				this.tabs.get(tabName).classList.add('main-user-field-edit-tab-current');
+
+				if (name === 'list')
+				{
+					this.syncEnumDefaultSelector();
+				}
 			}
 			else
 			{
@@ -142,10 +147,10 @@ class Config
 
 	getInput(name: string): ?Element
 	{
-		if(this.container && !this.inputs.has(name))
+		if (this.container && !this.inputs.has(name))
 		{
 			const input = this.container.querySelector('[data-role="main-user-field-' + name + '"]');
-			if(input)
+			if (input)
 			{
 				this.inputs.set(name, input);
 			}
@@ -156,15 +161,15 @@ class Config
 
 	getInputValue(name: string): ?string
 	{
-		if(name === 'userTypeId')
+		if (name === 'userTypeId')
 		{
 			return this.getSelectedUserTypeId();
 		}
 
 		const input = this.getInput(name);
-		if(input)
+		if (input)
 		{
-			if(this.getBooleanInputNames().includes(name))
+			if (this.getBooleanInputNames().includes(name))
 			{
 				return (input.checked ? 'Y' : 'N');
 			}
@@ -178,17 +183,17 @@ class Config
 	bindEvents()
 	{
 		const userTypeIdSelector = this.getInput('userTypeId');
-		if(userTypeIdSelector)
+		if (userTypeIdSelector)
 		{
 			Event.bind(userTypeIdSelector, 'change', this.handleUserTypeChange.bind(this));
 		}
 
 		const commonLabelInput = this.getInput('editFormLabel');
-		if(commonLabelInput && commonLabelInput.parentElement && commonLabelInput.parentElement.parentElement)
+		if (commonLabelInput && commonLabelInput.parentElement && commonLabelInput.parentElement.parentElement)
 		{
 			const languageId = commonLabelInput.parentElement.parentElement.dataset['language'];
 			const currentLanguageLabelInput = this.getInput('editFormLabel-' + languageId);
-			if(currentLanguageLabelInput)
+			if (currentLanguageLabelInput)
 			{
 				Event.bind(commonLabelInput, 'change', () => {
 					this.syncLabelInputs(commonLabelInput, currentLanguageLabelInput);
@@ -201,7 +206,7 @@ class Config
 		}
 
 		const addEnum = this.container.querySelector('[data-role="main-user-field-enum-add"]');
-		if(addEnum)
+		if (addEnum)
 		{
 			Event.bind(addEnum, 'click', this.addEnumRow.bind(this));
 		}
@@ -214,7 +219,7 @@ class Config
 		const enumRows = Array.from(this.container.querySelectorAll('[data-role="main-user-field-enum-row"]'));
 		enumRows.forEach((row: Element) => {
 			const input = row.querySelector('[data-role="main-user-field-enum-value"]');
-			if(input)
+			if (input)
 			{
 				Event.bind(input, 'change', this.syncEnumDefaultSelector.bind(this));
 			}
@@ -232,7 +237,7 @@ class Config
 			}
 		);
 
-		if(this.deleteButton)
+		if (this.deleteButton)
 		{
 			Event.bind(
 				this.deleteButton.getContainer(),
@@ -248,7 +253,7 @@ class Config
 	getSelectedUserTypeId(): ?string
 	{
 		const option = this.getSelectedOption('userTypeId');
-		if(option)
+		if (option)
 		{
 			return option.value;
 		}
@@ -259,7 +264,7 @@ class Config
 	getSelectedOption(inputName: string): ?HTMLOptionElement
 	{
 		const input = this.getInput(inputName);
-		if(input)
+		if (input)
 		{
 			const options = Array.from(input.querySelectorAll('option'));
 			const index = input.selectedIndex;
@@ -269,21 +274,32 @@ class Config
 		return null;
 	}
 
+	getSelectedOptions(inputName: string): ?HTMLCollection
+	{
+		const input = this.getInput(inputName);
+		if (input && input instanceof HTMLSelectElement)
+		{
+			return input.selectedOptions;
+		}
+
+		return null;
+	}
+
 	handleUserTypeChange()
 	{
-		if(this.isProgress)
+		if (this.isProgress)
 		{
 			return;
 		}
 
 		const settingsTable = this.getSettingsTable();
-		if(!settingsTable)
+		if (!settingsTable)
 		{
 			return;
 		}
 
 		const userTypeId = this.getSelectedUserTypeId();
-		if(!userTypeId)
+		if (!userTypeId)
 		{
 			return;
 		}
@@ -298,7 +314,7 @@ class Config
 		}).then((response) => {
 			this.stopProgress();
 			let html = '';
-			if(response.data.html && response.data.html.length > 0)
+			if (response.data.html && response.data.html.length > 0)
 			{
 				html = response.data.html;
 			}
@@ -313,7 +329,7 @@ class Config
 
 	getLoader()
 	{
-		if(!this.loader)
+		if (!this.loader)
 		{
 			this.loader = new Loader({size: 150});
 		}
@@ -324,7 +340,7 @@ class Config
 	startProgress()
 	{
 		this.isProgress = true;
-		if(!this.getLoader().isShown())
+		if (!this.getLoader().isShown())
 		{
 			this.getLoader().show(this.container);
 		}
@@ -338,7 +354,7 @@ class Config
 		setTimeout(() => {
 			this.saveButton.setWaiting(false);
 			Dom.removeClass(this.saveButton.getContainer(), 'ui-btn-wait');
-			if(this.deleteButton)
+			if (this.deleteButton)
 			{
 				this.deleteButton.setWaiting(false);
 				Dom.removeClass(this.deleteButton.getContainer(), 'ui-btn-wait');
@@ -352,7 +368,7 @@ class Config
 		errors.forEach((message) => {
 			text += message;
 		});
-		if(Type.isDomNode(this.errorsContainer))
+		if (Type.isDomNode(this.errorsContainer))
 		{
 			this.errorsContainer.innerText = text;
 			this.errorsContainer.parentElement.style.display = 'block';
@@ -365,7 +381,7 @@ class Config
 
 	hideErrors()
 	{
-		if(Type.isDomNode(this.errorsContainer))
+		if (Type.isDomNode(this.errorsContainer))
 		{
 			this.errorsContainer.innerText = '';
 			this.errorsContainer.parentElement.style.display = 'none';
@@ -377,7 +393,7 @@ class Config
 		const settings = {};
 
 		const settingsForm = this.container.querySelector('[data-role="main-user-field-settings"]');
-		if(settingsForm)
+		if (settingsForm)
 		{
 			const formData = new FormData(settingsForm);
 			for(let pair of formData.entries())
@@ -392,7 +408,7 @@ class Config
 
 	prepareFieldData(): {}
 	{
-		if(!this.container)
+		if (!this.container)
 		{
 			return {};
 		}
@@ -407,14 +423,10 @@ class Config
 
 		const list = [];
 		const userTypeId = this.getInputValue('userTypeId');
-		if(userTypeId === 'enumeration')
+		if (userTypeId === 'enumeration')
 		{
-			let selectedDefaultIndex = 0;
-			const enumDefault = this.getInput('enumDefault');
-			if(enumDefault)
-			{
-				selectedDefaultIndex = enumDefault.selectedIndex;
-			}
+			this.syncEnumDefaultSelector();
+			const selectedAttributes = this.getSelectedEnumDefaultAttributes();
 			const sortStep = 100;
 			let sort = 0;
 			let index = 1;
@@ -425,13 +437,18 @@ class Config
 				{
 					return;
 				}
+
+				const id = Text.toInteger(row.dataset['id']);
+				const value = input.value;
 				let def = 'N';
-				if(selectedDefaultIndex === index)
+				if (
+					(id > 0 && selectedAttributes.id.includes(id))
+					|| selectedAttributes.value.includes(value)
+				)
 				{
 					def = 'Y';
 				}
 				sort += sortStep;
-				const id = Text.toInteger(row.dataset['id']);
 				list.push({
 					value: input.value,
 					def,
@@ -444,7 +461,7 @@ class Config
 
 		const id = Text.toInteger(this.getInputValue('id'));
 		let fieldName = this.getInputValue('fieldName');
-		if(id <= 0)
+		if (id <= 0)
 		{
 			fieldName = this.getInputValue('fieldPrefix') + fieldName;
 		}
@@ -467,11 +484,11 @@ class Config
 
 	save()
 	{
-		if(this.isProgress)
+		if (this.isProgress)
 		{
 			return;
 		}
-		if(!this.moduleId)
+		if (!this.moduleId)
 		{
 			return;
 		}
@@ -480,7 +497,7 @@ class Config
 
 		let languageId = null;
 		const commonLabelInput = this.getInput('editFormLabel');
-		if(commonLabelInput && commonLabelInput.parentElement && commonLabelInput.parentElement.parentElement)
+		if (commonLabelInput && commonLabelInput.parentElement && commonLabelInput.parentElement.parentElement)
 		{
 			languageId = commonLabelInput.parentElement.parentElement.dataset['language'];
 		}
@@ -500,17 +517,17 @@ class Config
 
 	delete()
 	{
-		if(this.isProgress)
+		if (this.isProgress)
 		{
 			return;
 		}
-		if(!this.moduleId)
+		if (!this.moduleId)
 		{
 			return;
 		}
 
 		const id = Text.toInteger(this.getInputValue('id'));
-		if(id <= 0)
+		if (id <= 0)
 		{
 			return;
 		}
@@ -526,7 +543,7 @@ class Config
 					userField.delete().then(() => {
 						this.stopProgress();
 						const slider = this.getSlider();
-						if(slider)
+						if (slider)
 						{
 							this.addDataToSlider('userFieldData', userField.serialize());
 							slider.close();
@@ -556,11 +573,11 @@ class Config
 		const settingsTable = this.getSettingsTable();
 		const settingsTab = document.querySelector('[data-role="tab-additional"]');
 		const listTab = document.querySelector('[data-role="tab-list"]');
-		if(!settingsTable || !settingsTab || !listTab)
+		if (!settingsTable || !settingsTab || !listTab)
 		{
 			return;
 		}
-		if(settingsTable.childElementCount <= 0)
+		if (settingsTable.childElementCount <= 0)
 		{
 			settingsTab.style.display = 'none';
 		}
@@ -569,7 +586,7 @@ class Config
 			settingsTab.style.display = 'block';
 		}
 		const userTypeId = this.getSelectedUserTypeId();
-		if(userTypeId === 'enumeration')
+		if (userTypeId === 'enumeration')
 		{
 			listTab.style.display = 'flex';
 		}
@@ -577,7 +594,7 @@ class Config
 		{
 			listTab.style.display = 'none';
 		}
-		if(userTypeId === 'boolean')
+		if (userTypeId === 'boolean')
 		{
 			this.changeInputVisibility('multiple', 'none');
 			this.changeInputVisibility('mandatory', 'none');
@@ -592,7 +609,7 @@ class Config
 	changeInputVisibility(inputName: string, display: string)
 	{
 		const input = this.getInput(inputName);
-		if(input && input.parentElement && input.parentElement.parentElement)
+		if (input && input.parentElement && input.parentElement.parentElement)
 		{
 			input.parentElement.parentElement.style.display = display;
 		}
@@ -602,23 +619,23 @@ class Config
 	{
 		this.addDataToSlider('userFieldData', userField.serialize());
 		const slider = this.getSlider();
-		if(slider)
+		if (slider)
 		{
 			slider.close();
 		}
 		else
 		{
 			const id = Text.toInteger(this.getInputValue('id'));
-			if(id <= 0)
+			if (id <= 0)
 			{
-				if(!!userField.getDetailUrl())
+				if (!!userField.getDetailUrl())
 				{
 					location.href = userField.getDetailUrl();
 					return;
 				}
 				this.getInput('id').value = userField.getId();
 				const prefixInput = this.getInput('fieldPrefix');
-				if(prefixInput && prefixInput.parentElement && prefixInput.parentElement.parentElement)
+				if (prefixInput && prefixInput.parentElement && prefixInput.parentElement.parentElement)
 				{
 					prefixInput.parentElement.parentElement.classList.remove('main-user-field-name-with-prefix');
 					Dom.remove(prefixInput.parentElement);
@@ -632,7 +649,7 @@ class Config
 
 	getSlider()
 	{
-		if(Reflection.getClass('BX.SidePanel'))
+		if (Reflection.getClass('BX.SidePanel'))
 		{
 			return BX.SidePanel.Instance.getSliderByWindow(window);
 		}
@@ -642,10 +659,10 @@ class Config
 
 	addDataToSlider(key, data)
 	{
-		if(Type.isString(key))
+		if (Type.isString(key))
 		{
 			let slider = this.getSlider();
-			if(slider)
+			if (slider)
 			{
 				slider.getData().set(key, data);
 				BX.SidePanel.Instance.postMessage(slider, 'userfield-list-update');
@@ -655,10 +672,10 @@ class Config
 
 	static handleLeftMenuClick(id: number, tabName: string)
 	{
-		if(Config.#instances)
+		if (Config.#instances)
 		{
 			const instance = Config.#instances.get(id);
-			if(instance)
+			if (instance)
 			{
 				instance.showTab(tabName);
 			}
@@ -668,7 +685,7 @@ class Config
 	syncLabelInputs(fromLabel: HTMLInputElement, toLabel: HTMLInputElement)
 	{
 		const tab = fromLabel.closest('.main-user-field-edit-tab');
-		if(tab && tab.classList.contains('main-user-field-edit-tab-current'))
+		if (tab && tab.classList.contains('main-user-field-edit-tab-current'))
 		{
 			toLabel.value = fromLabel.value;
 		}
@@ -679,15 +696,19 @@ class Config
 		const addEnum = this.container.querySelector('[data-role="main-user-field-enum-add"]');
 		if (addEnum)
 		{
+			const input = Tag.render`<input class="ui-ctl-element" type="text" name="ENUM[][VALUE]" value=""
+								 data-role="main-user-field-enum-value"
+								 onchange="${this.syncEnumDefaultSelector.bind(this)}">`;
 			const row = Tag.render`
 					<div class="main-user-field-enum-row" data-role="main-user-field-enum-row">
 						<div class="main-user-field-enum-row-inner ui-ctl ui-ctl-textbox ui-ctl-w100 ui-ctl-row">
 							<span class="main-user-field-enum-row-draggable" style=""></span>
-							<input class="ui-ctl-element" type="text" name="ENUM[][VALUE]" value="" data-role="main-user-field-enum-value" onchange="${this.syncEnumDefaultSelector.bind(this)}">
+							${input}
 							<div class="main-user-field-enum-delete" onclick="${this.deleteEnumRow.bind(this)}"></div>
 						</div>
 					</div>`;
 			Dom.append(row, document.querySelector('.main-user-field-enum-row-list'));
+			input.focus();
 
 			let item = new DragDropItem();
 			item.init(row);
@@ -700,33 +721,61 @@ class Config
 		this.syncEnumDefaultSelector();
 	}
 
-	syncEnumDefaultSelector()
+	getSelectedEnumDefaultAttributes(): {id: string[], value: string[]}
 	{
-		const userTypeId = this.getInputValue('userTypeId');
-		if(userTypeId === 'enumeration')
+		const result = {
+			id: [],
+			value: [],
+		};
+
+		const selectedDefaultOptions = this.getSelectedOptions('enumDefault');
+		if (selectedDefaultOptions)
 		{
-			const selector = this.getInput('enumDefault');
-			if(!selector)
-			{
-				return;
-			}
-			let selectedId;
-			let selectedValue;
-			const selectedDefaultOption = this.getSelectedOption('enumDefault');
-			if(selectedDefaultOption)
-			{
-				if(selectedDefaultOption.dataset['id'])
+			Array.from(selectedDefaultOptions).forEach((option) => {
+				if (option.dataset['id'] && option.dataset['id'] > 0)
 				{
-					selectedId = Text.toInteger(selectedDefaultOption.dataset['id']);
+					result['id'].push(Text.toInteger(option.dataset['id']));
 				}
 				else
 				{
-					selectedValue = selectedDefaultOption.value;
+					result['value'].push(option.value);
 				}
+			})
+		}
+
+		return result;
+	}
+
+	syncEnumDefaultSelector()
+	{
+		const userTypeId = this.getInputValue('userTypeId');
+		if (userTypeId === 'enumeration')
+		{
+			const selector = this.getInput('enumDefault');
+			if (!selector)
+			{
+				return;
 			}
+			const isMultiple = this.getInputValue('multiple');
+			if (isMultiple === 'Y')
+			{
+				selector.multiple = true;
+				selector.size = 3;
+				selector.parentElement.classList.add('ui-ctl-multiple-select');
+				selector.parentElement.classList.remove('ui-ctl-after-icon');
+				selector.parentElement.classList.remove('ui-ctl-dropdown');
+			}
+			else
+			{
+				selector.multiple = false;
+				selector.parentElement.classList.remove('ui-ctl-multiple-select');
+				selector.parentElement.classList.add('ui-ctl-after-icon');
+				selector.parentElement.classList.add('ui-ctl-dropdown');
+			}
+			const selectedAttributes = this.getSelectedEnumDefaultAttributes();
 			const options = Array.from(selector.querySelectorAll('option'));
 			options.forEach((option: HTMLOptionElement) => {
-				if(option.value !== 'empty')
+				if (option.value !== 'empty')
 				{
 					Dom.remove(option);
 				}
@@ -741,10 +790,10 @@ class Config
 				}
 				const value = input.value;
 				const selected = (
-					(id > 0 && id === selectedId)
-					|| (value === selectedValue)
+					(id > 0 && selectedAttributes.id.includes(id))
+					|| (selectedAttributes.value.includes(value))
 				);
-				if(value.length > 0)
+				if (value.length > 0)
 				{
 					selector.appendChild(Tag.render`<option ${selected ? 'selected="selected"' : ''} value="${Text.encode(value)}" data-id="${id}">${Text.encode(value)}</option>`);
 				}

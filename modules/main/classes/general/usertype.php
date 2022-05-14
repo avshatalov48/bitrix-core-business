@@ -2535,7 +2535,7 @@ class CUserTypeManager
 				}
 				elseif ($isSingleValue)
 				{
-					if((string)$arFields[$FIELD_NAME] === '')
+					if ($this->isValueEmpty($arUserField, $arFields[$FIELD_NAME]))
 					{
 						$aMsg[] = array("id" => $FIELD_NAME, "text" => str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
 					}
@@ -2552,8 +2552,15 @@ class CUserTypeManager
 						foreach($arFields[$FIELD_NAME] as $value)
 						{
 							if(
-								(is_array($value) && (implode("", $value) <> ''))
-								|| ((!is_array($value)) && ((string)$value <> ''))
+								(
+									is_array($value)
+									&& (implode("", $value) <> '')
+								)
+								||
+								(
+									!is_array($value)
+									&& !$this->isValueEmpty($arUserField, $value)
+								)
 							)
 							{
 								$bFound = true;
@@ -2725,7 +2732,7 @@ class CUserTypeManager
 						}
 						elseif($arUserField["MULTIPLE"] == "N")
 						{
-							if($arFields[$FIELD_NAME] == '')
+							if ($this->isValueEmpty($arUserField, $arFields[$FIELD_NAME]))
 							{
 								$aMsg[] = array("id" => $FIELD_NAME, "text" => str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
 							}
@@ -2796,6 +2803,34 @@ class CUserTypeManager
 		}
 
 		return true;
+	}
+
+	protected function isValueEmpty(array $userField, $value): bool
+	{
+		$className = $userField['USER_TYPE']['CLASS_NAME'] ?? null;
+		if (!is_a($className, BaseType::class, true))
+		{
+			$className = BaseType::class;
+		}
+		if (!$className::isMandatorySupported())
+		{
+			return false;
+		}
+		$isNumberType = (
+			$userField['USER_TYPE_ID'] === \Bitrix\Main\UserField\Types\IntegerType::USER_TYPE_ID
+			|| $userField['USER_TYPE_ID'] === \Bitrix\Main\UserField\Types\DoubleType::USER_TYPE_ID
+		);
+		if (
+			$isNumberType
+			&& (
+				$value === 0 || $value === 0.0 || $value === "0" || $value === "0.0" || $value === "0,0"
+			)
+		)
+		{
+			return false;
+		}
+
+		return (string)$value === "";
 	}
 
 	function Update($entity_id, $ID, $arFields, $user_id = false)

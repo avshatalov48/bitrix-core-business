@@ -71,6 +71,12 @@ class Configuration extends Controller
 						$structure->saveContent(false, Helper::STRUCTURE_FILES_NAME, $files);
 					}
 
+					$smallFilesList = $structure->listSmallFile();
+					if ($smallFilesList)
+					{
+						$structure->saveContent(false, Helper::STRUCTURE_SMALL_FILES_NAME, $smallFilesList);
+					}
+
 					$folderFiles = $structure->getConfigurationFileList();
 					foreach ($folderFiles as $file)
 					{

@@ -3,6 +3,7 @@ export const EventType = Object.freeze({
 		start: 'Sale:PaymentPay:Payment:Start',
 		error: 'Sale:PaymentPay:Payment:Error',
 		success: 'Sale:PaymentPay:Payment:Success',
+		reset: 'Sale:PaymentPay:Payment:Reset',
 	},
 	consent: {
 		accepted: 'Sale:PaymentPay:Consent:Accepted',

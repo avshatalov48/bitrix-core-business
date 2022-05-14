@@ -1578,7 +1578,10 @@ abstract class EntityObject implements ArrayAccess
 		}
 
 		// change only if value is different from actual
-		if (array_key_exists($fieldName, $this->_actualValues))
+		// exclude UF fields for this check as long as UF file fields look into request to change value
+		// (\Bitrix\Main\UserField\Types\FileType::onBeforeSave)
+		// let UF manager handle all the values without optimization
+		if (array_key_exists($fieldName, $this->_actualValues) && !($field instanceof UserTypeField))
 		{
 			if ($field instanceof IReadable)
 			{
@@ -2100,6 +2103,12 @@ abstract class EntityObject implements ArrayAccess
 			elseif ($field instanceof ScalarField || $field instanceof UserTypeField)
 			{
 				$v = $field->cast($v);
+
+				if ($v instanceof SqlExpression)
+				{
+					continue;
+				}
+
 				$this->sysSetActual($k, $v);
 			}
 

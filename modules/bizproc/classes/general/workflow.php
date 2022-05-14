@@ -1,5 +1,4 @@
-<?
-IncludeModuleLangFile(__FILE__);
+<?php
 
 /**
 * Workflow instance.
@@ -12,6 +11,7 @@ class CBPWorkflow
 	/** @var CBPRuntime|null $runtime */
 	private $runtime = null;
 
+	/** @var CBPCompositeActivity */
 	private $rootActivity = null;
 
 	private $activitiesQueue = array();
@@ -107,9 +107,9 @@ class CBPWorkflow
 		$rootActivity->SetDocumentId($arDocumentId);
 
 		$documentService = $this->GetService("DocumentService");
-		$documentType = isset($workflowParameters[CBPDocument::PARAM_DOCUMENT_TYPE]) ?
-			$workflowParameters[CBPDocument::PARAM_DOCUMENT_TYPE]
-			: $documentService->GetDocumentType($arDocumentId);
+		$documentType = $workflowParameters[CBPDocument::PARAM_DOCUMENT_TYPE]
+			?? $documentService->GetDocumentType($arDocumentId)
+		;
 
 		unset($workflowParameters[CBPDocument::PARAM_DOCUMENT_TYPE]);
 
@@ -120,7 +120,6 @@ class CBPWorkflow
 		}
 
 		$rootActivity->SetProperties($workflowParameters);
-
 
 		$rootActivity->SetVariablesTypes($workflowVariablesTypes);
 		if (is_array($workflowVariablesTypes))
@@ -190,6 +189,10 @@ class CBPWorkflow
 
 		$this->isNew = true;
 		$this->SetWorkflowStatus(CBPWorkflowStatus::Running);
+
+		$this->rootActivity->setReadOnlyData(
+			$this->rootActivity->pullProperties()
+		);
 
 		try
 		{

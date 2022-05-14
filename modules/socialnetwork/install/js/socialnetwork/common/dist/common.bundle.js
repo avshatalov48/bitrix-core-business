@@ -1,4 +1,5 @@
 this.BX = this.BX || {};
+this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 (function (exports,main_popup,ui_popupcomponentsmaker,main_core) {
 	'use strict';
 
@@ -116,230 +117,12 @@ this.BX = this.BX || {};
 	}();
 	babelHelpers.defineProperty(SonetGroupMenu, "instance", null);
 
-	var Widget = /*#__PURE__*/function () {
-	  function Widget() {
-	    babelHelpers.classCallCheck(this, Widget);
-	    this.widget = null;
+	var Common = /*#__PURE__*/function () {
+	  function Common() {
+	    babelHelpers.classCallCheck(this, Common);
 	  }
 
-	  babelHelpers.createClass(Widget, [{
-	    key: "show",
-	    value: function show(targetNode) {
-	      if (this.widget) {
-	        if (this.widget.isShown()) {
-	          this.widget.close();
-	          return;
-	        }
-	      }
-
-	      var data = this.getData({
-	        targetNode: targetNode
-	      });
-
-	      if (main_core.Type.isNull(data)) {
-	        return;
-	      }
-
-	      this.widget = this.getWidget({
-	        targetNode: targetNode,
-	        data: data
-	      });
-
-	      if (this.widget) {
-	        this.widget.show();
-	      }
-	    }
-	  }, {
-	    key: "hide",
-	    value: function hide() {
-	      if (this.widget && this.widget.isShown()) {
-	        this.widget.close();
-	      }
-	    }
-	  }, {
-	    key: "getData",
-	    value: function getData(params) {
-	      return {};
-	    }
-	  }, {
-	    key: "getWidget",
-	    value: function getWidget(params) {
-	      return null;
-	    }
-	  }]);
-	  return Widget;
-	}();
-
-	var _templateObject, _templateObject2, _templateObject3;
-	var WorkgroupWidget = /*#__PURE__*/function (_Widget) {
-	  babelHelpers.inherits(WorkgroupWidget, _Widget);
-
-	  function WorkgroupWidget(params) {
-	    var _this;
-
-	    babelHelpers.classCallCheck(this, WorkgroupWidget);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(WorkgroupWidget).call(this));
-	    _this.groupId = !main_core.Type.isUndefined(params.groupId) ? parseInt(params.groupId) : 0;
-	    _this.avatarPath = main_core.Type.isStringFilled(params.avatarPath) ? params.avatarPath : '';
-	    _this.avatarType = main_core.Type.isStringFilled(params.avatarType) ? params.avatarType : '';
-	    _this.projectTypeCode = main_core.Type.isStringFilled(params.projectTypeCode) ? params.projectTypeCode : '';
-	    _this.urls = main_core.Type.isPlainObject(params.urls) ? params.urls : {};
-	    _this.perms = main_core.Type.isPlainObject(params.perms) ? params.perms : {};
-	    return _this;
-	  }
-
-	  babelHelpers.createClass(WorkgroupWidget, [{
-	    key: "getData",
-	    value: function getData(params) {
-	      var data = null;
-	      var targetNode = params.targetNode;
-
-	      if (!main_core.Type.isDomNode(targetNode)) {
-	        return data;
-	      }
-
-	      data = targetNode.getAttribute('data-workgroup');
-
-	      try {
-	        data = JSON.parse(data);
-	      } catch (err) {
-	        data = null;
-	      }
-
-	      return data;
-	    }
-	  }, {
-	    key: "getWidget",
-	    value: function getWidget(params) {
-	      var targetNode = main_core.Type.isDomNode(params.targetNode) ? params.targetNode : null;
-
-	      if (!targetNode) {
-	        return null;
-	      }
-
-	      var data = main_core.Type.isPlainObject(params.data) ? params.data : {};
-	      return new ui_popupcomponentsmaker.PopupComponentsMaker({
-	        target: targetNode,
-	        content: [{
-	          html: [{
-	            html: this.renderAbout(data)
-	          }]
-	        }, {
-	          html: [{
-	            html: this.renderMembers(data)
-	          }, {
-	            html: this.renderRoles(data)
-	          }]
-	        }]
-	      });
-	    }
-	  }, {
-	    key: "renderAbout",
-	    value: function renderAbout() {
-	      var _this2 = this;
-
-	      var avatar = '<i></i>';
-
-	      if (main_core.Type.isStringFilled(this.avatarPath)) {
-	        avatar = "<i style=\"background: #fff url('".concat(this.avatarPath, "') no-repeat; background-size: cover;\"></i>");
-	      }
-
-	      var title = '';
-	      var description = '';
-
-	      switch (this.projectTypeCode.toLowerCase()) {
-	        case 'project':
-	          title = main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_TITLE_PROJECT');
-	          description = main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_DESCRIPTION_PROJECT');
-	          break;
-
-	        case 'scrum':
-	          title = main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_TITLE_SCRUM');
-	          description = main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_DESCRIPTION_SCRUM');
-	          break;
-
-	        default:
-	          title = main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_TITLE_GROUP');
-	          description = main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_DESCRIPTION_GROUP');
-	      }
-
-	      var classList = ['sonet-common-widget-avatar'];
-
-	      if (!main_core.Type.isStringFilled(this.avatarPath) && main_core.Type.isStringFilled(this.avatarType)) {
-	        classList.push('sonet-common-workgroup-avatar');
-	        classList.push("--".concat(this.avatarType));
-	      } else {
-	        classList.push('ui-icon');
-	        classList.push('ui-icon-common-user-group');
-	      }
-
-	      var node = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-common-widget-item\">\n\t\t\t\t<div class=\"sonet-common-widget-item-container\">\n\t\t\t\t\t<div class=\"", "\">", "</div>\n\t\t\t\t\t<div class=\"sonet-common-widget-item-content\">\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-title\">", "</div>\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-description\">", "</div>\t\t\t\t\t\t\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), classList.join(' '), avatar, title, description);
-	      main_core.Event.bind(node, 'click', function () {
-	        if (!main_core.Type.isStringFilled(_this2.urls.card)) {
-	          return;
-	        }
-
-	        BX.SidePanel.Instance.open(_this2.urls.card, {
-	          width: 900,
-	          loader: 'group-card-loader'
-	        });
-
-	        _this2.hide();
-	      });
-	      return node;
-	    }
-	  }, {
-	    key: "renderMembers",
-	    value: function renderMembers() {
-	      var _this3 = this;
-
-	      var node = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-common-widget-item\">\n\t\t\t\t<div class=\"sonet-common-widget-item-container\">\n\t\t\t\t\t<div class=\"sonet-common-widget-icon ui-icon ui-icon-common-light-company\"><i></i></div>\n\t\t\t\t\t<div class=\"sonet-common-widget-item-content\">\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-title\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_MEMBERS_TITLE'));
-	      main_core.Event.bind(node, 'click', function () {
-	        if (!main_core.Type.isStringFilled(_this3.urls.members)) {
-	          return;
-	        }
-
-	        BX.SidePanel.Instance.open(_this3.urls.members, {
-	          width: 1200,
-	          loader: 'group-users-loader'
-	        });
-
-	        _this3.hide();
-	      });
-	      return node;
-	    }
-	  }, {
-	    key: "renderRoles",
-	    value: function renderRoles() {
-	      var _this4 = this;
-
-	      var canOpen = main_core.Type.isBoolean(this.perms.canModify) && this.perms.canModify;
-	      var hint = !canOpen ? "data-hint=\"".concat(main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ROLES_TITLE_NO_PERMISSIONS'), "\" data-hint-no-icon") : '';
-	      var node = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-common-widget-item\" ", ">\n\t\t\t\t<div class=\"sonet-common-widget-item-container\">\n\t\t\t\t\t<div class=\"sonet-common-widget-icon ui-icon ui-icon-service-light-roles-rights\"><i></i></div>\n\t\t\t\t\t<div class=\"sonet-common-widget-item-content\">\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-title\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), hint, main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ROLES_TITLE'));
-	      main_core.Event.bind(node, 'click', function () {
-	        if (!canOpen || !main_core.Type.isStringFilled(_this4.urls.features)) {
-	          return;
-	        }
-
-	        BX.SidePanel.Instance.open(_this4.urls.features, {
-	          width: 800,
-	          loader: 'group-features-loader'
-	        });
-
-	        _this4.hide();
-	      });
-	      return node;
-	    }
-	  }]);
-	  return WorkgroupWidget;
-	}(Widget);
-
-	var UICommon = /*#__PURE__*/function () {
-	  function UICommon() {
-	    babelHelpers.classCallCheck(this, UICommon);
-	  }
-
-	  babelHelpers.createClass(UICommon, null, [{
+	  babelHelpers.createClass(Common, null, [{
 	    key: "showRecallJoinRequestPopup",
 	    value: function showRecallJoinRequestPopup(params) {
 	      var _this = this;
@@ -614,13 +397,23 @@ this.BX = this.BX || {};
 	            copyGroupItem.href = params.urls.copy;
 	          } else {
 	            copyGroupItem.onclick = function () {
-	              BX.UI.InfoHelper.show(!!params.isProject ? 'limit_task_copy_project' : 'limit_task_copy_group', {
-	                isLimit: true,
-	                limitAnalyticsLabels: {
-	                  module: 'socialnetwork',
-	                  source: 'projectCardActions'
-	                }
-	              });
+	              if (!!params.isProject) {
+	                BX.UI.InfoHelper.show('limit_task_copy_project', {
+	                  isLimit: true,
+	                  limitAnalyticsLabels: {
+	                    module: 'socialnetwork',
+	                    source: 'projectCardActions'
+	                  }
+	                });
+	              } else {
+	                BX.UI.InfoHelper.show('limit_task_copy_group', {
+	                  isLimit: true,
+	                  limitAnalyticsLabels: {
+	                    module: 'socialnetwork',
+	                    source: 'projectCardActions'
+	                  }
+	                });
+	              }
 	            };
 	          }
 
@@ -655,7 +448,7 @@ this.BX = this.BX || {};
 	          menu.push(userRequestItem);
 	        }
 
-	        if (params.userIsMember && !params.userIsAutoMember && params.userRole !== main_core.Loc.getMessage('USER_TO_GROUP_ROLE_OWNER')) {
+	        if (main_core.Type.isBoolean(params.perms.canLeave) && params.perms.canLeave || !main_core.Type.isBoolean(params.perms.canLeave) && params.userIsMember && !params.userIsAutoMember && params.userRole !== main_core.Loc.getMessage('USER_TO_GROUP_ROLE_OWNER')) {
 	          itemTitle = main_core.Loc.getMessage('SONET_EXT_COMMON_GROUP_MENU_EXIT');
 
 	          if (!!params.isScrumProject) {
@@ -889,22 +682,244 @@ this.BX = this.BX || {};
 	      win.BX.Socialnetwork.UIGroupMenu.getInstance().menuPopup.close();
 	    }
 	  }]);
-	  return UICommon;
+	  return Common;
 	}();
-	/** @deprecated use BX.Socialnetwork.UICommon */
 
-	BX.SocialnetworkUICommon = UICommon;
-	/** @deprecated use BX.Socialnetwork.UIWaiter */
+	var Widget = /*#__PURE__*/function () {
+	  function Widget() {
+	    babelHelpers.classCallCheck(this, Widget);
+	    this.widget = null;
+	  }
+
+	  babelHelpers.createClass(Widget, [{
+	    key: "show",
+	    value: function show(targetNode) {
+	      if (this.widget) {
+	        if (this.widget.isShown()) {
+	          this.widget.close();
+	          return;
+	        }
+	      }
+
+	      var data = this.getData({
+	        targetNode: targetNode
+	      });
+
+	      if (main_core.Type.isNull(data)) {
+	        return;
+	      }
+
+	      this.widget = this.getWidget({
+	        targetNode: targetNode,
+	        data: data
+	      });
+
+	      if (this.widget) {
+	        this.widget.show();
+	      }
+	    }
+	  }, {
+	    key: "hide",
+	    value: function hide() {
+	      if (this.widget && this.widget.isShown()) {
+	        this.widget.close();
+	      }
+	    }
+	  }, {
+	    key: "getData",
+	    value: function getData(params) {
+	      return {};
+	    }
+	  }, {
+	    key: "getWidget",
+	    value: function getWidget(params) {
+	      return null;
+	    }
+	  }]);
+	  return Widget;
+	}();
+
+	var _templateObject, _templateObject2, _templateObject3;
+	var WorkgroupWidget = /*#__PURE__*/function (_Widget) {
+	  babelHelpers.inherits(WorkgroupWidget, _Widget);
+
+	  function WorkgroupWidget(params) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, WorkgroupWidget);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(WorkgroupWidget).call(this));
+	    _this.groupId = !main_core.Type.isUndefined(params.groupId) ? parseInt(params.groupId) : 0;
+	    _this.avatarPath = main_core.Type.isStringFilled(params.avatarPath) ? params.avatarPath : '';
+	    _this.avatarType = main_core.Type.isStringFilled(params.avatarType) ? params.avatarType : '';
+	    _this.projectTypeCode = main_core.Type.isStringFilled(params.projectTypeCode) ? params.projectTypeCode : '';
+	    _this.urls = main_core.Type.isPlainObject(params.urls) ? params.urls : {};
+	    _this.perms = main_core.Type.isPlainObject(params.perms) ? params.perms : {};
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(WorkgroupWidget, [{
+	    key: "getData",
+	    value: function getData(params) {
+	      var data = null;
+	      var targetNode = params.targetNode;
+
+	      if (!main_core.Type.isDomNode(targetNode)) {
+	        return data;
+	      }
+
+	      data = targetNode.getAttribute('data-workgroup');
+
+	      try {
+	        data = JSON.parse(data);
+	      } catch (err) {
+	        data = null;
+	      }
+
+	      return data;
+	    }
+	  }, {
+	    key: "getWidget",
+	    value: function getWidget(params) {
+	      var targetNode = main_core.Type.isDomNode(params.targetNode) ? params.targetNode : null;
+
+	      if (!targetNode) {
+	        return null;
+	      }
+
+	      var data = main_core.Type.isPlainObject(params.data) ? params.data : {};
+	      return new ui_popupcomponentsmaker.PopupComponentsMaker({
+	        target: targetNode,
+	        content: [{
+	          html: [{
+	            html: this.renderAbout(data)
+	          }]
+	        }, {
+	          html: [{
+	            html: this.renderMembers(data)
+	          }, {
+	            html: this.renderRoles(data)
+	          }]
+	        }]
+	      });
+	    }
+	  }, {
+	    key: "renderAbout",
+	    value: function renderAbout() {
+	      var _this2 = this;
+
+	      var avatar = '<i></i>';
+
+	      if (main_core.Type.isStringFilled(this.avatarPath)) {
+	        avatar = "<i style=\"background: #fff url('".concat(this.avatarPath, "') no-repeat; background-size: cover;\"></i>");
+	      }
+
+	      var title = '';
+	      var description = '';
+
+	      switch (this.projectTypeCode.toLowerCase()) {
+	        case 'project':
+	          title = main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_TITLE_PROJECT');
+	          description = main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_DESCRIPTION_PROJECT');
+	          break;
+
+	        case 'scrum':
+	          title = main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_TITLE_SCRUM');
+	          description = main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_DESCRIPTION_SCRUM');
+	          break;
+
+	        default:
+	          title = main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_TITLE_GROUP');
+	          description = main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ABOUT_DESCRIPTION_GROUP');
+	      }
+
+	      var classList = ['sonet-common-widget-avatar'];
+
+	      if (!main_core.Type.isStringFilled(this.avatarPath) && main_core.Type.isStringFilled(this.avatarType)) {
+	        classList.push('sonet-common-workgroup-avatar');
+	        classList.push("--".concat(this.avatarType));
+	      } else {
+	        classList.push('ui-icon');
+	        classList.push('ui-icon-common-user-group');
+	      }
+
+	      var node = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-common-widget-item\">\n\t\t\t\t<div class=\"sonet-common-widget-item-container\">\n\t\t\t\t\t<div class=\"", "\">", "</div>\n\t\t\t\t\t<div class=\"sonet-common-widget-item-content\">\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-title\">", "</div>\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-description\">", "</div>\t\t\t\t\t\t\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), classList.join(' '), avatar, title, description);
+	      main_core.Event.bind(node, 'click', function () {
+	        if (!main_core.Type.isStringFilled(_this2.urls.card)) {
+	          return;
+	        }
+
+	        BX.SidePanel.Instance.open(_this2.urls.card, {
+	          width: 900,
+	          loader: 'group-card-loader'
+	        });
+
+	        _this2.hide();
+	      });
+	      return node;
+	    }
+	  }, {
+	    key: "renderMembers",
+	    value: function renderMembers() {
+	      var _this3 = this;
+
+	      var node = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-common-widget-item\">\n\t\t\t\t<div class=\"sonet-common-widget-item-container\">\n\t\t\t\t\t<div class=\"sonet-common-widget-icon ui-icon ui-icon-common-light-company\"><i></i></div>\n\t\t\t\t\t<div class=\"sonet-common-widget-item-content\">\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-title\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_MEMBERS_TITLE'));
+	      main_core.Event.bind(node, 'click', function () {
+	        if (!main_core.Type.isStringFilled(_this3.urls.members)) {
+	          return;
+	        }
+
+	        BX.SidePanel.Instance.open(_this3.urls.members, {
+	          width: 1200,
+	          loader: 'group-users-loader'
+	        });
+
+	        _this3.hide();
+	      });
+	      return node;
+	    }
+	  }, {
+	    key: "renderRoles",
+	    value: function renderRoles() {
+	      var _this4 = this;
+
+	      var canOpen = main_core.Type.isBoolean(this.perms.canModify) && this.perms.canModify;
+	      var hint = !canOpen ? "data-hint=\"".concat(main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ROLES_TITLE_NO_PERMISSIONS'), "\" data-hint-no-icon") : '';
+	      var node = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-common-widget-item\" ", ">\n\t\t\t\t<div class=\"sonet-common-widget-item-container\">\n\t\t\t\t\t<div class=\"sonet-common-widget-icon ui-icon ui-icon-service-light-roles-rights\"><i></i></div>\n\t\t\t\t\t<div class=\"sonet-common-widget-item-content\">\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-title\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), hint, main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ROLES_TITLE'));
+	      main_core.Event.bind(node, 'click', function () {
+	        if (!canOpen || !main_core.Type.isStringFilled(_this4.urls.features)) {
+	          return;
+	        }
+
+	        BX.SidePanel.Instance.open(_this4.urls.features, {
+	          width: 800,
+	          loader: 'group-features-loader'
+	        });
+
+	        _this4.hide();
+	      });
+	      return node;
+	    }
+	  }]);
+	  return WorkgroupWidget;
+	}(Widget);
+
+	/** @deprecated use BX.Socialnetwork.UI.Common */
+
+	BX.SocialnetworkUICommon = Common;
+	/** @deprecated use BX.Socialnetwork.UI.Waiter */
 
 	BX.SocialnetworkUICommon.Waiter = Waiter;
-	/** @deprecated use BX.Socialnetwork.UIGroupMenu */
+	/** @deprecated use BX.Socialnetwork.UI.GroupMenu */
 
 	BX.SocialnetworkUICommon.SonetGroupMenu = SonetGroupMenu;
+	/** @deprecated use BX.Socialnetwork.UI.WorkgroupWidget */
 
-	exports.UICommon = UICommon;
-	exports.UIWaiter = Waiter;
-	exports.UIGroupMenu = SonetGroupMenu;
-	exports.UIWorkgroupWidget = WorkgroupWidget;
+	BX.Socialnetwork.UIWorkgroupWidget = WorkgroupWidget;
 
-}((this.BX.Socialnetwork = this.BX.Socialnetwork || {}),BX.Main,BX.UI,BX));
+	exports.Common = Common;
+	exports.Waiter = Waiter;
+	exports.SonetGroupMenu = SonetGroupMenu;
+	exports.WorkgroupWidget = WorkgroupWidget;
+
+}((this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {}),BX.Main,BX.UI,BX));
 //# sourceMappingURL=common.bundle.js.map

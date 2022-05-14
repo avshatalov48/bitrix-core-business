@@ -22,22 +22,18 @@ this.BX = this.BX || {};
 	  return Utils;
 	}();
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"", "\" bx-data-log-id=\"", "\">\n\t\t\t\t\t<div class=\"feed-post-cancel-pinned-panel-inner\">\n\t\t\t\t\t\t<div class=\"feed-post-cancel-pinned-content\">\n\t\t\t\t\t\t\t<span class=\"", "\">", "</span>\n\t\t\t\t\t\t\t<span class=\"feed-post-cancel-pinned-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<button class=\"ui-btn ui-btn-light-border ui-btn-round ui-btn-sm ", "\">", "</button>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\t\n\t\t\t\t"]);
+	var _templateObject;
 
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 	var PinnedPanel = /*#__PURE__*/function () {
 	  function PinnedPanel() {
 	    var _this = this;
 
 	    babelHelpers.classCallCheck(this, PinnedPanel);
-	    this.class = {
+	    this["class"] = {
 	      pin: 'feed-post-pin',
 	      post: 'feed-item-wrap',
 	      postHide: 'feed-item-wrap-hide',
@@ -94,7 +90,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "setOptions",
 	    value: function setOptions(options) {
-	      this.options = babelHelpers.objectSpread({}, this.options, options);
+	      this.options = _objectSpread(_objectSpread({}, this.options), options);
 	    }
 	  }, {
 	    key: "getOption",
@@ -141,7 +137,7 @@ this.BX = this.BX || {};
 	        var followClicked = event.target.classList.contains('feed-inform-follow') || event.target.closest('.feed-inform-follow') !== null;
 	        var menuClicked = event.target.classList.contains('feed-post-more-link') || event.target.closest('.feed-post-more-link') !== null || event.target.classList.contains('feed-post-right-top-menu');
 	        var contentViewClicked = event.target.classList.contains('feed-inform-contentview') || event.target.closest('.feed-inform-contentview') !== null;
-	        var pinClicked = event.target.classList.contains("".concat(_this2.class.pin)) || event.target.closest(".".concat(_this2.class.pin)) !== null;
+	        var pinClicked = event.target.classList.contains("".concat(_this2["class"].pin)) || event.target.closest(".".concat(_this2["class"].pin)) !== null;
 	        var collapseClicked = event.target.classList.contains('feed-post-pinned-link-collapse');
 	        var commentsClicked = event.target.classList.contains('feed-inform-comments-pinned') || event.target.closest('.feed-inform-comments-pinned') !== null;
 	        var postNode = null;
@@ -156,9 +152,9 @@ this.BX = this.BX || {};
 	          return;
 	        }
 
-	        if (postNode.classList.contains("".concat(_this2.class.postPinned))) {
+	        if (postNode.classList.contains("".concat(_this2["class"].postPinned))) {
 	          if (!likeClicked && !followClicked && !menuClicked && !contentViewClicked && !pinClicked) {
-	            postNode.classList.remove("".concat(_this2.class.postPinned));
+	            postNode.classList.remove("".concat(_this2["class"].postPinned));
 	            var menuId = postNode.getAttribute('data-menu-id');
 
 	            if (menuId) {
@@ -178,7 +174,7 @@ this.BX = this.BX || {};
 	          }
 
 	          if (commentsClicked) {
-	            var anchorNode = postNode.querySelector(".".concat(_this2.class.postComments, " a[name=comments]"));
+	            var anchorNode = postNode.querySelector(".".concat(_this2["class"].postComments, " a[name=comments]"));
 
 	            if (anchorNode) {
 	              var position = main_core.Dom.getPosition(anchorNode);
@@ -189,7 +185,7 @@ this.BX = this.BX || {};
 	          event.stopPropagation();
 	          event.preventDefault();
 	        } else if (collapseClicked) {
-	          postNode.classList.add("".concat(_this2.class.postPinned));
+	          postNode.classList.add("".concat(_this2["class"].postPinned));
 	          event.stopPropagation();
 	          event.preventDefault();
 	        }
@@ -218,7 +214,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "handlePostClick",
 	    value: function handlePostClick(event) {
-	      if (!event.target.classList.contains("".concat(this.class.pin))) {
+	      if (!event.target.classList.contains("".concat(this["class"].pin))) {
 	        return;
 	      }
 
@@ -257,7 +253,7 @@ this.BX = this.BX || {};
 	            oldValue = _this4$getCommentsDat.oldValue,
 	            newValue = _this4$getCommentsDat.newValue;
 
-	        if (!!options.new) {
+	        if (!!options["new"]) {
 	          _this4.setCommentsData(xmlId, {
 	            newValue: main_core.Type.isInteger(newValue) ? newValue - 1 : 0,
 	            oldValue: main_core.Type.isInteger(oldValue) ? oldValue + 1 : 1
@@ -323,7 +319,7 @@ this.BX = this.BX || {};
 	      var panelNode = this.getPanelNode();
 
 	      if (!node && !event && logId > 0 && panelNode) {
-	        node = panelNode.querySelector(".".concat(this.class.post, " > [data-livefeed-id=\"").concat(logId, "\"]"));
+	        node = panelNode.querySelector(".".concat(this["class"].post, " > [data-livefeed-id=\"").concat(logId, "\"]"));
 	      }
 
 	      if (!node && event) {
@@ -394,12 +390,12 @@ this.BX = this.BX || {};
 	      post.setAttribute('data-livefeed-post-pinned', state);
 
 	      if (state === 'Y') {
-	        post.classList.add("".concat(this.class.postPinActive));
+	        post.classList.add("".concat(this["class"].postPinActive));
 	      } else {
-	        post.classList.remove("".concat(this.class.postPinActive));
+	        post.classList.remove("".concat(this["class"].postPinActive));
 	      }
 
-	      var pin = post.querySelector(".".concat(this.class.pin));
+	      var pin = post.querySelector(".".concat(this["class"].pin));
 
 	      if (pin) {
 	        pin.setAttribute('title', main_core.Loc.getMessage("SONET_EXT_LIVEFEED_PIN_TITLE_".concat(state)));
@@ -463,7 +459,7 @@ this.BX = this.BX || {};
 	          return resolve();
 	        }
 
-	        var postToMove = post.parentNode.classList.contains("".concat(_this6.class.post)) ? post.parentNode : post;
+	        var postToMove = post.parentNode.classList.contains("".concat(_this6["class"].post)) ? post.parentNode : post;
 
 	        if (state === 'Y') {
 	          var originalPostHeight = postToMove.offsetHeight;
@@ -474,7 +470,7 @@ this.BX = this.BX || {};
 	          }).then(function (data) {
 	            var pinnedPanelTitleNode = post.querySelector('.feed-post-pinned-title');
 	            var pinnedPanelDescriptionNode = post.querySelector('.feed-post-pinned-desc');
-	            var pinnedPanelPinNode = post.querySelector(".".concat(_this6.class.pin));
+	            var pinnedPanelPinNode = post.querySelector(".".concat(_this6["class"].pin));
 
 	            if (pinnedPanelTitleNode) {
 	              pinnedPanelTitleNode.innerHTML = data.TITLE;
@@ -488,7 +484,7 @@ this.BX = this.BX || {};
 	              pinnedPanelPinNode.title = main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PIN_TITLE_Y');
 	            }
 
-	            post.classList.add("".concat(_this6.class.postPinnedHide));
+	            post.classList.add("".concat(_this6["class"].postPinnedHide));
 
 	            var cancelPinnedPanel = _this6.getCancelPinnedPanel({
 	              logId: logId
@@ -524,7 +520,7 @@ this.BX = this.BX || {};
 
 
 	            setTimeout(function () {
-	              postToMove.classList.add("".concat(_this6.class.postHide));
+	              postToMove.classList.add("".concat(_this6["class"].postHide));
 	              Utils.setStyle(cancelPinnedPanel, {
 	                height: '53px'
 	              });
@@ -545,13 +541,13 @@ this.BX = this.BX || {};
 	              }
 
 	              main_core.Event.unbindAll(postToMove, 'transitionend');
-	              var panelPostsNode = pinnedPanelNode.querySelector(".".concat(_this6.class.panelPosts));
+	              var panelPostsNode = pinnedPanelNode.querySelector(".".concat(_this6["class"].panelPosts));
 	              panelPostsNode.insertBefore(postToMove, panelPostsNode.firstChild);
 
 	              _this6.adjustCollapsedPostsPanel();
 
-	              postToMove.classList.remove("".concat(_this6.class.postHide));
-	              post.classList.remove("".concat(_this6.class.postPinnedHide));
+	              postToMove.classList.remove("".concat(_this6["class"].postHide));
+	              post.classList.remove("".concat(_this6["class"].postPinnedHide));
 
 	              _this6.adjustPanel();
 
@@ -559,7 +555,7 @@ this.BX = this.BX || {};
 
 
 	              setTimeout(function () {
-	                post.classList.add("".concat(_this6.class.postPinned));
+	                post.classList.add("".concat(_this6["class"].postPinned));
 	                Utils.setStyle(postToMove, {
 	                  position: '',
 	                  width: '',
@@ -573,7 +569,7 @@ this.BX = this.BX || {};
 	                });
 
 	                setTimeout(function () {
-	                  postToMove.classList.remove("".concat(_this6.class.postHide));
+	                  postToMove.classList.remove("".concat(_this6["class"].postHide));
 	                  Utils.setStyle(postToMove, {
 	                    position: '',
 	                    width: '',
@@ -592,7 +588,7 @@ this.BX = this.BX || {};
 	          Utils.setStyle(postToMove, {
 	            transition: ''
 	          });
-	          var cancelPinnedPanel = document.querySelector(".".concat(_this6.class.cancelPanel, "[bx-data-log-id=\"").concat(logId, "\"]"));
+	          var cancelPinnedPanel = document.querySelector(".".concat(_this6["class"].cancelPanel, "[bx-data-log-id=\"").concat(logId, "\"]"));
 
 	          if (main_core.Type.isDomNode(cancelPinnedPanel)) {
 	            Utils.setStyle(postToMove, {
@@ -600,8 +596,8 @@ this.BX = this.BX || {};
 	            }); // pinnedPanel.post::hide.start, cancelPanel::show.start
 
 	            requestAnimationFrame(function () {
-	              postToMove.classList.add("".concat(_this6.class.postExpanding));
-	              cancelPinnedPanel.classList.add("".concat(_this6.class.postExpanding));
+	              postToMove.classList.add("".concat(_this6["class"].postExpanding));
+	              cancelPinnedPanel.classList.add("".concat(_this6["class"].postExpanding));
 	              Utils.setStyle(postToMove, {
 	                opacity: 0,
 	                height: 0
@@ -611,7 +607,7 @@ this.BX = this.BX || {};
 	                height: 0
 	              });
 	            });
-	            var collapsed = pinnedPanelNode.classList.contains("".concat(_this6.class.panelCollapsed));
+	            var collapsed = pinnedPanelNode.classList.contains("".concat(_this6["class"].panelCollapsed));
 
 	            if (collapsed) {
 	              cancelPinnedPanel.parentNode.insertBefore(postToMove, cancelPinnedPanel.nextSibling);
@@ -621,7 +617,7 @@ this.BX = this.BX || {};
 	              _this6.adjustPanel();
 	            }
 
-	            var showCollapsed = _this6.getCollapsedPanelNode().classList.contains("".concat(_this6.class.collapsedPanelShow));
+	            var showCollapsed = _this6.getCollapsedPanelNode().classList.contains("".concat(_this6["class"].collapsedPanelShow));
 
 	            if (showCollapsed) {
 	              _this6.hideCollapsedPostsPanel(); // cancelPanel::show.end
@@ -670,7 +666,7 @@ this.BX = this.BX || {};
 	              });
 	            });
 	          } else {
-	            post.classList.remove("".concat(_this6.class.postPinned));
+	            post.classList.remove("".concat(_this6["class"].postPinned));
 	            pinnedPanelNode.parentNode.insertBefore(postToMove, pinnedPanelNode.nextSibling);
 
 	            _this6.adjustPanel();
@@ -714,7 +710,7 @@ this.BX = this.BX || {};
 	          postToMove = _ref.postToMove,
 	          cancelPinnedPanel = _ref.cancelPinnedPanel,
 	          height = _ref.height;
-	      post.classList.remove("".concat(this.class.postPinned)); // post.list:show.start, cancelPanel::hide.start
+	      post.classList.remove("".concat(this["class"].postPinned)); // post.list:show.start, cancelPanel::hide.start
 
 	      setTimeout(function () {
 	        Utils.setStyle(postToMove, {
@@ -735,7 +731,7 @@ this.BX = this.BX || {};
 	          return;
 	        }
 
-	        post.classList.remove("".concat(_this7.class.postPinnedHide));
+	        post.classList.remove("".concat(_this7["class"].postPinnedHide));
 	        Utils.setStyle(postToMove, {
 	          marginBottom: '',
 	          height: ''
@@ -744,8 +740,8 @@ this.BX = this.BX || {};
 	          marginBottom: '',
 	          height: ''
 	        });
-	        postToMove.classList.remove("".concat(_this7.class.postExpanding));
-	        cancelPinnedPanel.classList.remove("".concat(_this7.class.postExpanding));
+	        postToMove.classList.remove("".concat(_this7["class"].postExpanding));
+	        cancelPinnedPanel.classList.remove("".concat(_this7["class"].postExpanding));
 	      });
 	    }
 	  }, {
@@ -759,11 +755,11 @@ this.BX = this.BX || {};
 	        return null;
 	      }
 
-	      var cancelPinnedPanel = document.querySelector(".".concat(this.class.cancelPanel, "[bx-data-log-id=\"").concat(logId, "\"]"));
+	      var cancelPinnedPanel = document.querySelector(".".concat(this["class"].cancelPanel, "[bx-data-log-id=\"").concat(logId, "\"]"));
 
 	      if (!main_core.Type.isDomNode(cancelPinnedPanel)) {
-	        cancelPinnedPanel = main_core.Tag.render(_templateObject(), this.class.cancelPanel, logId, this.class.cancelPanelLabel, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_TITLE'), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_DESCRIPTION'), this.class.cancelPanelButton, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_BUTTON'));
-	        main_core.Event.bind(cancelPinnedPanel.querySelector(".".concat(this.class.cancelPanelButton)), 'click', function () {
+	        cancelPinnedPanel = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"", "\" bx-data-log-id=\"", "\">\n\t\t\t\t\t<div class=\"feed-post-cancel-pinned-panel-inner\">\n\t\t\t\t\t\t<div class=\"feed-post-cancel-pinned-content\">\n\t\t\t\t\t\t\t<span class=\"", "\">", "</span>\n\t\t\t\t\t\t\t<span class=\"feed-post-cancel-pinned-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<button class=\"ui-btn ui-btn-light-border ui-btn-round ui-btn-sm ", "\">", "</button>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\t\n\t\t\t\t"])), this["class"].cancelPanel, logId, this["class"].cancelPanelLabel, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_TITLE'), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_DESCRIPTION'), this["class"].cancelPanelButton, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_PINNED_CANCEL_BUTTON'));
+	        main_core.Event.bind(cancelPinnedPanel.querySelector(".".concat(this["class"].cancelPanelButton)), 'click', function () {
 	          _this8.changePinned({
 	            logId: logId,
 	            newState: 'N'
@@ -793,15 +789,15 @@ this.BX = this.BX || {};
 	          opacity: 1
 	        });
 	      }, 100);
-	      Utils.setStyle(cancelPinnedPanel.querySelector(".".concat(this.class.cancelPanelLabel)), {
-	        marginLeft: cancelPinnedPanel.querySelector(".".concat(this.class.cancelPanelButton)).getBoundingClientRect().width + 'px'
+	      Utils.setStyle(cancelPinnedPanel.querySelector(".".concat(this["class"].cancelPanelLabel)), {
+	        marginLeft: cancelPinnedPanel.querySelector(".".concat(this["class"].cancelPanelButton)).getBoundingClientRect().width + 'px'
 	      });
 	    }
 	  }, {
 	    key: "getPostsCount",
 	    value: function getPostsCount() {
 	      var panelNode = this.getPanelNode();
-	      return panelNode ? Array.from(panelNode.getElementsByClassName("".concat(this.class.post))).length : 0;
+	      return panelNode ? Array.from(panelNode.getElementsByClassName("".concat(this["class"].post))).length : 0;
 	    }
 	  }, {
 	    key: "hidePinnedItems",
@@ -817,7 +813,7 @@ this.BX = this.BX || {};
 	      Utils.setStyle(pinnedPanelNode, {
 	        height: parseInt(this.getOption('panelHeight')) + 'px'
 	      });
-	      Array.from(pinnedPanelNode.getElementsByClassName("".concat(this.class.post))).reduce(function (count, item) {
+	      Array.from(pinnedPanelNode.getElementsByClassName("".concat(this["class"].post))).reduce(function (count, item) {
 	        count += item.offsetHeight;
 	        Utils.setStyle(item, {
 	          transition: 'opacity .1s linear, transform .2s .1s linear, height .5s linear'
@@ -866,7 +862,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      Array.from(pinnedPanelNode.getElementsByClassName("".concat(this.class.post))).map(function (item, currentIndex, originalItemsList) {
+	      Array.from(pinnedPanelNode.getElementsByClassName("".concat(this["class"].post))).map(function (item, currentIndex, originalItemsList) {
 	        Utils.setStyle(item, {
 	          display: 'block',
 	          opacity: 0
@@ -921,8 +917,8 @@ this.BX = this.BX || {};
 	          width: '100%',
 	          opacity: 0
 	        });
-	        collapsedPanel.classList.remove("".concat(_this11.class.collapsedPanelHide));
-	        collapsedPanel.classList.add("".concat(_this11.class.collapsedPanelShow)); // collapsedPanel::show.start
+	        collapsedPanel.classList.remove("".concat(_this11["class"].collapsedPanelHide));
+	        collapsedPanel.classList.add("".concat(_this11["class"].collapsedPanelShow)); // collapsedPanel::show.start
 
 	        requestAnimationFrame(function () {
 	          Utils.setStyle(collapsedPanel, {
@@ -938,26 +934,26 @@ this.BX = this.BX || {};
 	      var _this12 = this;
 
 	      var postsCounter = this.getPostsCount();
-	      var postsCounterNode = this.getCollapsedPanelNode().querySelector(".".concat(this.class.collapsedPanelCounterPostsValue));
+	      var postsCounterNode = this.getCollapsedPanelNode().querySelector(".".concat(this["class"].collapsedPanelCounterPostsValue));
 
 	      if (postsCounterNode) {
 	        postsCounterNode.innerHTML = parseInt(postsCounter);
 	      }
 
-	      var commentsCounterNode = this.getCollapsedPanelNode().querySelector(".".concat(this.class.collapsedPanelCounterComments));
-	      var commentsCounterValueNode = this.getCollapsedPanelNode().querySelector(".".concat(this.class.collapsedPanelCounterCommentsValue));
+	      var commentsCounterNode = this.getCollapsedPanelNode().querySelector(".".concat(this["class"].collapsedPanelCounterComments));
+	      var commentsCounterValueNode = this.getCollapsedPanelNode().querySelector(".".concat(this["class"].collapsedPanelCounterCommentsValue));
 	      var panelNode = this.getPanelNode();
 
 	      if (commentsCounterNode && commentsCounterValueNode && panelNode) {
-	        var newCommentCounter = Array.from(panelNode.querySelectorAll(".".concat(this.class.collapsedPanelCounterCommentsValueNewValue))).reduce(function (acc, node) {
-	          return acc + (node.closest(".".concat(_this12.class.postUnfollowed)) ? 0 : parseInt(node.innerHTML));
+	        var newCommentCounter = Array.from(panelNode.querySelectorAll(".".concat(this["class"].collapsedPanelCounterCommentsValueNewValue))).reduce(function (acc, node) {
+	          return acc + (node.closest(".".concat(_this12["class"].postUnfollowed)) ? 0 : parseInt(node.innerHTML));
 	        }, 0);
 	        commentsCounterValueNode.innerHTML = newCommentCounter;
 
 	        if (newCommentCounter > 0) {
-	          commentsCounterNode.classList.add("".concat(this.class.collapsedPanelCounterCommentsShown));
+	          commentsCounterNode.classList.add("".concat(this["class"].collapsedPanelCounterCommentsShown));
 	        } else {
-	          commentsCounterNode.classList.remove("".concat(this.class.collapsedPanelCounterCommentsShown));
+	          commentsCounterNode.classList.remove("".concat(this["class"].collapsedPanelCounterCommentsShown));
 	        }
 	      }
 	    }
@@ -974,9 +970,9 @@ this.BX = this.BX || {};
 
 	      setTimeout(function () {
 	        if (_this13.getPostsCount() > 0) {
-	          panelNode.classList.add("".concat(_this13.class.panelNonEmpty));
+	          panelNode.classList.add("".concat(_this13["class"].panelNonEmpty));
 	        } else {
-	          panelNode.classList.remove("".concat(_this13.class.panelNonEmpty));
+	          panelNode.classList.remove("".concat(_this13["class"].panelNonEmpty));
 	        }
 	      }, 0);
 	    }
@@ -992,7 +988,7 @@ this.BX = this.BX || {};
 	    key: "hideCollapsedPostsPanel",
 	    value: function hideCollapsedPostsPanel() {
 	      if (this.getPostsCount() < main_core.Loc.getMessage('SONET_EXT_LIVEFEED_COLLAPSED_PINNED_PANEL_ITEMS_LIMIT')) {
-	        this.getPanelNode().classList.remove("".concat(this.class.panelCollapsed));
+	        this.getPanelNode().classList.remove("".concat(this["class"].panelCollapsed));
 	        this.removeCollapsedPanel();
 	        this.showPinnedItems();
 	      }
@@ -1000,13 +996,13 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "showCollapsedPanel",
 	    value: function showCollapsedPanel() {
-	      this.getPanelNode().classList.add("".concat(this.class.panelCollapsed));
+	      this.getPanelNode().classList.add("".concat(this["class"].panelCollapsed));
 	      this.animateCollapsedPanel();
 	    }
 	  }, {
 	    key: "hideCollapsedPanel",
 	    value: function hideCollapsedPanel() {
-	      this.getPanelNode().classList.remove("".concat(this.class.panelCollapsed));
+	      this.getPanelNode().classList.remove("".concat(this["class"].panelCollapsed));
 	      this.showPinnedItems();
 	      this.removeCollapsedPanel();
 	    }
@@ -1019,8 +1015,8 @@ this.BX = this.BX || {};
 	        top: 0,
 	        width: '100%'
 	      });
-	      collapsedPanel.classList.remove("".concat(this.class.collapsedPanelShow));
-	      collapsedPanel.classList.add("".concat(this.class.collapsedPanelHide));
+	      collapsedPanel.classList.remove("".concat(this["class"].collapsedPanelShow));
+	      collapsedPanel.classList.add("".concat(this["class"].collapsedPanelHide));
 	    }
 	  }, {
 	    key: "getCommentsNodes",
@@ -1037,22 +1033,22 @@ this.BX = this.BX || {};
 	        return result;
 	      }
 
-	      var commentsNode = document.querySelector(".".concat(this.class.postComments, "[data-bx-comments-entity-xml-id=\"").concat(xmlId, "\"]"));
+	      var commentsNode = document.querySelector(".".concat(this["class"].postComments, "[data-bx-comments-entity-xml-id=\"").concat(xmlId, "\"]"));
 
 	      if (!commentsNode) {
 	        return result;
 	      }
 
-	      var postNode = commentsNode.closest(".".concat(this.class.postPinActive));
+	      var postNode = commentsNode.closest(".".concat(this["class"].postPinActive));
 
 	      if (!postNode) {
 	        return result;
 	      }
 
-	      var newPinnedCommentsNode = postNode.querySelector(".".concat(this.class.collapsedPanelCounterCommentsValueNew));
-	      var newValuePinnedCommentsNode = postNode.querySelector(".".concat(this.class.collapsedPanelCounterCommentsValueNewValue));
-	      var oldPinnedCommentsNode = postNode.querySelector(".".concat(this.class.collapsedPanelCounterCommentsValueOld));
-	      var allPinnedCommentsNode = postNode.querySelector(".".concat(this.class.collapsedPanelCounterCommentsValueAll));
+	      var newPinnedCommentsNode = postNode.querySelector(".".concat(this["class"].collapsedPanelCounterCommentsValueNew));
+	      var newValuePinnedCommentsNode = postNode.querySelector(".".concat(this["class"].collapsedPanelCounterCommentsValueNewValue));
+	      var oldPinnedCommentsNode = postNode.querySelector(".".concat(this["class"].collapsedPanelCounterCommentsValueOld));
+	      var allPinnedCommentsNode = postNode.querySelector(".".concat(this["class"].collapsedPanelCounterCommentsValueAll));
 
 	      if (!newPinnedCommentsNode || !newValuePinnedCommentsNode || !oldPinnedCommentsNode || !allPinnedCommentsNode) {
 	        return result;
@@ -1136,10 +1132,10 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isInteger(value.newValue)) {
 	        newValueNode.innerHTML = "".concat(value.newValue);
 
-	        if (value.newValue > 0 && !newNode.classList.contains("".concat(this.class.collapsedPanelCounterCommentsValueNewActive))) {
-	          newNode.classList.add("".concat(this.class.collapsedPanelCounterCommentsValueNewActive));
-	        } else if (value.newValue <= 0 && newNode.classList.contains("".concat(this.class.collapsedPanelCounterCommentsValueNewActive))) {
-	          newNode.classList.remove("".concat(this.class.collapsedPanelCounterCommentsValueNewActive));
+	        if (value.newValue > 0 && !newNode.classList.contains("".concat(this["class"].collapsedPanelCounterCommentsValueNewActive))) {
+	          newNode.classList.add("".concat(this["class"].collapsedPanelCounterCommentsValueNewActive));
+	        } else if (value.newValue <= 0 && newNode.classList.contains("".concat(this["class"].collapsedPanelCounterCommentsValueNewActive))) {
+	          newNode.classList.remove("".concat(this["class"].collapsedPanelCounterCommentsValueNewActive));
 	        }
 	      }
 
@@ -1156,7 +1152,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getCollapsedPanelNode",
 	    value: function getCollapsedPanelNode() {
-	      return this.getPanelNode().querySelector(".".concat(this.class.collapsedPanel));
+	      return this.getPanelNode().querySelector(".".concat(this["class"].collapsedPanel));
 	    }
 	  }, {
 	    key: "checkTransitionProperty",
@@ -1167,35 +1163,7 @@ this.BX = this.BX || {};
 	  return PinnedPanel;
 	}();
 
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t<div class=\"", "\">", "</div>\n\t\t\t<div class=\"", "\">", "</div>\n\t\t</div>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div id=\"BXCTP_content\" class=\"", "\"></div>"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1, _templateObject2, _templateObject3;
 	var TaskCreator = /*#__PURE__*/function () {
 	  function TaskCreator() {
 	    babelHelpers.classCallCheck(this, TaskCreator);
@@ -1294,10 +1262,10 @@ this.BX = this.BX || {};
 	          contentColor: 'white',
 	          contentNoPaddings: true,
 	          buttons: [],
-	          content: main_core.Tag.render(_templateObject$1(), this.cssClass.popupContent),
+	          content: main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div id=\"BXCTP_content\" class=\"", "\"></div>"])), this.cssClass.popupContent),
 	          events: {
 	            onAfterPopupShow: function onAfterPopupShow() {
-	              _this.createTaskSetContent(main_core.Tag.render(_templateObject2(), _this.cssClass.popupTitle, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_WAIT')));
+	              _this.createTaskSetContent(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\">", "</div>"])), _this.cssClass.popupTitle, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_WAIT')));
 
 	              main_core.ajax.runAction('socialnetwork.api.livefeed.getRawEntryData', {
 	                data: {
@@ -1352,28 +1320,36 @@ this.BX = this.BX || {};
 	                    taskData.PARENT_ID = parseInt(params.entityType);
 	                  }
 
-	                  BX.Tasks.Util.Query.runOnce('task.add', {
-	                    data: taskData
-	                  }).then(function (result) {
-	                    var resultData = result.getData();
+	                  main_core.ajax.runComponentAction('bitrix:tasks.task', 'legacyAdd', {
+	                    mode: 'class',
+	                    data: {
+	                      data: taskData
+	                    }
+	                  }).then(function (response) {
+	                    var resultData = response.data;
 
-	                    if (main_core.Type.isPlainObject(resultData) && main_core.Type.isPlainObject(resultData.DATA) && !main_core.Type.isUndefined(resultData.DATA.ID) && parseInt(resultData.DATA.ID) > 0) {
-	                      _this.createTaskSetContentSuccess(resultData.DATA.ID);
+	                    _this.createTaskSetContentSuccess(resultData.DATA.ID);
 
-	                      main_core.ajax.runAction('socialnetwork.api.livefeed.createEntityComment', {
-	                        data: {
-	                          params: {
-	                            postEntityType: main_core.Type.isStringFilled(params.postEntityType) ? params.postEntityType : params.entityType,
-	                            sourceEntityType: params.entityType,
-	                            sourceEntityId: params.entityId,
-	                            entityType: 'TASK',
-	                            entityId: resultData.DATA.ID,
-	                            logId: main_core.Type.isNumber(params.logId) ? params.logId : logId > 0 ? logId : null
-	                          }
+	                    main_core.ajax.runAction('socialnetwork.api.livefeed.createEntityComment', {
+	                      data: {
+	                        params: {
+	                          postEntityType: main_core.Type.isStringFilled(params.postEntityType) ? params.postEntityType : params.entityType,
+	                          sourceEntityType: params.entityType,
+	                          sourceEntityId: params.entityId,
+	                          entityType: 'TASK',
+	                          entityId: resultData.DATA.ID,
+	                          logId: main_core.Type.isNumber(params.logId) ? params.logId : logId > 0 ? logId : null
 	                        }
-	                      }).then(function () {}, function () {});
-	                    } else {
-	                      _this.createTaskSetContentFailure(result.getErrors().getMessages());
+	                      }
+	                    }).then(function () {}, function () {});
+	                  }, function (response) {
+	                    if (response.errors && response.errors.length) {
+	                      var errors = [];
+	                      response.errors.forEach(function (error) {
+	                        errors.push(error.message);
+	                      });
+
+	                      _this.createTaskSetContentFailure(errors);
 	                    }
 	                  });
 	                } else {
@@ -1412,7 +1388,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "createTaskSetContentFailure",
 	    value: function createTaskSetContentFailure(errors) {
-	      this.createTaskSetContent(main_core.Tag.render(_templateObject3(), this.cssClass.popupTitle, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_FAILURE_TITLE'), this.cssClass.popupDescription, errors.join('<br>')));
+	      this.createTaskSetContent(main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t<div class=\"", "\">", "</div>\n\t\t\t<div class=\"", "\">", "</div>\n\t\t</div>"])), this.cssClass.popupTitle, main_core.Loc.getMessage('SONET_EXT_LIVEFEED_CREATE_TASK_FAILURE_TITLE'), this.cssClass.popupDescription, errors.join('<br>')));
 	    }
 	  }, {
 	    key: "createTaskSetContent",
@@ -1450,15 +1426,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(TaskCreator, "signedFiles", null);
 	babelHelpers.defineProperty(TaskCreator, "sliderUrl", '');
 
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$2;
 
 	var Post$$1 = /*#__PURE__*/function () {
 	  function Post$$1() {
@@ -1470,7 +1438,7 @@ this.BX = this.BX || {};
 	    value: function showBackgroundWarning(_ref) {
 	      var urlToEdit = _ref.urlToEdit,
 	          menuPopupWindow = _ref.menuPopupWindow;
-	      var content = main_core.Tag.render(_templateObject$2(), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_POST_BACKGROUND_EDIT_WARNING_DESCRIPTION'));
+	      var content = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"])), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_POST_BACKGROUND_EDIT_WARNING_DESCRIPTION'));
 	      var dialog = new main_popup.Popup('backgroundWarning', null, {
 	        autoHide: true,
 	        closeByEsc: true,
@@ -1732,7 +1700,7 @@ this.BX = this.BX || {};
 	        className: 'menu-popup-no-icon',
 	        onclick: function onclick(e) {
 	          if (confirm(main_core.Loc.getMessage('sonetLMenuDeleteConfirm'))) {
-	            FeedInstance.delete({
+	            FeedInstance["delete"]({
 	              logId: log_id,
 	              nodeId: "log-entry-".concat(log_id),
 	              ind: ind
@@ -1843,7 +1811,7 @@ this.BX = this.BX || {};
 	    this.counterDecrementStack = 0;
 	    this.counterValue = 0;
 	    this.lockCounterAnimation = null;
-	    this.class = {
+	    this["class"] = {
 	      informerFixed: 'feed-new-message-informer-fixed',
 	      informerAnimation: 'feed-new-message-informer-anim',
 	      informerFixedAnimation: 'feed-new-message-informer-fix-anim',
@@ -1915,7 +1883,7 @@ this.BX = this.BX || {};
 	            id = _event$getData6[1],
 	            options = _event$getData6[2];
 
-	        if (!main_core.Type.isObjectLike(options) || !options.live || !options.new) {
+	        if (!main_core.Type.isObjectLike(options) || !options.live || !options["new"]) {
 	          return;
 	        }
 
@@ -1955,8 +1923,8 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      var counterTextNode = this.container.querySelector("span.".concat(this.class.counterText));
-	      var reloadNode = this.container.querySelector("span.".concat(this.class.reloadContainer));
+	      var counterTextNode = this.container.querySelector("span.".concat(this["class"].counterText));
+	      var reloadNode = this.container.querySelector("span.".concat(this["class"].reloadContainer));
 
 	      if (this.lockCounterAnimation) {
 	        setTimeout(function () {
@@ -1978,10 +1946,10 @@ this.BX = this.BX || {};
 	        if (this.plus && reloadNode && !reloadNode.classList.contains('--hidden') && counterTextNode) {
 	          reloadNode.classList.add('--hidden');
 	          counterTextNode.classList.remove('--hidden');
-	          this.plus.classList.remove("".concat(this.class.plusHidden));
+	          this.plus.classList.remove("".concat(this["class"].plusHidden));
 	        }
 	      } else if (this.wrap) {
-	        if (zeroCounterFromDb && this.wrap.classList.contains("".concat(this.class.informerAnimation))) {
+	        if (zeroCounterFromDb && this.wrap.classList.contains("".concat(this["class"].informerAnimation))) {
 	          if (counterTextNode && reloadNode) {
 	            counterTextNode.classList.add('--hidden');
 	            reloadNode.classList.remove('--hidden');
@@ -2002,7 +1970,7 @@ this.BX = this.BX || {};
 	      }
 
 	      this.wrap.style.visibility = 'visible';
-	      this.wrap.classList.add("".concat(this.class.informerAnimation));
+	      this.wrap.classList.add("".concat(this["class"].informerAnimation));
 	    }
 	  }, {
 	    key: "hideWrapAnimation",
@@ -2011,7 +1979,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      this.wrap.classList.remove("".concat(this.class.informerAnimation));
+	      this.wrap.classList.remove("".concat(this["class"].informerAnimation));
 	      this.wrap.style.visibility = 'hidden';
 	    }
 	  }, {
@@ -2021,10 +1989,10 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      var counterWaiterNode = this.container.querySelector("span.".concat(this.class.icon));
+	      var counterWaiterNode = this.container.querySelector("span.".concat(this["class"].icon));
 
 	      if (counterWaiterNode) {
-	        counterWaiterNode.classList.add(this.class.iconRotating);
+	        counterWaiterNode.classList.add(this["class"].iconRotating);
 	      }
 	    }
 	  }, {
@@ -2034,10 +2002,10 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      var counterNodeWaiter = this.container.querySelector("span.".concat(this.class.icon));
+	      var counterNodeWaiter = this.container.querySelector("span.".concat(this["class"].icon));
 
 	      if (counterNodeWaiter) {
-	        counterNodeWaiter.classList.remove(this.class.iconRotating);
+	        counterNodeWaiter.classList.remove(this["class"].iconRotating);
 	      }
 	    }
 	  }, {
@@ -2049,7 +2017,7 @@ this.BX = this.BX || {};
 
 	      var top = this.wrap.parentNode.getBoundingClientRect().top; //		const counterRect = this.container.getBoundingClientRect();
 
-	      if (top <= 0) {
+	      if (top <= 53) {
 	        /*
 	        			if (!this.wrap.classList.contains(`${this.class.informerFixed}`))
 	        			{
@@ -2068,7 +2036,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      this.wrap.classList.add("".concat(this.class.informerFixed), "".concat(this.class.informerFixedAnimation));
+	      this.wrap.classList.add("".concat(this["class"].informerFixed), "".concat(this["class"].informerFixedAnimation));
 	    }
 	  }, {
 	    key: "unfixWrap",
@@ -2077,7 +2045,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      this.wrap.classList.remove("".concat(this.class.informerFixed), "".concat(this.class.informerFixedAnimation));
+	      this.wrap.classList.remove("".concat(this["class"].informerFixed), "".concat(this["class"].informerFixedAnimation));
 	    }
 	  }, {
 	    key: "recover",
@@ -2086,7 +2054,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      var counterContainerNode = this.container.querySelector("span.".concat(this.class.counterContainer));
+	      var counterContainerNode = this.container.querySelector("span.".concat(this["class"].counterContainer));
 
 	      if (!counterContainerNode) {
 	        return;
@@ -2096,7 +2064,7 @@ this.BX = this.BX || {};
 	      this.hideReloadNode();
 
 	      if (this.plus) {
-	        this.plus.classList.add("".concat(this.class.plusHidden));
+	        this.plus.classList.add("".concat(this["class"].plusHidden));
 	      }
 	    }
 	  }, {
@@ -2106,7 +2074,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      var reloadNode = this.container.querySelector("span.".concat(this.class.reloadContainer));
+	      var reloadNode = this.container.querySelector("span.".concat(this["class"].reloadContainer));
 
 	      if (!reloadNode) {
 	        return;
@@ -2564,25 +2532,7 @@ this.BX = this.BX || {};
 	  return ContentView;
 	}();
 
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"feed-wrap\" style=\"display:", ";\"></div>"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div id=\"content_block_", "\" class=\"feed-wrap\" style=\"display: block;\"></div>"]);
-
-	  _templateObject$3 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$3, _templateObject2$1;
 
 	var Page = /*#__PURE__*/function () {
 	  function Page() {
@@ -2602,7 +2552,7 @@ this.BX = this.BX || {};
 	    this.blogCommentFormUID = '';
 	    this.signedParameters = '';
 	    this.componentName = '';
-	    this.class = {};
+	    this["class"] = {};
 	    main_core.Event.ready(function () {
 	      _this.init();
 	    });
@@ -2710,7 +2660,7 @@ this.BX = this.BX || {};
 	          _this2.clearContainerExternal();
 
 	          BX.LazyLoad.clearImages();
-	          var pageNode = main_core.Tag.render(_templateObject$3(), Math.floor(Math.random() * 1000));
+	          var pageNode = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["<div id=\"content_block_", "\" class=\"feed-wrap\" style=\"display: block;\"></div>"])), Math.floor(Math.random() * 1000));
 	          feedContainer.appendChild(pageNode);
 	          main_core.Runtime.html(pageNode, responseData.html).then(function () {
 	            MoreButton$$1.recalcPostsList();
@@ -2724,7 +2674,7 @@ this.BX = this.BX || {};
 	          MoreButton$$1.clearCommentsList();
 	          var informerWrap = InformerInstance.getWrap();
 
-	          if (informerWrap && informerWrap.classList.contains(InformerInstance.class.informerFixed)) {
+	          if (informerWrap && informerWrap.classList.contains(InformerInstance["class"].informerFixed)) {
 	            new BX.easing({
 	              duration: 500,
 	              start: {
@@ -2862,7 +2812,7 @@ this.BX = this.BX || {};
 	        if (responseData.html.length > 0 && lastEntryTimestamp > 0 && (parseInt(_this3.firstPageLastTS) <= 0 || lastEntryTimestamp < parseInt(_this3.firstPageLastTS) || lastEntryTimestamp == parseInt(_this3.firstPageLastTS) && !main_core.Type.isNull(lastEntryId) && lastEntryId < parseInt(_this3.firstPageLastId))) {
 	          MoreButton$$1.clearCommentsList();
 	          var contentBlockId = "content_block_".concat(Math.floor(Math.random() * 1000));
-	          var pageNode = main_core.Tag.render(_templateObject2$1(), contentBlockId, _this3.nextPageFirst ? 'none' : 'block');
+	          var pageNode = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"feed-wrap\" style=\"display:", ";\"></div>"])), contentBlockId, _this3.nextPageFirst ? 'none' : 'block');
 	          var feedContainer = document.getElementById('log_internal_container');
 
 	          if (!feedContainer) {
@@ -3004,7 +2954,7 @@ this.BX = this.BX || {};
 	      }
 
 	      this.scrollInitialized = true;
-	      document.addEventListener('scroll', main_core.Runtime.throttle(this.onFeedScroll.bind(this), 100));
+	      document.addEventListener('scroll', this.onFeedScroll.bind(this));
 	    }
 	  }, {
 	    key: "onFeedScroll",
@@ -3024,15 +2974,7 @@ this.BX = this.BX || {};
 	  return Page;
 	}();
 
-	function _templateObject$4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"", "\">"]);
-
-	  _templateObject$4 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$4;
 	var CommentForm = /*#__PURE__*/function () {
 	  function CommentForm() {
 	    babelHelpers.classCallCheck(this, CommentForm);
@@ -3095,7 +3037,7 @@ this.BX = this.BX || {};
 	            value = _ref4[1];
 
 	        if (!obj.form[key]) {
-	          obj.form.appendChild(main_core.Tag.render(_templateObject$4(), key));
+	          obj.form.appendChild(main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"", "\">"])), key));
 	        }
 
 	        obj.form[key].value = value;
@@ -3166,25 +3108,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(CommentForm, "resultFieldTaskIdList", []);
 	babelHelpers.defineProperty(CommentForm, "taskResultCommentsData", {});
 
-	function _templateObject2$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"feed-add-error\" style=\"margin: 18px 37px 4px 84px;\"><span class=\"feed-add-info-text\"><span class=\"feed-add-info-icon\"></span><span>", "</span></span></div>"]);
-
-	  _templateObject2$2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"feed-add-successfully\"><span class=\"feed-add-info-text\"><span class=\"feed-add-info-icon\"></span><span>", "</span></span></span></div>"]);
-
-	  _templateObject$5 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$5, _templateObject2$2;
 
 	var Feed = /*#__PURE__*/function () {
 	  function Feed() {
@@ -3498,7 +3422,7 @@ this.BX = this.BX || {};
 	          node.style.marginBottom = 0;
 	          main_core.Dom.clean(node);
 	          node.classList.add('feed-post-block-deleted');
-	          node.appendChild(main_core.Tag.render(_templateObject$5(), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_DELETE_SUCCESS')));
+	          node.appendChild(main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["<div class=\"feed-add-successfully\"><span class=\"feed-add-info-text\"><span class=\"feed-add-info-icon\"></span><span>", "</span></span></span></div>"])), main_core.Loc.getMessage('SONET_EXT_LIVEFEED_DELETE_SUCCESS')));
 	        }
 	      }).start();
 	    }
@@ -3509,7 +3433,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      node.insertBefore(main_core.Tag.render(_templateObject2$2(), main_core.Loc.getMessage('sonetLMenuDeleteFailure')), node.firstChild);
+	      node.insertBefore(main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["<div class=\"feed-add-error\" style=\"margin: 18px 37px 4px 84px;\"><span class=\"feed-add-info-text\"><span class=\"feed-add-info-icon\"></span><span>", "</span></span></div>"])), main_core.Loc.getMessage('sonetLMenuDeleteFailure')), node.firstChild);
 	    }
 	  }, {
 	    key: "getMoreButtons",

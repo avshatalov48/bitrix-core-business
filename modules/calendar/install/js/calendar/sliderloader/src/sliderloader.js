@@ -56,19 +56,24 @@ export class SliderLoader
 			this.extensionParams.isLocationCalendar = options.isLocationCalendar;
 		}
 
-		if(options.roomsManager)
+		if (options.roomsManager)
 		{
 			this.extensionParams.roomsManager = options.roomsManager;
 		}
 
-		if(options.locationAccess)
+		if (options.locationAccess)
 		{
 			this.extensionParams.locationAccess = options.locationAccess;
 		}
 
-		if(options.locationCapacity)
+		if (options.locationCapacity)
 		{
 			this.extensionParams.locationCapacity = options.locationCapacity;
+		}
+
+		if (options.dayOfWeekMonthFormat)
+		{
+			this.extensionParams.dayOfWeekMonthFormat = options.dayOfWeekMonthFormat;
 		}
 
 		if (Type.isDate(options.entryDateFrom))

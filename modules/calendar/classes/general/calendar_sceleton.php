@@ -28,6 +28,7 @@ class CCalendarSceleton
 			'ui.confetti',
 			'calendar.util',
 			'calendar.entry',
+			'calendar.search',
 			'calendar.controls',
 			'calendar.sliderloader',
 			'calendar.sync.manager',

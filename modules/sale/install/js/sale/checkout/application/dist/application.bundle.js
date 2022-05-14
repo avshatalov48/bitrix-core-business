@@ -76,6 +76,15 @@ this.BX.Sale = this.BX.Sale || {};
 	        status: this.$store.getters['basket/getStatus']
 	      };
 	    },
+	    getPaySystem: function getPaySystem() {
+	      return this.$store.getters['pay-system/getPaySystem'];
+	    },
+	    getCheck: function getCheck() {
+	      return this.$store.getters['check/getCheck'];
+	    },
+	    getPayment: function getPayment() {
+	      return this.$store.getters['payment/getPayment'];
+	    },
 	    getPaymentConfig: function getPaymentConfig() {
 	      return {
 	        status: this.$store.getters['pay-system/getStatus'],
@@ -117,7 +126,7 @@ this.BX.Sale = this.BX.Sale || {};
 	    main_core_events.EventEmitter.unsubscribe(sale_checkout_const.EventType.basket.backdropTotalClose);
 	  },
 	  // language=Vue
-	  template: "\n      <div class=\"checkout-container-wrapper\">\n\t\t  <div class=\"checkout-basket-container\">\n\t\t\t<template v-if=\"getStage === stage.edit\">\n\t\t\t  <sale-checkout-view-product :items=\"getBasket\" :total=\"getTotal\" :mode=\"mode.edit\" :errors=\"getBasketErrors\" :config=\"getBasketConfig\"/>\n\t\t\t  <sale-checkout-view-property :items=\"getProperty\" :mode=\"mode.edit\" :errors=\"getPropertyErrors\"/>\n\t\t\t  <sale-checkout-view-user_consent :item=\"getConsent\" v-if=\"needCheckConsent\"/>\n\t\t\t  <template v-if=\"checkoutButtonEnabled\">\n\t\t\t\t<sale-checkout-view-element-button-checkout :title=\"getTitleCheckoutButton.title\" :wait=\"getStatus === status.wait\"/>\n\t\t\t  </template>\n\t\t\t  <template v-else>\n\t\t\t\t<sale-checkout-view-element-button-checkout_disabled :title=\"getTitleCheckoutButton.title\"/>\n\t\t\t  </template>\n\t\t\t  <sale-checkout-view-alert-list :errors=\"getErrors\"/>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.success\">\n\t\t\t  <template v-if=\"hasPS\">\n\t\t\t\t<sale-checkout-view-successful :items=\"getProperty\" :order=\"getOrder\" :config=\"getSuccessfulConfig\"/>\n\t\t\t  </template>\n\t\t\t  <template v-else>\n\t\t\t\t<sale-checkout-view-successful-without-ps :items=\"getProperty\" :order=\"getOrder\" :config=\"getSuccessfulConfig\"/>\n\t\t\t  </template>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.payed\">\n              <sale-checkout-view-successful_ps_return :items=\"getProperty\" :order=\"getOrder\" :total=\"getTotal\" :config=\"getSuccessfulConfig\"/>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.view\">\n\t\t\t  <sale-checkout-view-product :items=\"getBasket\" :total=\"getTotal\" :mode=\"mode.view\" :errors=\"getBasketErrors\" :config=\"getBasketConfig\"/>\n\t\t\t  <sale-checkout-view-property :items=\"getProperty\" :mode=\"mode.view\" :order=\"getOrder\"/>\n\t\t\t  <sale-checkout-view-product-summary :total=\"getTotal\" :mode=\"mode.view\"/>\n\t\t\t  <sale-checkout-view-payment :order=\"getOrder\" :config=\"getPaymentConfig\"/>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.empty\">\n\t\t\t  <sale-checkout-view-empty_cart :config=\"getEmptyCartConfig\"/>\n\t\t\t</template>\n\t\t  </div>\n\t\t  <template v-if=\"getStage === stage.view\">\n\t\t\t<sale-checkout-view-total :total=\"getTotal\" :showBackdrop=\"totalIsShow\"/>\n\t\t  </template>\n      </div>\n\t"
+	  template: "\n      <div class=\"checkout-container-wrapper\">\n\t\t  <div class=\"checkout-basket-container\">\n\t\t\t<template v-if=\"getStage === stage.edit\">\n\t\t\t  <sale-checkout-view-product :items=\"getBasket\" :total=\"getTotal\" :mode=\"mode.edit\" :errors=\"getBasketErrors\" :config=\"getBasketConfig\"/>\n\t\t\t  <sale-checkout-view-property :items=\"getProperty\" :mode=\"mode.edit\" :errors=\"getPropertyErrors\"/>\n\t\t\t  <sale-checkout-view-alert-list :errors=\"getErrors\"/>\n\t\t\t  <sale-checkout-view-user_consent :item=\"getConsent\" v-if=\"needCheckConsent\"/>\n\t\t\t  <template v-if=\"checkoutButtonEnabled\">\n\t\t\t\t<sale-checkout-view-element-button-checkout :title=\"getTitleCheckoutButton.title\" :wait=\"getStatus === status.wait\"/>\n\t\t\t  </template>\n\t\t\t  <template v-else>\n\t\t\t\t<sale-checkout-view-element-button-checkout_disabled :title=\"getTitleCheckoutButton.title\"/>\n\t\t\t  </template>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.success\">\n\t\t\t  <template v-if=\"hasPS\">\n\t\t\t\t<sale-checkout-view-successful :items=\"getProperty\" :order=\"getOrder\" :config=\"getSuccessfulConfig\"/>\n\t\t\t  </template>\n\t\t\t  <template v-else>\n\t\t\t\t<sale-checkout-view-successful-without-ps :items=\"getProperty\" :order=\"getOrder\" :config=\"getSuccessfulConfig\"/>\n\t\t\t  </template>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.payed\">\n              <sale-checkout-view-successful_ps_return :items=\"getProperty\" :order=\"getOrder\" :total=\"getTotal\" :config=\"getSuccessfulConfig\"/>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.view\">\n\t\t\t  <sale-checkout-view-product :items=\"getBasket\" :total=\"getTotal\" :mode=\"mode.view\" :errors=\"getBasketErrors\" :config=\"getBasketConfig\"/>\n\t\t\t  <sale-checkout-view-property :items=\"getProperty\" :mode=\"mode.view\" :order=\"getOrder\"/>\n\t\t\t  <sale-checkout-view-product-summary :total=\"getTotal\" :mode=\"mode.view\"/>\n              <sale-checkout-view-payment :order=\"getOrder\" :payments=\"getPayment\" :paySystems=\"getPaySystem\" :check=\"getCheck\" :config=\"getPaymentConfig\"/>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.empty\">\n\t\t\t  <sale-checkout-view-empty_cart :config=\"getEmptyCartConfig\"/>\n\t\t\t</template>\n\t\t  </div>\n\t\t  <template v-if=\"getStage === stage.view\">\n\t\t\t<sale-checkout-view-total :total=\"getTotal\" :showBackdrop=\"totalIsShow\"/>\n\t\t  </template>\n      </div>\n\t"
 	});
 
 	function _templateObject() {
@@ -190,7 +199,7 @@ this.BX.Sale = this.BX.Sale || {};
 	        messages: this.options.messages
 	      };
 	      contextVariablesApp.path.location = sale_checkout_lib.Url.getCurrentUrl();
-	      return builder.addModel(sale_checkout_model.Order.create()).addModel(sale_checkout_model.Basket.create().setVariables(contextVariablesBasket)).addModel(sale_checkout_model.Property.create()).addModel(sale_checkout_model.PaySystem.create()).addModel(sale_checkout_model.Application.create().setVariables(contextVariablesApp)).addModel(sale_checkout_model.Consent.create()).build();
+	      return builder.addModel(sale_checkout_model.Order.create()).addModel(sale_checkout_model.Basket.create().setVariables(contextVariablesBasket)).addModel(sale_checkout_model.Property.create()).addModel(sale_checkout_model.Payment.create()).addModel(sale_checkout_model.Check.create()).addModel(sale_checkout_model.PaySystem.create()).addModel(sale_checkout_model.Application.create().setVariables(contextVariablesApp)).addModel(sale_checkout_model.Consent.create()).build();
 	    }
 	    /**
 	     * @private
@@ -242,6 +251,8 @@ this.BX.Sale = this.BX.Sale || {};
 	                order: this.options.order,
 	                basket: this.options.basket,
 	                paySystem: this.options.paySystem,
+	                payment: this.options.payment,
+	                check: this.options.check,
 	                total: this.options.total,
 	                currency: this.options.currency,
 	                discount: this.options.discount,
@@ -322,6 +333,28 @@ this.BX.Sale = this.BX.Sale || {};
 	      if (main_core.Type.isObject(data.property)) {
 	        data.property.forEach(function (fields, index) {
 	          _this3.store.dispatch('property/changeItem', {
+	            index: index,
+	            fields: fields
+	          });
+	        });
+	      } //endregion
+	      //region: payment model
+
+
+	      if (main_core.Type.isObject(data.payment)) {
+	        data.payment.forEach(function (fields, index) {
+	          _this3.store.dispatch('payment/changeItem', {
+	            index: index,
+	            fields: fields
+	          });
+	        });
+	      } //endregion
+	      // region: check model
+
+
+	      if (main_core.Type.isObject(data.check)) {
+	        data.check.forEach(function (fields, index) {
+	          _this3.store.dispatch('check/changeItem', {
 	            index: index,
 	            fields: fields
 	          });

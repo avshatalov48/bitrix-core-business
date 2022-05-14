@@ -2,15 +2,7 @@ this.BX = this.BX || {};
 (function (exports,main_popup,ui_buttons,ui_alerts,main_core_events,ui_entitySelector,main_core) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"", "\" value=\"", "", "\" >"], ["<input type=\"hidden\" name=\"", "\" value=\"", "", "\" \\>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	var Util = /*#__PURE__*/function () {
 	  function Util() {
 	    babelHelpers.classCallCheck(this, Util);
@@ -340,7 +332,7 @@ this.BX = this.BX || {};
 	        }
 
 	        if (prefix) {
-	          inputContainerNode.appendChild(main_core.Tag.render(_templateObject(), inputNodeName, prefix, item.id));
+	          inputContainerNode.appendChild(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"", "\" value=\"", "", "\" >"], ["<input type=\"hidden\" name=\"", "\" value=\"", "", "\" \\>"])), inputNodeName, prefix, item.id));
 	        }
 	      });
 	    }
@@ -2458,6 +2450,13 @@ this.BX = this.BX || {};
 	                  });
 	                  selectorInstance.itemsSelected = selectedUsers;
 	                  selectorInstance.reinit();
+	                });
+	              }
+
+	              if (main_core.Type.isArray(response.SUCCESSFULL_USERS_ID) && response.SUCCESSFULL_USERS_ID.length > 0) {
+	                window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', {
+	                  code: 'afterInvite',
+	                  data: {}
 	                });
 	              }
 

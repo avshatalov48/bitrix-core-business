@@ -145,8 +145,7 @@ class DocumentCard extends BaseCard
 						{
 							card.isConductLocked = false;
 
-							let sliders = BX.SidePanel.Instance.getOpenSliders();
-							sliders.forEach((slider) => {
+							BX.SidePanel.Instance.getOpenSliders().forEach((slider) => {
 								if (slider.getWindow()?.BX.Catalog?.DocumentGridManager)
 								{
 									slider.allowChangeHistory = false;
@@ -335,6 +334,14 @@ class DocumentCard extends BaseCard
 	subscribeToEntityCreateEvent()
 	{
 		EventEmitter.subscribe('onEntityCreate', (event) => {
+			window.top.BX.onCustomEvent('DocumentCard:onEntityCreate');
+			BX.SidePanel.Instance.getOpenSliders().forEach((slider) => {
+				if (slider.getWindow()?.BX.Catalog?.DocumentGridManager)
+				{
+					slider.getWindow().BX.onCustomEvent('DocumentCard:onEntityCreate');
+				}
+			});
+
 			let editor = event?.data[0]?.sender;
 			if (editor)
 			{
@@ -347,6 +354,10 @@ class DocumentCard extends BaseCard
 	subscribeToBeforeEntityRedirectEvent()
 	{
 		EventEmitter.subscribe('beforeEntityRedirect', (event) => {
+			window.top.BX.onCustomEvent('DocumentCard:onBeforeEntityRedirect');
+			BX.SidePanel.Instance.getOpenSliders().forEach((slider) => {
+				slider.getWindow().BX.onCustomEvent('DocumentCard:onBeforeEntityRedirect');
+			});
 			let editor = event?.data[0]?.sender;
 			if (editor)
 			{

@@ -655,6 +655,7 @@ class CCloudStorageService_OpenStackStorage extends CCloudStorageService
 			"file_size" => array(),
 			"file_mtime" => array(),
 			"file_hash" => array(),
+			"last_key" => "",
 		);
 
 		$filePath = trim($filePath, '/');
@@ -723,6 +724,7 @@ class CCloudStorageService_OpenStackStorage extends CCloudStorageService
 										$result["file_size"][] = $a["#"]["bytes"][0]["#"];
 										$result["file_mtime"][] = mb_substr($a["#"]["last_modified"][0]["#"], 0, 19);
 										$result["file_hash"][] = $a["#"]["hash"][0]["#"];
+										$result["last_key"] = $file_name;
 									}
 								}
 							}

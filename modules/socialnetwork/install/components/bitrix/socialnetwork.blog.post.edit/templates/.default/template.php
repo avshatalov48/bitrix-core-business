@@ -18,7 +18,6 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Page\FrameStatic;
-use Bitrix\Main\Security\Random;
 use Bitrix\Main\UI;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\Integration\Calendar\ApiVersion;
@@ -114,7 +113,7 @@ if (!empty($arResult["FATAL_MESSAGE"]))
 	<div id="feed-add-post-block<?=$arParams["FORM_ID"]?>" class="feed-add-post-block blog-post-edit"><?php
 if (!empty($arResult["OK_MESSAGE"]) || !empty($arResult["ERROR_MESSAGE"]))
 {
-	?><div id="feed-add-post-form-notice-block<?= $arParams["FORM_ID"] ?>" class="feed-notice-block" style="display:none;"><?php
+	?><div id="feed-add-post-form-notice-block<?= $arParams["FORM_ID"] ?>" class="feed-notice-block feed-post-form-block-hidden"><?php
 		if (!empty($arResult["OK_MESSAGE"]))
 		{
 			?><div class="feed-add-successfully">
@@ -521,7 +520,7 @@ HTML;
 		]);
 		$postFormActionUri = $uri->getUri();
 
-		$selectorId = Random::getString(6);
+		$selectorId = 'dest-selector-blog-post-form';
 
 		?><div id="microblog-form">
 		<form action="<?=htmlspecialcharsbx($postFormActionUri)?>" id="blogPostForm" name="blogPostForm" method="POST" enctype="multipart/form-data" target="_self" data-bx-selector-id="<?=htmlspecialcharsbx($selectorId)?>">
@@ -695,7 +694,7 @@ HTML;
 					?><input type="hidden" name="DEST_CODES[]" value="UP<?=(int)$arParams['USER_ID']?>" /><?php
 				}
 			?></div><?php //feed-add-post-form-wrap
-			?><div id="feed-add-post-content-message-add-ins"><?php
+			?><div id="feed-add-post-content-message-add-ins" class="feed-add-post-content-message-add-ins feed-post-form-block-hidden"><?php
 				if (in_array('vote', $arResult['tabs'], true))
 				{
 					?><div id="feed-add-post-content-vote" style="display: none;"><?php
@@ -835,7 +834,7 @@ HTML;
 									}
 								}
 
-								$selectorId = Random::getString(6);
+								$selectorId = 'dest-selector-blog-post-form-grat';
 								?>
 
 								new BX.Socialnetwork.Livefeed.PostFormGratSelector({
@@ -1083,9 +1082,9 @@ HTML;
 					];
 				}
 
-				?><div class="feed-add-post-bottom-alert" id="feed-add-post-bottom-alert<?= $arParams['FORM_ID'] ?>"></div><?php
+				?><div class="feed-add-post-bottom-alert feed-post-form-block-hidden" id="feed-add-post-bottom-alert<?= $arParams['FORM_ID'] ?>"></div><?php
 
-				?><div class="feed-buttons-block" id="feed-add-buttons-block<?=$arParams["FORM_ID"]?>" style="display:none;"><?php
+				?><div class="feed-buttons-block feed-post-form-block-hidden" id="feed-add-buttons-block<?=$arParams["FORM_ID"]?>"><?php
 					$scriptFunc = [];
 					foreach ($arButtons as $val)
 					{

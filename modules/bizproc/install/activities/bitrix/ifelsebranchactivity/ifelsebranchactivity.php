@@ -1,15 +1,14 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
 $runtime = CBPRuntime::GetRuntime();
-$runtime->IncludeActivityFile("SequenceActivity");
+$runtime->IncludeActivityFile('SequenceActivity');
 
-class CBPIfElseBranchActivity
-	extends CBPSequenceActivity
+class CBPIfElseBranchActivity extends CBPSequenceActivity
 {
 	public function __construct($name)
 	{
@@ -18,6 +17,16 @@ class CBPIfElseBranchActivity
 			"Title" => "",
 			"Condition" => null,
 		];
+	}
+
+	public function pullProperties(): array
+	{
+		$condition = $this->Condition;
+		$this->Condition = null;
+		$result = parent::pullProperties();
+		$this->Condition = $condition;
+
+		return $result;
 	}
 
 	protected function GetACNames()
@@ -59,7 +68,7 @@ class CBPIfElseBranchActivity
 		}
 	}
 
-	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
+	public static function ValidateProperties($arTestProperties = [], CBPWorkflowTemplateUser $user = null)
 	{
 		$arErrors = [];
 
@@ -137,9 +146,16 @@ class CBPIfElseBranchActivity
 				$activityKey,
 				"GetPropertiesDialog",
 				[
-					$documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables,
+					$documentType,
+					$arWorkflowTemplate,
+					$arWorkflowParameters,
+					$arWorkflowVariables,
 					(($defaultCondition == $activityKey) ? $defaultConditionValue : null),
-					$arCurrentValues, $formName, $popupWindow, $currentSiteId, $arWorkflowConstants
+					$arCurrentValues,
+					$formName,
+					$popupWindow,
+					$currentSiteId,
+					$arWorkflowConstants,
 				]
 			);
 			if ($v == null)
@@ -166,7 +182,7 @@ class CBPIfElseBranchActivity
 			[
 				"arActivities" => $arActivities,
 				"arCurrentValues" => $arCurrentValues,
-				"firstConditionType" => $firstConditionType
+				"firstConditionType" => $firstConditionType,
 			]
 		);
 	}
@@ -181,10 +197,10 @@ class CBPIfElseBranchActivity
 
 		if (!array_key_exists($arCurrentValues["condition_type"], $arActivities))
 		{
-			$arErrors[] = array(
+			$arErrors[] = [
 				"code" => "",
 				"message" => GetMessage("BPIEBA_EMPTY_TYPE"),
-			);
+			];
 
 			return false;
 		}
@@ -207,8 +223,13 @@ class CBPIfElseBranchActivity
 			$arCurrentValues["condition_type"],
 			"GetPropertiesDialogValues",
 			[
-				$documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables,
-				$arCurrentValues, &$arErrors, $arWorkflowConstants
+				$documentType,
+				$arWorkflowTemplate,
+				$arWorkflowParameters,
+				$arWorkflowVariables,
+				$arCurrentValues,
+				&$arErrors,
+				$arWorkflowConstants,
 			]
 		);
 

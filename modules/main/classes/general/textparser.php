@@ -812,11 +812,16 @@ class CTextParser
 
 		if (!isset($this->allow["USER"]) || $this->allow["USER"] != "N")
 		{
-			$text = preg_replace_callback(
-				"/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER,
-				array($this, "convert_user"),
-				$text
-			);
+			do
+			{
+				$textOriginal = $text;
+				$text = preg_replace_callback(
+					"/\[user\s*=\s*([^\]]*)\]((?:(?!\[user\s*=\s*[^\]]*\]).)+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER,
+					array($this, "convert_user"),
+					$text
+				);
+			}
+			while ($textOriginal !== $text);
 		}
 
 		if (!isset($this->allow['PROJECT']) || $this->allow['PROJECT'] !== 'N')
@@ -1001,13 +1006,13 @@ class CTextParser
 		$arReplace[] = "";
 
 		$arPattern[] = "/\\[(table)(.*?)\\]/is".BX_UTF_PCRE_MODIFIER;
-		$arReplace[] = "\n>================== \\1 ===================\n";
+		$arReplace[] = "\n>================== \\1 ===================";
 
 		$arPattern[] = "/\\[\\/table(.*?)\\]/is".BX_UTF_PCRE_MODIFIER;
 		$arReplace[] = "\n>===========================================\n";
 
-		$arPattern[] = "/\\[tr\\]\\s+/is".BX_UTF_PCRE_MODIFIER;
-		$arReplace[] = "";
+		$arPattern[] = "/\\[tr\\]\\s*/is".BX_UTF_PCRE_MODIFIER;
+		$arReplace[] = "\n";
 
 		$arPattern[] = "/\\[(\\/?)(tr|td)\\]/is".BX_UTF_PCRE_MODIFIER;
 		$arReplace[] = "";

@@ -1,6 +1,7 @@
 <?
 namespace Bitrix\Calendar\Sync;
 
+use Bitrix\Calendar\Sync\Util\RequestLogger;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Loader;
@@ -15,6 +16,7 @@ use Bitrix\Main\Web;
 final class GoogleApiTransport
 {
 	private const API_BASE_URL = Google\Helper::GOOGLE_SERVER_PATH_V3;
+	protected const SERVICE_NAME = 'google';
 	private $client;
 	private $errors;
 	private $currentMethod = '';
@@ -22,6 +24,10 @@ final class GoogleApiTransport
 	 * @var \CSocServGoogleOAuth
 	 */
 	private $oAuth;
+	/**
+	 * @var RequestLogger
+	 */
+	protected $requestLogger;
 
 	/**
 	 * @param $channelInfo
@@ -95,8 +101,20 @@ final class GoogleApiTransport
 		}
 
 		$this->client = new Web\HttpClient();
+		if (RequestLogger::isWriteToLogForSyncRequest((int)$userId, self::SERVICE_NAME))
+		{
+			$this->requestLogger = new RequestLogger((int)$userId, self::SERVICE_NAME);
+		}
 
-		$oAuth = new \CSocServGoogleOAuth($userId);
+		if (\CSocServGoogleProxyOAuth::isProxyAuth())
+		{
+			$oAuth = new \CSocServGoogleProxyOAuth($userId);
+		}
+		else
+		{
+			$oAuth = new \CSocServGoogleOAuth($userId);
+		}
+
 		$oAuth->getEntityOAuth()->addScope(
 			[
 				'https://www.googleapis.com/auth/calendar',
@@ -165,6 +183,18 @@ final class GoogleApiTransport
 					$this->errors[] = ["code" => $code, "message" => $error];
 				}
 			}
+		}
+
+		if ($this->requestLogger)
+		{
+			$this->requestLogger->write([
+				'requestParams' => $requestParams,
+				'url' => $url,
+				'method' => $type,
+				'statusCode' => $this->client->getStatus(),
+				'response' => $this->prepareResponseForDebug($response),
+				'error' => $this->prepareErrorForDebug(),
+			]);
 		}
 
 		return $response;
@@ -588,5 +618,57 @@ final class GoogleApiTransport
 		$requestBody = Web\Json::encode($calendarData, JSON_UNESCAPED_SLASHES);
 
 		return $this->doRequest(Web\HttpClient::HTTP_PUT, $url, $requestBody);
+	}
+
+	/**
+	 * @param $response
+	 * @return string
+	 */
+	private function prepareResponseForDebug($response): string
+	{
+		if (!$response || !is_array($response))
+		{
+			return '';
+		}
+
+		$result = '';
+
+		foreach ($response as $key => $value)
+		{
+			if (is_string($value))
+			{
+				$result .= "{$key}:{$value}; ";
+			}
+			elseif (is_array($value))
+			{
+				$result .= "{$key}:";
+				foreach ($value as $valueKey => $valueValue)
+				{
+					$result .= "{$valueKey}:{$valueValue}, ";
+				}
+				$result .= "; ";
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function prepareErrorForDebug(): string
+	{
+		if (!$this->errors || !is_array($this->errors))
+		{
+			return '';
+		}
+
+		$result = '';
+		foreach ($this->errors as $error)
+		{
+			$result .= $error['code'] . " " . $error['message'] . "; ";
+		}
+
+		return $result;
 	}
 }

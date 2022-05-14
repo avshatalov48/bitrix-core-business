@@ -419,6 +419,7 @@ class Workgroup extends Base
 				$permissions['UserIsMember']
 				&& !$permissions['UserIsAutoMember']
 				&& !$permissions['UserIsOwner']
+				&& !$permissions['UserIsScrumMaster']
 			),
 		];
 	}

@@ -3,6 +3,8 @@ namespace Bitrix\Rest;
 
 use Bitrix\Main;
 use Bitrix\Main\Data\Cache;
+use Bitrix\Main\Event;
+use Bitrix\Main\EventManager;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Rest\Engine\Access;
@@ -461,7 +463,36 @@ class AppTable extends Main\Entity\DataManager
 			$eventFields = array(
 				'APP_ID' => $appId,
 				'VERSION' => $appInfo['VERSION'],
+				'ACTIVE' => $appInfo['ACTIVE'],
+				'INSTALLED' => $appInfo['INSTALLED'],
 			);
+
+			if ($appInfo['ACTIVE'] === self::ACTIVE && $appInfo['INSTALLED'] === self::INSTALLED)
+			{
+				$res = PlacementTable::getList(
+					[
+						'filter' => [
+							'=APP_ID' => $appInfo['ID'],
+						],
+						'select' => [
+							'ID',
+							'PLACEMENT',
+						],
+					]
+				);
+				while ($item = $res->fetch())
+				{
+					$event = new Event(
+						'rest',
+						PlacementTable::PREFIX_EVENT_ON_AFTER_ADD . $item['PLACEMENT'],
+						[
+							'ID' => $item['ID'],
+							'PLACEMENT' => $item['PLACEMENT'],
+						]
+					);
+					EventManager::getInstance()->send($event);
+				}
+			}
 
 			foreach(GetModuleEvents("rest", "OnRestAppInstall", true) as $eventHandler)
 			{

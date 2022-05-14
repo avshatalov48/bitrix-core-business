@@ -2,6 +2,7 @@
 
 namespace Bitrix\Sale\Helpers\Controller\Action\Entity;
 
+use Bitrix\Main;
 use Bitrix\Main\Config;
 use Bitrix\Main\Loader;
 use Bitrix\Sale;
@@ -24,25 +25,27 @@ final class Order
 	 */
 	public static function getAggregateOrder(Sale\Order $order)
 	{
-		$profile = static::getProfileList([
+		$profile = self::getProfileList([
 			'USER_ID' => $order->getUserId(),
 			'PERSON_TYPE_ID' => $order->getPersonTypeId()
 		]);
 
 		return [
 			'ORDER' => $order->toArray(),
-			'PERSON_TYPE' => static::getPersonTypeList([
+			'PERSON_TYPE' => self::getPersonTypeList([
 				'ID'=>$order->getPersonTypeId()
 			]),
 			'USER_PROFILE' => $profile,
-			'USER_PROFILE_VALUES' => static::getProfileListValues([
+			'USER_PROFILE_VALUES' => self::getProfileListValues([
 				'USER_PROPS_ID' => ($profile['ID'] ?? 0),
 			]),
-			'BASKET_ITEMS' => static::getOrderProducts($order),
-			'ORDER_PRICE_TOTAL' => static::getTotal($order),
-			'PAY_SYSTEMS' => static::getPaySystemListWithRestrictions($order),
-			'DELIVERY_SERVICES' => static::getDeliveryServiceListWithRestrictions($order),
-			'PROPERTIES' => static::getOrderProperties($order),
+			'BASKET_ITEMS' => self::getOrderProducts($order),
+			'ORDER_PRICE_TOTAL' => self::getTotal($order),
+			'PAY_SYSTEMS' => self::getPaySystemListWithRestrictions($order),
+			'DELIVERY_SERVICES' => self::getDeliveryServiceListWithRestrictions($order),
+			'PROPERTIES' => self::getOrderProperties($order),
+			'PAYMENTS' => self::getPayments($order),
+			'CHECKS' => self::getChecks($order),
 		];
 	}
 
@@ -444,7 +447,7 @@ final class Order
 					$parentProductId = $parentProduct->getId();
 					$skuId = $sku->getId();
 
-					$tree = $skuTree->loadWithSelectedOffers([$parentProductId => $skuId]);
+					$tree = $skuTree->loadJsonOffers([$parentProductId => $skuId]);
 					if (isset($tree[$parentProductId][$skuId]))
 					{
 						$result = [
@@ -567,5 +570,32 @@ final class Order
 		}
 
 		return $result;
+	}
+
+	private static function getPayments(Sale\Order $order): array
+	{
+		/** @var sale\Order $orderClone */
+		$orderClone = $order->createClone();
+		return $orderClone->getPaymentCollection()->toArray();
+	}
+
+	private static function getChecks(Sale\Order $order): array
+	{
+		$checks = [];
+
+		/** @var sale\Order $orderClone */
+		$orderClone = $order->createClone();
+
+		/** @var Sale\Payment $payment */
+		foreach ($orderClone->getPaymentCollection() as $payment)
+		{
+			$checkList = Sale\Cashbox\CheckManager::getCheckInfo($payment);
+			foreach ($checkList as $check)
+			{
+				$checks[] = $check;
+			}
+		}
+
+		return $checks;
 	}
 }

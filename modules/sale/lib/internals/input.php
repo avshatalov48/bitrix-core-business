@@ -1851,7 +1851,7 @@ class Address extends Base
 					{
 						propsData: {
 							name: '<?=$name?>',
-							initValue: <?=($value) ? ("'" . \Bitrix\Location\Entity\Address::fromArray($value)->toJson() . "'") : Json::encode(null)?>,
+							initValue: <?=(is_array($value)) ? ("'" . \Bitrix\Location\Entity\Address::fromArray($value)->toJson() . "'") : Json::encode(null)?>,
 							isLocked: <?=($input['DISABLED'] === 'Y') ? Json::encode(true) : Json::encode(false)?>,
 							onChangeCallback: function () {
 								<?if (isset($input['ONCHANGE'])):?>

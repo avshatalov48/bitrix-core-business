@@ -546,6 +546,12 @@ class Finder
 			$filterLang = LANGUAGE_ID;
 		}
 
+		if (isset($filter['COUNTRY_ID']) && (int)$filter['COUNTRY_ID']['VALUE'] >= 0)
+		{
+			$doFilterByCountry = true;
+			$filterCountryId = (int)$filter['COUNTRY_ID']['VALUE'];
+		}
+
 		if(isset($filter['PARENT_ID']) && intval($filter['PARENT_ID']['VALUE']) >= 0)
 		{
 			$doFilterByParent = true;
@@ -675,6 +681,11 @@ class Finder
 
 		if($doFilterByLang)
 			$where[] = "LN.LANGUAGE_ID = '".$filterLang."'";
+
+		if ($doFilterByCountry)
+		{
+			$where[] = "L.COUNTRY_ID = " . (int)$filterCountryId . " ";
+		}
 
 		if($doFilterByParent)
 			$where[] = "L.PARENT_ID = '".$filterParentId."'";

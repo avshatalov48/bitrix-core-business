@@ -1989,8 +1989,15 @@ function ImgShw(ID, width, height, alt)
 			}
 			else
 			{
-				global $arCloudImageSizeCache;
-				$arCloudImageSizeCache[$file["SRC"]] = array($file["WIDTH"], $file["HEIGHT"]);
+				if (isset($file["SRC"]))
+				{
+					global $arCloudImageSizeCache;
+					$arCloudImageSizeCache[$file["SRC"]] = array($file["WIDTH"], $file["HEIGHT"]);
+				}
+				else
+				{
+					trigger_error("Parameter \$file for CFile::ResizeImageGet does not have SRC element. You'd better pass an b_file.ID as a value for the \$file parameter.", E_USER_WARNING);
+				}
 
 				return array(
 					"src" => $file["SRC"],

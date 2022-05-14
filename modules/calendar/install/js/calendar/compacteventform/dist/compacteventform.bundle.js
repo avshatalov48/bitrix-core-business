@@ -563,6 +563,7 @@ this.BX = this.BX || {};
 	      this.type = params.type || 'user';
 	      this.isLocationCalendar = params.isLocationCalendar || false;
 	      this.locationAccess = params.locationAccess || false;
+	      this.dayOfWeekMonthFormat = params.dayOfWeekMonthFormat || false;
 	      this.calendarContext = params.calendarContext || null;
 	      this.ownerId = params.ownerId ? params.ownerId : 0;
 
@@ -854,7 +855,8 @@ this.BX = this.BX || {};
 	        type: this.type,
 	        ownerId: this.ownerId,
 	        zIndex: this.zIndex + 10,
-	        plannerFeatureEnabled: this.plannerFeatureEnabled
+	        plannerFeatureEnabled: this.plannerFeatureEnabled,
+	        dayOfWeekMonthFormat: this.dayOfWeekMonthFormat
 	      });
 	      this.userPlannerSelector.subscribe('onDateChange', this.handlePlannerSelectorChanges.bind(this));
 	      this.userPlannerSelector.subscribe('onNotifyChange', this.checkForChanges); // this.subscribe('onLoad', this.userPlannerSelector.checkEmployment.bind(this.userPlannerSelector));
@@ -1444,6 +1446,7 @@ this.BX = this.BX || {};
 	        type: this.type,
 	        isLocationCalendar: this.isLocationCalendar,
 	        locationAccess: this.locationAccess,
+	        dayOfWeekMonthFormat: this.dayOfWeekMonthFormat,
 	        roomsManager: this.roomsManager,
 	        locationCapacity: calendar_controls.Location.getCurrentCapacity(),
 	        // for location component

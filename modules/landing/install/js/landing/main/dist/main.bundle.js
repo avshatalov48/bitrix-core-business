@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,landing_env,landing_loc,landing_ui_panel_content,landing_ui_panel_saveblock,landing_sliderhacks,landing_pageobject,main_core,landing_backend) {
+(function (exports,main_core_events,landing_env,landing_loc,landing_ui_panel_content,landing_ui_panel_saveblock,landing_sliderhacks,landing_pageobject,main_core,landing_backend) {
 	'use strict';
 
 	/**
@@ -58,13 +58,6 @@ this.BX = this.BX || {};
 
 	  return data;
 	}
-	var LANG_RU = 'ru';
-	var LANG_BY = 'by';
-	var LANG_KZ = 'kz';
-	var LANG_LA = 'la';
-	var LANG_DE = 'de';
-	var LANG_BR = 'br';
-	var LANG_UA = 'ua';
 
 	BX.Landing.getMode = function () {
 	  return 'edit';
@@ -74,8 +67,8 @@ this.BX = this.BX || {};
 	 */
 
 
-	var Main = /*#__PURE__*/function (_Event$EventEmitter) {
-	  babelHelpers.inherits(Main, _Event$EventEmitter);
+	var Main = /*#__PURE__*/function (_EventEmitter) {
+	  babelHelpers.inherits(Main, _EventEmitter);
 	  babelHelpers.createClass(Main, null, [{
 	    key: "getMode",
 	    value: function getMode() {
@@ -132,7 +125,7 @@ this.BX = this.BX || {};
 
 	    var pageType = landing_env.Env.getInstance().getType();
 
-	    if (pageType === 'KNOWLEDGE' || pageType === 'GROUP') {
+	    if (pageType === Main.TYPE_KNOWLEDGE || pageType === Main.TYPE_GROUP) {
 	      var mainArea = document.querySelector('.landing-main');
 
 	      if (main_core.Type.isDomNode(mainArea)) {
@@ -504,53 +497,28 @@ this.BX = this.BX || {};
 	    key: "showSliderFeedbackForm",
 	    value: function showSliderFeedbackForm() {
 	      var _this4 = this;
+	      main_core.Runtime.loadExtension('ui.feedback.form').then(function () {
+	        var data = {};
+	        data.bitrix24 = _this4.options.server_name;
+	        data.siteId = _this4.options.site_id;
+	        data.siteUrl = _this4.options.url;
+	        data.siteTemplate = _this4.options.xml_id;
+	        data.productType = _this4.options.productType || 'Undefined';
 
-	      var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	      var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        data.typeproduct = function () {
+	          if (_this4.options.params.type === Main.TYPE_GROUP) {
+	            return 'KNOWLEDGE_GROUP';
+	          }
 
-	      if (!this.sliderFeedbackInited) {
-	        this.sliderFeedbackInited = true;
-	        this.sliderFeedback = new landing_ui_panel_content.Content('slider_feedback', {
-	          title: landing_loc.Loc.getMessage('LANDING_PANEL_FEEDBACK_TITLE'),
-	          className: 'landing-ui-panel-feedback'
+	          return _this4.options.params.type;
+	        }();
+
+	        BX.UI.Feedback.Form.open({
+	          id: Math.random() + '',
+	          forms: _this4.getFeedbackFormOptions(),
+	          presets: data
 	        });
-	        main_core.Dom.append(this.sliderFeedback.overlay, rootWindow.document.body);
-	        main_core.Dom.style(this.sliderFeedback.overlay, 'z-index', 322);
-	        main_core.Dom.append(this.sliderFeedback.layout, rootWindow.document.body);
-	        this.sliderFormLoader = new BX.Loader({
-	          target: this.sliderFeedback.content
-	        });
-	        this.sliderFormLoader.show();
-	        this.initFeedbackForm();
-	      }
-
-	      data.bitrix24 = this.options.server_name;
-	      data.siteId = this.options.site_id;
-	      data.siteUrl = this.options.url;
-	      data.siteTemplate = this.options.xml_id;
-	      data.productType = this.options.productType || 'Undefined';
-
-	      data.typeproduct = function () {
-	        if (_this4.options.params.type === 'GROUP') {
-	          return 'KNOWLEDGE_GROUP';
-	        }
-
-	        return _this4.options.params.type;
-	      }();
-
-	      var form = this.getFeedbackFormOptions();
-	      rootWindow.b24formFeedBack({
-	        id: form.id,
-	        lang: form.lang,
-	        sec: form.sec,
-	        type: 'slider_inline',
-	        node: this.sliderFeedback.content,
-	        handlers: {
-	          load: this.onSliderFormLoaded.bind(this)
-	        },
-	        presets: main_core.Type.isPlainObject(data) ? data : {}
 	      });
-	      this.sliderFeedback.show();
 	    }
 	    /**
 	     * Gets feedback form options
@@ -561,61 +529,37 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getFeedbackFormOptions",
 	    value: function getFeedbackFormOptions() {
-	      var currentLanguage = landing_loc.Loc.getMessage('LANGUAGE_ID');
-	      var options = {
-	        id: '16',
-	        sec: '3h483y',
-	        lang: 'en'
-	      };
-
-	      switch (currentLanguage) {
-	        case LANG_RU:
-	        case LANG_BY:
-	        case LANG_KZ:
-	          options = {
-	            id: '8',
-	            sec: 'x80yjw',
-	            lang: 'ru'
-	          };
-	          break;
-
-	        case LANG_LA:
-	          options = {
-	            id: '14',
-	            sec: 'wu561i',
-	            lang: 'la'
-	          };
-	          break;
-
-	        case LANG_DE:
-	          options = {
-	            id: '10',
-	            sec: 'eraz2q',
-	            lang: 'de'
-	          };
-	          break;
-
-	        case LANG_BR:
-	          options = {
-	            id: '12',
-	            sec: 'r6wvge',
-	            lang: 'br'
-	          };
-	          break;
-
-	        case LANG_UA:
-	          options = {
-	            id: '18',
-	            sec: 'd9e09o',
-	            lang: 'ua'
-	          };
-	          break;
-
-	        default:
-	          break;
-	      }
-
-	      return options;
+	      return [{
+	        zones: ['en', 'eu', 'in', 'uk'],
+	        id: 16,
+	        lang: 'en',
+	        sec: '3h483y'
+	      }, {
+	        zones: ['ru', 'by', 'kz'],
+	        id: 8,
+	        lang: 'ru',
+	        sec: 'x80yjw'
+	      }, {
+	        zones: ['ua'],
+	        id: 18,
+	        lang: 'ua',
+	        sec: 'd9e09o'
+	      }, {
+	        zones: ['la', 'co', 'mx'],
+	        id: 14,
+	        lang: 'la',
+	        sec: 'wu561i'
+	      }, {
+	        zones: ['de'],
+	        id: 10,
+	        lang: 'de',
+	        sec: 'eraz2q'
+	      }, {
+	        zones: ['com.br', 'br'],
+	        id: 12,
+	        lang: 'br',
+	        sec: 'r6wvge'
+	      }];
 	    }
 	    /**
 	     * Handles feedback loaded event
@@ -1286,7 +1230,7 @@ this.BX = this.BX || {};
 	    }
 	  }]);
 	  return Main;
-	}(main_core.Event.EventEmitter);
+	}(main_core_events.EventEmitter);
 	babelHelpers.defineProperty(Main, "TYPE_PAGE", 'PAGE');
 	babelHelpers.defineProperty(Main, "TYPE_STORE", 'STORE');
 	babelHelpers.defineProperty(Main, "TYPE_KNOWLEDGE", 'KNOWLEDGE');
@@ -1294,5 +1238,5 @@ this.BX = this.BX || {};
 
 	exports.Main = Main;
 
-}((this.BX.Landing = this.BX.Landing || {}),BX.Landing,BX.Landing,BX.Landing.UI.Panel,BX.Landing.UI.Panel,BX.Landing,BX.Landing,BX,BX.Landing));
+}((this.BX.Landing = this.BX.Landing || {}),BX.Event,BX.Landing,BX.Landing,BX.Landing.UI.Panel,BX.Landing.UI.Panel,BX.Landing,BX.Landing,BX,BX.Landing));
 //# sourceMappingURL=main.bundle.js.map

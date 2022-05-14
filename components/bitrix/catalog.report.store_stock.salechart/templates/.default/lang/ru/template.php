@@ -1,0 +1,8 @@
+<?php
+$MESS['STORE_STOCK_CHART_SUM_SOLD_TITLE'] = 'Продано со склада';
+$MESS['STORE_STOCK_CHART_SUM_STORED_TITLE'] = 'Остатки на складе';
+$MESS['STORE_STOCK_CHART_POPUP_SOLD_TITLE'] = 'Продано';
+$MESS['STORE_STOCK_CHART_POPUP_STORED_TITLE'] = 'Остатки на складе';
+$MESS['STORE_STOCK_CHART_POPUP_SUM'] = 'на сумму';
+$MESS['STORE_STOCK_CHART_HINT_TITLE'] = 'Помощь';
+$MESS['STORE_STOCK_CHART_ZOOMOUT_TITLE'] = 'Уменьшить масштаб';

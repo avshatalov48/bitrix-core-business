@@ -16,7 +16,6 @@ export class VirtualForm
 	static createFromHtml(html) {
 		const tempNode = document.createElement('div');
 		tempNode.innerHTML = html;
-		tempNode.style.display = 'none';
 
 		const form = tempNode.querySelector('form');
 		return new VirtualForm(form);
@@ -37,18 +36,23 @@ export class VirtualForm
 
 	/**
 	 * @public
-	 * @returns {void}
+	 * @returns {boolean}
 	 */
 	submit() {
 		if (!this.canSubmit()) {
-			return;
+			return false;
 		}
 
 		if (this.isVirtual()) {
-			document.body.appendChild(this.form.parentNode);
+			const tempNode = document.createElement('div');
+			tempNode.style.display = 'none';
+			tempNode.append(this.form);
+
+			document.body.appendChild(tempNode);
 		}
 
 		HTMLFormElement.prototype.submit.call(this.form);
+		return true;
 	}
 
 	/**

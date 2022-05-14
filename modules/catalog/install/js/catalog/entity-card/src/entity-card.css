@@ -274,3 +274,21 @@ img.catalog-image {
 .catalog-entity-wrap .ui-entity-editor-column-content {
 	width: 40%;
 }
+
+.catalog-entity-disabled-setting {
+	color: #7e7e7e;
+}
+
+.catalog-entity-setting-hint {
+	display: inline;
+	margin-left: 5px;
+}
+
+.catalog-entity-setting-hint .ui-hint-icon {
+	margin-top: 0;
+}
+
+.catalog-entity-setting-hint.ui-hint {
+	line-height: unset;
+	vertical-align: middle;
+}

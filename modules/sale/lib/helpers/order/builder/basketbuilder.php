@@ -148,6 +148,9 @@ abstract class BasketBuilder
 		return $this;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	protected function getExistsItem($moduleId, $productId, array $properties = array())
 	{
 		return $this->getBasket()->getExistsItem($moduleId, $productId, $properties);
@@ -165,16 +168,15 @@ abstract class BasketBuilder
 				$productData["PROPS"] = array();
 			}
 
-			$item = $this->getItemFromBasket($basketCode, $productData);
+			$item = null;
+			if ($basketCode != \Bitrix\Sale\Helpers\Admin\OrderEdit::BASKET_CODE_NEW)
+			{
+				$item = $this->getBasket()->getItemByBasketCode($basketCode);
+			}
 
 			if ($item == null && $deleteBasketItemsIfNotExists)
 			{
 				DiscountCouponsManager::useSavedCouponsForApply(false);
-			}
-
-			if($item == null && $basketCode != \Bitrix\Sale\Helpers\Admin\OrderEdit::BASKET_CODE_NEW)
-			{
-				$item = $this->getBasket()->getItemByBasketCode($basketCode);
 			}
 
 			if($item && $item->isBundleChild())
@@ -207,7 +209,7 @@ abstract class BasketBuilder
 						throw new BuildingException();
 					}
 				}
-				else
+				elseif ($this->getSettingsContainer()->getItemValue('clearReservesIfEmpty') === true)
 				{
 					$this->clearReservesForItem($item);
 				}

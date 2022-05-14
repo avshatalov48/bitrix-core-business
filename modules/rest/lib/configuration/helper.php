@@ -14,6 +14,7 @@ class Helper
 {
 	const TYPE_SECTION_TOTAL = 'total';
 	const STRUCTURE_FILES_NAME = 'files';
+	const STRUCTURE_SMALL_FILES_NAME = 'small_files';
 	const CONFIGURATION_FILE_EXTENSION = '.json';
 	const DEFAULT_ARCHIVE_NAME = 'configuration';
 	const DEFAULT_ARCHIVE_FILE_EXTENSIONS = 'zip';
@@ -207,7 +208,9 @@ class Helper
 	 */
 	public function isBasicManifest($code)
 	{
-		return (in_array($code, $this->basicManifest)) ? true : false;
+		//todo: DONT PUSH!
+		return false;
+		//return (in_array($code, $this->basicManifest)) ? true : false;
 	}
 
 	/**

@@ -841,6 +841,51 @@
 .ui-icon-service-light-box {
 	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-box.svg);
 }
+/*777777*/
+.ui-icon-service-message-widget {
+	--ui-icon-service-bg-color: #3fe5aa;
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-message-widget.svg);
+}
+
+.ui-icon-service-light-message-widget {
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-message-widget.svg);
+}
+
+.ui-icon-service-code {
+	 --ui-icon-service-bg-color: #3fe5aa;
+	 --ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-code.svg);
+ }
+
+.ui-icon-service-light-code {
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-code.svg);
+}
+
+.ui-icon-service-click {
+	--ui-icon-service-bg-color: #3fe5aa;
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-click.svg);
+}
+
+.ui-icon-service-light-click {
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-click.svg);
+}
+
+.ui-icon-service-clock {
+	--ui-icon-service-bg-color: #28D1A9;
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-clock.svg);
+}
+
+.ui-icon-service-light-clock {
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-clock.svg);
+}
+
+.ui-icon-service-linked-link {
+	--ui-icon-service-bg-color: #28D1A9;
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-linked-link.svg);
+}
+
+.ui-icon-service-light-linked-link {
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-linked-link.svg);
+}
 
 
 /* docs*/

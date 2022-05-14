@@ -113,8 +113,7 @@ class EntityUsageTable extends Main\Entity\DataManager
 			new Reference(
 				"CODE_USER",
 				UserTable::class,
-				Join::on("this.ITEM_ID_INT", "ref.ID")->where('this.ENTITY_ID', 'user'),
-				["join_type" => "INNER"]
+				Join::on("this.ITEM_ID_INT", "ref.ID")->where('this.ENTITY_ID', 'user')
 			),
 
 			new Reference(

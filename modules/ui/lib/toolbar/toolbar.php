@@ -10,6 +10,7 @@ class Toolbar
 {
 	private $id;
 	private $filter;
+	private $beforeTitleHtml;
 	private $afterTitleHtml;
 	private $titleMinWidth;
 	private $titleMaxWidth;
@@ -165,6 +166,16 @@ class Toolbar
 	public function getFilter()
 	{
 		return $this->filter;
+	}
+
+	public function addBeforeTitleHtml(string $html)
+	{
+		$this->beforeTitleHtml = $html;
+	}
+
+	public function getBeforeTitleHtml(): ?string
+	{
+		return $this->beforeTitleHtml;
 	}
 
 	public function addAfterTitleHtml(string $html)

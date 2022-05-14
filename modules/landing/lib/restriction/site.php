@@ -21,7 +21,6 @@ class Site
 	 * When limit is minimal we allow public within these limits.
 	 */
 	private const LIMIT_BY_TEMPLATES_MINIMAL = [
-		'store_v3' => 1,
 		'store-chats' => 1,
 	];
 
@@ -100,6 +99,7 @@ class Site
 				}
 			}
 
+			// store-chat-dark === store-chat-light === store-chat
 			foreach ($templatesLimits as $code => $cnt)
 			{
 				if (strpos($row['TPL_CODE'], $code) === 0)
@@ -201,6 +201,7 @@ class Site
 		if (
 			$params['action_type'] === 'publication'
 			&& Manager::licenseIsFreeSite($params['type'])
+			&& !Manager::isFreePublicAllowed()
 		)
 		{
 			if (!isset($params['filter']['!ID']))

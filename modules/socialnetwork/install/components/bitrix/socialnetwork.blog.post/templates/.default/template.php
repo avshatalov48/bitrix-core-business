@@ -105,37 +105,41 @@ $APPLICATION->SetPageProperty("BodyClass", $bodyClass);
 	});
 </script><?php
 
-if($arResult["MESSAGE"] <> '')
+if ($arResult["MESSAGE"] <> '')
 {
 	?><div class="feed-add-successfully">
 		<span class="feed-add-info-text"><span class="feed-add-info-icon"></span><?=$arResult["MESSAGE"]?></span>
 	</div><?php
 }
-if($arResult["ERROR_MESSAGE"] <> '')
+
+if ($arResult["ERROR_MESSAGE"] <> '')
 {
 	?><div class="feed-add-error">
 		<span class="feed-add-info-text"><span class="feed-add-info-icon"></span><?=$arResult["ERROR_MESSAGE"]?></span>
 	</div><?php
 }
-if($arResult["FATAL_MESSAGE"] <> '')
+
+if ($arResult["FATAL_MESSAGE"] <> '')
 {
-	if(!$arResult["bFromList"])
+	if (!$arResult["bFromList"])
 	{
 		?><div class="feed-add-error">
-			<span class="feed-add-info-text"><span class="feed-add-info-icon"></span><?=$arResult["FATAL_MESSAGE"]?></span>
+			<span class="feed-add-info-text"><span class="feed-add-info-icon"></span><?= $arResult["FATAL_MESSAGE"] ?></span>
 		</div><?php
 	}
 }
-elseif($arResult["NOTE_MESSAGE"] <> '')
+elseif ($arResult["NOTE_MESSAGE"] <> '')
 {
 	?><div class="feed-add-successfully">
-		<span class="feed-add-info-text"><span class="feed-add-info-icon"></span><?=$arResult["NOTE_MESSAGE"]?></span>
+		<span class="feed-add-info-text"><span class="feed-add-info-icon"></span><?= $arResult["NOTE_MESSAGE"] ?></span>
 	</div><?php
 }
 else
 {
 	if (!empty($arResult["Post"]))
 	{
+		$contentXmlId = 'BLOG_POST-'. (int)$arResult['Post']['ID'];
+
 		$APPLICATION->IncludeComponent("bitrix:main.user.link",
 			'',
 			array(
@@ -156,7 +160,7 @@ else
 
 		$classNameList = [ 'feed-post-block' ];
 
-		if($arResult["Post"]["new"] === "Y")
+		if ($arResult["Post"]["new"] === "Y")
 		{
 			$classNameList[] = 'feed-post-block-new';
 		}
@@ -320,7 +324,7 @@ else
 			$commentsResult = $APPLICATION->IncludeComponent(
 				"bitrix:socialnetwork.blog.post.comment",
 				"",
-				array(
+				[
 					"bPublicPage" => $arResult["bPublicPage"],
 					"SEF" => $arParams["SEF"],
 					"BLOG_VAR" => $arResult["ALIASES"]["blog"],
@@ -381,7 +385,9 @@ else
 					"NAV_TYPE_NEW" => "Y",
 					"SELECTOR_VERSION" => $arResult["SELECTOR_VERSION"],
 					'FORM_ID' => $arParams['FORM_ID'],
-				),
+					'CONTENT_VIEW_KEY' => $arResult['CONTENT_VIEW_KEY'],
+					'CONTENT_VIEW_KEY_SIGNED' => $arResult['CONTENT_VIEW_KEY_SIGNED'],
+				],
 				$component
 			);
 
@@ -478,15 +484,41 @@ else
 						?><a href="#" class="feed-post-pinned-link feed-post-pinned-link-expand"><?= Loc::getMessage('BLOG_POST_PINNED_EXPAND') ?></a><?php
 					?></div><?php
 				?></div><?php
-				?><div class="feed-post-title-block"><?php
+
+				$canEditPost = (
+					(
+						empty($arParams['MODE'])
+						|| $arParams['MODE'] !== 'LANDING'
+					)
+					&& (string)$arResult['urlToEdit'] !== ''
+					&& (
+						$arResult['PostPerm'] >= BLOG_PERMS_FULL
+						|| (
+							$arResult['PostPerm'] >= BLOG_PERMS_WRITE
+							&& (int)$arResult['Post']['AUTHOR_ID'] === (int)$arResult['USER_ID']
+						)
+					)
+				);
+
+				$classList = [
+					'feed-post-title-block',
+				];
+
+				if ($canEditPost)
+				{
+					$classList[] = '--can-edit';
+				}
+
+				?><div class="<?= implode(' ', $classList) ?>"><?php
+
 					$anchor_id = $arResult["Post"]["ID"];
 					$arTooltipParams = (
 						$arResult["bPublicPage"]
-						? array(
-							'entityType' => 'LOG_ENTRY',
-							'entityId' => (int)$arParams['LOG_ID']
-						)
-						: array()
+							? [
+								'entityType' => 'LOG_ENTRY',
+								'entityId' => (int)$arParams['LOG_ID'],
+							]
+							: []
 					);
 
 					$arTmpUser = array(
@@ -554,7 +586,7 @@ else
 						$i = 0;
 						if (!empty($arResult["Post"]["SPERM_SHOW"]["U"]))
 						{
-							foreach($arResult["Post"]["SPERM_SHOW"]["U"] as $id => $val)
+							foreach ($arResult["Post"]["SPERM_SHOW"]["U"] as $id => $val)
 							{
 								$i++;
 								if ($i === $showMaxCount)
@@ -657,7 +689,7 @@ else
 
 									?><a href="javascript:void(0)" onclick="showHiddenDestination('<?=$arResult["Post"]["ID"]?>', this)" class="feed-post-link-new"><?=GetMessage("BLOG_DESTINATION_MORE_".$suffix, Array("#NUM#" => $more_cnt))?></a><span id="blog-destination-hidden-<?=$arResult["Post"]["ID"]?>" style="display:none;"><?php
 								}
-								if($i != 1)
+								if ($i != 1)
 								{
 									echo ", ";
 								}
@@ -690,7 +722,7 @@ else
 							foreach ($arResult["Post"]["SPERM_SHOW"]["DR"] as $id => $val)
 							{
 								$i++;
-								if($i === $showMaxCount)
+								if ($i === $showMaxCount)
 								{
 									$more_cnt = $cnt + (int)$arResult["Post"]["SPERM_HIDDEN"] - ($showMaxCount - 1);
 									$suffix = (
@@ -816,20 +848,7 @@ else
 						?></span><?php // feed-add-post-destination-cont
 					}
 
-					if(
-						(
-							empty($arParams['MODE'])
-							|| $arParams['MODE'] !== 'LANDING'
-						)
-						&& $arResult["urlToEdit"] <> ''
-						&& (
-							$arResult["PostPerm"] >= BLOG_PERMS_FULL
-							|| (
-								$arResult["PostPerm"] >= BLOG_PERMS_WRITE
-								&& (int)$arResult["Post"]["AUTHOR_ID"] === (int)$arResult["USER_ID"]
-							)
-						)
-					)
+					if ($canEditPost)
 					{
 						if (!empty($arResult['Post']['BACKGROUND_CODE']))
 						{
@@ -888,7 +907,7 @@ else
 					!$arResult["Post"]["IS_IMPORTANT"]
 					&& (
 						$arResult["Post"]["textFormated"] === ''
-						|| mb_strtolower($arResult["Post"]["textFormated"]) === '<b></b>' // empty text patch for attached diles
+						|| preg_match('#^<b></b>$#i', $arResult["Post"]["textFormated"]) // empty text patch for attached diles
 					)
 
 				)
@@ -924,42 +943,52 @@ else
 						$classNameList[] = 'ui-livefeed-background-'.preg_replace(['/(\d+)_/', '/_/'], ['', '-'], $arResult['Post']['BACKGROUND_CODE']);
 					}
 
-					?><div class="<?=implode(' ', $classNameList)?>"<?php if($arResult["bFromList"]) {?> id="feed-post-contentview-BLOG_POST-<?=(int)$arResult["Post"]["ID"]?>" bx-content-view-xml-id="BLOG_POST-<?=(int)$arResult["Post"]["ID"]?>"<?php }?>>
-						<div class="feed-post-text-block-inner-inner" id="blog_post_body_<?=$arResult["Post"]["ID"]?>"><?php
+					$idAttribute = ($arResult['bFromList'] ? 'id="feed-post-contentview-BLOG_POST-' . (int)$arResult['Post']['ID'] . '"' : '');
+
+					$contentViewXmlIdAttribute = (
+						$arResult['bFromList']
+							? 'bx-content-view-xml-id="' . $contentXmlId .
+								'" bx-content-view-key="' . $arResult['CONTENT_VIEW_KEY'] .'"' .
+								'" bx-content-view-key-signed="' . $arResult['CONTENT_VIEW_KEY_SIGNED'] .'"'
+							: ''
+					);
+
+					?><div class="<?= implode(' ', $classNameList) ?>" <?= $idAttribute ?> <?= $contentViewXmlIdAttribute ?>>
+						<div class="feed-post-text-block-inner-inner" id="blog_post_body_<?= $arResult['Post']['ID'] ?>"><?php
 
 							if ($arResult["Post"]["IS_IMPORTANT"])
 							{
 								?><div class="feed-important-icon"></div><?php
 							}
 
-							if($arResult["Post"]["MICRO"] !== "Y")
+							if ($arResult["Post"]["MICRO"] !== "Y")
 							{
 								?><div class="feed-post-item feed-post-item-title"><?php
 									if ($arResult["bPublicPage"])
 									{
-										?><span class="feed-post-title"><?=$arResult["Post"]["TITLE"]?></span><?php
+										?><span class="feed-post-title"><?= $arResult['Post']['TITLE'] ?></span><?php
 									}
 									else
 									{
-										?><a class="feed-post-title" href="<?=$arResult["Post"]["urlToPost"]?>" target="_top"><?=$arResult["Post"]["TITLE"]?></a><?php
+										?><a class="feed-post-title" href="<?= $arResult['Post']['urlToPost'] ?>" target="_top"><?= $arResult['Post']['TITLE'] ?></a><?php
 									}
 								?></div><?php
 							}
 
-							?><div class="feed-post-text"><?=$arResult["Post"]["textFormated"]?></div><?php
+							?><div class="feed-post-text"><?= $arResult['Post']['textFormated'] ?></div><?php
 
 							if ($arResult["Post"]["CUT"] === "Y")
 							{
-								?><div><a class="blog-postmore-link" href="<?=$arResult["Post"]["urlToPost"]?>"><?=GetMessage("BLOG_BLOG_BLOG_MORE")?></a></div><?php
+								?><div><a class="blog-postmore-link" href="<?= $arResult['Post']['urlToPost'] ?>"><?= Loc::getMessage('BLOG_BLOG_BLOG_MORE') ?></a></div><?php
 							}
 
-							require($_SERVER["DOCUMENT_ROOT"].$templateFolder."/include/important.php");
-							require($_SERVER["DOCUMENT_ROOT"].$templateFolder."/include/gratitude.php");
+							require($_SERVER['DOCUMENT_ROOT'] . $templateFolder . '/include/important.php');
+							require($_SERVER['DOCUMENT_ROOT'] . $templateFolder . '/include/gratitude.php');
 
 						?></div>
 					</div><?php
 
-					if($arResult["bFromList"])
+					if ($arResult["bFromList"])
 					{
 						?><div class="feed-post-text-more" onclick="BX.UI.Animations.expand({
 							moreButtonNode: this,
@@ -974,8 +1003,8 @@ else
 									BX.Livefeed.MoreButton.expand(textBlock);
 								}
 							}.bind(BX.Livefeed.MoreButton)
-						})" id="blog_post_more_<?=$arResult["Post"]["ID"]?>"><?php
-						?><div class="feed-post-text-more-but"></div><?php
+						})" id="blog_post_more_<?= $arResult['Post']['ID'] ?>"><?php
+							?><div class="feed-post-text-more-but"></div><?php
 						?></div><?php
 						?><script>
 							BX.ready(function() {
@@ -997,37 +1026,37 @@ else
 					}
 				?></div><?php
 
-				if(!empty($arResult["images"]))
+				if (!empty($arResult["images"]))
 				{
 					?><div class="feed-com-files">
-						<div class="feed-com-files-title"><?=GetMessage("BLOG_PHOTO")?></div>
+						<div class="feed-com-files-title"><?= Loc::getMessage('BLOG_PHOTO') ?></div>
 						<div class="feed-com-files-cont"><?php
-							foreach($arResult["images"] as $val)
+							foreach ($arResult["images"] as $val)
 							{
 								$width = (!empty($val['resizedWidth']) ? 'width="' . (int)$val['resizedWidth'] . '"' : '');
 								$height = (!empty($val['resizedHeight']) ? 'height="' . (int)$val['resizedHeight'] . '"' : '');
 
-								?><span class="feed-com-files-photo"><img src="<?=$val["small"]?>" alt="" border="0" data-bx-image="<?=$val["full"]?>" <?= $width ?> <?= $height ?>/></span><?php
+								?><span class="feed-com-files-photo"><img src="<?= $val["small"] ?>" alt="" border="0" data-bx-image="<?= $val["full"] ?>" <?= $width ?> <?= $height ?>/></span><?php
 							}
 						?></div>
 					</div><?php
 				}
 
-				if($arResult["POST_PROPERTIES"]["SHOW"] === "Y")
+				if ($arResult["POST_PROPERTIES"]["SHOW"] === "Y")
 				{
 					$eventHandlerID = AddEventHandler('main', 'system.field.view.file', Array('CBlogTools', 'blogUFfileShow'));
 					foreach ($arResult["POST_PROPERTIES"]["DATA"] as $FIELD_NAME => $arPostField)
 					{
-						if(!empty($arPostField["VALUE"]))
+						if (!empty($arPostField["VALUE"]))
 						{
-
 							$arPostField['BLOG_DATE_PUBLISH'] = $arResult["Post"]["DATE_PUBLISH"];
 							$arPostField['URL_TO_POST'] = $arResult["Post"]["urlToPost"];
 							$arPostField['POST_ID'] = $arResult["Post"]['ID'];
-							?><?php $APPLICATION->IncludeComponent(
+							?><?php
+							$APPLICATION->IncludeComponent(
 								"bitrix:system.field.view",
 								$arPostField["USER_TYPE"]["USER_TYPE_ID"],
-								array(
+								[
 									"LAZYLOAD" => $arParams["LAZYLOAD"],
 									"DISABLE_LOCAL_EDIT" => $arResult["bPublicPage"],
 									"VIEW_MODE" => ($arResult["bFromList"] ? "BRIEF" : "EXTENDED"),
@@ -1038,8 +1067,14 @@ else
 									),
 									"GRID" => ($arResult['Post']['hasInlineDiskFile'] || !empty($arResult['Post']['BACKGROUND_CODE']) ? 'N' : 'Y'),
 									"USE_TOGGLE_VIEW" => ($arResult["PostPerm"] >= 'W' ? 'Y' : 'N'),
-								), null, array("HIDE_ICONS"=>"Y")
-							);?><?php
+									'NAME_TEMPLATE' => $arParams['NAME_TEMPLATE'],
+									'PATH_TO_USER' => $arParams['~PATH_TO_USER'],
+									'PUBLIC' => $arResult['bPublicPage'],
+								],
+								null,
+								[ 'HIDE_ICONS' => 'Y' ]
+							);
+							?><?php
 						}
 					}
 					if ($eventHandlerID > 0)
@@ -1048,7 +1083,7 @@ else
 					}
 				}
 
-				if(!empty($arResult["Category"]))
+				if (!empty($arResult["Category"]))
 				{
 					?><div class="feed-com-tags-block">
 						<noindex>
@@ -1156,7 +1191,7 @@ else
 							}
 						}
 
-						if(
+						if (
 							$commentsResult
 							&& !in_array($arParams["TYPE"], array("DRAFT", "MODERATION"))
 						)
@@ -1315,12 +1350,12 @@ else
 					)
 				)
 				{
-					include_once($_SERVER["DOCUMENT_ROOT"].$templateFolder."/destination.php");
+					include_once($_SERVER["DOCUMENT_ROOT"] . $templateFolder . "/destination.php");
 				}
 
 				if ($commentsContent <> '')
 				{
-					?><div class="feed-comments-block-wrap"><?=$commentsContent?></div><?php
+					?><div class="feed-comments-block-wrap"><?= $commentsContent ?></div><?php
 				}
 			}
 
@@ -1333,15 +1368,15 @@ else
 						|| (isset($arParams['PINNED']) && $arParams['PINNED'] === 'Y')
 					);
 
-					?><a href="#" class="feed-post-pinned-link feed-post-pinned-link-collapse"><?=Loc::getMessage('BLOG_POST_PINNED_COLLAPSE')?></a><?php
-					?><div id="feed-post-menuanchor-right-<?=$arResult["Post"]["ID"]?>" class="feed-post-right-top-menu"></div><?php
+					?><a href="#" class="feed-post-pinned-link feed-post-pinned-link-collapse"><?= Loc::getMessage('BLOG_POST_PINNED_COLLAPSE') ?></a><?php
+					?><div id="feed-post-menuanchor-right-<?= $arResult["Post"]["ID"] ?>" class="feed-post-right-top-menu"></div><?php
 
 					?>
 					<script>
-						BX.bind(BX('feed-post-menuanchor-right-<?=$arResult["Post"]["ID"]?>'), 'click', function(e) {
+						BX.bind(BX('feed-post-menuanchor-right-<?= $arResult["Post"]["ID"] ?>'), 'click', function(e) {
 							BX.SBPostMenu.showMenu({
 								event: e,
-								menuNode: BX('feed-post-menuanchor-<?=$arResult["Post"]["ID"]?>'),
+								menuNode: BX('feed-post-menuanchor-<?= $arResult["Post"]["ID"] ?>'),
 							});
 							return BX.PreventDefault(e);
 						});
@@ -1355,7 +1390,7 @@ else
 
 		?></div><?php
 	}
-	elseif(!$arResult["bFromList"])
+	elseif (!$arResult["bFromList"])
 	{
 		echo GetMessage("BLOG_BLOG_BLOG_NO_AVAIBLE_MES");
 	}

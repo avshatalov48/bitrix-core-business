@@ -1330,6 +1330,7 @@ class CAllUser extends CDBResult
 				"BX_USER_ID" => $arUser["BX_USER_ID"],
 				"GROUPS" => Main\UserTable::getUserGroupIds($arUser["ID"]),
 				"SESSION_HASH" => $this->GetParam("SESSION_HASH"),
+				"LANGUAGE_ID" => $arUser["LANGUAGE_ID"],
 			];
 
 			foreach ($data["GROUPS"] as $groupId)
@@ -1404,6 +1405,14 @@ class CAllUser extends CDBResult
 					}
 				}
 
+				$languageId = '';
+				if ($arUser['LANGUAGE_ID'] === '')
+				{
+					$arUser['LANGUAGE_ID'] = LANGUAGE_ID;
+					$this->SetParam("LANGUAGE_ID", LANGUAGE_ID);
+					$languageId = ", LANGUAGE_ID='".$DB->ForSql(LANGUAGE_ID)."'";
+				}
+
 				$DB->Query("
 					UPDATE b_user SET
 						STORED_HASH = NULL,
@@ -1412,6 +1421,7 @@ class CAllUser extends CDBResult
 						LOGIN_ATTEMPTS = 0
 						".$tz."
 						".$bxUid."
+						".$languageId."
 					WHERE
 						ID=".$arUser["ID"]
 				);
@@ -3788,9 +3798,19 @@ class CAllUser extends CDBResult
 			//update session information and cache for current user
 			if(is_object($USER) && $USER->GetID() == $ID)
 			{
-				static $arSessFields = array(
-					'LOGIN'=>'LOGIN', 'EMAIL'=>'EMAIL', 'TITLE'=>'TITLE', 'FIRST_NAME'=>'NAME', 'SECOND_NAME'=>'SECOND_NAME', 'LAST_NAME'=>'LAST_NAME',
-					'PERSONAL_PHOTO'=>'PERSONAL_PHOTO', 'PERSONAL_GENDER'=>'PERSONAL_GENDER', 'AUTO_TIME_ZONE'=>'AUTO_TIME_ZONE', 'TIME_ZONE'=>'TIME_ZONE');
+				static $arSessFields = [
+					'LOGIN' => 'LOGIN',
+					'EMAIL' => 'EMAIL',
+					'TITLE' => 'TITLE',
+					'FIRST_NAME' => 'NAME',
+					'SECOND_NAME' => 'SECOND_NAME',
+					'LAST_NAME' => 'LAST_NAME',
+					'PERSONAL_PHOTO' => 'PERSONAL_PHOTO',
+					'PERSONAL_GENDER' => 'PERSONAL_GENDER',
+					'AUTO_TIME_ZONE' => 'AUTO_TIME_ZONE',
+					'TIME_ZONE' => 'TIME_ZONE',
+					'LANGUAGE_ID' => 'LANGUAGE_ID'
+				];
 				foreach($arSessFields as $key => $val)
 					if(isset($arFields[$val]))
 						$USER->SetParam($key, $arFields[$val]);
@@ -3930,7 +3950,7 @@ class CAllUser extends CDBResult
 						if($group[$field] <> '')
 						{
 							$date = Main\Type\DateTime::createFromUserTime($group[$field]);
-							if($date > $now)
+							if($date->getTimestamp() > $now->getTimestamp())
 							{
 								//group membership is in the future, we need separate records for each group
 								Main\UserAuthActionTable::addUpdateAction($USER_ID, $date);

@@ -3,19 +3,18 @@
 	'use strict';
 	BX.namespace('BX.Bizproc');
 
-	var selectors = new WeakMap();
+	const selectors = new WeakMap();
 
-	var UserSelector = function(container, config)
+	const UserSelector = function(container, config)
 	{
-		var me = this;
-
 		if (!BX.type.isPlainObject(config))
 		{
 			config = {};
 		}
 
-		var configString = container.getAttribute('data-config');
-		var inlineConfig = configString ? BX.parseJSON(configString) : null;
+		const inlineConfig = container.getAttribute('data-config')
+			? BX.parseJSON(container.getAttribute('data-config')) : null
+		;
 		container.removeAttribute('data-config');
 
 		if (BX.type.isPlainObject(inlineConfig))
@@ -26,41 +25,26 @@
 		this.config = config;
 		this.container = container || BX.create('div');
 		this.isOnlyDialogMode = config.isOnlyDialogMode || false;
-		this.data = null;
-		this.dialogId = 'bp-user-selector-' + BX.util.getRandomString(7);
-		this.selected = config.selected ? BX.clone(config.selected) : [];
-		this.selectOne = !config.multiple;
+		this.multiple = config.multiple || false;
 		this.required = config.required || false;
 		this.additionalFields = BX.type.isArray(config.additionalFields) ? config.additionalFields : [];
+		this.preloadedItems = BX.Type.isArray(config.items) ? config.items : [];
 
 		this.prepareRoles();
-
-		BX.bind(this.container, 'click', function(e) {
-			e.preventDefault();
-			me.openDialog();
-		});
 
 		if (!this.isOnlyDialogMode)
 		{
 			this.prepareNodes();
 		}
-
-		if (config.value)
+		else
 		{
-			this.selected = this.parseValue(config.value);
+			this.prepareDialogOnly();
 		}
-
-		this.addItems(this.selected);
-	};
-
-	UserSelector.canUse = function()
-	{
-		return !!BX.SocNetLogDestination;
 	};
 
 	UserSelector.decorateNode = function(container, config)
 	{
-		var selector = selectors.get(container);
+		let selector = selectors.get(container);
 		if (!selector)
 		{
 			selector = new UserSelector(container, config);
@@ -82,415 +66,96 @@
 	UserSelector.prototype = {
 		prepareNodes: function()
 		{
-			this.itemsNode = BX.create('span');
-			this.inputBoxNode = BX.create('span', {
-				attrs: {
-					className: 'bizproc-type-control-user-input-box'
-				}
-			});
+			const selected = this.config.value ? this.parseValue(this.config.value) : [];
 
-			this.inputNode = BX.create('input', {
-				props: {
-					type: 'text'
+			this.tagSelector = new BX.UI.EntitySelector.TagSelector({
+				multiple: this.multiple,
+				addButtonCaption: BX.Loc.getMessage('BIZPROC_JS_USER_SELECTOR_CHOOSE'),
+				addButtonCaptionMore: BX.Loc.getMessage('BIZPROC_JS_USER_SELECTOR_EDIT'),
+				items: selected,
+				tagMaxWidth: 184,
+				events: {
+					onTagAdd: (event) => this.addItem(event.getData().tag),
+					onTagRemove: (event) => this.removeItem(event.getData().tag),
 				},
-				attrs: {
-					className: 'bizproc-type-control-user-input',
-				}
+				dialogOptions: this.getDialogOptions()
 			});
 
-			this.inputBoxNode.appendChild(this.inputNode);
+			this.container.classList.remove(...this.container.classList);
+			this.container.className = 'bizproc-type-control-user--width';
 
-			this.tagNode = BX.create('a', {
-				attrs: {
-					className: 'bizproc-type-control-user-link'
-				}
-			});
-
-			this.container.appendChild(this.itemsNode);
-			this.container.appendChild(this.inputBoxNode);
-			this.container.appendChild(this.tagNode);
+			this.tagSelector.renderTo(this.container);
 
 			this.createValueNode(this.config.valueInputName || '');
+			this.tagSelector.getTags().forEach((tag) => this.addItem(tag));
+		},
+		getDialogOptions: function()
+		{
+			return {
+				context: 'BIZPROC',
+				showCreateButton: false,
+				width: 400,
+				tabs: [
+					{
+						id: 'bpuserroles',
+						title: BX.Loc.getMessage('BIZPROC_JS_USER_SELECTOR_ROLE_TAB')
+					}
+				],
+				entities: [
+					{
+						id: 'user',
+						options: {
+							inviteEmployeeLink: false
+						}
+					},
+					{
+						id: 'department',
+						options: {
+							selectMode: 'usersAndDepartments'
+						}
+					},
+					{
+						id: 'bpuserroles',
+						name: BX.Loc.getMessage('BIZPROC_JS_USER_SELECTOR_ROLE_TAB'),
+						tagOptions: {
+							default: {
+								textColor: '#207976',
+								bgColor: '#ade7e4',
+							},
+							inactive: {
+								textColor: 'grey'
+							}
+						},
+					}
+				],
+				items: Object.values(this.roles),
+			};
+		},
+		prepareDialogOnly: function()
+		{
+			const events = {
+				events: {
+					'Item:onBeforeSelect': (event) => {
+						event.preventDefault();
+						event.getTarget().hide();
+						const item = event.getData().item
+						const value = this.convertItemToValue(item, item.getEntityId());
 
-			BX.bind(this.tagNode, 'focus', function(e) {
-				e.preventDefault();
-				me.openDialog({bByFocusEvent: true});
-			});
+						if (this.config.callbacks && BX.type.isFunction(this.config.callbacks.select))
+						{
+							this.config.callbacks.select(value, this);
+						}
+					}
+				}
+			};
 
-			this.tagNode.innerHTML = (
-				this.selected.length <= 0
-					? BX.message('BIZPROC_JS_USER_SELECTOR_CHOOSE')
-					: BX.message('BIZPROC_JS_USER_SELECTOR_EDIT')
+			this.dialog = new BX.UI.EntitySelector.Dialog(
+				Object.assign(this.getDialogOptions(), events)
 			);
-		},
 
-		getData: function(next)
-		{
-			if (UserSelector.ajaxSent)
-			{
-				return;
-			}
-
-			UserSelector.ajaxSent = true;
-			BX.ajax({
-				method: 'POST',
-				dataType: 'json',
-				url: '/bitrix/tools/bizproc/user_selector.php',
-				data: {
-					ajax_action: 'get_destination_data',
-					sessid: BX.bitrix_sessid(),
-					site: BX.message('SITE_ID')
-				},
-				onsuccess: function (response)
-				{
-					UserSelector.data = response.data || {};
-					UserSelector.ajaxSent = false;
-					this.initDialog(next);
-				}.bind(this)
-			});
-		},
-		initDialog: function(next)
-		{
-			var i, me = this, data = UserSelector.data;
-
-			if (!data)
-			{
-				me.getData(next);
-				return;
-			}
-
-			var itemsSelected = {};
-			for (i = 0; i < me.selected.length; ++i)
-			{
-				itemsSelected[me.selected[i].id] = me.selected[i].entityType
-			}
-
-			var items = {
-				users : data.users || {},
-				department : data.department || {},
-				departmentRelation : data.departmentRelation || {},
-				bpuserroles : this.roles || {}
-			};
-			var itemsLast =  {
-				users: data.last.USERS || {}
-			};
-
-			if (!items["departmentRelation"])
-			{
-				items["departmentRelation"] = BX.SocNetLogDestination.buildDepartmentRelation(items["department"]);
-			}
-
-			if (!me.inited)
-			{
-				me.inited = true;
-				if (this.isOnlyDialogMode)
-				{
-					this.initOnlyDialog(items, itemsLast, itemsSelected, data);
-				}
-				else
-				{
-					this.initDialogWithInputs(items, itemsLast, itemsSelected, data);
-				}
-			}
-			next();
-		},
-
-		initDialogWithInputs: function(items, itemsLast, itemsSelected, data)
-		{
-			var me = this;
-
-			var destinationInput = me.inputNode;
-			destinationInput.id = me.dialogId + 'input';
-
-			var destinationInputBox = me.inputBoxNode;
-			destinationInputBox.id = me.dialogId + 'input-box';
-
-			var tagNode = this.tagNode;
-			tagNode.id = this.dialogId + 'tag';
-
-			var itemsNode = me.itemsNode;
-
-			BX.SocNetLogDestination.init({
-				name : me.dialogId,
-				searchInput : destinationInput,
-				extranetUser :  false,
-				bindMainPopup : {node: me.container, offsetTop: '5px', offsetLeft: '15px'},
-				bindSearchPopup : {node: me.container, offsetTop : '5px', offsetLeft: '15px'},
-				departmentSelectDisable: false,
-				sendAjaxSearch: true,
-				callback : {
-					select : function(item, type)
-					{
-						me.addItem(item, type);
-						if (me.selectOne)
-						{
-							BX.SocNetLogDestination.closeDialog();
-						}
-					},
-					unSelect : function (item, type)
-					{
-						if (me.selectOne)
-						{
-							return;
-						}
-						me.unsetValue(item, type);
-						BX.SocNetLogDestination.BXfpUnSelectCallback.call({
-							formName: me.dialogId,
-							inputContainerName: itemsNode,
-							inputName: destinationInput.id,
-							tagInputName: tagNode.id,
-							tagLink1: BX.message('BIZPROC_JS_USER_SELECTOR_CHOOSE'),
-							tagLink2: BX.message('BIZPROC_JS_USER_SELECTOR_EDIT')
-						}, item)
-					},
-					openDialog : BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
-						inputBoxName: destinationInputBox.id,
-						inputName: destinationInput.id,
-						tagInputName: tagNode.id
-					}),
-					closeDialog : BX.delegate(BX.SocNetLogDestination.BXfpCloseDialogCallback, {
-						inputBoxName: destinationInputBox.id,
-						inputName: destinationInput.id,
-						tagInputName: tagNode.id
-					}),
-					openSearch : BX.delegate(BX.SocNetLogDestination.BXfpOpenDialogCallback, {
-						inputBoxName: destinationInputBox.id,
-						inputName: destinationInput.id,
-						tagInputName: tagNode.id
-					}),
-					closeSearch : BX.delegate(BX.SocNetLogDestination.BXfpCloseSearchCallback, {
-						inputBoxName: destinationInputBox.id,
-						inputName: destinationInput.id,
-						tagInputName: tagNode.id
-					})
-				},
-				items : items,
-				itemsLast : itemsLast,
-				itemsSelected : itemsSelected,
-				useClientDatabase: false,
-				destSort: data.DEST_SORT || {},
-				allowAddUser: false
-			});
-
-			if (Object.keys(this.roles).length > 0)
-			{
-				BX.onCustomEvent(BX.SocNetLogDestination, "onTabsAdd", [me.dialogId, {
-					id: 'bpuserrole',
-					name: BX.message('BIZPROC_JS_USER_SELECTOR_ROLE_TAB'),
-					itemType: 'bpuserroles',
-					dialogGroup: {
-						groupCode: 'bpuserroles',
-						title: BX.message('BIZPROC_JS_USER_SELECTOR_ROLE_TAB')
-					}
-				}]);
-			}
-
-			BX.bind(destinationInput, 'keyup', BX.delegate(BX.SocNetLogDestination.BXfpSearch, {
-				formName: me.dialogId,
-				inputName: destinationInput.id,
-				tagInputName: tagNode.id
-			}));
-			BX.bind(destinationInput, 'keydown', BX.delegate(BX.SocNetLogDestination.BXfpSearchBefore, {
-				formName: me.dialogId,
-				inputName: destinationInput.id
-			}));
-
-			BX.SocNetLogDestination.BXfpSetLinkName({
-				formName: me.dialogId,
-				tagInputName: tagNode.id,
-				tagLink1: BX.message('BIZPROC_JS_USER_SELECTOR_CHOOSE'),
-				tagLink2: BX.message('BIZPROC_JS_USER_SELECTOR_EDIT')
-			});
-		},
-
-		initOnlyDialog: function(items, itemsLast, itemsSelected, data)
-		{
-			var me = this;
-			BX.SocNetLogDestination.init({
-				name : me.dialogId,
-				showSearchInput: true,
-				extranetUser :  false,
-				bindMainPopup : {node: me.container, offsetTop: '5px', offsetLeft: '15px'},
-				bindSearchPopup : {node: me.container, offsetTop : '5px', offsetLeft: '15px'},
-				departmentSelectDisable: false,
-				sendAjaxSearch: true,
-				callback : {
-					select : function(item, type)
-					{
-						me.selectInDialog(item, type);
-						BX.SocNetLogDestination.closeDialog();
-					}
-				},
-				items : items,
-				itemsLast : itemsLast,
-				itemsSelected : itemsSelected,
-				useClientDatabase: false,
-				destSort: data.DEST_SORT || {},
-				allowAddUser: false
-			});
-
-			if (Object.keys(this.roles).length > 0)
-			{
-				BX.onCustomEvent(BX.SocNetLogDestination, "onTabsAdd", [me.dialogId, {
-					id: 'bpuserrole',
-					name: BX.message('BIZPROC_JS_USER_SELECTOR_ROLE_TAB'),
-					itemType: 'bpuserroles',
-					dialogGroup: {
-						groupCode: 'bpuserroles',
-						title: BX.message('BIZPROC_JS_USER_SELECTOR_ROLE_TAB')
-					}
-				}]);
-			}
-		},
-		selectInDialog: function(item, type)
-		{
-			var value = this.convertItemToValue(item, type);
-			if (this.config.callbacks && BX.type.isFunction(this.config.callbacks.select))
-			{
-				this.config.callbacks.select(value, this);
-			}
-		},
-		addItem: function(item, type)
-		{
-			var me = this;
-			var destinationInput = this.inputNode;
-			var tagNode = this.tagNode;
-			var items = this.itemsNode;
-
-			if (!type && item.entityType)
-			{
-				type = item.entityType;
-			}
-
-			var addedResult = false;
-
-			if (!BX.findChild(items, { attr : { 'data-id' : item.id }}, false, false))
-			{
-				if (me.selectOne)
-				{
-					var toRemove = [];
-					for (var i = 0; i < items.childNodes.length; ++i)
-					{
-						toRemove.push({
-							itemId: items.childNodes[i].getAttribute('data-id'),
-							itemType: items.childNodes[i].getAttribute('data-type')
-						})
-					}
-
-					me.initDialog(function() {
-						for (var i = 0; i < toRemove.length; ++i)
-						{
-							BX.SocNetLogDestination.deleteItem(toRemove[i].itemId, toRemove[i].itemType, me.dialogId);
-						}
-					});
-
-					BX.cleanNode(items);
-					me.cleanValue();
-				}
-
-				var container = this.createItemNode({
-					text: item.name,
-					className: type === 'bpuserroles' ? 'bizproc-type-control-user-item-head' : '',
-					deleteEvents: {
-						click: function(e) {
-							if (me.selectOne && me.required)
-							{
-								me.openDialog();
-							}
-							else
-							{
-								me.initDialog(function() {
-									BX.SocNetLogDestination.deleteItem(item.id, type, me.dialogId);
-									BX.remove(container);
-									me.unsetValue(item, type);
-								});
-							}
-							e.preventDefault();
-						}
-					}
-				});
-
-				this.setValue(item, type);
-
-				container.setAttribute('data-id', item.id);
-				container.setAttribute('data-type', type);
-
-				items.appendChild(container);
-
-				if (!item.entityType)
-				{
-					item.entityType = type;
-				}
-
-				addedResult = true;
-			}
-			destinationInput.value = '';
-			tagNode.innerHTML = BX.message('BIZPROC_JS_USER_SELECTOR_EDIT');
-
-			return addedResult;
-		},
-		toggleItem: function(item, type)
-		{
-			if (!this.addItem(item, type))
-			{
-				this.unsetValue(item, type);
-				var element = BX.findChild(this.itemsNode, { attr : { 'data-id' : item.id }}, false, false);
-				if (element)
-				{
-					BX.remove(element);
-				}
-			}
-		},
-		addItems: function(items)
-		{
-			for(var i = 0; i < items.length; ++i)
-			{
-				this.addItem(items[i], items[i].entityType)
-			}
-		},
-		openDialog: function(params)
-		{
-			var me = this;
-			if (me.handleOpenDialog && BX.Type.isFunction(me.handleOpenDialog) && me.handleOpenDialog(me) === false)
-			{
-				return;
-			}
-			this.initDialog(function()
-			{
-				BX.SocNetLogDestination.openDialog(me.dialogId, params);
-			})
-		},
-		destroy: function()
-		{
-			if (this.inited)
-			{
-				if (BX.SocNetLogDestination.isOpenDialog())
-				{
-					BX.SocNetLogDestination.closeDialog();
-				}
-				BX.SocNetLogDestination.closeSearch();
-			}
-		},
-		createItemNode: function(options)
-		{
-			return BX.create('span', {
-				attrs: {
-					className: 'bizproc-type-control-user-item ' + options.className
-				},
-				children: [
-					BX.create('span', {
-						attrs: {
-							className: 'bizproc-type-control-user-name'
-						},
-						text: BX.util.htmlspecialcharsback(options.text || '')
-					}),
-					BX.create('span', {
-						attrs: {
-							className: 'bizproc-type-control-user-delete'
-						},
-						events: options.deleteEvents
-					})
-				]
+			BX.bind(this.container, 'click', (event) => {
+				event.preventDefault();
+				this.dialog.show();
 			});
 		},
 		createValueNode: function(valueInputName)
@@ -504,12 +169,48 @@
 
 			this.container.appendChild(this.valueNode);
 		},
-		setValue: function(item, type)
+		/** @param {BX.UI.EntitySelector.Item} item */
+		addItem: function(item)
 		{
-			var id = this.getValueId(item, type);
-			var value = this.convertItemToValue(item, type);
+			this.setValue(item);
+		},
+		toggleItem: function(item)
+		{
+			if (!this.tagSelector)
+			{
+				return;
+			}
 
-			if (this.selectOne)
+			const tag = this.tagSelector.getTag(item);
+
+			if (tag)
+			{
+				this.tagSelector.removeTag(tag);
+			}
+			else
+			{
+				this.tagSelector.addTag(item);
+			}
+		},
+		/** @param {BX.UI.EntitySelector.Item} item */
+		removeItem: function(item)
+		{
+			this.unsetValue(item);
+		},
+		destroy: function()
+		{
+			this.tagSelector = null;
+			this.dialog = null;
+			this.container = null;
+			this.valueNode = null;
+		},
+		/** @param {BX.UI.EntitySelector.Item} item */
+		setValue: function(item)
+		{
+			const id = this.getValueId(item, item.getEntityId());
+			const value = this.convertItemToValue(item, item.getEntityId());
+
+			if (!this.multiple)
 			{
 				this.valueNode.value = value;
 			}
@@ -530,13 +231,11 @@
 		},
 		convertItemToValue: function(item, type)
 		{
-			var id = this.getValueId(item, type);
-			var value = id;
-			var name = BX.util.htmlspecialcharsback(item['name']);
+			const id = this.getValueId(item, type);
+			let value = id;
+			const name = item.getTitle().replace(/[,\.\-\_\>\<\"\']/g, '');
 
-			name = name.replace(/[,\.\-\_\>\<\"\']/g, '');
-
-			if (type === 'users')
+			if (type === 'user')
 			{
 				value = [name, id].join(' ');
 			}
@@ -544,21 +243,31 @@
 			{
 				value = [name, id].join(' ');
 			}
+			else if (type === 'bpuserroles' && value.indexOf('G') === 1)
+			{
+				value = [name, id].join(' ');
+			}
+			else if (type === 'bpuserroles' && value === 'author')
+			{
+				value = name;
+			}
+
 			return value;
 		},
-
-		unsetValue: function(item, type)
+		unsetValue: function(item)
 		{
-			var id = this.getValueId(item, type);
+			const id = this.getValueId(item, item.getEntityId());
 
-			if (this.selectOne)
+			if (!this.multiple)
 			{
 				this.valueNode.value = '';
 			}
 			else
 			{
-				var i, newVal = [], pairs = this.valueNode.value.split(',');
-				for (i = 0; i < pairs.length; ++i)
+				const newVal = [];
+				const pairs = this.valueNode.value.split(',');
+
+				for (let i = 0; i < pairs.length; ++i)
 				{
 					if (!pairs[i] || pairs[i].indexOf(id) >= 0)
 					{
@@ -568,33 +277,21 @@
 				}
 				this.valueNode.value = newVal.join(',');
 			}
-
-			if (this.selected && this.selected.length)
-			{
-				this.selected = this.selected.filter(function(item)
-				{
-					return (item.id !== id);
-				});
-			}
 		},
 		getValueId: function(item, type)
 		{
-			var id = item['id'].toString();
-			if (type === 'users')
+			const id = item.getId().toString();
+
+			if (type === 'user')
 			{
-				id = '['+ item.entityId +']';
+				return '[' + id +']';
 			}
-			else if (type === 'department' || type === 'bpuserroles' && id.indexOf('G') === 0)
+			else if (type === 'department')
 			{
-				id = '['+ id +']';
+				return '[DR' + id +']';
 			}
 
-			return id;
-		},
-
-		cleanValue: function()
-		{
-			this.valueNode.value = '';
+			return id.indexOf('G') === 0 ? '[' + id + ']' : id;
 		},
 		getValue: function()
 		{
@@ -615,27 +312,38 @@
 
 				if (matches = pair.match(/(.*)\[([A-Z]{0,2})(\d+)\]/))
 				{
+					let needConvertToInt = true;
 					name =  BX.util.trim(matches[1]);
 					entityId = matches[3];
 					id = matches[2] + entityId;
-					entityType = (matches[2] === '') ? 'users' : 'bpuserroles';
+					entityType = (matches[2] === '') ? 'user' : 'bpuserroles';
 
-					if (entityType === 'users' && id[0] !== 'U')
+					if (entityType === 'user' && id[0] === 'U')
 					{
-						id = 'U' + id;
+						id = id.replace('U', '');
 					}
 
 					if (matches[2] === 'DR')
 					{
 						entityType = 'department';
+						id = id.replace('DR', '');
 					}
 
-					items.push({
-						id: id,
-						entityId: parseInt(entityId),
-						name: name,
-						entityType: entityType
-					});
+					if (matches[2] === 'G')
+					{
+						needConvertToInt = false;
+					}
+
+					if (needConvertToInt)
+					{
+						id = BX.Text.toInteger(id);
+					}
+
+					const preloadedItem = this.preloadedItems.find(
+						(item) => item.id === id && item.entityId === entityType
+					);
+
+					items.push(preloadedItem || {id, entityId: entityType, title: name});
 				}
 				else
 				{
@@ -656,9 +364,8 @@
 								found = true;
 								items.push({
 									id: group['id'],
-									entityId: group['id'],
-									name: group['name'],
-									entityType: 'bpuserroles'
+									entityId: 'bpuserroles',
+									title: group['name'],
 								});
 							}
 						});
@@ -668,13 +375,13 @@
 					{
 						items.push({
 							id: pair,
-							entityId: pair,
-							name: pair,
-							entityType: 'bpuserroles'
+							entityId: 'bpuserroles',
+							title: pair,
 						});
 					}
 				}
 			}
+
 			return items;
 		},
 		prepareValueString: function(value)
@@ -706,9 +413,11 @@
 				{
 					roles[group['id']] = {
 						id: group['id'],
-						entityId: group['id'],
-						name: group['name'],
-						entityType: 'bpuserroles'
+						entityId: 'bpuserroles',
+						title: group['name'],
+						tabs: 'bpuserroles',
+						//compatible
+						name: group.name,
 					};
 				});
 			}
@@ -719,17 +428,22 @@
 				{
 					roles[field['SystemExpression']] = {
 						id: field['SystemExpression'],
-						entityId: field['SystemExpression'],
-						name: BX.Text.encode(field['Name']),
-						entityType: 'bpuserroles'
+						entityId: 'bpuserroles',
+						title: field['Name'],
+						tabs: 'bpuserroles',
 					};
 				}
 			});
 
 			this.additionalFields.forEach(function(field)
 			{
-				field.entityType = 'bpuserroles';
-				roles[field['id']] = field;
+				roles[field['id']] = {
+					id: field['id'],
+					entityId: field.entityId || 'bpuserroles',
+					title: field.title || field.name,
+					tabs: field.tabs || 'bpuserroles',
+					sort: field.sort,
+				};
 			});
 
 			this.roles = roles;

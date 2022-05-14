@@ -1,15 +1,15 @@
 <?php
 $MESS['DOCUMENT_LIST_STUB_TITLE_ARRIVAL'] = 'Создайте первый приход товара';
 $MESS['DOCUMENT_LIST_STUB_DESCRIPTION_ARRIVAL'] = 'Наведите порядок на складе. Фиксируйте поступление каждого товара. Так вы всегда будете знать, где что находится и в каком количестве.';
-$MESS['DOCUMENT_LIST_STUB_LINK_QUICKSTART'] = 'Как начать работу со складским учетом';
-$MESS['DOCUMENT_LIST_STUB_LINK_MIGRATION'] = 'Уже ведёте складской учет? Перенесите свои данные из других систем';
+$MESS['DOCUMENT_LIST_STUB_LINK_QUICKSTART'] = 'Как начать работу со складским учётом';
+$MESS['DOCUMENT_LIST_STUB_LINK_MIGRATION'] = 'Уже ведёте складской учёт? Перенесите свои данные из других систем';
 $MESS['DOCUMENT_LIST_STUB_TITLE_MOVING'] = 'Создайте первое перемещение товара';
 $MESS['DOCUMENT_LIST_STUB_DESCRIPTION_MOVING'] = 'Фиксируйте каждое перемещение между точками продаж. Это поможет понимать, где находятся нужные товары, вовремя распределять их между складами и увеличить оборачиваемость товаров.';
 $MESS['DOCUMENT_LIST_STUB_LINK_CONTROL'] = 'Как контролировать перемещение товара';
 $MESS['DOCUMENT_LIST_STUB_TITLE_DEDUCT'] = 'Добавьте списание товара';
 $MESS['DOCUMENT_LIST_STUB_DESCRIPTION_DEDUCT'] = 'Контроль списания поможет учитывать потери товаров, точно понимать причины (при транспортировке, износ, кражи) и знать сумму потерь.';
 $MESS['DOCUMENT_LIST_STUB_TITLE_SHIPMENT'] = 'Добавьте первую продажу товара';
-$MESS['DOCUMENT_LIST_STUB_DESCRIPTION_SHIPMENT'] = 'Продали товар? Зафиксируйте это. Точный учет поможет менеджерам понимать, сколько товаров на складе, и быстрее комплектовать заказы.';
+$MESS['DOCUMENT_LIST_STUB_DESCRIPTION_SHIPMENT'] = 'Продали товар? Зафиксируйте это. Точный учёт поможет менеджерам понимать, сколько товаров на складе, и быстрее комплектовать заказы.';
 $MESS['DOCUMENT_LIST_STUB_LINK_SHIPMENT'] = 'Как фиксировать продажи';
 $MESS['DOCUMENT_LIST_STUB_LINK_LOSSES'] = 'Как правильно учитывать потери';
 $MESS['DOCUMENT_LIST_STUB_NO_DATA_TITLE'] = 'По вашему запросу ничего не найдено';

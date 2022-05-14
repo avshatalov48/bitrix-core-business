@@ -188,6 +188,11 @@ export class ProductSearchInput
 
 		if (this.isSearchEnabled())
 		{
+			if (this.selector.isProductSearchEnabled())
+			{
+				this.initHasDialogItems();
+			}
+
 			this.toggleIcon(
 				this.getSearchIcon(),
 				Type.isStringFilled(this.getFilledValue()) ? 'none' : 'block'
@@ -292,6 +297,36 @@ export class ProductSearchInput
 
 			return new Dialog(params);
 		});
+	}
+
+	initHasDialogItems()
+	{		
+		if (this.isHasDialogItems === true)
+		{
+			return;
+		}
+		else if (this.isHasDialogItems === false)
+		{
+			return;
+		}
+		
+		// is null, that not send ajax
+		this.isHasDialogItems = false;
+		
+		const dialog = this.getDialog();
+		if (dialog.hasDynamicLoad())
+		{
+			dialog.hasRecentItems().then((isHasItems) => {
+				if (isHasItems === true)
+				{
+					this.isHasDialogItems = true;
+				}
+			});	
+		}
+		else
+		{
+			this.isHasDialogItems = true;
+		}
 	}
 
 	isAllowedCreateProduct()
@@ -415,15 +450,23 @@ export class ProductSearchInput
 		}
 
 		const dialog = this.getDialog();
-		dialog.removeItems()
-
 		if (dialog)
 		{
+			dialog.removeItems();
+
+			searchQuery = searchQuery.trim();
 			if (searchQuery === '')
 			{
+				if (this.isHasDialogItems === false)
+				{
+					dialog.hide();
+					return;
+				}
+				
 				dialog.loadState = 'UNSENT';
 				dialog.load();
 			}
+			
 			dialog.show();
 			dialog.search(searchQuery);
 		}
@@ -606,6 +649,7 @@ export class ProductSearchInput
 						dialog.hide();
 						this.cache.delete('dialog');
 						this.ajaxInProcess = false;
+						this.isHasDialogItems = true;
 						resolve();
 					})
 					.catch((errorResponse) => {

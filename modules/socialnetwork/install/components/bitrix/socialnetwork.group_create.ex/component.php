@@ -21,6 +21,10 @@ global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 
 use Bitrix\Main\ArgumentException;
 use Bitrix\Intranet\Invitation;
+use Bitrix\Main\Text\Emoji;
+use Bitrix\Main\Web\Json;
+use Bitrix\Socialnetwork\Component\WorkgroupForm;
+use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\WorkgroupSiteTable;
 use Bitrix\Socialnetwork\Item\UserToGroup;
@@ -32,139 +36,18 @@ use Bitrix\Socialnetwork\Integration\UI\EntitySelector;
 use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
 use Bitrix\Socialnetwork\Helper;
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork.group_create.ex/include.php");
-
 if (!Loader::includeModule("socialnetwork"))
 {
 	ShowError(GetMessage("SONET_MODULE_NOT_INSTALL"));
 	return;
 }
 
-$arParams['GROUP_ID'] = (
-	(int)$_REQUEST['SONET_GROUP_ID'] > 0
-		? (int)$_REQUEST['SONET_GROUP_ID']
-		: (int)$arParams['GROUP_ID']
-);
-
-$arParams['SET_NAV_CHAIN'] = ($arParams['SET_NAV_CHAIN'] === 'N' ? 'N' : 'Y');
-$bAutoSubscribe = (array_key_exists('USE_AUTOSUBSCRIBE', $arParams) && $arParams["USE_AUTOSUBSCRIBE"] === 'N' ? false : true);
+$bAutoSubscribe = !(isset($arParams["USE_AUTOSUBSCRIBE"]) && $arParams['USE_AUTOSUBSCRIBE'] === 'N');
 $createdGroupId = 0;
-
-if (strLen($arParams["USER_VAR"]) <= 0)
-	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
-	$arParams["PAGE_VAR"] = "page";
-if (strLen($arParams["GROUP_VAR"]) <= 0)
-	$arParams["GROUP_VAR"] = "group_id";
-
-$arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
-	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
-
-$arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
-	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
-
-$strSiteWorkgroupsPage = \Bitrix\Socialnetwork\ComponentHelper::getWorkgroupSEFUrl();
-if (strlen($strSiteWorkgroupsPage) > 0)
-{
-	$arParams["PATH_TO_GROUP_GENERAL"] = $strSiteWorkgroupsPage."group/#group_id#/general/";
-}
-
-$arParams["PATH_TO_GROUP_EDIT"] = trim($arParams["PATH_TO_GROUP_EDIT"]);
-if (strlen($arParams["PATH_TO_GROUP_EDIT"]) <= 0)
-	$arParams["PATH_TO_GROUP_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_edit&".$arParams["GROUP_VAR"]."=#group_id#");
-
-$arParams["PATH_TO_GROUP_CREATE"] = trim($arParams["PATH_TO_GROUP_CREATE"]);
-if (strlen($arParams["PATH_TO_GROUP_CREATE"]) <= 0)
-	$arParams["PATH_TO_GROUP_CREATE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_create&".$arParams["USER_VAR"]."=#user_id#");
-
-$arParams["IUS_INPUT_NAME"] = "ius_ids";
-$arParams["IUS_INPUT_NAME_SUSPICIOUS"] = "ius_susp";
-$arParams["IUS_INPUT_NAME_STRING"] = "users_list_string_ius";
-$arParams["IUS_INPUT_NAME_EXTRANET"] = "ius_ids_extranet";
-$arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"] = "ius_susp_extranet";
-$arParams["IUS_INPUT_NAME_STRING_EXTRANET"] = "users_list_string_ius_extranet";
-
-if (strlen($arParams["NAME_TEMPLATE"]) <= 0)
-	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
-$bUseLogin = $arParams['SHOW_LOGIN'] !== 'N' ? true : false;
-
-$arParams['USE_KEYWORDS'] = ($arParams['USE_KEYWORDS'] !== 'N' ? 'Y' : 'N');
-
-$arParams['PROJECT_OPTIONS'] = (isset($arParams['PROJECT_OPTIONS']) && is_array($arParams['PROJECT_OPTIONS']) ? $arParams['PROJECT_OPTIONS'] : []);
-foreach($arParams['PROJECT_OPTIONS'] as $key => $option)
-{
-	if (!in_array((string)$key, ['extranet', 'features', 'project', 'open', 'landing', 'tourId', 'scrum' ], true))
-	{
-		unset($arParams['PROJECT_OPTIONS'][$key]);
-	}
-}
-
-$arResult['preset'] = (!empty($_GET['preset']) ? $_GET['preset'] : false);
-if (
-	$arResult['preset']
-	&& empty($arParams['PROJECT_OPTIONS'])
-)
-{
-	$type = \Bitrix\Socialnetwork\Helper\Workgroup::getTypeByCode([
-		'code' => $arResult['preset'],
-		'fullMode' => true,
-	]);
-
-	$arParams['PROJECT_OPTIONS'] = [];
-	if (!empty($type['LANDING']))
-	{
-		$arParams['PROJECT_OPTIONS']['landing'] = ($type['LANDING'] === 'Y');
-	}
-	if (!empty($type['PROJECT']))
-	{
-		$arParams['PROJECT_OPTIONS']['project'] = ($type['PROJECT'] === 'Y');
-	}
-	if (!empty($type['SCRUM_PROJECT']))
-	{
-		$arParams['PROJECT_OPTIONS']['scrum'] = ($type['SCRUM_PROJECT'] === 'Y');
-	}
-}
-
-if (!isset($arParams['PROJECT_OPTIONS']['scrum']))
-{
-	$arParams['PROJECT_OPTIONS']['scrum'] = false;
-}
-
-$arResult["GROUP_PROPERTIES"] = $USER_FIELD_MANAGER->GetUserFields("SONET_GROUP", 0, LANGUAGE_ID);
-
-foreach($arResult["GROUP_PROPERTIES"] as $field => $arUserField)
-{
-	if (
-		!empty($arUserField['EDIT_IN_LIST'])
-		&& $arUserField['EDIT_IN_LIST'] === 'N'
-		&& (
-			empty($arUserField['MANDATORY'])
-			|| $arUserField['MANDATORY'] !== 'Y'
-		)
-	)
-	{
-		unset($arResult["GROUP_PROPERTIES"][$field]);
-		continue;
-	}
-
-	$arResult["GROUP_PROPERTIES"][$field]["EDIT_FORM_LABEL"] = StrLen($arUserField["EDIT_FORM_LABEL"]) > 0 ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
-	$arResult["GROUP_PROPERTIES"][$field]["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arResult["GROUP_PROPERTIES"][$field]["EDIT_FORM_LABEL"]);
-	$arResult["GROUP_PROPERTIES"][$field]["~EDIT_FORM_LABEL"] = $arResult["GROUP_PROPERTIES"][$field]["EDIT_FORM_LABEL"];
-}
-
-$arResult["bVarsFromForm"] = false;
-$arResult["templateEditMode"] = 'N';
-$arResult['destinationContextOwner'] = 'GROUP_INVITE_OWNER';
-$arResult['destinationContextModerators'] = 'GROUP_INVITE_MODERATORS';
-$arResult['destinationContextUsers'] = 'GROUP_INVITE';
 
 $errorData = [];
 $errorMessage = [];
 $warningMessage = [];
-
-$arResult['isCurrentUserAdmin'] = CSocNetUser::isCurrentUserModuleAdmin();
 
 if (!$USER->IsAuthorized())
 {
@@ -237,7 +120,7 @@ else
 
 	if ($arParams["GROUP_ID"] > 0)
 	{
-		__GCEGetGroup($arParams["GROUP_ID"], $arResult["GROUP_PROPERTIES"], $arResult["POST"], $arResult["TAB"]);
+		WorkgroupForm::processWorkgroupData($arParams["GROUP_ID"], $arResult["GROUP_PROPERTIES"], $arResult["POST"], $arResult["TAB"]);
 	}
 	else
 	{
@@ -300,9 +183,9 @@ else
 		}
 		elseif (
 			empty($errorMessage)
-			&& $arParams["GROUP_ID"] > 0
-			&& (int)$arResult['POST']['OWNER_ID'] !== $arResult["currentUserId"]
-			&& !$arResult['isCurrentUserAdmin']
+			&& !\Bitrix\Socialnetwork\Helper\Workgroup::canUpdate([
+				'groupId' => $arParams['GROUP_ID'],
+			])
 		)
 		{
 			$arResult["FatalError"] = GetMessage("SONET_GCE_ERR_SECURITY").". ";
@@ -312,11 +195,11 @@ else
 	if (StrLen($arResult["FatalError"]) <= 0)
 	{
 		if (
-			!array_key_exists("TAB", $arResult)
+			!isset($arResult['TAB'])
 			|| $arResult['TAB'] === 'edit'
 		)
 		{
-			__GCE_GetFeatures($arParams["GROUP_ID"], $arResult["POST"]["FEATURES"]);
+			WorkgroupForm::processWorkgroupFeatures($arParams['GROUP_ID'], $arResult['POST']['FEATURES']);
 		}
 
 		$arResult["ShowForm"] = "Input";
@@ -334,11 +217,11 @@ else
 			}
 
 			$moderatorIdList = [];
-			$ownerId = (
-				isset($arResult["POST"]["OWNER_ID"])
+			$ownerId = (int)(
+				isset($arResult['POST']['OWNER_ID'])
 				&& (int)$arResult['POST']['OWNER_ID'] > 0
-					? (int)$arResult['POST']['OWNER_ID']
-					: $arResult["currentUserId"]
+					? $arResult['POST']['OWNER_ID']
+					: $arResult['currentUserId']
 			);
 
 			if (
@@ -370,7 +253,7 @@ else
 						$arImageID = CFile::MakeFileArray($_POST["GROUP_IMAGE_ID"]);
 						$arImageID["old_file"] = $arResult["POST"]["IMAGE_ID"];
 						$arImageID["del"] = "N";
-						CFile::ResizeImage($arImageID, array("width" => 300, "height" => 300), BX_RESIZE_IMAGE_PROPORTIONAL);
+						CFile::ResizeImage($arImageID, array("width" => 300, "height" => 300));
 						$avatarType = '';
 					}
 				}
@@ -532,7 +415,7 @@ else
 			)
 			{
 				if (
-					array_key_exists("NEW_INVITE_FORM", $_POST)
+					isset($_POST['NEW_INVITE_FORM'])
 					&& $_POST['NEW_INVITE_FORM'] === 'Y'
 				)
 				{
@@ -547,12 +430,12 @@ else
 
 					foreach ($arUserCodesFromPost as $destinationCode)
 					{
-						if(preg_match('/^U(\d+)$/', $destinationCode, $match))
+						if (preg_match('/^U(\d+)$/', $destinationCode, $match))
 						{
 							if (
-								in_array($match[1], $arUserIDs)
-								|| in_array($match[1], $moderatorIdList)
-								|| $match[1] == $ownerId
+								(int)$match[1] === $ownerId
+								|| in_array((int)$match[1], $arUserIDs, true)
+								|| in_array((int)$match[1], $moderatorIdList, true)
 							)
 							{
 								continue;
@@ -561,11 +444,11 @@ else
 							$arUserIDs[] = (int)$match[1];
 							$arUserCodes['U'.$match[1]] = 'users';
 						}
-						elseif(preg_match('/^DR(\d+)$/', $destinationCode, $match))
+						elseif (preg_match('/^DR(\d+)$/', $destinationCode, $match))
 						{
-							if (!in_array($match[1], $arDepartmentIDs))
+							if (!in_array((int)$match[1], $arDepartmentIDs, true))
 							{
-								$arDepartmentIDs[] = $match[1];
+								$arDepartmentIDs[] = (int)$match[1];
 							}
 
 							if (!array_key_exists('DR'.$match[1], $arUserCodes))
@@ -719,19 +602,19 @@ else
 					$conn = \Bitrix\Main\Application::getConnection();
 					$table = \Bitrix\Socialnetwork\WorkgroupTable::getTableName();
 
-					if ($arFields["NAME"] <> '')
+					if (
+						((string)$arFields["NAME"] !== '')
+						&& !$conn->isUtf8mb4($table, 'NAME')
+					)
 					{
-						if (!$conn->isUtf8mb4($table, 'NAME'))
-						{
-							$arFields["NAME"] = \Bitrix\Main\Text\Emoji::encode($arFields["NAME"]);
-						}
+						$arFields["NAME"] = Emoji::encode($arFields["NAME"]);
 					}
-					if ($arFields["DESCRIPTION"] <> '')
+					if (
+						((string)$arFields["DESCRIPTION"] !== '')
+						&& !$conn->isUtf8mb4($table, 'DESCRIPTION')
+					)
 					{
-						if (!$conn->isUtf8mb4($table, 'DESCRIPTION'))
-						{
-							$arFields["DESCRIPTION"] = \Bitrix\Main\Text\Emoji::encode($arFields["DESCRIPTION"]);
-						}
+						$arFields["DESCRIPTION"] = Emoji::encode($arFields["DESCRIPTION"]);
 					}
 				}
 
@@ -762,9 +645,9 @@ else
 						$this->getSiteId()
 					];
 					if (
-						Loader::includeModule('extranet')
+						$_POST['IS_EXTRANET_GROUP'] === 'Y'
+						&& Loader::includeModule('extranet')
 						&& !CExtranet::IsExtranetSite()
-						&& $_POST['IS_EXTRANET_GROUP'] === 'Y'
 					)
 					{
 						$arFields["SITE_ID"][] = CExtranet::GetExtranetSiteID();
@@ -772,7 +655,7 @@ else
 						$arFields["OPENED"] = "N";
 					}
 				}
-				elseif(
+				elseif (
 					CModule::IncludeModule("extranet")
 					&& CExtranet::IsExtranetSite()
 				)
@@ -793,7 +676,7 @@ else
 							),
 							'select' => array('SITE_ID')
 						));
-						while($workGroupSiteFields = $res->fetch())
+						while ($workGroupSiteFields = $res->fetch())
 						{
 							$siteIdList[] = $workGroupSiteFields['SITE_ID'];
 						}
@@ -807,7 +690,7 @@ else
 					}
 				}
 
-				foreach($arResult["GROUP_PROPERTIES"] as $field => $arUserField)
+				foreach ($arResult["GROUP_PROPERTIES"] as $field => $arUserField)
 				{
 					if (array_key_exists($field, $_POST))
 					{
@@ -821,10 +704,11 @@ else
 				{
 					if (preg_match('/^U(\d+)$/', $_POST["SCRUM_MASTER_CODE"], $match) && (int)$match[1] > 0)
 					{
-						$arFields['SCRUM_MASTER_ID'] = (int) $match[1];
+						$arFields['SCRUM_MASTER_ID'] = (int)$match[1];
+						$moderatorIdList[] = $arFields['SCRUM_MASTER_ID'];
 					}
 
-					$arFields['SCRUM_SPRINT_DURATION'] = (int) $_POST["SCRUM_SPRINT_DURATION"];
+					$arFields['SCRUM_SPRINT_DURATION'] = (int)$_POST["SCRUM_SPRINT_DURATION"];
 					$availableResponsibleTypes = ['A', 'M'];
 					$scrumTaskResponsible = (
 						is_string($_POST["SCRUM_TASK_RESPONSIBLE"]) ? $_POST["SCRUM_TASK_RESPONSIBLE"] : 'A'
@@ -914,7 +798,7 @@ else
 					}
 					else
 					{
-						if ($arResult["POST"]["OWNER_ID"] != $ownerId)
+						if ((int)$arResult['POST']['OWNER_ID'] !== $ownerId)
 						{
 							CSocNetUserToGroup::setOwner($ownerId, $arParams["GROUP_ID"], $arResult["POST"]);
 						}
@@ -941,14 +825,9 @@ else
 							: []
 					);
 
-					if (!empty($arFields['SCRUM_MASTER_ID']))
-					{
-						$plusList[] = (int)$arFields['SCRUM_MASTER_ID'];
-					}
-
 					if (!empty($minusList))
 					{
-						$relationIdList = array();
+						$relationIdList = [];
 
 						$resRelation = UserToGroupTable::getList(array(
 							'filter' => array(
@@ -976,7 +855,7 @@ else
 
 					if (!empty($arUserIDs))
 					{
-						$arUserIDs = array_filter($arUserIDs, function($value) use ($plusList) {
+						$arUserIDs = array_filter($arUserIDs, static function($value) use ($plusList) {
 							return !in_array($value, $plusList, true);
 						});
 					}
@@ -1020,7 +899,6 @@ else
 						}
 					}
 				}
-
 			}
 
 			if (
@@ -1039,6 +917,8 @@ else
 			{
 				CFile::ResizeImageDeleteCache($arImageID);
 			}
+
+			$successfullUserIdList = [];
 
 			if (!empty($errorMessage))
 			{
@@ -1106,7 +986,7 @@ else
 						&& CModule::IncludeModule('intranet')
 					)
 					{
-						$externalAuthIdList = \Bitrix\Socialnetwork\ComponentHelper::checkPredefinedAuthIdList(array('bot', 'imconnector', 'replica'));
+						$externalAuthIdList = ComponentHelper::checkPredefinedAuthIdList(array('bot', 'imconnector', 'replica'));
 
 						if (
 							$_POST['EXTRANET_INVITE_ACTION'] === 'invite'
@@ -1120,7 +1000,6 @@ else
 
 							$arEmail = array();
 							$arIntranetUsersEmails = array();
-							$arInvitedExtranetUsers = array();
 							$arEmailOriginal = preg_split("/[\n\r\t\\,;]+/", $_POST["EMAILS"]);
 
 							$emailCnt = 0;
@@ -1149,11 +1028,15 @@ else
 									$addr_spec = "$localpart\\@$white_space*$domain";
 									$phrase = "$word*";
 
-									if(preg_match("/$addr_spec/", $addr, $arMatches))
+									if (preg_match("/$addr_spec/", $addr, $arMatches))
+									{
 										$addrX = $arMatches[0];
+									}
 
-									if(preg_match("/$localpart/", $addr, $arMatches))
+									if (preg_match("/$localpart/", $addr, $arMatches))
+									{
 										$phraseX = trim(trim($arMatches[0]), "\"");
+									}
 
 									$arEmail[] = array("EMAIL" => $addrX, "NAME" => $phraseX);
 									$emailCnt++;
@@ -1194,8 +1077,8 @@ else
 									if ($arUser = $rsUser->Fetch())
 									{
 										if (
-											in_array($arUser['ID'], $moderatorIdList)
-											|| $arUser['ID'] == $ownerId
+											(int)$arUser['ID'] === $ownerId
+											|| in_array((int)$arUser['ID'], $moderatorIdList, true)
 										)
 										{
 											continue;
@@ -1252,19 +1135,19 @@ else
 									{
 										$userData["EMAIL"] = $email["EMAIL"];
 										$userData["LOGIN"] = $email["EMAIL"];
-										$userData["CONFIRM_CODE"] = randString(8);
+										$userData["CONFIRM_CODE"] = \Bitrix\Main\Security\Random::getString(8, true);
 
 										$name = $last_name = "";
 										if ($email["NAME"] <> '')
 										{
-											list($name, $last_name) = explode(" ", $email["NAME"]);
+											[$name, $last_name] = explode(" ", $email["NAME"]);
 										}
 										$userData["NAME"] = $name;
 										$userData["LAST_NAME"] = $last_name;
 
 										$ID = CIntranetInviteDialog::RegisterUser($userData, $this->getSiteId());
 
-										if(is_array($ID))
+										if (is_array($ID))
 										{
 											foreach ($ID as $strErrorTmp)
 											{
@@ -1401,9 +1284,9 @@ else
 							|| $arResult['TAB'] === 'edit'
 						)
 						&& isset($ownerId)
-						&& $ownerId != $arResult["currentUserId"]
-						&& !in_array($arResult["currentUserId"], $moderatorIdList)
+						&& $ownerId !== $arResult['currentUserId']
 						&& !$arResult['isCurrentUserAdmin'] // not session admin
+						&& !in_array($arResult['currentUserId'], $moderatorIdList, true)
 					)
 					{
 						if (CSocNetUserToGroup::add(array(
@@ -1433,7 +1316,7 @@ else
 						&& is_array($arUserIDs)
 					)
 					{
-						foreach($arUserIDs as $user_id)
+						foreach ($arUserIDs as $user_id)
 						{
 							$canInviteGroup = CSocNetUserPerms::CanPerformOperation($arResult["currentUserId"], $user_id, "invitegroup", $arResult['isCurrentUserAdmin']);
 							$user2groupRelation = CSocNetUserToGroup::GetUserRole($user_id, $arResult["GROUP_ID"]);
@@ -1443,21 +1326,16 @@ else
 								&& !$user2groupRelation
 							)
 							{
-								$bMail = (
-									!is_array($arInvitedExtranetUsers)
-									|| !in_array($user_id, $arInvitedExtranetUsers)
-								);
-
-								if (!CSocNetUserToGroup::SendRequestToJoinGroup($arResult["currentUserId"], $user_id, $arResult["GROUP_ID"], $_POST["MESSAGE"], $bMail))
+								if (!CSocNetUserToGroup::SendRequestToJoinGroup($arResult["currentUserId"], $user_id, $arResult["GROUP_ID"], $_POST["MESSAGE"]))
 								{
 									$rsUser = CUser::GetByID($user_id);
 									if ($arUser = $rsUser->Fetch())
 									{
 										$arErrorUsers[] = array(
-											CUser::FormatName($arParams["NAME_TEMPLATE"], $arUser, $bUseLogin),
+											CUser::FormatName($arParams["NAME_TEMPLATE"], $arUser, ($arParams['SHOW_LOGIN'] !== 'N')),
 											CSocNetUserPerms::CanPerformOperation($arResult["currentUserId"], $arUser["ID"], "viewprofile", $arResult['isCurrentUserAdmin'])
 												? CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arUser["ID"]))
-												: ""
+												: ''
 										);
 										if ($e = $APPLICATION->GetException())
 										{
@@ -1470,6 +1348,7 @@ else
 									&& in_array($user_id, $arResult["POST"]["USER_IDS"])
 								)
 								{
+									$successfullUserIdList[] = $user_id;
 									$bInvited = true;
 									// delete from uninvited users list
 									$arKeysFound = array_keys($arResult["POST"]["USER_IDS"], $user_id);
@@ -1541,7 +1420,6 @@ else
 						if (
 							$arParams["GROUP_ID"] > 0
 							&& !empty($arResult["GROUP_PROPERTIES"]["UF_SG_DEPT"])
-							&& !empty($arResult["GROUP_PROPERTIES"]["UF_SG_DEPT"])
 							&& !empty($arResult["GROUP_PROPERTIES"]["UF_SG_DEPT"]["VALUE"])
 							&& is_array($arResult["GROUP_PROPERTIES"]["UF_SG_DEPT"]["VALUE"])
 						)
@@ -1558,7 +1436,7 @@ else
 				if (!empty($arIntranetUsersEmails) && is_array($arIntranetUsersEmails))
 				{
 					//if some e-mails belong to internal users and can't be used for invitation
-					if (count($arIntranetUsersEmails) == 1)
+					if (count($arIntranetUsersEmails) === 1)
 					{
 						$warningMessage[] = str_replace("#EMAIL#", HtmlSpecialCharsEx(implode("", $arIntranetUsersEmails)), GetMessage("SONET_GCE_CANNOT_EMAIL_ADD"));
 					}
@@ -1673,22 +1551,35 @@ else
 						'FIELDS' => array(),
 						'UF' => array(),
 					);
-					__GCEGetGroup($arResult["GROUP_ID"], $groupFieldsList["UF"], $groupFieldsList["FIELDS"], "edit");
+					$selectorGroupId = $arResult['GROUP_ID'];
+					WorkgroupForm::processWorkgroupData(
+						$arResult['GROUP_ID'], // reference
+						$groupFieldsList['UF'],
+						$groupFieldsList['FIELDS'],
+						'edit'
+					);
 
 					$APPLICATION->RestartBuffer();
-					echo CUtil::PhpToJsObject(array(
+					echo CUtil::PhpToJsObject([
 						'MESSAGE' => 'SUCCESS',
 						'URL' => $redirectPath,
-						'GROUP' => array_merge($groupFieldsList, array('ID' => $arResult["GROUP_ID"])),
-						'SELECTOR_GROUPS' => Bitrix\Main\Web\Json::encode(EntitySelector\ProjectProvider::makeItems(EntitySelector\ProjectProvider::getProjects(array_merge($arParams['PROJECT_OPTIONS'], [
-							'projectId' => $arResult['GROUP_ID'],
-						])))),
+						'GROUP' => array_merge($groupFieldsList, [ 'ID' => $arResult['GROUP_ID'] ]),
+						'SELECTOR_GROUPS' => Json::encode(
+							EntitySelector\ProjectProvider::makeItems(
+								EntitySelector\ProjectProvider::getProjects(
+									array_merge(
+										$arParams['PROJECT_OPTIONS'],
+										[ 'projectId' => $selectorGroupId ]
+									)
+								)
+							)
+						),
 						'ACTION' => (
 							!array_key_exists("TAB", $arResult)
 								? 'create'
 								: $arResult["TAB"]
 						)
-					));
+					]);
 					require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
 					die();
 				}
@@ -1705,13 +1596,13 @@ else
 				{
 					if ($bFirstStepSuccess)
 					{
-						__GCEGetGroup($arResult["GROUP_ID"], $arResult["GROUP_PROPERTIES"], $arResult["POST"]);
+						WorkgroupForm::processWorkgroupData($arResult["GROUP_ID"], $arResult["GROUP_PROPERTIES"], $arResult["POST"]);
 						$arResult["CALLBACK"] = "EDIT";
 					}
 
 					if ($bSecondStepSuccess)
 					{
-						__GCE_GetFeatures($arResult["GROUP_ID"], $arResult["POST"]["FEATURES"]);
+						WorkgroupForm::processWorkgroupFeatures($arResult['GROUP_ID'], $arResult['POST']['FEATURES']);
 					}
 				}
 
@@ -1721,7 +1612,7 @@ else
 				)
 				{
 					$dbUsers = CUser::GetList(
-						Array('last_name'=>'asc', 'IS_ONLINE'=>'desc'),
+						[ 'last_name'=>'asc', 'IS_ONLINE'=>'desc' ],
 						'',
 						array(
 							"ID" => implode("|", $arResult["POST"]["USER_IDS"]),
@@ -1739,7 +1630,7 @@ else
 							"entityId" => $arUser["ID"],
 							"name" => trim(CUser::FormatName(empty($arParams["NAME_TEMPLATE"]) ? CSite::GetNameFormat(false) : $arParams["NAME_TEMPLATE"], $arUser)),
 							"avatar" => "",
-							"desc" => $arUser["WORK_POSITION"] ? $arUser["WORK_POSITION"] : ($arUser["PERSONAL_PROFESSION"] ? $arUser["PERSONAL_PROFESSION"] : "&nbsp;")
+							"desc" => $arUser["WORK_POSITION"] ?: ($arUser["PERSONAL_PROFESSION"] ?: "&nbsp;")
 						);
 						$arResult["POST"]["USERS_FOR_JS"]["U".$arUser["ID"]] = $arUserTmp;
 
@@ -1748,7 +1639,8 @@ else
 							&& $arResult['POST']['IS_EXTRANET_GROUP'] === 'Y'
 						)
 						{
-							$arResult["POST"]["USERS_FOR_JS_".(empty($arUser["UF_DEPARTMENT"]) || (is_array($arUser["UF_DEPARTMENT"]) && intval($arUser["UF_DEPARTMENT"][0]) <= 0) ? "E" : "I")]["U".$arUser["ID"]] = $arUserTmp;
+							$arResult["POST"]["USERS_FOR_JS_".(empty($arUser["UF_DEPARTMENT"]) || (is_array($arUser["UF_DEPARTMENT"]) && (int)$arUser["UF_DEPARTMENT"][0]
+								<= 0) ? "E" : "I")]["U".$arUser["ID"]] = $arUserTmp;
 						}
 					}
 				}
@@ -1771,12 +1663,12 @@ else
 						'ERROR' => implode('<br />', $errorMessage),
 						'WARNING' => implode('<br />', $warningMessage),
 						'USERS_ID' => $arResult["POST"]["USER_IDS"],
+						'SUCCESSFULL_USERS_ID' => $successfullUserIdList,
 						'ERROR_DATA' => $errorData,
 						'CREATED_GROUP_ID' => $createdGroupId,
 						'WIZARD_STEP_PROCESSED' => $wizardStepProcessed,
 					);
-
-					echo CUtil::PhpToJsObject($arRes);
+					CMain::finalActions(Json::encode($arRes));
 					die();
 				}
 			}
@@ -1820,15 +1712,15 @@ else
 			}
 		}
 
-		if ($arResult['isScrumProject'])
+		if (
+			$arResult['isScrumProject']
+			&& $arResult['POST']['MODERATOR_IDS']
+		)
 		{
-			if ($arResult["POST"]["MODERATOR_IDS"])
-			{
-				$arResult["POST"]["MODERATOR_IDS"] = array_diff(
-					$arResult["POST"]["MODERATOR_IDS"],
-					[$group->getScrumMaster()]
-				);
-			}
+			$arResult["POST"]["MODERATOR_IDS"] = array_diff(
+				$arResult["POST"]["MODERATOR_IDS"],
+				[ $group->getScrumMaster() ]
+			);
 		}
 
 		$arResult['ScrumSprintDurationValues'] = Helper\Workgroup::getSprintDurationValues();
@@ -1859,9 +1751,9 @@ else
 				&& !empty($arResult["DEST_USERS_LAST"])
 			)
 			{
-				foreach($arResult["DEST_USERS_LAST"] as $key => $user_code)
+				foreach ($arResult["DEST_USERS_LAST"] as $key => $user_code)
 				{
-					if ($user_code == 'U'.$arResult["currentUserId"])
+					if ($user_code === 'U'.$arResult["currentUserId"])
 					{
 						unset($arResult["DEST_USERS_LAST"][$key]);
 						break;
@@ -1876,15 +1768,15 @@ else
 			{
 				$arLastUserID = array();
 
-				foreach($arResult["DEST_USERS_LAST"] as $key => $user_code)
+				foreach ($arResult["DEST_USERS_LAST"] as $key => $user_code)
 				{
-					if ($user_code == 'U'.$arResult["currentUserId"])
+					if ($user_code === 'U'.$arResult["currentUserId"])
 					{
 						unset($arResult["DEST_USERS_LAST"][$key]);
 						continue;
 					}
 
-					if(preg_match('/^U(\d+)$/', $key, $match))
+					if (preg_match('/^U(\d+)$/', $key, $match))
 					{
 						$arLastUserID[] = $match[1];
 					}
@@ -1911,7 +1803,7 @@ else
 						{
 							$arUserGroupCode = CAccess::GetUserCodesArray($arUser["ID"]);
 
-							if (!in_array("DR" . (int)$arResult["siteDepartmentID"], $arUserGroupCode))
+							if (!in_array("DR" . (int)$arResult["siteDepartmentID"], $arUserGroupCode, true))
 							{
 								continue;
 							}
@@ -1920,8 +1812,7 @@ else
 						$arFileTmp = CFile::ResizeImageGet(
 							$arUser["PERSONAL_PHOTO"],
 							array('width' => 32, 'height' => 32),
-							BX_RESIZE_IMAGE_EXACT,
-							false
+							BX_RESIZE_IMAGE_EXACT
 						);
 
 						$arUserTmp = array(
@@ -1929,7 +1820,7 @@ else
 							"entityId" => $arUser["ID"],
 							"name" => trim(CUser::FormatName(empty($arParams["NAME_TEMPLATE"]) ? CSite::GetNameFormat(false) : $arParams["NAME_TEMPLATE"], $arUser)),
 							"avatar" => (empty($arFileTmp['src'])? '': $arFileTmp['src']),
-							"desc" => $arUser["WORK_POSITION"] ? $arUser["WORK_POSITION"] : ($arUser["PERSONAL_PROFESSION"] ? $arUser["PERSONAL_PROFESSION"] : "&nbsp;")
+							"desc" => $arUser["WORK_POSITION"] ?: ($arUser["PERSONAL_PROFESSION"] ?: "&nbsp;")
 						);
 
 						$key = (
@@ -1939,7 +1830,7 @@ else
 									empty($arUser["UF_DEPARTMENT"])
 									|| (
 										is_array($arUser["UF_DEPARTMENT"])
-										&& intval($arUser["UF_DEPARTMENT"][0]) <= 0
+										&& (int)$arUser["UF_DEPARTMENT"][0] <= 0
 									)
 										? "USERS_FOR_JS_E"
 										: "USERS_FOR_JS_I"
@@ -1966,17 +1857,16 @@ else
 	$arResult["URL_CANCEL"] = (
 		$arParams["GROUP_ID"] > 0
 			? $arResult["Urls"]["Group"]
-			: $strSiteWorkgroupsPage
+			: ComponentHelper::getWorkgroupSEFUrl()
 	);
 }
 
-CModule::IncludeModule('intranet');
+Loader::includeModule('intranet');
 
 $arResult['PageTitle'] = Loc::getMessage('SONET_GCE_TITLE_CREATE');
 
 if ($arParams['GROUP_ID'] > 0)
 {
-
 	if ($arResult['isScrumProject'])
 	{
 		$arResult['PageTitle'] = ($arResult['TAB'] === 'invite' ? Loc::getMessage('SONET_GCE_TITLE_INVITE_SCRUM') : Loc::getMessage('SONET_GCE_TITLE_EDIT_SCRUM'));

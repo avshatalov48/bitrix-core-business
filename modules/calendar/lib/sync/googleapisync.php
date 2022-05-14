@@ -4,6 +4,7 @@ namespace Bitrix\Calendar\Sync;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\Date;
 use \Bitrix\Main\Web;
 use Bitrix\Calendar\Util;
 use Bitrix\Calendar\Rooms;
@@ -22,7 +23,7 @@ final class GoogleApiSync
 	const CONNECTION_CHANNEL_TYPE = 'BX_CONNECTION';
 	const SECTION_CHANNEL_TYPE = 'BX_SECTION';
 	const SYNC_EVENTS_LIMIT = 50;
-	const SYNC_EVENTS_DATE_INTERVAL = '-4 months';
+	const SYNC_EVENTS_DATE_INTERVAL = '-1 months';
 	const DEFAULT_TIMEZONE = 'UTC';
 	const DATE_TIME_FORMAT = 'Y-m-d\TH:i:sP';
 	public const END_OF_DATE = "01.01.2038";
@@ -161,7 +162,7 @@ final class GoogleApiSync
 		}
 		$this->userId = $userId;
 		$this->connectionId = $connectionId;
-		$this->syncTransport = new GoogleApiTransport($userId);
+		$this->syncTransport = new GoogleApiTransport((int)$userId);
 	}
 
 	/**
@@ -386,15 +387,15 @@ final class GoogleApiSync
 	 */
 	public function saveEvent($eventData, $calendarId, $parameters = []): ?array
 	{
-		$params['editInstance'] = !empty($parameters['editInstance']) ? $parameters['editInstance'] : false;
-		$params['originalDavXmlId'] = !empty($parameters['originalDavXmlId']) ? $parameters['originalDavXmlId'] : null;
-		$params['editParentEvents'] = !empty($parameters['editParentEvents']) ? $parameters['editParentEvents'] : false;
-		$params['editNextEvents'] = !empty($parameters['editNextEvents']) ? $parameters['editNextEvents'] : false;
+		$params['editInstance'] = $parameters['editInstance'] ?? false;
+		$params['originalDavXmlId'] = $parameters['originalDavXmlId'] ?? null;
+		$params['editParentEvents'] = $parameters['editParentEvents'] ?? false;
+		$params['editNextEvents'] = $parameters['editNextEvents'] ?? false;
 		$params['calendarId'] = $calendarId;
-		$params['instanceTz'] = !empty($parameters['instanceTz']) ? $parameters['instanceTz'] : null;
-		$params['originalDateFrom'] = !empty($eventData['ORIGINAL_DATE_FROM']) ? $eventData['ORIGINAL_DATE_FROM'] : null;
+		$params['instanceTz'] = $parameters['instanceTz'] ?? null;
+		$params['originalDateFrom'] = $eventData['ORIGINAL_DATE_FROM'] ?? null;
 		$params['gEventId'] = $eventData['G_EVENT_ID'] || !strpos($eventData['DAV_XML_ID'], '@google.com')  ? $eventData['G_EVENT_ID'] : str_replace('@google.com', '',  $eventData['DAV_XML_ID']);
-		$params['syncCaldav'] = !empty($parameters['syncCaldav']) ? $parameters['syncCaldav'] : false;
+		$params['syncCaldav'] = $parameters['syncCaldav'] ?? false;
 
 		$newEvent = $this->prepareToSaveEvent($eventData, $params);
 
@@ -491,7 +492,8 @@ final class GoogleApiSync
 
 		if (!empty($event['description']))
 		{
-			$returnData["DESCRIPTION"] = $event['description'];
+			$description = str_replace("<br>", "\r\n", $event['description']);
+			$returnData["DESCRIPTION"] = trim(\CTextParser::clearAllTags($description));
 		}
 
 		if (empty($event['summary']))
@@ -657,7 +659,7 @@ final class GoogleApiSync
 			$returnData['isRecurring'] = "Y";
 			if ($event['status'] === 'cancelled')
 			{
-				$exDates[] = date('d.m.Y', strtotime(
+				$exDates[] = date(Date::convertFormatToPhp(FORMAT_DATE), strtotime(
 				!empty($event['originalStartTime']['dateTime'])
 						? $event['originalStartTime']['dateTime']
 						: $event['originalStartTime']['date']
@@ -666,7 +668,7 @@ final class GoogleApiSync
 			elseif ($event['status'] === 'confirmed' && !empty($event['originalStartTime']))
 			{
 				$returnData['hasMoved'] = "Y";
-				$exDates[] = date('d.m.Y', strtotime(!empty($event['originalStartTime']['dateTime']) ? $event['originalStartTime']['dateTime'] : $event['originalStartTime']['date']));
+				$exDates[] = date(Date::convertFormatToPhp(FORMAT_DATE), strtotime(!empty($event['originalStartTime']['dateTime']) ? $event['originalStartTime']['dateTime'] : $event['originalStartTime']['date']));
 
 				if (!empty($event['originalStartTime']['dateTime']))
 				{
@@ -733,7 +735,29 @@ final class GoogleApiSync
 		$newEvent = [];
 		$newEvent['summary'] = $eventData['NAME'];
 
-		if (!empty($eventData['DESCRIPTION']) && is_string($eventData['DESCRIPTION']))
+		if (!empty($eventData['ATTENDEES_CODES']) && is_string($eventData['ATTENDEES_CODES']))
+		{
+			$eventData['ATTENDEES_CODES'] = explode(",", $eventData['ATTENDEES_CODES']);
+		}
+
+		if (is_string($eventData['MEETING']))
+		{
+			$eventData['MEETING'] = unserialize($eventData['MEETING'], ['allowed_classes' => false]);
+		}
+		if (empty($eventData['MEETING']['LANGUAGE_ID']))
+		{
+			$eventData['MEETING']['LANGUAGE_ID'] = \CCalendar::getUserLanguageId((int)$eventData['OWNER_ID']);
+		}
+
+		if (isset($eventData['ATTENDEES_CODES']) && is_countable($eventData['ATTENDEES_CODES']) && count($eventData['ATTENDEES_CODES']) > 1)
+		{
+			$users = Util::getAttendees($eventData['ATTENDEES_CODES']);
+			$newEvent['description'] = Loc::getMessage('ATTENDEES_EVENT', null, $eventData['MEETING']['LANGUAGE_ID']).': '
+				. stripcslashes(implode(', ', $users))
+				. "\r\n"
+				. $eventData["DESCRIPTION"];
+		}
+		elseif (!empty($eventData['DESCRIPTION']) && is_string($eventData['DESCRIPTION']))
 		{
 			$newEvent['description'] = $eventData['DESCRIPTION'];
 		}

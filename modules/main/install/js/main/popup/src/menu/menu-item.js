@@ -42,7 +42,7 @@ export default class MenuItem extends EventEmitter
 
 		this.text = '';
 		this.allowHtml = false;
-		if (Type.isStringFilled(options.html))
+		if (Type.isStringFilled(options.html) || Type.isElementNode(options.html))
 		{
 			this.text = options.html;
 			this.allowHtml = true;
@@ -135,12 +135,11 @@ export default class MenuItem extends EventEmitter
 						].join(' ')
 					},
 					children: [
-						(this.layout.text = Dom.create('span', {
-							props: {
-								className: 'popup-window-delimiter-text'
-							},
-							html: this.allowHtml ? this.getText() : encodeSafe(this.getText())
-						}))
+						(this.layout.text = Tag.render`
+							<span class="popup-window-delimiter-text">${
+								this.allowHtml ? this.getText() : encodeSafe(this.getText())
+							}</span>
+						`)
 					]
 				});
 			}
@@ -176,12 +175,11 @@ export default class MenuItem extends EventEmitter
 
 				children: [
 					Dom.create('span', { props: { className: 'menu-popup-item-icon' } }),
-					(this.layout.text = Dom.create('span', {
-						props: {
-							className: 'menu-popup-item-text'
-						},
-						html: this.allowHtml ? this.getText() : encodeSafe(this.getText())
-					}))
+					(this.layout.text = Tag.render`
+						<span class="menu-popup-item-text">${
+							this.allowHtml ? this.getText() : encodeSafe(this.getText())
+						}</span>
+					`)
 				]
 			});
 
@@ -212,17 +210,34 @@ export default class MenuItem extends EventEmitter
 		return this.getLayout().text;
 	}
 
-	getText(): string
+	getText(): string | HTMLElement
 	{
 		return this.text;
 	}
 
-	setText(text: string)
+	setText(text: string | HTMLElement, allowHtml = false)
 	{
-		if (Type.isString(text))
+		if (Type.isString(text) || Type.isElementNode(text))
 		{
+			this.allowHtml = allowHtml;
 			this.text = text;
-			this.getTextContainer().innerHTML = text;
+
+			if (Type.isElementNode(text))
+			{
+				Dom.clean(this.getTextContainer());
+				if (this.allowHtml)
+				{
+					Dom.append(text, this.getTextContainer());
+				}
+				else
+				{
+					this.getTextContainer().innerHTML = encodeSafe(text.outerHTML);
+				}
+			}
+			else
+			{
+				this.getTextContainer().innerHTML = this.allowHtml ? text : encodeSafe(text);
+			}
 		}
 	}
 

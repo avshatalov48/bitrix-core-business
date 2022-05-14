@@ -21,6 +21,7 @@ $filter = Toolbar::getFilter();
 $afterTitleButtons = Toolbar::renderAfterTitleButtons();
 $rightButtons = Toolbar::renderRightButtons();
 $filterButtons = Toolbar::renderAfterFilterButtons();
+$beforeTitleHtml = Toolbar::getBeforeTitleHtml();
 $afterTitleHtml = Toolbar::getAfterTitleHtml();
 $rightCustomHtml = Toolbar::getRightCustomHtml();
 
@@ -54,10 +55,16 @@ $titleStyles = !empty($titleProps) ? ' style="'.$titleProps.'"' : "";
 ?>
 
 <div id="uiToolbarContainer" class="ui-toolbar"><?php
+
 	?><div id="pagetitleContainer" class="ui-toolbar-title-box"<?=$titleStyles?>><?php
 		?>
 		<div class="ui-toolbar-title-inner">
 			<div class="ui-toolbar-title-item-box">
+				<?php
+				if (!empty($beforeTitleHtml)):
+					?><div class="ui-toolbar-before-title"><?=$beforeTitleHtml?></div><?
+				endif;
+				?>
 				<span id="pagetitle" class="ui-toolbar-title-item"><?=$APPLICATION->getTitle(false, true)?></span>
 				<?= $favoriteStar ?>
 			</div><?php

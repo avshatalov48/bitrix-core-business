@@ -111,10 +111,6 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 			];
 		}
 
-		$settingsUrls = [
-			$this->getUrlWithParams($this->arParams['PATH_TO']['STORES']),
-			$this->getUrlWithParams($this->arParams['PATH_TO']['CONTRACTORS']),
-		];
 
 		$sliderPath = \CComponentEngine::makeComponentPath('bitrix:catalog.warehouse.master.clear');
 		$sliderPath = getLocalPath('components' . $sliderPath . '/slider.php');
@@ -126,37 +122,70 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 			],
 		]);
 
+		if (Main\Loader::includeModule('report') && self::checkDocumentReadRights())
+		{
+			if (\Bitrix\Catalog\Component\UseStore::isUsed())
+			{
+				$url = '/report/analytics/?analyticBoardKey=catalog_warehouse_stock';
+				$buttons[] = [
+					'ID' => 'analytics',
+					'TEXT' => Loc::getMessage('STORE_DOCUMENTS_ANALYTICS_BUTTON_TITLE'),
+					'URL' => $url,
+					'SORT' => 45,
+					'IS_ACTIVE' => $this->compareUrls($requestUrl, $url),
+				];
+			}
+			else
+			{
+				$buttons[] = [
+					'ID' => 'analytics',
+					'TEXT' => Loc::getMessage('STORE_DOCUMENTS_ANALYTICS_BUTTON_TITLE'),
+					'SORT' => 45,
+					'ON_CLICK' => 'new BX.Catalog.Store.Document.ControlPanel().storeMasterOpenSlider(\''.$sliderPath.'\', ' . $masterSliderSettings . ');',
+				];
+			}
+		}
+
+		$settingsUrls = [
+			$this->getUrlWithParams($this->arParams['PATH_TO']['STORES']),
+			$this->getUrlWithParams($this->arParams['PATH_TO']['CONTRACTORS']),
+		];
+
+		$settingsItems = [
+			[
+				'ID' => 'stores_settings',
+				'PARENT_ID' => 'settings',
+				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_STORES_TITLE'),
+				'SORT' => 1000,
+				'URL' => $this->getUrlWithParams($this->arParams['PATH_TO']['STORES']),
+			],
+			[
+				'ID' => 'contractors_settings',
+				'PARENT_ID' => 'settings',
+				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_CONTRACTORS_TITLE'),
+				'SORT' => 1010,
+				'URL' => $this->getUrlWithParams($this->arParams['PATH_TO']['CONTRACTORS']),
+			],
+		];
+
+		if (!\Bitrix\Catalog\Component\UseStore::isUsed())
+		{
+			$settingsItems[] = [
+				'ID' => 'store_settings',
+				'PARENT_ID' => 'settings',
+				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_USE_STORE_Y_TITLE'),
+				'SORT' => 1020,
+				'ON_CLICK' => 'new BX.Catalog.Store.Document.ControlPanel().storeMasterOpenSlider(\''.$sliderPath.'\', ' . $masterSliderSettings . ');',
+			];
+		}
+
 		$buttons[] = [
 			'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_BUTTON_TITLE'),
 			'SORT' => 60,
 			'IS_ACTIVE' => in_array($requestUrl, $settingsUrls),
 			'ID' => 'settings',
 			'PARENT_ID' => '',
-			'ITEMS' => [
-				[
-					'ID' => 'stores_settings',
-					'PARENT_ID' => 'settings',
-					'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_STORES_TITLE'),
-					'SORT' => 1000,
-					'URL' => $this->getUrlWithParams($this->arParams['PATH_TO']['STORES']),
-				],
-				[
-					'ID' => 'contractors_settings',
-					'PARENT_ID' => 'settings',
-					'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_CONTRACTORS_TITLE'),
-					'SORT' => 1010,
-					'URL' => $this->getUrlWithParams($this->arParams['PATH_TO']['CONTRACTORS']),
-				],
-				[
-					'ID' => 'store_settings',
-					'PARENT_ID' => 'settings',
-					'TEXT' => \Bitrix\Catalog\Component\UseStore::isUsed()
-						? Loc::getMessage('STORE_DOCUMENTS_SETTINGS_USE_STORE_N_TITLE')
-						: Loc::getMessage('STORE_DOCUMENTS_SETTINGS_USE_STORE_Y_TITLE'),
-					'SORT' => 1020,
-					'ON_CLICK' => 'new BX.Catalog.Store.Document.ControlPanel().storeMasterOpenSlider(\''.$sliderPath.'\', ' . $masterSliderSettings . ');',
-				],
-			],
+			'ITEMS' => $settingsItems,
 		];
 
 		$url = $this->getUrlToDocumentType(\CatalogStoreDocumentListComponent::OTHER_MODE);
@@ -223,5 +252,10 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 		$comparedUrl = new \Bitrix\Main\Web\Uri($comparedUrlSource);
 
 		return $requestUrl->getPath() === $comparedUrl->getPath();
+	}
+
+	private static function checkDocumentReadRights(): bool
+	{
+		return \Bitrix\Main\Engine\CurrentUser::get()->canDoOperation('catalog_read');
 	}
 }

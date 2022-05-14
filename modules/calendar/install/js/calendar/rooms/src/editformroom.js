@@ -26,13 +26,13 @@ export class EditFormRoom extends EditForm
 		this.showAccess = params.showAccess !== false;
 		if (this.showAccess)
 		{
-			this.DOM.accessLink.style.display = '';
-			this.DOM.accessWrap.style.display = '';
+			Dom.style(this.DOM.accessLink, 'display', null);
+			Dom.style(this.DOM.accessWrap, 'display', null);
 		}
 		else
 		{
-			this.DOM.accessLink.style.display = 'none';
-			this.DOM.accessWrap.style.display = 'none';
+			Dom.style(this.DOM.accessLink, 'display', 'none');
+			Dom.style(this.DOM.accessWrap, 'display', 'none');
 		}
 
 		Event.bind(document, 'keydown', this.keyHandlerBinded);

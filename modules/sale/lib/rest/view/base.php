@@ -14,7 +14,7 @@ abstract class Base extends \Bitrix\Rest\Integration\View\Base
 		return (isset($fields['ID']) === false);
 	}
 
-	protected function getRewritedFields(): array
+	protected function getRewriteFields(): array
 	{
 		return [];
 	}
@@ -23,7 +23,7 @@ abstract class Base extends \Bitrix\Rest\Integration\View\Base
 	{
 		$fields = parent::internalizeFieldsList($arguments, $fieldsInfo);
 
-		return $this->rewriteFieldsList([
+		return $this->rewriteFieldsListAsAliases([
 			'select'=>$fields['select'],
 			'filter'=>$fields['filter'],
 			'order'=>$fields['order'],
@@ -74,6 +74,12 @@ abstract class Base extends \Bitrix\Rest\Integration\View\Base
 	//endregion
 
 	//region externalize fields
+	function externalizeFieldsGet($fields, $fieldsInfo = []): array
+	{
+		$fields = $this->rewriteFieldsGetAsOrigFields($fields);
+		return parent::externalizeFieldsGet($fields, $fieldsInfo);
+	}
+
 	public function externalizeResult($name, $fields): array
 	{
 		if($name == 'modify')
@@ -129,11 +135,49 @@ abstract class Base extends \Bitrix\Rest\Integration\View\Base
 	//endregion
 
 	//region rewrite
-	public function rewriteFieldsList($arguments): array
+	final protected function getOrigNameField($name)
 	{
-		$filter = isset($arguments['filter']) ? $this->rewriteFilterFields($arguments['filter']):[];
-		$select = isset($arguments['select']) ? $this->rewriteSelectFields($arguments['select']):[];
-		$order = isset($arguments['order']) ? $this->rewriteOrderFields($arguments['order']):[];
+		$rewriteFields = $this->getRewriteFields();
+		foreach ($rewriteFields as $origName=>$rewriteField)
+		{
+			$alias = $rewriteField['REFERENCE_FIELD'];
+			if($name === $alias)
+			{
+				return $origName;
+			}
+		}
+		return null;
+	}
+
+	final protected function rewriteFieldsAsOrigFields($fields): array
+	{
+		$result = [];
+		foreach ($fields as $name=>$value)
+		{
+			$origName = $this->getOrigNameField($name);
+
+			if($origName)
+			{
+				$result[$origName] = $value;
+			}
+			else
+			{
+				$result[$name] = $value;
+			}
+		}
+		return $result;
+	}
+
+	final protected function rewriteFieldsGetAsOrigFields($fields): array
+	{
+		return $this->rewriteFieldsAsOrigFields($fields);
+	}
+
+	public function rewriteFieldsListAsAliases($arguments): array
+	{
+		$filter = isset($arguments['filter']) ? $this->rewriteFilterFieldsAsAliases($arguments['filter']):[];
+		$select = isset($arguments['select']) ? $this->rewriteSelectFieldsAsAliases($arguments['select']):[];
+		$order = isset($arguments['order']) ? $this->rewriteOrderFieldsAsAliases($arguments['order']):[];
 
 		return [
 			'filter'=>$filter,
@@ -142,10 +186,10 @@ abstract class Base extends \Bitrix\Rest\Integration\View\Base
 		];
 	}
 
-	protected function rewriteSelectFields($fields): array
+	protected function rewriteSelectFieldsAsAliases($fields): array
 	{
 		$result = [];
-		$rewriteFields = $this->getRewritedFields();
+		$rewriteFields = $this->getRewriteFields();
 
 		foreach ($fields as $name)
 		{
@@ -167,10 +211,10 @@ abstract class Base extends \Bitrix\Rest\Integration\View\Base
 		return $result;
 	}
 
-	protected function rewriteFilterFields($fields): array
+	protected function rewriteFilterFieldsAsAliases($fields): array
 	{
 		$result = [];
-		$rewriteFields = $this->getRewritedFields();
+		$rewriteFields = $this->getRewriteFields();
 
 
 		foreach ($fields as $rawName=>$value)
@@ -197,10 +241,10 @@ abstract class Base extends \Bitrix\Rest\Integration\View\Base
 		return $result;
 	}
 
-	protected function rewriteOrderFields($fields): array
+	protected function rewriteOrderFieldsAsAliases($fields): array
 	{
 		$result = [];
-		$rewriteFields = $this->getRewritedFields();
+		$rewriteFields = $this->getRewriteFields();
 
 		foreach ($fields as $name=>$value)
 		{
@@ -218,7 +262,6 @@ abstract class Base extends \Bitrix\Rest\Integration\View\Base
 				$result[$name] = $value;
 			}
 		}
-
 		return $result;
 	}
 	//endregion

@@ -573,7 +573,7 @@ Class socialnetwork extends CModule
 					"XML_ID" => "UF_BLOG_POST_VOTE",
 					"SETTINGS" => array(
 						"CHANNEL_ID" => "add",
-						"CHANNEL_TITLE" => "UF_BLOG_POST_VOTE",
+						"CHANNEL_TITLE" => (Loc::getMessage("SONET_INSTALL_UF_BLOG_POST_VOTE") ?: "UF_BLOG_POST_VOTE"),
 						"CHANNEL_SYMBOLIC_NAME" => "UF_BLOG_POST_VOTE",
 						"CHANNEL_USE_CAPTCHA" => "N",
 						"NOTIFY" => (IsModuleInstalled("im") ? "I" : "N"),

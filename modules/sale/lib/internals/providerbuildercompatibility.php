@@ -41,11 +41,9 @@ class ProviderBuilderCompatibility extends ProviderBuilderBase
 			'BASKET_ID' => $basketItem->getId(),
 			'BASKET_CODE' => $basketItem->getBasketCode(),
 			'PRODUCT_ID' => $productId,
-			'QUANTITY' => $basketItem->getQuantity(),
-
+			'QUANTITY' => $basketItem->getNotPurchasedQuantity(),
 			'MODULE' => $basketItem->getField('MODULE'),
 			'IS_ORDERABLE' => $isOrdable,
-
 			'IS_BUNDLE_PARENT' => false,
 			'IS_BUNDLE_CHILD' => false,
 			'IS_NEW' => ($basketItem->getId() == 0),

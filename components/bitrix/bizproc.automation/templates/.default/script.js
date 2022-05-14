@@ -3073,7 +3073,9 @@
 						.replace('{=Document:ASSIGNED_BY_ID}', BX.message('BIZPROC_AUTOMATION_CMP_RESPONSIBLE'))
 						.replace('author', BX.message('BIZPROC_AUTOMATION_CMP_RESPONSIBLE'))
 						.replace(/\{=Constant\:Constant[0-9]+\}/, BX.message('BIZPROC_AUTOMATION_ASK_CONSTANT'))
+						.replace(/\{\{~&\:Constant[0-9]+\}\}/, BX.message('BIZPROC_AUTOMATION_ASK_CONSTANT'))
 						.replace(/\{=Template\:Parameter[0-9]+\}/, BX.message('BIZPROC_AUTOMATION_ASK_PARAMETER'))
+						.replace(/\{\{~&:\:Parameter[0-9]+\}\}/, BX.message('BIZPROC_AUTOMATION_ASK_PARAMETER'))
 				;
 
 				if (labelText.indexOf('{=Document') >= 0 && BX.type.isArray(this.component.data['DOCUMENT_FIELDS']))
@@ -3336,13 +3338,26 @@
 			e.preventDefault();
 			e.stopPropagation();
 
-			var me = this, formName = 'bizproc_automation_robot_title_dialog';
+			var formName = 'bizproc_automation_robot_title_dialog';
 
 			var form = BX.create('form', {
 				props: {
 					name: formName
 				},
 				style: {"min-width": '540px'}
+			});
+
+			const saveHandler = () =>
+			{
+				this.setProperty('Title', form.elements.name.value);
+				this.reInit();
+				this.template.markModified();
+			}
+
+			BX.bind(form, 'submit', (event) => {
+				event.preventDefault();
+				saveHandler();
+				popup.close();
 			});
 
 			form.appendChild(BX.create("span", {
@@ -3374,10 +3389,10 @@
 				draggable: {restrict: false},
 				overlay: false,
 				events: {
-					onPopupClose: function(popup)
+					onPopupClose: (popup) =>
 					{
 						popup.destroy();
-						BX.removeClass(me.component.node, 'automation-base-blocked');
+						BX.removeClass(this.component.node, 'automation-base-blocked');
 					}
 				},
 				buttons: [
@@ -3386,10 +3401,7 @@
 						className : "popup-window-button-accept",
 						events : {
 							click: function() {
-								var nameNode = form.elements.name;
-								me.setProperty('Title', nameNode.value);
-								me.reInit();
-								me.template.markModified();
+								saveHandler();
 								this.popupWindow.close();
 							}
 						}
@@ -4273,6 +4285,10 @@
 		{
 			return this.component && this.component.canEdit();
 		},
+		canSetExecuteBy()
+		{
+			return this.component.data['TRIGGER_CAN_SET_EXECUTE_BY'];
+		},
 		needSave: function()
 		{
 			return this.modified;
@@ -4594,33 +4610,12 @@
 				[trigger, form]
 			);
 
-			form.appendChild(BX.create("div", {
-				attrs: { className: "bizproc-automation-popup-checkbox" },
-				children: [
-					BX.create("div", {
-						attrs: { className: "bizproc-automation-popup-checkbox-item" },
-						children: [
-							BX.create("label", {
-								attrs: { className: "bizproc-automation-popup-chk-label" },
-								children: [
-									BX.create("input", {
-										attrs: {
-											className: 'bizproc-automation-popup-chk',
-											type: "checkbox",
-											name: "allow_backwards",
-											value: 'Y'
-										},
-										props: {
-											checked: trigger.isBackwardsAllowed()
-										}
-									}),
-									document.createTextNode(BX.message('BIZPROC_AUTOMATION_CMP_TRIGGER_ALLOW_REVERSE'))
-								]
-							})
-						]
-					})
-				]
-			}));
+			if (this.canSetExecuteBy())
+			{
+				this.renderExecuteByControl(trigger, form);
+			}
+
+			this.renderAllowBackwardsControl(trigger, form);
 
 			BX.addClass(this.component.node, 'automation-base-blocked');
 
@@ -4719,6 +4714,11 @@
 								me.setConditionSettingsFromForm(formData['data'], trigger);
 								trigger.setAllowBackwards(formData['data']['allow_backwards'] === 'Y');
 
+								if (me.canSetExecuteBy())
+								{
+									trigger.setExecuteBy(formData['data']['execute_by']);
+								}
+
 								if (trigger.draft)
 								{
 									me.triggers.push(trigger);
@@ -4795,6 +4795,59 @@
 					})
 				]
 			});
+		},
+		renderExecuteByControl: function(trigger, form)
+		{
+			form.appendChild(BX.create("span", {
+				attrs: { className: "bizproc-automation-popup-settings-title bizproc-automation-popup-settings-title-autocomplete" },
+				text: BX.message('BIZPROC_AUTOMATION_CMP_TRIGGER_EXECUTE_BY') + ':'
+			}));
+
+			form.appendChild(BX.create("div", {
+				attrs: { className: "bizproc-automation-popup-settings" },
+				children: [
+					BX.Bizproc.FieldType.renderControl(
+						this.component.documentType,
+						{
+							Type: 'user'
+						},
+						'execute_by',
+						trigger.draft
+							? getResponsibleUserExpression(this.component.data['DOCUMENT_FIELDS'])
+							: trigger.getExecuteBy()
+					)
+				]
+			}));
+		},
+		renderAllowBackwardsControl: function(trigger, form)
+		{
+			form.appendChild(BX.create("div", {
+				attrs: { className: "bizproc-automation-popup-checkbox" },
+				children: [
+					BX.create("div", {
+						attrs: { className: "bizproc-automation-popup-checkbox-item" },
+						children: [
+							BX.create("label", {
+								attrs: { className: "bizproc-automation-popup-chk-label" },
+								children: [
+									BX.create("input", {
+										attrs: {
+											className: 'bizproc-automation-popup-chk',
+											type: "checkbox",
+											name: "allow_backwards",
+											value: 'Y'
+										},
+										props: {
+											checked: trigger.isBackwardsAllowed()
+										}
+									}),
+									document.createTextNode(BX.message('BIZPROC_AUTOMATION_CMP_TRIGGER_ALLOW_REVERSE'))
+								]
+							})
+						]
+					})
+				]
+			}));
 		},
 		/**
 		 * @param {Object} formFields
@@ -5046,6 +5099,15 @@
 		setAllowBackwards: function(flag)
 		{
 			this.data['APPLY_RULES']['ALLOW_BACKWARDS'] = flag ? 'Y' : 'N';
+			return this;
+		},
+		getExecuteBy: function()
+		{
+			return this.data['APPLY_RULES']['ExecuteBy'] || '';
+		},
+		setExecuteBy: function(user)
+		{
+			this.data['APPLY_RULES']['ExecuteBy'] = user;
 			return this;
 		},
 		createNode: function()
@@ -6593,12 +6655,6 @@
 	// -> UserSelector
 	var UserSelector = function(robot, targetInput, data)
 	{
-		this.targetInput = this.menuButton = targetInput;
-		this.userSelector = BX.Bizproc.UserSelector.decorateNode(
-			targetInput,
-			this.getSelectorConfig(robot)
-		);
-
 		this.robot = robot;
 		this.component = robot.component;
 		this.documentFields = this.component ? this.component.data['DOCUMENT_FIELDS'] : data['DOCUMENT_FIELDS'];
@@ -6616,34 +6672,13 @@
 			this.showTemplatePropertiesMenuOnSelecting = false;
 		}
 
-		if (this.showTemplatePropertiesMenuOnSelecting)
-		{
-			this.userSelector.handleOpenDialog = this.onBeforeOpenDialog.bind(this);
-		}
+		this.targetInput = this.menuButton = targetInput;
+		this.userSelector = BX.Bizproc.UserSelector.decorateNode(
+			targetInput,
+			this.getSelectorConfig(robot)
+		);
 	};
 	BX.extend(UserSelector, InlineSelector);
-	UserSelector.prototype.onBeforeOpenDialog = function(dialog)
-	{
-		if (!this.userSelector.getValue() || this.fieldProperty.Required)
-		{
-			this.openPropertiesSwitcherMenu();
-			return false;
-		}
-	}
-	UserSelector.prototype.openMenu = function()
-	{
-		this.userSelector.handleOpenDialog = null;
-		this.userSelector.openDialog();
-	}
-	UserSelector.prototype.onFieldSelect = function(field)
-	{
-		this.userSelector.addItem({
-			id: field['SystemExpression'],
-			entityId: field['SystemExpression'],
-			name: BX.Text.encode(field['Expression']),
-			entityType: 'bpuserroles'
-		}, 'bpuserroles');
-	}
 	UserSelector.prototype.destroy = function()
 	{
 		if (this.userSelector)
@@ -6669,14 +6704,33 @@
 				{
 					if (field['Type'] === 'user')
 					{
-						var expression = '{{~'+robot.getId()+':'+field['Id']+'}}';
 						additionalFields.push({
-							id: expression,
-							entityId: expression,
-							name: robot.getTitle() + ': ' + field['Name'],
+							id: '{{~'+robot.getId()+':'+field['Id']+'}}',
+							title: robot.getTitle() + ': ' + field['Name'],
 						});
 					}
 				});
+			});
+		}
+
+		if (this.showTemplatePropertiesMenuOnSelecting)
+		{
+			const ask = robot.template.addConstant(BX.clone(this.fieldProperty));
+
+			additionalFields.push({
+				id: ask.Expression,
+				title: BX.message('BIZPROC_AUTOMATION_ASK_CONSTANT'),
+				tabs: ['recents', 'bpuserroles'],
+				sort: 1,
+			});
+
+			const param = robot.template.addParameter(BX.clone(this.fieldProperty));
+
+			additionalFields.push({
+				id: param.Expression,
+				title: BX.message('BIZPROC_AUTOMATION_ASK_PARAMETER'),
+				tabs: ['recents', 'bpuserroles'],
+				sort: 2,
 			});
 		}
 

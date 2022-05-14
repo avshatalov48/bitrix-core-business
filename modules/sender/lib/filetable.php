@@ -164,14 +164,17 @@ class FileTable extends ORM\Data\DataManager
 
 	private static function deleteIfCan(int $fileId, int $entityId, int $entityType, bool $deleteFiles)
 	{
-		$hasFiles = self::getList([
-			'select' => ['FILE_ID'],
-			'filter' => [
-				'!=ENTITY_TYPE' => $entityType,
-				'!=ENTITY_ID' => $entityId,
-				'=FILE_ID' => $fileId,
-			],
-		])->fetchAll();
+		self::deleteList([
+			'=FILE_ID' => $fileId,
+			'=ENTITY_TYPE' => $entityType,
+			'=ENTITY_ID' => $entityId,
+		]);
+
+		$hasFiles = (bool) self::getCount(
+			[
+				'=FILE_ID' => $fileId
+			]
+		);
 
 		if ($deleteFiles)
 		{
@@ -187,12 +190,6 @@ class FileTable extends ORM\Data\DataManager
 		{
 			\CFile::Delete($fileId);
 		}
-
-		self::deleteList([
-			'=FILE_ID' => $fileId,
-			'=ENTITY_TYPE' => $entityType,
-			'=ENTITY_ID' => $entityId,
-		]);
 	}
 
 

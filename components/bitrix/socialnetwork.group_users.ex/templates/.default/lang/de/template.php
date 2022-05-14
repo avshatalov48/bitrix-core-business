@@ -27,6 +27,7 @@ $MESS["SONET_GUE_T_BUTTON_UNBAN"] = "entsperren";
 $MESS["SONET_GUE_T_BUTTON_UNCONNECT"] = "Verbindung trennen";
 $MESS["SONET_GUE_T_CANT_EXCLUDE_AUTO_MEMBER"] = "Ein verbundener Nutzer kann nicht aus der Gruppe entfernt werden.";
 $MESS["SONET_GUE_T_CANT_EXCLUDE_AUTO_MEMBER_PROJECT"] = "Sie können nicht einen verbundenen Nutzer aus dem Projekt entfernen.";
+$MESS["SONET_GUE_T_CANT_EXCLUDE_SCRUM_MASTER"] = "Scrum Master kann nicht entfernt werden.";
 $MESS["SONET_GUE_T_DEPARTMENTS_SUBTITLE"] = "Abteilungen";
 $MESS["SONET_GUE_T_DEPARTMENT_ID_NOT_DEFINED"] = "Es wurden keine Abteilungen ausgewählt.";
 $MESS["SONET_GUE_T_FIRED2"] = "entlassen";

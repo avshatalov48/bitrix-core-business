@@ -151,13 +151,19 @@ class ChatProvider extends BaseProvider
 
 		if (self::shouldSearchChatType(Chat::TYPE_GROUP, $options))
 		{
-			$filter->where(
+			$groupChatFilter =
 				Query::filter()
 					->logic('and')
 					->where('TYPE', '=', Chat::TYPE_GROUP)
-					->whereLike('CHAT_INDEX.SEARCH_TITLE', $options['searchQuery'] . '%')
 					->where('RELATION.USER_ID', '=', $currentUserId)
-			);
+			;
+
+			if (isset($options['searchQuery']) && $options['searchQuery'] !== '')
+			{
+				$groupChatFilter->whereLike('CHAT_INDEX.SEARCH_TITLE', $options['searchQuery'] . '%');
+			}
+
+			$filter->where($groupChatFilter);
 		}
 		else
 		{
@@ -166,13 +172,19 @@ class ChatProvider extends BaseProvider
 
 		if (self::shouldSearchChatType(Chat::TYPE_OPEN_LINE, $options))
 		{
-			$filter->where(
+			$openLineFilter =
 				Query::filter()
 					->logic('and')
 					->where('TYPE', '=', Chat::TYPE_OPEN_LINE)
-					->whereLike('CHAT_INDEX.SEARCH_TITLE', $options['searchQuery'] . '%')
 					->where('RELATION.USER_ID', '=', $currentUserId)
-			);
+			;
+
+			if (isset($options['searchQuery']) && $options['searchQuery'] !== '')
+			{
+				$openLineFilter->whereLike('CHAT_INDEX.SEARCH_TITLE', $options['searchQuery'] . '%');
+			}
+
+			$filter->where($openLineFilter);
 		}
 		else
 		{
@@ -181,12 +193,18 @@ class ChatProvider extends BaseProvider
 
 		if (self::shouldSearchChatType(Chat::TYPE_OPEN, $options))
 		{
-			$filter->where(
+			$channelFilter =
 				Query::filter()
 					->logic('and')
 					->where('TYPE', '=', Chat::TYPE_OPEN)
-					->whereLike('CHAT_INDEX.SEARCH_TITLE', $options['searchQuery'] . '%')
-			);
+			;
+
+			if (isset($options['searchQuery']) && $options['searchQuery'] !== '')
+			{
+				$channelFilter->whereLike('CHAT_INDEX.SEARCH_TITLE', $options['searchQuery'] . '%');
+			}
+
+			$filter->where($channelFilter);
 		}
 		else
 		{

@@ -106,6 +106,7 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 		this._name = "";
 		this._type = "";
 		this._title = "";
+		this._hint = "";
 		this._originalTitle = "";
 		this._optionFlags = 0;
 		this._options = {};
@@ -162,6 +163,7 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 			);
 
 			//region Titles
+			var hint = BX.prop.getString(this._settings, "hint", "");
 			var title = BX.prop.getString(this._settings, "title", "");
 			var originalTitle = BX.prop.getString(this._settings, "originalTitle", "");
 
@@ -174,6 +176,7 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 				title = originalTitle;
 			}
 
+			this._hint = hint;
 			this._title = title;
 			this._originalTitle = originalTitle;
 			//endregion
@@ -216,6 +219,10 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 		getType: function()
 		{
 			return this._type;
+		},
+		getHint: function()
+		{
+			return this._hint;
 		},
 		getTitle: function()
 		{

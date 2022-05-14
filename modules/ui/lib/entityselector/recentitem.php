@@ -12,30 +12,30 @@ class RecentItem implements \JsonSerializable
 
 	public function __construct(array $options)
 	{
-		if (!empty($options['id']) && (is_string($options['id']) || is_int($options['id'])))
+		$id = $options['id'] ?? null;
+		if ((is_string($id) && $id !== '') || is_int($id))
 		{
-			$id = $options['id'];
-			$id = is_string($id) && (string)(int)$id === $id ? (int)$id : $id;
-
+			$id = (string)(int)$id === $id ? (int)$id : $id;
 			$this->id = $id;
 		}
 
-		if (!empty($options['entityId']) && is_string($options['entityId']))
+		$entityId = $options['entityId'] ?? null;
+		if (is_string($entityId) && $entityId !== '')
 		{
-			$this->entityId = $options['entityId'];
+			$this->entityId = strtolower($entityId);
 		}
 
-		if (!empty($options['loaded']) && is_bool($options['loaded']))
+		if (isset($options['loaded']) && is_bool($options['loaded']))
 		{
 			$this->setLoaded($options['loaded']);
 		}
 
-		if (!empty($options['available']) && is_bool($options['available']))
+		if (isset($options['available']) && is_bool($options['available']))
 		{
 			$this->setAvailable($options['available']);
 		}
 
-		if (!empty($options['lastUseDate']) && is_int($options['lastUseDate']))
+		if (isset($options['lastUseDate']) && is_int($options['lastUseDate']))
 		{
 			$this->setLastUseDate($options['lastUseDate']);
 		}

@@ -85,7 +85,7 @@ elseif($action === 'RENDER_IMAGE_INPUT')
 			'bitrix:main.file.input',
 			'',
 			array(
-				'MODULE_ID' => 'ui',
+				'MODULE_ID' => 'catalog',
 				'MAX_FILE_SIZE' => 3145728,
 				'MULTIPLE'=> 'Y',
 				'ALLOW_UPLOAD' => $_POST['ALLOW_UPLOAD'] ?? 'N',

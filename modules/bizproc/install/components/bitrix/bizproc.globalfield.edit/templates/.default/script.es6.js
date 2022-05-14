@@ -1,4 +1,4 @@
-import {Reflection, Type, Loc, Event, Tag} from 'main.core';
+import {Reflection, Type, Loc, Event, Tag, Runtime, Dom} from 'main.core';
 import { MessageBox } from 'ui.dialogs.messagebox';
 import 'bp_field_type';
 import {Globals} from 'bizproc.globals';
@@ -61,11 +61,12 @@ class GlobalFieldEditComponent
 
 	editInputValue(type, property)
 	{
-		let prop = BX.clone(property);
-		let defaultProperty = {
+		let prop = Runtime.clone(property);
+		const defaultProperty = {
 			Type: type ?? 'string',
 			Multiple: false,
-			Default: ''
+			Default: '',
+			Placeholder: Loc.getMessage('BIZPROC_GLOBALFIELD_EDIT_TMP_EMPTY'),
 		};
 
 		if (this.availableTypes[defaultProperty.Type] === undefined)
@@ -93,17 +94,17 @@ class GlobalFieldEditComponent
 			prop.Options = this.oldProperty.Options ?? {};
 		}
 
-		let control = BX.Bizproc.FieldType.renderControl(
+		const control = BX.Bizproc.FieldType.renderControl(
 			this.documentType,
 			prop,
 			'VALUE',
 			prop['Default'],
 			'public'
 		);
-		control.className = 'ui-ctl ui-ctl-textbox ui-ctl-w100 global-fields-max-width';
+		control.className = 'ui-ctl ui-ctl-textbox ui-ctl-w100';
 		control.id = this.inputValueId;
 
-		let inputValueNode = document.getElementById(this.inputValueId);
+		const inputValueNode = document.getElementById(this.inputValueId);
 		if (inputValueNode)
 		{
 			inputValueNode.replaceWith(control);
@@ -116,25 +117,18 @@ class GlobalFieldEditComponent
 		}
 		else if (prop.Type === 'select' && !document.getElementById('bizproc_globEditComponent'))
 		{
-			let wrapper = Tag.render`<div class="ui-ctl ui-ctl-w100" id="bizproc_globEditComponent"></div>`;
-			let optionControl = BX.Bizproc.FieldType.createControlOptions(
+			const wrapper = Tag.render`<div class="ui-ctl ui-ctl-w100" id="bizproc_globEditComponent"></div>`;
+			const optionControl = BX.Bizproc.FieldType.createControlOptions(
 				prop,
 				this.setSelectOptionFromForm.bind(this)
 			);
 			optionControl.className = 'ui-form-label';
-			wrapper.appendChild(optionControl);
+			Dom.append(optionControl, wrapper);
 			wrapper.getElementsByTagName('textarea')[0].className = 'ui-ctl-element ui-ctl-textarea ui-ctl-resize-y ui-ctl-w100';
-			wrapper.getElementsByTagName('textarea')[0].style.paddingTop = '6px';
+			Dom.style(wrapper.getElementsByTagName('textarea')[0], 'paddingTop', '6px');
 			wrapper.getElementsByTagName('button')[0].className = 'ui-btn ui-btn-xs ui-btn-light-border';
 
 			control.before(wrapper);
-		}
-
-		if (!prop['Multiple'])
-		{
-			document.getElementsByName('VALUE')[0].placeholder = Loc.getMessage('BIZPROC_GLOBALFIELD_EDIT_TMP_EMPTY');
-
-			return;
 		}
 
 		if (prop['Type'] === 'user')
@@ -142,34 +136,23 @@ class GlobalFieldEditComponent
 			return;
 		}
 
-		let values = document.getElementsByName('VALUE[]');
-		for (let i in values)
-		{
-			if (values.hasOwnProperty(i))
-			{
-				values[i].placeholder = Loc.getMessage('BIZPROC_GLOBALFIELD_EDIT_TMP_EMPTY');
-			}
-		}
-
 		if (control.getElementsByTagName('a').length > 0)
 		{
-			let buttonAdd = control.getElementsByTagName('a')[0];
-			BX.bind(buttonAdd, 'click', () => {
-				let values = document.getElementsByName('VALUE[]');
-				let value = BX.clone(values[values.length - 1]);
+			const buttonAdd = control.getElementsByTagName('a')[0];
+			Event.bind(buttonAdd, 'click', () => {
+				const values = document.getElementsByName('VALUE[]');
+				const value = Runtime.clone(values[values.length - 1]);
 
 				if (prop['Type'] !== 'date' && prop['Type'] !== 'datetime')
 				{
 					// remove wrapper div
-					let parent = values[values.length - 1].parentNode;
+					const parent = values[values.length - 1].parentNode;
 					if (parent)
 					{
 						parent.remove();
 					}
-					control.insertBefore(value, buttonAdd.parentNode);
+					Dom.insertBefore(value, buttonAdd.parentNode);
 				}
-
-				values[values.length - 1].placeholder = Loc.getMessage('BIZPROC_GLOBALFIELD_EDIT_TMP_EMPTY');
 			});
 		}
 	}
@@ -185,11 +168,11 @@ class GlobalFieldEditComponent
 		});
 	}
 
-	saveHandler()
+	saveHandler(): boolean
 	{
-		let formElements = this.form.elements;
+		const formElements = this.form.elements;
 		let id = formElements['ID'].value;
-		let property = {
+		const property = {
 			Name: formElements['NAME'].value,
 			Description: formElements['DESCRIPTION'].value,
 			Type: formElements['TYPE'].value,
@@ -209,7 +192,7 @@ class GlobalFieldEditComponent
 
 		if (!id)
 		{
-			let date = new Date();
+			const date = new Date();
 			id = this.correspondenceModeToIdName[this.mode] + date.getTime().toString();
 		}
 
@@ -218,14 +201,14 @@ class GlobalFieldEditComponent
 			property.Options = this.oldProperty.Options;
 		}
 
-		let me = this;
+		const me = this;
 		Globals.Manager.Instance.upsertGlobalsAction(id, property, this.signedDocumentType, this.mode).then((response) => {
 			if (response.data && response.data.error)
 			{
 				MessageBox.alert(
 					response.data.error,
 					() => {
-						BX.removeClass(me.saveButtonNode, 'ui-btn-wait');
+						Dom.removeClass(me.saveButtonNode, 'ui-btn-wait');
 
 						return true;
 					});
@@ -240,7 +223,7 @@ class GlobalFieldEditComponent
 		return true;
 	}
 
-	getValues(formElements)
+	getValues(formElements): any
 	{
 		if (formElements['VALUE'])
 		{
@@ -249,8 +232,8 @@ class GlobalFieldEditComponent
 
 		if (formElements['VALUE[]'])
 		{
-			let radioNodeList = formElements['VALUE[]'];
-			let values = [];
+			const radioNodeList = formElements['VALUE[]'];
+			const values = [];
 			if (Type.isElementNode(radioNodeList))
 			{
 				if (radioNodeList.tagName !== 'SELECT')
@@ -258,7 +241,7 @@ class GlobalFieldEditComponent
 					return radioNodeList.value;
 				}
 
-				for (let i in Object.keys(radioNodeList.selectedOptions))
+				for (const i in Object.keys(radioNodeList.selectedOptions))
 				{
 					values.push(radioNodeList.selectedOptions[i].value);
 				}
@@ -266,7 +249,7 @@ class GlobalFieldEditComponent
 				return values;
 			}
 
-			for (let i in radioNodeList)
+			for (const i in radioNodeList)
 			{
 				if (radioNodeList.hasOwnProperty(i))
 				{
@@ -279,15 +262,15 @@ class GlobalFieldEditComponent
 
 	}
 
-	validateName(name)
+	validateName(name): boolean
 	{
-		let me = this;
+		const me = this;
 		if (!name)
 		{
 			MessageBox.alert(
 				BX.Loc.getMessage('BIZPROC_GLOBALFIELD_EDIT_TMP_EMPTY_NAME'),
 				() => {
-					BX.removeClass(me.saveButtonNode, 'ui-btn-wait');
+					Dom.removeClass(me.saveButtonNode, 'ui-btn-wait');
 
 					return true;
 				}

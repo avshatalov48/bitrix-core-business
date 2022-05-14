@@ -10,6 +10,7 @@ namespace Bitrix\Main\ORM\Fields;
 
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentTypeException;
+use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Type\DateTime;
 
 /**
@@ -64,11 +65,16 @@ class DatetimeField extends DateField
 	/**
 	 * @param mixed $value
 	 *
-	 * @return \Bitrix\Main\Type\Date|DateTime
+	 * @return SqlExpression|\Bitrix\Main\Type\Date|DateTime
 	 * @throws \Bitrix\Main\ObjectException
 	 */
 	public function cast($value)
 	{
+		if ($value instanceof SqlExpression)
+		{
+			return $value;
+		}
+
 		if (!empty($value) && !($value instanceof DateTime))
 		{
 			$value = new DateTime($value);
@@ -105,6 +111,11 @@ class DatetimeField extends DateField
 	 */
 	public function convertValueToDb($value)
 	{
+		if ($value instanceof SqlExpression)
+		{
+			return $value;
+		}
+
 		try
 		{
 			return $value === null && $this->is_nullable

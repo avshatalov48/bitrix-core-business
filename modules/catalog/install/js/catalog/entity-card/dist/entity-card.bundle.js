@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Catalog = this.BX.Catalog || {};
-(function (exports,ui_entityEditor,ui_notification,translit,main_core_events,main_popup,main_core,catalog_storeUse) {
+(function (exports,ui_entityEditor,ui_notification,ui_hint,translit,main_core_events,main_popup,main_core,catalog_storeUse) {
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -2919,7 +2919,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return BaseCard;
 	}();
 
-	var _templateObject$6, _templateObject2$5, _templateObject3$5, _templateObject4$5, _templateObject5$5, _templateObject6$3;
+	var _templateObject$6, _templateObject2$5, _templateObject3$5, _templateObject4$5, _templateObject5$5, _templateObject6$3, _templateObject7$2;
 
 	var EntityCard = /*#__PURE__*/function (_BaseCard) {
 	  babelHelpers.inherits(EntityCard, _BaseCard);
@@ -3419,24 +3419,18 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getSettingItem",
 	    value: function getSettingItem(item) {
-	      var _this4 = this;
+	      var _item$disabled,
+	          _this4 = this;
 
 	      var input = main_core.Tag.render(_templateObject5$5 || (_templateObject5$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input type=\"checkbox\">\n\t\t"])));
 	      input.checked = item.checked;
+	      input.disabled = (_item$disabled = item.disabled) !== null && _item$disabled !== void 0 ? _item$disabled : false;
 	      input.dataset.settingId = item.id;
-	      var setting = main_core.Tag.render(_templateObject6$3 || (_templateObject6$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label class=\"ui-ctl-block ui-entity-editor-popup-create-field-item ui-ctl-w100\">\n\t\t\t\t\t<div class=\"ui-ctl-w10\" style=\"text-align: center\">", "</div>\n\t\t\t\t\t<div class=\"ui-ctl-w75\">\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-title\">", "</span>\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-desc\">", "</span>\t\n\t\t\t\t\t</div>\n\t\t\t\t</label>\n\t\t\t"])), input, item.title, item.desc);
+	      var hintNode = main_core.Type.isStringFilled(item.hint) ? main_core.Tag.render(_templateObject6$3 || (_templateObject6$3 = babelHelpers.taggedTemplateLiteral(["<span class=\"catalog-entity-setting-hint\" data-hint=\"", "\"></span>"])), item.hint) : '';
+	      var setting = main_core.Tag.render(_templateObject7$2 || (_templateObject7$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label class=\"ui-ctl-block ui-entity-editor-popup-create-field-item ui-ctl-w100\">\n\t\t\t\t\t<div class=\"ui-ctl-w10\" style=\"text-align: center\">", "</div>\n\t\t\t\t\t<div class=\"ui-ctl-w75\">\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-title ", "\">", "", "</span>\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-desc\">", "</span>\n\t\t\t\t\t</div>\n\t\t\t\t</label>\n\t\t\t"])), input, item.disabled ? 'catalog-entity-disabled-setting' : '', item.title, hintNode, item.desc);
+	      BX.UI.Hint.init(setting);
 
-	      if (item.id === 'WAREHOUSE') {
-	        main_core.Event.bind(setting, 'change', function (event) {
-	          new catalog_storeUse.DialogDisable().popup();
-	          main_core_events.EventEmitter.subscribe(catalog_storeUse.EventType.popup.disable, function () {
-	            return _this4.setProductCardSetting(event);
-	          });
-	          main_core_events.EventEmitter.subscribe(catalog_storeUse.EventType.popup.disableCancel, function () {
-	            return event.target.checked = true;
-	          });
-	        });
-	      } else if (item.id === 'SLIDER') {
+	      if (item.id === 'SLIDER') {
 	        main_core.Event.bind(setting, 'change', function (event) {
 	          new catalog_storeUse.Slider().open(item.url, {}).then(function () {
 	            _this4.reloadGrid();
@@ -3590,5 +3584,5 @@ this.BX.Catalog = this.BX.Catalog || {};
 	exports.EntityCard = EntityCard;
 	exports.BaseCard = BaseCard;
 
-}((this.BX.Catalog.EntityCard = this.BX.Catalog.EntityCard || {}),BX,BX,BX,BX.Event,BX.Main,BX,BX.Catalog.StoreUse));
+}((this.BX.Catalog.EntityCard = this.BX.Catalog.EntityCard || {}),BX,BX,BX,BX,BX.Event,BX.Main,BX,BX.Catalog.StoreUse));
 //# sourceMappingURL=entity-card.bundle.js.map

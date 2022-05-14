@@ -687,6 +687,7 @@ class Field
 	{
 		$multiple = $params['multiple'] ?? false;
 		$addEntityIdToResult = $params['addEntityIdToResult'] ?? false;
+		$showDialogOnEmptyInput = $params['showDialogOnEmptyInput'] ?? true;
 		$dialogOptions = $params['dialogOptions'] ?? [];
 		$field = [
 			'ID' => 'field_' . $name . ($filterName != '' ? '_' . $filterName : ''),
@@ -701,6 +702,7 @@ class Field
 			'PLACEHOLDER' => $placeholder,
 			'DIALOG_OPTIONS' => $dialogOptions,
 			'ADD_ENTITY_ID_TO_RESULT' => $addEntityIdToResult,
+			'SHOW_DIALOG_ON_EMPTY_INPUT' => $showDialogOnEmptyInput,
 		];
 
 		return $field;

@@ -12,6 +12,7 @@ class DevOps extends Base
 		'section' => 'section/#SECTION_CODE#/',
 		'edit' => 'edit/#ELEMENT_CODE#/#ID#/',
 		'iframe' => 'iframe/',
+		'placement' => 'placement/#PLACEMENT_ID#/',
 	];
 
 	public function getIndexUrl()
@@ -40,6 +41,37 @@ class DevOps extends Base
 		}
 
 		return $this->getUrl('iframe', null, null, $params);
+	}
+
+	public function getPlacementUrl(?int $placementId = null, ?array $params = null): string
+	{
+		$replace = null;
+		$subject = null;
+		$query = null;
+
+		if ($placementId > 0)
+		{
+			$replace = [
+				'#PLACEMENT_ID#',
+			];
+			$subject = [
+				$placementId,
+			];
+		}
+
+		if (is_array($params))
+		{
+			$query = [
+				'params' => $params
+			];
+		}
+
+		return $this->getUrl(
+			'placement',
+			$replace,
+			$subject,
+			$query
+		);
 	}
 
 	public function getIntegrationSectionUrl($code = null)

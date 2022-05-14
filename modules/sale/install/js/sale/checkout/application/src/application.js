@@ -5,7 +5,9 @@ import { VuexBuilder } from 'ui.vue.vuex';
 import { Application as Controller } from 'sale.checkout.controller'
 import {
 	Order as OrderModel,
+	Check as CheckModel,
 	Basket as BasketModel,
+	Payment as PaymentModel,
 	Property as PropertyModel,
 	Application as ApplicationModel,
 	Consent as ConsentModel,
@@ -75,6 +77,8 @@ export class Application
 			.addModel(OrderModel.create())
 			.addModel(BasketModel.create().setVariables(contextVariablesBasket))
 			.addModel(PropertyModel.create())
+			.addModel(PaymentModel.create())
+			.addModel(CheckModel.create())
 			.addModel(PaySystemModel.create())
 			.addModel(ApplicationModel.create().setVariables(contextVariablesApp))
 			.addModel(ConsentModel.create())
@@ -110,7 +114,6 @@ export class Application
 		{
 			const context = this;
 			
-			
 			this.templateEngine = BitrixVue.createApp({
 				store: this.store,
 				data: {
@@ -129,6 +132,8 @@ export class Application
 							order:  this.options.order,
 							basket:  this.options.basket,
 							paySystem:  this.options.paySystem,
+							payment:  this.options.payment,
+							check:  this.options.check,
 							total: this.options.total,
 							currency: this.options.currency,
 							discount: this.options.discount,
@@ -208,6 +213,24 @@ export class Application
 		{
 			data.property.forEach((fields, index) => {
 				this.store.dispatch('property/changeItem', {index, fields});
+			});
+		}
+		//endregion
+
+		//region: payment model
+		if (Type.isObject(data.payment))
+		{
+			data.payment.forEach((fields, index) => {
+				this.store.dispatch('payment/changeItem', {index, fields});
+			});
+		}
+		//endregion
+
+		// region: check model
+		if (Type.isObject(data.check))
+		{
+			data.check.forEach((fields, index) => {
+				this.store.dispatch('check/changeItem', {index, fields});
 			});
 		}
 		//endregion

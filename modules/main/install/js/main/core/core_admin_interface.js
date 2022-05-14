@@ -3202,7 +3202,7 @@ BX.adminTabControl.prototype.submitAjax = function(buttonType, button)
 					if (button && button.dataset.url)
 						params['addUrl'] = button.dataset.url;
 
-					var listApplyTypes = ["apply", "save_document"];
+					var listApplyTypes = ["apply", "save_document", "save_and_conduct"];
 					if (BX.util.in_array(buttonType, listApplyTypes))
 					{
 						if (result.hasOwnProperty('formParams'))

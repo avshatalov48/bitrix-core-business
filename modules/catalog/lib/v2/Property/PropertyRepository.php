@@ -50,13 +50,36 @@ class PropertyRepository implements PropertyRepositoryContract
 		return reset($entities) ?: null;
 	}
 
-	public function getEntitiesBy($params): array
+	public function getEntitiesBy($params, array $propertySettings = []): array
 	{
 		$entities = [];
 
-		foreach ($this->getList((array)$params) as $item)
+		$sortedSettings = [];
+		foreach ($propertySettings as $setting)
 		{
-			$entities[] = $this->createEntity($item);
+			if ((int)$setting['ID'] > 0)
+			{
+				$sortedSettings[(int)$setting['ID']] = $setting;
+			}
+		}
+
+		foreach ($this->getList((array)$params) as $elementId => $properties)
+		{
+			if (!is_array($properties))
+			{
+				continue;
+			}
+
+			foreach ($properties as $propertyId => $item)
+			{
+				$settings = [];
+				if ($sortedSettings[$propertyId])
+				{
+					$settings = $sortedSettings[$propertyId];
+					$settings['IBLOCK_ELEMENT_ID'] = $elementId;
+				}
+				$entities[] = $this->createEntity($item, $settings);
+			}
 		}
 
 		return $entities;
@@ -152,7 +175,7 @@ class PropertyRepository implements PropertyRepositoryContract
 	{
 		if ($entity->isNew())
 		{
-			return $this->createCollection([], $entity);
+			return $this->loadCollection([], $entity);
 		}
 
 		$result = $this->getList([
@@ -162,7 +185,9 @@ class PropertyRepository implements PropertyRepositoryContract
 			],
 		]);
 
-		return $this->createCollection($result, $entity);
+		$entityFields = $result[$entity->getId()] ?? [];
+
+		return $this->loadCollection($entityFields, $entity);
 	}
 
 	protected function getList(array $params): array
@@ -176,12 +201,14 @@ class PropertyRepository implements PropertyRepositoryContract
 		{
 			$descriptions = $propertyValues['DESCRIPTION'] ?? [];
 			$propertyValueIds = $propertyValues['PROPERTY_VALUE_ID'] ?? [];
+			$elementId = $propertyValues['IBLOCK_ELEMENT_ID'];
 			unset($propertyValues['IBLOCK_ELEMENT_ID'], $propertyValues['PROPERTY_VALUE_ID'], $propertyValues['DESCRIPTION']);
 
+			$entityFields = [];
 			// ToDo empty properties with false (?: '') or null?
 			foreach ($propertyValues as $id => $value)
 			{
-				$result[$id] = [];
+				$entityFields[$id] = [];
 				$description = $descriptions[$id] ?? null;
 
 				if ($value !== false || $description !== null)
@@ -200,7 +227,7 @@ class PropertyRepository implements PropertyRepositoryContract
 								$fields['ID'] = $propertyValueIds[$id][$key];
 							}
 
-							$result[$id][$key] = $fields;
+							$entityFields[$id][$key] = $fields;
 						}
 					}
 					else
@@ -215,16 +242,23 @@ class PropertyRepository implements PropertyRepositoryContract
 							$fields['ID'] = $propertyValueIds[$id];
 						}
 
-						$result[$id][] = $fields;
+						$entityFields[$id][] = $fields;
 					}
 				}
 			}
+
+			$result[$elementId] = $entityFields;
 		}
 
 		return $result;
 	}
 
-	protected function createCollection(array $entityFields, BaseIblockElementEntity $parent): PropertyCollection
+	public function createCollection(): PropertyCollection
+	{
+		return $this->factory->createCollection();
+	}
+
+	protected function loadCollection(array $entityFields, BaseIblockElementEntity $parent): PropertyCollection
 	{
 		$propertySettings = [];
 
@@ -246,21 +280,13 @@ class PropertyRepository implements PropertyRepositoryContract
 			]);
 		}
 
-		$collection = $this->factory->createCollection();
-		$propertySettings = $this->loadEnumSettings($propertySettings);
+		$collection = $this->createCollection();
 
 		foreach ($propertySettings as $settings)
 		{
-			$settings = $this->prepareSettings($settings);
-			$fields = $this->prepareField($entityFields[$settings['ID']] ?? [], $settings);
-
-			$property = $this->createEntity();
-			$property->setSettings($settings);
-
-			$propertyValueCollection = $this->propertyValueFactory->createCollection();
-			$propertyValueCollection->initValues($fields);
-
-			$property->setPropertyValueCollection($propertyValueCollection);
+			$fields = $entityFields[$settings['ID']] ?? [];
+			$settings['IBLOCK_ELEMENT_ID'] = $parent->getId();
+			$property = $this->createEntity($fields, $settings);
 
 			$collection->add($property);
 		}
@@ -319,9 +345,9 @@ class PropertyRepository implements PropertyRepositoryContract
 		return array_column($propertyIds, 'ID');
 	}
 
-	private function getPropertiesSettingsByFilter(array $filter): array
+	public function getPropertiesSettingsByFilter(array $filter): array
 	{
-		return PropertyTable::getList([
+		$settings = PropertyTable::getList([
 			'select' => ['*'],
 			'filter' => $filter,
 			'order' => [
@@ -331,6 +357,8 @@ class PropertyRepository implements PropertyRepositoryContract
 		])
 			->fetchAll()
 			;
+
+		return $this->loadEnumSettings($settings);
 	}
 
 	protected function prepareField(array $fields, array $settings): array
@@ -362,11 +390,21 @@ class PropertyRepository implements PropertyRepositoryContract
 		return $settings;
 	}
 
-	protected function createEntity(array $fields = []): Property
+	public function createEntity(array $fields = [], array $settings = []): Property
 	{
 		$entity = $this->factory->createEntity();
 
-		$entity->initFields($fields);
+		if ($settings)
+		{
+			$settings = $this->prepareSettings($settings);
+			$fields = $this->prepareField($fields, $settings);
+			$entity->setSettings($settings);
+		}
+
+		$propertyValueCollection = $this->propertyValueFactory->createCollection();
+		$propertyValueCollection->initValues($fields);
+
+		$entity->setPropertyValueCollection($propertyValueCollection);
 
 		return $entity;
 	}

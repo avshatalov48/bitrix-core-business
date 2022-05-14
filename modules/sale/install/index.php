@@ -383,6 +383,7 @@ Class sale extends CModule
 		\CAgent::AddAgent('\Bitrix\Sale\PaySystem\Internals\Analytics\Agent::send();', 'sale', 'Y', 86400, '', 'Y');
 		\CAgent::AddAgent('\Bitrix\Sale\Cashbox\Internals\Analytics\Agent::send();', 'sale', 'Y', 86400, '', 'Y');
 		\CAgent::AddAgent('\Bitrix\Sale\Delivery\Internals\Analytics\Agent::send();', 'sale', 'Y', 86400, '', 'Y');
+		\CAgent::AddAgent('\Bitrix\Sale\Internals\Analytics\Events\Agent::send();', 'sale', 'Y', 86400, '', 'Y');
 
 		return true;
 	}

@@ -7,3 +7,4 @@ DROP TABLE if exists b_calendar_access;
 DROP TABLE if exists b_calendar_push;
 DROP TABLE if exists b_calendar_resource;
 DROP TABLE if exists b_calendar_location;
+DROP TABLE if exists b_calendar_log;

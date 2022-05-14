@@ -1,10 +1,28 @@
-import 'core-js/es6';
-import 'core-js/es7';
-import 'core-js/web';
-
-if (window._main_core_polyfill)
-{
-	console.warn('main.core.polyfill is loaded more than once on this page');
-}
-
-window._main_core_polyfill = true;
+// File generated automatically. Don't modify it.
+import 'core-js/modules/es.aggregate-error';
+import 'core-js/modules/es.array.at';
+import 'core-js/modules/es.array.reverse';
+import 'core-js/modules/es.array-buffer.slice';
+import 'core-js/modules/es.object.from-entries';
+import 'core-js/modules/es.object.has-own';
+import 'core-js/modules/es.promise.all-settled';
+import 'core-js/modules/es.promise.any';
+import 'core-js/modules/es.promise.finally';
+import 'core-js/modules/es.string.match-all';
+import 'core-js/modules/es.string.replace-all';
+import 'core-js/modules/es.typed-array.float32-array';
+import 'core-js/modules/es.typed-array.float64-array';
+import 'core-js/modules/es.typed-array.int8-array';
+import 'core-js/modules/es.typed-array.int16-array';
+import 'core-js/modules/es.typed-array.int32-array';
+import 'core-js/modules/es.typed-array.uint8-array';
+import 'core-js/modules/es.typed-array.uint8-clamped-array';
+import 'core-js/modules/es.typed-array.uint16-array';
+import 'core-js/modules/es.typed-array.uint32-array';
+import 'core-js/modules/es.typed-array.at';
+import 'core-js/modules/es.typed-array.from';
+import 'core-js/modules/es.typed-array.of';
+import 'core-js/modules/es.typed-array.sort';
+import 'core-js/modules/web.dom-collections.iterator';
+import 'core-js/modules/web.immediate';
+import 'core-js/modules/web.queue-microtask';

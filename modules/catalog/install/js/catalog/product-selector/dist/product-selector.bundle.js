@@ -376,6 +376,10 @@ this.BX = this.BX || {};
 	    main_core.Dom.append(this.getClearIcon(), block);
 
 	    if (this.isSearchEnabled()) {
+	      if (this.selector.isProductSearchEnabled()) {
+	        this.initHasDialogItems();
+	      }
+
 	      this.toggleIcon(this.getSearchIcon(), main_core.Type.isStringFilled(this.getFilledValue()) ? 'none' : 'block');
 	      main_core.Dom.append(this.getSearchIcon(), block);
 	      main_core.Event.bind(this.getNameInput(), 'click', this.handleShowSearchDialog.bind(this));
@@ -467,6 +471,28 @@ this.BX = this.BX || {};
 
 	      return new ui_entitySelector.Dialog(params);
 	    });
+	  }
+
+	  initHasDialogItems() {
+	    if (this.isHasDialogItems === true) {
+	      return;
+	    } else if (this.isHasDialogItems === false) {
+	      return;
+	    } // is null, that not send ajax
+
+
+	    this.isHasDialogItems = false;
+	    const dialog = this.getDialog();
+
+	    if (dialog.hasDynamicLoad()) {
+	      dialog.hasRecentItems().then(isHasItems => {
+	        if (isHasItems === true) {
+	          this.isHasDialogItems = true;
+	        }
+	      });
+	    } else {
+	      this.isHasDialogItems = true;
+	    }
 	  }
 
 	  isAllowedCreateProduct() {
@@ -570,10 +596,17 @@ this.BX = this.BX || {};
 	    }
 
 	    const dialog = this.getDialog();
-	    dialog.removeItems();
 
 	    if (dialog) {
+	      dialog.removeItems();
+	      searchQuery = searchQuery.trim();
+
 	      if (searchQuery === '') {
+	        if (this.isHasDialogItems === false) {
+	          dialog.hide();
+	          return;
+	        }
+
 	        dialog.loadState = 'UNSENT';
 	        dialog.load();
 	      }
@@ -721,6 +754,7 @@ this.BX = this.BX || {};
 	        dialog.hide();
 	        this.cache.delete('dialog');
 	        this.ajaxInProcess = false;
+	        this.isHasDialogItems = true;
 	        resolve();
 	      }).catch(errorResponse => {
 	        dialog.hideLoader();
@@ -1075,8 +1109,8 @@ this.BX = this.BX || {};
 	        entities: [entity]
 	      };
 
-	      if (this.model.getProductId() && !main_core.Type.isStringFilled(this.model.getField(this.inputName))) {
-	        params.preselectedItems = [[BarcodeSearchInput.SEARCH_TYPE_ID, this.model.getProductId()]];
+	      if (this.model.getSkuId() && !main_core.Type.isStringFilled(this.model.getField(this.inputName))) {
+	        params.preselectedItems = [[BarcodeSearchInput.SEARCH_TYPE_ID, this.model.getSkuId()]];
 	      }
 
 	      if (main_core.Type.isObject(this.settingsCollection.get('limitInfo'))) {
@@ -1117,25 +1151,25 @@ this.BX = this.BX || {};
 	    return this.cache.remember('qrMobilePopup', () => {
 	      const closeIcon = main_core.Tag.render(_t4$3 || (_t4$3 = _$5`<span class="popup-window-close-icon"></span>`));
 	      main_core.Event.bind(closeIcon, 'click', this.closeMobilePopup.bind(this));
-	      const sendButton = main_core.Tag.render(_t5$3 || (_t5$3 = _$5`
-					<a class="product-selector-mobile-popup-link ui-btn ui-btn-link">
-						${0}
-					</a>
-				`), main_core.Loc.getMessage('CATALOG_SELECTOR_MOBILE_POPUP_SEND_PUSH_BUTTON'));
-	      main_core.Event.bind(sendButton, 'click', event => {
-	        this.closeMobilePopup();
-	        this.sendMobilePush(event);
-	      });
+	      let sendButton = '';
 	      let helpButton = '';
 
 	      if (top.BX.Helper) {
-	        helpButton = main_core.Tag.render(_t6$2 || (_t6$2 = _$5`
+	        helpButton = main_core.Tag.render(_t5$3 || (_t5$3 = _$5`
 					<a class="product-selector-mobile-popup-link ui-btn ui-btn-light-border ui-btn-round">
 						${0}
 					</a>
 				`), main_core.Loc.getMessage('CATALOG_SELECTOR_MOBILE_POPUP_HELP_BUTTON'));
 	        main_core.Event.bind(helpButton, 'click', () => {
 	          top.BX.Helper.show("redirect=detail&code=14956818");
+	        });
+	        sendButton = main_core.Tag.render(_t6$2 || (_t6$2 = _$5`
+					<a class="product-selector-mobile-popup-link ui-btn ui-btn-link">
+						${0}
+					</a>
+				`), main_core.Loc.getMessage('CATALOG_SELECTOR_MOBILE_POPUP_SEND_PUSH_BUTTON'));
+	        main_core.Event.bind(sendButton, 'click', () => {
+	          top.BX.Helper.show("redirect=detail&code=15042444");
 	        });
 	      }
 
@@ -1161,7 +1195,13 @@ this.BX = this.BX || {};
 
 	  closeMobilePopup() {
 	    this.removeQrAuth();
-	    this.selector.emit('onBarcodeQrClose', {});
+	    main_core.ajax.runAction('catalog.ProductSelector.isInstalledMobileApp', {
+	      json: {}
+	    }).then(result => {
+	      if (result.data === true) {
+	        this.selector.emit('onBarcodeQrClose', {});
+	      }
+	    });
 	    main_core.userOptions.save('product-selector', 'barcodeQrAuth', 'showed', 'Y');
 	  }
 
@@ -1221,7 +1261,7 @@ this.BX = this.BX || {};
 
 	    if (dialog) {
 	      if (searchQuery === '') {
-	        dialog.setPreselectedItems([[BarcodeSearchInput.SEARCH_TYPE_ID, this.model.getProductId()]]);
+	        dialog.setPreselectedItems([[BarcodeSearchInput.SEARCH_TYPE_ID, this.model.getSkuId()]]);
 	        dialog.loadState = 'UNSENT';
 	        dialog.load();
 	      }
@@ -2009,6 +2049,10 @@ this.BX = this.BX || {};
 	  }
 
 	  onProductSelect(productId, itemConfig) {
+	    this.emit('onProductSelect', {
+	      selectorId: this.getId(),
+	      rowId: this.getRowId()
+	    });
 	    this.emit('onBeforeChange', {
 	      selectorId: this.getId(),
 	      rowId: this.getRowId()

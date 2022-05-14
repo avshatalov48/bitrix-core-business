@@ -192,41 +192,44 @@ export class TaskCreator
 									taskData.PARENT_ID = parseInt(params.entityType);
 								}
 
-								BX.Tasks.Util.Query.runOnce('task.add', { data: taskData }).then((result) => {
+								ajax.runComponentAction('bitrix:tasks.task', 'legacyAdd', {
+									mode: 'class',
+									data: {
+										data: taskData,
+									},
+								}).then((response) => {
 
-									const resultData = result.getData();
+									const resultData = response.data;
 
-									if (
-										Type.isPlainObject(resultData)
-										&& Type.isPlainObject(resultData.DATA)
-										&& !Type.isUndefined(resultData.DATA.ID)
-										&& parseInt(resultData.DATA.ID) > 0
-									)
+									this.createTaskSetContentSuccess(resultData.DATA.ID);
+
+									ajax.runAction('socialnetwork.api.livefeed.createEntityComment', {
+										data: {
+											params: {
+												postEntityType: (Type.isStringFilled(params.postEntityType) ? params.postEntityType : params.entityType),
+												sourceEntityType: params.entityType,
+												sourceEntityId: params.entityId,
+												entityType: 'TASK',
+												entityId: resultData.DATA.ID,
+												logId: (
+													Type.isNumber(params.logId)
+														? params.logId
+														: logId > 0 ? logId : null
+												),
+											},
+										},
+									}).then(() => {
+									}, () => {
+									});
+								}, (response) => {
+									if (response.errors && response.errors.length)
 									{
-										this.createTaskSetContentSuccess(resultData.DATA.ID);
-
-										ajax.runAction('socialnetwork.api.livefeed.createEntityComment', {
-											data: {
-												params: {
-													postEntityType: (Type.isStringFilled(params.postEntityType) ? params.postEntityType : params.entityType),
-													sourceEntityType: params.entityType,
-													sourceEntityId: params.entityId,
-													entityType: 'TASK',
-													entityId: resultData.DATA.ID,
-													logId: (
-														Type.isNumber(params.logId)
-															? params.logId
-															: logId > 0 ? logId : null
-													)
-												}
-											}
-										}).then(() => {
-										}, () => {
+										const errors = [];
+										response.errors.forEach((error) => {
+											errors.push(error.message);
 										});
-									}
-									else
-									{
-										this.createTaskSetContentFailure(result.getErrors().getMessages());
+
+										this.createTaskSetContentFailure(errors);
 									}
 								});
 							}

@@ -10,6 +10,7 @@ use Bitrix\Rest\Configuration\Core\StorageTable;
  */
 class Setting
 {
+	public const VERSION = 2;
 	public const SETTING_MANIFEST = 'SETTING_MANIFEST';
 	public const MANIFEST_CODE = 'MANIFEST_CODE';
 	public const SETTING_RATIO = 'SETTING_RATIO';
@@ -20,6 +21,7 @@ class Setting
 	public const SETTING_ACTION_INFO = 'ACTION_INFO';
 	public const SETTING_ACTION_ADDITIONAL_OPTION = 'ACTION_ADDITIONAL_OPTION';
 	public const SETTING_NOTICE_COLLECTION = 'NOTICE_COLLECTION';
+	public const SETTING_FINISH_DATA = 'FINISH_DATA';
 	private const TTL_CONTEXT = 259200;
 
 	private $context = 'null';

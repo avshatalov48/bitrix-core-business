@@ -47,8 +47,8 @@ if($REQUEST_METHOD=="POST" && ($save <> '' || $save_ext <> '' || $apply <> '') &
 		'PERIOD_CHECK'    => $PERIOD_CHECK,
 		'DESCRIPTION'     => $DESCRIPTION,
 		'MAX_MSG_COUNT'   => $MAX_MSG_COUNT,
-		'MAX_MSG_SIZE'    => $MAX_MSG_SIZE*1024,
-		'MAX_KEEP_DAYS'   => $MAX_KEEP_DAYS,
+		'MAX_MSG_SIZE'    => ((int) $MAX_MSG_SIZE) * 1024,
+		'MAX_KEEP_DAYS'   => (int) $MAX_KEEP_DAYS,
 		'USE_TLS'         => $bCanUseTLS && $USE_TLS == 'Y' ? ($SKIP_CERT == 'Y' ? 'S' : 'Y') : 'N',
 		'USER_ID'         => $USER_ID,
 		'LINK'            => $LINK

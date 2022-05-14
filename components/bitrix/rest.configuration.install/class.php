@@ -107,18 +107,30 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 			'MANIFEST' => [],
 			'NEED_CLEAR_FULL' => true,
 			'PRE_INSTALL_APP_MODE' => false,
+			'SKIP_CLEARING' => false,
 			'NEED_START_BTN' => true,
 			'NEED_CLEAR_FULL_CONFIRM' => true,
 			'IMPORT_BY_PROCESS_ID' => $this->isImportByProcessId(),
 		];
 		$manifest = null;
 
-		if(!empty($this->arParams['IMPORT_MANIFEST']['CODE']))
+		if (!empty($this->arParams['IMPORT_MANIFEST']['CODE']))
 		{
 			$manifest = Manifest::get($this->arParams['IMPORT_MANIFEST']['CODE']);
-			if(!is_null($manifest))
+			if ((int)$this->arParams['IMPORT_MANIFEST']['VERSION'] > Setting::VERSION)
 			{
-				if(intval($manifest['VERSION']) < intval($this->arParams['IMPORT_MANIFEST']['VERSION']))
+				$result['NOTIFY'][] = Loc::getMessage("REST_CONFIGURATION_INSTALL_ERROR_MANIFEST_OLD");
+			}
+			elseif (!is_null($manifest))
+			{
+				if ((int)$this->arParams['IMPORT_MANIFEST']['MANIFEST_VERSION'] > 0)
+				{
+					if ((int)$this->arParams['IMPORT_MANIFEST']['MANIFEST_VERSION'] > (int)$manifest['VERSION'])
+					{
+						$result['NOTIFY'][] = Loc::getMessage("REST_CONFIGURATION_INSTALL_ERROR_MANIFEST_OLD");
+					}
+				}
+				elseif ((int)$this->arParams['IMPORT_MANIFEST']['VERSION'] > (int)$manifest['VERSION'])
 				{
 					$result['NOTIFY'][] = Loc::getMessage("REST_CONFIGURATION_INSTALL_ERROR_MANIFEST_OLD");
 				}
@@ -133,12 +145,24 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 			$manifest = Manifest::get($this->arParams['MANIFEST_CODE']);
 		}
 
-		if(!is_null($manifest))
+		if (!is_null($manifest))
 		{
+			if (is_array($this->arParams['IMPORT_MANIFEST']))
+			{
+				$manifest = array_merge($this->arParams['IMPORT_MANIFEST'],  $manifest);
+			}
+
 			$result['MANIFEST'] = $manifest;
-			$result['NEED_CLEAR_FULL_CONFIRM'] = $manifest['DISABLE_CLEAR_FULL'] == 'Y' ? false : true;
+			if ($result['MANIFEST']['SKIP_CLEARING'] === 'Y')
+			{
+				$manifest['DISABLE_CLEAR_FULL'] = 'Y';
+				$result['SKIP_CLEARING'] = true;
+			}
+			$result['NEED_CLEAR_FULL_CONFIRM'] = $manifest['DISABLE_CLEAR_FULL'] !== 'Y';
 			$result['NEED_CLEAR_FULL'] = $result['NEED_CLEAR_FULL_CONFIRM'];
-			$result['NEED_START_BTN'] = $manifest['DISABLE_NEED_START_BTN'] == 'Y' && !$manifest['NEED_CLEAR_FULL_CONFIRM'] ? false : true;
+			$result['NEED_START_BTN'] = !(empty($result['NOTIFY'])
+				&& $manifest['DISABLE_NEED_START_BTN'] === 'Y'
+				&& !$manifest['NEED_CLEAR_FULL_CONFIRM']);
 		}
 
 		if($this->isPreInstallAppMode())
@@ -641,7 +665,8 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 		{
 			$manifest = [
 				'CODE' => $manifest['CODE'],
-				'VERSION' => $manifest['VERSION'],
+				'VERSION' => Setting::VERSION,
+				'MANIFEST_VERSION' => $manifest['VERSION'],
 				'USES' => $manifest['USES']
 			];
 			$this->addDiskBackupContent(false, 'manifest', $manifest);

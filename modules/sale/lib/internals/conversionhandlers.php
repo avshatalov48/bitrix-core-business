@@ -10,13 +10,14 @@ use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale;
+use Bitrix\Sale\Payment;
 
 Loc::loadMessages(__FILE__);
 
 /** @internal */
 final class ConversionHandlers
 {
-	static public function onGetCounterTypes()
+	public static function onGetCounterTypes()
 	{
 		return array(
 			'sale_cart_add_day' => array('MODULE' => 'sale', 'NAME' => 'Added to cart goals', 'GROUP' => 'day'),
@@ -33,7 +34,7 @@ final class ConversionHandlers
 		);
 	}
 
-	static public function onGetRateTypes()
+	public static function onGetRateTypes()
 	{
 		$scale = array(0.5, 1, 1.5, 2, 5);
 
@@ -124,7 +125,7 @@ final class ConversionHandlers
 		);
 	}
 
-	static public function onGenerateInitialData(Date $from, Date $to)
+	public static function onGenerateInitialData(Date $from, Date $to)
 	{
 		$data = array();
 
@@ -279,12 +280,12 @@ final class ConversionHandlers
 
 	static $onBeforeBasketAddQuantity = 0;
 
-	static public function onBeforeBasketAdd(/*array*/ $fields)
+	public static function onBeforeBasketAdd(/*array*/ $fields)
 	{
 		self::$onBeforeBasketAddQuantity = (is_array($fields) && isset($fields['QUANTITY'])) ? $fields['QUANTITY'] : 0;
 	}
 
-	static public function onBasketAdd($id, /*array*/ $fields)
+	public static function onBasketAdd($id, /*array*/ $fields)
 	{
 		if (is_array($fields)
 			&& isset($fields['PRICE'], $fields['QUANTITY'], $fields['CURRENCY'])
@@ -302,7 +303,7 @@ final class ConversionHandlers
 
 	//static private $onBeforeBasketUpdate = 0;
 
-	static public function onBeforeBasketUpdate($id, /*array*/ $fields = null) // null hack/fix 4 sale 15
+	public static function onBeforeBasketUpdate($id, /*array*/ $fields = null) // null hack/fix 4 sale 15
 	{
 		/*self::$onBeforeBasketUpdate =
 
@@ -314,7 +315,7 @@ final class ConversionHandlers
 				? $row['PRICE'] * $row['QUANTITY'] : 0;*/
 	}
 
-	static public function onBasketUpdate($id, /*array*/ $fields)
+	public static function onBasketUpdate($id, /*array*/ $fields)
 	{
 		/*if (Loader::includeModule('conversion')
 			&& is_array($fields)
@@ -342,7 +343,7 @@ final class ConversionHandlers
 	//static private $onBeforeBasketDeleteSum = 0;
 	//static private $onBeforeBasketDeleteCurrency; // TODO same to all other
 
-	static public function onBeforeBasketDelete($id)
+	public static function onBeforeBasketDelete($id)
 	{
 		/*self::$onBeforeBasketDeleteSum =
 
@@ -355,7 +356,7 @@ final class ConversionHandlers
 				? $row['PRICE'] * $row['QUANTITY'] : 0;*/
 	}
 
-	static public function onBasketDelete($id)
+	public static function onBasketDelete($id)
 	{
 		/*if (Loader::includeModule('conversion') && self::$onBeforeBasketDeleteSum > 0)
 		{
@@ -394,7 +395,7 @@ final class ConversionHandlers
 		}
 	}
 
-	static public function onOrderAdd($id, array $fields)
+	public static function onOrderAdd($id, array $fields)
 	{
 		if (Loader::includeModule('conversion'))
 		{
@@ -411,66 +412,74 @@ final class ConversionHandlers
 	public static function onSaleOrderPaid(Main\Event $event)
 	{
 		$order = $event->getParameter('ENTITY');
-
-		if (!$order->isPaid())
-			return;
-
-		if ($order instanceof Sale\Order)
+		if (Loader::includeModule('conversion') && $order instanceof Sale\Order)
 		{
-			$price    = $order->getPrice();
-			$currency = $order->getCurrency();
-
-			if (Loader::includeModule('conversion'))
-			{
-				$context = DayContext::getEntityItemInstance('sale_order', $order->getId());
-
-				$addMethod = defined('ADMIN_SECTION') && ADMIN_SECTION === true ? 'addCounter' : 'addDayCounter';
-				$context->$addMethod('sale_payment_add_day', 1);
-				$context->addCounter('sale_payment_add', 1);
-
-				if ($price && $currency)
-					$context->addCurrencyCounter('sale_payment_sum_add', $price, $currency);
-			}
+			self::updatePaidOrderConversion(
+				$order->getId(),
+				$order->getPrice(),
+				$order->getCurrency(),
+				Date::createFromText($order->getField('DATE_PAYED')),
+				$order->isPaid()
+			);
 		}
 	}
 
-	static public function onSalePayOrder($id, $paid)
+	public static function onSalePayOrder($id, $paid)
 	{
 		if (Loader::includeModule('conversion') && ($row = \CSaleOrder::GetById($id)))
 		{
-			$context = DayContext::getEntityItemInstance('sale_order', $id);
-
-			if ($paid == 'Y')
+			self::updatePaidOrderConversion(
+				$id,
+				$row['PRICE'],
+				$row['CURRENCY'],
+				new Date($row['DATE_PAYED'], 'Y-m-d H:i:s'),
+				$paid === 'Y'
+			);
+		}
+	}
+	
+	/**
+	 * Add or subtraction conversion values for paid/not paid order.
+	 *
+	 * @param int $orderId
+	 * @param float $price
+	 * @param string $currency
+	 * @param Date $day
+	 * @param bool $isPaid
+	 * @return void
+	 */
+	private static function updatePaidOrderConversion($orderId, $price, $currency, $day, $isPaid)
+	{
+		$context = DayContext::getEntityItemInstance('sale_order', $orderId);
+		$isAdminSection = defined('ADMIN_SECTION') && ADMIN_SECTION === true;
+		
+		if ($isPaid)
+		{
+			if ($isAdminSection)
 			{
-				if (defined('ADMIN_SECTION') && ADMIN_SECTION === true)
-				{
-					$context->addCounter    ('sale_payment_add_day', 1);
-				}
-				else
-				{
-					$context->addDayCounter ('sale_payment_add_day', 1);
-				}
-
-				$context->addCounter        ('sale_payment_add'    , 1);
-				$context->addCurrencyCounter('sale_payment_sum_add', $row['PRICE'], $row['CURRENCY']);
+				$context->addCounter('sale_payment_add_day', 1);
 			}
-			/*
-			elseif ($paid == 'N')
+			else
 			{
-				if (defined('ADMIN_SECTION') && ADMIN_SECTION === true)
-				{
-					// TODO what if payment added by user and removed by admin -- conversion is going down!!!
-					$context->addCounter    ('sale_payment_rem_day', 1);
-				}
-				else
-				{
-					$context->addDayCounter ('sale_payment_rem_day', 1);
-				}
-
-				$context->addCounter        ('sale_payment_rem'    , 1);
-				$context->addCurrencyCounter('sale_payment_sum_rem', $row['PRICE'], $row['CURRENCY']);
+				$context->addDayCounter('sale_payment_add_day', 1);
 			}
-			*/
+			
+			$context->addCounter('sale_payment_add', 1);
+			$context->addCurrencyCounter('sale_payment_sum_add', $price, $currency);
+		}
+		else
+		{
+			if ($isAdminSection)
+			{
+				$context->subCounter($day, 'sale_payment_add_day', 1);
+			}
+			else
+			{
+				$context->subDayCounter($day, 'sale_payment_add_day', 1);
+			}
+			
+			$context->subCounter($day, 'sale_payment_add', 1);
+			$context->subCurrencyCounter($day, 'sale_payment_sum_add', $price, $currency);
 		}
 	}
 }

@@ -64,6 +64,13 @@ export default class Manager extends EventEmitter
 		{
 			this.reDrawCalendarGrid();
 		});
+
+		window.addEventListener('message', (event) => {
+			if (event.data.title === 'googleOAuthSuccess')
+			{
+				window.location.reload()
+			}
+		});
 	}
 
 	showSyncButton()
@@ -89,7 +96,7 @@ export default class Manager extends EventEmitter
 
 		const sectionsByType = this.sortSections();
 
-		for (let key in syncInfo)
+		for (const key in syncInfo)
 		{
 			switch (syncInfo[key].type)
 			{
@@ -121,6 +128,7 @@ export default class Manager extends EventEmitter
 			}),
 			office365: Office365Provider.createInstance({
 				syncInfo: syncInfo.office365 || {},
+				syncLink: this.syncLinks.office365 || null,
 				mainPanel: true
 			}),
 			icloud: ICloudProvider.createInstance({
@@ -357,7 +365,7 @@ export default class Manager extends EventEmitter
 			return;
 		}
 
-		for (let connectionName in params.syncInfo)
+		for (const connectionName in params.syncInfo)
 		{
 			if (this.syncInfo[connectionName])
 			{
@@ -374,7 +382,7 @@ export default class Manager extends EventEmitter
 
 	addSyncConnection(params)
 	{
-		for (let connectionName in params.syncInfo)
+		for (const connectionName in params.syncInfo)
 		{
 			if (['yandex', 'caldav', 'google'].includes(params.syncInfo[connectionName].type))
 			{
@@ -404,7 +412,7 @@ export default class Manager extends EventEmitter
 			return;
 		}
 
-		for (let connectionName in params.syncInfo)
+		for (const connectionName in params.syncInfo)
 		{
 			if (this.syncInfo[connectionName])
 			{
@@ -422,7 +430,7 @@ export default class Manager extends EventEmitter
 	getProviderById(id)
 	{
 		let connection = undefined;
-		for (let providerName in this.connectionsProviders)
+		for (const providerName in this.connectionsProviders)
 		{
 			if (
 				!this.connectionsProviders[providerName].connected

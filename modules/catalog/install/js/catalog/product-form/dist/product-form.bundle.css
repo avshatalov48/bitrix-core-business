@@ -1232,3 +1232,17 @@ label.ui-ctl-radio-selector {
 .catalog-product-form-popup--creating-shop .main-ui-loader-svg-circle {
 	stroke-width: 3px;
 }
+
+.catalog-product-form-disabled-setting {
+	color: #7e7e7e;
+}
+
+.catalog-product-form-setting-hint {
+	display: inline;
+	margin-left: 5px;
+}
+
+.catalog-product-form-setting-hint .ui-hint-icon {
+	margin-top: 0;
+	vertical-align: middle;
+}

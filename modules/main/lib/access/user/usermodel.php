@@ -11,6 +11,7 @@ namespace Bitrix\Main\Access\User;
 use Bitrix\Main\Access\AccessCode;
 use Bitrix\Main\UserAccessTable;
 use Bitrix\Main\UserTable;
+use Bitrix\Main\Engine\CurrentUser;
 
 abstract class UserModel
 	implements AccessibleUser
@@ -83,8 +84,16 @@ abstract class UserModel
 		}
 		if ($this->isAdmin === null)
 		{
-			$ar = \CUser::GetUserGroup($this->userId);
-			$this->isAdmin = in_array(1, $ar);
+			$currentUser = CurrentUser::get();
+			if ((int) $currentUser->getId() === $this->userId)
+			{
+				$userGroups = $currentUser->getUserGroups();
+			}
+			else
+			{
+				$userGroups = \CUser::GetUserGroup($this->userId);
+			}
+			$this->isAdmin = in_array(1, $userGroups);
 		}
 		return $this->isAdmin;
 	}
@@ -106,7 +115,11 @@ abstract class UserModel
 			]);
 			foreach ($res as $row)
 			{
-				$this->accessCodes[] = (new AccessCode($row['ACCESS_CODE']))->getSignature();
+				$signature = (new AccessCode($row['ACCESS_CODE']))->getSignature();
+				if ($signature)
+				{
+					$this->accessCodes[] = $signature;
+				}
 			}
 
 			// add employee access code

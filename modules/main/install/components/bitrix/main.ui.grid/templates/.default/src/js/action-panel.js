@@ -169,6 +169,8 @@
 
 		createDropdown: function(data, relative)
 		{
+			var emptyText = data.EMPTY_TEXT || '';
+			var isMultiple = data.MULTIPLE === 'Y';
 			var container = this.createContainer(data.ID, relative, {});
 			var dropdown = BX.create('div', {
 				props: {
@@ -178,13 +180,15 @@
 				attrs: {
 					name: data.NAME,
 					'data-name': data.NAME,
+					'data-empty-text': emptyText,
+					'data-multiple': isMultiple ? 'Y' : 'N',
 					'data-items': JSON.stringify(data.ITEMS),
-					'data-value': data.ITEMS[0].VALUE,
+					'data-value': isMultiple ? '' : data.ITEMS[0].VALUE,
 					'data-popup-position': 'fixed'
 				},
 				children: [BX.create('span', {
 					props: {className: 'main-dropdown-inner'},
-					html: data.ITEMS[0].NAME
+					html: isMultiple ? emptyText : data.ITEMS[0].NAME
 				})]
 			});
 
@@ -887,8 +891,9 @@
 					if (self.isDropdown(current))
 					{
 						var dropdownValue = BX.data(current, 'value');
+						var multiple = BX.data(current, 'multiple') === 'Y';
 						dropdownValue = (dropdownValue !== null && dropdownValue !== undefined) ? dropdownValue : '';
-						data[BX.data(current, 'name')] = dropdownValue;
+						data[BX.data(current, 'name')] = multiple ? dropdownValue.split(',') : dropdownValue;
 					}
 
 					if (self.isSelect(current))

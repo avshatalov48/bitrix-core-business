@@ -2,9 +2,12 @@
 
 namespace Bitrix\Sale\Reservation\Internals;
 
-use Bitrix\Main;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Sale\Internals\BasketTable;
 
-class BasketReservationTable extends Main\Entity\DataManager
+class BasketReservationTable extends DataManager
 {
 	public static function getTableName()
 	{
@@ -41,6 +44,8 @@ class BasketReservationTable extends Main\Entity\DataManager
 			'STORE_ID' => [
 				'data_type' => 'integer',
 			],
+			// refs
+			new Reference('BASKET', BasketTable::class, Join::on('this.BASKET_ID', 'ref.ID')),
 		];
 	}
 }

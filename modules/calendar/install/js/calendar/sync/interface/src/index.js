@@ -8,6 +8,8 @@ import MobileSyncBanner from "./controls/mobilesyncbanner";
 import CaldavTemplate from "./itemstemplate/caldavtemplate";
 import ExchangeTemplate from "./itemstemplate/exchangetemplate";
 import GoogleTemplate from "./itemstemplate/googletemplate";
+import IcloudTemplate from "./itemstemplate/icloudtemplate";
+import Office365template from "./itemstemplate/office365template";
 import MacTemplate from "./itemstemplate/mactemplate";
 import OutlookTemplate from "./itemstemplate/outlooktemplate";
 import YandexTemplate from "./itemstemplate/yandextemplate";
@@ -28,9 +30,11 @@ export {
 	MacTemplate,
 	ExchangeTemplate,
 	GoogleTemplate,
+	IcloudTemplate,
 	OutlookTemplate,
 	IphoneTemplate,
 	AndroidTemplate,
 	IcalSyncPopup,
-	AfterSyncTour
+	AfterSyncTour,
+	Office365template
 };

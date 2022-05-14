@@ -27,6 +27,17 @@
 		return property.Options ? property.Options : {};
 	};
 
+	var getPlaceholder = function (property)
+	{
+		let placeholder = '';
+		if (!BX.Type.isUndefined(property.Placeholder))
+		{
+			placeholder = String(property.Placeholder);
+		}
+
+		return placeholder;
+	}
+
 	var FieldType = {
 		renderControl: function (documentType, property, fieldName, value, renderMode) {
 			if (!renderMode || renderMode === 'public')
@@ -81,23 +92,6 @@
 					});
 				}
 			}
-			else if (property['Type'] === 'user')
-			{
-				node = BX.create('div', {
-					children: [
-						BX.create('div', {attrs: {
-							className: 'bizproc-type-control bizproc-type-control-user',
-							'data-role': 'user-selector',
-							'data-config': JSON.stringify({
-								valueInputName: fieldName,
-								value: value,
-								multiple: (property.Multiple === true),
-								required: (property.Required === true)
-							})
-						}})
-					]
-				});
-			}
 			else
 			{
 				node = BX.create('div', {text: '...'});
@@ -124,6 +118,11 @@
 						}
 					}.bind(this)
 				);
+
+				if (property['Type'] === 'user')
+				{
+					needInit = false;
+				}
 			}
 
 			if (needInit && node)
@@ -477,7 +476,8 @@
 					className: 'bizproc-type-control bizproc-type-control-' + type
 						+ (isMultiple(property) ? ' bizproc-type-control-multiple' : ''),
 					'data-role': 'inline-selector-target',
-					'data-selector-type': type
+					'data-selector-type': type,
+					placeholder: getPlaceholder(property),
 				},
 				props: {
 					type: 'text',
@@ -543,7 +543,8 @@
 				attrs: {
 					className: 'bizproc-type-control bizproc-type-control-int'
 						+ (isMultiple(property) ? ' bizproc-type-control-multiple' : ''),
-					'data-role': 'inline-selector-target'
+					'data-role': 'inline-selector-target',
+					placeholder: getPlaceholder(property),
 				},
 				props: {
 					type: 'text',
@@ -558,7 +559,8 @@
 				attrs: {
 					className: 'bizproc-type-control bizproc-type-control-string'
 						+ (isMultiple(property) ? ' bizproc-type-control-multiple' : ''),
-					'data-role': 'inline-selector-target'
+					'data-role': 'inline-selector-target',
+					placeholder: getPlaceholder(property),
 				},
 				props: {
 					type: 'text',
@@ -634,7 +636,8 @@
 						+ (isMultiple(property) ? ' bizproc-type-control-multiple' : ''),
 					'data-role': 'inline-selector-target',
 					rows: 5,
-					cols: 40
+					cols: 40,
+					placeholder: getPlaceholder(property),
 				},
 				props: {
 					name: fieldName + (isMultiple(property) ? '[]' : ''),
@@ -749,18 +752,17 @@
 		},
 		getDocumentFields: function()
 		{
-			var fields = [];
-			var dlg = BX.Bizproc.Automation && BX.Bizproc.Automation.Designer.getRobotSettingsDialog();
-			if (dlg && dlg.robot.component)
+			const component = BX.Bizproc.Automation && BX.Bizproc.Automation.Designer.component;
+			if (component)
 			{
-				fields = dlg.robot.component.data['DOCUMENT_FIELDS'];
+				return component.data['DOCUMENT_FIELDS'];
 			}
-			if (!fields.length && BX.Bizproc.Automation && BX.Bizproc.Automation.API.documentFields)
+			if (BX.Bizproc.Automation && BX.Bizproc.Automation.API.documentFields)
 			{
-				fields = BX.Bizproc.Automation.API.documentFields;
+				return BX.Bizproc.Automation.API.documentFields;
 			}
 
-			return fields;
+			return [];
 		},
 		getDocumentUserGroups: function()
 		{

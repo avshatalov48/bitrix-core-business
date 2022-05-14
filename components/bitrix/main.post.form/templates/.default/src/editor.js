@@ -1,7 +1,7 @@
 import {Type, Dom, Runtime} from 'main.core';
 import {EventEmitter, BaseEvent} from 'main.core.events';
 import getKnownParser from './parsers/index';
-import {showPinButton, bindAutoSave, bindHTML, bindToolbar,
+import {bindAutoSave, bindHTML, bindToolbar,
 	customizeHTMLEditor, showPanelEditor, showUrlPreview
 } from './view-utils/index';
 import Toolbar from './toolbar';
@@ -21,8 +21,6 @@ export default class Editor
 		ctrlEnterHandler: null,
 		parsers: null,
 		showPanelEditor: false,
-		showPinButton: false,
-		pinEditorPanel: false,
 		lazyLoad: true,
 		urlPreviewId: null,
 		tasksLimitExceeded: false,
@@ -40,7 +38,6 @@ export default class Editor
 			height: 100,
 			ctrlEnterHandler: null,
 			showPanelEditor: false,
-			pinEditorPanel: false,
 			lazyLoad: true,
 			urlPreviewId: null,
 			tasksLimitExceeded: false,
@@ -380,7 +377,6 @@ export default class Editor
 		});
 
 		//region Visible customization
-		showPinButton(htmlEditor, this.editorParams);
 		showPanelEditor(this, htmlEditor, this.editorParams);
 		showUrlPreview(htmlEditor, this.editorParams);
 

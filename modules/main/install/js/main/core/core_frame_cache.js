@@ -404,7 +404,15 @@
 
 		BX.onCustomEvent("onFrameDataReceived", [json]);
 
-		if (json.isManifestUpdated == "1" && this.vars.CACHE_MODE === "APPCACHE")//the manifest has been changed
+		if (
+			json.isManifestUpdated == "1"
+			&& this.vars.CACHE_MODE === "APPCACHE"
+			&& window.applicationCache
+			&& (
+				window.applicationCache.status == window.applicationCache.IDLE
+				|| window.applicationCache.status == window.applicationCache.UPDATEREADY
+			)
+		) //the manifest has been changed
 		{
 			window.applicationCache.update();
 		}

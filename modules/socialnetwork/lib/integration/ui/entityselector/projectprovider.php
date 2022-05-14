@@ -260,7 +260,13 @@ class ProjectProvider extends BaseProvider
 		$siteId = !empty($options['siteId']) && is_string($options['siteId']) ? $options['siteId'] : SITE_ID;
 		$query->where('PROJECT_SITE.SITE_ID', $siteId);
 
-		if (!isset($options['myProjectsOnly']) || $options['myProjectsOnly'] === true)
+		if (
+			(
+				!isset($options['myProjectsOnly'])
+				|| $options['myProjectsOnly'] === true
+			)
+			&& !\CSocNetUser::isCurrentUserModuleAdmin()
+		)
 		{
 			$query->registerRuntimeField(
 				new Reference(
@@ -335,11 +341,7 @@ class ProjectProvider extends BaseProvider
 			{
 				foreach ($options[$projectFilter] as $id)
 				{
-					$id = (int)$id;
-					if ($id > 0)
-					{
-						$projectIds[] = $id;
-					}
+					$projectIds[] = (int)$id;
 				}
 
 				$projectIds = array_unique($projectIds);
@@ -369,7 +371,11 @@ class ProjectProvider extends BaseProvider
 			}
 		}
 
-		if ($projectFilter === 'projectId' && count($projectIds) > 1 && empty($options['order']))
+		if (
+			$projectFilter === 'projectId'
+			&& empty($options['order'])
+			&& count($projectIds) > 1
+		)
 		{
 			$query->registerRuntimeField(
 				new ExpressionField(

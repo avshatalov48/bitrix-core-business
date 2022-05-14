@@ -74,9 +74,15 @@ class BlogPost extends Provider
 			$cache[$postId] = $post;
 		}
 
+		if (empty($post))
+		{
+			return;
+		}
+
+		$checkAccess = ($this->getOption('checkAccess') !== false);
 		if (
-			empty($post)
-			|| !self::canRead([
+			$checkAccess
+			&& !self::canRead([
 				'POST' => $post
 			])
 		)

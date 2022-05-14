@@ -1,8 +1,18 @@
 (function (exports,main_core,main_loader,ui_dialogs_messagebox,ui_userfield,ui_buttons) {
 	'use strict';
 
-	function _templateObject4() {
+	function _templateObject5() {
 	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"main-user-field-enum-row-list-target\"></div>"]);
+
+	  _templateObject5 = function _templateObject5() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject4() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"main-user-field-enum-row-drag-target\"></div>"]);
 
 	  _templateObject4 = function _templateObject4() {
 	    return data;
@@ -12,7 +22,7 @@
 	}
 
 	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"main-user-field-enum-row-drag-target\"></div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<option ", " value=\"", "\" data-id=\"", "\">", "</option>"]);
 
 	  _templateObject3 = function _templateObject3() {
 	    return data;
@@ -22,7 +32,7 @@
 	}
 
 	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<option ", " value=\"", "\" data-id=\"", "\">", "</option>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"main-user-field-enum-row\" data-role=\"main-user-field-enum-row\">\n\t\t\t\t\t\t<div class=\"main-user-field-enum-row-inner ui-ctl ui-ctl-textbox ui-ctl-w100 ui-ctl-row\">\n\t\t\t\t\t\t\t<span class=\"main-user-field-enum-row-draggable\" style=\"\"></span>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t<div class=\"main-user-field-enum-delete\" onclick=\"", "\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>"]);
 
 	  _templateObject2 = function _templateObject2() {
 	    return data;
@@ -32,7 +42,7 @@
 	}
 
 	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"main-user-field-enum-row\" data-role=\"main-user-field-enum-row\">\n\t\t\t\t\t\t<div class=\"main-user-field-enum-row-inner ui-ctl ui-ctl-textbox ui-ctl-w100 ui-ctl-row\">\n\t\t\t\t\t\t\t<span class=\"main-user-field-enum-row-draggable\" style=\"\"></span>\n\t\t\t\t\t\t\t<input class=\"ui-ctl-element\" type=\"text\" name=\"ENUM[][VALUE]\" value=\"\" data-role=\"main-user-field-enum-value\" onchange=\"", "\">\n\t\t\t\t\t\t\t<div class=\"main-user-field-enum-delete\" onclick=\"", "\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<input class=\"ui-ctl-element\" type=\"text\" name=\"ENUM[][VALUE]\" value=\"\"\n\t\t\t\t\t\t\t\t data-role=\"main-user-field-enum-value\"\n\t\t\t\t\t\t\t\t onchange=\"", "\">"]);
 
 	  _templateObject = function _templateObject() {
 	    return data;
@@ -161,6 +171,10 @@
 	      Array.from(this.tabs.keys()).forEach(function (tabName) {
 	        if (tabName === name) {
 	          _this2.tabs.get(tabName).classList.add('main-user-field-edit-tab-current');
+
+	          if (name === 'list') {
+	            _this2.syncEnumDefaultSelector();
+	          }
 	        } else {
 	          _this2.tabs.get(tabName).classList.remove('main-user-field-edit-tab-current');
 	        }
@@ -279,6 +293,17 @@
 	        var options = Array.from(input.querySelectorAll('option'));
 	        var index = input.selectedIndex;
 	        return options[index];
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "getSelectedOptions",
+	    value: function getSelectedOptions(inputName) {
+	      var input = this.getInput(inputName);
+
+	      if (input && input instanceof HTMLSelectElement) {
+	        return input.selectedOptions;
 	      }
 
 	      return null;
@@ -439,16 +464,10 @@
 	      var userTypeId = this.getInputValue('userTypeId');
 
 	      if (userTypeId === 'enumeration') {
-	        var selectedDefaultIndex = 0;
-	        var enumDefault = this.getInput('enumDefault');
-
-	        if (enumDefault) {
-	          selectedDefaultIndex = enumDefault.selectedIndex;
-	        }
-
+	        this.syncEnumDefaultSelector();
+	        var selectedAttributes = this.getSelectedEnumDefaultAttributes();
 	        var sortStep = 100;
 	        var sort = 0;
-	        var index = 1;
 	        var rows = Array.from(this.container.querySelectorAll('[data-role="main-user-field-enum-row"]'));
 	        rows.forEach(function (row) {
 	          var input = row.querySelector('[data-role="main-user-field-enum-value"]');
@@ -457,21 +476,21 @@
 	            return;
 	          }
 
+	          var id = main_core.Text.toInteger(row.dataset['id']);
+	          var value = input.value;
 	          var def = 'N';
 
-	          if (selectedDefaultIndex === index) {
+	          if (id > 0 && selectedAttributes.id.includes(id) || selectedAttributes.value.includes(value)) {
 	            def = 'Y';
 	          }
 
 	          sort += sortStep;
-	          var id = main_core.Text.toInteger(row.dataset['id']);
 	          list.push({
 	            value: input.value,
 	            def: def,
 	            sort: sort,
 	            id: id
 	          });
-	          index++;
 	        });
 	      }
 
@@ -697,8 +716,10 @@
 	      var addEnum = this.container.querySelector('[data-role="main-user-field-enum-add"]');
 
 	      if (addEnum) {
-	        var row = main_core.Tag.render(_templateObject(), this.syncEnumDefaultSelector.bind(this), this.deleteEnumRow.bind(this));
+	        var input = main_core.Tag.render(_templateObject(), this.syncEnumDefaultSelector.bind(this));
+	        var row = main_core.Tag.render(_templateObject2(), input, this.deleteEnumRow.bind(this));
 	        main_core.Dom.append(row, document.querySelector('.main-user-field-enum-row-list'));
+	        input.focus();
 	        var item = new DragDropItem();
 	        item.init(row);
 	      }
@@ -709,6 +730,27 @@
 	      var target = _ref.target;
 	      main_core.Dom.remove(target.parentElement);
 	      this.syncEnumDefaultSelector();
+	    }
+	  }, {
+	    key: "getSelectedEnumDefaultAttributes",
+	    value: function getSelectedEnumDefaultAttributes() {
+	      var result = {
+	        id: [],
+	        value: []
+	      };
+	      var selectedDefaultOptions = this.getSelectedOptions('enumDefault');
+
+	      if (selectedDefaultOptions) {
+	        Array.from(selectedDefaultOptions).forEach(function (option) {
+	          if (option.dataset['id'] && option.dataset['id'] > 0) {
+	            result['id'].push(main_core.Text.toInteger(option.dataset['id']));
+	          } else {
+	            result['value'].push(option.value);
+	          }
+	        });
+	      }
+
+	      return result;
 	    }
 	  }, {
 	    key: "syncEnumDefaultSelector",
@@ -722,18 +764,22 @@
 	          return;
 	        }
 
-	        var selectedId;
-	        var selectedValue;
-	        var selectedDefaultOption = this.getSelectedOption('enumDefault');
+	        var isMultiple = this.getInputValue('multiple');
 
-	        if (selectedDefaultOption) {
-	          if (selectedDefaultOption.dataset['id']) {
-	            selectedId = main_core.Text.toInteger(selectedDefaultOption.dataset['id']);
-	          } else {
-	            selectedValue = selectedDefaultOption.value;
-	          }
+	        if (isMultiple === 'Y') {
+	          selector.multiple = true;
+	          selector.size = 3;
+	          selector.parentElement.classList.add('ui-ctl-multiple-select');
+	          selector.parentElement.classList.remove('ui-ctl-after-icon');
+	          selector.parentElement.classList.remove('ui-ctl-dropdown');
+	        } else {
+	          selector.multiple = false;
+	          selector.parentElement.classList.remove('ui-ctl-multiple-select');
+	          selector.parentElement.classList.add('ui-ctl-after-icon');
+	          selector.parentElement.classList.add('ui-ctl-dropdown');
 	        }
 
+	        var selectedAttributes = this.getSelectedEnumDefaultAttributes();
 	        var options = Array.from(selector.querySelectorAll('option'));
 	        options.forEach(function (option) {
 	          if (option.value !== 'empty') {
@@ -750,10 +796,10 @@
 	          }
 
 	          var value = input.value;
-	          var selected = id > 0 && id === selectedId || value === selectedValue;
+	          var selected = id > 0 && selectedAttributes.id.includes(id) || selectedAttributes.value.includes(value);
 
 	          if (value.length > 0) {
-	            selector.appendChild(main_core.Tag.render(_templateObject2(), selected ? 'selected="selected"' : '', main_core.Text.encode(value), id, main_core.Text.encode(value)));
+	            selector.appendChild(main_core.Tag.render(_templateObject3(), selected ? 'selected="selected"' : '', main_core.Text.encode(value), id, main_core.Text.encode(value)));
 	          }
 	        });
 	      }
@@ -870,7 +916,7 @@
 	    key: "getDragTarget",
 	    value: function getDragTarget() {
 	      if (!this.dragTarget) {
-	        this.dragTarget = main_core.Tag.render(_templateObject3());
+	        this.dragTarget = main_core.Tag.render(_templateObject4());
 	        main_core.Dom.prepend(this.dragTarget, this.itemContainer);
 	      }
 
@@ -930,7 +976,7 @@
 	    key: "getDragTarget",
 	    value: function getDragTarget() {
 	      if (!this.dragTarget) {
-	        this.dragTarget = main_core.Tag.render(_templateObject4());
+	        this.dragTarget = main_core.Tag.render(_templateObject5());
 	        main_core.Dom.append(this.dragTarget, this.container);
 	      }
 

@@ -31,6 +31,7 @@ $MESS['STATUS_BUTTON_CONNECT'] = 'Подключить календари';
 $MESS['STATUS_BUTTON_SYNC_CALENDAR'] = 'Синхронизировать календарь';
 $MESS['ADD_MENU_CONNECTION'] = 'Добавить календарь';
 $MESS['CAL_CONNECT_GOOGLE_CALENDAR'] = 'Подключение Google календаря';
+$MESS['CAL_CONNECT_OFFICE365_CALENDAR'] = 'Подключение Office365 календаря';
 $MESS['CAL_CONNECT_YANDEX_CALENDAR'] = 'Подключение Яндекс.Календаря';
 $MESS['CAL_CONNECT_CALDAV_CALENDAR'] = 'Подключение внешнего календаря';
 $MESS['CAL_CONNECT_ANDROID_CALENDAR_TITLE'] = 'Синхронизация календаря на Android';
@@ -95,6 +96,8 @@ $MESS['CAL_TEXT_ALERT_TECH_PROBLEM'] = 'Обратитесь, пожалуйст
 $MESS['CAL_TEXT_ALERT_INCORRECT_PARAMETERS'] = 'Проверьте правильность введенных данных и повторите попытку';
 $MESS['CAL_ANDROID_QR_CODE_HINT'] = 'В зависимости от устройства, отсканировать QR код можно с помощью камеры или отдельного приложения';
 $MESS['GOOGLE_IS_NOT_CALDAV_SETTINGS_WARNING_MESSAGE'] = 'Для подключения и настройки календаря Google обратитесь к администратору вашего портала.';
+$MESS['CAL_CONFIRM_SYNC_DISCONNECT'] = 'Вы действительно хотите отключить синхронизацию?';
+$MESS['CAL_KEEP_DATA_AFTER_SYNC_DISCONNECT'] = 'Оставить данные';
 
 $MESS['CAL_SYNC_TITLE'] = 'Синхронизация календарей';
 $MESS['CAL_SYNC_SUB_TITLE'] = 'Следите за встречами и событиями в календаре Битрикс24';

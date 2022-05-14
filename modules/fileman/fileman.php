@@ -110,7 +110,7 @@ class CFileMan
 		$main_sort = 100;
 
 		$full_src = "";
-		$default_edit = COption::GetOptionString("fileman", "default_edit", "html");
+		$default_edit = COption::GetOptionString("fileman", "default_edit");
 		if($default_edit == "php")
 		{
 			$editor_type = "file";

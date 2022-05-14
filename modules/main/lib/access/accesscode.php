@@ -50,42 +50,83 @@ class AccessCode
 
 	private $accessCode;
 
+	private $parsed = false;
 	private $entityType = self::TYPE_OTHER;
 	private $entityPrefix = '';
 	private $entityId = 0;
 
+	/**
+	 * @param $code
+	 * @return bool
+	 */
+	public static function isValid($code): bool
+	{
+		foreach (self::$map as $pattern => $type)
+		{
+			if (preg_match('/'. $pattern .'/', $code, $matches))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param string $accessCode
+	 */
 	public function __construct(string $accessCode)
 	{
 		$this->accessCode = $accessCode;
 		$this->parse();
 	}
 
-	public function getSignature()
+	/**
+	 * @return string|null
+	 */
+	public function getSignature(): ?string
 	{
+		if (!$this->parsed)
+		{
+			return null;
+		}
 		return $this->entityPrefix . $this->entityId;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getEntityType(): string
 	{
 		return $this->entityType;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getEntityPrefix(): string
 	{
 		return $this->entityPrefix;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getEntityId(): int
 	{
 		return $this->entityId;
 	}
 
+	/**
+	 * @return void
+	 */
 	private function parse()
 	{
 		foreach (self::$map as $pattern => $type)
 		{
 			if (preg_match('/'. $pattern .'/', $this->accessCode, $matches))
 			{
+				$this->parsed = true;
 				$this->entityType = $type;
 				$this->entityPrefix = (string) $matches[1];
 				if (array_key_exists('2', $matches))
@@ -95,19 +136,5 @@ class AccessCode
 				return;
 			}
 		}
-	}
-
-	public static function isValid($code)
-	{
-		$valid = false;
-		foreach (self::$map as $pattern => $type)
-		{
-			if (preg_match('/'. $pattern .'/', $code, $matches))
-			{
-				$valid = true;
-			}
-		}
-
-		return $valid;
 	}
 }

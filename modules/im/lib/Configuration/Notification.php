@@ -38,6 +38,8 @@ class Notification extends Base
 		'PUSH' => 4,
 	];
 
+	private const CHUNK_LENGTH = 1000;
+
 	/**
 	 * @param string $module
 	 * @param string $name
@@ -164,37 +166,18 @@ class Notification extends Base
 
 		$value = $defaultSettings[$encodedSetting] === 'Y' ? 'Y' : 'N';
 
-		$query =
-			OptionUserTable::query()
-				->addSelect('USER_ID')
-				->registerRuntimeField(
-					'USER',
-					new Reference(
-						'USER',
-						UserTable::class,
-						Join::on('this.USER_ID', 'ref.ID'),
-						['join_type' => Join::TYPE_INNER]
-					)
-				)
-				->registerRuntimeField(
-					'OPTION_STATE',
-					new Reference(
-						'OPTION_STATE',
-						OptionStateTable::class,
-						Join::on('this.NOTIFY_GROUP_ID', 'ref.GROUP_ID')
-							->where('ref.NAME', $encodedSetting),
-						['join_type' => Join::TYPE_LEFT]
-					)
-				)
-				->whereExpr("IFNULL(%s, '$value') = 'Y'", ['OPTION_STATE.VALUE'])
-				->whereIn('USER_ID', $userList)
-				->where('USER.ACTIVE', 'Y')
-				->where('USER.IS_REAL_USER', 'Y');
-
 		$filteredUsers = [];
-		foreach ($query->exec() as $user)
+		if (count($userList) < 1000)
 		{
-			$filteredUsers[] = (int)$user['USER_ID'];
+			$filteredUsers = $this->filterChunk($userList, $encodedSetting, $value);
+		}
+		else
+		{
+			$chunkList = array_chunk($userList, self::CHUNK_LENGTH);
+			foreach ($chunkList as $chunk)
+			{
+				$filteredUsers = array_merge($filteredUsers, $this->filterChunk($chunk, $encodedSetting, $value));
+			}
 		}
 
 		if ($type !== self::PUSH)
@@ -221,6 +204,44 @@ class Notification extends Base
 		}
 
 		return array_unique($filteredUsers);
+	}
+
+	private function filterChunk(array $userListChunk, $encodedSettingName, $value): array
+	{
+		$query =
+			OptionUserTable::query()
+				->addSelect('USER_ID')
+				->registerRuntimeField(
+					'USER',
+					new Reference(
+						'USER',
+						UserTable::class,
+						Join::on('this.USER_ID', 'ref.ID'),
+						['join_type' => Join::TYPE_INNER]
+					)
+				)
+				->registerRuntimeField(
+					'OPTION_STATE',
+					new Reference(
+						'OPTION_STATE',
+						OptionStateTable::class,
+						Join::on('this.NOTIFY_GROUP_ID', 'ref.GROUP_ID')
+							->where('ref.NAME', $encodedSettingName),
+						['join_type' => Join::TYPE_LEFT]
+					)
+				)
+				->whereExpr("IFNULL(%s, '$value') = 'Y'", ['OPTION_STATE.VALUE'])
+				->whereIn('USER_ID', $userListChunk)
+				->where('USER.ACTIVE', 'Y')
+				->where('USER.IS_REAL_USER', 'Y');
+
+		$filteredUsers = [];
+		foreach ($query->exec() as $user)
+		{
+			$filteredUsers[] = (int)$user['USER_ID'];
+		}
+
+		return $filteredUsers;
 	}
 
 	/**

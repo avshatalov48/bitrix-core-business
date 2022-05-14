@@ -125,9 +125,9 @@ export class BarcodeSearchInput extends ProductSearchInput
 				entities: [entity]
 			};
 
-			if (this.model.getProductId() && !Type.isStringFilled(this.model.getField(this.inputName)))
+			if (this.model.getSkuId() && !Type.isStringFilled(this.model.getField(this.inputName)))
 			{
-				params.preselectedItems = [[BarcodeSearchInput.SEARCH_TYPE_ID, this.model.getProductId()]];
+				params.preselectedItems = [[BarcodeSearchInput.SEARCH_TYPE_ID, this.model.getSkuId()]];
 			}
 
 			if (Type.isObject(this.settingsCollection.get('limitInfo')))
@@ -176,17 +176,7 @@ export class BarcodeSearchInput extends ProductSearchInput
 			const closeIcon = Tag.render`<span class="popup-window-close-icon"></span>`;
 			Event.bind(closeIcon, 'click', this.closeMobilePopup.bind(this));
 
-			const sendButton = Tag.render`
-					<a class="product-selector-mobile-popup-link ui-btn ui-btn-link">
-						${Loc.getMessage('CATALOG_SELECTOR_MOBILE_POPUP_SEND_PUSH_BUTTON')}
-					</a>
-				`;
-
-			Event.bind(sendButton, 'click', (event) => {
-				this.closeMobilePopup();
-				this.sendMobilePush(event);
-			});
-
+			let sendButton = '';
 			let helpButton = '';
 			if (top.BX.Helper)
 			{
@@ -197,6 +187,16 @@ export class BarcodeSearchInput extends ProductSearchInput
 				`;
 				Event.bind(helpButton, 'click', () => {
 					top.BX.Helper.show("redirect=detail&code=14956818");
+				});
+
+				sendButton = Tag.render`
+					<a class="product-selector-mobile-popup-link ui-btn ui-btn-link">
+						${Loc.getMessage('CATALOG_SELECTOR_MOBILE_POPUP_SEND_PUSH_BUTTON')}
+					</a>
+				`;
+
+				Event.bind(sendButton, 'click', () => {
+					top.BX.Helper.show("redirect=detail&code=15042444");
 				});
 			}
 
@@ -223,7 +223,22 @@ export class BarcodeSearchInput extends ProductSearchInput
 	closeMobilePopup()
 	{
 		this.removeQrAuth();
-		this.selector.emit('onBarcodeQrClose', {});
+
+		ajax
+			.runAction(
+				'catalog.ProductSelector.isInstalledMobileApp',
+				{
+					json: {}
+				}
+			)
+			.then((result) => {
+				if (result.data === true)
+				{
+					this.selector.emit('onBarcodeQrClose', {});
+				}
+			})
+		;
+
 		userOptions.save('product-selector', 'barcodeQrAuth', 'showed', 'Y');
 	}
 
@@ -299,7 +314,7 @@ export class BarcodeSearchInput extends ProductSearchInput
 		{
 			if (searchQuery === '')
 			{
-				dialog.setPreselectedItems([[BarcodeSearchInput.SEARCH_TYPE_ID, this.model.getProductId()]])
+				dialog.setPreselectedItems([[BarcodeSearchInput.SEARCH_TYPE_ID, this.model.getSkuId()]])
 				dialog.loadState = 'UNSENT';
 				dialog.load();
 			}

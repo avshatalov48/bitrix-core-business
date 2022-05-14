@@ -5,6 +5,7 @@ import {Dom, Loc, Tag, Event} from "main.core";
 import {InterfaceTemplate} from "./interfacetemplate";
 import ConnectionControls from "../controls/connectioncontrols";
 import { MessageBox } from 'ui.dialogs.messagebox';
+import {Popup} from "main.popup";
 
 export default class GoogleTemplate extends InterfaceTemplate
 {
@@ -38,7 +39,16 @@ export default class GoogleTemplate extends InterfaceTemplate
 			}
 		});
 
-		BX.util.popup(this.provider.getSyncLink(), 500, 600);
+		const childWindow = BX.util.popup(this.provider.getSyncLink(), 500, 600);
+
+
+		debugger;
+		Event.bind(childWindow, 'hashchange', (event) => {
+			debugger;
+			// eslint-disable-next-line no-console
+			console.log('hashchange');
+
+		});
 	}
 
 	getContentInfoBody()
@@ -72,7 +82,7 @@ export default class GoogleTemplate extends InterfaceTemplate
 		const disconnectButton = formObject.getDisconnectButton();
 		disconnectButton.addEventListener('click', (event) => {
 			event.preventDefault();
-			this.sendRequestRemoveConnection(this.connection.getId())
+			this.sendRequestRemoveConnection(this.connection.getId());
 		});
 
 		return Tag.render`

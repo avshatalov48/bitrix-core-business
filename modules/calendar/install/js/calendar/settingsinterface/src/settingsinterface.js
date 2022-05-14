@@ -458,22 +458,11 @@ export class SettingsInterface
 			userSettings.denyBusyInvitation = this.DOM.denyBusyInvitation.checked ? 1 : 0;
 		}
 
-		if(this.DOM.timezoneSelect)
-		{
-			userSettings.userTimezoneName = this.DOM.timezoneSelect.value;
-		}
+		userSettings.userTimezoneName = this.DOM.timezoneSelect
+			? this.DOM.timezoneSelect.value
+			: userSettings.timezoneName;
 
-		// if(this.DOM.syncPeriodPast)
-		// {
-		// 	userSettings.syncPeriodPast = this.DOM.syncPeriodPast.value;
-		// }
-		//
-		// if(this.DOM.syncPeriodFuture)
-		// {
-		// 	userSettings.syncPeriodFuture = this.DOM.syncPeriodFuture.value;
-		// }
-
-		if(this.emailSelectorControl)
+		if (this.emailSelectorControl)
 		{
 			userSettings.sendFromEmail = this.emailSelectorControl.getValue();
 		}

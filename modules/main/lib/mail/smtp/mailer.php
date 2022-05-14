@@ -12,6 +12,8 @@ use Bitrix\Main\Error;
 use Bitrix\Main\HttpApplication;
 use Bitrix\Main\Mail\Context;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Mail\Sender;
+use Bitrix\Main\Mail\SenderSendCounter;
 use PHPMailer\PHPMailer\PHPMailer;
 use Bitrix\Main\Diag\FileLogger;
 
@@ -183,7 +185,20 @@ class Mailer extends PHPMailer
 		$this->setMIMEBody($message);
 		$this->setMIMEHeader($additional_headers);
 
-		return $this->postSend();
+		$canSend = $this->checkLimit();
+		if (!$canSend)
+		{
+			return false;
+		}
+
+		$sendResult = $this->postSend();
+
+		if ($sendResult)
+		{
+			$this->increaseLimit();
+		}
+
+		return $sendResult;
 	}
 
 	private function prepareCCRecipients($additional_headers)
@@ -310,6 +325,39 @@ class Mailer extends PHPMailer
 
 		$errors->setError(new Error(Loc::getMessage('main_mail_smtp_connection_failed')));
 		return false;
+	}
+
+	private function checkLimit(): bool
+	{
+		$from = self::parseAddresses($this->From)[0]['address'];
+		$count = count($this->getAllRecipientAddresses());
+
+		$emailCounter = new SenderSendCounter();
+		$emailDailyLimit = Sender::getEmailLimit($from);
+		if($emailDailyLimit
+			&& ($emailCounter->get($from) + $count) > $emailDailyLimit)
+		{
+			//daily limit exceeded
+			return false;
+		}
+
+		return true;
+	}
+
+	private function increaseLimit()
+	{
+		$from = self::parseAddresses($this->From)[0]['address'];
+		$emailDailyLimit = Sender::getEmailLimit($from);
+
+		if (!$emailDailyLimit)
+		{
+			return;
+		}
+
+		$emailCounter = new SenderSendCounter();
+		$count = count($this->getAllRecipientAddresses());
+
+		$emailCounter->increment($from, $count);
 	}
 
 	/**

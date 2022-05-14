@@ -12,6 +12,7 @@ use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type;
 
+
 class CCalendarSync
 {
 	public const SYNC_TIME = 259200;//3 days
@@ -127,29 +128,17 @@ class CCalendarSync
 			$googleCalendars = $googleApiConnection->getCalendarItems();
 		}
 
-		$localCalendars = self::getCalendarsByUserId((int)$connectionData['ENTITY_ID']);
+		[
+			$localSections,
+			$localSectionIndex,
+			$sectionsToSendToGoogle
+		] = self::sortLocalSections(self::getCalendarsByUserId((int)$connectionData['ENTITY_ID']));
 
-		$localSections = [];
-		$localSectionIndex = [];
-		foreach ($localCalendars as $section)
+		if ($sectionsToSendToGoogle)
 		{
-			if ($section['GAPI_CALENDAR_ID'])
-			{
-				if (!isset($localSectionIndex[$section['GAPI_CALENDAR_ID']]))
-				{
-					$localSections[] = $section;
-					$localSectionIndex[$section['GAPI_CALENDAR_ID']] = count($localSections) - 1;
-				}
-				else
-				{
-					CCalendarSect::Delete($section["ID"], false);
-					PushTable::delete(['ENTITY_TYPE' => 'SECTION', 'ENTITY_ID' => $section["ID"]]);
-				}
-			}
-			elseif (empty($section['DAV_EXCH_CAL']) && empty($section['CAL_DAV_CON']))
-			{
+			array_map(function ($section) use ($connectionData) {
 				self::sendLocalDataToGoogle($section, (int)$connectionData['ID']);
-			}
+			}, $sectionsToSendToGoogle);
 		}
 
 		if ($googleCalendars)
@@ -479,7 +468,15 @@ class CCalendarSync
 			}
 			if (!empty($arFields['DETAIL_TEXT']))
 			{
-				$arNewFields['DESCRIPTION'] = self::CutAttendeesFromDescription($arFields['DETAIL_TEXT'], self::getAttendeesCodesForCut($currentEvent['ATTENDEES_CODES']));
+				if (empty($arFields['MEETING']['LANGUAGE_ID']))
+				{
+					$arNewFields['MEETING']['LANGUAGE_ID'] = CCalendar::getUserLanguageId((int)$arNewFields['OWNER_ID']);
+				}
+				$arNewFields['DESCRIPTION'] = self::CutAttendeesFromDescription(
+					$arFields['DETAIL_TEXT'],
+					self::getAttendeesCodesForCut($currentEvent['ATTENDEES_CODES']),
+					$arNewFields['MEETING']['LANGUAGE_ID']
+				);
 			}
 
 			$arNewFields["DESCRIPTION"] = CCalendar::ClearExchangeHtml($arNewFields["DESCRIPTION"]);
@@ -1150,8 +1147,19 @@ class CCalendarSync
 		$result = [];
 		if (\Bitrix\Main\Loader::includeModule('socialservices'))
 		{
-			$client = new CSocServGoogleOAuth($userId);
-			$client->getEntityOAuth()->addScope(array('https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.readonly'));
+			if (\CSocServGoogleProxyOAuth::isProxyAuth())
+			{
+				$client = new \CSocServGoogleProxyOAuth($userId);
+			}
+			else
+			{
+				$client = new \CSocServGoogleOAuth($userId);
+			}
+
+			$client->getEntityOAuth()->addScope([
+				'https://www.googleapis.com/auth/calendar',
+				'https://www.googleapis.com/auth/calendar.readonly'
+			]);
 
 			$id = false;
 			if($client->getEntityOAuth()->GetAccessToken())
@@ -1329,16 +1337,15 @@ class CCalendarSync
 	private static function GetPassDates($id, $exDates)
 	{
 		$excludeDates = [];
-		$parameters = array (
+
+		$instances = Internals\EventTable::getList([
 			'filter' => [
 				'=RECURRENCE_ID' => $id,
 			],
 			'select' => [
 				'DATE_FROM'
 			],
-		);
-
-		$instances = Internals\EventTable::getList($parameters)->fetchAll();
+		])->fetchAll();
 
 		foreach ($instances as $instance)
 		{
@@ -1375,19 +1382,30 @@ class CCalendarSync
 	/**
 	 * @param string|null $description
 	 * @param array|null $attendeesCodes
+	 * @param string $languageId
 	 * @return string|null
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	private static function CutAttendeesFromDescription(?string $description, ?array $attendeesCodes): ?string
+	private static function CutAttendeesFromDescription(
+		?string $description,
+		?array $attendeesCodes,
+		?string $languageId
+	): ?string
 	{
 		if (empty($attendeesCodes))
 		{
 			return $description;
 		}
 
+		IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/calendar/lib/sync/googleapisync.php");
+
 		$deleteParts = Util::getAttendees($attendeesCodes, "%");
 		$countSeparators = count($attendeesCodes) - 1;
-		$deleteParts[] = '%' . GetMessage('EC_ATTENDEES_EVENT_TITLE_DESCRIPTION') . ':%';
+		$deleteParts[] = '%' . \Bitrix\Main\Localization\Loc::getMessage('ATTENDEES_EVENT', null, $languageId) . ':%';
 		$description = preg_replace($deleteParts, '', $description, 1);
+
 		return trim(preg_replace("%,%", "", $description, $countSeparators));
 	}
 
@@ -1544,6 +1562,7 @@ class CCalendarSync
 					$newParentData = [
 						'arFields' => array_merge([
 							'ID' => $localEvents[$externalEvent['G_EVENT_ID'] . '@google.com']['ID'],
+							'MEETING' => $localEvents[$externalEvent['G_EVENT_ID'] . '@google.com']['MEETING'],
 						], $externalEvent),
 						'userId' => $localCalendar['OWNER_ID'],
 						'fromWebservice' => true
@@ -1554,9 +1573,15 @@ class CCalendarSync
 						self::$doNotSendToGoogle = false;
 					}
 
+					if (empty($newParentData['arFields']['MEETING']['LANGUAGE_ID']))
+					{
+						$newParentData['arFields']['MEETING']['LANGUAGE_ID'] = CCalendar::getUserLanguageId((int)$newParentData['arFields']['OWNER_ID']);
+					}
+
 					$newParentData['arFields']['DESCRIPTION'] = self::CutAttendeesFromDescription(
 						$newParentData['arFields']['DESCRIPTION'],
-						self::getAttendeesCodesForCut($localEvents[$externalEvent['G_EVENT_ID'] . '@google.com']['ATTENDEES_CODES'])
+						self::getAttendeesCodesForCut($localEvents[$externalEvent['G_EVENT_ID'] . '@google.com']['ATTENDEES_CODES']),
+						$newParentData['arFields']['MEETING']['LANGUAGE_ID']
 					);
 
 					$newParentData['dontSyncParent'] = true;
@@ -1612,11 +1637,24 @@ class CCalendarSync
 							CCalendar::SaveEvent($newParentData);
 						}
 
+						if (empty($externalEvent['MEETING']))
+						{
+							$externalEvent['MEETING'] = !empty($localEvents[$externalEvent['G_EVENT_ID'] . '@google.com']['MEETING'])
+								? $localEvents[$externalEvent['G_EVENT_ID'] . '@google.com']['MEETING']
+								: $localEvents[$externalEvent['DAV_XML_ID']]['MEETING'];
+						}
+
+						if (empty($externalEvent['MEETING']['LANGUAGE_ID']))
+						{
+							$externalEvent['MEETING']['LANGUAGE_ID'] = CCalendar::getUserLanguageId((int)$externalEvent['OWNER_ID']);
+						}
+
 						if (isset($externalEvent['DESCRIPTION']))
 						{
 							$externalEvent['DESCRIPTION'] = self::CutAttendeesFromDescription(
 								$externalEvent['DESCRIPTION'],
-								self::getAttendeesCodesForCut($localEvents[$externalEvent['recurringEventId']]['ATTENDEES_CODES'])
+								self::getAttendeesCodesForCut($localEvents[$externalEvent['recurringEventId']]['ATTENDEES_CODES']),
+								$externalEvent['MEETING']['LANGUAGE_ID']
 							);
 						}
 
@@ -1627,7 +1665,18 @@ class CCalendarSync
 								'SECTIONS' => [$localCalendar['ID']],
 								'DATE_TO' => $externalEvent['DATE_TO'],
 								'SYNC_STATUS' => Google\Dictionary::SYNC_STATUS['success'],
-								'ATTENDEES' => $localEvents[$externalEvent['G_EVENT_ID']. '@google.com']['ATTENDEES'],
+								'ATTENDEES' => !empty($localEvents[$externalEvent['G_EVENT_ID']]['ATTENDEES'])
+									? $localEvents[$externalEvent['G_EVENT_ID']]['ATTENDEES']
+									: $localEvents[$externalEvent['DAV_XML_ID']]['ATTENDEES'],
+								'ATTENDEES_CODES' => !empty($localEvents[$externalEvent['G_EVENT_ID']]['ATTENDEES_CODES'])
+									? $localEvents[$externalEvent['G_EVENT_ID']]['ATTENDEES_CODES']
+									: $localEvents[$externalEvent['DAV_XML_ID']]['ATTENDEES_CODES'],
+								'IS_MEETING' => !empty($localEvents[$externalEvent['G_EVENT_ID']]['IS_MEETING'])
+									? $localEvents[$externalEvent['G_EVENT_ID']]['IS_MEETING']
+									: $localEvents[$externalEvent['DAV_XML_ID']]['IS_MEETING'],
+								'MEETING_STATUS' => !empty($localEvents[$externalEvent['G_EVENT_ID']]['MEETING_STATUS'])
+									? $localEvents[$externalEvent['G_EVENT_ID']]['MEETING_STATUS']
+									: $localEvents[$externalEvent['DAV_XML_ID']]['MEETING_STATUS'],
 							]),
 							'userId' => $localCalendar['OWNER_ID'],
 							'fromWebservice' => true,
@@ -1686,6 +1735,7 @@ class CCalendarSync
 				"PARENT_ID",
 				"IS_MEETING",
 				"MEETING_STATUS",
+				"MEETING",
 				"LOCATION",
 				"RRULE",
 				"EXDATE",
@@ -1708,6 +1758,11 @@ class CCalendarSync
 			if (is_array(static::$attendeeList[$event['PARENT_ID']]))
 			{
 				$event['ATTENDEES'] = array_column(static::$attendeeList[$event['PARENT_ID']], 'id');
+			}
+
+			if (is_string($event['MEETING']))
+			{
+				$event['MEETING'] = unserialize($event['MEETING'], ['allowed_classes' => false]);
 			}
 
 			if (!empty($event['G_EVENT_ID']))
@@ -2069,7 +2124,10 @@ class CCalendarSync
 		$type = $params['type'];
 		$googleAuthLink = self::GetGoogleAuthLink($userId, $type);
 
-		return ['google' => $googleAuthLink];
+		return [
+			'google' => $googleAuthLink,
+			'office365' => '' // TODO: put auth link for office365 here
+		];
 	}
 
 	/**
@@ -2090,7 +2148,15 @@ class CCalendarSync
 				["action", "sessid", "bx_event_calendar_request", "EVENT_ID", "EVENT_DATE", "current_fieldset"]);
 			$curPath = \CHTTP::urlAddParams($curPath, ['googleAuthSuccess' => 'y']);
 
-			$client = new CSocServGoogleOAuth($userId);
+			if (\CSocServGoogleProxyOAuth::isProxyAuth())
+			{
+				$client = new \CSocServGoogleProxyOAuth($userId);
+			}
+			else
+			{
+				$client = new CSocServGoogleOAuth($userId);
+			}
+
 			$client->getEntityOAuth()->addScope([
 				'https://www.googleapis.com/auth/calendar',
 				'https://www.googleapis.com/auth/calendar.readonly'
@@ -2276,30 +2342,38 @@ class CCalendarSync
 	}
 
 	/**
-	 * @param $userId
-	 * @return array|false|mixed
+	 * @param int $userId
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	private static function getCalendarsByUserId(int $userId)
+	private static function getCalendarsByUserId(int $userId): array
 	{
-		global $DB;
-		$sections = [];
-
-		$strSql = "SELECT * FROM b_calendar_section"
-			. " WHERE CAL_TYPE = 'user'"
-			. " AND OWNER_ID = " . $userId
-			. " AND (EXTERNAL_TYPE = 'local'"
-			. " OR (CAL_DAV_CAL IS NULL"
-			. " AND DAV_EXCH_CAL IS NULL))"
-			. " ORDER BY ID DESC;"
+		return Internals\SectionTable::query()
+			->where('CAL_TYPE', 'user')
+			->where('OWNER_ID', $userId)
+			->where(\Bitrix\Main\ORM\Query\Query::filter()
+				->logic('or')
+				->where('EXTERNAL_TYPE', 'local')
+				->where(\Bitrix\Main\ORM\Query\Query::filter()
+					->where(\Bitrix\Main\ORM\Query\Query::filter()
+						->logic('or')
+						->whereNull('DAV_EXCH_CAL')
+						->where('DAV_EXCH_CAL', '')
+					)
+					->where(\Bitrix\Main\ORM\Query\Query::filter()
+						->logic('or')
+						->whereNull('CAL_DAV_CAL')
+						->where('CAL_DAV_CAL', '')
+					)
+				)
+			)
+			->setSelect(['*'])
+			->addOrder('ID', 'DESC')
+			->exec()
+			->fetchAll()
 		;
-		$sectionDb = $DB->Query($strSql);
-
-		while ($section = $sectionDb->Fetch())
-		{
-			$sections[] = $section;
-		}
-
-		return $sections;
 	}
 
 	/**
@@ -2475,5 +2549,46 @@ class CCalendarSync
 				'requestUid' => Util::getRequestUid(),
 			]
 		);
+	}
+
+	/**
+	 * @param array$localCalendars
+	 * @return array
+	 * @throws Exception
+	 */
+	private static function sortLocalSections(array $localCalendars): array
+	{
+		$localSections = [];
+		$localSectionIndex = [];
+		$sectionsToSendToGoogle = [];
+
+		foreach ($localCalendars as $section)
+		{
+			if ($section['GAPI_CALENDAR_ID'])
+			{
+				if (!isset($localSectionIndex[$section['GAPI_CALENDAR_ID']]))
+				{
+					$localSections[] = $section;
+					$localSectionIndex[$section['GAPI_CALENDAR_ID']] = count($localSections) - 1;
+				}
+				else
+				{
+					CCalendarSect::Delete($section["ID"], false);
+					PushTable::delete(
+						[
+							'ENTITY_TYPE' => 'SECTION',
+							'ENTITY_ID' => $section["ID"]
+						]
+					);
+				}
+			}
+			elseif (empty($section['DAV_EXCH_CAL']) && empty($section['CAL_DAV_CON']))
+			{
+				$sectionsToSendToGoogle[] = $section;
+//					self::sendLocalDataToGoogle($section, (int)$connectionData['ID']);
+			}
+		}
+
+		return [$localSections, $localSectionIndex, $sectionsToSendToGoogle];
 	}
 }

@@ -454,16 +454,11 @@
 }
 
 #menu-popup-mail-msg-list-mailbox-menu .menu-popup .menu-popup-item .main-buttons-item-counter {
-	margin: 9px 0 0 5px;
-	height: 18px;
-	right: calc(8px + 9px);
-	border-radius: 30px;
-	background: #f54819;
-	font: bold 11px/18px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
-	color: #fff;
-	text-align: center;
-	min-width: 18px;
-	box-sizing: border-box;
+	padding: 2px 10px 3px 10px;
+}
+
+#menu-popup-mail-msg-list-mailbox-menu .menu-popup .menu-popup-item .main-ui-hide{
+	display:none;
 }
 
 .mail-msg-list-stepper-wrapper .ui-hint .ui-hint-icon {

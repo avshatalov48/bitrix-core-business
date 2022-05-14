@@ -44,7 +44,12 @@ if ($arParams['SHOW_MENU'] != 'Y')
 	return;
 }
 
-if (Type::getCurrentScopeId() === null && Loader::includeModule('crm') && CCrmSaleHelper::isShopAccess())
+if (
+	Type::getCurrentScopeId() === null
+	&& $templatePage !== 'landing_view'
+	&& Loader::includeModule('crm')
+	&& CCrmSaleHelper::isShopAccess()
+)
 {
-	// $APPLICATION->IncludeComponent('bitrix:crm.shop.page.controller', '', []);
+	$APPLICATION->IncludeComponent('bitrix:crm.shop.page.controller', '', []);
 }

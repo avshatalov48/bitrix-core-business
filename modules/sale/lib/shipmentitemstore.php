@@ -451,7 +451,10 @@ class ShipmentItemStore
 			/** @var BasketItem $itemCollection */
 			$basketItem = $itemStoreCollection->getShipmentItem()->getBasketItem();
 
-			if ($basketItem->isBarcodeMulti())
+			/** @var Shipment $shipent */
+			$shipment = $itemStoreCollection->getShipmentItem()->getCollection()->getShipment();
+
+			if ($basketItem->isBarcodeMulti() && $shipment->isShipped())
 			{
 				$result->addError(
 					new ResultError(

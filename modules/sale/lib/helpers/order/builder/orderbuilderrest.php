@@ -326,11 +326,6 @@ class OrderBuilderRest extends OrderBuilder
 		return $this;
 	}
 
-	public function setUser()
-	{
-		return $this;
-	}
-
 	public function setDiscounts()
 	{
 		return $this;

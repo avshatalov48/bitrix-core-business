@@ -4,6 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Landing\Block\Cache;
 use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Landing;
@@ -13,6 +14,7 @@ use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Syspage;
 use \Bitrix\Landing\TemplateRef;
 use \Bitrix\Landing\Rights;
+use Bitrix\Landing\Update\Block\DuplicateImages;
 use \Bitrix\Main\Entity;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\EventManager;
@@ -1244,21 +1246,33 @@ class LandingPubComponent extends LandingBaseComponent
 	 */
 	protected function onBlockPublicView(): void
 	{
-		if ($this->arParams['TYPE'] !== 'KNOWLEDGE' && $this->arParams['TYPE'] !== 'GROUP')
-		{
-			return;
-		}
-
 		$query = $this->request('q');
 		if ($query)
 		{
-			//string $content
-			$eventManager = EventManager::getInstance();
-			$eventManager->addEventHandler('landing', 'onBlockPublicView',
-				function(Event $event) use($query)
+			Cache::disableCache();
+		}
+		$eventManager = EventManager::getInstance();
+		$eventManager->addEventHandler('landing', 'onBlockPublicView',
+			function(Event $event) use($query)
+			{
+				$block = $event->getParameter('block');
+				$outputContent = $event->getParameter('outputContent');
+
+				// UPDATE block
+				$blockUpdater = new DuplicateImages(null, [
+					'block' => $block,
+					'content' => $outputContent,
+				]);
+				$outputContent = $blockUpdater->update(false);
+
+				// SEARCH replaces
+				$isSearch =
+					$query
+					&& $this->arParams['TYPE'] !== 'KNOWLEDGE'
+					&& $this->arParams['TYPE'] !== 'GROUP';
+				if ($isSearch)
 				{
 					$isUtf = defined('BX_UTF') && BX_UTF === true;
-					$outputContent = $event->getParameter('outputContent');
 					if (strpos($outputContent, '<?') !== false)
 					{
 						return $outputContent;
@@ -1296,10 +1310,11 @@ class LandingPubComponent extends LandingBaseComponent
 							$outputContent, 'UTF-8', SITE_CHARSET
 						);
 					}
-					return $outputContent;
 				}
-			);
-		}
+
+				return $outputContent;
+			}
+		);
 	}
 
 	/**

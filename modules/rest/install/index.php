@@ -114,6 +114,20 @@ class rest extends CModule
 			'\Bitrix\Rest\Engine\ScopeManager',
 			'onChangeRegisterModule'
 		);
+		$eventManager->registerEventHandler(
+			'main',
+			'OnAfterRegisterModule',
+			'rest',
+			'\Bitrix\Rest\Marketplace\TagTable',
+			'onAfterRegisterModule'
+		);
+		$eventManager->registerEventHandler(
+			'main',
+			'OnAfterUnRegisterModule',
+			'rest',
+			'\Bitrix\Rest\Marketplace\TagTable',
+			'onAfterUnRegisterModule'
+		);
 
 		\CAgent::AddAgent("Bitrix\\Rest\\Marketplace\\Client::getNumUpdates();", "rest", "N", 86400);
 		\CAgent::AddAgent("Bitrix\\Rest\\EventOfflineTable::cleanProcessAgent();", "rest", "N", 86400);
@@ -123,6 +137,8 @@ class rest extends CModule
 		\CAgent::AddAgent('\\Bitrix\\Rest\\UsageStatTable::cleanUpAgent();', "rest", "N", 3600);
 		\CAgent::AddAgent('\Bitrix\Rest\Marketplace\Notification::checkAgent();', "rest", "N", 86400);
 		\CAgent::AddAgent('\Bitrix\Rest\Marketplace\Immune::load();', "rest", "N", 86400);
+		\CAgent::AddAgent('\Bitrix\Rest\Configuration\Structure::clearContentAgent();', 'rest', 'N', 86400);
+		\CAgent::AddAgent('\Bitrix\Rest\Helper::recoveryAgents();','rest','N',604800);
 
 		return true;
 	}
@@ -180,6 +196,20 @@ class rest extends CModule
 			'rest',
 			'\Bitrix\Rest\Engine\ScopeManager',
 			'onChangeRegisterModule'
+		);
+		$eventManager->unRegisterEventHandler(
+			'main',
+			'OnAfterRegisterModule',
+			'rest',
+			'\Bitrix\Rest\Marketplace\TagTable',
+			'onAfterRegisterModule'
+		);
+		$eventManager->unRegisterEventHandler(
+			'main',
+			'OnAfterUnRegisterModule',
+			'rest',
+			'\Bitrix\Rest\Marketplace\TagTable',
+			'onAfterUnRegisterModule'
 		);
 
 		CAgent::RemoveModuleAgents("rest");

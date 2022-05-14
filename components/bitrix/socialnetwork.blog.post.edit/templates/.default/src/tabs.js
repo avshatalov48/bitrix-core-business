@@ -693,50 +693,49 @@ export default class PostFormTabs extends EventEmitter
 				BACKURL: Loc.getMessage('TASK_SUBMIT_BACKURL')
 			};
 
-			BX.Tasks.Util.Query.runOnce(
-				'ui.task.edit',
-				{
+			Ajax.runComponentAction('bitrix:tasks.task', 'uiEdit', {
+				mode: 'class',
+				data: {
 					parameters: {
-						COMPONENT_PARAMETERS: componentParameters
-					}
-				}
-			).then(
-				(result) => {
-					if(result.isSuccess())
-					{
-						Runtime.html(contentContainer, result.getData());
-						Dom.adjust(content, {
-							style: {
-								display : 'block'
-							}
-						});
+						COMPONENT_PARAMETERS: componentParameters,
+					},
+				},
+			}).then((response) => {
 
-						return true;
-					}
-					else
-					{
+				Runtime.html(null, response.data.asset.join(' ')).then(() => {
+
+					Runtime.html(contentContainer, response.data.html).then(() => {
+						this.clickDisabled = false;
 						this.closeWait(contentContainer);
 						this.endAnimation();
 
-						throw new Error(result.getErrors().getMessages().join(' '));
-					}
-				},
-				(reason) => {
-					this.closeWait(contentContainer);
-					this.endAnimation();
-					throw new Error();
-				}
-			).then(
-				() => {
-					this.clickDisabled = false;
-					this.closeWait(contentContainer);
-					this.endAnimation();
+						EventEmitter.emit(document.getElementById('divlivefeed_task_form'), 'OnShowLHE', new BaseEvent({
+							compatData: [ 'justShow' ]
+						}));
+					});
+				});
 
-					EventEmitter.emit(document.getElementById('divlivefeed_task_form'), 'OnShowLHE', new BaseEvent({
-						compatData: [ 'justShow' ]
-					}));
+				Dom.adjust(content, {
+					style: {
+						display : 'block',
+					},
+				});
+			}, (response) => {
+
+				this.clickDisabled = false;
+				this.closeWait(contentContainer);
+				this.endAnimation();
+
+				if (response.errors && response.errors.length)
+				{
+					const errors = [];
+
+					response.errors.forEach((error) => {
+						errors.push(error.message);
+					});
+					throw new Error(errors.join(' '));
 				}
-			);
+			});
 		}
 		else
 		{

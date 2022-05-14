@@ -307,6 +307,7 @@ class CatalogStoreAdminList extends CBitrixComponent
 			'FILTER' => $this->filter->getFieldArrays(),
 			'FILTER_PRESETS' => [],
 			'ENABLE_LABEL' => true,
+			'THEME' => Bitrix\Main\UI\Filter\Theme::LIGHT,
 		];
 		\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter($filterOptions);
 

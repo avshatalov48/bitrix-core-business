@@ -195,6 +195,26 @@ abstract class BaseTarget
 			$rules['Condition'] = $condition->toArray();
 		}
 
+		if (isset($rules['ExecuteBy']))
+		{
+			if ($external)
+			{
+				$rules['ExecuteBy'] = \CBPHelper::UsersArrayToString(
+					$rules['ExecuteBy'],
+					null,
+					$this->getDocumentType()
+				);
+			}
+			else
+			{
+				$rules['ExecuteBy'] = \CBPHelper::UsersStringToArray(
+					$rules['ExecuteBy'],
+					$this->getDocumentType(),
+					$errors
+				);
+			}
+		}
+
 		return $rules;
 	}
 
@@ -204,6 +224,11 @@ abstract class BaseTarget
 	public function getAvailableTriggers()
 	{
 		return [];
+	}
+
+	public function canTriggerSetExecuteBy(): bool
+	{
+		return false;
 	}
 
 	/**

@@ -8,6 +8,9 @@ use Bitrix\Catalog\v2\BaseIblockElementRepository;
 use Bitrix\Catalog\v2\Iblock\IblockInfo;
 use Bitrix\Catalog\v2\Product\BaseProduct;
 use Bitrix\Catalog\v2\Product\ProductRepositoryContract;
+use Bitrix\Catalog\v2\Property\Property;
+use Bitrix\Catalog\v2\Property\PropertyCollection;
+use Bitrix\Catalog\v2\Property\PropertyRepositoryContract;
 
 /**
  * Class SkuRepository
@@ -23,6 +26,8 @@ class SkuRepository extends BaseIblockElementRepository implements SkuRepository
 	protected $factory;
 	/** @var \Bitrix\Catalog\v2\Product\ProductRepositoryContract */
 	protected $productRepository;
+	/** @var \Bitrix\Catalog\v2\Property\PropertyRepositoryContract */
+	protected $propertyRepository;
 
 	/**
 	 * SkuRepository constructor.
@@ -30,15 +35,18 @@ class SkuRepository extends BaseIblockElementRepository implements SkuRepository
 	 * @param \Bitrix\Catalog\v2\Sku\SkuFactory $factory
 	 * @param \Bitrix\Catalog\v2\Iblock\IblockInfo $iblockInfo
 	 * @param \Bitrix\Catalog\v2\Product\ProductRepositoryContract $productRepository
+	 * @param \Bitrix\Catalog\v2\Property\PropertyRepositoryContract $propertyRepository
 	 */
 	public function __construct(
 		SkuFactory $factory,
 		IblockInfo $iblockInfo,
-		ProductRepositoryContract $productRepository
+		ProductRepositoryContract $productRepository,
+		PropertyRepositoryContract $propertyRepository
 	)
 	{
 		parent::__construct($factory, $iblockInfo);
 		$this->productRepository = $productRepository;
+		$this->propertyRepository = $propertyRepository;
 	}
 
 	/**
@@ -54,7 +62,23 @@ class SkuRepository extends BaseIblockElementRepository implements SkuRepository
 		return $this->factory
 			->createCollection()
 			->setIteratorCallback($callback)
-			;
+		;
+	}
+
+	/**
+	 * @param \Bitrix\Catalog\v2\Product\BaseProduct $product
+	 * @return \Bitrix\Catalog\v2\Sku\SkuCollection|\Bitrix\Catalog\v2\Sku\BaseSku[]
+	 */
+	public function loadEagerCollectionByProduct(BaseProduct $product): SkuCollection
+	{
+		$callback = function (array $params) use ($product) {
+			yield from $this->getSkuIteratorEagerLoading($product, $params);
+		};
+
+		return $this->factory
+			->createCollection()
+			->setIteratorCallback($callback)
+		;
 	}
 
 	public function getEntitiesBy($params): array
@@ -186,6 +210,104 @@ class SkuRepository extends BaseIblockElementRepository implements SkuRepository
 				yield $this->createEntity($item);
 			}
 		}
+	}
+
+	private function getSkuIteratorEagerLoading(BaseProduct $product, array $params = []): \Generator
+	{
+		if ($product->isSimple())
+		{
+			if ($product->getSkuCollection()->isEmpty())
+			{
+				yield $this->createEntity();
+			}
+		}
+		elseif (!$product->isNew())
+		{
+			$params['filter']['PROPERTY_' . $this->iblockInfo->getSkuPropertyId()] = $product->getId();
+			$params['order']['ID'] = 'DESC';
+
+			$items = [];
+			foreach ($this->getList($params) as $item)
+			{
+				$items[$item['ID']] = $item;
+			}
+
+			$skuIds = array_keys($items);
+
+			$propertySettings = $this->propertyRepository->getPropertiesSettingsByFilter([
+				'=IBLOCK_ID' => $this->iblockInfo->getSkuIblockId(),
+			]);
+
+			$propertyElementMap = $this->getPropertyMapBySkuIds($skuIds, $propertySettings);
+
+			foreach ($items as $skuId => $item)
+			{
+				$propertyCollection = $this->propertyRepository->createCollection();
+
+				foreach ($propertySettings as $setting)
+				{
+					if (isset($propertyElementMap[$skuId][$setting['ID']]))
+					{
+						$propertyItem = $propertyElementMap[$skuId][$setting['ID']];
+					}
+					else
+					{
+						$propertyItem = $this->propertyRepository->createEntity([], $setting);
+					}
+
+					if ($propertyItem)
+					{
+						$propertyCollection->add($propertyItem);
+					}
+				}
+
+				yield $this->createEntity($item, $propertyCollection);
+			}
+		}
+	}
+
+	/**
+	 * @param array $skuIds
+	 * @param array $propertySettings
+	 * @return array
+	 */
+	private function getPropertyMapBySkuIds(array $skuIds, array $propertySettings): array
+	{
+		$skuPropertyFilter = [
+			'filter' => [
+				'IBLOCK_ID' => $this->iblockInfo->getSkuIblockId(),
+				'ID' => $skuIds,
+			],
+		];
+
+		$properties = $this->propertyRepository->getEntitiesBy($skuPropertyFilter, $propertySettings);
+		$propertyElementMap = [];
+
+		/** @var Property $property */
+		foreach ($properties as $property)
+		{
+			$elementId = $property->getSetting('IBLOCK_ELEMENT_ID');
+
+			if ($elementId > 0)
+			{
+				$propertyElementMap[$elementId] = $propertyElementMap[$elementId] ?? [];
+				$propertyElementMap[$elementId][$property->getSetting('ID')] = $property;
+			}
+		}
+
+		return $propertyElementMap;
+	}
+
+	protected function createEntity(array $fields = [], PropertyCollection $propertyCollection = null): BaseIblockElementEntity
+	{
+		$entity = parent::createEntity($fields);
+
+		if ($propertyCollection)
+		{
+			$entity->setPropertyCollection($propertyCollection);
+		}
+
+		return $entity;
 	}
 
 	public function setDetailUrlTemplate(?string $template): BaseIblockElementRepository

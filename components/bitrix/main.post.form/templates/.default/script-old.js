@@ -2,7 +2,8 @@
 	if (window["BXPostFormTags"])
 		return;
 var repo = {
-	selector : {}
+	selector : {},
+	mentionParams: {},
 };
 
 window.BXPostFormTags = function(formID, buttonID)
@@ -257,8 +258,11 @@ BX.addCustomEvent(window, 'onInitialized', function(someObject) {
 
 BX.addCustomEvent(window, 'BX.MPF.MentionSelector:open', function(params) {
 
-	var selectorId = (BX.type.isNotEmptyString(params.id) ? params.id : '');
-	if (!BX.type.isNotEmptyString(selectorId))
+	var formId = (BX.type.isNotEmptyString(params.formId) ? params.formId : '');
+	if (
+		!BX.Type.isStringFilled(formId)
+		|| BX.Type.isUndefined(repo.mentionParams[formId])
+	)
 	{
 		return;
 	}
@@ -266,27 +270,41 @@ BX.addCustomEvent(window, 'BX.MPF.MentionSelector:open', function(params) {
 	var bindNode = (BX.type.isDomNode(params.bindNode) ? params.bindNode : null);
 	var bindPosition = (BX.type.isNotEmptyObject(params.bindPosition) ? params.bindPosition : null);
 
-	var dialog = BX.UI.EntitySelector.Dialog.getById(BX.type.isDomNode(bindNode) ? selectorId + '-withsearch' : selectorId);
-
-	if (dialog)
+	var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id') + (bindNode ? '-withsearch' : '');
+	var dialog = BX.UI.EntitySelector.Dialog.getById(selectorId);
+	if (!dialog)
 	{
-		dialog.deselectAll();
-		dialog.search('');
-		dialog.show();
+		window.MPFcreateSelectorDialog({
+			formId: formId,
+			selectorId: selectorId,
+			enableSearch: !!bindNode,
+			params: repo.mentionParams[formId],
+		});
 
-		var popupBindOptions = {};
-		if (BX.type.isDomNode(bindNode))
-		{
-			dialog.focusSearch();
-			dialog.popup.setBindElement(bindNode);
-			popupBindOptions.position = 'top';
-		}
-		else if (BX.type.isNotEmptyObject(bindPosition))
-		{
-			dialog.popup.setBindElement(bindPosition);
-		}
-		dialog.popup.adjustPosition(popupBindOptions);
+		dialog = BX.UI.EntitySelector.Dialog.getById(selectorId);
 	}
+
+	if (!dialog)
+	{
+		return;
+	}
+
+	dialog.deselectAll();
+	dialog.search('');
+	dialog.show();
+
+	var popupBindOptions = {};
+	if (BX.Type.isDomNode(bindNode))
+	{
+		dialog.focusSearch();
+		dialog.popup.setBindElement(bindNode);
+		popupBindOptions.position = 'top';
+	}
+	else if (BX.type.isNotEmptyObject(bindPosition))
+	{
+		dialog.popup.setBindElement(bindPosition);
+	}
+	dialog.popup.adjustPosition(popupBindOptions);
 });
 
 window.onKeyDownHandler = function(e, editor, formID)
@@ -404,7 +422,7 @@ window.onKeyDownHandler = function(e, editor, formID)
 				if (BX.type.isNotEmptyString(selectorId))
 				{
 					BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
-						id: selectorId,
+						formId: formID,
 						bindPosition: getMentionNodePosition(MPFMention.node, editor)
 					}]);
 				}
@@ -755,13 +773,10 @@ window.onTextareaKeyUpHandler = function(e, editor, formID)
 					MPFMention.bSearch = false;
 					MPFMention.mode = 'plus';
 
-					if (BX.type.isNotEmptyString(selectorId))
-					{
-						BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
-							id: selectorId,
-							bindPosition: BX.pos(document.getElementById('bx-b-mention-' + formID)),
-						}]);
-					}
+					BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
+						formId: formID,
+						bindPosition: BX.pos(document.getElementById('bx-b-mention-' + formID)),
+					}]);
 				}
 			}
 		}
@@ -991,6 +1006,8 @@ window.MPFcreateSelectorDialog = function(dialogParams)
 
 window.MPFMentionInit = function(formId, params)
 {
+	repo.mentionParams[formId] = params;
+
 	if (params.initDestination === true)
 	{
 		BX.addCustomEvent('onAutoSaveRestoreDestination', function(params) {
@@ -1110,31 +1127,11 @@ window.MPFMentionInit = function(formId, params)
 	var handler = LHEPostForm.getHandlerByFormId(formId);
 	if (handler)
 	{
-		handler.exec(function() {
-			var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id');
-
-			if (selectorId)
-			{
-				window.MPFcreateSelectorDialog({
-					formId: formId,
-					selectorId: selectorId,
-					enableSearch: false,
-					params: params,
-				});
-
-				window.MPFcreateSelectorDialog({
-					formId: formId,
-					selectorId: selectorId + '-withsearch',
-					enableSearch: true,
-					params: params,
-				});
-			}
-		});
+		handler.exec();
 	}
 
 	BX.ready(function() {
 			var ment = BX('bx-b-mention-' + formId);
-			var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id');
 
 			BX.bind(
 				ment,
@@ -1166,13 +1163,10 @@ window.MPFMentionInit = function(formId, params)
 
 							setTimeout(function()
 							{
-								if (selectorId)
-								{
-									BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
-										id: selectorId,
-										bindNode: ment,
-									}]);
-								}
+								BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
+									formId: formId,
+									bindNode: ment,
+								}]);
 
 								MPFMention.node = doc.getElementById('bx-mention-node');
 								if (MPFMention.node)
@@ -1208,13 +1202,10 @@ window.MPFMentionInit = function(formId, params)
 
 							setTimeout(function()
 							{
-								if (selectorId)
-								{
-									BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
-										id: selectorId,
-										bindNode: ment
-									}]);
-								}
+								BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
+									formId: formId,
+									bindNode: ment
+								}]);
 							}, 100);
 						}
 

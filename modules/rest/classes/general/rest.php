@@ -10,6 +10,7 @@
 
 use Bitrix\Bitrix24\Feature;
 use Bitrix\Main\ArgumentNullException;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Rest\RestException;
 use Bitrix\Rest\AccessException;
 use Bitrix\Main\Loader;
@@ -30,6 +31,7 @@ class CRestServer
 
 	/* @var \CRestServer */
 	protected static $instance = null;
+	protected static $operatingTime = 0;
 
 	protected $class = '';
 	protected $method = '';
@@ -292,22 +294,12 @@ class CRestServer
 
 	public function getAuthScope()
 	{
-		if($this->authScope == null)
+		if ($this->authScope == null)
 		{
 			$this->authScope = array();
 
 			$authData = $this->getAuthData();
-			$scopeList = explode(',', $authData['scope']);
-			$serviceDescription = $this->getServiceDescription();
-
-			$this->authScope = array();
-			foreach($scopeList as $scope)
-			{
-				if(array_key_exists($scope, $serviceDescription))
-				{
-					$this->authScope[] = $scope;
-				}
-			}
+			$this->authScope = explode(',', $authData['scope']);
 		}
 
 		return $this->authScope;
@@ -749,6 +741,18 @@ class CRestServer
 
 		$data['time']['date_start'] = date('c', $data['time']['start']);
 		$data['time']['date_finish'] = date('c', $data['time']['finish']);
+
+		if (ModuleManager::isModuleInstalled('bitrix24') && function_exists('getRestTime'))
+		{
+			$server = \Bitrix\Main\Application::getInstance()->getContext()->getServer();
+			$time = \getRestTime($server->getRequestUri());
+			$data['time']['operating'] = $time;
+			if ($this instanceof CRestServerBatchItem)
+			{
+				$data['time']['operating'] -= $this::$operatingTime;
+				$this::$operatingTime = $time;
+			}
+		}
 
 		return $data;
 	}

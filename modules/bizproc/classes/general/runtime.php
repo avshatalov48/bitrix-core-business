@@ -263,6 +263,7 @@ class CBPRuntime
 
 		$loader = CBPWorkflowTemplateLoader::GetLoader();
 
+		/** @var CBPCompositeActivity $rootActivity */
 		[$rootActivity, $workflowVariablesTypes, $workflowParametersTypes] = $loader->LoadWorkflow($workflowTemplateId);
 
 		if ($rootActivity == null)

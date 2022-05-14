@@ -4,6 +4,7 @@ import './entity-card.css';
 import TabManager from './tab/manager';
 import 'ui.entity-editor';
 import 'ui.notification';
+import 'ui.hint';
 import FieldsFactory from './fields-factory'
 import ControllersFactory from './controllers-factory'
 import IblockFieldConfigurationManager from './field-configurator/iblock-field-configuration-manager'
@@ -529,29 +530,28 @@ class EntityCard extends BaseCard
 			<input type="checkbox">
 		`;
 		input.checked = item.checked;
+		input.disabled = item.disabled ?? false;
 		input.dataset.settingId = item.id;
+
+		const hintNode = (
+			Type.isStringFilled(item.hint)
+				? Tag.render`<span class="catalog-entity-setting-hint" data-hint="${item.hint}"></span>`
+				: ''
+		);
 
 		const setting = Tag.render`
 				<label class="ui-ctl-block ui-entity-editor-popup-create-field-item ui-ctl-w100">
 					<div class="ui-ctl-w10" style="text-align: center">${input}</div>
 					<div class="ui-ctl-w75">
-						<span class="ui-entity-editor-popup-create-field-item-title">${item.title}</span>
-						<span class="ui-entity-editor-popup-create-field-item-desc">${item.desc}</span>	
+						<span class="ui-entity-editor-popup-create-field-item-title ${item.disabled ? 'catalog-entity-disabled-setting' : ''}">${item.title}${hintNode}</span>
+						<span class="ui-entity-editor-popup-create-field-item-desc">${item.desc}</span>
 					</div>
 				</label>
 			`;
 
-		if(item.id === 'WAREHOUSE')
-		{
-			Event.bind(setting, 'change', (event) =>
-			{
-				new DialogDisable().popup()
+		BX.UI.Hint.init(setting);
 
-				EventEmitter.subscribe(EventType.popup.disable, () => this.setProductCardSetting(event))
-				EventEmitter.subscribe(EventType.popup.disableCancel, () => event.target.checked = true)
-			});
-		}
-		else if(item.id === 'SLIDER')
+		if(item.id === 'SLIDER')
 		{
 			Event.bind(setting, 'change', (event) =>
 			{

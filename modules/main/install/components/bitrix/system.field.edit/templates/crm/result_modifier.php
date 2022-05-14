@@ -256,9 +256,9 @@ if (in_array('CONTACT', $arParams['ENTITY_TYPE'], true))
 	$hasNameFormatter = method_exists("CCrmContact", "PrepareFormattedName");
 	$arResult['ENTITY_TYPE'][] = 'contact';
 
-	if (method_exists('CCrmContact', 'GetTopIDs'))
+	if (method_exists('CCrmContact', 'GetTopIDsInCategory'))
 	{
-		$IDs = CCrmContact::GetTopIDs(50, 'DESC', $userPermissions);
+		$IDs = CCrmContact::GetTopIDsInCategory(0, 50, 'DESC', $userPermissions);
 		if (empty($IDs))
 		{
 			$obRes = new CDBResult();
@@ -279,7 +279,7 @@ if (in_array('CONTACT', $arParams['ENTITY_TYPE'], true))
 	{
 		$obRes = CCrmContact::GetListEx(
 			array('ID' => 'DESC'),
-			array(),
+			array('@CATEGORY_ID' => 0,),
 			false,
 			array('nTopCount' => 50),
 			$hasNameFormatter
@@ -353,9 +353,9 @@ if (in_array('COMPANY', $arParams['ENTITY_TYPE'], true))
 {
 	$arResult['ENTITY_TYPE'][] = 'company';
 
-	if (method_exists('CCrmCompany', 'GetTopIDs'))
+	if (method_exists('CCrmCompany', 'GetTopIDsInCategory'))
 	{
-		$IDs = CCrmCompany::GetTopIDs(50, 'DESC', $userPermissions);
+		$IDs = CCrmCompany::GetTopIDsInCategory(0, 50, 'DESC', $userPermissions);
 		if (empty($IDs))
 		{
 			$obRes = new CDBResult();
@@ -376,7 +376,7 @@ if (in_array('COMPANY', $arParams['ENTITY_TYPE'], true))
 	{
 		$obRes = CCrmCompany::GetListEx(
 			array('ID' => 'DESC'),
-			array(),
+			array('@CATEGORY_ID' => 0,),
 			false,
 			array('nTopCount' => 50),
 			array('ID', 'TITLE', 'COMPANY_TYPE', 'INDUSTRY',  'LOGO')

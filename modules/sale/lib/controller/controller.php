@@ -84,7 +84,7 @@ class Controller extends Engine\Controller
 		}
 		else
 		{
-			return new Engine\Response\DataType\Page('', ['result'=>null], 0);
+			return parent::processAfterAction($action, $result);
 		}
 
 		if($externalizer instanceof ModificationFieldsBase)
@@ -161,7 +161,7 @@ class Controller extends Engine\Controller
 			'deletePropertyValuesIfNotExists' => true,
 			'createDefaultPaymentIfNeed' => false,
 			'createDefaultShipmentIfNeed' => false,
-			'createUserIfNeed' => false,
+			'createUserIfNeed' => SettingsContainer::SET_ANONYMOUS_USER,
 			'cacheProductProviderData' => false,
 			'propsFiles' => $this->getFielsPropertyValuesFromRequest(),
 			'acceptableErrorCodes' => []

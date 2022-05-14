@@ -94,11 +94,12 @@ CREATE TABLE b_clouds_file_save
 
 CREATE TABLE b_clouds_file_hash
 (
+	ID INT(32) NOT NULL auto_increment,
 	BUCKET_ID INT(11) NOT NULL,
-	FILE_PATH VARCHAR(600) NOT NULL,
+	FILE_PATH VARCHAR(760) NOT NULL,
 	FILE_SIZE BIGINT,
 	FILE_MTIME DATETIME,
 	FILE_HASH VARCHAR(50),
-	PRIMARY KEY pk_b_clouds_file_hash(BUCKET_ID, FILE_PATH(100))
+	PRIMARY KEY pk_b_clouds_file_hash(ID),
+	INDEX ix_b_clouds_file_hash(BUCKET_ID, FILE_PATH(190))
 );
-

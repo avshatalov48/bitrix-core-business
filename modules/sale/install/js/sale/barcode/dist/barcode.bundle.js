@@ -140,7 +140,7 @@ this.BX.Sale = this.BX.Sale || {};
 	}();
 
 	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"text\" onchange=\"", "\"", ">"]);
+	  var data = babelHelpers.taggedTemplateLiteral(["<input type=\"text\" ", ">"]);
 
 	  _templateObject$1 = function _templateObject() {
 	    return data;
@@ -153,6 +153,7 @@ this.BX.Sale = this.BX.Sale || {};
 	  function Markingcode(props) {
 	    babelHelpers.classCallCheck(this, Markingcode);
 	    this._id = props.id || 0;
+	    this._input = null;
 	    this._value = props.value || '';
 	    this._readonly = props.readonly;
 	    this._eventEmitter = new main_core.Event.EventEmitter();
@@ -161,10 +162,12 @@ this.BX.Sale = this.BX.Sale || {};
 	  babelHelpers.createClass(Markingcode, [{
 	    key: "render",
 	    value: function render() {
-	      var readonly = this._readonly ? ' readonly="readonly"' : '',
-	          input = main_core.Tag.render(_templateObject$1(), this.onChange.bind(this), readonly);
-	      input.value = this._value;
-	      return input;
+	      var readonly = this._readonly ? ' readonly="readonly"' : '';
+	      this._input = main_core.Tag.render(_templateObject$1(), readonly);
+	      this._input.value = this._value;
+	      main_core.Event.bind(this._input, 'keypress', this.onKeyPress.bind(this));
+	      main_core.Event.bind(this._input, 'change', this.onChange.bind(this));
+	      return this._input;
 	    }
 	  }, {
 	    key: "onChange",
@@ -172,6 +175,16 @@ this.BX.Sale = this.BX.Sale || {};
 	      this._value = e.target.value;
 
 	      this._eventEmitter.emit('onChange', this);
+	    }
+	  }, {
+	    key: "onKeyPress",
+	    value: function onKeyPress(e) {
+	      /**
+	       * @see https://stackoverflow.com/questions/48296955/ascii-control-character-html-input-text
+	       */
+	      if (e.charCode === 29) {
+	        this._input.value += String.fromCharCode(e.which);
+	      }
 	    }
 	  }, {
 	    key: "onChangeSubscribe",
@@ -259,9 +272,19 @@ this.BX.Sale = this.BX.Sale || {};
 	    value: function onBarcodeItemChange(event) {
 	      var _this2 = this;
 
-	      var barcodeItem = event.data.value;
-	      this.isBarcodeExist(barcodeItem.value).then(function (result) {
-	        barcodeItem.isExist = result;
+	      var barcodeValue;
+
+	      if (typeof event.data.value === "string") {
+	        barcodeValue = event.data.value;
+	      } else {
+	        barcodeValue = event.data.value.value;
+	      }
+
+	      this.isBarcodeExist(barcodeValue).then(function (result) {
+	        var barcodeItem = {
+	          isExist: result,
+	          value: barcodeValue
+	        };
 
 	        if (!_this2._isBarcodeMulti) {
 	          _this2.synchronizeBarcodes(barcodeItem.value, barcodeItem.isExist);
@@ -300,7 +323,7 @@ this.BX.Sale = this.BX.Sale || {};
 	  }, {
 	    key: "isBarcodeExist",
 	    value: function isBarcodeExist(barcode) {
-	      if (barcode.length > 0) {
+	      if (barcode) {
 	        var storeId = this._isBarcodeMulti ? this.storeId : 0;
 	        return BX.Sale.Barcode.Checker.isBarcodeExist(barcode, this.basketId, this.orderId, storeId);
 	      } else {

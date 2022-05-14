@@ -27,6 +27,7 @@ $MESS["SONET_GUE_T_BUTTON_UNBAN"] = "unban";
 $MESS["SONET_GUE_T_BUTTON_UNCONNECT"] = "disconnect";
 $MESS["SONET_GUE_T_CANT_EXCLUDE_AUTO_MEMBER"] = "A connected user cannot be removed from the group.";
 $MESS["SONET_GUE_T_CANT_EXCLUDE_AUTO_MEMBER_PROJECT"] = "You can not remove connected user from the project.";
+$MESS["SONET_GUE_T_CANT_EXCLUDE_SCRUM_MASTER"] = "Scrum master cannot be dismissed.";
 $MESS["SONET_GUE_T_DEPARTMENTS_SUBTITLE"] = "Departments";
 $MESS["SONET_GUE_T_DEPARTMENT_ID_NOT_DEFINED"] = "No department(s) selected.";
 $MESS["SONET_GUE_T_FIRED2"] = "dismissed";

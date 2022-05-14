@@ -103,19 +103,20 @@ class Counter
 			|| $this->getEmptyCounter()
 		)
 		{
-			\CUserCounter::clearByUser(
+			\CUserCounter::clear(
 				$result['currentUserId'],
-				[ SITE_ID, '**' ],
 				$result['COUNTER_TYPE'],
-				true
+				[ SITE_ID, '**' ],
+				true, // sendPull
+				true // multiple
 			);
 
 			if ((int)$result['LOG_COUNTER_IMPORTANT'] > 0)
 			{
-				\CUserCounter::clearByUser(
+				\CUserCounter::clear(
 					$result['currentUserId'],
-					SITE_ID,
-					'BLOG_POST_IMPORTANT'
+					'BLOG_POST_IMPORTANT',
+					SITE_ID
 				);
 			}
 
@@ -130,12 +131,13 @@ class Counter
 			$pool = \Bitrix\Main\Application::getInstance()->getConnectionPool();
 			$pool->useMasterOnly(true);
 
-			\CUserCounter::clearByUser(
+			\CUserCounter::clear(
 				$result['currentUserId'],
-				[ SITE_ID, '**' ],
 				$result['COUNTER_TYPE'],
+				[ SITE_ID, '**' ],
+				false, // sendPull
 				false, // multiple
-				false // sendPull
+				false // cleanCache
 			);
 
 			$pool->useMasterOnly(false);

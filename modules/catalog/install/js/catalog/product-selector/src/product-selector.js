@@ -744,6 +744,11 @@ export class ProductSelector extends EventEmitter
 
 	onProductSelect(productId, itemConfig)
 	{
+		this.emit('onProductSelect', {
+			selectorId: this.getId(),
+			rowId: this.getRowId()
+		});
+
 		this.emit('onBeforeChange', {
 			selectorId: this.getId(),
 			rowId: this.getRowId()

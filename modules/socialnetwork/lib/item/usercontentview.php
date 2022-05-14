@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -53,7 +54,7 @@ class UserContentView
 			return false;
 		}
 
-		$contentId = (isset($params['contentId']) ? $params['contentId'] : false);
+		$contentId = ($params['contentId'] ?? false);
 		if (empty($contentId))
 		{
 			return false;
@@ -85,7 +86,7 @@ class UserContentView
 		return $result;
 	}
 
-	public static function getUserList($params = [])
+	public static function getUserList(array $params = []): array
 	{
 		global $USER;
 
@@ -171,7 +172,7 @@ class UserContentView
 					default:
 						$suffix = "unknown";
 				}
-				$fields['USER_PERSONAL_PHOTO'] = Option::get('socialnetwork', 'default_user_picture_'.$suffix, false, SITE_ID);
+				$fields['USER_PERSONAL_PHOTO'] = Option::get('socialnetwork', 'default_user_picture_' . $suffix, false, SITE_ID);
 			}
 
 			if (
@@ -217,7 +218,11 @@ class UserContentView
 				$extranetIdList[] = $fields["USER_ID"];
 			}
 
-			$dateView = ($fields['DATE_VIEW'] instanceof \Bitrix\Main\Type\DateTime ? $fields['DATE_VIEW']->toString() : '');
+			$dateView = (
+				$fields['DATE_VIEW'] instanceof \Bitrix\Main\Type\DateTime
+					? $fields['DATE_VIEW']->toString()
+					: ''
+			);
 
 			$userList[$fields['USER_ID']] = [
 				'ID' => $fields['USER_ID'],
@@ -230,7 +235,11 @@ class UserContentView
 				'PHOTO_SRC' => $photoSrc,
 				'FULL_NAME' => \CUser::formatName(\CSite::getNameFormat(), $userFields, true, true),
 				'DATE_VIEW' => $dateView,
-				'DATE_VIEW_FORMATTED' => (!empty($dateView) ? \CComponentUtil::getDateTimeFormatted(MakeTimeStamp($dateView), "FULL", $timeZoneOffset) : '')
+				'DATE_VIEW_FORMATTED' => (
+					!empty($dateView)
+						? \CComponentUtil::getDateTimeFormatted(MakeTimeStamp($dateView), "FULL", $timeZoneOffset)
+						: ''
+				)
 			];
 		}
 
@@ -265,29 +274,26 @@ class UserContentView
 		{
 			$result['items'] = $userList;
 		}
+		elseif ($pageNum <= ((count($userList) / $pageSize) + 1))
+		{
+			$res = new \CDBResult();
+			$res->initFromArray($userList);
+			$res->navStart($pageSize, false, $pageNum);
+
+			while($user = $res->fetch())
+			{
+				$result['items'][] = $user;
+			}
+		}
 		else
 		{
-			if ($pageNum <= ((count($userList) / $pageSize) + 1))
-			{
-				$res = new \CDBResult();
-				$res->initFromArray($userList);
-				$res->navStart($pageSize, false, $pageNum);
-
-				while($user = $res->fetch())
-				{
-					$result['items'][] = $user;
-				}
-			}
-			else
-			{
-				$result['items'] = [];
-			}
+			$result['items'] = [];
 		}
 
 		return $result;
 	}
 
-	public static function deleteNoDemand($userId = 0)
+	public static function deleteNoDemand($userId = 0): bool
 	{
 		$userId = (int)$userId;
 		if ($userId <= 0)
@@ -309,7 +315,7 @@ class UserContentView
 		return $result;
 	}
 
-	public static function set(array $params = [])
+	public static function set(array $params = []): void
 	{
 		$xmlIdList = (
 			isset($params["xmlIdList"])
@@ -329,7 +335,7 @@ class UserContentView
 
 		if (!empty($xmlIdList))
 		{
-			foreach($xmlIdList as $val)
+			foreach ($xmlIdList as $val)
 			{
 				$xmlId = $val['xmlId'];
 				$save = (
@@ -337,9 +343,7 @@ class UserContentView
 					|| $val['save'] !== 'N'
 				);
 
-				$tmp = explode('-', $xmlId, 2);
-				$entityType = trim($tmp[0]);
-				$entityId = (int)$tmp[1];
+				[ $entityType, $entityId ] = self::parseXmlId($xmlId);
 
 				if (
 					!empty($entityType)
@@ -352,9 +356,27 @@ class UserContentView
 					]);
 					if ($provider)
 					{
-						$provider->setContentView([
-							'save' => $save
-						]);
+						$hasPermissions = true;
+						if (
+							isset($val['checkAccess'])
+							&& $val['checkAccess'] === true
+						)
+						{
+							$provider->setOption('checkAccess', true);
+							$provider->initSourceFields();
+							if (empty($provider->getSourceFields()))
+							{
+								$hasPermissions = false;
+							}
+						}
+
+						if ($hasPermissions)
+						{
+							$provider->setContentView([
+								'save' => $save,
+							]);
+						}
+
 /*
 TODO: https://cp.bitrix.ru/company/personal/user/15/tasks/task/view/167281/
 						$provider->deleteCounter([
@@ -366,14 +388,14 @@ TODO: https://cp.bitrix.ru/company/personal/user/15/tasks/task/view/167281/
 				}
 			}
 
-			UserContentView::finalize([
+			self::finalize([
 				'userId' => $userId,
 				'context' => $context
 			]);
 		}
 	}
 
-	public static function finalize($params = [])
+	public static function finalize($params = []): bool
 	{
 		$userId = (!empty($params['userId']) ? (int)$params['userId'] : 0);
 		$context = (!empty($params['context']) ? $params['context'] : '');
@@ -384,8 +406,8 @@ TODO: https://cp.bitrix.ru/company/personal/user/15/tasks/task/view/167281/
 		}
 
 		if (
-			ModuleManager::isModuleInstalled('tasks')
-			&& $context !== 'forum.comments/mobile'
+			$context !== 'forum.comments/mobile'
+			&& ModuleManager::isModuleInstalled('tasks')
 		)
 		{
 			$taskIdList = \Bitrix\Socialnetwork\Integration\Forum\TaskComment::getViewedCommentsTasksList();
@@ -403,5 +425,14 @@ TODO: https://cp.bitrix.ru/company/personal/user/15/tasks/task/view/167281/
 		}
 
 		return true;
+	}
+
+	public static function parseXmlId(string $xmlId = ''): array
+	{
+		$tmp = explode('-', $xmlId, 2);
+		$entityType = trim($tmp[0]);
+		$entityId = (int)$tmp[1];
+
+		return [ $entityType, $entityId ];
 	}
 }

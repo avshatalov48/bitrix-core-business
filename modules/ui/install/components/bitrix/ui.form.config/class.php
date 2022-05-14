@@ -116,8 +116,9 @@ class UiFormConfig extends CBitrixComponent
 		);
 		$grid['SHOW_PAGESIZE'] = true;
 		$grid['PAGE_SIZES'] = [
-			['NAME' => 10, 'VALUE' => 10], ['NAME' => 20, 'VALUE' => 20], ['NAME' => 50, 'VALUE' => 50]
+			['NAME' => '10', 'VALUE' => '10'], ['NAME' => '20', 'VALUE' => '20'], ['NAME' => '50', 'VALUE' => '50']
 		];
+		$grid['DEFAULT_PAGE_SIZE'] = 20;
 		$grid['SHOW_ROW_CHECKBOXES'] = true;
 		$grid['SHOW_CHECK_ALL_CHECKBOXES'] = false;
 		$grid['SHOW_ACTION_PANEL'] = true;

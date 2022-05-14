@@ -16,5 +16,5 @@ $MESS["CATALOG_ENTITY_CARD_UNSAVED_DATA_MESSAGE"] = "При создании н�
 $MESS["CATALOG_ENTITY_EDITOR_IS_PUBLIC_PROPERTY"] = "Показывать в интернет-магазине";
 $MESS["CATALOG_ENTITY_CARD_SETTING_ENABLED"] = "Настройка \"#NAME#\" включена";
 $MESS["CATALOG_ENTITY_CARD_SETTING_DISABLED"] = "Настройка \"#NAME#\" выключена";
-$MESS["CATALOG_ENTITY_CARD_WAREHOUSE_DISABLED"] = "Складской учет выключен";
-$MESS["CATALOG_ENTITY_CARD_WAREHOUSE_ENABLED"] = "Складской учет включен";
+$MESS["CATALOG_ENTITY_CARD_WAREHOUSE_DISABLED"] = "Складской учёт выключен";
+$MESS["CATALOG_ENTITY_CARD_WAREHOUSE_ENABLED"] = "Складской учёт включен";

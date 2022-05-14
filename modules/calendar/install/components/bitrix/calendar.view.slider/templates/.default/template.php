@@ -440,7 +440,7 @@ $arParams['UF'] = $UF;
 							"ENTITY_XML_ID" => CCalendarEvent::GetEventCommentXmlId($event),
 							"PERMISSION" => $permission, //
 							"URL_TEMPLATES_PROFILE_VIEW" => $set['path_to_user'],
-							"SHOW_RATING" => "Y",
+							"SHOW_RATING" => COption::GetOptionString('main', 'rating_vote_show', 'N'),
 							"SHOW_LINK_TO_MESSAGE" => "N",
 							"BIND_VIEWER" => "Y"
 						],

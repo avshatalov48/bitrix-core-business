@@ -431,7 +431,7 @@ class Agreement
 		$text = $this->isCustomType() ? $this->data['LABEL_TEXT'] : $this->intl->getLabelText();
 		$text = Text::replace($text, $this->replace);
 
-		if ($this->data['USE_URL'] !== 'Y')
+		if ($this->data['USE_URL'] !== 'Y' || !$this->data['URL'])
 		{
 			return str_replace('%', '', $text);
 		}

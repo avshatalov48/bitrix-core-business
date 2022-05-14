@@ -1,6 +1,6 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -13,6 +13,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  * @var array $arResult
 */
 
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
 use \Bitrix\Main\UI;
 
@@ -84,7 +85,14 @@ ob_start();
 				#AFTER_HEADER#
 				#BEFORE#
 				<div class="feed-com-text">
-					<div class="feed-com-text-inner" bx-content-view-xml-id="#CONTENT_ID#" id="feed-com-text-inner-#CONTENT_ID#" bx-content-view-save="N" bx-mpl-block="body">
+					<div
+					 class="feed-com-text-inner"
+					 bx-content-view-xml-id="#CONTENT_ID#"
+					 bx-content-view-save="N"
+					 bx-content-view-key="#CONTENT_VIEW_KEY#"
+					 bx-content-view-key-signed="#CONTENT_VIEW_KEY_SIGNED#"
+					 id="feed-com-text-inner-#CONTENT_ID#"
+					 bx-mpl-block="body">
 						<div class="feed-com-text-inner-inner" id="record-#FULL_ID#-text" bx-mpl-block="text">
 							<div>#TEXT#</div>
 						</div>
@@ -104,7 +112,7 @@ ob_start();
 		<div class="feed-com-informers-bottom">
 			#BEFORE_ACTIONS#
 			<?php
-			if ( $arParams["SHOW_POST_FORM"] == "Y" )
+			if ($arParams["SHOW_POST_FORM"] == "Y")
 			{
 				?><a href="javascript:void(0);" class="feed-com-reply feed-com-reply-#SHOW_POST_FORM#" <?php
 				?>id="record-#FULL_ID#-actions-reply" <?php
@@ -112,7 +120,7 @@ ob_start();
 				?>bx-mpl-author-id="#AUTHOR_ID#" <?php
 				?>bx-mpl-author-gender="#AUTHOR_PERSONAL_GENDER#" <?php
 				?>bx-mpl-author-name="#AUTHOR_NAME#" <?php
-				?>data-slider-ignore-autobinding="true"><?=GetMessage("BLOG_C_REPLY")?></a><?php
+				?>data-slider-ignore-autobinding="true"><?= Loc::getMessage('BLOG_C_REPLY') ?></a><?php
 			}
 
 
@@ -131,7 +139,7 @@ ob_start();
 				?> bx-mpl-comment-entity-type="#COMMENT_ENTITY_TYPE#" <?php
 				?> onclick="BX.onCustomEvent(BX('<?=$eventNodeIdTemplate?>'), 'onShowActions', [this, '#ID#']); return BX.PreventDefault(this);" <?php
 				?> class="feed-post-more-link feed-post-more-link-#VIEW_SHOW#-#EDIT_SHOW#-#MODERATE_SHOW#-#DELETE_SHOW#"><?php
-					?><span class="feed-post-more-text"><?=GetMessage("BLOG_C_BUTTON_MORE")?></span><?php
+					?><span class="feed-post-more-text"><?= Loc::getMessage('BLOG_C_BUTTON_MORE') ?></span><?php
 				?></a><?php
 			}
 			?>
@@ -151,7 +159,7 @@ ob_start();
 			BX.onCustomEvent(BX('<?=$eventNodeIdTemplate?>'), 'OnUCBlankCommentIsInDOM', ['#ID#', BX('<?=$eventNodeIdTemplate?>')]);
 		});
 	</script>
-	<div style="position: absolute;width:1px;height:1px;opasity:0;"></div>
+	<div style="position: absolute; width: 1px; height: 1px; opacity: 0;"></div>
 <?php
 $blankTemplate =  preg_replace("/[\t\n]/", "", ob_get_clean());
 ?><div id="<?=$eventNodeId?>"><?php
@@ -161,7 +169,7 @@ if (empty($arParams["RECORDS"]))
 }
 else
 {
-	if (!!$arParams["NAV_STRING"])
+	if ($arParams["NAV_STRING"])
 	{
 		if ($arResult["NAV_STRING_COUNT_MORE"] > 0)
 		{
@@ -172,13 +180,15 @@ else
 				?><div id="record-<?=$prefixNode?>-hidden" class="feed-hidden-post" style="display:none; overflow:hidden;"></div> <?php
 			}
 			?><div class="feed-com-header"><?php
+
+				$navStringCaption = ($arParams["PREORDER"] == "Y" ? Loc::getMessage('BLOG_C_VIEW1') : Loc::getMessage('BLOG_C_VIEW2'));
 				?><a class="feed-com-all" href="<?=$arParams["NAV_STRING"]?>"<?php
-					?> id="<?=$prefixNode?>_page_nav" <?php
-					?> bx-mpl-comments-count="<?=$arResult["NAV_STRING_COUNT_MORE"]?>"<?php
+					?> id="<?= $prefixNode ?>_page_nav" <?php
+					?> bx-mpl-comments-count="<?= $arResult["NAV_STRING_COUNT_MORE"] ?>"<?php
 					?> data-slider-ignore-autobinding="true"><?php
-					?><?=($arParams["PREORDER"] == "Y" ? GetMessage("BLOG_C_VIEW1") : GetMessage("BLOG_C_VIEW2"))?> <span class="feed-com-all-count"><?=$arResult["NAV_STRING_COUNT_MORE"]?></span><i></i><?php
+					?><?= $navStringCaption ?> <span class="feed-com-all-count"><?= $arResult["NAV_STRING_COUNT_MORE"] ?></span><i></i><?php
 				?></a><?php
-				?><span class="feed-com-loader-informer" id="<?=$prefixNode?>_page_nav_loader" style="display:none;"><?=GetMessage("BLOG_C_LOADING")?></span><?php
+				?><span class="feed-com-loader-informer" id="<?= $prefixNode ?>_page_nav_loader" style="display:none;"><?= Loc::getMessage('BLOG_C_LOADING')?></span><?php
 			?></div><?php
 			if ($arParams["PREORDER"] != "Y")
 			{
@@ -221,13 +231,13 @@ else
 			<label for="collapsed_switcher_<?=$arParams["ENTITY_XML_ID"]?>_<?=$res["ID"]?>"
 				data-bx-collapse-role="show">
 				<a class="feed-com-collapsed-btn">
-					<?=GetMessage("MPL_SHOW_COLLAPSED_COMMENTS")?> (#COLLAPSED_MESSAGES_COUNT#)
+					<?= Loc::getMessage('MPL_SHOW_COLLAPSED_COMMENTS')?> (#COLLAPSED_MESSAGES_COUNT#)
 				</a>
 			</label>
 			<label for="collapsed_switcher_<?=$arParams["ENTITY_XML_ID"]?>_<?=$res["ID"]?>"
 				data-bx-collapse-role="hide">
 				<a class="feed-com-collapsed-btn">
-					<?=GetMessage("MPL_HIDE_COLLAPSED_COMMENTS")?> (#COLLAPSED_MESSAGES_COUNT#)
+					<?= Loc::getMessage('MPL_HIDE_COLLAPSED_COMMENTS')?> (#COLLAPSED_MESSAGES_COUNT#)
 				</a>
 			</label>
 			<div class="feed-com-collapsed-block">
@@ -301,8 +311,10 @@ else
 	}
 
 	?><!--RCRDLIST_END_<?=$arParams["ENTITY_XML_ID"]?>--><?php
-	if ($arParams["PREORDER"] == "Y"): ?><?=$arParams["NAV_STRING"]?><?php
-	endif;
+	if ($arParams["PREORDER"] == "Y")
+	{
+		?><?= $arParams["NAV_STRING"] ?><?php
+	}
 }
 $ajaxParams = [];
 if ($this->__component->__parent instanceof \Bitrix\Main\Engine\Contract\Controllerable)
@@ -319,7 +331,7 @@ if ($this->__component->__parent instanceof \Bitrix\Main\Engine\Contract\Control
 
 //AddMessage2Log($arParams["FORM_ID"], '', 50);
 ?>
-<script type="text/javascript">
+<script>
 BX.ready(function(){
 	window["UC"]["<?=$arParams["ENTITY_XML_ID"]?>"] = new FCList({
 		EXEMPLAR_ID : '<?=CUtil::JSEscape(htmlspecialcharsbx($arParams["EXEMPLAR_ID"]))?>',
@@ -363,7 +375,10 @@ BX.ready(function(){
 			NOTIFY_TAG : '<?=CUtil::JSEscape($arParams["~NOTIFY_TAG"])?>',
 			NOTIFY_TEXT : '<?=CUtil::JSEscape($arParams["~NOTIFY_TEXT"])?>',
 			SHOW_POST_FORM : '<?=CUtil::JSEscape($arParams["SHOW_POST_FORM"])?>',
-			BIND_VIEWER : '<?=$arParams["BIND_VIEWER"]?>'
+			BIND_VIEWER : '<?=$arParams["BIND_VIEWER"]?>',
+
+			CONTENT_VIEW_KEY : '<?= CUtil::JSEscape($arParams['CONTENT_VIEW_KEY'] ?? '') ?>',
+			CONTENT_VIEW_KEY_SIGNED : '<?= CUtil::JSEscape($arParams['CONTENT_VIEW_KEY_SIGNED'] ?? '') ?>',
 		}
 	);
 	<?php
@@ -390,16 +405,18 @@ BX.ready(function(){
 if (!empty($arParams["ERROR_MESSAGE"]))
 {
 	?><div class="feed-add-error"><span class="feed-add-info-text"><span class="feed-add-info-icon"></span>
-		<b><?=GetMessage("B_B_PC_COM_ERROR")?></b><br /><?=$arParams["ERROR_MESSAGE"]?></span></div><?php
+		<b><?= Loc::getMessage('B_B_PC_COM_ERROR') ?></b><br /><?= $arParams["ERROR_MESSAGE"] ?></span></div><?php
 }
-include_once(__DIR__."/messages.php");
+
+include_once(__DIR__ . '/messages.php');
+
 if ($arParams["SHOW_POST_FORM"] == "Y")
 {
 	$AUTHOR_AVATAR = __mpl_get_avatar();
 
-	?><div class="feed-com-add-box-outer" id="record-<?=$prefixNode?>-form-holder">
+	?><div class="feed-com-add-box-outer" id="record-<?= $prefixNode ?>-form-holder">
 
-		<div class="ui-icon ui-icon-common-user feed-com-avatar feed-com-avatar-<?=($AUTHOR_AVATAR == '/bitrix/images/1.gif' ? "N" : "Y")?>"><?php
+		<div class="ui-icon ui-icon-common-user feed-com-avatar feed-com-avatar-<?= ($AUTHOR_AVATAR === '/bitrix/images/1.gif' ? "N" : "Y") ?>"><?php
 			?>
 			<i></i>
 			<img width="37" height="37" src="<?= $AUTHOR_AVATAR ?>">
@@ -409,11 +426,12 @@ if ($arParams["SHOW_POST_FORM"] == "Y")
 		<div class="feed-com-add-box">
 			<div id="record-<?=$arParams["ENTITY_XML_ID"]?>-0-placeholder" class="blog-comment-edit feed-com-add-block blog-post-edit" style="display:none;"><?php
 			?></div><?php
-			?><div class="feed-com-footer" onclick="BX.onCustomEvent(BX('<?=$eventNodeId?>'), 'onReply', [this]);" <?php
-			?><?php if ($arParams['SHOW_MINIMIZED'] != "Y"): ?> style="display:none;" <?php
-			endif; ?>><?php
+
+			$style = ($arParams['SHOW_MINIMIZED'] != "Y" ? 'style="display:none;"' : '');
+
+			?><div class="feed-com-footer" onclick="BX.onCustomEvent(BX('<?=$eventNodeId?>'), 'onReply', [this]);" <?= $style ?>><?php
 				?><div class="feed-com-add"><?php
-					?><a class="feed-com-add-link" href="javascript:void(0);" style="outline: none;" hidefocus="true"><?=GetMessage("B_B_MS_ADD_COMMENT")?></a><?php
+					?><a class="feed-com-add-link" href="javascript:void(0);" style="outline: none;" hidefocus="true"><?= Loc::getMessage("B_B_MS_ADD_COMMENT") ?></a><?php
 				?></div><?php
 			?></div><?php
 			?><div id="record-<?=$arParams["ENTITY_XML_ID"]?>-writers-block" class="feed-com-writers" style="display:none;">

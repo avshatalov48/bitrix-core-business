@@ -68,7 +68,6 @@ BX.ready(function()
 		<?=CUtil::PhpToJSObject([
 			'ctrlEnterHandler' => $arParams["LHE"]['ctrlEnterHandler'],
 			'showPanelEditor' => ($arParams["TEXT"]["SHOW"] == "Y"),
-			'pinEditorPanel' => ($arParams["PIN_EDITOR_PANEL"] == "Y"),
 			'lazyLoad' => !!$arParams["LHE"]['lazyLoad'],
 			'urlPreviewId' => $arParams['urlPreviewId'],
 			'parsers' => $arParams["PARSER"],

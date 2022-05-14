@@ -179,7 +179,7 @@ class CatalogProductStoreAmountDetailsSliderComponent extends \CBitrixComponent 
 			'IMAGE' => $this->getImageSource($sku),
 			'PRICE' => $this->getPriceTextValue($sku),
 			'PROPERTIES' => HtmlFilter::encode($this->getSkuPropertiesTextValue($sku)),
-			'LINK' => $this->getLinkToVariationDetails($sku),
+			'LINK' => $this->getLinkToDetailsCard($sku),
 		];
 	}
 
@@ -253,7 +253,7 @@ class CatalogProductStoreAmountDetailsSliderComponent extends \CBitrixComponent 
 			}
 
 			$skuIds = array_column($this->getProduct()->getSkuCollection()->toArray(), 'ID');
-			$productsSkuTree = $skuTreeComponent->loadJsonOffers(
+			$productsSkuTree = $skuTreeComponent->loadWithSelectedOffers(
 				[$this->getProductId() => $skuIds]
 			);
 			$this->productSkuTree = $productsSkuTree[$this->getProductId()];
@@ -262,8 +262,17 @@ class CatalogProductStoreAmountDetailsSliderComponent extends \CBitrixComponent 
 		return $this->productSkuTree;
 	}
 
-	private function getLinkToVariationDetails($sku): string
+	private function getLinkToDetailsCard($sku): string
 	{
+		if ($sku->isSimple())
+		{
+			return str_replace(
+				['#IBLOCK_ID#', '#PRODUCT_ID#'],
+				[$this->getIblockId(), $this->getProductId()],
+				$this->arParams['PATH_TO']['PRODUCT_DETAILS'],
+			);
+		}
+
 		return str_replace(
 			['#IBLOCK_ID#', '#PRODUCT_ID#', '#VARIATION_ID#'],
 			[$this->getIblockId(), $this->getProductId(), $sku->getId()],

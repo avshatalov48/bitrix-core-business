@@ -293,3 +293,4 @@ CREATE TABLE IF NOT EXISTS b_rest_placement_lang
 	constraint b_rest_placement_lang_unique
 	unique (PLACEMENT_ID, LANGUAGE_ID)
 );
+

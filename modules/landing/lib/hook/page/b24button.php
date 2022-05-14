@@ -3,6 +3,7 @@ namespace Bitrix\Landing\Hook\Page;
 
 use Bitrix\Landing;
 use Bitrix\Crm\SiteButton;
+use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page;
@@ -149,7 +150,7 @@ class B24button extends \Bitrix\Landing\Hook\Page
 		// show connectors only for edit
 		if ($this->isEditMode())
 		{
-			$context = \Bitrix\Main\Application::getInstance()->getContext();
+			$context = Application::getInstance()->getContext();
 			$server = $context->getServer();
 			$items += $this->getButtons();
 		}
@@ -186,7 +187,31 @@ class B24button extends \Bitrix\Landing\Hook\Page
 			return true;
 		}
 
-		return trim($this->fields['CODE']) != '';
+		return
+			trim($this->fields['CODE']) !== ''
+			&& !self::isTelegramWebView();
+	}
+
+	/**
+	 * Check if page opened from telegram integration
+	 * @return bool
+	 */
+	protected static function isTelegramWebView(): bool
+	{
+		if (!$application = Application::getInstance())
+		{
+			return false;
+		}
+		$session = $application->getSession();
+		$request = $application->getContext()->getRequest();
+		if ($request->get('tgWebApp') !== null)
+		{
+			$session->set('tgWebApp', 'Y');
+
+			return true;
+		}
+
+		return $session->has('tgWebApp') && $session->get('tgWebApp') === 'Y';
 	}
 
 	/**

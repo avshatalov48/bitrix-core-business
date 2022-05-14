@@ -25,6 +25,8 @@ use Bitrix\Socialnetwork\Item\Helper;
 use Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\ComponentHelper;
+use Bitrix\Main\Security\Random;
+use Bitrix\Main\Security\Sign\Signer;
 
 if (!CModule::IncludeModule("blog"))
 {
@@ -1884,6 +1886,15 @@ if(
 					$arResult["CONTENT_VIEW_CNT"] = 0;
 				}
 			}
+
+			$isAuthorized = $USER->isAuthorized();
+			$arResult['CONTENT_VIEW_KEY'] = (string)($arParams['CONTENT_VIEW_KEY'] ?? ($isAuthorized ? Random::getString(8, false) : ''));
+			$arResult['CONTENT_VIEW_KEY_SIGNED'] = (string)($arResult['CONTENT_VIEW_KEY_SIGNED'] ?? (
+				$isAuthorized
+					? (new Signer)->sign($arResult['CONTENT_VIEW_KEY'], 'ajaxSecurity' . $USER->getId() . $arResult['CONTENT_ID'])
+					: ''
+				));
+
 		}
 		else
 		{

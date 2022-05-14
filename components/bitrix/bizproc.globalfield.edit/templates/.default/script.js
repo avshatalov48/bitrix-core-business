@@ -2,6 +2,10 @@
 	'use strict';
 
 	var _templateObject;
+
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var namespace = main_core.Reflection.namespace('BX.Bizproc.Component');
 
 	var GlobalFieldEditComponent = /*#__PURE__*/function () {
@@ -36,11 +40,12 @@
 	  }, {
 	    key: "editInputValue",
 	    value: function editInputValue(type, property) {
-	      var prop = BX.clone(property);
+	      var prop = main_core.Runtime.clone(property);
 	      var defaultProperty = {
 	        Type: type !== null && type !== void 0 ? type : 'string',
 	        Multiple: false,
-	        Default: ''
+	        Default: '',
+	        Placeholder: main_core.Loc.getMessage('BIZPROC_GLOBALFIELD_EDIT_TMP_EMPTY')
 	      };
 
 	      if (this.availableTypes[defaultProperty.Type] === undefined) {
@@ -54,7 +59,7 @@
 	          prop['Multiple'] = property['Multiple'] === 'Y';
 	        }
 
-	        prop = babelHelpers.objectSpread({}, defaultProperty, prop);
+	        prop = _objectSpread(_objectSpread({}, defaultProperty), prop);
 	      }
 
 	      this.multipleNode.value = prop['Multiple'] ? 'Y' : 'N';
@@ -66,7 +71,7 @@
 	      }
 
 	      var control = BX.Bizproc.FieldType.renderControl(this.documentType, prop, 'VALUE', prop['Default'], 'public');
-	      control.className = 'ui-ctl ui-ctl-textbox ui-ctl-w100 global-fields-max-width';
+	      control.className = 'ui-ctl ui-ctl-textbox ui-ctl-w100';
 	      control.id = this.inputValueId;
 	      var inputValueNode = document.getElementById(this.inputValueId);
 
@@ -81,35 +86,22 @@
 	        var wrapper = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-ctl ui-ctl-w100\" id=\"bizproc_globEditComponent\"></div>"])));
 	        var optionControl = BX.Bizproc.FieldType.createControlOptions(prop, this.setSelectOptionFromForm.bind(this));
 	        optionControl.className = 'ui-form-label';
-	        wrapper.appendChild(optionControl);
+	        main_core.Dom.append(optionControl, wrapper);
 	        wrapper.getElementsByTagName('textarea')[0].className = 'ui-ctl-element ui-ctl-textarea ui-ctl-resize-y ui-ctl-w100';
-	        wrapper.getElementsByTagName('textarea')[0].style.paddingTop = '6px';
+	        main_core.Dom.style(wrapper.getElementsByTagName('textarea')[0], 'paddingTop', '6px');
 	        wrapper.getElementsByTagName('button')[0].className = 'ui-btn ui-btn-xs ui-btn-light-border';
 	        control.before(wrapper);
-	      }
-
-	      if (!prop['Multiple']) {
-	        document.getElementsByName('VALUE')[0].placeholder = main_core.Loc.getMessage('BIZPROC_GLOBALFIELD_EDIT_TMP_EMPTY');
-	        return;
 	      }
 
 	      if (prop['Type'] === 'user') {
 	        return;
 	      }
 
-	      var values = document.getElementsByName('VALUE[]');
-
-	      for (var i in values) {
-	        if (values.hasOwnProperty(i)) {
-	          values[i].placeholder = main_core.Loc.getMessage('BIZPROC_GLOBALFIELD_EDIT_TMP_EMPTY');
-	        }
-	      }
-
 	      if (control.getElementsByTagName('a').length > 0) {
 	        var buttonAdd = control.getElementsByTagName('a')[0];
-	        BX.bind(buttonAdd, 'click', function () {
+	        main_core.Event.bind(buttonAdd, 'click', function () {
 	          var values = document.getElementsByName('VALUE[]');
-	          var value = BX.clone(values[values.length - 1]);
+	          var value = main_core.Runtime.clone(values[values.length - 1]);
 
 	          if (prop['Type'] !== 'date' && prop['Type'] !== 'datetime') {
 	            // remove wrapper div
@@ -119,10 +111,8 @@
 	              parent.remove();
 	            }
 
-	            control.insertBefore(value, buttonAdd.parentNode);
+	            main_core.Dom.insertBefore(value, buttonAdd.parentNode);
 	          }
-
-	          values[values.length - 1].placeholder = main_core.Loc.getMessage('BIZPROC_GLOBALFIELD_EDIT_TMP_EMPTY');
 	        });
 	      }
 	    }
@@ -171,7 +161,7 @@
 	      bizproc_globals.Globals.Manager.Instance.upsertGlobalsAction(id, property, this.signedDocumentType, this.mode).then(function (response) {
 	        if (response.data && response.data.error) {
 	          ui_dialogs_messagebox.MessageBox.alert(response.data.error, function () {
-	            BX.removeClass(me.saveButtonNode, 'ui-btn-wait');
+	            main_core.Dom.removeClass(me.saveButtonNode, 'ui-btn-wait');
 	            return true;
 	          });
 	        } else {
@@ -220,7 +210,7 @@
 
 	      if (!name) {
 	        ui_dialogs_messagebox.MessageBox.alert(BX.Loc.getMessage('BIZPROC_GLOBALFIELD_EDIT_TMP_EMPTY_NAME'), function () {
-	          BX.removeClass(me.saveButtonNode, 'ui-btn-wait');
+	          main_core.Dom.removeClass(me.saveButtonNode, 'ui-btn-wait');
 	          return true;
 	        });
 	        return false;

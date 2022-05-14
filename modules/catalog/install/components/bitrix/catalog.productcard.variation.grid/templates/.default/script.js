@@ -2,6 +2,10 @@
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11;
+
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var GRID_TEMPLATE_ROW = 'template_0';
 
 	var VariationGrid = /*#__PURE__*/function () {
@@ -327,13 +331,13 @@
 	      var tableHeadRow = tableHead.insertRow();
 	      tableHeadRow.className = 'main-grid-row-head';
 	      this.addCellToTable(tableHeadRow, main_core.Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_STORE'), true, 'left');
+	      this.addCellToTable(tableHeadRow, main_core.Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_QUANTITY_COMMON1'), true);
 
 	      if (this.isShowedStoreReserve) {
-	        this.addCellToTable(tableHeadRow, main_core.Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_AMOUNT'), true);
 	        this.addCellToTable(tableHeadRow, main_core.Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_QUANTITY_RESERVED'), true);
+	        this.addCellToTable(tableHeadRow, main_core.Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_QUANTITY_AVAILABLE'), true);
 	      }
 
-	      this.addCellToTable(tableHeadRow, main_core.Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_QUANTITY_COMMON'), true);
 	      var tableBody = table.createTBody();
 	      stores.forEach(function (store) {
 	        var tableRow = tableBody.insertRow();
@@ -341,13 +345,13 @@
 
 	        _this3.addCellToTable(tableRow, store.title, false, 'left');
 
-	        if (_this3.isShowedStoreReserve) {
-	          _this3.addCellToTable(tableRow, store.quantityAvailable, false);
-
-	          _this3.addCellToTable(tableRow, store.quantityReserved, false);
-	        }
-
 	        _this3.addCellToTable(tableRow, store.quantityCommon, false);
+
+	        if (_this3.isShowedStoreReserve) {
+	          _this3.addCellToTable(tableRow, store.quantityReserved, false);
+
+	          _this3.addCellToTable(tableRow, store.quantityAvailable, false);
+	        }
 	      });
 	      return table;
 	    }
@@ -583,8 +587,9 @@
 	      if (barcodeNode) {
 	        var _item$editData;
 
+	        barcodeNode.innerHTML = '';
 	        var inputWrapper = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div style=\"display: none\"></div>"])));
-	        barcodeNode.appendChild(inputWrapper);
+	        main_core.Dom.append(inputWrapper, barcodeNode);
 	        var barcodes = (_item$editData = item.editData) === null || _item$editData === void 0 ? void 0 : _item$editData.SKU_GRID_BARCODE_VALUES;
 	        var items = [];
 
@@ -710,12 +715,13 @@
 
 	      if (main_core.Type.isDomNode(newNode)) {
 	        var newRowDataId = main_core.Text.getRandom();
-	        this.gridEditData[newRowDataId] = babelHelpers.objectSpread({}, this.gridEditData['template_0']);
+	        this.gridEditData[newRowDataId] = _objectSpread({}, this.gridEditData['template_0']);
 	        newNode.setAttribute('data-id', newRowDataId);
 	        this.markNodeAsNew(newNode);
 	        this.modifyCustomSkuProperties(newNode);
 	        this.addSkuListCreationItem(newNode);
 	        this.setDeleteButton(newNode);
+	        this.enableBarcodeEditor(newRow);
 	        newRow.makeCountable();
 	      }
 
@@ -802,12 +808,12 @@
 	      }
 
 	      if (newRowData) {
-	        newRowData = babelHelpers.objectSpread({}, newRowData);
+	        newRowData = _objectSpread({}, newRowData);
 	        this.prepareNewRowData(newRowData);
 	        var data = this.getGridEditData();
 	        var originalTemplateData = data[GRID_TEMPLATE_ROW];
 	        var customEditData = this.prepareCustomEditData(originalTemplateData);
-	        this.setOriginalTemplateEditData(babelHelpers.objectSpread({}, originalTemplateData, newRowData, customEditData));
+	        this.setOriginalTemplateEditData(_objectSpread(_objectSpread(_objectSpread({}, originalTemplateData), newRowData), customEditData));
 	        return originalTemplateData;
 	      }
 
@@ -836,6 +842,8 @@
 	          delete newRowData[i];
 	        }
 	      }
+
+	      newRowData['SKU_GRID_BARCODE'] = '<div data-role="barcode-selector"></div>';
 	    }
 	  }, {
 	    key: "prepareCustomEditData",
@@ -966,7 +974,7 @@
 	            messageBox.close();
 	          }
 	        };
-	        ui_dialogs_messagebox.MessageBox.show(babelHelpers.objectSpread({}, defaultOptions, options));
+	        ui_dialogs_messagebox.MessageBox.show(_objectSpread(_objectSpread({}, defaultOptions), options));
 	      } else {
 	        okCallback && okCallback();
 	      }

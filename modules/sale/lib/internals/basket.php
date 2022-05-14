@@ -8,7 +8,9 @@
 namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main;
+use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\Reservation\BasketReservationService;
 use Bitrix\Sale\Reservation\Internals\BasketReservationTable;
 
 Loc::loadMessages(__FILE__);
@@ -64,13 +66,15 @@ class BasketTable extends Main\Entity\DataManager
 			BasketPropertyTable::delete($item["ID"]);
 		}
 
+		/** @var BasketReservationService */
+		$service = ServiceLocator::getInstance()->get('sale.basketReservation');
 		$dbRes = BasketReservationTable::getList([
 			"select" => ["ID"],
 			"filter" => ["BASKET_ID" => $id],
 		]);
 		while ($item = $dbRes->fetch())
 		{
-			BasketReservationTable::delete($item["ID"]);
+			$service->delete($item["ID"]);
 		}
 
 		return BasketTable::delete($id);

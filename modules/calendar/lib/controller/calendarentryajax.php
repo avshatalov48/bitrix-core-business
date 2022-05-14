@@ -7,10 +7,10 @@ use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Error;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\Integration\Bitrix24Manager;
 use Bitrix\Intranet;
+use Bitrix\Main\Loader;
 
 Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/calendar/lib/controller/calendarajax.php');
 
@@ -36,7 +36,6 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		
 		$request = $this->getRequest();
 		$calendarType = $request->getPost('type');
-		$ownerId = (int)$request->getPost('ownerId');
 		$futureDaysAmount = (int)$request->getPost('futureDaysAmount');
 		$maxEntryAmount = (int)$request->getPost('maxEntryAmount');
 

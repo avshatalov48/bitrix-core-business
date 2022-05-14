@@ -712,7 +712,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 
 						$address = new Bitrix\Main\Mail\Address();
 						$address->setEmail($item['email']);
-						$address->setName($item['name']);
+						$address->setName(htmlspecialcharsBack($item['name']));
 
 						if ($address->validate())
 						{
@@ -783,7 +783,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			$sanitizer = new \CBXSanitizer();
 			$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
 			$sanitizer->applyDoubleEncode(false);
-			$sanitizer->addTags(array('style' => array()));
+			$sanitizer->addTags(\Bitrix\Mail\Helper\Message::getWhitelistTagAttributes());
 
 			$messageBody = $sanitizer->sanitizeHtml($messageBody);
 			$messageBodyHtml = $messageBody;

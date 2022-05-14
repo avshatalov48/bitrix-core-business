@@ -8,8 +8,11 @@
 
 namespace Bitrix\Main\ORM\Fields;
 
+use Bitrix\Main\DB\SqlExpression;
+
 /**
  * Entity field class for string data type
+ *
  * @package bitrix
  * @subpackage main
  */
@@ -115,6 +118,11 @@ class StringField extends ScalarField
 			return $value;
 		}
 
+		if ($value instanceof SqlExpression)
+		{
+			return $value;
+		}
+
 		$value = (string) $value;
 
 		if ($this->size !== null)
@@ -144,6 +152,11 @@ class StringField extends ScalarField
 	 */
 	public function convertValueToDb($value)
 	{
+		if ($value instanceof SqlExpression)
+		{
+			return $value;
+		}
+
 		return $value === null && $this->is_nullable
 			? $value
 			: $this->getConnection()->getSqlHelper()->convertToDbString($value);

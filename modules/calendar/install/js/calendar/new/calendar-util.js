@@ -865,6 +865,13 @@
 		{
 			return this.type === 'user';
 		},
+		
+		isCompanyCalendar: function()
+		{
+			return this.type === 'company_calendar'
+				|| this.type === 'calendar_company'
+				|| this.type === 'company';
+		},
 
 		isGroupCalendar: function()
 		{
@@ -1025,7 +1032,14 @@
 
 		isFilterEnabled: function()
 		{
-			return this.userIsOwner() && this.config.counters;
+			return (this.isUserCalendar() && this.ownerId === this.userId)
+				|| this.isCompanyCalendar()
+				|| this.isGroupCalendar();
+		},
+		
+		isCountersEnabled: function()
+		{
+			return this.config.counters;
 		},
 
 		getCalDavConnections: function()

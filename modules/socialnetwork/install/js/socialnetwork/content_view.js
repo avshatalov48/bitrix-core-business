@@ -120,7 +120,14 @@ BX.UserContentView.getXmlId = function(node)
 
 BX.UserContentView.getSaveValue = function(node)
 {
-	return (node.getAttribute("bx-content-view-save") != 'N' ? 'Y' : 'N')
+	var key = node.getAttribute('bx-content-view-key');
+	var signedKey = node.getAttribute('bx-content-view-key-signed');
+
+	return {
+		key: (key ? key : ''),
+		signedKey: (signedKey ? signedKey : ''),
+		value: (node.getAttribute('bx-content-view-save') != 'N' ? 'Y' : 'N'),
+	}
 };
 
 BX.UserContentView.getReadStatus = function(xmlId)
@@ -163,18 +170,20 @@ BX.UserContentView.sendViewAreaData = function()
 
 	for (var xmlId in this.viewAreaReadList)
 	{
-		if (!this.viewAreaReadList.hasOwnProperty(xmlId))
+		if (
+			!this.viewAreaReadList.hasOwnProperty(xmlId)
+			|| BX.util.in_array(xmlId, this.viewAreaSentList)
+		)
 		{
 			continue;
 		}
 
-		if (!BX.util.in_array(xmlId, this.viewAreaSentList))
-		{
-			this.toSendList.push({
-				xmlId: xmlId,
-				save: this.viewAreaReadList[xmlId]
-			});
-		}
+		this.toSendList.push({
+			xmlId: xmlId,
+			save: this.viewAreaReadList[xmlId].value,
+			key: this.viewAreaReadList[xmlId].key,
+			signedKey: this.viewAreaReadList[xmlId].signedKey,
+		});
 	}
 
 	if (this.failedAjaxCounter >= this.failedAjaxLimit)

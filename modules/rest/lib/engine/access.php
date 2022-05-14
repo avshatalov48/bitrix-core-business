@@ -183,6 +183,10 @@ class Access
 				{
 					$restUnlimitedFinish = Option::get(static::MODULE_ID, static::OPTION_REST_UNLIMITED_FINISH, null);
 					$count = (int) \Bitrix\Bitrix24\Feature::getVariable('rest_no_subscribe_access_limit');
+					if (\CBitrix24::getLicensePrefix() === 'ua')
+					{
+						$count = -1;
+					}
 				}
 			}
 			else
@@ -598,7 +602,10 @@ class Access
 	 */
 	public static function isActiveRules()
 	{
-		return Option::get(static::MODULE_ID, static::OPTION_ACCESS_ACTIVE, 'N') === 'Y';
+		return
+			ModuleManager::isModuleInstalled('bitrix24')
+			|| Option::get(static::MODULE_ID, static::OPTION_ACCESS_ACTIVE, 'N') === 'Y'
+		;
 	}
 
 	/**

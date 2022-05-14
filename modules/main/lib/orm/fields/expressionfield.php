@@ -8,6 +8,7 @@
 
 namespace Bitrix\Main\ORM\Fields;
 
+use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\ORM\Query\Chain;
 use Bitrix\Main\ORM\Data\Result;
@@ -189,6 +190,14 @@ class ExpressionField extends Field implements IReadable
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getBuildFrom()
+	{
+		return $this->buildFrom;
+	}
+
+	/**
 	 * @return mixed|string
 	 * @throws SystemException
 	 */
@@ -197,16 +206,30 @@ class ExpressionField extends Field implements IReadable
 		if (!isset($this->fullExpression))
 		{
 			$SQLBuildFrom = array();
+			$buildFromChains = $this->getBuildFromChains();
 
-			foreach ($this->getBuildFromChains() as $chain)
+			foreach ($this->buildFrom as $element)
 			{
-				if ($chain->getLastElement()->getValue() instanceof ExpressionField)
+				if ($element instanceof \Closure)
 				{
-					$SQLBuildFrom[] = $chain->getLastElement()->getValue()->getFullExpression();
+					/** @var SqlExpression $sqlExpression */
+					// no need to get real value. also it may [] to false positive check in hasAggregation or hasSubquery
+					//$sqlExpression = $element();
+					//$SQLBuildFrom[] = $sqlExpression->compile();
+					$SQLBuildFrom[] = '';
 				}
 				else
 				{
-					$SQLBuildFrom[] = '%s';
+					$chain = array_shift($buildFromChains);
+
+					if ($chain->getLastElement()->getValue() instanceof ExpressionField)
+					{
+						$SQLBuildFrom[] = $chain->getLastElement()->getValue()->getFullExpression();
+					}
+					else
+					{
+						$SQLBuildFrom[] = '%s';
+					}
 				}
 			}
 
@@ -250,7 +273,7 @@ class ExpressionField extends Field implements IReadable
 	}
 
 	/**
-	 * @return array|\Bitrix\Main\ORM\Query\Chain[]
+	 * @return \Bitrix\Main\ORM\Query\Chain[]
 	 * @throws SystemException
 	 * @throws \Bitrix\Main\ArgumentException
 	 */
@@ -262,20 +285,23 @@ class ExpressionField extends Field implements IReadable
 
 			foreach ($this->buildFrom as $elem)
 			{
-				// validate if build from scalar or expression
-				$chain = Chain::getChainByDefinition($this->entity, $elem);
-				$field = $chain->getLastElement()->getValue();
+				if (!($elem instanceof \Closure))
+				{
+					// validate if build from scalar or expression
+					$chain = Chain::getChainByDefinition($this->entity, $elem);
+					$field = $chain->getLastElement()->getValue();
 
-				if ($field instanceof ScalarField || $field instanceof ExpressionField)
-				{
-					$this->buildFromChains[] = $chain;
-				}
-				else
-				{
-					throw new SystemException(sprintf(
-						'Expected ScalarField or ExpressionField in `%s` build_from, but `%s` was given.',
-						$this->name, is_object($field) ? get_class($field).':'.$field->getName() : gettype($field)
-					));
+					if ($field instanceof ScalarField || $field instanceof ExpressionField)
+					{
+						$this->buildFromChains[] = $chain;
+					}
+					else
+					{
+						throw new SystemException(sprintf(
+							'Expected ScalarField or ExpressionField in `%s` build_from, but `%s` was given.',
+							$this->name, is_object($field) ? get_class($field).':'.$field->getName() : gettype($field)
+						));
+					}
 				}
 			}
 		}

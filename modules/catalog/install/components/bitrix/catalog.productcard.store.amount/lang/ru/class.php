@@ -8,6 +8,6 @@ $MESS['STORE_LIST_GRID_HEADER_QUANTITY_RESERVED'] = 'В резерве';
 $MESS['STORE_LIST_GRID_HEADER_AMOUNT'] = 'На сумму';
 $MESS['STORE_LIST_GRID_STUB_TITLE'] = 'Товар отсутствует на складах';
 $MESS['STORE_LIST_GRID_IM_STUB_TITLE'] = 'Для работы с остатками товара включите';
-$MESS['STORE_LIST_INVENTORY_MANAGEMENT'] = 'Складской учет';
+$MESS['STORE_LIST_INVENTORY_MANAGEMENT'] = 'Складской учёт';
 $MESS['STORE_LIST_GRID_OPEN_DETAILS_TITLE'] = 'Открыть';
 $MESS['STORE_LIST_GRID_STORE_TITLE_WITHOUT_NAME'] = 'Без названия';

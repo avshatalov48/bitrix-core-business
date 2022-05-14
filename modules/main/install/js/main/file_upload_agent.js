@@ -48,6 +48,8 @@ BX.FileUploadAgent = function(arParams) {
 	if (! this.parent._mkFileInput) // first agent
 		this._mkFileInput();
 
+	this.hUploaderChange = this.onUploaderChange.bind(this);
+
 	if (! window.wduf_places)
 		window.wduf_places = {};
 };
@@ -63,8 +65,6 @@ BX.FileUploadAgent.prototype.Init = function()
 	}
 
 	if (this.fileInput) {
-		if (! this.hUploaderChange)
-			this.hUploaderChange = BX.proxy(this.onUploaderChange, this);
 		BX.bind(this.fileInput, 'change', this.hUploaderChange);
 	}
 	if (this.hAttachEvents && BX.type.isFunction(this.hAttachEvents)) {

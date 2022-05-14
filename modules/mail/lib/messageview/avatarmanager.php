@@ -13,14 +13,14 @@ class AvatarManager
 		$this->currentUserId = $currentUserId;
 	}
 
-	public function getAvatarParamsFromEmails($messages)
+	public function getAvatarParamsFromEmails($filedFromList)
 	{
-		return $this->getAvatarParamsFromMessagesHeaders([['FIELD_FROM' => implode(',', $messages)]]);
+		return $this->getAvatarParamsFromMessagesHeaders( [['FIELD_FROM' => $filedFromList]], true);
 	}
 
-	public function getAvatarParamsFromMessagesHeaders($messages)
+	public function getAvatarParamsFromMessagesHeaders($messages, $isListOfEmails = false)
 	{
-		$mailsNames = $this->getEmailsNames($messages);
+		$mailsNames = $this->getEmailsNames($messages, $isListOfEmails);
 
 		$mailContacts = $this->fetchMailContacts(array_map(
 			function ($item)
@@ -54,15 +54,22 @@ class AvatarManager
 		return $mailsNames;
 	}
 
-	private function getEmailsNames($messages)
+	private function getEmailsNames($messages, $isListOfEmails = false)
 	{
 		$emailNames = [];
 		foreach ($messages as $index => $message)
 		{
-			$emailNames = array_merge($emailNames, $this->extractMailsNamesFrom($message['FIELD_FROM']));
-			$emailNames = array_merge($emailNames, $this->extractMailsNamesFrom($message['FIELD_TO']));
-			$emailNames = array_merge($emailNames, $this->extractMailsNamesFrom($message['FIELD_CC']));
-			$emailNames = array_merge($emailNames, $this->extractMailsNamesFrom($message['FIELD_BCC']));
+			if($isListOfEmails)
+			{
+				$emailNames = array_merge($emailNames, $this->extractMailsNamesFrom(false, $message['FIELD_FROM']));
+			}
+			else
+			{
+				$emailNames = array_merge($emailNames, $this->extractMailsNamesFrom($message['FIELD_FROM']));
+				$emailNames = array_merge($emailNames, $this->extractMailsNamesFrom($message['FIELD_TO']));
+				$emailNames = array_merge($emailNames, $this->extractMailsNamesFrom($message['FIELD_CC']));
+				$emailNames = array_merge($emailNames, $this->extractMailsNamesFrom($message['FIELD_BCC']));
+			}
 		}
 		$emailNames = $this->getBestNameChoices($emailNames);
 
@@ -99,12 +106,21 @@ class AvatarManager
 		return $results;
 	}
 
-	private function extractMailsNamesFrom($parsedListOfEmails)
+	private function extractMailsNamesFrom($parsedListOfEmails = false, $listOfEmails = false)
 	{
 		$emailNames = [];
-		if ($parsedListOfEmails)
+		if ($parsedListOfEmails || $listOfEmails)
 		{
-			$mailsCopy = explode(',', $parsedListOfEmails);
+			$mailsCopy = [];
+			if($listOfEmails === false)
+			{
+				$mailsCopy = explode(',', $parsedListOfEmails);
+			}
+			else
+			{
+				$mailsCopy = $listOfEmails;
+			}
+
 			foreach ($mailsCopy as $mailCopy)
 			{
 				if (trim($mailCopy))

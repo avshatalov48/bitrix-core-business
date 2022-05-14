@@ -82,9 +82,6 @@ class CCalendarRequest
 				case 'get_destination_items':
 					self::getDestinationItems();
 					break;
-				case 'get_filter_data':
-					self::getFilterData();
-					break;
 			}
 		}
 
@@ -175,96 +172,6 @@ class CCalendarRequest
 			)
 		);
 	}
-
-	public static function getFilterData()
-	{
-		$fields = CalendarFilter::resolveFilterFields(CalendarFilter::getFilterId(CCalendar::GetType(), CCalendar::GetOwnerId(), CCalendar::GetCurUserId()));
-
-		$parseRecursion = false;
-		$counters = false;
-		$arFilter = array(
-			'OWNER_ID' => CCalendar::GetOwnerId(),
-			'CAL_TYPE' => CCalendar::GetType()
-		);
-
-		if (isset($fields['fields']['IS_MEETING']))
-		{
-			$arFilter['IS_MEETING'] = $fields['fields']['IS_MEETING'] == 'Y';
-		}
-		if (isset($fields['fields']['MEETING_STATUS']))
-		if (isset($fields['fields']['MEETING_STATUS']))
-		{
-			$arFilter['MEETING_STATUS'] = $fields['fields']['MEETING_STATUS'];
-			$arFilter['IS_MEETING'] = true;
-
-			if ($fields['presetId'] == 'filter_calendar_meeting_status_q')
-			{
-				$arFilter['FROM_LIMIT'] = CCalendar::Date(time(), false);
-				$arFilter['TO_LIMIT'] = CCalendar::Date(time() + CCalendar::DAY_LENGTH * 90, false);
-				CCalendar::UpdateCounter(array(CCalendar::GetOwnerId()));
-				$counters = CountersManager::getValues((int)$arFilter['OWNER_ID']);
-			}
-		}
-		if (isset($fields['fields']['CREATED_BY']))
-		{
-			unset($arFilter['OWNER_ID'], $arFilter['CAL_TYPE']);
-			$arFilter['MEETING_HOST'] = $fields['fields']['CREATED_BY'];
-			// mantis: 93743
-			$arFilter['CREATED_BY'] = CCalendar::GetCurUserId();
-			$arFilter['IS_MEETING'] = true;
-		}
-		if (isset($fields['fields']['ATTENDEES']))
-		{
-			$arFilter['OWNER_ID'] = $fields['fields']['ATTENDEES'];
-			$arFilter['IS_MEETING'] = true;
-		}
-
-		$fromTs = 0;
-		$toTs = 0;
-		if (isset($fields['fields']['DATE_FROM']))
-		{
-			$fromTs = CCalendar::Timestamp($fields['fields']['DATE_FROM'], true, false);
-			$arFilter['FROM_LIMIT'] = CCalendar::Date($fromTs, false);
-		}
-		if (isset($fields['fields']['DATE_TO']))
-		{
-			$toTs = CCalendar::Timestamp($fields['fields']['DATE_TO'], true, false);
-			$arFilter['TO_LIMIT'] = CCalendar::Date($toTs, false);
-			if ($fromTs && $toTs < $fromTs)
-			{
-				$arFilter['TO_LIMIT'] = $arFilter['FROM_LIMIT'];
-			}
-		}
-		if ($fromTs && $toTs && $fromTs <= $toTs)
-		{
-			$parseRecursion = true;
-		}
-
-		if (isset($fields['search']) && $fields['search'])
-		{
-			$arFilter[(CCalendarEvent::isFullTextIndexEnabled() ? '*' : '*%').'SEARCHABLE_CONTENT'] = CCalendarEvent::prepareToken($fields['search']);
-		}
-
-		$entries = CCalendarEvent::GetList(
-			array(
-				'arFilter' => $arFilter,
-				'fetchAttendees' => true,
-				'parseRecursion' => $parseRecursion,
-				'maxInstanceCount' => 50,
-				'preciseLimits' => $parseRecursion,
-				'userId' => CCalendar::GetCurUserId(),
-				'fetchMeetings' => true,
-				'setDefaultLimit' => false
-			)
-		);
-
-		self::OutputJSRes(self::$reqId,
-			array(
-				'result' => true,
-				'entries' => $entries,
-				'counters' => $counters
-			)
-		);
-	}
 }
+
 ?>

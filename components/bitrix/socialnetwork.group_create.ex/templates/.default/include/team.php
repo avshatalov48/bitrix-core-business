@@ -172,7 +172,7 @@ $enableSelectDepartment = (isset($arResult['GROUP_PROPERTIES']['UF_SG_DEPT']) &&
 			<div class="socialnetwork-group-create-ex__content-block --space-bottom">
 				<div class="socialnetwork-group-create-ex__content-block"><?php
 					?><div id="GROUP_MODERATORS_PROJECT_switch" class="socialnetwork-group-create-ex__text --s --margin-bottom">
-						<div class="ui-ctl-label-text socialnetwork-group-create-ex__create--switch-nonproject <?= ($isProject ? '--project' : '') ?> <?= ($isScrumProject ? '--scrum' : '') ?>" data-role="socialnetwork-group-create-ex__expandable" for="expandable-moderator-block" style="margin-bottom: 30px"><?= Loc::getMessage('SONET_GCE_T_DEST_TITLE_MODERATORS') ?></div>
+						<div class="ui-ctl-label-text socialnetwork-group-create-ex__create--switch-nonproject <?= ($isProject ? '--project' : '') ?> <?= ($isScrumProject ? '--scrum' : '') ?>" data-role="socialnetwork-group-create-ex__expandable" for="expandable-moderator-block"><?= Loc::getMessage('SONET_GCE_T_DEST_TITLE_MODERATORS') ?></div>
 						<div class="ui-ctl-label-text socialnetwork-group-create-ex__create--switch-project socialnetwork-group-create-ex__create--switch-nonscrum <?= ($isProject ? '--project' : '') ?> <?= ($isScrumProject ? '--scrum' : '') ?>" data-role="socialnetwork-group-create-ex__expandable" for="expandable-moderator-block"><?= Loc::getMessage('SONET_GCE_T_DEST_TITLE_MODERATORS_PROJECT') ?></div>
 						<div class="socialnetwork-group-create-ex__text --s socialnetwork-group-create-ex__create--switch-scrum <?= ($isScrumProject ? '--scrum' : '') ?>"><?= Loc::getMessage('SONET_GCE_T_DEST_TITLE_MODERATORS_SCRUM_PROJECT') ?></div>
 					</div>

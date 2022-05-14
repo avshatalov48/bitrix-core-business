@@ -5,14 +5,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	'css' => 'dist/payment.bundle.css',
-	'js' => 'dist/payment.bundle.js',
+	'css' => 'dist/registry.bundle.css',
+	'js' => 'dist/registry.bundle.js',
 	'rel' => [
 		'ui.vue',
-		'sale.checkout.const',
 		'main.core',
-		'main.core.events',
-		'sale.checkout.view.mixins',
+		'currency.currency-core',
+		'sale.payment-pay.components',
 	],
 	'skip_core' => false,
 ];

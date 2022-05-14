@@ -66,13 +66,13 @@ abstract class Connection extends Data\Connection
 	{
 		parent::__construct($configuration);
 
-		$this->host = $configuration['host'];
-		$this->database = $configuration['database'];
-		$this->login = $configuration['login'];
-		$this->password = $configuration['password'];
-		$this->initCommand = isset($configuration['initCommand']) ? $configuration['initCommand'] : "";
-		$this->options = intval($configuration['options']);
-		$this->utf8mb4 = (isset($configuration['utf8mb4']) && is_array($configuration['utf8mb4'])? $configuration['utf8mb4'] : array());
+		$this->host = $configuration['host'] ?? '';
+		$this->database = $configuration['database'] ?? '';
+		$this->login = $configuration['login'] ?? '';
+		$this->password = $configuration['password'] ?? '';
+		$this->initCommand = $configuration['initCommand'] ?? '';
+		$this->options = intval($configuration['options'] ?? 2);
+		$this->utf8mb4 = (isset($configuration['utf8mb4']) && is_array($configuration['utf8mb4'])? $configuration['utf8mb4'] : []);
 	}
 
 	/**

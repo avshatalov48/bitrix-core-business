@@ -362,4 +362,72 @@ html* .file-placeholder .files-list {
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
     vertical-align: top;
 }
+/*region Moved from Blog*/
+.feed-add-photo-block-wrap {
+	margin-top: -17px;
+}
 
+.feed-add-photo-block {
+	display: inline-block;
+	margin: 17px 17px 0 0;
+	min-height: 92px;
+	width: 102px;
+	padding-right: 21px;
+	position: relative;
+	vertical-align: top;
+}
+
+.feed-add-photo-block .feed-add-post-del-but {
+	background-position: 6px -19px;
+	background-color: #fff;
+	height: 22px;
+	top: 1px;
+	z-index: 0;
+}
+
+.feed-add-img-wrap {
+	background: #fff;
+	border: 1px solid #e2e6e6;
+	-moz-box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+	-webkit-box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+	box-shadow: 0 0 2px rgba(137, 137, 137, 0.3);
+	display: block;
+	text-align: center;
+	padding: 4px;
+	position: relative;
+	z-index: 2;
+}
+
+.feed-add-img-title {
+	color: #2067b0;
+	display: block;
+	font-weight: bold;
+	font-size: 12px;
+	margin-top: 3px;
+	overflow: hidden;
+}
+
+.feed-add-photo-block .feed-add-close-icon {
+	background-color: #fff;
+	background-position: 8px -19px;
+	height: 22px;
+	top: 1px;
+	right: 1px;
+	width: 22px;
+}
+
+.feed-add-photo-block .feed-add-close-icon:hover {
+	background-position: -57px -60px;
+}
+
+.feed-add-post-del-but {
+	background: url("images/live_feed_sprite.png") no-repeat;
+	cursor: pointer;
+	right: 0;
+	top: 0;
+	height: 20px;
+	position: absolute;
+	width: 20px;
+}
+
+/*endregion*/

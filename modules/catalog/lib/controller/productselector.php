@@ -895,4 +895,11 @@ class ProductSelector extends JsonController
 
 		return [];
 	}
+
+	public function isInstalledMobileAppAction(): bool
+	{
+		return (bool)\CUserOptions::GetOption('mobile', 'iOsLastActivityDate')
+			|| (bool)\CUserOptions::GetOption('mobile', 'AndroidLastActivityDate')
+		;
+	}
 }

@@ -10,14 +10,16 @@ class PreselectedItem implements \JsonSerializable
 
 	public function __construct(array $options)
 	{
-		if (!empty($options['id']) && (is_string($options['id']) || is_int($options['id'])))
+		$id = $options['id'] ?? null;
+		if ((is_string($id) && $id !== '') || is_int($id))
 		{
-			$this->id = $options['id'];
+			$this->id = $id;
 		}
 
-		if (!empty($options['entityId']) && is_string($options['entityId']))
+		$entityId = $options['entityId'] ?? null;
+		if (is_string($entityId) && $entityId !== '')
 		{
-			$this->entityId = $options['entityId'];
+			$this->entityId = strtolower($entityId);
 		}
 	}
 

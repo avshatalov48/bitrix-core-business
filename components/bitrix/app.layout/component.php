@@ -1,11 +1,12 @@
 <?
 
-use Bitrix\Rest\Engine\Access;
-
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
+
+use Bitrix\Rest\Engine\Access;
+use Bitrix\Rest\PlacementTable;
 
 /**
  * Bitrix vars
@@ -29,7 +30,7 @@ if($arParams["APP_VIEW"])
 	)
 	{
 		$appId =  $appInfo['ID'];
-		$res = \Bitrix\Rest\PlacementTable::getList(
+		$res = PlacementTable::getList(
 			[
 				'filter' => [
 					'PLACEMENT' => \CRestUtil::PLACEMENT_APP_URI,
@@ -116,9 +117,23 @@ if($arParams['ID'] <= 0)
 		$componentPage = "application";
 	}
 
-	if(strval(intval($arVariables['id'])) == $arVariables['id'])
+	if (
+		(int)$arVariables['placement_id'] > 0
+		&& (string)(int)$arVariables['placement_id'] === (string)$arVariables['placement_id']
+	)
 	{
-		$arParams['CODE'] = intval($arVariables['id']);
+		$res = PlacementTable::getById((int)$arVariables['placement_id']);
+		if ($placement = $res->fetch())
+		{
+			$arParams['ID'] = $placement['APP_ID'];
+			$arParams['CODE'] = $placement['APP_ID'];
+			$arParams['PLACEMENT'] = $placement['PLACEMENT'];
+			$arParams['PLACEMENT_ID'] = $placement['ID'];
+		}
+	}
+	elseif ((string)(int)$arVariables['id'] === (string)$arVariables['id'])
+	{
+		$arParams['CODE'] = (int)$arVariables['id'];
 	}
 	else
 	{
@@ -150,10 +165,10 @@ if(!\Bitrix\Main\Loader::includeModule("rest"))
 $arParams['INITIALIZE'] = $arParams['INITIALIZE']  == 'N' ? 'N' : 'Y';
 
 $arParams['DETAIL_URL'] = isset($arParams['DETAIL_URL']) ? trim($arParams['DETAIL_URL']) : '/marketplace/detail/#code#/';
-$arParams['PLACEMENT'] = isset($arParams['PLACEMENT']) ? ToUpper($arParams['PLACEMENT']) : \Bitrix\Rest\PlacementTable::PLACEMENT_DEFAULT;
+$arParams['PLACEMENT'] = isset($arParams['PLACEMENT']) ? ToUpper($arParams['PLACEMENT']) : PlacementTable::PLACEMENT_DEFAULT;
 $arParams['PLACEMENT_OPTIONS'] = isset($arParams['PLACEMENT_OPTIONS']) ? $arParams['PLACEMENT_OPTIONS'] : '';
 $arResult['SUBSCRIPTION_FINISH'] = \Bitrix\Rest\Marketplace\Client::getSubscriptionFinalDate();
-if($arParams['PLACEMENT'] === \Bitrix\Rest\PlacementTable::PLACEMENT_DEFAULT && empty($arParams['PLACEMENT_OPTIONS']))
+if ($arParams['PLACEMENT'] === PlacementTable::PLACEMENT_DEFAULT && empty($arParams['PLACEMENT_OPTIONS']))
 {
 	$requestOptions = $_GET;
 	if($arParams['POPUP'])
@@ -197,7 +212,7 @@ if(
 	}
 
 	$placementHandlerInfo = array();
-	if($arParams['PLACEMENT'] !== \Bitrix\Rest\PlacementTable::PLACEMENT_DEFAULT)
+	if ($arParams['PLACEMENT'] !== PlacementTable::PLACEMENT_DEFAULT)
 	{
 		$filter = array();
 		if(isset($arParams['PLACEMENT_ID']))
@@ -208,7 +223,7 @@ if(
 		$filter['=APP_ID'] = $arApp['ID'];
 		$filter['=PLACEMENT'] = $arParams['PLACEMENT'];
 
-		$res = \Bitrix\Rest\PlacementTable::getList(
+		$res = PlacementTable::getList(
 			[
 				'filter' => $filter,
 				'select' => [
@@ -265,7 +280,7 @@ if(
 			}
 			elseif ((int) $placementHandlerInfo['ID'] > 0)
 			{
-				$arResult['APP_NAME'] = \Bitrix\Rest\PlacementTable::getDefaultTitle((int) $placementHandlerInfo['ID']);
+				$arResult['APP_NAME'] = PlacementTable::getDefaultTitle((int) $placementHandlerInfo['ID']);
 			}
 		}
 	}
@@ -522,7 +537,7 @@ if(
 				return;
 			}
 		}
-		elseif($arParams['PLACEMENT'] !== \Bitrix\Rest\PlacementTable::PLACEMENT_DEFAULT)
+		elseif($arParams['PLACEMENT'] !== PlacementTable::PLACEMENT_DEFAULT)
 		{
 			$arResult['APP_URL'] = $placementHandlerInfo['PLACEMENT_HANDLER'];
 		}

@@ -1750,14 +1750,25 @@ class Options
 			$fields = array_merge($fields, $presetFields);
 		}
 
+		$defaultPresetFieldsOrder = [];
 		// Fetch fields from default presets
 		foreach ($this->getDefaultPresets() as $key => $preset)
 		{
 			$presetFields = static::fetchPresetFields($preset);
 			$fields = array_merge($fields, $presetFields);
+			if ($preset['default'])
+			{
+				$defaultPresetFieldsOrder = $presetFields;
+			}
 		}
 
 		$fields = array_unique($fields);
+
+		if (!empty($defaultPresetFieldsOrder))
+		{
+			// fields order should be defined by default filter preset
+			$fields = array_unique(array_merge($defaultPresetFieldsOrder, $fields));
+		}
 
 		return $fields;
 	}

@@ -74,8 +74,18 @@ class CBPHelper
 				$db = CUser::GetList(
 					"LAST_NAME",
 					"asc",
-					array("ID_EQUAL_EXACT" => $userId),
-					array("NAV_PARAMS" => false)
+					["ID_EQUAL_EXACT" => $userId],
+					[
+						"NAV_PARAMS" => false,
+						'FIELDS'=> [
+							'ID',
+							'LOGIN',
+							'EMAIL',
+							'NAME',
+							'LAST_NAME',
+							'SECOND_NAME'
+						],
+					]
 				);
 
 				if ($ar = $db->Fetch())
@@ -98,11 +108,16 @@ class CBPHelper
 		}
 	}
 
-	public static function UsersArrayToString($arUsers, $arWorkflowTemplate, $documentType, $appendId = true)
+	public static function UsersArrayToString($users, $arWorkflowTemplate, $documentType, $appendId = true)
 	{
-		if (!is_array($arUsers) && $arUsers == '' || is_array($arUsers) && count($arUsers) <= 0)
+		if (static::isEmptyValue($users))
 		{
 			return "";
+		}
+
+		if (is_array($users))
+		{
+			$users = array_unique($users);
 		}
 
 		$arAllowableUserGroups = [];
@@ -112,7 +127,7 @@ class CBPHelper
 			$arAllowableUserGroups[mb_strtolower($k1)] = str_replace(",", " ", $v1);
 		}
 
-		return self::UsersArrayToStringInternal($arUsers, $arWorkflowTemplate, $arAllowableUserGroups, $appendId);
+		return self::UsersArrayToStringInternal($users, $arWorkflowTemplate, $arAllowableUserGroups, $appendId);
 	}
 
 	public static function UsersStringToArray($strUsers, $documentType, &$arErrors, $callbackFunction = null)
@@ -259,7 +274,10 @@ class CBPHelper
 				"LAST_NAME",
 				"asc",
 				$arFilter,
-				['NAV_PARAMS' => false]
+				[
+					'FIELDS' => ['ID'],
+					'NAV_PARAMS' => false
+				]
 			);
 		}
 		else
@@ -994,8 +1012,18 @@ class CBPHelper
 		$db = CUser::GetList(
 			"LAST_NAME",
 			"asc",
-			array("ID_EQUAL_EXACT" => $userId),
-			array("NAV_PARAMS" => false)
+			["ID_EQUAL_EXACT" => $userId],
+			[
+				"NAV_PARAMS" => false,
+				'FIELDS'=> [
+					'ID',
+					'LOGIN',
+					'EMAIL',
+					'NAME',
+					'LAST_NAME',
+					'SECOND_NAME'
+				]
+			]
 		);
 
 		$str = "";
@@ -1923,7 +1951,15 @@ class CBPHelper
 			}
 			$result = [];
 
-			$iterator = CUser::GetList("ID", "ASC", array("GROUPS_ID" => $group, "ACTIVE" => "Y"));
+			$iterator = CUser::GetList(
+				"ID",
+				"ASC",
+				[
+					"GROUPS_ID" => $group,
+					"ACTIVE" => "Y",
+				],
+				['FIELDS' => ['ID']]
+			);
 			while ($user = $iterator->fetch())
 			{
 				$result[] = $user['ID'];

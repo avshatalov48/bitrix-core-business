@@ -234,6 +234,15 @@ Vue.component(config.templateRowName,
 					this.processFields(fields);
 					this.setCalculatedFields(fields);
 				},
+				onProductSelect()
+				{
+					this.changeProductFields({
+						additionalFields: {
+							originBasketId: '',
+							originProductId: '',
+						},
+					});
+				},
 				onProductClear()
 				{
 					const fields = this.model.getCalculator().calculatePrice(0);
@@ -582,6 +591,7 @@ Vue.component(config.templateRowName,
 						:options="options"
 						:model="model"
 						:editable="isEditableField(blocks.productSelector)"
+						@onProductSelect="onProductSelect"
 						@onProductChange="onProductChange"
 						@saveCatalogField="saveCatalogField"
 					/>

@@ -28,7 +28,7 @@ class Util
 			'str' => $location
 		];
 		
-		if (!$location)
+		if (!$location || is_array($location))
 		{
 			$res['str'] = '';
 			

@@ -807,6 +807,11 @@
 				{
 					BX.style(this.getTable(), 'min-height', (gridRect.height + Math.abs(diff) - panelsHeight - paddingOffset) + 'px');
 				}
+
+				if (this.getCurrentPage() <= 1)
+				{
+					BX.Dom.hide(this.getPanels());
+				}
 			}
 			else
 			{
@@ -817,6 +822,8 @@
 				requestAnimationFrame(function() {
 					BX.style(this.getTable(), 'height', '1px');
 				}.bind(this));
+
+				BX.Dom.show(this.getPanels());
 			}
 		},
 
@@ -2226,6 +2233,17 @@
 			}
 		},
 
+		getCurrentPage: function()
+		{
+			var currentPage = parseInt(this.arParams.CURRENT_PAGE);
+			if (BX.Type.isNumber(currentPage))
+			{
+				return currentPage;
+			}
+
+			return 0;
+		},
+
 		/**
 		 * @private
 		 * @return {Element | any}
@@ -2244,6 +2262,10 @@
 			if (stub)
 			{
 				BX.Dom.attr(stub, 'hidden', null);
+				if (this.getCurrentPage() <= 1)
+				{
+					BX.Dom.hide(this.getPanels());
+				}
 			}
 		},
 
@@ -2257,6 +2279,7 @@
 			{
 				BX.Dom.attr(stub, 'hidden', true);
 				BX.Dom.style(this.getTable(), 'min-height', null);
+				BX.Dom.show(this.getPanels());
 			}
 		},
 

@@ -1,7 +1,7 @@
 (function (exports,main_core,bizproc_globals,ui_entitySelector) {
 	'use strict';
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16, _templateObject17, _templateObject18, _templateObject19, _templateObject20, _templateObject21, _templateObject22, _templateObject23, _templateObject24, _templateObject25, _templateObject26, _templateObject27, _templateObject28, _templateObject29;
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16, _templateObject17, _templateObject18, _templateObject19, _templateObject20, _templateObject21, _templateObject22, _templateObject23, _templateObject24, _templateObject25, _templateObject26, _templateObject27, _templateObject28, _templateObject29, _templateObject30, _templateObject31;
 	var namespace = main_core.Reflection.namespace('BX.Bizproc.Activity');
 
 	var SetGlobalVariableActivity = /*#__PURE__*/function () {
@@ -41,8 +41,11 @@
 
 	      for (var variableExpression in this.currentValues) {
 	        this[addAssignmentExpression](variableExpression, this.currentValues[variableExpression]);
-	      } //this.addExpressionButtonRobot();
+	      }
 
+	      if (this.isRobot) ; else {
+	        this.addExpressionButtonDesigner();
+	      }
 	    }
 	  }, {
 	    key: "initObjectNames",
@@ -600,6 +603,11 @@
 	            var dialogItem = event.data.item;
 	            fieldsSelectNode.innerText = dialogItem.customData.get('title');
 
+	            if (!formInput) {
+	              main_core.Dom.append(main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\" name=\"bp_sgva_field_input\" value=\"", "\">"])), main_core.Text.encode(dialogItem.id)), formInputWrapper);
+	              return;
+	            }
+
 	            if (formInput.tagName !== 'SELECT') {
 	              formInput.value = dialogItem.id;
 	            } else {
@@ -632,15 +640,15 @@
 
 	        dialog.show();
 	      });
-	      var visibilityWrapper = main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-automation-popup-settings\"></div>"])));
-	      var visibilitySelect = main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["<select class=\"bizproc-automation-popup-settings-dropdown\"></select>"])));
+	      var visibilityWrapper = main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-automation-popup-settings\"></div>"])));
+	      var visibilitySelect = main_core.Tag.render(_templateObject18 || (_templateObject18 = babelHelpers.taggedTemplateLiteral(["<select class=\"bizproc-automation-popup-settings-dropdown\"></select>"])));
 	      BX.bind(visibilitySelect, 'change', BX.proxy(function () {
 	        me.changeParameterSelectInFormRobot(visibilitySelect.value, fieldsSelectNode, labelFieldsList, formInputWrapper);
 	      }, this));
 	      var visibilityOptions = this.getVisibilityNamesForSelect(typeMenu);
 
 	      for (var groupId in visibilityOptions) {
-	        var optionNode = main_core.Tag.render(_templateObject18 || (_templateObject18 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<option value=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</option>\n\t\t\t"])), BX.util.htmlspecialchars(groupId), BX.util.htmlspecialchars(visibilityOptions[groupId]));
+	        var optionNode = main_core.Tag.render(_templateObject19 || (_templateObject19 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<option value=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</option>\n\t\t\t"])), BX.util.htmlspecialchars(groupId), BX.util.htmlspecialchars(visibilityOptions[groupId]));
 	        visibilitySelect.appendChild(optionNode);
 	      }
 
@@ -661,12 +669,16 @@
 	      fieldsSelectNode.innerText = option.title !== '' ? option.title : BX.message('BPSGVA_EMPTY');
 
 	      if (visibilitySelect.value === this.helperObjectName + ':text' && option.groupId !== this.helperObjectName + ':text') {
-	        formInput.value = this.convertFieldExpression(option);
+	        if (formInput) {
+	          formInput.value = this.convertFieldExpression(option);
+	        }
 	      } else {
-	        formInput.value = option.id;
+	        if (formInput) {
+	          formInput.value = option.id;
+	        }
 	      }
 
-	      visibilityWrapper.appendChild(main_core.Tag.render(_templateObject19 || (_templateObject19 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-robot-settings-title\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), BX.util.htmlspecialchars(BX.message('BPSGVA_TYPE_OF_PARAMETER'))));
+	      visibilityWrapper.appendChild(main_core.Tag.render(_templateObject20 || (_templateObject20 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-robot-settings-title\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), BX.util.htmlspecialchars(BX.message('BPSGVA_TYPE_OF_PARAMETER'))));
 	      visibilityWrapper.appendChild(visibilitySelect);
 	      fieldsListWrapper.appendChild(labelFieldsList);
 	      fieldsListWrapper.appendChild(fieldsSelectNode);
@@ -679,9 +691,9 @@
 	    key: "createInputForMenuFormRobot",
 	    value: function createInputForMenuFormRobot(type, index, inputValue) {
 	      if (type === 'variable') {
-	        var _wrapper = main_core.Tag.render(_templateObject20 || (_templateObject20 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-automation-popup-select\"></div>"])));
+	        var _wrapper = main_core.Tag.render(_templateObject21 || (_templateObject21 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-automation-popup-select\"></div>"])));
 
-	        var _input = main_core.Tag.render(_templateObject21 || (_templateObject21 = babelHelpers.taggedTemplateLiteral(["<input class=\"bizproc-automation-popup-input\" type=\"hidden\" style=\"width: 280px\">"])));
+	        var _input = main_core.Tag.render(_templateObject22 || (_templateObject22 = babelHelpers.taggedTemplateLiteral(["<input class=\"bizproc-automation-popup-input\" type=\"hidden\" style=\"width: 280px\">"])));
 
 	        _wrapper.appendChild(_input);
 
@@ -720,7 +732,10 @@
 	        }
 	      }
 
-	      input.style.width = '100%';
+	      if (input) {
+	        input.style.width = '100%';
+	      }
+
 	      return wrapper;
 	    }
 	  }, {
@@ -758,7 +773,7 @@
 	      var opt = selectOptions[selectOptions.length - 1];
 
 	      if (opt.getAttribute('data-role') !== 'expression') {
-	        opt = main_core.Tag.render(_templateObject22 || (_templateObject22 = babelHelpers.taggedTemplateLiteral(["<option></option>"])));
+	        opt = main_core.Tag.render(_templateObject23 || (_templateObject23 = babelHelpers.taggedTemplateLiteral(["<option></option>"])));
 	        opt.setAttribute('data-role', 'expression');
 	        input.appendChild(opt);
 	      }
@@ -922,7 +937,7 @@
 	    key: "getFooter",
 	    value: function getFooter(context, dialog) {
 	      var me = this;
-	      var footer = main_core.Tag.render(_templateObject23 || (_templateObject23 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"ui-selector-footer-link ui-selector-footer-link-add\" style=\"border: none\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t"])), BX.util.htmlspecialchars(context.visibilityInfo.searchFooterOptions.label));
+	      var footer = main_core.Tag.render(_templateObject24 || (_templateObject24 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"ui-selector-footer-link ui-selector-footer-link-add\" style=\"border: none\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t"])), BX.util.htmlspecialchars(context.visibilityInfo.searchFooterOptions.label));
 	      BX.bind(footer, 'click', function () {
 	        me.onCreateGlobalsClick(dialog, context, '', me);
 	      });
@@ -1005,7 +1020,10 @@
 	      }
 
 	      var input = this.findInputInFormRobot(inputWrapper);
-	      input.value = '';
+
+	      if (input) {
+	        input.value = '';
+	      }
 	    }
 	  }, {
 	    key: "getVisibilityNamesForSelect",
@@ -1070,8 +1088,8 @@
 	  }, {
 	    key: "createAddParameterRowRobot",
 	    value: function createAddParameterRowRobot(index, inputIndex) {
-	      var addWrapper = main_core.Tag.render(_templateObject24 || (_templateObject24 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-automation-popup-settings-title\" style=\"display:flex;\"></div>"])));
-	      var addExpression = main_core.Tag.render(_templateObject25 || (_templateObject25 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-type-control-clone-btn setglobalvariableactivity-dashed-grey setglobalvariableactivity-add-parameter\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), BX.util.htmlspecialchars(BX.message('BPSGVA_ADD_PARAMETER')));
+	      var addWrapper = main_core.Tag.render(_templateObject25 || (_templateObject25 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-automation-popup-settings-title\" style=\"display:flex;\"></div>"])));
+	      var addExpression = main_core.Tag.render(_templateObject26 || (_templateObject26 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-type-control-clone-btn setglobalvariableactivity-dashed-grey setglobalvariableactivity-add-parameter\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), BX.util.htmlspecialchars(BX.message('BPSGVA_ADD_PARAMETER')));
 	      addExpression.setAttribute(this.indexAttributeName, String(index));
 	      addExpression.setAttribute(this.inputIndexAttributeName, String(inputIndex));
 	      BX.bind(addExpression, 'click', BX.proxy(this.onAddParameterButtonClickRobot, this));
@@ -1191,6 +1209,19 @@
 	      }, this));
 	    }
 	  }, {
+	    key: "addExpressionButtonDesigner",
+	    value: function addExpressionButtonDesigner() {
+	      var _this2 = this;
+
+	      var button = main_core.Tag.render(_templateObject27 || (_templateObject27 = babelHelpers.taggedTemplateLiteral(["<a href='#'>", "</a>"])), main_core.Loc.getMessage('BPSGVA_PD_ADD'));
+	      main_core.Event.bind(button, 'click', function (event) {
+	        _this2.addAssignmentExpressionDesigner();
+
+	        event.preventDefault();
+	      });
+	      main_core.Dom.insertAfter(button, this.addRowTable);
+	    }
+	  }, {
 	    key: "convertFieldExpression",
 	    value: function convertFieldExpression(option) {
 	      if (this.isDocumentVisibility(option.groupId)) {
@@ -1221,7 +1252,7 @@
 	      var newRow = addRowTable.insertRow(-1);
 	      newRow.id = 'delete_row_' + this.rowIndex;
 	      var cellSelect = newRow.insertCell(-1);
-	      var newSelect = main_core.Tag.render(_templateObject26 || (_templateObject26 = babelHelpers.taggedTemplateLiteral(["<select name=\"", "\"></select>"])), this.variableRole + this.rowIndex);
+	      var newSelect = main_core.Tag.render(_templateObject28 || (_templateObject28 = babelHelpers.taggedTemplateLiteral(["<select name=\"", "\"></select>"])), this.variableRole + this.rowIndex);
 	      newSelect.setAttribute(this.indexAttributeName, this.rowIndex);
 	      var me = this;
 
@@ -1233,7 +1264,7 @@
 
 	      for (var visibility in objectVisibilityMessages) {
 	        var optgroupLabel = objectVisibilityMessages[visibility];
-	        var optgroup = main_core.Tag.render(_templateObject27 || (_templateObject27 = babelHelpers.taggedTemplateLiteral(["<optgroup label=\"", "\"></optgroup>"])), BX.util.htmlspecialchars(optgroupLabel));
+	        var optgroup = main_core.Tag.render(_templateObject29 || (_templateObject29 = babelHelpers.taggedTemplateLiteral(["<optgroup label=\"", "\"></optgroup>"])), BX.util.htmlspecialchars(optgroupLabel));
 	        var groupOptions = this.availableOptionsByGroupId.get(this.gVarObjectName + ':' + visibility);
 
 	        if (!groupOptions) {
@@ -1243,7 +1274,7 @@
 	        var optionNode = void 0;
 
 	        for (var i in groupOptions) {
-	          optionNode = main_core.Tag.render(_templateObject28 || (_templateObject28 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<option value=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</option>\n\t\t\t\t"])), BX.util.htmlspecialchars(groupOptions[i]['id']), BX.util.htmlspecialchars(groupOptions[i]['customData']['title']));
+	          optionNode = main_core.Tag.render(_templateObject30 || (_templateObject30 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<option value=\"", "\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</option>\n\t\t\t\t"])), BX.util.htmlspecialchars(groupOptions[i]['id']), BX.util.htmlspecialchars(groupOptions[i]['customData']['title']));
 	          optgroup.appendChild(optionNode);
 	        }
 
@@ -1264,9 +1295,11 @@
 	      cellValue.innerHTML = '';
 	      var cellDeleteRow = newRow.insertCell(-1);
 	      cellDeleteRow.aligh = 'right';
-	      var deleteLink = main_core.Tag.render(_templateObject29 || (_templateObject29 = babelHelpers.taggedTemplateLiteral(["<a href=\"#\">", "</a>"])), BX.util.htmlspecialchars(BX.message('BPSGVA_PD_DELETE')));
-	      BX.bind(deleteLink, 'click', function () {
-	        me.deleteConditionDesigner(me.rowIndex);
+	      var deleteLink = main_core.Tag.render(_templateObject31 || (_templateObject31 = babelHelpers.taggedTemplateLiteral(["<a href=\"#\">", "</a>"])), BX.util.htmlspecialchars(BX.message('BPSGVA_PD_DELETE')));
+	      var index = this.rowIndex;
+	      main_core.Event.bind(deleteLink, 'click', function (event) {
+	        me.deleteConditionDesigner(index);
+	        event.preventDefault();
 	      });
 	      cellDeleteRow.appendChild(deleteLink);
 

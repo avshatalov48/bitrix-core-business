@@ -182,39 +182,42 @@ class FileType extends BaseType
 		// old mechanism
 		if(is_array($value))
 		{
-			//Protect from user manipulation
-			if(isset($value['old_id']) && $value['old_id'] > 0)
-			{
-				if(is_array($userField['VALUE']))
-				{
-					if(!in_array($value['old_id'], $userField['VALUE']))
-					{
-						unset($value['old_id']);
-					}
-				}
-				else
-				{
-					if($userField['VALUE'] != $value['old_id'])
-					{
-						unset($value['old_id']);
-					}
-				}
-			}
+			$userFieldValues = (is_array($userField['VALUE']) ? $userField['VALUE'] : [$userField['VALUE']]);
+			$valueHasOldId = !empty($value['old_id']);
 
-			if($value['del'] && $value['old_id'])
+			//Protect from user manipulation
+			if($valueHasOldId)
 			{
-				\CFile::Delete($value['old_id']);
-				$value['old_id'] = false;
+				$value['old_id'] = (is_array($value['old_id']) ? $value['old_id'] : [$value['old_id']]);
+				foreach ($value['old_id'] as $key => $oldId)
+				{
+					if(!in_array($oldId, $userFieldValues))
+					{
+						unset($value['old_id'][$key]);
+					}
+				}
+
+				if ($value['del'])
+				{
+					foreach ($value['old_id'] as $oldId)
+					{
+						\CFile::Delete($oldId);
+					}
+					$value['old_id'] = false;
+				}
 			}
 
 			if($value['error'])
 			{
-				return $value['old_id'];
+				return (is_array($value['old_id']) ? $value['old_id'][0] : $value['old_id']);
 			}
 
-			if($value['old_id'])
+			if($valueHasOldId)
 			{
-				\CFile::Delete($value['old_id']);
+				foreach ($value['old_id'] as $oldId)
+				{
+					\CFile::Delete($oldId);
+				}
 			}
 			$value['MODULE_ID'] = 'main';
 

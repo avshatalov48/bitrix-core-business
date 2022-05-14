@@ -142,8 +142,11 @@ export default class Stream extends EventEmitter
 		.then((response) => {
 			this.done({status: 'success', data: response});
 		})
-		.catch(({errors}) => {
-			this.done({status: 'failed', errors: errors.map(({code, message}) => {return message;})});
+		.catch(({errors, data}) => {
+			this.done({status: 'failed', errors: errors.map(({code, message}) => {return message;}), data: data});
+		})
+		.catch((response) => {
+			this.done({status: 'failed', errors: ['Unexpected server response.'], data: response});
 		});
 	}
 

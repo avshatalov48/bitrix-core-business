@@ -16,8 +16,8 @@ use CRestUtil;
  */
 class ScopeManager
 {
-	private const CACHE_TIME = 604800;// 86400 * 7
-	private const CACHE_DIR = '/rest/scope/';
+	public const CACHE_TIME = 604800;// 86400 * 7
+	public const CACHE_DIR = '/rest/scope/';
 	private const CACHE_KEY = 'list';
 	private const METHOD_DELIMITER = '.';
 

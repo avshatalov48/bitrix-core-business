@@ -216,6 +216,7 @@ if (
 			$arResult["Urls"]["Calendar"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_CALENDAR"], array("group_id" => $arResult["Group"]["ID"]));
 
 			$arResult["Urls"]["Tasks"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_TASKS"], array("group_id" => $arResult["Group"]["ID"]));
+			$arResult["Urls"]["TasksTask"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_TASKS_TASK"], array("group_id" => $arResult["Group"]["ID"]));
 
 			$arResult["Urls"]["ScrumTeamSpeed"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_SCRUM_TEAM_SPEED"], array("group_id" => $arResult["Group"]["ID"]));
 			$arResult["Urls"]["ScrumBurnDown"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_SCRUM_BURN_DOWN"], array("group_id" => $arResult["Group"]["ID"]));

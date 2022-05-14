@@ -37,6 +37,7 @@ return [
 		"helper",
 		"core_money_editor",
 		"ui",
+		"ui.hint",
 		"ui.notification",
 		"ui.dropdown",
 		"ui.buttons",

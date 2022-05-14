@@ -1,6 +1,6 @@
 <?php
 
-/* ORMENTITYANNOTATION:Bitrix\Main\Analytics\CounterDataTable:main/lib/analytics/counterdata.php:ac8e724171aab1c67f4e214d5c3b3916 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Analytics\CounterDataTable:main/lib/analytics/counterdata.php */
 namespace Bitrix\Main\Analytics {
 	/**
 	 * EO_CounterData
@@ -140,7 +140,7 @@ namespace Bitrix\Main\Analytics {
 	 */
 	class EO_CounterData_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\ApplicationPasswordTable:main/lib/authentication/applicationpassword.php:e31290ac9c4c6827393d43241a0db94c */
+/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\ApplicationPasswordTable:main/lib/authentication/applicationpassword.php */
 namespace Bitrix\Main\Authentication {
 	/**
 	 * EO_ApplicationPassword
@@ -389,7 +389,7 @@ namespace Bitrix\Main\Authentication {
 	 */
 	class EO_ApplicationPassword_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserAuthCodeTable:main/lib/authentication/internal/userauthcodetable.php:73dc14c555ee2ec0c15d51b949efdd52 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserAuthCodeTable:main/lib/authentication/internal/userauthcodetable.php */
 namespace Bitrix\Main\Authentication\Internal {
 	/**
 	 * EO_UserAuthCode
@@ -572,395 +572,7 @@ namespace Bitrix\Main\Authentication\Internal {
 	 */
 	class EO_UserAuthCode_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserDeviceLoginTable:main/lib/authentication/internal/userdevicelogindtable.php:3c2321e65bfc8c6eb50a82630f6fdb8d */
-namespace Bitrix\Main\Authentication\Internal {
-	/**
-	 * EO_UserDeviceLogin
-	 * @see \Bitrix\Main\Authentication\Internal\UserDeviceLoginTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
-	 * @method \int getDeviceId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setDeviceId(\int|\Bitrix\Main\DB\SqlExpression $deviceId)
-	 * @method bool hasDeviceId()
-	 * @method bool isDeviceIdFilled()
-	 * @method bool isDeviceIdChanged()
-	 * @method \int remindActualDeviceId()
-	 * @method \int requireDeviceId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetDeviceId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetDeviceId()
-	 * @method \int fillDeviceId()
-	 * @method \Bitrix\Main\Type\DateTime getLoginDate()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setLoginDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $loginDate)
-	 * @method bool hasLoginDate()
-	 * @method bool isLoginDateFilled()
-	 * @method bool isLoginDateChanged()
-	 * @method \Bitrix\Main\Type\DateTime remindActualLoginDate()
-	 * @method \Bitrix\Main\Type\DateTime requireLoginDate()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetLoginDate()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetLoginDate()
-	 * @method \Bitrix\Main\Type\DateTime fillLoginDate()
-	 * @method \string getIp()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setIp(\string|\Bitrix\Main\DB\SqlExpression $ip)
-	 * @method bool hasIp()
-	 * @method bool isIpFilled()
-	 * @method bool isIpChanged()
-	 * @method \string remindActualIp()
-	 * @method \string requireIp()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetIp()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetIp()
-	 * @method \string fillIp()
-	 * @method \string getCity()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setCity(\string|\Bitrix\Main\DB\SqlExpression $city)
-	 * @method bool hasCity()
-	 * @method bool isCityFilled()
-	 * @method bool isCityChanged()
-	 * @method \string remindActualCity()
-	 * @method \string requireCity()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetCity()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetCity()
-	 * @method \string fillCity()
-	 * @method \string getCountry()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setCountry(\string|\Bitrix\Main\DB\SqlExpression $country)
-	 * @method bool hasCountry()
-	 * @method bool isCountryFilled()
-	 * @method bool isCountryChanged()
-	 * @method \string remindActualCountry()
-	 * @method \string requireCountry()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetCountry()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetCountry()
-	 * @method \string fillCountry()
-	 * @method \int getAppPasswordId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setAppPasswordId(\int|\Bitrix\Main\DB\SqlExpression $appPasswordId)
-	 * @method bool hasAppPasswordId()
-	 * @method bool isAppPasswordIdFilled()
-	 * @method bool isAppPasswordIdChanged()
-	 * @method \int remindActualAppPasswordId()
-	 * @method \int requireAppPasswordId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetAppPasswordId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetAppPasswordId()
-	 * @method \int fillAppPasswordId()
-	 * @method \int getStoredAuthId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setStoredAuthId(\int|\Bitrix\Main\DB\SqlExpression $storedAuthId)
-	 * @method bool hasStoredAuthId()
-	 * @method bool isStoredAuthIdFilled()
-	 * @method bool isStoredAuthIdChanged()
-	 * @method \int remindActualStoredAuthId()
-	 * @method \int requireStoredAuthId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetStoredAuthId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetStoredAuthId()
-	 * @method \int fillStoredAuthId()
-	 * @method \int getHitAuthId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setHitAuthId(\int|\Bitrix\Main\DB\SqlExpression $hitAuthId)
-	 * @method bool hasHitAuthId()
-	 * @method bool isHitAuthIdFilled()
-	 * @method bool isHitAuthIdChanged()
-	 * @method \int remindActualHitAuthId()
-	 * @method \int requireHitAuthId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetHitAuthId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetHitAuthId()
-	 * @method \int fillHitAuthId()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin set($fieldName, $value)
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin reset($fieldName)
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin wakeUp($data)
-	 */
-	class EO_UserDeviceLogin {
-		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceLoginTable */
-		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserDeviceLoginTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Main\Authentication\Internal {
-	/**
-	 * EO_UserDeviceLogin_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getIdList()
-	 * @method \int[] getDeviceIdList()
-	 * @method \int[] fillDeviceId()
-	 * @method \Bitrix\Main\Type\DateTime[] getLoginDateList()
-	 * @method \Bitrix\Main\Type\DateTime[] fillLoginDate()
-	 * @method \string[] getIpList()
-	 * @method \string[] fillIp()
-	 * @method \string[] getCityList()
-	 * @method \string[] fillCity()
-	 * @method \string[] getCountryList()
-	 * @method \string[] fillCountry()
-	 * @method \int[] getAppPasswordIdList()
-	 * @method \int[] fillAppPasswordId()
-	 * @method \int[] getStoredAuthIdList()
-	 * @method \int[] fillStoredAuthId()
-	 * @method \int[] getHitAuthIdList()
-	 * @method \int[] fillHitAuthId()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin $object)
-	 * @method bool has(\Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin getByPrimary($primary)
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin[] getAll()
-	 * @method bool remove(\Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin $object)
-	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 */
-	class EO_UserDeviceLogin_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceLoginTable */
-		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserDeviceLoginTable';
-	}
-}
-namespace Bitrix\Main\Authentication\Internal {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_UserDeviceLogin_Result exec()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin fetchObject()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 */
-	class EO_UserDeviceLogin_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin fetchObject()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection fetchCollection()
-	 */
-	class EO_UserDeviceLogin_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin createObject($setDefaultValues = true)
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection createCollection()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin wakeUpObject($row)
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection wakeUpCollection($rows)
-	 */
-	class EO_UserDeviceLogin_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserDeviceTable:main/lib/authentication/internal/userdevicetable.php:37a7e579bd9f9e6df7edf9047ac85c07 */
-namespace Bitrix\Main\Authentication\Internal {
-	/**
-	 * EO_UserDevice
-	 * @see \Bitrix\Main\Authentication\Internal\UserDeviceTable
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int getId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setId(\int|\Bitrix\Main\DB\SqlExpression $id)
-	 * @method bool hasId()
-	 * @method bool isIdFilled()
-	 * @method bool isIdChanged()
-	 * @method \int getUserId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
-	 * @method bool hasUserId()
-	 * @method bool isUserIdFilled()
-	 * @method bool isUserIdChanged()
-	 * @method \int remindActualUserId()
-	 * @method \int requireUserId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetUserId()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetUserId()
-	 * @method \int fillUserId()
-	 * @method \int getDeviceType()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setDeviceType(\int|\Bitrix\Main\DB\SqlExpression $deviceType)
-	 * @method bool hasDeviceType()
-	 * @method bool isDeviceTypeFilled()
-	 * @method bool isDeviceTypeChanged()
-	 * @method \int remindActualDeviceType()
-	 * @method \int requireDeviceType()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetDeviceType()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetDeviceType()
-	 * @method \int fillDeviceType()
-	 * @method \string getBrowser()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setBrowser(\string|\Bitrix\Main\DB\SqlExpression $browser)
-	 * @method bool hasBrowser()
-	 * @method bool isBrowserFilled()
-	 * @method bool isBrowserChanged()
-	 * @method \string remindActualBrowser()
-	 * @method \string requireBrowser()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetBrowser()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetBrowser()
-	 * @method \string fillBrowser()
-	 * @method \string getPlatform()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setPlatform(\string|\Bitrix\Main\DB\SqlExpression $platform)
-	 * @method bool hasPlatform()
-	 * @method bool isPlatformFilled()
-	 * @method bool isPlatformChanged()
-	 * @method \string remindActualPlatform()
-	 * @method \string requirePlatform()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetPlatform()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetPlatform()
-	 * @method \string fillPlatform()
-	 * @method \string getUserAgent()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setUserAgent(\string|\Bitrix\Main\DB\SqlExpression $userAgent)
-	 * @method bool hasUserAgent()
-	 * @method bool isUserAgentFilled()
-	 * @method bool isUserAgentChanged()
-	 * @method \string remindActualUserAgent()
-	 * @method \string requireUserAgent()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetUserAgent()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetUserAgent()
-	 * @method \string fillUserAgent()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @property-read array $primary
-	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
-	 * @property-read \Bitrix\Main\Type\Dictionary $customData
-	 * @property \Bitrix\Main\Authentication\Context $authContext
-	 * @method mixed get($fieldName)
-	 * @method mixed remindActual($fieldName)
-	 * @method mixed require($fieldName)
-	 * @method bool has($fieldName)
-	 * @method bool isFilled($fieldName)
-	 * @method bool isChanged($fieldName)
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice set($fieldName, $value)
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice reset($fieldName)
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unset($fieldName)
-	 * @method void addTo($fieldName, $value)
-	 * @method void removeFrom($fieldName, $value)
-	 * @method void removeAll($fieldName)
-	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
-	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
-	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserDevice wakeUp($data)
-	 */
-	class EO_UserDevice {
-		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceTable */
-		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserDeviceTable';
-		/**
-		 * @param bool|array $setDefaultValues
-		 */
-		public function __construct($setDefaultValues = true) {}
-	}
-}
-namespace Bitrix\Main\Authentication\Internal {
-	/**
-	 * EO_UserDevice_Collection
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 * @method \int[] getIdList()
-	 * @method \int[] getUserIdList()
-	 * @method \int[] fillUserId()
-	 * @method \int[] getDeviceTypeList()
-	 * @method \int[] fillDeviceType()
-	 * @method \string[] getBrowserList()
-	 * @method \string[] fillBrowser()
-	 * @method \string[] getPlatformList()
-	 * @method \string[] fillPlatform()
-	 * @method \string[] getUserAgentList()
-	 * @method \string[] fillUserAgent()
-	 *
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @property-read \Bitrix\Main\ORM\Entity $entity
-	 * @method void add(\Bitrix\Main\Authentication\Internal\EO_UserDevice $object)
-	 * @method bool has(\Bitrix\Main\Authentication\Internal\EO_UserDevice $object)
-	 * @method bool hasByPrimary($primary)
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice getByPrimary($primary)
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice[] getAll()
-	 * @method bool remove(\Bitrix\Main\Authentication\Internal\EO_UserDevice $object)
-	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
-	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection wakeUp($data)
-	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
-	 * @method void offsetSet() ArrayAccess
-	 * @method void offsetExists() ArrayAccess
-	 * @method void offsetUnset() ArrayAccess
-	 * @method void offsetGet() ArrayAccess
-	 * @method void rewind() Iterator
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice current() Iterator
-	 * @method mixed key() Iterator
-	 * @method void next() Iterator
-	 * @method bool valid() Iterator
-	 * @method int count() Countable
-	 */
-	class EO_UserDevice_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceTable */
-		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserDeviceTable';
-	}
-}
-namespace Bitrix\Main\Authentication\Internal {
-	/**
-	 * Common methods:
-	 * ---------------
-	 *
-	 * @method EO_UserDevice_Result exec()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice fetchObject()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection fetchCollection()
-	 *
-	 * Custom methods:
-	 * ---------------
-	 *
-	 */
-	class EO_UserDevice_Query extends \Bitrix\Main\ORM\Query\Query {}
-	/**
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice fetchObject()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection fetchCollection()
-	 */
-	class EO_UserDevice_Result extends \Bitrix\Main\ORM\Query\Result {}
-	/**
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice createObject($setDefaultValues = true)
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection createCollection()
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice wakeUpObject($row)
-	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection wakeUpCollection($rows)
-	 */
-	class EO_UserDevice_Entity extends \Bitrix\Main\ORM\Entity {}
-}
-/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserPasswordTable:main/lib/authentication/internal/userpasswordtable.php:9602b0f3142c816a8d1ac2dc66740f61 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserPasswordTable:main/lib/authentication/internal/userpasswordtable.php */
 namespace Bitrix\Main\Authentication\Internal {
 	/**
 	 * EO_UserPassword
@@ -1125,7 +737,7 @@ namespace Bitrix\Main\Authentication\Internal {
 	 */
 	class EO_UserPassword_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Component\ParametersTable:main/lib/component/parameters.php:b17b80b8de56d31bb346e2caf1935f1a */
+/* ORMENTITYANNOTATION:Bitrix\Main\Component\ParametersTable:main/lib/component/parameters.php */
 namespace Bitrix\Main\Component {
 	/**
 	 * EO_Parameters
@@ -1349,7 +961,7 @@ namespace Bitrix\Main\Component {
 	 */
 	class EO_Parameters_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Composite\Debug\Model\LogTable:main/lib/composite/debug/model/log.php:46d77d5490a51c3525b209c26e2dd602 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Composite\Debug\Model\LogTable:main/lib/composite/debug/model/log.php */
 namespace Bitrix\Main\Composite\Debug\Model {
 	/**
 	 * EO_Log
@@ -1595,7 +1207,7 @@ namespace Bitrix\Main\Composite\Debug\Model {
 	 */
 	class EO_Log_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Composite\Internals\Model\PageTable:main/lib/composite/internals/model/page.php:0c12142e024e6d0c6494016b2463de24 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Composite\Internals\Model\PageTable:main/lib/composite/internals/model/page.php */
 namespace Bitrix\Main\Composite\Internals\Model {
 	/**
 	 * EO_Page
@@ -1831,7 +1443,7 @@ namespace Bitrix\Main\Composite\Internals\Model {
 	 */
 	class EO_Page_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Localization\CultureTable:main/lib/localization/culture.php:e70ad01fc12fa4b571a5d69db19d5cf6 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Localization\CultureTable:main/lib/localization/culture.php */
 namespace Bitrix\Main\Localization {
 	/**
 	 * Culture
@@ -2235,7 +1847,7 @@ namespace Bitrix\Main\Localization {
 	 */
 	class EO_Culture_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\EventLog\Internal\EventLogTable:main/lib/eventlog/internal/eventlogtable.php:a15e1f94f7c0b2c73419344f62de030a */
+/* ORMENTITYANNOTATION:Bitrix\Main\EventLog\Internal\EventLogTable:main/lib/eventlog/internal/eventlogtable.php */
 namespace Bitrix\Main\EventLog\Internal {
 	/**
 	 * EO_EventLog
@@ -2495,7 +2107,7 @@ namespace Bitrix\Main\EventLog\Internal {
 	 */
 	class EO_EventLog_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\EventLog\Internal\LogNotificationActionTable:main/lib/eventlog/internal/lognotificationactiontable.php:e3dcadf73e58b2a43a77464f4f6afb78 */
+/* ORMENTITYANNOTATION:Bitrix\Main\EventLog\Internal\LogNotificationActionTable:main/lib/eventlog/internal/lognotificationactiontable.php */
 namespace Bitrix\Main\EventLog\Internal {
 	/**
 	 * EO_LogNotificationAction
@@ -2672,7 +2284,7 @@ namespace Bitrix\Main\EventLog\Internal {
 	 */
 	class EO_LogNotificationAction_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\EventLog\Internal\LogNotificationTable:main/lib/eventlog/internal/lognotificationtable.php:1512bc2cb6bd98fde3c0a2fb3366e8c7 */
+/* ORMENTITYANNOTATION:Bitrix\Main\EventLog\Internal\LogNotificationTable:main/lib/eventlog/internal/lognotificationtable.php */
 namespace Bitrix\Main\EventLog\Internal {
 	/**
 	 * EO_LogNotification
@@ -2934,7 +2546,7 @@ namespace Bitrix\Main\EventLog\Internal {
 	 */
 	class EO_LogNotification_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\File\Internal\FileDuplicateTable:main/lib/file/internal/fileduplicatetable.php:2b6fc71dafdfe6382bf463382812faca */
+/* ORMENTITYANNOTATION:Bitrix\Main\File\Internal\FileDuplicateTable:main/lib/file/internal/fileduplicatetable.php */
 namespace Bitrix\Main\File\Internal {
 	/**
 	 * EO_FileDuplicate
@@ -3080,7 +2692,7 @@ namespace Bitrix\Main\File\Internal {
 	 */
 	class EO_FileDuplicate_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\File\Internal\FileHashTable:main/lib/file/internal/filehashtable.php:f242065b5d47a773ed5b233db99e594c */
+/* ORMENTITYANNOTATION:Bitrix\Main\File\Internal\FileHashTable:main/lib/file/internal/filehashtable.php */
 namespace Bitrix\Main\File\Internal {
 	/**
 	 * EO_FileHash
@@ -3233,7 +2845,7 @@ namespace Bitrix\Main\File\Internal {
 	 */
 	class EO_FileHash_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\FileTable:main/lib/file.php:770d3b71d366d993048b21756645dd7c */
+/* ORMENTITYANNOTATION:Bitrix\Main\FileTable:main/lib/file.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_File
@@ -3506,7 +3118,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_File_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\FinderDestTable:main/lib/finderdest.php:95ea5550be4bd9ff47ddc8654cc8ed4d */
+/* ORMENTITYANNOTATION:Bitrix\Main\FinderDestTable:main/lib/finderdest.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_FinderDest
@@ -3742,7 +3354,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_FinderDest_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UI\EntitySelector\EntityUsageTable:main/lib/ui/entityselector/entityusagetable.php:d50c1dc2d887343008175fd70bfff13c */
+/* ORMENTITYANNOTATION:Bitrix\Main\UI\EntitySelector\EntityUsageTable:main/lib/ui/entityselector/entityusagetable.php */
 namespace Bitrix\Main\UI\EntitySelector {
 	/**
 	 * EO_EntityUsage
@@ -3978,7 +3590,7 @@ namespace Bitrix\Main\UI\EntitySelector {
 	 */
 	class EO_EntityUsage_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\GroupTable:main/lib/group.php:8ccf9681f5ddf36bb16ea1459066a2ac */
+/* ORMENTITYANNOTATION:Bitrix\Main\GroupTable:main/lib/group.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_Group
@@ -4190,7 +3802,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_Group_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\GroupTaskTable:main/lib/grouptask.php:56971e3d896d87ff46b198633cd2238d */
+/* ORMENTITYANNOTATION:Bitrix\Main\GroupTaskTable:main/lib/grouptask.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_GroupTask
@@ -4350,7 +3962,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_GroupTask_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Localization\LanguageTable:main/lib/localization/language.php:2df48c16c3f399e975b72811473681b6 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Localization\LanguageTable:main/lib/localization/language.php */
 namespace Bitrix\Main\Localization {
 	/**
 	 * EO_Language
@@ -4557,7 +4169,7 @@ namespace Bitrix\Main\Localization {
 	 */
 	class EO_Language_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\BlacklistTable:main/lib/mail/internal/blacklist.php:8d60c515a7ac29d34cd5a7c5906667eb */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\BlacklistTable:main/lib/mail/internal/blacklist.php */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * EO_Blacklist
@@ -4709,7 +4321,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_Blacklist_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventTable:main/lib/mail/internal/event.php:d37379435ed22945770b90dadf668dd7 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventTable:main/lib/mail/internal/event.php */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * EO_Event
@@ -4933,7 +4545,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_Event_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventAttachmentTable:main/lib/mail/internal/eventattachment.php:b8acb520801845f391cbc2725d2c09bc */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventAttachmentTable:main/lib/mail/internal/eventattachment.php */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * EO_EventAttachment
@@ -5086,7 +4698,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_EventAttachment_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventMessageTable:main/lib/mail/internal/eventmessage.php:dd1d583e95d0b878b8fa332107db7b81 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventMessageTable:main/lib/mail/internal/eventmessage.php */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * EO_EventMessage
@@ -5479,7 +5091,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_EventMessage_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventMessageAttachmentTable:main/lib/mail/internal/eventmessageattachment.php:0425b7d0a2a7a04c133fffc563d1aa80 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventMessageAttachmentTable:main/lib/mail/internal/eventmessageattachment.php */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * EO_EventMessageAttachment
@@ -5601,7 +5213,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_EventMessageAttachment_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventMessageSiteTable:main/lib/mail/internal/eventmessagesite.php:e7f10819ada0c3653fb383c464fb3e98 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventMessageSiteTable:main/lib/mail/internal/eventmessagesite.php */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * EO_EventMessageSite
@@ -5729,7 +5341,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_EventMessageSite_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventTypeTable:main/lib/mail/internal/eventtype.php:fc7e6b2b90d1cfbd3bba1a2635ef5aac */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\EventTypeTable:main/lib/mail/internal/eventtype.php */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * EO_EventType
@@ -5917,7 +5529,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_EventType_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\SenderTable:main/lib/mail/internal/sendertable.php:24ced5d9fbc65df08da57d0049bd7a3a */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\SenderTable:main/lib/mail/internal/sendertable.php */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * Sender
@@ -6105,7 +5717,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_Sender_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\SenderSendCounterTable:main/lib/mail/internal/sendersendcounter.php:95ee48ad95b896f60e2d6998dacd9b5b */
+/* ORMENTITYANNOTATION:Bitrix\Main\Mail\Internal\SenderSendCounterTable:main/lib/mail/internal/sendersendcounter.php */
 namespace Bitrix\Main\Mail\Internal {
 	/**
 	 * EO_SenderSendCounter
@@ -6239,7 +5851,7 @@ namespace Bitrix\Main\Mail\Internal {
 	 */
 	class EO_SenderSendCounter_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Numerator\Model\NumeratorTable:main/lib/numerator/model/numerator.php:689a4372e08c1deb046b7631cfb57ba1 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Numerator\Model\NumeratorTable:main/lib/numerator/model/numerator.php */
 namespace Bitrix\Main\Numerator\Model {
 	/**
 	 * EO_Numerator
@@ -6451,7 +6063,7 @@ namespace Bitrix\Main\Numerator\Model {
 	 */
 	class EO_Numerator_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Numerator\Model\NumeratorSequenceTable:main/lib/numerator/model/numeratorsequence.php:33cdefe6b2ca085d306ea1e921787413 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Numerator\Model\NumeratorSequenceTable:main/lib/numerator/model/numeratorsequence.php */
 namespace Bitrix\Main\Numerator\Model {
 	/**
 	 * EO_NumeratorSequence
@@ -6609,7 +6221,7 @@ namespace Bitrix\Main\Numerator\Model {
 	 */
 	class EO_NumeratorSequence_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\OperationTable:main/lib/operation.php:9f75acc987370b890329aa29c02702b8 */
+/* ORMENTITYANNOTATION:Bitrix\Main\OperationTable:main/lib/operation.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_Operation
@@ -6773,7 +6385,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_Operation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Rating\RatingTable:main/lib/rating/rating.php:3dcbc20684b620af973ba65656f0a058 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Rating\RatingTable:main/lib/rating/rating.php */
 namespace Bitrix\Main\Rating {
 	/**
 	 * EO_Rating
@@ -7021,7 +6633,7 @@ namespace Bitrix\Main\Rating {
 	 */
 	class EO_Rating_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Rating\ResultsTable:main/lib/rating/results.php:ae4b4f21cb8c057b4cea81135116bccf */
+/* ORMENTITYANNOTATION:Bitrix\Main\Rating\ResultsTable:main/lib/rating/results.php */
 namespace Bitrix\Main\Rating {
 	/**
 	 * EO_Results
@@ -7234,7 +6846,7 @@ namespace Bitrix\Main\Rating {
 	 */
 	class EO_Results_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Service\GeoIp\HandlerTable:main/lib/service/geoip/handler.php:190b58c6f1cc5433dd198a672c209d86 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Service\GeoIp\HandlerTable:main/lib/service/geoip/handler.php */
 namespace Bitrix\Main\Service\GeoIp {
 	/**
 	 * EO_Handler
@@ -7398,7 +7010,7 @@ namespace Bitrix\Main\Service\GeoIp {
 	 */
 	class EO_Handler_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Session\Handlers\Table\UserSessionTable:main/lib/session/handlers/table/usersessiontable.php:12f82ed0a23f28f4cac1cba726ffb525 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Session\Handlers\Table\UserSessionTable:main/lib/session/handlers/table/usersessiontable.php */
 namespace Bitrix\Main\Session\Handlers\Table {
 	/**
 	 * EO_UserSession
@@ -7538,7 +7150,7 @@ namespace Bitrix\Main\Session\Handlers\Table {
 	 */
 	class EO_UserSession_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\SiteTable:main/lib/site.php:6026fcc29d662ffb844c77e70e256aa7 */
+/* ORMENTITYANNOTATION:Bitrix\Main\SiteTable:main/lib/site.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_Site
@@ -7811,7 +7423,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_Site_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\SiteDomainTable:main/lib/sitedomain.php:7b4def1df81b9fb8386d3c464cd3caa1 */
+/* ORMENTITYANNOTATION:Bitrix\Main\SiteDomainTable:main/lib/sitedomain.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_SiteDomain
@@ -7946,7 +7558,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_SiteDomain_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\SiteTemplateTable:main/lib/sitetemplate.php:025588b6ada8a8ad9be9bfead150cf51 */
+/* ORMENTITYANNOTATION:Bitrix\Main\SiteTemplateTable:main/lib/sitetemplate.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_SiteTemplate
@@ -8123,7 +7735,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_SiteTemplate_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Sms\TemplateTable:main/lib/sms/templatetable.php:68ab16a05405842127971fb3d41aedef */
+/* ORMENTITYANNOTATION:Bitrix\Main\Sms\TemplateTable:main/lib/sms/templatetable.php */
 namespace Bitrix\Main\Sms {
 	/**
 	 * Template
@@ -8325,7 +7937,7 @@ namespace Bitrix\Main\Sms {
 	 */
 	class EO_Template_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\TaskTable:main/lib/task.php:f2061a795390b03f0c1362703d9c47db */
+/* ORMENTITYANNOTATION:Bitrix\Main\TaskTable:main/lib/task.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_Task
@@ -8513,7 +8125,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_Task_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\TaskOperationTable:main/lib/taskoperation.php:bfdba34971b5e2dfc87dfde68b826a78 */
+/* ORMENTITYANNOTATION:Bitrix\Main\TaskOperationTable:main/lib/taskoperation.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_TaskOperation
@@ -8661,7 +8273,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_TaskOperation_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\AuthorTable:main/lib/test/typography/authortable.php:b7e0e0f1156cab6ce68e37394f7cdd5b */
+/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\AuthorTable:main/lib/test/typography/authortable.php */
 namespace Bitrix\Main\Test\Typography {
 	/**
 	 * EO_Author
@@ -8815,7 +8427,7 @@ namespace Bitrix\Main\Test\Typography {
 	 */
 	class EO_Author_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\BookTable:main/lib/test/typography/booktable.php:ccab43668933220120b57a0fa5dab406 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\BookTable:main/lib/test/typography/booktable.php */
 namespace Bitrix\Main\Test\Typography {
 	/**
 	 * Book
@@ -9032,7 +8644,7 @@ namespace Bitrix\Main\Test\Typography {
 	 */
 	class EO_Book_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\PublisherTable:main/lib/test/typography/publishertable.php:239cdd0e519c86436e6391933dfa0cab */
+/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\PublisherTable:main/lib/test/typography/publishertable.php */
 namespace Bitrix\Main\Test\Typography {
 	/**
 	 * EO_Publisher
@@ -9186,7 +8798,7 @@ namespace Bitrix\Main\Test\Typography {
 	 */
 	class EO_Publisher_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\StoreBookTable:main/lib/test/typography/storebooktable.php:c1310785f66ea290de8f740fb3faf48d */
+/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\StoreBookTable:main/lib/test/typography/storebooktable.php */
 namespace Bitrix\Main\Test\Typography {
 	/**
 	 * EO_StoreBook
@@ -9346,7 +8958,7 @@ namespace Bitrix\Main\Test\Typography {
 	 */
 	class EO_StoreBook_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\StoreTable:main/lib/test/typography/storetable.php:29b3c0e56bc5aef552aa623044005c09 */
+/* ORMENTITYANNOTATION:Bitrix\Main\Test\Typography\StoreTable:main/lib/test/typography/storetable.php */
 namespace Bitrix\Main\Test\Typography {
 	/**
 	 * EO_Store
@@ -9488,7 +9100,7 @@ namespace Bitrix\Main\Test\Typography {
 	 */
 	class EO_Store_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UI\Viewer\FilePreviewTable:main/lib/ui/viewer/filepreviewtable.php:12a9da490ac4d988a54b86f38a7ab638 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UI\Viewer\FilePreviewTable:main/lib/ui/viewer/filepreviewtable.php */
 namespace Bitrix\Main\UI\Viewer {
 	/**
 	 * EO_FilePreview
@@ -9703,7 +9315,7 @@ namespace Bitrix\Main\UI\Viewer {
 	 */
 	class EO_FilePreview_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\Update\VersionHistoryTable:main/lib/update/versionhistory.php:5ee920db7534bf7ddd9812e196be38ff */
+/* ORMENTITYANNOTATION:Bitrix\Main\Update\VersionHistoryTable:main/lib/update/versionhistory.php */
 namespace Bitrix\Main\Update {
 	/**
 	 * EO_VersionHistory
@@ -9843,7 +9455,7 @@ namespace Bitrix\Main\Update {
 	 */
 	class EO_VersionHistory_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UrlPreview\RouteTable:main/lib/urlpreview/route.php:7f1590cb339a4368825437a981726fa4 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UrlPreview\RouteTable:main/lib/urlpreview/route.php */
 namespace Bitrix\Main\UrlPreview {
 	/**
 	 * EO_Route
@@ -10007,7 +9619,7 @@ namespace Bitrix\Main\UrlPreview {
 	 */
 	class EO_Route_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UrlPreview\UrlMetadataTable:main/lib/urlpreview/urlmetadata.php:b5b0d263244b489fbce9409677ec7022 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UrlPreview\UrlMetadataTable:main/lib/urlpreview/urlmetadata.php */
 namespace Bitrix\Main\UrlPreview {
 	/**
 	 * EO_UrlMetadata
@@ -10243,7 +9855,7 @@ namespace Bitrix\Main\UrlPreview {
 	 */
 	class EO_UrlMetadata_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserTable:main/lib/user.php:387e6b292eb60e8e63855529d3f299bb */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserTable:main/lib/user.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_User
@@ -11117,7 +10729,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_User_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserAccessTable:main/lib/useraccess.php:971841be0799da25d408627a6b5aaadb */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserAccessTable:main/lib/useraccess.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserAccess
@@ -11245,7 +10857,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserAccess_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserAuthActionTable:main/lib/userauthaction.php:eb3dc9a8850a3849e40828913a372612 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserAuthActionTable:main/lib/userauthaction.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserAuthAction
@@ -11421,7 +11033,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserAuthAction_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\AgreementTable:main/lib/userconsent/internals/agreement.php:011aa5e47643a911fd9298c6a3eb622d */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\AgreementTable:main/lib/userconsent/internals/agreement.php */
 namespace Bitrix\Main\UserConsent\Internals {
 	/**
 	 * EO_Agreement
@@ -11693,7 +11305,7 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 */
 	class EO_Agreement_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\ConsentTable:main/lib/userconsent/internals/consent.php:43eb966184e8a41cdc672409c13d8c83 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\ConsentTable:main/lib/userconsent/internals/consent.php */
 namespace Bitrix\Main\UserConsent\Internals {
 	/**
 	 * EO_Consent
@@ -11920,7 +11532,7 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 */
 	class EO_Consent_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\FieldTable:main/lib/userconsent/internals/field.php:6bc7877b17af5a12e294b0d032300ed1 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\FieldTable:main/lib/userconsent/internals/field.php */
 namespace Bitrix\Main\UserConsent\Internals {
 	/**
 	 * EO_Field
@@ -12072,7 +11684,7 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 */
 	class EO_Field_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\UserConsentItemTable:main/lib/userconsent/internals/userconsentitem.php:2b3779c441ac6194d44b31f526809c07 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserConsent\Internals\UserConsentItemTable:main/lib/userconsent/internals/userconsentitem.php */
 namespace Bitrix\Main\UserConsent\Internals {
 	/**
 	 * EO_UserConsentItem
@@ -12225,7 +11837,7 @@ namespace Bitrix\Main\UserConsent\Internals {
 	 */
 	class EO_UserConsentItem_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserCounterTable:main/lib/usercounter.php:f86142da281fb905a578296f14bafed4 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserCounterTable:main/lib/usercounter.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserCounter
@@ -12438,7 +12050,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserCounter_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserField\Access\Permission\UserFieldPermissionTable:main/lib/userfield/access/permission/userfieldpermissiontable.php:e715fef07ccb76053afedf0e1e60beb8 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserField\Access\Permission\UserFieldPermissionTable:main/lib/userfield/access/permission/userfieldpermissiontable.php */
 namespace Bitrix\Main\UserField\Access\Permission {
 	/**
 	 * UserFieldPermission
@@ -12640,7 +12252,7 @@ namespace Bitrix\Main\UserField\Access\Permission {
 	 */
 	class EO_UserFieldPermission_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserFieldTable:main/lib/userfield.php:5d0c1f581fc8df3f3a2709e86d6d194f */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserFieldTable:main/lib/userfield.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserField
@@ -12900,7 +12512,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserField_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserFieldConfirmTable:main/lib/userfieldconfirm.php:ea37825a40b1f64e819131adc34f799c */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserFieldConfirmTable:main/lib/userfieldconfirm.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserFieldConfirm
@@ -13088,7 +12700,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserFieldConfirm_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserFieldLangTable:main/lib/userfieldlangtable.php:e4e5ef80e55ef74664315b8cd302e0c7 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserFieldLangTable:main/lib/userfieldlangtable.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserFieldLang
@@ -13283,7 +12895,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserFieldLang_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserGroupTable:main/lib/usergroup.php:9ad8ba7f88c05d5eddfa3d6d1840acbc */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserGroupTable:main/lib/usergroup.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserGroup
@@ -13455,7 +13067,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserGroup_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserIndexTable:main/lib/userindex.php:65d0a8c555c6d8c25b0238110bceac0b */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserIndexTable:main/lib/userindex.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserIndex
@@ -13667,7 +13279,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserIndex_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserPhoneAuthTable:main/lib/userphoneauth.php:0d93017b8bf6073c75f7c8bbf0e247f2 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserPhoneAuthTable:main/lib/userphoneauth.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserPhoneAuth
@@ -13856,7 +13468,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserPhoneAuth_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserProfileHistoryTable:main/lib/userprofilehistory.php:04d2e1e7d9a62826982a926c947b8b94 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserProfileHistoryTable:main/lib/userprofilehistory.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserProfileHistory
@@ -14056,7 +13668,7 @@ namespace Bitrix\Main {
 	 */
 	class EO_UserProfileHistory_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Main\UserProfileRecordTable:main/lib/userprofilerecord.php:b9aceb56193951fd6b97ebad8a38de29 */
+/* ORMENTITYANNOTATION:Bitrix\Main\UserProfileRecordTable:main/lib/userprofilerecord.php */
 namespace Bitrix\Main {
 	/**
 	 * EO_UserProfileRecord

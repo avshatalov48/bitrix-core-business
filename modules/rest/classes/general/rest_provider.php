@@ -1,6 +1,13 @@
 <?
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Context;
+use Bitrix\Main\Data\Cache;
+use Bitrix\Main\Engine\Controller;
+use Bitrix\Main\Engine\Resolver;
+use Bitrix\Main\Engine\Router;
+use Bitrix\Main\HttpRequest;
+use Bitrix\Rest\Engine\ScopeManager;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Loader;
 use Bitrix\Rest\RestException;
@@ -47,6 +54,7 @@ class CRestProvider
 
 					'scope' => array(__CLASS__, 'scopeList'),
 					'methods' => array(__CLASS__, 'methodsList'),
+					'method.get' => array(__CLASS__, 'getMethod'),
 
 					'server.time' => array(__CLASS__, 'getServerTime'),
 				),
@@ -379,6 +387,80 @@ class CRestProvider
 		}
 
 		return $arResult;
+	}
+
+	public static function getMethod($query, $n, \CRestServer $server): array
+	{
+		$result = [
+			'isExisting' => false,
+			'isAvailable' => false,
+		];
+		$name = $query['name'];
+		if (!empty($name))
+		{
+			$currentScope = self::getScope($server);
+			$currentScope[] = \CRestUtil::GLOBAL_SCOPE;
+			$cache = Cache::createInstance();
+			if ($cache->initCache(
+				ScopeManager::CACHE_TIME,
+				'info' . md5($name . implode('|', $currentScope)),
+				ScopeManager::CACHE_DIR . 'method/'
+			))
+			{
+				$result = $cache->getVars();
+			}
+			elseif ($cache->startDataCache())
+			{
+				$method = ScopeManager::getInstance()->getMethodInfo($name);
+
+				$arMethods = $server->getServiceDescription();
+				foreach ($arMethods as $scope => $methodList)
+				{
+					if (!empty($methodList[$name]))
+					{
+						if (in_array($scope, $currentScope, true))
+						{
+							$result['isAvailable'] = true;
+						}
+						$result['isExisting'] = true;
+					}
+				}
+
+				if (!$result['isExisting'])
+				{
+					$request = new HttpRequest(
+						Context::getCurrent()->getServer(),
+						[
+							'action' => $method['method'],
+						],
+						[],
+						[],
+						[]
+					);
+					$router = new Router($request);
+
+					/** @var Controller $controller */
+					[$controller, $action] = Resolver::getControllerAndAction(
+						$router->getVendor(),
+						$router->getModule(),
+						$router->getAction(),
+						Controller::SCOPE_REST
+					);
+					if ($controller)
+					{
+						if (in_array($method['scope'], $currentScope, true))
+						{
+							$result['isAvailable'] = true;
+						}
+						$result['isExisting'] = true;
+					}
+				}
+
+				$cache->endDataCache($result);
+			}
+		}
+
+		return $result;
 	}
 
 	public static function appInfo($params, $n, \CRestServer $server)

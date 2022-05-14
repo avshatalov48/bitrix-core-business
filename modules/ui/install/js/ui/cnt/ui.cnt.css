@@ -14,7 +14,12 @@
 	--ui-counter-bg-color-danger: #f54819;
 	--ui-counter-bg-color-light: #fff;
 	--ui-counter-bg-color-white: #fff;
+	--ui-counter-bg-color-theme: rgba(82, 92, 105, .15);
 	--ui-counter-bg-color-dark: rgba(255, 255, 255, .19);
+}
+
+:root .bitrix24-light-theme {
+	--ui-counter-bg-color-theme: rgba(255, 255, 255, .3);
 }
 
 /*region Base style*/
@@ -61,6 +66,11 @@
 .ui-counter-white { --ui-counter-current-bg-color: var(--ui-counter-bg-color-white); }
 
 .ui-counter-white .ui-counter-inner { color: #CBD0D3 !important; }
+
+.ui-counter-theme { --ui-counter-current-bg-color: var(--ui-counter-bg-color-theme); }
+
+.ui-counter-theme .ui-counter-inner { color: rgba(82,92,105,1); }
+.bitrix24-light-theme .ui-counter-theme .ui-counter-inner { color: #fff; }
 
 .ui-counter-dark {
 	--ui-counter-current-bg-color: var(--ui-counter-bg-color-dark);

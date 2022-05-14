@@ -109,8 +109,10 @@ class ProviderCreator
 			}
 		}
 
+		$needUseReserve = $quantity < 0 || Sale\Configuration::isEnableAutomaticReservation();
+
 		$providerName = $basketItem->getProviderName();
-		$providerName = static::clearProviderName($providerName);
+		$providerName = $this->clearProviderName($providerName);
 		if (empty($needShipList[$providerName]) && $shipmentItem->getReservedQuantity() > 0)
 		{
 			$quantity = 0;
@@ -121,13 +123,12 @@ class ProviderCreator
 			'SHIPMENT_ITEM' => $shipmentItem,
 			'BASKET_ITEM' => $basketItem,
 			'QUANTITY' =>  $quantity,
-			'RESERVED_QUANTITY' => 0,
 			'RESERVED_QUANTITY_BY_STORE' => [
 				$shipmentItem->getInternalIndex() => []
 			],
 		];
 
-		$storeData = Sale\Internals\Catalog\Provider::createMapShipmentItemStoreData($shipmentItem);
+		$storeData = Sale\Internals\Catalog\Provider::createMapShipmentItemStoreData($shipmentItem, $needUseReserve);
 		if ($storeData)
 		{
 			$item['STORE_DATA'] = $storeData;
@@ -148,7 +149,7 @@ class ProviderCreator
 		}
 		else
 		{
-			$item['RESERVED_QUANTITY'] = $basketItem->getReservedQuantity();
+			$item['RESERVED_QUANTITY'] = $needUseReserve ? $basketItem->getReservedQuantity() : 0;
 			$item['NEED_RESERVE'] = $item['RESERVED_QUANTITY'] > 0;
 		}
 

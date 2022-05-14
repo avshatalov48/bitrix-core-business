@@ -110,13 +110,7 @@ else
 			{
 				$arResult["FatalError"] = GetMessage("SONET_C3_PERMS").".";
 			}
-			elseif (
-				$arGroup
-				&& (
-					(int)$arGroup['OWNER_ID'] === (int)$USER->getId()
-					|| CSocNetUser::IsCurrentUserModuleAdmin()
-				)
-			)
+			elseif ($arGroup)
 			{
 				$group = \Bitrix\Socialnetwork\Item\Workgroup::getById($arParams['GROUP_ID']);
 				$arGroup['isScrumProject'] = ($group && $group->isScrumProject());
@@ -510,21 +504,29 @@ else
 			{
 				$arResult['ENTITY_TYPE'] = SONET_ENTITY_GROUP;
 
+				$ownerValue = Loc::getMessage('SONET_C3_PVG_OWNER');
+				$moderatorsValue = Loc::getMessage('SONET_C3_PVG_MOD');
+				$userValue = Loc::getMessage('SONET_C3_PVG_USER');
+
 				$suffix = '';
 
 				if ($arResult['Group']['isScrumProject'])
 				{
-					$suffix = '_SCRUM';
+					$ownerValue = Loc::getMessage('SONET_C3_PVG_OWNER_SCRUM2');
+					$moderatorsValue = Loc::getMessage('SONET_C3_PVG_MOD_SCRUM2');
+					$userValue = Loc::getMessage('SONET_C3_PVG_USER_SCRUM');
 				}
 				elseif ($arResult['Group']['PROJECT'] === 'Y')
 				{
-					$suffix = '_PROJECT';
+					$ownerValue = Loc::getMessage('SONET_C3_PVG_OWNER_PROJECT');
+					$moderatorsValue = Loc::getMessage('SONET_C3_PVG_MOD_PROJECT');
+					$userValue = Loc::getMessage('SONET_C3_PVG_USER_PROJECT');
 				}
 
 				$arResult['PermsVar'] = [
-					UserToGroupTable::ROLE_OWNER => Loc::getMessage('SONET_C3_PVG_OWNER' . $suffix),
-					UserToGroupTable::ROLE_MODERATOR => Loc::getMessage('SONET_C3_PVG_MOD' . $suffix),
-					UserToGroupTable::ROLE_USER => Loc::getMessage('SONET_C3_PVG_USER' . $suffix),
+					UserToGroupTable::ROLE_OWNER => $ownerValue,
+					UserToGroupTable::ROLE_MODERATOR => $moderatorsValue,
+					UserToGroupTable::ROLE_USER => $userValue,
 					SONET_ROLES_AUTHORIZED => Loc::getMessage('SONET_C3_PVG_AUTHORIZED')
 				];
 

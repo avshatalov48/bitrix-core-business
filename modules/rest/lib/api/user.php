@@ -292,8 +292,28 @@ class User extends \IRestService
 					'OnUserAdd' => array('main', 'OnUserInitialize', array(__CLASS__, 'onUserInitialize')),
 				),
 			);
-			$result[static::SCOPE_USER_BRIEF] = [];
-			$result[static::SCOPE_USER_BASIC] = [];
+			$result[static::SCOPE_USER_BRIEF] = [
+				'user.fields' => array(__CLASS__, 'getFields'),
+				'user.current' => array(__CLASS__, 'userCurrent'),
+				'user.get' => array(__CLASS__, 'userGet'),
+				'user.search' => array(__CLASS__, 'userGet'),
+				'user.online' => array(__CLASS__, 'userOnline'),
+				'user.counters' => array(__CLASS__, 'userCounters'),
+				\CRestUtil::EVENTS => array(
+					'OnUserAdd' => array('main', 'OnUserInitialize', array(__CLASS__, 'onUserInitialize')),
+				),
+			];
+			$result[static::SCOPE_USER_BASIC] = [
+				'user.fields' => array(__CLASS__, 'getFields'),
+				'user.current' => array(__CLASS__, 'userCurrent'),
+				'user.get' => array(__CLASS__, 'userGet'),
+				'user.search' => array(__CLASS__, 'userGet'),
+				'user.online' => array(__CLASS__, 'userOnline'),
+				'user.counters' => array(__CLASS__, 'userCounters'),
+				\CRestUtil::EVENTS => array(
+					'OnUserAdd' => array('main', 'OnUserInitialize', array(__CLASS__, 'onUserInitialize')),
+				),
+			];
 			$result[UserField::SCOPE_USER_USERFIELD] = [
 				'user.userfield.add' => [UserField::class, 'addRest'],
 				'user.userfield.update' => [UserField::class, 'updateRest'],

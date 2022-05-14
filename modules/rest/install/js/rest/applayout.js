@@ -369,30 +369,51 @@
 		{
 			e = e || window.event;
 
-			if(e.origin != this.params.appProto + '://' + this.params.appHost || !BX.type.isString(e.data))
+			if (
+				e.origin != this.params.appProto + '://' + this.params.appHost
+				|| (!BX.type.isString(e.data) && !BX.type.isObject(e.data))
+			)
 			{
 				return;
 			}
 
-			var cmd = split(e.data, ':'), args = [];
+			var cmd = {},
+				args = [],
+				appSid = '',
+				method = '',
+				cb = false
+			;
 
-			if(cmd[3] != this.params.appSid)
+			if (BX.type.isObject(e.data))
+			{
+				method = e.data.method;
+				appSid = e.data.appSid;
+				cb = e.data.callback;
+				args = !!e.data.params ? e.data.params : [];
+			}
+			else
+			{
+				cmd = split(e.data, ':');
+				method = cmd[0];
+				cb = cmd[2];
+				appSid = cmd[3];
+				if (cmd[1])
+				{
+					args = JSON.parse(cmd[1]);
+				}
+			}
+
+			if (appSid != this.params.appSid)
 			{
 				return;
 			}
 
-			if(cmd[1])
+			if (!!this.messageInterface[method] && !BX.util.in_array(method, this.deniedInterface))
 			{
-				args = JSON.parse(cmd[1]);
-			}
-
-			if(!!this.messageInterface[cmd[0]] && !BX.util.in_array(cmd[0], this.deniedInterface))
-			{
-				var cb = cmd[2];
 				var _cb = !cb ? BX.DoNothing : BX.delegate(function(res)
 				{
 					var f = BX(this.params.frameName);
-					if(!!f && !!f.contentWindow)
+					if (!!f && !!f.contentWindow)
 					{
 						f.contentWindow.postMessage(
 							cb + ':' + (typeof res == 'undefined' ? '' : JSON.stringify(res)),
@@ -401,7 +422,7 @@
 					}
 				}, this);
 
-				this.messageInterface[cmd[0]].apply(this, [args, _cb, this]);
+				this.messageInterface[method].apply(this, [args, _cb, this]);
 			}
 		},
 

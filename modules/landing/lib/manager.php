@@ -1130,6 +1130,11 @@ class Manager
 		;
 	}
 
+	public static function isFreePublicAllowed(): bool
+	{
+		return in_array(self::getZone(), ['ru', 'by', 'kz', 'es', 'la', 'mx', 'co', 'br']);
+	}
+
 	/**
 	 * Sanitize bad value.
 	 * @param string $value Bad value.

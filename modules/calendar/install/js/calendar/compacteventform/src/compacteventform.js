@@ -701,6 +701,7 @@ export class CompactEventForm extends EventEmitter
 		this.type = params.type || 'user';
 		this.isLocationCalendar = params.isLocationCalendar || false;
 		this.locationAccess = params.locationAccess || false;
+		this.dayOfWeekMonthFormat = params.dayOfWeekMonthFormat || false;
 		this.calendarContext = params.calendarContext || null;
 		this.ownerId = params.ownerId ? params.ownerId : 0;
 		if (this.type === 'user' && !this.ownerId)
@@ -1066,7 +1067,8 @@ export class CompactEventForm extends EventEmitter
 			type: this.type,
 			ownerId: this.ownerId,
 			zIndex: this.zIndex + 10,
-			plannerFeatureEnabled: this.plannerFeatureEnabled
+			plannerFeatureEnabled: this.plannerFeatureEnabled,
+			dayOfWeekMonthFormat: this.dayOfWeekMonthFormat
 		});
 
 		this.userPlannerSelector.subscribe('onDateChange', this.handlePlannerSelectorChanges.bind(this));
@@ -1773,6 +1775,7 @@ export class CompactEventForm extends EventEmitter
 			type: this.type,
 			isLocationCalendar: this.isLocationCalendar,
 			locationAccess: this.locationAccess,
+			dayOfWeekMonthFormat: this.dayOfWeekMonthFormat,
 			roomsManager: this.roomsManager,
 			locationCapacity: Location.getCurrentCapacity(), // for location component
 			ownerId: this.ownerId,

@@ -1,14 +1,15 @@
 ;(function(){
 	window["UC"] = (window["UC"] || {});
 	if (window["FCList"])
+	{
 		return;
+	}
 
 	var quoteData = null,
 		repo = {
 			listById : new Map(),
 			listByXmlId : new Map()
 		};
-
 
 	window.FCList = function (params, add) {
 		this.exemplarId = params["EXEMPLAR_ID"]/* || BX.util.getRandomString(20)*/; // To identify myself
@@ -57,8 +58,7 @@
 			OnUCCommentWasPulled : function(id, data, params) {
 				if (
 					this.getXmlId() !== params["ENTITY_XML_ID"]
-					||
-					this.isOwnOperationId(params["OPERATION_ID"])
+					|| this.isOwnOperationId(params["OPERATION_ID"])
 				)
 				{
 					return;
@@ -74,10 +74,8 @@
 			OnUCommentWasDeleted : function(ENTITY_XML_ID, id, params) {
 				if (
 					this.getXmlId() !== params["ENTITY_XML_ID"]
-					||
-					this.isOwnOperationId(params["OPERATION_ID"])
-					||
-					!this.getCommentNode(id[1])
+					|| this.isOwnOperationId(params["OPERATION_ID"])
+					|| !this.getCommentNode(id[1])
 				)
 				{
 					return;
@@ -89,10 +87,8 @@
 			OnUCommentWasHidden : function(ENTITY_XML_ID, id, params) {
 				if (
 					this.getXmlId() !== params["ENTITY_XML_ID"]
-					||
-					this.isOwnOperationId(params["OPERATION_ID"])
-					||
-					!this.getCommentNode(id[1])
+					|| this.isOwnOperationId(params["OPERATION_ID"])
+					|| !this.getCommentNode(id[1])
 				)
 				{
 					return;
@@ -101,10 +97,8 @@
 
 				if (
 					this.rights["MODERATE"] === "Y"
-					||
-					this.rights["MODERATE"] === "ALL"
-					||
-					Number(params["USER_ID"]) === Number(BX.message("USER_ID"))
+					|| this.rights["MODERATE"] === "ALL"
+					|| Number(params["USER_ID"]) === Number(BX.message("USER_ID"))
 				)
 				{
 					var node = BX.findChild(this.getCommentNode(id[1]), {tagName : "DIV", className : "feed-com-block"});
@@ -151,15 +145,22 @@
 				});
 			}.bind(this),
 			OnUCAfterRecordAdd : function(ENTITY_XML_ID, data) { // when the response is here
-				if (this.ENTITY_XML_ID === ENTITY_XML_ID) {
+				if (this.ENTITY_XML_ID === data["messageId"][0])
+				{
 					this.add(data["messageId"], data, true, "simple");
 				}
 			}.bind(this),
 			OnUCFormSubmit : BX.delegate(function(ENTITY_XML_ID, ENTITY_ID, formObject, data) {
 				if (
-					!formObject ||
-					this.form === null && (ENTITY_XML_ID !== this.getXmlId()) ||
-					this.form !== null && formObject.currentEntity !== this
+					!formObject
+					|| (
+						this.form === null
+						&& (ENTITY_XML_ID !== this.getXmlId())
+					)
+					|| (
+						this.form !== null
+						&& formObject.currentEntity !== this
+					)
 				)
 				{
 					return;
@@ -167,16 +168,7 @@
 				data["EXEMPLAR_ID"] = this.exemplarId;
 				data["OPERATION_ID"] = this.getOperationId();
 			}, this),
-			OnUCFormResponse : function(ENTITY_XML_ID, ENTITY_ID, formObject) {
-				if (
-					!formObject ||
-					this.form === null && (!formObject.id || formObject.id[0] !== this.getXmlId()) ||
-					this.form !== null && formObject.currentEntity !== this
-				)
-				{
-					return;
-				}
-			}.bind(this),
+			OnUCFormResponse : function(ENTITY_XML_ID, ENTITY_ID, formObject) {},
 			OnUCFormBeforeShow : function(formObject) {
 				var messageId = 0;
 				if (this.form === null && formObject.id[0] === this.getXmlId())
@@ -201,7 +193,10 @@
 				{
 					var node = BX("lhe_buttons_" + formObject.form.id);
 					if (!node || node.style.display === "none")
+					{
 						node = formObject.form;
+					}
+
 					if (!this.node.writersBlockPointer)
 					{
 						this.node.writersBlockPointer = BX.create("DIV", {style : {display: "none"}});
@@ -211,22 +206,59 @@
 				}
 			}.bind(this),
 			OnUCFormAfterShow : function(formObject) {
+
+				if (formObject.id[0] !== this.getXmlId())
+				{
+					return;
+				}
+
 				var node = BX.findParent(this.node.main, { className: "feed-comments-block"});
 				if (node)
 				{
 					BX.addClass(node, "feed-comments-block-editor-shown");
 				}
 			}.bind(this),
-			OnUCFormAfterHide : function(formObject, currentEntity) {
-				if (this.form === null && (!formObject.id || formObject.id[0] !== this.getXmlId()) ||
-					this.form !== null && formObject.currentEntity !== this)
+			OnUCFormBeforeHide : function(formObject) {
+				if (
+					(
+						this.form === null
+						&& (
+							!formObject.id
+							|| formObject.id[0] !== this.getXmlId()
+						)
+					)
+					||
+					(
+						this.form !== null
+						&& formObject.currentEntity !== this
+					)
+				)
 				{
 					return;
 				}
+
 				var node = BX.findParent(this.node.main, { className: "feed-comments-block"});
 				if (node)
 				{
 					BX.removeClass(node, "feed-comments-block-editor-shown");
+				}
+			}.bind(this),
+			OnUCFormAfterHide : function(formObject) {
+				if (
+					(
+						this.form === null
+						&& (
+							!formObject.id
+							|| formObject.id[0] !== this.getXmlId()
+						)
+					)
+					|| (
+						this.form !== null
+						&& formObject.currentEntity !== this
+					)
+				)
+				{
+					return;
 				}
 
 				BX.removeClass(this.node.formHolder, "feed-com-add-box-outer-form-shown");
@@ -238,17 +270,20 @@
 				}
 			}.bind(this),
 			OnUCUsersAreWriting: function (entityId, authorId, authorName, authorAvatar, timeL) {
-				if (this.getXmlId() === entityId) {
+				if (this.getXmlId() === entityId)
+				{
 					this.addWriter(authorId, authorName, authorAvatar, timeL);
 				}
 			}.bind(this),
 			OnUCCommentRecalculate: function (entityId) {
-				if (this.getXmlId() !== entityId) {
+				if (this.getXmlId() !== entityId)
+				{
 					return;
 				}
 
-				var ii,
-					nodes = BX.findChild(this.node.main, {attrs : { "bx-mpl-xml-id" : this.ENTITY_XML_ID } }, false, true);
+				var ii;
+				var nodes = BX.findChild(this.node.main, {attrs : { "bx-mpl-xml-id" : this.ENTITY_XML_ID } }, false, true);
+
 				for (ii = 0; ii < nodes.length; ii++)
 				{
 					this.recalcMoreButtonComment(nodes[ii].getAttribute("bx-mpl-entity-id"));
@@ -284,7 +319,6 @@
 		}
 
 		this.initialize();
-
 
 		this.checkHash();
 		this.registerComments();
@@ -371,19 +405,26 @@
 					}
 				}
 			}
+
+			if (BX.DD && !this.node.main.hasAttribute("dropzone"))
+			{
+				new BX.DD.dropFiles(this.node.main);
+			}
 		},
 		initNavigationEvents : function() {
-			if (BX(this.node.navigation))
+			if (!BX(this.node.navigation))
 			{
-				this.bindEvents.unshift([
-					this.node.navigation, "click", (function (e) {
-						BX.eventCancelBubble(e);
-						e.preventDefault();
-						this.getPagenavigation();
-						return false;
-					}).bind(this)
-				]);
+				return;
 			}
+
+			this.bindEvents.unshift([
+				this.node.navigation, "click", (function (e) {
+					BX.eventCancelBubble(e);
+					e.preventDefault();
+					this.getPagenavigation();
+					return false;
+				}).bind(this)
+			]);
 		},
 		initPostFormActivity : function() {
 
@@ -485,7 +526,10 @@
 		},
 		quotePopup : null,
 		quoteCheck : function() {
-			var text = "", range, author = null;
+			var text = "";
+			var range;
+			var author = null;
+
 			if (window.getSelection)
 			{
 				range = window.getSelection();
@@ -499,8 +543,9 @@
 
 			if (text !== "")
 			{
-				var endParent = BX.findParent(range.focusNode, {"tagName" : "DIV", "className" : "feed-com-block-cover"}, this.node.main),
-					startParent = BX.findParent(range.anchorNode, {"tagName" : "DIV", "className" : "feed-com-block-cover"}, this.node.main);
+				var endParent = BX.findParent(range.focusNode, {"tagName" : "DIV", "className" : "feed-com-block-cover"}, this.node.main);
+				var startParent = BX.findParent(range.anchorNode, {"tagName" : "DIV", "className" : "feed-com-block-cover"}, this.node.main);
+
 				if (endParent !== startParent || BX(endParent) && !endParent.hasAttribute("id"))
 				{
 					text = "";
@@ -579,9 +624,11 @@
 			this.quotePopup.show(e);
 		},
 		displayPagenavigation : function(status, startHeight) {
-			var fxStart = 0, fxFinish = 0,
-				time = 0,
-				el = this.node.history;
+			var fxStart;
+			var fxFinish = 0;
+			var time;
+			var el = this.node.history;
+
 			status = (status == "hide" ? "hide" : "show");
 			if (status == "hide")
 			{
@@ -722,13 +769,10 @@
 			BX.onCustomEvent(window, "OnUCFeedChanged", [[this.ENTITY_XML_ID, this.mid]]);
 			this.displayPagenavigation("show", offsetHeight);
 
-			var res = null;
 			if (BX.type.isNotEmptyString(data["navigation"]))
 			{
-				res = BX.create("DIV", {html : data["navigation"]}).firstChild;
-			}
-			if (BX(res))
-			{
+				var res = BX.create("DIV", {html : data["navigation"]}).firstChild;
+
 				BX.adjust(this.node.navigation, {
 					attrs : {
 						href : res.getAttribute("href"),
@@ -784,7 +828,9 @@
 		getCommentsCount : function() {
 			var count = 0;
 			if (BX(this.node.navigation))
+			{
 				count = Number(this.node.navigation.getAttribute("bx-mpl-comments-count"));
+			}
 			return (this.comments.size + count);
 		},
 		wait : function(status) {
@@ -801,8 +847,8 @@
 		},
 		reply : function(node) {
 			var author = {
-				id : undefined,
-				name : undefined
+				id: undefined,
+				name: undefined,
 			};
 			if (BX.type.isElementNode(node))
 			{
@@ -825,8 +871,10 @@
 			}
 		},
 		getPlaceholder : function(messageId) {
-			if (!this.node["placeholderFor" + messageId] ||
-			!document.body.contains(this.node["placeholderFor" + messageId]))
+			if (
+				!this.node["placeholderFor" + messageId]
+				|| !document.body.contains(this.node["placeholderFor" + messageId])
+			)
 			{
 				this.node["placeholderFor" + messageId] = BX.findChild(
 					this.node.main,
@@ -847,9 +895,10 @@
 				return;
 			}
 
-			var id = ["writer", this.exemplarId, userId].join("-"),
-				node = BX(id),
-				t = setTimeout(this.hideWriter, (time > 0 ? time : 40500), userId);
+			var id = ["writer", this.exemplarId, userId].join("-");
+			var node = BX(id);
+			var t = setTimeout(this.hideWriter, (time > 0 ? time : 40500), userId);
+
 			if (node)
 			{
 				clearTimeout(node.getAttribute("bx-check-timeout"));
@@ -862,7 +911,6 @@
 						className : "feed-com-avatar ui-icon ui-icon-common-user ",
 						title : name
 					},
-
 					children: [
 						(
 							avatar && avatar.length > 0
@@ -884,7 +932,10 @@
 			BX.show(this.node.writersBlock);
 
 			if (this.objAnswering && this.objAnswering.name !== "show")
+			{
 				this.objAnswering.stop();
+			}
+
 			if (!this.objAnswering || this.objAnswering.name !== "show")
 			{
 				this.node.writersBlock.style.display = "inline-block";
@@ -906,8 +957,9 @@
 			{
 				return;
 			}
-			var id = ["writer", this.exemplarId, userId].join("-"),
-				node = BX(id);
+
+			var id = ["writer", this.exemplarId, userId].join("-");
+			var node = BX(id);
 
 			if (this.node.writers.childNodes.length > 1)
 			{
@@ -931,7 +983,10 @@
 			else
 			{
 				if (this.objAnswering && this.objAnswering.name !== "hide")
+				{
 					this.objAnswering.stop();
+				}
+
 				if (!this.objAnswering || this.objAnswering.name !== "hide")
 				{
 					this.objAnswering = (new BX["easing"]({
@@ -981,7 +1036,9 @@
 
 			var author = (data["AUTHOR"] || (data["messageFields"] ? data["messageFields"]["AUTHOR"] : null));
 			if (author)
+			{
 				this.hideWriter(author["ID"]);
+			}
 
 			var container = this.getCommentNode(messageId[1]);
 			if (!container && messageId[1] < this.mid)
@@ -1005,32 +1062,43 @@
 
 						NAME_TEMPLATE : this.params.NAME_TEMPLATE,
 						SHOW_LOGIN : this.params.SHOW_LOGIN,
-						CLASSNAME : BX.type.isPlainObject(options) && options.live ? 'feed-com-block-live' : ''
+						CLASSNAME : BX.type.isPlainObject(options) && options.live ? 'feed-com-block-live' : '',
+
+						CONTENT_VIEW_KEY : this.params.CONTENT_VIEW_KEY,
+						CONTENT_VIEW_KEY_SIGNED : this.params.CONTENT_VIEW_KEY_SIGNED,
 					},
 					this.getTemplate()
-				)),
-				ob = BX.processHTML(html, false),
-				results,
-				newCommentsContainer = this.node.newComments,
-				acts = ["MODERATE", "EDIT", "DELETE"],
-				needToCheck = false,
-				height = 0;
+				));
+			var ob = BX.processHTML(html, false);
+			var results;
+			var newCommentsContainer = this.node.newComments;
+			var acts = [ "MODERATE", "EDIT", "DELETE" ];
+			var needToCheck = false;
+			var height = 0;
+
 			//region Changing rights for messages with right = ownlast
 			for (var ii in acts)
 			{
-				if (acts.hasOwnProperty(ii))
+				if (
+					acts.hasOwnProperty(ii)
+					&& this.rights[acts[ii]] === "OWNLAST"
+				)
 				{
-					if (this.rights[acts[ii]] === "OWNLAST")
-					{
-						needToCheck = true;
-						break;
-					}
+					needToCheck = true;
+					break;
 				}
 			}
+
 			if (needToCheck)
 			{
-				results = (newCommentsContainer.lastChild && BX.hasClass(newCommentsContainer.lastChild, "feed-com-block-cover") ? [newCommentsContainer.lastChild] : []);
-				var res, res2;
+				results = (
+					newCommentsContainer.lastChild
+					&& BX.hasClass(newCommentsContainer.lastChild, "feed-com-block-cover")
+						? [newCommentsContainer.lastChild]
+						: []
+				);
+				var res;
+				var res2;
 				if (this.addCheckPreviousNodes !== true)
 				{
 					results = BX.findChildren(this.node.main, {tagName : "DIV", "className" : "feed-com-block-cover"}, false) || [];
@@ -1043,11 +1111,17 @@
 					if (res2)
 					{
 						if (this.rights["EDIT"] === "OWNLAST")
+						{
 							res2.setAttribute("bx-mpl-edit-show", "N");
+						}
 						if (this.rights["MODERATE"] === "OWNLAST")
+						{
 							res2.setAttribute("bx-mpl-moderate-show", "N");
+						}
 						if (this.rights["DELETE"] === "OWNLAST")
+						{
 							res2.setAttribute("bx-mpl-delete-show", "N");
+						}
 					}
 				}
 			}
@@ -1065,15 +1139,20 @@
 						"bx-mpl-read-status" : (Number(author["ID"]) !== Number(BX.message("USER_ID")) ? "new" : "old"),
 						"bx-mpl-block" : "main",
 					},
-					style : {opacity : 0, height : 0, overflow: "hidden"},
-					html : ob.HTML});
+					style : {
+						opacity: 0,
+						height: 0,
+						overflow: "hidden",
+						marginBottom: 0,
+					},
+					html: ob.HTML,
+				});
 				newCommentsContainer.appendChild(container);
 				changeOpacity = true;
 			}
 			else // edit
 			{
-				var
-					containerBody = BX.create("DIV", {
+				var containerBody = BX.create("DIV", {
 						attrs : {
 							id : ("record-" + id + "-cover"),
 							className : "feed-com-block-cover"
@@ -1082,15 +1161,18 @@
 							display : "none"
 						},
 						html : ob.HTML
-					}),
-					containerForRemove = container,
+					});
+				var containerForRemove = container;
 
-					// get expanded status
-					commentOuterNode = BX.findChild(containerForRemove, {
-							tag: "div",
-							className: "feed-com-text-inner"
-						}, true),
-					expanded = (commentOuterNode && commentOuterNode.classList.contains("feed-com-text-inner-expanded"));
+				// get expanded status
+				var commentOuterNode = BX.findChild(containerForRemove, {
+					tag: 'div',
+					className: 'feed-com-text-inner',
+				}, true);
+				var expanded = (
+					commentOuterNode
+					&& commentOuterNode.classList.contains("feed-com-text-inner-expanded")
+				);
 
 				// set expanded status
 				if (expanded)
@@ -1119,7 +1201,7 @@
 
 			if (
 				animation !== "simple"
-				&& typeof BXMobileApp == "undefined" // non-mobile
+				&& BX.Type.isUndefined(window.BXMobileApp) // non-mobile
 				&& !( // if it is not a slider over
 					window.top === window &&
 					BX.getClass('BX.SidePanel.Instance') &&
@@ -1133,13 +1215,14 @@
 				)
 			)
 			{
-				var curPos = BX.pos(container),
-					scroll = BX.GetWindowScrollPos(),
-					size = BX.GetWindowInnerSize();
+				var curPos = BX.pos(container);
+				var scroll = BX.GetWindowScrollPos();
+				var size = BX.GetWindowInnerSize();
+
 				(new BX["easing"]({
 					duration : 1000,
 					start : { opacity : (changeOpacity ? 0 : 100), height : height},
-					finish : { opacity: 100, height : container.scrollHeight},
+					finish : { opacity: 100, height : container.scrollHeight + 10},
 					transition : BX.easing.makeEaseOut(BX.easing.transitions.quart),
 					step : function(state){
 						container.style.height = state.height + "px";
@@ -1160,7 +1243,7 @@
 				(new BX["easing"]({
 					duration : 500,
 					start : { opacity : (changeOpacity ? 0 : 100), height : height},
-					finish : { opacity : 100, height : container.scrollHeight},
+					finish : { opacity : 100, height : container.scrollHeight + 10},
 					transition : BX.easing.makeEaseOut(BX.easing.transitions.cubic),
 					step : function(state) {
 						container.style.height = state.height + "px";
@@ -1213,7 +1296,9 @@
 			{
 				try { eval(url); return false; }
 				catch(e) {}
-				if (BX.type.isFunction(url)) {
+
+				if (BX.type.isFunction(url))
+				{
 					url(this, id, act);
 					return false;
 				}
@@ -1325,7 +1410,9 @@
 		},
 		showError : function(id, text) {
 			if (this.errorWindow)
+			{
 				this.errorWindow.close();
+			}
 
 			this.errorWindow = new BX.PopupWindow("bx-comments-error", null, {
 				autoHide: false,
@@ -1355,9 +1442,12 @@
 			{
 				return;
 			}
-			var tw = /%23com(\d+)/gi.exec(location.href),
-				ENTITY_ID = parseInt(location.hash && location.hash.indexOf("#com") >= 0 ?
-					location.hash.replace("#com", "") : (tw ? tw[1] : 0));
+			var tw = /%23com(\d+)/gi.exec(location.href);
+			var ENTITY_ID = parseInt(
+				location.hash && location.hash.indexOf("#com") >= 0
+					? location.hash.replace('#com', '')
+					: (tw ? tw[1] : 0)
+			);
 
 			if (ENTITY_ID > 0)
 			{
@@ -1383,10 +1473,14 @@
 			}
 		},
 		registerComments : function() {
-			var ii,
-				nodes = BX.findChild(this.node.main, {tag: "DIV", attrs : {
-					"bx-mpl-block" : "main",
-					"bx-mpl-xml-id" : this.ENTITY_XML_ID } }, true, true);
+			var ii;
+			var nodes = BX.findChild(this.node.main, {
+				tag: 'DIV',
+				attrs: {
+					'bx-mpl-block': 'main',
+					'bx-mpl-xml-id': this.ENTITY_XML_ID,
+				}
+			}, true, true);
 			for (ii = 0; ii < nodes.length; ii++)
 			{
 				if (nodes[ii].getAttribute("bx-mpl-blank-status") === "blank")
@@ -1464,6 +1558,7 @@
 
 			var pos = BX.pos(bodyBlock);
 			var pos2 = BX.pos(textBlock);
+
 			if (pos.height >= pos2.height)
 			{
 				moreButtonBlock.style.display = "none";
@@ -1476,6 +1571,7 @@
 			var ii = null;
 			var onLoadImageList = BX.findChildren(bodyBlock, { attr: { "data-bx-onload" : "Y" } },true);
 			var funcOnLoad = function(){this.recalcMoreButtonComment(id);}.bind(this);
+
 			if (BX.type.isArray(onLoadImageList))
 			{
 				for (ii = 0; ii < onLoadImageList.length; ii++)
@@ -1520,7 +1616,6 @@
 				return result;
 			}
 
-
 			var pos = BX.pos(this.node.main);
 			if (
 				pos.top > screenPosition.bottom
@@ -1530,7 +1625,11 @@
 			{
 				return result;
 			}
-			var keys = comments.keys(), key = keys.next(), node;
+
+			var keys = comments.keys();
+			var key = keys.next()
+			var node;
+
 			while (key.done !== true)
 			{
 				node = comments.get(key.value);
@@ -1556,13 +1655,16 @@
 			{
 				return;
 			}
+
 			var node = this.unreadComments.get(id);
 			node.setAttribute("bx-mpl-read-status", "old");
 			this.unreadComments.delete(id);
 			scrSpy.unset([this.getXmlId(), id].join("-"));
 
 			if (this.node.newComments.contains(node))
+			{
 				this.sendCommentAsRead(id);
+			}
 
 			BX.removeClass(node, "comment-new-answer");
 
@@ -1643,12 +1745,14 @@
 			setTimeout(this.sendCommentAsBlank, 1000);
 		},
 		sendCommentAsBlank : function() {
-			if (this.ajax["getComment"] !== true ||
-				this.blankCommentsForAjax.size <= 0
+			if (
+				this.ajax["getComment"] !== true
+				|| this.blankCommentsForAjax.size <= 0
 			)
 			{
 				return;
 			}
+
 			var keys = Array.from(this.blankCommentsForAjax.keys());
 			var comments = new Map(this.blankCommentsForAjax);
 			this.blankCommentsForAjax.clear();
@@ -1680,6 +1784,7 @@
 					}
 				}.bind(this));
 			}.bind(this);
+
 			BX.ajax.runComponentAction(this.ajax.componentName, "getComment", {
 				mode: "class",
 				data: {
@@ -1721,7 +1826,10 @@
 	var lastWaitElement = null;
 	var fcShowWait = function(el) {
 		if (el && !BX.type.isElementNode(el))
+		{
 			el = null;
+		}
+
 		el = el || this;
 
 		if (BX.type.isElementNode(el))
@@ -1741,7 +1849,10 @@
 	};
 	var fcCloseWait = function(el) {
 		if (el && !BX.type.isElementNode(el))
+		{
 			el = null;
+		}
+
 		el = el || lastWaitElement || this;
 
 		if (BX.type.isElementNode(el))
@@ -1821,9 +1932,12 @@
 						return;
 					}
 
-					var
-						it = BX.proxy_context,
-						height = parseInt(!!it.getAttribute("bx-height") ? it.getAttribute("bx-height") : it.offsetHeight);
+					var it = BX.proxy_context;
+					var height = parseInt(
+						!!it.getAttribute('bx-height')
+							? it.getAttribute('bx-height')
+							: it.offsetHeight
+					);
 
 					if (it.getAttribute("bx-status") != "shown")
 					{
@@ -1910,7 +2024,9 @@
 				}
 			});
 		}
+
 		if (el.getAttribute("bx-mpl-edit-show") == "Y")
+		{
 			panels.push({
 				text : BX.message("BPC_MES_EDIT"),
 				onclick : function() {
@@ -1919,6 +2035,8 @@
 					return false;
 				}
 			});
+		}
+
 		if (el.getAttribute("bx-mpl-moderate-show") == "Y")
 		{
 			var hidden = el.getAttribute("bx-mpl-moderate-approved") == "hidden";
@@ -2049,7 +2167,8 @@
 			}
 		}
 
-		if (panels.length > 0) {
+		if (panels.length > 0)
+		{
 			for (var ii in panels)
 			{
 				if (panels.hasOwnProperty(ii))
@@ -2202,11 +2321,17 @@
 
 		params["NAME_TEMPLATE"] = (params["NAME_TEMPLATE"] || "");
 		params["SHOW_LOGIN"] = (params["SHOW_LOGIN"] || "");
-		var res = (data && data["messageFields"] ? data["messageFields"] : data),
-			replacement = {
+
+		params["CONTENT_VIEW_KEY"] = (params["CONTENT_VIEW_KEY"] || "");
+		params["CONTENT_VIEW_KEY_SIGNED"] = (params["CONTENT_VIEW_KEY_SIGNED"] || "");
+
+		var res = (data && data["messageFields"] ? data["messageFields"] : data);
+		var replacement = {
 				"ID" : "",
 				"FULL_ID" : "",
 				"CONTENT_ID" : "",
+				"CONTENT_VIEW_KEY" : "",
+				"CONTENT_VIEW_KEY_SIGNED" : "",
 				"ENTITY_XML_ID" : "",
 				"EXEMPLAR_ID" : "",
 				"NEW" : "old",
@@ -2254,24 +2379,15 @@
 				["yesterday", (params["TIME_FORMAT"].indexOf("yesterday") < 0 ? 'yesterday, '+params["TIME_FORMAT"] : params["TIME_FORMAT"])],
 				["", params["DATE_TIME_FORMAT"]]
 			];
-/*
-			var dateFormat = [
-				["s", "sshort"],
-				["i", "ishort"],
-				["H", "Hshort"],
-				["d", "dshort"],
-				["m", "mshort"],
-				["Y", "Yshort"]
-			];
-*/
+
 			var authorStyle = "";
-			if (typeof res["AUTHOR"]["TYPE"] != "undefined")
+			if (!BX.Type.isUndefined(res["AUTHOR"]["TYPE"]))
 			{
-				if (res["AUTHOR"]["TYPE"] == "EMAIL")
+				if (res["AUTHOR"]["TYPE"] === "EMAIL")
 				{
 					authorStyle = " feed-com-name-email";
 				}
-				else if (res["AUTHOR"]["TYPE"] == "EXTRANET")
+				else if (res["AUTHOR"]["TYPE"] === "EXTRANET")
 				{
 					authorStyle = " feed-com-name-extranet";
 				}
@@ -2297,7 +2413,13 @@
 			replacement = {
 				"ID" : res["ID"],
 				"FULL_ID" : res["FULL_ID"].join("-"),
-				"CONTENT_ID" : (res["RATING"] && res["RATING"]["ENTITY_TYPE_ID"] && res["RATING"]["ENTITY_ID"] ? res["RATING"]["ENTITY_TYPE_ID"] + "-" + res["RATING"]["ENTITY_ID"] : ""),
+				"CONTENT_ID" : (
+					res['RATING'] && res['RATING']['ENTITY_TYPE_ID'] && res['RATING']['ENTITY_ID']
+						? res['RATING']['ENTITY_TYPE_ID'] + '-' + res['RATING']['ENTITY_ID']
+						: ''
+				),
+				"CONTENT_VIEW_KEY" : params["CONTENT_VIEW_KEY"],
+				"CONTENT_VIEW_KEY_SIGNED" : params["CONTENT_VIEW_KEY_SIGNED"],
 				"ENTITY_XML_ID" : res["ENTITY_XML_ID"],
 				"EXEMPLAR_ID" : params["EXEMPLAR_ID"],
 				"NEW" : res["NEW"] == "Y" ? "new" : "old",
@@ -2370,22 +2492,22 @@
 					replace("#id#", res["ID"]).
 					replace("#USER_ID#", res["AUTHOR"]["ID"]).
 					replace("#user_id#", res["AUTHOR"]["ID"]) + (
-						typeof res["AUTHOR"]["EXTERNAL_AUTH_ID"] != "undefined"
-						&& res["AUTHOR"]["EXTERNAL_AUTH_ID"] == "email"
-						&& typeof params["AUTHOR_URL_PARAMS"] != "undefined"
+						!BX.Type.isUndefined(res["AUTHOR"]["EXTERNAL_AUTH_ID"])
+						&& res["AUTHOR"]["EXTERNAL_AUTH_ID"] === "email"
+						&& !BX.Type.isUndefined(params["AUTHOR_URL_PARAMS"])
 							? (params["AUTHOR_URL"].indexOf("?") >= 0 ? '&' : '?') + 'entityType=' + params["AUTHOR_URL_PARAMS"]["entityType"] + '&entityId=' + params["AUTHOR_URL_PARAMS"]["entityId"]
-							: ""
+							: ''
 					),
 				"AUTHOR_NAME" : BX.formatName(res["AUTHOR"], params["NAME_TEMPLATE"], params["SHOW_LOGIN"]),
 				"AUTHOR_EXTRANET_STYLE" : authorStyle,
 				"VOTE_ID" : (res["RATING"] && res["RATING"]["VOTE_ID"] ? res["RATING"]["VOTE_ID"] : ""),
 				"AUTHOR_PERSONAL_GENDER" : (BX.type.isNotEmptyString(res["AUTHOR"]["PERSONAL_GENDER"]) ? res["AUTHOR"]["PERSONAL_GENDER"] : ""),
-				"AUTHOR_TOOLTIP_PARAMS" : (typeof res["AUTHOR_TOOLTIP_PARAMS"] != "undefined" ? res["AUTHOR_TOOLTIP_PARAMS"] : '{}'),
+				"AUTHOR_TOOLTIP_PARAMS": (!BX.Type.isUndefined(res["AUTHOR_TOOLTIP_PARAMS"]) ? res["AUTHOR_TOOLTIP_PARAMS"] : '{}'),
 				"background:url('') no-repeat center;" : "",
 				"LIKE_REACT" : (!!res["LIKE_REACT"] ? res["LIKE_REACT"] : ""),
 				"RATING_NONEMPTY_CLASS" : (res["RATING"] && res["RATING"]["TOTAL_VOTES"] ? "comment-block-rating-nonempty" : ""),
-				"POST_ENTITY_TYPE" : (!!res["POST_CONTENT_TYPE_ID"] ? res["POST_CONTENT_TYPE_ID"] : ""),
-				"COMMENT_ENTITY_TYPE" : (!!res["COMMENT_CONTENT_TYPE_ID"] ? res["COMMENT_CONTENT_TYPE_ID"] : "")
+				"POST_ENTITY_TYPE" : (!!params["POST_CONTENT_TYPE_ID"] ? params["POST_CONTENT_TYPE_ID"] : ""),
+				"COMMENT_ENTITY_TYPE" : (!!params["COMMENT_CONTENT_TYPE_ID"] ? params["COMMENT_CONTENT_TYPE_ID"] : "")
 			};
 		}
 		else
@@ -2398,6 +2520,7 @@
 				}
 			}
 		}
+
 		for (ii in replacement)
 		{
 			if (replacement.hasOwnProperty(ii))
@@ -2416,16 +2539,16 @@
 		return txt.replace("background:url('') no-repeat center;", "").replace(/\001/gi, "#");
 	};
 
-	window["fcPull"] = function(ENTITY_XML_ID, data) {
+	window['fcPull'] = function(ENTITY_XML_ID, data) {
 		BX.ajax({
 			url: '/bitrix/components/bitrix/main.post.list/templates/.default/component_epilog.php',
 			method: "POST",
 			data: {
-				AJAX_POST :  "Y",
-				ENTITY_XML_ID : ENTITY_XML_ID,
-				MODE : "PUSH&PULL",
-				sessid : BX.bitrix_sessid(),
-				DATA : data
+				AJAX_POST:  "Y",
+				ENTITY_XML_ID: ENTITY_XML_ID,
+				MODE: "PUSH&PULL",
+				sessid: BX.bitrix_sessid(),
+				DATA: data,
 			}
 		});
 	};
@@ -2437,19 +2560,19 @@
 
 		this.node = document.createElement("A");
 		BX.adjust(this.node, {
-			style : {
+			style: {
 				zIndex: BX.PopupWindow.getOption("popupZindex") + 1,
 				position: "absolute",
 				display: "none",
 				top: "0px",
-				left: "0px"
+				left: "0px",
 			},
 			attrs : {
-				"className" : "mpl-quote-block",
-				href : "#"
+				className: "mpl-quote-block",
+				href: "#",
 			},
-			events : {
-				click: this.fire.bind(this)
+			events: {
+				click: this.fire.bind(this),
 			}
 		});
 
@@ -2490,15 +2613,19 @@
 				this.autoHideTimeoutPointer = setTimeout(this.hide, this.autoHideTimeout);
 			}
 		},
-		fire : function(e) {
+		fire: function(e) {
 
 			e.preventDefault();
 
 			if (!this.isShown())
+			{
 				return;
+			}
 
 			if (e && !(BX.getEventButton(e) & BX.MSLEFT))
+			{
 				return;
+			}
 
 			this.cancelBubble(e);
 
@@ -2509,13 +2636,17 @@
 			setTimeout(this.hide, 50);
 			return false;
 		},
-		hide : function() {
+		hide: function() {
 			BX.unbind(document, "keyup", this.checkEsc);
 			this.closeByEscBound = false;
 			BX.unbind(document, "click", this.hide);
 			this.autoHideBound = false;
+
 			if (this.autoHideTimeoutPointer > 0 )
+			{
 				clearTimeout(this.autoHideTimeoutPointer);
+			}
+
 			this.autoHideTimeoutPointer = 0;
 			this.autoHideTimeoutBound = false;
 
@@ -2523,34 +2654,48 @@
 
 			BX.remove(this.node);
 		},
-		getPosition : function(node, e) {
+		getPosition: function(node, e) {
 			var nodePos;
-			if (e.pageX == null) {
+			if (e.pageX == null)
+			{
 				var doc = document.documentElement, body = document.body;
 				var x = e.clientX + (doc && doc.scrollLeft || body && body.scrollLeft || 0) - (doc.clientLeft || 0);
 				var y = e.clientY + (doc && doc.scrollTop || body && body.scrollTop || 0) - (doc.clientTop || 0);
 				nodePos = {x: x, y: y};
-			} else {
+			}
+			else
+			{
 				nodePos = {x: e.pageX, y: e.pageY};
 			}
-			return {"x": nodePos.x + 5, "y":nodePos.y - 16};
+			return {
+				x: (nodePos.x + 5),
+				y: (nodePos.y - 16),
+			};
 		},
-		isShown : function() {
+		isShown: function() {
 			return (this.node.style.display === "block");
 		},
-		cancelBubble : function(event) {
-			if(!event)
+		cancelBubble: function(event) {
+			if (!event)
+			{
 				event = window.event;
+			}
 
 			if (event.stopPropagation)
+			{
 				event.stopPropagation();
+			}
 			else
+			{
 				event.cancelBubble = true;
+			}
 		},
 		checkEsc : function(event) {
 			event = event || window.event;
 			if (event.keyCode == 27)
+			{
 				this.hide(event);
+			}
 		}
 	};
 	//region Services functions
@@ -2558,8 +2703,10 @@
 		var lists = repo.listById.values();
 		var list = lists.next();
 		while (list.done !== true) {
-			if (list.value.getXmlId() === xmlId &&
-				!document.body.contains(list.value.node.main))
+			if (
+				list.value.getXmlId() === xmlId
+				&& !document.body.contains(list.value.node.main)
+			)
 			{
 				BX.onCustomEvent(window, "OnUCInitialized", [list.value.getId()]);
 			}
@@ -2592,6 +2739,7 @@
 	window.mplCheckForQuote = function(e, node, xmlId, author_id) {
 		e = (document.all ? window.event : e);
 		var text = "", range, author = null;
+
 		if (window.getSelection)
 		{
 			range = window.getSelection();
@@ -2602,10 +2750,12 @@
 			range = document.selection;
 			text = range.createRange().text;
 		}
+
 		if (text.length <= 0)
 		{
 			return;
 		}
+
 		var endParent = BX.findParent(range.focusNode, {
 				tagName : node.tagName,
 				className : node.className
@@ -2642,6 +2792,7 @@
 		{
 			closestEntity = repo.listById.get(node.__boundXmlEntityId) || null;
 		}
+
 		if (closestEntity === null)
 		{
 			node.__boundXmlCheckQuote = true;
@@ -2681,12 +2832,9 @@
 		}
 	};
 	window.mplReplaceUserPath = function(text) {
-		if (
-			typeof text != "string"
-			|| text.length <= 0
-		)
+		if (!BX.Type.isStringFilled(text))
 		{
-			return "";
+			return '';
 		}
 
 		if (BX("MPL_IS_EXTRANET_SITE") === "Y")
@@ -2732,13 +2880,14 @@
 		}
 	});
 	BX.addCustomEvent(window, 'BX.Forum.Spoiler:toggle', function(params) {
-		if (params.node)
+		if (!params.node)
 		{
-			var outerBlock = BX.findParent(params.node, { attrs : {"bx-mpl-block" : "main"} });
-			if (outerBlock)
-			{
-				BX.onCustomEvent(outerBlock, "onForumSpoilerToggle", [outerBlock.getAttribute("bx-mpl-entity-id")])
-			}
+			return;
+		}
+		var outerBlock = BX.findParent(params.node, { attrs : {"bx-mpl-block" : "main"} });
+		if (outerBlock)
+		{
+			BX.onCustomEvent(outerBlock, "onForumSpoilerToggle", [outerBlock.getAttribute("bx-mpl-entity-id")])
 		}
 	});
 //region Reading messages
@@ -2752,8 +2901,8 @@
 		this.ready = true;
 		this.window = BX.GetWindowInnerSize();
 		this.screen = {
-			top : this.window.scrollTop,
-			bottom: (this.window.scrollTop + this.window.innerHeight)
+			top: this.window.scrollTop,
+			bottom: (this.window.scrollTop + this.window.innerHeight),
 		};
 		this.watchDimensionNodes = new WeakMap();
 	};
@@ -2832,8 +2981,13 @@
 	BX.ready(function() {
 		//region for pull events
 		BX.addCustomEvent(window, "onPullEvent-unicomments", function(command, params) {
-			if (params["AUX"] && !BX.util.in_array(params["AUX"].toLowerCase(), BX.CommentAux.getLiveTypesList()) ||
-				getActiveEntitiesByXmlId(params["ENTITY_XML_ID"]).size <= 0)
+			if (
+				(
+					params['AUX']
+					&& !BX.util.in_array(params['AUX'].toLowerCase(), BX.CommentAux.getLiveTypesList())
+				)
+				|| getActiveEntitiesByXmlId(params["ENTITY_XML_ID"]).size <= 0
+			)
 			{
 				return;
 			}
@@ -2843,7 +2997,9 @@
 				if (params["NEED_REQUEST"] === "Y")
 				{
 					if (params["URL"]["LINK"].indexOf('#GROUPS_PATH#') >= 0 && !!BX.message("MPL_WORKGROUPS_PATH"))
+					{
 						params["URL"]["LINK"] = params["URL"]["LINK"].replace('#GROUPS_PATH#', BX.message("MPL_WORKGROUPS_PATH"));
+					}
 
 					var data = BX.ajax.prepareData({
 						AJAX_POST : "Y",
@@ -2878,7 +3034,9 @@
 				else
 				{
 					if (params["ACTION"] === "REPLY")
+					{
 						params["NEW"] = !params["AUTHOR"] || params["AUTHOR"]["ID"] != BX.message("USER_ID") ? "Y" : "N";
+					}
 					BX.onCustomEvent(window, "OnUCCommentWasPulled", [[params["ENTITY_XML_ID"], params["ID"]], {messageFields : params}, params]);
 				}
 			}

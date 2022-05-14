@@ -1,4 +1,5 @@
-<?
+<?php
+
 define("NO_KEEP_STATISTIC", true);
 define("BX_STATISTIC_BUFFER_USED", false);
 define("NO_LANG_FILES", true);
@@ -51,26 +52,25 @@ if ($group_id <= 0)
 	echo CUtil::PhpToJsObject(Array('ERROR' => 'GROUP_ID_NOT_DEFINED'));
 	die();
 }
-else
+
+$arGroup = CSocNetGroup::GetByID($group_id);
+if (!$arGroup)
 {
-	$arGroup = CSocNetGroup::GetByID($group_id);
-	if (!$arGroup)
-	{
-		echo CUtil::PhpToJsObject(Array('ERROR' => 'GROUP_ID_NOT_DEFINED'));
-		die();
-	}
+	echo CUtil::PhpToJsObject(Array('ERROR' => 'GROUP_ID_NOT_DEFINED'));
+	die();
 }
 
 if (
-	$action == 'UNCONNECT_DEPT'
+	$action === 'UNCONNECT_DEPT'
 	&& (!is_array($arDepartmentID) || empty($arDepartmentID))
 )
 {
 	echo CUtil::PhpToJsObject(Array('ERROR' => 'DEPARTMENT_ID_NOT_DEFINED'));
 	die();
 }
-elseif (
-	$action != 'UNCONNECT_DEPT'
+
+if (
+	$action !== 'UNCONNECT_DEPT'
 	&& (!is_array($arUserID) || empty($arUserID))
 )
 {
@@ -89,7 +89,7 @@ if (check_bitrix_sessid())
 		die();
 	}
 
-	if ($action == 'UNCONNECT_DEPT')
+	if ($action === 'UNCONNECT_DEPT')
 	{
 		if (
 			isset($arDepartmentID)
@@ -130,17 +130,19 @@ if (check_bitrix_sessid())
 			$arRelalationData[] = $arRelation;
 		}
 
-		if ($action == 'U2M' && !CSocNetUserToGroup::TransferMember2Moderator($USER->GetID(), $arGroup["ID"], $arRelationID))
+		if ($action === 'U2M' && !CSocNetUserToGroup::TransferMember2Moderator($USER->GetID(), $arGroup["ID"], $arRelationID))
 		{
 			echo CUtil::PhpToJsObject(Array('ERROR' => 'USER_ACTION_FAILED: '.(($e = $APPLICATION->GetException()) ? $e->GetString() : "")));
 			die();
 		}
-		elseif ($action == 'M2U' && !CSocNetUserToGroup::TransferModerator2Member($USER->GetID(), $arGroup["ID"], $arRelationID))
+
+		if ($action === 'M2U' && !CSocNetUserToGroup::TransferModerator2Member($USER->GetID(), $arGroup["ID"], $arRelationID))
 		{
 			echo CUtil::PhpToJsObject(Array('ERROR' => 'USER_ACTION_FAILED: '.(($e = $APPLICATION->GetException()) ? $e->GetString() : "")));
 			die();
 		}
-		elseif ($action == 'SETOWNER')
+
+		if ($action === 'SETOWNER')
 		{
 			if (!CSocNetUserToGroup::SetOwner($arUserID[0], $arGroup["ID"], $arGroup))
 			{
@@ -148,7 +150,7 @@ if (check_bitrix_sessid())
 				die();
 			}
 		}
-		elseif ($action == 'ADDMODERATOR')
+		elseif ($action === 'ADDMODERATOR')
 		{
 			$error = false;
 			$arUserPerms = \Bitrix\Socialnetwork\Helper\Workgroup::getPermissions([
@@ -188,29 +190,36 @@ if (check_bitrix_sessid())
 				die();
 			}
 		}
-		elseif ($action == 'BAN' && !CSocNetUserToGroup::BanMember($USER->GetID(), $arGroup["ID"], $arRelationID, CSocNetUser::IsCurrentUserModuleAdmin()))
+		elseif ($action === 'BAN' && !CSocNetUserToGroup::BanMember($USER->GetID(), $arGroup["ID"], $arRelationID, CSocNetUser::IsCurrentUserModuleAdmin()))
 		{
 			echo CUtil::PhpToJsObject(Array('ERROR' => 'USER_ACTION_FAILED: '.(($e = $APPLICATION->GetException()) ? $e->GetString() : "")));
 			die();
 		}
-		elseif ($action == 'UNBAN' && !CSocNetUserToGroup::UnBanMember($USER->GetID(), $arGroup["ID"], $arRelationID, CSocNetUser::IsCurrentUserModuleAdmin()))
+		elseif ($action === 'UNBAN' && !CSocNetUserToGroup::UnBanMember($USER->GetID(), $arGroup["ID"], $arRelationID, CSocNetUser::IsCurrentUserModuleAdmin()))
 		{
 			echo CUtil::PhpToJsObject(Array('ERROR' => 'USER_ACTION_FAILED: '.(($e = $APPLICATION->GetException()) ? $e->GetString() : "")));
 			die();
 		}
-		elseif ($action == 'EX')
+		elseif ($action === 'EX')
 		{
-			foreach($arRelalationData as $relationData)
+			foreach ($arRelalationData as $relationData)
 			{
 				//group owner can't exclude himself from the group
-				if ($relationData["ROLE"] == SONET_ROLES_OWNER)
+				if ($relationData["ROLE"] === SONET_ROLES_OWNER)
 				{
 					echo CUtil::PhpToJsObject(Array('ERROR' => 'SONET_GUE_T_OWNER_CANT_EXCLUDE_HIMSELF'));
 					die();
 				}
-				elseif ($relationData["AUTO_MEMBER"] == 'Y')
+
+				if ($relationData["AUTO_MEMBER"] === 'Y')
 				{
 					echo CUtil::PhpToJsObject(Array('ERROR' => 'SONET_GUE_T_CANT_EXCLUDE_AUTO_MEMBER'));
+					die();
+				}
+
+				if ((int)$relationData['USER_ID'] === $arGroup['SCRUM_MASTER_ID'])
+				{
+					echo CUtil::PhpToJsObject(Array('ERROR' => 'SONET_GUE_T_CANT_EXCLUDE_SCRUM_MASTER'));
 					die();
 				}
 
@@ -219,10 +228,8 @@ if (check_bitrix_sessid())
 					echo CUtil::PhpToJsObject(Array('ERROR' => 'USER_ACTION_FAILED: '.(($e = $APPLICATION->GetException()) ? $e->GetString() : "")));
 					die();
 				}
-				else
-				{
-					CSocNetSubscription::DeleteEx($relationData["USER_ID"], "SG".$relationData["GROUP_ID"]);
-				}
+
+				CSocNetSubscription::DeleteEx($relationData["USER_ID"], "SG".$relationData["GROUP_ID"]);
 			}
 		}
 	}
@@ -235,4 +242,3 @@ else
 }
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
-?>

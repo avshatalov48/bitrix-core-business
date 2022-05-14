@@ -1997,6 +1997,13 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			Assets\Manager::rebuildWebpackForLanding($this->id);
 			$this->version = 10;
 		}
+		if ($this->version <= 10)
+		{
+			// $needUpdate = true;
+			// Update\Block\DuplicateImages::updateLanding($this->id);
+
+			// $this->version = 11;
+		}
 		if ($needUpdate)
 		{
 			Rights::setOff();

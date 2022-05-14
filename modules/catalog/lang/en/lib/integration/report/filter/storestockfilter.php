@@ -1,0 +1,6 @@
+<?php
+$MESS["STOCK_FILTER_DEFAULT_STORE_PRESET_TITLE"] = "Warehouses: #STORE_TITLE#";
+$MESS["STOCK_FILTER_PRODUCTS_STUB"] = "Start typing product name or SKU";
+$MESS["STOCK_FILTER_PRODUCTS_TITLE"] = "Products";
+$MESS["STOCK_FILTER_REPORT_INTERVAL_TITLE"] = "Reporting period";
+$MESS["STOCK_FILTER_STORES_TITLE"] = "Warehouses";

@@ -70,6 +70,8 @@ class socialservices extends CModule
 				\Bitrix\Main\Config\Option::set('socialservices', 'bitrix24net_domain', $host);
 				\Bitrix\Main\Config\Option::set('socialservices', 'bitrix24net_id', $registerResult["client_id"]);
 				\Bitrix\Main\Config\Option::set('socialservices', 'bitrix24net_secret', $registerResult["client_secret"]);
+				\Bitrix\Main\Config\Option::set('socialservices', 'google_api_key', 'AIzaSyA7puwZwGDJgOjcAWsFsY7hQcrioC13A18');
+				\Bitrix\Main\Config\Option::set('socialservices', 'google_appid', '798910771106.apps.googleusercontent.com');
 			}
 		}
 

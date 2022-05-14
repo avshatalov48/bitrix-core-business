@@ -39,6 +39,8 @@ class CBPSocNetMessageActivity
 			"MESSAGE_TYPE" => SONET_MESSAGE_SYSTEM,
 			"FROM_USER_ID" => $arMessageUserFrom,
 			"MESSAGE" => $messageText,
+			'NOTIFY_MODULE' => 'bizproc',
+			'NOTIFY_EVENT' => 'activity',
 			'PUSH_MESSAGE' => $messageText,
 		);
 		$ar = array();
@@ -111,6 +113,8 @@ class CBPSocNetMessageActivity
 			"MESSAGE_OUT" => CBPHelper::convertBBtoText($messageText),
 			"ATTACH" => $attach,
 			'NOTIFY_TAG' => 'ROBOT|'.implode('|', array_map('mb_strtoupper', $documentId))	.'|'.$tagSalt,
+			'NOTIFY_MODULE' => 'bizproc',
+			'NOTIFY_EVENT' => 'activity',
 			'PUSH_MESSAGE' => $messageText,
 		);
 

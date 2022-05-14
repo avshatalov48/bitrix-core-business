@@ -12,7 +12,11 @@ $arMenu = array(
 	"text" => GetMessage("CLO_MENU_ITEM"),
 	"title" => GetMessage("CLO_MENU_TITLE"),
 	"url" => "clouds_storage_list.php?lang=".LANGUAGE_ID,
-	"more_url" => array("clouds_storage_list.php", "clouds_storage_edit.php"),
+	"more_url" => array(
+		"clouds_storage_list.php",
+		"clouds_storage_edit.php",
+		"clouds_duplicates_list.php",
+	),
 	"icon" => "clouds_menu_icon",
 	"page_icon" => "clouds_page_icon",
 );

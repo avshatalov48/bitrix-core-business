@@ -4,45 +4,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,main_core,main_core_events,landing_ui_component_internal) {
 	'use strict';
 
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-input\">", "</div>\n\t\t"]);
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
 
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-description\">\n\t\t\t\t<span class=\"fa fa-info-circle\"> </span> ", "\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-header\"></div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field\"></div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	/**
 	 * @memberOf BX.Landing.UI.Field
 	 */
@@ -52,17 +18,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  babelHelpers.createClass(BaseField, null, [{
 	    key: "createLayout",
 	    value: function createLayout() {
-	      return main_core.Tag.render(_templateObject());
+	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field\"></div>"])));
 	    }
 	  }, {
 	    key: "createHeader",
 	    value: function createHeader() {
-	      return main_core.Tag.render(_templateObject2());
+	      return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-header\"></div>"])));
 	    }
 	  }, {
 	    key: "createDescription",
 	    value: function createDescription(text) {
-	      return main_core.Tag.render(_templateObject3(), text);
+	      return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-description\">\n\t\t\t\t<span class=\"fa fa-info-circle\"> </span> ", "\n\t\t\t</div>\n\t\t"])), text);
 	    }
 	  }]);
 
@@ -77,7 +43,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    _this.subscribeFromOptions(landing_ui_component_internal.fetchEventsFromOptions(options));
 
-	    _this.data = babelHelpers.objectSpread({}, options);
+	    _this.data = _objectSpread({}, options);
 	    _this.options = _this.data;
 	    _this.id = Reflect.has(_this.data, 'id') ? _this.data.id : main_core.Text.getRandom();
 	    _this.selector = Reflect.has(_this.data, 'selector') ? _this.data.selector : main_core.Text.getRandom();
@@ -159,7 +125,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "createInput",
 	    value: function createInput() {
-	      return main_core.Tag.render(_templateObject4(), this.content);
+	      return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-input\">", "</div>\n\t\t"])), this.content);
 	    } // eslint-disable-next-line class-methods-use-this
 
 	  }, {

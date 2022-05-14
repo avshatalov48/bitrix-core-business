@@ -11,6 +11,7 @@ namespace Bitrix\Main\ORM\Fields;
 use Bitrix\Main;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentTypeException;
+use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Type;
 use Bitrix\Main\Type\Date;
 
@@ -85,11 +86,16 @@ class DateField extends ScalarField
 	/**
 	 * @param mixed $value
 	 *
-	 * @return Type\Date
+	 * @return SqlExpression|Date
 	 * @throws Main\ObjectException
 	 */
 	public function cast($value)
 	{
+		if ($value instanceof SqlExpression)
+		{
+			return $value;
+		}
+
 		if (!empty($value) && !($value instanceof Type\Date))
 		{
 			return new Type\Date($value, $this->format);
@@ -119,6 +125,11 @@ class DateField extends ScalarField
 	 */
 	public function convertValueToDb($value)
 	{
+		if ($value instanceof SqlExpression)
+		{
+			return $value;
+		}
+
 		try
 		{
 			return $value === null && $this->is_nullable

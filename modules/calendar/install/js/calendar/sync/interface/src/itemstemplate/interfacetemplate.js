@@ -186,6 +186,7 @@ export class InterfaceTemplate extends EventEmitter
 		BX.ajax.runAction('calendar.api.calendarajax.removeConnection', {
 			data: {
 				connectionId: id,
+				removeCalendars: 'N', //by default
 			}
 		}).then(() => {
 			BX.reload();

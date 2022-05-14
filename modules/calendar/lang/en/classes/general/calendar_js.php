@@ -48,6 +48,7 @@ $MESS["EC_CALDAV_SYNC_ERROR"] = "The last synchronization was not successful.";
 $MESS["EC_CALDAV_SYNC_OK"] = "The calendars have been synchronized successfully.";
 $MESS["EC_CALDAV_TITLE"] = "Connected external calendars";
 $MESS["EC_CALDAV_URL_ERROR"] = "CalDAV connection parameters are incorrect";
+$MESS["EC_CALENDAR_REC_EVENT"] = "Recurring event";
 $MESS["EC_CAL_CONNECT_MORE"] = "connect #COUNT# more";
 $MESS["EC_CAL_DAV_CON_WAIT"] = "Please wait while the previous request is being processed.";
 $MESS["EC_CAL_GOOGLE_HIDE_CONFIRM"] = "Are you sure you want to disable synchronization for this calendar and hide it?";

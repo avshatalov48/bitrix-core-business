@@ -1,7 +1,7 @@
-<?
+<?php
 $MESS["MAIL_CLIENT_CONFIG_ACCESS"] = "Доступ до поштової скриньки";
 $MESS["MAIL_CLIENT_CONFIG_ACCESS_ADD"] = "Додати";
-$MESS["MAIL_CLIENT_CONFIG_ACCESS_HINT"] = "Дозвольте доступ іншим співробітникам, які зможуть обробляти листи у цій скриньці.";
+$MESS["MAIL_CLIENT_CONFIG_ACCESS_HINT"] = "Дозвольте іншим працівникам отримувати листи з цієї скриньки та відповідати на них. Додайте потрібних співробітників та організуйте спільну роботу з поштою, наприклад, для відділу продажів або служби підтримки клієнтів.";
 $MESS["MAIL_CLIENT_CONFIG_ACCESS_MORE"] = "детальніше";
 $MESS["MAIL_CLIENT_CONFIG_BTN_CANCEL"] = "Скасувати";
 $MESS["MAIL_CLIENT_CONFIG_BTN_CONNECT"] = "Підключити";
@@ -29,9 +29,9 @@ $MESS["MAIL_CLIENT_CONFIG_EXT_SWITCH"] = "Вказати додаткові па
 $MESS["MAIL_CLIENT_CONFIG_IMAP"] = "Дані для підключення";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE"] = "Забрати зі скриньки листи за #AGE#";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_1"] = "1 день";
+$MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_7"] = "7 днів";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_30"] = "1 місяць";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_60"] = "2 місяці";
-$MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_7"] = "7 днів";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_90"] = "3 місяці";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_I"] = "весь час";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_EXT"] = "Помилка авторизації. Перевірте чи правильно вказані логін та пароль. <br>Зверніть увагу, якщо ви використовуєте паролі застосунків або включили двухфакторну авторизацію &mdash; необхідно використовувати спеціальний пароль для інтеграції.";
@@ -103,4 +103,3 @@ $MESS["MAIL_MAILBOX_LICENSE_SHARED_LIMIT_BODY"] = "Кількість пошто
 $MESS["MAIL_MAILBOX_LICENSE_SHARED_LIMIT_TITLE"] = "Загальний доступ до поштових скриньок в Бітрікс24";
 $MESS["MAIL_MAILBOX_REMOVE_CONFIRM"] = "Відключити поштову скриньку?";
 $MESS["MAIL_MAILBOX_REMOVE_CONFIRM_TEXT"] = "Ви дійсно хочете відключити поштову скриньку?";
-?>

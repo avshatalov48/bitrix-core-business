@@ -2,22 +2,32 @@
 
 namespace Bitrix\Socialnetwork\Component;
 
-use Bitrix\Main\Loader;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Error;
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\ModuleManager;
-use Bitrix\Socialnetwork\EO_UserToGroup;
-use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\Helper;
 
 class WorkgroupUserList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\Controllerable, \Bitrix\Main\Errorable
 {
+	public const AVAILABLE_ACTION_VIEW_PROFILE = 'view_profile';
+	public const AVAILABLE_ACTION_SET_OWNER = 'set_owner';
+	public const AVAILABLE_ACTION_SET_SCRUM_MASTER = 'set_scrum_master';
+	public const AVAILABLE_ACTION_EXCLUDE = 'exclude';
+	public const AVAILABLE_ACTION_SET_MODERATOR = 'set_moderator';
+	public const AVAILABLE_ACTION_REMOVE_MODERATOR = 'remove_moderator';
+	public const AVAILABLE_ACTION_PROCESS_INCOMING_REQUEST = 'process_incoming_request';
+	public const AVAILABLE_ACTION_DELETE_OUTGOING_REQUEST = 'delete_outgoing_request';
+	public const AVAILABLE_ACTION_REINVITE = 'reinvite';
+
 	public const AJAX_ACTION_SET_OWNER = 'setOwner';
+	public const AJAX_ACTION_SET_SCRUM_MASTER = 'setScrumMaster';
 	public const AJAX_ACTION_SET_MODERATOR = 'setModerator';
 	public const AJAX_ACTION_REMOVE_MODERATOR = 'removeModerator';
 	public const AJAX_ACTION_EXCLUDE = 'exclude';
 	public const AJAX_ACTION_DELETE_OUTGOING_REQUEST = 'deleteOutgoingRequest';
+	public const AJAX_ACTION_ACCEPT_INCOMING_REQUEST = 'acceptIncomingRequest';
+	public const AJAX_ACTION_REJECT_INCOMING_REQUEST = 'rejectIncomingRequest';
+	public const AJAX_ACTION_REINVITE = 'reinvite';
 
 	/** @var ErrorCollection errorCollection */
 	protected $errorCollection = null;
@@ -70,99 +80,11 @@ class WorkgroupUserList extends \CBitrixComponent implements \Bitrix\Main\Engine
 		}
 	}
 
-	public static function getNameFormattedValue(array $params = []): string
-	{
-		static $nameTemplate = null;
-
-		$result = '';
-
-		$userFields = ($params['FIELDS'] ?? []);
-
-		$path = ($params['PATH'] ?? '');
-
-		if (empty($userFields))
-		{
-			return $result;
-		}
-
-		if ($nameTemplate === null)
-		{
-			$nameTemplate = \CSite::getNameFormat();
-		}
-
-		$result = \CUser::formatName($nameTemplate, $userFields, true, true);
-
-		if (
-			$result !== ''
-			&& $path !== ''
-		)
-		{
-			$result = '<a href="'.htmlspecialcharsbx(str_replace([ '#ID#', '#USER_ID#', '#user_id#' ], $userFields['ID'], $path)).'">'.$result.'</a>';
-		}
-
-		return $result;
-	}
-
-	public static function getPhotoValue(array $params = []): string
-	{
-		$result = '<div class="intranet-user-list-userpic ui-icon ui-icon-common-user"><i></i></div>';
-
-		$userFields = ($params['FIELDS'] ?? []);
-//		$path = (isset($params['PATH']) ? $params['PATH'] : '');
-
-		if (empty($userFields))
-		{
-			return $result;
-		}
-
-		$personalPhoto = $userFields['PERSONAL_PHOTO'];
-		if (empty($personalPhoto))
-		{
-			switch ($userFields['PERSONAL_GENDER'])
-			{
-				case 'M':
-					$suffix = 'male';
-					break;
-				case 'F':
-					$suffix = 'female';
-					break;
-				default:
-					$suffix = 'unknown';
-			}
-			$personalPhoto = Option::get('socialnetwork', 'default_user_picture_' . $suffix, false, SITE_ID);
-		}
-
-		if (empty($personalPhoto))
-		{
-			return $result;
-		}
-
-		$file = \CFile::getFileArray($personalPhoto);
-		if (!empty($file))
-		{
-			$fileResized = \CFile::resizeImageGet(
-				$file,
-				[
-					'width' => 100,
-					'height' => 100,
-				],
-				BX_RESIZE_IMAGE_PROPORTIONAL,
-				false
-			);
-
-			$result = "<div class=\"intranet-user-list-userpic ui-icon ui-icon-common-user\"><i style=\"background-image: url('" . $fileResized['src'] . "'); background-size: cover\"></i></div>";
-		}
-
-		return $result;
-	}
-
 	public static function getActions(array $params = []): array
 	{
-		$result = [];
-		if (ModuleManager::isModuleInstalled('intranet'))
-		{
-			$result[] = 'view_profile';
-		}
+		$result = [
+			self::AVAILABLE_ACTION_VIEW_PROFILE,
+		];
 
 		$relation = $params['RELATION'];
 		$groupId = (int)$params['GROUP_ID'];
@@ -172,7 +94,15 @@ class WorkgroupUserList extends \CBitrixComponent implements \Bitrix\Main\Engine
 			'groupId' => $groupId,
 		]))
 		{
-			$result[] = 'set_owner';
+			$result[] = self::AVAILABLE_ACTION_SET_OWNER;
+		}
+
+		if (Helper\Workgroup::canSetScrumMaster([
+			'userId' => $relation->getUser()->getId(),
+			'groupId' => $groupId,
+		]))
+		{
+			$result[] = self::AVAILABLE_ACTION_SET_SCRUM_MASTER;
 		}
 
 		if (Helper\Workgroup::canSetModerator([
@@ -180,48 +110,50 @@ class WorkgroupUserList extends \CBitrixComponent implements \Bitrix\Main\Engine
 			'groupId' => $groupId,
 		]))
 		{
-			$result[] = 'set_moderator';
+			$result[] = self::AVAILABLE_ACTION_SET_MODERATOR;
 		}
 		elseif (Helper\Workgroup::canRemoveModerator([
 			'relation' => $relation,
 			'groupId' => $groupId,
 		]))
 		{
-			$result[] = 'remove_moderator';
+			$result[] = self::AVAILABLE_ACTION_REMOVE_MODERATOR;
 		}
 
-		if (Helper\Workgroup::canDeleteOutgoingRequest([
+		$canDeleteOutgoingRequest = Helper\Workgroup::canDeleteOutgoingRequest([
 			'relation' => $relation,
 			'groupId' => $groupId,
-		]))
+		]);
+
+		if ($canDeleteOutgoingRequest)
 		{
-			$result[] = 'delete_outgoing_request';
+			$result[] = self::AVAILABLE_ACTION_DELETE_OUTGOING_REQUEST;
 		}
 		elseif (Helper\Workgroup::canExclude([
 			'relation' => $relation,
 			'groupId' => $groupId,
 		]))
 		{
-			$result[] = 'exclude';
+			$result[] = self::AVAILABLE_ACTION_EXCLUDE;
+		}
+
+		if (Helper\Workgroup::canProcessIncomingRequest([
+			'relation' => $relation,
+			'groupId' => $groupId,
+		]))
+		{
+			$result[] = self::AVAILABLE_ACTION_PROCESS_INCOMING_REQUEST;
+		}
+
+		if (
+			$canDeleteOutgoingRequest
+			&& ModuleManager::isModuleInstalled('intranet')
+			&& !empty($relation->getUser()->getConfirmCode())
+		)
+		{
+			$result[] = self::AVAILABLE_ACTION_REINVITE;
 		}
 
 		return $result;
 	}
-
-	public function reinviteUserAction(array $params = [])
-	{
-		$result = false;
-
-		return $result;
-	}
-
-	public static function getDepartmentValue(array $params = []): string
-	{
-		return (
-			Loader::includeModule('intranet')
-				? \Bitrix\Intranet\Component\UserList::getDepartmentValue($params)
-				: ''
-		);
-	}
-
 }

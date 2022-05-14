@@ -6,3 +6,4 @@ $MESS["SES_PROJECT_EMPLOYER_ROLE"] = "Участники";
 $MESS["SES_PROJECT_SCRUM_OWNER_ROLE"] = "Владелец продукта";
 $MESS["SES_PROJECT_SCRUM_MASTER_ROLE"] = "Скрам-мастер";
 $MESS["SES_PROJECT_SCRUM_MODERATOR_ROLE"] = "Команда разработки";
+$MESS["SES_PROJECT_SCRUM_EMPLOYER_ROLE"] = "Заинтересованные лица";

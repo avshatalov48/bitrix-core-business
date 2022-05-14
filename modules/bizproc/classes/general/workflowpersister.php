@@ -1,5 +1,6 @@
-<?
-IncludeModuleLangFile(__FILE__);
+<?php
+
+use Bitrix\Main;
 
 /**
 * Workflow persistence service.
@@ -38,15 +39,14 @@ class CBPAllWorkflowPersister
 		return self::$instance;
 	}
 
-	protected function RetrieveWorkflow($instanceId, $silent = false)
+	private function RetrieveWorkflow($instanceId, $silent = false)
 	{
 		global $DB;
 
 		$queryCondition = $this->getLockerQueryCondition();
 
-		$buffer = "";
 		$dbResult = $DB->Query(
-			"SELECT WORKFLOW, IF (".$queryCondition.", 'Y', 'N') as UPDATEABLE ".
+			"SELECT WORKFLOW, WORKFLOW_RO, IF (".$queryCondition.", 'Y', 'N') as UPDATEABLE ".
 			"FROM b_bp_workflow_instance ".
 			"WHERE ID = '".$DB->ForSql($instanceId)."' "
 		);
@@ -65,14 +65,11 @@ class CBPAllWorkflowPersister
 			{
 				throw new Exception(GetMessage("BPCGWP_WF_LOCKED"), \CBPRuntime::EXCEPTION_CODE_INSTANCE_LOCKED);
 			}
-			$buffer = $arResult["WORKFLOW"];
-		}
-		else
-		{
-			throw new Exception(GetMessage("BPCGWP_INVALID_WF"), \CBPRuntime::EXCEPTION_CODE_INSTANCE_NOT_FOUND);
+
+			return [$arResult["WORKFLOW"], $arResult["WORKFLOW_RO"]];
 		}
 
-		return $buffer;
+		throw new Exception(GetMessage("BPCGWP_INVALID_WF"), \CBPRuntime::EXCEPTION_CODE_INSTANCE_NOT_FOUND);
 	}
 
 	protected function InsertWorkflow($id, $buffer, $status, $bUnlocked, array $creationData = [])
@@ -127,15 +124,29 @@ class CBPAllWorkflowPersister
 				$startedBy = isset($creationData['STARTED_BY']) ? (int) $creationData['STARTED_BY'] : 0;
 				$startedEventType = isset($creationData['STARTED_EVENT_TYPE']) ? (int) $creationData['STARTED_EVENT_TYPE'] : 0;
 
+				$ro = isset($creationData['RO']) ? "'".$DB->ForSql($creationData['RO'])."'" : 'NULL';
+
 				$DB->Query(
-					"INSERT INTO b_bp_workflow_instance (
-						ID, WORKFLOW, STATUS, MODIFIED, OWNER_ID, OWNED_UNTIL,
+					sprintf(
+						'INSERT INTO b_bp_workflow_instance (
+						ID, WORKFLOW, WORKFLOW_RO, STATUS, MODIFIED, OWNER_ID, OWNED_UNTIL,
 						MODULE_ID, ENTITY, DOCUMENT_ID, WORKFLOW_TEMPLATE_ID, STARTED, STARTED_BY, STARTED_EVENT_TYPE
-					) ".
-					"VALUES ('".$DB->ForSql($id)."', '".$DB->ForSql($buffer)."', ".$status.", ".
-					$DB->CurrentTimeFunction().", ".$ownerId.", ".$ownedUntil.", '".
-					$DB->ForSql($moduleId)."', '".$DB->ForSql($entity)."', '".$DB->ForSql($documentId)."', ".
-					$tplId.", ".$DB->CurrentTimeFunction().", ".$startedBy.", ".$startedEventType.")"
+						) VALUES (\'%s\', \'%s\', %s, %d, %s, %s, %s, \'%s\', \'%s\', \'%s\', %d, %s, %d, %d)',
+						$DB->ForSql($id),
+						$DB->ForSql($buffer),
+						$ro,
+						$status,
+						$DB->CurrentTimeFunction(),
+						$ownerId,
+						$ownedUntil,
+						$DB->ForSql($moduleId),
+						$DB->ForSql($entity),
+						$DB->ForSql($documentId),
+						$tplId,
+						$DB->CurrentTimeFunction(),
+						$startedBy,
+						$startedEventType
+					)
 				);
 			}
 		}
@@ -148,22 +159,41 @@ class CBPAllWorkflowPersister
 
 	public function LoadWorkflow($instanceId, $silent = false)
 	{
-		$state = $this->RetrieveWorkflow($instanceId, $silent);
-		if ($state <> '')
-			return $this->RestoreFromSerializedForm($state);
+		[$state, $ro] = $this->RetrieveWorkflow($instanceId, $silent);
+
+		if ($state)
+		{
+			return $this->RestoreFromSerializedForm($state, $ro);
+		}
 
 		throw new Exception("WorkflowNotFound");
 	}
 
-	private function RestoreFromSerializedForm($buffer)
+	private function RestoreFromSerializedForm($buffer, $ro)
 	{
 		if ($this->useGZipCompression)
+		{
 			$buffer = gzuncompress($buffer);
+			$ro = $ro ? gzuncompress($ro) : null;
+		}
 
 		if ($buffer == '')
+		{
 			throw new Exception("EmptyWorkflowInstance");
+		}
 
+		/** @var CBPCompositeActivity $activity */
 		$activity = CBPActivity::Load($buffer);
+
+		if ($ro)
+		{
+			$ro = Main\Web\Json::decode($ro);
+			if (is_array($ro))
+			{
+				$activity->setReadOnlyData($ro);
+			}
+		}
+
 		return $activity;
 	}
 
@@ -177,15 +207,6 @@ class CBPAllWorkflowPersister
 
 	public function SaveWorkflow(CBPActivity $rootActivity, $bUnlocked)
 	{
-		if ($rootActivity == null)
-			throw new Exception("rootActivity");
-
-		$workflowStatus = $rootActivity->GetWorkflowStatus();
-
-		$buffer = "";
-		if (($workflowStatus != CBPWorkflowStatus::Completed) && ($workflowStatus != CBPWorkflowStatus::Terminated))
-			$buffer = $this->GetSerializedForm($rootActivity);
-
 		$creationData = [];
 		if ($rootActivity->workflow->isNew())
 		{
@@ -201,6 +222,20 @@ class CBPAllWorkflowPersister
 			{
 				$creationData['STARTED_BY'] = \CBPHelper::StripUserPrefix($startedBy);
 			}
+			/** @var CBPCompositeActivity $rootActivity */
+			$creationData['RO'] = $this->getJsonCompressed($rootActivity->pullReadOnlyData());
+		}
+		else
+		{
+			/** @var CBPCompositeActivity $rootActivity */
+			$rootActivity->pullReadOnlyData();
+		}
+
+		$workflowStatus = $rootActivity->GetWorkflowStatus();
+		$buffer = "";
+		if (($workflowStatus != CBPWorkflowStatus::Completed) && ($workflowStatus != CBPWorkflowStatus::Terminated))
+		{
+			$buffer = $this->GetSerializedForm($rootActivity);
 		}
 
 		$this->InsertWorkflow($rootActivity->GetWorkflowInstanceId(), $buffer, $workflowStatus, $bUnlocked, $creationData);
@@ -212,6 +247,17 @@ class CBPAllWorkflowPersister
 
 		if ($this->useGZipCompression)
 			$buffer = gzcompress($buffer, 9);
+		return $buffer;
+	}
+
+	private function getJsonCompressed($data): string
+	{
+		$buffer = Main\Web\Json::encode($data);
+
+		if ($this->useGZipCompression)
+		{
+			$buffer = gzcompress($buffer, 9);
+		}
 		return $buffer;
 	}
 

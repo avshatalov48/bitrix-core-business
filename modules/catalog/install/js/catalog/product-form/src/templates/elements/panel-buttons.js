@@ -6,6 +6,7 @@ import {config} from "../../config";
 import "./panel-compilation";
 import {DialogDisable, Slider, EventType} from 'catalog.store-use'
 import {EventEmitter} from "main.core.events";
+import 'ui.hint';
 
 Vue.component(config.templatePanelButtons,
 {
@@ -66,7 +67,7 @@ Vue.component(config.templatePanelButtons,
 							}
 						}
 					}
-				).then(response => this.processResponse(response));
+				).then(response => this.processResponse(response, params.isAddAnyway));
 			}
 			else
 			{
@@ -82,12 +83,12 @@ Vue.component(config.templatePanelButtons,
 							}
 						}
 					}
-				).then(response => this.processResponse(response));
+				).then(response => this.processResponse(response, params.isAddAnyway));
 			}
 		},
-		processResponse(response)
+		processResponse(response, isAddAnyway)
 		{
-			const index = this.getInternalIndexByProductId(response.data.skuId);
+			const index = isAddAnyway ? -1 : this.getInternalIndexByProductId(response.data.skuId);
 			if (index < 0)
 			{
 				const productData = response.data;
@@ -183,7 +184,7 @@ Vue.component(config.templatePanelButtons,
 				lightShadow: true,
 				cacheable: false,
 				overlay: true,
-				content: Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_TEXT').replace('#NAME#', params.name),
+				content: Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_TEXT_FOR_DOUBLE').replace('#NAME#', params.name),
 				buttons: this.getButtons(params),
 			});
 
@@ -202,10 +203,10 @@ Vue.component(config.templatePanelButtons,
 							const index = this.getInternalIndexByProductId(productId);
 							if(index >= 0)
 							{
-								const item = this.$store.getters['productList/getBasket']()[index];
-								item.fields.quantity++;
-								item.calculatedFields.QUANTITY++;
-								this.onUpdateBasketItem(index, item);
+								this.handleAddItem(productId, {
+									...params,
+									isAddAnyway: true,
+								});
 							}
 							this.popup.destroy();
 						}
@@ -283,42 +284,9 @@ Vue.component(config.templatePanelButtons,
 								return item.id === event.target.dataset.settingId;
 							});
 
-							this.settings[index].checked = response.data === true;
+							this.options.warehouseOption = response.data === true;
+							this.settings = this.getSettingItems();
 						});
-					})
-				}
-				else
-				{
-					new DialogDisable().popup()
-
-					EventEmitter.subscribe(EventType.popup.disable, () => {
-						ajax.runAction(
-							'catalog.config.InventoryManagementN',
-							{}
-						).then(response => {
-							const index = this.getSettingItems().findIndex((item) =>
-							{
-								return item.id === event.target.dataset.settingId;
-							});
-
-							BX.UI.Notification.Center.notify({
-								content: Loc.getMessage('CATALOG_FORM_ADD_WAREHOUSE_DISABLED'),
-								width: 'auto',
-								autoHideDelay: 3000
-							});
-
-							this.settings[index].checked = !response.data;
-						});
-					})
-
-					EventEmitter.subscribe(EventType.popup.disableCancel, () =>
-					{
-						const index = this.getSettingItems().findIndex((item) =>
-						{
-							return item.id === event.target.dataset.settingId;
-						});
-
-						this.settings[index].checked = true
 					})
 				}
 			}
@@ -329,14 +297,23 @@ Vue.component(config.templatePanelButtons,
 					<input type="checkbox"  class="ui-ctl-element">
 				`;
 			input.checked = item.checked;
+			input.disabled = item.disabled ?? false;
 			input.dataset.settingId = item.id;
+
+			const hintNode = (
+				Type.isStringFilled(item.hint)
+					? Tag.render`<span class="catalog-product-form-setting-hint" data-hint="${item.hint}"></span>`
+					: ''
+			);
 
 			const setting = Tag.render`
 				<label class="ui-ctl ui-ctl-checkbox ui-ctl-w100">
 					${input}
-					<div class="ui-ctl-label-text">${item.title}</div>
+					<div class="ui-ctl-label-text ${item.disabled ? 'catalog-product-form-disabled-setting' : ''}">${item.title}${hintNode}</div>
 				</label>
 			`;
+
+			BX.UI.Hint.init(setting);
 
 			Event.bind(setting, 'change', this.setSetting.bind(this));
 
@@ -363,7 +340,9 @@ Vue.component(config.templatePanelButtons,
 				{
 					id: 'warehouseOption',
 					checked: (this.options.warehouseOption),
+					disabled: (this.options.warehouseOption),
 					title: this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_OPTION,
+					hint: this.options.warehouseOption ? this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_HINT : '',
 				},
 			];
 		},

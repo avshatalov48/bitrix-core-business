@@ -2,6 +2,7 @@
 namespace Bitrix\Calendar\Controller;
 
 use Bitrix\Calendar\Rooms;
+use Bitrix\Calendar\Ui\CalendarFilter;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
@@ -287,12 +288,12 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 				return [];
 			}
 		}
-		
+
 		$request = $this->getRequest();
 		$mode = $request->get('type');
 
 		$users = [];
-		if ($mode == 'users')
+		if ($mode === 'users')
 		{
 			$userIds = $request->get('userIdList');
 			$ormRes = \Bitrix\Main\UserTable::getList([
@@ -307,7 +308,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 			$sections = \CCalendarSect::getSuperposedList(['USERS' => $userIds]);
 		}
-		elseif ($mode == 'groups')
+		elseif ($mode === 'groups')
 		{
 			$groupIds = $request->get('groupIdList');
 			$sections = \CCalendarSect::getSuperposedList(['GROUPS' => $groupIds]);
@@ -351,7 +352,9 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			$typesRes = \CCalendarType::GetList();
 			foreach($typesRes as $type)
 			{
-				if ($type['XML_ID'] != 'user' && $type['XML_ID'] !== 'group' && $type['XML_ID'] !== 'location')
+				if ($type['XML_ID'] !== 'user'
+					&& $type['XML_ID'] !== 'group'
+					&& $type['XML_ID'] !== 'location')
 				{
 					$types[] = $type['XML_ID'];
 				}
@@ -918,12 +921,11 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		return true;
 	}
 
-	public function removeConnectionAction()
+	public function removeConnectionAction($connectionId, $removeCalendars)
 	{
-		$request = $this->getRequest();
-		$connectId = (int)$request['connectionId'];
 		\CCalendar::setOwnerId(\CCalendar::getCurUserId());
-		\CCalendar::RemoveConnection(['id' => $connectId, 'del_calendars' => 'Y']);
+		\CCalendar::RemoveConnection(['id' => (int)$connectionId, 'del_calendars' => $removeCalendars === 'Y']);
+
 		return true;
 	}
 
@@ -1144,6 +1146,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		$request = $this->getRequest();
 		$type = $request['type'];
 		$ownerId = (int)$request['ownerId'];
+		$followedSectionList = UserSettings::getFollowedSectionIdList($userId);
 
 		$sectionList = \CCalendar::getSectionList([
 			'CAL_TYPE' => $type,
@@ -1157,6 +1160,14 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		if ($type === 'location')
 		{
 			$sectionList = array_merge($sectionList, \CCalendar::getSectionListAvailableForUser($userId));
+		}
+
+		foreach ($sectionList as $i => $section)
+		{
+			if (in_array($section['ID'], $followedSectionList))
+			{
+				$sectionList[$i]['SUPERPOSED'] = true;
+			}
 		}
 
 		return [
@@ -1223,5 +1234,26 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		{
 			\CCalendar::SaveUserTimezoneName($userId, $user_timezone_name);
 		}
+	}
+	
+	public function getFilterDataAction()
+	{
+		if (Loader::includeModule('intranet'))
+		{
+			if (!\Bitrix\Intranet\Util::isIntranetUser())
+			{
+				return [];
+			}
+		}
+		
+		$request = $this->getRequest();
+		
+		$params = [
+			'ownerId' => $request->getPost('ownerId'),
+			'userId' => $request->getPost('userId'),
+			'type' => $request->getPost('type'),
+		];
+		
+		return CalendarFilter::getFilterData($params);
 	}
 }

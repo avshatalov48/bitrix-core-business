@@ -31,8 +31,12 @@ if($USER->IsAuthorized() && (!defined("BX_AUTH_FORM") || !BX_AUTH_FORM))
 
 	if(
 		$USER->IsAuthorized()
+		&& !\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24')
 		&& (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1)
-		&& (!isset(\Bitrix\Main\Application::getInstance()->getSession()["SS_B24NET_STATE"]) || \Bitrix\Main\Application::getInstance()->getSession()["SS_B24NET_STATE"] !== $USER->GetID())
+		&& (
+			!isset(\Bitrix\Main\Application::getInstance()->getSession()["SS_B24NET_STATE"])
+			|| \Bitrix\Main\Application::getInstance()->getSession()["SS_B24NET_STATE"] !== $USER->GetID()
+		)
 		&& \Bitrix\Main\ModuleManager::isModuleInstalled("socialservices")
 		&& \Bitrix\Main\Config\Option::get("socialservices", "bitrix24net_id", "") != ""
 	)
@@ -43,19 +47,9 @@ if($USER->IsAuthorized() && (!defined("BX_AUTH_FORM") || !BX_AUTH_FORM))
 			&& method_exists("Bitrix\\Socialservices\\Network", "displayAdminPopup")
 		)
 		{
-			global $adminSidePanelHelper;
-			if (!is_object($adminSidePanelHelper))
-			{
-				require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/admin_lib.php");
-				$adminSidePanelHelper = new CAdminSidePanelHelper();
-			}
-
-			if (!$adminSidePanelHelper->isPublicSidePanel())
-			{
-				\Bitrix\Socialservices\Network::displayAdminPopup(array(
-					"SHOW" => true,
-				));
-			}
+			\Bitrix\Socialservices\Network::displayAdminPopup(array(
+				"SHOW" => true,
+			));
 		}
 	}
 }

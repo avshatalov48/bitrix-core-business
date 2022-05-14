@@ -3430,9 +3430,9 @@ class ComponentHelper
 		{
 			global $CACHE_MANAGER;
 
-			$res = \Bitrix\Socialnetwork\UserToGroupTable::getList(array(
+			$res = UserToGroupTable::getList(array(
 				'filter' => array(
-					'<=ROLE' => \Bitrix\Socialnetwork\UserToGroupTable::ROLE_USER,
+					'<=ROLE' => UserToGroupTable::ROLE_USER,
 					'=USER_ID' => $userId,
 					'=GROUP.ACTIVE' => 'Y',
 					'=GROUP.WorkgroupSite:GROUP.SITE_ID' => $siteId
@@ -4083,7 +4083,7 @@ class ComponentHelper
 		return Option::get('socialnetwork', 'user_page', $siteDir.'company/personal/', $siteId);
 	}
 
-	public static function getWorkgroupSEFUrl($params = array())
+	public static function getWorkgroupSEFUrl($params = []): string
 	{
 		$siteId = (
 			is_array($params)

@@ -79,6 +79,30 @@ class CSocServAuthManager
 		return self::AppyUserSettings($suffix);
 	}
 
+	public static function listServicesBlockedByZone(string $zone): array
+	{
+		if (!$zone)
+		{
+			return [];
+		}
+
+		if (in_array($zone, ['ru', 'kz', 'by'], true))
+		{
+			return [];
+		}
+
+		return [
+			\CSocServMyMailRu::ID,
+			'MailRuOpenID',
+			'Livejournal',
+			'Liveinternet',
+			\CSocServMailRu2::ID,
+			\CSocServVKontakte::ID,
+			\CSocServYandexAuth::ID,
+			\CSocServOdnoklassniki::ID,
+		];
+	}
+
 	public function GetActiveAuthServices($arParams)
 	{
 		$aServ = array();

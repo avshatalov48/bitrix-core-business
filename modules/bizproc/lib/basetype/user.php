@@ -138,7 +138,14 @@ class User extends Base
 	{
 		if ($value !== null && !is_array($value))
 		{
-			$value = array($value);
+			if (strpos($value, '[') !== false || strpos($value, '{') !== false)
+			{
+				$value = \CBPHelper::UsersStringToArray($value, $fieldType->getDocumentType(), $errors);
+			}
+			else
+			{
+				$value = [$value];
+			}
 		}
 
 		$isPublic = ($renderMode & FieldType::RENDER_MODE_PUBLIC);
@@ -159,6 +166,7 @@ class User extends Base
 			$config = [
 				'valueInputName' => $name,
 				'value' => $valueString,
+				'items' => $value ? static::getSelectedItems($value) : [],
 				'multiple' => $fieldType->isMultiple(),
 				'required' => $fieldType->isRequired(),
 			];
@@ -314,4 +322,29 @@ HTML;
 		return parent::externalizeValueMultiple($fieldType, $context, $value);
 	}
 
+	private static function getSelectedItems(array $value): ?array
+	{
+		if (!class_exists(\Bitrix\UI\EntitySelector\Dialog::class))
+		{
+			return null;
+		}
+
+		$mapCallback = function ($value)
+		{
+			if (strpos($value, 'user_') === 0)
+			{
+				return ['user', \CBPHelper::StripUserPrefix($value)];
+			}
+			if (strpos($value, 'group_d') === 0)
+			{
+				return ['department', preg_replace('|[^0-9]+|', '', $value)];
+			}
+
+			return null;
+		};
+
+		$preselectedItems = array_filter(array_map($mapCallback, $value));
+
+		return \Bitrix\UI\EntitySelector\Dialog::getSelectedItems($preselectedItems)->toArray();
+	}
 }

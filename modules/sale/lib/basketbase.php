@@ -56,26 +56,6 @@ abstract class BasketBase extends BasketItemCollection
 	}
 
 	/**
-	 * @param BasketItemBase $item
-	 * @return BasketItemBase|null
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\NotImplementedException
-	 */
-	public function getExistsItemByItem(BasketItemBase $item)
-	{
-		$propertyList = [];
-		$propertyCollection = $item->getPropertyCollection();
-		if ($propertyCollection)
-		{
-			$propertyList = $propertyCollection->getPropertyValues();
-		}
-
-		return $this->getExistsItem($item->getField('MODULE'), $item->getField('PRODUCT_ID'), $propertyList);
-	}
-
-
-	/**
 	 * @return OrderBase
 	 */
 	protected function getEntityParent()
@@ -1120,5 +1100,26 @@ abstract class BasketBase extends BasketItemCollection
 		}
 
 		return $this->refresh($strategy);
+	}
+	
+	/**
+	 * @deprecated the basket can contain duplicate items
+	 * 
+	 * @param BasketItemBase $item
+	 * @return BasketItemBase|null
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\NotImplementedException
+	 */
+	public function getExistsItemByItem(BasketItemBase $item)
+	{
+		$propertyList = [];
+		$propertyCollection = $item->getPropertyCollection();
+		if ($propertyCollection)
+		{
+			$propertyList = $propertyCollection->getPropertyValues();
+		}
+
+		return $this->getExistsItem($item->getField('MODULE'), $item->getField('PRODUCT_ID'), $propertyList);
 	}
 }

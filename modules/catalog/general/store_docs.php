@@ -41,12 +41,14 @@ class CAllCatalogDocs
 			return false;
 		}
 
-		$documentStatus = Catalog\StoreDocumentTable::getList([
-			'select' => ['STATUS'],
-			'filter' => ['=ID' => $id],
-			'limit' => 1,
-		])->fetch()['STATUS'];
-		$isConducted = $documentStatus && $documentStatus === 'Y';
+		$oldFields = Catalog\StoreDocumentTable::getById($id)->fetch();
+		if (empty($oldFields))
+		{
+			return false;
+		}
+		$allOldFields = $oldFields;
+
+		$isConducted = $oldFields['STATUS'] === 'Y';
 		$isStatusChangingToUnconducted = isset($arFields['STATUS']) && $arFields['STATUS'] === 'N';
 		if ($isConducted && !$isStatusChangingToUnconducted)
 		{
@@ -74,8 +76,6 @@ class CAllCatalogDocs
 			return false;
 		}
 
-		$oldFields = Catalog\StoreDocumentTable::getById($id)->fetch();
-		$allOldFields = $oldFields;
 		$oldFields = array_intersect_key($oldFields, $arFields);
 
 		$strUpdate = $DB->PrepareUpdate("b_catalog_store_docs", $arFields);
@@ -124,57 +124,64 @@ class CAllCatalogDocs
 	{
 		global $DB;
 		$id = (int)$id;
-		if($id > 0)
+		if ($id <= 0)
 		{
-			$documents = CCatalogDocs::getList(
-				[],
-				['ID' => $id],
-				false,
-				false,
-				[
-					'ID',
-					'STATUS',
-				]
-			);
-
-			if($document = $documents->Fetch())
-			{
-				if($document['STATUS'] === 'Y')
-				{
-					$GLOBALS['APPLICATION']->ThrowException(
-						Loc::getMessage('CAT_DOC_WRONG_STATUS'),
-						self::DELETE_CONDUCTED_ERROR
-					);
-					return false;
-				}
-			}
-
-			$events = GetModuleEvents('catalog', 'OnBeforeDocumentDelete', true);
-			foreach($events as $event)
-			{
-				ExecuteModuleEventEx($event, [$id]);
-			}
-
-			$DB->Query("DELETE FROM b_catalog_store_docs WHERE ID = ".$id, true);
-
-			$events = GetModuleEvents('catalog', 'OnDocumentDelete', true);
-			foreach($events as $arEvent)
-			{
-				ExecuteModuleEventEx($arEvent, [$id]);
-			}
-
-			$item = [
-				'id' => $id,
-			];
-			PullManager::getInstance()->sendDocumentDeletedEvent(
-				[
-					$item,
-				]
-			);
-
-			return true;
+			return false;
 		}
-		return false;
+
+		$iterator = Catalog\StoreDocumentTable::getList([
+			'select' => [
+				'ID',
+				'STATUS',
+			],
+			'filter' => [
+				'=ID' => $id,
+			],
+		]);
+		$document = $iterator->fetch();
+		if (empty($document))
+		{
+			return false;
+		}
+		unset($iterator);
+
+		if ($document['STATUS'] === 'Y')
+		{
+			$GLOBALS['APPLICATION']->ThrowException(
+				Loc::getMessage('CAT_DOC_WRONG_STATUS'),
+				self::DELETE_CONDUCTED_ERROR
+			);
+			return false;
+		}
+
+		$events = GetModuleEvents('catalog', 'OnBeforeDocumentDelete', true);
+		foreach($events as $event)
+		{
+			ExecuteModuleEventEx($event, [$id]);
+		}
+
+		$DB->Query("DELETE FROM b_catalog_store_docs WHERE ID = ".$id, true);
+
+		//TODO: need refactor next methods 
+		\CCatalogStoreDocsBarcode::OnBeforeDocumentDelete($id);
+		\CCatalogStoreDocsElement::OnDocumentBarcodeDelete($id);
+
+		$events = GetModuleEvents('catalog', 'OnDocumentDelete', true);
+		foreach($events as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, [$id]);
+		}
+
+		$item = [
+			'id' => $id,
+		];
+		PullManager::getInstance()->sendDocumentDeletedEvent(
+			[
+				$item,
+			]
+		);
+
+		return true;
 	}
 
 	/**

@@ -345,3 +345,6 @@
 .bizproc-type-control-user-item-head .bizproc-type-control-user-name {
 	color: #207976;
 }
+.bizproc-type-control-user--width {
+	width: 100%
+}

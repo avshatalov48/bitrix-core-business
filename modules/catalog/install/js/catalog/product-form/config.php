@@ -72,6 +72,7 @@ return [
 		'clipboard',
 		'helper',
 		'catalog.store-use',
+		'ui.hint',
 		'main.core.events',
 		'currency.currency-core',
 		'catalog.product-calculator',

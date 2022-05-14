@@ -240,6 +240,7 @@
 		if (isPlainObject(this.requiredUserActionOptions) && !isEmpty(this.requiredUserActionOptions))
 		{
 			this.showRequiredUserAction(this.requiredUserActionOptions);
+			this.requiredUserActionIsShown = true;
 		}
 
 		this.onEditorEnabled = this.onEditorEnabled.bind(this);
@@ -997,7 +998,6 @@
 			// Make content actions panel
 			if (
 				!this.panels.contains("content_actions")
-				&& !this.requiredUserActionIsShown
 				&& (
 					(isPlainObject(this.manifest.nodes) && !isEmpty(this.manifest.nodes))
 					|| (isPlainObject(this.manifest.style) && !isEmpty(this.manifest.style))
@@ -1409,7 +1409,7 @@
 					{
 						name: create("div", {
 							props: {className: "landing-ui-block-display-message-header"},
-							html: BX.Landing.Loc.getMessage("LANDING_BLOCK_DISABLED_ON_DESKTOP_NAME")
+							html: BX.Landing.Loc.getMessage("LANDING_BLOCK_DISABLED_ON_DESKTOP_NAME_2")
 						}).outerHTML,
 						description: this.getBlockDisplayItems()
 					}
@@ -4606,14 +4606,13 @@
 		 */
 		reload: function(data)
 		{
-			if (!BX.type.isPlainObject(data))
+			if (isPlainObject(data))
 			{
-				return Promise.resolve({});
-			}
-			var isNeedReload = this.containsPseudoSelector(data) || this.containsReloadRequireAttributes(data);
-			if (!isNeedReload)
-			{
-				return Promise.resolve(data);
+				var isNeedReload = this.containsPseudoSelector(data) || this.containsReloadRequireAttributes(data);
+				if (!isNeedReload)
+				{
+					return Promise.resolve(data);
+				}
 			}
 
 			var loader = new BX.Loader({target: this.parent.parentElement, color: "rgba(255, 255, 255, .8)"});

@@ -117,6 +117,7 @@ $MESS["BIZPROC_AUTOMATION_CMP_TITLE_LEAD_VIEW"] = "Aktueller Leadstatus: \"#TITL
 $MESS["BIZPROC_AUTOMATION_CMP_TO"] = "an";
 $MESS["BIZPROC_AUTOMATION_CMP_TO_EXECUTE"] = "Ausführen";
 $MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_ALLOW_REVERSE"] = "Wechsel auf vorherigen Status erlauben";
+$MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_EXECUTE_BY"] = "Phase ändern als";
 $MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_HELP_3"] = "Eine Aktion seitens Kunden, die eine Statusveränderung verursacht. Wird ein Trigger ausgelöst, wird das Element in einen erforderlichen Status verschoben, wodurch bestimmte Automatisierungsregeln aktiviert werden.";
 $MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_LIST"] = "Trigger";
 $MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_NAME"] = "Trigger-Name";

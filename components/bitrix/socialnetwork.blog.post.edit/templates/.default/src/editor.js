@@ -503,14 +503,7 @@ export default class PostFormEditor extends EventEmitter
 				continue;
 			}
 
-			Dom.adjust(div[ii], {
-				style: {
-					display: 'block',
-					height: 'auto',
-					opacity: 1
-				}
-			});
-			div[ii].style.padding = null;
+			div[ii].classList.remove('feed-post-form-block-hidden');
 		}
 
 		if(this.formParams.showTitle)
@@ -535,14 +528,10 @@ export default class PostFormEditor extends EventEmitter
 			{
 				continue;
 			}
-			Dom.adjust(div[ii], {
-				style: {
-					display: 'block',
-					height: '0',
-					opacity: 0,
-				}
-			});
+
+			div[ii].classList.add('feed-post-form-block-hidden');
 		}
+
 		if(this.formParams.showTitle)
 		{
 			this.showPanelTitle(false, false);

@@ -292,10 +292,10 @@ class VariationForm extends BaseForm
 		return $measureRatio ? $measureRatio->getRatio() : null;
 	}
 
-	protected function getAdditionalValues(array $values): array
+	protected function getAdditionalValues(array $values, array $descriptions = []): array
 	{
-		$additionalValues = parent::getAdditionalValues($values);
-		foreach ($this->getDescriptions() as $description)
+		$additionalValues = parent::getAdditionalValues($values, $descriptions);
+		foreach ($descriptions as $description)
 		{
 			if ($description['entity'] === 'money' && \Bitrix\Main\Loader::includeModule('currency'))
 			{

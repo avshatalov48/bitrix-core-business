@@ -2,15 +2,7 @@ this.BX = this.BX || {};
 (function (exports,main_core_events,main_core,main_popup) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"sonet-sgm-error-text-block\">", "</div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 
 	var WorkgroupCardUtil = /*#__PURE__*/function () {
 	  function WorkgroupCardUtil() {
@@ -39,7 +31,7 @@ this.BX = this.BX || {};
 	        autoHide: true,
 	        lightShadow: false,
 	        zIndex: 2,
-	        content: main_core.Tag.render(_templateObject(), errorText),
+	        content: main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"sonet-sgm-error-text-block\">", "</div>"])), errorText),
 	        closeByEsc: true,
 	        closeIcon: true
 	      }).show();
@@ -132,15 +124,7 @@ this.BX = this.BX || {};
 	  return WorkgroupCardFavorites;
 	}();
 
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"sonet-sgm-notify-hint-content\" style=\"display: none;\"><span id=\"sgm_notify_hint_text\">", "</span></div>"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1;
 
 	var WorkgroupCardSubscription = /*#__PURE__*/function () {
 	  function WorkgroupCardSubscription(params) {
@@ -166,7 +150,7 @@ this.BX = this.BX || {};
 	      var _this2 = this;
 
 	      var action = !this.buttonNode.classList.contains('ui-btn-active') ? 'set' : 'unset';
-	      this.switch(this.buttonNode, action === 'set');
+	      this["switch"](this.buttonNode, action === 'set');
 	      main_core.ajax.runAction('socialnetwork.api.workgroup.setSubscription', {
 	        data: {
 	          params: {
@@ -183,8 +167,8 @@ this.BX = this.BX || {};
 	          }
 	        };
 	        window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', eventData);
-	      }).catch(function (response) {
-	        _this2.switch(_this2.buttonNode, !(action === 'set'));
+	      })["catch"](function (response) {
+	        _this2["switch"](_this2.buttonNode, !(action === 'set'));
 
 	        WorkgroupCardUtil.processAJAXError(response.errors[0].message);
 	      });
@@ -225,7 +209,7 @@ this.BX = this.BX || {};
 	          autoHide: true,
 	          lightShadow: true,
 	          zIndex: 2,
-	          content: main_core.Tag.render(_templateObject$1(), hintText),
+	          content: main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"sonet-sgm-notify-hint-content\" style=\"display: none;\"><span id=\"sgm_notify_hint_text\">", "</span></div>"])), hintText),
 	          closeByEsc: true,
 	          closeIcon: false,
 	          offsetLeft: 21,
@@ -254,8 +238,12 @@ this.BX = this.BX || {};
 	    this.instance = null;
 	    this.currentUserId = null;
 	    this.userRole = null;
+	    this.userIsMember = null;
+	    this.userIsAutoMember = null;
+	    this.userIsScrumMaster = null;
 	    this.canInitiate = null;
 	    this.canModify = null;
+	    this.canLeave = null;
 	    this.groupId = null;
 	    this.isProject = null;
 	    this.isScrumProject = null;
@@ -283,12 +271,14 @@ this.BX = this.BX || {};
 	      this.isProject = !!params.isProject;
 	      this.isScrumProject = !!params.isScrumProject;
 	      this.isOpened = !!params.isOpened;
-	      this.canInitiate = !!params.canInitiate;
-	      this.canProcessRequestsIn = !!params.canProcessRequestsIn;
-	      this.canModify = !!params.canModify;
 	      this.userRole = params.userRole;
 	      this.userIsMember = !!params.userIsMember;
 	      this.userIsAutoMember = !!params.userIsAutoMember;
+	      this.userIsScrumMaster = this.isScrumProject && (main_core.Type.isBoolean(params.userIsScrumMaster) ? params.userIsScrumMaster : false);
+	      this.canInitiate = !!params.canInitiate;
+	      this.canProcessRequestsIn = !!params.canProcessRequestsIn;
+	      this.canModify = !!params.canModify;
+	      this.canLeave = main_core.Type.isBoolean(params.canLeave) ? params.canLeave : this.userIsMember && this.userRole !== 'A' && !this.userIsAutoMember && !this.userIsScrumMaster;
 	      this.containerNode = main_core.Type.isStringFilled(params.containerNodeId) ? document.getElementById(params.containerNodeId) : null;
 	      this.menuButtonNode = main_core.Type.isStringFilled(params.menuButtonNodeId) ? document.getElementById(params.menuButtonNodeId) : null;
 	      this.editFeaturesAllowed = !main_core.Type.isUndefined(params.editFeaturesAllowed) ? !!params.editFeaturesAllowed : true;
@@ -355,6 +345,7 @@ this.BX = this.BX || {};
 	            groupType: _this.groupType,
 	            userIsMember: _this.userIsMember,
 	            userIsAutoMember: _this.userIsAutoMember,
+	            userIsScrumMaster: _this.userIsScrumMaster,
 	            userRole: _this.userRole,
 	            editFeaturesAllowed: _this.editFeaturesAllowed,
 	            copyFeatureAllowed: _this.copyFeatureAllowed,
@@ -364,12 +355,13 @@ this.BX = this.BX || {};
 	            perms: {
 	              canInitiate: _this.canInitiate,
 	              canProcessRequestsIn: _this.canProcessRequestsIn,
-	              canModify: _this.canModify
+	              canModify: _this.canModify,
+	              canLeave: _this.canLeave
 	            },
 	            urls: {
 	              requestUser: main_core.Loc.getMessage('SGCSPathToRequestUser'),
 	              edit: main_core.Loc.getMessage('SGCSPathToEdit'),
-	              delete: main_core.Loc.getMessage('SGCSPathToDelete'),
+	              "delete": main_core.Loc.getMessage('SGCSPathToDelete'),
 	              features: main_core.Loc.getMessage('SGCSPathToFeatures'),
 	              members: main_core.Loc.getMessage('SGCSPathToMembers'),
 	              requests: main_core.Loc.getMessage('SGCSPathToRequests'),

@@ -1013,28 +1013,34 @@ abstract class ProviderBase
 
 		$basketList = static::makeArrayFromBasketCollection($basketCollection, $refreshItem);
 
+		// Process each element separately so that it works correctly with duplicates.
 		$basketProviderMap = static::createProviderBasketMap($basketList, array('QUANTITY', 'RENEWAL', 'SITE_ID', 'USER_ID'));
-		$basketProviderList = static::redistributeToProviders($basketProviderMap);
-
-		if (!empty($basketProviderList))
+		foreach ($basketProviderMap as $basketProviderMapItem)
 		{
-			$options = array(
-				'RETURN_BASKET_ID'
-			);
+			$basketProviderList = static::redistributeToProviders([
+				$basketProviderMapItem,
+			]);
 
-			foreach ($basketProviderList as $providerClassName => $productValueList)
+			if (!empty($basketProviderList))
 			{
-				$r = static::getProductDataByList($productValueList, $providerClassName, $select, $context, $options);
-				if ($r->isSuccess())
+				$options = array(
+					'RETURN_BASKET_ID'
+				);
+	
+				foreach ($basketProviderList as $providerClassName => $productValueList)
 				{
-					$resultData = $r->getData();
-					if (!empty($resultData['PRODUCT_DATA_LIST']))
+					$r = static::getProductDataByList($productValueList, $providerClassName, $select, $context, $options);
+					if ($r->isSuccess())
 					{
-						$resultList = $resultData['PRODUCT_DATA_LIST'] + $resultList;
+						$resultData = $r->getData();
+						if (!empty($resultData['PRODUCT_DATA_LIST']))
+						{
+							$resultList = $resultData['PRODUCT_DATA_LIST'] + $resultList;
+						}
 					}
 				}
-			}
-
+	
+			}	
 		}
 
 		return $resultList;

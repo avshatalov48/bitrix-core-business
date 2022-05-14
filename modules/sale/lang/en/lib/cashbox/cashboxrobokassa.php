@@ -1,6 +1,7 @@
 <?php
 $MESS["SALE_CASHBOX_ROBOKASSA_CHECK_NOT_FOUND"] = "Receipt was not found";
 $MESS["SALE_CASHBOX_ROBOKASSA_ERROR_EMPTY_RESPONSE"] = "Empty server response";
+$MESS["SALE_CASHBOX_ROBOKASSA_ERROR_DECODE_RESPONSE"] = "Error decoding JSON string";
 $MESS["SALE_CASHBOX_ROBOKASSA_PRINT_ERROR_FORMAT"] = "Invalid receipt data format";
 $MESS["SALE_CASHBOX_ROBOKASSA_PRINT_ERROR_INTERNAL"] = "Robokassa internal error";
 $MESS["SALE_CASHBOX_ROBOKASSA_PRINT_ERROR_NOT_ENOUGH_MONEY"] = "Insufficient funds in store account";

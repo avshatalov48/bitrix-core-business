@@ -486,18 +486,18 @@ if($USER->IsAuthorized()):
 						{
 							BX.PopupMenu.show("prolong-popup", bindElement, [
 								{
-									text : '<b><?=GetMessageJS("prolog_main_support_menu1")?></b>'
+									html : '<b><?=GetMessageJS("prolog_main_support_menu1")?></b>'
 								},
 								{
-									text : '<?=GetMessageJS("prolog_main_support_menu2")?>',
+									html : '<?=GetMessageJS("prolog_main_support_menu2")?>',
 									onclick : function() {prolongRemind('<?=AddToTimeStamp(array("DD" => 7));?>', this)}
 								},
 								{
-									text : '<?=GetMessageJS("prolog_main_support_menu3")?>',
+									html : '<?=GetMessageJS("prolog_main_support_menu3")?>',
 									onclick : function() {prolongRemind('<?=AddToTimeStamp(array("DD" => 14));?>', this)}
 								},
 								{
-									text : '<?=GetMessageJS("prolog_main_support_menu4")?>',
+									html : '<?=GetMessageJS("prolog_main_support_menu4")?>',
 									onclick : function() {prolongRemind('<?=AddToTimeStamp(array("MM" => 1));?>', this)}
 								}
 							],

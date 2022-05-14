@@ -2,7 +2,7 @@
 $MESS["SONET_GCE_T_IS_EXTRANET_GROUP2_HINT"] = "Externe Nutzer können in die Gruppe eingeladen werden";
 $MESS["SONET_GCE_T_IS_EXTRANET_GROUP2_HINT_PROJECT"] = "Externe Nutzer können zum Projekt eingeladen werden";
 $MESS["SONET_GCE_T_IS_EXTRANET_GROUP3"] = "Zugriff für externe Benutzer gewähren";
-$MESS["SONET_GCE_T_IS_EXTRANET_TITLE"] = "Externe Benutzer:";
+$MESS["SONET_GCE_T_IS_EXTRANET_TITLE"] = "Externe Benutzer";
 $MESS["SONET_GCE_T_PARAMS_CLOSED2"] = "Archiviert";
 $MESS["SONET_GCE_T_PARAMS_CLOSED2_HINT"] = "Das ist eine archivierte Gruppe";
 $MESS["SONET_GCE_T_PARAMS_CLOSED2_HINT_PROJECT"] = "Das ist ein archiviertes Projekt";

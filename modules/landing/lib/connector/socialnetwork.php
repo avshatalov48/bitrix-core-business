@@ -112,21 +112,8 @@ class SocialNetwork
 			self::userInGroup($groupId)
 		)
 		{
-			$asset = \Bitrix\Main\Page\Asset::getInstance();
-			$asset->addString(
-				$asset->insertJs(
-					'var KnowledgeCreate = function(url) 
-					{
-						top.window.history.pushState(\'\', \'\', \'?tab=' . self::SETTINGS_CODE_SHORT . '\');
-						BX.SidePanel.Instance.open(url, {allowChangeHistory: false});
-					};',
-				 	'',
-				 	true
-				)
-			);
 			\CJSCore::init('sidepanel');
 			$link = SITE_DIR . str_replace('#groupId#', $groupId, self::PATH_GROUP_BINDING);
-			$link = 'javascript:void(KnowledgeCreate(\'' . $link . '\'));';
 		}
 
 		return $link;

@@ -27,6 +27,7 @@ $MESS["SONET_GUE_T_BUTTON_UNBAN"] = "розблокувати";
 $MESS["SONET_GUE_T_BUTTON_UNCONNECT"] = "видалити";
 $MESS["SONET_GUE_T_CANT_EXCLUDE_AUTO_MEMBER"] = "Не можна виключити з групи підключеного користувача.";
 $MESS["SONET_GUE_T_CANT_EXCLUDE_AUTO_MEMBER_PROJECT"] = "Не можна виключити з проєкту підключеного користувача.";
+$MESS["SONET_GUE_T_CANT_EXCLUDE_SCRUM_MASTER"] = "Не можна виключити скрам-майстра.";
 $MESS["SONET_GUE_T_DEPARTMENTS_SUBTITLE"] = "Підрозділи";
 $MESS["SONET_GUE_T_DEPARTMENT_ID_NOT_DEFINED"] = "Не вибрано жодного підрозділу.";
 $MESS["SONET_GUE_T_FIRED2"] = "звільнений (а)";

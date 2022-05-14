@@ -39,11 +39,11 @@ this.BX = this.BX || {};
 	      } else if (params.command === 'delete_event' || params.command === 'edit_event') {
 	        var _params$fields3, _params$fields4, _params$fields5, _top$BX$Calendar, _top$BX$Calendar$Cont;
 
-	        if (!params.fields || (params === null || params === void 0 ? void 0 : (_params$fields3 = params.fields) === null || _params$fields3 === void 0 ? void 0 : _params$fields3.IS_MEETING) && (params === null || params === void 0 ? void 0 : (_params$fields4 = params.fields) === null || _params$fields4 === void 0 ? void 0 : _params$fields4.MEETING_STATUS) === 'Q') {
+	        if (!params.fields || params !== null && params !== void 0 && (_params$fields3 = params.fields) !== null && _params$fields3 !== void 0 && _params$fields3.IS_MEETING && (params === null || params === void 0 ? void 0 : (_params$fields4 = params.fields) === null || _params$fields4 === void 0 ? void 0 : _params$fields4.MEETING_STATUS) === 'Q') {
 	          top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
 	        }
 
-	        if ((params === null || params === void 0 ? void 0 : (_params$fields5 = params.fields) === null || _params$fields5 === void 0 ? void 0 : _params$fields5.CAL_TYPE) === 'location' && ((_top$BX$Calendar = top.BX.Calendar) === null || _top$BX$Calendar === void 0 ? void 0 : (_top$BX$Calendar$Cont = _top$BX$Calendar.Controls) === null || _top$BX$Calendar$Cont === void 0 ? void 0 : _top$BX$Calendar$Cont.Location)) {
+	        if ((params === null || params === void 0 ? void 0 : (_params$fields5 = params.fields) === null || _params$fields5 === void 0 ? void 0 : _params$fields5.CAL_TYPE) === 'location' && (_top$BX$Calendar = top.BX.Calendar) !== null && _top$BX$Calendar !== void 0 && (_top$BX$Calendar$Cont = _top$BX$Calendar.Controls) !== null && _top$BX$Calendar$Cont !== void 0 && _top$BX$Calendar$Cont.Location) {
 	          top.BX.Calendar.Controls.Location.handlePull(params);
 	        }
 	      }
@@ -214,6 +214,7 @@ this.BX = this.BX || {};
 	          isLocationCalendar: options.isLocationCalendar || false,
 	          roomsManager: options.roomsManager || null,
 	          locationAccess: options.locationAccess || false,
+	          dayOfWeekMonthFormat: options.dayOfWeekMonthFormat || false,
 	          locationCapacity: options.locationCapacity || 0,
 	          ownerId: options.ownerId,
 	          userId: options.userId,
@@ -234,6 +235,7 @@ this.BX = this.BX || {};
 	          new bx.Calendar.SliderLoader(eventId, {
 	            entryDateFrom: options.from,
 	            timezoneOffset: options.timezoneOffset,
+	            dayOfWeekMonthFormat: options.dayOfWeekMonthFormat || false,
 	            calendarContext: options.calendarContext || null
 	          }).show();
 	        }
@@ -273,7 +275,7 @@ this.BX = this.BX || {};
 	        };
 
 	        main_core_events.EventEmitter.subscribe('BX.Calendar.Entry:delete', deleteHandler);
-	        entry.delete();
+	        entry["delete"]();
 	      }
 	    }
 	  }, {
@@ -342,7 +344,7 @@ this.BX = this.BX || {};
 	      this.confirmDeclineDialog.show();
 	      this.confirmDeclineDialog.unsubscribeAll('onDecline');
 	      this.confirmDeclineDialog.subscribe('onDecline', function (event) {
-	        if (event instanceof main_core.Event.BaseEvent) {
+	        if (event && main_core.Type.isFunction(event.getData)) {
 	          EntryManager.setMeetingStatus(entry, 'N', {
 	            recursionMode: event.getData().recursionMode,
 	            confirmed: true
@@ -367,7 +369,7 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isFunction(options.callback)) {
 	        this.confirmEditDialog.unsubscribeAll('onEdit');
 	        this.confirmEditDialog.subscribe('onEdit', function (event) {
-	          if (event instanceof main_core.Event.BaseEvent) {
+	          if (event && main_core.Type.isFunction(event.getData)) {
 	            options.callback(event.getData());
 	          }
 	        });
@@ -386,7 +388,7 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isFunction(options.callback)) {
 	        this.reinviteUsersDialog.unsubscribeAll('onSelect');
 	        this.reinviteUsersDialog.subscribe('onSelect', function (event) {
-	          if (event instanceof main_core.Event.BaseEvent) {
+	          if (event && main_core.Type.isFunction(event.getData)) {
 	            options.callback(event.getData());
 	          }
 	        });
@@ -407,7 +409,7 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isFunction(options.callback)) {
 	        this.confirmedEmailDialog.unsubscribeAll('onSelect');
 	        this.confirmedEmailDialog.subscribe('onSelect', function (event) {
-	          if (event instanceof main_core.Event.BaseEvent) {
+	          if (event && main_core.Type.isFunction(event.getData)) {
 	            options.callback(event.getData());
 	          }
 	        });
@@ -672,7 +674,7 @@ this.BX = this.BX || {};
 	      this.fullDay = this.data.DT_SKIP_TIME === 'Y';
 	      this.accessibility = this.data.ACCESSIBILITY || 'busy';
 	      this.important = this.data.IMPORTANCE === 'high';
-	      this.private = !!this.data.PRIVATE_EVENT;
+	      this["private"] = !!this.data.PRIVATE_EVENT;
 	      this.setSectionId(this.data.SECT_ID);
 	      this.name = this.data.NAME;
 	      this.userTimezoneOffsetFrom = parseInt(this.data['~USER_OFFSET_FROM']) || 0;
@@ -1224,7 +1226,7 @@ this.BX = this.BX || {};
 	          data: data
 	        });
 	      } else if (this.hasRecurrenceId()) {
-	        this.delete({
+	        this["delete"]({
 	          confirmed: true,
 	          recursionMode: 'this'
 	        });
@@ -1272,7 +1274,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "deleteAll",
 	    value: function deleteAll() {
-	      return this.delete({
+	      return this["delete"]({
 	        confirmed: true,
 	        recursionMode: 'all'
 	      });
@@ -1285,7 +1287,7 @@ this.BX = this.BX || {};
 
 	        if (deleteTimeoutData) {
 	          EntryManager.unregisterDeleteTimeout(deleteTimeoutData);
-	          this.delayTimeoutMap.delete(this.delayTimeoutMap);
+	          this.delayTimeoutMap["delete"](this.delayTimeoutMap);
 	        }
 
 	        clearTimeout(this.deleteTimeout);

@@ -9,6 +9,8 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Security\Random;
+use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\Web\Json;
 use Bitrix\Blog\Item\Permissions;
 
@@ -190,8 +192,10 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 		$this->executeComponent();
 	}
 
-	public function onPrepareComponentParams($arParams): array
+	public function onPrepareComponentParams($arParams)
 	{
+		global $USER;
+
 		static $formId = null;
 
 		if (empty($arParams['FORM_ID']))
@@ -202,6 +206,9 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 			}
 			$arParams['FORM_ID'] = $formId;
 		}
+
+		$arParams['CONTENT_VIEW_KEY'] = (string)($arParams['CONTENT_VIEW_KEY'] ?? '');
+		$arParams['CONTENT_VIEW_KEY_SIGNED'] = (string)($arParams['CONTENT_VIEW_KEY_SIGNED'] ?? '');
 
 		return $arParams;
 	}

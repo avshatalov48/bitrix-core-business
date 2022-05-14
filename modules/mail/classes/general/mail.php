@@ -193,6 +193,11 @@ class _CMailBoxDBRes extends CDBResult
 	{
 		if($res = parent::Fetch())
 		{
+			if(!Bitrix\Main\Loader::includeModule('mail'))
+			{
+				return false;
+			}
+
 			$entity = \Bitrix\Mail\MailboxTable::getEntity();
 
 			foreach ($res as $alias => $value)
@@ -1796,13 +1801,22 @@ class CAllMailMessage
 				),
 			));
 
+			//If the message is new. Not resynchronization
 			if (!(isset($params['replaces']) && $params['replaces'] > 0))
 			{
+
+				/**
+				 * Create a chain of communication between the message and itself
+				 * */
 				$DB->query(sprintf(
 					'INSERT IGNORE INTO b_mail_message_closure (MESSAGE_ID, PARENT_ID) VALUES (%1$u, %1$u)',
 					$message_id
 				));
 
+				/**
+				 * Create chains of links to parent messages based on the fact
+				 * that the given message is a response
+				 * */
 				if ($arFields['IN_REPLY_TO'])
 				{
 					$DB->query(sprintf(
@@ -1818,6 +1832,9 @@ class CAllMailMessage
 					));
 				}
 
+				/**
+				 * Finding and creating (if any) a chain of links to child messages based on that fact
+				 * */
 				if ($arFields['MSG_ID'])
 				{
 					$DB->query(sprintf(
@@ -1909,37 +1926,7 @@ class CAllMailMessage
 				$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
 				$sanitizer->applyDoubleEncode(false);
 
-				$validTagAttributes = [
-					'colspan',
-					'border',
-					'bgcolor',
-					'width',
-					'background',
-					'style',
-					'align',
-					'height',
-					'background-color',
-					'border',
-					'ltr',
-					'rtl',
-					'class',
-				];
-				$tableAttributes = array_merge(
-					$validTagAttributes,
-					[
-						'cellpadding',
-						'cellspacing',
-					]
-				);
-				$sanitizer->addTags(array(
-					'style' => array(),
-					'colgroup' => array(),
-					'col' => array('width'),
-					'table' => $tableAttributes,
-					'center' => $validTagAttributes,
-					'div' => $validTagAttributes,
-					'td' =>$validTagAttributes,
-				));
+				$sanitizer->addTags(\Bitrix\Mail\Helper\Message::getWhitelistTagAttributes());
 
 				$arFields['BODY_HTML'] = $sanitizer->sanitizeHtml($msg);
 

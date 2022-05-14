@@ -144,9 +144,9 @@ class ProductForm extends BaseForm
 		return $sectionIds;
 	}
 
-	protected function getAdditionalValues(array $values): array
+	protected function getAdditionalValues(array $values, array $descriptions = []): array
 	{
-		$additionalValues = parent::getAdditionalValues($values);
+		$additionalValues = parent::getAdditionalValues($values, $descriptions);
 
 		$additionalValues['IBLOCK_SECTION_DATA'] = $this->getIblockSectionServiceFieldValue($values);
 		$additionalValues['VARIATION_GRID_SIGNED_PARAMETERS'] = $this->getVariationGridSignedParameters();

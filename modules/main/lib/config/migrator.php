@@ -164,11 +164,7 @@ class Migrator
 		{
 			$source = file_get_contents($filename1);
 			$source = trim($source);
-			$pos = 2;
-			if (strtolower(mb_substr($source, 0, 5)) == '<?php')
-				$pos = 5;
-			$source = mb_substr($source, 0, $pos)."\n".'$connection = \Bitrix\Main\Application::getConnection();'.mb_substr($source, $pos);
-			$source = preg_replace("#\\\$DB->Query\(#i", "\$connection->queryExecute(", $source);
+			$source = preg_replace("#\\\$DB->Query\(#i", "\$this->queryExecute(", $source);
 			file_put_contents($filename2, $source);
 		}
 	}

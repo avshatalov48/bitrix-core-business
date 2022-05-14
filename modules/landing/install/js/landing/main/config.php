@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/main.bundle.css',
 	'js' => 'dist/main.bundle.js',
 	'rel' => [
+		'main.core.events',
 		'landing.env',
 		'landing.loc',
 		'landing.ui.panel.content',

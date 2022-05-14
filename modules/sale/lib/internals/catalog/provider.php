@@ -1118,7 +1118,7 @@ final class Provider
 	 * @return array|bool
 	 * @throws Main\ObjectNotFoundException
 	 */
-	public static function createMapShipmentItemStoreData(Sale\ShipmentItem $shipmentItem)
+	public static function createMapShipmentItemStoreData(Sale\ShipmentItem $shipmentItem, $needUseReserve = true)
 	{
 		$resultList = array();
 
@@ -1162,16 +1162,19 @@ final class Provider
 			$resultList[$storeId]['QUANTITY'] += $basketItem->isBarcodeMulti()? 1 : $shipmentItemStore->getQuantity();
 			$resultList[$storeId]['BARCODE'][$barcodeId] = $shipmentItemStore->getBarcode();
 
-			if ($reserveQuantityStoreList[$storeId] > $resultList[$storeId]['QUANTITY'])
+			if ($needUseReserve)
 			{
-				$resultList[$storeId]['RESERVED_QUANTITY'] = $resultList[$storeId]['QUANTITY'];
-			}
-			elseif ($reserveQuantityStoreList[$storeId] > 0)
-			{
-				$resultList[$storeId]['RESERVED_QUANTITY'] = $reserveQuantityStoreList[$storeId];
-			}
+				if ($reserveQuantityStoreList[$storeId] > $resultList[$storeId]['QUANTITY'])
+				{
+					$resultList[$storeId]['RESERVED_QUANTITY'] = $resultList[$storeId]['QUANTITY'];
+				}
+				elseif ($reserveQuantityStoreList[$storeId] > 0)
+				{
+					$resultList[$storeId]['RESERVED_QUANTITY'] = $reserveQuantityStoreList[$storeId];
+				}
 
-			$reserveQuantityStoreList[$storeId] -= $resultList[$storeId]['RESERVED_QUANTITY'];
+				$reserveQuantityStoreList[$storeId] -= $resultList[$storeId]['RESERVED_QUANTITY'];
+			}
 		}
 
 		return $resultList;

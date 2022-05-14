@@ -1457,10 +1457,14 @@ function Add2BasketByProductID($productId, $quantity = 1, $rewriteFields = array
 				$propertyList = $product['PROPS'];
 			}
 
-			$basketItem = $basket->getExistsItem($module, $productId, $propertyList);
-			if ($basketItem)
+			$basketItems = $basket->getExistsItems($module, $productId, $propertyList);
+			foreach ($basketItems as $basketItem)
 			{
 				$basketItem->setFieldNoDemand('ORDER_ID', intval($rewriteFields['ORDER_ID']));
+			}
+			
+			if ($basketItems)
+			{
 				$r = $basket->save();
 
 				/** @var Sale\Order $orderClass */
@@ -1480,7 +1484,6 @@ function Add2BasketByProductID($productId, $quantity = 1, $rewriteFields = array
 						);
 					}
 				}
-
 			}
 		}
 

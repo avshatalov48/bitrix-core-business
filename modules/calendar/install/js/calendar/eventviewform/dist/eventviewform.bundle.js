@@ -113,6 +113,7 @@ this.BX = this.BX || {};
 	            _this.uid = params.uniqueId;
 	            _this.entryUrl = params.entryUrl;
 	            _this.userTimezone = params.userTimezone;
+	            _this.dayOfWeekMonthFormat = params.dayOfWeekMonthFormat;
 	            _this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
 
 	            if (_this.planner && !_this.plannerFeatureEnabled) {
@@ -293,7 +294,8 @@ this.BX = this.BX || {};
 	        minWidth: parseInt(this.DOM.plannerWrap.offsetWidth),
 	        solidStatus: true,
 	        readonly: true,
-	        locked: !this.plannerFeatureEnabled
+	        locked: !this.plannerFeatureEnabled,
+	        dayOfWeekMonthFormat: this.dayOfWeekMonthFormat
 	      });
 	      this.planner.show();
 	      this.planner.showLoader();

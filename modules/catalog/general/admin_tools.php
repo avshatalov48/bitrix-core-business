@@ -1,14 +1,22 @@
-<?
-use Bitrix\Main\Localization\Loc,
-	Bitrix\Main,
-	Bitrix\Iblock,
-	Bitrix\Iblock\Url\AdminPage\BaseBuilder,
-	Bitrix\Iblock\Url\AdminPage\BuilderManager,
-	Bitrix\Catalog;
+<?php
 
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main;
+use Bitrix\Iblock;
+use Bitrix\Iblock\Url\AdminPage\BaseBuilder;
+use Bitrix\Iblock\Url\AdminPage\BuilderManager;
+use Bitrix\Catalog;
 
+/**
+ * @deprecated Use CCatalogAdminTools
+ * @see CCatalogAdminTools
+ */
 class CCatalogAdminToolsAll
+{
+}
+
+class CCatalogAdminTools extends CCatalogAdminToolsAll
 {
 	const TAB_CATALOG = 'P';
 	const TAB_SKU = 'O';
@@ -849,11 +857,6 @@ class CCatalogAdminToolsAll
 	}
 }
 
-class CCatalogAdminTools extends CCatalogAdminToolsAll
-{
-
-}
-
 class CCatalogAdminProductSetEdit
 {
 	const NEW_ITEM_COUNT = 3;
@@ -1049,7 +1052,7 @@ class CCatalogAdminProductSetEdit
 
 		foreach ($arSets as $setKey => $setData)
 		{
-			$start = isset($setData['NEW_ITEM_COUNT']) ? $setData['NEW_ITEM_COUNT'] : 0;
+			$start = $setData['NEW_ITEM_COUNT'] ?? 0;
 			foreach (self::getEmptyItem($start) as $rowKey => $row)
 				$arSets[$setKey]['ITEMS'][$rowKey] = $row;
 			$arSets[$setKey]['NEW_ITEM_COUNT'] = $start + self::NEW_ITEM_COUNT;

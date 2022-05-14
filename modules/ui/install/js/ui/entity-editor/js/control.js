@@ -1352,6 +1352,14 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 		{
 			titleNode.appendChild(marker);
 		}
+		
+		var hint = this.createTitleHint();
+		if (hint)
+		{
+			titleNode.appendChild(hint);
+			BX.UI.Hint.init(titleNode);
+		}
+		
 		this._titleWrapper.appendChild(titleNode);
 
 		var actionControls = this.createTitleActionControls();
@@ -1390,6 +1398,21 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 		else if(this.isRequiredConditionally())
 		{
 			return BX.create("span", { text: "*" });
+		}
+		return null;
+	};
+	BX.UI.EntityEditorField.prototype.createTitleHint = function()
+	{
+		var hint = this._schemeElement ? this._schemeElement.getHint() : null;
+		if(hint)
+		{
+			return BX.create("span", {
+				dataset: {
+					hint,
+					hintHtml: true,
+					hintInteractivity: true,
+				}
+			});
 		}
 		return null;
 	};
@@ -1518,6 +1541,7 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 		if(!(this.isRequired() || this.isRequiredConditionally() || this.isRequiredByAttribute()))
 		{
 			BX.UI.EntityEditorField.superclass.hide.apply(this, arguments);
+			BX.onCustomEvent(window, this.eventsNamespace + ":onChildMenuItemDeselect", [ this, arguments ]);
 		}
 		else
 		{

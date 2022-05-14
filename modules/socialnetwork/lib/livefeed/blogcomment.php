@@ -46,48 +46,60 @@ final class BlogComment extends Provider
 				array("ID", "BLOG_ID", "POST_ID", "PARENT_ID", "AUTHOR_ID", "AUTHOR_NAME", "AUTHOR_EMAIL", "AUTHOR_IP", "AUTHOR_IP1", "TITLE", "POST_TEXT", "SHARE_DEST")
 			);
 
-			if ($comment = $res->fetch())
+			$comment = $res->fetch();
+			if (!$comment)
 			{
-				$res = \CBlogPost::getList(
-					array(),
-					array(
-						"ID" => $comment["POST_ID"]
-					)
-				);
-
-				if (
-					($post = $res->fetch())
-					&& (BlogPost::canRead(array(
-						'POST' => $post
-					)))
-				)
-				{
-					if (!empty($post['DETAIL_TEXT']))
-					{
-						$post['DETAIL_TEXT'] = \Bitrix\Main\Text\Emoji::decode($post['DETAIL_TEXT']);
-					}
-
-					$this->setSourceFields(array_merge($comment, array("POST" => $post)));
-					$this->setSourceDescription(htmlspecialcharsback($comment['POST_TEXT']));
-
-					$title = htmlspecialcharsback($comment['POST_TEXT']);
-					$title = \Bitrix\Socialnetwork\Helper\Mention::clear($title);
-
-					$p = new \blogTextParser();
-					$title = $p->convert($title, false);
-					$title = preg_replace([
-						"/\n+/is".BX_UTF_PCRE_MODIFIER,
-						"/\s+/is".BX_UTF_PCRE_MODIFIER,
-						"/&nbsp;+/is".BX_UTF_PCRE_MODIFIER
-					], " ", \blogTextParser::killAllTags($title));
-
-					$this->setSourceTitle(truncateText($title, 100));
-					$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());
-					$this->setSourceDiskObjects($this->getDiskObjects($commentId, $this->cloneDiskObjects));
-					$this->setSourceOriginalText($comment['POST_TEXT']);
-					$this->setSourceAuxData($comment);
-				}
+				return;
 			}
+
+			$res = \CBlogPost::getList(
+				array(),
+				array(
+					"ID" => $comment["POST_ID"]
+				)
+			);
+
+			$post = $res->fetch();
+			if (!$post)
+			{
+				return;
+			}
+
+			$checkAccess = ($this->getOption('checkAccess') !== false);
+			if (
+				$checkAccess
+				&& !BlogPost::canRead([
+					'POST' => $post
+				])
+			)
+			{
+				return;
+			}
+
+			if (!empty($post['DETAIL_TEXT']))
+			{
+				$post['DETAIL_TEXT'] = \Bitrix\Main\Text\Emoji::decode($post['DETAIL_TEXT']);
+			}
+
+			$this->setSourceFields(array_merge($comment, array("POST" => $post)));
+			$this->setSourceDescription(htmlspecialcharsback($comment['POST_TEXT']));
+
+			$title = htmlspecialcharsback($comment['POST_TEXT']);
+			$title = \Bitrix\Socialnetwork\Helper\Mention::clear($title);
+
+			$p = new \blogTextParser();
+			$title = $p->convert($title, false);
+			$title = preg_replace([
+				"/\n+/is".BX_UTF_PCRE_MODIFIER,
+				"/\s+/is".BX_UTF_PCRE_MODIFIER,
+				"/&nbsp;+/is".BX_UTF_PCRE_MODIFIER
+			], " ", \blogTextParser::killAllTags($title));
+
+			$this->setSourceTitle(truncateText($title, 100));
+			$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());
+			$this->setSourceDiskObjects($this->getDiskObjects($commentId, $this->cloneDiskObjects));
+			$this->setSourceOriginalText($comment['POST_TEXT']);
+			$this->setSourceAuxData($comment);
 		}
 	}
 

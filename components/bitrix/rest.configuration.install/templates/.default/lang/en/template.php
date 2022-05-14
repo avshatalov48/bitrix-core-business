@@ -1,4 +1,8 @@
 <?php
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_BTN_CLOSE"] = "Abort now";
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_BTN_CONTINUE"] = "Continue import";
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_DESCRIPTION"] = "If you choose to abort now and restart later, the import procedure will start anew.";
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_TITLE"] = "Are you sure you want to abort the import?";
 $MESS["REST_CONFIGURATION_IMPORT_INSTALL_ACCEPT_CLEAR"] = "I want to replace the current Bitrix24 settings with those from the downloaded CRM solution preset.";
 $MESS["REST_CONFIGURATION_IMPORT_INSTALL_ACCEPT_CLEAR_ROLLBACK"] = "I want to replace the current Bitrix24 settings with those from the selected CRM solution preset.";
 $MESS["REST_CONFIGURATION_IMPORT_INSTALL_APP_DESCRIPTION"] = "By clicking \"Continue\" you agree that some or all of the current Bitrix24 settings may be changed by the imported CRM solution preset and cannot be restored thereafter.";

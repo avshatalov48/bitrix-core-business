@@ -292,7 +292,7 @@ export class SectionManager
 		return this.hiddenSections;
 	}
 
-	setHiddenSections(hiddenSections): void
+	setHiddenSections(hiddenSections)
 	{
 		this.hiddenSections = [];
 		if (Type.isArray(hiddenSections))

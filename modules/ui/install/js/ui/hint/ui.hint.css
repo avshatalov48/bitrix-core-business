@@ -29,3 +29,18 @@
 .ui-hint-popup {
 	pointer-events: none;
 }
+
+.ui-hint-popup-interactivity
+{
+	pointer-events: auto;
+}
+
+.ui-hint-popup.popup-window-dark .popup-window-content a {
+	color: #fff;
+	text-decoration: underline;
+	transition: text-decoration 0.15s linear;
+}
+
+.ui-hint-popup.popup-window-dark .popup-window-content a:hover {
+	text-decoration: none;
+}

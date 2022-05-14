@@ -161,77 +161,90 @@
 				BX.delegate(
 					function (response)
 					{
-						var barContainer = BX.findChildByClassName( BX(this.id),'rest-configuration-start-icon-main');
-						var infoContainer = BX.findChildByClassName( BX(this.id),'rest-configuration-info');
-						BX.removeClass(barContainer,'rest-configuration-start-icon-main-zip rest-configuration-start-icon-main-loading');
-
-						var download = '';
-						if(!!response.data && !!response.data.download)
+						if (!!response.data.result && response.data.result === true)
 						{
-							download = response.data.download;
-						}
-
-						var text = '';
-						if(this.errors.length === 0 && download !== '')
-						{
-							text = BX.message("REST_CONFIGURATION_EXPORT_FINISH_DESCRIPTION");
-							BX.addClass(barContainer,'rest-configuration-start-icon-main-success');
+							this.showFinish(response);
 						}
 						else
 						{
-							text = BX.message("REST_CONFIGURATION_EXPORT_FINISH_ERROR_DESCRIPTION");
-							BX.addClass(barContainer,'rest-configuration-start-icon-main-error');
+							this.finish();
 						}
-
-						BX.cleanNode(infoContainer);
-						infoContainer.appendChild(
-							BX.create('p', {
-								attrs: {
-									className: ''
-								},
-								text: text
-							})
-						);
-						if(download !== '')
-						{
-							infoContainer.appendChild(
-								BX.create('a', {
-									attrs: {
-										className: 'ui-btn ui-btn-lg ui-btn-primary start-btn',
-										href: download,
-										'data-slider-ignore-autobinding': 'true'
-									},
-									text: BX.message("REST_CONFIGURATION_DOWNLOAD_BTN")
-								})
-							);
-						}
-
-						if(this.errors.length !== 0)
-						{
-							infoContainer.appendChild(
-								BX.create('div', {
-									attrs: {
-										className: 'rest-configuration-links'
-									},
-									children: [
-										BX.create('a', {
-											attrs: {
-												'data-slider-ignore-autobinding': 'true',
-												href: ''
-											},
-											events: {
-												click: BX.delegate(this.openPopupErrors, this)
-											},
-											text: BX.message("REST_CONFIGURATION_EXPORT_ERRORS_REPORT_BTN")
-										})
-									]
-								})
-							);
-						}
+						console.log('ajax:',response);
 					},
 					this
 				)
 			);
+		},
+
+		showFinish: function(response)
+		{
+			var barContainer = BX.findChildByClassName( BX(this.id),'rest-configuration-start-icon-main');
+			var infoContainer = BX.findChildByClassName( BX(this.id),'rest-configuration-info');
+			BX.removeClass(barContainer,'rest-configuration-start-icon-main-zip rest-configuration-start-icon-main-loading');
+
+			var download = '';
+			if(!!response.data && !!response.data.download)
+			{
+				download = response.data.download;
+			}
+
+			var text = '';
+			if(this.errors.length === 0 && download !== '')
+			{
+				text = BX.message("REST_CONFIGURATION_EXPORT_FINISH_DESCRIPTION");
+				BX.addClass(barContainer,'rest-configuration-start-icon-main-success');
+			}
+			else
+			{
+				text = BX.message("REST_CONFIGURATION_EXPORT_FINISH_ERROR_DESCRIPTION");
+				BX.addClass(barContainer,'rest-configuration-start-icon-main-error');
+			}
+
+			BX.cleanNode(infoContainer);
+			infoContainer.appendChild(
+				BX.create('p', {
+					attrs: {
+						className: ''
+					},
+					text: text
+				})
+			);
+			if(download !== '')
+			{
+				infoContainer.appendChild(
+					BX.create('a', {
+						attrs: {
+							className: 'ui-btn ui-btn-lg ui-btn-primary start-btn',
+							href: download,
+							'data-slider-ignore-autobinding': 'true'
+						},
+						text: BX.message("REST_CONFIGURATION_DOWNLOAD_BTN")
+					})
+				);
+			}
+
+			if(this.errors.length !== 0)
+			{
+				infoContainer.appendChild(
+					BX.create('div', {
+						attrs: {
+							className: 'rest-configuration-links'
+						},
+						children: [
+							BX.create('a', {
+								attrs: {
+									'data-slider-ignore-autobinding': 'true',
+									href: ''
+								},
+								events: {
+									click: BX.delegate(this.openPopupErrors, this)
+								},
+								text: BX.message("REST_CONFIGURATION_EXPORT_ERRORS_REPORT_BTN")
+							})
+						]
+					})
+				);
+			}
 		},
 
 		sendAjax: function (action, data, callback)

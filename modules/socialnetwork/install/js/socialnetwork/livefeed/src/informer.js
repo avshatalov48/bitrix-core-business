@@ -267,7 +267,7 @@ class Informer
 		const top = this.wrap.parentNode.getBoundingClientRect().top;
 //		const counterRect = this.container.getBoundingClientRect();
 
-		if (top <= 0)
+		if (top <= 53)
 		{
 /*
 			if (!this.wrap.classList.contains(`${this.class.informerFixed}`))

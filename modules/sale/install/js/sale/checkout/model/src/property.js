@@ -1,7 +1,7 @@
-import {Vue} from 'ui.vue';
-import {VuexBuilderModel} from 'ui.vue.vuex';
-import {Type} from 'main.core';
-import {Property as Const} from 'sale.checkout.const';
+import { Vue } from 'ui.vue';
+import { VuexBuilderModel } from 'ui.vue.vuex';
+import { Type } from 'main.core';
+import { Property as Const } from 'sale.checkout.const';
 
 export class Property extends VuexBuilderModel
 {

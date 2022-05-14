@@ -45,6 +45,18 @@ abstract class DataProvider
 	public function prepareListFilterParam(array &$filter, $fieldID)
 	{
 	}
+
+	/**
+	 * Prepare ui filter value to be suitable for corresponding entity getList
+	 *
+	 * @param array $rawFilterValue
+	 * @return array
+	 */
+	public function prepareFilterValue(array $rawFilterValue): array
+	{
+		return $rawFilterValue;
+	}
+
 	/**
 	 * Create filter field.
 	 * @param string $fieldID Field ID.

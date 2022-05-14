@@ -865,7 +865,6 @@
 	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
-
 .feed-add-button-transparent {
 	background: none;
 	border: none;
@@ -899,6 +898,30 @@
 
 .feed-add-post-load .feed-add-button {
 	margin-top: 0;
+}
+
+.feed-buttons-block,
+.feed-add-post-content-message-add-ins,
+.feed-notice-block,
+.feed-add-post-bottom-alert {
+	opacity: 1;
+	transition: height 0.2s ease 0s, opacity 0.2s ease 0s, padding-top 0.2s ease 0s, padding-bottom 0.2s ease 0s;
+}
+
+.feed-notice-block,
+.feed-buttons-block {
+	overflow: hidden;
+}
+
+.feed-buttons-block.feed-post-form-block-hidden,
+.feed-add-post-content-message-add-ins.feed-post-form-block-hidden,
+.feed-notice-block.feed-post-form-block-hidden,
+.feed-add-post-bottom-alert .feed-post-form-block-hidden {
+	padding-top: 0;
+	padding-bottom: 0;
+	display: none;
+	height: 0;
+	opacity: 0;
 }
 
 .feed-new-message-informer-anim {
@@ -944,15 +967,9 @@
 
 .feed-new-message-informer-fixed.new-message-balloon-wrap {
 	position: fixed;
+	left: auto;
 	top: 8px;
-	left: 0;
-	/*height: 0;*/
-	width: 100%;
-	-webkit-transition: height 0.3s linear 0s;
 	transition: height 0.3s linear 0s;
-	-webkit-transform: translateZ(0);
-	transform: translateZ(0);
-	/*overflow: hidden;*/
 	z-index: 200;
 }
 
@@ -1210,9 +1227,13 @@
 	font-size: 14px;
 	line-height: 16px;
 	min-height: 23px;
-	padding: 0 45px 4px 0;
+	padding: 0 55px 4px 0;
 	z-index: 11;
 	display: inline-block;
+}
+
+.feed-post-title-block.--can-edit {
+	padding-right: 75px;
 }
 
 .feed-post-block-pinned .feed-post-title-block,
@@ -3738,14 +3759,6 @@ table.quote {
 
 table.quote td {
 	padding: 0.95em 1.5em;
-}
-
-.feed-notice-block,
-.feed-buttons-block {
-	height: 0;
-	opacity: 0;
-	overflow: hidden;
-	transition: height 0.2s ease 0s, opacity 0.2s ease 0s;
 }
 
 .feed-entry-popup-menu input {

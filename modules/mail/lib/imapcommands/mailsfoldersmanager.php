@@ -240,63 +240,6 @@ class MailsFoldersManager extends SyncInternalManager
 		$folderCurrentName = base64_decode($folderCurrentNameEncoded);
 		$count = $this->mailboxHelper->syncDir($folderCurrentName);
 
-		// @TODO: make a log optional
-		/*$messagesForRemove = Mail\MailMessageUidTable::getList([
-			 'runtime' => [
-				 new Main\ORM\Fields\Relations\Reference(
-					 'B_MAIL_MESSAGE', Mail\MailMessageTable::class, [
-					 '=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
-					 '=this.MESSAGE_ID' => 'ref.ID',
-				 ], [
-						 'join_type' => 'INNER',
-					 ]
-				 ),
-			 ],
-			 'select' => [
-				 'MESSAGE_ID',
-				 'MAILBOX_ID',
-				 'DIR_MD5',
-				 'DIR_UIDV',
-				 'MSG_UID',
-				 'INTERNALDATE',
-				 'HEADER_MD5',
-				 'SESSION_ID',
-				 'TIMESTAMP_X',
-				 'DATE_INSERT',
-				 'B_MAIL_MESSAGE.DATE_INSERT',
-				 'B_MAIL_MESSAGE.FIELD_DATE',
-				 'B_MAIL_MESSAGE.FIELD_FROM',
-				 'B_MAIL_MESSAGE.SUBJECT',
-				 'B_MAIL_MESSAGE.MSG_ID',
-			 ],
-			 'filter' => [
-				 '=MAILBOX_ID' => $this->mailboxId,
-				 '=DIR_MD5' => md5($folderCurrentName),
-				 '=MSG_UID' => 0,
-			 ],
-		 ])->fetchAll();
-
-		for($i=0; $i < count($messagesForRemove); $i++)
-		{
-			foreach ($messagesForRemove[$i] as $key => $value)
-			{
-				if ($messagesForRemove[$i][$key] instanceof \Bitrix\Main\Type\DateTime)
-				{
-					$messagesForRemove[$i][$key] = $messagesForRemove[$i][$key]->toString();
-				}
-			}
-		}
-
-		if(count($messagesForRemove)>0)
-		{
-			$toLog = [
-				'cause'=>'processSyncMovedMessages',
-				'filter'=>'MSG_UID = 0',
-				'removedMessages'=>$messagesForRemove,
-			];
-			AddMessage2Log($toLog);
-		}*/
-
 		Mail\MailMessageUidTable::deleteList(
 			[
 				'=MAILBOX_ID' => $this->mailboxId,

@@ -21,7 +21,7 @@ CJSCore::RegisterExt('bp_user_selector', array(
 	'js' => '/bitrix/js/bizproc/user_selector.js',
 	//'css' => '/bitrix/js/bizproc/css/starter.css',
 	'lang' => '/bitrix/modules/bizproc/lang/'.LANGUAGE_ID.'/install/js/user_selector.php',
-	'rel' => ['core', 'popup', 'socnetlogdest', 'bp_field_type'],
+	'rel' => ['core', 'popup', 'socnetlogdest', 'bp_field_type', 'ui.entity-selector'],
 ));
 
 CJSCore::RegisterExt('bp_field_type', array(

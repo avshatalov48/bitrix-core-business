@@ -3424,10 +3424,16 @@ function AddMessage2Log($text, $module = '', $traceDepth = 6, $showArgs = false)
 		$formatter = new Main\Diag\LogFormatter($showArgs);
 		$logger->setFormatter($formatter);
 
+		$trace = '';
+		if ($traceDepth > 0)
+		{
+			$trace = Main\Diag\Helper::getBackTrace($traceDepth, ($showArgs ? null : DEBUG_BACKTRACE_IGNORE_ARGS), 2);
+		}
+
 		$context = [
 			'module' => $module,
 			'message' => $text,
-			'trace' => Main\Diag\Helper::getBackTrace($traceDepth, ($showArgs ? null : DEBUG_BACKTRACE_IGNORE_ARGS), 2),
+			'trace' => $trace,
 		];
 
 		$message = "Host: {host}\n"
@@ -6048,7 +6054,14 @@ function bxmail($to, $subject, $message, $additional_headers="", $additional_par
 	$event->send();
 
 	$defaultMailConfiguration = Configuration::getValue("smtp");
-	if ($defaultMailConfiguration && $defaultMailConfiguration['enabled'] && $context->getSmtp())
+	if (
+		$defaultMailConfiguration
+		&& $defaultMailConfiguration['enabled']
+		&& $context->getSmtp()
+		|| $defaultMailConfiguration['enabled']
+		&& $defaultMailConfiguration['host']
+		&& $defaultMailConfiguration['login']
+	)
 	{
 		$mailer = Main\Mail\Smtp\Mailer::getInstance($context);
 		return $mailer->sendMailBySmtp($to, $subject, $message, $additional_headers, $additional_parameters);

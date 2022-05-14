@@ -3,6 +3,7 @@ namespace Bitrix\Catalog;
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
 
 Loc::loadMessages(__FILE__);
 
@@ -60,7 +61,7 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Catalog\EO_Product_Collection wakeUpCollection($rows)
  */
 
-class ProductTable extends Main\Entity\DataManager
+class ProductTable extends DataManager
 {
 	const USER_FIELD_ENTITY_ID = 'PRODUCT';
 

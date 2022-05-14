@@ -105,6 +105,18 @@ BitrixVue.component('sale-checkout-form', {
 				status: this.$store.getters['basket/getStatus']
 			}
 		},
+		getPaySystem()
+		{
+			return this.$store.getters['pay-system/getPaySystem']
+		},
+		getCheck()
+		{
+			return this.$store.getters['check/getCheck']
+		},
+		getPayment()
+		{
+			return this.$store.getters['payment/getPayment']
+		},
 		getPaymentConfig()
 		{
 			return {
@@ -159,6 +171,7 @@ BitrixVue.component('sale-checkout-form', {
 			<template v-if="getStage === stage.edit">
 			  <sale-checkout-view-product :items="getBasket" :total="getTotal" :mode="mode.edit" :errors="getBasketErrors" :config="getBasketConfig"/>
 			  <sale-checkout-view-property :items="getProperty" :mode="mode.edit" :errors="getPropertyErrors"/>
+			  <sale-checkout-view-alert-list :errors="getErrors"/>
 			  <sale-checkout-view-user_consent :item="getConsent" v-if="needCheckConsent"/>
 			  <template v-if="checkoutButtonEnabled">
 				<sale-checkout-view-element-button-checkout :title="getTitleCheckoutButton.title" :wait="getStatus === status.wait"/>
@@ -166,7 +179,6 @@ BitrixVue.component('sale-checkout-form', {
 			  <template v-else>
 				<sale-checkout-view-element-button-checkout_disabled :title="getTitleCheckoutButton.title"/>
 			  </template>
-			  <sale-checkout-view-alert-list :errors="getErrors"/>
 			</template>
 			<template v-else-if="getStage === stage.success">
 			  <template v-if="hasPS">
@@ -183,7 +195,7 @@ BitrixVue.component('sale-checkout-form', {
 			  <sale-checkout-view-product :items="getBasket" :total="getTotal" :mode="mode.view" :errors="getBasketErrors" :config="getBasketConfig"/>
 			  <sale-checkout-view-property :items="getProperty" :mode="mode.view" :order="getOrder"/>
 			  <sale-checkout-view-product-summary :total="getTotal" :mode="mode.view"/>
-			  <sale-checkout-view-payment :order="getOrder" :config="getPaymentConfig"/>
+              <sale-checkout-view-payment :order="getOrder" :payments="getPayment" :paySystems="getPaySystem" :check="getCheck" :config="getPaymentConfig"/>
 			</template>
 			<template v-else-if="getStage === stage.empty">
 			  <sale-checkout-view-empty_cart :config="getEmptyCartConfig"/>

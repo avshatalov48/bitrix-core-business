@@ -8,7 +8,9 @@ class CatalogWarehouseMasterClear
 	{
 		return ajax.runAction(
 			'catalog.config.inventoryManagementYAndResetQuantity',
-			{}
+			{
+				analyticsLabel: 'inventoryManagementEnabled'
+			}
 		)
 	}
 	inventoryManagementDisabled()

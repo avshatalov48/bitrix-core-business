@@ -1360,7 +1360,8 @@ input.ui-entity-editor-header-title-text {
 }
 
 .ui-entity-editor-popup-create-field-list {
-	overflow: auto;
+	overflow-y: auto;
+	overflow-x: hidden;
 	padding: 10px;
 	max-width: 500px;
 	min-width: 250px;

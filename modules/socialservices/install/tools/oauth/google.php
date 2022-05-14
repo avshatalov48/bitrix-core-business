@@ -18,7 +18,7 @@ if(isset($_REQUEST["state"]) && is_string($_REQUEST["state"]))
 		define("SITE_ID", $site);
 	}
 
-	if(isset($arState['provider']) && $arState['provider'] == 'GooglePlusOAuth')
+	if(isset($arState['provider']) && $arState['provider'] === 'GooglePlusOAuth')
 	{
 		$provider = 'GooglePlusOAuth';
 	}
@@ -26,13 +26,16 @@ if(isset($_REQUEST["state"]) && is_string($_REQUEST["state"]))
 
 define('SOCSERV_CURRENT_PROVIDER', $provider);
 
-require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_before.php");
+require_once($_SERVER['DOCUMENT_ROOT'] . "/bitrix/modules/main/include/prolog_before.php");
 
-if(CModule::IncludeModule("socialservices"))
+if(Bitrix\Main\Loader::includeModule("socialservices"))
 {
-	$oAuthManager = new CSocServAuthManager();
+	$oAuthManager = CSocServGoogleProxyOAuth::isProxyAuth()
+			? new CSocServGoogleProxyOAuth()
+			: new CSocServAuthManager()
+	;
 	$oAuthManager->Authorize(SOCSERV_CURRENT_PROVIDER);
 }
 
-require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/epilog_after.php");
+require_once($_SERVER['DOCUMENT_ROOT'] . "/bitrix/modules/main/include/epilog_after.php");
 ?>

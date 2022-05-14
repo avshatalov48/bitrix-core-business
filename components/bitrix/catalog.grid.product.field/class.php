@@ -10,6 +10,7 @@ use Bitrix\Main\Errorable;
 use Bitrix\Main\ErrorableImplementation;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Web\Json;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -260,14 +261,24 @@ class CatalogGridProductFieldComponent
 
 	private function loadSkuTree(): array
 	{
-		if (isset($this->arParams['~SKU_TREE']) && is_array($this->arParams['~SKU_TREE']))
+		if (!empty($this->arParams['~SKU_TREE']) || !empty($this->arParams['SKU_TREE']))
 		{
-			return $this->arParams['~SKU_TREE'];
-		}
+			$paramSkuValue =
+				!empty($this->arParams['~SKU_TREE'])
+					? $this->arParams['~SKU_TREE']
+					: $this->arParams['SKU_TREE']
+			;
 
-		if (isset($this->arParams['SKU_TREE']) && is_array($this->arParams['SKU_TREE']))
-		{
-			return $this->arParams['SKU_TREE'];
+			if (is_array($paramSkuValue))
+			{
+				return $paramSkuValue;
+			}
+
+			$decodedValue = Json::decode($paramSkuValue);
+			if (is_array($decodedValue))
+			{
+				return $decodedValue;
+			}
 		}
 
 		if (!$this->arParams['USE_SKU_TREE'])

@@ -192,3 +192,11 @@ create table b_calendar_location
   PRIMARY KEY(ID),
   INDEX ix_location_section(SECTION_ID)
 );
+
+create table `b_calendar_log`
+(
+  ID int not null auto_increment,
+  TIMESTAMP_X TIMESTAMP NOT NULL DEFAULT current_timestamp,
+  MESSAGE TEXT NULL,
+  PRIMARY KEY(ID)
+)

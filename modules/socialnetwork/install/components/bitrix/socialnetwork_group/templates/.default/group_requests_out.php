@@ -5,8 +5,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use Bitrix\Socialnetwork\ComponentHelper;
-
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -40,29 +38,15 @@ $componentParameters = [
 	"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 	"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 	"CACHE_TIME" => $arParams["CACHE_TIME"],
-	'MODE' => 'OUT', // REQUESTS_OUT
-	'FILTER_ID' => 'SOCIALNETWORK_WORKGROUP_REQUESTS_OUT_LIST',
-
+	'MODE' => 'REQUESTS_OUT',
+	'FILTER_ID' => 'SOCIALNETWORK_WORKGROUP_USER_LIST',
 ];
-/*
-$APPLICATION->IncludeComponent(
-	'bitrix:socialnetwork.group.card.menu',
-	'',
-	[
-		'GROUP_ID' => $arResult['VARIABLES']['group_id'],
-		'TAB' => 'requests-out',
-		'URLS' => ComponentHelper::getWorkgroupSliderMenuUrlList($arResult),
-		'SIGNED_PARAMETERS' => ComponentHelper::listWorkgroupSliderMenuSignedParameters($componentParameters),
-	]
-);
-*/
-// todo: bitrix:socialnetwork.group.user.list
 
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
 	'',
 	[
-		'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.group_requests.ex',
+		'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.group.user.list',
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => $componentParameters,
 		'USE_UI_TOOLBAR' => 'Y',

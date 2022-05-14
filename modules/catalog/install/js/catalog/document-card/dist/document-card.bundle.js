@@ -753,7 +753,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	          dialog.hide();
 	          resolve();
-	        }).catch(function () {
+	        })["catch"](function () {
 	          dialog.hideLoader();
 	          BX.UI.Notification.Center.notify({
 	            content: main_core.Loc.getMessage('DOCUMENT_ADD_CONTRACTOR_ERROR')
@@ -944,8 +944,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	            if (slider.getData().get('isInventoryManagementEnabled')) {
 	              card.isConductLocked = false;
-	              var sliders = BX.SidePanel.Instance.getOpenSliders();
-	              sliders.forEach(function (slider) {
+	              BX.SidePanel.Instance.getOpenSliders().forEach(function (slider) {
 	                var _slider$getWindow, _slider$getWindow$BX$;
 
 	                if ((_slider$getWindow = slider.getWindow()) !== null && _slider$getWindow !== void 0 && (_slider$getWindow$BX$ = _slider$getWindow.BX.Catalog) !== null && _slider$getWindow$BX$ !== void 0 && _slider$getWindow$BX$.DocumentGridManager) {
@@ -1139,6 +1138,14 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      main_core_events.EventEmitter.subscribe('onEntityCreate', function (event) {
 	        var _event$data$3;
 
+	        window.top.BX.onCustomEvent('DocumentCard:onEntityCreate');
+	        BX.SidePanel.Instance.getOpenSliders().forEach(function (slider) {
+	          var _slider$getWindow2, _slider$getWindow2$BX;
+
+	          if ((_slider$getWindow2 = slider.getWindow()) !== null && _slider$getWindow2 !== void 0 && (_slider$getWindow2$BX = _slider$getWindow2.BX.Catalog) !== null && _slider$getWindow2$BX !== void 0 && _slider$getWindow2$BX.DocumentGridManager) {
+	            slider.getWindow().BX.onCustomEvent('DocumentCard:onEntityCreate');
+	          }
+	        });
 	        var editor = event === null || event === void 0 ? void 0 : (_event$data$3 = event.data[0]) === null || _event$data$3 === void 0 ? void 0 : _event$data$3.sender;
 
 	        if (editor) {
@@ -1156,6 +1163,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      main_core_events.EventEmitter.subscribe('beforeEntityRedirect', function (event) {
 	        var _event$data$4;
 
+	        window.top.BX.onCustomEvent('DocumentCard:onBeforeEntityRedirect');
+	        BX.SidePanel.Instance.getOpenSliders().forEach(function (slider) {
+	          slider.getWindow().BX.onCustomEvent('DocumentCard:onBeforeEntityRedirect');
+	        });
 	        var editor = event === null || event === void 0 ? void 0 : (_event$data$4 = event.data[0]) === null || _event$data$4 === void 0 ? void 0 : _event$data$4.sender;
 
 	        if (editor) {

@@ -94,6 +94,42 @@ export default class PostForm
 			this.containerMicro = Type.isDomNode(params.containerMicro) ? params.containerMicro : null;
 			this.containerMicroInner = Type.isDomNode(params.containerMicroInner) ? params.containerMicroInner : null;
 			this.successPostId = !Type.isUndefined(params.successPostId) && parseInt(params.successPostId) > 0 ? parseInt(params.successPostId) : 0;
+
+			//region dnd
+			if (this.containerMicro)
+			{
+				this.containerMicro.setAttribute('dropzone', 'copy f:*\/*');
+
+				let timerListenEnter = 0;
+				const stopListenEnter = (event) => {
+					if (timerListenEnter > 0)
+					{
+						clearTimeout(timerListenEnter);
+						timerListenEnter = 0;
+					}
+					event.stopPropagation();
+					event.preventDefault();
+				};
+				const fireDragEnter = (event) => {
+					stopListenEnter(event);
+					this.containerMicro.click();
+				};
+				const startListenEnter = (event) => {
+					if (timerListenEnter <= 0)
+					{
+						timerListenEnter = setTimeout(() => { fireDragEnter(event); }, 3000);
+					}
+					event.stopPropagation();
+					event.preventDefault();
+				};
+
+				this.containerMicro.addEventListener('dragover', startListenEnter);
+				this.containerMicro.addEventListener('dragenter', startListenEnter);
+				this.containerMicro.addEventListener('dragleave', stopListenEnter);
+				this.containerMicro.addEventListener('dragexit', stopListenEnter);
+				this.containerMicro.addEventListener('drop', stopListenEnter);
+			}
+			//region
 		}
 
 		const sliderInstance = BX.SidePanel.Instance.getTopSlider();

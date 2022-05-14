@@ -3,15 +3,10 @@ import Editor from '../editor';
 export default function showPanelEditor(editor: Editor, htmlEditor, editorParams)
 {
 	let save = false;
-	if (editorParams.pinEditorPanel === true || editorParams.showPanelEditor === true)
-	{
-		editorParams.showPanelEditor = true;
-	}
-	else if (editorParams.showPanelEditor === false)
-	{
-		editorParams.showPanelEditor = false;
-	}
-	else
+	if (
+		editorParams.showPanelEditor !== true
+		&& editorParams.showPanelEditor !== false
+	)
 	{
 		editorParams.showPanelEditor = !htmlEditor.toolbar.IsShown();
 		save = true;

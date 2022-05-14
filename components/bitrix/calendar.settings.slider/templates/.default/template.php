@@ -38,6 +38,7 @@ $showPersonalTitle = $showGeneralSettings && $isPersonal;
 				<?if($showPersonalTitle):?>
 				<div class="calendar-settings-title"><?= Loc::getMessage('EC_SET_TAB_PERSONAL')?></div>
 				<?endif;?>
+				<?if (\CTimeZone::optionEnabled()):?>
 				<div class="calendar-settings-control">
 					<div class="calendar-settings-control-name"><?=Loc::getMessage('EC_TIMEZONE')?></div>
 					<div class="calendar-field-container calendar-field-container-select">
@@ -51,6 +52,7 @@ $showPersonalTitle = $showGeneralSettings && $isPersonal;
 						</div>
 					</div>
 				</div>
+				<?endif;?>
 				<div class="calendar-settings-control">
 					<div class="calendar-settings-control-name"><?=Loc::getMessage('EC_ADV_MEETING_CAL')?></div>
 					<div class="calendar-field-container calendar-field-container-select">

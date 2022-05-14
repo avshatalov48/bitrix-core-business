@@ -17,6 +17,8 @@
 		this.menuId = null;
 		this.menu = null;
 		this.menuItems = null;
+		this.multiple = null;
+		this.emptyText = null;
 		this.dataItems = 'items';
 		this.dataValue = 'value';
 		this.dataPseudo = 'pseudo';
@@ -30,13 +32,15 @@
 	};
 
 	BX.Main.dropdown.prototype = {
-		init: function(dropdown)
+		init(dropdown)
 		{
 			this.id = dropdown.id;
 			this.dropdown = dropdown;
 			this.items = this.getItems();
 			this.value = this.getValue();
 			this.menuId = this.getMenuId();
+			this.multiple = this.getMultiple();
+			this.emptyText = this.getEmptyText();
 			this.menu = this.createMenu();
 			this.menu.popupWindow.show();
 			this.adjustPosition();
@@ -44,17 +48,17 @@
 			BX.bind(this.dropdown, 'click', BX.delegate(this.showMenu, this));
 		},
 
-		getMenuId: function()
+		getMenuId()
 		{
 			return this.id + '_menu';
 		},
 
-		getItems: function()
+		getItems()
 		{
-			var result;
+			let result;
 
 			try {
-				var str = BX.data(this.dropdown, this.dataItems);
+				const str = BX.data(this.dropdown, this.dataItems);
 				result = eval(str);
 			} catch (err) {
 				result = [];
@@ -63,20 +67,96 @@
 			return result;
 		},
 
-		getValue: function()
+		// single
+		getValue()
 		{
 			return BX.data(this.dropdown, this.dataValue);
 		},
 
-		prepareMenuItems: function()
+		getValueItem()
 		{
-			var self = this;
-			var attrs, subItem;
-			var currentValue = this.getValue();
+			const value = this.getValue();
+			return this.getItems().find((item) => item.VALUE === value);
+		},
+
+		// multiple
+		getValueAsArray()
+		{
+			let value = this.getValue();
+			if (value === undefined)
+			{
+				value = '';
+			}
+			return value.toString().split(',').filter((i) => i !== '');
+		},
+
+		getValueItems()
+		{
+			const values = this.getValueAsArray();
+			return this.getItems().filter((item) => values.includes(item.VALUE));
+		},
+
+		toggleValue(value)
+		{
+			if (this.multiple)
+			{
+				if (value || value === 0 || value === '0')
+				{
+					const values = this.getValueAsArray();
+					const index = values.indexOf(value);
+
+					if (index < 0)
+					{
+						values.push(value);
+					}
+					else
+					{
+						values.splice(index, 1);
+					}
+
+					this.dropdown.dataset[this.dataValue] = values.join(',');
+				}
+				else
+				{
+					this.dropdown.dataset[this.dataValue] = null;
+				}
+			}
+			else
+			{
+				this.dropdown.dataset[this.dataValue] = value;
+			}
+		},
+
+		getValueText()
+		{
+			if (this.multiple)
+			{
+				return this.getValueItems().map((item) => item.NAME).filter((i) => !!i).join(", ") || this.emptyText;
+			}
+
+			const item = this.getValueItem();
+			return item ? item.NAME : this.emptyText;
+		},
+
+		getMultiple()
+		{
+			return this.dropdown.dataset.multiple === 'Y';
+		},
+
+		getEmptyText()
+		{
+			return this.dropdown.dataset.emptyText || null;
+		},
+
+		prepareMenuItems()
+		{
+			const self = this;
+			let attrs, subItem;
+			const currentValue = this.multiple ? this.getValueAsArray() : this.getValue();
 
 			function prepareItems(items)
 			{
-				var isHtmlEntity = self.dropdown.dataset['htmlEntity'] === 'true';
+				const isHtmlEntity = self.dropdown.dataset['htmlEntity'] === 'true';
 				return items.map(function(item) {
 					attrs = {};
 					attrs['data-'+self.dataValue] = item.VALUE;
@@ -93,9 +173,14 @@
 						})
 					]});
 
+					const selected =
+						self.multiple
+						? currentValue.includes(item.VALUE)
+						: currentValue === item.VALUE
+					;
 					return {
 						html: subItem.innerHTML,
-						className: currentValue === item.VALUE ? self.selectedClass : self.notSelectedClass,
+						className: selected ? self.selectedClass : self.notSelectedClass,
 						delimiter: item.DELIMITER,
 						items: 'ITEMS' in item ? prepareItems(item.ITEMS) : null
 					};
@@ -107,9 +192,9 @@
 			return items;
 		},
 
-		createMenu: function()
+		createMenu()
 		{
-			var self = this;
+			const self = this;
 
 			return BX.PopupMenu.create(
 				this.getMenuId(),
@@ -126,7 +211,7 @@
 					},
 					'events': {
 						'onPopupClose': BX.delegate(this._onCloseMenu, this),
-						'onPopupShow': function() {
+						'onPopupShow'() {
 							self._onShowMenu();
 						}
 					}
@@ -134,7 +219,7 @@
 			);
 		},
 
-		showMenu: function()
+		showMenu()
 		{
 			this.menu = BX.PopupMenu.getMenuById(this.menuId);
 
@@ -147,7 +232,7 @@
 			this.adjustPosition();
 		},
 
-		adjustPosition: function()
+		adjustPosition()
 		{
 			if (this.dropdown.dataset.popupPosition === 'fixed')
 			{
@@ -161,28 +246,49 @@
 			}
 		},
 
-		getSubItem: function(node)
+		getSubItem(node)
 		{
 			return BX.Grid.Utils.getByClass(node, this.dropdownItemClass, true);
 		},
 
-		refresh: function(item)
+		refresh(item)
 		{
-			var subItem = this.getSubItem(item);
-			var value = BX.data(subItem, this.dataValue);
+			const subItem = this.getSubItem(item);
+			let value = BX.data(subItem, this.dataValue);
 			if (BX.Type.isUndefined(value))
 			{
 				value = '';
 			}
-			BX.firstChild(this.dropdown).innerText = subItem.innerText;
-			this.dropdown.dataset[this.dataValue] = value;
+
+			this.toggleValue(value);
+			BX.firstChild(this.dropdown).innerText = this.getValueText();
 		},
 
-		selectItem: function(node)
+		selectItem(node)
 		{
-			var self = this;
+			const self = this;
 
 			(this.menu.menuItems || []).forEach(function(current) {
+				// multiple
+				if (self.multiple)
+				{
+					if (node === current.layout.item)
+					{
+						if (BX.hasClass(node, self.selectedClass))
+						{
+							BX.addClass(current.layout.item, self.notSelectedClass);
+							BX.removeClass(current.layout.item, self.selectedClass);
+						}
+						else
+						{
+							BX.removeClass(current.layout.item, self.notSelectedClass);
+							BX.addClass(current.layout.item, self.selectedClass);
+						}
+					}
+					return;
+				}
+
+				// single
 				BX.removeClass(current.layout.item, self.selectedClass);
 
 				if (node !== current.layout.item)
@@ -192,20 +298,19 @@
 				else
 				{
 					BX.removeClass(current.layout.item, self.notSelectedClass);
+					BX.addClass(current.layout.item, self.selectedClass);
 				}
 			});
-
-			BX.addClass(node, this.selectedClass);
 		},
 
-		lockedItem: function(node) {
+		lockedItem(node) {
 
 			BX.addClass(node, this.lockedClass);
 		},
 
-		getDataItemIndexByValue: function(items, value)
+		getDataItemIndexByValue(items, value)
 		{
-			var result;
+			let result;
 
 			if (BX.type.isArray(items))
 			{
@@ -221,18 +326,18 @@
 			return false;
 		},
 
-		getDataItemByValue: function(value)
+		getDataItemByValue(value)
 		{
-			var result = this.getItems().filter(function(current) {
+			const result = this.getItems().filter(function(current) {
 				return current.VALUE === value;
 			});
 
 			return result.length > 0 ? result[0] : null;
 		},
 
-		_onShowMenu: function()
+		_onShowMenu()
 		{
-			var self = this;
+			const self = this;
 
 			BX.addClass(this.dropdown, this.activeClass);
 			(this.menu.menuItems || []).forEach(function(current) {
@@ -240,24 +345,29 @@
 			});
 		},
 
-		_onCloseMenu: function()
+		_onCloseMenu()
 		{
 			BX.removeClass(this.dropdown, this.activeClass);
 			BX.PopupMenu.destroy(this.menuId);
 		},
 
-		_onItemClick: function(event)
+		_onItemClick(event)
 		{
-			var item = this.getMenuItem(event.target);
-			var value, dataItem;
-			var subItem = this.getSubItem(item);
-			var isPseudo = BX.data(subItem, 'pseudo');
+			const item = this.getMenuItem(event.target);
+			let value, dataItem;
+			const subItem = this.getSubItem(item);
+			const isPseudo = BX.data(subItem, 'pseudo');
 
 			if (!(isPseudo === 'true'))
 			{
 				this.refresh(item);
 				this.selectItem(item);
-				this.menu.popupWindow.close();
+
+				if (!this.multiple)
+				{
+					this.menu.popupWindow.close();
+				}
+
 				value = this.getValue();
 				dataItem = this.getDataItemByValue(value);
 			}
@@ -272,9 +382,9 @@
 			BX.onCustomEvent(window, 'Dropdown::change', [this.dropdown.id, event, item, dataItem, value]);
 		},
 
-		getMenuItem: function(node)
+		getMenuItem(node)
 		{
-			var item = node;
+			let item = node;
 
 			if (!BX.hasClass(item, this.menuItemClass))
 			{

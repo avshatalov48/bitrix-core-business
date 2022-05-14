@@ -4,7 +4,8 @@ namespace Bitrix\Sale\Internals\Analytics;
 use Bitrix\Main\SystemException,
 	Bitrix\Sale\PaySystem,
 	Bitrix\Sale\Cashbox,
-	Bitrix\Sale\Delivery;
+	Bitrix\Sale\Delivery,
+	Bitrix\Sale\Internals\Analytics\Events;
 
 /**
  * Class Factory
@@ -40,6 +41,7 @@ final class Factory
 			PaySystem\Internals\Analytics\Provider::class,
 			Cashbox\Internals\Analytics\Provider::class,
 			Delivery\Internals\Analytics\Provider::class,
+			Events\Provider::class,
 		];
 
 		/** @var Provider $knownClass */

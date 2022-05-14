@@ -132,6 +132,11 @@ class Template
 		return isset($this->template['ID']) ? (int)$this->template['ID'] : 0;
 	}
 
+	public function getParameters(): array
+	{
+		return $this->template['PARAMETERS'] ?? [];
+	}
+
 	public function getRobotSettingsDialog(array $robot, $request = null)
 	{
 		if (isset($robot['Properties']) && is_array($robot['Properties']))

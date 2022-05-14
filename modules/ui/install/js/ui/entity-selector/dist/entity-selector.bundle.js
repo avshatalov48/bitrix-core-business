@@ -4713,7 +4713,7 @@ this.BX.UI = this.BX.UI || {};
 	  return TagItem;
 	}();
 
-	var _templateObject$5, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$2, _templateObject6$1;
+	var _templateObject$5, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$2, _templateObject6$1, _templateObject7;
 
 	/**
 	 * @memberof BX.UI.EntitySelector
@@ -5058,7 +5058,7 @@ this.BX.UI = this.BX.UI || {};
 	      });
 
 	      if (main_core.Type.isDomNode(node)) {
-	        node.appendChild(this.getOuterContainer());
+	        main_core.Dom.append(this.getOuterContainer(), node);
 	      }
 	    }
 	  }, {
@@ -5348,9 +5348,18 @@ this.BX.UI = this.BX.UI || {};
 	      var _this11 = this;
 
 	      return this.cache.remember('add-button', function () {
-	        var caption = main_core.Text.encode(_this11.getActualButtonCaption());
 	        var className = _this11.addButtonVisible ? '' : ' ui-tag-selector-item-hidden';
-	        return main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tag-selector-item ui-tag-selector-add-button", "\">\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"ui-tag-selector-add-button-caption\" \n\t\t\t\t\t\tonclick=\"", "\">", "</span>\n\t\t\t\t</span>\n\t\t\t"])), className, _this11.handleAddButtonClick.bind(_this11), caption);
+	        return main_core.Tag.render(_templateObject5$2 || (_templateObject5$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tag-selector-item ui-tag-selector-add-button", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), className, _this11.getAddButtonLink());
+	      });
+	    }
+	  }, {
+	    key: "getAddButtonLink",
+	    value: function getAddButtonLink() {
+	      var _this12 = this;
+
+	      return this.cache.remember('add-button-link', function () {
+	        var caption = main_core.Text.encode(_this12.getActualButtonCaption());
+	        return main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"ui-tag-selector-add-button-caption\" \n\t\t\t\t\tonclick=\"", "\">", "</span>\n\t\t\t"])), _this12.handleAddButtonClick.bind(_this12), caption);
 	      });
 	    }
 	  }, {
@@ -5392,7 +5401,7 @@ this.BX.UI = this.BX.UI || {};
 	        return;
 	      }
 
-	      this.getAddButton().children[0].textContent = this.getActualButtonCaption();
+	      this.getAddButtonLink().textContent = this.getActualButtonCaption();
 	    }
 	  }, {
 	    key: "getActualButtonCaption",
@@ -5414,11 +5423,11 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getCreateButton",
 	    value: function getCreateButton() {
-	      var _this12 = this;
+	      var _this13 = this;
 
 	      return this.cache.remember('create-button', function () {
-	        var className = _this12.createButtonVisible ? '' : ' ui-tag-selector-item-hidden';
-	        return main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-create-button", "\">\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"ui-tag-selector-create-button-caption\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>", "</span>\n\t\t\t\t</div>\n\t\t\t"])), className, _this12.handleCreateButtonClick.bind(_this12), main_core.Text.encode(_this12.getCreateButtonCaption()));
+	        var className = _this13.createButtonVisible ? '' : ' ui-tag-selector-item-hidden';
+	        return main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-create-button", "\">\n\t\t\t\t\t<span \n\t\t\t\t\t\tclass=\"ui-tag-selector-create-button-caption\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>", "</span>\n\t\t\t\t</div>\n\t\t\t"])), className, _this13.handleCreateButtonClick.bind(_this13), main_core.Text.encode(_this13.getCreateButtonCaption()));
 	      });
 	    }
 	  }, {
@@ -7140,6 +7149,16 @@ this.BX.UI = this.BX.UI || {};
 	    key: "search",
 	    value: function search(queryString) {
 	      var query = main_core.Type.isStringFilled(queryString) ? queryString.trim() : '';
+	      var event = new main_core_events.BaseEvent({
+	        data: {
+	          query: query
+	        }
+	      });
+	      this.emit('onBeforeSearch', event);
+
+	      if (event.isDefaultPrevented()) {
+	        return;
+	      }
 
 	      if (!main_core.Type.isStringFilled(query)) {
 	        this.selectFirstTab();
@@ -8286,9 +8305,29 @@ this.BX.UI = this.BX.UI || {};
 	      return this.frozen;
 	    }
 	  }, {
+	    key: "hasRecentItems",
+	    value: function hasRecentItems() {
+	      var _this12 = this;
+
+	      return new Promise(function (resolve, reject) {
+	        main_core.ajax.runAction('ui.entityselector.load', {
+	          json: {
+	            dialog: _this12.getAjaxJson()
+	          },
+	          getParameters: {
+	            context: _this12.getContext()
+	          }
+	        }).then(function (response) {
+	          resolve(response.data && response.data.dialog && main_core.Type.isArrayFilled(response.data.dialog.recentItems));
+	        })["catch"](function (error) {
+	          reject(error);
+	        });
+	      });
+	    }
+	  }, {
 	    key: "load",
 	    value: function load() {
-	      var _this12 = this;
+	      var _this13 = this;
 
 	      if (this.loadState !== LoadState.UNSENT || !this.hasDynamicLoad()) {
 	        return;
@@ -8299,8 +8338,8 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      setTimeout(function () {
-	        if (_this12.isLoading()) {
-	          _this12.showLoader();
+	        if (_this13.isLoading()) {
+	          _this13.showLoader();
 	        }
 	      }, 400);
 	      this.loadState = LoadState.LOADING;
@@ -8313,20 +8352,20 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      }).then(function (response) {
 	        if (response && response.data && main_core.Type.isPlainObject(response.data.dialog)) {
-	          _this12.loadState = LoadState.DONE;
+	          _this13.loadState = LoadState.DONE;
 	          var entities = main_core.Type.isArrayFilled(response.data.dialog.entities) ? response.data.dialog.entities : [];
 	          entities.forEach(function (entityOptions) {
-	            var entity = _this12.getEntity(entityOptions.id);
+	            var entity = _this13.getEntity(entityOptions.id);
 
 	            if (entity) {
 	              entity.setDynamicSearch(entityOptions.dynamicSearch);
 	            }
 	          });
 
-	          _this12.setOptions(response.data.dialog);
+	          _this13.setOptions(response.data.dialog);
 
-	          _this12.getPreselectedItems().forEach(function (preselectedItem) {
-	            var item = _this12.getItem(preselectedItem);
+	          _this13.getPreselectedItems().forEach(function (preselectedItem) {
+	            var item = _this13.getItem(preselectedItem);
 
 	            if (item) {
 	              item.select(true);
@@ -8342,7 +8381,7 @@ this.BX.UI = this.BX.UI || {};
 	            if (main_core.Type.isArray(itemsOptions)) {
 	              itemsOptions.forEach(function (itemOptions) {
 	                if (itemOptions.nodeOptions) {
-	                  var item = _this12.getItem(itemOptions);
+	                  var item = _this13.getItem(itemOptions);
 
 	                  if (item) {
 	                    nodeOptionsMap.set(item, itemOptions.nodeOptions);
@@ -8352,52 +8391,52 @@ this.BX.UI = this.BX.UI || {};
 	            }
 
 	            var items = recentItems.map(function (recentItem) {
-	              var item = _this12.getItem(recentItem);
+	              var item = _this13.getItem(recentItem);
 
 	              return [item, nodeOptionsMap.get(item)];
 	            });
 
-	            _this12.getRecentTab().getRootNode().addItems(items);
+	            _this13.getRecentTab().getRootNode().addItems(items);
 	          }
 
-	          if (!_this12.getRecentTab().getRootNode().hasChildren() && _this12.getRecentTab().getStub()) {
-	            _this12.getRecentTab().getStub().show();
+	          if (!_this13.getRecentTab().getRootNode().hasChildren() && _this13.getRecentTab().getStub()) {
+	            _this13.getRecentTab().getStub().show();
 	          }
 
-	          if (_this12.getTagSelector()) {
-	            _this12.getTagSelector().unlock();
+	          if (_this13.getTagSelector()) {
+	            _this13.getTagSelector().unlock();
 	          }
 
-	          if (_this12.isRendered()) {
-	            if (_this12.isDropdownMode() && _this12.getActiveTab() === _this12.getRecentTab()) {
-	              _this12.selectFirstTab();
-	            } else if (!_this12.getActiveTab()) {
-	              _this12.selectFirstTab();
+	          if (_this13.isRendered()) {
+	            if (_this13.isDropdownMode() && _this13.getActiveTab() === _this13.getRecentTab()) {
+	              _this13.selectFirstTab();
+	            } else if (!_this13.getActiveTab()) {
+	              _this13.selectFirstTab();
 	            }
 	          }
 
-	          _this12.focusSearch();
+	          _this13.focusSearch();
 
-	          _this12.destroyLoader();
+	          _this13.destroyLoader();
 
-	          if (_this12.shouldFocusOnFirst()) {
-	            _this12.focusOnFirstNode();
+	          if (_this13.shouldFocusOnFirst()) {
+	            _this13.focusOnFirstNode();
 	          }
 
-	          _this12.emit('onLoad');
+	          _this13.emit('onLoad');
 	        }
 	      })["catch"](function (error) {
-	        _this12.loadState = LoadState.UNSENT;
+	        _this13.loadState = LoadState.UNSENT;
 
-	        if (_this12.getTagSelector()) {
-	          _this12.getTagSelector().unlock();
+	        if (_this13.getTagSelector()) {
+	          _this13.getTagSelector().unlock();
 	        }
 
-	        _this12.focusSearch();
+	        _this13.focusSearch();
 
-	        _this12.destroyLoader();
+	        _this13.destroyLoader();
 
-	        _this12.emit('onLoadError', {
+	        _this13.emit('onLoadError', {
 	          error: error
 	        });
 
@@ -8542,7 +8581,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "adjustByTagSelector",
 	    value: function adjustByTagSelector() {
-	      var _this13 = this;
+	      var _this14 = this;
 
 	      if (this.getTagSelectorMode() === TagSelectorMode.OUTSIDE) {
 	        this.adjustPosition();
@@ -8556,7 +8595,7 @@ this.BX.UI = this.BX.UI || {};
 	          if (offset !== 0) {
 	            var height = this.getHeight();
 	            this.setHeight(height + offset).then(function () {
-	              _this13.adjustPosition();
+	              _this14.adjustPosition();
 	            });
 	          }
 	        }
@@ -8630,12 +8669,12 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handlePopupFirstShow",
 	    value: function handlePopupFirstShow() {
-	      var _this14 = this;
+	      var _this15 = this;
 
 	      this.emit('onFirstShow');
 	      requestAnimationFrame(function () {
 	        requestAnimationFrame(function () {
-	          main_core.Dom.addClass(_this14.getPopup().getPopupContainer(), 'ui-selector-popup-container');
+	          main_core.Dom.addClass(_this15.getPopup().getPopupContainer(), 'ui-selector-popup-container');
 	        });
 	      });
 	      this.observeTabOverlapping();
@@ -8667,17 +8706,17 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "observeTabOverlapping",
 	    value: function observeTabOverlapping() {
-	      var _this15 = this;
+	      var _this16 = this;
 
 	      this.disconnectTabOverlapping();
 	      this.overlappingObserver = new MutationObserver(function () {
-	        if (_this15.getTabs().some(function (tab) {
+	        if (_this16.getTabs().some(function (tab) {
 	          return tab.isVisible();
 	        })) {
-	          var left = parseInt(_this15.getPopup().getPopupContainer().style.left, 10);
+	          var left = parseInt(_this16.getPopup().getPopupContainer().style.left, 10);
 
-	          if (left < _this15.getMinLabelWidth()) {
-	            main_core.Dom.style(_this15.getPopup().getPopupContainer(), 'left', "".concat(_this15.getMinLabelWidth(), "px"));
+	          if (left < _this16.getMinLabelWidth()) {
+	            main_core.Dom.style(_this16.getPopup().getPopupContainer(), 'left', "".concat(_this16.getMinLabelWidth(), "px"));
 	          }
 	        }
 	      });
@@ -8732,7 +8771,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleLabelsMouseEnter",
 	    value: function handleLabelsMouseEnter() {
-	      var _this16 = this;
+	      var _this17 = this;
 
 	      var rect = main_core.Dom.getRelativePosition(this.getLabelsContainer(), this.getPopup().getTargetContainer());
 	      var freeSpace = rect.right;
@@ -8742,8 +8781,8 @@ this.BX.UI = this.BX.UI || {};
 	        main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
 	        main_core.Dom.style(this.getLabelsContainer(), 'max-width', "".concat(Math.min(freeSpace, this.getMaxLabelWidth()), "px"));
 	        Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(function () {
-	          main_core.Dom.removeClass(_this16.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-	          main_core.Dom.addClass(_this16.getLabelsContainer(), 'ui-selector-tab-labels--active');
+	          main_core.Dom.removeClass(_this17.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
+	          main_core.Dom.addClass(_this17.getLabelsContainer(), 'ui-selector-tab-labels--active');
 	        });
 	      } else {
 	        main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
@@ -8756,13 +8795,13 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleLabelsMouseLeave",
 	    value: function handleLabelsMouseLeave() {
-	      var _this17 = this;
+	      var _this18 = this;
 
 	      main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
 	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
 	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
 	      Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(function () {
-	        main_core.Dom.removeClass(_this17.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
+	        main_core.Dom.removeClass(_this18.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
 	      });
 	      main_core.Dom.style(this.getLabelsContainer(), 'max-width', null);
 	    }

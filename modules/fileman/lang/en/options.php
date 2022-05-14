@@ -19,7 +19,6 @@ $MESS["FILEMAN_OPTION_PROPS_NAME"] = "Name";
 $MESS["FILEMAN_OPTION_PROPS_DESCR"] = "Description";
 $MESS["FILEMAN_OPTION_PROPS_KEYW"] = "Keywords";
 $MESS["FILEMAN_OPTION_EDITOR_PHP"] = "PHP source editing";
-$MESS["FILEMAN_OPTION_MENU_SHOW_INC"] = "Show include area edit buttons in the toolbar";
 $MESS["FILEMAN_OPTION_USE_OLD_VER"] = "Use previous version of the visual HTML editor:";
 $MESS["FILEMAN_OPTION_USE_ONLY_DEFINED_STYLES"] = "Show nameless CSS styles in the styles combobox";
 $MESS["FILEMAN_OPT_FULLSCREEN"] = "Open visual editor in fullscreen mode";

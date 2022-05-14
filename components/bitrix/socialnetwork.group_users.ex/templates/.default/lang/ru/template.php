@@ -42,6 +42,7 @@ $MESS["SONET_GUE_T_USER_ID_INCORRECT"] = "Выберите одного поль
 $MESS["SONET_GUE_T_OWNER_CANT_EXCLUDE_HIMSELF"] = "Владелец не может исключить себя из группы.";
 $MESS["SONET_GUE_T_OWNER_CANT_EXCLUDE_HIMSELF_PROJECT"] = "Руководитель не может исключить себя из проекта.";
 $MESS["SONET_GUE_T_CANT_EXCLUDE_AUTO_MEMBER"] = "Нельзя исключить из группы подключенного пользователя.";
+$MESS["SONET_GUE_T_CANT_EXCLUDE_SCRUM_MASTER"] = "Нельзя исключить скрам-мастера.";
 $MESS["SONET_GUE_T_CANT_EXCLUDE_AUTO_MEMBER_PROJECT"] = "Нельзя исключить из проекта подключенного пользователя.";
 $MESS["SONET_GUE_T_GROUP_ID_NOT_DEFINED"] = "Группа не найдена.";
 $MESS["SONET_GUE_T_NOT_ATHORIZED"] = "Вы не авторизованы.";

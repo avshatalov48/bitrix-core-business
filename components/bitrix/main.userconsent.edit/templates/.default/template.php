@@ -269,7 +269,7 @@ $formAction = CHTTP::urlAddParams($APPLICATION->getCurPageParam(), ['save' => 'y
 		<?endif;?>
 </div>
 
-<?php if (!$arResult['ERRORS']): ?>
+<?php if (!$arResult['ERRORS'] && $arParams['ID']): ?>
 <div id="<?=$listDomIds['listContainerId']?>" class="main-user-consent-edit-content" style="display: none;">
 	<?php
 	$APPLICATION->IncludeComponent(

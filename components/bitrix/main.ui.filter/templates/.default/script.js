@@ -580,7 +580,10 @@ this.BX = this.BX || {};
 	        }, {
 	          block: 'main-ui-filter-sidebar-item-text',
 	          tag: 'span',
-	          content: 'text' in data ? data.text : ''
+	          content: 'text' in data ? data.text : '',
+	          attrs: {
+	            title: 'text' in data ? data.text : ''
+	          }
 	        }, {
 	          block: 'main-ui-filter-icon-pin',
 	          tag: 'span',
@@ -1115,6 +1118,10 @@ this.BX = this.BX || {};
 	  };
 	})();
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	var EntitySelector = /*#__PURE__*/function () {
 	  function EntitySelector(id, settings) {
 	    babelHelpers.classCallCheck(this, EntitySelector);
@@ -1126,6 +1133,7 @@ this.BX = this.BX || {};
 	    babelHelpers.defineProperty(this, "isMultiple", false);
 	    babelHelpers.defineProperty(this, "needAddEntityIdToFilter", false);
 	    babelHelpers.defineProperty(this, "isActive", false);
+	    babelHelpers.defineProperty(this, "needShowDialogOnEmptyInput", true);
 	    this.id = id;
 	    this.settings = settings ? settings : {};
 	    this.filter = this.getSetting('filter', null);
@@ -1136,7 +1144,8 @@ this.BX = this.BX || {};
 
 	    this.isMultiple = !!this.getSetting('isMultiple', false);
 	    this.needAddEntityIdToFilter = this.getSetting('addEntityIdToResult', 'N') === 'Y';
-	    this.dialogOptions = this.getSetting('dialogOptions', {});
+	    this.needShowDialogOnEmptyInput = !!this.getSetting('showDialogOnEmptyInput', true);
+	    this.dialogOptions = this.prepareDialogOptions();
 	    this.dialog = null;
 	    main_core_events.EventEmitter.subscribe('BX.Main.Filter:customEntityFocus', this.onCustomEntityFocus.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.Main.Filter:customEntityBlur', this.onCustomEntityBlur.bind(this));
@@ -1170,8 +1179,6 @@ this.BX = this.BX || {};
 	      if (this.dialog && this.dialog.isOpen()) {
 	        this.dialog.hide();
 	      }
-
-	      main_core.Event.unbind(this.getFilterFieldInput(), 'input', this.controlInputChangeHandler);
 	    }
 	  }, {
 	    key: "getFilterField",
@@ -1216,6 +1223,19 @@ this.BX = this.BX || {};
 	      return this.settings.hasOwnProperty(name) ? this.settings[name] : defaultValue;
 	    }
 	  }, {
+	    key: "prepareDialogOptions",
+	    value: function prepareDialogOptions() {
+	      var defaultOptions = {
+	        enableSearch: false,
+	        hideOnSelect: true,
+	        autoHide: false,
+	        hideByEsc: false
+	      };
+	      var dialogOptions = this.getSetting('dialogOptions', {});
+	      dialogOptions = Object.assign(defaultOptions, dialogOptions);
+	      return dialogOptions;
+	    }
+	  }, {
 	    key: "openDialog",
 	    value: function openDialog() {
 	      if (this.dialog.isOpen()) {
@@ -1223,18 +1243,20 @@ this.BX = this.BX || {};
 	      }
 
 	      var inputWrapper = this.getFilterFieldInputWrapper();
-	      this.dialog.setTargetNode(inputWrapper);
-	      this.dialog.setWidth(inputWrapper.offsetWidth);
-	      this.dialog.show();
-	      this.updateSelectedItemsInDialog(this.dialog);
 	      var searchInput = this.getFilterFieldInput();
 	      var searchQuery = main_core.Type.isDomNode(searchInput) ? searchInput.value.trim() : '';
+	      this.dialog.setTargetNode(inputWrapper);
+	      this.dialog.setWidth(inputWrapper.offsetWidth);
+
+	      if (this.needShowDialogOnEmptyInput || searchQuery.length) {
+	        this.dialog.show();
+	      }
+
+	      this.updateSelectedItemsInDialog(this.dialog);
 
 	      if (searchQuery.length) {
 	        this.dialog.search(searchQuery);
 	      }
-
-	      main_core.Event.bind(searchInput, 'input', this.controlInputChangeHandler);
 	    }
 	  }, {
 	    key: "initDialog",
@@ -1243,19 +1265,17 @@ this.BX = this.BX || {};
 
 	      return EntitySelector.initDialogExtension().then(function (exports) {
 	        var Dialog = exports.Dialog;
-	        _this2.dialog = new Dialog(babelHelpers.objectSpread({}, _this2.dialogOptions, {
+	        _this2.dialog = new Dialog(_objectSpread(_objectSpread({}, _this2.dialogOptions), {}, {
 	          id: _this2.getDialogId(),
-	          multiple: _this2.isMultiple,
-	          enableSearch: false,
-	          hideOnSelect: true,
-	          autoHide: false,
-	          hideByEsc: false,
-	          events: {
-	            'Item:onSelect': _this2.onDialogItemSelect.bind(_this2),
-	            'Item:onDeselect': _this2.onDialogItemDeSelect.bind(_this2),
-	            'onLoad': _this2.onDialogLoad.bind(_this2)
-	          }
+	          multiple: _this2.isMultiple
 	        }));
+	        main_core_events.EventEmitter.subscribe(_this2.dialog, 'Item:onSelect', _this2.onDialogItemSelect.bind(_this2));
+	        main_core_events.EventEmitter.subscribe(_this2.dialog, 'Item:onDeselect', _this2.onDialogItemDeSelect.bind(_this2));
+	        main_core_events.EventEmitter.subscribe(_this2.dialog, 'onLoad', _this2.onDialogLoad.bind(_this2));
+
+	        var searchInput = _this2.getFilterFieldInput();
+
+	        main_core.Event.bind(searchInput, 'input', _this2.controlInputChangeHandler);
 	      });
 	    }
 	  }, {
@@ -1413,13 +1433,20 @@ this.BX = this.BX || {};
 	        this.dialog = null;
 	      }
 
-	      main_core.Event.unbind(this.getFilterFieldInput(), 'input', this.controlInputChangeHandler);
 	      this.unsetControl();
 	    }
 	  }, {
 	    key: "onSearchInputChange",
 	    value: function onSearchInputChange(event) {
 	      if (this.dialog) {
+	        if (!this.needShowDialogOnEmptyInput) {
+	          if (event.target.value) {
+	            this.open();
+	          } else {
+	            this.close();
+	          }
+	        }
+
 	        this.dialog.search(event.target.value);
 	      }
 	    }
@@ -2950,6 +2977,10 @@ this.BX = this.BX || {};
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
 
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	(function () {
 
 	  BX.namespace('BX.Main');
@@ -3714,7 +3745,7 @@ this.BX = this.BX || {};
 	      return BX.ajax.runComponentAction('bitrix:main.ui.filter', action, {
 	        mode: 'ajax',
 	        data: data,
-	        analyticsLabel: babelHelpers.objectSpread({
+	        analyticsLabel: _objectSpread$1({
 	          FILTER_ID: this.getParam('FILTER_ID'),
 	          GRID_ID: this.getParam('GRID_ID'),
 	          PRESET_ID: data['data']['preset_id'],
@@ -6202,6 +6233,10 @@ this.BX = this.BX || {};
 	})();
 
 	var _templateObject$1;
+
+	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var onValueChange = Symbol('onValueChange');
 	var Field = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Field, _Event$EventEmitter);
@@ -6217,7 +6252,7 @@ this.BX = this.BX || {};
 	    _this.id = options.options.NAME;
 	    _this.parent = options.parent;
 	    _this.node = options.node;
-	    _this.options = babelHelpers.objectSpread({}, options.options);
+	    _this.options = _objectSpread$2({}, options.options);
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    _this[onValueChange] = _this[onValueChange].bind(babelHelpers.assertThisInitialized(_this));
 	    main_core.Event.bind(_this.node, 'input', _this[onValueChange]);
@@ -6333,7 +6368,7 @@ this.BX = this.BX || {};
 	        });
 
 	        if (main_core.Type.isPlainObject(stub)) {
-	          var baseField = babelHelpers.objectSpread({}, stub, {
+	          var baseField = _objectSpread$2(_objectSpread$2({}, stub), {}, {
 	            NAME: options.id,
 	            LABEL: options.name,
 	            TYPE: type === 'checkbox' ? 'SELECT' : stub.TYPE,
@@ -6341,7 +6376,7 @@ this.BX = this.BX || {};
 	          });
 
 	          if (type === 'list') {
-	            return babelHelpers.objectSpread({}, baseField, {
+	            return _objectSpread$2(_objectSpread$2({}, baseField), {}, {
 	              ITEMS: [].concat(babelHelpers.toConsumableArray(baseField.ITEMS), [this.prepareListItems(options.items)]),
 	              params: {
 	                isMulti: function () {
@@ -6365,7 +6400,7 @@ this.BX = this.BX || {};
 	              return _this2.parent.dateTypes.NONE;
 	            }();
 
-	            return babelHelpers.objectSpread({}, baseField, {
+	            return _objectSpread$2(_objectSpread$2({}, baseField), {}, {
 	              SUB_TYPES: function () {
 	                if (main_core.Type.isArray(options.exclude)) {
 	                  return baseField.SUB_TYPES.filter(function (item) {
@@ -6382,7 +6417,7 @@ this.BX = this.BX || {};
 	              }(),
 	              VALUES: function () {
 	                if (main_core.Type.isPlainObject(options.value)) {
-	                  return babelHelpers.objectSpread({}, options.value);
+	                  return _objectSpread$2({}, options.value);
 	                }
 
 	                return baseField.VALUES;
@@ -6691,6 +6726,10 @@ this.BX = this.BX || {};
 	}
 
 	var _templateObject$2, _templateObject2$1;
+
+	function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$3(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$3(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	/**
 	 * @memberOf BX.Filter
 	 */
@@ -6731,7 +6770,7 @@ this.BX = this.BX || {};
 
 	    _this.setEventNamespace('BX.Main.Filter.AdditionalFilter');
 
-	    _this.options = babelHelpers.objectSpread({}, options);
+	    _this.options = _objectSpread$3({}, options);
 	    main_core.Event.bind(document, 'click', _this.onDocumentClick.bind(babelHelpers.assertThisInitialized(_this)));
 	    return _this;
 	  }
@@ -6934,6 +6973,10 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(AdditionalFilter, "cache", new main_core.Cache.MemoryCache());
 
 	var _templateObject$3;
+
+	function ownKeys$4(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$4(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$4(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var errorMessages = new WeakMap();
 	var errorMessagesTypes = new WeakMap();
 	var values = new WeakMap();
@@ -7061,7 +7104,7 @@ this.BX = this.BX || {};
 	      this.parent.getEmitter().emit('init', {
 	        field: new Field({
 	          parent: this.parent,
-	          options: babelHelpers.objectSpread({}, fieldData),
+	          options: _objectSpread$4({}, fieldData),
 	          node: renderedField
 	        })
 	      });
@@ -7104,7 +7147,7 @@ this.BX = this.BX || {};
 	      this.parent.getEmitter().emit('init', {
 	        field: new Field({
 	          parent: this.parent,
-	          options: babelHelpers.objectSpread({}, fieldData),
+	          options: _objectSpread$4({}, fieldData),
 	          node: field
 	        })
 	      });
@@ -7229,7 +7272,7 @@ this.BX = this.BX || {};
 	      this.parent.getEmitter().emit('init', {
 	        field: new Field({
 	          parent: this.parent,
-	          options: babelHelpers.objectSpread({}, fieldData),
+	          options: _objectSpread$4({}, fieldData),
 	          node: field
 	        })
 	      });
@@ -7243,12 +7286,13 @@ this.BX = this.BX || {};
 	        filter: this.parent,
 	        isMultiple: fieldData.MULTIPLE,
 	        addEntityIdToResult: fieldData.ADD_ENTITY_ID_TO_RESULT,
+	        showDialogOnEmptyInput: fieldData.SHOW_DIALOG_ON_EMPTY_INPUT,
 	        dialogOptions: fieldData.DIALOG_OPTIONS
 	      });
 	      this.parent.getEmitter().emit('init', {
 	        field: new Field({
 	          parent: this.parent,
-	          options: babelHelpers.objectSpread({}, fieldData),
+	          options: _objectSpread$4({}, fieldData),
 	          node: field
 	        })
 	      });
@@ -7261,7 +7305,7 @@ this.BX = this.BX || {};
 	      this.parent.getEmitter().emit('init', {
 	        field: new Field({
 	          parent: this.parent,
-	          options: babelHelpers.objectSpread({}, fieldData),
+	          options: _objectSpread$4({}, fieldData),
 	          node: field
 	        })
 	      });
@@ -7447,7 +7491,7 @@ this.BX = this.BX || {};
 	      this.parent.getEmitter().emit('init', {
 	        field: new Field({
 	          parent: this.parent,
-	          options: babelHelpers.objectSpread({}, fieldData),
+	          options: _objectSpread$4({}, fieldData),
 	          node: field
 	        })
 	      });
@@ -7479,7 +7523,7 @@ this.BX = this.BX || {};
 	      this.parent.getEmitter().emit('init', {
 	        field: new Field({
 	          parent: this.parent,
-	          options: babelHelpers.objectSpread({}, fieldData),
+	          options: _objectSpread$4({}, fieldData),
 	          node: field
 	        })
 	      });
@@ -7514,7 +7558,7 @@ this.BX = this.BX || {};
 	      this.parent.getEmitter().emit('init', {
 	        field: new Field({
 	          parent: this.parent,
-	          options: babelHelpers.objectSpread({}, fieldData),
+	          options: _objectSpread$4({}, fieldData),
 	          node: field
 	        })
 	      });
@@ -7637,7 +7681,7 @@ this.BX = this.BX || {};
 	      this.parent.getEmitter().emit('init', {
 	        field: new Field({
 	          parent: this.parent,
-	          options: babelHelpers.objectSpread({}, fieldData),
+	          options: _objectSpread$4({}, fieldData),
 	          node: field
 	        })
 	      });
@@ -7841,7 +7885,7 @@ this.BX = this.BX || {};
 	      this.parent.getEmitter().emit('init', {
 	        field: new Field({
 	          parent: this.parent,
-	          options: babelHelpers.objectSpread({}, options),
+	          options: _objectSpread$4({}, options),
 	          node: field
 	        })
 	      });
@@ -8166,7 +8210,7 @@ this.BX = this.BX || {};
 	      this.parent.getEmitter().emit('init', {
 	        field: new Field({
 	          parent: this.parent,
-	          options: babelHelpers.objectSpread({}, options, {
+	          options: _objectSpread$4(_objectSpread$4({}, options), {}, {
 	            VALUES: currentValues
 	          }),
 	          node: renderedFieldGroup

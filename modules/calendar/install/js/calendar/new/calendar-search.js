@@ -95,7 +95,7 @@
 
 		appplyCounterEntries: function(counterId)
 		{
-			if (counterId == 'invitation')
+			if (counterId === 'invitation')
 			{
 				this.filterApi.setFilter({
 					preset_id: "filter_calendar_meeting_status_q"
@@ -119,62 +119,63 @@
 
 		applyFilter: function(id, data, ctx, promise, params)
 		{
-			// Turn of autoresoving mode
-			if (params)
+			return new Promise(function(resolve)
 			{
-				params.autoResolve = false;
-			}
-			if (this.isFilterEmpty())
-			{
-				if (this.calendar.getView().resetFilterMode)
+				if (params)
 				{
-					this.calendar.getView().resetFilterMode({resetSearchFilter: false});
+					params.autoResolve = false;
 				}
-				if (promise)
+				if (this.isFilterEmpty())
 				{
-					promise.fulfill();
-				}
-			}
-			else
-			{
-				this.calendar.setView('list', {animation: false});
-				this.calendar.getView().applyFilterMode();
-				// setTimeout(BX.delegate(function ()
-				// {
-				// 	this.calendar.getView().applyFilterMode();
-				// }, this), 100);
-
-				this.calendar.request({
-					data: {
-						action: 'get_filter_data'
-					},
-					handler: BX.delegate(function(response)
+					if (this.calendar.getView().resetFilterMode)
 					{
-						if (response && response.entries)
-						{
-							if (!this.calendar.getView().filterMode)
-							{
-								this.calendar.getView().applyFilterMode();
-								this.displaySearchResult(response);
-								// setTimeout(BX.delegate(function ()
-								// {
-								// 	this.calendar.getView().applyFilterMode();
-								// 	this.displaySearchResult(response);
-								// }, this), 100);
-							}
-							else
-							{
-								this.displaySearchResult(response);
-							}
+						this.calendar.getView().resetFilterMode({resetSearchFilter: false});
+					}
+					if (promise)
+					{
+						promise.fulfill();
+					}
+				}
+				else
+				{
+					this.calendar.setView('list', {animation: false});
+					this.calendar.getView().applyFilterMode();
+					
+					BX.ajax.runAction('calendar.api.calendarajax.getFilterData', {
+						data: {
+							ownerId: this.calendar.util.config.ownerId,
+							userId: this.calendar.util.config.userId,
+							type: this.calendar.util.config.type,
 						}
-
-						if (promise)
-						{
-							promise.fulfill();
-						}
-					}, this)
-				});
-			}
+					})
+						.then(function(response)
+							{
+								if (response.data.entries)
+								{
+									if (!this.calendar.getView().filterMode)
+									{
+										this.calendar.getView().applyFilterMode();
+										this.displaySearchResult(response.data);
+									}
+									else
+									{
+										this.displaySearchResult(response.data);
+									}
+								}
+								
+								if (promise)
+								{
+									promise.fulfill();
+								}
+								
+								resolve(response.data);
+							}.bind(this),
+							function(response){
+								resolve(response.data);
+							}.bind(this)
+						)
+				}
+			});
 		},
 
 		displaySearchResult: function(response)

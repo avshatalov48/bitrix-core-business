@@ -2,6 +2,10 @@
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/user_group.php");
 
+use Bitrix\Main\ModuleManager;
+use Bitrix\Socialnetwork\Internals\Counter;
+use Bitrix\Socialnetwork\Util;
+
 class CSocNetUserToGroup extends CAllSocNetUserToGroup
 {
 	/***************************************/
@@ -11,9 +15,9 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 	{
 		global $DB, $CACHE_MANAGER;
 
-		$arFields1 = \Bitrix\Socialnetwork\Util::getEqualityFields($arFields);
+		$arFields1 = Util::getEqualityFields($arFields);
 
-		if (!CSocNetUserToGroup::CheckFields("ADD", $arFields))
+		if (!self::CheckFields("ADD", $arFields))
 		{
 			return false;
 		}
@@ -30,8 +34,8 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 		$arInsert = $DB->PrepareInsert("b_sonet_user2group", $arFields);
 		$strUpdate = $DB->PrepareUpdate("b_sonet_user2group", $arFields);
 
-		\Bitrix\Socialnetwork\Util::processEqualityFieldsToInsert($arFields1, $arInsert);
-		\Bitrix\Socialnetwork\Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
+		Util::processEqualityFieldsToInsert($arFields1, $arInsert);
+		Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
 
 		$ID = false;
 		if ($arInsert[0] <> '')
@@ -43,7 +47,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 
 			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-			$ID = intval($DB->LastID());
+			$ID = (int)$DB->LastID();
 		}
 
 		if ($ID)
@@ -58,12 +62,12 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 			}
 
 			if (
-				$arFields["INITIATED_BY_TYPE"] == SONET_INITIATED_BY_GROUP
-				&& $arFields["SEND_MAIL"] != "N"
-				&& !IsModuleInstalled("im")
+				$arFields['INITIATED_BY_TYPE'] === SONET_INITIATED_BY_GROUP
+				&& $arFields['SEND_MAIL'] !== 'N'
+				&& !ModuleManager::isModuleInstalled('im')
 			)
 			{
-				CSocNetUserToGroup::SendEvent($ID, "SONET_INVITE_GROUP");
+				self::SendEvent($ID);
 			}
 
 			self::$roleCache[$arFields["USER_ID"]."_".$arFields["GROUP_ID"]] = array(
@@ -71,12 +75,20 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 				"AUTO_MEMBER" => (isset($arFields["AUTO_MEMBER"]) ? $arFields["AUTO_MEMBER"] : "N")
 			);
 
-			if(defined("BX_COMP_MANAGED_CACHE"))
+			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
 				$CACHE_MANAGER->ClearByTag("sonet_user2group_G".$arFields["GROUP_ID"]);
 				$CACHE_MANAGER->ClearByTag("sonet_user2group_U".$arFields["USER_ID"]);
 				$CACHE_MANAGER->ClearByTag("sonet_user2group");
 			}
+
+			Counter\CounterService::addEvent(Counter\Event\EventDictionary::EVENT_WORKGROUP_USER_ADD, [
+				'GROUP_ID' => (int)$arFields['GROUP_ID'],
+				'USER_ID' => (int)$arFields['USER_ID'],
+				'ROLE' => $arFields['ROLE'],
+				'INITIATED_BY_TYPE' => $arFields['INITIATED_BY_TYPE'],
+				'RELATION_ID' => $ID,
+			]);
 		}
 
 		return $ID;
@@ -89,27 +101,33 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 		if (!CSocNetGroup::__ValidateID($ID))
 			return false;
 
-		$ID = intval($ID);
+		$ID = (int)$ID;
 
-		$arUser2GroupOld = CSocNetUserToGroup::GetByID($ID);
+		$arUser2GroupOld = self::GetByID($ID);
 		if (!$arUser2GroupOld)
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_NO_USER2GROUP"), "ERROR_NO_USER2GROUP");
 			return false;
 		}
 
-		$arFields1 = \Bitrix\Socialnetwork\Util::getEqualityFields($arFields);
+		$arFields1 = Util::getEqualityFields($arFields);
 
-		if (!CSocNetUserToGroup::CheckFields("UPDATE", $arFields, $ID))
+		if (!self::CheckFields("UPDATE", $arFields, $ID))
+		{
 			return false;
+		}
 
 		$db_events = GetModuleEvents("socialnetwork", "OnBeforeSocNetUserToGroupUpdate");
 		while ($arEvent = $db_events->Fetch())
-			if (ExecuteModuleEventEx($arEvent, array($ID, $arFields))===false)
+		{
+			if (ExecuteModuleEventEx($arEvent, array($ID, $arFields)) === false)
+			{
 				return false;
+			}
+		}
 
 		$strUpdate = $DB->PrepareUpdate("b_sonet_user2group", $arFields);
-		\Bitrix\Socialnetwork\Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
+		Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
 
 		if ($strUpdate <> '')
 		{
@@ -146,6 +164,15 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 				$CACHE_MANAGER->ClearByTag("sonet_user2group_U".$arUser2GroupOld["USER_ID"]);
 				$CACHE_MANAGER->ClearByTag("sonet_user2group");
 			}
+
+			Counter\CounterService::addEvent(Counter\Event\EventDictionary::EVENT_WORKGROUP_USER_UPDATE, [
+				'GROUP_ID' => (int)($arFields['GROUP_ID'] ?? $arUser2GroupOld['GROUP_ID']),
+				'USER_ID' => (int)($arFields['USER_ID'] ?? $arUser2GroupOld['USER_ID']),
+				'ROLE_OLD' => $arUser2GroupOld['ROLE'],
+				'ROLE_NEW' => ($arFields['ROLE'] ?? null),
+				'INITIATED_BY_TYPE' => ($arFields['INITIATED_BY_TYPE'] ?? $arUser2GroupOld['INITIATED_BY_TYPE']),
+				'RELATION_ID' => $arUser2GroupOld['USER_ID'],
+			]);
 		}
 		else
 		{
@@ -218,6 +245,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 			"INITIATED_BY_USER_GENDER" => Array("FIELD" => "U1.PERSONAL_GENDER", "TYPE" => "string", "FROM" => "LEFT JOIN b_user U1 ON (UG.INITIATED_BY_USER_ID = U1.ID)"),
 			"RAND" => Array("FIELD" => "RAND()", "TYPE" => "string"),
 			"SCRUM_OWNER_ID" => Array("FIELD" => "G.SCRUM_OWNER_ID", "TYPE" => "int"),
+			"GROUP_SCRUM_MASTER_ID" => [ 'FIELD' => 'G.SCRUM_MASTER_ID', 'TYPE' => 'int' ],
 		);
 		$arFields["USER_IS_ONLINE"] = Array("FIELD" => "IF(U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".$online_interval." SECOND), 'Y', 'N')", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (UG.USER_ID = U.ID)");
 

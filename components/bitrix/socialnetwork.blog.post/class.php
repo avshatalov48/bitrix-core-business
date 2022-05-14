@@ -10,6 +10,11 @@ use Bitrix\Socialnetwork\ComponentHelper;
 
 final class SocialnetworkBlogPost extends CBitrixComponent
 {
+	public function onPrepareComponentParams($params)
+	{
+		return $params;
+	}
+
 	public function convertRequestData(): void
 	{
 		ComponentHelper::convertSelectorRequestData($_POST);

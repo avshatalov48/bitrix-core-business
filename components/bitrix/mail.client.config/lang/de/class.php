@@ -1,7 +1,7 @@
-<?
+<?php
 $MESS["MAIL_CLIENT_CONFIG_ACCESS"] = "Zugriffsrechte für Mailbox";
 $MESS["MAIL_CLIENT_CONFIG_ACCESS_ADD"] = "Hinzufügen";
-$MESS["MAIL_CLIENT_CONFIG_ACCESS_HINT"] = "Anderen Mitarbeitern Zugriffsrecht zum Verarbeiten der E-Mails in dieser Mailbox gewähren.";
+$MESS["MAIL_CLIENT_CONFIG_ACCESS_HINT"] = "Geben Sie den Mitarbeitern die Zugriffsrechte für diese Mailbox, sodass sie die Nachrichten empfangen und darauf antworten können. Es ist ein einfacher Weg zu einer Plattform der gemeinsamen Arbeit für Ihre Vertriebsabteilung oder Ihr Helpdesk-Team.";
 $MESS["MAIL_CLIENT_CONFIG_ACCESS_MORE"] = "Details";
 $MESS["MAIL_CLIENT_CONFIG_BTN_CANCEL"] = "Abbrechen";
 $MESS["MAIL_CLIENT_CONFIG_BTN_CONNECT"] = "Verbinden";
@@ -29,9 +29,9 @@ $MESS["MAIL_CLIENT_CONFIG_EXT_SWITCH"] = "Erweiterte Einstellungen bearbeiten";
 $MESS["MAIL_CLIENT_CONFIG_IMAP"] = "Daten für Verbindung";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE"] = "Nachrichten für #AGE# holen";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_1"] = "1 Tag";
+$MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_7"] = "Woche ";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_30"] = "Monat";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_60"] = "2 Monate";
-$MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_7"] = "Woche ";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_90"] = "3 Monate";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AGE_2_I"] = "die ganze Zeit";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_EXT"] = "Fehler der Authentifizierung. Stellen Sie bitte sicher, dass Ihre Login und Passwort korrekt sind.<br>Beachten Sie, dass Sie ein spezielles Integrationspasswort nutzen müssen, wenn Sie die Passwörter der Apps verwenden oder wenn die Zwei-Faktor-Authentifizierung aktiviert ist.";
@@ -103,4 +103,3 @@ In Ihrem aktuellen Tarif können #LIMIT# Mailboxen gemeinsam genutzt werden.";
 $MESS["MAIL_MAILBOX_LICENSE_SHARED_LIMIT_TITLE"] = "Gemeinsam genutzte Mailboxen in Bitrix24";
 $MESS["MAIL_MAILBOX_REMOVE_CONFIRM"] = "Soll das Mail-Konto deaktiviert werden?";
 $MESS["MAIL_MAILBOX_REMOVE_CONFIRM_TEXT"] = "Möchten Sie dieses Mail-Konto wirklich löschen?";
-?>

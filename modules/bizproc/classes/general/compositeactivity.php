@@ -1,8 +1,9 @@
-<?
-abstract class CBPCompositeActivity
-	extends CBPActivity
+<?php
+
+abstract class CBPCompositeActivity extends CBPActivity
 {
 	protected $arActivities = array();
+	protected $readOnlyData = [];
 
 	public function SetWorkflow(CBPWorkflow $workflow)
 	{
@@ -15,6 +16,37 @@ abstract class CBPCompositeActivity
 			}
 			$activity->SetWorkflow($workflow);
 		}
+	}
+
+	public function setReadOnlyData(array $data)
+	{
+		$this->readOnlyData = $data;
+	}
+
+	public function getReadOnlyData(): array
+	{
+		return $this->readOnlyData;
+	}
+
+	public function pullReadOnlyData()
+	{
+		$data = $this->readOnlyData;
+		$this->readOnlyData = [];
+
+		return $data;
+	}
+
+	public function pullProperties(): array
+	{
+		$result = parent::pullProperties();
+
+		/** @var CBPActivity $activity */
+		foreach ($this->arActivities as $activity)
+		{
+			$result = array_merge($result, $activity->pullProperties());
+		}
+
+		return $result;
 	}
 
 	protected function ReInitialize()

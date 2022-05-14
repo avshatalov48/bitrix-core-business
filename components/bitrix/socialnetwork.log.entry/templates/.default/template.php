@@ -663,7 +663,9 @@ else
 						?><div
 						 class="<?=implode(' ', $classNameList)?>"
 						 id="<?=(!empty($arResult["CONTENT_ID"]) ? "feed-post-contentview-".htmlspecialcharsBx($arResult["CONTENT_ID"]) : "")?>"
-						 bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"><?php
+						 bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"
+						 bx-content-view-key="<?= htmlspecialcharsBx($arResult['CONTENT_VIEW_KEY']) ?>"
+						 bx-content-view-key-signed="<?= htmlspecialcharsBx($arResult['CONTENT_VIEW_KEY_SIGNED']) ?>"><?php
 							?><div class="feed-post-text-block-inner-inner" id="log_entry_body_<?=$arEvent["EVENT"]["ID"]?>"><?php
 
 								?><div class="feed-important-icon"></div><?php
@@ -703,7 +705,7 @@ else
 											BX.Livefeed.MoreButton.expand(textBlock);
 										}
 									}.bind(BX.Livefeed.MoreButton),
-								})" id="log_entry_more_<?=$arEvent["EVENT"]["ID"]?>"><?php
+								})" id="log_entry_more_<?= $arEvent['EVENT']['ID'] ?>"><?php
 								?><div class="feed-post-text-more-but"></div><?php
 							?></div><?php
 							?><script>
@@ -717,8 +719,8 @@ else
 									}
 
 									BX.Livefeed.FeedInstance.addMoreButton({
-										bodyBlockID: 'log_entry_body_<?= $arEvent["EVENT"]["ID"] ?>',
-										informerBlockID: 'log_entry_inform_<?= $arEvent["EVENT"]["ID"] ?>'
+										bodyBlockID: 'log_entry_body_<?= $arEvent['EVENT']['ID'] ?>',
+										informerBlockID: 'log_entry_inform_<?= $arEvent['EVENT']['ID'] ?>'
 									});
 								});
 							</script><?php
@@ -730,7 +732,13 @@ else
 					|| $EVENT_ID === "photo_photo"
 				)
 				{
-					?><div class="feed-post-item feed-post-contentview" id="<?=(!empty($arResult["CONTENT_ID"]) ? "feed-post-contentview-".htmlspecialcharsBx($arResult["CONTENT_ID"]) : "")?>" bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"><?php
+
+					?><div
+					 class="feed-post-item feed-post-contentview"
+					 id="<?=(!empty($arResult["CONTENT_ID"]) ? "feed-post-contentview-".htmlspecialcharsBx($arResult["CONTENT_ID"]) : "")?>"
+					 bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"
+					 bx-content-view-key="<?= htmlspecialcharsBx($arResult['CONTENT_VIEW_KEY']) ?>"
+					 bx-content-view-key-signed="<?= htmlspecialcharsBx($arResult['CONTENT_VIEW_KEY_SIGNED']) ?>"><?php
 
 						?><?=$title24_2?><?php
 
@@ -833,7 +841,6 @@ else
 								{
 									$photo_permission = "R";
 								}
-
 
 								$APPLICATION->IncludeComponent(
 									"bitrix:photogallery.detail.list.ex",
@@ -942,7 +949,12 @@ else
 				}
 				elseif ($EVENT_ID === "tasks")
 				{
-					?><div class="feed-post-info-block-wrap feed-post-contentview" id="feed-post-contentview-<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>" bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"><?php
+					?><div
+					 class="feed-post-info-block-wrap feed-post-contentview"
+					 id="feed-post-contentview-<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"
+					 bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"
+					 bx-content-view-key="<?= htmlspecialcharsBx($arResult['CONTENT_VIEW_KEY']) ?>"
+					 bx-content-view-key-signed="<?= htmlspecialcharsBx($arResult['CONTENT_VIEW_KEY_SIGNED']) ?>"><?php
 
 						?><?=$title24_2?><?php
 						?><?=$arEvent["EVENT_FORMATTED"]["MESSAGE"]?><?php
@@ -952,7 +964,12 @@ else
 				elseif (in_array($EVENT_ID, array("timeman_entry", "report")))
 				{
 					CJSCore::Init(array('timeman'));
-					?><div class="feed-post-text-block feed-post-contentview" id="feed-post-contentview-<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>" bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"><?php
+					?><div
+					 class="feed-post-text-block feed-post-contentview"
+					 id="feed-post-contentview-<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"
+					 bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"
+					 bx-content-view-key="<?= htmlspecialcharsBx($arResult['CONTENT_VIEW_KEY']) ?>"
+					 bx-content-view-key-signed="<?= htmlspecialcharsBx($arResult['CONTENT_VIEW_KEY_SIGNED']) ?>"><?php
 
 						?><?=$title24_2?><?php
 						?><?=$arEvent["EVENT_FORMATTED"]["MESSAGE"]?><?php
@@ -971,7 +988,12 @@ else
 
 						if ($arResult["CONTENT_ID"])
 						{
-							?><div class="<?=implode(' ', $classNameList)?>" id="feed-post-text-contentview-<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>" bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"><?php
+							?><div
+							 class="<?=implode(' ', $classNameList)?>"
+							 id="feed-post-text-contentview-<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"
+							 bx-content-view-xml-id="<?=htmlspecialcharsBx($arResult["CONTENT_ID"])?>"
+							 bx-content-view-key="<?= htmlspecialcharsBx($arResult['CONTENT_VIEW_KEY']) ?>"
+							 bx-content-view-key-signed="<?= htmlspecialcharsBx($arResult['CONTENT_VIEW_KEY_SIGNED']) ?>"><?php
 								?><div class="feed-post-text-block-inner-inner" id="log_entry_body_<?=$arEvent["EVENT"]["ID"]?>"><?php
 
 									?><?=$title24_2?><?php
@@ -1351,15 +1373,15 @@ else
 							return BX.type.isElementNode(node) && (node.getAttribute('data-bx-viewer') || node.getAttribute('data-bx-image'));
 						}
 					);
-					top.postFollow<?=$arParams["ID"]?> = postFollow<?=$arParams["ID"]?> = '<?=$arParams["FOLLOW"]?>';
+					top.postFollow<?= $arParams["ID"] ?> = postFollow<?= $arParams["ID"] ?> = '<?= $arParams["FOLLOW"] ?>';
 				</script><?php
 
-				$arRecords = array();
-				if (!!$component && !!$component->__parent && !!$component->__parent->arResult)
+				$arRecords = [];
+				if (!!$component && $component->__parent && $component->__parent->arResult)
 				{
-					$component->__parent->arResult["ENTITIES_XML_ID"] = (!!$component->__parent->arResult["ENTITIES_XML_ID"] ? $component->__parent->arResult["ENTITIES_XML_ID"] : array());
+					$component->__parent->arResult["ENTITIES_XML_ID"] = ($component->__parent->arResult["ENTITIES_XML_ID"] ?: []);
 					$component->__parent->arResult["ENTITIES_XML_ID"][$arEvent["COMMENTS_PARAMS"]["ENTITY_XML_ID"]] = array($arEvent["COMMENTS_PARAMS"]["ENTITY_TYPE"], $arEvent["EVENT"]["SOURCE_ID"]);
-					$component->__parent->arResult["ENTITIES_CORRESPONDENCE"] = (!!$component->__parent->arResult["ENTITIES_CORRESPONDENCE"] ? $component->__parent->arResult["ENTITIES_CORRESPONDENCE"] : array());
+					$component->__parent->arResult["ENTITIES_CORRESPONDENCE"] = ($component->__parent->arResult["ENTITIES_CORRESPONDENCE"] ?: []);
 					$component->__parent->arResult["ENTITIES_CORRESPONDENCE"][$arEvent["COMMENTS_PARAMS"]["ENTITY_XML_ID"]."-0"] = array($arEvent["EVENT"]["ID"], 0);
 				}
 
@@ -1650,6 +1672,9 @@ else
 							'entityId' => $arEvent['EVENT']['ID'],
 						],
 						'FORM_ID' => ($canComment ? $arParams['FORM_ID'] : ''),
+
+						'CONTENT_VIEW_KEY' => $arResult['CONTENT_VIEW_KEY'],
+						'CONTENT_VIEW_KEY_SIGNED' => $arResult['CONTENT_VIEW_KEY_SIGNED'],
 					),
 					$this->__component
 				);

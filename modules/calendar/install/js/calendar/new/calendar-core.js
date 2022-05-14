@@ -11,7 +11,7 @@
 
 		if(this.util.isFilterEnabled())
 		{
-			this.search = new window.BXEventCalendar.Search(this, {filterId: config.filterId, counters: config.counters});
+			this.search = new BX.Calendar.Search(config.filterId, config.counters);
 		}
 
 		this.externalMode = config.externalDataHandleMode;
@@ -115,9 +115,9 @@
 					}
 
 					this.searchCont = BX(this.id + '-search-container');
-					if (this.searchCont)
+					if (this.searchCont && this.util.isCountersEnabled())
 					{
-						this.buildSearchControll();
+						this.buildCountersControl();
 					}
 				}
 
@@ -217,7 +217,7 @@
 					if (event instanceof BX.Event.BaseEvent)
 					{
 						var data = event.getData();
-						if (BX.Type.isObjectLike(data.counters) && this.search)
+						if (BX.Type.isObjectLike(data.counters) && this.search && this.util.isCountersEnabled())
 						{
 							this.search.setCountersValue(data.counters);
 						}
@@ -828,7 +828,7 @@
 			}
 		},
 
-		buildSearchControll:  function()
+		buildCountersControl:  function()
 		{
 			this.countersCont = BX(this.id + '-counter-container');
 			if (!this.countersCont)
@@ -1268,7 +1268,10 @@
 						data: {}
 					}).then(function(response)
 						{
-							if (BX.Type.isObjectLike(response.data.counters) && this.search)
+							if (BX.Type.isObjectLike(response.data.counters)
+								&& this.search
+								&& this.util.isCountersEnabled()
+							)
 							{
 								this.search.setCountersValue(response.data.counters);
 							}

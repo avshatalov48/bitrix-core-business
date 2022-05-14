@@ -44,7 +44,6 @@ if($_SERVER["REQUEST_METHOD"] == "GET" && $USER->IsAdmin() && $_REQUEST["Restore
 		array("NAME"=>"PARAM_MAX_USERS", "DEF"=>"0"),
 		array("NAME"=>"crc_code", "DEF"=>""),
 		array("NAME"=>"vendor", "DEF"=>"1c_bitrix"),
-		array("NAME"=>"distributive6", "DEF"=>"N"),
 	);
 	foreach($aSaveVal as $i=>$aParam)
 		$aSaveVal[$i]["VALUE"] = COption::GetOptionString("main", $aParam["NAME"], $aParam["DEF"]);

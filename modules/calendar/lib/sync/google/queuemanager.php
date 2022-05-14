@@ -284,7 +284,8 @@ class QueueManager
 			. " FROM b_calendar_event e"
 			. " INNER JOIN b_calendar_section s ON e.SECTION_ID = s.ID"
 			. " INNER JOIN b_dav_connections c ON c.ID = s.CAL_DAV_CON"
-			. " WHERE e.SYNC_STATUS IS NOT NULL AND e.SYNC_STATUS <> 'success'"
+			. " WHERE e.SYNC_STATUS <> 'success'"
+				. " AND s.EXTERNAL_TYPE IN ('local', 'google')"
 			. " LIMIT 10"
 			. ";"
 		);

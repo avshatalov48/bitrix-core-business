@@ -5,6 +5,7 @@ namespace Bitrix\Socialnetwork\Controller;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 use Bitrix\Main\Engine\ActionFilter;
+use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Socialnetwork\Item\UserContentView;
 
 class ContentView extends Base
@@ -23,6 +24,8 @@ class ContentView extends Base
 
 	public function setAction(array $params = []): ?array
 	{
+		global $USER;
+
 		$xmlIdList = (
 			isset($params["viewXMLIdList"])
 			&& is_array($params["viewXMLIdList"])
@@ -38,10 +41,42 @@ class ContentView extends Base
 			return null;
 		}
 
+		$signer = new Signer();
+
+		foreach ($xmlIdList as $key => $item)
+		{
+			if (empty($item['xmlId']))
+			{
+				unset($xmlIdList[$key]);
+				continue;
+			}
+
+			if (
+				!empty($item['key'])
+				&& !empty($item['signedKey'])
+				&& $item['save'] === 'Y'
+			)
+			{
+				$signerSalt = 'ajaxSecurity' . $USER->getId() . $item['xmlId'];
+				if ($signer->unsign($item['signedKey'], $signerSalt) === $item['key'])
+				{
+					$xmlIdList[$key]['checkAccess'] = false;
+				}
+				else
+				{
+					unset($xmlIdList[$key]);
+				}
+			}
+			else
+			{
+				$xmlIdList[$key]['checkAccess'] = true;
+			}
+		}
+
 		UserContentView::set([
 			'xmlIdList' => $xmlIdList,
 			'context' => $context,
-			'userId' => $this->getCurrentUser()->getId()
+			'userId' => $this->getCurrentUser()->getId(),
 		]);
 
 		return [

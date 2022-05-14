@@ -700,8 +700,12 @@ class SiteTable extends Entity\DataManager
 			}
 			if (!$canPublicSite)
 			{
-				$errCode = Manager::licenseIsFreeSite($fields['TYPE']) ? 'PUBLIC_SITE_REACHED_FREE' : 'PUBLIC_SITE_REACHED';
-				$msgCode = Manager::licenseIsFreeSite($fields['TYPE']) ? 'limit_sites_number_free' : 'limit_sites_number';
+				$errCode = Manager::licenseIsFreeSite($fields['TYPE']) && !Manager::isFreePublicAllowed()
+					? 'PUBLIC_SITE_REACHED_FREE'
+					: 'PUBLIC_SITE_REACHED';
+				$msgCode = Manager::licenseIsFreeSite($fields['TYPE']) && !Manager::isFreePublicAllowed()
+					? 'limit_sites_number_free'
+					: 'limit_sites_number';
 				$result->unsetFields($unsetFields);
 				$result->setErrors(array(
 					new Entity\EntityError(

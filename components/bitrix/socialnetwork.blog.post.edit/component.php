@@ -57,6 +57,8 @@ $arResult['startVideoRecorder'] = (
 
 $blogModulePermissions = CMain::getGroupRight('blog');
 
+$arResult['SELECTOR_VERSION'] = (int)($arParams['SELECTOR_VERSION'] ?? 1);
+
 $arResult["SHOW_FULL_FORM"] = (
 	(
 		!empty($_POST)
@@ -73,6 +75,7 @@ $arResult["SHOW_FULL_FORM"] = (
 		!empty($arParams["PAGE_ID"])
 		&& in_array($arParams["PAGE_ID"], array('user_blog_post_edit_profile', 'user_blog_post_edit_grat', 'user_blog_post_edit_post'))
 	)
+	|| $arResult['SELECTOR_VERSION'] >= 3
 );
 
 $arResult["ALLOW_EMAIL_INVITATION"] = (
@@ -333,8 +336,6 @@ if (
 {
 	$arResult['BLOG_POST_TASKS'] = false;
 }
-
-$arResult['SELECTOR_VERSION'] = (!empty($arParams['SELECTOR_VERSION']) ? (int)$arParams['SELECTOR_VERSION'] : 1);
 
 $a = new CAccess;
 $a->UpdateCodes();
@@ -1434,6 +1435,7 @@ if (
 										$arParamsUpdateLog = [
 											'allowVideo' => $arResult['allowVideo'],
 											'PATH_TO_SMILE' => $arParams['PATH_TO_SMILE'],
+											'SITE_ID' => SITE_ID,
 										];
 										CBlogPost::UpdateLog($newID, $arFields, $arBlog, $arParamsUpdateLog);
 									}

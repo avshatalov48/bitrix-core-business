@@ -59,6 +59,7 @@ CREATE TABLE b_bp_workflow_instance (
 	DOCUMENT_ID varchar(128) NOT NULL,
 	WORKFLOW_TEMPLATE_ID int NOT NULL,
 	WORKFLOW mediumblob NULL,
+	WORKFLOW_RO mediumblob NULL,
 	STARTED datetime NULL,
 	STARTED_BY int NULL,
 	STARTED_EVENT_TYPE tinyint NOT NULL DEFAULT 0,
@@ -197,7 +198,8 @@ CREATE TABLE b_bp_automation_trigger (
 		DOCUMENT_TYPE varchar(128) NOT NULL,
 		DOCUMENT_STATUS varchar(50) NOT NULL,
 		APPLY_RULES text,
-		PRIMARY KEY (ID)
+		PRIMARY KEY (ID),
+		index ix_bp_atm_trigger_1(DOCUMENT_TYPE, DOCUMENT_STATUS)
 );
 
 CREATE TABLE b_bp_global_const (

@@ -523,8 +523,8 @@
 		 */
 		isAvailableMedia: function()
 		{
-			var ServiceFactory = new BX.Landing.MediaService.Factory();
-			return !!ServiceFactory.create(this.hrefInput.getValue());
+			const ServiceFactory = new BX.Landing.MediaService.Factory();
+			return !!ServiceFactory.getRelevantClass(this.hrefInput.getValue())
 		},
 
 		onMediaClick: function()

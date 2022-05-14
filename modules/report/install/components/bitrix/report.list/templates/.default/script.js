@@ -693,17 +693,7 @@ BX.Report.ReportListClass = (function ()
 			},
 			content: [content],
 			events : {
-				onPopupClose : function() {
-				},
-				onAfterPopupShow : function(popup) {
-					var title = BX.findChild(
-						popup.contentContainer, {className: 'bx-report-popup-title'}, true);
-					if (title)
-					{
-						title.style.cursor = 'move';
-						BX.bind(title, 'mousedown', BX.proxy(popup._startDrag, popup));
-					}
-
+				onAfterPopupShow : function() {
 					var wrappers = document.getElementsByClassName('bx-report-input-file');
 					for (var i = 0; i < wrappers.length; i++)
 					{

@@ -10,6 +10,7 @@ export class TrackingUsersForm
 
 	constructor(options = {})
 	{
+		this.interfaceType = 'users';
 		this.DOM.outerWrap = options.wrap;
 		this.trackingUsers = options.trackingUsers || [];
 		this.trackingUserIdList = this.trackingUsers.map((item) => {
@@ -142,7 +143,7 @@ export class TrackingUsersForm
 				data: {
 					userIdList: this.trackingUserIdList,
 					sections: this.prepareTrackingSections(),
-					type: 'users'
+					type: this.interfaceType
 				}
 			})
 			.then(

@@ -299,7 +299,11 @@ select.catalog-document-product-control-select-field:hover {
 .catalog-document-product-list-wrapper .main-grid-row-edit .main-grid-editor-custom[data-name="STORE_TO_AMOUNT"],
 .catalog-document-product-list-wrapper .main-grid-row-edit .main-grid-editor-custom[data-name="PURCHASING_PRICE"],
 .catalog-document-product-list-wrapper .main-grid-row-edit .main-grid-editor-custom[data-name="BASE_PRICE"],
-.catalog-document-product-list-wrapper .main-grid-row-edit .main-grid-editor-custom[data-name="STORE_FROM_AMOUNT"] {
+.catalog-document-product-list-wrapper .main-grid-row-edit .main-grid-editor-custom[data-name="STORE_FROM_AMOUNT"],
+.catalog-document-product-list-wrapper .main-grid-row-edit .main-grid-editor-custom[data-name="STORE_TO_RESERVED"],
+.catalog-document-product-list-wrapper .main-grid-row-edit .main-grid-editor-custom[data-name="STORE_FROM_RESERVED"],
+.catalog-document-product-list-wrapper .main-grid-row-edit .main-grid-editor-custom[data-name="STORE_TO_AVAILABLE_AMOUNT"],
+.catalog-document-product-list-wrapper .main-grid-row-edit .main-grid-editor-custom[data-name="STORE_FROM_AVAILABLE_AMOUNT"] {
 	padding-top: 11px;
 }
 

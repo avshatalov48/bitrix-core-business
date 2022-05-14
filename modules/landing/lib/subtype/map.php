@@ -100,6 +100,8 @@ class Map
 					],
 				]);
 				$block->save();
+
+				unset(self::$manifestStore[$block->getId()]);
 			},
 		];
 
@@ -187,10 +189,10 @@ class Map
 		$description = '';
 
 		if ($isYandexFail && self::canUseYandex())
-		{
-			$error = Loc::getMessage('LANDING_BLOCK_EMPTY_YMAP_TITLE');
-			$description = Loc::getMessage('LANDING_BLOCK_EMPTY_YMAP_DESC');
-		}
+			{
+				$error = Loc::getMessage('LANDING_BLOCK_EMPTY_YMAP_TITLE');
+				$description = Loc::getMessage('LANDING_BLOCK_EMPTY_YMAP_DESC');
+			}
 		elseif ($isGoogleFail)
 		{
 			$error = Loc::getMessage('LANDING_BLOCK_EMPTY_GMAP_TITLE');

@@ -45,8 +45,8 @@ class CMainInterfaceButtons
 	 * @var array
 	 */
 	private $expandedLists = [];
-
-
+	private $randomSequences = [];
+	private $pinnedItems = [];
 	/**
 	 * More item class
 	 * @var string
@@ -89,7 +89,6 @@ class CMainInterfaceButtons
 		return $arParams;
 	}
 
-
 	protected function setStyles()
 	{
 		global $APPLICATION;
@@ -99,7 +98,6 @@ class CMainInterfaceButtons
 			$APPLICATION->SetAdditionalCSS($this->arParams["INCLUDE_CSS_FILE"]);
 		}
 	}
-
 
 	/**
 	 * Prepares params
@@ -115,6 +113,7 @@ class CMainInterfaceButtons
 		$this->arParams["CLASS_ITEM_COUNTER"] = $this->prepareItemClass($this->arParams["CLASS_ITEM_COUNTER"]);
 		$this->arParams["ITEMS"] = $this->prepareItems($this->arParams["ITEMS"]);
 		$this->arParams["MORE_BUTTON"] = $this->prepareMoreItem($this->arParams["MORE_BUTTON"]);
+		$this->arParams["MAX_ITEM_LENGTH"] = $this->prepareMaxItemLength($this->arParams['MAX_ITEM_LENGTH'] ?? 0);
 
 		return $this;
 	}
@@ -122,6 +121,26 @@ class CMainInterfaceButtons
 	protected function prepareDisableSettings(string $mode): bool
 	{
 		return $mode === self::EDIT_MODE_DISABLE;
+	}
+
+	protected function prepareMaxItemLength($length): int
+	{
+		$length = (int)$length;
+		if ($length > 6)
+		{
+			return $length;
+		}
+
+		if ($this->arParams['THEME'] === 'flat')
+		{
+			return 30;
+		}
+		else if ($this->arParams['THEME'] === 'small' || $this->arParams['THEME'] === 'tiny')
+		{
+			return 20;
+		}
+
+		return 40;
 	}
 
 	protected function prepareSaveMode($mode = null, $disableSettings = false): string
@@ -155,7 +174,6 @@ class CMainInterfaceButtons
 		return CUserOptions::GetOption($this->userOptionsCategory, $this->arParams["ID"]);
 	}
 
-
 	/**
 	 * Prepares container id
 	 * @param string $id
@@ -170,6 +188,15 @@ class CMainInterfaceButtons
 		return $id;
 	}
 
+	protected function getRandomItemId($seed): string
+	{
+		if (!isset($this->randomSequences[$seed]))
+		{
+			$this->randomSequences[$seed] = new \Bitrix\Main\Type\RandomSequence($seed);
+		}
+
+		return $this->randomSequences[$seed]->randString(12);
+	}
 
 	/**
 	 * Prepares user options
@@ -191,7 +218,6 @@ class CMainInterfaceButtons
 		return $userOptionsSettings;
 	}
 
-
 	/**
 	 * Prepares settings
 	 */
@@ -203,7 +229,6 @@ class CMainInterfaceButtons
 
 		$this->expandedLists = $this->prepareUserOptions($userOptionsRaw, 'expanded_lists');
 	}
-
 
 	/**
 	 * Gets item settings by item id
@@ -222,7 +247,6 @@ class CMainInterfaceButtons
 		return $result;
 	}
 
-
 	/**
 	 * Prepares item text value
 	 * @param  string $text Text string
@@ -230,9 +254,13 @@ class CMainInterfaceButtons
 	 */
 	protected function prepareItemText($text)
 	{
-		return $this->safeString($text);
-	}
+		if (!is_string($text) && !is_numeric($text))
+		{
+			return '';
+		}
 
+		return trim((string)$text);
+	}
 
 	/**
 	 * Prepares item html
@@ -244,7 +272,6 @@ class CMainInterfaceButtons
 		return Text\Converter::getHtmlConverter()->decode($html);
 	}
 
-
 	/**
 	 * Prepares item url
 	 * @param  string $url
@@ -252,9 +279,8 @@ class CMainInterfaceButtons
 	 */
 	protected function prepareItemUrl($url)
 	{
-		return $this->safeString($url);
+		return preg_match('#^(?:/|https?://)#', $url) ? (string)$url: '';
 	}
-
 
 	/**
 	 * Prepares item class
@@ -265,7 +291,6 @@ class CMainInterfaceButtons
 	{
 		return $this->safeString($class);
 	}
-
 
 	/**
 	 * Prepares item id
@@ -281,24 +306,11 @@ class CMainInterfaceButtons
 			$result = $this->safeString($id);
 			$result = str_replace('-', '_', $result);
 			$result = preg_replace("/[^a-z0-9_\/]/i", "", $result);
-			$result = join("_", array($this->arParams["ID"], $result));
 			$result = mb_strtolower($result);
 		}
 
 		return $result;
 	}
-
-
-	/**
-	 * Prepares item onclick action string
-	 * @param  string $onClickString
-	 * @return string
-	 */
-	protected function prepareItemOnClickString($onClickString)
-	{
-		return $this->safeString($onClickString);
-	}
-
 
 	/**
 	 * Prepares item counter value
@@ -317,7 +329,6 @@ class CMainInterfaceButtons
 		return $result;
 	}
 
-
 	/**
 	 * Prepares item is locked value
 	 * @param  boolean $isLocked
@@ -328,6 +339,18 @@ class CMainInterfaceButtons
 		return isset($item['IS_LOCKED']) && $item['IS_LOCKED'] === true;
 	}
 
+	protected function prepareItemIsPinned($item)
+	{
+		$result = false;
+		$settings = $this->getItemSettingsByItemId($item['ID']);
+
+		if (is_array($settings) && is_bool($settings["isPinned"]))
+		{
+			$result = $settings["isPinned"];
+		}
+
+		return $result;
+	}
 
 	/**
 	 * Prepares item is disabled value
@@ -413,13 +436,14 @@ class CMainInterfaceButtons
 
 	/**
 	 * Prepares item sort index value
+	 *
 	 * @param  string $id
-	 * @param  integer $key
+	 * @param  integer $defaultSort
 	 * @return integer Sort index
 	 */
-	protected function prepareItemSort($id, $key)
+	protected function prepareItemSort($id, $defaultSort)
 	{
-		$result = $key;
+		$result = $defaultSort;
 		$settings = $this->getItemSettingsByItemId($id);
 
 		if (!empty($settings) && is_array($settings))
@@ -432,7 +456,6 @@ class CMainInterfaceButtons
 
 		return $result;
 	}
-
 
 	/**
 	 * Prepares item is active value
@@ -455,47 +478,15 @@ class CMainInterfaceButtons
 			if (!$result && isset($item["ADDITIONAL_URL"]) && is_array($item["ADDITIONAL_URL"]))
 			{
 				$result = array_search($requestUri, $item["ADDITIONAL_URL"]);
-				$result = !is_null($result) ? true : false;
+				$result = !is_null($result);
 			}
 		}
 		else
 		{
-			$result = $item["IS_ACTIVE"];
-		}
-
-		if (!empty($item['ITEMS']) && is_array($item['ITEMS']))
-		{
-			$hasActiveSubItem = $this->prepareSubItemsIsActive($item['ITEMS']);
-			if ($hasActiveSubItem)
-			{
-				$result = true;
-			}
+			$result = $item['IS_ACTIVE'] === true || $item['IS_ACTIVE'] === 'true' || $item['IS_ACTIVE'] === 'Y';
 		}
 
 		return $result;
-	}
-
-	protected function prepareSubItemsIsActive(array &$items): bool
-	{
-		$hasActiveSubItem = false;
-		for ($i = 0; $i < count($items); $i++)
-		{
-			if (!empty($items[$i]['ITEMS']) && is_array($items[$i]['ITEMS']))
-			{
-				$result = $this->prepareSubItemsIsActive($items[$i]['ITEMS']);
-				if ($result)
-				{
-					$items[$i]['IS_ACTIVE'] = true;
-				}
-			}
-
-			if (isset($items[$i]['IS_ACTIVE']) && $items[$i]['IS_ACTIVE'] === true)
-			{
-				$hasActiveSubItem = true;
-			}
-		}
-
-		return $hasActiveSubItem;
 	}
 
 	protected function prepareItemIsPassive($item)
@@ -505,26 +496,57 @@ class CMainInterfaceButtons
 
 	/**
 	 * Prepares item
-	 * @param  array $item
-	 * @param  integer $key
+	 *
+	 * @param array $item
+	 * @param integer $defaultSort
 	 * @return array Prepared $item
 	 */
-	protected function prepareItem($item, $key = 0)
+	protected function prepareItem(array $item, int $defaultSort = 0, $rootItem = null)
 	{
-		$item["TEXT"] = $this->prepareItemText($item["TEXT"]);
-		$item["HTML"] = $this->prepareItemHtml($item["HTML"]);
-		$item["URL"] = $this->prepareItemUrl($item["URL"]);
-		$item["CLASS"] = $this->prepareItemClass($item["CLASS"]);
-		$item["CLASS_SUBMENU_ITEM"] = $this->prepareItemClass($item["CLASS_SUBMENU_ITEM"]);
-		$item["DATA_ID"] = $item["ID"];
-		$item["ID"] = $this->prepareItemId($item["ID"]);
+		$item["TEXT"] = $this->prepareItemText($item["TEXT"] ?? '');
+		$item["TITLE"] = $this->prepareItemText($item["TITLE"] ?? '');
+		$item["HTML"] = $this->prepareItemHtml($item["HTML"] ?? '');
+		$item["URL"] = $this->prepareItemUrl($item["URL"] ?? '');
+		$item["CLASS"] = $this->prepareItemClass($item["CLASS"] ?? '');
+		$item["CLASS_SUBMENU_ITEM"] = $this->prepareItemClass($item["CLASS_SUBMENU_ITEM"] ?? '');
+		$item["ON_CLICK"] = $item["ON_CLICK"] ?? '';
+
+		$itemId = $this->prepareItemId($item['ID'] ?? '');
+		if (empty($itemId))
+		{
+			if (!empty($item['URL']))
+			{
+				$itemId = crc32($item['URL']);
+			}
+			else if (!empty($item["ON_CLICK"]))
+			{
+				$itemId = crc32($item['ON_CLICK']);
+			}
+			else
+			{
+				$seed = 'mib_' . $this->arParams['ID'] . '_' . ($rootItem !== null ? $rootItem['ID'] : '');
+				$itemId = $this->getRandomItemId($seed);
+			}
+
+			$itemId = "mib_$itemId";
+		}
+
+		if ($rootItem === null)
+		{
+			$globalId = join('_', [$this->arParams['ID'], $itemId]);
+		}
+		else
+		{
+			$globalId = $rootItem['ID'] . ':' . $itemId;
+		}
+
+		$item["DATA_ID"] = $itemId;
+		$item["ID"] = $globalId;
 
 		$item["MAX_COUNTER_SIZE"] = array_key_exists('MAX_COUNTER_SIZE', $item)
 			? $item["MAX_COUNTER_SIZE"]
-			: $this->maxCounterSize ;
-
-
-		$item["ON_CLICK"] = $this->prepareItemOnClickString($item["ON_CLICK"]);
+			: $this->maxCounterSize
+		;
 
 		if (isset($item["COUNTER"]))
 		{
@@ -554,11 +576,20 @@ class CMainInterfaceButtons
 			}
 		}
 
+		if ($rootItem !== null)
+		{
+			$item["IS_PINNED"] = $this->prepareItemIsPinned($item);
+			if ($item["IS_PINNED"])
+			{
+				$this->pinnedItems[] = &$item;
+			}
+		}
+
 		$item["IS_LOCKED"] = $this->prepareItemIsLocked($item);
 		$item["IS_DISABLED"] = $this->prepareItemIsDisabled($item["IS_DISABLED"], $item["ID"]);
-		$item["SUB_LINK"] = $this->prepareItemSublink($item["SUB_LINK"]);
+		$item["SUB_LINK"] = $this->prepareItemSublink($item["SUB_LINK"] ?? '');
 		$item["SUPER_TITLE"] = $this->prepareItemSuperTitle($item);
-		$item["SORT"] = $this->prepareItemSort($item["ID"], $key);
+		$item["SORT"] = $this->prepareItemSort($item["ID"], $defaultSort);
 		$item["IS_ACTIVE"] = $this->prepareItemIsActive($item);
 		$item["IS_PASSIVE"] = $this->prepareItemIsPassive($item);
 
@@ -567,9 +598,57 @@ class CMainInterfaceButtons
 		{
 			$item["URL"] = '';
 			$item["ON_CLICK"] = '';
+			$item["IS_ACTIVE"] = false;
+
+			$this->prepareSubItems($item, $item['ITEMS']);
 		}
 
 		return $item;
+	}
+
+	protected function prepareSubItems(&$item, array &$subItems)
+	{
+		$hasVisibleSubItems = false;
+		for ($i = 0, $count = count($subItems); $i < $count; $i++)
+		{
+			$subItems[$i] = $this->prepareItem($subItems[$i], $i, $item);
+			$isPinned = isset($subItems[$i]['IS_PINNED']) && $subItems[$i]['IS_PINNED'] === true;
+			$isDelimiter = isset($subItems[$i]['IS_DELIMITER']) && $subItems[$i]['IS_DELIMITER'] === true;
+
+			if (isset($subItems[$i]['COUNTER']) && !$isPinned && !$isDelimiter)
+			{
+				if (!isset($item['COUNTER']))
+				{
+					$item['COUNTER'] = 0;
+				}
+
+				$item['COUNTER'] += $subItems[$i]['COUNTER'];
+			}
+
+			if ($subItems[$i]['IS_ACTIVE'] && !$isPinned && !$isDelimiter)
+			{
+				$item['IS_ACTIVE'] = true;
+			}
+
+			if (isset($subItems[$i]['COUNTER']) || isset($subItems[$i]['COUNTER_ID']))
+			{
+				$item['HAS_COUNTERS'] = true;
+				if (!isset($item['COUNTER_ID']))
+				{
+					$item['COUNTER_ID'] = $item['ID'] . '_counter';
+				}
+			}
+
+			if (!$isPinned && !$isDelimiter)
+			{
+				$hasVisibleSubItems = true;
+			}
+		}
+
+		if (!$hasVisibleSubItems)
+		{
+			$item['IS_DISBANDED'] = true;
+		}
 	}
 
 	protected function prepareItemCounterId($item)
@@ -584,7 +663,6 @@ class CMainInterfaceButtons
 		return $id;
 	}
 
-
 	protected function prepareMoreItem($item)
 	{
 		$html = $this->prepareItemHtml($item["HTML"]);
@@ -596,7 +674,6 @@ class CMainInterfaceButtons
 
 		return $item;
 	}
-
 
 	protected function filterItems()
 	{
@@ -618,12 +695,16 @@ class CMainInterfaceButtons
 		return $itemsCount;
 	}
 
-
 	protected function prepareItems($items = array())
 	{
 		foreach ($items as $key => $item)
 		{
 			$items[$key] = $this->prepareItem($item, $key);
+		}
+
+		foreach ($this->pinnedItems as $item)
+		{
+			$items[] = unserialize(serialize($item), ['allowed_classes' => false]);
 		}
 
 		$items = $this->sortBySortIndex($items);
@@ -659,7 +740,6 @@ class CMainInterfaceButtons
 		return $items;
 	}
 
-
 	/**
 	 * Sorts array bi sort index
 	 * @param  array $array
@@ -688,7 +768,6 @@ class CMainInterfaceButtons
 		return (String)$string;
 	}
 
-
 	/**
 	 * Prepares arResult
 	 */
@@ -696,7 +775,6 @@ class CMainInterfaceButtons
 	{
 		$this->arResult = $this->arParams;
 	}
-
 
 	public function executeComponent()
 	{

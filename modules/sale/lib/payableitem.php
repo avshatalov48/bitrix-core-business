@@ -14,7 +14,7 @@ abstract class PayableItem extends Internals\CollectableEntity
 {
 	abstract public function getEntityObject();
 
-	abstract protected static function getEntityType();
+	abstract public static function getEntityType();
 
 	/** @var Internals\CollectableEntity */
 	protected $item;

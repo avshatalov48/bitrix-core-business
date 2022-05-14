@@ -39,6 +39,8 @@ if(typeof BX.UI.EntityUserFieldManager === "undefined")
 
 		this._enableMandatoryControl = true;
 		this._config = null;
+
+		this._contextParams = {};
 	};
 	BX.UI.EntityUserFieldManager.prototype =
 	{
@@ -53,6 +55,7 @@ if(typeof BX.UI.EntityUserFieldManager === "undefined")
 			this._creationSignature = BX.prop.getString(this._settings, "creationSignature", "");
 			this._creationPageUrl = BX.prop.getString(this._settings, "creationPageUrl", "");
 			this._enableMandatoryControl = BX.prop.getBoolean(this._settings, "enableMandatoryControl", true);
+			this._contextParams = BX.prop.getObject(this._settings, "contextParams", {});
 
 			//region Bind EntityEditorControlFactory Method
 			if(typeof BX.UI.EntityEditorControlFactory !== "undefined")
@@ -296,6 +299,8 @@ if(typeof BX.UI.EntityUserFieldManager === "undefined")
 
 				fieldData["SETTINGS"]["PRECISION"] = 2;
 			}
+
+			fieldData["CONTEXT_PARAMS"] = this._contextParams;
 
 			if(mode === BX.UI.EntityEditorMode.view)
 			{

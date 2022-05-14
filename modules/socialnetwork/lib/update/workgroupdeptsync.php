@@ -15,7 +15,7 @@ final class WorkgroupDeptSync extends Stepper
 {
 	public const STEP_SIZE = 5;
 
-	protected static $moduleId = "socialnetwork";
+	protected static $moduleId = 'socialnetwork';
 
 	public static function getUsers($workgroupId)
 	{
@@ -90,7 +90,7 @@ final class WorkgroupDeptSync extends Stepper
 		$membersList = [];
 		$res = UserToGroupTable::getList([
 			'filter' => [
-				'=GROUP_ID' => (int)$groupFields["ID"],
+				'=GROUP_ID' => (int)$groupFields['ID'],
 				'@ROLE' => UserToGroupTable::getRolesMember(),
 			],
 			'select' => [ 'ID', 'USER_ID' ]
@@ -111,18 +111,20 @@ final class WorkgroupDeptSync extends Stepper
 		return $result;
 	}
 
-	final static function getCount()
+	protected static function getCount(): int
 	{
 		$result = 0;
 
-		$workgroupsToSync = Option::get('socialnetwork', 'workgroupsToSync', "");
-		$workgroupsToSync = ($workgroupsToSync !== "" ? @unserialize($workgroupsToSync, [ 'allowed_classes' => false ]) : []);
+		$workgroupsToSync = Option::get('socialnetwork', 'workgroupsToSync');
+		$workgroupsToSync = ($workgroupsToSync !== '' ? @unserialize($workgroupsToSync, [ 'allowed_classes' => false ]) : []);
 
 		if (
 			is_array($workgroupsToSync)
 			&& !empty($workgroupsToSync)
 		)
 		{
+			$workgroupsToSync = self::reduceList($workgroupsToSync);
+
 			$nonEmptyWorkgroupList = [];
 
 			foreach ($workgroupsToSync as $workgroupData)
@@ -145,13 +147,9 @@ final class WorkgroupDeptSync extends Stepper
 					&& is_array($data['MINUS'])
 				)
 				{
-					foreach($data['MINUS'] as $userId)
+					foreach ($data['MINUS'] as $userId)
 					{
-						if (
-							isset($data['OLD_RELATIONS'])
-							&& is_array($data['OLD_RELATIONS'])
-							&& isset($data['OLD_RELATIONS'][$userId])
-						)
+						if (isset($data['OLD_RELATIONS'][$userId]))
 						{
 							$groupCounter++;
 						}
@@ -167,7 +165,6 @@ final class WorkgroupDeptSync extends Stepper
 					];
 					$result += $groupCounter;
 				}
-				\CSocNetGroup::setStat($workgroupId);
 			}
 
 			Option::set('socialnetwork', 'workgroupsToSync', serialize($nonEmptyWorkgroupList));
@@ -179,8 +176,8 @@ final class WorkgroupDeptSync extends Stepper
 	public function execute(array &$result)
 	{
 		if (!(
-			Loader::includeModule("socialnetwork")
-			&& Loader::includeModule("intranet")
+			Loader::includeModule('socialnetwork')
+			&& Loader::includeModule('intranet')
 		))
 		{
 			return false;
@@ -188,38 +185,40 @@ final class WorkgroupDeptSync extends Stepper
 
 		$return = false;
 
-		$params = Option::get("socialnetwork", "workgroupdeptsync", "");
-		$params = ($params !== "" ? @unserialize($params, [ 'allowed_classes' => false ]) : array());
-		$params = (is_array($params) ? $params : array());
+		$params = Option::get('socialnetwork', 'workgroupdeptsync');
+		$params = ($params !== '' ? @unserialize($params, [ 'allowed_classes' => false ]) : []);
+		$params = (is_array($params) ? $params : []);
 
 		$countRemain = self::getCount();
 		if (empty($params))
 		{
 			$params = [
-				"number" => 0,
-				"count" => $countRemain
+				'number' => 0,
+				'count' => $countRemain,
 			];
 		}
 
 		if ($countRemain > 0)
 		{
-			$result["title"] = Loc::getMessage("FUPD_WORKGROUP_DEPT_SYNC_TITLE");
-			$result["progress"] = 1;
-			$result["steps"] = "";
-			$result["count"] = $params["count"];
+			$result['title'] = Loc::getMessage('FUPD_WORKGROUP_DEPT_SYNC_TITLE');
+			$result['progress'] = 1;
+			$result['steps'] = '';
+			$result['count'] = $params['count'];
 
 			$counter = 0;
 			$breakFlag = false;
 
-			$workgroupsToSync = Option::get('socialnetwork', 'workgroupsToSync', "");
-			$workgroupsToSync = ($workgroupsToSync !== "" ? @unserialize($workgroupsToSync, [ 'allowed_classes' => false ]) : []);
+			$workgroupsToSync = Option::get('socialnetwork', 'workgroupsToSync');
+			$workgroupsToSync = ($workgroupsToSync !== '' ? @unserialize($workgroupsToSync, [ 'allowed_classes' => false ]) : []);
 
 			if (
 				is_array($workgroupsToSync)
 				&& !empty($workgroupsToSync)
 			)
 			{
-				foreach($workgroupsToSync as $workgroupData)
+				$workgroupsToSync = self::reduceList($workgroupsToSync);
+
+				foreach ($workgroupsToSync as $workgroupData)
 				{
 					$workgroupId = $workgroupData['groupId'];
 					if ($breakFlag)
@@ -233,24 +232,24 @@ final class WorkgroupDeptSync extends Stepper
 						isset($data['PLUS'])
 						&& is_array($data['PLUS'])
 							? $data['PLUS']
-							: array()
+							: []
 					);
 
 					$userListMinus = (
 						isset($data['MINUS'])
 						&& is_array($data['MINUS'])
 							? $data['MINUS']
-							: array()
+							: []
 					);
 
 					$oldRelationList = (
 						isset($data['OLD_RELATIONS'])
 						&& is_array($data['OLD_RELATIONS'])
 							? $data['OLD_RELATIONS']
-							: array()
+							: []
 					);
 
-					foreach($userListMinus as $userId)
+					foreach ($userListMinus as $userId)
 					{
 						if (isset($oldRelationList[$userId]))
 						{
@@ -269,48 +268,48 @@ final class WorkgroupDeptSync extends Stepper
 							}
 							else
 							{
-								UserToGroup::changeRelationAutoMembership(array(
+								UserToGroup::changeRelationAutoMembership([
 									'RELATION_ID' => $oldRelationList[$userId],
-									'VALUE' => 'N'
-								));
+									'VALUE' => 'N',
+								]);
 							}
 
 							$counter++;
 						}
 					}
 
-					$changeList = $addList = array();
+					$changeList = [];
 
 					if (
 						!$breakFlag
 						&& !empty($userListPlus)
 					)
 					{
-						$memberList = array();
-						$res = UserToGroupTable::getList(array(
-							'filter' => array(
+						$memberList = [];
+						$res = UserToGroupTable::getList([
+							'filter' => [
 								'=GROUP_ID' => $workgroupId,
 								'@USER_ID' => $userListPlus,
 								'@ROLE' => UserToGroupTable::getRolesMember(),
-							),
-							'select' => array('ID', 'USER_ID')
-						));
-						while($relation = $res->fetch())
+							],
+							'select' => [ 'ID', 'USER_ID' ],
+						]);
+						while ($relation = $res->fetch())
 						{
 							$memberList[] = $relation['USER_ID'];
 						}
 						$userListPlus = array_diff($userListPlus, $memberList);
 						if (!empty($userListPlus))
 						{
-							$res = UserToGroupTable::getList(array(
-								'filter' => array(
+							$res = UserToGroupTable::getList([
+								'filter' => [
 									'=GROUP_ID' => $workgroupId,
 									'@USER_ID' => $userListPlus,
-									'@ROLE' => array(UserToGroupTable::ROLE_REQUEST, UserToGroupTable::ROLE_BAN),
-									'=AUTO_MEMBER' => 'N'
-								),
-								'select' => array('ID', 'USER_ID', 'GROUP_ID')
-							));
+									'@ROLE' => [ UserToGroupTable::ROLE_REQUEST, UserToGroupTable::ROLE_BAN ],
+									'=AUTO_MEMBER' => 'N',
+								],
+								'select' => [ 'ID', 'USER_ID', 'GROUP_ID' ]
+							]);
 							while ($relation = $res->fetch())
 							{
 								if ($counter >= self::STEP_SIZE)
@@ -356,26 +355,41 @@ final class WorkgroupDeptSync extends Stepper
 							}
 						}
 					}
+
+					\CSocNetGroup::setStat($workgroupId);
 				}
 
-				$params["number"] += $counter;
+				$params['number'] += $counter;
 
-				Option::set("socialnetwork", "workgroupdeptsync", serialize($params));
+				Option::set('socialnetwork', 'workgroupdeptsync', serialize($params));
 				$return = true;
 			}
 			else
 			{
-				Option::delete("socialnetwork", array("name" => "workgroupdeptsync"));
+				Option::delete('socialnetwork', [ 'name' => 'workgroupdeptsync' ]);
 			}
 
-			$result["progress"] = (int)($params["number"] * 100 / $params["count"]);
-			$result["steps"] = $params["number"];
+			$result['progress'] = (int)($params['number'] * 100 / $params['count']);
+			$result['steps'] = $params['number'];
 		}
 		else
 		{
-			Option::delete("socialnetwork", array("name" => "workgroupdeptsync"));
+			Option::delete('socialnetwork', [ 'name' => 'workgroupdeptsync' ]);
 		}
 
 		return $return;
+	}
+
+	protected static function reduceList(array $workgroupsToSync = []): array
+	{
+		$result = [];
+
+		foreach ($workgroupsToSync as $workgroupData)
+		{
+			$workgroupId = (int)$workgroupData['groupId'];
+			$result[$workgroupId] = $workgroupData;
+		}
+
+		return array_values($result);
 	}
 }

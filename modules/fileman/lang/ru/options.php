@@ -17,7 +17,6 @@ $MESS["FILEMAN_OPTION_PROPS_NAME"] = "Название";
 $MESS["FILEMAN_OPTION_PROPS_DESCR"] = "Описание";
 $MESS["FILEMAN_OPTION_PROPS_KEYW"] = "Ключевые слова";
 $MESS["FILEMAN_OPTION_EDITOR_PHP"] = "Редактирование PHP скрипта";
-$MESS["FILEMAN_OPTION_MENU_SHOW_INC"] = "Показывать в панели иконки для редактирования включаемых областей (рекомендуется для версии 3.x):";
 $MESS["FILEMAN_OPTION_USE_OLD_VER"] = "Использовать предыдущую версию визуального HTML редактора:";
 $MESS["FILEMAN_OPTION_USE_ONLY_DEFINED_STYLES"] = "Разрешить в визуальном HTML редакторе выводить стили без названий:";
 $MESS["FILEMAN_OPT_FULLSCREEN"] = "По умолчанию открывать HTML редактор в полноэкранном режиме:";

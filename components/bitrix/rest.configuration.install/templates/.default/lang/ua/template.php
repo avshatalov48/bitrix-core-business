@@ -1,4 +1,8 @@
 <?php
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_BTN_CLOSE"] = "Перервати імпорт";
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_BTN_CONTINUE"] = "Продовжити імпорт";
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_DESCRIPTION"] = "Якщо ви зупините процес, при повторній спробі імпорт почнеться заново і знову займе час.";
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_TITLE"] = "Ви точно хочете перервати імпорт?";
 $MESS["REST_CONFIGURATION_IMPORT_INSTALL_ACCEPT_CLEAR"] = "Я хочу замінити поточні налаштування Бітрікс24 налаштуваннями із завантаженої галузевої CRM.";
 $MESS["REST_CONFIGURATION_IMPORT_INSTALL_ACCEPT_CLEAR_ROLLBACK"] = "Я хочу замінити поточні налаштування Бітрікс24 налаштуваннями з обраної галузевої CRM.";
 $MESS["REST_CONFIGURATION_IMPORT_INSTALL_APP_DESCRIPTION"] = "Натискаючи «Продовжити», ви погоджуєтеся з тим, що частина існуючих налаштувань Бітрікс24 може бути змінена згідно з конфігурацією галузевої CRM, що завантажується, і не підлягатиме відновленню.";

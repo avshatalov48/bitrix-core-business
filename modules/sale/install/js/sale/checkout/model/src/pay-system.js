@@ -14,7 +14,7 @@ export class PaySystem extends VuexBuilderModel
 	{
 		return {
 			paySystem: [],
-			status: LoaderConst.status.wait,
+			status: LoaderConst.status.none,
 		}
 	}
 	
@@ -23,7 +23,8 @@ export class PaySystem extends VuexBuilderModel
 		return {
 			id: 0,
 			name: null,
-			type: Const.type.undefined
+			type: Const.type.undefined,
+			picture: null
 		};
 	}
 	
@@ -56,6 +57,11 @@ export class PaySystem extends VuexBuilderModel
 		if (Type.isString(fields.name))
 		{
 			result.name = fields.name.toString();
+		}
+
+		if (Type.isString(fields.logotypeSrc) && fields.logotypeSrc.length > 0)
+		{
+			result.picture = fields.logotypeSrc.toString();
 		}
 		
 		if (Type.isString(fields.type))

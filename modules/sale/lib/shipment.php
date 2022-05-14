@@ -36,6 +36,9 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	/** @var ShipmentPropertyValueCollection */
 	protected $propertyCollection;
 
+	/** @var bool $isNew */
+	protected $isNew = true;
+
 	/**
 	 * @return string|void
 	 */
@@ -936,7 +939,7 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 		$result = new Result();
 
 		$id = $this->getId();
-		$isNew = ($this->getId() === 0);
+		$this->isNew = ($this->getId() === 0);
 
 		$this->callEventOnBeforeEntitySaved();
 
@@ -1005,7 +1008,9 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 			$result->addWarnings($res->getErrors());
 		}
 
-		$this->onAfterSave($isNew);
+		$this->onAfterSave($this->isNew);
+
+		$this->isNew = false;
 
 		return $result;
 	}
@@ -1172,8 +1177,9 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	{
 		/** @var Main\Event $event */
 		$event = new Main\Event('sale', 'OnSaleShipmentEntitySaved', [
-				'ENTITY' => $this,
-				'VALUES' => $this->fields->getOriginalValues(),
+			'ENTITY' => $this,
+			'VALUES' => $this->fields->getOriginalValues(),
+			'IS_NEW' => $this->isNew,
 		]);
 
 		$event->send();

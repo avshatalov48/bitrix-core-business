@@ -3,8 +3,8 @@
 namespace Bitrix\Sale\Services\PaySystem\Restrictions;
 
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Sale\BasketItem;
 use Bitrix\Sale\Internals\Entity;
+use Bitrix\Sale\PayableBasketItem;
 use Bitrix\Sale\Payment;
 use Bitrix\Sale\Services\Base\ConcreteProductRestriction;
 
@@ -45,24 +45,40 @@ class ConcreteProduct extends ConcreteProductRestriction
 			return [];
 		}
 
-		/** @var $collection \Bitrix\Sale\PaymentCollection */
-		if (!$collection = $entity->getCollection())
+		$basketItems = [];
+
+		$payableItemCollection = $entity->getPayableItemCollection();
+		if ($payableItemCollection->isEmpty())
 		{
-			return [];
+			/** @var $collection \Bitrix\Sale\PaymentCollection */
+			if (!$collection = $entity->getCollection())
+			{
+				return [];
+			}
+
+			/** @var $order \Bitrix\Sale\Order */
+			if (!$order =  $collection->getOrder())
+			{
+				return [];
+			}
+
+			/** @var $orderBasket \Bitrix\Sale\Basket */
+			if ($basket = $order->getBasket())
+			{
+				return $basket->getBasketItems();
+			}
+		}
+		else
+		{
+			$basketItemCollection = $payableItemCollection->getBasketItems();
+
+			/** @var PayableBasketItem $payableBasketItem */
+			foreach ($basketItemCollection as $payableBasketItem)
+			{
+				$basketItems[] = $payableBasketItem->getEntityObject();
+			}
 		}
 
-		/** @var $order \Bitrix\Sale\Order */
-		if (!$order =  $collection->getOrder())
-		{
-			return [];
-		}
-
-		/** @var $orderBasket \Bitrix\Sale\Basket */
-		if ($basket = $order->getBasket())
-		{
-			return $basket->getBasketItems();
-		}
-
-		return [];
+		return $basketItems;
 	}
 }

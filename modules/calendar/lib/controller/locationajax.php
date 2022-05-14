@@ -109,8 +109,8 @@ class LocationAjax extends Controller
 				$manager->getError()
 			);
 		}
-		
-		return [];
+
+		return $manager->prepareResponseData();
 	}
 
 	public function getRoomsManagerDataAction(): ?array

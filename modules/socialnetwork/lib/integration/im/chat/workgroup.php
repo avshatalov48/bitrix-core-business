@@ -292,7 +292,7 @@ class Workgroup
 			if (ChatTable::update($chat['ID'], array(
 				'ENTITY_TYPE' => false,
 				'ENTITY_ID' => false
-			)))
+			))->isSuccess())
 			{
 				return \CIMChat::addMessage(array_merge(
 					$chatMessageFields, array(

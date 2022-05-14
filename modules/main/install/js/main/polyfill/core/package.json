@@ -1,16 +1,17 @@
 {
   "name": "main.polyfill.core",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
   "main": "dist/polyfill.bundle.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "node ./src/normalize.js"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "core-js": "^2.6.3",
-    "regenerator-runtime": "^0.13.1"
+    "core-js": "^3.19.2",
+    "core-js-compat": "^3.19.2"
   }
 }

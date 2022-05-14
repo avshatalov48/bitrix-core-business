@@ -21,6 +21,25 @@ abstract class Base
 	protected $namespace;
 	protected $baseFileName;
 	public $name;
+	private $config;
+
+
+	private function getConfig(): ?array {
+		if ($this->config == null) {
+			$this->config = [];
+			$file = new File("$this->path/deps.php");
+			$result = [];
+			if ($file->isExists())
+			{
+				$this->config = include($file->getPath());
+				if (!is_array($this->config)) {
+					$this->config = [];
+				}
+			}
+		}
+
+		return $this->config;
+	}
 
 	public function getModificationTime()
 	{
@@ -83,59 +102,62 @@ abstract class Base
 
 	public function getDependencyList()
 	{
-		$file = new File("$this->path/deps.php");
+		$config = $this->getConfig();
 		$list = [];
-		if ($file->isExists())
+		if (is_array($config))
 		{
-			/** @noinspection PhpIncludeInspection */
-			$depsContent = include($file->getPath());
-
-			if (is_array($depsContent))
+			if (array_keys($config) !== range(0, count($config) - 1)) {
+				if(array_key_exists('extensions', $config)) {
+					$list = $config['extensions'];
+				}
+			}
+			else
 			{
-				if (array_keys($depsContent) !== range(0, count($depsContent) - 1)) {
-					if(array_key_exists('extensions', $depsContent)) {
-						$list = $depsContent['extensions'];
-					}
-				}
-				else
-				{
-					$list = $depsContent;
-				}
+				$list = $config;
 			}
 		}
 
-		$list = array_reduce(
+		return array_reduce(
 			$list,
 			function ($result, $ext) {
 				return array_merge($result,  Base::expandDependency($ext));
 			}, []);
+	}
+
+	protected function getBundleFiles(): array {
+		$config = $this->getConfig();
+		$list = [];
+		if (array_key_exists("bundle", $config)) {
+			$list = array_map(function ($file) {
+				$path = Path::normalize($this->path."/$file");
+				if (Path::getExtension($path) !== "js") {
+					$path .= ".js";
+				}
+				return $path;
+			}, $config["bundle"]);
+		}
 
 		return $list;
 	}
 
 	public function getComponentDependencies(): ?array
 	{
-		$file = new File("$this->path/deps.php");
+		$config = $this->getConfig();
 		$result = [];
-		if ($file->isExists())
+		if (is_array($config))
 		{
-			/** @noinspection PhpIncludeInspection */
-			$depsContent = include($file->getPath());
-			if (is_array($depsContent))
-			{
-				if (array_keys($depsContent) !== range(0, count($depsContent) - 1)) {
-					if (array_key_exists('components', $depsContent)) {
-						if (is_array($depsContent['components'])) {
-							return $depsContent['components'];
-						}
+			if (array_keys($config) !== range(0, count($config) - 1)) {
+				if (array_key_exists('components', $config)) {
+					if (is_array($config['components'])) {
+						return $config['components'];
 					}
 				}
-				else
-				{
-					$result = null;
-				}
-
 			}
+			else
+			{
+				$result = null;
+			}
+
 		}
 
 		return $result;

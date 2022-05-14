@@ -331,6 +331,7 @@ export class Editor
 		eventArgs.sessid = BX.bitrix_sessid();
 		eventArgs.data = {
 			...eventArgs.data,
+			useProductsFromRequest,
 			signedParameters: this.getSignedParameters(),
 			products: useProductsFromRequest ? this.getProductsFields() : null,
 		};

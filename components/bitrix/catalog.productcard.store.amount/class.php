@@ -326,16 +326,7 @@ class CatalogProductStoreAmountComponent
 				'type' => 'number',
 				'width' => $defaultWidth,
 				'default' => true
-			],
-			[
-				'id' => 'AMOUNT',
-				'name' => Loc::getMessage('STORE_LIST_GRID_HEADER_AMOUNT'),
-				'title' => Loc::getMessage('STORE_LIST_GRID_HEADER_AMOUNT'),
-				'sort' => 'AMOUNT',
-				'type' => 'money',
-				'width' => $defaultWidth,
-				'default' => true
-			],
+			]
 		];
 
 		if (Config\State::isShowedStoreReserve())
@@ -360,6 +351,16 @@ class CatalogProductStoreAmountComponent
 				'default' => true
 			]);
 		}
+
+		$headers[] = [
+			'id' => 'AMOUNT',
+			'name' => Loc::getMessage('STORE_LIST_GRID_HEADER_AMOUNT'),
+			'title' => Loc::getMessage('STORE_LIST_GRID_HEADER_AMOUNT'),
+			'sort' => 'AMOUNT',
+			'type' => 'money',
+			'width' => $defaultWidth,
+			'default' => true
+		];
 
 		$this->headers = $headers;
 		return $this->headers;

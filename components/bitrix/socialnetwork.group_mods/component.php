@@ -107,8 +107,12 @@ else
 				$APPLICATION->AddChainItem(GetMessage("SONET_C10_TITLE"));
 			}
 
-			if ($_SERVER["REQUEST_METHOD"] === "POST" && $arResult["CurrentUserPerms"]["UserCanModifyGroup"]
-				&& $_POST["save"] <> '' && check_bitrix_sessid())
+			if (
+				$_SERVER["REQUEST_METHOD"] === "POST"
+				&& $arResult["CurrentUserPerms"]["UserCanModifyGroup"]
+				&& $_POST["save"] <> ''
+				&& check_bitrix_sessid()
+			)
 			{
 				$errorMessage = "";
 

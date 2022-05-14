@@ -68,9 +68,11 @@ abstract class AttachmentManager
 			return null;
 		}
 
+		$description = $this->parseText($description);
+
 		if (empty($this->event['ICAL_ATTACHES']->getCollection()))
 		{
-			return $description;
+			return str_replace("\r\n", " \n", $description);
 		}
 
 		return str_replace("\r\n", " \n", $description . "\n" . $this->getFilesDescription());
@@ -177,5 +179,19 @@ abstract class AttachmentManager
 
 			return $replyTo;
 		}
+	}
+
+	/**
+	 * @param string|null $description
+	 * @return string
+	 */
+	protected function parseText(?string $description): string
+	{
+		if (!$description)
+		{
+			return '';
+		}
+
+		return \CTextParser::clearAllTags($description);
 	}
 }

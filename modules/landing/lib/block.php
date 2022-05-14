@@ -2822,6 +2822,17 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					. '</script>';
 			}
 			$content = $this::replaceMetaMarkers($content);
+
+			$event = new \Bitrix\Main\Event('landing', 'onBlockEditView', [
+				'block' => $this,
+				'outputContent' => $content
+			]);
+			$event->send();
+			foreach ($event->getResults() as $result)
+			{
+				$content = $result->getParameters();
+			}
+
 			if ($this->repoId)
 			{
 				echo $content;

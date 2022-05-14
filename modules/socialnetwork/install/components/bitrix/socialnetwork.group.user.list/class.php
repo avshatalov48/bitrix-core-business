@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\Component\WorkgroupUserList;
@@ -13,6 +14,7 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Filter;
 use Bitrix\Socialnetwork\Helper;
+use Bitrix\Socialnetwork\Item\Workgroup;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Main\Search;
 
@@ -20,6 +22,16 @@ Loader::includeModule('socialnetwork');
 
 class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 {
+	protected const PRESET_ALL = 'all';
+	protected const PRESET_COMPANY = 'company';
+	protected const PRESET_REQUESTS_IN = 'requests_in';
+	protected const PRESET_REQUESTS_OUT = 'requests_out';
+	protected const PRESET_EXTERNAL = 'external';
+	protected const PRESET_AUTO = 'auto';
+
+	protected const COUNTER_REQUESTS_IN = 'workgroup_requests_in';
+	protected const COUNTER_REQUESTS_OUT = 'workgroup_requests_out';
+
 	protected $gridId = 'SOCIALNETWORK_WORKGROUP_USER_LIST';
 	protected $filterId = 'SOCIALNETWORK_WORKGROUP_USER_LIST';
 
@@ -28,12 +40,13 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		'FULL_NAME',
 		'NAME',
 		'LAST_NAME',
+		'EMAIL',
 		'SECOND_NAME',
-		'PHOTO',
 		'ROLE',
 		'INITIATED_BY_TYPE',
 		'DEPARTMENT',
 		'AUTO_MEMBER',
+		'ACTIONS',
 	];
 
 	protected $availableEntityFields = [
@@ -46,6 +59,9 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		'AUTO_MEMBER',
 		'INITIATED_BY_TYPE',
 		'DEPARTMENT',
+		'DATE_CREATE',
+		'IS_SCRUM_MASTER',
+		'AUTO_MEMBER_DEPARTMENT',
 	];
 
 	protected $actionData;
@@ -72,18 +88,12 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 					'editable' => false
 				],
 				[
-					'id' => 'PHOTO',
-					'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_COLUMN_PHOTO'),
-					'sort' => false,
-					'default' => true,
-					'editable' => false
-				],
-				[
 					'id' => 'FULL_NAME',
-					'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_COLUMN_FULL_NAME'),
+					'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_COLUMN_PERSON'),
 					'sort' => 'FULL_NAME',
 					'default' => true,
-					'editable' => false
+					'editable' => false,
+					'prevent_default' => false,
 				],
 				[
 					'id' => 'ROLE',
@@ -102,8 +112,17 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 					'sort' => false,
 					'default' => false,
 					'editable' => false,
+					'prevent_default' => true,
 				];
 			}
+
+			$columns[] = [
+				'id' => 'ACTIONS',
+				'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_COLUMN_ACTIONS'),
+				'default' => true,
+				'editable' => false,
+				'prevent_default' => false,
+			];
 
 			foreach ($columns as $column)
 			{
@@ -149,7 +168,6 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 	private function getDefaultGridSelectedHeaders(): array
 	{
 		return [
-			'PHOTO',
 			'FULL_NAME',
 			'EMAIL',
 		];
@@ -174,23 +192,120 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		return $result;
 	}
 
-	private function getFilterPresets(\Bitrix\Main\Filter\Filter $entityFilter, $componentResult): array
+	private function clearFilter($componentResult): void
+	{
+		$filterOptions = new \Bitrix\Main\UI\Filter\Options($this->filterId, $componentResult['FILTER_PRESETS']);
+		$currentPresetId = $componentResult['CURRENT_PRESET_ID'];
+		$customFilterData = $componentResult['CUSTOM_FILTER'];
+
+		if (!empty($customFilterData))
+		{
+			$filterSettings = [
+				'fields' => $customFilterData,
+			];
+		}
+		else
+		{
+			$filterSettings = $filterOptions->getFilterSettings($currentPresetId);
+			if (isset($componentResult['FILTER_PRESETS'][$currentPresetId]))
+			{
+				$filterSettings['fields'] = $componentResult['FILTER_PRESETS'][$currentPresetId]['fields'];
+			}
+		}
+
+		$filterOptions->setFilterSettings($currentPresetId, $filterSettings, true, false);
+		$filterOptions->save();
+	}
+
+	private function getCurrentPresetId(): string
+	{
+		switch ($this->arParams['MODE'])
+		{
+			case 'MEMBERS':
+				$result = self::PRESET_COMPANY;
+				break;
+			case 'REQUESTS_IN':
+				$result = self::PRESET_REQUESTS_IN;
+				break;
+			case 'REQUESTS_OUT':
+				$result = self::PRESET_REQUESTS_OUT;
+				break;
+			default:
+				$result = 'tmp_filter';
+		}
+
+		return $result;
+	}
+
+	private function getCounter(): string
+	{
+		switch ($this->arParams['MODE'])
+		{
+			case 'REQUESTS_IN':
+				$result = self::COUNTER_REQUESTS_IN;
+				break;
+			case 'REQUESTS_OUT':
+				$result = self::COUNTER_REQUESTS_OUT;
+				break;
+			default:
+				$result = '';
+		}
+
+		return $result;
+	}
+
+	private function getCurrentCustomFilter(): array
+	{
+		switch ($this->arParams['MODE'])
+		{
+			case 'MODERATORS':
+				$result = [
+					'ROLE' => [ UserToGroupTable::ROLE_MODERATOR ],
+				];
+				break;
+			default:
+				$result = [];
+		}
+
+		return $result;
+	}
+
+	private function getFilterPresets($componentResult): array
 	{
 		$result = [];
 
-		if (\Bitrix\Main\Filter\UserDataProvider::getExtranetAvailability())
-		{
-			$result['company'] = [
-				'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_FILTER_PRESET_COMPANY'),
-				'fields' => [
-					'EXTRANET' => 'N',
-					'FIRED' => 'N',
-					'ROLE' => UserToGroupTable::getRolesMember(),
-				],
-				'default' => false,
-			];
+		$currentPresetId = $componentResult['CURRENT_PRESET_ID'];
+		$extranetAvailable = \Bitrix\Main\Filter\UserDataProvider::getExtranetAvailability();
+		$autoMemberAvailable = \Bitrix\Socialnetwork\Filter\UserToGroupDataProvider::getAutoMemberAvailability();
 
-			$result['external'] = [
+		$result[self::PRESET_ALL] = [
+			'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_FILTER_PRESET_ALL'),
+			'fields' => [],
+			'default' => ($currentPresetId === self::PRESET_ALL),
+		];
+
+		$companyFilter = [
+			'FIRED' => 'N',
+			'ROLE' => UserToGroupTable::getRolesMember(),
+		];
+		if ($extranetAvailable)
+		{
+			$companyFilter['EXTRANET'] = 'N';
+		}
+
+		$result[self::PRESET_COMPANY] = [
+			'name' => (
+				$extranetAvailable
+					? Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_FILTER_PRESET_COMPANY')
+					: Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_FILTER_PRESET_MEMBERS')
+			),
+			'fields' => $companyFilter,
+			'default' => ($currentPresetId === self::PRESET_COMPANY),
+		];
+
+		if ($extranetAvailable)
+		{
+			$result[self::PRESET_EXTERNAL] = [
 				'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_FILTER_PRESET_EXTERNAL'),
 				'fields' => [
 					'EXTRANET' => 'Y',
@@ -201,61 +316,48 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 			];
 		}
 
-		if (\Bitrix\Socialnetwork\Filter\UserToGroupDataProvider::getAutoMemberAvailability())
-		{
-			$result['auto'] = [
-				'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_FILTER_PRESET_AUTO'),
-				'fields' => [
-					'AUTO_MEMBER' => 'Y',
-				],
-				'default' => false,
-			];
-		}
-
 		if ($componentResult['GROUP_PERMS']['UserCanProcessRequestsIn'])
 		{
-			$result['requests_in'] = [
+			$result[self::PRESET_REQUESTS_IN] = [
 				'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_FILTER_PRESET_REQUESTS_IN'),
 				'fields' => [
 					'ROLE' => [ UserToGroupTable::ROLE_REQUEST ],
 					'FIRED' => 'N',
 					'INITIATED_BY_TYPE' => UserToGroupTable::INITIATED_BY_USER,
 				],
-				'default' => false,
+				'default' => ($currentPresetId === self::PRESET_REQUESTS_IN),
 			];
 		}
 
 		if ($componentResult['GROUP_PERMS']['UserCanInitiate'])
 		{
-			$result['requests_out'] = [
+			$result[self::PRESET_REQUESTS_OUT] = [
 				'name' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_FILTER_PRESET_REQUESTS_OUT'),
 				'fields' => [
 					'ROLE' => [ UserToGroupTable::ROLE_REQUEST ],
 					'FIRED' => 'N',
 					'INITIATED_BY_TYPE' => UserToGroupTable::INITIATED_BY_GROUP,
 				],
-				'default' => false,
+				'default' => ($currentPresetId === self::PRESET_REQUESTS_OUT),
 			];
 		}
 
 		return $result;
 	}
 
-	private function getOrder(\Bitrix\Main\Grid\Options $gridOptions): array
+	private function getOrder(\Bitrix\Main\Grid\Options $gridOptions, array $componentResult = []): array
 	{
 		$result = [];
 		$gridSort = $gridOptions->getSorting();
 
-		$useDepartments = (
-			ModuleManager::isModuleInstalled('intranet')
-			&& \Bitrix\Main\Filter\UserDataProvider::getExtranetAvailability()
-		);
+		$useDepartments = ModuleManager::isModuleInstalled('intranet');
 
 		if (!empty($gridSort['sort']))
 		{
 			if ($useDepartments)
 			{
 				$result['AUTO_MEMBER'] = 'ASC';
+				$result['AUTO_MEMBER_DEPARTMENT'] = 'ASC';
 			}
 
 			foreach ($gridSort['sort'] as $by => $order)
@@ -268,6 +370,14 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 					default:
 				}
 				$result[$by] = mb_strtoupper($order);
+
+				if (
+					$by === 'ROLE'
+					&& $componentResult['SCRUM'] === 'Y'
+				)
+				{
+					$result['IS_SCRUM_MASTER'] = 'DESC';
+				}
 			}
 		}
 		else
@@ -276,10 +386,15 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 				'ROLE' => 'ASC',
 			];
 
+			if ($componentResult['SCRUM'] === 'Y')
+			{
+				$result['IS_SCRUM_MASTER'] = 'DESC';
+			}
+
 			if ($useDepartments)
 			{
 				$result['AUTO_MEMBER'] = 'ASC';
-				$result['USER.UF_DEPARTMENT'] = 'ASC';
+				$result['AUTO_MEMBER_DEPARTMENT'] = 'ASC';
 			}
 
 			$result['USER.LAST_NAME'] = 'ASC';
@@ -297,9 +412,34 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		);
 	}
 
-	private function addQueryOrder(\Bitrix\Main\Entity\Query $query, \Bitrix\Main\Grid\Options $gridOptions): void
+	private function addQueryRuntime(\Bitrix\Main\Entity\Query $query, array $componentResult = []): void
 	{
-		$orderFields = $this->getOrder($gridOptions);
+		if (ModuleManager::isModuleInstalled('intranet'))
+		{
+			$query->registerRuntimeField('AUTO_MEMBER_DEPARTMENT',
+				new ExpressionField(
+					'AUTO_MEMBER_DEPARTMENT',
+					"(CASE WHEN %s = 'Y' THEN %s ELSE 0 END)",
+					[ 'AUTO_MEMBER', 'USER.UF_DEPARTMENT' ]
+				)
+			);
+		}
+
+		if ($componentResult['SCRUM'] === 'Y')
+		{
+			$query->registerRuntimeField('IS_SCRUM_MASTER',
+				new ExpressionField(
+					'IS_SCRUM_MASTER',
+					'(CASE WHEN %s = %s THEN 1 ELSE 0 END)',
+					[ 'GROUP.SCRUM_MASTER_ID', 'USER.ID' ]
+				)
+			);
+		}
+	}
+
+	private function addQueryOrder(\Bitrix\Main\Entity\Query $query, \Bitrix\Main\Grid\Options $gridOptions, array $componentResult = []): void
+	{
+		$orderFields = $this->getOrder($gridOptions, $componentResult);
 		foreach ($orderFields as $fieldName => $value)
 		{
 			if (!$this->checkQueryFieldName($fieldName))
@@ -311,22 +451,15 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		}
 	}
 
-	protected function addQueryFilter(\Bitrix\Main\Entity\Query $query, array $gridFilter): bool
+	protected function addQueryFilter(\Bitrix\Main\Entity\Query $query, array $gridFilter, $componentResult): bool
 	{
 		$query->addFilter('=GROUP_ID', $this->arParams['GROUP_ID']);
 
 		$filter = $this->getFilter($gridFilter);
 
-		if (
-			isset($filter['=INITIATED_BY_TYPE'])
-			&& (
-				empty($filter['=ROLE'])
-				|| !empty(array_diff($filter['=ROLE'], [ UserToGroupTable::ROLE_REQUEST ]))
-				|| !empty(array_diff([ UserToGroupTable::ROLE_REQUEST ], $filter['=ROLE']))
-			)
-		)
+		if (!empty($filter['=INITIATED_BY_TYPE']))
 		{
-			unset($filter['=INITIATED_BY_TYPE']);
+			$filter['=ROLE'] = UserToGroupTable::ROLE_REQUEST;
 		}
 
 		$departmentId = 0;
@@ -361,6 +494,13 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 				continue;
 			}
 
+			if (preg_match('/([%=]*)(ID|LAST_NAME|NAME|EMAIL)/i', $fieldName, $matches))
+			{
+				[ , $operation, $fieldName ] = $matches;
+				$query->addFilter($operation . 'USER.' . $fieldName, $value);
+				continue;
+			}
+
 			if ($fieldName === '=INITIATED_BY_TYPE')
 			{
 				$query->addFilter('=INITIATED_BY_TYPE', $value);
@@ -370,11 +510,11 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 					$initiatedByUser = true;
 
 					if (
-						!$this->arResult['CurrentUserPerms']['UserCanProcessRequestsIn']
+						!$componentResult['GROUP_PERMS']['UserCanProcessRequestsIn']
 						&& !Helper\Workgroup::isCurrentUserModuleAdmin()
 					)
 					{
-						$query->addFilter('=INITIATED_BY_USER_ID', Helper\Workgroup::getCurrentUserId());
+						$query->addFilter('=INITIATED_BY_USER_ID', Helper\User::getCurrentUserId());
 					}
 				}
 
@@ -392,7 +532,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 
 		if (
 			!$initiatedByUser
-			&& !$this->arResult['CurrentUserPerms']['UserCanProcessRequestsIn']
+			&& !$componentResult['GROUP_PERMS']['UserCanProcessRequestsIn']
 			&& !Helper\Workgroup::isCurrentUserModuleAdmin()
 		)
 		{
@@ -401,7 +541,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 				[
 					'=ROLE' => UserToGroupTable::ROLE_REQUEST,
 					'=INITIATED_BY_TYPE' => UserToGroupTable::INITIATED_BY_GROUP,
-					'=INITIATED_BY_USER_ID' => Helper\Workgroup::getCurrentUserId(),
+					'=INITIATED_BY_USER_ID' => Helper\User::getCurrentUserId(),
 				],
 				[
 					'!=ROLE' => UserToGroupTable::ROLE_REQUEST,
@@ -452,9 +592,9 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		return true;
 	}
 
-	private function addQuerySelect(\Bitrix\Main\Entity\Query $query, \Bitrix\Main\Grid\Options $gridOptions): void
+	private function addQuerySelect(\Bitrix\Main\Entity\Query $query, \Bitrix\Main\Grid\Options $gridOptions, array $componentResult = []): void
 	{
-		$selectFields = $this->getSelect($gridOptions);
+		$selectFields = $this->getSelect($gridOptions, $componentResult);
 		foreach ($selectFields as $fieldName)
 		{
 			if (!$this->checkQueryFieldName($fieldName))
@@ -544,7 +684,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 
 		$fieldName = (isset($params['FIELD_NAME']) && $params['FIELD_NAME'] !== '' ? $params['FIELD_NAME'] : $filterFieldName);
 
-		if (in_array($fieldName, $this->fieldsList))
+		if (in_array($fieldName, $this->fieldsList, true))
 		{
 			if ($valueFrom !== '')
 			{
@@ -685,7 +825,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 			}
 			elseif (
 				!is_array($field['VALUE'])
-				&& $field['VALUE'] <> ''
+				&& (string)$field['VALUE'] !== ''
 			)
 			{
 				$value = (int)$field['VALUE'];
@@ -746,12 +886,18 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		return $result;
 	}
 
-	protected function getSelect(\Bitrix\Main\Grid\Options $gridOptions): array
+	protected function getSelect(\Bitrix\Main\Grid\Options $gridOptions, array $componentResult = []): array
 	{
-		$result = [ 'USER.ID', 'ROLE', 'INITIATED_BY_TYPE', 'INITIATED_BY_USER_ID', 'AUTO_MEMBER' ];
+		$result = [ 'USER.ID', 'USER.CONFIRM_CODE', 'ROLE', 'INITIATED_BY_TYPE', 'INITIATED_BY_USER_ID', 'AUTO_MEMBER', 'DATE_CREATE'  ];
 		if (ModuleManager::isModuleInstalled('intranet'))
 		{
 			$result[] = 'USER.USER_TYPE';
+			$result[] = 'USER.UF_DEPARTMENT';
+		}
+
+		if ($componentResult['SCRUM'] === 'Y')
+		{
+			$result[] = 'GROUP.SCRUM_MASTER_ID';
 		}
 
 		$gridColumns = $gridOptions->getVisibleColumns();
@@ -773,13 +919,11 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 					$result[] = 'USER.LAST_NAME';
 					$result[] = 'USER.SECOND_NAME';
 					$result[] = 'USER.LOGIN';
-					break;
-				case 'PHOTO':
 					$result[] = 'USER.PERSONAL_PHOTO';
 					$result[] = 'USER.PERSONAL_GENDER';
+					$result[] = 'USER.WORK_POSITION';
 					break;
 				case 'DEPARTMENT':
-					$result[] = 'USER.UF_DEPARTMENT';
 					break;
 				default:
 					$result[] = $column;
@@ -813,6 +957,20 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 			$params['PATH_TO_GROUP_INVITE'] = Helper\Path::get('group_invite_path_template');
 		}
 
+		if (empty($params['PATH_TO_GROUP_USERS']))
+		{
+			$params['PATH_TO_GROUP_USERS'] = Helper\Path::get('group_users_path_template');
+		}
+
+		if (empty($params['PATH_TO_GROUP_REQUESTS']))
+		{
+			$params['PATH_TO_GROUP_REQUESTS'] = Helper\Path::get('group_requests_path_template');
+		}
+
+		if (empty($params['PATH_TO_GROUP_REQUESTS_OUT']))
+		{
+			$params['PATH_TO_GROUP_REQUESTS_OUT'] = Helper\Path::get('group_requests_out_path_template');
+		}
 
 		return $params;
 	}
@@ -877,13 +1035,14 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 
 		$deleteRelationIdList = [];
 		$removeModeratorRelationIdList = [];
+		$rejectIncomingRequestRelationIdList = [];
 
 		$res = UserToGroupTable::getList([
 			'filter' => [
 				'=GROUP_ID' => $groupId,
 				'@USER_ID' => $idList,
 			],
-			'select' => [ 'ID', 'ROLE', 'INITIATED_BY_TYPE', 'INITIATED_BY_USER_ID', 'AUTO_MEMBER' ],
+			'select' => [ 'ID', 'USER', 'ROLE', 'INITIATED_BY_TYPE', 'INITIATED_BY_USER_ID', 'AUTO_MEMBER' ],
 		]);
 		$relations = $res->fetchCollection();
 
@@ -906,8 +1065,14 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 					'groupId' => $groupId,
 				]);
 
+				$canProcessIncomingRequest = Helper\Workgroup::canProcessIncomingRequest([
+					'relation' => $relation,
+					'groupId' => $groupId,
+				]);
+
 				if (
 					!$canDeleteOutgoingRequest
+					&& !$canProcessIncomingRequest
 					&& !$canRemoveModerator
 					&& !$canExclude
 				)
@@ -918,6 +1083,10 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 				if ($canRemoveModerator)
 				{
 					$removeModeratorRelationIdList[] = $relation->getId();
+				}
+				elseif ($canProcessIncomingRequest)
+				{
+					$rejectIncomingRequestRelationIdList[] = $relation->getId();
 				}
 				else
 				{
@@ -930,6 +1099,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		{
 			if (
 				empty($deleteRelationIdList)
+				&& empty($rejectIncomingRequestRelationIdList)
 				&& empty($removeModeratorRelationIdList)
 			)
 			{
@@ -946,10 +1116,22 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 
 			if (!empty($removeModeratorRelationIdList))
 			{
-				\CSocNetUserToGroup::TransferModerator2Member(Helper\Workgroup::getCurrentUserId(), $groupId, $removeModeratorRelationIdList);
+				CSocNetUserToGroup::TransferModerator2Member(
+					Helper\User::getCurrentUserId(),
+					$groupId,
+					$removeModeratorRelationIdList
+				);
+			}
+
+			if (!empty($rejectIncomingRequestRelationIdList))
+			{
+				CSocNetUserToGroup::RejectRequestToBeMember(
+					Helper\User::getCurrentUserId(),
+					$groupId,
+					$rejectIncomingRequestRelationIdList
+				);
 			}
 		}
-
 	}
 
 	protected function prepareData(): array
@@ -958,6 +1140,24 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 			'GROUP_ACTION_MESSAGES' => [],
 			'FIELDS_LIST' => $this->fieldsList,
 		];
+
+		$group = Workgroup::getById($this->arParams['GROUP_ID']);
+
+		if ($group && $group->isScrumProject())
+		{
+			$result['SCRUM'] = 'Y';
+			$result['PROJECT'] = 'Y';
+		}
+		elseif ($group && $group->isProject())
+		{
+			$result['SCRUM'] = 'N';
+			$result['PROJECT'] = 'Y';
+		}
+		else
+		{
+			$result['SCRUM'] = 'N';
+			$result['PROJECT'] = 'N';
+		}
 
 		$this->initPageFilterData();
 
@@ -969,6 +1169,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		);
 
 		$result['GROUP'] = $this->getGroup();
+
 		if (empty($result['GROUP']))
 		{
 			$this->addError(new Error(Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_ERROR_NO_GROUP')));
@@ -997,6 +1198,10 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 			'pathToDepartment' => $this->arParams['PATH_TO_DEPARTMENT'],
 		]);
 
+		$result['CONNECTED_SUBDEPARTMENTS_LIST'] = $this->getConnectedSubDepartmentsList([
+			'groupFields' => $result['GROUP'],
+		]);
+
 		$result['EXTRANET_SITE'] = (static::extranetSite() ? 'Y' : 'N');
 		$result['HideArchiveLinks'] = (
 			$result['GROUP']['CLOSED'] === 'Y'
@@ -1013,7 +1218,16 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 
 		$result['GRID_ID'] = $this->gridId;
 		$result['FILTER_ID'] = $this->filterId;
-		$result['FILTER_PRESETS'] = $this->getFilterPresets($entityFilter, $result);
+		$result['CURRENT_PRESET_ID'] = $this->getCurrentPresetId();
+		$result['CURRENT_COUNTER'] = $this->getCounter();
+		$result['CUSTOM_FILTER'] = $this->getCurrentCustomFilter();
+
+		$result['FILTER_PRESETS'] = $this->getFilterPresets($result);
+
+		if ((\Bitrix\Main\Context::getCurrent()->getRequest()->getPost('apply_filter') !== 'Y'))
+		{
+			$this->clearFilter($result);
+		}
 
 		$gridOptions = new \Bitrix\Main\Grid\Options($result['GRID_ID']);
 
@@ -1047,12 +1261,13 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		);
 
 		$query = new \Bitrix\Main\Entity\Query(UserToGroupTable::getEntity());
-		$this->addQueryOrder($query, $gridOptions);
-		if (!$this->addQueryFilter($query, $gridFilter))
+		$this->addQueryRuntime($query, $result);
+		$this->addQueryOrder($query, $gridOptions, $result);
+		if (!$this->addQueryFilter($query, $gridFilter, $result))
 		{
 			return $result;
 		}
-		$this->addQuerySelect($query, $gridOptions);
+		$this->addQuerySelect($query, $gridOptions, $result);
 		$query->countTotal(true);
 		$query->setOffset($nav->getOffset());
 		$query->setLimit($nav->getLimit());
@@ -1062,12 +1277,23 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		$records = $res->fetchCollection();
 
 		$gridColumns = $gridOptions->getVisibleColumns();
+
 		if (empty($gridColumns))
 		{
 			$gridColumns = $this->getDefaultGridHeaders();
 		}
+		else
+		{
+			$availableGridColumns = array_map(static function($gridColumn) {
+				return $gridColumn['id'];
+			}, $this->getGridHeaders());
+			$gridColumns = array_filter($gridColumns, static function ($key) use ($availableGridColumns) {
+				return in_array($key, $availableGridColumns, true);
+			});
+		}
 
 		$rowsList = [];
+		$showActionsColumn = false;
 
 		foreach ($records as $record)
 		{
@@ -1076,16 +1302,26 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 			$row['CAN_EDIT'] = false;
 			$row['CAN_DELETE'] = false;
 
+			$actions = self::getActions([
+				'RELATION' => $row['ROW_FIELDS'],
+				'PATH_TO_USER' => $this->arParams['PATH_TO_USER'],
+				'GROUP_ID' => $this->arParams['GROUP_ID'],
+			]);
+
+			if (
+				!$showActionsColumn
+				&& !empty(array_intersect($actions, $this->getViewableActionList()))
+			)
+			{
+				$showActionsColumn = true;
+			}
+
 			$rowsList[] = [
 				'id' => $record->getUser()->getId(),
 				'data' => $row,
 				'columns' => [],
 				'editable' => true,
-				'actions' => self::getActions([
-					'RELATION' => $row['ROW_FIELDS'],
-					'PATH_TO_USER' => $this->arParams['PATH_TO_USER'],
-					'GROUP_ID' => $this->arParams['GROUP_ID'],
-				]),
+				'actions' => $actions,
 				'columnClasses' => (
 					ModuleManager::isModuleInstalled('intranet')
 					&& $record->getUser()->getUserType() === 'extranet'
@@ -1097,6 +1333,12 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 			];
 		}
 
+		if (!$showActionsColumn)
+		{
+			$gridColumns = array_filter($gridColumns, static function($item) { return $item !== 'ACTIONS'; });
+			$result['HEADERS'] = array_filter($result['HEADERS'], static function($item) { return $item['id'] !== 'ACTIONS'; });
+		}
+
 		$result['ROWS'] = $rowsList;
 		$result['ROWS_COUNT'] = $res->getCount();
 
@@ -1106,6 +1348,14 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		$result['GRID_COLUMNS'] = $gridColumns;
 
 		return $result;
+	}
+
+	private function getViewableActionList(): array
+	{
+		return [
+			self::AVAILABLE_ACTION_PROCESS_INCOMING_REQUEST,
+			self::AVAILABLE_ACTION_REINVITE,
+		];
 	}
 
 	protected function initPageFilterData(): void
@@ -1125,46 +1375,10 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 	{
 		$filterPresets = ($params['FILTER_PRESETS'] ?? []);
 		$filter = ($params['FILTER'] ?? []);
-
 		$filterOptions = new \Bitrix\Main\UI\Filter\Options($this->filterId, $filterPresets);
 
-		$gridFilter = $filterOptions->getFilter($filter);
-		if (
-			empty($gridFilter)
-			&& !empty($this->arParams['MODE'])
-		)
-		{
-			switch (strtoupper($this->arParams['MODE']))
-			{
-				case 'MEMBERS':
-					$gridFilter = [
-						'ROLE' => UserToGroupTable::getRolesMember(),
-					];
-					break;
-				case 'MODERATORS':
-					$gridFilter = [
-						'ROLE' => [ UserToGroupTable::ROLE_MODERATOR ],
-					];
-					break;
-				case 'REQUESTS_IN':
-					$gridFilter = [
-						'ROLE' => [ UserToGroupTable::ROLE_REQUEST ],
-						'FIRED' => 'N',
-						'INITIATED_BY_TYPE' => UserToGroupTable::INITIATED_BY_USER,
-					];
-					break;
-				case 'REQUESTS_OUT':
-					$gridFilter = [
-						'ROLE' => [ UserToGroupTable::ROLE_REQUEST ],
-						'FIRED' => 'N',
-						'INITIATED_BY_TYPE' => UserToGroupTable::INITIATED_BY_GROUP,
-					];
-					break;
-				default:
-			}
-		}
+		return $filterOptions->getFilter($filter);
 
-		return $gridFilter;
 	}
 
 	protected static function extranetSite(): bool
@@ -1175,7 +1389,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		{
 			$result = (
 				Loader::includeModule('extranet')
-				&& \CExtranet::isExtranetSite()
+				&& CExtranet::isExtranetSite()
 			);
 		}
 
@@ -1242,10 +1456,6 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 			}
 		}
 
-		$this->setTitle([
-			'PROJECT' => $this->arResult['GROUP']['PROJECT'],
-		]);
-
 		$this->includeComponentTemplate();
 	}
 
@@ -1253,26 +1463,79 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 	{
 		global $APPLICATION;
 
-		$project = (isset($params['PROJECT']) && $params['PROJECT'] === 'Y');
-
 		if ($this->arParams['SET_TITLE'] === 'Y')
 		{
-			switch (strtoupper($this->arParams['MODE']))
+			$group = Workgroup::getById($this->arParams['GROUP_ID']);
+
+			if ($group && $group->isScrumProject())
 			{
-				case 'MEMBERS':
-					$shortTitle = ($project ? Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_MEMBERS_PROJECT') : Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_MEMBERS'));
+				$type = 'scrum';
+			}
+			elseif ($group && $group->isProject())
+			{
+				$type = 'project';
+			}
+			else
+			{
+				$type = 'group';
+			}
+
+			switch ($type)
+			{
+				case 'scrum':
+					$shortTitle = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_MEMBERS_SCRUM');
 					break;
-				case 'MODERATORS':
-					$shortTitle = ($project ? Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_MODERATORS_PROJECT') : Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_MODERATORS'));
-					break;
-				case 'REQUESTS_IN':
-					$shortTitle = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_REQUESTS_IN');
-					break;
-				case 'REQUESTS_OUT':
-					$shortTitle = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_REQUESTS_OUT');
+				case 'project':
+					$shortTitle = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_MEMBERS_PROJECT');
 					break;
 				default:
-					$shortTitle = '';
+					$shortTitle = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_MEMBERS');
+			}
+
+			if (SITE_TEMPLATE_ID !== 'bitrix24')
+			{
+				if ($this->arParams['MODE'] === 'REQUESTS_IN')
+				{
+					switch ($type)
+					{
+						case 'scrum':
+							$shortTitle = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_REQUESTS_IN_SCRUM');
+							break;
+						case 'project':
+							$shortTitle = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_REQUESTS_IN_PROJECT');
+							break;
+						default:
+							$shortTitle = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_REQUESTS_IN');
+					}
+				}
+				elseif ($this->arParams['MODE'] === 'REQUESTS_OUT')
+				{
+					switch ($type)
+					{
+						case 'scrum':
+							$shortTitle = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_REQUESTS_OUT_SCRUM');
+							break;
+						case 'project':
+							$shortTitle = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_REQUESTS_OUT_PROJECT');
+							break;
+						default:
+							$shortTitle = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_REQUESTS_OUT');
+					}
+				}
+				elseif ($this->arParams['MODE'] === 'MODERATORS')
+				{
+					switch ($type)
+					{
+						case 'scrum':
+							$shortTitle = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_MODERATORS_SCRUM');
+							break;
+						case 'project':
+							$shortTitle = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_MODERATORS_PROJECT');
+							break;
+						default:
+							$shortTitle = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TITLE_MODERATORS');
+					}
+				}
 			}
 
 			$title = \Bitrix\Socialnetwork\ComponentHelper::getWorkgroupPageTitle([
@@ -1298,7 +1561,15 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 
 	protected function getGroup()
 	{
-		return \CSocNetGroup::getById($this->arParams['GROUP_ID']);
+		$result = \CSocNetGroup::getById($this->arParams['GROUP_ID']);
+		if (!empty($result['UF_SG_DEPT']))
+		{
+			$result['UF_SG_DEPT'] = array_map(static function($value) {
+				return (int)$value;
+			}, $result['UF_SG_DEPT']);
+		}
+
+		return $result;
 	}
 
 	protected function getConnectedDepartmentsList(array $params = []): array
@@ -1316,7 +1587,7 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 			return $result;
 		}
 
-		$departmentsList = CIntranetUtils::getDepartmentsData($params['groupFields']['UF_SG_DEPT']);
+		$departmentsList = CIntranetUtils::getDepartmentsData(CIntranetUtils::GetIBlockSectionChildren($params['groupFields']['UF_SG_DEPT']));
 		if (empty($departmentsList))
 		{
 			return $result;
@@ -1340,6 +1611,55 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 		return $result;
 	}
 
+	protected function getConnectedSubDepartmentsList(array $params = []): array
+	{
+		$result = [];
+
+		if (
+			empty($params['groupFields'])
+			|| !is_array($params['groupFields'])
+			|| empty($params['groupFields']['UF_SG_DEPT'])
+			|| !is_array($params['groupFields']['UF_SG_DEPT'])
+			|| !Loader::includeModule('intranet')
+		)
+		{
+			return $result;
+		}
+
+		foreach ($params['groupFields']['UF_SG_DEPT'] as $departmentId)
+		{
+			$result[$departmentId] = $this->getSubDepartmentsList((int)$departmentId);
+		}
+
+		return $result;
+	}
+
+	protected function getSubDepartmentsList(int $departmentId = 0): array
+	{
+		$result = [];
+		if ($departmentId <= 0)
+		{
+			return $result;
+		}
+
+		$subDepartmentsList = \CIntranetUtils::getSubDepartments($departmentId);
+		if (empty($subDepartmentsList))
+		{
+			return $result;
+		}
+
+		$result = array_map(static function($value) {
+			return (int)$value;
+		}, $subDepartmentsList);
+
+		foreach ($subDepartmentsList as $subDepartmentId)
+		{
+			$result = array_merge($result, $this->getSubDepartmentsList((int)$subDepartmentId));
+		}
+
+		return $result;
+	}
+
 	public function actAction(string $action = '', array $fields = []): array
 	{
 		if (!$this->checkAction($action))
@@ -1353,6 +1673,12 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 			{
 				case self::AJAX_ACTION_SET_OWNER:
 					$result = Helper\Workgroup::setOwner([
+						'groupId' => (int)($this->arParams['GROUP_ID'] ?? 0),
+						'userId' => (int)($fields['userId'] ?? 0),
+					]);
+					break;
+				case self::AJAX_ACTION_SET_SCRUM_MASTER:
+					$result = Helper\Workgroup::setScrumMaster([
 						'groupId' => (int)($this->arParams['GROUP_ID'] ?? 0),
 						'userId' => (int)($fields['userId'] ?? 0),
 					]);
@@ -1381,12 +1707,45 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 						'userId' => (int)($fields['userId'] ?? 0),
 					]);
 					break;
+				case self::AJAX_ACTION_ACCEPT_INCOMING_REQUEST:
+					$result = Helper\Workgroup::acceptIncomingRequest([
+						'groupId' => (int)($this->arParams['GROUP_ID'] ?? 0),
+						'userId' => (int)($fields['userId'] ?? 0),
+					]);
+					break;
+				case self::AJAX_ACTION_REJECT_INCOMING_REQUEST:
+					$result = Helper\Workgroup::rejectIncomingRequest([
+						'groupId' => (int)($this->arParams['GROUP_ID'] ?? 0),
+						'userId' => (int)($fields['userId'] ?? 0),
+					]);
+					break;
+				case self::AJAX_ACTION_REINVITE:
+					$result = false;
+
+					if (
+						(int)$fields['userId'] > 0
+						&& Loader::includeModule('intranet')
+					)
+					{
+						if (
+							Loader::includeModule('extranet')
+							&& !\CExtranet::IsIntranetUser()
+						)
+						{
+							$result = \CIntranetInviteDialog::reinviteExtranetUser(SITE_ID, (int)$fields['userId']);
+						}
+						else
+						{
+							$result = \CIntranetInviteDialog::reinviteUser(SITE_ID, (int)$fields['userId']);
+						}
+					}
+					break;
 				default:
 					$result = false;
 			}
 
 		}
-		catch(Exception $e)
+		catch (Exception $e)
 		{
 			throw new Exception($e->getMessage(), $e->getCode());
 		}
@@ -1400,10 +1759,14 @@ class CSocialnetworkGroupUserListComponent extends WorkgroupUserList
 	{
 		return in_array($action, [
 			self::AJAX_ACTION_SET_OWNER,
+			self::AJAX_ACTION_SET_SCRUM_MASTER,
 			self::AJAX_ACTION_SET_MODERATOR,
 			self::AJAX_ACTION_REMOVE_MODERATOR,
 			self::AJAX_ACTION_EXCLUDE,
 			self::AJAX_ACTION_DELETE_OUTGOING_REQUEST,
+			self::AJAX_ACTION_ACCEPT_INCOMING_REQUEST,
+			self::AJAX_ACTION_REJECT_INCOMING_REQUEST,
+			self::AJAX_ACTION_REINVITE,
 		], true);
 	}
 

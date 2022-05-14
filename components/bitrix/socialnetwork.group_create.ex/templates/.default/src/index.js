@@ -486,7 +486,17 @@ class WorkgroupForm extends EventEmitter
 									selectorInstance.itemsSelected = selectedUsers;
 									selectorInstance.reinit();
 								});
+							}
 
+							if (
+								Type.isArray(response.SUCCESSFULL_USERS_ID)
+								&& response.SUCCESSFULL_USERS_ID.length > 0
+							)
+							{
+								window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', {
+									code: 'afterInvite',
+									data: {},
+								});
 							}
 
 							Buttons.showWaitSubmitButton(false);

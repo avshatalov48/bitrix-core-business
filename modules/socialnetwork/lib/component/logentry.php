@@ -11,6 +11,8 @@ use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Error;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Page\Asset;
+use Bitrix\Main\Security\Random;
+use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\UserTable;
 use Bitrix\Socialnetwork\ComponentHelper;
@@ -47,6 +49,8 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 
 	public function onPrepareComponentParams($params = [])
 	{
+		global $USER;
+
 		$this->errorCollection = new ErrorCollection();
 
 		return $params;

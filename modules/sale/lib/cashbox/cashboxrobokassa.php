@@ -338,6 +338,12 @@ class CashboxRobokassa extends CashboxPaySystem
 		Logger::addDebugInfo(__CLASS__ . ': response data: ' . $response);
 
 		$response = static::decode($response);
+		if (!$response)
+		{
+			$result->addError(new Main\Error(Main\Localization\Loc::getMessage('SALE_CASHBOX_ROBOKASSA_ERROR_DECODE_RESPONSE')));
+			return $result;
+		}
+
 		$result->setData($response);
 
 		return $result;

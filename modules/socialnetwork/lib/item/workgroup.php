@@ -115,9 +115,6 @@ class Workgroup
 		return ($this->fields['SCRUM_SPRINT_DURATION'] ? : 0);
 	}
 
-	/**
-	 * @deprecated
-	 */
 	public function getScrumMaster(): int
 	{
 		return ($this->fields['SCRUM_MASTER_ID'] ? : 0);
@@ -621,26 +618,33 @@ class Workgroup
 
 	public static function getInitiatePermOptionsList(array $params = []): array
 	{
-		$suffix = '';
+		$ownerValue = Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_IP_OWNER');
+		$moderatorsValue = Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_IP_MOD');
+		$userValue = Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_IP_USER');
+
 		if (
 			isset($params['scrum'])
 			&& $params['scrum']
 		)
 		{
-			$suffix = '_SCRUM';
+			$ownerValue = Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_IP_OWNER_SCRUM2');
+			$moderatorsValue = Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_IP_MOD_SCRUM2');
+			$userValue = Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_IP_USER_SCRUM');
 		}
 		elseif (
 			isset($params['project'])
 			&& $params['project']
 		)
 		{
-			$suffix = '_PROJECT';
+			$ownerValue = Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_IP_OWNER_PROJECT');
+			$moderatorsValue = Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_IP_MOD_PROJECT');
+			$userValue = Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_IP_USER_PROJECT');
 		}
 
 		return [
-			UserToGroupTable::ROLE_OWNER => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_IP_OWNER' . $suffix),
-			UserToGroupTable::ROLE_MODERATOR => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_IP_MOD' . $suffix),
-			UserToGroupTable::ROLE_USER => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_IP_USER' . $suffix),
+			UserToGroupTable::ROLE_OWNER => $ownerValue,
+			UserToGroupTable::ROLE_MODERATOR => $moderatorsValue,
+			UserToGroupTable::ROLE_USER => $userValue,
 		];
 	}
 

@@ -62,8 +62,11 @@ abstract class CCatalogDocsTypes
 			])->fetchAll();
 			$disabledStores = array_column($disabledStores, 'ID');
 
+			$basePriceType = CCatalogGroup::GetBaseGroupId();
+
 			foreach ($arFields["ELEMENTS"] as $elementId => $arElements)
 			{
+				$existPriceRanges = null;
 				foreach ($arElements["POSITIONS"] as $arElement)
 				{
 					if (is_array($arElement))
@@ -154,20 +157,51 @@ abstract class CCatalogDocsTypes
 							$arFields['QUANTITY'] = -$product['QUANTITY_RESERVED'];
 						unset($row);
 
-						if (isset($arElement['BASE_PRICE_INFO']))
+						if ($basePriceType !== null && isset($arElement['BASE_PRICE_INFO']))
 						{
-							$repositoryFacade = \Bitrix\Catalog\v2\IoC\ServiceContainer::getRepositoryFacade();
-							$variation = $repositoryFacade->loadVariation($product['ID']);
-							if ($variation)
+							if ($existPriceRanges === null)
 							{
-								$price = $variation->getPriceCollection()->findBasePrice();
-								if ($price)
+								$existPriceRanges = self::isExistPriceRanges($product['ID'], $basePriceType);
+							}
+							if (!$existPriceRanges)
+							{
+								$iterator = Catalog\Model\Price::getList([
+									'select' => [
+										'ID',
+										'PRICE',
+										'CURRENCY',
+									],
+									'filter' => [
+										'=PRODUCT_ID' => $product['ID'],
+										'=CATALOG_GROUP_ID' => $basePriceType,
+									],
+								]);
+								$priceRow = $iterator->fetch();
+								unset($iterator);
+								if (!empty($priceRow))
 								{
-									$price
-										->setPrice($arElement['BASE_PRICE_INFO']['BASE_PRICE'])
-										->setCurrency($arElement['BASE_PRICE_INFO']['BASE_PRICE_CURRENCY'])
-										->save()
-									;
+									if (
+										$priceRow['PRICE'] != $arElement['BASE_PRICE_INFO']['BASE_PRICE']
+										|| $priceRow['CURRENCY'] != $arElement['BASE_PRICE_INFO']['BASE_PRICE_CURRENCY']
+									)
+									{
+										Catalog\Model\Price::update(
+											(int)$priceRow['ID'],
+											[
+												'PRICE' => $arElement['BASE_PRICE_INFO']['BASE_PRICE'],
+												'CURRENCY' => $arElement['BASE_PRICE_INFO']['BASE_PRICE_CURRENCY'],
+											]
+										);
+									}
+								}
+								else
+								{
+									Catalog\Model\Price::add([
+										'PRODUCT_ID' => $product['ID'],
+										'CATALOG_GROUP_ID' => $basePriceType,
+										'PRICE' => $arElement['BASE_PRICE_INFO']['BASE_PRICE'],
+										'CURRENCY' => $arElement['BASE_PRICE_INFO']['BASE_PRICE_CURRENCY'],
+									]);
 								}
 							}
 						}
@@ -185,6 +219,19 @@ abstract class CCatalogDocsTypes
 		unset($connection);
 
 		return true;
+	}
+
+	private static function isExistPriceRanges(int $productId, int $basePriceId): bool
+	{
+		return Catalog\PriceTable::getCount([
+			'=PRODUCT_ID' => $productId,
+			'=CATALOG_GROUP_ID' => $basePriceId,
+			[
+				'LOGIC' => 'OR',
+				'!=QUANTITY_FROM' => null,
+				'!=QUANTITY_TO' => null,
+			],
+		]) > 0;
 	}
 
 	/** The method works with barcodes. If necessary, check the uniqueness of multiple barcodes.
@@ -294,16 +341,16 @@ class CCatalogArrivalDocs extends CCatalogDocsTypes
 	 */
 	public static function getFields(): array
 	{
-		return array(
-			"ELEMENT_ID" => array("required" => 'Y'),
-			"AMOUNT" => array("required" => 'Y'),
-			"NET_PRICE" => array("required" => 'Y'),
-			"STORE_TO" => array("required" => 'Y'),
-			"BAR_CODE" => array("required" => 'Y'),
-			"CONTRACTOR" => array("required" => 'Y'),
-			"CURRENCY" => array("required" => 'Y'),
-			"TOTAL" => array("required" => 'Y'),
-		);
+		return [
+			'ELEMENT_ID' => ['required' => 'Y'],
+			'AMOUNT' => ['required' => 'Y'],
+			'NET_PRICE' => ['required' => 'Y'],
+			'STORE_TO' => ['required' => 'Y'],
+			'BAR_CODE' => ['required' => 'Y'],
+			'CONTRACTOR' => ['required' => 'Y'],
+			'CURRENCY' => ['required' => 'Y'],
+			'TOTAL' => ['required' => 'Y'],
+		];
 	}
 
 	protected static function  checkParamsForConduction($documentId, $userId, $currency, $contractorId): bool
@@ -580,13 +627,13 @@ class CCatalogMovingDocs extends CCatalogDocsTypes
 	 */
 	public static function getFields(): array
 	{
-		return array(
-			"ELEMENT_ID" => array("required" => 'Y'),
-			"AMOUNT" => array("required" => 'Y'),
-			"STORE_TO" => array("required" => 'Y'),
-			"BAR_CODE" => array("required" => 'Y'),
-			"STORE_FROM" => array("required" => 'Y'),
-		);
+		return [
+			'ELEMENT_ID' => ['required' => 'Y'],
+			'AMOUNT' => ['required' => 'Y'],
+			'STORE_TO' => ['required' => 'Y'],
+			'BAR_CODE' => ['required' => 'Y'],
+			'STORE_FROM' => ['required' => 'Y'],
+		];
 	}
 
 	/**
@@ -796,12 +843,12 @@ class CCatalogReturnsDocs extends CCatalogDocsTypes
 	 */
 	public static function getFields(): array
 	{
-		return array(
-			"ELEMENT_ID" => array("required" => 'Y'),
-			"AMOUNT" => array("required" => 'Y'),
-			"STORE_TO" => array("required" => 'Y'),
-			"BAR_CODE" => array("required" => 'y'),
-		);
+		return [
+			'ELEMENT_ID' => ['required' => 'Y'],
+			'AMOUNT' => ['required' => 'Y'],
+			'STORE_TO' => ['required' => 'Y'],
+			'BAR_CODE' => ['required' => 'Y'],
+		];
 	}
 
 	/**
@@ -1014,12 +1061,12 @@ class CCatalogDeductDocs extends CCatalogDocsTypes
 	 */
 	public static function getFields(): array
 	{
-		return array(
-			"ELEMENT_ID" => array("required" => 'Y'),
-			"AMOUNT" => array("required" => 'Y'),
-			"BAR_CODE" => array("required" => 'Y'),
-			"STORE_FROM" => array("required" => 'Y'),
-		);
+		return [
+			'ELEMENT_ID' => ['required' => 'Y'],
+			'AMOUNT' => ['required' => 'Y'],
+			'BAR_CODE' => ['required' => 'Y'],
+			'STORE_FROM' => ['required' => 'Y'],
+		];
 	}
 
 	/**
@@ -1234,11 +1281,11 @@ class CCatalogUnReservedDocs extends CCatalogDocsTypes
 	 */
 	public static function getFields(): array
 	{
-		return array(
-			"ELEMENT_ID" => array("required" => 'Y'),
-			"AMOUNT" => array("required" => 'Y'),
-			"RESERVED" => array("required" => 'Y'),
-		);
+		return [
+			'ELEMENT_ID' => ['required' => 'Y'],
+			'AMOUNT' => ['required' => 'Y'],
+			'RESERVED' => ['required' => 'Y'],
+		];
 	}
 
 	/**

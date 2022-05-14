@@ -35,7 +35,10 @@
 						{
 							block: 'main-ui-filter-sidebar-item-text',
 							tag: 'span',
-							content: 'text' in data ? data.text : ''
+							content: 'text' in data ? data.text : '',
+							attrs: {
+								title: 'text' in data ? data.text : ''
+							}
 						},
 						{
 							block: 'main-ui-filter-icon-pin',

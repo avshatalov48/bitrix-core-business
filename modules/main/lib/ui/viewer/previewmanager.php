@@ -542,7 +542,7 @@ final class PreviewManager
 	{
 		$fileId = (int)$fileId;
 
-		$fileData = \CFile::getByID($fileId)->fetch();
+		$fileData = \CFile::GetFileArray($fileId);
 		if ($fileData === false && !$cacheCleaned)
 		{
 			global $DB;

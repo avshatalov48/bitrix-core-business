@@ -8,7 +8,8 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	  payment: {
 	    start: 'Sale:PaymentPay:Payment:Start',
 	    error: 'Sale:PaymentPay:Payment:Error',
-	    success: 'Sale:PaymentPay:Payment:Success'
+	    success: 'Sale:PaymentPay:Payment:Success',
+	    reset: 'Sale:PaymentPay:Payment:Reset'
 	  },
 	  consent: {
 	    accepted: 'Sale:PaymentPay:Consent:Accepted',
@@ -20,7 +21,15 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	  }
 	});
 
+	var StageType = Object.freeze({
+	  list: 'paySystemList',
+	  errors: 'paySystemErrors',
+	  result: 'paySystemResult',
+	  paymentInfo: 'paymentInfo'
+	});
+
 	exports.EventType = EventType;
+	exports.StageType = StageType;
 
 }((this.BX.Sale.PaymentPay.Const = this.BX.Sale.PaymentPay.Const || {})));
 //# sourceMappingURL=const.bundle.js.map

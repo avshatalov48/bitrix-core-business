@@ -705,12 +705,12 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
         key: "subscribeToStoreChanges",
         value: function subscribeToStoreChanges() {
           // this.store.subscribe((mutation, state) => {
-          //     const { payload, type } = mutation;
-          //     if (type === 'basket/setNeedRefresh')
-          //     {
-          //     	alert('@@');
-          //     	this.getData();
-          //     }
+          //	 const { payload, type } = mutation;
+          //	 if (type === 'basket/setNeedRefresh')
+          //	 {
+          //	 	alert('@@');
+          //	 	this.getData();
+          //	 }
           // });
           return new Promise(function (resolve, reject) {
             return resolve();
@@ -830,6 +830,21 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           }); // todo
 
           delete BX.UserConsent;
+          var order = this.store.getters['order/getOrder'];
+
+          if (order.id > 0) {
+            var component = sale_checkout_const.Component.bitrixSaleOrderCheckout;
+            var cmd = sale_checkout_const.RestMethod.saleEntityPaymentPay;
+            return main_core.ajax.runComponentAction(component, cmd, {
+              data: {
+                fields: {
+                  orderId: order.id,
+                  accessCode: order.hash
+                }
+              },
+              signedParameters: this.store.getters['application/getSignedParameters']
+            });
+          }
         }
         /**
          * @private

@@ -64,9 +64,6 @@ $arParams["TEXT"]["~SHOW"] = $arParams["TEXT"]["SHOW"];
 $userOption = CUserOptions::GetOption("main.post.form", "postEdit");
 if(isset($userOption["showBBCode"]) && $userOption["showBBCode"] == "Y")
 	$arParams["TEXT"]["SHOW"] = "Y";
-
-$arParams["PIN_EDITOR_PANEL"] = (isset($userOption["pinEditorPanel"]) && $userOption["pinEditorPanel"] == "Y") ? "Y" : "N";
-
 $arResult["SELECTOR_VERSION"] = (!empty($arParams["SELECTOR_VERSION"]) ? intval($arParams["SELECTOR_VERSION"]) : 1);
 
 $arParams["ADDITIONAL"] = isset($arParams["~ADDITIONAL"]) ? $arParams["~ADDITIONAL"] : [];

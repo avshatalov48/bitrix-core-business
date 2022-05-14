@@ -8,7 +8,8 @@ use \Bitrix\Main\Localization\Loc;
 
 return [
 	'block' => [
-		'name' => Loc::getMessage('LNDBLCK_STOREMENUV3_3_NAME_2'),
+		// todo: change langs
+		// 'name' => Loc::getMessage('LNDBLCK_STOREMENUV3_3_NAME_2'),
 		'section' => ['store'],
 		'dynamic' => false,
 		'subtype' => ['menu', 'component'],

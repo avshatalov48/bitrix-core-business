@@ -3238,12 +3238,27 @@ class CAllSaleBasket
 					foreach ($basketFromFUser as $basketItemFrom)
 					{
 						/** @var Sale\BasketItem $basketItem */
-						$basketItem = $basketToFUser->getExistsItemByItem($basketItemFrom);
-						if ($basketItem)
+						$basketItemFromProperties =
+							($tmp = $basketItemFrom->getPropertyCollection())
+								? $tmp->getPropertyValues()
+								: []
+						;
+						$basketItems = $basketToFUser->getExistsItems(
+							$basketItemFrom->getField('MODULE'),
+							$basketItemFrom->getField('PRODUCT_ID'),
+							$basketItemFromProperties
+						);
+						
+						if (count($basketItems) === 1)
 						{
+							$basketItem = current($basketItems);
 							$basketItem->setField('QUANTITY', $basketItem->getQuantity() + $basketItemFrom->getQuantity());
 							$basketItemFrom->delete();
 						}
+						/* 
+						 * if there is no such product in the 'toFUser' basket
+						 * or there are several of them, then add a new basket item with the same product.
+						 */
 						else
 						{
 							$basketItemFrom->setFieldNoDemand('FUSER_ID', $TO_FUSER_ID);

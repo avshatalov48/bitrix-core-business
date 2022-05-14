@@ -9,6 +9,7 @@
 namespace Bitrix\Socialnetwork\Helper;
 
 use Bitrix\Main\AccessDeniedException;
+use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\ObjectNotFoundException;
@@ -57,7 +58,7 @@ class Workgroup
 		return $result;
 	}
 
-	public static function getSprintDurationValues()
+	public static function getSprintDurationValues(): array
 	{
 		$list = static::getSprintDurationList();
 
@@ -474,7 +475,7 @@ class Workgroup
 
 		$groupId = (int)($fields['groupId'] ?? 0);
 		$newOwnerId = (int)($fields['userId'] ?? 0);
-		$currentUserId = static::getCurrentUserId();
+		$currentUserId = User::getCurrentUserId();
 
 		if ($groupId <= 0)
 		{
@@ -503,10 +504,11 @@ class Workgroup
 			throw new ObjectNotFoundException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_GROUP_NO_FOUND'));
 		}
 
-		if (
-			(int)$groupFields['OWNER_ID'] !== $currentUserId
-			&& !$isCurrentUserAdmin
-		)
+		$groupPerms = static::getPermissions([
+			'groupId' => $groupId,
+		]);
+
+		if (!$groupPerms['UserCanModifyGroup'])
 		{
 			throw new AccessDeniedException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_NO_PERMS'));
 		}
@@ -530,13 +532,91 @@ class Workgroup
 		return true;
 	}
 
+	public static function setScrumMaster(array $fields = []): bool
+	{
+		$groupId = (int)($fields['groupId'] ?? 0);
+		$newScrumMasterId = (int)($fields['userId'] ?? 0);
+		$currentUserId = User::getCurrentUserId();
+
+		if ($groupId <= 0)
+		{
+			throw new ArgumentException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_WRONG_GROUP_ID'));
+		}
+
+		if ($newScrumMasterId <= 0)
+		{
+			throw new ArgumentException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_WRONG_USER_ID'));
+		}
+
+		if (!static::canSetScrumMaster([
+			'userId' => $newScrumMasterId,
+			'groupId' => $groupId,
+		]))
+		{
+			throw new AccessDeniedException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_NO_PERMS'));
+		}
+
+		if (!\CSocNetGroup::Update($groupId, [
+			'SCRUM_MASTER_ID' => $newScrumMasterId,
+		]))
+		{
+			throw new \Exception(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED'), 100);
+		}
+
+		$relation = UserToGroupTable::getList([
+			'filter' => [
+				'USER_ID' => $newScrumMasterId,
+				'GROUP_ID' => $groupId,
+			],
+			'select' => [ 'ID', 'ROLE' ]
+		])->fetchObject();
+
+		if ($relation)
+		{
+			if (
+				!in_array($relation->getRole(), [UserToGroupTable::ROLE_OWNER, UserToGroupTable::ROLE_MODERATOR], true)
+				&& !\CSocNetUserToGroup::Update($relation->getId(), [
+					'ROLE' => UserToGroupTable::ROLE_MODERATOR,
+				])
+			)
+			{
+				throw new \Exception(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED'), 100);
+			}
+		}
+		else
+		{
+			static $helper = null;
+			if (!$helper)
+			{
+				$connection = Application::getConnection();
+				$helper = $connection->getSqlHelper();
+			}
+
+			if (!\CSocNetUserToGroup::Add([
+				'AUTO_MEMBER' => 'N',
+				'USER_ID' => $newScrumMasterId,
+				'GROUP_ID' => $groupId,
+				'ROLE' => UserToGroupTable::ROLE_MODERATOR,
+				'INITIATED_BY_TYPE' => UserToGroupTable::INITIATED_BY_GROUP,
+				'INITIATED_BY_USER_ID' => $currentUserId,
+				'=DATE_CREATE' => $helper->getCurrentDateTimeFunction(),
+				'=DATE_UPDATE' => $helper->getCurrentDateTimeFunction(),
+			]))
+			{
+				throw new \RuntimeException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED'), 100);
+			}
+		}
+
+		return true;
+	}
+
 	public static function setModerator(array $fields = []): bool
 	{
 		global $APPLICATION;
 
 		$groupId = (int)($fields['groupId'] ?? 0);
 		$userId = (int)($fields['userId'] ?? 0);
-		$currentUserId = static::getCurrentUserId();
+		$currentUserId = User::getCurrentUserId();
 
 		if ($groupId <= 0)
 		{
@@ -597,7 +677,7 @@ class Workgroup
 
 		$groupId = (int)($fields['groupId'] ?? 0);
 		$userId = (int)($fields['userId'] ?? 0);
-		$currentUserId = static::getCurrentUserId();
+		$currentUserId = User::getCurrentUserId();
 
 		if ($groupId <= 0)
 		{
@@ -662,7 +742,7 @@ class Workgroup
 			throw new ArgumentException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_WRONG_GROUP_ID'));
 		}
 
-		$currentUserId = static::getCurrentUserId();
+		$currentUserId = User::getCurrentUserId();
 		$isCurrentUserModuleAdmin = static::isCurrentUserModuleAdmin();
 
 		$groupPerms = static::getPermissions(['groupId' => $groupId]);
@@ -796,7 +876,7 @@ class Workgroup
 			'=DATE_UPDATE' => \CDatabase::CurrentTimeFunction(),
 			'MESSAGE' => '',
 			'INITIATED_BY_TYPE' => UserToGroupTable::INITIATED_BY_GROUP,
-			'INITIATED_BY_USER_ID' => static::getCurrentUserId(),
+			'INITIATED_BY_USER_ID' => User::getCurrentUserId(),
 			'SEND_MAIL' => 'N',
 		]);
 	}
@@ -804,7 +884,7 @@ class Workgroup
 	private static function sendNotifications(int $userId, int $groupId, int $relationId): void
 	{
 		\CSocNetUserToGroup::notifyModeratorAdded([
-			'userId' => static::getCurrentUserId(),
+			'userId' => User::getCurrentUserId(),
 			'groupId' => $groupId,
 			'relationId' => $relationId,
 		]);
@@ -903,7 +983,7 @@ class Workgroup
 			throw new AccessDeniedException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_NO_PERMS'));
 		}
 
-		if (!\CSocNetUserToGroup::delete($relation->getId()))
+		if (!\CSocNetUserToGroup::delete($relation->getId(), true))
 		{
 			if ($ex = $APPLICATION->getException())
 			{
@@ -963,6 +1043,110 @@ class Workgroup
 		return true;
 	}
 
+	public static function acceptIncomingRequest(array $fields = []): bool
+	{
+		global $APPLICATION;
+
+		$groupId = (int)($fields['groupId'] ?? 0);
+		$userId = (int)($fields['userId'] ?? 0);
+
+		if ($groupId <= 0)
+		{
+			throw new ArgumentException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_WRONG_GROUP_ID'));
+		}
+
+		if ($userId <= 0)
+		{
+			throw new ArgumentException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_WRONG_USER_ID'));
+		}
+
+		try
+		{
+			$relation = static::getRelation([
+				'=GROUP_ID' => $groupId,
+				'=USER_ID' => $userId,
+			]);
+		}
+		catch (\Exception $e)
+		{
+			throw new \Exception($e->getMessage(), $e->getCode());
+		}
+
+		if (!\CSocNetUserToGroup::confirmRequestToBeMember(
+			User::getCurrentUserId(),
+			$groupId,
+			[ $relation->getId() ]
+		))
+		{
+			if ($ex = $APPLICATION->getException())
+			{
+				$errorMessage = $ex->getString();
+				$errorCode = $ex->getId();
+			}
+			else
+			{
+				$errorMessage = Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED');
+				$errorCode = 100;
+			}
+
+			throw new \Exception($errorMessage, $errorCode);
+		}
+
+		return true;
+	}
+
+	public static function rejectIncomingRequest(array $fields = []): bool
+	{
+		global $APPLICATION;
+
+		$groupId = (int)($fields['groupId'] ?? 0);
+		$userId = (int)($fields['userId'] ?? 0);
+
+		if ($groupId <= 0)
+		{
+			throw new ArgumentException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_WRONG_GROUP_ID'));
+		}
+
+		if ($userId <= 0)
+		{
+			throw new ArgumentException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_WRONG_USER_ID'));
+		}
+
+		try
+		{
+			$relation = static::getRelation([
+				'=GROUP_ID' => $groupId,
+				'=USER_ID' => $userId,
+			]);
+		}
+		catch (\Exception $e)
+		{
+			throw new \Exception($e->getMessage(), $e->getCode());
+		}
+
+		if (!\CSocNetUserToGroup::rejectRequestToBeMember(
+			User::getCurrentUserId(),
+			$groupId,
+			[ $relation->getId() ]
+		))
+		{
+			if ($ex = $APPLICATION->getException())
+			{
+				$errorMessage = $ex->getString();
+				$errorCode = $ex->getId();
+			}
+			else
+			{
+				$errorMessage = Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED');
+				$errorCode = 100;
+			}
+
+			throw new \Exception($errorMessage, $errorCode);
+		}
+
+		return true;
+	}
+
 	public static function disconnectDepartment(array $fields = []): bool
 	{
 		global $APPLICATION;
@@ -996,7 +1180,8 @@ class Workgroup
 			throw new \Exception(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_FAILED'));
 		}
 
-		$currentDepartmentsList = $workgroup->getFields()['UF_SG_DEPT']['VALUE'];
+		$workgroupFields = $workgroup->getFields();
+		$currentDepartmentsList = $workgroupFields['UF_SG_DEPT']['VALUE'];
 
 		if (
 			!is_array($currentDepartmentsList)
@@ -1010,7 +1195,10 @@ class Workgroup
 
 		if (!\CSocNetGroup::update(
 			$groupId,
-			[ 'UF_SG_DEPT' => array_diff($currentDepartmentsList, [ $departmentId ]) ]
+			[
+				'NAME' => $workgroupFields['NAME'],
+				'UF_SG_DEPT' => array_diff($currentDepartmentsList, [ $departmentId ]),
+			]
 		))
 		{
 			if ($ex = $APPLICATION->getException())
@@ -1034,7 +1222,7 @@ class Workgroup
 	{
 		$res = UserToGroupTable::getList([
 			'filter' => $filter,
-			'select' => [ 'ID', 'ROLE', 'INITIATED_BY_TYPE', 'INITIATED_BY_USER_ID', 'AUTO_MEMBER' ]
+			'select' => [ 'ID', 'USER_ID', 'GROUP_ID', 'ROLE', 'INITIATED_BY_TYPE', 'INITIATED_BY_USER_ID', 'AUTO_MEMBER' ]
 		]);
 
 		if (!$result = $res->fetchObject())
@@ -1059,7 +1247,7 @@ class Workgroup
 	public static function canUpdate(array $params = []): bool
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
-		$userId = (int)($params['userId'] ?? static::getCurrentUserId());
+		$userId = (int)($params['userId'] ?? User::getCurrentUserId());
 
 		if ($groupId <= 0)
 		{
@@ -1074,10 +1262,7 @@ class Workgroup
 		return (
 			(
 				$groupPerms
-				&& (
-					$groupPerms['UserIsOwner']
-					|| static::isCurrentUserModuleAdmin()
-				)
+				&& $groupPerms['UserCanModifyGroup']
 			)
 		);
 	}
@@ -1086,6 +1271,7 @@ class Workgroup
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
 		$relation = ($params['relation'] ?? null);
+
 		if (
 			$groupId <= 0
 			|| !($relation instanceof EO_UserToGroup)
@@ -1100,11 +1286,48 @@ class Workgroup
 
 		return (
 			$groupPerms
-			&& (
-				$groupPerms['UserIsOwner']
-				|| static::isCurrentUserModuleAdmin()
-			)
+			&& $groupPerms['UserCanModifyGroup']
 			&& in_array($relation->getRole(), [ UserToGroupTable::ROLE_USER, UserToGroupTable::ROLE_MODERATOR ], true)
+		);
+	}
+
+	public static function canSetScrumMaster(array $params = []): bool
+	{
+		$groupId = (int)($params['groupId'] ?? 0);
+		$userId = ($params['userId'] ?? null);
+
+		if (
+			$groupId <= 0
+			|| $userId <= 0
+		)
+		{
+			return false;
+		}
+
+		$groupPerms = static::getPermissions([
+			'groupId' => $groupId,
+		]);
+
+		$group = \Bitrix\Socialnetwork\Item\Workgroup::getById($groupId);
+
+		$res = UserToGroupTable::getList([
+			'filter' => [
+				'=GROUP_ID' => $groupId,
+				'=USER_ID' => $userId,
+			],
+			'select' => [ 'ID', 'ROLE' ],
+		]);
+		$relation = $res->fetchObject();
+
+		return (
+			$groupPerms
+			&& $groupPerms['UserCanModifyGroup']
+			&& ($group && $group->isScrumProject())
+			&& $userId !== $group->getScrumMaster()
+			&& (
+				!$relation
+				|| in_array($relation->getRole(), UserToGroupTable::getRolesMember(), true)
+			)
 		);
 	}
 
@@ -1131,15 +1354,16 @@ class Workgroup
 			&& (
 				$groupPerms['UserCanProcessRequestsIn']
 				|| self::isCurrentUserModuleAdmin()
-				|| $relation->getInitiatedByUserId() === static::getCurrentUserId()
+				|| $relation->getInitiatedByUserId() === User::getCurrentUserId()
 			)
 		);
 	}
 
-	public static function canExclude(array $params = []): bool
+	public static function canProcessIncomingRequest(array $params = []): bool
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
 		$relation = ($params['relation'] ?? null);
+
 		if (
 			$groupId <= 0
 			|| !($relation instanceof EO_UserToGroup)
@@ -1153,13 +1377,50 @@ class Workgroup
 		]);
 
 		return (
+			$relation->getRole() === UserToGroupTable::ROLE_REQUEST
+			&& $relation->getInitiatedByType() === UserToGroupTable::INITIATED_BY_USER
+			&& $groupPerms
+			&& (
+				$groupPerms['UserCanProcessRequestsIn']
+				|| self::isCurrentUserModuleAdmin()
+			)
+		);
+	}
+
+	public static function canExclude(array $params = []): bool
+	{
+		$groupId = (int)($params['groupId'] ?? 0);
+		$relation = ($params['relation'] ?? null);
+
+		if (
+			$groupId <= 0
+			|| !($relation instanceof EO_UserToGroup)
+		)
+		{
+			return false;
+		}
+
+		$relationUserId = $relation->getUserId();
+		if ($relationUserId <= 0)
+		{
+			$relationUserId = $relation->getUser()->getId();
+		}
+
+		$groupPerms = static::getPermissions([
+			'groupId' => $groupId,
+		]);
+
+		$group = \Bitrix\Socialnetwork\Item\Workgroup::getById($groupId);
+		$scrumMasterId = ($group ? $group->getScrumMaster() : 0);
+
+		return (
 			$groupPerms
 			&& (
 				$groupPerms['UserCanModifyGroup']
 				|| self::isCurrentUserModuleAdmin()
 			)
 			&& !$relation->getAutoMember()
-			&& $relation->getUserId() !== self::getCurrentUserId()
+			&& !in_array($relationUserId, [ User::getCurrentUserId(), $scrumMasterId ], true)
 			&& in_array($relation->getRole(), [ UserToGroupTable::ROLE_MODERATOR, UserToGroupTable::ROLE_USER ], true)
 		);
 	}
@@ -1208,9 +1469,19 @@ class Workgroup
 			'groupId' => $groupId,
 		]);
 
+		$relationUserId = $relation->getUserId();
+		if ($relationUserId <= 0)
+		{
+			$relationUserId = $relation->getUser()->getId();
+		}
+
+		$group = \Bitrix\Socialnetwork\Item\Workgroup::getById($groupId);
+		$scrumMasterId = ($group ? $group->getScrumMaster() : 0);
+
 		return (
 			$relation->getRole() === UserToGroupTable::ROLE_MODERATOR
 			&& $groupPerms
+			&& !in_array($relationUserId, [ User::getCurrentUserId(), $scrumMasterId ], true)
 			&& (
 				$groupPerms['UserCanModifyGroup']
 				|| self::isCurrentUserModuleAdmin()
@@ -1229,11 +1500,12 @@ class Workgroup
 		return $result;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public static function getCurrentUserId(): int
 	{
-		global $USER;
-
-		return (int)$USER->getId();
+		return User::getCurrentUserId();
 	}
 
 	public static function getProjectPresets($params = []): array

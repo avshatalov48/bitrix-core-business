@@ -261,6 +261,7 @@ export default class TagSelector extends EventEmitter
 		{
 			tag.render();
 			this.getItemsContainer().insertBefore(tag.getContainer(), this.getTextBox());
+
 			if (tagOptions.animate !== false)
 			{
 				tag.show().then(() => {
@@ -339,7 +340,7 @@ export default class TagSelector extends EventEmitter
 
 		if (Type.isDomNode(node))
 		{
-			node.appendChild(this.getOuterContainer());
+			Dom.append(this.getOuterContainer(), node);
 		}
 	}
 
@@ -669,15 +670,25 @@ export default class TagSelector extends EventEmitter
 	getAddButton(): HTMLElement
 	{
 		return this.cache.remember('add-button', () => {
-			const caption = Text.encode(this.getActualButtonCaption());
 			const className = this.addButtonVisible ? '' : ' ui-tag-selector-item-hidden';
 
 			return Tag.render`
 				<span class="ui-tag-selector-item ui-tag-selector-add-button${className}">
-					<span 
-						class="ui-tag-selector-add-button-caption" 
-						onclick="${this.handleAddButtonClick.bind(this)}">${caption}</span>
+					${this.getAddButtonLink()}
 				</span>
+			`;
+		});
+	}
+
+	getAddButtonLink(): HTMLElement
+	{
+		return this.cache.remember('add-button-link', () => {
+			const caption = Text.encode(this.getActualButtonCaption());
+
+			return Tag.render`
+				<span 
+					class="ui-tag-selector-add-button-caption" 
+					onclick="${this.handleAddButtonClick.bind(this)}">${caption}</span>
 			`;
 		});
 	}
@@ -735,10 +746,10 @@ export default class TagSelector extends EventEmitter
 			return;
 		}
 
-		this.getAddButton().children[0].textContent = this.getActualButtonCaption();
+		this.getAddButtonLink().textContent = this.getActualButtonCaption();
 	}
 
-	getActualButtonCaption()
+	getActualButtonCaption(): string
 	{
 		return (
 			this.getTags().length > 0 && this.getAddButtonCaptionMore() !== null

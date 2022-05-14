@@ -1,6 +1,13 @@
-<? if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Security\Random;
+use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
@@ -26,7 +33,7 @@ final class MainPostList extends CBitrixComponent
 			$this->scope = $component->isWeb() ? self::STATUS_SCOPE_WEB : self::STATUS_SCOPE_MOBILE;
 		}
 
-		$this->sign = (new \Bitrix\Main\Security\Sign\Signer());
+		$this->sign = (new Signer());
 		if ($this->request->get("EXEMPLAR_ID"))
 			$this->exemplarId = $this->request->get("EXEMPLAR_ID");
 		else if (
@@ -780,6 +787,19 @@ HTML;
 		$viewUri = new \Bitrix\Main\Web\Uri(htmlspecialcharsback(str_replace(array("#ID#", "#id#"), $res["ID"], $arParams["VIEW_URL"])));
 		$viewUri->deleteParams(['b24statAction']);
 
+		$contentId = (
+			!empty($arParams["RATING_TYPE_ID"])
+				? $arParams["RATING_TYPE_ID"] . "-" . $res["ID"]
+				: (
+					!empty($arParams["CONTENT_TYPE_ID"])
+						? $arParams["CONTENT_TYPE_ID"] . "-" . $res["ID"]
+						: ""
+				)
+		);
+
+		$contentViewKey = (string)($arParams['CONTENT_VIEW_KEY'] ?? Random::getString(8, false));
+		$contentViewKeySigned = (string)($arParams['CONTENT_VIEW_KEY_SIGNED'] ?? $this->sign->sign($contentViewKey));
+
 		$replacement = array(
 			"#ID#" =>
 				$res["ID"],
@@ -788,7 +808,11 @@ HTML;
 			"#FULL_ID#" =>
 				$arParams["ENTITY_XML_ID"]."-".$res["ID"],
 			"#CONTENT_ID#" =>
-				(!empty($arParams["RATING_TYPE_ID"]) ? $arParams["RATING_TYPE_ID"]."-".$res["ID"] : (!empty($arParams["CONTENT_TYPE_ID"]) ? $arParams["CONTENT_TYPE_ID"]."-".$res["ID"] : "")),
+				$contentId,
+			'#CONTENT_VIEW_KEY#' =>
+				$contentViewKey,
+			'#CONTENT_VIEW_KEY_SIGNED#' =>
+				$contentViewKeySigned,
 			"#ENTITY_XML_ID#" =>
 				$arParams["ENTITY_XML_ID"],
 			"#NEW#" =>
@@ -975,6 +999,14 @@ HTML;
 		$arParams["MODERATE_URL"] = trim($arParams["MODERATE_URL"]);
 		$arParams["DELETE_URL"] = trim($arParams["DELETE_URL"]);
 		$arParams["AUTHOR_URL"] = trim($arParams["PATH_TO_USER"] ?: $arParams["AUTHOR_URL"]);
+
+		$isAuthorized = $USER->isAuthorized();
+		$arParams['CONTENT_VIEW_KEY'] = (string)($arParams['CONTENT_VIEW_KEY'] ?? ($isAuthorized ? Random::getString(8, false) : ''));
+		$arParams['CONTENT_VIEW_KEY_SIGNED'] = (string)($arParams['CONTENT_VIEW_KEY_SIGNED'] ?? (
+			$isAuthorized
+				? (new Signer)->sign($arParams['CONTENT_VIEW_KEY'], 'ajaxSecurity' . $USER->getId())
+				: ''
+		));
 
 		if ($arParams["VISIBLE_RECORDS_COUNT"] > 0)
 		{

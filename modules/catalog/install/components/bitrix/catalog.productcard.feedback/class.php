@@ -10,7 +10,19 @@ class CatalogProductCardFeedbackComponent extends CBitrixComponent
 {
 	protected static function getFeedbackFormInfo($region): ?array
 	{
-		return ['id' => 269, 'lang' => 'ru', 'sec' => 'mqerov'];
+		$forms = [
+			'ru' => ['id' => 269, 'lang' => 'ru', 'sec' => 'mqerov'],
+			'en' => ['id' => 347, 'lang' => 'en', 'sec' => 'lxfji8'],
+			'es' => ['id' => 349, 'lang' => 'es', 'sec' => 'gdf9i1'],
+			'de' => ['id' => 355, 'lang' => 'de', 'sec' => 'x8k56n'],
+			'ua' => ['id' => 357, 'lang' => 'ua', 'sec' => '2z19xl'],
+			'com.br' => ['id' => 353, 'lang' => 'com.br', 'sec' => '5cleqn'],
+		];
+		
+		// links
+		$forms['by'] = $forms['kz'] = $forms['ru'];
+		
+		return $forms[$region] ?? $forms['en'];
 	}
 
 	protected function checkModules(): bool

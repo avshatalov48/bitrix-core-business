@@ -25,7 +25,10 @@ class CAdminTabEngine
 		{
 			$res = ExecuteModuleEventEx($arEvent, array($this->arArgs));
 			if (is_array($res))
+			{
+				$res["TABSET"] = preg_replace('/[^A-Za-z0-9_-]/', '', $res["TABSET"]);
 				$this->arEngines[$res["TABSET"]] = $res;
+			}
 			$this->bInited = True;
 		}
 	}

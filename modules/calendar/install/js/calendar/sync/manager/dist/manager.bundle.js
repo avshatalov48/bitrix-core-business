@@ -758,15 +758,16 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      connected: options.syncInfo.connected || false,
 	      gridTitle: main_core.Loc.getMessage('CALENDAR_TITLE_OFFICE365'),
 	      gridColor: '#000',
-	      gridIcon: '/bitrix/images/calendar/sync/google.svg',
+	      gridIcon: '',
 	      type: 'office365',
 	      interfaceClassName: '',
 	      viewClassification: 'web',
-	      templateClass: 'BX.Calendar.Sync.Interface.GoogleTemplate',
+	      templateClass: 'BX.Calendar.Sync.Interface.Office365template',
 	      mainPanel: true,
 	      pendingStatus: true
 	    }));
 	    _this.connectionName = 'Office365';
+	    _this.syncLink = options.syncLink || '';
 	    _this.id = options.syncInfo.id;
 
 	    _this.setConnections();
@@ -774,6 +775,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    return _this;
 	  }
 
+	  babelHelpers.createClass(Office365Provider, [{
+	    key: "getSyncLink",
+	    value: function getSyncLink() {
+	      return this.syncLink;
+	    }
+	  }]);
 	  return Office365Provider;
 	}(ConnectionProvider);
 
@@ -789,11 +796,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      connected: options.syncInfo.connected || false,
 	      gridTitle: main_core.Loc.getMessage('CALENDAR_TITLE_ICLOUD'),
 	      gridColor: '#000',
-	      gridIcon: '/bitrix/images/calendar/sync/google.svg',
+	      gridIcon: '',
 	      type: 'icloud',
 	      interfaceClassName: '',
 	      viewClassification: 'web',
-	      templateClass: 'BX.Calendar.Sync.Interface.GoogleTemplate',
+	      templateClass: 'BX.Calendar.Sync.Interface.IcloudTemplate',
 	      mainPanel: true,
 	      pendingStatus: true
 	    }));
@@ -1243,6 +1250,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      main_core_events.EventEmitter.subscribe('BX.Calendar.Sync.Interface.InterfaceTemplate:reDrawCalendarGrid', function (event) {
 	        _this2.reDrawCalendarGrid();
 	      });
+	      window.addEventListener('message', function (event) {
+	        if (event.data.title === 'googleOAuthSuccess') {
+	          window.location.reload();
+	        }
+	      });
 	    }
 	  }, {
 	    key: "showSyncButton",
@@ -1297,6 +1309,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        }),
 	        office365: Office365Provider.createInstance({
 	          syncInfo: syncInfo.office365 || {},
+	          syncLink: this.syncLinks.office365 || null,
 	          mainPanel: true
 	        }),
 	        icloud: ICloudProvider.createInstance({

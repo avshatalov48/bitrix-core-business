@@ -55,6 +55,7 @@ export class UserPlannerSelector extends EventEmitter
 		this.type = params.type;
 		this.ownerId = params.ownerId;
 		this.zIndex = params.zIndex || this.zIndex;
+		this.dayOfWeekMonthFormat = params.dayOfWeekMonthFormat;
 
 		this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
 		this.create();
@@ -122,7 +123,9 @@ export class UserPlannerSelector extends EventEmitter
 			minWidth: UserPlannerSelector.PLANNER_WIDTH,
 			width: UserPlannerSelector.PLANNER_WIDTH,
 			showEntryName: false,
-			locked: !this.plannerFeatureEnabled
+			locked: !this.plannerFeatureEnabled,
+			dayOfWeekMonthFormat: this.dayOfWeekMonthFormat
+
 		});
 
 		Event.bind(this.DOM.informWrap, 'click', () => {

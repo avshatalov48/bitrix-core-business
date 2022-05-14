@@ -51,6 +51,7 @@ export class Planner extends EventEmitter
 		this.setEventNamespace('BX.Calendar.Planner');
 		this.config = params;
 		this.id = params.id;
+		this.dayOfWeekMonthFormat = params.dayOfWeekMonthFormat || 'd F, l';
 		this.userId = parseInt(params.userId || Loc.getMessage('USER_ID'));
 		this.DOM.wrap = params.wrap;
 		this.SCALE_TIME_FORMAT = BX.isAmPmMode() ? 'g a' : 'G';
@@ -147,21 +148,33 @@ export class Planner extends EventEmitter
 
 		// showTimelineDayTitle
 		if (params.showTimelineDayTitle !== undefined)
+		{
 			this.showTimelineDayTitle = !!params.showTimelineDayTitle;
+		}
 		else if(this.showTimelineDayTitle === undefined)
+		{
 			this.showTimelineDayTitle = true;
+		}
 
 		// compactMode
 		if (params.compactMode !== undefined)
+		{
 			this.compactMode = !!params.compactMode;
+		}
 		else if (this.compactMode === undefined)
+		{
 			this.compactMode = false;
+		}
 
 		// readonly
 		if (params.readonly !== undefined)
+		{
 			this.readonly = !!params.readonly;
+		}
 		else if (this.readonly === undefined)
+		{
 			this.readonly = false;
+		}
 
 		if (this.compactMode)
 		{
@@ -173,9 +186,13 @@ export class Planner extends EventEmitter
 
 		// Select mode
 		if (params.selectEntriesMode !== undefined)
+		{
 			this.selectMode = !!params.selectEntriesMode;
+		}
 		else if (this.selectMode === undefined)
+		{
 			this.selectMode = false;
+		}
 
 		if (Type.isInteger(params.SCALE_OFFSET_BEFORE))
 		{
@@ -306,9 +323,13 @@ export class Planner extends EventEmitter
 	SetLoadedDataLimits(from, to)
 	{
 		if (from)
+		{
 			this.loadedDataFrom = from.getTime ? from : Util.parseDate(from);
+		}
 		if (to)
+		{
 			this.loadedDataTo = to.getTime ? to : Util.parseDate(to);
+		}
 	}
 
 	extendScaleTime(fromTime, toTime)
@@ -357,12 +378,15 @@ export class Planner extends EventEmitter
 
 		this.DOM.wrap.style.width = this.width + 'px';
 
-		// Left part - list of users and other resourses
+		// Left part - list of users and other resources
 		let entriesListWidth = this.compactMode ? 0 : this.entriesListWidth;
 
 		// Timeline with accessibility information
-		this.DOM.mainWrap = this.DOM.wrap.appendChild(BX.create("DIV", {
-			props: {className: 'calendar-planner-main-container calendar-planner-main-container-resource'}, style: {
+		this.DOM.mainWrap = this.DOM.wrap.appendChild(BX.create('DIV', {
+			props: {
+				className: 'calendar-planner-main-container calendar-planner-main-container-resource'
+			},
+			style: {
 				minHeight: this.minHeight + 'px',
 				height: this.height + 'px',
 				width: this.width + 'px'
@@ -379,13 +403,9 @@ export class Planner extends EventEmitter
 			Dom.addClass(this.DOM.mainWrap, 'calendar-planner-readonly');
 		}
 
-		this.DOM.entriesOuterWrap = this.DOM.mainWrap.appendChild(BX.create("DIV", {
-			props: {className: 'calendar-planner-user-container'},
-			style: {
-				width: entriesListWidth + 'px',
-				height: this.height + 'px'
-			}
-		}));
+		this.DOM.entriesOuterWrap = this.DOM.mainWrap.appendChild(Tag.render`
+			<div class="calendar-planner-user-container" style="width: ${entriesListWidth}px; height: ${this.height}px;"></div>
+		`);
 
 		Util.preventSelection(this.DOM.entriesOuterWrap);
 		if (this.compactMode)
@@ -405,26 +425,31 @@ export class Planner extends EventEmitter
 
 		if (this.showEntiesHeader !== false)
 		{
-			this.DOM.entrieListHeader = this.DOM.entriesOuterWrap.appendChild(
-				BX.create("DIV", {props: {className: 'calendar-planner-header'}})
-			).appendChild(
-				BX.create("DIV", {props: {className: 'calendar-planner-general-info'}})
-			).appendChild(
-				BX.create("DIV", {props: {className: 'calendar-planner-users-header'}})
-			);
+			this.DOM.entrieListHeader = this.DOM.entriesOuterWrap.appendChild(Tag.render`
+				<div class="calendar-planner-header"></div>
+			`)
+			.appendChild(Tag.render`
+				<div class="calendar-planner-general-info"></div>
+			`)
+			.appendChild(Tag.render`
+				<div class="calendar-planner-users-header"></div>
+			`);
 
-			this.entriesListTitleCounter = this.DOM.entrieListHeader.appendChild(BX.create("span", {
-				props: {className: 'calendar-planner-users-item'},
-				text: Loc.getMessage('EC_PL_ATTENDEES_TITLE') + ' '
-			})).appendChild(BX.create("span"));
+			this.entriesListTitleCounter = this.DOM.entrieListHeader.appendChild(Tag.render`
+				<span class="calendar-planner-users-item">
+					${Loc.getMessage('EC_PL_ATTENDEES_TITLE') + ' '}
+				</span>
+			`)
+			.appendChild(Tag.render`<span></span>`);
 		}
 
-		this.DOM.entrieListWrap = this.DOM.entriesOuterWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-user-container-inner'}}));
+		this.DOM.entrieListWrap = this.DOM.entriesOuterWrap.appendChild(Tag.render`
+			<div class="calendar-planner-user-container-inner"></div>
+		`);
 
 		// Fixed cont with specific width and height
-		this.DOM.timelineFixedWrap = this.DOM.mainWrap.appendChild(
-			Tag.render`
-				<div class="calendar-planner-timeline-wrapper" style="height: ${this.height}px"></div>
+		this.DOM.timelineFixedWrap = this.DOM.mainWrap.appendChild(Tag.render`
+			<div class="calendar-planner-timeline-wrapper" style="height: ${this.height}px"></div>
 		`);
 
 		if (this.isLocked())
@@ -433,22 +458,25 @@ export class Planner extends EventEmitter
 		}
 
 		// Movable cont - used to move scale and data containers easy and at the same time
-		this.DOM.timelineInnerWrap = this.DOM.timelineFixedWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-timeline-inner-wrapper'}}));
-		this.DOM.timelineInnerWrap.setAttribute('data-bx-planner-meta', 'timeline');
+		this.DOM.timelineInnerWrap = this.DOM.timelineFixedWrap.appendChild(Tag.render`
+			<div class="calendar-planner-timeline-inner-wrapper" data-bx-planner-meta="timeline"></div>
+		`);
+
 
 		// Scale container
-		this.DOM.timelineScaleWrap = this.DOM.timelineInnerWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-time'}}));
+		this.DOM.timelineScaleWrap = this.DOM.timelineInnerWrap.appendChild(Tag.render`
+			<div class="calendar-planner-time"></div>
+		`);
 		Util.preventSelection(this.DOM.timelineScaleWrap);
 
 		// Accessibility container
-		this.DOM.timelineDataWrap = this.DOM.timelineInnerWrap.appendChild(BX.create("DIV", {
-			props: {className: 'calendar-planner-timeline-container'},
-			style: {
-				height: (this.height) + 'px'
-			}
-		}));
+		this.DOM.timelineDataWrap = this.DOM.timelineInnerWrap.appendChild(Tag.render`
+			<div class="calendar-planner-timeline-container" style="height: ${this.height}px"></div>
+		`);
 		// Container with accessibility entries elements
-		this.DOM.accessibilityWrap = this.DOM.timelineDataWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-acc-wrap'}}));
+		this.DOM.accessibilityWrap = this.DOM.timelineDataWrap.appendChild(Tag.render`
+			<div class="calendar-planner-acc-wrap"></div>
+		`);
 
 		// Selector
 		this.selector = new Selector({
@@ -456,15 +484,19 @@ export class Planner extends EventEmitter
 			timelineWrap: this.DOM.timelineFixedWrap,
 			getPosByDate: this.getPosByDate.bind(this),
 			getDateByPos: this.getDateByPos.bind(this),
-			getPosDateMap: ()=>{return this.posDateMap;},
+			getPosDateMap: () => {
+				return this.posDateMap;
+			},
 			useAnimation: this.useAnimation,
 			solidStatus: this.solidStatus,
-			getScaleInfo: ()=>{return {
+			getScaleInfo: () => {return {
 				scale: this.scaleType,
 				shownTimeFrom: this.shownScaleTimeFrom,
 				shownTimeTo: this.shownScaleTimeTo,
 			}},
-			getTimelineWidth: ()=>{return parseInt(this.DOM.timelineInnerWrap.style.width)}
+			getTimelineWidth: () => {
+				return parseInt(this.DOM.timelineInnerWrap.style.width)
+			}
 		});
 		this.DOM.timelineDataWrap.appendChild(this.selector.getWrap());
 		this.DOM.mainWrap.appendChild(this.selector.getTitleNode());
@@ -473,15 +505,14 @@ export class Planner extends EventEmitter
 
 		if (this.selectMode)
 		{
-			this.selectedEntriesWrap = this.DOM.mainWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-timeline-select-entries-wrap'}}));
+			this.selectedEntriesWrap = this.DOM.mainWrap.appendChild(Tag.render`
+				<div class="calendar-planner-timeline-select-entries-wrap"></div>
+			`);
 
-			this.hoverRow = this.DOM.mainWrap.appendChild(BX.create("DIV", {
-				props: {className: 'calendar-planner-timeline-hover-row'},
-				style: {
-					top: 0,
-					width: parseInt(this.DOM.mainWrap.offsetWidth) + 'px'
-				}
-			}));
+			this.hoverRow = this.DOM.mainWrap.appendChild(Tag.render`
+				<div class="calendar-planner-timeline-hover-row" style="top: 0; width: ${parseInt(this.DOM.mainWrap.offsetWidth)}px"></div>
+			`);
+
 
 			Event.bind(document, 'mousemove', this.mouseMoveHandler.bind(this));
 		}
@@ -489,7 +520,7 @@ export class Planner extends EventEmitter
 		if (!this.compactMode)
 		{
 			this.DOM.settingsButton = this.DOM.mainWrap.appendChild(Tag.render`<div class="calendar-planner-settings-icon-container" title="${Loc.getMessage('EC_PL_SETTINGS_SCALE')}"><span class="calendar-planner-settings-title">${Loc.getMessage('EC_PL_SETTINGS_SCALE')}</span><span class="calendar-planner-settings-icon"></span></div>`);
-			Event.bind(this.DOM.settingsButton, 'click', this.showSettingsPopup.bind(this));
+			Event.bind(this.DOM.settingsButton, 'click', () => this.showSettingsPopup());
 		}
 
 		this.built = true;
@@ -497,9 +528,11 @@ export class Planner extends EventEmitter
 
 	buildTimeline(clearCache)
 	{
-		if (this.isBuilt()
+		if (
+			this.isBuilt()
 			&& (this.lastTimelineKey !== this.getTimelineShownKey()
-			|| clearCache === true))
+			|| clearCache === true)
+		)
 		{
 			if (this.DOM.timelineScaleWrap)
 			{
@@ -523,16 +556,20 @@ export class Planner extends EventEmitter
 					}
 					else
 					{
-						outerDayCont = this.DOM.timelineScaleWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-time-day-outer'}}));
+						outerDayCont = this.DOM.timelineScaleWrap.appendChild(Tag.render`
+							<div class="calendar-planner-time-day-outer"></div>
+						`);
+						//F d, l
+						dayTitle = outerDayCont.appendChild(Tag.render`
+							<div class="calendar-planner-time-day-title">
+								<span>${BX.date.format(this.dayOfWeekMonthFormat, this.scaleData[i].timestamp / 1000)}</span>
+								<div class="calendar-planner-time-day-border"></div>
+							</div>
+						`);
 
-						dayTitle = outerDayCont.appendChild(BX.create("DIV", {
-							props: {className: 'calendar-planner-time-day-title'},
-							html: '<span>' + BX.date.format('d F, l', this.scaleData[i].timestamp / 1000) + '</span>' + '<div class="calendar-planner-time-day-border"></div>'
-						}));
-
-						cont = outerDayCont.appendChild(BX.create("DIV", {
-							props: {className: 'calendar-planner-time-day'}
-						}));
+						cont = outerDayCont.appendChild(Tag.render`
+							<div class="calendar-planner-time-day"></div>
+						`);
 
 						this.scaleDayTitles[this.scaleData[i].daystamp] = cont;
 
@@ -541,20 +578,30 @@ export class Planner extends EventEmitter
 
 				let className = 'calendar-planner-time-hour-item' + (this.scaleData[i].dayStart ? ' calendar-planner-day-start' : '');
 
-				if ((this.scaleType === '15min' || this.scaleType === '30min') && this.scaleData[i].title !== '')
+				if (
+					(this.scaleType === '15min' || this.scaleType === '30min')
+					&& this.scaleData[i].title !== ''
+				)
 				{
 					className += ' calendar-planner-time-hour-bold';
 				}
 
-				this.scaleData[i].cell = cont.appendChild(BX.create("DIV", {
-					props: {className: className}, style: {
-						width: this.timelineCellWidth + 'px', minWidth: this.timelineCellWidth + 'px'
-					}, html: this.scaleData[i].title ? '<i>' + this.scaleData[i].title + '</i>' : ''
+				this.scaleData[i].cell = cont.appendChild(BX.create('DIV', {
+					props: {
+						className: className
+					},
+					style: {
+						width: this.timelineCellWidth + 'px',
+						minWidth: this.timelineCellWidth + 'px'
+					},
+					html: this.scaleData[i].title ? '<i>' + this.scaleData[i].title + '</i>' : ''
 				}));
 
 				if (!this.isOneDayScale() && this.scaleData[i + 1] && this.scaleData[i + 1].dayStart)
 				{
-					cont.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-timeline-border'}}));
+					cont.appendChild(Tag.render`
+						<div class="calendar-planner-timeline-border"></div>
+					`);
 				}
 			}
 
@@ -587,7 +634,8 @@ export class Planner extends EventEmitter
 			this.rebuildTimeout = !!clearTimeout(this.rebuildTimeout);
 		}
 
-		if (this._checkRebuildTimeoutCount <= 10
+		if (
+			this._checkRebuildTimeoutCount <= 10
 			&& Type.isElementNode(this.DOM.timelineScaleWrap)
 			&& Dom.isShown(this.DOM.timelineScaleWrap)
 		)
@@ -718,9 +766,9 @@ export class Planner extends EventEmitter
 		if (!Type.isDate(entry.toReal))
 		{
 			// Full day
-			if ((entry.toTimestamp - entry.fromTimestamp) % Util.getDayLength() === 0
-				&&
-				BX.date.format('H:i', entry.toTimestamp / 1000) === '00:00'
+			if (
+				(entry.toTimestamp - entry.fromTimestamp) % Util.getDayLength() === 0
+				&& BX.date.format('H:i', entry.toTimestamp / 1000) === '00:00'
 			)
 			{
 				entry.toReal = new Date(entry.to.getTime() + Util.getDayLength());
@@ -796,9 +844,10 @@ export class Planner extends EventEmitter
 				fromPos = this.getPosByDate(from),
 				toPos = this.getPosByDate(to);
 
-			entry.node = wrap.appendChild(BX.create("DIV", {
+			entry.node = wrap.appendChild(BX.create('DIV', {
 				props: {
-					className: 'calendar-planner-acc-entry' + (entry.type && entry.type === 'hr' ? ' calendar-planner-acc-entry-hr' : '')
+					className: 'calendar-planner-acc-entry'
+						+ (entry.type && entry.type === 'hr' ? ' calendar-planner-acc-entry-hr' : '')
 				},
 				style: {
 					left: fromPos + 'px',
@@ -818,176 +867,175 @@ export class Planner extends EventEmitter
 		let rowWrap;
 		if (entry.type === 'moreLink')
 		{
-			rowWrap = this.DOM.entrieListWrap.appendChild(BX.create('DIV', {
-				props: { className: 'calendar-planner-user' }
-			}));
+			rowWrap = this.DOM.entrieListWrap.appendChild(Tag.render`
+				<div class="calendar-planner-user"></div>
+			`);
 
 			if (this.showEntryName)
 			{
-				this.DOM.showMoreUsersLink = rowWrap.appendChild(BX.create("DIV", {
-					props: {
-						className: 'calendar-planner-all-users',
-						title: entry.title || ''
-					},
-					text: entry.name,
-					events: {'click': this.showMoreUsers.bind(this)}
-				}));
+				this.DOM.showMoreUsersLink = rowWrap.appendChild(Tag.render`
+					<div class="calendar-planner-all-users" title="${entry.title || ''}">
+						${entry.name}
+					</div>
+				`);
 			}
 			else
 			{
-				this.DOM.showMoreUsersLink = rowWrap.appendChild(BX.create("DIV", {
-					props: {
-						className: 'calendar-planner-users-more',
-						title: entry.name
-					},
-					html: '<span class="calendar-planner-users-more-btn"></span>',
-					events: {'click': this.showMoreUsers.bind(this)}
-				}));
+				this.DOM.showMoreUsersLink = rowWrap.appendChild(Tag.render`
+					<div class="calendar-planner-users-more" title="${entry.name || ''}">
+						<span class="calendar-planner-users-more-btn"></span>
+					</div>
+				`);
 			}
+			Event.bind(this.DOM.showMoreUsersLink, 'click', () => this.showMoreUsers());
+
 		}
 		else if (entry.type === 'lastUsers')
 		{
-			rowWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-user'}}));
+			rowWrap = this.DOM.entrieListWrap.appendChild(Tag.render`	
+				<div class="calendar-planner-user"></div>
+			`);
 
 			if (this.showEntryName)
 			{
-				this.DOM.showMoreUsersLink = rowWrap.appendChild(BX.create("DIV", {
-					props: {
-						className: 'calendar-planner-all-users calendar-planner-last-users',
-						title: entry.title || ''
-					},
-					text: entry.name
-				}));
+				this.DOM.showMoreUsersLink = rowWrap.appendChild(Tag.render`
+					<div class="calendar-planner-all-users calendar-planner-last-users" title="${entry.title || ''}">
+						${entry.name}
+					</div>
+				`);
 			}
 			else
 			{
-				this.DOM.showMoreUsersLink = rowWrap.appendChild(BX.create("DIV", {
-					props: {
-						className: 'calendar-planner-users-more',
-						title: entry.title || entry.name
-					},
-					html: '<span class="calendar-planner-users-last-btn"></span>'
-				}));
+				this.DOM.showMoreUsersLink = rowWrap.appendChild(Tag.render`
+					<div class="calendar-planner-users-more" title="${entry.title || entry.name}">
+						<span class="calendar-planner-users-last-btn"></span>
+					</div>
+				`);
 			}
 		}
 		else if (entry.id && entry.type === 'user')
 		{
-			rowWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {
+			rowWrap = this.DOM.entrieListWrap.appendChild(BX.create('DIV', {
 				attrs: {
 					'data-bx-planner-entry' : entry.uid,
-					className: 'calendar-planner-user' + (entry.emailUser ? ' calendar-planner-email-user' : '')
+					className: 'calendar-planner-user'
+						+ (entry.emailUser ? ' calendar-planner-email-user' : '')
 				}
 			}));
 
 			if (entry.status && this.entryStatusMap[entry.status])
 			{
-				rowWrap.appendChild(BX.create("span", {props: {className: 'calendar-planner-user-status-icon ' + this.entryStatusMap[entry.status], title: Loc.getMessage('EC_PL_STATUS_' + entry.status.toUpperCase())}}));
+				rowWrap.appendChild(BX.create('SPAN', {
+					props: {
+						className: 'calendar-planner-user-status-icon '
+							+ this.entryStatusMap[entry.status],
+						title: Loc.getMessage('EC_PL_STATUS_'
+							+ entry.status.toUpperCase())
+					}
+				}));
 			}
 
 			rowWrap.appendChild(Planner.getEntryAvatarNode(entry));
 
 			if (this.showEntryName)
 			{
-				rowWrap.appendChild(
-					BX.create("span", {props: {className: 'calendar-planner-user-name'}})).appendChild(
-					BX.create("span", {
-						props: {
-							className: 'calendar-planner-entry-name'
-						},
-						attrs: {
-							'bx-tooltip-user-id': entry.id,
-							'bx-tooltip-classname': 'calendar-planner-user-tooltip'
-						},
-						style: {
-							width: (this.entriesListWidth - 42) + 'px'
-						},
-						text: entry.name
-					}));
+				rowWrap.appendChild(Tag.render`
+					<span class="calendar-planner-user-name"></span>
+				`)
+				.appendChild(BX.create('SPAN', {
+					props: {
+						className: 'calendar-planner-entry-name'
+					},
+					attrs: {
+						'bx-tooltip-user-id': entry.id,
+						'bx-tooltip-classname': 'calendar-planner-user-tooltip'
+					},
+					style: {
+						width: (this.entriesListWidth - 42) + 'px'
+					},
+					text: entry.name
+				}))
 			}
 		}
 		else if (entry.id && entry.type === 'room')
 		{
-			rowWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-user'}}));
-
+			rowWrap = this.DOM.entrieListWrap.appendChild(Tag.render`
+				<div class="calendar-planner-user"></div>
+			`);
 			if (this.showEntryName)
 			{
-				rowWrap.appendChild(BX.create("span", {props: {className: 'calendar-planner-user-name'}}))
-					.appendChild(BX.create("span", {
-						props: {
-							className: 'calendar-planner-entry-name'
-						},
-						style: {
-							width: (this.entriesListWidth - 20) + 'px'
-						},
-						text: entry.name
-				}));
+				rowWrap.appendChild(Tag.render`
+					<span class="calendar-planner-user-name"></span>
+				`)
+				.appendChild(Tag.render`
+					<span class="calendar-planner-entry-name" style="width: ${this.entriesListWidth - 20}px;">
+						${entry.name}
+					</span>
+				`);
 			}
 			else
 			{
-				rowWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-location-image-icon', title: entry.name}}));
+				rowWrap.appendChild(Tag.render`
+					<div class="calendar-planner-location-image-icon" title="${entry.name}"></div>
+				`);
 			}
 		}
 		else if (entry.type === 'resource')
 		{
 			if (!this.entriesResourceListWrap || !BX.isNodeInDom(this.entriesResourceListWrap))
 			{
-				this.entriesResourceListWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {
-					props: {className: 'calendar-planner-container-resource'},
-					html: '<div class="calendar-planner-resource-header"><span class="calendar-planner-users-item">' + Loc.getMessage('EC_PL_RESOURCE_TITLE') + '</span></div>'
-				}));
+				this.entriesResourceListWrap = this.DOM.entrieListWrap.appendChild(Tag.render`
+					<div class="calendar-planner-container-resource">
+						<div class="calendar-planner-resource-header">
+							<span class="calendar-planner-users-item">${Loc.getMessage('EC_PL_RESOURCE_TITLE')}</span>
+						</div>
+					</div>
+				`);
 			}
 
-			rowWrap = this.entriesResourceListWrap.appendChild(BX.create("DIV", {
-				attrs: {
-					'data-bx-planner-entry' : entry.uid,
-					className: 'calendar-planner-user'
-				}
-			}));
+			rowWrap = this.entriesResourceListWrap.appendChild(Tag.render`
+				<div class="calendar-planner-user" data-bx-planner-entry="${entry.uid}"></div>
+			`);
 
 			if (this.showEntryName)
 			{
-				rowWrap.appendChild(BX.create("span", {props: {className: 'calendar-planner-user-name'}}))
-					.appendChild(BX.create("span", {
-						props: {
-							className: 'calendar-planner-entry-name'
-						},
-						style: {
-							width: (this.entriesListWidth - 20) + 'px'
-						},
-						text: entry.name
-					})
-				);
+				rowWrap.appendChild(Tag.render`
+					<span class="calendar-planner-user-name"></span>
+				`)
+				.appendChild(Tag.render`
+					<span class="calendar-planner-entry-name" style="width: ${this.entriesListWidth - 20}px;">
+						${entry.name}
+					<span>
+				`);
 			}
 			else
 			{
-				rowWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-location-image-icon', title: entry.name}}));
+				rowWrap.appendChild(Tag.render`
+					<div class="calendar-planner-location-image-icon" title="${entry.name}"></div>
+				`);
 			}
 		}
 		else
 		{
-			rowWrap = this.DOM.entrieListWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-user'}}));
-
-			rowWrap.appendChild(BX.create("DIV", {
-				props: {className: 'calendar-planner-all-users'},
-				text: entry.name
-			}));
+			rowWrap = this.DOM.entrieListWrap.appendChild(Tag.render`
+				<div class="calendar-planner-user"></div>
+			`);
+			rowWrap.appendChild(Tag.render`
+				<div class="calendar-planner-all-users">${entry.name}</div>
+			`);
 		}
 
 		let top = rowWrap.offsetTop + 13;
 
-		let dataRowWrap = this.DOM.accessibilityWrap.appendChild(Tag.render`<div class="calendar-planner-timeline-space" style="top:${top}px" data-bx-planner-entry="${entry.uid||0}"></div>`);
+		let dataRowWrap = this.DOM.accessibilityWrap.appendChild(Tag.render`
+			<div class="calendar-planner-timeline-space" style="top:${top}px" data-bx-planner-entry="${entry.uid||0}"></div>
+		`);
 
 		if (this.selectMode)
 		{
-			entry.selectorControlWrap = this.selector.controlWrap.appendChild(BX.create("DIV", {
-				attrs: {
-					'data-bx-planner-entry' : entry.uid,
-					className: 'calendar-planner-selector-control-row'
-				},
-				style: {
-					top: (top - 4) + 'px'
-				}
-			}));
+			entry.selectorControlWrap = this.selector.controlWrap.appendChild(Tag.render`
+				<div class="calendar-planner-selector-control-row" data-bx-planner-entry="${entry.uid}" style="top: ${top - 4}px;"></div>
+			`);
 
 			if (entry.selected)
 			{
@@ -1027,9 +1075,14 @@ export class Planner extends EventEmitter
 		if (BX.type.isPlainObject(entry))
 		{
 			let top = parseInt(entry.dataRowWrap.offsetTop);
-			if (!entry.selectWrap || !BX.isParentForNode(this.selectedEntriesWrap, entry.selectWrap))
+			if (
+				!entry.selectWrap
+				|| !BX.isParentForNode(this.selectedEntriesWrap, entry.selectWrap)
+			)
 			{
-				entry.selectWrap = this.selectedEntriesWrap.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-timeline-selected'}}));
+				entry.selectWrap = this.selectedEntriesWrap.appendChild(Tag.render`
+					<div class="calendar-planner-timeline-selected"></div>
+				`);
 			}
 
 			entry.selectWrap.style.display = '';
@@ -1086,12 +1139,11 @@ export class Planner extends EventEmitter
 		Event.bind(document, 'mousemove', this.handleMousemove.bind(this));
 		Event.bind(document, 'mouseup', this.handleMouseup.bind(this));
 
-
-			Event.bind(
-				this.DOM.timelineFixedWrap,
-				'onwheel' in document ? 'wheel' : 'mousewheel',
-				this.mouseWheelTimelineHandler.bind(this)
-			);
+		Event.bind(
+			this.DOM.timelineFixedWrap,
+			'onwheel' in document ? 'wheel' : 'mousewheel',
+			this.mouseWheelTimelineHandler.bind(this)
+		);
 
 	}
 
@@ -1685,124 +1737,96 @@ export class Planner extends EventEmitter
 		this.entries = entries;
 		this.accessibility = accessibility;
 
-		let
-			i, k, entry, acc,
-			userId = parseInt(this.userId);
+		const userId = parseInt(this.userId);
 
-		// Compact mode
-		if (this.compactMode)
+		// sort entries list by amount of accessibility data
+		// Entries without accessibility data should be in the end of the array
+		// But first in the list will be meeting room
+		// And second (or first) will be owner-host of the event
+		entries.sort((a, b) => {
+			if (b.status === 'h' || parseInt(b.id) === userId && a.status !== 'h')
+			{
+				return 1;
+			}
+			if (a.status === 'h' || parseInt(a.id) === userId && b.status !== 'h')
+			{
+				return  -1;
+			}
+			return 0;
+		});
+
+		if (this.selectedEntriesWrap)
 		{
-			// let data = [];
-			// for (k in params.accessibility)
-			// {
-			// 	if (params.accessibility.hasOwnProperty(k) && params.accessibility[k] && params.accessibility[k].length > 0)
-			// 	{
-			// 		for (i = 0; i < params.accessibility[k].length; i++)
-			// 		{
-			// 			data.push(Planner.prepareAccessibilityItem(params.accessibility[k][i]));
-			// 		}
-			// 	}
-			// }
-			//
-			// this.compactRowWrap = this.accessibilityWrap.appendChild(BX.create("DIV", {
-			// 	props: {className: 'calendar-planner-timeline-space'},
-			// 	style: {}
-			// }));
-			//
-			// this.currentData = [data];
-			// for (i = 0; i < data.length; i++)
-			// {
-			// 	this.addAccessibilityItem(data[i], this.compactRowWrap);
-			// }
+			Dom.clean(this.selectedEntriesWrap);
+			if (this.selector && this.selector.controlWrap)
+			{
+				Dom.clean(this.selector.controlWrap);
+			}
 		}
-		else
+
+		const cutData = [];
+		const cutDataTitle = [];
+		let usersCount = 0;
+		let cutAmount = 0;
+		let dispDataCount = 0;
+
+		entries.forEach((entry, ind) => {
+			entry.uid = Planner.getEntryUniqueId(entry);
+
+			let accData = Type.isArray(accessibility[entry.uid]) ? accessibility[entry.uid] : [];
+			this.entriesIndex.set(entry.uid, entry);
+
+			if (entry.type === 'user')
+			{
+				usersCount++;
+			}
+
+			if (ind < this.MIN_ENTRY_ROWS || entries.length === this.MIN_ENTRY_ROWS + 1)
+			{
+				dispDataCount++;
+				this.displayEntryRow(entry, accData);
+			}
+			else
+			{
+				cutAmount++;
+				cutDataTitle.push(entry.name);
+				accData.forEach((item) => {
+					item = Planner.prepareAccessibilityItem(item);
+					if (item)
+					{
+						cutData.push(item);
+					}
+				});
+			}
+		});
+
+		// Update entries title count
+		if (this.entriesListTitleCounter)
 		{
-			// sort entries list by amount of accessibilities data
-			// Enties without accessibilitity data should be in the end of the array
-			// But first in the list will be meeting room
-			// And second (or first) will be owner-host of the event
-			entries.sort((a, b) => {
-				if (b.status === 'h' || parseInt(b.id) === userId && a.status !== 'h')
-					return 1;
-				if (a.status === 'h' || parseInt(a.id) === userId && b.status !== 'h')
-					return  -1;
-				return 0;
-			});
-
-			if (this.selectedEntriesWrap)
-			{
-				Dom.clean(this.selectedEntriesWrap);
-				if (this.selector && this.selector.controlWrap)
-				{
-					Dom.clean(this.selector.controlWrap);
-				}
-			}
-
-			let
-				cutData = [],
-				usersCount = 0,
-				cutAmount = 0,
-				dispDataCount = 0,
-				cutDataTitle = [];
-
-			entries.forEach((entry, ind) => {
-				entry.uid = Planner.getEntryUniqueId(entry);
-
-				let accData = Type.isArray(accessibility[entry.uid]) ? accessibility[entry.uid] : [];
-				this.entriesIndex.set(entry.uid, entry);
-
-				if (entry.type === 'user')
-				{
-					usersCount++;
-				}
-
-				if (ind < this.MIN_ENTRY_ROWS || entries.length === this.MIN_ENTRY_ROWS + 1)
-				{
-					dispDataCount++;
-					this.displayEntryRow(entry, accData);
-				}
-				else
-				{
-					cutAmount++;
-					cutDataTitle.push(entry.name);
-					accData.forEach((item) => {
-						item = Planner.prepareAccessibilityItem(item);
-						if (item)
-						{
-							cutData.push(item);
-						}
-					});
-				}
-			});
-
-			// Update entries title count
-			if (this.entriesListTitleCounter)
-			{
-				this.entriesListTitleCounter.innerHTML = usersCount > this.MAX_ENTRY_ROWS ? '(' + usersCount + ')' : '';
-			}
+			this.entriesListTitleCounter.innerHTML = usersCount > this.MAX_ENTRY_ROWS ? '(' + usersCount + ')' : '';
+		}
 			this.emit('onDisplayAttendees', new BaseEvent({
 				data:  {
 					usersCount: usersCount
 				}
 			}));
 
-			if (cutAmount > 0)
+		if (cutAmount > 0)
+		{
+			if (dispDataCount === this.MAX_ENTRY_ROWS)
 			{
-				if (dispDataCount === this.MAX_ENTRY_ROWS)
-				{
-					this.displayEntryRow({
-						name: Loc.getMessage('EC_PL_ATTENDEES_LAST') + ' (' + cutAmount + ')',
-						type: 'lastUsers',
-						title: cutDataTitle.join(', ')
-					}, cutData);
-				}
-				else
-				{
-					this.displayEntryRow({
-						name: Loc.getMessage('EC_PL_ATTENDEES_SHOW_MORE') + ' (' + cutAmount + ')',
-						type: 'moreLink'
-					}, cutData);
-				}
+				this.displayEntryRow({
+					name: Loc.getMessage('EC_PL_ATTENDEES_LAST') + ' (' + cutAmount + ')',
+					type: 'lastUsers',
+					title: cutDataTitle.join(', ')
+				}, cutData);
+			}
+			else
+			{
+				this.displayEntryRow({
+					name: Loc.getMessage('EC_PL_ATTENDEES_SHOW_MORE') + ' (' + cutAmount + ')',
+					type: 'moreLink'
+				}, cutData);
 			}
 		}
 
@@ -2168,10 +2192,16 @@ export class Planner extends EventEmitter
 
 	showSettingsPopup()
 	{
-		let
-			settingsDialogCont = BX.create('DIV', {props: {className: 'calendar-planner-settings-popup'}}),
-			scaleRow = settingsDialogCont.appendChild(BX.create('DIV', {props: {className: 'calendar-planner-settings-row'}, html: '<i>' + Loc.getMessage('EC_PL_SETTINGS_SCALE') + ':</i>'})),
-			scaleWrap = scaleRow.appendChild(BX.create('span', {props: {className: 'calendar-planner-option-container'}}));
+		let	settingsDialogCont = Tag.render`<div class="calendar-planner-settings-popup"></div>`;
+		let scaleRow = settingsDialogCont.appendChild(Tag.render`
+			<div class="calendar-planner-settings-row">
+				<i>${Loc.getMessage('EC_PL_SETTINGS_SCALE')}:</i>
+			</div>
+		`);
+		let scaleWrap = scaleRow.appendChild(Tag.render`
+			<span class="calendar-planner-option-container"></span>
+		`);
+
 
 		if (this.fullDayMode)
 		{
@@ -2254,10 +2284,14 @@ export class Planner extends EventEmitter
 	{
 		if (!this.DOM.proposeTimeButton)
 		{
-			this.DOM.proposeTimeButton = this.DOM.mainWrap.appendChild(BX.create("DIV", {
-				props: {className: 'calendar-planner-time-arrow-right'},
-				html: '<span class="calendar-planner-time-arrow-right-text">' + Loc.getMessage('EC_PL_PROPOSE') + '</span><span class="calendar-planner-time-arrow-right-item"></span>'
-			}));
+			this.DOM.proposeTimeButton = this.DOM.mainWrap.appendChild(Tag.render`
+				<div class="calendar-planner-time-arrow-right">
+					<span class="calendar-planner-time-arrow-right-text">
+						${Loc.getMessage('EC_PL_PROPOSE')}
+					</span>
+					<span class="calendar-planner-time-arrow-right-item"></span>
+				</div>
+			`);
 			Event.bind(this.DOM.proposeTimeButton, 'click', this.proposeTime.bind(this));
 		}
 		this.DOM.proposeTimeButton.style.display = "block";

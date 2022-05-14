@@ -934,7 +934,7 @@ class CAllIMContactList
 
 			$uid = md5(implode('|', $arFilter['=ID']));
 			$cache_id = 'user_data_v39_'.$uid.'_'.$nameTemplate.'_'.$nameTemplateSite.'_'.$extraFields.'_'.$getPhones.'_'.$getDepartment.'_'.$bIntranetEnable.'_'.$bVoximplantEnable.'_'.LANGUAGE_ID.'_'.$bColorEnabled;
-			$cache_dir = '/bx/imc/userdata/'.mb_substr($uid, 0, 2).'/'.mb_substr($uid, 2, 2);
+			$cache_dir = '/bx/imc/userdata/' . mb_substr($uid, 0, 2) . '/' . mb_substr($uid, 2, 2) . '/' . $uid;
 			if ($obCache->initCache($cache_ttl, $cache_id, $cache_dir))
 			{
 				$arCacheResult = $obCache->getVars();

@@ -124,6 +124,8 @@
 	      return node.tagName === 'SELECT';
 	    },
 	    createDropdown: function createDropdown(data, relative) {
+	      var emptyText = data.EMPTY_TEXT || '';
+	      var isMultiple = data.MULTIPLE === 'Y';
 	      var container = this.createContainer(data.ID, relative, {});
 	      var dropdown = BX.create('div', {
 	        props: {
@@ -133,15 +135,17 @@
 	        attrs: {
 	          name: data.NAME,
 	          'data-name': data.NAME,
+	          'data-empty-text': emptyText,
+	          'data-multiple': isMultiple ? 'Y' : 'N',
 	          'data-items': JSON.stringify(data.ITEMS),
-	          'data-value': data.ITEMS[0].VALUE,
+	          'data-value': isMultiple ? '' : data.ITEMS[0].VALUE,
 	          'data-popup-position': 'fixed'
 	        },
 	        children: [BX.create('span', {
 	          props: {
 	            className: 'main-dropdown-inner'
 	          },
-	          html: data.ITEMS[0].NAME
+	          html: isMultiple ? emptyText : data.ITEMS[0].NAME
 	        })]
 	      });
 	      container.appendChild(dropdown);
@@ -181,13 +185,13 @@
 	          className: 'main-grid-checkbox'
 	        },
 	        attrs: {
-	          for: data.ID + '_control',
+	          "for": data.ID + '_control',
 	          title: data.TITLE
 	        }
 	      }));
 	      titleSpan.appendChild(BX.create('label', {
 	        attrs: {
-	          for: data.ID + '_control',
+	          "for": data.ID + '_control',
 	          title: data.TITLE
 	        },
 	        html: data.LABEL
@@ -212,7 +216,7 @@
 	        container.appendChild(BX.create('label', {
 	          attrs: {
 	            title: title,
-	            for: data.ID + '_control'
+	            "for": data.ID + '_control'
 	          },
 	          text: title
 	        }));
@@ -659,8 +663,9 @@
 	        if (BX.type.isDomNode(current)) {
 	          if (self.isDropdown(current)) {
 	            var dropdownValue = BX.data(current, 'value');
+	            var multiple = BX.data(current, 'multiple') === 'Y';
 	            dropdownValue = dropdownValue !== null && dropdownValue !== undefined ? dropdownValue : '';
-	            data[BX.data(current, 'name')] = dropdownValue;
+	            data[BX.data(current, 'name')] = multiple ? dropdownValue.split(',') : dropdownValue;
 	          }
 
 	          if (self.isSelect(current)) {
@@ -1363,6 +1368,8 @@
 	    this.menuId = null;
 	    this.menu = null;
 	    this.menuItems = null;
+	    this.multiple = null;
+	    this.emptyText = null;
 	    this.dataItems = 'items';
 	    this.dataValue = 'value';
 	    this.dataPseudo = 'pseudo';
@@ -1382,6 +1389,8 @@
 	      this.items = this.getItems();
 	      this.value = this.getValue();
 	      this.menuId = this.getMenuId();
+	      this.multiple = this.getMultiple();
+	      this.emptyText = this.getEmptyText();
 	      this.menu = this.createMenu();
 	      this.menu.popupWindow.show();
 	      this.adjustPosition();
@@ -1402,13 +1411,76 @@
 
 	      return result;
 	    },
+	    // single
 	    getValue: function getValue() {
 	      return BX.data(this.dropdown, this.dataValue);
+	    },
+	    getValueItem: function getValueItem() {
+	      var value = this.getValue();
+	      return this.getItems().find(function (item) {
+	        return item.VALUE === value;
+	      });
+	    },
+	    // multiple
+	    getValueAsArray: function getValueAsArray() {
+	      var value = this.getValue();
+
+	      if (value === undefined) {
+	        value = '';
+	      }
+
+	      return value.toString().split(',').filter(function (i) {
+	        return i !== '';
+	      });
+	    },
+	    getValueItems: function getValueItems() {
+	      var values = this.getValueAsArray();
+	      return this.getItems().filter(function (item) {
+	        return values.includes(item.VALUE);
+	      });
+	    },
+	    toggleValue: function toggleValue(value) {
+	      if (this.multiple) {
+	        if (value || value === 0 || value === '0') {
+	          var values = this.getValueAsArray();
+	          var index = values.indexOf(value);
+
+	          if (index < 0) {
+	            values.push(value);
+	          } else {
+	            values.splice(index, 1);
+	          }
+
+	          this.dropdown.dataset[this.dataValue] = values.join(',');
+	        } else {
+	          this.dropdown.dataset[this.dataValue] = null;
+	        }
+	      } else {
+	        this.dropdown.dataset[this.dataValue] = value;
+	      }
+	    },
+	    getValueText: function getValueText() {
+	      if (this.multiple) {
+	        return this.getValueItems().map(function (item) {
+	          return item.NAME;
+	        }).filter(function (i) {
+	          return !!i;
+	        }).join(", ") || this.emptyText;
+	      }
+
+	      var item = this.getValueItem();
+	      return item ? item.NAME : this.emptyText;
+	    },
+	    getMultiple: function getMultiple() {
+	      return this.dropdown.dataset.multiple === 'Y';
+	    },
+	    getEmptyText: function getEmptyText() {
+	      return this.dropdown.dataset.emptyText || null;
 	    },
 	    prepareMenuItems: function prepareMenuItems() {
 	      var self = this;
 	      var attrs, subItem;
-	      var currentValue = this.getValue();
+	      var currentValue = this.multiple ? this.getValueAsArray() : this.getValue();
 
 	      function prepareItems(items) {
 	        var isHtmlEntity = self.dropdown.dataset['htmlEntity'] === 'true';
@@ -1426,9 +1498,10 @@
 	              text: isHtmlEntity ? null : item.NAME
 	            })]
 	          });
+	          var selected = self.multiple ? currentValue.includes(item.VALUE) : currentValue === item.VALUE;
 	          return {
 	            html: subItem.innerHTML,
-	            className: currentValue === item.VALUE ? self.selectedClass : self.notSelectedClass,
+	            className: selected ? self.selectedClass : self.notSelectedClass,
 	            delimiter: item.DELIMITER,
 	            items: 'ITEMS' in item ? prepareItems(item.ITEMS) : null
 	          };
@@ -1488,21 +1561,37 @@
 	        value = '';
 	      }
 
-	      BX.firstChild(this.dropdown).innerText = subItem.innerText;
-	      this.dropdown.dataset[this.dataValue] = value;
+	      this.toggleValue(value);
+	      BX.firstChild(this.dropdown).innerText = this.getValueText();
 	    },
 	    selectItem: function selectItem(node) {
 	      var self = this;
 	      (this.menu.menuItems || []).forEach(function (current) {
+	        // multiple
+	        if (self.multiple) {
+	          if (node === current.layout.item) {
+	            if (BX.hasClass(node, self.selectedClass)) {
+	              BX.addClass(current.layout.item, self.notSelectedClass);
+	              BX.removeClass(current.layout.item, self.selectedClass);
+	            } else {
+	              BX.removeClass(current.layout.item, self.notSelectedClass);
+	              BX.addClass(current.layout.item, self.selectedClass);
+	            }
+	          }
+
+	          return;
+	        } // single
+
+
 	        BX.removeClass(current.layout.item, self.selectedClass);
 
 	        if (node !== current.layout.item) {
 	          BX.addClass(current.layout.item, self.notSelectedClass);
 	        } else {
 	          BX.removeClass(current.layout.item, self.notSelectedClass);
+	          BX.addClass(current.layout.item, self.selectedClass);
 	        }
 	      });
-	      BX.addClass(node, this.selectedClass);
 	    },
 	    lockedItem: function lockedItem(node) {
 	      BX.addClass(node, this.lockedClass);
@@ -1545,7 +1634,11 @@
 	      if (!(isPseudo === 'true')) {
 	        this.refresh(item);
 	        this.selectItem(item);
-	        this.menu.popupWindow.close();
+
+	        if (!this.multiple) {
+	          this.menu.popupWindow.close();
+	        }
+
 	        value = this.getValue();
 	        dataItem = this.getDataItemByValue(value);
 	      } else {
@@ -1561,7 +1654,7 @@
 
 	      if (!BX.hasClass(item, this.menuItemClass)) {
 	        item = BX.findParent(item, {
-	          class: this.menuItemClass
+	          "class": this.menuItemClass
 	        });
 	      }
 
@@ -2249,25 +2342,7 @@
 	  };
 	})();
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"main-grid-editor main-ui-control main-ui-multi-select\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tid=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t<span class=\"main-ui-square-container\">", "</span>\n\t\t\t\t\t<span class=\"main-ui-hide main-ui-control-value-delete\">\n\t\t\t\t\t\t<span class=\"main-ui-control-value-delete-item\"></span>\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class=\"main-ui-square-search\">\n\t\t\t\t\t\t<input type=\"text\" class=\"main-ui-square-search-item\">\n\t\t\t\t\t</span>\t\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<span class=\"main-ui-square\">\n\t\t\t\t\t\t\t\t<span class=\"main-ui-square-item\">", "</span>\n\t\t\t\t\t\t\t\t<span class=\"main-ui-item-icon main-ui-square-delete\"></span>\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2;
 
 	(function () {
 
@@ -2486,7 +2561,7 @@
 	          className: this.parent.settings.get('classEditorOutput') || ''
 	        },
 	        attrs: {
-	          for: editObject.NAME + '_control'
+	          "for": editObject.NAME + '_control'
 	        },
 	        text: editObject.VALUE || ''
 	      });
@@ -2535,7 +2610,7 @@
 
 	            selectedValues.push(item);
 	            var itemName = (_item$HTML = item.HTML) !== null && _item$HTML !== void 0 ? _item$HTML : BX.util.htmlspecialchars(item.NAME);
-	            var renderedItem = BX.Tag.render(_templateObject(), itemName);
+	            var renderedItem = BX.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<span class=\"main-ui-square\">\n\t\t\t\t\t\t\t\t<span class=\"main-ui-square-item\">", "</span>\n\t\t\t\t\t\t\t\t<span class=\"main-ui-item-icon main-ui-square-delete\"></span>\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t"])), itemName);
 	            BX.Dom.attr(renderedItem, 'data-item', item);
 	            return renderedItem;
 	          });
@@ -2544,7 +2619,7 @@
 	        return [];
 	      }();
 
-	      var layout = BX.Tag.render(_templateObject2(), BX.Text.encode(editObject.NAME), "".concat(BX.Text.encode(editObject.NAME), "_control"), squares);
+	      var layout = BX.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"main-grid-editor main-ui-control main-ui-multi-select\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tid=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t<span class=\"main-ui-square-container\">", "</span>\n\t\t\t\t\t<span class=\"main-ui-hide main-ui-control-value-delete\">\n\t\t\t\t\t\t<span class=\"main-ui-control-value-delete-item\"></span>\n\t\t\t\t\t</span>\n\t\t\t\t\t<span class=\"main-ui-square-search\">\n\t\t\t\t\t\t<input type=\"text\" class=\"main-ui-square-search-item\">\n\t\t\t\t\t</span>\t\n\t\t\t\t</div>\n\t\t\t"])), BX.Text.encode(editObject.NAME), "".concat(BX.Text.encode(editObject.NAME), "_control"), squares);
 	      BX.Dom.attr(layout, {
 	        'data-params': {
 	          isMulti: true
@@ -3770,155 +3845,7 @@
 	  };
 	})();
 
-	function _templateObject15() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<span class=\"ui-counter-inner\"></span>\n\t\t\t\t\t\t\t"]);
-
-	  _templateObject15 = function _templateObject15() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject14() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<span class=\"ui-counter\"></span>\n\t\t\t\t\t\t\t"]);
-
-	  _templateObject14 = function _templateObject14() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject13() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<span class=\"main-grid-cell-counter\"></span>\n\t\t\t\t\t\t\t"]);
-
-	  _templateObject13 = function _templateObject13() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject12() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t\t<span class=\"main-grid-cell-content-action ", "\"></span>\n\t\t\t\t\t\t\t\t"]);
-
-	  _templateObject12 = function _templateObject12() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject11() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<div class=\"main-grid-cell-content-actions\"></div>\n\t\t\t\t\t\t\t"]);
-
-	  _templateObject11 = function _templateObject11() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject10() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<span class=\"main-grid-tag-add\"></span>\n\t\t\t\t\t\t"]);
-
-	  _templateObject10 = function _templateObject10() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<span class=\"main-grid-tags\">", "</span>\n\t\t\t\t\t\t"]);
-
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t\t<span class=\"main-grid-tag-remove\"></span>\n\t\t\t\t\t\t\t\t"]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<span class=\"main-grid-tag-inner\">", "</span>\n\t\t\t\t\t\t\t"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<span class=\"main-grid-tag\"></span>\n\t\t\t\t\t\t\t"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<div class=\"main-grid-labels\">", "</div>\n\t\t\t\t\t\t"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t\t\t<span class=\"main-grid-label-remove-button ", "\"></span>\t\n\t\t\t\t\t\t\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t\t\t\t<span class=\"ui-label-icon\"></span>\t\n\t\t\t\t\t\t\t\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<span class=\"ui-label-inner\">", "</span>\n\t\t\t\t\t\t\t"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<span class=\"ui-label ", "\"></span>\n\t\t\t\t\t\t\t"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1, _templateObject2$1, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15;
 
 	(function () {
 
@@ -4926,7 +4853,7 @@
 
 	          if (columnOptions.type === 'labels' && BX.Type.isArray(cellContent)) {
 	            var labels = cellContent.map(function (labelOptions) {
-	              var label = BX.Tag.render(_templateObject$1(), labelOptions.color);
+	              var label = BX.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<span class=\"ui-label ", "\"></span>\n\t\t\t\t\t\t\t"])), labelOptions.color);
 
 	              if (labelOptions.light !== true) {
 	                BX.Dom.addClass(label, 'ui-label-fill');
@@ -4948,16 +4875,16 @@
 	                return labelOptions.text;
 	              }();
 
-	              var inner = BX.Tag.render(_templateObject2$1(), labelContent);
+	              var inner = BX.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<span class=\"ui-label-inner\">", "</span>\n\t\t\t\t\t\t\t"])), labelContent);
 	              BX.Dom.append(inner, label);
 
 	              if (BX.Type.isPlainObject(labelOptions.removeButton)) {
 	                var button = function () {
 	                  if (labelOptions.removeButton.type === BX.Grid.Label.RemoveButtonType.INSIDE) {
-	                    return BX.Tag.render(_templateObject3());
+	                    return BX.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t\t\t\t<span class=\"ui-label-icon\"></span>\t\n\t\t\t\t\t\t\t\t\t\t"])));
 	                  }
 
-	                  return BX.Tag.render(_templateObject4(), labelOptions.removeButton.type);
+	                  return BX.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t\t\t<span class=\"main-grid-label-remove-button ", "\"></span>\t\n\t\t\t\t\t\t\t\t\t"])), labelOptions.removeButton.type);
 	                }();
 
 	                if (BX.Type.isPlainObject(labelOptions.removeButton.events)) {
@@ -4969,7 +4896,7 @@
 
 	              return label;
 	            });
-	            var labelsContainer = BX.Tag.render(_templateObject5(), labels);
+	            var labelsContainer = BX.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<div class=\"main-grid-labels\">", "</div>\n\t\t\t\t\t\t"])), labels);
 	            BX.Dom.clean(container);
 	            var oldLabelsContainer = container.querySelector('.main-grid-labels');
 
@@ -4980,7 +4907,7 @@
 	            }
 	          } else if (columnOptions.type === 'tags' && BX.Type.isPlainObject(cellContent)) {
 	            var tags = cellContent.items.map(function (tagOptions) {
-	              var tag = BX.Tag.render(_templateObject6());
+	              var tag = BX.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<span class=\"main-grid-tag\"></span>\n\t\t\t\t\t\t\t"])));
 
 	              _this.bindOnEvents(tag, tagOptions.events);
 
@@ -4996,11 +4923,11 @@
 	                return BX.Text.encode(tagOptions.text);
 	              }();
 
-	              var tagInner = BX.Tag.render(_templateObject7(), tagContent);
+	              var tagInner = BX.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<span class=\"main-grid-tag-inner\">", "</span>\n\t\t\t\t\t\t\t"])), tagContent);
 	              BX.Dom.append(tagInner, tag);
 
 	              if (tagOptions.active === true) {
-	                var removeButton = BX.Tag.render(_templateObject8());
+	                var removeButton = BX.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t\t<span class=\"main-grid-tag-remove\"></span>\n\t\t\t\t\t\t\t\t"])));
 	                BX.Dom.append(removeButton, tag);
 
 	                if (BX.Type.isPlainObject(tagOptions.removeButton)) {
@@ -5010,8 +4937,8 @@
 
 	              return tag;
 	            });
-	            var tagsContainer = BX.Tag.render(_templateObject9(), tags);
-	            var addButton = BX.Tag.render(_templateObject10());
+	            var tagsContainer = BX.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<span class=\"main-grid-tags\">", "</span>\n\t\t\t\t\t\t"])), tags);
+	            var addButton = BX.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<span class=\"main-grid-tag-add\"></span>\n\t\t\t\t\t\t"])));
 
 	            if (BX.Type.isPlainObject(cellContent.addButton)) {
 	              _this.bindOnEvents(addButton, cellContent.addButton.events);
@@ -5079,7 +5006,7 @@
 	                return currentContainer;
 	              }
 
-	              var newContainer = BX.Tag.render(_templateObject11());
+	              var newContainer = BX.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<div class=\"main-grid-cell-content-actions\"></div>\n\t\t\t\t\t\t\t"])));
 	              BX.Dom.append(newContainer, inner);
 	              return newContainer;
 	            }();
@@ -5087,14 +5014,14 @@
 	            if (BX.Type.isArrayFilled(actions)) {
 	              actions.forEach(function (action) {
 	                var actionClass = function () {
-	                  if (BX.Type.isArrayFilled(action.class)) {
-	                    return action.class.join(' ');
+	                  if (BX.Type.isArrayFilled(action["class"])) {
+	                    return action["class"].join(' ');
 	                  }
 
-	                  return action.class;
+	                  return action["class"];
 	                }();
 
-	                var button = BX.Tag.render(_templateObject12(), actionClass);
+	                var button = BX.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t\t<span class=\"main-grid-cell-content-action ", "\"></span>\n\t\t\t\t\t\t\t\t"])), actionClass);
 
 	                if (BX.Type.isPlainObject(action.events)) {
 	                  _this2.bindOnEvents(button, action.events);
@@ -5197,7 +5124,7 @@
 	                return container;
 	              }
 
-	              return BX.Tag.render(_templateObject13());
+	              return BX.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<span class=\"main-grid-cell-counter\"></span>\n\t\t\t\t\t\t\t"])));
 	            }();
 
 	            var uiCounter = function () {
@@ -5207,7 +5134,7 @@
 	                return currentCounter;
 	              }
 
-	              var newCounter = BX.Tag.render(_templateObject14());
+	              var newCounter = BX.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<span class=\"ui-counter\"></span>\n\t\t\t\t\t\t\t"])));
 	              BX.Dom.append(newCounter, counterContainer);
 	              return newCounter;
 	            }();
@@ -5223,7 +5150,7 @@
 	                return currentInner;
 	              }
 
-	              var newInner = BX.Tag.render(_templateObject15());
+	              var newInner = BX.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t\t<span class=\"ui-counter-inner\"></span>\n\t\t\t\t\t\t\t"])));
 	              BX.Dom.append(newInner, uiCounter);
 	              return newInner;
 	            }();
@@ -5249,8 +5176,8 @@
 	              BX.Dom.addClass(uiCounter, counter.size);
 	            }
 
-	            if (BX.Type.isStringFilled(counter.class)) {
-	              BX.Dom.addClass(uiCounter, counter.class);
+	            if (BX.Type.isStringFilled(counter["class"])) {
+	              BX.Dom.addClass(uiCounter, counter["class"]);
 	            }
 
 	            if (BX.Type.isStringFilled(counter.value) || BX.Type.isNumber(counter.value)) {
@@ -6365,7 +6292,7 @@
 	  };
 	})();
 
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
@@ -7110,7 +7037,7 @@
 	    this.editButton = null;
 	    this.settings = null;
 	    this.parent = null;
-	    this.default = null;
+	    this["default"] = null;
 	    this.defaultTitle = null;
 	    this.state = null;
 	    this.lastTitle = null;
@@ -7247,12 +7174,12 @@
 	     * @return {boolean}
 	     */
 	    isDefault: function isDefault() {
-	      if (this.default === null) {
+	      if (this["default"] === null) {
 	        var settings = this.getSettings();
-	        this.default = 'default' in settings ? settings.default : false;
+	        this["default"] = 'default' in settings ? settings["default"] : false;
 	      }
 
-	      return this.default;
+	      return this["default"];
 	    },
 
 	    /**
@@ -7813,55 +7740,11 @@
 	  };
 	})();
 
-	function _templateObject5$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"main-grid-empty-block\">\n\t\t\t\t<div class=\"main-grid-empty-inner\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
+	var _templateObject$2, _templateObject2$2, _templateObject3$1, _templateObject4$1, _templateObject5$1;
 
-	  _templateObject5$1 = function _templateObject5() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
-
-	function _templateObject4$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"main-grid-empty-text\">", "</div>"]);
-
-	  _templateObject4$1 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"main-grid-empty-image\"></div>"]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<div class=\"main-grid-empty-block-description\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t"]);
-
-	  _templateObject2$2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<div class=\"main-grid-empty-block-title\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t"]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 	/**
 	 * @memberOf BX.Grid
@@ -7877,7 +7760,7 @@
 
 	    _this.setEventNamespace('BX.Grid.Realtime');
 
-	    _this.options = babelHelpers.objectSpread({}, options);
+	    _this.options = _objectSpread({}, options);
 	    return _this;
 	  }
 
@@ -7914,7 +7797,7 @@
 	              counter = _ref2[1];
 
 	          if (main_core.Type.isPlainObject(counter)) {
-	            acc[columnId] = babelHelpers.objectSpread({}, counter, {
+	            acc[columnId] = _objectSpread(_objectSpread({}, counter), {}, {
 	              animation: main_core.Text.toBoolean(counter.animation)
 	            });
 	          }
@@ -8012,11 +7895,11 @@
 	          var result = [];
 
 	          if (main_core.Type.isStringFilled(options.content.title)) {
-	            result.push(main_core.Tag.render(_templateObject$2(), options.content.title));
+	            result.push(main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<div class=\"main-grid-empty-block-title\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t"])), options.content.title));
 	          }
 
 	          if (main_core.Type.isStringFilled(options.content.description)) {
-	            result.push(main_core.Tag.render(_templateObject2$2(), options.content.description));
+	            result.push(main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<div class=\"main-grid-empty-block-description\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t"])), options.content.description));
 	          }
 
 	          return result;
@@ -8026,10 +7909,10 @@
 	          return options.content;
 	        }
 
-	        return [main_core.Tag.render(_templateObject3$1()), main_core.Tag.render(_templateObject4$1(), _this2.options.grid.getParam('EMPTY_STUB_TEXT'))];
+	        return [main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"main-grid-empty-image\"></div>"]))), main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"main-grid-empty-text\">", "</div>"])), _this2.options.grid.getParam('EMPTY_STUB_TEXT'))];
 	      }();
 
-	      var container = main_core.Tag.render(_templateObject5$1(), content);
+	      var container = main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"main-grid-empty-block\">\n\t\t\t\t<div class=\"main-grid-empty-inner\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), content);
 	      main_core.Dom.append(container, td);
 	      main_core.Dom.append(td, tr);
 	      var oldStub = this.options.grid.getBody().querySelector('.main-grid-row-empty');
@@ -8764,6 +8647,10 @@
 	        } else {
 	          BX.style(this.getTable(), 'min-height', gridRect.height + Math.abs(diff) - panelsHeight - paddingOffset + 'px');
 	        }
+
+	        if (this.getCurrentPage() <= 1) {
+	          BX.Dom.hide(this.getPanels());
+	        }
 	      } else {
 	        BX.style(this.getTable(), 'min-height', ''); // Chrome hack for 0116845 bug. @todo refactoring
 
@@ -8771,6 +8658,7 @@
 	        requestAnimationFrame(function () {
 	          BX.style(this.getTable(), 'height', '1px');
 	        }.bind(this));
+	        BX.Dom.show(this.getPanels());
 	      }
 	    },
 	    reloadTable: function reloadTable(method, data, callback, url) {
@@ -9804,6 +9692,15 @@
 	        }
 	      }
 	    },
+	    getCurrentPage: function getCurrentPage() {
+	      var currentPage = parseInt(this.arParams.CURRENT_PAGE);
+
+	      if (BX.Type.isNumber(currentPage)) {
+	        return currentPage;
+	      }
+
+	      return 0;
+	    },
 
 	    /**
 	     * @private
@@ -9821,6 +9718,10 @@
 
 	      if (stub) {
 	        BX.Dom.attr(stub, 'hidden', null);
+
+	        if (this.getCurrentPage() <= 1) {
+	          BX.Dom.hide(this.getPanels());
+	        }
 	      }
 	    },
 
@@ -9833,6 +9734,7 @@
 	      if (stub) {
 	        BX.Dom.attr(stub, 'hidden', true);
 	        BX.Dom.style(this.getTable(), 'min-height', null);
+	        BX.Dom.show(this.getPanels());
 	      }
 	    },
 

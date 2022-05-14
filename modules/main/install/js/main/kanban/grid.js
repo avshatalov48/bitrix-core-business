@@ -57,6 +57,7 @@ BX.Kanban.Grid = function(options)
 		rightShadow: null
 	};
 
+	this.emptyStubItems = options.emptyStubItems;
 	this.itemType = this.getItemType(options.itemType);
 	this.columnType = this.getColumnType(options.columnType);
 
@@ -1011,11 +1012,44 @@ BX.Kanban.Grid.prototype =
 	 */
 	getEmptyStub: function()
 	{
-		if (this.layout.emptyStub)
+		if(this.layout.emptyStub)
 		{
 			return this.layout.emptyStub;
 		}
 
+		if(this.emptyStubItems && typeof this.emptyStubItems === 'object')
+		{
+			this.layout.emptyStub = BX.create("div", {
+				attrs: {
+					className: "main-kanban-no-data"
+				},
+				children: [
+					BX.create("div", {
+						attrs: {
+							className: "main-kanban-no-data-inner"
+						},
+						children: [
+							BX.create("div", {
+								attrs: {
+									className: "main-kanban-no-data-title"
+								},
+								text: this.emptyStubItems['title']
+							}),
+							BX.create("div", {
+								attrs: {
+									className: "main-kanban-no-data-description"
+								},
+								text: this.emptyStubItems['description']
+							})
+						]
+					})
+				]
+			});
+
+			return this.layout.emptyStub;
+		}
+
+		// default empty layout
 		this.layout.emptyStub = BX.create("div", {
 			attrs: {
 				className: "main-kanban-no-data"

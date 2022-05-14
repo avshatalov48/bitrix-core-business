@@ -58,6 +58,9 @@ class WorkflowInstanceTable extends Entity\DataManager
 			'WORKFLOW' => array(
 				'data_type' => 'string'
 			),
+			'WORKFLOW_RO' => array(
+				'data_type' => 'string'
+			),
 			'STARTED' => array(
 				'data_type' => 'datetime'
 			),

@@ -32,39 +32,53 @@ export class PaymentProcess
 	 */
 	handleResponse()
 	{
-		if (this.backendProvider.isResponseSucceed()) {
-			this.tryToRedirectUserOnPaymentGate();
-			EventEmitter.emit(EventType.payment.success, this.backendProvider.getResponse());
-		} else {
+		if (this.backendProvider.isResponseSucceed())
+		{
+			const redirected = this.tryToRedirectUserOnPaymentGate();
+
+			if (!redirected)
+			{
+				EventEmitter.emit(EventType.payment.success, this.backendProvider.getResponse());
+			}
+		}
+		else
+		{
 			EventEmitter.emit(EventType.payment.error, this.backendProvider.getResponse());
 		}
 	}
 
 	/**
 	 * @private
+	 * @returns {boolean}
 	 */
 	tryToRedirectUserOnPaymentGate()
 	{
 		const url = this.backendProvider.getPaymentGateUrl();
 		const html = this.backendProvider.getPaymentFormHtml();
 
-		if (this.allowPaymentRedirect) {
-			if (url) {
+		if (this.allowPaymentRedirect)
+		{
+			if (url)
+			{
 				window.location.href = url;
-			} else if (html) {
-				this.tryToAutoSubmitHtmlChunk(html);
+				return true;
+			}
+			else if (html)
+			{
+				return this.tryToAutoSubmitHtmlChunk(html);
 			}
 		}
+		return false;
 	}
 
 	/**
 	 * @private
 	 * @param {string} html
-	 * @returns {void}
+	 * @returns {boolean}
 	 */
 	tryToAutoSubmitHtmlChunk(html)
 	{
-		VirtualForm.createFromHtml(html).submit();
+		return VirtualForm.createFromHtml(html).submit();
 	}
 
 	/**

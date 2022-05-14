@@ -1,8 +1,10 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)die();
 use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\Converter;
+use Bitrix\Main\Web\Json;
 
-CJSCore::Init(['ajax', 'popup']);
+CJSCore::Init(['ajax', 'popup', 'ui.buttons.icons']);
 
 $templateFolder = $this->getFolder();
 $this->addExternalJs($templateFolder."/utils.js");
@@ -66,33 +68,40 @@ $this->addExternalJs($templateFolder."/utils.js");
 				$itemClass .= " --locked";
 			}
 
+			$dataCounterId = '';
+			if (isset($arItem['COUNTER_ID']))
+			{
+				$dataCounterId = 'data-mib-counter-id=' . $arItem['COUNTER_ID'];
+			}
+
+			$title = $arItem["TEXT"];
+			if (mb_strlen($title) > $arParams['MAX_ITEM_LENGTH'])
+			{
+				$title = mb_substr($title, 0, $arParams['MAX_ITEM_LENGTH'] - 3) . '...';
+			}
+
 			?><div
-				 class="main-buttons-item <?=$itemClass?>"
-				 id="<?=$arItem["ID"]?>"
-				 data-disabled="<?=$arItem["IS_DISABLED"]?>"
-				 data-class="<?=$arItem["CLASS_SUBMENU_ITEM"]?>"
-				 data-onclick="<?=$arItem["ON_CLICK"]?>"
-				 data-url="<?=$arItem["URL"]?>"
-				 data-text="<?=$arItem["TEXT"]?>"
-				 data-id="<?=$arItem["DATA_ID"]?>"
-				 data-counter="<?=$arItem["COUNTER"]?>"
-				 data-counter-id="<?=$arItem["COUNTER_ID"]?>"
-				 data-item="<?=\Bitrix\Main\Text\Converter::getHtmlConverter()->encode(\Bitrix\Main\Web\Json::encode($arItem))?>"
-				 data-top-menu-id="<?=$arResult["ID"]?>"
-				 <? if (isset($arItem['PARENT_ITEM_ID'])) : ?>
-				 data-parent-item-id="<?=$arItem['PARENT_ITEM_ID']?>"
-				 <? endif;?>
-				 <? if (isset($arItem['HAS_CHILD']) && $arItem['HAS_CHILD'] === true) : ?>
-				 data-has-child="true"
-				 <? endif; ?>
-				<? if ($arItem["HAS_MENU"]): ?>
-				 data-has-menu="true"
-				<? endif ?>
-				 title="<?=isset($arItem["TITLE"]) ? $arItem["TITLE"] : ""?>"><?
+				class="main-buttons-item <?=$itemClass?>"
+				id="<?=$arItem["ID"]?>"
+				data-disabled="<?=$arItem["IS_DISABLED"]?>"
+				data-class="<?=$arItem["CLASS_SUBMENU_ITEM"]?>"
+				data-id="<?=$arItem["DATA_ID"]?>"
+				data-item="<?= htmlspecialcharsbx(Json::encode($arItem))?>"
+				data-top-menu-id="<?=$arResult["ID"]?>"
+				<? if (isset($arItem['PARENT_ITEM_ID'])) : ?>
+				data-parent-item-id="<?=$arItem['PARENT_ITEM_ID']?>"
+				<? endif;?>
+				<? if (isset($arItem['HAS_CHILD']) && $arItem['HAS_CHILD'] === true): ?>
+				data-has-child="true"
+				<? endif; ?>
+				<? if (isset($arItem['IS_DISBANDED']) && $arItem['IS_DISBANDED'] === true): ?>
+				data-disbanded="true"
+				<? endif; ?>
+				title="<?=htmlspecialcharsbx($arItem["TITLE"])?>"><?
 				if (!$arItem["HTML"]):
 					if (!empty($arItem["URL"])):
 						?><a class="main-buttons-item-link<?=$arParams["CLASS_ITEM_LINK"] ? " ".$arParams["CLASS_ITEM_LINK"] : ""?>"
-						href="<?=$arItem["URL"]?>"><?
+						href="<?=htmlspecialcharsbx($arItem["URL"])?>"><?
 					else:
 						?><span class="main-buttons-item-link<?=$arParams["CLASS_ITEM_LINK"] ? " ".$arParams["CLASS_ITEM_LINK"] : ""?>"><?
 					endif
@@ -105,19 +114,21 @@ $this->addExternalJs($templateFolder."/utils.js");
 								$style = empty($color) ? '' : ' style="color:' . $color . '"';
 								?><span class="main-buttons-item-super-title<?=$className?>"<?=$style?>><?=$text?></span><?
 							endif
-							?><span class="main-buttons-item-text-title"><?=$arItem["TEXT"]?></span><?
+							?><span class="main-buttons-item-text-title"><?=htmlspecialcharsbx($title)?></span><?
 							?><span class="main-buttons-item-menu-arrow"></span><?
 							?><span class="main-buttons-item-edit-button" data-slider-ignore-autobinding="true"></span><?
 							?><span class="main-buttons-item-text-marker"></span><?
 						?></span><?
-						?><span class="main-buttons-item-counter<?=$arParams["CLASS_ITEM_COUNTER"] ? " ".$arParams["CLASS_ITEM_COUNTER"] : ""?>"><?=$arItem["COUNTER"] > $arItem['MAX_COUNTER_SIZE'] ? $arItem['MAX_COUNTER_SIZE'].'+' : $arItem["COUNTER"]?></span><?
+						?><span
+							<?= $dataCounterId ?>
+							class="main-buttons-item-counter<?=$arParams["CLASS_ITEM_COUNTER"] ? " ".$arParams["CLASS_ITEM_COUNTER"] : ""?>"><?=$arItem["COUNTER"] > $arItem['MAX_COUNTER_SIZE'] ? $arItem['MAX_COUNTER_SIZE'].'+' : $arItem["COUNTER"]?></span><?
 					if (!empty($arItem["URL"])):
 						?></a><?
 					else:
 						?></span><?
 					endif;
 					if ($arItem["SUB_LINK"]):
-						?><a class="main-buttons-item-sublink<?=" ".$arItem["SUB_LINK"]["CLASS"]?>" href="<?=$arItem["SUB_LINK"]["URL"]?>"></a><?
+						?><a class="main-buttons-item-sublink<?=" ".$arItem["SUB_LINK"]["CLASS"]?>" href="<?=htmlspecialcharsbx($arItem["SUB_LINK"]["URL"])?>"></a><?
 					endif;
 				else:
 					echo $arItem["HTML"];
@@ -130,9 +141,9 @@ $this->addExternalJs($templateFolder."/utils.js");
 					</div><?
 				endif ?><?
 				?><div class="main-buttons-item-child"
-					 data-id="<?=$arItem["DATA_ID"]?>"
-					 data-child-items="<?=\Bitrix\Main\Text\Converter::getHtmlConverter()->encode(\Bitrix\Main\Web\Json::encode($arItem['CHILD_ITEMS']))?>"
-					 <?=$arItem['EXPANDED'] ? 'data-is-opened="true"' : ''?>
+					data-id="<?=$arItem["DATA_ID"]?>"
+					data-child-items="<?= Converter::getHtmlConverter()->encode(Json::encode($arItem['CHILD_ITEMS']))?>"
+					<?=$arItem['EXPANDED'] ? ' data-is-opened="true"' : ''?>
 				><?
 					?><div class="main-buttons-item-child-list" style="<?=$arItem['EXPANDED'] ? 'max-width: none;opacity: 1; overflow: visible;' : ''?>">
 						<div class="main-buttons-item-child-list-inner">
@@ -160,31 +171,41 @@ $this->addExternalJs($templateFolder."/utils.js");
 									$itemClass .= " --locked";
 								}
 
+								$dataCounterId = '';
+								if (isset($arChildItem['COUNTER_ID']))
+								{
+									$dataCounterId = 'data-mib-counter-id=' . $arChildItem['COUNTER_ID'];
+								}
+
+								$title = $arChildItem["TEXT"];
+								if (mb_strlen($title) > $arParams['MAX_ITEM_LENGTH'])
+								{
+									$title = mb_substr($title, 0, $arParams['MAX_ITEM_LENGTH'] - 3) . '...';
+								}
+
 								?><div
 									class="main-buttons-item <?=$itemClass?>"
 									id="<?=$arChildItem["ID"]?>"
 									data-disabled="<?=$arChildItem["IS_DISABLED"]?>"
 									data-class="<?=$arChildItem["CLASS_SUBMENU_ITEM"]?>"
-									data-onclick="<?=$arChildItem["ON_CLICK"]?>"
-									data-url="<?=$arChildItem["URL"]?>"
-									data-text="<?=$arChildItem["TEXT"]?>"
 									data-id="<?=$arChildItem["DATA_ID"]?>"
-									data-counter="<?=$arChildItem["COUNTER"]?>"
-									data-counter-id="<?=$arChildItem["COUNTER_ID"]?>"
 									data-locked="<?=$arChildItem["IS_LOCKED"]?>"
-									data-item="<?=\Bitrix\Main\Text\Converter::getHtmlConverter()->encode(\Bitrix\Main\Web\Json::encode($arChildItem))?>"
+									data-item="<?= Converter::getHtmlConverter()->encode(Json::encode($arChildItem))?>"
 									data-top-menu-id="<?=$arResult["ID"]?>"
 									<? if (isset($arChildItem['PARENT_ITEM_ID'])) : ?>
 										data-parent-item-id="<?=$arChildItem['PARENT_ITEM_ID']?>"
 									<? endif;?>
-									<? if (isset($arChildItem['HAS_CHILD']) && $arChildItem['HAS_CHILD'] === true) : ?>
+									<? if (isset($arChildItem['HAS_CHILD']) && $arChildItem['HAS_CHILD'] === true): ?>
 										data-has-child="true"
 									<? endif; ?>
-									title="<?=isset($arChildItem["TITLE"]) ? $arChildItem["TITLE"] : ""?>"><?
+									<? if (isset($arChildItem['IS_DISBANDED']) && $arChildItem['IS_DISBANDED'] === true): ?>
+										data-disbanded="true"
+									<? endif; ?>
+									title="<?=htmlspecialcharsbx($arChildItem["TITLE"])?>"><?
 								if (!$arChildItem["HTML"]):
 									if (!empty($arChildItem["URL"])):
 										?><a class="main-buttons-item-link<?=$arParams["CLASS_ITEM_LINK"] ? " ".$arParams["CLASS_ITEM_LINK"] : ""?>"
-										href="<?=$arChildItem["URL"]?>"><?
+										href="<?=htmlspecialcharsbx($arChildItem["URL"])?>"><?
 									else:
 										?><span class="main-buttons-item-link<?=$arParams["CLASS_ITEM_LINK"] ? " ".$arParams["CLASS_ITEM_LINK"] : ""?>"><?
 									endif;
@@ -198,11 +219,13 @@ $this->addExternalJs($templateFolder."/utils.js");
 											$style = empty($color) ? '' : ' style="color:' . $color . '"';
 											?><span class="main-buttons-item-super-title<?=$className?>"<?=$style?>><?=$text?></span><?
 										endif
-										?><span class="main-buttons-item-text-title"><?=$arChildItem["TEXT"]?></span><?
+										?><span class="main-buttons-item-text-title"><?=htmlspecialcharsbx($title)?></span><?
 										?><span class="main-buttons-item-edit-button" data-slider-ignore-autobinding="true"></span><?
 										?><span class="main-buttons-item-text-marker"></span><?
 									?></span><?
-									?><span class="main-buttons-item-counter<?=$arParams["CLASS_ITEM_COUNTER"] ? " ".$arParams["CLASS_ITEM_COUNTER"] : ""?>"><?=$arChildItem["COUNTER"] > $arChildItem['MAX_COUNTER_SIZE'] ? $arChildItem['MAX_COUNTER_SIZE'].'+' : $arChildItem["COUNTER"]?></span><?
+									?><span
+										<?= $dataCounterId ?>
+										class="main-buttons-item-counter<?=$arParams["CLASS_ITEM_COUNTER"] ? " ".$arParams["CLASS_ITEM_COUNTER"] : ""?>"><?=$arChildItem["COUNTER"] > $arChildItem['MAX_COUNTER_SIZE'] ? $arChildItem['MAX_COUNTER_SIZE'].'+' : $arChildItem["COUNTER"]?></span><?
 									if (!empty($arChildItem["URL"])):
 										?></a><?
 									else:
@@ -210,7 +233,7 @@ $this->addExternalJs($templateFolder."/utils.js");
 									endif;
 
 									if ($arChildItem["SUB_LINK"]):
-										?><a class="main-buttons-item-sublink<?=" ".$arChildItem["SUB_LINK"]["CLASS"]?>" href="<?=$arChildItem["SUB_LINK"]["URL"]?>"></a><?
+										?><a class="main-buttons-item-sublink<?=" ".$arChildItem["SUB_LINK"]["CLASS"]?>" href="<?=htmlspecialcharsbx($arChildItem["SUB_LINK"]["URL"])?>"></a><?
 									endif;
 								else:
 									echo $arChildItem["HTML"];
@@ -243,18 +266,23 @@ $this->addExternalJs($templateFolder."/utils.js");
 </div>
 
 <script>
-	BX.ready(function () {
+(function() {
+	const init = () => {
 		BX.Main.interfaceButtonsManager.init({
 			containerId: '<?=$arResult["ID"]?>',
 			disableSettings: '<?=CUtil::PhpToJSObject($arParams["DISABLE_SETTINGS"])?>',
 			theme: '<?=CUtil::JSEscape($arParams["THEME"])?>',
+			maxItemLength: <?=(int)$arParams['MAX_ITEM_LENGTH']?>,
 			ajaxSettings: {
 				componentName: '<?= $this->getComponent()->getName() ?>',
 				signedParams: '<?= $this->getComponent()->getSignedParameters() ?>',
 			},
 			classes: {
-				itemMore: 'main-buttons-item-more',
-				itemActive: '<?=$arParams["CLASS_ITEM_ACTIVE"]?>'
+				itemActive: '<?=$arParams['CLASS_ITEM_ACTIVE']?>',
+				extraItemLink: '<?=$arParams['CLASS_ITEM_LINK']?>',
+				extraItemText: '<?=$arParams['CLASS_ITEM_TEXT']?>',
+				extraItemIcon: '<?=$arParams['CLASS_ITEM_ICON']?>',
+				extraItemCounter: '<?=$arParams['CLASS_ITEM_COUNTER']?>',
 			},
 			licenseWindow: {
 				isFullDemoExists: 'Y',
@@ -284,8 +312,24 @@ $this->addExternalJs($templateFolder."/utils.js");
 				MIB_RESET_ALERT: '<?=CUtil::JSEscape(Loc::getMessage("MIB_RESET_ALERT"))?>',
 				MIB_RESET_BUTTON: '<?=CUtil::JSEscape(Loc::getMessage("MIB_RESET_BUTTON"))?>',
 				MIB_CANCEL_BUTTON: '<?=CUtil::JSEscape(Loc::getMessage("MIB_CANCEL_BUTTON"))?>',
-				MIB_MAIN_BUTTONS_LOADING: '<?=CUtil::JSEscape(Loc::getMessage("MIB_MAIN_BUTTONS_LOADING"))?>'
+				MIB_MAIN_BUTTONS_LOADING: '<?=CUtil::JSEscape(Loc::getMessage("MIB_MAIN_BUTTONS_LOADING"))?>',
+				MIB_UNPIN_ITEM: '<?=CUtil::JSEscape(Loc::getMessage("MIB_UNPIN_ITEM"))?>',
+				MIB_PIN_HINT: '<?=CUtil::JSEscape(Loc::getMessage("MIB_PIN_HINT"))?>',
 			}
 		});
-	});
+	};
+
+	const isReady = document.getElementById('<?=$arResult["ID"]?>');
+	if (isReady)
+	{
+		init();
+	}
+	else
+	{
+		BX.Event.ready(() => {
+			init();
+		});
+	}
+})();
+
 </script>

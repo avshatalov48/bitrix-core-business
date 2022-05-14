@@ -1,0 +1,192 @@
+.store-stock-sale-chart {
+	height: 300px;
+	padding-top: 40px;
+}
+
+.catalog-report-store-stock-card-subtitle {
+	/*display: block;*/
+	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #A8ADB4;
+	opacity: .84;
+}
+
+.catalog-report-store-stock-card-info {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+}
+
+.catalog-report-store-stock-card-info-box {
+	display: flex;
+	align-items: baseline;
+}
+
+.catalog-report-store-stock-card-info-box:first-child {
+	margin: 0 8% 0 0;
+}
+
+.catalog-report-store-stock-card-info-box:last-child {
+	margin: 0;
+}
+
+.catalog-report-store-stock-card-info-price,
+.catalog-report-store-stock-card-info-value-box {
+	display: flex;
+	align-items: baseline;
+	/*margin: 0 14px 0 0;*/
+	max-width: 100%;
+	font: 1.8vw "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+}
+
+.catalog-report-store-stock-card-info-percent {
+	font: 1.2vw "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #FF5752;
+}
+
+.catalog-report-store-stock-card-info-value {
+	display: inline-block;
+	margin: 0 5px 0 0;
+	max-width: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.catalog-report-store-stock-card-info-value-clickable {
+	border-bottom: 1px dashed transparent;
+}
+
+.catalog-report-store-stock-card-info-value-clickable:hover {
+	color: #2066B0;
+	border-bottom: 1px dashed #2066B0;
+	cursor: pointer;
+}
+
+.catalog-report-store-stock-card-info-symbol {
+	display: inline-block;
+}
+
+.catalog-report-store-stock-card-info-price .catalog-report-store-stock-card-info-symbol,
+.catalog-report-store-stock-card-info-value-box .catalog-report-store-stock-card-info-symbol {
+	font: 1.4vw "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #828B95;
+}
+
+.catalog-report-store-stock-card-info-percent .catalog-report-store-stock-card-info-symbol {
+	font: .9vw "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #828B95;
+	opacity: .72;
+}
+
+.catalog-report-store-stock-card-info-item:first-child {
+	border-right: 1px solid rgba(224,224,224,.6);
+	margin: 0 15px 0 0;
+	padding: 0 15px 0 0;
+}
+
+.catalog-report-store-stock-card-info-item:last-child {
+	border-right: none;
+	margin: 0;
+	padding: 0;
+}
+
+/* MODAL */
+.catalog-report-store-stock-modal {
+	/*position: absolute;*/
+	display: inline-block;
+	top: 350px;
+	padding: 15px 16px 1px 13px;
+	min-width: 157px;
+	border-left: 3px solid transparent;
+	background: #fff;
+	box-shadow: 0 6px 21px 0 rgba(83,92,105,.15);
+	box-sizing: border-box;
+}
+
+.catalog-report-store-stock-modal-hidden
+{
+	display: none;
+}
+
+.catalog-report-store-stock-modal-head {}
+.catalog-report-store-stock-modal-title {
+	display: block;
+	margin: 0 0 17px 0;
+	padding: 0 0 12px 0;
+	border-bottom: 1px solid rgba(130,139,149,.19);
+	font: 13px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+}
+.catalog-report-store-stock-modal-title {
+	display: flex;
+	align-items: center;
+}
+.catalog-report-store-stock-modal-title-icon {
+	display: inline-block;
+	margin: 0 11px 0 0;
+	width: 16px;
+	height: 16px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20xmlns%3Axlink%3D%22http%3A//www.w3.org/1999/xlink%22%20width%3D%2216%22%20height%3D%2216%22%3E%3Cimage%20width%3D%2216%22%20height%3D%2216%22%20x%3D%2218%22%20y%3D%2215%22%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%20transform%3D%22translate%28-18%20-15%29%22%20xlink%3Ahref%3D%22data%3Aimage/png%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGOGCHvlwAAAQdJREFUOBHVU70OAUEQnmUJ0VBpNFpaoRGP4A28gPdAcZ3SY+g1EpJLKElUOo1ExD93sr655C67LiE5lUm+3DeT/WZuZnaFmlGHotkDsp5AAhVNT2fo8rGI4kAmAwZiL9NkL1J6yOC18o1qpasRMxLMVykaDLPGAd2Rch9KYMzAfQpyXF1i8gTKyXgwMm8GoT/48xa4Pxk3+/7m/XwP9AQOqlkAf9lCvlJk7Y90BwiIbbaU09fIaykCayADsF8A2kACcHYH6h9ONAKvArzwlrFGBN7NERXq+sH1kAT4BOAErK3rLcD/bMWm9/CmOOVftwZn8Svw87wAPIckwL4/D9DAxmCsYa16AXV/X3FACYX4AAAAAElFTkSuQmCC%22/%3E%3C/svg%3E');
+	background-repeat: no-repeat;
+}
+.catalog-report-store-stock-modal-subtitle {
+	display: block;
+	margin: 0 0 2px 0;
+	font: 11px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #A8ADB4;
+	opacity: .84;
+}
+.catalog-report-store-stock-modal-main .catalog-report-store-stock-card-subtitle {
+	font: 11px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+.catalog-report-store-stock-modal-main {}
+.catalog-report-store-stock-modal-content {
+	display: flex;
+	align-items: center;
+}
+.catalog-report-store-stock-modal-content,
+.catalog-report-store-stock-modal-main .catalog-report-store-stock-card-info {
+	margin: 0 0 18px 0;
+}
+.catalog-report-store-stock-modal-value {
+	font: 20px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+.catalog-report-store-stock-modal-value-grey {
+	color: #828B95;
+}
+.catalog-report-store-stock-modal-value-black {
+	color: #333;
+}
+.catalog-report-store-stock-modal-arrow-right {
+	margin: 0 7px 0 11px;
+	color: #A8ADB4;
+}
+.catalog-report-store-stock-modal-main .catalog-report-store-stock-card-info-price,
+.catalog-report-store-stock-modal-main .catalog-report-store-stock-card-info-value-box {
+	margin: 0 30px 0 0;
+	font: 20px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+.catalog-report-store-stock-modal-main .catalog-report-store-stock-card-info-value-box {
+	margin: 0;
+}
+.catalog-report-store-stock-modal-main .catalog-report-store-stock-card-info-price .catalog-report-store-stock-card-info-symbol,
+.catalog-report-store-stock-modal-main .catalog-report-store-stock-card-info-value-box .catalog-report-store-stock-card-info-symbol {
+	font: 18px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+.catalog-report-store-stock-modal-main .catalog-report-store-stock-card-info-percent {
+	font: 21px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+.catalog-report-store-stock-modal-main .catalog-report-store-stock-card-info-percent .catalog-report-store-stock-card-info-symbol {
+	font: 15px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+/* END OF MODAL */
+
+.stores-stock-chart-label-link {
+	color: #1d54a2;
+	font-weight: 600;
+	border-bottom: 1px dotted #1d54a2;
+	cursor: pointer;
+	/*margin: 5px;*/
+	display: inline-block;
+}

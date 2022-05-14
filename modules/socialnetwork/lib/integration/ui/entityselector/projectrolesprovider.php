@@ -103,7 +103,7 @@ class ProjectRolesProvider extends BaseProvider
 				'id' => $projectId . '_' . SONET_ROLES_USER,
 				'entityId' => $this->entityId,
 				'entityType' => 'role',
-				'title' => Loc::getMessage('SES_PROJECT_EMPLOYER_ROLE'),
+				'title' => Loc::getMessage('SES_PROJECT_SCRUM_EMPLOYER_ROLE'),
 				'tabs' => ['project-roles']
 			]
 		);

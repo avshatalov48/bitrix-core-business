@@ -821,7 +821,7 @@ class Query
 	/**
 	 * Adds a runtime field (being created dynamically, opposite to being described statically in the entity map)
 	 *
-	 * @param string|null $name
+	 * @param string|null|Field $name
 	 * @param array|Field $fieldInfo
 	 *
 	 * @return $this

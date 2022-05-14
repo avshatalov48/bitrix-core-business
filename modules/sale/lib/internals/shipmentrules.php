@@ -85,6 +85,16 @@ class ShipmentRules
 			return false;
 		}
 
+		$shipment = $shipmentItem->getCollection()->getShipment();
+
+		$coefficient = 1;
+		if ($shipment->needShip() === Sale\Internals\Catalog\Provider::SALE_TRANSFER_PROVIDER_SHIPMENT_NEED_SHIP)
+		{
+			$coefficient = -1;
+		}
+
+		$needUseReserve = $coefficient < 1 || Sale\Configuration::isEnableAutomaticReservation();
+
 		$productId = $basketItem->getProductId();
 
 		$rule = array(
@@ -94,7 +104,7 @@ class ShipmentRules
 			'PROVIDER_NAME' => $basketItem->getProvider(),
 		);
 
-		$storeData = Sale\Internals\Catalog\Provider::createMapShipmentItemStoreData($shipmentItem);
+		$storeData = Sale\Internals\Catalog\Provider::createMapShipmentItemStoreData($shipmentItem, $needUseReserve);
 		if (!empty($storeData))
 		{
 			$reservedQuantity = 0;
@@ -141,16 +151,8 @@ class ShipmentRules
 			];
 		}
 
-		$coefficient = 1;
 		if (array_key_exists($productId, $poolQuantitiesList))
 		{
-			$shipment = $shipmentItem->getCollection()->getShipment();
-
-			if ($shipment->needShip() === Sale\Internals\Catalog\Provider::SALE_TRANSFER_PROVIDER_SHIPMENT_NEED_SHIP)
-			{
-				$coefficient = -1;
-			}
-
 			$quantityByStore = [];
 			foreach ($storeData as $item)
 			{

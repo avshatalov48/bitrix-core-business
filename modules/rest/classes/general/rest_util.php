@@ -11,7 +11,7 @@ class CRestUtil
 	const EVENTS = '_events';
 	const PLACEMENTS = '_placements';
 
-	const HANDLER_SESSION_TTL = 3;
+	const HANDLER_SESSION_TTL = 7;
 
 	const BATCH_MAX_LENGTH = 50;
 

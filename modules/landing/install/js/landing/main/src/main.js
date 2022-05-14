@@ -1,4 +1,5 @@
-import {Event, Type, Dom, Cache, Tag, Text} from 'main.core';
+import {Type, Dom, Cache, Tag, Text, Runtime} from 'main.core';
+import {EventEmitter} from 'main.core.events';
 import {Env} from 'landing.env';
 import {Loc} from 'landing.loc';
 import {Content} from 'landing.ui.panel.content';
@@ -11,20 +12,12 @@ import onAnimationEnd from './internal/on-animation-end';
 import isEmpty from './internal/is-empty';
 import {Backend} from 'landing.backend';
 
-const LANG_RU = 'ru';
-const LANG_BY = 'by';
-const LANG_KZ = 'kz';
-const LANG_LA = 'la';
-const LANG_DE = 'de';
-const LANG_BR = 'br';
-const LANG_UA = 'ua';
-
 BX.Landing.getMode = () => 'edit';
 
 /**
  * @memberOf BX.Landing
  */
-export class Main extends Event.EventEmitter
+export class Main extends EventEmitter
 {
 	static TYPE_PAGE = 'PAGE';
 	static TYPE_STORE = 'STORE';
@@ -86,8 +79,8 @@ export class Main extends Event.EventEmitter
 
 		const pageType = Env.getInstance().getType();
 		if (
-			pageType === 'KNOWLEDGE'
-			|| pageType === 'GROUP'
+			pageType === Main.TYPE_KNOWLEDGE
+			|| pageType === Main.TYPE_GROUP
 		)
 		{
 			const mainArea = document.querySelector('.landing-main');
@@ -507,53 +500,32 @@ export class Main extends Event.EventEmitter
 	 */
 	showSliderFeedbackForm(data = {})
 	{
-		const rootWindow = PageObject.getRootWindow();
-
-		if (!this.sliderFeedbackInited)
-		{
-			this.sliderFeedbackInited = true;
-			this.sliderFeedback = new Content('slider_feedback', {
-				title: Loc.getMessage('LANDING_PANEL_FEEDBACK_TITLE'),
-				className: 'landing-ui-panel-feedback',
-			});
-
-			Dom.append(this.sliderFeedback.overlay, rootWindow.document.body);
-			Dom.style(this.sliderFeedback.overlay, 'z-index', 322);
-			Dom.append(this.sliderFeedback.layout, rootWindow.document.body);
-			this.sliderFormLoader = new BX.Loader({target: this.sliderFeedback.content});
-			this.sliderFormLoader.show();
-			this.initFeedbackForm();
-		}
-
-		data.bitrix24 = this.options.server_name;
-		data.siteId = this.options.site_id;
-		data.siteUrl = this.options.url;
-		data.siteTemplate = this.options.xml_id;
-		data.productType = this.options.productType || 'Undefined';
-		data.typeproduct = (() => {
-			if (this.options.params.type === 'GROUP')
+		Runtime.loadExtension('ui.feedback.form').then(() => {
+			const data = {};
+			data.bitrix24 = this.options.server_name;
+			data.siteId = this.options.site_id;
+			data.siteUrl = this.options.url;
+			data.siteTemplate = this.options.xml_id;
+			data.productType = this.options.productType || 'Undefined';
+			data.typeproduct = (() =>
 			{
-				return 'KNOWLEDGE_GROUP';
-			}
+				if (this.options.params.type === Main.TYPE_GROUP)
+				{
+					return 'KNOWLEDGE_GROUP';
+				}
 
-			return this.options.params.type;
-		})();
+				return this.options.params.type;
+			})();
 
-		const form = this.getFeedbackFormOptions();
-
-		rootWindow.b24formFeedBack({
-			id: form.id,
-			lang: form.lang,
-			sec: form.sec,
-			type: 'slider_inline',
-			node: this.sliderFeedback.content,
-			handlers: {
-				load: this.onSliderFormLoaded.bind(this),
-			},
-			presets: Type.isPlainObject(data) ? data : {},
+			BX.UI.Feedback.Form.open(
+				{
+					id: Math.random()+'',
+					forms: this.getFeedbackFormOptions(),
+					presets: data,
+				}
+			);
 		});
 
-		this.sliderFeedback.show();
 	}
 
 
@@ -564,33 +536,14 @@ export class Main extends Event.EventEmitter
 	// eslint-disable-next-line class-methods-use-this
 	getFeedbackFormOptions()
 	{
-		const currentLanguage = Loc.getMessage('LANGUAGE_ID');
-		let options = {id: '16', sec: '3h483y', lang: 'en'};
-
-		switch (currentLanguage)
-		{
-			case LANG_RU:
-			case LANG_BY:
-			case LANG_KZ:
-				options = {id: '8', sec: 'x80yjw', lang: 'ru'};
-				break;
-			case LANG_LA:
-				options = {id: '14', sec: 'wu561i', lang: 'la'};
-				break;
-			case LANG_DE:
-				options = {id: '10', sec: 'eraz2q', lang: 'de'};
-				break;
-			case LANG_BR:
-				options = {id: '12', sec: 'r6wvge', lang: 'br'};
-				break;
-			case LANG_UA:
-				options = {id: '18', sec: 'd9e09o', lang: 'ua'};
-				break;
-			default:
-				break;
-		}
-
-		return options;
+		return [
+			{zones: ['en', 'eu', 'in', 'uk'], id: 16, lang: 'en', sec: '3h483y'},
+			{zones: ['ru', 'by', 'kz'], id: 8, lang: 'ru', sec: 'x80yjw'},
+			{zones: ['ua'], id: 18, lang: 'ua', sec: 'd9e09o'},
+			{zones: ['la', 'co', 'mx'], id: 14, lang: 'la', sec: 'wu561i'},
+			{zones: ['de'], id: 10, lang: 'de', sec: 'eraz2q'},
+			{zones: ['com.br', 'br'], id: 12, lang: 'br', sec: 'r6wvge'},
+		];
 	}
 
 

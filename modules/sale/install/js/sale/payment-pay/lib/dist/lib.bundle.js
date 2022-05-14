@@ -90,18 +90,22 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 
 	    /**
 	     * @public
-	     * @returns {void}
+	     * @returns {boolean}
 	     */
 	    value: function submit() {
 	      if (!this.canSubmit()) {
-	        return;
+	        return false;
 	      }
 
 	      if (this.isVirtual()) {
-	        document.body.appendChild(this.form.parentNode);
+	        var tempNode = document.createElement('div');
+	        tempNode.style.display = 'none';
+	        tempNode.append(this.form);
+	        document.body.appendChild(tempNode);
 	      }
 
 	      HTMLFormElement.prototype.submit.call(this.form);
+	      return true;
 	    }
 	    /**
 	     * @public
@@ -169,7 +173,6 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	    value: function createFromHtml(html) {
 	      var tempNode = document.createElement('div');
 	      tempNode.innerHTML = html;
-	      tempNode.style.display = 'none';
 	      var form = tempNode.querySelector('form');
 	      return new VirtualForm(form);
 	    }
@@ -249,14 +252,18 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	    key: "handleResponse",
 	    value: function handleResponse() {
 	      if (this.backendProvider.isResponseSucceed()) {
-	        this.tryToRedirectUserOnPaymentGate();
-	        main_core_events.EventEmitter.emit(sale_paymentPay_const.EventType.payment.success, this.backendProvider.getResponse());
+	        var redirected = this.tryToRedirectUserOnPaymentGate();
+
+	        if (!redirected) {
+	          main_core_events.EventEmitter.emit(sale_paymentPay_const.EventType.payment.success, this.backendProvider.getResponse());
+	        }
 	      } else {
 	        main_core_events.EventEmitter.emit(sale_paymentPay_const.EventType.payment.error, this.backendProvider.getResponse());
 	      }
 	    }
 	    /**
 	     * @private
+	     * @returns {boolean}
 	     */
 
 	  }, {
@@ -268,21 +275,24 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	      if (this.allowPaymentRedirect) {
 	        if (url) {
 	          window.location.href = url;
+	          return true;
 	        } else if (html) {
-	          this.tryToAutoSubmitHtmlChunk(html);
+	          return this.tryToAutoSubmitHtmlChunk(html);
 	        }
 	      }
+
+	      return false;
 	    }
 	    /**
 	     * @private
 	     * @param {string} html
-	     * @returns {void}
+	     * @returns {boolean}
 	     */
 
 	  }, {
 	    key: "tryToAutoSubmitHtmlChunk",
 	    value: function tryToAutoSubmitHtmlChunk(html) {
-	      VirtualForm.createFromHtml(html).submit();
+	      return VirtualForm.createFromHtml(html).submit();
 	    }
 	    /**
 	     * @private
@@ -300,9 +310,37 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	  return PaymentProcess;
 	}();
 
+	var Settings = /*#__PURE__*/function () {
+	  function Settings(settings) {
+	    babelHelpers.classCallCheck(this, Settings);
+	    this.settings = settings;
+	  }
+
+	  babelHelpers.createClass(Settings, [{
+	    key: "get",
+	    value: function get(name, defaultValue) {
+	      var parts = name.split('.');
+	      var currentOption = this.settings;
+	      var found = false;
+	      parts.map(function (part) {
+	        if (currentOption && currentOption.hasOwnProperty(part)) {
+	          currentOption = currentOption[part];
+	          found = true;
+	        } else {
+	          currentOption = null;
+	          found = false;
+	        }
+	      });
+	      return found ? currentOption : defaultValue;
+	    }
+	  }]);
+	  return Settings;
+	}();
+
 	exports.AbstractBackendProvider = AbstractBackendProvider;
 	exports.PaymentProcess = PaymentProcess;
 	exports.VirtualForm = VirtualForm;
+	exports.Settings = Settings;
 
 }((this.BX.Sale.PaymentPay.Lib = this.BX.Sale.PaymentPay.Lib || {}),BX.Event,BX.Sale.PaymentPay.Const));
 //# sourceMappingURL=lib.bundle.js.map

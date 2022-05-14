@@ -21,11 +21,11 @@ class ProviderBuilder extends ProviderBuilderBase
 			'BASKET_ID' => $basketItem->getId(),
 			'BASKET_CODE' => $basketItem->getBasketCode(),
 			'PRODUCT_ID' => $basketItem->getProductId(),
-			'QUANTITY' => $basketItem->getQuantity(),
+			'QUANTITY' => $basketItem->getNotPurchasedQuantity(),
 			'RESERVED_QUANTITY' => $basketItem->getReservedQuantity(),
 			'IS_BARCODE_MULTI' => $basketItem->isBarcodeMulti(),
 			'BUNDLE_CHILD' => false,
-			'SUBSCRIBE' => ($basketItem->getField('SUBSCRIBE') == 'Y'),
+			'SUBSCRIBE' => $basketItem->getField('SUBSCRIBE') === 'Y',
 		);
 
 		if ($basketItem instanceof Sale\BasketItem)

@@ -1409,7 +1409,7 @@ input[type=number].main-ui-number-input::-webkit-outer-spin-button {
 	-webkit-box-flex: 1;
 	-ms-flex-positive: 1;
 	flex-grow: 1;
-	flex-basis: min-content;
+	/*flex-basis: min-content;*/
 	width: auto;
 	float: left;
 	margin-right: 10px;
@@ -1428,10 +1428,6 @@ input[type=number].main-ui-number-input::-webkit-outer-spin-button {
 .main-ui-control-field-group .main-ui-control.main-ui-select {
 	padding-bottom: 2px;
 	white-space: nowrap;
-}
-
-.main-ui-control-field-group .main-ui-control {
-	display: table;
 }
 
 .main-ui-control-field-group .main-ui-item-icon-container {

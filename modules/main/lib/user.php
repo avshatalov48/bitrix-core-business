@@ -106,7 +106,8 @@ class UserTable extends DataManager
 			new StringField('BX_USER_ID'),
 			new StringField('CONFIRM_CODE'),
 			new StringField('LID'),
-			new StringField('LANGUAGE_ID'),
+			(new StringField('LANGUAGE_ID'))
+				->addValidator(new ORM\Fields\Validators\RegExpValidator('/^[a-z0-9]{2}$/')),
 			new StringField('TIME_ZONE'),
 			new IntegerField('TIME_ZONE_OFFSET'),
 			new StringField('PERSONAL_PROFESSION'),
@@ -190,6 +191,22 @@ class UserTable extends DataManager
 			)),
 			(new OneToMany('GROUPS', UserGroupTable::class, 'USER'))
 				->configureJoinType(Join::TYPE_INNER),
+
+			(new Reference(
+				'ACTIVE_LANGUAGE',
+				\Bitrix\Main\Localization\LanguageTable::class,
+				Join::on('this.LANGUAGE_ID', 'ref.LID')->where('ref.ACTIVE', 'Y')
+			)),
+			(new ExpressionField(
+				'NOTIFICATION_LANGUAGE_ID',
+					'CASE WHEN (%s IS NOT NULL AND %s = %s) THEN %s ELSE %s END',
+				['LANGUAGE_ID', 'LANGUAGE_ID', 'ACTIVE_LANGUAGE.LID', 'LANGUAGE_ID',
+					function() {
+						return new SqlExpression("'".(($site = \CSite::GetList('', '', array('DEF' => 'Y', 'ACTIVE' => 'Y'))->fetch())
+							? $site['LANGUAGE_ID'] : LANGUAGE_ID)."'");
+					},
+				],
+			))->configureValueType(StringField::class),
 		);
 	}
 

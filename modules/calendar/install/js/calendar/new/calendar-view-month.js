@@ -677,8 +677,8 @@
 				// first part
 				if (
 					parseInt(params.part.partIndex) === 0
-					&& (entry.to.getDay() !== params.part.from.date.getDay())
-					&& (entry.from.getDay() === params.part.from.date.getDay())
+					&& (entry.to.getDate() !== params.part.from.date.getDate())
+					&& (entry.from.getDate() === params.part.from.date.getDate())
 				)
 				{
 					if (this.util.getDayCode(entry.from) !== this.util.getDayCode(from.date))
@@ -703,12 +703,12 @@
 				// Last part
 				if (
 					parseInt(params.part.partIndex) === entry.parts.length - 1
-					&& (entry.from.getDay() !== params.part.to.date.getDay())
-					&& (entry.to.getDay() === params.part.to.date.getDay())
+					&& (entry.from.getDate() !== params.part.to.date.getDate())
+					&& (entry.to.getDate() === params.part.to.date.getDate())
 				)
 				{
 					var partsLength = entry.parts.length;
-					if (entry.from.getDay() !== params.part.from.date.getDay())
+					if (entry.from.getDate() !== params.part.from.date.getDate())
 					{
 						partsLength++;
 					}

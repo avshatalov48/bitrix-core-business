@@ -26,9 +26,12 @@
 			this.progressDescriptionContainer = BX.findChildByClassName( BX(this.id), 'rest-configuration-info');
 			this.needClearFull = params.needClearFull;
 			this.needClearFullConfirm = params.needClearFullConfirm;
+			this.skipClearing = params.skipClearing;
 			this.errors = [];
 			this.loaderPointSymbol = '.';
 			this.loaderPointCount = 3;
+			this.closeSliderPopup = false;
+			this.showCloseConfirmation = true;
 
 			var startBtn = BX.findChildByClassName( BX(this.id),'start_btn');
 			if (startBtn !== null)
@@ -84,6 +87,61 @@
 					)
 				);
 
+			}
+			var slider = BX.SidePanel.Instance.getTopSlider();
+			if (slider)
+			{
+				BX.addCustomEvent(slider, "SidePanel.Slider:onClose", this.handleSliderClose.bind(this));
+			}
+		},
+
+		handleSliderClose: function(event)
+		{
+			if (this.showCloseConfirmation)
+			{
+				event.denyAction();
+			}
+			if (!this.closeSliderPopup)
+			{
+				this.closeSliderPopup = new top.BX.PopupWindow(
+					{
+						titleBar: BX.message('REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_TITLE'),
+						content: BX.message('REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_DESCRIPTION'),
+						closeIcon: false,
+						buttons: [
+							new top.BX.PopupWindowButton(
+								{
+									text: BX.message('REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_BTN_CONTINUE'),
+									className: 'popup-window-button-accept',
+									events: {
+										click: function()
+										{
+											this.closeSliderPopup.close();
+										}.bind(this)
+									}
+								}
+							),
+							new top.BX.PopupWindowButton(
+								{
+									className: 'popup-window-button popup-window-button-link',
+									text: BX.message('REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_BTN_CLOSE'),
+									events: {
+										click: function()
+										{
+											this.showCloseConfirmation = false;
+											event.slider.close();
+											this.closeSliderPopup.close();
+										}.bind(this)
+									}
+								}
+							)
+						]
+					}
+				);
+			}
+			if (this.showCloseConfirmation)
+			{
+				this.closeSliderPopup.show();
 			}
 		},
 
@@ -366,6 +424,7 @@
 					}
 				)
 			);
+			this.showCloseConfirmation = false;
 		},
 
 		finish: function ()
@@ -631,38 +690,45 @@
 
 		clear: function (section, step, next)
 		{
-			this.setDescription('CLEAR');
-			this.sendAjax(
-				'clear',
-				{
-					code: this.section[section],
-					step: step,
-					next: next
-				},
-				BX.delegate(
-					function (response)
+			if (this.skipClearing)
+			{
+				this.import(0, 0);
+			}
+			else
+			{
+				this.setDescription('CLEAR');
+				this.sendAjax(
+					'clear',
 					{
-						step++;
-						next = response.data.next;
-						if (next === false)
-						{
-							section++;
-							step = 0;
-							next = 0;
-						}
-
-						if (section < this.section.length)
-						{
-							this.clear(section, step, next);
-						}
-						else
-						{
-							this.import(0, 0);
-						}
+						code: this.section[section],
+						step: step,
+						next: next
 					},
-					this
-				)
-			);
+					BX.delegate(
+						function (response)
+						{
+							step++;
+							next = response.data.next;
+							if (next === false)
+							{
+								section++;
+								step = 0;
+								next = 0;
+							}
+
+							if (section < this.section.length)
+							{
+								this.clear(section, step, next);
+							}
+							else
+							{
+								this.import(0, 0);
+							}
+						},
+						this
+					)
+				);
+			}
 		},
 
 		import: function (section, step)
@@ -733,6 +799,7 @@
 					'text': (message !== '') ? message : BX.message("REST_CONFIGURATION_IMPORT_INSTALL_FATAL_ERROR")
 				})
 			);
+			this.showCloseConfirmation = false;
 		},
 
 		sendAjax: function (action, data, callback)

@@ -189,13 +189,17 @@ abstract class BaseForm
 		];
 	}
 
-	public function getValues(bool $allowDefaultValues = true): array
+	public function getValues(bool $allowDefaultValues = true, array $descriptions = null): array
 	{
 		$values = [];
+		if ($descriptions === null)
+		{
+			$descriptions = $this->getDescriptions();
+		}
 
 		if ($allowDefaultValues)
 		{
-			foreach ($this->getDescriptions() as $field)
+			foreach ($descriptions as $field)
 			{
 				$values[$field['name']] = $this->getFieldValue($field)
 					?? $field['defaultValue']
@@ -204,13 +208,13 @@ abstract class BaseForm
 		}
 		else
 		{
-			foreach ($this->getDescriptions() as $field)
+			foreach ($descriptions as $field)
 			{
 				$values[$field['name']] = $this->getFieldValue($field) ?? '';
 			}
 		}
 
-		$additionalValues = $this->getAdditionalValues($values);
+		$additionalValues = $this->getAdditionalValues($values, $descriptions);
 
 		if (!empty($additionalValues))
 		{
@@ -287,30 +291,20 @@ abstract class BaseForm
 			];
 		}
 
+		$isInventoryControlEnabled = UseStore::isUsed();
 		$sliderPath = \CComponentEngine::makeComponentPath('bitrix:catalog.warehouse.master.clear');
 		$sliderPath = getLocalPath('components' . $sliderPath . '/slider.php');
 
-		if(UseStore::isUsed())
-		{
-			$items[] = [
-				'id' => 'WAREHOUSE',
-				'checked' => true,
-				'title' => Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_WAREHOUSE_TITLE'),
-				'desc' => '',
-				'action' => 'grid',
-			];
-		}
-		else
-		{
-			$items[] = [
-				'id' => 'SLIDER',
-				'checked' => false,
-				'title' => Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_WAREHOUSE_TITLE'),
-				'desc' => '',
-				'url' => $sliderPath,
-				'action' => 'slider',
-			];
-		}
+		$items[] = [
+			'id' => 'SLIDER',
+			'checked' => $isInventoryControlEnabled,
+			'disabled' => $isInventoryControlEnabled,
+			'title' => Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_WAREHOUSE_TITLE'),
+			'desc' => '',
+			'hint' => $isInventoryControlEnabled ? Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_WAREHOUSE_HINT') : '',
+			'url' => $sliderPath,
+			'action' => 'slider',
+		];
 
 		return $items;
 	}
@@ -349,11 +343,11 @@ abstract class BaseForm
 		return null;
 	}
 
-	protected function getAdditionalValues(array $values): array
+	protected function getAdditionalValues(array $values,  array $descriptions = []): array
 	{
 		$additionalValues = [];
 
-		foreach ($this->getDescriptions() as $description)
+		foreach ($descriptions as $description)
 		{
 			if (!in_array($description['type'], ['custom', 'money', 'multimoney', 'user'], true))
 			{
@@ -1975,7 +1969,7 @@ abstract class BaseForm
 				$value = $value['TEXT'] ?? null;
 			}
 		}
-		elseif ($property->getUserType() === \CIBlockPropertySequence::USER_TYPE)
+		elseif ($property && $property->getUserType() === \CIBlockPropertySequence::USER_TYPE)
 		{
 			if ($field['multiple'])
 			{

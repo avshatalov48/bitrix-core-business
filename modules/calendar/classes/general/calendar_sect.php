@@ -283,7 +283,10 @@ class CCalendarSect
 			$userId = CCalendar::GetUserId();
 			$isOwner = $section['CAL_TYPE'] === 'user' && (int)$section['OWNER_ID'] === $userId;
 
-			$isManager = Loader::includeModule('intranet') && $section['CAL_TYPE'] == 'user' && $settings['dep_manager_sub'] && Bitrix\Calendar\Util::isManagerForUser($userId, $section['OWNER_ID']);
+			$isManager = Loader::includeModule('intranet')
+				&& $section['CAL_TYPE'] == 'user'
+				&& $settings['dep_manager_sub']
+				&& Bitrix\Calendar\Util::isManagerForUser($userId, $section['OWNER_ID']);
 
 			if(
 				$isOwner

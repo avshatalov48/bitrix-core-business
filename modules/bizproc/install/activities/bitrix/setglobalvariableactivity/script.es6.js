@@ -1,4 +1,4 @@
-import {Reflection, Tag, Type} from 'main.core';
+import {Reflection, Tag, Type, Loc, Event, Dom, Text} from 'main.core';
 import {Globals} from 'bizproc.globals';
 import {Dialog} from 'ui.entity-selector';
 import 'bp_field_type';
@@ -69,15 +69,23 @@ class SetGlobalVariableActivity {
 		this.rowIndex = -1;
 		this.numberOfTypes = 9;
 
-		let addAssignmentExpression = this.isRobot ? 'addAssignmentExpressionRobot' : 'addAssignmentExpressionDesigner';
+		const addAssignmentExpression = this.isRobot ? 'addAssignmentExpressionRobot' : 'addAssignmentExpressionDesigner';
 		if (Object.keys(this.currentValues).length <= 0) {
 			this[addAssignmentExpression]();
 		}
-		for (let variableExpression in this.currentValues) {
+		for (const variableExpression in this.currentValues) {
 			this[addAssignmentExpression](variableExpression, this.currentValues[variableExpression]);
 		}
 
-		//this.addExpressionButtonRobot();
+		if (this.isRobot)
+		{
+			//this.addExpressionButtonRobot();
+		}
+		else
+		{
+			this.addExpressionButtonDesigner()
+		}
+
 	}
 
 	initObjectNames()
@@ -131,7 +139,7 @@ class SetGlobalVariableActivity {
 
 	getAvailableOptions()
 	{
-		let options = new Map();
+		const options = new Map();
 		this.fillOptions(this.variables, options);
 		this.fillOptions(this.constants, options);
 		this.fillOptions(this.documentFields, options);
@@ -173,14 +181,14 @@ class SetGlobalVariableActivity {
 	{
 		let optionId, optionProperty, optionsSource;
 
-		for (let groupName in source) {
+		for (const groupName in source) {
 			optionsSource = source[groupName];
 
 			if (optionsSource['children']) {
 				optionsSource = optionsSource['children'];
 			}
 
-			for (let i in optionsSource) {
+			for (const i in optionsSource) {
 				optionId = optionsSource[i]['id'];
 				optionProperty = optionsSource[i];
 				options.set(optionId, optionProperty);
@@ -190,12 +198,12 @@ class SetGlobalVariableActivity {
 
 	getAvailableOptionsByGroup()
 	{
-		let options = new Map();
+		const options = new Map();
 		this.fillOptionsByGroupWithGlobals(this.variables, options, this.gVarObjectName);
 		this.fillOptionsByGroupWithGlobals(this.constants, options, this.gConstObjectName);
 
-		let items = [];
-		for (let i in this.documentFields) {
+		const items = [];
+		for (const i in this.documentFields) {
 			items.push(this.documentFields[i]);
 		}
 		options.set(this.documentObjectName + ':' + this.documentObjectName, items);
@@ -205,8 +213,8 @@ class SetGlobalVariableActivity {
 
 	fillOptionsByGroupWithGlobals(source, options, topGroupName)
 	{
-		for (let subGroupName in source) {
-			let key = topGroupName + ':' + subGroupName;
+		for (const subGroupName in source) {
+			const key = topGroupName + ':' + subGroupName;
 			options.set(key, source[subGroupName]);
 		}
 	}
@@ -216,16 +224,16 @@ class SetGlobalVariableActivity {
 			values = {0: values};
 		}
 
-		let incomingData = {variable: variableId, values};
+		const incomingData = {variable: variableId, values};
 		this.modifyIncomingDataRobot(incomingData);
 
-		let addRowTable = this.addRowTable;
+		const addRowTable = this.addRowTable;
 		this.rowIndex++;
-		let newRow = Tag.render`<div class="bizproc-automation-popup-settings"></div>`;
+		const newRow = Tag.render`<div class="bizproc-automation-popup-settings"></div>`;
 
-		let rowInputs = Tag.render`<div id="${this.hiddenInputsNodeId + this.rowIndex}"></div>`;
+		const rowInputs = Tag.render`<div id="${this.hiddenInputsNodeId + this.rowIndex}"></div>`;
 
-		let dataRow = Tag.render`
+		const dataRow = Tag.render`
 			<div 
 				class="bizproc-automation-popup-settings bizproc-automation-popup-settings-text" 
 				style="display: flex; align-items: flex-start"
@@ -233,20 +241,20 @@ class SetGlobalVariableActivity {
 		`;
 		dataRow.appendChild(this.createVariableRowRobot(incomingData.variable, rowInputs));
 
-		let parameterRowWrapper = Tag.render`<div class="bizproc-automation-popup-settings-title"></div>`;
+		const parameterRowWrapper = Tag.render`<div class="bizproc-automation-popup-settings-title"></div>`;
 		parameterRowWrapper.setAttribute('data-role', this.parameterRole + this.rowIndex);
 
 		if (incomingData.values.length <= 0)
 		{
-			let option = BX.clone(this.getOptionPropertiesRobot('clear'));
+			const option = BX.clone(this.getOptionPropertiesRobot('clear'));
 			option['multiple'] = incomingData.variable.property.Multiple;
 			option['type'] = incomingData.variable.property.Type;
 			option['inputIndex'] = 0;
 			parameterRowWrapper.appendChild(this.createParameterRowRobot(this.rowIndex, option, rowInputs));
 		}
-		for (let i in incomingData.values)
+		for (const i in incomingData.values)
 		{
-			let option = BX.clone(incomingData.values[i]);
+			const option = BX.clone(incomingData.values[i]);
 			option['multiple'] = incomingData.variable.property.Multiple;
 			option['type'] = incomingData.variable.property.Type;
 			option['inputIndex'] = i;
@@ -268,11 +276,11 @@ class SetGlobalVariableActivity {
 
 	modifyIncomingDataRobot(incomingData)
 	{
-		let option = this.getOptionPropertiesRobot(incomingData.variable);
+		const option = this.getOptionPropertiesRobot(incomingData.variable);
 		if (incomingData.variable === undefined || option.groupId === this.helperObjectName + ':text')
 		{
 			incomingData.variable = BX.clone(this.getOptionPropertiesRobot('variable'));
-			let valueOption = BX.clone(this.getOptionPropertiesRobot('parameter'));
+			const valueOption = BX.clone(this.getOptionPropertiesRobot('parameter'));
 			incomingData.values = [{
 				id: valueOption.id,
 				title: valueOption.title
@@ -292,7 +300,7 @@ class SetGlobalVariableActivity {
 				valuesOptions = this.getIncomingValuesBool(incomingData);
 				break;
 			default:
-				for (let i in incomingData.values)
+				for (const i in incomingData.values)
 				{
 					let valueOption = this.getOptionPropertiesRobot(incomingData.values[i]);
 					if (incomingData.values[i] === '')
@@ -312,7 +320,7 @@ class SetGlobalVariableActivity {
 
 	getOptionPropertiesRobot(optionId)
 	{
-		let option = this.availableOptions.get(optionId);
+		const option = this.availableOptions.get(optionId);
 		if (option === undefined) {
 			return this.getDefaultOptionProperties(optionId);
 		}
@@ -342,10 +350,10 @@ class SetGlobalVariableActivity {
 
 	getIncomingValuesSelect(incomingData)
 	{
-		let option = this.getOptionPropertiesRobot(incomingData.variable);
+		const option = this.getOptionPropertiesRobot(incomingData.variable);
 		let title, valueOption, valuesOptions = [], isExpressionOption;
 
-		for (let i in incomingData.values)
+		for (const i in incomingData.values)
 		{
 			title = BX.message('BPSGVA_CLEAR');
 			if (incomingData.values[i] !== '')
@@ -374,7 +382,7 @@ class SetGlobalVariableActivity {
 	{
 		let title, valueOption, valuesOptions = [];
 
-		for (let i in incomingData.values)
+		for (const i in incomingData.values)
 		{
 			let isExpressionOption = false;
 			switch (incomingData.values[i])
@@ -405,14 +413,14 @@ class SetGlobalVariableActivity {
 
 	createVariableRowRobot(variableData, rowInputs)
 	{
-		let div = Tag.render`<div></div>`;
-		let variableNode = Tag.render`
+		const div = Tag.render`<div></div>`;
+		const variableNode = Tag.render`
 			<span class="bizproc-automation-popup-settings-link setglobalvariableactivity-underline"></span>
 		`;
 		variableNode.setAttribute('data-role', this.variableRole + this.rowIndex);
 		variableNode.setAttribute(this.indexAttributeName, String(this.rowIndex));
 
-		let data = this.getDataForTitleReplacement(variableData, variableNode.getAttribute('data-role'));
+		const data = this.getDataForTitleReplacement(variableData, variableNode.getAttribute('data-role'));
 		data.multiple = false;
 		data.type = 'string';
 		data.inputIndex = 0;
@@ -431,16 +439,16 @@ class SetGlobalVariableActivity {
 
 	createParameterRowRobot(index, valueData, rowInputs)
 	{
-		let wrapper = Tag.render`
+		const wrapper = Tag.render`
 			<div class="bizproc-automation-popup-settings-title setglobalvariableactivity-parameter-wrapper"></div>
 		`;
 
-		let equal = Tag.render`
+		const equal = Tag.render`
 			<div class="bizproc-automation-popup-settings-title setglobalvariableactivity-symbol-equal"> = </div>
 		`;
 
-		let div = Tag.render`<div></div>`;
-		let parameter = Tag.render`
+		const div = Tag.render`<div></div>`;
+		const parameter = Tag.render`
 			<span class="bizproc-automation-popup-settings-link setglobalvariableactivity-underline"></span>
 		`;
 		parameter.setAttribute('data-role', this.parameterRole + index)
@@ -451,7 +459,7 @@ class SetGlobalVariableActivity {
 		div.appendChild(parameter);
 		wrapper.appendChild(div);
 
-		let data = BX.clone(this.getDataForTitleReplacement(valueData, parameter.getAttribute('data-role')));
+		const data = BX.clone(this.getDataForTitleReplacement(valueData, parameter.getAttribute('data-role')));
 		data.isExpressionOption = valueData.isExpressionOption;
 		if (data.title === '')
 		{
@@ -490,9 +498,9 @@ class SetGlobalVariableActivity {
 
 	getTitleForReplacement(data)
 	{
-		let type = data.type;
-		let title = data.title;
-		let value = data.inputValue;
+		const type = data.type;
+		const title = data.title;
+		const value = data.inputValue;
 
 		if (type === 'bool')
 		{
@@ -509,8 +517,8 @@ class SetGlobalVariableActivity {
 
 	replaceHiddenInputRobot(data, rowInputs)
 	{
-		let inputValue = data.inputValue;
-		let role =  data.role + '_input';
+		const inputValue = data.inputValue;
+		const role =  data.role + '_input';
 		let input = document.querySelectorAll('[data-role="' + role + '"]');
 
 		// single input
@@ -525,10 +533,10 @@ class SetGlobalVariableActivity {
 		// multiple input
 		if (input.length >= 1 && data.multiple)
 		{
-			let inputKeys = Object.keys(input);
-			for (let i in inputKeys)
+			const inputKeys = Object.keys(input);
+			for (const i in inputKeys)
 			{
-				let inputIndex = input[inputKeys[i]].getAttribute(this.inputIndexAttributeName);
+				const inputIndex = input[inputKeys[i]].getAttribute(this.inputIndexAttributeName);
 				if (data.inputIndex === inputIndex)
 				{
 					input[i].name = data.isExpressionOption ? data.role + '_text' : data.role + '[]';
@@ -558,14 +566,14 @@ class SetGlobalVariableActivity {
 
 	onVariableSelectClickRobot(event)
 	{
-		let target = event.target;
-		let inputValue = this.getVariableInputValue(target.getAttribute('data-role'));
-		let index = target.getAttribute(this.indexAttributeName);
+		const target = event.target;
+		const inputValue = this.getVariableInputValue(target.getAttribute('data-role'));
+		const index = target.getAttribute(this.indexAttributeName);
 
-		let form = this.createFormForMenuRobot('variable', inputValue, index);
+		const form = this.createFormForMenuRobot('variable', inputValue, index);
 
-		let me = this;
-		let popup = new BX.PopupWindow(target.id + '_popup', target, {
+		const me = this;
+		const popup = new BX.PopupWindow(target.id + '_popup', target, {
 			className: 'bizproc-automation-popup-set',
 			autoHide: true,
 			closeByEsc: true,
@@ -579,10 +587,10 @@ class SetGlobalVariableActivity {
 					events: {
 						click: function ()
 						{
-							let rowInputs = document.getElementById(me.hiddenInputsNodeId + index);
-							let input = me.findInputInFormRobot(form);
+							const rowInputs = document.getElementById(me.hiddenInputsNodeId + index);
+							const input = me.findInputInFormRobot(form);
 
-							let data = me.getDataForTitleReplacement(
+							const data = me.getDataForTitleReplacement(
 								me.getOptionPropertiesRobot(input.value),
 								target.getAttribute('data-role')
 							);
@@ -625,42 +633,48 @@ class SetGlobalVariableActivity {
 
 	getVariableInputValue(role)
 	{
-		let inputRole = role + '_input';
-		let inputs = document.querySelectorAll('[data-role="' + inputRole + '"]');
+		const inputRole = role + '_input';
+		const inputs = document.querySelectorAll('[data-role="' + inputRole + '"]');
 
 		return (inputs.length >= 1) ? inputs['0'].value : '';
 	}
 
 	createFormForMenuRobot(typeMenu, inputValue, index)
 	{
-		let me = this;
+		const me = this;
 
-		let form = Tag.render`<form class="bizproc-automation-popup-select-block"></form>`;
+		const form = Tag.render`<form class="bizproc-automation-popup-select-block"></form>`;
 
-		let fieldsListWrapper = Tag.render`<div class="bizproc-automation-popup-settings"></div>`;
-		let labelFieldsList = Tag.render`<div class="bizproc-automation-robot-settings-title"></div>`;
+		const fieldsListWrapper = Tag.render`<div class="bizproc-automation-popup-settings"></div>`;
+		const labelFieldsList = Tag.render`<div class="bizproc-automation-robot-settings-title"></div>`;
 		labelFieldsList.innerText = BX.message('BPSGVA_LIST_OF_VALUES');
 
-		let formInputWrapper = this.createInputForMenuFormRobot(typeMenu, index, inputValue);
-		let formInput = this.findInputInFormRobot(formInputWrapper);
+		const formInputWrapper = this.createInputForMenuFormRobot(typeMenu, index, inputValue);
+		const formInput = this.findInputInFormRobot(formInputWrapper);
 
-		let filterType = (typeMenu === 'variable')
+		const filterType = (typeMenu === 'variable')
 			? 'string'
 			: this.getVariableOptionFromVariableInput(index).property.Type
 		;
 
-		let fieldsSelectNode = Tag.render`<div class="bizproc-automation-popup-settings-dropdown" readonly="readonly"></div>`;
+		const fieldsSelectNode = Tag.render`<div class="bizproc-automation-popup-settings-dropdown" readonly="readonly"></div>`;
 		BX.bind(fieldsSelectNode, 'click', () => {
-			let items = me.availableOptionsByGroupId.get(visibilitySelect.value) ?? [];
-			let filterItems = me.filterItemsInStandardMenuRobot(filterType, items);
-			let visibilityInfo = me.getVisibilityInfoForDialog(visibilitySelect.value);
+			const items = me.availableOptionsByGroupId.get(visibilitySelect.value) ?? [];
+			const filterItems = me.filterItemsInStandardMenuRobot(filterType, items);
+			const visibilityInfo = me.getVisibilityInfoForDialog(visibilitySelect.value);
 
-			let dialogOptions = me.getDialogOptions(filterItems, visibilityInfo);
+			const dialogOptions = me.getDialogOptions(filterItems, visibilityInfo);
 			dialogOptions['targetNode'] = fieldsSelectNode;
 			dialogOptions['events'] = {
 				'Item:onBeforeSelect': (event) => {
-					let dialogItem = event.data.item;
+					const dialogItem = event.data.item;
 					fieldsSelectNode.innerText = dialogItem.customData.get('title');
+					if (!formInput)
+					{
+						Dom.append(Tag.render`<input type="hidden" name="bp_sgva_field_input" value="${Text.encode(dialogItem.id)}">`, formInputWrapper);
+
+						return;
+					}
 					if (formInput.tagName !== 'SELECT')
 					{
 						formInput.value = dialogItem.id;
@@ -675,9 +689,9 @@ class SetGlobalVariableActivity {
 				},
 				'Search:onItemCreateAsync': (event) => {
 					return new Promise((resolve) => {
-						let query = event.getData().searchQuery.query;
-						let dialog = event.getTarget();
-						let context = {
+						const query = event.getData().searchQuery.query;
+						const dialog = event.getTarget();
+						const context = {
 							visibilityInfo,
 							index
 						};
@@ -687,7 +701,7 @@ class SetGlobalVariableActivity {
 				},
 			};
 
-			let dialog = new Dialog(dialogOptions);
+			const dialog = new Dialog(dialogOptions);
 
 			if (filterItems.length <= 0) {
 				dialog.setFooter(me.getFooter({visibilityInfo, index}, dialog));
@@ -696,17 +710,17 @@ class SetGlobalVariableActivity {
 			dialog.show();
 		});
 
-		let visibilityWrapper = Tag.render`<div class="bizproc-automation-popup-settings"></div>`;
+		const visibilityWrapper = Tag.render`<div class="bizproc-automation-popup-settings"></div>`;
 
-		let visibilitySelect = Tag.render`<select class="bizproc-automation-popup-settings-dropdown"></select>`;
+		const visibilitySelect = Tag.render`<select class="bizproc-automation-popup-settings-dropdown"></select>`;
 		BX.bind(visibilitySelect, 'change', BX.proxy(() => {
 			me.changeParameterSelectInFormRobot(visibilitySelect.value, fieldsSelectNode, labelFieldsList, formInputWrapper)
 		}, this));
 
-		let visibilityOptions = this.getVisibilityNamesForSelect(typeMenu);
-		for (let groupId in visibilityOptions)
+		const visibilityOptions = this.getVisibilityNamesForSelect(typeMenu);
+		for (const groupId in visibilityOptions)
 		{
-			let optionNode = Tag.render`
+			const optionNode = Tag.render`
 				<option value="${BX.util.htmlspecialchars(groupId)}">
 					${BX.util.htmlspecialchars(visibilityOptions[groupId])}
 				</option>
@@ -714,7 +728,7 @@ class SetGlobalVariableActivity {
 			visibilitySelect.appendChild(optionNode);
 		}
 
-		let option = this.getOptionPropertiesRobot(inputValue);
+		const option = this.getOptionPropertiesRobot(inputValue);
 		if (option.groupId === this.helperObjectName)
 		{
 			option.groupId = this.helperObjectName + ':text';
@@ -731,11 +745,17 @@ class SetGlobalVariableActivity {
 
 		if (visibilitySelect.value === this.helperObjectName + ':text' && option.groupId !== this.helperObjectName + ':text')
 		{
-			formInput.value = this.convertFieldExpression(option);
+			if (formInput)
+			{
+				formInput.value = this.convertFieldExpression(option);
+			}
 		}
 		else
 		{
-			formInput.value = option.id;
+			if (formInput)
+			{
+				formInput.value = option.id;
+			}
 		}
 
 		visibilityWrapper.appendChild(Tag.render`
@@ -759,14 +779,14 @@ class SetGlobalVariableActivity {
 	{
 		if (type === 'variable')
 		{
-			let wrapper = Tag.render`<div class="bizproc-automation-popup-select"></div>`;
-			let input = Tag.render`<input class="bizproc-automation-popup-input" type="hidden" style="width: 280px">`;
+			const wrapper = Tag.render`<div class="bizproc-automation-popup-select"></div>`;
+			const input = Tag.render`<input class="bizproc-automation-popup-input" type="hidden" style="width: 280px">`;
 			wrapper.appendChild(input);
 
 			return wrapper;
 		}
 
-		let variableOption = this.getVariableOptionFromVariableInput(index);
+		const variableOption = this.getVariableOptionFromVariableInput(index);
 
 		let wrapper;
 		switch (variableOption.property.Type)
@@ -801,24 +821,28 @@ class SetGlobalVariableActivity {
 		}
 
 		wrapper.style.width = '280px';
-		let input = this.findInputInFormRobot(wrapper);
+		const input = this.findInputInFormRobot(wrapper);
 		if (['bool', 'select'].includes(variableOption.property.Type))
 		{
 			if (input.value !== inputValue)
 			{
-				let option = this.getOptionPropertiesRobot(inputValue);
+				const option = this.getOptionPropertiesRobot(inputValue);
 				this.resolveAdditionOptionInSelectRobot(input, option);
 			}
 		}
-		input.style.width = '100%';
+
+		if (input)
+		{
+			input.style.width = '100%';
+		}
 
 		return wrapper;
 	}
 
 	getVariableOptionFromVariableInput(index)
 	{
-		let variableInput = document.querySelector('[data-role="' + this.variableRole + index + '_input"]');
-		let variableId = variableInput ? variableInput.value: '';
+		const variableInput = document.querySelector('[data-role="' + this.variableRole + index + '_input"]');
+		const variableId = variableInput ? variableInput.value: '';
 
 		return this.getOptionPropertiesRobot(variableId);
 	}
@@ -846,7 +870,7 @@ class SetGlobalVariableActivity {
 
 	resolveAdditionOptionInSelectRobot(input, option)
 	{
-		let selectOptions = input.options;
+		const selectOptions = input.options;
 		let opt = selectOptions[selectOptions.length - 1];
 		if (opt.getAttribute('data-role') !== 'expression')
 		{
@@ -873,21 +897,21 @@ class SetGlobalVariableActivity {
 
 	filterItemsInStandardMenuRobot(variableType, items)
 	{
-		let filter = this.getFilterByVariableType(variableType);
+		const filter = this.getFilterByVariableType(variableType);
 		if (filter.length === this.numberOfTypes)
 		{
 			return items;
 		}
 
-		let filterItems = [];
-		for (let i in items)
+		const filterItems = [];
+		for (const i in items)
 		{
 			if (items[i].children)
 			{
-				let filterChildrenItems = this.filterItemsInStandardMenuRobot(variableType, items[i].children);
+				const filterChildrenItems = this.filterItemsInStandardMenuRobot(variableType, items[i].children);
 				if (filterChildrenItems.length >= 1)
 				{
-					let menuItem = items[i];
+					const menuItem = items[i];
 					menuItem.children = filterChildrenItems;
 					filterItems.push(menuItem);
 				}
@@ -989,7 +1013,7 @@ class SetGlobalVariableActivity {
 
 	getDialogOptions(items, visibilityInfo)
 	{
-		let options = {
+		const options = {
 			width: 480,
 			height: 300,
 			multiple: false,
@@ -1003,7 +1027,7 @@ class SetGlobalVariableActivity {
 			}
 		};
 
-		let extraOptions = {
+		const extraOptions = {
 			recentTabOptions: {
 				stub: true,
 				icon: '',
@@ -1032,8 +1056,8 @@ class SetGlobalVariableActivity {
 
 	getFooter(context, dialog)
 	{
-		let me = this;
-		let footer = Tag.render`
+		const me = this;
+		const footer = Tag.render`
 			<span class="ui-selector-footer-link ui-selector-footer-link-add" style="border: none">
 				${BX.util.htmlspecialchars(context.visibilityInfo.searchFooterOptions.label)}
 			</span>
@@ -1048,18 +1072,18 @@ class SetGlobalVariableActivity {
 
 	onCreateGlobalsClick(dialog, context, query,  me, resolve)
 	{
-		let variableType = me.getVariableOptionFromVariableInput(context.index).property.Type;
-		let optionAvailableTypes = me.getFilterByVariableType(variableType);
+		const variableType = me.getVariableOptionFromVariableInput(context.index).property.Type;
+		const optionAvailableTypes = me.getFilterByVariableType(variableType);
 
-		let visibility = context.visibilityInfo.visibility;
-		let additionalContext = {
+		const visibility = context.visibilityInfo.visibility;
+		const additionalContext = {
 			visibility: visibility.slice(visibility.indexOf(':') + 1),
 			availableTypes: optionAvailableTypes
 		};
 		Globals.Manager.Instance.createGlobals(context.visibilityInfo.mode, me.signedDocumentType, query, additionalContext)
 			.then((slider) =>
 			{
-				let newContext = {
+				const newContext = {
 					'objectName': context.visibilityInfo.objectName,
 					'visibility': context.visibilityInfo.visibility,
 					'index': context.index
@@ -1075,21 +1099,21 @@ class SetGlobalVariableActivity {
 
 	onAfterCreateGlobals(dialog, slider, context)
 	{
-		let info = slider.getData().entries();
-		let keys = Object.keys(info);
+		const info = slider.getData().entries();
+		const keys = Object.keys(info);
 		if (keys.length <= 0)
 		{
 			return;
 		}
 
-		let id = keys[0];
-		let property = BX.clone(info[keys[0]]);
+		const id = keys[0];
+		const property = BX.clone(info[keys[0]]);
 
 		property.Multiple = property.Multiple === 'Y';
-		let variableType = this.getVariableOptionFromVariableInput(context.index).property.Type;
-		let optionAvailableTypes = this.getFilterByVariableType(variableType);
+		const variableType = this.getVariableOptionFromVariableInput(context.index).property.Type;
+		const optionAvailableTypes = this.getFilterByVariableType(variableType);
 
-		let item = {
+		const item = {
 			entityId: 'bp',
 			tabs: 'recents',
 			title: property['Name'],
@@ -1112,7 +1136,7 @@ class SetGlobalVariableActivity {
 
 		this.availableOptions.set(item.id, item);
 
-		let groupItems = this.availableOptionsByGroupId.get(item.customData.groupId) ?? [];
+		const groupItems = this.availableOptionsByGroupId.get(item.customData.groupId) ?? [];
 		groupItems.push(item);
 		this.availableOptionsByGroupId.set(item.customData.groupId, groupItems);
 	}
@@ -1133,25 +1157,28 @@ class SetGlobalVariableActivity {
 			inputWrapper.style.display = '';
 		}
 
-		let input = this.findInputInFormRobot(inputWrapper);
-		input.value = '';
+		const input = this.findInputInFormRobot(inputWrapper);
+		if (input)
+		{
+			input.value = '';
+		}
 	}
 
 	getVisibilityNamesForSelect(type)
 	{
-		let list = {};
-		let textMessages = {};
+		const list = {};
+		const textMessages = {};
 		textMessages[this.helperObjectName] = {
 			'text': BX.message('BPSGVA_TEXT')
 		};
 
-		let source = Object.assign({}, this.visibilityMessages, textMessages);
+		const source = Object.assign({}, this.visibilityMessages, textMessages);
 
-		for (let topGroupName in source) {
+		for (const topGroupName in source) {
 			if (type === 'variable' && topGroupName !== this.gVarObjectName) {
 				continue;
 			}
-			for (let subGroupName in source[topGroupName]) {
+			for (const subGroupName in source[topGroupName]) {
 				list[topGroupName + ':' + subGroupName] = source[topGroupName][subGroupName];
 			}
 		}
@@ -1161,7 +1188,7 @@ class SetGlobalVariableActivity {
 
 	getVisibilityRelativeToVariableType(option, variableType)
 	{
-		let optionAvailableTypes = this.getFilterByVariableType(variableType);
+		const optionAvailableTypes = this.getFilterByVariableType(variableType);
 		if (
 			option.groupId === this.helperObjectName + ':text'
 			|| optionAvailableTypes.includes(option.property.Type)
@@ -1175,11 +1202,11 @@ class SetGlobalVariableActivity {
 
 	changeParameterExpressionRobot(index, variable)
 	{
-		let parameterNode = document.querySelector('[data-role="' + this.parameterRole + index + '"]');
+		const parameterNode = document.querySelector('[data-role="' + this.parameterRole + index + '"]');
 		this.deleteOldValueRowsRobot(parameterNode);
-		let rowInputs = document.getElementById(this.hiddenInputsNodeId + index);
+		const rowInputs = document.getElementById(this.hiddenInputsNodeId + index);
 
-		let option = BX.clone(this.getOptionPropertiesRobot('parameter'));
+		const option = BX.clone(this.getOptionPropertiesRobot('parameter'));
 
 		option['multiple'] = variable.property.Multiple;
 		option['inputIndex'] = '0';
@@ -1188,17 +1215,17 @@ class SetGlobalVariableActivity {
 
 		if (variable.property.Multiple && variable.property.Type !== 'user')
 		{
-			let inputIndex = (variable.inputIndex !== '0') ? variable.inputIndex : '1';
+			const inputIndex = (variable.inputIndex !== '0') ? variable.inputIndex : '1';
 			parameterNode.appendChild(this.createAddParameterRowRobot(index, inputIndex));
 		}
 	}
 
 	deleteOldValueRowsRobot(node)
 	{
-		let role = node.getAttribute('data-role');
+		const role = node.getAttribute('data-role');
 		node.innerHTML = '';
-		let oldInputs = document.querySelectorAll('[data-role="' + role + '_input"]');
-		for (let i in Object.keys(oldInputs))
+		const oldInputs = document.querySelectorAll('[data-role="' + role + '_input"]');
+		for (const i in Object.keys(oldInputs))
 		{
 			oldInputs[i].remove();
 		}
@@ -1206,8 +1233,8 @@ class SetGlobalVariableActivity {
 
 	createAddParameterRowRobot(index, inputIndex)
 	{
-		let addWrapper = Tag.render`<div class="bizproc-automation-popup-settings-title" style="display:flex;"></div>`
-		let addExpression = Tag.render`
+		const addWrapper = Tag.render`<div class="bizproc-automation-popup-settings-title" style="display:flex;"></div>`
+		const addExpression = Tag.render`
 			<div class="bizproc-type-control-clone-btn setglobalvariableactivity-dashed-grey setglobalvariableactivity-add-parameter">
 				${BX.util.htmlspecialchars(BX.message('BPSGVA_ADD_PARAMETER'))}
 			</div>
@@ -1223,11 +1250,11 @@ class SetGlobalVariableActivity {
 
 	onAddParameterButtonClickRobot(event)
 	{
-		let index = event.target.getAttribute(this.indexAttributeName);
-		let rowInputs = document.getElementById(this.hiddenInputsNodeId + index);
-		let inputIndex = event.target.getAttribute(this.inputIndexAttributeName);
+		const index = event.target.getAttribute(this.indexAttributeName);
+		const rowInputs = document.getElementById(this.hiddenInputsNodeId + index);
+		const inputIndex = event.target.getAttribute(this.inputIndexAttributeName);
 
-		let option = BX.clone(this.getOptionPropertiesRobot('parameter'));
+		const option = BX.clone(this.getOptionPropertiesRobot('parameter'));
 		option['multiple'] = true;
 		option['inputIndex'] = inputIndex;
 
@@ -1237,14 +1264,14 @@ class SetGlobalVariableActivity {
 
 	onParameterSelectClickRobot(event, inputIndex)
 	{
-		let target = event.target;
-		let inputValue = this.getParameterInputValue(target.getAttribute('data-role') + '_input', inputIndex);
-		let index = target.getAttribute(this.indexAttributeName);
+		const target = event.target;
+		const inputValue = this.getParameterInputValue(target.getAttribute('data-role') + '_input', inputIndex);
+		const index = target.getAttribute(this.indexAttributeName);
 
-		let form = this.createFormForMenuRobot('all', inputValue, index);
+		const form = this.createFormForMenuRobot('all', inputValue, index);
 
-		let me = this;
-		let popup = new BX.PopupWindow(target.id + '_popup', target, {
+		const me = this;
+		const popup = new BX.PopupWindow(target.id + '_popup', target, {
 			className: 'bizproc-automation-popup-set',
 			closeByEsc: true,
 			autoHide: true,
@@ -1258,15 +1285,15 @@ class SetGlobalVariableActivity {
 					events: {
 						click: function ()
 						{
-							let rowInputs = document.getElementById(me.hiddenInputsNodeId + index);
-							let variableOption = me.getVariableOptionFromVariableInput(index);
+							const rowInputs = document.getElementById(me.hiddenInputsNodeId + index);
+							const variableOption = me.getVariableOptionFromVariableInput(index);
 
-							let input = me.findInputInFormRobot(form);
+							const input = me.findInputInFormRobot(form);
 							let data;
 							if (input.tagName === 'SELECT')
 							{
-								let id = input.selectedOptions[0].value;
-								let title = (id !== '') ? input.selectedOptions[0].text : BX.message('BPSGVA_CLEAR');
+								const id = input.selectedOptions[0].value;
+								const title = (id !== '') ? input.selectedOptions[0].text : BX.message('BPSGVA_CLEAR');
 								data = me.getDataForTitleReplacement(
 									{id, title},
 									target.getAttribute('data-role')
@@ -1275,7 +1302,7 @@ class SetGlobalVariableActivity {
 							}
 							else
 							{
-								let option = BX.clone(me.getOptionPropertiesRobot(input.value));
+								const option = BX.clone(me.getOptionPropertiesRobot(input.value));
 								if (option.groupId === me.helperObjectName)
 								{
 									option.id = input.value;
@@ -1326,9 +1353,9 @@ class SetGlobalVariableActivity {
 
 	getParameterInputValue(role, index)
 	{
-		let inputs = document.querySelectorAll('[data-role="' + role + '"]', index);
-		let keys = Object.keys(inputs);
-		for (let i in keys)
+		const inputs = document.querySelectorAll('[data-role="' + role + '"]', index);
+		const keys = Object.keys(inputs);
+		for (const i in keys)
 		{
 			if (String(inputs[keys[i]].getAttribute(this.inputIndexAttributeName)) === String(index))
 			{
@@ -1342,11 +1369,22 @@ class SetGlobalVariableActivity {
 
 	addExpressionButtonRobot()
 	{
-		let buttonAdd = document.getElementById(this.addButtonNodeId);
+		const buttonAdd = document.getElementById(this.addButtonNodeId);
 		buttonAdd.innerText = BX.message('BPSGVA_ADD_VARIABLE');
 		BX.bind(buttonAdd, 'click', BX.proxy(function () {
 			this.addAssignmentExpressionRobot()
 		}, this));
+	}
+
+	addExpressionButtonDesigner()
+	{
+		const button = Tag.render`<a href='#'>${Loc.getMessage('BPSGVA_PD_ADD')}</a>`;
+		Event.bind(button, 'click', (event) => {
+			this.addAssignmentExpressionDesigner();
+			event.preventDefault();
+		});
+
+		Dom.insertAfter(button, this.addRowTable);
 	}
 
 	convertFieldExpression(option)
@@ -1358,18 +1396,18 @@ class SetGlobalVariableActivity {
 
 		if (this.isGVariableVisibility(option.groupId))
 		{
-			let messages = this.visibilityMessages[this.gVarObjectName];
-			let visibility = option.property.Visibility;
-			let name = option.property.Name;
+			const messages = this.visibilityMessages[this.gVarObjectName];
+			const visibility = option.property.Visibility;
+			const name = option.property.Name;
 
 			return '{{' + messages[visibility] + ': ' + name + '}}';
 		}
 
 		if (this.isGConstantVisibility(option.groupId))
 		{
-			let messages = this.visibilityMessages[this.gConstObjectName];
-			let visibility = option.property.Visibility;
-			let name = option.property.Name;
+			const messages = this.visibilityMessages[this.gConstObjectName];
+			const visibility = option.property.Visibility;
+			const name = option.property.Name;
 
 			return '{{' + messages[visibility] + ': ' + name + '}}';
 		}
@@ -1379,17 +1417,17 @@ class SetGlobalVariableActivity {
 
 	addAssignmentExpressionDesigner(variable, value)
 	{
-		let addRowTable = this.addRowTable;
+		const addRowTable = this.addRowTable;
 		this.rowIndex++;
 
-		let newRow = addRowTable.insertRow(-1);
+		const newRow = addRowTable.insertRow(-1);
 		newRow.id = 'delete_row_' + this.rowIndex;
 
-		let cellSelect = newRow.insertCell(-1);
+		const cellSelect = newRow.insertCell(-1);
 
-		let newSelect = Tag.render`<select name="${this.variableRole + this.rowIndex}"></select>`;
+		const newSelect = Tag.render`<select name="${this.variableRole + this.rowIndex}"></select>`;
 		newSelect.setAttribute(this.indexAttributeName, this.rowIndex);
-		let me = this;
+		const me = this;
 		newSelect.onchange = function() {
 			me.changeFieldTypeDesigner(
 				this.getAttribute(me.indexAttributeName),
@@ -1398,19 +1436,19 @@ class SetGlobalVariableActivity {
 			);
 		};
 
-		let objectVisibilityMessages = this.visibilityMessages[this.gVarObjectName];
-		for (let visibility in objectVisibilityMessages)
+		const objectVisibilityMessages = this.visibilityMessages[this.gVarObjectName];
+		for (const visibility in objectVisibilityMessages)
 		{
-			let optgroupLabel = objectVisibilityMessages[visibility];
-			let optgroup = Tag.render`<optgroup label="${BX.util.htmlspecialchars(optgroupLabel)}"></optgroup>`;
+			const optgroupLabel = objectVisibilityMessages[visibility];
+			const optgroup = Tag.render`<optgroup label="${BX.util.htmlspecialchars(optgroupLabel)}"></optgroup>`;
 
-			let groupOptions = this.availableOptionsByGroupId.get(this.gVarObjectName + ':' + visibility);
+			const groupOptions = this.availableOptionsByGroupId.get(this.gVarObjectName + ':' + visibility);
 			if (!groupOptions){
 				continue;
 			}
 
 			let optionNode;
-			for (let i in groupOptions)
+			for (const i in groupOptions)
 			{
 				optionNode = Tag.render`
 					<option value="${BX.util.htmlspecialchars(groupOptions[i]['id'])}">
@@ -1430,26 +1468,29 @@ class SetGlobalVariableActivity {
 		}
 		cellSelect.appendChild(newSelect);
 
-		let cellSymbolEquals = newRow.insertCell(-1);
+		const cellSymbolEquals = newRow.insertCell(-1);
 		cellSymbolEquals.innerHTML = '=';
 
-		let cellValue = newRow.insertCell(-1);
+		const cellValue = newRow.insertCell(-1);
 		cellValue.id = 'id_td_variable_value_' + this.rowIndex;
 		cellValue.innerHTML = '';
 
-		let cellDeleteRow = newRow.insertCell(-1);
+		const cellDeleteRow = newRow.insertCell(-1);
 		cellDeleteRow.aligh = 'right';
-		let deleteLink = Tag.render`<a href="#">${BX.util.htmlspecialchars(BX.message('BPSGVA_PD_DELETE'))}</a>`;
-		BX.bind(deleteLink, 'click', function (){
-			me.deleteConditionDesigner(me.rowIndex);
+		const deleteLink = Tag.render`<a href="#">${BX.util.htmlspecialchars(BX.message('BPSGVA_PD_DELETE'))}</a>`;
+		const index = this.rowIndex;
+		Event.bind(deleteLink, 'click', (event) =>
+		{
+			me.deleteConditionDesigner(index);
+			event.preventDefault();
 		});
 		cellDeleteRow.appendChild(deleteLink);
 
 		if (Type.isArray(value))
 		{
-			for (let i in value)
+			for (const i in value)
 			{
-				let item = this.getOptionPropertiesRobot(value[i]);
+				const item = this.getOptionPropertiesRobot(value[i]);
 				if (item.groupId === this.helperObjectName + ':text')
 				{
 					continue;
@@ -1459,7 +1500,7 @@ class SetGlobalVariableActivity {
 		}
 		else
 		{
-			let item = this.getOptionPropertiesRobot(value);
+			const item = this.getOptionPropertiesRobot(value);
 			if (item.groupId !== this.helperObjectName + ':text')
 			{
 				value = this.convertFieldExpression(item);
@@ -1477,9 +1518,9 @@ class SetGlobalVariableActivity {
 	changeFieldTypeDesigner(index, field, value)
 	{
 		BX.showWait();
-		let valueTd = document.getElementById('id_td_variable_value_' + index);
+		const valueTd = document.getElementById('id_td_variable_value_' + index);
 
-		let separatingSymbol = field.indexOf(':');
+		const separatingSymbol = field.indexOf(':');
 		let fieldId = field;
 		if (separatingSymbol !== -1){
 			fieldId = field.slice(separatingSymbol + 1, field.length - 1);
@@ -1510,8 +1551,8 @@ class SetGlobalVariableActivity {
 
 	deleteConditionDesigner(index)
 	{
-		let addrowTable = document.getElementById(this.addRowTableNodeId);
-		let count = addrowTable.rows.length;
+		const addrowTable = document.getElementById(this.addRowTableNodeId);
+		const count = addrowTable.rows.length;
 		for (let i = 0; i < count; i++)
 		{
 			if (addrowTable.rows[i].id !== 'delete_row_' + index)

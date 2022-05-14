@@ -144,7 +144,7 @@ abstract class CBPActivity
 			{
 				if ($rootActivity->arFieldTypes[$value["Type"]]["BaseType"] == "file")
 				{
-					foreach ((array) $rootActivity->arProperties[$key] as $v)
+					foreach ((array) $rootActivity->__get($key) as $v)
 					{
 						if (intval($v) > 0)
 						{
@@ -346,11 +346,17 @@ abstract class CBPActivity
 		return $this->name;
 	}
 
+	/**
+	 * @return CBPCompositeActivity|CBPActivity|null
+	 */
 	public function getRootActivity()
 	{
 		$p = $this;
 		while ($p->parent != null)
+		{
 			$p = $p->parent;
+		}
+
 		return $p;
 	}
 
@@ -909,6 +915,15 @@ abstract class CBPActivity
 		{
 			return $this->arProperties[$name];
 		}
+		else
+		{
+			$ro = $this->getRootActivity()->getReadOnlyData();
+			if (isset($ro[$this->getName()]) && isset($ro[$this->getName()][$name]))
+			{
+				return $ro[$this->getName()][$name];
+			}
+		}
+
 		return null;
 	}
 
@@ -921,6 +936,14 @@ abstract class CBPActivity
 			return $r;
 		}
 		return null;
+	}
+
+	public function pullProperties(): array
+	{
+		$result = $this->arProperties;
+		$this->arProperties = array_fill_keys(array_keys($this->arProperties), null);
+
+		return [$this->getName() => $result];
 	}
 
 	public function __set($name, $val)

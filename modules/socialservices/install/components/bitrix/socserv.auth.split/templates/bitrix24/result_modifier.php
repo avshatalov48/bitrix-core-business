@@ -12,12 +12,20 @@ Loc::loadMessages(__FILE__);
 $arResult["IS_ZOOM_ENABLED"] = true; //todo delete
 
 $socServAvailableList = ["Dropbox", "GoogleOAuth", "Office365", "Box", "YandexOAuth", "LiveIDOAuth", "zoom"];
+$portalPrefix = '';
+if (Loader::includeModule('bitrix24'))
+{
+	$portalPrefix = \CBitrix24::getLicensePrefix();
+}
 
 if (isset($arResult["AUTH_SERVICES"]) && is_array($arResult["AUTH_SERVICES"]))
 {
 	foreach ($arResult["AUTH_SERVICES"] as $serviceCode => $data)
 	{
-		if (!in_array($serviceCode, $socServAvailableList))
+		if (
+			!in_array($serviceCode, $socServAvailableList)
+			|| in_array($serviceCode, \CSocServAuthManager::listServicesBlockedByZone($portalPrefix), true)
+		)
 		{
 			unset($arResult["AUTH_SERVICES"][$serviceCode]);
 		}

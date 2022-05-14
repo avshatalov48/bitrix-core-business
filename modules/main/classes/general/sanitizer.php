@@ -636,6 +636,17 @@
 						);
 					}
 				}
+				elseif(
+					$seg[$i]['segType'] == 'tag'
+					&& (
+						preg_match('/^<!--\\[if\\s+((?:mso|gt|lt|gte|lte|\\||!|[0-9]+|\\(|\\))\\s*)+\\]>$/', $seg[$i]['value'])
+						|| preg_match('/^<!\\[endif\\]-->$/', $seg[$i]['value'])
+					)
+				)
+				{
+					//Keep ms html comments https://stackoverflow.design/email/base/mso/
+					$seg[$i]['segType'] = 'text';
+				}
 				elseif($seg[$i]['segType'] == 'tag')
 				{
 					//find tag type (open/close), tag name, attributies

@@ -94,6 +94,7 @@ this.BX = this.BX || {};
 	    this.isLocationCalendar = options.isLocationCalendar || false;
 	    this.locationAccess = options.locationAccess || false;
 	    this.locationCapacity = options.locationCapacity || 0;
+	    this.dayOfWeekMonthFormat = options.dayOfWeekMonthFormat || false;
 	    this.roomsManager = options.roomsManager || null;
 	    this.userId = options.userId || parseInt(main_core.Loc.getMessage('USER_ID'));
 	    this.ownerId = options.ownerId;
@@ -556,6 +557,7 @@ this.BX = this.BX || {};
 	          _this4.handleLocationData(params.locationFeatureEnabled, params.locationList, params.iblockMeetingRoomList);
 
 	          _this4.locationAccess = params.locationAccess;
+	          _this4.dayOfWeekMonthFormat = params.dayOfWeekMonthFormat;
 	          _this4.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
 
 	          if (_this4.planner && !_this4.plannerFeatureEnabled) {
@@ -1125,6 +1127,7 @@ this.BX = this.BX || {};
 	      this.planner = new calendar_planner.Planner({
 	        wrap: this.DOM.plannerOuterWrap,
 	        minWidth: parseInt(this.DOM.plannerOuterWrap.offsetWidth),
+	        dayOfWeekMonthFormat: this.dayOfWeekMonthFormat,
 	        locked: !this.plannerFeatureEnabled
 	      });
 	      this.planner.subscribe('onDateChange', this.handlePlannerSelectorChanges.bind(this));

@@ -47,7 +47,7 @@ class HandlerService extends RestService
 			throw new RestException('Parameter SETTINGS is not defined or empty', self::ERROR_CHECK_FAILURE);
 		}
 
-		self::checkHandlerSettings($params['SETTINGS']);
+		self::checkHandlerSettingsBeforeAdd($params['SETTINGS']);
 
 		$handler = CashboxRestHandlerTable::getList([
 			'filter' => [
@@ -94,7 +94,7 @@ class HandlerService extends RestService
 
 		if (isset($params['FIELDS']['SETTINGS']))
 		{
-			self::checkHandlerSettings($params['FIELDS']['SETTINGS']);
+			self::checkHandlerSettingsBeforeUpdate($params['FIELDS']['SETTINGS']);
 		}
 	}
 
@@ -152,24 +152,89 @@ class HandlerService extends RestService
 
 	/**
 	 * @param $settings
+	 */
+	private static function checkHandlerSettingsBeforeAdd($settings): void
+	{
+		self::checkRequiredSettingsFields($settings, ['PRINT_URL', 'CHECK_URL', 'CONFIG']);
+		self::checkSettingsFieldValues($settings, ['HTTP_VERSION']);
+	}
+
+	/**
+	 * @param $settings
+	 */
+	private static function checkHandlerSettingsBeforeUpdate($settings): void
+	{
+		self::checkSettingsFieldValues($settings, ['PRINT_URL', 'CHECK_URL', 'CONFIG', 'HTTP_VERSION']);
+	}
+
+	/**
+	 * @param array $settings
+	 * @param array $requiredFields
 	 * @throws RestException
 	 */
-	private static function checkHandlerSettings($settings)
+	private static function checkRequiredSettingsFields(array $settings, array $requiredFields): void
 	{
-		if (empty($settings['PRINT_URL']))
+		foreach ($requiredFields as $fieldName)
 		{
-			throw new RestException('Parameter SETTINGS[PRINT_URL] is not defined', self::ERROR_CHECK_FAILURE);
+			if (empty($settings[$fieldName]))
+			{
+				throw new RestException('Parameter SETTINGS[' . $fieldName . '] is not defined', self::ERROR_CHECK_FAILURE);
+			}
+		}
+	}
+
+	/**
+	 * @param array $settings
+	 * @param array $fields
+	 * @throws RestException
+	 */
+	private static function checkSettingsFieldValues(array $settings, array $fields): void
+	{
+		foreach ($fields as $fieldName)
+		{
+			if ($fieldName === 'HTTP_VERSION' && array_key_exists('HTTP_VERSION', $settings))
+			{
+				$version = $settings['HTTP_VERSION'];
+				if (
+					$version !== Main\Web\HttpClient::HTTP_1_0
+					&& $version !== Main\Web\HttpClient::HTTP_1_1
+				)
+				{
+					throw new RestException('The value of SETTINGS[HTTP_VERSION] is not valid', self::ERROR_CHECK_FAILURE);
+				}
+			}
+			elseif (array_key_exists($fieldName, $settings) && empty($settings[$fieldName]))
+			{
+				throw new RestException('The value of SETTINGS[' . $fieldName . '] is not valid', self::ERROR_CHECK_FAILURE);
+			}
+		}
+	}
+
+	/**
+	 * @param $handlerId
+	 * @param $newSettings
+	 * @return array|null
+	 */
+	private static function mergeHandlerSettings($cashboxId, array $newSettings): array
+	{
+		$dbResult = $existingSettings = CashboxRestHandlerTable::getList([
+			'select' => ['SETTINGS'],
+			'filter' => ['=ID' => $cashboxId],
+			'limit' => 1,
+		])->fetch();
+
+		if (!$dbResult)
+		{
+			return $newSettings;
 		}
 
-		if (empty($settings['CHECK_URL']))
+		$existingSettings = $dbResult['SETTINGS'];
+		if (!$existingSettings)
 		{
-			throw new RestException('Parameter SETTINGS[CHECK_URL] is not defined', self::ERROR_CHECK_FAILURE);
+			return $newSettings;
 		}
 
-		if (empty($settings['CONFIG']))
-		{
-			throw new RestException('Parameter SETTINGS[CONFIG] is not defined', self::ERROR_CHECK_FAILURE);
-		}
+		return array_replace_recursive($existingSettings, $newSettings);
 	}
 
 	/**
@@ -206,6 +271,8 @@ class HandlerService extends RestService
 
 	/**
 	 * @param $params
+	 * @param $page
+	 * @param \CRestServer $server
 	 * @return bool
 	 * @throws RestException
 	 */
@@ -215,7 +282,13 @@ class HandlerService extends RestService
 		$params = self::prepareHandlerParams($params, $server);
 		self::checkParamsBeforeUpdateHandler($params);
 
-		$result = CashboxRestHandlerTable::update($params['ID'], $params['FIELDS']);
+		$handlerFields = $params['FIELDS'];
+		if ($handlerFields['SETTINGS'])
+		{
+			$handlerFields['SETTINGS'] = self::mergeHandlerSettings($params['ID'], $handlerFields['SETTINGS']);
+		}
+
+		$result = CashboxRestHandlerTable::update($params['ID'], $handlerFields);
 		if ($result->isSuccess())
 		{
 			return true;

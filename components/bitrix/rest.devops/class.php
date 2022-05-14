@@ -63,7 +63,8 @@ class RestDevOpsComponent extends CBitrixComponent
 			"edit" => "edit/#ELEMENT_CODE#/#ID#/",
 			"list" => "list/",
 			"iframe" => "iframe/",
-			"statistic" => "statistic/"
+			"statistic" => "statistic/",
+			"placement" => "placement/#PLACEMENT_ID#/",
 		);
 
 		if ($this->arParams['SEF_MODE'] === 'Y')

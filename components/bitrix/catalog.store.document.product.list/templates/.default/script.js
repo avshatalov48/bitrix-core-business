@@ -868,15 +868,34 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	  }, {
 	    key: "setStoreAmount",
 	    value: function setStoreAmount(value, fieldName) {
+	      var _this6 = this;
+
 	      var mode = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : MODE_SET;
 
 	      // price can't be less than zero
 	      if (mode === MODE_SET) {
-	        var wrapper = this.getNode().querySelector('[data-name=' + fieldName + '_AMOUNT]');
+	        var amount;
+	        var amounts = {
+	          '_AMOUNT': function _AMOUNT() {
+	            return _this6.model.getStoreCollection().getStoreAmount(value);
+	          },
+	          '_RESERVED': function _RESERVED() {
+	            return _this6.model.getStoreCollection().getStoreReserved(value);
+	          },
+	          '_AVAILABLE_AMOUNT': function _AVAILABLE_AMOUNT() {
+	            return _this6.model.getStoreCollection().getStoreAvailableAmount(value);
+	          }
+	        };
 
-	        if (wrapper) {
-	          var amount = this.model.getStoreCollection().getStoreAmount(value) || 0;
-	          wrapper.innerHTML = amount + ' ' + main_core.Text.encode(this.getField('MEASURE_NAME'));
+	        for (var postfix in amounts) {
+	          if (Object.hasOwnProperty.call(amounts, postfix)) {
+	            var wrapper = this.getNode().querySelector('[data-name=' + fieldName + postfix + ']');
+
+	            if (wrapper) {
+	              amount = amounts[postfix]() || 0;
+	              wrapper.innerHTML = amount + ' ' + main_core.Text.encode(this.getField('MEASURE_NAME'));
+	            }
+	          }
 	        }
 	      }
 	    }
@@ -915,7 +934,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	  }, {
 	    key: "setMeasure",
 	    value: function setMeasure(measure) {
-	      var _this6 = this;
+	      var _this7 = this;
 
 	      var mode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : MODE_SET;
 
@@ -932,16 +951,16 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	          declineCancelTitle: main_core.Loc.getMessage('CATALOG_PRODUCT_MODEL_SAVING_NOTIFICATION_DECLINE_SAVE'),
 	          events: {
 	            onSave: function onSave() {
-	              _this6.setField('MEASURE_CODE', measure.CODE);
+	              _this7.setField('MEASURE_CODE', measure.CODE);
 
-	              _this6.setField('MEASURE_NAME', measure.SYMBOL);
+	              _this7.setField('MEASURE_NAME', measure.SYMBOL);
 
-	              _this6.updateUiMeasure(_this6.getField('MEASURE_CODE'), _this6.getField('MEASURE_NAME'));
+	              _this7.updateUiMeasure(_this7.getField('MEASURE_CODE'), _this7.getField('MEASURE_NAME'));
 
-	              _this6.getModel().save(['MEASURE_CODE', 'MEASURE_NAME']);
+	              _this7.getModel().save(['MEASURE_CODE', 'MEASURE_NAME']);
 	            },
 	            onCancel: function onCancel() {
-	              _this6.updateUiMeasure(_this6.getField('MEASURE_CODE'), _this6.getField('MEASURE_NAME'));
+	              _this7.updateUiMeasure(_this7.getField('MEASURE_CODE'), _this7.getField('MEASURE_NAME'));
 	            }
 	          }
 	        });
@@ -1046,7 +1065,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	  }, {
 	    key: "updateUiCurrencyFields",
 	    value: function updateUiCurrencyFields() {
-	      var _this7 = this;
+	      var _this8 = this;
 
 	      var currencyText = this.getEditor().getCurrencyText();
 	      var currencyId = '' + this.getEditor().getCurrencyId();
@@ -1057,9 +1076,9 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	          NAME: currencyText,
 	          VALUE: currencyId
 	        });
-	        main_core.Dom.attr(_this7.getInputByFieldName(name), 'data-items', dropdownValues);
+	        main_core.Dom.attr(_this8.getInputByFieldName(name), 'data-items', dropdownValues);
 
-	        _this7.updateUiMoneyField(name, currencyId, currencyText);
+	        _this8.updateUiMoneyField(name, currencyId, currencyText);
 	      });
 	    }
 	  }, {
@@ -1201,7 +1220,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	}();
 
 	function _initActions2() {
-	  var _this8 = this;
+	  var _this9 = this;
 
 	  if (this.getEditor().isReadOnly()) {
 	    return;
@@ -1214,13 +1233,13 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	    main_core.Event.bind(actionsButton, 'click', function (event) {
 	      var menuItems = [{
 	        text: main_core.Loc.getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COPY_ACTION'),
-	        onclick: _this8.handleCopyAction.bind(_this8)
+	        onclick: _this9.handleCopyAction.bind(_this9)
 	      }, {
 	        text: main_core.Loc.getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_DELETE_ACTION'),
-	        onclick: _this8.handleDeleteAction.bind(_this8)
+	        onclick: _this9.handleDeleteAction.bind(_this9)
 	      }];
 	      main_popup.PopupMenu.show({
-	        id: _this8.getId() + '_actions_popup',
+	        id: _this9.getId() + '_actions_popup',
 	        bindElement: actionsButton,
 	        items: menuItems
 	      });
@@ -1311,7 +1330,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	}
 
 	function _initStoreSelector2(fieldNames) {
-	  var _this10 = this;
+	  var _this11 = this;
 
 	  Object.keys(fieldNames).forEach(function (rowName) {
 	    var selectorOptions = {
@@ -1320,31 +1339,31 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      config: {
 	        ENABLE_SEARCH: true,
 	        ENABLE_INPUT_DETAIL_LINK: false,
-	        ROW_ID: _this10.getId()
+	        ROW_ID: _this11.getId()
 	      },
 	      mode: catalog_storeSelector.StoreSelector.MODE_EDIT,
-	      model: _this10.model
+	      model: _this11.model
 	    };
-	    var storeSelector = new catalog_storeSelector.StoreSelector(_this10.getId() + '_' + rowName, selectorOptions);
+	    var storeSelector = new catalog_storeSelector.StoreSelector(_this11.getId() + '_' + rowName, selectorOptions);
 
-	    var storeWrapper = _this10.getNode().querySelector('[data-name="' + rowName + '"]');
+	    var storeWrapper = _this11.getNode().querySelector('[data-name="' + rowName + '"]');
 
 	    if (storeSelector) {
 	      storeSelector.renderTo(storeWrapper);
 	    }
 
-	    main_core_events.EventEmitter.subscribe(storeSelector, 'onChange', main_core.Runtime.debounce(_classPrivateMethodGet(_this10, _onStoreFieldChange, _onStoreFieldChange2).bind(_this10), 500, _this10));
+	    main_core_events.EventEmitter.subscribe(storeSelector, 'onChange', main_core.Runtime.debounce(_classPrivateMethodGet(_this11, _onStoreFieldChange, _onStoreFieldChange2).bind(_this11), 500, _this11));
 
-	    _this10.storeSelectors.push(storeSelector);
+	    _this11.storeSelectors.push(storeSelector);
 	  });
 	}
 
 	function _onStoreFieldChange2(event) {
-	  var _this11 = this;
+	  var _this12 = this;
 
 	  var data = event.getData();
 	  data.fields.forEach(function (item) {
-	    _this11.updateField(item.NAME, item.VALUE);
+	    _this12.updateField(item.NAME, item.VALUE);
 	  });
 	}
 
@@ -1965,6 +1984,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      eventArgs.method = 'POST';
 	      eventArgs.sessid = BX.bitrix_sessid();
 	      eventArgs.data = _objectSpread$1(_objectSpread$1({}, eventArgs.data), {}, {
+	        useProductsFromRequest: useProductsFromRequest,
 	        signedParameters: this.getSignedParameters(),
 	        products: useProductsFromRequest ? this.getProductsFields() : null
 	      });

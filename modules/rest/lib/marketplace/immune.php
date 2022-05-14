@@ -3,6 +3,7 @@
 namespace Bitrix\Rest\Marketplace;
 
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Data\Cache;
 use Bitrix\Main\Web\Json;
 
 /**
@@ -13,6 +14,8 @@ class Immune
 {
 	private const OPTION_APP_IMMUNE_LIST = 'app_immune';
 	private const MODULE_ID = 'rest';
+	private const CACHE_TTL_TIMEOUT = 120;
+	private const CACHE_DIR = '/rest/';
 	private static $immuneAppList;
 
 	/**
@@ -25,7 +28,13 @@ class Immune
 			static::$immuneAppList = [];
 			try
 			{
-				$option = Option::get(static::MODULE_ID, static::OPTION_APP_IMMUNE_LIST, '');
+				$option = Option::get(static::MODULE_ID, static::OPTION_APP_IMMUNE_LIST, null);
+
+				if ($option === null)
+				{
+					$option = static::getExternal();
+				}
+
 				if (!empty($option))
 				{
 					static::$immuneAppList = Json::decode($option);
@@ -44,18 +53,36 @@ class Immune
 		return static::$immuneAppList;
 	}
 
+	private static function getExternal()
+	{
+		$result = false;
+		$cache = Cache::createInstance();
+		if ($cache->initCache(static::CACHE_TTL_TIMEOUT, 'immuneLoadsRepeatingTimeout', static::CACHE_DIR))
+		{
+			$result = $cache->getVars();
+		}
+		elseif ($cache->startDataCache())
+		{
+			$res = Client::getImmuneApp();
+			if (!empty($res['ITEMS']))
+			{
+				$result = Json::encode($res['ITEMS']);
+				Option::set(static::MODULE_ID, static::OPTION_APP_IMMUNE_LIST, $result);
+			}
+
+			$cache->endDataCache($result);
+		}
+
+		return $result;
+	}
+
 	/**
 	 * Agent load external app list
 	 * @return string
 	 */
 	public static function load() : string
 	{
-		$res = Client::getImmuneApp();
-		if (!empty($res['ITEMS']))
-		{
-			$option = Json::encode($res['ITEMS']);
-			Option::set(static::MODULE_ID, static::OPTION_APP_IMMUNE_LIST, $option);
-		}
+		static::getExternal();
 
 		return '\Bitrix\Rest\Marketplace\Immune::load();';
 	}

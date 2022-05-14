@@ -2,12 +2,12 @@
 /** @global CUser $USER */
 /** @global array $arShowTabs */
 /** @global CMain $APPLICATION */
-use Bitrix\Main,
-	Bitrix\Currency,
-	Bitrix\Catalog;
+use Bitrix\Main;
+use Bitrix\Currency;
+use Bitrix\Catalog;
 
 $selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
-$publicMode = (defined("SELF_FOLDER_URL") ? true : false);
+$publicMode = defined("SELF_FOLDER_URL");
 
 if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_price') || $USER->CanDoOperation('catalog_view'))
 {
@@ -45,7 +45,7 @@ if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_pric
 	$MENU_SECTION_ID = (int)$MENU_SECTION_ID;
 	$PRODUCT_ID = ($ID > 0 ? CIBlockElement::GetRealElement($ID) : 0);
 	$arBaseProduct = false;
-	$vatInclude = ((string)Main\Config\Option::get('catalog', 'default_product_vat_included') == 'Y' ? 'Y' : 'N');
+	$vatInclude = (Main\Config\Option::get('catalog', 'default_product_vat_included') === 'Y' ? 'Y' : 'N');
 	if ($arMainCatalog['SUBSCRIPTION'] == 'Y')
 	{
 		$arDefProduct = array(

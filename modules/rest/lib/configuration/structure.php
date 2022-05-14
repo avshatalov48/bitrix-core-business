@@ -17,6 +17,7 @@ class Structure
 {
 	public const CODE_CONFIGURATION_FILES_LIST = 'CONFIGURATION_FILES_LIST';
 	public const CODE_FILES_LIST = 'FILES_LIST';
+	public const CODE_FILES_SMALL_LIST = 'FILES_SMALL_LIST';
 	public const CODE_UNPACK_FILE_PREFIX = 'UNPACK_FILE_';
 	public const CODE_CUSTOM_FILE = 'CUSTOM_FILE_';
 	private static $maxAgentTime = 10;
@@ -36,6 +37,7 @@ class Structure
 		$this->setting = new Setting($context);
 		$this->setting->addMultipleCode(self::CODE_CONFIGURATION_FILES_LIST);
 		$this->setting->addMultipleCode(self::CODE_FILES_LIST);
+		$this->setting->addMultipleCode(self::CODE_FILES_SMALL_LIST);
 	}
 
 	/**
@@ -192,9 +194,62 @@ class Structure
 		return $result;
 	}
 
+	/**
+	 * @param $content
+	 * @return bool
+	 */
+	public function unpackSmallFiles($content): bool
+	{
+		$result = true;
+		try
+		{
+			$files = Json::decode($content);
+			if (is_array($files))
+			{
+				$folder = $this->getFolder();
+				foreach ($files as $file)
+				{
+					if (!empty($file['CONTENT']))
+					{
+						$id = (int)$file['ID'];
+						if ($id > 0)
+						{
+							File::putFileContents(
+								$folder . Helper::STRUCTURE_FILES_NAME . '/' . $id,
+								base64_decode($file['CONTENT'])
+							);
+							unset($file['CONTENT']);
+							if (File::isFileExists($folder . Helper::STRUCTURE_FILES_NAME . '/' . $id))
+							{
+								$file['PATH'] = $folder . Helper::STRUCTURE_FILES_NAME . '/' . $id;
+								$this->setting->set(self::CODE_UNPACK_FILE_PREFIX . $id, $file);
+							}
+						}
+					}
+				}
+			}
+		}
+		catch (\Exception $e)
+		{
+			$result = false;
+		}
+
+		return $result;
+	}
+
 	private function initUnpackFilesList()
 	{
 		$folder = $this->getFolder();
+		if (File::isFileExists($folder . Helper::STRUCTURE_SMALL_FILES_NAME . Helper::CONFIGURATION_FILE_EXTENSION))
+		{
+			$content = File::getFileContents(
+				$folder
+				. Helper::STRUCTURE_SMALL_FILES_NAME
+				. Helper::CONFIGURATION_FILE_EXTENSION
+			);
+			$this->unpackSmallFiles($content);
+		}
+
 		if (File::isFileExists($folder.Helper::STRUCTURE_FILES_NAME.Helper::CONFIGURATION_FILE_EXTENSION))
 		{
 			$content = File::getFileContents($folder.Helper::STRUCTURE_FILES_NAME.Helper::CONFIGURATION_FILE_EXTENSION);
@@ -346,6 +401,25 @@ class Structure
 	}
 
 	/**
+	 * Saves smalls files on import.
+	 * @param $info
+	 * @param $content
+	 */
+	public function addSmallFile($info, $content)
+	{
+		$info['CONTENT'] = base64_encode($content);
+		$this->setting->set(self::CODE_FILES_SMALL_LIST, $info);
+	}
+
+	/**
+	 * @return array|mixed|null
+	 */
+	public function listSmallFile()
+	{
+		return $this->setting->get(self::CODE_FILES_SMALL_LIST);
+	}
+
+	/**
 	 * Set export archive name
 	 * @param $name string [a-zA-Z0-9_] new name archive
 	 *
@@ -387,7 +461,8 @@ class Structure
 			[
 				'filter' => [
 					'<CREATE_TIME' => $deleteDate
-				]
+				],
+				'limit' => 100,
 			]
 		);
 		while ($item = $res->fetch())

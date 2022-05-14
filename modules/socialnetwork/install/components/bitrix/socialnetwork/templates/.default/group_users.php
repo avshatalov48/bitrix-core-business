@@ -1,4 +1,10 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -10,7 +16,7 @@ $pageId = "group_users";
 include("util_group_menu.php");
 include("util_group_profile.php");
 
-$componentParameters = array(
+$componentParameters = [
 	"PATH_TO_USER" => $arResult["PATH_TO_USER"],
 	"PATH_TO_GROUP" => $arResult["PATH_TO_GROUP"],
 	"PATH_TO_GROUP_EDIT" => $arResult["PATH_TO_GROUP_EDIT"],
@@ -23,7 +29,7 @@ $componentParameters = array(
 	"USER_VAR" => $arResult["ALIASES"]["user_id"],
 	"SET_NAV_CHAIN" => $arResult["SET_NAV_CHAIN"],
 	"SET_TITLE" => $arResult["SET_TITLE"],
-	"GROUP_ID" => $arResult["VARIABLES"]["group_id"],
+	'GROUP_ID' => $arResult['VARIABLES']['group_id'],
 	"ITEMS_COUNT" => $arParams["ITEM_DETAIL_COUNT"],
 	"THUMBNAIL_LIST_SIZE" => 42,
 	"DATE_TIME_FORMAT" => $arResult["DATE_TIME_FORMAT"],
@@ -33,28 +39,18 @@ $componentParameters = array(
 	"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 	"CACHE_TIME" => $arParams["CACHE_TIME"],
 	"GROUP_USE_BAN" => $arParams["GROUP_USE_BAN"],
-	"USE_AUTO_MEMBERS" => "Y"
+	"USE_AUTO_MEMBERS" => "Y",
+	'MODE' => 'MEMBERS',
+	'FILTER_ID' => 'SOCIALNETWORK_WORKGROUP_USER_LIST',
+];
+
+$APPLICATION->IncludeComponent(
+	'bitrix:ui.sidepanel.wrapper',
+	'',
+	[
+		'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.group.user.list',
+		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+		'POPUP_COMPONENT_PARAMS' => $componentParameters,
+		'USE_UI_TOOLBAR' => 'Y',
+	]
 );
-
-if ($_REQUEST['IFRAME'] == 'Y')
-{
-	$APPLICATION->IncludeComponent(
-		"bitrix:socialnetwork.pageslider.wrapper",
-		"",
-		array(
-			'POPUP_COMPONENT_NAME' => "bitrix:socialnetwork.group_users.ex",
-			"POPUP_COMPONENT_TEMPLATE_NAME" => "",
-			"POPUP_COMPONENT_PARAMS" => $componentParameters,
-		)
-	);
-}
-else
-{
-	$APPLICATION->IncludeComponent(
-		"bitrix:socialnetwork.group_users.ex",
-		"",
-		$componentParameters
-	);
-}
-
-?>

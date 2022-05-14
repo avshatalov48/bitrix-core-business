@@ -33,11 +33,11 @@ class ShortNumberFormatter
 		$pattern = preg_replace("/[^x]/", "", $template);
 		$pattern = str_replace("x", "(\\d)", $pattern);
 		$pattern = "/" . $pattern . "/";
+		$i = 0;
 		$format = preg_replace_callback(
 			"/x/",
-			function ()
+			function () use (&$i)
 			{
-				static $i = 0;
 				return "$" . ++$i;
 			},
 			$template

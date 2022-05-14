@@ -267,7 +267,7 @@ class CalendarPubEventComponent extends CBitrixComponent implements Controllerab
 	 * @param string $status
 	 * @return string
 	 */
-	public function getStyleClassAttendeeStatus(string $status): string
+	public function getStyleClassAttendeeStatus(?string $status): string
 	{
 		switch ($status)
 		{
@@ -344,7 +344,17 @@ class CalendarPubEventComponent extends CBitrixComponent implements Controllerab
 			(int) $event['MEETING_HOST'],
 			(int) $event['PARENT_ID']
 		);
-		$event['TEXT_LOCATION'] = $event['LOCATION'];
+		if (is_array($event['LOCATION'])
+			&& isset($event['LOCATION']['NEW'])
+			&& is_string($event['LOCATION']['NEW'])
+		)
+		{
+			$event['TEXT_LOCATION'] = CCalendar::GetTextLocation($event["LOCATION"]['NEW']);
+		}
+		elseif (is_string($event['LOCATION']))
+		{
+			$event['TEXT_LOCATION'] = CCalendar::GetTextLocation($event['LOCATION']);
+		}
 
 		return Encoding::convertEncoding(
 			AttachmentEditManager::createInstance($event)->getContent(),

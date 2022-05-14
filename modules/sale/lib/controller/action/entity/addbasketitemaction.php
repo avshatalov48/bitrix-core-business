@@ -82,10 +82,13 @@ final class AddBasketItemAction extends BaseAction
 		$fuserId = $fields['FUSER_ID'];
 		$siteId = $fields['SITE_ID'];
 		$product = $fields['PRODUCT'];
+		$options = [
+			'USE_MERGE' => !isset($fields['USE_MERGE']) || $fields['USE_MERGE'] !== 'N' ? 'Y' : 'N',
+		];
 
 		$basket = $this->getBasketByFuserId($fuserId, $siteId);
 
-		$addProductToBasketResult = Catalog\Product\Basket::addProductToBasket($basket, $product, ['SITE_ID' => $siteId]);
+		$addProductToBasketResult = Catalog\Product\Basket::addProductToBasket($basket, $product, ['SITE_ID' => $siteId], $options);
 		if ($addProductToBasketResult->isSuccess())
 		{
 			$saveBasketResult = $basket->save();

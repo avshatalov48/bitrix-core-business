@@ -402,10 +402,17 @@ class FacebookConversion
 		$conversion = self::getConversionEntity($eventName, $customDataParams);
 
 		Application::getInstance()->addBackgroundJob(
-			function() use ($conversion) {
+			function() use ($conversion, $eventName) {
 				try
 				{
 					$conversion->fireEvents();
+
+					AnalyticsEventTable::add([
+						'CODE' => AnalyticsEventTable::FACEBOOK_CONVERSION_EVENT_FIRED,
+						'PAYLOAD' => [
+							'EVENT_NAME' => $eventName,
+						],
+					]);
 				}
 				catch (\Throwable $throwable)
 				{
@@ -520,9 +527,9 @@ class FacebookConversion
 	{
 		$facebookConversionParamsData = FacebookConversionParamsTable::getList([
 			'filter' => [
-				'EVENT_NAME' => $eventName,
-				'LID' => SITE_ID,
-				'ENABLED' => 'Y',
+				'=EVENT_NAME' => $eventName,
+				'=LID' => SITE_ID,
+				'=ENABLED' => 'Y',
 			],
 		])->fetch();
 
@@ -578,7 +585,7 @@ class FacebookConversion
 	{
 		$facebookConversionParamsResult = FacebookConversionParamsTable::getList([
 			'filter' => [
-				'LID' => $lid,
+				'=LID' => $lid,
 			],
 		]);
 		while ($facebookConversionParams = $facebookConversionParamsResult->fetch())

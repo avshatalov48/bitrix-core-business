@@ -13,16 +13,22 @@ class BasketBuilderExist implements IBasketBuilderDelegate
 		$this->builder = $builder;
 	}
 
+	/**
+	 * Get item from current basket
+	 * 
+	 * Search only by $basketCode !!!
+	 * 
+	 * If the product is not found, the basket code is set and is not equal to BasketBuilder::BASKET_CODE_NEW,
+	 * then this product will be deleted.
+	 *
+	 * @param string|int $basketCode
+	 * @param array $productData not used
+	 * @return BasketItem|null
+	 * @throws BuildingException
+	 */
 	public function getItemFromBasket($basketCode, $productData)
 	{
-		if(empty($productData['MANUALLY_EDITED']))
-		{
-			$item = $this->builder->getBasket()->getExistsItem($productData["MODULE"], $productData["OFFER_ID"], $productData["PROPS"]);
-		}
-		else
-		{
-			$item = $this->builder->getBasket()->getItemByBasketCode($basketCode);
-		}
+		$item = $this->builder->getBasket()->getItemByBasketCode($basketCode);
 
 		//sku was changed
 		if($item == null && $basketCode != BasketBuilder::BASKET_CODE_NEW)

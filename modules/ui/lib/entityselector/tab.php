@@ -30,17 +30,19 @@ class Tab implements \JsonSerializable
 
 	public function __construct(array $options)
 	{
-		if (!empty($options['id']) && is_string($options['id']))
+		$id = $options['id'] ?? null;
+		if (is_string($id) && $id !== '')
 		{
-			$this->id = $options['id'];
+			$this->id = $id;
 		}
 
-		if (!empty($options['title']) && (is_string($options['title']) || is_array($options['title'])))
+		$title = $options['title'] ?? null;
+		if (is_string($title) || is_array($title))
 		{
 			$this->setTitle($options['title']);
 		}
 
-		if (!empty($options['icon']))
+		if (isset($options['icon']))
 		{
 			if (is_string($options['icon']))
 			{
@@ -52,7 +54,7 @@ class Tab implements \JsonSerializable
 			}
 		}
 
-		if (!empty($options['textColor']))
+		if (isset($options['textColor']))
 		{
 			if (is_string($options['textColor']))
 			{
@@ -64,7 +66,7 @@ class Tab implements \JsonSerializable
 			}
 		}
 
-		if (!empty($options['bgColor']))
+		if (isset($options['bgColor']))
 		{
 			if (is_string($options['bgColor']))
 			{
@@ -86,7 +88,7 @@ class Tab implements \JsonSerializable
 			$this->setItemOrder($options['itemOrder']);
 		}
 
-		if (!empty($options['itemMaxDepth']) && is_int($options['itemMaxDepth']))
+		if (isset($options['itemMaxDepth']) && is_int($options['itemMaxDepth']))
 		{
 			$this->setItemMaxDepth($options['itemMaxDepth']);
 		}

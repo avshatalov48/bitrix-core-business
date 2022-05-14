@@ -382,24 +382,24 @@ class VariationGrid
 			true,
 			'left',
 		);
+		this.addCellToTable(tableHeadRow, Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_QUANTITY_COMMON1'), true);
 		if (this.isShowedStoreReserve)
 		{
-			this.addCellToTable(tableHeadRow, Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_AMOUNT'), true);
 			this.addCellToTable(tableHeadRow, Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_QUANTITY_RESERVED'), true);
+			this.addCellToTable(tableHeadRow, Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_QUANTITY_AVAILABLE'), true);
 		}
-		this.addCellToTable(tableHeadRow, Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_QUANTITY_COMMON'), true);
 
 		const tableBody = table.createTBody();
 		stores.forEach((store) => {
 			const tableRow = tableBody.insertRow();
 			tableRow.className = 'main-grid-row main-grid-row-body';
 			this.addCellToTable(tableRow, store.title, false, 'left');
+			this.addCellToTable(tableRow, store.quantityCommon, false);
 			if (this.isShowedStoreReserve)
 			{
-				this.addCellToTable(tableRow, store.quantityAvailable, false);
 				this.addCellToTable(tableRow, store.quantityReserved, false);
+				this.addCellToTable(tableRow, store.quantityAvailable, false);
 			}
-			this.addCellToTable(tableRow, store.quantityCommon, false);
 		});
 
 		return table;
@@ -667,8 +667,9 @@ class VariationGrid
 
 		if (barcodeNode)
 		{
+			barcodeNode.innerHTML = '';
 			const inputWrapper = Tag.render`<div style="display: none"></div>`;
-			barcodeNode.appendChild(inputWrapper);
+			Dom.append(inputWrapper, barcodeNode);
 			const barcodes = item.editData?.SKU_GRID_BARCODE_VALUES;
 
 			const items = [];
@@ -823,6 +824,7 @@ class VariationGrid
 			this.modifyCustomSkuProperties(newNode);
 			this.addSkuListCreationItem(newNode);
 			this.setDeleteButton(newNode);
+			this.enableBarcodeEditor(newRow);
 			newRow.makeCountable();
 		}
 
@@ -962,6 +964,7 @@ class VariationGrid
 				delete newRowData[i]
 			}
 		}
+		newRowData['SKU_GRID_BARCODE'] = '<div data-role="barcode-selector"></div>';
 	}
 
 	prepareCustomEditData(originalEditData)

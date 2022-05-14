@@ -29,9 +29,10 @@ class Component extends Base
 	 * @param null $path
 	 * @throws Exception
 	 */
-	public function __construct($path = null)
+	public function __construct($path = null, $namespace = "bitrix")
 	{
 		Mobile::Init();
+
 		if (mb_strpos($path, Application::getDocumentRoot()) === 0)
 		{
 			$this->path = $path;
@@ -50,6 +51,7 @@ class Component extends Base
 		$this->baseFileName = 'component';
 		$file = new File($directory->getPath() . '/component.js');
 		$this->name = $directory->getName();
+		$this->namespace = $namespace;
 
 		if (!$directory->isExists() || !$file->isExists())
 		{
@@ -168,41 +170,8 @@ class Component extends Base
 				'userId' => $USER->GetId(),
 				'extranet' => $isExtranetUser
 			]);
-			$export = <<<JS
-
-		(()=>{
-			let data = {}
-			this.jnExtensionData = {
-			set:function (name, value) {
-				data[name] = value
-			},
-			get:function(name) {
-				if (typeof data[name] !== "undefined") {
-					return data[name];
-				}
-				return {};
-			}
-		}
-		})()
-		
-		this.jnexport = (...exportData) => {
-			exportData.forEach(exportItem=>{
-				if(exportItem instanceof Array)
-				{
-					if(exportItem.length === 2)
-					{
-						this[exportItem[1]] = exportItem[0]
-					}
-				}
-				else
-				{
-					this[exportItem.name] = exportItem
-				}
-			})
-		};
-
-JS;
-
+			$file = new File(Application::getDocumentRoot()."/bitrix/js/mobileapp/platform.js");
+			$export = $file->getContents();
 			$inlineContent = <<<JS
 \n\n//-------- component '$this->name' ---------- 
 								
@@ -305,7 +274,22 @@ JS;
 
 	public function getPublicPath(): string
     {
-		return "/mobileapp/jn/{$this->name}/?version=" . $this->getVersion();
+		$name = ($this->namespace !== "bitrix" ? $this->namespace . ":" : "") . $this->name;
+		$name = urlencode($name);
+		return "/mobileapp/jn/$name/?version=" . $this->getVersion();
+	}
+
+	public function getLangMessages()
+	{
+		$langPhrases = parent::getLangMessages();
+		$extensions = $this->getDependencies();
+		foreach ($extensions as $extension)
+		{
+			$extensionPhrases = (new Extension($extension))->getLangMessages();
+			$langPhrases = array_merge($langPhrases, $extensionPhrases);
+		}
+
+		return $langPhrases;
 	}
 
 	public function getComponentDependencies(): ?array
@@ -346,7 +330,7 @@ JS;
 
 	private function getExtensionsContent($lazyLoad = false): string
     {
-		$content = '';
+		$content = "\n//extension '{$this->name}'\n";
 		$deps = $this->getDependencies();
 		if ($this->isHotreloadEnabled()) {
 			array_unshift($deps, 'hotreload');

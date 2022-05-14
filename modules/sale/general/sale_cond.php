@@ -223,41 +223,30 @@ class CSaleCondCtrlBasketGroup extends CSaleCondCtrlGroup
 		$sort = 200;
 		foreach ($controls as $controlId)
 		{
+			$row = array(
+				'ID' => $controlId,
+				'GROUP' => 'Y',
+				'GetControlShow' => array($className, 'GetControlShow'),
+				'GetConditionShow' => array($className, 'GetConditionShow'),
+				'IsGroup' => array($className, 'IsGroup'),
+				'Parse' => array($className, 'Parse'),
+				'Generate' => array($className, 'Generate'),
+				'ApplyValues' => array($className, 'ApplyValues'),
+				'InitParams' => array($className, 'InitParams'),
+				'SORT' => $sort,
+			);
+			if ($controlId !== 'CondBsktSubGroup' && $controlId !== 'CondBsktProductGroup')
+			{
+				$row['EXECUTE_MODULE'] = 'sale';
+			}
 			if ($controlId === 'CondCumulativeGroup')
 			{
-				$result[] = array(
-					'ID' => $controlId,
-					'GROUP' => 'Y',
-					'EXECUTE_MODULE' => 'sale',
-					'FORCED_SHOW_LIST' => array('Period', 'PeriodRelative'),
-					'GetControlShow' => array($className, 'GetControlShow'),
-					'GetConditionShow' => array($className, 'GetConditionShow'),
-					'IsGroup' => array($className, 'IsGroup'),
-					'Parse' => array($className, 'Parse'),
-					'Generate' => array($className, 'Generate'),
-					'ApplyValues' => array($className, 'ApplyValues'),
-					'InitParams' => array($className, 'InitParams'),
-					'SORT' => $sort,
-				);
+				$row['FORCED_SHOW_LIST'] = array('Period', 'PeriodRelative');
 			}
-			else
-			{
-				$result[] = array(
-					'ID' => $controlId,
-					'GROUP' => 'Y',
-					'GetControlShow' => array($className, 'GetControlShow'),
-					'GetConditionShow' => array($className, 'GetConditionShow'),
-					'IsGroup' => array($className, 'IsGroup'),
-					'Parse' => array($className, 'Parse'),
-					'Generate' => array($className, 'Generate'),
-					'ApplyValues' => array($className, 'ApplyValues'),
-					'InitParams' => array($className, 'InitParams'),
-					'SORT' => $sort,
-				);
-			}
+			$result[] = $row;
 			$sort++;
 		}
-		unset($controlId, $sort, $controls, $className);
+		unset($row, $controlId, $sort, $controls, $className);
 		return $result;
 	}
 

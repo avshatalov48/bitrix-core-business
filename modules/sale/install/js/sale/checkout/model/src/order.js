@@ -47,7 +47,7 @@ export class Order extends VuexBuilderModel
             result.id = parseInt(fields.id);
         }
 
-        if (Type.isNumber(fields.id) || Type.isString(fields.accountNumber))
+        if (Type.isNumber(fields.accountNumber) || Type.isString(fields.accountNumber))
         {
             result.accountNumber = fields.accountNumber.toString();
         }

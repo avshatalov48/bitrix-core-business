@@ -58,6 +58,11 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 
 	public function executeComponent()
 	{
+		if (\Bitrix\Main\Loader::includeModule('crm'))
+		{
+			CAllCrmInvoice::installExternalEntities();
+		}
+		
 		$this->init();
 		if (!$this->checkDocumentReadRights())
 		{
@@ -163,6 +168,11 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 				$gridColumns[$key]['color'] = Bitrix\Main\Grid\Column\Color::BLUE;
 				break;
 			}
+		}
+
+		if ($sortField === 'STATUS')
+		{
+			$gridSort['sort']['WAS_CANCELLED'] = $gridSort['sort']['STATUS'];
 		}
 
 		$result['COLUMNS'] = $gridColumns;
@@ -702,6 +712,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			'FILTER' => $this->filter->getFieldArrays(),
 			'FILTER_PRESETS' => [],
 			'ENABLE_LABEL' => true,
+			'THEME' => Bitrix\Main\UI\Filter\Theme::LIGHT,
 		];
 		\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter($filterOptions);
 
@@ -711,6 +722,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			'dataset' => [
 				'toolbar-collapsed-icon' => \Bitrix\UI\Buttons\Icon::ADD,
 			],
+			'classList' => ['add-document-button'],
 		]);
 		$analyticsSourcePart = $this->analyticsSource ? '&inventoryManagementSource=' . $this->analyticsSource : '';
 		if ($this->mode === self::OTHER_MODE)

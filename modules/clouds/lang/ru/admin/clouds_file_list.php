@@ -7,6 +7,8 @@ $MESS["CLO_STORAGE_FILE_DELETE"] = "Удалить";
 $MESS["CLO_STORAGE_FILE_DELETE_CONF"] = "Удалить файл без возможности восстановления?";
 $MESS["CLO_STORAGE_FILE_SHOW_DIR_SIZE"] = "Размеры каталогов";
 $MESS["CLO_STORAGE_FILE_SHOW_DIR_SIZE_TITLE"] = "Показать размеры каталогов с учетом вложенности";
+$MESS["CLO_STORAGE_FILE_REFRESH"] = "Обновить";
+$MESS["CLO_STORAGE_FILE_REFRESH_TITLE"] = "Обновить список файлов из облачного хранилища.";
 $MESS["CLO_STORAGE_FILE_LIST_ERROR"] = "Ошибка получения списка файлов";
 $MESS["CLO_STORAGE_FILE_UPLOAD_ERROR"] = "Ошибка выгрузки файла:";
 $MESS["CLO_STORAGE_FILE_EXISTS_ERROR"] = "Файл с таким именем уже загружен в облачное хранилище.";
@@ -17,6 +19,8 @@ $MESS["CLO_STORAGE_FILE_UPLOAD_DONE"] = "Выгрузка файла завер�
 $MESS["CLO_STORAGE_FILE_UPLOAD_PROGRESS"] = "
 Выгружено: <b>#bytes#</b> из <b>#file_size#</b>.
 ";
+$MESS["CLO_STORAGE_FILE_DELETE"] = "Удаление";
+$MESS["CLO_STORAGE_FILE_DELETE_PROGRESS"] = "Последний удалённый файл: <b>#last_deleted#</b>.";
 $MESS["CLO_STORAGE_FILE_STOP"] = "Остановить";
 $MESS["CLO_STORAGE_FILE_UPLOAD"] = "Новый файл";
 $MESS["CLO_STORAGE_FILE_UPLOAD_TITLE"] = "Выгрузить новый файл в облачное хранилище.";
@@ -24,4 +28,5 @@ $MESS["CLO_STORAGE_FILE_UPLOAD_BTN"] = "Выгрузить";
 $MESS["CLO_STORAGE_FILE_CANCEL_BTN"] = "Отмена";
 $MESS["CLO_STORAGE_FILE_UPLOAD_INPUT"] = "Файл";
 $MESS["CLO_STORAGE_FILE_PATH_INPUT"] = "Путь";
+$MESS["CLO_STORAGE_FILE_LISTING"] = "Получение списка файлов из облачного хранилища";
 ?>

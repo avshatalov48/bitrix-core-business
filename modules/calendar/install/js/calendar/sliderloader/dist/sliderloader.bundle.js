@@ -49,6 +49,10 @@ this.BX = this.BX || {};
 	      this.extensionParams.locationCapacity = options.locationCapacity;
 	    }
 
+	    if (options.dayOfWeekMonthFormat) {
+	      this.extensionParams.dayOfWeekMonthFormat = options.dayOfWeekMonthFormat;
+	    }
+
 	    if (main_core.Type.isDate(options.entryDateFrom)) {
 	      this.extensionParams.entryDateFrom = options.entryDateFrom;
 	    }

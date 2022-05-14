@@ -35,23 +35,18 @@ class BasketBuilderNew implements IBasketBuilderDelegate
 		$basket->setFUserId($fUserId);
 	}
 
+	/**
+	 * Get item from current basket
+	 * 
+	 * Search only by $basketCode !!!
+	 *
+	 * @param string|int $basketCode
+	 * @param array $productData not used
+	 * @return BasketItem|null
+	 */
 	public function getItemFromBasket($basketCode, $productData)
 	{
-		if(empty($productData['MANUALLY_EDITED']))
-		{
-			$item = $this->builder->getBasket()->getExistsItem($productData["MODULE"], $productData["OFFER_ID"], $productData["PROPS"]);
-		}
-		else
-		{
-			$item = $this->builder->getBasket()->getItemByBasketCode($basketCode);
-		}
-
-		if($item == null && $basketCode != BasketBuilder::BASKET_CODE_NEW)
-		{
-			$item = $this->builder->getBasket()->getItemByBasketCode($basketCode);
-		}
-
-		return $item;
+		return $this->builder->getBasket()->getItemByBasketCode($basketCode);
 	}
 
 	/**

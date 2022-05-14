@@ -982,11 +982,22 @@ export class Row
 		// price can't be less than zero
 		if (mode === MODE_SET)
 		{
-			const wrapper = this.getNode().querySelector('[data-name=' + fieldName + '_AMOUNT]');
-			if (wrapper)
-			{
-				const amount = this.model.getStoreCollection().getStoreAmount(value) || 0;
-				wrapper.innerHTML = amount + ' ' + Text.encode(this.getField('MEASURE_NAME'));
+			let amount;
+
+			const amounts = {
+				'_AMOUNT': () => this.model.getStoreCollection().getStoreAmount(value),
+				'_RESERVED': () => this.model.getStoreCollection().getStoreReserved(value),
+				'_AVAILABLE_AMOUNT': () => this.model.getStoreCollection().getStoreAvailableAmount(value),
+			};
+			for (const postfix in amounts) {
+				if (Object.hasOwnProperty.call(amounts, postfix)) {
+					const wrapper = this.getNode().querySelector('[data-name=' + fieldName + postfix + ']');
+					if (wrapper)
+					{
+						amount = amounts[postfix]() || 0;
+						wrapper.innerHTML = amount + ' ' + Text.encode(this.getField('MEASURE_NAME'));
+					}
+				}
 			}
 		}
 	}

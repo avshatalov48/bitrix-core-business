@@ -82,7 +82,7 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 <script>
 	function reloadGrid()
 	{
-		var grid = BX.Main.gridManager.getInstanceById('<?= $arResult['GRID']['GRID_ID'] ?>');
+		var grid = BX.Main.gridManager.getInstanceById('<?= CUtil::JSEscape($arResult['GRID']['GRID_ID']) ?>');
 		if (grid)
 		{
 			grid.reload();
@@ -101,6 +101,25 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 		BX.SidePanel.Instance.open(url, options);
 	}
 
+	function resetAddDocumentButton()
+	{
+		const addDocumentButton = document.querySelector('.add-document-button');
+
+		if (!addDocumentButton)
+		{
+			return;
+		}
+
+		let link = addDocumentButton.getAttribute('href');
+		const uri = new BX.Uri(link);
+		if (uri.getQueryParam('DOCUMENT_TYPE') === 'S')
+		{
+			uri.removeQueryParam(['firstTime']);
+			uri.setQueryParam('DOCUMENT_TYPE', 'A');
+			addDocumentButton.href = uri.toString();
+		}
+	}
+
 	BX.ready(function() {
 		BX.Catalog.DocumentGridManager.Instance = new BX.Catalog.DocumentGridManager({
 			gridId: '<?= $arResult['GRID']['GRID_ID'] ?>',
@@ -112,6 +131,10 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 
 	BX.addCustomEvent('DocumentCard:onDocumentCardSave', function(event) {
 		reloadGrid();
+	});
+
+	BX.addCustomEvent('DocumentCard:onEntityCreate', function(event) {
+		resetAddDocumentButton();
 	});
 
 	BX.addCustomEvent('SidePanel.Slider:onMessage', function (event) {

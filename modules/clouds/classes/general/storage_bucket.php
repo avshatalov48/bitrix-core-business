@@ -400,7 +400,7 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 	 * @param string $filePath
 	 * @return bool
 	*/
-	function DeleteFile($filePath)
+	function DeleteFile($filePath, $fileSize = null)
 	{
 		$result = $this->service->DeleteFile($this->arBucket, $filePath);
 		if ($result)
@@ -410,9 +410,13 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 				CCloudFailover::queueDelete($this, $filePath);
 			}
 
-			foreach(GetModuleEvents("clouds", "OnAfterDeleteFile", true) as $arEvent)
+			$eventData = [
+				'del' => 'Y',
+				'size' => $fileSize,
+			];
+			foreach (GetModuleEvents("clouds", "OnAfterDeleteFile", true) as $arEvent)
 			{
-				ExecuteModuleEventEx($arEvent, array($this, array('del' => 'Y'), $filePath));
+				ExecuteModuleEventEx($arEvent, array($this, $eventData, $filePath));
 			}
 		}
 		return $result;

@@ -49,8 +49,14 @@ class Path
 			case 'group_calendar_path_template':
 				$result = self::get('group_path_template', $siteId) . 'calendar/';
 				break;
+			case 'group_users_path_template':
+				$result = self::get('group_path_template', $siteId) . 'users/';
+				break;
 			case 'group_requests_path_template':
 				$result = self::get('group_path_template', $siteId) . 'requests/';
+				break;
+			case 'group_requests_out_path_template':
+				$result = self::get('group_path_template', $siteId) . 'requests_out/';
 				break;
 			case 'department_path_template':
 				$result = Option::get('main', 'TOOLTIP_PATH_TO_CONPANY_DEPARTMENT', self::getDefault('TOOLTIP_PATH_TO_CONPANY_DEPARTMENT', $siteId), $siteId);

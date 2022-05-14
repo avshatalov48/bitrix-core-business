@@ -25,7 +25,6 @@ class Order extends Base
 			'USER_ID'=>[
 				'TYPE'=>self::TYPE_INT,
 				'ATTRIBUTES'=>[
-					Attributes::Required,
 					Attributes::Immutable
 				]
 			],

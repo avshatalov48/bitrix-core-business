@@ -1292,6 +1292,29 @@ class ShipmentCollection
 
 	/**
 	 * @param BasketItem $basketItem
+	 * @return float|int
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ObjectNotFoundException
+	 */
+	public function getBasketItemShippedQuantity(BasketItem $basketItem)
+	{
+		$quantity = 0;
+
+		/** @var Shipment $shipment */
+		foreach ($this->collection as $shipment)
+		{
+			if ($shipment->isShipped())
+			{
+				$quantity += $shipment->getShipmentItemCollection()->getBasketItemQuantity($basketItem);
+			}
+		}
+
+		return $quantity;
+	}
+
+	/**
+	 * @param BasketItem $basketItem
 	 * @param bool|false $includeSystemShipment
 	 *
 	 * @return bool

@@ -165,4 +165,14 @@ class BooleanType extends BaseType
 	{
 		return parent::renderAdminListView($userField, $additionalParameters);
 	}
+
+	public static function isMandatorySupported(): bool
+	{
+		return false;
+	}
+
+	public static function isMultiplicitySupported(): bool
+	{
+		return false;
+	}
 }

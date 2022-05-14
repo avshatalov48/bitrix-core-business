@@ -444,11 +444,17 @@ export default class Uploader {
 
 		this.packages.set(packItem.getId(), packItem);
 		EventEmitter.emit(this, 'onBusy');
-		packItem.subscribeOnce('done', ({target: p}) => {
+		packItem.subscribeOnce('done', ({target: p, data: {status}}) => {
 			const evDone = new BaseEvent();
 			evDone.setCompatData([{}, packageId, packItem, packItem.getServerResponse()]);
 			evDone.setData({package: packItem, response: packItem.getServerResponse()});
 			EventEmitter.emit(this, 'onDone', evDone);
+			// region Compatibility
+			if (status === 'failed')
+			{
+				EventEmitter.emit(this, 'onError', new BaseEvent({compatData: [{}, packageId, packItem.getServerResponse()]}));
+			}
+			// endregion Compatibility
 			this.packages.delete(p.getId());
 			if (this.packages.size <= 0)
 			{

@@ -74,7 +74,13 @@ ob_start();
 			#AFTER_HEADER#
 			#BEFORE#
 			<div class="post-comment-wrap-outer">
-				<div class="post-comment-wrap" bx-content-view-xml-id="#CONTENT_ID#" id="post-comment-wrap-#CONTENT_ID#" bx-content-view-save="N" bx-mpl-block="body">
+				<div
+				 class="post-comment-wrap"
+				 bx-content-view-xml-id="#CONTENT_ID#"
+				 bx-content-view-save="N" bx-mpl-block="body"
+				 bx-content-view-key="#CONTENT_VIEW_KEY#"
+				 bx-content-view-key-signed="#CONTENT_VIEW_KEY_SIGNED#"
+				 id="post-comment-wrap-#CONTENT_ID#">
 					<div class="post-comment-text" id="record-#FULL_ID#-text" bx-mpl-block="text">#TEXT#</div>
 				</div>
 				<div class="post-comment-more" onclick="mobileExpand(this, event)" bx-mpl-block="more-button"><div class="post-comment-more-but"></div></div>
@@ -415,7 +421,10 @@ if ($this->__component->__parent instanceof \Bitrix\Main\Engine\Contract\Control
 
 				SHOW_POST_FORM : '<?=CUtil::JSEscape($arParams["SHOW_POST_FORM"])?>',
 				BIND_VIEWER : '<?=$arParams["BIND_VIEWER"]?>',
-				USE_LIVE : <?=(isset($arParams["USE_LIVE"]) && !$arParams["USE_LIVE"] ? 'false' : 'true')?>
+				USE_LIVE : <?=(isset($arParams["USE_LIVE"]) && !$arParams["USE_LIVE"] ? 'false' : 'true')?>,
+
+				CONTENT_VIEW_KEY : '<?= CUtil::JSEscape($arParams['CONTENT_VIEW_KEY'] ?? '') ?>',
+				CONTENT_VIEW_KEY_SIGNED : '<?= CUtil::JSEscape($arParams['CONTENT_VIEW_KEY_SIGNED'] ?? '') ?>',
 			},
 			{
 				id : '<?=CUtil::JSEscape($arParams["FORM"]["ID"])?>',

@@ -1,9 +1,17 @@
 (function (exports,main_core,main_core_events) {
 	'use strict';
 
-	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } return value; }
+	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "set"); _classApplyDescriptorSet(receiver, descriptor, value); return value; }
 
-	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+	function _classApplyDescriptorSet(receiver, descriptor, value) { if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } }
+
+	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
+
+	function _classCheckPrivateStaticFieldDescriptor(descriptor, action) { if (descriptor === undefined) { throw new TypeError("attempted to " + action + " private static field before its declaration"); } }
+
+	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+
+	function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
 
 	var Options = /*#__PURE__*/function () {
 	  function Options() {
@@ -372,7 +380,8 @@
 	          data: response
 	        });
 	      }).catch(function (_ref2) {
-	        var errors = _ref2.errors;
+	        var errors = _ref2.errors,
+	            data = _ref2.data;
 
 	        _this2.done({
 	          status: 'failed',
@@ -380,7 +389,14 @@
 	            var code = _ref3.code,
 	                message = _ref3.message;
 	            return message;
-	          })
+	          }),
+	          data: data
+	        });
+	      }).catch(function (response) {
+	        _this2.done({
+	          status: 'failed',
+	          errors: ['Unexpected server response.'],
+	          data: response
 	        });
 	      });
 	    }
@@ -416,7 +432,11 @@
 	  return Stream;
 	}(main_core_events.EventEmitter);
 
-	var _currentFileToUpload = new WeakMap();
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	var _currentFileToUpload = /*#__PURE__*/new WeakMap();
 
 	var PackageFile = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(PackageFile, _EventEmitter);
@@ -433,7 +453,7 @@
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "packPercent", 0);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "uploadStatus", null);
 
-	    _currentFileToUpload.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _currentFileToUpload, {
 	      writable: true,
 	      value: null
 	    });
@@ -709,9 +729,13 @@
 	  }
 	};
 
-	var _formDataFilesCount = new WeakMap();
+	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
 
-	var _formDataSize = new WeakMap();
+	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	var _formDataFilesCount = /*#__PURE__*/new WeakMap();
+
+	var _formDataSize = /*#__PURE__*/new WeakMap();
 
 	var Package = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Package, _EventEmitter);
@@ -731,12 +755,12 @@
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "filesInprogress", new Set());
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "files", new Map());
 
-	    _formDataFilesCount.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _formDataFilesCount, {
 	      writable: true,
 	      value: 0
 	    });
 
-	    _formDataSize.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _formDataSize, {
 	      writable: true,
 	      value: 0
 	    });
@@ -957,7 +981,10 @@
 
 	      if (status === 'success') {
 	        this.parseResponse(data);
-	        this.doStreaming(stream);
+
+	        if (this.errors.length <= 0) {
+	          this.doStreaming(stream);
+	        }
 	      } else {
 	        this.error(errors.join('. '));
 	      }
@@ -1063,7 +1090,8 @@
 	          response: {
 	            error: errorText,
 	            status: 'failed'
-	          }
+	          },
+	          serverResponse: Object.assign({}, _this7.response)
 	        });
 	      };
 
@@ -1094,9 +1122,15 @@
 	  return Package;
 	}(main_core_events.EventEmitter);
 
-	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } return method; }
+	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess$1(receiver, classConstructor); return method; }
 
-	function _classStaticPrivateFieldSpecGet$1(receiver, classConstructor, descriptor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+	function _classStaticPrivateFieldSpecGet$1(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess$1(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor$1(descriptor, "get"); return _classApplyDescriptorGet$1(receiver, descriptor); }
+
+	function _classCheckPrivateStaticFieldDescriptor$1(descriptor, action) { if (descriptor === undefined) { throw new TypeError("attempted to " + action + " private static field before its declaration"); } }
+
+	function _classCheckPrivateStaticAccess$1(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+
+	function _classApplyDescriptorGet$1(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
 
 	var Streams = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Streams, _EventEmitter);
@@ -1128,7 +1162,15 @@
 	  return Streams;
 	}(main_core_events.EventEmitter);
 
-	var _runPackage = function _runPackage(pack) {
+	function _catchWindow(event) {
+	  if (_classStaticPrivateFieldSpecGet$1(this, Streams, _packages).size > 0 || _classStaticPrivateFieldSpecGet$1(this, Streams, _instance).size > 0) {
+	    var confirmationMessage = main_core.Loc.getMessage('UPLOADER_UPLOADING_ONBEFOREUNLOAD');
+	    (event || window.event).returnValue = confirmationMessage;
+	    return confirmationMessage;
+	  }
+	}
+
+	function _runPackage(pack) {
 	  var _this = this;
 
 	  var stream = new Stream();
@@ -1154,15 +1196,7 @@
 	    }
 	  });
 	  pack.run(stream);
-	};
-
-	var _catchWindow = function _catchWindow(event) {
-	  if (_classStaticPrivateFieldSpecGet$1(this, Streams, _packages).size > 0 || _classStaticPrivateFieldSpecGet$1(this, Streams, _instance).size > 0) {
-	    var confirmationMessage = main_core.Loc.getMessage('UPLOADER_UPLOADING_ONBEFOREUNLOAD');
-	    (event || window.event).returnValue = confirmationMessage;
-	    return confirmationMessage;
-	  }
-	};
+	}
 
 	babelHelpers.defineProperty(Streams, "maxInstances", 3);
 	var _instance = {
@@ -2711,14 +2745,22 @@
 	      this.packages.set(packItem.getId(), packItem);
 	      main_core_events.EventEmitter.emit(this, 'onBusy');
 	      packItem.subscribeOnce('done', function (_ref5) {
-	        var p = _ref5.target;
+	        var p = _ref5.target,
+	            status = _ref5.data.status;
 	        var evDone = new main_core_events.BaseEvent();
 	        evDone.setCompatData([{}, packageId, packItem, packItem.getServerResponse()]);
 	        evDone.setData({
 	          package: packItem,
 	          response: packItem.getServerResponse()
 	        });
-	        main_core_events.EventEmitter.emit(_this3, 'onDone', evDone);
+	        main_core_events.EventEmitter.emit(_this3, 'onDone', evDone); // region Compatibility
+
+	        if (status === 'failed') {
+	          main_core_events.EventEmitter.emit(_this3, 'onError', new main_core_events.BaseEvent({
+	            compatData: [{}, packageId, packItem.getServerResponse()]
+	          }));
+	        } // endregion Compatibility
+
 
 	        _this3.packages.delete(p.getId());
 

@@ -133,6 +133,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }, {
 	    key: "init",
 	    value: function init(params) {
+	      var _this = this;
+
 	      if (this.inited !== true) {
 	        this.inited = true;
 	        this.lazyLoad = !main_core.Type.isUndefined(params.lazyLoad) ? !!params.lazyLoad : false;
@@ -140,7 +142,46 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        this.container = main_core.Type.isDomNode(params.container) ? params.container : null;
 	        this.containerMicro = main_core.Type.isDomNode(params.containerMicro) ? params.containerMicro : null;
 	        this.containerMicroInner = main_core.Type.isDomNode(params.containerMicroInner) ? params.containerMicroInner : null;
-	        this.successPostId = !main_core.Type.isUndefined(params.successPostId) && parseInt(params.successPostId) > 0 ? parseInt(params.successPostId) : 0;
+	        this.successPostId = !main_core.Type.isUndefined(params.successPostId) && parseInt(params.successPostId) > 0 ? parseInt(params.successPostId) : 0; //region dnd
+
+	        if (this.containerMicro) {
+	          this.containerMicro.setAttribute('dropzone', 'copy f:*\/*');
+	          var timerListenEnter = 0;
+
+	          var stopListenEnter = function stopListenEnter(event) {
+	            if (timerListenEnter > 0) {
+	              clearTimeout(timerListenEnter);
+	              timerListenEnter = 0;
+	            }
+
+	            event.stopPropagation();
+	            event.preventDefault();
+	          };
+
+	          var fireDragEnter = function fireDragEnter(event) {
+	            stopListenEnter(event);
+
+	            _this.containerMicro.click();
+	          };
+
+	          var startListenEnter = function startListenEnter(event) {
+	            if (timerListenEnter <= 0) {
+	              timerListenEnter = setTimeout(function () {
+	                fireDragEnter(event);
+	              }, 3000);
+	            }
+
+	            event.stopPropagation();
+	            event.preventDefault();
+	          };
+
+	          this.containerMicro.addEventListener('dragover', startListenEnter);
+	          this.containerMicro.addEventListener('dragenter', startListenEnter);
+	          this.containerMicro.addEventListener('dragleave', stopListenEnter);
+	          this.containerMicro.addEventListener('dragexit', stopListenEnter);
+	          this.containerMicro.addEventListener('drop', stopListenEnter);
+	        } //region
+
 	      }
 
 	      var sliderInstance = BX.SidePanel.Instance.getTopSlider();
@@ -161,7 +202,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }, {
 	    key: "get",
 	    value: function get(params) {
-	      var _this = this;
+	      var _this2 = this;
 
 	      if (this.clickDisabled) {
 	        return;
@@ -187,21 +228,21 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	            sessid: main_core.Loc.getMessage('bitrix_sessid')
 	          },
 	          onsuccess: function onsuccess(result) {
-	            _this.loaded = true;
-	            _this.clickDisabled = false;
+	            _this2.loaded = true;
+	            _this2.clickDisabled = false;
 
-	            _this.closeWait();
+	            _this2.closeWait();
 
 	            if (result.success) {
-	              _this.processAjaxBlock(result.PROPS, params.callback);
+	              _this2.processAjaxBlock(result.PROPS, params.callback);
 	            }
 	          },
 	          onfailure: function onfailure() {
-	            _this.clickDisabled = false;
+	            _this2.clickDisabled = false;
 
-	            _this.closeWait();
+	            _this2.closeWait();
 
-	            _this.containerMicroInner.style.display = 'block';
+	            _this2.containerMicroInner.style.display = 'block';
 	          }
 	        });
 	      } else if (main_core.Type.isFunction(params.callback)) {
@@ -211,7 +252,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }, {
 	    key: "processAjaxBlock",
 	    value: function processAjaxBlock(block, callbackExternal) {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      if (!block) {
 	        return;
@@ -219,7 +260,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 
 	      var processor = new AjaxProcessor();
 	      processor.processCSS(block, function () {
-	        processor.processAjaxBlockInsertHTML(block, _this2.container, callbackExternal);
+	        processor.processAjaxBlockInsertHTML(block, _this3.container, callbackExternal);
 	      });
 	      processor.processExternalJS(block, function () {
 	        processor.processInlineJS(block, callbackExternal);
@@ -228,7 +269,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }, {
 	    key: "showWait",
 	    value: function showWait(node) {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      var waiterNode = node.bxmsg = document.body.appendChild(main_core.Dom.create('DIV', {
 	        props: {
@@ -238,7 +279,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        html: '<svg class="feed-add-post-loader" viewBox="25 25 50 50"><circle class="feed-add-post-loader-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"></circle><circle class="feed-add-post-loader-inner-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"></circle></svg>'
 	      }));
 	      setTimeout(function () {
-	        _this3.adjustWait(node);
+	        _this4.adjustWait(node);
 	      }, 10);
 	      this.lastWait.push(waiterNode);
 	      return waiterNode;
@@ -890,42 +931,46 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          ENABLE_FORM: 'N',
 	          BACKURL: main_core.Loc.getMessage('TASK_SUBMIT_BACKURL')
 	        };
-	        BX.Tasks.Util.Query.runOnce('ui.task.edit', {
-	          parameters: {
-	            COMPONENT_PARAMETERS: componentParameters
+	        main_core.ajax.runComponentAction('bitrix:tasks.task', 'uiEdit', {
+	          mode: 'class',
+	          data: {
+	            parameters: {
+	              COMPONENT_PARAMETERS: componentParameters
+	            }
 	          }
-	        }).then(function (result) {
-	          if (result.isSuccess()) {
-	            main_core.Runtime.html(contentContainer, result.getData());
-	            main_core.Dom.adjust(content, {
-	              style: {
-	                display: 'block'
-	              }
+	        }).then(function (response) {
+	          main_core.Runtime.html(null, response.data.asset.join(' ')).then(function () {
+	            main_core.Runtime.html(contentContainer, response.data.html).then(function () {
+	              _this6.clickDisabled = false;
+
+	              _this6.closeWait(contentContainer);
+
+	              _this6.endAnimation();
+
+	              main_core_events.EventEmitter.emit(document.getElementById('divlivefeed_task_form'), 'OnShowLHE', new main_core_events.BaseEvent({
+	                compatData: ['justShow']
+	              }));
 	            });
-	            return true;
-	          } else {
-	            _this6.closeWait(contentContainer);
-
-	            _this6.endAnimation();
-
-	            throw new Error(result.getErrors().getMessages().join(' '));
-	          }
-	        }, function (reason) {
-	          _this6.closeWait(contentContainer);
-
-	          _this6.endAnimation();
-
-	          throw new Error();
-	        }).then(function () {
+	          });
+	          main_core.Dom.adjust(content, {
+	            style: {
+	              display: 'block'
+	            }
+	          });
+	        }, function (response) {
 	          _this6.clickDisabled = false;
 
 	          _this6.closeWait(contentContainer);
 
 	          _this6.endAnimation();
 
-	          main_core_events.EventEmitter.emit(document.getElementById('divlivefeed_task_form'), 'OnShowLHE', new main_core_events.BaseEvent({
-	            compatData: ['justShow']
-	          }));
+	          if (response.errors && response.errors.length) {
+	            var errors = [];
+	            response.errors.forEach(function (error) {
+	              errors.push(error.message);
+	            });
+	            throw new Error(errors.join(' '));
+	          }
 	        });
 	      } else {
 	        this.startAnimation();
@@ -1290,7 +1335,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          onclick: _this2.onPopupItemClick.bind(_this2),
 	          dataset: {
 	            value: element.getAttribute('data-value'),
-	            class: element.getAttribute('data-class')
+	            "class": element.getAttribute('data-class')
 	          },
 	          text: element.getAttribute('data-text'),
 	          className: "menu-popup-item menu-popup-no-icon ".concat(element.getAttribute('data-class'))
@@ -1991,14 +2036,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          continue;
 	        }
 
-	        main_core.Dom.adjust(div[ii], {
-	          style: {
-	            display: 'block',
-	            height: 'auto',
-	            opacity: 1
-	          }
-	        });
-	        div[ii].style.padding = null;
+	        div[ii].classList.remove('feed-post-form-block-hidden');
 	      }
 
 	      if (this.formParams.showTitle) {
@@ -2015,13 +2053,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          continue;
 	        }
 
-	        main_core.Dom.adjust(div[ii], {
-	          style: {
-	            display: 'block',
-	            height: '0',
-	            opacity: 0
-	          }
-	        });
+	        div[ii].classList.add('feed-post-form-block-hidden');
 	      }
 
 	      if (this.formParams.showTitle) {

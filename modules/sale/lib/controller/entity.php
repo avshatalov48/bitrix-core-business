@@ -37,6 +37,9 @@ class Entity extends \Bitrix\Main\Engine\Controller
 			'saveorder' => [
 				'class' => Action\Entity\SaveOrderAction::class,
 			],
+			'initiatepay' => [
+				'class' => Action\Entity\InitiatePayAction::class,
+			],
 		];
 	}
 }

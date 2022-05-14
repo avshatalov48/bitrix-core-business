@@ -17,7 +17,7 @@ class PayableBasketItem extends PayableItem
 		return Registry::ENTITY_PAYABLE_BASKET_ITEM;
 	}
 
-	protected static function getEntityType() : string
+	public static function getEntityType() : string
 	{
 		return Registry::ENTITY_BASKET_ITEM;
 	}

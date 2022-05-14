@@ -5,10 +5,17 @@ return [
 			'ru',
 		],
 	],
-	'lib/cashbox/cashboxrobokassa.php' => [
+	'lib/cashbox' => [
 		'languages' => [
 			'en',
 			'ru',
+		],
+	],
+	'lib/cashbox/cashboxcheckbox.php' => [
+		'languages' => [
+			'en',
+			'ru',
+			'ua',
 		],
 	],
 ];

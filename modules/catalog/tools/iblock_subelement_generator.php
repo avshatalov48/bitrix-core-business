@@ -747,9 +747,9 @@ else
 			<td class="adm-detail-content-cell-l"><?= GetMessage("IB_SEG_TITLE") ?>:</td>
 			<td class="adm-detail-content-cell-r" style="white-space: nowrap !important;">
 				<input type="text" style="width: 637px;" class="adm-input" id="IB_SEG_TITLE" name="IB_SEG_TITLE" >
-				<input type="button" id="IB_SEG_ADD_PROP_IN_TITLE" title="..." value="<?= GetMessage("IB_SEG_SKU_PROPERTIES") ?>">
-				<input type="button" id="IB_SEG_ADD_PROP_IN_TITLE2" title="..." value="<?= GetMessage("IB_SEG_PARENT_PROPERTIES") ?>">
-				<a class="adm-input-help-icon" onmouseover="BX.hint(this, '<?=GetMessage('IB_SEG_TOOLTIP_TITLE')?>')" href="#"></a>
+				<input type="button" id="IB_SEG_ADD_PROP_IN_TITLE" title="..." value="<?=htmlspecialcharsbx(GetMessage("IB_SEG_SKU_PROPERTIES")); ?>">
+				<input type="button" id="IB_SEG_ADD_PROP_IN_TITLE2" title="..." value="<?=htmlspecialcharsbx(GetMessage("IB_SEG_PARENT_PROPERTIES")); ?>">
+				<a class="adm-input-help-icon" onmouseover="BX.hint(this, '<?=htmlspecialcharsbx(CUtil::JSEscape(GetMessage('IB_SEG_TOOLTIP_TITLE'))); ?>')" href="#"></a>
 			</td>
 		</tr>
 		<tr>
@@ -762,7 +762,7 @@ else
 				<input type="text" id="CAT_BASE_WIDTH" name="IB_SEG_BASE_WIDTH" style="width: 120px;  margin-right: 10px">
 				<?echo GetMessage("IB_SEG_BASE_HEIGHT")?>:
 				<input type="text" id="CAT_BASE_HEIGHT" name="IB_SEG_BASE_HEIGHT" style="width: 120px;">
-				<a class="adm-input-help-icon" onmouseover="BX.hint(this, '<?=GetMessage('IB_SEG_TOOLTIP_WEIGHT')?>')" href="#"></a>
+				<a class="adm-input-help-icon" onmouseover="BX.hint(this, '<?=htmlspecialcharsbx(CUtil::JSEscape(GetMessage('IB_SEG_TOOLTIP_WEIGHT'))); ?>')" href="#"></a>
 			</td>
 		</tr>
 		<tr>
@@ -860,7 +860,7 @@ else
 <tr>
 	<td colspan="2" class="adm-detail-content-cell" style="padding-bottom: 0;">
 		<div class="adm-shop-toolbar">
-			<span class="adm-btn adm-btn-add" id="mnu_ADD_PROPERTY"><?= GetMessage("IB_SEG_PROPERTY_ADD") ?></span><span class="adm-btn adm-btn-download" id="mnu_ADD_ALL_PROPERTY" onclick="obPropertyTable.loadAllProperties()"><?= GetMessage("IB_SEG_PROPERTY_ADD_ALL") ?></span><a class="adm-input-help-icon" onmouseover="BX.hint(this, '<?=GetMessage('IB_SEG_TOOLTIP_PROPERTIES')?>')" href="#"></a>
+			<span class="adm-btn adm-btn-add" id="mnu_ADD_PROPERTY"><?= GetMessage("IB_SEG_PROPERTY_ADD") ?></span><span class="adm-btn adm-btn-download" id="mnu_ADD_ALL_PROPERTY" onclick="obPropertyTable.loadAllProperties()"><?= GetMessage("IB_SEG_PROPERTY_ADD_ALL") ?></span><a class="adm-input-help-icon" onmouseover="BX.hint(this, '<?=htmlspecialcharsbx(CUtil::JSEscape(GetMessage('IB_SEG_TOOLTIP_PROPERTIES'))); ?>')" href="#"></a>
 		</div>
 	</td>
 </tr>

@@ -383,7 +383,7 @@
 	vertical-align: middle;
 	color: #7a828c;
 	padding: 0 0 0 5px;
-	font: 14px/22px "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px/20px "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -4878,7 +4878,7 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 }
 
 .calendar-options-item-datetime .calendar-event-date-label {
-	max-width: 40px;
+	/*max-width: 40px;*/
 	overflow: inherit;
 	margin: 0 0 3px 0;
 	white-space: nowrap;
@@ -4906,7 +4906,7 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 
 .calendar-event-date-label-datetime,
 .calendar-options-item-datetime-hide-time .calendar-event-date-label-date {
-	overflow: auto;
+	/*overflow: auto;*/
 	width: auto;
 	height: auto;
 	opacity: 1;
@@ -5643,6 +5643,7 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 	min-height: 47px;
 	border-bottom: 1px solid #eeeff0;
 	background-color: #fff;
+	align-items: center;
 }
 
 /*
@@ -5693,6 +5694,14 @@ select:not(:-internal-list-box) { overflow: visible !important; }
 	font: 400 13px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	transition: 200ms all ease;
 	cursor: pointer;
+}
+
+.calendar-timeline-stream-content-event-recursive {
+	font: 400 11px/13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	opacity: 0.5;
+	color: #525c69;
+	padding-top: 3px;
+	display: block;
 }
 
 .calendar-timeline-stream-content-event-time-link:hover {

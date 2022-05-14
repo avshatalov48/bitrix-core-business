@@ -15,6 +15,7 @@ class CCloudStorage
 		null;
 
 	public static $file_skip_reason = '';
+	protected static $lockId = '';
 	/**
 	 * @return void
 	 */
@@ -831,6 +832,8 @@ class CCloudStorage
 			WHERE FILE_ID = ".intval($arFile["ID"])."
 		", true);
 
+		\Bitrix\Clouds\FileHashTable::deleteByFilePath($bucket->ID, "/".$arFile["SUBDIR"]."/".$arFile["FILE_NAME"]);
+
 		return $result;
 	}
 
@@ -1350,6 +1353,10 @@ class CCloudStorage
 				//control of duplicates
 				if($checkDuplicates && $arFile["FILE_HASH"] <> '')
 				{
+					if (is_callable(['CFile', 'lockFileHash']))
+					{
+						static::$lockId = CFile::lockFileHash($size, $arFile["FILE_HASH"], $bucket->ID);
+					}
 					$original = CFile::FindDuplicate($size, $arFile["FILE_HASH"], $bucket->ID);
 					if($original !== null)
 					{
@@ -1441,6 +1448,11 @@ class CCloudStorage
 			,$arFile["SUBDIR"]
 			,$arFile["FILE_NAME"]
 		);
+		if (static::$lockId)
+		{
+			CFile::unlockFileHash(static::$lockId);
+			static::$lockId = '';
+		}
 	}
 
 	public static function CleanUp()

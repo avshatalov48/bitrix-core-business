@@ -116,6 +116,7 @@ $MESS["BIZPROC_AUTOMATION_CMP_TITLE_LEAD_VIEW"] = "Поточний стан л�
 $MESS["BIZPROC_AUTOMATION_CMP_TO"] = "кому";
 $MESS["BIZPROC_AUTOMATION_CMP_TO_EXECUTE"] = "Виконати";
 $MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_ALLOW_REVERSE"] = "Дозволити переходити на попередній статус";
+$MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_EXECUTE_BY"] = "Змінювати стадію від імені";
 $MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_HELP_3"] = "Дія з боку клієнта, що автоматизує рух по статусах. Як тільки спрацює тригер, документ відразу перейде на потрібний статус, де спрацюють задані роботи.";
 $MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_LIST"] = "Тригери";
 $MESS["BIZPROC_AUTOMATION_CMP_TRIGGER_NAME"] = "Назва тригера";

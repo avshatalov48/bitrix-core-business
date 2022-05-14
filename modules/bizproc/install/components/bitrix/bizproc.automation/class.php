@@ -324,6 +324,7 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 			'IS_TEMPLATES_SCHEME_SUPPORTED' => $this->getIsTemplatesSchemeSupported(),
 			'TRIGGERS' => $triggers,
 			'AVAILABLE_TRIGGERS' => $target ? $target->getAvailableTriggers() : [],
+			'TRIGGER_CAN_SET_EXECUTE_BY' => $target && $target->canTriggerSetExecuteBy(),
 			'AVAILABLE_ROBOTS' => array_values($availableRobots),
 			'GLOBAL_CONSTANTS' => \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll($documentType),
 			'G_CONSTANTS_VISIBILITY' => \Bitrix\Bizproc\Workflow\Type\GlobalConst::getVisibilityFullNames($documentType),

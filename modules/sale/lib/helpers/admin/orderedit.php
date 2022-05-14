@@ -528,18 +528,31 @@ class OrderEdit
 			foreach($formData["PRODUCT"] as $basketCode => $productData)
 			{
 				if($productData["IS_SET_ITEM"] == "Y")
+				{
 					continue;
+				}
 
 				if(!isset($productData["PROPS"]) || !is_array($productData["PROPS"]))
+				{
 					$productData["PROPS"] = array();
+				}
 
-				$item = $basket->getExistsItem($productData["MODULE"], $productData["OFFER_ID"], $productData["PROPS"]);
+				// Always search only by $basketCode so that can add duplicates
+				$item =
+					$basketCode != self::BASKET_CODE_NEW
+					? $basket->getItemByBasketCode($basketCode)
+					: null
+				;
 
 				if($item == null && $basketCode != self::BASKET_CODE_NEW)
+				{
 					$item = $basket->getItemByBasketCode($basketCode);
+				}
 
 				if($item && $item->isBundleChild())
+				{
 					$item = null;
+				}
 
 				if($item)
 				{
@@ -830,21 +843,31 @@ class OrderEdit
 			foreach($formData["PRODUCT"] as $basketCode => $productData)
 			{
 				if (!isset($productData["PROPS"]))
+				{
 					$productData["PROPS"] = array();
+				}
 
-				$item = $basket->getExistsItem($productData["MODULE"], $productData["OFFER_ID"], $productData["PROPS"]);
+				// Always search only by $basketCode so that can add duplicates
+				$item =
+					$basketCode != self::BASKET_CODE_NEW
+					? $basket->getItemByBasketCode($basketCode)
+					: null
+				;
 
 				if ($item == null)
+				{
 					DiscountCouponsManager::useSavedCouponsForApply(false);
-
-				if($item == null && $basketCode != self::BASKET_CODE_NEW)
-					$item = $basket->getItemByBasketCode($basketCode);
+				}
 
 				if($item && $item->isBundleChild())
+				{
 					continue;
+				}
 
 				if(!$item)
+				{
 					continue;
+				}
 
 				$itemsBasketCodes[] = $item->getBasketCode();
 			}
@@ -887,15 +910,21 @@ class OrderEdit
 				$providerData = array();
 
 				if($productData["IS_SET_ITEM"] == "Y")
+				{
 					continue;
+				}
 
 				if(!isset($productData["PROPS"]) || !is_array($productData["PROPS"]))
+				{
 					$productData["PROPS"] = array();
+				}
 
-				if(empty($productData['MANUALLY_EDITED']))
-					$item = $basket->getExistsItem($productData["MODULE"], $productData["OFFER_ID"], $productData["PROPS"]);
-				else
-					$item = $basket->getItemByBasketCode($basketCode);
+				// Always search only by $basketCode so that can add duplicates
+				$item =
+					$basketCode != self::BASKET_CODE_NEW
+					? $basket->getItemByBasketCode($basketCode)
+					: null
+				;
 
 				//sku was changed
 				if($item == null && $basketCode != self::BASKET_CODE_NEW)

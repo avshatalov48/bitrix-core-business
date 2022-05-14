@@ -119,6 +119,15 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
       }
     });
 
+    var Check = Object.freeze({
+      status: {
+        new: 'N',
+        error: 'E',
+        process: 'P',
+        printed: 'Y'
+      }
+    });
+
     var Pool = Object.freeze({
       action: {
         offer: 'offer',
@@ -136,6 +145,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
     exports.Property = Property;
     exports.Consent = Consent;
     exports.Loader = Loader;
+    exports.Check = Check;
     exports.Pool = Pool;
 
 }((this.BX.Sale.Checkout.Const = this.BX.Sale.Checkout.Const || {})));

@@ -32,6 +32,11 @@ import TasksLimit from "./taskslimit";
 		reinitData: function(editorID, text, data)
 		{
 			const files = {};
+			if (!Type.isPlainObject(data))
+			{
+				data = {};
+			}
+
 			Object.entries(data).forEach(([userFieldName, userField]) => {
 				if (Type.isPlainObject(userField)
 					&& userField['USER_TYPE_ID']

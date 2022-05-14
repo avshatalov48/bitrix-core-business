@@ -3,6 +3,8 @@
 namespace Bitrix\Sale;
 
 use Bitrix\Main;
+use Bitrix\Main\DI\ServiceLocator;
+use Bitrix\Sale\Reservation\BasketReservationService;
 
 class ReserveQuantityCollection extends Internals\EntityCollection
 {
@@ -211,7 +213,9 @@ class ReserveQuantityCollection extends Internals\EntityCollection
 	 */
 	protected static function deleteInternal($primary)
 	{
-		return Reservation\Internals\BasketReservationTable::delete($primary);
+		/** @var BasketReservationService */
+		$service = ServiceLocator::getInstance()->get('sale.basketReservation');
+		return $service->delete($primary);
 	}
 
 	/**

@@ -594,12 +594,12 @@ if (
 
 		if ($request->get('flt_date_from'))
 		{
-			$uriParams['flt_date_from'] = preg_replace('/[^0-9\/]/', '', $request->get('flt_date_from'));
+			$uriParams['flt_date_from'] = ConvertTimeStamp(MakeTimeStamp($request->get('flt_date_from')));
 		}
 
 		if ($request->get('flt_date_to'))
 		{
-			$uriParams['flt_date_to'] = preg_replace('/[^0-9\/]/', '', $request->get('flt_date_to'));
+			$uriParams['flt_date_to'] = ConvertTimeStamp(MakeTimeStamp($request->get('flt_date_to')));
 		}
 
 		$uri->addParams($uriParams);

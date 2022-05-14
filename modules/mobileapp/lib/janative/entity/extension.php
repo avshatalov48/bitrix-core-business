@@ -11,8 +11,10 @@ class Extension extends Base
 {
 	protected static $modificationDates = [];
 	protected static $dependencies = [];
+
 	/**
 	 * Extension constructor.
+	 *
 	 * @param $identifier
 	 * @throws \Exception
 	 */
@@ -29,16 +31,32 @@ class Extension extends Base
 		}
 	}
 
+	private function getBundleContent(): string
+	{
+		$files = $this->getBundleFiles();
+		$content = "";
+		foreach ($files as $path)
+		{
+			$file = new File($path);
+			if ($file->isExists())
+			{
+				$content .= "\n".$file->getContents()."\n";
+			}
+		}
+
+		return $content;
+	}
+
 	/**
 	 * Returns content of extension without depending extensions
+	 *
 	 * @return string
 	 * @throws \Bitrix\Main\IO\FileNotFoundException
 	 */
 	public function getContent(): string
-    {
-		$content = "\n//extension '{$this->name}'\n";
-		$content .=$this->getLangDefinitionExpression();
-		$extensionFile = new File($this->path . '/extension.js');
+	{
+		$content = "";
+		$extensionFile = new File($this->path . '/' . $this->baseFileName . '.js');
 		if ($extensionData = $this->getResult())
 		{
 			if ($extensionData !== '')
@@ -51,6 +69,7 @@ JS;
 
 		if ($extensionFile->isExists() && $extensionContent = $extensionFile->getContents())
 		{
+			$content .= $this->getBundleContent();
 			$content .= $extensionContent;
 		}
 
@@ -68,7 +87,8 @@ JS;
 			$result = include($file->getPath());
 		}
 
-		if (is_array($result) && count($result) > 0 ) {
+		if (is_array($result) && count($result) > 0)
+		{
 			return json_encode($result);
 		}
 
@@ -86,9 +106,9 @@ JS;
 		return $content;
 	}
 
-
 	/**
 	 * Returns list of dependencies by name of extensions
+	 *
 	 * @param $name
 	 * @param array $list
 	 * @param array $alreadyResolved
@@ -96,7 +116,7 @@ JS;
 	 * @throws \Exception
 	 */
 	public static function getResolvedDependencyList($name, &$list = [], &$alreadyResolved = []): array
-    {
+	{
 		$baseExtension = new Extension($name);
 		$depsList = $baseExtension->getDependencyList();
 		$alreadyResolved[] = $name;
@@ -132,7 +152,8 @@ JS;
 	 * @throws \Exception
 	 */
 	protected function resolveDependencies(): array
-    {
-		return self::getResolvedDependencyList($this->name);
+	{
+		$name = ($this->namespace !== "bitrix" ? $this->namespace . ":" : "") . $this->name;
+		return self::getResolvedDependencyList($name);
 	}
 }

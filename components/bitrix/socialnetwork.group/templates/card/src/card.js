@@ -10,9 +10,16 @@ class WorkgroupCard
 	{
 		this.instance = null;
 		this.currentUserId = null;
+
 		this.userRole = null;
+		this.userIsMember = null;
+		this.userIsAutoMember = null;
+		this.userIsScrumMaster = null;
+
 		this.canInitiate = null;
 		this.canModify = null;
+		this.canLeave = null;
+
 		this.groupId = null;
 		this.isProject = null;
 		this.isScrumProject = null;
@@ -38,17 +45,32 @@ class WorkgroupCard
 		}
 
 		this.currentUserId = parseInt(params.currentUserId);
+
 		this.groupId = parseInt(params.groupId);
 		this.groupType = params.groupType;
 		this.isProject = !!params.isProject;
 		this.isScrumProject = !!params.isScrumProject;
 		this.isOpened = !!params.isOpened;
-		this.canInitiate = !!params.canInitiate;
-		this.canProcessRequestsIn = !!params.canProcessRequestsIn;
-		this.canModify = !!params.canModify;
+
 		this.userRole = params.userRole;
 		this.userIsMember = !!params.userIsMember;
 		this.userIsAutoMember = !!params.userIsAutoMember;
+		this.userIsScrumMaster = this.isScrumProject && (Type.isBoolean(params.userIsScrumMaster) ? params.userIsScrumMaster : false);
+
+		this.canInitiate = !!params.canInitiate;
+		this.canProcessRequestsIn = !!params.canProcessRequestsIn;
+		this.canModify = !!params.canModify;
+		this.canLeave = (
+			Type.isBoolean(params.canLeave)
+				? params.canLeave
+				: (
+					this.userIsMember
+					&& this.userRole !== 'A'
+					&& !this.userIsAutoMember
+					&& !this.userIsScrumMaster
+				)
+		);
+
 		this.containerNode = (Type.isStringFilled(params.containerNodeId) ? document.getElementById(params.containerNodeId) : null);
 		this.menuButtonNode = (Type.isStringFilled(params.menuButtonNodeId) ? document.getElementById(params.menuButtonNodeId) : null);
 		this.editFeaturesAllowed = (!Type.isUndefined(params.editFeaturesAllowed) ? !!params.editFeaturesAllowed : true);
@@ -133,6 +155,7 @@ class WorkgroupCard
 					groupType: this.groupType,
 					userIsMember: this.userIsMember,
 					userIsAutoMember: this.userIsAutoMember,
+					userIsScrumMaster: this.userIsScrumMaster,
 					userRole: this.userRole,
 					editFeaturesAllowed: this.editFeaturesAllowed,
 					copyFeatureAllowed: this.copyFeatureAllowed,
@@ -142,7 +165,8 @@ class WorkgroupCard
 					perms: {
 						canInitiate: this.canInitiate,
 						canProcessRequestsIn: this.canProcessRequestsIn,
-						canModify: this.canModify
+						canModify: this.canModify,
+						canLeave: this.canLeave,
 					},
 					urls: {
 						requestUser: Loc.getMessage('SGCSPathToRequestUser'),

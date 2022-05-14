@@ -195,3 +195,7 @@
 	height: 6px;
 	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20viewBox%3D%220%200%2010%206%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20opacity%3D%220.5%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M8.30607%200.754272L5.66529%203.39505L4.99999%204.05006L4.3473%203.39505L1.70652%200.754272L0.774669%201.68613L5.00626%205.91772L9.23785%201.68613L8.30607%200.754272Z%22%20fill%3D%22%23525C69%22/%3E%0A%3C/svg%3E%0A') no-repeat;
 }
+
+.ui-toolbar-before-title {
+	padding-right: 12px;
+}

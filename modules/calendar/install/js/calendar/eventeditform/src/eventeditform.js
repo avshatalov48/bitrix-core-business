@@ -34,6 +34,7 @@ export class EventEditForm
 		this.isLocationCalendar = options.isLocationCalendar || false;
 		this.locationAccess = options.locationAccess || false;
 		this.locationCapacity = options.locationCapacity || 0;
+		this.dayOfWeekMonthFormat = options.dayOfWeekMonthFormat || false;
 		this.roomsManager = options.roomsManager || null;
 		this.userId = options.userId || parseInt(Loc.getMessage('USER_ID'));
 		this.ownerId = options.ownerId;
@@ -355,7 +356,7 @@ export class EventEditForm
 				markType: this.type
 			}
 		}).then((response) => {
-				if(this.isLocationCalendar)
+				if (this.isLocationCalendar)
 				{
 					this.roomsManager.unsetHiddenRoom(
 						Location.parseStringValue(this.DOM.form.location.value).room_id
@@ -503,7 +504,7 @@ export class EventEditForm
 			Event.unbind(document, 'keydown', this.keyHandlerBind);
 			EventEmitter.unsubscribe('onPullEvent-calendar', this.handlePullBind);
 			this.BX.SidePanel.Instance.destroy(this.sliderId);
-			if(Location)
+			if (Location)
 			{
 				Location.setCurrentCapacity(0);
 			}
@@ -571,6 +572,7 @@ export class EventEditForm
 						this.handleSections(params.sections, params.trackingUsersList);
 						this.handleLocationData(params.locationFeatureEnabled, params.locationList, params.iblockMeetingRoomList);
 						this.locationAccess = params.locationAccess;
+						this.dayOfWeekMonthFormat = params.dayOfWeekMonthFormat;
 						this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
 						if (this.planner && !this.plannerFeatureEnabled)
 						{
@@ -737,7 +739,7 @@ export class EventEditForm
 		}
 
 		// Location
-		if(this.locationSelector)
+		if (this.locationSelector)
 		{
 			this.locationSelector.setValue(this.formDataValue.location
 				|| this.locationSelector.default || entry.getLocation());
@@ -845,7 +847,7 @@ export class EventEditForm
 			Dom.removeClass(this.DOM.dateTimeWrap, 'calendar-options-item-datetime-hide-time');
 		}
 
-		if(this.remindersControl)
+		if (this.remindersControl)
 		{
 			this.remindersControl.setFullDayMode(value);
 		}
@@ -876,7 +878,7 @@ export class EventEditForm
 		this.DOM.additionalSwitch = this.DOM.content.querySelector(`#${uid}_additional_switch`);
 
 
-		if(this.isLocationCalendar && !this.fieldIsPinned('location'))
+		if (this.isLocationCalendar && !this.fieldIsPinned('location'))
 		{
 			this.pinField('location');
 		}
@@ -1212,6 +1214,7 @@ export class EventEditForm
 		this.planner = new Planner({
 			wrap: this.DOM.plannerOuterWrap,
 			minWidth: parseInt(this.DOM.plannerOuterWrap.offsetWidth),
+			dayOfWeekMonthFormat: this.dayOfWeekMonthFormat,
 			locked: !this.plannerFeatureEnabled
 		});
 
@@ -1789,28 +1792,28 @@ export class EventEditForm
 
 	checkLocationForm(event)
 	{
-		if(event && event instanceof BaseEvent)
+		if (event && event instanceof BaseEvent)
 		{
 			const data = event.getData();
 			const usersCount = data.usersCount;
 
-			if(this.locationCapacity !== 0)
+			if (this.locationCapacity !== 0)
 			{
 				Location.setCurrentCapacity(this.locationCapacity);
 				this.locationCapacity = 0;
 			}
 			let locationCapacity = Location.getCurrentCapacity() || 0;
 
-			if(this.locationSelector.value.type === undefined)
+			if (this.locationSelector.value.type === undefined)
 			{
-				if(locationCapacity)
+				if (locationCapacity)
 				{
 					locationCapacity = 0;
 					Location.setCurrentCapacity(0);
 				}
 			}
 
-			if(locationCapacity < usersCount && locationCapacity !== 0)
+			if (locationCapacity < usersCount && locationCapacity !== 0)
 			{
 				this.locationSelector.addCapacityAlert();
 			}
@@ -1828,7 +1831,7 @@ export class EventEditForm
 
 	keyHandler(e)
 	{
-		if((e.ctrlKey || e.metaKey) && !e.altKey && e.keyCode === Util.getKeyCode('enter'))
+		if ((e.ctrlKey || e.metaKey) && !e.altKey && e.keyCode === Util.getKeyCode('enter'))
 		{
 			this.save();
 		}

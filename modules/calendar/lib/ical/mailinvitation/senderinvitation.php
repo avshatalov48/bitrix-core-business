@@ -301,7 +301,7 @@ abstract class SenderInvitation implements Serializable
 		{
 			$this->event['TEXT_LOCATION'] = $this->event['TEXT_LOCATION']['NEW'];
 		}
-		else
+		elseif (!is_string($this->event['TEXT_LOCATION']))
 		{
 			$this->event['TEXT_LOCATION'] = null;
 		}

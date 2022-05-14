@@ -311,12 +311,16 @@ class MainUserConsentEditComponent extends CBitrixComponent
 					'onclick' => 'BX.Main.UserConsent.Edit.showSettingsTab();',
 				],
 			],
-			'list' => [
+		];
+
+		if ($this->arParams['ID'])
+		{
+			$this->arResult['MENU_ITEMS']['list'] = [
 				'NAME' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_TAB_LIST'),
 				'ATTRIBUTES' => [
 					'onclick' => 'BX.Main.UserConsent.Edit.showListTab();',
 				],
-			],
-		];
+			];
+		}
 	}
 }

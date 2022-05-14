@@ -158,8 +158,8 @@ export class Circle
 				currentPosWaveLeft += 1;
 				currentPosWaveRight -= 1;
 
-				leftWave.style.transform = 'translateX(' + currentPosWaveLeft + '%)';
-				rightWave.style.transform = 'translateX(' + currentPosWaveRight + '%)';
+				leftWave.style.transform = 'translate3d(' + currentPosWaveLeft + '%, 0, 0)';
+				rightWave.style.transform = 'translate3d(' + currentPosWaveRight + '%, 0, 0)';
 
 				if (parseInt(currentPosWaveLeft, 10) >= 50)
 				{

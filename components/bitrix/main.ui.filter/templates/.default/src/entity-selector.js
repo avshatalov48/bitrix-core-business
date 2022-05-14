@@ -15,6 +15,7 @@ class EntitySelector
 	isMultiple: boolean = false;
 	needAddEntityIdToFilter = false;
 	isActive: boolean = false;
+	needShowDialogOnEmptyInput: boolean = true;
 
 	constructor(id: string, settings)
 	{
@@ -28,8 +29,9 @@ class EntitySelector
 
 		this.isMultiple = !!this.getSetting('isMultiple', false);
 		this.needAddEntityIdToFilter = this.getSetting('addEntityIdToResult', 'N') === 'Y';
+		this.needShowDialogOnEmptyInput = !!this.getSetting('showDialogOnEmptyInput', true);
 
-		this.dialogOptions = this.getSetting('dialogOptions', {});
+		this.dialogOptions = this.prepareDialogOptions();
 		this.dialog = null;
 
 		EventEmitter.subscribe('BX.Main.Filter:customEntityFocus', this.onCustomEntityFocus.bind(this));
@@ -67,7 +69,6 @@ class EntitySelector
 		{
 			this.dialog.hide();
 		}
-		Event.unbind(this.getFilterFieldInput(), 'input', this.controlInputChangeHandler);
 	}
 
 	getFilterField(): ?BX.Filter.Field
@@ -114,6 +115,21 @@ class EntitySelector
 		;
 	};
 
+	prepareDialogOptions()
+	{
+		const defaultOptions = {
+			enableSearch: false,
+			hideOnSelect: true,
+			autoHide: false,
+			hideByEsc: false,
+		};
+
+		let dialogOptions = this.getSetting('dialogOptions', {});
+		dialogOptions = Object.assign(defaultOptions, dialogOptions);
+
+		return dialogOptions;
+	}
+
 	openDialog(): void
 	{
 		if (this.dialog.isOpen())
@@ -122,18 +138,20 @@ class EntitySelector
 		}
 
 		const inputWrapper = this.getFilterFieldInputWrapper();
-		this.dialog.setTargetNode(inputWrapper);
-		this.dialog.setWidth(inputWrapper.offsetWidth);
-		this.dialog.show();
-		this.updateSelectedItemsInDialog(this.dialog);
-
 		const searchInput = this.getFilterFieldInput();
 		const searchQuery = Type.isDomNode(searchInput) ? searchInput.value.trim() : '';
+		this.dialog.setTargetNode(inputWrapper);
+		this.dialog.setWidth(inputWrapper.offsetWidth);
+		if (this.needShowDialogOnEmptyInput || searchQuery.length)
+		{
+			this.dialog.show();
+		}
+		this.updateSelectedItemsInDialog(this.dialog);
+
 		if (searchQuery.length)
 		{
 			this.dialog.search(searchQuery);
 		}
-		Event.bind(searchInput, 'input', this.controlInputChangeHandler);
 	}
 
 	initDialog(): Promise
@@ -146,16 +164,14 @@ class EntitySelector
 					...this.dialogOptions,
 					id: this.getDialogId(),
 					multiple: this.isMultiple,
-					enableSearch: false,
-					hideOnSelect: true,
-					autoHide: false,
-					hideByEsc: false,
-					events: {
-						'Item:onSelect': this.onDialogItemSelect.bind(this),
-						'Item:onDeselect': this.onDialogItemDeSelect.bind(this),
-						'onLoad': this.onDialogLoad.bind(this),
-					},
 				});
+
+				EventEmitter.subscribe(this.dialog, 'Item:onSelect', this.onDialogItemSelect.bind(this));
+				EventEmitter.subscribe(this.dialog, 'Item:onDeselect', this.onDialogItemDeSelect.bind(this));
+				EventEmitter.subscribe(this.dialog, 'onLoad', this.onDialogLoad.bind(this));
+
+				const searchInput = this.getFilterFieldInput();
+				Event.bind(searchInput, 'input', this.controlInputChangeHandler);
 			})
 			;
 	}
@@ -320,7 +336,6 @@ class EntitySelector
 			this.dialog.destroy();
 			this.dialog = null;
 		}
-		Event.unbind(this.getFilterFieldInput(), 'input', this.controlInputChangeHandler);
 		this.unsetControl();
 	}
 
@@ -328,6 +343,17 @@ class EntitySelector
 	{
 		if (this.dialog)
 		{
+			if (!this.needShowDialogOnEmptyInput)
+			{
+				if (event.target.value)
+				{
+					this.open();
+				}
+				else
+				{
+					this.close();
+				}
+			}
 			this.dialog.search(event.target.value);
 		}
 	}

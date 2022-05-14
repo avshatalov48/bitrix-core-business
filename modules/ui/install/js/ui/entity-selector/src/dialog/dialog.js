@@ -277,6 +277,14 @@ export default class Dialog extends EventEmitter
 	search(queryString: string): void
 	{
 		const query = Type.isStringFilled(queryString) ? queryString.trim() : '';
+
+		const event = new BaseEvent({ data: { query } });
+		this.emit('onBeforeSearch', event);
+		if (event.isDefaultPrevented())
+		{
+			return;
+		}
+
 		if (!Type.isStringFilled(query))
 		{
 			this.selectFirstTab();
@@ -1548,6 +1556,30 @@ export default class Dialog extends EventEmitter
 	isFrozen(): boolean
 	{
 		return this.frozen;
+	}
+
+	hasRecentItems(): Promise
+	{
+		return new Promise((resolve, reject) => {
+			Ajax
+				.runAction('ui.entityselector.load', {
+					json: {
+						dialog: this.getAjaxJson()
+					},
+					getParameters: {
+						context: this.getContext()
+					}
+				})
+				.then((response) => {
+					resolve(
+						response.data && response.data.dialog && Type.isArrayFilled(response.data.dialog.recentItems)
+					);
+				})
+				.catch((error) => {
+					reject(error);
+				})
+			;
+		});
 	}
 
 	load(): void

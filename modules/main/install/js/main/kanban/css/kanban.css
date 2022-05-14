@@ -1856,11 +1856,60 @@
 	background-repeat: no-repeat;
 }
 
+.bitrix24-light-theme .main-kanban-no-data-image {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2087%20111%22%3E%3Cdefs%3E%3Cstyle%3E.cls-1%20%7B%20fill%3A%20%23fff%3B%20fill-rule%3A%20evenodd%3B%20opacity%3A%201%3B%20%7D%3C/style%3E%3C/defs%3E%3Cpath%20class%3D%22cls-1%22%20d%3D%22M86.93%2025.17l.018-.018L61.884.032l-.03.03v-.05H.012v111h86.8v-.008h.17V31.988h.034v-6.82h-.085zM61.84%209.63l15.504%2015.54H61.84V9.63zm18.336%2094.564H6.816V6.83h48.222v18.34h-.02v6.818h25.16v72.206zM56.91%2044.814L44.43%2057.32%2031.95%2044.812%2026.576%2050.2l12.48%2012.508-12.48%2012.507%205.376%205.388L44.43%2068.1l12.48%2012.508%205.377-5.388-12.48-12.508L62.288%2050.2z%22/%3E%3C/svg%3E');
+}
+
+.bitrix24-dark-theme .main-kanban-no-data-image {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2087%20111%22%3E%3Cdefs%3E%3Cstyle%3E.cls-1%20%7B%20fill%3A%20%23333%3B%20fill-rule%3A%20evenodd%3B%20opacity%3A%201%3B%20%7D%3C/style%3E%3C/defs%3E%3Cpath%20class%3D%22cls-1%22%20d%3D%22M86.93%2025.17l.018-.018L61.884.032l-.03.03v-.05H.012v111h86.8v-.008h.17V31.988h.034v-6.82h-.085zM61.84%209.63l15.504%2015.54H61.84V9.63zm18.336%2094.564H6.816V6.83h48.222v18.34h-.02v6.818h25.16v72.206zM56.91%2044.814L44.43%2057.32%2031.95%2044.812%2026.576%2050.2l12.48%2012.508-12.48%2012.507%205.376%205.388L44.43%2068.1l12.48%2012.508%205.377-5.388-12.48-12.508L62.288%2050.2z%22/%3E%3C/svg%3E');
+}
+
 .main-kanban-no-data-text {
 	font: 32px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #c6c8cc;
 	text-align: center;
 	white-space: nowrap;
+}
+
+.bitrix24-light-theme .main-kanban-no-data-text {
+	color: #fff;
+}
+
+.bitrix24-dark-theme .main-kanban-no-data-text {
+	color: #333;
+}
+
+.main-kanban-no-data-title {
+	font-family: 'OpenSans-Light', Arial, Helvetica, sans-serif;
+	font-size: 31px;
+	color: #c6c8cc;
+	text-align: center;
+	margin-bottom: 21px;
+}
+
+.bitrix24-light-theme .main-kanban-no-data-title {
+	color: #fff;
+}
+
+.bitrix24-dark-theme .main-kanban-no-data-title {
+	color: #333;
+}
+
+.main-kanban-no-data-description {
+	font-family: 'OpenSans-Light', Arial, Helvetica, sans-serif;
+	font-size: 16px;
+	color: #c6c8cc;
+	text-align: center;
+	max-width: 525px;
+	line-height: normal;
+}
+
+.bitrix24-light-theme .main-kanban-no-data-description {
+	color: #fff;
+}
+
+.bitrix24-dark-theme .main-kanban-no-data-description {
+	color: #333;
 }
 
 .main-kanban-loader-container {

@@ -52,7 +52,7 @@ class TradeBinding extends Base
 		];
 	}
 
-	protected function getRewritedFields(): array
+	protected function getRewriteFields(): array
 	{
 		return [
 			'TRADING_PLATFORM_XML_ID'=>[

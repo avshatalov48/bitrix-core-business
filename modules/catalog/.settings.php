@@ -28,6 +28,13 @@ return [
 					],
 				],
 				[
+					'entityId' => 'product_variation',
+					'provider' => [
+						'moduleId' => 'catalog',
+						'className' => '\\Bitrix\\Catalog\\v2\\Integration\\UI\\EntitySelector\\ProductVariationProvider',
+					],
+				],
+				[
 					'entityId' => 'section',
 					'provider' => [
 						'moduleId' => 'catalog',

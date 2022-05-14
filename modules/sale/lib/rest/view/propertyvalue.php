@@ -71,7 +71,7 @@ class PropertyValue extends Base
 		return $result;
 	}
 
-	protected function getRewritedFields(): array
+	protected function getRewriteFields(): array
 	{
 		return [
 			'ORDER_PROPS_XML_ID'=>[

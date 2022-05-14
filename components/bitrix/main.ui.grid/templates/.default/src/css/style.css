@@ -913,6 +913,7 @@ input[type="file"].main-grid-cell-content-edit { display: none; }
 
 .main-grid-control-panel-checkbox-container {
 	position: relative;
+	top: 1px;
 	margin-top: 0;
 	width: 20px;
 	text-align: center;
@@ -928,7 +929,13 @@ input[type="file"].main-grid-cell-content-edit { display: none; }
 	line-height: 18px;
 }
 
-.main-grid-control-panel-content-title label { margin-left: -2px; }
+.main-grid-control-panel-content-title label {
+	font-family: 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	margin-left: -2px;
+	position: relative;
+	top: -2px;
+}
 
 .main-grid-control-panel-content-text {
 	color: #000;
@@ -1548,13 +1555,13 @@ label.main-grid-checkbox {
 }
 
 .main-grid .main-grid-row.main-grid-row-empty > td.main-grid-cell {
-	background: rgba(255, 255, 255, .84);
+	background: rgba(255, 255, 255, .05);
 	vertical-align: middle;
 	line-height: 44px;
 }
 
 .main-grid .main-grid-row.main-grid-row-empty:hover > td.main-grid-cell {
-	background: rgba(255, 255, 255, .84);
+	background: rgba(255, 255, 255, .05);
 }
 
 .main-grid-full {
@@ -2884,7 +2891,7 @@ th[class*="main-grid-column-color-"]::before {
 
 .main-grid-labels .ui-label.ui-label-link .ui-label-inner:hover {
 	cursor: pointer;
-	border-bottom: 1px dashed var(--ui-label-link-dashed-color);
+	border-bottom: 1px dashed var(--ui-label-color);
 }
 
 .main-grid-head-title-tooltip {

@@ -92,7 +92,15 @@ class RedisConnectionConfigurator
 		{
 			['host' => $host, 'port' => $port] = $this->servers[0];
 			$connection = new \Redis();
-			$result = $connection->pconnect($host, $port);
+
+			if ($config['persistent'])
+			{
+				$result = $connection->pconnect($host, $port);
+			}
+			else
+			{
+				$result = $connection->connect($host, $port);
+			}
 		}
 		else
 		{

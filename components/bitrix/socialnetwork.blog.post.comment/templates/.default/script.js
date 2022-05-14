@@ -26,20 +26,11 @@ window.__blogLinkEntity = function(entities, xmlId) {
 		{
 			if (entities.hasOwnProperty(ii))
 			{
-				(function(placeHolder, node, replyFunction) {
-					BX.bind(placeHolder, 'click', replyFunction);
-					if (BX.DD && !node.hasAttribute("dropzone"))
-					{
-						var dropZone = new BX.DD.dropFiles(node);
-						BX.addCustomEvent(dropZone, 'dropFiles', function(event) {
-							replyFunction();
-						});
-					}
-				})(
-					BX('blog-post-addc-add-' + entities[ii][1]),
-					BX('blg-post-' + entities[ii][1]),
-					window['UC'][ii].reply.bind(window['UC'][ii])
-				);
+				var placeHolder = document.getElementById('blog-post-addc-add-' + entities[ii][1]);
+				if (placeHolder)
+				{
+					placeHolder.addEventListener('click', window['UC'][ii].reply.bind(window['UC'][ii]));
+				}
 			}
 		}
 	}

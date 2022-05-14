@@ -5,6 +5,8 @@ use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Fields\ArrayField;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
+use Bitrix\Main\EventManager;
+use Bitrix\Main\Event;
 use Bitrix\Rest\UserField\Callback;
 use Bitrix\Rest\Lang;
 
@@ -41,6 +43,9 @@ Loc::loadMessages(__FILE__);
  */
 class PlacementTable extends Main\Entity\DataManager
 {
+	public const PREFIX_EVENT_ON_AFTER_ADD = 'onAfterPlacementAdd::';
+	public const PREFIX_EVENT_ON_AFTER_DELETE = 'onAfterPlacementDelete::';
+
 	const PLACEMENT_DEFAULT = 'DEFAULT';
 
 	const ERROR_PLACEMENT_NOT_FOUND = 'ERROR_PLACEMENT_NOT_FOUND';
@@ -49,7 +54,8 @@ class PlacementTable extends Main\Entity\DataManager
 	const CACHE_TTL = 86400;
 	const CACHE_DIR = 'rest/placement';
 
-	protected static $handlersListCache = array();
+	protected static $handlersListCache = [];
+	private static $beforeDeleteList = [];
 
 	/**
 	 * Returns DB table name for entity.
@@ -166,7 +172,42 @@ class PlacementTable extends Main\Entity\DataManager
 		PlacementLangTable::deleteByApp((int) $appId);
 		$connection = Main\Application::getConnection();
 
+		$res = static::getList(
+			[
+				'filter' => [
+					'=APP_ID' => (int)$appId,
+				],
+				'select' => [
+					'ID',
+					'APP_ID',
+					'PLACEMENT',
+					'PLACEMENT_HANDLER',
+					'ICON_ID',
+					'ADDITIONAL',
+					'OPTIONS',
+				],
+				'limit' => 1,
+			]
+		);
+		$eventList = [];
+		while ($placement = $res->fetch())
+		{
+			$eventList[] = new Event(
+				'rest',
+				static::PREFIX_EVENT_ON_AFTER_DELETE . $placement['PLACEMENT'],
+				[
+					'ID' => $placement['ID'],
+					'PLACEMENT' => $placement['PLACEMENT'],
+				]
+			);
+		}
+
 		$queryResult = $connection->query("DELETE FROM ".static::getTableName()." WHERE APP_ID='".intval($appId)."'");
+
+		foreach ($eventList as $event)
+		{
+			EventManager::getInstance()->send($event);
+		}
 
 		static::clearHandlerCache();
 
@@ -323,19 +364,57 @@ class PlacementTable extends Main\Entity\DataManager
 	{
 		$result = new Main\ORM\EventResult();
 		$id = $event->getParameter('id');
-		$id = $id['ID'];
-		if (($placement = PlacementTable::getById($id)->fetchObject())
-			&& ($placement->getIconId() > 0))
+		$id = (int)$id['ID'];
+		$res = static::getList(
+			[
+				'filter' => [
+					'=ID' => $id,
+				],
+				'select' => [
+					'ID',
+					'APP_ID',
+					'PLACEMENT',
+					'PLACEMENT_HANDLER',
+					'ICON_ID',
+					'ADDITIONAL',
+					'OPTIONS',
+				],
+				'limit' => 1,
+			]
+		);
+		if ($placement = $res->fetch())
 		{
-			\CFile::Delete($placement->getIconId());
+			static::$beforeDeleteList[$placement['ID']] = $placement;
+			if ((int)$placement['ICON_ID'] > 0)
+			{
+				\CFile::Delete((int)$placement['ICON_ID']);
+			}
 		}
-		PlacementLangTable::deleteByPlacement((int) $id);
+		PlacementLangTable::deleteByPlacement($id);
 
 		return $result;
 	}
 
 	public static function onAfterAdd(Main\Entity\Event $event)
 	{
+		$fields = $event->getParameter('fields');
+		if (!empty($fields['PLACEMENT']) && (int)$fields['APP_ID'] > 0)
+		{
+			$app = AppTable::getByClientId((int)$fields['APP_ID']);
+			if ($app['ACTIVE'] === AppTable::ACTIVE && $app['INSTALLED'] === AppTable::INSTALLED)
+			{
+				$data = new Event(
+					'rest',
+					static::PREFIX_EVENT_ON_AFTER_ADD . $fields['PLACEMENT'],
+					[
+						'ID' => $event->getParameter('id'),
+						'PLACEMENT' => $fields['PLACEMENT'],
+					]
+				);
+				EventManager::getInstance()->send($data);
+			}
+		}
+
 		static::clearHandlerCache();
 	}
 
@@ -346,6 +425,22 @@ class PlacementTable extends Main\Entity\DataManager
 
 	public static function onAfterDelete(Main\Entity\Event $event)
 	{
+		$id = $event->getParameter('id');
+		$id = (int)$id['ID'];
+		if ($id > 0)
+		{
+			$data = new Event(
+				'rest',
+				static::PREFIX_EVENT_ON_AFTER_DELETE . static::$beforeDeleteList[$id]['PLACEMENT'],
+				[
+					'ID' => $id,
+					'PLACEMENT' => static::$beforeDeleteList[$id]['PLACEMENT'],
+				]
+			);
+			unset(static::$beforeDeleteList[$id]);
+			EventManager::getInstance()->send($data);
+		}
+
 		static::clearHandlerCache();
 	}
 

@@ -380,9 +380,25 @@
 			{
 				this.getLHE().oEditor.Focus();
 				setTimeout(function() {
-					placeholderNode.scrollIntoView(false);
-				}, 100);
+					if (!this.isElementCompletelyVisibleOnScreen(placeholderNode))
+					{
+						placeholderNode.scrollIntoView({
+							behavior: 'smooth',
+							block: 'end',
+							inline: 'nearest',
+						});
+					}
+				}.bind(this), 100);
 				return true;
+			}
+
+			if (
+				this.getLHEEventNode()
+				&& this.getLHEEventNode().style.display !== "none"
+				&& BX.Dom.getPosition(placeholderNode).y > BX.Dom.getPosition(this.getLHEEventNode()).y
+			)
+			{
+				window.scrollTo(window.scrollX, window.scrollY - this.getLHEEventNode().offsetHeight + 10);
 			}
 
 			this.hide(true);
@@ -397,6 +413,21 @@
 			BX.onCustomEvent(this.getLHEEventNode(), "OnShowLHE", ["show", null, this.id]);
 			BX.onCustomEvent(this.form, "OnUCFormAfterShow", [this, text, data]);
 			return true;
+		},
+		isElementCompletelyVisibleOnScreen: function(element)
+		{
+			var coords = BX.LazyLoad.getElementCoords(element);
+			var windowTop = window.pageYOffset || document.documentElement.scrollTop;
+			var windowBottom = windowTop + document.documentElement.clientHeight;
+
+			coords.bottom = coords.top + element.offsetHeight;
+
+			return (
+				coords.top > windowTop
+				&& coords.top < windowBottom
+				&& coords.bottom < windowBottom
+				&& coords.bottom > windowTop
+			);
 		},
 		onSubmitSuccess : function(data) {
 			this.closeWait();

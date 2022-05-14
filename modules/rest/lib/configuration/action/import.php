@@ -13,6 +13,7 @@ use Bitrix\Rest\Configuration\Structure;
 use Bitrix\Rest\Configuration\DataProvider;
 use Bitrix\Rest\AppTable;
 use Bitrix\Rest\AppLogTable;
+use Bitrix\Main\IO\File;
 
 /**
  * Class Import
@@ -111,11 +112,19 @@ class Import extends Base
 					);
 					break;
 				case self::STEP_CLEAN:
-					$actionInfo['setting'] = $this->doClean(
-						$actionInfo['section'][$actionInfo['currentSection']],
-						$actionInfo['section']['next'],
-						(int) $actionInfo['step']
-					);
+					$manifest = Manifest::get($this->getManifestCode());
+					if ($data['MANIFEST']['SKIP_CLEARING'] === 'Y' || $manifest['SKIP_CLEARING'] === 'Y')
+					{
+						$actionInfo['setting']['finish'] = true;
+					}
+					else
+					{
+						$actionInfo['setting'] = $this->doClean(
+							$actionInfo['section'][$actionInfo['currentSection']],
+							$actionInfo['section']['next'],
+							(int) $actionInfo['step']
+						);
+					}
 					break;
 				case self::STEP_LOAD:
 					$actionInfo['setting']['result'] = true;
@@ -221,6 +230,7 @@ class Import extends Base
 					|| 	$actionInfo['setting']['finish'] === true
 				)
 				{
+					$actionInfo['setting']['finish'] = false;
 					$actionInfo['currentSection'] = 0;
 					$actionInfo['step'] = 0;
 					$key = array_search($actionInfo['run'], self::STEPS_ORDER);
@@ -402,14 +412,14 @@ class Import extends Base
 	private function doInitBackground($actionInfo, $data): array
 	{
 		$isEnd = false;
-
 		$next = $actionInfo['step'];
+		$structure = new Structure($this->setting->getContext());
+
 		if ($data[self::PROPERTY_FILES] && $data[self::PROPERTY_STRUCTURE][Helper::STRUCTURE_FILES_NAME])
 		{
 			$chunkList = array_chunk($data[self::PROPERTY_FILES], self::COUNT_ADD_FILES_BY_STEP);
 			if (!empty($chunkList[$next]))
 			{
-				$structure = new Structure($this->setting->getContext());
 				$structure->addFileList(
 					$chunkList[$next],
 					$data[self::PROPERTY_STRUCTURE][Helper::STRUCTURE_FILES_NAME]
@@ -424,6 +434,37 @@ class Import extends Base
 		{
 			$isEnd = true;
 		}
+
+		if ($isEnd)
+		{
+			if ((int)$actionInfo['next'] === 0)
+			{
+				$fileName = Helper::STRUCTURE_SMALL_FILES_NAME . Helper::CONFIGURATION_FILE_EXTENSION;
+
+				foreach ($data[self::PROPERTY_STRUCTURE] as $path)
+				{
+					if (is_string($path) && mb_strpos($path, $fileName) !== false)
+					{
+						try
+						{
+							$content = File::getFileContents($path);
+							$structure->unpackSmallFiles($content);
+						}
+						catch (\Exception $e)
+						{
+						}
+						break;
+					}
+				}
+			}
+			elseif ((int)$actionInfo['next'] > 0)
+			{
+				//one more step will load small files
+				$isEnd = false;
+				$next = 0;
+			}
+		}
+
 
 		return [
 			'next' => $next,

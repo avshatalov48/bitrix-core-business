@@ -10,11 +10,11 @@ export class ICloudProvider extends ConnectionProvider
 			connected: options.syncInfo.connected || false,
 			gridTitle: Loc.getMessage('CALENDAR_TITLE_ICLOUD'),
 			gridColor: '#000',
-			gridIcon: '/bitrix/images/calendar/sync/google.svg',
+			gridIcon: '',
 			type: 'icloud',
 			interfaceClassName: '',
 			viewClassification: 'web',
-			templateClass: 'BX.Calendar.Sync.Interface.GoogleTemplate',
+			templateClass: 'BX.Calendar.Sync.Interface.IcloudTemplate',
 			mainPanel: true,
 			pendingStatus: true
 		});

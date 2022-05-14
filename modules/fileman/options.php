@@ -532,17 +532,11 @@ if($USER->isAdmin())
 
 	<select name="default_edit">
 		<option value="text"><?= GetMessage('FILEMAN_OPTION_EDITOR_TEXT')?></option>
-		<option value="php"<?if(COption::GetOptionString($module_id, "default_edit", "text")=="php")echo " selected"?>><?= GetMessage('FILEMAN_OPTION_EDITOR_PHP')?></option>
-		<option value="html"<?if(COption::GetOptionString($module_id, "default_edit", "text")=="html")echo " selected"?>><?= GetMessage('FILEMAN_OPTION_EDITOR_HTML')?></option>
+		<option value="php"<?if(COption::GetOptionString($module_id, "default_edit")=="php")echo " selected"?>><?= GetMessage('FILEMAN_OPTION_EDITOR_PHP')?></option>
+		<option value="html"<?if(COption::GetOptionString($module_id, "default_edit")=="html")echo " selected"?>><?= GetMessage('FILEMAN_OPTION_EDITOR_HTML')?></option>
 	</select>
 	</td>
 </tr>
-	<? if (COption::GetOptionString('main', 'distributive6', 'N') != 'Y'):?>
-	<tr>
-		<td valign="top"><label for="show_inc_icons"><?= GetMessage('FILEMAN_OPTION_MENU_SHOW_INC')?></label></td>
-		<td><input type="checkbox" name="show_inc_icons" id="show_inc_icons" size="5" value="Y" <?if(COption::GetOptionString($module_id, "show_inc_icons", "Y")=="Y")echo " checked"?>></td>
-	</tr>
-	<?endif;?>
 	<? if ($USER->CanDoOperation('edit_php')):?>
 	<tr>
 		<td>

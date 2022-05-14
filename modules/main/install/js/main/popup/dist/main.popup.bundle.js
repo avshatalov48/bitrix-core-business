@@ -98,9 +98,13 @@ this.BX = this.BX || {};
 	  return Button;
 	}();
 
-	var _left = new WeakMap();
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
 
-	var _top = new WeakMap();
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	var _left = /*#__PURE__*/new WeakMap();
+
+	var _top = /*#__PURE__*/new WeakMap();
 
 	var PositionEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(PositionEvent, _BaseEvent);
@@ -111,12 +115,12 @@ this.BX = this.BX || {};
 	    babelHelpers.classCallCheck(this, PositionEvent);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(PositionEvent).call(this));
 
-	    _left.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _left, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _top.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _top, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -2198,7 +2202,7 @@ this.BX = this.BX || {};
 	PopupManager.handleOnAfterInit = PopupManager.handleOnAfterInit.bind(PopupManager);
 	main_core_events.EventEmitter.subscribe('BX.Main.Popup:onAfterInit', PopupManager.handleOnAfterInit);
 
-	var _templateObject$1;
+	var _templateObject$1, _templateObject2$1, _templateObject3$1;
 	var aliases$1 = {
 	  onSubMenuShow: {
 	    namespace: 'BX.Main.Menu.Item',
@@ -2246,7 +2250,7 @@ this.BX = this.BX || {};
 	    _this.text = '';
 	    _this.allowHtml = false;
 
-	    if (main_core.Type.isStringFilled(options.html)) {
+	    if (main_core.Type.isStringFilled(options.html) || main_core.Type.isElementNode(options.html)) {
 	      _this.text = options.html;
 	      _this.allowHtml = true;
 	    } else if (main_core.Type.isStringFilled(options.text)) {
@@ -2329,15 +2333,10 @@ this.BX = this.BX || {};
 	            props: {
 	              className: ['popup-window-delimiter-section', this.className ? this.className : ''].join(' ')
 	            },
-	            children: [this.layout.text = main_core.Dom.create('span', {
-	              props: {
-	                className: 'popup-window-delimiter-text'
-	              },
-	              html: this.allowHtml ? this.getText() : encodeSafe(this.getText())
-	            })]
+	            children: [this.layout.text = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<span class=\"popup-window-delimiter-text\">", "</span>\n\t\t\t\t\t\t"])), this.allowHtml ? this.getText() : encodeSafe(this.getText()))]
 	          });
 	        } else {
-	          this.layout.item = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<span class=\"popup-window-delimiter\">"])));
+	          this.layout.item = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<span class=\"popup-window-delimiter\">"])));
 	        }
 	      } else {
 	        this.layout.item = main_core.Dom.create(this.href ? 'a' : 'span', {
@@ -2358,12 +2357,7 @@ this.BX = this.BX || {};
 	            props: {
 	              className: 'menu-popup-item-icon'
 	            }
-	          }), this.layout.text = main_core.Dom.create('span', {
-	            props: {
-	              className: 'menu-popup-item-text'
-	            },
-	            html: this.allowHtml ? this.getText() : encodeSafe(this.getText())
-	          })]
+	          }), this.layout.text = main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<span class=\"menu-popup-item-text\">", "</span>\n\t\t\t\t\t"])), this.allowHtml ? this.getText() : encodeSafe(this.getText()))]
 	        });
 
 	        if (this.href) {
@@ -2398,9 +2392,23 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "setText",
 	    value: function setText(text) {
-	      if (main_core.Type.isString(text)) {
+	      var allowHtml = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+	      if (main_core.Type.isString(text) || main_core.Type.isElementNode(text)) {
+	        this.allowHtml = allowHtml;
 	        this.text = text;
-	        this.getTextContainer().innerHTML = text;
+
+	        if (main_core.Type.isElementNode(text)) {
+	          main_core.Dom.clean(this.getTextContainer());
+
+	          if (this.allowHtml) {
+	            main_core.Dom.append(text, this.getTextContainer());
+	          } else {
+	            this.getTextContainer().innerHTML = encodeSafe(text.outerHTML);
+	          }
+	        } else {
+	          this.getTextContainer().innerHTML = this.allowHtml ? text : encodeSafe(text);
+	        }
 	      }
 	    }
 	  }, {
@@ -2760,7 +2768,7 @@ this.BX = this.BX || {};
 	  return MenuItem;
 	}(main_core_events.EventEmitter);
 
-	var _templateObject$2, _templateObject2$1;
+	var _templateObject$2, _templateObject2$2;
 
 	/**
 	 * @memberof BX.Main
@@ -2842,7 +2850,7 @@ this.BX = this.BX || {};
 	      options.darkMode = false;
 	      options.autoHideHandler = this.handleAutoHide.bind(this);
 	      this.layout.itemsContainer = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"menu-popup-items\">", "</div>\n\t\t"])), domItems);
-	      this.layout.menuContainer = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"menu-popup\">", "</div>\n\t\t"])), this.layout.itemsContainer);
+	      this.layout.menuContainer = main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"menu-popup\">", "</div>\n\t\t"])), this.layout.itemsContainer);
 	      this.itemsContainer = this.layout.itemsContainer;
 	      options.content = this.layout.menuContainer; //Make internal event handlers first in the queue.
 
@@ -3008,7 +3016,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "addMenuItemInternal",
 	    value: function addMenuItemInternal(menuItemJson, targetItemId) {
-	      if (!menuItemJson || !menuItemJson.delimiter && !main_core.Type.isStringFilled(menuItemJson.text) && !main_core.Type.isStringFilled(menuItemJson.html) || menuItemJson.id && this.getMenuItem(menuItemJson.id) !== null) {
+	      if (!menuItemJson || !menuItemJson.delimiter && !main_core.Type.isStringFilled(menuItemJson.text) && !main_core.Type.isStringFilled(menuItemJson.html) && !main_core.Type.isElementNode(menuItemJson.html) || menuItemJson.id && this.getMenuItem(menuItemJson.id) !== null) {
 	        return null;
 	      }
 

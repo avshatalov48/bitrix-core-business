@@ -380,18 +380,7 @@ this.BX = this.BX || {};
 	        userSettings.denyBusyInvitation = this.DOM.denyBusyInvitation.checked ? 1 : 0;
 	      }
 
-	      if (this.DOM.timezoneSelect) {
-	        userSettings.userTimezoneName = this.DOM.timezoneSelect.value;
-	      } // if(this.DOM.syncPeriodPast)
-	      // {
-	      // 	userSettings.syncPeriodPast = this.DOM.syncPeriodPast.value;
-	      // }
-	      //
-	      // if(this.DOM.syncPeriodFuture)
-	      // {
-	      // 	userSettings.syncPeriodFuture = this.DOM.syncPeriodFuture.value;
-	      // }
-
+	      userSettings.userTimezoneName = this.DOM.timezoneSelect ? this.DOM.timezoneSelect.value : userSettings.timezoneName;
 
 	      if (this.emailSelectorControl) {
 	        userSettings.sendFromEmail = this.emailSelectorControl.getValue();

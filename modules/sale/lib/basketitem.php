@@ -1146,4 +1146,21 @@ class BasketItem extends BasketItemBase
 		return $this->getReserveQuantityCollection()->getQuantity();
 	}
 
+	/**
+	 * @return float
+	 */
+	public function getNotPurchasedQuantity() : float
+	{
+		$quantity = parent::getNotPurchasedQuantity();
+
+		/** @var Order $order */
+		$order = $this->getCollection()->getOrder();
+		if ($order)
+		{
+			$quantity -= $order->getShipmentCollection()->getBasketItemShippedQuantity($this);
+		}
+
+		return $quantity;
+	}
+
 }

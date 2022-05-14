@@ -32,6 +32,7 @@ class ProductProvider extends BaseProvider
 				? $options['restrictedProductTypes']
 				: null
 		;
+		$this->options['showPriceInCaption'] = (bool)($options['showPriceInCaption'] ?? true);
 	}
 
 	public function isAvailable(): bool
@@ -157,10 +158,7 @@ class ProductProvider extends BaseProvider
 			'title' => $product['NAME'],
 			'supertitle' => $product['SKU_PROPERTIES'],
 			'subtitle' => $this->getSubtitle($product),
-			'caption' => [
-				'text' => $product['PRICE'],
-				'type' => 'html',
-			],
+			'caption' => $this->getCaption($product),
 			'avatar' => $product['IMAGE'],
 			'customData' => $customData,
 		]);
@@ -169,6 +167,19 @@ class ProductProvider extends BaseProvider
 	protected function getSubtitle(array $product): string
 	{
 		return $product['BARCODE'] ?? '';
+	}
+
+	protected function getCaption(array $product): array
+	{
+		if (!$this->shouldDisplayPriceInCaption())
+		{
+			return [];
+		}
+
+		return [
+			'text' => $product['PRICE'],
+			'type' => 'html',
+		];
 	}
 
 	protected function getIblockId()
@@ -186,7 +197,12 @@ class ProductProvider extends BaseProvider
 		return $this->getOptions()['currency'];
 	}
 
-	private function getIblockInfo(): ?IblockInfo
+	private function shouldDisplayPriceInCaption()
+	{
+		return $this->getOptions()['showPriceInCaption'];
+	}
+
+	protected function getIblockInfo(): ?IblockInfo
 	{
 		static $iblockInfo = null;
 
@@ -296,7 +312,7 @@ class ProductProvider extends BaseProvider
 		return $sorted;
 	}
 
-	private function getProductsBySearchString(string $searchString = ''): array
+	protected function getProductsBySearchString(string $searchString = ''): array
 	{
 		$iblockInfo = $this->getIblockInfo();
 		if (!$iblockInfo)
@@ -310,9 +326,11 @@ class ProductProvider extends BaseProvider
 		if ($searchString !== '')
 		{
 			$simpleProductFilter = [
-				'LOGIC' => 'OR',
-				'*SEARCHABLE_CONTENT' => $searchString,
-				'PRODUCT_BARCODE' => $searchString . '%',
+				[
+					'LOGIC' => 'OR',
+					'*SEARCHABLE_CONTENT' => $searchString,
+					'PRODUCT_BARCODE' => $searchString . '%',
+				]
 			];
 
 			if ($iblockInfo->canHaveSku())
@@ -346,7 +364,7 @@ class ProductProvider extends BaseProvider
 		]);
 	}
 
-	private function getProducts(array $parameters = []): array
+	protected function getProducts(array $parameters = []): array
 	{
 		$iblockInfo = $this->getIblockInfo();
 		if (!$iblockInfo)
@@ -356,6 +374,7 @@ class ProductProvider extends BaseProvider
 
 		$productFilter = (array)($parameters['filter'] ?? []);
 		$offerFilter = (array)($parameters['offer_filter'] ?? []);
+		$shouldLoadOffers = (bool)($parameters['load_offers'] ?? true);
 
 		$additionalProductFilter = ['IBLOCK_ID' => $iblockInfo->getProductIblockId()];
 		if ($this->options['restrictedProductTypes'] !== null)
@@ -389,7 +408,7 @@ class ProductProvider extends BaseProvider
 
 		$products = $this->loadProperties($products, $iblockInfo->getProductIblockId(), $iblockInfo);
 
-		if ($iblockInfo->canHaveSku())
+		if ($shouldLoadOffers && $iblockInfo->canHaveSku())
 		{
 			$products = $this->loadOffers($products, $iblockInfo, $offerFilter);
 		}

@@ -317,4 +317,14 @@ abstract class BaseType
 	}
 
 	abstract public static function getDbColumnType(): string;
+
+	public static function isMandatorySupported(): bool
+	{
+		return true;
+	}
+
+	public static function isMultiplicitySupported(): bool
+	{
+		return true;
+	}
 }

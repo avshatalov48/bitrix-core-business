@@ -37,6 +37,14 @@ class Helper
 	 */
 	public function getApiKey(): ?string
 	{
+		if (
+			Loader::includeModule('socialservices')
+			&& ($apiKey = Option::get('socialservices', 'google_api_key', null))
+		)
+		{
+			return $apiKey;
+		}
+
 		if (Loader::includeModule('fileman'))
 		{
 			$apiKey = AddressType::getApiKey();
@@ -48,6 +56,6 @@ class Helper
 
 		return Option::get('fileman', 'google_map_api_key', null)
 			?? Option::get('bitrix24', 'google_map_api_key', null)
-			;
+		;
 	}
 }

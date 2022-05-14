@@ -8,6 +8,7 @@ export class TrackingGroupsForm extends TrackingUsersForm
 	constructor(options = {})
 	{
 		super(options);
+		this.interfaceType = 'groups';
 		this.trackingGroupIdList = options.trackingGroups || [];
 	}
 
@@ -104,11 +105,3 @@ export class TrackingGroupsForm extends TrackingUsersForm
 			);
 	}
 }
-
-
-
-
-
-
-
-

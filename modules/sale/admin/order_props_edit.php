@@ -235,8 +235,10 @@ elseif ($property['TYPE'] == 'LOCATION')
 	{
 		unset($commonSettings['MULTIPLE']);
 	}
+} elseif ($property['TYPE'] === 'ADDRESS')
+{
+	unset($commonSettings['DEFAULT_VALUE']);
 }
-
 // string settings
 
 $stringSettings = array(
@@ -687,7 +689,9 @@ if ($errors)
 
 	<tr class="heading"><td colspan="2"><?=Loc::getMessage('PROPERTY_TITLE')?></td></tr>
 
-	<?foreach ($propertySettings as $name => $input):
+	<?
+
+	foreach ($propertySettings as $name => $input):
 		if ($input['HIDDEN'] != 'Y')
 		{
 			$tr = $input['REQUIRED'] == 'Y' ? ' class="adm-detail-required-field"' : '';

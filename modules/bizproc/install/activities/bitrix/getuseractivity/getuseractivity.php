@@ -80,16 +80,16 @@ class CBPGetUserActivity extends CBPActivity
 			return [];
 		}
 
-		$dbUsers = CUser::GetList(
-			'id', 'asc',
-			[
-				'ID' => implode(' | ', $users),
-				'ACTIVE' => 'Y'
-			]
-		);
+		$dbUsers = \Bitrix\Main\UserTable::getList([
+			'select' => ['ID'],
+			'filter' => [
+				'=ACTIVE' => 'Y',
+				'=ID' => $users,
+			],
+		]);
 
 		$activeUsers = [];
-		while($user = $dbUsers->Fetch())
+		while($user = $dbUsers->fetch())
 		{
 			$activeUsers[] = $user["ID"];
 		}

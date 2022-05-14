@@ -65,7 +65,7 @@ class SubscribeManager
 			$this->userId = $USER->getId();
 		}
 	}
-	
+
 	/**
 	 * @return array An array containing Error objects.
 	 */
@@ -272,7 +272,7 @@ class SubscribeManager
 					'TOKEN' => $token
 				));
 			}
-			if(!$result)
+			if(!$result->isSuccess())
 			{
 				$this->errorCollection->add(array(new Error(
 					Loc::getMessage('ERROR_SUBSCRIBE_ENTRY_CONFIRMATION_CODE'), self::ERROR_SUBSCRIBER_IDENTIFICATION)));
@@ -377,7 +377,7 @@ class SubscribeManager
 
 	/**
 	 * Method unsubscribe subscribers with fixed input data.
-	 * 
+	 *
 	 * @param array $data Input data.
 	 * @return bool
 	 * @throws \Bitrix\Main\ArgumentException

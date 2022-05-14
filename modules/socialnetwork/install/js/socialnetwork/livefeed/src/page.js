@@ -539,7 +539,7 @@ class Page
 		}
 
 		this.scrollInitialized = true;
-		document.addEventListener('scroll', Runtime.throttle(this.onFeedScroll.bind(this), 100));
+		document.addEventListener('scroll', this.onFeedScroll.bind(this));
 	}
 
 	onFeedScroll()

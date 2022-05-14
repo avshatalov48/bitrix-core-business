@@ -228,7 +228,7 @@ class Landing
 				$fields['RETURN_CONTENT'] == 'Y'
 			)
 			{
-				$return = BlockCore::getBlockContent($newBlockId, false);
+				$return = BlockCore::getBlockContent($newBlockId, true);
 			}
 			else
 			{
@@ -472,7 +472,7 @@ class Landing
 			{
 				$result->setResult(array(
 					'result' => $res > 0,
-					'content' => BlockCore::getBlockContent($res, false)
+					'content' => BlockCore::getBlockContent($res, true)
 				));
 			}
 			else

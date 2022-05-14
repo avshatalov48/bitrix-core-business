@@ -133,6 +133,7 @@ foreach ($arParams["UPLOADS"] as $v)
 			null,
 			array("HIDE_ICONS" => true)
 		);
+		$arParams['BUTTONS'][] = 'UploadFile';
 		$arParams["UPLOADS_CID"][$cid] = array(
 			"storage" => "bfile",
 			"parser" => 'file',

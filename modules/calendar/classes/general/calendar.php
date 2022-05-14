@@ -88,7 +88,8 @@ class CCalendar
 		$pathesListEx = null,
 		$isGoogleApiEnabled = null,
 		$errors = [],
-		$timezones = [];
+		$timezones = [],
+		$userLanguageId = [];
 
 	function Init($params)
 	{
@@ -377,6 +378,10 @@ class CCalendar
 			);
 		}
 
+		$JSConfig['dayOfWeekMonthFormat'] = \Bitrix\Main\Context::getCurrent()
+			->getCulture()
+			->getDayOfWeekMonthFormat();
+
 		$placementParams = false;
 		if (Loader::includeModule('rest'))
 		{
@@ -388,13 +393,31 @@ class CCalendar
 		}
 		$JSConfig['placementParams'] = $placementParams;
 
-		if(self::$type == 'user' && self::$userId == self::$ownerId)
+		if (self::$type === 'user' && self::$userId === self::$ownerId)
 		{
 			$JSConfig['counters'] = CountersManager::getValues((int)self::$userId);
-			$JSConfig['filterId'] = \Bitrix\Calendar\Ui\CalendarFilter::getFilterId(self::$type, self::$ownerId, self::$userId);
+			$JSConfig['filterId'] = \Bitrix\Calendar\Ui\CalendarFilter::getFilterId(
+				self::$type,
+				self::$ownerId,
+				self::$userId
+			);
+		}
+		
+		else if (
+			self::$type === 'company_calendar'
+			|| self::$type === 'calendar_company'
+			|| self::$type === 'company'
+			|| self::$type === 'group'
+		)
+		{
+			$JSConfig['filterId'] = \Bitrix\Calendar\Ui\CalendarFilter::getFilterId(
+				self::$type,
+				self::$ownerId,
+				self::$userId
+			);
 		}
 
-		// Access permissons for type
+		// Access permissions for type
 		if (CCalendarType::CanDo('calendar_type_edit_access', self::$type))
 		{
 			$JSConfig['TYPE_ACCESS'] = $arType['ACCESS'];
@@ -487,7 +510,7 @@ class CCalendar
 			$bCreateDefault = self::$ownerId === self::$userId;
 		}
 
-		$additonalMeetingsId = [];
+		$additionalMeetingsId = [];
 		$groupOrUser = self::$type === 'user' || self::$type === 'group';
 		if ($groupOrUser)
 		{
@@ -506,7 +529,7 @@ class CCalendar
 				// It's superposed calendar of the other user and it's need to show user's meetings
 				if ($sections[$i]['~IS_MEETING_FOR_OWNER'])
 				{
-					$additonalMeetingsId[] = [
+					$additionalMeetingsId[] = [
 						'ID' => $section['OWNER_ID'],
 						'SECTION_ID' => $section['ID']
 					];
@@ -528,7 +551,7 @@ class CCalendar
 				}
 			}
 
-			if (self::$bSuperpose && in_array($section['ID'], $followedSectionList))
+			if (in_array($section['ID'], $followedSectionList))
 			{
 				$sections[$i]['SUPERPOSED'] = true;
 			}
@@ -561,11 +584,6 @@ class CCalendar
 		if ($groupOrUser && $noEditAccessedCalendars && !$bCreateDefault)
 		{
 			$readOnly = true;
-		}
-
-		if ($type === 'location')
-		{
-			$readOnly = false;
 		}
 
 		self::$readOnly = $readOnly;
@@ -624,7 +642,7 @@ class CCalendar
 			: self::GetAccessTasks('calendar_type');
 
 		$JSConfig['bSuperpose'] = self::$bSuperpose;
-		$JSConfig['additonalMeetingsId'] = $additonalMeetingsId;
+		$JSConfig['additonalMeetingsId'] = $additionalMeetingsId;
 
 		$selectedUserCodes = array('U'.self::$userId);
 		if (self::$type === 'user')
@@ -1745,12 +1763,12 @@ class CCalendar
 		//modeSync - edit mode instance for avoid unnecessary request (patch)
 		//editParentEvents - editing the parent event of the following
 		$modeSync = true;
-		$editInstance = $params['editInstance'] ?: false;
-		$editNextEvents = $params['editNextEvents']?: false;
-		$editParentEvents = $params['editParentEvents'] ?: false;
-		$originalDavXmlId = $params['originalDavXmlId'] ?: null;
-		$instanceTz = $params['instanceTz'] ?: null;
-		$syncCaldav = $params['syncCaldav'] ?: false;
+		$editInstance = $params['editInstance'] ?? false;
+		$editNextEvents = $params['editNextEvents'] ?? false;
+		$editParentEvents = $params['editParentEvents'] ?? false;
+		$originalDavXmlId = $params['originalDavXmlId'] ?? null;
+		$instanceTz = $params['instanceTz'] ?? null;
+		$syncCaldav = $params['syncCaldav'] ?? false;
 		$userId = isset($params['userId']) ? $params['userId'] : self::getCurUserId();
 
 		$result = [];
@@ -1850,6 +1868,8 @@ class CCalendar
 				$arFields['MEETING'] = $curEvent['MEETING'];
 			if (!isset($arFields['SYNC_STATUS']) && $arFields['SYNC_STATUS'])
 				$arFields['SYNC_STATUS'] = $curEvent['SYNC_STATUS'];
+
+			$arFields['MEETING']['LANGUAGE_ID'] = self::getUserLanguageId((int)$userId);
 
 			if (!isset($arFields['ATTENDEES']) && !isset($arFields['ATTENDEES_CODES'])
 				&& $arFields['IS_MEETING'] && is_array($curEvent['ATTENDEE_LIST']))
@@ -2494,6 +2514,25 @@ class CCalendar
 		$count = (int)$params['rrule']['COUNT'] - $curCount;
 
 		return (string)$count;
+	}
+
+	public static function getUserLanguageId(int $userId): string
+	{
+		if (isset(self::$userLanguageId[$userId]))
+		{
+			return self::$userLanguageId[$userId];
+		}
+
+		$user = Main\UserTable::query()
+			->where('ID', $userId)
+			->setSelect(['NOTIFICATION_LANGUAGE_ID'])
+			->exec()
+			->fetch()
+		;
+
+		self::$userLanguageId[$userId] = $user['NOTIFICATION_LANGUAGE_ID'] ?? LANGUAGE_ID;
+
+		return self::$userLanguageId[$userId];
 	}
 
 	public static function CountPastEvents($params)
@@ -4491,7 +4530,10 @@ class CCalendar
 				&& !self::IsBitrix24()
 				&& Loader::includeModule('socialservices'))
 			{
-				self::$isGoogleApiEnabled = CSocServGoogleOAuth::GetOption('google_appid') !== '' && CSocServGoogleOAuth::GetOption('google_appsecret') !== '';
+				self::$isGoogleApiEnabled =
+					(CSocServGoogleOAuth::GetOption('google_appid') !== '' && CSocServGoogleOAuth::GetOption('google_appsecret') !== '')
+					|| CSocServGoogleOAuth::GetOption('google_sync_proxy') === 'Y'
+				;
 			}
 		}
 
@@ -4576,30 +4618,33 @@ class CCalendar
 			{
 				$user = self::GetUser($user, true);
 			}
-			
-			if (isset($user['TIME_ZONE_OFFSET']))
+
+			if (\CTimezone::OptionEnabled())
 			{
-				$offset = intval(date('Z') + $user['TIME_ZONE_OFFSET']);
+				$offset = isset($user['TIME_ZONE_OFFSET'])
+					? intval(date('Z') + $user['TIME_ZONE_OFFSET'])
+					: self::GetCurrentOffsetUTC($user['ID']);
+
+				$tzName = CUserOptions::GetOption(
+					"calendar",
+					"timezone" . $offset,
+					false,
+					$user['ID']
+				);
+
+				if ($tzName === 'undefined' || $tzName === 'false')
+				{
+					$tzName = false;
+				}
+				if (!$tzName && $user['AUTO_TIME_ZONE'] !== 'Y' && $user['TIME_ZONE'])
+				{
+					$tzName = $user['TIME_ZONE'];
+				}
 			}
 			else
 			{
-				$offset = self::GetCurrentOffsetUTC($user['ID']);
-			}
-
-			$tzName = CUserOptions::GetOption(
-				"calendar",
-				"timezone" . $offset,
-				false,
-				$user['ID']
-			);
-
-			if ($tzName === 'undefined' || $tzName === 'false')
-			{
-				$tzName = false;
-			}
-			if (!$tzName && $user['AUTO_TIME_ZONE'] !== 'Y' && $user['TIME_ZONE'])
-			{
-				$tzName = $user['TIME_ZONE'];
+				$offset = date('Z');
+				$tzName = date_default_timezone_get();
 			}
 
 			try
@@ -5612,13 +5657,12 @@ class CCalendar
 
 	public static function getSectionListAvailableForUser($userId, $additionalSectionIdList = [])
 	{
-		$sections = CCalendar::GetSectionList([
+		return CCalendar::GetSectionList([
 			'CAL_TYPE' => 'user',
 			'OWNER_ID' => $userId,
 			'ACTIVE' => 'Y',
 			'ADDITIONAL_IDS' => array_merge($additionalSectionIdList, UserSettings::getFollowedSectionIdList($userId))
 		]);
-		return $sections;
 	}
 
 	public static function getSectionListForContext(array $params = []): array
@@ -5664,7 +5708,7 @@ class CCalendar
 		if (self::$type === 'user')
 			$bCreateDefault = self::$ownerId == self::$userId;
 
-		$additonalMeetingsId = [];
+		$additionalMeetingsId = [];
 		$groupOrUser = self::$type === 'user' || self::$type === 'group';
 		if ($groupOrUser)
 		{
@@ -5683,7 +5727,7 @@ class CCalendar
 				// It's superposed calendar of the other user and it's need to show user's meetings
 				if ($sections[$i]['~IS_MEETING_FOR_OWNER'])
 				{
-					$additonalMeetingsId[] = array('ID' => $section['OWNER_ID'], 'SECTION_ID' => $section['ID']);
+					$additionalMeetingsId[] = array('ID' => $section['OWNER_ID'], 'SECTION_ID' => $section['ID']);
 				}
 			}
 
@@ -5698,7 +5742,7 @@ class CCalendar
 					$readOnly = false;
 			}
 
-			if (self::$bSuperpose && in_array($section['ID'], $followedSectionList))
+			if (in_array($section['ID'], $followedSectionList))
 			{
 				$sections[$i]['SUPERPOSED'] = true;
 			}
@@ -5803,7 +5847,7 @@ class CCalendar
 		foreach ($sections as $section)
 		{
 			self::stopGoogleSectionChannels($section);
-			self::markSectionLikeDelete($section);
+			self::markSectionLikeDelete((int)$section['ID']);
 		}
 	}
 

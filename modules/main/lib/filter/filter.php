@@ -16,6 +16,22 @@ class Filter
 	/** @var Field[]|null */
 	protected $fields = null;
 
+	protected $uiFilterPostfixes = [
+		'_datesel', '_month', '_quarter', '_year', '_days', // date
+		'_numsel', // number
+		'_from', '_to', // date and number ranges
+		'_isEmpty', // has no value
+		'_hasAnyValue', // has any value
+		'_label', // custom entity title
+	];
+
+	protected $uiFilterServiceFields = [
+		'FILTER_ID',
+		'FILTER_APPLIED',
+		'PRESET_ID',
+		'FIND',
+	];
+
 	function __construct($ID, DataProvider $entityDataProvider, array $extraDataProviders = null, array $params = null)
 	{
 		$this->ID = $ID;
@@ -138,6 +154,106 @@ class Filter
 		foreach ($filter as $k => $v)
 		{
 			$this->entityDataProvider->prepareListFilterParam($filter, $k);
+		}
+	}
+
+	/**
+	 * Get value suitable to use in getList
+	 *
+	 *If $rawValue is not set, will be used current main.ui.filter value
+	 *
+	 * @param array|null $rawValue
+	 * @return array
+	 */
+	public function getValue(?array $rawValue = null): array
+	{
+		$gridId = $this->getEntityDataProvider()->getSettings()->getID();
+		$rawValue = $rawValue ?? (new \Bitrix\Main\UI\Filter\Options($gridId))->getFilter();
+
+		$result = $rawValue;
+		$this->removeNotUiFilterFields($result);
+		$this->prepareListFilterParams($result);
+		$this->prepareFilterValue($result);
+		$this->removeServiceUiFilterFields($result);
+
+		return $result;
+	}
+
+	/**
+	 * Clear filter fields from main.ui.filter which are not actually needed for filter in getList
+	 * @param array $filter
+	 */
+	protected function removeServiceUiFilterFields(array &$filter): void
+	{
+		foreach ($filter as $fieldId => $fieldValue)
+		{
+			if (in_array($fieldId, $this->uiFilterServiceFields, true))
+			{
+				unset($filter[$fieldId]);
+				continue;
+			}
+			foreach ($this->uiFilterPostfixes as $postfix)
+			{
+				if (mb_substr($fieldId, -mb_strlen($postfix)) === $postfix)
+				{
+					unset($filter[$fieldId]);
+					continue;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Remove fields from $filter which are not really defined as filter fields
+	 * @param array $filter
+	 */
+	protected function removeNotUiFilterFields(array &$filter): void
+	{
+		$filterFieldsIds = array_map(
+			function(Field $filterField)
+			{
+				return $filterField->getId();
+			},
+			$this->getFields()
+		);
+
+		foreach ($filter as $fieldId => $fieldValue)
+		{
+			if (in_array($fieldId, $this->uiFilterServiceFields, true))
+			{
+				continue;
+			}
+			if (in_array($fieldId, $filterFieldsIds, true))
+			{
+				continue;
+			}
+			foreach ($this->uiFilterPostfixes as $postfix)
+			{
+				if (mb_substr($fieldId, -mb_strlen($postfix)) === $postfix)
+				{
+					$realFieldId = mb_substr($fieldId, 0, mb_strlen($postfix));
+					if (in_array($realFieldId, $filterFieldsIds, true))
+					{
+						continue;
+					}
+				}
+			}
+			unset($filter[$fieldId]); // not a valid filter field
+		}
+	}
+
+	protected function prepareFilterValue(array &$value): void
+	{
+		$dataProviders = array_merge(
+			[
+				$this->getEntityDataProvider(),
+			],
+			$this->extraProviders,
+		);
+
+		foreach ($dataProviders as $dataProvider)
+		{
+			$value = $dataProvider->prepareFilterValue($value);
 		}
 	}
 }

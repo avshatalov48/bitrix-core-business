@@ -376,13 +376,15 @@ else
 					</script><?php
 				}
 				?><div class="sonet-members-member-block-shift"><?php
+
 					foreach ($arResult["Moderators"]["List"] as $arMember)
 					{
 						$canExclude = (
 							$arResult["CurrentUserPerms"]
 							&& $arResult["CurrentUserPerms"]["UserCanModifyGroup"]
-							&& $arMember["USER_ID"] != $USER->getId()
+							&& (int)$arMember["USER_ID"] !== (int)$USER->getId()
 							&& $arMember["IS_OWNER"] !== 'Y'
+							&& !$arMember['IS_SCRUM_MASTER']
 						);
 
 						$arUserTmp = array(
@@ -614,8 +616,9 @@ else
 						$canExclude = (
 							$arResult["CurrentUserPerms"]
 							&& $arResult["CurrentUserPerms"]["UserCanModifyGroup"]
-							&& $arMember["USER_ID"] != $USER->getId()
+							&& (int)$arMember["USER_ID"] !== (int)$USER->getId()
 							&& $arMember["IS_OWNER"] !== 'Y'
+							&& !$arMember['IS_SCRUM_MASTER']
 						);
 
 						$arUserTmp = array(

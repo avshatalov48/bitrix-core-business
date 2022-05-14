@@ -524,7 +524,7 @@ span.bxhtmled-top-bar-dd-active:before {
 	width: 30px;
 }
 
-.bxhtmled-button-fontsize-wrap{margin-left: -4px; display: inline-block; width: 33px; /*overflow: hidden;*/ vertical-align: top !important;}
+.bxhtmled-button-fontsize-wrap{margin-left: -4px; display: inline-block; /*overflow: hidden;*/ vertical-align: top !important;}
 .bxhtmled-button-fontsize-wrap .bxhtmled-top-bar-select{width: 14px; padding-left: 3px; font-size: 12px; text-align: center;}
 .bxhtmled-button-fontsize{width: 32px;}
 
@@ -533,6 +533,7 @@ span.bxhtmled-top-bar-dd-active:before {
 .bxhtmled-button-fontsize i {width: 22px;}
 .bxhtmled-top-bar-wrap {
 	display: flex;
+	flex-wrap: wrap;
 	margin-left: 6px;
 }
 

@@ -218,7 +218,10 @@ export default class Package extends EventEmitter {
 		if (status === 'success')
 		{
 			this.parseResponse(data);
-			this.doStreaming(stream);
+			if (this.errors.length <= 0)
+			{
+				this.doStreaming(stream);
+			}
 		}
 		else
 		{
@@ -322,8 +325,10 @@ export default class Package extends EventEmitter {
 				{
 					itemId: itemId,
 					item: this.files.get(itemId).item,
-					response: {error: errorText, status: 'failed'}
-				});
+					response: {error: errorText, status: 'failed'},
+					serverResponse: Object.assign({}, this.response)
+				}
+			);
 		};
 		this.filesVirgin.forEach(handler);
 		this.filesVirgin.clear();

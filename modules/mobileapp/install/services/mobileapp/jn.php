@@ -4,7 +4,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_be
 
 /** @var CAllMain $APPLICATION */
 
-$componentName = $_GET['componentName'];
+$componentName = urldecode($_GET['componentName']);
 $namespace = $_GET['namespace'];
 $version = $_REQUEST['version'];
 

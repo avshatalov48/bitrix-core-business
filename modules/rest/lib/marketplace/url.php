@@ -453,6 +453,7 @@ namespace Bitrix\Rest\Marketplace
 	use Bitrix\Rest\Marketplace\Urls\Application as ApplicationUrls;
 	use Bitrix\Rest\Marketplace\Urls\LocalApplication as LocalApplicationUrls;
 	use Bitrix\Rest\Marketplace\Urls\Configuration;
+	use Bitrix\Rest\Url\DevOps;
 
 	class Url
 	{
@@ -483,9 +484,16 @@ namespace Bitrix\Rest\Marketplace
 			return "";
 		}
 
+		/**
+		 * @deprecated use \Bitrix\Rest\Url\DevOps->getPlacementUrl()
+		 *
+		 * @param null $placementId
+		 * @param null $params
+		 * @return string
+		 */
 		public static function getApplicationPlacementUrl($placementId = null, $params = null)
 		{
-			return MarketplaceUrls::getInstance()->getPlacementUrl($placementId, $params);
+			return DevOps::getInstance()->getPlacementUrl((int)$placementId, $params);
 		}
 
 		public static function getApplicationPlacementViewUrl($appCode = null, $params = null)

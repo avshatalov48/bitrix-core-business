@@ -1,0 +1,96 @@
+.sonet-interface-toolbar {
+	--white: rgba(255,255,255,1);
+	--white_alpha_15: rgba(255,255,255,.15);
+	--white_alpha_30: rgba(255,255,255,.3);
+	--white_alpha_40: rgba(255,255,255,.4);
+	--white_alpha_50: rgba(255,255,255,.5);
+	--white_alpha_80: rgba(255,255,255,.8);
+
+	--green: rgba(187,237,33,1);
+	--red: rgba(229,73,89,1);
+
+	--graphite: rgba(82,92,105,1);
+	--graphite_alpha_08: rgba(82,92,105,.08);
+	--graphite_alpha_30: rgba(82,92,105,.3);
+	--graphite_alpha_40: rgba(82,92,105,.4);
+	--graphite_alpha_50: rgba(82,92,105,.5);
+	--graphite_alpha_80: rgba(82,92,105,.8);
+
+	/* style */
+	display: none;
+	width: 100%;
+	max-height: 33px;
+	min-height: 33px;
+	font-family: OpenSans-Regular, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	color: var(--graphite);
+	padding: 0 5px 0 13px;
+}
+
+.sonet-pagetitle-view .sonet-interface-toolbar {
+	display: flex;
+}
+
+.im-bar-mode .sonet-interface-toolbar {
+	max-width: calc(100vw - 240px - 66px);
+}
+
+.im-bar-mode .menu-collapsed-mode .sonet-interface-toolbar {
+	max-width: calc(100vw - 66px - 66px);
+}
+
+.ui-page-slider-wrapper .sonet-interface-toolbar {
+	padding: 15px 0;
+}
+
+.sonet-interface-toolbar--item {
+	display: inline-flex;
+	overflow: hidden;
+	margin-right: 10px;
+	border-radius: 16px;
+	background: var(--graphite_alpha_08);
+}
+
+.sonet-interface-toolbar--item:last-of-type {
+	margin-right: 0;
+}
+
+.bitrix24-light-theme .sonet-interface-toolbar--item {
+	background: var(--white_alpha_15);
+}
+
+.bitrix24-light-theme .sonet-interface-toolbar--item {
+	background: var(--white_alpha_15);
+}
+
+.sonet-interface-toolbar--item.--without-bg {
+	background: none;
+	padding: 4px 0;
+}
+
+.sonet-interface-toolbar--item.--flex {
+	flex: 1;
+}
+
+.sonet-interface-toolbar--item.--visible {
+	overflow: visible;
+}
+
+.sonet-interface-toolbar--item.--align-right {
+	margin-left: auto;
+}
+
+.sonet-pagetitle-view .pagetitle-below {
+	min-height: 53px;
+	border-top: 1px solid rgba(220,226,230,.5);
+}
+
+.sonet-pagetitle-view .pagetitle-below,
+.sonet-pagetitle-view .ui-side-panel-wrap-below {
+	display: flex;
+	align-items: center;
+	border-top: 1px solid #dce2e6;
+	border-bottom: 1px solid #dce2e6;
+	box-sizing: border-box;
+	margin-bottom: 20px;
+}

@@ -1,14 +1,18 @@
-<?
+<?php
 $MESS["CLO_STORAGE_FILE_CANCEL_BTN"] = "Cancel";
 $MESS["CLO_STORAGE_FILE_COUNT"] = "Quantity";
 $MESS["CLO_STORAGE_FILE_DELETE"] = "Delete";
 $MESS["CLO_STORAGE_FILE_DELETE_CONF"] = "Do you want to delete the file irreversibly?";
+$MESS["CLO_STORAGE_FILE_DELETE_PROGRESS"] = "Last deleted file: <b>#last_deleted#</b>.";
 $MESS["CLO_STORAGE_FILE_EXISTS_ERROR"] = "A file with this name already exists in the cloud storage.";
+$MESS["CLO_STORAGE_FILE_LISTING"] = "Getting cloud storage file list";
 $MESS["CLO_STORAGE_FILE_LIST_ERROR"] = "Error getting file list.";
 $MESS["CLO_STORAGE_FILE_MTIME"] = "Modified on";
 $MESS["CLO_STORAGE_FILE_NAME"] = "Name";
 $MESS["CLO_STORAGE_FILE_OPEN_ERROR"] = "Error opening the file for reading.";
 $MESS["CLO_STORAGE_FILE_PATH_INPUT"] = "Path";
+$MESS["CLO_STORAGE_FILE_REFRESH"] = "Refresh";
+$MESS["CLO_STORAGE_FILE_REFRESH_TITLE"] = "Refresh cloud storage file list";
 $MESS["CLO_STORAGE_FILE_SHOW_DIR_SIZE"] = "Folder size";
 $MESS["CLO_STORAGE_FILE_SHOW_DIR_SIZE_TITLE"] = "Show folder size, including nested folders";
 $MESS["CLO_STORAGE_FILE_SIZE"] = "Size";
@@ -24,4 +28,3 @@ $MESS["CLO_STORAGE_FILE_UPLOAD_PROGRESS"] = "
 Uploaded: <b>#bytes#</b> of <b>#file_size#</b>.
 ";
 $MESS["CLO_STORAGE_FILE_UPLOAD_TITLE"] = "Upload new file to cloud storage.";
-?>

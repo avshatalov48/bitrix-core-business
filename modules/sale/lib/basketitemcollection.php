@@ -172,38 +172,47 @@ abstract class BasketItemCollection extends Internals\EntityCollection
 	}
 
 	/**
-	 * @param $moduleId
-	 * @param $productId
-	 * @param array $properties
-	 * @return BasketItem|null
-	 * @throws NotImplementedException
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
+	 * Get all basket items for need moduleId, productId and properties.
+	 *
+	 * @param string $moduleId
+	 * @param int $productId
+	 * @param array|null $properties if NULL - skips checking properties,
+	 * even if they are setted in the parameters and/or the basket item.
+	 * 
+	 * @return BasketItem[]
 	 */
-	public function getExistsItem($moduleId, $productId, array $properties = array())
+	public function getExistsItems(string $moduleId, int $productId, ?array $properties = [])
 	{
-		/** @var BasketItem $basketItem */
-		foreach ($this->collection as $basketItem)
+		$result = [];
+		
+		foreach ($this->getBasketItems() as $basketItem)
 		{
-			if ($basketItem->getField('PRODUCT_ID') == $productId && $basketItem->getField('MODULE') == $moduleId)
+			if ((int)$basketItem->getField('PRODUCT_ID') === $productId && $basketItem->getField('MODULE') === $moduleId)
 			{
+				// skip check properties
+				if (is_null($properties))
+				{
+					$result[] = $basketItem;
+					continue;
+				}
+				
 				/** @var BasketPropertiesCollection $basketPropertyCollection */
 				$basketPropertyCollection = $basketItem->getPropertyCollection();
-				if (!empty($properties) && is_array($properties))
+				if ($properties)
 				{
 					if ($basketPropertyCollection->isPropertyAlreadyExists($properties))
 					{
-						return $basketItem;
+						$result[] = $basketItem;
 					}
 				}
-				elseif (count($basketPropertyCollection) == 0)
+				elseif (count($basketPropertyCollection) === 0)
 				{
-					return $basketItem;
+					$result[] = $basketItem;
 				}
 			}
 		}
-
-		return null;
+		
+		return $result;
 	}
 
 	/**
@@ -277,5 +286,23 @@ abstract class BasketItemCollection extends Internals\EntityCollection
 		}
 
 		return $context;
+	}
+	
+	/**
+	 * @deprecated the basket can contain duplicate items. Use method `getExistsItems`
+	 * 
+	 * Get first basket item for need moduleId, productId and properties
+	 * 
+	 * @param $moduleId
+	 * @param $productId
+	 * @param array $properties
+	 * @return BasketItem|null
+	 * @throws NotImplementedException
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 */
+	public function getExistsItem($moduleId, $productId, array $properties = array())
+	{
+		return current($this->getExistsItems($moduleId, $productId, $properties)) ?: null;
 	}
 }

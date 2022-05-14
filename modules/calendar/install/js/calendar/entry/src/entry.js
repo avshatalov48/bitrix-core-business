@@ -202,7 +202,7 @@ export class Entry
 		//return this.calendar.sectionController.getSection(this.sectionId).name || '';
 	}
 
-	getDescription():string
+	getDescription()
 	{
 		return this.data.DESCRIPTION || '';
 	}

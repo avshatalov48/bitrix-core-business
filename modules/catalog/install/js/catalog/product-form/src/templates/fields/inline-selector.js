@@ -30,6 +30,7 @@ Vue.component(config.templateFieldInlineSelector,
 	},
 	created()
 	{
+		EventEmitter.subscribe('BX.Catalog.ProductSelector:onProductSelect', this.onProductSelect.bind(this));
 		EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.onProductChange.bind(this));
 		EventEmitter.subscribe('BX.Catalog.ProductSelector:onClear', this.onProductClear.bind(this))
 	},
@@ -109,6 +110,14 @@ Vue.component(config.templateFieldInlineSelector,
 		getField(name, defaultValue = null): any
 		{
 			return this.basketItem.fields[name] || defaultValue;
+		},
+		onProductSelect(event: BaseEvent)
+		{
+			const data = event.getData();
+			if (Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId())
+			{
+				this.$emit('onProductSelect');
+			}
 		},
 		onProductChange(event: BaseEvent): void
 		{

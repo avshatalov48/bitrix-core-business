@@ -1,6 +1,9 @@
 <?php
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
 	die();
+}
 
 use Bitrix\Blog\Copy\Integration\Group as BlogFeature;
 use Bitrix\Disk\Copy\Integration\Group as DiskFeature;
@@ -24,9 +27,9 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Photogallery\Copy\Integration\Group as PhotoFeature;
+use Bitrix\Socialnetwork\Component\WorkgroupForm;
 use Bitrix\Socialnetwork\Copy\GroupManager;
 use Bitrix\Socialnetwork\Item\Workgroup;
-use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Tasks\Copy\Integration\Group as TasksFeature;
 
@@ -323,8 +326,6 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 
 	private function getFeatures($groupId)
 	{
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork.group_create.ex/include.php");
-
 		$whiteList = [
 			"tasks" => [
 				"checklists" => [
@@ -383,7 +384,7 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 		}
 
 		$features = [];
-		__GCE_GetFeatures($groupId, $features);
+		WorkgroupForm::processWorkgroupFeatures($groupId, $features);
 
 		$result = [
 			"users" => [
@@ -513,8 +514,6 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 
 	private function getGroupData()
 	{
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork.group_create.ex/include.php");
-
 		$groupData = [
 			"ID" => $this->arResult["GROUP_ID"],
 			"GROUP_PROPERTIES" => [],
@@ -523,7 +522,7 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 			"MODERATOR_IDS" => []
 		];
 
-		__GCEGetGroup($groupData["ID"], $groupData["GROUP_PROPERTIES"], $groupData, "edit");
+		WorkgroupForm::processWorkgroupData($groupData["ID"], $groupData["GROUP_PROPERTIES"], $groupData, "edit");
 
 		$groupData["SUBJECTS"] = $this->getSubjects();
 

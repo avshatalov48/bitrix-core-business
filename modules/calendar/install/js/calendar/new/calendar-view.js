@@ -163,6 +163,7 @@
 						type: 'user',
 						isLocationCalendar: true,
 						locationAccess: this.calendar.util.config.locationAccess,
+						dayOfWeekMonthFormat: this.calendar.util.config.dayOfWeekMonthFormat,
 						ownerId: this.calendar.util.userId,
 						sections: this.calendar.roomsManager.getSections(),
 						roomsManager: this.calendar.roomsManager,
@@ -182,6 +183,7 @@
 						type: this.calendar.util.type,
 						isLocationCalendar: false,
 						locationAccess: this.calendar.util.config.locationAccess,
+						dayOfWeekMonthFormat: this.calendar.util.config.dayOfWeekMonthFormat,
 						ownerId: this.calendar.util.ownerId,
 						sections: this.calendar.sectionManager.getSections(),
 						trackingUserList: this.calendar.util.getSuperposedTrackedUsers(),
@@ -205,6 +207,7 @@
 				type: this.calendar.util.type,
 				isLocationCalendar: this.calendar.util.type === 'location',
 				locationAccess: this.calendar.util.config.locationAccess,
+				dayOfWeekMonthFormat: this.calendar.util.config.dayOfWeekMonthFormat,
 				ownerId: this.calendar.util.ownerId,
 				sections: this.calendar.util.type === 'location'
 					? this.calendar.roomsManager.getSections()
@@ -236,6 +239,7 @@
 					type: 'user',
 					isLocationCalendar: true,
 					locationAccess: this.calendar.util.config.locationAccess,
+					dayOfWeekMonthFormat: this.calendar.util.config.dayOfWeekMonthFormat,
 					roomsManager: this.calendar.roomsManager,
 					ownerId: this.calendar.util.ownerId,
 					userId: parseInt(this.calendar.currentUser.id)
@@ -248,6 +252,7 @@
 					type: this.calendar.util.type,
 					isLocationCalendar: false,
 					locationAccess: this.calendar.util.config.locationAccess,
+					dayOfWeekMonthFormat: this.calendar.util.config.dayOfWeekMonthFormat,
 					ownerId: this.calendar.util.ownerId,
 					userId: parseInt(this.calendar.currentUser.id)
 				});

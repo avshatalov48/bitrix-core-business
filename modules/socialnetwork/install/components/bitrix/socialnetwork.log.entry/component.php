@@ -18,6 +18,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 global $CACHE_MANAGER;
 
+use Bitrix\Main\Security\Random;
+use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
@@ -325,12 +327,17 @@ if (
 	$liveFeedEntity->setContentView();
 }
 
+$arResult['CONTENT_ID'] = '';
 if (
 	$liveFeedEntity
 	&& $contentId
 )
 {
-	$arResult["CONTENT_ID"] = (!empty($arParams["CONTENT_ID"]) ? $arParams["CONTENT_ID"] : $contentId['ENTITY_TYPE'].'-'.(int)$contentId['ENTITY_ID']);
+	$arResult['CONTENT_ID'] = (
+		!empty($arParams['CONTENT_ID'])
+			? $arParams['CONTENT_ID']
+			: $contentId['ENTITY_TYPE'] . '-' . (int)$contentId['ENTITY_ID']
+	);
 
 	if (isset($arParams["CONTENT_VIEW_CNT"]))
 	{
@@ -350,6 +357,14 @@ if (
 		$arResult["CONTENT_VIEW_CNT"] = 0;
 	}
 }
+
+$isAuthorized = $USER->isAuthorized();
+$arResult['CONTENT_VIEW_KEY'] = (string)($arResult['CONTENT_VIEW_KEY'] ?? ($isAuthorized ? Random::getString(8, false) : ''));
+$arResult['CONTENT_VIEW_KEY_SIGNED'] = (string)($arResult['CONTENT_VIEW_KEY_SIGNED'] ?? (
+	$isAuthorized
+		? (new Signer)->sign($arResult['CONTENT_VIEW_KEY'], 'ajaxSecurity' . $USER->getId() . $arResult['CONTENT_ID'])
+		: ''
+	));
 
 $arResult["Event"] = $arEvent;
 $arResult["WORKGROUPS_PAGE"] = COption::GetOptionString("socialnetwork", "workgroups_page", "/workgroups/", SITE_ID);

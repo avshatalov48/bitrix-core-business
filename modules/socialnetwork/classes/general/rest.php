@@ -2432,9 +2432,15 @@ class CSocNetLogRestService extends IRestService
 			$userIdList = [ $userIdList ];
 		}
 
-		$res = CSocNetGroup::getList(array(), array(
-			"ID" => $groupId
-		));
+		$res = CSocNetGroup::getList(
+			[],
+			[
+				'ID' => $groupId,
+			],
+			false,
+			false,
+			[ 'SCRUM_MASTER_ID' ]
+		);
 		$groupFields = $res->fetch();
 		if (!is_array($groupFields))
 		{
@@ -2453,6 +2459,11 @@ class CSocNetLogRestService extends IRestService
 		while ($relation = $resRelation->fetch())
 		{
 			if ($relation['ROLE'] === UserToGroupTable::ROLE_OWNER)
+			{
+				continue;
+			}
+
+			if ((int)$groupFields['SCRUM_MASTER_ID'] === (int)$relation['USER_ID'])
 			{
 				continue;
 			}

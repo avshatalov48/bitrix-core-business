@@ -125,7 +125,7 @@ final class CallRecord
 			$updateFields = [
 				'UF_FORUM_MESSAGE_DOC' => [ FileUserType::NEW_FILE_PREFIX . $diskObjectId ],
 			];
-			if (\Bitrix\Forum\Message::update($sourceCommentId, $updateFields))
+			if (\Bitrix\Forum\Message::update($sourceCommentId, $updateFields)->isSuccess())
 			{
 				$res = MessageTable::getList([
 					'filter' => [

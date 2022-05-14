@@ -310,7 +310,7 @@ class Asset
 			$this->targetList[$id]['START'] = true;
 			$this->target = &$this->targetList[$id];
 		}
-		elseif (!($id == 'TEMPLATE' || $id == 'PAGE'))
+		elseif ($id != 'TEMPLATE' && $id != 'PAGE')
 		{
 			if (isset($this->targetList[$id]))
 			{
@@ -1526,7 +1526,7 @@ class Asset
 	public function getCss($type = AssetShowTargetType::ALL)
 	{
 		$res = '';
-		$cnt = $ruleCount = 0;
+		$cnt = 0;
 		$additional = [];
 		static $setList = [];
 		static $ajaxList = [];
@@ -2219,7 +2219,7 @@ class Asset
 		}
 
 		$this->setTemplateID();
-		$res = $assetMD5 = $comments = $contents = '';
+		$res = $comments = $contents = '';
 		$prefix = trim($prefix);
 		$prefix = mb_strlen($prefix) < 1 ? 'default' : $prefix;
 		$add2End = (strncmp($prefix, 'kernel', 6) == 0);

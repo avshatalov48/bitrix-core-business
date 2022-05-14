@@ -71,6 +71,7 @@ class Sanitizer
 			Editor::BLOCK_PHP_ATTR,
 			'style', 'id', 'class', 'color', 'align', 'valign',
 			'height', 'width', 'title', 'style', 'class',
+			'dir', 'role',
 			Editor::BLOCK_PLACE_ATTR,
 			'data-bx-block-editor-block-type'
 		);

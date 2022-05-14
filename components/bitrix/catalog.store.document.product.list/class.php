@@ -13,7 +13,6 @@ use Bitrix\Catalog\StoreProductTable;
 use Bitrix\Catalog\StoreTable;
 use Bitrix\Catalog\Url\InventoryBuilder;
 use Bitrix\Catalog\v2\Sku\BaseSku;
-use Bitrix\Iblock\Url\AdminPage\BuilderManager;
 use Bitrix\Main;
 use Bitrix\Main\Grid\Editor\Types;
 use Bitrix\Main\Grid\Panel\Snippet;
@@ -22,6 +21,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Currency\CurrencyManager;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\Main\Web\Json;
 
 if (!Loader::includeModule('catalog'))
 {
@@ -29,7 +29,7 @@ if (!Loader::includeModule('catalog'))
 }
 
 final class CatalogStoreDocumentProductListComponent
-	extends \CBitrixComponent
+	extends \Bitrix\Catalog\Component\ProductList
 	implements Main\Engine\Contract\Controllerable, Main\Errorable
 {
 	use Main\ErrorableImplementation;
@@ -52,7 +52,6 @@ final class CatalogStoreDocumentProductListComponent
 		'TEXT' => '',
 		'FORMAT' => [],
 	];
-	protected $measures = [];
 	protected $stores = [];
 	protected $newRowCounter = 0;
 
@@ -522,22 +521,6 @@ final class CatalogStoreDocumentProductListComponent
 	/**
 	 * @return string
 	 */
-	protected function getDefaultMeasure(): array
-	{
-		foreach ($this->measures as $measure)
-		{
-			if ($measure['IS_DEFAULT'] === 'Y')
-			{
-				return $measure;
-			}
-		}
-
-		return [];
-	}
-
-	/**
-	 * @return string
-	 */
 	protected function getDefaultTotalCalculationField(): string
 	{
 		if (!empty($this->externalDocument['TOTAL_CALCULATION_FIELD']))
@@ -570,32 +553,6 @@ final class CatalogStoreDocumentProductListComponent
 	protected function getCurrencyFormat(): array
 	{
 		return $this->currency['FORMAT'];
-	}
-
-	/**
-	 * @return void
-	 */
-	protected function loadMeasures(): void
-	{
-		$measureResult = \CCatalogMeasure::getList(
-			array('CODE' => 'ASC'),
-			array(),
-			false,
-			array(),
-			array('CODE', 'SYMBOL_RUS', 'SYMBOL_INTL', 'IS_DEFAULT', 'ID')
-		);
-
-		$this->measures = [];
-		while ($measureFields = $measureResult->Fetch())
-		{
-			$measureItem = [
-				'CODE' => $measureFields['CODE'],
-				'IS_DEFAULT' => $measureFields['IS_DEFAULT'],
-				'SYMBOL' => $measureFields['SYMBOL_RUS'] ?? $measureFields['SYMBOL_INTL'],
-			];
-
-			$this->measures[$measureFields['ID']] = $measureItem;
-		}
 	}
 
 	protected function loadStores(): void
@@ -760,6 +717,18 @@ final class CatalogStoreDocumentProductListComponent
 				$barcode = $barcodes[$productId] ?? '';
 			}
 
+			$availableAmountTo = 0;
+			if (isset($document['STORE_TO']) && (int)$document['STORE_TO'] > 0)
+			{
+				$availableAmountTo = $this->getAvailableProductAmountOnStore($productStoreInfo, $productId, $document['STORE_TO']);
+			}
+
+			$availableAmountFrom = 0;
+			if (isset($document['STORE_FROM']) && (int)$document['STORE_FROM'] > 0)
+			{
+				$availableAmountFrom = $this->getAvailableProductAmountOnStore($productStoreInfo, $productId, $document['STORE_FROM']);
+			}
+
 			$additionalData = [
 				'ROW_ID' => $this->getRowIdPrefix($document['ID']),
 				'PRODUCT_INFO' => $product ?? [],
@@ -767,8 +736,12 @@ final class CatalogStoreDocumentProductListComponent
 				'DOC_BARCODE' => $barcode,
 				'STORE_TO_TITLE' => $this->stores[$document['STORE_TO']]['TITLE'] ?? '',
 				'STORE_TO_AMOUNT' => $productStoreInfo[$productId][$document['STORE_TO']]['AMOUNT'] ?? '',
+				'STORE_TO_RESERVED' => $productStoreInfo[$productId][$document['STORE_TO']]['QUANTITY_RESERVED'] ?? '',
+				'STORE_TO_AVAILABLE_AMOUNT' => $availableAmountTo,
 				'STORE_FROM_TITLE' => $this->stores[$document['STORE_FROM']]['TITLE'] ?? '',
 				'STORE_FROM_AMOUNT' => $productStoreInfo[$productId][$document['STORE_FROM']]['AMOUNT'] ?? '',
+				'STORE_FROM_RESERVED' => $productStoreInfo[$productId][$document['STORE_FROM']]['QUANTITY_RESERVED'] ?? '',
+				'STORE_FROM_AVAILABLE_AMOUNT' => $availableAmountFrom,
 				'STORE_AMOUNT_MAP' => $productStoreInfo[$productId] ?? null,
 				'IBLOCK_ID' => $product['IBLOCK_ID'] ?? $this->arParams['IBLOCK_ID'],
 				'BASE_PRICE_ID' => $product['BASE_PRICE_ID'] ?? $this->getStorageItem('BASE_PRICE_ID'),
@@ -776,7 +749,7 @@ final class CatalogStoreDocumentProductListComponent
 				'OFFERS_IBLOCK_ID' => $product['OFFERS_IBLOCK_ID'],
 				'SKU_ID' => $product['SKU_ID'],
 				'PRODUCT_ID' => $product['PRODUCT_ID'],
-				'SKU_TREE' => $product['SKU_TREE'],
+				'SKU_TREE' => Json::encode($product['SKU_TREE']),
 				'DETAIL_URL' => $product['DETAIL_URL'],
 				'IMAGE_INFO' => $product['IMAGE_INFO'],
 				'MEASURE_NAME' => $product['MEASURE_NAME'],
@@ -1336,8 +1309,8 @@ final class CatalogStoreDocumentProductListComponent
 			case StoreDocumentTable::TYPE_MOVING:
 				return [
 					'MAIN_INFO', 'BARCODE_INFO',
-					'STORE_FROM_INFO', 'STORE_FROM_AMOUNT',
-					'STORE_TO_INFO', 'STORE_TO_AMOUNT', 'AMOUNT',
+					'STORE_FROM_INFO', 'STORE_FROM_AVAILABLE_AMOUNT', 'STORE_FROM_AMOUNT',
+					'STORE_TO_INFO', 'STORE_TO_AVAILABLE_AMOUNT', 'STORE_TO_AMOUNT', 'AMOUNT',
 					'PURCHASING_PRICE', 'BASE_PRICE',
 				];
 		}
@@ -1444,9 +1417,22 @@ final class CatalogStoreDocumentProductListComponent
 
 		$result['STORE_FROM_RESERVED'] = [
 			'id' => 'STORE_FROM_RESERVED',
-			'name' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_FROM_RESERVED'),
-			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_FROM_RESERVED'),
+			'name' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_FROM_AMOUNT_RESERVED'),
+			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_FROM_AMOUNT_RESERVED'),
 			'sort' => 'STORE_FROM_RESERVED',
+			'default' => true,
+			'editable' => false,
+			'width' => $columnDefaultWidth,
+		];
+
+		$storeFromCommonAmountName = Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_FROM_AMOUNT_AVAILABLE');
+		$storeFromCommonAmountName = $this->externalDocument['CUSTOM_COLUMN_NAMES']['STORE_FROM_AVAILABLE_AMOUNT'] ?: $storeFromCommonAmountName;
+
+		$result['STORE_FROM_AVAILABLE_AMOUNT'] = [
+			'id' => 'STORE_FROM_AVAILABLE_AMOUNT',
+			'name' => $storeFromCommonAmountName,
+			'title' => $storeFromCommonAmountName,
+			'sort' => 'STORE_FROM_AVAILABLE_AMOUNT',
 			'default' => true,
 			'editable' => false,
 			'width' => $columnDefaultWidth,
@@ -1477,9 +1463,19 @@ final class CatalogStoreDocumentProductListComponent
 
 		$result['STORE_TO_RESERVED'] = [
 			'id' => 'STORE_TO_RESERVED',
-			'name' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_TO_RESERVED'),
-			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_TO_RESERVED'),
+			'name' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_AMOUNT_RESERVED'),
+			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_AMOUNT_RESERVED'),
 			'sort' => 'STORE_TO_RESERVED',
+			'default' => true,
+			'editable' => false,
+			'width' => $columnDefaultWidth,
+		];
+
+		$result['STORE_TO_AVAILABLE_AMOUNT'] = [
+			'id' => 'STORE_TO_AVAILABLE_AMOUNT',
+			'name' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_TO_AMOUNT_AVAILABLE'),
+			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_TO_AMOUNT_AVAILABLE'),
+			'sort' => 'STORE_TO_AVAILABLE_AMOUNT',
 			'default' => true,
 			'editable' => false,
 			'width' => $columnDefaultWidth,
@@ -1678,7 +1674,7 @@ final class CatalogStoreDocumentProductListComponent
 						'SKU_ID' => $row['OFFER_ID'],
 						'BASE_PRICE_ID' => $row['BASE_PRICE_ID'],
 					],
-					'SKU_TREE' => $row['SKU_TREE'],
+					'SKU_TREE' => $row['SKU_TREE'] ? Json::decode($row['SKU_TREE']) : '',
 					'MODE' => 'view',
 					'ENABLE_SEARCH' => false,
 					'ENABLE_IMAGE_CHANGE_SAVING' => false,
@@ -1710,6 +1706,10 @@ final class CatalogStoreDocumentProductListComponent
 					'AMOUNT' => (float)$row['AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
 					'STORE_FROM_AMOUNT' => (float)$row['STORE_FROM_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
 					'STORE_TO_AMOUNT' => (float)$row['STORE_TO_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
+					'STORE_FROM_RESERVED' => (float)$row['STORE_FROM_RESERVED'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
+					'STORE_TO_RESERVED' => (float)$row['STORE_TO_RESERVED'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
+					'STORE_FROM_AVAILABLE_AMOUNT' => (float)$row['STORE_FROM_AVAILABLE_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
+					'STORE_TO_AVAILABLE_AMOUNT' => (float)$row['STORE_TO_AVAILABLE_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
 				],
 				'editable' => !$this->isReadOnly(),
 				'parent_id' =>
@@ -1800,12 +1800,14 @@ final class CatalogStoreDocumentProductListComponent
 					$editorFields['STORE_TO'] = $row['STORE_TO'];
 					$editorFields['STORE_TO_AMOUNT'] = (float)$row['STORE_TO_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
 					$editorFields['STORE_TO_RESERVED'] = (float)$row['STORE_TO_RESERVED'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
+					$editorFields['STORE_TO_AVAILABLE_AMOUNT'] = (float)$row['STORE_TO_AVAILABLE_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
 					break;
 
 				case 'STORE_FROM_INFO':
 					$editorFields['STORE_FROM'] = $row['STORE_FROM'];
 					$editorFields['STORE_FROM_AMOUNT'] = (float)$row['STORE_FROM_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
 					$editorFields['STORE_FROM_RESERVED'] = (float)$row['STORE_FROM_RESERVED'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
+					$editorFields['STORE_FROM_AVAILABLE_AMOUNT'] = (float)$row['STORE_FROM_AVAILABLE_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
 					break;
 			}
 		}
@@ -1847,11 +1849,13 @@ final class CatalogStoreDocumentProductListComponent
 			'STORE_TO_TITLE' => $defaultStoreTitle ?? null,
 			'STORE_TO_AMOUNT' => 0,
 			'STORE_TO_RESERVED' => 0,
+			'STORE_TO_AVAILABLE_AMOUNT' => 0,
 			'STORE_FROM' => $defaultStoreId ?? null,
 			'STORE_FROM_TITLE' => $defaultStoreTitle ?? null,
 			'STORE_FROM_AMOUNT' => 0,
 			'STORE_AMOUNT_MAP' => null,
 			'STORE_FROM_RESERVED' => 0,
+			'STORE_FROM_AVAILABLE_AMOUNT' => 0,
 			'IS_NEW' => 'N',
 			'BASE_PRICE_EXTRA' => '',
 			'BASE_PRICE_EXTRA_RATE' => StoreDocumentElementTable::EXTRA_RATE_PERCENTAGE,
@@ -1883,97 +1887,6 @@ final class CatalogStoreDocumentProductListComponent
 	}
 
 	/* Access rights tools */
-
-
-	private function loadCatalog(array $skuIds): array
-	{
-		Main\Type\Collection::normalizeArrayValuesByInt($skuIds, true);
-
-		$repositoryFacade = ServiceContainer::getRepositoryFacade();
-		if (!$repositoryFacade)
-		{
-			return [];
-		}
-
-		$productInfo = [];
-		$productSkuIblockMap = [];
-		foreach ($skuIds as $skuId)
-		{
-			$sku = $repositoryFacade->loadVariation($skuId);
-			if (!$sku)
-			{
-				continue;
-			}
-
-			/** @var \Bitrix\Catalog\v2\Product\BaseProduct $product */
-			$product = $sku->getParent();
-
-			$fields = $sku->getFields();
-			$fields['PRODUCT_ID'] = $product->getId();
-			$fields['SKU_ID'] = $skuId;
-			$fields['OFFERS_IBLOCK_ID'] = 0;
-			$fields['SKU_TREE'] = [];
-			$fields['DETAIL_URL'] = $this->getElementDetailUrl($product->getIblockId(), $product->getId());
-
-			$measure = $this->measures[$sku->getField('MEASURE')];
-			if (!$measure)
-			{
-				$measure = $this->getDefaultMeasure();
-			}
-
-			$fields['MEASURE_CODE'] = $measure['CODE'];
-			$fields['MEASURE_NAME'] = $measure['SYMBOL'];
-
-			if (!$product->isSimple())
-			{
-				$fields['OFFERS_IBLOCK_ID'] = $fields['IBLOCK_ID'];
-				$fields['IBLOCK_ID'] = $product->getIblockId();
-				$productSkuIblockMap[$product->getIblockId()] = $productSkuIblockMap[$product->getIblockId()] ?? [];
-				$productSkuIblockMap[$product->getIblockId()][$product->getId()][] = $sku->getId();
-			}
-
-			$productInfo[$skuId] = [
-				'SKU' => $sku,
-				'FIELDS' => $fields,
-			];
-		}
-
-		if ($productSkuIblockMap)
-		{
-			foreach ($productSkuIblockMap as $iblockId => $productMap)
-			{
-				$skuTree = ServiceContainer::make('sku.tree', ['iblockId' => $iblockId]);
-				if ($skuTree)
-				{
-					$skuTreeItems = $skuTree->loadJsonOffers($productMap);
-					foreach ($skuTreeItems as $offers)
-					{
-						foreach ($offers as $skuId => $skuTreeItem)
-						{
-							if (isset($productInfo[$skuId]['FIELDS']))
-							{
-								$productInfo[$skuId]['FIELDS']['SKU_TREE'] = $skuTreeItem;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		return $productInfo;
-	}
-
-	private function getElementDetailUrl(int $iblockId, int $skuId = 0): string
-	{
-		$urlBuilder = BuilderManager::getInstance()->getBuilder($this->arParams['BUILDER_CONTEXT']);
-		if (!$urlBuilder)
-		{
-			return '';
-		}
-
-		$urlBuilder->setIblockId($iblockId);
-		return $urlBuilder->getElementDetailUrl($skuId);
-	}
 
 	protected function getPrefix(): string
 	{
@@ -2132,6 +2045,34 @@ final class CatalogStoreDocumentProductListComponent
 		});
 
 		return reset($filteredStores) ?: null;
+	}
+
+	/**
+	 * Returns available amount on store (amount - quantity in reserve)
+	 *
+	 * @param array $productStoreInfo
+	 * @param int $productId
+	 * @param int $storeId
+	 * @return float
+	 */
+	private function getAvailableProductAmountOnStore(array $productStoreInfo, int $productId, int $storeId): float
+	{
+		$amount = 0.0;
+
+		if (
+			isset(
+				$productStoreInfo[$productId][$storeId]['AMOUNT'],
+				$productStoreInfo[$productId][$storeId]['QUANTITY_RESERVED']
+			)
+		)
+		{
+			$amount =
+				$productStoreInfo[$productId][$storeId]['AMOUNT']
+				- $productStoreInfo[$productId][$storeId]['QUANTITY_RESERVED']
+			;
+		}
+
+		return $amount;
 	}
 
 	public function getPopupSettings(): array

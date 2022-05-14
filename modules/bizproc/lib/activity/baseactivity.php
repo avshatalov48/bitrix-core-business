@@ -47,8 +47,10 @@ abstract class BaseActivity extends \CBPActivity
 	{
 		$fieldsMap = static::getPropertiesDialogMap();
 
-		foreach ($this->arProperties as $propertyId => $propertyValue)
+		foreach (array_keys($this->arProperties) as $propertyId)
 		{
+			$propertyValue = $this->getRawProperty($propertyId);
+
 			$type = '';
 			if (isset($this->arPropertiesTypes) && isset($this->arPropertiesTypes[$propertyId]))
 			{

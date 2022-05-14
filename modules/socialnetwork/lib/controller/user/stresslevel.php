@@ -280,7 +280,7 @@ class StressLevel extends Base
 		if (\Bitrix\Socialnetwork\UserWelltoryDisclaimerTable::add([
 			'USER_ID' => $this->getCurrentUser()->getId(),
 			'DATE_SIGNED' => new \Bitrix\Main\DB\SqlExpression(\Bitrix\Main\Application::getConnection()->getSqlHelper()->getCurrentDateTimeFunction()),
-		]))
+		])->isSuccess())
 		{
 			$result = $this->getDisclaimer([
 				'userId' => $userId

@@ -28,7 +28,9 @@ Toolbar::deleteFavoriteStar();
 			/>
 			<div>
 				<div>
-					<a href="<?=$arResult['STORE_AMOUNT_DATA']['SKU_DATA']['LINK']?>"><?=$arResult['STORE_AMOUNT_DATA']['SKU_DATA']['NAME']?></a>
+					<a class="store-amount-sku-name" href="<?=$arResult['STORE_AMOUNT_DATA']['SKU_DATA']['LINK']?>">
+						<?=$arResult['STORE_AMOUNT_DATA']['SKU_DATA']['NAME']?>
+					</a>
 				</div>
 				<div class="store-amount-sku-price-and-properties-container">
 					<span class="store-amount-sku-properties"><?=$arResult['STORE_AMOUNT_DATA']['SKU_DATA']['PROPERTIES']?></span>
@@ -40,17 +42,17 @@ Toolbar::deleteFavoriteStar();
 		<div class="store-amount-store-data-container">
 			<p class="store-amount-store-name"><?=$storeData['NAME']?></p>
 			<div class="store-amount-store-quantities-container">
-				<?php if ($arResult['IS_SHOWED_STORE_RESERVE']) : ?>
-				<span
-					class="store-amount-store-quantity"
-				><?=Loc::getMessage('STORE_AMOUNT_DETAILS_SLIDER_QUANTITY_AVAILABLE', ['#QUANTITY#' => $storeData['QUANTITY_AVAILABLE']])?></span>
-				<span
-					class="store-amount-store-quantity"
-				><?=Loc::getMessage('STORE_AMOUNT_DETAILS_SLIDER_QUANTITY_RESERVED1', ['#QUANTITY#' => $storeData['QUANTITY_RESERVED']])?></span>
-				<?php endif; ?>
 				<span
 					class="store-amount-store-quantity"
 				><?=Loc::getMessage('STORE_AMOUNT_DETAILS_SLIDER_QUANTITY_COMMON1', ['#QUANTITY#' => $storeData['QUANTITY_COMMON']])?></span>
+				<?php if ($arResult['IS_SHOWED_STORE_RESERVE']) : ?>
+				<span
+					class="store-amount-store-quantity"
+				><?=Loc::getMessage('STORE_AMOUNT_DETAILS_SLIDER_QUANTITY_RESERVED1', ['#QUANTITY#' => $storeData['QUANTITY_RESERVED']])?></span>
+				<span
+					class="store-amount-store-quantity"
+				><?=Loc::getMessage('STORE_AMOUNT_DETAILS_SLIDER_QUANTITY_AVAILABLE', ['#QUANTITY#' => $storeData['QUANTITY_AVAILABLE']])?></span>
+				<?php endif; ?>
 			</div>
 		</div>
 		<?php endforeach; ?>

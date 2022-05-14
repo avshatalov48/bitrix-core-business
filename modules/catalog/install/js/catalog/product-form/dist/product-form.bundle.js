@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,currency,ui_layoutForm,ui_forms,ui_buttons,ui_common,ui_alerts,catalog_productSelector,ui_entitySelector,catalog_productModel,ui_vue_vuex,ui_vue,main_popup,main_core,main_loader,ui_label,ui_messagecard,ui_vue_components_hint,ui_notification,ui_infoHelper,main_qrcode,clipboard,helper,catalog_storeUse,main_core_events,currency_currencyCore,catalog_productCalculator) {
+(function (exports,currency,ui_layoutForm,ui_forms,ui_buttons,ui_common,ui_alerts,catalog_productSelector,ui_entitySelector,catalog_productModel,ui_vue_vuex,ui_vue,main_popup,main_core,main_loader,ui_label,ui_messagecard,ui_vue_components_hint,ui_notification,ui_infoHelper,main_qrcode,clipboard,helper,catalog_storeUse,ui_hint,main_core_events,currency_currencyCore,catalog_productCalculator) {
 	'use strict';
 
 	class FormElementPosition {}
@@ -680,6 +680,7 @@ this.BX = this.BX || {};
 	  },
 
 	  created() {
+	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onProductSelect', this.onProductSelect.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.onProductChange.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onClear', this.onProductClear.bind(this));
 	  },
@@ -756,6 +757,14 @@ this.BX = this.BX || {};
 
 	    getField(name, defaultValue = null) {
 	      return this.basketItem.fields[name] || defaultValue;
+	    },
+
+	    onProductSelect(event) {
+	      const data = event.getData();
+
+	      if (main_core.Type.isStringFilled(data.selectorId) && data.selectorId === this.productSelector.getId()) {
+	        this.$emit('onProductSelect');
+	      }
 	    },
 
 	    onProductChange(event) {
@@ -1209,6 +1218,15 @@ this.BX = this.BX || {};
 	      this.setCalculatedFields(fields);
 	    },
 
+	    onProductSelect() {
+	      this.changeProductFields({
+	        additionalFields: {
+	          originBasketId: '',
+	          originProductId: ''
+	        }
+	      });
+	    },
+
 	    onProductClear() {
 	      const fields = this.model.getCalculator().calculatePrice(0);
 	      fields.BASE_PRICE = 0;
@@ -1530,6 +1548,7 @@ this.BX = this.BX || {};
 						:options="options"
 						:model="model"
 						:editable="isEditableField(blocks.productSelector)"
+						@onProductSelect="onProductSelect"
 						@onProductChange="onProductChange"
 						@saveCatalogField="saveCatalogField"
 					/>
@@ -2000,7 +2019,8 @@ this.BX = this.BX || {};
 	let _$2 = t => t,
 	    _t$2,
 	    _t2$2,
-	    _t3$1;
+	    _t3$1,
+	    _t4$1;
 	ui_vue.Vue.component(config.templatePanelButtons, {
 	  /**
 	   * @emits 'changeRowData' {index: number, fields: object}
@@ -2052,7 +2072,7 @@ this.BX = this.BX || {};
 	              resetSku: true
 	            }
 	          }
-	        }).then(response => this.processResponse(response));
+	        }).then(response => this.processResponse(response, params.isAddAnyway));
 	      } else {
 	        main_core.ajax.runAction('catalog.productSelector.getProduct', {
 	          json: {
@@ -2063,12 +2083,12 @@ this.BX = this.BX || {};
 	              currency: this.options.currency
 	            }
 	          }
-	        }).then(response => this.processResponse(response));
+	        }).then(response => this.processResponse(response, params.isAddAnyway));
 	      }
 	    },
 
-	    processResponse(response) {
-	      const index = this.getInternalIndexByProductId(response.data.skuId);
+	    processResponse(response, isAddAnyway) {
+	      const index = isAddAnyway ? -1 : this.getInternalIndexByProductId(response.data.skuId);
 
 	      if (index < 0) {
 	        const productData = response.data;
@@ -2158,7 +2178,7 @@ this.BX = this.BX || {};
 	        lightShadow: true,
 	        cacheable: false,
 	        overlay: true,
-	        content: main_core.Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_TEXT').replace('#NAME#', params.name),
+	        content: main_core.Loc.getMessage('CATALOG_FORM_BLOCK_PROD_EXIST_DLG_TEXT_FOR_DOUBLE').replace('#NAME#', params.name),
 	        buttons: this.getButtons(params)
 	      });
 	      this.popup.show();
@@ -2174,10 +2194,9 @@ this.BX = this.BX || {};
 	          const index = this.getInternalIndexByProductId(productId);
 
 	          if (index >= 0) {
-	            const item = this.$store.getters['productList/getBasket']()[index];
-	            item.fields.quantity++;
-	            item.calculatedFields.QUANTITY++;
-	            this.onUpdateBasketItem(index, item);
+	            this.handleAddItem(productId, { ...params,
+	              isAddAnyway: true
+	            });
 	          }
 
 	          this.popup.destroy();
@@ -2232,46 +2251,31 @@ this.BX = this.BX || {};
 	              const index = this.getSettingItems().findIndex(item => {
 	                return item.id === event.target.dataset.settingId;
 	              });
-	              this.settings[index].checked = response.data === true;
+	              this.options.warehouseOption = response.data === true;
+	              this.settings = this.getSettingItems();
 	            });
-	          });
-	        } else {
-	          new catalog_storeUse.DialogDisable().popup();
-	          main_core_events.EventEmitter.subscribe(catalog_storeUse.EventType.popup.disable, () => {
-	            main_core.ajax.runAction('catalog.config.InventoryManagementN', {}).then(response => {
-	              const index = this.getSettingItems().findIndex(item => {
-	                return item.id === event.target.dataset.settingId;
-	              });
-	              BX.UI.Notification.Center.notify({
-	                content: main_core.Loc.getMessage('CATALOG_FORM_ADD_WAREHOUSE_DISABLED'),
-	                width: 'auto',
-	                autoHideDelay: 3000
-	              });
-	              this.settings[index].checked = !response.data;
-	            });
-	          });
-	          main_core_events.EventEmitter.subscribe(catalog_storeUse.EventType.popup.disableCancel, () => {
-	            const index = this.getSettingItems().findIndex(item => {
-	              return item.id === event.target.dataset.settingId;
-	            });
-	            this.settings[index].checked = true;
 	          });
 	        }
 	      }
 	    },
 
 	    getSettingItem(item) {
+	      var _item$disabled;
+
 	      const input = main_core.Tag.render(_t$2 || (_t$2 = _$2`
 					<input type="checkbox"  class="ui-ctl-element">
 				`));
 	      input.checked = item.checked;
+	      input.disabled = (_item$disabled = item.disabled) != null ? _item$disabled : false;
 	      input.dataset.settingId = item.id;
-	      const setting = main_core.Tag.render(_t2$2 || (_t2$2 = _$2`
+	      const hintNode = main_core.Type.isStringFilled(item.hint) ? main_core.Tag.render(_t2$2 || (_t2$2 = _$2`<span class="catalog-product-form-setting-hint" data-hint="${0}"></span>`), item.hint) : '';
+	      const setting = main_core.Tag.render(_t3$1 || (_t3$1 = _$2`
 				<label class="ui-ctl ui-ctl-checkbox ui-ctl-w100">
 					${0}
-					<div class="ui-ctl-label-text">${0}</div>
+					<div class="ui-ctl-label-text ${0}">${0}${0}</div>
 				</label>
-			`), input, item.title);
+			`), input, item.disabled ? 'catalog-product-form-disabled-setting' : '', item.title, hintNode);
+	      BX.UI.Hint.init(setting);
 	      main_core.Event.bind(setting, 'change', this.setSetting.bind(this));
 	      return setting;
 	    },
@@ -2294,12 +2298,14 @@ this.BX = this.BX || {};
 	      {
 	        id: 'warehouseOption',
 	        checked: this.options.warehouseOption,
-	        title: this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_OPTION
+	        disabled: this.options.warehouseOption,
+	        title: this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_OPTION,
+	        hint: this.options.warehouseOption ? this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_HINT : ''
 	      }];
 	    },
 
 	    prepareSettingsContent() {
-	      const content = main_core.Tag.render(_t3$1 || (_t3$1 = _$2`
+	      const content = main_core.Tag.render(_t4$1 || (_t4$1 = _$2`
 					<div class='catalog-pf-product-config-popup'></div>
 				`));
 	      this.settings.forEach(item => {
@@ -2989,5 +2995,5 @@ this.BX = this.BX || {};
 
 	exports.ProductForm = ProductForm;
 
-}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX.UI,BX,BX.UI,BX,BX.UI,BX.Catalog,BX.UI.EntitySelector,BX.Catalog,BX,BX,BX.Main,BX,BX,BX.UI,BX.UI,window,BX,BX,BX,BX,BX,BX.Catalog.StoreUse,BX.Event,BX.Currency,BX.Catalog));
+}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX.UI,BX,BX.UI,BX,BX.UI,BX.Catalog,BX.UI.EntitySelector,BX.Catalog,BX,BX,BX.Main,BX,BX,BX.UI,BX.UI,window,BX,BX,BX,BX,BX,BX.Catalog.StoreUse,BX,BX.Event,BX.Currency,BX.Catalog));
 //# sourceMappingURL=product-form.bundle.js.map

@@ -18,7 +18,8 @@ class GridVariationForm extends VariationForm
 	/** @var \Bitrix\Catalog\v2\Sku\BaseSku */
 	protected $entity;
 
-	protected $headers = [];
+	protected static $usedHeaders;
+	protected static $headers;
 
 	protected function prepareFieldName(string $name): string
 	{
@@ -133,12 +134,17 @@ class GridVariationForm extends VariationForm
 
 	public function getColumnValues(bool $allowDefaultValues = true): array
 	{
-		$values = parent::getValues($allowDefaultValues);
+		$values = $this->getShowedValues($allowDefaultValues);
 
 		foreach ($this->getGridHeaders() as $description)
 		{
 			$name = $description['id'];
-			$currentValue = $values[$name] ?? '';
+			if (!isset($values[$name]))
+			{
+				continue;
+			}
+
+			$currentValue = $values[$name];
 
 			switch ($description['type'])
 			{
@@ -210,13 +216,8 @@ class GridVariationForm extends VariationForm
 		return $values;
 	}
 
-	public function getGridHeaders(): array
+	public function loadGridHeaders(): array
 	{
-		if (!empty($this->headers))
-		{
-			return $this->headers;
-		}
-
 		$defaultWidth = 130;
 
 		$headerName = static::getHeaderName('NAME');
@@ -336,9 +337,19 @@ class GridVariationForm extends VariationForm
 			)
 		);
 
-		$this->headers = $headers;
+		self::$headers = $headers;
 
-		return $this->headers;
+		return $headers;
+	}
+
+	public function getGridHeaders(): array
+	{
+		if (self::$headers)
+		{
+			return self::$headers;
+		}
+
+		return $this->loadGridHeaders();
 	}
 
 	protected function getProductFieldHeaders(array $fields, int $defaultWidth): array
@@ -502,13 +513,43 @@ class GridVariationForm extends VariationForm
 		return $headers;
 	}
 
-	public function getValues(bool $allowDefaultValues = true): array
+	private function getShowedValues(bool $allowDefaultValues = true): array
 	{
-		$values = parent::getValues($allowDefaultValues);
+		if (!self::$usedHeaders)
+		{
+			$options = new \Bitrix\Main\Grid\Options($this->getVariationGridId());
+			self::$usedHeaders = $options->getUsedColumns();
+
+			if (!self::$usedHeaders)
+			{
+				$defaultHeaders = array_filter($this->getGridHeaders(), static function ($header) {
+					return ($header['default'] === true);
+				});
+
+				self::$usedHeaders = array_column($defaultHeaders, 'id');
+			}
+		}
+
+		$usedHeaders = self::$usedHeaders;
+		$filteredDescriptions = array_filter($this->getDescriptions(), static function ($description) use ($usedHeaders) {
+			return in_array($description['name'], $usedHeaders, true);
+		});
+
+		return parent::getValues($allowDefaultValues, $filteredDescriptions);
+	}
+
+	public function getValues(bool $allowDefaultValues = true, array $descriptions = null): array
+	{
+		$values = $this->getShowedValues($allowDefaultValues);
 
 		foreach ($this->getDescriptions() as $description)
 		{
 			$name = $description['name'];
+
+			if (!isset($values[$name]))
+			{
+				continue;
+			}
 
 			switch ($description['type'])
 			{
@@ -534,9 +575,9 @@ class GridVariationForm extends VariationForm
 		return $values;
 	}
 
-	protected function getAdditionalValues(array $values): array
+	protected function getAdditionalValues(array $values, array $descriptions = null): array
 	{
-		$additionalValues = parent::getAdditionalValues($values);
+		$additionalValues = parent::getAdditionalValues($values, $descriptions);
 
 		$numberFields = ['MEASURE_RATIO', 'QUANTITY'];
 		foreach ($numberFields as $fieldName)

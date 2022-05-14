@@ -512,7 +512,21 @@ while ($arBuyers = $resultUsersList->Fetch())
 
 	if (in_array("LID", $arVisibleColumns))
 	{
-		$row->AddField("LID", htmlspecialcharsbx($arSites[$arBuyers['LID']]["NAME"]));
+		$buyerLidId = null;
+		if (isset($arBuyers['LID']))
+		{
+			$buyerLidId = $arBuyers['LID'];
+		}
+		else if (isset($userOrderData[$userId]))
+		{
+			$buyerLidId = $userOrderData[$userId]['LID'] ?? null;
+		}
+		else if (defined('SITE_ID'))
+		{
+			$buyerLidId = SITE_ID;
+		}
+
+		$row->AddField("LID", htmlspecialcharsbx($arSites[$buyerLidId]["NAME"]));
 	}
 
 	/*BUYER*/

@@ -12,6 +12,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Sale\ShopSitesController;
 use Bitrix\Seo\BusinessSuite\Service;
 use Bitrix\Seo\Conversion\Facebook;
+use Bitrix\Sale\Internals\AnalyticsEventTable;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -199,7 +200,7 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 		$iterator = FacebookConversionParamsTable::getList([
 			'select' => ['LID', 'ENABLED', 'PARAMS'],
 			'filter' => [
-				'EVENT_NAME' => $this->getEventName(),
+				'=EVENT_NAME' => $this->getEventName(),
 			],
 		]);
 
@@ -327,8 +328,8 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 		$facebookConversionParams = FacebookConversionParamsTable::getList([
 			'select' => ['ID', 'PARAMS'],
 			'filter' => [
-				'EVENT_NAME' => $eventName,
-				'LID' => $shopId,
+				'=EVENT_NAME' => $eventName,
+				'=LID' => $shopId,
 			],
 		])->fetch();
 
@@ -357,8 +358,8 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 		$facebookConversionParams = FacebookConversionParamsTable::getList([
 			'select' => ['ID'],
 			'filter' => [
-				'EVENT_NAME' => $eventName,
-				'LID' => $shopId,
+				'=EVENT_NAME' => $eventName,
+				'=LID' => $shopId,
 			],
 		])->fetch();
 
@@ -381,6 +382,15 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 			]);
 		}
 
+		AnalyticsEventTable::add([
+			'CODE' => $enabled
+				? AnalyticsEventTable::FACEBOOK_CONVERSION_SHOP_EVENT_ENABLED
+				: AnalyticsEventTable::FACEBOOK_CONVERSION_SHOP_EVENT_DISABLED,
+			'PAYLOAD' => [
+				'EVENT_NAME' => $this->getEventName(),
+			],
+		]);
+
 		if ($this->isFacebookConversionEventEnabled($eventName))
 		{
 			$this->registerEventHandler($eventName);
@@ -394,8 +404,8 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 	private function isFacebookConversionEventEnabled(string $eventName): bool
 	{
 		$count = FacebookConversionParamsTable::getCount([
-			'EVENT_NAME' => $eventName,
-			'ENABLED' => 'Y'
+			'=EVENT_NAME' => $eventName,
+			'=ENABLED' => 'Y'
 		]);
 
 		return $count > 0;

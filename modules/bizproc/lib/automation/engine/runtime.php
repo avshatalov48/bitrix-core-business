@@ -82,6 +82,14 @@ class Runtime
 				$startParameters += $trigger['RETURN'];
 			}
 
+			foreach ($template->getParameters() as $parameterId => $parameter)
+			{
+				if (!isset($startParameters[$parameterId]) && isset($parameter['Default']))
+				{
+					$startParameters[$parameterId] = $parameter['Default'];
+				}
+			}
+
 			$this->setStarted($documentType[2], $documentId, $documentStatus);
 			$workflowId = \CBPDocument::startWorkflow(
 				$template->getId(),

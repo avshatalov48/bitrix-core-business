@@ -522,7 +522,7 @@ class UserToGroup extends Base
 		return \CSocNetUserToGroup::ConfirmRequestToBeMember(
 			$this->getCurrentUser()->getId(),
 			$groupId,
-			[$relationId]
+			[ $relationId ]
 		);
 	}
 

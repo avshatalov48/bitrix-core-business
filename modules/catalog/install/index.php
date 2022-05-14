@@ -112,6 +112,12 @@ class catalog extends CModule
 			'onGetDependentModule'
 		);
 
+		$eventManager->registerEventHandler('report', 'onAnalyticPageBatchCollect', 'catalog', '\Bitrix\Catalog\Integration\Report\EventHandler', 'onAnalyticPageBatchCollect');
+		$eventManager->registerEventHandler('report', 'onAnalyticPageCollect', 'catalog', '\Bitrix\Catalog\Integration\Report\EventHandler', 'onAnalyticPageCollect');
+		$eventManager->registerEventHandler('report', 'onDefaultBoardsCollect', 'catalog', '\Bitrix\Catalog\Integration\Report\EventHandler', 'onDefaultBoardsCollect');
+		$eventManager->registerEventHandler('report', 'onReportsCollect', 'catalog', '\Bitrix\Catalog\Integration\Report\EventHandler', 'onReportHandlerCollect');
+		$eventManager->registerEventHandler('report', 'onReportViewCollect', 'catalog', '\Bitrix\Catalog\Integration\Report\EventHandler', 'onViewsCollect');
+
 		$eventManager->registerEventHandlerCompatible('main', 'onUserDelete', 'catalog', '\Bitrix\Catalog\SubscribeTable', 'onUserDelete');
 		$eventManager->registerEventHandlerCompatible('catalog', 'onAddContactType', 'catalog', '\Bitrix\Catalog\SubscribeTable', 'onAddContactType');
 		$eventManager->registerEventHandler('sale', 'OnSaleOrderSaved', 'catalog', '\Bitrix\Catalog\SubscribeTable', 'onSaleOrderSaved');
@@ -133,8 +139,6 @@ class catalog extends CModule
 		$eventManager->registerEventHandlerCompatible("catalog", "OnCondCatControlBuildList", "catalog", "CCatalogCondCtrlGroup", "GetControlDescr", 100);
 		$eventManager->registerEventHandlerCompatible("catalog", "OnCondCatControlBuildList", "catalog", "CCatalogCondCtrlIBlockFields", "GetControlDescr", 200);
 		$eventManager->registerEventHandlerCompatible("catalog", "OnCondCatControlBuildList", "catalog", "CCatalogCondCtrlIBlockProps", "GetControlDescr", 300);
-		$eventManager->registerEventHandlerCompatible("catalog", "OnDocumentBarcodeDelete", "catalog", "CCatalogStoreDocsElement", "OnDocumentBarcodeDelete");
-		$eventManager->registerEventHandlerCompatible("catalog", "OnBeforeDocumentDelete", "catalog", "CCatalogStoreDocsBarcode", "OnBeforeDocumentDelete");
 		$eventManager->registerEventHandlerCompatible("catalog", "OnCatalogStoreDelete", "catalog", "CCatalogDocs", "OnCatalogStoreDelete");
 		$eventManager->registerEventHandlerCompatible("iblock", "OnBeforeIBlockPropertyUpdate", "catalog", "CCatalog", "OnBeforeIBlockPropertyUpdate");
 		$eventManager->registerEventHandlerCompatible("iblock", "OnBeforeIBlockPropertyDelete", "catalog", "CCatalog", "OnBeforeIBlockPropertyDelete");
@@ -368,8 +372,6 @@ class catalog extends CModule
 		$eventManager->unRegisterEventHandler("catalog", "OnCondCatControlBuildList", "catalog", "CCatalogCondCtrlGroup", "GetControlDescr");
 		$eventManager->unRegisterEventHandler("catalog", "OnCondCatControlBuildList", "catalog", "CCatalogCondCtrlIBlockFields", "GetControlDescr");
 		$eventManager->unRegisterEventHandler("catalog", "OnCondCatControlBuildList", "catalog", "CCatalogCondCtrlIBlockProps", "GetControlDescr");
-		$eventManager->unRegisterEventHandler("catalog", "OnDocumentBarcodeDelete", "catalog", "CCatalogStoreDocsElement", "OnDocumentBarcodeDelete");
-		$eventManager->unRegisterEventHandler("catalog", "OnBeforeDocumentDelete", "catalog", "CCatalogStoreDocsBarcode", "OnBeforeDocumentDelete");
 		$eventManager->unRegisterEventHandler("catalog", "OnCatalogStoreDelete", "catalog", "CCatalogDocs", "OnCatalogStoreDelete");
 		$eventManager->unRegisterEventHandler("iblock", "OnBeforeIBlockPropertyUpdate", "catalog", "CCatalog", "OnBeforeIBlockPropertyUpdate");
 		$eventManager->unRegisterEventHandler("iblock", "OnBeforeIBlockPropertyDelete", "catalog", "CCatalog", "OnBeforeIBlockPropertyDelete");
@@ -453,6 +455,13 @@ class catalog extends CModule
 			'\Bitrix\Catalog\Integration\PullManager',
 			'onGetDependentModule'
 		);
+
+		$eventManager->unRegisterEventHandler('report', 'onAnalyticPageBatchCollect', 'catalog', '\Bitrix\Catalog\Integration\Report\EventHandler', 'onAnalyticPageBatchCollect');
+		$eventManager->unRegisterEventHandler('report', 'onAnalyticPageCollect', 'catalog', '\Bitrix\Catalog\Integration\Report\EventHandler', 'onAnalyticPageCollect');
+		$eventManager->unRegisterEventHandler('report', 'onDefaultBoardsCollect', 'catalog', '\Bitrix\Catalog\Integration\Report\EventHandler', 'onDefaultBoardsCollect');
+		$eventManager->unRegisterEventHandler('report', 'onReportsCollect', 'catalog', '\Bitrix\Catalog\Integration\Report\EventHandler', 'onReportHandlerCollect');
+		$eventManager->unRegisterEventHandler('report', 'onReportViewCollect', 'catalog', '\Bitrix\Catalog\Integration\Report\EventHandler', 'onViewsCollect');
+
 
 		if ($this->bitrix24mode)
 		{

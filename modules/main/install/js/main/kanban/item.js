@@ -901,6 +901,7 @@ BX.Kanban.DraftItem.prototype = {
 		{
 			this.removeDraftItem();
 			BX.onCustomEvent(this.getGrid(), "Kanban.Grid:removeDraftItemByEsc", [this]);
+			event.stopPropagation();
 		}
 	}
 };

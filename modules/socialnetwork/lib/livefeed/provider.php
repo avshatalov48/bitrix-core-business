@@ -924,7 +924,8 @@ abstract class Provider
 			return $result;
 		}
 
-		$contentEntityType = $contentEntityId = false;
+		$contentEntityType = false;
+		$contentEntityId = false;
 
 		$moduleEvent = new Main\Event(
 			'socialnetwork',

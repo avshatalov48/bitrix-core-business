@@ -732,11 +732,11 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.showAccess = params.showAccess !== false;
 
 	      if (this.showAccess) {
-	        this.DOM.accessLink.style.display = '';
-	        this.DOM.accessWrap.style.display = '';
+	        main_core.Dom.style(this.DOM.accessLink, 'display', null);
+	        main_core.Dom.style(this.DOM.accessWrap, 'display', null);
 	      } else {
-	        this.DOM.accessLink.style.display = 'none';
-	        this.DOM.accessWrap.style.display = 'none';
+	        main_core.Dom.style(this.DOM.accessLink, 'display', 'none');
+	        main_core.Dom.style(this.DOM.accessWrap, 'display', 'none');
 	      }
 
 	      main_core.Event.bind(document, 'keydown', this.keyHandlerBinded);

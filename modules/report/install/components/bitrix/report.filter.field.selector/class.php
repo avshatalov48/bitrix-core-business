@@ -220,7 +220,7 @@ class CReportComponent extends \CBitrixComponent
 			$entityTypes[] = 'contact';
 
 			$arSelect = array('ID', 'FULL_NAME', 'COMPANY_TITLE', 'PHOTO');
-			$obRes = CCrmContact::GetList(array('ID' => 'DESC'), array(), $arSelect, 50);
+			$obRes = CCrmContact::GetList(array('ID' => 'DESC'), array('==CATEGORY_ID' => 0), $arSelect, 50);
 			while ($arRes = $obRes->Fetch())
 			{
 				$strImg = '';
@@ -260,7 +260,7 @@ class CReportComponent extends \CBitrixComponent
 			$arCompanyTypeList = CCrmStatus::GetStatusListEx('COMPANY_TYPE');
 			$arCompanyIndustryList = CCrmStatus::GetStatusListEx('INDUSTRY');
 			$arSelect = array('ID', 'TITLE', 'COMPANY_TYPE', 'INDUSTRY',  'LOGO');
-			$obRes = CCrmCompany::GetList(array('ID' => 'DESC'), array(), $arSelect, 50);
+			$obRes = CCrmCompany::GetList(array('ID' => 'DESC'), array('==CATEGORY_ID' => 0), $arSelect, 50);
 			$arFiles = array();
 			while ($arRes = $obRes->Fetch())
 			{

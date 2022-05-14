@@ -723,7 +723,11 @@ export class SectionInterface extends EventEmitter
 				}
 			});
 
-			if ((section.isGoogle() || section.isCalDav()) && section.canDo('edit_section'))
+			if (
+				(section.isGoogle() || section.isCalDav())
+				&& section.canDo('edit_section')
+				&& connection
+			)
 			{
 				menuItems.push({
 					text : Loc.getMessage('EC_ACTION_EXTERNAL_ADJUST'),
@@ -737,7 +741,7 @@ export class SectionInterface extends EventEmitter
 				});
 			}
 
-			if (section.data['EXTERNAL_TYPE'] !== 'local')
+			if (section.data['EXTERNAL_TYPE'] !== 'local' && connection)
 			{
 				menuItems.push({
 					text: Loc.getMessage('EC_ACTION_HIDE'),

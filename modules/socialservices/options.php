@@ -3,6 +3,7 @@ if(!$USER->CanDoOperation('edit_other_settings'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Text\Converter;
 
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/options.php");
@@ -314,33 +315,18 @@ foreach($arSiteList as $site):
 		<td width="50%">
 			<table cellpadding="0" style="width:45%;" cellspacing="3" border="0" width="" class="padding-0">
 <?
-    $dontShowForUkraine = [
-            \CSocServMyMailRu::ID,
-            'MailRuOpenID',
-            'Livejournal',
-            'Liveinternet',
-            \CSocServMailRu2::ID,
-            \CSocServVKontakte::ID,
-            \CSocServYandexAuth::ID,
-            \CSocServOdnoklassniki::ID,
-    ];
-    $portalPrefix = '';
-    if (Loader::includeModule('bitrix24'))
-    {
-        $portalPrefix = \CBitrix24::getLicensePrefix();
-    }
-    elseif (Loader::includeModule('intranet'))
-    {
-        $portalPrefix = \CIntranetUtils::getPortalZone();
-    }
+	$portalPrefix = '';
+	if (!ModuleManager::isModuleInstalled('bitrix24') && Loader::includeModule('intranet'))
+	{
+		$portalPrefix = \CIntranetUtils::getPortalZone();
+	}
 
-    $isUkraine = ($portalPrefix === 'ua');
-
+	$activeServices = $oAuthManager->GetActiveAuthServices([]);
 	$arServices = $oAuthManager->GetAuthServices($suffix);
 	$allowedServices = [];
 	foreach($arServices as $id=>$service)
 	{
-		if ($isUkraine && in_array($id, $dontShowForUkraine, true))
+		if (empty($activeServices[$id]) && in_array($id, \CSocServAuthManager::listServicesBlockedByZone($portalPrefix), true))
 		{
 			continue;
 		}

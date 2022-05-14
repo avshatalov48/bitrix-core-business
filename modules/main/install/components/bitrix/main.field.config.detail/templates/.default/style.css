@@ -292,6 +292,10 @@
 	min-width: 170px;
 }
 
+.main-user-field-edit-container .ui-ctl-multiple-select .ui-ctl-icon-angle {
+	display: none;
+}
+
 .adm-input-calendar:hover {
 	border-color: #66afe9;
 }

@@ -2196,4 +2196,109 @@ describe('EventEmitter', () => {
 		});
 
 	});
+
+	describe('Full class name listeners', () => {
+
+		it('Should subscribe/unsubscribe string listeners', () => {
+
+			BX.namespace('BX.MyModule.MyClass');
+			BX.MyModule.MyClass.handler = sinon.stub();
+			BX.MyModule.MyClass.handler2 = sinon.stub();
+			BX.MyModule.MyClass.handlerOnce = sinon.stub();
+
+			const emitter = new EventEmitter();
+			const event = 'test:event';
+			const event2 = 'test:event2';
+			const event3 = 'test:event3';
+			const handler = 'BX.MyModule.MyClass.handler';
+			const handler2 = 'BX.MyModule.MyClass.handler2';
+			const handlerOnce = 'BX.MyModule.MyClass.handlerOnce';
+
+			emitter.subscribe(event, handler);
+			emitter.subscribe(event, handler2);
+			emitter.subscribe(event2, handler2);
+			emitter.subscribeOnce(event3, handlerOnce);
+
+			assert.equal(emitter.getListeners(event).size, 2);
+			assert.equal(emitter.getListeners(event2).size, 1);
+			assert.equal(emitter.getListeners(event3).size, 1);
+			emitter.emit(event);
+			emitter.emit(event2);
+			emitter.emit(event3);
+
+			assert.equal(BX.MyModule.MyClass.handler.callCount, 1);
+			assert.equal(BX.MyModule.MyClass.handler2.callCount, 2);
+			assert.equal(BX.MyModule.MyClass.handlerOnce.callCount, 1);
+
+			emitter.unsubscribe(event, handler2);
+			assert.equal(emitter.getListeners(event).size, 1);
+			assert.equal(emitter.getListeners(event2).size, 1);
+			assert.equal(emitter.getListeners(event3).size, 0);
+
+			emitter.emit(event);
+			emitter.emit(event2);
+			emitter.emit(event3);
+
+			assert.equal(BX.MyModule.MyClass.handler.callCount, 2);
+			assert.equal(BX.MyModule.MyClass.handler2.callCount, 3);
+			assert.equal(BX.MyModule.MyClass.handlerOnce.callCount, 1);
+
+			emitter.unsubscribe(event, handler);
+			emitter.unsubscribe(event2, handler2);
+
+			assert.equal(emitter.getListeners(event).size, 0);
+			assert.equal(emitter.getListeners(event2).size, 0);
+			assert.equal(emitter.getListeners(event3).size, 0);
+		});
+
+
+		it('Should subscribe from options', () => {
+			BX.namespace('BX.MyModule.MySuperClass');
+			BX.MyModule.MySuperClass.handleOpen = sinon.stub();
+			BX.MyModule.MySuperClass.handleClose = sinon.stub();
+
+			class MySuperClass extends EventEmitter
+			{
+				constructor(options)
+				{
+					super();
+					this.setEventNamespace('MyCompany.MyModule.MySuperClass');
+					this.subscribeFromOptions(options.events);
+				}
+
+				open()
+				{
+					this.emit('onOpen');
+				}
+
+				close()
+				{
+					this.emit('onClose');
+				}
+			}
+
+			const obj = new MySuperClass({
+				events: {
+					'onOpen': 'BX.MyModule.MySuperClass.handleOpen',
+					'onClose': 'BX.MyModule.MySuperClass.handleClose',
+				}
+			});
+
+			assert.equal(BX.MyModule.MySuperClass.handleOpen.callCount, 0);
+			assert.equal(BX.MyModule.MySuperClass.handleOpen.callCount, 0);
+
+			obj.open();
+			obj.close();
+
+			assert.equal(BX.MyModule.MySuperClass.handleOpen.callCount, 1);
+			assert.equal(BX.MyModule.MySuperClass.handleClose.callCount, 1);
+
+			obj.open();
+			obj.open();
+			obj.close();
+
+			assert.equal(BX.MyModule.MySuperClass.handleOpen.callCount, 3);
+			assert.equal(BX.MyModule.MySuperClass.handleClose.callCount, 2);
+		});
+	});
 });

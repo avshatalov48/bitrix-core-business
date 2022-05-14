@@ -22,7 +22,14 @@ class Http
 	public static function sendRequest(string $url, array $params, array $options = []): Sale\Result
 	{
 		$result = new Sale\Result();
-		$httpClient = new HttpClient();
+
+		$httpClientOptions = [];
+		if (array_key_exists('HTTP_CLIENT_OPTIONS', $options) && is_array($options['HTTP_CLIENT_OPTIONS']))
+		{
+			$httpClientOptions = $options['HTTP_CLIENT_OPTIONS'];
+		}
+
+		$httpClient = new HttpClient($httpClientOptions);
 
 		$isJsonRequest = isset($options['JSON_REQUEST']) && $options['JSON_REQUEST'] === true;
 

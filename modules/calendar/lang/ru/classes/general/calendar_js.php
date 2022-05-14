@@ -294,3 +294,4 @@ $MESS["EC_ACCESS_GROUP_MODERATORS"] = "Модераторы группы";
 $MESS["EC_ACCESS_GROUP_MEMBERS"] = "Все члены группы";
 $MESS["EC_LOCATION_VIEW_LOCKED"] = "Создание и бронирование переговорных недоступно на вашем тарифе";
 $MESS["EC_LOCATION_VIEW_UNLOCK_FEATURE"] = "Расширить тариф";
+$MESS["EC_CALENDAR_REC_EVENT"] = "Повторяемое событие";

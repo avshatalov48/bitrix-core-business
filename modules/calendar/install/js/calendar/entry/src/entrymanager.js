@@ -34,7 +34,6 @@ export class EntryManager {
 		else
 		{
 			newEntryData.SECT_ID = SectionManager.getNewEntrySectionId(options.type, parseInt(options.ownerId));
-
 		}
 		newEntryData.REMIND = EntryManager.getNewEntryReminders();
 
@@ -177,6 +176,7 @@ export class EntryManager {
 					isLocationCalendar: options.isLocationCalendar || false,
 					roomsManager: options.roomsManager || null,
 					locationAccess: options.locationAccess || false,
+					dayOfWeekMonthFormat: options.dayOfWeekMonthFormat || false,
 					locationCapacity: options.locationCapacity || 0,
 					ownerId: options.ownerId,
 					userId: options.userId,
@@ -196,6 +196,7 @@ export class EntryManager {
 				new bx.Calendar.SliderLoader(eventId, {
 					entryDateFrom: options.from,
 					timezoneOffset: options.timezoneOffset,
+					dayOfWeekMonthFormat: options.dayOfWeekMonthFormat || false,
 					calendarContext: options.calendarContext || null,
 				}).show();
 			}
@@ -309,7 +310,7 @@ export class EntryManager {
 		this.confirmDeclineDialog.unsubscribeAll('onDecline');
 		this.confirmDeclineDialog.subscribe('onDecline', function(event)
 		{
-			if (event instanceof Event.BaseEvent)
+			if (event && Type.isFunction(event.getData))
 			{
 				EntryManager.setMeetingStatus(
 					entry,
@@ -337,9 +338,8 @@ export class EntryManager {
 		if (Type.isFunction(options.callback))
 		{
 			this.confirmEditDialog.unsubscribeAll('onEdit');
-			this.confirmEditDialog.subscribe('onEdit', function(event)
-			{
-				if (event instanceof Event.BaseEvent)
+			this.confirmEditDialog.subscribe('onEdit', (event) => {
+				if (event && Type.isFunction(event.getData))
 				{
 					options.callback(event.getData());
 				}
@@ -361,7 +361,7 @@ export class EntryManager {
 			this.reinviteUsersDialog.unsubscribeAll('onSelect');
 			this.reinviteUsersDialog.subscribe('onSelect', function(event)
 			{
-				if (event instanceof Event.BaseEvent)
+				if (event && Type.isFunction(event.getData))
 				{
 					options.callback(event.getData());
 				}
@@ -383,7 +383,7 @@ export class EntryManager {
 			this.confirmedEmailDialog.unsubscribeAll('onSelect');
 			this.confirmedEmailDialog.subscribe('onSelect', function(event)
 			{
-				if (event instanceof Event.BaseEvent)
+				if (event && Type.isFunction(event.getData))
 				{
 					options.callback(event.getData());
 				}

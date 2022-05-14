@@ -16,6 +16,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(CounterColor, "LIGHT", "ui-counter-light");
 	babelHelpers.defineProperty(CounterColor, "WHITE", "ui-counter-white");
 	babelHelpers.defineProperty(CounterColor, "DARK", "ui-counter-dark");
+	babelHelpers.defineProperty(CounterColor, "THEME", "ui-counter-theme");
 
 	/**
 	 * @namespace {BX.UI}

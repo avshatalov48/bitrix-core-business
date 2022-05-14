@@ -360,7 +360,10 @@ elseif($createWithProducts)
 					$basketFields['PAY_CALLBACK_FUNC'] = $basketData['PAY_CALLBACK_FUNC'];
 				}
 
-				$r = Catalog\Product\Basket::addProductToBasket($fakeBasket, $basketFields, $context);
+				// With the USE_MERGE=N parameter, so that the elements do not collapse, but are added as is.
+				$r = Catalog\Product\Basket::addProductToBasket($fakeBasket, $basketFields, $context, [
+					'USE_MERGE' => 'N',
+				]);
 				if ($r->isSuccess())
 				{
 					$resultData = $r->getData();

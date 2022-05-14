@@ -530,6 +530,7 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 		if (
 			$result['currentUserId'] > 0
 			&& $params['MODE'] !== 'LANDING'
+			&& $params['IS_CRM'] !== 'Y'
 		)
 		{
 			$result['USE_PINNED'] = 'Y';

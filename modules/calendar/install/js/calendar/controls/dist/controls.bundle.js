@@ -4289,6 +4289,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    _this.type = params.type;
 	    _this.ownerId = params.ownerId;
 	    _this.zIndex = params.zIndex || _this.zIndex;
+	    _this.dayOfWeekMonthFormat = params.dayOfWeekMonthFormat;
 	    _this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
 
 	    _this.create();
@@ -4358,7 +4359,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        minWidth: UserPlannerSelector.PLANNER_WIDTH,
 	        width: UserPlannerSelector.PLANNER_WIDTH,
 	        showEntryName: false,
-	        locked: !this.plannerFeatureEnabled
+	        locked: !this.plannerFeatureEnabled,
+	        dayOfWeekMonthFormat: this.dayOfWeekMonthFormat
 	      });
 	      main_core.Event.bind(this.DOM.informWrap, 'click', function () {
 	        _this2.setInformValue(!_this2.meetingNotifyValue);

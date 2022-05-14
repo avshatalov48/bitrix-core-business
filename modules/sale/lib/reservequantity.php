@@ -3,7 +3,8 @@
 namespace Bitrix\Sale;
 
 use Bitrix\Main;
-use Bitrix\Catalog;
+use Bitrix\Main\DI\ServiceLocator;
+use Bitrix\Sale\Reservation\BasketReservationService;
 
 /**
  * @method ReserveQuantityCollection getCollection()
@@ -267,7 +268,9 @@ class ReserveQuantity extends Internals\CollectableEntity
 	 */
 	protected function updateInternal($primary, array $data)
 	{
-		return Reservation\Internals\BasketReservationTable::update($primary, $data);
+		/** @var BasketReservationService */
+		$service = ServiceLocator::getInstance()->get('sale.basketReservation');
+		return $service->update($primary, $data);
 	}
 
 	/**
@@ -277,7 +280,9 @@ class ReserveQuantity extends Internals\CollectableEntity
 	 */
 	protected function addInternal(array $data)
 	{
-		return Reservation\Internals\BasketReservationTable::add($data);
+		/** @var BasketReservationService */
+		$service = ServiceLocator::getInstance()->get('sale.basketReservation');
+		return $service->add($data);
 	}
 
 	public static function getEntityEventName()

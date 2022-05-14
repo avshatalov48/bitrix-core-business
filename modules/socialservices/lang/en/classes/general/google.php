@@ -1,4 +1,5 @@
-<?
+<?php
+$MESS["socserv_google_api_key"] = "App API key (api_key) (optional):";
 $MESS["socserv_google_client_id"] = "Client ID:";
 $MESS["socserv_google_client_secret"] = "Secret Code (Client secret):";
 $MESS["socserv_google_form_note"] = "Use your Google account to log in.";
@@ -11,5 +12,5 @@ Specify this address in the \"Authorized redirect URIs&quot; field: <a href=\"#U
 	<li>To enable access to mailboxes, add this address to the &quot;Authorized redirect URIs&quot; field: <a href=\"#MAIL_URL#\">#MAIL_URL#</a>, and allow access to the Gmail API in the app settings.
 	</li>
 </ul>";
+$MESS["socserv_google_sync_proxy"] = "Synchronize using Bitrix proxy server:";
 $MESS["socserv_googleplus_note"] = "Using Google app parameters.";
-?>

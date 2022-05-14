@@ -27,7 +27,14 @@
 
 	ListView.prototype.preBuild = function()
 	{
-		this.viewCont = BX.create('DIV', {props: {className: this.contClassName}, style: {display: 'none'}});
+		this.viewCont = BX.create('DIV', {
+			props: {
+				className: this.contClassName
+			},
+			style: {
+				display: 'none'
+			}
+		});
 
 		BX.addCustomEvent(this.calendar, 'afterSetView', BX.delegate(function(params){
 			if (params.viewName !== this.name && this.filterMode)
@@ -40,32 +47,66 @@
 
 	ListView.prototype.build = function()
 	{
-		this.titleCont = this.viewCont.appendChild(BX.create('DIV', {props: {className: 'calendar-grid-month-row-days-week'}}));
+		this.titleCont = this.viewCont.appendChild(BX.create('DIV', {
+			props: {
+				className: 'calendar-grid-month-row-days-week'
+			}
+		}));
 
 		this.streamScrollWrap = this.viewCont.appendChild(
 			BX.create('DIV', {
-				props: {className: 'calendar-timeline-stream-container calendar-custom-scroll'},
-				style: {height: this.util.getViewHeight() + 'px'},
-				events: {scroll: BX.Runtime.debounce(this.scrollHandle, 500, this)}
+				props: {
+					className: 'calendar-timeline-stream-container calendar-custom-scroll'
+				},
+				style: {
+					height: this.util.getViewHeight() + 'px'
+				},
+				events: {
+					scroll: BX.Runtime.debounce(this.scrollHandle, 500, this)
+				}
 		}));
 
-		this.streamContentWrap = this.streamScrollWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-container-content'}}));
-		this.topLoaderBlock = this.streamContentWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-loader-block'}}));
-		this.listWrap = this.streamContentWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-container-list'}}));
-		this.bottomLoaderBlock = this.streamContentWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-loader-block'}}));
+		this.streamContentWrap = this.streamScrollWrap.appendChild(BX.create('DIV', {
+			props: {
+				className: 'calendar-timeline-stream-container-content'
+			}
+		}));
+		this.topLoaderBlock = this.streamContentWrap.appendChild(BX.create('DIV', {
+			props: {
+				className: 'calendar-timeline-loader-block'
+			}
+		}));
+		this.listWrap = this.streamContentWrap.appendChild(BX.create('DIV', {
+			props: {
+				className: 'calendar-timeline-stream-container-list'
+			}
+		}));
+		this.bottomLoaderBlock = this.streamContentWrap.appendChild(BX.create('DIV', {
+			props: {
+				className: 'calendar-timeline-loader-block'
+			}
+		}));
 
 		this.centerLoaderWrap = this.streamScrollWrap.appendChild(BX.create('DIV', {
-			props: {className: 'calendar-center-loader-block'}}));
+			props: {
+				className: 'calendar-center-loader-block'
+			}
+		}));
 
 		this.filterLoaderWrap = this.streamScrollWrap.appendChild(BX.create('DIV', {
-			props: {className: 'calendar-search-main'}, style: {
+			props: {
+				className: 'calendar-search-main'
+			},
+			style: {
 				height: this.util.getViewHeight() + 'px',
 				display: 'none'
 			}
 		}));
 
 		this.filterLoaderWrap.appendChild(BX.create('DIV', {
-			props: {className: 'calendar-search-empty'},
+			props: {
+				className: 'calendar-search-empty'
+			},
 			html: '<div class="calendar-search-empty-name">' + BX.message('EC_NO_EVENTS') + '</div>'
 		}));
 	};
@@ -73,7 +114,10 @@
 	ListView.prototype.setTitle = function()
 	{
 		var viewRangeDate = this.calendar.getViewRangeDate();
-		View.prototype.setTitle.apply(this, [BX.date.format('f', viewRangeDate.getTime() / 1000) + ', #GRAY_START#' + viewRangeDate.getFullYear() + '#GRAY_END#']);
+		View.prototype.setTitle.apply(this, [BX.date.format('f', viewRangeDate.getTime() / 1000)
+		+ ', #GRAY_START#'
+		+ viewRangeDate.getFullYear()
+		+ '#GRAY_END#']);
 	};
 
 	ListView.prototype.show = function(params)
@@ -252,7 +296,8 @@
 		var
 			deltaLength = this.entries.length - entries.length,
 			globalIndex = deltaLength,
-			from, index,
+			from, to, index,
+			fromTs, toTs,
 			fromCode, toCode;
 
 		entries.forEach(function(entry)
@@ -270,8 +315,10 @@
 			});
 			if (fromCode !== toCode)
 			{
-				from = new Date(entry.from.getTime() + this.calendar.util.dayLength);
-				while (from.getTime() < entry.to.getTime())
+				fromTs = new Date(entry.from.getFullYear(), entry.from.getMonth(), entry.from.getDate()).getTime();
+				from = new Date(entry.from.getTime());
+				toTs = new Date(entry.to.getFullYear(), entry.to.getMonth(), entry.to.getDate()).getTime();
+				while (fromTs <= toTs)
 				{
 					this.entryParts.push({
 						index: ++index,
@@ -279,6 +326,7 @@
 						from: from,
 						entry: entry
 					});
+					fromTs +=  this.calendar.util.dayLength;
 					from = new Date(from.getTime() + this.calendar.util.dayLength);
 				}
 				entry.lastPartIndex = index;
@@ -373,11 +421,17 @@
 			else if (entry.isLongWithTime())
 			{
 				if (part.index === 0)
+				{
 					timeLabel = this.calendar.util.formatTime(entry.from);
+				}
 				else if (part.index === entry.lastPartIndex)
+				{
 					timeLabel = BX.message('EC_TILL_TIME').replace('#TIME#', this.calendar.util.formatTime(entry.to));
+				}
 				else
+				{
 					timeLabel = BX.message('EC_ALL_DAY');
+				}
 			}
 			else
 			{
@@ -385,21 +439,48 @@
 			}
 
 			wrap = group.content.appendChild(BX.create('DIV', {
-				attrs: {'data-bx-calendar-entry': entry.uid},
+				attrs: {
+					'data-bx-calendar-entry': entry.uid
+				},
 				props: {
-					className: 'calendar-timeline-stream-content-event' + (animation ? ' calendar-timeline-stream-section-event-animate-' + animation : '')
-			}}));
+					className: 'calendar-timeline-stream-content-event'
+						+ (animation ? ' calendar-timeline-stream-section-event-animate-' + animation : '')
+				}
+			}));
 
-			wrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-content-event-time'}, html: '<span class="calendar-timeline-stream-content-event-time-link">' + timeLabel + '</span>'}));
+			wrap.appendChild(BX.create('DIV', {
+				props: {
+					className: 'calendar-timeline-stream-content-event-time'
+				},
+				html: '<span class="calendar-timeline-stream-content-event-time-link">'
+					+ timeLabel
+					+ '</span>'
+					+ (entry.isRecursive()
+					? '<span class="calendar-timeline-stream-content-event-recursive" title="'
+						+ (entry.data['~RRULE_DESCRIPTION'] || '')
+					+ '">'
+					+ BX.message('EC_CALENDAR_REC_EVENT') + '</span>'
+					: '')
+			}));
 
 			var location = this.calendar.util.getTextLocation(entry.location) || '';
 			if (location)
 			{
-				location = '<span class="calendar-timeline-stream-content-event-location">(' + BX.util.htmlspecialchars(location) + ')</span>';
+				location = '<span class="calendar-timeline-stream-content-event-location">('
+					+ BX.util.htmlspecialchars(location)
+					+ ')</span>';
 			}
-			wrap.appendChild(BX.create(
-				'DIV', {props: {className: 'calendar-timeline-stream-content-event-name'},
-					html: '<span class="calendar-timeline-stream-content-event-color" style="background-color: ' + entry.color + '"></span><div class="calendar-timeline-stream-content-event-name-link"><span>' + BX.util.htmlspecialchars(entry.name) + '</span></div>' + location}));
+			wrap.appendChild(BX.create('DIV', {
+				props: {
+					className: 'calendar-timeline-stream-content-event-name'
+				},
+				html: '<span class="calendar-timeline-stream-content-event-color" style="background-color: '
+					+ entry.color
+					+ '"></span><div class="calendar-timeline-stream-content-event-name-link"><span>'
+					+ BX.util.htmlspecialchars(entry.name)
+					+ '</span></div>'
+					+ location
+			}));
 
 
 			if (
@@ -512,7 +593,7 @@
 					attendeesCount++;
 					if (user.AVATAR !== '/bitrix/images/1.gif')
 					{
-						wrapper.appendChild(BX.create("IMG", {
+						wrapper.appendChild(BX.create('IMG', {
 							attrs: {
 								id: 'simple_view_popup_' + user.ID,
 								src: user.AVATAR || '',
@@ -526,7 +607,7 @@
 					else
 					{
 						var userClassName = user.EMAIL_USER ? 'ui-icon-common-user-mail' : 'ui-icon-common-user';
-						wrapper.appendChild(BX.create("DIV", {
+						wrapper.appendChild(BX.create('DIV', {
 							props: {
 								title: user.DISPLAY_NAME,
 								className: 'ui-icon ' + userClassName,
@@ -543,13 +624,18 @@
 
 			if (userLength < attendees.length)
 			{
-				var moreUsersLink = wrapper.appendChild(BX.create("SPAN", {
-					attrs: {'data-bx-calendar-entry-attendees-control': attendees.length},
-					props: {className: 'calendar-member-more-count'},
+				var moreUsersLink = wrapper.appendChild(BX.create('SPAN', {
+					attrs: {
+						'data-bx-calendar-entry-attendees-control': attendees.length
+					},
+					props: {
+						className: 'calendar-member-more-count'
+					},
 					text: ' ' + BX.message('EC_ATTENDEES_ALL_COUNT').replace('#COUNT#', attendees.length),
-					events: {click: BX.delegate(function(){
-						this.showUserListPopup(moreUsersLink, attendees);
-					}, this)}
+					events: {
+						click: BX.delegate(function(){
+							this.showUserListPopup(moreUsersLink, attendees);
+						}, this)}
 				}));
 			}
 		}
@@ -558,7 +644,9 @@
 	ListView.prototype.showUserListPopup = function(node, userList)
 	{
 		if (this.userListPopup)
+		{
 			this.userListPopup.close();
+		}
 
 		if (this.popup)
 		{
@@ -566,19 +654,43 @@
 		}
 
 		if (!userList || !userList.length)
+		{
 			return;
+		}
 
-		this.DOM.userListPopupWrap = BX.create('DIV', {props: {className: 'calendar-user-list-popup-block'}});
+		this.DOM.userListPopupWrap = BX.create('DIV', {
+			props: {
+				className: 'calendar-user-list-popup-block'
+			}
+		});
 		userList.forEach(function(user){
-			var userWrap = this.DOM.userListPopupWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-slider-sidebar-user-container calendar-slider-sidebar-user-card'}}));
+			var userWrap = this.DOM.userListPopupWrap.appendChild(BX.create('DIV', {
+				props: {
+					className: 'calendar-slider-sidebar-user-container calendar-slider-sidebar-user-card'
+				}
+			}));
 
-			userWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-slider-sidebar-user-block-avatar'}}))
-				.appendChild(BX.create('DIV', {props: {className: 'calendar-slider-sidebar-user-block-item'}}))
-				.appendChild(BX.create('IMG', {props: {width: 34, height: 34, src: user.AVATAR}}));
+			userWrap.appendChild(BX.create('DIV', {
+				props: {
+					className: 'calendar-slider-sidebar-user-block-avatar'
+				}
+			}))
+			.appendChild(BX.create('DIV', {
+				props: {
+					className: 'calendar-slider-sidebar-user-block-item'
+				}
+			}))
+			.appendChild(BX.create('IMG', {
+				props: {
+					width: 34,
+					height: 34,
+					src: user.AVATAR
+				}
+			}));
 
 			userWrap.appendChild(
-				BX.create("DIV", {props: {className: 'calendar-slider-sidebar-user-info'}}))
-				.appendChild(BX.create("A", {
+				BX.create('DIV', {props: {className: 'calendar-slider-sidebar-user-info'}}))
+				.appendChild(BX.create('A', {
 					props: {
 						href: user.URL ? user.URL : '#',
 						className: 'calendar-slider-sidebar-user-info-name'
@@ -623,7 +735,11 @@
 			}
 
 			this.dateGroupIndex[year] = {
-				node: BX.create('DIV', {attrs: {'data-bx-calendar-list-year': year}}),
+				node: BX.create('DIV', {
+					attrs: {
+						'data-bx-calendar-list-year': year
+					}
+				}),
 				monthIndex: {}
 			};
 
@@ -673,7 +789,11 @@
 			}
 
 			this.dateGroupIndex[year].monthIndex[month] = {
-				node: BX.create('DIV', {attrs: {'data-bx-calendar-list-month': month}}),
+				node: BX.create('DIV', {
+					attrs: {
+						'data-bx-calendar-list-month': month
+					}
+				}),
 				dayIndex: {}
 			};
 
@@ -725,8 +845,12 @@
 
 			monthIndex[month].dayIndex[day] = {
 				node: BX.create('DIV', {
-					props: {className: "calendar-timeline-stream-day"},
-					attrs: {'data-bx-calendar-list-day': day}
+					props: {
+						className: 'calendar-timeline-stream-day'
+					},
+					attrs: {
+						'data-bx-calendar-list-day': day
+					}
 				})
 			};
 
@@ -884,10 +1008,34 @@
 				wrap: BX.create('DIV', {props: {className: 'calendar-timeline-stream-section-wrap'}})
 			};
 
-		group.titleNode = group.wrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-section calendar-timeline-section-date-label'}, html: '<div data-bx-calendar-date="' + time + '" class="calendar-timeline-stream-section-content"><div class="' + (dayCode == this.todayCode ? 'calendar-timeline-stream-today-label' : 'calendar-timeline-stream-label') + '">' + this.calendar.util.formatDateUsable(date) + '</div></div>'}));
-		group.groupNode = group.wrap.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-section'}}));
-		group.content = group.groupNode.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-stream-section-content'}}));
-		group.emptyWarning = group.content.appendChild(BX.create('DIV', {props: {className: 'calendar-timeline-empty-section'}, text: BX.message('EC_NO_EVENTS')}));
+		group.titleNode = group.wrap.appendChild(BX.create('DIV', {
+			props: {
+				className: 'calendar-timeline-stream-section calendar-timeline-section-date-label'
+			},
+			html: '<div data-bx-calendar-date="'
+				+ time
+				+ '" class="calendar-timeline-stream-section-content"><div class="'
+				+ (dayCode == this.todayCode ? 'calendar-timeline-stream-today-label' : 'calendar-timeline-stream-label')
+				+ '">'
+				+ this.calendar.util.formatDateUsable(date)
+				+ '</div></div>'
+		}));
+		group.groupNode = group.wrap.appendChild(BX.create('DIV', {
+			props: {
+				className: 'calendar-timeline-stream-section'
+			}
+		}));
+		group.content = group.groupNode.appendChild(BX.create('DIV', {
+			props: {
+				className: 'calendar-timeline-stream-section-content'
+			}
+		}));
+		group.emptyWarning = group.content.appendChild(BX.create('DIV', {
+			props: {
+				className: 'calendar-timeline-empty-section'
+			},
+			text: BX.message('EC_NO_EVENTS')
+		}));
 
 		this.groups.push(group);
 		this.groupsIndex[dayCode] = this.groups.length - 1;
@@ -943,28 +1091,6 @@
 				{
 					this.streamScrollWrap.scrollTop = this.groups[this.groupsIndex[dayCode]].wrap.offsetTop;
 				}
-				// temporarily left if something went wrong
-
-				// setTimeout(BX.delegate(function(){
-				// 	if (this.streamScrollWrap && this.groupsIndex[dayCode] !== undefined && this.groups[this.groupsIndex[dayCode]])
-				// 	{
-				// 		this.streamScrollWrap.scrollTop = this.groups[this.groupsIndex[dayCode]].wrap.offsetTop;
-				// 	}
-				// }, this), 200);
-
-				// setTimeout(BX.delegate(function(){
-				// 	if (this.streamScrollWrap && this.groupsIndex[dayCode] !== undefined && this.groups[this.groupsIndex[dayCode]])
-				// 	{
-				// 		this.streamScrollWrap.scrollTop = this.groups[this.groupsIndex[dayCode]].wrap.offsetTop;
-				// 	}
-				// }, this), 500);
-
-				// setTimeout(BX.delegate(function(){
-				// 	if (this.streamScrollWrap && this.groupsIndex[dayCode] !== undefined && this.groups[this.groupsIndex[dayCode]])
-				// 	{
-				// 		this.streamScrollWrap.scrollTop = this.groups[this.groupsIndex[dayCode]].wrap.offsetTop;
-				// 	}
-				// }, this), 1000);
 			}
 		}
 	};
@@ -1162,18 +1288,30 @@
 		}
 
 		this.noEntriesWrap = this.streamScrollWrap.appendChild(BX.create('DIV', {
-			props: {className: 'calendar-search-main'},
-			style: {height: this.util.getViewHeight() + 'px'}
+			props: {
+				className: 'calendar-search-main'
+			},
+			style: {
+				height: this.util.getViewHeight() + 'px'
+			}
 		}));
 
-		var innerWrap = this.noEntriesWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-search-empty'},
-		html: '<div class="calendar-search-empty-name">' + BX.message('EC_NO_EVENTS') + '</div>'}));
+		var innerWrap = this.noEntriesWrap.appendChild(BX.create('DIV', {
+			props: {
+				className: 'calendar-search-empty'
+			},
+			html: '<div class="calendar-search-empty-name">'
+				+ BX.message('EC_NO_EVENTS')
+				+ '</div>'
+		}));
 
 		if (!this.calendar.util.readOnlyMode())
 		{
 			this.addButton = innerWrap.appendChild(
 				BX.create('SPAN', {
-					props: {className: 'calendar-search-empty-link'},
+					props: {
+						className: 'calendar-search-empty-link'
+					},
 					text: BX.message('EC_CREATE_EVENT'),
 					events: {
 						click: function(){
@@ -1203,16 +1341,27 @@
 		{
 			BX.remove(this.searchHead);
 		}
-		this.searchHead = this.calendar.topBlock.appendChild(BX.create('DIV', {props: {className: 'calendar-search-head'}, html: '<div class="calendar-search-name">' + BX.message('EC_SEARCH_RESULT') + '</div>'}));
+		this.searchHead = this.calendar.topBlock.appendChild(BX.create('DIV', {
+			props: {
+				className: 'calendar-search-head'
+			},
+			html: '<div class="calendar-search-name">'
+				+ BX.message('EC_SEARCH_RESULT')
+				+ '</div>'
+		}));
 
 		if (this.resettFilterWrap)
 		{
 			BX.remove(this.resettFilterWrap);
 		}
 		this.resettFilterWrap = this.searchHead.appendChild(BX.create('DIV', {
-			props: {className: 'calendar-search-cancel'},
+			props: {
+				className: 'calendar-search-cancel'
+			},
 			html: BX.message('EC_SEARCH_RESET_RESULT'),
-			events: {click: BX.proxy(this.resetFilterMode, this)}
+			events: {
+				click: BX.proxy(this.resetFilterMode, this)
+			}
 		}));
 
 		if (this.streamScrollWrap)
@@ -1293,7 +1442,7 @@
 	}
 	else
 	{
-		BX.addCustomEvent(window, "onBXEventCalendarInit", function()
+		BX.addCustomEvent(window, 'onBXEventCalendarInit', function()
 		{
 			window.BXEventCalendar.CalendarListView = ListView;
 		});

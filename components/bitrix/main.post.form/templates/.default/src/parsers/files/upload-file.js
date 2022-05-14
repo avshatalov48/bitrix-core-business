@@ -32,7 +32,7 @@ export default class UploadFile extends Default
 			this.editor.getContainer()
 				.querySelectorAll('.file-selectdialog')
 		)
-		.forEach((selectorNode) => {
+		.forEach((selectorNode, index) => {
 			const cid = selectorNode.id.replace('file-selectdialog-', '');
 			let controller = this.controllers.get(cid);
 			if (!controller)
@@ -62,6 +62,16 @@ export default class UploadFile extends Default
 							this.deleteFile([fileId]);
 						}
 					});
+				if (index === 0)
+				{
+					EventEmitter.subscribe(this.editor.getEventObject(), 'onFilesHaveCaught', (event: BaseEvent) => {
+						event.stopImmediatePropagation();
+						if (window['BfileFD' + cid])
+						{
+							window['BfileFD' + cid].agent.UploadDroppedFiles([...event.getData()])
+						}
+					});
+				}
 			}
 			if (selectorNode.querySelector('table.files-list'))
 			{

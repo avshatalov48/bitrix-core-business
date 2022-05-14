@@ -1,12 +1,12 @@
 <?
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
-use Bitrix\Main,
-	Bitrix\Currency,
-	Bitrix\Catalog;
+use Bitrix\Main;
+use Bitrix\Currency;
+use Bitrix\Catalog;
 
 $selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
-$publicMode = (defined("SELF_FOLDER_URL") ? true : false);
+$publicMode = defined("SELF_FOLDER_URL");
 
 if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_price') || $USER->CanDoOperation('catalog_view'))
 {

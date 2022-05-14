@@ -7,7 +7,7 @@ Loc::loadMessages(__FILE__);
 
 /**
  * Class FileSaveTable
- * 
+ *
  * Fields:
  * <ul>
  * <li> ID int mandatory
@@ -149,8 +149,11 @@ class FileSaveTable extends Main\ORM\Data\DataManager
 		$fileSave->setFileName($fileName);
 		$fileSave->setExternalId($externalId);
 		$fileSave->setFileSize(-1);
-		$fileSave->save();
-		self::$files[$key] = $fileSave;
+		$saveResult = $fileSave->save();
+		if ($saveResult->isSuccess())
+		{
+			self::$files[$key] = $fileSave;
+		}
 	}
 	/**
 	 * Assignes the file size to a file save task object.

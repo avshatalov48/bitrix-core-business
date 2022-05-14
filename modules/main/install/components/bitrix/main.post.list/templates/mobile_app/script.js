@@ -607,6 +607,7 @@
 			BX.removeCustomEvent(window, 'OnUCFormBeforeShow', this.windowEvents['OnUCFormBeforeShow']);
 			BX.removeCustomEvent(window, 'OnUCFormAfterShow', this.windowEvents['OnUCFormAfterShow']);
 			BX.removeCustomEvent(window, 'OnUCFormAfterHide', this.windowEvents['OnUCFormAfterHide']);
+			BX.removeCustomEvent(window, 'OnUCFormBeforeHide', this.windowEvents['OnUCFormBeforeHide']);
 
 			this.windowEvents['OnUCFormBeforeSubmit'] = function(ENTITY_XML_ID, ENTITY_ID, comment, obj, text, attachments) {
 				if (this.ENTITY_XML_ID === ENTITY_XML_ID)

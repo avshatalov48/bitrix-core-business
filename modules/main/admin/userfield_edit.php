@@ -217,6 +217,19 @@ else
 	$IS_SEARCHABLE = htmlspecialcharsbx($arUserField["IS_SEARCHABLE"]);
 }
 
+$arUserTypes = $USER_FIELD_MANAGER->GetUserType();
+$arUserType = $USER_FIELD_MANAGER->GetUserType($USER_TYPE_ID);
+if(!$arUserType)
+{
+	$arUserType = array_shift($arUserTypes);
+}
+/** @var Main\UserField\Types\BaseType $userTypeClass */
+$userTypeClass = $arUserType['CLASS_NAME'];
+if (!(is_a($userTypeClass, Main\UserField\Types\BaseType::class, true)))
+{
+	$userTypeClass = Main\UserField\Types\BaseType::class;
+}
+
 $APPLICATION->SetTitle(($ID>0? GetMessage("USER_TYPE_EDIT_TITLE", array("#ID#"=>$ID)) : GetMessage("USER_TYPE_ADD_TITLE")));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
@@ -350,18 +363,16 @@ $tabControl->BeginNextTab();
 			<?
 			if($ID > 0)
 			{
-				$arUserType = $USER_FIELD_MANAGER->GetUserType($USER_TYPE_ID);
 				echo htmlspecialcharsbx($arUserType["DESCRIPTION"]);
 			}
 			else
 			{
-				$arUserTypes = $USER_FIELD_MANAGER->GetUserType();
 				$arr = array("reference"=>array(), "reference_id"=>array());
 				Main\Type\Collection::sortByColumn($arUserTypes, 'DESCRIPTION', '', null, true);
-				foreach($arUserTypes as $arUserType)
+				foreach($arUserTypes as $userType)
 				{
-					$arr["reference"][] = $arUserType["DESCRIPTION"];
-					$arr["reference_id"][] = $arUserType["USER_TYPE_ID"];
+					$arr["reference"][] = $userType["DESCRIPTION"];
+					$arr["reference_id"][] = $userType["USER_TYPE_ID"];
 				}
 				echo SelectBoxFromArray("USER_TYPE_ID", $arr, $USER_TYPE_ID, "", 'OnChange="'.htmlspecialcharsbx('window.location=\''.CUtil::JSEscape($APPLICATION->GetCurPageParam("", array("USER_TYPE_ID")).'&back_url='.urlencode($back_url).'&list_url='.urlencode($list_url).'&ENTITY_ID='.$ENTITY_ID.'&USER_TYPE_ID=').'\' + this.value').'"');
 			}
@@ -397,6 +408,7 @@ $tabControl->BeginNextTab();
 		<td><?=GetMessage("USERTYPE_SORT")?>:</td>
 		<td><input type="text" name="SORT" value="<?=$SORT?>"></td>
 	</tr>
+	<?php if ($userTypeClass::isMultiplicitySupported()):?>
 	<tr>
 		<td><?=GetMessage("USERTYPE_MULTIPLE")?>:</td>
 		<td>
@@ -407,10 +419,13 @@ $tabControl->BeginNextTab();
 			<?endif?>
 		</td>
 	</tr>
+	<?php endif;?>
+	<?php if ($userTypeClass::isMandatorySupported()):?>
 	<tr>
 		<td><?=GetMessage("USERTYPE_MANDATORY")?>:</td>
 		<td><input type="checkbox" name="MANDATORY" value="Y"<?if($MANDATORY == "Y") echo " checked"?> ></td>
 	</tr>
+	<?php endif;?>
 	<tr>
 		<td><?=GetMessage("USERTYPE_SHOW_FILTER")?>:</td>
 		<td><?
@@ -449,9 +464,6 @@ $tabControl->BeginNextTab();
 	<?if($ID > 0):
 		echo $USER_FIELD_MANAGER->GetSettingsHTML($arUserField, $bVarsFromForm);
 	else:
-		$arUserType = $USER_FIELD_MANAGER->GetUserType($USER_TYPE_ID);
-		if(!$arUserType)
-			$arUserType = array_shift($arUserTypes);
 		echo $USER_FIELD_MANAGER->GetSettingsHTML($arUserType["USER_TYPE_ID"], $bVarsFromForm);
 	endif;?>
 	<tr class="heading">

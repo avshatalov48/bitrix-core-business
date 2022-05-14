@@ -5,12 +5,13 @@ use \Bitrix\Main\Localization\Loc;
 $APPLICATION->SetPageProperty('BodyClass', $APPLICATION->GetPageProperty('BodyClass').' pagetitle-toolbar-field-view calendar-pagetitle-view');
 
 $isBitrix24Template = (SITE_TEMPLATE_ID == "bitrix24");
-if($isBitrix24Template)
+$isUseViewTarget = !(isset($arParams['USE_VIEW_TARGET']) && $arParams['USE_VIEW_TARGET'] === 'N');
+if($isBitrix24Template && $isUseViewTarget)
 {
 	$this->SetViewTarget("inside_pagetitle");
 }
 
-if (!isset($arParams['ID']))
+if(!isset($arParams['ID']))
 {
 	$arParams['ID'] = 'ECGrid-'.rand();
 }
@@ -46,7 +47,10 @@ $arParams['ID'] = preg_replace("/[^a-zA-Z0-9_-]/i", "", $arParams['ID']);
 <?
 if($isBitrix24Template)
 {
-	$this->EndViewTarget();
+	if($isUseViewTarget)
+	{
+		$this->EndViewTarget();
+	}
 	$this->SetViewTarget("below_pagetitle");
 }
 ?>

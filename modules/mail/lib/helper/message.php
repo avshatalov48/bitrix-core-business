@@ -18,6 +18,100 @@ class Message
 	public const ENTITY_TYPE_CALENDAR_EVENT = MessageAccessTable::ENTITY_TYPE_CALENDAR_EVENT;
 
 	/**
+	 * Returns a whitelist of attributes for the html sanitizer
+	 * (\CBXSanitizer::SanitizeHtml)
+	 *
+	 * @return array
+	 */
+	public static function getWhitelistTagAttributes()
+	{
+		$validTagAttributes = [
+			'colspan',
+			'border',
+			'bgcolor',
+			'width',
+			'background',
+			'style',
+			'align',
+			'height',
+			'background-color',
+			'border',
+			'ltr',
+			'rtl',
+			'class',
+		];
+
+		$tableAttributes = array_merge(
+			$validTagAttributes,
+			[
+				'cellpadding',
+				'cellspacing',
+			]
+		);
+
+		$tdAttributes = array_merge(
+			$validTagAttributes,
+			[
+				'rowspan',
+			]
+		);
+
+		return [
+			'style' => [],
+			'colgroup' => [],
+			'col' => ['width'],
+			'table' => $tableAttributes,
+			'center' => $validTagAttributes,
+			'div' => $validTagAttributes,
+			'td' =>$tdAttributes,
+		];
+	}
+
+	private static function prepareField($value)
+	{
+		if (trim($value))
+		{
+			$address = new Main\Mail\Address($value);
+
+			if ($address->validate())
+			{
+				return [
+					'name' => $address->getName(),
+					'email' => $address->getEmail(),
+					'formated' => ($address->getName() ? $address->get() : $address->getEmail()),
+				];
+			}
+			else
+			{
+				return [
+					'name'  => $value,
+				];
+			}
+		}
+		
+		return false;
+	}
+
+	private static function checkMessageIsOutcomeByField($message,$keyField,$value)
+	{
+		if (trim($value))
+		{
+			$isFromField = in_array($keyField, ['__from', '__reply_to']);
+			$address = new Main\Mail\Address($value);
+
+			if ($address->validate())
+			{
+				if ($isFromField && $address->getEmail() == $message['__email'])
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Adapts a message(result of Mail\MailMessageTable::getList) for output in the public interface.
 	 *
 	 * @param array &$message(result of Mail\MailMessageTable::getList. Changes the data in a variable!).
@@ -68,35 +162,39 @@ class Message
 			}
 		}
 
-		foreach ($fieldsMap as $extField => $field)
+		foreach ($fieldsMap as $fieldKey => $fieldName)
 		{
-			$isFromField = in_array($extField, array('__from', '__reply_to'));
+			$message[$fieldKey] = [];
 
-			$message[$extField] = array();
-			foreach (explode(',', $message[$field]) as $item)
+			if($fieldName === 'FIELD_FROM')
 			{
-				if (trim($item))
+				if(static::checkMessageIsOutcomeByField($message,$fieldKey,$message[$fieldName]))
 				{
-					$address = new Main\Mail\Address($item);
-					if ($address->validate())
-					{
-						if ($isFromField && $address->getEmail() == $message['__email'])
-						{
-							$message['__is_outcome'] = true;
-						}
+					$message['__is_outcome'] = true;
+				}
 
-						$message[$extField][] = array(
-							'name' => $address->getName(),
-							'email' => $address->getEmail(),
-							'formated' => ($address->getName() ? $address->get() : $address->getEmail()),
-						);
-					}
-					else
-					{
-						$message[$extField][] = array(
-							'name'  => $item,
-						);
-					}
+				$filed = static::prepareField($message[$fieldName]);
+
+				if($filed !== false)
+				{
+					$message[$fieldKey][] = $filed;
+				}
+
+				continue;
+			}
+
+			foreach (explode(',', $message[$fieldName]) as $item)
+			{
+				if(static::checkMessageIsOutcomeByField($message,$fieldKey,$item))
+				{
+					$message['__is_outcome'] = true;
+				}
+
+				$filed = static::prepareField($item);
+
+				if($filed !== false)
+				{
+					$message[$fieldKey][] = $filed;
 				}
 			}
 		}
@@ -224,7 +322,7 @@ class Message
 			$token = $signature = '';
 			if (is_string($_REQUEST['mail_uf_message_token']) && mb_strpos($_REQUEST['mail_uf_message_token'], ':') > 0)
 			{
-				list($token, $signature) = explode(':', $_REQUEST['mail_uf_message_token'], 2);
+				[$token, $signature] = explode(':', $_REQUEST['mail_uf_message_token'], 2);
 			}
 
 			if ($token <> '' && $signature <> '')
@@ -346,7 +444,7 @@ class Message
 				'ENTITY_ID',
 			],
 			'filter' => [
-				'ENTITY_TYPE' => 'MAILBOX',
+				'=ENTITY_TYPE' => 'MAILBOX',
 				'@ENTITY_ID' => $mailboxIds,
 			],
 		])->fetchAll();

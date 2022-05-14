@@ -219,7 +219,7 @@ $MESS["LANDING_CONTENT_URL_MEDIA_FB_POST_FULL"] = "Показать весь п�
 
 $MESS["LANDING_CONTENT_MEDIA_SECONDS_SHORT"] = "Сек.";
 $MESS["LANDING_TITLE_OF_EDITOR_ACTION_DESIGN"] = "Дизайн";
-$MESS["LANDING_BLOCK_DISABLED_ON_DESKTOP_NAME"] = "Настроена видимость блока";
+$MESS["LANDING_BLOCK_DISABLED_ON_DESKTOP_NAME_2"] = "Настроена видимость блока";
 
 $MESS["LANDING_BLOCK_HIDDEN_ON_DESKTOP"] = "Скрыт на&nbsp;устройствах с&nbsp;шириной экрана более чем 1120px";
 $MESS["LANDING_BLOCK_HIDDEN_ON_TABLET"] = "Скрыт на&nbsp;устройствах с&nbsp;шириной экрана менее чем 1120px но&nbsp;более чем 575px";

@@ -208,7 +208,7 @@ if(is_array($arID))
 					));
 
 					$bOnTheMove = true;
-					echo '<script>', $lAdmin->ActionDoGroup($ID, "download", "themove=y"), '</script>';
+					echo '<script>' . $lAdmin->ActionDoGroup($ID, "download", "themove=y") . '</script>';
 				}
 				else
 				{
@@ -376,7 +376,7 @@ if(is_array($arID))
 						),
 					));
 					$bOnTheMove = true;
-					echo '<script>', $lAdmin->ActionDoGroup($ID, "move", "themove=y"), '</script>';
+					echo '<script>' . $lAdmin->ActionDoGroup($ID, "move", "themove=y") . '</script>';
 				}
 				//File skip reasons debug infirmation:
 				echo "\n<!--\nFile skip reasons:\n".print_r($file_skip_reason, true)."-->\n";
@@ -385,6 +385,89 @@ if(is_array($arID))
 				$_SESSION["arMoveStat_done"] = $_done;
 				$_SESSION["arMoveStat_size"] = $_size;
 				$_SESSION["arMoveStat_skip"] = $_skip;
+			}
+			break;
+		case "estimate_duplicates":
+			$ob = new CCloudStorageBucket(intval($ID), false);
+			if($ob->ACTIVE === "Y" && $ob->READ_ONLY === "N" && $ob->Init())
+			{
+				$pageSize = 1000;
+				$hasFinished = null;
+				$lastKey = (string)$_REQUEST['lastKey'];
+
+				$result = $ob->ListFiles('/', true, $pageSize, $lastKey);
+				$isOk = is_array($result);
+				if (is_array($result))
+				{
+					\Bitrix\Clouds\FileHashTable::syncList($ob->ID, '/', $result, $lastKey);
+					$hasFinished = (count($result["file"]) < $pageSize);
+					$lastKey = $result['last_key'];
+					if ($hasFinished)
+					{
+						\Bitrix\Clouds\FileHashTable::syncEnd($ob->ID, '/', $lastKey);
+					}
+				}
+
+				$lAdmin->BeginPrologContent();
+				$message = new CAdminMessage(array(
+					"TYPE" => "OK",
+					"MESSAGE" => GetMessage('CLO_STORAGE_LIST_LISTING'),
+					"DETAILS" => $lastKey,
+				));
+				echo $message->Show();
+				if (!$hasFinished)
+				{
+					echo '<script>ShowWaitWindow();' . $lAdmin->ActionDoGroup($ob->ID, "estimate_duplicates", "lastKey=" . urlencode($lastKey)) . '</script>';
+				}
+				else
+				{
+					echo '<script>ShowWaitWindow();' . $lAdmin->ActionDoGroup($ob->ID, "fill_file_hash", "lastKey=0") . '</script>';
+				}
+				$lAdmin->EndPrologContent();
+			}
+			break;
+		case "fill_file_hash":
+			$ob = new CCloudStorageBucket(intval($ID), false);
+			if($ob->ACTIVE === "Y" && $ob->READ_ONLY === "N" && $ob->Init())
+			{
+				$pageSize = 10000;
+				$lastKey = (int)$_REQUEST['lastKey'];
+
+				$fileIds = \Bitrix\Clouds\FileHashTable::copyToFileHash($lastKey, $pageSize);
+				$hasFinished = $fileIds['FILE_ID_CNT'] < $pageSize;
+				if (!$hasFinished)
+				{
+					$lastKey = $fileIds['FILE_ID_MAX'];
+				}
+
+				$lAdmin->BeginPrologContent();
+				if (!$hasFinished)
+				{
+					$message = new CAdminMessage(array(
+						"TYPE" => "OK",
+						"MESSAGE" => GetMessage('CLO_STORAGE_LIST_COPY'),
+						"DETAILS" => $lastKey,
+					));
+					echo $message->Show();
+					echo '<script>ShowWaitWindow();' . $lAdmin->ActionDoGroup($ob->ID, "fill_file_hash", "lastKey=" . urlencode($lastKey)) . '</script>';
+				}
+				else
+				{
+					$stat = \Bitrix\Clouds\FileHashTable::getDuplicatesStat($ob->ID);
+					$message = new CAdminMessage(array(
+						"TYPE" => "OK",
+						"MESSAGE" => GetMessage('CLO_STORAGE_LIST_DUPLICATES_RESULT'),
+						"DETAILS"=>GetMessage("CLO_STORAGE_LIST_DUPLICATES_INFO", array(
+							"#count#" => intval($stat['DUP_COUNT']),
+							"#size#" => CFile::FormatSize($stat['DUP_SIZE']),
+							"#list_link#" => "clouds_duplicates_list.php?lang=".LANGUAGE_ID."&bucket=".$ob->ID,
+						)),
+						"HTML"=>true,
+					));
+					echo $message->Show();
+					echo '<script>CloseWaitWindow();</script>';
+				}
+				$lAdmin->EndPrologContent();
 			}
 			break;
 		default:
@@ -499,6 +582,11 @@ while(is_array($arRes = $rsData->Fetch()))
 				"ACTION"=>"if(confirm('".GetMessage("CLO_STORAGE_LIST_MOVE_LOCAL_CONF")."')) ".$lAdmin->ActionDoGroup($arRes["ID"], "download")
 			);
 		}
+
+		$arActions[] = array(
+			"TEXT"=>GetMessage("CLO_STORAGE_ESTIMATE_DUPLICATES"),
+			"ACTION"=>$lAdmin->ActionDoGroup($arRes["ID"], "estimate_duplicates")
+		);
 
 		$arActions[] = array(
 			"TEXT"=>GetMessage("CLO_STORAGE_LIST_DEACTIVATE"),

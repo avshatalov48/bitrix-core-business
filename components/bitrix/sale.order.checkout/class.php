@@ -4,6 +4,7 @@ use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale;
+use Bitrix\Sale\Cashbox;
 use Bitrix\Catalog;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
@@ -546,12 +547,14 @@ class SaleOrderCheckout extends \CBitrixComponent
 			'PROPERTIES' => [],
 			'TOTAL' => [],
 			'DISCOUNT' => [],
+			'PAYMENTS' => [],
+			'CHECK' => []
 		];
 
 		if (!empty($aggregateData['PAY_SYSTEMS']))
 		{
 			$scheme['PAY_SYSTEMS'] = array_values(array_filter($aggregateData['PAY_SYSTEMS'], static function ($paySystem) {
-				return $paySystem['ACTION_FILE'] !== 'inner';
+				return ($paySystem['ACTION_FILE'] !== 'inner');
 			}));
 
 			array_walk($scheme['PAY_SYSTEMS'], static function(&$item){
@@ -609,6 +612,32 @@ class SaleOrderCheckout extends \CBitrixComponent
 		$scheme['DISCOUNT'] = [
 			'SUM' => $orderPriceTotal['BASKET_PRICE_DISCOUNT_DIFF_VALUE'],
 		];
+
+		$culture = Main\Context::getCurrent()->getCulture();
+
+		foreach ($aggregateData['PAYMENTS'] as $payment)
+		{
+			$scheme['PAYMENTS'][] = [
+				'ID' => $payment['ID'],
+				'SUM' => $payment['SUM'],
+				'PAID' => $payment['PAID'],
+				'CURRENCY' => $payment['CURRENCY'],
+				'PAY_SYSTEM_ID' => $payment['PAY_SYSTEM_ID'],
+				'ACCOUNT_NUMBER' => $payment['ACCOUNT_NUMBER'],
+				'DATE_BILL_FORMATTED' => \FormatDate($culture->getLongDateFormat(), $payment['DATE_BILL']->getTimestamp()),
+			];
+		}
+
+		foreach ($aggregateData['CHECKS'] as $check)
+		{
+			$scheme['CHECK'][] = [
+				'ID' => $check['ID'],
+				'DATE_FORMATTED' => \FormatDate($culture->getLongDateFormat(), $check['DATE_CREATE']->getTimestamp()),
+				'LINK' => $check['LINK'],
+				'STATUS' => $check['STATUS'],
+				'PAYMENT_ID' => $check['PAYMENT_ID']
+			];
+		}
 
 		return $scheme;
 	}

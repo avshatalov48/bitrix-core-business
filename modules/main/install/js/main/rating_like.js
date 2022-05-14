@@ -635,6 +635,15 @@ RatingLike.Init = function(likeId, params)
 				: BXRL[likeId].buttonText
 		);
 
+		if (!BXRL.manager || !BXRL.manager.mobile)
+		{
+			var eventNodeNew = eventNode.closest('.feed-new-like');
+			if (eventNodeNew)
+			{
+				eventNode = eventNodeNew;
+			}
+		}
+
 		if (
 			BXRL[likeId].version >= 2
 			&& BXRL.manager.mobile

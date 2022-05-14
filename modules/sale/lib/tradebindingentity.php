@@ -251,4 +251,19 @@ class TradeBindingEntity extends Internals\CollectableEntity
 		return 'SaleTradeBindingEntity';
 	}
 
+	/**
+	 * @param $name
+	 * @param $value
+	 * @return void
+	 * @throws Main\ArgumentOutOfRangeException
+	 */
+	public function setFieldNoDemand($name, $value)
+	{
+		parent::setFieldNoDemand($name, $value);
+
+		if ($name === 'TRADING_PLATFORM_ID')
+		{
+			$this->tradePlatform = null;
+		}
+	}
 }

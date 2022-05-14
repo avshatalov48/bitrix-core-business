@@ -141,7 +141,18 @@ class BodyStructure
 
 	public function getParams()
 	{
-		return $this->data[2];
+		if(is_array($this->data[2]))
+		{
+			return $this->data[2];
+		}
+		else if(is_string($this->data[2]))
+		{
+			return ['name' => $this->data[2]];
+		}
+		else
+		{
+			return ['name' => 'file'];
+		}
 	}
 
 	public function getId()

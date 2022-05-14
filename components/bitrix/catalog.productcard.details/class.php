@@ -232,7 +232,14 @@ class CatalogProductDetailsComponent
 			if ($this->copyProduct)
 			{
 				$fields = $this->copyProduct->getFields();
-				unset($fields['ID'], $fields['IBLOCK_ID'], $fields['PREVIEW_PICTURE'], $fields['DETAIL_PICTURE']);
+				unset(
+					$fields['ID'],
+					$fields['IBLOCK_ID'],
+					$fields['PREVIEW_PICTURE'],
+					$fields['DETAIL_PICTURE'],
+					$fields['QUANTITY'],
+					$fields['QUANTITY_RESERVED']
+				);
 				$product->setFields($fields);
 				$product->getSectionCollection()->setValues(
 					$this->copyProduct->getSectionCollection()->getValues()

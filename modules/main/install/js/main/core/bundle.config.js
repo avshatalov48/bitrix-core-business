@@ -5,6 +5,8 @@ module.exports = {
 	namespaceFunction: null,
 	adjustConfigPhp: false,
 	protected: true,
+	browserslist: true,
+	transformClasses: true,
 	concat: {
 		js: [
 			'./src/internal/wrap-start.js',

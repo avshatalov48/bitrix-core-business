@@ -826,6 +826,7 @@ if (\Bitrix\Main\Grid\Context::isInternalRequest()) :
 		var defaultColumns = eval(<?=CUtil::phpToJSObject($arResult["DEFAULT_COLUMNS"])?>);
 		var Grid = BX.Main.gridManager.getById('<?=\CUtil::JSEscape($arParams["GRID_ID"])?>');
 		var messages = eval(<?=CUtil::phpToJSObject($arResult["MESSAGES"])?>);
+		var currentPage = '<?=\CUtil::JSEscape($arParams["CURRENT_PAGE"])?>';
 
 		Grid = Grid ? Grid.instance : null;
 
@@ -833,6 +834,7 @@ if (\Bitrix\Main\Grid\Context::isInternalRequest()) :
 		{
 			Grid.arParams.DEFAULT_COLUMNS = defaultColumns;
 			Grid.arParams.MESSAGES = messages;
+			Grid.arParams.CURRENT_PAGE = currentPage;
 
 			Object.keys(editableData).forEach(function(key) {
 				Grid.arParams.EDITABLE_DATA[key] = editableData[key];
@@ -917,6 +919,7 @@ endif; ?>
 							"SETTINGS_WINDOW_TITLE" => $arParams["SETTINGS_WINDOW_TITLE"],
 							"COLUMNS_ALL_WITH_SECTIONS" => ($arResult["COLUMNS_ALL_WITH_SECTIONS"] ?? []),
 							"ENABLE_FIELDS_SEARCH" => ($arResult["ENABLE_FIELDS_SEARCH"] ?? false),
+							"CURRENT_PAGE" => $arParams["CURRENT_PAGE"],
 						)
 					)?>,
 					<?=CUtil::PhpToJSObject($arResult["OPTIONS"])?>,

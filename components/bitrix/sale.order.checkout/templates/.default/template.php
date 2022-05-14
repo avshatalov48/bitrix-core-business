@@ -68,6 +68,9 @@ else
 		'property' => $scheme['properties'],
 		'hash' => $scheme['order']['hash'],
 		'accountNumber' => $scheme['order']['accountNumber'],
+		'paySystem' => $scheme['paySystems'],
+		'payment' => $scheme['payments'],
+		'check' => $scheme['check'],
 	];
 }
 

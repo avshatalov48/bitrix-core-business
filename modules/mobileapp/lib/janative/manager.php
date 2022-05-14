@@ -68,7 +68,7 @@ class Manager
                     {
                         try
                         {
-                            $component = new Component($item->getPath());
+                            $component = new Component($item->getPath(), $namespace);
                             $name = $item->getName();
                             $name = ($namespace == 'bitrix' ? $name : $namespace . ':' . $name);
                             $rawComponentList[$name] = $component;

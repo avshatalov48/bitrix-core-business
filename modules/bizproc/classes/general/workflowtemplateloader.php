@@ -1,4 +1,8 @@
 <?php
+
+use Bitrix\Main\Event;
+use Bitrix\Main\EventManager;
+
 IncludeModuleLangFile(__FILE__);
 
 define("BP_EI_DIRECTION_EXPORT", 0);
@@ -290,6 +294,15 @@ class CAllBPWorkflowTemplateLoader
 					"DELETE FROM b_bp_workflow_template ".
 					"WHERE ID = ".intval($id)." "
 				);
+
+				$event = new Event(
+					'bizproc',
+					'onAfterWorkflowTemplateDelete',
+					[
+						'ID' => $id,
+					]
+				);
+				EventManager::getInstance()->send($event);
 			}
 			else
 			{
@@ -306,28 +319,48 @@ class CAllBPWorkflowTemplateLoader
 	{
 		$workflowTemplateId = intval($workflowTemplateId);
 		if ($workflowTemplateId <= 0)
+		{
 			throw new CBPArgumentOutOfRangeException("workflowTemplateId", $workflowTemplateId);
+		}
 
-		$dbTemplatesList = $this->GetTemplatesList(array(), array("ID" => $workflowTemplateId), false, false, array("TEMPLATE", "VARIABLES", "PARAMETERS"));
+		$dbTemplatesList = $this->GetTemplatesList(
+			[],
+			['ID' => $workflowTemplateId],
+			false,
+			false,
+			['TEMPLATE', 'VARIABLES', 'PARAMETERS']
+		);
 		$arTemplatesListItem = $dbTemplatesList->Fetch();
 
 		if (!$arTemplatesListItem)
-			throw new Exception(str_replace("#ID#", $workflowTemplateId, GetMessage("BPCGWTL_INVALID_WF_ID")));
+		{
+			throw new Exception(str_replace('#ID#', $workflowTemplateId, GetMessage('BPCGWTL_INVALID_WF_ID')));
+		}
 
-		$arWorkflowTemplate = $arTemplatesListItem["TEMPLATE"];
-		$workflowVariablesTypes = $arTemplatesListItem["VARIABLES"];
-		$workflowParametersTypes = $arTemplatesListItem["PARAMETERS"];
+		$arTemplatesListItem['ID'] = $workflowTemplateId;
 
-		if (!is_array($arWorkflowTemplate) || count($arWorkflowTemplate) <= 0)
-			throw new Exception(str_replace("#ID#", $workflowTemplateId, GetMessage("BPCGWTL_EMPTY_TEMPLATE")));
-
-		$arActivityNames = array();
-		$rootActivity = $this->ParceWorkflowTemplate($arWorkflowTemplate, $arActivityNames, null);
-
-		return array($rootActivity, $workflowVariablesTypes, $workflowParametersTypes);
+		return $this->loadWorkflowFromArray($arTemplatesListItem);
 	}
 
-	private function ParceWorkflowTemplate($arWorkflowTemplate, &$arActivityNames, CBPActivity $parentActivity = null)
+	public function loadWorkflowFromArray($templatesListItem): array
+	{
+		$wfId = $templatesListItem['ID'];
+		$wfTemplate = $templatesListItem['TEMPLATE'];
+		$wfVariablesTypes = $templatesListItem['VARIABLES'];
+		$wfParametersTypes = $templatesListItem['PARAMETERS'];
+
+		if (!is_array($wfTemplate) || count($wfTemplate) <= 0)
+		{
+			throw new Exception(str_replace('#ID#', $wfId, GetMessage('BPCGWTL_EMPTY_TEMPLATE')));
+		}
+
+		$activityNames = array();
+		$rootActivity = $this->parseWorkflowTemplate($wfTemplate, $activityNames);
+
+		return [$rootActivity, $wfVariablesTypes, $wfParametersTypes];
+	}
+
+	private function parseWorkflowTemplate($arWorkflowTemplate, &$arActivityNames, CBPActivity $parentActivity = null)
 	{
 		if (!is_array($arWorkflowTemplate))
 			throw new CBPArgumentOutOfRangeException("arWorkflowTemplate");
@@ -347,13 +380,15 @@ class CAllBPWorkflowTemplateLoader
 				$parentActivity->FixUpParentChildRelationship($activity);
 
 			if ($activityFormatted["Children"])
-				$this->ParceWorkflowTemplate($activityFormatted["Children"], $arActivityNames, $activity);
+			{
+				$this->parseWorkflowTemplate($activityFormatted["Children"], $arActivityNames, $activity);
+			}
 		}
 
 		return $activity;
 	}
 
-	private function CreateActivity($activityCode, $activityName)
+	private function CreateActivity($activityCode, $activityName): ?CBPActivity
 	{
 		if (CBPActivity::IncludeActivityFile($activityCode))
 			return CBPActivity::CreateInstance($activityCode, $activityName);
@@ -880,57 +915,64 @@ class CAllBPWorkflowTemplateLoader
 		else
 			$id = self::Add($templateData, $systemImport);
 
-		if ($templateFields['DOCUMENT_FIELDS'])
+		if ($templateFields['DOCUMENT_FIELDS'] && is_array($templateFields['DOCUMENT_FIELDS']))
 		{
-			$documentService = CBPRuntime::GetRuntime(true)->getDocumentService();
-			$currentDocumentFields = $documentService->GetDocumentFields($documentType, true);
-
-			\Bitrix\Main\Type\Collection::sortByColumn($templateFields['DOCUMENT_FIELDS'], "sort");
-			$len = mb_strlen("_PRINTABLE");
-
-			foreach ($templateFields['DOCUMENT_FIELDS'] as $code => $field)
-			{
-				//skip printable
-				if (mb_strtoupper(mb_substr($code, -$len)) == "_PRINTABLE")
-				{
-					continue;
-				}
-
-				//skip references
-				if (mb_strpos($code, '.') !== false)
-				{
-					continue;
-				}
-
-				$documentField = array(
-					"name" => $field["Name"],
-					"code" => $code,
-					"type" => $field["Type"],
-					"multiple" => $field["Multiple"],
-					"required" => $field["Required"],
-				);
-
-				if (is_array($field["Options"]) && count($field["Options"]) > 0)
-				{
-					foreach ($field["Options"] as $k => $v)
-						$documentField["options"] .= "[".$k."]".$v."\n";
-				}
-
-				unset($field["Name"], $field["Type"], $field["Multiple"], $field["Required"], $field["Options"]);
-				$documentField = array_merge($documentField, $field);
-
-				if (!array_key_exists($code, $currentDocumentFields))
-				{
-					$documentService->AddDocumentField($documentType, $documentField);
-				}
-				else
-				{
-					$documentService->UpdateDocumentField($documentType, $documentField);
-				}
-			}
+			static::importDocumentFields($documentType, $templateFields['DOCUMENT_FIELDS']);
 		}
 
 		return $id;
+	}
+
+	public static function importDocumentFields(array $documentType, array $fields)
+	{
+		$documentService = CBPRuntime::GetRuntime(true)->getDocumentService();
+		$currentDocumentFields = $documentService->GetDocumentFields($documentType, true);
+
+		\Bitrix\Main\Type\Collection::sortByColumn($fields, "sort");
+		$len = mb_strlen("_PRINTABLE");
+
+		foreach ($fields as $code => $field)
+		{
+			//skip printable
+			if (mb_strtoupper(mb_substr($code, -$len)) == "_PRINTABLE")
+			{
+				continue;
+			}
+
+			//skip references
+			if (mb_strpos($code, '.') !== false)
+			{
+				continue;
+			}
+
+			$documentField = array(
+				"name" => $field["Name"],
+				"code" => $code,
+				"type" => $field["Type"],
+				"multiple" => $field["Multiple"],
+				"required" => $field["Required"],
+			);
+
+			if (is_array($field["Options"]) && count($field["Options"]) > 0)
+			{
+				foreach ($field["Options"] as $k => $v)
+				{
+					$documentField["options"] .= "[".$k."]".$v."\n";
+				}
+			}
+
+			unset($field["Name"], $field["Type"], $field["Multiple"], $field["Required"], $field["Options"]);
+			$documentField = array_merge($documentField, $field);
+
+			if (!array_key_exists($code, $currentDocumentFields))
+			{
+				$documentService->AddDocumentField($documentType, $documentField);
+			}
+			else
+			{
+				$documentService->UpdateDocumentField($documentType, $documentField);
+			}
+		}
 	}
 
 	public function GetTemplatesList($arOrder = array("ID" => "DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
@@ -1099,6 +1141,15 @@ class CAllBPWorkflowTemplateLoader
 			"VALUES(".$arInsert[1].", ".$DB->CurrentTimeFunction().")";
 		$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
 
+		$event = new Event(
+			'bizproc',
+			'onAfterWorkflowTemplateAdd',
+			[
+				'FIELDS' => $arFields,
+			]
+		);
+		EventManager::getInstance()->send($event);
+
 		return intval($DB->LastID());
 	}
 
@@ -1120,6 +1171,16 @@ class CAllBPWorkflowTemplateLoader
 			"	MODIFIED = ".$DB->CurrentTimeFunction()." ".
 			"WHERE ID = ".intval($id)." ";
 		$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+
+		$event = new Event(
+			'bizproc',
+			'onAfterWorkflowTemplateUpdate',
+			[
+				'ID' => $id,
+				'FIELDS' => $arFields,
+			]
+		);
+		EventManager::getInstance()->send($event);
 
 		return $id;
 	}

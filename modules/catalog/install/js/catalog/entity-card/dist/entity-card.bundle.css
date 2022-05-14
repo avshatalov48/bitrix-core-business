@@ -315,6 +315,24 @@ img.catalog-image {
 	width: 40%;
 }
 
+.catalog-entity-disabled-setting {
+	color: #7e7e7e;
+}
+
+.catalog-entity-setting-hint {
+	display: inline;
+	margin-left: 5px;
+}
+
+.catalog-entity-setting-hint .ui-hint-icon {
+	margin-top: 0;
+}
+
+.catalog-entity-setting-hint.ui-hint {
+	line-height: unset;
+	vertical-align: middle;
+}
+
 .catalog-entity-editor-content-block-field-iblock-section .ui-entity-editor-block-context-menu {
 	top: 8px;
 }

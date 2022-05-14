@@ -744,7 +744,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 				$curFilePreType = $arFilemanPredifinedFileTypes[$curFileType]["gtype"];
 
 				if($curFilePreType == "text")
-					$defaultEdit = COption::GetOptionString("fileman", "default_edit", "text");
+					$defaultEdit = COption::GetOptionString("fileman", "default_edit");
 				else
 					$defaultEdit = "";
 
@@ -1016,7 +1016,7 @@ if ($logical != "Y")
 		//array("select_onchange" => "this.form.copy_to_button.disabled=this.form.copy_to.disabled=!(this[this.selectedIndex].value == 'copy' || this[this.selectedIndex].value == 'move')")
 	);
 }
-$defaultEdit = COption::GetOptionString("fileman", "default_edit", "text");
+$defaultEdit = COption::GetOptionString("fileman", "default_edit");
 
 if($USER->CanDoOperation('view_groups') && $USER->CanDoFileOperation('fm_view_permission', $arPath))
 {

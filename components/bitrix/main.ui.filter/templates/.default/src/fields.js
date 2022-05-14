@@ -360,6 +360,7 @@ export class Fields
 				filter: this.parent,
 				isMultiple: fieldData.MULTIPLE,
 				addEntityIdToResult: fieldData.ADD_ENTITY_ID_TO_RESULT,
+				showDialogOnEmptyInput: fieldData.SHOW_DIALOG_ON_EMPTY_INPUT,
 				dialogOptions: fieldData.DIALOG_OPTIONS
 			},
 		);

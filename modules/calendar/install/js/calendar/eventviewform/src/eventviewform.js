@@ -123,6 +123,7 @@ export class EventViewForm {
 						this.uid = params.uniqueId;
 						this.entryUrl = params.entryUrl;
 						this.userTimezone = params.userTimezone;
+						this.dayOfWeekMonthFormat = params.dayOfWeekMonthFormat;
 						this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
 						if (this.planner && !this.plannerFeatureEnabled)
 						{
@@ -325,7 +326,8 @@ export class EventViewForm {
 			minWidth: parseInt(this.DOM.plannerWrap.offsetWidth),
 			solidStatus: true,
 			readonly: true,
-			locked: !this.plannerFeatureEnabled
+			locked: !this.plannerFeatureEnabled,
+			dayOfWeekMonthFormat: this.dayOfWeekMonthFormat
 		});
 
 		this.planner.show();

@@ -9,6 +9,9 @@ use Bitrix\Main;
 use Bitrix\Sale;
 use BItrix\Catalog;
 use Bitrix\Rest;
+use Bitrix\Sale\Helpers\Controller\Action\Entity\OrderPaymentResolver;
+use Bitrix\Sale\PaySystem;
+use Sale\Handlers\PaySystem\OrderDocumentHandler;
 
 Main\Localization\Loc::loadMessages(__DIR__ . '/class.php');
 
@@ -137,6 +140,11 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 				],
 			],
 			'paymentPay' => [
+				'-prefilters' => [
+					Main\Engine\ActionFilter\Authentication::class,
+				],
+			],
+			'initiatePay' => [
 				'-prefilters' => [
 					Main\Engine\ActionFilter\Authentication::class,
 				],
@@ -293,10 +301,12 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 
 	/**
 	 * @param array $fields
-	 * @return Main\Engine\Response\Component|null
+	 *   orderId
+	 *   accessCode
+	 * @return void
 	 * @example BX.ajax.runComponentAction('bitrix:sale.order.checkout', 'paymentPay', { mode: 'ajax', data: { fields: { ... }}});
 	 */
-	public function paymentPayAction(array $fields): ?Main\Engine\Response\Component
+	public function paymentPayAction(array $fields): void
 	{
 		if (empty($fields['ORDER_ID']) || (int)$fields['ORDER_ID'] <= 0)
 		{
@@ -310,18 +320,16 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 
 		if ($this->getErrors())
 		{
-			return null;
+			return;
 		}
 
-		$params = [
-			'ORDER_ID' => (int)$fields['ORDER_ID'],
-			'ACCESS_CODE' => $fields['ACCESS_CODE'],
-			'RETURN_URL' => $fields['RETURN_URL'] ?? '',
-		];
-
-		$result = new Main\Engine\Response\Component('bitrix:salescenter.payment.pay', 'checkout_form', $params);
-
 		$order = $this->loadOrder($fields['ORDER_ID']);
+
+		if (!$order || $order->getHash() !== $fields['ACCESS_CODE'])
+		{
+			$this->addError(new Main\Error('access error'));
+			return;
+		}
 
 		$event = new Main\Event(
 			'sale',
@@ -331,6 +339,61 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 			]
 		);
 		$event->send();
+	}
+
+	/**
+	 * @param array $fields
+	 *   orderId
+	 *   paySystemId
+	 *   accessCode
+	 *   returnUrl
+	 * @return ?array
+	 * @example BX.ajax.runComponentAction('bitrix:sale.order.checkout', 'initiatePay', {mode: 'ajax', data: { fields: {...} }});
+	 */
+	public function initiatePayAction(array $fields): ?array
+	{
+		$orderId = (int)$fields['ORDER_ID'];
+		$paySystemId = isset($fields['PAY_SYSTEM_ID']) ? (int)$fields['PAY_SYSTEM_ID'] : null;
+
+		if ($orderId <= 0)
+		{
+			$this->addError(new Main\Error('orderId not found'));
+		}
+
+		$payment = OrderPaymentResolver::findOrCreatePaymentEqualOrderSum($orderId, $paySystemId);
+
+		if (!$payment)
+		{
+			$this->addError(new Main\Error('payment not found'));
+			return null;
+		}
+
+		$fields['PAYMENT_ID'] = $payment->getId();
+		$fields['PAY_SYSTEM_ID'] = $paySystemId ?: $payment->getPaymentSystemId();
+
+		if ($this->isPaySystemOrderDocument($fields['PAY_SYSTEM_ID']))
+		{
+			$fields['template'] = 'template_download';
+		}
+
+		$action = new Sale\Controller\Action\Entity\InitiatePayAction($this->actionName, $this, $this->config);
+
+		$result = $action->run($fields);
+
+		$errors = $action->getErrors();
+		if ($errors)
+		{
+			$this->addError(new Main\Error('initiate pay error'));
+			return null;
+		}
+
+		if (empty($result['html']) && $payment = $action->getPayment())
+		{
+			$result['fields'] = [
+				'SUM_WITH_CURRENCY' => SaleFormatCurrency($payment->getSum(), $payment->getField('CURRENCY')),
+				'PAY_SYSTEM_NAME' => htmlspecialcharsbx($payment->getPaymentSystemName()),
+			];
+		}
 
 		return $result;
 	}
@@ -962,5 +1025,18 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param int $paySystemId
+	 * @return bool
+	 */
+	private function isPaySystemOrderDocument(int $paySystemId): bool
+	{
+		$handlerClassName = PaySystem\Manager::getFolderFromClassName(OrderDocumentHandler::class);
+
+		$service = PaySystem\Manager::getObjectById($paySystemId);
+
+		return $service && $handlerClassName === $service->getField('ACTION_FILE');
 	}
 }

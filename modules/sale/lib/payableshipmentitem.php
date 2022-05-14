@@ -18,7 +18,7 @@ class PayableShipmentItem extends PayableItem
 		return Registry::ENTITY_PAYABLE_SHIPMENT;
 	}
 
-	protected static function getEntityType() : string
+	public static function getEntityType() : string
 	{
 		return Registry::ENTITY_SHIPMENT;
 	}

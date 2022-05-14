@@ -100,6 +100,25 @@ class CashboxRest extends Cashbox implements IPrintImmediately, ICheckable
 	}
 
 	/**
+	 * @return array
+	 */
+	private function getRequestOptions(): array
+	{
+		$options = [];
+
+		$handlerCode = $this->getHandlerCode();
+		$handlerParams = self::getHandlerParams($handlerCode);
+		if (isset($handlerParams['SETTINGS']['HTTP_VERSION']))
+		{
+			$options['HTTP_CLIENT_OPTIONS'] = [
+				'version' => $handlerParams['SETTINGS']['HTTP_VERSION'],
+			];
+		}
+
+		return $options;
+	}
+
+	/**
 	 * @return mixed
 	 * @throws Main\ArgumentException
 	 * @throws Main\ObjectPropertyException
@@ -225,7 +244,11 @@ class CashboxRest extends Cashbox implements IPrintImmediately, ICheckable
 		$result = new Result();
 		$url = $this->getCheckUrl();
 		$checkUUID = $check->getField('EXTERNAL_UUID');
-		$queryResult = Sale\Helpers\Rest\Http::sendRequest($url, ["uuid" => $checkUUID]);
+		$queryResult = Sale\Helpers\Rest\Http::sendRequest(
+			$url,
+			["uuid" => $checkUUID],
+			$this->getRequestOptions()
+		);
 		$response = $queryResult->getData();
 
 		if ($response === false)
@@ -261,7 +284,11 @@ class CashboxRest extends Cashbox implements IPrintImmediately, ICheckable
 	public function printImmediately(Check $check): Result
 	{
 		$url = $this->getPrintUrl();
-		$printResult = Sale\Helpers\Rest\Http::sendRequest($url, $this->buildCheckQuery($check));
+		$printResult = Sale\Helpers\Rest\Http::sendRequest(
+			$url,
+			$this->buildCheckQuery($check),
+			$this->getRequestOptions()
+		);
 
 		if (!$printResult->isSuccess())
 		{

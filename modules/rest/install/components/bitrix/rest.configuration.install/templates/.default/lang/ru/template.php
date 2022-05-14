@@ -23,3 +23,8 @@ $MESS["REST_CONFIGURATION_IMPORT_INSTALL_LATER_BTN"] = "Импортирую п�
 $MESS["REST_CONFIGURATION_IMPORT_INSTALL_LATER_POPUP_CLOSE_BTN"] = "Хорошо";
 $MESS["REST_CONFIGURATION_IMPORT_PRE_INSTALL_LATER_APP_POPUP_DESCRIPTION"] = "Вы сможете установить отраслевое решение «#APP_NAME#» в любой момент, найдя его в списке установленных решений. Подробнее об этом читайте в нашей #HELP_DESK_LINK#.";
 $MESS["REST_CONFIGURATION_IMPORT_PRE_INSTALL_LATER_APP_POPUP_HELP_DESK_LINK_LABEL"] = "статье";
+
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_TITLE"] = "Вы точно хотите прервать импорт?";
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_DESCRIPTION"] = "Если вы остановите процесс, то при повторной попытке импорт начнётся заново и снова займёт время";
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_BTN_CONTINUE"] = "Продолжить импорт";
+$MESS["REST_CONFIGURATION_IMPORT_HOLD_CLOSE_POPUP_BTN_CLOSE"] = "Прервать импорт";

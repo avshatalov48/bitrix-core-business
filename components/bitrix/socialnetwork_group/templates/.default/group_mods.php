@@ -44,17 +44,13 @@ $componentParameters = [
 	'FILTER_ID' => 'SOCIALNETWORK_WORKGROUP_MODS_LIST',
 ];
 
-// todo: bitrix:socialnetwork.group.user.list
-
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
 	'',
 	[
-		'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.group_users.ex',
+		'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.group.user.list',
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => $componentParameters,
-		'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
-		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE' => 'SONET_GROUP',
-		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID' => $arResult['VARIABLES']['group_id'],
+		'USE_UI_TOOLBAR' => 'Y',
 	]
 );

@@ -18,12 +18,15 @@ BX.UI.Animations = {
 			return;
 		}
 
-		var
-			type = (BX.type.isNotEmptyString(params.type) ? params.type : 'post'),
-			classBlock = (BX.type.isNotEmptyString(params.classBlock) ? params.classBlock : 'feed-post-text-block'),
-			classOuter = (BX.type.isNotEmptyString(params.classOuter) ? params.classOuter : 'feed-post-text-block-inner'),
-			classInner = (BX.type.isNotEmptyString(params.classInner) ? params.classInner : 'feed-post-text-block-inner-inner'),
-			heightLimit = (typeof params.heightLimit != 'undefined' && parseInt(params.heightLimit) > 0 ? parseInt(params.heightLimit) : 300);
+		var classBlock = (BX.Type.isStringFilled(params.classBlock) ? params.classBlock : 'feed-post-text-block');
+		var classOuter = (BX.Type.isStringFilled(params.classOuter) ? params.classOuter : 'feed-post-text-block-inner');
+		var classInner = (BX.Type.isStringFilled(params.classInner) ? params.classInner : 'feed-post-text-block-inner-inner');
+		var heightLimit = (
+			!BX.Type.isUndefined(params.heightLimit)
+			&& parseInt(params.heightLimit) > 0
+				? parseInt(params.heightLimit)
+				: 300
+		);
 
 		var tmpNode = BX.findParent(BX(params.moreButtonNode), {
 			tag: 'div',
@@ -37,11 +40,11 @@ BX.UI.Animations = {
 
 		var el = BX.findChild(tmpNode, {
 			tag: 'div',
-			className: classOuter
+			className: classOuter,
 		}, true);
 		var el2 = BX.findChild(tmpNode, {
 			tag: 'div',
-			className: classInner
+			className: classInner,
 		}, true);
 
 		if (!el || !el2)
@@ -49,11 +52,14 @@ BX.UI.Animations = {
 			return;
 		}
 
-		var
-			fxStart = heightLimit,
-			fxFinish = parseInt(el2.offsetHeight),
-			start1 = { height: fxStart },
-			finish1 = { height: fxFinish };
+		var fxStart = heightLimit;
+		var fxFinish = parseInt(el2.offsetHeight);
+		var start1 = {
+			height: fxStart,
+		};
+		var finish1 = {
+			height: fxFinish,
+		};
 
 		if (!!params.moreButtonNode)
 		{

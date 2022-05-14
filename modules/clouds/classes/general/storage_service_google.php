@@ -402,6 +402,7 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 			"file_size" => array(),
 			"file_mtime" => array(),
 			"file_hash" => array(),
+			"last_key" => "",
 		);
 
 		$filePath = trim($filePath, '/');
@@ -462,6 +463,7 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 						$result["file_size"][] = $a["#"]["Size"][0]["#"];
 						$result["file_mtime"][] = mb_substr($a["#"]["LastModified"][0]["#"], 0, 19);
 						$result["file_hash"][] = trim($a["#"]["ETag"][0]["#"], '"');
+						$result["last_key"] = $file_name;
 					}
 				}
 

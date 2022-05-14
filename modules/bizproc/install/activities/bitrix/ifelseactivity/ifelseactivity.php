@@ -1,13 +1,16 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
-class CBPIfElseActivity
-	extends CBPCompositeActivity
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+class CBPIfElseActivity extends CBPCompositeActivity
 {
 	public function __construct($name)
 	{
 		parent::__construct($name);
-		$this->arProperties = array("Title" => "");
+		$this->arProperties = ["Title" => ""];
 	}
 
 	public function Execute()
@@ -42,7 +45,10 @@ class CBPIfElseActivity
 				$this->workflow->CancelActivity($activity);
 				break;
 			}
-			if (($activity->executionStatus == CBPActivityExecutionStatus::Canceling) || ($activity->executionStatus == CBPActivityExecutionStatus::Faulting))
+			if (
+				$activity->executionStatus == CBPActivityExecutionStatus::Canceling
+				|| $activity->executionStatus == CBPActivityExecutionStatus::Faulting
+			)
 			{
 				$flag = false;
 				break;
@@ -63,9 +69,8 @@ class CBPIfElseActivity
 
 	public static function ValidateChild($childActivity, $bFirstChild = false)
 	{
-		$arErrors = array();
-
-		$child = "CBP".$childActivity;
+		$arErrors = [];
+		$child = "CBP" . $childActivity;
 
 		$bCorrect = false;
 		while ($child <> '')
@@ -79,16 +84,20 @@ class CBPIfElseActivity
 		}
 
 		if (!$bCorrect)
-			$arErrors[] = array("code" => "WrongChildType", "message" => GetMessage("BPIEA_INVALID_CHILD_1"));
+		{
+			$arErrors[] = ["code" => "WrongChildType", "message" => GetMessage("BPIEA_INVALID_CHILD_1")];
+		}
 
 		return array_merge($arErrors, parent::ValidateChild($childActivity, $bFirstChild));
 	}
 
-	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "")
+	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters,
+		$arWorkflowVariables, $arCurrentValues = null, $formName = "")
 	{
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$arErrors)
+	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate,
+		&$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$arErrors)
 	{
 		return true;
 	}

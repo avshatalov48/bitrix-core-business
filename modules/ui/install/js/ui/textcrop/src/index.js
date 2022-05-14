@@ -117,3 +117,4 @@ export class TextCrop
 		this.cropResize();
 	}
 }
+

@@ -101,7 +101,9 @@ abstract class BaseProduct extends BaseIblockElementEntity implements HasSection
 	{
 		if ($this->skuCollection === null)
 		{
-			$this->setSkuCollection($this->loadSkuCollection());
+			$this->setSkuCollection(
+				$this->skuRepository->getCollectionByProduct($this)
+			);
 		}
 
 		return $this->skuCollection;
@@ -110,9 +112,16 @@ abstract class BaseProduct extends BaseIblockElementEntity implements HasSection
 	/**
 	 * @return \Bitrix\Catalog\v2\Sku\SkuCollection|\Bitrix\Catalog\v2\Sku\BaseSku[]
 	 */
-	protected function loadSkuCollection(): SkuCollection
+	public function loadSkuCollection(): SkuCollection
 	{
-		return $this->skuRepository->getCollectionByProduct($this);
+		if ($this->skuCollection === null)
+		{
+			$this->setSkuCollection(
+				$this->skuRepository->loadEagerCollectionByProduct($this)
+			);
+		}
+
+		return $this->skuCollection;
 	}
 
 	/**

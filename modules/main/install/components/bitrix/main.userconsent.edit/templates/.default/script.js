@@ -66,7 +66,10 @@
 	BX.Main.UserConsent.Edit.prototype.showTextTab = function ()
 	{
 		this.container.style.display = '';
-		BX(this.listDomIds['listContainerId']).style.display = 'none';
+		if (BX(this.listDomIds['listContainerId']))
+		{
+			BX(this.listDomIds['listContainerId']).style.display = 'none';
+		}
 
 		BX(this.listDomIds['fieldNameId']).style.display = '';
 		BX(this.listDomIds['fieldTypeId']).style.display = '';
@@ -78,7 +81,10 @@
 	BX.Main.UserConsent.Edit.prototype.showSettingsTab = function ()
 	{
 		this.container.style.display = '';
-		BX(this.listDomIds['listContainerId']).style.display = 'none';
+		if (BX(this.listDomIds['listContainerId']))
+		{
+			BX(this.listDomIds['listContainerId']).style.display = 'none';
+		}
 
 		BX(this.listDomIds['fieldNameId']).style.display = 'none';
 		BX(this.listDomIds['fieldTypeId']).style.display = 'none';
@@ -90,7 +96,10 @@
 	BX.Main.UserConsent.Edit.prototype.showListTab = function ()
 	{
 		this.container.style.display = 'none';
-		BX(this.listDomIds['listContainerId']).style.display = '';
+		if (BX(this.listDomIds['listContainerId']))
+		{
+			BX(this.listDomIds['listContainerId']).style.display = '';
+		}
 	};
 
 	BX.Main.UserConsent.Edit.prototype.showTab = function (type)

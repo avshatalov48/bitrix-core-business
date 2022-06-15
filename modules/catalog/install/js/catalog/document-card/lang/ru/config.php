@@ -19,3 +19,4 @@ $MESS['DOCUMENT_CONDUCT_SUCCESSFUL'] = 'Документ проведён';
 $MESS['DOCUMENT_CONDUCT_SUCCESSFUL_VIEW'] = 'Просмотреть';
 $MESS['DOCUMENT_FIRST_TIME_HINT_TITLE'] = 'Тип документа';
 $MESS['DOCUMENT_FIRST_TIME_HINT_TEXT'] = 'Складской учёт начинается с документа "Оприходование товара".<br/> Нужно создать приход? Просто поменяйте здесь тип документа';
+$MESS['FEEDBACK_BUTTON_TITLE'] = 'Обратная связь';

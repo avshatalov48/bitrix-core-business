@@ -144,8 +144,7 @@ class StoreDocumentProvider extends BaseProvider
 				'isHeading' => true,
 				'visibilityPolicy' => 'edit',
 				'placeholders' => [
-					'creation' => Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_TITLE_DEFAULT_NAME_'
-						. $this->getDocumentType(), ['%DOCUMENT_NUMBER%' => '']),
+					'creation' => $this->getDefaultDocumentTitle(),
 				],
 			],
 			[
@@ -336,6 +335,12 @@ class StoreDocumentProvider extends BaseProvider
 		return $fields;
 	}
 
+	protected function getDefaultDocumentTitle(string $documentNumber = '')
+	{
+		return Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_TITLE_DEFAULT_NAME_'
+			. $this->getDocumentType(), ['%DOCUMENT_NUMBER%' => $documentNumber]);
+	}
+
 	protected function getContractorName(): string
 	{
 		if (!empty($this->config['data']))
@@ -424,6 +429,19 @@ class StoreDocumentProvider extends BaseProvider
 			'sort' => 200,
 		];
 
+		$sectionElements[] = [
+			'name' => 'extra',
+			'title' => Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_EXTRA_SECTION'),
+			'type' => 'section',
+			'elements' => [
+				['name' => 'RESPONSIBLE_ID'],
+			],
+			'data' => [
+				'isRemovable' => 'false',
+			],
+			'sort' => 300,
+		];
+
 		Main\Type\Collection::sortByColumn($sectionElements, ['sort' => SORT_ASC]);
 
 		return [
@@ -449,28 +467,23 @@ class StoreDocumentProvider extends BaseProvider
 					['name' => 'CONTRACTOR_ID'],
 					['name' => 'DOC_NUMBER'],
 					['name' => 'DATE_DOCUMENT'],
-					['name' => 'DOCUMENT_FILES'],
-					['name' => 'ITEMS_ORDER_DATE'],
 					['name' => 'ITEMS_RECEIVED_DATE'],
-					['name' => 'RESPONSIBLE_ID'],
+					['name' => 'DOCUMENT_FILES'],
 				];
 			case StoreDocumentTable::TYPE_STORE_ADJUSTMENT:
 				return [
 					['name' => 'TITLE'],
 					['name' => 'TOTAL_WITH_CURRENCY'],
-					['name' => 'RESPONSIBLE_ID'],
 				];
 			case StoreDocumentTable::TYPE_MOVING:
 				return [
 					['name' => 'TITLE'],
 					['name' => 'TOTAL_WITH_CURRENCY'],
-					['name' => 'RESPONSIBLE_ID'],
 				];
 			case StoreDocumentTable::TYPE_DEDUCT:
 				return [
 					['name' => 'TITLE'],
 					['name' => 'TOTAL_WITH_CURRENCY'],
-					['name' => 'RESPONSIBLE_ID'],
 				];
 			default:
 				return [];
@@ -755,6 +768,8 @@ class StoreDocumentProvider extends BaseProvider
 				return Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_ITEMS_ORDER_DATE_DOCUMENT');
 			case 'ITEMS_RECEIVED_DATE':
 				return Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_ITEMS_RECEIVED_DATE_DOCUMENT');
+			case 'DOCUMENT_FILES':
+				return Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_FIELD_DOCUMENT_FILES_2');
 			default:
 				return Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_FIELD_' . $fieldName);
 		}

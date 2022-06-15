@@ -16,6 +16,7 @@ return [
 		'main.core.events',
 		'main.core',
 		'main.date',
+		'ui.design-tokens',
 	],
 	'skip_core' => false,
 ];

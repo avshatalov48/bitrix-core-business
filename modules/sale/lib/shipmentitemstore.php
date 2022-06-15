@@ -120,7 +120,10 @@ class ShipmentItemStore
 		)
 		{
 			$shipmentItem = $this->getCollection()->getShipmentItem();
-			if ($shipmentItem->getReservedQuantity() > 0)
+			if (
+				$shipmentItem->getReservedQuantity() > 0
+				&& $this->getQuantity() > 0
+			)
 			{
 				$storeIdFrom = (int)$oldValue ?: Configuration::getDefaultStoreId();
 				$storeIdTo = (int)$value;

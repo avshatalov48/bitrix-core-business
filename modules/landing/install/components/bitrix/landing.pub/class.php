@@ -702,13 +702,14 @@ class LandingPubComponent extends LandingBaseComponent
 		}
 		if ($sefIds)
 		{
+			$isB24 = Manager::isB24();
 			$publicationPath = Manager::getPublicationPath($siteId);
 			$curFulPath = rtrim(Application::getInstance()->getContext()->getRequest()->getRequestedPageDirectory(), '/') . '/';
 			$rewriteUrls = Landing::createInstance(0)->getPublicUrl(array_keys($sefIds), false, false, $full);
 			foreach ($sefIds as $landingId => $landingRow)
 			{
 				$url = $rewriteUrls[$landingId] . trim($landingRow['RULE'], '/') . '/';
-				if (strpos($url, $publicationPath) !== 0)
+				if (strpos($url, $publicationPath) !== 0 && $isB24)
 				{
 					$url = $publicationPath . ltrim($url, '/');
 				}

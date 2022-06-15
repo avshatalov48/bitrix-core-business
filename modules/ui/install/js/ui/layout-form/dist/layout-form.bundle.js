@@ -28,8 +28,11 @@ this.BX = this.BX || {};
 
 	      if (checkbox.checked) {
 	        var hiddenBlock = hiddenRow.nextElementSibling;
-	        hiddenBlock.style.height = hiddenBlock.scrollHeight + 'px';
-	        main_core.Dom.addClass(hiddenBlock, 'ui-form-row-hidden-show');
+
+	        if (hiddenBlock.scrollHeight > 0) {
+	          hiddenBlock.style.height = hiddenBlock.scrollHeight + 'px';
+	          main_core.Dom.addClass(hiddenBlock, 'ui-form-row-hidden-show');
+	        }
 	      }
 	    }
 	  }, {

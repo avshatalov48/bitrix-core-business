@@ -1,4 +1,5 @@
 <?
+use Bitrix\Main;
 use Bitrix\Catalog;
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
@@ -271,7 +272,9 @@ if ($USER->CanDoOperation('catalog_price'))
 					$arFields["CAN_BUY_ZERO"] = Catalog\ProductTable::STATUS_NO;
 				}
 
-				$USER_FIELD_MANAGER->EditFormAddFields(Catalog\ProductTable::getUfId(), $arFields);
+				$userFieldManager = Main\UserField\Internal\UserFieldHelper::getInstance()->getManager();
+				$userFieldManager->EditFormAddFields(Catalog\ProductTable::getUfId(), $arFields);
+				unset($userFieldManager);
 
 				$iterator = Catalog\Model\Product::getList(array(
 					'select' => ['ID', 'TYPE'],

@@ -138,6 +138,18 @@ class StoreDocumentElementTable extends DataManager
 				['=this.DOC_ID' => 'ref.ID'],
 				['join_type' => 'LEFT']
 			),
+			'STORE_FROM_REF' => new Reference(
+				'STORE_FROM_REF',
+				'\Bitrix\Catalog\StoreTable',
+				['=this.STORE_FROM' => 'ref.ID'],
+				['join_type' => 'LEFT']
+			),
+			'STORE_TO_REF' => new Reference(
+				'STORE_TO_REF',
+				'\Bitrix\Catalog\StoreTable',
+				['=this.STORE_TO' => 'ref.ID'],
+				['join_type' => 'LEFT']
+			),
 		];
 	}
 }

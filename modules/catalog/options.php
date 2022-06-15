@@ -33,6 +33,7 @@ $applyDiscSaveModeList = CCatalogDiscountSave::GetApplyModeList(true);
 $saleSettingsUrl = 'settings.php?lang='.LANGUAGE_ID.'&mid=sale&mid_menu=1';
 
 $enabledCommonCatalog = Catalog\Config\Feature::isCommonProductProcessingEnabled();
+$canUseYandexMarket = Catalog\Config\Feature::isCanUseYandexExport();
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET' && !empty($_REQUEST['RestoreDefaults']) && !$bReadOnly && check_bitrix_sessid())
 {
@@ -53,8 +54,12 @@ $arAllOptions = array(
 	array("export_default_path", Loc::getMessage("CAT_EXPORT_DEFAULT_PATH"), "/bitrix/catalog_export/", array("text", 30)),
 	array("default_catalog_1c", Loc::getMessage("CAT_DEF_IBLOCK"), "", array("text", 30)),
 	array("deactivate_1c_no_price", Loc::getMessage("CAT_DEACT_NOPRICE"), "N", array("checkbox")),
-	array("yandex_xml_period", Loc::getMessage("CAT_YANDEX_MARKET_XML_PERIOD"), "24", array("text", 5)),
 );
+
+if ($canUseYandexMarket)
+{
+	$arAllOptions[] = array("yandex_xml_period", Loc::getMessage("CAT_YANDEX_MARKET_XML_PERIOD"), "24", array("text", 5));
+}
 
 $strWarning = "";
 $strOK = "";
@@ -1689,29 +1694,38 @@ for ($i = 0, $intCount = count($arAllOptions); $i < $intCount; $i++)
 		</select>
 	</td>
 </tr>
-<tr>
-	<td style="width: 40%;">
-	<?
-	$yandex_agent_file = Option::get('catalog', 'yandex_agent_file');
-	CAdminFileDialog::ShowScript
-	(
-		Array(
-			"event" => "BtnClick",
-			"arResultDest" => array("FORM_NAME" => "ara", "FORM_ELEMENT_NAME" => "yandex_agent_file"),
-			"arPath" => array("PATH" => GetDirPath($yandex_agent_file)),
-			"select" => 'F',// F - file only, D - folder only
-			"operation" => 'O',// O - open, S - save
-			"showUploadTab" => true,
-			"showAddToMenuTab" => false,
-			"fileFilter" => 'php',
-			"allowAllFiles" => true,
-			"SaveConfig" => true,
-		)
-	);
+
+<?php
+if ($canUseYandexMarket)
+{
 	?>
-	<?echo Loc::getMessage("CAT_YANDEX_CUSTOM_AGENT_FILE")?></td>
-	<td><input type="text" name="yandex_agent_file" size="50" maxlength="255" value="<?echo $yandex_agent_file?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick()"></td>
-</tr>
+	<tr>
+		<td style="width: 40%;">
+		<?
+		$yandex_agent_file = Option::get('catalog', 'yandex_agent_file');
+		CAdminFileDialog::ShowScript
+		(
+			Array(
+				"event" => "BtnClick",
+				"arResultDest" => array("FORM_NAME" => "ara", "FORM_ELEMENT_NAME" => "yandex_agent_file"),
+				"arPath" => array("PATH" => GetDirPath($yandex_agent_file)),
+				"select" => 'F',// F - file only, D - folder only
+				"operation" => 'O',// O - open, S - save
+				"showUploadTab" => true,
+				"showAddToMenuTab" => false,
+				"fileFilter" => 'php',
+				"allowAllFiles" => true,
+				"SaveConfig" => true,
+			)
+		);
+		?>
+		<?echo Loc::getMessage("CAT_YANDEX_CUSTOM_AGENT_FILE")?></td>
+		<td><input type="text" name="yandex_agent_file" size="50" maxlength="255" value="<?echo $yandex_agent_file?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick()"></td>
+	</tr>
+	<?php
+}
+?>
+
 <tr class="heading">
 	<td colspan="2"><?echo Loc::getMessage("CO_PAR_IE_CSV") ?></td>
 </tr>
@@ -2015,7 +2029,12 @@ function change_offers_ibtype(obj,ID)
 		{
 			?><td><?=Loc::getMessage("CO_SALE_CONTENT") ?></td><?
 		}
-		?><td><?=Loc::getMessage("CAT_IBLOCK_SELECT_YANDEX_EXPORT")?></td>
+		?>
+
+		<?php if ($canUseYandexMarket): ?>
+			<td><?=Loc::getMessage("CAT_IBLOCK_SELECT_YANDEX_EXPORT")?></td>
+		<?php endif; ?>
+
 		<td><?=Loc::getMessage("CAT_IBLOCK_SELECT_VAT")?></td>
 	</tr>
 	<?
@@ -2086,7 +2105,17 @@ function change_offers_ibtype(obj,ID)
 			{
 				?><input type="hidden" name="IS_CONTENT_<?echo $res["ID"] ?>" value="N" id="IS_CONTENT_<?echo $res["ID"] ?>_N"><?
 			}
-			?><td style="text-align: center;"><input type="hidden" name="YANDEX_EXPORT_<?echo $res["ID"] ?>" id="YANDEX_EXPORT_<?echo $res["ID"] ?>_N"><input type="checkbox" name="YANDEX_EXPORT_<?echo $res["ID"] ?>" id="YANDEX_EXPORT_<?echo $res["ID"] ?>_Y" <?if ('N' == $res['IS_CATALOG']) echo 'disabled="disabled"';?> <?if ('Y' == $res["YANDEX_EXPORT"]) echo "checked"?> value="Y" /></td>
+			?>
+
+			<?php if ($canUseYandexMarket): ?>
+				<td style="text-align: center;">
+					<input type="hidden" name="YANDEX_EXPORT_<?echo $res["ID"] ?>" id="YANDEX_EXPORT_<?echo $res["ID"] ?>_N">
+					<input type="checkbox" name="YANDEX_EXPORT_<?echo $res["ID"] ?>" id="YANDEX_EXPORT_<?echo $res["ID"] ?>_Y" <?if ('N' == $res['IS_CATALOG']) echo 'disabled="disabled"';?> <?if ('Y' == $res["YANDEX_EXPORT"]) echo "checked"?> value="Y" />
+				</td>
+			<?php else: ?>
+				<input type="hidden" name="YANDEX_EXPORT_<?echo $res["ID"] ?>" id="YANDEX_EXPORT_<?echo $res["ID"] ?>_N" value="N">
+			<?php endif; ?>
+
 			<td style="text-align: center;"><?=SelectBoxFromArray('VAT_ID_'.$res['ID'], $arVATRef, $res['VAT_ID'], '', ('N' == $res['IS_CATALOG'] ? 'disabled="disabled"' : ''))?></td>
 		</tr>
 		<?
@@ -2161,12 +2190,17 @@ unset($catalogData);
 ?><h2><?=Loc::getMessage("COP_SYS_ROU"); ?></h2>
 <?
 $aTabs = [];
-$aTabs[] = [
-	"DIV" => "fedit2",
-	"TAB" => Loc::getMessage("COP_TAB2_YANDEX_AGENT"),
-	"ICON" => "catalog_settings",
-	"TITLE" => Loc::getMessage("COP_TAB2_YANDEX_AGENT_TITLE")
-];
+
+if ($canUseYandexMarket)
+{
+	$aTabs[] = [
+		"DIV" => "fedit2",
+		"TAB" => Loc::getMessage("COP_TAB2_YANDEX_AGENT"),
+		"ICON" => "catalog_settings",
+		"TITLE" => Loc::getMessage("COP_TAB2_YANDEX_AGENT_TITLE")
+	];
+}
+
 if (!$useSaleDiscountOnly || $catalogCount > 0)
 {
 	$aTabs[] = [
@@ -2251,54 +2285,65 @@ if ($strUseStoreControl === 'N' && $catalogCount > 0)
 $systemTabControl = new CAdminTabControl("tabControl2", $aTabs, true, true);
 
 $systemTabControl->Begin();
-$systemTabControl->BeginNextTab();
-?><tr><td style="text-align: left;"><?
-$arAgentInfo = false;
-$rsAgents = CAgent::GetList(array(),array('MODULE_ID' => 'catalog','NAME' => 'CCatalog::PreGenerateXML("yandex");'));
-if ($arAgent = $rsAgents->Fetch())
+?>
+
+<?php
+if ($canUseYandexMarket)
 {
-	$arAgentInfo = $arAgent;
-}
-if (!is_array($arAgentInfo) || empty($arAgentInfo))
-{
-	?><form name="agent_form" method="POST" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialcharsbx($mid)?>&lang=<?=LANGUAGE_ID?>">
-	<?echo bitrix_sessid_post()?>
-	<input type="submit" class="adm-btn-save" name="agent_start" value="<? echo Loc::getMessage('CAT_AGENT_START') ?>" <?if ($bReadOnly) echo "disabled" ?>>
-	</form><?
-}
-else
-{
-	echo Loc::getMessage('CAT_AGENT_ACTIVE').':&nbsp;'.($arAgentInfo['ACTIVE'] == 'Y' ? Loc::getMessage("MAIN_YES") : Loc::getMessage("MAIN_NO")).'<br>';
-	if ($arAgentInfo['LAST_EXEC'])
+	$systemTabControl->BeginNextTab();
+	?>
+	<tr><td style="text-align: left;"><?
+	$arAgentInfo = false;
+	$rsAgents = CAgent::GetList(array(),array('MODULE_ID' => 'catalog','NAME' => 'CCatalog::PreGenerateXML("yandex");'));
+	if ($arAgent = $rsAgents->Fetch())
 	{
-		echo Loc::getMessage('CAT_AGENT_LAST_EXEC').':&nbsp;'.($arAgentInfo['LAST_EXEC'] ? $arAgentInfo['LAST_EXEC'] : '').'<br>';
-		echo Loc::getMessage('CAT_AGENT_NEXT_EXEC').':&nbsp;'.($arAgentInfo['NEXT_EXEC'] ? $arAgentInfo['NEXT_EXEC'] : '').'<br>';
+		$arAgentInfo = $arAgent;
+	}
+	if (!is_array($arAgentInfo) || empty($arAgentInfo))
+	{
+		?><form name="agent_form" method="POST" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialcharsbx($mid)?>&lang=<?=LANGUAGE_ID?>">
+		<?echo bitrix_sessid_post()?>
+		<input type="submit" class="adm-btn-save" name="agent_start" value="<? echo Loc::getMessage('CAT_AGENT_START') ?>" <?if ($bReadOnly) echo "disabled" ?>>
+		</form><?
 	}
 	else
 	{
-		echo Loc::getMessage('CAT_AGENT_WAIT_START').'<br>';
+		echo Loc::getMessage('CAT_AGENT_ACTIVE').':&nbsp;'.($arAgentInfo['ACTIVE'] == 'Y' ? Loc::getMessage("MAIN_YES") : Loc::getMessage("MAIN_NO")).'<br>';
+		if ($arAgentInfo['LAST_EXEC'])
+		{
+			echo Loc::getMessage('CAT_AGENT_LAST_EXEC').':&nbsp;'.($arAgentInfo['LAST_EXEC'] ? $arAgentInfo['LAST_EXEC'] : '').'<br>';
+			echo Loc::getMessage('CAT_AGENT_NEXT_EXEC').':&nbsp;'.($arAgentInfo['NEXT_EXEC'] ? $arAgentInfo['NEXT_EXEC'] : '').'<br>';
+		}
+		else
+		{
+			echo Loc::getMessage('CAT_AGENT_WAIT_START').'<br>';
+		}
 	}
-}
-?><br><?
-$strYandexFile = str_replace('//', '/', Option::get('catalog', 'export_default_path').'/yandex.php');
-if (file_exists($_SERVER['DOCUMENT_ROOT'].$strYandexFile))
-{
-	echo Loc::getMessage(
-		'CAT_AGENT_FILEPATH',
-		array(
-			'#FILE#' => '<a href="'.$strYandexFile.'">'.$strYandexFile.'</a>'
-		)
-	).'<br>';
-}
-else
-{
-	echo Loc::getMessage('CAT_AGENT_FILE_ABSENT').'<br>';
-}
-?><br><?
-echo Loc::getMessage('CAT_AGENT_EVENT_LOG').':&nbsp;';
+	?><br><?
+	$strYandexFile = str_replace('//', '/', Option::get('catalog', 'export_default_path').'/yandex.php');
+	if (file_exists($_SERVER['DOCUMENT_ROOT'].$strYandexFile))
+	{
+		echo Loc::getMessage(
+			'CAT_AGENT_FILEPATH',
+			array(
+				'#FILE#' => '<a href="'.$strYandexFile.'">'.$strYandexFile.'</a>'
+			)
+		).'<br>';
+	}
+	else
+	{
+		echo Loc::getMessage('CAT_AGENT_FILE_ABSENT').'<br>';
+	}
+	?><br><?
+	echo Loc::getMessage('CAT_AGENT_EVENT_LOG').':&nbsp;';
 
-?><a href="/bitrix/admin/event_log.php?lang=<? echo LANGUAGE_ID; ?>&set_filter=Y<? echo CCatalogEvent::GetYandexAgentFilter(); ?>"><? echo Loc::getMessage('CAT_AGENT_EVENT_LOG_SHOW_ERROR')?></a>
-</td></tr><?
+	?><a href="/bitrix/admin/event_log.php?lang=<? echo LANGUAGE_ID; ?>&set_filter=Y<? echo CCatalogEvent::GetYandexAgentFilter(); ?>"><? echo Loc::getMessage('CAT_AGENT_EVENT_LOG_SHOW_ERROR')?></a>
+	</td></tr>
+	<?php
+}
+?>
+
+<?
 if (!$useSaleDiscountOnly || $catalogCount > 0)
 {
 	$systemTabControl->BeginNextTab();

@@ -36,5 +36,5 @@ CJSCore::RegisterExt('lists', array(
 	'js' => '/bitrix/js/lists/js/lists.js',
 	'css' => '/bitrix/js/lists/css/lists.css',
 	'lang' => BX_ROOT.'/modules/lists/lang/'.LANGUAGE_ID.'/install/js/lists.php',
-	'rel' => array('core', 'popup', 'json', 'ajax')
+	'rel' => array('core', 'popup', 'json', 'ajax', 'ui.design-tokens')
 ));

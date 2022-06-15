@@ -6,7 +6,7 @@
 	min-height: 33px !important;
 	background: #fff;
 	border: 1px solid #c6cdd3;
-	border-radius: 2px;
+	border-radius: var(--ui-tile-selector-selector-border-radius, var(--ui-border-radius-2xs, 2px));
 	font: 13px/29px "Helvetica Neue", Arial, Helvetica, sans-serif;
 }
 
@@ -37,6 +37,7 @@
 	padding: 0 30px 0 13px;
 	background-color: #bcedfc;
 	color: #1066bb !important;
+	border-radius: var(--ui-tile-selector-item-border-radius, var(--ui-border-radius-3xs));
 }
 
 .ui-tile-selector-selector-wrap .ui-tile-selector-item,

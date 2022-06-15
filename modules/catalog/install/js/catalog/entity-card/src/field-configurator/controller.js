@@ -212,7 +212,7 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 			case 'list':
 			case 'multilist':
 				formatted.PROPERTY_TYPE = 'L';
-				fields.enumeration.forEach((enumItem, key) => {
+				(fields.enumeration || []).forEach((enumItem, key) => {
 					form.append(this.getFormFieldName('VALUES][' + key + '][SORT'), enumItem.SORT);
 					form.append(this.getFormFieldName('VALUES][' + key + '][VALUE'), enumItem.VALUE);
 					form.append(this.getFormFieldName('VALUES][' + key + '][ID'), enumItem.ID);
@@ -220,7 +220,7 @@ export default class FieldConfiguratorController extends BX.UI.EntityEditorContr
 				break;
 			case 'directory':
 				formatted.USER_TYPE = 'directory';
-				fields.enumeration.forEach((enumItem, key) => {
+				(fields.enumeration || []).forEach((enumItem, key) => {
 					form.append(this.getFormFieldName('VALUES][' + key + '][SORT'), enumItem.SORT);
 					form.append(this.getFormFieldName('VALUES][' + key + '][VALUE'), enumItem.VALUE.value);
 					form.append(this.getFormFieldName('VALUES][' + key + '][XML_ID'), enumItem.XML_ID);

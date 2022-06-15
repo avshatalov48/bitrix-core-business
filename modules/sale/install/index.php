@@ -242,6 +242,9 @@ Class sale extends CModule
 		$eventManager->registerEventHandler('main', 'OnSiteDelete','sale', '\Bitrix\Sale\Internals\FacebookConversion', 'OnSiteDeleteHandler');
 		$eventManager->registerEventHandler("main", "OnLangDelete", "sale", "CSaleLang", "OnLangDelete");
 
+		$eventManager->registerEventHandler('sale', 'OnPrintableCheckSend', 'sale', '\Bitrix\Sale\Cashbox\Internals\Analytics\EventHandler', 'onPrintableCheckSend');
+		$eventManager->registerEventHandler('sale', 'OnSaleAfterPsServiceProcessRequest', 'sale', '\Bitrix\Sale\PaySystem\Internals\Analytics\EventHandler', 'onSaleAfterPsServiceProcessRequest');
+
 		COption::SetOptionString("sale", "viewed_capability", "N");
 		COption::SetOptionString("sale", "viewed_count", 10);
 		COption::SetOptionString("sale", "viewed_time", 5);
@@ -380,10 +383,8 @@ Class sale extends CModule
 			);
 		}
 
-		\CAgent::AddAgent('\Bitrix\Sale\PaySystem\Internals\Analytics\Agent::send();', 'sale', 'Y', 86400, '', 'Y');
-		\CAgent::AddAgent('\Bitrix\Sale\Cashbox\Internals\Analytics\Agent::send();', 'sale', 'Y', 86400, '', 'Y');
-		\CAgent::AddAgent('\Bitrix\Sale\Delivery\Internals\Analytics\Agent::send();', 'sale', 'Y', 86400, '', 'Y');
-		\CAgent::AddAgent('\Bitrix\Sale\Internals\Analytics\Events\Agent::send();', 'sale', 'Y', 86400, '', 'Y');
+		\CAgent::AddAgent('\Bitrix\Sale\Internals\Analytics\Agent::send();', 'sale', 'Y', 86400, '', 'Y');
+		\CAgent::AddAgent('\Bitrix\Sale\Internals\Analytics\Storage::cleanUpAgent();', 'sale', 'Y', 86400, '', 'Y');
 
 		return true;
 	}
@@ -524,6 +525,9 @@ Class sale extends CModule
 		$eventManager->unRegisterEventHandler('sale', 'OnSaleComponentOrderCreated', 'sale', '\Bitrix\Sale\Internals\FacebookConversion', 'onOrderCreatedHandler');
 		$eventManager->unregisterEventHandler('main', 'OnSiteDelete','sale', '\Bitrix\Sale\Internals\FacebookConversion', 'OnSiteDeleteHandler');
 		$eventManager->unregisterEventHandler('main', 'onFeedbackFormSubmit','sale', '\Bitrix\Sale\Internals\FacebookConversion', 'onFeedbackFormContactHandler');
+
+		$eventManager->unRegisterEventHandler('sale', 'OnPrintableCheckSend', 'sale', '\Bitrix\Sale\Cashbox\Internals\Analytics\EventHandler', 'onPrintableCheckSend');
+		$eventManager->unRegisterEventHandler('sale', 'OnSaleAfterPsServiceProcessRequest', 'sale', '\Bitrix\Sale\PaySystem\Internals\Analytics\EventHandler', 'onSaleAfterPsServiceProcessRequest');
 
 		if (\Bitrix\Main\Loader::includeModule('sale'))
 		{

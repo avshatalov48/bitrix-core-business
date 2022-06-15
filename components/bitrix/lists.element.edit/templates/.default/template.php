@@ -521,7 +521,7 @@ if(!$arParams["CAN_EDIT"])
 		'" name="cancel" onclick="window.location=\''.htmlspecialcharsbx(CUtil::addslashes(
 				$arResult["~LIST_SECTION_URL"])).'\'" title="'.GetMessage("CT_BLEE_FORM_CANCEL_TITLE").'" />';
 
-$lockStatus = CLists::isEnabledLockFeature($arResult["IBLOCK_ID"]) && $arResult["ELEMENT_ID"] && $arParams["CAN_EDIT"];
+$lockStatus = CLists::isEnabledLockFeature($arResult["IBLOCK_ID"]) && $arResult["ELEMENT_ID"];
 if ($lockStatus)
 {
 	$APPLICATION->IncludeComponent(

@@ -1,4 +1,4 @@
-(function (exports,ui_vue) {
+(function (exports,ui_vue,main_core_events) {
 	'use strict';
 
 	/**
@@ -25,6 +25,9 @@
 	   * @emits 'list' {action: string, type: string}
 	   */
 	  props: {
+	    id: {
+	      "default": ''
+	    },
 	    values: {
 	      "default": {}
 	    },
@@ -44,6 +47,10 @@
 	  },
 	  created: function created() {
 	    this.localValues = Object.assign({}, this.values);
+	    main_core_events.EventEmitter.subscribe('ui:reaction:press', this.onPress);
+	  },
+	  destroy: function destroy() {
+	    main_core_events.EventEmitter.unsubscribe('ui:reaction:press', this.onPress);
 	  },
 	  watch: {
 	    values: function values(_values) {
@@ -58,14 +65,12 @@
 	        values: this.localValues
 	      });
 	    },
-	    likeIt: function likeIt(event) {
+	    press: function press() {
 	      var _this = this;
 
-	      var emotion = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ReactionType.like;
+	      var emotion = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : ReactionType.like;
 
 	      if (this.userReaction === ReactionType.none) {
-	        emotion = ReactionType.like;
-
 	        if (!this.localValues[emotion]) {
 	          this.localValues = Object.assign({}, this.localValues, babelHelpers.defineProperty({}, emotion, []));
 	        }
@@ -91,11 +96,19 @@
 	          type: this.userReaction
 	        });
 	      }
-
-	      event.preventDefault();
 	    },
-	    preventDefault: function preventDefault(event) {
-	      event.preventDefault();
+	    onPress: function onPress(event) {
+	      var data = event.getData();
+
+	      if (!this.id || data.id !== this.id) {
+	        return false;
+	      }
+
+	      if (!data.emotion) {
+	        data.emotion = ReactionType.like;
+	      }
+
+	      this.press(data.emotion);
 	    }
 	  },
 	  computed: {
@@ -143,8 +156,8 @@
 	      return UA.includes('android') || UA.includes('iphone') || UA.includes('ipad') || UA.includes('bitrixmobile');
 	    }
 	  },
-	  template: "\n\t\t<div :class=\"['ui-vue-reaction', {'ui-vue-reaction-mobile': isMobile}]\">\n\t\t\t<transition name=\"ui-vue-reaction-result-animation\">\n\t\t\t\t<div v-if=\"isTypesShowed\" class=\"ui-vue-reaction-result\" @click=\"list\">\n\t\t\t\t\t<transition-group tag=\"div\" class=\"ui-vue-reaction-result-types\" name=\"ui-vue-reaction-result-type-animation\" >\n\t\t\t\t\t\t<span v-for=\"element in types\" :class=\"['ui-vue-reaction-result-type', 'ui-vue-reaction-icon-'+element.type]\" :key=\"element.type\"></span>\n\t\t\t\t\t</transition-group>\t\n\t\t\t\t\t<div class=\"ui-vue-reaction-result-counter\">{{counter}}</div>\n\t\t\t\t</div>\n\t\t\t</transition>\n\t\t\t<div v-if=\"userId > 0\"  class=\"ui-vue-reaction-button\" @click=\"likeIt\">\n\t\t\t\t<div class=\"ui-vue-reaction-button-container\">\n\t\t\t\t\t<div :class=\"['ui-vue-reaction-button-icon', 'ui-vue-reaction-icon-'+userReaction, {'ui-vue-reaction-button-pressed': buttonAnimate}]\"></div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div :class=\"['ui-vue-reaction', {'ui-vue-reaction-mobile': isMobile}]\">\n\t\t\t<transition name=\"ui-vue-reaction-result-animation\">\n\t\t\t\t<div v-if=\"isTypesShowed\" class=\"ui-vue-reaction-result\" @click=\"list\">\n\t\t\t\t\t<transition-group tag=\"div\" class=\"ui-vue-reaction-result-types\" name=\"ui-vue-reaction-result-type-animation\" >\n\t\t\t\t\t\t<span v-for=\"element in types\" :class=\"['ui-vue-reaction-result-type', 'ui-vue-reaction-icon-'+element.type]\" :key=\"element.type\"></span>\n\t\t\t\t\t</transition-group>\t\n\t\t\t\t\t<div class=\"ui-vue-reaction-result-counter\">{{counter}}</div>\n\t\t\t\t</div>\n\t\t\t</transition>\n\t\t\t<div v-if=\"userId > 0\"  class=\"ui-vue-reaction-button\" @click.prevent=\"press()\">\n\t\t\t\t<div class=\"ui-vue-reaction-button-container\">\n\t\t\t\t\t<div :class=\"['ui-vue-reaction-button-icon', 'ui-vue-reaction-icon-'+userReaction, {'ui-vue-reaction-button-pressed': buttonAnimate}]\"></div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</div>\n\t"
 	});
 
-}((this.window = this.window || {}),BX));
+}((this.window = this.window || {}),BX,BX.Event));
 //# sourceMappingURL=reaction.bundle.js.map

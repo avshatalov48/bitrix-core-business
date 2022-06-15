@@ -11,5 +11,8 @@ return [
 		"/bitrix/js/ui/actionpanel/item.js"
 	],
 	"bundle_js" => "ui_actionpanel",
-	"bundle_css" => "ui_actionpanel"
+	"bundle_css" => "ui_actionpanel",
+	'rel' => [
+		'ui.design-tokens',
+	],
 ];

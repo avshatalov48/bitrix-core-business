@@ -38,7 +38,7 @@ $jsConfig = array(
 			'https://www.youtube.com/iframe_api',
 			$pathJS . '/mediaplayer/base_mediaplayer.js',
 			$pathJS . '/mediaplayer/youtube_mediaplayer.js',
-			$pathJS . '/mediaplayer/mediaplayer_factory.js'
+			$pathJS . '/mediaplayer/mediaplayer_factory.js',
 		],
 		'rel' => [
 			'landing.utils',
@@ -50,7 +50,7 @@ $jsConfig = array(
 			$pathTemplate24 . '/assets/js/helpers/inline-video.js',
 		],
 		'lang' => $pathLang . '/js/video_alert.php',
-		'rel' => ['mediaplayer']
+		'rel' => ['mediaplayer', 'loader']
 	],
 
 	'polyfill' => array(

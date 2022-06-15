@@ -7,6 +7,7 @@ use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Delivery;
 use Bitrix\Sale\Internals;
+use Bitrix\Sale\Reservation\Configuration\ReserveCondition;
 
 Loc::loadMessages(__FILE__);
 
@@ -81,7 +82,7 @@ class ShipmentCollection
 
 		if (
 			Configuration::isEnableAutomaticReservation()
-			&& Configuration::getProductReservationCondition() == Configuration::RESERVE_ON_CREATE
+			&& Configuration::getProductReservationCondition() == ReserveCondition::ON_CREATE
 		)
 		{
 			$r = $this->tryReserve();
@@ -1438,7 +1439,7 @@ class ShipmentCollection
 		{
 			return $cloneEntity[$this];
 		}
-		
+
 		/** @var ShipmentCollection $shipmentCollectionClone */
 		$shipmentCollectionClone = parent::createClone($cloneEntity);
 

@@ -281,75 +281,45 @@ class CAllCatalogGroup
 		return $result;
 	}
 
-	public static function GetListArray()
+	/**
+	 * @deprecated
+	 * @see Catalog\GroupTable::getTypeList()
+	 *
+	 * @return array
+	 */
+	public static function GetListArray(): array
 	{
-		$result = array();
-
-		if (defined('CATALOG_SKIP_CACHE') && CATALOG_SKIP_CACHE)
-		{
-			$groupIterator = Catalog\GroupTable::getList(array(
-				'select' => array('ID', 'NAME', 'BASE', 'SORT', 'XML_ID', 'NAME_LANG' =>'CURRENT_LANG.NAME'),
-				'order' => array('SORT' => 'ASC', 'ID' => 'ASC')
-			));
-			while ($group = $groupIterator->fetch())
-				$result[$group['ID']] = $group;
-			unset($group, $groupIterator);
-		}
-		else
-		{
-
-			$cacheTime = (int)(defined('CATALOG_CACHE_TIME') ? CATALOG_CACHE_TIME : CATALOG_CACHE_DEFAULT_TIME);
-			$managedCache = Application::getInstance()->getManagedCache();
-			if ($managedCache->read($cacheTime, 'catalog_group_'.LANGUAGE_ID, 'catalog_group'))
-			{
-				$result = $managedCache->get('catalog_group_'.LANGUAGE_ID);
-			}
-			else
-			{
-				$groupIterator = Catalog\GroupTable::getList(array(
-					'select' => array('ID', 'NAME', 'BASE', 'SORT', 'XML_ID', 'NAME_LANG' =>'CURRENT_LANG.NAME'),
-					'order' => array('SORT' => 'ASC', 'ID' => 'ASC')
-				));
-				while ($group = $groupIterator->fetch())
-					$result[$group['ID']] = $group;
-				unset($group, $groupIterator);
-				$managedCache->set('catalog_group_'.LANGUAGE_ID, $result);
-			}
-			unset($managedCache, $cacheTime);
-		}
-
-		return $result;
-	}
-
-	public static function GetBaseGroup()
-	{
-		if (empty(self::$arBaseGroupCache) && is_array(self::$arBaseGroupCache))
-		{
-			self::$arBaseGroupCache = false;
-			$group = Catalog\GroupTable::getList(array(
-				'select' => array('ID', 'NAME', 'BASE', 'SORT', 'XML_ID', 'NAME_LANG' =>'CURRENT_LANG.NAME'),
-				'filter' => array('=BASE' => 'Y')
-			))->fetch();
-			if (!empty($group))
-			{
-				$group['ID'] = (int)$group['ID'];
-				$group['NAME_LANG'] = (string)$group['NAME_LANG'];
-				$group['XML_ID'] = (string)$group['XML_ID'];
-
-				self::$arBaseGroupCache = $group;
-			}
-			unset($group);
-		}
-		return self::$arBaseGroupCache;
+		return Catalog\GroupTable::getTypeList();
 	}
 
 	/**
+	 * @deprecated
+	 * @see Catalog\GroupTable::getBasePriceType()
+	 *
+	 * @return array|false
+	 */
+	public static function GetBaseGroup()
+	{
+		$group = Catalog\GroupTable::getBasePriceType();
+		if (!empty($group))
+		{
+			$group['NAME_LANG'] = (string)$group['NAME_LANG'];
+			$group['XML_ID'] = (string)$group['XML_ID'];
+
+			return $group;
+		}
+
+		return false;
+	}
+
+	/**
+	 * @deprecated
+	 * @see Catalog\GroupTable::getBasePriceTypeId()
+	 *
 	 * @return int|null
 	 */
 	public static function GetBaseGroupId(): ?int
 	{
-		$baseGroup = self::GetBaseGroup();
-
-		return $baseGroup ? (int)$baseGroup['ID'] : null;
+		return Catalog\GroupTable::getBasePriceTypeId();
 	}
 }

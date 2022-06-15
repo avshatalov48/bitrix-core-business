@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Catalog\Integration\PullManager;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\Loc;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/store_docs.php");
@@ -41,16 +42,22 @@ class CCatalogDocs extends CAllCatalogDocs
 			return false;
 		}
 
+		self::increaseDocumentTypeNumber($arFields['DOC_TYPE']);
+		if (empty($arFields['TITLE']))
+		{
+			$arFields['TITLE'] = self::getCurrentDocumentNameByNumber($arFields['DOC_TYPE']);
+		}
+
 		$arInsert = $DB->PrepareInsert("b_catalog_store_docs", $arFields);
 
 		$strSql = "INSERT INTO b_catalog_store_docs (".$arInsert[0].") VALUES(".$arInsert[1].")";
 
-		$res = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		if (!$res)
 		{
 			return false;
 		}
-		$lastId = intval($DB->LastID());
+		$lastId = (int)$DB->LastID();
 
 		$item = [
 			'id' => $lastId,
@@ -64,10 +71,6 @@ class CCatalogDocs extends CAllCatalogDocs
 				$item
 			]
 		);
-
-		self::increaseDocumentNumber($arFields);
-
-		self::updateFieldsAfterSave($lastId, $arFields);
 
 		if (isset($arFields["ELEMENT"]) && is_array($arFields["ELEMENT"]))
 		{
@@ -85,23 +88,6 @@ class CCatalogDocs extends CAllCatalogDocs
 		}
 
 		return $lastId;
-	}
-
-	private static function updateFieldsAfterSave($documentId, $savedFields)
-	{
-		$fieldsToUpdate = [];
-
-		if (empty($savedFields['TITLE']))
-		{
-			$documentNumbers = self::getDocumentNumbers();
-			$currentDocumentNumber = $documentNumbers[$savedFields['DOC_TYPE']] ?? $documentId;
-			$fieldsToUpdate['TITLE'] = Loc::getMessage(
-				'CATALOG_STORE_DOCUMENT_TITLE_DEFAULT_NAME_' . $savedFields['DOC_TYPE'],
-				['%DOCUMENT_NUMBER%' => $currentDocumentNumber]
-			);
-		}
-
-		self::update($documentId, $fieldsToUpdate);
 	}
 
 	private static function saveElements($documentID, $elements)
@@ -270,31 +256,43 @@ class CCatalogDocs extends CAllCatalogDocs
 		);
 	}
 
-	public static function getDocumentNumbers()
+	private static function increaseDocumentTypeNumber(string $type): void
 	{
-		$documentNumbers = \Bitrix\Main\Config\Option::get('catalog', 'store_document_numbers', '');
-		if ($documentNumbers === '')
-		{
-			return [];
-		}
-
-		return unserialize($documentNumbers, ['allowed_classes' => false]);
+		$name = self::getDocumentTypeNumberName($type);
+		$value = (int)Option::get('catalog', $name) + 1;
+		Option::set('catalog', $name, $value);
 	}
 
-	private static function increaseDocumentNumber($documentFields)
+	public static function getCurrentDocumentNameByNumber(string $type): string
 	{
-		$documentNumbers = self::getDocumentNumbers();
+		$value = Option::get(
+			'catalog',
+			self::getDocumentTypeNumberName($type)
+		);
+		return Loc::getMessage(
+			'CATALOG_STORE_DOCUMENT_TITLE_DEFAULT_NAME_' . $type,
+			[
+				'%DOCUMENT_NUMBER%' => $value,
+			]
+		);
+	}
 
-		if (isset($documentNumbers[$documentFields['DOC_TYPE']]))
-		{
-			$documentNumbers[$documentFields['DOC_TYPE']] = (int)$documentNumbers[$documentFields['DOC_TYPE']] + 1;
-		}
-		else
-		{
-			$documentNumbers[$documentFields['DOC_TYPE']] = 1;
-		}
+	public static function getNextDocumentNameByNumber(string $type): string
+	{
+		$value = (int)Option::get(
+			'catalog',
+			self::getDocumentTypeNumberName($type)
+		) + 1;
+		return Loc::getMessage(
+			'CATALOG_STORE_DOCUMENT_TITLE_DEFAULT_NAME_' . $type,
+			[
+				'%DOCUMENT_NUMBER%' => $value,
+			]
+		);
+	}
 
-		$documentNumbers = serialize($documentNumbers);
-		\Bitrix\Main\Config\Option::set('catalog', 'store_document_numbers', $documentNumbers);
+	private static function getDocumentTypeNumberName(string $type): string
+	{
+		return 'store_document_numbers_' . $type;
 	}
 }

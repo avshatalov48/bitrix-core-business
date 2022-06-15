@@ -8,7 +8,7 @@
 
 import {BitrixVue} from "./bitrixvue";
 BitrixVue.developerMode = true;
-BitrixVue.createApp = (config => createApp(config).use(BitrixVue));
+BitrixVue.createApp = ((rootComponent, rootProps) => createApp(rootComponent, rootProps).use(BitrixVue));
 export {BitrixVue};
 
 import {DevTools} from "./devtools";

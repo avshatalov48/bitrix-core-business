@@ -168,14 +168,17 @@
 				{
 					CloseWaitWindow();
 
-					if (result && !result.ERROR)
+					if (result)
 					{
 						if (result.HTML)
+						{
 							BX.Sale.PaySystem.insertAjaxRestrictionHtml(result.HTML);
-					}
-					else
-					{
-						alert(result.ERROR);
+						}
+						
+						if (result.ERROR)
+						{
+							alert(result.ERROR);
+						}
 					}
 				},
 

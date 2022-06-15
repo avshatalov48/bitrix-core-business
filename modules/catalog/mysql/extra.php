@@ -1,4 +1,6 @@
 <?
+use Bitrix\Catalog;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/extra.php");
 
 class CExtra extends CAllExtra
@@ -16,6 +18,9 @@ class CExtra extends CAllExtra
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		static::ClearCache();
+		Catalog\ExtraTable::getEntity()->cleanCache();
+		Catalog\Model\Price::clearSettings();
+
 		return (int)$DB->LastID();
 	}
 

@@ -213,6 +213,8 @@ class Payment extends Base
 			|| $name == 'isreturn'
 			|| $name == 'setpaid'
 			|| $name == 'setreturn'
+			|| $name == 'setavailablepaysystems'
+			|| $name == 'clearavailablepaysystems'
 		){}
 		else
 		{

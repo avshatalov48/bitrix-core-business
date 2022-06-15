@@ -26,6 +26,9 @@ return array(
 					];
 				},
 			],
+			'sale.reservation.settings' => [
+				'className' => \Bitrix\Sale\Reservation\Configuration\ReservationSettingsService::class,
+			],
 		],
 	],
 );

@@ -214,8 +214,10 @@ class Manager
 				$eventParams->deliveryId = $shipment['DELIVERY_ID'];
 				$res = $this->processStatusChange(array($eventParams));
 
-				if(!$res)
+				if(!$res->isSuccess())
+				{
 					$result->addErrors($res->getErrors());
+				}
 			}
 		}
 

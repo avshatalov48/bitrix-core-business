@@ -89,6 +89,8 @@ Extension::load([
 			'totalWrapperId' => $arResult['TOTAL_WRAPPER_ID'],
 			'signedParameters' => $arResult['SIGNED_PARAMS'],
 			'inventoryManagementLink' => $arResult['IM_LINK'],
+			'productId' => $arResult['PRODUCT_ID'],
+			'reservedDealsSliderLink' => $arResult['RESERVED_DEALS_SLIDER_LINK'],
 		])?>);
 	});
 </script>

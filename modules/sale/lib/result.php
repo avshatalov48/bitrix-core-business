@@ -5,7 +5,7 @@ use Bitrix\Main\Entity;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
 
-class Result extends Entity\Result
+class Result extends \Bitrix\Main\ORM\Data\Result
 {
 	/** @var  int */
 	protected $id;

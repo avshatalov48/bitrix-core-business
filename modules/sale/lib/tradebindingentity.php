@@ -73,6 +73,7 @@ class TradeBindingEntity extends Internals\CollectableEntity
 		if ($platform !== null)
 		{
 			$entity->setFieldNoDemand('TRADING_PLATFORM_ID', $platform->getId());
+			$entity->tradePlatform = $platform;
 		}
 
 		$entity->setFieldNoDemand('XML_ID', static::generateXmlId());
@@ -265,5 +266,21 @@ class TradeBindingEntity extends Internals\CollectableEntity
 		{
 			$this->tradePlatform = null;
 		}
+	}
+
+	protected function onFieldModify($name, $oldValue, $value)
+	{
+		$result = parent::onFieldModify($name, $oldValue, $value);
+		if (!$result->isSuccess())
+		{
+			return $result;
+		}
+
+		if ($name === 'TRADING_PLATFORM_ID')
+		{
+			$this->tradePlatform = null;
+		}
+
+		return $result;
 	}
 }

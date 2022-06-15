@@ -349,3 +349,7 @@ select.catalog-document-product-control-select-field:hover {
 	background-color: #f3fcff !important;
 }
 
+.main-grid-editor-cell-danger {
+	border-color: var(--ui-field-color-danger) !important;
+}
+

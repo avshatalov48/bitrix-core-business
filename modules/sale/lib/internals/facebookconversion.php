@@ -11,6 +11,7 @@ use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Loader;
 use Bitrix\Sale\BasketItem;
 use Bitrix\Sale\Order;
+use Bitrix\Sale\Internals\Analytics;
 use Bitrix\Seo\BusinessSuite\Service;
 use Bitrix\Seo\Conversion\Facebook;
 
@@ -243,7 +244,6 @@ class FacebookConversion
 		}
 
 		$email = $event->getParameter('AUTHOR_EMAIL') ?? '';
-
 		self::fireContactEvent(self::EMAIL, (string)$email);
 	}
 
@@ -405,14 +405,19 @@ class FacebookConversion
 			function() use ($conversion, $eventName) {
 				try
 				{
-					$conversion->fireEvents();
+					$isEventSent = $conversion->fireEvents();
+					if ($isEventSent)
+					{
+						$analyticsEvent = new Analytics\Events\Event(
+							Analytics\Events\Event::FACEBOOK_CONVERSION_EVENT_FIRED,
+							[
+								'EVENT_NAME' => $eventName,
+							]
+						);
 
-					AnalyticsEventTable::add([
-						'CODE' => AnalyticsEventTable::FACEBOOK_CONVERSION_EVENT_FIRED,
-						'PAYLOAD' => [
-							'EVENT_NAME' => $eventName,
-						],
-					]);
+						$provider = new Analytics\Events\Provider($analyticsEvent);
+						(new Analytics\Storage($provider))->save();
+					}
 				}
 				catch (\Throwable $throwable)
 				{

@@ -3,6 +3,7 @@
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\UI\Filter\Theme;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -17,6 +18,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	"ui.progressbar",
 	'ui.info-helper',
 	'mail.secretary',
+	'ui.design-tokens',
 ]);
 
 Main\UI\Extension::load(['ui.buttons', 'ui.buttons.icons', 'ui.alerts', 'ui.dialogs.messagebox', 'ui.hint']);
@@ -37,6 +39,10 @@ $filterOptions = [
 	'FILTER_PRESETS' => $arResult['FILTER_PRESETS'],
 	'RESET_TO_DEFAULT_MODE' => true,
 	'VALUE_REQUIRED' => true,
+	'THEME' => Theme::LIGHT,
+	'CONFIG' => [
+		'AUTOFOCUS' => false
+	],
 ];
 $unseenCountInCurrentMailbox = 0;
 $unseenCountInOtherMailboxes = 0;
@@ -190,14 +196,7 @@ $this->endViewTarget();
 		<div class="mail-left-menu-wrapper">
 			<div class="mail-left-menu-head">
 				<h2 class="mail-left-menu-title">
-					<span class="logo-text-container">
-						<span class="logo-color"><?=htmlspecialcharsbx($siteTitle)?></span><?
-						if ($logo24):
-							?><span class="logo-color"><?=htmlspecialcharsbx($logo24)?></span><?
-						endif
-						?>
-						</span>
-					<span class="logo-mail"><span class="logo-point">.</span><?=Loc::getMessage('MAIL_CLIENT_HOME_TITLE')?></span>
+					<span class="logo-mail"><?=Loc::getMessage('MAIL_CLIENT_HOME_TITLE')?></span>
 				</h2>
 			</div>
 			<div class="mailbox-sync-panel">
@@ -262,6 +261,7 @@ $this->setViewTarget('mail-msg-counter-script');
 <script type="text/javascript">
 (function ()
 {
+
 	var uiManager = BX.Mail.Client.Message.List['<?=\CUtil::jsEscape($component->getComponentId()) ?>'].userInterfaceManager;
 	BX.onCustomEvent('Grid::updated',[uiManager.getGridInstance()]);
 	uiManager.initMailboxes(<?=Main\Web\Json::encode($mailboxMenu) ?>);
@@ -342,8 +342,8 @@ $actionPanelActionButtons = [
 		'TYPE' => \Bitrix\Main\Grid\Panel\Types::BUTTON,
 		'ID' => $arResult['gridActionsData']['read']['id'],
 		'ICON' => $arResult['gridActionsData']['read']['icon'],
-		'TITLE'=> $arResult['gridActionsData']['read']['text'],
-
+		'TITLE'=> $arResult['gridActionsData']['read']['title'],
+		'TEXT'=> $arResult['gridActionsData']['read']['text'],
 		'ONCHANGE' => [
 			[
 				'ACTION' => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
@@ -359,8 +359,8 @@ $actionPanelActionButtons = [
 		'TYPE' => \Bitrix\Main\Grid\Panel\Types::BUTTON,
 		'ID' => $arResult['gridActionsData']['notRead']['id'],
 		'ICON' => $arResult['gridActionsData']['notRead']['icon'],
-		'TITLE'=> $arResult['gridActionsData']['notRead']['text'],
-		'ICON_ONLY'=>true,
+		'TITLE'=> $arResult['gridActionsData']['notRead']['title'],
+		'TEXT'=> $arResult['gridActionsData']['notRead']['text'],
 		'ONCHANGE' => [
 			[
 				'ACTION' => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
@@ -376,17 +376,16 @@ $actionPanelActionButtons = [
 		'TYPE' => Main\Grid\Panel\Types::DROPDOWN,
 		'ID' => $arResult['gridActionsData']['move']['id'],
 		'ICON' => $arResult['gridActionsData']['move']['icon'],
-		'TITLE' => $arResult['gridActionsData']['move']['text'],
-		'ICON_ONLY'=>true,
+		'TITLE' => $arResult['gridActionsData']['move']['title'],
+		'TEXT' => $arResult['gridActionsData']['move']['text'],
 		'ITEMS' => $arResult['foldersItems'],
 	],
 	[
 		'TYPE' => Main\Grid\Panel\Types::BUTTON,
 		'ID' => $arResult['gridActionsData']['spam']['id'],
 		'ICON' => $arResult['gridActionsData']['spam']['icon'],
-		'ICON_ONLY'=>true,
-		'TITLE'=> $arResult['gridActionsData']['spam']['text'],
-
+		'TITLE'=> $arResult['gridActionsData']['spam']['title'],
+		'TEXT'=> $arResult['gridActionsData']['spam']['text'],
 		'ONCHANGE' => [
 			[
 				'ACTION' => Main\Grid\Panel\Actions::CALLBACK,
@@ -401,10 +400,9 @@ $actionPanelActionButtons = [
 	[
 		'TYPE' => Main\Grid\Panel\Types::BUTTON,
 		'ICON' => $arResult['gridActionsData']['notSpam']['icon'],
-		'ICON_ONLY'=>true,
 		'ID' => $arResult['gridActionsData']['notSpam']['id'],
-		'TITLE' => $arResult['gridActionsData']['notSpam']['text'],
-
+		'TITLE' => $arResult['gridActionsData']['notSpam']['title'],
+		'TEXT' => $arResult['gridActionsData']['notSpam']['text'],
 		'ONCHANGE' => [
 			[
 				'ACTION' => Main\Grid\Panel\Actions::CALLBACK,
@@ -420,9 +418,8 @@ $actionPanelActionButtons = [
 		'TYPE' => Main\Grid\Panel\Types::BUTTON,
 		'ID' => $arResult['gridActionsData']['delete']['id'],
 		'ICON' => $arResult['gridActionsData']['delete']['icon'],
-		'ICON_ONLY'=>true,
-		'TITLE'=> $arResult['gridActionsData']['delete']['text'],
-
+		'TITLE'=> $arResult['gridActionsData']['delete']['title'],
+		'TEXT'=> $arResult['gridActionsData']['delete']['text'],
 		'ONCHANGE' => [
 			[
 				'ACTION' => Main\Grid\Panel\Actions::CALLBACK,
@@ -437,6 +434,7 @@ $actionPanelActionButtons = [
 		],
 	],
 	[
+		'HIDDEN_IN_PANEL' => true,
 		'TYPE' => Main\Grid\Panel\Types::BUTTON,
 		'ID' => 'separator',
 		'ADDITIONAL_CLASS_FOR_PANEL' => 'mail-separator',
@@ -455,6 +453,7 @@ $actionPanelActionButtons = [
 
 	$actionPanelActionButtons = array_merge($actionPanelActionButtons, [
 		[
+			'HIDDEN_IN_PANEL' => true,
 			'TYPE' => Main\Grid\Panel\Types::BUTTON,
 			'ID' => $arResult['gridActionsData']['addToCrm']['id'],
 			'ADDITIONAL_CLASS_FOR_PANEL' => 'mail-crm-action',
@@ -473,6 +472,7 @@ $actionPanelActionButtons = [
 			],
 		],
 		[
+			'HIDDEN_IN_PANEL' => true,
 			'TYPE' => Main\Grid\Panel\Types::BUTTON,
 			'ADDITIONAL_CLASS_FOR_PANEL' => 'mail-not-crm-action',
 			'ID' => $arResult['gridActionsData']['excludeFromCrm']['id'],
@@ -494,6 +494,7 @@ $actionPanelActionButtons = [
 
 $actionPanelActionButtons = array_merge($actionPanelActionButtons, [
 	[
+		'HIDDEN_IN_PANEL' => true,
 		'TYPE' => Main\Grid\Panel\Types::BUTTON,
 		'ID' => $arResult['gridActionsData']['task']['id'],
 		'TEXT' => $arResult['gridActionsData']['task']['text'],
@@ -512,6 +513,7 @@ $actionPanelActionButtons = array_merge($actionPanelActionButtons, [
 		],
 	],
 	[
+		'HIDDEN_IN_PANEL' => true,
 		'TYPE' => Main\Grid\Panel\Types::DROPDOWN,
 		'ID' => $arResult['gridActionsData']['discuss']['id'],
 		'TEXT' => $arResult['gridActionsData']['discuss']['text'],
@@ -521,6 +523,7 @@ $actionPanelActionButtons = array_merge($actionPanelActionButtons, [
 	],
 
 	[
+		'HIDDEN_IN_PANEL' => true,
 		'TYPE' => Main\Grid\Panel\Types::BUTTON,
 		'ID' => $arResult['gridActionsData']['event']['id'],
 		'TEXT' => $arResult['gridActionsData']['event']['text'],
@@ -723,7 +726,6 @@ $APPLICATION->includeComponent(
 		MAIL_MESSAGE_LIST_CONFIRM_CANCEL_BTN: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_CANCEL_BTN')) ?>',
 		MAIL_MESSAGE_SYNC_BTN_HINT: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_SYNC_BTN_HINT')) ?>',
 		MAIL_CLIENT_MAILBOX_SYNC_BAR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_MAILBOX_SYNC_BAR')) ?>',
-		MAIL_CLIENT_MAILBOX_SYNC_BAR_COMPLETED: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_MAILBOX_SYNC_BAR_COMPLETED')) ?>',
 		MAIL_CLIENT_MAILBOX_SYNC_BAR_INTERRUPTED: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_MAILBOX_SYNC_BAR_INTERRUPTED')) ?>',
 		MAIL_CLIENT_BUTTON_LOADING: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_BUTTON_LOADING')) ?>',
 		MAIL_MESSAGE_LIST_CONFIRM_MOVE_ALL: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_MOVE_ALL')) ?>',

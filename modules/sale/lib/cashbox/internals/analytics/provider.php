@@ -1,18 +1,39 @@
 <?php
 namespace Bitrix\Sale\Cashbox\Internals\Analytics;
 
-use Bitrix\Sale\Internals\Analytics,
-	Bitrix\Sale\Cashbox\CheckManager,
-	Bitrix\Sale\Cashbox\Manager,
-	Bitrix\Main\Type\DateTime;
+use Bitrix\Main;
+use Bitrix\Sale;
 
 /**
- * Class Cachbox
- * @package Bitrix\Sale\Internals\Analytics
+ * Class Provider
+ * @package Bitrix\Sale\Cashbox\Internals\Analytics
+ * @internal
  */
-final class Provider extends Analytics\Provider
+final class Provider extends Sale\Internals\Analytics\Provider
 {
 	private const TYPE = 'cashbox';
+
+	private const CASHBOX_HANDLERS = [
+		Sale\Cashbox\CashboxOrangeData::class,
+		Sale\Cashbox\CashboxCheckbox::class,
+		Sale\Cashbox\CashboxBusinessRu::class,
+		Sale\Cashbox\CashboxBusinessRuV5::class,
+		Sale\Cashbox\CashboxOrangeDataFfd12::class,
+	];
+
+	/** @var Sale\Cashbox\Check */
+	private $check;
+
+	/** @var Sale\Cashbox\Cashbox */
+	private $cashboxHandler;
+
+	public function __construct(Sale\Cashbox\AbstractCheck $check)
+	{
+		$this->check = $check;
+
+		$cashboxId = $check->getField('CASHBOX_ID');
+		$this->cashboxHandler = Sale\Cashbox\Manager::getObjectById($cashboxId);
+	}
 
 	/**
 	 * @return string
@@ -22,111 +43,45 @@ final class Provider extends Analytics\Provider
 		return self::TYPE;
 	}
 
-	/**
-	 * @param DateTime $dateFrom
-	 * @param DateTime $dateTo
-	 * @return array
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
-	protected function getProviderData(DateTime $dateFrom, DateTime $dateTo): array
+	protected function needProvideData(): bool
 	{
-		$result = [];
-		/** @var \Bitrix\Sale\Cashbox\Cashbox $cashboxHandler */
-		foreach ($this->getCashboxHandlers() as $cashboxHandler)
-		{
-			$checkData = $this->getCheckData($cashboxHandler, $dateFrom, $dateTo);
-			if ($checkData)
-			{
-				$result[] = [
-					'cashbox' => $cashboxHandler::getCode(),
-					'date_time' => $checkData['date_time'],
-				];
-			}
-		}
+		$cashboxHandlerCode = $this->cashboxHandler::getCode();
 
-		return $result;
+		$isCashboxHandlerExists = (bool)array_filter(
+			self::CASHBOX_HANDLERS,
+			static function ($cashboxHandler) use ($cashboxHandlerCode) {
+				return $cashboxHandlerCode === $cashboxHandler::getCode();
+			}
+		);
+
+		return $isCashboxHandlerExists && $this->check->getField('STATUS') === 'Y';
 	}
 
 	/**
-	 * @return string[]
+	 * @return array
 	 */
-	private function getCashboxHandlers(): array
+	protected function getProviderData(): array
 	{
+		$checkData = $this->getCheckData();
 		return [
-			\Bitrix\Sale\Cashbox\CashboxOrangeData::class,
-			\Bitrix\Sale\Cashbox\CashboxCheckbox::class,
-			\Bitrix\Sale\Cashbox\CashboxBusinessRu::class,
-			\Bitrix\Sale\Cashbox\CashboxAtolFarmV5::class,
-			\Bitrix\Sale\Cashbox\CashboxBusinessRuV5::class,
-			\Bitrix\Sale\Cashbox\CashboxOrangeDataFfd12::class,
+			'cashbox' => $this->cashboxHandler::getCode(),
+			'date_time' => $checkData['date_time'],
 		];
 	}
 
 	/**
-	 * @param string $cashboxHandler
-	 * @param DateTime $dateFrom
-	 * @param DateTime $dateTo
 	 * @return array
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
-	private function getCheckData(string $cashboxHandler, DateTime $dateFrom, DateTime $dateTo): array
+	private function getCheckData(): array
 	{
-		$cashboxIdList = $this->getCashboxIdList($cashboxHandler);
-		if (!$cashboxIdList)
+		$dateTime = $this->check->getField('DATE_PRINT_END');
+		if (!($dateTime instanceof Main\Type\DateTime))
 		{
-			return [];
+			$dateTime = new Main\Type\DateTime();
 		}
 
-		$result = [];
-
-		$checkData = CheckManager::getList([
-			'select' => ['ID', 'DATE_PRINT_END'],
-			'filter' => [
-				'CASHBOX_ID' => $cashboxIdList,
-				'STATUS' => 'Y',
-				'>=DATE_PRINT_END' => $dateFrom,
-				'<=DATE_PRINT_END' => $dateTo,
-			],
-			'limit' => 1,
-			'order' => ['ID' => 'DESC'],
-		])->fetch();
-		if ($checkData)
-		{
-			$result = [
-				'date_time' => $checkData['DATE_PRINT_END']->format('Y-m-01'),
-			];
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @param string $cashboxHandler
-	 * @return array|array[]|null[]
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
-	private function getCashboxIdList(string $cashboxHandler): array
-	{
-		$result = [];
-
-		$cashboxList = Manager::getList([
-			'select' => ['ID'],
-			'filter' => [
-				'=HANDLER' => '\\'.$cashboxHandler,
-			],
-		])->fetchAll();
-
-		if ($cashboxList)
-		{
-			$result = array_column($cashboxList, 'ID');
-		}
-
-		return $result;
+		return [
+			'date_time' => $dateTime->format('Y-m-d H:i:s'),
+		];
 	}
 }

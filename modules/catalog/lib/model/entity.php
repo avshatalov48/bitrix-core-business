@@ -941,5 +941,7 @@ abstract class Entity
 			unset($this->cacheModifyed[$id]);
 	}
 
+	public static function clearSettings(): void {}
+
 	/* entity cache item tools end */
 }

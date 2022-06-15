@@ -11,6 +11,7 @@ use Bitrix\Sale\BasketItem;
 use Bitrix\Sale\BasketItemBase;
 use Bitrix\Sale\Discount;
 use Bitrix\Sale\DiscountCouponsManager;
+use Bitrix\Sale\Fuser;
 use Bitrix\Sale\Helpers\Admin\Blocks\OrderBasket;
 use Bitrix\Sale\Helpers\Admin\OrderEdit;
 use Bitrix\Sale\Order;
@@ -883,5 +884,33 @@ abstract class BasketBuilder
 	public function isProductAdded()
 	{
 		return $this->isProductAdded;
+	}
+
+	/**
+	 * Filling fuser of basket is needed.
+	 *
+	 * If empty get by user id of order.
+	 *
+	 * @return self
+	 */
+	public function fillFUser()
+	{
+		$basket = $this->getBasket();
+		if ($basket && !$basket->getFUserId(true))
+		{
+			$fuserId = null;
+
+			$order = $this->getOrder();
+			if ($order && $order->getUserId())
+			{
+				$fuserId = Fuser::getUserIdById($order->getUserId());
+			}
+
+			$basket->setFUserId(
+				$fuserId ?: Fuser::getId(false)
+			);
+		}
+
+		return $this;
 	}
 }

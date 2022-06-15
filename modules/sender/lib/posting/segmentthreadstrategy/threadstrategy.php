@@ -13,7 +13,7 @@ interface ThreadStrategy
 
 	function fillThreads(): void;
 
-	function lockThread(): void;
+	function lockThread(): ?int;
 	function hasUnprocessedThreads(): bool;
 
 	function getThreadId(): ?int;
@@ -23,4 +23,5 @@ interface ThreadStrategy
 //	function updateOffset(): bool;
 
 	function lastThreadId(): int;
+	function isProcessLimited(): bool;
 }

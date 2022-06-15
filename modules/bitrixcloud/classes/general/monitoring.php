@@ -276,12 +276,15 @@ class CBitrixCloudMonitoring
 							&& $testResult->getStatus() === CBitrixCloudMonitoringResult::RED_LAMP
 						)
 						{
-							$uptime = explode("/", $testResult->getUptime());
-							$diff = $uptime[1] - $uptime[0];
-							if ($diff > $maxDiff)
+							if ($testResult->getUptime())
 							{
-								$maxDiff = $diff;
-								$result = $testResult->getUptime();
+								$uptime = explode("/", $testResult->getUptime());
+								$diff = $uptime[1] - $uptime[0];
+								if ($diff > $maxDiff)
+								{
+									$maxDiff = $diff;
+									$result = $testResult->getUptime();
+								}
 							}
 						}
 					}
@@ -296,12 +299,15 @@ class CBitrixCloudMonitoring
 						&& $testResult->getStatus() === CBitrixCloudMonitoringResult::RED_LAMP
 					)
 					{
-						$uptime = explode("/", $testResult->getUptime());
-						$diff = $uptime[1] - $uptime[0];
-						if ($diff > $maxDiff)
+						if ($testResult->getUptime())
 						{
-							$maxDiff = $diff;
-							$result = $testResult->getUptime();
+							$uptime = explode("/", $testResult->getUptime());
+							$diff = $uptime[1] - $uptime[0];
+							if ($diff > $maxDiff)
+							{
+								$maxDiff = $diff;
+								$result = $testResult->getUptime();
+							}
 						}
 					}
 				}

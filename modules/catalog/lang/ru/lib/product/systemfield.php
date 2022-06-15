@@ -1,12 +1,5 @@
-<?
-$MESS["STORAGE_MARKING_CODE_GROUP_TITLE"] = "Типы групп товаров";
-$MESS["MARKING_CODE_GROUP_FIELD_TITLE"] = "Группа товаров";
-$MESS["MARKING_CODE_GROUP_UF_FIELD_XML_ID"] = "Код группы товаров";
-$MESS["MARKING_CODE_GROUP_UF_FIELD_NAME"] = "Группа товаров";
-$MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_HIGHLOADBLOCK_ABSENT"] = "Отсутствует модуль Highload-блоки. Он необходим для работы с расширенными параметрами товаров. Установите модуль вручную на странице <a href=\"/bitrix/admin/module_admin.php?lang=#LANGUAGE_ID#\">списка модулей</a>";
-$MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_MESS_VALUE_EMPTY"] = "не выбрано";
+<?php
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_HIGHLOAD_MODULE_ABSENT"] = "Отсутствует модуль Highload-блоки.";
-$MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_MARKING_CODE_INTERNAL_ERROR"] = "Невозможно создать поле Группа товаров: #ERROR#";
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CREATE_HIGHLOADBLOCK"] = "Невозможно создать highload-блок #NAME#";
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_EXIST_HIGHLOADBLOCK"] = "Highload-блок #NAME# уже существует";
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_HIGHLOADBLOCK_ID_ABSENT"] = "Отсутствует идентификатор highload-блока";
@@ -16,4 +9,4 @@ $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_DICTIONARY_ITEM_CREATE"] = "Ошибк
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CANNOT_DELETE_HIGHLOADBLOCK"] = "Highload-блок #NAME# является системным и не может быть удален";
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CANNOT_UPDATE_HIGHLOADBLOCK"] = "Highload-блок #NAME# является системным и его параметры не могут меняться";
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_DISALLOW_UNINSTALL_HIGHLOADBLOCK"] = "Модуль highloadblock не может быть деинсталлирован, т.к. highload-блок #NAME# является системным и используется модулем Торговый каталог.";
-?>
+$MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_DISALLOW_UNINSTALL_HIGHLOADBLOCK_LIST"] = "Модуль highloadblock не может быть деинсталлирован, т.к. highload-блоки #NAME# являются системными и используются модулем Торговый каталог.";

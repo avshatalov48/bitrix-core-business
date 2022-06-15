@@ -83,7 +83,20 @@ if($bBadBlock)
 }
 
 $request = Main\Context::getCurrent()->getRequest();
-$urlBuilder = Iblock\Url\AdminPage\BuilderManager::getInstance()->getBuilder();
+// TODO: hack for psevdo-excel export in crm (\CAdminUiList::GetSystemContextMenu)
+$urlBuilderManager = Iblock\Url\AdminPage\BuilderManager::getInstance();
+$urlBuilder = null;
+$urlBuilderId = (string)$request->get('urlBuilderId') ;
+if ($urlBuilderId !== '')
+{
+	$urlBuilder = $urlBuilderManager->getBuilder($urlBuilderId);
+}
+// TODO end
+if ($urlBuilder === null)
+{
+	$urlBuilder = $urlBuilderManager->getBuilder();
+}
+unset($urlBuilderManager);
 if ($urlBuilder === null)
 {
 	$APPLICATION->SetTitle($arIBTYPE["NAME"]);
@@ -92,6 +105,7 @@ if ($urlBuilder === null)
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
+$urlBuilderId = $urlBuilder->getId();
 $urlBuilder->setIblockId($IBLOCK_ID);
 $urlBuilder->setUrlParams([]);
 
@@ -113,7 +127,7 @@ $pageConfig = array(
 	'DEFAULT_ACTION_TYPE' => CAdminUiListRow::LINK_TYPE_URL,
 	'SKIP_URL_MODIFICATION' => false,
 );
-switch ($urlBuilder->getId())
+switch ($urlBuilderId)
 {
 	case 'SHOP':
 	case 'CRM':
@@ -256,7 +270,7 @@ if ($bCatalog)
 	{
 		if ($pageConfig['CHECK_NEW_CARD'])
 		{
-			switch ($urlBuilder->getId())
+			switch ($urlBuilderId)
 			{
 				case 'SHOP':
 				case 'INVENTORY':
@@ -349,7 +363,7 @@ if ($boolSKU)
 $sTableID = $pageConfig['LIST_ID_PREFIX'].md5($pageConfig['LIST_ID']);
 if ($pageConfig['SLIDER_CRM'])
 {
-	$sTableID .= '_slider_' . $urlBuilder->getId();
+	$sTableID .= '_slider_' . $urlBuilderId;
 	$gridOptions = new Bitrix\Main\Grid\Options($sTableID);
 	$gridOptions->resetView('default');
 	unset($gridOptions);
@@ -4526,6 +4540,53 @@ if ($bCatalog && $boolCatalogPrice)
 			var priceChanger = (new top.BX.CAdminDialog(paramsWindowChanger));
 			priceChanger.Show();
 		}
+
+		function openSlider(url, options)
+		{
+			options = {...{cacheable: false, allowChangeHistory: false, events: {}}, ...options};
+			return new Promise((resolve) =>
+			{
+				if(url.length > 1)
+				{
+					options.events.onClose = function(event)
+					{
+						resolve(event.getSlider());
+					};
+					return BX.SidePanel.Instance.open(url, options);
+				}
+				else
+				{
+					resolve();
+				}
+			});
+		}
+
+		function openWarehousePanel(url)
+		{
+			new BX.Catalog.StoreUse.Slider().open(url, {data: {closeSliderOnDone: false}})
+				.then(() => {
+					this.reloadGrid();
+				});
+		}
+
+		function openConfigSlider(url)
+		{
+			openSlider(
+				url,
+				{
+					width: 1000,
+					allowChangeHistory: false,
+					cacheable: false,
+					data: {
+						stateChangeCallbackFn: 'reloadGrid',
+					}
+				});
+		}
+
+		function reloadGrid()
+		{
+			document.location.reload();
+		}
 	</script>
 
 	<?php
@@ -4618,6 +4679,9 @@ if($bBizproc && IsModuleInstalled("bizprocdesigner"))
 	}
 }
 
+// TODO: hack for psevdo-excel export in crm (\CAdminUiList::GetSystemContextMenu)
+$_GET['urlBuilderId'] = $urlBuilderId;
+// TODO end
 $lAdmin->setContextSettings(array("pagePath" => $pageConfig['CONTEXT_PATH']));
 $contextConfig = array();
 $excelExport = (Main\Config\Option::get("iblock", "excel_export_rights") == "Y"
@@ -4634,7 +4698,6 @@ if ($additional === null)
 	$additional = [];
 }
 $lAdmin->SetContextMenu($aContext, $additional, $contextConfig);
-
 $lAdmin->CheckListMode();
 
 if ($pageConfig['CATALOG'])
@@ -4752,6 +4815,12 @@ if (!empty($productLimits))
 	?><div class="ui-alert ui-alert-warning">
 	<span class="ui-alert-message"><?php echo $productLimits['MESSAGE']; ?></span>
 	</div><?
+}
+
+// stepper
+if ($bCatalog && !$isChangeVariationRequest && $pageConfig['USE_NEW_CARD'])
+{
+	echo \Bitrix\Main\Update\Stepper::getHtml('catalog');
 }
 $lAdmin->EndPrologContent();
 

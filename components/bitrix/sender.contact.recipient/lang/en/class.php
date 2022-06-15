@@ -2,6 +2,7 @@
 $MESS["SENDER_CONTACT_CONSENT_APPLY"] = "Contact confirmed their consent, newsletter scheduled";
 $MESS["SENDER_CONTACT_CONSENT_REJECT"] = "Contact rejected consent";
 $MESS["SENDER_CONTACT_CONSENT_WAIT"] = "Pending consent";
+$MESS["SENDER_CONTACT_DELETED"] = "Contact deleted";
 $MESS["SENDER_LETTER_CONTACT_LIST_ITEM_DELETED"] = "Recipient deleted";
 $MESS["SENDER_LETTER_RCP_LIST_TITLE"] = "Recipients";
 $MESS["SENDER_LETTER_RCP_LIST_TITLE_CONTACT"] = "Sent newsletters";

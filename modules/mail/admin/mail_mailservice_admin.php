@@ -58,7 +58,7 @@ if ($MOD_RIGHT == "W" && $lAdmin->EditAction())
 			continue;
 
 		$DB->StartTransaction();
-		if (!Bitrix\Mail\MailServicesTable::update($ID, $arFields))
+		if (!Bitrix\Mail\MailServicesTable::update($ID, $arFields)->isSuccess())
 		{
 			$e = $APPLICATION->GetException();
 			$lAdmin->AddUpdateError(GetMessage("MAIL_MSERVICE_SAVE_ERROR")." #".$ID.": ".$e->GetString(), $ID);
@@ -88,7 +88,7 @@ if ($MOD_RIGHT == "W" && $arID = $lAdmin->GroupAction())
 			case "delete":
 				@set_time_limit(0);
 				$DB->StartTransaction();
-				if (!Bitrix\Mail\MailServicesTable::delete($ID))
+				if (!Bitrix\Mail\MailServicesTable::delete($ID)->isSuccess())
 				{
 					$DB->Rollback();
 					$lAdmin->AddGroupError(GetMessage("MAIL_MSERVICE_DELETE_ERROR"), $ID);
@@ -100,9 +100,15 @@ if ($MOD_RIGHT == "W" && $arID = $lAdmin->GroupAction())
 			case "deactivate":
 
 			$arFields = array('ACTIVE' => $_REQUEST['action'] == 'activate' ? 'Y' : 'N');
-			if (!Bitrix\Mail\MailServicesTable::update($ID, $arFields))
+
+			if (!Bitrix\Mail\MailServicesTable::update($ID, $arFields)->isSuccess())
+			{
 				if ($e = $APPLICATION->GetException())
+				{
 					$lAdmin->AddGroupError(GetMessage('SAVE_ERROR').$ID.": ".$e->GetString(), $ID);
+				}
+			}
+
 			break;
 		}
 	}

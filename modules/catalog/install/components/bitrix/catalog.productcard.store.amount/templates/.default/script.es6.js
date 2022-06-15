@@ -1,5 +1,7 @@
-import {Dom, Loc, Reflection, Runtime, Tag, Text, Type} from 'main.core';
-import {EventEmitter, Event} from 'main.core.events'
+import {Event, Reflection, Type, Uri} from 'main.core';
+import {EventEmitter} from 'main.core.events'
+import {Slider} from 'catalog.store-use'
+
 class ProductStoreGridManager
 {
 	grid = null;
@@ -12,6 +14,8 @@ class ProductStoreGridManager
 		this.signedParameters = settings.signedParameters;
 		this.totalWrapperId = settings.totalWrapperId || null;
 		this.inventoryManagementLink = settings.inventoryManagementLink || null;
+		this.productId = settings.productId;
+		this.reservedDealsSliderLink = settings.reservedDealsSliderLink;
 
 		if (this.totalWrapperId)
 		{
@@ -20,12 +24,53 @@ class ProductStoreGridManager
 		}
 
 		this.subscribeEvents();
+		this.bindSliderToReservedQuantityNodes();
 	}
 
 	subscribeEvents()
 	{
 		this.onGridUpdatedHandler = this.onGridUpdated.bind(this);
 		EventEmitter.subscribe('Grid::updated', this.onGridUpdatedHandler);
+	}
+
+	bindSliderToReservedQuantityNodes()
+	{
+		const rows = this.grid.getRows().getRows();
+		rows.forEach((row) => {
+			if (row.isBodyChild() && !row.isTemplate())
+			{
+				const reservedQuantityNode = row.getNode().querySelector(
+					'.main-grid-cell-content-store-amount-reserved-quantity'
+				);
+				if (Type.isDomNode(reservedQuantityNode))
+				{
+					Event.bind(
+						reservedQuantityNode,
+						'click',
+						this.openDealsWithReservedProductSlider.bind(this, this.productId, row.getId())
+					);
+				}
+			}
+		});
+	}
+
+	openDealsWithReservedProductSlider(rowId, storeId = 0)
+	{
+		if (!this.reservedDealsSliderLink)
+		{
+			return;
+		}
+
+		const sliderLink = new Uri(this.reservedDealsSliderLink);
+		sliderLink.setQueryParam('productId', rowId);
+		if (storeId > 0)
+		{
+			sliderLink.setQueryParam('storeId', storeId);
+		}
+		BX.SidePanel.Instance.open(sliderLink.toString(), {
+			allowChangeHistory: false,
+			cacheable: false
+		});
 	}
 
 	onGridUpdated(event: BaseEvent)
@@ -138,9 +183,8 @@ class ProductStoreGridManager
 	{
 		if (this.inventoryManagementLink)
 		{
-			BX.SidePanel.Instance.open(this.inventoryManagementLink,
+			new Slider().open(this.inventoryManagementLink,
 				{
-					cacheable: false,
 					data: {
 						openGridOnDone: false,
 					},

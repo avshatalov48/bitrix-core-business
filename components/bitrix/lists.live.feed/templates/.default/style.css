@@ -173,6 +173,7 @@
 	padding: 0 8px;
 	line-height: 18px;
 	border: 1px solid #c6cdd3;
+	border-radius: var(--ui-field-border-radius);
 	margin: 0;
 	color: #535c69;
 	outline: none;
@@ -304,7 +305,7 @@
 	position: relative;
 	padding: 15px 20px 50px;
 	background: #e8f9fe;
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-xs, 2px);
 	color: #000;
 	font-size: 13px;
 	margin-top: 20px;

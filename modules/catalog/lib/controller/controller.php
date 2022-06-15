@@ -23,6 +23,8 @@ class Controller extends Base
 	const CATALOG_STORE = 'catalog_store';
 	const CATALOG_READ = 'catalog_read';
 
+	public const ERROR_ACCESS_DENIED = 'Access denied';
+
 	protected function createViewManager(Action $action)
 	{
 		return new CatalogViewManager($action);

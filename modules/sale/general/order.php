@@ -2487,8 +2487,7 @@ class CAllSaleOrder
 			"LOCKED_BY" => $GLOBALS["USER"]->GetID()
 		);
 
-		return Sale\Internals\OrderTable::update($ID, $arFields);
-//		return CSaleOrder::Update($ID, $arFields, false);
+		return Sale\Internals\OrderTable::update($ID, $arFields)->isSuccess();
 	}
 
 	public static function UnLock($ID)
@@ -2510,10 +2509,7 @@ class CAllSaleOrder
 				"LOCKED_BY" => false
 			);
 
-			if (!Sale\Internals\OrderTable::update($ID, $arFields))
-				return False;
-			else
-				return True;
+			return Sale\Internals\OrderTable::update($ID, $arFields)->isSuccess();
 		}
 
 		return False;

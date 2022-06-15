@@ -250,7 +250,7 @@ if (Main\Loader::includeModule('sale'))
 					'BARCODE_MULTI'
 				));
 			}
-			$catalogSelect = array_merge($catalogSelect, Catalog\Product\SystemField::getFieldList());
+			$catalogSelect = array_merge($catalogSelect, Catalog\Product\SystemField::getProviderSelectFields());
 
 			$catalogProductDataList = static::getCatalogProducts(array_keys($products), $catalogSelect);
 			$products = array_intersect_key($products, $catalogProductDataList);
@@ -2146,7 +2146,26 @@ if (Main\Loader::includeModule('sale'))
 				}
 				else //undo reservation
 				{
-					$needQuantity = abs($productQuantity);
+					$correctReserve = 0;
+					if ($enableStoreControl)
+					{
+						foreach (array_keys($storeFields) as $storeId)
+						{
+							if ($storeFields[$storeId]['ID'] === null)
+							{
+								continue;
+							}
+							$storeProductFields = $storeFields[$storeId];
+							$newReserve = $storeProductFields['QUANTITY_RESERVED'] + $storeProductFields['ADD_QUANTITY_RESERVED'];
+							if ($newReserve < 0)
+							{
+								$correctReserve -= $newReserve;
+								$storeFields[$storeId]['ADD_QUANTITY_RESERVED'] -= $newReserve;
+							}
+						}
+					}
+
+					$needQuantity = abs($productQuantity) - $correctReserve;
 
 					$fields["QUANTITY"] = $catalogQuantity + $needQuantity;
 
@@ -3665,7 +3684,6 @@ if (Main\Loader::includeModule('sale'))
 
 			$filterId = [
 				'ACTIVE' => 'Y',
-				'SHIPPING_CENTER' => 'Y',
 			];
 			if (isset($context['SITE_ID']) && $context['SITE_ID'] !== '')
 			{
@@ -3680,7 +3698,6 @@ if (Main\Loader::includeModule('sale'))
 
 				$filter = Main\Entity\Query::filter();
 				$filter->where('ACTIVE', '=', 'Y');
-				$filter->where('SHIPPING_CENTER', '=', 'Y');
 				if (isset($context['SITE_ID']) && $context['SITE_ID'] != '')
 				{
 					$subFilter = Main\Entity\Query::filter();
@@ -3762,7 +3779,7 @@ if (Main\Loader::includeModule('sale'))
 						'TITLE',
 					],
 					'filter' => [
-						'=ACTIVE' => 'Y',
+						'@ID' => $storeIds,
 					],
 					'order' => [
 						'ID' => 'ASC',
@@ -4406,7 +4423,7 @@ if (Main\Loader::includeModule('sale'))
 				]);
 				while ($row = $iterator->fetch())
 				{
-					Catalog\Product\SystemField::convertRow($row);
+					Catalog\Product\SystemField::prepareRow($row, Catalog\Product\SystemField::OPERATION_PROVIDER);
 					$row['CHECK_QUANTITY'] = ($row['QUANTITY_TRACE'] === 'Y' && $row['CAN_BUY_ZERO'] === 'N');
 					$row['ID'] = (int)$row['ID'];
 					$row['TYPE'] = (int)$row['TYPE'];
@@ -5045,6 +5062,38 @@ if (Main\Loader::includeModule('sale'))
 				else
 				{
 					\CCatalogDiscountSave::Enable();
+				}
+			}
+
+			if (!empty($priceDataList))
+			{
+				foreach ($priceDataList as $productId => $priceBasketDataList)
+				{
+					foreach ($priceBasketDataList as $basketCode => $priceData)
+					{
+						if ($priceData === false)
+						{
+							continue;
+						}
+
+						if (empty($priceData['DISCOUNT_LIST']) && !empty($priceData['DISCOUNT']) && is_array($priceData['DISCOUNT']))
+						{
+							$priceDataList[$productId][$basketCode]['DISCOUNT_LIST'] = [$priceData['DISCOUNT']];
+						}
+
+						if (empty($priceData['PRICE']['CATALOG_GROUP_NAME']))
+						{
+							if (!empty($priceData['PRICE']['CATALOG_GROUP_ID']))
+							{
+								$priceName = self::getPriceTitle($priceData['PRICE']['CATALOG_GROUP_ID']);
+								if ($priceName !== '')
+								{
+									$priceDataList[$productId][$basketCode]['PRICE']['CATALOG_GROUP_NAME'] = $priceName;
+								}
+								unset($priceName);
+							}
+						}
+					}
 				}
 			}
 

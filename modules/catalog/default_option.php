@@ -74,6 +74,14 @@ $catalog_default_option = [
 	'enable_processing_deprecated_events' => 'N',
 	'landing_product_limit' => 0,
 	'product_card_slider_enabled' => 'N',
+	'once_inventory_management' => 'N',
 	'show_store_reserve' => 'N', // system option, can't set from options page
 	'catalog_common_product_processing' => 'N', // system option, can't set from options page
+	'use_offer_marking_code_group' => 'N', // system option, can't set from options page
+	'store_document_numbers_A' => 0, // used for create store document name (arrival)
+	'store_document_numbers_S' => 0, // used for create store document name (store adjustment)
+	'store_document_numbers_M' => 0, // used for create store document name (moving)
+	'store_document_numbers_R' => 0, // used for create store document name (return)
+	'store_document_numbers_D' => 0, // used for create store document name (deduct)
+	'store_document_numbers_U' => 0, // used for create store document name (undo reserve)
 ];

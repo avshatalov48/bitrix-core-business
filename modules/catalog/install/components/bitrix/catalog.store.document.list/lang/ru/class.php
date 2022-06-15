@@ -1,8 +1,13 @@
 <?php
 $MESS['DOCUMENT_LIST_STUB_TITLE_ARRIVAL'] = 'Создайте первый приход товара';
 $MESS['DOCUMENT_LIST_STUB_DESCRIPTION_ARRIVAL'] = 'Наведите порядок на складе. Фиксируйте поступление каждого товара. Так вы всегда будете знать, где что находится и в каком количестве.';
+$MESS['DOCUMENT_LIST_STUB_TITLE_ARRIVAL_2'] = 'Добавьте первое Оприходование';
+$MESS['DOCUMENT_LIST_STUB_DESCRIPTION_ARRIVAL_2'] = 'Фиксируйте поступление каждого товара в Битрикс24. Здесь будет список документов Прихода и Оприходования.';
 $MESS['DOCUMENT_LIST_STUB_LINK_QUICKSTART'] = 'Как начать работу со складским учётом';
 $MESS['DOCUMENT_LIST_STUB_LINK_MIGRATION'] = 'Уже ведёте складской учёт? Перенесите свои данные из других систем';
+$MESS['DOCUMENT_LIST_STUB_MIGRATION_TITLE'] = 'Перенесите свои документы из других систем в Битрикс24';
+$MESS['DOCUMENT_LIST_STUB_MIGRATION_MORE'] = 'и другие';
+$MESS['DOCUMENT_LIST_STUB_MIGRATION_LINK'] = 'Перенести';
 $MESS['DOCUMENT_LIST_STUB_TITLE_MOVING'] = 'Создайте первое перемещение товара';
 $MESS['DOCUMENT_LIST_STUB_DESCRIPTION_MOVING'] = 'Фиксируйте каждое перемещение между точками продаж. Это поможет понимать, где находятся нужные товары, вовремя распределять их между складами и увеличить оборачиваемость товаров.';
 $MESS['DOCUMENT_LIST_STUB_LINK_CONTROL'] = 'Как контролировать перемещение товара';

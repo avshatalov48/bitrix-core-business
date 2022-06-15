@@ -2,10 +2,7 @@
 
 namespace Bitrix\Sale\Delivery\Internals\Analytics;
 
-use Bitrix\Sale\Delivery\Internals\Analytics\OrderProviders\IOrderProvider;
 use Bitrix\Sale\Internals\Analytics;
-use Bitrix\Main\Type\DateTime;
-use Sale\Handlers\Delivery\YandexTaxi\Internals\OrderAnalyticsProvider;
 
 /**
  * Class Provider
@@ -14,6 +11,22 @@ use Sale\Handlers\Delivery\YandexTaxi\Internals\OrderAnalyticsProvider;
  */
 final class Provider extends Analytics\Provider
 {
+	/** @var string */
+	private $code;
+
+	/** @var array */
+	private $orders;
+
+	/**
+	 * @param string $code
+	 * @param array $orders
+	 */
+	public function __construct(string $code, array $orders)
+	{
+		$this->code = $code;
+		$this->orders = $orders;
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -25,42 +38,24 @@ final class Provider extends Analytics\Provider
 	/**
 	 * @inheritDoc
 	 */
-	protected function getProviderData(DateTime $dateFrom, DateTime $dateTo): array
+	protected function needProvideData(): bool
 	{
-		$result = [];
-
-		$providers = $this->getProviders();
-
-		/**
-		 * @var string $providerCode
-		 * @var IOrderProvider $provider
-		 */
-		foreach ($providers as $providerCode => $provider)
-		{
-			$orders = $provider->provideOrders($dateFrom, $dateTo);
-			if (!$orders)
-			{
-				continue;
-			}
-
-			$result[] = [
-				'delivery' => $providerCode,
-				'date_from' => $dateFrom->getTimestamp(),
-				'date_to' => $dateTo->getTimestamp(),
-				'orders' => $orders,
-			];
-		}
-
-		return $result;
+		return true;
 	}
 
 	/**
-	 * @return IOrderProvider[]
+	 * @inheritDoc
 	 */
-	private function getProviders(): array
+	protected function getProviderData(): array
 	{
+		if (!$this->orders)
+		{
+			return [];
+		}
+
 		return [
-			'yandex_taxi' => new OrderAnalyticsProvider(),
+			'delivery' => $this->code,
+			'orders' => $this->orders,
 		];
 	}
 }

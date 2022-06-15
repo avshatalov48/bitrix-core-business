@@ -15,17 +15,72 @@ export class Avatar
 		return hashCode;
 	}
 
-	static numberToRGB(index)
+	static alignChannelRangeColor(chanelCode)
 	{
-		let color = (index & 0x00FFFFFF).toString(16);
-		color = color.toUpperCase();
+		if(chanelCode > 255)
+		{
+			return 255;
+		}
+		else if(chanelCode < 0)
+		{
+			return 0;
+		}
+		else
+		{
+			return Math.ceil(chanelCode);
+		}
+	}
 
-		return '00000'.substring(0, 6 - color.length) + color;
+	static hashToColor(hash)
+	{
+		const maxIntensityAllChannels = 255*3;
+		const minIntensityAllChannels = 0;
+		const differenceCoefficientForGrayDetection = 0.20;
+
+		let r = (hash & 0xFF0000) >> 16;
+		let g = (hash & 0x00FF00) >> 8;
+		let b = (hash & 0x0000FF);
+
+		const contrastRatioForPastelColors = 1.5;
+		const contrastRatioForDarkColors = 2.5;
+		const channelReductionCoefficientIfGray = 2;
+
+		if(maxIntensityAllChannels - (r+g+b) < 100)
+		{	//Pastel colors or white
+			r/=contrastRatioForPastelColors;
+			g/=contrastRatioForPastelColors;
+			b/=contrastRatioForPastelColors;
+		}
+		else if((r+g+b) < (200 - minIntensityAllChannels))
+		{
+			//Very dark colors
+			r*=contrastRatioForDarkColors;
+			g*=contrastRatioForDarkColors;
+			b*=contrastRatioForDarkColors;
+		}
+
+		let channels = [r,g,b];
+		channels.sort(function(a,b){
+			return a - b;
+		})
+
+		if(((channels[channels.length - 1]-channels[0])/channels[0]) < differenceCoefficientForGrayDetection)
+		{
+			//Shade of gray
+			g/=channelReductionCoefficientIfGray;
+		}
+
+		r=this.alignChannelRangeColor(r);
+		g=this.alignChannelRangeColor(g);
+		b=this.alignChannelRangeColor(b);
+
+		const color = "#" + ("0" + r.toString(16)).substr(-2) + ("0" + g.toString(16)).substr(-2) + ("0" + b.toString(16)).substr(-2);
+		return color.toUpperCase();
 	}
 
 	static stringToColor(name)
 	{
-		return this.numberToRGB(this.stringToHashCode(name));
+		return this.hashToColor(this.stringToHashCode(name));
 	}
 
 	static build(config = {

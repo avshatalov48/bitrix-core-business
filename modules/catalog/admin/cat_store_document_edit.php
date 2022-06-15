@@ -428,9 +428,16 @@ if($ID > 0 || isset($_REQUEST["AJAX_MODE"]))
 		if (!isset($arElement['BASE_PRICE']))
 		{
 			$priceResult = Catalog\Model\Price::getList([
-				'select' => ['PRICE'],
+				'select' => [
+					'ID',
+					'PRICE',
+				],
 				'filter' => [
-					'PRODUCT_ID' => $arElement['PRODUCT_ID'],
+					'=PRODUCT_ID' => $arElement['PRODUCT_ID'],
+					'=CATALOG_GROUP_ID' => \CCatalogGroup::GetBaseGroupId(),
+				],
+				'order' => [
+					'ID' => 'ASC',
 				],
 				'limit' => 1,
 			]);

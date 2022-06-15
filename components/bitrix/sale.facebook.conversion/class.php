@@ -12,7 +12,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Sale\ShopSitesController;
 use Bitrix\Seo\BusinessSuite\Service;
 use Bitrix\Seo\Conversion\Facebook;
-use Bitrix\Sale\Internals\AnalyticsEventTable;
+use Bitrix\Sale\Internals\Analytics;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -382,14 +382,19 @@ class SaleFacebookConversion extends CBitrixComponent implements Controllerable,
 			]);
 		}
 
-		AnalyticsEventTable::add([
-			'CODE' => $enabled
-				? AnalyticsEventTable::FACEBOOK_CONVERSION_SHOP_EVENT_ENABLED
-				: AnalyticsEventTable::FACEBOOK_CONVERSION_SHOP_EVENT_DISABLED,
-			'PAYLOAD' => [
+		$name =
+			$enabled
+				? Analytics\Events\Event::FACEBOOK_CONVERSION_SHOP_EVENT_ENABLED
+				: Analytics\Events\Event::FACEBOOK_CONVERSION_SHOP_EVENT_DISABLED
+		;
+		$analyticsEvent = new Analytics\Events\Event(
+			$name,
+			[
 				'EVENT_NAME' => $this->getEventName(),
-			],
-		]);
+			]
+		);
+		$provider = new Analytics\Events\Provider($analyticsEvent);
+		(new Analytics\Storage($provider))->save();
 
 		if ($this->isFacebookConversionEventEnabled($eventName))
 		{

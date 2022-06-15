@@ -1,0 +1,120 @@
+.ui-bottomsheet__scope {
+	--color--overlay-background: rgba(0,0,0,.5);
+	--color--panel-background: rgba(255,255,255,1);
+	--color--text-controls: rgba(255,255,255,.6);
+
+	--panel-radius: 12px;
+
+	--font_roboto: 'Roboto', "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--transition: .3s;
+	--translateY: 0px;
+}
+
+.ui-bottomsheet {
+	display: none;
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	overflow: hidden;
+	z-index: 990;
+}
+
+.ui-bottomsheet.--show {
+	display: block;
+}
+
+.ui-bottomsheet__overlay {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background: var(--color--overlay-background);
+	opacity: 0;
+	pointer-events: none;
+	transition: var(--transition);
+}
+
+.ui-bottomsheet__overlay.--show {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.ui-bottomsheet__panel {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	flex-direction: column;
+	max-height: calc(100vh - 50px);
+	transform: translateY(100%);
+	transition: var(--transition);
+}
+
+.ui-bottomsheet__panel.--show {
+	transform: translateY(0);
+}
+
+.ui-bottomsheet__panel.--ondrag {
+	transform: var(--translateY);
+}
+
+.ui-bottomsheet__panel-control {
+	display: flex;
+	justify-content: space-between;
+	position: relative;
+}
+
+.ui-bottomsheet__panel-handler {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 120px;
+}
+
+.ui-bottomsheet__panel-handler:after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	bottom: 7px;
+	transform: translateX(-50%);
+	width: 52px;
+	height: 5px;
+	border-radius: 2.5px;
+	background: var(--color--text-controls);
+}
+
+.ui-bottomsheet__panel-control--item {
+	display: inline-flex;
+	align-items: center;
+	padding: 12px 14px;
+}
+
+.ui-bottomsheet__panel-control--item.--close {
+	margin-left: auto;
+}
+
+.ui-bottomsheet__panel-control--item.--cursor-pointer {
+	cursor: pointer;
+}
+
+.ui-bottomsheet__panel-control--item-text {
+	font: 16px/21px var(--font_roboto);
+	color: var(--color--text-controls);
+}
+
+.ui-bottomsheet__panel-wrapper {
+	flex: 1;
+	display: block;
+	padding: 13px 15px;
+	background: var(--color--panel-background);
+	border-radius: var(--panel-radius) var(--panel-radius) 0 0;
+}
+
+.ui-bottomsheet__panel-content {
+}

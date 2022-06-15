@@ -593,6 +593,7 @@ if ('' == $strImportErrorMessage)
 				{
 					if (isset($arGroupsTmp[$i]["PICTURE"]))
 					{
+						$arGroupsTmp[$i]["PICTURE"] = trim($arGroupsTmp[$i]["PICTURE"]);
 						$bFilePres = false;
 						if ('' !== $arGroupsTmp[$i]["PICTURE"])
 						{
@@ -616,6 +617,7 @@ if ('' == $strImportErrorMessage)
 					}
 					if (isset($arGroupsTmp[$i]["DETAIL_PICTURE"]))
 					{
+						$arGroupsTmp[$i]["DETAIL_PICTURE"] = trim($arGroupsTmp[$i]["DETAIL_PICTURE"]);
 						$bFilePres = false;
 						if ('' !== $arGroupsTmp[$i]["DETAIL_PICTURE"])
 						{
@@ -731,6 +733,7 @@ if ('' == $strImportErrorMessage)
 			{
 				if (isset($arLoadProductArray["PREVIEW_PICTURE"]))
 				{
+					$arLoadProductArray["PREVIEW_PICTURE"] = trim($arLoadProductArray["PREVIEW_PICTURE"]);
 					$bFilePres = false;
 					if ('' !== $arLoadProductArray["PREVIEW_PICTURE"])
 					{
@@ -755,6 +758,7 @@ if ('' == $strImportErrorMessage)
 
 				if (isset($arLoadProductArray["DETAIL_PICTURE"]))
 				{
+					$arLoadProductArray["DETAIL_PICTURE"] = trim($arLoadProductArray["DETAIL_PICTURE"]);
 					$bFilePres = false;
 					if ('' !== $arLoadProductArray["DETAIL_PICTURE"])
 					{
@@ -930,6 +934,7 @@ if ('' == $strImportErrorMessage)
 							}
 							elseif ($arIBlockProperty[$cur_prop_id]["PROPERTY_TYPE"]=="F")
 							{
+								$arRes[$i] = trim($arRes[$i]);
 								if(preg_match("/^(ftp|ftps|http|https):\\/\\//", $arRes[$i]))
 									$arRes[$i] = CFile::MakeFileArray($arRes[$i]);
 								else

@@ -22,6 +22,7 @@ $MESS["SENDER_LETTER_RCP_UI_NO"] = "Нет";
 $MESS["SENDER_CONTACT_CONSENT_WAIT"] = "Соглашение отправлено";
 $MESS["SENDER_CONTACT_CONSENT_APPLY"] = "Контакт согласился на рассылки, ожидается отправка";
 $MESS["SENDER_CONTACT_CONSENT_REJECT"] = "Контакт отказался от рассылки";
+$MESS["SENDER_CONTACT_DELETED"] = "Контакт удален";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_APPLY"] = "Согласившиеся";
 $MESS["SENDER_LETTER_RCP_UI_PRESET_REJECT"] = "Отказавшиеся";
 ?>

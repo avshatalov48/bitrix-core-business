@@ -563,7 +563,7 @@
 							}),
 							BX.create("div", {
 								props: {className: "landing-ui-field-link-media-help-popup-content-content"},
-								html: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_HELP")
+								html: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_HELP_2")
 							})
 						]
 					}).outerHTML,

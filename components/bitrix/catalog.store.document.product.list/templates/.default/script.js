@@ -193,9 +193,17 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 
 	var _handleBarcodeQrClose = /*#__PURE__*/new WeakSet();
 
+	var _subscribeFieldToValidator = /*#__PURE__*/new WeakSet();
+
+	var _isProductCountCorrect = /*#__PURE__*/new WeakSet();
+
 	var Row = /*#__PURE__*/function () {
 	  function Row(id, fields, settings, editor) {
 	    babelHelpers.classCallCheck(this, Row);
+
+	    _classPrivateMethodInitSpec(this, _isProductCountCorrect);
+
+	    _classPrivateMethodInitSpec(this, _subscribeFieldToValidator);
 
 	    _classPrivateMethodInitSpec(this, _handleBarcodeQrClose);
 
@@ -227,6 +235,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      EDIT: MODE_EDIT,
 	      SET: MODE_SET
 	    });
+	    babelHelpers.defineProperty(this, "validatingFields", new Map());
 	    this.setId(id);
 	    this.setSettings(settings);
 	    this.setEditor(editor);
@@ -984,6 +993,17 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      return item;
 	    }
 	  }, {
+	    key: "getInputWrapperByFieldName",
+	    value: function getInputWrapperByFieldName(fieldName) {
+	      var inputBlock = this.getInputByFieldName(fieldName);
+
+	      if (main_core.Type.isElementNode(inputBlock)) {
+	        return main_core.Type.isElementNode(inputBlock.parentNode) ? inputBlock.parentNode : inputBlock;
+	      }
+
+	      return undefined;
+	    }
+	  }, {
 	    key: "updateUiInputField",
 	    value: function updateUiInputField(name, value) {
 	      var item = this.getInputByFieldName(name);
@@ -1215,6 +1235,19 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	    value: function isEmptyRow() {
 	      return !main_core.Type.isStringFilled(this.getField('NAME', '').trim()) && this.model.isEmpty() && this.getBasePrice() <= 0;
 	    }
+	  }, {
+	    key: "validate",
+	    value: function validate() {
+	      var errorsList = [];
+
+	      if (!_classPrivateMethodGet(this, _isProductCountCorrect, _isProductCountCorrect2).call(this, this.getAmount())) {
+	        _classPrivateMethodGet(this, _subscribeFieldToValidator, _subscribeFieldToValidator2).call(this, 'AMOUNT', _classPrivateMethodGet(this, _isProductCountCorrect, _isProductCountCorrect2));
+
+	        errorsList.push(main_core.Loc.getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_INVALID_AMOUNT'));
+	      }
+
+	      return errorsList;
+	    }
 	  }]);
 	  return Row;
 	}();
@@ -1403,6 +1436,35 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 
 	function _handleBarcodeQrClose2(event) {
 	  this.editor.closeBarcodeQrAuths();
+	}
+
+	function _subscribeFieldToValidator2(fieldName, validatorCallback) {
+	  var _this13 = this;
+
+	  var fieldInput = this.getInputByFieldName(fieldName);
+	  var fieldWrapper = this.getInputWrapperByFieldName(fieldName);
+
+	  if (validatorCallback(fieldInput.valueAsNumber) || this.validatingFields.get(fieldName)) {
+	    return;
+	  }
+
+	  this.validatingFields.set(fieldName, true);
+	  fieldWrapper.classList.add('main-grid-editor-cell-danger');
+
+	  var validator = function validator(eventObject) {
+	    if (Boolean(validatorCallback(eventObject.target.valueAsNumber))) {
+	      _this13.validatingFields.set(fieldName, false);
+
+	      main_core.Event.unbind(fieldInput, 'blur', validator);
+	      fieldWrapper.classList.remove('main-grid-editor-cell-danger');
+	    }
+	  };
+
+	  main_core.Event.bind(fieldInput, 'blur', validator);
+	}
+
+	function _isProductCountCorrect2(amountValue) {
+	  return amountValue > 0;
 	}
 
 	var PageEventsManager = /*#__PURE__*/function () {
@@ -3428,6 +3490,19 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	        (_product$getBarcodeSe9 = product.getBarcodeSelector()) === null || _product$getBarcodeSe9 === void 0 ? void 0 : _product$getBarcodeSe9.removeQrAuth();
 	      });
 	      this.setSettingValue('showBarcodeQrAuth', false);
+	    }
+	  }, {
+	    key: "validate",
+	    value: function validate() {
+	      if (this.getProductCount() === 0) {
+	        return [main_core.Loc.getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_IS_EMPTY')];
+	      }
+
+	      var errorsArray = [];
+	      this.products.forEach(function (product) {
+	        errorsArray = errorsArray.concat(product.validate());
+	      });
+	      return errorsArray;
 	    }
 	  }]);
 	  return Editor;

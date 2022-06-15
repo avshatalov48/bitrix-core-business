@@ -87,6 +87,7 @@
 .sender-letter-time-popup-time-name {
 	display: inline-block;
 	margin: 0 13px 0 0;
+	min-width: 30%;
 }
 
 .sender-letter-time-popup-time-input {

@@ -151,6 +151,8 @@ export class Content extends BasePanel
 		{
 			this.scrollObserver = new IntersectionObserver(this.onIntersecting.bind(this));
 		}
+
+		this.checkReadyToSave = this.checkReadyToSave.bind(this);
 	}
 
 	init()
@@ -374,5 +376,42 @@ export class Content extends BasePanel
 	{
 		super.renderTo(target);
 		Dom.append(this.overlay, target);
+	}
+
+	checkReadyToSave()
+	{
+		let canSave = true;
+		this.forms.forEach(form => {
+			form.fields.forEach(field => {
+				if (field.readyToSave === false)
+				{
+					canSave = false
+				}
+				if (!field.getListeners('onChangeReadyToSave').has(this.checkReadyToSave))
+				{
+					field.subscribe('onChangeReadyToSave', this.checkReadyToSave);
+				}
+			})
+		});
+
+		canSave ? this.enableSave() : this.disableSave()
+	}
+
+	disableSave()
+	{
+		const saveButton = this.buttons.get('save_block_content');
+		if (saveButton)
+		{
+			saveButton.disable();
+		}
+	}
+
+	enableSave()
+	{
+		const saveButton = this.buttons.get('save_block_content');
+		if (saveButton)
+		{
+			saveButton.enable();
+		}
 	}
 }

@@ -1,0 +1,60 @@
+.ui-nav-panel__scope {
+	--color-background: rgba(82, 92, 105, .08);
+	--color-white: #fff;
+	--color-item: rgba(82, 92, 105, .8);
+	--color-border-bottom: rgba(82, 92, 105, .4);
+}
+
+.bitrix24-light-theme .ui-nav-panel__scope {
+	--color-background: rgba(255,255,255,.15);
+	--color-item: rgba(255,255,255,.8);
+	--color-border-bottom: rgba(255,255,255,.5);
+}
+
+.ui-nav-panel {
+	display: -webkit-inline-box;
+	display: -ms-inline-flexbox;
+	display: inline-flex;
+	overflow: hidden;
+	margin-right: 10px;
+	border-radius: 16px;
+	background-color: var(--color-background);
+}
+
+.ui-nav-panel__item {
+	display: -webkit-inline-box;
+	display: -ms-inline-flexbox;
+	display: inline-flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	position: relative;
+	margin: 0 13px;
+	min-height: 33px;
+	color: var(--color-item);
+	white-space: nowrap;
+	-webkit-transition: color .3s;
+	-o-transition: color .3s;
+	transition: color .3s;
+	cursor: pointer;
+}
+
+.ui-nav-panel__item:hover {
+	color: var(--color-white);
+}
+
+.ui-nav-panel__item.--active {
+	color: var(--color-white);
+	pointer-events: none;
+	cursor: default;
+}
+
+.ui-nav-panel__item.--active:after {
+	content: '';
+	position: absolute;
+	bottom: 1px;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background-color: var(--color-border-bottom);
+}

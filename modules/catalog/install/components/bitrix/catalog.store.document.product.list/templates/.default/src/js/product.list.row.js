@@ -4,7 +4,7 @@ import {CurrencyCore} from 'currency.currency-core';
 import 'ui.hint';
 import HintPopup from './hint.popup';
 import {ProductModel} from "catalog.product-model";
-import {EventEmitter, BaseEvent} from "main.core.events";
+import {BaseEvent, EventEmitter} from "main.core.events";
 import {ProductSelector} from "catalog.product-selector";
 import {StoreSelector} from "catalog.store-selector";
 import {PopupMenu} from "main.popup";
@@ -38,6 +38,7 @@ export class Row
 		EDIT: MODE_EDIT,
 		SET: MODE_SET,
 	};
+	validatingFields: Map<string, boolean> = new Map();
 
 	constructor(id: string, fields: Object, settings: Settings, editor: Editor): void
 	{
@@ -1092,6 +1093,18 @@ export class Row
 		return item;
 	}
 
+	getInputWrapperByFieldName(fieldName: string): ?HTMLElement
+	{
+		const inputBlock = this.getInputByFieldName(fieldName);
+
+		if (Type.isElementNode(inputBlock))
+		{
+			return Type.isElementNode(inputBlock.parentNode) ? inputBlock.parentNode : inputBlock;
+		}
+
+		return undefined;
+	}
+
 	updateUiInputField(name, value)
 	{
 		const item = this.getInputByFieldName(name);
@@ -1338,5 +1351,49 @@ export class Row
 			&& this.model.isEmpty()
 			&& this.getBasePrice() <= 0
 		)
+	}
+
+	validate(): Array
+	{
+		const errorsList = [];
+
+		if (!this.#isProductCountCorrect(this.getAmount()))
+		{
+			this.#subscribeFieldToValidator('AMOUNT', this.#isProductCountCorrect);
+			errorsList.push(Loc.getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_INVALID_AMOUNT'));
+		}
+
+		return errorsList;
+	}
+
+	#subscribeFieldToValidator(fieldName: string, validatorCallback: Function): void
+	{
+		const fieldInput = this.getInputByFieldName(fieldName);
+		const fieldWrapper = this.getInputWrapperByFieldName(fieldName);
+
+		if (validatorCallback(fieldInput.valueAsNumber) || this.validatingFields.get(fieldName))
+		{
+			return;
+		}
+
+		this.validatingFields.set(fieldName, true);
+
+		fieldWrapper.classList.add('main-grid-editor-cell-danger');
+
+		const validator = (eventObject) => {
+			if (Boolean(validatorCallback(eventObject.target.valueAsNumber)))
+			{
+				this.validatingFields.set(fieldName, false);
+				Event.unbind(fieldInput, 'blur', validator);
+				fieldWrapper.classList.remove('main-grid-editor-cell-danger');
+			}
+		};
+
+		Event.bind(fieldInput, 'blur', validator);
+	}
+
+	#isProductCountCorrect(amountValue): boolean
+	{
+		return amountValue > 0;
 	}
 }

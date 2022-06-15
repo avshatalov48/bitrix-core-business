@@ -52,6 +52,7 @@ export class BaseField extends EventEmitter
 		this.style = Reflect.has(this.data, 'style') ? this.data.style : '';
 		this.cache = new Cache.MemoryCache();
 		this.contentRoot = Reflect.has(this.data, 'contentRoot') ? this.data.contentRoot : null;
+		this.readyToSave = true;    // false - if data not loaded yet
 
 		const {onValueChange} = this.data;
 		this.onValueChangeHandler = Type.isFunction(onValueChange) ? onValueChange : (() => {});

@@ -1,7 +1,7 @@
 (function (exports,main_core,main_core_events,main_popup,ui_dialogs_messagebox,ui_entitySelector) {
 	'use strict';
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11;
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12;
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
@@ -25,6 +25,7 @@
 	    this.canHaveSku = settings.canHaveSku || false;
 	    this.storeAmount = settings.storeAmount;
 	    this.isShowedStoreReserve = settings.isShowedStoreReserve;
+	    this.reservedDealsSliderLink = settings.reservedDealsSliderLink;
 
 	    if (settings.copyItemsMap) {
 	      this.getGrid().arParams.COPY_ITEMS_MAP = settings.copyItemsMap;
@@ -53,6 +54,7 @@
 	    } else {
 	      this.bindInlineEdit();
 	      this.bindPopupInitToQuantityNodes();
+	      this.bindSliderToReservedQuantityNodes();
 	    }
 
 	    main_core.Event.bind(this.getGrid().getScrollContainer(), 'scroll', main_core.Runtime.throttle(this.onScrollHandler.bind(this), 50));
@@ -280,6 +282,22 @@
 	      });
 	    }
 	  }, {
+	    key: "bindSliderToReservedQuantityNodes",
+	    value: function bindSliderToReservedQuantityNodes() {
+	      var _this3 = this;
+
+	      var rows = this.getGrid().getRows().getRows();
+	      rows.forEach(function (row) {
+	        if (row.isBodyChild() && !row.isTemplate()) {
+	          var reservedQuantityNode = row.getNode().querySelector('.main-grid-cell-content-catalog-reserved-quantity');
+
+	          if (main_core.Type.isDomNode(reservedQuantityNode)) {
+	            main_core.Event.bind(reservedQuantityNode, 'click', _this3.openDealsWithReservedProductSlider.bind(_this3, row.getId()));
+	          }
+	        }
+	      });
+	    }
+	  }, {
 	    key: "openStoreAmountPopup",
 	    value: function openStoreAmountPopup(rowId, quantityNode) {
 	      var popupId = rowId + '-store-amount';
@@ -307,6 +325,27 @@
 	      popup.show();
 	    }
 	  }, {
+	    key: "openDealsWithReservedProductSlider",
+	    value: function openDealsWithReservedProductSlider(rowId) {
+	      var storeId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
+	      if (!this.reservedDealsSliderLink) {
+	        return;
+	      }
+
+	      var sliderLink = new main_core.Uri(this.reservedDealsSliderLink);
+	      sliderLink.setQueryParam('productId', rowId);
+
+	      if (storeId > 0) {
+	        sliderLink.setQueryParam('storeId', storeId);
+	      }
+
+	      BX.SidePanel.Instance.open(sliderLink.toString(), {
+	        allowChangeHistory: false,
+	        cacheable: false
+	      });
+	    }
+	  }, {
 	    key: "getStoreAmountPopupContent",
 	    value: function getStoreAmountPopupContent(rowId) {
 	      var skuStoreAmountData = this.storeAmount[rowId];
@@ -318,12 +357,12 @@
 
 	      var stores = skuStoreAmountData.stores;
 	      var linkToDetails = skuStoreAmountData.linkToDetails;
-	      return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"store-amount-popup-container\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getStoreAmountTable(stores), linkToDetails ? this.getOpenStoreAmountDetailsSliderLabel(linkToDetails, currentSkusCount) : '');
+	      return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"store-amount-popup-container\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getStoreAmountTable(stores, rowId), linkToDetails ? this.getOpenStoreAmountDetailsSliderLabel(linkToDetails, currentSkusCount) : '');
 	    }
 	  }, {
 	    key: "getStoreAmountTable",
-	    value: function getStoreAmountTable(stores) {
-	      var _this3 = this;
+	    value: function getStoreAmountTable(stores, rowId) {
+	      var _this4 = this;
 
 	      var table = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<table class=\"main-grid-table\"></table>"])));
 	      var tableHead = table.createTHead();
@@ -343,14 +382,17 @@
 	        var tableRow = tableBody.insertRow();
 	        tableRow.className = 'main-grid-row main-grid-row-body';
 
-	        _this3.addCellToTable(tableRow, store.title, false, 'left');
+	        _this4.addCellToTable(tableRow, store.title, false, 'left');
 
-	        _this3.addCellToTable(tableRow, store.quantityCommon, false);
+	        _this4.addCellToTable(tableRow, store.quantityCommon, false);
 
-	        if (_this3.isShowedStoreReserve) {
-	          _this3.addCellToTable(tableRow, store.quantityReserved, false);
+	        if (_this4.isShowedStoreReserve) {
+	          var quantityReservedNode = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<a class=\"main-grid-cell-content-catalog-reserved-quantity\">", "</a>"])), store.quantityReserved);
+	          main_core.Event.bind(quantityReservedNode, 'click', _this4.openDealsWithReservedProductSlider.bind(_this4, rowId, store.storeId));
 
-	          _this3.addCellToTable(tableRow, store.quantityAvailable, false);
+	          _this4.addCellToTable(tableRow, quantityReservedNode, false);
+
+	          _this4.addCellToTable(tableRow, store.quantityAvailable, false);
 	        }
 	      });
 	      return table;
@@ -363,12 +405,12 @@
 	      var innerClassName = isHead ? 'main-grid-cell-head-container' : 'main-grid-cell-content';
 	      var cell = row.insertCell();
 	      cell.className = cellClassName + horizontalPosition;
-	      cell.appendChild(main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"main-grid-cell-inner\">\n\t\t\t\t<span class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t"])), innerClassName, textContent));
+	      cell.appendChild(main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"main-grid-cell-inner\">\n\t\t\t\t<span class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t"])), innerClassName, textContent));
 	    }
 	  }, {
 	    key: "getOpenStoreAmountDetailsSliderLabel",
 	    value: function getOpenStoreAmountDetailsSliderLabel(linkToDetails, currentSkusCount) {
-	      var openSliderLabel = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"ui-link ui-link-secondary ui-link-dashed ui-link-open-store-amount-slider\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t"])), main_core.Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_OPEN_SLIDER_BUTTON', {
+	      var openSliderLabel = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"ui-link ui-link-secondary ui-link-dashed ui-link-open-store-amount-slider\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t"])), main_core.Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_OPEN_SLIDER_BUTTON', {
 	        '#STORE_COUNT#': currentSkusCount
 	      }));
 	      main_core.Event.bind(openSliderLabel, 'click', this.openStoreAmountSlider.bind(this, linkToDetails));
@@ -424,29 +466,29 @@
 	  }, {
 	    key: "enableEdit",
 	    value: function enableEdit() {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      this.getGrid().getRows().selectAll();
 	      this.getGrid().getRows().editSelected();
 	      this.getGrid().getRows().getRows().forEach(function (item) {
-	        return _this4.enableBarcodeEditor(item);
+	        return _this5.enableBarcodeEditor(item);
 	      });
 	    }
 	  }, {
 	    key: "prepareNewNodes",
 	    value: function prepareNewNodes() {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      this.getGrid().getRows().getBodyChild().map(function (row) {
 	        var newNode = row.getNode();
 
-	        _this5.markNodeAsNew(newNode);
+	        _this6.markNodeAsNew(newNode);
 
-	        _this5.addSkuListCreationItem(newNode);
+	        _this6.addSkuListCreationItem(newNode);
 
-	        _this5.modifyCustomSkuProperties(newNode);
+	        _this6.modifyCustomSkuProperties(newNode);
 
-	        _this5.disableCheckbox(row);
+	        _this6.disableCheckbox(row);
 	      });
 	    }
 	  }, {
@@ -466,11 +508,11 @@
 	  }, {
 	    key: "bindInlineEdit",
 	    value: function bindInlineEdit() {
-	      var _this6 = this;
+	      var _this7 = this;
 
 	      this.getGrid().getRows().getBodyChild().forEach(function (item) {
 	        return main_core.Event.bind(item.node, 'click', function (event) {
-	          return _this6.toggleInlineEdit(item, event);
+	          return _this7.toggleInlineEdit(item, event);
 	        });
 	      });
 	    }
@@ -567,14 +609,14 @@
 	  }, {
 	    key: "deactivateInlineEdit",
 	    value: function deactivateInlineEdit(item) {
-	      var _this7 = this;
+	      var _this8 = this;
 
 	      item.editCancel();
 	      item.unselect(); // disable multi-selection(and self re-selection) while disabling editing
 
 	      this.getGrid().clickPrevent = true;
 	      setTimeout(function () {
-	        _this7.getGrid().clickPrevent = false;
+	        _this8.getGrid().clickPrevent = false;
 	      }, 100);
 	    }
 	  }, {
@@ -588,7 +630,7 @@
 	        var _item$editData;
 
 	        barcodeNode.innerHTML = '';
-	        var inputWrapper = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div style=\"display: none\"></div>"])));
+	        var inputWrapper = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<div style=\"display: none\"></div>"])));
 	        main_core.Dom.append(inputWrapper, barcodeNode);
 	        var barcodes = (_item$editData = item.editData) === null || _item$editData === void 0 ? void 0 : _item$editData.SKU_GRID_BARCODE_VALUES;
 	        var items = [];
@@ -602,7 +644,7 @@
 	              id: id,
 	              title: title
 	            });
-	            var input = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\">"])));
+	            var input = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\">"])));
 	            input.name = id;
 	            input.value = title;
 	            inputWrapper.appendChild(input);
@@ -627,7 +669,7 @@
 	              title: title,
 	              entityId: 'productBarcode'
 	            });
-	            var input = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\">"])));
+	            var input = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\">"])));
 	            input.name = id;
 	            input.value = title;
 	            inputWrapper.appendChild(input);
@@ -698,7 +740,7 @@
 	      node.querySelectorAll('[data-role="dropdownContent"] ul').forEach(function (listNode) {
 	        if (!listNode.querySelector('[data-role="createItem"]')) {
 	          var propertyId = listNode.getAttribute('data-propertyId');
-	          var createItem = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<li data-role=\"createItem\"\n\t\t\t\t\t\t class=\"catalog-productcard-popup-select-item catalog-productcard-popup-select-item-new\"\n\t\t\t\t\t\t onclick=\"BX.Catalog.VariationGrid.firePropertyModification(", ")\">\n\t\t\t\t\t\t<label class=\"catalog-productcard-popup-select-label\">\n\t\t\t\t\t\t\t<span class=\"catalog-productcard-popup-select-add\"></span>\n\t\t\t\t\t\t\t<span class=\"catalog-productcard-popup-select-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</label>\n\t\t\t\t\t</li>"])), propertyId, main_core.Loc.getMessage('C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON'));
+	          var createItem = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<li data-role=\"createItem\"\n\t\t\t\t\t\t class=\"catalog-productcard-popup-select-item catalog-productcard-popup-select-item-new\"\n\t\t\t\t\t\t onclick=\"BX.Catalog.VariationGrid.firePropertyModification(", ")\">\n\t\t\t\t\t\t<label class=\"catalog-productcard-popup-select-label\">\n\t\t\t\t\t\t\t<span class=\"catalog-productcard-popup-select-add\"></span>\n\t\t\t\t\t\t\t<span class=\"catalog-productcard-popup-select-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</label>\n\t\t\t\t\t</li>"])), propertyId, main_core.Loc.getMessage('C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON'));
 	          listNode.appendChild(createItem);
 	        }
 	      });
@@ -751,7 +793,7 @@
 	      var rowId = row === null || row === void 0 ? void 0 : (_row$dataset = row.dataset) === null || _row$dataset === void 0 ? void 0 : _row$dataset.id;
 
 	      if (rowId) {
-	        var deleteButton = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"main-grid-delete-button\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></span>\n\t\t\t"])), this.removeNewRowFromGrid.bind(this, rowId));
+	        var deleteButton = main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"main-grid-delete-button\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></span>\n\t\t\t"])), this.removeNewRowFromGrid.bind(this, rowId));
 	        main_core.Dom.append(deleteButton, actionCellContentContainer);
 	      }
 	    }
@@ -887,7 +929,7 @@
 	  }, {
 	    key: "addPropertyToGridHeader",
 	    value: function addPropertyToGridHeader(item) {
-	      var _this8 = this;
+	      var _this9 = this;
 
 	      BX.ajax.runComponentAction('bitrix:catalog.productcard.variation.grid', 'addPropertyHeader', {
 	        mode: 'ajax',
@@ -898,7 +940,7 @@
 	          currentHeaders: this.getHeaderNames()
 	        }
 	      }).then(function (response) {
-	        _this8.reloadGrid();
+	        _this9.reloadGrid();
 	      });
 	    }
 	  }, {
@@ -909,10 +951,10 @@
 	  }, {
 	    key: "onGridUpdated",
 	    value: function onGridUpdated(event) {
-	      var _this9 = this;
+	      var _this10 = this;
 
 	      this.getGrid().getSettingsWindow().getItems().forEach(function (column) {
-	        if (_this9.getHeaderNames().indexOf(column.node.dataset.name) !== -1) {
+	        if (_this10.getHeaderNames().indexOf(column.node.dataset.name) !== -1) {
 	          column.state.selected = true;
 	          column.checkbox.checked = true;
 	        } else {

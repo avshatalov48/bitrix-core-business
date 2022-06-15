@@ -15,6 +15,7 @@ BitrixVue.component('sale-checkout-view-element-button-item_change_sku', {
 	{
 		backdropOpen()
 		{
+			document.body.style.overflowY = 'hidden';
 			EventEmitter.emit(EventType.basket.backdropOpenChangeSku, {index: this.index})
 		}
 	},

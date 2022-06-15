@@ -7,12 +7,18 @@ namespace Bitrix\Sale\Controller;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
+use Bitrix\Main\Result;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Sale\Helpers\Order\Builder\SettingsContainer;
 use Bitrix\Sale\PaymentCollection;
 use Bitrix\Sale;
-use Bitrix\Sale\Result;
+use Bitrix\Sale\PaySystem\PaymentAvailablesPaySystems;
 
+/**
+ * Payment controller
+ * 
+ * @example BX.ajax.runAction("sale.payment.[action]", { data: {...} });
+ */
 class Payment extends Controller
 {
 	public function getPrimaryAutoWiredParameter()
@@ -296,6 +302,47 @@ class Payment extends Controller
 		$r = $payment->setReturn($value);
 		return $this->save($payment, $r);
 	}
+	
+	/**
+	 * Remove bindings pay systems for payment
+	 * 
+	 * Example:
+	 * BX.ajax.runAction("sale.payment.clearavailablepaysystems", {data:{ id: 36 }});
+	 *
+	 * @param \Bitrix\Sale\Payment $payment
+	 * @return true|null
+	 */
+	public function clearAvailablePaySystemsAction(\Bitrix\Sale\Payment $payment)
+	{
+		$result = PaymentAvailablesPaySystems::clearBindings($payment->getId());
+		if ($errors = $result->getErrors())
+		{
+			$this->addErrors($errors);
+			return null;
+		}
+		return true;
+	}
+	
+	/**
+	 * Set available pay systems for payment
+	 * 
+	 * Example of specifying payment systems:
+	 * BX.ajax.runAction("sale.payment.setavailablepaysystems", {data:{ id: 36, paySystemIds: [1,2,7,8] }});
+	 *
+	 * @param \Bitrix\Sale\Payment $payment
+	 * @param array $paySystemIds
+	 * @return true|null
+	 */
+	public function setAvailablePaySystemsAction(\Bitrix\Sale\Payment $payment, array $paySystemIds)
+	{
+		$result = PaymentAvailablesPaySystems::setBindings($payment->getId(), $paySystemIds);	
+		if ($errors = $result->getErrors())
+		{
+			$this->addErrors($errors);
+			return null;
+		}
+		return true;
+	}
 	//endregion
 
 	private function save(\Bitrix\Sale\Payment $payment, Result $r)
@@ -355,6 +402,8 @@ class Payment extends Controller
 			$r = $this->checkReadPermissionEntity();
 		}
 		elseif($name == 'setpaid'
+			|| $name == 'setavailablepaysystems'
+			|| $name == 'clearavailablepaysystems'
 			|| $name == 'setreturn')
 		{
 			$r = $this->checkModifyPermissionEntity();

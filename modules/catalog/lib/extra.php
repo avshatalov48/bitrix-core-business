@@ -1,9 +1,10 @@
 <?php
+
 namespace Bitrix\Catalog;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM;
+use Bitrix\Catalog\Model;
 
 /**
  * Class ExtraTable
@@ -31,7 +32,7 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Catalog\EO_Extra_Collection wakeUpCollection($rows)
  */
 
-class ExtraTable extends Main\Entity\DataManager
+class ExtraTable extends ORM\Data\DataManager
 {
 	/**
 	 * Returns DB table name for entity.
@@ -50,32 +51,102 @@ class ExtraTable extends Main\Entity\DataManager
 	 */
 	public static function getMap()
 	{
-		return array(
-			'ID' => new Main\Entity\IntegerField('ID', array(
-				'primary' => true,
-				'autocomplete' => true,
-				'title' => Loc::getMessage('EXTRA_ENTITY_ID_FIELD')
-			)),
-			'NAME' => new Main\Entity\StringField('NAME', array(
-				'required' => true,
-				'validation' => array(__CLASS__, 'validateName'),
-				'title' => Loc::getMessage('EXTRA_ENTITY_NAME_FIELD')
-			)),
-			'PERCENTAGE' => new Main\Entity\FloatField('PERCENTAGE', array(
-				'required' => true,
-				'title' => Loc::getMessage('EXTRA_ENTITY_PERCENTAGE_FIELD'),
-			))
-		);
+		return [
+			'ID' => new ORM\Fields\IntegerField(
+				'ID',
+				[
+					'primary' => true,
+					'autocomplete' => true,
+					'title' => Loc::getMessage('EXTRA_ENTITY_ID_FIELD'),
+				]
+			),
+			'NAME' => new ORM\Fields\StringField(
+				'NAME',
+				[
+					'required' => true,
+					'validation' =>  function()
+					{
+						return [
+							new ORM\Fields\Validators\LengthValidator(null, 50),
+						];
+					},
+					'title' => Loc::getMessage('EXTRA_ENTITY_NAME_FIELD'),
+				]
+			),
+			'PERCENTAGE' => new ORM\Fields\FloatField(
+				'PERCENTAGE',
+				[
+					'required' => true,
+					'title' => Loc::getMessage('EXTRA_ENTITY_PERCENTAGE_FIELD'),
+				]
+			)
+		];
 	}
+
 	/**
-	 * Returns validators for NAME field.
+	 * Default onAfterAdd handler. Absolutely necessary.
+	 *
+	 * @param ORM\Event $event Current data for add.
+	 * @return void
+	 */
+	public static function onAfterAdd(ORM\Event $event): void
+	{
+		Model\Price::clearSettings();
+	}
+
+	/**
+	 * Default onAfterUpdate handler. Absolutely necessary.
+	 *
+	 * @param ORM\Event $event Current data for add.
+	 * @return void
+	 */
+	public static function onAfterUpdate(ORM\Event $event): void
+	{
+		Model\Price::clearSettings();
+	}
+
+	/**
+	 * Default onAfterDelete handler. Absolutely necessary.
+	 *
+	 * @param ORM\Event $event Current data for add.
+	 * @return void
+	 */
+	public static function onAfterDelete(ORM\Event $event): void
+	{
+		Model\Price::clearSettings();
+	}
+
+	/**
+	 * Returns cached extra list.
 	 *
 	 * @return array
 	 */
-	public static function validateName()
+	public static function getExtraList(): array
 	{
-		return array(
-			new Main\Entity\Validator\Length(null, 50),
-		);
+		$result = [];
+
+		$iterator = self::getList([
+			'select' => [
+				'ID',
+				'NAME',
+				'PERCENTAGE',
+			],
+			'order' => [
+				'ID' => 'ASC',
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
+		]);
+		while ($row = $iterator->fetch())
+		{
+			$row['ID'] = (int)$row['ID'];
+			$row['PERCENTAGE'] = (float)$row['PERCENTAGE'];
+
+			$result[$row['ID']] = $row;
+		}
+		unset($row, $iterator);
+
+		return $result;
 	}
 }

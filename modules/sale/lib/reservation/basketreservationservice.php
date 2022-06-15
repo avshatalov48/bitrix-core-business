@@ -2,6 +2,7 @@
 
 namespace Bitrix\Sale\Reservation;
 
+use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Result;
 use Bitrix\Sale\Reservation\Internals\BasketReservationTable;
 
@@ -14,7 +15,7 @@ class BasketReservationService
 	 * @var BasketReservationHistoryService
 	 */
 	protected $historyService;
-	
+
 	/**
 	 * @param BasketReservationHistoryService $historyService
 	 */
@@ -24,7 +25,17 @@ class BasketReservationService
 	{
 		$this->historyService = $historyService;
 	}
-	
+
+	/**
+	 * Service instance.
+	 *
+	 * @return self
+	 */
+	public static function getInstance(): self
+	{
+		return ServiceLocator::getInstance()->get('sale.basketReservation');
+	}
+
 	/**
 	 * Add reservation row
 	 *
@@ -34,7 +45,7 @@ class BasketReservationService
 	public function add(array $fields): Result
 	{
 		$result = BasketReservationTable::add($fields);
-		
+
 		if ($result->isSuccess())
 		{
 			$historyResult = $this->historyService->addByReservation($result->getId());
@@ -43,10 +54,10 @@ class BasketReservationService
 				$result->addError($err);
 			}
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * Update reservation row
 	 *
@@ -57,7 +68,7 @@ class BasketReservationService
 	public function update(int $id, array $fields): Result
 	{
 		$result = BasketReservationTable::update($id, $fields);
-		
+
 		if ($result->isSuccess())
 		{
 			$historyResult = $this->historyService->updateByReservation($id);
@@ -66,10 +77,10 @@ class BasketReservationService
 				$result->addError($err);
 			}
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * Delete reservation row
 	 *
@@ -79,7 +90,7 @@ class BasketReservationService
 	public function delete(int $id): Result
 	{
 		$result = BasketReservationTable::delete($id);
-		
+
 		if ($result->isSuccess())
 		{
 			$historyResult = $this->historyService->deleteByReservation($id);
@@ -88,13 +99,13 @@ class BasketReservationService
 				$result->addError($err);
 			}
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * The available amount to be debited based on the reservation history.
-	 * 
+	 *
 	 * @see BasketReservationHistoryService::getAvailableCountForOrder
 	 *
 	 * @param int $orderId
@@ -104,10 +115,10 @@ class BasketReservationService
 	{
 		return $this->historyService->getAvailableCountForOrder($orderId);
 	}
-	
+
 	/**
 	 * The available amount to be debited based on the reservation history.
-	 * 
+	 *
 	 * @see BasketReservationHistoryService::getAvailableCountForBasketItem
 	 *
 	 * @param int $basketId

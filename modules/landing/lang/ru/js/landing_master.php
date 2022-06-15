@@ -230,8 +230,7 @@ $MESS["LANDING_TITLE_OF_EDITOR_ACTION_GLAVRED"] = "Главред";
 $MESS["LANDING_TITLE_OF_EDITOR_ACTION_GLAVRED_TITLE"] = "Главред помогает очистить текст от словесного мусора, проверяет на соответствие информационному стилю.";
 // ~~~~
 
-$MESS["LANDING_CONTENT_URL_MEDIA_HELP"] = "<p>Укажите ссылку на видео с Youtube, Vimeo, Vine или Instagram, и клик по этой ссылке откроет видео во всплывающем окне.</p>";
-//$MESS["LANDING_CONTENT_URL_MEDIA_HELP"] = "<p>Укажите ссылку на видео с Youtube, Vimeo, Vine или Instagram, и клик по этой ссылке откроет видео во всплывающем окне.</p><p>Укажите ссылку на карту с Google Maps, и клик по этой ссылке откроет карту во всплывающем окне.</p>";
+$MESS["LANDING_CONTENT_URL_MEDIA_HELP_2"] = "<p>Укажите ссылку на видео с Youtube, RuTube, VK видео или Vimeo, и клик по этой ссылке откроет видео во всплывающем окне.</p>";
 $MESS["LANDING_CONTENT_URL_MEDIA_HELP_TITLE"] = "Медиа-ссылки";
 $MESS["LANDING_BLOCKS_LIST_PREVIEW_NEW"] = "Новый";
 $MESS["LANDING_BLOCKS_LIST_PREVIEW_EXPIRED"] = "Подписка истекла";
@@ -415,7 +414,7 @@ $MESS['LANDING_LINK_NEW_PAGE_SAVE_BUTTON_LABEL'] = 'Создать';
 $MESS['LANDING_EMBED_FIELD_DESCRIPTION'] = 'Пример: https://www.youtube.com/watch?v=q4d8g9Dn3ww';
 $MESS['LANDING_EMBED_FIELD_PLACEHOLDER'] = 'Ссылка на видео';
 $MESS['LANDING_EMBED_ERROR_TEXT'] = 'Укажите ссылку на страницу с видео. Код и другие способы вставки не поддерживаются.';
-$MESS['LANDING_EMBED_ERROR_WRONG_SOURCE_TEXT'] = 'Некорректная ссылка. Допускаются только полные или короткие ссылки на видео с сервисов Youtube, Facebook, Vimeo или Vine.';
+$MESS['LANDING_EMBED_ERROR_WRONG_SOURCE_TEXT_2'] = 'Некорректная ссылка. Допускаются только полные или короткие ссылки на видео с сервисов Youtube, VK видео, RuTube или Vimeo.';
 
 $MESS['LANDING_SHOW_FORM_EDITOR'] = 'Настроить форму';
 

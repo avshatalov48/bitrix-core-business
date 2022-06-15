@@ -1,4 +1,4 @@
-import {ajax, Cache, Dom, Event, Reflection, Runtime, Text, Type} from 'main.core';
+import {ajax, Cache, Dom, Event, Reflection, Runtime, Text, Type, Loc} from 'main.core';
 import {BaseEvent, EventEmitter} from 'main.core.events';
 import {Row} from './product.list.row';
 import {PageEventsManager} from './page.events.manager';
@@ -1785,5 +1785,21 @@ export class Editor
 		})
 
 		this.setSettingValue('showBarcodeQrAuth',false);
+	}
+
+	validate(): Array
+	{
+		if (this.getProductCount() === 0)
+		{
+			return [Loc.getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_IS_EMPTY')];
+		}
+
+		let errorsArray = [];
+
+		this.products.forEach((product) => {
+			errorsArray = errorsArray.concat(product.validate());
+		});
+
+		return errorsArray;
 	}
 }

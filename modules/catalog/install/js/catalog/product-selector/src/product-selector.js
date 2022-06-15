@@ -1,5 +1,6 @@
 import {ajax, Cache, Dom, Event, Loc, Reflection, Runtime, Tag, Text, Type} from 'main.core';
 import 'ui.forms';
+import 'fileinput';
 import 'ui.notification';
 import {EventEmitter} from 'main.core.events';
 import {SkuTree} from 'catalog.sku-tree';

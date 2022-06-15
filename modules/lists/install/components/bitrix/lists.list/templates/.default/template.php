@@ -262,20 +262,42 @@ if (Loader::includeModule("socialnetwork"))
 	);
 }
 
+$gridId = $arResult["GRID_ID"];
+
+$countTitle = GetMessage("CT_BLL_GRID_ROW_COUNT_TITLE");
+$countShowTitle = GetMessage("CT_BLL_GRID_SHOW_ROW_COUNT");
+
+$rowCountHtml = <<<HTML
+	<div id="lists-list-row-count-wrapper" class="lists-list-row-count-wrapper">
+		{$countTitle}
+		<a onclick="BX.Lists['{$arResult['JS_OBJECT']}'].getTotalCount();">
+			{$countShowTitle}
+		</a>
+		<svg class="lists-circle-loader-circular" viewBox="25 25 50 50">
+			<circle
+				class="lists-circle-loader-path"
+				cx="50"
+				cy="50"
+				r="20"
+				fill="none"
+				stroke-width="1"
+				stroke-miterlimit="10"
+			></circle>
+		</svg>
+	</div>
+HTML;
+
 $APPLICATION->IncludeComponent(
 	"bitrix:main.ui.grid",
 	"",
-	array(
-		"GRID_ID" => $arResult["GRID_ID"],
+	[
+		"GRID_ID" => $gridId,
 		"COLUMNS" => $arResult["ELEMENTS_HEADERS"],
 		"ROWS" => $arResult["ELEMENTS_ROWS"],
 		"MESSAGES" => $arResult["GRID_MESSAGES"],
-		"NAV_STRING" => $arResult["NAV_STRING"],
-		"TOTAL_ROWS_COUNT" => $arResult["NAV_OBJECT"]->NavRecordCount,
-		"PAGE_SIZES" => $arResult["GRID_PAGE_SIZES"],
+
 		"AJAX_MODE" => "Y",
 		"AJAX_ID" => CAjax::getComponentID('bitrix:main.ui.grid', '.default', ''),
-		"ENABLE_NEXT_PAGE" => $arResult["GRID_ENABLE_NEXT_PAGE"],
 		"ACTION_PANEL" => $arResult["GRID_ACTION_PANEL"],
 		"AJAX_OPTION_JUMP" => "N",
 		"SHOW_CHECK_ALL_CHECKBOXES" => true,
@@ -293,8 +315,14 @@ $APPLICATION->IncludeComponent(
 		"ALLOW_HORIZONTAL_SCROLL" => true,
 		"ALLOW_SORT" => true,
 		"ALLOW_PIN_HEADER" => true,
-		"AJAX_OPTION_HISTORY" => "N"
-	),
+		"AJAX_OPTION_HISTORY" => "N",
+
+		"NAV_OBJECT" => $arResult["NAV_OBJECT"],
+		"TOTAL_ROWS_COUNT_HTML" => $rowCountHtml,
+		"ENABLE_NEXT_PAGE" => $arResult["GRID_ENABLE_NEXT_PAGE"],
+		"PAGE_SIZES" => $arResult["GRID_PAGE_SIZES"],
+		"CURRENT_PAGE" => $arResult["CURRENT_PAGE"],
+	],
 	$component, array("HIDE_ICONS" => "Y")
 );
 ?>

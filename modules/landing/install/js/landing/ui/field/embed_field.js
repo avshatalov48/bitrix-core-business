@@ -27,18 +27,14 @@
 
 		BX.Landing.UI.Field.Text.apply(this, arguments);
 
-		// Make event handlers
-		this.onInputInput = this.onInputInput.bind(this);
-
-		// Bind on field events
-		bind(this.input, "input", this.onInputInput);
+		// Input event handler already set in parent TextField
 
 		this.hiddenInput = create("input", {
 			props: {type: "hidden", value: content.src || this.input.innerText}
 		});
 
 		this.error = BX.Landing.UI.Field.BaseField.createDescription(
-			BX.Landing.Loc.getMessage("LANDING_EMBED_ERROR_WRONG_SOURCE_TEXT")
+			BX.Landing.Loc.getMessage("LANDING_EMBED_ERROR_WRONG_SOURCE_TEXT_2")
 		);
 
 		BX.Dom.addClass(this.error, 'landing-ui-error');
@@ -72,6 +68,8 @@
 		{
 			return BX.Landing.Utils.Matchers.youtube.test(value)
 				|| BX.Landing.Utils.Matchers.vimeo.test(value)
+				|| BX.Landing.Utils.Matchers.vk.test(value)
+				|| BX.Landing.Utils.Matchers.rutube.test(value)
 				|| BX.Landing.Utils.Matchers.vine.test(value)
 				|| BX.Landing.Utils.Matchers.facebookVideos.test(value);
 		},
@@ -113,6 +111,17 @@
 					{
 						this.layout.appendChild(form.layout);
 					}
+
+					if (!this.mediaService.isDataLoaded)
+					{
+						this.readyToSave = false;
+						BX.addCustomEvent(this.mediaService, 'onDataLoaded', () =>
+						{
+							this.readyToSave = true;
+							this.emit('onChangeReadyToSave');
+						});
+					}
+					this.emit('onChangeReadyToSave');
 				}
 			}
 			else

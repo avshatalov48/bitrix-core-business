@@ -1014,7 +1014,7 @@ this.BX = this.BX || {};
 
 	}
 
-	BitrixVue.developerMode=true;BitrixVue.createApp=config=>createApp(config).use(BitrixVue);const DevToolsConnector=new DevTools();/**
+	BitrixVue.developerMode=true;BitrixVue.createApp=(rootComponent,rootProps)=>createApp(rootComponent,rootProps).use(BitrixVue);const DevToolsConnector=new DevTools();/**
 	 * Make a map and return a function for checking if a key
 	 * is in that map.
 	 * IMPORTANT: all calls of this function must be prefixed with

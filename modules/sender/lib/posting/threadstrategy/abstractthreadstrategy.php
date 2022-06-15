@@ -75,6 +75,7 @@ abstract class AbstractThreadStrategy implements IThreadStrategy
 				'select'  => $this->select,
 				'filter'  => $this->filter,
 				'runtime' => $this->runtime,
+				'order' => ['STATUS' => 'DESC'],
 				'limit'   => $limit
 			]
 		);
@@ -353,4 +354,14 @@ abstract class AbstractThreadStrategy implements IThreadStrategy
 
 		return !static::hasUnprocessedThreads();
 	}
+
+	/**
+	 * Returns true if sending not available
+	 * @return bool
+	 */
+	public function isProcessLimited(): bool
+	{
+		return false;
+	}
+
 }

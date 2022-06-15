@@ -26,6 +26,7 @@ Loc::loadMessages(__FILE__);
 class Service
 {
 	public const EVENT_ON_BEFORE_PAYMENT_PAID = 'OnSalePsServiceProcessRequestBeforePaid';
+	public const EVENT_ON_AFTER_PROCESS_REQUEST = 'OnSaleAfterPsServiceProcessRequest';
 
 	public const EVENT_BEFORE_ON_INITIATE_PAY = 'onSalePsBeforeInitiatePay';
 	public const EVENT_INITIATE_PAY_SUCCESS = 'onSalePsInitiatePaySuccess';
@@ -377,6 +378,17 @@ class Service
 			Logger::addError(get_class($this->handler).'. ProcessRequest Error: '.$error);
 		}
 
+		$event = new Event(
+			'sale',
+			self::EVENT_ON_AFTER_PROCESS_REQUEST,
+			[
+				'payment' => $payment,
+				'serviceResult' => $serviceResult,
+				'request' => $request,
+			]
+		);
+		$event->send();
+
 		$this->handler->sendResponse($serviceResult, $request);
 
 		return $processResult;
@@ -461,6 +473,28 @@ class Service
 	public function getCurrency()
 	{
 		return $this->handler->getCurrencyList();
+	}
+
+	/**
+	 * The type of client that the handler can work with
+	 *
+	 * @return string
+	 */
+	public function getClientTypeFromHandler()
+	{
+		return $this->handler->getClientType(
+			$this->fields['PS_MODE'] ?? null
+		);
+	}
+	
+	/**
+	 * The type of client that the payment system can work with
+	 *
+	 * @return string
+	 */
+	public function getClientType()
+	{
+		return (string)($this->fields['PS_CLIENT_TYPE'] ?? $this->getClientTypeFromHandler());
 	}
 
 	/**

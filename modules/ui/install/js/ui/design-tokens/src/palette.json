@@ -1,0 +1,78 @@
+{
+	"color": {
+		"palette": {
+			"black": {
+				"solid": { "value":  "#000000" },
+				"base":  { "value": "#333333" }
+			},
+			"white": {
+				"base": { "value":  "#FFFFFF" }
+			},
+			"blue": {
+				"95": { "value":  "#004F69" },
+				"90": { "value":  "#006382" },
+				"80": { "value":  "#02779C" },
+				"70": { "value":  "#058CB7" },
+				"60": { "value":  "#1AA9D6" },
+				"50": { "value":  "#2FC6F6" },
+				"40": { "value":  "#7EDCF9" },
+				"30": { "value":  "#C1EEFD" },
+				"20": { "value":  "#E5F9FF" },
+				"10": { "value":  "#F4FCFE" }
+			},
+			"green": {
+				"95": { "value":  "#3D4F00" },
+				"90": { "value":  "#506900" },
+				"80": { "value":  "#688800" },
+				"70": { "value":  "#7FA800" },
+				"60": { "value":  "#8DBB00" },
+				"50": { "value":  "#9DCF00" },
+				"40": { "value":  "#BBDE4D" },
+				"30": { "value":  "#E2F1B3" },
+				"20": { "value":  "#F1FBD0" },
+				"10": { "value":  "#FAFDED" }
+			},
+			"orange": {
+				"95": { "value":  "#614000" },
+				"90": { "value":  "#7A5100" },
+				"80": { "value":  "#9F6A00" },
+				"70": { "value":  "#C48300" },
+				"60": { "value":  "#E89B06" },
+				"50": { "value":  "#FFA900" },
+				"40": { "value":  "#FFC34D" },
+				"30": { "value":  "#FFE1A6" },
+				"20": { "value":  "#FFF1D6" },
+				"10": { "value":  "#FFFAF0" }
+			},
+			"red": {
+				"solid": { "value": "#F0371B" },
+				"95": { "value":  "#800602" },
+				"90": { "value":  "#9A0703" },
+				"80": { "value":  "#C21B16" },
+				"70": { "value":  "#E92F2A" },
+				"60": { "value":  "#F4433E" },
+				"50": { "value":  "#FF5752" },
+				"40": { "value":  "#FF9A97" },
+				"30": { "value":  "#FFCDCC" },
+				"20": { "value":  "#FFE8E8" },
+				"10": { "value":  "#FFF8F8" }
+			},
+			"gray": {
+				"90": { "value":  "#525C69" },
+				"80": { "value":  "#6A737F" },
+				"70": { "value":  "#828B95" },
+				"60": { "value":  "#959CA4" },
+				"50": { "value":  "#A8ADB4" },
+				"40": { "value":  "#BDC1C6" },
+				"30": { "value":  "#D5D7DB" },
+				"20": { "value":  "#DFE0E3" },
+				"10": { "value":  "#EDEEF0" },
+				"05": { "value":  "#EEF2F4" },
+				"03": { "value":  "#F8F9FA" }
+			},
+			"beige": {
+				"base": { "value":  "#FDFAE1" }
+			}
+		}
+	}
+}

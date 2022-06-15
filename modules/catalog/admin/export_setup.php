@@ -119,6 +119,14 @@ function GetReportsList($strPath2Export)
 
 $arReportsList = GetReportsList(CATALOG_PATH2EXPORTS);
 
+if (!\Bitrix\Catalog\Config\Feature::isCanUseYandexExport())
+{
+	unset(
+		$arReportsList['yandex'],
+		$arReportsList['yandex_simple']
+	);
+}
+
 /////////////////////////////////////////////////////////////////////
 // In the step by step wizard
 //	$FINITE = true the last step

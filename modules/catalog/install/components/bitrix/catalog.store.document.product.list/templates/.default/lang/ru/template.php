@@ -11,3 +11,5 @@ $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_BARCODE_SETTING_PRODUCT"] = "Настрой
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_BARCODE_SETTING_PRODUCT_TITLE"] = "Настройки сканирования";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_DELETE_ACTION"] = "Удалить";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_COPY_ACTION"] = "Копировать";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_INVALID_AMOUNT"] = "Укажите количество принятого на склад товара, чтобы провести документ";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_IS_EMPTY"] = "Введите хотя бы один товар, чтобы провести документ";

@@ -141,6 +141,31 @@ final class Feature
 	}
 
 	/**
+	 * Returns true if can exporting to Yandex.Market.
+	 *
+	 * @return bool
+	 */
+	public static function isCanUseYandexExport(): bool
+	{
+		$lang = LANGUAGE_ID;
+
+		if (Loader::includeModule('bitrix24'))
+		{
+			$lang = \CBitrix24::getLicensePrefix();
+		}
+		elseif (Loader::includeModule('intranet'))
+		{
+			$lang = \CIntranetUtils::getPortalZone();
+		}
+		elseif (Option::get('main', 'vendor') === '1c_bitrix')
+		{
+			$lang = 'ru';
+		}
+
+		return in_array($lang, ['ru', 'by', 'kz'], true);
+	}
+
+	/**
 	 * Returns url description for help article about sets and bunles.
 	 *
 	 * @return array|null

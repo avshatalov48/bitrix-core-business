@@ -332,6 +332,7 @@ class COffice365OAuthInterface extends CSocServOAuthTransport
 		"&redirect_uri=".urlencode($redirect_uri).
 		"&response_type=code".
 		"&scope=".$this->getScopeEncode().
+		"&prompt=select_account".
 		($state <> ''? '&state='.urlencode($state):'');
 	}
 

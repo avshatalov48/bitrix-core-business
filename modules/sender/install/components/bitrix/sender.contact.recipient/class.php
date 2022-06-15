@@ -229,6 +229,7 @@ class ContactRecipientSenderComponent extends Bitrix\Sender\Internals\CommonSend
 			}
 			$message = Message\Factory::getMessage($item['MESSAGE_CODE']);
 			$item['MESSAGE_CODE'] = $message ? $message->getName() : $item['MESSAGE_CODE'];
+			$item['NAME'] = $item['NAME'] || $item['CODE'] ? $item['NAME'] : Loc::getMessage('SENDER_CONTACT_DELETED') ;
 			$item['URLS'] = [
 				'LETTER_EDIT' => in_array($item['MESSAGE_CODE'], Message\Factory::getMailingMessageCodes())
 					?

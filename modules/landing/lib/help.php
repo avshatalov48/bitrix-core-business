@@ -180,7 +180,10 @@ class Help
 		),
 		'FREE_MESSAGES' => array(
 			'ru' => '13655934'
-		)
+		),
+		'FIRST_ORDER_REQUIREMENTS' => array(
+			'ru' => '15732254'
+		),
 	);
 
 	/**

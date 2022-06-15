@@ -1,3 +1,4 @@
+import {Loc} from 'main.core';
 import {BaseEvent, EventEmitter} from 'main.core.events'
 import DocumentCard from "../card/card";
 
@@ -177,5 +178,18 @@ export default class ProductListController extends BX.UI.EntityEditorController
 		);
 
 		this._editor.getControlById('TOTAL_WITH_CURRENCY').refreshLayout();
+	}
+
+	validateProductList()
+	{
+		let errorsArray = this.productList.validate();
+		if (errorsArray.length > 0)
+		{
+			this._editor._toolPanel.addError(errorsArray[0]);
+			EventEmitter.emit('onProductsCheckFailed', errorsArray);
+			return false;
+		}
+
+		return true;
 	}
 }

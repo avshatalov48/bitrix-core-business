@@ -78,11 +78,22 @@ export default class Widget
 
 	onBarcodeItemChange(event)
 	{
-		let barcodeItem = event.data.value;
+		let barcodeValue;
+		if (typeof event.data.value === "string")
+		{
+			barcodeValue = event.data.value;
+		}
+		else
+		{
+			barcodeValue = event.data.value.value;
+		}
 
-		this.isBarcodeExist(barcodeItem.value)
+		this.isBarcodeExist(barcodeValue)
 		.then((result) => {
-			barcodeItem.isExist = result;
+			let barcodeItem = {
+				isExist: result,
+				value: barcodeValue,
+			}
 
 			if(!this._isBarcodeMulti)
 			{
@@ -125,7 +136,7 @@ export default class Widget
 
 	isBarcodeExist(barcode)
 	{
-		if(barcode.length > 0)
+		if(barcode)
 		{
 			let storeId = this._isBarcodeMulti ? this.storeId : 0;
 

@@ -320,6 +320,7 @@ create table if not exists b_sale_pay_system_action
 	NEW_WINDOW char(1) not null default 'Y',
 	ACTIVE char(1) not null default 'Y',
 	PS_MODE VARCHAR(20) NULL,
+	PS_CLIENT_TYPE varchar(10) default null,
 	PARAMS text null,
 	TARIF text null,
 	HAVE_PAYMENT char(1) not null default 'N',
@@ -336,7 +337,8 @@ create table if not exists b_sale_pay_system_action
 	CAN_PRINT_CHECK char(1) not null default 'N',
 	ENTITY_REGISTRY_TYPE varchar(255) null,
 	XML_ID varchar(255) null,
-	primary key (ID)
+	primary key (ID),
+	KEY B_SALE_PAY_SYSTEM_ACTION_PS_CLIENT_TYPE(PS_CLIENT_TYPE)
 );
 
 create table if not exists b_sale_pay_system_rest_handlers
@@ -2120,13 +2122,21 @@ create table if not exists b_sale_facebook_conversion_params(
 	INDEX IX_FACEBOOK_CONVERSION_LID(LID)
 );
 
-create table if not exists b_sale_analytics_events(
-    ID INT unsigned NOT NULL AUTO_INCREMENT,
-    CODE VARCHAR(255) NOT NULL,
-    CREATED_AT DATETIME NOT NULL,
-    PAYLOAD TEXT NULL,
-    PRIMARY KEY (ID),
-    INDEX IX_CREATED_AT(CREATED_AT)
+create table if not exists b_sale_analytics(
+	ID INT unsigned NOT NULL AUTO_INCREMENT,
+	CODE VARCHAR(255) NOT NULL,
+	CREATED_AT DATETIME NOT NULL,
+	PAYLOAD TEXT NULL,
+	PRIMARY KEY (ID),
+	INDEX IX_SALE_ANALYTICS_CREATED_AT(CREATED_AT),
+	INDEX IX_SALE_ANALYTICS_CODE_CREATED_AT(CODE, CREATED_AT)
+);
+
+create table if not exists b_sale_order_payment_ps_available(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	PAYMENT_ID INT NOT NULL,
+	PAY_SYSTEM_ID INT NOT NULL,
+	KEY B_SALE_ORDER_PAYMENT_PS_AVAIABLE_PAYMENT_ID(PAYMENT_ID)
 );
 
 create table if not exists b_sale_basket_reservation_history (

@@ -156,7 +156,7 @@ class HandlerService extends RestService
 	private static function checkHandlerSettingsBeforeAdd($settings): void
 	{
 		self::checkRequiredSettingsFields($settings, ['PRINT_URL', 'CHECK_URL', 'CONFIG']);
-		self::checkSettingsFieldValues($settings, ['HTTP_VERSION']);
+		self::checkSettingsFieldValues($settings, ['HTTP_VERSION', 'CONFIG']);
 	}
 
 	/**
@@ -203,9 +203,35 @@ class HandlerService extends RestService
 					throw new RestException('The value of SETTINGS[HTTP_VERSION] is not valid', self::ERROR_CHECK_FAILURE);
 				}
 			}
+			elseif ($fieldName === 'CONFIG' && array_key_exists('CONFIG', $settings))
+			{
+				self::checkSettingsConfig($settings['CONFIG']);
+			}
 			elseif (array_key_exists($fieldName, $settings) && empty($settings[$fieldName]))
 			{
 				throw new RestException('The value of SETTINGS[' . $fieldName . '] is not valid', self::ERROR_CHECK_FAILURE);
+			}
+		}
+	}
+
+	/**
+	 * @param array $config
+	 * @throws RestException
+	 */
+	private static function checkSettingsConfig(array $config): void
+	{
+		foreach ($config as $group => $block)
+		{
+			foreach ($block['ITEMS'] as $code => $item)
+			{
+				try
+				{
+					\Bitrix\Sale\Internals\Input\Manager::getEditHtml('SETTINGS['.$group.']['.$code.']', $item);
+				}
+				catch (\Exception $exception)
+				{
+					throw new RestException('The config provided in SETTINGS[CONFIG] is not valid', self::ERROR_CHECK_FAILURE);
+				}
 			}
 		}
 	}

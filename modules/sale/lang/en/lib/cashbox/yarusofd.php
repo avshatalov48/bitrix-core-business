@@ -1,0 +1,4 @@
+<?php
+$MESS["SALE_CASHBOX_YARUS_AUTH_KEY"] = "Security key";
+$MESS["SALE_CASHBOX_YARUS_OFD_NAME"] = "YOYARUS OFD";
+$MESS["SALE_CASHBOX_YARUS_SETTINGS_AUTH"] = "Authentication settings";

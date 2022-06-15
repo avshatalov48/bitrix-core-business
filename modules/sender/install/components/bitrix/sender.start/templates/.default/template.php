@@ -124,7 +124,7 @@ $containerId = 'sender-start-container';
 						{zones: ['ru'], id: 974, lang: 'ru', sec: 'flmbhs'},
 						],
 						id:'sender-configuration-help',
-						portalUri: 'https://cp.bitrix.ru'
+						portalUri: 'https://bitrix24.team'
 						}
 						);"
 				>

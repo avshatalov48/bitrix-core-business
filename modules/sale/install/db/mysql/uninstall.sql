@@ -142,5 +142,6 @@ drop table if exists b_sale_cashbox_check_correction;
 drop table if exists b_sale_order_payment_basket;
 drop table if exists b_sale_basket_reservation;
 drop table if exists b_sale_facebook_conversion_params;
-drop table if exists b_sale_analytics_events;
+drop table if exists b_sale_analytics;
+drop table if exists b_sale_order_payment_ps_available;
 drop table if exists b_sale_basket_reservation_history;

@@ -2,6 +2,7 @@
 namespace Bitrix\Mail\Integration\Main\UISelector;
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\Emoji;
 
 class MailContacts extends \Bitrix\Main\UI\Selector\EntityBase
 {
@@ -27,7 +28,7 @@ class MailContacts extends \Bitrix\Main\UI\Selector\EntityBase
 			'id' => self::PREFIX.$data['ID'],
 			'entityType' => 'mailContacts',
 			'entityId' => $data['ID'],
-			'name' => htmlspecialcharsbx($data['NAME']),
+			'name' => htmlspecialcharsbx(Emoji::decode($data['NAME'])),
 			'iconCustom' => $contactAvatars[$email],
 			'email' => htmlspecialcharsbx($data['EMAIL']),
 			'desc' => htmlspecialcharsbx($data['EMAIL']),

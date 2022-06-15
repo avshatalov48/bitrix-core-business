@@ -59,6 +59,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.style = Reflect.has(_this.data, 'style') ? _this.data.style : '';
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    _this.contentRoot = Reflect.has(_this.data, 'contentRoot') ? _this.data.contentRoot : null;
+	    _this.readyToSave = true; // false - if data not loaded yet
+
 	    var onValueChange = _this.data.onValueChange;
 	    _this.onValueChangeHandler = main_core.Type.isFunction(onValueChange) ? onValueChange : function () {};
 	    _this.onPaste = _this.onPaste.bind(babelHelpers.assertThisInitialized(_this));

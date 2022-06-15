@@ -173,14 +173,14 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 				'BARCODE_MULTI',
 				'MEASURE'
 			);
-			$select = array_merge($select, Catalog\Product\SystemField::getFieldList());
+			$select = array_merge($select, Catalog\Product\SystemField::getProviderSelectFields());
 			$arCatalogProduct = Catalog\ProductTable::getList(array(
 				'select' => $select,
 				'filter' => array('=ID' => $productID)
 			))->fetch();
 			if (!empty($arCatalogProduct))
 			{
-				Catalog\Product\SystemField::convertRow($arCatalogProduct);
+				Catalog\Product\SystemField::prepareRow($arCatalogProduct, Catalog\Product\SystemField::OPERATION_PROVIDER);
 				$arCatalogProduct['QUANTITY'] = (float)$arCatalogProduct['QUANTITY'];
 				static::setHitCache(self::CACHE_PRODUCT, $productID, $arCatalogProduct);
 			}
@@ -588,14 +588,14 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 				'BARCODE_MULTI',
 				'MEASURE'
 			);
-			$select = array_merge($select, Catalog\Product\SystemField::getFieldList());
+			$select = array_merge($select, Catalog\Product\SystemField::getProviderSelectFields());
 			$arCatalogProduct = Catalog\ProductTable::getList(array(
 				'select' => $select,
 				'filter' => array('=ID' => $productID)
 			))->fetch();
 			if (!empty($arCatalogProduct))
 			{
-				Catalog\Product\SystemField::convertRow($arCatalogProduct);
+				Catalog\Product\SystemField::prepareRow($arCatalogProduct, Catalog\Product\SystemField::OPERATION_PROVIDER);
 				$arCatalogProduct['QUANTITY'] = (float)$arCatalogProduct['QUANTITY'];
 				static::setHitCache(self::CACHE_PRODUCT, $productID, $arCatalogProduct);
 			}
@@ -2466,7 +2466,7 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 
 	protected static function getStoreIds(array $params)
 	{
-		$filterId = array('ACTIVE' => 'Y', 'SHIPPING_CENTER' => 'Y');
+		$filterId = array('ACTIVE' => 'Y');
 		if (isset($params['SITE_ID']) && $params['SITE_ID'] != '')
 			$filterId['+SITE_ID'] = $params['SITE_ID'];
 
@@ -2478,7 +2478,6 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 
 			$filter = Main\Entity\Query::filter();
 			$filter->where('ACTIVE', '=', 'Y');
-			$filter->where('SHIPPING_CENTER', '=', 'Y');
 			if (isset($params['SITE_ID']) && $params['SITE_ID'] != '')
 			{
 				$subFilter = Main\Entity\Query::filter();

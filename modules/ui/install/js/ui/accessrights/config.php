@@ -1,5 +1,3 @@
-<!--"rel" => [""]-->
-
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -16,5 +14,8 @@ return [
 	],
 	"bundle_js" => "ui_accessrights",
 	"bundle_css" => "ui_accessrights",
-	"rel" => ["ui.switcher"]
+	"rel" => [
+		"ui.switcher",
+		"ui.design-tokens"
+	],
 ];

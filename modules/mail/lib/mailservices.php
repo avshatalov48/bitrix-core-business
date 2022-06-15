@@ -87,7 +87,7 @@ class MailServicesTable extends Entity\DataManager
 		return parent::add($data);
 	}
 
-	public static function update($primary, array $data)
+	public static function update($primary, array $data): Entity\UpdateResult
 	{
 		if (empty($data))
 			return new Entity\UpdateResult();
@@ -225,10 +225,12 @@ class MailServicesTable extends Entity\DataManager
 				return Helper\OAuth\Yandex::getInstance();
 			case 'imap.mail.ru':
 				return Helper\OAuth\Mailru::getInstance();
+			case 'outlook.office365.com':
+				return Helper\OAuth\Office365::getInstance();
 		}
 	}
 
-	public static function delete($primary)
+	public static function delete($primary): Entity\DeleteResult
 	{
 		$serviceForDelete = static::getByPrimary($primary)->fetch();
 		if (!$serviceForDelete)

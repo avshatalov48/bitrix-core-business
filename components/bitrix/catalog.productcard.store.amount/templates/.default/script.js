@@ -1,4 +1,4 @@
-(function (exports,main_core,main_core_events) {
+(function (exports,main_core,main_core_events,catalog_storeUse) {
 	'use strict';
 
 	var ProductStoreGridManager = /*#__PURE__*/function () {
@@ -12,6 +12,8 @@
 	    this.signedParameters = settings.signedParameters;
 	    this.totalWrapperId = settings.totalWrapperId || null;
 	    this.inventoryManagementLink = settings.inventoryManagementLink || null;
+	    this.productId = settings.productId;
+	    this.reservedDealsSliderLink = settings.reservedDealsSliderLink;
 
 	    if (this.totalWrapperId) {
 	      this.totalWrapper = BX(this.totalWrapperId);
@@ -19,6 +21,7 @@
 	    }
 
 	    this.subscribeEvents();
+	    this.bindSliderToReservedQuantityNodes();
 	  }
 
 	  babelHelpers.createClass(ProductStoreGridManager, [{
@@ -26,6 +29,43 @@
 	    value: function subscribeEvents() {
 	      this.onGridUpdatedHandler = this.onGridUpdated.bind(this);
 	      main_core_events.EventEmitter.subscribe('Grid::updated', this.onGridUpdatedHandler);
+	    }
+	  }, {
+	    key: "bindSliderToReservedQuantityNodes",
+	    value: function bindSliderToReservedQuantityNodes() {
+	      var _this = this;
+
+	      var rows = this.grid.getRows().getRows();
+	      rows.forEach(function (row) {
+	        if (row.isBodyChild() && !row.isTemplate()) {
+	          var reservedQuantityNode = row.getNode().querySelector('.main-grid-cell-content-store-amount-reserved-quantity');
+
+	          if (main_core.Type.isDomNode(reservedQuantityNode)) {
+	            main_core.Event.bind(reservedQuantityNode, 'click', _this.openDealsWithReservedProductSlider.bind(_this, _this.productId, row.getId()));
+	          }
+	        }
+	      });
+	    }
+	  }, {
+	    key: "openDealsWithReservedProductSlider",
+	    value: function openDealsWithReservedProductSlider(rowId) {
+	      var storeId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+
+	      if (!this.reservedDealsSliderLink) {
+	        return;
+	      }
+
+	      var sliderLink = new main_core.Uri(this.reservedDealsSliderLink);
+	      sliderLink.setQueryParam('productId', rowId);
+
+	      if (storeId > 0) {
+	        sliderLink.setQueryParam('storeId', storeId);
+	      }
+
+	      BX.SidePanel.Instance.open(sliderLink.toString(), {
+	        allowChangeHistory: false,
+	        cacheable: false
+	      });
 	    }
 	  }, {
 	    key: "onGridUpdated",
@@ -89,7 +129,7 @@
 	  }, {
 	    key: "refreshTotalWrapper",
 	    value: function refreshTotalWrapper() {
-	      var _this = this;
+	      var _this2 = this;
 
 	      if (this.totalWrapper) {
 	        //this.grid.tableFade();
@@ -112,13 +152,13 @@
 	              'total_quantity_reserved': quantityReserved
 	            };
 
-	            _this.setTotalData(totalData);
+	            _this2.setTotalData(totalData);
 
-	            if (BX.isNodeHidden(_this.totalWrapper)) {
-	              _this.showTotalData();
+	            if (BX.isNodeHidden(_this2.totalWrapper)) {
+	              _this2.showTotalData();
 	            }
 	          } else {
-	            _this.hideTotalData();
+	            _this2.hideTotalData();
 	          } //this.grid.tableUnfade();
 
 	        });
@@ -128,8 +168,7 @@
 	    key: "openInventoryManagementSlider",
 	    value: function openInventoryManagementSlider() {
 	      if (this.inventoryManagementLink) {
-	        BX.SidePanel.Instance.open(this.inventoryManagementLink, {
-	          cacheable: false,
+	        new catalog_storeUse.Slider().open(this.inventoryManagementLink, {
 	          data: {
 	            openGridOnDone: false
 	          },
@@ -155,5 +194,5 @@
 
 	main_core.Reflection.namespace('BX.Catalog').ProductStoreGridManager = ProductStoreGridManager;
 
-}((this.window = this.window || {}),BX,BX.Event));
+}((this.window = this.window || {}),BX,BX.Event,BX.Catalog.StoreUse));
 //# sourceMappingURL=script.js.map

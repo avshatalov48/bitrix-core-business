@@ -92,8 +92,11 @@ class Result
 	 */
 	public function addErrors(array $errors)
 	{
-		$this->isSuccess = false;
-		$this->errors->add($errors);
+		if ($errors)
+		{
+			$this->isSuccess = false;
+			$this->errors->add($errors);
+		}
 		return $this;
 	}
 

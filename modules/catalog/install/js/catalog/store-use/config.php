@@ -8,10 +8,10 @@ return [
 	'css' => 'dist/store-use.bundle.css',
 	'js' => 'dist/store-use.bundle.js',
 	'rel' => [
-		'main.popup',
-		'ui.buttons',
 		'main.core.events',
+		'ui.buttons',
 		'main.core',
+		'main.popup',
 	],
 	'skip_core' => false,
 ];

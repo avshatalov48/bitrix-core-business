@@ -15,7 +15,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  * @var array $arResult
  */
 
-Extension::load(['loader']);
+Extension::load(['loader', 'ui.design-tokens']);
 
 $instanceId = 'bx_file_'.strtolower(preg_replace('/[^a-z0-9]/i', '_', $arParams['FILE_SETTINGS']['id']));
 $containerId = $instanceId.'_input_container';

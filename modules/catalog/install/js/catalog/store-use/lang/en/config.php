@@ -2,6 +2,7 @@
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_CLOSE"] = "Close";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_CONDUCTED_DOCUMENTS_EXIST"] = "There are processed inventory objects. Inventory management cannot be disabled while those inventory objects exist.";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_POPUP_TITLE"] = "Disable inventory management";
+$MESS["CAT_WAREHOUSE_MASTER_STORE_DETAILS"] = "Details";
 $MESS["CAT_WAREHOUSE_MASTER_STORE_USE_1"] = "Cancel";
 $MESS["CAT_WAREHOUSE_MASTER_STORE_USE_2"] = "Reset stock";
 $MESS["CAT_WAREHOUSE_MASTER_STORE_USE_3"] = "Reset stock";

@@ -11,16 +11,6 @@ use Bitrix\Main\Config\Option;
  */
 class Verification
 {
-	/**
-	 * @see \SenderLetterListComponent
-	 * @see \SenderLetterTimeComponent
-	 * @see DailyLimit
-	 */
-	public static function isVerifiedSender(): bool
-	{
-		return self::isEmailConfirmed() && self::isPhoneConfirmed();
-	}
-
 	public static function isEmailConfirmed(): bool
 	{
 		if (! \Bitrix\Main\Loader::includeModule('bitrix24'))

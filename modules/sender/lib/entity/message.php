@@ -308,12 +308,12 @@ class Message extends Base
 				continue;
 			}
 
-			if(in_array($field['CODE'], ['MESSAGE_PERSONALIZE', 'SUBJECT_PERSONALIZE']))
+			if(in_array($field['CODE'], ['MESSAGE_PERSONALIZE', 'SUBJECT_PERSONALIZE', 'TITLE_PERSONALIZE']))
 			{
 				continue;
 			}
 
-			if(in_array($field['CODE'], ['MESSAGE', 'SUBJECT']))
+			if(in_array($field['CODE'], ['MESSAGE', 'SUBJECT', 'TITLE']))
 			{
 
 				preg_match_all("/#([0-9a-zA-Z_.|]+?)#/", $field['VALUE'], $matchesFindPlaceHolders);

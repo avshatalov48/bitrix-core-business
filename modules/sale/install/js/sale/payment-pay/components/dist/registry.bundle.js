@@ -117,7 +117,7 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	  props: {
 	    loading: {
 	      type: Boolean,
-	      default: false,
+	      "default": false,
 	      required: false
 	    }
 	  },
@@ -138,7 +138,7 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	  props: {
 	    loading: {
 	      type: Boolean,
-	      default: false,
+	      "default": false,
 	      required: false
 	    }
 	  },
@@ -151,12 +151,12 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	  props: {
 	    status: {
 	      type: String,
-	      default: '',
+	      "default": '',
 	      required: false
 	    },
 	    link: {
 	      type: String,
-	      default: '',
+	      "default": '',
 	      required: false
 	    },
 	    title: {
@@ -203,17 +203,17 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	  props: {
 	    paySystems: {
 	      type: Array,
-	      default: [],
+	      "default": [],
 	      required: false
 	    },
 	    selectedPaySystem: {
 	      type: Number,
-	      default: null,
+	      "default": null,
 	      required: false
 	    },
 	    loading: {
 	      type: Boolean,
-	      default: false,
+	      "default": false,
 	      required: false
 	    }
 	  },
@@ -226,12 +226,12 @@ this.BX.Sale.PaymentPay = this.BX.Sale.PaymentPay || {};
 	  props: {
 	    html: {
 	      type: String,
-	      default: null,
+	      "default": null,
 	      required: false
 	    },
 	    fields: {
 	      type: Object,
-	      default: null,
+	      "default": null,
 	      required: false
 	    }
 	  },

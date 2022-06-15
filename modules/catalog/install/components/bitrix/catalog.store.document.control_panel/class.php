@@ -179,6 +179,17 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 			];
 		}
 
+		if (!\CCrmSaleHelper::isWithOrdersMode())
+		{
+			$settingsItems[] = [
+				'ID' => 'store_settings_control_and_settings',
+				'PARENT_ID' => 'settings',
+				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_STORE_CONTROL_AND_PRODUCTS'),
+				'SORT' => 1030,
+				'URL' => '/crm/configs/catalog/',
+			];
+		}
+
 		$buttons[] = [
 			'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_BUTTON_TITLE'),
 			'SORT' => 60,

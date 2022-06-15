@@ -10,21 +10,17 @@ use Bitrix\Sale;
 
 class ReservedProductCleaner extends Stepper
 {
+	private const RECORD_LIMIT = 100;
+
 	protected static $moduleId = "sale";
 
 	public function execute(array &$result)
 	{
-		$className = get_class($this);
-		$option = Option::get("sale", $className, 0);
-		$result["steps"] = $option;
+		$processedRecords = 0;
 
 		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 		/** @var Sale\Order $orderClass */
 		$orderClass = $registry->getOrderClassName();
-
-		$limit = 100;
-		$result["steps"] = $result["steps"] ?? 0;
-		$selectedRowsCount = 0;
 
 		$days_ago = (int) Option::get("sale", "product_reserve_clear_period");
 
@@ -68,14 +64,11 @@ class ReservedProductCleaner extends Stepper
 						['join_type' => 'inner']
 					),
 				],
-				'count_total' => true,
-				'limit' => $limit,
-				'offset' => $result["steps"]
+				'limit' => self::RECORD_LIMIT,
 			];
 
 			$orderList = [];
 			$res = Sale\ReserveQuantityCollection::getList($parameters);
-			$selectedRowsCount = $res->getCount();
 			while ($data = $res->fetch())
 			{
 				if (!isset($orderList[$data['ORDER_ID']]))
@@ -93,8 +86,6 @@ class ReservedProductCleaner extends Stepper
 
 			foreach ($orderList as $orderId => $basketItemIds)
 			{
-				$orderSaved = false;
-
 				$order = $orderClass::load($orderId);
 				if (!$order)
 				{
@@ -120,30 +111,31 @@ class ReservedProductCleaner extends Stepper
 						}
 
 						$reserve->delete();
+
+						$processedRecords++;
 					}
 				}
 
 				$r = $order->save();
-				if ($r->isSuccess())
+				if (!$r->isSuccess())
 				{
-					$orderSaved = true;
-				}
-				else
-				{
-					$errors = $r->getErrorMessages();
-				}
-
-				if (!$orderSaved && !empty($errors))
-				{
-					$oldErrorText = $order->getField('REASON_MARKED');
-					foreach($errors as $error)
+					$errorText = (string)$order->getField('REASON_MARKED');
+					if ($errorText !== '')
 					{
-						$oldErrorText .= (strval($oldErrorText) != '' ? "\n" : ""). $error;
+						$errorText .= "\n";
+					}
+
+					foreach($r->getErrorMessages() as $error)
+					{
+						if ((string)$error !== '')
+						{
+							$errorText .= $error."\n";
+						}
 					}
 
 					Sale\Internals\OrderTable::update($order->getId(), [
 						"MARKED" => "Y",
-						"REASON_MARKED" => $oldErrorText
+						"REASON_MARKED" => $errorText
 					]);
 				}
 			}
@@ -155,17 +147,11 @@ class ReservedProductCleaner extends Stepper
 			}
 		}
 
-		if($selectedRowsCount < $limit)
+		if ($processedRecords < self::RECORD_LIMIT)
 		{
-			Option::delete("sale", array("name" => $className));
-			return false;
+			return self::FINISH_EXECUTION;
 		}
-		else
-		{
-			$result["steps"] = $result["steps"] + $selectedRowsCount;
-			$option = $result["steps"];
-			Option::set("sale", $className, $option);
-			return true;
-		}
+
+		return self::CONTINUE_EXECUTION;
 	}
 }

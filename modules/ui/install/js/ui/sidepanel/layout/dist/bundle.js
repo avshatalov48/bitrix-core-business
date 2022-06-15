@@ -3,7 +3,7 @@ this.BX.UI = this.BX.UI || {};
 (function (exports,sidepanel,main_core,ui_buttons,ui_sidepanel_menu,main_core_events) {
 	'use strict';
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10;
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11;
 
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
 
@@ -46,9 +46,13 @@ this.BX.UI = this.BX.UI || {};
 
 	var _container = /*#__PURE__*/new WeakMap();
 
+	var _containerFooter = /*#__PURE__*/new WeakMap();
+
 	var _options = /*#__PURE__*/new WeakMap();
 
 	var _menu = /*#__PURE__*/new WeakMap();
+
+	var _getScrollWidth = /*#__PURE__*/new WeakSet();
 
 	var _onMenuItemClick = /*#__PURE__*/new WeakSet();
 
@@ -72,7 +76,14 @@ this.BX.UI = this.BX.UI || {};
 
 	    _classPrivateMethodInitSpec(this, _onMenuItemClick);
 
+	    _classPrivateMethodInitSpec(this, _getScrollWidth);
+
 	    _classPrivateFieldInitSpec(this, _container, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    _classPrivateFieldInitSpec(this, _containerFooter, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -115,6 +126,15 @@ this.BX.UI = this.BX.UI || {};
 	      return babelHelpers.classPrivateFieldGet(this, _container);
 	    }
 	  }, {
+	    key: "getFooterContainer",
+	    value: function getFooterContainer() {
+	      if (!babelHelpers.classPrivateFieldGet(this, _containerFooter)) {
+	        babelHelpers.classPrivateFieldSet(this, _containerFooter, main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-sidepanel-layout-footer\"></div>"]))));
+	      }
+
+	      return babelHelpers.classPrivateFieldGet(this, _containerFooter);
+	    }
+	  }, {
 	    key: "render",
 	    value: function render() {
 	      var _this2 = this;
@@ -136,11 +156,11 @@ this.BX.UI = this.BX.UI || {};
 	      container.innerHTML = ''; // HEADER
 
 	      if (babelHelpers.classPrivateFieldGet(this, _options).title) {
-	        var title = main_core.Tag.safe(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["", ""])), babelHelpers.classPrivateFieldGet(this, _options).title);
-	        var header = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-sidepanel-layout-header\">\n\t\t\t\t\t<div class=\"ui-sidepanel-layout-title\">", "</div>\n\t\t\t\t</div>\n\t\t\t"])), title);
+	        var title = main_core.Tag.safe(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["", ""])), babelHelpers.classPrivateFieldGet(this, _options).title);
+	        var header = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-sidepanel-layout-header\">\n\t\t\t\t\t<div class=\"ui-sidepanel-layout-title\">", "</div>\n\t\t\t\t</div>\n\t\t\t"])), title);
 
 	        if (main_core.Type.isFunction(babelHelpers.classPrivateFieldGet(this, _options).toolbar)) {
-	          var toolbar = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-sidepanel-layout-toolbar\"></div>"])));
+	          var toolbar = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-sidepanel-layout-toolbar\"></div>"])));
 	          babelHelpers.classPrivateFieldGet(this, _options).toolbar(_objectSpread({}, UI)).forEach(function (button) {
 	            if (button instanceof ui_buttons.BaseButton) {
 	              button.renderTo(toolbar);
@@ -170,18 +190,18 @@ this.BX.UI = this.BX.UI || {};
 	          }
 	        }
 
-	        var contentElement = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\" style=\"", "\"></div>"])), classes.join(' '), styles.join('; '));
+	        var contentElement = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\" style=\"", "\"></div>"])), classes.join(' '), styles.join('; '));
 	        container.appendChild(contentElement);
 
 	        if (babelHelpers.classPrivateFieldGet(this, _menu)) {
 	          babelHelpers.classPrivateFieldGet(this, _menu).renderTo(contentElement);
 	        }
 
-	        contentElement.appendChild(main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-sidepanel-layout-content-inner\"></div>"]))));
+	        contentElement.appendChild(main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-sidepanel-layout-content-inner\"></div>"]))));
 	        contentElement = contentElement.lastElementChild;
 
 	        if (design.section) {
-	          contentElement.appendChild(main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-slider-section ui-sidepanel-layout-content-fill-height\"></div>"]))));
+	          contentElement.appendChild(main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-slider-section ui-sidepanel-layout-content-fill-height\"></div>"]))));
 	          contentElement = contentElement.firstElementChild;
 	        }
 
@@ -224,8 +244,7 @@ this.BX.UI = this.BX.UI || {};
 	        var buttonList = babelHelpers.classPrivateFieldGet(this, _options).buttons(defaults);
 
 	        if (buttonList && buttonList.length > 0) {
-	          container.appendChild(main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-sidepanel-layout-footer-anchor\"></div>"]))));
-	          var footer = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-sidepanel-layout-footer\"></div>"])));
+	          container.appendChild(main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-sidepanel-layout-footer-anchor\"></div>"]))));
 	          var _classes = ['ui-sidepanel-layout-buttons'];
 
 	          if (babelHelpers.classPrivateFieldGet(this, _options).design.alignButtonsLeft) {
@@ -233,7 +252,7 @@ this.BX.UI = this.BX.UI || {};
 	          }
 
 	          var buttons = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["<div class=\"", "\"></div>"])), _classes.join(' '));
-	          footer.appendChild(buttons);
+	          this.getFooterContainer().appendChild(buttons);
 	          buttonList.forEach(function (button) {
 	            if (button instanceof ui_buttons.BaseButton) {
 	              button.renderTo(buttons);
@@ -243,15 +262,35 @@ this.BX.UI = this.BX.UI || {};
 	              throw main_core.BaseError('Wrong button type ' + button);
 	            }
 	          });
-	          container.appendChild(footer);
+	          container.appendChild(this.getFooterContainer());
 	        }
 	      }
 
+	      setTimeout(function () {
+	        _this2.afterRender();
+	      });
 	      return container;
+	    }
+	  }, {
+	    key: "afterRender",
+	    value: function afterRender() {
+	      var parentSet = this.getContainer().parentNode;
+
+	      if (parentSet.scrollWidth > parentSet.offsetWidth) {
+	        this.getFooterContainer().style.setProperty('bottom', _classPrivateMethodGet(this, _getScrollWidth, _getScrollWidth2).call(this) + 'px');
+	      }
 	    }
 	  }]);
 	  return Layout;
 	}();
+
+	function _getScrollWidth2() {
+	  var div = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["<div style=\"overflow-y: scroll; width: 50px; height: 50px; opacity: 0; pointer-events: none; position: absolute;\"></div>"])));
+	  document.body.appendChild(div);
+	  var scrollWidth = div.offsetWidth - div.clientWidth;
+	  main_core.Dom.remove(div);
+	  return scrollWidth;
+	}
 
 	function _onMenuItemClick2(item) {
 	  var container = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;

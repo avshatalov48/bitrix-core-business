@@ -200,6 +200,23 @@ class State
 	}
 
 	/**
+	 * Is sending limit exceeded.
+	 *
+	 * @return bool
+	 */
+	public function isSendingLimitTemporary()
+	{
+		if (!$this->isSending())
+		{
+			return false;
+		}
+
+		$message = $this->letter->getMessage();
+		$limiter = $message->getTransport()->getExceededLimiter($message);
+		return $limiter->getParameter('temporaryLimit') === true;
+	}
+
+	/**
 	 * Is sending limit waiting.
 	 *
 	 * @return bool

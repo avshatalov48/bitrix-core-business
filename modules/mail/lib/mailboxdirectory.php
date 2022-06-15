@@ -36,8 +36,7 @@ class MailboxDirectory
 				'=PARENT_ID'  => $id,
 				'=LEVEL'      => $level,
 			],
-			'select' => ['*'],
-			'order'  => ['LEVEL' => 'ASC']
+			'select' => ['*']
 		]);
 
 		$result = [];
@@ -225,6 +224,11 @@ class MailboxDirectory
 				'=MAILBOX_ID' => $mailboxId
 			],
 			'select' => ['*'],
+			/*
+				When assembling directories, we look for their parents.
+				Sorting ensures that for a directories that parents are processed first,
+				and for children, matching parents are always found from those processed.
+			 */
 			'order'  => ['LEVEL' => 'ASC']
 		]);
 

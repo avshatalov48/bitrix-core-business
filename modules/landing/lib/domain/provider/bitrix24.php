@@ -24,8 +24,9 @@ class Bitrix24 extends Provider
 	 */
 	public function enable(): bool
 	{
-		$zone = Manager::getZone();
-		return ($zone == 'ru') && ModuleManager::isModuleInstalled('bitrix24');
+		return false;
+		// $zone = Manager::getZone();
+		// return ($zone == 'ru') && ModuleManager::isModuleInstalled('bitrix24');
 	}
 
 	/**

@@ -6,6 +6,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Recipient;
 use Bitrix\Sender\Security;
+use Bitrix\Sender\Integration;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -37,6 +38,8 @@ class SenderMessageTestComponent extends CBitrixComponent
 			$this->arParams['CAN_EDIT']
 			:
 			Security\Access::getInstance()->canModifyLetters();
+		$this->arParams['IS_BX24_INSTALLED'] = Integration\Bitrix24\Service::isCloud();
+		$this->arParams['IS_PHONE_CONFIRMED'] = \Bitrix\Sender\Integration\Bitrix24\Limitation\Verification::isPhoneConfirmed();
 	}
 
 	protected function prepareResult()

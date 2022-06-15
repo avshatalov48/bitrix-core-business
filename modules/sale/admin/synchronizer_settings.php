@@ -1,10 +1,13 @@
 <?
+
+use Bitrix\Main\Loader;
 use \Bitrix\Sale\Exchange\Integration\App;
 use \Bitrix\Sale\Exchange\Integration\OAuth;
 use \Bitrix\Sale\Exchange\Integration\Entity;
 use \Bitrix\Sale\Exchange\Integration\Token;
 use \Bitrix\Sale\Exchange\Integration\Connector;
 use \Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\Configuration;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
@@ -14,7 +17,13 @@ $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions <= "D")
 	$APPLICATION->AuthForm(Loc::getMessage("ACCESS_DENIED"));
 
-\Bitrix\Main\Loader::includeModule('sale');
+if (Loader::includeModule('sale'))
+{
+	if (!Configuration::isAvailableOrdersImportFromB24())
+	{
+		LocalRedirect('/bitrix/admin/');
+	}
+}
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/include.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");

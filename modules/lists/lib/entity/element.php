@@ -58,7 +58,7 @@ class Element implements Controllable, Errorable
 		$filter = [
 			"ID" => $this->params["ELEMENT_ID"] ? $this->params["ELEMENT_ID"] : "",
 			"IBLOCK_ID" => $this->iblockId,
-			"CODE" => $this->params["ELEMENT_CODE"] ? $this->params["ELEMENT_CODE"] : "",
+			"=CODE" => $this->params["ELEMENT_CODE"] ? $this->params["ELEMENT_CODE"] : "",
 			"CHECK_PERMISSIONS" => "N",
 		];
 		$queryObject = \CIBlockElement::getList([], $filter, false, false, ["ID"]);
@@ -407,16 +407,21 @@ class Element implements Controllable, Errorable
 		{
 			$fieldValue = $this->params["FIELDS"][$fieldId];
 
-			if (empty($this->params["FIELDS"][$fieldId]) && $fieldData["IS_REQUIRED"] === "Y")
+			if (
+				empty($this->params["FIELDS"][$fieldId])
+				&& $fieldData["IS_REQUIRED"] === "Y"
+				&& !is_numeric($this->params["FIELDS"][$fieldId])
+			)
 			{
-				$this->errorCollection->setError(new Error(
-					"The field \"".$fieldData["NAME"]."\" is required", self::ERROR_ELEMENT_FIELD_VALUE));
+				$this->errorCollection->setError(
+					new Error(
+						"The field \"".$fieldData["NAME"]."\" is required",
+						self::ERROR_ELEMENT_FIELD_VALUE
+					)
+				);
 			}
-			if ($this->listObject->is_field($fieldId))
-			{
 
-			}
-			else
+			if (!$this->listObject->is_field($fieldId))
 			{
 				if (!is_array($fieldValue))
 				{
@@ -615,7 +620,8 @@ class Element implements Controllable, Errorable
 		foreach ($fieldValue as $key => $value)
 		{
 			$value = str_replace(" ", "", str_replace(",", ".", $value));
-			$elementFields["PROPERTY_VALUES"][$fieldData["ID"]][$key]["VALUE"] = floatval($value);
+			$value = is_numeric($value) ? doubleval($value) : '';
+			$elementFields["PROPERTY_VALUES"][$fieldData["ID"]][$key]["VALUE"] = $value;
 		}
 	}
 
@@ -776,15 +782,31 @@ class Element implements Controllable, Errorable
 				$currentUserGroups[] = "author";
 			}
 
-			$canWrite = \CBPDocument::canUserOperateDocument(
-				\CBPCanUserOperateOperation::WriteDocument,
-				$userId,
-				$documentId,
-				[
-					"AllUserGroups" => $currentUserGroups,
-					"DocumentStates" => $documentStates
-				]
-			);
+			if ($execType === \CBPDocumentEventType::Create)
+			{
+				$canWrite = \CBPDocument::canUserOperateDocumentType(
+					\CBPCanUserOperateOperation::WriteDocument,
+					$userId,
+					$documentType,
+					[
+						"AllUserGroups" => $currentUserGroups,
+						"DocumentStates" => $documentStates
+					]
+				);
+			}
+			else
+			{
+				$canWrite = \CBPDocument::canUserOperateDocument(
+					\CBPCanUserOperateOperation::WriteDocument,
+					$userId,
+					$documentId,
+					[
+						"AllUserGroups" => $currentUserGroups,
+						"DocumentStates" => $documentStates
+					]
+				);
+			}
+
 			if (!$canWrite)
 			{
 				$this->errorCollection->setError(
@@ -926,7 +948,7 @@ class Element implements Controllable, Errorable
 			"=IBLOCK_TYPE" => $this->params["IBLOCK_TYPE_ID"],
 			"IBLOCK_ID" => $this->iblockId,
 			"ID" => $this->params["ELEMENT_ID"] ? $this->params["ELEMENT_ID"] : "",
-			"CODE" => $this->params["ELEMENT_CODE"] ? $this->params["ELEMENT_CODE"] : "",
+			"=CODE" => $this->params["ELEMENT_CODE"] ? $this->params["ELEMENT_CODE"] : "",
 			"SHOW_NEW" => (!empty($this->params["CAN_FULL_EDIT"]) && $this->params["CAN_FULL_EDIT"] == "Y" ? "Y" : "N"),
 			"CHECK_PERMISSIONS" => "Y"
 		];

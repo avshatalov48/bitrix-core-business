@@ -4,7 +4,9 @@ use Bitrix\Mail\Helper\LicenseManager;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 \Bitrix\Main\UI\Extension::load([
-	'ui.info-helper'
+	'ui.info-helper',
+	'ui.alerts',
+	'ui.forms'
 ]);
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
@@ -140,7 +142,6 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 
 		<div class="mail-connect-section-block">
 			<? if (!empty($settings['oauth'])): ?>
-				<input type="hidden" name="fields[email]" value="<?=htmlspecialcharsbx($mailbox['EMAIL']) ?>">
 				<input type="hidden" name="fields[oauth_uid]" value="<?=htmlspecialcharsbx($settings['oauth']->getStoredUid()) ?>">
 				<input type="hidden" id="mail_connect_mb_oauth_url_field"
 					value="<?=htmlspecialcharsbx($settings['oauth']->getUrl()) ?>">
@@ -160,7 +161,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 						<? if (!empty($settings['oauth_user'])): ?> style="display: none; "<? endif ?>><?=Loc::getMessage('MAIL_CLIENT_CONFIG_OAUTH_CONNECT') ?></button>
 					<div class="mail-connect-email-block" id="mail_connect_mb_oauth_status"
 						<? if (empty($settings['oauth_user'])): ?> style="display: none; "<? endif ?>>
-						<div class="mail-connect-email-inner">
+						<div id="mail-connect-email-inner" class="mail-connect-email-inner">
 							<span class="mail-connect-email-img" id="mail_connect_mb_oauth_status_image"></span>
 							<a class="mail-connect-email-text" id="mail_connect_mb_oauth_status_email">
 								<? if (!empty($settings['oauth_user'])) echo htmlspecialcharsbx($settings['oauth_user']['email']); ?>
@@ -172,6 +173,24 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 				</div>
 				<a href="<?=htmlspecialcharsbx(\CHTTP::urlAddParams($baseUri, array('oauth' => 'N'))) ?>"
 					data-slider-ignore-autobinding="true" style="display: none; ">password mode</a>
+
+
+				<div id="mail-email-oauth" class="ui-alert ui-alert-warning mail-connect-form-item">
+					<label class="mail-connect-form-label" for="mail-email-oauth-field"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_EMAIL_OAUTH_FIELD_TITLE_OFFICE365') ?></label>
+					<div class="ui-ctl ui-ctl-after-icon ui-ctl-w100">
+						<div class="ui-ctl-after ui-ctl-icon-loader" id="oauth-wait-icon"></div>
+						<input type="text" class="mail-connect-form-input ui-ctl-element ui-ctl-textbox" id="mail-email-oauth-field" placeholder="info@example.com" name="fields[email]" value="<?=htmlspecialcharsbx($mailbox['EMAIL']) ?>">
+					</div>
+					<div class="mail-connect-form-error"></div>
+				</div>
+
+				<div class="ui-alert ui-alert-danger" id="mail-client-config-email-oauth-field-error">
+					<span class="ui-alert-message"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_EMAIL_OAUTH_FIELD_ERROR') ?></span>
+				</div>
+
+				<div class="ui-alert ui-alert-success" id="mail-client-config-email-oauth-field-success">
+					<span class="ui-alert-message"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_EMAIL_OAUTH_FIELD_SUCCESS') ?></span>
+				</div>
 			<? else: ?>
 				<div class="mail-connect-form-inner">
 					<? if (empty($mailbox['EMAIL'])): ?>
@@ -321,7 +340,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 					<div class="mail-connect-option-email">
 						<input class="mail-connect-form-input mail-connect-form-input-check" type="checkbox"
 							name="fields[use_smtp]" value="1" id="mail_connect_mb_server_smtp_switch"
-							<? if (empty($mailbox) || !empty($mailbox['__smtp'])): ?> checked <? endif ?>
+							<? if ((empty($mailbox) && (empty($settings['oauth']) || $settings['name'] !== 'office365')) || !empty($mailbox['__smtp'])): ?> checked <? endif ?>
 							onchange="BX('mail_connect_mb_server_smtp_form').style.display = this.checked ? '' : 'none'; ">
 						<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_server_smtp_switch">
 							<?=htmlspecialcharsbx(Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_ACTIVE')) ?>
@@ -405,7 +424,10 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 		<? if ($arParams['CRM_AVAILABLE']): ?>
 			<div class="mail-connect-section-block">
 				<div class="mail-connect-title-block">
-					<div class="mail-connect-title"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_CRM') ?></div>
+					<div class="mail-connect-title">
+						<a name="configcrm"></a>
+						<?=Loc::getMessage('MAIL_CLIENT_CONFIG_CRM') ?>
+					</div>
 				</div>
 				<div class="mail-connect-form-hidden-block">
 					<div class="mail-connect-option-email">
@@ -678,12 +700,99 @@ $arJsParams = array(
 	(function()
 	{
 		var form = BX('mail_connect_form');
+		var emailOauthBlock = BX('mail-email-oauth');
+
+		if(emailOauthBlock)
+		{
+			var emailOauthField = BX('mail-email-oauth-field');
+			var oauthBtn = BX('mail_connect_mb_oauth_btn');
+			var oauthFieldError = BX('mail-client-config-email-oauth-field-error');
+			var oauthFieldSuccess = BX('mail-client-config-email-oauth-field-success');
+			var oauthWaitIcon = BX('oauth-wait-icon');
+
+			BX.hide(emailOauthBlock);
+			BX.hide(oauthFieldError);
+			BX.hide(oauthFieldSuccess);
+			BX.hide(oauthWaitIcon);
+
+			emailOauthField.oninput = function()
+			{
+				BX.hide(oauthFieldError);
+			}.bind(this);
+
+			emailOauthField.onchange = function()
+			{
+				BX.show(oauthWaitIcon);
+				BX.ajax.runComponentAction('bitrix:mail.client.config', 'checkAvailabilityEMail', {
+					mode: 'class',
+					data: {
+						serviceId: form.elements['fields[service_id]'].value,
+						email: emailOauthField.value,
+						oauthUid: form.elements['fields[oauth_uid]'].value,
+					}
+				}).then(
+					function(response) {
+						BX.hide(oauthWaitIcon);
+						if (response['data'] === false)
+						{
+							BX.show(oauthFieldError);
+							BX.hide(oauthFieldSuccess);
+						}
+						else
+						{
+							BX.show(oauthFieldSuccess);
+							BX.hide(oauthFieldError);
+						}
+					}.bind(this)
+				);
+			}.bind(this);
+		}
 
 		var oauthHandler = function(uid, url, user, init)
 		{
 			if (uid != form.elements['fields[oauth_uid]'].value)
 			{
 				return;
+			}
+
+			BX.hide(BX('mail_connect_form_error'));
+
+			if(user['emailIsIntended'])
+			{
+				BX.addClass(oauthBtn, 'ui-btn-wait');
+				oauthBtn.disabled = true;
+
+				BX.hide(BX('mail-connect-email-inner'));
+				BX.ajax.runComponentAction('bitrix:mail.client.config', 'checkAvailabilityEMail', {
+					mode: 'class',
+					data: {
+						serviceId: form.elements['fields[service_id]'].value,
+						email: user['email'],
+						oauthUid: form.elements['fields[oauth_uid]'].value,
+					}
+				}).then(
+					function(response) {
+
+						BX('mail_connect_mb_oauth_status').style.display = '';
+						oauthBtn.style.display = 'none';
+						oauthBtn.disabled = false;
+						BX.removeClass(oauthBtn, 'ui-btn-wait');
+
+						if (response['data'] === false)
+						{
+							emailOauthField.value = '';
+							BX.show(emailOauthBlock);
+						}
+					}.bind(this)
+				);
+			}
+			else
+			{
+				BX('mail_connect_mb_oauth_status').style.display = '';
+				oauthBtn.disabled = false;
+				BX.removeClass(oauthBtn, 'ui-btn-wait');
+				oauthBtn.style.display = 'none';
+				BX.show(BX('mail-connect-email-inner'));
 			}
 
 			if (user.image && user.image.length > 0)
@@ -751,9 +860,6 @@ $arJsParams = array(
 				nameField.value = user.email;
 			}
 
-			BX('mail_connect_mb_oauth_btn').style.display = 'none';
-			BX('mail_connect_mb_oauth_status').style.display = '';
-
 			if (oauthHandler['__submit'])
 			{
 				oauthHandler['__submit'] = false;
@@ -788,6 +894,15 @@ $arJsParams = array(
 
 		var cancelHandler = function (e)
 		{
+			var emailOauthBlock = BX('mail-email-oauth');
+
+			if(emailOauthBlock)
+			{
+				BX.hide(emailOauthBlock);
+				BX.hide(oauthFieldError);
+				BX.hide(oauthFieldSuccess);
+			}
+
 			BX('mail_connect_mb_oauth_field').value = 'N';
 
 			if (!form.elements['fields[mailbox_id]'])

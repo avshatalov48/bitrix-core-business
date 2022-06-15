@@ -10,7 +10,7 @@
 	min-height: 73px;
 	max-height: 86px;
 	margin-left: 12px;
-	margin-right: 12px;
+	margin-right: var(--ui-space-inline-none, 12px);
 	box-sizing: border-box;
 }
 

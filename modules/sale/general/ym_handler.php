@@ -156,8 +156,9 @@ class CSaleYMHandler
 	}
 
 	/**
-	 * @param bool $activity Set or unset activity
-	 * @return \Bitrix\Main\Entity\UpdateResult|bool
+	 * @param $activity
+	 * @return bool
+	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public static function setActivity($activity)
 	{
@@ -170,7 +171,7 @@ class CSaleYMHandler
 
 		if($activity && empty($settings) && static::install())
 		{
-				$settings = static::getSettings(false);
+			$settings = static::getSettings(false);
 		}
 
 		if(!empty($settings))
@@ -2090,13 +2091,11 @@ class CSaleYMHandler
 					)
 				);
 			}
-		}
-		else
-		{
-			$res = true;
+
+			return $res->isSuccess();
 		}
 
-		return $res ? true : false;
+		return true;
 	}
 
 	/**

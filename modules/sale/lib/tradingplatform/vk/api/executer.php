@@ -84,8 +84,7 @@ class Executer
 		{
 			if (is_array($value))
 			{
-				$value = Json::encode($value);
-				$value = $this->decodeMultibyteUnicode($value);    //vkscript dont understand \uXXXX format, decoding
+				$value = \CUtil::PhpToJSObject($value);
 			}
 			$script = str_replace('%'.mb_strtoupper($key) . '%', $value, $script);
 		}

@@ -73,6 +73,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		$this->arResult['GRID'] = $this->prepareGrid();
 		$this->arResult['FILTER_ID'] = $this->getFilterId();
 		$this->prepareToolbar();
+		$this->arResult['IS_SHOW_GUIDE'] = $this->isShowGuide();
 
 		$this->arResult['PATH_TO'] = $this->arParams['PATH_TO'];
 
@@ -377,11 +378,21 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		{
 			case self::ARRIVAL_MODE:
 				return '
-					<div class="main-grid-empty-block-title">' . Loc::getMessage('DOCUMENT_LIST_STUB_TITLE_ARRIVAL') . '</div>
-					<div class="main-grid-empty-block-description document-list-stub-description">' . Loc::getMessage('DOCUMENT_LIST_STUB_DESCRIPTION_ARRIVAL') . '</div>
-					<a href="#" class="ui-link ui-link-dashed documents-grid-link" onclick="BX.Catalog.DocumentGridManager.Instance.openHowToStart()">' . Loc::getMessage('DOCUMENT_LIST_STUB_LINK_QUICKSTART') . '</a>
-					<span></span>
-					<a href="#" class="ui-link ui-link-dashed documents-grid-link" onclick="openInventoryMarketplaceSlider()">' . Loc::getMessage('DOCUMENT_LIST_STUB_LINK_MIGRATION') . '</a>
+				<div class="main-grid-empty-block-title">' . Loc::getMessage('DOCUMENT_LIST_STUB_TITLE_ARRIVAL_2') . '</div>
+				<div class="main-grid-empty-block-description document-list-stub-description">' . Loc::getMessage('DOCUMENT_LIST_STUB_DESCRIPTION_ARRIVAL_2') . '</div>
+				<div class="catalog-store-document-stub-transfer-content">
+					<div class="catalog-store-document-stub-transfer-info">
+						<div class="catalog-store-document-stub-transfer-info-text">
+							' . Loc::getMessage('DOCUMENT_LIST_STUB_MIGRATION_TITLE') . '
+						</div>
+						' . $this->getStubLogoList() . '
+					</div>
+					<div class="catalog-store-document-stub-transfer-btn-block">
+						<a href="#" onclick="openInventoryMarketplaceSlider()" class="ui-btn ui-btn-primary ui-btn-round">
+							' . Loc::getMessage('DOCUMENT_LIST_STUB_MIGRATION_LINK') . '
+						</a>
+					</div>
+				</div>
 				';
 			case self::MOVING_MODE:
 				return '
@@ -763,6 +774,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		}
 
 		\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($addDocumentButton, \Bitrix\UI\Toolbar\ButtonLocation::AFTER_TITLE);
+		$this->arResult['ADD_DOCUMENT_BTN_ID'] = $addDocumentButton->getUniqId();
 	}
 
 	private function isFirstTime()
@@ -783,7 +795,19 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		return !$doIncomeDocsExist;
 	}
 
-	private function getUserFilter()
+	private function isShowGuide(): bool
+	{
+		$documentListUserOptions = CUserOptions::GetOption('catalog', 'document-list', []);
+		$isGuideOver = $documentListUserOptions['isDocumentCreateGuideOver'] ?? false;
+		if (is_string($isGuideOver))
+		{
+			$isGuideOver = filter_var($isGuideOver, FILTER_VALIDATE_BOOLEAN);
+		}
+
+		return $this->mode === self::ARRIVAL_MODE && !$isGuideOver && $this->isFirstTime();
+	}
+
+	private function getUserFilter(): array
 	{
 		$filterOptions = new \Bitrix\Main\UI\Filter\Options($this->filter->getID());
 		$filterFields = $this->filter->getFieldArrays();
@@ -921,5 +945,67 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		$sliderPath = \CComponentEngine::makeComponentPath('bitrix:catalog.warehouse.master.clear');
 		$sliderPath = getLocalPath('components' . $sliderPath . '/slider.php');
 		$this->arResult['MASTER_SLIDER_URL'] = $sliderPath;
+	}
+
+	private function getStubLogoList()
+	{
+		$quickbooksIconPath = $this->getPath() . '/images/document-list-quickbooks.png';
+		$zohoIconPath = $this->getPath() . '/images/document-list-zoho.png';
+
+		$logoList = '
+		<div class="catalog-store-document-stub-transfer-info-systems-item">
+			<img src="' . $zohoIconPath . '" alt="Zoho Inventory">
+		</div>
+		<div class="catalog-store-document-stub-transfer-info-systems-item">
+			<img src="' . $quickbooksIconPath . '" alt="QuickBooks">
+		</div>
+		';
+
+		if (in_array($this->getZone(), ['ru', 'kz', 'by']))
+		{
+			$mystoreIconPath = $this->getPath() . '/images/document-list-mystore.svg';
+
+			$companyNames = Loc::loadLanguageFile(
+				$_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/regionalsystemfields/companynames.php',
+				'ru'
+			);
+			$logoList .= '
+			<div class="catalog-store-document-stub-transfer-info-systems-item">
+				<img src="' . $mystoreIconPath . '" alt="' . $companyNames['COMPANY_NAME_MY_STORE'] . '">
+			</div>
+			';
+		}
+
+		return '
+			<div class="catalog-store-document-stub-transfer-info-systems">
+				' . $logoList . '
+				<div class="catalog-store-document-stub-transfer-info-systems-item">
+				' . Loc::getMessage('DOCUMENT_LIST_STUB_MIGRATION_MORE') . '
+				</div>
+			</div>
+		';
+	}
+
+
+	private function getZone()
+	{
+		if (Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			$zone = \CBitrix24::getPortalZone();
+		}
+		else
+		{
+			$iterator = Bitrix\Main\Localization\LanguageTable::getList([
+				'select' => ['ID'],
+				'filter' => [
+					'=DEF' => 'Y',
+					'=ACTIVE' => 'Y'
+				]
+			]);
+			$row = $iterator->fetch();
+			$zone = $row['ID'];
+		}
+
+		return $zone;
 	}
 }

@@ -11,6 +11,7 @@ BX.Lists.ListClass = (function ()
 		this.listAction = parameters.listAction;
 		this.listActionAdd = parameters.listActionAdd;
 		this.gridId = parameters.gridId;
+		this.filterId = parameters.filterId;
 
 		this.init();
 	};
@@ -122,6 +123,41 @@ BX.Lists.ListClass = (function ()
 			);
 		}
 		if(this.addPopupObject) this.addPopupObject.popupWindow.show();
+	};
+
+	ListClass.prototype.getTotalCount = function ()
+	{
+		this.showCountLoader(BX('lists-list-row-count-wrapper'));
+
+		BX.ajax({
+			url: window.location.href,
+			method: 'POST',
+			dataType: 'json',
+			data: {
+				'action': 'getTotalCount',
+			},
+			onsuccess: BX.proxy(function(response) {
+				this.hideCountLoader(BX('lists-list-row-count-wrapper'));
+				this.appendCount(BX('lists-list-row-count-wrapper'), parseInt(response, 10));
+			}, this)
+		});
+	};
+
+	ListClass.prototype.showCountLoader = function(container)
+	{
+		container.querySelector('a').style.display = 'none';
+		container.querySelector('.lists-circle-loader-circular').style.display = 'inline';
+	};
+
+	ListClass.prototype.hideCountLoader = function(container)
+	{
+		container.querySelector('.lists-circle-loader-circular').style.display = 'none';
+	};
+
+	ListClass.prototype.appendCount = function(container, count)
+	{
+		container.querySelector('a').remove();
+		container.append(count);
 	};
 
 	ListClass.prototype.addSection = function ()

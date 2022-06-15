@@ -2132,7 +2132,7 @@ if(!empty($arUser))
 	if($catalogSubscribeEnabled)
 	{
 		$aTabs[] = array(
-			"DIV" => "tab6",
+			"DIV" => "tab8",
 			"TAB" => GetMessage("CS_TAB_TITLE"),
 			"ICON" => "",
 			"TITLE" => GetMessage("CS_TAB_DESC"),

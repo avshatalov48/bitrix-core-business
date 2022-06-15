@@ -4,12 +4,28 @@ const namespace = Reflection.namespace('BX.Catalog.Master');
 
 class CatalogWarehouseMasterClear
 {
-	inventoryManagementEnabled()
+	inventoryManagementInstallPreset(data={})
 	{
+		return ajax.runAction(
+			'catalog.config.inventoryManagementInstallPreset',
+			{
+				data:{
+					preset: data.preset
+				}
+			}
+		)
+	}
+	inventoryManagementEnabled(data={})
+	{
+		let analytics = {iME: 'inventoryManagementEnabled' + '_' + data.preset.sort().join('_')};
+
 		return ajax.runAction(
 			'catalog.config.inventoryManagementYAndResetQuantity',
 			{
-				analyticsLabel: 'inventoryManagementEnabled'
+				analyticsLabel: analytics,
+				data:{
+					preset: data.preset
+				}
 			}
 		)
 	}

@@ -815,6 +815,11 @@ abstract class ElementList extends Base
 			{
 				if (\CProductQueryBuilder::isCatalogFilterField($key))
 				{
+					//TODO: remove this hack after new catalog.section filter
+					if ($key === '=PRODUCT_UF_PRODUCT_MAPPING')
+					{
+						continue;
+					}
 					$catalogFilter[$key] = $value;
 					unset($this->globalFilter[$key]);
 				}
@@ -846,6 +851,7 @@ abstract class ElementList extends Base
 				$this->storage['SUB_FILTER']['IBLOCK_ID'] = $iblock['IBLOCK_ID'];
 				$this->storage['SUB_FILTER']['ACTIVE_DATE'] = 'Y';
 				$this->storage['SUB_FILTER']['ACTIVE'] = 'Y';
+
 				$this->filterFields[] = array(
 					'LOGIC' => 'OR',
 					array($catalogFilter),

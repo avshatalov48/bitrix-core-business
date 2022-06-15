@@ -1,5 +1,5 @@
 .ui-selector-items {
-	padding: 10px 5px 10px 10px;
+	padding: 6px 5px 6px 10px;
 }
 
 .ui-selector-item-box {
@@ -28,6 +28,7 @@
 	position: relative;
 	display: flex;
 	align-items: center;
+	border-radius: var(--ui-selector-item-border-radius, var(--ui-border-radius-2xs));
 }
 
 .bx-ie11 .ui-selector-item {

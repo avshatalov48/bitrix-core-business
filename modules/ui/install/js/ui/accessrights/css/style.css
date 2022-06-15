@@ -33,6 +33,7 @@
 	display: flex;
 	padding: 3px 20px;
 	background: #fff;
+	border-radius: var(--ui-access-rights-section-border-radius, var(--ui-border-radius-md));
 }
 
 .ui-access-rights-section-head {

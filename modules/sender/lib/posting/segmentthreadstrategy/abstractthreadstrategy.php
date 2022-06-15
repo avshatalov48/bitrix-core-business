@@ -23,6 +23,7 @@ abstract class AbstractThreadStrategy implements ThreadStrategy
 	protected $offset;
 	protected $perPage = 100000;
 	protected const GROUP_THREAD_LOCK_KEY = 'group_thread_';
+	public const THREAD_UNAVAILABLE = -1;
 
 	/**
 	 *
@@ -59,11 +60,11 @@ abstract class AbstractThreadStrategy implements ThreadStrategy
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function lockThread(): void
+	public function lockThread(): ?int
 	{
 		if (!static::checkLock())
 		{
-			return;
+			return self::THREAD_UNAVAILABLE;
 		}
 		$thread = GroupThreadTable::getList(
 			[
@@ -90,7 +91,7 @@ abstract class AbstractThreadStrategy implements ThreadStrategy
 
 		if (!isset($thread["THREAD_ID"]))
 		{
-			return;
+			return self::THREAD_UNAVAILABLE;
 		}
 		$this->threadId = (int)$thread["THREAD_ID"];
 		$this->offset = $this->threadId === 0 && (int)$thread["STEP"] === 0
@@ -98,6 +99,8 @@ abstract class AbstractThreadStrategy implements ThreadStrategy
 
 		$this->updateStatus(GroupThreadTable::STATUS_IN_PROGRESS);
 		Locker::unlock(self::GROUP_THREAD_LOCK_KEY, $this->groupStateId);
+
+		return $this->threadId;
 	}
 
 	/**
@@ -242,7 +245,7 @@ abstract class AbstractThreadStrategy implements ThreadStrategy
 	}
 
 
-	function getOffset(): ?int
+	public function getOffset(): ?int
 	{
 		return intval($this->offset);
 	}
@@ -251,4 +254,14 @@ abstract class AbstractThreadStrategy implements ThreadStrategy
 	{
 		$this->perPage = $perPage;
 	}
+
+	/**
+	 * Returns true if sending not available
+	 * @return bool
+	 */
+	public function isProcessLimited(): bool
+	{
+		return false;
+	}
+
 }

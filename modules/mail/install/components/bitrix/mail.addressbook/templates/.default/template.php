@@ -138,6 +138,7 @@ $APPLICATION->IncludeComponent(
 		'SORT' => $arResult['SORT'],
 		'SORT_VARS' => $arResult['SORT_VARS'],
 		'ALLOW_SORT' => true,
+		'TOTAL_ROWS_COUNT' => $arResult['ROWS_COUNT'],
 		'ACTION_PANEL' => [
 			'GROUPS' => [
 				[

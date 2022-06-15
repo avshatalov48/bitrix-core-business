@@ -117,6 +117,7 @@ $isProduct = $arParams['VARIATION_ID_LIST'] === null;
 			'copyItemsMap' => $arResult['COPY_ITEM_MAP'] ?? null,
 			'storeAmount' => $arResult['STORE_AMOUNT'],
 			'isShowedStoreReserve' => $arResult['IS_SHOWED_STORE_RESERVE'],
+			'reservedDealsSliderLink' => $arResult['RESERVED_DEALS_SLIDER_LINK'],
 		])?>);
 	});
 </script>

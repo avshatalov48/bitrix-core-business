@@ -18,7 +18,8 @@ return [
 		'main.popup',
 		'main.core',
 		'main.loader',
-		'ui.fonts.opensans'
+		'ui.fonts.opensans',
+		'ui.design-tokens',
 	],
 	'post_rel' => $extensions,
 	'settings' => [

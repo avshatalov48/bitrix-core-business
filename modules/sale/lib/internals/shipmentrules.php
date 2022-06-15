@@ -350,15 +350,28 @@ class ShipmentRules
 						{
 							$needQuantityByStore[$storeId] += $quantity;
 							$needReserveQuantity -= $quantity;
+
+							$poolReservationList[$productId][$storeId] = 0;
 						}
 						else
 						{
 							$needQuantityByStore[$storeId] += $needReserveQuantity;
 							$needReserveQuantity = 0;
+
+
+							$poolReservationList[$productId][$storeId] -= $quantity;
 						}
 
 					}
 				}
+			}
+		}
+
+		foreach ($poolReservationList as $productId => $quantityByStore)
+		{
+			foreach ($quantityByStore as $storeId => $quantity)
+			{
+				$pool->setByStore(PoolQuantity::POOL_RESERVE_TYPE, $productId, $storeId, $quantity);
 			}
 		}
 
@@ -467,11 +480,11 @@ class ShipmentRules
 				$fields['QUANTITY_BY_STORE'] = $quantityByStore;
 				unset($fields['ACTION']);
 
-				if ($action == PoolQuantity::POOL_QUANTITY_TYPE)
+				if ($action === PoolQuantity::POOL_QUANTITY_TYPE)
 				{
 					$shipProductsList[] = $fields;
 				}
-				elseif ($action == PoolQuantity::POOL_RESERVE_TYPE)
+				elseif ($action === PoolQuantity::POOL_RESERVE_TYPE)
 				{
 					$reserveProductsList[] = $fields;
 				}

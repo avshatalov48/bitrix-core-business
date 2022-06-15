@@ -1,0 +1,66 @@
+.ui-typography-heading-h1 {
+	font-size: var(--ui-typography-heading-h1-font-size);
+	line-height: var(--ui-typography-heading-h1-line-height);
+	font-weight: var(--ui-typography-heading-h1-font-weight);
+	color: var(--ui-typography-heading-h1-color);
+}
+
+.ui-typography-heading-h2 {
+	font-size: var(--ui-typography-heading-h2-font-size);
+	line-height: var(--ui-typography-heading-h2-line-height);
+	font-weight: var(--ui-typography-heading-h2-font-weight);
+	color: var(--ui-typography-heading-h2-color);
+}
+
+.ui-typography-heading-h3 {
+	font-size: var(--ui-typography-heading-h3-font-size);
+	line-height: var(--ui-typography-heading-h3-line-height);
+	font-weight: var(--ui-typography-heading-h3-font-weight);
+	color: var(--ui-typography-heading-h3-color);
+}
+
+.ui-typography-heading-h4 {
+	font-size: var(--ui-typography-heading-h4-font-size);
+	line-height: var(--ui-typography-heading-h4-line-height);
+	font-weight: var(--ui-typography-heading-h4-font-weight);
+	color: var(--ui-typography-heading-h4-color);
+}
+
+.ui-typography-heading-h5 {
+	font-size: var(--ui-typography-heading-h5-font-size);
+	line-height: var(--ui-typography-heading-h5-line-height);
+	font-weight: var(--ui-typography-heading-h5-font-weight);
+	color: var(--ui-typography-heading-h5-color);
+}
+
+.ui-typography-heading-h6 {
+	font-size: var(--ui-typography-heading-h6-font-size);
+	line-height: var(--ui-typography-heading-h6-line-height);
+	font-weight: var(--ui-typography-heading-h6-font-weight);
+	color: var(--ui-typography-heading-h6-color);
+}
+
+.ui-typography-text-xs {
+	font-size: var(--ui-typography-text-xs-font-size);
+	line-height: var(--ui-typography-text-xs-line-height);
+	font-weight: var(--ui-typography-text-xs-font-weight);
+}
+
+.ui-typography-text-sm {
+	font-size: var(--ui-typography-text-sm-font-size);
+	line-height: var(--ui-typography-text-sm-line-height);
+	font-weight: var(--ui-typography-text-sm-font-weight);
+}
+
+.ui-typography-text-md {
+	font-size: var(--ui-typography-text-md-font-size);
+	line-height: var(--ui-typography-text-md-line-height);
+	font-weight: var(--ui-typography-text-md-font-weight);
+}
+
+.ui-typography-text-lg {
+	font-size: var(--ui-typography-text-lg-font-size);
+	line-height: var(--ui-typography-text-lg-line-height);
+	font-weight: var(--ui-typography-text-lg-font-weight);
+}
+

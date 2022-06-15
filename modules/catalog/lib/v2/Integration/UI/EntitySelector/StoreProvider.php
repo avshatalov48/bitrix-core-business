@@ -21,7 +21,7 @@ class StoreProvider extends BaseProvider
 	public function __construct(array $options = [])
 	{
 		$this->options['searchDisabledStores'] = $options['searchDisabledStores'] ?? true;
-		$this->options['useAddressAsTitle'] = $options['useAddressAsTitle'] ?? false;
+		$this->options['useAddressAsTitle'] = $options['useAddressAsTitle'] ?? true;
 		$this->options['productId'] = (int)$options['productId'];
 		if ($this->options['productId'] > 0)
 		{
@@ -98,7 +98,14 @@ class StoreProvider extends BaseProvider
 	{
 		$searchQuery->setCacheable(false);
 		$query = $searchQuery->getQuery();
-		$items = $this->getStores(['%TITLE' => $query]);
+		$filter = [
+			[
+				'%TITLE' => $query,
+				'%ADDRESS' => $query,
+				'LOGIC' => 'OR',
+			]
+		];
+		$items = $this->getStores($filter);
 
 		$dialog->addItems($items);
 	}

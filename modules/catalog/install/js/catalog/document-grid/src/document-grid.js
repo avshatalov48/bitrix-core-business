@@ -1,6 +1,7 @@
 import {ajax, Loc} from 'main.core';
 import { Popup } from 'main.popup';
 import {Button, ButtonColor} from 'ui.buttons';
+import {Slider} from 'catalog.store-use'
 
 export class DocumentGridManager
 {
@@ -336,10 +337,9 @@ export class DocumentGridManager
 
 	openStoreMasterSlider()
 	{
-		BX.SidePanel.Instance.open(
+		new Slider().open(
 			this.masterSliderUrl,
 			{
-				cacheable: false,
 				data: {
 					openGridOnDone: false,
 				},

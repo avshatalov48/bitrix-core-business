@@ -1,7 +1,7 @@
 <?php
 namespace Bitrix\Catalog\Controller;
 
-
+use Bitrix\Catalog\Component\StoreMaster;
 use Bitrix\Catalog\Component\UseStore;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\CurrentUser;
@@ -46,6 +46,7 @@ final class Config extends \Bitrix\Main\Engine\Controller
 			|| $name == strtolower('onceInventoryManagementN')
 			|| $name == strtolower('inventoryManagementN')
 			|| $name == strtolower('inventoryManagementYAndResetQuantity')
+			|| $name == strtolower('inventoryManagementInstallPreset')
 		)
 		{
 			$r = $this->checkModifyPermissionEntity($name, $arguments);
@@ -117,16 +118,31 @@ final class Config extends \Bitrix\Main\Engine\Controller
 
 	public function inventoryManagementNAction(): bool
 	{
-		return UseStore::disable();
+		$result = UseStore::disable();
+		StoreMaster::setIsUsed();
+		UseStore::resetPreset();
+
+		return $result;
 	}
 
-	public function inventoryManagementYAndResetQuantityAction(): bool
+	public function inventoryManagementYAndResetQuantityAction($preset): bool
 	{
 		if (UseStore::isPlanRestricted())
 		{
 			return false;
 		}
+
 		UseStore::enable();
+		StoreMaster::setIsUsed();
+		UseStore::installPreset($preset);
+
+		return true;
+	}
+
+	public function inventoryManagementInstallPresetAction($preset): bool
+	{
+		UseStore::installPreset($preset);
+
 		return true;
 	}
 

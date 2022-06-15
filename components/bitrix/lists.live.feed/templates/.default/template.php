@@ -15,7 +15,7 @@
 use Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Page\Asset;
 
-CJSCore::Init(array('lists'));
+CJSCore::Init(['lists', 'ui.design-tokens']);
 
 Asset::getInstance()->addJs($this->GetFolder().'/right.js');
 ?>

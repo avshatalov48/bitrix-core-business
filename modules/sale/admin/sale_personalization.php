@@ -6,6 +6,11 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
 Loader::includeModule('sale');
 
+if (!\Bitrix\Sale\Configuration::isCanUsePersonalization())
+{
+	LocalRedirect('/bitrix/admin/');
+}
+
 IncludeModuleLangFile(__FILE__);
 
 // Page header

@@ -307,6 +307,11 @@ class TransportMail implements Transport\iBase, Transport\iDuration, Transport\i
 	{
 		$limiters = Integration\Bitrix24\Limitation\Limiter::getList();
 
+		if (Integration\Bitrix24\Service::isCloud())
+		{
+			$limiters[] = Integration\Bitrix24\Limitation\Limiter::getPortalVerification();
+		}
+
 		if ($message)
 		{
 			$limiters[] = self::getTimeLimiter($message);

@@ -2,8 +2,14 @@
 
 namespace Bitrix\Catalog\Component;
 
+use Bitrix\Main;
 use Bitrix\Main\Component\ParameterSigner;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UserField;
+use Bitrix\Catalog;
+use Bitrix\Highloadblock as Highload;
+use Bitrix\UI\EntityForm\Control;
 
 class ProductForm extends BaseForm
 {
@@ -83,7 +89,8 @@ class ProductForm extends BaseForm
 		return array_merge(
 			parent::buildDescriptions(),
 			$this->getSectionDescriptions(),
-			$this->getNameCodeDescription()
+			$this->getNameCodeDescription(),
+			$this->getUserFieldDescriptions()
 		);
 	}
 
@@ -115,6 +122,156 @@ class ProductForm extends BaseForm
 				'defaultValue' => null,
 			],
 		];
+	}
+
+	protected function getUserFieldDescriptions(): array
+	{
+		$result = [];
+		$iterator = Main\UserFieldTable::getList([
+			'select' => array_merge(
+				['*'],
+				Main\UserFieldTable::getLabelsSelect()
+			),
+			'filter' => [
+				'=ENTITY_ID' => Catalog\ProductTable::getUfId(),
+			],
+			'order' => ['SORT' => 'ASC', 'ID' => 'ASC'],
+			'runtime' => [
+				Main\UserFieldTable::getLabelsReference('', Loc::getCurrentLang()),
+			],
+		]);
+		while ($row = $iterator->fetch())
+		{
+			$description = [
+				'entity' => 'product',
+				'name' => $row['FIELD_NAME'],
+				'originalName' => $row['FIELD_NAME'],
+				'title' => $row['EDIT_FORM_LABEL'] ?? $row['FIELD_NAME'],
+				'hint' => $row['HELP_MESSAGE'],
+				'type' => $this->getUserFieldType($row),
+				'editable' => true,
+				'required' => $row['MANDATORY'] === 'Y',
+				'multiple' => $row['MULTIPLE'] === 'Y',
+				'placeholders' => null,
+				'defaultValue' => $row['SETTINGS']['DEFAULT_VALUE'] ?? '',
+				'optionFlags' => 1, // showAlways */
+				'data' => [],
+			];
+
+			switch ($description['type'])
+			{
+				case Control\Type::CUSTOM:
+					$description['data'] += $this->getCustomControlParameters($description['name']);
+					break;
+				case Control\Type::MULTI_LIST:
+				case Control\Type::LIST:
+					$description['data'] += $this->getUserFieldListItems($row);
+					break;
+			}
+
+			$result[] = $description;
+		}
+
+		return $result;
+	}
+
+	protected function getUserFieldType(array $userField): string
+	{
+		$isMultiple = $userField['MULTIPLE'] === 'Y';
+		switch ($userField['USER_TYPE_ID'])
+		{
+			case UserField\Types\BooleanType::USER_TYPE_ID:
+				$result = Control\Type::BOOLEAN;
+				break;
+			case UserField\Types\DateTimeType::USER_TYPE_ID:
+			case UserField\Types\DateType::USER_TYPE_ID:
+				$result = $isMultiple ? Control\Type::MULTI_DATETIME : Control\Type::DATETIME;
+				break;
+			case UserField\Types\DoubleType::USER_TYPE_ID:
+			case UserField\Types\IntegerType::USER_TYPE_ID:
+				$result = $isMultiple ? Control\Type::MULTI_NUMBER : Control\Type::NUMBER;
+				break;
+			case UserField\Types\EnumType::USER_TYPE_ID:
+				$result = $isMultiple ? Control\Type::MULTI_LIST : Control\Type::LIST;
+				break;
+			case UserField\Types\FileType::USER_TYPE_ID:
+				$result = Control\Type::CUSTOM;
+				break;
+			case UserField\Types\StringFormattedType::USER_TYPE_ID:
+				$result = Control\Type::TEXTAREA; // TODO: need replace
+				break;
+			case UserField\Types\StringType::USER_TYPE_ID:
+				$result = $isMultiple ? Control\Type::MULTI_TEXT : Control\Type::TEXT;
+				break;
+			case UserField\Types\UrlType::USER_TYPE_ID:
+				$result = Control\Type::LINK;
+				break;
+			default:
+				if (
+					Loader::includeModule('highloadblock')
+					&& $userField['USER_TYPE_ID'] === \CUserTypeHlblock::USER_TYPE_ID
+				)
+				{
+					$result = $isMultiple ? Control\Type::MULTI_LIST : Control\Type::LIST;
+				}
+				else
+				{
+					$result = Control\Type::TEXT;
+				}
+		}
+
+		return $result;
+	}
+
+	private function getUserFieldListItems(array $userField): array
+	{
+		if (
+			Loader::includeModule('highloadblock')
+			&& $userField['USER_TYPE_ID'] === \CUserTypeHlblock::USER_TYPE_ID
+		)
+		{
+			return $this->getUserFieldHighloadblockItems($userField);
+		}
+
+		return [];
+	}
+
+	private function getUserFieldHighloadblockItems(array $userField): array
+	{
+		$list = [];
+		if (
+			$userField['MANDATORY'] === 'N'
+			&& $userField['MULTIPLE'] === 'N'
+		)
+		{
+			$list[] = [
+				'ID' => '0',
+				'VALUE' => '0',
+				'NAME' => Loc::getMessage('BX_CATALOG_PRODUCT_USERFIELD_MESS_EMPTY_VALUE')
+			];
+		}
+
+		$entity = Highload\HighloadBlockTable::compileEntity($userField['SETTINGS']['HLBLOCK_ID']);
+		$entityDataClass = $entity->getDataClass();
+		$iterator = $entityDataClass::getList([
+			'select' => [
+				'ID',
+				'UF_NAME',
+			],
+			'order' => ['UF_NAME' => 'ASC'],
+		]);
+		while ($value = $iterator->fetch())
+		{
+			$list[] = [
+				'ID' =>  $value['ID'],
+				'VALUE' => $value['ID'],
+				'NAME' => $value['UF_NAME'],
+			];
+		}
+		unset($value, $iterator);
+		unset($entityDataClass, $entity);
+
+		return (!empty($list) ? ['items' => $list] : []);
 	}
 
 	protected function showSpecificCatalogParameters(): bool
@@ -182,5 +339,16 @@ class ProductForm extends BaseForm
 		}
 
 		return $sectionData;
+	}
+
+	protected function getMainConfigElements(): array
+	{
+		return array_merge(
+			parent::getMainConfigElements(),
+			Catalog\Product\SystemField::getFieldsByRestrictions([
+				'TYPE' => $this->entity->getType(),
+				'IBLOCK_ID' => $this->entity->getIblockId()
+			])
+		);
 	}
 }

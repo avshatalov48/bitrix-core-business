@@ -416,7 +416,7 @@ class BizprocDocumentLists extends \BizprocDocument
 			}
 			elseif ($property["PROPERTY_TYPE"] == "N")
 			{
-				$result[$key]["Type"] = "int";
+				$result[$key]["Type"] = "double";
 			}
 			elseif ($property["PROPERTY_TYPE"] == "F")
 			{

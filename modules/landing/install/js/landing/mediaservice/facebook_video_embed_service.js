@@ -52,8 +52,8 @@
 						selector: "show_text",
 						content: !isNaN(parseInt(settings.show_text)) ? parseInt(settings.show_text) : 0,
 						items: [
-							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: true},
-							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: false}
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
+							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
 						]
 					})
 				);

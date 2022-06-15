@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CT_BLL_ADD_SECTION_POPUP_BUTTON_ADD"] = "Add";
 $MESS["CT_BLL_ADD_SECTION_POPUP_BUTTON_CLOSE"] = "Close";
 $MESS["CT_BLL_ADD_SECTION_POPUP_BUTTON_EDIT"] = "Save";
@@ -12,6 +12,8 @@ $MESS["CT_BLL_EDIT_SECTION_POPUP_TITLE"] = "Edit section";
 $MESS["CT_BLL_EXPORT_EXCEL"] = "Export to Microsoft Excel";
 $MESS["CT_BLL_EXPORT_EXCEL_TITLE"] = "Export to Microsoft Excel";
 $MESS["CT_BLL_EXPORT_IN_EXCEL"] = "Export to Microsoft Excel";
+$MESS["CT_BLL_GRID_ROW_COUNT_TITLE"] = "Total:";
+$MESS["CT_BLL_GRID_SHOW_ROW_COUNT"] = "Show quantity";
 $MESS["CT_BLL_GROUP_STEPPER_PROGRESS_ERROR"] = "Items with these ID's could not be copied: ";
 $MESS["CT_BLL_GROUP_STEPPER_PROGRESS_TITLE"] = "Copy items";
 $MESS["CT_BLL_HIDE_SECTION_GRID"] = "Hide sections";
@@ -36,4 +38,3 @@ $MESS["CT_BLL_TOOLBAR_LIST_TITLE"] = "Configure list settings";
 $MESS["CT_BLL_TOOLBAR_PROCESS"] = "Workflow settings";
 $MESS["CT_BLL_TOOLBAR_PROCESS_TITLE"] = "Change workflow preferences";
 $MESS["CT_BLL_TOOLBAR_SECTION_DELETE_WARNING"] = "Are you sure you want to delete this section?";
-?>

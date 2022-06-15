@@ -42,11 +42,22 @@ class IblockRight implements RightEntity, Errorable
 	 */
 	public function canRead()
 	{
-		if ($this->listsPermission <= \CListPermissions::ACCESS_DENIED)
+		if (
+			$this->listsPermission < \CListPermissions::CAN_READ
+			&& !(
+				\CIBlockRights::userHasRightTo(
+					$this->rightParam->getIblockId(),
+					$this->rightParam->getIblockId(),
+					'element_read'
+				)
+			)
+		)
 		{
-			$this->errorCollection->setError(new Error("Access denied", self::ACCESS_DENIED));
+			$this->errorCollection->setError(new Error('Access denied', self::ACCESS_DENIED));
+
 			return false;
 		}
+
 		return true;
 	}
 

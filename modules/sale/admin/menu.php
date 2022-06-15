@@ -10,6 +10,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\EventManager;
+use Bitrix\Sale\Configuration;
 use Bitrix\Sale\ShopSitesController;
 
 IncludeModuleLangFile(__FILE__);
@@ -150,15 +151,18 @@ if ($APPLICATION->GetGroupRight("sale")!="D")
 
 	/* Orders End*/
 
-	$aMenu[] = array(
-		"parent_menu" => "global_menu_marketing",
-		"sort" => 800,
-		"text" => GetMessage("SALE_BIGDATA"),
-		"title" => GetMessage("SALE_BIGDATA"),
-		"icon" => "sale_menu_icon_bigdata",
-		"url" => "sale_personalization.php?lang=".LANGUAGE_ID,
-		"items_id" => "sale_personalization",
-	);
+	if (Loader::includeModule('sale') && \Bitrix\Sale\Configuration::isCanUsePersonalization())
+	{
+		$aMenu[] = array(
+			"parent_menu" => "global_menu_marketing",
+			"sort" => 800,
+			"text" => GetMessage("SALE_BIGDATA"),
+			"title" => GetMessage("SALE_BIGDATA"),
+			"icon" => "sale_menu_icon_bigdata",
+			"url" => "sale_personalization.php?lang=".LANGUAGE_ID,
+			"items_id" => "sale_personalization",
+		);
+	}
 
 	$aMenu[] = array(
 		"parent_menu" => "global_menu_marketing",
@@ -318,14 +322,17 @@ if ($APPLICATION->GetGroupRight("sale")!="D")
 				"items" => Array(),
 			);
 
-		$arMenu["items"][] = array(
-			"text" =>  GetMessage("SALE_SYNC_DESCR"),
-			"title" => GetMessage("SALE_SYNC_TITLE"),
-			"url" => "sale_synchronizer_settings.php?lang=".LANGUAGE_ID,
-			"more_url" => array("sale_synchronizer_settings.php"),
-			"items_id" => "sale_synchronizer_settings",
-			"sort" => 302,
-		);
+		if (Loader::includeModule('sale') && Configuration::isAvailableOrdersImportFromB24())
+		{
+			$arMenu["items"][] = array(
+				"text" =>  GetMessage("SALE_SYNC_DESCR"),
+				"title" => GetMessage("SALE_SYNC_TITLE"),
+				"url" => "sale_synchronizer_settings.php?lang=".LANGUAGE_ID,
+				"more_url" => array("sale_synchronizer_settings.php"),
+				"items_id" => "sale_synchronizer_settings",
+				"sort" => 302,
+			);
+		}
 
 		$aMenu[] = $arMenu;
 	}
@@ -946,22 +953,26 @@ if ($APPLICATION->GetGroupRight("sale") == "W" ||
 		}
 		/* LOCATIONS END */
 
-		$arMenu["items"][] = array(
-			"text" => GetMessage("MAIN_MENU_1C_INTEGRATION"),
-			"title" => GetMessage("MAIN_MENU_1C_INTEGRATION_TITLE"),
-			"url" => "1c_admin.php?lang=".LANGUAGE_ID,
-			"more_url" => array("1c_admin.php"),
-			"items" => array(
-				array(
-					"text" => GetMessage("MAIN_MENU_1C_INTEGRATION_LOG"),
-					"title" => GetMessage("MAIN_MENU_1C_INTEGRATION_LOG_TITLE"),
-					"url" => "sale_exchange_log.php?lang=".LANGUAGE_ID,
-					"items_id" => "sale_exchange_log",
-				)
-			),
-			"items_id" => "1c_admin",
-			"sort" => 726,
-		);
+		if (Loader::includeModule('sale') && \Bitrix\Sale\Configuration::isCanUse1c())
+		{
+			$arMenu["items"][] = array(
+				"text" => GetMessage("MAIN_MENU_1C_INTEGRATION"),
+				"title" => GetMessage("MAIN_MENU_1C_INTEGRATION_TITLE"),
+				"url" => "1c_admin.php?lang=".LANGUAGE_ID,
+				"more_url" => array("1c_admin.php"),
+				"items" => array(
+					array(
+						"text" => GetMessage("MAIN_MENU_1C_INTEGRATION_LOG"),
+						"title" => GetMessage("MAIN_MENU_1C_INTEGRATION_LOG_TITLE"),
+						"url" => "sale_exchange_log.php?lang=".LANGUAGE_ID,
+						"items_id" => "sale_exchange_log",
+					)
+				),
+				"items_id" => "1c_admin",
+				"sort" => 726,
+			);
+		}
+
 		$arMenu["items"][] = array(
 			"text" => GetMessage("MAIN_MENU_REPORT_EDIT"),
 			"title" => GetMessage("MAIN_MENU_REPORT_EDIT_TITLE"),

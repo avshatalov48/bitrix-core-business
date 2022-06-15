@@ -44,7 +44,7 @@ $MESS["SALE_YANDEX_TAXI_CLIENT_PHONE_NOT_VALID"] = "Некорректный т�
 $MESS["SALE_YANDEX_TAXI_CLIENT_EMAIL_NOT_SPECIFIED"] = "Не заполнен Email адрес клиента";
 $MESS["SALE_YANDEX_TAXI_CLIENT_CLIENT_CONTACT_NOT_FOUND"] = "Контактная информация клиента не найдена";
 $MESS["SALE_YANDEX_TAXI_INVALID_TOKEN"] = 'Указан некорректный токен.';
-$MESS["SALE_YANDEX_TAXI_TARIFF_NOT_SUPPORTED"] = 'Проверьте настройки подключения сервиса. Убедитесь, что у вас заключен договор на работу с доставкой <a target="_blank" href="https://helpdesk.bitrix24.ru/open/11604358">подробнее</a>';
+$MESS["SALE_YANDEX_TAXI_TARIFF_NOT_SUPPORTED"] = 'Проверьте настройки подключения сервиса. Убедитесь, что у вас заключен договор на работу с доставкой';
 $MESS["SALE_YANDEX_TAXI_TARIFF_COURIER"] = "Курьер";
 $MESS["SALE_YANDEX_TAXI_TARIFF_COURIER_BY"] = "Стандартная доставка";
 $MESS["SALE_YANDEX_TAXI_TARIFF_EXPRESS"] = "Экспресс";

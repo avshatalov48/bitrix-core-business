@@ -162,7 +162,9 @@ class CAllCatalogDocs
 
 		$DB->Query("DELETE FROM b_catalog_store_docs WHERE ID = ".$id, true);
 
-		//TODO: need refactor next methods 
+		static::deleteDocumentFiles($id);
+
+		//TODO: need refactor next methods
 		\CCatalogStoreDocsBarcode::OnBeforeDocumentDelete($id);
 		\CCatalogStoreDocsElement::OnDocumentBarcodeDelete($id);
 
@@ -182,6 +184,27 @@ class CAllCatalogDocs
 		);
 
 		return true;
+	}
+
+	protected static function deleteDocumentFiles(int $documentId): void
+	{
+		$documentFiles = Catalog\StoreDocumentFileTable::getList([
+			'select' => ['FILE_ID'],
+			'filter' => ['=DOCUMENT_ID' => $documentId],
+		])->fetchAll();
+
+		$fileIds = array_column($documentFiles, 'FILE_ID');
+		foreach ($fileIds as $fileId)
+		{
+			CFile::Delete($fileId);
+		}
+
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+		$connection->queryExecute(
+			'delete from ' . $helper->quote(Catalog\StoreDocumentFileTable::getTableName())
+			. ' where ' . $helper->quote('DOCUMENT_ID') . ' = ' . $documentId
+		);
 	}
 
 	/**
@@ -350,6 +373,7 @@ class CAllCatalogDocs
 				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("CAT_DOC_ERROR_CANCEL_STATUS"));
 				return false;
 			}
+			/** @var \CCatalogDocsTypes $documentClass */
 			$documentClass = self::$types[$arDocType["DOC_TYPE"]];
 
 			$result = $documentClass::cancellationDocument($documentId, $userId);

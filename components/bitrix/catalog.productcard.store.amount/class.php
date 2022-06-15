@@ -153,6 +153,8 @@ class CatalogProductStoreAmountComponent
 			$this->arResult['TOTAL_WRAPPER_ID'] = $this->getTotalWrapperId();
 			$this->arResult['STORE_RESERVE_ENABLE'] = Config\State::isShowedStoreReserve();
 			$this->arResult['SIGNED_PARAMS'] = $this->getStoreAmount()->getStoreAmountSignedParameters();
+			$this->arResult['PRODUCT_ID'] = $this->getProductId();
+			$this->arResult['RESERVED_DEALS_SLIDER_LINK'] = $this->getReservedDealsSliderLink();
 
 			$this->arResult['IM_LINK'] = null;
 		}
@@ -419,7 +421,7 @@ class CatalogProductStoreAmountComponent
 	 */
 	protected function prepareRow(array $productStore): array
 	{
-		$reservedQuantity = '';
+		$reservedQuantity = '<a class="main-grid-cell-content-store-amount-reserved-quantity">';
 		$commonQuantity = '';
 		$quantity = '';
 		$amount = '';
@@ -436,6 +438,8 @@ class CatalogProductStoreAmountComponent
 			$quantityValue = (float)$storeQuantity['QUANTITY_COMMON'] - (float)$storeQuantity['QUANTITY_RESERVED'];
 			$quantity .= "{$quantityValue} $measureSymbol<br>";
 		}
+
+		$reservedQuantity .= '</a>';
 
 		foreach ($productStore['AMOUNT'] as $storeAmount)
 		{
@@ -474,6 +478,13 @@ class CatalogProductStoreAmountComponent
 		return $this->stores;
 	}
 
+	private function getReservedDealsSliderLink()
+	{
+		$sliderUrl = \CComponentEngine::makeComponentPath('bitrix:catalog.productcard.reserved.deal.list');
+		$sliderUrl = getLocalPath('components'.$sliderUrl.'/slider.php');
+
+		return $sliderUrl;
+	}
 
 	// Controllerable implementation
 	public function configureActions()

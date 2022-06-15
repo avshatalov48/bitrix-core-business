@@ -30,14 +30,20 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 
 	protected $componentId;
 	protected $mailbox;
-	protected $foldersItems;
 	/** @var Mailbox */
 	protected $mailboxHelper;
 	/** @var Main\ErrorCollection */
 	private $errorCollection;
+	private $dirsMd5WithCounter;
+	private $directoryTreeForContextMenu;
 
-	private function getDirsMd5WithCountOfUnseenMails($mailboxId)
+	private function getDirsMd5WithCounter($mailboxId)
 	{
+		if($this->dirsMd5WithCounter)
+		{
+			return $this->dirsMd5WithCounter;
+		}
+
 		$foldersWithCounter = Internals\MailCounterTable::getList([
 			'runtime' => array(
 				new ORM\Fields\Relations\Reference(
@@ -58,18 +64,84 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 			'filter' => [
 				'=DIRECTORY.MAILBOX_ID' => $mailboxId,
 				'=ENTITY_TYPE' => 'DIR',
+				'=MAILBOX_ID' => $mailboxId,
 			],
 		]);
 
-		$foldersWithUnseenMails = [];
+		$directoriesWithCounter = [];
 
 		while ($folderTable = $foldersWithCounter->fetch())
 		{
-			$foldersWithUnseenMails[$folderTable['DIR_MD5']] = $folderTable;
+			$directoriesWithCounter[$folderTable['DIR_MD5']] = $folderTable;
 		}
 
-		return $foldersWithUnseenMails;
+		$this->dirsMd5WithCounter = $directoriesWithCounter;
+
+		return $directoriesWithCounter;
 	}
+
+	private function getDateLastOpening($mailboxID)
+	{
+		$dateLastOpening = Mail\Internals\MailEntityOptionsTable::getList(
+			[
+				'select' => [
+					'DATE_INSERT'
+				],
+				'filter' => [
+					'=MAILBOX_ID' => $mailboxID,
+					'=ENTITY_TYPE' => 'MAILBOX',
+					'=ENTITY_ID' => $mailboxID,
+					'=PROPERTY_NAME' => 'LAST_MAIL_OPENING',
+				],
+			]
+		)->fetch();
+
+		if(isset($dateLastOpening['DATE_INSERT']))
+		{
+			return $dateLastOpening['DATE_INSERT'];
+		}
+
+		return new Main\Type\DateTime();
+	}
+
+	private function saveDateOpening($mailboxID)
+	{
+		$filter = [
+			'=MAILBOX_ID' => $mailboxID,
+			'=ENTITY_TYPE' => 'MAILBOX',
+			'=ENTITY_ID' => $mailboxID,
+			'=PROPERTY_NAME' => 'LAST_MAIL_OPENING',
+		];
+
+		$keyRow = [
+			'MAILBOX_ID' => $mailboxID,
+			'ENTITY_TYPE' => 'MAILBOX',
+			'ENTITY_ID' => $mailboxID,
+			'PROPERTY_NAME' => 'LAST_MAIL_OPENING',
+		];
+
+		$fields = $keyRow;
+
+		$fields['DATE_INSERT'] = new Main\Type\DateTime();
+
+		if(Mail\Internals\MailEntityOptionsTable::getCount($filter))
+		{
+			Mail\Internals\MailEntityOptionsTable::update(
+				$keyRow,
+				[
+					'DATE_INSERT' => new Main\Type\DateTime()
+				],
+			);
+		}
+		else
+		{
+			Mail\Internals\MailEntityOptionsTable::add(
+				$fields
+			);
+		}
+	}
+
+
 
 	public function getDirsWithUnseenMailCountersAction($mailboxId)
 	{
@@ -85,7 +157,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 		$defaultDirPath = $mailboxHelper->getDirsHelper()->getDefaultDirPath();
 		$dirs = [];
 
-		$dirsMd5WithCountOfUnseenMails = $this->getDirsMd5WithCountOfUnseenMails($mailboxId);
+		$dirsMd5WithCountOfUnseenMails = $this->getDirsMd5WithCounter($mailboxId);
 
 		$defaultDirPathId = null;
 
@@ -270,6 +342,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 		$uidSubquery->addFilter('=MAILBOX_ID', new Main\DB\SqlExpression('%s'));
 		$uidSubquery->addFilter('=MESSAGE_ID', new Main\DB\SqlExpression('%s'));
 		$uidSubquery->addFilter('==DELETE_TIME', 0);
+		$uidSubquery->addFilter('!@IS_OLD', ['M', 'R']);
 
 		$accessSubquery = new ORM\Query\Query(MessageAccessTable::getEntity());
 		$accessSubquery->addFilter('=MAILBOX_ID', new Main\DB\SqlExpression('%s'));
@@ -400,6 +473,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 					$filter1,
 					[
 						'==MESSAGE_UID.DELETE_TIME' => 0,
+						'!@MESSAGE_UID.IS_OLD' => ['M', 'R'],
 					]
 				),
 				'order' => [
@@ -561,6 +635,8 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 
 		$this->arResult['MAX_ALLOWED_CONNECTED_MAILBOXES'] = Mail\Helper\LicenseManager::getUserMailboxesLimit();
 
+		$this->saveDateOpening($this->mailbox['ID']);
+
 		$this->includeComponentTemplate();
 	}
 
@@ -578,6 +654,8 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 	{
 		$rows = [];
 		$avatarConfigs = $this->getAvatarConfigs($items);
+
+		$dateLastOpening = makeTimeStamp($this->getDateLastOpening($this->mailbox['ID']));
 
 		foreach ($items as $index => $item)
 		{
@@ -637,18 +715,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 				if ($from->getEmail() == $this->mailbox['EMAIL'] && !empty($item['FIELD_TO']))
 				{
 					$columns['FROM'] = htmlspecialcharsbx($item['FIELD_TO']);
-
-					//'email@email' => 'email@domain'
-					//'Name <email@domain>, Name2 <email2@domain2>' => 'Name <email@domain'
-					$fromString = current(preg_split("/>,?/", $item['FIELD_TO']));
-
-					//'email@email' => 'email@domain'
-					//'Name <email@domain' => 'Name <email@domain>'
-					if(preg_match("/</", $fromString))
-					{
-						$fromString.='>';
-					}
-					$from = new \Bitrix\Main\Mail\Address($fromString);
+					$from = new \Bitrix\Main\Mail\Address(current(\Bitrix\Mail\Helper\Message::parseAddressList($item['FIELD_TO'])));
 				}
 			}
 
@@ -838,26 +905,19 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 			$columns['POST_BIND'] .= ' bind-type ="post" '.$bindClose;
 			$columns['MEETING_BIND'] .= ' bind-type ="meeting" '.$bindClose;
 
+			$fieldDateInTimeStamp = makeTimeStamp($item['FIELD_DATE']);
+
 			$rows[$item['ID']] = [
 				'id' => $item['ID'],
 				'data' => $item,
 				'columns' => $columns,
 				'attrs' => [
 					'unseen' => !in_array($item['IS_SEEN'], ['Y', 'S']) ? 'true' : 'false',
+					'new-message' => ($dateLastOpening <= $fieldDateInTimeStamp) ? 'true' : 'false',
 				],
 			];
 
 			$rows[$item['ID']]['actions'] = [
-				[
-					'id' => $this->arResult['gridActionsData']['view']['id'],
-					'text' => $this->arResult['gridActionsData']['view']['text'],
-					'title' => $this->arResult['gridActionsData']['view']['title'],
-					'icon' => $this->arResult['gridActionsData']['view']['icon'],
-					'default' => true,
-					'onclick' => $onclickOpenMessageViewMethod,
-					'hideInActionPanel' => true,
-					'iconOnly' => true,
-				],
 				[
 					'id' => $this->arResult['gridActionsData']['notRead']['id'],
 					'html' => '<span data-role="not-read-action">'.
@@ -873,7 +933,6 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 					'onclick' => "BX.Mail.Client.Message.List['".
 						CUtil::JSEscape($this->getComponentId()).
 						"'].onReadClick('{$item['ID']}');",
-					'iconOnly' => true,
 				],
 				[
 					'id' => $this->arResult['gridActionsData']['read']['id'],
@@ -890,7 +949,6 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 					'onclick' => "BX.Mail.Client.Message.List['".
 						CUtil::JSEscape($this->getComponentId()).
 						"'].onReadClick('{$item['ID']}');",
-					'iconOnly' => true,
 				],
 				[
 					'id' => $this->arResult['gridActionsData']['move']['id'].$item['ID'],
@@ -900,7 +958,6 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 					'title' => $this->arResult['gridActionsData']['move']['title'],
 					'items' => $this->getDirectoryHierarchyForContextMenuAction($this->mailbox['ID']),
 					'gridRowId' => $item['ID'],
-					'iconOnly' => true,
 				],
 				[
 					'id' => $this->arResult['gridActionsData']['notSpam']['id'],
@@ -916,7 +973,6 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 					'onclick' => "BX.Mail.Client.Message.List['".
 						CUtil::JSEscape($this->getComponentId()).
 					"'].onSpamClick('{$item['ID']}');",
-					'iconOnly' => true,
 				],
 				[
 					'id' => $this->arResult['gridActionsData']['spam']['id'],
@@ -932,7 +988,6 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 					'onclick' => "BX.Mail.Client.Message.List['".
 						CUtil::JSEscape($this->getComponentId()).
 					"'].onSpamClick('{$item['ID']}');",
-					'iconOnly' => true,
 				],
 				[
 					'id' => $this->arResult['gridActionsData']['delete']['id'],
@@ -943,11 +998,11 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 					'onclick' => "BX.Mail.Client.Message.List['".
 						CUtil::JSEscape($this->getComponentId()).
 						"'].onDeleteClick('{$item['ID']}');",
-					'iconOnly' => true,
 				],
 				[
 					'id' => 'separator',
 					'additionalClassForPanel' => 'mail-separator',
+					'hideInActionPanel' => true,
 				],
 			];
 
@@ -983,6 +1038,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 
 						'onclick' => $crmOnClickAction,
 						'additionalClassForPanel' => 'mail-crm-action',
+						'hideInActionPanel' => true,
 					],
 					[
 						'id' => $this->arResult['gridActionsData']['excludeFromCrm']['id'],
@@ -995,8 +1051,8 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 						'title' => $this->arResult['gridActionsData']['excludeFromCrm']['title'],
 
 						'onclick' => $crmOnClickAction,
-
 						'additionalClassForPanel' => 'mail-not-crm-action',
+						'hideInActionPanel' => true,
 					],
 				]
 			);
@@ -1019,12 +1075,14 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 
 						'dataset' => ['sliderIgnoreAutobinding' => true],
 						'additionalClassForPanel' => 'mail-task',
+						'hideInActionPanel' => true,
 					],
 					[
 						'id' => $this->arResult['gridActionsData']['discuss']['id'],
 						'text' => $this->arResult['gridActionsData']['discuss']['text'],
 						'title' => $this->arResult['gridActionsData']['discuss']['title'],
 						'additionalClassForPanel' => 'mail-discuss',
+						'hideInActionPanel' => true,
 						'items' => [
 								[
 									'id' => $this->arResult['gridActionsData']['chat']['id'],
@@ -1055,6 +1113,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 						'text' => $this->arResult['gridActionsData']['event']['text'],
 						'additionalClassForPanel' => 'mail-meeting',
 						'title' => $this->arResult['gridActionsData']['event']['title'],
+						'hideInActionPanel' => true,
 
 						'onclick' => !ModuleManager::isModuleInstalled('calendar') ?
 							"BX.Mail.Client.Item.showError('calendar-install-error');" :
@@ -1065,6 +1124,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 						'text' => $this->arResult['gridActionsData']['deleteImmediately']['text'],
 						'title' => $this->arResult['gridActionsData']['deleteImmediately']['title'],
 						'disabled' => ($this->arResult['currentDir'] !== '[Gmail]/All Mail') ? $isDisabled : true,
+
 						'onclick' => "BX.Mail.Client.Message.List['".
 									 CUtil::JSEscape($this->getComponentId()).
 									 "'].onDeleteImmediately('{$item['ID']}');",
@@ -1467,21 +1527,17 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 
 	public function getDirectoryHierarchyForContextMenuAction($mailboxId)
 	{
-		//so as not to rebuild twice on one hit
-		//called repeatedly during component build
-
-		if (empty($this->foldersItems))
-		{
-			$directoriesWithNumberOfUnreadMessages = $this->getDirsMd5WithCountOfUnseenMails($mailboxId);
-
-			$this->foldersItems = $this->buildDirectoryTreeForContextMenu($directoriesWithNumberOfUnreadMessages);
-		}
-
-		return $this->foldersItems;
+		$directoriesWithNumberOfUnreadMessages = $this->getDirsMd5WithCounter($mailboxId);
+		return $this->buildDirectoryTreeForContextMenu($directoriesWithNumberOfUnreadMessages);
 	}
 
 	private function buildDirectoryTreeForContextMenu($directoriesWithNumberOfUnreadMessages)
 	{
+		if($this->directoryTreeForContextMenu)
+		{
+			return $this->directoryTreeForContextMenu;
+		}
+
 		$flat = [];
 		$list = [];
 		$dirs = $this->mailboxHelper->getDirsHelper()->getSyncDirs();
@@ -1561,6 +1617,8 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 				return $aSort > $bSort ? 1 : -1;
 			}
 		);
+
+		$this->directoryTreeForContextMenu = $list;
 
 		return $list;
 	}

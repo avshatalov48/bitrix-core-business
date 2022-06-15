@@ -897,7 +897,7 @@
 					stepper,
 					gridId,
 					{
-						'complete': -1,
+						'complete': false,
 						'status': -1,
 						'errors': json.errors,
 						'is_fatal_error': json.data.is_fatal_error,
@@ -934,7 +934,7 @@
 			self.syncData[params.sessid].new = params.new;
 		}
 
-		if (params.complete > 0 && !self.syncData[params.sessid].complete)
+		if (params.complete && !self.syncData[params.sessid].complete)
 		{
 			if (self.syncData[params.sessid].new > 0 || params.updated > 0 || params.deleted > 0)
 			{
@@ -957,14 +957,12 @@
 
 		BXMailMailbox.updateStepper(stepper, params.complete, params.status, params.errors, params.is_fatal_error);
 
-		if (params.complete < 0 || params.complete > 0)
-		{
-			this.syncLock = false;
-		}
+		//Don't call again if multiple pages are open
+		this.syncLock = false;
 
-		if (params.complete < 0 && params.status >= 0)
+		if (!params.complete && params.status >= 0)
 		{
-			//sync incomplete to end
+			//Sync incomplete to end
 			BXMailMailbox.sync(stepper, gridId, true);
 		}
 	}
@@ -992,7 +990,7 @@
 		var hintTextNode = stepper.getErrorHintNode();
 
 		//in case of synchronization error:
-		if (complete < 0 && status < 0)
+		if (complete === false && status < 0)
 		{
 			stepperInfo && (stepperInfo.innerText = BX.message('MAIL_CLIENT_MAILBOX_SYNC_BAR_INTERRUPTED'));
 
@@ -1047,10 +1045,8 @@
 		{
 			stepper.hideErrorBox();
 
-			if (complete > 0)
+			if (complete)
 			{
-				stepperInfo && (stepperInfo.innerHTML = BX.message('MAIL_CLIENT_MAILBOX_SYNC_BAR_COMPLETED'));
-
 				stepper.hideTimeout = setTimeout(BXMailMailbox.toggleStepper.bind(this, stepper, false), 2000);
 			}
 			else

@@ -165,4 +165,23 @@ class Limiter
 			->setParameter('setupUri', 'javascript:top.BX.Helper.show("redirect=detail&code=6846227")')
 			->setParameter('setupCaption', Loc::getMessage('SENDER_INTEGRATION_BITRIX24_LIMITER_DAILY_DETAILS'));
 	}
+
+
+	public static function getPortalVerification(): Transport\iLimiter
+	{
+		$verify = new PortalVerifyLimit();
+		return Transport\CountLimiter::create()
+			->withName('portal_verify')
+			->withLimit($verify->getLimit())
+			// ->withUnit("1 " . Transport\iLimiter::DAYS)
+			->setHidden(true)
+			->withCurrent(
+				function () use ($verify)
+				{
+					return $verify->getCurrent();
+				}
+			)
+			->setParameter('setupUri', 'javascript:top.BX.Helper.show("redirect=detail&code=14406430")')
+			->setParameter('setupCaption', Loc::getMessage('SENDER_INTEGRATION_BITRIX24_LIMITER_DAILY_DETAILS'));
+	}
 }

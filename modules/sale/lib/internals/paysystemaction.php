@@ -9,9 +9,14 @@ namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Entity\DeleteResult;
-use Bitrix\Main\Entity\StringField;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields\BooleanField;
+use Bitrix\Main\ORM\Fields\EnumField;
+use Bitrix\Main\ORM\Fields\IntegerField;
+use Bitrix\Main\ORM\Fields\StringField;
 use Bitrix\Sale\PaySystem;
+use Bitrix\Sale\PaySystem\ClientType;
 
 Loc::loadMessages(__FILE__);
 
@@ -31,7 +36,7 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Sale\Internals\EO_PaySystemAction wakeUpObject($row)
  * @method static \Bitrix\Sale\Internals\EO_PaySystemAction_Collection wakeUpCollection($rows)
  */
-class PaySystemActionTable extends \Bitrix\Main\Entity\DataManager
+class PaySystemActionTable extends DataManager
 {
 	public static function getTableName()
 	{
@@ -40,108 +45,68 @@ class PaySystemActionTable extends \Bitrix\Main\Entity\DataManager
 
 	public static function getMap()
 	{
-		return array(
-			'ID' => array(
-				'data_type' => 'integer',
+		return [
+			'ID' => new IntegerField('ID', [
 				'primary' => true,
 				'autocomplete' => true,
-			),
-			'PAY_SYSTEM_ID' => array(
-				'data_type' => 'integer'
-			),
-			'PERSON_TYPE_ID' => array(
-				'data_type' => 'integer'
-			),
-			'NAME' => array(
-				'data_type' => 'string'
-			),
-			'PSA_NAME' => array(
-				'data_type' => 'string'
-			),
-			'CODE' => array(
-				'data_type' => 'string'
-			),
-			'SORT' => array(
-				'data_type' => 'integer'
-			),
-			'ACTION_FILE' => array(
-				'data_type' => 'string'
-			),
-			'RESULT_FILE' => array(
-				'data_type' => 'string'
-			),
-			'DESCRIPTION' => array(
-				'data_type' => 'string'
-			),
-			'NEW_WINDOW' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
-			),
-			'PARAMS' => array(
-				'data_type' => 'string'
-			),
-			'TARIF' => array(
-				'data_type' => 'string'
-			),
-			'PS_MODE' => array(
-				'data_type' => 'string'
-			),
-			'HAVE_PAYMENT' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
-			),
-			'HAVE_ACTION' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
-			),
-			'HAVE_RESULT' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
-			),
-			'HAVE_PREPAY' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
-			),
-			'HAVE_PRICE' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
-			),
-			'HAVE_RESULT_RECEIVE' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
-			),
-			'ENCODING' => array(
-				'data_type' => 'string'
-			),
-			'LOGOTIP' => array(
-				'data_type' => 'integer'
-			),
-			'ACTIVE' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
-			),
-			'ALLOW_EDIT_PAYMENT' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
-			),
-			'IS_CASH' => array(
-				'data_type' => 'string'
-			),
-			'AUTO_CHANGE_1C' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
-			),
-			'CAN_PRINT_CHECK' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
-			),
-			'ENTITY_REGISTRY_TYPE' => array(
-				'data_type' => 'string',
-			),
-			'XML_ID' => array(
-				'data_type' => 'string',
-			),
-		);
+			]),
+			'PAY_SYSTEM_ID' => new IntegerField('PAY_SYSTEM_ID'),
+			'PERSON_TYPE_ID' => new IntegerField('PERSON_TYPE_ID'),
+			'NAME' => new StringField('NAME'),
+			'PSA_NAME' => new StringField('PSA_NAME'),
+			'CODE' => new StringField('CODE'),
+			'SORT' => new IntegerField('SORT'),
+			'ACTION_FILE' => new StringField('ACTION_FILE'),
+			'RESULT_FILE' => new StringField('RESULT_FILE'),
+			'DESCRIPTION' => new StringField('DESCRIPTION'),
+			'NEW_WINDOW' => new BooleanField('NEW_WINDOW', [
+				'values' => ['N', 'Y'],
+			]),
+			'PARAMS' => new StringField('PARAMS'),
+			'TARIF' => new StringField('TARIF'),
+			'PS_MODE' => new StringField('PS_MODE'),
+			'PS_CLIENT_TYPE' => new EnumField('PS_CLIENT_TYPE', [
+				'values' => [
+					ClientType::B2C,
+					ClientType::B2B,
+				],
+			]),
+			'HAVE_PAYMENT' => new BooleanField('HAVE_PAYMENT', [
+				'values' => ['N', 'Y'],
+			]),
+			'HAVE_ACTION' => new BooleanField('HAVE_ACTION', [
+				'values' => ['N', 'Y'],
+			]),
+			'HAVE_RESULT' => new BooleanField('HAVE_RESULT', [
+				'values' => ['N', 'Y'],
+			]),
+			'HAVE_PREPAY' => new BooleanField('HAVE_PREPAY', [
+				'values' => ['N', 'Y'],
+			]),
+			'HAVE_PRICE' => new BooleanField('HAVE_PRICE', [
+				'values' => ['N', 'Y'],
+			]),
+			'HAVE_RESULT_RECEIVE' => new BooleanField('HAVE_RESULT_RECEIVE', [
+				'values' => ['N', 'Y'],
+			]),
+			'ENCODING' => new StringField('ENCODING'),
+			'LOGOTIP' => new IntegerField('LOGOTIP'),
+			'ACTIVE' => new BooleanField('ACTIVE', [
+				'values' => ['N', 'Y'],
+			]),
+			'ALLOW_EDIT_PAYMENT' => new BooleanField('ALLOW_EDIT_PAYMENT', [
+				'values' => ['N', 'Y'],
+			]),
+			'IS_CASH' => new StringField('IS_CASH'),
+			'AUTO_CHANGE_1C' => new BooleanField('AUTO_CHANGE_1C', [
+				'values' => ['N', 'Y'],
+			]),
+			'CAN_PRINT_CHECK' => new BooleanField('CAN_PRINT_CHECK', [
+				'values' => ['N', 'Y'],
+			]),
+			'ENTITY_REGISTRY_TYPE' => new StringField('ENTITY_REGISTRY_TYPE'),
+			'XML_ID' => new StringField('XML_ID'),
+		];
 	}
 
 	/**

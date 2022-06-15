@@ -93,11 +93,12 @@ div.pagetitle-container.pagetitle-align-right-container {
 
 .pagetitle input.pagetitle-item {
 	flex: 1;
-	margin: -3px 0 0 0;
+	/*margin: -3px 0 0 0;*/
 	display: inline-block;
 	box-sizing: border-box;
 	padding: 0;
 	width: calc(100% - 500px);
+	height: 36px;
 	border: none;
 	border-bottom: 1px solid #cfd6da;
 	background-color: transparent;

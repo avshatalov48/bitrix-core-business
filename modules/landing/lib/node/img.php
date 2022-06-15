@@ -285,18 +285,26 @@ class Img extends \Bitrix\Landing\Node
 				}
 
 				// for lazyload
-				if(
-					($isLazy = $res->getAttribute('data-lazy-img'))
-					&& $isLazy === 'Y'
-				)
+				$isLazy = $res->getAttribute('data-lazy-img');
+				if ($isLazy === 'Y')
 				{
 					$data[$pos]['isLazy'] = 'Y';
-					if($lazyOrigSrc = $res->getAttribute('data-src'))
+					$lazyOrigSrc = $res->getAttribute('data-src');
+					if ($lazyOrigSrc)
 					{
 						$data[$pos]['lazyOrigSrc'] = $lazyOrigSrc;
 					}
-					if($lazyOrigSrcset = $res->getAttribute('data-srcset'))
+					$lazyOrigSrcset = $res->getAttribute('data-srcset');
+					if ($lazyOrigSrcset)
 					{
+						if (
+							preg_match('/([^ ]+) 2x/i', $lazyOrigSrcset, $matches)
+							&& $matches[1]
+						)
+						{
+							$data[$pos]['lazyOrigSrc2x'] = $matches[1];
+						}
+
 						$data[$pos]['lazyOrigSrcset'] = $lazyOrigSrcset;
 					}
 				}

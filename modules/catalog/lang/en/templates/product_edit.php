@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BASE_CURRENCY"] = "Base price currency";
 $MESS["BASE_PRICE"] = "Base price";
 $MESS["BASE_QUANTITY_RESERVED"] = "Items reserved";
@@ -76,6 +76,7 @@ $MESS["C2IT_PRICES_EXT_TARIFF_ENABLE"] = "Enable";
 $MESS["C2IT_PRICES_USEEXT"] = "Use extended price editing mode";
 $MESS["C2IT_PRICE_TYPE"] = "Price type";
 $MESS["C2IT_PROD_AMOUNT"] = "Quantity";
+$MESS["C2IT_PROD_QUANTITY_RESERVED"] = "Reserved";
 $MESS["C2IT_REGULAR"] = "Recurrent";
 $MESS["C2IT_SINGLE"] = "One-time";
 $MESS["C2IT_SITE"] = "Site";
@@ -94,6 +95,7 @@ $MESS["C2IT_TO"] = "To";
 $MESS["C2IT_TRIAL"] = "Trial";
 $MESS["C2IT_TRIAL_FOR"] = "Trial for (only for trials):";
 $MESS["C2IT_UF_FIELDS"] = "Additional parameters";
+$MESS["C2IT_UF_SYSTEM_FIELDS"] = "System preferences";
 $MESS["C2IT_USERS_GROUP"] = "User group";
 $MESS["C2IT_VKL"] = "Incl.";
 $MESS["C2IT_WITHOUT_ORDER"] = "Renewal without ordering:";
@@ -123,5 +125,3 @@ $MESS["SET_NOTICE_QUANTITY"] = "Available quantity of a bundle is derived from t
 $MESS["SET_NOTICE_WEIGHT"] = "The bundle weight is auto calculated using the weight of all the products in a bundle.";
 $MESS["VAL_BASE"] = "< base >";
 $MESS["VAL_NOT_SET"] = "< not set >";
-$MESS["C2IT_PROD_QUANTITY_RESERVED"] = "Reserved";
-?>

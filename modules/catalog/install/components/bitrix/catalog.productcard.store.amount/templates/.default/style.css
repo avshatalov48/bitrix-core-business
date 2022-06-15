@@ -59,3 +59,13 @@ td {
 	line-height: 50px;
 	display: inline-block;
 }
+
+.main-grid-cell-content-store-amount-reserved-quantity {
+	color: #2067b0;
+	border-bottom: 1px dashed #2067b0;
+	cursor: pointer;
+}
+
+.main-grid-cell-content-store-amount-reserved-quantity:hover {
+	text-decoration: none !important;
+}

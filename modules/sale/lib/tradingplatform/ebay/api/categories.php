@@ -70,8 +70,10 @@ class Categories extends Entity
 				else
 					$result = CategoryTable::add($fields);
 
-				if($result > 0)
+				if($result->isSuccess())
+				{
 					$refreshedCount++;
+				}
 			}
 		}
 
@@ -178,8 +180,10 @@ class Categories extends Entity
 				else
 					$result = CategoryVariationTable::add($fields);
 
-				if($result > 0)
+				if($result->isSuccess())
+				{
 					$refreshedCount++;
+				}
 			}
 		}
 

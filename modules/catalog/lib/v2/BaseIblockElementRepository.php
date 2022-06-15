@@ -205,14 +205,14 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 				'SUBSCRIBE' => 'SUBSCRIBE_ORIG',
 			];
 			$catalogResult = ProductTable::getList([
-				'select' => array_merge(['*'], array_values($specificFields)),
+				'select' => array_merge(['*', 'UF_*'], array_values($specificFields)),
 				'filter' => array_merge(
 					[
 						'@ID' => array_keys($iblockElements),
 					],
 					$this->getAdditionalProductFilter()
 				),
-			]);
+			])->fetchAll();
 
 			foreach ($catalogResult as $item)
 			{
@@ -394,7 +394,13 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 
 	protected function prepareProductFields(array $fields): array
 	{
-		$catalogFields = array_intersect_key($fields, ProductTable::getMap());
+		$catalogFields = array_intersect_key(
+			$fields,
+			array_fill_keys(
+				Product::getTabletFieldNames(Product::FIELDS_ALL),
+				true
+			)
+		);
 
 		if (isset($catalogFields['TIMESTAMP_X']))
 		{

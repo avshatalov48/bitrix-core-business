@@ -75,6 +75,7 @@
 .ui-form-section > .ui-form-row > .ui-form-label {
 	width: 140px;
 	margin-bottom: 0;
+	padding-right: 20px;
 }
 
 .ui-form-section > .ui-form-row > .ui-form-label > .ui-ctl-label-text {

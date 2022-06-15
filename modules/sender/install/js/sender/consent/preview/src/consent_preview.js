@@ -36,7 +36,7 @@ export class ConsentPreview
 								id:consentId
 							},
 						}).then((response) => {
-								view.setText(response.data.consentBody);
+								view.setText(response.data.consentBody) || "";
 								view.setApproveBtn(response.data.approveBtnText);
 								view.setRejectBtn(response.data.rejectBtnText);
 							},

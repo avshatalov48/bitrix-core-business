@@ -2,13 +2,16 @@
 
 namespace Bitrix\Sale\Services\PaySystem\Restrictions;
 
-use Bitrix\Main\Application;
+use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Result;
 use Bitrix\Sale\Internals\CollectableEntity;
 use Bitrix\Sale\Internals\Entity;
-use Bitrix\Sale\Internals\PersonTypeTable;
 use Bitrix\Sale\Order;
 use Bitrix\Sale\PaymentCollection;
+use Bitrix\Sale\PaySystem\ClientType;
+use Bitrix\Sale\PaySystem\Service;
+use Bitrix\Sale\Registry;
 use Bitrix\Sale\Services\Base;
 
 Loc::loadMessages(__FILE__);
@@ -29,6 +32,64 @@ class PersonType extends Base\Restriction
 		}
 
 		return true;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public static function validateRestriction($fields)
+	{
+		$result = new Result();
+		
+		// comparing person type restriction with client type pay system
+		$serviceId = $fields['SERVICE_ID'] ?? null;
+		$needPersonTypeIds = (array) ($fields['PARAMS']['PERSON_TYPE_ID'] ?? []);
+		if ($serviceId && $needPersonTypeIds)
+		{
+			$paySystemFields = \Bitrix\Sale\PaySystem\Manager::getById($serviceId);
+			if ($paySystemFields)
+			{
+				$paySystem = new Service($paySystemFields);
+				
+				$hasIndividualTypes = false;
+				$hasLegalEntityTypes = false;
+				
+				$registryType = $paySystem->getField('ENTITY_REGISTRY_TYPE') ?? \Bitrix\Sale\PersonType::getRegistryType();
+				$personTypeClass = Registry::getInstance($registryType)->getPersonTypeClassName();
+				
+				/**
+				 * @var \Bitrix\Sale\PersonType $personTypeClass
+				 */
+				foreach ($needPersonTypeIds as $personTypeId)
+				{
+					if (!$hasIndividualTypes && $personTypeClass::isIndividual($personTypeId))
+					{
+						$hasIndividualTypes = true;
+					}
+					
+					if (!$hasLegalEntityTypes && $personTypeClass::isEntity($personTypeId))
+					{
+						$hasLegalEntityTypes = true;
+					}
+				}
+				
+				$clientType = $paySystem->getClientType();
+				if ($clientType === ClientType::B2B && $hasIndividualTypes)
+				{
+					$result->addError(
+						new Error(Loc::getMessage('SALE_PS_RESTRICTIONS_BY_PERSON_TYPE_ERROR_B2B_HAS_INDIVIDUAL'))
+					);
+				}
+				elseif ($clientType === ClientType::B2C && $hasLegalEntityTypes)
+				{
+					$result->addError(
+						new Error(Loc::getMessage('SALE_PS_RESTRICTIONS_BY_PERSON_TYPE_ERROR_B2C_HAS_ENTITY'))
+					);
+				}
+			}
+		}
+		
+		return $result;
 	}
 
 	/**

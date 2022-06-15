@@ -21,6 +21,7 @@ return [
 	'js' => 'dist/product-selector.bundle.js',
 	'rel' => [
 		'ui.forms',
+		'fileinput',
 		'catalog.sku-tree',
 		'main.loader',
 		'ui.info-helper',

@@ -301,12 +301,14 @@ export class ProductSearchInput
 
 	initHasDialogItems()
 	{		
-		if (this.isHasDialogItems === true)
+		if (!Type.isNil(this.isHasDialogItems))
 		{
 			return;
 		}
-		else if (this.isHasDialogItems === false)
+
+		if (!this.selector.getModel().isEmpty())
 		{
+			this.isHasDialogItems = true;
 			return;
 		}
 		

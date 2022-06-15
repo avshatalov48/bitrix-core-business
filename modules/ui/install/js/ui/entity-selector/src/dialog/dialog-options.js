@@ -36,6 +36,7 @@ export type DialogOptions = {
 	width?: number,
 	height?: number,
 	autoHide?: boolean,
+	autoHideHandler?: (event: MouseEvent, dialog: Dialog) => boolean,
 	hideByEsc?: boolean,
 	offsetTop?: number,
 	offsetLeft?: number,

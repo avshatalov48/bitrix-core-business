@@ -353,6 +353,7 @@ class CatalogProductVariationGridComponent
 		$this->arResult['GRID'] = $this->getGridData();
 		$this->arResult['STORE_AMOUNT'] = $this->getStoreAmount();
 		$this->arResult['IS_SHOWED_STORE_RESERVE'] = \Bitrix\Catalog\Config\State::isShowedStoreReserve();
+		$this->arResult['RESERVED_DEALS_SLIDER_LINK'] = $this->getReservedDealsSliderLink();;
 	}
 
 	public function getGridId(): ?string
@@ -458,6 +459,7 @@ class CatalogProductVariationGridComponent
 			if (State::isUsedInventoryManagement())
 			{
 				$columns['SKU_GRID_QUANTITY'] = $this->getDomElementForPopupQuantity($columns['SKU_GRID_QUANTITY']);
+				$columns['SKU_GRID_QUANTITY_RESERVED'] = $this->getDomElementForReservedQuantity($columns['SKU_GRID_QUANTITY_RESERVED']);
 			}
 
 			$item['SKU_GRID_BARCODE_VALUES'] = $item['SKU_GRID_BARCODE'];
@@ -497,6 +499,11 @@ class CatalogProductVariationGridComponent
 	private function getDomElementForPopupQuantity($quantity): string
 	{
 		return '<a class="main-grid-cell-content-catalog-quantity-inventory-management">' . $quantity . '</a>';
+	}
+
+	private function getDomElementForReservedQuantity($quantity): string
+	{
+		return $this->isNewProduct() ? (string)$quantity : '<a class="main-grid-cell-content-catalog-reserved-quantity">' . $quantity . '</a>';
 	}
 
 	protected function getGridEditData(array $rows): array
@@ -741,6 +748,7 @@ class CatalogProductVariationGridComponent
 				;
 				$formattedStoreInfos[] = [
 					'title' => $storeTitle,
+					'storeId' => $storeProduct['STORE_ID'],
 					'quantityCommon' => $storeProduct['AMOUNT'],
 					'quantityReserved' => $storeProduct['QUANTITY_RESERVED'],
 					'quantityAvailable' => $storeProduct['AMOUNT'] - $storeProduct['QUANTITY_RESERVED'],
@@ -768,5 +776,13 @@ class CatalogProductVariationGridComponent
 			[$this->getIblockId(), $this->getProductId(), $skuId],
 			$this->arParams['PATH_TO']['PRODUCT_STORE_AMOUNT_DETAILS_SLIDER'],
 		);
+	}
+
+	private function getReservedDealsSliderLink()
+	{
+		$sliderUrl = \CComponentEngine::makeComponentPath('bitrix:catalog.productcard.reserved.deal.list');
+		$sliderUrl = getLocalPath('components'.$sliderUrl.'/slider.php');
+
+		return $sliderUrl;
 	}
 }

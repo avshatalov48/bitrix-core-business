@@ -78,6 +78,7 @@ final class OrderBuilderNew implements IOrderBuilderDelegate
 				->itemsDataPreparation()
 				->basketCodeMap()
 				->setItemsFields()
+				->fillFUser()
 				->finalActions();
 		}
 		else

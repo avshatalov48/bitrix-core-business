@@ -43,7 +43,7 @@ class MailboxTable extends Entity\DataManager
 		return array_key_exists($mailboxId, $mailboxes) ? $mailboxes[$mailboxId] : false;
 	}
 
-	public static function getUserMailboxes($userId = null)
+	public static function getTheOwnersMailboxes($userId = null)
 	{
 		global $USER;
 
@@ -57,58 +57,27 @@ class MailboxTable extends Entity\DataManager
 			$userId = $USER->getId();
 		}
 
-		static $mailboxes = array();
-		static $userMailboxes = array();
+		static $mailboxes = [];
+		static $userMailboxes = [];
 
 		if (!array_key_exists($userId, $userMailboxes))
 		{
-			$userMailboxes[$userId] = array();
+			$userMailboxes[$userId] = [];
 
-			(new \CAccess)->updateCodes(array('USER_ID' => $userId));
+			(new \CAccess)->updateCodes(['USER_ID' => $userId]);
 
-			$accessSubquery = new Entity\Query(Internals\MailboxAccessTable::getEntity());
-			$accessSubquery->registerRuntimeField(
-				new Entity\ReferenceField(
-					'USER_ACCESS',
-					'Bitrix\Main\UserAccess',
-					array(
-						'=this.ACCESS_CODE' => 'ref.ACCESS_CODE',
-					),
-					array(
-						'join_type' => 'INNER',
-					)
-				)
-			);
-			$accessSubquery->addFilter('=MAILBOX_ID', new \Bitrix\Main\DB\SqlExpression('%s'));
-			$accessSubquery->addFilter('=USER_ACCESS.USER_ID', $userId);
-
-			$res = static::getList(array(
-				'runtime' => array(
-					new Entity\ExpressionField(
-						'IS_OWNED',
-						sprintf('IF(%%s=%u, 1, 0)', $userId),
-						'USER_ID'
-					),
-					new Entity\ExpressionField(
-						'IS_ACCESS',
-						sprintf('EXISTS(%s)', $accessSubquery->getQuery()),
-						'ID'
-					),
-				),
-				'filter' => array(
-					array(
-						'LOGIC' => 'OR',
+			$res = static::getList([
+				'filter' => [
+					[
 						'=USER_ID' => $userId,
-						'==IS_ACCESS' => true,
-					),
+					],
 					'=ACTIVE' => 'Y',
 					'=SERVER_TYPE' => 'imap',
-				),
-				'order' => array(
-					'IS_OWNED' => 'DESC',
+				],
+				'order' => [
 					'ID' => 'DESC',
-				),
-			));
+				],
+			]);
 
 			while ($mailbox = $res->fetch())
 			{
@@ -119,13 +88,108 @@ class MailboxTable extends Entity\DataManager
 			}
 		}
 
-		$result = array();
+		$result = [];
+
 		foreach ($userMailboxes[$userId] as $mailboxId)
 		{
 			$result[$mailboxId] = $mailboxes[$mailboxId];
 		}
 
 		return $result;
+	}
+
+	public static function getTheSharedMailboxes($userId = null)
+	{
+		global $USER;
+
+		if (!($userId > 0 || is_object($USER) && $USER->isAuthorized()))
+		{
+			return false;
+		}
+
+		if (!($userId > 0))
+		{
+			$userId = $USER->getId();
+		}
+
+		static $mailboxes = [];
+		static $userMailboxes = [];
+
+		if (!array_key_exists($userId, $userMailboxes))
+		{
+			$userMailboxes[$userId] = [];
+
+			(new \CAccess)->updateCodes(['USER_ID' => $userId]);
+
+			$res = static::getList([
+				'runtime' => [
+					new Entity\ReferenceField(
+						'ACCESS',
+						'Bitrix\Mail\Internals\MailboxAccessTable',
+						[
+							'=this.ID' => 'ref.MAILBOX_ID',
+						],
+						[
+							'join_type' => 'LEFT',
+						]
+					),
+					new Entity\ReferenceField(
+						'USER_ACCESS',
+						'Bitrix\Main\UserAccess',
+						[
+							'this.ACCESS.ACCESS_CODE' => 'ref.ACCESS_CODE',
+						],
+						[
+							'join_type' => 'LEFT',
+						]
+					),
+				],
+				'filter' => [
+					[
+						'LOGIC' => 'AND',
+						'!=USER_ID' => $userId,
+						'=USER_ACCESS.USER_ID' => $userId,
+					],
+					'=ACTIVE' => 'Y',
+					'=SERVER_TYPE' => 'imap',
+				],
+				'order' => [
+					'ID' => 'DESC',
+				],
+			]);
+
+			while ($mailbox = $res->fetch())
+			{
+				static::normalizeEmail($mailbox);
+
+				$mailboxes[$mailbox['ID']] = $mailbox;
+				$userMailboxes[$userId][] = $mailbox['ID'];
+			}
+		}
+
+		$result = [];
+
+		foreach ($userMailboxes[$userId] as $mailboxId)
+		{
+			$result[$mailboxId] = $mailboxes[$mailboxId];
+		}
+
+		return $result;
+	}
+
+	public static function getUserMailboxes($userId = null)
+	{
+		global $USER;
+
+		if (!($userId > 0 || is_object($USER) && $USER->isAuthorized()))
+		{
+			return false;
+		}
+
+		$sharedMailboxes = static::getTheSharedMailboxes($userId);
+		$ownersMailboxes = static::getTheOwnersMailboxes($userId);
+
+		return $ownersMailboxes + $sharedMailboxes;
 	}
 
 	public static function normalizeEmail(&$mailbox)

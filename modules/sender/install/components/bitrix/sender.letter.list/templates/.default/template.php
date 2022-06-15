@@ -169,7 +169,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 		?>
 		<div class="sender-letter-list-desc-normal-black">
 			<span class="sender-letter-list-desc-normal-text"><?=htmlspecialcharsbx($data['STATE_NAME'])?></span>
-			<?if ($data['STATE']['isSendingLimitExceeded']):?>
+			<?if ($data['STATE']['isSendingLimitExceeded'] && !$data['STATE']['isSendingLimitTemporary']):?>
 				<span class="sender-letter-list-icon-speedo" title="<?=$data['STATE']['isSendingLimitWaiting']
 					? Loc::getMessage('SENDER_LETTER_LIST_SPEED_WAITING_SEND_TITLE', [
 						'%day%' => $data['LIMITATION']['DAY'],

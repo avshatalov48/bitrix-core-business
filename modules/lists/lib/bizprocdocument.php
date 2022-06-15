@@ -697,7 +697,7 @@ class BizprocDocument extends CIBlockDocument
 			}
 			elseif ($property["PROPERTY_TYPE"] == "N")
 			{
-				$result[$key]["Type"] = "int";
+				$result[$key]["Type"] = "double";
 				$result[$key]["DefaultValue"] = $property["DEFAULT_VALUE"];
 			}
 			elseif ($property["PROPERTY_TYPE"] == "F")
@@ -1372,6 +1372,15 @@ class BizprocDocument extends CIBlockDocument
 		$res = $iblockElement->Update($documentId, $arFields, false, true, true);
 		if (!$res)
 			throw new Exception($iblockElement->LAST_ERROR);
+
+		if ($arFields['BP_PUBLISHED'] === 'Y')
+		{
+			self::publishDocument($documentId);
+		}
+		else if ($arFields['BP_PUBLISHED'] === 'N')
+		{
+			self::unpublishDocument($documentId);
+		}
 
 		if (CModule::includeModule("lists"))
 			CLists::rebuildSeachableContentForElement($arResult["IBLOCK_ID"], $documentId);
@@ -2591,10 +2600,10 @@ class BizprocDocument extends CIBlockDocument
 					{
 						if ($value <> '')
 						{
-							$value = str_replace(" ", "", $value);
-							if ($value."|" == intval($value)."|")
+							$value = str_replace(" ", "", str_replace(",", ".", $value));
+							if (is_numeric($value))
 							{
-								$value = intval($value);
+								$value = doubleval($value);
 							}
 							else
 							{

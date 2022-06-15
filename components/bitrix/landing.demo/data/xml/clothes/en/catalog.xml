@@ -706,6 +706,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 				<Prices>
 					<Price>
 						<PriceTypeId>BASE</PriceTypeId>
@@ -851,6 +854,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 				<Prices>
 					<Price>
 						<PriceTypeId>BASE</PriceTypeId>
@@ -1009,6 +1015,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 				<Prices>
 					<Price>
 						<PriceTypeId>BASE</PriceTypeId>
@@ -1162,6 +1171,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 				<Prices>
 					<Price>
 						<PriceTypeId>BASE</PriceTypeId>
@@ -1315,6 +1327,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 				<Prices>
 					<Price>
 						<PriceTypeId>BASE</PriceTypeId>
@@ -1467,6 +1482,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 				<Prices>
 					<Price>
 						<PriceTypeId>BASE</PriceTypeId>
@@ -1619,6 +1637,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 				<Prices>
 					<Price>
 						<PriceTypeId>BASE</PriceTypeId>
@@ -1771,6 +1792,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 				<Prices>
 					<Price>
 						<PriceTypeId>BASE</PriceTypeId>
@@ -1902,6 +1926,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 				<Prices>
 					<Price>
 						<PriceTypeId>BASE</PriceTypeId>
@@ -2033,6 +2060,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 				<Prices>
 					<Price>
 						<PriceTypeId>BASE</PriceTypeId>
@@ -2164,6 +2194,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 				<Prices>
 					<Price>
 						<PriceTypeId>BASE</PriceTypeId>
@@ -2293,6 +2326,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 				<Prices>
 					<Price>
 						<PriceTypeId>BASE</PriceTypeId>
@@ -2422,6 +2458,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 				<Prices>
 					<Price>
 						<PriceTypeId>BASE</PriceTypeId>
@@ -2551,6 +2590,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 				<Prices>
 					<Price>
 						<PriceTypeId>BASE</PriceTypeId>

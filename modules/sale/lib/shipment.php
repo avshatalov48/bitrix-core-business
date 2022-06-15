@@ -9,6 +9,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Delivery;
 use Bitrix\Sale\Internals;
 use \Bitrix\Sale\Delivery\Requests;
+use Bitrix\Sale\Reservation\Configuration\ReserveCondition;
 
 Loc::loadMessages(__FILE__);
 
@@ -275,16 +276,16 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	{
 		$condition = Configuration::getProductReservationCondition();
 
-		if ($condition === Configuration::RESERVE_ON_CREATE)
+		if ($condition === ReserveCondition::ON_CREATE)
 		{
 			return true;
 		}
 
-		if ($condition === Configuration::RESERVE_ON_PAY
-			|| $condition === Configuration::RESERVE_ON_FULL_PAY)
+		if ($condition === ReserveCondition::ON_PAY
+			|| $condition === ReserveCondition::ON_FULL_PAY)
 		{
 			$order = $this->getOrder();
-			if ($condition === Configuration::RESERVE_ON_FULL_PAY)
+			if ($condition === ReserveCondition::ON_FULL_PAY)
 			{
 				return $order->isPaid();
 			}
@@ -297,8 +298,16 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 			return false;
 		}
 
-		return (($condition === Configuration::RESERVE_ON_ALLOW_DELIVERY) && $this->isAllowDelivery()
-			|| ($condition === Configuration::RESERVE_ON_SHIP) && $this->isShipped());
+		return
+			(
+				$condition === ReserveCondition::ON_ALLOW_DELIVERY
+				&& $this->isAllowDelivery()
+			)
+			|| (
+				$condition === ReserveCondition::ON_SHIP
+				&& $this->isShipped()
+			)
+		;
 	}
 
 	/**
@@ -436,6 +445,7 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 
 					if (
 						$sourceShipmentItemForPool
+						&& $poolItem instanceof ShipmentItem
 						&& $poolItem->getInternalIndex() === $sourceShipmentItemForPool->getInternalIndex()
 					)
 					{

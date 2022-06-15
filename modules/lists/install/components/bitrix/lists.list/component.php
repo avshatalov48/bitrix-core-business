@@ -337,6 +337,8 @@ if(
 	/*Take action*/
 	if ($_POST["action_button_".$arResult["GRID_ID"]] == "delete" && !empty($arFilter["=ID"]))
 	{
+		$arFilter["SHOW_NEW"] = "Y";
+
 		$rsElements = CIBlockElement::GetList(array(), $arFilter, false, false, array("ID"));
 		while($arElement = $rsElements->Fetch())
 		{
@@ -674,19 +676,25 @@ if ($arResult["SHOW_SECTION_GRID"] == "Y" && !array_key_exists("*SEARCHABLE_CONT
 {
 	foreach($arResult["SECTIONS"] as $section)
 	{
-		if($arResult["ANY_SECTION"])
+		if ($arResult["ANY_SECTION"])
 		{
 			if($section["DEPTH_LEVEL"] != 1)
 				continue;
 		}
 		else
 		{
-			if($section["DEPTH_LEVEL"] <= $arResult["SECTION"]["DEPTH_LEVEL"]
-				|| !in_array($section["ID"], $listChildSection))
+			$currentDepthLevel = (int) $arResult["SECTION"]["DEPTH_LEVEL"];
+			$sectionDepthLevel = (int) $section["DEPTH_LEVEL"];
+			if (
+				$sectionDepthLevel <= $currentDepthLevel
+				|| (abs($sectionDepthLevel - $currentDepthLevel) > 1)
+				|| !in_array($section["ID"], $listChildSection)
+			)
 			{
 				continue;
 			}
 		}
+
 		$sectionActions = array();
 		if(!$arResult["IS_SOCNET_GROUP_CLOSED"] && ($lists_perm >= CListPermissions::CAN_WRITE
 				|| CIBlockSectionRights::userHasRightTo($arIBlock["ID"], $section["ID"], "section_read")))
@@ -736,13 +744,71 @@ if ($arResult["SHOW_SECTION_GRID"] == "Y" && !array_key_exists("*SEARCHABLE_CONT
 	}
 }
 
-if($arParams["CAN_EDIT"])
+if ($arParams["CAN_EDIT"])
+{
 	$arFilter["SHOW_NEW"] = "Y";
+}
 
-	/** @var CIBlockResult $rsElements */
-$rsElements = CIBlockElement::GetList(
-	$grid_sort["sort"], $arFilter, false, $grid_options->GetNavParams(), $arSelect
+$request = Bitrix\Main\Context::getCurrent()->getRequest();
+$session = Bitrix\Main\Application::getInstance()->getSession();
+
+if ($request->isAjaxRequest() && $request->get('action') == 'getTotalCount')
+{
+	$totalCount = \CIBlockElement::getList(
+		$grid_sort['sort'],
+		$arFilter,
+		[],
+		false,
+		['ID']
+	);
+
+	$response = new Bitrix\Main\Engine\Response\Json($totalCount);
+
+	$response = Bitrix\Main\Context::getCurrent()->getResponse()->copyHeadersTo($response);
+
+	Bitrix\Main\Application::getInstance()->end(0, $response);
+}
+
+$pageNum = 1;
+if (
+	!Bitrix\Main\Grid\Context::isInternalRequest()
+	&& !($request->get('clear_nav') === 'Y')
+	&& isset($session['LISTS_LIST_PAGINATION_DATA'][$arResult['GRID_ID']])
+)
+{
+	$paginationData = $session['LISTS_LIST_PAGINATION_DATA'][$arResult['GRID_ID']];
+	if (isset($paginationData['PAGE_NUM']))
+	{
+		$pageNum = (int) $paginationData['PAGE_NUM'];
+	}
+}
+
+$nav = new \Bitrix\Main\UI\PageNavigation($arResult['GRID_ID']);
+$nav->setPageSize($grid_options->getNavParams()['nPageSize']);
+$nav->setCurrentPage($pageNum);
+$nav->initFromUri();
+
+if (Bitrix\Main\Grid\Context::isInternalRequest())
+{
+	if (!isset($session['LISTS_LIST_PAGINATION_DATA']))
+	{
+		$session['LISTS_LIST_PAGINATION_DATA'] = [];
+	}
+	$session['LISTS_LIST_PAGINATION_DATA'][$arResult['GRID_ID']] = ['PAGE_NUM' => $nav->getCurrentPage()];
+}
+
+/** @var CIBlockResult $rsElements */
+$rsElements = CIBlockElement::getList(
+	$grid_sort['sort'],
+	$arFilter,
+	false,
+	[
+		'nOffset' => $nav->getOffset(),
+		'nTopCount' => $nav->getLimit() + 1,
+	],
+	$arSelect
 );
+
 if ($arResult["BIZPROC"] == "Y")
 {
 	$arUserGroupsForBP = CUser::GetUserGroup($USER->GetID());
@@ -765,9 +831,16 @@ if ($arResult["PROCESSES"])
 $isBizprocActive = $arResult["BIZPROC"] == "Y";
 $userId = $USER->GetID();
 
+$n = 0;
+
 $listValues = array();
-while($obElement = $rsElements->GetNextElement())
+while ($obElement = $rsElements->GetNextElement())
 {
+	if (++$n > $nav->getLimit())
+	{
+		break;
+	}
+
 	$arResult["CAN_EXPORT"] = true;
 	$columns = array();
 	$data = $obElement->GetFields();
@@ -999,9 +1072,10 @@ while($obElement = $rsElements->GetNextElement())
 			"",
 			[
 				"ELEMENT_ID" => $data["ID"],
-				"ELEMENT_NAME" => $arResult["IBLOCK"]["ELEMENT_NAME"]
+				"ELEMENT_NAME" => $arResult["IBLOCK"]["ELEMENT_NAME"],
 			],
-			$component, ["HIDE_ICONS" => "Y"]
+			null,
+			["HIDE_ICONS" => "Y"]
 		);
 		$columns["LOCK_STATUS"] = ob_get_clean();
 	}
@@ -1214,13 +1288,13 @@ if (!$arResult["IS_SOCNET_GROUP_CLOSED"] && ($lists_perm >= CListPermissions::CA
 }
 
 /* Grid navigation */
-$rsElements->bShowAll = false;
-$arResult["NAV_OBJECT"] = $rsElements;
-$arResult["SORT"] = $grid_sort["sort"];
-$componentObject = null;
-$arResult["GRID_ENABLE_NEXT_PAGE"] = ($arResult["NAV_OBJECT"]->PAGEN < $arResult["NAV_OBJECT"]->NavPageCount);
-$arResult["NAV_STRING"] = $arResult["NAV_OBJECT"]->getPageNavStringEx(
-	$componentObject, "", "grid", false, null, $grid_options->GetNavParams());
+$nav->setRecordCount($nav->getOffset() + $n);
+
+$arResult["CURRENT_PAGE"] = $nav->getCurrentPage();
+$arResult["GRID_ENABLE_NEXT_PAGE"] = $nav->getCurrentPage() < $nav->getPageCount();
+
+$arResult["NAV_OBJECT"] = $nav;
+
 $arResult["GRID_PAGE_SIZES"] = array(
 	array("NAME" => "5", "VALUE" => "5"),
 	array("NAME" => "10", "VALUE" => "10"),

@@ -20,6 +20,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/admin_tool.php");
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
+$isCanUsePersonalization = \Bitrix\Sale\Configuration::isCanUsePersonalization();
 
 if($saleModulePermissions == "D")
 	$APPLICATION->AuthForm(Loc::getMessage("ACCESS_DENIED"));
@@ -3296,44 +3297,48 @@ $arResult = array(
 );
 
 // prepare recommendation widget
-ob_start();
-?>
+$bigdataWidgetHtml = '';
+if ($isCanUsePersonalization)
+{
+	ob_start();
+	?>
 
-	<div class="adm-c-bigdatabar-container">
-		<div class="adm-c-bigdatabar-summ"><?=Loc::getMessage('SALE_BIGDATA_SUM')?>
-			<?if(!empty($arResult['RECOMMENDATION_ORDERS_VALUE'])):?>
-				<strong><?=$arResult['RECOMMENDATION_ORDERS_VALUE']?></strong>
-			<? else: ?>
-				<?=Loc::getMessage('SALE_BIGDATA_SALES_NODATA')?>
-			<? endif; ?>
-		</div>
-		<div class="adm-c-bigdatabar-content">
-			<div class="adm-c-bigdatabar-line">
-				<strong><?=Loc::getMessage('SALE_BIGDATA_SALES_TITLE')?></strong> <?=Loc::getMessage('SALE_BIGDATA_SALES_COUNT')?> <?=$arResult['RECOMMENDATION_ORDERS_COUNT']?>
-			</div>
-			<div class="adm-c-bigdatabar-line">
-				<? $installed = (time()-Bitrix\Main\Config\Option::get('main', 'rcm_component_usage', 0)<3600*24);?>
-				<? if($installed): ?>
-					<span class="adm-c-bigdatabar-line-task"><?=Loc::getMessage('SALE_BIGDATA_WIDGET_ENABLED')?></span>
+		<div class="adm-c-bigdatabar-container">
+			<div class="adm-c-bigdatabar-summ"><?=Loc::getMessage('SALE_BIGDATA_SUM')?>
+				<?if(!empty($arResult['RECOMMENDATION_ORDERS_VALUE'])):?>
+					<strong><?=$arResult['RECOMMENDATION_ORDERS_VALUE']?></strong>
 				<? else: ?>
-					<span class="adm-c-bigdatabar-line-task bx-not-available"><?=Loc::getMessage('SALE_BIGDATA_WIDGET_DISABLED')?></span>
+					<?=Loc::getMessage('SALE_BIGDATA_SALES_NODATA')?>
 				<? endif; ?>
-
-				<? $available = \Bitrix\Main\Analytics\Catalog::isOn(); ?>
-				<? if($available): ?>
-					<span class="adm-c-bigdatabar-line-task"><?=Loc::getMessage('SALE_BIGDATA_IS_ON')?></span>
-				<? else: ?>
-					<span class="adm-c-bigdatabar-line-task bx-not-available"><?=Loc::getMessage('SALE_BIGDATA_IS_OFF')?></span>
-				<? endif; ?>
-
-				<a href="sale_personalization.php?lang=<?=LANGUAGE_ID?>" class="adm-c-bigdatabar-line-task-link"><?=Loc::getMessage('SALE_BIGDATA_ABOUT')?></a>
 			</div>
+			<div class="adm-c-bigdatabar-content">
+				<div class="adm-c-bigdatabar-line">
+					<strong><?=Loc::getMessage('SALE_BIGDATA_SALES_TITLE')?></strong> <?=Loc::getMessage('SALE_BIGDATA_SALES_COUNT')?> <?=$arResult['RECOMMENDATION_ORDERS_COUNT']?>
+				</div>
+				<div class="adm-c-bigdatabar-line">
+					<? $installed = (time()-Bitrix\Main\Config\Option::get('main', 'rcm_component_usage', 0)<3600*24);?>
+					<? if($installed): ?>
+						<span class="adm-c-bigdatabar-line-task"><?=Loc::getMessage('SALE_BIGDATA_WIDGET_ENABLED')?></span>
+					<? else: ?>
+						<span class="adm-c-bigdatabar-line-task bx-not-available"><?=Loc::getMessage('SALE_BIGDATA_WIDGET_DISABLED')?></span>
+					<? endif; ?>
+
+					<? $available = \Bitrix\Main\Analytics\Catalog::isOn(); ?>
+					<? if($available): ?>
+						<span class="adm-c-bigdatabar-line-task"><?=Loc::getMessage('SALE_BIGDATA_IS_ON')?></span>
+					<? else: ?>
+						<span class="adm-c-bigdatabar-line-task bx-not-available"><?=Loc::getMessage('SALE_BIGDATA_IS_OFF')?></span>
+					<? endif; ?>
+
+					<a href="sale_personalization.php?lang=<?=LANGUAGE_ID?>" class="adm-c-bigdatabar-line-task-link"><?=Loc::getMessage('SALE_BIGDATA_ABOUT')?></a>
+				</div>
+			</div>
+			<div class="clb"></div>
 		</div>
-		<div class="clb"></div>
-	</div>
-<?
-$bigdataWidgetHtml = ob_get_contents();
-ob_end_clean();
+	<?
+	$bigdataWidgetHtml = ob_get_contents();
+	ob_end_clean();
+}
 
 $lAdmin->BeginEpilogContent();
 echo "<script>", $sScript, "\nif(document.getElementById('order_sum')) {setTimeout(function(){document.getElementById('order_sum').innerHTML = '".CUtil::JSEscape($order_sum)."';}, 10);}\n","</script>";
@@ -4401,7 +4406,7 @@ else
 	</form>
 
 	<?
-	if($link->getType() !== Admin\ModeType::APP_LAYOUT_TYPE):?>
+	if($isCanUsePersonalization && $link->getType() !== Admin\ModeType::APP_LAYOUT_TYPE):?>
 		<div class="adm-c-bigdatabar" id="bigdatabar">
 			<?=$bigdataWidgetHtml?>
 		</div>

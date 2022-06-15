@@ -14,6 +14,7 @@ return [
 	'rel' => [
 		'main.polyfill.core',
 		'ui.vue',
+		'main.core.events',
 	],
 	'skip_core' => true,
 ];

@@ -3998,6 +3998,10 @@ class CAllUser extends CDBResult
 	 */
 	public static function AppendUserGroup($user_id, $groups)
 	{
+		$lockName = 'AppendUserGroup' . $user_id;
+		$connection = Main\Application::getConnection();
+		$connection->lock($lockName, -1);
+
 		$arGroups = array();
 		$res = static::GetUserGroupList($user_id);
 		while($res_arr = $res->Fetch())
@@ -4024,6 +4028,8 @@ class CAllUser extends CDBResult
 		}
 
 		static::SetUserGroup($user_id, $arGroups);
+
+		$connection->unlock($lockName);
 	}
 
 	public static function GetCount()

@@ -259,7 +259,8 @@ $elementCode = $classBlock->get('ELEMENT_CODE');
 						'CUSTOM_SITE_ID' => $classBlock->get('SITE_ID'),
 						'CONTEXT_SITE_ID' => $classBlock->get('SITE_ID'),
 						'SECTIONS_CHAIN_START_FROM' => 1,
-						'ALLOW_SEO_DATA' => 'N'
+						'ALLOW_SEO_DATA' => 'N',
+						'ADDITIONAL_FILTER_NAME' => $classBlock->get('ADDITIONAL_FILTER_NAME'),
 					),
 					false
 				);?>

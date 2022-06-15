@@ -3213,7 +3213,6 @@ class CSaleExport
 	/** @deprecated */
 	private static function setMap($personTypeId, array $map1C, $itemId)
 	{
-		BusinessValue::INDIVIDUAL_DOMAIN; // make sure BusinessValueCode1CTable loaded since it in the same file as BusinessValue
 		BusinessValueConsumer1C::getConsumers(); // initialize 1C codes
 
 		$personTypes = BusinessValue::getPersonTypes();

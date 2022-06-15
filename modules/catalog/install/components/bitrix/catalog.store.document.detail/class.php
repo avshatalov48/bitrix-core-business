@@ -9,6 +9,10 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\PriceMaths;
 use Bitrix\Main;
 use Bitrix\UI;
+use Bitrix\Crm\Integration\DocumentGeneratorManager;
+use Bitrix\Crm\Integration\DocumentGenerator\DataProvider\StoreDocumentArrival;
+use Bitrix\Crm\Integration\DocumentGenerator\DataProvider\StoreDocumentStoreAdjustment;
+use Bitrix\Crm\Integration\DocumentGenerator\DataProvider\StoreDocumentMoving;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -70,6 +74,7 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 		$this->initializeDocumentFields();
 
 		$this->arResult['GUID'] = $this->arResult['FORM']['GUID'];
+		$this->arResult['TOOLBAR_ID'] = "toolbar_store_document_{$this->documentId}";
 		$this->arResult['IS_MAIN_CARD_READ_ONLY'] = $this->arResult['FORM']['READ_ONLY'];
 		$this->arResult['DOCUMENT_TYPE'] = $this->getDocumentType();
 		$this->setDropdownTypes();
@@ -80,15 +85,45 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 
 		$this->checkIfInventoryManagementIsUsed();
 
-		$documentCardUserOptions = CUserOptions::GetOption('catalog', 'document-card', []);
-		$isGuideOver = $documentCardUserOptions['isDocumentTypeGuideOver'] ?? false;
-		if (is_string($isGuideOver))
-		{
-			$isGuideOver = filter_var($isGuideOver, FILTER_VALIDATE_BOOLEAN);
-		}
-		$this->arResult['IS_FIRST_TIME'] = $this->request->get('firstTime') && $this->request->get('firstTime') === 'Y' && !$isGuideOver;
+		$this->arResult['BUTTONS'] = $this->getToolbarButtons();
 
 		$this->includeComponentTemplate();
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getToolbarButtons(): array
+	{
+		$result = [];
+
+		$documentType2ProviderMap = [
+			StoreDocumentTable::TYPE_ARRIVAL => StoreDocumentArrival::class,
+			StoreDocumentTable::TYPE_STORE_ADJUSTMENT => StoreDocumentStoreAdjustment::class,
+			StoreDocumentTable::TYPE_MOVING => StoreDocumentMoving::class,
+		];
+
+		$isDocumentButtonAvailable = (
+			Main\Loader::includeModule('crm')
+			&& DocumentGeneratorManager::getInstance()->isDocumentButtonAvailable()
+			&& isset($this->arResult['DOCUMENT']['ID'])
+			&& (int)$this->arResult['DOCUMENT']['ID'] > 0
+			&& isset($this->arResult['DOCUMENT']['DOC_TYPE'])
+			&& isset($documentType2ProviderMap[$this->arResult['DOCUMENT']['DOC_TYPE']])
+		);
+		if ($isDocumentButtonAvailable)
+		{
+			$result[] = [
+				'TEXT' => Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_DOCUMENT_BUTTON'),
+				'TYPE' => 'crm-document-button',
+				'PARAMS' => DocumentGeneratorManager::getInstance()->getDocumentButtonParameters(
+					$documentType2ProviderMap[$this->arResult['DOCUMENT']['DOC_TYPE']],
+					$this->arResult['DOCUMENT']['ID']
+				),
+			];
+		}
+
+		return $result;
 	}
 
 	private function checkParams()

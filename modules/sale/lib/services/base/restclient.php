@@ -12,7 +12,6 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Sale\Location\Exception;
 use Bitrix\Sale\ResultSerializable;
 
 Loc::loadMessages(__FILE__);
@@ -33,7 +32,8 @@ class RestClient
 	const UNSUCCESSFUL_CALL_TRYINGS = 3; //times
 	const UNSUCCESSFUL_CALL_WAIT_INTERVAL = 300; //sec
 
-	protected $httpTimeout = 10;
+	protected $httpTimeout = 5;
+	protected $streamTimeout = 10;
 	protected $accessSettings = null;
 	protected $serviceHost = 'https://saleservices.bitrix.info';
 
@@ -96,7 +96,10 @@ class RestClient
 		}
 
 		$host = $this->getServiceHost();
-		$http = new HttpClient(array('socketTimeout' => $this->httpTimeout));
+		$http = new HttpClient([
+			'socketTimeout' => $this->httpTimeout,
+			'streamTimeout' => $this->streamTimeout,
+		]);
 		$postResult = @$http->post(
 			$host.static::REST_URI.$methodName,
 			$additionalParams

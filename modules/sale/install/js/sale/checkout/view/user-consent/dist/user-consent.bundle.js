@@ -4,15 +4,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 (function (exports,ui_vue,main_core,main_core_events,sale_checkout_const) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	ui_vue.BitrixVue.component('sale-checkout-view-user_consent', {
 	  props: ['item'],
 	  methods: {
@@ -38,7 +30,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 
 	          if (BX.UserConsent !== undefined) {
 	            var wrapper = _this.$refs.consentDiv;
-	            wrapper.appendChild(main_core.Tag.render(_templateObject(), consent));
+	            wrapper.appendChild(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div>", "</div>"])), consent));
 	            var control = BX.UserConsent.load(wrapper);
 	            BX.addCustomEvent(control, BX.UserConsent.events.accepted, function () {
 	              return main_core_events.EventEmitter.emit(sale_checkout_const.EventType.consent.accepted, {});

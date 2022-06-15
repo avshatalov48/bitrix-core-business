@@ -14,6 +14,7 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  },
 	  methods: {
 	    click: function click() {
+	      document.body.style.overflowY = '';
 	      main_core_events.EventEmitter.emit(sale_checkout_const.EventType.basket.backdropClose, {
 	        index: this.index
 	      });
@@ -27,6 +28,7 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  props: ['index'],
 	  methods: {
 	    click: function click() {
+	      document.body.style.overflowY = '';
 	      main_core_events.EventEmitter.emit(sale_checkout_const.EventType.basket.backdropClose, {
 	        index: this.index
 	      });
@@ -166,6 +168,7 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  },
 	  methods: {
 	    backdropOpen: function backdropOpen() {
+	      document.body.style.overflowY = 'hidden';
 	      main_core_events.EventEmitter.emit(sale_checkout_const.EventType.basket.backdropOpenChangeSku, {
 	        index: this.index
 	      });
@@ -179,6 +182,7 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  props: ['index'],
 	  methods: {
 	    backdropOpen: function backdropOpen() {
+	      document.body.style.overflowY = 'hidden';
 	      main_core_events.EventEmitter.emit(sale_checkout_const.EventType.basket.backdropOpenMobileMenu, {
 	        index: this.index
 	      });

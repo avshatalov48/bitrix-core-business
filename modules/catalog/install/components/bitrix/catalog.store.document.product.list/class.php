@@ -37,6 +37,9 @@ final class CatalogStoreDocumentProductListComponent
 	private const NEW_ROW_ID_PREFIX = 'n';
 	private const PRODUCT_ID_MASK = '#PRODUCT_ID_MASK#';
 
+	private const VIEW_MODE_GRID_ID_POSTFIX = 'V';
+	private const EDIT_MODE_GRID_ID_POSTFIX = 'E';
+
 	/** @var Main\Grid\Options $gridConfig */
 	protected $gridConfig;
 	protected $storage = [];
@@ -412,7 +415,8 @@ final class CatalogStoreDocumentProductListComponent
 	 */
 	public function getDefaultGridId(): string
 	{
-		return self::clearStringValue(self::class) . '_' . $this->getDocumentType() . '_' . $this->getDocumentId();
+		$modePostfix = $this->isReadOnly() ? self::VIEW_MODE_GRID_ID_POSTFIX : self::EDIT_MODE_GRID_ID_POSTFIX;
+		return self::clearStringValue(self::class) . '_' . $this->getDocumentType() . '_' . $modePostfix;
 	}
 
 	protected function getDocumentId(): int
@@ -1296,17 +1300,44 @@ final class CatalogStoreDocumentProductListComponent
 		{
 			case StoreDocumentTable::TYPE_STORE_ADJUSTMENT:
 			case StoreDocumentTable::TYPE_ARRIVAL:
+				if ($this->isReadOnly())
+				{
+					return [
+						'MAIN_INFO','PURCHASING_PRICE', 'BASE_PRICE',
+						'AMOUNT', 'STORE_TO_INFO', 'STORE_TO_AMOUNT', 'BARCODE_INFO',
+					];
+				}
+
 				return [
 					'MAIN_INFO', 'BARCODE_INFO', 'PURCHASING_PRICE', 'BASE_PRICE',
 					'AMOUNT', 'STORE_TO_INFO', 'STORE_TO_AMOUNT',
 				];
 			case StoreDocumentTable::TYPE_DEDUCT:
+				if ($this->isReadOnly())
+				{
+					return [
+						'MAIN_INFO',
+						'STORE_FROM_INFO', 'STORE_FROM_AMOUNT', 'AMOUNT',
+						'PURCHASING_PRICE', 'BASE_PRICE', 'BARCODE_INFO',
+					];
+				}
+
 				return [
 					'MAIN_INFO', 'BARCODE_INFO',
 					'STORE_FROM_INFO', 'STORE_FROM_AMOUNT', 'AMOUNT',
 					'PURCHASING_PRICE', 'BASE_PRICE',
 				];
 			case StoreDocumentTable::TYPE_MOVING:
+				if ($this->isReadOnly())
+				{
+					return [
+						'MAIN_INFO',
+						'STORE_FROM_INFO', 'STORE_FROM_AVAILABLE_AMOUNT', 'STORE_FROM_AMOUNT',
+						'STORE_TO_INFO', 'STORE_TO_AVAILABLE_AMOUNT', 'STORE_TO_AMOUNT', 'AMOUNT',
+						'PURCHASING_PRICE', 'BASE_PRICE', 'BARCODE_INFO',
+					];
+				}
+
 				return [
 					'MAIN_INFO', 'BARCODE_INFO',
 					'STORE_FROM_INFO', 'STORE_FROM_AVAILABLE_AMOUNT', 'STORE_FROM_AMOUNT',
@@ -1410,7 +1441,7 @@ final class CatalogStoreDocumentProductListComponent
 			'name' => $storeFromAmountName,
 			'title' => $storeFromAmountName,
 			'sort' => 'STORE_FROM_AMOUNT',
-			'default' => true,
+			'default' => !$this->isReadOnly(),
 			'editable' => false,
 			'width' => $columnDefaultWidth,
 		];
@@ -1433,7 +1464,7 @@ final class CatalogStoreDocumentProductListComponent
 			'name' => $storeFromCommonAmountName,
 			'title' => $storeFromCommonAmountName,
 			'sort' => 'STORE_FROM_AVAILABLE_AMOUNT',
-			'default' => true,
+			'default' => !$this->isReadOnly(),
 			'editable' => false,
 			'width' => $columnDefaultWidth,
 		];
@@ -1456,7 +1487,7 @@ final class CatalogStoreDocumentProductListComponent
 			'name' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_TO_AMOUNT'),
 			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_TO_AMOUNT'),
 			'sort' => 'STORE_TO_AMOUNT',
-			'default' => true,
+			'default' => !$this->isReadOnly(),
 			'editable' => false,
 			'width' => $columnDefaultWidth,
 		];
@@ -1476,7 +1507,7 @@ final class CatalogStoreDocumentProductListComponent
 			'name' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_TO_AMOUNT_AVAILABLE'),
 			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_STORE_TO_AMOUNT_AVAILABLE'),
 			'sort' => 'STORE_TO_AVAILABLE_AMOUNT',
-			'default' => true,
+			'default' => !$this->isReadOnly(),
 			'editable' => false,
 			'width' => $columnDefaultWidth,
 		];

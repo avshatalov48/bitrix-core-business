@@ -1200,6 +1200,7 @@ class CAllCatalog
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		CCatalogSku::ClearCache();
+		Catalog\CatalogIblockTable::getEntity()->cleanCache();
 
 		return true;
 	}
@@ -1231,6 +1232,8 @@ class CAllCatalog
 				unset(self::$catalogVatCache[$ID]);
 		}
 		CCatalogSku::ClearCache();
+		Catalog\CatalogIblockTable::getEntity()->cleanCache();
+
 		return true;
 	}
 
@@ -1261,7 +1264,9 @@ class CAllCatalog
 			unset(self::$catalogVatCache[$ID]);
 
 		CCatalogSku::ClearCache();
+		Catalog\CatalogIblockTable::getEntity()->cleanCache();
 		CCatalogProduct::ClearCache();
+
 		return $DB->Query("DELETE FROM b_catalog_iblock WHERE IBLOCK_ID = ".$ID, true);
 	}
 

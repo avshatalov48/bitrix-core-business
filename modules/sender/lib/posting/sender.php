@@ -167,6 +167,12 @@ class Sender
 			return;
 		}
 
+		if ($this->threadStrategy->isProcessLimited())
+		{
+			$this->resultCode = static::RESULT_CONTINUE;
+			return;
+		}
+
 		$this->startTime();
 
 		$this->isConsentSupport = $this->letter
@@ -180,7 +186,6 @@ class Sender
 		$threadId = $this->threadStrategy->getThreadId();
 
 		// lock posting for exclude double parallel sending
-
 		if (is_null($threadId))
 		{
 			$this->resultCode = static::RESULT_CONTINUE;

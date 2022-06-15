@@ -5,6 +5,8 @@ $MESS["BITRIX"] = "Битрикс";
 
 $MESS["MAIL_CLIENT_AJAX_ERROR"] = "Ошибка при обработке запроса";
 $MESS["MAIL_CLIENT_FORM_ERROR"] = "Ошибка при обработке формы";
+$MESS["MAIL_THE_MAILBOX_HAS_BEEN_DELETED"] = "Почтового ящика больше не существует";
+$MESS["MAIL_SYNC_NOT_AVAILABLE"] = "Синхронизация почты недоступна для текущего тарифа";
 $MESS["MAIL_CLIENT_SAVE_ERROR"] = "Ошибка при сохранении данных";
 
 $MESS["MAIL_CLIENT_ELEMENT_NOT_FOUND"] = "Элемент не найден";
@@ -14,7 +16,6 @@ $MESS["MAIL_CLIENT_DENIED"] = "Доступ запрещен";
 $MESS['MAIL_CLIENT_MAILBOX_ADD'] = "Подключить новый";
 
 $MESS['MAIL_CLIENT_MAILBOX_SYNC_BAR'] = "Синхронизация";
-$MESS['MAIL_CLIENT_MAILBOX_SYNC_BAR_COMPLETED'] = "Синхронизация завершена";
 $MESS['MAIL_CLIENT_MAILBOX_SYNC_BAR_INTERRUPTED'] = "Синхронизация прервана";
 $MESS['MAIL_CLIENT_MAILBOX_INDEX_BAR'] = "Индексация";
 

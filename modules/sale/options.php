@@ -1169,30 +1169,32 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<!-- end of order guest view -->
-	<tr class="heading">
-		<td colspan="2"><a name="section_reservation"></a><?=GetMessage('BX_SALE_SETTINGS_SECTION_RESERVATION')?></td>
-	</tr>
-	<tr>
-		<td width="40%"><? echo GetMessage('BX_SALE_SETTINGS_OPTION_PRODUCT_RESERVE_CONDITION'); ?></td>
-		<td width="60%"><select name="product_reserve_condition">
-			<?
-			foreach (Sale\Configuration::getReservationConditionList(true) as $reserveId => $reserveTitle)
-			{
-				?><option value="<? echo $reserveId; ?>"<?
-					echo ($reserveId == $currentSettings['product_reserve_condition'] ? ' selected' : '')
-				?>><? echo htmlspecialcharsex($reserveTitle); ?></option>
+	<? if (!(Loader::includeModule('crm') && !CCrmSaleHelper::isWithOrdersMode())):?>
+		<tr class="heading">
+			<td colspan="2"><a name="section_reservation"></a><?=GetMessage('BX_SALE_SETTINGS_SECTION_RESERVATION')?></td>
+		</tr>
+		<tr>
+			<td width="40%"><? echo GetMessage('BX_SALE_SETTINGS_OPTION_PRODUCT_RESERVE_CONDITION'); ?></td>
+			<td width="60%"><select name="product_reserve_condition">
 				<?
-			}
-			unset($reserveId, $reserveTitle);
-			?>
-		</select></td>
-	</tr>
-	<tr>
-		<td width="40%"><? echo GetMessage('BX_SALE_SETTINGS_OPTION_PRODUCT_RESERVE_CLEAR_PERIOD'); ?></td>
-		<td width="60%">
-			<input type="text" name="product_reserve_clear_period" value="<? echo $currentSettings['product_reserve_clear_period']; ?>">
-		</td>
-	</tr>
+				foreach (Sale\Configuration::getReservationConditionList(true) as $reserveId => $reserveTitle)
+				{
+					?><option value="<? echo $reserveId; ?>"<?
+						echo ($reserveId == $currentSettings['product_reserve_condition'] ? ' selected' : '')
+					?>><? echo htmlspecialcharsex($reserveTitle); ?></option>
+					<?
+				}
+				unset($reserveId, $reserveTitle);
+				?>
+			</select></td>
+		</tr>
+		<tr>
+			<td width="40%"><? echo GetMessage('BX_SALE_SETTINGS_OPTION_PRODUCT_RESERVE_CLEAR_PERIOD'); ?></td>
+			<td width="60%">
+				<input type="text" name="product_reserve_clear_period" value="<? echo $currentSettings['product_reserve_clear_period']; ?>">
+			</td>
+		</tr>
+	<?endif;?>
 	<tr class="heading">
 		<td colspan="2"><?=GetMessage('BX_SALE_SETTINGS_SECTION_LOCATIONS')?></td>
 	</tr>

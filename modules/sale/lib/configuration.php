@@ -4,6 +4,9 @@ namespace Bitrix\Sale;
 use Bitrix\Main\Localization\Loc,
 	Bitrix\Main\Loader,
 	Bitrix\Catalog;
+use Bitrix\Sale\Reservation\Configuration\ReservationSettings;
+use Bitrix\Sale\Reservation\Configuration\ReservationSettingsService;
+use Bitrix\Sale\Reservation\Configuration\ReserveCondition;
 
 Loc::loadMessages(__FILE__);
 
@@ -13,13 +16,8 @@ Loc::loadMessages(__FILE__);
  */
 class Configuration
 {
-	protected static $enableAutomaticReservation = true;
+	private static bool $enableAutomaticReservation;
 
-	const RESERVE_ON_CREATE = 'O';
-	const RESERVE_ON_PAY = 'R';
-	const RESERVE_ON_FULL_PAY = 'P';
-	const RESERVE_ON_ALLOW_DELIVERY = 'D';
-	const RESERVE_ON_SHIP = 'S';
 	const ALLOW_DELIVERY_ON_PAY = 'R';
 	const ALLOW_DELIVERY_ON_FULL_PAY = 'P';
 	const STATUS_ON_PAY = 'R';
@@ -37,20 +35,37 @@ class Configuration
 		if ($extendedMode)
 		{
 			return array(
-				self::RESERVE_ON_CREATE => Loc::getMessage('SALE_CONFIGURATION_RESERVE_ON_CREATE'),
-				self::RESERVE_ON_FULL_PAY => Loc::getMessage('SALE_CONFIGURATION_RESERVE_ON_FULL_PAY'),
-				self::RESERVE_ON_PAY => Loc::getMessage('SALE_CONFIGURATION_RESERVE_ON_PAY'),
-				self::RESERVE_ON_ALLOW_DELIVERY => Loc::getMessage('SALE_CONFIGURATION_RESERVE_ON_ALLOW_DELIVERY'),
-				self::RESERVE_ON_SHIP => Loc::getMessage('SALE_CONFIGURATION_RESERVE_ON_SHIP')
+				ReserveCondition::ON_CREATE => Loc::getMessage('SALE_CONFIGURATION_RESERVE_ON_CREATE'),
+				ReserveCondition::ON_FULL_PAY => Loc::getMessage('SALE_CONFIGURATION_RESERVE_ON_FULL_PAY'),
+				ReserveCondition::ON_PAY => Loc::getMessage('SALE_CONFIGURATION_RESERVE_ON_PAY'),
+				ReserveCondition::ON_ALLOW_DELIVERY => Loc::getMessage('SALE_CONFIGURATION_RESERVE_ON_ALLOW_DELIVERY'),
+				ReserveCondition::ON_SHIP => Loc::getMessage('SALE_CONFIGURATION_RESERVE_ON_SHIP')
 			);
 		}
 		return array(
-			self::RESERVE_ON_CREATE,
-			self::RESERVE_ON_FULL_PAY,
-			self::RESERVE_ON_PAY,
-			self::RESERVE_ON_ALLOW_DELIVERY,
-			self::RESERVE_ON_SHIP
+			ReserveCondition::ON_CREATE,
+			ReserveCondition::ON_FULL_PAY,
+			ReserveCondition::ON_PAY,
+			ReserveCondition::ON_ALLOW_DELIVERY,
+			ReserveCondition::ON_SHIP
 		);
+	}
+
+	/**
+	 * Reservation settings.
+	 *
+	 * @return ReservationSettings
+	 */
+	private static function getReservationSettings(): ReservationSettings
+	{
+		static $settings;
+
+		if (!isset($settings))
+		{
+			$settings = ReservationSettingsService::getInstance()->get();
+		}
+
+		return $settings;
 	}
 
 	/**
@@ -61,10 +76,7 @@ class Configuration
 	 */
 	public static function getProductReservationCondition()
 	{
-		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
-		$optionClassName = $registry->get(Registry::ENTITY_OPTIONS);
-
-		return $optionClassName::get('sale', 'product_reserve_condition');
+		return self::getReservationSettings()->getReserveCondition();
 	}
 
 	/**
@@ -72,6 +84,10 @@ class Configuration
 	 */
 	public static function isEnableAutomaticReservation() : bool
 	{
+		if (!isset(self::$enableAutomaticReservation))
+		{
+			self::$enableAutomaticReservation = self::getReservationSettings()->isEnableAutomaticReservation();
+		}
 		return self::$enableAutomaticReservation;
 	}
 
@@ -93,10 +109,7 @@ class Configuration
 	 */
 	public static function getProductReserveClearPeriod()
 	{
-		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
-		$optionClassName = $registry->get(Registry::ENTITY_OPTIONS);
-
-		return (int)$optionClassName::get('sale', 'product_reserve_clear_period');
+		return self::getReservationSettings()->getClearPeriod();
 	}
 
 	/**
@@ -107,7 +120,67 @@ class Configuration
 	public static function isReservationDependsOnShipment()
 	{
 		$condition = static::getProductReservationCondition();
-		return in_array($condition, array(static::RESERVE_ON_SHIP, static::RESERVE_ON_ALLOW_DELIVERY));
+		return in_array($condition, array(ReserveCondition::ON_SHIP, ReserveCondition::ON_ALLOW_DELIVERY));
+	}
+
+	/**
+	 * Returns true if can use 1C services.
+	 *
+	 * @return bool
+	 */
+	public static function isCanUse1c(): bool
+	{
+		$lang = LANGUAGE_ID;
+		if (Loader::includeModule('bitrix24'))
+		{
+			$lang = \CBitrix24::getLicensePrefix();
+		}
+		elseif (Loader::includeModule('intranet'))
+		{
+			$lang = \CIntranetUtils::getPortalZone();
+		}
+
+		return in_array($lang, ['ru', 'ua', 'by', 'kz'], true);
+	}
+
+	/**
+	 * Returns true if import of orders from Bitrix24 is available.
+	 *
+	 * @return bool
+	 */
+	public static function isAvailableOrdersImportFromB24(): bool
+	{
+		$lang = LANGUAGE_ID;
+		if (Loader::includeModule('bitrix24'))
+		{
+			$lang = \CBitrix24::getLicensePrefix();
+		}
+		elseif (Loader::includeModule('intranet'))
+		{
+			$lang = \CIntranetUtils::getPortalZone();
+		}
+
+		return in_array($lang, ['ru', 'ua', 'by', 'kz'], true);
+	}
+
+	/**
+	 * Returns true if can use big data personalization.
+	 *
+	 * @return bool
+	 */
+	public static function isCanUsePersonalization(): bool
+	{
+		$lang = LANGUAGE_ID;
+		if (Loader::includeModule('bitrix24'))
+		{
+			$lang = \CBitrix24::getLicensePrefix();
+		}
+		elseif (Loader::includeModule('intranet'))
+		{
+			$lang = \CIntranetUtils::getPortalZone();
+		}
+
+		return in_array($lang, ['ru', 'ua', 'by', 'kz'], true);
 	}
 
 	/**
@@ -133,7 +206,7 @@ class Configuration
 	public static function needAllowDeliveryOnPay()
 	{
 		$condition = static::getAllowDeliveryOnPayCondition();
-		return in_array($condition, array(static::ALLOW_DELIVERY_ON_PAY, static::RESERVE_ON_ALLOW_DELIVERY));
+		return in_array($condition, array(static::ALLOW_DELIVERY_ON_PAY, ReserveCondition::ON_ALLOW_DELIVERY));
 	}
 
 	/**

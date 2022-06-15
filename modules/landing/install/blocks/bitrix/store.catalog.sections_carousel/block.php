@@ -29,7 +29,7 @@ if ($detailUrl)
 <section class="landing-block g-pt-20 g-pb-20">
 	<?php if ($classBlock->get('EDIT_MODE') || $showElementSection): ?>
 		<div class="landing-component">
-			<? $APPLICATION->IncludeComponent(
+			<?php $APPLICATION->IncludeComponent(
 				'bitrix:catalog.section',
 				'store_v3',
 				[
@@ -146,6 +146,8 @@ if ($detailUrl)
 					'SECTIONS_OFFSET_MODE' => 'F',
 					'SECTIONS_SECTION_ID' => $classBlock->get('LANDING_SECTION_ID'),
 					'SECTIONS_FILTER_NAME' => $classBlock->get('SECTIONS_FILTER_NAME'),
+					'SECTIONS_ADDITIONAL_COUNT_ELEMENTS_FILTER' => $classBlock->get('FILTER_NAME'),
+					'SECTIONS_HIDE_SECTIONS_WITH_ZERO_COUNT_ELEMENTS' => 'Y',
 					'PROPERTY_CODE_MOBILE' => [
 						0 => 'ARTNUMBER',
 						1 => 'MANUFACTURER',
@@ -317,6 +319,8 @@ if ($detailUrl)
 					'CYCLIC_LOADING_COUNTER_NAME' => 'catalogCycleCount',
 					'SECTIONS_OFFSET_MODE' => 'F',
 					'SECTIONS_SECTION_ID' => $classBlock->get('LANDING_SECTION_ID'),
+					'SECTIONS_ADDITIONAL_COUNT_ELEMENTS_FILTER' => $classBlock->get('FILTER_NAME'),
+					'SECTIONS_HIDE_SECTIONS_WITH_ZERO_COUNT_ELEMENTS' => 'Y',
 					'PROPERTY_CODE_MOBILE' => [
 						0 => 'ARTNUMBER',
 						1 => 'MANUFACTURER',

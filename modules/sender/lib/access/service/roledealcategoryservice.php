@@ -74,7 +74,7 @@ class RoleDealCategoryService implements RoleDealCategoryServiceInterface
 		$this->accessController = new AccessController($userId);
 		$allowAll = $this->accessController->isAdmin();
 
-		$dealCategories[''] =  $categories['']??Loc::getMessage('SENDER_DEAL_CATEGORY_WITHOUT_DEAL');
+		$dealCategories[''] =  $categories['']??Loc::getMessage('SENDER_DEAL_CATEGORY_WITHOUT_DEAL_PREP');
 		foreach ($ableDealCategories as $ableDealCategory)
 		{
 			if((int)$ableDealCategory['CATEGORY_ID'] === self::ALL_CATEGORIES)

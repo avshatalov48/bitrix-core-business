@@ -700,7 +700,7 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 					$result->addError(
 						new ResultError(
 							Localization\Loc::getMessage(
-								'SALE_BASKET_ITEM_WRONG_AVAILABLE_QUANTITY',
+								'SALE_BASKET_ITEM_WRONG_AVAILABLE_QUANTITY_2',
 								['#PRODUCT_NAME#' => $this->getField('NAME')]
 							),
 							'SALE_BASKET_ITEM_WRONG_AVAILABLE_QUANTITY'

@@ -7,7 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-\Bitrix\Main\UI\Extension::load(['ui.tooltip', 'ui.icons', 'ui.notification', 'ui.tour', 'catalog.document-grid']);
+\Bitrix\Main\UI\Extension::load(['ui.tooltip', 'ui.icons', 'ui.notification', 'ui.tour', 'catalog.document-grid', 'catalog.store-use']);
 
 global $APPLICATION;
 
@@ -50,7 +50,7 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 		var currentSlider = BX.SidePanel.Instance.getTopSlider();
 		if (!currentSlider || !currentSlider.data.get('preventMasterSlider'))
 		{
-			BX.SidePanel.Instance.open(
+			(new BX.Catalog.StoreUse.Slider()).open(
 				"<?= $arResult['MASTER_SLIDER_URL'] ?>",
 				{
 					cacheable: false,
@@ -101,6 +101,32 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 		BX.SidePanel.Instance.open(url, options);
 	}
 
+	function showAddDocumentGuide()
+	{
+		const buttonUID = <?= CUtil::PhpToJSObject($arResult['ADD_DOCUMENT_BTN_ID']) ?>;
+		const addDocumentButton = BX.UI.ButtonManager.getByUniqid(buttonUID);
+
+		BX.Runtime.loadExtension('ui.tour').then((exports) => {
+			const { Guide } = exports;
+			const guide = new Guide({
+				steps: [
+					{
+						target: addDocumentButton.getContainer(),
+						title: <?= CUtil::PhpToJSObject(Loc::getMessage('DOC_CREATE_FIRST_TIME_GUIDE_TEXT')) ?>,
+						text: '',
+						events: {
+							onClose: () => {
+								BX.userOptions.save('catalog', 'document-list', 'isDocumentCreateGuideOver', true);
+							},
+						}
+					},
+				],
+				onEvents: true,
+			});
+			guide.showNextStep();
+		});
+	}
+
 	function resetAddDocumentButton()
 	{
 		const addDocumentButton = document.querySelector('.add-document-button');
@@ -121,6 +147,12 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 	}
 
 	BX.ready(function() {
+		const isShowGuide = <?= CUtil::PhpToJSObject($arResult['IS_SHOW_GUIDE']) ?>;
+		if (isShowGuide)
+		{
+			showAddDocumentGuide();
+		}
+
 		BX.Catalog.DocumentGridManager.Instance = new BX.Catalog.DocumentGridManager({
 			gridId: '<?= $arResult['GRID']['GRID_ID'] ?>',
 			filterId: '<?= $arResult['FILTER_ID'] ?>',

@@ -943,7 +943,7 @@ this.BX = this.BX || {};
 	 * @source: https://unpkg.com/vue@3.2.31/dist/vue.esm-browser.prod.js
 	 */
 
-	BitrixVue.createApp = config => kl(config).use(BitrixVue);
+	BitrixVue.createApp = (rootComponent, rootProps) => kl(rootComponent, rootProps).use(BitrixVue);
 
 	function e(e, t) {
 	  const n = Object.create(null),

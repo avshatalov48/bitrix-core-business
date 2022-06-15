@@ -6960,6 +6960,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "frozenProps", {});
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "hideByEsc", true);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "autoHide", true);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "autoHideHandler", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "offsetTop", 5);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "offsetLeft", 0);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "cacheable", true);
@@ -7042,6 +7043,8 @@ this.BX.UI = this.BX.UI || {};
 	    void _this.setHeight(options.height);
 
 	    _this.setAutoHide(options.autoHide);
+
+	    _this.setAutoHideHandler(options.autoHideHandler);
 
 	    _this.setHideByEsc(options.hideByEsc);
 
@@ -7851,6 +7854,13 @@ this.BX.UI = this.BX.UI || {};
 	    key: "isAutoHide",
 	    value: function isAutoHide() {
 	      return this.autoHide;
+	    }
+	  }, {
+	    key: "setAutoHideHandler",
+	    value: function setAutoHideHandler(handler) {
+	      if (main_core.Type.isFunction(handler) || handler === null) {
+	        this.autoHideHandler = handler;
+	      }
 	    }
 	  }, {
 	    key: "setHideByEsc",
@@ -8695,6 +8705,14 @@ this.BX.UI = this.BX.UI || {};
 
 	      if (this.isTagSelectorOutside() && target === this.getTagSelector().getTextBox() && main_core.Type.isStringFilled(this.getTagSelector().getTextBoxValue())) {
 	        return false;
+	      }
+
+	      if (this.autoHideHandler !== null) {
+	        var result = this.autoHideHandler(event, this);
+
+	        if (main_core.Type.isBoolean(result)) {
+	          return result;
+	        }
 	      }
 
 	      return true;

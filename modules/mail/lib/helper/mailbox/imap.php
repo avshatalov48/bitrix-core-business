@@ -365,13 +365,13 @@ class Imap extends Mail\Helper\Mailbox
 
 	protected function syncInternal()
 	{
-		$count = $this->syncMailbox();
-		if (false === $count)
+		$syncReport = $this->syncMailbox();
+		if (false === $syncReport['syncCount'])
 		{
 			$this->errors = new Main\ErrorCollection($this->client->getErrors()->toArray());
 		}
 
-		return $count;
+		return $syncReport;
 	}
 
 	protected function createMessage(Main\Mail\Mail $message, array $fields = array())
@@ -724,7 +724,11 @@ class Imap extends Mail\Helper\Mailbox
 			return false;
 		}
 
-		$count = 0;
+		$syncReport = [
+			'syncCount'=>0,
+			'reSyncCount' => 0,
+			'reSyncStatus' => false,
+		];
 
 		$this->cacheDirs();
 
@@ -735,20 +739,20 @@ class Imap extends Mail\Helper\Mailbox
 			$currentDir = $this->syncParams['currentDir'];
 		}
 
-		$meta = $this->getDirsHelper()->getSyncDirsOrderByTime($currentDir);
+		$dirsSync = $this->getDirsHelper()->getSyncDirsOrderByTime($currentDir);
 
-		if (empty($meta))
+		if (empty($dirsSync))
 		{
-			return $count;
+			return $syncReport;
 		}
 
 		$lastDir = $this->getDirsHelper()->getLastSyncDirByDefault($currentDir);
 
-		foreach ($meta as $item)
+		foreach ($dirsSync as $item)
 		{
 			MailboxDirectoryHelper::setCurrentSyncDir($item->getPath());
 
-			$count += $this->syncDir($item->getPath());
+			$syncReport['syncCount'] += $this->syncDir($item->getPath());
 
 			if ($this->isTimeQuotaExceeded())
 			{
@@ -791,21 +795,32 @@ class Imap extends Mail\Helper\Mailbox
 
 			$this->lastSyncResult['deletedMessages'] += $countDeleted;
 
+			$successfulReSyncCount = 0;
+
 			if (!empty($this->syncParams['full']))
 			{
-				foreach ($meta as $item)
+				foreach ($dirsSync as $item)
 				{
-					$this->resyncDir($item->getPath());
+					$reSyncReport = $this->resyncDir($item->getPath());
 
+					if($reSyncReport['complete'])
+					{
+						$syncReport['reSyncCount']++;
+					}
 					if ($this->isTimeQuotaExceeded())
 					{
 						break;
 					}
 				}
+
+				if($syncReport['reSyncCount'] === count($dirsSync))
+				{
+					$syncReport['reSyncStatus'] = true;
+				}
 			}
 		}
 
-		return $count;
+		return $syncReport;
 	}
 
 	public function syncDir($dirPath)
@@ -1097,7 +1112,8 @@ class Imap extends Mail\Helper\Mailbox
 			return false;
 		}
 
-		$pushParams = [
+		$report = [
+			'complete' => false,
 			'dir' => $dir->getPath(),
 			'updated' => -$this->lastSyncResult['updatedMessages'],
 			'deleted' => -$this->lastSyncResult['deletedMessages'],
@@ -1105,19 +1121,28 @@ class Imap extends Mail\Helper\Mailbox
 
 		$result = $this->resyncDirInternal($dir,$numberForResync);
 
-		$pushParams['updated'] += $this->lastSyncResult['updatedMessages'];
-		$pushParams['deleted'] += $this->lastSyncResult['deletedMessages'];
+		$report['updated'] += $this->lastSyncResult['updatedMessages'];
+		$report['deleted'] += $this->lastSyncResult['deletedMessages'];
 
 		if (false === $result)
 		{
-			$pushParams['complete'] = -1;
-			$pushParams['status'] = -1;
-			$pushParams['errors'] = $this->client->getErrors()->toArray();
+			$report['errors'] = $this->client->getErrors()->toArray();
 		}
 		else
 		{
-			$pushParams['complete'] = $this->isTimeQuotaExceeded() ? -1 : 1;
+			if($this->isTimeQuotaExceeded())
+			{
+				$report['errors'] = [
+					'isTimeQuotaExceeded'
+				];
+			}
+			else
+			{
+				$report['complete'] = true;
+			}
 		}
+
+		return $report;
 	}
 
 	protected function resyncDirInternal($dir, $numberForResync = false)

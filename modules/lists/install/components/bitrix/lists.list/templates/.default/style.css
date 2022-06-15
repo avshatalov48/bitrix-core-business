@@ -39,3 +39,28 @@
 	-webkit-box-shadow: 0 19px 24px rgba(88, 112, 118, 0.17) !important;
 	box-shadow: 0 19px 24px rgba(88, 112, 118, 0.17) !important;
 }
+
+.lists-list-row-count-wrapper a {
+	cursor: pointer;
+}
+.lists-circle-loader-circular {
+	vertical-align: bottom;
+	height: 12px;
+	width: 12px;
+	-webkit-animation: rotate 1s linear infinite;
+	animation: rotate 1s linear infinite;
+	-webkit-transform-origin: center center;
+	transform-origin: center center;
+}
+.lists-list-row-count-wrapper .lists-circle-loader-circular {
+	display: none;
+}
+
+.lists-circle-loader-path {
+	stroke: #868d95;
+	stroke-width: 7px;
+	stroke-dasharray: 60, 200;
+	stroke-dashoffset: 0;
+	animation: dash 1.5s ease-in-out infinite;
+	stroke-linecap: round;
+}

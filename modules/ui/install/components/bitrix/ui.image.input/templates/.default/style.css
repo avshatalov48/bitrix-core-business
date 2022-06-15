@@ -81,7 +81,7 @@
 
 .adm-fileinput-drag-area,
 .adm-fileinput-wrapper-single .adm-fileinput-drag-area {
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-xs, 2px);
 	border: 2px dashed rgba(47, 198, 246, .6);
 	transition: border-color .2s linear;
 	width: 90px;
@@ -181,6 +181,7 @@ input.adm-fileinput-drag-area-input {
 	height: 110px;
 	border: 1px solid #e2e2e4;
 	box-sizing: border-box;
+	border-radius: var(--ui-border-radius-xs);
 }
 
 .ui-image-input-img-block-empty .ui-image-input-img {

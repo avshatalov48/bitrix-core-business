@@ -8,6 +8,7 @@ use Bitrix\Main\Type;
 use Bitrix\Sale\Cashbox;
 use Bitrix\Sale\Internals;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\Reservation\Configuration\ReserveCondition;
 
 Loc::loadMessages(__FILE__);
 
@@ -211,7 +212,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 
 			if (
 				Configuration::isEnableAutomaticReservation()
-				&& Configuration::getProductReservationCondition() === Configuration::RESERVE_ON_ALLOW_DELIVERY
+				&& Configuration::getProductReservationCondition() === ReserveCondition::ON_ALLOW_DELIVERY
 			)
 			{
 				if ($value === "Y")
@@ -333,7 +334,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 
 			if (
 				Configuration::isEnableAutomaticReservation()
-				&& Configuration::getProductReservationCondition() == Configuration::RESERVE_ON_SHIP
+				&& Configuration::getProductReservationCondition() == ReserveCondition::ON_SHIP
 			)
 			{
 				if ($value === "Y")
@@ -1596,7 +1597,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 		{
 			$r = null;
 
-			if (Configuration::getProductReservationCondition() == Configuration::RESERVE_ON_PAY)
+			if (Configuration::getProductReservationCondition() == ReserveCondition::ON_PAY)
 			{
 				if ($paymentCollection->hasPaidPayment())
 				{
@@ -1607,7 +1608,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 					$r = $shipmentCollection->tryUnreserve();
 				}
 			}
-			elseif (Configuration::getProductReservationCondition() == Configuration::RESERVE_ON_FULL_PAY)
+			elseif (Configuration::getProductReservationCondition() == ReserveCondition::ON_FULL_PAY)
 			{
 				if ($oldPaid == "N" && $this->isPaid())
 				{

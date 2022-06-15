@@ -544,7 +544,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		$sessionId = md5(uniqid(''));
 
 		$response = array(
-			'complete' => -1,
+			'complete' => false,
 			'status' => 0,
 			'sessid' => $sessionId,
 			'timestamp' => microtime(true),
@@ -565,6 +565,8 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		if (!Mail\Helper\LicenseManager::isSyncAvailable())
 		{
 			$response['complete'] = true;
+			$response['is_fatal_error'] = true;
+			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('MAIL_SYNC_NOT_AVAILABLE'));
 			return $response;
 		}
 
@@ -590,9 +592,16 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			{
 				$mailboxSyncManager->setSyncStatus($id, false, time());
 				$this->errorCollection->add($mailboxHelper->getWarnings()->toArray());
+				$response['complete'] = true;
+				$response['is_fatal_error'] = true;
 			}
 			else
 			{
+				/*
+					If the directory is not locked for synchronization,
+					then we will resynchronize the old messages
+					(delete the missing messages, synchronize the readability statuses).
+				*/
 				if (null !== $result)
 				{
 					$response['new'] = $result;
@@ -612,23 +621,29 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 					$response['timestamp'] = microtime(true);
 				}
 
-				$response['complete'] = true;
-
 				$onlySyncCurrent = filter_var($onlySyncCurrent, FILTER_VALIDATE_BOOLEAN);
+
 				if (!$onlySyncCurrent && count($mailboxHelper->getDirsHelper()->getSyncDirs()) > 1)
 				{
-					$mailboxHelper->sync();
+					//If resynchronization of the entire mailbox is started
+					if($mailboxHelper->sync())
+					{
+						$response['complete'] = true;
+					}
 				}
 				else
 				{
 					$mailboxSyncManager->setSyncStatus($id, true, time());
 					$mailboxHelper->notifyNewMessages();
+					$response['complete'] = true;
 				}
 			}
 		}
 		else
 		{
-			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('MAIL_CLIENT_FORM_ERROR'));
+			$response['complete'] = true;
+			$response['is_fatal_error'] = true;
+			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('MAIL_THE_MAILBOX_HAS_BEEN_DELETED'));
 		}
 
 		return $response;
@@ -874,24 +889,25 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			}
 		}
 
-		$outgoingParams = array(
+		$outgoingParams = [
 			'CHARSET'      => SITE_CHARSET,
 			'CONTENT_TYPE' => 'html',
 			'ATTACHMENT'   => $attachments,
 			'TO'           => implode(', ', $toEncoded),
 			'SUBJECT'      => $data['subject'],
 			'BODY'         => $outgoingBody,
-			'HEADER'       => array(
+			'HEADER'       => [
 				'From'       => $fromEncoded ?: $fromEmail,
 				'Reply-To'   => $fromEncoded ?: $fromEmail,
-				//'To'         => join(', ', $to),
 				'Cc'         => implode(', ', $ccEncoded),
 				'Bcc'        => implode(', ', $bccEncoded),
-				//'Subject'    => $data['subject'],
-				//'Message-Id' => $messageId,
-				'In-Reply-To' => sprintf('<%s>', $data['IN_REPLY_TO']),
-			),
-		);
+			],
+		];
+
+		if(isset($data['IN_REPLY_TO']))
+		{
+			$outgoingParams['HEADER']['In-Reply-To']=sprintf('<%s>', $data['IN_REPLY_TO']);
+		}
 
 		$messageBindings = array();
 
@@ -1012,7 +1028,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
-	public function createCrmActivityAction($messageId, $level = 1)
+	public function createCrmActivityAction($messageId, $iteration = 1)
 	{
 		if (!Loader::includeModule('crm'))
 		{
@@ -1067,9 +1083,9 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			return;
 		}
 
-		if ($level <= 1 && Mail\Helper\Message::ensureAttachments($message) > 0)
+		if ($iteration <= 1 && Mail\Helper\Message::ensureAttachments($message) > 0)
 		{
-			return $this->createCrmActivityAction($messageId, $level + 1);
+			return $this->createCrmActivityAction($messageId, $iteration + 1);
 		}
 
 		Mail\Helper\Message::prepare($message);

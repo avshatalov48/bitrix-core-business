@@ -1,4 +1,4 @@
-<?
+<?php
 define("BX_ROOT", "/bitrix");
 
 if(isset($_SERVER["BX_PERSONAL_ROOT"]) && $_SERVER["BX_PERSONAL_ROOT"] <> "")

@@ -122,6 +122,13 @@ final class Manager
 	public static function update($primary, array $data): \Bitrix\Main\ORM\Data\UpdateResult
 	{
 		$oldFields = PaySystemActionTable::getByPrimary($primary)->fetch();
+		if ($oldFields)
+		{
+			$newFields = array_merge($oldFields, $data);
+			
+			$data['PS_CLIENT_TYPE'] = (new Service($newFields))->getClientTypeFromHandler();	
+		}
+		
 		$updateResult = PaySystemActionTable::update($primary, $data);
 		if ($updateResult->isSuccess())
 		{
@@ -145,6 +152,8 @@ final class Manager
 	 */
 	public static function add(array $data): \Bitrix\Main\ORM\Data\AddResult
 	{
+		$data['PS_CLIENT_TYPE'] = (new Service($data))->getClientTypeFromHandler();
+		
 		return PaySystemActionTable::add($data);
 	}
 
@@ -350,27 +359,53 @@ final class Manager
 	{
 		$result = array();
 
-		$dbRes = self::getList(array(
-			'filter' => array('ACTIVE' => 'Y', 'ENTITY_REGISTRY_TYPE' => $payment::getRegistryType()),
-			'order' => array('SORT' => 'ASC', 'NAME' => 'ASC')
-		));
+		$filter = [
+			'=ACTIVE' => 'Y',
+			'=ENTITY_REGISTRY_TYPE' => $payment::getRegistryType(),
+		];
+		
+		$bindingPaySystemIds = [];
+		if ($mode == Restrictions\Manager::MODE_CLIENT)
+		{
+			$bindingPaySystemIds = PaymentAvailablesPaySystems::getAvailablePaySystemIdsByPaymentId($payment->getId());
+			if ($bindingPaySystemIds)
+			{
+				$filter['=ID'] = $bindingPaySystemIds;
+			}
+		}
+
+		$dbRes = self::getList([
+			'filter' => $filter,
+			'order' => [
+				'SORT' => 'ASC',
+				'NAME' => 'ASC',
+			],
+		]);
 
 		while ($paySystem = $dbRes->fetch())
 		{
-			if ($mode == Restrictions\Manager::MODE_MANAGER)
+			if ($bindingPaySystemIds)
+			{
+				$result[$paySystem['ID']] = $paySystem;
+			}
+			elseif ($mode == Restrictions\Manager::MODE_MANAGER)
 			{
 				$checkServiceResult = Restrictions\Manager::checkService($paySystem['ID'], $payment, $mode);
 				if ($checkServiceResult != Restrictions\Manager::SEVERITY_STRICT)
 				{
 					if ($checkServiceResult == Restrictions\Manager::SEVERITY_SOFT)
+					{
 						$paySystem['RESTRICTED'] = $checkServiceResult;
+					}
 					$result[$paySystem['ID']] = $paySystem;
 				}
 			}
-			else if ($mode == Restrictions\Manager::MODE_CLIENT)
+			elseif ($mode == Restrictions\Manager::MODE_CLIENT)
 			{
 				if (Restrictions\Manager::checkService($paySystem['ID'], $payment, $mode) === Restrictions\Manager::SEVERITY_NONE)
+				{
 					$result[$paySystem['ID']] = $paySystem;
+				}
 			}
 		}
 

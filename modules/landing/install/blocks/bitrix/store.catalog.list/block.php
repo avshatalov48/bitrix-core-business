@@ -99,7 +99,7 @@ if ($detailUrl)
 						'ELEMENT_SORT_ORDER' => 'desc',
 						'ELEMENT_SORT_FIELD2' => '',
 						'ELEMENT_SORT_ORDER2' => '',
-						'FILTER_NAME' => 'arrFilter',
+						'FILTER_NAME' => $classBlock->get('FILTER_NAME'),
 						'INCLUDE_SUBSECTIONS' => 'Y',
 						'SHOW_ALL_WO_SECTION' => 'Y',
 						'PAGE_ELEMENT_COUNT' => '12',

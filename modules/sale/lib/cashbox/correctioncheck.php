@@ -70,7 +70,7 @@ abstract class CorrectionCheck extends AbstractCheck
 			'calculated_sign' => static::getCalculatedSign()
 		];
 
-		$data = static::extractData();
+		$data = $this->extractData();
 		if ($data)
 		{
 			$result['correction_info'] = [

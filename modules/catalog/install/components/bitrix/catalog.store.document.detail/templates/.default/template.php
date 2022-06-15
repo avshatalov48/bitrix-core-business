@@ -46,6 +46,20 @@ Extension::load([
 
 Toolbar::deleteFavoriteStar();
 
+if (isset($arResult['TOOLBAR_ID']))
+{
+	$APPLICATION->IncludeComponent(
+		'bitrix:crm.interface.toolbar',
+		(SITE_TEMPLATE_ID === 'bitrix24' ? 'slider' : 'type2'),
+		[
+			'TOOLBAR_ID' => $arResult['TOOLBAR_ID'],
+			'BUTTONS' => $arResult['BUTTONS'] ?? []
+		],
+		$component,
+		['HIDE_ICONS' => 'Y']
+	);
+}
+
 if ((int)$arResult['DOCUMENT']['ID'] > 0)
 {
 	$labelColorClass = 'ui-label-light';
@@ -208,11 +222,16 @@ $tabContainerClassName .= ' ui-entity-stream-section-planned-above-overlay';
 			signedParameters: <?=CUtil::PhpToJSObject($this->getComponent()->getSignedParameters()) ?>,
 			isConductLocked: <?= CUtil::PhpToJSObject($arResult['IS_CONDUCT_LOCKED']) ?>,
 			masterSliderUrl: <?= CUtil::PhpToJSObject($arResult['MASTER_SLIDER_URL']) ?>,
-			isFirstTime: <?= CUtil::PhpToJSObject($arResult['IS_FIRST_TIME']) ?>,
 		}
 	);
 
 	BX.ready(function () {
 		BX.Catalog.DocumentCard.Instance.adjustToolPanel();
+		<?if (isset($arResult['TOOLBAR_ID'])):?>
+			BX.Catalog.DocumentCard.FeedbackButton.render(
+				document.getElementById('<?=CUtil::JSEscape($arResult['TOOLBAR_ID'])?>'),
+				<?=CUtil::JSEscape(((int)$arResult['DOCUMENT']['ID'] <= 0))?>
+			);
+		<?endif;?>
 	});
 </script>

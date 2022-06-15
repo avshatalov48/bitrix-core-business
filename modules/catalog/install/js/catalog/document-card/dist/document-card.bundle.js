@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Catalog = this.BX.Catalog || {};
-(function (exports,catalog_entityCard,main_core_events,currency_currencyCore,main_core,ui_entitySelector,main_popup,ui_tour) {
+(function (exports,catalog_entityCard,main_core_events,currency_currencyCore,ui_entitySelector,main_popup,catalog_storeUse,main_core) {
 	'use strict';
 
 	var ProductListController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
@@ -133,7 +133,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    value: function enableSaveButton() {
 	      var _this$_editor;
 
-	      if ((_this$_editor = this._editor) !== null && _this$_editor !== void 0 && _this$_editor._toolPanel) {
+	      if ((_this$_editor = this._editor) === null || _this$_editor === void 0 ? void 0 : _this$_editor._toolPanel) {
 	        this._editor._toolPanel.enableSaveButton();
 	      }
 	    }
@@ -142,7 +142,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    value: function disableSaveButton() {
 	      var _this$_editor2;
 
-	      if ((_this$_editor2 = this._editor) !== null && _this$_editor2 !== void 0 && _this$_editor2._toolPanel) {
+	      if ((_this$_editor2 = this._editor) === null || _this$_editor2 === void 0 ? void 0 : _this$_editor2._toolPanel) {
 	        this._editor._toolPanel.disableSaveButton();
 	      }
 	    }
@@ -174,6 +174,20 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	      this._editor.getControlById('TOTAL_WITH_CURRENCY').refreshLayout();
 	    }
+	  }, {
+	    key: "validateProductList",
+	    value: function validateProductList() {
+	      var errorsArray = this.productList.validate();
+
+	      if (errorsArray.length > 0) {
+	        this._editor._toolPanel.addError(errorsArray[0]);
+
+	        main_core_events.EventEmitter.emit('onProductsCheckFailed', errorsArray);
+	        return false;
+	      }
+
+	      return true;
+	    }
 	  }]);
 	  return ProductListController;
 	}(BX.UI.EntityEditorController);
@@ -203,7 +217,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      sliders.forEach(function (slider) {
 	        var _slider$getWindow, _slider$getWindow$BX$;
 
-	        if ((_slider$getWindow = slider.getWindow()) !== null && _slider$getWindow !== void 0 && (_slider$getWindow$BX$ = _slider$getWindow.BX.Catalog) !== null && _slider$getWindow$BX$ !== void 0 && _slider$getWindow$BX$.DocumentGridManager) {
+	        if ((_slider$getWindow = slider.getWindow()) === null || _slider$getWindow === void 0 ? void 0 : (_slider$getWindow$BX$ = _slider$getWindow.BX.Catalog) === null || _slider$getWindow$BX$ === void 0 ? void 0 : _slider$getWindow$BX$.DocumentGridManager) {
 	          slider.getWindow().BX.onCustomEvent('DocumentCard:onDocumentCardSave');
 	        }
 	      });
@@ -543,7 +557,45 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return ProductRowSummary;
 	}(BX.UI.EntityEditorField);
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
+	function _templateObject4() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block-text\">", "</div>"]);
+
+	  _templateObject4 = function _templateObject4() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject3() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block-text\">", "</div>"]);
+
+	  _templateObject3 = function _templateObject3() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block\"></div>"]);
+
+	  _templateObject2 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<input name=\"", "\" type=\"hidden\" value=\"", "\"/>"]);
+
+	  _templateObject = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 
 	var Contractor = /*#__PURE__*/function (_BX$UI$EntityEditorFi) {
 	  babelHelpers.inherits(Contractor, _BX$UI$EntityEditorFi);
@@ -598,11 +650,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        this.currentContractorName = this.getContractorNameFromModel();
 	      }
 
-	      this._input = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<input name=\"", "\" type=\"hidden\" value=\"", "\"/>"])), name, value);
+	      this._input = main_core.Tag.render(_templateObject(), name, value);
 
 	      this._wrapper.appendChild(this._input);
 
-	      this.innerWrapper = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block\"></div>"])));
+	      this.innerWrapper = main_core.Tag.render(_templateObject2());
 
 	      this._wrapper.appendChild(this.innerWrapper);
 
@@ -658,9 +710,9 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      } else // if(this._mode === BX.UI.EntityEditorMode.view)
 	        {
 	          if (this.hasContentToDisplay()) {
-	            this.viewModeDisplay = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block-text\">", "</div>"])), BX.util.htmlspecialchars(this.currentContractorName));
+	            this.viewModeDisplay = main_core.Tag.render(_templateObject3(), BX.util.htmlspecialchars(this.currentContractorName));
 	          } else {
-	            this.viewModeDisplay = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block-text\">", "</div>"])), main_core.Loc.getMessage('DOCUMENT_CONTRACTOR_NOT_FILLED'));
+	            this.viewModeDisplay = main_core.Tag.render(_templateObject4(), main_core.Loc.getMessage('DOCUMENT_CONTRACTOR_NOT_FILLED'));
 	          }
 
 	          this.innerWrapper.appendChild(this.viewModeDisplay);
@@ -753,7 +805,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	          dialog.hide();
 	          resolve();
-	        })["catch"](function () {
+	        }).catch(function () {
 	          dialog.hideLoader();
 	          BX.UI.Notification.Center.notify({
 	            content: main_core.Loc.getMessage('DOCUMENT_ADD_CONTRACTOR_ERROR')
@@ -808,17 +860,9 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return FieldsFactory;
 	}();
 
-	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
+	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
 
-	function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
-
-	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "set"); _classApplyDescriptorSet(receiver, descriptor, value); return value; }
-
-	function _classCheckPrivateStaticFieldDescriptor(descriptor, action) { if (descriptor === undefined) { throw new TypeError("attempted to " + action + " private static field before its declaration"); } }
-
-	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
-
-	function _classApplyDescriptorSet(receiver, descriptor, value) { if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } }
+	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } return value; }
 
 	var DocumentCard = /*#__PURE__*/function (_BaseCard) {
 	  babelHelpers.inherits(DocumentCard, _BaseCard);
@@ -842,7 +886,6 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    _this.signedParameters = settings.signedParameters;
 	    _this.isConductLocked = settings.isConductLocked;
 	    _this.masterSliderUrl = settings.masterSliderUrl;
-	    _this.isFirstTime = settings.isFirstTime;
 	    _this.isTabAnalyticsSent = false;
 
 	    _this.setSliderText();
@@ -900,37 +943,12 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        e.preventDefault();
 	        popupMenu.show();
 	      });
-
-	      if (this.isFirstTime) {
-	        var guide = new ui_tour.Guide({
-	          steps: [{
-	            target: documentTypeSelector.querySelector('.catalog-document-type-selector-text'),
-	            title: main_core.Loc.getMessage('DOCUMENT_FIRST_TIME_HINT_TITLE'),
-	            text: main_core.Loc.getMessage('DOCUMENT_FIRST_TIME_HINT_TEXT'),
-	            link: '#',
-	            events: {
-	              onShow: function onShow() {
-	                document.querySelector('.ui-tour-popup-link').onclick = function (event) {
-	                  event.preventDefault();
-	                  top.BX.Helper.show("redirect=detail&code=14566618");
-	                };
-	              },
-	              onClose: function onClose() {
-	                BX.userOptions.save('catalog', 'document-card', 'isDocumentTypeGuideOver', true);
-	              }
-	            }
-	          }],
-	          onEvents: true
-	        });
-	        guide.showNextStep();
-	      }
 	    }
 	  }, {
 	    key: "openMasterSlider",
 	    value: function openMasterSlider() {
 	      var card = this;
-	      BX.SidePanel.Instance.open(this.masterSliderUrl, {
-	        cacheable: false,
+	      new catalog_storeUse.Slider().open(this.masterSliderUrl, {
 	        data: {
 	          openGridOnDone: false
 	        },
@@ -947,7 +965,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	              BX.SidePanel.Instance.getOpenSliders().forEach(function (slider) {
 	                var _slider$getWindow, _slider$getWindow$BX$;
 
-	                if ((_slider$getWindow = slider.getWindow()) !== null && _slider$getWindow !== void 0 && (_slider$getWindow$BX$ = _slider$getWindow.BX.Catalog) !== null && _slider$getWindow$BX$ !== void 0 && _slider$getWindow$BX$.DocumentGridManager) {
+	                if ((_slider$getWindow = slider.getWindow()) === null || _slider$getWindow === void 0 ? void 0 : (_slider$getWindow$BX$ = _slider$getWindow.BX.Catalog) === null || _slider$getWindow$BX$ === void 0 ? void 0 : _slider$getWindow$BX$.DocumentGridManager) {
 	                  slider.allowChangeHistory = false;
 	                  slider.getWindow().location.reload();
 	                }
@@ -1050,6 +1068,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          tabId: 'main'
 	        });
 	      });
+	      main_core_events.EventEmitter.subscribe('onProductsCheckFailed', function (event) {
+	        main_core_events.EventEmitter.emit('BX.Catalog.EntityCard.TabManager:onOpenTab', {
+	          tabId: 'tab_products'
+	        });
+	      });
 	    }
 	  }, {
 	    key: "subscribeToOnSaveEvent",
@@ -1063,6 +1086,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        var action = (_event$data$ = event.data[1]) === null || _event$data$ === void 0 ? void 0 : _event$data$.actionId;
 
 	        if (eventEditor && eventEditor._ajaxForm) {
+	          var _eventEditor$_toolPan;
+
+	          (_eventEditor$_toolPan = eventEditor._toolPanel) === null || _eventEditor$_toolPan === void 0 ? void 0 : _eventEditor$_toolPan.clearErrors();
+
 	          if (action === 'SAVE_AND_CONDUCT') {
 	            if (_this3.isConductLocked) {
 	              var _event$data$0$_toolPa;
@@ -1072,6 +1099,18 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	              _this3.openMasterSlider();
 
+	              return;
+	            }
+
+	            if (!_this3.validateControllers(eventEditor.getControllers())) {
+	              var _eventEditor$_toolPan2;
+
+	              event.data[1].cancel = true;
+	              (_eventEditor$_toolPan2 = eventEditor._toolPanel) === null || _eventEditor$_toolPan2 === void 0 ? void 0 : _eventEditor$_toolPan2.setLocked(false);
+	              return;
+	            }
+
+	            if (event.data[1].cancel) {
 	              return;
 	            }
 	          }
@@ -1114,7 +1153,13 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      main_core_events.EventEmitter.subscribe('BX.UI.EntityEditor:onDirectAction', function (event) {
 	        var _event$data$2;
 
+	        var eventEditor = event.data[0];
+
 	        if (((_event$data$2 = event.data[1]) === null || _event$data$2 === void 0 ? void 0 : _event$data$2.actionId) === 'CONDUCT') {
+	          var _eventEditor$_toolPan3;
+
+	          (_eventEditor$_toolPan3 = eventEditor._toolPanel) === null || _eventEditor$_toolPan3 === void 0 ? void 0 : _eventEditor$_toolPan3.clearErrors();
+
 	          if (_this5.isConductLocked) {
 	            var _event$data$0$_toolPa2;
 
@@ -1123,6 +1168,14 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	            _this5.openMasterSlider();
 
+	            return;
+	          }
+
+	          if (!_this5.validateControllers(eventEditor.getControllers())) {
+	            var _eventEditor$_toolPan4;
+
+	            event.data[1].cancel = true;
+	            (_eventEditor$_toolPan4 = eventEditor._toolPanel) === null || _eventEditor$_toolPan4 === void 0 ? void 0 : _eventEditor$_toolPan4.setLocked(false);
 	            return;
 	          }
 
@@ -1142,7 +1195,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        BX.SidePanel.Instance.getOpenSliders().forEach(function (slider) {
 	          var _slider$getWindow2, _slider$getWindow2$BX;
 
-	          if ((_slider$getWindow2 = slider.getWindow()) !== null && _slider$getWindow2 !== void 0 && (_slider$getWindow2$BX = _slider$getWindow2.BX.Catalog) !== null && _slider$getWindow2$BX !== void 0 && _slider$getWindow2$BX.DocumentGridManager) {
+	          if ((_slider$getWindow2 = slider.getWindow()) === null || _slider$getWindow2 === void 0 ? void 0 : (_slider$getWindow2$BX = _slider$getWindow2.BX.Catalog) === null || _slider$getWindow2$BX === void 0 ? void 0 : _slider$getWindow2$BX.DocumentGridManager) {
 	            slider.getWindow().BX.onCustomEvent('DocumentCard:onEntityCreate');
 	          }
 	        });
@@ -1200,6 +1253,25 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          }
 	        }
 	      });
+	    }
+	  }, {
+	    key: "validateControllers",
+	    value: function validateControllers(controllers) {
+	      var validateResult = true;
+
+	      if (controllers instanceof Array) {
+	        controllers.forEach(function (controller) {
+	          if (controller instanceof ProductListController) {
+	            if (!controller.validateProductList()) {
+	              validateResult = false;
+	            }
+	          }
+	        });
+	      } else {
+	        validateResult = false;
+	      }
+
+	      return validateResult;
 	    }
 	  }, {
 	    key: "sendAnalyticsData",
@@ -1317,8 +1389,73 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  value: void 0
 	};
 
+	function _templateObject$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<button class=\"ui-btn ui-btn-light-border ui-btn-themes\" title=\"", "\">\n\t\t\t\t<span class=\"ui-btn-text\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</button>\n\t\t"]);
+
+	  _templateObject$1 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	var Button = /*#__PURE__*/function () {
+	  function Button() {
+	    babelHelpers.classCallCheck(this, Button);
+	  }
+
+	  babelHelpers.createClass(Button, null, [{
+	    key: "render",
+	    value: function render(parentNode, highlight) {
+	      var buttonTitle = main_core.Loc.getMessage('FEEDBACK_BUTTON_TITLE');
+	      var button = main_core.Tag.render(_templateObject$1(), buttonTitle, buttonTitle);
+
+	      if (highlight) {
+	        button.style.zIndex = 140;
+	        button.style.backgroundColor = '#fff';
+	      }
+
+	      button.addEventListener('click', function () {
+	        BX.UI.Feedback.Form.open({
+	          id: 'catalog-store-document-card-feedback',
+	          forms: [{
+	            'id': 384,
+	            'lang': 'ru',
+	            'sec': '0pskpd',
+	            'zones': ['ru', 'by', 'kz']
+	          }, {
+	            'id': 392,
+	            'lang': 'en',
+	            'sec': 'siqjqa',
+	            'zones': ['en', 'ua']
+	          }, {
+	            'id': 388,
+	            'lang': 'es',
+	            'sec': '53t2bu',
+	            'zones': ['es']
+	          }, {
+	            'id': 390,
+	            'lang': 'de',
+	            'sec': 'mhglfc',
+	            'zones': ['de']
+	          }, {
+	            'id': 386,
+	            'lang': 'com.br',
+	            'sec': 't6tdpy',
+	            'zones': ['com.br']
+	          }]
+	        });
+	      });
+	      parentNode.appendChild(button);
+	      return button;
+	    }
+	  }]);
+	  return Button;
+	}();
+
 	exports.DocumentCard = DocumentCard;
 	exports.ProductListController = ProductListController;
+	exports.FeedbackButton = Button;
 
-}((this.BX.Catalog.DocumentCard = this.BX.Catalog.DocumentCard || {}),BX.Catalog.EntityCard,BX.Event,BX.Currency,BX,BX.UI.EntitySelector,BX.Main,BX.UI.Tour));
+}((this.BX.Catalog.DocumentCard = this.BX.Catalog.DocumentCard || {}),BX.Catalog.EntityCard,BX.Event,BX.Currency,BX.UI.EntitySelector,BX.Main,BX.Catalog.StoreUse,BX));
 //# sourceMappingURL=document-card.bundle.js.map

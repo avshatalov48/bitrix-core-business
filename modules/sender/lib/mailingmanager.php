@@ -312,7 +312,11 @@ class MailingManager
 					$arUpdateMailChain['AUTO_SEND_TIME'] = Type\DateTime::createFromPhp($timeOfExecute);
 				}
 
-				Model\LetterTable::update($arMailingChain['ID'], $arUpdateMailChain);
+				$result = Model\LetterTable::update($arMailingChain['ID'], $arUpdateMailChain);
+				if (!$result->isSuccess())
+				{
+					return "";
+				}
 			}
 		}
 

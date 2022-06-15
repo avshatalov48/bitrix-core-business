@@ -36,3 +36,5 @@ $MESS["CT_BLL_REBUILD_SEARCH_CONTENT_TITLE"] = "Перестроение пои�
 $MESS["CT_BLL_REBUILD_SEARCH_CONTENT_STATE"] = "#processed# из #total#";
 $MESS["CT_BLL_GROUP_STEPPER_PROGRESS_TITLE"] = "Копирование элементов";
 $MESS["CT_BLL_GROUP_STEPPER_PROGRESS_ERROR"] = "Не удалось скопировать элементы с идентификаторами: ";
+$MESS["CT_BLL_GRID_ROW_COUNT_TITLE"] = "Всего:";
+$MESS["CT_BLL_GRID_SHOW_ROW_COUNT"] = "Показать количество";

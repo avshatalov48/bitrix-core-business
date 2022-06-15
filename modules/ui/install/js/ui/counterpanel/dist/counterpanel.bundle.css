@@ -128,7 +128,9 @@
 	-webkit-box-align: end;
 	    -ms-flex-align: end;
 	        align-items: flex-end;
+	overflow: hidden;
 	padding-bottom: 8px;
+	white-space: nowrap;
 	z-index: 1;
 }
 

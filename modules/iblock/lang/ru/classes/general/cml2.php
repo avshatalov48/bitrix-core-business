@@ -92,6 +92,7 @@ $MESS["IBLOCK_XML2_WIDTH"] = "Ширина";
 $MESS["IBLOCK_XML2_LENGTH"] = "Длина";
 $MESS["IBLOCK_XML2_HEIGHT"] = "Высота";
 $MESS["IBLOCK_XML2_MARKING_CODE_GROUP"] = "КодГруппыТоваров";
+$MESS["IBLOCK_XML2_PRODUCT_MAPPING"] = "ВидимостьТовара";
 $MESS["IBLOCK_XML2_COMMERCE_INFO"] = "КоммерческаяИнформация";
 $MESS["IBLOCK_XML2_COEFF"] = "Коэффициент";
 $MESS["IBLOCK_XML2_MULTIPLE"] = "Множественное";

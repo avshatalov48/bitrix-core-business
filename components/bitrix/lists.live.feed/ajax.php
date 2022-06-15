@@ -97,7 +97,7 @@ class LiveFeedAjaxController extends Controller
 		}
 
 		$this->iblockId = intval($this->request->getPost('iblockId'));
-		$this->iblockDescription = $this->request->getPost('iblockDescription');
+		$this->iblockDescription = (string)$this->request->getPost('iblockDescription');
 		$this->iblockCode = $this->request->getPost('iblockCode');
 		$this->socnetGroupId = intval($this->request->getPost('socnetGroupId'));
 
@@ -2015,7 +2015,7 @@ class LiveFeedAjaxController extends Controller
 		?>
 
 		<div class="bx-lists-iblock-description">
-			<?= nl2br(htmlspecialcharsbx($this->iblockDescription)) ?>
+			<?= nl2br($this->convertBBcode($this->iblockDescription)) ?>
 			<? if(!empty($blueDudeCode)): ?>
 				<br><br>
 				<a style="cursor:pointer;"
@@ -2206,6 +2206,30 @@ class LiveFeedAjaxController extends Controller
 		</table>
 
 		<?
+	}
+
+	private function convertBBcode(string $text): string
+	{
+		$textParser = new \CTextParser();
+		$textParser->allow = [
+			'HTML' => 'N',
+			'USER' => 'N',
+			'ANCHOR' => 'Y',
+			'BIU' => 'Y',
+			'IMG' => 'N',
+			'QUOTE' => 'N',
+			'CODE' => 'N',
+			'FONT' => 'Y',
+			'LIST' => 'Y',
+			'SMILES' => 'N',
+			'NL2BR' => 'Y',
+			'VIDEO' => 'N',
+			'TABLE' => 'N',
+			'CUT_ANCHOR' => 'N',
+			'ALIGN' => 'N'
+		];
+
+		return $textParser->convertText($text);
 	}
 }
 $controller = new LiveFeedAjaxController();

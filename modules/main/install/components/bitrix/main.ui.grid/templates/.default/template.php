@@ -272,7 +272,7 @@ $adjustColumnItem = static function(array $column, array $arParams, array $arRes
 														});<?
 													?></script><?
 													?><span id="hint_<?=$header["id"]?>" class="main-grid-head-title-tooltip" title=""><?
-														?><span data-hint="<?=$header["hint"]?>"></span><?
+														?><span <?=empty($header['hintInteractivity']) ? '' : 'data-hint-interactivity'?> <?=empty($header['hintHtml']) ? '' : 'data-hint-html'?> data-hint="<?= Text\HtmlFilter::encode($header["hint"]) ?>"></span><?
 													?></span><?
 												endif;
 												?></span><?

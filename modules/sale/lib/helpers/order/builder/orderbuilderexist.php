@@ -128,6 +128,7 @@ final class OrderBuilderExist implements IOrderBuilderDelegate
 				->itemsDataPreparation()
 				->basketCodeMap()
 				->setItemsFields()
+				->fillFUser()
 				->finalActions();
 		}
 	}

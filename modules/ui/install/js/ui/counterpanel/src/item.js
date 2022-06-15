@@ -63,19 +63,25 @@ export default class CounterItem {
 		}
 	}
 
-	activate()
+	activate(isEmitEvent: boolean = true)
 	{
 		this.isActive = true;
 		this.getContainer().classList.add('--active');
-		EventEmitter.emit('BX.UI.CounterPanel.Item:activate', this);
+		if(isEmitEvent)
+		{
+			EventEmitter.emit('BX.UI.CounterPanel.Item:activate', this);
+		}
 	}
 
-	deactivate()
+	deactivate(isEmitEvent: boolean = true)
 	{
 		this.isActive = false;
 		this.getContainer().classList.remove('--active');
 		this.getContainer().classList.remove('--hover');
-		EventEmitter.emit('BX.UI.CounterPanel.Item:deactivate', this);
+		if(isEmitEvent)
+		{
+			EventEmitter.emit('BX.UI.CounterPanel.Item:deactivate', this);
+		}
 	}
 
 	#getPanel()

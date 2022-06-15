@@ -1305,6 +1305,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			}
 			BX.onCustomEvent(window, this.eventsNamespace + ":onControllerChange", [ this, eventArgs ]);
 		},
+		getControllers: function()
+		{
+			return this._controllers;
+		},
 		//endregion
 		//region Layout
 		getContainer: function()

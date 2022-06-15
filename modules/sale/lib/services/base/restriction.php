@@ -2,7 +2,7 @@
 namespace Bitrix\Sale\Services\Base;
 
 use Bitrix\Main\NotImplementedException;
-use Bitrix\Sale\Internals\CollectableEntity;
+use Bitrix\Main\Result;
 use Bitrix\Sale\Internals\Entity;
 use Bitrix\Sale\Internals\ServiceRestrictionTable;
 
@@ -39,6 +39,10 @@ abstract class Restriction {
 	}
 
 	/**
+	 * Checking the service parameters for compliance with the restriction.
+	 * 
+	 * To check of the constraint itself, use method self::validateRestriction
+	 * 
 	 * @param mixed $params Params to check.
 	 * @param array $restrictionParams Restriction params.
 	 * @param int $serviceId Service identifier.
@@ -51,6 +55,8 @@ abstract class Restriction {
 	}
 
 	/**
+	 * Checking the service parameters for compliance with the restriction by entity.
+	 * 
 	 * @param Entity $entity
 	 * @param array $restrictionParams
 	 * @param int $mode
@@ -68,6 +74,20 @@ abstract class Restriction {
 		$entityRestrictionParams = static::extractParams($entity);
 		$res = static::check($entityRestrictionParams, $restrictionParams, $serviceId);
 		return $res ? RestrictionManager::SEVERITY_NONE : $severity;
+	}
+	
+	/**
+	 * Checking the restriction for compliance with business rules.
+	 * 
+	 * For example, for the restriction "currency" in this method,
+	 * you can compare which currencies the payment system works with which the restriction is linked.
+	 *
+	 * @param array $fields restriction fields
+	 * @return Result
+	 */
+	public static function validateRestriction($fields)
+	{
+		return new Result();
 	}
 
 	/**

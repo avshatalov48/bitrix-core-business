@@ -16,6 +16,7 @@ abstract class Mailbox
 	const SYNC_TIME_QUOTA = 280;
 	const MESSAGE_RESYNCHRONIZATION_TIME = 360;
 	const MESSAGE_DELETION_LIMIT_AT_A_TIME = 1000;
+	const NUMBER_OF_BROKEN_MESSAGES_TO_RESYNCHRONIZE = 2;
 
 	protected $mailbox;
 	protected $dirsHelper;
@@ -179,6 +180,10 @@ abstract class Mailbox
 		return $this->mailbox;
 	}
 
+	/*
+	Additional check that the quota has not been exceeded
+	since the actual creation of the mailbox instance in php
+	*/
 	protected function isTimeQuotaExceeded()
 	{
 		return time() - $this->startTime > ceil(static::getTimeout() * 0.9);
@@ -204,12 +209,58 @@ abstract class Mailbox
 		$this->updateGlobalCounter($this->mailbox['USER_ID']);
 	}
 
-	private function syncIncompleteMessages(int $count)
+	private function findMessagesWithAnEmptyBody(int $count, $mailboxId)
 	{
 		$resyncTime = new Main\Type\DateTime();
 		$resyncTime->add('- '.static::MESSAGE_RESYNCHRONIZATION_TIME.' seconds');
 
-		$messages = Mail\MailMessageUidTable::getList([
+		$ids = Mail\Internals\MailEntityOptionsTable::getList(
+			[
+				'select' => ['ENTITY_ID'],
+				'filter' =>
+				[
+					'=MAILBOX_ID' => $mailboxId,
+					'=ENTITY_TYPE' => 'MESSAGE',
+					'=PROPERTY_NAME' => 'UNSYNC_BODY',
+					'=VALUE' => 'Y',
+					'<=DATE_INSERT' => $resyncTime,
+				]
+				,
+				'limit' => $count,
+			]
+		)->fetchAll();
+
+		$messIds = array_map(
+			function ($item)
+			{
+				return $item['ENTITY_ID'];
+			},
+			$ids
+		);
+
+		foreach($messIds as $id)
+		{
+			Mail\Internals\MailEntityOptionsTable::update([
+				'MAILBOX_ID' => $mailboxId,
+				'ENTITY_ID' => $id,
+				'ENTITY_TYPE' => 'MESSAGE',
+				'PROPERTY_NAME' => 'UNSYNC_BODY',
+			],
+			[
+				'VALUE' => 'N',
+			]);
+		}
+
+		return $messIds;
+	}
+
+	//Finds completely missing messages
+	private function findIncompleteMessages(int $count)
+	{
+		$resyncTime = new Main\Type\DateTime();
+		$resyncTime->add('- '.static::MESSAGE_RESYNCHRONIZATION_TIME.' seconds');
+
+		return Mail\MailMessageUidTable::getList([
 			'select' => array(
 				'MSG_UID',
 				'DIR_MD5',
@@ -218,11 +269,16 @@ abstract class Mailbox
 				'=MAILBOX_ID' => $this->mailbox['ID'],
 				'=MESSAGE_ID' => '0',
 				'=IS_OLD' => 'D',
+				/*We give the message time to load.
+				In order not to catch the message that are in the process of downloading*/
 				'<=DATE_INSERT' => $resyncTime,
 			),
 			'limit' => $count,
 		]);
+	}
 
+	private function syncIncompleteMessages($messages)
+	{
 		while ($item = $messages->fetch())
 		{
 			$dirPath = $this->getDirsHelper()->getDirPathByHash($item['DIR_MD5']);
@@ -230,10 +286,46 @@ abstract class Mailbox
 		}
 	}
 
+	/*
+	Without waiting for the complete synchronization of the mailbox to be completed,
+	regardless of its interruptions, and taking into account only the quota for creating an instance of the mailbox (php),
+	we synchronize the most important signs.
+	*/
+	private function preSync(): bool
+	{
+		if ($this->isTimeQuotaExceeded())
+		{
+			return false;
+		}
+
+		$this->syncOutgoing();
+
+		$this->syncIncompleteMessages($this->findIncompleteMessages(static::NUMBER_OF_BROKEN_MESSAGES_TO_RESYNCHRONIZE));
+		\Bitrix\Mail\Helper\Message::reSyncBody($this->mailbox['ID'],$this->findMessagesWithAnEmptyBody(static::NUMBER_OF_BROKEN_MESSAGES_TO_RESYNCHRONIZE, $this->mailbox['ID']));
+
+		//Resynchronize messages for the start page and delete missing letters
+		$this->resyncDir($this->getDirsHelper()->getDefaultDirPath(),25);
+
+		Helper::setMailboxUnseenCounter($this->mailbox['ID'],Helper::updateMailCounters($this->mailbox));
+
+		$usersWithAccessToMailbox = Mailbox\SharedMailboxesManager::getUserIdsWithAccessToMailbox($this->mailbox['ID']);
+
+		foreach ($usersWithAccessToMailbox as $userId)
+		{
+			$this->updateGlobalCounter($userId);
+		}
+
+		return true;
+	}
+
 	public function sync()
 	{
 		global $DB;
-		
+
+		/*
+		Setting a new time for an attempt to synchronize the mailbox
+		through the agent for users with a free tariff
+		*/
 		if (!LicenseManager::isSyncAvailable())
 		{
 			$this->mailbox['OPTIONS']['next_sync'] = time() + 3600 * 24;
@@ -241,6 +333,9 @@ abstract class Mailbox
 			return 0;
 		}
 
+		/*
+		Do not start synchronization if no more than static::getTimeout() have passed since the previous one
+		*/
 		if (time() - $this->mailbox['SYNC_LOCK'] < static::getTimeout())
 		{
 			return 0;
@@ -248,6 +343,10 @@ abstract class Mailbox
 
 		$this->mailbox['SYNC_LOCK'] = time();
 
+		/*
+		Additional check that the quota has not been exceeded
+		since the actual creation of the mailbox instance in php
+		*/
 		if ($this->isTimeQuotaExceeded())
 		{
 			return 0;
@@ -255,12 +354,17 @@ abstract class Mailbox
 
 		$this->session = md5(uniqid(''));
 
-		$this->syncOutgoing();
+		$this->preSync();
 
 		$lockSql = sprintf(
 			'UPDATE b_mail_mailbox SET SYNC_LOCK = %u WHERE ID = %u AND (SYNC_LOCK IS NULL OR SYNC_LOCK < %u)',
 			$this->mailbox['SYNC_LOCK'], $this->mailbox['ID'], $this->mailbox['SYNC_LOCK'] - static::getTimeout()
 		);
+
+		/*
+		If the time record for blocking synchronization has not been added to the table,
+		we will have to abort synchronization
+		*/
 		if (!$DB->query($lockSql)->affectedRowsCount())
 		{
 			return 0;
@@ -272,7 +376,27 @@ abstract class Mailbox
 			$mailboxSyncManager->setSyncStartedData($this->mailbox['ID']);
 		}
 
-		$count = $this->syncInternal();
+		$syncReport = $this->syncInternal();
+		$count = $syncReport['syncCount'];
+
+		if($syncReport['reSyncStatus'])
+		{
+			/*
+			When folders are successfully resynchronized,
+			allow messages that were left to be moved to be deleted
+			*/
+			Mail\MailMessageUidTable::updateList(
+				[
+					'=MAILBOX_ID' => $this->mailbox['ID'],
+					'=MSG_UID' => 0,
+					'=IS_OLD' => 'M',
+				],
+				[
+					'IS_OLD' => 'R',
+				],
+			);
+		}
+
 		$success = $count !== false && $this->errors->isEmpty();
 
 		$syncUnlock = $this->isTimeQuotaExceeded() ? 0 : -1;
@@ -331,20 +455,6 @@ abstract class Mailbox
 		if ($this->mailbox['USER_ID'] > 0)
 		{
 			$mailboxSyncManager->setSyncStatus($this->mailbox['ID'], $success, time());
-		}
-
-		$this->syncIncompleteMessages(1);
-
-		//resynchronize messages for the start page and delete missing letters
-		$this->resyncDir('INBOX',25);
-
-		Helper::setMailboxUnseenCounter($this->mailbox['ID'],Helper::updateMailCounters($this->mailbox));
-
-		$usersWithAccessToMailbox = Mailbox\SharedMailboxesManager::getUserIdsWithAccessToMailbox($this->mailbox['ID']);
-
-		foreach ($usersWithAccessToMailbox as $userId)
-		{
-			$this->updateGlobalCounter($userId);
 		}
 
 		return $count;
@@ -1102,25 +1212,27 @@ abstract class Mailbox
 			$excerpt[$field] = join(', ', $excerpt[$field]);
 		}
 
-		$outgoingParams = array(
+		$outgoingParams = [
 			'CHARSET'      => LANG_CHARSET,
 			'CONTENT_TYPE' => 'html',
 			'ATTACHMENT'   => $attachments,
 			'TO'           => $excerpt['__FIELD_TO'],
 			'SUBJECT'      => $excerpt['__SUBJECT'],
 			'BODY'         => $outgoingBody,
-			'HEADER'       => array(
+			'HEADER'       => [
 				'From'       => $excerpt['__FIELD_FROM'],
 				'Reply-To'   => $excerpt['__FIELD_REPLY_TO'],
-				//'To'         => $excerpt['__FIELD_TO'],
 				'Cc'         => $excerpt['__FIELD_CC'],
 				'Bcc'        => $excerpt['__FIELD_BCC'],
-				//'Subject'    => $excerpt['__SUBJECT'],
 				'Message-Id' => sprintf('<%s>', $excerpt['__MSG_ID']),
-				'In-Reply-To' => sprintf('<%s>', $excerpt['__IN_REPLY_TO']),
 				'X-Bitrix-Mail-Message-UID' => $excerpt['ID'],
-			),
-		);
+			],
+		];
+
+		if(isset($excerpt['__IN_REPLY_TO']))
+		{
+			$outgoingParams['HEADER']['In-Reply-To'] = sprintf('<%s>', $excerpt['__IN_REPLY_TO']);
+		}
 
 		$context = new Main\Mail\Context();
 		$context->setCategory(Main\Mail\Context::CAT_EXTERNAL);
@@ -1604,6 +1716,10 @@ abstract class Mailbox
 		}
 	}
 
+	/*
+	Returns the minimum time between possible re-synchronization
+	The time is taken from the option 'max_execution_time', but no more than static::SYNC_TIMEOUT
+	*/
 	final public static function getTimeout()
 	{
 		return min(max(0, ini_get('max_execution_time')) ?: static::SYNC_TIMEOUT, static::SYNC_TIMEOUT);

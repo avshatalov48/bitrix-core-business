@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core,main_popup,ui_buttons) {
+(function (exports,main_core,main_popup,ui_buttons,catalog_storeUse) {
 	'use strict';
 
 	var DocumentGridManager = /*#__PURE__*/function () {
@@ -318,8 +318,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "openStoreMasterSlider",
 	    value: function openStoreMasterSlider() {
-	      BX.SidePanel.Instance.open(this.masterSliderUrl, {
-	        cacheable: false,
+	      new catalog_storeUse.Slider().open(this.masterSliderUrl, {
 	        data: {
 	          openGridOnDone: false
 	        },
@@ -344,5 +343,5 @@ this.BX = this.BX || {};
 
 	exports.DocumentGridManager = DocumentGridManager;
 
-}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX.Main,BX.UI));
+}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX.Main,BX.UI,BX.Catalog.StoreUse));
 //# sourceMappingURL=document-grid.bundle.js.map

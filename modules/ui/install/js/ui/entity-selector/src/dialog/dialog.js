@@ -68,6 +68,7 @@ export default class Dialog extends EventEmitter
 
 	hideByEsc: boolean = true;
 	autoHide: boolean = true;
+	autoHideHandler: Function = null;
 	offsetTop: number = 5;
 	offsetLeft: number = 0;
 	cacheable: boolean = true;
@@ -171,6 +172,7 @@ export default class Dialog extends EventEmitter
 		this.setWidth(options.width);
 		void this.setHeight(options.height);
 		this.setAutoHide(options.autoHide);
+		this.setAutoHideHandler(options.autoHideHandler);
 		this.setHideByEsc(options.hideByEsc);
 		this.setOffsetLeft(options.offsetLeft);
 		this.setOffsetTop(options.offsetTop);
@@ -1061,6 +1063,14 @@ export default class Dialog extends EventEmitter
 	isAutoHide(): boolean
 	{
 		return this.autoHide;
+	}
+
+	setAutoHideHandler(handler?: (event: MouseEvent, dialog: Dialog) => boolean): void
+	{
+		if (Type.isFunction(handler) || handler === null)
+		{
+			this.autoHideHandler = handler;
+		}
 	}
 
 	setHideByEsc(enable: boolean): void
@@ -1970,6 +1980,15 @@ export default class Dialog extends EventEmitter
 		)
 		{
 			return false;
+		}
+
+		if (this.autoHideHandler !== null)
+		{
+			const result = this.autoHideHandler(event, this);
+			if (Type.isBoolean(result))
+			{
+				return result;
+			}
 		}
 
 		return true;

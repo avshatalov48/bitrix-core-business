@@ -1,12 +1,7 @@
 <?php
 namespace Bitrix\Sale\Internals\Analytics;
 
-use Bitrix\Main\Context;
-use Bitrix\Main\Type\DateTime;
-use Bitrix\Main\Web\HttpClient;
-use Bitrix\Main\Web\Json;
-use Bitrix\Main\Loader;
-use Bitrix\Main\Config;
+use Bitrix\Main;
 
 /**
  * Class Sender
@@ -16,33 +11,35 @@ final class Sender
 {
 	protected const URL = 'https://util.1c-bitrix.ru/analytics.php';
 
-	/** @var Provider $provider */
-	private $provider;
+	/** @var string $type */
+	private $type;
+
+	/** @var array $data */
+	private $data;
 
 	/**
 	 * Service constructor.
-	 * @param Provider $provider
+	 * @param array $data
 	 */
-	public function __construct(Provider $provider)
+	public function __construct(string $type, array $data)
 	{
-		$this->provider = $provider;
+		$this->type = $type;
+		$this->data = $data;
 	}
 
 	/**
-	 * @param DateTime $dateFrom
-	 * @param DateTime $dateTo
 	 * @return bool
 	 */
-	public function sendForPeriod(DateTime $dateFrom, DateTime $dateTo): bool
+	public function send(): bool
 	{
-		if ($data = $this->provider->getData($dateFrom, $dateTo))
+		if ($this->data)
 		{
 			$postData = $this->getCommonData();
-			$postData['content'] = $data;
+			$postData['content'] = $this->data;
 			$postData['bx_hash'] = self::signRequest($postData);
-			$postData = Json::encode($postData);
+			$postData = Main\Web\Json::encode($postData);
 
-			$httpClient = new HttpClient();
+			$httpClient = new Main\Web\HttpClient();
 			$response = $httpClient->post(self::URL, $postData);
 			if (!$response || $httpClient->getStatus() !== 200)
 			{
@@ -51,13 +48,13 @@ final class Sender
 
 			try
 			{
-				$response = Json::decode($response);
+				$response = Main\Web\Json::decode($response);
 				if ($response['result'] !== 'ok')
 				{
 					return false;
 				}
 			}
-			catch (\Bitrix\Main\ArgumentException $ex)
+			catch (Main\ArgumentException $ex)
 			{
 				return false;
 			}
@@ -74,8 +71,8 @@ final class Sender
 		$isB24 = self::isB24();
 		$data = [
 			'type' => $isB24 ? 'b24' : 'self_hosted',
-			'date_time' => (new DateTime())->format('Y-m-d H:i:s'),
-			'transaction_type' => $this->provider::getCode(),
+			'date_time' => (new Main\Type\DateTime())->format('Y-m-d H:i:s'),
+			'transaction_type' => $this->type,
 			'host_name' => self::getHostName(),
 		];
 
@@ -85,7 +82,7 @@ final class Sender
 		}
 		else
 		{
-			$data['license_key'] = \Bitrix\Main\Analytics\Counter::getAccountId();
+			$data['license_key'] = Main\Analytics\Counter::getAccountId();
 		}
 
 		return $data;
@@ -99,12 +96,12 @@ final class Sender
 	{
 		$requestHash = md5(serialize($request));
 
-		if (Loader::includeModule('bitrix24'))
+		if (Main\Loader::includeModule('bitrix24'))
 		{
 			return \CBitrix24::RequestSign($requestHash);
 		}
 
-		$privateKey = \Bitrix\Main\Analytics\Counter::getPrivateKey();
+		$privateKey = Main\Analytics\Counter::getPrivateKey();
 		return md5($requestHash.$privateKey);
 	}
 
@@ -119,7 +116,7 @@ final class Sender
 		}
 		else
 		{
-			$hostName = Config\Option::get('main', 'server_name');
+			$hostName = Main\Config\Option::get('main', 'server_name');
 			if (!$hostName)
 			{
 				$hostName = (defined('SITE_SERVER_NAME') && !empty(SITE_SERVER_NAME)) ? SITE_SERVER_NAME : '';
@@ -127,7 +124,7 @@ final class Sender
 
 			if (!$hostName)
 			{
-				$request = Context::getCurrent()->getRequest();
+				$request = Main\Context::getCurrent()->getRequest();
 				$hostName = $request->getHttpHost();
 			}
 		}
@@ -140,6 +137,6 @@ final class Sender
 	 */
 	private static function isB24(): bool
 	{
-		return Loader::includeModule('bitrix24');
+		return Main\Loader::includeModule('bitrix24');
 	}
 }

@@ -8,6 +8,7 @@ BitrixVue.component('sale-checkout-view-element-button-backdrop_overlay_close', 
 	{
 		click()
 		{
+			document.body.style.overflowY = '';
 			EventEmitter.emit(EventType.basket.backdropClose, {index: this.index})
 		},
 	},

@@ -13,6 +13,11 @@ if($APPLICATION->GetGroupRight("sale") < "R")
 
 IncludeModuleLangFile(__FILE__);
 
+if (\Bitrix\Main\Loader::includeModule('sale') && !\Bitrix\Sale\Configuration::isCanUse1c())
+{
+	LocalRedirect('/bitrix/admin/');
+}
+
 $aSTabs = array();
 if(IsModuleInstalled("catalog"))
 {

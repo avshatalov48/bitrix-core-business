@@ -11,6 +11,7 @@ return [
 		'main.core',
 		'main.popup',
 		'ui.buttons',
+		'catalog.store-use',
 	],
 	'skip_core' => false,
 ];

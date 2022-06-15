@@ -102,7 +102,9 @@
 .ui-counter-panel__item-title {
 	display: inline-flex;
 	align-items: flex-end;
+	overflow: hidden;
 	padding-bottom: 8px;
+	white-space: nowrap;
 	z-index: 1;
 }
 

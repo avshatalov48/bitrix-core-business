@@ -1,10 +1,10 @@
 <?php
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Iblock,
-	Bitrix\Catalog;
+use Bitrix\Main;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Iblock;
+use Bitrix\Catalog;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
@@ -12,36 +12,36 @@ class ProductSearchComponent extends \CBitrixComponent
 {
 	const TABLE_ID_PREFIX = 'tbl_product_search';
 
-	protected $iblockId;
-	protected $arProps;
-	protected $arSkuProps;
+	protected ?int $iblockId = null;
+	protected ?array $arProps = null;
+	protected ?array $arSkuProps = null;
 	protected $offersCatalog;
-	protected $arPrices;
-	/** @var array Grid headers */
-	protected $arHeaders = null;
-	/** @var array Rows field list */
-	protected $dataFields = null;
-	protected $activeSectionLabel;
-	protected $simpleSearch;
-	protected $offersIblockId;
-	protected $iblockList;
-	protected $gridOprtions;
-	/** @var array */
-	protected $visibleColumns = null;
-	/** @var array */
-	protected $visiblePrices = null;
-	/** @var array */
-	protected $visibleProperties = null;
-	/** @var array */
-	protected $visibleFields = null;
+	protected ?array $arPrices = null;
+	/* Grid headers */
+	protected ?array $arHeaders = null;
+	/* Rows field list */
+	protected array $dataFields = [];
+	protected string $activeSectionLabel = '';
+	protected bool $simpleSearch = false;
+	protected ?int $offersIblockId = null;
+	protected ?array $iblockList = null;
+	protected ?CGridOptions $gridOprtions = null;
 
-	protected $checkPermissions = true;
+	protected ?array $visibleColumns = null;
 
-	protected $activeSectionNavChain = array();
-	protected $offers = array();
+	protected ?array $visiblePrices = null;
 
-	protected static $elementsNamesCache = array();
-	protected static $sectionsNamesCache = array();
+	protected ?array $visibleProperties = null;
+
+	protected ?array $visibleFields = null;
+
+	protected bool $checkPermissions = true;
+
+	protected array $activeSectionNavChain = array();
+	protected array $offers = array();
+
+	protected static array $elementsNamesCache = array();
+	protected static array $sectionsNamesCache = array();
 
 	/**
 	 * @param $ID
@@ -162,7 +162,7 @@ class ProductSearchComponent extends \CBitrixComponent
 			}
 		}
 
-		$this->simpleSearch = (string)\Bitrix\Main\Config\Option::get('catalog', 'product_form_simple_search') == 'Y';
+		$this->simpleSearch = \Bitrix\Main\Config\Option::get('catalog', 'product_form_simple_search') === 'Y';
 
 		if (isset($params['CHECK_PERMISSIONS']) && $params['CHECK_PERMISSIONS'] == 'N')
 			$this->checkPermissions = false;
@@ -208,12 +208,12 @@ class ProductSearchComponent extends \CBitrixComponent
 		$this->includeComponentTemplate();
 	}
 
-	protected function isAdminSection()
+	protected function isAdminSection(): bool
 	{
 		return \Bitrix\Main\Application::getInstance()->getContext()->getRequest()->isAdminSection();
 	}
 
-	protected function isFiltering()
+	protected function isFiltering(): bool
 	{
 		foreach ($_REQUEST as $key => $value)
 		{
@@ -223,20 +223,20 @@ class ProductSearchComponent extends \CBitrixComponent
 		return false;
 	}
 
-	protected function isExternalContext()
+	protected function isExternalContext(): bool
 	{
 		return !empty($_REQUEST['externalcontext']);
 	}
 
-	protected function getGridOptions()
+	protected function getGridOptions(): CGridOptions
 	{
 		if ($this->gridOprtions === null)
-			$this->gridOprtions = new \CGridOptions($this->getTableId());
+			$this->gridOprtions = new CGridOptions($this->getTableId());
 
 		return $this->gridOprtions;
 	}
 
-	protected function checkAccess()
+	protected function checkAccess(): bool
 	{
 		global $USER, $APPLICATION;
 
@@ -269,7 +269,7 @@ class ProductSearchComponent extends \CBitrixComponent
 	 * @param bool|array $arSelectedFields
 	 * @return CAdminResult|CDBResult
 	 */
-	protected function getMixedList($arOrder = array('SORT' => 'ASC'), $arFilter = array(), $bIncCnt = false, $arSelectedFields = false)
+	protected function getMixedList(array $arOrder = array('SORT' => 'ASC'), array $arFilter = array(), bool $bIncCnt = false, $arSelectedFields = false)
 	{
 		$arResult = array();
 
@@ -312,7 +312,7 @@ class ProductSearchComponent extends \CBitrixComponent
 				if (isset($arFilter["CHECK_PERMISSIONS"]))
 				{
 					$arSectionFilter['CHECK_PERMISSIONS'] = $arFilter["CHECK_PERMISSIONS"];
-					$arSectionFilter['MIN_PERMISSION'] = (isset($arFilter['MIN_PERMISSION']) ? $arFilter['MIN_PERMISSION'] : 'R');
+					$arSectionFilter['MIN_PERMISSION'] = ($arFilter['MIN_PERMISSION'] ?? 'R');
 				}
 				if (array_key_exists("SECTION_ID", $arFilter))
 				{
@@ -382,7 +382,7 @@ class ProductSearchComponent extends \CBitrixComponent
 			if (isset($arFilter["CHECK_PERMISSIONS"]))
 			{
 				$arElementFilter['CHECK_PERMISSIONS'] = $arFilter["CHECK_PERMISSIONS"];
-				$arElementFilter['MIN_PERMISSION'] = (isset($arFilter['MIN_PERMISSION']) ? $arFilter['MIN_PERMISSION'] : 'S');
+				$arElementFilter['MIN_PERMISSION'] = ($arFilter['MIN_PERMISSION'] ?? 'S');
 			}
 
 			if (!empty($elementInherentFilter))
@@ -430,7 +430,7 @@ class ProductSearchComponent extends \CBitrixComponent
 		return $rsResult;
 	}
 
-	protected function getOffersIblockId()
+	protected function getOffersIblockId(): int
 	{
 		if ($this->offersIblockId===null)
 		{
@@ -555,7 +555,7 @@ class ProductSearchComponent extends \CBitrixComponent
 	 * @param array $arProduct
 	 * @return array|bool
 	 */
-	protected function getProductSku($arProduct)
+	protected function getProductSku(array $arProduct)
 	{
 		$productId = (int)$arProduct['ID'];
 		$productName = trim($arProduct['NAME']);
@@ -576,7 +576,7 @@ class ProductSearchComponent extends \CBitrixComponent
 			$arSku = array();
 			$skuIdsList = array();
 
-			foreach ($this->offers[$productId] as $index => $arOffer)
+			foreach ($this->offers[$productId] as $arOffer)
 			{
 				$arSkuTmp = array();
 				$arSkuTmp['PROPERTIES'] = array();
@@ -584,7 +584,7 @@ class ProductSearchComponent extends \CBitrixComponent
 
 				if (!empty($arOffer['PROPERTIES']))
 				{
-					foreach ($arOffer['PROPERTIES'] as $pid => $property)
+					foreach ($arOffer['PROPERTIES'] as $property)
 					{
 						$viewValues = array();
 						$property['USER_TYPE'] = (string)$property['USER_TYPE'];
@@ -713,7 +713,7 @@ class ProductSearchComponent extends \CBitrixComponent
 	 * @param  \CDBResult $dbResultList
 	 * @return array
 	 */
-	protected function makeItemsFromDbResult(\CDBResult $dbResultList)
+	protected function makeItemsFromDbResult(\CDBResult $dbResultList): array
 	{
 		$arItemsResult = array();
 		$arProductIds = array();
@@ -814,7 +814,7 @@ class ProductSearchComponent extends \CBitrixComponent
 			{
 				if (!empty($item['PROPERTIES']))
 				{
-					foreach ($item['PROPERTIES'] as $pid => $property)
+					foreach ($item['PROPERTIES'] as $property)
 					{
 						$viewValues = array();
 						$property['USER_TYPE'] = (string)$property['USER_TYPE'];
@@ -1028,7 +1028,7 @@ class ProductSearchComponent extends \CBitrixComponent
 		return $arItemsResult;
 	}
 
-	protected function getSkuPrices()
+	protected function getSkuPrices(): array
 	{
 		$result = array();
 		if ($this->offers)
@@ -1063,10 +1063,10 @@ class ProductSearchComponent extends \CBitrixComponent
 		return $this->arParams['event'];
 	}
 
-	protected function getUserId()
+	protected function getUserId(): int
 	{
 		global $USER;
-		return intval($USER->GetID());
+		return (int)$USER->GetID();
 	}
 
 	protected function getCaller()
@@ -1079,7 +1079,7 @@ class ProductSearchComponent extends \CBitrixComponent
 		return $this->arParams['LID'];
 	}
 
-	protected function getTableId()
+	protected function getTableId(): string
 	{
 		return self::TABLE_ID_PREFIX . '_' . $this->getCaller();
 	}
@@ -1094,7 +1094,7 @@ class ProductSearchComponent extends \CBitrixComponent
 		return $this->arParams['store_from_id'];
 	}
 
-	protected function getIblockId()
+	protected function getIblockId(): int
 	{
 		if ($this->iblockId === null)
 		{
@@ -1115,10 +1115,10 @@ class ProductSearchComponent extends \CBitrixComponent
 	protected function getIblock()
 	{
 		$id = $this->getIblockId();
-		return isset($this->iblockList[$id])? $this->iblockList[$id] : false;
+		return $this->iblockList[$id] ?? false;
 	}
 
-	protected function isAdvancedSearchAvailable()
+	protected function isAdvancedSearchAvailable(): bool
 	{
 		if ($this->simpleSearch)
 			return false;
@@ -1133,7 +1133,7 @@ class ProductSearchComponent extends \CBitrixComponent
 		return $this->arParams['SECTION_ID'];
 	}
 
-	protected function getActiveSectionLabel()
+	protected function getActiveSectionLabel(): string
 	{
 		return $this->activeSectionLabel;
 	}
@@ -1166,22 +1166,20 @@ class ProductSearchComponent extends \CBitrixComponent
 		return true;
 	}
 
-	protected function getFilterFields()
+	protected function getFilterFields(): array
 	{
-		$arFilterFields = array(
+		return [
 			"filter_timestamp_from",
 			"filter_timestamp_to",
 			"filter_active",
 			"filter_code",
 			'filter_id_start',
 			'filter_id_end',
-			'filter_xml_id'
-		);
-
-		return $arFilterFields;
+			'filter_xml_id',
+		];
 	}
 
-	protected function getFilterLabels()
+	protected function getFilterLabels(): array
 	{
 		$arFindFields = array(
 			"find_code" => GetMessage("SPS_CODE"),
@@ -1205,7 +1203,7 @@ class ProductSearchComponent extends \CBitrixComponent
 		return $this->offersCatalog;
 	}
 
-	protected function getProps($flagAll = false)
+	protected function getProps($flagAll = false): array
 	{
 		if ($this->arProps === null)
 			$this->arProps = $this->getPropsList($this->getIblockId());
@@ -1213,7 +1211,7 @@ class ProductSearchComponent extends \CBitrixComponent
 		return $flagAll ? $this->arProps : $this->filterProps($this->arProps);
 	}
 
-	protected function getSkuProps($flagAll = false)
+	protected function getSkuProps($flagAll = false): array
 	{
 		if ($this->arSkuProps === null)
 		{
@@ -1223,23 +1221,13 @@ class ProductSearchComponent extends \CBitrixComponent
 		return $flagAll ? $this->arSkuProps : $this->filterProps($this->arSkuProps);
 	}
 
-	protected function getPrices()
+	protected function getPrices(): array
 	{
 		if ($this->arPrices === null)
 		{
-			$this->arPrices = array();
-			$priceTypeIterator = Catalog\GroupTable::getList(array(
-				'select' => array('ID', 'BASE', 'NAME', 'NAME_LANG' => 'CURRENT_LANG.NAME'),
-				'order' => array('SORT' => 'ASC', 'ID' => 'ASC')
-			));
-			while ($priceType = $priceTypeIterator->fetch())
-			{
-				$priceType['ID'] = (int)$priceType['ID'];
-				$priceType['NAME_LANG'] = (string)$priceType['NAME_LANG'];
-				$this->arPrices[] = $priceType;
-			}
-			unset($priceType, $priceTypeIterator);
+			$this->arPrices = Catalog\GroupTable::getTypeList();
 		}
+
 		return $this->arPrices;
 	}
 
@@ -1332,7 +1320,7 @@ class ProductSearchComponent extends \CBitrixComponent
 	/**
 	 * @return array
 	 */
-	protected function getHeaders()
+	protected function getHeaders(): array
 	{
 		$this->loadHeaders();
 		return $this->arHeaders;
@@ -1401,7 +1389,7 @@ class ProductSearchComponent extends \CBitrixComponent
 	/**
 	 * @return array
 	 */
-	protected function getVisibleColumns()
+	protected function getVisibleColumns(): array
 	{
 		$this->loadVisibleColumns();
 		return $this->visibleColumns;
@@ -1410,7 +1398,7 @@ class ProductSearchComponent extends \CBitrixComponent
 	/**
 	 * @return array
 	 */
-	protected function getVisiblePrices()
+	protected function getVisiblePrices(): array
 	{
 		$this->loadVisibleColumns();
 		return $this->visiblePrices;
@@ -1419,7 +1407,7 @@ class ProductSearchComponent extends \CBitrixComponent
 	/**
 	 * @return array
 	 */
-	protected function getVisibleProperties()
+	protected function getVisibleProperties(): array
 	{
 		$this->loadVisibleColumns();
 		return $this->visibleProperties;
@@ -1428,7 +1416,7 @@ class ProductSearchComponent extends \CBitrixComponent
 	/**
 	 * @return array
 	 */
-	protected function getVisibleFields()
+	protected function getVisibleFields(): array
 	{
 		$this->loadVisibleColumns();
 		return $this->visibleFields;
@@ -1621,7 +1609,7 @@ class ProductSearchComponent extends \CBitrixComponent
 		return $arFilter;
 	}
 
-	protected function getSectionsTree($iblockId, $rootSectionId = 0, $activeSectionId = 0)
+	protected function getSectionsTree($iblockId, $rootSectionId = 0, $activeSectionId = 0): array
 	{
 		$iblockId = (int)$iblockId;
 		$rootSectionId = (int)$rootSectionId;
@@ -1692,7 +1680,7 @@ class ProductSearchComponent extends \CBitrixComponent
 		return $iterator->fetch();
 	}
 
-	protected function getIblockList()
+	protected function getIblockList(): array
 	{
 		if ($this->iblockList === null)
 		{
@@ -1860,14 +1848,14 @@ class ProductSearchComponent extends \CBitrixComponent
 			\CUserOptions::SetOption("catalog", $this->getTableId(),
 				array('IBLOCK_ID' =>$this->getIblockId(),
 					'SECTION_ID' =>$this->getSectionId(),
-					'QUERY' => isset($_REQUEST['QUERY'])?  $_REQUEST['QUERY'] : '',
+					'QUERY' => $_REQUEST['QUERY'] ?? '',
 					'USE_SUBSTRING_QUERY' => isset($_REQUEST['USE_SUBSTRING_QUERY']) && $_REQUEST['USE_SUBSTRING_QUERY'] == 'Y' ? 'Y' : 'N'
 				),
 				false, $this->getUserId());
 		}
 	}
 
-	private function getPropsList($iblockId, $skuPropertyId = 0)
+	private function getPropsList($iblockId, $skuPropertyId = 0): array
 	{
 		$arResult = array();
 		$dbrFProps = \CIBlockProperty::GetList(
@@ -1891,7 +1879,7 @@ class ProductSearchComponent extends \CBitrixComponent
 		return $arResult;
 	}
 
-	private function filterProps(&$props)
+	private function filterProps(&$props): array
 	{
 		$result = array();
 		if (empty($props) || !is_array($props))
@@ -1915,7 +1903,7 @@ class ProductSearchComponent extends \CBitrixComponent
 	 * @param int $id		Product id.
 	 * @return array
 	 */
-	protected function getItemProperies($id)
+	protected function getItemProperies(int $id): array
 	{
 		$arProperties = array();
 		$propIds = $this->getVisibleProperties();
@@ -1941,7 +1929,7 @@ class ProductSearchComponent extends \CBitrixComponent
 	 * @param array $filter
 	 * @return array
 	 */
-	private static function getElementInherentFilter(array $filter)
+	private static function getElementInherentFilter(array $filter): array
 	{
 		$result = array();
 		if (!empty($filter))
@@ -1966,7 +1954,7 @@ class ProductSearchComponent extends \CBitrixComponent
 	 * @param array $filter
 	 * @return bool
 	 */
-	private static function checkLoadSections(array $filter)
+	private static function checkLoadSections(array $filter): bool
 	{
 		$result = true;
 		if (!empty($filter))

@@ -25,6 +25,19 @@ final class LazySessionStart implements \ArrayAccess
 
 	protected function start()
 	{
+		if ($this->isSessionAlreadyClosed() && headers_sent())
+		{
+			$this->writeToLogError(
+				new \RuntimeException(
+					"Skipped cold session start because headers have already been sent. Be aware and fix usage of session, details in trace."
+				)
+			);
+
+			$GLOBALS['_SESSION'] = [];
+
+			return;
+		}
+
 		Application::getInstance()->getSession()->start();
 	}
 
@@ -54,5 +67,24 @@ final class LazySessionStart implements \ArrayAccess
 		$this->start();
 
 		unset($_SESSION[$offset]);
+	}
+
+	private function isKernelWentSessionStart(): bool
+	{
+		return defined('BX_STARTED');
+	}
+
+	private function isSessionAlreadyClosed(): bool
+	{
+		return
+			$this->isKernelWentSessionStart()
+			&& !Application::getInstance()->getKernelSession()->isStarted()
+		;
+	}
+
+	private function writeToLogError(\RuntimeException $exception): void
+	{
+		$exceptionHandler = Application::getInstance()->getExceptionHandler();
+		$exceptionHandler->writeToLog($exception);
 	}
 }

@@ -76,6 +76,7 @@
 	padding: 20px;
 	margin-bottom: 15px;
 	background-color: #fff;
+	border-radius: var(--ui-slider-section-border-radius, var(--ui-border-radius-md));
 }
 
 .ui-slider-section.--rounding {

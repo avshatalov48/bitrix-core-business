@@ -273,7 +273,7 @@ final class Provider
 			{
 				if (array_key_exists($productId, $needQuantityList[$providerName]))
 				{
-					if (Sale\Configuration::getProductReservationCondition() !== Sale\Configuration::RESERVE_ON_SHIP)
+					if (Sale\Configuration::getProductReservationCondition() !== Sale\Reservation\Configuration\ReserveCondition::ON_SHIP)
 					{
 						if (!isset($applyItemsList[$providerName][$productId]))
 						{
@@ -427,17 +427,7 @@ final class Provider
 
 		$storeId = $reserveQuantity->getStoreId();
 		$availableQuantity = $availableQuantityList[$providerName][$basketItem->getProductId()][$storeId] ?? 0;
-		$poolQuantity = 0;
-		if ($order->getId() > 0)
-		{
-			$poolQuantity = (float)$pool->getByStore(
-				PoolQuantity::POOL_RESERVE_TYPE,
-				$basketItem->getProductId(),
-				$storeId
-			);
-		}
 
-		$availableQuantity -= $poolQuantity;
 		if ($availableQuantity < $productData['QUANTITY'])
 		{
 			$result->addError(
@@ -521,10 +511,13 @@ final class Provider
 		$poolItems = Sale\Internals\ItemsPool::get($order->getInternalId(), $productId);
 		if (!empty($poolItems))
 		{
-			/** @var Sale\Shipment $poolItem */
+			/** @var Sale\ShipmentItem $poolItem */
 			foreach ($poolItems as $poolItem)
 			{
-				if ($poolItem->getInternalIndex() == $shipmentItem->getInternalIndex())
+				if (
+					$poolItem instanceof Sale\ShipmentItem
+					&& $poolItem->getInternalIndex() == $shipmentItem->getInternalIndex()
+				)
 				{
 					$foundItem = true;
 					break;
@@ -787,7 +780,10 @@ final class Provider
 				/** @var Sale\Shipment $poolItem */
 				foreach ($poolItems as $poolItem)
 				{
-					if ($poolItem->getInternalIndex() == $shipmentItem->getInternalIndex())
+					if (
+						$poolItem instanceof Sale\ShipmentItem
+						&& $poolItem->getInternalIndex() == $shipmentItem->getInternalIndex()
+					)
 					{
 						$foundItem = true;
 						break;
@@ -921,10 +917,13 @@ final class Provider
 			$poolItems = Sale\Internals\ItemsPool::get($order->getInternalId(), $productId);
 			if (!empty($poolItems))
 			{
-				/** @var Sale\Shipment $poolItem */
+				/** @var Sale\ShipmentItem $poolItem */
 				foreach ($poolItems as $poolItem)
 				{
-					if ($poolItem->getInternalIndex() == $shipmentItem->getInternalIndex())
+					if (
+						$poolItem instanceof Sale\ShipmentItem
+						&& $poolItem->getInternalIndex() == $shipmentItem->getInternalIndex()
+					)
 					{
 						$foundItem = true;
 						break;
@@ -1201,7 +1200,7 @@ final class Provider
 			{
 				$resultList[$basketCode] = array();
 			}
-			
+
 			$map = self::createMapShipmentItemStoreData($shipmentItem);
 			if (!empty($map) && is_array($map))
 			{

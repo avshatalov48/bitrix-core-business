@@ -2624,20 +2624,8 @@
 				contentPanel = new ContentEditPanel("content_edit", {
 					title: BX.Landing.Loc.getMessage("LANDING_CONTENT_PANEL_TITLE"),
 					subTitle: this.manifest.block.name,
-					footer: [
-						new BaseButton("save_block_content", {
-							text: BX.Landing.Loc.getMessage("BLOCK_SAVE"),
-							onClick: this.onContentSave.bind(this),
-							className: "landing-ui-button-content-save",
-							attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_SLIDER_SAVE")}
-						}),
-						new BaseButton("cancel_block_content", {
-							text: BX.Landing.Loc.getMessage("BLOCK_CANCEL"),
-							onClick: this.onContentCancel.bind(this),
-							className: "landing-ui-button-content-cancel",
-							attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_SLIDER_CANCEL")}
-						})
-					]
+					onSaveHandler: this.onContentSave.bind(this),
+					onCancelHandler: this.onContentCancel.bind(this),
 				});
 
 				var formId = this.getBlockFormId();
@@ -4652,9 +4640,6 @@
 				});
 		},
 
-
-
-
 		/**
 		 * Handles content save event
 		 */
@@ -4679,7 +4664,6 @@
 					.then(this.updateBlockState.bind(this));
 			}
 		},
-
 
 		/**
 		 * Handles content cancel edit event

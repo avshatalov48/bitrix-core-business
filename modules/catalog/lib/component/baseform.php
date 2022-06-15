@@ -709,10 +709,7 @@ abstract class BaseForm
 						'name' => 'main',
 						'title' => Loc::getMessage('CATALOG_C_F_MAIN_SECTION_TITLE'),
 						'type' => 'section',
-						'elements' => [
-							['name' => 'NAME-CODE'],
-							['name' => 'DETAIL_TEXT'],
-						],
+						'elements' => $this->getMainConfigElements(),
 						'data' => [
 							'isRemovable' => false,
 						],
@@ -753,6 +750,14 @@ abstract class BaseForm
 					],
 				],
 			],
+		];
+	}
+
+	protected function getMainConfigElements(): array
+	{
+		return [
+			['name' => 'NAME-CODE'],
+			['name' => 'DETAIL_TEXT'],
 		];
 	}
 

@@ -44,5 +44,6 @@ return [
 		"ui.forms",
 		"ui.draganddrop.draggable",
 		"ui.entity-selector",
+		"ui.design-tokens",
 	]
 ];

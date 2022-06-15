@@ -9,6 +9,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 $this->setFrameMode(true);
 
+\Bitrix\Main\UI\Extension::load('ui.design-tokens');
+
 $toolbarManager = Toolbar\Manager::getInstance();
 if($arResult["TOOLBAR_ID"] != "")
 {

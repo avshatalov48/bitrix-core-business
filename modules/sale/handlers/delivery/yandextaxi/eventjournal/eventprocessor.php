@@ -16,6 +16,8 @@ use Sale\Handlers\Delivery\YandexTaxi\Internals\ClaimsTable;
 use Bitrix\Sale\Delivery\Services;
 use Bitrix\Sale\Delivery\Requests;
 use Bitrix\Sale\Delivery\Requests\Message;
+use Bitrix\Sale\Internals\Analytics\Storage;
+use Bitrix\Sale\Delivery\Internals\Analytics\Provider;
 
 /**
  * Class EventProcessor
@@ -24,6 +26,8 @@ use Bitrix\Sale\Delivery\Requests\Message;
  */
 final class EventProcessor
 {
+	private const DELIVERY_ANALYTICS_CODE = 'yandex_taxi';
+
 	/** @var Api */
 	protected $api;
 
@@ -428,16 +432,39 @@ final class EventProcessor
 		{
 			ClaimsTable::update($claim['ID'], ['FURTHER_CHANGES_EXPECTED' => 'N']);
 
-			if (isset($claim['EXTERNAL_RESOLUTION'])
+			if (
+				isset($claim['EXTERNAL_RESOLUTION'])
 				&& $claim['EXTERNAL_RESOLUTION'] === ClaimsTable::EXTERNAL_STATUS_SUCCESS
 			)
 			{
+				$this->saveOrderForAnalytics($claim);
 				if ($shipment->setField('DEDUCTED', 'Y')->isSuccess())
 				{
 					$shipment->getOrder()->save();
 				}
 			}
 		}
+	}
+
+	/**
+	 * @param array $claim
+	 */
+	private function saveOrderForAnalytics(array $claim): void
+	{
+		$order = [
+			'id' => $claim['EXTERNAL_ID'],
+			'is_successful' => 'Y',
+			'status' => $claim['EXTERNAL_STATUS'],
+			'created_at' => $claim['CREATED_AT']->getTimestamp(),
+		];
+
+		if ($claim['EXTERNAL_FINAL_PRICE'] && $claim['EXTERNAL_CURRENCY'])
+		{
+			$order['amount'] = $claim['EXTERNAL_FINAL_PRICE'];
+			$order['currency'] = $claim['EXTERNAL_CURRENCY'];
+		}
+
+		(new Storage(new Provider(self::DELIVERY_ANALYTICS_CODE, [$order])))->save();
 	}
 
 	/**

@@ -66,6 +66,12 @@ class CIBlockCMLImport
 
 	protected $currencyIncluded = null;
 
+	protected array $productSizes = [
+		'WIDTH',
+		'LENGTH',
+		'HEIGHT',
+	];
+
 	function InitEx(&$next_step, $params)
 	{
 		$defaultParams = array(
@@ -3409,22 +3415,10 @@ class CIBlockCMLImport
 
 			if ($this->bCatalog)
 			{
-				if (isset($arXMLElement[$this->mess["IBLOCK_XML2_MARKING_CODE_GROUP"]]))
-				{
-					$arElement[Product\SystemField::CODE_MARKING_CODE_GROUP] = $arXMLElement[$this->mess["IBLOCK_XML2_MARKING_CODE_GROUP"]];
-				}
-				if (isset($arXMLElement[$this->mess["IBLOCK_XML2_WIDTH"]]))
-				{
-					$arElement['WIDTH'] = $this->ToFloatEmpty($arXMLElement[$this->mess["IBLOCK_XML2_WIDTH"]]);
-				}
-				if (isset($arXMLElement[$this->mess["IBLOCK_XML2_LENGTH"]]))
-				{
-					$arElement['LENGTH'] = $this->ToFloatEmpty($arXMLElement[$this->mess["IBLOCK_XML2_LENGTH"]]);
-				}
-				if (isset($arXMLElement[$this->mess["IBLOCK_XML2_HEIGHT"]]))
-				{
-					$arElement['HEIGHT'] = $this->ToFloatEmpty($arXMLElement[$this->mess["IBLOCK_XML2_HEIGHT"]]);
-				}
+				$arElement = array_merge(
+					$arElement,
+					$this->getProductFieldsFromXml($arXMLElement)
+				);
 			}
 
 			if ($cleanCml2FilesProperty)
@@ -3983,33 +3977,10 @@ class CIBlockCMLImport
 				$arProduct["VAT_INCLUDED"] = $TAX_IN_SUM;
 			}
 
-			$productSystemFields = Product\SystemField::getFieldList();
-			$useMarkingCode = isset($productSystemFields[Product\SystemField::CODE_MARKING_CODE_GROUP]);
-			if ($useMarkingCode && isset($arElement[Product\SystemField::CODE_MARKING_CODE_GROUP]))
-			{
-				$arProduct[Product\SystemField::CODE_MARKING_CODE_GROUP] = ($arElement[Product\SystemField::CODE_MARKING_CODE_GROUP] === '' ? null : $arElement[Product\SystemField::CODE_MARKING_CODE_GROUP]);
-			}
-			if (!empty($productSystemFields))
-			{
-				Product\SystemField::prepareRow($arProduct);
-			}
-
-			if (isset($arElement['MEASURE']))
-			{
-				$arProduct['MEASURE'] = ($arElement['MEASURE'] === '' ? null : (int)$arElement['MEASURE']);
-			}
-			if (isset($arElement['WIDTH']))
-			{
-				$arProduct['WIDTH'] = ($arElement['WIDTH'] === '' ? null : $arElement['WIDTH']);
-			}
-			if (isset($arElement['LENGTH']))
-			{
-				$arProduct['LENGTH'] = ($arElement['LENGTH'] === '' ? null : $arElement['LENGTH']);
-			}
-			if (isset($arElement['HEIGHT']))
-			{
-				$arProduct['HEIGHT'] = ($arElement['HEIGHT'] === '' ? null : $arElement['HEIGHT']);
-			}
+			$arProduct = array_merge(
+				$arProduct,
+				$this->getPreparedProductFieldsFromArray($arElement)
+			);
 
 			$productCache = Catalog\Model\Product::getCacheItem($arProduct['ID'], true);
 			if (!empty($productCache))
@@ -4064,6 +4035,82 @@ class CIBlockCMLImport
 
 
 		return $arElement["ID"];
+	}
+
+	protected function getProductFieldsFromXml(array $xmlElement): array
+	{
+		$result = [];
+
+		if (array_key_exists($this->mess['IBLOCK_XML2_MARKING_CODE_GROUP'], $xmlElement))
+		{
+			$result[Product\SystemField\MarkingCodeGroup::FIELD_ID] = $xmlElement[$this->mess['IBLOCK_XML2_MARKING_CODE_GROUP']] ?? '';
+		}
+		if (array_key_exists($this->mess['IBLOCK_XML2_PRODUCT_MAPPING'], $xmlElement))
+		{
+			$result[Product\SystemField\ProductMapping::FIELD_ID] = [];
+			if (is_array($xmlElement[$this->mess['IBLOCK_XML2_PRODUCT_MAPPING']]))
+			{
+				foreach ($xmlElement[$this->mess['IBLOCK_XML2_PRODUCT_MAPPING']] as $value)
+				{
+					$value = (string)$value;
+					if ($value !== '')
+					{
+						$result[Product\SystemField\ProductMapping::FIELD_ID][] = $value;
+					}
+				}
+			}
+		}
+		if (isset($xmlElement[$this->mess['IBLOCK_XML2_WIDTH']]))
+		{
+			$result['WIDTH'] = $this->ToFloatEmpty($xmlElement[$this->mess['IBLOCK_XML2_WIDTH']]);
+		}
+		if (isset($xmlElement[$this->mess['IBLOCK_XML2_LENGTH']]))
+		{
+			$result['LENGTH'] = $this->ToFloatEmpty($xmlElement[$this->mess['IBLOCK_XML2_LENGTH']]);
+		}
+		if (isset($xmlElement[$this->mess['IBLOCK_XML2_HEIGHT']]))
+		{
+			$result['HEIGHT'] = $this->ToFloatEmpty($xmlElement[$this->mess['IBLOCK_XML2_HEIGHT']]);
+		}
+
+		return $result;
+	}
+
+	protected function getPreparedProductFieldsFromArray(array $element): array
+	{
+		$result = [];
+
+		$productSystemFields = Product\SystemField::getImportSelectFields();
+		if (!empty($productSystemFields))
+		{
+			foreach ($productSystemFields as $index => $value)
+			{
+				$fieldName = is_string($index) ? $index : $value;
+				if (isset($element[$fieldName]))
+				{
+					$result[$fieldName] = $element[$fieldName] === '' ? null : $element[$fieldName];
+				}
+			}
+			unset($fieldName, $index, $value);
+
+			Product\SystemField::prepareRow($result, Product\SystemField::OPERATION_IMPORT);
+		}
+
+		if (isset($element['MEASURE']))
+		{
+			$result['MEASURE'] = ($element['MEASURE'] === '' ? null : (int)$element['MEASURE']);
+		}
+
+		foreach ($this->productSizes as $fieldName)
+		{
+			if (isset($element[$fieldName]))
+			{
+				$result[$fieldName] = $element[$fieldName] === '' ? null : $element[$fieldName];
+			}
+		}
+		unset($fieldName);
+
+		return $result;
 	}
 
 	function ImportElementPrices($arXMLElement, &$counter, $arParent = false)
@@ -6388,10 +6435,29 @@ class CIBlockCMLExport
 					$measure[$arIDUnit["ID"]] = $arIDUnit["CODE"];
 			}
 
+			static $systemFieldTypes = null;
+			if (!isset($systemFieldTypes))
+			{
+				$systemFieldTypes = [];
+				if (Product\SystemField\MarkingCodeGroup::isAllowed())
+				{
+					$systemFieldTypes[Product\SystemField\MarkingCodeGroup::FIELD_ID] = array_fill_keys(
+						Product\SystemField\MarkingCodeGroup::getAllowedProductTypeList(),
+						true
+					);
+				}
+				if (Product\SystemField\ProductMapping::isAllowed())
+				{
+					$systemFieldTypes[Product\SystemField\ProductMapping::FIELD_ID] = array_fill_keys(
+						Product\SystemField\ProductMapping::getAllowedProductTypeList(),
+						true
+					);
+				}
+			}
+
 			//TODO: change this code after refactoring product system fields
 			$selectFields = ['ID', 'MEASURE', 'QUANTITY', 'TYPE', 'WIDTH', 'LENGTH', 'HEIGHT'];
-			$productSystemFields = Catalog\Product\SystemField::getFieldList();
-			$useMarkingCode = isset($productSystemFields[Product\SystemField::CODE_MARKING_CODE_GROUP]);
+			$productSystemFields = Catalog\Product\SystemField::getExportSelectFields();
 
 			$selectFields = array_merge($selectFields, $productSystemFields);
 			$iterator = Catalog\ProductTable::getList([
@@ -6402,34 +6468,61 @@ class CIBlockCMLExport
 			unset($iterator);
 			if (!empty($row) && is_array($row))
 			{
-				Product\SystemField::convertRow($row);
+				Product\SystemField::prepareRow($row, Product\SystemField::OPERATION_EXPORT);
 				$row['TYPE'] = (int)$row['TYPE'];
+
+				if (
+					isset($systemFieldTypes[Product\SystemField\MarkingCodeGroup::FIELD_ID])
+					&& isset($systemFieldTypes[Product\SystemField\MarkingCodeGroup::FIELD_ID][$row['TYPE']])
+				)
+				{
+					fwrite(
+						$this->fp,
+						"\t\t\t\t<".GetMessage("IBLOCK_XML2_MARKING_CODE_GROUP").">"
+						.htmlspecialcharsbx((string)$row[Product\SystemField\MarkingCodeGroup::FIELD_ID])
+						."</".GetMessage("IBLOCK_XML2_MARKING_CODE_GROUP").">\n"
+					);
+				}
+				if (
+					isset($systemFieldTypes[Product\SystemField\ProductMapping::FIELD_ID])
+					&& isset($systemFieldTypes[Product\SystemField\ProductMapping::FIELD_ID][$row['TYPE']])
+				)
+				{
+					fwrite(
+						$this->fp,
+						"\t\t\t\t<".GetMessage("IBLOCK_XML2_PRODUCT_MAPPING").">\n"
+					);
+					if (
+						!empty($row[Product\SystemField\ProductMapping::FIELD_ID])
+						&& is_array($row[Product\SystemField\ProductMapping::FIELD_ID])
+					)
+					{
+						foreach ($row[Product\SystemField\ProductMapping::FIELD_ID] as $value)
+						{
+							fwrite(
+								$this->fp,
+								"\t\t\t\t\t<".GetMessage('IBLOCK_XML2_ID').">"
+								.htmlspecialcharsbx($value)
+								."</".GetMessage('IBLOCK_XML2_ID').">\n"
+							);
+						}
+					}
+					fwrite(
+						$this->fp,
+						"\t\t\t\t</".GetMessage("IBLOCK_XML2_PRODUCT_MAPPING").">\n"
+					);
+				}
+
 				if (
 					$row['TYPE'] == Catalog\ProductTable::TYPE_PRODUCT
 					|| $row['TYPE'] == Catalog\ProductTable::TYPE_SET
 					|| $row['TYPE'] == Catalog\ProductTable::TYPE_OFFER
 					|| (
 						$row['TYPE'] == Catalog\ProductTable::TYPE_SKU
-						&& (string)Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') == 'Y'
+						&& Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y'
 					)
 				)
 				{
-					if (
-						$useMarkingCode
-						&& (
-							$row['TYPE'] == Catalog\ProductTable::TYPE_PRODUCT
-							|| $row['TYPE'] == Catalog\ProductTable::TYPE_OFFER
-						)
-					)
-					{
-						fwrite(
-							$this->fp,
-							"\t\t\t\t<".GetMessage("IBLOCK_XML2_MARKING_CODE_GROUP").">"
-							.htmlspecialcharsbx((string)$row["MARKING_CODE_GROUP"])
-							."</".GetMessage("IBLOCK_XML2_MARKING_CODE_GROUP").">\n"
-						);
-					}
-
 					$row['MEASURE'] = (int)$row['MEASURE'];
 					$xmlMeasure = GetMessage("IBLOCK_XML2_PCS");
 					if ($row["MEASURE"] > 0 && isset($measure[$row["MEASURE"]]))

@@ -465,12 +465,12 @@ class Message
 	{
 		if ($message['ATTACHMENTS'] > 0 || !($message['OPTIONS']['attachments'] > 0))
 		{
-			return;
+			return false;
 		}
 
 		if (Main\Config\Option::get('mail', 'save_attachments', B_MAIL_SAVE_ATTACHMENTS) !== 'Y')
 		{
-			return;
+			return false;
 		}
 
 		$mailboxHelper = Mailbox::createInstance($message['MAILBOX_ID'], false);
@@ -525,36 +525,149 @@ class Message
 
 		if ($message['ATTACHMENTS'] > 0)
 		{
-			\CMailMessage::update($message['ID'], array('BODY_HTML' => $message['BODY_HTML']));
+			\CMailMessage::update($message['ID'], array('BODY_HTML' => $message['BODY_HTML']), $message['MAILBOX_ID']);
 
 			return $message['ID'];
 		}
 	}
 
-	public static function resync(&$message)
+	public static function parseAddressList($column)
 	{
-		$mailboxHelper = Mailbox::createInstance($message['MAILBOX_ID'], false);
+		$column = trim($column);
+		//'email@email' => 'email@domain'
+		//'Name <email@domain>, Name2 <email2@domain2>' => 'Name <email@domain'
+		$columns = preg_split("/>,?/", $column);
+		$validColumns = [];
 
-		$result = empty($mailboxHelper) ? false : $mailboxHelper->resyncMessage($message);
-
-		if (false === $result)
+		foreach ($columns as $value)
 		{
-			$logEntry = sprintf(
-				'Helper\Message: Message resync failed (%u:%s:%u)',
-				$message['MAILBOX_ID'],
-				$message['DIR_MD5'],
-				$message['MSG_UID']
-			);
-
-			if (!empty($mailboxHelper) && !$mailboxHelper->getErrors()->isEmpty())
+			//'email@email' => 'email@domain'
+			//'Name <email@domain' => 'Name <email@domain>'
+			if(preg_match("/</", $value))
 			{
-				$logEntry .= PHP_EOL . join(PHP_EOL, $mailboxHelper->getErrors()->toArray());
+				$value.='>';
 			}
 
-			addMessage2Log($logEntry, 'mail', 3);
+			if($value !== '')
+			{
+				$validColumns[] = $value;
+			}
 		}
 
-		return $result;
+		return $validColumns;
+	}
+
+	public static function isolateSelector($matches)
+	{
+		$head = $matches['head'];
+		$body = $matches['body'];
+		$prefix = 'mail-message-';
+		$wrapper = '#mail-message-wrapper ';
+		if(substr($head,0,1)==='@') $wrapper ='';
+		$closure = $matches['closure'];
+		$head = preg_replace('%([\.#])([a-z][-_a-z0-9]+)%msi', '$1'.$prefix.'$2', $head);
+		return $wrapper.$head.$body.$closure;
+	}
+
+	public static function isolateStylesInTheTag($matches)
+	{
+		$wrapper = '#mail-message-wrapper ';
+		$openingTag = $matches['openingTag'];
+		$closingTag = $matches['closingTag'];
+		$styles = $matches['styles'];
+		$bodySelectorPattern = '#(.*?)(^|\s)(body)\s*((?:\{)(?:.*?)(?:\}))(.*)#msi';
+		$bodySelector = preg_replace($bodySelectorPattern, '$2'.$wrapper.'$4', $styles);
+		//cut off body selector
+		$styles = preg_replace($bodySelectorPattern, '$1$5', $styles);
+		$styles = preg_replace('#(^|\s)(body)\s*({)#isU', '$1mail-msg-view-body$3', $styles);
+		$styles = preg_replace_callback('%(?:^|\s)(?<head>[@#\.]?[a-z].*?\{)(?<body>.*?)(?<closure>\})%msi', 'static::isolateSelector', $styles);
+		return  $openingTag.$bodySelector.$styles.$closingTag;
+	}
+
+	public static function isolateStylesInTheBody($html)
+	{
+		$prefix = 'mail-message-';
+		$html = preg_replace('%((?:^|\s)(?:class|id)(?:^|\s*)(?:=)(?:^|\s*)(\"|\'))((?:.*?)(?:\2))%', '$1'.$prefix.'$3', $html);
+		return $html;
+	}
+
+	public static function isolateMessageStyles($messageHtml)
+	{
+		//isolates the positioning of the element
+		$messageHtml = preg_replace('%((?:^|\s)position(?:^|\s)?:(?:^|\s)?)(absolute|fixed|inherit)%', '$1relative', $messageHtml);
+		//remove media queries
+		$messageHtml = preg_replace('%@media\b[^{]*({((?:[^{}]+|(?1))*)})%msi', '', $messageHtml);
+		//remove loading fonts
+		$messageHtml = preg_replace('%@font-face\b[^{]*({(?>[^{}]++|(?1))*})%msi', '', $messageHtml);
+		$messageHtml = static::isolateStylesInTheBody($messageHtml);
+		$messageHtml = preg_replace_callback('|(?<openingTag><style[^>]*>)(?<styles>.*)(?<closingTag><\/style>)|isU', 'static::isolateStylesInTheTag',$messageHtml);
+		return $messageHtml;
+	}
+
+	public static function sanitizeHtml($html, $isolateStyles = false)
+	{
+		$cleared = preg_replace('/<!--.*?-->/is', '', $html);
+		$cleared = preg_replace('/<script[^>]*>.*?<\/script>/is', '', $cleared);
+		$cleared = preg_replace('/<title[^>]*>.*?<\/title>/is', '', $cleared);
+		$sanitizer = new \CBXSanitizer();
+		$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
+		$sanitizer->applyDoubleEncode(false);
+		$sanitizer->addTags(static::getWhitelistTagAttributes());
+		$cleared = $sanitizer->sanitizeHtml($cleared);
+
+		if($isolateStyles)
+		{
+			$cleared = static::isolateMessageStyles($cleared);
+		}
+
+		return $cleared;
+	}
+
+	public static function reSyncBody($mailboxId, $messageIds)
+	{
+		if(empty($messageIds))
+		{
+			return false;
+		}
+
+		$messages = \Bitrix\Mail\MailMessageUidTable::getList([
+			'select' => [
+				'*'
+			],
+			'filter' => [
+				'=MAILBOX_ID' => $mailboxId,
+				'@MESSAGE_ID' => $messageIds,
+			],
+		]);
+
+		$mailboxHelper = Mailbox::createInstance($mailboxId, false);
+
+		if(!empty($mailboxHelper))
+		{
+			$mailbox = $mailboxHelper->getMailbox();
+
+			while ($message = $messages->fetch())
+			{
+				$technicalTitle = $mailboxHelper->downloadMessage($message);
+				$charset = $mailbox['CHARSET'] ?: $mailbox['LANG_CHARSET'];
+				[$header, $html, $text, $attachments] = \CMailMessage::parseMessage($technicalTitle, $charset);
+
+				if($html === '')
+				{
+					$html = '<div></div>';
+				}
+
+				\CMailMessage::update(
+					$message['MESSAGE_ID'],
+					[
+						'BODY' => rtrim($text),
+						'BODY_HTML' => static::sanitizeHtml($html, true),
+					]
+				);
+			}
+		}
+
+		return true;
 	}
 
 	public static function getSaltByEntityType(string $entityType, int $entityId, ?int $userId = null): string

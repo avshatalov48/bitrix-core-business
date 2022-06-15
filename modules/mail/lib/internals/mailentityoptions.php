@@ -8,6 +8,17 @@ class MailEntityOptionsTable extends Entity\DataManager
 {
 	const DIR = 'DIR';
 	const MAILBOX = 'MAILBOX';
+	const MESSAGE = 'MESSAGE';
+
+	public static function add($fields)
+	{
+		try {
+			return parent::add($fields);
+		} catch (\Exception $exception)
+		{
+			//key conflict
+		}
+	}
 
 	public static function getFilePath()
 	{
@@ -29,7 +40,7 @@ class MailEntityOptionsTable extends Entity\DataManager
 			),
 			'ENTITY_TYPE' => array(
 				'data_type' => 'enum',
-				'values' => array(self::DIR, self::MAILBOX),
+				'values' => array(self::DIR, self::MAILBOX, self::MESSAGE),
 				'required'  => true,
 				'primary' => true,
 			),
@@ -45,6 +56,9 @@ class MailEntityOptionsTable extends Entity\DataManager
 			),
 			'VALUE' => array(
 				'data_type' => 'string',
+			),
+			'DATE_INSERT' => array(
+				'data_type' => 'datetime',
 			),
 		);
 	}

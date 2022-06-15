@@ -233,6 +233,14 @@ abstract class CommonElement extends EO_CommonElement
 	}
 
 	/**
+	 * No need to save current relations (they are all PropertyReferences and will be saved in other way)
+	 */
+	public function sysSaveCurrentReferences()
+	{
+		return;
+	}
+
+	/**
 	 * @param mixed               $value
 	 * @param PropertyReference|PropertyOneToMany $field
 	 *

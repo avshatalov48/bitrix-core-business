@@ -1,4 +1,6 @@
-<?
+<?php
+$MESS["BT_CAT_ADM_TOOLS_TAB_PRODUCT"] = "Параметры товара";
+$MESS["BT_CAT_ADM_TOOLS_TAB_TITLE_PRODUCT"] = "Системные настройки товара";
 $MESS["BT_CAT_ADM_TOOLS_TAB_CATALOG"] = "Торговый каталог";
 $MESS["BT_CAT_ADM_TOOLS_TAB_SKU"] = "Торговые предложения";
 $MESS["BT_CAT_ADM_TOOLS_TAB_SET"] = "Комплект";

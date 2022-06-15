@@ -17,6 +17,8 @@ use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 $this->setFrameMode(true);
 
+\Bitrix\Main\UI\Extension::load('ui.design-tokens');
+
 $filter = Toolbar::getFilter();
 $afterTitleButtons = Toolbar::renderAfterTitleButtons();
 $rightButtons = Toolbar::renderRightButtons();

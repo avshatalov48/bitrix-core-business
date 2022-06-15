@@ -2,15 +2,27 @@
 
 namespace Bitrix\Catalog\Controller\Document;
 
+use Bitrix\Catalog;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Engine\ActionFilter;
-use Bitrix\Main\Config\Option;
 
 class Mode extends Engine\Controller
 {
-	public function statusAction(): string
+	public function statusAction(): ?string
 	{
-		return Option::get('catalog', 'default_use_store_control', 'N') === 'Y' ? 'Y' : 'N';
+		$currentUser = Engine\CurrentUser::get();
+
+		if (
+			$currentUser->canDoOperation(Catalog\Controller\Controller::CATALOG_STORE)
+			|| $currentUser->canDoOperation(Catalog\Controller\Controller::CATALOG_READ)
+		)
+		{
+			return Catalog\Config\State::isUsedInventoryManagement() ? 'Y' : 'N';
+		}
+
+		$this->addError(new \Bitrix\Main\Error('Access denied'));
+
+		return null;
 	}
 
 	protected function getDefaultPreFilters()

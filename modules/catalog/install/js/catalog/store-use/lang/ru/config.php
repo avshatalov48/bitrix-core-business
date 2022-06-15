@@ -14,3 +14,4 @@ $MESS ['CAT_WAREHOUSE_MASTER_STORE_USE_10'] = "Включение Складск
 $MESS ['CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_POPUP_TITLE'] = "Отключение Складского учёта";
 $MESS ['CAT_WAREHOUSE_MASTER_CLEAR_CONDUCTED_DOCUMENTS_EXIST'] = "Найдены проведенные складские документы. Нельзя отключить Складской учёт при наличии проведенных документов.";
 $MESS ['CAT_WAREHOUSE_MASTER_CLEAR_CLOSE'] = "Закрыть";
+$MESS ['CAT_WAREHOUSE_MASTER_STORE_DETAILS'] = "Подробнее";

@@ -1,2 +1,2 @@
 <?php
-$MESS["SENDER_DEAL_CATEGORY_WITHOUT_DEAL"]="Без направления сделки";
+$MESS["SENDER_DEAL_CATEGORY_WITHOUT_DEAL_PREP"]="Без направления сделки";

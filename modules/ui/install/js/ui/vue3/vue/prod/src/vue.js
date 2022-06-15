@@ -7,7 +7,7 @@
  */
 
 import {BitrixVue} from "../../dev/src/bitrixvue";
-BitrixVue.createApp = (config => kl(config).use(BitrixVue));
+BitrixVue.createApp = ((rootComponent, rootProps) => kl(rootComponent, rootProps).use(BitrixVue));
 export {BitrixVue};
 
 // origin-start

@@ -289,6 +289,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 			</Offer>
 			<Offer>
 				<Id>exclusive-cutout-dress</Id>
@@ -338,6 +341,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 			</Offer>
 			<Offer>
 				<Id>dress-with-textured-pattern</Id>
@@ -387,6 +393,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 			</Offer>
 			<Offer>
 				<Id>denim-jacket</Id>
@@ -436,6 +445,9 @@
 						<Value></Value>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 			</Offer>
 			<Offer>
 				<Id>silk-black-dress-with-stars-pattern</Id>
@@ -547,6 +559,9 @@
 						</PropertyValue>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 			</Offer>
 			<Offer>
 				<Id>crop-top-and-pants-with-leaves-pattern</Id>
@@ -659,6 +674,9 @@
 						</PropertyValue>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 			</Offer>
 			<Offer>
 				<Id>black-wide-suede-pants-with-white-stripes</Id>
@@ -770,6 +788,9 @@
 						</PropertyValue>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 			</Offer>
 			<Offer>
 				<Id>blue-cotton-sweater-with-banana-pattern</Id>
@@ -881,6 +902,9 @@
 						</PropertyValue>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 			</Offer>
 			<Offer>
 				<Id>colorful-jumper-with-horizontal-stripes</Id>
@@ -992,6 +1016,9 @@
 						</PropertyValue>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 			</Offer>
 			<Offer>
 				<Id>black-suede-pleated-skirt</Id>
@@ -1103,6 +1130,9 @@
 						</PropertyValue>
 					</PropertyValues>
 				</PropertiesValues>
+				<ProductVisibility>
+					<Id>LANDING</Id>
+				</ProductVisibility>
 			</Offer>
 		</Offers>
 	</OffersList>

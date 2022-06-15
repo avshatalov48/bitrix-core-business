@@ -921,7 +921,7 @@ class Imap
 
 			$list[] = array(
 				'name'  => $sname,
-				'delim' => mb_strtoupper($sdelim) == 'NIL' ? null : $sdelim,
+				'delim' => mb_strtoupper($sdelim) == 'NIL' ? 'NIL' : $sdelim,
 				'flags' => preg_split('/\s+/i', $sflags, -1, PREG_SPLIT_NO_EMPTY),
 			);
 		}

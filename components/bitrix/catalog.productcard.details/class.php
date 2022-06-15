@@ -135,7 +135,12 @@ class CatalogProductDetailsComponent
 
 	protected function checkPermissions(): bool
 	{
-		if (!$this->getForm()->isCardAllowed())
+		$form = $this->getForm();
+		if ($form === null)
+		{
+			return false;
+		}
+		if (!$form->isCardAllowed())
 		{
 			$this->errorCollection[] = new \Bitrix\Main\Error('New product card feature disabled.');
 
@@ -1913,11 +1918,15 @@ class CatalogProductDetailsComponent
 		return Bitrix\Main\Engine\Response\AjaxJson::createSuccess();
 	}
 
-	private function getForm()
+	private function getForm(): ?ProductForm
 	{
 		if ($this->form === null)
 		{
-			$this->form = new ProductForm($this->getProduct(), $this->arParams);
+			$product = $this->getProduct();
+			if ($product !== null)
+			{
+				$this->form = new ProductForm($product, $this->arParams);
+			}
 		}
 
 		return $this->form;

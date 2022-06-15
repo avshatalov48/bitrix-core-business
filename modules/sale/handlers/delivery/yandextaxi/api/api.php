@@ -72,13 +72,7 @@ final class Api
 
 		try
 		{
-			$response = $this->transport->post(
-				'check-price',
-				$estimation,
-				[
-					'base_uri_template' => 'https://b2b.taxi%s.yandex.net/b2b/cargo-matcher/v%s/',
-				]
-			);
+			$response = $this->transport->post('check-price', $estimation);
 		}
 		catch (Transport\Exception $requestException)
 		{

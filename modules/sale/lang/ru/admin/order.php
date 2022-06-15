@@ -237,11 +237,11 @@ $MESS["SALE_O_SHIPMENT_ID_TITLE"] = "Отгрузка № &quot;#SHIPMENT_ID#&qu
 $MESS["SALE_O_CONTEXT_B_IS_SYNC_B24_TITLE"] = "Сообщение";
 $MESS["SALE_O_CONTEXT_B_IS_SYNC_B24_SELECTION_NEEDED"] = "Необходимо выделить заказ";
 $MESS["SALE_O_CONTEXT_B_IS_SYNC_B24_SELECTION_MORE_ONE"] = "Т.к. заказ привязывается к определенной сделке, заказ может быть выбран только один";
-$MESS["SALE_O_CONTEXT_B_IS_SYNC_B24_SELECTION_MORE_THREE"] = "Выгрузка ограничена 3я заказами";
+$MESS["SALE_O_CONTEXT_B_IS_SYNC_B24_SELECTION_MORE_THREE"] = "Выгрузка ограничена 3 заказами";
 $MESS["SALE_O_CONTEXT_B_IS_SYNC_B24_REGISTRY_CLOSE"] = "Закрыть";
 $MESS["SALE_O_CONTEXT_B_IS_SYNC_B24_REGISTRY_CREATE"] = "Открыть";
 $MESS["SALE_O_CONTEXT_B_IS_SYNC_B24_REGISTRY_TEXT_CREATE"] = "Открыть форму создания нового заказа?";
-$MESS["SALE_F_IS_SYNC_B24"] = "Активность синхронизации с Б24";
+$MESS["SALE_F_IS_SYNC_B24"] = "Активность синхронизации с Битрикс24";
 $MESS["SALE_O_CONTEXT_B_IS_SYNC_B24_REGISTRY_SEND_YES"] = 'Да';
-$MESS["SALE_O_CONTEXT_B_IS_SYNC_B24_REGISTRY_SENDED"] = "Заказы не могут быть выбраны т.к. ранее они уже были выгружены \n\r ID заказов";
+$MESS["SALE_O_CONTEXT_B_IS_SYNC_B24_REGISTRY_SENDED"] = "Заказы не могут быть выбраны, т.к. ранее они уже были выгружены \n\r ID заказов";
 ?>

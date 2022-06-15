@@ -11,10 +11,11 @@ return [
 		'catalog.entity-card',
 		'main.core.events',
 		'currency.currency-core',
-		'main.core',
 		'ui.entity-selector',
 		'main.popup',
-		'ui.tour',
+		'catalog.store-use',
+		'main.core',
+		'ui.feedback.form',
 	],
 	'skip_core' => false,
 ];

@@ -54,7 +54,7 @@ class bitrixcloud extends CModule
 		// Database tables creation
 		if (!$DB->Query("SELECT 'x' FROM b_bitrixcloud_option WHERE 1=0", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/install/db/".mb_strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/install/db/mysql/install.sql");
 		}
 		if ($this->errors !== false)
 		{
@@ -82,7 +82,7 @@ class bitrixcloud extends CModule
 		UnRegisterModuleDependences("mobileapp", "OnBeforeAdminMobileMenuBuild", "bitrixcloud", "CBitrixCloudMobile", "OnBeforeAdminMobileMenuBuild");
 		if (!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrixcloud/install/db/mysql/uninstall.sql");
 		}
 		UnRegisterModule("bitrixcloud");
 		if ($this->errors !== false)

@@ -13,6 +13,7 @@ $MESS["DOCUMENT_LINK_COPIED"] = "Inventory object link has been copied to the Cl
 $MESS["DOCUMENT_PRODUCTS_ADD_PRODUCT"] = "Added products";
 $MESS["DOCUMENT_PRODUCTS_NOT_SHOWN"] = "#COUNT# more";
 $MESS["DOCUMENT_PRODUCTS_TOTAL"] = "Total";
+$MESS["FEEDBACK_BUTTON_TITLE"] = "Feedback";
 $MESS["SAVE_AND_CONDUCT_BUTTON"] = "Save and process";
 $MESS["SLIDER_LABEL_A"] = "Stock receipt";
 $MESS["SLIDER_LABEL_D"] = "Write-off";

@@ -86,6 +86,9 @@ class ProductTable extends Main\Entity\DataManager
 			'QUANTITY' => array(
 				'data_type' => 'float'
 			),
+			'MEASURE' => array(
+				'data_type' => 'integer'
+			),
 			'PURCHASING_PRICE' => array(
 				'data_type' => 'float'
 			),

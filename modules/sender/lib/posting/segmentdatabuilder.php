@@ -436,7 +436,14 @@ class SegmentDataBuilder
 		$threadStrategy->setGroupStateId($groupState['ID']);
 		$threadStrategy->fillThreads();
 		$threadStrategy->setPerPage(self::PER_PAGE);
-		$threadStrategy->lockThread();
+
+		if (
+			$threadStrategy->lockThread() === AbstractThreadStrategy::THREAD_UNAVAILABLE
+			|| $threadStrategy->isProcessLimited()
+		)
+		{
+			return false;
+		}
 
 		$offset = $threadStrategy->getOffset();
 		Locker::lock(self::SEGMENT_DATA_LOCK_KEY, $this->groupId);

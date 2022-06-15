@@ -986,4 +986,12 @@
 	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-call-out.svg);
 }
 
+.ui-icon.ui-icon-service-settings {
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-settings.svg);
+}
+
+.ui-icon.ui-icon-service-light-settings {
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-settings.svg);
+}
+
 /*endregion*/

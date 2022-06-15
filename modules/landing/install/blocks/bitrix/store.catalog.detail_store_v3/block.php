@@ -212,6 +212,7 @@ $elementCode = $classBlock->get('ELEMENT_CODE');
 				'CONTEXT_SITE_ID' => $classBlock->get('SITE_ID'),
 				'SECTIONS_CHAIN_START_FROM' => 1,
 				'ALLOW_SEO_DATA' => 'Y',
+				'ADDITIONAL_FILTER_NAME' => $classBlock->get('ADDITIONAL_FILTER_NAME'),
 			],
 			false
 		); ?><?php

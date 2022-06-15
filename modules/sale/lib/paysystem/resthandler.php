@@ -706,6 +706,22 @@ class RestHandler extends PaySystem\ServiceHandler
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public function getClientType($psMode)
+	{
+		$settings = $this->getHandlerSettings();
+		
+		$clientType = (string)($settings['CLIENT_TYPE'] ?? '');
+		if ($clientType && ClientType::isValid($clientType))
+		{
+			return $clientType;
+		}
+		
+		return parent::getClientType($psMode);
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getDescription()

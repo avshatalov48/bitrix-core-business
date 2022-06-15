@@ -10,6 +10,9 @@ $MESS["MAIL_CLIENT_CONFIG_MAILBOX_EMAIL"] = "Email";
 $MESS["MAIL_CLIENT_CONFIG_MAILBOX_USERNAME"] = "Имя отправителя";
 $MESS["MAIL_CLIENT_CONFIG_MAILBOX_LINK"] = "Адрес веб-интерфейса почтового сервера";
 $MESS["MAIL_CLIENT_CONFIG_EXT_SWITCH"] = "Указать дополнительные параметры";
+$MESS["MAIL_CLIENT_CONFIG_EMAIL_OAUTH_FIELD_TITLE_OFFICE365"] = "Необходимо ввести E-mail вручную (согласно правилам безопасности Microsoft inc.)";
+$MESS["MAIL_CLIENT_CONFIG_EMAIL_OAUTH_FIELD_ERROR"] = "E-mail не верный. Введите E-mail, который привязан к выбранному аккаунту.";
+$MESS["MAIL_CLIENT_CONFIG_EMAIL_OAUTH_FIELD_SUCCESS"] = "E-mail подтверждён!";
 
 $MESS["MAIL_CLIENT_CONFIG_OAUTH"] = "Авторизация";
 $MESS["MAIL_CLIENT_CONFIG_OAUTH_CONNECT"] = "Авторизация";
@@ -102,7 +105,6 @@ $MESS["MAIL_CLIENT_CONFIG_SMTP_PASS_BAD_NULL"] = "Пароль не должен
 $MESS["MAIL_CLIENT_CONFIG_SMTP_PASS_SPACE"] = "Пароль начинается или оканчивается пробелом";
 
 $MESS["MAIL_CLIENT_CONFIG_IMAP_OAUTH_ACC_ERROR"] = "Ошибка получения данных почтового ящика";
-$MESS["MAIL_CLIENT_CONFIG_IMAP_OAUTH_ACC_DIFF"] = "Несоответствие данных почтового ящика";
 
 $MESS["MAIL_CLIENT_CONFIG_IMAP_ERR_EXT"] = "Подробнее";
 $MESS["MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_EXT"] = "Ошибка авторизации. Проверьте правильно ли указаны логин и пароль.<br>Обратите внимание, если вы используете пароли приложений или включили двухфакторную авторизацию &mdash; необходимо использовать специальный пароль для интеграции.";

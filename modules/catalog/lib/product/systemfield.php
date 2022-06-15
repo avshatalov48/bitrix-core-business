@@ -2,47 +2,36 @@
 namespace Bitrix\Catalog\Product;
 
 use Bitrix\Main;
-use Bitrix\Main\Loader;
-use Bitrix\Main\Localization\LanguageTable;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ModuleManager;
 use Bitrix\Main\ORM;
-use Bitrix\Main\TaskTable;
-use Bitrix\Main\Text;
-use Bitrix\Main\UserField;
 use Bitrix\Catalog;
+use Bitrix\Catalog\Grid\Panel\ProductGroupAction;
 use Bitrix\Highloadblock as Highload;
 
 final class SystemField
 {
-	public const CODE_MARKING_CODE_GROUP = 'MARKING_CODE_GROUP';
+	public const EVENT_ID_BUILD_FIELD_LIST = 'OnProductUserFieldBuildList';
 
-	private const FIELD_PREFIX = 'UF_';
+	public const STATUS_CONTINUE = 'continue';
+	public const STATUS_FINAL = 'final';
 
-	private const STORAGE_TABLE_NAME_PREFIX = 'b_hlsys_';
+	/** @deprecated */
+	public const CODE_MARKING_CODE_GROUP = Catalog\Product\SystemField\MarkingCodeGroup::FIELD_ID;
 
-	private const STORAGE_NAME_PREFIX = 'PRODUCT_';
+	public const OPERATION_EXPORT = 'EXPORT';
+	public const OPERATION_IMPORT = 'IMPORT';
+	public const OPERATION_PROVIDER = 'PROVIDER';
 
-	private const FIELD_ID_PREFIX = 'product_';
+	public const DESCRIPTION_MODE_FIELD_NAME = 'FIELD_NAME';
+	public const DESCRIPTION_MODE_UI_LIST = 'UI_ENTITY_LIST';
+	public const DESCRIPTION_MODE_FULL = 'FULL';
 
-	private const FIELD_NAME_PREFIX = 'PRODUCT_';
+	private static ?array $currentFieldSet = null;
 
-	/** @var bool */
-	private static $highloadInclude = null;
-
-	/** @var bool */
-	private static $bitrix24Include = null;
-
-	private static $storageList = [];
-
-	private static $languages = [];
-
-	private static $dictionary = [];
-
-	private static $reverseDictionary = [];
-
-	/** @var array */
-	private static $currentFieldSet = null;
+	private static array $defaultFieldList = [
+		Catalog\Product\SystemField\MarkingCodeGroup::class,
+		Catalog\Product\SystemField\ProductMapping::class,
+	];
 
 	/**
 	 * @return string
@@ -67,13 +56,26 @@ final class SystemField
 
 		self::$currentFieldSet = null;
 
-		$fieldResult = self::createMarkingCodeGroup();
-		if (!$fieldResult->isSuccess())
+		$fieldList = self::getBuildedFieldList();
+		if (empty($fieldList))
 		{
-			$result->addErrors($fieldResult->getErrors());
+			$result->setData(['STATUS' => self::STATUS_FINAL]);
+			return $result;
 		}
 
-		unset($fieldResult);
+		foreach ($fieldList as $field)
+		{
+			$internalResult = $field::create();
+			if (!$internalResult->isSuccess())
+			{
+				foreach ($internalResult->getErrors() as $error)
+				{
+					$result->addError($error);
+				}
+			}
+		}
+
+		$result->setData(['STATUS' => self::STATUS_FINAL]);
 
 		return $result;
 	}
@@ -86,155 +88,282 @@ final class SystemField
 		self::$currentFieldSet = null;
 	}
 
+	public static function getSelectFields(string $operation): array
+	{
+		$result = [];
+		foreach (self::getCurrentFieldSet($operation) as $field)
+		{
+			$result = array_merge(
+				$result,
+				$field::getOperationSelectFieldList($operation)
+			);
+		}
+
+		return $result;
+	}
+
 	/**
+	 * @param string $operation
+	 * @return array|Catalog\Product\SystemField\Base[]
+	 */
+	private static function getCurrentFieldSet(string $operation): array
+	{
+		self::loadCurrentFieldSet($operation);
+
+		return self::$currentFieldSet[$operation] ?? [];
+	}
+
+	private static function getDefaultFieldSet(): array
+	{
+		return [
+			self::OPERATION_PROVIDER => null,
+			self::OPERATION_IMPORT => null,
+			self::OPERATION_EXPORT => null,
+		];
+	}
+
+	private static function loadCurrentFieldSet(string $operation): void
+	{
+		if (self::$currentFieldSet === null)
+		{
+			self::$currentFieldSet = self::getDefaultFieldSet();
+		}
+		if (!array_key_exists($operation, self::$currentFieldSet))
+		{
+			return;
+		}
+		if (self::$currentFieldSet[$operation] === null)
+		{
+			self::$currentFieldSet[$operation] = [];
+
+			$fieldList = self::getBuildedFieldList();
+			if (!empty($fieldList))
+			{
+				foreach ($fieldList as $field)
+				{
+					if ($field::checkAllowedOperation($operation) && $field::isExists())
+					{
+						self::$currentFieldSet[$operation][] = $field;
+					}
+				}
+				unset($field);
+			}
+			unset($fieldList);
+		}
+	}
+
+	public static function getProviderSelectFields(): array
+	{
+		return self::getSelectFields(self::OPERATION_PROVIDER);
+	}
+
+	public static function getExportSelectFields(): array
+	{
+		return self::getSelectFields(self::OPERATION_EXPORT);
+	}
+
+	public static function getImportSelectFields(): array
+	{
+		return self::getSelectFields(self::OPERATION_IMPORT);
+	}
+
+	/**
+	 * @deprecated
+	 * @see self::getSelectFields
+	 *
 	 * @return array
 	 */
 	public static function getFieldList(): array
 	{
-		if (self::$currentFieldSet === null)
-		{
-			self::$currentFieldSet = [];
-
-			self::initStorageList();
-
-			$userField = new \CUserTypeEntity();
-			$iterator = $userField->GetList(
-				[],
-				[
-					'ENTITY_ID' => Catalog\ProductTable::getUfId(),
-					'FIELD_NAME' => self::$storageList[self::CODE_MARKING_CODE_GROUP]['UF_FIELD']
-				]
-			);
-			$row = $iterator->Fetch();
-			unset($iterator, $userField);
-			if (!empty($row))
-			{
-				self::$currentFieldSet[self::CODE_MARKING_CODE_GROUP] = self::$storageList[self::CODE_MARKING_CODE_GROUP]['UF_FIELD'];
-			}
-			unset($row);
-
-		}
-		return self::$currentFieldSet;
+		return self::getProviderSelectFields();
 	}
 
 	/**
+	 * @deprecated
+	 * @see prepareRow()
+	 *
 	 * @param array &$row
+	 * @param string $operation
 	 * @return void
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function convertRow(array &$row): void
+	public static function convertRow(array &$row, string $operation = self::OPERATION_PROVIDER): void
 	{
-		if (!self::initHighloadBlock())
-			return;
-		if (!isset($row[self::CODE_MARKING_CODE_GROUP]))
-			return;
-		if (!isset(self::$dictionary[self::CODE_MARKING_CODE_GROUP]))
-			self::$dictionary[self::CODE_MARKING_CODE_GROUP] = [];
-		$id = (int)$row[self::CODE_MARKING_CODE_GROUP];
-		if ($id <= 0)
-		{
-			$row[self::CODE_MARKING_CODE_GROUP] = null;
-			return;
-		}
-		if (!isset(self::$dictionary[self::CODE_MARKING_CODE_GROUP][$id]))
-		{
-			self::$dictionary[self::CODE_MARKING_CODE_GROUP][$id] = false;
-			$storage = self::$storageList[self::CODE_MARKING_CODE_GROUP];
-			$entity = Highload\HighloadBlockTable::compileEntity($storage['NAME']);
-			$entityDataClass = $entity->getDataClass();
-			$iterator = $entityDataClass::getList([
-				'select' => ['ID', 'UF_XML_ID'],
-				'filter' => ['=ID' => $id]
-			]);
-			$data = $iterator->fetch();
-			if (!empty($data) && isset($data['UF_XML_ID']))
-			{
-				self::$dictionary[self::CODE_MARKING_CODE_GROUP][$id] = $data['UF_XML_ID'];
-			}
-			unset($data, $iterator);
-			unset($storage);
-		}
-		if (self::$dictionary[self::CODE_MARKING_CODE_GROUP][$id] !== false)
-		{
-			$row[self::CODE_MARKING_CODE_GROUP] = self::$dictionary[self::CODE_MARKING_CODE_GROUP][$id];
-		}
-		else
-		{
-			$row[self::CODE_MARKING_CODE_GROUP] = null;
-		}
-		unset($id);
+		self::prepareRow($row, $operation);
 	}
 
-	public static function prepareRow(array &$row): void
+	public static function prepareRow(array &$row, string $operation = self::OPERATION_IMPORT): void
 	{
-		self::initStorageList();
-		$fieldList = self::getFieldList();
-		if (
-			isset($fieldList[self::CODE_MARKING_CODE_GROUP])
-			&& array_key_exists(self::CODE_MARKING_CODE_GROUP, $row)
-		)
+		foreach (self::getCurrentFieldSet($operation) as $field)
 		{
-			$value = null;
-			if ($row[self::CODE_MARKING_CODE_GROUP] !== null && self::initHighloadBlock())
-			{
-				$xmlId = $row[self::CODE_MARKING_CODE_GROUP];
-				if (!isset(self::$reverseDictionary[self::CODE_MARKING_CODE_GROUP]))
-				{
-					self::$reverseDictionary[self::CODE_MARKING_CODE_GROUP] = [];
-				}
-				if (!isset(self::$reverseDictionary[self::CODE_MARKING_CODE_GROUP][$xmlId]))
-				{
-					self::$reverseDictionary[self::CODE_MARKING_CODE_GROUP][$xmlId] = false;
-					$storage = self::$storageList[self::CODE_MARKING_CODE_GROUP];
-					$entity = Highload\HighloadBlockTable::compileEntity($storage['NAME']);
-					$entityDataClass = $entity->getDataClass();
-					$iterator = $entityDataClass::getList([
-						'select' => ['ID', 'UF_XML_ID'],
-						'filter' => ['=UF_XML_ID' => $xmlId]
-					]);
-					$data = $iterator->fetch();
-					if (!empty($data) && isset($data['ID']))
-					{
-						self::$reverseDictionary[self::CODE_MARKING_CODE_GROUP][$xmlId] = (int)$data['ID'];
-					}
-					unset($data, $iterator);
-					unset($storage);
-				}
-				if (self::$reverseDictionary[self::CODE_MARKING_CODE_GROUP][$xmlId] !== false)
-				{
-					$value = self::$reverseDictionary[self::CODE_MARKING_CODE_GROUP][$xmlId];
-				}
-			}
-			$row[self::$storageList[self::CODE_MARKING_CODE_GROUP]['UF_FIELD']] = $value;
-
-			unset($row[self::CODE_MARKING_CODE_GROUP]);
+			$row = $field::prepareValue($operation, $row);
 		}
+		unset($field);
 	}
 
 	/**
+	 * @param ProductGroupAction $panel
 	 * @return array|null
 	 */
-	public static function getGroupActions(): ?array
+	public static function getGroupActions(ProductGroupAction $panel): ?array
 	{
-		$result = [];
+		$catalog = $panel->getCatalogConfig();
+		if (empty($catalog))
+		{
+			return null;
+		}
 
-		$row = self::getMarkingCodeGroupAction();
-		if (!empty($row))
-			$result[] = $row;
+		$fieldList = self::getBuildedFieldList();
+		if (empty($fieldList))
+		{
+			return null;
+		}
+
+		$result = [];
+		foreach ($fieldList as $field)
+		{
+			$action = $field::getGridAction($panel);
+			if (!empty($action))
+			{
+				$result[] = $action;
+			}
+		}
+		unset($action, $field, $fieldList);
 
 		return (!empty($result) ? $result : null);
 	}
 
+	public static function getByUserFieldName(string $fieldName): ?string
+	{
+		$fieldList = self::getBuildedFieldList();
+		if (empty($fieldList))
+		{
+			return null;
+		}
+
+		$result = null;
+		foreach ($fieldList as $field)
+		{
+			$baseParams = $field::getUserFieldBaseParam();
+			if ($baseParams['FIELD_NAME'] === $fieldName)
+			{
+				/** @var string $result */
+				$result = $field;
+				break;
+			}
+		}
+		unset($baseParams, $field, $fieldList);
+
+		return $result;
+	}
+
+	public static function getFieldsByRestrictions(array $restrictions, array $config = []): array
+	{
+		$fieldList = self::getBuildedFieldList();
+		if (empty($fieldList))
+		{
+			return [];
+		}
+
+		$simpleList = isset($config['FIELD_NAME']) && $config['FIELD_NAME'] === 'Y';
+
+		$result = [];
+		foreach ($fieldList as $field)
+		{
+			if (
+				$field::checkRestictions($restrictions)
+				&& $field::isExists()
+			)
+			{
+				$data = $field::getUserFieldBaseParam();
+				if ($simpleList)
+				{
+					$result[] = $data['FIELD_NAME'];
+				}
+				else
+				{
+					$result[] = [
+						$data['FIELD_NAME'] => $field::getTitle(),
+					];
+				}
+			}
+		}
+		unset($field, $fieldList);
+
+		return $result;
+	}
+
+	public static function getFieldNamesByRestrictions(array $restrictions): array
+	{
+		return self::getFieldsByRestrictions(
+			$restrictions,
+			[
+				'FIELD_NAME' => 'Y',
+			]
+		);
+	}
+
+	public static function getPermissionFieldsByRestrictions(array $restrictions): array
+	{
+		$fieldList = self::getBuildedFieldList();
+		if (empty($fieldList))
+		{
+			return [];
+		}
+
+		$result = [];
+		foreach ($fieldList as $field)
+		{
+			if ($field::isExists())
+			{
+				$data = $field::getUserFieldBaseParam();
+				$result[$data['FIELD_NAME']] = $field::checkRestictions($restrictions);
+			}
+		}
+		unset($field, $fieldList);
+
+		return $result;
+	}
+
+	public static function getAllowedProductTypes(): array
+	{
+		$fieldList = self::getBuildedFieldList();
+		if (empty($fieldList))
+		{
+			return [];
+		}
+
+		$result = [];
+		foreach ($fieldList as $field)
+		{
+			$baseParams = $field::getUserFieldBaseParam();
+			$result[$baseParams['FIELD_NAME']] = $field::getAllowedProductTypeList();
+		}
+		unset($field, $fieldList);
+
+		return $result;
+	}
+
 	/**
-	 * @param string $fieldId
+	 * @param ProductGroupAction $panel
+	 * @param string $fieldName
 	 * @return array|null
 	 */
-	public static function getGroupActionRequest(string $fieldId): ?array
+	public static function getGroupActionRequest(ProductGroupAction $panel, string $fieldName): ?array
 	{
-		$value = Main\Context::getCurrent()->getRequest()->get(self::getFormRowFieldName($fieldId));
-		return ($value === null ? null : [$fieldId => $value]);
+		$catalog = $panel->getCatalogConfig();
+		if (empty($catalog))
+		{
+			return null;
+		}
+
+		/** @var Catalog\Product\SystemField\Base $field */
+		$field = self::getByUserFieldName($fieldName);
+		if (empty($field))
+		{
+			return null;
+		}
+
+		return $field::getGroupActionRequest($panel);
 	}
 
 	/**
@@ -248,27 +377,44 @@ final class SystemField
 	{
 		$result = new ORM\EventResult();
 
-		if (self::allowedMarkingCodeGroup())
+		if (Catalog\Product\SystemField\Type\HighloadBlock::isAllowed())
 		{
 			$primary = $event->getParameter('primary');
 			if (!empty($primary))
 			{
 				$iterator = Highload\HighloadBlockTable::getList([
-					'filter' => $primary
+					'filter' => $primary,
 				]);
 				$row = $iterator->fetch();
 				unset($iterator);
+
 				if (!empty($row))
 				{
-					if ($row['NAME'] == self::getStorageName(self::CODE_MARKING_CODE_GROUP))
+					$fieldList = self::getBuildedFieldList();
+					foreach ($fieldList as $field)
 					{
-						$result->addError(new ORM\EntityError(
-							Loc::getMessage(
-								'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CANNOT_DELETE_HIGHLOADBLOCK',
-								['#NAME#' => Loc::getMessage('STORAGE_MARKING_CODE_GROUP_TITLE')]
-							)
-						));
+						if ($field::getTypeId() !== Catalog\Product\SystemField\Type\HighloadBlock::class)
+						{
+							continue;
+						}
+						if (!$field::isAllowed() || !$field::isExists())
+						{
+							continue;
+						}
+						$config = $field::getConfig();
+
+						if ($row['NAME'] === $config['HIGHLOADBLOCK']['NAME'])
+						{
+							$result->addError(new ORM\EntityError(
+								Loc::getMessage(
+									'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CANNOT_DELETE_HIGHLOADBLOCK',
+									['#NAME#' => $row['NAME']]
+								)
+							));
+						}
+						unset($config);
 					}
+					unset($field, $fieldList);
 				}
 				unset($row);
 			}
@@ -289,34 +435,50 @@ final class SystemField
 	{
 		$result = new ORM\EventResult();
 
-		if (self::allowedMarkingCodeGroup())
+		if (Catalog\Product\SystemField\Type\HighloadBlock::isAllowed())
 		{
 			$primary = $event->getParameter('primary');
 			$fields = $event->getParameter('fields');
 			if (!empty($primary))
 			{
 				$iterator = Highload\HighloadBlockTable::getList([
-					'filter' => $primary
+					'filter' => $primary,
 				]);
 				$row = $iterator->fetch();
 				unset($iterator);
 				if (!empty($row))
 				{
-					if ($row['NAME'] == self::getStorageName(self::CODE_MARKING_CODE_GROUP))
+					$fieldList = self::getBuildedFieldList();
+					foreach ($fieldList as $field)
 					{
-						if (
-							(isset($fields['NAME']) && $row['NAME'] != $fields['NAME'])
-							|| (isset($fields['TABLE_NAME']) && $row['TABLE_NAME'] != $fields['TABLE_NAME'])
-						)
+						if ($field::getTypeId() !== Catalog\Product\SystemField\Type\HighloadBlock::class)
 						{
-							$result->addError(new ORM\EntityError(
-								Loc::getMessage(
-									'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CANNOT_UPDATE_HIGHLOADBLOCK',
-									['#NAME#' => Loc::getMessage('STORAGE_MARKING_CODE_GROUP_TITLE')]
-								)
-							));
+							continue;
 						}
+						if (!$field::isAllowed() || !$field::isExists())
+						{
+							continue;
+						}
+						$config = $field::getConfig();
+
+						if ($row['NAME'] === $config['HIGHLOADBLOCK']['NAME'])
+						{
+							if (
+								(isset($fields['NAME']) && $row['NAME'] != $fields['NAME'])
+								|| (isset($fields['TABLE_NAME']) && $row['TABLE_NAME'] != $fields['TABLE_NAME'])
+							)
+							{
+								$result->addError(new ORM\EntityError(
+									Loc::getMessage(
+										'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CANNOT_UPDATE_HIGHLOADBLOCK',
+										['#NAME#' => $row['NAME']]
+									)
+								));
+							}
+						}
+						unset($config);
 					}
+					unset($field, $fieldList);
 				}
 				unset($row);
 			}
@@ -332,45 +494,65 @@ final class SystemField
 	 */
 	public static function handlerHighloadBlockBeforeUninstall(Main\Event $event): Main\EventResult
 	{
-		$error = '';
+		$blockNames = [];
 
 		$module = $event->getParameter('module');
 		if ($module === 'highloadblock')
 		{
-			if (
-				self::allowedMarkingCodeGroup()
-				&& self::initHighloadBlock()
-			)
+			$fieldList = self::getBuildedFieldList();
+			foreach ($fieldList as $field)
 			{
-				$storage = self::getStorageDescription(self::CODE_MARKING_CODE_GROUP);
-				if (!empty($storage))
+				if ($field::getTypeId() !== Catalog\Product\SystemField\Type\HighloadBlock::class)
 				{
-					$row = self::getHighloadBlockStorage($storage);
-					if (!empty($row))
-					{
-						$error = new Main\Error(
-							Loc::getMessage(
-								'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_DISALLOW_UNINSTALL_HIGHLOADBLOCK',
-								['#NAME#' => $storage['NAME']]
-							)
-						);
-					}
+					continue;
 				}
-				unset($storage);
+				if (!$field::isAllowed() || !$field::isExists())
+				{
+					continue;
+				}
+				$config = $field::getConfig();
+				/** @var Catalog\Product\SystemField\Type\HighloadBlock $fieldType */
+				$fieldType = $field::getTypeId();
+				$row = $fieldType::getStorageTable($config['HIGHLOADBLOCK']);
+				if (!empty($row))
+				{
+					$blockNames[] = $config['HIGHLOADBLOCK']['NAME'];
+				}
+				unset($row, $fieldType, $config);
 			}
+			unset($fieldList);
 		}
 		unset($module);
 
-		if ($error === '')
+		if (empty($blockNames))
 		{
 			return new Main\EventResult(Main\EventResult::SUCCESS);
 		}
 		else
 		{
+			if (count($blockNames) === 1)
+			{
+				$error = Loc::getMessage(
+					'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_DISALLOW_UNINSTALL_HIGHLOADBLOCK',
+					[
+						'#NAME#' => reset($blockNames),
+					]
+				);
+			}
+			else
+			{
+				$error = Loc::getMessage(
+					'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_DISALLOW_UNINSTALL_HIGHLOADBLOCK_LIST',
+					[
+						'#NAME#' => implode(', ', $blockNames),
+					]
+				);
+			}
+
 			return new Main\EventResult(
 				Main\EventResult::ERROR,
 				[
-					'error' => $error
+					'error' => $error,
 				],
 				'catalog'
 			);
@@ -378,1060 +560,72 @@ final class SystemField
 	}
 
 	/**
-	 * @return bool
+	 * @return array|Catalog\Product\SystemField\Base[]
 	 */
-	private static function isExistHighloadBlock(): bool
-	{
-		return Main\IO\Directory::isDirectoryExists(
-			Main\Application::getDocumentRoot().'/bitrix/modules/highloadblock/'
-		);
-	}
-
-	/**
-	 * @return bool
-	 */
-	private static function checkHighloadBlock(): bool
-	{
-		$result = self::initHighloadBlock();
-		if (!$result)
-			self::highloadBlockAlert();
-		return $result;
-	}
-
-	/**
-	 * @return bool
-	 */
-	private static function initHighloadBlock(): bool
-	{
-		if (self::$highloadInclude === null)
-			self::$highloadInclude = Loader::includeModule('highloadblock');
-		return self::$highloadInclude;
-	}
-
-	/**
-	 * @return void
-	 *
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
-	private static function highloadBlockAlert(): void
-	{
-		if (
-			!self::initBitrix24()
-			&& self::isExistHighloadBlock()
-			&& !ModuleManager::isModuleInstalled('highloadblock')
-		)
-		{
-			$iterator = \CAdminNotify::GetList([], ['MODULE_ID' => 'catalog', 'TAG' => 'HIGHLOADBLOCK_ABSENT']);
-			while ($row = $iterator->Fetch())
-			{
-				\CAdminNotify::Delete($row['ID']);
-			}
-			unset($row, $iterator);
-
-			$defaultLang = '';
-			$messages = [];
-			$iterator = LanguageTable::getList([
-				'select' => ['ID', 'DEF'],
-				'filter' => ['=ACTIVE' => 'Y']
-			]);
-			while ($row = $iterator->fetch())
-			{
-				if ($defaultLang == '')
-					$defaultLang = $row['ID'];
-				if ($row['DEF'] == 'Y')
-					$defaultLang = $row['ID'];
-				$languageId = $row['ID'];
-				Loc::loadLanguageFile(
-					__FILE__,
-					$languageId
-				);
-				$messages[$languageId] = Loc::getMessage(
-					'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_HIGHLOADBLOCK_ABSENT',
-					['#LANGUAGE_ID#' => $languageId],
-					$languageId
-				);
-			}
-			unset($languageId, $row, $iterator);
-
-			if (!empty($messages))
-			{
-				\CAdminNotify::Add([
-					'MODULE_ID' => 'catalog',
-					'TAG' => 'HIGHLOADBLOCK_ABSENT',
-					'ENABLE_CLOSE' => 'Y',
-					'NOTIFY_TYPE' => \CAdminNotify::TYPE_ERROR,
-					'MESSAGE' => $messages[$defaultLang],
-					'LANG' => $messages
-				]);
-			}
-			unset($messages, $defaultLang);
-		}
-	}
-
-	/**
-	 * @return bool
-	 */
-	private static function initBitrix24(): bool
-	{
-		if (self::$bitrix24Include === null)
-			self::$bitrix24Include = Loader::includeModule('bitrix24');
-		return self::$bitrix24Include;
-	}
-
-	/**
-	 * @return void
-	 */
-	private static function initStorageList(): void
-	{
-		if (!empty(self::$storageList))
-			return;
-		self::$storageList[self::CODE_MARKING_CODE_GROUP] = [
-			'TABLE_NAME' => self::getStorageTableName(self::CODE_MARKING_CODE_GROUP),
-			'NAME' => self::getStorageName(self::CODE_MARKING_CODE_GROUP),
-			'UF_FIELD' => self::FIELD_PREFIX.'PRODUCT_GROUP'
-		];
-	}
-
-	/**
-	 * @return array
-	 */
-	private static function getLanguages(): array
-	{
-		if (empty(self::$languages))
-		{
-			$iterator = LanguageTable::getList([
-				'select' => ['ID'],
-				'filter' => ['=ACTIVE' => 'Y']
-			]);
-			while ($row = $iterator->fetch())
-			{
-				self::$languages[] = $row['ID'];
-			}
-			unset($row, $iterator);
-		}
-		return self::$languages;
-	}
-
-	/**
-	 * @param string $code
-	 * @return string
-	 */
-	private static function getStorageTableName(string $code): string
-	{
-		return self::STORAGE_TABLE_NAME_PREFIX.''.mb_strtolower($code);
-	}
-
-	/**
-	 * @param string $code
-	 * @return string
-	 */
-	private static function getStorageName(string $code): string
-	{
-		return Text\StringHelper::snake2camel(self::STORAGE_NAME_PREFIX.$code);
-	}
-
-	/**
-	 * @param string $code
-	 * @return array|null
-	 */
-	private static function getStorageDescription(string $code): ?array
-	{
-		self::initStorageList();
-		return (self::$storageList[$code] ?? null);
-	}
-
-	/**
-	 * @param string $code
-	 * @return array
-	 */
-	private static function getStorageLangTitles(string $code): array
+	protected static function getBuildedFieldList(): array
 	{
 		$result = [];
 
-		$languages = self::getLanguages();
-		if (!empty($languages))
+		$list = array_merge(
+			self::$defaultFieldList,
+			self::getExternalFieldList()
+		);
+		/** @var Catalog\Product\SystemField\Base $className */
+		foreach ($list as $className)
 		{
-			$messageId = 'STORAGE_'.$code.'_TITLE';
-			foreach ($languages as $languageId)
+			if ($className::isAllowed())
 			{
-				$message = (string)Loc::getMessage($messageId, null, $languageId);
-				if ($message !== '')
-				{
-					$result[$languageId] = $message;
-				}
+				$result[] = $className;
 			}
-			unset($message, $languageId);
-		}
-		unset($languages);
-
-		return $result;
-	}
-
-	/**
-	 * @return Main\Result
-	 */
-	private static function createMarkingCodeGroup(): Main\Result
-	{
-		$result = new Main\Result();
-		if (!self::allowedMarkingCodeGroup())
-		{
-			return $result;
-		}
-
-		$storage = self::getStorageDescription(self::CODE_MARKING_CODE_GROUP);
-		$block = $storage;
-		$block['TITLES'] = self::getStorageLangTitles(self::CODE_MARKING_CODE_GROUP);
-		$block['RIGHTS'] = [
-			'G1' => 'W',
-			'G2' => 'R'
-		];
-		$block['FIELDS'] = self::getMarkingCodeGroupStorageFields();
-
-		$stepResult = self::createHighloadBlock($block);
-		if (!$stepResult->isSuccess())
-		{
-			$errors = $stepResult->getErrorMessages();
-			$result->addError(new Main\Error(
-				Loc::getMessage(
-					'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_MARKING_CODE_INTERNAL_ERROR',
-					['#ERROR#' => implode('; ', $errors)]
-				),
-				self::CODE_MARKING_CODE_GROUP
-			));
-			unset($errors);
-		}
-		else
-		{
-			$data = $stepResult->getData();
-			$storage['ID'] = $data['ID'];
-			$storage['FIELDS'] = $data['FIELDS'];
-			unset($data);
-		}
-		unset($stepResult);
-
-		if ($result->isSuccess())
-		{
-			$stepResult = self::fillMarkingCodeGroups($storage);
-			if (!$stepResult->isSuccess())
-			{
-				$errors = $stepResult->getErrorMessages();
-				$result->addError(new Main\Error(
-					Loc::getMessage(
-						'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_MARKING_CODE_INTERNAL_ERROR',
-						['#ERROR#' => implode('; ', $errors)]
-					),
-					self::CODE_MARKING_CODE_GROUP
-				));
-				unset($errors);
-			}
-			unset($stepResult);
-		}
-
-		if ($result->isSuccess())
-		{
-			$stepResult = self::createMarkingCodeGroupField($storage);
-			if (!$stepResult->isSuccess())
-			{
-				$errors = $stepResult->getErrorMessages();
-				$result->addError(new Main\Error(
-					Loc::getMessage(
-						'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_MARKING_CODE_INTERNAL_ERROR',
-						['#ERROR#' => implode('; ', $errors)]
-					),
-					self::CODE_MARKING_CODE_GROUP
-				));
-				unset($errors);
-			}
-			unset($stepResult);
 		}
 
 		return $result;
 	}
 
 	/**
-	 * @return bool
+	 * @return array|Catalog\Product\SystemField\Base[]
 	 */
-	private static function allowedMarkingCodeGroup(): bool
-	{
-		if (!self::initBitrix24())
-		{
-			$iterator = LanguageTable::getList([
-				'select' => ['ID'],
-				'filter' => ['=ID' => 'ru', '=ACTIVE' => 'Y']
-			]);
-			$row = $iterator->fetch();
-			unset($iterator);
-			if (empty($row))
-				return false;
-			$iterator = LanguageTable::getList([
-				'select' => ['ID'],
-				'filter' => ['@ID' => ['ua', 'by', 'kz'], '=ACTIVE' => 'Y'],
-				'limit' => 1
-			]);
-			$row = $iterator->fetch();
-			unset($iterator);
-			if (!empty($row))
-				return false;
-			return true;
-		}
-		else
-		{
-			return (\CBitrix24::getPortalZone() === 'ru');
-		}
-	}
-
-	/**
-	 * @param array $storage
-	 * @return Main\Result
-	 */
-	private static function createMarkingCodeGroupField(array $storage): Main\Result
-	{
-		$result = new Main\Result();
-
-		$settings = [
-			'HLBLOCK_ID' => $storage['ID'],
-			'HLFIELD_ID' => $storage['FIELDS']['UF_NAME'],
-			'DEFAULT_VALUE' => '',
-			'DISPLAY' => \CUserTypeHlblock::DISPLAY_LIST,
-			'LIST_HEIGHT' => 1
-		];
-		$languages = self::getLanguages();
-		$messageList = [
-			'EDIT_FORM_LABEL' => [],
-			'LIST_COLUMN_LABEL' => [],
-			'LIST_FILTER_LABEL' => []
-		];
-		foreach ($languages as $languageId)
-		{
-			$message = (string)Loc::getMessage('MARKING_CODE_GROUP_FIELD_TITLE', null, $languageId);
-			if ($message !== '')
-			{
-				$messageList['EDIT_FORM_LABEL'][$languageId] = $message;
-				$messageList['LIST_COLUMN_LABEL'][$languageId] = $message;
-				$messageList['LIST_FILTER_LABEL'][$languageId] = $message;
-			}
-		}
-		unset($message, $languageId, $languages);
-
-		$description = [
-			'ENTITY_ID' => Catalog\ProductTable::getUfId(),
-			'FIELD_NAME' => $storage['UF_FIELD'],
-			'USER_TYPE_ID' => \CUserTypeHlblock::USER_TYPE_ID,
-			'XML_ID' => self::CODE_MARKING_CODE_GROUP,
-			'SORT' => 100,
-			'MULTIPLE' => 'N',
-			'MANDATORY' => 'N',
-			'SHOW_FILTER' => 'S',
-			'SHOW_IN_LIST' => 'Y',
-			'EDIT_IN_LIST' => 'Y',
-			'IS_SEARCHABLE' => 'N',
-			'SETTINGS' => $settings,
-			'EDIT_FORM_LABEL' => $messageList['EDIT_FORM_LABEL'],
-			'LIST_COLUMN_LABEL' => $messageList['LIST_COLUMN_LABEL'],
-			'LIST_FILTER_LABEL' => $messageList['LIST_FILTER_LABEL']
-		];
-
-		$internalResult = self::createUserField($description);
-
-		if (!$internalResult->isSuccess())
-		{
-			$result->addErrors($internalResult->getErrors());
-		}
-		else
-		{
-			$data = $internalResult->getData();
-			$result->setData(['ID' => $data['ID']]);
-			unset($data);
-		}
-
-		unset($description, $messageList, $settings);
-
-		return $result;
-	}
-
-	/**
-	 * @return array
-	 */
-	private static function getMarkingCodeGroupStorageFields(): array
+	protected static function getExternalFieldList(): array
 	{
 		$result = [];
-
-		$fieldSettings = [
-			'XML_ID' => [
-				'DEFAULT_VALUE' => '',
-				'SIZE' => 16,
-				'ROWS' => 1,
-				'MIN_LENGTH' => 0,
-				'MAX_LENGTH' => 0,
-				'REGEXP' => '/^[0-9]{1,16}$/'
-			],
-			'NAME' => [
-				'DEFAULT_VALUE' => '',
-				'SIZE' => 100,
-				'ROWS' => 1,
-				'MIN_LENGTH' => 1,
-				'MAX_LENGTH' => 255,
-				'REGEXP' => ''
-			]
-		];
-
-		$languages = self::getLanguages();
-
-		$sort = 100;
-		foreach (array_keys($fieldSettings) as $fieldId)
-		{
-			$messageList = [
-				'EDIT_FORM_LABEL' => [],
-				'LIST_COLUMN_LABEL' => [],
-				'LIST_FILTER_LABEL' => []
-			];
-			foreach ($languages as $languageId)
-			{
-				$message = (string)Loc::getMessage('MARKING_CODE_GROUP_UF_FIELD_'.$fieldId, null, $languageId);
-				if ($message !== '')
-				{
-					$messageList['EDIT_FORM_LABEL'][$languageId] = $message;
-					$messageList['LIST_COLUMN_LABEL'][$languageId] = $message;
-					$messageList['LIST_FILTER_LABEL'][$languageId] = $message;
-				}
-			}
-			unset($message, $languageId);
-
-			$result[] = [
-				'FIELD_NAME' => self::FIELD_PREFIX.$fieldId,
-				'USER_TYPE_ID' => UserField\Types\StringType::USER_TYPE_ID,
-				'XML_ID' => $fieldId,
-				'SORT' => $sort,
-				'MULTIPLE' => 'N',
-				'MANDATORY' => 'Y',
-				'SHOW_FILTER' => 'S',
-				'SHOW_IN_LIST' => 'Y',
-				'EDIT_IN_LIST' => 'Y',
-				'IS_SEARCHABLE' => 'N',
-				'SETTINGS' => $fieldSettings[$fieldId],
-				'EDIT_FORM_LABEL' => $messageList['EDIT_FORM_LABEL'],
-				'LIST_COLUMN_LABEL' => $messageList['LIST_COLUMN_LABEL'],
-				'LIST_FILTER_LABEL' => $messageList['LIST_FILTER_LABEL']
-			];
-			$sort += 100;
-		}
-		unset($messageList, $fieldId);
-		unset($sort);
-		unset($languages);
-		unset($fieldSettings);
-
-		return $result;
-
-	}
-
-	/**
-	 * @param array $storage
-	 * @return Main\Result
-	 */
-	private static function fillMarkingCodeGroups(array $storage): Main\Result
-	{
-		$result = new Main\Result();
-
-		$groupCodes = ['02', '03', '05', '17485', '8258', '8721', '9840', '06', '5010', '5137', '5139', '5140'];
-		$groupTitles = Loc::loadLanguageFile(
-			$_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/regionalsystemfields/markingcodegroup.php',
-			'ru'
+		$event = new Main\Event(
+			'catalog',
+			self::EVENT_ID_BUILD_FIELD_LIST,
+			[]
 		);
-
-		$internalResult = self::transformMarkingCodes(
-			$storage,
-			[
-				['OLD_XML_ID' => '5048', 'NEW_XML_ID' => '17485'],
-				['OLD_XML_ID' => '5408', 'NEW_XML_ID' => '17485']
-			]
-		);
-		if (!$internalResult->isSuccess())
+		$event->send();
+		$eventResult = $event->getResults();
+		if (!empty($eventResult) && is_array($eventResult))
 		{
-			$result->addErrors($internalResult->getErrors());
-		}
-		unset($internalResult);
-
-
-		$groupList = [];
-		foreach ($groupCodes as $id)
-		{
-			$groupList[] = [
-				'UF_XML_ID' => $id,
-				'UF_NAME' => $groupTitles['MARKING_CODE_GROUP_TYPE_'.$id]
-			];
-		}
-		unset($id, $groupTitles, $groupCodes);
-
-		$internalResult = self::fillHighloadBlock($storage, $groupList);
-		unset($groupList);
-
-		if (!$internalResult->isSuccess())
-		{
-			$result->addErrors($internalResult->getErrors());
-		}
-		unset($internalResult);
-
-		return $result;
-	}
-
-	/**
-	 * @param array $block
-	 * @param array $values
-	 * @return Main\Result
-	 */
-	private static function transformMarkingCodes(array $block, array $values): Main\Result
-	{
-		$result = new Main\Result();
-
-		$entity = Highload\HighloadBlockTable::compileEntity($block);
-		$entityDataClass = $entity->getDataClass();
-
-		foreach ($values as $group)
-		{
-			$iterator = $entityDataClass::getList([
-				'select' => ['ID'],
-				'filter' => ['=UF_XML_ID' => $group['OLD_XML_ID']]
-			]);
-			$row = $iterator->fetch();
-			if (!empty($row))
+			foreach ($eventResult as $row)
 			{
-				$internalResult = $entityDataClass::update($row['ID'], ['UF_XML_ID' => $group['NEW_XML_ID']]);
-				if (!$internalResult->isSuccess())
-				{
-					$result->addError(new Main\Error(
-						Loc::getMessage(
-							'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_INTERNAL_ERROR'
-						)
-					));
-				}
-				unset($internalResult);
-			}
-		}
-		unset($found, $row, $iterator, $group);
-		unset($entityDataClass, $entity);
-
-		return $result;
-	}
-
-	/**
-	 * @return array|null
-	 */
-	private static function getMarkingCodeGroupAction(): ?array
-	{
-		self::initStorageList();
-
-		if (!self::initHighloadBlock())
-			return null;
-
-		$userField = new \CUserTypeEntity();
-		$iterator = $userField->GetList(
-			[],
-			[
-				'ENTITY_ID' => Catalog\ProductTable::getUfId(),
-				'FIELD_NAME' => self::$storageList[self::CODE_MARKING_CODE_GROUP]['UF_FIELD']
-			]
-		);
-		$row = $iterator->Fetch();
-		unset($iterator);
-		if (empty($row))
-			return null;
-
-		$description = $userField->GetByID($row['ID']);
-
-		$list = [];
-		$list[] = [
-			'VALUE' => '0',
-			'NAME' => Loc::getMessage('BX_CATALOG_PRODUCT_SYSTEMFIELD_MESS_VALUE_EMPTY')
-		];
-		$storage = self::$storageList[self::CODE_MARKING_CODE_GROUP];
-		$entity = Highload\HighloadBlockTable::compileEntity($storage['NAME']);
-		$entityDataClass = $entity->getDataClass();
-		$found = false;
-		$iterator = $entityDataClass::getList([
-			'select' => ['*'],
-			'order' => ['ID' => 'ASC']
-		]);
-		while ($value = $iterator->fetch())
-		{
-			$found = true;
-			$list[] = [
-				'VALUE' => $value['ID'],
-				'NAME' => $value['UF_NAME']
-			];
-		}
-		unset($value, $iterator);
-
-		if (!$found)
-			return null;
-
-		$action = [];
-		$action[] = [
-			'ACTION' => Main\Grid\Panel\Actions::RESET_CONTROLS
-		];
-		$action[] = [
-			'ACTION' => Main\Grid\Panel\Actions::CREATE,
-			'DATA' => [
-				[
-					'TYPE' => Main\Grid\Panel\Types::DROPDOWN,
-					'ID' => self::getFormRowFieldId($storage['UF_FIELD']),
-					'NAME' => self::getFormRowFieldName($storage['UF_FIELD']),
-					'ITEMS' => $list
-				],
-			]
-		];
-
-		$title = $description['EDIT_FORM_LABEL'][LANGUAGE_ID] ?? $storage['UF_FIELD'];
-
-		$result = [
-			'NAME' => $title,
-			'VALUE' => $storage['UF_FIELD'],
-			'ONCHANGE' => $action
-		];
-		unset($action);
-
-		return $result;
-	}
-
-	/**
-	 * @param string $field
-	 * @return string
-	 */
-	private static function getFormRowFieldName(string $field): string
-	{
-		return self::FIELD_NAME_PREFIX.mb_strtoupper($field);
-	}
-
-	/**
-	 * @param string $field
-	 * @return string
-	 */
-	private static function getFormRowFieldId(string $field): string
-	{
-		return self::FIELD_ID_PREFIX.mb_strtolower($field).'_id';
-	}
-
-	/**
-	 * @param array $block
-	 * @return Main\Result
-	 */
-	private static function createHighloadBlock(array $block): Main\Result
-	{
-		$result = new Main\Result();
-
-		if (!self::checkHighloadBlock())
-		{
-			$result->addError(new Main\Error(
-				Loc::getMessage('BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_HIGHLOAD_MODULE_ABSENT')
-			));
-			return $result;
-		}
-
-		$fieldList = [];
-
-		$stepResult = self::createHighloadBlockStorage(
-			[
-				'NAME' => $block['NAME'],
-				'TABLE_NAME' => $block['TABLE_NAME']
-			],
-			[
-				'ALLOW_UPDATE' => true
-			]
-		);
-		if (!$stepResult->isSuccess())
-		{
-			$result->addErrors($stepResult->getErrors());
-		}
-		else
-		{
-			$data = $stepResult->getData();
-			$block['ID'] = $data['ID'];
-			unset($data);
-		}
-		unset($stepResult);
-
-		if ($result->isSuccess())
-		{
-			$stepResult = self::setHighloadBlockTitle($block);
-			if (!$stepResult->isSuccess())
-			{
-				$result->addErrors($stepResult->getErrors());
-			}
-			unset($stepResult);
-		}
-
-		if ($result->isSuccess())
-		{
-			$stepResult = self::setHighloadBlockRights($block);
-			if (!$stepResult->isSuccess())
-			{
-				$result->addErrors($stepResult->getErrors());
-			}
-			unset($stepResult);
-		}
-
-		if ($result->isSuccess())
-		{
-			$stepResult = self::setHighloadBlockFields($block);
-			if (!$stepResult->isSuccess())
-			{
-				$result->addErrors($stepResult->getErrors());
-			}
-			else
-			{
-				$fieldList = $stepResult->getData();
-			}
-			unset($stepResult);
-		}
-
-		if ($result->isSuccess())
-		{
-			$result->setData([
-				'ID' => $block['ID'],
-				'FIELDS' => $fieldList
-			]);
-		}
-
-		return $result;
-	}
-
-	private static function getHighloadBlockStorage(array $block): ?array
-	{
-		$iterator = Highload\HighloadBlockTable::getList([
-			'select' => ['ID', 'NAME', 'TABLE_NAME'],
-			'filter' => ['=NAME' => $block['NAME'], '=TABLE_NAME' => $block['TABLE_NAME']]
-		]);
-		$row = $iterator->fetch();
-		unset($iterator);
-		return (!empty($row) ? $row: null);
-	}
-
-	/**
-	 * @param array $block
-	 * @param array $options
-	 * @return Main\Result
-	 */
-	private static function createHighloadBlockStorage(array $block, array $options = []): Main\Result
-	{
-		$result = new Main\Result();
-
-		$row = self::getHighloadBlockStorage($block);
-		if (!empty($row))
-		{
-			if (isset($options['ALLOW_UPDATE']) && $options['ALLOW_UPDATE'] === true)
-			{
-				$block['ID'] = $row['ID'];
-			}
-			else
-			{
-				$result->addError(new Main\Error(
-					Loc::getMessage(
-						'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_EXIST_HIGHLOADBLOCK',
-						['#NAME#' => $block['NAME']]
-					)
-				));
-				return $result;
-			}
-		}
-		else
-		{
-			$internalResult = Highload\HighloadBlockTable::add([
-				'NAME' => $block['NAME'],
-				'TABLE_NAME' => $block['TABLE_NAME']
-			]);
-			if (!$internalResult->isSuccess())
-			{
-				$result->addError(new Main\Error(
-					Loc::getMessage(
-						'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CREATE_HIGHLOADBLOCK',
-						['#NAME#' => $block['NAME']]
-					)
-				));
-				return $result;
-			}
-			$block['ID'] = $internalResult->getId();
-			unset($internalResult);
-		}
-
-		$result->setData(['ID' => $block['ID']]);
-
-		return $result;
-	}
-
-	/**
-	 * @param array $block
-	 * @return Main\Result
-	 */
-	private static function setHighloadBlockTitle(array $block): Main\Result
-	{
-		$result = new Main\Result();
-
-		if (!isset($block['ID']))
-		{
-			$result->addError(new Main\Error(
-				Loc::getMessage('BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_HIGHLOADBLOCK_ID_ABSENT')
-			));
-			return $result;
-		}
-
-		if (!empty($block['TITLES']) && is_array($block['TITLES']))
-		{
-			Highload\HighloadBlockLangTable::delete($block['ID']);
-			foreach ($block['TITLES'] as $languageId => $title)
-			{
-				Highload\HighloadBlockLangTable::add([
-					'ID' => $block['ID'],
-					'LID' => $languageId,
-					'NAME' => $title
-				]);
-			}
-			unset($languageId, $title);
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @param array $block
-	 * @return Main\Result
-	 */
-	private static function setHighloadBlockRights(array $block): Main\Result
-	{
-		$result = new Main\Result();
-
-		if (!isset($block['ID']))
-		{
-			$result->addError(new Main\Error(
-				Loc::getMessage('BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_HIGHLOADBLOCK_ID_ABSENT')
-			));
-			return $result;
-		}
-
-		if (!empty($block['RIGHTS']) && is_array($block['RIGHTS']))
-		{
-			$tasks = self::getModuleTasks('highloadblock');
-			foreach ($block['RIGHTS'] as $accessCode => $role)
-			{
-				if (!isset($tasks[$role]))
+				if ($row->getType() != Main\EventResult::SUCCESS)
 				{
 					continue;
 				}
-				$access = [
-					'HL_ID' => $block['ID'],
-					'ACCESS_CODE' => $accessCode,
-					'TASK_ID' => $tasks[$role]
-				];
-				$iterator = Highload\HighloadBlockRightsTable::getList([
-					'select' => ['ID'],
-					'filter' => ['=HL_ID' => $access['HL_ID'], '=ACCESS_CODE' => $access['ACCESS_CODE']]
-				]);
-				$row = $iterator->fetch();
-				if (!empty($row))
+				$classList = $row->getParameters();
+				if (empty($classList) || !is_array($classList))
 				{
-					Highload\HighloadBlockRightsTable::update($row['ID'], $access);
+					continue;
 				}
-				else
+				foreach ($classList as $item)
 				{
-					Highload\HighloadBlockRightsTable::add($access);
-				}
-			}
-			unset($role, $tasks);
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @param string $moduleId
-	 * @param array $filter
-	 * @return array
-	 */
-	private static function getModuleTasks(string $moduleId, array $filter = []): array
-	{
-		$result = [];
-
-		$filter['=MODULE_ID'] = $moduleId;
-
-		$iterator = TaskTable::getList([
-			'select' => ['ID', 'LETTER'],
-			'filter' => $filter
-		]);
-		while ($row = $iterator->fetch())
-		{
-			$result[$row['LETTER']] = $row['ID'];
-		}
-		unset($row, $iterator);
-
-		return $result;
-	}
-
-	/**
-	 * @param array $block
-	 * @return Main\Result
-	 */
-	private static function setHighloadBlockFields(array $block): Main\Result
-	{
-		$result = new Main\Result();
-
-		if (!isset($block['ID']))
-		{
-			$result->addError(new Main\Error(
-				Loc::getMessage('BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_HIGHLOADBLOCK_ID_ABSENT')
-			));
-			return $result;
-		}
-
-		if (!empty($block['FIELDS']) && is_array($block['FIELDS']))
-		{
-			$list = [];
-
-			$entityId = Highload\HighloadBlockTable::compileEntityId($block['ID']);
-
-			foreach ($block['FIELDS'] as $field)
-			{
-				$list[$field['FIELD_NAME']] = null;
-				$field['ENTITY_ID'] = $entityId;
-
-				$internalResult = self::createUserField($field);
-				if (!$internalResult->isSuccess())
-				{
-					$errors = $internalResult->getErrorMessages();
-					$result->addError(new Main\Error(
-						Loc::getMessage(
-							'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_HIGHLOADBLOCK_CREATE_FIELD',
-							['#FIELD#' => $field['FIELD_NAME'], '#ERROR#' => implode('; ', $errors)]
-						)
-					));
-					unset($errors);
-				}
-				else
-				{
-					$data = $internalResult->getData();
-					$list[$field['FIELD_NAME']] = $data['ID'];
-				}
-				unset($internalResult);
-				if (!$result->isSuccess())
-				{
-					return $result;
-				}
-			}
-			unset($field);
-			unset($entityId);
-
-			$result->setData($list);
-			unset($list);
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @param array $block
-	 * @param array $values
-	 * @return Main\Result
-	 */
-	private static function fillHighloadBlock(array $block, array $values): Main\Result
-	{
-		$result = new Main\Result();
-
-		$entity = Highload\HighloadBlockTable::compileEntity($block);
-		$entityDataClass = $entity->getDataClass();
-
-		foreach ($values as $group)
-		{
-			$iterator = $entityDataClass::getList([
-				'select' => ['ID'],
-				'filter' => ['=UF_XML_ID' => $group['UF_XML_ID']]
-			]);
-			$row = $iterator->fetch();
-			$found = !empty($row);
-			if (!$found)
-			{
-				$iterator = $entityDataClass::getList([
-					'select' => ['ID'],
-					'filter' => ['=UF_NAME' => $group['UF_NAME']]
-				]);
-				$row = $iterator->fetch();
-				$found = !empty($row);
-			}
-			if ($found)
-			{
-				$internalResult = $entityDataClass::update($row['ID'], $group);
-			}
-			else
-			{
-				$internalResult = $entityDataClass::add($group);
-			}
-			if (!$internalResult->isSuccess())
-			{
-				$result->addError(new Main\Error(
-					Loc::getMessage(
-						'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_DICTIONARY_ITEM_CREATE',
-						[
-							'#DICTIONARY#' => Loc::getMessage('STORAGE_MARKING_CODE_GROUP_TITLE'),
-							'#CODE#' => '['.$group['UF_XML_ID'].'] '.$group['UF_NAME']
-						]
+					if (!is_string($item))
+					{
+						continue;
+					}
+					$item = trim($item);
+					if (
+						$item === ''
+						|| !class_exists($item)
+						|| !is_a($item, Catalog\Product\SystemField\Base::class, true)
 					)
-				));
+					{
+						continue;
+					}
+					$result[] = $item;
+				}
 			}
-		}
-		unset($found, $row, $iterator, $group);
-		unset($entityDataClass, $entity);
-
-		return $result;
-	}
-
-	/**
-	 * @param array $field
-	 * @return Main\Result
-	 */
-	private static function createUserField(array $field): Main\Result
-	{
-		global $APPLICATION;
-
-		$result = new Main\Result();
-
-		$userField = new \CUserTypeEntity();
-
-		$iterator = $userField->GetList(
-			[],
-			[
-				'ENTITY_ID' => $field['ENTITY_ID'],
-				'FIELD_NAME' => $field['FIELD_NAME']
-			]
-		);
-		$row = $iterator->Fetch();
-		unset($iterator);
-		$id = 0;
-		if (!empty($row))
-		{
-			if ($userField->Update($row['ID'], $field))
-			{
-				$id = (int)$row['ID'];
-			}
-		}
-		else
-		{
-			$id = (int)$userField->Add($field);
-		}
-		unset($row);
-		if ($id <= 0)
-		{
-			$exception = $APPLICATION->GetException();
-			$error = ($exception instanceof \CAdminException
-				? $exception->GetString()
-				: Loc::getMessage('BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_INTERNAL_ERROR')
-			);
-			$result->addError(new Main\Error(
-				$error,
-				$field['FIELD_NAME']
-			));
-			unset($error, $exception);
-		}
-		else
-		{
-			$result->setData(['ID' => $id]);
 		}
 
 		return $result;

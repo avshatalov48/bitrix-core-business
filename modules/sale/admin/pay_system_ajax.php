@@ -84,16 +84,22 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 			$restrictionId = ($request->get('restrictionId') !== null) ? (int)$request->get('restrictionId') : 0;
 
 			if(!class_exists($className) || !(is_subclass_of($className, '\Bitrix\Sale\Services\Base\Restriction')))
+			{
 				throw new \Bitrix\Main\ArgumentNullException("className");
+			}
 
 			if(!$paySystemId)
+			{
 				throw new \Bitrix\Main\ArgumentNullException("paySystemId");
+			}
 
 			foreach ($className::getParamsStructure() as $key => $rParams)
 			{
 				$errors = \Bitrix\Sale\Internals\Input\Manager::getError($rParams, $params[$key]);
 				if (!empty($errors))
+				{
 					$arResult["ERROR"] .= Loc::getMessage('SALE_PS_ERROR_FIELD').': "'.$rParams["LABEL"].'" '.implode("\n", $errors)."\n";
+				}
 			}
 
 			if ($arResult["ERROR"] == '')
@@ -107,9 +113,16 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 
 				/** @var \Bitrix\Sale\Result $res */
 				$res = $className::save($fields, $restrictionId);
-
-				if (!$res->isSuccess())
+				if ($res->isSuccess())
+				{
+					$validateResult = $className::validateRestriction($fields);
+					$arResult["ERROR"] .= implode(".", $validateResult->getErrorMessages());
+				}
+				else
+				{
 					$arResult["ERROR"] .= implode(".", $res->getErrorMessages());
+				}
+				
 				$arResult["HTML"] = getRestrictionHtml($paySystemId);
 			}
 

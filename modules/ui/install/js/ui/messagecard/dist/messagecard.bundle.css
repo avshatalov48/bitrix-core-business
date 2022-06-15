@@ -1,6 +1,6 @@
 .ui-card-message {
 	background: #ebfaff;
-	border-radius: 4px;
+	border-radius: var(--ui-border-radius-sm, 4px);
 	padding: 19px 18px 16px;
 	margin-left: 0;
 	margin-right: 0;

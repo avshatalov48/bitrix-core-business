@@ -11,6 +11,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var \CBitrixComponentTemplate $this */
 
 global $APPLICATION;
+
+\Bitrix\Main\UI\Extension::load('catalog.store-use');
+
 if ($arResult['IS_IFRAME_MODE'])
 {
 ?>

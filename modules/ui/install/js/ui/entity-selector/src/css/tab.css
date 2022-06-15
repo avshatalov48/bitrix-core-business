@@ -118,7 +118,8 @@
 	flex-direction: column;
 	position: relative;
 
-	margin-bottom: 2px;
+	margin-top: 4px;
+	margin-bottom: 4px;
 	margin-right: 5px;
 	scrollbar-color: rgba(0, 0, 0, 0.21) transparent;
 	scrollbar-width: thin;
@@ -308,6 +309,7 @@
 	display: flex;
 	height: 54px;
 	background-color: #eaf9fe;
+	border-radius: 0 0 var(--popup-window-border-radius) var(--popup-window-border-radius);
 	padding: 0 18px;
 	overflow: hidden;
 	white-space: nowrap;

@@ -1,7 +1,7 @@
 .bp-bx-application {
 	position: relative;
 	background: #f2f6f7;
-	border-radius: 1px;
+	border-radius: var(--bp-bx-application-border-radius, var(--ui-border-radius-md, 1px));
 	height: 80px;
 	width: calc(20% - 13px);
 	margin: 13px 13px 0 0;

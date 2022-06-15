@@ -438,7 +438,7 @@ abstract class OrderBase extends Internals\Entity
 	 */
 	protected function loadBasket()
 	{
-		if ((int)$this->getId() > 0)
+		if ($this->getId() > 0)
 		{
 			$registry = Registry::getInstance(static::getRegistryType());
 			/** @var BasketBase $basketClassName */

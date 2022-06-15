@@ -1,0 +1,65 @@
+{
+	"typography": {
+		"heading": {
+			"h1": {
+				"font-size": { "value":  "{font.size.5xl}" },
+				"line-height": { "value":  "{font.line-height.3xs}" },
+				"font-weight": { "value":  "{font.weight.light}" },
+				"color": { "value":  "{color.palette.black.base}" }
+			},
+			"h2": {
+				"font-size": { "value":  "{font.size.4xl}" },
+				"line-height": { "value":  "{font.line-height.2xs}" },
+				"font-weight": { "value":  "{font.weight.light}" },
+				"color": { "value":  "{color.palette.black.base}" }
+			},
+			"h3": {
+				"font-size": { "value":  "{font.size.3xl}" },
+				"line-height": { "value":  "{font.line-height.2xs}" },
+				"font-weight": { "value":  "{font.weight.light}" },
+				"color": { "value":  "{color.palette.black.base}" }
+			},
+			"h4": {
+				"font-size": { "value":  "{font.size.2xl}" },
+				"line-height": { "value":  "{font.line-height.sm}" },
+				"font-weight": { "value":  "{font.weight.normal}" },
+				"color": { "value":  "{color.palette.black.base}" }
+			},
+			"h5": {
+				"font-size": { "value":  "{font.size.xl}" },
+				"line-height": { "value":  "{font.line-height.sm}" },
+				"font-weight": { "value":  "{font.weight.normal}" },
+				"color": { "value":  "{color.palette.black.base}" }
+			},
+			"h6": {
+				"font-size": { "value":  "{font.size.md}" },
+				"line-height": { "value":  "{font.line-height.md}" },
+				"font-weight": { "value":  "{font.weight.semi-bold}" },
+				"color": { "value":  "{color.palette.black.base}" }
+			}
+		},
+		"text": {
+			"xs": {
+				"font-size": { "value":  "{font.size.xs}" },
+				"line-height": { "value":  "{font.line-height.sm}" },
+				"font-weight": { "value":  "{font.weight.normal}" }
+			},
+			"sm": {
+				"font-size": { "value":  "{font.size.sm}" },
+				"line-height": { "value":  "{font.line-height.md}" },
+				"font-weight": { "value":  "{font.weight.normal}" }
+			},
+			"md": {
+				"font-size": { "value":  "{font.size.md}" },
+				"line-height": { "value":  "{font.line-height.md}" },
+				"font-weight": { "value":  "{font.weight.normal}" }
+			},
+			"lg": {
+				"font-size": { "value":  "{font.size.lg}" },
+				"line-height": { "value":  "{font.line-height.md}" },
+				"font-weight": { "value":  "{font.weight.normal}" }
+			}
+		}
+
+	}
+}

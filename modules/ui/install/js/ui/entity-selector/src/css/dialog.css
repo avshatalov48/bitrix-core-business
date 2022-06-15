@@ -74,6 +74,7 @@
 	overflow: hidden;
 	white-space: nowrap;
 	color: #525c69;
+	border-radius: 0 0 var(--popup-window-border-radius) var(--popup-window-border-radius);
 }
 
 .ui-selector-footer-conjunction {

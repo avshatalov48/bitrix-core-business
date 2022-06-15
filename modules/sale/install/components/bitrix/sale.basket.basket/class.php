@@ -1132,7 +1132,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 	{
 		if (!$basket->getOrder())
 		{
-			$userId = $this->getUserId() ?: CSaleUser::GetAnonymousUserID();
+			$userId = $this->getUserId() ?? 0;
 
 			$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 			/** @var Sale\Order $orderClass */

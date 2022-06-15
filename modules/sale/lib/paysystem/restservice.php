@@ -638,6 +638,14 @@ class RestService extends \IRestService
 			throw new RestException('Parameter SETTINGS[IFRAME_DATA][ACTION_URI] is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
+		if (
+			isset($params['SETTINGS']['CLIENT_TYPE'])
+			&& !ClientType::isValid((string)$params['SETTINGS']['CLIENT_TYPE'])
+		)
+		{
+			throw new RestException('Parameter value SETTINGS[CLIENT_TYPE] is invalid', self::ERROR_CHECK_FAILURE);
+		}
+
 		$dbRes = Internals\PaySystemRestHandlersTable::getList([
 			'filter' => [
 				'=CODE' => $params['CODE']
@@ -684,6 +692,14 @@ class RestService extends \IRestService
 		if (!isset($params['FIELDS']))
 		{
 			throw new RestException('Parameter FIELDS is not defined', self::ERROR_CHECK_FAILURE);
+		}
+
+		if (
+			isset($params['SETTINGS']['CLIENT_TYPE'])
+			&& !ClientType::isValid((string)$params['SETTINGS']['CLIENT_TYPE'])
+		)
+		{
+			throw new RestException('Parameter value SETTINGS[CLIENT_TYPE] is invalid', self::ERROR_CHECK_FAILURE);
 		}
 
 		$paySystemRestHandlers = Internals\PaySystemRestHandlersTable::getList(array(

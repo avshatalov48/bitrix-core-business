@@ -84,7 +84,85 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  });
 	}
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
+	function _templateObject8() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-content-subtitle\">", "</div>\n\t\t\t"]);
+
+	  _templateObject8 = function _templateObject8() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject7() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel-content-element landing-ui-panel-content-footer\"></div>\n\t\t"]);
+
+	  _templateObject7 = function _templateObject7() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject6() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel-content-body-content\"></div>\n\t\t"]);
+
+	  _templateObject6 = function _templateObject6() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject5() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel-content-body-sidebar\"></div>\n\t\t"]);
+
+	  _templateObject5 = function _templateObject5() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject4() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel-content-element landing-ui-panel-content-body\"></div>\n\t\t"]);
+
+	  _templateObject4 = function _templateObject4() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject3() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel-content-title\"></div>\n\t\t"]);
+
+	  _templateObject3 = function _templateObject3() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject2() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel-content-element landing-ui-panel-content-header\"></div>\n\t\t"]);
+
+	  _templateObject2 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel-content-overlay landing-ui-hide\" data-is-shown=\"false\" hidden></div>\n\t\t"]);
+
+	  _templateObject = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
 	/**
 	 * @memberOf BX.Landing.UI.Panel
 	 */
@@ -94,37 +172,37 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  babelHelpers.createClass(Content, null, [{
 	    key: "createOverlay",
 	    value: function createOverlay() {
-	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel-content-overlay landing-ui-hide\" data-is-shown=\"false\" hidden></div>\n\t\t"])));
+	      return main_core.Tag.render(_templateObject());
 	    }
 	  }, {
 	    key: "createHeader",
 	    value: function createHeader() {
-	      return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel-content-element landing-ui-panel-content-header\"></div>\n\t\t"])));
+	      return main_core.Tag.render(_templateObject2());
 	    }
 	  }, {
 	    key: "createTitle",
 	    value: function createTitle() {
-	      return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel-content-title\"></div>\n\t\t"])));
+	      return main_core.Tag.render(_templateObject3());
 	    }
 	  }, {
 	    key: "createBody",
 	    value: function createBody() {
-	      return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel-content-element landing-ui-panel-content-body\"></div>\n\t\t"])));
+	      return main_core.Tag.render(_templateObject4());
 	    }
 	  }, {
 	    key: "createSidebar",
 	    value: function createSidebar() {
-	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel-content-body-sidebar\"></div>\n\t\t"])));
+	      return main_core.Tag.render(_templateObject5());
 	    }
 	  }, {
 	    key: "createContent",
 	    value: function createContent() {
-	      return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel-content-body-content\"></div>\n\t\t"])));
+	      return main_core.Tag.render(_templateObject6());
 	    }
 	  }, {
 	    key: "createFooter",
 	    value: function createFooter() {
-	      return main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel-content-element landing-ui-panel-content-footer\"></div>\n\t\t"])));
+	      return main_core.Tag.render(_templateObject7());
 	    }
 	  }, {
 	    key: "calculateTransitionDuration",
@@ -193,7 +271,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    }
 
 	    if (main_core.Type.isString(data.subTitle) && data.subTitle !== '') {
-	      _this.subTitle = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-content-subtitle\">", "</div>\n\t\t\t"])), data.subTitle);
+	      _this.subTitle = main_core.Tag.render(_templateObject8(), data.subTitle);
 	      main_core.Dom.append(_this.subTitle, _this.header);
 	      main_core.Dom.addClass(_this.layout, 'landing-ui-panel-content-with-subtitle');
 	    }
@@ -211,6 +289,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      _this.scrollObserver = new IntersectionObserver(_this.onIntersecting.bind(babelHelpers.assertThisInitialized(_this)));
 	    }
 
+	    _this.checkReadyToSave = _this.checkReadyToSave.bind(babelHelpers.assertThisInitialized(_this));
 	    return _this;
 	  }
 
@@ -419,6 +498,43 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    value: function renderTo(target) {
 	      babelHelpers.get(babelHelpers.getPrototypeOf(Content.prototype), "renderTo", this).call(this, target);
 	      main_core.Dom.append(this.overlay, target);
+	    }
+	  }, {
+	    key: "checkReadyToSave",
+	    value: function checkReadyToSave() {
+	      var _this6 = this;
+
+	      var canSave = true;
+	      this.forms.forEach(function (form) {
+	        form.fields.forEach(function (field) {
+	          if (field.readyToSave === false) {
+	            canSave = false;
+	          }
+
+	          if (!field.getListeners('onChangeReadyToSave').has(_this6.checkReadyToSave)) {
+	            field.subscribe('onChangeReadyToSave', _this6.checkReadyToSave);
+	          }
+	        });
+	      });
+	      canSave ? this.enableSave() : this.disableSave();
+	    }
+	  }, {
+	    key: "disableSave",
+	    value: function disableSave() {
+	      var saveButton = this.buttons.get('save_block_content');
+
+	      if (saveButton) {
+	        saveButton.disable();
+	      }
+	    }
+	  }, {
+	    key: "enableSave",
+	    value: function enableSave() {
+	      var saveButton = this.buttons.get('save_block_content');
+
+	      if (saveButton) {
+	        saveButton.enable();
+	      }
 	    }
 	  }]);
 	  return Content;

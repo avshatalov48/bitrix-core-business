@@ -83,3 +83,36 @@
 .document-list-stub-description {
 	margin: 0 auto;
 }
+
+/* STUB MIGRATION BLOCK */
+
+
+.catalog-store-document-stub-transfer-content {
+	margin: 25px;
+	padding: 19px 48px;
+	background: #d9f6ff;
+	border-radius: 10px;
+}
+
+.catalog-store-document-stub-transfer-info {
+	padding: 18px 56px;
+	border-bottom: 1px solid rgba(82,92,105,.08);
+	margin-bottom: 14px;
+	line-height: 32px;
+}
+
+.catalog-store-document-stub-transfer-info-systems {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	font-size: 12px;
+	line-height: 29px;
+	color: #a8adb4;
+}
+
+.catalog-store-document-stub-transfer-info-systems-item {
+	display: flex;
+	align-items: center;
+	margin: 0 7px;
+}

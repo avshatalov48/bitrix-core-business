@@ -279,6 +279,8 @@
 		vimeo: new RegExp("^.+vimeo.com\\/(.*\\/)?([\\d]+)(.*)?"),
 		vine: new RegExp("vine.co\\/v\\/([a-zA-Z0-9\\?\\=\\-]+)"),
 		instagram: new RegExp("(instagr\\.am|instagram\\.com)\\/p\\/([a-zA-Z0-9_\\-]+)\\/?"),
+		vk: new RegExp("vk\\.com\\/.*(video|clip)(-?\\d+_\\d+)\\/?"),
+		rutube: new RegExp("rutube\\.ru\\/video\\/([a-zA-Z0-9]+)\\/?"),
 
 		// Examples:
 		// https://www.google.com/maps/search/Bitrix24+office/

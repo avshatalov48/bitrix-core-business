@@ -25,6 +25,8 @@ class MapTypeCaster implements TypeCasterContract
 
 	public const INT = 'Int';
 	public const NULLABLE_INT = 'NullableInt';
+	public const MULTI_INT = 'MultiInt';
+	public const NULLABLE_MULTI_INT = 'NullableMultiInt';
 
 	public const FLOAT = 'Float';
 	public const NULLABLE_FLOAT = 'NullableFloat';
@@ -76,6 +78,39 @@ class MapTypeCaster implements TypeCasterContract
 		if ($value !== null)
 		{
 			$value = $this->castToInt($value);
+		}
+
+		return $value;
+	}
+
+	private function castToMultiInt($value): array
+	{
+		$result = [];
+		if (!is_array($value))
+		{
+			$value = [$value];
+		}
+		foreach ($value as $item)
+		{
+			if ($item === '' || $item === null)
+			{
+				continue;
+			}
+			$result[] = (int)$item;
+		}
+
+		return $result;
+	}
+
+	private function castToNullableMultiInt($value): ?array
+	{
+		if ($value !== null)
+		{
+			$value = $this->castToMultiInt($value);
+			if (empty($value))
+			{
+				$value = [];
+			}
 		}
 
 		return $value;

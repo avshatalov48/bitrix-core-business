@@ -9,9 +9,28 @@
 	  }
 
 	  babelHelpers.createClass(CatalogWarehouseMasterClear, [{
+	    key: "inventoryManagementInstallPreset",
+	    value: function inventoryManagementInstallPreset() {
+	      var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      return main_core.ajax.runAction('catalog.config.inventoryManagementInstallPreset', {
+	        data: {
+	          preset: data.preset
+	        }
+	      });
+	    }
+	  }, {
 	    key: "inventoryManagementEnabled",
 	    value: function inventoryManagementEnabled() {
-	      return main_core.ajax.runAction('catalog.config.inventoryManagementYAndResetQuantity', {});
+	      var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      var analytics = {
+	        iME: 'inventoryManagementEnabled' + '_' + data.preset.sort().join('_')
+	      };
+	      return main_core.ajax.runAction('catalog.config.inventoryManagementYAndResetQuantity', {
+	        analyticsLabel: analytics,
+	        data: {
+	          preset: data.preset
+	        }
+	      });
 	    }
 	  }, {
 	    key: "inventoryManagementDisabled",

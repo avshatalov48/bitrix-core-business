@@ -136,6 +136,7 @@ if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_pric
 	if (empty($arBaseProduct))
 	{
 		$arBaseProduct = $arDefProduct;
+		$arBaseProduct['TYPE'] = (int)CCatalogAdminTools::getProductTypeForNewProduct($arMainCatalog);
 	}
 	$productIsSet = (
 		Catalog\Config\Feature::isProductSetsEnabled()
@@ -2137,14 +2138,65 @@ function CloneBarcodeField()
 	<?
 	}
 
-	$arUserFields = $USER_FIELD_MANAGER->GetUserFields(Catalog\ProductTable::getUfId(), $PRODUCT_ID, LANGUAGE_ID);
+	$userFieldManager = Main\UserField\Internal\UserFieldHelper::getInstance()->getManager();
+	$arUserFields = $userFieldManager->GetUserFields(
+		Catalog\ProductTable::getUfId(),
+		$PRODUCT_ID,
+		LANGUAGE_ID
+	);
 	if (!empty($arUserFields))
 	{
-		if ($arMainCatalog['SUBSCRIPTION'] == 'Y' || $productIsSet)
+		foreach (array_keys($arUserFields) as $fieldName)
 		{
-			if (isset($arUserFields['UF_PRODUCT_GROUP']))
-				unset($arUserFields['UF_PRODUCT_GROUP']);
+			$arUserFields[$fieldName]['VALUE_ID'] = $PRODUCT_ID;
+			$arUserFields[$fieldName]['EDIT_FORM_LABEL'] = $arUserFields[$fieldName]['EDIT_FORM_LABEL']
+				??
+				$arUserFields[$fieldName]['FIELD_NAME']
+			;
 		}
+		unset($fieldName);
+
+		$restrictions = [
+			'TYPE' => (int)$arBaseProduct['TYPE'],
+			'IBLOCK_ID' => $IBLOCK_ID,
+		];
+
+		$permissionFields = Catalog\Product\SystemField::getPermissionFieldsByRestrictions($restrictions);
+		foreach ($permissionFields as $field => $permission)
+		{
+			if (
+				!$permission
+				&& isset($arUserFields[$field])
+			)
+			{
+				unset($arUserFields[$field]);
+			}
+		}
+		$systemFields = Catalog\Product\SystemField::getFieldNamesByRestrictions($restrictions);
+		if (!empty($systemFields))
+		{
+			?><tr class="heading">
+			<td colspan="2"><?=GetMessage("C2IT_UF_SYSTEM_FIELDS"); ?></td>
+			</tr><?
+
+			foreach ($systemFields as $fieldName)
+			{
+				$html = $userFieldManager->GetEditFormHTML(
+					$bVarsFromForm,
+					$GLOBALS[$fieldName] ?? '',
+					$arUserFields[$fieldName]
+				);
+				//TODO: remove this code after refactoring UF fields
+				if ($fieldName == 'UF_PRODUCT_GROUP')
+				{
+					$html = str_replace('<select', '<select style="max-width: 300px;"', $html);
+				}
+				echo $html;
+
+				unset($arUserFields[$fieldName]);
+			}
+		}
+		unset($systemFields);
 	}
 	if (!empty($arUserFields))
 	{
@@ -2154,21 +2206,16 @@ function CloneBarcodeField()
 
 		foreach ($arUserFields as $FIELD_NAME => $arUserField)
 		{
-			$arUserField["VALUE_ID"] = $PRODUCT_ID;
-			$strLabel = $arUserField["EDIT_FORM_LABEL"] ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
-			$arUserField["EDIT_FORM_LABEL"] = $strLabel;
-
-			$html = $USER_FIELD_MANAGER->GetEditFormHTML($bVarsFromForm, $GLOBALS[$FIELD_NAME], $arUserField);
-			//TODO: remove this code after refactoring UF fields
-			if ($FIELD_NAME == 'UF_PRODUCT_GROUP')
-			{
-				$html = str_replace('<select', '<select style="max-width: 300px;"', $html);
-			}
-			echo $html;
+			echo $userFieldManager->GetEditFormHTML(
+				$bVarsFromForm,
+				$GLOBALS[$fieldName] ?? '',
+				$arUserField
+			);
 		}
 		unset($FIELD_NAME, $arUserField);
 	}
 	unset($arUserFields);
+	unset($userFieldManager);
 	?>
 </table>
 <script type="text/javascript">

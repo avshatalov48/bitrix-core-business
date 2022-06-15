@@ -116,6 +116,14 @@ class Service implements Retargeting\IService, Retargeting\IMultiClientService, 
 		return $providers;
 	}
 
+	protected static function isRegionRussian(bool $onlyRu = false): bool
+	{
+		$regions = $onlyRu ? ['ru'] : ['ru', 'kz', 'by'];
+
+		$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion() ?: 'ru';
+		return in_array($region, $regions);
+	}
+
 	protected static function getServiceProviders(array $types = null)
 	{
 		$typeList = static::getTypes();
@@ -124,6 +132,11 @@ class Service implements Retargeting\IService, Retargeting\IMultiClientService, 
 		foreach ($typeList as $type)
 		{
 			if ($types && !in_array($type, $types))
+			{
+				continue;
+			}
+
+			if (in_array($type, [static::TYPE_FACEBOOK, static::TYPE_INSTAGRAM]) && self::isRegionRussian(true))
 			{
 				continue;
 			}

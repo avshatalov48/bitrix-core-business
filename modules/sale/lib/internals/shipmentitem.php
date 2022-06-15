@@ -9,6 +9,7 @@ namespace Bitrix\Sale\Internals;
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
 
 Loc::loadMessages(__FILE__);
 
@@ -40,7 +41,7 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Sale\Internals\EO_ShipmentItem_Collection wakeUpCollection($rows)
  */
 
-class ShipmentItemTable extends Main\Entity\DataManager
+class ShipmentItemTable extends DataManager
 {
 
 	/**

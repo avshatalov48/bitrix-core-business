@@ -123,9 +123,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 
 		$APPLICATION->setTitle(Loc::getMessage($new ? 'MAIL_CLIENT_CONFIG_TITLE' : 'MAIL_CLIENT_CONFIG_EDIT_TITLE'));
 
-		$defaultMailConfiguration = Configuration::getValue("smtp");
-		$this->arParams['IS_SMTP_AVAILABLE'] = Main\ModuleManager::isModuleInstalled('bitrix24')
-			|| $defaultMailConfiguration['enabled'];
+		$this->setIsSmtpAvailable();
 
 		if ($new)
 		{
@@ -248,6 +246,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		{
 			$this->arParams['SERVICE']['oauth'] = Mail\Helper\OAuth::getInstanceByMeta($mailbox['PASSWORD']);
 			$this->arParams['SERVICE']['oauth_user'] = Mail\Helper\OAuth::getUserDataByMeta($mailbox['PASSWORD']);
+			$this->arParams['SERVICE']['oauth_user']['email'] = $mailbox['EMAIL'];
 		}
 
 		if (empty($this->arParams['SERVICE']['oauth']))
@@ -256,11 +255,6 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 			{
 				$this->arParams['SERVICE']['oauth'] = Mail\MailServicesTable::getOAuthHelper($service);
 			}
-		}
-
-		if (empty($this->arParams['SERVICE']['oauth_user']['email']))
-		{
-			unset($this->arParams['SERVICE']['oauth_user']);
 		}
 
 		$ownerId = $new ? $USER->getId() : $mailbox['USER_ID'];
@@ -439,11 +433,52 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		$this->includeComponentTemplate('edit');
 	}
 
+	public function checkAvailabilityEMailAction($serviceId,$email,$oauthUid)
+	{
+		$service = Mail\MailServicesTable::getList(array(
+			'filter' => array(
+				'=ID'          => $serviceId,
+				'ACTIVE'       => 'Y',
+				'SERVICE_TYPE' => 'imap',
+			),
+		))->fetch();
+
+		if (!empty($service))
+		{
+			$mailbox = [
+				'USE_TLS' => $service['ENCRYPTION'],
+				'LOGIN' => $email,
+				'SERVER' => $service['SERVER'],
+				'PORT' => $service['PORT'],
+			];
+
+			if ($oauthHelper = Mail\MailServicesTable::getOAuthHelper($service))
+			{
+				$oauthHelper->getStoredToken($oauthUid);
+				$mailbox['PASSWORD'] = $oauthHelper->buildMeta();
+
+				if(\Bitrix\Mail\Helper::getImapUnseen($mailbox) !== false)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private function setIsSmtpAvailable()
+	{
+		$defaultMailConfiguration = Configuration::getValue("smtp");
+		$this->arParams['IS_SMTP_AVAILABLE'] = Main\ModuleManager::isModuleInstalled('bitrix24')
+			|| $defaultMailConfiguration['enabled'];
+	}
+
 	public function saveAction($fields)
 	{
 		global $USER;
 
-		$this->arParams['IS_SMTP_AVAILABLE'] = Main\Loader::includeModule('bitrix24');
+		$this->setIsSmtpAvailable();
 
 		if (!empty($fields['site_id']))
 		{
@@ -584,7 +619,8 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		{
 			if (!empty($mailbox) && 'S' == $fields['oauth_mode'])
 			{
-				$userdata = Mail\Helper\OAuth::getUserDataByMeta($mailbox['PASSWORD']);
+				$mailboxData['EMAIL'] = mb_strtolower(trim($mailbox['EMAIL']));
+				$mailboxData['LOGIN'] = $mailboxData['EMAIL'];
 			}
 			else
 			{
@@ -592,32 +628,11 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 				{
 					$oauthHelper->getStoredToken($fields['oauth_uid']);
 
-					$userdata = $oauthHelper->getUserData();
-
+					$mailboxData['LOGIN'] = $mailboxData['EMAIL'];
 					$mailboxData['PASSWORD'] = $oauthHelper->buildMeta();
 				}
 			}
 
-			if (empty($userdata['email']))
-			{
-				$this->error(Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_OAUTH_ACC_ERROR'));
-				if (!empty($userdata['error']))
-				{
-					$this->error($userdata['error']);
-				}
-
-				return;
-			}
-			else
-			{
-				if (!empty($mailbox['EMAIL']) && $mailbox['EMAIL'] != mb_strtolower(trim($userdata['email'])))
-				{
-					return $this->error(Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_OAUTH_ACC_DIFF'));
-				}
-
-				$mailboxData['EMAIL'] = mb_strtolower(trim($userdata['email']));
-				$mailboxData['LOGIN'] = mb_strtolower(trim($userdata['email']));
-			}
 		}
 
 		if (empty($mailbox['EMAIL']))

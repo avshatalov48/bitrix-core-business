@@ -147,6 +147,16 @@ class CSocServVKontakte extends CSocServAuth
 		$GLOBALS["APPLICATION"]->RestartBuffer();
 		$bSuccess = SOCSERV_AUTHORISATION_ERROR;
 
+		$stateUnpacked = base64_decode($_REQUEST['state'] ?? '');
+		if ($stateUnpacked)
+		{
+			parse_str($stateUnpacked, $stateParams);
+			if ($stateParams && is_array($stateParams))
+			{
+				$_REQUEST = array_merge($_REQUEST, $stateParams);
+			}
+		}
+
 		if ((isset($_REQUEST["code"]) && $_REQUEST["code"] <> '') && CSocServAuthManager::CheckUniqueKey())
 		{
 			if (IsModuleInstalled('bitrix24') && defined('BX24_HOST_NAME'))
@@ -318,6 +328,11 @@ class CVKontakteOAuthInterface extends CSocServOAuthTransport
 
 	public function GetAuthUrl($redirect_uri, $state = '')
 	{
+		if ($state)
+		{
+			$state = base64_encode($state);
+		}
+
 		return self::AUTH_URL .
 		"?client_id=" . urlencode($this->appID) .
 		"&redirect_uri=" . urlencode($redirect_uri) .

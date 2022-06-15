@@ -1703,7 +1703,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        case 'list':
 	        case 'multilist':
 	          formatted.PROPERTY_TYPE = 'L';
-	          fields.enumeration.forEach(function (enumItem, key) {
+	          (fields.enumeration || []).forEach(function (enumItem, key) {
 	            form.append(_this4.getFormFieldName('VALUES][' + key + '][SORT'), enumItem.SORT);
 	            form.append(_this4.getFormFieldName('VALUES][' + key + '][VALUE'), enumItem.VALUE);
 	            form.append(_this4.getFormFieldName('VALUES][' + key + '][ID'), enumItem.ID);
@@ -1712,7 +1712,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	        case 'directory':
 	          formatted.USER_TYPE = 'directory';
-	          fields.enumeration.forEach(function (enumItem, key) {
+	          (fields.enumeration || []).forEach(function (enumItem, key) {
 	            form.append(_this4.getFormFieldName('VALUES][' + key + '][SORT'), enumItem.SORT);
 	            form.append(_this4.getFormFieldName('VALUES][' + key + '][VALUE'), enumItem.VALUE.value);
 	            form.append(_this4.getFormFieldName('VALUES][' + key + '][XML_ID'), enumItem.XML_ID);

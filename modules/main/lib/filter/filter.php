@@ -216,6 +216,7 @@ class Filter
 			},
 			$this->getFields()
 		);
+		$sqlWhere = new \CSQLWhere();
 
 		foreach ($filter as $fieldId => $fieldValue)
 		{
@@ -227,14 +228,22 @@ class Filter
 			{
 				continue;
 			}
+
+			$fieldIdWithoutOperation = $sqlWhere->makeOperation($fieldId)['FIELD'];
+			if (in_array($fieldIdWithoutOperation, $filterFieldsIds, true))
+			{
+				continue;
+			}
+
 			foreach ($this->uiFilterPostfixes as $postfix)
 			{
-				if (mb_substr($fieldId, -mb_strlen($postfix)) === $postfix)
+				$postfixLength = mb_strlen($postfix);
+				if (mb_substr($fieldId, -$postfixLength) === $postfix)
 				{
-					$realFieldId = mb_substr($fieldId, 0, mb_strlen($postfix));
+					$realFieldId = mb_substr($fieldId, 0, -$postfixLength);
 					if (in_array($realFieldId, $filterFieldsIds, true))
 					{
-						continue;
+						continue(2);
 					}
 				}
 			}

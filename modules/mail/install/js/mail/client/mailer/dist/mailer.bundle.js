@@ -63,6 +63,7 @@ this.BX.Mail = this.BX.Mail || {};
 	      value: void 0
 	    });
 
+	    babelHelpers.defineProperty(this, "focusReset", false);
 	    //delete the loader (the envelope is bouncing)
 	    var elements = top.document.getElementsByClassName('mail-loader-modifier');
 
@@ -82,8 +83,14 @@ this.BX.Mail = this.BX.Mail || {};
 
 	    babelHelpers.classPrivateFieldSet(this, _mailboxId, config['mailboxId']);
 	    babelHelpers.classPrivateFieldSet(this, _filter, BX.Main.filterManager.getById(config['filterId']));
-	    BX.Mail.Home.Counters.setShortcut('', config['startDir']);
-	    this.setFilterDir('');
+	    BX.Mail.Home.Counters.setShortcut('', config['startDir']); //Set the default directory (may change if the 'inbox' directory is disabled)
+
+	    this.setStartDir(''); //Removing the focus from the filter field
+
+	    if (document.activeElement) {
+	      document.activeElement.blur();
+	    }
+
 	    var mailCounterWrapper = document.querySelector('[data-role="mail-counter-toolbar"]');
 	    var filterToolbar = new mail_client_filtertoolbar.FilterToolbar({
 	      startDir: config['startDir'],
@@ -125,6 +132,19 @@ this.BX.Mail = this.BX.Mail || {};
 	  }
 
 	  babelHelpers.createClass(Mailer, [{
+	    key: "setStartDir",
+	    value: function setStartDir(name) {
+	      if (!!babelHelpers.classPrivateFieldGet(this, _filter) && babelHelpers.classPrivateFieldGet(this, _filter) instanceof BX.Main.Filter) {
+	        var FilterApi = babelHelpers.classPrivateFieldGet(this, _filter).getApi();
+	        FilterApi.setFields({
+	          'DIR': name
+	        });
+	        setTimeout(function () {
+	          main_core_events.EventEmitter.emit('BX.Main.Filter:apply', new main_core_events.BaseEvent());
+	        }, 1);
+	      }
+	    }
+	  }, {
 	    key: "setFilterDir",
 	    value: function setFilterDir(name) {
 	      if (!!babelHelpers.classPrivateFieldGet(this, _filter) && babelHelpers.classPrivateFieldGet(this, _filter) instanceof BX.Main.Filter) {

@@ -250,6 +250,8 @@ class SenderYandexTolokaListComponent extends CBitrixComponent
 					->canResume(),
 				'isSendingLimitExceeded' => $letter->getState()
 					->isSendingLimitExceeded(),
+				'isSendingLimitTemporary' => $letter->getState()
+					->isSendingLimitTemporary(),
 			];
 
 			$item['URLS'] = [

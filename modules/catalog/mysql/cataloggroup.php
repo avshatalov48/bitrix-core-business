@@ -91,6 +91,7 @@ class CCatalogGroup extends CAllCatalogGroup
 		}
 
 		Catalog\GroupTable::getEntity()->cleanCache();
+		Catalog\Model\Price::clearSettings();
 
 		foreach(GetModuleEvents("catalog", "OnGroupAdd", true) as $arEvent)
 		{
@@ -176,6 +177,7 @@ class CCatalogGroup extends CAllCatalogGroup
 		}
 
 		Catalog\GroupTable::getEntity()->cleanCache();
+		Catalog\Model\Price::clearSettings();
 
 		foreach(GetModuleEvents("catalog", "OnGroupUpdate", true) as $arEvent)
 		{
@@ -219,6 +221,8 @@ class CCatalogGroup extends CAllCatalogGroup
 				$DB->Query("DELETE FROM b_catalog_group_lang WHERE CATALOG_GROUP_ID = ".$ID);
 				Catalog\RoundingTable::deleteByPriceType($ID);
 				Catalog\GroupTable::getEntity()->cleanCache();
+				Catalog\Model\Price::clearSettings();
+
 				return $DB->Query("DELETE FROM b_catalog_group WHERE ID = ".$ID, true);
 			}
 			else
@@ -553,6 +557,8 @@ class CCatalogGroup extends CAllCatalogGroup
 		$query .= $id !== null ? 'ID !='.$id.' and BASE = \'Y\'' : 'BASE = \'Y\'';
 		$DB->Query($query, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
+		Catalog\GroupTable::getEntity()->cleanCache();
+		Catalog\Model\Price::clearSettings();
 		self::$arBaseGroupCache = [];
 		if (defined('CATALOG_GLOBAL_VARS') && 'Y' == CATALOG_GLOBAL_VARS)
 		{

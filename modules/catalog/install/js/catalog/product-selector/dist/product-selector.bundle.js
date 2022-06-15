@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,ui_forms,catalog_skuTree,main_loader,ui_infoHelper,ui_entitySelector,catalog_productModel,catalog_productSelector,catalog_barcodeScanner,ui_notification,main_core,main_core_events,ui_qrauthorization,spotlight,ui_tour) {
+(function (exports,ui_forms,fileinput,catalog_skuTree,main_loader,ui_infoHelper,ui_entitySelector,catalog_productModel,catalog_productSelector,catalog_barcodeScanner,ui_notification,main_core,main_core_events,ui_qrauthorization,spotlight,ui_tour) {
 	'use strict';
 
 	let _ = t => t,
@@ -474,9 +474,12 @@ this.BX = this.BX || {};
 	  }
 
 	  initHasDialogItems() {
-	    if (this.isHasDialogItems === true) {
+	    if (!main_core.Type.isNil(this.isHasDialogItems)) {
 	      return;
-	    } else if (this.isHasDialogItems === false) {
+	    }
+
+	    if (!this.selector.getModel().isEmpty()) {
+	      this.isHasDialogItems = true;
 	      return;
 	    } // is null, that not send ajax
 
@@ -2198,5 +2201,5 @@ this.BX = this.BX || {};
 
 	exports.ProductSelector = ProductSelector;
 
-}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX.Catalog.SkuTree,BX,BX,BX.UI.EntitySelector,BX.Catalog,BX.Catalog,BX.Catalog,BX,BX,BX.Event,BX.UI,BX,BX.UI.Tour));
+}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX,BX.Catalog.SkuTree,BX,BX,BX.UI.EntitySelector,BX.Catalog,BX.Catalog,BX.Catalog,BX,BX,BX.Event,BX.UI,BX,BX.UI.Tour));
 //# sourceMappingURL=product-selector.bundle.js.map

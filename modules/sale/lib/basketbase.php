@@ -456,6 +456,8 @@ abstract class BasketBase extends BasketItemCollection
 	 */
 	public function save()
 	{
+		$this->checkCallingContext();
+
 		$result = new Result();
 
 		$this->isSaveExecuting = true;
@@ -522,6 +524,22 @@ abstract class BasketBase extends BasketItemCollection
 		$this->isSaveExecuting = false;
 
 		return $result;
+	}
+
+	/**
+	 * @return void
+	 */
+	private function checkCallingContext() : void
+	{
+		$order = $this->getOrder();
+
+		if (
+			$order
+			&& !$order->isSaveRunning()
+		)
+		{
+			trigger_error("Incorrect call to the save process. Use method save() on \Bitrix\Sale\Order entity.", E_USER_WARNING);
+		}
 	}
 
 	/**

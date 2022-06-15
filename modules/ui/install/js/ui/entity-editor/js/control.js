@@ -1352,14 +1352,14 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 		{
 			titleNode.appendChild(marker);
 		}
-		
+
 		var hint = this.createTitleHint();
 		if (hint)
 		{
 			titleNode.appendChild(hint);
 			BX.UI.Hint.init(titleNode);
 		}
-		
+
 		this._titleWrapper.appendChild(titleNode);
 
 		var actionControls = this.createTitleActionControls();
@@ -3241,6 +3241,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 		var lighting = BX.prop.getObject(options, "lighting", null);
 		var isLighted = false;
 		var isFieldContextMenuEnabled = false;
+		var focusedField = null;
 		for(var i = 0, l = this._fields.length; i < l; i++)
 		{
 			var field = this._fields[i];
@@ -3264,7 +3265,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			field.layout(layoutOptions);
 			if(enableFocusGain && !isViewMode && field.isHeading())
 			{
-				field.focus();
+				focusedField = field;
 			}
 
 			if(!isFieldContextMenuEnabled && field.isContextMenuEnabled())
@@ -3336,6 +3337,10 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 
 		this.registerLayout(options);
 		this._hasLayout = true;
+		if (focusedField)
+		{
+			focusedField.focus(focusedField.getDataBooleanParam('selected', false));
+		}
 	};
 	BX.UI.EntityEditorSection.prototype.clearLayout = function()
 	{
@@ -5432,7 +5437,7 @@ if(typeof BX.UI.EntityEditorText === "undefined")
 	{
 		return this._innerWrapper;
 	};
-	BX.UI.EntityEditorText.prototype.focus = function()
+	BX.UI.EntityEditorText.prototype.focus = function(isSelectedFocus)
 	{
 		if(!this._input)
 		{
@@ -5440,7 +5445,14 @@ if(typeof BX.UI.EntityEditorText === "undefined")
 		}
 
 		BX.focus(this._input);
-		BX.UI.EditorTextHelper.getCurrent().setPositionAtEnd(this._input);
+		if (Boolean(isSelectedFocus))
+		{
+			this._input.select();
+		}
+		else
+		{
+			BX.UI.EditorTextHelper.getCurrent().setPositionAtEnd(this._input);
+		}
 	};
 	BX.UI.EntityEditorText.prototype.getLineCount = function()
 	{

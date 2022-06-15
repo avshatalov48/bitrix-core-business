@@ -2,18 +2,26 @@
 
 namespace Bitrix\Sale\Internals\Analytics\Events;
 
-use Bitrix\Sale\Internals\Analytics;
-use Bitrix\Sale\Internals\AnalyticsEventTable;
-use Bitrix\Main\Type\DateTime;
+use Bitrix\Main;
+use Bitrix\Sale;
 
 /**
  * Class Provider
  *
  * @package Bitrix\Sale\Internals\Analytics\Events
+ * @internal
  */
-final class Provider extends Analytics\Provider
+final class Provider extends Sale\Internals\Analytics\Provider
 {
 	private const TYPE = 'events';
+
+	/** @var Event $event */
+	private $event;
+
+	public function __construct(Event $event)
+	{
+		$this->event = $event;
+	}
 
 	/**
 	 * @return string
@@ -23,37 +31,24 @@ final class Provider extends Analytics\Provider
 		return self::TYPE;
 	}
 
+	protected function needProvideData(): bool
+	{
+		return true;
+	}
+
 	/**
-	 * @param DateTime $dateFrom
-	 * @param DateTime $dateTo
 	 * @return array
 	 */
-	protected function getProviderData(DateTime $dateFrom, DateTime $dateTo): array
+	protected function getProviderData(): array
 	{
-		$result = [];
-
-		$eventsList = AnalyticsEventTable::getList([
-			'filter' => [
-				'>=CREATED_AT' => $dateFrom,
-				'<CREATED_AT' => $dateTo,
+		return [
+			'event_code' => $this->event->getName(),
+			'events' => [
+				[
+					'created_at' => (new Main\Type\DateTime())->getTimestamp(),
+					'payload' => $this->event->getPayload(),
+				],
 			],
-		]);
-		while ($event = $eventsList->fetch())
-		{
-			if (!isset($result[$event['CODE']]))
-			{
-				$result[$event['CODE']] = [
-					'event_code' => $event['CODE'],
-					'events' => [],
-				];
-			}
-
-			$result[$event['CODE']]['events'][] = [
-				'created_at' => $event['CREATED_AT']->getTimestamp(),
-				'payload' => $event['PAYLOAD'],
-			];
-		}
-
-		return array_values($result);
+		];
 	}
 }

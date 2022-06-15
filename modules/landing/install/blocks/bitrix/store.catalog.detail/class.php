@@ -7,9 +7,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use Bitrix\Landing\Manager;
 use Bitrix\Landing\Hook\Page\Settings;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Loader;
+use Bitrix\Catalog;
 
 class StoreCatalogDetailBlock extends \Bitrix\Landing\LandingBlock
 {
+	protected $catalogIncluded;
+
 	/**
 	 * Set cart position (top, left, ...).
 	 * @return void
@@ -89,6 +93,8 @@ class StoreCatalogDetailBlock extends \Bitrix\Landing\LandingBlock
 	 */
 	public function init(array $params = [])
 	{
+		$this->catalogIncluded = Loader::includeModule('catalog');
+
 		$this->params = Settings::getDataForSite(
 			$params['site_id']
 		);
@@ -195,5 +201,50 @@ class StoreCatalogDetailBlock extends \Bitrix\Landing\LandingBlock
 			$this->params['FIRST_TIME'] = false;
 		}
 		$this->params['ACTION_VARIABLE'] = 'action_' . $block->getId();
+
+		$this->params['ADDITIONAL_FILTER_NAME'] = 'elementFilter';
+
+		$this->setElementListFilter();
+	}
+
+	private function setFilter(string $name, array $filter): void
+	{
+		$currentFilter = $GLOBALS[$name] ?? [];
+		if (!is_array($currentFilter))
+		{
+			$currentFilter = [];
+		}
+
+		$GLOBALS[$name] = array_merge(
+			$currentFilter,
+			$filter
+		);
+	}
+
+	private function setElementListFilter(): void
+	{
+		$filterName = $this->get('ADDITIONAL_FILTER_NAME');
+		if ($filterName === null || $filterName === '')
+		{
+			return;
+		}
+
+		$elementFilter = [];
+
+		if ($this->catalogIncluded)
+		{
+			if (class_exists('\Bitrix\Catalog\Product\SystemField\ProductMapping'))
+			{
+				$elementFilter = Catalog\Product\SystemField\ProductMapping::getExtendedFilterByArea(
+					$elementFilter,
+					Catalog\Product\SystemField\ProductMapping::MAP_LANDING
+				);
+			}
+		}
+
+		if (!empty($elementFilter))
+		{
+			$this->setFilter($filterName, $elementFilter);
+		}
 	}
 }

@@ -16,7 +16,7 @@ use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
 CJSCore::Init();
 $this->addExternalCss($this->GetFolder() . '/template.css');
 $this->addExternalJs($this->GetFolder() . '/template.js');
-\Bitrix\Main\UI\Extension::load([ 'sidepanel', 'ui.common', 'ui.fonts.opensans' ]);
+\Bitrix\Main\UI\Extension::load([ 'sidepanel', 'ui.common', 'ui.fonts.opensans', 'ui.design-tokens' ]);
 
 ?><!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?=LANGUAGE_ID ?>" lang="<?=LANGUAGE_ID ?>">

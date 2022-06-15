@@ -7,7 +7,8 @@ import ModelFactory from "../model/model-factory";
 import FieldsFactory from "../editor-fields/fields-factory";
 import {MenuManager} from "main.popup";
 import {Text} from "main.core";
-import {Guide} from "ui.tour";
+import ProductListController from "../product-list/controller";
+import {Slider} from 'catalog.store-use'
 
 class DocumentCard extends BaseCard
 {
@@ -33,7 +34,6 @@ class DocumentCard extends BaseCard
 		this.signedParameters = settings.signedParameters;
 		this.isConductLocked = settings.isConductLocked;
 		this.masterSliderUrl = settings.masterSliderUrl;
-		this.isFirstTime = settings.isFirstTime;
 
 		this.isTabAnalyticsSent = false;
 
@@ -93,43 +93,15 @@ class DocumentCard extends BaseCard
 			e.preventDefault();
 			popupMenu.show();
 		});
-
-		if (this.isFirstTime)
-		{
-			let guide = new Guide({
-				steps: [
-					{
-						target: documentTypeSelector.querySelector('.catalog-document-type-selector-text'),
-						title: Loc.getMessage('DOCUMENT_FIRST_TIME_HINT_TITLE'),
-						text: Loc.getMessage('DOCUMENT_FIRST_TIME_HINT_TEXT'),
-						link: '#',
-						events: {
-							onShow: () => {
-								document.querySelector('.ui-tour-popup-link').onclick = (event) => {
-									event.preventDefault();
-									top.BX.Helper.show("redirect=detail&code=14566618");
-								}
-							},
-							onClose: () => {
-								BX.userOptions.save('catalog', 'document-card', 'isDocumentTypeGuideOver', true);
-							},
-						}
-					},
-				],
-				onEvents: true,
-			});
-			guide.showNextStep();
-		}
 	}
 
 	openMasterSlider()
 	{
 		let card = this;
 
-		BX.SidePanel.Instance.open(
+		new Slider().open(
 			this.masterSliderUrl,
 			{
-				cacheable: false,
 				data: {
 					openGridOnDone: false,
 				},
@@ -263,15 +235,20 @@ class DocumentCard extends BaseCard
 		EventEmitter.subscribe('BX.UI.EntityEditor:onFailedValidation', (event) => {
 			EventEmitter.emit('BX.Catalog.EntityCard.TabManager:onOpenTab', {tabId: 'main'});
 		});
+		EventEmitter.subscribe('onProductsCheckFailed', (event) => {
+			EventEmitter.emit('BX.Catalog.EntityCard.TabManager:onOpenTab', {tabId: 'tab_products'});
+		});
 	}
 
 	subscribeToOnSaveEvent()
 	{
 		EventEmitter.subscribe('BX.UI.EntityEditor:onSave', (event) => {
-			let eventEditor = event.data[0];
-			let action = event.data[1]?.actionId;
+			const eventEditor = event.data[0];
+			const action = event.data[1]?.actionId;
 			if (eventEditor && eventEditor._ajaxForm)
 			{
+				eventEditor._toolPanel?.clearErrors();
+
 				if (action === 'SAVE_AND_CONDUCT')
 				{
 					if (this.isConductLocked)
@@ -279,6 +256,18 @@ class DocumentCard extends BaseCard
 						event.data[1].cancel = true;
 						event.data[0]._toolPanel?.setLocked(false);
 						this.openMasterSlider();
+						return;
+					}
+
+					if (!this.validateControllers(eventEditor.getControllers()))
+					{
+						event.data[1].cancel = true;
+						eventEditor._toolPanel?.setLocked(false);
+						return;
+					}
+
+					if (event.data[1].cancel)
+					{
 						return;
 					}
 				}
@@ -314,13 +303,25 @@ class DocumentCard extends BaseCard
 	subscribeToDirectActionEvent()
 	{
 		EventEmitter.subscribe('BX.UI.EntityEditor:onDirectAction', (event) => {
+
+			const eventEditor = event.data[0];
+
 			if (event.data[1]?.actionId === 'CONDUCT')
 			{
+				eventEditor._toolPanel?.clearErrors();
+
 				if (this.isConductLocked)
 				{
 					event.data[1].cancel = true;
 					event.data[0]._toolPanel?.setLocked(false);
 					this.openMasterSlider();
+					return;
+				}
+
+				if (!this.validateControllers(eventEditor.getControllers()))
+				{
+					event.data[1].cancel = true;
+					eventEditor._toolPanel?.setLocked(false);
 					return;
 				}
 
@@ -392,6 +393,29 @@ class DocumentCard extends BaseCard
 				}
 			}
 		});
+	}
+
+	validateControllers(controllers)
+	{
+		let validateResult = true;
+		if (controllers instanceof Array)
+		{
+			controllers.forEach((controller) => {
+				if (controller instanceof ProductListController)
+				{
+					if (!controller.validateProductList())
+					{
+						validateResult = false;
+					}
+				}
+			});
+		}
+		else
+		{
+			validateResult = false;
+		}
+
+		return validateResult;
 	}
 
 	sendAnalyticsData(data)

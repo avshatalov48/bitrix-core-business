@@ -1,5 +1,7 @@
 <?
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
+
 Loc::loadMessages(__FILE__);
 
 class CAllExtra
@@ -38,19 +40,7 @@ class CAllExtra
 	{
 		if (empty(self::$arExtraCache))
 		{
-			$rsExtras = CExtra::GetList(
-				array("NAME" => "ASC")
-			);
-			while ($arExtra = $rsExtras->Fetch())
-			{
-				$arExtra['ID'] = intval($arExtra['ID']);
-				self::$arExtraCache[$arExtra['ID']] = $arExtra;
-				if (defined('CATALOG_GLOBAL_VARS') && 'Y' == CATALOG_GLOBAL_VARS)
-				{
-					global $MAIN_EXTRA_LIST_CACHE;
-					$MAIN_EXTRA_LIST_CACHE = self::$arExtraCache;
-				}
-			}
+			self::$arExtraCache = Catalog\ExtraTable::getExtraList();
 		}
 		$s = '<select name="'.$sFieldName.'"';
 		if (!empty($JavaChangeFunc))
@@ -93,7 +83,10 @@ class CAllExtra
 				CPrice::ReCalculate('EXTRA', $ID, $arFields['PERCENTAGE']);
 			}
 			static::ClearCache();
+			Catalog\ExtraTable::getEntity()->cleanCache();
+			Catalog\Model\Price::clearSettings();
 		}
+
 		return true;
 	}
 
@@ -105,6 +98,9 @@ class CAllExtra
 			return false;
 		$DB->Query("UPDATE b_catalog_price SET EXTRA_ID = NULL WHERE EXTRA_ID = ".$ID);
 		static::ClearCache();
+		Catalog\ExtraTable::getEntity()->cleanCache();
+		Catalog\Model\Price::clearSettings();
+
 		return $DB->Query("DELETE FROM b_catalog_extra WHERE ID = ".$ID, true);
 	}
 

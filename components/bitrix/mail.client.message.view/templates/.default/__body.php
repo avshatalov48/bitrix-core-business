@@ -149,20 +149,17 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 				{
 					$result = array();
 
-					foreach (explode(',', $field) as $item)
+					foreach (\Bitrix\Mail\Helper\Message::parseAddressList($field) as $item)
 					{
-						if (trim($item))
-						{
-							$address = new \Bitrix\Main\Mail\Address($item);
-							$avatarParams = $address->validate() && !empty($arResult['avatarParams'][trim($address->getEmail())]) ? $arResult['avatarParams'][trim($address->getEmail())] : ['avatarSize' => 23];
-							$result[] = array(
-								'URL' => $address->validate() ? sprintf('mailto:%s', $address->getEmail()) : null,
-								'TITLE' => $address->validate() ? $address->getEmail() : $item,
-								'AVATAR_PARAMS' => $avatarParams,
-								'HREF_TITLE' => $avatarParams['mailContact']['NAME'],
-								'IMAGE' => $address->getEmail() == $message['__email'] ? $arResult['USER_IMAGE'] : '',
-							);
-						}
+						$address = new \Bitrix\Main\Mail\Address($item);
+						$avatarParams = $address->validate() && !empty($arResult['avatarParams'][trim($address->getEmail())]) ? $arResult['avatarParams'][trim($address->getEmail())] : ['avatarSize' => 23];
+						$result[] = array(
+							'URL' => $address->validate() ? sprintf('mailto:%s', $address->getEmail()) : null,
+							'TITLE' => $address->validate() ? $address->getEmail() : $item,
+							'AVATAR_PARAMS' => $avatarParams,
+							'HREF_TITLE' => $avatarParams['mailContact']['NAME'],
+							'IMAGE' => $address->getEmail() == $message['__email'] ? $arResult['USER_IMAGE'] : '',
+						);
 					}
 
 					return $result;

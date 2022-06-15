@@ -90,17 +90,25 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "activate",
 	    value: function activate() {
+	      var isEmitEvent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 	      this.isActive = true;
 	      this.getContainer().classList.add('--active');
-	      main_core_events.EventEmitter.emit('BX.UI.CounterPanel.Item:activate', this);
+
+	      if (isEmitEvent) {
+	        main_core_events.EventEmitter.emit('BX.UI.CounterPanel.Item:activate', this);
+	      }
 	    }
 	  }, {
 	    key: "deactivate",
 	    value: function deactivate() {
+	      var isEmitEvent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 	      this.isActive = false;
 	      this.getContainer().classList.remove('--active');
 	      this.getContainer().classList.remove('--hover');
-	      main_core_events.EventEmitter.emit('BX.UI.CounterPanel.Item:deactivate', this);
+
+	      if (isEmitEvent) {
+	        main_core_events.EventEmitter.emit('BX.UI.CounterPanel.Item:deactivate', this);
+	      }
 	    }
 	  }, {
 	    key: "getContainer",
@@ -330,6 +338,7 @@ this.BX = this.BX || {};
 	}
 
 	exports.CounterPanel = CounterPanel;
+	exports.CounterItem = CounterItem;
 
 }((this.BX.UI = this.BX.UI || {}),BX,BX.UI,BX.Event));
 //# sourceMappingURL=counterpanel.bundle.js.map

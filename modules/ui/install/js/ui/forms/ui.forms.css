@@ -13,6 +13,7 @@
 	--ui-field-color-disabled: #c6cdd3;
 
 	--ui-field-size: var(--ui-field-size-md);
+	--ui-field-border-radius: 2px;
 	--ui-field-spacing: 12px;
 }
 
@@ -51,7 +52,7 @@
 	height: var(--ui-field-size);
 	outline: none;
 	border: 1px solid #c6cdd3;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius);
 	background-color: #fff;
 	color: #535c69;
 	vertical-align: middle;
@@ -888,7 +889,7 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 	padding: 0 18px;
 	outline: none;
 	border: none;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius);
 	background: #ecedef;
 	box-shadow: 0 0 0 1px #c6cdd3 inset;
 	color: #7a818a;

@@ -57,7 +57,7 @@ HTML;
 		{
 			$ext = GetFileExtension($file['ORIGINAL_NAME']);
 			$isImage = CFile::IsImage($file["ORIGINAL_NAME"], $file["CONTENT_TYPE"]);
-			$t = ($isImage ? CFile::ResizeImageGet($file, array( "width" => 100, "height" => 100 ), BX_RESIZE_IMAGE_EXACT, false) : array("src" => "/bitrix/images/1.gif"));
+			$t = ($isImage ? CFile::ResizeImageGet($file, array( "width" => 100, "height" => 100 ), BX_RESIZE_IMAGE_EXACT, false, false, true) : array("src" => "/bitrix/images/1.gif"));
 			?><li class="saved"><?=str_replace(
 				array("#input_name#", "#file_id#", "#name#", "#size#", "#url#", "#url_delete#", "#preview_url#", "#ext#"),
 				array($arParams['INPUT_NAME'],

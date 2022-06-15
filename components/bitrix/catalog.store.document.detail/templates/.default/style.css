@@ -3,6 +3,7 @@
 	align-items: center;
 	justify-content: space-between;
 	flex-wrap: nowrap;
+	padding-right: 12px;
 }
 
 .pagetitle-inner-container .pagetitle {
@@ -540,3 +541,4 @@ input.pagetitle-item {
 .ui-page-slider-padding {
 	padding-right: 8px !important;
 }
+

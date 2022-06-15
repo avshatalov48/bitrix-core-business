@@ -1,6 +1,7 @@
 <?php
 $MESS['CATALOG_STORE_DOCUMENT_DETAIL_MAIN_SECTION'] = 'Основное';
 $MESS['CATALOG_STORE_DOCUMENT_DETAIL_PRODUCTS_SECTION'] = 'Товары';
+$MESS['CATALOG_STORE_DOCUMENT_DETAIL_EXTRA_SECTION'] = 'Дополнительно';
 $MESS['CATALOG_STORE_DOCUMENT_DETAIL_FIELD_ID'] = 'Идентификатор';
 $MESS['CATALOG_STORE_DOCUMENT_DETAIL_TITLE_ID'] = 'Название';
 $MESS['CATALOG_STORE_DOCUMENT_DETAIL_STATUS_ID'] = 'Статус документа';
@@ -13,6 +14,7 @@ $MESS['CATALOG_STORE_DOCUMENT_DETAIL_FIELD_RESPONSIBLE_ID'] = 'Ответств�
 $MESS['CATALOG_STORE_DOCUMENT_DETAIL_FIELD_DOC_NUMBER'] = 'Номер документа основания';
 $MESS['CATALOG_STORE_DOCUMENT_DETAIL_FIELD_DATE_DOCUMENT'] = 'Дата документа основания';
 $MESS['CATALOG_STORE_DOCUMENT_DETAIL_FIELD_DOCUMENT_FILES'] = 'Документ';
+$MESS['CATALOG_STORE_DOCUMENT_DETAIL_FIELD_DOCUMENT_FILES_2'] = 'Документ-основание';
 $MESS['CATALOG_STORE_DOCUMENT_DETAIL_FIELD_DATE_CREATE'] = 'Дата создания';
 $MESS['CATALOG_STORE_DOCUMENT_DETAIL_FIELD_DATE_MODIFY'] = 'Дата изменения';
 $MESS['CATALOG_STORE_DOCUMENT_DETAIL_FIELD_DATE_STATUS'] = 'Дата изменения статуса';

@@ -238,14 +238,18 @@ class MailsFoldersManager extends SyncInternalManager
 	private function processSyncMovedMessages($folderCurrentNameEncoded)
 	{
 		$folderCurrentName = base64_decode($folderCurrentNameEncoded);
-		$count = $this->mailboxHelper->syncDir($folderCurrentName);
+		$this->mailboxHelper->syncDir($folderCurrentName);
 
-		Mail\MailMessageUidTable::deleteList(
+		Mail\MailMessageUidTable::updateList(
 			[
 				'=MAILBOX_ID' => $this->mailboxId,
 				'=DIR_MD5' => md5($folderCurrentName),
-				'=MSG_UID' => 0,
-			]
+				'==MSG_UID' => 0,
+				'!@IS_OLD' => ['D','R'],
+			],
+			[
+				'IS_OLD' => 'M',
+			],
 		);
 	}
 

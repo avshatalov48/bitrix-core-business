@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_XML2_AMOUNT"] = "Amount";
 $MESS["IBLOCK_XML2_ANONS"] = "Anons";
 $MESS["IBLOCK_XML2_ARTICLE"] = "Article";
@@ -139,6 +139,7 @@ $MESS["IBLOCK_XML2_PRICE_TYPE"] = "PriceType";
 $MESS["IBLOCK_XML2_PRICE_TYPES"] = "PriceTypes";
 $MESS["IBLOCK_XML2_PRICE_TYPE_ID"] = "PriceTypeId";
 $MESS["IBLOCK_XML2_PRODUCTS_SETS"] = "ProductsSets";
+$MESS["IBLOCK_XML2_PRODUCT_MAPPING"] = "ProductVisibility";
 $MESS["IBLOCK_XML2_PRODUCT_SET"] = "Set";
 $MESS["IBLOCK_XML2_PRODUCT_SETS"] = "ProductSets";
 $MESS["IBLOCK_XML2_PRODUCT_SET_ITEM"] = "SetElement";
@@ -205,4 +206,3 @@ $MESS["IBLOCK_XML2_VERSION"] = "VersionNumber";
 $MESS["IBLOCK_XML2_VIEW"] = "View";
 $MESS["IBLOCK_XML2_WEIGHT"] = "Weight";
 $MESS["IBLOCK_XML2_WIDTH"] = "Width";
-?>

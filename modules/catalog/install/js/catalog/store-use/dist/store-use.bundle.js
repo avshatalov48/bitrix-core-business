@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Catalog = this.BX.Catalog || {};
-(function (exports,main_popup,ui_buttons,main_core_events,main_core) {
+(function (exports,main_core_events,ui_buttons,main_core,main_popup) {
 	'use strict';
 
 	var EventType = Object.freeze({
@@ -216,6 +216,79 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return DialogClearing;
 	}();
 
+	function _templateObject2$1() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"catalog-warehouse-master-clear-popup-content\">\n\t\t\t\t<h3>\n\t\t\t\t\t", "\n\t\t\t\t</h3>\t\n\t\t\t\t<div class=\"catalog-warehouse-master-clear-popup-text\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
+
+	  _templateObject2$1 = function _templateObject2() {
+	    return data;
+	  };
+
+	  return data;
+	}
+
+	function _templateObject$3() {
+	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a href=\"#\" class=\"ui-link ui-link-dashed documents-grid-link\">\n\t\t\t\t", "\n\t\t\t</a>\n\t\t"]);
+
+	  _templateObject$3 = function _templateObject() {
+	    return data;
+	  };
+
+	  return data;
+	}
+	var DialogError = /*#__PURE__*/function () {
+	  function DialogError() {
+	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	    babelHelpers.classCallCheck(this, DialogError);
+	    this.text = options.text || '';
+	    this.helpArticleId = options.helpArticleId || '';
+	  }
+
+	  babelHelpers.createClass(DialogError, [{
+	    key: "popup",
+	    value: function popup() {
+	      var popup = new main_popup.Popup(null, null, {
+	        events: {
+	          onPopupClose: function onPopupClose() {
+	            return popup.destroy();
+	          }
+	        },
+	        content: this.getContent(),
+	        maxWidth: 500,
+	        overlay: true,
+	        buttons: [new ui_buttons.Button({
+	          text: main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_CLEAR_CLOSE'),
+	          color: ui_buttons.Button.Color.PRIMARY,
+	          onclick: function onclick() {
+	            return popup.close();
+	          }
+	        })]
+	      });
+	      popup.show();
+	    }
+	  }, {
+	    key: "showHelp",
+	    value: function showHelp(event) {
+	      if (top.BX.Helper) {
+	        top.BX.Helper.show('redirect=detail&code=' + this.helpArticleId);
+	        event.preventDefault();
+	      }
+	    }
+	  }, {
+	    key: "getHelpLink",
+	    value: function getHelpLink() {
+	      var result = main_core.Tag.render(_templateObject$3(), main_core.Text.encode(main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_DETAILS')));
+	      result.addEventListener('click', this.showHelp.bind(this));
+	      return result;
+	    }
+	  }, {
+	    key: "getContent",
+	    value: function getContent() {
+	      return main_core.Tag.render(_templateObject2$1(), main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_10'), main_core.Text.encode(this.text), this.helpArticleId ? this.getHelpLink() : '');
+	    }
+	  }]);
+	  return DialogError;
+	}();
+
 	var Slider = /*#__PURE__*/function () {
 	  function Slider() {
 	    babelHelpers.classCallCheck(this, Slider);
@@ -223,23 +296,27 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	  babelHelpers.createClass(Slider, [{
 	    key: "open",
-	    value: function open(url, options) {
-	      if (!main_core.Type.isPlainObject(options)) {
-	        options = {};
-	      }
-
-	      options = babelHelpers.objectSpread({}, {
-	        cacheable: false,
-	        allowChangeHistory: false,
-	        events: {}
-	      }, options);
+	    value: function open(url) {
+	      var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+	      params = main_core.Type.isPlainObject(params) ? params : {};
 	      return new Promise(function (resolve) {
-	        if (main_core.Type.isString(url) && url.length > 1) {
-	          options.events.onClose = function (event) {
-	            resolve(event.getSlider());
-	          };
+	        var data = params.hasOwnProperty("data") ? params.data : {};
+	        var events = params.hasOwnProperty("events") ? params.events : {};
+	        events.onClose = events.hasOwnProperty("onClose") ? events.onClose : function (event) {
+	          return resolve(event.getSlider());
+	        };
+	        url = BX.util.add_url_param(url, {
+	          "analyticsLabel": "inventoryManagementEnabled_openSlider"
+	        });
 
-	          BX.SidePanel.Instance.open(url, options);
+	        if (main_core.Type.isString(url) && url.length > 1) {
+	          BX.SidePanel.Instance.open(url, {
+	            cacheable: false,
+	            allowChangeHistory: false,
+	            events: events,
+	            data: data,
+	            width: 1130
+	          });
 	        } else {
 	          resolve();
 	        }
@@ -249,11 +326,66 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return Slider;
 	}();
 
+	var Popup = /*#__PURE__*/function () {
+	  function Popup() {
+	    babelHelpers.classCallCheck(this, Popup);
+	  }
+
+	  babelHelpers.createClass(Popup, [{
+	    key: "show",
+	    value: function show(target, message, timer) {
+	      var _this = this;
+
+	      if (this.popup) {
+	        this.popup.destroy();
+	        this.popup = null;
+	      }
+
+	      if (!target && !message) {
+	        return;
+	      }
+
+	      this.popup = new main_popup.Popup(null, target, {
+	        events: {
+	          onPopupClose: function onPopupClose() {
+	            _this.popup.destroy();
+
+	            _this.popup = null;
+	          }
+	        },
+	        darkMode: true,
+	        content: message,
+	        offsetLeft: target.offsetWidth
+	      });
+
+	      if (timer) {
+	        setTimeout(function () {
+	          _this.popup.destroy();
+
+	          _this.popup = null;
+	        }, timer);
+	      }
+
+	      this.popup.show();
+	    }
+	  }, {
+	    key: "hide",
+	    value: function hide() {
+	      if (this.popup) {
+	        this.popup.destroy();
+	      }
+	    }
+	  }]);
+	  return Popup;
+	}();
+
 	exports.EventType = EventType;
 	exports.DialogOneC = DialogOneC;
 	exports.DialogDisable = DialogDisable;
 	exports.DialogClearing = DialogClearing;
+	exports.DialogError = DialogError;
 	exports.Slider = Slider;
+	exports.Popup = Popup;
 
-}((this.BX.Catalog.StoreUse = this.BX.Catalog.StoreUse || {}),BX.Main,BX.UI,BX.Event,BX));
+}((this.BX.Catalog.StoreUse = this.BX.Catalog.StoreUse || {}),BX.Event,BX.UI,BX,BX.Main));
 //# sourceMappingURL=store-use.bundle.js.map

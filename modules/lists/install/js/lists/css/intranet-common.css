@@ -51,15 +51,14 @@
 
 .webform-additional-fields .webform-field-round-corners .webform-corners-bottom { background: url(/bitrix/js/main/core/images/controls-sprite.png?1) repeat-x 0 -165px; }
 
-.webform-main-block { background-color: #f8f6e4; }
+.webform-main-block {
+	background-color: #f8f6e4;
+	border-radius: var(--ui-border-radius-sm);
+}
 
-.webform-main-block .webform-content { border-left: 1px solid #e8e6d6; border-right: 1px solid #e8e6d6; padding: 14px 20px 11px 15px; }
-
-.webform-main-block .webform-corners-top { background: scroll transparent url(/bitrix/js/main/core/images/controls-sprite.png?1) repeat-x 0 -386px; }
-
-.webform-main-block .webform-corners-bottom { background: scroll transparent url(/bitrix/js/main/core/images/controls-sprite.png?1) repeat-x 0 -383px; }
-
-.webform-main-block .webform-left-corner, .webform-main-block .webform-right-corner { background: scroll transparent url(/bitrix/js/main/core/images/controls-sprite.png?1) no-repeat -5px -17px; }
+.webform-main-block .webform-content {
+	padding: 14px 20px 11px 15px;
+}
 
 .webform-main-content { overflow: hidden; }
 
@@ -69,19 +68,14 @@
 
 .webform-main-block-topless .webform-corners-top, .webform-main-block-bottomless .webform-corners-bottom { display: none; }
 
-.webform-main-block-topless .webform-content { border-top: 1px solid #e8e6d6; }
+.webform-additional-block {
+	background-color: #f3f3f3;
+	border-radius: var(--ui-border-radius-sm);
+}
 
-.webform-main-block-bottomless .webform-content { border-bottom: 1px solid #e8e6d6; }
-
-.webform-additional-block { background-color: #f3f3f3; }
-
-.webform-additional-block .webform-content { border-left: 1px solid #e1e1e1; border-right: 1px solid #e1e1e1; padding: 11px 20px 7px 16px; }
-
-.webform-additional-block .webform-corners-top { background: scroll transparent url(/bitrix/js/main/core/images/controls-sprite.png?1) repeat-x 0 -160px; }
-
-.webform-additional-block .webform-corners-bottom { background: scroll transparent url(/bitrix/js/main/core/images/controls-sprite.png?1) repeat-x 0 -157px; }
-
-.webform-additional-block .webform-left-corner, .webform-additional-block .webform-right-corner { background: scroll transparent url(/bitrix/js/main/core/images/controls-sprite.png?1) no-repeat -5px -34px; }
+.webform-additional-block .webform-content {
+	padding: 11px 20px 7px 16px;
+}
 
 .webform-additional-content { overflow: hidden; }
 

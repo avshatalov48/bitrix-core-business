@@ -142,7 +142,6 @@ class StorageTable extends DataManager
 			&& (int) $item['DATA']['ID'] > 0
 			&& (
 				$item['CODE'] === Structure::CODE_CONFIGURATION_FILES_LIST
-				|| mb_strpos($item['CODE'], Structure::CODE_UNPACK_FILE_PREFIX) !== false
 				|| mb_strpos($item['CODE'], Structure::CODE_CUSTOM_FILE) !== false
 			)
 		)

@@ -80,7 +80,7 @@ span.req {
 	height:36px;
 	vertical-align:middle;
 	border:1px solid #c5cdd3;
-	border-radius:2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	background-color:#fff;
 }
 

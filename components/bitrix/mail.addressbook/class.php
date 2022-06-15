@@ -129,7 +129,9 @@ class AddressBookComponent extends CBitrixComponent implements Controllerable
 			]
 		);
 
-		$pageNavigationObject->setRecordCount($list->getCount());
+		$count = $list->getCount();
+		$this->arResult['ROWS_COUNT'] = $count;
+		$pageNavigationObject->setRecordCount($count);
 		$this->arResult['NAV_OBJECT'] = $pageNavigationObject;
 		$this->arResult['ROWS'] = $list->fetchAll();
 	}

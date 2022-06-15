@@ -32,3 +32,6 @@ $MESS["SALE_NEW_CASHBOX"] = "Add Cash Register";
 $MESS["SALE_TAB_CASHBOX"] = "Cash register";
 $MESS["SALE_TAB_CASHBOX_DESCR"] = "Cash register parameters";
 $MESS["SPSN_DELETE_CASHBOX_CONFIRM"] = "Are you sure you want to delete the cash register?";
+$MESS["SALE_CASHBOX_TAB_TITLE_OFD_SETTINGS"] = "OFD Settings";
+$MESS["SALE_CASHBOX_TAB_TITLE_OFD_SETTINGS_DESC"] = "OFD Settings";
+$MESS["SALE_CASHBOX_EMAIL"] = "Email";

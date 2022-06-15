@@ -147,7 +147,7 @@ class MessageTable extends Entity\DataManager
 				$update
 			WHERE
 				ID = $id
-				AND STATE != {$newStatusId}
+				AND STATUS_ID != {$newStatusId}
 		";
 
 		$connection->query($query);

@@ -233,6 +233,11 @@ class Document extends Engine\Controller
 	 */
 	public function fieldsAction(): array
 	{
+		if (!$this->checkDocumentReadRights())
+		{
+			return [];
+		}
+
 		$view = new RestView\Document();
 		return $view->getFields();
 	}
@@ -340,6 +345,17 @@ class Document extends Engine\Controller
 	 */
 	public function deleteAction(int $id)
 	{
+		if (!$this->checkDocumentWriteRights())
+		{
+			$message = Loc::getMessage('DOCUMENT_CONTROLLER_NO_RIGHTS_ERROR');
+			$this->addError(new Error($message));
+
+			return [
+				'error' => 'ERROR_DOCUMENT_RIGHT',
+				'error_description' => $message,
+			];
+		}
+
 		$list = CCatalogDocs::getList(
 			[],
 			[
@@ -426,6 +442,11 @@ class Document extends Engine\Controller
 		int $limit = self::LIST_COUNT_DEFAULT
 	): array
 	{
+		if (!$this->checkDocumentReadRights())
+		{
+			return [];
+		}
+
 		if ($limit <= 0)
 		{
 			$limit = self::LIST_COUNT_DEFAULT;
@@ -548,6 +569,17 @@ class Document extends Engine\Controller
 	 */
 	public function unconfirmAction(int $id)
 	{
+		if (!$this->checkDocumentWriteRights())
+		{
+			$message = Loc::getMessage('DOCUMENT_CONTROLLER_NO_RIGHTS_ERROR');
+			$this->addError(new Error($message));
+
+			return [
+				'error' => 'ERROR_DOCUMENT_RIGHT',
+				'error_description' => $message,
+			];
+		}
+
 		$userId = CurrentUser::get()->getId();
 		if (!CCatalogDocs::cancellationDocument($id, $userId))
 		{
@@ -580,5 +612,15 @@ class Document extends Engine\Controller
 	private function checkDocumentWriteRights(): bool
 	{
 		return \Bitrix\Main\Engine\CurrentUser::get()->canDoOperation(Controller::CATALOG_STORE);
+	}
+
+	private function checkDocumentReadRights(): bool
+	{
+		$currentUser = \Bitrix\Main\Engine\CurrentUser::get();
+
+		return
+			$currentUser->canDoOperation(Controller::CATALOG_STORE)
+			|| $currentUser->canDoOperation(Controller::CATALOG_READ)
+		;
 	}
 }

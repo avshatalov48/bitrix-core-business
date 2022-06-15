@@ -266,6 +266,13 @@ class Helper
 
 		$mailboxHelper->setCheckpoint();
 
+		MailMessageUidTable::deleteList(
+			[
+				'=MAILBOX_ID' => $id,
+				'=IS_OLD' => 'R',
+			]
+		);
+
 		$stage1 = $mailboxHelper->dismissOldMessages();
 		$stage2 = $mailboxHelper->dismissDeletedUidMessages();
 		$stage3 = $mailboxHelper->cleanup();
@@ -596,7 +603,7 @@ class Helper
 		return $totalCount;
 	}
 
-	public static function getImapUnseen($mailbox, $dirPath = 'inbox', &$error, &$errors = null, $startInternalDate = null)
+	public static function getImapUnseen($mailbox, $dirPath = 'inbox', &$error = [], &$errors = null, $startInternalDate = null)
 	{
 		$error  = null;
 		$errors = null;

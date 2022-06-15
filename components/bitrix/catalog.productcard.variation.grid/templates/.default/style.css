@@ -504,13 +504,15 @@
 	margin-right: 25px;
 }
 
-.main-grid-cell-content-catalog-quantity-inventory-management {
+.main-grid-cell-content-catalog-quantity-inventory-management,
+.main-grid-cell-content-catalog-reserved-quantity {
 	color: #2067b0;
 	border-bottom: 1px dashed #2067b0;
 	cursor: pointer;
 }
 
-.main-grid-cell-content-catalog-quantity-inventory-management:hover {
+.main-grid-cell-content-catalog-quantity-inventory-management:hover,
+.main-grid-cell-content-catalog-reserved-quantity:hover {
 	text-decoration: none !important;
 }
 

@@ -8,9 +8,11 @@ use Bitrix\Landing;
 use Bitrix\Main\Loader;
 use Bitrix\Crm;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Catalog;
 
 class StoreV3Menu2 extends \Bitrix\Landing\LandingBlock
 {
+	protected $catalogIncluded;
 	protected $crmIncluded;
 
 	protected $userAuthorized = false;
@@ -26,6 +28,7 @@ class StoreV3Menu2 extends \Bitrix\Landing\LandingBlock
 	 */
 	public function init(array $params = [])
 	{
+		$this->catalogIncluded = Loader::includeModule('catalog');
 		$this->crmIncluded = Loader::includeModule('crm');
 		$this->params = Landing\Hook\Page\Settings::getDataForSite(
 			$params['site_id']
@@ -70,6 +73,19 @@ class StoreV3Menu2 extends \Bitrix\Landing\LandingBlock
 			'USER_NAME' => $this->userName,
 			'LAST_ORDER_URL' => $this->getLastOrderUrl(),
 		];
+	}
+
+	/**
+	 *  Method, which executes just before block.
+	 * @param \Bitrix\Landing\Block $block Block instance.
+	 * @return void
+	 */
+	public function beforeView(\Bitrix\Landing\Block $block): void
+	{
+		$this->params['ADDITIONAL_COUNT_ELEMENTS_FILTER'] = 'additionalCountFilter';
+		$this->params['HIDE_SECTIONS_WITH_ZERO_COUNT_ELEMENTS'] = 'Y';
+
+		$this->setElementListFilter();
 	}
 
 	protected function initCurrentUser(): void
@@ -118,5 +134,46 @@ class StoreV3Menu2 extends \Bitrix\Landing\LandingBlock
 		}
 
 		return $result;
+	}
+
+	private function setFilter(string $name, array $filter): void
+	{
+		$currentFilter = $GLOBALS[$name] ?? [];
+		if (!is_array($currentFilter))
+		{
+			$currentFilter = [];
+		}
+
+		$GLOBALS[$name] = array_merge(
+			$currentFilter,
+			$filter
+		);
+	}
+
+	private function setElementListFilter(): void
+	{
+		$filterName = $this->get('ADDITIONAL_COUNT_ELEMENTS_FILTER');
+		if ($filterName === null || $filterName === '')
+		{
+			return;
+		}
+
+		$listFilter = [];
+
+		if ($this->catalogIncluded)
+		{
+			if (class_exists('\Bitrix\Catalog\Product\SystemField\ProductMapping'))
+			{
+				$listFilter = Catalog\Product\SystemField\ProductMapping::getExtendedFilterByArea(
+					$listFilter,
+					Catalog\Product\SystemField\ProductMapping::MAP_LANDING
+				);
+			}
+		}
+
+		if (!empty($listFilter))
+		{
+			$this->setFilter($filterName, $listFilter);
+		}
 	}
 }

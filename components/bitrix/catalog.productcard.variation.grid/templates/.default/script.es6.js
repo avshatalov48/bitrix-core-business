@@ -1,4 +1,4 @@
-import {Dom, Event, Loc, Reflection, Runtime, Tag, Text, Type} from 'main.core';
+import {Dom, Event, Loc, Reflection, Runtime, Tag, Text, Type, Uri} from 'main.core';
 import {typeof BaseEvent, EventEmitter} from 'main.core.events';
 import {MenuManager, Popup, PopupManager} from 'main.popup';
 import {MessageBox, MessageBoxButtons} from 'ui.dialogs.messagebox';
@@ -24,6 +24,7 @@ class VariationGrid
 		this.canHaveSku = settings.canHaveSku || false;
 		this.storeAmount = settings.storeAmount;
 		this.isShowedStoreReserve = settings.isShowedStoreReserve;
+		this.reservedDealsSliderLink = settings.reservedDealsSliderLink;
 		if (settings.copyItemsMap)
 		{
 			this.getGrid().arParams.COPY_ITEMS_MAP = settings.copyItemsMap;
@@ -55,6 +56,7 @@ class VariationGrid
 		{
 			this.bindInlineEdit();
 			this.bindPopupInitToQuantityNodes();
+			this.bindSliderToReservedQuantityNodes();
 		}
 
 		Event.bind(this.getGrid().getScrollContainer(), 'scroll', Runtime.throttle(this.onScrollHandler.bind(this), 50));
@@ -318,6 +320,27 @@ class VariationGrid
 		});
 	}
 
+	bindSliderToReservedQuantityNodes()
+	{
+		const rows = this.getGrid().getRows().getRows();
+		rows.forEach((row) => {
+			if (row.isBodyChild() && !row.isTemplate())
+			{
+				const reservedQuantityNode = row.getNode().querySelector(
+					'.main-grid-cell-content-catalog-reserved-quantity'
+				);
+				if (Type.isDomNode(reservedQuantityNode))
+				{
+					Event.bind(
+						reservedQuantityNode,
+						'click',
+						this.openDealsWithReservedProductSlider.bind(this, row.getId())
+					);
+				}
+			}
+		});
+	}
+
 	openStoreAmountPopup(rowId, quantityNode)
 	{
 		const popupId = rowId + '-store-amount';
@@ -345,6 +368,25 @@ class VariationGrid
 		popup.show();
 	}
 
+	openDealsWithReservedProductSlider(rowId, storeId = 0)
+	{
+		if (!this.reservedDealsSliderLink)
+		{
+			return;
+		}
+
+		const sliderLink = new Uri(this.reservedDealsSliderLink);
+		sliderLink.setQueryParam('productId', rowId);
+		if (storeId > 0)
+		{
+			sliderLink.setQueryParam('storeId', storeId);
+		}
+		BX.SidePanel.Instance.open(sliderLink.toString(), {
+			allowChangeHistory: false,
+			cacheable: false
+		});
+	}
+
 	getStoreAmountPopupContent(rowId)
 	{
 		const skuStoreAmountData = this.storeAmount[rowId];
@@ -363,13 +405,13 @@ class VariationGrid
 
 		return Tag.render`
 			<div class="store-amount-popup-container">
-				${this.getStoreAmountTable(stores)}
+				${this.getStoreAmountTable(stores, rowId)}
 				${linkToDetails ? this.getOpenStoreAmountDetailsSliderLabel(linkToDetails, currentSkusCount) : ''}
 			</div>
 		`;
 	}
 
-	getStoreAmountTable(stores)
+	getStoreAmountTable(stores, rowId)
 	{
 		const table = Tag.render`<table class="main-grid-table"></table>`;
 		const tableHead = table.createTHead();
@@ -397,7 +439,13 @@ class VariationGrid
 			this.addCellToTable(tableRow, store.quantityCommon, false);
 			if (this.isShowedStoreReserve)
 			{
-				this.addCellToTable(tableRow, store.quantityReserved, false);
+				const quantityReservedNode = Tag.render`<a class="main-grid-cell-content-catalog-reserved-quantity">${store.quantityReserved}</a>`;
+				Event.bind(
+					quantityReservedNode,
+					'click',
+					this.openDealsWithReservedProductSlider.bind(this, rowId, store.storeId)
+				);
+				this.addCellToTable(tableRow, quantityReservedNode, false);
 				this.addCellToTable(tableRow, store.quantityAvailable, false);
 			}
 		});

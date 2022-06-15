@@ -17,6 +17,7 @@ use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\SystemException;
 use Bitrix\Sale\Internals;
 use Bitrix\Currency;
+use Bitrix\Sale\Reservation\Configuration\ReserveCondition;
 
 Loc::loadMessages(__FILE__);
 
@@ -1026,7 +1027,7 @@ abstract class ProviderBase
 				$options = array(
 					'RETURN_BASKET_ID'
 				);
-	
+
 				foreach ($basketProviderList as $providerClassName => $productValueList)
 				{
 					$r = static::getProductDataByList($productValueList, $providerClassName, $select, $context, $options);
@@ -1039,8 +1040,8 @@ abstract class ProviderBase
 						}
 					}
 				}
-	
-			}	
+
+			}
 		}
 
 		return $resultList;
@@ -2917,7 +2918,7 @@ abstract class ProviderBase
 				$availableQuantity = -1 * $shipmentItem->getReservedQuantity();
 			}
 
-			if (Configuration::getProductReservationCondition() != Configuration::RESERVE_ON_SHIP)
+			if (Configuration::getProductReservationCondition() != ReserveCondition::ON_SHIP)
 			{
 
 				$reservedQuantity = ($availableQuantity >= $needQuantity ? $needQuantity : $availableQuantity);
@@ -3446,193 +3447,6 @@ abstract class ProviderBase
 	}
 
 	/**
-	 * @param ShipmentItem $shipmentItem
-	 * @param $quantity
-	 *
-	 * @return Result
-	 * @throws NotSupportedException
-	 * @throws ObjectNotFoundException
-	 */
-	private static function unreserveShipmentItem(ShipmentItem $shipmentItem, $quantity)
-	{
-		global $APPLICATION;
-
-		$result = new Result();
-		$fields = array();
-
-		/** @var ShipmentItemCollection $shipmentItemCollection */
-		if (!$shipmentItemCollection = $shipmentItem->getCollection())
-		{
-			throw new ObjectNotFoundException('Entity "ShipmentItemCollection" not found');
-		}
-
-		/** @var Shipment $shipment */
-		if (!$shipment = $shipmentItemCollection->getShipment())
-		{
-			throw new ObjectNotFoundException('Entity "Shipment" not found');
-		}
-
-		/** @var BasketItem $basketItem */
-		if (!$basketItem = $shipmentItem->getBasketItem())
-		{
-			$result->addError( new ResultError(
-			   Loc::getMessage('SALE_PROVIDER_BASKET_ITEM_NOT_FOUND',  array(
-				   '#BASKET_ITEM_ID#' => $shipmentItem->getBasketId(),
-				   '#SHIPMENT_ID#' => $shipment->getId(),
-				   '#SHIPMENT_ITEM_ID#' => $shipmentItem->getId(),
-			   )),
-			'PROVIDER_UNRESERVED_SHIPMENT_ITEM_WRONG_BASKET_ITEM')
-			);
-			return $result;
-		}
-
-		$provider = $basketItem->getProvider();
-
-		if ($provider && array_key_exists("IBXSaleProductProvider", class_implements($provider)))
-		{
-
-			$data = array(
-				"PRODUCT_ID" => $basketItem->getProductId(),
-				"UNDO_RESERVATION" => "Y",
-				"QUANTITY_ADD"   => $quantity,
-				"ORDER_DEDUCTED" => $shipment->isShipped()? "Y" : "N",
-			);
-			$APPLICATION->ResetException();
-			if (($resultReserveData = $provider::ReserveProduct($data)))
-			{
-				if ($resultReserveData['RESULT'])
-				{
-					$fields['QUANTITY'] = $resultReserveData['QUANTITY_RESERVED'];
-
-					if (isset($resultReserveData['QUANTITY_NOT_RESERVED']) && floatval($resultReserveData['QUANTITY_NOT_RESERVED']) > 0)
-					{
-						$fields['QUANTITY'] = $shipmentItem->getReservedQuantity() + ($shipmentItem->getQuantity() - $shipmentItem->getReservedQuantity()) -  $resultReserveData['QUANTITY_NOT_RESERVED'];
-					}
-
-					return $result;
-				}
-				else
-				{
-					if ($ex = $APPLICATION->GetException())
-					{
-						if ($ex->GetID() != "ALREADY_FLAG")
-							$result->addError(new ResultError($ex->GetString())) ;
-					}
-					else
-					{
-						$result->addError(new ResultError(Loc::getMessage('SALE_PROVIDER_RESERVE_BASKET_ITEM_ERROR'), 'SALE_PROVIDER_RESERVE_BASKET_ITEM_ERROR')) ;
-					}
-				}
-
-			}
-
-		}
-
-		if (!empty($fields))
-		{
-			$result->setData($fields);
-		}
-		return $result;
-	}
-
-	/**
-	 * @param Shipment $shipment
-	 * @return array
-	 * @throws NotSupportedException
-	 * @throws ObjectNotFoundException
-	 */
-	public static function syncReservedQuantity(Shipment $shipment)
-	{
-		$result = array();
-
-		/** @var ShipmentCollection $shipmentCollection */
-		if (!$shipmentCollection = $shipment->getCollection())
-		{
-			throw new ObjectNotFoundException('Entity "ShipmentCollection" not found');
-		}
-
-		/** @var Shipment $systemShipment */
-		$systemShipment = $shipmentCollection->getSystemShipment();
-
-		/** @var ShipmentItemCollection $shipmentItemCollection */
-		if (!$shipmentItemCollection = $shipment->getShipmentItemCollection())
-		{
-			throw new ObjectNotFoundException('Entity "ShipmentItemCollection" not found');
-		}
-
-		/** @var ShipmentItem $shipmentItem */
-		foreach ($shipmentItemCollection as $shipmentIndex => $shipmentItem)
-		{
-			$basketCode = $shipmentItem->getBasketCode();
-
-			if (!array_key_exists($basketCode, static::$poolProductQuantity))
-			{
-				continue;
-			}
-
-			$reserveQuantity = static::$poolProductQuantity[$basketCode];
-
-
-			if ($reserveQuantity >= 0)
-			{
-
-				$basketCode = $shipmentItem->getBasketCode();
-
-				if (floatval($shipmentItem->getQuantity()) == floatval($shipmentItem->getReservedQuantity()))
-				{
-					continue;
-				}
-
-				$needReserved = floatval($shipmentItem->getQuantity()) - floatval($shipmentItem->getReservedQuantity());
-
-				$resultQuantity = static::reserveShipmentItem($shipmentItem, (($reserveQuantity - $needReserved) > 0 || $reserveQuantity == 0)? $needReserved : $reserveQuantity );
-
-				if (!$shipment->isSystem())
-				{
-					$shipmentReservedQuantity = floatval($shipmentItem->getReservedQuantity()) + $resultQuantity;
-					if (floatval($shipmentReservedQuantity) != floatval($shipmentItem->getQuantity()))
-					{
-						/** @var ShipmentItemCollection $systemShipmentItemCollection */
-						$systemShipmentItemCollection = $systemShipment->getShipmentItemCollection();
-
-						/** @var ShipmentItem $systemShipmentItem */
-						if ($systemShipmentItem = $systemShipmentItemCollection->getItemByBasketCode($shipmentItem->getBasketCode()))
-						{
-							$needMoreReserved = $shipmentItem->getQuantity() - $shipmentReservedQuantity;
-							$quantityNeedReserve = $systemShipmentItem->getReservedQuantity() - $needMoreReserved;
-							$quantityNeedReserve = ($quantityNeedReserve <= 0) ? $systemShipmentItem->getReservedQuantity() : $needMoreReserved ;
-
-							if (static::unreserveShipmentItem($systemShipmentItem, $quantityNeedReserve))
-							{
-								$resultNeedQuantity = static::reserveShipmentItem($shipmentItem, $quantityNeedReserve);
-
-								$resultQuantity = $resultQuantity + $resultNeedQuantity;
-							}
-						}
-					}
-				}
-			}
-			else
-			{
-
-				$resultQuantity = static::unreserveShipmentItem($shipmentItem, $shipmentItem->getReservedQuantity());
-
-			}
-
-			static::$poolProductQuantity[$basketCode] -= $resultQuantity;
-			$result[$shipmentItem->getBasketCode()] = $resultQuantity;
-
-			if (static::$poolProductQuantity[$basketCode] == 0)
-			{
-				unset(static::$poolProductQuantity[$basketCode]);
-			}
-
-		}
-
-		return $result;
-	}
-
-	/**
 	 * reduce in the quantity of product if the reservation is disabled
 	 * @param ShipmentCollection $shipmentCollection
 	 * @param array $shipmentReserveList
@@ -3933,7 +3747,7 @@ abstract class ProviderBase
 				{
 					$providerName = $basketItem->getCallbackFunction();
 				}
-				
+
 				$resultData = $r->getData();
 				if (!empty($resultData) && array_key_exists('BARCODE_CHECK_LIST', $resultData))
 				{
@@ -5076,7 +4890,7 @@ abstract class ProviderBase
 		$result = new Result();
 		$APPLICATION->ResetException();
 		$resultProductData = false;
-		
+
 		if ($provider && array_key_exists("IBXSaleProductProvider", class_implements($provider)))
 		{
 			$resultProductData = $provider::DeliverProduct($fields);

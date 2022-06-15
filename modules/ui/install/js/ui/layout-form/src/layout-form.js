@@ -28,8 +28,11 @@ export class LayoutForm
 		if (checkbox.checked)
 		{
 			let hiddenBlock = hiddenRow.nextElementSibling;
-			hiddenBlock.style.height = hiddenBlock.scrollHeight + 'px';
-			Dom.addClass(hiddenBlock, 'ui-form-row-hidden-show');
+			if (hiddenBlock.scrollHeight > 0)
+			{
+				hiddenBlock.style.height = hiddenBlock.scrollHeight + 'px';
+				Dom.addClass(hiddenBlock, 'ui-form-row-hidden-show');
+			}
 		}
 	}
 

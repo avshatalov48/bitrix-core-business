@@ -148,6 +148,19 @@ class ReserveQuantity extends Internals\CollectableEntity
 	{
 		if ($name === 'QUANTITY')
 		{
+			$collection = $this->getCollection();
+
+			if ($collection->getQuantity() > $collection->getBasketItem()->getQuantity())
+			{
+				$result = new Result();
+
+				return $result->addError(
+					new Main\Error(
+						Main\Localization\Loc::getMessage('SALE_RESERVE_QUANTITY_EXCEEDING_ERROR')
+					)
+				);
+			}
+
 			$result = Internals\Catalog\Provider::tryReserve($this);
 			if (!$result->isSuccess())
 			{

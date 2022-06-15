@@ -28,6 +28,7 @@ abstract class OAuth
 				OAuth\LiveId::getServiceName(),
 				OAuth\Yandex::getServiceName(),
 				OAuth\Mailru::getServiceName(),
+				OAuth\Office365::getServiceName(),
 			);
 		}
 
@@ -278,7 +279,7 @@ abstract class OAuth
 			'%s://%s:%u',
 			$request->isHttps() ? 'https' : 'http',
 			$request->getHttpHost(),
-			Main\Context::getCurrent()->getServer()->getServerPort() // $request->getServerPort()
+			Main\Context::getCurrent()->getServer()->getServerPort()
 		));
 
 		return rtrim($uri->getLocator(), '/');
@@ -490,6 +491,15 @@ abstract class OAuth
 				else
 				{
 					Mail\Internals\OAuthTable::update($item['ID'], $fields);
+				}
+
+				if(isset($userData['__data']['emailIsIntended']))
+				{
+					$userData['emailIsIntended'] = $userData['__data']['emailIsIntended'];
+				}
+				else
+				{
+					$userData['emailIsIntended'] = false;
 				}
 
 				unset($userData['__data']);

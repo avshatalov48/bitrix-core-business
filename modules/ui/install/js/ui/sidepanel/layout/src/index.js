@@ -1,6 +1,6 @@
 import './style.css';
 import 'sidepanel';
-import {Tag, Type, BaseError} from 'main.core';
+import {Dom, Tag, Type, BaseError} from 'main.core';
 import {CloseButton, CancelButton, BaseButton} from 'ui.buttons';
 import {Menu, type MenuOptions, Item as MenuItem} from 'ui.sidepanel.menu';
 import {BaseEvent} from "main.core.events";
@@ -71,6 +71,7 @@ export class Layout
 	}
 
 	#container;
+	#containerFooter;
 	#options;
 	#menu: Menu;
 
@@ -101,6 +102,16 @@ export class Layout
 			this.#container = Tag.render`<div class="ui-sidepanel-layout"></div>`;
 		}
 		return this.#container;
+	}
+
+	getFooterContainer()
+	{
+		if (!this.#containerFooter)
+		{
+			this.#containerFooter = Tag.render`<div class="ui-sidepanel-layout-footer"></div>`;
+		}
+
+		return this.#containerFooter;
 	}
 
 	render(content: string = '', promised: boolean = false)
@@ -220,14 +231,13 @@ export class Layout
 			{
 				container.appendChild(Tag.render`<div class="ui-sidepanel-layout-footer-anchor"></div>`);
 
-				const footer = Tag.render`<div class="ui-sidepanel-layout-footer"></div>`;
 				const classes = ['ui-sidepanel-layout-buttons'];
 				if (this.#options.design.alignButtonsLeft)
 				{
 					classes.push('ui-sidepanel-layout-buttons-align-left');
 				}
 				const buttons = Tag.render`<div class="${classes.join(' ')}"></div>`;
-				footer.appendChild(buttons);
+				this.getFooterContainer().appendChild(buttons);
 				buttonList.forEach(button => {
 					if (button instanceof BaseButton)
 					{
@@ -242,11 +252,33 @@ export class Layout
 						throw BaseError('Wrong button type ' + button);
 					}
 				});
-				container.appendChild(footer);
+				container.appendChild(this.getFooterContainer());
 			}
 		}
 
+		setTimeout(()=> {
+			this.afterRender();
+		});
 		return container;
+	}
+
+	afterRender()
+	{
+		const parentSet = this.getContainer().parentNode;
+
+		if (parentSet.scrollWidth > parentSet.offsetWidth) 
+		{
+			this.getFooterContainer().style.setProperty('bottom', this.#getScrollWidth() + 'px');
+		}
+	}
+
+	#getScrollWidth()
+	{
+		const div = Tag.render`<div style="overflow-y: scroll; width: 50px; height: 50px; opacity: 0; pointer-events: none; position: absolute;"></div>`
+		document.body.appendChild(div);
+		const scrollWidth = div.offsetWidth - div.clientWidth
+		Dom.remove(div);
+		return scrollWidth;
 	}
 
 	#onMenuItemClick(item: MenuItem, container: HTMLElement = null)

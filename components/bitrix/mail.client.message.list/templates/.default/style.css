@@ -106,8 +106,21 @@
 	flex: 1 1;
 }
 
-.main-grid-row[unseen="true"]:not(:hover):not(.main-grid-row-checked) .main-grid-cell {
-	background-color: #fffcee !important;
+@keyframes color_change {
+	0% {
+		background-color: #FEFBE7
+	}
+	80% {
+		background-color: #FEFBE7
+	}
+	100% {
+		background-color: #fff;
+	}
+}
+
+.main-grid-row[new-message="true"] .main-grid-cell {
+	animation-name: color_change;
+	animation-duration: 2s;
 }
 
 .mail-read-all-button-wrapper{
@@ -259,19 +272,8 @@
 	overflow: hidden;
 }
 
-.mail-left-menu-title .logo-color:first-of-type {
-	max-width: 128px;
-	overflow: hidden;
-	flex-grow: 12;
-	text-overflow: ellipsis;
-}
-
 .bitrix24-dark-theme .mail-left-menu-title {
 	color: rgba(51, 51, 51, .7);
-}
-
-.logo-point {
-	color: #939DB7;
 }
 
 .bitrix24-light-theme .mail-left-menu-title {
@@ -380,6 +382,16 @@
 
 .mail-msg-list-grid .main-grid-header .main-grid-cell-checkbox .main-grid-cell-head-container {
 	visibility: hidden;
+}
+
+.mail-msg-list-grid .main-grid-table tbody tr:nth-child(2) td:first-child,
+.mail-msg-list-grid .main-grid-empty-stub .main-grid-table tbody tr:nth-child(1) td:first-child {
+	border-top-left-radius: var(--ui-border-radius-md);
+}
+
+.mail-msg-list-grid .main-grid-table tbody tr:nth-child(2) td:last-child,
+.mail-msg-list-grid .main-grid-empty-stub .main-grid-table tbody tr:nth-child(1) td:last-child {
+	border-top-right-radius: var(--ui-border-radius-md);
 }
 
 .mail-msg-list-cell-nowrap,

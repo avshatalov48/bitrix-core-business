@@ -54,15 +54,14 @@ class Price extends Entity
 		if ($id <= 0)
 			return false;
 
-		if (self::$extraList === null)
-			self::loadSettings();
-
-		if (empty(self::$extraList) || self::$basePriceType == 0)
-			return false;
-
 		if (self::$separateSkuMode === null)
 		{
-			self::$separateSkuMode = Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+			self::loadSettings();
+		}
+
+		if (empty(self::$extraList) || self::$basePriceType == 0)
+		{
+			return false;
 		}
 
 		$iterator = Catalog\PriceTable::getList([
@@ -153,7 +152,7 @@ class Price extends Entity
 
 		if (self::$separateSkuMode === null)
 		{
-			self::$separateSkuMode = Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+			self::loadSettings();
 		}
 
 		static $defaultValues = null,
@@ -176,8 +175,6 @@ class Price extends Entity
 				'ID' => true
 			];
 		}
-		if (self::$extraList === null)
-			self::loadSettings();
 
 		$fields = array_merge($defaultValues, array_diff_key($fields, $blackList));
 
@@ -314,7 +311,7 @@ class Price extends Entity
 
 		if (self::$separateSkuMode === null)
 		{
-			self::$separateSkuMode = Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+			self::loadSettings();
 		}
 
 		$fields = $data['fields'];
@@ -325,9 +322,6 @@ class Price extends Entity
 		$blackList = [
 			'ID' => true
 		];
-
-		if (self::$extraList === null)
-			self::loadSettings();
 
 		$fields = array_diff_key($fields, $blackList);
 
@@ -648,22 +642,17 @@ class Price extends Entity
 
 	private static function loadSettings()
 	{
+		self::$separateSkuMode = Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+
 		self::$extraList = [];
-		//TODO: remove after create \Bitrix\Catalog\Model\Extra
-		$iterator = Catalog\ExtraTable::getList([
-			'select' => ['ID', 'PERCENTAGE'],
-			'order' => ['ID' => 'ASC'],
-			'cache' => ['ttl' => 3600]
-		]);
-		while ($row = $iterator->fetch())
+		foreach (Catalog\ExtraTable::getExtraList() as $row)
+		{
 			self::$extraList[$row['ID']] = (100 + (float)$row['PERCENTAGE']) / 100;
-		unset($row, $iterator);
-		//TODO: replace to d7 api
-		$baseType = \CCatalogGroup::GetBaseGroup();
-		self::$basePriceType = (!empty($baseType) ? (int)$baseType['ID'] : 0);
-		unset($baseType);
-		//TODO: replace to d7 api
-		self::$priceTypes = \CCatalogGroup::GetListArray();
+		}
+		unset($row);
+
+		self::$basePriceType = (int)Catalog\GroupTable::getBasePriceTypeId();
+		self::$priceTypes = Catalog\GroupTable::getTypeList();;
 	}
 
 	private static function calculatePriceFromBase($id, array &$fields)
@@ -733,5 +722,15 @@ class Price extends Entity
 		while ($row = $iterator->fetch())
 			self::$productPrices[$productId][self::getPriceIndex($row)] = $row;
 		unset($row, $iterator);
+	}
+
+	public static function clearSettings(): void
+	{
+		parent::clearSettings();
+
+		self::$separateSkuMode = null;
+		self::$basePriceType = null;
+		self::$priceTypes = null;
+		self::$extraList = null;
 	}
 }

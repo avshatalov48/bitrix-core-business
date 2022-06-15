@@ -44,9 +44,29 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 		if ($this->catalogIncluded)
 		{
 			$this->catalogConfig = \CCatalogSku::GetInfoByIBlock($this->iblockId);
-			$this->catalogOptions['SEPARATE_MODE'] = (string)Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
+			if (empty($this->catalogConfig))
+			{
+				$this->catalogConfig = null;
+			}
+			$this->catalogOptions['SEPARATE_MODE'] = Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
 			$this->catalogOptions['STORE_MODE'] = Catalog\Config\State::isUsedInventoryManagement();
 		}
+	}
+
+	/**
+	 * @return array|null
+	 */
+	public function getCatalogConfig(): ?array
+	{
+		return $this->catalogConfig;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getCatalogOptions(): array
+	{
+		return $this->catalogOptions;
 	}
 
 	/**
@@ -82,26 +102,32 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	 * @param array $params
 	 * @return array|null
 	 */
-	protected function actionProductFieldPanel(array $params = [])
+	protected function actionProductFieldPanel(array $params = []): ?array
 	{
 		if (!$this->isAllowedProductActions())
 			return null;
 
 		$result = [];
 		$items = [];
-		foreach ($this->productFieldHandlers as $handler)
-		{
-			$handler = 'getProductField'.$handler.'Row';
-			if (is_callable([$this, $handler]))
-			{
-				$row = call_user_func_array([$this, $handler], []);
-				if (!empty($row))
-					$items[] = $row;
-			}
-		}
-		unset($row, $handler);
 
-		$userFields = Catalog\Product\SystemField::getGroupActions();
+		if ($this->catalogConfig['CATALOG_TYPE'] !== \CCatalogSku::TYPE_PRODUCT)
+		{
+			foreach ($this->productFieldHandlers as $handler)
+			{
+				$handler = 'getProductField' . $handler . 'Row';
+				if (is_callable([$this, $handler]))
+				{
+					$row = call_user_func_array([$this, $handler], []);
+					if (!empty($row))
+					{
+						$items[] = $row;
+					}
+				}
+			}
+			unset($row, $handler);
+		}
+
+		$userFields = Catalog\Product\SystemField::getGroupActions($this);
 		if (!empty($userFields) && is_array($userFields))
 		{
 			$items = array_merge($items, $userFields);
@@ -153,17 +179,23 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function actionProductFieldRequest()
+	protected function actionProductFieldRequest(): ?array
 	{
 		$fieldId = $this->request->get($this->getFormProductFieldName());
 		if (empty($fieldId))
+		{
 			return null;
+		}
 
 		if (strncmp($fieldId, 'UF_', 3) === 0)
-			return Catalog\Product\SystemField::getGroupActionRequest($fieldId);
+		{
+			return Catalog\Product\SystemField::getGroupActionRequest($this, $fieldId);
+		}
 
 		if (!isset($this->productFieldHandlers[$fieldId]))
+		{
 			return null;
+		}
 
 		$handler = 'getProductField'.$this->productFieldHandlers[$fieldId].'Request';
 		if (is_callable([$this, $handler]))
@@ -178,7 +210,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	 * @param array $params
 	 * @return array|null
 	 */
-	protected function actionProductChangePricePanel(array $params = [])
+	protected function actionProductChangePricePanel(array $params = []): ?array
 	{
 		if (!$this->isAllowedProductActions())
 			return null;
@@ -198,7 +230,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function actionProductChangePriceRequest()
+	protected function actionProductChangePriceRequest(): ?array
 	{
 		$result = [];
 		$result['PRICE_TYPE'] = $this->request->get('chprice_id_price_type');
@@ -214,7 +246,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return string
 	 */
-	protected function getFormProductFieldName()
+	public function getFormProductFieldName(): string
 	{
 		return self::PRODUCT_FIELD_NAME;
 	}
@@ -222,7 +254,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return string
 	 */
-	protected function getFormProductFieldId()
+	public function getFormProductFieldId(): string
 	{
 		return mb_strtolower($this->getFormProductFieldName().'_ID');
 	}
@@ -231,7 +263,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	 * @param string $field
 	 * @return string
 	 */
-	protected function getFormRowFieldName(string $field)
+	public function getFormRowFieldName(string $field): string
 	{
 		return self::FIELD_NAME_PREFIX.mb_strtoupper($field);
 	}
@@ -240,7 +272,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	 * @param string $field
 	 * @return string
 	 */
-	protected function getFormRowFieldId(string $field)
+	public function getFormRowFieldId(string $field): string
 	{
 		return self::FIELD_ID_PREFIX.mb_strtolower($field).'_id';
 	}
@@ -249,7 +281,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	 * @param bool $defaultState
 	 * @return array
 	 */
-	protected static function getStatusList(bool $defaultState)
+	protected static function getStatusList(bool $defaultState): array
 	{
 		$result = [];
 
@@ -278,7 +310,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array
 	 */
-	protected static function getBinaryList()
+	protected static function getBinaryList(): array
 	{
 		$result = [];
 
@@ -297,14 +329,16 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return bool
 	 */
-	protected function isAllowedProductActions()
+	protected function isAllowedProductActions(): bool
 	{
 		if (!$this->catalogIncluded)
+		{
 			return false;
+		}
 		if (empty($this->catalogConfig))
+		{
 			return false;
-		if ($this->catalogConfig['CATALOG_TYPE'] == \CCatalogSku::TYPE_PRODUCT)
-			return false;
+		}
 
 		return true;
 	}
@@ -315,7 +349,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	 * @throws Main\ArgumentException
 	 * @throws Main\SystemException
 	 */
-	protected function getInputField(string $fieldId)
+	protected function getInputField(string $fieldId): array
 	{
 		$entity = Catalog\ProductTable::getEntity();
 		$field = $entity->getField($fieldId);
@@ -353,7 +387,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	 * @throws Main\ArgumentException
 	 * @throws Main\SystemException
 	 */
-	protected function getDropdownField(string $fieldId, array $list)
+	protected function getDropdownField(string $fieldId, array $list): ?array
 	{
 		$entity = Catalog\ProductTable::getEntity();
 		$field = $entity->getField($fieldId);
@@ -388,7 +422,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldWeightRow()
+	protected function getProductFieldWeightRow(): ?array
 	{
 		if (!$this->isAllowedProductActions())
 			return null;
@@ -399,7 +433,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldWeightRequest()
+	protected function getProductFieldWeightRequest(): ?array
 	{
 		$result = $this->request->get($this->getFormRowFieldName('WEIGHT'));
 		$result = $this->checkFloatValue($result);
@@ -411,7 +445,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldQuantityTraceRow()
+	protected function getProductFieldQuantityTraceRow(): ?array
 	{
 		if ($this->catalogOptions['STORE_MODE'])
 			return null;
@@ -419,7 +453,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 		return $this->getDropdownField(
 			'QUANTITY_TRACE',
 			$this->getStatusList(
-				(string)Main\Config\Option::get('catalog', 'default_quantity_trace') === 'Y'
+				Main\Config\Option::get('catalog', 'default_quantity_trace') === 'Y'
 			)
 		);
 	}
@@ -427,7 +461,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldQuantityTraceRequest()
+	protected function getProductFieldQuantityTraceRequest(): ?array
 	{
 		$result = $this->request->get($this->getFormRowFieldName('QUANTITY_TRACE'));
 		if (!$this->checkStatusValue($result))
@@ -438,7 +472,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldCanBuyZeroRow()
+	protected function getProductFieldCanBuyZeroRow(): ?array
 	{
 		if ($this->catalogOptions['STORE_MODE'])
 			return null;
@@ -446,7 +480,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 		return $this->getDropdownField(
 			'CAN_BUY_ZERO',
 			$this->getStatusList(
-				(string)Main\Config\Option::get('catalog', 'default_can_buy_zero') === 'Y'
+				Main\Config\Option::get('catalog', 'default_can_buy_zero') === 'Y'
 			)
 		);
 	}
@@ -454,10 +488,10 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldCanBuyZeroRequest()
+	protected function getProductFieldCanBuyZeroRequest(): ?array
 	{
 		$result = $this->request->get($this->getFormRowFieldName('CAN_BUY_ZERO'));
-		if ($result === null || !is_string($result))
+		if (!is_string($result))
 			return null;
 		if (!$this->checkStatusValue($result))
 			return null;
@@ -467,7 +501,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldQuantityRow()
+	protected function getProductFieldQuantityRow(): ?array
 	{
 		if ($this->catalogOptions['STORE_MODE'])
 			return null;
@@ -478,7 +512,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldQuantityRequest()
+	protected function getProductFieldQuantityRequest(): ?array
 	{
 		$result = $this->request->get($this->getFormRowFieldName('QUANTITY'));
 		$result = $this->checkFloatValue($result);
@@ -490,7 +524,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldPurchasingPriceRow()
+	protected function getProductFieldPurchasingPriceRow(): ?array
 	{
 		global $USER;
 		if ($this->catalogOptions['STORE_MODE'])
@@ -548,7 +582,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldPurchasingPriceRequest()
+	protected function getProductFieldPurchasingPriceRequest(): ?array
 	{
 		$price = self::checkEmptyFloatValue($this->request->get($this->getFormRowFieldName('PURCHASING_PRICE')));
 		if ($price === null)
@@ -561,7 +595,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 		else
 		{
 			$currency = $this->request->get($this->getFormRowFieldName('PURCHASING_CURRENCY'));
-			if ($currency === null || !is_string($currency))
+			if (!is_string($currency))
 				return null;
 			$currency = trim($currency);
 			if ($currency === '')
@@ -573,7 +607,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldVatIncludedRow()
+	protected function getProductFieldVatIncludedRow(): ?array
 	{
 		return $this->getDropdownField(
 			'VAT_INCLUDED',
@@ -584,7 +618,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldVatIncludedRequest()
+	protected function getProductFieldVatIncludedRequest(): ?array
 	{
 		$result = $this->request->get($this->getFormRowFieldName('VAT_INCLUDED'));
 		if (!$this->checkBinaryValue($result))
@@ -595,7 +629,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldVatIdRow()
+	protected function getProductFieldVatIdRow(): ?array
 	{
 		$list = [];
 		$list[] = [
@@ -629,7 +663,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldVatIdRequest()
+	protected function getProductFieldVatIdRequest(): ?array
 	{
 		$result = $this->checkIntValue($this->request->get($this->getFormRowFieldName('VAT_ID')));
 		if ($result === null || $result < 0)
@@ -640,12 +674,12 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldSubscribeRow()
+	protected function getProductFieldSubscribeRow(): ?array
 	{
 		return $this->getDropdownField(
 			'SUBSCRIBE',
 			$this->getStatusList(
-				(string)Main\Config\Option::get('catalog', 'default_subscribe') === 'Y'
+				Main\Config\Option::get('catalog', 'default_subscribe') === 'Y'
 			)
 		);
 	}
@@ -653,10 +687,10 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldSubscribeRequest()
+	protected function getProductFieldSubscribeRequest(): ?array
 	{
 		$result = $this->request->get($this->getFormRowFieldName('SUBSCRIBE'));
-		if ($result === null || !is_string($result))
+		if (!is_string($result))
 			return null;
 		if (!$this->checkStatusValue($result))
 			return null;
@@ -666,7 +700,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldMeasureRow()
+	protected function getProductFieldMeasureRow(): ?array
 	{
 		$list = [];
 		$iterator = \CCatalogMeasure::getList(
@@ -696,7 +730,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	/**
 	 * @return array|null
 	 */
-	protected function getProductFieldMeasureRequest()
+	protected function getProductFieldMeasureRequest(): ?array
 	{
 		$result = $this->checkIntValue($this->request->get($this->getFormRowFieldName('MEASURE')));
 		if ($result === null || $result <= 0)
@@ -711,7 +745,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	 * @param $value
 	 * @return float|null
 	 */
-	protected static function checkFloatValue($value)
+	protected static function checkFloatValue($value): ?float
 	{
 		if (is_array($value) || $value === null)
 			return null;
@@ -741,13 +775,11 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	}
 
 	/**
-	 * @param string $value
+	 * @param $value
 	 * @return bool
 	 */
-	protected static function checkStatusValue($value)
+	protected static function checkStatusValue($value): bool
 	{
-		if ($value === null || !is_string($value))
-			return null;
 		return (
 			$value === Catalog\ProductTable::STATUS_DEFAULT
 			|| $value === Catalog\ProductTable::STATUS_YES
@@ -756,13 +788,11 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	}
 
 	/**
-	 * @param string $value
+	 * @param $value
 	 * @return bool
 	 */
-	protected static function checkBinaryValue($value)
+	protected static function checkBinaryValue($value): bool
 	{
-		if ($value === null || !is_string($value))
-			return null;
 		return (
 			$value === Catalog\ProductTable::STATUS_YES
 			|| $value === Catalog\ProductTable::STATUS_NO
@@ -776,12 +806,17 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	 * @param string|int $value		Integer value from form.
 	 * @return int|null
 	 */
-	protected static function checkIntValue($value)
+	protected static function checkIntValue($value): ?int
 	{
 		if (is_array($value) || $value === null)
+		{
 			return null;
+		}
 		if (((int)$value).'|' !== $value.'|')
+		{
 			return null;
+		}
+
 		return (int)$value;
 	}
 }

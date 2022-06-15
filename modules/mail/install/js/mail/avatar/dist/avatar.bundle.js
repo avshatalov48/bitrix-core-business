@@ -26,16 +26,61 @@ this.BX = this.BX || {};
 	      return hashCode;
 	    }
 	  }, {
-	    key: "numberToRGB",
-	    value: function numberToRGB(index) {
-	      var color = (index & 0x00FFFFFF).toString(16);
-	      color = color.toUpperCase();
-	      return '00000'.substring(0, 6 - color.length) + color;
+	    key: "alignChannelRangeColor",
+	    value: function alignChannelRangeColor(chanelCode) {
+	      if (chanelCode > 255) {
+	        return 255;
+	      } else if (chanelCode < 0) {
+	        return 0;
+	      } else {
+	        return Math.ceil(chanelCode);
+	      }
+	    }
+	  }, {
+	    key: "hashToColor",
+	    value: function hashToColor(hash) {
+	      var maxIntensityAllChannels = 255 * 3;
+	      var minIntensityAllChannels = 0;
+	      var differenceCoefficientForGrayDetection = 0.20;
+	      var r = (hash & 0xFF0000) >> 16;
+	      var g = (hash & 0x00FF00) >> 8;
+	      var b = hash & 0x0000FF;
+	      var contrastRatioForPastelColors = 1.5;
+	      var contrastRatioForDarkColors = 2.5;
+	      var channelReductionCoefficientIfGray = 2;
+
+	      if (maxIntensityAllChannels - (r + g + b) < 100) {
+	        //Pastel colors or white
+	        r /= contrastRatioForPastelColors;
+	        g /= contrastRatioForPastelColors;
+	        b /= contrastRatioForPastelColors;
+	      } else if (r + g + b < 200 - minIntensityAllChannels) {
+	        //Very dark colors
+	        r *= contrastRatioForDarkColors;
+	        g *= contrastRatioForDarkColors;
+	        b *= contrastRatioForDarkColors;
+	      }
+
+	      var channels = [r, g, b];
+	      channels.sort(function (a, b) {
+	        return a - b;
+	      });
+
+	      if ((channels[channels.length - 1] - channels[0]) / channels[0] < differenceCoefficientForGrayDetection) {
+	        //Shade of gray
+	        g /= channelReductionCoefficientIfGray;
+	      }
+
+	      r = this.alignChannelRangeColor(r);
+	      g = this.alignChannelRangeColor(g);
+	      b = this.alignChannelRangeColor(b);
+	      var color = "#" + ("0" + r.toString(16)).substr(-2) + ("0" + g.toString(16)).substr(-2) + ("0" + b.toString(16)).substr(-2);
+	      return color.toUpperCase();
 	    }
 	  }, {
 	    key: "stringToColor",
 	    value: function stringToColor(name) {
-	      return this.numberToRGB(this.stringToHashCode(name));
+	      return this.hashToColor(this.stringToHashCode(name));
 	    }
 	  }, {
 	    key: "build",

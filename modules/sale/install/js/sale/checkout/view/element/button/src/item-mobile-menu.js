@@ -8,6 +8,7 @@ BitrixVue.component('sale-checkout-view-element-button-item_mobile_menu', {
 	{
 		backdropOpen()
 		{
+			document.body.style.overflowY = 'hidden';
 			EventEmitter.emit(EventType.basket.backdropOpenMobileMenu, {index: this.index})
 		}
 	},

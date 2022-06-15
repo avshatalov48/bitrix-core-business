@@ -6,3 +6,4 @@ $MESS['CATALOG_DOCUMENT_LIST_TITLE_SHIPMENT'] = 'Документы реализ
 $MESS['CATALOG_DOCUMENT_LIST_TITLE_OTHER'] = 'Прочие документы';
 $MESS['DOCUMENT_CONDUCT_SUCCESSFUL'] = 'Документ проведён';
 $MESS['DOCUMENT_CONDUCT_SUCCESSFUL_VIEW'] = 'Просмотреть';
+$MESS['DOC_CREATE_FIRST_TIME_GUIDE_TEXT'] = 'Создайте первый документ Оприходование';

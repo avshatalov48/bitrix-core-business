@@ -28,6 +28,12 @@ Localization\Loc::loadMessages(__FILE__);
  */
 class MailMessageUidTable extends Entity\DataManager
 {
+	const OLD = 'Y';
+	const RECENT = 'N';
+	const DOWNLOADED = 'D';
+	const MOVING = 'M';
+	const REMOTE = 'R';
+
 	public static function getFilePath()
 	{
 		return __FILE__;
@@ -92,6 +98,13 @@ class MailMessageUidTable extends Entity\DataManager
 	{
 		$eventName = MessageEventManager::EVENT_DELETE_MESSAGES;
 
+		$filter = array_merge(
+			$filter,
+			[
+				'!=MESSAGE_ID' => 0,
+			]
+		);
+
 		$messages = static::selectMessagesToBeDeleted(
 			MessageEventManager::getRequiredFieldNamesForEvent($eventName),
 			$filter,
@@ -109,7 +122,9 @@ class MailMessageUidTable extends Entity\DataManager
 
 		$portionLimit = 200;
 
-		for ($i = 0; $i < count($messages); $i=$i+$portionLimit)
+		$messagesCount = count($messages);
+
+		for ($i = 0; $i < $messagesCount; $i=$i+$portionLimit)
 		{
 			$portion = array_slice($messages, $i, $portionLimit);
 
@@ -127,27 +142,47 @@ class MailMessageUidTable extends Entity\DataManager
 			$connection->query(sprintf('DELETE %s', $query));
 		}
 
-		if ($messagesIds = array_column($messages, 'MESSAGE_ID'))
+		$remains=[];
+
+		if($limit === false)
 		{
 			$remains = array_column(
-				static::getList(array(
-					'select' => array('MESSAGE_ID'),
-					'filter' => array(
-						'@MESSAGE_ID' => $messagesIds,
-					),
-				))->fetchAll(),
+				static::selectMessagesToBeDeleted(
+					MessageEventManager::getRequiredFieldNamesForEvent($eventName),
+					$filter,
+					$messages
+				),
 				'MESSAGE_ID'
 			);
-
-			//checking that the values were actually deleted:
-			$messages = array_filter(
-				$messages,
-				function ($item) use ($remains)
-				{
-					return !in_array($item['MESSAGE_ID'], $remains);
-				}
-			);
 		}
+		else
+		{
+			if ($messagesIds = array_column($messages, 'MESSAGE_ID') )
+			{
+				$remains = array_column(
+					static::getList(
+						[
+							'select' => [
+								'MESSAGE_ID',
+							],
+							'filter' => [
+								'@MESSAGE_ID' => $messagesIds,
+							],
+						]
+					)->fetchAll(),
+					'MESSAGE_ID'
+				);
+			}
+		}
+
+		//Checking that the values were actually deleted:
+		$deletedMessages = array_filter(
+			$messages,
+			function ($item) use ($remains)
+			{
+				return !in_array($item['MESSAGE_ID'], $remains);
+			}
+		);
 
 		$eventManager = EventManager::getInstance();
 		$eventKey = $eventManager->addEventHandler(
@@ -156,7 +191,7 @@ class MailMessageUidTable extends Entity\DataManager
 			array(MessageEventManager::class, 'onMailMessageDeleted')
 		);
 		$event = new \Bitrix\Main\Event('mail', 'onMailMessageDeleted', array(
-			'MAIL_FIELDS_DATA' => $messages,
+			'MAIL_FIELDS_DATA' => $deletedMessages,
 			'DELETED_BY_FILTER' => $filter,
 		));
 		$event->send();
@@ -356,7 +391,7 @@ class MailMessageUidTable extends Entity\DataManager
 			),
 			'IS_OLD' => array(
 				'data_type' => 'enum',
-				'values'    => array('Y', 'N', 'D'),
+				'values'    => array(self::OLD, self::RECENT, self::DOWNLOADED, self::MOVING, self::REMOTE),
 			),
 			'SESSION_ID' => array(
 				'data_type' => 'string',

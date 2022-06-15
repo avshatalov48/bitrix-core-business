@@ -33,6 +33,8 @@
 		this.button = Helper.getNode('test-button', this.context);
 		this.result = Helper.getNode('test-result', this.context);
 		this.buttonValidation = Helper.getNode('test-validation-button', this.context);
+
+		this.enablePhoneVerification = params.enablePhoneVerification;
 		this.initSelector();
 		/*
 		Helper.getNodes('address-item', Helper.getNode('address-list', this.context))
@@ -45,13 +47,51 @@
 				BX.bind(node, 'click', handler.bind(this, node));
 			}, this);
 		*/
+
 		if(this.button && this.result)
 		{
-			BX.bind(this.button, 'click', this.send.bind(this, 'test', this.result, this.button));
+			BX.bind(
+				this.button,
+				'click',
+				function () {
+					if (this.enablePhoneVerification)
+					{
+						BX.Bitrix24.PhoneVerify.showSlider((verified) => {
+							if (verified)
+							{
+								this.send('test', this.result, this.button);
+							}
+						});
+					}
+					else
+					{
+						this.send('test', this.result, this.button);
+					}
+				}.bind(this)
+			)
 		}
+
 		if(this.buttonValidation && this.result)
 		{
-			BX.bind(this.buttonValidation, 'click', this.send.bind(this, 'consent', this.result, this.buttonValidation));
+			BX.bind(
+				this.buttonValidation,
+				'click',
+				function () {
+					if (this.enablePhoneVerification)
+					{
+						BX.Bitrix24.PhoneVerify.showSlider((verified) => {
+							if (verified)
+							{
+								this.send('consent', this.result, this.buttonValidation);
+							}
+						});
+					}
+					else
+					{
+						this.send('consent', this.result, this.buttonValidation);
+					}
+				}.bind(this)
+			);
 		}
 	};
 	Tester.prototype.validate = function (value)
@@ -152,7 +192,7 @@
 					data.errorCode,
 					{'text': data.resultErrors.join("\n")},
 					function() {
-						self.send();
+						self.send('test', node, button);
 					},
 					function() {
 					}

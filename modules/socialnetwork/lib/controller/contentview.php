@@ -58,13 +58,21 @@ class ContentView extends Base
 			)
 			{
 				$signerSalt = 'ajaxSecurity' . $USER->getId() . $item['xmlId'];
-				if ($signer->unsign($item['signedKey'], $signerSalt) === $item['key'])
+
+				try
 				{
-					$xmlIdList[$key]['checkAccess'] = false;
+					if ($signer->unsign($item['signedKey'], $signerSalt) === $item['key'])
+					{
+						$xmlIdList[$key]['checkAccess'] = false;
+					}
+					else
+					{
+						unset($xmlIdList[$key]);
+					}
 				}
-				else
+				catch(\Exception $e)
 				{
-					unset($xmlIdList[$key]);
+					$xmlIdList[$key]['checkAccess'] = true;
 				}
 			}
 			else

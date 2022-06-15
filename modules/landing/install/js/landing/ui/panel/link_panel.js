@@ -90,6 +90,7 @@
 
 				this.clear();
 				this.appendForm(form);
+				this.checkReadyToSave();
 				BX.Landing.UI.Panel.Content.prototype.show.call(this);
 				BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 			}
@@ -158,6 +159,7 @@
 
 				this.clear();
 				this.appendForm(form);
+				this.checkReadyToSave();
 				BX.Landing.UI.Panel.Content.prototype.show.call(this);
 			}
 		},
@@ -221,7 +223,6 @@
 			}
 
 			this.hide();
-
 		}
 	};
 })();

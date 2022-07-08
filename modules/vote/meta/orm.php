@@ -260,18 +260,6 @@ namespace Bitrix\Vote {
 }
 namespace Bitrix\Vote {
 	/**
-	 * @method static EO_Answer_Query query()
-	 * @method static EO_Answer_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Answer_Result getById($id)
-	 * @method static EO_Answer_Result getList(array $parameters = array())
-	 * @method static EO_Answer_Entity getEntity()
-	 * @method static \Bitrix\Vote\EO_Answer createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Vote\EO_Answer_Collection createCollection()
-	 * @method static \Bitrix\Vote\EO_Answer wakeUpObject($row)
-	 * @method static \Bitrix\Vote\EO_Answer_Collection wakeUpCollection($rows)
-	 */
-	class AnswerTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -472,18 +460,6 @@ namespace Bitrix\Vote {
 	}
 }
 namespace Bitrix\Vote {
-	/**
-	 * @method static EO_Attach_Query query()
-	 * @method static EO_Attach_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Attach_Result getById($id)
-	 * @method static EO_Attach_Result getList(array $parameters = array())
-	 * @method static EO_Attach_Entity getEntity()
-	 * @method static \Bitrix\Vote\EO_Attach createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Vote\EO_Attach_Collection createCollection()
-	 * @method static \Bitrix\Vote\EO_Attach wakeUpObject($row)
-	 * @method static \Bitrix\Vote\EO_Attach_Collection wakeUpCollection($rows)
-	 */
-	class AttachTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -723,18 +699,6 @@ namespace Bitrix\Vote {
 }
 namespace Bitrix\Vote {
 	/**
-	 * @method static EO_Channel_Query query()
-	 * @method static EO_Channel_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Channel_Result getById($id)
-	 * @method static EO_Channel_Result getList(array $parameters = array())
-	 * @method static EO_Channel_Entity getEntity()
-	 * @method static \Bitrix\Vote\EO_Channel createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Vote\EO_Channel_Collection createCollection()
-	 * @method static \Bitrix\Vote\EO_Channel wakeUpObject($row)
-	 * @method static \Bitrix\Vote\EO_Channel_Collection wakeUpCollection($rows)
-	 */
-	class ChannelTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -887,18 +851,6 @@ namespace Bitrix\Vote {
 }
 namespace Bitrix\Vote {
 	/**
-	 * @method static EO_ChannelGroup_Query query()
-	 * @method static EO_ChannelGroup_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ChannelGroup_Result getById($id)
-	 * @method static EO_ChannelGroup_Result getList(array $parameters = array())
-	 * @method static EO_ChannelGroup_Entity getEntity()
-	 * @method static \Bitrix\Vote\EO_ChannelGroup createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Vote\EO_ChannelGroup_Collection createCollection()
-	 * @method static \Bitrix\Vote\EO_ChannelGroup wakeUpObject($row)
-	 * @method static \Bitrix\Vote\EO_ChannelGroup_Collection wakeUpCollection($rows)
-	 */
-	class ChannelGroupTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1021,18 +973,6 @@ namespace Bitrix\Vote {
 }
 namespace Bitrix\Vote {
 	/**
-	 * @method static EO_ChannelSite_Query query()
-	 * @method static EO_ChannelSite_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_ChannelSite_Result getById($id)
-	 * @method static EO_ChannelSite_Result getList(array $parameters = array())
-	 * @method static EO_ChannelSite_Entity getEntity()
-	 * @method static \Bitrix\Vote\EO_ChannelSite createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Vote\EO_ChannelSite_Collection createCollection()
-	 * @method static \Bitrix\Vote\EO_ChannelSite wakeUpObject($row)
-	 * @method static \Bitrix\Vote\EO_ChannelSite_Collection wakeUpCollection($rows)
-	 */
-	class ChannelSiteTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1058,7 +998,7 @@ namespace Bitrix\Vote {
 	 */
 	class EO_ChannelSite_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Vote\EventTable:vote/lib/event.php:6ca0fd40e82a707a0cc7f2c8e0043068 */
+/* ORMENTITYANNOTATION:Bitrix\Vote\EventTable:vote/lib/event.php:a44ba1574dd3801cdc8b7e6c585fe3d8 */
 namespace Bitrix\Vote {
 	/**
 	 * EO_Event
@@ -1259,18 +1199,6 @@ namespace Bitrix\Vote {
 }
 namespace Bitrix\Vote {
 	/**
-	 * @method static EO_Event_Query query()
-	 * @method static EO_Event_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Event_Result getById($id)
-	 * @method static EO_Event_Result getList(array $parameters = array())
-	 * @method static EO_Event_Entity getEntity()
-	 * @method static \Bitrix\Vote\EO_Event createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Vote\EO_Event_Collection createCollection()
-	 * @method static \Bitrix\Vote\EO_Event wakeUpObject($row)
-	 * @method static \Bitrix\Vote\EO_Event_Collection wakeUpCollection($rows)
-	 */
-	class EventTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1296,7 +1224,7 @@ namespace Bitrix\Vote {
 	 */
 	class EO_Event_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Vote\EventQuestionTable:vote/lib/event.php:6ca0fd40e82a707a0cc7f2c8e0043068 */
+/* ORMENTITYANNOTATION:Bitrix\Vote\EventQuestionTable:vote/lib/event.php:a44ba1574dd3801cdc8b7e6c585fe3d8 */
 namespace Bitrix\Vote {
 	/**
 	 * EO_EventQuestion
@@ -1437,18 +1365,6 @@ namespace Bitrix\Vote {
 }
 namespace Bitrix\Vote {
 	/**
-	 * @method static EO_EventQuestion_Query query()
-	 * @method static EO_EventQuestion_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_EventQuestion_Result getById($id)
-	 * @method static EO_EventQuestion_Result getList(array $parameters = array())
-	 * @method static EO_EventQuestion_Entity getEntity()
-	 * @method static \Bitrix\Vote\EO_EventQuestion createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Vote\EO_EventQuestion_Collection createCollection()
-	 * @method static \Bitrix\Vote\EO_EventQuestion wakeUpObject($row)
-	 * @method static \Bitrix\Vote\EO_EventQuestion_Collection wakeUpCollection($rows)
-	 */
-	class EventQuestionTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1474,7 +1390,7 @@ namespace Bitrix\Vote {
 	 */
 	class EO_EventQuestion_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Vote\EventAnswerTable:vote/lib/event.php:6ca0fd40e82a707a0cc7f2c8e0043068 */
+/* ORMENTITYANNOTATION:Bitrix\Vote\EventAnswerTable:vote/lib/event.php:a44ba1574dd3801cdc8b7e6c585fe3d8 */
 namespace Bitrix\Vote {
 	/**
 	 * EO_EventAnswer
@@ -1600,18 +1516,6 @@ namespace Bitrix\Vote {
 	}
 }
 namespace Bitrix\Vote {
-	/**
-	 * @method static EO_EventAnswer_Query query()
-	 * @method static EO_EventAnswer_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_EventAnswer_Result getById($id)
-	 * @method static EO_EventAnswer_Result getList(array $parameters = array())
-	 * @method static EO_EventAnswer_Entity getEntity()
-	 * @method static \Bitrix\Vote\EO_EventAnswer createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Vote\EO_EventAnswer_Collection createCollection()
-	 * @method static \Bitrix\Vote\EO_EventAnswer wakeUpObject($row)
-	 * @method static \Bitrix\Vote\EO_EventAnswer_Collection wakeUpCollection($rows)
-	 */
-	class EventAnswerTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------
@@ -1912,18 +1816,6 @@ namespace Bitrix\Vote {
 }
 namespace Bitrix\Vote {
 	/**
-	 * @method static EO_Question_Query query()
-	 * @method static EO_Question_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Question_Result getById($id)
-	 * @method static EO_Question_Result getList(array $parameters = array())
-	 * @method static EO_Question_Entity getEntity()
-	 * @method static \Bitrix\Vote\EO_Question createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Vote\EO_Question_Collection createCollection()
-	 * @method static \Bitrix\Vote\EO_Question wakeUpObject($row)
-	 * @method static \Bitrix\Vote\EO_Question_Collection wakeUpCollection($rows)
-	 */
-	class QuestionTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -1949,7 +1841,7 @@ namespace Bitrix\Vote {
 	 */
 	class EO_Question_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Vote\UserTable:vote/lib/user.php:882a428cf5dbbef37842c1994f4ec4af */
+/* ORMENTITYANNOTATION:Bitrix\Vote\UserTable:vote/lib/user.php:b8b421cc2fa4cca9a39f715c0baf71e3 */
 namespace Bitrix\Vote {
 	/**
 	 * EO_User
@@ -2137,18 +2029,6 @@ namespace Bitrix\Vote {
 }
 namespace Bitrix\Vote {
 	/**
-	 * @method static EO_User_Query query()
-	 * @method static EO_User_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_User_Result getById($id)
-	 * @method static EO_User_Result getList(array $parameters = array())
-	 * @method static EO_User_Entity getEntity()
-	 * @method static \Bitrix\Vote\EO_User createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Vote\EO_User_Collection createCollection()
-	 * @method static \Bitrix\Vote\EO_User wakeUpObject($row)
-	 * @method static \Bitrix\Vote\EO_User_Collection wakeUpCollection($rows)
-	 */
-	class UserTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *
@@ -2174,7 +2054,7 @@ namespace Bitrix\Vote {
 	 */
 	class EO_User_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Vote\VoteTable:vote/lib/vote.php:6a2526bc4267631d74c7628b3a0b2270 */
+/* ORMENTITYANNOTATION:Bitrix\Vote\VoteTable:vote/lib/vote.php:080364331253a74dd0c97de9e550871f */
 namespace Bitrix\Vote {
 	/**
 	 * EO_Vote
@@ -2590,18 +2470,6 @@ namespace Bitrix\Vote {
 	}
 }
 namespace Bitrix\Vote {
-	/**
-	 * @method static EO_Vote_Query query()
-	 * @method static EO_Vote_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_Vote_Result getById($id)
-	 * @method static EO_Vote_Result getList(array $parameters = array())
-	 * @method static EO_Vote_Entity getEntity()
-	 * @method static \Bitrix\Vote\EO_Vote createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Vote\EO_Vote_Collection createCollection()
-	 * @method static \Bitrix\Vote\EO_Vote wakeUpObject($row)
-	 * @method static \Bitrix\Vote\EO_Vote_Collection wakeUpCollection($rows)
-	 */
-	class VoteTable extends \Bitrix\Main\ORM\Data\DataManager {}
 	/**
 	 * Common methods:
 	 * ---------------

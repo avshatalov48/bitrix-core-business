@@ -26,7 +26,7 @@ class CGoogleMessage extends CPushMessage
 		return base64_encode($batch);
 	}
 
-	public function getPayload()
+	public function getPayload(): string
 	{
 		$data = [
 			"data" => [
@@ -41,8 +41,12 @@ class CGoogleMessage extends CPushMessage
 			"priority" => "high",
 			"registration_ids" => $this->deviceTokens
 		];
-		$jsonPayload = json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
 
+		return $this->strippedPayload($data);
+	}
+
+	public function strippedPayload($data): string {
+		$jsonPayload = json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
 		$payloadLength = \Bitrix\Main\Text\BinaryString::getLength($jsonPayload);
 		if ($payloadLength > self::DEFAULT_PAYLOAD_MAXIMUM_SIZE)
 		{
@@ -75,7 +79,6 @@ class CGoogleMessage extends CPushMessage
 		return $jsonPayload;
 	}
 
-
 }
 
 class CGooglePush extends CPushService
@@ -88,13 +91,13 @@ class CGooglePush extends CPushService
 	/**
 	 * Returns the final batch for the Android's push notification
 	 *
-	 * @param array $messageData
+	 * @param array $messages
 	 *
 	 * @return bool|string
 	 */
-	public function getBatch($messageData = Array())
+	public function getBatch($messages = Array())
 	{
-		$arGroupedMessages = self::getGroupedByAppID($messageData);
+		$arGroupedMessages = self::getGroupedByAppID($messages);
 		if (is_array($arGroupedMessages) && count($arGroupedMessages) <= 0)
 		{
 			return false;

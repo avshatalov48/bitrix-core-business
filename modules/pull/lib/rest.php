@@ -386,6 +386,8 @@ class Rest extends \IRestService
 			throw new \Bitrix\Rest\RestException("Push & Pull server is not configured", "SERVER_ERROR", \CRestServer::STATUS_INTERNAL);
 		}
 
+		$config['serverTime'] = date('c', time());
+
 		return $config;
 	}
 

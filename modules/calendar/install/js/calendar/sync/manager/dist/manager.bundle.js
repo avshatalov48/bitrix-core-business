@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
 this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
-(function (exports,main_popup,main_core_events,main_core,calendar_util) {
+(function (exports,main_popup,main_core_events,calendar_util,main_core) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
@@ -1219,6 +1219,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "status", 'not_connected');
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "STATUS_SUCCESS", 'success');
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "STATUS_FAILED", 'failed');
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "REFRESH_CONTENT_DELAY", 100);
 
 	    _this.setEventNamespace('BX.Calendar.Sync.Manager.Manager');
 
@@ -1231,6 +1232,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    _this.isRuZone = options.isRuZone;
 	    _this.calendarInstance = options.calendar;
 	    _this.isSetSyncCaldavSettings = options.isSetSyncCaldavSettings;
+	    _this.refreshContentDebounce = main_core.Runtime.debounce(_this.refreshContent, _this.REFRESH_CONTENT_DELAY, babelHelpers.assertThisInitialized(_this));
 
 	    _this.init();
 
@@ -1527,7 +1529,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      }
 
 	      this.status = this.STATUS_SUCCESS;
-	      this.refreshContent();
+	      this.refreshContentDebounce();
 	    }
 	  }, {
 	    key: "addSyncConnection",
@@ -1545,7 +1547,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      }
 
 	      this.status = this.STATUS_SUCCESS;
-	      this.refreshContent();
+	      this.refreshContentDebounce();
 	    }
 	  }, {
 	    key: "deleteSyncConnection",
@@ -1564,26 +1566,24 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        this.status = this.STATUS_SUCCESS;
 	      }
 
-	      this.refreshContent();
+	      this.refreshContentDebounce();
 	    }
 	  }, {
 	    key: "getProviderById",
 	    value: function getProviderById(id) {
-	      var connection = undefined;
+	      var connection;
 
 	      for (var providerName in this.connectionsProviders) {
-	        if (!this.connectionsProviders[providerName].connected || !['google', 'caldav', 'yandex'].includes(providerName)) {
-	          continue;
-	        }
+	        if (this.connectionsProviders.hasOwnProperty(providerName) && this.connectionsProviders[providerName].connected && ['google', 'caldav', 'yandex'].includes(providerName)) {
+	          connection = this.connectionsProviders[providerName].getConnectionById(id);
 
-	        connection = this.connectionsProviders[providerName].getConnectionById(id);
-
-	        if (connection) {
-	          return [this.connectionsProviders[providerName], connection];
+	          if (connection) {
+	            return [this.connectionsProviders[providerName], connection];
+	          }
 	        }
 	      }
 
-	      return null;
+	      return [undefined, undefined];
 	    }
 	  }]);
 	  return Manager;
@@ -1594,5 +1594,5 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	exports.SyncStatusPopup = SyncStatusPopup;
 	exports.ConnectionItem = ConnectionItem;
 
-}((this.BX.Calendar.Sync.Manager = this.BX.Calendar.Sync.Manager || {}),BX.Main,BX.Event,BX,BX.Calendar));
+}((this.BX.Calendar.Sync.Manager = this.BX.Calendar.Sync.Manager || {}),BX.Main,BX.Event,BX.Calendar,BX));
 //# sourceMappingURL=manager.bundle.js.map

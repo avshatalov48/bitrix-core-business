@@ -59,11 +59,13 @@ class MailboxDirectoryTable extends DataManager
 			],
 			'NAME'          => [
 				'data_type' => 'string',
-				'required'  => true
+				'required'  => true,
+				'fetch_data_modification' => ['\Bitrix\Main\Text\Emoji', 'getFetchModificator']
 			],
 			'PATH'          => [
 				'data_type' => 'string',
-				'required'  => true
+				'required'  => true,
+				'fetch_data_modification' => ['\Bitrix\Main\Text\Emoji', 'getFetchModificator']
 			],
 			'FLAGS'         => [
 				'data_type' => 'string',

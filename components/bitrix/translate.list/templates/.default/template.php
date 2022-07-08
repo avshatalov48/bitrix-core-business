@@ -490,7 +490,10 @@ if (!$isAjax)
 					var pathCodeList = [];
 					for (var i = 0; i < pathList.length; i++)
 					{
-						pathCodeList.push(pathList[i] + "::" + codeList[i]);
+						if (codeList[i])
+						{
+							pathCodeList.push(pathList[i] + "::" + codeList[i]);
+						}
 					}
 
 					var process = BX.UI.StepProcessing.ProcessManager.get('export');

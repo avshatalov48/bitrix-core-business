@@ -10,8 +10,8 @@ return [
 	'rel' => [
 		'main.popup',
 		'main.core.events',
-		'main.core',
 		'calendar.util',
+		'main.core',
 	],
 	'skip_core' => false,
 ];

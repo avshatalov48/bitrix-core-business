@@ -26,6 +26,8 @@ this.BX = this.BX || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "sectionIndex", {});
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "trackingUsersList", []);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "checkDataBeforeCloseMode", true);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "CHECK_CHANGES_DELAY", 500);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "RELOAD_DATA_DELAY", 500);
 
 	    _this.setEventNamespace('BX.Calendar.CompactEventForm');
 
@@ -35,7 +37,8 @@ this.BX = this.BX || {};
 	    _this.calendarContext = options.calendarContext || null;
 	    _this.ownerId = options.ownerId || _this.userId;
 	    _this.BX = calendar_util.Util.getBX();
-	    _this.checkForChanges = main_core.Runtime.debounce(_this.checkForChangesImmediately, 300, babelHelpers.assertThisInitialized(_this));
+	    _this.checkForChangesDebounce = main_core.Runtime.debounce(_this.checkForChanges, _this.CHECK_CHANGES_DELAY, babelHelpers.assertThisInitialized(_this));
+	    _this.reloadEntryDataDebounce = main_core.Runtime.debounce(_this.reloadEntryData, _this.RELOAD_DATA_DELAY, babelHelpers.assertThisInitialized(_this));
 	    _this.checkOutsideClickClose = _this.checkOutsideClickClose.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.outsideMouseDownClose = _this.outsideMouseDownClose.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.keyHandler = _this.handleKeyPress.bind(babelHelpers.assertThisInitialized(_this));
@@ -472,8 +475,8 @@ this.BX = this.BX || {};
 	      return this.mode;
 	    }
 	  }, {
-	    key: "checkForChangesImmediately",
-	    value: function checkForChangesImmediately() {
+	    key: "checkForChanges",
+	    value: function checkForChanges() {
 	      if (!this.isNewEntry() && this.getMode() === CompactEventForm.VIEW_MODE && this.formDataChanged()) {
 	        this.setMode(CompactEventForm.EDIT_MODE);
 	        this.popup.setButtons(this.getButtons());
@@ -644,8 +647,8 @@ this.BX = this.BX || {};
 	    key: "getTitleControl",
 	    value: function getTitleControl() {
 	      this.DOM.titleInput = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input class=\"calendar-field calendar-field-string\"\n\t\t\t\tvalue=\"\"\n\t\t\t\tplaceholder=\"", "\"\n\t\t\t\ttype=\"text\"\n\t\t\t/>\n\t\t"])), main_core.Loc.getMessage('EC_ENTRY_NAME'));
-	      main_core.Event.bind(this.DOM.titleInput, 'keyup', this.checkForChanges);
-	      main_core.Event.bind(this.DOM.titleInput, 'change', this.checkForChanges);
+	      main_core.Event.bind(this.DOM.titleInput, 'keyup', this.checkForChangesDebounce);
+	      main_core.Event.bind(this.DOM.titleInput, 'change', this.checkForChangesDebounce);
 	      return this.DOM.titleInput;
 	    }
 	  }, {
@@ -746,7 +749,7 @@ this.BX = this.BX || {};
 
 	            _this8.sectionValue = sectionValue.id;
 
-	            _this8.checkForChanges();
+	            _this8.checkForChangesDebounce();
 
 	            calendar_sectionmanager.SectionManager.saveDefaultSectionId(_this8.sectionValue);
 	          }
@@ -823,7 +826,7 @@ this.BX = this.BX || {};
 
 	            _this10.userPlannerSelector.setDateTime(value, true);
 
-	            _this10.userPlannerSelector.refreshPlanner();
+	            _this10.userPlannerSelector.refreshPlannerStateDebounce();
 	          }
 
 	          if (_this10.locationSelector) {
@@ -835,7 +838,7 @@ this.BX = this.BX || {};
 	            });
 	          }
 
-	          _this10.checkForChanges();
+	          _this10.checkForChangesDebounce();
 	        }
 	      });
 	      return this.DOM.dateTimeWrap;
@@ -859,9 +862,8 @@ this.BX = this.BX || {};
 	        dayOfWeekMonthFormat: this.dayOfWeekMonthFormat
 	      });
 	      this.userPlannerSelector.subscribe('onDateChange', this.handlePlannerSelectorChanges.bind(this));
-	      this.userPlannerSelector.subscribe('onNotifyChange', this.checkForChanges); // this.subscribe('onLoad', this.userPlannerSelector.checkEmployment.bind(this.userPlannerSelector));
-
-	      this.userPlannerSelector.subscribe('onUserCodesChange', this.checkForChanges);
+	      this.userPlannerSelector.subscribe('onNotifyChange', this.checkForChangesDebounce);
+	      this.userPlannerSelector.subscribe('onUserCodesChange', this.checkForChangesDebounce);
 	      return this.DOM.userPlannerSelectorOuterWrap;
 	    }
 	  }, {
@@ -887,10 +889,10 @@ this.BX = this.BX || {};
 	              _this11.userPlannerSelector.showPlanner();
 	            }
 
-	            _this11.userPlannerSelector.refreshPlanner();
+	            _this11.userPlannerSelector.refreshPlannerStateDebounce();
 	          }
 
-	          _this11.checkForChanges();
+	          _this11.checkForChangesDebounce();
 	        }
 	      });
 
@@ -1561,7 +1563,7 @@ this.BX = this.BX || {};
 	        }
 
 	        this.userPlannerSelector.clearAccessibilityData(userIdList);
-	        this.userPlannerSelector.refreshPlannerState();
+	        this.userPlannerSelector.refreshPlannerStateDebounce();
 	      }
 
 	      var entry = this.getCurrentEntry();
@@ -1573,7 +1575,7 @@ this.BX = this.BX || {};
 	          this.close();
 	        } else {
 	          var onEntryListReloadHandler = function onEntryListReloadHandler() {
-	            _this17.reloadEntryData();
+	            _this17.reloadEntryDataDebounce();
 
 	            BX.Event.EventEmitter.unsubscribe('BX.Calendar:onEntryListReload', onEntryListReloadHandler);
 	          };

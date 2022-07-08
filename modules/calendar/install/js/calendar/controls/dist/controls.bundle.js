@@ -4259,6 +4259,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "inlineEditMode", UserPlannerSelector.VIEW_MODE);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "prevUserList", []);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "loadedAccessibilityData", {});
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "REFRESH_PLANNER_DELAY", 500);
 
 	    _this.setEventNamespace('BX.Calendar.Controls.UserPlannerSelector');
 
@@ -4279,7 +4280,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      hideGuestsWrap: params.hideGuestsWrap,
 	      hideGuestsIcon: params.hideGuestsWrap.querySelector('.calendar-hide-members-icon-hidden')
 	    };
-	    _this.refreshPlanner = main_core.Runtime.debounce(_this.refreshPlannerState, 100, babelHelpers.assertThisInitialized(_this));
+	    _this.refreshPlannerStateDebounce = main_core.Runtime.debounce(_this.refreshPlannerState, _this.REFRESH_PLANNER_DELAY, babelHelpers.assertThisInitialized(_this));
 
 	    if (main_core.Type.isBoolean(params.readOnlyMode)) {
 	      _this.readOnlyMode = params.readOnlyMode;
@@ -4410,7 +4411,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        this.displayAttendees(attendees);
 	      }
 
-	      this.refreshPlanner();
+	      this.refreshPlannerStateDebounce();
 
 	      if ((_BX = BX) !== null && _BX !== void 0 && (_BX$Intranet = _BX.Intranet) !== null && _BX$Intranet !== void 0 && _BX$Intranet.ControlButton && this.DOM.videocallWrap && this.entryId && this.entry.getCurrentStatus() !== false) {
 	        main_core.Dom.clean(this.DOM.videocallWrap);
@@ -4449,7 +4450,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          entityType: item.entityType
 	        };
 	      }));
-	      this.refreshPlanner();
+	      this.refreshPlannerStateDebounce();
 	      this.emit('onUserCodesChange');
 	    }
 	  }, {

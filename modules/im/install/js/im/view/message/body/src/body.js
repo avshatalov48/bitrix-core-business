@@ -16,11 +16,12 @@ import 'ui.vue.components.reaction';
 
 import {BitrixVue} from "ui.vue";
 import {Vuex} from "ui.vue.vuex";
-import {DialoguesModel, FilesModel, MessagesModel, UsersModel} from 'im.model';
-import {DialogType, MessageType} from "im.const";
+import {MessagesModel} from 'im.model';
+import {DialogType, MessageType, EventType} from "im.const";
 import {Utils} from "im.lib.utils";
 
 import {Text} from 'main.core';
+import {EventEmitter} from 'main.core.events';
 
 const BX = window.BX;
 
@@ -36,12 +37,11 @@ const ContentType = Object.freeze({
 BitrixVue.component('bx-im-view-message-body',
 {
 	/**
-	 * @emits 'clickByUserName' {user: object, event: MouseEvent}
-	 * @emits 'clickByUploadCancel' {file: object, event: MouseEvent}
-	 * @emits 'clickByChatTeaser' {params: object, event: MouseEvent}
-	 * @emits 'clickByKeyboardButton' {message: object, action: string, params: Object}
-	 * @emits 'setReaction' {message: object, reaction: object}
-	 * @emits 'openReactionList' {message: object, values: object}
+	 * @emits EventType.dialog.clickOnChatTeaser {message: object, event: MouseEvent}
+	 * @emits EventType.dialog.clickOnKeyboardButton {message: object, action: string, params: Object}
+	 * @emits EventType.dialog.setMessageReaction {message: object, reaction: object}
+	 * @emits EventType.dialog.openMessageReactionList {message: object, values: object}
+	 * @emits EventType.dialog.clickOnUserName {user: object, event: MouseEvent}
 	 */
 	props:
 	{
@@ -68,27 +68,28 @@ BitrixVue.component('bx-im-view-message-body',
 	{
 		clickByUserName(event)
 		{
-			this.$emit('clickByUserName', event)
-		},
-		clickByUploadCancel(event)
-		{
-			this.$emit('clickByUploadCancel', event)
+			if (this.showAvatar && Utils.platform.isMobile())
+			{
+				return false;
+			}
+
+			EventEmitter.emit(EventType.dialog.clickOnUserName, event);
 		},
 		clickByChatTeaser(event)
 		{
-			this.$emit('clickByChatTeaser', {message: event.message, event});
+			EventEmitter.emit(EventType.dialog.clickOnChatTeaser, {message: event.message, event: event.event});
 		},
 		clickByKeyboardButton(event)
 		{
-			this.$emit('clickByKeyboardButton', {message: event.message, ...event.event});
+			EventEmitter.emit(EventType.dialog.clickOnKeyboardButton, {message: event.message, ...event.event});
 		},
 		setReaction(event)
 		{
-			this.$emit('setReaction', event)
+			EventEmitter.emit(EventType.dialog.setMessageReaction, event);
 		},
 		openReactionList(event)
 		{
-			this.$emit('openReactionList', event)
+			EventEmitter.emit(EventType.dialog.openMessageReactionList, event);
 		},
 		formatDate(date)
 		{
@@ -387,6 +388,7 @@ BitrixVue.component('bx-im-view-message-body',
 			application: state => state.application,
 		})
 	},
+	// language=Vue
 	template: `
 		<div class="bx-im-message-content-wrap">
 			<template v-if="contentType == ContentType.default || contentType == ContentType.audio || contentType == ContentType.progress || (contentType !== ContentType.image && isDesktop() && getDesktopVersion() < 47)">
@@ -402,10 +404,10 @@ BitrixVue.component('bx-im-view-message-body',
 						</div>
 						<div :class="['bx-im-message-content-body', referenceContentBodyClassName]">
 							<template v-if="(contentType == ContentType.audio) && (!isDesktop() || (isDesktop() && getDesktopVersion() > 43))">
-								<bx-im-view-element-file-audio v-for="file in filesData" :messageType="messageType" :file="file" :key="file.templateId" @uploadCancel="clickByUploadCancel"/>
+								<bx-im-view-element-file-audio v-for="file in filesData" :messageType="messageType" :file="file" :key="file.templateId"/>
 							</template>
 							<template v-else>
-								<bx-im-view-element-file v-for="file in filesData" :messageType="messageType" :file="file" :key="file.templateId" @uploadCancel="clickByUploadCancel"/>
+								<bx-im-view-element-file v-for="file in filesData" :messageType="messageType" :file="file" :key="file.templateId"/>
 							</template>
 							<div :class="['bx-im-message-content-body-wrap', {
 								'bx-im-message-content-body-with-text': messageText.length > 0,
@@ -439,10 +441,10 @@ BitrixVue.component('bx-im-view-message-body',
 						</template>
 						<div :class="['bx-im-message-content-body', referenceContentBodyClassName]">
 							<template v-if="contentType == ContentType.image">
-								<bx-im-view-element-file-image v-for="file in filesData" :messageType="messageType" :file="file" :key="file.templateId" @uploadCancel="clickByUploadCancel"/>
+								<bx-im-view-element-file-image v-for="file in filesData" :messageType="messageType" :file="file" :key="file.templateId"/>
 							</template>
 							<template v-else-if="contentType == ContentType.video">
-								<bx-im-view-element-file-video v-for="file in filesData" :messageType="messageType" :file="file" :key="file.templateId" @uploadCancel="clickByUploadCancel"/>
+								<bx-im-view-element-file-video v-for="file in filesData" :messageType="messageType" :file="file" :key="file.templateId"/>
 							</template>
 							<div :class="['bx-im-message-content-body-wrap', {
 								'bx-im-message-content-body-with-text': messageText.length > 0,

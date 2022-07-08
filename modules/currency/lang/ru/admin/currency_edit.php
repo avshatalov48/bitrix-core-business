@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["currency_curr"] = "Валюта";
 $MESS["currency_curr_settings"] = "Настройки валюты";
 $MESS["BT_CURRENCY_EDIT_TAB_NAME_LANGUAGE"] = "Языковые настройки";
@@ -14,7 +14,7 @@ $MESS["currency_sort_ex"] = "Индекс сортировки";
 $MESS["currency_numcode"] = "Цифровой код";
 $MESS["CURRENCY_FULL_NAME"] = "Название";
 $MESS["CURRENCY_FULL_NAME_DESC"] = "Полное название валюты";
-$MESS["CURRENCY_FORMAT_TEMPLATE"] = "Шаблон формата";
+$MESS["CURRENCY_FORMAT_TEMPLATE_EXT"] = "Пресет формата";
 $MESS["CURRENCY_FORMAT_DESC"] = "Строка формата для вывода валюты";
 $MESS["CURRENCY_DEC_POINT_DESC"] = "Десятичная точка при выводе";
 $MESS["THOU_SEP_DESC"] = "Разделитель тысяч при выводе";
@@ -30,4 +30,5 @@ $MESS["BASE_CURRENCY_YES"] = "да";
 $MESS["BASE_CURRENCY_NO"] = "нет";
 $MESS["CONFIRM_DEL_MESSAGE"] = "Вы действительно хотите удалить данную валюту?";
 $MESS["BX_CURRENCY_EDIT_MESS_AMOUNT"] = "Модуль валют работает с <b>прямыми котировками</b> валют по отношению к базовой. Для корректной работы необходимой указывать стоимость единицы (1 либо 10, 100, 1000 - при низкой стоимости) редактируемой валюты в базовой валюте. Для базовой валюты номинал и курс \"по умолчанию\" должны быть равны единице.";
-?>
+$MESS["CURRENCY_SELECT_TEMPLATE_EXT"] = "выберите пресет";
+$MESS["CURRENCY_FORMAT_TEMPLATE_HINT"] = "Пресет, по которому суммы в валюте будут выводиться на экран. При выборе пресета остальные поля заполнятся автоматически, но сам пресет не сохранится.";

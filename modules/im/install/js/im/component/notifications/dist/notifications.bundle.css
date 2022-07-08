@@ -438,18 +438,19 @@
 	margin-left: 5px;
 }
 
-.bx-im-notifications-item-header-title-text {
+.bx-im-notifications-item-header-title-text-link {
 	-o-text-overflow: ellipsis;
 	   text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
 	color: #131313;
 	outline: none;
-	cursor: pointer;
 }
-.bx-im-notifications-item-header-title-text:hover {
+
+.bx-im-notifications-item-header-title-text-link:hover {
 	text-decoration: underline;
 	color: #131313;
+	cursor: pointer;
 }
 
 .bx-im-notifications-item-content-middle {
@@ -507,6 +508,14 @@
 	-o-text-overflow: ellipsis;
 	   text-overflow: ellipsis;
 	overflow: hidden;
+	color: #131313
+}
+
+.bx-im-notifications-item-bottom-no-subtitle-text {
+	-o-text-overflow: ellipsis;
+	   text-overflow: ellipsis;
+	overflow: hidden;
+	color: #666666;
 }
 
 .bx-im-notifications-item-bottom-subtitle-text .bx-smile {
@@ -658,6 +667,10 @@
 	color: #e6e6e6;
 }
 
+.bx-messenger-dark .bx-im-notifications-item-bottom-no-subtitle-text {
+	color: #e6e6e6;
+}
+
 .bx-messenger-dark .bx-im-notifications-item-header-date {
 	color: #b3b3b3;
 }
@@ -666,6 +679,13 @@
 	color: #bde0ff;
 }
 .bx-messenger-dark .bx-im-notifications-item-header-title-text:hover {
+	color: #bde0ff;
+}
+
+.bx-messenger-dark .bx-im-notifications-item-header-title-text-link {
+	color: #bde0ff;
+}
+.bx-messenger-dark .bx-im-notifications-item-header-title-text-link:hover {
 	color: #bde0ff;
 }
 

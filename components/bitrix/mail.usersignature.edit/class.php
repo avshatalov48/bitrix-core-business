@@ -83,6 +83,14 @@ class MailUserSignatureEditComponent extends CBitrixComponent
 			$this->arResult['selectedAddress'] = reset($this->arResult['addresses']);
 			$this->arResult['selectedSender'] = reset($this->arResult['senders']);
 		}
+		elseif($this->arResult['senderType'] === UserSignatureTable::TYPE_ADDRESS)
+		{
+			$this->arResult['selectedSender'] = reset($this->arResult['senders']);
+		}
+		else
+		{
+			$this->arResult['selectedAddress'] = reset($this->arResult['addresses']);
+		}
 
 		global $APPLICATION;
 		$APPLICATION->SetTitle($this->arResult['TITLE']);

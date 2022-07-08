@@ -1,8 +1,10 @@
 <?php
 
 namespace Bitrix\Mail\Helper;
-
+use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Mail\Internals\MailboxDirectoryTable;
+use Bitrix\Mail\Internals\MailCounterTable;
 
 /**
  * Class MessageFolder
@@ -14,6 +16,99 @@ class MessageFolder
 	const INCOME = 'income';
 	const OUTCOME = 'outcome';
 	const DRAFTS = 'drafts';
+
+	public static function increaseDirCounter($mailboxId, $dirForMoveMessages = false, $dirForMoveMessagesId, $idsUnseenCount)
+	{
+		if(!is_null($dirForMoveMessages) && $dirForMoveMessages === false || !$dirForMoveMessages->isInvisibleToCounters()){
+			if (MailCounterTable::getCount([
+				'=MAILBOX_ID' => $mailboxId,
+				'=ENTITY_TYPE' => 'DIR',
+				'=ENTITY_ID' => $dirForMoveMessagesId
+			])
+			)
+			{
+				MailCounterTable::update(
+					[
+						'MAILBOX_ID' => $mailboxId,
+						'ENTITY_TYPE' => 'DIR',
+						'ENTITY_ID' => $dirForMoveMessagesId
+					],
+					[
+						"VALUE" => new \Bitrix\Main\DB\SqlExpression("?# + $idsUnseenCount", "VALUE")
+					]
+				);
+			}
+			else
+			{
+				MailCounterTable::add([
+					'MAILBOX_ID' => $mailboxId,
+					'ENTITY_TYPE' => 'DIR',
+					'ENTITY_ID' => $dirForMoveMessagesId
+				],
+					[
+						"VALUE" => $idsUnseenCount,
+					]);
+			}
+		}
+	}
+
+	public static function decreaseDirCounter($mailboxId, $dirWithMessagesId, $idsUnseenCount)
+	{
+		if($dirWithMessagesId)
+		{
+			if(MailCounterTable::getCount([
+				'=MAILBOX_ID' => $mailboxId,
+				'=ENTITY_TYPE' => 'DIR',
+				'=ENTITY_ID' => $dirWithMessagesId,
+				'>=VALUE' => $idsUnseenCount
+			]))
+			{
+				MailCounterTable::update(
+					[
+						'MAILBOX_ID' => $mailboxId,
+						'ENTITY_TYPE' => 'DIR',
+						'ENTITY_ID' => $dirWithMessagesId
+					],
+					[
+						"VALUE" => new \Bitrix\Main\DB\SqlExpression("?# - $idsUnseenCount", "VALUE")
+					]
+				);
+			}
+		}
+	}
+
+	public static function getDirIdForMessages($mailboxId, $messagesIds)
+	{
+		$dirWithMessagesId = MailboxDirectoryTable::getList([
+			'runtime' => array(
+				new Main\ORM\Fields\Relations\Reference(
+					'UID',
+					'Bitrix\Mail\MailMessageUidTable',
+					[
+						'=this.DIR_MD5' => 'ref.DIR_MD5',
+						'=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
+					],
+					[
+						'join_type' => 'INNER',
+					]
+				),
+			),
+			'select' => [
+				'ID',
+			],
+			'filter' => [
+				'@UID.ID' => $messagesIds,
+				'=MAILBOX_ID' => $mailboxId,
+			],
+			'limit' => 1,
+		])->fetchAll();
+
+		if(isset($dirWithMessagesId[0]['ID']))
+		{
+			return $dirWithMessagesId[0]['ID'];
+		}
+		return false;
+	}
 
 	/**
 	 * @param array $message

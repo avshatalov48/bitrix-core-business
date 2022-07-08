@@ -129,17 +129,18 @@
 	margin-left: 5px;
 }
 
-.bx-im-notifications-item-header-title-text {
+.bx-im-notifications-item-header-title-text-link {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
 	color: #131313;
 	outline: none;
-	cursor: pointer;
 }
-.bx-im-notifications-item-header-title-text:hover {
+
+.bx-im-notifications-item-header-title-text-link:hover {
 	text-decoration: underline;
 	color: #131313;
+	cursor: pointer;
 }
 
 .bx-im-notifications-item-content-middle {
@@ -184,6 +185,13 @@
 .bx-im-notifications-item-bottom-subtitle-text {
 	text-overflow: ellipsis;
 	overflow: hidden;
+	color: #131313
+}
+
+.bx-im-notifications-item-bottom-no-subtitle-text {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	color: #666666;
 }
 
 .bx-im-notifications-item-bottom-subtitle-text .bx-smile {

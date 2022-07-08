@@ -255,7 +255,8 @@ class ImportCsv
 						continue;
 					}
 
-					$phrase = str_replace("\\\\", "\\", $csvRow[$langIndex]);
+					//$phrase = str_replace("\\\\", "\\", $csvRow[$langIndex]);
+					$phrase = $csvRow[$langIndex];
 
 					$encodingOut = self::$sourceEncoding[$languageId];
 

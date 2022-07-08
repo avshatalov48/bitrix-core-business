@@ -11,7 +11,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\UI\Extension;
 
-Extension::load('ui.buttons');
+Extension::load(['ui.buttons', 'ui.design-tokens']);
 Asset::getInstance()->addJS('/bitrix/components/bitrix/mail.client.config.dirs/templates/.default/script.js');
 $APPLICATION->setAdditionalCSS('/bitrix/components/bitrix/mail.client.config.dirs/templates/.default/style.css');
 

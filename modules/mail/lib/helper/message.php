@@ -9,13 +9,23 @@ use Bitrix\Main;
 use Bitrix\Main\Security;
 use Bitrix\Mail\Internals;
 use Bitrix\Mail\Helper\MessageAccess as AccessHelper;
+use Bitrix\Main\Config\Option;
 
 class Message
 {
-
 	// entity types with special access rules (group tokens)
 	public const ENTITY_TYPE_IM_CHAT = MessageAccessTable::ENTITY_TYPE_IM_CHAT;
 	public const ENTITY_TYPE_CALENDAR_EVENT = MessageAccessTable::ENTITY_TYPE_CALENDAR_EVENT;
+
+	public static function getMaxAttachedFilesSize()
+	{
+		return (int)Option::get('main', 'max_file_size', 0);
+	}
+
+	public static function getMaxAttachedFilesSizeAfterEncoding()
+	{
+		return floor(static::getMaxAttachedFilesSize()/4)*3;
+	}
 
 	/**
 	 * Returns a whitelist of attributes for the html sanitizer
@@ -468,7 +478,7 @@ class Message
 			return false;
 		}
 
-		if (Main\Config\Option::get('mail', 'save_attachments', B_MAIL_SAVE_ATTACHMENTS) !== 'Y')
+		if (Option::get('mail', 'save_attachments', B_MAIL_SAVE_ATTACHMENTS) !== 'Y')
 		{
 			return false;
 		}

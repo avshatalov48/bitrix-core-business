@@ -6,6 +6,7 @@ use Bitrix\Main;
 use Bitrix\Main\Text\BinaryString;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\Emoji;
 
 Loc::loadMessages(__FILE__);
 
@@ -1293,6 +1294,7 @@ class Imap
 
 	public function moveMails($ids, $folderFrom, $folderTo)
 	{
+		$folderTo = Emoji::decode($folderTo);
 		$error = null;
 		$result = new Main\Result();
 		if (!$this->authenticate($error))

@@ -2,6 +2,7 @@ import { BaseEvent, EventEmitter } from "main.core.events";
 
 export class Counters
 {
+	cachedCounters = [];
 	counters = [];
 	hiddenCountersForTotalCounter = [];
 	shortcuts = [];
@@ -12,6 +13,11 @@ export class Counters
 	{
 		this.#name = name;
 		this.setDirectory(selectedDirectory);
+	}
+
+	getCounters()
+	{
+		return this.counters;
 	}
 
 	getDirPath(shortcut)
@@ -53,7 +59,7 @@ export class Counters
 
 		let resultCounters = {};
 		resultCounters[this.selectedDirectory] = this.getCounter(this.selectedDirectory);
-		this.senCounterUpdateEvent(resultCounters);
+		this.sendCounterUpdateEvent(resultCounters);
 	}
 
 	setShortcut(shortcutName,name)
@@ -118,11 +124,16 @@ export class Counters
 
 	addCounters(counters)
 	{
+		this.cacheCounters();
+
 		let resultCounters = {};
 
 		for (let i = 0; i < counters.length; i++)
 		{
 			const counter = counters[i]
+
+			counter['count'] = Number(counter['count']);
+
 			const path = counter['path'];
 			this.addCounter(path,counter['count']);
 
@@ -137,7 +148,7 @@ export class Counters
 
 		}
 
-		this.senCounterUpdateEvent(resultCounters);
+		this.sendCounterUpdateEvent(resultCounters);
 	}
 
 	/*Set counters as when adding. Old counters with different names are retained*/
@@ -153,6 +164,8 @@ export class Counters
 
 	increaseCounter(name,count = 1 )
 	{
+		this.cacheCounters();
+
 		if(name in this.hiddenCountersForTotalCounter)
 		{
 			return "hidden counters for total counter";
@@ -167,6 +180,8 @@ export class Counters
 
 	lowerCounter(name,count = 1 )
 	{
+		this.cacheCounters();
+
 		if(name in this.hiddenCountersForTotalCounter)
 		{
 			return "hidden counters for total counter";
@@ -186,6 +201,19 @@ export class Counters
 		this.counters[name] = newValue;
 	}
 
+	cacheCounters()
+	{
+		this.cachedCounters = [];
+		Object.assign(this.cachedCounters, this.counters);
+	}
+
+	restoreFromCache()
+	{
+		this.counters = [];
+		Object.assign(this.counters, this.cachedCounters);
+		this.sendCounterUpdateEvent(this.counters);
+	}
+
 	/*Change counters by rule*/
 	updateCounters(counters = [
 		{
@@ -202,6 +230,7 @@ export class Counters
 		},
 	])
 	{
+		this.cacheCounters();
 		let resultCounters = {};
 		let countersAreNotLoadedFromTheServer = false;
 
@@ -233,10 +262,10 @@ export class Counters
 			}
 		}
 
-		this.senCounterUpdateEvent(resultCounters);
+		this.sendCounterUpdateEvent(resultCounters);
 	}
 
-	senCounterUpdateEvent(counters)
+	sendCounterUpdateEvent(counters)
 	{
 		const event = new BaseEvent({
 			data: {

@@ -16,6 +16,7 @@ return [
 		'ui.progressbarjs.uploader',
 		'ui.vue.vuex',
 		'im.model',
+		'main.core.events',
 		'im.const',
 		'ui.vue.components.audioplayer',
 		'ui.vue.directives.lazyload',

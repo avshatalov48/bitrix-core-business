@@ -222,8 +222,10 @@ class SaveFile
 			{
 				if ($langFile->count() > 0)
 				{
-					$this->updateLangFile($langFile);
-					$langFile->updatePhraseIndex();
+					if ($this->updateLangFile($langFile))
+					{
+						$langFile->updatePhraseIndex();
+					}
 				}
 				else
 				{

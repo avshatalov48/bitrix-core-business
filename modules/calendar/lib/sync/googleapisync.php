@@ -1,6 +1,9 @@
 <?
 namespace Bitrix\Calendar\Sync;
 
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Context;
+use Bitrix\Main\Engine\UrlManager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type;
 use Bitrix\Main\Localization\Loc;
@@ -106,19 +109,25 @@ final class GoogleApiSync
 		}
 		else
 		{
-			$server = \Bitrix\Main\Application::getInstance()->getContext()->getServer();
-			$domain = $server['HTTP_HOST'];
-			$externalUrl = 'https://' . $domain . '/bitrix/tools/calendar/push.php';
+			$request = Context::getCurrent()->getRequest();
+			if (defined('SITE_SERVER_NAME') && SITE_SERVER_NAME)
+			{
+				$host = SITE_SERVER_NAME;
+			}
+			else
+			{
+				$host = Option::get('main', 'server_name', $request->getHttpHost());
+			}
+
+			$externalUrl = 'https://' . $host . '/bitrix/tools/calendar/push.php';
 		}
 
-		$requestParams = [
-			'id' => $type.'_'.$this->userId.'_'.md5($inputSecretWord.strtotime('now')),
+		return [
+			'id' => $type.'_'.$this->userId.'_'.md5($inputSecretWord. time()),
 			'type' => 'web_hook',
 			'address' => $externalUrl,
 			'expiration' => (time() + self::CHANNEL_EXPIRATION) * 1000,
 		];
-
-		return $requestParams;
 	}
 
 	/**

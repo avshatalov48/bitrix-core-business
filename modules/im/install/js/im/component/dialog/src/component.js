@@ -12,7 +12,6 @@ import {BitrixVue} from "ui.vue";
 import {Logger} from "im.lib.logger";
 import {Utils} from "im.lib.utils";
 import {EventType, RestMethodHandler, RestMethod, DialogState} from "im.const";
-import {DialogCore, DialogQuoteMessage} from "im.mixin";
 
 import "./component.css";
 import {MessageList} from './components/message-list/message-list';
@@ -23,10 +22,10 @@ import {QuotePanel} from './components/quote-panel';
 
 import {Text} from 'main.core';
 import { EventEmitter } from "main.core.events";
+import { Vuex } from "ui.vue.vuex";
 
 BitrixVue.component('bx-im-component-dialog',
 {
-	mixins: [DialogCore, DialogQuoteMessage],
 	components: {MessageList, ErrorState, LoadingState, EmptyState, QuotePanel},
 	props:
 	{
@@ -45,7 +44,8 @@ BitrixVue.component('bx-im-component-dialog',
 	{
 		return {
 			messagesSet: false,
-		}
+			dialogState: DialogState.loading
+		};
 	},
 	created()
 	{
@@ -80,7 +80,7 @@ BitrixVue.component('bx-im-component-dialog',
 		},
 		dialogBodyClasses()
 		{
-			return ['bx-mobilechat-body', {'bx-mobilechat-body-with-message': this.dialogState === DialogState.show}]
+			return ['bx-mobilechat-body', {'bx-mobilechat-body-with-message': this.dialogState === DialogState.show}];
 		},
 		quotePanelData()
 		{
@@ -138,7 +138,55 @@ BitrixVue.component('bx-im-component-dialog',
 			const messages = this.$store.state.messages.collection;
 
 			return messages[this.chatId];
-		}
+		},
+		isDialogShowingMessages()
+		{
+			const messagesNotEmpty = this.messageCollection && this.messageCollection.length > 0;
+			if (messagesNotEmpty)
+			{
+				this.dialogState = DialogState.show;
+			}
+			else if (this.dialog && this.dialog.init)
+			{
+				this.dialogState = DialogState.empty;
+			}
+			else
+			{
+				this.dialogState = DialogState.loading;
+			}
+
+			return messagesNotEmpty;
+		},
+		dialog()
+		{
+			const dialog = this.$store.getters['dialogues/get'](this.application.dialog.dialogId);
+
+			return dialog? dialog: this.$store.getters['dialogues/getBlank']();
+		},
+		chatId()
+		{
+			if (!this.application)
+			{
+				return 0;
+			}
+
+			return this.application.dialog.chatId;
+		},
+		messageCollection()
+		{
+			return this.$store.getters['messages/get'](this.application.dialog.chatId);
+		},
+		isDarkBackground()
+		{
+			return this.application.options.darkBackground;
+		},
+		...Vuex.mapState({
+			application: state => state.application,
+		}),
+		localize()
+		{
+			return BitrixVue.getFilteredPhrases(['IM_DIALOG_', 'IM_UTILS_', 'IM_MESSENGER_DIALOG_', 'IM_QUOTE_'], this);
+		},
 	},
 	methods:
 	{
@@ -149,7 +197,7 @@ BitrixVue.component('bx-im-component-dialog',
 				[RestMethodHandler.imChatGet]: [RestMethod.imChatGet, {dialog_id: this.dialogId}],
 				[RestMethodHandler.imDialogMessagesGetInit]: [RestMethod.imDialogMessagesGet, {
 					dialog_id: this.dialogId,
-					limit: this.getApplicationController().getRequestMessageLimit(),
+					limit: this.getController().application.getRequestMessageLimit(),
 					convert_text: 'Y'
 				}],
 			};
@@ -170,7 +218,7 @@ BitrixVue.component('bx-im-component-dialog',
 			Logger.log('requesting dialog data');
 
 			const query = this.prepareRequestDataQuery();
-			this.getRestClient().callBatch(query, (response) =>
+			this.$Bitrix.RestClient.get().callBatch(query, (response) =>
 			{
 				if (!response)
 				{
@@ -216,7 +264,7 @@ BitrixVue.component('bx-im-component-dialog',
 						// this.messagesSet = true;
 					});
 				}
-			}, false, false, Utils.getLogTrackingParams({name: 'im.dialog', dialog: this.getApplicationController().getDialogData()}));
+			}, false, false, Utils.getLogTrackingParams({name: 'im.dialog', dialog: this.getController().application.getDialogData()}));
 
 			return new Promise((resolve, reject) => resolve());
 		},
@@ -249,6 +297,16 @@ BitrixVue.component('bx-im-component-dialog',
 			}
 
 			this.messagesSet = true;
+		},
+
+		getController()
+		{
+			return this.$Bitrix.Data.get('controller');
+		},
+
+		executeRestAnswer(method, queryResult, extra)
+		{
+			this.getController().executeRestAnswer(method, queryResult, extra);
 		}
 	},
 	// language=Vue

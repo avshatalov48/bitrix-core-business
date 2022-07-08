@@ -38,7 +38,7 @@ class CMailUfMessageComponent extends CBitrixComponent
 			}
 			else
 			{
-				echo Loc::getMessage('MAIL_UF_MESSAGE_NOT_IMPLEMENTED');
+				$this->includeComponentTemplate('error');
 			}
 
 			return;

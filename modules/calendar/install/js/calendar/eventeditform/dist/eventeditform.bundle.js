@@ -1725,12 +1725,11 @@ this.BX = this.BX || {};
 	      if (!excludes.includes('name') && entry.name !== this.DOM.form.name.value) {
 	        fields.push('name');
 	      } // Description
-	      // if (!excludes.includes('name')
-	      // 	&& this.descriptionValue !== this.DOM.form.desc.value)
-	      // {
-	      // 	fields.push('description');
-	      // }
-	      // Location
+
+
+	      if (!excludes.includes('description') && entry.getDescription() !== this.DOM.form.desc.value) {
+	        fields.push('description');
+	      } // Location
 
 
 	      if (!excludes.includes('location') && this.locationSelector.getTextLocation(calendar_controls.Location.parseStringValue(this.entry.getLocation())) !== this.locationSelector.getTextLocation(calendar_controls.Location.parseStringValue(this.locationSelector.getTextValue()))) {

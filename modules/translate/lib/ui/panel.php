@@ -121,7 +121,10 @@ class Panel
 		$searchString = $request->get('srchlngfil');
 
 		\CJSCore::Init('admin_interface');
-		$APPLICATION->SetAdditionalCSS('/bitrix/themes/.default/pubstyles.css');
+		if (!defined("ADMIN_SECTION"))
+		{
+			$APPLICATION->SetAdditionalCSS('/bitrix/themes/.default/pubstyles.css');
+		}
 
 		$popup = new \CJSPopupOnPage();
 		$popup->jsPopup = self::DIALOG_ID;
@@ -297,6 +300,18 @@ class Panel
 			<?
 		}
 
+		if (defined("ADMIN_SECTION"))
+		{
+			?>
+			<style>
+				div.bx-component-debug {border:1px solid red; font-size:11px; color:black; background-color:white; text-align:left; }
+				div.bx-component-debug a, div.bx-component-debug a:visited {color:blue; text-decoration:none;}
+				div.bx-component-debug a:hover {color:red; text-decoration:underline}
+				div.bx-debug-summary {margin:5px; width:300px; padding:5px; position:fixed; bottom:10px; left:10px; z-index:1000; opacity: 0.4;}
+				div.bx-debug-summary:hover {opacity: 1;}
+			</style>
+			<?
+		}
 		?>
 		<div class="bx-component-debug bx-debug-summary bx-translate-debug-summary">
 			<?= Loc::getMessage("TRANSLATE_COUNT_LOADED_LANG_FILES") ?>: <?= count($includedLangFiles) ?><br>

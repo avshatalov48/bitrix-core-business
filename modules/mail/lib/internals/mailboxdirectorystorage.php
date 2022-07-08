@@ -3,6 +3,7 @@
 namespace Bitrix\Mail\Internals;
 
 use Bitrix\Mail\MailboxDirectory;
+use Bitrix\Main\Text\Emoji;
 
 class MailboxDirectoryStorage
 {
@@ -41,6 +42,7 @@ class MailboxDirectoryStorage
 
 	public function getByPath(string $key)
 	{
+		$key = Emoji::decode($key);
 		$list = $this->get('all', []);
 		return isset($list[$key]) ? $list[$key] : null;
 	}

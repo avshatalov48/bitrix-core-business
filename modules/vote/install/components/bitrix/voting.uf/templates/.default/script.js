@@ -458,13 +458,16 @@
 								});
 							}
 
-							if (data[i]['ID'] !== "HIDDEN")
+							if (
+								data[i]['ID'] !== "HIDDEN"
+								&& this.urlTemplate
+							)
 							{
 								node.appendChild(
 									BX.create("A", {
 										attrs : {id : ("a" + this.answerId + "u" + data[i]['ID'])},
 										props: {
-											href: this.urlTemplate.replace("#ID#", data[i]['ID']),
+											href: this.urlTemplate.replace(/#(USER_ID|ID)#/i, data[i]['ID']),
 											target: "_blank",
 											className: "bx-ilike-popup-img" + (!!data[i]['TYPE'] ? " bx-ilike-popup-img-" + data[i]['TYPE'] : "")
 										},

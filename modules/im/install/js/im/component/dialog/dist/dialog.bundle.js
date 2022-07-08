@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,im_view_message,im_mixin,im_lib_utils,im_lib_animation,im_lib_logger,main_polyfill_intersectionobserver,ui_vue_vuex,ui_vue,im_const,main_core,main_core_events) {
+(function (exports,im_view_message,im_lib_utils,im_lib_animation,im_lib_logger,main_polyfill_intersectionobserver,ui_vue,im_const,main_core,main_core_events,ui_vue_vuex) {
 	'use strict';
 
 	var ObserverType = Object.freeze({
@@ -90,19 +90,10 @@ this.BX = this.BX || {};
 	var MessageList = {
 	  /**
 	   * @emits EventType.dialog.readMessage
-	   * @emits EventType.dialog.quoteMessage
 	   * @emits EventType.dialog.clickOnDialog
-	   * @emits EventType.dialog.clickOnUserName
-	   * @emits EventType.dialog.clickOnUploadCancel
-	   * @emits EventType.dialog.clickOnKeyboardButton
-	   * @emits EventType.dialog.clickOnChatTeaser
-	   * @emits EventType.dialog.clickOnMessageMenu
 	   * @emits EventType.dialog.clickOnCommand
 	   * @emits EventType.dialog.clickOnMention
-	   * @emits EventType.dialog.clickOnMessageRetry
 	   * @emits EventType.dialog.clickOnReadList
-	   * @emits EventType.dialog.setMessageReaction
-	   * @emits EventType.dialog.openMessageReactionList
 	   */
 	  props: {
 	    userId: {
@@ -163,7 +154,6 @@ this.BX = this.BX || {};
 	    Placeholder2: Placeholder2,
 	    Placeholder3: Placeholder3
 	  },
-	  mixins: [im_mixin.DialogCore, im_mixin.DialogReadMessages],
 	  data: function data() {
 	    return {
 	      messagesSet: false,
@@ -225,6 +215,11 @@ this.BX = this.BX || {};
 	    dialog: function dialog() {
 	      var dialog = this.$store.getters['dialogues/get'](this.dialogId);
 	      return dialog ? dialog : this.$store.getters['dialogues/getBlank']();
+	    },
+	    chatId: function chatId() {
+	      if (this.application) {
+	        return this.application.dialog.chatId;
+	      }
 	    },
 	    collection: function collection() {
 	      return this.$store.getters['messages/get'](this.chatId);
@@ -459,8 +454,6 @@ this.BX = this.BX || {};
 	    /* endregion 01. Init and destroy */
 
 	    /* region 02. Event handlers */
-	    onReadMessage: function onReadMessage() {//redeclare method to ignore handler from ReadMessages mixin
-	    },
 	    onDialogClick: function onDialogClick(event) {
 	      if (ui_vue.BitrixVue.testNode(event.target, {
 	        className: 'bx-im-message-command'
@@ -585,44 +578,6 @@ this.BX = this.BX || {};
 	      this.readVisibleMessagesDelayed();
 	      return true;
 	    },
-	    onClickOnUserName: function onClickOnUserName(event) {
-	      if (!this.windowFocused) {
-	        return false;
-	      }
-
-	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.clickOnUserName, event);
-	    },
-	    onClickOnUploadCancel: function onClickOnUploadCancel(event) {
-	      if (!this.windowFocused) {
-	        return false;
-	      }
-
-	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.clickOnUploadCancel, event);
-	    },
-	    onClickOnKeyboardButton: function onClickOnKeyboardButton(event) {
-	      if (!this.windowFocused) {
-	        return false;
-	      }
-
-	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.clickOnKeyboardButton, event);
-	    },
-	    onClickOnChatTeaser: function onClickOnChatTeaser(event) {
-	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.clickOnChatTeaser, event);
-	    },
-	    onClickOnMessageMenu: function onClickOnMessageMenu(event) {
-	      if (!this.windowFocused) {
-	        return false;
-	      }
-
-	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.clickOnMessageMenu, event);
-	    },
-	    onClickOnMessageRetry: function onClickOnMessageRetry(event) {
-	      if (!this.windowFocused) {
-	        return false;
-	      }
-
-	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.clickOnMessageRetry, event);
-	    },
 	    onClickOnReadList: function onClickOnReadList(event) {
 	      var _this6 = this;
 
@@ -634,12 +589,6 @@ this.BX = this.BX || {};
 	        event: event
 	      });
 	    },
-	    onMessageReactionSet: function onMessageReactionSet(event) {
-	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.setMessageReaction, event);
-	    },
-	    onMessageReactionListOpen: function onMessageReactionListOpen(event) {
-	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.openMessageReactionList, event);
-	    },
 	    onDragMessage: function onDragMessage(event) {
 	      if (!this.windowFocused) {
 	        return false;
@@ -650,13 +599,6 @@ this.BX = this.BX || {};
 	      if (!event.result) {
 	        this.capturedMoveEvent = null;
 	      }
-	    },
-	    onQuoteMessage: function onQuoteMessage(event) {
-	      if (!this.windowFocused) {
-	        return false;
-	      }
-
-	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.quoteMessage, event);
 	    },
 	    onScroll: function onScroll(event) {
 	      if (this.isScrolling) {
@@ -1297,7 +1239,11 @@ this.BX = this.BX || {};
 	        return false;
 	      }
 
-	      this.readMessage(this.lastUnreadMessageId, true, true).then(function () {
+	      main_core_events.EventEmitter.emitAsync(im_const.EventType.dialog.readMessage, {
+	        id: this.lastUnreadMessageId,
+	        skipTimer: true,
+	        skipAjax: true
+	      }).then(function () {
 	        _this14.$Bitrix.RestClient.get().callBatch(_this14.prepareUnreadRequestParams(), function (response) {
 	          return _this14.onUnreadRequest(response);
 	        });
@@ -1707,7 +1653,7 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  // language=Vue
-	  template: "\n\t<div class=\"bx-im-dialog\" @click=\"onDialogClick\" @touchmove=\"onDialogMove\" ref=\"container\">\n\t\t<div :class=\"bodyClasses\" @scroll.passive=\"onScroll\" ref=\"body\">\n\t\t\t<!-- Main elements loop -->\n\t\t\t<template v-for=\"(element, index) in formattedCollection\">\n\t\t\t\t<!-- Message -->\n\t\t\t\t<template v-if=\"element.templateType === TemplateType.message\">\n\t\t\t\t\t<div\n\t\t\t\t\t\t:class=\"getElementClass(element.id)\"\n\t\t\t\t\t\t:data-message-id=\"element.id\"\n\t\t\t\t\t\t:data-template-id=\"element.templateId\"\n\t\t\t\t\t\t:data-type=\"element.templateType\" \n\t\t\t\t\t\t:key=\"element.templateId\"\n\t\t\t\t\t\tv-bx-im-directive-dialog-observer=\"element.unread? ObserverType.read: ObserverType.none\"\n\t\t\t\t\t>\t\t\t\t\n<!--\t\t\t\t\t  <div style=\"width: 200px; height: 50px; margin-top: 5px; background: #000; color: #fff;\">{{ element.textConverted }}</div>-->\n\t\t\t\t\t\t<component :is=\"element.params.COMPONENT_ID\"\n\t\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t\t:chatId=\"chatId\"\n\t\t\t\t\t\t\t:message=\"element\"\n\t\t\t\t\t\t\t:enableReactions=\"enableReactions\"\n\t\t\t\t\t\t\t:enableDateActions=\"enableDateActions\"\n\t\t\t\t\t\t\t:enableCreateContent=\"showMessageMenu\"\n\t\t\t\t\t\t\t:enableGestureQuote=\"enableGestureQuote\"\n\t\t\t\t\t\t\t:enableGestureQuoteFromRight=\"enableGestureQuoteFromRight\"\n\t\t\t\t\t\t\t:enableGestureMenu=\"enableGestureMenu\"\n\t\t\t\t\t\t\t:showName=\"showMessageUserName\"\n\t\t\t\t\t\t\t:showAvatar=\"showMessageAvatar\"\n\t\t\t\t\t\t\t:showMenu=\"showMessageMenu\"\n\t\t\t\t\t\t\t:capturedMoveEvent=\"capturedMoveEvent\"\n\t\t\t\t\t\t\t:referenceContentClassName=\"DialogReferenceClassName.listItem\"\n\t\t\t\t\t\t\t:referenceContentBodyClassName=\"DialogReferenceClassName.listItemBody\"\n\t\t\t\t\t\t\t:referenceContentNameClassName=\"DialogReferenceClassName.listItemName\"\n\t\t\t\t\t\t\t@clickByUserName=\"onClickOnUserName\"\n\t\t\t\t\t\t\t@clickByUploadCancel=\"onClickOnUploadCancel\"\n\t\t\t\t\t\t\t@clickByKeyboardButton=\"onClickOnKeyboardButton\"\n\t\t\t\t\t\t\t@clickByChatTeaser=\"onClickOnChatTeaser\"\n\t\t\t\t\t\t\t@clickByMessageMenu=\"onClickOnMessageMenu\"\n\t\t\t\t\t\t\t@clickByMessageRetry=\"onClickOnMessageRetry\"\n\t\t\t\t\t\t\t@setMessageReaction=\"onMessageReactionSet\"\n\t\t\t\t\t\t\t@openMessageReactionList=\"onMessageReactionListOpen\"\n\t\t\t\t\t\t\t@dragMessage=\"onDragMessage\"\n\t\t\t\t\t\t\t@quoteMessage=\"onQuoteMessage\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<!-- Date groups -->\n\t\t\t\t<template v-else-if=\"element.templateType === TemplateType.group\">\n\t\t\t\t\t<div class=\"bx-im-dialog-group\" :data-template-id=\"element.templateId\" :data-type=\"element.templateType\" :key=\"element.templateId\">\n\t\t\t\t\t\t<div class=\"bx-im-dialog-group-date\">{{ element.text }}</div>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<!-- Delimiters -->\n\t\t\t\t<template v-else-if=\"element.templateType === TemplateType.delimiter\">\n\t\t\t\t\t<div class=\"bx-im-dialog-delimiter\" :data-template-id=\"element.templateId\" :data-type=\"element.templateType\" :key=\"element.templateId\"></div>\n\t\t\t\t</template>\n\t\t\t\t<!-- Placeholders -->\n\t\t\t\t<template v-else-if=\"element.templateType === TemplateType.placeholder\">\n\t\t\t\t\t<component :is=\"'Placeholder'+element.placeholderType\" :element=\"element\"/>\n\t\t\t\t</template>\n\t\t\t</template>\n\t\t\t<!-- Writing and readed statuses -->\n\t\t\t<transition name=\"bx-im-dialog-status\">\n\t\t\t\t<template v-if=\"writingStatusText\">\n\t\t\t\t\t<div class=\"bx-im-dialog-status\">\n\t\t\t\t\t\t<span class=\"bx-im-dialog-status-writing\"></span>\n\t\t\t\t\t\t{{ writingStatusText }}\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<template v-else-if=\"statusReaded\">\n\t\t\t\t\t<div class=\"bx-im-dialog-status\" @click=\"onClickOnReadList\">\n\t\t\t\t\t\t{{ statusReaded }}\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t</transition>\n\t\t\t<div v-if=\"showStatusPlaceholder\" class=\"bx-im-dialog-status-placeholder\"></div>\n\t\t</div>\n\t\t<!-- Scroll button -->\n\t\t<transition name=\"bx-im-dialog-scroll-button\">\n\t\t\t<div v-show=\"showScrollButton || (unreadCounter > 0 && !isLastIdInCollection)\" class=\"bx-im-dialog-scroll-button-box\" @click=\"onScrollButtonClick\">\n\t\t\t\t<div class=\"bx-im-dialog-scroll-button\">\n\t\t\t\t\t<div v-show=\"unreadCounter\" class=\"bx-im-dialog-scroll-button-counter\">\n\t\t\t\t\t\t<div class=\"bx-im-dialog-scroll-button-counter-digit\">{{ formattedUnreadCounter }}</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"bx-im-dialog-scroll-button-arrow\"></div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</transition>\n\t</div>\n"
+	  template: "\n\t<div class=\"bx-im-dialog\" @click=\"onDialogClick\" @touchmove=\"onDialogMove\" ref=\"container\">\n\t\t<div :class=\"bodyClasses\" @scroll.passive=\"onScroll\" ref=\"body\">\n\t\t\t<!-- Main elements loop -->\n\t\t\t<template v-for=\"(element, index) in formattedCollection\">\n\t\t\t\t<!-- Message -->\n\t\t\t\t<template v-if=\"element.templateType === TemplateType.message\">\n\t\t\t\t\t<div\n\t\t\t\t\t\t:class=\"getElementClass(element.id)\"\n\t\t\t\t\t\t:data-message-id=\"element.id\"\n\t\t\t\t\t\t:data-template-id=\"element.templateId\"\n\t\t\t\t\t\t:data-type=\"element.templateType\" \n\t\t\t\t\t\t:key=\"element.templateId\"\n\t\t\t\t\t\tv-bx-im-directive-dialog-observer=\"element.unread? ObserverType.read: ObserverType.none\"\n\t\t\t\t\t>\t\t\t\t\n<!--\t\t\t\t\t  <div style=\"width: 200px; height: 50px; margin-top: 5px; background: #000; color: #fff;\">{{ element.textConverted }}</div>-->\n\t\t\t\t\t\t<component :is=\"element.params.COMPONENT_ID\"\n\t\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t\t:chatId=\"chatId\"\n\t\t\t\t\t\t\t:message=\"element\"\n\t\t\t\t\t\t\t:enableReactions=\"enableReactions\"\n\t\t\t\t\t\t\t:enableDateActions=\"enableDateActions\"\n\t\t\t\t\t\t\t:enableCreateContent=\"showMessageMenu\"\n\t\t\t\t\t\t\t:enableGestureQuote=\"enableGestureQuote\"\n\t\t\t\t\t\t\t:enableGestureQuoteFromRight=\"enableGestureQuoteFromRight\"\n\t\t\t\t\t\t\t:enableGestureMenu=\"enableGestureMenu\"\n\t\t\t\t\t\t\t:showName=\"showMessageUserName\"\n\t\t\t\t\t\t\t:showAvatar=\"showMessageAvatar\"\n\t\t\t\t\t\t\t:showMenu=\"showMessageMenu\"\n\t\t\t\t\t\t\t:capturedMoveEvent=\"capturedMoveEvent\"\n\t\t\t\t\t\t\t:referenceContentClassName=\"DialogReferenceClassName.listItem\"\n\t\t\t\t\t\t\t:referenceContentBodyClassName=\"DialogReferenceClassName.listItemBody\"\n\t\t\t\t\t\t\t:referenceContentNameClassName=\"DialogReferenceClassName.listItemName\"\n\t\t\t\t\t\t\t@dragMessage=\"onDragMessage\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<!-- Date groups -->\n\t\t\t\t<template v-else-if=\"element.templateType === TemplateType.group\">\n\t\t\t\t\t<div class=\"bx-im-dialog-group\" :data-template-id=\"element.templateId\" :data-type=\"element.templateType\" :key=\"element.templateId\">\n\t\t\t\t\t\t<div class=\"bx-im-dialog-group-date\">{{ element.text }}</div>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<!-- Delimiters -->\n\t\t\t\t<template v-else-if=\"element.templateType === TemplateType.delimiter\">\n\t\t\t\t\t<div class=\"bx-im-dialog-delimiter\" :data-template-id=\"element.templateId\" :data-type=\"element.templateType\" :key=\"element.templateId\"></div>\n\t\t\t\t</template>\n\t\t\t\t<!-- Placeholders -->\n\t\t\t\t<template v-else-if=\"element.templateType === TemplateType.placeholder\">\n\t\t\t\t\t<component :is=\"'Placeholder'+element.placeholderType\" :element=\"element\"/>\n\t\t\t\t</template>\n\t\t\t</template>\n\t\t\t<!-- Writing and readed statuses -->\n\t\t\t<transition name=\"bx-im-dialog-status\">\n\t\t\t\t<template v-if=\"writingStatusText\">\n\t\t\t\t\t<div class=\"bx-im-dialog-status\">\n\t\t\t\t\t\t<span class=\"bx-im-dialog-status-writing\"></span>\n\t\t\t\t\t\t{{ writingStatusText }}\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<template v-else-if=\"statusReaded\">\n\t\t\t\t\t<div class=\"bx-im-dialog-status\" @click=\"onClickOnReadList\">\n\t\t\t\t\t\t{{ statusReaded }}\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t</transition>\n\t\t\t<div v-if=\"showStatusPlaceholder\" class=\"bx-im-dialog-status-placeholder\"></div>\n\t\t</div>\n\t\t<!-- Scroll button -->\n\t\t<transition name=\"bx-im-dialog-scroll-button\">\n\t\t\t<div v-show=\"showScrollButton || (unreadCounter > 0 && !isLastIdInCollection)\" class=\"bx-im-dialog-scroll-button-box\" @click=\"onScrollButtonClick\">\n\t\t\t\t<div class=\"bx-im-dialog-scroll-button\">\n\t\t\t\t\t<div v-show=\"unreadCounter\" class=\"bx-im-dialog-scroll-button-counter\">\n\t\t\t\t\t\t<div class=\"bx-im-dialog-scroll-button-counter-digit\">{{ formattedUnreadCounter }}</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"bx-im-dialog-scroll-button-arrow\"></div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</transition>\n\t</div>\n"
 	};
 
 	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -1808,16 +1754,10 @@ this.BX = this.BX || {};
 	  template: "\n\t<transition enter-active-class=\"bx-im-quote-panel-animation-show\" leave-active-class=\"bx-im-quote-panel-animation-close\">\t\t\t\t\n\t\t<div v-if=\"quotePanelData.id > 0\" class=\"bx-im-quote-panel\">\n\t\t\t<div class=\"bx-im-quote-panel-wrap\">\n\t\t\t\t<div class=\"bx-im-quote-panel-box\" :style=\"{borderLeftColor: quotePanelData.color}\">\n\t\t\t\t\t<div class=\"bx-im-quote-panel-box-title\" :style=\"{color: quotePanelData.color}\">{{formattedTittle}}</div>\n\t\t\t\t\t<div class=\"bx-im-quote-panel-box-desc\">{{formattedDescription}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"canClose\" class=\"bx-im-quote-panel-close\" @click=\"close\"></div>\n\t\t\t</div>\n\t\t</div>\n\t</transition>\n"
 	};
 
-	/**
-	 * Bitrix im
-	 * Dialog vue component
-	 *
-	 * @package bitrix
-	 * @subpackage im
-	 * @copyright 2001-2021 Bitrix
-	 */
+	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	ui_vue.BitrixVue.component('bx-im-component-dialog', {
-	  mixins: [im_mixin.DialogCore, im_mixin.DialogQuoteMessage],
 	  components: {
 	    MessageList: MessageList,
 	    ErrorState: ErrorState,
@@ -1859,7 +1799,8 @@ this.BX = this.BX || {};
 	  },
 	  data: function data() {
 	    return {
-	      messagesSet: false
+	      messagesSet: false,
+	      dialogState: im_const.DialogState.loading
 	    };
 	  },
 	  created: function created() {
@@ -1876,7 +1817,7 @@ this.BX = this.BX || {};
 	      this.onDialogOpen();
 	    }
 	  },
-	  computed: {
+	  computed: _objectSpread$2(_objectSpread$2({
 	    EventType: function EventType() {
 	      return im_const.EventType;
 	    },
@@ -1945,8 +1886,46 @@ this.BX = this.BX || {};
 	    isMessagesModelInited: function isMessagesModelInited() {
 	      var messages = this.$store.state.messages.collection;
 	      return messages[this.chatId];
+	    },
+	    isDialogShowingMessages: function isDialogShowingMessages() {
+	      var messagesNotEmpty = this.messageCollection && this.messageCollection.length > 0;
+
+	      if (messagesNotEmpty) {
+	        this.dialogState = im_const.DialogState.show;
+	      } else if (this.dialog && this.dialog.init) {
+	        this.dialogState = im_const.DialogState.empty;
+	      } else {
+	        this.dialogState = im_const.DialogState.loading;
+	      }
+
+	      return messagesNotEmpty;
+	    },
+	    dialog: function dialog() {
+	      var dialog = this.$store.getters['dialogues/get'](this.application.dialog.dialogId);
+	      return dialog ? dialog : this.$store.getters['dialogues/getBlank']();
+	    },
+	    chatId: function chatId() {
+	      if (!this.application) {
+	        return 0;
+	      }
+
+	      return this.application.dialog.chatId;
+	    },
+	    messageCollection: function messageCollection() {
+	      return this.$store.getters['messages/get'](this.application.dialog.chatId);
+	    },
+	    isDarkBackground: function isDarkBackground() {
+	      return this.application.options.darkBackground;
 	    }
-	  },
+	  }, ui_vue_vuex.Vuex.mapState({
+	    application: function application(state) {
+	      return state.application;
+	    }
+	  })), {}, {
+	    localize: function localize() {
+	      return ui_vue.BitrixVue.getFilteredPhrases(['IM_DIALOG_', 'IM_UTILS_', 'IM_MESSENGER_DIALOG_', 'IM_QUOTE_'], this);
+	    }
+	  }),
 	  methods: {
 	    prepareRequestDataQuery: function prepareRequestDataQuery() {
 	      var _query;
@@ -1955,7 +1934,7 @@ this.BX = this.BX || {};
 	        dialog_id: this.dialogId
 	      }]), babelHelpers.defineProperty(_query, im_const.RestMethodHandler.imDialogMessagesGetInit, [im_const.RestMethod.imDialogMessagesGet, {
 	        dialog_id: this.dialogId,
-	        limit: this.getApplicationController().getRequestMessageLimit(),
+	        limit: this.getController().application.getRequestMessageLimit(),
 	        convert_text: 'Y'
 	      }]), _query);
 
@@ -1974,7 +1953,7 @@ this.BX = this.BX || {};
 
 	      im_lib_logger.Logger.log('requesting dialog data');
 	      var query = this.prepareRequestDataQuery();
-	      this.getRestClient().callBatch(query, function (response) {
+	      this.$Bitrix.RestClient.get().callBatch(query, function (response) {
 	        if (!response) {
 	          return false;
 	        } //const.get
@@ -2022,7 +2001,7 @@ this.BX = this.BX || {};
 	        }
 	      }, false, false, im_lib_utils.Utils.getLogTrackingParams({
 	        name: 'im.dialog',
-	        dialog: this.getApplicationController().getDialogData()
+	        dialog: this.getController().application.getDialogData()
 	      }));
 	      return new Promise(function (resolve, reject) {
 	        return resolve();
@@ -2055,11 +2034,17 @@ this.BX = this.BX || {};
 	      }
 
 	      this.messagesSet = true;
+	    },
+	    getController: function getController() {
+	      return this.$Bitrix.Data.get('controller');
+	    },
+	    executeRestAnswer: function executeRestAnswer(method, queryResult, extra) {
+	      this.getController().executeRestAnswer(method, queryResult, extra);
 	    }
 	  },
 	  // language=Vue
 	  template: "\n\t\t<div :class=\"dialogWrapClasses\">\n\t\t\t<div :class=\"dialogBoxClasses\" ref=\"chatBox\">\n\t\t\t\t<!-- Error state -->\n\t\t\t\t<ErrorState v-if=\"application.error.active\" />\n\t\t\t\t<template v-else>\n\t\t\t\t\t<div :class=\"dialogBodyClasses\" key=\"with-message\">\n\t\t\t\t\t\t<!-- Loading state -->\n\t\t\t\t\t  \t<LoadingState v-if=\"isLoading\" />\n\t\t\t\t\t\t<!-- Empty state -->\n\t\t\t\t\t  \t<EmptyState v-else-if=\"isEmpty\" />\n\t\t\t\t\t\t<!-- Message list state -->\n\t\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t\t<div class=\"bx-mobilechat-dialog\">\n\t\t\t\t\t\t\t\t<MessageList\n\t\t\t\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t\t\t\t:messageLimit=\"application.dialog.messageLimit\"\n\t\t\t\t\t\t\t\t\t:enableReadMessages=\"application.dialog.enableReadMessages\"\n\t\t\t\t\t\t\t\t\t:enableReactions=\"true\"\n\t\t\t\t\t\t\t\t\t:enableDateActions=\"false\"\n\t\t\t\t\t\t\t\t\t:enableCreateContent=\"false\"\n\t\t\t\t\t\t\t\t\t:enableGestureQuote=\"enableGestureQuote\"\n\t\t\t\t\t\t\t\t\t:enableGestureQuoteFromRight=\"enableGestureQuoteFromRight\"\n\t\t\t\t\t\t\t\t\t:enableGestureMenu=\"enableGestureMenu\"\n\t\t\t\t\t\t\t\t\t:showMessageUserName=\"showMessageUserName\"\n\t\t\t\t\t\t\t\t\t:showMessageAvatar=\"showMessageAvatar\"\n\t\t\t\t\t\t\t\t\t:showMessageMenu=\"false\"\n\t\t\t\t\t\t\t\t />\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t<!-- Quote panel -->\n\t\t\t\t\t\t\t<QuotePanel :quotePanelData=\"quotePanelData\" />\n\t\t\t\t\t\t</template>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t</div>\n\t\t</div>\n\t"
 	});
 
-}((this.BX.Messenger = this.BX.Messenger || {}),window,BX.Messenger.Mixin,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX,BX,BX,BX.Messenger.Const,BX,BX.Event));
+}((this.BX.Messenger = this.BX.Messenger || {}),window,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX,BX,BX.Messenger.Const,BX,BX.Event,BX));
 //# sourceMappingURL=dialog.bundle.js.map

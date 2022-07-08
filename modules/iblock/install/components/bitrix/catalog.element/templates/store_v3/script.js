@@ -2793,9 +2793,9 @@
 				);
 
 				overlay.setAttribute('style',
-					'background-image: url("' + xImages[i].SRC + '");'
-					+ 'background-image: -webkit-image-set(url("' + xImages[i].SRC + '") 1x, url("' + x2Images[i].SRC + '") 2x);'
-					+ 'background-image: image-set(url("' + xImages[i].SRC + '") 1x, url("' + x2Images[i].SRC + '") 2x);'
+					'background-image: url(\'' + xImages[i].SRC + '\');'
+					+ 'background-image: -webkit-image-set(url(\'' + xImages[i].SRC + '\') 1x, url(\'' + x2Images[i].SRC + '\') 2x);'
+					+ 'background-image: image-set(url(\'' + xImages[i].SRC + '\') 1x, url(\'' + x2Images[i].SRC + '\') 2x);'
 				);
 
 				this.node.imageContainer.appendChild(

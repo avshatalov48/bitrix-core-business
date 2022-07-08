@@ -3,7 +3,8 @@
 use Bitrix\Main\Localization\Loc;
 
 \Bitrix\Main\UI\Extension::load([
-	'ui.info-helper'
+	'ui.info-helper',
+	'ui.design-tokens',
 ]);
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();

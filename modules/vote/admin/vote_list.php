@@ -263,7 +263,11 @@ if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT>="W" && check_bitrix_sessid()
 		Data
  ********************************************************************/
 $dbRes = \Bitrix\Vote\VoteTable::getList(array(
-	"select" => ["*", "USER_" => "USER.*", "LAMP"],
+	"select" => ["*",
+		"USER_LOGIN" => "USER.LOGIN",
+		"USER_NAME" => "USER.NAME",
+		"USER_LAST_NAME" => "USER.LAST_NAME",
+		"LAMP"],
 	"filter" => $arFilter,
 	"order" => $listOrder,
 ));

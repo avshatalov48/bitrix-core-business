@@ -66,7 +66,7 @@ final class Config
 	 */
 	public static function getDefaultLanguages(): array
 	{
-		return ['ru', 'en', 'de', 'ua'];
+		return ['ru', 'en', 'de'];
 	}
 
 	/**

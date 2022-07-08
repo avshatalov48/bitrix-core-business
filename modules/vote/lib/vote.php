@@ -77,6 +77,19 @@ Loc::loadMessages(__FILE__);
  * <li> OPTIONS int,
  * </ul>
  *
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Vote_Query query()
+ * @method static EO_Vote_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Vote_Result getById($id)
+ * @method static EO_Vote_Result getList(array $parameters = array())
+ * @method static EO_Vote_Entity getEntity()
+ * @method static \Bitrix\Vote\EO_Vote createObject($setDefaultValues = true)
+ * @method static \Bitrix\Vote\EO_Vote_Collection createCollection()
+ * @method static \Bitrix\Vote\EO_Vote wakeUpObject($row)
+ * @method static \Bitrix\Vote\EO_Vote_Collection wakeUpCollection($rows)
  */
 class VoteTable extends Entity\DataManager
 {
@@ -203,7 +216,7 @@ class VoteTable extends Entity\DataManager
 	public static function onAfterAdd(\Bitrix\Main\ORM\Event $event)
 	{
 		$id = $event->getParameter("id");
-		$id = $id["ID"];
+		$id = is_array($id) && array_key_exists("ID", $id) ? $id["ID"] : $id;
 		$fields = $event->getParameter("fields");
 		/***************** Event onAfterVoteAdd ****************************/
 		foreach (GetModuleEvents("vote", "onAfterVoteAdd", true) as $event)
@@ -223,7 +236,7 @@ class VoteTable extends Entity\DataManager
 			/** @var array $data */
 			$data = $event->getParameter("fields");
 			$id = $event->getParameter("id");
-			$id = $id["ID"];
+			$id = is_array($id) && array_key_exists("ID", $id) ? $id["ID"] : $id;
 			foreach ($events as $ev)
 			{
 				if (ExecuteModuleEventEx($ev, array($id, &$data)) === false)
@@ -247,7 +260,7 @@ class VoteTable extends Entity\DataManager
 	public static function onAfterUpdate(\Bitrix\Main\ORM\Event $event)
 	{
 		$id = $event->getParameter("id");
-		$id = $id["ID"];
+		$id = is_array($id) && array_key_exists("ID", $id) ? $id["ID"] : $id;
 		$fields = $event->getParameter("fields");
 		/***************** Event onAfterVoteAdd ****************************/
 		foreach (GetModuleEvents("vote", "onAfterVoteUpdate", true) as $event)
@@ -930,7 +943,12 @@ class Vote extends BaseObject implements \ArrayAccess
 				"V_" => "*",
 				"Q_" => "QUESTION.*",
 				"A_" => "QUESTION.ANSWER.*",
-				"U_" => "USER.USER.*",
+				"U_ID" => "USER.USER.ID",
+				"U_NAME" => "USER.USER.NAME",
+				"U_LAST_NAME" => "USER.USER.LAST_NAME",
+				"U_SECOND_NAME" => "USER.USER.SECOND_NAME",
+				"U_LOGIN" => "USER.USER.LOGIN",
+				"U_PERSONAL_PHOTO" => "USER.USER.PERSONAL_PHOTO",
 			),
 			"filter" => array("VOTE_ID" => $this->id, "VALID" => "Y"),
 			"order" => array(
@@ -974,7 +992,11 @@ class Vote extends BaseObject implements \ArrayAccess
 				"V_" => "*",
 				"Q_" => "QUESTION.*",
 				"A_" => "QUESTION.ANSWER.*",
-				"U_" => "USER.USER.*",
+				"U_ID" => "USER.USER.ID",
+				"U_NAME" => "USER.USER.NAME",
+				"U_LAST_NAME" => "USER.USER.LAST_NAME",
+				"U_SECOND_NAME" => "USER.USER.SECOND_NAME",
+				"U_PERSONAL_PHOTO" => "USER.USER.PERSONAL_PHOTO",
 			),
 			"filter" => array("VOTE_ID" => $this->id, "VALID" => "Y"),
 			"order" => array(
@@ -1554,13 +1576,17 @@ HTML;
 		$canVoteResult = $this->canVote($user);
 		if (!$canVoteResult->isSuccess())
 		{
-			/** @var Error $error */
-			$error = $canVoteResult->getErrorCollection()->rewind();
 			$result = 0;
-			do
+			for (
+				$canVoteResult->getErrorCollection()->rewind();
+				$canVoteResult->getErrorCollection()->valid();
+				$canVoteResult->getErrorCollection()->next()
+			)
 			{
+				/** @var Error $error */
+				$error = $canVoteResult->getErrorCollection()->current();
 				$result |= $error->getCode();
-			} while ($error = $canVoteResult->getErrorCollection()->next());
+			}
 		}
 		return $result;
 	}
@@ -1722,7 +1748,8 @@ HTML;
 			$dbRes = \Bitrix\Vote\EventTable::getList([
 				"select" => [
 					"*",
-					"USER_" => "USER.*"
+					"USER_COOKIE_ID" => "USER.COOKIE_ID",
+					"USER_AUTH_USER_ID" => "USER.AUTH_USER_ID",
 				],
 				"filter" => [
 					"VOTE_ID" => $voteId,

@@ -1,6 +1,97 @@
 this.BX = this.BX || {};
-(function (exports,im_mixin,im_component_dialog,im_component_textarea,ui_switcher,ui_vue_components_smiles,main_core,ui_forms,im_lib_cookie,im_component_callFeedback,im_lib_desktop,ui_vue,im_lib_logger,im_lib_utils,im_const,main_core_events,ui_vue_vuex,main_popup,im_lib_clipboard,ui_dialogs_messagebox) {
+(function (exports,im_eventHandler,im_component_dialog,im_component_textarea,ui_switcher,ui_vue_components_smiles,main_core,ui_forms,im_lib_cookie,im_component_callFeedback,im_lib_desktop,ui_vue,im_lib_logger,im_lib_utils,im_const,main_core_events,ui_vue_vuex,main_popup,im_lib_clipboard,ui_dialogs_messagebox) {
 	'use strict';
+
+	var ConferenceTextareaHandler = /*#__PURE__*/function (_TextareaHandler) {
+	  babelHelpers.inherits(ConferenceTextareaHandler, _TextareaHandler);
+
+	  function ConferenceTextareaHandler($Bitrix) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, ConferenceTextareaHandler);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ConferenceTextareaHandler).call(this, $Bitrix));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "application", null);
+	    _this.application = $Bitrix.Application.get();
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(ConferenceTextareaHandler, [{
+	    key: "onAppButtonClick",
+	    value: function onAppButtonClick(_ref) {
+	      var event = _ref.data;
+
+	      if (event.appId === 'smile') {
+	        this.application.toggleSmiles();
+	      }
+	    }
+	  }]);
+	  return ConferenceTextareaHandler;
+	}(im_eventHandler.TextareaHandler);
+
+	var ConferenceTextareaUploadHandler = /*#__PURE__*/function (_TextareaUploadHandle) {
+	  babelHelpers.inherits(ConferenceTextareaUploadHandler, _TextareaUploadHandle);
+
+	  function ConferenceTextareaUploadHandler() {
+	    babelHelpers.classCallCheck(this, ConferenceTextareaUploadHandler);
+	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ConferenceTextareaUploadHandler).apply(this, arguments));
+	  }
+
+	  babelHelpers.createClass(ConferenceTextareaUploadHandler, [{
+	    key: "addMessageWithFile",
+	    value: function addMessageWithFile(event) {
+	      var _this = this;
+
+	      var message = event.getData();
+
+	      if (!this.getDiskFolderId()) {
+	        this.requestDiskFolderId(message.chatId).then(function () {
+	          _this.addMessageWithFile(event);
+	        })["catch"](function (error) {
+	          im_lib_logger.Logger.error('addMessageWithFile error', error);
+	          return false;
+	        });
+	        return false;
+	      }
+
+	      message.chatId = this.getChatId();
+	      this.setUploaderCustomHeaders();
+	      this.uploader.addTask({
+	        taskId: message.file.id,
+	        fileData: message.file.source.file,
+	        fileName: message.file.source.file.name,
+	        generateUniqueName: true,
+	        diskFolderId: this.getDiskFolderId(),
+	        previewBlob: message.file.previewBlob
+	      });
+	    }
+	  }, {
+	    key: "setUploaderCustomHeaders",
+	    value: function setUploaderCustomHeaders() {
+	      if (!this.uploader.senderOptions.customHeaders) {
+	        this.uploader.senderOptions.customHeaders = {};
+	      }
+
+	      this.uploader.senderOptions.customHeaders['Call-Auth-Id'] = this.getUserHash();
+	      this.uploader.senderOptions.customHeaders['Call-Chat-Id'] = this.getChatId();
+	    }
+	  }, {
+	    key: "getUserHash",
+	    value: function getUserHash() {
+	      return this.controller.store.state.conference.user.hash;
+	    }
+	  }, {
+	    key: "getActionCommitFile",
+	    value: function getActionCommitFile() {
+	      return 'im.call.disk.commit';
+	    }
+	  }, {
+	    key: "getActionUploadChunk",
+	    value: function getActionUploadChunk() {
+	      return 'im.call.disk.upload';
+	    }
+	  }]);
+	  return ConferenceTextareaUploadHandler;
+	}(im_eventHandler.TextareaUploadHandler);
 
 	var ConferenceSmiles = {
 	  methods: {
@@ -1783,8 +1874,6 @@ this.BX = this.BX || {};
 	  preparation: 'preparation'
 	});
 	ui_vue.BitrixVue.component('bx-im-component-conference-public', {
-	  props: ['dialogId', 'test'],
-	  mixins: [im_mixin.DialogCore, im_mixin.TextareaCore, im_mixin.TextareaUploadFile, im_mixin.DialogReadMessages, im_mixin.DialogSetMessageReaction, im_mixin.DialogClickOnKeyboardButton, im_mixin.DialogClickOnCommand],
 	  components: {
 	    Error: Error,
 	    CheckDevices: CheckDevices,
@@ -1800,6 +1889,12 @@ this.BX = this.BX || {};
 	    UserList: UserList,
 	    UserListHeader: UserListHeader,
 	    ConferenceSmiles: ConferenceSmiles
+	  },
+	  props: {
+	    dialogId: {
+	      type: String,
+	      "default": "0"
+	    }
 	  },
 	  data: function data() {
 	    return {
@@ -1817,9 +1912,7 @@ this.BX = this.BX || {};
 	    };
 	  },
 	  created: function created() {
-	    //for uploadFile mixin
-	    this.actionUploadChunk = 'im.call.disk.upload';
-	    this.actionCommitFile = 'im.call.disk.commit';
+	    this.initEventHandlers();
 	    main_core_events.EventEmitter.subscribe(im_const.EventType.conference.waitForStart, this.onWaitForStart);
 	    main_core_events.EventEmitter.subscribe(im_const.EventType.conference.hideSmiles, this.onHideSmiles);
 
@@ -1843,6 +1936,7 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  beforeDestroy: function beforeDestroy() {
+	    this.destroyHandlers();
 	    main_core_events.EventEmitter.unsubscribe(im_const.EventType.conference.waitForStart, this.onWaitForStart);
 	    main_core_events.EventEmitter.unsubscribe(im_const.EventType.conference.hideSmiles, this.onHideSmiles);
 	    clearInterval(this.durationInterval);
@@ -1954,6 +2048,13 @@ this.BX = this.BX || {};
 
 	      return classes;
 	    },
+	    chatId: function chatId() {
+	      if (this.application) {
+	        return this.application.dialog.chatId;
+	      }
+
+	      return 0;
+	    },
 	    localize: function localize() {
 	      return ui_vue.BitrixVue.getFilteredPhrases(['BX_IM_COMPONENT_CALL_', 'IM_DIALOG_CLIPBOARD_']);
 	    }
@@ -2020,38 +2121,19 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  methods: {
-	    /**
-	     * @notice redefined method from uploadFile mixin
-	     */
-	    addMessageWithFile: function addMessageWithFile(message) {
-	      this.stopWriting();
-	      message.chatId = this.chatId;
-
-	      if (!this.uploader.senderOptions.customHeaders) {
-	        this.uploader.senderOptions.customHeaders = {};
-	      }
-
-	      this.uploader.senderOptions.customHeaders['Call-Auth-Id'] = this.getUserHash();
-	      this.uploader.senderOptions.customHeaders['Call-Chat-Id'] = this.chatId;
-	      this.uploader.addTask({
-	        taskId: message.file.id,
-	        fileData: message.file.source.file,
-	        fileName: message.file.source.file.name,
-	        generateUniqueName: true,
-	        diskFolderId: this.diskFolderId,
-	        previewBlob: message.file.previewBlob
-	      });
+	    initEventHandlers: function initEventHandlers() {
+	      this.sendMessageHandler = new im_eventHandler.SendMessageHandler(this.$Bitrix);
+	      this.textareaHandler = new ConferenceTextareaHandler(this.$Bitrix);
+	      this.readingHandler = new im_eventHandler.ReadingHandler(this.$Bitrix);
+	      this.reactionHandler = new im_eventHandler.ReactionHandler(this.$Bitrix);
+	      this.textareaUploadHandler = new ConferenceTextareaUploadHandler(this.$Bitrix);
 	    },
-
-	    /**
-	     * @notice redefined from textareaCore
-	     */
-	    onTextareaAppButtonClick: function onTextareaAppButtonClick(_ref) {
-	      var event = _ref.data;
-
-	      if (event.appId === 'smile') {
-	        this.getApplication().toggleSmiles();
-	      }
+	    destroyHandlers: function destroyHandlers() {
+	      this.sendMessageHandler.destroy();
+	      this.textareaHandler.destroy();
+	      this.readingHandler.destroy();
+	      this.reactionHandler.destroy();
+	      this.textareaUploadHandler.destroy();
 	    },
 	    onHideSmiles: function onHideSmiles() {
 	      this.getApplication().toggleSmiles();
@@ -2152,6 +2234,9 @@ this.BX = this.BX || {};
 	    },
 	    getUserHash: function getUserHash() {
 	      return this.conference.user.hash;
+	    },
+	    getApplication: function getApplication() {
+	      return this.$Bitrix.Application.get();
 	    }
 	    /* endregion 03. Helpers */
 
@@ -2159,5 +2244,5 @@ this.BX = this.BX || {};
 	  template: "\n\t<div :class=\"wrapClasses\">\n\t\t<div class=\"bx-im-component-call\">\n\t\t\t<div class=\"bx-im-component-call-left\">\n\t\t\t\t<div id=\"bx-im-component-call-container\" :class=\"callContainerClasses\"></div>\n\t\t\t\t<div v-if=\"isPreparationStep\" class=\"bx-im-component-call-left-preparation\">\n\t\t\t\t\t<!-- Step 1: Errors page -->\n\t\t\t\t\t<Error v-if=\"errorCode\"/>\n\t\t\t\t\t<!-- Step 2: Password page -->\n\t\t\t\t\t<PasswordCheck v-else-if=\"!passwordChecked\"/>\n\t\t\t\t\t<template v-else-if=\"!errorCode && passwordChecked\">\n\t\t\t\t\t\t<!-- Step 3: Loading page -->\n\t\t\t\t\t\t<LoadingStatus v-if=\"!userInited\"/>\n\t\t\t\t\t\t<template v-else-if=\"userInited\">\n\t\t\t\t\t\t\t<!-- BROADCAST MODE -->\n\t\t\t\t\t\t  \t<template v-if=\"isBroadcast\">\n\t\t\t\t\t\t  \t\t<template v-if=\"!isDesktop() && !permissionsRequested && isCurrentUserPresenter\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions>\n\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t</RequestPermissions>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Skip permissions request for desktop and show button with loader  -->\n\t\t\t\t\t\t\t\t<template v-if=\"isDesktop() && (!permissionsRequested || !user) && isCurrentUserPresenter\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions :skipRequest=\"true\"/>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Step 5: Page with video and mic check -->\n\t\t\t\t\t\t\t\t<div v-if=\"permissionsRequested || !isCurrentUserPresenter\" class=\"bx-im-component-call-video-step-container\">\n\t\t\t\t\t\t\t\t\t<!-- Compact conference info -->\n\t\t\t\t\t\t\t\t\t<ConferenceInfo :compactMode=\"true\"/>\n\t\t\t\t\t\t\t\t\t<CheckDevices v-if=\"isCurrentUserPresenter\" />\n\t\t\t\t\t\t\t\t\t<!-- Bottom part of interface -->\n\t\t\t\t\t\t\t\t\t<div class=\"bx-im-component-call-bottom-container\">\n\t\t\t\t\t\t\t\t\t\t<UserForm v-if=\"!waitingForStart\"/>\n\t\t\t\t\t\t\t\t\t\t<WaitingForStart v-else>\n\t\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t\t</WaitingForStart>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t<!-- END BROADCAST MODE -->\n\t\t\t\t\t\t\t<!-- NORMAL MODE (NOT BROADCAST) -->\n\t\t\t\t\t\t  \t<template v-else-if=\"!isBroadcast\">\n\t\t\t\t\t\t\t\t<!-- Step 4: Permissions page -->\n\t\t\t\t\t\t\t\t<template v-if=\"!isDesktop() && !permissionsRequested\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions>\n\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t</RequestPermissions>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Skip permissions request for desktop and show button with loader  -->\n\t\t\t\t\t\t\t\t<template v-if=\"isDesktop() && (!permissionsRequested || !user)\">\n\t\t\t\t\t\t\t\t\t<ConferenceInfo/>\n\t\t\t\t\t\t\t\t\t<RequestPermissions :skipRequest=\"true\"/>\n\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t<!-- Step 5: Page with video and mic check -->\n\t\t\t\t\t\t\t\t<div v-else-if=\"permissionsRequested\" class=\"bx-im-component-call-video-step-container\">\n\t\t\t\t\t\t\t\t\t<!-- Compact conference info -->\n\t\t\t\t\t\t\t\t\t<ConferenceInfo :compactMode=\"true\"/>\n\t\t\t\t\t\t\t\t\t<CheckDevices/>\n\t\t\t\t\t\t\t\t\t<!-- Bottom part of interface -->\n\t\t\t\t\t\t\t\t\t<div class=\"bx-im-component-call-bottom-container\">\n\t\t\t\t\t\t\t\t\t\t<UserForm v-if=\"!waitingForStart\"/>\n\t\t\t\t\t\t\t\t\t\t<WaitingForStart v-else>\n\t\t\t\t\t\t\t\t\t\t\t<template v-if=\"isMobile()\">\n\t\t\t\t\t\t\t\t\t\t\t\t<MobileChatButton/>\n\t\t\t\t\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\t\t\t</WaitingForStart>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t<!-- END NORMAL MODE (NOT BROADCAST) -->\n\t\t\t\t\t\t</template>\n\t\t\t\t\t</template>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<template v-if=\"userInited && !errorCode\">\n\t\t\t\t<transition :name=\"!isMobile()? 'videoconf-chat-slide': ''\">\n\t\t\t\t\t<div v-show=\"rightPanelMode !== RightPanelMode.hidden\" class=\"bx-im-component-call-right\">\n\t\t\t\t\t\t<!-- Start users list -->\n\t\t\t\t\t\t<div v-show=\"rightPanelMode === RightPanelMode.split || rightPanelMode === RightPanelMode.users\" :class=\"userListClasses\" :style=\"userListStyles\">\n\t\t\t\t\t\t\t<UserListHeader />\n\t\t\t\t\t\t\t<div class=\"bx-im-component-call-right-users\">\n\t\t\t\t\t\t\t\t<UserList />\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<!-- End users list -->\n\t\t\t\t\t\t<!-- Start chat -->\n\t\t\t\t\t\t<div v-show=\"rightPanelMode === RightPanelMode.split || rightPanelMode === RightPanelMode.chat\" :class=\"chatClasses\" :style=\"chatStyles\">\n\t\t\t\t\t\t\t<!-- Resize handler -->\n\t\t\t\t\t\t\t<div\n\t\t\t\t\t\t\t\tv-if=\"rightPanelMode === RightPanelMode.split\"\n\t\t\t\t\t\t\t\t@mousedown=\"onChatStartDrag\"\n\t\t\t\t\t\t\t\tclass=\"bx-im-component-call-right-bottom-resize-handle\"\n\t\t\t\t\t\t\t></div>\n\t\t\t\t\t\t\t<ChatHeader />\n\t\t\t\t\t\t\t<div class=\"bx-im-component-call-right-chat\">\n\t\t\t\t\t\t\t\t<bx-im-component-dialog\n\t\t\t\t\t\t\t\t\t:userId=\"userId\"\n\t\t\t\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t\t<keep-alive include=\"bx-im-component-call-smiles\">\n\t\t\t\t\t\t\t\t\t<ConferenceSmiles\n\t\t\t\t\t\t\t\t\t\tv-if=\"conference.common.showSmiles\"\n\t\t\t\t\t\t\t\t\t\t@selectSmile=\"onSmilesSelectSmile\"\n\t\t\t\t\t\t\t\t\t\t@selectSet=\"onSmilesSelectSet\"\n\t\t\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t\t</keep-alive>\n\t\t\t\t\t\t\t\t<div v-if=\"user\" class=\"bx-im-component-call-textarea\">\n\t\t\t\t\t\t\t\t\t<bx-im-component-textarea\n\t\t\t\t\t\t\t\t\t\t:userId=\"userId\"\n\t\t\t\t\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t\t\t\t\t:writesEventLetter=\"3\"\n\t\t\t\t\t\t\t\t\t\t:enableFile=\"true\"\n\t\t\t\t\t\t\t\t\t\t:enableEdit=\"true\"\n\t\t\t\t\t\t\t\t\t\t:enableCommand=\"false\"\n\t\t\t\t\t\t\t\t\t\t:enableMention=\"false\"\n\t\t\t\t\t\t\t\t\t\t:autoFocus=\"true\"\n\t\t\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<!-- End chat -->\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</transition>\n\t\t\t</template>\n\t\t</div>\n\t</div>\n\t"
 	});
 
-}((this.BX.Messenger = this.BX.Messenger || {}),BX.Messenger.Mixin,BX.Messenger,window,BX,window,BX,BX,BX.Messenger.Lib,BX.Messenger,BX.Messenger.Lib,BX,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Const,BX.Event,BX,BX.Main,BX.Messenger.Lib,BX.UI.Dialogs));
+}((this.BX.Messenger = this.BX.Messenger || {}),BX.Messenger,BX.Messenger,window,BX,window,BX,BX,BX.Messenger.Lib,BX.Messenger,BX.Messenger.Lib,BX,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Const,BX.Event,BX,BX.Main,BX.Messenger.Lib,BX.UI.Dialogs));
 //# sourceMappingURL=conference-public.bundle.js.map

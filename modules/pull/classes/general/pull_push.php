@@ -876,7 +876,7 @@ class CPushManager
 
 	public function sendBatch($batch)
 	{
-		require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/classes/general/update_client.php");
+ 		require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/classes/general/update_client.php");
 		$key = CUpdateClient::GetLicenseKey();
 		if ($key <> '' && $batch <> '')
 		{

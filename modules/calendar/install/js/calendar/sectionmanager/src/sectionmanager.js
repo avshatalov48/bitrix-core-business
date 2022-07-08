@@ -1,14 +1,14 @@
-import {Entry} from "calendar.entry";
-import {Util} from 'calendar.util';
-import {Event, Loc, Type } from 'main.core';
-import {CalendarSection} from './calendarsection';
-import {CalendarTaskSection} from './calendartasksection';
-import {EventEmitter} from 'main.core.events';
-export {CalendarSection};
+import { Util } from 'calendar.util';
+import { Event, Loc, Type, Runtime } from 'main.core';
+import { CalendarSection } from './calendarsection';
+import { CalendarTaskSection } from './calendartasksection';
+import { EventEmitter } from 'main.core.events';
+export { CalendarSection };
 
 export class SectionManager
 {
 	static newEntrySectionId = null;
+	static RELOAD_DELAY = 500;
 
 	constructor(data, config)
 	{
@@ -17,6 +17,8 @@ export class SectionManager
 		this.addTaskSection();
 		this.sortSections();
 		EventEmitter.subscribeOnce('BX.Calendar.Section:delete', this.deleteSectionHandler.bind(this));
+
+		this.reloadDataDebounce = Runtime.debounce(this.reloadData, SectionManager.RELOAD_DELAY, this);
 	}
 
 	setSections(rawSections = [])
@@ -109,7 +111,7 @@ export class SectionManager
 			}
 			else
 			{
-				this.reloadData();
+				this.reloadDataDebounce();
 			}
 		}
 		else if (params.command === 'edit_section')
@@ -124,7 +126,7 @@ export class SectionManager
 		}
 		else
 		{
-			this.reloadData();
+			this.reloadDataDebounce();
 		}
 	}
 

@@ -1,8 +1,17 @@
 <?if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true) die();
 
 use Bitrix\Main\Localization\Loc;
-$gridSnippet = new Bitrix\Main\Grid\Panel\Snippet();
-\Bitrix\Main\UI\Extension::load(array("popup", "ajax", "ui.buttons", "ui.forms", "main.polyfill.core", "color_picker"));
+use Bitrix\Main;
+$gridSnippet = new Main\Grid\Panel\Snippet();
+Main\UI\Extension::load([
+	"popup",
+	"ajax",
+	"ui.buttons",
+	"ui.forms",
+	"main.polyfill.core",
+	"color_picker",
+	"ui.dialogs.messagebox"
+]);
 $tabControl = new CAdminTabControl("tabControl", array(
 	array(
 		"DIV" => "edit2",
@@ -41,7 +50,7 @@ $controlPanel = [
 								"ACTION" => "CREATE",
 								"DATA" => [$gridSnippet->getApplyButton([
 								"ONCHANGE" => [[
-										"ACTION" => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
+										"ACTION" => Main\Grid\Panel\Actions::CALLBACK,
 										"DATA" => [["JS" => "Grid.sendSelected()"]]
 									]]
 								])]
@@ -57,7 +66,7 @@ $controlPanel = [
 								"ACTION" => "CREATE",
 								"DATA" => [$gridSnippet->getApplyButton([
 										"ONCHANGE" => [[
-											"ACTION" => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
+											"ACTION" => Main\Grid\Panel\Actions::CALLBACK,
 											"DATA" => [["JS" => "Grid.sendSelected()"]]
 										]]
 									]
@@ -74,7 +83,7 @@ $controlPanel = [
 								"ACTION" => "CREATE",
 								"DATA" => [$gridSnippet->getApplyButton([
 										"ONCHANGE" => [[
-											"ACTION" => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
+											"ACTION" => Main\Grid\Panel\Actions::CALLBACK,
 											"DATA" => [["JS" => "Grid.sendSelected()"]]
 										]]
 									]
@@ -91,7 +100,7 @@ $controlPanel = [
 								"ACTION" => "CREATE",
 								"DATA" => [$gridSnippet->getApplyButton([
 										"ONCHANGE" => [[
-											"ACTION" => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
+											"ACTION" => Main\Grid\Panel\Actions::CALLBACK,
 											"DATA" => [["JS" => "Grid.sendSelected()"]]
 										]]
 									]
@@ -226,12 +235,13 @@ if ($arResult["QUESTION_ID"] > 0)
 	$aMenu[] = array(
 		"TEXT"	=> GetMessage("VOTE_COPY"),
 		"TITLE"	=> GetMessage("VOTE_CREATE_NEW_RECORD"),
-		"LINK"	=> "/bitrix/admin/vote_question_edit.php?VOTE_ID=".$arParams["VOTE_ID"]."&COPY_ID=".$arResult["QUESTION_ID"]."&lang=".LANGUAGE_ID,
+		"LINK"	=> "/bitrix/admin/vote_question_edit.php?lang={LANGUAGE_ID}&VOTE_ID=".$arParams["VOTE_ID"]."&COPY_ID=".$arResult["QUESTION_ID"],
 		"ICON" => "btn_new");
 	$aMenu[] = array(
 		"TEXT"	=> GetMessage("VOTE_DELETE"),
 		"TITLE"	=> GetMessage("VOTE_DELETE_RECORD"),
-		"LINK"	=> "javascript:if(confirm('".GetMessage("VOTE_DELETE_RECORD_CONFIRM")."')) window.location='/bitrix/admin/vote_question_list.php?action=delete&ID=".$arParams["QUESTION_ID"]."&VOTE_ID=".$arParams["VOTE_ID"]."&".bitrix_sessid_get()."&lang=".LANGUAGE_ID."';",
+		"LINK"	=> "#",
+		"ONCLICK" => "BX.onCustomEvent('onVoteQuestionDelete', [{$arParams["VOTE_ID"]}, {$arResult["QUESTION_ID"]}])",
 		"ICON" => "btn_delete");
 }
 
@@ -352,7 +362,7 @@ $arQuestion = $arResult["QUESTION"];
 							"name" => GetMessage("VOTE_IMAGE_ID"),
 							"default" => true,
 							"editable" => array(
-								"TYPE" => \Bitrix\Main\Grid\Editor\Types::IMAGE
+								"TYPE" => Main\Grid\Editor\Types::IMAGE
 							)),
 						array(
 							"id" => "MESSAGE",
@@ -362,14 +372,14 @@ $arQuestion = $arResult["QUESTION"];
 							"sort" => "MESSAGE",
 							"default" => true,
 							"editable" => array(
-								"TYPE" => \Bitrix\Main\Grid\Editor\Types::TEXTAREA
+								"TYPE" => Main\Grid\Editor\Types::TEXTAREA
 							)),
 						array(
 							"id" => "MESSAGE_TYPE",
 							"name" => Loc::getMessage("VOTE_ANSWER_MESSAGE_TYPE"),
 							"default" => false,
 							"editable" => array(
-								"TYPE" => \Bitrix\Main\Grid\Editor\Types::DROPDOWN,
+								"TYPE" => Main\Grid\Editor\Types::DROPDOWN,
 								"items" => array(
 									"html" => "html",
 									"text" => "text"
@@ -382,7 +392,7 @@ $arQuestion = $arResult["QUESTION"];
 							"default" => true,
 							"sort" => "FIELD_TYPE",
 							"editable" => array(
-								"TYPE" => \Bitrix\Main\Grid\Editor\Types::DROPDOWN,
+								"TYPE" => Main\Grid\Editor\Types::DROPDOWN,
 								"items" => \Bitrix\Vote\AnswerTypes::getTitledList()
 							)
 						),
@@ -391,7 +401,7 @@ $arQuestion = $arResult["QUESTION"];
 							"name" => Loc::getMessage("VOTE_FIELD_WIDTH"),
 							"default" => false,
 							"editable" => array(
-								"TYPE" => \Bitrix\Main\Grid\Editor\Types::TEXT,
+								"TYPE" => Main\Grid\Editor\Types::TEXT,
 							)
 						),
 						array(
@@ -399,7 +409,7 @@ $arQuestion = $arResult["QUESTION"];
 							"name" => Loc::getMessage("VOTE_FIELD_HEIGHT"),
 							"default" => false,
 							"editable" => array(
-								"TYPE" => \Bitrix\Main\Grid\Editor\Types::TEXT,
+								"TYPE" => Main\Grid\Editor\Types::TEXT,
 							)
 						),
 						array(
@@ -407,7 +417,7 @@ $arQuestion = $arResult["QUESTION"];
 							"name" => Loc::getMessage("VOTE_FIELD_PARAM"),
 							"default" => false,
 							"editable" => array(
-								"TYPE" => \Bitrix\Main\Grid\Editor\Types::TEXT,
+								"TYPE" => Main\Grid\Editor\Types::TEXT,
 							)
 						),
 						array(
@@ -416,7 +426,7 @@ $arQuestion = $arResult["QUESTION"];
 							"sort" => "ACTIVE",
 							"default" => false,
 							"editable" => array(
-								"TYPE" => \Bitrix\Main\Grid\Editor\Types::DROPDOWN,
+								"TYPE" => Main\Grid\Editor\Types::DROPDOWN,
 								"items" => array(
 									"Y" => GetMessage("admin_lib_list_yes"),
 									"N" => GetMessage("admin_lib_list_no")
@@ -429,7 +439,7 @@ $arQuestion = $arResult["QUESTION"];
 							"sort" => "C_SORT",
 							"default" => true,
 							"editable" => array(
-								"TYPE" => \Bitrix\Main\Grid\Editor\Types::NUMBER
+								"TYPE" => Main\Grid\Editor\Types::NUMBER
 							)
 						),
 						array(
@@ -438,7 +448,7 @@ $arQuestion = $arResult["QUESTION"];
 							"sort" => "COLOR",
 							"default" => true,
 							"editable" => array(
-								"TYPE" => \Bitrix\Main\Grid\Editor\Types::CUSTOM
+								"TYPE" => Main\Grid\Editor\Types::CUSTOM
 							)
 						),
 						array(
@@ -504,6 +514,7 @@ $arQuestion = $arResult["QUESTION"];
 <script>
 BX.ready(function() {
 	BX.message({
+		VOTE_DELETE_RECORD_CONFIRM : '<?=GetMessageJS("VOTE_DELETE_RECORD_CONFIRM")?>',
 		VOTE_ANSWER_PLACEHOLDER : '<?=GetMessageJS("VOTE_ANSWER_PLACEHOLDER")?>',
 		VOTE_ANSWER_PLACEHOLDER1 : '<?=GetMessageJS("VOTE_ANSWER_PLACEHOLDER1")?>',
 		VOTE_ANSWER_FIELD_TYPE : '<?=GetMessageJS("VOTE_ANSWER_FIELD_TYPE")?>',
@@ -516,14 +527,14 @@ BX.ready(function() {
 		questionTypes : <?=\CUtil::PhpToJSObject(\Bitrix\Vote\QuestionTypes::getFullList())?>,
 		answerTypes : <?=\CUtil::PhpToJSObject(\Bitrix\Vote\AnswerTypes::getFullList())?>
 	});
-	BX.Vote.setParams('<?=$gridInstanceID?>',
-		{
-			formId : 'form_<?=$gridId?>',
-			gridId: '<?=$gridId?>',
-			maxSort : <?=intval($arParams["ANSWER_PARAMS"]["MAX_SORT"])?>,
-			voteId : <?=intval($arParams["VOTE_ID"])?>,
-			questionId : <?=intval($arParams["QUESTION_ID"])?>
-		});
+	BX.Vote.setParams('<?=$gridInstanceID?>', {
+		formId : 'form_<?=$gridId?>',
+		gridId: '<?=$gridId?>',
+		maxSort : <?=intval($arParams["ANSWER_PARAMS"]["MAX_SORT"])?>,
+		voteId : <?=intval($arParams["VOTE_ID"])?>,
+		questionId : <?=intval($arParams["QUESTION_ID"])?>,
+		componentSignedParams : <?=\CUtil::PhpToJSObject($this->getComponent()->getSignedParameters())?>,
+	});
 });
 </script>
 <?

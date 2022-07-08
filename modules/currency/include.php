@@ -1,43 +1,50 @@
-<?
-require_once __DIR__.'/autoload.php';
-
-//class_alias('Bitrix\Currency\UserField\Types\Money', 'Bitrix\Currency\UserField\Money');
+<?php
+require_once __DIR__ . '/autoload.php';
 
 \CJSCore::RegisterExt(
 	'currency',
-	array(
+	[
 		'js' => '/bitrix/js/currency/core_currency.js',
-		'rel' => array('core', 'main.polyfill.promise', 'currency.currency-core')
-	)
+		'rel' => [
+			'core',
+			'main.polyfill.promise',
+			'currency.currency-core',
+		],
+	]
 );
 
 \CJSCore::RegisterExt(
 	'core_money_editor',
-	array(
-		'rel' => array('core', 'currency.money-editor'),
+	[
+		'rel' => [
+			'core',
+			'currency.money-editor',
+		],
 		'oninit' => function()
 		{
-			return array(
-				'lang_additional' => array(
+			return [
+				'lang_additional' => [
 					'CURRENCY' => \Bitrix\Currency\Helpers\Editor::getListCurrency(),
-				),
-			);
-		}
-	)
+				],
+			];
+		},
+	]
 );
 
 \CJSCore::RegisterExt(
 	'core_uf_money',
-	array(
+	[
 		'js' => '/bitrix/js/currency/core_uf_money.js',
 		'css' => '/bitrix/js/currency/css/core_uf_money.css',
-		'rel' => array('uf', 'core_money_editor'),
-	)
+		'rel' => [
+			'uf',
+			'core_money_editor',
+		],
+	]
 );
 
-
-define('CURRENCY_CACHE_DEFAULT_TIME', 10800);
-define('CURRENCY_ISO_STANDART_URL', 'http://www.iso.org/iso/home/standards/currency_codes.htm');
+const CURRENCY_CACHE_DEFAULT_TIME = 10800;
+const CURRENCY_ISO_STANDART_URL = 'http://www.iso.org/iso/home/standards/currency_codes.htm';
 
 /*
 * @deprecated deprecated since currency 14.0.0

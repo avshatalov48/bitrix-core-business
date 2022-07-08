@@ -232,6 +232,7 @@
 		});
 
 		this.currentLayout = (this.callListId > 0 ? layouts.crm : layouts.simple);
+		BackgroundWorker.desktop.isCurrentPage = true;
 		this.init();
 		this.createTitle().then(this.setTitle.bind(this));
 		if(params.hasOwnProperty('uiState'))
@@ -239,8 +240,16 @@
 			this.setUiState(params['uiState']);
 		}
 
+		BackgroundWorker.CallCard = this;
+		if (BackgroundWorker.isDesktop())
+		{
+			BackgroundWorker.removeDesktopEventHandlers();
+		}
+
+		BackgroundWorker.onInitialize(this.getPlacementOptions());
 		window.test = this;
 	};
+
 
 	BX.PhoneCallView.ButtonLayouts = {
 		centered: 'centered',
@@ -1476,6 +1485,11 @@
 			'CRM_ENTITY_ID': entityId,
 			'PHONE_NUMBER': this.phoneNumber
 		}]);
+		BackgroundWorker.onEntityChanged({
+			'CRM_ENTITY_TYPE': entityType,
+			'CRM_ENTITY_ID': entityId,
+			'PHONE_NUMBER': this.phoneNumber
+		});
 
 		BX.ajax.runAction("voximplant.callview.getCrmCard", {
 			data: {
@@ -1939,7 +1953,13 @@
 					buttonNode = self._renderSimpleButton(
 						BX.message('IM_M_CALL_BTN_NOTIFY_ADMIN'),
 						'im-phone-call-btn im-phone-call-btn-blue im-phone-call-btn-arrow',
-						function() { self.callbacks.notifyAdmin() }
+						function()
+						{
+							BackgroundWorker.isUsed
+								? BackgroundWorker.onNotifyAdminButtonClick()
+								: self.callbacks.notifyAdmin()
+							;
+						}
 					);
 					buttonsFragment.appendChild(buttonNode);
 					break;
@@ -2340,6 +2360,7 @@
 			else
 				this.callbacks.hold();
 		}
+		BackgroundWorker.onHoldButtonClick(this.isHeld())
 	};
 
 	BX.PhoneCallView.prototype._onMuteButtonClick = function(e)
@@ -2362,11 +2383,13 @@
 			else
 				this.callbacks.mute();
 		}
+		BackgroundWorker.onMuteButtonClick(this.isMuted());
 	};
 	BX.PhoneCallView.prototype._onTransferButtonClick = function(e)
 	{
 		this.selectTransferTarget(function(result)
 		{
+			BackgroundWorker.onTransferButtonClick(result)
 			if(this.isDesktop() && this.slave)
 			{
 				BX.desktop.onCustomEvent(desktopEvents.onStartTransfer, [result]);
@@ -2380,6 +2403,7 @@
 
 	BX.PhoneCallView.prototype._onTransferCompleteButtonClick = function(e)
 	{
+		BackgroundWorker.onCompleteTransferButtonClick();
 		if(this.isDesktop() && this.slave)
 			BX.desktop.onCustomEvent(desktopEvents.onCompleteTransfer, []);
 		else
@@ -2388,6 +2412,7 @@
 
 	BX.PhoneCallView.prototype._onTransferCancelButtonClick = function(e)
 	{
+		BackgroundWorker.onCancelTransferButtonClick();
 		if(this.isDesktop() && this.slave)
 			BX.desktop.onCustomEvent(desktopEvents.onCancelTransfer, []);
 		else
@@ -2407,6 +2432,7 @@
 					BX.desktop.onCustomEvent(desktopEvents.onDialpadButtonClicked, [key]);
 				else
 					self.callbacks.dialpadButtonClicked(key);
+				BackgroundWorker.onDialpadButtonClick(key);
 			},
 			onClose: function(e)
 			{
@@ -2418,6 +2444,7 @@
 	};
 	BX.PhoneCallView.prototype._onHangupButtonClick = function(e)
 	{
+		BackgroundWorker.onHangupButtonClick();
 		if(this.isDesktop() && this.slave)
 			BX.desktop.onCustomEvent(desktopEvents.onHangup, []);
 		else
@@ -2425,6 +2452,7 @@
 	};
 	BX.PhoneCallView.prototype._onCloseButtonClick = function(e)
 	{
+		BackgroundWorker.onCloseButtonClick();
 		if(this.isDesktop() && this.slave)
 			BX.desktop.onCustomEvent(desktopEvents.onClose, []);
 		else
@@ -2432,6 +2460,7 @@
 	};
 	BX.PhoneCallView.prototype._onMakeCallButtonClick = function(e)
 	{
+		BackgroundWorker.onMakeCallButtonClick();
 		var event = {};
 		if(this.callListId > 0)
 		{
@@ -2534,6 +2563,7 @@
 		if(!this.callListView)
 			return;
 
+		BackgroundWorker.onNextButtonClick();
 		this.setUiState(BX.PhoneCallView.UiState.outgoing);
 		this.callListView.moveToNextItem();
 		this.setStatusText('');
@@ -2589,6 +2619,8 @@
 				BX.desktop.onCustomEvent(desktopEvents.onSaveComment, [this.comment]);
 			else
 				this.saveComment();
+
+			BackgroundWorker.onAddCommentButtonClick(this.comment);
 		}
 	};
 
@@ -2618,6 +2650,7 @@
 	BX.PhoneCallView.prototype._onAddInvoiceButtonClick = function(e)
 	{
 		var url = this._getCrmEditUrl('INVOICE', 0);
+		url = BX.util.add_url_param(url, { redirect: "y" });
 		var externalContext = this._generateExternalContext();
 		if(this.crmEntityType === 'CONTACT')
 			url = BX.util.add_url_param(url, { contact: this.crmEntityId });
@@ -2665,6 +2698,7 @@
 
 	BX.PhoneCallView.prototype._onAnswerButtonClick = function(e)
 	{
+		BackgroundWorker.onAnswerButtonClick();
 		if(this.isDesktop() && this.slave)
 			BX.desktop.onCustomEvent(desktopEvents.onAnswer, []);
 		else
@@ -2673,6 +2707,7 @@
 
 	BX.PhoneCallView.prototype._onSkipButtonClick = function(e)
 	{
+		BackgroundWorker.onSkipButtonClick();
 		if(this.isDesktop() && this.slave)
 			BX.desktop.onCustomEvent(desktopEvents.onSkip, []);
 		else
@@ -2697,6 +2732,7 @@
 		this.showQualityPopup({
 			onSelect: function(qualityGrade)
 			{
+				BackgroundWorker.onQualityMeterClick(qualityGrade);
 				self.qualityGrade = qualityGrade;
 				self.closeQualityPopup();
 				if(self.isDesktop() && self.slave)
@@ -2746,6 +2782,7 @@
 
 	BX.PhoneCallView.prototype._onPullEventCrm = function(command, params)
 	{
+
 		if(command === 'external_event')
 		{
 			if(params.NAME === 'onCrmEntityCreate' && params.IS_CANCELED == false)
@@ -2833,10 +2870,17 @@
 		this.callListView.resetCallingElement();
 	};
 
+	BX.PhoneCallView.prototype.isTimerStarted = function()
+	{
+		return !!this.timerInterval;
+	}
+
 	BX.PhoneCallView.prototype.startTimer = function()
 	{
-		if(this.timerInterval)
+		if(this.isTimerStarted())
+		{
 			return;
+		}
 
 		if(this.initialTimestamp === 0)
 		{
@@ -2875,8 +2919,10 @@
 
 	BX.PhoneCallView.prototype.stopTimer = function()
 	{
-		if(!this.timerInterval)
+		if(!this.isTimerStarted())
+		{
 			return;
+		}
 
 		clearInterval(this.timerInterval);
 		this.timerInterval = null;
@@ -3328,6 +3374,7 @@
 			//this.desktop.window.ExecuteCommand('close');
 			//this.desktop.window = null;
 		}
+		BackgroundWorker.CallCard = null;
 
 		this.enableDocumentScroll();
 
@@ -3497,75 +3544,145 @@
 
 		BX.loadExt('ui.entity-selector').then(function()
 		{
-			var transferDialog = new BX.UI.EntitySelector.Dialog({
-				targetNode: this.elements.buttons.transfer,
-				multiple: false,
-				cacheable: false,
-				hideOnSelect: false,
-				enableSearch: true,
-				entities: [
-					{
-						id: 'user',
-						options: {
-							inviteEmployeeLink: false,
-							selectFields: ['personalPhone', 'personalMobile', 'workPhone']
-						}
-					},
-					{
-						id: 'department'
-					},
-					{
-						id: 'voximplant_group'
-					},
-				],
-				events: {
-					'Item:onSelect': function(event)
-					{
-						event.target.deselectAll();
+			var config =
+				BackgroundWorker.isUsed
+					? this.getDialogConfigForBackgroundApp(resultCallback)
+					: this.getDefaultDialogConfig(resultCallback)
+			;
+			var transferDialog = new BX.UI.EntitySelector.Dialog(config);
 
-						var item = event.data.item;
-
-						if (item.getEntityId() === 'user')
-						{
-							var customData = item.getCustomData();
-							if (customData.get('personalPhone') || customData.get('personalMobile') || customData.get('workPhone'))
-							{
-								this.showTransferToUserMenu({
-									userId: item.getId(),
-									customData: Object.fromEntries(customData),
-									onSelect: function(result)
-									{
-										event.target.hide();
-										resultCallback({
-											type: result.type,
-											target: result.target
-										})
-									}
-								})
-							}
-							else
-							{
-								event.target.hide();
-								resultCallback({
-									type: 'user',
-									target: item.getId()
-								})
-							}
-						}
-						else if (item.getEntityId() === 'voximplant_group')
-						{
-							event.target.hide();
-							resultCallback({
-								type: 'queue',
-								target: item.getId()
-							})
-						}
-					}.bind(this)
-				}
-			});
 			transferDialog.show();
 		}.bind(this));
 	};
+
+	BX.PhoneCallView.prototype.getDialogConfigForBackgroundApp = function(resultCallback)
+	{
+		return {
+			targetNode: this.elements.buttons.transfer,
+			multiple: false,
+			cacheable: false,
+			hideOnSelect: false,
+			enableSearch: true,
+			entities: [
+				{
+					id: 'user',
+					options: {
+						inviteEmployeeLink: false,
+						selectFields: ['personalPhone', 'personalMobile', 'workPhone']
+					}
+				},
+				{
+					id: 'department'
+				},
+			],
+			events: {
+				'Item:onSelect': function(event)
+				{
+					event.target.deselectAll();
+
+					var item = event.data.item;
+
+					if (item.getEntityId() === 'user')
+					{
+						var customData = item.getCustomData();
+						if (customData.get('personalPhone') || customData.get('personalMobile') || customData.get('workPhone'))
+						{
+							this.showTransferToUserMenu({
+								userId: item.getId(),
+								customData: Object.fromEntries(customData),
+								onSelect: function(result)
+								{
+									event.target.hide();
+									resultCallback({
+										phoneNumber: this.phoneNumber,
+										target: result.target
+									})
+								}
+							})
+						}
+						else
+						{
+							event.target.hide();
+							resultCallback({
+								phoneNumber: this.phoneNumber,
+								target: item.getId()
+							})
+						}
+					}
+				}.bind(this)
+			}
+		}
+	}
+
+	BX.PhoneCallView.prototype.getDefaultDialogConfig = function(resultCallback)
+	{
+		return {
+			targetNode: this.elements.buttons.transfer,
+			multiple: false,
+			cacheable: false,
+			hideOnSelect: false,
+			enableSearch: true,
+			entities: [
+				{
+					id: 'user',
+					options: {
+						inviteEmployeeLink: false,
+						selectFields: ['personalPhone', 'personalMobile', 'workPhone']
+					}
+				},
+				{
+					id: 'department'
+				},
+				{
+					id: 'voximplant_group'
+				},
+			],
+			events: {
+				'Item:onSelect': function(event)
+				{
+					event.target.deselectAll();
+
+					var item = event.data.item;
+
+					if (item.getEntityId() === 'user')
+					{
+						var customData = item.getCustomData();
+						if (customData.get('personalPhone') || customData.get('personalMobile') || customData.get('workPhone'))
+						{
+							this.showTransferToUserMenu({
+								userId: item.getId(),
+								customData: Object.fromEntries(customData),
+								onSelect: function(result)
+								{
+									event.target.hide();
+									resultCallback({
+										type: result.type,
+										target: result.target
+									})
+								}
+							})
+						}
+						else
+						{
+							event.target.hide();
+							resultCallback({
+								type: 'user',
+								target: item.getId()
+							})
+						}
+					}
+					else if (item.getEntityId() === 'voximplant_group')
+					{
+						event.target.hide();
+						resultCallback({
+							type: 'queue',
+							target: item.getId()
+						})
+					}
+				}.bind(this)
+			}
+		};
+	}
 
 	BX.PhoneCallView.prototype.showTransferToUserMenu = function(options)
 	{
@@ -3665,6 +3782,12 @@
 		popup.show();
 
 	};
+
+	BX.PhoneCallView.initializeBackgroundAppPlacement = function(params)
+	{
+		BackgroundWorker.initializePlacement(params);
+	}
+
 
 	BX.PhoneCallView.Direction = {
 		incoming: 'incoming',
@@ -5417,6 +5540,892 @@
 	{
 		this.callbacks.onFormSend(form);
 	};
+	
+	const BackgroundWorker = {
+		/** @type {PhoneCallView} */
+		CallCard: null,
+
+		/** @type {boolean} */
+		isUsed: false,
+		UndefinedCallCard: {
+			result: 'error',
+			errorCode: 'Call card is undefined'
+		},
+
+		initializePlacement: function()
+		{
+			var placement = BX.rest.AppLayout.initializePlacement('PAGE_BACKGROUND_WORKER');
+			this.initializeInterface(placement);
+		},
+
+		initializeInterface: function(placement)
+		{
+
+			if (this.isDesktop())
+			{
+				this.initializeDesktopInterfaceMethods(placement);
+				this.bindDesktopEvents();
+				this.addDesktopEventHandlers();
+			}
+			else
+			{
+				this.initializeBrowserInterfaceMethods(placement);
+			}
+
+			this.initializeInterfaceEvents(placement)
+		},
+
+		initializeBrowserInterfaceMethods: function(placement)
+		{
+			placement.prototype.CallCardSetMute = (params, callback) => this.setMute(params, callback);
+			placement.prototype.CallCardSetHold = (params, callback) => this.setHold(params, callback);
+			placement.prototype.CallCardSetUiState = (params, callback) => this.setUiState(params, callback);
+			placement.prototype.CallCardGetListUiStates = (params, callback) => this.getListUiStates(params, callback);
+			placement.prototype.CallCardSetCardTitle = (params, callback) => this.setCardTitle(params, callback);
+			placement.prototype.CallCardSetStatusText = (params, callback) => this.setStatusText(params, callback);
+			placement.prototype.CallCardClose = (params, callback) => this.close(params, callback);
+			placement.prototype.CallCardStartTimer = (params, callback) => this.startTimer(params, callback);
+			placement.prototype.CallCardStopTimer = (params, callback) => this.stopTimer(params, callback);
+		},
+
+		initializeDesktopInterfaceMethods: function(placement)
+		{
+			placement.prototype.CallCardSetMute = (params, callback) => this.desktop.setMute(params, callback);
+			placement.prototype.CallCardSetHold = (params, callback) =>  this.desktop.setHold(params, callback);
+			placement.prototype.CallCardSetUiState = (params, callback) => this.desktop.setUiState(params, callback);
+			placement.prototype.CallCardGetListUiStates = (params, callback) => this.desktop.getListUiStates(params, callback);
+			placement.prototype.CallCardSetCardTitle = (params, callback) => this.desktop.setCardTitle(params, callback);
+			placement.prototype.CallCardSetStatusText = (params, callback) => this.desktop.setStatusText(params, callback);
+			placement.prototype.CallCardClose = (params, callback) => this.desktop.close(params, callback);
+			placement.prototype.CallCardStartTimer = (params, callback) => this.desktop.startTimer(params, callback);
+			placement.prototype.CallCardStopTimer = (params, callback) => this.desktop.stopTimer(params, callback);
+		},
+
+		initializeInterfaceEvents: function(placement)
+		{
+			placement.prototype.events.push('BackgroundCallCard::initialized');
+			placement.prototype.events.push('BackgroundCallCard::addCommentButtonClick');
+			placement.prototype.events.push('BackgroundCallCard::muteButtonClick');
+			placement.prototype.events.push('BackgroundCallCard::holdButtonClick');
+			placement.prototype.events.push('BackgroundCallCard::closeButtonClick');
+			placement.prototype.events.push('BackgroundCallCard::transferButtonClick');
+			placement.prototype.events.push('BackgroundCallCard::cancelTransferButtonClick');
+			placement.prototype.events.push('BackgroundCallCard::completeTransferButtonClick');
+			placement.prototype.events.push('BackgroundCallCard::hangupButtonClick');
+			placement.prototype.events.push('BackgroundCallCard::nextButtonClick');
+			placement.prototype.events.push('BackgroundCallCard::skipButtonClick');
+			placement.prototype.events.push('BackgroundCallCard::answerButtonClick');
+			placement.prototype.events.push('BackgroundCallCard::entityChanged');
+			placement.prototype.events.push('BackgroundCallCard::qualityMeterClick');
+			placement.prototype.events.push('BackgroundCallCard::dialpadButtonClick');
+			placement.prototype.events.push('BackgroundCallCard::makeCallButtonClick');
+			placement.prototype.events.push('BackgroundCallCard::notifyAdminButtonClick');
+		},
+
+		bindDesktopEvents: function()
+		{
+			if (!this.desktop.isCorporatePortalPage())
+			{
+				return;
+			}
+			for (const event of this.events)
+			{
+				this.desktop.addCustomEvent('DesktopCallCard' + (event[0].toUpperCase() + event.slice(1)), function(params, callback) {
+
+					BX.onCustomEvent(window, 'BackgroundCallCard::' + event, [params, callback]);
+				})
+			}
+
+			this.desktop.addCustomEvent('DesktopCallCardInitialized', function(params, callback) {
+				if(!BackgroundWorker.CallCard)
+				{
+					BackgroundWorker.CallCard = true;
+				}
+				BX.onCustomEvent(window, 'BackgroundCallCard::initialized', [params, callback]);
+			});
+
+			this.desktop.addCustomEvent('DesktopCallCardCloseButtonClick', function(params, callback) {
+				BackgroundWorker.CallCard = false;
+				BX.onCustomEvent(window, 'BackgroundCallCard::closeButtonClick', [params, callback]);
+			});
+
+		},
+
+		addDesktopEventHandlers: function()
+		{
+			this.desktop.addCustomEvent('DesktopCallCardSetUiState',(params, callback) => {
+				if (this.isDesktop() && this.desktop.isCorporatePortalPage())
+				{
+					return;
+				}
+				this.isUsed = true;
+				callback = typeof (callback) === 'function' ? callback : BX.DoNothing;
+
+				const callWindow = this.desktop.getCallCardWindow();
+				callWindow.BX.PhoneCallView.BackgroundWorker.setUiState(params, callback);
+			});
+			this.desktop.addCustomEvent('DesktopCallCardSetMute', (params, callback) => {
+				if (this.isDesktop() && this.desktop.isCorporatePortalPage())
+				{
+					return;
+				}
+				this.isUsed = true;
+				callback = typeof (callback) === 'function' ? callback : BX.DoNothing;
+
+				const callWindow = this.desktop.getCallCardWindow();
+				callWindow.BX.PhoneCallView.BackgroundWorker.setMute(params, callback);
+			});
+			this.desktop.addCustomEvent('DesktopCallCardSetHold',(params, callback) => {
+				if (this.isDesktop() && this.desktop.isCorporatePortalPage())
+				{
+					return;
+				}
+				this.isUsed = true;
+				callback = typeof (callback) === 'function' ? callback : BX.DoNothing;
+
+				const callWindow = this.desktop.getCallCardWindow();
+				callWindow.BX.PhoneCallView.BackgroundWorker.setHold(params, callback);
+			});
+			this.desktop.addCustomEvent('DesktopCallCardGetListUiState',(params, callback) => {
+				if (this.isDesktop() && this.desktop.isCorporatePortalPage())
+				{
+					return;
+				}
+				this.isUsed = true;
+				callback = typeof (callback) === 'function' ? callback : BX.DoNothing;
+
+				this.getListUiStates(params, callback);
+			});
+			this.desktop.addCustomEvent('DesktopCallCardSetCardTitle', (params, callback) => {
+				if (this.isDesktop() && this.desktop.isCorporatePortalPage())
+				{
+					return;
+				}
+				this.isUsed = true;
+				callback = typeof (callback) === 'function' ? callback : BX.DoNothing;
+
+				const callWindow = this.desktop.getCallCardWindow();
+				callWindow.BX.PhoneCallView.BackgroundWorker.setCardTitle(params, callback);
+			});
+			this.desktop.addCustomEvent('DesktopCallCardSetStatusText', (params, callback) => {
+				if (this.isDesktop() && this.desktop.isCorporatePortalPage())
+				{
+					return;
+				}
+				this.isUsed = true;
+				callback = typeof (callback) === 'function' ? callback : BX.DoNothing;
+
+				const callWindow = this.desktop.getCallCardWindow();
+				callWindow.BX.PhoneCallView.BackgroundWorker.setStatusText(params, callback);
+			});
+			this.desktop.addCustomEvent('DesktopCallCardClose', (params, callback) => {
+				if (this.isDesktop() && this.desktop.isCorporatePortalPage())
+				{
+					return;
+				}
+				this.isUsed = true;
+				callback = typeof (callback) === 'function' ? callback : BX.DoNothing;
+
+				const callWindow = this.desktop.getCallCardWindow();
+				this.close(params, callback);
+			});
+			this.desktop.addCustomEvent('DesktopCallCardStartTimer', (params, callback) => {
+				if (this.isDesktop() && this.desktop.isCorporatePortalPage())
+				{
+					return;
+				}
+				this.isUsed = true;
+				callback = typeof (callback) === 'function' ? callback : BX.DoNothing;
+
+				const callWindow = this.desktop.getCallCardWindow();
+				callWindow.BX.PhoneCallView.BackgroundWorker.startTimer(params, callback);
+			});
+			this.desktop.addCustomEvent('DesktopCallCardStopTimer', (params, callback) => {
+				if (this.isDesktop() && this.desktop.isCorporatePortalPage())
+				{
+					return;
+				}
+				this.isUsed = true;
+				callback = typeof (callback) === 'function' ? callback : BX.DoNothing;
+
+				const callWindow = this.desktop.getCallCardWindow();
+				callWindow.BX.PhoneCallView.BackgroundWorker.stopTimer(params, callback);
+			});
+		},
+
+		events: [
+			'addCommentButtonClick',
+			'muteButtonClick',
+			'holdButtonClick',
+			'transferButtonClick',
+			'cancelTransferButtonClick',
+			'completeTransferButtonClick',
+			'hangupButtonClick',
+			'nextButtonClick',
+			'skipButtonClick',
+			'answerButtonClick',
+			'entityChanged',
+			'qualityMeterClick',
+			'dialpadButtonClick',
+			'makeCallButtonClick',
+			'notifyAdminButtonClick',
+		],
+
+		desktop: {
+			eventHandlers: [],
+
+			setUiState: function(params, callback)
+			{
+				if(!BackgroundWorker.CallCard)
+				{
+					callback(BackgroundWorker.UndefinedCallCard);
+
+					return;
+				}
+				if (!params.hasOwnProperty('uiState') || !BX.PhoneCallView.UiState[params.uiState])
+				{
+					callback([{
+						result: 'error',
+						errorCode: 'Invalid ui state'
+					}]);
+
+					return;
+				}
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardSetUiState', [params, BX.DoNothing]);
+				callback([]);
+			},
+
+			setMute: function(params, callback){
+
+				if(!BackgroundWorker.CallCard)
+				{
+					callback(BackgroundWorker.UndefinedCallCard);
+
+					return;
+				}
+				if (!params.hasOwnProperty('muted'))
+				{
+					callback({
+						result: 'error',
+						errorCode: 'missing field muted'
+					});
+
+					return;
+				}
+
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardSetMute',[params, BX.DoNothing]);
+				callback([]);
+			},
+
+			setHold: function(params, callback){
+				if(!BackgroundWorker.CallCard)
+				{
+					callback(BackgroundWorker.UndefinedCallCard);
+
+					return;
+				}
+				if (!params.hasOwnProperty('held'))
+				{
+					callback([{
+						result: 'error',
+						errorCode: 'missing field held'
+					}]);
+				}
+
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardSetHold',[params, BX.DoNothing]);
+				callback([]);
+			},
+
+			getListUiStates: function(params, callback){
+				BackgroundWorker.getListUiStates(params, callback);
+			},
+
+			setCardTitle: function(params, callback){
+				if(!BackgroundWorker.CallCard)
+				{
+					callback(BackgroundWorker.UndefinedCallCard);
+
+					return;
+				}
+				if (!params.hasOwnProperty('title'))
+				{
+					callback([{
+						result: 'error',
+						errorCode: 'missing field title'
+					}]);
+
+					return
+				}
+
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardSetCardTitle',[params, BX.DoNothing]);
+				callback([]);
+			},
+
+			setStatusText: function(params, callback){
+				if(!BackgroundWorker.CallCard)
+				{
+					callback(BackgroundWorker.UndefinedCallCard);
+
+					return;
+				}
+				if (!params.hasOwnProperty('statusText'))
+				{
+					callback([{
+						result: 'error',
+						errorCode: 'missing field statusText'
+					}]);
+
+					return;
+				}
+
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardSetStatusText',[params, BX.DoNothing]);
+				callback([]);
+			},
+			close: function(params, callback){
+				if(!BackgroundWorker.CallCard)
+				{
+					callback(BackgroundWorker.UndefinedCallCard);
+
+					return;
+				}
+
+				BackgroundWorker.CallCard = false;
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardClose',[params, BX.DoNothing]);
+				callback([]);
+			},
+			startTimer: function(params, callback){
+				if(!BackgroundWorker.CallCard)
+				{
+					callback(BackgroundWorker.UndefinedCallCard);
+
+					return;
+				}
+
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardStartTimer',[params, BX.DoNothing]);
+				callback([]);
+			},
+			stopTimer: function(params, callback){
+				if(!BackgroundWorker.CallCard)
+				{
+					callback(BackgroundWorker.UndefinedCallCard);
+
+					return;
+				}
+
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardStopTimer',[params, BX.DoNothing]);
+				callback([]);
+			},
+
+			addCustomEvent: function(eventName, eventHandler)
+			{
+				const realHandler = function (e)
+				{
+					const arEventParams = [];
+					for(const i in e.detail)
+					{
+						arEventParams.push(e.detail[i]);
+					}
+
+					eventHandler.apply(window, arEventParams);
+				};
+
+				if(!this.eventHandlers[eventName])
+				{
+					this.eventHandlers[eventName] = [];
+				}
+
+				this.eventHandlers[eventName].push(realHandler);
+				window.addEventListener(eventName, realHandler);
+
+				return true;
+			},
+
+			removeCustomEvents: function(eventName)
+			{
+				if(!this.eventHandlers[eventName])
+				{
+					return false;
+				}
+
+				this.eventHandlers[eventName].forEach(function(eventHandler)
+				{
+					window.removeEventListener(eventName, eventHandler);
+				});
+
+				this.eventHandlers[eventName] = [];
+			},
+
+			isCallCardPage: function()
+			{
+				return BXDesktopWindow.GetWindowId() !== BXDesktopSystem.GetMainWindow().GetWindowId()
+			},
+
+			isCorporatePortalPage: function()
+			{
+				return !BX.MessengerCommon.isDesktop();
+			},
+
+			getCallCardWindow: function()
+			{
+				return BXWindows.find(element => element.name === 'callWindow');
+			},
+		},
+
+		removeDesktopEventHandlers: function()
+		{
+			for (const event of this.events)
+			{
+				this.desktop.removeCustomEvents('DesktopCallCard' + (event[0].toUpperCase() + event.slice(1)))
+			}
+			this.desktop.removeCustomEvents('DesktopCallCardInitialized');
+			this.desktop.removeCustomEvents('DesktopCallCardCloseButtonClick');
+		},
+
+		onInitialize: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardInitialized', [params]);
+
+				return;
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::initialized", [params]);
+		},
+
+		onAddCommentButtonClick: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardAddCommentButtonClick', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::addCommentButtonClick", [params]);
+		},
+
+		onMuteButtonClick: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardMuteButtonClick', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::muteButtonClick", [params]);
+		},
+
+		onHoldButtonClick: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardHoldButtonClick', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::holdButtonClick", [params]);
+		},
+
+		onCloseButtonClick: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardCloseButtonClick', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::closeButtonClick", [params]);
+		},
+
+		onTransferButtonClick: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardTransferButtonClick', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::transferButtonClick", [params]);
+		},
+
+		onCancelTransferButtonClick: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardCancelTransferButtonClick', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::cancelTransferButtonClick", [params]);
+		},
+
+		onCompleteTransferButtonClick: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardCompleteTransferButtonClick', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::completeTransferButtonClick", [params]);
+		},
+
+		onHangupButtonClick: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardHangupButtonClick', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::hangupButtonClick", [params]);
+		},
+
+		onNextButtonClick: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardNextButtonClick', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::nextButtonClick", [params]);
+		},
+
+		onSkipButtonClick: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardSkipButtonClick', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::skipButtonClick", [params]);
+		},
+
+		onAnswerButtonClick: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardAnswerButtonClick', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::answerButtonClick", [params]);
+		},
+
+		onEntityChanged: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardEntityChanged', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::entityChanged", [params]);
+		},
+
+		onQualityMeterClick: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardQualityMeterClick', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::qualityMeterClick", [params]);
+		},
+
+		onDialpadButtonClick: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardDialpadButtonClick', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::dialpadButtonClick", [params]);
+		},
+
+		onMakeCallButtonClick: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardMakeCallButtonClick', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::makeCallButtonClick", [params]);
+		},
+
+		onNotifyAdminButtonClick: function(params)
+		{
+			if (this.isDesktop() && this.desktop.isCallCardPage())
+			{
+				BXDesktopSystem.BroadcastEvent('DesktopCallCardNotifyAdminButtonClick', [params])
+			}
+			BX.onCustomEvent(window, "BackgroundCallCard::notifyAdminButtonClick", [params]);
+		},
+
+		/**
+		 * @param params
+		 * @param {boolean} params.muted
+		 * @param {function} callback
+		 */
+		setMute: function(params, callback)
+		{
+			if(!this.CallCard)
+			{
+				callback(this.UndefinedCallCard);
+
+				return;
+			}
+
+			if (this.CallCard.isMuted() === !!params.muted)
+			{
+				callback([]);
+
+				return;
+			}
+			if (params.muted)
+			{
+				this.CallCard.setMuted(params.muted)
+				BX.addClass(this.CallCard.elements.buttons.mute, 'active');
+				if (this.CallCard.isDesktop() && this.CallCard.slave)
+				{
+					BX.desktop.onCustomEvent(desktopEvents.onMute, []);
+				}
+				else
+				{
+					this.CallCard.callbacks.mute();
+				}
+			}
+			else
+			{
+				this.CallCard.setMuted(params.muted)
+				BX.removeClass(this.CallCard.elements.buttons.mute, 'active');
+				if(this.CallCard.isDesktop() && this.CallCard.slave)
+				{
+					BX.desktop.onCustomEvent(desktopEvents.onUnMute, []);
+				}
+				else
+				{
+					this.CallCard.callbacks.unmute();
+				}
+			}
+			callback([]);
+		},
+
+		/**
+		 * @param params
+		 * @param {boolean} params.held
+		 * @param {function} callback
+		 */
+		setHold: function(params, callback)
+		{
+			if(!this.CallCard)
+			{
+				callback([this.UndefinedCallCard]);
+
+				return;
+			}
+
+			if (this.CallCard.isHeld() === !!params.held)
+			{
+				callback([]);
+
+				return;
+			}
+			if (params.held)
+			{
+				this.CallCard.setHeld(params.held)
+				BX.addClass(this.CallCard.elements.buttons.hold, 'active');
+				if(this.CallCard.isDesktop() && this.CallCard.slave)
+				{
+					BX.desktop.onCustomEvent(desktopEvents.onHold, []);
+				}
+				else
+				{
+					this.CallCard.callbacks.hold();
+				}
+			}
+			else
+			{
+				this.CallCard.setHeld(params.held);
+				BX.removeClass(this.CallCard.elements.buttons.hold, 'active');
+				if(this.CallCard.isDesktop() && this.CallCard.slave)
+				{
+					BX.desktop.onCustomEvent(desktopEvents.onUnHold, []);
+				}
+				else
+				{
+					this.CallCard.callbacks.unhold();
+				}
+			}
+			callback([]);
+		},
+
+		/**
+		 * @param params
+		 * @param {string} params.uiState
+		 * @param {boolean} [params.disableAutoStartTimer]
+		 * @param {function} callback
+		 */
+		setUiState: function(params, callback)
+		{
+			if (!this.CallCard)
+			{
+				callback([this.UndefinedCallCard]);
+
+				return;
+			}
+
+			if (params && params.uiState && BX.PhoneCallView.UiState[params.uiState])
+			{
+				this.CallCard.setUiState(BX.PhoneCallView.UiState[params.uiState]);
+				// BX.onCustomEvent(window, "CallCard::CallStateChanged", [callState, additionalParams]);
+				// this.setOnSlave(desktopEvents.setCallState, [callState, additionalParams]);
+			}
+			else
+			{
+				callback([{
+					result: 'error',
+					errorCode: 'Invalid ui state'
+				}]);
+
+				return;
+			}
+			if (params.uiState === 'connected')
+			{
+				if (params.disableAutoStartTimer)
+				{
+					this.CallCard.stopTimer();
+					this.hideTimer();
+				}
+				else
+				{
+					this.showTimer();
+				}
+			}
+
+			if (params.uiState !== 'connected' && !this.CallCard.isTimerStarted())
+			{
+				this.hideTimer();
+			}
+
+			callback([]);
+		},
+
+		/**
+		 * @param {{}} params
+		 * @param {function} callback
+		 */
+		getListUiStates: function(params, callback)
+		{
+			callback(Object.keys(BX.PhoneCallView.UiState).filter(function(state)
+			{
+				switch (state)
+				{
+					case 'sipPhoneError':
+						return false;
+					case 'idle':
+						return false;
+					case 'externalCard':
+						return false;
+					default:
+						return true;
+				}
+			}));
+		},
+
+		/**
+		 * @param {{}} params
+		 * @param {function} callback
+		 */
+		startTimer: function(params, callback)
+		{
+			if(!this.CallCard)
+			{
+				callback([this.UndefinedCallCard]);
+
+				return;
+			}
+
+			this.showTimer();
+			this.CallCard.startTimer();
+		},
+
+		/**
+		 * @param {{}} params
+		 * @param {function} callback
+		 */
+		stopTimer: function(params, callback)
+		{
+			if(!this.CallCard)
+			{
+				callback([this.UndefinedCallCard]);
+
+				return;
+			}
+
+			this.CallCard.stopTimer();
+		},
+
+		/**
+		 * @param {{}} params
+		 * @param {function} callback
+		 */
+		close: function(params, callback)
+		{
+			if(!this.CallCard)
+			{
+				callback([this.UndefinedCallCard]);
+
+				return;
+			}
+
+			this.CallCard.close();
+			callback([]);
+
+			this.CallCard = false;
+		},
+
+		/**
+		 * @param params
+		 * @param {string} params.title
+		 * @param {function} callback
+		 */
+		setCardTitle: function(params, callback)
+		{
+			if(!this.CallCard)
+			{
+				callback([this.UndefinedCallCard]);
+
+				return;
+			}
+			this.CallCard.setTitle(params.title);
+			callback([]);
+		},
+
+		/**
+		 * @param params
+		 * @param {string} params.statusText
+		 * @param {function} callback
+		 */
+		setStatusText: function(params, callback)
+		{
+			if(!this.CallCard)
+			{
+				callback([this.UndefinedCallCard]);
+
+				return;
+			}
+			this.CallCard.setStatusText(params.statusText);
+			callback([]);
+		},
+
+		showTimer: function()
+		{
+			if (!BX.PhoneCallView.BackgroundWorker.CallCard.elements.timer.visible)
+			{
+				BX.PhoneCallView.BackgroundWorker.CallCard.sections.timer.visible = true;
+				BX.PhoneCallView.BackgroundWorker.CallCard.elements.timer.style.display = '';
+				if (BX.PhoneCallView.BackgroundWorker.CallCard.isFolded())
+				{
+					BX.PhoneCallView.BackgroundWorker.CallCard.unfoldedElements.timer.style.display = '';
+				}
+			}
+		},
+
+		hideTimer: function()
+		{
+			if (this.CallCard.sections.timer)
+			{
+				this.CallCard.sections.timer.visible = false;
+			}
+			if (this.CallCard.elements.timer)
+			{
+				this.CallCard.elements.timer.style.display = 'none';
+			}
+			this.CallCard.initialTimestamp = 0;
+		},
+
+		isDesktop: function()
+		{
+			return typeof(BXDesktopSystem) !== 'undefined';
+		},
+	};
+
+	BX.PhoneCallView.BackgroundWorker = BackgroundWorker;
 
 	function insertAtCursor(inputElement, value)
 	{

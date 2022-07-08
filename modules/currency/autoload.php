@@ -4,7 +4,7 @@ use Bitrix\Main\Loader;
 
 Loader::registerAutoLoadClasses(
 	'currency',
-	array(
+	[
 		'CCurrency' => 'general/currency.php',
 		'CCurrencyLang' => 'general/currency_lang.php',
 		'CCurrencyRates' => 'mysql/currency_rate.php',
@@ -16,6 +16,6 @@ Loader::registerAutoLoadClasses(
 		'\Bitrix\Currency\CurrencyTable' => 'lib/currency.php',
 		'\Bitrix\Currency\CurrencyLangTable' => 'lib/currencylang.php',
 		'\Bitrix\Currency\CurrencyRateTable' => 'lib/currencyrate.php',
-		'\Bitrix\Currency\CurrencyClassifier' => 'lib/currencyclassifier.php'
-	)
+		'\Bitrix\Currency\CurrencyClassifier' => 'lib/currencyclassifier.php',
+	]
 );

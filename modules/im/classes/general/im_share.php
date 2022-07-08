@@ -40,6 +40,7 @@ class CIMShare
 		$chat = new CIMChat($this->user_id);
 		$chatId = $chat->Add(Array(
 			'USERS' => $joinUsers,
+			'ENTITY_TYPE' => 'THREAD',
 			'SKIP_ADD_MESSAGE' => 'Y',
 		));
 

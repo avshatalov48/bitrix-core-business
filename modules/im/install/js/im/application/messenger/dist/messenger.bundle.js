@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
-(function (exports,im_application_core,im_provider_rest,promise,ui_vue,im_lib_logger,im_lib_utils,ui_entitySelector,im_component_recent,im_component_dialog,im_component_textarea,pull_component_status,im_const,im_mixin,main_core_events,main_core) {
+(function (exports,im_application_core,im_controller,im_provider_rest,ui_vue,ui_vue_vuex,im_lib_utils,im_component_recent,im_component_dialog,im_component_textarea,pull_component_status,main_core_events,ui_entitySelector,im_const,im_eventHandler) {
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -62,7 +62,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        return;
 	      }
 
-	      main_core_events.EventEmitter.emit('openMessenger', {
+	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.open, {
 	        id: dialogId,
 	        $event: event
 	      });
@@ -126,157 +126,146 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  return Search;
 	}();
 
-	/**
-	 * Bitrix Im
-	 * Application Messenger view
-	 *
-	 * @package bitrix
-	 * @subpackage im
-	 * @copyright 2001-2020 Bitrix
-	 */
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	ui_vue.BitrixVue.component('bx-im-application-messenger', {
 	  props: {
 	    userId: {
+	      type: Number,
 	      "default": 0
-	    },
-	    initialDialogId: {
-	      "default": '0'
 	    }
 	  },
-	  mixins: [im_mixin.DialogCore, im_mixin.DialogReadMessages, im_mixin.DialogQuoteMessage, im_mixin.DialogClickOnCommand, im_mixin.DialogClickOnMention, im_mixin.DialogClickOnUserName, im_mixin.DialogClickOnMessageMenu, im_mixin.DialogClickOnMessageRetry, im_mixin.DialogClickOnUploadCancel, im_mixin.DialogClickOnReadList, im_mixin.DialogSetMessageReaction, im_mixin.DialogOpenMessageReactionList, im_mixin.DialogClickOnKeyboardButton, im_mixin.DialogClickOnChatTeaser, im_mixin.DialogClickOnDialog, im_mixin.TextareaCore, im_mixin.TextareaUploadFile],
 	  data: function data() {
 	    return {
-	      dialogId: 0,
-	      notify: false,
-	      textareaDrag: false,
-	      textareaHeight: 120,
-	      textareaMinimumHeight: 120,
-	      textareaMaximumHeight: im_lib_utils.Utils.device.isMobile() ? 200 : 400,
-	      search: null
+	      selectedDialogId: 0,
+	      notificationsSelected: false,
+	      textareaHeight: 120
 	    };
 	  },
-	  created: function created() {
-	    main_core_events.EventEmitter.subscribe('openMessenger', this.onOpenMessenger);
-	  },
-	  beforeDestroy: function beforeDestroy() {
-	    main_core_events.EventEmitter.unsubscribe('openMessenger', this.onOpenMessenger);
-	    this.onTextareaDragEventRemove();
-	  },
-	  computed: {
+	  computed: _objectSpread$1({
 	    DeviceType: function DeviceType() {
 	      return im_const.DeviceType;
 	    },
-	    textareaHeightStyle: function textareaHeightStyle(state) {
+	    textareaHeightStyle: function textareaHeightStyle() {
 	      return {
-	        flex: '0 0 ' + this.textareaHeight + 'px'
+	        flex: "0 0 ".concat(this.textareaHeight, "px")
 	      };
 	    },
 	    isDialog: function isDialog() {
-	      return im_lib_utils.Utils.dialog.isChatId(this.dialogId);
+	      return im_lib_utils.Utils.dialog.isChatId(this.selectedDialogId);
 	    },
-	    isEnableGesture: function isEnableGesture() {
-	      return false;
+	    chatId: function chatId() {
+	      if (this.application) {
+	        return this.application.dialog.chatId;
+	      }
+
+	      return 0;
 	    },
-	    isEnableGestureQuoteFromRight: function isEnableGestureQuoteFromRight() {
-	      return this.isEnableGesture && true;
+	    dialogId: function dialogId() {
+	      if (this.application) {
+	        return this.application.dialog.dialogId;
+	      }
+
+	      return 0;
 	    },
-	    localizeEmptyChat: function localizeEmptyChat() {
-	      return main_core.Loc.getMessage('IM_M_EMPTY');
+	    localize: function localize() {
+	      return ui_vue.BitrixVue.getFilteredPhrases(['IM_DIALOG_', 'IM_UTILS_', 'IM_MESSENGER_DIALOG_', 'IM_QUOTE_'], this);
 	    }
+	  }, ui_vue_vuex.Vuex.mapState({
+	    application: function application(state) {
+	      return state.application;
+	    }
+	  })),
+	  created: function created() {
+	    this.initEventHandlers();
+	    this.searchPopup = null;
+	    this.subscribeToEvents();
+	  },
+	  beforeDestroy: function beforeDestroy() {
+	    this.unsubscribeEvents();
+	    this.destroyHandlers();
 	  },
 	  methods: {
+	    // region handlers
+	    initEventHandlers: function initEventHandlers() {
+	      this.textareaDragHandler = this.getTextareaDragHandler();
+	      this.readingHandler = new im_eventHandler.ReadingHandler(this.$Bitrix);
+	      this.reactionHandler = new im_eventHandler.ReactionHandler(this.$Bitrix);
+	      this.quoteHandler = new im_eventHandler.QuoteHandler(this.$Bitrix);
+	      this.textareaHandler = new im_eventHandler.TextareaHandler(this.$Bitrix);
+	      this.sendMessageHandler = new im_eventHandler.SendMessageHandler(this.$Bitrix);
+	      this.textareaUploadHandler = new im_eventHandler.TextareaUploadHandler(this.$Bitrix);
+	      this.dialogActionHandler = new im_eventHandler.DialogActionHandler(this.$Bitrix);
+	    },
+	    destroyHandlers: function destroyHandlers() {
+	      this.textareaDragHandler.destroy();
+	      this.readingHandler.destroy();
+	      this.reactionHandler.destroy();
+	      this.quoteHandler.destroy();
+	      this.textareaHandler.destroy();
+	      this.textareaUploadHandler.destroy();
+	      this.dialogActionHandler.destroy();
+	    },
+	    getTextareaDragHandler: function getTextareaDragHandler() {
+	      var _this = this,
+	          _TextareaDragHandler;
+
+	      return new im_eventHandler.TextareaDragHandler((_TextareaDragHandler = {}, babelHelpers.defineProperty(_TextareaDragHandler, im_eventHandler.TextareaDragHandler.events.onHeightChange, function (_ref) {
+	        var data = _ref.data;
+	        var newHeight = data.newHeight;
+
+	        if (_this.textareaHeight !== newHeight) {
+	          _this.textareaHeight = newHeight;
+	        }
+	      }), babelHelpers.defineProperty(_TextareaDragHandler, im_eventHandler.TextareaDragHandler.events.onStopDrag, function () {
+	        main_core_events.EventEmitter.emit(im_const.EventType.dialog.scrollToBottom, {
+	          chatId: _this.chatId,
+	          force: true
+	        });
+	      }), _TextareaDragHandler));
+	    },
+	    // endregion handlers
 	    openSearch: function openSearch() {
-	      if (!this.search) {
-	        this.search = new Search({
-	          targetNode: document.getElementById('bx-im-next-layout-recent-search-input'),
+	      if (!this.searchPopup) {
+	        this.searchPopup = new Search({
+	          targetNode: document.querySelector('#bx-im-next-layout-recent-search-input'),
 	          store: this.$store
 	        });
 	      }
 
-	      this.search.open();
+	      this.searchPopup.open();
 	    },
 	    openMessenger: function openMessenger(dialogId) {
 	      dialogId = dialogId.toString();
 
 	      if (dialogId === 'notify') {
-	        this.dialogId = 0;
-	        this.notify = true;
+	        this.selectedDialogId = 0;
+	        this.notificationsSelected = true;
 	      } else {
-	        this.notify = false;
-	        this.dialogId = dialogId;
+	        this.selectedDialogId = dialogId;
+	        this.notificationsSelected = false;
 	      }
 	    },
-	    onOpenMessenger: function onOpenMessenger(_ref) {
-	      var event = _ref.data;
-	      this.openMessenger(event.id);
+	    // region events
+	    subscribeToEvents: function subscribeToEvents() {
+	      main_core_events.EventEmitter.subscribe(im_const.EventType.dialog.open, this.onOpenMessenger);
+	    },
+	    unsubscribeEvents: function unsubscribeEvents() {
+	      main_core_events.EventEmitter.unsubscribe(im_const.EventType.dialog.open, this.onOpenMessenger);
+	    },
+	    onOpenMessenger: function onOpenMessenger(_ref2) {
+	      var data = _ref2.data;
+	      this.openMessenger(data.id);
 	    },
 	    onTextareaStartDrag: function onTextareaStartDrag(event) {
-	      if (this.textareaDrag) {
-	        return;
-	      }
-
-	      im_lib_logger.Logger.log('Livechat: textarea drag started');
-	      this.textareaDrag = true;
-	      event = event.changedTouches ? event.changedTouches[0] : event;
-	      this.textareaDragCursorStartPoint = event.clientY;
-	      this.textareaDragHeightStartPoint = this.textareaHeight;
-	      this.onTextareaDragEventAdd();
+	      this.textareaDragHandler.onStartDrag(event, this.textareaHeight);
 	      main_core_events.EventEmitter.emit(im_const.EventType.textarea.setBlur, true);
-	    },
-	    onTextareaContinueDrag: function onTextareaContinueDrag(event) {
-	      if (!this.textareaDrag) {
-	        return;
-	      }
+	    } // endregion events
 
-	      event = event.changedTouches ? event.changedTouches[0] : event;
-	      this.textareaDragCursorControlPoint = event.clientY;
-	      var textareaHeight = Math.max(Math.min(this.textareaDragHeightStartPoint + this.textareaDragCursorStartPoint - this.textareaDragCursorControlPoint, this.textareaMaximumHeight), this.textareaMinimumHeight);
-	      im_lib_logger.Logger.log('Livechat: textarea drag', 'new: ' + textareaHeight, 'curr: ' + this.textareaHeight);
-
-	      if (this.textareaHeight !== textareaHeight) {
-	        this.textareaHeight = textareaHeight;
-	      }
-	    },
-	    onTextareaStopDrag: function onTextareaStopDrag() {
-	      if (!this.textareaDrag) {
-	        return;
-	      }
-
-	      im_lib_logger.Logger.log('Livechat: textarea drag ended');
-	      this.textareaDrag = false;
-	      this.onTextareaDragEventRemove();
-	      this.$store.commit('widget/common', {
-	        textareaHeight: this.textareaHeight
-	      });
-	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.scrollToBottom, {
-	        chatId: this.chatId,
-	        force: true
-	      });
-	    },
-	    onTextareaDragEventAdd: function onTextareaDragEventAdd() {
-	      document.addEventListener('mousemove', this.onTextareaContinueDrag);
-	      document.addEventListener('touchmove', this.onTextareaContinueDrag);
-	      document.addEventListener('touchend', this.onTextareaStopDrag);
-	      document.addEventListener('mouseup', this.onTextareaStopDrag);
-	      document.addEventListener('mouseleave', this.onTextareaStopDrag);
-	    },
-	    onTextareaDragEventRemove: function onTextareaDragEventRemove() {
-	      document.removeEventListener('mousemove', this.onTextareaContinueDrag);
-	      document.removeEventListener('touchmove', this.onTextareaContinueDrag);
-	      document.removeEventListener('touchend', this.onTextareaStopDrag);
-	      document.removeEventListener('mouseup', this.onTextareaStopDrag);
-	      document.removeEventListener('mouseleave', this.onTextareaStopDrag);
-	    },
-	    logEvent: function logEvent(name) {
-	      for (var _len = arguments.length, params = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-	        params[_key - 1] = arguments[_key];
-	      }
-
-	      im_lib_logger.Logger.info.apply(im_lib_logger.Logger, [name].concat(params));
-	    }
 	  },
 	  // language=Vue
-	  template: "\n\t  \t<div class=\"bx-im-next-layout\">\n\t\t\t<div class=\"bx-im-next-layout-recent\">\n\t\t\t\t<div class=\"bx-im-next-layout-recent-search\">\n\t\t\t\t\t<div class=\"bx-im-next-layout-recent-search-input\" id=\"bx-im-next-layout-recent-search-input\" @click=\"openSearch\">Search</div>  \n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-next-layout-recent-list\">\n\t\t\t\t\t<bx-im-component-recent/>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-next-layout-dialog\" v-if=\"dialogId\">\n\t\t\t\t<div class=\"bx-im-next-layout-dialog-header\">\n\t\t\t\t\t<div class=\"bx-im-header-title\">Dialog: {{dialogId}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-next-layout-dialog-messages\">\n\t\t\t\t  \t<bx-pull-component-status/>\n\t\t\t\t\t<bx-im-component-dialog\n\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t:enableGestureMenu=\"isEnableGesture\"\n\t\t\t\t\t\t:enableGestureQuote=\"isEnableGesture\"\n\t\t\t\t\t\t:enableGestureQuoteFromRight=\"isEnableGestureQuoteFromRight\"\n\t\t\t\t\t\t:showMessageUserName=\"isDialog\"\n\t\t\t\t\t\t:showMessageAvatar=\"isDialog\"\n\t\t\t\t\t />\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-next-layout-dialog-textarea\" :style=\"textareaHeightStyle\" ref=\"textarea\">\n\t\t\t\t  \t<div class=\"bx-im-next-layout-dialog-textarea-handle\" @mousedown=\"onTextareaStartDrag\" @touchstart=\"onTextareaStartDrag\"></div>\n\t\t\t\t\t<bx-im-component-textarea\n\t\t\t\t\t\t:siteId=\"application.common.siteId\"\n\t\t\t\t\t\t:userId=\"userId\"\n\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t:writesEventLetter=\"3\"\n\t\t\t\t\t\t:enableEdit=\"true\"\n\t\t\t\t\t\t:enableCommand=\"false\"\n\t\t\t\t\t\t:enableMention=\"false\"\n\t\t\t\t\t\t:enableFile=\"true\"\n\t\t\t\t\t\t:autoFocus=\"application.device.type !== DeviceType.mobile\"\n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-next-layout-notify\" v-else-if=\"notify\">\n\t\t\t\t<bx-im-component-notifications :darkTheme=\"false\"/>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-next-layout-notify\" v-else>\n\t\t\t\t<div class=\"bx-messenger-box-hello-wrap\">\n\t\t\t\t  <div class=\"bx-messenger-box-hello\">{{localizeEmptyChat}}</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\n\t\t</div>\n\t"
+	  template: "\n\t  \t<div class=\"bx-im-next-layout\">\n\t\t\t<div class=\"bx-im-next-layout-recent\">\n\t\t\t\t<div class=\"bx-im-next-layout-recent-search\">\n\t\t\t\t\t<div class=\"bx-im-next-layout-recent-search-input\" id=\"bx-im-next-layout-recent-search-input\" @click=\"openSearch\">Search</div>  \n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-next-layout-recent-list\">\n\t\t\t\t\t<bx-im-component-recent/>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-next-layout-dialog\" v-if=\"selectedDialogId\">\n\t\t\t\t<div class=\"bx-im-next-layout-dialog-header\">\n\t\t\t\t\t<div class=\"bx-im-header-title\">Dialog: {{selectedDialogId}}</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-next-layout-dialog-messages\">\n\t\t\t\t  \t<bx-pull-component-status/>\n\t\t\t\t\t<bx-im-component-dialog\n\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t:dialogId=\"selectedDialogId\"\n\t\t\t\t\t\t:showMessageUserName=\"isDialog\"\n\t\t\t\t\t\t:showMessageAvatar=\"isDialog\"\n\t\t\t\t\t />\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-next-layout-dialog-textarea\" :style=\"textareaHeightStyle\" ref=\"textarea\">\n\t\t\t\t  \t<div class=\"bx-im-next-layout-dialog-textarea-handle\" @mousedown=\"onTextareaStartDrag\" @touchstart=\"onTextareaStartDrag\"></div>\n\t\t\t\t\t<bx-im-component-textarea\n\t\t\t\t\t\t:siteId=\"application.common.siteId\"\n\t\t\t\t\t\t:userId=\"userId\"\n\t\t\t\t\t\t:dialogId=\"selectedDialogId\"\n\t\t\t\t\t\t:writesEventLetter=\"3\"\n\t\t\t\t\t\t:enableEdit=\"true\"\n\t\t\t\t\t\t:enableCommand=\"false\"\n\t\t\t\t\t\t:enableMention=\"false\"\n\t\t\t\t\t\t:enableFile=\"true\"\n\t\t\t\t\t\t:autoFocus=\"application.device.type !== DeviceType.mobile\"\n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-next-layout-notify\" v-else-if=\"notificationsSelected\">\n\t\t\t\t<bx-im-component-notifications :darkTheme=\"false\"/>\n\t\t\t</div>\n\t\t\t<div class=\"bx-im-next-layout-notify\" v-else>\n\t\t\t\t<div class=\"bx-messenger-box-hello-wrap\">\n\t\t\t\t  <div class=\"bx-messenger-box-hello\">{{ $Bitrix.Loc.getMessage('IM_M_EMPTY') }}</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</div>\n\t"
 	});
 
 	/**
@@ -294,12 +283,17 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, MessengerApplication);
-	    this.inited = false;
-	    this.initPromise = new BX.Promise();
+	    babelHelpers.defineProperty(this, "inited", false);
+	    babelHelpers.defineProperty(this, "initPromise", null);
+	    babelHelpers.defineProperty(this, "initPromiseResolver", null);
+	    babelHelpers.defineProperty(this, "vueInstance", null);
+	    babelHelpers.defineProperty(this, "controller", null);
+	    babelHelpers.defineProperty(this, "rootNode", null);
+	    this.initPromise = new Promise(function (resolve) {
+	      _this.initPromiseResolver = resolve;
+	    });
 	    this.params = params;
-	    this.template = null;
 	    this.rootNode = this.params.node || document.createElement('div');
-	    this.event = new ui_vue.VueVendorV2();
 	    this.initCore().then(function () {
 	      return _this.initComponent();
 	    }).then(function () {
@@ -312,7 +306,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    value: function initCore() {
 	      var _this2 = this;
 
-	      return new Promise(function (resolve, reject) {
+	      return new Promise(function (resolve) {
 	        im_application_core.Core.ready().then(function (controller) {
 	          _this2.controller = controller;
 	          resolve();
@@ -324,7 +318,45 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    value: function initComponent() {
 	      var _this3 = this;
 
-	      console.log('2. initComponent');
+	      this.setInitialApplicationInfo();
+	      this.setDialogRestHandler();
+	      this.setApplicationDialogInfo();
+	      return this.controller.createVue(this, {
+	        el: this.rootNode,
+	        data: function data() {
+	          return {
+	            userId: _this3.getUserId()
+	          };
+	        },
+	        // language=Vue
+	        template: "<bx-im-application-messenger :userId=\"userId\" />"
+	      }).then(function (vue) {
+	        _this3.vueInstance = vue;
+	        return Promise.resolve();
+	      });
+	    }
+	  }, {
+	    key: "initComplete",
+	    value: function initComplete() {
+	      this.inited = true;
+	      this.initPromiseResolver(this);
+	    }
+	  }, {
+	    key: "ready",
+	    value: function ready() {
+	      if (this.inited) {
+	        return Promise.resolve(this);
+	      }
+
+	      return this.initPromise;
+	    }
+	    /* endregion 01. Initialize */
+
+	    /* region 02. Methods */
+
+	  }, {
+	    key: "setInitialApplicationInfo",
+	    value: function setInitialApplicationInfo() {
 	      this.controller.getStore().commit('application/set', {
 	        dialog: {
 	          dialogId: this.getDialogId()
@@ -335,65 +367,37 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          darkBackground: false
 	        }
 	      });
+	    }
+	  }, {
+	    key: "setApplicationDialogInfo",
+	    value: function setApplicationDialogInfo() {
+	      var dialog = this.controller.getStore().getters['dialogues/get'](this.getDialogId());
+
+	      if (!dialog) {
+	        return false;
+	      }
+
+	      this.controller.getStore().commit('application/set', {
+	        dialog: {
+	          chatId: dialog.chatId,
+	          diskFolderId: dialog.diskFolderId || 0
+	        }
+	      });
+	    }
+	  }, {
+	    key: "setDialogRestHandler",
+	    value: function setDialogRestHandler() {
 	      this.controller.addRestAnswerHandler(im_provider_rest.DialogRestHandler.create({
 	        store: this.controller.getStore(),
 	        controller: this.controller,
 	        context: this
 	      }));
-	      var dialog = this.controller.getStore().getters['dialogues/get'](this.controller.application.getDialogId());
-
-	      if (dialog) {
-	        this.controller.getStore().commit('application/set', {
-	          dialog: {
-	            chatId: dialog.chatId,
-	            diskFolderId: dialog.diskFolderId || 0
-	          }
-	        });
-	      }
-
-	      return this.controller.createVue(this, {
-	        el: this.rootNode,
-	        data: function data() {
-	          return {
-	            userId: _this3.getUserId(),
-	            dialogId: _this3.getDialogId()
-	          };
-	        },
-	        // language=Vue
-	        template: "<bx-im-application-messenger :userId=\"userId\" :initialDialogId=\"dialogId\"/>"
-	      }).then(function (vue) {
-	        _this3.template = vue;
-	        return new Promise(function (resolve, reject) {
-	          return resolve();
-	        });
-	      });
 	    }
-	  }, {
-	    key: "initComplete",
-	    value: function initComplete() {
-	      this.inited = true;
-	      this.initPromise.resolve(this);
-	    }
-	  }, {
-	    key: "ready",
-	    value: function ready() {
-	      if (this.inited) {
-	        var promise$$1 = new BX.Promise();
-	        promise$$1.resolve(this);
-	        return promise$$1;
-	      }
-
-	      return this.initPromise;
-	    }
-	    /* endregion 01. Initialize */
-
-	    /* region 02. Methods */
-
 	  }, {
 	    key: "getUserId",
 	    value: function getUserId() {
 	      var userId = this.params.userId || this.getLocalize('USER_ID');
-	      return userId ? parseInt(userId) : 0;
+	      return userId ? Number.parseInt(userId, 10) : 0;
 	    }
 	  }, {
 	    key: "getDialogId",
@@ -410,10 +414,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    value: function getSiteId() {
 	      return 's1';
 	    }
-	    /* endregion 02. Methods */
-
-	    /* region 03. Utils */
-
 	  }, {
 	    key: "addLocalize",
 	    value: function addLocalize(phrases) {
@@ -424,7 +424,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    value: function getLocalize(name) {
 	      return this.controller.getLocalize(name);
 	    }
-	    /* endregion 03. Utils */
+	    /* endregion 02. Methods */
 
 	  }]);
 	  return MessengerApplication;
@@ -432,5 +432,5 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	exports.MessengerApplication = MessengerApplication;
 
-}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX.Messenger.Application,BX.Messenger.Provider.Rest,BX,BX,BX.Messenger.Lib,BX.Messenger.Lib,BX.UI.EntitySelector,BX.Messenger,BX.Messenger,window,window,BX.Messenger.Const,BX.Messenger.Mixin,BX.Event,BX));
+}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX.Messenger.Application,BX.Messenger,BX.Messenger.Provider.Rest,BX,BX,BX.Messenger.Lib,BX.Messenger,BX.Messenger,window,window,BX.Event,BX.UI.EntitySelector,BX.Messenger.Const,BX.Messenger));
 //# sourceMappingURL=messenger.bundle.js.map

@@ -36,7 +36,7 @@ span[data-bx-vote-button="stopOrResume"] button:first-child, span[data-bx-vote-b
 }
 
 .bx-vote-container {
-	border-radius: 1px;
+	border-radius: var(--ui-border-radius-sm, 1px);
 	color: #535c69;
 	padding: 0 0 13px;
 }
@@ -185,10 +185,11 @@ a.bx-vote-voted-users:hover {
 .bx-vote-container[data-bx-vote-result="shown"] .bx-vote-bar {
 	background-color: #fff;
 	border-color: #e5e9eb;
+	border-radius: var(--ui-border-radius-2xs);
 }
 .bx-vote-result-bar {
 	background-color: #daf2fc;
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-2xs, 2px);
 	top: 0;
 	left: 0;
 	height: 100%;

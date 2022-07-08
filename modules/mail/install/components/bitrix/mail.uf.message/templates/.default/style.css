@@ -1,3 +1,11 @@
+.mail-post-message-wrapper-error {
+	margin-top: 5px;
+	margin-bottom: 15px;
+	padding: 10px 11px;
+	background-color: #fae5e8;
+	color: #d0011b;
+	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
 
 .mail-uf-message-wrapper {
 	margin-bottom: 10px;
@@ -6,6 +14,7 @@
 	font-size: 13px;
 	line-height: 18px;
 	color: #333;
+	border-radius: var(--ui-border-radius-sm);
 }
 
 .mail-uf-message-separator {

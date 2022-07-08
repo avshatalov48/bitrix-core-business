@@ -4498,6 +4498,7 @@ abstract class Base extends \CBitrixComponent
 				if (!empty($productProperties))
 					$product['PROPS'] = $productProperties;
 				$basketResult = Catalog\Product\Basket::addProduct($product, $rewriteFields);
+
 				if (!$basketResult->isSuccess())
 				{
 					$errorMsg = implode('; ', $basketResult->getErrorMessages());
@@ -4732,7 +4733,10 @@ abstract class Base extends \CBitrixComponent
 
 		$APPLICATION->RestartBuffer();
 
-		\CMain::FinalActions(Main\Web\Json::encode($result));
+		/* don't change this block, because delayed \CFile::ResizeImageGet is not started in cloud */
+		echo Main\Web\Json::encode($result);
+		\CMain::FinalActions();
+		/* block end */
 	}
 
 	/**

@@ -969,14 +969,14 @@ export class Planner extends EventEmitter
 				`)
 				.appendChild(Tag.render`
 					<span class="calendar-planner-entry-name" style="width: ${this.entriesListWidth - 20}px;">
-						${entry.name}
+						${Text.encode(entry.name)}
 					</span>
 				`);
 			}
 			else
 			{
 				rowWrap.appendChild(Tag.render`
-					<div class="calendar-planner-location-image-icon" title="${entry.name}"></div>
+					<div class="calendar-planner-location-image-icon" title="${Text.encode(entry.name)}"></div>
 				`);
 			}
 		}
@@ -1004,14 +1004,14 @@ export class Planner extends EventEmitter
 				`)
 				.appendChild(Tag.render`
 					<span class="calendar-planner-entry-name" style="width: ${this.entriesListWidth - 20}px;">
-						${entry.name}
+						${Text.encode(entry.name)}
 					<span>
 				`);
 			}
 			else
 			{
 				rowWrap.appendChild(Tag.render`
-					<div class="calendar-planner-location-image-icon" title="${entry.name}"></div>
+					<div class="calendar-planner-location-image-icon" title="${Text.encode(entry.name)}"></div>
 				`);
 			}
 		}
@@ -1021,7 +1021,7 @@ export class Planner extends EventEmitter
 				<div class="calendar-planner-user"></div>
 			`);
 			rowWrap.appendChild(Tag.render`
-				<div class="calendar-planner-all-users">${entry.name}</div>
+				<div class="calendar-planner-all-users">${Text.encode(entry.name)}</div>
 			`);
 		}
 

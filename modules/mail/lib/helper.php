@@ -5,7 +5,7 @@ namespace Bitrix\Mail;
 use Bitrix\Main;
 use Bitrix\Main\ORM;
 use Bitrix\Mail\Internals;
-use \Bitrix\Mail\Helper\LicenseManager;
+use Bitrix\Main\Text\Emoji;
 
 class Helper
 {
@@ -344,7 +344,7 @@ class Helper
 		return empty($mailboxHelper) ? false : $mailboxHelper->sync();
 	}
 
-	public static function listImapDirs($mailbox, &$error, &$errors = null)
+	public static function listImapDirs($mailbox, &$error = [], &$errors = null)
 	{
 		$error  = null;
 		$errors = null;
@@ -453,7 +453,7 @@ class Helper
 				'filter' => array_merge(
 					[
 						'=MAILBOX_ID' => $mailboxId,
-						'=MESSAGE_UID.DIR_MD5' => md5($dirPath),
+						'=MESSAGE_UID.DIR_MD5' => md5(Emoji::encode($dirPath)),
 					],
 					$filter
 				),

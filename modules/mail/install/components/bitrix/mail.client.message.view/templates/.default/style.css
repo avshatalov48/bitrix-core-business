@@ -125,13 +125,14 @@
 }
 
 .mail-msg-view-log-item {
+	min-height: 45px;
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
 	-webkit-box-align: center;
 	-ms-flex-align: center;
 	align-items: center;
-	padding: 10px 13px;
+	padding: 0 13px;
 	background: #fff;
 	cursor: pointer;
 	border-top: 1px solid rgba(198,205,211,0.35);
@@ -160,7 +161,7 @@
 	padding: 0 4px 0 0;
 	max-width: 151px;
 	min-width: 151px;
-	margin-left: 10px;
+	margin-left: 5px;
 }
 
 .mail-msg-view-log-item-description {

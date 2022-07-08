@@ -39,6 +39,19 @@ Loc::loadMessages(__FILE__);
  * <li> CREATED_BY int
  * </ul>
  *
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Attach_Query query()
+ * @method static EO_Attach_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Attach_Result getById($id)
+ * @method static EO_Attach_Result getList(array $parameters = array())
+ * @method static EO_Attach_Entity getEntity()
+ * @method static \Bitrix\Vote\EO_Attach createObject($setDefaultValues = true)
+ * @method static \Bitrix\Vote\EO_Attach_Collection createCollection()
+ * @method static \Bitrix\Vote\EO_Attach wakeUpObject($row)
+ * @method static \Bitrix\Vote\EO_Attach_Collection wakeUpCollection($rows)
  */
 class AttachTable extends Entity\DataManager
 {

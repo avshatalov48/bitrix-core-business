@@ -32,24 +32,4 @@ class Util
 
 		return "[{$code}]: {$err[$code]}";
 	}
-
-	public static function getPortalZone(): string
-	{
-		if (Loader::includeModule('bitrix24'))
-		{
-			return \CBitrix24::getPortalZone();
-        }
-		$portalZone = Option::get("main", "vendor", "1c_bitrix_portal");
-
-		switch ($portalZone)
-		{
-			case "ua_bitrix_portal":
-				return "ua";
-			case "bitrix_portal":
-				return "en";
-			case "1c_bitrix_portal":
-			default:
-				return "ru";
-		}
-	}
 }

@@ -6,6 +6,7 @@ use Bitrix\Mail\Internals\MailboxDirectoryStorage;
 use Bitrix\Mail\Internals\MailboxDirectoryTable;
 use Bitrix\Mail\MailboxDirectory;
 use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Text\Emoji;
 
 class MailboxDirectoryHelper
 {
@@ -76,61 +77,61 @@ class MailboxDirectoryHelper
 		return reset($list);
 	}
 
-	public function getIncomePath()
+	public function getIncomePath($emojiEncode = false)
 	{
 		$dir = $this->getIncome();
 
 		if ($dir != null)
 		{
-			return $dir->getPath();
+			return $dir->getPath($emojiEncode);
 		}
 
 		return null;
 	}
 
-	public function getOutcomePath()
+	public function getOutcomePath($emojiEncode = false)
 	{
 		$dir = $this->getOutcome();
 
 		if ($dir != null)
 		{
-			return $dir->getPath();
+			return $dir->getPath($emojiEncode);
 		}
 
 		return null;
 	}
 
-	public function getDraftsPath()
+	public function getDraftsPath($emojiEncode = false)
 	{
 		$dir = $this->getDrafts();
 
 		if ($dir != null)
 		{
-			return $dir->getPath();
+			return $dir->getPath($emojiEncode);
 		}
 
 		return null;
 	}
 
-	public function getSpamPath()
+	public function getSpamPath($emojiEncode = false)
 	{
 		$dir = $this->getSpam();
 
 		if ($dir != null)
 		{
-			return $dir->getPath();
+			return $dir->getPath($emojiEncode);
 		}
 
 		return null;
 	}
 
-	public function getTrashPath()
+	public function getTrashPath($emojiEncode = false)
 	{
 		$dir = $this->getTrash();
 
 		if ($dir != null)
 		{
-			return $dir->getPath();
+			return $dir->getPath($emojiEncode);
 		}
 
 		return null;
@@ -214,7 +215,7 @@ class MailboxDirectoryHelper
 		});
 	}
 
-	public function getSyncDirsPath()
+	public function getSyncDirsPath($emojiEncode = false)
 	{
 		$list = [];
 
@@ -222,7 +223,7 @@ class MailboxDirectoryHelper
 		{
 			if ($item->isSync())
 			{
-				$list[] = $item->getPath();
+				$list[] = $item->getPath($emojiEncode);
 			}
 		}
 
@@ -372,11 +373,11 @@ class MailboxDirectoryHelper
 		foreach ($dirs as $item)
 		{
 			$removeRows[] = [
-				'=PATH' => $item->getPath(),
+				'=PATH' => $item->getPath(true),
 			];
 			//deleting subfolders
 			$removeRows[] = [
-				'%=PATH' => $item->getPath() . $item->getDelimiter() . '%',
+				'%=PATH' => $item->getPath(true) . $item->getDelimiter() . '%',
 			];
 		}
 
@@ -393,7 +394,7 @@ class MailboxDirectoryHelper
 		}
 	}
 
-	public function getDefaultDirPath()
+	public function getDefaultDirPath($emojiEncode = false)
 	{
 		$inboxDir = $this->getIncome();
 		$sendDir = $this->getOutcome();
@@ -403,7 +404,7 @@ class MailboxDirectoryHelper
 		{
 			if ($dir != null && !$dir->isDisabled() && $dir->isSync())
 			{
-				return $dir->getPath();
+				return $dir->getPath($emojiEncode);
 			}
 		}
 
@@ -411,7 +412,7 @@ class MailboxDirectoryHelper
 		{
 			if (!$dir->isDisabled() && $dir->isSync())
 			{
-				return $dir->getPath();
+				return $dir->getPath($emojiEncode);
 			}
 		}
 
@@ -495,7 +496,7 @@ class MailboxDirectoryHelper
 	{
 		return MailboxDirectory::fetchAllLevelByParentId(
 			$this->mailboxId,
-			$parent->getPath() . $parent->getDelimiter() . '%',
+			$parent->getPath(true) . $parent->getDelimiter() . '%',
 			$parent->getLevel() + 1
 		);
 	}
@@ -514,14 +515,14 @@ class MailboxDirectoryHelper
 
 				return [
 					'MAILBOX_ID'  => $this->mailboxId,
-					'NAME'        => $dir['name'],
-					'PATH'        => $dir['path'],
+					'NAME'        => Emoji::encode($dir['name']),
+					'PATH'        => Emoji::encode($dir['path']),
 					'LEVEL'       => isset($dir['level']) ? $dir['level'] : 1,
 					'PARENT_ID'   => isset($dir['parent_id']) ? $dir['parent_id'] : null,
 					'ROOT_ID'     => isset($dir['root_id']) ? $dir['root_id'] : null,
 					'FLAGS'       => MailboxDirectoryHelper::getFlags($dir['flags']),
 					'DELIMITER'   => $dir['delim'],
-					'DIR_MD5'     => md5($dir['path']),
+					'DIR_MD5'     => md5(Emoji::encode($dir['path'])),
 					'IS_SYNC'     => $dir['is_sync'],
 					'IS_INCOME'   => mb_strtoupper($dir['name']) === 'INBOX',
 					'IS_OUTCOME'  => preg_grep('/^ \x5c Sent $/ix', $dir['flags']),
@@ -564,7 +565,7 @@ class MailboxDirectoryHelper
 
 		foreach ($updateRows as $row)
 		{
-			$dbDir = $this->getDirByPath($row['path']);
+			$dbDir = $this->getDirByPath(Emoji::encode($row['path']));
 
 			if (!$dbDir)
 			{

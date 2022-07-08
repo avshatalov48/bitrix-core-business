@@ -7,108 +7,151 @@
  * @copyright 2001-2020 Bitrix
  */
 
+import {EventEmitter} from "main.core.events";
 import {BitrixVue} from "ui.vue";
-import {Logger} from "im.lib.logger";
+import {Vuex} from "ui.vue.vuex";
 import {Utils} from "im.lib.utils";
-import {Search} from './search';
+import {DeviceType, EventType} from 'im.const';
+
 import "im.component.recent";
 import "im.component.dialog";
 import "im.component.textarea";
 import "pull.component.status";
-import "./view.css";
 
-import {DeviceType, EventType} from 'im.const';
+import "./view.css";
+import {Search} from './search';
 import {
-	DialogCore, DialogReadMessages, DialogQuoteMessage, DialogClickOnCommand, DialogClickOnMention, DialogClickOnUserName,
-	DialogClickOnMessageMenu, DialogClickOnMessageRetry, DialogClickOnUploadCancel, DialogClickOnReadList,
-	DialogSetMessageReaction, DialogOpenMessageReactionList, DialogClickOnKeyboardButton, DialogClickOnChatTeaser,
-	DialogClickOnDialog, TextareaCore, TextareaUploadFile
-} from 'im.mixin';
-import { EventEmitter } from "main.core.events";
-import {Loc} from "main.core";
+	TextareaHandler, TextareaDragHandler, TextareaUploadHandler,
+	ReadingHandler, ReactionHandler, QuoteHandler, SendMessageHandler, DialogActionHandler
+} from "im.event-handler";
 
 BitrixVue.component('bx-im-application-messenger',
 {
 	props:
 	{
-		userId: { default: 0 },
-		initialDialogId: { default: '0' }
+		userId: { type: Number, default: 0 }
 	},
-
-	mixins: [
-		DialogCore, DialogReadMessages, DialogQuoteMessage, DialogClickOnCommand, DialogClickOnMention, DialogClickOnUserName,
-		DialogClickOnMessageMenu, DialogClickOnMessageRetry, DialogClickOnUploadCancel, DialogClickOnReadList,
-		DialogSetMessageReaction, DialogOpenMessageReactionList, DialogClickOnKeyboardButton, DialogClickOnChatTeaser,
-		DialogClickOnDialog, TextareaCore, TextareaUploadFile
-	],
 
 	data()
 	{
 		return {
-			dialogId: 0,
-			notify: false,
-			textareaDrag: false,
-			textareaHeight: 120,
-			textareaMinimumHeight: 120,
-			textareaMaximumHeight: Utils.device.isMobile()? 200: 400,
-			search: null,
-		}
-	},
-
-	created()
-	{
-		EventEmitter.subscribe('openMessenger', this.onOpenMessenger);
-	},
-
-	beforeDestroy()
-	{
-		EventEmitter.unsubscribe('openMessenger', this.onOpenMessenger);
-
-		this.onTextareaDragEventRemove();
+			selectedDialogId: 0,
+			notificationsSelected: false,
+			textareaHeight: 120
+		};
 	},
 
 	computed:
 	{
 		DeviceType: () => DeviceType,
 
-		textareaHeightStyle(state)
+		textareaHeightStyle(): string
 		{
-			return {flex: '0 0 '+this.textareaHeight+'px'};
+			return {flex: `0 0 ${this.textareaHeight}px`};
 		},
 
-		isDialog()
+		isDialog(): boolean
 		{
-			return Utils.dialog.isChatId(this.dialogId);
+			return Utils.dialog.isChatId(this.selectedDialogId);
 		},
 
-		isEnableGesture()
+		chatId(): number
 		{
-			return false;
+			if (this.application)
+			{
+				return this.application.dialog.chatId;
+			}
+
+			return 0;
 		},
 
-		isEnableGestureQuoteFromRight()
+		dialogId()
 		{
-			return this.isEnableGesture && true;
+			if (this.application)
+			{
+				return this.application.dialog.dialogId;
+			}
+
+			return 0;
 		},
 
-		localizeEmptyChat()
+		localize()
 		{
-			return Loc.getMessage('IM_M_EMPTY');
-		}
+			return BitrixVue.getFilteredPhrases(['IM_DIALOG_', 'IM_UTILS_', 'IM_MESSENGER_DIALOG_', 'IM_QUOTE_'], this);
+		},
+
+		...Vuex.mapState({
+			application: state => state.application,
+		}),
 	},
+
+	created()
+	{
+		this.initEventHandlers();
+		this.searchPopup = null;
+		this.subscribeToEvents();
+	},
+
+	beforeDestroy()
+	{
+		this.unsubscribeEvents();
+		this.destroyHandlers();
+	},
+
 	methods:
 	{
+		// region handlers
+		initEventHandlers()
+		{
+			this.textareaDragHandler = this.getTextareaDragHandler();
+			this.readingHandler = new ReadingHandler(this.$Bitrix);
+			this.reactionHandler = new ReactionHandler(this.$Bitrix);
+			this.quoteHandler = new QuoteHandler(this.$Bitrix);
+			this.textareaHandler = new TextareaHandler(this.$Bitrix);
+			this.sendMessageHandler = new SendMessageHandler(this.$Bitrix);
+			this.textareaUploadHandler = new TextareaUploadHandler(this.$Bitrix);
+			this.dialogActionHandler = new DialogActionHandler(this.$Bitrix);
+		},
+
+		destroyHandlers()
+		{
+			this.textareaDragHandler.destroy();
+			this.readingHandler.destroy();
+			this.reactionHandler.destroy();
+			this.quoteHandler.destroy();
+			this.textareaHandler.destroy();
+			this.textareaUploadHandler.destroy();
+			this.dialogActionHandler.destroy();
+		},
+
+		getTextareaDragHandler(): TextareaDragHandler
+		{
+			return new TextareaDragHandler({
+				[TextareaDragHandler.events.onHeightChange]: ({data}) => {
+					const {newHeight} = data;
+					if (this.textareaHeight !== newHeight)
+					{
+						this.textareaHeight = newHeight;
+					}
+				},
+				[TextareaDragHandler.events.onStopDrag]: () => {
+					EventEmitter.emit(EventType.dialog.scrollToBottom, {chatId: this.chatId, force: true});
+				}
+			});
+		},
+		// endregion handlers
+
 		openSearch()
 		{
-			if (!this.search)
+			if (!this.searchPopup)
 			{
-				this.search = new Search({
-					targetNode: document.getElementById('bx-im-next-layout-recent-search-input'),
+				this.searchPopup = new Search({
+					targetNode: document.querySelector('#bx-im-next-layout-recent-search-input'),
 					store: this.$store,
 				});
 			}
 
-			this.search.open();
+			this.searchPopup.open();
 		},
 
 		openMessenger(dialogId)
@@ -117,100 +160,38 @@ BitrixVue.component('bx-im-application-messenger',
 
 			if (dialogId === 'notify')
 			{
-				this.dialogId = 0;
-				this.notify = true;
+				this.selectedDialogId = 0;
+				this.notificationsSelected = true;
 			}
 			else
 			{
-				this.notify = false;
-				this.dialogId = dialogId;
+				this.selectedDialogId = dialogId;
+				this.notificationsSelected = false;
 			}
 		},
 
-		onOpenMessenger({data: event})
+		// region events
+		subscribeToEvents()
 		{
-			this.openMessenger(event.id);
+			EventEmitter.subscribe(EventType.dialog.open, this.onOpenMessenger);
+		},
+
+		unsubscribeEvents()
+		{
+			EventEmitter.unsubscribe(EventType.dialog.open, this.onOpenMessenger);
+		},
+
+		onOpenMessenger({data})
+		{
+			this.openMessenger(data.id);
 		},
 
 		onTextareaStartDrag(event)
 		{
-			if (this.textareaDrag)
-			{
-				return;
-			}
-
-			Logger.log('Livechat: textarea drag started');
-
-			this.textareaDrag = true;
-
-			event = event.changedTouches ? event.changedTouches[0] : event;
-
-			this.textareaDragCursorStartPoint = event.clientY;
-			this.textareaDragHeightStartPoint = this.textareaHeight;
-
-			this.onTextareaDragEventAdd();
-
+			this.textareaDragHandler.onStartDrag(event, this.textareaHeight);
 			EventEmitter.emit(EventType.textarea.setBlur, true);
-		},
-		onTextareaContinueDrag(event)
-		{
-			if (!this.textareaDrag)
-			{
-				return;
-			}
-
-			event = event.changedTouches ? event.changedTouches[0] : event;
-
-			this.textareaDragCursorControlPoint = event.clientY;
-
-			let textareaHeight = Math.max(
-				Math.min(this.textareaDragHeightStartPoint + this.textareaDragCursorStartPoint - this.textareaDragCursorControlPoint, this.textareaMaximumHeight)
-			, this.textareaMinimumHeight);
-
-			Logger.log('Livechat: textarea drag', 'new: '+textareaHeight, 'curr: '+this.textareaHeight);
-
-			if (this.textareaHeight !== textareaHeight)
-			{
-				this.textareaHeight = textareaHeight;
-			}
-		},
-		onTextareaStopDrag()
-		{
-			if (!this.textareaDrag)
-			{
-				return;
-			}
-
-			Logger.log('Livechat: textarea drag ended');
-
-			this.textareaDrag = false;
-
-			this.onTextareaDragEventRemove();
-
-			this.$store.commit('widget/common', {textareaHeight: this.textareaHeight});
-			EventEmitter.emit(EventType.dialog.scrollToBottom, {chatId: this.chatId, force: true});
-		},
-		onTextareaDragEventAdd()
-		{
-			document.addEventListener('mousemove', this.onTextareaContinueDrag);
-			document.addEventListener('touchmove', this.onTextareaContinueDrag);
-			document.addEventListener('touchend', this.onTextareaStopDrag);
-			document.addEventListener('mouseup', this.onTextareaStopDrag);
-			document.addEventListener('mouseleave', this.onTextareaStopDrag);
-		},
-		onTextareaDragEventRemove()
-		{
-			document.removeEventListener('mousemove', this.onTextareaContinueDrag);
-			document.removeEventListener('touchmove', this.onTextareaContinueDrag);
-			document.removeEventListener('touchend', this.onTextareaStopDrag);
-			document.removeEventListener('mouseup', this.onTextareaStopDrag);
-			document.removeEventListener('mouseleave', this.onTextareaStopDrag);
-		},
-
-		logEvent(name, ...params)
-		{
-			Logger.info(name, ...params);
-		},
+		}
+		// endregion events
 	},
 	// language=Vue
 	template: `
@@ -223,18 +204,15 @@ BitrixVue.component('bx-im-application-messenger',
 					<bx-im-component-recent/>
 				</div>
 			</div>
-			<div class="bx-im-next-layout-dialog" v-if="dialogId">
+			<div class="bx-im-next-layout-dialog" v-if="selectedDialogId">
 				<div class="bx-im-next-layout-dialog-header">
-					<div class="bx-im-header-title">Dialog: {{dialogId}}</div>
+					<div class="bx-im-header-title">Dialog: {{selectedDialogId}}</div>
 				</div>
 				<div class="bx-im-next-layout-dialog-messages">
 				  	<bx-pull-component-status/>
 					<bx-im-component-dialog
 						:userId="userId" 
-						:dialogId="dialogId"
-						:enableGestureMenu="isEnableGesture"
-						:enableGestureQuote="isEnableGesture"
-						:enableGestureQuoteFromRight="isEnableGestureQuoteFromRight"
+						:dialogId="selectedDialogId"
 						:showMessageUserName="isDialog"
 						:showMessageAvatar="isDialog"
 					 />
@@ -244,7 +222,7 @@ BitrixVue.component('bx-im-application-messenger',
 					<bx-im-component-textarea
 						:siteId="application.common.siteId"
 						:userId="userId"
-						:dialogId="dialogId"
+						:dialogId="selectedDialogId"
 						:writesEventLetter="3"
 						:enableEdit="true"
 						:enableCommand="false"
@@ -254,15 +232,14 @@ BitrixVue.component('bx-im-application-messenger',
 					/>
 				</div>
 			</div>
-			<div class="bx-im-next-layout-notify" v-else-if="notify">
+			<div class="bx-im-next-layout-notify" v-else-if="notificationsSelected">
 				<bx-im-component-notifications :darkTheme="false"/>
 			</div>
 			<div class="bx-im-next-layout-notify" v-else>
 				<div class="bx-messenger-box-hello-wrap">
-				  <div class="bx-messenger-box-hello">{{localizeEmptyChat}}</div>
+				  <div class="bx-messenger-box-hello">{{ $Bitrix.Loc.getMessage('IM_M_EMPTY') }}</div>
 				</div>
 			</div>
-		
 		</div>
 	`
 });

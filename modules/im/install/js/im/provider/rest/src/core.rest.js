@@ -72,7 +72,7 @@ class CoreRestHandler extends BaseRestHandler
 	handleImMessageAddSuccess(messageId, message)
 	{
 		this.store.dispatch('messages/update', {
-			id:  message.id,
+			id: message.id,
 			chatId: message.chatId,
 			fields: {
 				id: messageId,

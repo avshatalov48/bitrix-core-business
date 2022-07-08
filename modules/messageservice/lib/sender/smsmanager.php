@@ -76,6 +76,12 @@ class SmsManager
 				self::$senders[] = $sender;
 			}
 
+			$sender = new Sms\EdnaruImHpx();
+			if (Sms\EdnaruImHpx::isSupported() || $sender->isRegistered())
+			{
+				self::$senders[] = $sender;
+			}
+
 			self::fireSendersEvent();
 		}
 		return self::$senders;
@@ -161,8 +167,18 @@ class SmsManager
 	 */
 	public static function getDefaultSender()
 	{
-		$senders = static::getSenders();
-		return $senders[0];
+		$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion();
+
+		if ($region === 'ru')
+		{
+			return static::getSenderById(\Bitrix\MessageService\Sender\Sms\SmsRu::ID);
+		}
+		if ($region === 'by')
+		{
+			return static::getSenderById(\Bitrix\MessageService\Sender\Sms\SmsAssistentBy::ID);
+		}
+
+		return static::getSenders()[0];
 	}
 
 	/**

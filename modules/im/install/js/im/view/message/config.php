@@ -19,6 +19,7 @@ return [
 		'im.const',
 		'im.lib.utils',
 		'im.lib.animation',
+		'main.core.events',
 	],
 	'skip_core' => true,
 ];

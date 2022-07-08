@@ -17,6 +17,12 @@ use \Bitrix\Main\Page\Asset;
 
 CJSCore::Init(['lists', 'ui.design-tokens']);
 
+Asset::getInstance()->addJs('/bitrix/components/bitrix/ui.tile.selector/templates/.default/script.js');
+Asset::getInstance()->addCss('/bitrix/components/bitrix/ui.tile.selector/templates/.default/style.css');
+Asset::getInstance()->addJs('/bitrix/components/bitrix/intranet.user.selector.new/templates/.default/users.js');
+Asset::getInstance()->addCss('/bitrix/components/bitrix/intranet.user.selector.new/templates/.default/style.css');
+Asset::getInstance()->addJs('/bitrix/components/bitrix/crm.field.element/templates/main.edit/script.js');
+
 Asset::getInstance()->addJs($this->GetFolder().'/right.js');
 ?>
 

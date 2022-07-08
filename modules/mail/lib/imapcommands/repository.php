@@ -4,7 +4,7 @@ namespace Bitrix\Mail\ImapCommands;
 use Bitrix\Mail;
 use Bitrix\Main;
 use Bitrix\Main\Entity\ReferenceField;
-use Bitrix\Mail\Internals;
+use \Bitrix\Mail\Helper\MessageFolder;
 
 class Repository
 {
@@ -82,58 +82,18 @@ class Repository
 			$mailsData
 		);
 
-		$dirId = Internals\MailboxDirectoryTable::getList([
-			'runtime' => array(
-				new Main\ORM\Fields\Relations\Reference(
-				'UID',
-				'Bitrix\Mail\MailMessageUidTable',
-					[
-						'=this.DIR_MD5' => 'ref.DIR_MD5',
-						'=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
-					],
-					[
-						'join_type' => 'INNER',
-					]
-				),
-			),
-			'select' => [
-				'ID',
-			],
-			'filter' => [
-				'@UID.ID' => $messagesIds,
-				'=MAILBOX_ID' => $mailboxId,
-			],
-			'limit' => 1,
-		])->fetchAll();
+		$dirWithMessagesId = MessageFolder::getDirIdForMessages($mailboxId,$messagesIds);
 
-		if(isset($dirId[0]['ID']))
+		if($isSeen === 'Y')
 		{
-			$keyRowsForDirAndMailbox = [
-				['MAILBOX_ID' => $mailboxId, 'ENTITY_TYPE' => 'MAILBOX','ENTITY_ID' => $mailboxId],
-				['MAILBOX_ID' => $mailboxId, 'ENTITY_TYPE' => 'DIR','ENTITY_ID' => $dirId[0]['ID']]
-			];
-
-			foreach ($keyRowsForDirAndMailbox as $keyRow)
-			{
-				$filter = [
-					'=MAILBOX_ID' => $keyRow['MAILBOX_ID'],
-					'=ENTITY_TYPE' => $keyRow['ENTITY_TYPE'],
-					'=ENTITY_ID' => $keyRow['ENTITY_ID'],
-				];
-				if(Internals\MailCounterTable::getCount($filter))
-				{
-					$value = (int)Internals\MailCounterTable::getList([
-						'select' => [
-							'VALUE',
-						],
-						'filter' => $filter,
-					])->fetchAll()[0]['VALUE'];
-
-					$rowValue = ['VALUE' => ($isSeen === 'Y' ? $value - count($messagesIds) : $value + count($messagesIds))];
-					Internals\MailCounterTable::update($keyRow, $rowValue);
-				}
-			}
+			MessageFolder::decreaseDirCounter($mailboxId, $dirWithMessagesId, count($messagesIds));
 		}
+		else
+		{
+			MessageFolder::increaseDirCounter($mailboxId, false, $dirWithMessagesId, count($messagesIds));
+		}
+
+		\Bitrix\Mail\Helper::updateMailboxUnseenCounter($mailboxId);
 	}
 
 	public function updateMessageFieldsAfterMove($messages, $folderNewName, $mailbox)
@@ -156,65 +116,6 @@ class Repository
 				'MAILBOX_USER_ID' => $mailbox['USER_ID']
 			];
 		}
-
-		// @TODO: make a log optional
-		/*$messagesForRemove = Mail\MailMessageUidTable::getList([
-			'runtime' => [
-			   new Main\ORM\Fields\Relations\Reference(
-				   'B_MAIL_MESSAGE', Mail\MailMessageTable::class, [
-				   '=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
-				   '=this.MESSAGE_ID' => 'ref.ID',
-			   ], [
-					   'join_type' => 'INNER',
-				   ]
-			   ),
-			],
-			'select' => [
-			   'MESSAGE_ID',
-			   'MAILBOX_ID',
-			   'DIR_MD5',
-			   'DIR_UIDV',
-			   'MSG_UID',
-			   'INTERNALDATE',
-			   'HEADER_MD5',
-			   'SESSION_ID',
-			   'TIMESTAMP_X',
-			   'DATE_INSERT',
-			   'B_MAIL_MESSAGE.DATE_INSERT',
-			   'B_MAIL_MESSAGE.FIELD_DATE',
-			   'B_MAIL_MESSAGE.FIELD_FROM',
-			   'B_MAIL_MESSAGE.SUBJECT',
-			   'B_MAIL_MESSAGE.MSG_ID',
-		   ],
-		   'filter' => [
-			   '=MAILBOX_ID' => intval($this->mailboxId),
-			   '@ID' => $messagesIds,
-		   ],
-		])->fetchAll();
-
-		for($i=0; $i < count($messagesForRemove); $i++)
-		{
-			foreach ($messagesForRemove[$i] as $key => $value)
-			{
-				if ($messagesForRemove[$i][$key] instanceof \Bitrix\Main\Type\DateTime)
-				{
-					$messagesForRemove[$i][$key] = $messagesForRemove[$i][$key]->toString();
-				}
-			}
-		}
-
-		if(count($messagesForRemove)>0)
-		{
-			$toLog = [
-				'filter'=>[
-					'cause' => 'updateMessageFieldsAfterMove',
-					'=MAILBOX_ID' => intval($this->mailboxId),
-					'@ID' => $messagesIds,
-				],
-				'removedMessages'=>$messagesForRemove,
-			];
-			AddMessage2Log($toLog);
-		}*/
 
 		Mail\MailMessageUidTable::updateList(
 			[

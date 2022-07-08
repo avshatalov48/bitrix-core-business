@@ -318,7 +318,7 @@
 	{
 		/**
 		 * After modify this method, copy to follow scripts:
-		 * mobile/install/mobileapp/mobile/extensions/bitrix/pull/client/extension.js
+		 * mobile/install/mobileapp/mobile/extensions/bitrix/pull/client/events/extension.js
 		 */
 		if (typeof handler.getModuleId !== 'function' || typeof handler.getModuleId() !== 'string')
 		{
@@ -332,7 +332,7 @@
 			type = handler.getSubscriptionType();
 		}
 
-		this.subscribe({
+		return this.subscribe({
 			type: type,
 			moduleId: handler.getModuleId(),
 			callback: function(data)
@@ -847,39 +847,25 @@
 			};
 		}
 
-		this.restClient.callBatch({
-			serverTime : ['server.time'],
-			configGet : [this.configGetMethod, {'CACHE': 'N'}]
-		}, function(response) {
-			if (!response)
-			{
-				result.reject(new Error("Network error while getting new config"));
-				return false;
-			}
-
+		this.restClient.callMethod(this.configGetMethod, {'CACHE': 'N'}).then(function(response) {
 			var timeShift = 0;
-			if (response.serverTime && !response.serverTime.error())
-			{
-				timeShift = Math.floor((Utils.getTimestamp() - new Date(response.serverTime.data()).getTime())/1000);
-			}
+			var data = response.data();
+			timeShift = Math.floor((Utils.getTimestamp() - new Date(data.serverTime).getTime())/1000);
+			delete data.serverTime;
 
-			if (response.configGet.error())
-			{
-				var error = response.configGet.error();
+			var config = Object.assign({}, data);
+			config.server.timeShift = timeShift;
+
+			result.resolve(config)
+		}).catch(function(response)
+		{
+				var error = response.error();
 				if(error.getError().error == "AUTHORIZE_ERROR" || error.getError().error == "WRONG_AUTH_TYPE")
 				{
 					error.status = 403;
 				}
 				result.reject(error);
-			}
-			else if (response.configGet)
-			{
-				var config = response.configGet.data();
-				config.server.timeShift = timeShift;
-
-				result.resolve(config)
-			}
-		}, false, false, 'pull.config');
+		});
 
 		return result;
 	};

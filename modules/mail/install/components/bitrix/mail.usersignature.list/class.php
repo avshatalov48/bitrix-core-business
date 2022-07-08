@@ -107,16 +107,14 @@ class MailUserSignatureListComponent extends CBitrixComponent
 				'columns' => [
 					'ID' => $signature->getId(),
 					'SENDER' => !empty($signature->getSender()) ? htmlspecialcharsbx($signature->getSender()) : Loc::getMessage('MAIL_USERSIGNATURE_LIST_DEFAULT'),
-					'SIGNATURE' => htmlspecialcharsbx(strip_tags(mb_substr($signature->getSignature(), 0, 100)), ENT_COMPAT, false),
+					'SIGNATURE' => htmlspecialcharsbx(mb_substr(strip_tags($signature->getSignature()), 0, 100), ENT_COMPAT, false),
 				],
 				'actions' => [
 					[
-						'ICONCLASS' => 'edit',
 						'TEXT' => Loc::getMessage('MAIL_USERSIGNATURE_EDIT_ACTION'),
 						'ONCLICK' => 'BX.Mail.UserSignature.List.openUrl(\''.$editUrl->getLocator().'\')',
 					],
 					[
-						'ICONCLASS' => 'delete',
 						'TEXT' => Loc::getMessage('MAIL_USERSIGNATURE_DELETE_ACTION'),
 						'ONCLICK' => 'BX.Mail.UserSignature.List.delete(\''.$signature->getId().'\')',
 					],

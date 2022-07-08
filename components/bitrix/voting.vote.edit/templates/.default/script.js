@@ -483,13 +483,13 @@ window.BVoteConstructor.prototype.init = function() {
 	BX.bind(this.nodes.action, "click", this.addq.bind(this));
 };
 window.BVoteConstructor.prototype.toggleAddNode = function() {
-	if (this.questions.canAdd())
+	if (!this.questions.canAdd())
 	{
-		BX.show(this.nodes.action);
+		this.nodes.action.style.display = 'none';
 	}
-	else
+	else if (this.nodes.action.style.display === 'none')
 	{
-		BX.hide(this.nodes.action);
+		delete this.nodes.action.style.display;
 	}
 };
 

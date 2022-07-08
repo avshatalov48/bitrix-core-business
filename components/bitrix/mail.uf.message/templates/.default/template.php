@@ -20,6 +20,7 @@ $readDatetimeFormatted = !empty($message['READ_CONFIRMED']) && $message['READ_CO
 		\CTimeZone::getOffset()
 	) : null;
 
+\Bitrix\Main\UI\Extension::load('ui.design-tokens');
 ?>
 
 <div class="mail-uf-message-wrapper">

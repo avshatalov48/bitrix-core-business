@@ -53,7 +53,7 @@ class Controller extends \Bitrix\Vote\Base\Controller
 	protected function init()
 	{
 		if ($this->request->getQuery("attachId"))
-			$this->attach = Manager::loadFromAttachId($this->request->getQuery("attachId"));
+			$this->attach = Manager::loadFromAttachId(intval($this->request->getQuery("attachId")));
 		else if ($this->request->getQuery("voteId"))
 			$this->attach = Manager::loadFromVoteId(array(
 				"MODULE_ID" => "vote",
@@ -157,7 +157,12 @@ class Controller extends \Bitrix\Vote\Base\Controller
 					"V_" => "*",
 					"Q_" => "QUESTION.*",
 					"A_" => "QUESTION.ANSWER.*",
-					"U_" => "USER.USER.*",
+					"U_ID" => "USER.USER.ID",
+					"U_NAME" => "USER.USER.NAME",
+					"U_LAST_NAME" => "USER.USER.LAST_NAME",
+					"U_SECOND_NAME" => "USER.USER.SECOND_NAME",
+					"U_LOGIN" => "USER.USER.LOGIN",
+					"U_PERSONAL_PHOTO" => "USER.USER.PERSONAL_PHOTO",
 				),
 				"filter" => array(
 					"ID" => $eventId,
@@ -504,6 +509,11 @@ class Controller extends \Bitrix\Vote\Base\Controller
 		$items = array();
 		foreach ($result["items"] as $k => $res)
 		{
+			$url = \CComponentEngine::MakePathFromTemplate(
+				"/mobile/users/?user_id=#user_id#",
+				array("UID" => $res["ID"], "user_id" => $res["ID"],
+					"USER_ID" => $res["ID"])
+			);
 			$items[] = array(
 				"ID" => $res["ID"],
 				"NAME" =>  \CUser::FormatName($nameTemplate, $res, true, false),
@@ -511,11 +521,12 @@ class Controller extends \Bitrix\Vote\Base\Controller
 				"TAGS" => $res["TAGS"],
 				"WORK_POSITION" => $res["WORK_POSITION"],
 				"WORK_DEPARTMENTS" => $res["WORK_DEPARTMENTS"],
-				"URL" => \CComponentEngine::MakePathFromTemplate(
-					"/mobile/users/?user_id=#user_id#",
-					array("UID" => $res["ID"], "user_id" => $res["ID"],
-						"USER_ID" => $res["ID"])
-				)
+				"URL" => $url,
+				'PAGE' => [
+					'bx24ModernStyle' => true,
+					'url' => $url,
+					'useTitle' => true,
+				]
 			);
 		}
 		$result["items"] = $items;

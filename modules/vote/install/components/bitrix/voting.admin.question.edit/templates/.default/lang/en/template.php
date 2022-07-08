@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["VOTE_ACTIVE"] = "Active:";
 $MESS["VOTE_ACTIVE_LABEL"] = "active";
 $MESS["VOTE_ANSWERS"] = "Answers";
@@ -35,6 +35,7 @@ $MESS["VOTE_GRID_ACTIONS_RESTORE"] = "undo changes";
 $MESS["VOTE_GRID_ACTIONS_UNDELETE"] = "undelete";
 $MESS["VOTE_GRID_BUTTON_ADD_TEXT"] = "+ \"Other...\"";
 $MESS["VOTE_IMAGE"] = "Image:";
+$MESS["VOTE_IMAGE_ID"] = "Image";
 $MESS["VOTE_NEW_RECORD"] = "New question";
 $MESS["VOTE_PROPERTIES"] = "Properties";
 $MESS["VOTE_PROPERTIES_TITLE"] = "More question properties";
@@ -47,4 +48,3 @@ $MESS["VOTE_SORT"] = "Sort.";
 $MESS["VOTE_TIMESTAMP"] = "Modified:";
 $MESS["VOTE_TYPE_NOTIFY"] = "(some of the public templates may not fully support this option)";
 $MESS["VOTE_VOTE"] = "Poll:";
-?>

@@ -982,12 +982,11 @@ class CTranslateUtils
 								@mkdir(dirname($langDirTo."/".$lang.$fileNameTo), 0777, true);
 							}
 							$MESS[$newCode] = $message;
-							$s = "<?\n";
+							$s = "<?php\n";
 							foreach($MESS as $c => $m)
 							{
 								$s .= "\$MESS[\"".EscapePHPString($c)."\"] = \"".EscapePHPString($m)."\";\n";
 							}
-							$s .= "?>";
 							file_put_contents($langDirTo."/".$lang.$fileNameTo, $s);
 						}
 					}

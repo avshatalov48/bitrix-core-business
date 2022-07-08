@@ -6,6 +6,7 @@ class CPushDescription
 	const TYPE_APPLE_VOIP = 'APPLE/VOIP';
 	const TYPE_GOOGLE = 'GOOGLE';
 	const TYPE_GOOGLE_REV2 = 'GOOGLE/REV2';
+	const TYPE_HUAWEI = 'HUAWEI';
 
 	public static function GetDescription()
 	{
@@ -29,6 +30,11 @@ class CPushDescription
 				'ID' => static::TYPE_GOOGLE,
 				'CLASS' => 'CGooglePush',
 				'NAME' => 'Google Cloud Messages'
+			],
+			[
+				'ID' => static::TYPE_HUAWEI,
+				'CLASS' => 'CHuaweiPushKitService',
+				'NAME' => 'Huawei Cloud Messages'
 			]
 		];
 	}

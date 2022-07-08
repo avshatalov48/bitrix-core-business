@@ -6,6 +6,7 @@ use Bitrix\Mail;
 use Bitrix\Mail\Helper\MailboxDirectoryHelper;
 use Bitrix\Mail\MailboxDirectory;
 use Bitrix\Main;
+use Bitrix\Main\Text\Emoji;
 
 class Imap extends Mail\Helper\Mailbox
 {
@@ -783,7 +784,7 @@ class Imap extends Mail\Helper\Mailbox
 			$result = $this->unregisterMessages([
 				'!@DIR_MD5' => array_map(
 					'md5',
-					$this->getDirsHelper()->getSyncDirsPath()
+					$this->getDirsHelper()->getSyncDirsPath(true)
 				),
 			],
 			[
@@ -1163,7 +1164,7 @@ class Imap extends Mail\Helper\Mailbox
 			{
 				$result = $this->unregisterMessages(
 					array(
-						'=DIR_MD5'  => md5($dir->getPath()),
+						'=DIR_MD5'  => md5($dir->getPath(true)),
 						'<DIR_UIDV' => $uidtoken,
 					),
 					[
@@ -1182,7 +1183,7 @@ class Imap extends Mail\Helper\Mailbox
 			{
 				$result = $this->unregisterMessages(
 					array(
-						'=DIR_MD5' => md5($dir->getPath()),
+						'=DIR_MD5' => md5($dir->getPath(true)),
 					),
 					[
 						'info' => 'all messages in the directory have been deleted ',
@@ -1243,7 +1244,7 @@ class Imap extends Mail\Helper\Mailbox
 		//deleting non-existent messages in the service ( not included in the message interval on the service )
 		$result = $this->unregisterMessages(
 			array(
-				'=DIR_MD5' => md5($dir->getPath()),
+				'=DIR_MD5' => md5($dir->getPath(true)),
 				'>MSG_UID' => 0,
 				array(
 					'LOGIC'    => 'OR',
@@ -1272,14 +1273,14 @@ class Imap extends Mail\Helper\Mailbox
 				return;
 			}
 
-			$this->resyncMessages($dir->getPath(), $uidtoken, $messages);
+			$this->resyncMessages($dir->getPath(true), $uidtoken, $messages);
 
 			return;
 		}
 
 		if (!($meta['exists'] > 10000))
 		{
-			$this->resyncMessages($dir->getPath(), $uidtoken, $messages);
+			$this->resyncMessages($dir->getPath(true), $uidtoken, $messages);
 
 			return;
 		}
@@ -1297,7 +1298,7 @@ class Imap extends Mail\Helper\Mailbox
 				return;
 			}
 
-			$this->resyncMessages($dir->getPath(), $uidtoken, $messages);
+			$this->resyncMessages($dir->getPath(true), $uidtoken, $messages);
 
 			if ($this->isTimeQuotaExceeded())
 			{
@@ -1449,7 +1450,7 @@ class Imap extends Mail\Helper\Mailbox
 		$result = $this->listMessages(array(
 			'select' => array('ID'),
 			'filter' => array(
-				'=DIR_MD5'  => md5($dirPath),
+				'=DIR_MD5'  => md5(Emoji::encode($dirPath)),
 				'=DIR_UIDV' => $uidtoken,
 				'>=MSG_UID' => $range[0],
 				'<=MSG_UID' => $range[1],
@@ -1491,7 +1492,7 @@ class Imap extends Mail\Helper\Mailbox
 
 			$messages[$id]['__fields'] = array(
 				'ID'           => $messageUid,
-				'DIR_MD5'      => md5($dirPath),
+				'DIR_MD5'      => md5(Emoji::encode($dirPath)),
 				'DIR_UIDV'     => $uidtoken,
 				'MSG_UID'      => $item['UID'],
 				'INTERNALDATE' => $messages[$id]['__internaldate'],
@@ -2178,7 +2179,7 @@ class Imap extends Mail\Helper\Mailbox
 	protected function getUidRange($dirPath, $uidtoken)
 	{
 		$filter = array(
-			'=DIR_MD5'  => md5($dirPath),
+			'=DIR_MD5'  => md5(Emoji::encode($dirPath)),
 			'=DIR_UIDV' => $uidtoken,
 			'>MSG_UID'  => 0,
 		);

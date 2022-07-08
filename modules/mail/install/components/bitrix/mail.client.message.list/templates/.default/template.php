@@ -747,7 +747,22 @@ $APPLICATION->includeComponent(
 		BX.addCustomEvent("onPullEvent-mail", BX.delegate(function(command, params){
 			if (Mail.Grid.getCountDisplayed() < numberOfRowsPerPage && mailMessageList.getCurrentFolder() === params.dir && command ==='new_message_is_synchronized')
 			{
+				BX.ajax.runComponentAction('bitrix:mail.client.message.list', 'syncMailCounters',
+					{
+						mode: 'class',
+						data: {
+						mailboxId: <?= intval($arResult['MAILBOX']['ID']) ?>,
+					}
+				});
 				Mail.Grid.reloadTable();
+			}
+		}, this));
+
+		BX.addCustomEvent("onPullEvent-mail", BX.delegate(function(command, params){
+			if (command ==='counters_is_synchronized')
+			{
+				const data = params.dirs || {};
+				BX.Mail.Home.Counters.setCounters(data);
 			}
 		}, this));
 

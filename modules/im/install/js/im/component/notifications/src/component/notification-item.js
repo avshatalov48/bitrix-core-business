@@ -73,7 +73,8 @@ export const NotificationItem = {
 			}
 			else if (this.isRealItem && this.rawListItem.authorId === 0)
 			{
-				return ''; //System notification
+				// System notification
+				return this.rawListItem.title;
 			}
 			else
 			{
@@ -253,7 +254,11 @@ export const NotificationItem = {
 					/>
 					<div v-if="listItem.subtitle.value.length > 0" class="bx-im-notifications-item-content-bottom">
 						<div class="bx-im-notifications-item-bottom-subtitle">
-							<span v-if="!listItem.systemType" class="bx-im-notifications-item-bottom-subtitle-text" v-html="listItem.subtitle.value"></span>
+							<span
+								:class="[!listItem.title.value ? 'bx-im-notifications-item-bottom-subtitle-text' : 'bx-im-notifications-item-bottom-no-subtitle-text']"
+								v-html="listItem.subtitle.value"
+							>
+							</span>
 						</div>
 					</div>
 					<NotificationQuickAnswer v-if="isNeedQuickAnswer" :listItem="listItem"/>

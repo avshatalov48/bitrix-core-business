@@ -15,7 +15,7 @@
 	   */
 	  props: {
 	    canReconnect: {
-	      default: false
+	      "default": false
 	    }
 	  },
 	  data: function data() {

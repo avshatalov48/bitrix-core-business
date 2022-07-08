@@ -8511,11 +8511,6 @@
 					{
 						this.BXIM.callController.currentCall.hangup();
 					}
-
-					if (params.message.length > 0)
-					{
-						this.BXIM.openConfirm({title: BX.util.htmlspecialchars(params.chatTitle), message: params.message});
-					}
 				}
 				else if (this.MobileActionEqual('DIALOG'))
 				{

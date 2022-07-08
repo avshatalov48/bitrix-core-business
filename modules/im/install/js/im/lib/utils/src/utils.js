@@ -1100,7 +1100,7 @@ let Utils =
 		}
 	},
 
-	getLogTrackingParams(params = {})
+	getLogTrackingParams(params = {}): string
 	{
 		let result = [];
 

@@ -27,6 +27,19 @@ Loc::loadMessages(__FILE__);
  * <li> DIAGRAM_TYPE string(10) mandatory default 'histogram' || 'circle',
  * <li> REQUIRED bool mandatory default 'N',
  * </ul>
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Question_Query query()
+ * @method static EO_Question_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Question_Result getById($id)
+ * @method static EO_Question_Result getList(array $parameters = array())
+ * @method static EO_Question_Entity getEntity()
+ * @method static \Bitrix\Vote\EO_Question createObject($setDefaultValues = true)
+ * @method static \Bitrix\Vote\EO_Question_Collection createCollection()
+ * @method static \Bitrix\Vote\EO_Question wakeUpObject($row)
+ * @method static \Bitrix\Vote\EO_Question_Collection wakeUpCollection($rows)
  */
 class QuestionTable extends Entity\DataManager
 {

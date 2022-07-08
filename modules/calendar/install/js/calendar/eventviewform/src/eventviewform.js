@@ -17,6 +17,7 @@ export class EventViewForm {
 	RELOAD_FINISHED = 'RELOAD_FINISHED';
 	reloadStatus = null;
 	entityChanged = false;
+	LOAD_DELAY = 500;
 
 	constructor(options = {})
 	{
@@ -34,6 +35,11 @@ export class EventViewForm {
 		this.handlePullBind = this.handlePull.bind(this);
 		this.keyHandlerBind = this.keyHandler.bind(this);
 		this.destroyBind = this.destroy.bind(this);
+
+		this.loadPlannerDataDebounce = Runtime.debounce(this.loadPlannerData, this.LOAD_DELAY, this);
+		this.reloadSliderDebounce = Runtime.debounce(this.reloadSlider, this.LOAD_DELAY, this);
+
+		this.pullEventList = new Set();
 	}
 
 	initInSlider(slider, promiseResolve)
@@ -43,6 +49,8 @@ export class EventViewForm {
 		EventEmitter.subscribe(slider, "SidePanel.Slider:onCloseComplete", this.destroyBind);
 
 		Event.bind(document, 'keydown', this.keyHandlerBind);
+		Event.bind(document, 'visibilitychange', this.handleVisibilityChange.bind(this));
+
 		EventEmitter.subscribe('onPullEvent-calendar', this.handlePullBind);
 
 		this.createContent(slider).then(function(html)
@@ -340,7 +348,7 @@ export class EventViewForm {
 			}
 		}, 500);
 
-		this.loadPlannerData().then(()=>{});
+		this.loadPlannerDataDebounce();
 	}
 
 	initUserListControl(uid)
@@ -585,27 +593,58 @@ export class EventViewForm {
 		{
 			return;
 		}
-
 		const data = event.getData();
 		const command = data[0];
-		switch(command)
+
+		if (BX.Calendar.Util.documentIsDisplayingNow())
 		{
-			case 'edit_event':
-			case 'delete_event':
-			case 'set_meeting_status':
-				const calendarContext = Util.getCalendarContext();
-				if (calendarContext)
-				{
-					if (this.planner && this.reloadStatus === this.RELOAD_FINISHED)
+			switch(command)
+			{
+				case 'edit_event':
+				case 'delete_event':
+				case 'set_meeting_status':
+					const calendarContext = Util.getCalendarContext();
+					if (calendarContext)
 					{
-						this.loadPlannerData().then(()=>{});
+						if (this.planner && this.reloadStatus === this.RELOAD_FINISHED)
+						{
+							this.loadPlannerDataDebounce();
+						}
+					}
+					else
+					{
+						this.reloadSliderDebounce();
+					}
+					break;
+			}
+		}
+		else
+		{
+			const params = {command};
+			if (this.pullEventList.has(params))
+			{
+				this.pullEventList.delete(params);
+			}
+			this.pullEventList.add(params);
+		}
+	}
+
+	handleVisibilityChange()
+	{
+		if (this.pullEventList.size)
+		{
+			this.pullEventList.forEach((value, valueAgain, set) =>
+			{
+				if (['edit_event', 'delete_event', 'set_meeting_status',].includes(value.command))
+				{
+					if (!Util.getCalendarContext())
+					{
+						this.reloadSliderDebounce();
 					}
 				}
-				else
-				{
-					this.reloadSlider();
-				}
-				break;
+			});
+
+			this.pullEventList.clear();
 		}
 	}
 

@@ -126,6 +126,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 */
 	var EventType = Object.freeze({
 	  dialog: {
+	    open: 'IM.Dialog:open',
 	    newMessage: 'EventType.dialog.newMessage',
 	    scrollOnStart: 'IM.Dialog:scrollOnStart',
 	    scrollToBottom: 'IM.Dialog:scrollToBottom',
@@ -160,7 +161,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    sendMessage: 'IM.Textarea:sendMessage',
 	    fileSelected: 'IM.Textarea:fileSelected',
 	    startWriting: 'IM.Textarea:startWriting',
+	    stopWriting: 'IM.Textarea:stopWriting',
 	    appButtonClick: 'IM.Textarea:appButtonClick'
+	  },
+	  uploader: {
+	    addMessageWithFile: 'IM.Uploader:addMessageWithFile'
 	  },
 	  conference: {
 	    setPasswordFocus: 'IM.Conference:setPasswordFocus',
@@ -172,6 +177,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  },
 	  notification: {
 	    updateState: 'IM.Notifications:restoreConnection'
+	  },
+	  mobile: {
+	    textarea: {
+	      setText: 'IM.Mobile.Textarea:setText',
+	      setFocus: 'IM.Mobile.Textarea:setFocus'
+	    },
+	    openUserList: 'IM.Mobile:openUserList'
 	  }
 	});
 

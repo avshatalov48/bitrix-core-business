@@ -1334,28 +1334,46 @@ class CCalendarSync
 		return $userSettings['showTasks'] === 'Y' && $userSettings['syncTasks'] === 'Y';
 	}
 
+	/**
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 * @throws \Bitrix\Main\ArgumentException
+	 */
 	private static function GetPassDates($id, $exDates)
 	{
 		$excludeDates = [];
 
-		$instances = Internals\EventTable::getList([
-			'filter' => [
-				'=RECURRENCE_ID' => $id,
-			],
-			'select' => [
-				'DATE_FROM'
-			],
-		])->fetchAll();
+		$instancesDM = Internals\EventTable::query()
+			->addFilter('=RECURRENCE_ID', $id)
+			->setSelect(['ORIGINAL_DATE_FROM'])
+			->exec()
+		;
+		// $instances = Internals\EventTable::getList([
+		// 	'filter' => [
+		// 		'=RECURRENCE_ID' => $id,
+		// 	],
+		// 	'select' => [
+		// 		'ORIGINAL_DATE_FROM'
+		// 	],
+		// ]);
 
-		foreach ($instances as $instance)
+		while ($instance = $instancesDM->fetch())
 		{
-			$excludeDates[] = \CCalendar::Date(\CCalendar::Timestamp($instance['DATE_FROM']), false);
+			if ($instance['ORIGINAL_DATE_FROM'] instanceof Type\Date)
+			{
+				$excludeDates[] = $instance['ORIGINAL_DATE_FROM']->format('d.m.Y');
+			}
 		}
 
-		$eventExDate = explode(';', $exDates);
-		$result = array_diff($eventExDate, $excludeDates);
+		if ($excludeDates)
+		{
+			$eventExDate = explode(';', $exDates);
+			$result = array_diff($eventExDate, $excludeDates);
 
-		return implode(';', $result);
+			return implode(';', $result);
+		}
+
+		return $exDates;
 	}
 
 	public static function checkMobileBannerDisplay()

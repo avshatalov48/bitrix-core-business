@@ -2218,9 +2218,9 @@
 				);
 
 				overlay.setAttribute('style',
-					'background-image: url("' + xPhotos[i].SRC + '");'
-					+ 'background-image: -webkit-image-set(url("' + xPhotos[i].SRC + '") 1x, url("' + x2Photos[i].SRC + '") 2x);'
-					+ 'background-image: image-set(url("' + xPhotos[i].SRC + '") 1x, url("' + x2Photos[i].SRC + '") 2x);'
+					'background-image: url(\'' + xPhotos[i].SRC + '\');'
+					+ 'background-image: -webkit-image-set(url(\'' + xPhotos[i].SRC + '\') 1x, url(\'' + x2Photos[i].SRC + '\') 2x);'
+					+ 'background-image: image-set(url(\'' + xPhotos[i].SRC + '\') 1x, url(\'' + x2Photos[i].SRC + '\') 2x);'
 				);
 
 				selected = currentIndex === activePhoto;

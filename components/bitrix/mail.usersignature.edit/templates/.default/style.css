@@ -105,6 +105,11 @@
 	border-bottom: 1px dashed rgba(32, 102, 176, .5);
 }
 
+.mail-adding-signature-selecting-binding {
+	display: flex;
+	align-items: center;
+}
+
 .mail-set-singleselect-line:before {
 	padding: 0;
 	box-shadow: none;
@@ -172,16 +177,11 @@
 	color: #bbb;
 }
 
-.mail-signature-edit-wrap {
-	background: #fff;
-	padding: 13px 12px 19px 12px;
-}
-
-.mail-signature-edit-wrap .bx-html-editor {
+#signature-editor-container .bx-html-editor {
 	border-color: transparent;
 }
 
-.mail-signature-is-iframe {
+#signature-editor-container{
 	border-bottom: 1px solid rgba(216, 216, 216, 1);
 	margin-bottom: 18px;
 }
@@ -190,4 +190,5 @@
 	color: #525c69;
 	font-size: 15px;
 	line-height: 20px;
+
 }

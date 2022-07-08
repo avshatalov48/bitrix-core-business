@@ -1,6 +1,7 @@
 .mail-blacklist-popup-textarea {
 	min-height: 250px;
 	min-width: 100%;
+	border-radius: var(--ui-field-border-radius);
 }
 
 .mail-blacklist-popup-textarea-wrapper {

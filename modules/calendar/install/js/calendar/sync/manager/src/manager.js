@@ -15,6 +15,7 @@ import {OutlookProvider} from "./connectionproviders/outlookprovider";
 import {YandexProvider} from "./connectionproviders/yandexprovider";
 import SyncStatusPopup from "./controls/syncstatuspopup";
 import {Util} from "calendar.util";
+import { Runtime } from 'main.core';
 
 type ManagerOptions = {
 	wrapper: string,
@@ -33,6 +34,7 @@ export default class Manager extends EventEmitter
 	status = 'not_connected';
 	STATUS_SUCCESS = 'success';
 	STATUS_FAILED = 'failed';
+	REFRESH_CONTENT_DELAY = 100;
 
 	constructor(options)
 	{
@@ -48,6 +50,7 @@ export default class Manager extends EventEmitter
 		this.isRuZone = options.isRuZone;
 		this.calendarInstance = options.calendar;
 		this.isSetSyncCaldavSettings = options.isSetSyncCaldavSettings;
+		this.refreshContentDebounce = Runtime.debounce(this.refreshContent, this.REFRESH_CONTENT_DELAY, this);
 
 		this.init();
 		this.subscribeOnEvent();
@@ -377,7 +380,7 @@ export default class Manager extends EventEmitter
 		}
 
 		this.status = this.STATUS_SUCCESS;
-		this.refreshContent();
+		this.refreshContentDebounce();
 	}
 
 	addSyncConnection(params)
@@ -402,7 +405,7 @@ export default class Manager extends EventEmitter
 		}
 
 		this.status = this.STATUS_SUCCESS;
-		this.refreshContent();
+		this.refreshContentDebounce();
 	}
 
 	deleteSyncConnection(params)
@@ -424,29 +427,28 @@ export default class Manager extends EventEmitter
 		{
 			this.status = this.STATUS_SUCCESS;
 		}
-		this.refreshContent();
+		this.refreshContentDebounce();
 	}
 
-	getProviderById(id)
+	getProviderById(id): Array
 	{
-		let connection = undefined;
-		for (const providerName in this.connectionsProviders)
+		let connection;
+		for (let providerName in this.connectionsProviders)
 		{
-			if (
-				!this.connectionsProviders[providerName].connected
-				|| !['google', 'caldav', 'yandex'].includes(providerName)
+			if (this.connectionsProviders.hasOwnProperty(providerName)
+				&& this.connectionsProviders[providerName].connected
+				&& ['google', 'caldav', 'yandex'].includes(providerName)
+
 			)
 			{
-				continue;
-			}
-
-			connection = this.connectionsProviders[providerName].getConnectionById(id);
-			if (connection)
-			{
-				return [this.connectionsProviders[providerName], connection];
+				connection = this.connectionsProviders[providerName].getConnectionById(id);
+				if (connection)
+				{
+					return [this.connectionsProviders[providerName], connection];
+				}
 			}
 		}
 
-		return null;
+		return [undefined, undefined];
 	}
 }

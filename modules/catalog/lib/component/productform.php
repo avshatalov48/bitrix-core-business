@@ -155,6 +155,9 @@ class ProductForm extends BaseForm
 				'placeholders' => null,
 				'defaultValue' => $row['SETTINGS']['DEFAULT_VALUE'] ?? '',
 				'optionFlags' => 1, // showAlways */
+				'options' => [
+					'showCode' => 'true',
+				],
 				'data' => [],
 			];
 
@@ -345,10 +348,15 @@ class ProductForm extends BaseForm
 	{
 		return array_merge(
 			parent::getMainConfigElements(),
-			Catalog\Product\SystemField::getFieldsByRestrictions([
-				'TYPE' => $this->entity->getType(),
-				'IBLOCK_ID' => $this->entity->getIblockId()
-			])
+			Catalog\Product\SystemField::getFieldsByRestrictions(
+				[
+					'TYPE' => $this->entity->getType(),
+					'IBLOCK_ID' => $this->entity->getIblockId(),
+				],
+				[
+					'RESULT_MODE' => Catalog\Product\SystemField::DESCRIPTION_MODE_UI_FORM_EDITOR,
+				]
+			)
 		);
 	}
 }

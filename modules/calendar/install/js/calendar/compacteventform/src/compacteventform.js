@@ -32,6 +32,8 @@ export class CompactEventForm extends EventEmitter
 	sectionIndex = {};
 	trackingUsersList = [];
 	checkDataBeforeCloseMode = true;
+	CHECK_CHANGES_DELAY = 500;
+	RELOAD_DATA_DELAY = 500;
 
 	constructor(options = {})
 	{
@@ -44,7 +46,8 @@ export class CompactEventForm extends EventEmitter
 		this.ownerId = options.ownerId || this.userId;
 		this.BX = Util.getBX();
 
-		this.checkForChanges = Runtime.debounce(this.checkForChangesImmediately, 300, this);
+		this.checkForChangesDebounce = Runtime.debounce(this.checkForChanges, this.CHECK_CHANGES_DELAY, this);
+		this.reloadEntryDataDebounce = Runtime.debounce(this.reloadEntryData, this.RELOAD_DATA_DELAY, this);
 		this.checkOutsideClickClose = this.checkOutsideClickClose.bind(this);
 		this.outsideMouseDownClose = this.outsideMouseDownClose.bind(this);
 		this.keyHandler = this.handleKeyPress.bind(this);
@@ -577,7 +580,7 @@ export class CompactEventForm extends EventEmitter
 		return this.mode;
 	}
 
-	checkForChangesImmediately()
+	checkForChanges()
 	{
 		if (!this.isNewEntry()
 			&& this.getMode() === CompactEventForm.VIEW_MODE
@@ -791,8 +794,8 @@ export class CompactEventForm extends EventEmitter
 			/>
 		`;
 
-		Event.bind(this.DOM.titleInput, 'keyup', this.checkForChanges);
-		Event.bind(this.DOM.titleInput, 'change', this.checkForChanges);
+		Event.bind(this.DOM.titleInput, 'keyup', this.checkForChangesDebounce);
+		Event.bind(this.DOM.titleInput, 'change', this.checkForChangesDebounce);
 
 		return this.DOM.titleInput;
 	}
@@ -920,7 +923,7 @@ export class CompactEventForm extends EventEmitter
 						this.colorSelector.setValue(sectionValue.color);
 					}
 					this.sectionValue = sectionValue.id;
-					this.checkForChanges();
+					this.checkForChangesDebounce();
 
 					SectionManager.saveDefaultSectionId(this.sectionValue);
 				}
@@ -999,7 +1002,7 @@ export class CompactEventForm extends EventEmitter
 					}
 					this.userPlannerSelector.setLocationValue(this.locationSelector.getTextValue());
 					this.userPlannerSelector.setDateTime(value, true);
-					this.userPlannerSelector.refreshPlanner();
+					this.userPlannerSelector.refreshPlannerStateDebounce();
 				}
 				
 				if (this.locationSelector)
@@ -1014,7 +1017,7 @@ export class CompactEventForm extends EventEmitter
 					)
 				}
 				
-				this.checkForChanges();
+				this.checkForChangesDebounce();
 			}
 		});
 
@@ -1072,9 +1075,8 @@ export class CompactEventForm extends EventEmitter
 		});
 
 		this.userPlannerSelector.subscribe('onDateChange', this.handlePlannerSelectorChanges.bind(this));
-		this.userPlannerSelector.subscribe('onNotifyChange', this.checkForChanges);
-		// this.subscribe('onLoad', this.userPlannerSelector.checkEmployment.bind(this.userPlannerSelector));
-		this.userPlannerSelector.subscribe('onUserCodesChange', this.checkForChanges);
+		this.userPlannerSelector.subscribe('onNotifyChange', this.checkForChangesDebounce);
+		this.userPlannerSelector.subscribe('onUserCodesChange', this.checkForChangesDebounce);
 
 		return this.DOM.userPlannerSelectorOuterWrap;
 	}
@@ -1105,9 +1107,9 @@ export class CompactEventForm extends EventEmitter
 						{
 							this.userPlannerSelector.showPlanner();
 						}
-						this.userPlannerSelector.refreshPlanner();
+						this.userPlannerSelector.refreshPlannerStateDebounce();
 					}
-					this.checkForChanges();
+					this.checkForChangesDebounce();
 				}
 			}
 		);
@@ -1897,7 +1899,7 @@ export class CompactEventForm extends EventEmitter
 			}
 			this.userPlannerSelector.clearAccessibilityData(userIdList);
 
-			this.userPlannerSelector.refreshPlannerState();
+			this.userPlannerSelector.refreshPlannerStateDebounce();
 		}
 
 		const entry = this.getCurrentEntry();
@@ -1915,7 +1917,7 @@ export class CompactEventForm extends EventEmitter
 			else
 			{
 				const onEntryListReloadHandler = () => {
-					this.reloadEntryData();
+					this.reloadEntryDataDebounce();
 					BX.Event.EventEmitter.unsubscribe('BX.Calendar:onEntryListReload', onEntryListReloadHandler);
 				};
 				BX.Event.EventEmitter.subscribe('BX.Calendar:onEntryListReload', onEntryListReloadHandler);

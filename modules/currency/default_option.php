@@ -1,4 +1,4 @@
-<?
-$currency_default_option = array(
-	'installed_currencies' => ''
-);
+<?php
+$currency_default_option = [
+	'installed_currencies' => '',
+];

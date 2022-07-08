@@ -43,8 +43,6 @@ class ChatProvider extends BaseProvider
 					$this->options['searchableChatTypes'][] = $chatType;
 				}
 			}
-
-			$this->options['searchableChatTypes'] = $options['searchableChatTypes'];
 		}
 
 		$this->options['fillDialog'] = true;

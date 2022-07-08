@@ -3,10 +3,10 @@
 }
 
 .mail-slider-wrapper-content {
-	border-top: 1px solid #dce2e6;
 	padding: 18px 28px 30px 19px;
 	background: #fff;
 	color: #535c6a;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .mail-slider-wrapper-header {

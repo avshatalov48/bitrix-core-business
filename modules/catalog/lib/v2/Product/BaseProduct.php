@@ -3,6 +3,7 @@
 namespace Bitrix\Catalog\v2\Product;
 
 use Bitrix\Catalog\ProductTable;
+use Bitrix\Catalog\Product\SystemField;
 use Bitrix\Catalog\v2\BaseEntity;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\Iblock\IblockInfo;
@@ -55,6 +56,38 @@ abstract class BaseProduct extends BaseIblockElementEntity implements HasSection
 
 		$this->setIblockId($this->iblockInfo->getProductIblockId());
 		$this->setType($this->iblockInfo->canHaveSku() ? ProductTable::TYPE_SKU : ProductTable::TYPE_PRODUCT);
+
+		if (SystemField\ProductMapping::isAllowed())
+		{
+			$userField = SystemField\ProductMapping::load();
+			if (!empty($userField))
+			{
+				$value = (!empty($userField['SETTINGS']['DEFAULT_VALUE']) && is_array($userField['SETTINGS']['DEFAULT_VALUE'])
+					? $userField['SETTINGS']['DEFAULT_VALUE']
+					: null
+				);
+				if ($value === null)
+				{
+					/** @var SystemField\Type\HighloadBlock $className */
+					$className = SystemField\ProductMapping::getTypeId();
+
+					$list = $className::getIdByXmlId(
+						$userField['SETTINGS']['HLBLOCK_ID'],
+						[SystemField\ProductMapping::MAP_LANDING]
+					);
+					if (isset($list[SystemField\ProductMapping::MAP_LANDING]))
+					{
+						$value = [
+							$list[SystemField\ProductMapping::MAP_LANDING],
+						];
+					}
+				}
+				if ($value !== null)
+				{
+					$this->setField($userField['FIELD_NAME'], $value);
+				}
+			}
+		}
 	}
 
 	/**

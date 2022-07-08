@@ -1871,11 +1871,11 @@ export class EventEditForm
 		}
 
 		// Description
-		// if (!excludes.includes('name')
-		// 	&& this.descriptionValue !== this.DOM.form.desc.value)
-		// {
-		// 	fields.push('description');
-		// }
+		if (!excludes.includes('description')
+			&& entry.getDescription() !== this.DOM.form.desc.value)
+		{
+			fields.push('description');
+		}
 
 		// Location
 		if (!excludes.includes('location')

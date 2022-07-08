@@ -1,11 +1,13 @@
-<?
+<?php
 $MESS["MAIN_ADMIN_LIST_CHECKED"] = "Checked:";
 $MESS["MAIN_ADMIN_LIST_SELECTED"] = "Selected:";
 $MESS["MAIN_ADMIN_MENU_DELETE"] = "Delete";
 $MESS["MAIN_ADMIN_MENU_EDIT"] = "Edit";
 $MESS["VOTE_ACTIVATE"] = "activate";
 $MESS["VOTE_ACTIVE"] = "Active";
+$MESS["VOTE_ACTIVE_RED_LAMP"] = "Poll is not visible. ";
 $MESS["VOTE_ACTIVE_RED_LAMP_EXPIRED"] = "The poll is expired. ";
+$MESS["VOTE_ACTIVE_RED_LAMP_UPCOMING"] = "Poll is still upcoming.";
 $MESS["VOTE_ADD_LIST"] = "Add a poll";
 $MESS["VOTE_ALL"] = "(all)";
 $MESS["VOTE_AUTHOR_ID"] = "Created by";
@@ -61,4 +63,3 @@ $MESS["VOTE_WRONG_START_DATE_FROM"] = "Please enter the correct \"from\" date in
 $MESS["VOTE_WRONG_START_DATE_TILL"] = "Please enter the correct \"till\" date in the filter for the \"Starting date\"";
 $MESS["VOTE_WRONG_START_FROM_TILL"] = "The \"till\" date must be greater than the \"from\" date in the filter for the \"Starting date\"";
 $MESS["VOTE_YES"] = "Yes";
-?>

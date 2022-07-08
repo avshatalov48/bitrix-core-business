@@ -22,6 +22,8 @@ export class UserPlannerSelector extends EventEmitter
 	inlineEditMode = UserPlannerSelector.VIEW_MODE;
 	prevUserList = [];
 	loadedAccessibilityData = {};
+	REFRESH_PLANNER_DELAY = 500;
+
 
 	constructor(params = {})
 	{
@@ -44,7 +46,7 @@ export class UserPlannerSelector extends EventEmitter
 			hideGuestsWrap: params.hideGuestsWrap,
 			hideGuestsIcon: params.hideGuestsWrap.querySelector('.calendar-hide-members-icon-hidden')
 		};
-		this.refreshPlanner = Runtime.debounce(this.refreshPlannerState, 100, this);
+		this.refreshPlannerStateDebounce = Runtime.debounce(this.refreshPlannerState, this.REFRESH_PLANNER_DELAY, this);
 
 		if (Type.isBoolean(params.readOnlyMode))
 		{
@@ -166,7 +168,7 @@ export class UserPlannerSelector extends EventEmitter
 		{
 			this.displayAttendees(attendees);
 		}
-		this.refreshPlanner();
+		this.refreshPlannerStateDebounce();
 
 
 		if (BX?.Intranet?.ControlButton
@@ -216,7 +218,7 @@ export class UserPlannerSelector extends EventEmitter
 				entityType: item.entityType,
 			}}));
 
-		this.refreshPlanner();
+		this.refreshPlannerStateDebounce();
 		this.emit('onUserCodesChange');
 	}
 

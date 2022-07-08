@@ -4937,6 +4937,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        text: '',
 	        sectionCode: im_const.NotificationTypesCodes.simple,
 	        textConverted: '',
+	        title: '',
 	        unread: false,
 	        display: true,
 	        settingName: 'im|default'
@@ -5423,6 +5424,16 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	      if (main_core.Type.isString(fields.setting_name)) {
 	        result.settingName = fields.setting_name;
+	      } // rest format
+
+
+	      if (main_core.Type.isString(fields.notify_title) && fields.notify_title.length > 0) {
+	        result.title = fields.notify_title;
+	      } // p&p format
+
+
+	      if (main_core.Type.isString(fields.title) && fields.title.length > 0) {
+	        result.title = fields.title;
 	      }
 
 	      return result;

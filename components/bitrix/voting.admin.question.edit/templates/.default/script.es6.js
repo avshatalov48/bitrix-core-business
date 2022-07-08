@@ -4,6 +4,9 @@
  * @copyright 2001-2019 Bitrix
  */
 import 'main.polyfill.core';
+import {ajax, Uri, Loc} from 'main.core';
+import {EventEmitter, BaseEvent} from 'main.core.events';
+import {MessageBox} from 'ui.dialogs.messagebox';
 
 BX.namespace('BX.Vote');
 
@@ -39,10 +42,8 @@ class answer {
 		};
 
 		this.adjust(data);
-		this.__apply = BX.delegate(this.apply, this);
-		this.__delete = BX.delegate(this.delete, this);
-		BX.addCustomEvent(this, "onApply", this.__apply);
-		BX.addCustomEvent(this, "onDelete", this.__delete);
+		EventEmitter.subscribe(this, 'onApply', this.apply.bind(this));
+		EventEmitter.subscribe(this, 'onDelete', this.delete.bind(this));
 	}
 	adjust(data)
 	{
@@ -64,7 +65,7 @@ class answer {
 	{
 		return this.data;
 	}
-	apply(fromData)
+	apply({data: [fromData]})
 	{
 		this.adjust(fromData);
 		return this;
@@ -87,17 +88,18 @@ answer.getItem = function(id, data) {
 	return item;
 };
 
-class entityType {
+class entityType
+{
 	constructor (values)
 	{
 		this.values = [];
 		this.valuesById = {};
 		this.valuesByCode = {};
-		values.forEach(BX.proxy(function(current) {
+		values.forEach(function(current) {
 			this.values.push(current);
 			this.valuesById[current["ID"].toLowerCase()] = current;
 			this.valuesByCode[current["CODE"].toLowerCase()] = current;
-		}, this));
+		}.bind(this));
 	}
 	getByCode(code)
 	{
@@ -146,7 +148,8 @@ const questionTypes = {
 	}
 };
 
-class answerEditor {
+class answerEditor
+{
 	constructor()
 	{
 		this.id = 'Editor';
@@ -159,18 +162,22 @@ class answerEditor {
 	}
 	onApply(formData)
 	{
-		BX.onCustomEvent(this.answer, "onApply", [formData]);
-		BX.onCustomEvent(this, "onApply", [this.answer.getId(), this.answer.getData(), this.gridData]);
+		EventEmitter.emit(this.answer, 'onApply', [formData]);
+		EventEmitter.emit(this, 'onApply', [
+			this.answer.getId(),
+			this.answer.getData(),
+			Object.assign({}, this.gridData)
+		]);
 		this.reset();
 	}
 	onCancel()
 	{
-		BX.onCustomEvent(this.answer, "onCancel", []);
+		EventEmitter.emit(this.answer, "onCancel", []);
 		this.reset();
 	}
 	onDelete()
 	{
-		BX.onCustomEvent(this.answer, "onDelete", []);
+		EventEmitter.emit(this.answer, "onDelete", []);
 		this.reset();
 	}
 	setGridData(gridData)
@@ -233,13 +240,13 @@ class answerEditor {
 				</div>\
 				<div class="ui-form-block">\
 					<div class="ui-ctl ui-ctl-textarea" id="answer_MESSAGE_block">\
-						<textarea name="answer[MESSAGE]" class="ui-ctl-element" id="ANSWER_MESSAGE" placeholder="' + BX.message("VOTE_ANSWER_PLACEHOLDER") + '">' + BX.util.htmlspecialchars(data["MESSAGE"]) +'</textarea>\
+						<textarea name="answer[MESSAGE]" class="ui-ctl-element" id="ANSWER_MESSAGE" placeholder="' + Loc.getMessage('VOTE_ANSWER_PLACEHOLDER') + '">' + BX.util.htmlspecialchars(data["MESSAGE"]) +'</textarea>\
 					</div>\
 				</div>\
 				<input id="answer_FIELD_TYPE" name="answer[FIELD_TYPE]" type="hidden" value="" class="ui-ctl-element"> ' +
 				(questionTypes.isCompatibilityMode() === true ?
 				'<div class="ui-form-block">\
-					<label for="id1" class="ui-ctl-label-text">' + BX.message("VOTE_ANSWER_FIELD_TYPE") + '</label>\
+					<label for="id1" class="ui-ctl-label-text">' + Loc.getMessage('VOTE_ANSWER_FIELD_TYPE') + '</label>\
 					<div class="ui-ctl ui-ctl-after-icon ui-ctl-dropdown">\
 						<div class="ui-ctl-after ui-ctl-icon-angle"></div>\
 						<select name="answer[FIELD_TYPE]" class="ui-ctl-element">' + htmlReg + '</select>\
@@ -267,13 +274,13 @@ class answerEditor {
 				</div>\
 				<div class="ui-form-block"> \
 					<div class="ui-ctl ui-ctl-textarea" id="answer_MESSAGE_block">\
-						<textarea name="answer[MESSAGE]" class="ui-ctl-element" id="ANSWER_MESSAGE" placeholder="' + BX.message("VOTE_ANSWER_PLACEHOLDER1") + '">'
-							+ BX.util.htmlspecialchars(data["MESSAGE"] || BX.message("VOTE_ANSWER_TEXT_OTHER")) +
+						<textarea name="answer[MESSAGE]" class="ui-ctl-element" id="ANSWER_MESSAGE" placeholder="' + Loc.getMessage('VOTE_ANSWER_PLACEHOLDER1') + '">'
+							+ BX.util.htmlspecialchars(data["MESSAGE"] || Loc.getMessage('VOTE_ANSWER_TEXT_OTHER')) +
 						'</textarea>\
 					</div>\
 				</div>\
 				<div class="ui-form-block">\
-					<label for="id1" class="ui-ctl-label-text">' + BX.message("VOTE_ANSWER_FIELD_TYPE") + '</label>\
+					<label for="id1" class="ui-ctl-label-text">' + Loc.getMessage('VOTE_ANSWER_FIELD_TYPE') + '</label>\
 					<div class="ui-ctl ui-ctl-after-icon ui-ctl-dropdown">\
 						<div class="ui-ctl-after ui-ctl-icon-angle"></div>\
 						<select name="answer[FIELD_TYPE]" class="ui-ctl-element">', htmlText, '</select>\
@@ -293,7 +300,7 @@ class answerEditor {
 					'</form>\
 				</div>'].join("")
 		});
-		const onApply = BX.delegate(function() {
+		const onApplyPopupPressed = function() {
 			const d = BX.ajax.prepareForm(BX(this.id + '_form'));
 			if (BX.type.isNotEmptyString(d.data.answer.MESSAGE))
 			{
@@ -305,13 +312,13 @@ class answerEditor {
 			{
 				BX.addClass(BX('answer_MESSAGE_block'), 'ui-ctl-danger');
 			}
-		}, this);
+		}.bind(this);
 
 		this.popup = BX.PopupWindowManager.create(
 			'popup' + this.id,
 			null,
 			{
-				titleBar: BX.message("VOTE_ANSWER_MESSAGE"),
+				titleBar: Loc.getMessage('VOTE_ANSWER_MESSAGE'),
 				className : "vote-answer",
 				autoHide : false,
 				lightShadow : true,
@@ -321,49 +328,48 @@ class answerEditor {
 				content : editorNode,
 				overlay : {},
 				events : {
-					onPopupShow : BX.delegate(function() {
-
-					}, this),
-					onPopupClose : BX.delegate(
-						function(){
-							if (this.popup.fired !== true)
-								BX.onCustomEvent(this, "onCancel", [this]);
-							this.popup.destroy();
-							this.popup = null;
-						}, this
-					),
-					onAfterPopupShow : BX.defer(function() {
-						if (BX(this.id + '_form'))
+					onPopupClose : function(){
+						if (this.popup.fired !== true)
 						{
-							BX.focus(BX(this.id + '_form').elements["ANSWER_MESSAGE"]);
-							BX.bind(BX(this.id + '_form').elements["ANSWER_MESSAGE"], "keydown", BX.proxy(function(e){
-								if ((e.ctrlKey === true || e.altKey === true) && e.keyCode === 13)
-								{
-									onApply();
-								}
-							}, this));
+							EventEmitter.emit(this, "onCancel", [this]);
 						}
-					}, this)
+						this.popup.destroy();
+						this.popup = null;
+					}.bind(this),
+					onAfterPopupShow : function(){
+						setTimeout(function() {
+							if (BX(this.id + '_form'))
+							{
+								BX.focus(BX(this.id + '_form').elements["ANSWER_MESSAGE"]);
+								BX.bind(BX(this.id + '_form').elements["ANSWER_MESSAGE"], "keydown", function(e) {
+									if ((e.ctrlKey === true || e.altKey === true) && e.keyCode === 13)
+									{
+										onApplyPopupPressed();
+									}
+								});
+							}
+						}.bind(this), 50)
+					}.bind(this)
 				},
 				buttons : [
 					new BX.PopupWindowButton(
 						{
-							text : BX.message("VOTE_SAVE"),
+							text : Loc.getMessage('VOTE_SAVE'),
 							className : "",
 							events : {
-								click : onApply
+								click : onApplyPopupPressed
 							}
 						}
 					),
 					new BX.PopupWindowButton(
 						{
-							text : BX.message("VOTE_CANCEL"),
+							text : Loc.getMessage('VOTE_CANCEL'),
 							className : "",
-							events : { click : BX.delegate(function(){
+							events : { click : function(){
 								this.onCancel();
 								this.popup.fired = true;
 								this.popup.close();
-							}, this) } } )
+							}.bind(this) } } )
 				]
 			}
 		);
@@ -384,7 +390,7 @@ BX.Vote.setTypes = function(types) {
 	answerTypes.setTypes(types.answerTypes);
 };
 BX.Vote.setParams = function(gridInstanceId, params) {
-	BX.defer(function(){
+	setTimeout(function(){
 		bindForm(params['formId'], params.gridId, gridInstanceId);
 		BX.bind(document, "keydown", function(e) {
 			if (e.keyCode === 45 &&
@@ -394,12 +400,36 @@ BX.Vote.setParams = function(gridInstanceId, params) {
 				BX.Vote.addAnswer(gridInstanceId, {});
 			}
 		});
-	})();
+	}, 50);
 	answerPopupParams[gridInstanceId] = {
 		gridInstanceId : gridInstanceId,
 		gridId : params.gridId,
 		maxSort : (params["maxSort"] || 100)
 	};
+
+	EventEmitter.subscribeOnce('onVoteQuestionDelete', ({data: [voteId, questionId]}) => {
+		if (confirm(Loc.getMessage('VOTE_DELETE_RECORD_CONFIRM')))
+		{
+			ajax.runComponentAction('bitrix:voting.admin.question.edit',
+				'delete',
+				{
+					mode: 'class',
+					signedParameters: params.componentSignedParams,
+				}
+			)
+			.then(() => {
+				window.location = Uri.addParam(
+					'/bitrix/admin/vote_question_list.php',
+					{VOTE_ID: voteId, lang: Loc.getMessage('LANGUAGE_ID')});
+			}, ({errors}) => {
+				const errorMessages = [];
+				errors.forEach(({message}) => {
+					errorMessages.push(message);
+				});
+				MessageBox.alert(errorMessages.join(' '));
+			});
+		}
+	});
 };
 
 let answerPopup = null;
@@ -408,13 +438,14 @@ const initEditor = function(gridInstanceId, id, data) {
 	if (answerPopup === null)
 	{
 		answerPopup = new answerEditor();
-		BX.addCustomEvent(
+		EventEmitter.subscribe(
 			answerPopup,
-			"onApply",
-			function(answerId, data, gridData)
+			'onApply',
+			function({data: [answerId, data, gridData]})
 			{
-				const gridId = gridData["gridId"];
+				const gridId = gridData['gridId'];
 				const grid = BX.Main.gridManager.getInstanceById(gridId);
+
 				if (grid instanceof BX.Main.grid)
 				{
 					let newRowData = BX.clone(data);
@@ -437,11 +468,11 @@ const initEditor = function(gridInstanceId, id, data) {
 		setAnswer(id, data).
 		show();
 };
-BX.addCustomEvent(
-	window,
-	"Grid::beforeRequest",
-	function(gridData, args)
+EventEmitter.subscribe(
+	'Grid::beforeRequest',
+	function({data: [gridData, args]})
 	{
+		console.log('gridData, args: ', gridData, args);
 		let i;
 		for (i in answerPopupParams)
 		{
@@ -459,28 +490,30 @@ const bindForm = function(formId, gridId, gridInstanceId) {
 	let form = BX(formId, true);
 	let controlName = "save";
 	let func = (function(event) {
-		BX.unbind(form, "submit", func);
+		form.removeEventListener('submit', func);
 		let grid = BX.Main.gridManager.getInstanceById(gridId);
 		if (!grid.getRows().hasEditable())
 		{
 			prepareForm(form, gridId, gridInstanceId);
 			return true;
 		}
-		let func1 = (function(someGrid) { if (someGrid === grid) {
-			BX.removeCustomEvent(window, "Grid::updated", func1);
-			form.appendChild(BX.create("INPUT", { "props": { "type": "hidden", "name": controlName, "value":  "Y" } } ));
-			prepareForm(form, gridId, gridInstanceId);
-			form.submit();
-		} });
-		BX.addCustomEvent(window, "Grid::updated", func1);
+		let func1 = function({data: [someGrid]}) {
+			if (someGrid === grid)
+			{
+				form.appendChild(BX.create("INPUT", { "props": { "type": "hidden", "name": controlName, "value":  "Y" } } ));
+				prepareForm(form, gridId, gridInstanceId);
+				form.submit();
+			}
+		};
+		EventEmitter.subscribeOnce("Grid::updated", func1);
 		grid.editSelectedSave();
 		return BX.PreventDefault(event);
 	});
 
-	BX.bind(form, "submit", func);
-	if (form.elements["apply"])
+	form.addEventListener('submit', func);
+	if (form.elements['apply'])
 	{
-		BX.bind(form.elements["apply"], "mousedown", function () { controlName = "apply"; });
+		form.elements['apply'].addEventListener('mousedown', function () { controlName = "apply"; });
 	}
 
 	const f = function(e) {
@@ -513,8 +546,8 @@ const bindForm = function(formId, gridId, gridInstanceId) {
 			}
 		}
 	};
-	BX.findChildren(BX(formId, true), {props: { name : 'FIELD_TYPE'}}, true).forEach(function(current) {
-		BX.bind(current, 'change', f);
+	document.querySelectorAll('#' + formId + ' [name=FIELD_TYPE]').forEach((node) => {
+		node.addEventListener('change', f);
 	});
 };
 const prepareForm = function(form, gridId/*, gridInstanceId*/) {

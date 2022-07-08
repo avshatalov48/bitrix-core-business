@@ -1,8 +1,6 @@
-import "ui.entity-selector";
-import { EventEmitter } from 'main.core.events';
-import { Dialog } from "ui.entity-selector";
-import { Item } from "ui.entity-selector";
-import { BaseEvent } from "main.core.events";
+import { BaseEvent, EventEmitter } from 'main.core.events';
+import { Item, Dialog } from "ui.entity-selector";
+import { EventType } from 'im.const';
 
 export class Search
 {
@@ -62,7 +60,7 @@ export class Search
 			return;
 		}
 
-		EventEmitter.emit('openMessenger', { id: dialogId, $event: event });
+		EventEmitter.emit(EventType.dialog.open, { id: dialogId, $event: event });
 	}
 
 	fillStore(event: BaseEvent): void

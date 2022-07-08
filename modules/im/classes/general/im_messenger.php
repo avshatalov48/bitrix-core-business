@@ -96,7 +96,8 @@ class CIMMessenger
 	 *
 	 * 	(Y|N) SILENT_CONNECTOR - Keep silent. Do not send message into OL connector to client side. @see \Bitrix\ImOpenLines\Connector::onMessageSend
 	 * 	(Y|N) SKIP_CONNECTOR - Do not send message into OL connector to client side. @see \Bitrix\ImOpenLines\Connector::onMessageSend
-	 * 	(Y|N) IMPORTANT_CONNECTOR
+	 * 	(Y|N) IMPORTANT_CONNECTOR - Forward message into OL channel either mark as system. @see \Bitrix\ImOpenLines\Connector::onMessageSend
+	 * 	(Y|N) NO_SESSION_OL - Do not touch OL session @see \Bitrix\ImOpenLines\Connector::onMessageSend
 	 *
 	 * 	(Y|N) SKIP_USER_CHECK - Skip chat relations check. Check if user has permission to write into open chat, open line or announce channel. Default - N
 	 * ]

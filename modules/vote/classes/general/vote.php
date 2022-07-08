@@ -5,6 +5,8 @@
 # http://www.bitrixsoft.com					 #
 # mailto:admin@bitrixsoft.com				 #
 ##############################################
+use Bitrix\Main\Error;
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllVote
@@ -199,11 +201,13 @@ class CAllVote
 		if (!$result->isSuccess())
 		{
 			$aMsg = [];
-			$error = $result->getErrorCollection()->rewind();
-			do
+			$errCollection = $result->getErrorCollection();
+			for ($errCollection->rewind(); $errCollection->valid(); $errCollection->next())
 			{
+				/** @var Error $error */
+				$error = $errCollection->current();
 				$aMsg[] = ["id" => $error->getCode(), "text" => $error->getMessage()];
-			} while ($error = $result->getErrorCollection()->next());
+			}
 			if (!empty($aMsg))
 			{
 				global $APPLICATION;
@@ -227,11 +231,13 @@ class CAllVote
 		if (!$result->isSuccess())
 		{
 			$aMsg = [];
-			$error = $result->getErrorCollection()->rewind();
-			do
+			$errCollection = $result->getErrorCollection();
+			for ($errCollection->rewind(); $errCollection->valid(); $errCollection->next())
 			{
+				/** @var Error $error */
+				$error = $errCollection->current();
 				$aMsg[] = ["id" => $error->getCode(), "text" => $error->getMessage()];
-			} while ($error = $result->getErrorCollection()->next());
+			}
 			if (!empty($aMsg))
 			{
 				global $APPLICATION;
@@ -554,11 +560,10 @@ class CAllVote
 		}
 		global $APPLICATION, $VOTING_OK;
 		$VOTING_OK = "N";
-		$e = $errorCollection->rewind();
-		$m = array();
-		do {
-			$m[] = $e->getMessage();
-		} while ($e = $errorCollection->next());
+		$m = [];
+		for ($errorCollection->rewind(); $errorCollection->valid(); $errorCollection->next())
+			$m[] = $errorCollection->current()->getMessage();
+
 		$APPLICATION->ThrowException(implode("", $m), "CVote::KeepVoting");
 
 		return false;

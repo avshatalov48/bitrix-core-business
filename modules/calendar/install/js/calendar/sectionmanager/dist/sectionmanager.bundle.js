@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,calendar_entry,calendar_util,main_core,main_core_events) {
+(function (exports,calendar_util,main_core,main_core_events) {
 	'use strict';
 
 	var CalendarSection = /*#__PURE__*/function () {
@@ -306,6 +306,7 @@ this.BX = this.BX || {};
 	    this.addTaskSection();
 	    this.sortSections();
 	    main_core_events.EventEmitter.subscribeOnce('BX.Calendar.Section:delete', this.deleteSectionHandler.bind(this));
+	    this.reloadDataDebounce = main_core.Runtime.debounce(this.reloadData, SectionManager.RELOAD_DELAY, this);
 	  }
 
 	  babelHelpers.createClass(SectionManager, [{
@@ -390,7 +391,7 @@ this.BX = this.BX || {};
 	            }
 	          }));
 	        } else {
-	          this.reloadData();
+	          this.reloadDataDebounce();
 	        }
 	      } else if (params.command === 'edit_section') {
 	        this.reloadData().then(function () {
@@ -398,7 +399,7 @@ this.BX = this.BX || {};
 	        });
 	        calendar_util.Util.getBX().Event.EventEmitter.emit('BX.Calendar:doRefresh');
 	      } else {
-	        this.reloadData();
+	        this.reloadDataDebounce();
 	      }
 	    }
 	  }, {
@@ -799,9 +800,10 @@ this.BX = this.BX || {};
 	  return SectionManager;
 	}();
 	babelHelpers.defineProperty(SectionManager, "newEntrySectionId", null);
+	babelHelpers.defineProperty(SectionManager, "RELOAD_DELAY", 500);
 
 	exports.CalendarSection = CalendarSection;
 	exports.SectionManager = SectionManager;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX,BX.Event));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX,BX.Event));
 //# sourceMappingURL=sectionmanager.bundle.js.map

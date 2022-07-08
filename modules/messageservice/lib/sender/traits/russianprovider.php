@@ -8,6 +8,8 @@ trait RussianProvider
 {
 	public static function isSupported(): bool
 	{
-		return in_array(Util::getPortalZone(), ['ru', 'kz', 'by']);
+		$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion();
+
+		return in_array($region, ['ru', 'kz', 'by']);
 	}
 }

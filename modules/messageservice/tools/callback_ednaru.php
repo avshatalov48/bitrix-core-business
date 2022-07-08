@@ -18,16 +18,12 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_befo
 $jsonText = \Bitrix\Main\HttpRequest::getInput();
 $messageFields = $jsonText ? Json::decode($jsonText) : null;
 
-if (
-	!$messageFields
-	|| !Loader::includeModule('messageservice')
-	|| !Loader::includeModule('imconnector')
-)
+if (!$messageFields || !Loader::includeModule('messageservice'))
 {
 	\Bitrix\Main\Application::getInstance()->terminate();
 }
 
-if (isset($messageFields['dlvStatus']))
+if (isset($messageFields['dlvStatus']) && isset($messageFields['imOutMessageId']))
 {
 	$messageId = $messageFields['imOutMessageId'];
 	$externalStatus = (string)$messageFields['dlvStatus'];
@@ -38,7 +34,7 @@ if (isset($messageFields['dlvStatus']))
 		$message->updateStatusByExternalStatus($externalStatus);
 	}
 }
-else if (isset($messageFields['imSubject']))
+else if (isset($messageFields['imSubject']) && Loader::includeModule('imconnector'))
 {
 	$messageFields['CONNECTOR'] = Library::ID_EDNA_WHATSAPP_CONNECTOR;
 	$portal = new \Bitrix\ImConnector\Input($messageFields);

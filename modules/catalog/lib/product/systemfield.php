@@ -24,6 +24,7 @@ final class SystemField
 
 	public const DESCRIPTION_MODE_FIELD_NAME = 'FIELD_NAME';
 	public const DESCRIPTION_MODE_UI_LIST = 'UI_ENTITY_LIST';
+	public const DESCRIPTION_MODE_UI_FORM_EDITOR = 'UI_FORM_EDITOR';
 	public const DESCRIPTION_MODE_FULL = 'FULL';
 
 	private static ?array $currentFieldSet = null;
@@ -264,7 +265,11 @@ final class SystemField
 			return [];
 		}
 
-		$simpleList = isset($config['FIELD_NAME']) && $config['FIELD_NAME'] === 'Y';
+		$resultMode = self::DESCRIPTION_MODE_FULL;
+		if (isset($config['RESULT_MODE']) && is_string($config['RESULT_MODE']))
+		{
+			$resultMode = $config['RESULT_MODE'];
+		}
 
 		$result = [];
 		foreach ($fieldList as $field)
@@ -275,15 +280,25 @@ final class SystemField
 			)
 			{
 				$data = $field::getUserFieldBaseParam();
-				if ($simpleList)
+				switch ($resultMode)
 				{
-					$result[] = $data['FIELD_NAME'];
-				}
-				else
-				{
-					$result[] = [
-						$data['FIELD_NAME'] => $field::getTitle(),
-					];
+					case self::DESCRIPTION_MODE_FIELD_NAME:
+						$result[] = $data['FIELD_NAME'];
+						break;
+					case self::DESCRIPTION_MODE_UI_LIST:
+						$result[] = [
+							$data['FIELD_NAME'] => $field::getTitle(),
+						];
+						break;
+					case self::DESCRIPTION_MODE_UI_FORM_EDITOR:
+						$result[] = [
+							'name' => $data['FIELD_NAME'],
+						];
+						break;
+					case self::DESCRIPTION_MODE_FULL:
+					default:
+						$result[$data['FIELD_NAME']] = $data;
+						break;
 				}
 			}
 		}
@@ -297,7 +312,7 @@ final class SystemField
 		return self::getFieldsByRestrictions(
 			$restrictions,
 			[
-				'FIELD_NAME' => 'Y',
+				'RESULT_MODE' => self::DESCRIPTION_MODE_FIELD_NAME,
 			]
 		);
 	}

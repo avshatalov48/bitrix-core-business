@@ -135,11 +135,18 @@ class GoogleApiBatch
 		foreach ($instances as $instance)
 		{
 			$currentInstance = $instance;
-			$instanceDate = \CCalendar::GetOriginalDate(
+			if (empty($instance['ORIGINAL_DATE_FROM']))
+			{
+				$instanceDate = \CCalendar::GetOriginalDate(
 					$instance['PARENT_DATE_FROM'],
 					$instance['DATE_FROM'],
 					$instance['PARENT_TZ_FROM']
 				);
+			}
+			else
+			{
+				$instanceDate = $instance['ORIGINAL_DATE_FROM'];
+			}
 			/** @var Type\DateTime $eventOriginalStart */
 			$eventOriginalStart = Util::getDateObject($instanceDate, false, $instance['PARENT_TZ_FROM']);
 			$currentInstance['ORIGINAL_DATE_FROM'] =
@@ -147,6 +154,7 @@ class GoogleApiBatch
 			$currentInstance['DAV_XML_ID'] = $instance['PARENT_DAV_XML_ID'];
 			$currentInstance['gEventId'] = $instance['PARENT_G_EVENT_ID'] . '_'
 				. $eventOriginalStart->setTimeZone(Util::prepareTimezone())->format('Ymd\THis\Z');
+			$currentInstance['G_EVENT_ID'] = $currentInstance['gEventId'];
 			$batch[] = $currentInstance;
 		}
 

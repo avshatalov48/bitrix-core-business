@@ -6,35 +6,37 @@
  * @subpackage im
  * @copyright 2001-2020 Bitrix
  */
-
-// vue
-import {VueVendorV2} from "ui.vue";
-
-// im
 import {Core} from "im.application.core";
+import {Controller} from "im.controller";
 import {DialogRestHandler} from "im.provider.rest";
 
-// core
-import "promise";
-
-// component
 import "./view";
+
+type MessengerApplicationParams = {
+	node?: string | HTMLElement,
+	userId?: number,
+	dialogId?: string | number,
+	hasDialog?: boolean
+}
 
 export class MessengerApplication
 {
-	/* region 01. Initialize */
+	params: MessengerApplicationParams;
+	inited: boolean = false;
+	initPromise: Promise = null;
+	initPromiseResolver: Function = null;
+	vueInstance: Object = null;
+	controller: Controller = null;
+	rootNode: string | HTMLElement = null;
 
+	/* region 01. Initialize */
 	constructor(params = {})
 	{
-		this.inited = false;
-		this.initPromise = new BX.Promise;
-
+		this.initPromise = new Promise((resolve) => {
+			this.initPromiseResolver = resolve;
+		});
 		this.params = params;
-
-		this.template = null;
 		this.rootNode = this.params.node || document.createElement('div');
-
-		this.event = new VueVendorV2;
 
 		this.initCore()
 			.then(() => this.initComponent())
@@ -44,18 +46,58 @@ export class MessengerApplication
 
 	initCore()
 	{
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve) => {
 			Core.ready().then(controller => {
 				this.controller = controller;
 				resolve();
-			})
+			});
 		});
 	}
 
 	initComponent()
 	{
-		console.log('2. initComponent');
+		this.setInitialApplicationInfo();
+		this.setDialogRestHandler();
+		this.setApplicationDialogInfo();
 
+		return this.controller.createVue(this, {
+			el: this.rootNode,
+			data: () =>
+			{
+				return {
+					userId: this.getUserId()
+				};
+			},
+			// language=Vue
+			template: `<bx-im-application-messenger :userId="userId" />`,
+		})
+		.then(vue => {
+			this.vueInstance = vue;
+			return Promise.resolve();
+		});
+	}
+
+	initComplete()
+	{
+		this.inited = true;
+		this.initPromiseResolver(this);
+	}
+
+	ready()
+	{
+		if (this.inited)
+		{
+			return Promise.resolve(this);
+		}
+
+		return this.initPromise;
+	}
+
+/* endregion 01. Initialize */
+
+/* region 02. Methods */
+	setInitialApplicationInfo()
+	{
 		this.controller.getStore().commit('application/set', {
 			dialog: {
 				dialogId: this.getDialogId()
@@ -66,7 +108,26 @@ export class MessengerApplication
 				darkBackground: false
 			}
 		});
+	}
 
+	setApplicationDialogInfo()
+	{
+		const dialog = this.controller.getStore().getters['dialogues/get'](this.getDialogId());
+		if (!dialog)
+		{
+			return false;
+		}
+
+		this.controller.getStore().commit('application/set', {
+			dialog: {
+				chatId: dialog.chatId,
+				diskFolderId: dialog.diskFolderId || 0
+			}
+		});
+	}
+
+	setDialogRestHandler()
+	{
 		this.controller.addRestAnswerHandler(
 			DialogRestHandler.create({
 				store: this.controller.getStore(),
@@ -74,61 +135,13 @@ export class MessengerApplication
 				context: this,
 			})
 		);
-
-		let dialog = this.controller.getStore().getters['dialogues/get'](this.controller.application.getDialogId());
-		if (dialog)
-		{
-			this.controller.getStore().commit('application/set', {dialog: {
-				chatId: dialog.chatId,
-				diskFolderId: dialog.diskFolderId || 0
-			}});
-		}
-
-		return this.controller.createVue(this, {
-			el: this.rootNode,
-			data: () =>
-			{
-				return {
-					userId: this.getUserId(),
-					dialogId: this.getDialogId()
-				};
-			},
-			// language=Vue
-			template: `<bx-im-application-messenger :userId="userId" :initialDialogId="dialogId"/>`,
-		})
-		.then(vue => {
-			this.template = vue;
-			return new Promise((resolve, reject) => resolve());
-		});
 	}
-
-	initComplete()
-	{
-		this.inited = true;
-		this.initPromise.resolve(this);
-	}
-
-	ready()
-	{
-		if (this.inited)
-		{
-			let promise = new BX.Promise;
-			promise.resolve(this);
-
-			return promise;
-		}
-
-		return this.initPromise;
-	}
-
-/* endregion 01. Initialize */
-
-/* region 02. Methods */
 
 	getUserId()
 	{
-		let userId = this.params.userId || this.getLocalize('USER_ID');
-		return userId? parseInt(userId): 0;
+		const userId = this.params.userId || this.getLocalize('USER_ID');
+
+		return userId? Number.parseInt(userId, 10): 0;
 	}
 
 	getDialogId()
@@ -146,10 +159,6 @@ export class MessengerApplication
 		return 's1';
 	}
 
-/* endregion 02. Methods */
-
-/* region 03. Utils */
-
 	addLocalize(phrases)
 	{
 		return this.controller.addLocalize(phrases);
@@ -159,6 +168,5 @@ export class MessengerApplication
 	{
 		return this.controller.getLocalize(name);
 	}
-
-/* endregion 03. Utils */
+/* endregion 02. Methods */
 }

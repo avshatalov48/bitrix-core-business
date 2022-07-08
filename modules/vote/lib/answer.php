@@ -34,6 +34,19 @@ Loc::loadMessages(__FILE__);
  * <li> FIELD_TYPE int,
  * <li> COLOR string(7),
  * </ul>
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Answer_Query query()
+ * @method static EO_Answer_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Answer_Result getById($id)
+ * @method static EO_Answer_Result getList(array $parameters = array())
+ * @method static EO_Answer_Entity getEntity()
+ * @method static \Bitrix\Vote\EO_Answer createObject($setDefaultValues = true)
+ * @method static \Bitrix\Vote\EO_Answer_Collection createCollection()
+ * @method static \Bitrix\Vote\EO_Answer wakeUpObject($row)
+ * @method static \Bitrix\Vote\EO_Answer_Collection wakeUpCollection($rows)
  */
 class AnswerTable extends Entity\DataManager
 {

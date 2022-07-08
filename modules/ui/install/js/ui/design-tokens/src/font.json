@@ -1,8 +1,9 @@
 {
 	"font": {
 		"family": {
-			"base": { "value":  "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Ubuntu, \"Helvetica Neue\", Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'" },
-			"code": { "value":  "ui-monospace, SFMono-Regular, \"SF Mono\", Consolas, \"Liberation Mono\", Menlo, monospace" }
+			"system": { "value": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Ubuntu, \"Helvetica Neue\", Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'" },
+			"system-mono": { "value": "ui-monospace, SFMono-Regular, \"SF Mono\", Consolas, \"Liberation Mono\", Menlo, monospace" },
+			"helvetica": { "value": "\"Helvetica Neue\", Helvetica, Arial, sans-serif" }
 		},
 		"weight": {
 			"thin": { "value":  100 },

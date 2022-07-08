@@ -356,10 +356,6 @@ label.bx-vote-block-input-wrap-inner {
 	width: 14px;
 }
 
-.bx-vote-bottom-block .feed-add-com-button.feed-add-button-load:before {
-	top: 10px;
-}
-
 .bx-vote-bottom-block .feed-add-button-load:after {
 	background-color: #fff;
 	content: '';
@@ -373,10 +369,6 @@ label.bx-vote-block-input-wrap-inner {
 
 	-webkit-animation: clock 1s infinite linear;
 	animation: clock 1s infinite linear;
-}
-
-.bx-vote-bottom-block .feed-add-com-button.feed-add-button-load:after {
-	top: 14px;
 }
 
 @-webkit-keyframes clock {

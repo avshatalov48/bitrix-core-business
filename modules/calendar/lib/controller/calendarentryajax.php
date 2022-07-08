@@ -480,14 +480,18 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 
 		if (empty($this->getErrors()))
 		{
-			$sectionList = Internals\SectionTable::getList(
-				array(
-					"filter" => array(
-						"=ACTIVE" => 'Y',
-						"=ID" => $sectionId
-					),
-					"select" => array("ID", "CAL_TYPE", "OWNER_ID", "NAME")
-				)
+			$sectionList = Internals\SectionTable::getList([
+					'filter' => [
+						'=ACTIVE' => 'Y',
+						'=ID' => $sectionId
+					],
+					'select' => [
+						'ID',
+						'CAL_TYPE',
+						'OWNER_ID',
+						'NAME'
+					]
+				]
 			);
 
 			if (!($section = $sectionList->fetch()))
@@ -564,10 +568,10 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				}
 
 				$entryFields = [
-					"ID" => $id,
-					"DATE_FROM" => $dateFrom,
-					"DATE_TO" => $dateTo,
-					"SKIP_TIME" => $skipTime,
+					'ID' => $id,
+					'DATE_FROM' => $dateFrom,
+					'DATE_TO' => $dateTo,
+					'SKIP_TIME' => $skipTime,
 					'TZ_FROM' => $tzFrom,
 					'TZ_TO' => $tzTo,
 					'NAME' => $name,
@@ -579,10 +583,9 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 					'PRIVATE_EVENT' => $request['private_event'] === 'Y',
 					'RRULE' => $rrule,
 					'LOCATION' => $request['location'],
-					"REMIND" => $reminderList,
-					"IS_MEETING" => !!$request['is_meeting'],
-					"SECTION_CAL_TYPE" => $section['CAL_TYPE'],
-					"SECTION_OWNER_ID" => $section['OWNER_ID']
+					'REMIND' => $reminderList,
+					'SECTION_CAL_TYPE' => $section['CAL_TYPE'],
+					'SECTION_OWNER_ID' => $section['OWNER_ID']
 				];
 
 				$codes = [];
@@ -601,7 +604,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 
 				if ($request['exclude_users'] && count($entryFields['ATTENDEES']) > 0)
 				{
-					$excludeUsers = explode(",", $request['exclude_users']);
+					$excludeUsers = explode(',', $request['exclude_users']);
 					$entryFields['ATTENDEES_CODES'] = [];
 
 					if (count($excludeUsers) > 0)
@@ -709,10 +712,10 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 						{
 							foreach($entries as $entry)
 							{
-								$entFromTs = \CCalendar::Timestamp($entry["DATE_FROM"]);
-								$entToTs = \CCalendar::Timestamp($entry["DATE_TO"]);
+								$entFromTs = \CCalendar::Timestamp($entry['DATE_FROM']);
+								$entToTs = \CCalendar::Timestamp($entry['DATE_TO']);
 
-								if ($entry["DT_SKIP_TIME"] === 'Y')
+								if ($entry['DT_SKIP_TIME'] === 'Y')
 								{
 									$entToTs += \CCalendar::GetDayLen();
 								}
@@ -723,7 +726,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 								if ($entFromTs < $toTs && $entToTs > $fromTs)
 								{
 									$busyUsersList[] = $accUserId;
-									$this->addError(new Error(Loc::getMessage('EC_USER_BUSY', ["#USER#" => \CCalendar::GetUserName($accUserId)]), 'edit_entry_user_busy'));
+									$this->addError(new Error(Loc::getMessage('EC_USER_BUSY', ['#USER#' => \CCalendar::GetUserName($accUserId)]), 'edit_entry_user_busy'));
 									break;
 								}
 							}
@@ -740,7 +743,7 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				$arUFFields = [];
 				foreach($request as $field => $value)
 				{
-					if (mb_substr($field, 0, 3) == "UF_")
+					if (mb_substr($field, 0, 3) == 'UF_')
 					{
 						$arUFFields[$field] = $value;
 					}
@@ -769,12 +772,12 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 						$response['entryId'] = $newId;
 
 						$filter = [
-							"ID" => $newId,
-							"FROM_LIMIT" => \CCalendar::Date(
-								\CCalendar::Timestamp($entryFields["DATE_FROM"]) -
+							'ID' => $newId,
+							'FROM_LIMIT' => \CCalendar::Date(
+								\CCalendar::Timestamp($entryFields['DATE_FROM']) -
 								\CCalendar::DAY_LENGTH * 10, false),
-							"TO_LIMIT" => \CCalendar::Date(
-								\CCalendar::Timestamp($entryFields["DATE_TO"]) +
+							'TO_LIMIT' => \CCalendar::Date(
+								\CCalendar::Timestamp($entryFields['DATE_TO']) +
 								\CCalendar::DAY_LENGTH * 90, false)
 						];
 
@@ -791,8 +794,8 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 						{
 							\Bitrix\Main\FinderDestTable::merge(
 								[
-									"CONTEXT" => Util::getUserSelectorContext(),
-									"CODE" => \Bitrix\Main\FinderDestTable::convertRights(
+									'CONTEXT' => Util::getUserSelectorContext(),
+									'CODE' => \Bitrix\Main\FinderDestTable::convertRights(
 										$accessCodes,
 										['U'.\CCalendar::GetUserId()]
 									)

@@ -155,30 +155,7 @@ class StringHelper
 	 */
 	public static function validateUtf8OctetSequences($string)
 	{
-		$prevBits8and7 = 0;
-		$isUtf = 0;
-		foreach (unpack("C*", $string) as $byte)
-		{
-			$hiBits8and7 = $byte & 0xC0;
-			if ($hiBits8and7 == 0x80)
-			{
-				if ($prevBits8and7 == 0xC0)
-				{
-					$isUtf++;
-				}
-				elseif (($prevBits8and7 & 0x80) == 0x00)
-				{
-					$isUtf--;
-				}
-			}
-			elseif ($prevBits8and7 == 0xC0)
-			{
-				$isUtf--;
-			}
-			$prevBits8and7 = $hiBits8and7;
-		}
-
-		return ($isUtf > 0);
+		return Main\Text\Encoding::detectUtf8($string, false);
 	}
 
 	/**
@@ -196,6 +173,8 @@ class StringHelper
 		if ($enclosure === "'")
 		{
 			$str = preg_replace("/((?<![\\\\])['{$additional}]{1})/", "\\\\$1", $str);
+			// \${end of str} -> \\
+			$str = preg_replace("/((?<![\\\\])\\\\)$/", "\\\\$1", $str);
 		}
 		elseif ($enclosure === '"')
 		{
@@ -203,6 +182,8 @@ class StringHelper
 			$str = preg_replace("/((?<![\\\\])[\"{$additional}]{1})/", "\\\\$1", $str);
 			// $x -> \$x
 			$str = preg_replace("/((?<![\\\\])[\$]{1}\w)/", "\\\\$1", $str);
+			// \${end of str} -> \\
+			$str = preg_replace("/((?<![\\\\])\\\\)$/", "\\\\$1", $str);
 		}
 		elseif ($enclosure === '<<<')
 		{

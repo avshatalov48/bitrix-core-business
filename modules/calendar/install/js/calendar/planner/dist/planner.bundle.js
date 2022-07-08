@@ -1417,9 +1417,9 @@ this.BX = this.BX || {};
 	        rowWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_templateObject27 || (_templateObject27 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-user\"></div>\n\t\t\t"]))));
 
 	        if (this.showEntryName) {
-	          rowWrap.appendChild(main_core.Tag.render(_templateObject28 || (_templateObject28 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"calendar-planner-user-name\"></span>\n\t\t\t\t"])))).appendChild(main_core.Tag.render(_templateObject29 || (_templateObject29 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"calendar-planner-entry-name\" style=\"width: ", "px;\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t"])), this.entriesListWidth - 20, entry.name));
+	          rowWrap.appendChild(main_core.Tag.render(_templateObject28 || (_templateObject28 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"calendar-planner-user-name\"></span>\n\t\t\t\t"])))).appendChild(main_core.Tag.render(_templateObject29 || (_templateObject29 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"calendar-planner-entry-name\" style=\"width: ", "px;\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t"])), this.entriesListWidth - 20, main_core.Text.encode(entry.name)));
 	        } else {
-	          rowWrap.appendChild(main_core.Tag.render(_templateObject30 || (_templateObject30 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-planner-location-image-icon\" title=\"", "\"></div>\n\t\t\t\t"])), entry.name));
+	          rowWrap.appendChild(main_core.Tag.render(_templateObject30 || (_templateObject30 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-planner-location-image-icon\" title=\"", "\"></div>\n\t\t\t\t"])), main_core.Text.encode(entry.name)));
 	        }
 	      } else if (entry.type === 'resource') {
 	        if (!this.entriesResourceListWrap || !BX.isNodeInDom(this.entriesResourceListWrap)) {
@@ -1429,13 +1429,13 @@ this.BX = this.BX || {};
 	        rowWrap = this.entriesResourceListWrap.appendChild(main_core.Tag.render(_templateObject32 || (_templateObject32 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-user\" data-bx-planner-entry=\"", "\"></div>\n\t\t\t"])), entry.uid));
 
 	        if (this.showEntryName) {
-	          rowWrap.appendChild(main_core.Tag.render(_templateObject33 || (_templateObject33 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"calendar-planner-user-name\"></span>\n\t\t\t\t"])))).appendChild(main_core.Tag.render(_templateObject34 || (_templateObject34 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"calendar-planner-entry-name\" style=\"width: ", "px;\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t<span>\n\t\t\t\t"])), this.entriesListWidth - 20, entry.name));
+	          rowWrap.appendChild(main_core.Tag.render(_templateObject33 || (_templateObject33 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"calendar-planner-user-name\"></span>\n\t\t\t\t"])))).appendChild(main_core.Tag.render(_templateObject34 || (_templateObject34 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<span class=\"calendar-planner-entry-name\" style=\"width: ", "px;\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t<span>\n\t\t\t\t"])), this.entriesListWidth - 20, main_core.Text.encode(entry.name)));
 	        } else {
-	          rowWrap.appendChild(main_core.Tag.render(_templateObject35 || (_templateObject35 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-planner-location-image-icon\" title=\"", "\"></div>\n\t\t\t\t"])), entry.name));
+	          rowWrap.appendChild(main_core.Tag.render(_templateObject35 || (_templateObject35 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-planner-location-image-icon\" title=\"", "\"></div>\n\t\t\t\t"])), main_core.Text.encode(entry.name)));
 	        }
 	      } else {
 	        rowWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_templateObject36 || (_templateObject36 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-user\"></div>\n\t\t\t"]))));
-	        rowWrap.appendChild(main_core.Tag.render(_templateObject37 || (_templateObject37 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-all-users\">", "</div>\n\t\t\t"])), entry.name));
+	        rowWrap.appendChild(main_core.Tag.render(_templateObject37 || (_templateObject37 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-planner-all-users\">", "</div>\n\t\t\t"])), main_core.Text.encode(entry.name)));
 	      }
 
 	      var top = rowWrap.offsetTop + 13;

@@ -1,12 +1,13 @@
-<?
-use Bitrix\Main,
-	Bitrix\Main\ModuleManager,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Currency;
+<?php
+use Bitrix\Main;
+use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Currency;
 
-Loc::loadMessages(__FILE__);
+/** @deprecated */
+class CAllCurrencyLang {}
 
-class CAllCurrencyLang
+class CCurrencyLang extends CAllCurrencyLang
 {
 	/** @deprecated */
 	public const SEP_EMPTY = Currency\CurrencyClassifier::SEPARATOR_EMPTY;
@@ -19,26 +20,26 @@ class CAllCurrencyLang
 	/** @deprecated */
 	public const SEP_NBSPACE = Currency\CurrencyClassifier::SEPARATOR_NBSPACE;
 
-	static protected $arSeparators = array(
+	protected static array $arSeparators = [
 		Currency\CurrencyClassifier::SEPARATOR_EMPTY => '',
 		Currency\CurrencyClassifier::SEPARATOR_DOT => '.',
 		Currency\CurrencyClassifier::SEPARATOR_COMMA => ',',
 		Currency\CurrencyClassifier::SEPARATOR_SPACE => ' ',
-		Currency\CurrencyClassifier::SEPARATOR_NBSPACE => '&nbsp;'
-	);
+		Currency\CurrencyClassifier::SEPARATOR_NBSPACE => '&nbsp;',
+	];
 
-	static protected $arDefaultValues = array(
+	protected static array $arDefaultValues = [
 		'FORMAT_STRING' => '#',
 		'DEC_POINT' => Currency\CurrencyClassifier::DECIMAL_POINT_DOT,
 		'THOUSANDS_SEP' => ' ',
 		'DECIMALS' => 2,
 		'THOUSANDS_VARIANT' => Currency\CurrencyClassifier::SEPARATOR_SPACE,
-		'HIDE_ZERO' => 'N'
-	);
+		'HIDE_ZERO' => 'N',
+	];
 
-	static protected $arCurrencyFormat = array();
+	protected static array $arCurrencyFormat = [];
 
-	static protected $useHideZero = 0;
+	protected static int $useHideZero = 0;
 
 	public static function enableUseHideZero()
 	{
@@ -54,7 +55,7 @@ class CAllCurrencyLang
 		self::$useHideZero--;
 	}
 
-	public static function isAllowUseHideZero()
+	public static function isAllowUseHideZero(): bool
 	{
 		return (!(defined('ADMIN_SECTION') && ADMIN_SECTION === true) && self::$useHideZero >= 0);
 	}
@@ -121,7 +122,7 @@ class CAllCurrencyLang
 			$fields = array_merge($defaultValues, $fields);
 			unset($defaultValues);
 
-			if (!isset($fields['FORMAT_STRING']) || empty($fields['FORMAT_STRING']))
+			if (empty($fields['FORMAT_STRING']))
 			{
 				$errorMessages[] = array(
 					'id' => 'FORMAT_STRING', 'text' => Loc::getMessage('BT_CUR_LANG_ERR_FORMAT_STRING_IS_EMPTY', array('#LANG#' => $language))
@@ -435,44 +436,43 @@ class CAllCurrencyLang
 			$strSqlOrder .= " desc ";
 
 		$strSql .= $strSqlOrder;
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-		return $res;
+		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
-	public static function GetDefaultValues()
+	public static function GetDefaultValues(): array
 	{
 		return self::$arDefaultValues;
 	}
 
-	public static function GetSeparators()
+	public static function GetSeparators(): array
 	{
 		return self::$arSeparators;
 	}
 
-	public static function GetSeparatorTypes($boolFull = false)
+	public static function GetSeparatorTypes($boolFull = false): array
 	{
 		$boolFull = (true == $boolFull);
 		if ($boolFull)
 		{
-			return array(
+			return [
 				Currency\CurrencyClassifier::SEPARATOR_EMPTY => Loc::getMessage('BT_CUR_LANG_SEP_VARIANT_EMPTY'),
 				Currency\CurrencyClassifier::SEPARATOR_DOT => Loc::getMessage('BT_CUR_LANG_SEP_VARIANT_DOT'),
 				Currency\CurrencyClassifier::SEPARATOR_COMMA => Loc::getMessage('BT_CUR_LANG_SEP_VARIANT_COMMA'),
 				Currency\CurrencyClassifier::SEPARATOR_SPACE => Loc::getMessage('BT_CUR_LANG_SEP_VARIANT_SPACE'),
 				Currency\CurrencyClassifier::SEPARATOR_NBSPACE => Loc::getMessage('BT_CUR_LANG_SEP_VARIANT_NBSPACE')
-			);
+			];
 		}
-		return array(
+		return [
 			Currency\CurrencyClassifier::SEPARATOR_EMPTY,
 			Currency\CurrencyClassifier::SEPARATOR_DOT,
 			Currency\CurrencyClassifier::SEPARATOR_COMMA,
 			Currency\CurrencyClassifier::SEPARATOR_SPACE,
 			Currency\CurrencyClassifier::SEPARATOR_NBSPACE
-		);
+		];
 	}
 
-	public static function GetFormatTemplates()
+	public static function GetFormatTemplates(): array
 	{
 		$installCurrencies = Currency\CurrencyManager::getInstalledCurrencies();
 		$templates = array();
@@ -551,6 +551,7 @@ class CAllCurrencyLang
 				'DECIMALS' => '2'
 			);
 		}
+
 		return $templates;
 	}
 
@@ -604,7 +605,7 @@ class CAllCurrencyLang
 						$arCurFormat["FORMAT_STRING"]
 					));
 				}
-				if (!isset($arCurFormat['HIDE_ZERO']) || empty($arCurFormat['HIDE_ZERO']))
+				if (empty($arCurFormat['HIDE_ZERO']))
 					$arCurFormat['HIDE_ZERO'] = self::$arDefaultValues['HIDE_ZERO'];
 			}
 
@@ -660,10 +661,7 @@ class CAllCurrencyLang
 		if ($currency === false)
 			return '';
 
-		$format = (isset(self::$arCurrencyFormat[$currency])
-			? self::$arCurrencyFormat[$currency]
-			: self::GetFormatDescription($currency)
-		);
+		$format = self::$arCurrencyFormat[$currency] ?? self::GetFormatDescription($currency);
 
 		return self::formatValue($price, $format, $useTemplate);
 	}
@@ -695,28 +693,26 @@ class CAllCurrencyLang
 		return Currency\CurrencyManager::checkLanguage($language);
 	}
 
-	public static function isExistCurrencyLanguage($currency, $language)
+	public static function isExistCurrencyLanguage($currency, $language): bool
 	{
 		global $DB;
 		$currency = Currency\CurrencyManager::checkCurrencyID($currency);
 		$language = Currency\CurrencyManager::checkLanguage($language);
 		if ($currency === false || $language === false)
+		{
 			return false;
+		}
 		$query = "select LID from b_catalog_currency_lang where CURRENCY = '".$DB->ForSql($currency)."' and LID = '".$DB->ForSql($language)."'";
 		$searchIterator = $DB->Query($query, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
-		if ($result = $searchIterator->Fetch())
-		{
-			return true;
-		}
-		return false;
+		$result = $searchIterator->Fetch();
+		unset($searchIterator);
+
+		return !empty($result);
 	}
 
 	public static function getParsedCurrencyFormat(string $currency): array
 	{
-		$result = (isset(self::$arCurrencyFormat[$currency])
-			? self::$arCurrencyFormat[$currency]
-			: self::GetFormatDescription($currency)
-		);
+		$result = self::$arCurrencyFormat[$currency] ?? self::GetFormatDescription($currency);
 
 		return $result['TEMPLATE']['PARTS'];
 	}
@@ -804,8 +800,4 @@ class CAllCurrencyLang
 
 		return $result;
 	}
-}
-
-class CCurrencyLang extends CAllCurrencyLang
-{
 }

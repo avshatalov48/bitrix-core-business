@@ -172,6 +172,19 @@ class ChannelGroupTable extends Entity\DataManager
  * <li> CHANNEL_ID int mandatory,
  * <li> SITE_ID string(2) mandatory
  * </ul>
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_ChannelSite_Query query()
+ * @method static EO_ChannelSite_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ChannelSite_Result getById($id)
+ * @method static EO_ChannelSite_Result getList(array $parameters = array())
+ * @method static EO_ChannelSite_Entity getEntity()
+ * @method static \Bitrix\Vote\EO_ChannelSite createObject($setDefaultValues = true)
+ * @method static \Bitrix\Vote\EO_ChannelSite_Collection createCollection()
+ * @method static \Bitrix\Vote\EO_ChannelSite wakeUpObject($row)
+ * @method static \Bitrix\Vote\EO_ChannelSite_Collection wakeUpCollection($rows)
  */
 class ChannelSiteTable extends Entity\DataManager
 {

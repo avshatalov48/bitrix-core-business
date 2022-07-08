@@ -338,7 +338,7 @@ if ($message)
 		</tr>
 		<?
 
-		$str_PREVIEW_PICTURE = intval($fields["IMAGE_ID"]);
+		$str_PREVIEW_PICTURE = is_scalar($fields["IMAGE_ID"]) ? intval($fields["IMAGE_ID"]) : 0;
 		$bFileman = CModule::IncludeModule("fileman");
 		?>
 		<tr class="adm-detail-file-row">

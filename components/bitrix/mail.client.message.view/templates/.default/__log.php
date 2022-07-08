@@ -22,24 +22,7 @@ foreach ($list as $item)
 	<div class="mail-msg-view-log-item mail-msg-view-logitem-<?=intval($item['ID']) ?>"
 		data-id="<?=intval($item['ID']) ?>" data-log="<?=htmlspecialcharsbx($item['__log']) ?>">
 		<span class="mail-msg-view-log-item-icon-<?=($item['__is_outcome'] ? 'outcome' : 'income') ?>"></span>
-		<!--span class="mail-msg-view-log-item-icon <? if ($item['IS_SEEN'] != 'Y'): ?> active-mail<? endif ?>"></span-->
-		<span class="">
-			<? $APPLICATION->includeComponent(
-				'bitrix:mail.contact.avatar',
-				'',
-				array_merge(
-					!empty($arResult['avatarParams'][$item['SENDER_EMAIL']]) ? $arResult['avatarParams'][$item['SENDER_EMAIL']] : array(),
-					array(
-						'avatarSize' => 23,
-					)
-				),
-				null,
-				array(
-					'HIDE_ICONS' => 'Y',
-				)
-			); ?>
-		</span>
-		<? $__from = reset($item['__from']); ?>
+		<?php $__from = reset($item['__from']); ?>
 		<span class="mail-msg-view-log-item-name"><?=htmlspecialcharsbx($__from['name'] ?: $__from['email']) ?></span>
 		<span class="mail-msg-view-log-item-description"><?=htmlspecialcharsbx($item['SUBJECT']) ?></span>
 		<span class="mail-msg-view-log-item-date mail-msg-view-log-item-date">
@@ -49,15 +32,20 @@ foreach ($list as $item)
 					$item['__is_outcome'] ? 'MAIL_MESSAGE_SENT' : 'MAIL_MESSAGE_RECEIVED',
 					array('#DATETIME#' => $datetimeFormatted)
 				) ?><!--
-				--><? if ($item['OPTIONS']['trackable']): ?>,
+				--><?php
+				if ($item['OPTIONS']['trackable']): ?>,
 					<span class="read-confirmed-datetime">
-						<? if (!empty($readDatetimeFormatted)): ?>
+						<?php
+						if (!empty($readDatetimeFormatted)): ?>
 							<?=Loc::getMessage('MAIL_MESSAGE_READ_CONFIRMED', array('#DATETIME#' => $readDatetimeFormatted)) ?>
-						<? else: ?>
+						<?php
+						else: ?>
 							<?=Loc::getMessage('MAIL_MESSAGE_READ_AWAITING') ?>
-						<? endif ?>
+						<?php
+						endif ?>
 					</span>
-				<? endif ?>
+				<?php
+				endif ?>
 			</span>
 		</span>
 	</div>
@@ -66,5 +54,5 @@ foreach ($list as $item)
 		style="display: none; text-align: center; " data-id="<?=intval($item['ID']) ?>" data-empty="1">
 		<div class="mail-msg-view-log-item-loading mail-msg-view-border-bottom"></div>
 	</div>
-	<?
+	<?php
 }

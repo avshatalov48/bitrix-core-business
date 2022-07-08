@@ -29,7 +29,7 @@ ol.vote-questions li.vote-question {
 .vote-block-inp-wrap {
 	background-color:#fff;
 	border:1px solid #c6cdd3;
-	border-radius:1px;
+	border-radius: var(--ui-field-border-radius, 1px);
 	margin-bottom:17px;
 	height:44px;
 	padding:0 10px 0 18px;

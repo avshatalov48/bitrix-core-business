@@ -56,11 +56,10 @@ export class List
 		})
 
 		EventEmitter.subscribe('BX.Mail.Home:updatingCounters', (event) => {
-			if(event['data']['name']!== 'mailboxCounters')
+			if(event['data']['name'] !== 'mailboxCounters')
 			{
 				const counters = event['data']['counters'];
 				BX.Mail.Home.LeftMenuNode.directoryMenu.setCounters(counters);
-				const currentFolderCount = counters[this.getCurrentFolder()];
 
 				BX.Mail.Home.mailboxCounters.setCounters([
 					{
@@ -497,7 +496,7 @@ export class List
 			},
 			()=> {
 				BX.Mail.Home.Grid.reloadTable();
-			}
+			},
 		);
 		if(id === undefined)
 		{
@@ -875,6 +874,8 @@ export class List
 				}
 			}.bind(this),
 			function(response) {
+				BX.Mail.Home.Counters.restoreFromCache();
+				BX.Mail.Home.Grid.reloadTable();
 				options.onError && typeof (options.onError) === "function" ?
 					options.onError().bind(this, response) :
 					this.onErrorRequest(response);
@@ -887,6 +888,7 @@ export class List
 		let options = {};
 		this.checkErrorRights(response.errors);
 		options.errorMessage = response.errors[0].message;
+		this.notify(options.errorMessage);
 	}
 
 	checkErrorRights(errors)

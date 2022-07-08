@@ -4815,6 +4815,7 @@ class CCalendarEvent
 				. ", " . $DB->DateToCharFunction('i.DATE_CREATE') . " as DATE_CREATE"
 				. ", " . $DB->DateToCharFunction('i.TIMESTAMP_X') . " as TIMESTAMP_X"
 				. ", " . $DB->DateToCharFunction('p.DATE_FROM') . " as PARENT_DATE_FROM"
+				. ", " . $DB->DateToCharFunction('i.ORIGINAL_DATE_FROM') . " as ORIGINAL_DATE_FROM"
 				. ", p.TZ_FROM as PARENT_TZ_FROM"
 				. ", p.DAV_XML_ID as PARENT_DAV_XML_ID"
 				. ", p.G_EVENT_ID as PARENT_G_EVENT_ID"
@@ -4831,6 +4832,7 @@ class CCalendarEvent
 				. " AND p.DATE_TO_TS_UTC >= " . $syncTimestamp
 				. " AND p.G_EVENT_ID IS NOT NULL"
 				. " AND p.G_EVENT_ID <> ''"
+				. " AND p.DELETED != 'Y'"
 				. " AND i.SECTION_ID = ". $sectionId
 				. " AND i.OWNER_ID = ". $userId
 				. " AND s.EXTERNAL_TYPE = 'local'"
@@ -5135,7 +5137,7 @@ class CCalendarEvent
 		}
 	}
 
-	public static function getLocalBatchRecurrentEvent(int $userId, int $sectionId, int $syncTimestamp, int $count = 50): array
+	public static function getLocalBatchRecurrentEvent(int $userId, int $sectionId, int $syncTimestamp = 0, int $count = 50): array
 	{
 		global $DB;
 		$events = [];
@@ -5146,12 +5148,19 @@ class CCalendarEvent
 			. ", " . $DB->DateToCharFunction('e.DATE_TO') . " as DATE_TO"
 			. ", " . $DB->DateToCharFunction('e.DATE_CREATE') . " as DATE_CREATE"
 			. ", " . $DB->DateToCharFunction('e.TIMESTAMP_X') . " as TIMESTAMP_X"
-			. ", GROUP_CONCAT(". $DB->DateToCharFunction('i.DATE_FROM')." SEPARATOR ';') as EXDATES"
+			// . ", GROUP_CONCAT(". $DB->DateToCharFunction('i.ORIGINAL_DATE_FROM', 'SHORT')." SEPARATOR ';') as EXDATES"
+			. ", GROUP_CONCAT(". $DB->DateToCharFunction('x.ORIGINAL_DATE_FROM', 'SHORT')." SEPARATOR ';') as INSTANCES_EXDATES"
+			. ", GROUP_CONCAT(". $DB->DateToCharFunction('x.DATE_FROM', 'SHORT')." SEPARATOR ';') as INSTANCES_DATE_FROM"
 			. " FROM b_calendar_event e"
-			. " LEFT JOIN b_calendar_event i"
-				. " ON i.RECURRENCE_ID = e.PARENT_ID"
-				. " AND e.OWNER_ID = i.OWNER_ID"
-				. " AND  i.MEETING_STATUS = 'N'"
+			// . " LEFT JOIN b_calendar_event i"
+			// 	. " ON i.RECURRENCE_ID = e.PARENT_ID"
+			// 	. " AND e.OWNER_ID = i.OWNER_ID"
+			// 	. " AND  i.MEETING_STATUS = 'N'"
+			. " LEFT JOIN b_calendar_event x "
+				. " ON x.RECURRENCE_ID = e.PARENT_ID"
+				. " AND e.OWNER_ID = x.OWNER_ID"
+				. " AND (x.MEETING_STATUS != 'N' OR x.MEETING_STATUS IS NULL)"
+				. " AND x.DELETED = 'N'"
 			. " INNER JOIN b_calendar_section s"
 				. " ON s.ID = e.SECTION_ID"
 			. " WHERE"
@@ -5181,10 +5190,16 @@ class CCalendarEvent
 			{
 				$event['REMIND'] = unserialize($event['REMIND'], ['allowed_classes' => false]);
 			}
-			unset($event['EXDATE']);
-			if (!empty($event['EXDATES']))
+			// unset($event['EXDATE']);
+			if (!empty($event['INSTANCES_EXDATES']) || !empty($event['INSTANCES_DATE_FROM']))
 			{
-				$event['EXDATE'] = $event['EXDATES'];
+				$eventExdate = explode(';', $event['EXDATE']);
+				$instanceExdate = array_unique(explode(';', $event['INSTANCES_EXDATES']));
+				$instanceDateFrom = array_unique(explode(';', $event['INSTANCES_DATE_FROM']));
+				if (is_array($eventExdate) && is_array($instanceExdate))
+				{
+					$event['EXDATE'] = implode(';', array_diff($eventExdate, $instanceExdate, $instanceDateFrom));
+				}
 			}
 
 

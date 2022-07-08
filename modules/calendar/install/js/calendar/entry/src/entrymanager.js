@@ -1,13 +1,12 @@
-import {Entry} from "calendar.entry";
-import {SectionManager} from "calendar.sectionmanager";
-import {Util} from 'calendar.util';
-import {Loc, Type, Event} from "main.core";
-import {EventEmitter} from 'main.core.events';
-import {CompactEventForm} from "calendar.compacteventform";
-import "ui.notification";
+import { Entry } from 'calendar.entry';
+import { SectionManager } from 'calendar.sectionmanager';
+import { Util } from 'calendar.util';
+import { Event, Loc, Type } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { CompactEventForm } from 'calendar.compacteventform';
+import 'ui.notification';
 import { EventViewForm } from 'calendar.eventviewform';
 import { RoomsManager } from 'calendar.roomsmanager';
-
 
 export class EntryManager {
 	static newEntryName = '';
@@ -483,6 +482,11 @@ export class EntryManager {
 
 	handlePullChanges(params)
 	{
+		if (!BX.Calendar.Util.checkRequestId(params.requestUid))
+		{
+			return;
+		}
+
 		const compactForm = EntryManager.getCompactViewForm();
 		if (compactForm
 			&& compactForm.isShown())
@@ -507,7 +511,7 @@ export class EntryManager {
 				}
 				else if (data.control instanceof EventViewForm)
 				{
-					data.control.reloadSlider(params);
+					data.control.reloadSliderDebounce(params);
 				}
 			}
 		});
@@ -540,13 +544,15 @@ export class EntryManager {
 				return section.id === entrySectionId && section.isShown();
 			});
 
-		let loadedEntry = EntryManager.getEntryInstance(
-			calendarContext.getView().getEntryById(EntryManager.getEntryUniqueId(params?.fields))
-		);
+		let loadedEntry = params?.fields
+			? EntryManager.getEntryInstance(
+				calendarContext.getView().getEntryById(EntryManager.getEntryUniqueId(params.fields)),
+			)
+			: null;
 
 		if ((sectionDisplayed || loadedEntry) && calendarContext)
 		{
-			calendarContext.reload();
+			calendarContext.reloadDebounce();
 		}
 	}
 

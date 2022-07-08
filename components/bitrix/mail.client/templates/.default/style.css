@@ -1,3 +1,13 @@
+.mail-user-signature-editor-wrapper {
+	background-color: white;
+	padding: 15px 15px 20px;
+	border-radius: var(--ui-border-radius-md);
+}
+
+.mail-signature-edit-sender-text{
+	padding-left: 5px;
+}
+
 .pagetitle-mail-view .pagetitle-below {
 	display: -webkit-box;
 	display: -ms-flexbox;

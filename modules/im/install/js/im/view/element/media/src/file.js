@@ -15,13 +15,14 @@ import {Uploader} from "ui.progressbarjs.uploader";
 import {BitrixVue} from 'ui.vue';
 import {Vuex} from "ui.vue.vuex";
 import {FilesModel} from 'im.model';
-import {FileType, FileStatus, MessageType} from 'im.const';
+import { FileType, FileStatus, MessageType, EventType } from 'im.const';
 import {Utils} from "im.lib.utils";
+import { EventEmitter } from "main.core.events";
 
 BitrixVue.component('bx-im-view-element-file',
 {
 	/*
-	 * @emits 'uploadCancel' {file: object, event: MouseEvent}
+	 * @emits EventType.dialog.clickOnUploadCancel {file: object, event: MouseEvent}
 	 */
 
 	mounted()
@@ -142,7 +143,7 @@ BitrixVue.component('bx-im-view-element-file',
 					megabyte: this.localize['IM_MESSENGER_ELEMENT_FILE_SIZE_MB'],
 				},
 				cancelCallback: this.file.progress < 0? null: (event) => {
-					this.$emit('uploadCancel', {file: this.file, event});
+					EventEmitter.emit(EventType.dialog.clickOnUploadCancel, {file: this.file, event});
 				},
 				destroyCallback: () => {
 					if (this.uploader)

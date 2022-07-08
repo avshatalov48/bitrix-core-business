@@ -212,25 +212,34 @@ class Message
 			'MESSAGE_BODY' => $this->getBody(),
 		];
 
-		$result = $sender->sendMessage($messageFields);
+		$addResult = Internal\Entity\MessageTable::add($messageFields);
+		if (!$addResult->isSuccess())
+		{
+			$result = new Result\SendMessage();
+			$result->addErrors($addResult->getErrors());
+			$result->setStatus(MessageStatus::ERROR);
 
-		$messageFields['DATE_EXEC'] = new DateTime();
-		$messageFields['SUCCESS_EXEC'] = $result->isSuccess() ? 'Y' : 'N';
+			return $result;
+		}
+		$this->id = $addResult->getId();
+		$messageFields['ID'] = $this->id;
+
+		$result = $sender->sendMessage($messageFields);
+		$result->setId($this->id);
+
+		$updateFields = [
+			'DATE_EXEC' => new DateTime(),
+			'SUCCESS_EXEC' => $result->isSuccess() ? 'Y' : 'N',
+		];
 		if ($result->getExternalId() !== null)
 		{
-			$messageFields['EXTERNAL_ID'] = $result->getExternalId();
+			$updateFields['EXTERNAL_ID'] = $result->getExternalId();
 		}
 		if ($result->getStatus() !== null)
 		{
-			$messageFields['STATUS_ID'] = $result->getStatus();
+			$updateFields['STATUS_ID'] = $result->getStatus();
 		}
-
-		$addResult = Internal\Entity\MessageTable::add($messageFields);
-		if ($addResult->isSuccess())
-		{
-			$this->id = $addResult->getId();
-			$result->setId($this->id);
-		}
+		Internal\Entity\MessageTable::update($this->id, $updateFields);
 
 		return $result;
 	}

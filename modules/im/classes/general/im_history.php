@@ -34,7 +34,7 @@ class CIMHistory
 		}
 
 		$searchText = trim($searchText);
-		if (mb_strlen($searchText) <= 3)
+		if (mb_strlen($searchText) < 3)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_HISTORY_SEARCH_EMPTY"), "ERROR_SEARCH_EMPTY");
 			return false;

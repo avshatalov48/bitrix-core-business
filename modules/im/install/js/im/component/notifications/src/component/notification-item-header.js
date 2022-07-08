@@ -59,11 +59,11 @@ export const NotificationItemHeader = {
 				<span
 					v-if="!listItem.systemType"
 					@click.prevent="onUserTitleClick({userId: listItem.authorId, event: $event})"
-					class="bx-im-notifications-item-header-title-text"
+					class="bx-im-notifications-item-header-title-text-link"
 				>
 					{{ listItem.title.value }}
 				</span>
-				<span v-else-if="listItem.systemType" class="bx-im-notifications-item-bottom-subtitle-text" v-html="listItem.subtitle.value"></span>
+				<span v-else class="bx-im-notifications-item-header-title-text">{{ listItem.title.value }}</span>
 				<span
 					v-if="isMoreUsers && !listItem.systemType"
 					class="bx-im-notifications-item-header-more-users"

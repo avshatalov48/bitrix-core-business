@@ -294,10 +294,11 @@ $tabControl->Begin();?>
 			<td width="60%"><input title="<?=htmlspecialcharsbx(GetMessage("CURRENCY_FULL_NAME_DESC")); ?>" type="text" maxlength="50" size="15" name="<?=$fieldPrefix; ?>[FULL_NAME]" value="<?=htmlspecialcharsbx($settings['FULL_NAME']);?>"></td>
 		</tr>
 		<tr>
-			<td width="40%"><?echo GetMessage("CURRENCY_FORMAT_TEMPLATE")?>:</td>
+			<td width="40%"><span id="hint_format_<?=htmlspecialcharsbx($languageId); ?>"></span>
+				<script type="text/javascript">BX.hint_replace(BX('hint_format_<?=htmlspecialcharsbx($languageId); ?>'), '<?=\CUtil::JSEscape(htmlspecialcharsbx(GetMessage('CURRENCY_FORMAT_TEMPLATE_HINT'))); ?>');</script>&nbsp;<?echo GetMessage("CURRENCY_FORMAT_TEMPLATE_EXT")?>:</td>
 			<td width="60%">
 				<select name="format_<?=htmlspecialcharsbx($languageId); ?>" onchange="setTemplate('<?=$scriptLanguageId; ?>')">
-					<option value="">-<?=htmlspecialcharsbx(GetMessage("CURRENCY_SELECT_TEMPLATE")); ?>-</option>
+					<option value="">-<?=htmlspecialcharsbx(GetMessage("CURRENCY_SELECT_TEMPLATE_EXT")); ?>-</option>
 					<?foreach ($arTemplates as $key => $ar):?>
 						<option value="<?=htmlspecialcharsbx($key); ?>"><?=htmlspecialcharsbx($ar["TEXT"]); ?></option>
 					<?endforeach?>

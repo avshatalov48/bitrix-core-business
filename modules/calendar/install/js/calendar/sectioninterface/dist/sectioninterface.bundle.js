@@ -1728,7 +1728,7 @@ this.BX = this.BX || {};
 	      var provider = undefined;
 	      var connection = undefined;
 
-	      if (section.data.CAL_DAV_CON) {
+	      if (section.data.CAL_DAV_CON && section.belongsToView() && this.calendarContext.syncInterface) {
 	        var _this$calendarContext4 = this.calendarContext.syncInterface.getProviderById(section.data.CAL_DAV_CON);
 
 	        var _this$calendarContext5 = babelHelpers.slicedToArray(_this$calendarContext4, 2);

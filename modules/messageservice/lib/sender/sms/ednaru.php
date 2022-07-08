@@ -62,6 +62,12 @@ class Ednaru extends Sender\BaseConfigurable
 	public function register(array $fields): Result
 	{
 		$result = new Result();
+
+		if (isset($fields['subject_id']))
+		{
+			$fields[self::SENDER_ID_OPTION] = $fields['subject_id'];
+		}
+
 		if (!isset($fields[self::API_KEY_OPTION], $fields[self::SENDER_ID_OPTION]))
 		{
 			$result->addError(
@@ -97,7 +103,7 @@ class Ednaru extends Sender\BaseConfigurable
 
 	public function getExternalManageUrl(): string
 	{
-		return 'https://edna.ru/';
+		return 'https://im.edna.ru/';
 	}
 
 	public function getMessageStatus(array $messageFields): Sender\Result\MessageStatus
@@ -574,6 +580,11 @@ class Ednaru extends Sender\BaseConfigurable
 
 	public function getManageUrl(): string
 	{
+		if (defined('ADMIN_SECTION') && ADMIN_SECTION === true)
+		{
+			return parent::getManageUrl();
+		}
+
 		if (!Loader::includeModule('imopenlines') || !Loader::includeModule('imconnector'))
 		{
 			return '';

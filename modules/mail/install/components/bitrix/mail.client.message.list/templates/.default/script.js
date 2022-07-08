@@ -1,6 +1,10 @@
 (function (exports,mail_avatar,mail_messagegrid,mail_directorymenu,main_core_events,main_core,ui_buttons) {
 	'use strict';
 
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	var _node = /*#__PURE__*/new WeakMap();
 
 	var _errorTitleNode = /*#__PURE__*/new WeakMap();
@@ -17,32 +21,32 @@
 	  function ProgressBar(node) {
 	    babelHelpers.classCallCheck(this, ProgressBar);
 
-	    _node.set(this, {
+	    _classPrivateFieldInitSpec(this, _node, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _errorTitleNode.set(this, {
+	    _classPrivateFieldInitSpec(this, _errorTitleNode, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _errorTextNode.set(this, {
+	    _classPrivateFieldInitSpec(this, _errorTextNode, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _errorBoxNode.set(this, {
+	    _classPrivateFieldInitSpec(this, _errorBoxNode, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _syncButton.set(this, {
+	    _classPrivateFieldInitSpec(this, _syncButton, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _errorHintNode.set(this, {
+	    _classPrivateFieldInitSpec(this, _errorHintNode, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -130,22 +134,27 @@
 	  return ProgressBar;
 	}();
 
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 
 	var _name = /*#__PURE__*/new WeakMap();
 
 	var Counters = /*#__PURE__*/function () {
 	  function Counters(name, selectedDirectory) {
 	    babelHelpers.classCallCheck(this, Counters);
+	    babelHelpers.defineProperty(this, "cachedCounters", []);
 	    babelHelpers.defineProperty(this, "counters", []);
 	    babelHelpers.defineProperty(this, "hiddenCountersForTotalCounter", []);
 	    babelHelpers.defineProperty(this, "shortcuts", []);
 
-	    _name.set(this, {
+	    _classPrivateFieldInitSpec$1(this, _name, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -155,6 +164,11 @@
 	  }
 
 	  babelHelpers.createClass(Counters, [{
+	    key: "getCounters",
+	    value: function getCounters() {
+	      return this.counters;
+	    }
+	  }, {
 	    key: "getDirPath",
 	    value: function getDirPath(shortcut) {
 	      if (shortcut === undefined) {
@@ -188,7 +202,7 @@
 
 	      var resultCounters = {};
 	      resultCounters[this.selectedDirectory] = this.getCounter(this.selectedDirectory);
-	      this.senCounterUpdateEvent(resultCounters);
+	      this.sendCounterUpdateEvent(resultCounters);
 	    }
 	  }, {
 	    key: "setShortcut",
@@ -262,10 +276,12 @@
 	  }, {
 	    key: "addCounters",
 	    value: function addCounters(counters) {
+	      this.cacheCounters();
 	      var resultCounters = {};
 
 	      for (var i = 0; i < counters.length; i++) {
 	        var counter = counters[i];
+	        counter['count'] = Number(counter['count']);
 	        var path = counter['path'];
 	        this.addCounter(path, counter['count']);
 
@@ -276,7 +292,7 @@
 	        }
 	      }
 
-	      this.senCounterUpdateEvent(resultCounters);
+	      this.sendCounterUpdateEvent(resultCounters);
 	    }
 	    /*Set counters as when adding. Old counters with different names are retained*/
 
@@ -294,6 +310,7 @@
 	    key: "increaseCounter",
 	    value: function increaseCounter(name) {
 	      var count = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+	      this.cacheCounters();
 
 	      if (name in this.hiddenCountersForTotalCounter) {
 	        return "hidden counters for total counter";
@@ -309,6 +326,7 @@
 	    key: "lowerCounter",
 	    value: function lowerCounter(name) {
 	      var count = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+	      this.cacheCounters();
 
 	      if (name in this.hiddenCountersForTotalCounter) {
 	        return "hidden counters for total counter";
@@ -326,6 +344,19 @@
 
 	      this.counters[name] = newValue;
 	    }
+	  }, {
+	    key: "cacheCounters",
+	    value: function cacheCounters() {
+	      this.cachedCounters = [];
+	      Object.assign(this.cachedCounters, this.counters);
+	    }
+	  }, {
+	    key: "restoreFromCache",
+	    value: function restoreFromCache() {
+	      this.counters = [];
+	      Object.assign(this.counters, this.cachedCounters);
+	      this.sendCounterUpdateEvent(this.counters);
+	    }
 	    /*Change counters by rule*/
 
 	  }, {
@@ -342,6 +373,7 @@
 	        increase: true,
 	        lower: false
 	      }];
+	      this.cacheCounters();
 	      var resultCounters = {};
 	      var countersAreNotLoadedFromTheServer = false;
 
@@ -366,11 +398,11 @@
 	        }
 	      }
 
-	      this.senCounterUpdateEvent(resultCounters);
+	      this.sendCounterUpdateEvent(resultCounters);
 	    }
 	  }, {
-	    key: "senCounterUpdateEvent",
-	    value: function senCounterUpdateEvent(counters) {
+	    key: "sendCounterUpdateEvent",
+	    value: function sendCounterUpdateEvent(counters) {
 	      var event = new main_core_events.BaseEvent({
 	        data: {
 	          counters: counters,
@@ -404,17 +436,6 @@
 	    dirsWithUnseenMailCounters: config['dirsWithUnseenMailCounters'],
 	    filterId: config['filterId'],
 	    systemDirs: config['systemDirs']
-	  });
-	  main_core_events.EventEmitter.subscribe('BX.Mail.Sync:newLettersArrived', function () {
-	    BX.ajax.runComponentAction('bitrix:mail.client.message.list', 'getDirsWithUnseenMailCounters', {
-	      mode: 'class',
-	      data: {
-	        mailboxId: config['mailboxId']
-	      }
-	    }).then(function (response) {
-	      var data = response.data || {};
-	      BX.Mail.Home.Counters.setCounters(data);
-	    });
 	  });
 	  leftDirectoryMenuWrapper.append(this.directoryMenu.getNode());
 	};
@@ -466,9 +487,6 @@
 	        if (event['data']['name'] !== 'mailboxCounters') {
 	          var counters = event['data']['counters'];
 	          BX.Mail.Home.LeftMenuNode.directoryMenu.setCounters(counters);
-
-	          var currentFolderCount = counters[_this.getCurrentFolder()];
-
 	          BX.Mail.Home.mailboxCounters.setCounters([{
 	            path: 'unseenCountInCurrentMailbox',
 	            count: BX.Mail.Home.Counters.getTotalCounter()
@@ -637,7 +655,7 @@
 	          crmBtnInRow.startWait();
 	        }
 
-	        if (babelHelpers.typeof(this.isAddingToCrmInProgress) !== "object") {
+	        if (babelHelpers["typeof"](this.isAddingToCrmInProgress) !== "object") {
 	          this.isAddingToCrmInProgress = {};
 	        }
 
@@ -1162,6 +1180,8 @@
 	          actionOnSuccess();
 	        }
 	      }.bind(this), function (response) {
+	        BX.Mail.Home.Counters.restoreFromCache();
+	        BX.Mail.Home.Grid.reloadTable();
 	        options.onError && typeof options.onError === "function" ? options.onError().bind(this, response) : this.onErrorRequest(response);
 	      }.bind(this));
 	    }
@@ -1171,6 +1191,7 @@
 	      var options = {};
 	      this.checkErrorRights(response.errors);
 	      options.errorMessage = response.errors[0].message;
+	      this.notify(options.errorMessage);
 	    }
 	  }, {
 	    key: "checkErrorRights",
@@ -1291,7 +1312,7 @@
 	      this.sendICal(messageId, action).then(function () {
 	        button.classList.remove('ui-btn-wait');
 	        this.notify(main_core.Loc.getMessage(action === 'cancelled' ? 'MAIL_MESSAGE_ICAL_NOTIFY_REJECT' : 'MAIL_MESSAGE_ICAL_NOTIFY_ACCEPT'));
-	      }.bind(this)).catch(function () {
+	      }.bind(this))["catch"](function () {
 	        button.classList.remove('ui-btn-wait');
 	        this.notify(main_core.Loc.getMessage('MAIL_MESSAGE_ICAL_NOTIFY_ERROR'));
 	      }.bind(this));

@@ -29,6 +29,11 @@ class Helper
 		return !empty($errorText) && preg_match("/^(\[410\] Resource has been deleted)/i", $errorText);
 	}
 
+	public static function isNotFoundError(string $errorText = null): bool
+	{
+		return !empty($errorText) && preg_match("/^\[(404)\][a-z0-9 _]*/i", $errorText);
+	}
+
 	/**
 	 * @return string|null
 	 * @throws \Bitrix\Main\ArgumentNullException

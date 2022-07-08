@@ -6,9 +6,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
-\Bitrix\Main\UI\Extension::load("ui.forms");
-\Bitrix\Main\UI\Extension::load('ui.buttons');
-\CJSCore::init("sidepanel");
+\Bitrix\Main\UI\Extension::load([
+	'ui.forms',
+	'ui.buttons',
+	'sidepanel',
+	'ui.design-tokens',
+]);
+
 $isIframe = isset($arResult["IFRAME"]) && $arResult["IFRAME"] === "Y";
 
 $bodyClass = $APPLICATION->getPageProperty('BodyClass', false);

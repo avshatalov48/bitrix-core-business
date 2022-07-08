@@ -12,6 +12,10 @@ this.BX = this.BX || {};
 	    value: function handlePullChanges(params) {
 	      var _params$fields6;
 
+	      if (!BX.Calendar.Util.checkRequestId(params.requestUid)) {
+	        return;
+	      }
+
 	      var compactForm = EntryManager.getCompactViewForm();
 
 	      if (compactForm && compactForm.isShown()) {
@@ -29,7 +33,7 @@ this.BX = this.BX || {};
 	          if (params.command === 'delete_event' && data.entry.getType() === (params === null || params === void 0 ? void 0 : (_params$fields2 = params.fields) === null || _params$fields2 === void 0 ? void 0 : _params$fields2.CAL_TYPE)) {
 	            slider.close();
 	          } else if (data.control instanceof calendar_eventviewform.EventViewForm) {
-	            data.control.reloadSlider(params);
+	            data.control.reloadSliderDebounce(params);
 	          }
 	        }
 	      });
@@ -53,10 +57,10 @@ this.BX = this.BX || {};
 	      var sectionDisplayed = main_core.Type.isArray(params.sections) && params.sections.find(function (section) {
 	        return section.id === entrySectionId && section.isShown();
 	      });
-	      var loadedEntry = EntryManager.getEntryInstance(calendarContext.getView().getEntryById(EntryManager.getEntryUniqueId(params === null || params === void 0 ? void 0 : params.fields)));
+	      var loadedEntry = params !== null && params !== void 0 && params.fields ? EntryManager.getEntryInstance(calendarContext.getView().getEntryById(EntryManager.getEntryUniqueId(params.fields))) : null;
 
 	      if ((sectionDisplayed || loadedEntry) && calendarContext) {
-	        calendarContext.reload();
+	        calendarContext.reloadDebounce();
 	      }
 	    }
 	  }], [{

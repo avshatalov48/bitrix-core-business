@@ -688,7 +688,10 @@ export class SectionInterface extends EventEmitter
 		let provider = undefined;
 		let connection = undefined;
 
-		if (section.data.CAL_DAV_CON)
+		if (section.data.CAL_DAV_CON
+			&& section.belongsToView()
+			&& this.calendarContext.syncInterface
+		)
 		{
 			[provider, connection] = this.calendarContext.syncInterface.getProviderById(section.data.CAL_DAV_CON);
 		}

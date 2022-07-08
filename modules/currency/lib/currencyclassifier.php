@@ -24,11 +24,11 @@ final class CurrencyClassifier
 
 	private const MODIFIER_ALL = 'ALL';
 
-	private static $lastSortLanguage;
-	private static $separators = array();
-	private static $separatorsTypes = array();
+	private static string $lastSortLanguage = '';
+	private static array $separators = [];
+	private static array $separatorsTypes = [];
 
-	private static $bitrix24Included = null;
+	private static ?bool $bitrix24Included = null;
 
 	/**
 	 * Returns currency description with language settings.
@@ -330,7 +330,7 @@ final class CurrencyClassifier
 		}
 	}
 
-	private static $areaConfig = [
+	private static array $areaConfig = [
 		'br' => [
 			self::MODIFIER_ALL => [
 				'DEC_POINT' => self::DECIMAL_POINT_COMMA,
@@ -482,7 +482,7 @@ final class CurrencyClassifier
 		],
 	];
 
-	private static $currencyClassifier = array(
+	private static array $currencyClassifier = array(
 		'ALL' =>
 			array(
 				'NUM_CODE' => '008',

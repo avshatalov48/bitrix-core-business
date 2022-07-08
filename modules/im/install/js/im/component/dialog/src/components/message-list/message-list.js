@@ -9,7 +9,6 @@ import {
 	RestMethod,
 	RestMethodHandler, EventType
 } from "im.const";
-import {DialogCore, DialogReadMessages} from 'im.mixin';
 import {Utils as MessengerUtils} from "im.lib.utils";
 import {Animation} from "im.lib.animation";
 import {Logger} from "im.lib.logger";
@@ -26,19 +25,10 @@ import {Placeholder3} from './placeholders/placeholder-3';
 const MessageList = {
 	/**
 	 * @emits EventType.dialog.readMessage
-	 * @emits EventType.dialog.quoteMessage
 	 * @emits EventType.dialog.clickOnDialog
-	 * @emits EventType.dialog.clickOnUserName
-	 * @emits EventType.dialog.clickOnUploadCancel
-	 * @emits EventType.dialog.clickOnKeyboardButton
-	 * @emits EventType.dialog.clickOnChatTeaser
-	 * @emits EventType.dialog.clickOnMessageMenu
 	 * @emits EventType.dialog.clickOnCommand
 	 * @emits EventType.dialog.clickOnMention
-	 * @emits EventType.dialog.clickOnMessageRetry
 	 * @emits EventType.dialog.clickOnReadList
-	 * @emits EventType.dialog.setMessageReaction
-	 * @emits EventType.dialog.openMessageReactionList
 	 */
 	props:
 	{
@@ -57,7 +47,6 @@ const MessageList = {
 		showMessageMenu: { type: Boolean, default: true },
 	},
 	components: {Placeholder1, Placeholder2, Placeholder3},
-	mixins: [DialogCore, DialogReadMessages],
 	data()
 	{
 		return {
@@ -122,6 +111,13 @@ const MessageList = {
 			const dialog = this.$store.getters['dialogues/get'](this.dialogId);
 
 			return dialog? dialog: this.$store.getters['dialogues/getBlank']();
+		},
+		chatId()
+		{
+			if (this.application)
+			{
+				return this.application.dialog.chatId;
+			}
 		},
 		collection()
 		{
@@ -395,10 +391,6 @@ const MessageList = {
 		/* endregion 01. Init and destroy */
 
 		/* region 02. Event handlers */
-		onReadMessage()
-		{
-			//redeclare method to ignore handler from ReadMessages mixin
-		},
 		onDialogClick(event)
 		{
 			if (BitrixVue.testNode(event.target, {className: 'bx-im-message-command'}))
@@ -518,64 +510,12 @@ const MessageList = {
 
 			return true;
 		},
-		onClickOnUserName(event)
-		{
-			if (!this.windowFocused)
-			{
-				return false;
-			}
-			EventEmitter.emit(EventType.dialog.clickOnUserName, event);
-		},
-		onClickOnUploadCancel(event)
-		{
-			if (!this.windowFocused)
-			{
-				return false;
-			}
-			EventEmitter.emit(EventType.dialog.clickOnUploadCancel, event);
-		},
-		onClickOnKeyboardButton(event)
-		{
-			if (!this.windowFocused)
-			{
-				return false;
-			}
-			EventEmitter.emit(EventType.dialog.clickOnKeyboardButton, event);
-		},
-		onClickOnChatTeaser(event)
-		{
-			EventEmitter.emit(EventType.dialog.clickOnChatTeaser, event);
-		},
-		onClickOnMessageMenu(event)
-		{
-			if (!this.windowFocused)
-			{
-				return false;
-			}
-			EventEmitter.emit(EventType.dialog.clickOnMessageMenu, event);
-		},
-		onClickOnMessageRetry(event)
-		{
-			if (!this.windowFocused)
-			{
-				return false;
-			}
-			EventEmitter.emit(EventType.dialog.clickOnMessageRetry, event);
-		},
 		onClickOnReadList(event)
 		{
 			const readedList = this.dialog.readedList.filter(record => {
 				return record.messageId === this.lastMessageId && record.userId !== this.lastMessageAuthorId;
 			});
 			EventEmitter.emit(EventType.dialog.clickOnReadList, {list: readedList, event});
-		},
-		onMessageReactionSet(event)
-		{
-			EventEmitter.emit(EventType.dialog.setMessageReaction, event);
-		},
-		onMessageReactionListOpen(event)
-		{
-			EventEmitter.emit(EventType.dialog.openMessageReactionList, event);
 		},
 		onDragMessage(event)
 		{
@@ -589,14 +529,6 @@ const MessageList = {
 			{
 				this.capturedMoveEvent = null;
 			}
-		},
-		onQuoteMessage(event)
-		{
-			if (!this.windowFocused)
-			{
-				return false;
-			}
-			EventEmitter.emit(EventType.dialog.quoteMessage, event);
 		},
 		onScroll(event)
 		{
@@ -1250,7 +1182,11 @@ const MessageList = {
 				return false;
 			}
 
-			this.readMessage(this.lastUnreadMessageId, true, true).then(() => {
+			EventEmitter.emitAsync(EventType.dialog.readMessage, {
+				id: this.lastUnreadMessageId,
+				skipTimer: true,
+				skipAjax: true
+			}).then(() => {
 				this.$Bitrix.RestClient.get().callBatch(
 					this.prepareUnreadRequestParams(),
 					response => this.onUnreadRequest(response)
@@ -1735,16 +1671,7 @@ const MessageList = {
 							:referenceContentClassName="DialogReferenceClassName.listItem"
 							:referenceContentBodyClassName="DialogReferenceClassName.listItemBody"
 							:referenceContentNameClassName="DialogReferenceClassName.listItemName"
-							@clickByUserName="onClickOnUserName"
-							@clickByUploadCancel="onClickOnUploadCancel"
-							@clickByKeyboardButton="onClickOnKeyboardButton"
-							@clickByChatTeaser="onClickOnChatTeaser"
-							@clickByMessageMenu="onClickOnMessageMenu"
-							@clickByMessageRetry="onClickOnMessageRetry"
-							@setMessageReaction="onMessageReactionSet"
-							@openMessageReactionList="onMessageReactionListOpen"
 							@dragMessage="onDragMessage"
-							@quoteMessage="onQuoteMessage"
 						/>
 					</div>
 				</template>

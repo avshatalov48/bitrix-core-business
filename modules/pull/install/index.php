@@ -46,7 +46,7 @@ class pull extends CModule
 
 		$this->errors = false;
 		if(!$DB->Query("SELECT 'x' FROM b_pull_stack", true))
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/pull/install/db/".mb_strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/pull/install/db/mysql/install.sql");
 
 		if($this->errors !== false)
 		{
@@ -111,7 +111,7 @@ class pull extends CModule
 		$this->errors = false;
 
 		if (!$arParams['savedata'])
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/pull/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/pull/install/db/mysql/uninstall.sql");
 
 		$arSQLErrors = Array();
 		if(is_array($this->errors))

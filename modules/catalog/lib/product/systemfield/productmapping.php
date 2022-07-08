@@ -369,7 +369,7 @@ class ProductMapping extends Highloadblock
 		return $row;
 	}
 
-	protected static function updateProductFormConfiguration(): void
+	public static function updateProductFormConfiguration(): void
 	{
 		if (!static::isAllowed())
 		{

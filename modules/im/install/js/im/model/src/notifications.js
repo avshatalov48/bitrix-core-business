@@ -42,6 +42,7 @@ class NotificationsModel extends VuexBuilderModel
 			text: '',
 			sectionCode: NotificationTypesCodes.simple,
 			textConverted: '',
+			title: '',
 			unread: false,
 			display: true,
 			settingName: 'im|default',
@@ -584,6 +585,18 @@ class NotificationsModel extends VuexBuilderModel
 		if (Type.isString(fields.setting_name))
 		{
 			result.settingName = fields.setting_name;
+		}
+
+		// rest format
+		if (Type.isString(fields.notify_title) && fields.notify_title.length > 0)
+		{
+			result.title = fields.notify_title;
+		}
+
+		// p&p format
+		if (Type.isString(fields.title) && fields.title.length > 0)
+		{
+			result.title = fields.title;
 		}
 
 		return result;

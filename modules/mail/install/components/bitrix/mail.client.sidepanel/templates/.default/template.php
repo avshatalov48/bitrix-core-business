@@ -31,7 +31,6 @@ $APPLICATION->restartBuffer();
 				</div>
 				<div class="mail-msg-sidepanel-title-below">
 					<? $APPLICATION->showViewContent('below_pagetitle'); ?>
-					<div class="mail-msg-sidepanel-title-below-border"></div>
 				</div>
 			</div>
 

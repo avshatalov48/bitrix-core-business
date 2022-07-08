@@ -1,24 +1,22 @@
-<?
+<?php
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Main\Loader,
-	Bitrix\Currency;
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Loader;
+use Bitrix\Currency;
 
-define('STOP_STATISTICS', true);
-define('BX_SECURITY_SHOW_MESSAGE', true);
+const STOP_STATISTICS = true;
+const BX_SECURITY_SHOW_MESSAGE = true;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 
-Loc::loadMessages(__FILE__);
-
-$result = array(
+$result = [
 	'STATUS' => '',
 	'MESSAGE' => '',
 	'RATE_CNT' => '',
-	'RATE' => ''
-);
+	'RATE' => '',
+];
 
 if (!check_bitrix_sessid())
 {
@@ -84,14 +82,14 @@ else
 			$data = $http->get($url);
 
 			$charset = 'windows-1251';
-			$matches = array();
+			$matches = [];
 			if (preg_match("/<"."\?XML[^>]{1,}encoding=[\"']([^>\"']{1,})[\"'][^>]{0,}\?".">/i", $data, $matches))
 			{
 				$charset = trim($matches[1]);
 			}
 			$data = preg_replace("#<!DOCTYPE[^>]+?>#i", '', $data);
 			$data = preg_replace("#<"."\\?XML[^>]+?\\?".">#i", '', $data);
-			$data = $APPLICATION->ConvertCharset($data, $charset, SITE_CHARSET);
+			$data = Main\Text\Encoding::convertEncoding($data, $charset, SITE_CHARSET);
 
 			$objXML = new CDataXML();
 			$res = $objXML->LoadString($data);

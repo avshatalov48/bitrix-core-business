@@ -239,6 +239,8 @@ BX.IM = function(domNode, params)
 		callInterceptAllowed: params.webrtc && params.webrtc.phoneCanInterceptCall || false
 	});
 
+	BX.PhoneCallView.initializeBackgroundAppPlacement();
+
 	this.desktop.webrtc = this.webrtc;
 
 	if (BX.MessengerCommon.isDesktop())
@@ -2293,7 +2295,14 @@ BX.IM.prototype.showHardwareSettings = function()
 				constraints.video = true;
 		}
 
-		return navigator.mediaDevices.getUserMedia(constraints);
+		if (!supportedDevices.audioInput && !supportedDevices.videoInput)
+		{
+			return Promise.reject(new Error("NO_HARDWARE"))
+		}
+		else
+		{
+			return navigator.mediaDevices.getUserMedia(constraints);
+		}
 	}).then(function(mediaStream)
 	{
 		self.settingsCameraTestMediaStream = mediaStream;
@@ -2364,15 +2373,28 @@ BX.IM.prototype.showHardwareSettings = function()
 	{
 		console.error(e);
 
+		let errorText;
+		if ('message' in e && e.message === 'NO_HARDWARE')
+		{
+			errorText = BX.message("IM_SETTINGS_HARDWARE_NOT_FOUND")
+		}
+		else
+		{
+			errorText = BX.message("IM_SETTINGS_HARDWARE_ERROR")
+			+ (
+				isHttps
+				? "\n" + e.toString()
+				: " " + BX.message("IM_SETTINGS_HARDWARE_USE_HTTPS")
+			)
+		}
+
 		elements.error.innerHTML = '';
 		elements.error.appendChild(BX.create("div", {
 			props: {className: "ui-alert ui-alert-icon-danger"},
 			children: [
 				BX.create("span", {
 					props: {className: "ui-alert-message"},
-					text: BX.message("IM_SETTINGS_HARDWARE_ERROR") + (isHttps ?
-						"\n" + e.toString()
-						: " " + BX.message("IM_SETTINGS_HARDWARE_USE_HTTPS"))
+					text: errorText
 				})
 			]
 		}))

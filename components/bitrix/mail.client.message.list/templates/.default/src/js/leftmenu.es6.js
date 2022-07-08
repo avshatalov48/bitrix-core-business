@@ -25,19 +25,6 @@ export class LeftMenu
 			systemDirs: config['systemDirs'],
 		});
 
-		EventEmitter.subscribe('BX.Mail.Sync:newLettersArrived', () => {
-
-			BX.ajax.runComponentAction('bitrix:mail.client.message.list', 'getDirsWithUnseenMailCounters', {
-				mode: 'class',
-				data: {
-					mailboxId: config['mailboxId'],
-				},
-			}).then(response => {
-				const data = response.data || {};
-				BX.Mail.Home.Counters.setCounters(data);
-			});
-		});
-
 		leftDirectoryMenuWrapper.append(this.directoryMenu.getNode());
 	}
 }

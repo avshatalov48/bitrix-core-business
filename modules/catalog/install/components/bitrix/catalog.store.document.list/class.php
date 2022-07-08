@@ -804,7 +804,12 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			$isGuideOver = filter_var($isGuideOver, FILTER_VALIDATE_BOOLEAN);
 		}
 
-		return $this->mode === self::ARRIVAL_MODE && !$isGuideOver && $this->isFirstTime();
+		return (
+			$this->mode === self::ARRIVAL_MODE
+			&& !$isGuideOver
+			&& $this->isFirstTime()
+			&& Catalog\Component\UseStore::isUsed()
+		);
 	}
 
 	private function getUserFilter(): array

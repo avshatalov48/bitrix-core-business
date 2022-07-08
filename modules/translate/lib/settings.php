@@ -175,6 +175,7 @@ class Settings
 	 * Save changes or create new file.
 	 *
 	 * @return boolean
+	 * @throws Main\IO\IoException
 	 */
 	public function save(): bool
 	{
@@ -188,19 +189,36 @@ class Settings
 			$content = str_replace(["\r\n", "\r"], ["\n", ''], $content);
 		}
 
-		if ($content <> '')
-		{
-			if (parent::putContents("<". "?php\nreturn ". $content. "\n?". '>') === false)
+		\set_error_handler(
+			function ($severity, $message, $file, $line)
 			{
-				$filePath = $this->getPath();
-				throw new Main\IO\IoException("Couldn't write option file '{$filePath}'");
+				throw new \ErrorException($message, $severity, $severity, $file, $line);
+			}
+		);
+
+		try
+		{
+			if ($content <> '')
+			{
+				if (parent::putContents("<". "?php\nreturn ". $content. "\n?". '>') === false)
+				{
+					$filePath = $this->getPath();
+					throw new Main\IO\IoException("Couldn't write option file '{$filePath}'");
+				}
+			}
+			elseif ($this->isExists())
+			{
+				$this->markWritable();
+				$this->delete();
 			}
 		}
-		elseif ($this->isExists())
+		catch (\ErrorException $exception)
 		{
-			$this->markWritable();
-			$this->delete();
+			\restore_error_handler();
+			throw new Main\IO\IoException($exception->getMessage());
 		}
+
+		\restore_error_handler();
 
 		return true;
 	}

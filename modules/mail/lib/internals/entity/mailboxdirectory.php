@@ -7,6 +7,7 @@ use Bitrix\Mail\Internals\MailboxDirectoryTable;
 use Bitrix\Mail\MailboxDirectory as MailboxDirectoryManager;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
+use Bitrix\Main\Text\Emoji;
 use JsonSerializable;
 
 class MailboxDirectory extends \Bitrix\Mail\Internals\EO_MailboxDirectory implements JsonSerializable
@@ -169,6 +170,15 @@ class MailboxDirectory extends \Bitrix\Mail\Internals\EO_MailboxDirectory implem
 		$path = explode($this->getDelimiter(), $this->getPath());
 
 		return join(' / ', $path);
+	}
+
+	public function getPath($emojiEncode = false)
+	{
+		if(!$emojiEncode)
+		{
+			return parent::getPath();
+		}
+		return Emoji::encode(parent::getPath());
 	}
 
 	public function getName()

@@ -3,6 +3,7 @@ IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Im as IM;
 use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\Localization\Loc;
 
 class CIMChat
 {
@@ -3258,7 +3259,11 @@ class CIMChat
 			}
 		}
 
-		if ($message)
+		if (
+			$message
+			&& $chatType !== IM_MESSAGE_OPEN
+			&& $chatEntityType !== 'THREAD'
+		)
 		{
 			$lastId = self::AddMessage(Array(
 				"TO_CHAT_ID" => $chatId,
@@ -3478,6 +3483,12 @@ class CIMChat
 		}
 
 		$message = '';
+
+		if ($chatType === IM_MESSAGE_OPEN || $chatEntityType === 'THREAD')
+		{
+			$skipMessage = true;
+		}
+
 		if ($skipMessage)
 		{
 			$message = '';
@@ -3573,6 +3584,23 @@ class CIMChat
 				),
 				"PUSH" => 'N'
 			));
+		}
+
+		if (!$bSelf && $chatType !== IM_MESSAGE_OPEN_LINE)
+		{
+			$gender = \Bitrix\Im\User::getInstance($this->user_id)->getGender();
+			$userName = \Bitrix\Im\User::getInstance($this->user_id)->getFullName(false);
+			$userName = '[USER='.$this->user_id.']'.$userName.'[/USER]';
+			$notificationMessage = Loc::getMessage('IM_CHAT_KICK_NOTIFICATION_'. $gender, ["#USER_NAME#" => $userName]);
+			$notificationFields = [
+				'TO_USER_ID' => $userId,
+				'FROM_USER_ID' => 0,
+				'NOTIFY_TYPE' => IM_NOTIFY_SYSTEM,
+				'NOTIFY_MODULE' => 'im',
+				'NOTIFY_TITLE' => htmlspecialcharsback($arRes['CHAT_TITLE']),
+				'NOTIFY_MESSAGE' => "$notificationMessage",
+			];
+			CIMNotify::Add($notificationFields);
 		}
 
 		if ($chatType == IM_MESSAGE_OPEN)

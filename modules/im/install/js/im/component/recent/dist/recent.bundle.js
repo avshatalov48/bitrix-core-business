@@ -436,7 +436,7 @@ this.BX = this.BX || {};
 	      }
 	    },
 	    onClick: function onClick(event) {
-	      main_core_events.EventEmitter.emit('openMessenger', event);
+	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.open, event);
 	    },
 	    onRightClick: function onRightClick(event) {
 	      this.openOldContextMenu(event);

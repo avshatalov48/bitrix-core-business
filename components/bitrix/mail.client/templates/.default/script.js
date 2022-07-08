@@ -933,13 +933,11 @@
 		{
 			self.syncData[params.sessid].new = params.new;
 		}
-
-		if (params.complete && !self.syncData[params.sessid].complete)
+		
+		if (!self.syncData[params.sessid].complete)
 		{
 			if (self.syncData[params.sessid].new > 0 || params.updated > 0 || params.deleted > 0)
 			{
-				BX.onCustomEvent('BX.Mail.Sync:newLettersArrived');
-
 				var messageGrid = new BX.Mail.MessageGrid();
 				messageGrid.setGridId(gridId);
 				messageGrid.reloadTable();
@@ -1116,7 +1114,16 @@
 			},
 			{
 				condition: [
-					'^' + siteDir + 'mail/(blacklist|signature|config|message|addressbook)'
+					'^' + siteDir + 'mail/(blacklist|signature|addressbook)',
+				],
+				options: {
+					width: 1080,
+					cacheable: false
+				}
+			},
+			{
+				condition: [
+					'^' + siteDir + 'mail/(message)'
 				],
 				options: {
 					width: 1080

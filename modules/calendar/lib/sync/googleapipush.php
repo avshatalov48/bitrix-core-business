@@ -687,6 +687,7 @@ final class GoogleApiPush
 	/**
 	 * @param array $connectionIds
 	 * @param array $connections
+	 * @throws \Exception
 	 */
 	private static function checkPushSectionChannel(array $connectionIds, array $connections): void
 	{
@@ -789,14 +790,16 @@ final class GoogleApiPush
 					if ($channelInfo && isset($channelInfo['id'], $channelInfo['resourceId']))
 					{
 						$googleApiConnection->updateSuccessLastResultConnection();
-						PushTable::add([
+						$row = [
 							'ENTITY_TYPE' => self::TYPE_SECTION,
 							'ENTITY_ID' => $missedSection,
 							'CHANNEL_ID' => $channelInfo['id'],
 							'RESOURCE_ID' => $channelInfo['resourceId'],
 							'EXPIRES' => $channelInfo['expiration'],
 							'NOT_PROCESSED' => 'N'
-						]);
+						];
+						self::deletePushChannel($row);
+						PushTable::add($row);
 					}
 					else
 					{

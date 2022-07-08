@@ -3,21 +3,14 @@
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 
-if(class_exists('translate'))
+if (class_exists('translate'))
 {
 	return;
 }
 
-Loc::loadMessages(__FILE__);
-
 class translate extends \CModule
 {
 	public $MODULE_ID = 'translate';
-	public $MODULE_VERSION;
-	public $MODULE_VERSION_DATE;
-	public $MODULE_NAME;
-	public $MODULE_DESCRIPTION;
-	public $MODULE_CSS;
 	public $MODULE_GROUP_RIGHTS = 'Y';
 
 	public function __construct()
@@ -43,15 +36,14 @@ class translate extends \CModule
 	{
 		global $APPLICATION, $DB;
 
-		if (!$DB->query("SELECT 'x' FROM b_translate_phrase WHERE 1=0", true))
+		if (!$DB->query("SELECT 'x' FROM b_translate_path WHERE 1=0", true))
 		{
 			$errors = $DB->runSqlBatch(sprintf(
-				'%s/bitrix/modules/%s/install/db/%s/install.sql',
+				'%s/bitrix/modules/%s/install/db/mysql/install.sql',
 				$_SERVER['DOCUMENT_ROOT'],
-				mb_strtolower($this->MODULE_ID),
-				mb_strtolower($DB->type)
+				mb_strtolower($this->MODULE_ID)
 			));
-			if($errors !== false)
+			if ($errors !== false)
 			{
 				$APPLICATION->ThrowException(implode("", $errors));
 
@@ -59,12 +51,11 @@ class translate extends \CModule
 			}
 
 			$errors = $DB->runSqlBatch(sprintf(
-				'%s/bitrix/modules/%s/install/db/%s/install_ft.sql',
+				'%s/bitrix/modules/%s/install/db/mysql/install_ft.sql',
 				$_SERVER['DOCUMENT_ROOT'],
-				mb_strtolower($this->MODULE_ID),
-				mb_strtolower($DB->type)
+				mb_strtolower($this->MODULE_ID)
 			));
-			if($errors !== false)
+			if ($errors !== false)
 			{
 				$APPLICATION->ThrowException(implode("<br>", $errors));
 
@@ -102,10 +93,9 @@ class translate extends \CModule
 		if (!isset($params['savedata']) || $params['savedata'] !== true)
 		{
 			$errors = $DB->runSqlBatch(sprintf(
-				'%s/bitrix/modules/%s/install/db/%s/uninstall.sql',
+				'%s/bitrix/modules/%s/install/db/mysql/uninstall.sql',
 				$_SERVER['DOCUMENT_ROOT'],
-				mb_strtolower($this->MODULE_ID),
-				mb_strtolower($DB->type)
+				mb_strtolower($this->MODULE_ID)
 			));
 			if ($errors !== false)
 			{
@@ -115,7 +105,7 @@ class translate extends \CModule
 			}
 		}
 
-		\COption::RemoveOption($this->MODULE_ID);
+		Main\Config\Option::delete($this->MODULE_ID);
 
 		$this->UnInstallEvents();
 
@@ -131,7 +121,7 @@ class translate extends \CModule
 	{
 		$eventManager = Main\EventManager::getInstance();
 		$eventManager->unRegisterEventHandler('main', 'OnPanelCreate', $this->MODULE_ID, '\\Bitrix\\Translate\\Ui\\Panel', 'onPanelCreate');
-		$eventManager->unRegisterEventHandler('perfmon', 'OnGetTableSchema', $this->MODULE_ID, 'translate', 'getTableSchema');
+		$eventManager->unRegisterEventHandler('perfmon', 'OnGetTableSchema', $this->MODULE_ID, 'translate', 'onGetTableSchema');
 
 		return true;
 	}
@@ -141,14 +131,11 @@ class translate extends \CModule
 	 */
 	public function InstallFiles()
 	{
-		if ($_ENV['COMPUTERNAME'] != 'BX')
-		{
-			\CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/translate/install/admin', $_SERVER['DOCUMENT_ROOT'].'/bitrix/admin', true, true);
-			\CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/translate/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
-			\CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/translate/install/images', $_SERVER['DOCUMENT_ROOT'].'/bitrix/images/translate', true, true);
-			\CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/translate/install/js', $_SERVER['DOCUMENT_ROOT'].'/bitrix/js', true, true);
-			\CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/translate/install/themes', $_SERVER['DOCUMENT_ROOT'].'/bitrix/themes', true, true);
-		}
+		\CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/translate/install/admin', $_SERVER['DOCUMENT_ROOT'].'/bitrix/admin', true, true);
+		\CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/translate/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
+		\CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/translate/install/images', $_SERVER['DOCUMENT_ROOT'].'/bitrix/images/translate', true, true);
+		\CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/translate/install/js', $_SERVER['DOCUMENT_ROOT'].'/bitrix/js', true, true);
+		\CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/translate/install/themes', $_SERVER['DOCUMENT_ROOT'].'/bitrix/themes', true, true);
 
 		return true;
 	}

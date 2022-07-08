@@ -1734,6 +1734,9 @@ class CCalendar
 		return $res;
 	}
 
+	/**
+	 * @throws Main\ObjectException
+	 */
 	public static function SaveEventEx($params = [])
 	{
 		$arFields = $params['arFields'];
@@ -1778,10 +1781,12 @@ class CCalendar
 		$silentErrorModePrev = self::$silentErrorMode;
 		self::SetSilentErrorMode();
 
-		if (!isset($arFields['DATE_FROM']) &&
-			!isset($arFields['DATE_TO']) &&
-			isset($arFields['DT_FROM']) &&
-			isset($arFields['DT_TO']))
+		if (
+			!isset($arFields['DATE_FROM'])
+			&& !isset($arFields['DATE_TO'])
+			&& isset($arFields['DT_FROM'])
+			&& isset($arFields['DT_TO'])
+		)
 		{
 			$arFields['DATE_FROM'] = $arFields['DT_FROM'];
 			$arFields['DATE_TO'] = $arFields['DT_TO'];
@@ -1818,8 +1823,16 @@ class CCalendar
 
 			if ($canChangeDateRecurrenceEvent)
 			{
-				$arFields['DATE_FROM'] = self::GetOriginalDate($arFields['DATE_FROM'], $curEvent['DATE_FROM'], $arFields['TZ_FROM']);
-				$arFields['DATE_TO'] = self::GetOriginalDate($arFields['DATE_TO'], $curEvent['DATE_TO'], $arFields['TZ_TO']);
+				$arFields['DATE_FROM'] = self::GetOriginalDate(
+					$arFields['DATE_FROM'],
+					$curEvent['DATE_FROM'],
+					$arFields['TZ_FROM'],
+				);
+				$arFields['DATE_TO'] = self::GetOriginalDate(
+					$arFields['DATE_TO'],
+					$curEvent['DATE_TO'],
+					$arFields['TZ_TO'],
+				);
 			}
 
 			$bPersonal = $bPersonal && self::IsPersonal($curEvent['CAL_TYPE'], $curEvent['OWNER_ID'], $userId);
@@ -1916,8 +1929,13 @@ class CCalendar
 			}
 
 			// If it's attendee but modifying called from CalDav methods
-			if (($params['bSilentAccessMeeting'] || $params['fromWebservice'] === true)
-				&& $curEvent['IS_MEETING'] && $curEvent['PARENT_ID'] !== $curEvent['ID'])
+			if (
+				($params['bSilentAccessMeeting']
+					|| ($params['fromWebservice'] === true)
+				)
+				&& $curEvent['IS_MEETING']
+				&& ($curEvent['PARENT_ID'] !== $curEvent['ID'])
+			)
 			{
 				// TODO: It called when changes caused in google/webservise side but can't be
 				// TODO: implemented because user is only attendee, not the owner of the event
@@ -1976,8 +1994,12 @@ class CCalendar
 				return Loc::getMessage('EC_ACCESS_DENIED');
 			}
 		}
-		elseif ($sectionId > 0 && $checkPermission && !$bPersonal
-			&& !CCalendarSect::CanDo('calendar_add', $sectionId, $userId))
+		elseif (
+			($sectionId > 0)
+			&& $checkPermission
+			&& !$bPersonal
+			&& !CCalendarSect::CanDo('calendar_add', $sectionId, $userId)
+		)
 		{
 			return self::ThrowError(Loc::getMessage('EC_ACCESS_DENIED'));
 		}
@@ -2086,12 +2108,20 @@ class CCalendar
 			}
 		}
 
-		$bExchange = CCalendar::IsExchangeEnabled() && $arFields['CAL_TYPE'] == 'user';
-		$bCalDav = CCalendar::IsCalDAVEnabled() && $arFields['CAL_TYPE'] == 'user';
+		$bExchange = CCalendar::IsExchangeEnabled() && $arFields['CAL_TYPE'] === 'user';
+		$bCalDav = CCalendar::IsCalDAVEnabled() && $arFields['CAL_TYPE'] === 'user';
 		$bGoogleApi = CCalendar::isGoogleApiEnabled();
 
-		if ((in_array($params['recursionEditMode'], ['this', 'skip']) && $editInstance === false)
-			|| ($editNextEvents === false && ($params['recursionEditMode'] === 'next')))
+		if (
+			(
+				in_array($params['recursionEditMode'], ['this', 'skip'])
+				&& $editInstance === false
+			)
+			|| (
+				$editNextEvents === false
+				&& $params['recursionEditMode'] === 'next'
+			)
+		)
 		{
 			$modeSync = false;
 
@@ -2101,11 +2131,13 @@ class CCalendar
 			}
 		}
 
-		if (($params['bAffectToDav'] !== false
+		if (
+			($params['bAffectToDav'] !== false
 				&& ($bExchange || $bCalDav || $bGoogleApi) && $sectionId > 0
 				&& !(isset($params['dontSyncParent']) && $params['dontSyncParent'])
 			)
-			|| $syncCaldav)
+			|| $syncCaldav
+		)
 		{
 			$res = CCalendarSync::DoSaveToDav([
 				'bCalDav' => $bCalDav,
@@ -2143,7 +2175,7 @@ class CCalendar
 			{
 				// 1. Edit current reccurent event: exclude current date
 				$excludeDates = CCalendarEvent::GetExDate($curEvent['EXDATE']);
-				$excludeDate = self::Date(self::Timestamp(isset($params['currentEventDateFrom']) ? $params['currentEventDateFrom'] : $arFields['DATE_FROM']), false);
+				$excludeDate = self::Date(self::Timestamp($params['currentEventDateFrom'] ?? $arFields['DATE_FROM']), false);
 				$excludeDates[] = $excludeDate;
 
 				// Save current event
@@ -2225,7 +2257,7 @@ class CCalendar
 				//original instance date start
 				$newParams['arFields']['ORIGINAL_DATE_FROM'] = self::GetOriginalDate(
 					$params['currentEvent']['DATE_FROM'],
-					$newParams['arFields']['DATE_FROM'],
+					$newParams['currentEventDateFrom'],
 					$newParams['arFields']['TZ_FROM']
 				);
 				$newParams['originalDavXmlId'] = $params['currentEvent']['DAV_XML_ID'];
@@ -2376,7 +2408,11 @@ class CCalendar
 
 							$newParams['arFields']['RECURRENCE_ID'] = $result['id'];
 							$newParams['originalDavXmlId'] = $result['originalDavXmlId'];
-							$newParams['arFields']['ORIGINAL_DATE_FROM'] = self::GetOriginalDate($result['originalDateFrom'], $ev['ORIGINAL_DATE_FROM'], $result['instanceTz']);
+							$newParams['arFields']['ORIGINAL_DATE_FROM'] = self::GetOriginalDate(
+								$result['originalDateFrom'],
+								$newParams['currentEventDateFrom'] ?? $ev['ORIGINAL_DATE_FROM'],
+								$result['instanceTz']
+							);
 							$newParams['instanceTz'] = $result['instanceTz'];
 							$newParams['editInstance'] = true;
 
@@ -2433,28 +2469,38 @@ class CCalendar
 
 			// Here we should select all events connected with edited via RECURRENCE_ID:
 			// It could be original source event (without RECURRENCE_ID) or sibling events
-			if ($curEvent && CCalendarEvent::CheckRecurcion($curEvent)
+			if (
+				$curEvent
+				&& CCalendarEvent::CheckRecurcion($curEvent)
 				&& !$params['recursionEditMode']
 				&& !$params['arFields']['RECURRENCE_ID']
 			)
 			{
 				$events = [];
-				$recId = $curEvent['RECURRENCE_ID'] ? $curEvent['RECURRENCE_ID'] : $curEvent['ID'];
+				$recId = $curEvent['RECURRENCE_ID'] ?: $curEvent['ID'];
 				if ($curEvent['RECURRENCE_ID'] && $curEvent['RECURRENCE_ID'] !== $curEvent['ID'])
 				{
-					$topEvent = CCalendarEvent::GetById($curEvent['RECURRENCE_ID']);
-					if ($topEvent)
+					$masterEvent = CCalendarEvent::GetById($curEvent['RECURRENCE_ID']);
+					if ($masterEvent)
 					{
-						$events[] = $topEvent;
+						$events[] = $masterEvent;
 					}
 				}
 
 				if ($recId)
 				{
-					$events_1 = CCalendarEvent::GetList(array('arFilter' => array('RECURRENCE_ID' => $recId), 'parseRecursion' => false, 'setDefaultLimit' => false));
+					$instances = CCalendarEvent::GetList([
+						'arFilter' => [
+							'RECURRENCE_ID' => $recId
+						],
+						'parseRecursion' => false,
+						'setDefaultLimit' => false
+					]);
 
-					if ($events_1)
-						$events = array_merge($events, $events_1);
+					if ($instances)
+					{
+						$events = array_merge($events, $instances);
+					}
 				}
 
 				foreach($events as $ev)
@@ -2466,6 +2512,8 @@ class CCalendar
 						$newParams['arFields']['ID'] = $ev['ID'];
 						$newParams['arFields']['RECURRENCE_ID'] = $ev['RECURRENCE_ID'];
 						$newParams['arFields']['DAV_XML_ID'] = $ev['DAV_XML_ID'];
+						$newParams['arFields']['G_EVENT_ID'] = $ev['G_EVENT_ID'];
+						$newParams['arFields']['ORIGINAL_DATE_FROM'] = self::GetOriginalDate($arFields['DATE_FROM'], $ev['ORIGINAL_DATE_FROM'], $arFields['TZ_FROM']);
 						$newParams['arFields']['CAL_DAV_LABEL'] = $ev['CAL_DAV_LABEL'];
 						$newParams['arFields']['RRULE'] = CCalendarEvent::ParseRRULE($ev['RRULE']);
 						$newParams['recursionEditMode'] = 'skip';
@@ -2488,7 +2536,9 @@ class CCalendar
 						}
 
 						if (isset($ev['EXDATE']) && $ev['EXDATE'] != '')
+						{
 							$newParams['arFields']['EXDATE'] = $ev['EXDATE'];
+						}
 
 						CCalendar::SaveEvent($newParams);
 					}
@@ -5633,18 +5683,25 @@ class CCalendar
 	}
 
 	/**
-	 * @param $originalDateTime
+	 * @param $parentDateTime
 	 * @param $instanceDateTime
-	 * @param false $timeZone
-	 * @param null $format
+	 * @param $timeZone
+	 * @param $format
+	 * @param $originalInstanceDate
+	 *
 	 * @return string
 	 * @throws Main\ObjectException
 	 */
-	public static function GetOriginalDate($originalDateTime, $instanceDateTime, $timeZone = null, $format = null): string
+	public static function GetOriginalDate(
+		$parentDateTime,
+		$instanceDateTime,
+		$timeZone = null,
+		$format = null
+	): string
 	{
 		CTimeZone::Disable();
 		$format = $format ?? Main\Type\Date::convertFormatToPhp(FORMAT_DATETIME);
-		$parentTimestamp = Util::getDateObject($originalDateTime, false, $timeZone)->getTimestamp();
+		$parentTimestamp = Util::getDateObject($parentDateTime, false, $timeZone)->getTimestamp();
 		date_default_timezone_set($timeZone);
 		$parentInfoDate = getdate($parentTimestamp);
 		/** @var Type\DateTime $instanceDateTime */

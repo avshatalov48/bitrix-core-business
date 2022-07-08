@@ -595,6 +595,7 @@ class File
 	 * Save changes or create new file.
 	 *
 	 * @return boolean
+	 * @throws Main\IO\IoException
 	 */
 	public function save()
 	{
@@ -658,7 +659,26 @@ class File
 
 		if ($content <> '')
 		{
-			if (parent::putContents('<?php'. $content. "\n") === false)
+			\set_error_handler(
+				function ($severity, $message, $file, $line)
+				{
+					throw new \ErrorException($message, $severity, $severity, $file, $line);
+				}
+			);
+
+			try
+			{
+				$result = parent::putContents('<?php'. $content. "\n");
+			}
+			catch (\ErrorException $exception)
+			{
+				\restore_error_handler();
+				throw new Main\IO\IoException($exception->getMessage());
+			}
+
+			\restore_error_handler();
+
+			if ($result === false)
 			{
 				$filePath = $this->getPath();
 				throw new Main\IO\IoException("Couldn't write language file '{$filePath}'");
@@ -1143,6 +1163,7 @@ class File
 	 *
 	 * @return bool|int
 	 * @throws Main\IO\FileNotFoundException
+	 * @throws Main\IO\IoException
 	 */
 	public function putContents($data, $flags = self::REWRITE)
 	{
@@ -1154,7 +1175,26 @@ class File
 			$data = Main\Text\Encoding::convertEncoding($data, $operatingEncoding, $sourceEncoding);
 		}
 
-		return parent::putContents($data, $flags);
+		\set_error_handler(
+			function ($severity, $message, $file, $line)
+			{
+				throw new \ErrorException($message, $severity, $severity, $file, $line);
+			}
+		);
+
+		try
+		{
+			$result = parent::putContents($data, $flags);
+		}
+		catch (\ErrorException $exception)
+		{
+			\restore_error_handler();
+			throw new Main\IO\IoException($exception->getMessage());
+		}
+
+		\restore_error_handler();
+
+		return $result;
 	}
 
 	//endregion

@@ -14,6 +14,7 @@ this.BX = this.BX || {};
 	    babelHelpers.defineProperty(this, "RELOAD_FINISHED", 'RELOAD_FINISHED');
 	    babelHelpers.defineProperty(this, "reloadStatus", null);
 	    babelHelpers.defineProperty(this, "entityChanged", false);
+	    babelHelpers.defineProperty(this, "LOAD_DELAY", 500);
 	    this.type = options.type || 'user';
 	    this.ownerId = options.ownerId || 0;
 	    this.userId = options.userId || 0;
@@ -27,6 +28,9 @@ this.BX = this.BX || {};
 	    this.handlePullBind = this.handlePull.bind(this);
 	    this.keyHandlerBind = this.keyHandler.bind(this);
 	    this.destroyBind = this.destroy.bind(this);
+	    this.loadPlannerDataDebounce = main_core.Runtime.debounce(this.loadPlannerData, this.LOAD_DELAY, this);
+	    this.reloadSliderDebounce = main_core.Runtime.debounce(this.reloadSlider, this.LOAD_DELAY, this);
+	    this.pullEventList = new Set();
 	  }
 
 	  babelHelpers.createClass(EventViewForm, [{
@@ -36,6 +40,7 @@ this.BX = this.BX || {};
 	      main_core_events.EventEmitter.subscribe(slider, "SidePanel.Slider:onLoad", this.sliderOnLoad);
 	      main_core_events.EventEmitter.subscribe(slider, "SidePanel.Slider:onCloseComplete", this.destroyBind);
 	      main_core.Event.bind(document, 'keydown', this.keyHandlerBind);
+	      main_core.Event.bind(document, 'visibilitychange', this.handleVisibilityChange.bind(this));
 	      main_core_events.EventEmitter.subscribe('onPullEvent-calendar', this.handlePullBind);
 	      this.createContent(slider).then(function (html) {
 	        if (main_core.Type.isFunction(promiseResolve)) {
@@ -304,7 +309,7 @@ this.BX = this.BX || {};
 	          main_core.Dom.removeClass(_this3.DOM.plannerWrapOuter, 'hidden');
 	        }
 	      }, 500);
-	      this.loadPlannerData().then(function () {});
+	      this.loadPlannerDataDebounce();
 	    }
 	  }, {
 	    key: "initUserListControl",
@@ -556,21 +561,49 @@ this.BX = this.BX || {};
 	      var data = event.getData();
 	      var command = data[0];
 
-	      switch (command) {
-	        case 'edit_event':
-	        case 'delete_event':
-	        case 'set_meeting_status':
-	          var calendarContext = calendar_util.Util.getCalendarContext();
+	      if (BX.Calendar.Util.documentIsDisplayingNow()) {
+	        switch (command) {
+	          case 'edit_event':
+	          case 'delete_event':
+	          case 'set_meeting_status':
+	            var calendarContext = calendar_util.Util.getCalendarContext();
 
-	          if (calendarContext) {
-	            if (this.planner && this.reloadStatus === this.RELOAD_FINISHED) {
-	              this.loadPlannerData().then(function () {});
+	            if (calendarContext) {
+	              if (this.planner && this.reloadStatus === this.RELOAD_FINISHED) {
+	                this.loadPlannerDataDebounce();
+	              }
+	            } else {
+	              this.reloadSliderDebounce();
 	            }
-	          } else {
-	            this.reloadSlider();
-	          }
 
-	          break;
+	            break;
+	        }
+	      } else {
+	        var params = {
+	          command: command
+	        };
+
+	        if (this.pullEventList.has(params)) {
+	          this.pullEventList["delete"](params);
+	        }
+
+	        this.pullEventList.add(params);
+	      }
+	    }
+	  }, {
+	    key: "handleVisibilityChange",
+	    value: function handleVisibilityChange() {
+	      var _this9 = this;
+
+	      if (this.pullEventList.size) {
+	        this.pullEventList.forEach(function (value, valueAgain, set) {
+	          if (['edit_event', 'delete_event', 'set_meeting_status'].includes(value.command)) {
+	            if (!calendar_util.Util.getCalendarContext()) {
+	              _this9.reloadSliderDebounce();
+	            }
+	          }
+	        });
+	        this.pullEventList.clear();
 	      }
 	    }
 	  }, {
@@ -581,7 +614,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "reloadSlider",
 	    value: function reloadSlider() {
-	      var _this9 = this;
+	      var _this10 = this;
 
 	      if (this.reloadStatus === this.RELOAD_FINISHED) {
 	        var activeElement = document.activeElement;
@@ -593,7 +626,7 @@ this.BX = this.BX || {};
 
 	        if (this.entityChanged) {
 	          setTimeout(function () {
-	            _this9.entityChanged = false;
+	            _this10.entityChanged = false;
 	          }, 500);
 	          return;
 	        }

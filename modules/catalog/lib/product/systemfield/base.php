@@ -149,7 +149,7 @@ abstract class Base
 		return $result;
 	}
 
-	protected static function updateProductFormConfiguration(): void {}
+	public static function updateProductFormConfiguration(): void {}
 
 	public static function getTypeId(): string
 	{

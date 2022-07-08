@@ -10,25 +10,22 @@
 import './message.css';
 import 'im.view.message.body';
 
-import {DialoguesModel, MessagesModel} from 'im.model';
+import {MessagesModel} from 'im.model';
 import {BitrixVue} from "ui.vue";
-import {MessageType} from "im.const";
+import {MessageType, EventType} from "im.const";
 import {Utils} from "im.lib.utils";
 import {Animation} from "im.lib.animation";
+import {EventEmitter} from 'main.core.events';
 
 BitrixVue.component('bx-im-view-message',
 {
 	/**
-	 * @emits 'clickByUserName' {user: object, event: MouseEvent}
-	 * @emits 'clickByUploadCancel' {file: object, event: MouseEvent}
-	 * @emits 'clickByKeyboardButton' {message: object, action: string, params: Object}
-	 * @emits 'clickByChatTeaser' {message: object, event: MouseEvent}
-	 * @emits 'clickByMessageMenu' {message: object, event: MouseEvent}
-	 * @emits 'clickByMessageRetry' {message: object, event: MouseEvent}
-	 * @emits 'setMessageReaction' {message: object, reaction: object}
-	 * @emits 'openMessageReactionList' {message: object, values: object}
 	 * @emits 'dragMessage' {result: boolean, event: MouseEvent}
-	 * @emits 'quoteMessage' {message: object}
+	 *
+	 * @emits EventType.dialog.quoteMessage {message: object}
+	 * @emits EventType.dialog.clickOnUserName {user: object, event: MouseEvent}
+	 * @emits EventType.dialog.clickOnMessageMenu {message: object, event: MouseEvent}
+	 * @emits EventType.dialog.clickOnMessageRetry {message: object, event: MouseEvent}
 	 */
 	props:
 	{
@@ -86,44 +83,15 @@ BitrixVue.component('bx-im-view-message',
 	{
 		clickByAvatar(event)
 		{
-			this.$emit('clickByUserName', event)
-		},
-		clickByUserName(event)
-		{
-			if (this.showAvatar && Utils.platform.isMobile())
-			{
-				return false;
-			}
-
-			this.$emit('clickByUserName', event)
-		},
-		clickByUploadCancel(event)
-		{
-			this.$emit('clickByUploadCancel', event)
-		},
-		clickByKeyboardButton(event)
-		{
-			this.$emit('clickByKeyboardButton', event)
-		},
-		clickByChatTeaser(event)
-		{
-			this.$emit('clickByChatTeaser', event)
+			EventEmitter.emit(EventType.dialog.clickOnUserName, event);
 		},
 		clickByMessageMenu(event)
 		{
-			this.$emit('clickByMessageMenu', event)
+			EventEmitter.emit(EventType.dialog.clickOnMessageMenu, event);
 		},
 		clickByMessageRetry(event)
 		{
-			this.$emit('clickByMessageRetry', event)
-		},
-		setMessageReaction(event)
-		{
-			this.$emit('setMessageReaction', event)
-		},
-		openMessageReactionList(event)
-		{
-			this.$emit('openMessageReactionList', event)
+			EventEmitter.emit(EventType.dialog.clickOnMessageRetry, event);
 		},
 		gestureRouter(eventName, event)
 		{
@@ -153,7 +121,7 @@ BitrixVue.component('bx-im-view-message',
 
 				this.gestureMenuTimeout = setTimeout(() => {
 					this.gestureMenuPreventTouchEnd = true;
-					this.$emit('clickByMessageMenu', {message: this.message, event});
+					this.clickByMessageMenu({message: this.message, event});
 				}, 500);
 			}
 			else if (eventName === 'touchmove')
@@ -292,7 +260,7 @@ BitrixVue.component('bx-im-view-message',
 					{
 						setTimeout(() => app.exec("callVibration"), 200);
 					}
-					this.$emit('quoteMessage', {message: this.message});
+					EventEmitter.emit(EventType.dialog.quoteMessage, {message: this.message});
 				}
 
 				this.dragIconShowLeft = false;
@@ -491,13 +459,6 @@ BitrixVue.component('bx-im-view-message',
 						:enableReactions="enableReactions"
 						:referenceContentBodyClassName="referenceContentBodyClassName"
 						:referenceContentNameClassName="referenceContentNameClassName"
-						@clickByUserName="clickByUserName"
-						@clickByUploadCancel="clickByUploadCancel"
-						@clickByKeyboardButton="clickByKeyboardButton"
-						@clickByChatTeaser="clickByChatTeaser"
-						@setReaction="setMessageReaction"
-						@openReactionList="openMessageReactionList"	
-						
 					/>
 				</div>
 				<div class="bx-im-message-box-status">
@@ -555,13 +516,7 @@ BitrixVue.component('bx-im-view-message',
 						:enableReactions="enableReactions"
 						:referenceContentBodyClassName="referenceContentBodyClassName"
 						:referenceContentNameClassName="referenceContentNameClassName"
-						@clickByUserName="clickByUserName"
-						@clickByUploadCancel="clickByUploadCancel"
-						@clickByKeyboardButton="clickByKeyboardButton"
-						@clickByChatTeaser="clickByChatTeaser"
-						@setReaction="setMessageReaction"
-						@openReactionList="openMessageReactionList"
-					/>	
+					/>
 				</div>
 				<div v-if="showMenu"  class="bx-im-message-menu" :title="$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_MENU_TITLE')" @click="clickByMessageMenu({message: message, event: $event})">
 					<span class="bx-im-message-menu-icon"></span>

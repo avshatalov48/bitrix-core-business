@@ -92,6 +92,7 @@
 .mail-connect {
 	background: #fff;
 	color: #535c6A;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .mail-connect-slider {
@@ -370,7 +371,7 @@
 
 .mail-connect-notice-block {
 	background: #f8f4bc;
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-xs, 2px);
 	padding: 10px 30px 11px 14px;
 	margin-bottom: 13px;
 }
@@ -430,7 +431,7 @@
 
 .mail-connect-access-user-block .mail-connect-lock-icon {
 	height: 1em;
-	margin: 7px 0 10px 5px; 
+	margin: 7px 0 10px 5px;
 }
 
 .mail-connect-access-user-title {
@@ -580,7 +581,7 @@
 .mail-connect-form-input {
 	outline: none;
 	border: 1px solid #c6cdd3;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	padding: 8px 10px 6px;
 	margin: 0;
 	color: #535c6a;
@@ -822,7 +823,7 @@
 	resize: none;
 	outline: none;
 	border: 1px solid #c6cdd3;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	padding: 9px 11px;
 	box-sizing: border-box;
 	font: 13px/22px "Helvetica Neue", Arial, Helvetica, sans-serif;

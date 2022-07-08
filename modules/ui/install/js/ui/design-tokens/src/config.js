@@ -1,4 +1,8 @@
 const fs = require('fs');
+const StyleDictionary = require('style-dictionary');
+const { fileHeader, sortByReference, createPropertyFormatter } = StyleDictionary.formatHelpers;
+
+const Color = require('tinycolor2');
 
 module.exports = {
 	source: ['*.json'],
@@ -18,6 +22,29 @@ module.exports = {
 				return `${x}px ${y}px ${blur}px ${spread}px ${shadowColor}`
 			},
 		},
+		'rgb-color-value': {
+			name: 'rgb-color-value',
+			type: 'value',
+			matcher: (prop) => {
+				return prop.attributes.category === 'color';
+			},
+			transformer: (token) => {
+				if (token.value === 'none' || token.value === 'transparent')
+				{
+					return token.value;
+				}
+
+				const color = Color(token.value);
+				if (color.getAlpha() === 1)
+				{
+					return color.toHexString();
+				}
+				else
+				{
+					return color.toRgbString();
+				}
+			},
+		},
 	},
 	transformGroup: {
 		'ui-design-tokens': [
@@ -25,19 +52,74 @@ module.exports = {
 			'name/cti/kebab',
 			'time/seconds',
 			'content/icon',
-			'color/css',
+			'rgb-color-value'
 		]
 	},
 	format: {
-		typography: ({dictionary, platform}) => {
+		myFormat: ({dictionary, file, options={}}) => {
+			const selector = options.selector ? options.selector : `:root`;
+			const { outputReferences } = options;
+			const formatProperty = createPropertyFormatter({
+				outputReferences,
+				dictionary,
+				format: 'css',
+				/*formatting: {
+					prefix: '--',
+					commentStyle: 'long',
+					indentation: '\t',
+					separator: ':',
+					suffix: ';',
+				}*/
+			});
 
-			const tokens = dictionary.tokens;
-			//const tokens = dictionary.tokens.filter(token => token.attributes.category === 'typography');
+			const formatColor = (token) => {
+				const prop = formatProperty(token);
+				if (token.value === 'transparent' || token.value === 'none')
+				{
+					return `${prop}\n`;
+				}
 
-			let result = '';
-			Object.keys(tokens.typography).forEach(category => {
-				Object.keys(tokens.typography[category]).forEach((item) => {
-					const props = tokens.typography[category][item];
+				let propRgb = prop
+					.replace(/(--[^:]+):/, '$1-rgb:')
+					.replace(/:(\s*var\([^)]+)/, ':$1-rgb')
+				;
+
+				if (!/var\(/.test(prop))
+				{
+					const color = Color(token.value);
+					if (color.isValid() && color.getAlpha() === 1)
+					{
+						propRgb = propRgb.replace(token.value, `${color._r}, ${color._g}, ${color._b}`);
+					}
+					else
+					{
+						propRgb = '';
+					}
+				}
+
+				return `${prop}\n${propRgb === '' ? '' : propRgb + '\n' }`;
+			};
+
+			// Variables
+			let result = `${fileHeader({file})}${selector} {\n`;
+			dictionary.allTokens.sort(sortByReference(dictionary)).forEach(token => {
+				if (token.attributes.category === 'color')
+				{
+					result += formatColor(token);
+				}
+				else
+				{
+					const prop = formatProperty(token);
+					result += `${prop}\n`;
+				}
+			});
+			result +=`}\n\n`;
+
+			// Typography
+			const typography = dictionary.tokens.typography;
+			Object.keys(typography).forEach(category => {
+				Object.keys(typography[category]).forEach((item) => {
+					const props = typography[category][item];
 					result += `.ui-typography-${category}-${item} {\n`;
 					Object.keys(props).forEach(prop => {
 						const propData = props[prop];
@@ -45,69 +127,27 @@ module.exports = {
 					});
 					result += `}\n\n`;
 				});
-
-
 			});
 
 			return result;
 		},
-	},
-	action: {
-		makeBundle: {
-			do: (dictionary, config) => {
-				const bundleDir = __dirname + '/../dist';
-				if (!fs.existsSync(bundleDir))
-				{
-					fs.mkdirSync(bundleDir, { recursive: true });
-				}
 
-				const bundleFile = bundleDir + '/ui.design-tokens.bundle.css';
-				if (fs.existsSync(bundleFile))
-				{
-					fs.unlinkSync(bundleFile);
-				}
-
-				const buildDir = __dirname + '/build';
-				//const files = fs.readdirSync(buildDir);
-				const files = config.files.map(file => file.destination);
-
-				files.forEach((file) => {
-					const filePath = buildDir + '/' + file;
-					if (fs.lstatSync(filePath).isFile())
-					{
-						fs.appendFileSync(bundleFile, fs.readFileSync(filePath).toString());
-					}
-				});
-
-			},
-			undo: () => {
-
-			},
-		}
 	},
 	platforms: {
 		css: {
 			transformGroup: 'ui-design-tokens',
 			prefix: 'ui',
-			buildPath: 'build/',
+			buildPath: '../dist/',
 			outputReferences: true,
 			files: [
 				{
-					destination: 'variables.css',
-					format: 'css/variables',
+					destination: 'ui.design-tokens.css',
+					format: 'myFormat',
 					options: {
-						"outputReferences": true
-					}
-				},
-				{
-					destination: 'typography.css',
-					format: 'typography',
-					filter: (token) => {
-						return token.attributes.category === 'typography';
+						outputReferences: true,
 					},
 				}
 			],
-			actions: ['makeBundle'],
 		},
 	},
 };

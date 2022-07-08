@@ -8,8 +8,7 @@
  */
 import {BitrixVue} from "ui.vue";
 import {Vuex} from "ui.vue.vuex";
-import {RestMethod, RestMethodHandler} from "im.const";
-import {RecentSection as Section, TemplateTypes} from "im.const";
+import {RestMethod, RestMethodHandler, EventType, RecentSection as Section, TemplateTypes} from "im.const";
 
 import {RecentItem} from "./component/recent-item";
 import { EventEmitter } from "main.core.events";
@@ -74,7 +73,7 @@ BitrixVue.component('bx-im-component-recent',
 
 			onClick(event)
 			{
-				EventEmitter.emit('openMessenger', event);
+				EventEmitter.emit(EventType.dialog.open, event);
 			},
 
 			onRightClick(event)

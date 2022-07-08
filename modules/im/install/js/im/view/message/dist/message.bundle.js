@@ -1,4 +1,4 @@
-(function (exports,im_view_message_body,im_model,ui_vue,im_const,im_lib_utils,im_lib_animation) {
+(function (exports,im_view_message_body,im_model,ui_vue,im_const,im_lib_utils,im_lib_animation,main_core_events) {
 	'use strict';
 
 	/**
@@ -11,16 +11,12 @@
 	 */
 	ui_vue.BitrixVue.component('bx-im-view-message', {
 	  /**
-	   * @emits 'clickByUserName' {user: object, event: MouseEvent}
-	   * @emits 'clickByUploadCancel' {file: object, event: MouseEvent}
-	   * @emits 'clickByKeyboardButton' {message: object, action: string, params: Object}
-	   * @emits 'clickByChatTeaser' {message: object, event: MouseEvent}
-	   * @emits 'clickByMessageMenu' {message: object, event: MouseEvent}
-	   * @emits 'clickByMessageRetry' {message: object, event: MouseEvent}
-	   * @emits 'setMessageReaction' {message: object, reaction: object}
-	   * @emits 'openMessageReactionList' {message: object, values: object}
 	   * @emits 'dragMessage' {result: boolean, event: MouseEvent}
-	   * @emits 'quoteMessage' {message: object}
+	   *
+	   * @emits EventType.dialog.quoteMessage {message: object}
+	   * @emits EventType.dialog.clickOnUserName {user: object, event: MouseEvent}
+	   * @emits EventType.dialog.clickOnMessageMenu {message: object, event: MouseEvent}
+	   * @emits EventType.dialog.clickOnMessageRetry {message: object, event: MouseEvent}
 	   */
 	  props: {
 	    userId: {
@@ -105,35 +101,13 @@
 	  },
 	  methods: {
 	    clickByAvatar: function clickByAvatar(event) {
-	      this.$emit('clickByUserName', event);
-	    },
-	    clickByUserName: function clickByUserName(event) {
-	      if (this.showAvatar && im_lib_utils.Utils.platform.isMobile()) {
-	        return false;
-	      }
-
-	      this.$emit('clickByUserName', event);
-	    },
-	    clickByUploadCancel: function clickByUploadCancel(event) {
-	      this.$emit('clickByUploadCancel', event);
-	    },
-	    clickByKeyboardButton: function clickByKeyboardButton(event) {
-	      this.$emit('clickByKeyboardButton', event);
-	    },
-	    clickByChatTeaser: function clickByChatTeaser(event) {
-	      this.$emit('clickByChatTeaser', event);
+	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.clickOnUserName, event);
 	    },
 	    clickByMessageMenu: function clickByMessageMenu(event) {
-	      this.$emit('clickByMessageMenu', event);
+	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.clickOnMessageMenu, event);
 	    },
 	    clickByMessageRetry: function clickByMessageRetry(event) {
-	      this.$emit('clickByMessageRetry', event);
-	    },
-	    setMessageReaction: function setMessageReaction(event) {
-	      this.$emit('setMessageReaction', event);
-	    },
-	    openMessageReactionList: function openMessageReactionList(event) {
-	      this.$emit('openMessageReactionList', event);
+	      main_core_events.EventEmitter.emit(im_const.EventType.dialog.clickOnMessageRetry, event);
 	    },
 	    gestureRouter: function gestureRouter(eventName, event) {
 	      this.gestureQuote(eventName, event);
@@ -161,7 +135,7 @@
 	        this.gestureMenuTimeout = setTimeout(function () {
 	          _this.gestureMenuPreventTouchEnd = true;
 
-	          _this.$emit('clickByMessageMenu', {
+	          _this.clickByMessageMenu({
 	            message: _this.message,
 	            event: event
 	          });
@@ -275,7 +249,7 @@
 	            }, 200);
 	          }
 
-	          this.$emit('quoteMessage', {
+	          main_core_events.EventEmitter.emit(im_const.EventType.dialog.quoteMessage, {
 	            message: this.message
 	          });
 	        }
@@ -389,8 +363,8 @@
 	      return this.showLargeFont && this.message.params.LARGE_FONT === 'Y';
 	    }
 	  },
-	  template: "\n\t\t<div :class=\"['bx-im-message', {\n\t\t\t\t'bx-im-message-without-menu': !showMenu,\n\t\t\t\t'bx-im-message-without-avatar': !showAvatar,\n\t\t\t\t'bx-im-message-type-system': type === MessageType.system,\n\t\t\t\t'bx-im-message-type-self': type === MessageType.self,\n\t\t\t\t'bx-im-message-type-other': type !== MessageType.self,\n\t\t\t\t'bx-im-message-type-opponent': type === MessageType.opponent,\n\t\t\t\t'bx-im-message-status-error': message.error,\n\t\t\t\t'bx-im-message-status-unread': message.unread,\n\t\t\t\t'bx-im-message-status-blink': message.blink,\n\t\t\t\t'bx-im-message-status-edited': isEdited,\n\t\t\t\t'bx-im-message-status-deleted': isDeleted,\n\t\t\t\t'bx-im-message-large-font': isLargeFont,\n\t\t\t}]\" \n\t\t\t@touchstart=\"gestureRouter('touchstart', $event)\"\n\t\t\t@touchmove=\"gestureRouter('touchmove', $event)\"\n\t\t\t@touchend=\"gestureRouter('touchend', $event)\"\n\t\t\tref=\"body\"\n\t\t\t:style=\"{\n\t\t\t\twidth: dragWidth > 0? dragWidth+'px': '', \n\t\t\t\tmarginLeft: (enableGestureQuoteFromRight && dragPosition < 0) || (!enableGestureQuoteFromRight && dragPosition > 0)? dragPosition+'px': '',\n\t\t\t}\"\n\t\t>\n\t\t\t<template v-if=\"type === MessageType.self\">\n\t\t\t\t<template v-if=\"dragIconShowRight\">\n\t\t\t\t\t<div class=\"bx-im-message-reply bx-im-message-reply-right\">\n\t\t\t\t\t\t<div class=\"bx-im-message-reply-icon\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</template> \n\t\t\t\t<div class=\"bx-im-message-box\">\n\t\t\t\t\t<component :is=\"componentBodyId\"\n\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t:message=\"message\"\n\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t:chatId=\"chatId\"\n\t\t\t\t\t\t:messageType=\"type\"\n\t\t\t\t\t\t:showAvatar=\"showAvatar\"\n\t\t\t\t\t\t:showName=\"showName\"\n\t\t\t\t\t\t:enableReactions=\"enableReactions\"\n\t\t\t\t\t\t:referenceContentBodyClassName=\"referenceContentBodyClassName\"\n\t\t\t\t\t\t:referenceContentNameClassName=\"referenceContentNameClassName\"\n\t\t\t\t\t\t@clickByUserName=\"clickByUserName\"\n\t\t\t\t\t\t@clickByUploadCancel=\"clickByUploadCancel\"\n\t\t\t\t\t\t@clickByKeyboardButton=\"clickByKeyboardButton\"\n\t\t\t\t\t\t@clickByChatTeaser=\"clickByChatTeaser\"\n\t\t\t\t\t\t@setReaction=\"setMessageReaction\"\n\t\t\t\t\t\t@openReactionList=\"openMessageReactionList\"\t\n\t\t\t\t\t\t\n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-message-box-status\">\n\t\t\t\t\t<template v-if=\"message.sending\">\n\t\t\t\t\t\t<div class=\"bx-im-message-sending\"></div>\n\t\t\t\t\t</template>\n\t\t\t\t\t<transition name=\"bx-im-message-status-retry\">\n\t\t\t\t\t\t<template v-if=\"!message.sending && message.error && message.retry\">\n\t\t\t\t\t\t\t<div class=\"bx-im-message-status-retry\" :title=\"$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_RETRY_TITLE')\" @click=\"clickByMessageRetry({message: message, event: $event})\">\n\t\t\t\t\t\t\t\t<span class=\"bx-im-message-retry-icon\"></span>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</template>\n\t\t\t\t\t</transition>\n\t\t\t\t\t<template v-if=\"showMenu && !message.sending && !message.error\">\n\t\t\t\t\t\t<div class=\"bx-im-message-status-menu\" :title=\"$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_MENU_TITLE')\" @click=\"clickByMessageMenu({message: message, event: $event})\">\n\t\t\t\t\t\t\t<span class=\"bx-im-message-menu-icon\"></span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</template> \n\t\t\t\t</div>\n\t\t\t\t<template v-if=\"dragIconShowLeft\">\n\t\t\t\t\t<div class=\"bx-im-message-reply bx-im-message-reply-left\">\n\t\t\t\t\t\t<div class=\"bx-im-message-reply-icon\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</template> \n\t\t\t</template>\n\t\t\t<template v-else-if=\"type !== MessageType.self\">\n\t\t\t\t<template v-if=\"dragIconShowLeft\">\n\t\t\t\t\t<div class=\"bx-im-message-reply bx-im-message-reply-left\">\n\t\t\t\t\t\t<div class=\"bx-im-message-reply-icon\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</template> \n\t\t\t\t<template v-if=\"type === MessageType.opponent\">\n\t\t\t\t\t<div v-if=\"showAvatar\" class=\"bx-im-message-avatar\" @click=\"clickByAvatar({user: userData, event: $event})\">\n\t\t\t\t\t\t<div :class=\"['bx-im-message-avatar-image', {\n\t\t\t\t\t\t\t\t'bx-im-message-avatar-image-default': !userData.avatar\n\t\t\t\t\t\t\t}]\"\n\t\t\t\t\t\t\t:style=\"{\n\t\t\t\t\t\t\t\tbackgroundColor: !userData.avatar? userData.color: '', \n\t\t\t\t\t\t\t\tbackgroundImage: userAvatar\n\t\t\t\t\t\t\t}\" \n\t\t\t\t\t\t\t:title=\"userData.name\"\n\t\t\t\t\t\t></div>\t\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<div class=\"bx-im-message-box\">\n\t\t\t\t\t<component :is=\"componentBodyId\"\n\t\t\t\t\t\t:message=\"message\"\n\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t:chatId=\"chatId\"\n\t\t\t\t\t\t:messageType=\"type\"\n\t\t\t\t\t\t:files=\"filesData\"\n\t\t\t\t\t\t:showAvatar=\"showAvatar\"\n\t\t\t\t\t\t:showName=\"showName\"\n\t\t\t\t\t\t:enableReactions=\"enableReactions\"\n\t\t\t\t\t\t:referenceContentBodyClassName=\"referenceContentBodyClassName\"\n\t\t\t\t\t\t:referenceContentNameClassName=\"referenceContentNameClassName\"\n\t\t\t\t\t\t@clickByUserName=\"clickByUserName\"\n\t\t\t\t\t\t@clickByUploadCancel=\"clickByUploadCancel\"\n\t\t\t\t\t\t@clickByKeyboardButton=\"clickByKeyboardButton\"\n\t\t\t\t\t\t@clickByChatTeaser=\"clickByChatTeaser\"\n\t\t\t\t\t\t@setReaction=\"setMessageReaction\"\n\t\t\t\t\t\t@openReactionList=\"openMessageReactionList\"\n\t\t\t\t\t/>\t\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showMenu\"  class=\"bx-im-message-menu\" :title=\"$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_MENU_TITLE')\" @click=\"clickByMessageMenu({message: message, event: $event})\">\n\t\t\t\t\t<span class=\"bx-im-message-menu-icon\"></span>\n\t\t\t\t</div>\t\n\t\t\t\t<template v-if=\"dragIconShowRight\">\n\t\t\t\t\t<div class=\"bx-im-message-reply bx-im-message-reply-right\">\n\t\t\t\t\t\t<div class=\"bx-im-message-reply-icon\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</template> \n\t\t\t</template>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div :class=\"['bx-im-message', {\n\t\t\t\t'bx-im-message-without-menu': !showMenu,\n\t\t\t\t'bx-im-message-without-avatar': !showAvatar,\n\t\t\t\t'bx-im-message-type-system': type === MessageType.system,\n\t\t\t\t'bx-im-message-type-self': type === MessageType.self,\n\t\t\t\t'bx-im-message-type-other': type !== MessageType.self,\n\t\t\t\t'bx-im-message-type-opponent': type === MessageType.opponent,\n\t\t\t\t'bx-im-message-status-error': message.error,\n\t\t\t\t'bx-im-message-status-unread': message.unread,\n\t\t\t\t'bx-im-message-status-blink': message.blink,\n\t\t\t\t'bx-im-message-status-edited': isEdited,\n\t\t\t\t'bx-im-message-status-deleted': isDeleted,\n\t\t\t\t'bx-im-message-large-font': isLargeFont,\n\t\t\t}]\" \n\t\t\t@touchstart=\"gestureRouter('touchstart', $event)\"\n\t\t\t@touchmove=\"gestureRouter('touchmove', $event)\"\n\t\t\t@touchend=\"gestureRouter('touchend', $event)\"\n\t\t\tref=\"body\"\n\t\t\t:style=\"{\n\t\t\t\twidth: dragWidth > 0? dragWidth+'px': '', \n\t\t\t\tmarginLeft: (enableGestureQuoteFromRight && dragPosition < 0) || (!enableGestureQuoteFromRight && dragPosition > 0)? dragPosition+'px': '',\n\t\t\t}\"\n\t\t>\n\t\t\t<template v-if=\"type === MessageType.self\">\n\t\t\t\t<template v-if=\"dragIconShowRight\">\n\t\t\t\t\t<div class=\"bx-im-message-reply bx-im-message-reply-right\">\n\t\t\t\t\t\t<div class=\"bx-im-message-reply-icon\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</template> \n\t\t\t\t<div class=\"bx-im-message-box\">\n\t\t\t\t\t<component :is=\"componentBodyId\"\n\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t:message=\"message\"\n\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t:chatId=\"chatId\"\n\t\t\t\t\t\t:messageType=\"type\"\n\t\t\t\t\t\t:showAvatar=\"showAvatar\"\n\t\t\t\t\t\t:showName=\"showName\"\n\t\t\t\t\t\t:enableReactions=\"enableReactions\"\n\t\t\t\t\t\t:referenceContentBodyClassName=\"referenceContentBodyClassName\"\n\t\t\t\t\t\t:referenceContentNameClassName=\"referenceContentNameClassName\"\n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"bx-im-message-box-status\">\n\t\t\t\t\t<template v-if=\"message.sending\">\n\t\t\t\t\t\t<div class=\"bx-im-message-sending\"></div>\n\t\t\t\t\t</template>\n\t\t\t\t\t<transition name=\"bx-im-message-status-retry\">\n\t\t\t\t\t\t<template v-if=\"!message.sending && message.error && message.retry\">\n\t\t\t\t\t\t\t<div class=\"bx-im-message-status-retry\" :title=\"$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_RETRY_TITLE')\" @click=\"clickByMessageRetry({message: message, event: $event})\">\n\t\t\t\t\t\t\t\t<span class=\"bx-im-message-retry-icon\"></span>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</template>\n\t\t\t\t\t</transition>\n\t\t\t\t\t<template v-if=\"showMenu && !message.sending && !message.error\">\n\t\t\t\t\t\t<div class=\"bx-im-message-status-menu\" :title=\"$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_MENU_TITLE')\" @click=\"clickByMessageMenu({message: message, event: $event})\">\n\t\t\t\t\t\t\t<span class=\"bx-im-message-menu-icon\"></span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</template> \n\t\t\t\t</div>\n\t\t\t\t<template v-if=\"dragIconShowLeft\">\n\t\t\t\t\t<div class=\"bx-im-message-reply bx-im-message-reply-left\">\n\t\t\t\t\t\t<div class=\"bx-im-message-reply-icon\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</template> \n\t\t\t</template>\n\t\t\t<template v-else-if=\"type !== MessageType.self\">\n\t\t\t\t<template v-if=\"dragIconShowLeft\">\n\t\t\t\t\t<div class=\"bx-im-message-reply bx-im-message-reply-left\">\n\t\t\t\t\t\t<div class=\"bx-im-message-reply-icon\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</template> \n\t\t\t\t<template v-if=\"type === MessageType.opponent\">\n\t\t\t\t\t<div v-if=\"showAvatar\" class=\"bx-im-message-avatar\" @click=\"clickByAvatar({user: userData, event: $event})\">\n\t\t\t\t\t\t<div :class=\"['bx-im-message-avatar-image', {\n\t\t\t\t\t\t\t\t'bx-im-message-avatar-image-default': !userData.avatar\n\t\t\t\t\t\t\t}]\"\n\t\t\t\t\t\t\t:style=\"{\n\t\t\t\t\t\t\t\tbackgroundColor: !userData.avatar? userData.color: '', \n\t\t\t\t\t\t\t\tbackgroundImage: userAvatar\n\t\t\t\t\t\t\t}\" \n\t\t\t\t\t\t\t:title=\"userData.name\"\n\t\t\t\t\t\t></div>\t\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t\t<div class=\"bx-im-message-box\">\n\t\t\t\t\t<component :is=\"componentBodyId\"\n\t\t\t\t\t\t:message=\"message\"\n\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t:chatId=\"chatId\"\n\t\t\t\t\t\t:messageType=\"type\"\n\t\t\t\t\t\t:files=\"filesData\"\n\t\t\t\t\t\t:showAvatar=\"showAvatar\"\n\t\t\t\t\t\t:showName=\"showName\"\n\t\t\t\t\t\t:enableReactions=\"enableReactions\"\n\t\t\t\t\t\t:referenceContentBodyClassName=\"referenceContentBodyClassName\"\n\t\t\t\t\t\t:referenceContentNameClassName=\"referenceContentNameClassName\"\n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t\t<div v-if=\"showMenu\"  class=\"bx-im-message-menu\" :title=\"$Bitrix.Loc.getMessage('IM_MESSENGER_MESSAGE_MENU_TITLE')\" @click=\"clickByMessageMenu({message: message, event: $event})\">\n\t\t\t\t\t<span class=\"bx-im-message-menu-icon\"></span>\n\t\t\t\t</div>\t\n\t\t\t\t<template v-if=\"dragIconShowRight\">\n\t\t\t\t\t<div class=\"bx-im-message-reply bx-im-message-reply-right\">\n\t\t\t\t\t\t<div class=\"bx-im-message-reply-icon\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</template> \n\t\t\t</template>\n\t\t</div>\n\t"
 	});
 
-}((this.window = this.window || {}),window,BX.Messenger.Model,BX,BX.Messenger.Const,BX.Messenger.Lib,BX.Messenger.Lib));
+}((this.window = this.window || {}),window,BX.Messenger.Model,BX,BX.Messenger.Const,BX.Messenger.Lib,BX.Messenger.Lib,BX.Event));
 //# sourceMappingURL=message.bundle.js.map

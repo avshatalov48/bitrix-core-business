@@ -26,9 +26,9 @@ class Mailer extends PHPMailer
 	public const KEEP_ALIVE_ALWAYS = 'keep_alive_always';
 	public const KEEP_ALIVE_NONE = 'keep_alive_none';
 	public const KEEP_ALIVE_OPTIONAL = 'keep_alive_optional';
-	private const HEADER_FROM_REGEX = '/(?<=From:).*?(?=\\n)/';
-	private const HEADER_CC_REGEX = '/(?<=Cc:).*?(?=\\n)/';
-	private const HEADER_BCC_REGEX = '/(?<=Bcc:).*?(?=\\n)/';
+	private const HEADER_FROM_REGEX = '/(?<=From:).*?(?=\\n)/iu';
+	private const HEADER_CC_REGEX = '/^\s*cc:(?<emails>.+)/im';
+	private const HEADER_BCC_REGEX = '/^\s*bcc:(?<emails>.+)/im';
 
 	private $configuration;
 
@@ -207,7 +207,7 @@ class Mailer extends PHPMailer
 
 		if ($matches)
 		{
-			$recipients = explode(',', $matches[0]);
+			$recipients = explode(',', trim($matches['emails']));
 
 			foreach ($recipients as $to)
 			{
@@ -227,7 +227,7 @@ class Mailer extends PHPMailer
 
 		if ($matches)
 		{
-			$recipients = explode(',', $matches[0]);
+			$recipients = explode(',', trim($matches['emails']));
 
 			foreach ($recipients as $to)
 			{

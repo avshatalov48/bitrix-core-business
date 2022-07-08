@@ -51,16 +51,11 @@ class CVoteAdminQuestions extends \CBitrixComponent
 			$this->arParams["GRID_ID"] = $this->gridId;
 			$filter = ($this->arParams["SHOW_FILTER"] == "Y" ? $this->initFilter() : []);
 			$order = (new Bitrix\Main\Grid\Options($this->gridId))->GetSorting(["sort" => ["ID" => "ASC"]]);
-			$order = $order["sort"];
-			if (!is_array_assoc($order) ||
-				!empty(array_diff($order, ["DESC", "ASC", "desc", "asc"]))
-			)
-			{
-				$order = ["ID" => "ASC"];
-			}
+			$order = is_array($order["sort"]) ? $order["sort"] : [];
+			$order = array_intersect($order, ["DESC", "ASC", "desc", "asc"]);
 			$this->arResult["DATA"] = \Bitrix\Vote\QuestionTable::getList(array(
-					"order" => $order,
-					"filter" => ["VOTE_ID" => $this->vote->getId()] + $filter
+				"order" => (empty($order) ? ["ID" => "ASC"] : $order),
+				"filter" => ["VOTE_ID" => $this->vote->getId()] + $filter
 			));
 			$this->arResult["FILTER"] = $filter;
 

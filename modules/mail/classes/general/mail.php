@@ -3,6 +3,7 @@
 use Bitrix\Mail\Helper\MailContact;
 use Bitrix\Main\Application;
 use Bitrix\Main\Text\BinaryString;
+use Bitrix\Main\Text\Emoji;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -232,7 +233,7 @@ class CAllMailBox
 	public $new_mess_count = 0;
 	public $deleted_mess_count = 0;
 
-	public static function GetList($arOrder=Array(), $arFilter=Array())
+	public static function GetList($arOrder=[], $arFilter=[])
 	{
 		global $DB;
 		$strSql =
@@ -242,13 +243,21 @@ class CAllMailBox
 				"WHERE MB.LID=L.LID AND C.ID=L.CULTURE_ID";
 
 		if(!is_array($arFilter))
-			$arFilter = Array();
-		$arSqlSearch = Array();
+		{
+			$arFilter = [];
+		}
+
+		$arSqlSearch = [];
 		$filter_keys = array_keys($arFilter);
 		for($i = 0, $n = count($filter_keys); $i < $n; $i++)
 		{
 			$val = $arFilter[$filter_keys[$i]];
-			if ($val === '') continue;
+
+			if (is_null($val) || $val === '')
+			{
+				continue;
+			}
+
 			$key = mb_strtoupper($filter_keys[$i]);
 
 			$strNegative = false;
@@ -1115,7 +1124,7 @@ class CMailHeader
 		else
 			$str = quoted_printable_decode(str_replace("_", " ", $str));
 
-		$str = \Bitrix\Main\Text\Emoji::encode($str);
+		$str = Emoji::encode($str);
 		$str = CMailUtil::ConvertCharset($str, $encoding, $charset);
 
 		return $str;
@@ -1514,7 +1523,7 @@ class CAllMailMessage
 		{
 			if (preg_match('/plain|html|text/', $content_type) && !preg_match('/x-vcard|csv/', $content_type))
 			{
-				$body = \Bitrix\Main\Text\Emoji::encode($body);
+				$body = Emoji::encode($body);
 				$body = CMailUtil::convertCharset($body, $header->charset, $charset);
 			}
 		}
@@ -1855,8 +1864,8 @@ class CAllMailMessage
 
 			if ($message_body_html)
 			{
-				CUtil::AdjustPcreBacktrackLimit($message_body_html);
-				
+				CUtil::AdjustPcreBacktrackLimit(strlen($message_body_html)*2);
+
 				$msg = array(
 					'html'        => $message_body_html,
 					'attachments' => array(),
@@ -1929,7 +1938,7 @@ class CAllMailMessage
 				{
 					if(!empty($arFieldsForFilter[$key]))
 					{
-						$arFieldsForFilter[$key] = \Bitrix\Main\Text\Emoji::decode($arFieldsForFilter[$key]);
+						$arFieldsForFilter[$key] = Emoji::decode($arFieldsForFilter[$key]);
 					}
 				}
 

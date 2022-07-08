@@ -145,7 +145,7 @@
 	padding: 7px 10px;
 	width: 330px;
 	border: 1px solid #c6cdd3;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	color: #000;
 	font: 400 16px/22px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }

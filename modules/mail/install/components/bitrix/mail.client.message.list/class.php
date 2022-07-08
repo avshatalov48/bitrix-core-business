@@ -34,50 +34,13 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 	protected $mailboxHelper;
 	/** @var Main\ErrorCollection */
 	private $errorCollection;
-	private $dirsMd5WithCounter;
 	private $directoryTreeForContextMenu;
 
-	private function getDirsMd5WithCounter($mailboxId)
+	public function syncMailCountersAction($mailboxId)
 	{
-		if($this->dirsMd5WithCounter)
-		{
-			return $this->dirsMd5WithCounter;
-		}
-
-		$foldersWithCounter = Internals\MailCounterTable::getList([
-			'runtime' => array(
-				new ORM\Fields\Relations\Reference(
-					'DIRECTORY',
-					'Bitrix\Mail\Internals\MailboxDirectoryTable',
-					[
-						'=this.ENTITY_ID' => 'ref.ID',
-					],
-					[
-						'join_type' => 'INNER',
-					]
-				),
-			),
-			'select' => [
-				'UNSEEN' => 'VALUE',
-				'DIR_MD5' => 'DIRECTORY.DIR_MD5'
-			],
-			'filter' => [
-				'=DIRECTORY.MAILBOX_ID' => $mailboxId,
-				'=ENTITY_TYPE' => 'DIR',
-				'=MAILBOX_ID' => $mailboxId,
-			],
-		]);
-
-		$directoriesWithCounter = [];
-
-		while ($folderTable = $foldersWithCounter->fetch())
-		{
-			$directoriesWithCounter[$folderTable['DIR_MD5']] = $folderTable;
-		}
-
-		$this->dirsMd5WithCounter = $directoriesWithCounter;
-
-		return $directoriesWithCounter;
+		$mailboxHelper = Mailbox::createInstance($mailboxId);
+		$mailboxHelper->syncCounters();
+		$mailboxHelper->sendCountersEvent();
 	}
 
 	private function getDateLastOpening($mailboxID)
@@ -139,64 +102,6 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 				$fields
 			);
 		}
-	}
-
-
-
-	public function getDirsWithUnseenMailCountersAction($mailboxId)
-	{
-		global $USER;
-		if (!Mail\Helper\Message::isMailboxOwner($mailboxId, $USER->GetID()))
-		{
-			$this->errorCollection[] = new \Bitrix\Main\Error('access denied');
-			return false;
-		}
-
-		$mailboxHelper = Mailbox::createInstance($mailboxId);
-		$syncDirs = $mailboxHelper->getDirsHelper()->getSyncDirs();
-		$defaultDirPath = $mailboxHelper->getDirsHelper()->getDefaultDirPath();
-		$dirs = [];
-
-		$dirsMd5WithCountOfUnseenMails = $this->getDirsMd5WithCounter($mailboxId);
-
-		$defaultDirPathId = null;
-
-		foreach ($syncDirs as $dir)
-		{
-			$newDir = [];
-			$newDir['path'] = $dir->getPath();
-			$newDir['name'] = $dir->getName();
-			$newDir['count'] = 0;
-			$currentDirMd5WithCountsOfUnseenMails = $dirsMd5WithCountOfUnseenMails[$dir->getDirMd5()];
-
-			if ($currentDirMd5WithCountsOfUnseenMails !== null)
-			{
-				$newDir['count'] = $currentDirMd5WithCountsOfUnseenMails['UNSEEN'];
-			}
-
-			if($newDir['path'] === $defaultDirPath)
-			{
-				$defaultDirPathId = count($dirs);
-			}
-
-			$dirs[] = $newDir;
-		}
-
-		if (empty($dirs))
-		{
-			$dirs = [
-				[
-					'count' => 0,
-					'path' => $defaultDirPath,
-					'name' => $defaultDirPath,
-				],
-			];
-		}
-
-		//inbox always on top
-		array_unshift( $dirs, array_splice($dirs, $defaultDirPathId, 1)[0] );
-
-		return $dirs;
 	}
 
 	public function getComponentId()
@@ -466,8 +371,11 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 					new ORM\Fields\ExpressionField(
 						'MESSAGE_CLOSURE', sprintf('EXISTS(%s)', $closureSubquery->getQuery()), ['ID', 'ID']
 					),
+					new ORM\Fields\ExpressionField('DISTINCT_ID', 'DISTINCT %s', ['ID']),
 				],
-				'select' => ['ID'],
+				'select' => [
+					'DISTINCT_ID'
+				],
 				'filter' => array_merge(
 					$filter,
 					$filter1,
@@ -481,11 +389,8 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 					'ID' => 'DESC',
 				],
 				'offset' => $navigation->getOffset(),
-				// todo delete this hack
-				/* '10' - stock limit for selections of gluing duplicate messages
-				(can be formed when moving letters). if you take it without a stock,
-				 then in case of gluing, the "show more" button disappears */
-				'limit' => $navigation->getLimit() + 1 + 10,
+				//+ 1 - Margin for determining the need to display the "show more" button
+				'limit' => $navigation->getLimit() + 1,
 			]
 		)->fetchAll();
 
@@ -545,7 +450,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 					'select' => $select,
 					'filter' => array_merge(
 						[
-							'@ID' => array_column($items, 'ID'),
+							'@ID' => array_column($items, 'DISTINCT_ID'),
 						],
 						$filter,
 						$filter2
@@ -593,7 +498,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 		$this->arResult['ROWS'] = $this->getRows($items, $navigation);
 		$this->arResult['NAV_OBJECT'] = $navigation;
 		$this->arResult['DIRECTORY_HIERARCHY_WITH_UNSEEN_MAIL_COUNTERS'] = $this->getDirectoryHierarchyForContextMenuAction($this->mailbox['ID']);
-		$this->arResult['DIRS_WITH_UNSEEN_MAIL_COUNTERS'] = $this->getDirsWithUnseenMailCountersAction($this->mailbox['ID']);
+		$this->arResult['DIRS_WITH_UNSEEN_MAIL_COUNTERS'] = $this->mailboxHelper->getDirsWithUnseenMailCounters();
 
 		if ($this->request->getPost('errorMessage'))
 		{
@@ -604,11 +509,11 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 			];
 		}
 
-		$this->arResult['defaultDir'] = $this->mailboxHelper->getDirsHelper()->getDefaultDirPath();
-		$this->arResult['spamDir'] = $this->mailboxHelper->getDirsHelper()->getSpamPath();
-		$this->arResult['trashDir'] = $this->mailboxHelper->getDirsHelper()->getTrashPath();
-		$this->arResult['outcomeDir'] = $this->mailboxHelper->getDirsHelper()->getOutcomePath();
-		$this->arResult['draftsDir'] = $this->mailboxHelper->getDirsHelper()->getDraftsPath();
+		$this->arResult['defaultDir'] = $this->mailboxHelper->getDirsHelper()->getDefaultDirPath(true);
+		$this->arResult['spamDir'] = $this->mailboxHelper->getDirsHelper()->getSpamPath(true);
+		$this->arResult['trashDir'] = $this->mailboxHelper->getDirsHelper()->getTrashPath(true);
+		$this->arResult['outcomeDir'] = $this->mailboxHelper->getDirsHelper()->getOutcomePath(true);
+		$this->arResult['draftsDir'] = $this->mailboxHelper->getDirsHelper()->getDraftsPath(true);
 
 		$this->arResult['foldersItems'] = $this->getDirectoryHierarchyForContextMenuAction($this->mailbox['ID']);
 
@@ -683,7 +588,6 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 			$dataNow = localtime((time() + \CTimeZone::getOffset()),true);
 			$today = mktime(0, 0, 0, $dataNow['tm_mon']+1, $dataNow['tm_mday'], $dataNow['tm_year']+1900);
 			$fieldDateInTimeStamp = makeTimeStamp($item['FIELD_DATE']);
-			$dateDisplayFormat = false;
 
 			$titleDateFormat = Context::getCurrent()->getCulture()->getFullDateFormat()."&#013;H:i:s";
 
@@ -1305,7 +1209,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 
 			if ($dir->getPath() !== $defaultDirPath)
 			{
-				$dirPath = $dir->getPath();
+				$dirPath = $dir->getPath(true);
 			}
 
 			$dirs[$dirPath] = $dir->getName();
@@ -1423,25 +1327,25 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 			'income' => [
 				'name' => Loc::getMessage('MAIL_MESSAGE_LIST_FILTER_PRESET_INCOME'),
 				'fields' => [
-					'DIR' => $this->mailboxHelper->getDirsHelper()->getIncomePath(),
+					'DIR' => $this->mailboxHelper->getDirsHelper()->getIncomePath(true),
 				],
 			],
 			'outcome' => [
 				'name' => Loc::getMessage('MAIL_MESSAGE_LIST_FILTER_PRESET_OUTCOME'),
 				'fields' => [
-					'DIR' => $this->mailboxHelper->getDirsHelper()->getOutcomePath(),
+					'DIR' => $this->mailboxHelper->getDirsHelper()->getOutcomePath(true),
 				],
 			],
 			'spam' => [
 				'name' => Loc::getMessage('MAIL_MESSAGE_LIST_FILTER_PRESET_SPAM'),
 				'fields' => [
-					'DIR' => $this->mailboxHelper->getDirsHelper()->getSpamPath(),
+					'DIR' => $this->mailboxHelper->getDirsHelper()->getSpamPath(true),
 				],
 			],
 			'trash' => [
 				'name' => Loc::getMessage('MAIL_MESSAGE_LIST_FILTER_PRESET_TRASH'),
 				'fields' => [
-					'DIR' => $this->mailboxHelper->getDirsHelper()->getTrashPath(),
+					'DIR' => $this->mailboxHelper->getDirsHelper()->getTrashPath(true),
 				],
 			],
 		];
@@ -1527,7 +1431,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 
 	public function getDirectoryHierarchyForContextMenuAction($mailboxId)
 	{
-		$directoriesWithNumberOfUnreadMessages = $this->getDirsMd5WithCounter($mailboxId);
+		$directoriesWithNumberOfUnreadMessages = $this->mailboxHelper->getDirsMd5WithCounter($mailboxId);
 		return $this->buildDirectoryTreeForContextMenu($directoriesWithNumberOfUnreadMessages);
 	}
 
@@ -1544,7 +1448,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 
 		foreach ($dirs as $dir)
 		{
-			$path = $dir->getPath();
+			$path = $dir->getPath(true);
 			$hasChild = (bool)preg_match('/(HasChildren)/ix', $dir->getFlags());
 			$isCounted = ($dir->isTrash() || $dir->isSpam()) ? false : true;
 

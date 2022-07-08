@@ -1,4 +1,4 @@
-(function (exports,ui_progressbarjs_uploader,ui_vue_vuex,im_model,im_const,ui_vue_components_audioplayer,ui_vue_directives_lazyload,ui_icons,ui_vue_components_socialvideo,im_lib_utils,ui_vue) {
+(function (exports,ui_progressbarjs_uploader,ui_vue_vuex,im_model,main_core_events,im_const,ui_vue_components_audioplayer,ui_vue_directives_lazyload,ui_icons,ui_vue_components_socialvideo,im_lib_utils,ui_vue) {
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -6,7 +6,7 @@
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	ui_vue.BitrixVue.component('bx-im-view-element-file', {
 	  /*
-	   * @emits 'uploadCancel' {file: object, event: MouseEvent}
+	   * @emits EventType.dialog.clickOnUploadCancel {file: object, event: MouseEvent}
 	   */
 	  mounted: function mounted() {
 	    this.createProgressbar();
@@ -114,7 +114,7 @@
 	          megabyte: this.localize['IM_MESSENGER_ELEMENT_FILE_SIZE_MB']
 	        },
 	        cancelCallback: this.file.progress < 0 ? null : function (event) {
-	          _this.$emit('uploadCancel', {
+	          main_core_events.EventEmitter.emit(im_const.EventType.dialog.clickOnUploadCancel, {
 	            file: _this.file,
 	            event: event
 	          });
@@ -361,5 +361,5 @@
 	  template: "\n\t\t<div :class=\"['bx-im-element-file-video', {'bx-im-element-file-video-safari': isSafari}]\" :style=\"styleBoxSizes\" ref=\"container\">\n\t\t\t<bx-socialvideo \n\t\t\t\t:id=\"file.id\" \n\t\t\t\t:src=\"file.urlShow\" \n\t\t\t\t:preview=\"file.urlPreview\" \n\t\t\t\t:containerStyle=\"styleBoxSizes\"\n\t\t\t\t:elementStyle=\"styleVideoSizes\"\n\t\t\t\t:autoplay=\"autoplay\"\n\t\t\t\t:showControls=\"!file.viewerAttrs.viewerType\"\n\t\t\t\t:data-viewer=\"file.viewerAttrs.viewer === null\"\n\t\t\t\t:data-viewer-type=\"file.viewerAttrs.viewerType? file.viewerAttrs.viewerType: false\"\n\t\t\t\t:data-src=\"file.viewerAttrs.src? file.viewerAttrs.src: false\"\n\t\t\t\t:data-viewer-group-by=\"file.viewerAttrs.viewerGroupBy? file.viewerAttrs.viewerGroupBy: false\"\n\t\t\t\t:data-title=\"file.viewerAttrs.title? file.viewerAttrs.title: false\"\n\t\t\t\t:data-actions=\"file.viewerAttrs.action? file.viewerAttrs.actions: false\"\n\t\t\t\t@click=\"download(file, $event)\"\n\t\t\t/>\n\t\t</div>\n\t"
 	});
 
-}((this.window = this.window || {}),BX.ProgressBarJs,BX,BX.Messenger.Model,BX.Messenger.Const,window,window,BX,window,BX.Messenger.Lib,BX));
+}((this.window = this.window || {}),BX.ProgressBarJs,BX,BX.Messenger.Model,BX.Event,BX.Messenger.Const,window,window,BX,window,BX.Messenger.Lib,BX));
 //# sourceMappingURL=media.bundle.js.map

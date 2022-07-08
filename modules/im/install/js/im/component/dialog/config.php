@@ -13,16 +13,15 @@ return [
 	],
 	'rel' => [
 		'im.view.message',
-		'im.mixin',
 		'im.lib.utils',
 		'im.lib.animation',
 		'im.lib.logger',
 		'main.polyfill.intersectionobserver',
-		'ui.vue.vuex',
 		'ui.vue',
 		'im.const',
 		'main.core',
 		'main.core.events',
+		'ui.vue.vuex',
 	],
 	'skip_core' => false,
 ];
